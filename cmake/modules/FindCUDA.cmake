@@ -369,7 +369,9 @@ macro(CUDA_FIND_HELPER_FILE _name _extension)
   # CMAKE_CURRENT_LIST_FILE contains the full path to the file currently being
   # processed.  Using this variable, we can pull out the current path, and
   # provide a way to get access to the other files we need local to here.
-  get_filename_component(CMAKE_CURRENT_LIST_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+# Note: The next two lines have been modified
+#  get_filename_component(CMAKE_CURRENT_LIST_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+  get_filename_component(CMAKE_CURRENT_LIST_DIR "${CMAKE_ROOT}/Modules/FindCUDA" PATH)
   set(CUDA_${_name} "${CMAKE_CURRENT_LIST_DIR}/FindCUDA/${_full_name}")
   if(NOT EXISTS "${CUDA_${_name}}")
     set(error_message "${_full_name} not found in ${CMAKE_CURRENT_LIST_DIR}/FindCUDA")
@@ -1001,8 +1003,9 @@ set(CUDA_TOOLKIT_TARGET_DIR_INTERNAL "${CUDA_TOOLKIT_TARGET_DIR}" CACHE INTERNAL
 set(CUDA_SDK_ROOT_DIR_INTERNAL "${CUDA_SDK_ROOT_DIR}" CACHE INTERNAL
   "This is the value of the last time CUDA_SDK_ROOT_DIR was set successfully." FORCE)
 
-include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
-
+#Note: Next two lines are modified
+#include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
+include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(CUDA
   REQUIRED_VARS
     CUDA_TOOLKIT_ROOT_DIR
@@ -1677,11 +1680,59 @@ function(CUDA_LINK_SEPARABLE_COMPILATION_OBJECTS output_file cuda_target options
       set(_verbatim "")
     endif()
 
-    if (do_obj_build_rule)
+# NOTE: from here to 'NOTE: END', code copy pasted and slightly adapted from
+# CUDA_WRAP_SRCS (in this file) and the content of FindCUDA/run_nvcc.cmake
+  set(_cuda_wrap_cmake_options ${ARGN})
+  CUDA_PARSE_NVCC_OPTIONS(CUDA_WRAP_OPTION_NVCC_FLAGS ${_cuda_wrap_options})
+
+  # Figure out if we are building a shared library.  BUILD_SHARED_LIBS is
+  # respected in CUDA_ADD_LIBRARY.
+  set(_cuda_build_shared_libs FALSE)
+  # SHARED, MODULE
+  list(FIND _cuda_wrap_cmake_options SHARED _cuda_found_SHARED)
+  list(FIND _cuda_wrap_cmake_options MODULE _cuda_found_MODULE)
+  if(_cuda_found_SHARED GREATER -1 OR _cuda_found_MODULE GREATER -1)
+    set(_cuda_build_shared_libs TRUE)
+  endif()
+  # STATIC
+  list(FIND _cuda_wrap_cmake_options STATIC _cuda_found_STATIC)
+  if(_cuda_found_STATIC GREATER -1)
+    set(_cuda_build_shared_libs FALSE)
+  endif()
+
+  # CUDA_HOST_FLAGS
+  if(_cuda_build_shared_libs)
+    # If we are setting up code for a shared library, then we need to add extra flags for
+    # compiling objects for shared libraries.
+    set(CUDA_HOST_SHARED_FLAGS ${CMAKE_SHARED_LIBRARY_${CUDA_C_OR_CXX}_FLAGS})
+  else()
+    set(CUDA_HOST_SHARED_FLAGS)
+  endif()
+  # Only add the CMAKE_{C,CXX}_FLAGS if we are propagating host flags.  We
+  # always need to set the SHARED_FLAGS, though.
+  if(CUDA_PROPAGATE_HOST_FLAGS)
+    set(_cuda_host_flags ${CMAKE_${CUDA_C_OR_CXX}_FLAGS} ${CUDA_HOST_SHARED_FLAGS})
+  else()
+    set(_cuda_host_flags ${CUDA_HOST_SHARED_FLAGS})
+  endif()
+
+foreach(flag ${_cuda_host_flags} ${CMAKE_HOST_FLAGS} ${CMAKE_HOST_FLAGS_${build_configuration}})
+  # Extra quotes are added around each flag to help nvcc parse out flags with spaces.
+  set(nvcc_host_compiler_flags "${nvcc_host_compiler_flags},\"${flag}\"")
+endforeach()
+if (nvcc_host_compiler_flags)
+  set(nvcc_host_compiler_flags "-Xcompiler" ${nvcc_host_compiler_flags})
+endif()
+
+#message(STATUS2: "-${CUDA_HOST_SHARED_FLAGS}= -${nvcc_host_compiler_flags}=")
+
+# NOTE: END
+
+   if (do_obj_build_rule)
       add_custom_command(
         OUTPUT ${output_file}
         DEPENDS ${object_files}
-        COMMAND ${CUDA_NVCC_EXECUTABLE} ${nvcc_flags} -dlink ${object_files} -o ${output_file}
+        COMMAND ${CUDA_NVCC_EXECUTABLE} ${nvcc_flags} ${nvcc_host_compiler_flags} -dlink ${object_files} -o ${output_file}
         ${flags}
         COMMENT "Building NVCC intermediate link file ${output_file_relative_path}"
         ${_verbatim}
@@ -1731,7 +1782,7 @@ macro(CUDA_ADD_LIBRARY cuda_target)
   # Add a link phase for the separable compilation if it has been enabled.  If
   # it has been enabled then the ${cuda_target}_SEPARABLE_COMPILATION_OBJECTS
   # variable will have been defined.
-  CUDA_LINK_SEPARABLE_COMPILATION_OBJECTS("${link_file}" ${cuda_target} "${_options}" "${${cuda_target}_SEPARABLE_COMPILATION_OBJECTS}")
+  CUDA_LINK_SEPARABLE_COMPILATION_OBJECTS("${link_file}" ${cuda_target} "${_options}" "${${cuda_target}_SEPARABLE_COMPILATION_OBJECTS}" ${_cmake_options} )
 
   target_link_libraries(${cuda_target}
     ${CUDA_LIBRARIES}
