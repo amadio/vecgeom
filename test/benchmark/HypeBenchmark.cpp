@@ -1,0 +1,31 @@
+/// \file HypeBenchmark.h
+/// \author Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
+
+#include "volumes/LogicalVolume.h"
+#include "volumes/Box.h"
+#include "volumes/Hype.h"
+#include "volumes/Parallelepiped.h"
+#include "benchmarking/Benchmarker.h"
+#include "management/GeoManager.h"
+
+using namespace vecgeom;
+
+int main() {
+
+  UnplacedBox worldUnplaced = UnplacedBox(10., 10., 10.);
+  UnplacedParallelepiped paraUnplaced = UnplacedParallelepiped(3., 3., 3., 14.9, 39, 3.22); //to change
+  LogicalVolume world = LogicalVolume("w0rld", &worldUnplaced);
+  LogicalVolume para = LogicalVolume("p4r4", &paraUnplaced);
+  world.PlaceDaughter(&para, &Transformation3D::kIdentity);
+
+  VPlacedVolume *worldPlaced = world.Place();
+
+  GeoManager::Instance().set_world(worldPlaced);
+
+  Benchmarker tester(GeoManager::Instance().world());
+  tester.SetVerbosity(3);
+  // tester.SetPointCount(128);
+  tester.RunBenchmark();
+
+  return 0;
+}
