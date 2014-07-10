@@ -1,5 +1,4 @@
-/// \file SpecializedHype.h
-/// \author Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
+/// @file SpecializedParaboloid.h
 
 #ifndef VECGEOM_VOLUMES_SPECIALIZEDHYPE_H_
 #define VECGEOM_VOLUMES_SPECIALIZEDHYPE_H_

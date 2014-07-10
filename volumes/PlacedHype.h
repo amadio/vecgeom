@@ -1,5 +1,17 @@
-/// \file PlacedHype.h
+//===-- volumes/PlacedHype.h - Instruction class definition -------*- C++ -*-===//
+//
+//                     GeantV - VecGeom
+//
+// This file is distributed under the LGPL
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+///
+/// \file volumes/PlacedHype.h 
 /// \author Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
+/// \brief This file contains the declaration of the PlacedHype class
+//===----------------------------------------------------------------------===//
+
 
 #ifndef VECGEOM_VOLUMES_PLACEDHYPE_H_
 #define VECGEOM_VOLUMES_PLACEDHYPE_H_
@@ -39,29 +51,61 @@ public:
 
 #endif
 
-  virtual ~PlacedHype() {}
-
-  VECGEOM_CUDA_HEADER_BOTH
-  UnplacedHype const* GetUnplacedVolume() const {
-    return static_cast<UnplacedHype const *>(
+    virtual ~PlacedHype() {}
+    VECGEOM_CUDA_HEADER_BOTH
+    UnplacedHype const* GetUnplacedVolume() const {
+        return static_cast<UnplacedHype const *>(
         logical_volume()->unplaced_volume());
-  }
+    }
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    UnplacedHype * GetUnplacedVolumeNonConst() const {
+        return static_cast<UnplacedHype *>(const_cast<VUnplacedVolume *>(
+            logical_volume()->unplaced_volume()));
+    }
+    
+    //get
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetRmin() const{ return GetUnplacedVolume()->GetRmin();}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetRmax() const{ return GetUnplacedVolume()->GetRmax();}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetStIn() const{ return GetUnplacedVolume()->GetStIn();}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetStOut() const{ return GetUnplacedVolume()->GetStOut();}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetTIn() const{ return GetUnplacedVolume()->GetTIn();}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetTOut() const{ return GetUnplacedVolume()->GetTOut();}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetTIn2() const{ return GetUnplacedVolume()->GetTIn2();}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetTOut2() const{ return GetUnplacedVolume()->GetTOut2();}
+    
 
+    
 #ifdef VECGEOM_BENCHMARK
-  virtual VPlacedVolume const* ConvertToUnspecialized() const;
+    virtual VPlacedVolume const* ConvertToUnspecialized() const;
 #ifdef VECGEOM_ROOT
-  virtual TGeoShape const* ConvertToRoot() const;
+    virtual TGeoShape const* ConvertToRoot() const;
 #endif
 #ifdef VECGEOM_USOLIDS
-  virtual ::VUSolid const* ConvertToUSolids() const;
+    virtual ::VUSolid const* ConvertToUSolids() const;
 #endif
 #endif // VECGEOM_BENCHMARK
 
 #ifdef VECGEOM_CUDA_INTERFACE
-  virtual VPlacedVolume* CopyToGpu(LogicalVolume const *const logical_volume,
+    virtual VPlacedVolume* CopyToGpu(LogicalVolume const *const logical_volume,
                                    Transformation3D const *const transformation,
                                    VPlacedVolume *const gpu_ptr) const;
-  virtual VPlacedVolume* CopyToGpu(
+    virtual VPlacedVolume* CopyToGpu(
       LogicalVolume const *const logical_volume,
       Transformation3D const *const transformation) const;
 #endif

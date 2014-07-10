@@ -1,9 +1,13 @@
 /// \file PlacedHype.cpp
+/// \author Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
 
 #include "volumes/PlacedHype.h"
 
 #include "volumes/Hype.h"
 
+#if defined(VECGEOM_BENCHMARK) && defined(VECGEOM_ROOT)
+#include "TGeoHype.h"
+#endif
 #include <cassert>
 
 namespace VECGEOM_NAMESPACE {
@@ -11,20 +15,21 @@ namespace VECGEOM_NAMESPACE {
 #ifdef VECGEOM_BENCHMARK
 
 VPlacedVolume const* PlacedHype::ConvertToUnspecialized() const {
-  assert(0 && "NYI");
-  return NULL;
+    std::cout<<"Convert VEC*********\n";
+    //return new SimpleHype(GetLabel().c_str(), logical_volume(),transformation());
 }
 
 #ifdef VECGEOM_ROOT
 TGeoShape const* PlacedHype::ConvertToRoot() const {
-  assert(0 && "NYI");
-  return NULL;
+    std::cout<<"Convert ROOT*********\n";
+   
+    
 }
 #endif
 
 #ifdef VECGEOM_USOLIDS
 ::VUSolid const* PlacedHype::ConvertToUSolids() const {
-  assert(0 && "NYI");
+  assert(0 && "Hype unsupported for USolids.");
   return NULL;
 }
 #endif

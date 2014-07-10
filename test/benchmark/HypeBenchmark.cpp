@@ -11,21 +11,20 @@
 using namespace vecgeom;
 
 int main() {
+    
+    UnplacedBox worldUnplaced = UnplacedBox(10., 10., 10.);
+    UnplacedHype hypeUnplaced = UnplacedHype(3., 20, 5, 20, 8);
+    LogicalVolume world = LogicalVolume("w0rld", &worldUnplaced);
+    LogicalVolume hype = LogicalVolume("p4r4", &hypeUnplaced);
+    world.PlaceDaughter(&hype, &Transformation3D::kIdentity);
 
-  UnplacedBox worldUnplaced = UnplacedBox(10., 10., 10.);
-  UnplacedParallelepiped paraUnplaced = UnplacedParallelepiped(3., 3., 3., 14.9, 39, 3.22); //to change
-  LogicalVolume world = LogicalVolume("w0rld", &worldUnplaced);
-  LogicalVolume para = LogicalVolume("p4r4", &paraUnplaced);
-  world.PlaceDaughter(&para, &Transformation3D::kIdentity);
+    VPlacedVolume *worldPlaced = world.Place();
+    GeoManager::Instance().set_world(worldPlaced);
 
-  VPlacedVolume *worldPlaced = world.Place();
-
-  GeoManager::Instance().set_world(worldPlaced);
-
-  Benchmarker tester(GeoManager::Instance().world());
-  tester.SetVerbosity(3);
-  // tester.SetPointCount(128);
-  tester.RunBenchmark();
-
-  return 0;
+    Benchmarker tester(GeoManager::Instance().world());
+    tester.SetVerbosity(3);
+    // tester.SetPointCount(128);
+    tester.RunBenchmark();
+    
+    return 0;
 }

@@ -1,5 +1,5 @@
-/// \file Hype.h
-/// \author Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
+/// @file Hype.h
+
 #ifndef VECGEOM_VOLUMES_HYPE_H_
 #define VECGEOM_VOLUMES_HYPE_H_
 

@@ -1,4 +1,5 @@
 /// \file UnplacedHype.cpp
+/// \author Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
 
 #include "volumes/UnplacedHype.h"
 
@@ -6,16 +7,50 @@
 #include "volumes/SpecializedHype.h"
 
 #include <stdio.h>
+#include "base/RNG.h"
+
 
 namespace VECGEOM_NAMESPACE {
 
-void UnplacedHype::Print() const {
-  // NYI
-}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    void UnplacedHype::SetParameters(const Precision rMin, const Precision stIn,
+                                     const Precision rMax, const Precision stOut,
+                                     const Precision dz){
+        
+        //TODO: add eventual check
+        fRmin=rMin;
+        fStIn=stIn;
+        fRmin=rMax;
+        fStIn=stOut;
+        fDz=dz;
+    }
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    UnplacedHype::UnplacedHype(const Precision rMin, const Precision stIn,
+                               const Precision rMax, const Precision stOut,
+                               const Precision dz){
+        
+        SetParameters(rMin, stIn, rMax, stOut, dz);
+        
+        fTIn=tan(stIn*kDegToRad);       //Tangent of the Inner stereo angle
+        fTOut=tan(stOut*kDegToRad);     //Tangent of the Outer stereo angle
+        fTIn2=fTIn*fTIn;                //squared value of fTIn
+        fTOut2=fTOut*fTOut;             //squared value of fTOut
+        
+    }
 
-void UnplacedHype::Print(std::ostream &os) const {
-  // NYI
-}
+
+//__________________________________________________________________
+    
+    void UnplacedHype::Print() const {
+        
+    }
+//__________________________________________________________________
+    
+    void UnplacedHype::Print(std::ostream &os) const {
+        
+    }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECGEOM_CUDA_HEADER_DEVICE
