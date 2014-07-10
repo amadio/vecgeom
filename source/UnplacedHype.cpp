@@ -38,6 +38,9 @@ namespace VECGEOM_NAMESPACE {
         fTIn2=fTIn*fTIn;                //squared value of fTIn
         fTOut2=fTOut*fTOut;             //squared value of fTOut
         
+        fRmin2=fRmin*fRmin;
+        fRmax2=fRmax*fRmax;
+        
     }
 
 

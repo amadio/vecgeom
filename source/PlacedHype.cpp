@@ -16,13 +16,13 @@ namespace VECGEOM_NAMESPACE {
 
 VPlacedVolume const* PlacedHype::ConvertToUnspecialized() const {
     std::cout<<"Convert VEC*********\n";
-    //return new SimpleHype(GetLabel().c_str(), logical_volume(),transformation());
+    return new SimpleHype(GetLabel().c_str(), logical_volume(),transformation());
 }
 
 #ifdef VECGEOM_ROOT
 TGeoShape const* PlacedHype::ConvertToRoot() const {
     std::cout<<"Convert ROOT*********\n";
-   
+   return new TGeoHype(GetLabel().c_str(), GetRmin(), GetStIn(), GetRmax(), GetStOut(), GetDz());
     
 }
 #endif

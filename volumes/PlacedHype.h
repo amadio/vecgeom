@@ -72,6 +72,12 @@ public:
     Precision GetRmax() const{ return GetUnplacedVolume()->GetRmax();}
     
     VECGEOM_CUDA_HEADER_BOTH
+    Precision GetRmin2() const{ return GetUnplacedVolume()->GetRmin2();}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetRmax2() const{ return GetUnplacedVolume()->GetRmax2();}
+    
+    VECGEOM_CUDA_HEADER_BOTH
     Precision GetStIn() const{ return GetUnplacedVolume()->GetStIn();}
     
     VECGEOM_CUDA_HEADER_BOTH
@@ -88,6 +94,9 @@ public:
     
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetTOut2() const{ return GetUnplacedVolume()->GetTOut2();}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetDz() const{ return GetUnplacedVolume()->GetDz();}
     
 
     

@@ -49,9 +49,7 @@ struct HypeImplementation {
                                Vector3D<typename Backend::precision_v> point,
                                typename Backend::int_v &inside) {
         
-        
-        
-    }
+            }
 
     
     /// \brief UnplacedContains (ROOT STYLE): Inside method that does NOT take account of the surface for an Unplaced Hype
@@ -61,6 +59,8 @@ struct HypeImplementation {
     static void UnplacedContains(UnplacedHype const &unplaced,
         Vector3D<typename Backend::precision_v> point,
         typename Backend::bool_v &inside) {
+        
+        
         
         
     }

@@ -12,29 +12,15 @@
 /// \brief This file contains the declaration of the UnplacedHype class
 ///
 /// _____________________________________________________________________________
-/// A Hype is the solid bounded by the following surfaces:
+///Hyperboloid class is defined by 5 parameters
+///A Hype is the solid bounded by the following surfaces:
 /// - 2 planes parallel with XY cutting the Z axis at Z=-dz and Z=+dz
-/// - the surface of revolution of a parabola described by:
-/// z = a*(x*x + y*y) + b
-/// The parameters a and b are automatically computed from:
-/// - rlo is the radius of the circle of intersection between the
-/// parabolic surface and the plane z = -dz
-/// - rhi is the radius of the circle of intersection between the
-/// parabolic surface and the plane z = +dz
-/// -dz = a*rlo^2 + b
-/// dz = a*rhi^2 + b      where: rhi>rlo, both >= 0
-///
-/// note:
-/// dd = 1./(rhi^2 - rlo^2);
-/// a = 2.*dz*dd;
-/// b = - dz * (rlo^2 + rhi^2)*dd;
-///
-/// in respect with the G4 implementation we have:
-/// k1=1/a
-/// k2=-b/a
-///
-/// a=1/k1
-/// b=-k2/k1
+///- Inner and outer lateral surfaces. These represent the surfaces
+///described by the revolution of 2 hyperbolas about the Z axis:
+/// r^2 - (t*z)^2 = a^2 where:
+/// r = distance between hyperbola and Z axis at coordinate z
+/// t = tangent of the stereo angle (angle made by hyperbola asimptotic lines and Z axis). t=0 means cylindrical surface.
+/// a = distance between hyperbola and Z axis at z=0
 //===----------------------------------------------------------------------===//
 
 #ifndef VECGEOM_VOLUMES_UNPLACEDHYPE_H_
@@ -50,17 +36,19 @@ namespace VECGEOM_NAMESPACE {
 class UnplacedHype : public VUnplacedVolume, AlignedBase {
 
 private:
-    Precision fRmin;
-    Precision fStIn;
-    Precision fRmax;
-    Precision fStOut;
-    Precision fDz;
+    Precision fRmin;    //Inner radius
+    Precision fStIn;    //Stereo angle for inner surface
+    Precision fRmax;    //Outer radius
+    Precision fStOut;   //Stereo angle for outer surface
+    Precision fDz;      //z-coordinate of the cutting planes
     
     //Precomputed Values
     Precision fTIn;     //Tangent of the Inner stereo angle
     Precision fTOut;    //Tangent of the Outer stereo angle
-    Precision fTIn2;    //squared value of fTIn
-    Precision fTOut2;   //squared value of fTOut
+    Precision fTIn2;    //Squared value of fTIn
+    Precision fTOut2;   //Squared value of fTOut
+    Precision fRmin2;   //Squared Inner radius
+    Precision fRmax2;   //Squared Outer radius
     
 
     
@@ -76,6 +64,12 @@ public:
 
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetRmax() const{ return fRmax;}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetRmin2() const{ return fRmin2;}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetRmax2() const{ return fRmax2;}
 
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetStIn() const{ return fStIn;}
@@ -94,6 +88,9 @@ public:
     
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetTOut2() const{ return fTOut2;}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetDz() const{ return fDz;}
     
     //set
     VECGEOM_CUDA_HEADER_BOTH
