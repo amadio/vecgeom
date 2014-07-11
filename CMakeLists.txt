@@ -208,7 +208,8 @@ if (ROOT)
 
   include_directories(AFTER SYSTEM ${ROOT_INCLUDE_DIR})
   link_directories(${ROOT_LIBRARY_DIR})
-  set(LIBS ${LIBS} "-lCint -lCore -lMathCore -lRIO -lThread -lGeom")
+  set(LIBS ${LIBS} "-lCint -lCore -lMathCore -lRIO -lThread -lGeom -lGui -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lm -ldl")
+  #set(LIBS ${LIBS} "-lCint -lCore -lMathCore -lRIO -lThread -lGeom")
   set(SRC_EXTERNAL ${SRC_EXTERNAL}
     source/PlacedRootVolume.cpp
     source/RootGeoManager.cpp
@@ -368,6 +369,7 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${CMAKE_SOURCE_DIR}/test/benchmark/MultiBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ParallelepipedBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/HypeBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/HypeTest.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TubeBenchmark.cpp
 )
 set(TEST_EXECUTABLES_CUDA
