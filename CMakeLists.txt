@@ -367,7 +367,6 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${CMAKE_SOURCE_DIR}/test/benchmark/BoxBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/MultiBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ParallelepipedBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/ParaboloidBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/HypeBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TubeBenchmark.cpp
 )

@@ -60,7 +60,30 @@ struct HypeImplementation {
         Vector3D<typename Backend::precision_v> point,
         typename Backend::bool_v &inside) {
         
+        typedef typename Backend::precision_v Float_t;
+        typedef typename Backend::bool_v Bool_t;
         
+        //is above the solid
+        Float_t absZ=Abs(point.z());
+        Bool_t isAboveOrBelowSolid= (Abs(point.z())>unplaced.GetDz());
+        Bool_t done(isAboveOrBelowSolid);
+        inside=Backend::kFalse;
+        
+        if(Backend::early_returns && done==Backend::kTrue) return;
+        
+        Float_t r2=point.x()*point.x()+point.y()*point.y();
+        
+        //check if points are outside of the outer surface or outside the inner surface
+        
+        //compute r^2 at a given z coordinate, for the outer hyperbolas
+        Float_t rOuter2=unplaced.GetRmax2()+unplaced.GetTOut2()*point.z()*point.z();
+        //compute r^2 at a given z coordinate, for the inner hyperbolas
+        Float_t rInner2=unplaced.GetRmin2()+unplaced.GetTIn2()*point.z()*point.z();
+        
+        Bool_t isOutsideHyperbolicSurface=r2>rOuter2 || r2<rInner2;
+        done|= isOutsideHyperbolicSurface;
+        
+        MaskedAssign(!done, Backend::kTrue, &inside);
         
         
     }

@@ -21,8 +21,8 @@ namespace VECGEOM_NAMESPACE {
         //TODO: add eventual check
         fRmin=rMin;
         fStIn=stIn;
-        fRmin=rMax;
-        fStIn=stOut;
+        fRmax=rMax;
+        fStOut=stOut;
         fDz=dz;
     }
     
