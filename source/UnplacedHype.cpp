@@ -5,6 +5,8 @@
 
 #include "management/VolumeFactory.h"
 #include "volumes/SpecializedHype.h"
+#include "volumes/kernel/shapetypes/HypeTypes.h"
+#include "volumes/utilities/GenerationUtilities.h"
 
 #include <stdio.h>
 #include "base/RNG.h"
@@ -41,6 +43,11 @@ namespace VECGEOM_NAMESPACE {
         fRmin2=fRmin*fRmin;
         fRmax2=fRmax*fRmax;
         
+        fEndInnerRadius2=(fTIn*fDz)*(fTIn*fDz)+fRmin*fRmin;
+        fEndOuterRadius2=(fTOut*fDz)*(fTOut*fDz)+fRmin*fRmin;
+        fEndInnerRadius=Sqrt(fEndInnerRadius2);
+        fEndOuterRadius=Sqrt(fEndOuterRadius2);
+        
     }
 
 
@@ -54,7 +61,7 @@ namespace VECGEOM_NAMESPACE {
     void UnplacedHype::Print(std::ostream &os) const {
         
     }
-
+    
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECGEOM_CUDA_HEADER_DEVICE
 VPlacedVolume* UnplacedHype::Create(
@@ -64,7 +71,7 @@ VPlacedVolume* UnplacedHype::Create(
     const int id,
 #endif
     VPlacedVolume *const placement) {
-  if (placement) {
+    if (placement) {
     return new(placement) SpecializedHype<transCodeT, rotCodeT>(
 #ifdef VECGEOM_NVCC
         logical_volume, transformation, NULL, id); // TODO: add bounding box?

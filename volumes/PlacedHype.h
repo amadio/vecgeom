@@ -98,6 +98,18 @@ public:
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetDz() const{ return GetUnplacedVolume()->GetDz();}
     
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetEndInnerRadius() const{ return GetUnplacedVolume()->GetEndInnerRadius();}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetEndInnerRadius2() const{ return GetUnplacedVolume()->GetEndInnerRadius2();}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetEndOuterRadius() const{ return GetUnplacedVolume()->GetEndOuterRadius();}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetEndOuterRadius2() const{ return GetUnplacedVolume()->GetEndOuterRadius2();}
+    
 
     
 #ifdef VECGEOM_BENCHMARK

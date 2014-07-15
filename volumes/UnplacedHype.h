@@ -50,6 +50,12 @@ private:
     Precision fRmin2;   //Squared Inner radius
     Precision fRmax2;   //Squared Outer radius
     
+    Precision fEndInnerRadius2;  // Squared endcap Inner Radius
+    Precision fEndOuterRadius2;  // Squared endcap Outer Radius
+    Precision fEndInnerRadius;   // Endcap Inner Radius
+    Precision fEndOuterRadius;   // Endcap Outer Radius
+
+    
 
     
 public:
@@ -91,6 +97,19 @@ public:
     
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetDz() const{ return fDz;}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetEndInnerRadius() const{ return fEndInnerRadius;}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetEndInnerRadius2() const{ return fEndInnerRadius2;}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetEndOuterRadius() const{ return fEndOuterRadius;}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetEndOuterRadius2() const{ return fEndOuterRadius2;}
+    
     
     //set
     VECGEOM_CUDA_HEADER_BOTH
