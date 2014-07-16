@@ -42,9 +42,10 @@ namespace VECGEOM_NAMESPACE {
         
         fRmin2=fRmin*fRmin;
         fRmax2=fRmax*fRmax;
+        fDz2=fDz*fDz;
         
-        fEndInnerRadius2=(fTIn*fDz)*(fTIn*fDz)+fRmin*fRmin;
-        fEndOuterRadius2=(fTOut*fDz)*(fTOut*fDz)+fRmin*fRmin;
+        fEndInnerRadius2=fTIn2*fDz2+fRmin2;
+        fEndOuterRadius2=fTOut2*fDz2+fRmax2;
         fEndInnerRadius=Sqrt(fEndInnerRadius2);
         fEndOuterRadius=Sqrt(fEndOuterRadius2);
         

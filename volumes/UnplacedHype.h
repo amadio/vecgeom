@@ -49,6 +49,7 @@ private:
     Precision fTOut2;   //Squared value of fTOut
     Precision fRmin2;   //Squared Inner radius
     Precision fRmax2;   //Squared Outer radius
+    Precision fDz2;     //Squared z-coordinate
     
     Precision fEndInnerRadius2;  // Squared endcap Inner Radius
     Precision fEndOuterRadius2;  // Squared endcap Outer Radius
@@ -97,6 +98,9 @@ public:
     
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetDz() const{ return fDz;}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetDz2() const{ return fDz2;}
     
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetEndInnerRadius() const{ return fEndInnerRadius;}

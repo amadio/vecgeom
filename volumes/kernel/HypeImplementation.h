@@ -21,6 +21,27 @@
 #include "base/Transformation3D.h"
 #include "volumes/kernel/GenericKernels.h"
 #include "volumes/UnplacedHype.h"
+#include "volumes/kernel/shapetypes/HypeTypes.h"
+
+
+
+
+//namespace ParaboloidUtilities
+//{
+//    template <class Backend>
+//    VECGEOM_INLINE
+//    VECGEOM_CUDA_HEADER_BOTH
+//    void DistToHyperboloidSurface(
+//                                 UnplacedHype const &unplaced,
+//                                 Vector3D<typename Backend::precision_v> const &point,
+//                                 Vector3D<typename Backend::precision_v> const &direction,
+//                                 typename Backend::precision_v &distance/*,
+//                                                                         typename Backend::bool_v in*/)
+//    {
+//        return;
+//    }
+//}
+
 
 namespace VECGEOM_NAMESPACE {
     
@@ -291,10 +312,9 @@ namespace VECGEOM_NAMESPACE {
                                                                                     Vector3D<typename Backend::precision_v> const &point,
                                                                                     typename Backend::bool_v &completelyinside,
                                                                                     typename Backend::bool_v &completelyoutside) {
-        
         typedef typename Backend::precision_v Float_t;
         
-        //is above or below the solid
+        //check if points are above or below the solid
         completelyoutside = Abs(point.z()) > MakePlusTolerant<ForInside>( unplaced.GetDz() );
         if (ForInside)
         {
@@ -305,10 +325,9 @@ namespace VECGEOM_NAMESPACE {
                 return;
             }
         }
+        
         //check if points are outside of the outer surface or outside the inner surface
         Float_t r2=point.x()*point.x()+point.y()*point.y();
-        
-        
         //compute r^2 at a given z coordinate, for the outer hyperbolas
         Float_t rOuter2=unplaced.GetRmax2()+unplaced.GetTOut2()*point.z()*point.z();
         //compute r^2 at a given z coordinate, for the inner hyperbolas
@@ -349,7 +368,107 @@ namespace VECGEOM_NAMESPACE {
                                                                      typename Backend::precision_v const &stepMax,
                                                                      typename Backend::precision_v &distance) {
         
+        typedef typename Backend::precision_v Float_t;
+        typedef typename Backend::bool_v      Bool_t;
+        Bool_t done(false);
+        distance=kInfinity;
         
+        Float_t absZ=Abs(point.z());
+        Float_t absDirZ=Abs(direction.z());
+        Float_t rho2 = point.x()*point.x()+point.y()*point.y();
+        Float_t point_dot_direction_x = point.x()*direction.x();
+        Float_t point_dot_direction_y = point.y()*direction.y();
+        
+        Bool_t checkZ=point.z()*direction.z() > 0; //means that the point is distancing from the volume
+        
+        //check if the point is above dZ and is distancing in Z
+        Bool_t isDistancingInZ= (absZ>unplaced.GetDz() && checkZ);
+        done|=isDistancingInZ;
+        if (Backend::early_returns && done == Backend::kTrue) return;
+        
+        //check if the point is outside the bounding cylinder and is distancing in XY
+        Bool_t isDistancingInXY=( (rho2>unplaced.GetEndOuterRadius2()) && (point_dot_direction_x>0 && point_dot_direction_y>0) );
+        done|=isDistancingInXY;
+        if (Backend::early_returns && done == Backend::kTrue) return;
+        
+        //check if x coordinate is > EndOuterRadius and the point is distancing in X
+        Bool_t isDistancingInX=( (Abs(point.x())>unplaced.GetEndOuterRadius()) && (point_dot_direction_x>0) );
+        done|=isDistancingInX;
+        if (Backend::early_returns && done == Backend::kTrue) return;
+        
+        //check if y coordinate is > EndOuterRadiusthe point is distancing in Y
+        Bool_t isDistancingInY=( (Abs(point.y())>unplaced.GetEndOuterRadius()) && (point_dot_direction_y>0) );
+        done|=isDistancingInY;
+        if (Backend::early_returns && done == Backend::kTrue) return;
+        
+        //is hitting from dz or -dz planes
+        Float_t distZ = (absZ-unplaced.GetDz())/absDirZ;
+        Float_t xHit = point.x()+distZ*direction.x();
+        Float_t yHit = point.y()+distZ*direction.y();
+        Float_t rhoHit2=xHit*xHit+yHit*yHit;
+        
+        Bool_t isCrossingAtDz= (absZ>unplaced.GetDz()) && (!checkZ) && (rhoHit2 <=unplaced.GetEndOuterRadius2() && rhoHit2>=unplaced.GetEndInnerRadius2());
+        
+        MaskedAssign(isCrossingAtDz, distZ, &distance);
+        done|=isCrossingAtDz;
+        if (Backend::early_returns && done == Backend::kTrue) return;
+        
+        
+        //is hitting from the hyperboloid surface (OUTER or INNER)
+        Float_t dirRho2 = direction.x()*direction.x()+direction.y()*direction.y();
+        Float_t point_dot_direction_z = point.z()*direction.z();
+        Float_t pointz2=point.z()*point.z();
+        Float_t dirz2=direction.z()*direction.z();
+    
+        //SOLUTION FOR OUTER
+        //NB: bOut=-B/2 of the second order equation
+        //So the solution is: (b +/- Sqrt(b^2-ac))*ainv
+        
+        Float_t aOut = dirRho2 - unplaced.GetTOut2() * dirz2;
+        Float_t bOut = unplaced.GetTOut2()*point_dot_direction_z - point_dot_direction_x - point_dot_direction_y;
+        Float_t cOut = rho2 - unplaced.GetTOut2()* pointz2 - unplaced.GetRmax2();
+        
+        Float_t aOutinv = 1./aOut;
+        Float_t prodOut = cOut*aOut;
+        Float_t deltaOut = bOut*bOut - prodOut;
+        Bool_t deltaOutNeg=deltaOut<0;
+
+        MaskedAssign(deltaOutNeg, 0. , &deltaOut);
+        deltaOut = Sqrt(deltaOut);
+        
+        Float_t distOut=aOutinv*(bOut -deltaOut);
+        
+        Float_t zHitOut1 = point.z()+distOut*direction.z();
+        Bool_t isHittingHyperboloidSurfaceOut1 = ( (distOut> 1E20) || (Abs(zHitOut1)<=unplaced.GetDz()) ); //why: dist > 1E20?
+
+        Float_t solution_Outer=kInfinity;
+        MaskedAssign(!deltaOutNeg &&isHittingHyperboloidSurfaceOut1 && distOut>0, distOut, &solution_Outer);
+        
+        //SOLUTION FOR INNER
+        Float_t aIn = dirRho2 - unplaced.GetTIn2() * dirz2;
+        Float_t bIn = unplaced.GetTIn2()*point_dot_direction_z - point_dot_direction_x - point_dot_direction_y;
+        Float_t cIn = rho2 - unplaced.GetTIn2()* pointz2 - unplaced.GetRmin2();
+        Float_t aIninv = 1./aIn;
+        
+        Float_t prodIn = cIn*aIn;
+        Float_t deltaIn = bIn*bIn - prodIn;
+    
+        Bool_t deltaInNeg=deltaIn<0;
+        MaskedAssign(deltaInNeg, 0. , &deltaIn);
+        deltaIn = Sqrt(deltaIn);
+        
+        Float_t distIn=aIninv*(bIn +deltaIn);
+
+        Float_t zHitIn1 = point.z()+distIn*direction.z();
+        Bool_t isHittingHyperboloidSurfaceIn1 = ( (distIn> 1E20) || (Abs(zHitIn1)<=unplaced.GetDz()) ); //why: dist > 1E20?
+    
+        Float_t solution_Inner=kInfinity;
+        MaskedAssign(!deltaInNeg && isHittingHyperboloidSurfaceIn1 && distIn>0, distIn, &solution_Inner);
+        
+        Float_t solution=Min(solution_Inner, solution_Outer);
+        
+        done|=(deltaInNeg && deltaOutNeg);
+        MaskedAssign(!done, solution, &distance );
         
     }
     
@@ -391,272 +510,3 @@ namespace VECGEOM_NAMESPACE {
 } // End global namespace
 
 #endif // VECGEOM_VOLUMES_KERNEL_HYPEIMPLEMENTATION_H_
-
-
-
-
-
-//namespace VECGEOM_NAMESPACE {
-//    
-//    namespace HypeUtilities
-//    {
-//        template <class Backend>
-//        VECGEOM_INLINE
-//        VECGEOM_CUDA_HEADER_BOTH
-//        void DistToHypeSurface(
-//                                 UnplacedHype const &unplaced,
-//                                 Vector3D<typename Backend::precision_v> const &point,
-//                                 Vector3D<typename Backend::precision_v> const &direction,
-//                                 typename Backend::precision_v &distance/*,
-//                                 typename Backend::bool_v in*/) {
-//                                 }
-//    }
-//
-////HypeImplementation Starts here
-//template <TranslationCode transCodeT, RotationCode rotCodeT>
-//struct HypeImplementation {
-//    
-//    
-//    //_________________________________________________________________
-//    //GENERICKERNEL --> this now must contains the implementation
-//    template <typename Backend, bool ForInside>
-//    VECGEOM_INLINE
-//    VECGEOM_CUDA_HEADER_BOTH
-//    static void GenericKernelForContainsAndInside(UnplacedHype const &unplaced,
-//                                                  Vector3D<typename Backend::precision_v> const &point,
-//                                                  typename Backend::bool_v &completelyinside,
-//                                                  typename Backend::bool_v &completelyoutside)
-//    {
-//        
-////        typedef typename Backend::precision_v Float_t;
-////        typedef typename Backend::bool_v Bool_t;
-////        
-////        
-////        //is above or below the solid
-////        completelyoutside = Abs(point.z()) > MakePlusTolerant<ForInside>( unplaced.GetDz() );
-////        if (ForInside)
-////        {
-////            completelyinside = Abs(point.z()) < MakeMinusTolerant<ForInside>( unplaced.GetDz());
-////        }
-////        if (Backend::early_returns) {
-////            if ( completelyoutside == Backend::kTrue ) {
-////                return;
-////            }
-////        }
-////        
-////        //check if points are outside of the outer surface or outside the inner surface
-////        Float_t r2=point.x()*point.x()+point.y()*point.y();
-////        
-////        
-////        //compute r^2 at a given z coordinate, for the outer hyperbolas
-////        Float_t rOuter2=unplaced.GetRmax2()+unplaced.GetTOut2()*point.z()*point.z();
-////        //compute r^2 at a given z coordinate, for the inner hyperbolas
-////        Float_t rInner2=unplaced.GetRmin2()+unplaced.GetTIn2()*point.z()*point.z();
-////        
-////        completelyoutside |= (r2 > MakePlusTolerant<ForInside>( rOuter2 )) || (r2 < MakePlusTolerant<ForInside>( rInner2 ));
-////        if (ForInside)
-////        {
-////            completelyinside &= (r2 < MakeMinusTolerant<ForInside>( rOuter2 )) && (r2 > MakeMinusTolerant<ForInside>( rInner2 ));
-////        }
-////        return;
-//    }
-//    
-//    
-//    /*typedef typename Backend::precision_v Float_t;
-//     typedef typename Backend::bool_v Bool_t;
-//     
-//     //is above the solid
-//     Float_t absZ=Abs(point.z());
-//     Bool_t isAboveOrBelowSolid= (Abs(point.z())>unplaced.GetDz());
-//     Bool_t done(isAboveOrBelowSolid);
-//     inside=Backend::kFalse;
-//     
-//     if(Backend::early_returns && done==Backend::kTrue) return;
-//     
-//     Float_t r2=point.x()*point.x()+point.y()*point.y();
-//     
-//     //check if points are outside of the outer surface or outside the inner surface
-//     
-//     //compute r^2 at a given z coordinate, for the outer hyperbolas
-//     Float_t rOuter2=unplaced.GetRmax2()+unplaced.GetTOut2()*point.z()*point.z();
-//     //compute r^2 at a given z coordinate, for the inner hyperbolas
-//     Float_t rInner2=unplaced.GetRmin2()+unplaced.GetTIn2()*point.z()*point.z();
-//     
-//     Bool_t isOutsideHyperbolicSurface=r2>rOuter2 || r2<rInner2;
-//     done|= isOutsideHyperbolicSurface;
-//     
-//     MaskedAssign(!done, Backend::kTrue, &inside);*/
-//    
-//    
-//    //_________________________________________________________________
-//    //CONTAINSKERNEL --> this calls GenericKernel<Backend, false> ( dimensions, localPoint, unused, outside)
-//    template <TranslationCode transCodeT, RotationCode rotCodeT>
-//    template <typename Backend>
-//    VECGEOM_CUDA_HEADER_BOTH
-//    void HypeImplementation<transCodeT, rotCodeT>::ContainsKernel(
-//                                                                  UnplacedHype const &unplaced,
-//                                                                  Vector3D<typename Backend::precision_v> const &localPoint,
-//                                                                  typename Backend::bool_v &inside)
-//    {
-//        
-//        typedef typename Backend::bool_v Bool_t;
-//        Bool_t unused;
-//        Bool_t outside;
-//        GenericKernelForContainsAndInside<Backend, false>(unplaced,
-//                                                          localPoint, unused, outside);
-//        inside=!outside;
-//    }
-//    
-//    
-//    
-//    //INSIDE KERNEL--> this calls GenericKernel<Backend,true> ( dimensions, localPoint, completelyinside, completelyoutside)
-//    //___________________________________________________________________
-//    template <TranslationCode transCodeT, RotationCode rotCodeT>
-//    template <class Backend>
-//    VECGEOM_CUDA_HEADER_BOTH
-//    void HypeImplementation<transCodeT, rotCodeT>::InsideKernel(
-//                                                                UnplacedHype const &unplaced,
-//                                                                Vector3D<typename Backend::precision_v> const &point,
-//                                                                typename Backend::inside_v &inside)
-//    {
-//        
-//        typedef typename Backend::bool_v      Bool_t;
-//        Bool_t completelyinside, completelyoutside;
-//        GenericKernelForContainsAndInside<Backend,true>(unplaced, point, completelyinside, completelyoutside);
-//        inside=EInside::kSurface;
-//        MaskedAssign(completelyoutside, EInside::kOutside, &inside);
-//        MaskedAssign(completelyinside, EInside::kInside, &inside);
-//    }
-//    
-//    
-//    
-//    //_________________________________________________________________
-//    //UNPLACEDINSIDE--> call the InsideKernel
-//    /// \brief Inside method that takes account of the surface for an Unplaced Hype
-//    template <class Backend>
-//    VECGEOM_INLINE
-//    VECGEOM_CUDA_HEADER_BOTH
-//    static void UnplacedInside(UnplacedHype const &unplaced,
-//                               Vector3D<typename Backend::precision_v> point,
-//                               typename Backend::int_v &inside)
-//    {
-//        
-//        InsideKernel<Backend>(unplaced, point, inside);
-//    }
-//    
-//    //_________________________________________________________________
-//    //UNPLACEDCONTAINS --> call the ContainsKernel
-//    /// \brief UnplacedContains (ROOT STYLE): Inside method that does NOT take account of the surface for an Unplaced Hype
-//    template <class Backend>
-//    VECGEOM_INLINE
-//    VECGEOM_CUDA_HEADER_BOTH
-//    static void UnplacedContains(UnplacedHype const &unplaced,
-//        Vector3D<typename Backend::precision_v> point,
-//        typename Backend::bool_v &inside)
-//    {
-//        
-//        ContainsKernel<Backend>(unplaced, point, inside);
-//    }
-//    
-//    //_________________________________________________________________
-//    //INSIDE (local point in the signature) --> just call UnplacedInside
-//    /// \brief Inside method that takes account of the surface for a Placed Hype
-//    template <class Backend>
-//    VECGEOM_INLINE
-//    VECGEOM_CUDA_HEADER_BOTH
-//    static void Inside(UnplacedHype const &unplaced,
-//                       Transformation3D const &transformation,
-//                       Vector3D<typename Backend::precision_v> const &point,
-//                       Vector3D<typename Backend::precision_v> &localPoint,
-//                       typename Backend::int_v &inside)
-//    {
-//        localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
-//        UnplacedInside<Backend>(unplaced, localPoint, inside);
-//    }
-//    
-//    //_________________________________________________________________
-//    //INSIDE(local point as local variable)--> just call UnplacedInside
-//    template <class Backend>
-//    VECGEOM_INLINE
-//    VECGEOM_CUDA_HEADER_BOTH
-//    static void Inside(UnplacedHype const &unplaced,
-//                       Transformation3D const &transformation,
-//                       Vector3D<typename Backend::precision_v> const &point,
-//                       typename Backend::int_v &inside)
-//    {
-//        
-//      Vector3D<typename Backend::precision_v> localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
-//      UnplacedInside<Backend>(unplaced, localPoint, inside);
-//    }
-//
-//    //_________________________________________________________________
-//    //CONTAINS --> just call UnplacedContains
-//    /// \brief Contains: Inside method that does NOT take account of the surface for a Placed Hype
-//    template <class Backend>
-//    VECGEOM_INLINE
-//    VECGEOM_CUDA_HEADER_BOTH
-//    static void Contains(UnplacedHype const &unplaced,
-//                       Transformation3D const &transformation,
-//                       Vector3D<typename Backend::precision_v> const &point,
-//                       Vector3D<typename Backend::precision_v> &localPoint,
-//                       typename Backend::bool_v &inside)
-//    {
-//        
-//        localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
-//        UnplacedContains<Backend>(unplaced, localPoint, inside);
-//        
-//    }
-//   
-//    template <class Backend>
-//    VECGEOM_INLINE
-//    VECGEOM_CUDA_HEADER_BOTH
-//    static void DistanceToIn(
-//                             UnplacedHype const &unplaced,
-//                             Transformation3D const &transformation,
-//                             Vector3D<typename Backend::precision_v> const &point,
-//                             Vector3D<typename Backend::precision_v> const &direction,
-//                             typename Backend::precision_v const &stepMax,
-//                             typename Backend::precision_v &distance) {
-//        
-//        
-//        
-//    }
-//    
-//    template <class Backend>
-//    VECGEOM_INLINE
-//    VECGEOM_CUDA_HEADER_BOTH
-//    static void DistanceToOut(
-//                              UnplacedHype const &unplaced,
-//                              Vector3D<typename Backend::precision_v> point,
-//                              Vector3D<typename Backend::precision_v> direction,
-//                              typename Backend::precision_v const &stepMax,
-//                              typename Backend::precision_v &distance) {
-//      
-//        
-//
-//    }
-//
-//    template<class Backend>
-//    VECGEOM_INLINE
-//    VECGEOM_CUDA_HEADER_BOTH
-//    static void SafetyToIn(UnplacedHype const &unplaced,
-//                         Transformation3D const &transformation,
-//                         Vector3D<typename Backend::precision_v> const &point,
-//                         typename Backend::precision_v &safety) {
-//        
-//            }
-//    
-//    template<class Backend>
-//    VECGEOM_INLINE
-//    VECGEOM_CUDA_HEADER_BOTH
-//    static void SafetyToOut(UnplacedHype const &unplaced,
-//                          Vector3D<typename Backend::precision_v> point,
-//                          typename Backend::precision_v &safety) {
-//
-//           }
-//
-//};
-//
-//} // End global namespace
-//
-//#endif // VECGEOM_VOLUMES_KERNEL_HYPEIMPLEMENTATION_H_

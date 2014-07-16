@@ -15,3 +15,9 @@ compile_*.sh
 *.pdf
 *.eps
 prototype_generation/Main
+.DS_Store
+source/.DS_Store
+test/.DS_Store
+test/benchmark/.DS_Store
+volumes/.DS_Store
+volumes/kernel/.DS_Store

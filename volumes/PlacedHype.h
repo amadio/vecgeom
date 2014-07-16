@@ -99,6 +99,9 @@ public:
     Precision GetDz() const{ return GetUnplacedVolume()->GetDz();}
     
     VECGEOM_CUDA_HEADER_BOTH
+    Precision GetDz2() const{ return GetUnplacedVolume()->GetDz2();}
+    
+    VECGEOM_CUDA_HEADER_BOTH
     Precision GetEndInnerRadius() const{ return GetUnplacedVolume()->GetEndInnerRadius();}
     
     VECGEOM_CUDA_HEADER_BOTH
