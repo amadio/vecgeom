@@ -115,8 +115,8 @@ int main( int argc,  char *argv[]) {
     
     float mbDistToIn;
     float rootDistToIn;
-//    float mbDistToOut;
-//    float rootDistToOut;
+    float mbDistToOut;
+    float rootDistToOut;
 //    float mbSafetyToOut;
 //    float rootSafetyToOut;
 //    float mbSafetyToIn;
@@ -329,7 +329,7 @@ int main( int argc,  char *argv[]) {
         
         //points that hit the inner surface of the hype
         if (generation==12) {
-            std::cout<<"12\n";
+            //std::cout<<"12\n";
             Float_t distZ;
             Float_t xHit;
             Float_t yHit;
@@ -352,9 +352,10 @@ int main( int argc,  char *argv[]) {
             while(rhoHit>EndInnerRadius);
         }
         
+        
         //points generated in -dZ<z<dZ inside the inner part and directions pointing to the origin --> approaching the Hype from the inner hyperbolic surface
         if (generation==13) {
-            std::cout<<"13\n";
+            //std::cout<<"13\n";
             do{
                 points[i].x()=r3.Uniform(-x, x);
                 points[i].y()=r3.Uniform(-y, y);
@@ -365,7 +366,45 @@ int main( int argc,  char *argv[]) {
             dir[i].y()=-points[i].y();
             dir[i].z()=-points[i].z();
         }
+        //NB: 14 e 15 and 16 can be used only if Rmin=0
+        //point only inside the volume, hitting the z surfaces --> to test DistToOut
+        if (generation==14) {
+            //std::cout<<"14\n";
+            do{
+                points[i].x()=r3.Uniform(-rMax,rMax);
+                points[i].y()=r3.Uniform(-rMax, rMax);
+                points[i].z()=r3.Uniform(-dz, dz);
+            }while(points[i].x()*points[i].x()+points[i].y()*points[i].y()>rMax);
+            dir[i].x()=0;
+            dir[i].y()=0;
+            dir[i].z()=-points[i].z();
+        }
 
+        //point only inside the volume without RIn, hitting hyperbolic--> to test DistToOut
+        if (generation==15) {
+            //std::cout<<"15\n";
+            do{
+                points[i].x()=r3.Uniform(-rMax,rMax);
+                points[i].y()=r3.Uniform(-rMax, rMax);
+                points[i].z()=r3.Uniform(-dz, dz);
+            }while(points[i].x()*points[i].x()+points[i].y()*points[i].y()>rMax);
+            dir[i].x()=-points[i].x();
+            dir[i].y()=-points[i].y();
+            dir[i].z()=0;
+        }
+        
+        //point only inside the volume without RIn, going everywhere--> to test DistToOut
+        if (generation==16) {
+            //std::cout<<"16\n";
+            do{
+                points[i].x()=r3.Uniform(-rMax,rMax);
+                points[i].y()=r3.Uniform(-rMax, rMax);
+                points[i].z()=r3.Uniform(-dz, dz);
+            }while(points[i].x()*points[i].x()+points[i].y()*points[i].y()>rMax);
+            dir[i].x()=points[i].x();
+            dir[i].y()=points[i].y();
+            dir[i].z()=points[i].z();
+        }
         
         module=Sqrt(dir[i].x()*dir[i].x()+dir[i].y()*dir[i].y()+dir[i].z()*dir[i].z());
         dir[i].x()=dir[i].x()/module;
@@ -395,13 +434,13 @@ int main( int argc,  char *argv[]) {
     
         
     //Marker for sphere outside points
-    TPolyMarker3D *markerSphereOutside=0;
-    markerSphereOutside = (TPolyMarker3D*)pm->At(4);
+    //TPolyMarker3D *markerSphereOutside=0;
+    //markerSphereOutside = (TPolyMarker3D*)pm->At(4);
     
     //Marker for sphere inside points
-    TPolyMarker3D *markerSphereInside=0;
-    markerSphereInside = (TPolyMarker3D*)pm->At(4);
-    int counter;
+    //TPolyMarker3D *markerSphereInside=0;
+    //markerSphereInside = (TPolyMarker3D*)pm->At(4);
+
     
     for(int i=0; i<np; i++)
     {
@@ -412,7 +451,7 @@ int main( int argc,  char *argv[]) {
         }
         else{
             myCountIn++;
-            markerInside->SetNextPoint(points[i].x(), points[i].y(), points[i].z());
+            //markerInside->SetNextPoint(points[i].x(), points[i].y(), points[i].z());
         }
         coord[0]=points[i].x();
         coord[1]=points[i].y();
@@ -439,6 +478,7 @@ int main( int argc,  char *argv[]) {
             
             if( (mbDistToIn!=rootDistToIn) && !(mbDistToIn == kInfinity && rootDistToIn>1e+29))
             {
+                
                 std::cout<<"mbDistToIn: "<<mbDistToIn;
                 std::cout<<" rootDistToIn: "<<rootDistToIn<<"\n";
                 mismatchDistToIn++;
@@ -507,18 +547,17 @@ int main( int argc,  char *argv[]) {
             
             //POINT IS INSIDE
             rootCountIn++;
-            
-//            //DISTANCE TO OUT
-//            mbDistToOut=hypePlaced->DistanceToOut(points[i], dir[i]);
-//            rootDistToOut=par->DistFromInside(coord, direction);
-//            if( (mbDistToOut!=rootDistToOut))
-//            {
-//                //markerOutside->SetNextPoint(points[i].x(), points[i].y(), points[i].z());
-//                std::cout<<"mbDistToOut: "<<mbDistToOut;
-//                std::cout<<" rootDistToOut: "<<rootDistToOut<<"\n";
-//                mismatchDistToOut++;
-//            }
-//            
+            markerInside->SetNextPoint(points[i].x(), points[i].y(), points[i].z());
+            //DISTANCE TO OUT
+            mbDistToOut=hypePlaced->DistanceToOut(points[i], dir[i]);
+            rootDistToOut=hype->DistFromInside(coord, direction);
+            if( (mbDistToOut!=rootDistToOut))
+            {
+                std::cout<<"mbDistToOut: "<<mbDistToOut;
+                std::cout<<"rootDistToOut: "<<rootDistToOut<<"\n";
+                mismatchDistToOut++;
+            }
+//
 //            //SAFETY TO OUT
 //            mbSafetyToOut=hypePlaced->SafetyToOut(points[i]);
 //            rootSafetyToOut=par->Safety(coord, true);
@@ -588,7 +627,6 @@ int main( int argc,  char *argv[]) {
     std::cout<<"Against ROOT Unvalidated SafetyToOut: "<<unvalidatedSafetyToOut<<" \n";
     std::cout<<"Not valid SafetyToIn: "<<notValidSafetyToIn<<" \n";
     std::cout<<"Not valid SafetyToOut: "<<notValidSafetyToOut<<" \n";
-//    std::cout<<"Counter: "<<counter<<" \n";
     
     theApp.Run();
     return 0;

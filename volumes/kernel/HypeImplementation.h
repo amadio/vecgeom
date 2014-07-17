@@ -481,8 +481,90 @@ namespace VECGEOM_NAMESPACE {
                                                                       Vector3D<typename Backend::precision_v> const &direction,
                                                                       typename Backend::precision_v const &stepMax,
                                                                       typename Backend::precision_v &distance) {
+
         
+        typedef typename Backend::precision_v Float_t;
+        typedef typename Backend::bool_v      Bool_t;
         
+        distance=kInfinity;
+        
+        //Distance to Z surface
+        Float_t distZ=kInfinity;
+        Float_t dirZinv=1/direction.z();
+        Bool_t dir_mask= direction.z()<0;
+        MaskedAssign(dir_mask, -(unplaced.GetDz() + point.z())*dirZinv, &distZ);
+        MaskedAssign(!dir_mask, (unplaced.GetDz() - point.z())*dirZinv, &distZ);
+
+        //Distance to INNER and OUTER hyperbola surfaces
+        Float_t distHypeInner=kInfinity;
+        Float_t distHypeOuter=kInfinity;
+        
+        Float_t absZ=Abs(point.z());
+        Float_t absDirZ=Abs(direction.z());
+        Float_t rho2 = point.x()*point.x()+point.y()*point.y();
+        Float_t dirRho2 = direction.x()*direction.x()+direction.y()*direction.y();
+        Float_t point_dot_direction_x = point.x()*direction.x();
+        Float_t point_dot_direction_y = point.y()*direction.y();
+        Float_t point_dot_direction_z = point.z()*direction.z();
+        Float_t pointz2=point.z()*point.z();
+        Float_t dirz2=direction.z()*direction.z();
+        
+        //SOLUTION FOR OUTER
+        //NB: bOut=-B/2 of the second order equation
+        //So the solution is: (b +/- Sqrt(b^2-ac))*ainv
+        
+        Float_t aOut = dirRho2 - unplaced.GetTOut2() * dirz2;
+        Float_t bOut = unplaced.GetTOut2()*point_dot_direction_z - point_dot_direction_x - point_dot_direction_y;
+        Float_t cOut = rho2 - unplaced.GetTOut2()* pointz2 - unplaced.GetRmax2();
+        
+        Float_t aOutinv = 1./aOut;
+        Float_t prodOut = cOut*aOut;
+        Float_t deltaOut = bOut*bOut - prodOut;
+        
+        Bool_t deltaOutNeg=deltaOut<0;
+        MaskedAssign(deltaOutNeg, 0. , &deltaOut);
+        deltaOut = Sqrt(deltaOut);
+        
+        Bool_t mask_signOut=(aOutinv<0);
+        Float_t signOut=1.;
+        MaskedAssign(mask_signOut, -1., &signOut);
+        
+        Float_t distOut1=aOutinv*(bOut - signOut*deltaOut);
+        Float_t distOut2=aOutinv*(bOut + signOut*deltaOut);
+        
+        MaskedAssign(distOut1>0 && !deltaOutNeg , distOut1, &distHypeOuter);
+        MaskedAssign(distOut1<0 && distOut2>0 && !deltaOutNeg, distOut2, &distHypeOuter);
+        MaskedAssign(distOut1<0 && distOut2<0 && !deltaOutNeg, kInfinity, &distHypeOuter); //infinity or negative number??
+        
+        //SOLUTION FOR INNER
+        //NB: bOut=-B/2 of the second order equation
+        //So the solution is: (b +/- Sqrt(b^2-ac))*ainv
+        
+        Float_t aIn = dirRho2 - unplaced.GetTIn2() * dirz2;
+        Float_t bIn = unplaced.GetTIn2()*point_dot_direction_z - point_dot_direction_x - point_dot_direction_y;
+        Float_t cIn = rho2 - unplaced.GetTIn2()* pointz2 - unplaced.GetRmin2();
+        Float_t aIninv = 1./aIn;
+        
+        Float_t prodIn = cIn*aIn;
+        Float_t deltaIn = bIn*bIn - prodIn;
+        
+        Bool_t deltaInNeg=deltaIn<0;
+        MaskedAssign(deltaInNeg, 0. , &deltaIn);
+        deltaIn = Sqrt(deltaIn);
+        
+        Bool_t mask_signIn=(aIninv<0);
+        Float_t signIn=1.;
+        MaskedAssign(mask_signIn, -1., &signIn);
+        
+        Float_t distIn1=aIninv*(bIn - signIn*deltaIn);
+        Float_t distIn2=aIninv*(bIn + signIn*deltaIn);
+        
+        MaskedAssign(distIn1>0 && !deltaInNeg, distIn1, &distHypeInner);
+        MaskedAssign(distIn1<0 && distIn2>0 && !deltaInNeg, distIn2, &distHypeInner);
+        MaskedAssign(distIn1<0 && distIn2<0 && !deltaInNeg, kInfinity, &distHypeInner); //infinity or negative number??
+        
+        Float_t distHype=Min(distHypeInner, distHypeOuter);
+        distance=Min(distHype, distZ);
     }
     
     template <TranslationCode transCodeT, RotationCode rotCodeT>
