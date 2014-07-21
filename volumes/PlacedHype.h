@@ -113,6 +113,8 @@ public:
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetEndOuterRadius2() const{ return GetUnplacedVolume()->GetEndOuterRadius2();}
     
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetInSqSide() const{ return GetUnplacedVolume()->GetInSqSide();}
 
     
 #ifdef VECGEOM_BENCHMARK

@@ -35,10 +35,10 @@ namespace VECGEOM_NAMESPACE {
         
         SetParameters(rMin, stIn, rMax, stOut, dz);
         
-        fTIn=tan(stIn*kDegToRad);       //Tangent of the Inner stereo angle
-        fTOut=tan(stOut*kDegToRad);     //Tangent of the Outer stereo angle
-        fTIn2=fTIn*fTIn;                //squared value of fTIn
-        fTOut2=fTOut*fTOut;             //squared value of fTOut
+        fTIn=tan(fStIn*kDegToRad);          //Tangent of the Inner stereo angle
+        fTOut=tan(fStOut*kDegToRad);        //Tangent of the Outer stereo angle
+        fTIn2=fTIn*fTIn;                    //squared value of fTIn
+        fTOut2=fTOut*fTOut;                 //squared value of fTOut
         
         fRmin2=fRmin*fRmin;
         fRmax2=fRmax*fRmax;
@@ -48,6 +48,7 @@ namespace VECGEOM_NAMESPACE {
         fEndOuterRadius2=fTOut2*fDz2+fRmax2;
         fEndInnerRadius=Sqrt(fEndInnerRadius2);
         fEndOuterRadius=Sqrt(fEndOuterRadius2);
+        fInSqSide=Sqrt(2)*fRmin;
         
     }
 

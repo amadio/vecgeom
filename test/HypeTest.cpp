@@ -111,16 +111,18 @@ int main( int argc,  char *argv[]) {
     int unvalidatedSafetyToIn=0;
     int unvalidatedSafetyToOut=0;
     int notValidSafetyToIn=0;
-    int notValidSafetyToOut=0;
+    int notValidSafetyToOutMB=0;
+    int notValidSafetyToOutROOT=0;
+    int counter;
     
     float mbDistToIn;
     float rootDistToIn;
     float mbDistToOut;
     float rootDistToOut;
-//    float mbSafetyToOut;
-//    float rootSafetyToOut;
-//    float mbSafetyToIn;
-//    float rootSafetyToIn;
+    float mbSafetyToOut;
+    float rootSafetyToOut;
+    float mbSafetyToIn;
+    float rootSafetyToIn;
     
     double coord[3], direction[3], new_coord[3], module;
     double x=worldUnplaced.x();
@@ -434,12 +436,12 @@ int main( int argc,  char *argv[]) {
     
         
     //Marker for sphere outside points
-    //TPolyMarker3D *markerSphereOutside=0;
-    //markerSphereOutside = (TPolyMarker3D*)pm->At(4);
+    TPolyMarker3D *markerSphereOutside=0;
+    markerSphereOutside = (TPolyMarker3D*)pm->At(4);
     
     //Marker for sphere inside points
-    //TPolyMarker3D *markerSphereInside=0;
-    //markerSphereInside = (TPolyMarker3D*)pm->At(4);
+    TPolyMarker3D *markerSphereInside=0;
+    markerSphereInside = (TPolyMarker3D*)pm->At(4);
 
     
     for(int i=0; i<np; i++)
@@ -485,62 +487,60 @@ int main( int argc,  char *argv[]) {
                 
             }
             
-//            //SAFETY TO IN
-//            mbSafetyToIn=hypePlaced->SafetyToIn(points[i]);
-//            rootSafetyToIn=par->Safety(coord, false);
-//            
-//            //validation of SafetyToIn
-//            //I shoot random point belonging to the sphere with radious mbSafetyToIn and
-//            //then I see it they are all still outside the volume
-//            
-//            markerSphereOutside = new TPolyMarker3D();
-//            markerSphereOutside->SetMarkerColor(kGreen+i);
-//            counter=0;
-//            for (int j=0; j<100000; j++) //10^5
-//            {
-//                
-//                double v=r3.Uniform(0, 1);
-//                double theta=r3.Uniform(0, 2*kPi);
-//                double phi=TMath::ACos(2*v-1);
-//                
-//                double r= mbSafetyToIn*TMath::Power(r3.Uniform(0, 1), 1./3);
-//                //std::cout<<"r: "<<r<<"\n";
-//                    
-//                    
-//                double x_offset=r*TMath::Cos(theta)*TMath::Sin(phi);
-//                double y_offset=r*TMath::Sin(theta)*TMath::Sin(phi);
-//                
-//                double z_offset=r*TMath::Cos(phi);
-//                
-//                new_coord[0]=coord[0]+x_offset;
-//                new_coord[1]=coord[1]+y_offset;
-//                new_coord[2]=coord[2]+z_offset;
-//                
-//                double safety2=mbSafetyToIn*mbSafetyToIn;
-//            
-//                if(x_offset*x_offset+y_offset*y_offset+z_offset*z_offset<=safety2)
-//                {
-//                    counter++;
-//                    markerSphereOutside->SetNextPoint(new_coord[0], new_coord[1], new_coord[2]);
-//                    inside=someVolume->Contains(new_coord);
-//                    if(inside) notValidSafetyToIn++;
-//                }
-//                    
-//            }
-//            //if (markerSphereOutside) markerSphereOutside->Draw("SAME");
-//            //c->Update();
-//            if( (mbSafetyToIn!=rootSafetyToIn))
-//            {
-//                //std::cout<<"mbSafetyToIn: "<<mbSafetyToIn;
-//                //std::cout<<" rootSafetyToIn: "<<rootSafetyToIn<<"\n";
-//                mismatchSafetyToIn++;
-//            }
-//            if( (mbSafetyToIn>rootSafetyToIn))
-//            {
-//                //std::cout<<"mbSafetyToIn: "<<mbSafetyToIn;
-//                //std::cout<<" rootSafetyToIn: "<<rootSafetyToIn<<"\n";
-//                unvalidatedSafetyToIn++;
-//            }
+            //SAFETY TO IN
+            mbSafetyToIn=hypePlaced->SafetyToIn(points[i]);
+            rootSafetyToIn=hype->Safety(coord, false);
+            
+            //validation of SafetyToIn
+            //I shoot random point belonging to the sphere with radious mbSafetyToIn and
+            //then I see it they are all still outside the volume
+            
+            markerSphereOutside = new TPolyMarker3D();
+            markerSphereOutside->SetMarkerColor(kGreen+i);
+            counter=0;
+            for (int j=0; j<10000; j++) //10^4
+            {
+                
+                double v=r3.Uniform(0, 1);
+                double theta=r3.Uniform(0, 2*kPi);
+                double phi=TMath::ACos(2*v-1);
+                
+                double r= mbSafetyToIn*TMath::Power(r3.Uniform(0, 1), 1./3);
+                
+                double x_offset=r*TMath::Cos(theta)*TMath::Sin(phi);
+                double y_offset=r*TMath::Sin(theta)*TMath::Sin(phi);
+                
+                double z_offset=r*TMath::Cos(phi);
+                
+                new_coord[0]=coord[0]+x_offset;
+                new_coord[1]=coord[1]+y_offset;
+                new_coord[2]=coord[2]+z_offset;
+                
+                double safety2=mbSafetyToIn*mbSafetyToIn;
+            
+                if(x_offset*x_offset+y_offset*y_offset+z_offset*z_offset<=safety2)
+                {
+                    counter++;
+                    markerSphereOutside->SetNextPoint(new_coord[0], new_coord[1], new_coord[2]);
+                    inside=someVolume->Contains(new_coord);
+                    if(inside) notValidSafetyToIn++;
+                }
+                    
+            }
+            //if (markerSphereOutside) markerSphereOutside->Draw("SAME");
+            //c->Update();
+            if( (mbSafetyToIn!=rootSafetyToIn))
+            {
+               //std::cout<<"mbSafetyToIn: "<<mbSafetyToIn;
+               //std::cout<<" rootSafetyToIn: "<<rootSafetyToIn<<"\n";
+                mismatchSafetyToIn++;
+            }
+            if( (mbSafetyToIn>rootSafetyToIn))
+            {
+                //std::cout<<"mbSafetyToIn: "<<mbSafetyToIn;
+                //std::cout<<" rootSafetyToIn: "<<rootSafetyToIn<<"\n";
+                unvalidatedSafetyToIn++;
+            }
             
         }
         else{
@@ -557,55 +557,64 @@ int main( int argc,  char *argv[]) {
                 std::cout<<"rootDistToOut: "<<rootDistToOut<<"\n";
                 mismatchDistToOut++;
             }
-//
-//            //SAFETY TO OUT
-//            mbSafetyToOut=hypePlaced->SafetyToOut(points[i]);
-//            rootSafetyToOut=par->Safety(coord, true);
-//            if( (mbSafetyToOut!=rootSafetyToOut))
-//            {
-//                //std::cout<<"mbSafetyToOut: "<<mbSafetyToOut;
-//                //std::cout<<" rootSafetyToOut: "<<rootSafetyToOut<<"\n";
-//                mismatchSafetyToOut++;
-//            }
-//            if( (mbSafetyToOut>rootSafetyToOut))
-//            {
-//                unvalidatedSafetyToOut++;
-//            }
-//                
-//            //validation of SafetyToOut
-//            //I shoot random point belonging to the sphere with radious mbSafetyToOut and
-//            //then I see it they are all still outside the volume
-//            
-//            markerSphereInside = new TPolyMarker3D();
-//            markerSphereInside->SetMarkerColor(kGreen+i);
-//            for (int j=0; j<10000; j++)
-//            {
-//                
-//                double v=r3.Uniform(0, 1);
-//                double theta=r3.Uniform(0, 2*kPi);
-//                double phi=TMath::ACos(2*v-1);
-//                
-//                double r= mbSafetyToOut*TMath::Power(r3.Uniform(0, 1), 1./3);
-//                
-//                double x_offset=r*TMath::Cos(theta)*TMath::Sin(phi);
-//                double y_offset=r*TMath::Sin(theta)*TMath::Sin(phi);
-//                
-//                double z_offset=r*TMath::Cos(phi);
-//                
-//                new_coord[0]=coord[0]+x_offset;
-//                new_coord[1]=coord[1]+y_offset;
-//                new_coord[2]=coord[2]+z_offset;
-//                
-//                double safety2=mbSafetyToOut*mbSafetyToOut;
-//                
-//                if(x_offset*x_offset+y_offset*y_offset+z_offset*z_offset<=safety2)
-//                {
-//                    markerSphereInside->SetNextPoint(new_coord[0], new_coord[1], new_coord[2]);
-//                    inside=someVolume->Contains(new_coord);
-//                    if(!inside) notValidSafetyToOut++;
-//                }
-//                
-//            }
+
+            //SAFETY TO OUT
+            mbSafetyToOut=hypePlaced->SafetyToOut(points[i]);
+            rootSafetyToOut=hype->Safety(coord, true);
+            if( (mbSafetyToOut!=rootSafetyToOut))
+            {
+                //std::cout<<"mbSafetyToOut: "<<mbSafetyToOut;
+                //std::cout<<" rootSafetyToOut: "<<rootSafetyToOut<<"\n";
+                mismatchSafetyToOut++;
+            }
+            if( (mbSafetyToOut>rootSafetyToOut))
+            {
+                unvalidatedSafetyToOut++;
+            }
+                
+            //validation of SafetyToOut
+            //I shoot random point belonging to the sphere with radious mbSafetyToOut and
+            //then I see it they are all still outside the volume
+            
+            markerSphereInside = new TPolyMarker3D();
+            markerSphereInside->SetMarkerColor(kGreen+i);
+            for (int j=0; j<10000; j++)
+            {
+                
+                double v=r3.Uniform(0, 1);
+                double theta=r3.Uniform(0, 2*kPi);
+                double phi=TMath::ACos(2*v-1);
+                
+                double r= mbSafetyToOut*TMath::Power(r3.Uniform(0, 1), 1./3);
+                
+                double x_offset=r*TMath::Cos(theta)*TMath::Sin(phi);
+                double y_offset=r*TMath::Sin(theta)*TMath::Sin(phi);
+                
+                double z_offset=r*TMath::Cos(phi);
+                
+                new_coord[0]=coord[0]+x_offset;
+                new_coord[1]=coord[1]+y_offset;
+                new_coord[2]=coord[2]+z_offset;
+                
+                double safetymb2=mbSafetyToOut*mbSafetyToOut;
+
+                double safetyroot2=rootSafetyToOut*rootSafetyToOut;
+                
+                if(x_offset*x_offset+y_offset*y_offset+z_offset*z_offset<=safetyroot2)
+                {
+                    //markerSphereInside->SetNextPoint(new_coord[0], new_coord[1], new_coord[2]);
+                    inside=someVolume->Contains(new_coord);
+                    if(!inside) notValidSafetyToOutROOT++;
+                }
+
+                if(x_offset*x_offset+y_offset*y_offset+z_offset*z_offset<=safetymb2)
+                {
+                    markerSphereInside->SetNextPoint(new_coord[0], new_coord[1], new_coord[2]);
+                    inside=someVolume->Contains(new_coord);
+                    if(!inside) notValidSafetyToOutMB++;
+                }
+                
+            }
         }
     }
     
@@ -625,8 +634,9 @@ int main( int argc,  char *argv[]) {
     std::cout<<"SafetyToOut mismatches: "<<mismatchSafetyToOut<<" \n";
     std::cout<<"Against ROOT unvalidated SafetyToIn: "<<unvalidatedSafetyToIn<<" \n";
     std::cout<<"Against ROOT Unvalidated SafetyToOut: "<<unvalidatedSafetyToOut<<" \n";
-    std::cout<<"Not valid SafetyToIn: "<<notValidSafetyToIn<<" \n";
-    std::cout<<"Not valid SafetyToOut: "<<notValidSafetyToOut<<" \n";
+    std::cout<<"Not valid SafetyToIn MB: "<<notValidSafetyToIn<<" \n";
+    std::cout<<"Not valid SafetyToOut MB: "<<notValidSafetyToOutMB<<" \n";
+    std::cout<<"Not valid SafetyToOut ROOT: "<<notValidSafetyToOutROOT<<" \n";
     
     theApp.Run();
     return 0;

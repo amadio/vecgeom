@@ -55,10 +55,10 @@ private:
     Precision fEndOuterRadius2;  // Squared endcap Outer Radius
     Precision fEndInnerRadius;   // Endcap Inner Radius
     Precision fEndOuterRadius;   // Endcap Outer Radius
-
     
+    Precision fInSqSide;         //side of the square inscribed in the inner circle
+                                 //Sqrt(2)*unplaced.GetRmin()
 
-    
 public:
     
     //constructor
@@ -113,6 +113,9 @@ public:
     
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetEndOuterRadius2() const{ return fEndOuterRadius2;}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetInSqSide() const{ return fInSqSide;}
     
     
     //set
