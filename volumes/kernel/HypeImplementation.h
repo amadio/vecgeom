@@ -28,6 +28,7 @@
 #define ACCURATE_BC
 //#define ROOTLIKE
 
+
 //namespace ParaboloidUtilities
 //{
 //    template <class Backend>
@@ -813,20 +814,20 @@ namespace VECGEOM_NAMESPACE {
     void HypeImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(
                                                                     UnplacedHype const &unplaced,
                                                                     Vector3D<typename Backend::precision_v> const &point,
-                                                                    typename Backend::precision_v &safety) {
+                                                                    typename Backend::precision_v &safety){
         
         typedef typename Backend::precision_v Float_t;
         typedef typename Backend::bool_v Bool_t;
-        
         safety=0.;
-    
+        
         Float_t absZ= Abs(point.z());
         Float_t safeZ= unplaced.GetDz()-absZ;
-        Float_t safermax;
-        
         Float_t rsq = point.x()*point.x()+point.y()*point.y();
         Float_t r = Sqrt(rsq);
-        
+
+#ifdef ROOTLIKE
+
+        Float_t safermax;
         //OUTER
         Float_t rhsqOut=unplaced.GetRmax2()+unplaced.GetTOut2()*point.z()*point.z();
         Float_t rhOut = Sqrt(rhsqOut);
@@ -880,7 +881,60 @@ namespace VECGEOM_NAMESPACE {
             MaskedAssign(!doneInner, safe, &safermin);
             safety=Min(safety, safermin);
         }
-       
+#endif
+
+        Float_t safeOuter;
+        Bool_t mask_TOut(unplaced.GetTOut2()< DBL_MIN);
+        
+        MaskedAssign(mask_TOut, unplaced.GetRmax()-r, &safeOuter);
+        
+        // Corresponding position and normal on hyperbolic
+        Float_t rh = Sqrt( unplaced.GetRmax2() + absZ*absZ*unplaced.GetTOut2() );
+        
+        Float_t dr = -rh;
+        Float_t dz_mari = absZ*unplaced.GetTOut2();
+        Float_t lenOuter = Sqrt(dr*dr + dz_mari*dz_mari);
+        // Answer
+        MaskedAssign(!mask_TOut, Abs((r-rh)*dr)/lenOuter, &safeOuter);
+        
+        if(unplaced.GetEndInnerRadius()!=0)
+        {
+            //INNER
+            Float_t safeInner;
+        
+            Bool_t mask_TIn(unplaced.GetTIn()< DBL_MIN);
+            MaskedAssign(mask_TIn, r-unplaced.GetRmin(), &safeInner);
+
+            // First point
+        
+            Float_t z1 = absZ;
+            Float_t r1 = Sqrt( unplaced.GetRmin2() + z1*z1*unplaced.GetTIn2() );
+        
+            // Second point
+      
+            Float_t z2 = (r*unplaced.GetTIn() + absZ)/(1 + unplaced.GetTIn2());
+            Float_t r2 = Sqrt( unplaced.GetRmin2() + z2*z2*unplaced.GetTIn2() );
+        
+            // Line between them
+      
+            Float_t drInner = r2-r1;
+            Float_t dzInner = z2-z1;
+        
+            Float_t lenInner = Sqrt(drInner*drInner + dzInner*dzInner);
+            Bool_t mask_len(lenInner < DBL_MIN);
+        
+            Float_t drInner2 = r-r1;
+            Float_t dzInner2 = absZ-z1;
+
+            MaskedAssign(mask_len && !mask_TIn, Sqrt(drInner2*drInner2 + dzInner2*dzInner2), &safeInner);
+            MaskedAssign(!mask_len && !mask_TIn, Abs((r-r1)*dzInner - (absZ-z1)*drInner)/lenInner, &safeInner);
+        
+            Float_t safe=Min(safeZ, safeOuter);
+            safe=Min(safe, safeInner);
+        
+            safety=safe;
+        }
+
     }
     
 } // End global namespace
