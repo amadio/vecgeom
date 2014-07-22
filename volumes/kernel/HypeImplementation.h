@@ -604,7 +604,8 @@ namespace VECGEOM_NAMESPACE {
         Float_t mOut=(zHypeSqOut-absZ)/drOut;
     
         Float_t safe = mOut*drOut/Sqrt(1.+mOut*mOut);
-        MaskedAssign(!mask_fStOut && !mask_drOut, safe, &safermax);
+        Bool_t doneOuter(mask_fStOut || mask_drOut);
+        MaskedAssign(!done, safe, &safermax);
         Float_t max_safety= Max(safermax, safeZ);
         
         ////Check for Inner Threatment -->this should be managed as a specialization
@@ -684,7 +685,8 @@ namespace VECGEOM_NAMESPACE {
         Float_t mOut=(zHypeSqOut-absZ)/drOut;
         
         Float_t safe = mOut*drOut/Sqrt(1.+mOut*mOut);
-        MaskedAssign(!mask_fStOut && !mask_drOut, safe, &safermax);
+        Bool_t doneOuter(mask_fStOut || mask_drOut);
+        MaskedAssign(!doneOuter, safe, &safermax);
         Float_t max_safety= Max(safermax, safeZ);
         
         //Check for Inner Threatment
@@ -764,7 +766,8 @@ namespace VECGEOM_NAMESPACE {
         Float_t mOut=(zHypeSqOut-absZ)/drOut;
 
         Float_t safe = mOut*drOut/Sqrt(1.+mOut*mOut);
-        MaskedAssign(!mask_fStOut && !mask_drOut, safe, &safermax);
+        Bool_t doneOuter(mask_fStOut || mask_drOut);
+        MaskedAssign(!doneOuter, safe, &safermax);
         Float_t max_safety= Max(safermax, safeZ);
         
         //Check for Inner Threatment
