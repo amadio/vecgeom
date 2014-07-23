@@ -40,6 +40,9 @@ namespace VECGEOM_NAMESPACE {
         fTIn2=fTIn*fTIn;                    //squared value of fTIn
         fTOut2=fTOut*fTOut;                 //squared value of fTOut
         
+        fTIn2Inv=1./fTIn2;
+        fTOut2Inv=1./fTOut2;
+        
         fRmin2=fRmin*fRmin;
         fRmax2=fRmax*fRmax;
         fDz2=fDz*fDz;

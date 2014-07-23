@@ -96,6 +96,12 @@ public:
     Precision GetTOut2() const{ return GetUnplacedVolume()->GetTOut2();}
     
     VECGEOM_CUDA_HEADER_BOTH
+    Precision GetTIn2Inv() const{ return GetUnplacedVolume()->GetTIn2Inv();}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetTOut2Inv() const{ return GetUnplacedVolume()->GetTOut2Inv();}
+    
+    VECGEOM_CUDA_HEADER_BOTH
     Precision GetDz() const{ return GetUnplacedVolume()->GetDz();}
     
     VECGEOM_CUDA_HEADER_BOTH

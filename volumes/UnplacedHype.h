@@ -43,13 +43,15 @@ private:
     Precision fDz;      //z-coordinate of the cutting planes
     
     //Precomputed Values
-    Precision fTIn;     //Tangent of the Inner stereo angle
-    Precision fTOut;    //Tangent of the Outer stereo angle
-    Precision fTIn2;    //Squared value of fTIn
-    Precision fTOut2;   //Squared value of fTOut
-    Precision fRmin2;   //Squared Inner radius
-    Precision fRmax2;   //Squared Outer radius
-    Precision fDz2;     //Squared z-coordinate
+    Precision fTIn;         //Tangent of the Inner stereo angle
+    Precision fTOut;        //Tangent of the Outer stereo angle
+    Precision fTIn2;        //Squared value of fTIn
+    Precision fTOut2;       //Squared value of fTOut
+    Precision fTIn2Inv;     //Inverse of fTIn2
+    Precision fTOut2Inv;    //Inverse of fTOut2
+    Precision fRmin2;       //Squared Inner radius
+    Precision fRmax2;       //Squared Outer radius
+    Precision fDz2;         //Squared z-coordinate
     
     Precision fEndInnerRadius2;  // Squared endcap Inner Radius
     Precision fEndOuterRadius2;  // Squared endcap Outer Radius
@@ -58,6 +60,7 @@ private:
     
     Precision fInSqSide;         //side of the square inscribed in the inner circle
                                  //Sqrt(2)*unplaced.GetRmin()
+    
 
 public:
     
@@ -95,6 +98,12 @@ public:
     
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetTOut2() const{ return fTOut2;}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetTIn2Inv() const{ return fTIn2Inv;}
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetTOut2Inv() const{ return fTOut2Inv;}
     
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetDz() const{ return fDz;}

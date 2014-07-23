@@ -601,15 +601,15 @@ namespace VECGEOM_NAMESPACE {
         Bool_t mask_fStOut(Abs(unplaced.GetStOut())<kTolerance);
         MaskedAssign(!mask_drOut && mask_fStOut, Abs(drOut), &safermax);
         
-        Float_t zHypeSqOut= Sqrt((r*r-unplaced.GetRmax2())/(unplaced.GetTOut2()));
+        Float_t zHypeSqOut= Sqrt((r*r-unplaced.GetRmax2())*(unplaced.GetTOut2Inv()));
         Float_t mOut=(zHypeSqOut-absZ)/drOut;
     
         Float_t safe = mOut*drOut/Sqrt(1.+mOut*mOut);
         Bool_t doneOuter(mask_fStOut || mask_drOut);
-        MaskedAssign(!done, safe, &safermax);
+        MaskedAssign(!doneOuter, safe, &safermax);
         Float_t max_safety= Max(safermax, safeZ);
         
-        ////Check for Inner Threatment -->this should be managed as a specialization
+        //Check for Inner Threatment -->this should be managed as a specialization
         if(unplaced.GetEndInnerRadius()!=0)
         {
             Float_t safermin=0.;
@@ -630,10 +630,10 @@ namespace VECGEOM_NAMESPACE {
             MaskedAssign(!mask_drIn && !mask_fStIn && !mask_fRmin && mask_drMin, 0., &safermin);
             Bool_t doneInner(mask_drIn || mask_fStIn ||mask_fRmin || mask_drMin );
           
-            Float_t zHypeSqIn= Sqrt( (r*r-unplaced.GetRmin2()) / (unplaced.GetTIn2()) );
-            Float_t mIn=rhIn/(unplaced.GetTIn2()*absZ);
+            Float_t zHypeSqIn= Sqrt( (r*r-unplaced.GetRmin2()) *(unplaced.GetTIn2Inv()) );
+            Float_t mIn=-rhIn*unplaced.GetTIn2Inv()/absZ;
             
-            safe = -mIn*drIn/Sqrt(1.+mIn*mIn);
+            safe = mIn*drIn/Sqrt(1.+mIn*mIn);
             MaskedAssign(!doneInner, safe, &safermin);
             max_safety= Max(max_safety, safermin);
         }
@@ -682,7 +682,7 @@ namespace VECGEOM_NAMESPACE {
         Bool_t mask_fStOut(Abs(unplaced.GetStOut())<kTolerance);
         MaskedAssign(!mask_drOut && mask_fStOut, Abs(drOut), &safermax);
         
-        Float_t zHypeSqOut= Sqrt((r*r-unplaced.GetRmax2())/(unplaced.GetTOut2()));
+        Float_t zHypeSqOut= Sqrt((r*r-unplaced.GetRmax2())*(unplaced.GetTOut2Inv()));
         Float_t mOut=(zHypeSqOut-absZ)/drOut;
         
         Float_t safe = mOut*drOut/Sqrt(1.+mOut*mOut);
@@ -711,10 +711,10 @@ namespace VECGEOM_NAMESPACE {
             MaskedAssign(!mask_drIn && !mask_fStIn && !mask_fRmin && mask_drMin, 0., &safermin);
             Bool_t doneInner(mask_drIn || mask_fStIn ||mask_fRmin || mask_drMin );
 
-            Float_t zHypeSqIn= Sqrt( (r*r-unplaced.GetRmin2()) / (unplaced.GetTIn2()) );
+            Float_t zHypeSqIn= Sqrt( (r*r-unplaced.GetRmin2()) *(unplaced.GetTIn2Inv()) );
             
-            Float_t mIn=rhIn/(unplaced.GetTIn2()*absZ);
-            safe = -mIn*drIn/Sqrt(1.+mIn*mIn);
+            Float_t mIn=-rhIn*unplaced.GetTIn2Inv()/absZ;
+            safe = mIn*drIn/Sqrt(1.+mIn*mIn);
             MaskedAssign(!doneInner, safe, &safermin);
             max_safety= Max(max_safety, safermin);
         }
@@ -763,7 +763,7 @@ namespace VECGEOM_NAMESPACE {
         Bool_t mask_fStOut(Abs(unplaced.GetStOut())<kTolerance);
         MaskedAssign(!mask_drOut && mask_fStOut, Abs(drOut), &safermax);
         
-        Float_t zHypeSqOut= Sqrt((r*r-unplaced.GetRmax2())/(unplaced.GetTOut2()));
+        Float_t zHypeSqOut= Sqrt((r*r-unplaced.GetRmax2())*(unplaced.GetTOut2Inv()));
         Float_t mOut=(zHypeSqOut-absZ)/drOut;
 
         Float_t safe = mOut*drOut/Sqrt(1.+mOut*mOut);
@@ -793,10 +793,10 @@ namespace VECGEOM_NAMESPACE {
             Bool_t doneInner(mask_drIn || mask_fStIn ||mask_fRmin || mask_drMin );
             
            
-            Float_t zHypeSqIn= Sqrt( (r*r-unplaced.GetRmin2()) / (unplaced.GetTIn2()) );
+            Float_t zHypeSqIn= Sqrt( (r*r-unplaced.GetRmin2()) * (unplaced.GetTIn2Inv()) );
             
-            Float_t mIn=rhIn/(unplaced.GetTIn2()*absZ);
-            safe = -mIn*drIn/Sqrt(1.+mIn*mIn);
+            Float_t mIn=-rhIn*unplaced.GetTIn2Inv()/absZ;
+            safe = mIn*drIn/Sqrt(1.+mIn*mIn);
             MaskedAssign(!doneInner, safe, &safermin);
             max_safety= Max(max_safety, safermin);
         }
