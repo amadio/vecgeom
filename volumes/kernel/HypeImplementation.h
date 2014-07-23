@@ -651,7 +651,7 @@ namespace VECGEOM_NAMESPACE {
         //The square inscribed in the inner circle has side=r*sqrt(2)
         Float_t safeX_In=absX-unplaced.GetInSqSide();
         Float_t safeY_In=absY-unplaced.GetInSqSide();
-        Bool_t  mask_bcIn= (safeX_In<0) &&(safeY_In<0)  && (safeZ>0);
+        Bool_t  mask_bcIn= (safeX_In<0) &&(safeY_In<0) && (safeZ>0);
         safety_t=Min(safeX_In, safeY_In);
         safety_t=Min(safety_t, safeZ);
         Bool_t done(mask_bcIn);
@@ -728,17 +728,21 @@ namespace VECGEOM_NAMESPACE {
         Float_t absX= Abs(point.x());
         Float_t absY= Abs(point.y());
         
-        Float_t rho=Sqrt(point.x()*point.x()+point.y()*point.y());
-    
+        //Then calculate accurate value
+        Float_t rsq = point.x()*point.x()+point.y()*point.y();
+        Float_t r = Sqrt(rsq);
+        
+        
         //check if the point is inside the inner-bounding cylinder
-        Float_t safeRhoIn=unplaced.GetRmin()-rho;
+        Float_t safeRhoIn=unplaced.GetRmin()-r;
         Bool_t  mask_bcIn= (safeRhoIn>0) && (safeZ>0);
         safety_t=Min(safeZ, safeRhoIn);
         Bool_t done(mask_bcIn);
+        MaskedAssign(done, safety_t, &safety);
         if (Backend::early_returns && done == Backend::kTrue) return;
         
         //check if the point is outside the outer-bounding cylinder
-        Float_t safeRhoOut=rho-unplaced.GetEndOuterRadius();
+        Float_t safeRhoOut=r-unplaced.GetEndOuterRadius();
         Bool_t  mask_bcOut= (safeRhoOut>0) || (safeZ>0);
         
         safety_t=Max(safeZ, safeRhoOut);
@@ -746,10 +750,6 @@ namespace VECGEOM_NAMESPACE {
         done|=mask_bcOut;
         if (Backend::early_returns && done == Backend::kTrue) return;
     
-        //Then calculate accurate value
-        Float_t rsq = point.x()*point.x()+point.y()*point.y();
-        Float_t r = Sqrt(rsq);
-        
         //Outer
         Float_t rhsqOut=unplaced.GetRmax2()+unplaced.GetTOut2()*point.z()*point.z();
         Float_t rhOut = Sqrt(rhsqOut);
@@ -781,16 +781,19 @@ namespace VECGEOM_NAMESPACE {
             
             Bool_t mask_drIn(drIn>0.);
             MaskedAssign(mask_drIn, -kInfinity, &safermin);
+            Bool_t doneInner(mask_drIn);
             
-            Bool_t mask_fStIn(Abs(unplaced.GetStIn()<kTolerance));
-            MaskedAssign(!mask_drIn && mask_fStIn , Abs(drIn), &safermin);
+            //Bool_t mask_fStIn(Abs(unplaced.GetStIn()<kTolerance));
+            //MaskedAssign(!doneInner && mask_fStIn , Abs(drIn), &safermin);
+            //doneInner|=mask_fStIn;
             
-            Bool_t mask_fRmin(unplaced.GetRmin()<kTolerance);
-            MaskedAssign(! mask_drIn && !mask_fStIn && mask_fRmin, drIn/Sqrt(1.+unplaced.GetTIn2()), &safermin);
+            //Bool_t mask_fRmin(unplaced.GetRmin()<kTolerance);
+            //MaskedAssign(!doneInner && mask_fRmin, drIn/Sqrt(1.+unplaced.GetTIn2()), &safermin);
+            //doneInner|=mask_fRmin;
             
-            Bool_t mask_drMin=Abs(drIn)<kTolerance;
-            MaskedAssign(!mask_drIn && !mask_fStIn && !mask_fRmin && mask_drMin, 0., &safermin);
-            Bool_t doneInner(mask_drIn || mask_fStIn ||mask_fRmin || mask_drMin );
+            //Bool_t mask_drMin=Abs(drIn)<kTolerance;
+            //MaskedAssign(!doneInner && mask_drMin , 0., &safermin);
+            //doneInner|=mask_fRmin;
             
            
             Float_t zHypeSqIn= Sqrt( (r*r-unplaced.GetRmin2()) * (unplaced.GetTIn2Inv()) );
