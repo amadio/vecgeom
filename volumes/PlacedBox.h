@@ -11,7 +11,12 @@
 #include "volumes/UnplacedVolume.h"
 #include "volumes/kernel/BoxImplementation.h"
 
-namespace VECGEOM_NAMESPACE {
+namespace vecgeom {
+
+VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedBox; )
+VECGEOM_DEVICE_DECLARE_CONV( PlacedBox )
+
+inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class PlacedBox : public VPlacedVolume {
 
@@ -40,7 +45,7 @@ public:
       : VPlacedVolume(logicalVolume, transformation, boundingBox, id) {}
 
 #endif
-
+  VECGEOM_CUDA_HEADER_BOTH
   virtual ~PlacedBox() {}
 
   // Accessors
@@ -48,7 +53,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedBox const* GetUnplacedVolume() const {
     return static_cast<UnplacedBox const *>(
-        logical_volume()->unplaced_volume());
+        GetLogicalVolume()->unplaced_volume());
   }
 
 
@@ -70,6 +75,40 @@ public:
   VECGEOM_INLINE
   Precision z() const { return GetUnplacedVolume()->z(); }
 
+#if !defined(VECGEOM_NVCC)
+  virtual Precision Capacity() override {
+      return GetUnplacedVolume()->volume();
+  }
+
+  virtual
+  void Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & aMax) const override
+  {
+    GetUnplacedVolume()->Extent(aMin, aMax);
+  }
+
+  virtual
+  bool Normal(Vector3D<Precision> const & point, Vector3D<Precision> & normal ) const
+  {
+      bool valid;
+      BoxImplementation<translation::kIdentity, rotation::kIdentity>::NormalKernel<kScalar>(
+              *GetUnplacedVolume(),
+              point,
+              normal, valid);
+      return valid;
+  }
+
+  virtual
+  Vector3D<Precision> GetPointOnSurface() const {
+    return GetUnplacedVolume()->GetPointOnSurface();
+  }
+
+  virtual double SurfaceArea() override {
+     return GetUnplacedVolume()->SurfaceArea();
+  }
+
+  virtual std::string GetEntityType() const { return GetUnplacedVolume()->GetEntityType() ;}
+#endif
+
   VECGEOM_CUDA_HEADER_BOTH
   virtual void PrintType() const;
 
@@ -77,19 +116,9 @@ public:
 
   virtual int memory_size() const { return sizeof(*this); }
 
-#ifdef VECGEOM_CUDA_INTERFACE
-  virtual VPlacedVolume* CopyToGpu(
-      LogicalVolume const *const logical_volume,
-      Transformation3D const *const transformation,
-      VPlacedVolume *const gpu_ptr) const;
-  virtual VPlacedVolume* CopyToGpu(
-      LogicalVolume const *const logical_volume,
-      Transformation3D const *const transformation) const;
-#endif
-
   // Comparison specific
 
-#ifdef VECGEOM_BENCHMARK
+#ifndef VECGEOM_NVCC
   virtual VPlacedVolume const* ConvertToUnspecialized() const;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const* ConvertToRoot() const;
@@ -97,10 +126,13 @@ public:
 #ifdef VECGEOM_USOLIDS
   virtual ::VUSolid const* ConvertToUSolids() const;
 #endif
-#endif // VECGEOM_BENCHMARK
+#ifdef VECGEOM_GEANT4
+  virtual G4VSolid const* ConvertToGeant4() const;
+#endif
+#endif // VECGEOM_NVCC
 
 };
 
-} // End global namespace
+} } // End global namespace
 
 #endif // VECGEOM_VOLUMES_PLACEDBOX_H_

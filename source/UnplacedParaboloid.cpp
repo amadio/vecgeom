@@ -1,4 +1,5 @@
 /// \file UnplacedParaboloid.cpp
+/// \author Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
 
 #include "volumes/UnplacedParaboloid.h"
 
@@ -6,16 +7,262 @@
 #include "volumes/SpecializedParaboloid.h"
 
 #include <stdio.h>
+#if !defined(VECGEOM_NVCC)
+#include "base/RNG.h"
+#endif
 
-namespace VECGEOM_NAMESPACE {
+namespace vecgeom {
+inline namespace VECGEOM_IMPL_NAMESPACE {
+    
+//__________________________________________________________________
+    VECGEOM_CUDA_HEADER_BOTH
+    UnplacedParaboloid::UnplacedParaboloid() :
+fRlo(0),
+fRhi(0),
+fDz(0),
+fA(0),
+fB(0),
+fAinv(0),
+fBinv(0),
+fA2(0),
+fB2(0),
+fRlo2(0),
+fRhi2(0),
+fTolIz(0),
+fTolOz(0),
+fTolIrlo2(0),
+fTolOrlo2(0),
+fTolIrhi2(0),
+fTolOrhi2(0),
+fDx(0),
+fDy(0)
+    {
+        //dummy constructor
+    }
+//__________________________________________________________________
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    UnplacedParaboloid::UnplacedParaboloid(const Precision rlo,  const Precision rhi, const Precision dz):
+fRlo(0),
+fRhi(0),
+fDz(0),
+fA(0),
+fB(0),
+fAinv(0),
+fBinv(0),
+fA2(0),
+fB2(0),
+fRlo2(0),
+fRhi2(0),
+fTolIz(0),
+fTolOz(0),
+fTolIrlo2(0),
+fTolOrlo2(0),
+fTolIrhi2(0),
+fTolOrhi2(0),
+fDx(0),
+fDy(0)
+    {
+        SetRloAndRhiAndDz(rlo, rhi, dz);
+    }
+//__________________________________________________________________
 
-void UnplacedParaboloid::Print() const {
-  // NYI
-}
+    VECGEOM_CUDA_HEADER_BOTH
+    void UnplacedParaboloid::SetRlo(const Precision rlo) {
+        SetRloAndRhiAndDz(rlo, fRhi, fDz);
+    }
+//__________________________________________________________________
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    void UnplacedParaboloid::SetRhi(const Precision rhi) {
+        SetRloAndRhiAndDz(fRlo, rhi, fDz);
+    }
 
-void UnplacedParaboloid::Print(std::ostream &os) const {
-  // NYI
-}
+//__________________________________________________________________
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    void UnplacedParaboloid::SetDz(const Precision dz) {
+        SetRloAndRhiAndDz(fRlo, fRhi, dz);
+    }
+//__________________________________________________________________
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    void UnplacedParaboloid::SetRloAndRhiAndDz(const Precision rlo,
+                                               const Precision rhi, const Precision dz) {
+        
+        if ((rlo<0) || (rhi<0) || (dz<=0)) {
+            
+            printf("Error SetRloAndRhiAndDz: invadil dimensions. Check (rlo>=0) (rhi>=0) (dz>0)\n");
+            return;
+        }
+        fRlo = rlo;
+        fRhi = rhi;
+        
+        fRlo2= fRlo*fRlo;
+        fRhi2= fRhi*fRhi;
+        
+        fDz = dz;
+        Precision dd = 1./(fRhi2 - fRlo2);
+        fA = 2.*fDz*dd;
+        fB = - fDz * (fRlo2 + fRhi2)*dd;
+        
+        fAinv=1/fA;
+        fBinv=1/fB;
+        fA2=fA*fA;
+        fB2=fB*fB;
+        
+        //Inside tolerance for plane at dZ
+        fTolIz= fDz-kHalfTolerance;
+        //Outside tolerance for plane at -dZ
+        fTolOz=fDz+kHalfTolerance;
+        //Inside tolerance for Rlo, squared
+        fTolIrlo2= (fRlo - kHalfTolerance)*(fRlo - kHalfTolerance);
+        //Outside tolerance for Rlo, squared
+        fTolOrlo2= (fRlo + kHalfTolerance)*(fRlo + kHalfTolerance);
+        //Inside tolerance for Rhi, squared
+        fTolIrhi2=(fRhi - kHalfTolerance)*(fRhi - kHalfTolerance);
+        //Outside tolerance for Rhi, squared
+        fTolOrhi2=(fRhi + kHalfTolerance)*(fRhi + kHalfTolerance);
+        
+        ComputeBoundingBox();
+    }
+
+//__________________________________________________________________
+
+#ifndef VECGEOM_NVCC
+    void UnplacedParaboloid::Normal(const Precision *point, const Precision *dir, Precision *norm) const {
+       
+        // Compute normal to closest surface from POINT.
+        norm[0] = norm[1] = 0.0;
+        if (Abs(point[2]) > fDz) {
+            //norm[2] = TMath::Sign(1., dir[2]);
+            dir[2]>0 ? norm[2]=1 : norm[2]=-1;
+            return;
+        }
+        Precision safz = fDz-Abs(point[2]);
+        Precision r = Sqrt(point[0]*point[0]+point[1]*point[1]);
+        Precision safr = Abs(r-Sqrt((point[2]-fB)*fAinv));
+        if (safz<safr) {
+            //norm[2] = TMath::Sign(1., dir[2]);
+            dir[2]>0 ? norm[2]=1 : norm[2]=-1;
+            return;
+        }
+        Precision talf = -2.*fA*r;
+        Precision calf = 1./Sqrt(1.+talf*talf);
+        Precision salf = talf * calf;
+        Precision phi = ATan2(point[1], point[0]);
+        
+        norm[0] = salf*cos(phi);
+        norm[1] = salf*sin(phi);
+        norm[2] = calf;
+        Precision ndotd = norm[0]*dir[0]+norm[1]*dir[1]+norm[2]*dir[2];
+        if (ndotd < 0) {
+            norm[0] = -norm[0];
+            norm[1] = -norm[1];
+            norm[2] = -norm[2];
+        }
+    }
+    
+//__________________________________________________________________
+
+    // Returns the full 3D cartesian extent of the solid.
+    void UnplacedParaboloid::Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const {
+        aMin.x() = -fDx;
+        aMax.x() = fDx;
+        aMin.y() = -fDy;
+        aMax.y() = fDy;
+        aMin.z() = -fDz;
+        aMax.z() = fDz;
+    }
+    
+//__________________________________________________________________
+
+    Precision UnplacedParaboloid::SurfaceArea() const
+    {
+    
+        //G4 implementation
+        Precision h1, h2, A1, A2;
+        h1=-fB+fDz;
+        h2=-fB-fDz;
+        
+        // Calculate surface area for the paraboloid full paraboloid
+        // cutoff at z = dz (not the cutoff area though).
+        A1 = fRhi2 + 4 * h1*h1;
+        A1 *= (A1*A1); // Sets A1 = A1^3
+        A1 = kPi * fRhi /6 / (h1*h1) * ( sqrt(A1) - fRhi2 * fRhi);
+        
+        // Calculate surface area for the paraboloid full paraboloid
+        // cutoff at z = -dz (not the cutoff area though).
+        A2 = fRlo2 + 4 * (h2*h2);
+        A2 *= (A2*A2); // Sets A2 = A2^3
+        
+        if(h2 != 0)
+            A2 = kPi * fRlo /6 / (h2*h2) * (Sqrt(A2) - fRlo2 * fRlo);
+        else
+            A2 = 0.;
+        return (A1 - A2 + (fRlo2 + fRhi2)*kPi);
+    
+    }
+    //__________________________________________________________________
+
+    Vector3D<Precision> UnplacedParaboloid::GetPointOnSurface() const{
+        
+        //G4 implementation
+        Precision A = SurfaceArea();
+        Precision z = RNG::Instance().uniform(0.,1.);
+        Precision phi = RNG::Instance().uniform(0.,2*kPi);
+            if(kPi*(fRlo2 + fRhi2)/A >= z)
+            {
+                Precision rho;
+                //points on the cutting circle surface at -dZ
+                if(kPi * fRlo2/ A > z)
+                {
+                    rho = fRlo * Sqrt(RNG::Instance().uniform(0.,1.));
+                    return Vector3D<Precision>(rho * cos(phi), rho * sin(phi), -fDz);
+                }
+                //points on the cutting circle surface at dZ
+                else
+                {
+                    rho = fRhi * Sqrt(RNG::Instance().uniform(0.,1.));
+                    return Vector3D<Precision>(rho * cos(phi), rho * sin(phi), fDz);
+                }
+            }
+            //points on the paraboloid surface
+            else
+            {
+                z = RNG::Instance().uniform(0.,1.)*2*fDz - fDz;
+                return Vector3D<Precision>(Sqrt(z*fAinv -fB*fAinv)*cos(phi), Sqrt(z*fAinv -fB*fAinv)*sin(phi), z);
+            }
+        }
+#endif  // !VECGEOM_NVCC
+    
+//__________________________________________________________________
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    void UnplacedParaboloid::ComputeBoundingBox() {
+        fDx= Max(fRhi, fRlo);
+        fDy=fDx;
+    }
+
+//__________________________________________________________________
+    
+    VECGEOM_CUDA_HEADER_BOTH
+    void UnplacedParaboloid::StreamInfo(std::ostream &os) const{
+        //NYI
+    }
+
+//__________________________________________________________________
+    
+    void UnplacedParaboloid::Print() const {
+        printf("UnplacedParaboloid {%.2f, %.2f, %.2f, %.2f, %.2f}",
+               GetRlo(), GetRhi(), GetDz(), GetA(), GetB());
+    }
+//__________________________________________________________________
+    
+    void UnplacedParaboloid::Print(std::ostream &os) const {
+        os << "UnplacedParaboloid {" << GetRlo() << ", " << GetRhi() << ", " << GetDz()
+        << ", " << GetA() << ", " << GetB();
+    }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECGEOM_CUDA_HEADER_DEVICE
@@ -59,41 +306,32 @@ VPlacedVolume* UnplacedParaboloid::SpecializedVolume(
                               placement);
 }
 
-} // End global namespace
-
-namespace vecgeom {
-
 #ifdef VECGEOM_CUDA_INTERFACE
 
-void UnplacedParaboloid_CopyToGpu(VUnplacedVolume *const gpu_ptr);
-
-VUnplacedVolume* UnplacedParaboloid::CopyToGpu(
-    VUnplacedVolume *const gpu_ptr) const {
-  UnplacedParaboloid_CopyToGpu(gpu_ptr);
-  CudaAssertError();
-  return gpu_ptr;
+DevicePtr<cuda::VUnplacedVolume> UnplacedParaboloid::CopyToGpu(
+   DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
+{
+   return CopyToGpuImpl<UnplacedParaboloid>(in_gpu_ptr, GetRlo(), GetRhi(), GetDz());
 }
 
-VUnplacedVolume* UnplacedParaboloid::CopyToGpu() const {
-  VUnplacedVolume *const gpu_ptr = AllocateOnGpu<UnplacedParaboloid>();
-  return this->CopyToGpu(gpu_ptr);
+DevicePtr<cuda::VUnplacedVolume> UnplacedParaboloid::CopyToGpu() const
+{
+   return CopyToGpuImpl<UnplacedParaboloid>();
 }
 
-#endif
+#endif // VECGEOM_CUDA_INTERFACE
+
+} // End impl namespace
 
 #ifdef VECGEOM_NVCC
 
-class VUnplacedVolume;
+namespace cxx {
 
-__global__
-void UnplacedParaboloid_ConstructOnGpu(VUnplacedVolume *const gpu_ptr) {
-  new(gpu_ptr) vecgeom_cuda::UnplacedParaboloid();
-}
+template size_t DevicePtr<cuda::UnplacedParaboloid>::SizeOf();
+template void DevicePtr<cuda::UnplacedParaboloid>::Construct(const Precision rlo, const Precision rhi, const Precision dz) const;
 
-void UnplacedParaboloid_CopyToGpu(VUnplacedVolume *const gpu_ptr) {
-  UnplacedParaboloid_ConstructOnGpu<<<1, 1>>>(gpu_ptr);
-}
+} // End cxx namespace
 
 #endif
 
-} // End namespace vecgeom
+} // End global namespace

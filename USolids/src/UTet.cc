@@ -226,15 +226,15 @@ VUSolid::EnumInside UTet::Inside(const UVector3& p) const
       (r142 = p.Dot(fNormal142) - fCdotN142) > fTol ||
       (r234 = p.Dot(fNormal234) - fCdotN234) > fTol)
   {
-    return vecgeom::EInside::kOutside; // at least one is out!
+    return vecgeom::EnumInside::kOutside; // at least one is out!
   }
   else if ((r123 < -fTol) && (r134 < -fTol) && (r142 < -fTol) && (r234 < -fTol))
   {
-    return vecgeom::EInside::kInside; // all are definitively inside
+    return vecgeom::EnumInside::kInside; // all are definitively inside
   }
   else
   {
-    return vecgeom::EInside::kSurface; // too close to tell
+    return vecgeom::EnumInside::kSurface; // too close to tell
   }
 }
 
@@ -615,12 +615,12 @@ std::vector<UVector3> UTet::GetVertices() const
 void UTet::Extent(UVector3& aMin, UVector3& aMax) const
 {
   // Returns the full 3D cartesian extent of the solid.
-  aMin.x() = -fDx;
-  aMax.x() = fDx;
-  aMin.y() = -fDy;
-  aMax.y() = fDy;
-  aMin.z() = -fDz;
-  aMax.z() = fDz;
+  aMin.x() = fXMin; // (fXMax - fXMin) * 0.5;
+  aMax.x() = fXMax;
+  aMin.y() = fYMin;
+  aMax.y() = fYMax;
+  aMin.z() = fZMin;
+  aMax.z() = fZMax;
 }
 //______________________________________________________________________________
 void UTet::GetParametersList(int, double* aArray) const

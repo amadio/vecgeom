@@ -20,9 +20,8 @@
 #endif
 #include <cassert>
 
-namespace VECGEOM_NAMESPACE
-{
-
+namespace vecgeom {
+inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class SimpleNavigator
 {
@@ -42,6 +41,10 @@ public:
                 Vector3D<Precision> const & /* globalpoint */,
                 NavigationState & /* state (volume path) to be returned */,
                 bool /*top*/) const;
+
+  VECGEOM_CUDA_HEADER_BOTH
+   VECGEOM_INLINE
+   SimpleNavigator(){}
 
    /**
     * function to locate a global point in the geometry hierarchy
@@ -113,8 +116,8 @@ public:
     *
     * The Container3D has to be either SOA3D or AOS3D
     */
-   VECGEOM_CUDA_HEADER_BOTH
    template <typename Container3D>
+   VECGEOM_CUDA_HEADER_BOTH
    void GetSafeties( Container3D const & /*global_points*/,
                    NavigationState **  /*currentstates*/,
                    Container3D & /*workspace for localpoints*/,
@@ -126,8 +129,8 @@ public:
     * Note that the user has to provide a couple of workspace memories; This is the easiest way to make the navigator fully
     * threadsafe
     */
-   VECGEOM_CUDA_HEADER_BOTH
    template <typename Container3D>
+   VECGEOM_CUDA_HEADER_BOTH
    void FindNextBoundaryAndStep(
          Container3D const & /*global point*/,
          Container3D const & /*global dirs*/,
@@ -177,7 +180,7 @@ SimpleNavigator::LocatePoint( VPlacedVolume const * vol, Vector3D<Precision> con
    if( candvolume )
    {
       path.Push( candvolume );
-      Vector<Daughter> const * daughters = candvolume->logical_volume()->daughtersp();
+      Vector<Daughter> const * daughters = candvolume->GetLogicalVolume()->daughtersp();
 
       bool godeeper = true;
       while( godeeper && daughters->size() > 0)
@@ -193,7 +196,7 @@ SimpleNavigator::LocatePoint( VPlacedVolume const * vol, Vector3D<Precision> con
                path.Push( nextvolume );
                tmp = transformedpoint;
                candvolume =  nextvolume;
-               daughters = candvolume->logical_volume()->daughtersp();
+               daughters = candvolume->GetLogicalVolume()->daughtersp();
                godeeper=true;
                break;
             }
@@ -219,7 +222,7 @@ SimpleNavigator::RelocatePointFromPath( Vector3D<Precision> const & localpoint,
       while( currentmother && ! currentmother->UnplacedContains( tmp ) )
       {
          path.Pop();
-         Vector3D<Precision> pointhigherup = currentmother->transformation()->InverseTransform( tmp );
+         Vector3D<Precision> pointhigherup = currentmother->GetTransformation()->InverseTransform( tmp );
          tmp=pointhigherup;
          currentmother=path.Top();
       }
@@ -267,20 +270,20 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
    VPlacedVolume const * currentvolume = currentstate.Top();
    int nexthitvolume = -1; // means mother
 
-   step = currentvolume->DistanceToOut( localpoint, localdir, pstep );
+   if(currentvolume) step = currentvolume->DistanceToOut( localpoint, localdir, pstep );
 
    // NOTE: IF STEP IS NEGATIVE HERE, SOMETHING IS TERRIBLY WRONG. WE CAN TRY TO HANDLE THE SITUATION
    // IN TRYING TO PROPOSE THE RIGHT LOCATION IN NEWSTATE AND RETURN
    // I WOULD MUCH FAVOUR IF THIS WAS DONE OUTSIDE OF THIS FUNCTION BY THE USER
    if( step < 0. )
    {
-	   newstate = currentstate;
-	   RelocatePointFromPath( localpoint, newstate );
-	   return;
+       newstate = currentstate;
+       RelocatePointFromPath( localpoint, newstate );
+       return;
    }
 
    // iterate over all the daughter
-   Vector<Daughter> const * daughters = currentvolume->logical_volume()->daughtersp();
+   Vector<Daughter> const * daughters = currentvolume->GetLogicalVolume()->daughtersp();
 
    for(int d = 0; d<daughters->size(); ++d)
    {
@@ -294,7 +297,7 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
 
    // now we have the candidates
    // try
-   newstate=currentstate;
+   newstate = currentstate;
 
    // is geometry further away than physics step?
    if(step > pstep)
@@ -306,6 +309,7 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
    }
    newstate.SetBoundaryState( true );
 
+
    // TODO: this is tedious, please provide operators in Vector3D!!
    // WE SHOULD HAVE A FUNCTION "TRANSPORT" FOR AN OPERATION LIKE THIS
    Vector3D<Precision> newpointafterboundary = localdir;
@@ -316,16 +320,18 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
    {
       // continue directly further down
       VPlacedVolume const * nextvol = daughters->operator []( nexthitvolume );
-      Transformation3D const * trans = nextvol->transformation();
+      Transformation3D const * trans = nextvol->GetTransformation();
 
       // this should be inlined here
       LocatePoint( nextvol, trans->Transform(newpointafterboundary), newstate, false );
+      // newstate.Print();
    }
    else
    {
       // continue directly further up
       //LocateLocalPointFromPath_Relative_Iterative( newpointafterboundary, newpointafterboundaryinnewframe, outpath, globalm );
       RelocatePointFromPath( newpointafterboundary, newstate );
+      // newstate.Print();
    }
 }
 
@@ -345,7 +351,7 @@ Precision SimpleNavigator::GetSafety(Vector3D<Precision> const & globalpoint,
    //assert( safety > 0 );
 
    // safety to daughters
-   Vector<Daughter> const * daughters = currentvol->logical_volume()->daughtersp();
+   Vector<Daughter> const * daughters = currentvol->GetLogicalVolume()->daughtersp();
    int numberdaughters = daughters->size();
    for(int d = 0; d<numberdaughters; ++d)
    {
@@ -365,11 +371,12 @@ void SimpleNavigator::GetSafeties(Container3D const & globalpoints,
 {
     int np=globalpoints.size();
     //TODO: we have to care for the padding and tail
+    workspaceforlocalpoints.resize(np);
     for( int i=0; i<np; ++i ){
        // TODO: we might be able to cache the matrices because some of the paths will be identical
        // need to have a quick way ( hash ) to compare paths
        Transformation3D const & m = states[i]->TopMatrix();
-       workspaceforlocalpoints.Set(i, m.Transform( globalpoints[i] ));
+       workspaceforlocalpoints.set(i, m.Transform( globalpoints[i] ));
     }
 
     // vectorized calculation of safety to mother
@@ -380,7 +387,7 @@ void SimpleNavigator::GetSafeties(Container3D const & globalpoints,
     currentvol->SafetyToOut( workspaceforlocalpoints, safeties );
 
     // safety to daughters; brute force but each function vectorized
-    Vector<Daughter> const * daughters = currentvol->logical_volume()->daughtersp();
+    Vector<Daughter> const * daughters = currentvol->GetLogicalVolume()->daughtersp();
     int numberdaughters = daughters->size();
     for (int d = 0; d<numberdaughters; ++d) {
          VPlacedVolume const * daughter = daughters->operator [](d);
@@ -411,13 +418,15 @@ void SimpleNavigator::FindNextBoundaryAndStep(
    // assuming that points and dirs are always global ones,
    // we need to transform to local coordinates first of all
    int np = globalpoints.size();
+   localpoints.resize(np);
+   localdirs.resize(np);
    for (int i=0;i<np;++i)
    {
       // TODO: we might be able to cache the matrices because some of the paths will be identical
       // need to have a quick way ( hash ) to compare paths
       Transformation3D const & m = currentstates[i]->TopMatrix();
-      localpoints.Set(i, m.Transform(globalpoints[i]));
-      localdirs.Set(i, m.TransformDirection(globaldirs[i]));
+      localpoints.set(i, m.Transform(globalpoints[i]));
+      localdirs.set(i, m.TransformDirection(globaldirs[i]));
    }
 
    // attention here: the placed volume will of course differ for the particles;
@@ -431,7 +440,7 @@ void SimpleNavigator::FindNextBoundaryAndStep(
            pSteps, distances, nextnodeworkspace );
 
    // iterate over all the daughter
-   Vector<Daughter> const * daughters = currentvolume->logical_volume()->daughtersp();
+   Vector<Daughter> const * daughters = currentvolume->GetLogicalVolume()->daughtersp();
    for (int daughterindex=0; daughterindex < daughters->size(); ++daughterindex)
    {
       VPlacedVolume const * daughter = daughters->operator [](daughterindex);
@@ -458,7 +467,7 @@ void SimpleNavigator::FindNextBoundaryAndStep(
    // now we have the candidates
    for( int i=0;i<np;++i )
    {
-     *newstates[i]=*currentstates[i];
+     *newstates[i] = *currentstates[i];
 
      // is geometry further away than physics step?
      if( distances[i]>pSteps[i] ) {
@@ -479,7 +488,7 @@ void SimpleNavigator::FindNextBoundaryAndStep(
      {
         // continue directly further down
         VPlacedVolume const * nextvol = daughters->operator []( nextnodeworkspace[i] );
-        Transformation3D const * trans = nextvol->transformation();
+        Transformation3D const * trans = nextvol->GetTransformation();
 
         // this should be inlined here
         LocatePoint( nextvol,
@@ -490,9 +499,10 @@ void SimpleNavigator::FindNextBoundaryAndStep(
         // continue directly further up
         RelocatePointFromPath( newpointafterboundary, *newstates[i] );
      }
+
    } // end loop for relocation
 }
 
-} // end namespace
+} } // End global namespace
 
 #endif /* SIMPLE_NAVIGATOR_H_ */

@@ -52,6 +52,7 @@ CMake options
       Specifies the backend used to generate CPU instructions. Available backends are:
       - Vc
       - Cilk
+      - Scalar
 
     VC_ACCELERATION [ON]
       Utilize Vc to accelerate operations performed on three dimensional vectors with SIMD instructions.
@@ -66,19 +67,23 @@ CMake options
       Enables the benchmarking module. Will support a number of targets to benchmark against depending on which optional dependencies are activated. Flags that affect this are:
       - CUDA
       - ROOT
-      - USolids
+      - USOLIDS
+      - GEANT4
 
     ROOT [OFF]
       Look for a ROOT installation to include ROOT interfacing modules and enable ROOT as a benchmarking case.
 
     USOLIDS [OFF]
-      Enable USolids as a benchmarking case. Setting this to ON requires the USOLIDS_DIR variable to be set to the install directory of USolids.
+      Enable USolids as a benchmarking case. If no USolids directory is specified, the shipped USolids will be built during compilation.
 
     USOLIDS_DIR [NONE]
-      USolids install directory. Ignored unless USOLIDS is set to ON.
+      External USolids install directory.
 
     USOLIDS_INCLUDE_DIR [NONE]
       Can be used to specify the exact directory in which to look for USolids header files.
 
     USOLIDS_LIB_DIR [NONE]
       Can be used to specify the exact directory in which to look for USolids library files.
+
+    GEANT4 [OFF]
+      Enable Geant4 as a benchmarking case.

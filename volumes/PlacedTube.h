@@ -11,7 +11,12 @@
 #include "volumes/UnplacedVolume.h"
 #include "volumes/kernel/TubeImplementation.h"
 
-namespace VECGEOM_NAMESPACE {
+namespace vecgeom {
+
+VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedTube; )
+VECGEOM_DEVICE_DECLARE_CONV( PlacedTube );
+
+inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class PlacedTube : public VPlacedVolume {
 
@@ -42,13 +47,13 @@ public:
       : VPlacedVolume(logical_volume, transformation, boundingBox, id) {}
 
 #endif
-
+  VECGEOM_CUDA_HEADER_BOTH
   virtual ~PlacedTube() {}
 
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedTube const* GetUnplacedVolume() const {
     return static_cast<UnplacedTube const *>(
-        logical_volume()->unplaced_volume());
+        GetLogicalVolume()->unplaced_volume());
   }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -71,7 +76,29 @@ public:
   VECGEOM_INLINE
   Precision dphi() const { return GetUnplacedVolume()->dphi(); }
 
-#ifdef VECGEOM_BENCHMARK
+#ifndef VECGEOM_NVCC
+
+  virtual
+  Vector3D<Precision> GetPointOnSurface() const {
+    return GetUnplacedVolume()->GetPointOnSurface();
+  }
+
+
+  virtual Precision Capacity() override {
+      return GetUnplacedVolume()->Capacity();
+  }
+
+  virtual
+  Precision SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea();}
+
+  bool Normal(Vector3D<Precision>const& point, Vector3D<Precision>& normal) const {
+	  return GetUnplacedVolume()->Normal(point, normal);
+  }
+
+  void Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const override {
+    GetUnplacedVolume()->Extent(aMin, aMax);
+  }
+
   virtual VPlacedVolume const* ConvertToUnspecialized() const;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const* ConvertToRoot() const;
@@ -79,20 +106,14 @@ public:
 #ifdef VECGEOM_USOLIDS
   virtual ::VUSolid const* ConvertToUSolids() const;
 #endif
-#endif // VECGEOM_BENCHMARK
-
-#ifdef VECGEOM_CUDA_INTERFACE
-  virtual VPlacedVolume* CopyToGpu(LogicalVolume const *const logical_volume,
-                                   Transformation3D const *const transformation,
-                                   VPlacedVolume *const gpu_ptr) const;
-  virtual VPlacedVolume* CopyToGpu(
-      LogicalVolume const *const logical_volume,
-      Transformation3D const *const transformation) const;
+#ifdef VECGEOM_GEANT4
+  virtual G4VSolid const* ConvertToGeant4() const;
 #endif
+#endif // VECGEOM_NVCC
 
 }; 
 
-} // End global namespace
+} } // End global namespace
 
 #endif // VECGEOM_VOLUMES_PLACEDTUBE_H_
 

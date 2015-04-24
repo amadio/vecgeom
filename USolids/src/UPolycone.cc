@@ -230,6 +230,7 @@ void UPolycone::Init(double phiStart,
 //        {
 //          solid = new UHedra("", prevRmin, prevRmax, rMin, rMax, dz, phiStart, phiTotal, fNumSides);
 //        }
+	//std::cout<<" sectionPCone tub="<<tubular<<" rMin="<<rMin<<" rMax="<<rMax<<" phiStart="<<phiStart<<" phiTotal="<<phiTotal<<" dz="<<dz<<std::endl;
 
         fZs.push_back(z);
 
@@ -270,8 +271,9 @@ void UPolycone::Init(double phiStart,
     prevRmax = rMax;
   }
 
+  //fMaxSection = fZs.size() - 1;
   fMaxSection = fZs.size() - 2;
-
+  
   //
   // Build RZ polygon using special PCON/PGON GEANT3 constructor
   //
@@ -434,36 +436,45 @@ VUSolid::EnumInside UPolycone::InsideSection(int index, const UVector3& p) const
 
   double r2 = p.x() * p.x() + p.y() * p.y();
 
-  if (r2 < rMinMinus * rMinMinus || r2 > rMaxPlus * rMaxPlus) return vecgeom::EInside::kOutside;
-  if (r2 < rMinPlus * rMinPlus || r2 > rMaxMinus * rMaxMinus) return vecgeom::EInside::kSurface;
+  if (r2 < 1e-10) {
+
+    if((! phiIsOpen) && (rMinMinus <= 0) )return vecgeom::EnumInside::kInside;
+    if(rMinMinus <= 0)return vecgeom::EnumInside::kSurface;
+    return vecgeom::EnumInside::kOutside;
+  }
+  
+  if (r2 < rMinMinus * rMinMinus || r2 > rMaxPlus * rMaxPlus) return vecgeom::EnumInside::kOutside;
+  if (r2 < rMinPlus * rMinPlus || r2 > rMaxMinus * rMaxMinus) 
+  {
+    if(! phiIsOpen)return vecgeom::EnumInside::kSurface;
+  }
 
   if (! phiIsOpen )
   {
     if (ps.z() < -dz + halfTolerance || ps.z() > dz - halfTolerance)
-      return vecgeom::EInside::kSurface;
-    return vecgeom::EInside::kInside;
+      return vecgeom::EnumInside::kSurface;
+    return vecgeom::EnumInside::kInside;
   }
-
-  if (r2 < 1e-10) return vecgeom::EInside::kInside;
 
   double phi = std::atan2(p.y(), p.x()); // * UUtils::kTwoPi;
   if ((phi < 0)||(endPhi > UUtils::kTwoPi)) phi += UUtils::kTwoPi;
 
   double ddp = phi - startPhi;
   if (ddp < 0) ddp += UUtils::kTwoPi;
+  
   if ((phi <= endPhi + frTolerance)&&(phi>= startPhi-frTolerance))
   {
     if (ps.z() < -dz + halfTolerance || ps.z() > dz - halfTolerance)
-      return vecgeom::EInside::kSurface;
+      return vecgeom::EnumInside::kSurface;
 
     if (std::fabs(endPhi - phi) < frTolerance)
-      return vecgeom::EInside::kSurface;
+      return vecgeom::EnumInside::kSurface;
     if (std::fabs(startPhi - phi) < frTolerance)
-      return vecgeom::EInside::kSurface;
+      return vecgeom::EnumInside::kSurface;
 
-    return vecgeom::EInside::kInside;
+    return vecgeom::EnumInside::kInside;
   }
-  return vecgeom::EInside::kOutside;
+  return vecgeom::EnumInside::kOutside;
 }
 
 
@@ -471,14 +482,14 @@ VUSolid::EnumInside UPolycone::Inside(const UVector3& p) const
 {
   double shift = fZs[0] + fBox.GetZHalfLength();
   UVector3 pb(p.x(), p.y(), p.z() - shift);
-  if (fBox.Inside(pb) == vecgeom::EInside::kOutside)
-    return vecgeom::EInside::kOutside;
+  if (fBox.Inside(pb) == vecgeom::EnumInside::kOutside)
+    return vecgeom::EnumInside::kOutside;
 
   static const double htolerance = 0.5 * fgTolerance;
   int index = GetSection(p.z());
 
   EnumInside pos = InsideSection(index, p);
-  if (pos == vecgeom::EInside::kInside) return vecgeom::EInside::kInside;
+  if (pos == vecgeom::EnumInside::kInside) return vecgeom::EnumInside::kInside;
 
   int nextSection;
   EnumInside nextPos;
@@ -496,24 +507,24 @@ VUSolid::EnumInside UPolycone::Inside(const UVector3& p) const
   else
     return pos;
 
-  if (nextPos == vecgeom::EInside::kInside) return vecgeom::EInside::kInside;
+  if (nextPos == vecgeom::EnumInside::kInside) return vecgeom::EnumInside::kInside;
 
-  if (pos == vecgeom::EInside::kSurface && nextPos == vecgeom::EInside::kSurface)
+  if (pos == vecgeom::EnumInside::kSurface && nextPos == vecgeom::EnumInside::kSurface)
   {
     UVector3 n, n2;
     NormalSection(index, p, n);
     NormalSection(nextSection, p, n2);
     if ((n +  n2).Mag2() < 1000 * frTolerance)
-      return vecgeom::EInside::kInside;
+      return vecgeom::EnumInside::kInside;
   }
 
-  return (nextPos == vecgeom::EInside::kSurface || pos == vecgeom::EInside::kSurface) ? vecgeom::EInside::kSurface : vecgeom::EInside::kOutside;
+  return (nextPos == vecgeom::EnumInside::kSurface || pos == vecgeom::EnumInside::kSurface) ? vecgeom::EnumInside::kSurface : vecgeom::EnumInside::kOutside;
 
-//  return (res == vecgeom::EInside::kOutside) ? nextPos : res;
+//  return (res == vecgeom::EnumInside::kOutside) ? nextPos : res;
 }
 
 /*
-if (p.z() < fZs.front() - htolerance || p.z() > fZs.back() + htolerance) return vecgeom::EInside::kOutside;
+if (p.z() < fZs.front() - htolerance || p.z() > fZs.back() + htolerance) return vecgeom::EnumInside::kOutside;
 */
 
 double UPolycone::DistanceToIn(const UVector3& p,
@@ -556,7 +567,7 @@ double UPolycone::DistanceToIn(const UVector3& p,
     pb.z() += section.shift;
   }
   while (index >= 0 && index <= fMaxSection);
-  //if(Inside(p)==vecgeom::EInside::kInside)return UUtils::kInfinity;
+  //if(Inside(p)==vecgeom::EnumInside::kInside)return UUtils::kInfinity;
   return distance;
 }
 
@@ -583,7 +594,7 @@ double UPolycone::DistanceToOut(const UVector3&  p, const UVector3& v,
       pn = p + (totalDistance /*+ 0 * 1e-8*/) * v; // point must be shifted,
                                                    // so it could eventually
       pn.z() -= section.shift;                       // get into another solid
-      if (section.solid->Inside(pn) == vecgeom::EInside::kOutside)
+      if (section.solid->Inside(pn) == vecgeom::EnumInside::kOutside)
       {
         break;
       }
@@ -706,7 +717,7 @@ bool UPolycone::Normal(const UVector3& p, UVector3& n) const
     // the code bellow is not used can be deleted
 
     nextPos = section.solid->Inside(ps);
-    if (nextPos == vecgeom::EInside::kSurface)
+    if (nextPos == vecgeom::EnumInside::kSurface)
     {
       return res;
     }
@@ -728,14 +739,14 @@ bool UPolycone::Normal(const UVector3& p, UVector3& n) const
 
   EnumInside pos = InsideSection(index, p);
 
-  if (nextPos == vecgeom::EInside::kInside)
+  if (nextPos == vecgeom::EnumInside::kInside)
   {
     //UVector3 n;
     NormalSection(index, p, n);
     return false;
   }
 
-  if (pos == vecgeom::EInside::kSurface && nextPos == vecgeom::EInside::kSurface)
+  if (pos == vecgeom::EnumInside::kSurface && nextPos == vecgeom::EnumInside::kSurface)
   {
     //UVector3 n, n2;
     UVector3 n2;
@@ -749,9 +760,9 @@ bool UPolycone::Normal(const UVector3& p, UVector3& n) const
     }
   }
 
-  if (nextPos == vecgeom::EInside::kSurface || pos == vecgeom::EInside::kSurface)
+  if (nextPos == vecgeom::EnumInside::kSurface || pos == vecgeom::EnumInside::kSurface)
   {
-    if (pos != vecgeom::EInside::kSurface) index = nextSection;
+    if (pos != vecgeom::EnumInside::kSurface) index = nextSection;
     bool res = NormalSection(index, p, n);
     return res;
   }
@@ -777,12 +788,13 @@ double UPolycone::Capacity()
   }
   else
   {
-    for (int i = 0; i < fMaxSection; i++)
+    for (int i = 0; i < fMaxSection+1; i++)
     {
       UPolyconeSection& section = fSections[i];
       fCubicVolume += section.solid->Capacity();
     }
   }
+ 
   return fCubicVolume;
 }
 
@@ -804,7 +816,6 @@ double UPolycone::SurfaceArea()
 
     areas.push_back(UUtils::kPi * (UUtils::sqr(fOriginalParameters->Rmax[0])
                                    - UUtils::sqr(fOriginalParameters->Rmin[0])));
-
     for (i = 0; i < numPlanes - 1; i++)
     {
       Area = (fOriginalParameters->Rmin[i] + fOriginalParameters->Rmin[i + 1])
@@ -820,8 +831,7 @@ double UPolycone::SurfaceArea()
                                       - fOriginalParameters->fZValues[i]));
 
       Area *= 0.5 * (endPhi - startPhi);
-
-      if (startPhi == 0. && endPhi == 2 * UUtils::kPi)
+      if (endPhi < 2 * UUtils::kPi)
       {
         Area += std::fabs(fOriginalParameters->fZValues[i + 1]
                           - fOriginalParameters->fZValues[i]) *
@@ -836,7 +846,7 @@ double UPolycone::SurfaceArea()
 
     areas.push_back(UUtils::kPi * (UUtils::sqr(fOriginalParameters->Rmax[numPlanes - 1]) -
                                    UUtils::sqr(fOriginalParameters->Rmin[numPlanes - 1])));
-
+    
     totArea += (areas[0] + areas[numPlanes]);
     fSurfaceArea = totArea;
 

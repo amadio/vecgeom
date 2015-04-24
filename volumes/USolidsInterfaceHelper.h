@@ -4,13 +4,19 @@
 #ifndef VECGEOM_VOLUMES_USOLIDSINTERFACEHELPER_H_
 #define VECGEOM_VOLUMES_USOLIDSINTERFACEHELPER_H_
 
+
 #include "base/Global.h"
+
 
 #ifndef VECGEOM_USOLIDS
 
-namespace VECGEOM_NAMESPACE {
-class USolidsInterfaceHelper {};
-}
+namespace vecgeom {
+inline namespace VECGEOM_IMPL_NAMESPACE {
+  struct USolidsInterfaceHelper {
+    VECGEOM_CUDA_HEADER_BOTH
+    virtual ~USolidsInterfaceHelper() {}
+  };
+} }
 
 #else // Compiling with USolids compatibility
 
@@ -21,7 +27,13 @@ class USolidsInterfaceHelper {};
 
 #include <string>
 
-namespace VECGEOM_NAMESPACE {
+#ifdef NDEBUG
+#undef NDEBUG
+#include <cassert>
+#endif
+
+namespace vecgeom {
+inline namespace VECGEOM_IMPL_NAMESPACE {
 
 /// \brief USolids compatibility signatures.
 /// 
@@ -30,13 +42,17 @@ namespace VECGEOM_NAMESPACE {
 class USolidsInterfaceHelper : public VUSolid {
 
 public:
+ //   VUSolid(const std::string &name);
+  USolidsInterfaceHelper(const std::string &name) : VUSolid(name) {}
+  USolidsInterfaceHelper() : VUSolid() {}
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToOut(
     Vector3D<Precision> const &position,
     Vector3D<Precision> const &direction,
-    Precision const stepMax = kInfinity) const =0;
+    Precision stepMax = kInfinity) const =0;
 
+  VECGEOM_CUDA_HEADER_BOTH
   virtual ~USolidsInterfaceHelper() {}
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -49,49 +65,43 @@ public:
                                Vector3D<double> const &direction,
                                Vector3D<double> &normal,
                                bool &convex,
-                               const double stepMax = kInfinity) const {
-    return DistanceToOut(point, direction, stepMax);
+                               double stepMax = kInfinity) const
+  {
+      assert(0 &&
+                 "This DistanceToOut interface was not implemented for this volume.");
+          return false;
+  }
+
+  virtual double DistanceToOut(Vector3D<double> const &point,
+                               Vector3D<double> const &direction,
+                               Vector3D<double> &normal,
+                               bool &convex) const
+  {
+    return DistanceToOut(point, direction,normal, convex, kInfinity);
   }
 
   virtual double SafetyFromOutside(Vector3D<double> const &point,
-                                   const bool accurate) const {
+                                   bool accurate = false) const {
     return SafetyToIn(point);
   }
 
   virtual double SafetyFromInside(Vector3D<double> const &point,
-                                  const bool accurate) const {
+                                  bool accurate = false) const {
     return SafetyToOut(point);
   }
 
   virtual bool Normal(Vector3D<double> const &point,
                       Vector3D<double> &normal) const {
+
     assert(0 &&
            "Normal not implemented for USolids interface compatible volume.");
     return false;
-  }
-
-  virtual void Extent(Vector3D<double> &min,
-                      Vector3D<double> &max) const {
-    assert(0 && "Extent not implemented for USolids interface compatible"
-                " volume.");
   }
 
   virtual std::string GetEntityType() const {
     assert(0 && "GetEntityType not implemented for USolids interface compatible"
                 " volume.");
     return std::string();
-  }
-
-  virtual double Capacity() {
-    assert(0 && "Capacity not implemented for USolids interface compatible"
-                " volume.");
-    return 0;
-  }
-
-  virtual double SurfaceArea() {
-    assert(0 && "SurfaceArea not implemented for USolids interface compatible"
-                " volume.");
-    return 0;
   }
 
   virtual void GetParametersList(int number, double *array) const {
@@ -126,7 +136,7 @@ public:
 
 };
 
-} // End global namespace
+} } // End global namespace
 
 #endif // USolids defined
 

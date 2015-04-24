@@ -61,6 +61,9 @@ UTrap::UTrap(const std::string& pName,
                       FatalErrorInArguments, 1, message.str().c_str());
   }
 
+  fCubicVolume = 0;
+  fSurfaceArea = 0;
+
   fDz = pDz;
   fTthetaCphi = std::tan(pTheta) * std::cos(pPhi);
   fTthetaSphi = std::tan(pTheta) * std::sin(pPhi);
@@ -87,6 +90,8 @@ UTrap::UTrap(const std::string& pName,
 UTrap::UTrap(const std::string& pName,
              const UVector3 pt[8])
   : VUSolid(pName)
+  , fCubicVolume(0)
+  , fSurfaceArea(0)
 {
   bool good;
 
@@ -476,6 +481,8 @@ UTrap::UTrap(const std::string& pName)
   : VUSolid(pName), fDz(1.), fTthetaCphi(0.), fTthetaSphi(0.),
     fDy1(1.), fDx1(1.), fDx2(1.), fTalpha1(0.),
     fDy2(1.), fDx3(1.), fDx4(1.), fTalpha2(0.)
+  , fCubicVolume(0)
+  , fSurfaceArea(0)
 {
   MakePlanes();
 }
@@ -498,6 +505,8 @@ UTrap::UTrap(const UTrap& rhs)
     fTthetaCphi(rhs.fTthetaCphi), fTthetaSphi(rhs.fTthetaSphi),
     fDy1(rhs.fDy1), fDx1(rhs.fDx1), fDx2(rhs.fDx2), fTalpha1(rhs.fTalpha1),
     fDy2(rhs.fDy2), fDx3(rhs.fDx3), fDx4(rhs.fDx4), fTalpha2(rhs.fTalpha2)
+  , fCubicVolume(0)
+  , fSurfaceArea(0.)
 {
   for (size_t i = 0; i < 4; ++i)
   {
@@ -763,31 +772,31 @@ VUSolid::EnumInside UTrap::Inside(const UVector3& p) const
   int i;
   if (std::fabs(p.z()) <= fDz - VUSolid::Tolerance() * 0.5)
   {
-    in = vecgeom::EInside::kInside;
+    in = vecgeom::EnumInside::kInside;
 
     for (i = 0; i < 4; i++)
     {
       Dist = fPlanes[i].a * p.x() + fPlanes[i].b * p.y()
              + fPlanes[i].c * p.z() + fPlanes[i].d;
 
-      if (Dist > VUSolid::Tolerance() * 0.5) return in = vecgeom::EInside::kOutside;
-      else if (Dist > -VUSolid::Tolerance() * 0.5)         in = vecgeom::EInside::kSurface;
+      if (Dist > VUSolid::Tolerance() * 0.5) return in = vecgeom::EnumInside::kOutside;
+      else if (Dist > -VUSolid::Tolerance() * 0.5)         in = vecgeom::EnumInside::kSurface;
 
     }
   }
   else if (std::fabs(p.z()) <= fDz + VUSolid::Tolerance() * 0.5)
   {
-    in = vecgeom::EInside::kSurface;
+    in = vecgeom::EnumInside::kSurface;
 
     for (i = 0; i < 4; i++)
     {
       Dist =  fPlanes[i].a * p.x() + fPlanes[i].b * p.y()
               + fPlanes[i].c * p.z() + fPlanes[i].d;
 
-      if (Dist > VUSolid::Tolerance() * 0.5)        return in = vecgeom::EInside::kOutside;
+      if (Dist > VUSolid::Tolerance() * 0.5)        return in = vecgeom::EnumInside::kOutside;
     }
   }
-  else  in = vecgeom::EInside::kOutside;
+  else  in = vecgeom::EnumInside::kOutside;
 
   return in;
 }
@@ -800,7 +809,7 @@ VUSolid::EnumInside UTrap::Inside(const UVector3& p) const
 bool UTrap::Normal(const UVector3& p, UVector3& aNormal) const
 {
   int i, noSurfaces = 0;
-  double dist, distz, distx, disty, distmx, distmy, safe = UUtils::Infinity();
+  double dist, distz, distx, disty, distmx, distmy, safe = UUtils::kInfinity;
   double delta    = 0.5 * VUSolid::Tolerance();
   UVector3 norm, sumnorm(0., 0., 0.);
 
@@ -880,7 +889,7 @@ bool UTrap::Normal(const UVector3& p, UVector3& aNormal) const
 
 UVector3 UTrap::ApproxSurfaceNormal(const UVector3& p) const
 {
-  double safe = UUtils::Infinity(), Dist, safez;
+  double safe = UUtils::kInfinity, Dist, safez;
   int i, imin = 0;
   for (i = 0; i < 4; i++)
   {
@@ -912,7 +921,7 @@ UVector3 UTrap::ApproxSurfaceNormal(const UVector3& p) const
 
 ////////////////////////////////////////////////////////////////////////////
 //
-// Calculate distance to shape from outside - return UUtils::Infinity() if no intersection
+// Calculate distance to shape from outside - return UUtils::kInfinity if no intersection
 //
 // ALGORITHM:
 // For each component, calculate pair of minimum and maximum intersection
@@ -940,7 +949,7 @@ double UTrap::DistanceToIn(const UVector3& p,
     }
     else
     {
-      return snxt = UUtils::Infinity();
+      return snxt = UUtils::kInfinity;
     }
   }
   else if (v.z() < 0)
@@ -953,7 +962,7 @@ double UTrap::DistanceToIn(const UVector3& p,
     }
     else
     {
-      return snxt = UUtils::Infinity();
+      return snxt = UUtils::kInfinity;
     }
   }
   else
@@ -961,11 +970,11 @@ double UTrap::DistanceToIn(const UVector3& p,
     if (std::fabs(p.z()) < fDz - 0.5 * VUSolid::Tolerance()) // Inside was <=fDz
     {
       smin = 0;
-      smax = UUtils::Infinity();
+      smax = UUtils::kInfinity;
     }
     else
     {
-      return snxt = UUtils::Infinity();
+      return snxt = UUtils::kInfinity;
     }
   }
 
@@ -981,7 +990,7 @@ double UTrap::DistanceToIn(const UVector3& p,
       //
       if (Comp >= 0)   // was >0
       {
-        return snxt = UUtils::Infinity() ;
+        return snxt = UUtils::kInfinity ;
       }
       else
       {
@@ -994,7 +1003,7 @@ double UTrap::DistanceToIn(const UVector3& p,
           }
           else
           {
-            return snxt = UUtils::Infinity();
+            return snxt = UUtils::kInfinity;
           }
         }
       }
@@ -1015,7 +1024,7 @@ double UTrap::DistanceToIn(const UVector3& p,
           }
           else
           {
-            return snxt = UUtils::Infinity();
+            return snxt = UUtils::kInfinity;
           }
         }
       }
@@ -1101,7 +1110,7 @@ double UTrap::DistanceToOut(const UVector3& p, const UVector3&  v, UVector3&    
   }
   else
   {
-    snxt = UUtils::Infinity();
+    snxt = UUtils::kInfinity;
   }
 
   //
@@ -1326,7 +1335,7 @@ double UTrap::SafetyFromInside(const UVector3& p, bool /*precise*/) const
   int i;
 
 #ifdef UDEBUG
-  if (Inside(p) == vecgeom::EInside::kOutside)
+  if (Inside(p) == vecgeom::EnumInside::kOutside)
   {
     int oldprc = cout.precision(16) ;
     cout << std::endl ;
@@ -1525,19 +1534,74 @@ UVector3 UTrap::GetPointOnSurface() const
 
 void UTrap::Extent(UVector3& aMin, UVector3& aMax) const
 {
+  //Z axis
   aMin.z() = -fDz;
   aMax.z() = fDz;
-  double min12 = 0, min34 = 0;
-  // double max12, max34;
-  if (fDx1 > fDx2) {
-    min12 = fDx2;
-    // max12 = fDx1;
-  }
-  if (fDx3 > fDx4) {
-    min34 = fDx3;
-    // max34 = fDx4;
-  }
-  aMax.x() = (min12 < min34) ? min12 : min34;
-  aMin.x() = -aMax.x();
-  aMax.y() = (fDy1 > fDy2) ? fDy1 : fDy2;
+  
+  double temp[8] ;     // some points for intersection with zMin/zMax
+  UVector3 pt[8];   // vertices after translation
+    
+  //X axis
+  pt[0]=UVector3(-fDz*fTthetaCphi-fDy1*fTalpha1-fDx1,
+                        -fDz*fTthetaSphi-fDy1,-fDz);
+  pt[1]=UVector3(-fDz*fTthetaCphi-fDy1*fTalpha1+fDx1,
+                       -fDz*fTthetaSphi-fDy1,-fDz);
+  pt[2]=UVector3(-fDz*fTthetaCphi+fDy1*fTalpha1-fDx2,
+                        -fDz*fTthetaSphi+fDy1,-fDz);
+  pt[3]=UVector3(-fDz*fTthetaCphi+fDy1*fTalpha1+fDx2,
+                        -fDz*fTthetaSphi+fDy1,-fDz);
+  pt[4]=UVector3(+fDz*fTthetaCphi-fDy2*fTalpha2-fDx3,
+                        fDz*fTthetaSphi-fDy2,+fDz);
+  pt[5]=UVector3(fDz*fTthetaCphi-fDy2*fTalpha2+fDx3,
+                        fDz*fTthetaSphi-fDy2,+fDz);
+  pt[6]=UVector3(fDz*fTthetaCphi+fDy2*fTalpha2-fDx4,
+                        fDz*fTthetaSphi+fDy2,+fDz);
+  pt[7]=UVector3(fDz*fTthetaCphi+fDy2*fTalpha2+fDx4,
+                        fDz*fTthetaSphi+fDy2,+fDz);
+
+  temp[0] = pt[0].x()+(pt[4].x()-pt[0].x())
+      *(aMin.z()-pt[0].z())/(pt[4].z()-pt[0].z()) ;
+  temp[1] = pt[0].x()+(pt[4].x()-pt[0].x())
+      *(aMax.z()-pt[0].z())/(pt[4].z()-pt[0].z()) ;
+  temp[2] = pt[2].x()+(pt[6].x()-pt[2].x())
+      *(aMin.z()-pt[2].z())/(pt[6].z()-pt[2].z()) ;
+  temp[3] = pt[2].x()+(pt[6].x()-pt[2].x())
+      *(aMax.z()-pt[2].z())/(pt[6].z()-pt[2].z()) ;
+  temp[4] = pt[3].x()+(pt[7].x()-pt[3].x())
+      *(aMin.z()-pt[3].z())/(pt[7].z()-pt[3].z()) ;
+  temp[5] = pt[3].x()+(pt[7].x()-pt[3].x())
+      *(aMax.z()-pt[3].z())/(pt[7].z()-pt[3].z()) ;
+  temp[6] = pt[1].x()+(pt[5].x()-pt[1].x())
+      *(aMin.z()-pt[1].z())/(pt[5].z()-pt[1].z()) ;
+  temp[7] = pt[1].x()+(pt[5].x()-pt[1].x())
+      *(aMax.z()-pt[1].z())/(pt[5].z()-pt[1].z()) ;
+      
+  aMax.x() =  - std::fabs(fDz*fTthetaCphi) - fDx1 - fDx2 -fDx3 - fDx4 ;
+  aMin.x() = -aMax.x() ;
+
+  for(int i = 0 ; i < 8 ; i++ )
+  {
+    if( temp[i] > aMax.x()) aMax.x() = temp[i] ;
+    if( temp[i] < aMin.x()) aMin.x() = temp[i] ;
+  }                                            
+  //Y axis
+  temp[0] = pt[0].y()+(pt[4].y()-pt[0].y())*(aMin.z()-pt[0].z())
+                       /(pt[4].z()-pt[0].z()) ;
+  temp[1] = pt[0].y()+(pt[4].y()-pt[0].y())*(aMax.z()-pt[0].z())
+                       /(pt[4].z()-pt[0].z()) ;
+  temp[2] = pt[2].y()+(pt[6].y()-pt[2].y())*(aMin.z()-pt[2].z())
+                       /(pt[6].z()-pt[2].z()) ;
+  temp[3] = pt[2].y()+(pt[6].y()-pt[2].y())*(aMax.z()-pt[2].z())
+                       /(pt[6].z()-pt[2].z()) ;
+
+  aMax.y() = - std::fabs(fDz*fTthetaSphi) - fDy1 - fDy2 ;
+  aMin.y() = -aMax.y() ;
+  
+  for( int i = 0 ; i < 4 ; i++ )
+  {
+    if( temp[i] > aMax.y() ) aMax.y() = temp[i] ;
+    if( temp[i] < aMin.y() ) aMin.y() = temp[i] ;
+  }   
+ 
+ 
 }

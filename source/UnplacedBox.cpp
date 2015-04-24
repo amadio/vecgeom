@@ -6,10 +6,13 @@
 #include "backend/Backend.h"
 #include "management/VolumeFactory.h"
 #include "volumes/SpecializedBox.h"
-
+#ifndef VECGEOM_NVCC
+  #include "base/RNG.h"
+#endif
 #include <stdio.h>
 
-namespace VECGEOM_NAMESPACE {
+namespace vecgeom {
+inline namespace VECGEOM_IMPL_NAMESPACE {
 
 VECGEOM_CUDA_HEADER_BOTH
 void UnplacedBox::Print() const {
@@ -20,8 +23,41 @@ void UnplacedBox::Print(std::ostream &os) const {
   os << "UnplacedBox {" << x() << ", " << y() << ", " << z() << "}";
 }
 
-#ifndef VECGEOM_NVCC
 
+#ifndef VECGEOM_NVCC
+//______________________________________________________________________________
+void UnplacedBox::Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & aMax) const
+{
+  // Returns the full 3D cartesian extent of the solid.
+  aMin = -dimensions_;
+  aMax =  dimensions_;
+}
+
+Vector3D<Precision> UnplacedBox::GetPointOnSurface() const
+{
+    Vector3D<Precision> p(dimensions_);
+
+    double S[3] = { p[1]*p[2], p[0]*p[2], p[0]*p[1] };
+
+    double rand = (S[0] + S[1] + S[2]) * RNG::Instance().uniform(-1.0, 1.0);
+
+    int axis = 0, direction = rand < 0.0 ? -1 : 1;
+
+    rand = std::abs(rand);
+
+    while (rand > S[axis]) rand -= S[axis], axis++;
+
+    p[0] = (axis == 0) ? direction * dimensions_[0]
+                       : p[0] * RNG::Instance().uniform(-1.0, 1.0);
+    p[1] = (axis == 1) ? direction * dimensions_[1]
+                       : p[1] * RNG::Instance().uniform(-1.0, 1.0);
+    p[2] = (axis == 2) ? direction * dimensions_[2]
+                       : p[2] * RNG::Instance().uniform(-1.0, 1.0);
+    return p;
+}
+#endif
+
+#ifndef VECGEOM_NVCC
 template <TranslationCode trans_code, RotationCode rot_code>
 VPlacedVolume* UnplacedBox::Create(
     LogicalVolume const *const logical_volume,
@@ -76,42 +112,32 @@ VPlacedVolume* UnplacedBox::CreateSpecializedVolume(
 
 #endif
 
-} // End global namespace
-
-namespace vecgeom {
-
 #ifdef VECGEOM_CUDA_INTERFACE
 
-void UnplacedBox_CopyToGpu(const Precision x, const Precision y,
-                           const Precision z, VUnplacedVolume *const gpu_ptr);
-
-VUnplacedVolume* UnplacedBox::CopyToGpu(VUnplacedVolume *const gpu_ptr) const {
-  UnplacedBox_CopyToGpu(this->x(), this->y(), this->z(), gpu_ptr);
-  vecgeom::CudaAssertError();
-  return gpu_ptr;
+DevicePtr<cuda::VUnplacedVolume> UnplacedBox::CopyToGpu(
+   DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
+{
+   return CopyToGpuImpl<UnplacedBox>(in_gpu_ptr, x(), y(), z());
 }
 
-VUnplacedVolume* UnplacedBox::CopyToGpu() const {
-  VUnplacedVolume *const gpu_ptr = vecgeom::AllocateOnGpu<UnplacedBox>();
-  return this->CopyToGpu(gpu_ptr);
+DevicePtr<cuda::VUnplacedVolume> UnplacedBox::CopyToGpu() const
+{
+   return CopyToGpuImpl<UnplacedBox>();
 }
 
-#endif
+#endif // VECGEOM_CUDA_INTERFACE
+
+} // End impl namespace
 
 #ifdef VECGEOM_NVCC
 
-class VUnplacedVolume;
+namespace cxx {
 
-__global__
-void UnplacedBox_ConstructOnGpu(const Precision x, const Precision y,
-                                const Precision z, VUnplacedVolume *const gpu_ptr) {
-  new(gpu_ptr) vecgeom_cuda::UnplacedBox(x, y, z);
-}
+template size_t DevicePtr<cuda::UnplacedBox>::SizeOf();
+template void DevicePtr<cuda::UnplacedBox>::Construct(
+    const Precision x, const Precision y, const Precision z) const;
 
-void UnplacedBox_CopyToGpu(const Precision x, const Precision y,
-                           const Precision z, VUnplacedVolume *const gpu_ptr) {
-  UnplacedBox_ConstructOnGpu<<<1, 1>>>(x, y, z, gpu_ptr);
-}
+} // End cxx namespace
 
 #endif
 
