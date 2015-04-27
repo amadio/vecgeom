@@ -458,7 +458,7 @@ void HypeImplementation<transCodeT, rotCodeT>::Normal(
        Vector3D<typename Backend::precision_v> const &point,
        Vector3D<typename Backend::precision_v> &normal,
        typename Backend::bool_v &valid ){
-    //std::cout<<"Entered Normal "<<std::endl;
+    std::cout<<"Entered Normal "<<std::endl;
     NormalKernel<Backend>(unplaced, point, normal, valid);
 }
 
@@ -471,7 +471,7 @@ void HypeImplementation<transCodeT, rotCodeT>::NormalKernel(
        Vector3D<typename Backend::precision_v> &normal,
        typename Backend::bool_v &valid ){
 
-	//std::cout<<"Entered NormalKernel "<<std::endl;
+	std::cout<<"Entered NormalKernel "<<std::endl;
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v      Bool_t;
 

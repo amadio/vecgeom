@@ -37,7 +37,7 @@ VPlacedVolume const* PlacedHype::ConvertToUnspecialized() const {
 #ifdef VECGEOM_ROOT
 TGeoShape const* PlacedHype::ConvertToRoot() const {
     std::cout<<"Convert ROOT*********\n";
-   return new TGeoHype(GetLabel().c_str(), GetRmin(), GetStIn(), GetRmax(), GetStOut(), GetDz());
+   return new TGeoHype(GetLabel().c_str(), GetRmin(), GetStIn()*kRadToDeg, GetRmax(), GetStOut()*kRadToDeg, GetDz());
     
 }
 #endif
@@ -56,7 +56,7 @@ TGeoShape const* PlacedHype::ConvertToRoot() const {
 #ifdef VECGEOM_GEANT4
 G4VSolid const* PlacedHype::ConvertToGeant4() const {
 return new G4Hype(GetLabel().c_str(),GetRmin(),GetRmax(),
-                                      GetStIn()*kDegToRad, GetStOut()*kDegToRad,
+                                      GetStIn(), GetStOut(),
                                       GetDz());
 }
 #endif

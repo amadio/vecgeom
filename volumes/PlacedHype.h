@@ -59,6 +59,13 @@ public:
 //_____________________________________________________________
 
 //get
+	/*
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetAOut() const{ return GetUnplacedVolume()->GetAOut();}
+
+	VECGEOM_CUDA_HEADER_BOTH
+    Precision GetAIn() const{ return GetUnplacedVolume()->GetAIn();}
+	*/
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetRmin() const{ return GetUnplacedVolume()->GetRmin();}
     

@@ -8,6 +8,7 @@
 #include "management/GeoManager.h"
 #include "ArgParser.h"
 
+#define PI 3.141592653589793
 using namespace vecgeom;
 
 int main(int argc, char* argv[]) {
@@ -15,8 +16,8 @@ int main(int argc, char* argv[]) {
   OPTION_INT(nrep,10);
   OPTION_DOUBLE(rmin,10.);
   OPTION_DOUBLE(rmax,15.);
-  OPTION_DOUBLE(sin,30.);
-  OPTION_DOUBLE(sout,30.);
+  OPTION_DOUBLE(sin,PI/6.);
+  OPTION_DOUBLE(sout,PI/6.);
   OPTION_DOUBLE(dz,50);
  
 

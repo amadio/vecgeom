@@ -26,25 +26,22 @@ template <class Hype_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
 bool TestHype() {
     
     
-    Hype_t test("Solid VecGeomHype #test",3,45,5, 45, 10); //5,6,0.523598775598298,0.523598775598298,10);
-    Vec_t testPoint(6,0,0);
-	double Dist = test.SafetyFromOutside(testPoint);
+    Hype_t test("Solid VecGeomHype #test",10,15, PI/4,PI/4, 50); //5,6,0.523598775598298,0.523598775598298,10);
+    Vec_t testOutPoint(18,0,0);
+	double Dist = test.SafetyFromOutside(testOutPoint);
     std::cout<<"SafetyFromOutside : "<<Dist<<std::endl;
 	
-	Vec_t testInPoint(4,0,0);
+	Vec_t testInPoint(12,0,0);
 	Dist = test.SafetyFromInside(testInPoint);
     std::cout<<"SafetyFromInside : "<<Dist<<std::endl;
 
     std::cout<<"Capacity is : "<<test.Capacity()<<std::endl;
     std::cout<<"SurfaceArea is : "<<test.SurfaceArea()<<std::endl;
 
-	std::cout<<"-----------------------------"<<std::endl;
-	std::cout<<"TestPoint : "<<testPoint<<std::endl;
-	Hype_t testN("Solid VecGeomHype #test",0,0,3, 45, 10);
-	Vec_t testPointN(5,5,8);
+	Vec_t testPoint(18,0,0);
 	Vec_t normal;
-	testN.Normal(testPointN,normal);
-	std::cout<<"Calculated Normal from VecGeom is  : "<<normal<<std::endl;
+	test.Normal(testPoint,normal);
+	std::cout<<"Normal Calculated from VecGeom is  : "<<normal<<std::endl;
 	
     return true;
 }

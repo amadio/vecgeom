@@ -70,14 +70,23 @@ private:
     Precision fCubicVolume, fSurfaceArea;
 
 public:
+	//Precision Aout,Ain;
+
+public:
     
     //constructor
     VECGEOM_CUDA_HEADER_BOTH
-    UnplacedHype(const Precision rmin, const Precision stIn, const Precision rmax, const Precision stOut, const Precision dz);
+    UnplacedHype(const Precision rmin, const Precision rMax, const Precision sTIn, const Precision stOut, const Precision dz);
     
     //get
-	
-    
+	/*
+	VECGEOM_CUDA_HEADER_BOTH
+    Precision GetAOut() const{ return Aout;}
+
+	VECGEOM_CUDA_HEADER_BOTH
+    Precision GetAIn() const{ return Ain;}
+    */
+
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetRmin() const{ return fRmin;}
 
