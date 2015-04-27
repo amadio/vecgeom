@@ -31,11 +31,11 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
     }
     
     VECGEOM_CUDA_HEADER_BOTH
-    UnplacedHype::UnplacedHype(const Precision rMin, const Precision stIn,
-                               const Precision rMax, const Precision stOut,
+    UnplacedHype::UnplacedHype(const Precision rMin, const Precision rMax,
+                               const Precision stIn, const Precision stOut,
                                const Precision dz){
         
-        SetParameters(rMin, stIn, rMax, stOut, dz);
+        SetParameters(rMin, rMax, stIn, stOut, dz);
         
         fTIn=tan(fStIn);          			//Tangent of the Inner stereo angle  (*kDegToRad);
         fTOut=tan(fStOut);        //Tangent of the Outer stereo angle

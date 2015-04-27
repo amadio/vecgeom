@@ -76,7 +76,7 @@ public:
     
     //constructor
     VECGEOM_CUDA_HEADER_BOTH
-    UnplacedHype(const Precision rmin, const Precision rMax, const Precision sTIn, const Precision stOut, const Precision dz);
+    UnplacedHype(const Precision rMin, const Precision rMax, const Precision stIn, const Precision stOut, const Precision dz);
     
     //get
 	/*
@@ -148,7 +148,7 @@ public:
     
     //set
     VECGEOM_CUDA_HEADER_BOTH
-    void SetParameters(const Precision rMin, const Precision stIn, const Precision rMax, const Precision stOut, const Precision dz);
+    void SetParameters(const Precision rMin, const Precision rMax, const Precision stIn, const Precision stOut, const Precision dz);
 
 //________________________________________________________________________________________
  
