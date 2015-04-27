@@ -31,9 +31,14 @@
 #include "base/AlignedBase.h"
 #include "volumes/UnplacedVolume.h"
 
-namespace VECGEOM_NAMESPACE {
+namespace vecgeom {
 
-class UnplacedHype : public VUnplacedVolume, AlignedBase {
+VECGEOM_DEVICE_FORWARD_DECLARE( class UnplacedHype; )
+VECGEOM_DEVICE_DECLARE_CONV( UnplacedHype );
+
+inline namespace VECGEOM_IMPL_NAMESPACE {
+
+class UnplacedHype : public VUnplacedVolume, public AlignedBase {
 
 private:
     Precision fRmin;    //Inner radius
@@ -61,6 +66,8 @@ private:
     Precision fInSqSide;         //side of the square inscribed in the inner circle
                                  //Sqrt(2)*unplaced.GetRmin()
     
+    //Volume and Surface Area
+    Precision fCubicVolume, fSurfaceArea;
 
 public:
     
@@ -69,6 +76,8 @@ public:
     UnplacedHype(const Precision rmin, const Precision stIn, const Precision rmax, const Precision stOut, const Precision dz);
     
     //get
+	
+    
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetRmin() const{ return fRmin;}
 
@@ -125,11 +134,65 @@ public:
     
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetInSqSide() const{ return fInSqSide;}
+
     
     
     //set
     VECGEOM_CUDA_HEADER_BOTH
     void SetParameters(const Precision rMin, const Precision stIn, const Precision rMax, const Precision stOut, const Precision dz);
+
+//________________________________________________________________________________________
+ 
+  //VECGEOM_CUDA_HEADER_BOTH
+  Precision Volume(bool outer);
+
+  //VECGEOM_CUDA_HEADER_BOTH
+  Precision Area(bool outer);
+
+  void CalcCapacity();
+
+  //VECGEOM_CUDA_HEADER_BOTH
+  void CalcSurfaceArea();
+
+  VECGEOM_CUDA_HEADER_BOTH
+  void Extent( Vector3D<Precision> &, Vector3D<Precision> &) const;
+   
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision Capacity() const{return fCubicVolume;}
+  
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision SurfaceArea() const{return fSurfaceArea;}
+  
+  
+  #ifndef VECGEOM_NVCC
+  VECGEOM_CUDA_HEADER_BOTH
+  #endif
+  Vector3D<Precision>  GetPointOnSurface() const;
+ 
+  
+  //VECGEOM_CUDA_HEADER_BOTH
+  std::string GetEntityType() const;
+  
+    
+  VECGEOM_CUDA_HEADER_BOTH
+  void GetParametersList(int aNumber, Precision *aArray) const; 
+  
+  VECGEOM_CUDA_HEADER_BOTH
+  UnplacedHype* Clone() const;
+
+  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& StreamInfo(std::ostream &os) const;
+    
+  
+  VECGEOM_CUDA_HEADER_BOTH
+  void ComputeBBox() const; 
+
+  VECGEOM_CUDA_HEADER_BOTH
+  bool InnerSurfaceExists() const;
+
+//________________________________________________________________________________________
 
     virtual int memory_size() const { return sizeof(*this); }
 
@@ -177,6 +240,6 @@ private:
 
 };
 
-} // End global namespace
+} } // End global namespace
 
 #endif // VECGEOM_VOLUMES_UNPLACEDHYPE_H_

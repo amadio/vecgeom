@@ -5,14 +5,16 @@
 
 #include "management/VolumeFactory.h"
 #include "volumes/SpecializedHype.h"
-#include "volumes/kernel/shapetypes/HypeTypes.h"
+//#include "volumes/kernel/shapetypes/HypeTypes.h"
 #include "volumes/utilities/GenerationUtilities.h"
 
 #include <stdio.h>
 #include "base/RNG.h"
+#include "base/Global.h"
 
 
-namespace VECGEOM_NAMESPACE {
+namespace vecgeom {
+inline namespace VECGEOM_IMPL_NAMESPACE {
 
     
     VECGEOM_CUDA_HEADER_BOTH
@@ -52,8 +54,147 @@ namespace VECGEOM_NAMESPACE {
         fEndInnerRadius=Sqrt(fEndInnerRadius2);
         fEndOuterRadius=Sqrt(fEndOuterRadius2);
         fInSqSide=Sqrt(2)*fRmin;
+
+        CalcCapacity();
+		CalcSurfaceArea(); 
         
     }
+
+//__________________New Added function_______________________________________________
+
+VECGEOM_CUDA_HEADER_BOTH
+bool UnplacedHype::InnerSurfaceExists() const{
+ return (fRmin > 0.) || (fStIn != 0.);
+}
+
+void UnplacedHype::CalcCapacity()
+  {
+      if (fCubicVolume != 0.)
+        {
+         ;
+        }
+      else
+        {
+             fCubicVolume = Volume(true)-Volume(false);
+        }
+      
+  }
+
+Precision UnplacedHype::Volume(bool outer)
+  {
+	 if (outer)
+		return 2*kPi*fDz* ((fRmax)*(fRmax) + (fDz2*fTOut2/3.));
+	 else
+		return 2*kPi*fDz* ((fRmin)*(fRmin) + (fDz2*fTIn2/3.));
+  }
+
+
+void UnplacedHype::CalcSurfaceArea()
+  {
+      
+      if (fSurfaceArea != 0.)
+        {
+          ;
+        }
+      else
+         {
+			  fSurfaceArea = Area(true);
+			//fSurfaceArea = ( Area(true)+Area(false) )/ 2 ; //this logic needs to be checked
+														   // For Sphere It is actually addition of surface area of outer and inner shell
+		}
+  }
+
+Precision UnplacedHype::Area(bool outer)
+  {
+	Precision fT=0.,fR=0.;
+	if(outer)
+	{
+  		fT = fTOut;
+		fR = fRmax;	
+	}
+	else
+	{
+  		fT = fTIn;
+		fR = fRmin;	
+	}
+
+    Precision p = fT*std::sqrt(fT*fT);
+	Precision q = p*fDz*std::sqrt(fR*fR + (std::pow(fT,2)+std::pow(fT,4))*std::pow(fDz,2) );
+	Precision r = fR*fR*std::asinh(p*fDz/fR);
+	Precision ar =  ((q+r)/(2*p))*4*kPi;
+	return ar;
+  }
+
+
+
+VECGEOM_CUDA_HEADER_BOTH  //This line is not there in UnplacedBox.cpp
+void UnplacedHype::Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & aMax) const
+  {
+    // Returns the full 3D cartesian extent of the solid.
+      aMin.Set(-fRmax,-fRmax,-fDz);
+      aMax.Set(fRmax,fRmax,fDz);
+  }
+
+//VECGEOM_CUDA_HEADER_BOTH
+std::string UnplacedHype::GetEntityType() const
+  {
+      return "Hyperboloid\n";
+  }
+
+VECGEOM_CUDA_HEADER_BOTH
+void UnplacedHype::GetParametersList(int, double* aArray)const
+  {
+      aArray[0] = GetRmin();
+      aArray[1] = GetStIn();
+      aArray[2] = GetRmax();
+      aArray[3] = GetStOut();
+      aArray[4] = GetDz();
+
+  }
+  
+  #ifdef VECGEOM_NVCC
+  Vector3D<Precision> UnplacedHype::GetPointOnSurface() const{}
+  #else 
+  VECGEOM_CUDA_HEADER_BOTH
+  Vector3D<Precision> UnplacedHype::GetPointOnSurface() const
+  {
+  }
+  #endif
+
+VECGEOM_CUDA_HEADER_BOTH
+UnplacedHype* UnplacedHype::Clone() const
+  {
+      return new UnplacedHype(fRmin,fStIn,fRmax,fStOut,fDz);
+  }
+
+#ifdef VECGEOM_NVCC
+  std::ostream& UnplacedHype::StreamInfo(std::ostream& os) const{}
+#else
+  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& UnplacedHype::StreamInfo(std::ostream& os) const
+  //Definition taken from 
+  {
+      
+   int oldprc = os.precision(16);
+   os << "-----------------------------------------------------------\n"
+   //  << "		*** Dump for solid - " << GetName() << " ***\n"
+   //  << "		===================================================\n"
+   
+   << " Solid type: VecGeomHype\n"
+     << " Parameters: \n"
+
+     << "				Inner radius: " << fRmin << " mm \n"
+	 << "				Inner Stereo Angle " << fStIn << " rad \n"
+     << "               Outer radius: " <<fRmax <<"mm\n"    
+     << "               Outer Stereo Angle " << fStOut << " rad \n"
+     << "               Half Height: "<<fDz<<" mm \n"
+     << "-----------------------------------------------------------\n";
+   os.precision(oldprc);
+
+   return os;
+  }
+#endif
+//_________________________________________________________________
 
 
 //__________________________________________________________________
@@ -146,4 +287,4 @@ void UnplacedHype_CopyToGpu(VUnplacedVolume *const gpu_ptr) {
 
 #endif
 
-} // End namespace vecgeom
+}} // End namespace vecgeom

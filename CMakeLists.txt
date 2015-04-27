@@ -600,10 +600,12 @@ set(TEST_EXECUTABLES_USOLIDS
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestPolycone.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestPolyhedra.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTet.cpp
-  #${CMAKE_SOURCE_DIR}/test/unit_tests/TestOrb.cpp
-  #${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestOrb.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBoxlikeTrapezoid.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/usolidTest.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/newTestHype.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/geantHype.cpp
     
 )
 set(TEST_EXECUTABLES_BENCHMARK
@@ -612,8 +614,8 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${CMAKE_SOURCE_DIR}/test/benchmark/ParaboloidScriptBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ParallelepipedBenchmark.cpp
 #<<<<<<< HEAD
-  ${CMAKE_SOURCE_DIR}/test/benchmark/HypeBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/HypeTest.cpp
+  #${CMAKE_SOURCE_DIR}/test/benchmark/HypeBenchmark.cpp
+  #${CMAKE_SOURCE_DIR}/test/HypeTest.cpp
 #=======
   ${CMAKE_SOURCE_DIR}/test/benchmark/PolyhedronBenchmark.cpp
 #>>>>>>> master
@@ -633,6 +635,8 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrdBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ConeBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/PolyconeBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/HypeBenchmark.cpp
+  
 )
 set(TEST_EXECUTABLES_CUDA
   # Files go here

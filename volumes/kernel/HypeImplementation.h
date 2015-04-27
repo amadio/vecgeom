@@ -1,17 +1,6 @@
-//===-- kernel/HypeImplementation.h - Instruction class definition -------*- C++ -*-===//
-//
-//                     GeantV - VecGeom
-//
-// This file is distributed under the LGPL
-// License. See LICENSE.TXT for details.
-//
-//===----------------------------------------------------------------------===//
-///
-/// \file
-/// \author Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
-/// \brief This file implements the Hype shape
-///
 
+/// @file HypeImplementation.h
+/// @author Raman Sehgal (raman.sehgal@cern.ch)
 
 #ifndef VECGEOM_VOLUMES_KERNEL_HYPEIMPLEMENTATION_H_
 #define VECGEOM_VOLUMES_KERNEL_HYPEIMPLEMENTATION_H_
@@ -19,474 +8,182 @@
 #include "base/Global.h"
 
 #include "base/Transformation3D.h"
-#include "volumes/kernel/GenericKernels.h"
+#include "volumes/kernel/BoxImplementation.h"
 #include "volumes/UnplacedHype.h"
-#include "volumes/kernel/shapetypes/HypeTypes.h"
+#include "base/Vector3D.h"
+#include "volumes/kernel/GenericKernels.h"
 
-//different SafetyToIn implementations
-//#define ACCURATE_BB
-#define ACCURATE_BC
-//#define ROOTLIKE
+namespace vecgeom {
 
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(HypeImplementation, TranslationCode, translation::kGeneric, RotationCode, rotation::kGeneric)
 
-//namespace ParaboloidUtilities
-//{
-//    template <class Backend>
-//    VECGEOM_INLINE
-//    VECGEOM_CUDA_HEADER_BOTH
-//    void DistToHyperboloidSurface(
-//                                 UnplacedHype const &unplaced,
-//                                 Vector3D<typename Backend::precision_v> const &point,
-//                                 Vector3D<typename Backend::precision_v> const &direction,
-//                                 typename Backend::precision_v &distance/*,
-//                                                                         typename Backend::bool_v in*/)
-//    {
-//        return;
-//    }
-//}
+inline namespace VECGEOM_IMPL_NAMESPACE { 
+
+class PlacedHype;
+class UnplacedHype;
+
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+struct HypeImplementation {
+    
+  static const int transC = transCodeT;
+  static const int rotC   = rotCodeT;
 
 
-namespace VECGEOM_NAMESPACE {
     
-    template <TranslationCode transCodeT, RotationCode rotCodeT>
-    struct HypeImplementation {
-        
-        template<typename Backend>
-        VECGEOM_INLINE
-        VECGEOM_CUDA_HEADER_BOTH
-        static void UnplacedContains(
-                                     UnplacedHype const &hype,
-                                     Vector3D<typename Backend::precision_v> const &localPoint,
-                                     typename Backend::bool_v &inside);
-        
-        
-        template <typename Backend>
-        VECGEOM_INLINE
-        VECGEOM_CUDA_HEADER_BOTH
-        static void Contains(
-                             UnplacedHype const &unplaced,
-                             Transformation3D const &transformation,
-                             Vector3D<typename Backend::precision_v> const &point,
-                             Vector3D<typename Backend::precision_v> &localPoint,
-                             typename Backend::bool_v &inside);
-        
-        template <typename Backend>
-        VECGEOM_INLINE
-        VECGEOM_CUDA_HEADER_BOTH
-        static void Inside(
-                           UnplacedHype const &unplaced,
-                           Transformation3D const &transformation,
-                           Vector3D<typename Backend::precision_v> const &point,
-                           typename Backend::inside_v &inside);
-        
-        template <typename Backend, bool ForInside>
-        VECGEOM_INLINE
-        VECGEOM_CUDA_HEADER_BOTH
-        static void GenericKernelForContainsAndInside(UnplacedHype const &unplaced,
-                                                      Vector3D<typename Backend::precision_v> const &,
-                                                      typename Backend::bool_v &completelyoutside,
-                                                      typename Backend::bool_v &completelyinside);
-        
-        template <class Backend>
-        VECGEOM_CUDA_HEADER_BOTH
-        VECGEOM_INLINE
-        static void DistanceToIn(
-                                 UnplacedHype const &unplaced,
-                                 Transformation3D const &transformation,
-                                 Vector3D<typename Backend::precision_v> const &point,
-                                 Vector3D<typename Backend::precision_v> const &direction,
-                                 typename Backend::precision_v const &stepMax,
-                                 typename Backend::precision_v &distance);
-        
-        template <class Backend>
-        VECGEOM_CUDA_HEADER_BOTH
-        VECGEOM_INLINE
-        static void DistanceToOut(
-                                  UnplacedHype const &unplaced,
-                                  Vector3D<typename Backend::precision_v> const &point,
-                                  Vector3D<typename Backend::precision_v> const &direction,
-                                  typename Backend::precision_v const &stepMax,
-                                  typename Backend::precision_v &distance);
-        
-        template <class Backend>
-        VECGEOM_CUDA_HEADER_BOTH
-        VECGEOM_INLINE
-        static void SafetyToIn(UnplacedHype const &unplaced,
-                               Transformation3D const &transformation,
-                               Vector3D<typename Backend::precision_v> const &point,
-                               typename Backend::precision_v &safety);
-        
-        template <class Backend>
-        VECGEOM_CUDA_HEADER_BOTH
-        VECGEOM_INLINE
-        static void SafetyToOut(UnplacedHype const &unplaced,
-                                Vector3D<typename Backend::precision_v> const &point,
-                                typename Backend::precision_v &safety);
-        
-        template <class Backend>
-        VECGEOM_CUDA_HEADER_BOTH
-        VECGEOM_INLINE
-        static void ContainsKernel(
-                                   UnplacedHype const &unplaced,
-                                   Vector3D<typename Backend::precision_v> const &point,
-                                   typename Backend::bool_v &inside);
-        
-        template <class Backend>
-        VECGEOM_CUDA_HEADER_BOTH
-        VECGEOM_INLINE
-        static void InsideKernel(
-                                 UnplacedHype const &unplaced,
-                                 Vector3D<typename Backend::precision_v> const &point,
-                                 typename Backend::inside_v &inside);
-        
-        template <class Backend>
-        VECGEOM_CUDA_HEADER_BOTH
-        VECGEOM_INLINE
-        static void DistanceToInKernel(
-                                       UnplacedHype const &unplaced,
-                                       Vector3D<typename Backend::precision_v> const &point,
-                                       Vector3D<typename Backend::precision_v> const &direction,
-                                       typename Backend::precision_v const &stepMax,
-                                       typename Backend::precision_v &distance);
-        
-        template <class Backend>
-        VECGEOM_CUDA_HEADER_BOTH
-        VECGEOM_INLINE
-        static void DistanceToOutKernel(
-                                        UnplacedHype const &unplaced,
-                                        Vector3D<typename Backend::precision_v> const &point,
-                                        Vector3D<typename Backend::precision_v> const &direction,
-                                        typename Backend::precision_v const &stepMax,
-                                        typename Backend::precision_v &distance);
-        
-        template <class Backend>
-        VECGEOM_CUDA_HEADER_BOTH
-        VECGEOM_INLINE
-        static void SafetyToInKernel(
-                                     UnplacedHype const &unplaced,
-                                     Vector3D<typename Backend::precision_v> const &point,
-                                     typename Backend::precision_v & safety);
-        
-        template <class Backend>
-        VECGEOM_CUDA_HEADER_BOTH
-        VECGEOM_INLINE
-        static void SafetyToOutKernel(
-                                      UnplacedHype const &unplaced,
-                                      Vector3D<typename Backend::precision_v> const &point,
-                                      typename Backend::precision_v &safety);
-        
-    }; // End struct HypeImplementation
-    
-    template <TranslationCode transCodeT, RotationCode rotCodeT>
-    template <typename Backend>
-    VECGEOM_CUDA_HEADER_BOTH
-    void HypeImplementation<transCodeT, rotCodeT>::UnplacedContains(
-                                                                   UnplacedHype const &hype,
-                                                                   Vector3D<typename Backend::precision_v> const &localPoint,
-                                                                   typename Backend::bool_v &inside) {
-        
-        ContainsKernel<Backend>(hype, localPoint, inside);
-    }
-    
-    template <TranslationCode transCodeT, RotationCode rotCodeT>
-    template <typename Backend>
-    VECGEOM_CUDA_HEADER_BOTH
-    void HypeImplementation<transCodeT, rotCodeT>::Contains(
-                                                           UnplacedHype const &unplaced,
-                                                           Transformation3D const &transformation,
-                                                           Vector3D<typename Backend::precision_v> const &point,
-                                                           Vector3D<typename Backend::precision_v> &localPoint,
-                                                           typename Backend::bool_v &inside) {
-        
-        localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
-        UnplacedContains<Backend>(unplaced, localPoint, inside);
-        
-    }
-    
-    template <TranslationCode transCodeT, RotationCode rotCodeT>
-    template <typename Backend>
-    VECGEOM_CUDA_HEADER_BOTH
-    void HypeImplementation<transCodeT, rotCodeT>::Inside(
-                                                         UnplacedHype const &unplaced,
-                                                         Transformation3D const &transformation,
-                                                         Vector3D<typename Backend::precision_v> const &point,
-                                                         typename Backend::inside_v &inside) {
-        
-        InsideKernel<Backend>(unplaced,
-                              transformation.Transform<transCodeT, rotCodeT>(point),
-                              inside);
-        
-    }
-    
-    template <TranslationCode transCodeT, RotationCode rotCodeT>
-    template <class Backend>
-    VECGEOM_CUDA_HEADER_BOTH
-    void HypeImplementation<transCodeT, rotCodeT>::DistanceToIn(
-                                                               UnplacedHype const &unplaced,
-                                                               Transformation3D const &transformation,
-                                                               Vector3D<typename Backend::precision_v> const &point,
-                                                               Vector3D<typename Backend::precision_v> const &direction,
-                                                               typename Backend::precision_v const &stepMax,
-                                                               typename Backend::precision_v &distance) {
-        
-        DistanceToInKernel<Backend>(
-                                    unplaced,
-                                    transformation.Transform<transCodeT, rotCodeT>(point),
-                                    transformation.TransformDirection<rotCodeT>(direction),
-                                    stepMax,
-                                    distance
-                                    );
-    }
-    
-    template <TranslationCode transCodeT, RotationCode rotCodeT>
-    template <class Backend>
-    VECGEOM_CUDA_HEADER_BOTH
-    void HypeImplementation<transCodeT, rotCodeT>::DistanceToOut(
-                                                                UnplacedHype const &unplaced,
-                                                                Vector3D<typename Backend::precision_v> const &point,
-                                                                Vector3D<typename Backend::precision_v> const &direction,
-                                                                typename Backend::precision_v const &stepMax,
-                                                                typename Backend::precision_v &distance) {
-        
-        DistanceToOutKernel<Backend>(
-                                     unplaced,
-                                     point,
-                                     direction,
-                                     stepMax,
-                                     distance
-                                     );
-    }
-    
-    template <TranslationCode transCodeT, RotationCode rotCodeT>
-    template <class Backend>
-    VECGEOM_CUDA_HEADER_BOTH
-    VECGEOM_INLINE
-    void HypeImplementation<transCodeT, rotCodeT>::SafetyToIn(
-                                                             UnplacedHype const &unplaced,
-                                                             Transformation3D const &transformation,
-                                                             Vector3D<typename Backend::precision_v> const &point,
-                                                             typename Backend::precision_v &safety) {
-        
-        SafetyToInKernel<Backend>(
-                                  unplaced,
-                                  transformation.Transform<transCodeT, rotCodeT>(point),
-                                  safety
-                                  );
-    }
-    
-    template <TranslationCode transCodeT, RotationCode rotCodeT>
-    template <class Backend>
-    VECGEOM_CUDA_HEADER_BOTH
-    VECGEOM_INLINE
-    void HypeImplementation<transCodeT, rotCodeT>::SafetyToOut(
-                                                              UnplacedHype const &unplaced,
-                                                              Vector3D<typename Backend::precision_v> const &point,
-                                                              typename Backend::precision_v &safety) {
-        
-        SafetyToOutKernel<Backend>(
-                                   unplaced,
-                                   point,
-                                   safety
-                                   );
-    }
-    
-    template <TranslationCode transCodeT, RotationCode rotCodeT>
-    template <typename Backend>
-    VECGEOM_CUDA_HEADER_BOTH
-    void HypeImplementation<transCodeT, rotCodeT>::ContainsKernel(
-                                                                 UnplacedHype const &unplaced,
-                                                                 Vector3D<typename Backend::precision_v> const &localPoint,
-                                                                 typename Backend::bool_v &inside) {
-        
-        typedef typename Backend::bool_v Bool_t;
-        Bool_t unused;
-        Bool_t outside;
-        GenericKernelForContainsAndInside<Backend, false>(unplaced,
-                                                          localPoint, unused, outside);
-        inside=!outside;
-    }
-    
-    
-    template <TranslationCode transCodeT, RotationCode rotCodeT>
-    template <typename Backend, bool ForInside>
-    VECGEOM_CUDA_HEADER_BOTH
-    void HypeImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndInside(
-                                                                                    UnplacedHype const &unplaced,
-                                                                                    Vector3D<typename Backend::precision_v> const &point,
-                                                                                    typename Backend::bool_v &completelyinside,
-                                                                                    typename Backend::bool_v &completelyoutside) {
-        typedef typename Backend::precision_v Float_t;
-        
-        //check if points are above or below the solid
-        completelyoutside = Abs(point.z()) > MakePlusTolerant<ForInside>( unplaced.GetDz() );
-        if (ForInside)
-        {
-            completelyinside = Abs(point.z()) < MakeMinusTolerant<ForInside>( unplaced.GetDz());
-        }
-        if (Backend::early_returns) {
-            if ( completelyoutside == Backend::kTrue ) {
-                return;
-            }
-        }
-        
-        //check if points are outside of the outer surface or outside the inner surface
-        Float_t r2=point.x()*point.x()+point.y()*point.y();
-        //compute r^2 at a given z coordinate, for the outer hyperbolas
-        Float_t rOuter2=unplaced.GetRmax2()+unplaced.GetTOut2()*point.z()*point.z();
-        //compute r^2 at a given z coordinate, for the inner hyperbolas
-        Float_t rInner2=unplaced.GetRmin2()+unplaced.GetTIn2()*point.z()*point.z();
-        
-        completelyoutside |= (r2 > MakePlusTolerant<ForInside>( rOuter2 )) || (r2 < MakePlusTolerant<ForInside>( rInner2 ));
-        if (ForInside)
-        {
-            completelyinside &= (r2 < MakeMinusTolerant<ForInside>( rOuter2 )) && (r2 > MakeMinusTolerant<ForInside>( rInner2 ));
-        }
-        return;
-    }
-    
-    template <TranslationCode transCodeT, RotationCode rotCodeT>
-    template <class Backend>
-    VECGEOM_CUDA_HEADER_BOTH
-    void HypeImplementation<transCodeT, rotCodeT>::InsideKernel(
-                                                               UnplacedHype const &unplaced,
-                                                               Vector3D<typename Backend::precision_v> const &point,
-                                                               typename Backend::inside_v &inside) {
-        
-        typedef typename Backend::bool_v      Bool_t;
-        Bool_t completelyinside, completelyoutside;
-        GenericKernelForContainsAndInside<Backend,true>(
-                                                        unplaced, point, completelyinside, completelyoutside);
-        inside=EInside::kSurface;
-        MaskedAssign(completelyoutside, EInside::kOutside, &inside);
-        MaskedAssign(completelyinside, EInside::kInside, &inside);
-    }
-    
-    template <TranslationCode transCodeT, RotationCode rotCodeT>
-    template <class Backend>
-    VECGEOM_CUDA_HEADER_BOTH
-    void HypeImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
-                                                                     UnplacedHype const &unplaced,
-                                                                     Vector3D<typename Backend::precision_v> const &point,
-                                                                     Vector3D<typename Backend::precision_v> const &direction,
-                                                                     typename Backend::precision_v const &stepMax,
-                                                                     typename Backend::precision_v &distance) {
-        
-        typedef typename Backend::precision_v Float_t;
-        typedef typename Backend::bool_v      Bool_t;
-        Bool_t done(false);
-        distance=kInfinity;
-        
-        Float_t absZ=Abs(point.z());
-        Float_t absDirZ=Abs(direction.z());
-        Float_t rho2 = point.x()*point.x()+point.y()*point.y();
-        Float_t point_dot_direction_x = point.x()*direction.x();
-        Float_t point_dot_direction_y = point.y()*direction.y();
-        
-        Bool_t checkZ=point.z()*direction.z() > 0; //means that the point is distancing from the volume
-        
-        //check if the point is above dZ and is distancing in Z
-        Bool_t isDistancingInZ= (absZ>unplaced.GetDz() && checkZ);
-        done|=isDistancingInZ;
-        if (Backend::early_returns && done == Backend::kTrue) return;
-        
-        //check if the point is outside the bounding cylinder and is distancing in XY
-        Bool_t isDistancingInXY=( (rho2>unplaced.GetEndOuterRadius2()) && (point_dot_direction_x>0 && point_dot_direction_y>0) );
-        done|=isDistancingInXY;
-        if (Backend::early_returns && done == Backend::kTrue) return;
-        
-        //check if x coordinate is > EndOuterRadius and the point is distancing in X
-        Bool_t isDistancingInX=( (Abs(point.x())>unplaced.GetEndOuterRadius()) && (point_dot_direction_x>0) );
-        done|=isDistancingInX;
-        if (Backend::early_returns && done == Backend::kTrue) return;
-        
-        //check if y coordinate is > EndOuterRadiusthe point is distancing in Y
-        Bool_t isDistancingInY=( (Abs(point.y())>unplaced.GetEndOuterRadius()) && (point_dot_direction_y>0) );
-        done|=isDistancingInY;
-        if (Backend::early_returns && done == Backend::kTrue) return;
-        
-        //is hitting from dz or -dz planes
-        Float_t distZ = (absZ-unplaced.GetDz())/absDirZ;
-        Float_t xHit = point.x()+distZ*direction.x();
-        Float_t yHit = point.y()+distZ*direction.y();
-        Float_t rhoHit2=xHit*xHit+yHit*yHit;
-        
-        Bool_t isCrossingAtDz= (absZ>unplaced.GetDz()) && (!checkZ) && (rhoHit2 <=unplaced.GetEndOuterRadius2() && rhoHit2>=unplaced.GetEndInnerRadius2());
-        
-        MaskedAssign(isCrossingAtDz, distZ, &distance);
-        done|=isCrossingAtDz;
-        if (Backend::early_returns && done == Backend::kTrue) return;
-        
-        
-        //is hitting from the hyperboloid surface (OUTER or INNER)
-        Float_t dirRho2 = direction.x()*direction.x()+direction.y()*direction.y();
-        Float_t point_dot_direction_z = point.z()*direction.z();
-        Float_t pointz2=point.z()*point.z();
-        Float_t dirz2=direction.z()*direction.z();
-    
-        //SOLUTION FOR OUTER
-        //NB: bOut=-B/2 of the second order equation
-        //So the solution is: (b +/- Sqrt(b^2-ac))*ainv
-        
-        Float_t aOut = dirRho2 - unplaced.GetTOut2() * dirz2;
-        Float_t bOut = unplaced.GetTOut2()*point_dot_direction_z - point_dot_direction_x - point_dot_direction_y;
-        Float_t cOut = rho2 - unplaced.GetTOut2()* pointz2 - unplaced.GetRmax2();
-        
-        Float_t aOutinv = 1./aOut;
-        Float_t prodOut = cOut*aOut;
-        Float_t deltaOut = bOut*bOut - prodOut;
-        Bool_t deltaOutNeg=deltaOut<0;
+using PlacedShape_t = PlacedHype;
+using UnplacedShape_t = UnplacedHype;
 
-        MaskedAssign(deltaOutNeg, 0. , &deltaOut);
-        deltaOut = Sqrt(deltaOut);
-        
-        Float_t distOut=aOutinv*(bOut -deltaOut);
-        
-        Float_t zHitOut1 = point.z()+distOut*direction.z();
-        Bool_t isHittingHyperboloidSurfaceOut1 = ( (distOut> 1E20) || (Abs(zHitOut1)<=unplaced.GetDz()) ); //why: dist > 1E20?
+VECGEOM_CUDA_HEADER_BOTH
+static void PrintType() {
+   printf("SpecializedHype<%i, %i>", transCodeT, rotCodeT);
+}
 
-        Float_t solution_Outer=kInfinity;
-        MaskedAssign(!deltaOutNeg &&isHittingHyperboloidSurfaceOut1 && distOut>0, distOut, &solution_Outer);
-        
-        //SOLUTION FOR INNER
-        Float_t aIn = dirRho2 - unplaced.GetTIn2() * dirz2;
-        Float_t bIn = unplaced.GetTIn2()*point_dot_direction_z - point_dot_direction_x - point_dot_direction_y;
-        Float_t cIn = rho2 - unplaced.GetTIn2()* pointz2 - unplaced.GetRmin2();
-        Float_t aIninv = 1./aIn;
-        
-        Float_t prodIn = cIn*aIn;
-        Float_t deltaIn = bIn*bIn - prodIn;
+template <class Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  static void UnplacedContains(
+      UnplacedHype const &unplaced,
+      Vector3D<typename Backend::precision_v> const &point,
+      typename Backend::bool_v &inside);
     
-        Bool_t deltaInNeg=deltaIn<0;
-        MaskedAssign(deltaInNeg, 0. , &deltaIn);
-        deltaIn = Sqrt(deltaIn);
-        
-        Float_t distIn=aIninv*(bIn +deltaIn);
+template <class Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  static void Contains(
+      UnplacedHype const &unplaced,
+      Transformation3D const &transformation,
+      Vector3D<typename Backend::precision_v> const &point,
+      Vector3D<typename Backend::precision_v> &localPoint,
+      typename Backend::bool_v &inside);
 
-        Float_t zHitIn1 = point.z()+distIn*direction.z();
-        Bool_t isHittingHyperboloidSurfaceIn1 = ( (distIn> 1E20) || (Abs(zHitIn1)<=unplaced.GetDz()) ); //why: dist > 1E20?
-    
-        Float_t solution_Inner=kInfinity;
-        MaskedAssign(!deltaInNeg && isHittingHyperboloidSurfaceIn1 && distIn>0, distIn, &solution_Inner);
-        
-        Float_t solution=Min(solution_Inner, solution_Outer);
-        
-        done|=(deltaInNeg && deltaOutNeg);
-        MaskedAssign(!done, solution, &distance );
-        
-    }
-    
-    template <TranslationCode transCodeT, RotationCode rotCodeT>
-    template <class Backend>
-    VECGEOM_CUDA_HEADER_BOTH
-    void HypeImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
-                                                                      UnplacedHype const &unplaced,
-                                                                      Vector3D<typename Backend::precision_v> const &point,
-                                                                      Vector3D<typename Backend::precision_v> const &direction,
-                                                                      typename Backend::precision_v const &stepMax,
-                                                                      typename Backend::precision_v &distance) {
+template <class Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  static void Inside(UnplacedHype const &unplaced,
+                     Transformation3D const &transformation,
+                     Vector3D<typename Backend::precision_v> const &point,
+                     typename Backend::inside_v &inside);
 
-        
-        typedef typename Backend::precision_v Float_t;
+template <typename Backend, bool ForInside>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+static void GenericKernelForContainsAndInside(
+    UnplacedHype const &unplaced,
+    Vector3D<typename Backend::precision_v> const &localPoint,
+    typename Backend::bool_v &completelyinside,
+    typename Backend::bool_v &completelyoutside) {
+
+	typedef typename Backend::precision_v Float_t;
+    typedef typename Backend::bool_v      Bool_t;	
+    
+    Float_t dz(unplaced.GetDz());
+    Float_t r2 = localPoint.x()*localPoint.x() + localPoint.y()*localPoint.y();
+    Float_t radsqIn(0.),radsqOut(0.);
+	RadiusHypeSq<Backend,true>(unplaced, localPoint.z(), radsqIn);
+	RadiusHypeSq<Backend,false>(unplaced, localPoint.z(), radsqOut);
+    if(ForInside)
+	completelyinside = (Abs(localPoint.z()) < dz) && (r2 > radsqIn + kTolerance*kTolerance) && (r2 < radsqOut - kTolerance*kTolerance);
+    
+	completelyoutside =  (Abs(localPoint.z()) > dz) || (r2 < radsqIn - kTolerance*kTolerance) || (r2 > radsqOut + kTolerance*kTolerance);   
+
+}
+
+
+template <typename Backend,bool ForInnerRad>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+static void RadiusHypeSq(UnplacedHype const &unplaced, typename Backend::precision_v z, typename Backend::precision_v radsq){
+   if(ForInnerRad)
+   radsq = unplaced.GetRmin2() + unplaced.GetTIn2()*z*z;
+   else
+   radsq = unplaced.GetRmax2() + unplaced.GetTOut2()*z*z;
+}
+
+template <class Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  static void DistanceToIn(
+      UnplacedHype const &unplaced,
+      Transformation3D const &transformation,
+      Vector3D<typename Backend::precision_v> const &point,
+      Vector3D<typename Backend::precision_v> const &direction,
+      typename Backend::precision_v const &stepMax,
+      typename Backend::precision_v &distance){}
+
+template <class Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  static void DistanceToOut(
+      UnplacedHype const &unplaced,
+      Vector3D<typename Backend::precision_v> const &point,
+      Vector3D<typename Backend::precision_v> const &direction,
+      typename Backend::precision_v const &stepMax,
+      typename Backend::precision_v &distance){
+DistanceToOutKernel<Backend>(
+    unplaced,
+    point,
+    direction,
+    stepMax,
+    distance
+  );
+}
+
+template <class Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  static void SafetyToIn(UnplacedHype const &unplaced,
+                         Transformation3D const &transformation,
+                         Vector3D<typename Backend::precision_v> const &point,
+                         typename Backend::precision_v &safety);//{}
+
+ template <class Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  static void SafetyToOut(UnplacedHype const &unplaced,
+                          Vector3D<typename Backend::precision_v> const &point,
+                          typename Backend::precision_v &safety);//{}
+ 
+
+template <typename Backend>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+static void ContainsKernel(
+    UnplacedHype const &unplaced,
+    Vector3D<typename Backend::precision_v> const &localPoint,
+    typename Backend::bool_v &inside);
+  
+
+template <class Backend>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+static void InsideKernel(
+    UnplacedHype const &unplaced,
+    Vector3D<typename Backend::precision_v> const &point,
+    typename Backend::inside_v &inside) ;
+
+ 
+template <class Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  static void DistanceToInKernel(
+      UnplacedHype const &unplaced,
+      Vector3D<typename Backend::precision_v> const &point,
+      Vector3D<typename Backend::precision_v> const &direction,
+      typename Backend::precision_v const &stepMax,
+      typename Backend::precision_v &distance){}
+
+
+template <class Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  static void DistanceToOutKernel(
+      UnplacedHype const &unplaced,
+      Vector3D<typename Backend::precision_v> const &point,
+      Vector3D<typename Backend::precision_v> const &direction,
+      typename Backend::precision_v const &stepMax,
+      typename Backend::precision_v &distance){
+
+ typedef typename Backend::precision_v Float_t;
         typedef typename Backend::bool_v      Bool_t;
         
         distance=kInfinity;
@@ -567,24 +264,23 @@ namespace VECGEOM_NAMESPACE {
         MaskedAssign(distIn1<0 && distIn2<0 && !deltaInNeg, kInfinity, &distHypeInner);
         Float_t distHype=Min(distHypeInner, distHypeOuter);
         distance=Min(distHype, distZ);
-    }
-    
-    template <TranslationCode transCodeT, RotationCode rotCodeT>
-    template <class Backend>
-    VECGEOM_CUDA_HEADER_BOTH
-    void HypeImplementation<transCodeT, rotCodeT>::SafetyToInKernel(
-                                                                   UnplacedHype const &unplaced,
-                                                                   Vector3D<typename Backend::precision_v> const &point,
-                                                                   typename Backend::precision_v &safety) {
-        
-        typedef typename Backend::precision_v Float_t;
+}
+
+
+template <class Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  static void SafetyToInKernel(UnplacedHype const &unplaced,
+                         Vector3D<typename Backend::precision_v> const &point,
+                         typename Backend::precision_v &safety){
+typedef typename Backend::precision_v Float_t;
         typedef typename Backend::bool_v Bool_t;
         safety=0.;
         Float_t safety_t;
         Float_t absZ= Abs(point.z());
         Float_t safeZ= absZ-unplaced.GetDz();
  
-#ifdef ROOTLIKE
+
         Float_t rsq = point.x()*point.x()+point.y()*point.y();
         Float_t r = Sqrt(rsq);
     
@@ -638,188 +334,17 @@ namespace VECGEOM_NAMESPACE {
             max_safety= Max(max_safety, safermin);
         }
         safety=max_safety;
-      
-#endif
-        
-#ifdef ACCURATE_BB
-        //Bounding-Box implementation
-        Float_t absX= Abs(point.x());
-        Float_t absY= Abs(point.y());
-        
-        //check if the point is inside the inner-bounding box
-        
-        //The square inscribed in the inner circle has side=r*sqrt(2)
-        Float_t safeX_In=absX-unplaced.GetInSqSide();
-        Float_t safeY_In=absY-unplaced.GetInSqSide();
-        Bool_t  mask_bcIn= (safeX_In<0) &&(safeY_In<0) && (safeZ>0);
-        safety_t=Min(safeX_In, safeY_In);
-        safety_t=Min(safety_t, safeZ);
-        Bool_t done(mask_bcIn);
-        if (Backend::early_returns && done == Backend::kTrue) return;
-        
-        Float_t safeX_Out= absX-unplaced.GetEndOuterRadius();
-        Float_t safeY_Out= absY-unplaced.GetEndOuterRadius();
-        Bool_t  mask_bbOut= (safeX_Out>0) || (safeY_Out>0) || (safeZ>0);
-        
-        safety_t=Max(safeX_Out, safeY_Out);
-        safety_t=Max(safeZ, safety_t);
-        MaskedAssign(mask_bbOut , safety_t, &safety);
-        done|=mask_bbOut;
-        if (Backend::early_returns && done == Backend::kTrue) return;
-        
-        Float_t rsq = point.x()*point.x()+point.y()*point.y();
-        Float_t r = Sqrt(rsq);
-        
-        //Outer
-        Float_t rhsqOut=unplaced.GetRmax2()+unplaced.GetTOut2()*point.z()*point.z();
-        Float_t rhOut = Sqrt(rhsqOut);
-        Float_t drOut = r - rhOut;
-        
-        Float_t safermax=0.;
-        Bool_t mask_drOut=(drOut<0);
-        MaskedAssign(mask_drOut, -kInfinity, &safermax);
-        
-        Bool_t mask_fStOut(Abs(unplaced.GetStOut())<kTolerance);
-        MaskedAssign(!mask_drOut && mask_fStOut, Abs(drOut), &safermax);
-        
-        Float_t zHypeSqOut= Sqrt((r*r-unplaced.GetRmax2())*(unplaced.GetTOut2Inv()));
-        Float_t mOut=(zHypeSqOut-absZ)/drOut;
-        
-        Float_t safe = mOut*drOut/Sqrt(1.+mOut*mOut);
-        Bool_t doneOuter(mask_fStOut || mask_drOut);
-        MaskedAssign(!doneOuter, safe, &safermax);
-        Float_t max_safety= Max(safermax, safeZ);
-        
-        //Check for Inner Threatment
-        if(unplaced.GetEndInnerRadius()!=0)
-        {
-            Float_t safermin=0.;
-            Float_t rhsqIn = unplaced.GetRmin2()+unplaced.GetTIn()*point.z()*point.z();
-            Float_t rhIn = Sqrt(rhsqIn);
-            Float_t drIn = r-rhIn;
-            
-            Bool_t mask_drIn(drIn>0.);
-            MaskedAssign(mask_drIn, -kInfinity, &safermin);
-            
-            Bool_t mask_fStIn(Abs(unplaced.GetStIn()<kTolerance));
-            MaskedAssign(!mask_drIn && mask_fStIn , Abs(drIn), &safermin);
-            
-            Bool_t mask_fRmin(unplaced.GetRmin()<kTolerance);
-            MaskedAssign(! mask_drIn && !mask_fStIn && mask_fRmin, drIn/Sqrt(1.+unplaced.GetTIn2()), &safermin);
-            
-            Bool_t mask_drMin=Abs(drIn)<kTolerance;
-            MaskedAssign(!mask_drIn && !mask_fStIn && !mask_fRmin && mask_drMin, 0., &safermin);
-            Bool_t doneInner(mask_drIn || mask_fStIn ||mask_fRmin || mask_drMin );
+}
+  
 
-            Float_t zHypeSqIn= Sqrt( (r*r-unplaced.GetRmin2()) *(unplaced.GetTIn2Inv()) );
-            
-            Float_t mIn=-rhIn*unplaced.GetTIn2Inv()/absZ;
-            safe = mIn*drIn/Sqrt(1.+mIn*mIn);
-            MaskedAssign(!doneInner, safe, &safermin);
-            max_safety= Max(max_safety, safermin);
-        }
-        
-        MaskedAssign(!done, max_safety, &safety);
-        
-#endif
 
-#ifdef ACCURATE_BC
-        //Bounding-Cylinder implementation
-        Float_t absX= Abs(point.x());
-        Float_t absY= Abs(point.y());
-        
-        //Then calculate accurate value
-        Float_t rsq = point.x()*point.x()+point.y()*point.y();
-        Float_t r = Sqrt(rsq);
-        
-        
-        //check if the point is inside the inner-bounding cylinder
-        Float_t safeRhoIn=unplaced.GetRmin()-r;
-        Bool_t  mask_bcIn= (safeRhoIn>0) && (safeZ>0);
-        safety_t=Min(safeZ, safeRhoIn);
-        Bool_t done(mask_bcIn);
-        MaskedAssign(done, safety_t, &safety);
-        if (Backend::early_returns && done == Backend::kTrue) return;
-        
-        //check if the point is outside the outer-bounding cylinder
-        Float_t safeRhoOut=r-unplaced.GetEndOuterRadius();
-        Bool_t  mask_bcOut= (safeRhoOut>0) || (safeZ>0);
-        
-        safety_t=Max(safeZ, safeRhoOut);
-        MaskedAssign(!done && mask_bcOut, safety_t, &safety);
-        done|=mask_bcOut;
-        if (Backend::early_returns && done == Backend::kTrue) return;
-    
-        //Outer
-        Float_t rhsqOut=unplaced.GetRmax2()+unplaced.GetTOut2()*point.z()*point.z();
-        Float_t rhOut = Sqrt(rhsqOut);
-        Float_t drOut = r - rhOut;
-        
-        Float_t safermax=0.;
-        
-        Bool_t mask_drOut=(drOut<0);
-        MaskedAssign(mask_drOut, -kInfinity, &safermax);
-        
-        Bool_t mask_fStOut(Abs(unplaced.GetStOut())<kTolerance);
-        MaskedAssign(!mask_drOut && mask_fStOut, Abs(drOut), &safermax);
-        
-        Float_t zHypeSqOut= Sqrt((r*r-unplaced.GetRmax2())*(unplaced.GetTOut2Inv()));
-        Float_t mOut=(zHypeSqOut-absZ)/drOut;
-
-        Float_t safe = mOut*drOut/Sqrt(1.+mOut*mOut);
-        Bool_t doneOuter(mask_fStOut || mask_drOut);
-        MaskedAssign(!doneOuter, safe, &safermax);
-        Float_t max_safety= Max(safermax, safeZ);
-        
-        //Check for Inner Threatment
-        if(unplaced.GetEndInnerRadius()!=0)
-        {
-            Float_t safermin=0.;
-            Float_t rhsqIn = unplaced.GetRmin2()+unplaced.GetTIn()*point.z()*point.z();
-            Float_t rhIn = Sqrt(rhsqIn);
-            Float_t drIn = r-rhIn;
-            
-            Bool_t mask_drIn(drIn>0.);
-            MaskedAssign(mask_drIn, -kInfinity, &safermin);
-            Bool_t doneInner(mask_drIn);
-            
-            //Bool_t mask_fStIn(Abs(unplaced.GetStIn()<kTolerance));
-            //MaskedAssign(!doneInner && mask_fStIn , Abs(drIn), &safermin);
-            //doneInner|=mask_fStIn;
-            
-            //Bool_t mask_fRmin(unplaced.GetRmin()<kTolerance);
-            //MaskedAssign(!doneInner && mask_fRmin, drIn/Sqrt(1.+unplaced.GetTIn2()), &safermin);
-            //doneInner|=mask_fRmin;
-            
-            //Bool_t mask_drMin=Abs(drIn)<kTolerance;
-            //MaskedAssign(!doneInner && mask_drMin , 0., &safermin);
-            //doneInner|=mask_fRmin;
-            
-           
-            Float_t zHypeSqIn= Sqrt( (r*r-unplaced.GetRmin2()) * (unplaced.GetTIn2Inv()) );
-            
-            Float_t mIn=-rhIn*unplaced.GetTIn2Inv()/absZ;
-            safe = mIn*drIn/Sqrt(1.+mIn*mIn);
-            MaskedAssign(!doneInner, safe, &safermin);
-            max_safety= Max(max_safety, safermin);
-        }
-        
-        MaskedAssign(!done, max_safety, &safety);
-        
-        
-#endif
-
-    }
-    
-    template <TranslationCode transCodeT, RotationCode rotCodeT>
-    template <class Backend>
-    VECGEOM_CUDA_HEADER_BOTH
-    void HypeImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(
-                                                                    UnplacedHype const &unplaced,
-                                                                    Vector3D<typename Backend::precision_v> const &point,
-                                                                    typename Backend::precision_v &safety){
-        
-        typedef typename Backend::precision_v Float_t;
+  template <class Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  static void SafetyToOutKernel(UnplacedHype const &unplaced,
+                          Vector3D<typename Backend::precision_v> const &point,
+                          typename Backend::precision_v &safety){
+typedef typename Backend::precision_v Float_t;
         typedef typename Backend::bool_v Bool_t;
         safety=0.;
         
@@ -828,7 +353,7 @@ namespace VECGEOM_NAMESPACE {
         Float_t rsq = point.x()*point.x()+point.y()*point.y();
         Float_t r = Sqrt(rsq);
 
-#ifdef ROOTLIKE
+
 
         Float_t safermax;
         //OUTER
@@ -884,62 +409,433 @@ namespace VECGEOM_NAMESPACE {
             MaskedAssign(!doneInner, safe, &safermin);
             safety=Min(safety, safermin);
         }
-#endif
+}
+  
+  
+  template <class Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  static void Normal(
+       UnplacedHype const &unplaced,
+       Vector3D<typename Backend::precision_v> const &point,
+       Vector3D<typename Backend::precision_v> &normal,
+       typename Backend::bool_v &valid );//{}
+  
+  template <class Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  static void NormalKernel(
+       UnplacedHype const &unplaced,
+       Vector3D<typename Backend::precision_v> const &point,
+       Vector3D<typename Backend::precision_v> &normal,
+       typename Backend::bool_v &valid );//{}
+  
+  
 
-        Float_t safeOuter;
-        Bool_t mask_TOut(unplaced.GetTOut2()< DBL_MIN);
-        
-        MaskedAssign(mask_TOut, unplaced.GetRmax()-r, &safeOuter);
-        
-        // Corresponding position and normal on hyperbolic
-        Float_t rh = Sqrt( unplaced.GetRmax2() + absZ*absZ*unplaced.GetTOut2() );
-        
-        Float_t dr = -rh;
-        Float_t dz_mari = absZ*unplaced.GetTOut2();
-        Float_t lenOuter = Sqrt(dr*dr + dz_mari*dz_mari);
-        // Answer
-        MaskedAssign(!mask_TOut, Abs((r-rh)*dr)/lenOuter, &safeOuter);
-        
-        if(unplaced.GetEndInnerRadius()!=0)
-        {
-            //INNER
-            Float_t safeInner;
-        
-            Bool_t mask_TIn(unplaced.GetTIn()< DBL_MIN);
-            MaskedAssign(mask_TIn, r-unplaced.GetRmin(), &safeInner);
+template <class Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  static void GetHypeRadius2(UnplacedHype const &unplaced,
+							typename Backend::precision_v &pZ,
+							typename Backend::precision_v &hypeRadius2,bool inner){
+		
+				typedef typename Backend::precision_v Float_t;
+        		typedef typename Backend::bool_v Bool_t;
+				
+				if(inner)
+				return unplaced.GetRmin2() +  unplaced.GetTIn2()*pZ*pZ;
+				else
+				return unplaced.GetRmax2() +  unplaced.GetTOut2()*pZ*pZ;
+}
+};
 
-            // First point
-        
-            Float_t z1 = absZ;
-            Float_t r1 = Sqrt( unplaced.GetRmin2() + z1*z1*unplaced.GetTIn2() );
-        
-            // Second point
-      
-            Float_t z2 = (r*unplaced.GetTIn() + absZ)/(1 + unplaced.GetTIn2());
-            Float_t r2 = Sqrt( unplaced.GetRmin2() + z2*z2*unplaced.GetTIn2() );
-        
-            // Line between them
-      
-            Float_t drInner = r2-r1;
-            Float_t dzInner = z2-z1;
-        
-            Float_t lenInner = Sqrt(drInner*drInner + dzInner*dzInner);
-            Bool_t mask_len(lenInner < DBL_MIN);
-        
-            Float_t drInner2 = r-r1;
-            Float_t dzInner2 = absZ-z1;
 
-            MaskedAssign(mask_len && !mask_TIn, Sqrt(drInner2*drInner2 + dzInner2*dzInner2), &safeInner);
-            MaskedAssign(!mask_len && !mask_TIn, Abs((r-r1)*dzInner - (absZ-z1)*drInner)/lenInner, &safeInner);
-        
-            Float_t safe=Min(safeZ, safeOuter);
-            safe=Min(safe, safeInner);
-        
-            safety=safe;
-        }
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+template <typename Backend>
+VECGEOM_CUDA_HEADER_BOTH
+void HypeImplementation<transCodeT, rotCodeT>::Normal(
+       UnplacedHype const &unplaced,
+       Vector3D<typename Backend::precision_v> const &point,
+       Vector3D<typename Backend::precision_v> &normal,
+       typename Backend::bool_v &valid ){
+    //std::cout<<"Entered Normal "<<std::endl;
+    NormalKernel<Backend>(unplaced, point, normal, valid);
+}
 
-    }
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+template <typename Backend>
+VECGEOM_CUDA_HEADER_BOTH
+void HypeImplementation<transCodeT, rotCodeT>::NormalKernel(
+       UnplacedHype const &unplaced,
+       Vector3D<typename Backend::precision_v> const &point,
+       Vector3D<typename Backend::precision_v> &normal,
+       typename Backend::bool_v &valid ){
+
+	//std::cout<<"Entered NormalKernel "<<std::endl;
+    typedef typename Backend::precision_v Float_t;
+    typedef typename Backend::bool_v      Bool_t;
+
+	Vector3D<Float_t> localPoint = point;
+	Float_t absZ = Abs(localPoint.z());
+	Float_t distZ = absZ - unplaced.GetDz();
+	Float_t dist2Z = distZ*distZ;
+	
+	Float_t xR2 = localPoint.x()*localPoint.x() + localPoint.y()*localPoint.y();
+	Float_t radOSq(0.);
+	RadiusHypeSq(unplaced,localPoint.z(),radOSq,false);
+	Float_t dist2Outer = Abs(xR2 - radOSq);
+	//std::cout<<"LocalPoint : "<<localPoint<<std::endl;
+	Bool_t done(false);
+	
+	
+	//Inner Surface Wins	
+	if(unplaced.InnerSurfaceExists())
+	{
+		Float_t radISq(0.);
+		RadiusHypeSq(unplaced,localPoint.z(),radISq,true);
+		Float_t dist2Inner = Abs(xR2 - radISq );
+		Bool_t cond = (dist2Inner < dist2Z && dist2Inner < dist2Outer);
+		MaskedAssign(!done && cond,-localPoint.x(),normal.x());
+		MaskedAssign(!done && cond,-localPoint.y(),normal.y());
+		MaskedAssign(!done && cond,localPoint.z()*unplaced.GetTIn2(),normal.z());
+		normal = normal.Unit();
+		done |= cond;
+		if(IsFull(done))
+			return;
+		
+	}
+
+	//End Caps wins
+	Bool_t condE = (dist2Z < dist2Outer) ;
+	Float_t normZ(0.);
+	CondAssign(localPoint.z()<0. , -1. ,1. ,normZ);
+	MaskedAssign(!done && condE ,0. , normal.x());
+	MaskedAssign(!done && condE ,0. , normal.y());
+	MaskedAssign(!done && condE ,normZ , normal.z());
+	normal = normal.Unit();
+	done |= condE;
+	if(IsFull(done))
+		return;
+
+	//Outer Surface Wins
+	normal = Vector3D<Float_t>(localPoint.x(),localPoint.y(),-localPoint.z()*unplaced.GetTOut2()).Unit();
+	
+
+}
+
+
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+template <typename Backend>
+VECGEOM_CUDA_HEADER_BOTH
+void HypeImplementation<transCodeT, rotCodeT>::UnplacedContains(
+      UnplacedHype const &unplaced,
+      Vector3D<typename Backend::precision_v> const &point,
+      typename Backend::bool_v &inside){
+
+      ContainsKernel<Backend>(unplaced, point, inside);
+}    
+
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+template <typename Backend>
+VECGEOM_CUDA_HEADER_BOTH
+void HypeImplementation<transCodeT, rotCodeT>::Contains(UnplacedHype const &unplaced,
+      Transformation3D const &transformation,
+      Vector3D<typename Backend::precision_v> const &point,
+      Vector3D<typename Backend::precision_v> &localPoint,
+      typename Backend::bool_v &inside){
+
+    localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
+    UnplacedContains<Backend>(unplaced, localPoint, inside);
+}
+
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+template <typename Backend>
+VECGEOM_CUDA_HEADER_BOTH
+void HypeImplementation<transCodeT, rotCodeT>::Inside(UnplacedHype const &unplaced,
+                     Transformation3D const &transformation,
+                     Vector3D<typename Backend::precision_v> const &point,
+                     typename Backend::inside_v &inside){
+
+    InsideKernel<Backend>(unplaced,
+                        transformation.Transform<transCodeT, rotCodeT>(point),
+                        inside);
+
+}
+/*
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+template <class Backend>
+VECGEOM_CUDA_HEADER_BOTH
+void HypeImplementation<transCodeT, rotCodeT>::DistanceToIn(UnplacedHype const &unplaced,
+      Transformation3D const &transformation,
+      Vector3D<typename Backend::precision_v> const &point,
+      Vector3D<typename Backend::precision_v> const &direction,
+      typename Backend::precision_v const &stepMax,
+      typename Backend::precision_v &distance){
+
+    DistanceToInKernel<Backend>(
+            unplaced,
+            transformation.Transform<transCodeT, rotCodeT>(point),
+            transformation.TransformDirection<rotCodeT>(direction),
+            stepMax,
+            distance);
+}
+
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+template <class Backend>
+VECGEOM_CUDA_HEADER_BOTH
+void HypeImplementation<transCodeT, rotCodeT>::DistanceToOut(UnplacedHype const &unplaced,
+      Vector3D<typename Backend::precision_v> const &point,
+      Vector3D<typename Backend::precision_v> const &direction,
+      typename Backend::precision_v const &stepMax,
+      typename Backend::precision_v &distance){
+
+    DistanceToOutKernel<Backend>(
+    unplaced,
+    point,
+    direction,
+    stepMax,
+    distance
+  );
+}
+
+
+*/
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+template <class Backend>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+void HypeImplementation<transCodeT, rotCodeT>::SafetyToIn(UnplacedHype const &unplaced,
+                         Transformation3D const &transformation,
+                         Vector3D<typename Backend::precision_v> const &point,
+                         typename Backend::precision_v &safety){
     
-} // End global namespace
+    SafetyToInKernel<Backend>(
+    unplaced,
+    transformation.Transform<transCodeT, rotCodeT>(point),
+    safety
+  );
+}
+
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+template <class Backend>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+void HypeImplementation<transCodeT, rotCodeT>::SafetyToOut(UnplacedHype const &unplaced,
+                          Vector3D<typename Backend::precision_v> const &point,
+                          typename Backend::precision_v &safety){
+    SafetyToOutKernel<Backend>(
+    unplaced,
+    point,
+    safety
+  );
+}
+
+
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+template <typename Backend>
+VECGEOM_CUDA_HEADER_BOTH
+void HypeImplementation<transCodeT, rotCodeT>::ContainsKernel(UnplacedHype const &unplaced,
+    Vector3D<typename Backend::precision_v> const &localPoint,
+    typename Backend::bool_v &inside) {
+
+  typedef typename Backend::bool_v Bool_t;
+  Bool_t unused;
+  Bool_t outside;
+  GenericKernelForContainsAndInside<Backend, false>(unplaced,
+    localPoint, unused, outside);
+  inside=!outside;
+}  
+/*
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+template <typename Backend, bool ForInside>
+VECGEOM_CUDA_HEADER_BOTH
+void HypeImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndInside(
+UnplacedHype const &unplaced,
+    Vector3D<typename Backend::precision_v> const &localPoint,
+    typename Backend::bool_v &completelyinside,
+    typename Backend::bool_v &completelyoutside) {
+
+    
+    typedef typename Backend::precision_v Float_t;
+    //typedef typename Backend::bool_v      Bool_t;	
+        
+    Precision fR = unplaced.GetRadius();
+    Float_t rad2 = localPoint.Mag2();
+    
+    Float_t tolR = fR - ( kSTolerance*10. );
+    if(ForInside)
+    completelyinside = (rad2 <= tolR *tolR) ;
+    
+    tolR = (fR + ( kSTolerance*10.)); 
+    completelyoutside = (rad2 >= tolR *tolR);
+    //if( IsFull(completelyoutside) )return;
+
+    //Radial Check for GenericKernel Over
+}
+*/
+
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+template <class Backend>
+VECGEOM_CUDA_HEADER_BOTH
+void HypeImplementation<transCodeT, rotCodeT>::InsideKernel(UnplacedHype const &unplaced,
+    Vector3D<typename Backend::precision_v> const &point,
+    typename Backend::inside_v &inside) {
+  
+  typedef typename Backend::bool_v      Bool_t;
+  Bool_t completelyinside, completelyoutside;
+  GenericKernelForContainsAndInside<Backend,true>(
+      unplaced, point, completelyinside, completelyoutside);
+  inside=EInside::kSurface;
+  MaskedAssign(completelyoutside, EInside::kOutside, &inside);
+  MaskedAssign(completelyinside, EInside::kInside, &inside);
+}
+ 
+/*
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+template <class Backend>
+VECGEOM_CUDA_HEADER_BOTH
+void HypeImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
+      UnplacedHype const &unplaced,
+      Vector3D<typename Backend::precision_v> const &point,
+      Vector3D<typename Backend::precision_v> const &direction,
+      typename Backend::precision_v const &stepMax,
+      typename Backend::precision_v &distance){
+
+    typedef typename Backend::precision_v Float_t;
+    typedef typename Backend::bool_v      Bool_t;
+    //typedef typename Backend::inside_v    Inside_t;
+
+    Vector3D<Float_t> localPoint = point;
+    Vector3D<Float_t> localDir = direction;
+    
+    distance = kInfinity;
+    Bool_t done(false);
+    Bool_t tr(true),fal(false);
+
+    Float_t fR(unplaced.GetRadius()); 
+	// General Precalcs
+    Float_t rad2 = localPoint.Mag2();
+    Float_t rho2 = localPoint.x()*localPoint.x() + localPoint.y()*localPoint.y();
+    Float_t pDotV3d = localPoint.Dot(localDir);
+
+    Bool_t cond(false);
+  
+    Float_t  c(0.), d2(0.);
+    c = rad2 - fR * fR;
+    //MaskedAssign((tr),(pDotV3d * pDotV3d - c),&d2);
+    d2 = (pDotV3d * pDotV3d - c);
+
+    Float_t sd1(kInfinity);
+    done |= (d2 < 0. || ((localPoint.Mag() > fR) && (pDotV3d > 0.)));
+    if(IsFull(done)) return; //Returning in case of no intersection with outer shell
+
+    MaskedAssign(( (Sqrt(rad2) >= (fR - kSTolerance*10.) ) && (Sqrt(rad2) <= (fR + kSTolerance*10.)) && (pDotV3d < 0.) && !done ),0.,&sd1);
+    MaskedAssign( ( (Sqrt(rad2) > (fR + kSTolerance*10.) ) && (tr) && (d2 >= 0.) && pDotV3d < 0.  && !done ) ,(-1.*pDotV3d - Sqrt(d2)),&sd1);
+    distance=sd1;
+
+
+}
+
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+template <class Backend>
+VECGEOM_CUDA_HEADER_BOTH
+void HypeImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(UnplacedHype const &unplaced,
+      Vector3D<typename Backend::precision_v> const &point,
+      Vector3D<typename Backend::precision_v> const &direction,
+      
+      typename Backend::precision_v const &stepMax,
+      typename Backend::precision_v &distance){
+
+   
+    typedef typename Backend::precision_v Float_t;
+    typedef typename Backend::bool_v      Bool_t;
+
+    Vector3D<Float_t> localPoint = point;
+    Vector3D<Float_t> localDir=direction;
+    
+    distance = kInfinity;
+    Float_t  pDotV2d, pDotV3d;
+    
+    
+    Bool_t done(false);
+    Bool_t tr(true),fal(false);
+    
+    Float_t snxt(kInfinity);
+    
+    Float_t fR(unplaced.GetRadius()); 
+
+    // Intersection point
+    Vector3D<Float_t> intSecPt;
+    Float_t  c(0.), d2(0.);
+
+    pDotV2d = localPoint.x() * localDir.x() + localPoint.y() * localDir.y();
+    pDotV3d = pDotV2d + localPoint.z() * localDir.z(); //localPoint.Dot(localDir);
+ 
+    Float_t rad2 = localPoint.Mag2();
+    c = rad2 - fR * fR;
+   
+   //New Code
+   
+   Float_t sd1(0.);
+   
+   Bool_t cond1 = (Sqrt(rad2) <= (fR + 0.5*kSTolerance*10.)) ;
+   Bool_t cond = (Sqrt(rad2) <= (fR + kSTolerance*10.)) && (Sqrt(rad2) >= (fR - kSTolerance*10.)) && pDotV3d >=0 && cond1;
+   done |= cond;
+   MaskedAssign(cond ,0.,&sd1);
+   
+   MaskedAssign((tr && cond1),(pDotV3d * pDotV3d - c),&d2);
+   MaskedAssign( (!done && cond1 && (tr) && (d2 >= 0.) ) ,(-1.*pDotV3d + Sqrt(d2)),&sd1);
+   
+   MaskedAssign((sd1 < 0.),kInfinity, &sd1);
+   distance=sd1;
+}
+
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+template <class Backend>
+VECGEOM_CUDA_HEADER_BOTH
+void HypeImplementation<transCodeT, rotCodeT>::SafetyToInKernel(UnplacedHype const &unplaced,
+                         Vector3D<typename Backend::precision_v> const &point,
+                         typename Backend::precision_v &safety){
+
+    typedef typename Backend::precision_v Float_t;
+    
+    Float_t safe(0.);
+    Vector3D<Float_t> localPoint;
+    //localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
+    localPoint=point;
+
+    //General Precalcs
+    Float_t rad2    = localPoint.Mag2();
+    Float_t rad = Sqrt(rad2);
+    safe = rad - unplaced.GetRadius();
+    safety = safe;
+    MaskedAssign( (safe < 0.) , 0., &safety);
+    
+}
+
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+template <class Backend>
+VECGEOM_CUDA_HEADER_BOTH
+void HypeImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(UnplacedHype const &unplaced,
+                          Vector3D<typename Backend::precision_v> const &point,
+                          typename Backend::precision_v &safety){
+    
+    typedef typename Backend::precision_v Double_t;
+    
+    Double_t safe(0.);
+    Vector3D<Double_t> localPoint;
+    localPoint = point;
+    
+    //General Precalcs
+    Double_t rad2    = localPoint.Mag2();
+    Double_t rad = Sqrt(rad2);
+    safe = unplaced.GetRadius() - rad;
+    safety = safe;
+    MaskedAssign( (safe < 0.) , 0., &safety);
+}
+*/
+
+
+}} // End global namespace
 
 #endif // VECGEOM_VOLUMES_KERNEL_HYPEIMPLEMENTATION_H_
