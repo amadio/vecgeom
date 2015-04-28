@@ -9,7 +9,7 @@
 
 #include <string>
 
-namespace VECGEOM_NAMESPACE { namespace HypeTypes {
+namespace vecgeom { namespace HypeTypes {
 
 #define DEFINE_HYPE_TYPE(name) \
     struct name { \
