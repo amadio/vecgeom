@@ -194,9 +194,120 @@ static void PrintType() {
                                       UnplacedHype const &unplaced,
                                       Vector3D<typename Backend::precision_v> const &point,
                                       typename Backend::precision_v &safety);
-        
+
+		template <class Backend>
+  		VECGEOM_CUDA_HEADER_BOTH
+  		VECGEOM_INLINE
+  		static void Normal(
+       								UnplacedHype const &unplaced,
+       								Vector3D<typename Backend::precision_v> const &point,
+       								Vector3D<typename Backend::precision_v> &normal,
+       								typename Backend::bool_v &valid );//{}
+  
+  		template <class Backend>
+  		VECGEOM_CUDA_HEADER_BOTH
+  		VECGEOM_INLINE
+  		static void NormalKernel(
+       								UnplacedHype const &unplaced,
+      								Vector3D<typename Backend::precision_v> const &point,
+       								Vector3D<typename Backend::precision_v> &normal,
+       								typename Backend::bool_v &valid );//{}
+       
+		template <typename Backend,bool ForInnerRad>
+		VECGEOM_CUDA_HEADER_BOTH
+		VECGEOM_INLINE
+		static void RadiusHypeSq(UnplacedHype const &unplaced, typename Backend::precision_v z, typename Backend::precision_v radsq);
+		
+
+
     }; // End struct HypeImplementation
-    
+
+template <TranslationCode transCodeT, RotationCode rotCodeT>    
+template <typename Backend,bool ForInnerRad>
+VECGEOM_CUDA_HEADER_BOTH
+void HypeImplementation<transCodeT, rotCodeT>::RadiusHypeSq(UnplacedHype const &unplaced, typename Backend::precision_v z, typename Backend::precision_v radsq){
+   		if(ForInnerRad)
+   		radsq = unplaced.GetRmin2() + unplaced.GetTIn2()*z*z;
+   		else
+   		radsq = unplaced.GetRmax2() + unplaced.GetTOut2()*z*z;
+}
+
+
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+template <typename Backend>
+VECGEOM_CUDA_HEADER_BOTH
+void HypeImplementation<transCodeT, rotCodeT>::Normal(
+       UnplacedHype const &unplaced,
+       Vector3D<typename Backend::precision_v> const &point,
+       Vector3D<typename Backend::precision_v> &normal,
+       typename Backend::bool_v &valid ){
+    //std::cout<<"Entered Normal "<<std::endl;
+    NormalKernel<Backend>(unplaced, point, normal, valid);
+}
+
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+template <typename Backend>
+VECGEOM_CUDA_HEADER_BOTH
+void HypeImplementation<transCodeT, rotCodeT>::NormalKernel(
+       UnplacedHype const &unplaced,
+       Vector3D<typename Backend::precision_v> const &point,
+       Vector3D<typename Backend::precision_v> &normal,
+       typename Backend::bool_v &valid ){
+
+	//std::cout<<"Entered NormalKernel "<<std::endl;
+    typedef typename Backend::precision_v Float_t;
+    typedef typename Backend::bool_v      Bool_t;
+
+	Vector3D<Float_t> localPoint = point;
+	Float_t absZ = Abs(localPoint.z());
+	Float_t distZ = absZ - unplaced.GetDz();
+	Float_t dist2Z = distZ*distZ;
+	
+	Float_t xR2 = localPoint.x()*localPoint.x() + localPoint.y()*localPoint.y();
+	Float_t radOSq(0.);
+	RadiusHypeSq<Backend,false>(unplaced,localPoint.z(),radOSq);
+	Float_t dist2Outer = Abs(xR2 - radOSq);
+	//std::cout<<"LocalPoint : "<<localPoint<<std::endl;
+	Bool_t done(false);
+	
+	
+	//Inner Surface Wins	
+	if(unplaced.InnerSurfaceExists())
+	{
+		Float_t radISq(0.);
+		RadiusHypeSq<Backend,true>(unplaced,localPoint.z(),radISq);
+		Float_t dist2Inner = Abs(xR2 - radISq );
+		Bool_t cond = (dist2Inner < dist2Z && dist2Inner < dist2Outer);
+		MaskedAssign(!done && cond,-localPoint.x(),normal.x());
+		MaskedAssign(!done && cond,-localPoint.y(),normal.y());
+		MaskedAssign(!done && cond,localPoint.z()*unplaced.GetTIn2(),normal.z());
+		normal = normal.Unit();
+		done |= cond;
+		if(IsFull(done))
+			return;
+		
+	}
+
+	//End Caps wins
+	Bool_t condE = (dist2Z < dist2Outer) ;
+	Float_t normZ(0.);
+	CondAssign(localPoint.z()<0. , -1. ,1. ,normZ);
+	MaskedAssign(!done && condE ,0. , normal.x());
+	MaskedAssign(!done && condE ,0. , normal.y());
+	MaskedAssign(!done && condE ,normZ , normal.z());
+	normal = normal.Unit();
+	done |= condE;
+	if(IsFull(done))
+		return;
+
+	//Outer Surface Wins
+	normal = Vector3D<Float_t>(localPoint.x(),localPoint.y(),-localPoint.z()*unplaced.GetTOut2()).Unit();
+	
+
+}
+
+
+
     template <TranslationCode transCodeT, RotationCode rotCodeT>
     template <typename Backend>
     VECGEOM_CUDA_HEADER_BOTH
