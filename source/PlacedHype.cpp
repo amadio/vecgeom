@@ -46,10 +46,11 @@ TGeoShape const* PlacedHype::ConvertToRoot() const {
 ::VUSolid const* PlacedHype::ConvertToUSolids() const {
   //assert(0 && "Hype unsupported for USolids.");
   //return NULL;
- std::cerr << "**************************************************************\n";
-    std::cerr << "WARNING: Hyperboloid unsupported for USolids.; returning a box\n";
-    std::cerr << "**************************************************************\n";
-    return new UBox("",10,10,10);
+ //std::cerr << "**************************************************************\n";
+   // std::cerr << "WARNING: Hyperboloid unsupported for USolids.; returning a box\n";
+    //std::cerr << "**************************************************************\n";
+    //return new UBox("",10,10,10);
+return NULL;
 }
 #endif
 

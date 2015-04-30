@@ -558,6 +558,8 @@ set(TEST_EXECUTABLES_CORE
   ${CMAKE_SOURCE_DIR}/test/core/PhiWedgeTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/BitSetTest.cpp      
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestVecGeomPolycone.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/newTestHype.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/geantHype.cpp
 )
 
 
@@ -605,8 +607,7 @@ set(TEST_EXECUTABLES_USOLIDS
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBoxlikeTrapezoid.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/usolidTest.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/newTestHype.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/geantHype.cpp
+  
     
 )
 set(TEST_EXECUTABLES_BENCHMARK
@@ -651,7 +652,8 @@ set(TEST_EXECUTABLES_SHAPETESTER
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTrapezoid.cpp
   # ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testParaboloid.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testPolycone.cpp 
-  # ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testFromROOTFile.cpp 
+  # ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testFromROOTFile.cpp
+  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testHype.cpp 
 )
 set(TEST_EXECUTABLES
   ${TEST_EXECUTABLES_CORE}

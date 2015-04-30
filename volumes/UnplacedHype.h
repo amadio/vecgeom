@@ -144,7 +144,8 @@ public:
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetInSqSide() const{ return fInSqSide;}
 
-    
+    //VECGEOM_CUDA_HEADER_BOTH
+	//bool Normal(Vector3D<Precision> p,Vector3D<Precision> &normal);
     
     //set
     VECGEOM_CUDA_HEADER_BOTH
@@ -157,6 +158,8 @@ public:
 
   //VECGEOM_CUDA_HEADER_BOTH
   Precision Area(bool outer);
+
+  Precision AreaEndCaps();
 
   void CalcCapacity();
 

@@ -126,7 +126,51 @@ public:
 
 //_____________________________________________________________  
 
+VECGEOM_CUDA_HEADER_BOTH  
+VECGEOM_INLINE
+ bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal ) const
+  {
+//return GetUnplacedVolume()->Normal(p,normal);
 
+      bool valid;
+      //HypeImplementation<translation::kIdentity, rotation::kIdentity>::NormalKernel<kScalar>(
+        //      *GetUnplacedVolume(),
+          //    point,
+            //  normal, valid);
+      //return valid;
+
+Precision absZ(std::fabs(p.z()));
+  Precision distZ(absZ - GetDz());
+  Precision dist2Z(distZ*distZ);
+  
+  Precision xR2( p.x()*p.x()+p.y()*p.y() );
+  Precision dist2Outer( std::fabs(xR2 - GetEndOuterRadius2()) );
+  
+  if (GetUnplacedVolume()->InnerSurfaceExists())
+  {
+    //
+    // Has inner surface: is this closest?
+    //
+    Precision dist2Inner( std::fabs(xR2 - GetEndInnerRadius2()) );
+    if (dist2Inner < dist2Z && dist2Inner < dist2Outer)
+      normal = Vector3D<Precision>( -p.x(), -p.y(), p.z()*GetTIn2() ).Unit();
+  }
+
+  //
+  // Do the "endcaps" win?
+  //
+  if (dist2Z < dist2Outer) 
+    normal = Vector3D<Precision>( 0.0, 0.0, p.z() < 0 ? -1.0 : 1.0 );
+    
+    
+  //
+  // Outer surface wins
+  //
+  normal = Vector3D<Precision>( p.x(), p.y(), -p.z()*GetTOut2() ).Unit();
+
+  return valid;
+
+  }
 
 VECGEOM_CUDA_HEADER_BOTH  
 VECGEOM_INLINE
