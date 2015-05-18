@@ -125,6 +125,18 @@ public:
 
 
 //_____________________________________________________________  
+//template <bool inner>
+VECGEOM_CUDA_HEADER_BOTH  
+VECGEOM_INLINE
+Precision GetHypeRadius2(bool inner,Precision dz) const
+{
+if(inner)
+	return GetRmin2()+GetTIn2()*dz*dz;
+else
+	return GetRmax2()+GetTOut2()*dz*dz;
+
+}
+
 
 VECGEOM_CUDA_HEADER_BOTH  
 VECGEOM_INLINE
@@ -144,28 +156,38 @@ Precision absZ(std::fabs(p.z()));
   Precision dist2Z(distZ*distZ);
   
   Precision xR2( p.x()*p.x()+p.y()*p.y() );
-  Precision dist2Outer( std::fabs(xR2 - GetEndOuterRadius2()) );
+  Precision dist2Outer( std::fabs(xR2 - GetHypeRadius2(false,absZ)) );
   
+  bool done=false;	
+
   if (GetUnplacedVolume()->InnerSurfaceExists())
   {
     //
     // Has inner surface: is this closest?
     //
-    Precision dist2Inner( std::fabs(xR2 - GetEndInnerRadius2()) );
-    if (dist2Inner < dist2Z && dist2Inner < dist2Outer)
+    Precision dist2Inner( std::fabs(xR2 - GetHypeRadius2(true,absZ)) );
+    if (dist2Inner < dist2Z && dist2Inner < dist2Outer && !done)
+	{
       normal = Vector3D<Precision>( -p.x(), -p.y(), p.z()*GetTIn2() ).Unit();
+	  done = true;
+	}
   }
 
   //
   // Do the "endcaps" win?
   //
-  if (dist2Z < dist2Outer) 
+  if (dist2Z < dist2Outer && !done) 
+	{
     normal = Vector3D<Precision>( 0.0, 0.0, p.z() < 0 ? -1.0 : 1.0 );
+	done = true;
+	}
     
     
   //
   // Outer surface wins
   //
+  //else
+  if(!done)
   normal = Vector3D<Precision>( p.x(), p.y(), -p.z()*GetTOut2() ).Unit();
 
   return valid;

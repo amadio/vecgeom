@@ -418,7 +418,7 @@ set(SRC_CPP_RELATIVE
   source/UnplacedTrapezoid.cpp
   source/UnplacedVolume.cpp
   source/Vector.cpp
-  source/NavigationState.cpp
+  #source/NavigationState.cpp
   source/SimpleNavigator.cpp
 
   source/UnplacedOrb.cpp
@@ -558,21 +558,21 @@ set(TEST_EXECUTABLES_CORE
   ${CMAKE_SOURCE_DIR}/test/core/PhiWedgeTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/BitSetTest.cpp      
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestVecGeomPolycone.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/newTestHype.cpp
+  
   ${CMAKE_SOURCE_DIR}/test/unit_tests/geantHype.cpp
 )
 
 
 set(TEST_EXECUTABLES_ROOT
-  ${CMAKE_SOURCE_DIR}/test/core/TestNavigationStatePool.cpp
-  ${CMAKE_SOURCE_DIR}/test/root/root_geometry.cpp
-  ${CMAKE_SOURCE_DIR}/test/root/complex_test1.cpp
-  ${CMAKE_SOURCE_DIR}/test/root/E03Test.cpp
-  ${CMAKE_SOURCE_DIR}/test/root/ImportFromRootFileTest.cpp
-  ${CMAKE_SOURCE_DIR}/test/root/ImportTGeoPgon.cpp
-  ${CMAKE_SOURCE_DIR}/test/root/TestExportToROOT.cpp
+  #${CMAKE_SOURCE_DIR}/test/core/TestNavigationStatePool.cpp
+  #${CMAKE_SOURCE_DIR}/test/root/root_geometry.cpp
+  #${CMAKE_SOURCE_DIR}/test/root/complex_test1.cpp
+  #${CMAKE_SOURCE_DIR}/test/root/E03Test.cpp
+  #${CMAKE_SOURCE_DIR}/test/root/ImportFromRootFileTest.cpp
+  #${CMAKE_SOURCE_DIR}/test/root/ImportTGeoPgon.cpp
+  #${CMAKE_SOURCE_DIR}/test/root/TestExportToROOT.cpp
   # ${CMAKE_SOURCE_DIR}/test/root/ParaboloidTest.cpp
-  ${CMAKE_SOURCE_DIR}/test/root/trd_validation.cpp
+  #${CMAKE_SOURCE_DIR}/test/root/trd_validation.cpp
 
   # higher level benchmarks
   #${CMAKE_SOURCE_DIR}/test/globalbenchmarks/LocatePointsBenchmark.cpp
@@ -607,6 +607,7 @@ set(TEST_EXECUTABLES_USOLIDS
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBoxlikeTrapezoid.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/usolidTest.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/newTestHype.cpp
   
     
 )

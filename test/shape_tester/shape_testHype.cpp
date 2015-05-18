@@ -21,7 +21,7 @@ int main(int argc,char *argv[]) {
   if(argc>1){
     if(strcmp(argv[1],"vec")==0)
     {
-     hype=new Hype_t("test_VecGeomHype",5.,15,PI/4,PI/4,50); 
+     hype=new Hype_t("test_VecGeomHype",5.,20,0,PI/4,50); 
     }
     else
     { 

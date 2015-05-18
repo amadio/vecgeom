@@ -179,8 +179,9 @@ VECGEOM_CUDA_HEADER_BOTH  //This line is not there in UnplacedBox.cpp
 void UnplacedHype::Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & aMax) const
   {
     // Returns the full 3D cartesian extent of the solid.
-      aMin.Set(-fRmax,-fRmax,-fDz);
-      aMax.Set(fRmax,fRmax,fDz);
+	  Precision rMax = GetEndOuterRadius();
+      aMin.Set(-rMax,-rMax,-fDz);
+      aMax.Set(rMax,rMax,fDz);
   }
 
 //VECGEOM_CUDA_HEADER_BOTH

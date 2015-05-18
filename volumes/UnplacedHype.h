@@ -69,6 +69,8 @@ private:
     //Volume and Surface Area
     Precision fCubicVolume, fSurfaceArea;
 
+	//Precision fInnerRadius, fOuterRadius;
+
 public:
 	//Precision Aout,Ain;
 
@@ -86,6 +88,13 @@ public:
 	VECGEOM_CUDA_HEADER_BOTH
     Precision GetAIn() const{ return Ain;}
     */
+
+	//VECGEOM_CUDA_HEADER_BOTH
+    //Precision GetInnerRadius() const{ return fInnerRadius;}
+
+	//VECGEOM_CUDA_HEADER_BOTH
+    //Precision GetOuterRadius() const{ return fOuterRadius;}
+
 
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetRmin() const{ return fRmin;}
