@@ -608,6 +608,7 @@ set(TEST_EXECUTABLES_USOLIDS
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBoxlikeTrapezoid.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/usolidTest.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/newTestHype.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestHype.cpp
   
     
 )

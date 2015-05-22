@@ -816,24 +816,8 @@ return;
 	//Float_t distOuter(0.);
 	
 	Bool_t done(false);
-	/*
-	Vector3D<Float_t> newPt;
-	newPt.x() = point.x() + direction.x()*kTolerance;
-	newPt.y() = point.y() + direction.y()*kTolerance;
-	newPt.z() = point.z() + direction.z()*kTolerance;
-	Bool_t inside(false);
-	UnplacedContains<Backend>(unplaced,newPt,inside);
-	MaskedAssign(!done && !inside,0.,&distance);
-	done |= !inside;
-	*/
-
-	//Bool_t surface(false),done(false);
-	//IsSurfacePoint<Backend>(unplaced,point,surface);
-	//MaskedAssign(!done && surface /*&& (pDotV3D<0.)*/,0.,&distance);			
-	//done |= surface /*&& (pDotV3D<0.)*/;
-	//MaskedAssign(!done && surface && (pDotV3D>0.),0.,&distance);			
-	//done |= surface && (pDotV3D<0.);	
-
+	
+	
 	//Handling Inner Surface
 	if(unplaced.InnerSurfaceExists())
 	{
@@ -846,7 +830,8 @@ return;
 	//std::cout<<"Exist : "<<exist<<std::endl;
 
 	MaskedAssign(!done && exist && b>0. ,( (-b - Sqrt(b*b - 4*a*c))/(2*a) ),&distInner);
-	MaskedAssign(!done && exist && b<0.,((2*c)/(-b + Sqrt(b*b - 4*a*c)) ),&distInner);
+	MaskedAssign(!done && exist && b<=0.,((2*c)/(-b + Sqrt(b*b - 4*a*c)) ),&distInner);
+	//std::cout<<"DistInner : "<<distInner<<std::endl;
 	//done |= exist;
 	MaskedAssign(distInner < 0. ,kInfinity, &distInner);
 	//MaskedAssign(distInner < 0. ,0., &distInner);
@@ -863,16 +848,15 @@ return;
 	//std::cout<<"Exist : "<<exist<<std::endl;
 	
 	MaskedAssign(!done && exist && b<0.,( (-b + Sqrt(b*b - 4*a*c))/(2*a) ),&distOuter);
-	MaskedAssign(!done && exist && b>0.,((2*c)/(-b - Sqrt(b*b - 4*a*c)) ),&distOuter);
+	MaskedAssign(!done && exist && b>=0.,((2*c)/(-b - Sqrt(b*b - 4*a*c)) ),&distOuter);
+	//std::cout<<"DistOuter : "<<distOuter<<std::endl;
 
 
 	//done |= exist;
 	MaskedAssign(distOuter < 0. ,kInfinity, &distOuter);
-	//MaskedAssign(distOuter < 0. ,0., &distOuter);
-	//std::cout<<"DistInner : "<<distInner<<std::endl;
-	//std::cout<<"DistOuter : "<<distOuter<<std::endl;
-
-	//Handling Z surface
+	
+    //Handling Z surface
+	
     Float_t distZ=kInfinity;
     Float_t dirZinv=1/direction.z();
     Bool_t dir_mask= direction.z()<0;
@@ -880,9 +864,16 @@ return;
 	//done |= dir_mask;
 
     MaskedAssign(!done && !dir_mask, (unplaced.GetDz() - point.z())*dirZinv, &distZ);
+	
+	//My Dev
+	//Float_t distDirz = Sqrt((point.Mag2()-fRmin2)/tanInnerStereo2);
+	//MaskedAssign((direction.x()==0.) && (direction.y()==0.),distDirz,&distZ);
+
+
 	//done |= !dir_mask;
 	MaskedAssign(distZ < 0. , kInfinity, &distZ);
 	//MaskedAssign(distZ < 0. , 0., &distZ);
+	//std::cout<<"DistInner : "<<distInner<<"  :: DistOuter : "<<distOuter<<std::endl;
 	//std::cout<<"DistZ : "<<distZ<<std::endl;
 	distance = Min(distInner,distOuter);
 	distance = Min(distance,distZ);
@@ -987,7 +978,7 @@ return;
         MaskedAssign(distIn1<0 && distIn2>0 && !deltaInNeg, distIn2, &distHypeInner);
         MaskedAssign(distIn1<0 && distIn2<0 && !deltaInNeg, kInfinity, &distHypeInner);
         Float_t distHype=Min(distHypeInner, distHypeOuter);
-		std::cout << " distHypeInner : "<<distHypeInner<<"  :: distHypeOuter : "<< distHypeOuter << "  :: distZ : "<<distZ<<std::endl;
+		//std::cout << " distHypeInner : "<<distHypeInner<<"  :: distHypeOuter : "<< distHypeOuter << "  :: distZ : "<<distZ<<std::endl;
         distance=Min(distHype, distZ);
 		//std::cout<<"distance : "<<distance<<std::endl;
 		//std::cout<<"kSTolerance*10. : "<<kSTolerance*10.<<std::endl;
@@ -1004,6 +995,7 @@ return;
 		
     }
     */
+
     template <TranslationCode transCodeT, RotationCode rotCodeT>
     template <class Backend>
     VECGEOM_CUDA_HEADER_BOTH

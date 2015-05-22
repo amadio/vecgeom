@@ -130,6 +130,13 @@ bool TestHype() {
 	std::cout<<"Distance To In from VecGeom : "<<Dist<<std::endl;
 	std::cout<<"SafetyToOut from VecGeom : "<<testSurfHype.SafetyToOut(testDToOutPoint)<<std::endl;
 
+	std::cout<<"------------------------------------------\n";
+	Hype_t midHype("Mid Hype",10,20,PI/4,PI/3,50);
+	Vec_t midPoint(15,0,0);
+	Vec_t midDir(0,1,0);
+	Dist = midHype.DistanceToOut(midPoint,midDir,norm,convex);
+        std::cout<<"Distance To Out of MID point from VecGeom : "<<Dist<<std::endl;
+
 	std::cout<<"Volume : "<<testSurfHype.Capacity()<<std::endl;
     return true;
 }
