@@ -24,7 +24,7 @@ template <class Hype_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
 bool TestHype() {
     
     int verbose=0;
-    
+    double fRmin=10,fRmax=20, stIn=PI/4, stOut=PI/3, halfZ=50;
     vecgeom::Precision fR=9.;
     Vec_t pzero(0,0,0);
     Vec_t pbigx(100,0,0),pbigy(0,100,0),pbigz(0,0,100);
@@ -36,7 +36,9 @@ bool TestHype() {
     Vec_t ponz(0.,0.,fR); // point on surface on Z axis
     Vec_t ponmz(0.,0.,-fR); // point on surface on minus Z axis
     
-    Vec_t ponxside(fR,0,0),ponyside(0,fR,0),ponzside(0,0,fR);
+    Vec_t ponxsideO(fRmax,0,0),ponysideO(0,fRmax,0);//,ponzsideO(fRmax,0,halfZ);
+    Vec_t ponxsideI(fRmin,0,0),ponysideI(0,fRmin,0);//,ponzsideI(fRmin,0,halfZ);;
+
     Vec_t ponmxside(-fR,0,0),ponmyside(0,-fR,0),ponmzside(0,0,-fR);
     
     Vec_t vx(1,0,0),vy(0,1,0),vz(0,0,1);
@@ -47,7 +49,7 @@ bool TestHype() {
     Vec_t vxmy(1/std::sqrt(2.0),-1/std::sqrt(2.0),0);
     Vec_t vxmz(1/std::sqrt(2.0),0,-1/std::sqrt(2.0));
     
-    double fRmin=10,fRmax=20, stIn=PI/4, stOut=PI/3, halfZ=50;
+    
     Hype_t b1("Solid VecGeomHype #1",fRmin,fRmax,PI/4,PI/3,50); 
     Hype_t b2("Solid VecGeomHype #2",10,20,PI/4,PI/4,50);
 
@@ -68,7 +70,11 @@ bool TestHype() {
     Vec_t minExtent,maxExtent;
     b1.Extent(minExtent,maxExtent);
     double tSTout = std::tan(stOut);
+	double tSTout2 = tSTout*tSTout;
     double tSTin = std::tan(stIn);
+	double tSTin2 = tSTin*tSTin;
+	double endOuterRadius = std::sqrt(fRmax*fRmax + tSTout2*halfZ*halfZ);
+	
     double xy = std::sqrt(fRmax*fRmax + tSTout*tSTout*halfZ*halfZ);
     assert(ApproxEqual(minExtent,Vec_t(-xy,-xy,-halfZ)));
     assert(ApproxEqual(maxExtent,Vec_t(xy,xy,halfZ)));
@@ -151,6 +157,26 @@ bool TestHype() {
     Dist=b1.DistanceToOut(-pmidy,vmz,norm,convex);
     assert(ApproxEqual(Dist,distZ));//&& ApproxEqual(norm,vmz) && convex);
 
+	//Point is already outside and checking DistanceToOut. In this case distance is set to kSTolerance (1e-10), set because required by one of the test of ShapeTester
+	//Otherwise distance should be Infinity
+	Dist=b1.DistanceToOut(pbigx,vx,norm,convex);
+	assert(ApproxEqual(Dist,1e-10));
+
+	Dist=b1.DistanceToOut(pbigy,vy,norm,convex);
+	assert(ApproxEqual(Dist,1e-10));
+
+	Dist=b1.DistanceToOut(pbigz,vz,norm,convex);
+	assert(ApproxEqual(Dist,1e-10));
+
+	Dist=b1.DistanceToOut(pbigx,vmx,norm,convex);
+	assert(ApproxEqual(Dist,1e-10));
+
+	Dist=b1.DistanceToOut(pbigy,vmy,norm,convex);
+	assert(ApproxEqual(Dist,1e-10));
+
+	Dist=b1.DistanceToOut(pbigz,vmz,norm,convex);
+	assert(ApproxEqual(Dist,1e-10));
+
 
 //std::cout<<"distZ : "<<distZ<<"  :: Dist : "<<Dist<<std::endl;
     
@@ -193,26 +219,27 @@ bool TestHype() {
      Dist=b1.DistanceToOut(ponmzside,vmz,norm,convex);
      assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmz)&&convex);
     
-     
+  */   
     // Check Inside
-    assert(b1.Inside(pzero)==vecgeom::EInside::kInside);
+    assert(b1.Inside(pzero)==vecgeom::EInside::kOutside);
     assert(b1.Inside(pbigx)==vecgeom::EInside::kOutside);
     assert(b1.Inside(pbigy)==vecgeom::EInside::kOutside);
     assert(b1.Inside(pbigz)==vecgeom::EInside::kOutside);
+
+	assert(b1.Inside(pmidx)==vecgeom::EInside::kInside);
+	assert(b1.Inside(-pmidx)==vecgeom::EInside::kInside);
+	assert(b1.Inside(pmidy)==vecgeom::EInside::kInside);
+	assert(b1.Inside(-pmidy)==vecgeom::EInside::kInside);
     
-    assert(b1.Inside(ponxside)==vecgeom::EInside::kSurface);
-    assert(b1.Inside(ponyside)==vecgeom::EInside::kSurface);
-    assert(b1.Inside(ponzside)==vecgeom::EInside::kSurface); 
-    
-    assert(b2.Inside(pzero)==vecgeom::EInside::kInside);
-    assert(b2.Inside(ponxside)==vecgeom::EInside::kOutside);
-    assert(b2.Inside(ponyside)==vecgeom::EInside::kOutside);
-    assert(b2.Inside(ponzside)==vecgeom::EInside::kOutside); 
-    assert(b2.Inside(Vec_t(6,0,0))==vecgeom::EInside::kSurface);
-    assert(b2.Inside(Vec_t(0,6,0))==vecgeom::EInside::kSurface);
-    assert(b2.Inside(Vec_t(0,0,6))==vecgeom::EInside::kSurface);
+    assert(b1.Inside(ponxsideO)==vecgeom::EInside::kSurface);
+    assert(b1.Inside(ponysideO)==vecgeom::EInside::kSurface);
+    assert(b1.Inside(ponxsideI)==vecgeom::EInside::kSurface);
+    assert(b1.Inside(ponysideI)==vecgeom::EInside::kSurface);
+    //assert(b1.Inside(ponzsideO)==vecgeom::EInside::kSurface); 
+    //assert(b1.Inside(ponzsideI)==vecgeom::EInside::kSurface); 
     
     
+    /*
     // SafetyFromInside(P)
     Dist=b1.SafetyFromInside(pzero);
     assert(ApproxEqual(Dist,fR));
@@ -236,34 +263,41 @@ bool TestHype() {
     assert(ApproxEqual(Dist,100-fR));
     Dist=b1.SafetyFromOutside(pbigmz);
     assert(ApproxEqual(Dist,100-fR));
-    
+    */
     // DistanceToIn(P,V)
     Dist=b1.DistanceToIn(pbigx,vmx);
-    assert(ApproxEqual(Dist,100-fR));
+    assert(ApproxEqual(Dist,100-fRmax));
     Dist=b1.DistanceToIn(pbigmx,vx);
-    assert(ApproxEqual(Dist,100-fR));
-    Dist=b1.DistanceToIn(pbigy,vmy);
-    assert(ApproxEqual(Dist,100-fR));
+    assert(ApproxEqual(Dist,100-fRmax));
+	Dist=b1.DistanceToIn(pbigy,vmy);
+    assert(ApproxEqual(Dist,100-fRmax));
     Dist=b1.DistanceToIn(pbigmy,vy);
-    assert(ApproxEqual(Dist,100-fR));
+    assert(ApproxEqual(Dist,100-fRmax));
+/*
     Dist=b1.DistanceToIn(pbigz,vmz);
     assert(ApproxEqual(Dist,100-fR));
     Dist=b1.DistanceToIn(pbigmz,vz);
     assert(ApproxEqual(Dist,100-fR));
-    
+ */   
     Dist=b1.DistanceToIn(pbigx,vxy);
     if( Dist >= UUtils::kInfinity ) Dist = UUtils::Infinity(); 
-    assert(ApproxEqual(Dist,UUtils::Infinity()));
-    
+	assert(ApproxEqual(Dist,UUtils::Infinity()));
+   
     Dist=b1.DistanceToIn(pbigmx,vxy);
     if( Dist >= UUtils::kInfinity ) Dist = UUtils::Infinity(); 
     assert(ApproxEqual(Dist,UUtils::Infinity()));
-    
-    Vec_t pJohnXZ(9,0,12);
-    Dist = b2.DistanceToIn(pJohnXZ,vxmz) ;
-    if( Dist >= UUtils::kInfinity ) Dist = UUtils::Infinity(); 
-    assert(ApproxEqual(Dist,UUtils::Infinity()));
-    
+
+   
+	//Corner point. G4 gives this distance equal to INF. In VecGeom i have set this to Tolerance=1e-10,
+	// because ShapeTester says that this should not be INF, may be it needs a discussion
+    Vec_t pJohnXZ(endOuterRadius,0,halfZ);
+	Dist = b1.DistanceToIn(pJohnXZ,vmz) ;
+	assert(ApproxEqual(Dist,0.));
+
+	assert(b1.Inside(pJohnXZ)==vecgeom::EInside::kSurface);
+
+
+    /*
     Vec_t pJohnXY(12,9,0);
     Dist = b2.DistanceToIn(pJohnXY,vmxy) ;
     if( Dist >= UUtils::kInfinity ) Dist = UUtils::Infinity(); 
@@ -351,7 +385,13 @@ bool TestHype() {
      
     Dist = b1.DistanceToOut(pointI,dirII,norm,convex);
     assert(ApproxEqual(Dist,17));
-     
+     //======================================================================
+     //======================================================================
+
+
+
+
+
     //Testing Surface point generated by shape tester with Random direction
     Hype_t b3("Solid VecGeomHype #3",3);
     Vec_t tSrPoint(-1.704652541027918744,0.92532982039202238411,-2.2886512267834184797);

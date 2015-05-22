@@ -119,11 +119,12 @@ std::cout<<"==========================================================\n";
 
 	std::cout<<"------------------------------------------\n";
 	Hype_t midHype("Mid Hype",10,20,PI/4,PI/3,50);
-	Vec_t midPoint(0,15,0);
-	Vec_t midDir(1,0,0);
+	Vec_t midPoint(88.8819441731559,0,50);
+	Vec_t midDir(0,0,-1);
 	Dist = midHype.DistanceToOut(midPoint,midDir,calcNorm,validNorm,norm);
         std::cout<<"Distance To Out of MID point from Geant4 : "<<Dist<<std::endl;
-	
+	Dist = midHype.DistanceToIn(midPoint,midDir);
+	std::cout<<"Distance To In of MID point from Geant4 : "<<Dist<<std::endl;
 /*
 	Vec_t normal2 = testStoIHype.SurfaceNormal(testStoIPoint);
 	std::cout<< "Normal Calculated from Geant4 : "<< normal2 <<std::endl;
