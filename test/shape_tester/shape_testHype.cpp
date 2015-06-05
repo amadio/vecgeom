@@ -16,12 +16,13 @@
 typedef vecgeom::SimpleHype Hype_t;
 
 int main(int argc,char *argv[]) {
+
   int errCode= 0;
   VUSolid* hype;
   if(argc>1){
     if(strcmp(argv[1],"vec")==0)
     {
-     hype=new Hype_t("test_VecGeomHype",5.,20,0,PI/4,50); 
+     hype=new Hype_t("test_VecGeomHype",5.,20,PI/6,PI/3,50); 
     }
     else
     { 
@@ -55,6 +56,9 @@ int main(int argc,char *argv[]) {
    std::cout<<"Final Error count for Shape *** "<<hype->GetName()<<"*** = "<<errCode<<std::endl;
   std::cout<<"========================================================="<<std::endl;
   return 0;
+
+
+
 }
 
 

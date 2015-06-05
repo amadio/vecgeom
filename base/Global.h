@@ -290,9 +290,9 @@ VECGEOM_GLOBAL Precision kMaximum =
     DBL_MAX;
 #endif
 VECGEOM_GLOBAL Precision kTiny = 1e-30;
-VECGEOM_GLOBAL Precision kTolerance = 1e-12;
-VECGEOM_GLOBAL Precision kRadTolerance = 1e-12;
-VECGEOM_GLOBAL Precision kAngTolerance = 1e-12;
+VECGEOM_GLOBAL Precision kTolerance = 1e-9;
+VECGEOM_GLOBAL Precision kRadTolerance = 1e-9;
+VECGEOM_GLOBAL Precision kAngTolerance = 1e-9;
 VECGEOM_GLOBAL Precision kSTolerance = 1e-10;
 VECGEOM_GLOBAL Precision kSHalfTolerance = 0.5*kSTolerance;
 

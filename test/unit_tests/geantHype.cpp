@@ -5,6 +5,7 @@
 #include <iomanip>
 #include "G4VSolid.hh"
 #include "G4GeometryTolerance.hh"
+#include "base/Global.h"
 
 #define PI 3.14159265358979323846
 
@@ -125,6 +126,119 @@ std::cout<<"==========================================================\n";
         std::cout<<"Distance To Out of MID point from Geant4 : "<<Dist<<std::endl;
 	Dist = midHype.DistanceToIn(midPoint,midDir);
 	std::cout<<"Distance To In of MID point from Geant4 : "<<Dist<<std::endl;
+
+    Vec_t normal;
+	Vec_t norPoint(0,0,-100);
+    normal = midHype.SurfaceNormal(norPoint);
+ 	std::cout<<"NOrmal from GEant : "<<normal<<std::endl;
+
+   Vec_t pointOTol(20+vecgeom::cxx::kSTolerance,0.,0.);
+	Vec_t dirtOTol(1,0,0);
+	Vec_t mdirtOTol(-1,0,0);
+    Dist = midHype.DistanceToIn(pointOTol,dirtOTol);
+	std::cout<<"DistanceToIn for Inside outer tolerant boundary and going out : "<<Dist<<std::endl;
+
+
+	Dist = midHype.DistanceToOut(pointOTol,dirtOTol,calcNorm,validNorm,norm);
+	std::cout<<"DistanceToOut for Inside outer tolerant boundary and going out : "<<Dist<<std::endl;
+
+    Dist = midHype.DistanceToIn(pointOTol,mdirtOTol);
+	std::cout<<"DistanceToIn for Inside outer tolerant boundary and going out : "<<Dist<<std::endl;
+
+
+	Dist = midHype.DistanceToOut(pointOTol,mdirtOTol,calcNorm,validNorm,norm);
+	std::cout<<"DistanceToOut for Inside outer tolerant boundary and going out : "<<Dist<<std::endl;
+
+	std::cout<<"----------------------------------------------------------------------\n";
+	 Vec_t pointOTolI(20-vecgeom::cxx::kSTolerance,0.,0.);
+	 Dist = midHype.DistanceToIn(pointOTolI,dirtOTol);
+	std::cout<<"DistanceToIn for Inside outer tolerant boundary and going out : "<<Dist<<std::endl;
+
+
+	Dist = midHype.DistanceToOut(pointOTolI,dirtOTol,calcNorm,validNorm,norm);
+	std::cout<<"DistanceToOut for Inside outer tolerant boundary and going out : "<<Dist<<std::endl;
+
+    Dist = midHype.DistanceToIn(pointOTolI,mdirtOTol);
+	std::cout<<"DistanceToIn 3 RD case for Inside outer tolerant boundary and going out : "<<Dist<<std::endl;
+
+
+	Dist = midHype.DistanceToOut(pointOTolI,mdirtOTol,calcNorm,validNorm,norm);
+	std::cout<<"DistanceToOut for Inside outer tolerant boundary and going out : "<<Dist<<std::endl;
+
+	std::cout<<"===========================================================================\n";
+	Vec_t pointOTol_IH(10+vecgeom::cxx::kSTolerance,0.,0.);
+	Dist = midHype.DistanceToIn(pointOTol_IH,dirtOTol);
+	std::cout<<"DistanceToIn for Inside outer tolerant boundary and going out : "<<Dist<<std::endl;
+
+	Dist = midHype.DistanceToOut(pointOTol_IH,dirtOTol,calcNorm,validNorm,norm);
+	std::cout<<"DistanceToOut for Inside outer tolerant boundary and going out : "<<Dist<<std::endl;
+
+	Dist = midHype.DistanceToIn(pointOTol_IH,mdirtOTol);
+	std::cout<<"DistanceToIn for Inside outer tolerant boundary and going out : "<<Dist<<std::endl;
+
+	Dist = midHype.DistanceToOut(pointOTol_IH,mdirtOTol,calcNorm,validNorm,norm);
+	std::cout<<"DistanceToOut for Inside outer tolerant boundary and going out : "<<Dist<<std::endl;
+
+	std::cout<<"===========================================================================\n";
+
+	Vec_t pointOTol_IHm(10-vecgeom::cxx::kSTolerance,0.,0.);
+	Dist = midHype.DistanceToIn(pointOTol_IHm,dirtOTol);
+	std::cout<<"DistanceToIn for Inside outer tolerant boundary and going out : "<<Dist<<std::endl;
+
+	Dist = midHype.DistanceToOut(pointOTol_IHm,dirtOTol,calcNorm,validNorm,norm);
+	std::cout<<"DistanceToOut for Inside outer tolerant boundary and going out : "<<Dist<<std::endl;
+
+	Dist = midHype.DistanceToIn(pointOTol_IHm,mdirtOTol);
+	std::cout<<"DistanceToIn for Inside outer tolerant boundary and going out : "<<Dist<<std::endl;
+
+	Dist = midHype.DistanceToOut(pointOTol_IHm,mdirtOTol,calcNorm,validNorm,norm);
+	std::cout<<"DistanceToOut for Inside outer tolerant boundary and going out : "<<Dist<<std::endl;
+
+	std::cout<<"------------------------------------------------"<<std::endl;
+	Vec_t pointOTol_Z(60,0.,50.+vecgeom::cxx::kSTolerance);
+	Vec_t vz(0,0,1);
+    Dist = midHype.DistanceToIn(pointOTol_Z,vz);
+	std::cout<<"DistToIn : "<<Dist<<std::endl;
+	//assert(ApproxEqual(Dist,0.));
+
+	
+	Dist = midHype.DistanceToOut(pointOTol_Z,vz,calcNorm,validNorm,norm);
+	std::cout<<"DistToOut : "<<Dist<<std::endl;
+	assert(ApproxEqual(Dist,0.));
+	
+	std::cout<<"**************************************************************\n";
+	Hype_t hypeD("test_VecGeomHype",5.,20,PI/6,PI/3,50); 
+	Vec_t testP(28.4073618747969, -14.7583198850071, -49.8361524659377);
+	Vec_t testD(-0.573820272751705, 0.0885439480090447, 0.814180731686848);
+	Dist = hypeD.DistanceToIn(testP,testD);
+	std::cout<<"DistToIn for Corner point: "<<Dist<<std::endl;
+	double DistanceOut2 = hypeD.DistanceToOut(testP,testD,calcNorm,validNorm,norm);
+	//Vec_t newPt
+	//double DistanceOut2 = volumeUSolids->DistanceToOut(point, dir ,norm,convex2);
+	
+   
+   Vec_t pointIn = testP+testD*DistanceOut2*(1.-10*1e-9);
+	
+   double DistanceOut =  hypeD.DistanceToOut(pointIn,testD,calcNorm,validNorm,norm);
+	
+
+	std::cout<<"============================================"<<std::endl;
+	std::cout<<"Point : "<<testP<<"   :: Dir : "<<testD<<std::endl;
+	std::cout<<"DistanceOut2 : "<<DistanceOut2<<std::endl;
+	std::cout<<"PointIn : "<<pointIn<<std::endl;
+	std::cout<<"DistanceOut : "<<DistanceOut<<std::endl;
+    //ReportError( &nError,pointIn, dir, DistanceOut, "SD: DistanceToOut is not precise");
+	std::cout<<"Location of Point from G4  : " << hypeD.Inside(pointIn)<<std::endl;
+	std::cout<<"============================================"<<std::endl;
+	//std::cout<<"DistToOut for Corner point: "<<Dist<<std::endl;
+	//std::cout<<"Location of Point from G4  : " << hypeD.Inside(testP)<<std::endl;
+
+	std::cout<<"==== Debugging Surface Normal ==== "<<std::endl;
+	Vec_t normPoint(-80.731457466922805111, 37.18106379761455571, -50);
+	std::cout<<"Surface Normal from G4 : "<<hypeD.SurfaceNormal(normPoint)<<std::endl;
+	
+	//Vec_t pointOTolI(20-vecgeom::cxx::kSTolerance,0.,0.);
+	//Vec_t dirtOTol(1,0,0);
 /*
 	Vec_t normal2 = testStoIHype.SurfaceNormal(testStoIPoint);
 	std::cout<< "Normal Calculated from Geant4 : "<< normal2 <<std::endl;

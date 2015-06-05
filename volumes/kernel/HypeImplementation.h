@@ -27,24 +27,6 @@
 //different SafetyToIn implementations
 //#define ACCURATE_BB
 #define ACCURATE_BC
-//#define ROOTLIKE
-
-
-//namespace ParaboloidUtilities
-//{
-//    template <class Backend>
-//    VECGEOM_INLINE
-//    VECGEOM_CUDA_HEADER_BOTH
-//    void DistToHyperboloidSurface(
-//                                 UnplacedHype const &unplaced,
-//                                 Vector3D<typename Backend::precision_v> const &point,
-//                                 Vector3D<typename Backend::precision_v> const &direction,
-//                                 typename Backend::precision_v &distance/*,
-//                                                                         typename Backend::bool_v in*/)
-//    {
-//        return;
-//    }
-//}
 
 
 namespace vecgeom {
@@ -289,7 +271,342 @@ static void PrintType() {
 			exist = (b*b - 4*a*c > 0.);
 		}
 		
+
+		
+		template <class Backend>
+        VECGEOM_CUDA_HEADER_BOTH
+        VECGEOM_INLINE
+        static void IsPointOnHyperbolicSurface(
+                                   UnplacedHype const &unplaced,
+                                   Vector3D<typename Backend::precision_v> const &point,
+                                   typename Backend::bool_v &surface, typename Backend::bool_v &inner);
+		
+
+		
+		template <class Backend>
+        VECGEOM_CUDA_HEADER_BOTH
+        VECGEOM_INLINE
+        static void IsPointOnZSurfacePlane(
+                                   UnplacedHype const &unplaced,
+                                   Vector3D<typename Backend::precision_v> const &point,
+                                   typename Backend::bool_v &surface, typename Backend::bool_v &zSurf);
+		
+
+		template <class Backend>
+        VECGEOM_CUDA_HEADER_BOTH
+        VECGEOM_INLINE
+        static void IsInside(
+                                   UnplacedHype const &unplaced,
+                                   Vector3D<typename Backend::precision_v> const &point,
+                                   typename Backend::bool_v &inside, typename Backend::bool_v &inner);
+
+
+	template <class Backend>
+        VECGEOM_CUDA_HEADER_BOTH
+        VECGEOM_INLINE
+        static void GetDirection(
+                                   UnplacedHype const &unplaced,
+                                   Vector3D<typename Backend::precision_v> const &point,
+									Vector3D<typename Backend::precision_v> const &direction,
+                                   typename Backend::bool_v &in){
+			
+		
+		typedef typename Backend::precision_v Float_t;
+
+		Float_t pz(point.z()), vz(direction.z());
+		MaskedAssign(pz<0.,-pz,&pz);
+		MaskedAssign(pz<0.,-vz,&vz);
+		Precision tanOuterStereo2 = unplaced.GetTOut2();
+		in = ( (point.x()*direction.x() + point.y()*direction.y() - pz*tanOuterStereo2*vz) < 0);
+
+		}
+
+	template <class Backend>
+        VECGEOM_CUDA_HEADER_BOTH
+        VECGEOM_INLINE
+        static void GetDirectionOuter(
+                                   UnplacedHype const &unplaced,
+                                   Vector3D<typename Backend::precision_v> const &point,
+									Vector3D<typename Backend::precision_v> const &direction,
+                                   typename Backend::bool_v &in){
+			
+		
+		typedef typename Backend::precision_v Float_t;
+
+		Float_t pz=point.z();
+		Float_t vz=direction.z();
+		
+		MaskedAssign(pz<0.,-vz,&vz);
+		MaskedAssign(pz<0.,-pz,&pz);
+		
+
+		Precision tanOuterStereo2 = unplaced.GetTOut2();
+		Float_t pxy = (point.x()*direction.x() + point.y()*direction.y());
+		Float_t zc = pz*tanOuterStereo2*vz;
+		Float_t res = pxy - zc;
+		in = ( (point.x()*direction.x() + point.y()*direction.y() - pz*tanOuterStereo2*vz) < 0);
+		}
+
+
+		template <class Backend>
+        VECGEOM_CUDA_HEADER_BOTH
+        VECGEOM_INLINE
+        static void GetDirectionInner(
+                                   UnplacedHype const &unplaced,
+                                   Vector3D<typename Backend::precision_v> const &point,
+									Vector3D<typename Backend::precision_v> const &direction,
+                                   typename Backend::bool_v &out){
+			
+		typedef typename Backend::precision_v Float_t;
+
+		Float_t pz(point.z()), vz(direction.z());
+		MaskedAssign(pz<0.,-vz,&vz);
+		MaskedAssign(pz<0.,-pz,&pz);
+
+		Precision tanInnerStereo2 = unplaced.GetTIn2();
+		out = ( (point.x()*direction.x() + point.y()*direction.y() - pz*tanInnerStereo2*vz) > 0);
+		}
+
+	
+		template <class Backend>
+        VECGEOM_CUDA_HEADER_BOTH
+        VECGEOM_INLINE
+        static void IsPointMovingOutside(
+                                   UnplacedHype const &unplaced,
+                                   Vector3D<typename Backend::precision_v> const &point,
+									Vector3D<typename Backend::precision_v> const &direction,
+                                   typename Backend::bool_v &out){
+			
+		typedef typename Backend::precision_v Float_t;
+
+		Float_t pz = point.z();
+		Float_t vz = direction.z();
+
+		
+		MaskedAssign(vz<0.,-pz,&pz);
+		MaskedAssign(vz<0.,-vz,&vz);
+		
+		Precision tanOuterStereo2 = unplaced.GetTOut2();
+		Vector3D<Float_t> normHere(point.x(),point.y(),-point.z()*tanOuterStereo2);
+
+		out = (normHere.Dot(direction) > 0.);
+		
+		}
+
+		
+
+		template <class Backend>
+        VECGEOM_CUDA_HEADER_BOTH
+        VECGEOM_INLINE
+        static void GetDistToOutInZ(
+                                   UnplacedHype const &unplaced,
+                                   Vector3D<typename Backend::precision_v> const &point,
+									Vector3D<typename Backend::precision_v> const &direction,
+                                   typename Backend::precision_v &distance){
+			
+		typedef typename Backend::precision_v Float_t;
+
+		//Float_t fHalfTol(kSTolerance*10.*0.5);
+		Float_t pz = point.z();
+		Float_t vz = direction.z();
+
+		
+		MaskedAssign(vz<0.,-pz,&pz);
+		MaskedAssign(vz<0.,-vz,&vz);
+
+		
+		
+		}
+
+		template <class Backend>
+        VECGEOM_CUDA_HEADER_BOTH
+        VECGEOM_INLINE
+        static void IsPointMovingInsideFromZPlane(
+                                   UnplacedHype const &unplaced,
+                                   Vector3D<typename Backend::precision_v> const &point,
+									Vector3D<typename Backend::precision_v> const &direction,
+                                   //typename Backend::precision_v &distance){
+									typename Backend::bool_v &inZ){
+			
+		//std::cout<<"Entered GetDirectionInZ"<<std::endl;
+		//typedef typename Backend::bool_v Bool_t;
+		typedef typename Backend::precision_v Float_t;
+
+		//Float_t fHalfTol(kSTolerance*10.*0.5);
+		Float_t pz(point.z()), vz(direction.z());
+		
+		MaskedAssign(pz<0.,-vz,&vz);
+		MaskedAssign(pz<0.,-pz,&pz);
+
+		Float_t sigz = pz-unplaced.GetDz();
+		//MaskedAssign((sigz > -fHalfTol) && (vz < 0.) && (sigz < fHalfTol),0. , &distance);
+
+		//MaskedAssign((sigz > -kHalfTolerance) && (vz < 0.) && (sigz < kHalfTolerance),0. , &distance);
+		inZ = ((sigz > -kHalfTolerance) && (vz < 0.) && (sigz < kHalfTolerance));
+		
+		}
+		
+
+		template <class Backend>
+        VECGEOM_CUDA_HEADER_BOTH
+        VECGEOM_INLINE
+        static void IsPointMovingOutsideFromZPlane(
+                                   UnplacedHype const &unplaced,
+                                   Vector3D<typename Backend::precision_v> const &point,
+									Vector3D<typename Backend::precision_v> const &direction,
+                                   //typename Backend::precision_v &distance){
+								typename Backend::bool_v &out){
+			
+		//std::cout<<"Entered GetDirectionInZ"<<std::endl;
+		//typedef typename Backend::bool_v Bool_t;
+		typedef typename Backend::precision_v Float_t;
+
+		//Float_t fHalfTol(kSTolerance*10.*0.5);
+		Float_t pz(point.z()), vz(direction.z());
+		
+		
+		MaskedAssign(vz<0.,-pz,&pz);
+		MaskedAssign(vz<0.,-vz,&vz);
+
+		Float_t sigz = pz-unplaced.GetDz();
+		
+		out = ((sigz > -kHalfTolerance) && (vz > 0.) && (sigz < kHalfTolerance));
+		
+		}
+
+		
+
     }; // End struct HypeImplementation
+
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+    template <typename Backend>
+    VECGEOM_CUDA_HEADER_BOTH
+    void HypeImplementation<transCodeT, rotCodeT>::IsInside(
+                                                                 UnplacedHype const &unplaced,
+                                                                 Vector3D<typename Backend::precision_v> const &point,
+                                                                 typename Backend::bool_v &inside, typename Backend::bool_v &inner) {
+        
+        typedef typename Backend::bool_v Bool_t;
+		typedef typename Backend::precision_v Float_t;
+        Bool_t outside;
+        GenericKernelForContainsAndInside<Backend,true>(unplaced,
+                                                          point, inside, outside);
+        
+		Float_t rho2 = point.x()*point.x() + point.y()*point.y();
+		Float_t radI2(0.),radO2;
+		RadiusHypeSq<Backend,true>(unplaced,point.z(),radI2);
+		RadiusHypeSq<Backend,false>(unplaced,point.z(),radO2);
+		//inner = Abs(Sqrt(radI2) - Sqrt(rho2)) < kSTolerance*10.;
+		inner = Abs(Sqrt(radI2) - Sqrt(rho2)) < kTolerance;
+    }
+
+
+
+
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+    template <typename Backend>
+    VECGEOM_CUDA_HEADER_BOTH
+    void HypeImplementation<transCodeT, rotCodeT>::IsPointOnHyperbolicSurface(
+                                                                 UnplacedHype const &unplaced,
+                                                                 Vector3D<typename Backend::precision_v> const &point,
+                                                                 typename Backend::bool_v &surface, typename Backend::bool_v &inner) {
+        
+        typedef typename Backend::bool_v Bool_t;
+		typedef typename Backend::precision_v Float_t;
+        Bool_t inside;
+        Bool_t outside;
+        GenericKernelForContainsAndInside<Backend,true>(unplaced,
+                                                          point, inside, outside);
+        surface=!outside && !inside;
+		Float_t rho2 = point.x()*point.x() + point.y()*point.y();
+		Float_t radI2(0.),radO2;
+		RadiusHypeSq<Backend,true>(unplaced,point.z(),radI2);
+		RadiusHypeSq<Backend,false>(unplaced,point.z(),radO2);
+		inner = Abs(Sqrt(radI2) - Sqrt(rho2)) < kSTolerance*10.;
+    }
+
+/*
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+    template <typename Backend>
+    VECGEOM_CUDA_HEADER_BOTH
+    void HypeImplementation<transCodeT, rotCodeT>::IsSurfacePointOuter(
+                                                                 UnplacedHype const &unplaced,
+                                                                 Vector3D<typename Backend::precision_v> const &point,
+                                                                 typename Backend::bool_v &surface, typename Backend::bool_v &inner) {
+        
+        typedef typename Backend::bool_v Bool_t;
+		typedef typename Backend::precision_v Float_t;
+        Bool_t inside;
+        Bool_t outside;
+        GenericKernelForContainsAndInside<Backend,true>(unplaced,
+                                                          point, inside, outside);
+        surface=!outside && !inside;
+		Float_t rho2 = point.x()*point.x() + point.y()*point.y();
+		Float_t radI2(0.),radO2;
+		RadiusHypeSq<Backend,true>(unplaced,point.z(),radI2);
+		RadiusHypeSq<Backend,false>(unplaced,point.z(),radO2);
+		inner = Abs(Sqrt(radI2) - Sqrt(rho2)) < kSTolerance*10.;
+    }
+
+*/
+
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+    template <typename Backend>
+    VECGEOM_CUDA_HEADER_BOTH
+    void HypeImplementation<transCodeT, rotCodeT>::IsPointOnZSurfacePlane(
+                                                                 UnplacedHype const &unplaced,
+                                                                 Vector3D<typename Backend::precision_v> const &point,
+                                                                 typename Backend::bool_v &surface, typename Backend::bool_v &zSurf) {
+        
+        typedef typename Backend::bool_v Bool_t;
+		typedef typename Backend::precision_v Float_t;
+        Bool_t inside;
+        Bool_t outside;
+        GenericKernelForContainsAndInside<Backend,true>(unplaced,
+                                                          point, inside, outside);
+        surface=!outside && !inside;
+		Float_t rho2 = point.x()*point.x() + point.y()*point.y();
+		Float_t radI2(0.),radO2;
+		RadiusHypeSq<Backend,true>(unplaced,point.z(),radI2);
+		RadiusHypeSq<Backend,false>(unplaced,point.z(),radO2);
+		//Bool_t inner = Abs(Sqrt(radI2) - Sqrt(rho2)) < kSTolerance*10.;
+		//Bool_t outer = Abs(Sqrt(radO2) - Sqrt(rho2)) < kSTolerance*10.;
+		Bool_t inner = Abs(Sqrt(radI2) - Sqrt(rho2)) < kTolerance;
+		Bool_t outer = Abs(Sqrt(radO2) - Sqrt(rho2)) < kTolerance;
+		zSurf = surface && !inner && !outer;
+		
+    }
+
+
+/*
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+    template <typename Backend>
+    VECGEOM_CUDA_HEADER_BOTH
+    void HypeImplementation<transCodeT, rotCodeT>::IsSurfacePointZ(
+                                                                 UnplacedHype const &unplaced,
+                                                                 Vector3D<typename Backend::precision_v> const &point,
+                                                                 typename Backend::bool_v &surface, typename Backend::bool_v &zSurf) {
+        
+        typedef typename Backend::bool_v Bool_t;
+		typedef typename Backend::precision_v Float_t;
+        Bool_t inside;
+        Bool_t outside;
+        GenericKernelForContainsAndInside<Backend,true>(unplaced,
+                                                          point, inside, outside);
+        surface=!outside && !inside;
+		Float_t rho2 = point.x()*point.x() + point.y()*point.y();
+		Float_t radI2(0.),radO2;
+		RadiusHypeSq<Backend,true>(unplaced,point.z(),radI2);
+		RadiusHypeSq<Backend,false>(unplaced,point.z(),radO2);
+		//Bool_t inner = Abs(Sqrt(radI2) - Sqrt(rho2)) < kSTolerance*10.;
+		//Bool_t outer = Abs(Sqrt(radO2) - Sqrt(rho2)) < kSTolerance*10.;
+		Bool_t inner = Abs(Sqrt(radI2) - Sqrt(rho2)) < kTolerance;
+		Bool_t outer = Abs(Sqrt(radO2) - Sqrt(rho2)) < kTolerance;
+		zSurf = surface && !inner && !outer;
+		
+    }
+*/
+
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>    
 template <typename Backend,bool ForInnerRad>
@@ -310,8 +627,7 @@ void HypeImplementation<transCodeT, rotCodeT>::Normal(
        Vector3D<typename Backend::precision_v> const &point,
        Vector3D<typename Backend::precision_v> &normal,
        typename Backend::bool_v &valid ){
-    //std::cout<<"Entered Normal "<<std::endl;
-    NormalKernel<Backend>(unplaced, point, normal, valid);
+    	NormalKernel<Backend>(unplaced, point, normal, valid);
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -323,8 +639,7 @@ void HypeImplementation<transCodeT, rotCodeT>::NormalKernel(
        Vector3D<typename Backend::precision_v> &normal,
        typename Backend::bool_v &valid ){
 
-	//std::cout<<"Entered NormalKernel "<<std::endl;
-    typedef typename Backend::precision_v Float_t;
+	typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v      Bool_t;
 
 	Vector3D<Float_t> localPoint = point;
@@ -534,26 +849,26 @@ void HypeImplementation<transCodeT, rotCodeT>::NormalKernel(
                                                                                     typename Backend::bool_v &completelyoutside) {
         typedef typename Backend::precision_v Float_t;
         
-	Precision fRmax = unplaced.GetRmax();
-	Precision fRmin = unplaced.GetRmin();
-	Precision fStIn = unplaced.GetStIn();
-	Precision fStOut = unplaced.GetStOut();
 	Precision fDz = unplaced.GetDz();
 	
 	//along Z direction
-	completelyoutside = Abs(point.z()) > fDz + kSTolerance*10.0;
+	//completelyoutside = Abs(point.z()) > fDz + kSTolerance*10.0;
+	completelyoutside = Abs(point.z()) > fDz + kTolerance;
 	if(ForInside)
 	{
-	  completelyinside = Abs(point.z()) < fDz - kSTolerance*10.0;
+	 // completelyinside = Abs(point.z()) < fDz - kSTolerance*10.0;
+	completelyinside = Abs(point.z()) < fDz - kTolerance;
 	}
 
 	Float_t r = Sqrt(point.x()*point.x()+point.y()*point.y());
 	Float_t rOuter=Sqrt(unplaced.GetRmax2()+unplaced.GetTOut2()*point.z()*point.z());
     	Float_t rInner=Sqrt(unplaced.GetRmin2()+unplaced.GetTIn2()*point.z()*point.z());
-	completelyoutside |= (r > rOuter + kSTolerance*10.0) || (r < rInner - kSTolerance*10.0);
+	//completelyoutside |= (r > rOuter + kSTolerance*10.0) || (r < rInner - kSTolerance*10.0);
+	completelyoutside |= (r > rOuter + kTolerance) || (r < rInner - kTolerance);
 	if(ForInside)
 	{
-	  completelyinside &= (r < rOuter - kSTolerance*10.0) && (r > rInner + kSTolerance*10.0);
+	 // completelyinside &= (r < rOuter - kSTolerance*10.0) && (r > rInner + kSTolerance*10.0);
+	 completelyinside &= (r < rOuter - kTolerance) && (r > rInner + kTolerance);
 	}
 
 	return ;
@@ -586,6 +901,7 @@ void HypeImplementation<transCodeT, rotCodeT>::NormalKernel(
                                                                      typename Backend::precision_v const &stepMax,
                                                                      typename Backend::precision_v &distance) {
         
+		//std::cout<<"---- Entered DistanceToInkernel -----\n";
         typedef typename Backend::precision_v Float_t;
         typedef typename Backend::bool_v      Bool_t;
         Bool_t done(false);
@@ -600,7 +916,7 @@ void HypeImplementation<transCodeT, rotCodeT>::NormalKernel(
         Float_t point_dot_direction_y = point.y()*direction.y();
 
 	Float_t pDotV3D = point.Dot(direction);
-	Precision dZ=unplaced.GetDz();
+	//Precision dZ=unplaced.GetDz();
 	Bool_t surface(false);
 	IsSurfacePoint<Backend>(unplaced,point,surface);
 
@@ -623,17 +939,19 @@ void HypeImplementation<transCodeT, rotCodeT>::NormalKernel(
         Bool_t isDistancingInZ= (absZ>unplaced.GetDz() && checkZ);
         done|=isDistancingInZ;
         if (Backend::early_returns && done == Backend::kTrue) return;
-        
+        //std::cout<<"-----Reached Here -8 -----------------\n";
         //check if the point is outside the bounding cylinder and is distancing in XY
         Bool_t isDistancingInXY=( (rho2>unplaced.GetEndOuterRadius2()) && (point_dot_direction_x>0 && point_dot_direction_y>0) );
         done|=isDistancingInXY;
         if (Backend::early_returns && done == Backend::kTrue) return;
         
+		//std::cout<<"-----Reached Here -7 -----------------\n";
         //check if x coordinate is > EndOuterRadius and the point is distancing in X
         Bool_t isDistancingInX=( (Abs(point.x())>unplaced.GetEndOuterRadius()) && (point_dot_direction_x>0) );
         done|=isDistancingInX;
         if (Backend::early_returns && done == Backend::kTrue) return;
         
+		//std::cout<<"-----Reached Here -6 -----------------\n";
         //check if y coordinate is > EndOuterRadiusthe point is distancing in Y
         Bool_t isDistancingInY=( (Abs(point.y())>unplaced.GetEndOuterRadius()) && (point_dot_direction_y>0) );
         done|=isDistancingInY;
@@ -644,12 +962,12 @@ void HypeImplementation<transCodeT, rotCodeT>::NormalKernel(
         Float_t xHit = point.x()+distZ*direction.x();
         Float_t yHit = point.y()+distZ*direction.y();
         Float_t rhoHit2=xHit*xHit+yHit*yHit;
-        
+        //std::cout<<"-----Reached Here -5 -----------------\n";
         Bool_t isCrossingAtDz= (absZ>unplaced.GetDz()) && (!checkZ) && (rhoHit2 <=unplaced.GetEndOuterRadius2() && rhoHit2>=unplaced.GetEndInnerRadius2());
         
         MaskedAssign(isCrossingAtDz, distZ, &distance);
         done|=isCrossingAtDz;
-        if (Backend::early_returns && done == Backend::kTrue) return;
+        //if (Backend::early_returns && done == Backend::kTrue) return;
         
         
         //is hitting from the hyperboloid surface (OUTER or INNER)
@@ -657,7 +975,7 @@ void HypeImplementation<transCodeT, rotCodeT>::NormalKernel(
         Float_t point_dot_direction_z = point.z()*direction.z();
         Float_t pointz2=point.z()*point.z();
         Float_t dirz2=direction.z()*direction.z();
-    
+    //std::cout<<"-----Reached Here -4 -----------------\n";
         //SOLUTION FOR OUTER
         //NB: bOut=-B/2 of the second order equation
         //So the solution is: (b +/- Sqrt(b^2-ac))*ainv
@@ -675,10 +993,8 @@ void HypeImplementation<transCodeT, rotCodeT>::NormalKernel(
         MaskedAssign(deltaOutNeg, 0. , &deltaOut);
         deltaOut = Sqrt(deltaOut);
         
-        //Float_t distOut=aOutinv*(bOut -deltaOut);
-	std::cout<<std::setprecision(15);
-	//std::cout<<aOut<< "  :  "<<bOut<<"  :  "<<cOut<<std::endl;
-
+    //std::cout<<std::setprecision(15);
+	
 	Float_t distOut(0.);
 	MaskedAssign(bOut>0. ,(cOut/(bOut+deltaOut)) , &distOut);
 	MaskedAssign(bOut<0. ,(aOutinv*(bOut -deltaOut)) , &distOut);
@@ -688,7 +1004,7 @@ void HypeImplementation<transCodeT, rotCodeT>::NormalKernel(
 		
 	Float_t solution_Outer=kInfinity;
 	MaskedAssign(!deltaOutNeg &&isHittingHyperboloidSurfaceOut1 && distOut>0, distOut, &solution_Outer);
-        
+        //std::cout<<"-----Reached Here -3----------------\n";
         //SOLUTION FOR INNER
 	Float_t aIn = dirRho2 - unplaced.GetTIn2() * dirz2;
         Float_t bIn = unplaced.GetTIn2()*point_dot_direction_z - point_dot_direction_x - point_dot_direction_y;
@@ -709,7 +1025,7 @@ void HypeImplementation<transCodeT, rotCodeT>::NormalKernel(
 	Float_t distIn(0.);
 	MaskedAssign(bIn<0. ,(cIn/(bIn-deltaIn)) , &distIn);
 	MaskedAssign(bIn>0. ,(aIninv*(bIn +deltaIn)) , &distIn);
-
+//std::cout<<"-----Reached Here -2 -----------------\n";
 	Float_t zHitIn1 = point.z()+distIn*direction.z();
         Bool_t isHittingHyperboloidSurfaceIn1 = ( (distIn> 1E20) || (Abs(zHitIn1)<=unplaced.GetDz()) ); //why: dist > 1E20?
     
@@ -720,10 +1036,47 @@ void HypeImplementation<transCodeT, rotCodeT>::NormalKernel(
         
         done|=(deltaInNeg && deltaOutNeg);
         MaskedAssign(!done, solution, &distance );
-		
-	Bool_t isPointInside(false);
-	ContainsKernel<Backend>(unplaced,point,isPointInside);
-	MaskedAssign(isPointInside, kSTolerance , &distance);
+
+
+	Bool_t isSurfacePoint(false),inner(false),zSurf(false);
+	Float_t pDotV3d = point.Dot(direction);
+	//std::cout<<"-----Reached Here -1-----------------\n";
+
+	Bool_t in(false),out(false);
+	GetDirectionOuter<Backend>(unplaced,point,direction,in);
+	GetDirectionInner<Backend>(unplaced,point,direction,out);
+
+	Float_t zSurfDist(kInfinity);
+	
+	//std::cout<<"-----Reached Here 0 -----------------\n";
+
+	//IsSurfacePointOuter<Backend>(unplaced,point,isSurfacePoint,inner);
+	IsPointOnHyperbolicSurface<Backend>(unplaced,point,isSurfacePoint,inner);
+	//IsSurfacePointZ<Backend>(unplaced,point,isSurfacePoint,zSurf);
+	IsPointOnZSurfacePlane<Backend>(unplaced,point,isSurfacePoint,zSurf);
+	//GetDirectionInZ<Backend>(unplaced,point,direction,zSurfDist);
+	Bool_t inZ(false);
+	//GetDirectionInZ<Backend>(unplaced,point,direction,inZ);
+	IsPointMovingInsideFromZPlane<Backend>(unplaced,point,direction,inZ);
+
+	//std::cout<<"-----Reached Here-----------------\n";
+	MaskedAssign(!done && !zSurf && isSurfacePoint && !inner  && in ,0.,&distance );
+	done |= (!zSurf && isSurfacePoint && !inner  && in);
+	MaskedAssign(!done && !zSurf && isSurfacePoint && inner  && out ,0.,&distance );
+	done |= (!zSurf && isSurfacePoint && inner  && out);
+	
+	//MaskedAssign(zSurf,zSurfDist,&distance);
+	//std::cout<<"ZSurface Point : "<<zSurf<<"  :: Going in : "<<inZ<<std::endl; 
+	MaskedAssign(zSurf && inZ,0.,&distance);
+		//std::cout<<"-----Reached Here End-----------------\n";
+
+
+
+	Bool_t isInside(false);
+	IsInside<Backend>(unplaced,point,isInside,inner);
+	MaskedAssign(isInside, kSTolerance , &distance);
+	done |= isInside;
+
 		
     }
     
@@ -810,10 +1163,9 @@ return;
 	Precision fRmax = unplaced.GetRmax();
 	Precision fRmax2 = fRmax * fRmax;
 	
-	Float_t distInner=kInfinity;
-	Float_t distOuter=kInfinity;
-	//Float_t distInner(0.);
-	//Float_t distOuter(0.);
+	Float_t distInner(kInfinity);
+	Float_t distOuter(kInfinity);
+	
 	
 	Bool_t done(false);
 	
@@ -824,17 +1176,11 @@ return;
 	a = direction.x() * direction.x() + direction.y() * direction.y() - tanInnerStereo2*direction.z()*direction.z();
 	b = 2*direction.x()*point.x() + 2*direction.y()*point.y() - 2*tanInnerStereo2*direction.z()*point.z();
 	c= point.x()*point.x() + point.y()*point.y() - tanInnerStereo2*point.z()*point.z() - fRmin2;
-	//InterSectionExist<Backend>(a,b,c,exist);
-	//std::cout<<a<<"  :  "<<b<<"  :  "<<c<<std::endl;
 	exist = (b*b - 4*a*c > 0.);
-	//std::cout<<"Exist : "<<exist<<std::endl;
-
-	MaskedAssign(!done && exist && b>0. ,( (-b - Sqrt(b*b - 4*a*c))/(2*a) ),&distInner);
-	MaskedAssign(!done && exist && b<=0.,((2*c)/(-b + Sqrt(b*b - 4*a*c)) ),&distInner);
-	//std::cout<<"DistInner : "<<distInner<<std::endl;
-	//done |= exist;
+	
+	MaskedAssign(/*!done && */exist && b>0. ,( (-b - Sqrt(b*b - 4*a*c))/(2*a) ),&distInner);
+	MaskedAssign(/*!done && */exist && b<=0.,((2*c)/(-b + Sqrt(b*b - 4*a*c)) ),&distInner);
 	MaskedAssign(distInner < 0. ,kInfinity, &distInner);
-	//MaskedAssign(distInner < 0. ,0., &distInner);
 	}
 
 	//Handling Outer surface
@@ -842,160 +1188,51 @@ return;
 	a = direction.x() * direction.x() + direction.y() * direction.y() - tanOuterStereo2*direction.z()*direction.z();
 	b = 2*direction.x()*point.x() + 2*direction.y()*point.y() - 2*tanOuterStereo2*direction.z()*point.z();
 	c= point.x()*point.x() + point.y()*point.y() - tanOuterStereo2*point.z()*point.z() - fRmax2;
-	//std::cout<<a<<"  :  "<<b<<"  :  "<<c<<std::endl;
-	//InterSectionExist<Backend>(a,b,c,exist);
 	exist = (b*b - 4*a*c > 0.);
-	//std::cout<<"Exist : "<<exist<<std::endl;
-	
-	MaskedAssign(!done && exist && b<0.,( (-b + Sqrt(b*b - 4*a*c))/(2*a) ),&distOuter);
-	MaskedAssign(!done && exist && b>=0.,((2*c)/(-b - Sqrt(b*b - 4*a*c)) ),&distOuter);
-	//std::cout<<"DistOuter : "<<distOuter<<std::endl;
-
-
-	//done |= exist;
+	MaskedAssign(/*!done && */exist && b<0.,( (-b + Sqrt(b*b - 4*a*c))/(2*a) ),&distOuter);
+	MaskedAssign(/*!done && */exist && b>=0.,((2*c)/(-b - Sqrt(b*b - 4*a*c)) ),&distOuter);
 	MaskedAssign(distOuter < 0. ,kInfinity, &distOuter);
 	
     //Handling Z surface
-	
-    Float_t distZ=kInfinity;
+	Float_t distZ=kInfinity;
     Float_t dirZinv=1/direction.z();
     Bool_t dir_mask= direction.z()<0;
-    MaskedAssign(!done && dir_mask, -(unplaced.GetDz() + point.z())*dirZinv, &distZ);
-	//done |= dir_mask;
-
-    MaskedAssign(!done && !dir_mask, (unplaced.GetDz() - point.z())*dirZinv, &distZ);
+    MaskedAssign(/*!done && */ dir_mask, -(unplaced.GetDz() + point.z())*dirZinv, &distZ);
 	
-	//My Dev
-	//Float_t distDirz = Sqrt((point.Mag2()-fRmin2)/tanInnerStereo2);
-	//MaskedAssign((direction.x()==0.) && (direction.y()==0.),distDirz,&distZ);
-
-
-	//done |= !dir_mask;
+    MaskedAssign(/*!done && */ !dir_mask, (unplaced.GetDz() - point.z())*dirZinv, &distZ);
 	MaskedAssign(distZ < 0. , kInfinity, &distZ);
-	//MaskedAssign(distZ < 0. , 0., &distZ);
-	//std::cout<<"DistInner : "<<distInner<<"  :: DistOuter : "<<distOuter<<std::endl;
-	//std::cout<<"DistZ : "<<distZ<<std::endl;
+	
 	distance = Min(distInner,distOuter);
 	distance = Min(distance,distZ);
 
+	//Handling Surface Point
+	Bool_t isSurfacePoint(false),inner(false);
+	Bool_t in(false),out(false),zSurf(false);
+	//IsSurfacePointOuter<Backend>(unplaced,point,isSurfacePoint,inner);
+	IsPointOnHyperbolicSurface<Backend>(unplaced,point,isSurfacePoint,inner);
+	//GetDirectionDistToOutOuter<Backend>(unplaced,point,direction,out);
+	IsPointMovingOutside<Backend>(unplaced,point,direction,out);
+	//IsSurfacePointZ<Backend>(unplaced,point,isSurfacePoint,zSurf);
+	IsPointOnZSurfacePlane<Backend>(unplaced,point,isSurfacePoint,zSurf);
+	MaskedAssign(!zSurf && isSurfacePoint && !inner && out , 0. , &distance);
+
+	//std::cout<<"Point on ZSurface : "<<zSurf<<std::endl;
+	Float_t DistZ(kInfinity);
+	Bool_t outZ(false);
+	//GetDirectionOutZ<Backend>(unplaced,point,direction,outZ);//DistZ);
+	IsPointMovingOutsideFromZPlane<Backend>(unplaced,point,direction,outZ);//DistZ);
+
+	//std::cout<<"DistZ : "<<DistZ<<std::endl;
+	MaskedAssign(zSurf && outZ,0.,&distance);
+	
 
 	Bool_t isPointInside(false);
 	ContainsKernel<Backend>(unplaced,point,isPointInside);
-	MaskedAssign(!isPointInside, kSTolerance , &distance);
+	MaskedAssign(!isPointInside && !done, kSTolerance , &distance);
 	}
 
 
 	
-	/*
-    template <TranslationCode transCodeT, RotationCode rotCodeT>
-    template <class Backend>
-    VECGEOM_CUDA_HEADER_BOTH
-    void HypeImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
-                                                                      UnplacedHype const &unplaced,
-                                                                      Vector3D<typename Backend::precision_v> const &point,
-                                                                      Vector3D<typename Backend::precision_v> const &direction,
-                                                                      typename Backend::precision_v const &stepMax,
-                                                                      typename Backend::precision_v &distance) {
-
-        
-        typedef typename Backend::precision_v Float_t;
-        typedef typename Backend::bool_v      Bool_t;
-        
-        distance=kInfinity;
-        
-        //Distance to Z surface
-        Float_t distZ=kInfinity;
-        Float_t dirZinv=1/direction.z();
-        Bool_t dir_mask= direction.z()<0;
-        MaskedAssign(dir_mask, -(unplaced.GetDz() + point.z())*dirZinv, &distZ);
-        MaskedAssign(!dir_mask, (unplaced.GetDz() - point.z())*dirZinv, &distZ);
-
-        //Distance to INNER and OUTER hyperbola surfaces
-        Float_t distHypeInner=kInfinity;
-        Float_t distHypeOuter=kInfinity;
-        
-        Float_t absZ=Abs(point.z());
-        Float_t absDirZ=Abs(direction.z());
-        Float_t rho2 = point.x()*point.x()+point.y()*point.y();
-        Float_t dirRho2 = direction.x()*direction.x()+direction.y()*direction.y();
-        Float_t point_dot_direction_x = point.x()*direction.x();
-        Float_t point_dot_direction_y = point.y()*direction.y();
-        Float_t point_dot_direction_z = point.z()*direction.z();
-        Float_t pointz2=point.z()*point.z();
-        Float_t dirz2=direction.z()*direction.z();
-        
-        //SOLUTION FOR OUTER
-        //NB: bOut=-B/2 of the second order equation
-        //So the solution is: (b +/- Sqrt(b^2-ac))*ainv
-        
-        Float_t aOut = dirRho2 - unplaced.GetTOut2() * dirz2;
-        Float_t bOut = unplaced.GetTOut2()*point_dot_direction_z - point_dot_direction_x - point_dot_direction_y;
-        Float_t cOut = rho2 - unplaced.GetTOut2()* pointz2 - unplaced.GetRmax2();
-        
-        Float_t aOutinv = 1./aOut;
-        Float_t prodOut = cOut*aOut;
-        Float_t deltaOut = bOut*bOut - prodOut;
-        
-        Bool_t deltaOutNeg=deltaOut<0;
-        MaskedAssign(deltaOutNeg, 0. , &deltaOut);
-        deltaOut = Sqrt(deltaOut);
-        
-        Bool_t mask_signOut=(aOutinv<0);
-        Float_t signOut=1.;
-        MaskedAssign(mask_signOut, -1., &signOut);
-        
-        Float_t distOut1=aOutinv*(bOut - signOut*deltaOut);
-        Float_t distOut2=aOutinv*(bOut + signOut*deltaOut);
-        
-        MaskedAssign(distOut1>0 && !deltaOutNeg , distOut1, &distHypeOuter);
-        MaskedAssign(distOut1<0 && distOut2>0 && !deltaOutNeg, distOut2, &distHypeOuter);
-        MaskedAssign(distOut1<0 && distOut2<0 && !deltaOutNeg, kInfinity, &distHypeOuter);
-        
-        //SOLUTION FOR INNER
-        //NB: bOut=-B/2 of the second order equation
-        //So the solution is: (b +/- Sqrt(b^2-ac))*ainv
-        
-        Float_t aIn = dirRho2 - unplaced.GetTIn2() * dirz2;
-        Float_t bIn = unplaced.GetTIn2()*point_dot_direction_z - point_dot_direction_x - point_dot_direction_y;
-        Float_t cIn = rho2 - unplaced.GetTIn2()* pointz2 - unplaced.GetRmin2();
-        Float_t aIninv = 1./aIn;
-        
-        Float_t prodIn = cIn*aIn;
-        Float_t deltaIn = bIn*bIn - prodIn;
-        
-        Bool_t deltaInNeg=deltaIn<0;
-        MaskedAssign(deltaInNeg, 0. , &deltaIn);
-        deltaIn = Sqrt(deltaIn);
-        
-        Bool_t mask_signIn=(aIninv<0);
-        Float_t signIn=1.;
-        MaskedAssign(mask_signIn, -1., &signIn);
-        
-        Float_t distIn1=aIninv*(bIn - signIn*deltaIn);
-        Float_t distIn2=aIninv*(bIn + signIn*deltaIn);
-        
-        MaskedAssign(distIn1>0 && !deltaInNeg, distIn1, &distHypeInner);
-        MaskedAssign(distIn1<0 && distIn2>0 && !deltaInNeg, distIn2, &distHypeInner);
-        MaskedAssign(distIn1<0 && distIn2<0 && !deltaInNeg, kInfinity, &distHypeInner);
-        Float_t distHype=Min(distHypeInner, distHypeOuter);
-		//std::cout << " distHypeInner : "<<distHypeInner<<"  :: distHypeOuter : "<< distHypeOuter << "  :: distZ : "<<distZ<<std::endl;
-        distance=Min(distHype, distZ);
-		//std::cout<<"distance : "<<distance<<std::endl;
-		//std::cout<<"kSTolerance*10. : "<<kSTolerance*10.<<std::endl;
-		//std::cout<<"(distance < kSTolerance*10.) : "<<(distance < kSTolerance*10.)<<std::endl;
-		//MaskedAssign((distance < kSTolerance*100.),0.,&distance);
-		
-		//This block ideally should come at the top
-		
-		//Bool_t done(false);
-	 	//Bool_t inside(false);
-	  	//UnplacedContains<Backend>(unplaced,point,inside);
-	  	//MaskedAssign(!done && inside,0.,&distance);	
-	  	//done |= inside;
-		
-    }
-    */
-
     template <TranslationCode transCodeT, RotationCode rotCodeT>
     template <class Backend>
     VECGEOM_CUDA_HEADER_BOTH
@@ -1057,17 +1294,13 @@ return;
 
 	MaskedAssign(!done && (r < endOuterRadius) && (sigz > -halfTol) && innerSurfaceExist && (sigz > dr*tanInnerStereo2) && !(answer < halfTol),answer,&safety);
 	done |= (r < endOuterRadius) && (sigz > -halfTol) && innerSurfaceExist && (sigz > dr*tanInnerStereo2) && !(answer < halfTol);
-	//std::cout<<"4 - : "<<safety<<std::endl;
-	//std::cout<<"Done : "<<done<<std::endl;
-
+	
 	MaskedAssign(!done && (r < endOuterRadius) && (sigz > -halfTol) && !innerSurfaceExist &&  (sigz < halfTol),0.,&safety);
 	done |= (r < endOuterRadius) && (sigz > -halfTol) && !innerSurfaceExist &&  (sigz < halfTol);
 
 	MaskedAssign(!done && (r < endOuterRadius) && (sigz > -halfTol) && !innerSurfaceExist && !(sigz < halfTol),sigz,&safety);
 	done |= (r < endOuterRadius) && (sigz > -halfTol) && !innerSurfaceExist && !(sigz < halfTol);
-	//std::cout<<"5 - : "<<safety<<std::endl;
-	//std::cout<<"Done : "<<done<<std::endl;
-
+	
 	dr = r - endOuterRadius;
 	answer = Sqrt(dr*dr + sigz*sigz);
 	MaskedAssign(!done && !(r < endOuterRadius) && (sigz > -dr*tanOuterStereo2) && (answer < halfTol),0.,&safety);
@@ -1075,18 +1308,13 @@ return;
 
 	MaskedAssign(!done && !(r < endOuterRadius) && (sigz > -dr*tanOuterStereo2) && !(answer < halfTol),answer,&safety);
 	done |= !(r < endOuterRadius) && (sigz > -dr*tanOuterStereo2) && !(answer < halfTol);
-	//std::cout<<"6 - : "<<safety<<std::endl;
-	//std::cout<<"Done : "<<done<<std::endl;
-
+	
 	Float_t radSq;
 	RadiusHypeSq<Backend,true>(unplaced,point.z(),radSq);
-	//std::cout<<"RADSQ : "<<radSq<<std::endl;
 	ApproxDistInside<Backend>(r,absZ,innerRadius,tanInnerStereo2,answer);
-	//std::cout<<"Answer-1 : "<<answer<<std::endl;
 	MaskedAssign(!done && innerSurfaceExist &&  (r2 < radSq + kSTolerance*endInnerRadius) && (answer < halfTol), 0. ,&safety);
 	done |= innerSurfaceExist &&  (r2 < radSq + kSTolerance*endInnerRadius) && (answer < halfTol);
-	//std::cout<<"Done : "<<done<<std::endl;
-
+	
 	MaskedAssign(!done && innerSurfaceExist &&  (r2 < radSq + kSTolerance*endInnerRadius) && !(answer < halfTol), answer ,&safety);
 	done |= innerSurfaceExist &&  (r2 < radSq + kSTolerance*endInnerRadius) && !(answer < halfTol);
 
@@ -1097,243 +1325,9 @@ return;
 
 	MaskedAssign( !done && !(answer < halfTol),answer,&safety);
 	done |= !(answer < halfTol);
-	//std::cout<<"Done : "<<done<<std::endl;
 	
-	
-	/*
-        safety=0.;
-        Float_t safety_t;
-        Float_t absZ= Abs(point.z());
-        Float_t safeZ= absZ-unplaced.GetDz();
- 
-#ifdef ROOTLIKE
-        Float_t rsq = point.x()*point.x()+point.y()*point.y();
-        Float_t r = Sqrt(rsq);
-    
-        //Outer
-        Float_t rhsqOut=unplaced.GetRmax2()+unplaced.GetTOut2()*point.z()*point.z();
-        Float_t rhOut = Sqrt(rhsqOut);
-        Float_t drOut = r - rhOut;
-        
-        Float_t safermax=0.;
-        
-        Bool_t mask_drOut=(drOut<0);
-        MaskedAssign(mask_drOut, -kInfinity, &safermax);
-        
-        Bool_t mask_fStOut(Abs(unplaced.GetStOut())<kTolerance);
-        MaskedAssign(!mask_drOut && mask_fStOut, Abs(drOut), &safermax);
-        
-        Float_t zHypeSqOut= Sqrt((r*r-unplaced.GetRmax2())*(unplaced.GetTOut2Inv()));
-        Float_t mOut=(zHypeSqOut-absZ)/drOut;
-    
-        Float_t safe = mOut*drOut/Sqrt(1.+mOut*mOut);
-        Bool_t doneOuter(mask_fStOut || mask_drOut);
-        MaskedAssign(!doneOuter, safe, &safermax);
-        Float_t max_safety= Max(safermax, safeZ);
-        
-        //Check for Inner Threatment -->this should be managed as a specialization
-        if(unplaced.GetEndInnerRadius()!=0)
-        {
-            Float_t safermin=0.;
-            Float_t rhsqIn = unplaced.GetRmin2()+unplaced.GetTIn()*point.z()*point.z();
-            Float_t rhIn = Sqrt(rhsqIn);
-            Float_t drIn = r-rhIn;
-            
-            Bool_t mask_drIn(drIn>0.);
-            MaskedAssign(mask_drIn, -kInfinity, &safermin);
-            
-            Bool_t mask_fStIn(Abs(unplaced.GetStIn()<kTolerance));
-            MaskedAssign(!mask_drIn && mask_fStIn , Abs(drIn), &safermin);
-            
-            Bool_t mask_fRmin(unplaced.GetRmin()<kTolerance);
-            MaskedAssign(! mask_drIn && !mask_fStIn && mask_fRmin, drIn/Sqrt(1.+unplaced.GetTIn2()), &safermin);
-            
-            Bool_t mask_drMin=Abs(drIn)<kTolerance;
-            MaskedAssign(!mask_drIn && !mask_fStIn && !mask_fRmin && mask_drMin, 0., &safermin);
-            Bool_t doneInner(mask_drIn || mask_fStIn ||mask_fRmin || mask_drMin );
-          
-            Float_t zHypeSqIn= Sqrt( (r*r-unplaced.GetRmin2()) *(unplaced.GetTIn2Inv()) );
-            Float_t mIn=-rhIn*unplaced.GetTIn2Inv()/absZ;
-            
-            safe = mIn*drIn/Sqrt(1.+mIn*mIn);
-            MaskedAssign(!doneInner, safe, &safermin);
-            max_safety= Max(max_safety, safermin);
-        }
-        safety=max_safety;
-      
-#endif
-        
-#ifdef ACCURATE_BB
-        //Bounding-Box implementation
-        Float_t absX= Abs(point.x());
-        Float_t absY= Abs(point.y());
-        
-        //check if the point is inside the inner-bounding box
-        
-        //The square inscribed in the inner circle has side=r*sqrt(2)
-        Float_t safeX_In=absX-unplaced.GetInSqSide();
-        Float_t safeY_In=absY-unplaced.GetInSqSide();
-        Bool_t  mask_bcIn= (safeX_In<0) &&(safeY_In<0) && (safeZ>0);
-        safety_t=Min(safeX_In, safeY_In);
-        safety_t=Min(safety_t, safeZ);
-        Bool_t done(mask_bcIn);
-        if (Backend::early_returns && done == Backend::kTrue) return;
-        
-        Float_t safeX_Out= absX-unplaced.GetEndOuterRadius();
-        Float_t safeY_Out= absY-unplaced.GetEndOuterRadius();
-        Bool_t  mask_bbOut= (safeX_Out>0) || (safeY_Out>0) || (safeZ>0);
-        
-        safety_t=Max(safeX_Out, safeY_Out);
-        safety_t=Max(safeZ, safety_t);
-        MaskedAssign(mask_bbOut , safety_t, &safety);
-        done|=mask_bbOut;
-        if (Backend::early_returns && done == Backend::kTrue) return;
-        
-        Float_t rsq = point.x()*point.x()+point.y()*point.y();
-        Float_t r = Sqrt(rsq);
-        
-        //Outer
-        Float_t rhsqOut=unplaced.GetRmax2()+unplaced.GetTOut2()*point.z()*point.z();
-        Float_t rhOut = Sqrt(rhsqOut);
-        Float_t drOut = r - rhOut;
-        
-        Float_t safermax=0.;
-        Bool_t mask_drOut=(drOut<0);
-        MaskedAssign(mask_drOut, -kInfinity, &safermax);
-        
-        Bool_t mask_fStOut(Abs(unplaced.GetStOut())<kTolerance);
-        MaskedAssign(!mask_drOut && mask_fStOut, Abs(drOut), &safermax);
-        
-        Float_t zHypeSqOut= Sqrt((r*r-unplaced.GetRmax2())*(unplaced.GetTOut2Inv()));
-        Float_t mOut=(zHypeSqOut-absZ)/drOut;
-        
-        Float_t safe = mOut*drOut/Sqrt(1.+mOut*mOut);
-        Bool_t doneOuter(mask_fStOut || mask_drOut);
-        MaskedAssign(!doneOuter, safe, &safermax);
-        Float_t max_safety= Max(safermax, safeZ);
-        
-        //Check for Inner Threatment
-        if(unplaced.GetEndInnerRadius()!=0)
-        {
-            Float_t safermin=0.;
-            Float_t rhsqIn = unplaced.GetRmin2()+unplaced.GetTIn()*point.z()*point.z();
-            Float_t rhIn = Sqrt(rhsqIn);
-            Float_t drIn = r-rhIn;
-            
-            Bool_t mask_drIn(drIn>0.);
-            MaskedAssign(mask_drIn, -kInfinity, &safermin);
-            
-            Bool_t mask_fStIn(Abs(unplaced.GetStIn()<kTolerance));
-            MaskedAssign(!mask_drIn && mask_fStIn , Abs(drIn), &safermin);
-            
-            Bool_t mask_fRmin(unplaced.GetRmin()<kTolerance);
-            MaskedAssign(! mask_drIn && !mask_fStIn && mask_fRmin, drIn/Sqrt(1.+unplaced.GetTIn2()), &safermin);
-            
-            Bool_t mask_drMin=Abs(drIn)<kTolerance;
-            MaskedAssign(!mask_drIn && !mask_fStIn && !mask_fRmin && mask_drMin, 0., &safermin);
-            Bool_t doneInner(mask_drIn || mask_fStIn ||mask_fRmin || mask_drMin );
 
-            Float_t zHypeSqIn= Sqrt( (r*r-unplaced.GetRmin2()) *(unplaced.GetTIn2Inv()) );
-            
-            Float_t mIn=-rhIn*unplaced.GetTIn2Inv()/absZ;
-            safe = mIn*drIn/Sqrt(1.+mIn*mIn);
-            MaskedAssign(!doneInner, safe, &safermin);
-            max_safety= Max(max_safety, safermin);
-        }
-        
-        MaskedAssign(!done, max_safety, &safety);
-        
-#endif
-
-#ifdef ACCURATE_BC
-        //Bounding-Cylinder implementation
-        Float_t absX= Abs(point.x());
-        Float_t absY= Abs(point.y());
-        
-        //Then calculate accurate value
-        Float_t rsq = point.x()*point.x()+point.y()*point.y();
-        Float_t r = Sqrt(rsq);
-        
-        
-        //check if the point is inside the inner-bounding cylinder
-        Float_t safeRhoIn=unplaced.GetRmin()-r;
-        Bool_t  mask_bcIn= (safeRhoIn>0) && (safeZ>0);
-        safety_t=Min(safeZ, safeRhoIn);
-        Bool_t done(mask_bcIn);
-        MaskedAssign(done, safety_t, &safety);
-        if (Backend::early_returns && done == Backend::kTrue) return;
-        
-        //check if the point is outside the outer-bounding cylinder
-        Float_t safeRhoOut=r-unplaced.GetEndOuterRadius();
-        Bool_t  mask_bcOut= (safeRhoOut>0) || (safeZ>0);
-        
-        safety_t=Max(safeZ, safeRhoOut);
-        MaskedAssign(!done && mask_bcOut, safety_t, &safety);
-        done|=mask_bcOut;
-        if (Backend::early_returns && done == Backend::kTrue) return;
-    
-        //Outer
-        Float_t rhsqOut=unplaced.GetRmax2()+unplaced.GetTOut2()*point.z()*point.z();
-        Float_t rhOut = Sqrt(rhsqOut);
-        Float_t drOut = r - rhOut;
-        
-        Float_t safermax=0.;
-        
-        Bool_t mask_drOut=(drOut<0);
-        MaskedAssign(mask_drOut, -kInfinity, &safermax);
-        
-        Bool_t mask_fStOut(Abs(unplaced.GetStOut())<kTolerance);
-        MaskedAssign(!mask_drOut && mask_fStOut, Abs(drOut), &safermax);
-        
-        Float_t zHypeSqOut= Sqrt((r*r-unplaced.GetRmax2())*(unplaced.GetTOut2Inv()));
-        Float_t mOut=(zHypeSqOut-absZ)/drOut;
-
-        Float_t safe = mOut*drOut/Sqrt(1.+mOut*mOut);
-        Bool_t doneOuter(mask_fStOut || mask_drOut);
-        MaskedAssign(!doneOuter, safe, &safermax);
-        Float_t max_safety= Max(safermax, safeZ);
-        
-        //Check for Inner Threatment
-        if(unplaced.GetEndInnerRadius()!=0)
-        {
-            Float_t safermin=0.;
-            Float_t rhsqIn = unplaced.GetRmin2()+unplaced.GetTIn()*point.z()*point.z();
-            Float_t rhIn = Sqrt(rhsqIn);
-            Float_t drIn = r-rhIn;
-            
-            Bool_t mask_drIn(drIn>0.);
-            MaskedAssign(mask_drIn, -kInfinity, &safermin);
-            Bool_t doneInner(mask_drIn);
-            
-            //Bool_t mask_fStIn(Abs(unplaced.GetStIn()<kTolerance));
-            //MaskedAssign(!doneInner && mask_fStIn , Abs(drIn), &safermin);
-            //doneInner|=mask_fStIn;
-            
-            //Bool_t mask_fRmin(unplaced.GetRmin()<kTolerance);
-            //MaskedAssign(!doneInner && mask_fRmin, drIn/Sqrt(1.+unplaced.GetTIn2()), &safermin);
-            //doneInner|=mask_fRmin;
-            
-            //Bool_t mask_drMin=Abs(drIn)<kTolerance;
-            //MaskedAssign(!doneInner && mask_drMin , 0., &safermin);
-            //doneInner|=mask_fRmin;
-            
-           
-            Float_t zHypeSqIn= Sqrt( (r*r-unplaced.GetRmin2()) * (unplaced.GetTIn2Inv()) );
-            
-            Float_t mIn=-rhIn*unplaced.GetTIn2Inv()/absZ;
-            safe = mIn*drIn/Sqrt(1.+mIn*mIn);
-            MaskedAssign(!doneInner, safe, &safermin);
-            max_safety= Max(max_safety, safermin);
-        }
-        
-        MaskedAssign(!done, max_safety, &safety);
-        
-        
-#endif
-*/
-
-
-    }
+}
     
     template <TranslationCode transCodeT, RotationCode rotCodeT>
     template <class Backend>
@@ -1427,7 +1421,7 @@ return;
         if(unplaced.GetEndInnerRadius()!=0)
         {
             //INNER
-            Float_t safeInner;
+            Float_t safeInner(kInfinity);
         
             Bool_t mask_TIn(unplaced.GetTIn()< DBL_MIN);
             MaskedAssign(mask_TIn, r-unplaced.GetRmin(), &safeInner);
@@ -1466,7 +1460,8 @@ return;
 
 		Bool_t inside(false);
 		UnplacedContains<Backend>(unplaced,point,inside);
-		MaskedAssign(!inside || safety<kSTolerance*100.,0.,&safety);
+		//MaskedAssign(!inside || safety<kSTolerance*100.,0.,&safety);
+		MaskedAssign(!inside || safety<kTolerance*10.,0.,&safety);
 
 		
     }

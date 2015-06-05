@@ -144,7 +144,7 @@ VECGEOM_INLINE
   {
 //return GetUnplacedVolume()->Normal(p,normal);
 
-      bool valid;
+      bool valid=true;
       //HypeImplementation<translation::kIdentity, rotation::kIdentity>::NormalKernel<kScalar>(
         //      *GetUnplacedVolume(),
           //    point,
@@ -178,7 +178,8 @@ Precision absZ(std::fabs(p.z()));
   //
   if (dist2Z < dist2Outer && !done) 
 	{
-    normal = Vector3D<Precision>( 0.0, 0.0, p.z() < 0 ? -1.0 : 1.0 );
+    //normal = Vector3D<Precision>( 0.0, 0.0, p.z() < 0 ? 1.0 : -1.0 );
+	normal = Vector3D<Precision>( 0.0, 0.0, p.z() < 0 ? -1.0 : 1.0 );
 	done = true;
 	}
     
@@ -196,12 +197,12 @@ Precision absZ(std::fabs(p.z()));
 
 VECGEOM_CUDA_HEADER_BOTH  
 VECGEOM_INLINE
-Precision Capacity() const { return GetUnplacedVolume()->Capacity(); }
+Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
 
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Precision SurfaceArea() const  { return GetUnplacedVolume()->SurfaceArea(); }
+  Precision SurfaceArea() override  { return GetUnplacedVolume()->SurfaceArea(); }  
   
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -209,7 +210,7 @@ Precision Capacity() const { return GetUnplacedVolume()->Capacity(); }
   
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void Extent( Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const { return GetUnplacedVolume()->Extent(aMin,aMax);}
+  void Extent( Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override { return GetUnplacedVolume()->Extent(aMin,aMax);}
   
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
