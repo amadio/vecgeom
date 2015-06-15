@@ -159,6 +159,14 @@ private:
      return SizeOf() + (size_t)ObjectStart() - (size_t)DataStart();
   }
 
+  VECGEOM_CUDA_HEADER_BOTH
+  static VPlacedVolume const * ConvertIndexToPlacedVolume( unsigned int index ){
+      return GeoManager::Instance().Convert( index );
+  }
+  VECGEOM_CUDA_HEADER_BOTH
+  static unsigned int ConvertPlacedVolumeToIndex( VPlacedVolume const *pvol ){
+      return GeoManager::Instance().Convert( pvol );
+  }
 
 
 public:
