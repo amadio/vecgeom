@@ -22,13 +22,24 @@
 #ifndef USOLIDS_UBox
 #define USOLIDS_UBox
 
-#ifndef USOLIDS_VUSolid
-#include "VUSolid.hh"
-#endif
+// #ifndef USOLIDS_VUSolid
+// #include "VUSolid.hh"
+// #endif
 
-#ifndef USOLIDS_UUtils
-#include "UUtils.hh"
-#endif
+#ifdef VECGEOM_REPLACE_USOLIDS
+
+#include "volumes/SpecializedBox.h"
+//  using UBox = vecgeom::SimpleBox;
+//  typedef vecgeom::SimpleBox UBox;
+class UBox: public vecgeom::SimpleBox {
+  // just forwards UBox to vecgeom::SimpleBox
+  using vecgeom::SimpleBox::SimpleBox;
+};
+
+#else
+//#ifndef USOLIDS_UUtils
+//#include "UUtils.hh"
+//#endif
 
 class UBox : public VUSolid
 {
@@ -47,8 +58,6 @@ class UBox : public VUSolid
     void Set(const UVector3& vec);
 
     // Accessors and modifiers
-
-
 
     inline double GetXHalfLength() const;
     inline double GetYHalfLength() const;
@@ -150,5 +159,5 @@ inline double UBox::SurfaceArea()
   return fSurfaceArea;
 }
 
-
-#endif
+#endif  // VECGEOM_REPLACE_USOLIDS
+#endif  // USOLIDS_UBox

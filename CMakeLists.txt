@@ -8,6 +8,8 @@ set(VECGEOM ON)
 
 # Configuration options
 
+option(USOLIDS_VECGEOM "Forward USOLIDS volumes to their VecGeom implementation" OFF)
+
 option(VC_ACCELERATION "Internal vectorization using Vc." ON)
 
 option(CUDA "Enable compilation for CUDA." OFF)
@@ -236,6 +238,10 @@ if (COVERAGE_TESTING)
 endif()
 
 # Forward CMake options
+if (USOLIDS_VECGEOM)
+  set(VECGEOM_COMPILATION_FLAGS
+      "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_REPLACE_USOLIDS")
+endif()
 if (VC_ACCELERATION)
   set(VECGEOM_COMPILATION_FLAGS
       "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_VC_ACCELERATION")
