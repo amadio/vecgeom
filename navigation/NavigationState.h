@@ -38,14 +38,16 @@ class TGeoBranchArray;
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+typedef long index_t;
+
 /**
  * a class describing a current geometry state
  * likely there will be such an object for each
  * particle/track currently treated
  */
-class NavigationState : protected VecCore::VariableSizeObjectInterface<NavigationState, unsigned int> {
+class NavigationState : protected VecCore::VariableSizeObjectInterface<NavigationState, index_t> {
 public:
-   using Value_t = unsigned int;
+   using Value_t = index_t;
    using Base_t = VecCore::VariableSizeObjectInterface<NavigationState, Value_t>;
    using VariableData_t = VecCore::VariableSizeObj<Value_t>;
 
@@ -105,12 +107,24 @@ private:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  static VPlacedVolume const * ConvertIndexToPlacedVolume( unsigned int index ){
-      return GeoManager::Instance().Convert( index );
+  VECGEOM_INLINE
+  static VPlacedVolume const * ConvertIndexToPlacedVolume( index_t index ){
+      //return GeoManager::Instance().Convert( index );
+
+      // solution based on offsets
+      // read: index == offset
+      return (VPlacedVolume const *) ( ( unsigned long long ) GeoManager::Instance().GetWorld() + index );
   }
   VECGEOM_CUDA_HEADER_BOTH
-  static unsigned int ConvertPlacedVolumeToIndex( VPlacedVolume const *pvol ){
-      return GeoManager::Instance().Convert( pvol );
+  VECGEOM_INLINE
+  static index_t ConvertPlacedVolumeToIndex( VPlacedVolume const *pvol ){
+      //return GeoManager::Instance().Convert( pvol );
+
+
+      // solution based on offsets
+      index_t r = (unsigned long long ) ( pvol ) - ( unsigned long long ) GeoManager::Instance().GetWorld();
+     // std::cerr << " offset " << r << "\n";
+      return r;
   }
 
 public:
@@ -364,7 +378,7 @@ NavigationState::NavigationState( size_t nvalues ) :
          fPath(nvalues)
 {
    // clear the buffer
-   std::memset(fPath.GetValues(), 0, nvalues*sizeof(unsigned int));
+   std::memset(fPath.GetValues(), 0, nvalues*sizeof(index_t));
 }
 
   VECGEOM_CUDA_HEADER_BOTH

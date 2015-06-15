@@ -27,8 +27,9 @@
 #include <cassert>
 #include <sstream>
 
+#define CALLGRIND
 #ifdef CALLGRIND
-#include "base/callgrind.h"
+#include <valgrind/callgrind.h>
 #endif
 
 #include "TGeoManager.h"
