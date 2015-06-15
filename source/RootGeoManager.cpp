@@ -42,6 +42,7 @@
 #include "TGeoPcon.h"
 
 #include <cassert>
+#include <iostream>
 
 namespace vecgeom {
 

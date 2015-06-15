@@ -4,7 +4,11 @@
 #include "management/GeoManager.h"
 #include "volumes/PlacedVolume.h"
 #include <dlfcn.h>
+#include "navigation/NavigationState.h"
+
 #include <stdio.h>
+#include <list>
+#include <vector>
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -35,6 +39,11 @@ void GeoManager::CloseGeometry() {
     GetTotalNodeCountVisitor totalcountvisitor;
     visitAllPlacedVolumes( GetWorld(), &totalcountvisitor, 1 );
     fTotalNodeCount = totalcountvisitor.GetTotalNodeCount();
+
+    // get a consistent state for index - placed volumes lookups
+    for( auto element : fPlacedVolumesMap ){
+        fVolumeToIndexMap[element.second] = element.first;
+    }
 }
 
 
@@ -134,5 +143,75 @@ void GeoManager::Clear()
     fVolumeCount=0; fWorld=NULL;
     fMaxDepth=-1;
 }
+
+
+template<typename Container>
+class GetPathsForLogicalVolumeVisitor : public GeoVisitorWithAccessToPath<Container>
+{
+private:
+    LogicalVolume const * fReferenceLogicalVolume;
+    int fMaxDepth;
+public:
+    GetPathsForLogicalVolumeVisitor(
+      Container &c, LogicalVolume const * lv, int maxd)
+      : GeoVisitorWithAccessToPath<Container>(c), fReferenceLogicalVolume(lv), fMaxDepth(maxd)
+    {}
+
+    void apply( NavigationState * state, int /* level */ )
+    {
+        if( state->Top()->GetLogicalVolume() == fReferenceLogicalVolume ){
+            // the current state is a good one;
+
+            // make a copy and store it in the container for this visitor
+            NavigationState * copy = NavigationState::MakeCopy( *state );
+
+            this->c_.push_back( copy );
+        }
+    }
+};
+
+
+
+template<typename Visitor>
+void
+GeoManager::visitAllPlacedVolumesWithContext( VPlacedVolume const * currentvolume, Visitor * visitor, NavigationState * state, int level ) const
+{
+   if( currentvolume != NULL )
+   {
+      state->Push( currentvolume );
+      visitor->apply( state, level );
+      int size = currentvolume->daughters().size();
+      for( int i=0; i<size; ++i )
+      {
+         visitAllPlacedVolumesWithContext( currentvolume->daughters().operator[](i), visitor, state, level+1 );
+      }
+      state->Pop();
+   }
+}
+
+template<typename Container>
+void GeoManager::getAllPathForLogicalVolume( LogicalVolume const * lvol, Container & c ) const
+{
+   NavigationState * state = NavigationState::MakeInstance(getMaxDepth());
+   c.clear();
+   state->Clear();
+
+   // instantiate the visitor
+   GetPathsForLogicalVolumeVisitor<Container> pv(c, lvol, getMaxDepth());
+
+   // now walk the placed volume hierarchy
+   visitAllPlacedVolumesWithContext( GetWorld(), &pv, state );
+   NavigationState::ReleaseInstance( state );
+}
+
+// init symbols for getAllPathsForLogicalVolume
+void initSymbols(){
+    std::list<NavigationState  * > l;
+    std::vector<NavigationState  * > v;
+    GeoManager::Instance().getAllPathForLogicalVolume( nullptr, l);
+    GeoManager::Instance().getAllPathForLogicalVolume( nullptr, v);
+}
+
+
 
 } } // End global namespace
