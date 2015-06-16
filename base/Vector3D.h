@@ -228,13 +228,23 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   void Normalize() {
-    *this /= (1. / Length());
+    *this *= (1. / Length());
   }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Vector3D<Type> Normalized() const {
     return Vector3D<Type>(*this) * (1. / Length());
+  }
+
+  // checks if vector is normalized
+  // only reasonable to call with standard scalare usage
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  bool IsNormalized() const {
+      // static_assert here that Type should be primitive type
+      Precision norm = Mag2();
+      return 1.-vecgeom::kTolerance < norm && norm < 1 + vecgeom::kTolerance;
   }
 
   /// \return Azimuthal angle between -pi and pi.
@@ -498,15 +508,15 @@ public:
   const Precision& z() const { return mem[2]; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  void Set(const Precision x, const Precision y, const Precision z) {
-    mem[0] = x;
-    mem[1] = y;
-    mem[2] = z;
+  void Set(const Precision in_x, const Precision in_y, const Precision in_z) {
+    mem[0] = in_x;
+    mem[1] = in_y;
+    mem[2] = in_z;
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  void Set(const Precision x) {
-    Set(x, x, x);
+  void Set(const Precision in_x) {
+    Set(in_x, in_x, in_x);
   }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -549,6 +559,13 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Vector3D<Precision> Normalized() const;
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  bool IsNormalized() const {
+      Precision norm = Mag2();
+      return 1.-vecgeom::kTolerance < norm && norm < 1 + vecgeom::kTolerance;
+  }
 
   VECGEOM_INLINE
   void Map(Precision (*f)(const Precision&)) {
@@ -719,8 +736,8 @@ VECGEOM_INLINE \
 VECGEOM_CUDA_HEADER_BOTH \
 Vector3D<Type> operator OPERATOR(const ScalarType lhs, \
                                  Vector3D<Type> const &rhs) { \
-  Vector3D<Type> result(rhs); \
-  result INPLACE lhs; \
+  Vector3D<Type> result(lhs); \
+  result INPLACE rhs; \
   return result; \
 }
 VECTOR3D_BINARY_OP(+, +=)

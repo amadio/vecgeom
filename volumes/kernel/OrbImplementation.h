@@ -13,7 +13,7 @@
 #include "base/Vector3D.h"
 #include "volumes/kernel/GenericKernels.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 namespace vecgeom {
 
@@ -362,7 +362,7 @@ UnplacedOrb const &unplaced,
     typename Backend::bool_v &completelyoutside) {
 
     typedef typename Backend::precision_v Double_t;
-    // typedef typename Backend::bool_v      Bool_t;	
+    // typedef typename Backend::bool_v      Bool_t;
 
     Double_t rad2 = localPoint.Mag2();
     Double_t tolRMax = unplaced.GetfRTolO();
@@ -423,10 +423,6 @@ void OrbImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
     Double_t radius2 = unplaced.GetRadius() * unplaced.GetRadius();
     Double_t c = rad2 - radius2;
     Double_t d2 = pDotV3d * pDotV3d - c;
-
-    Double_t pos_dot_dir_x = localPoint.x()*localDir.x();
-    Double_t pos_dot_dir_y = localPoint.y()*localDir.y();
-    Double_t pos_dot_dir_z = localPoint.z()*localDir.z();
 
     Bool_t done(false);
     distance = kInfinity;

@@ -48,8 +48,16 @@ ENDIF(NOT DEFINED CTEST_SITE)
 #######################################################
 set(WITH_MEMCHECK FALSE)
 set(WITH_COVERAGE FALSE)
-
+set(CTEST_CUSTOM_MAXIMUM_PASSED_TEST_OUTPUT_SIZE "5000")
+set(CTEST_CUSTOM_MAXIMUM_FAILED_TEST_OUTPUT_SIZE "5000")
 #######################################################
+#set(CTEST_USE_LAUNCHERS 1)
+#if(NOT "${CTEST_CMAKE_GENERATOR}" MATCHES "Make")
+#  set(CTEST_USE_LAUNCHERS 0)
+#endif()
+#set(ENV{CTEST_USE_LAUNCHERS_DEFAULT} ${CTEST_USE_LAUNCHERS})
+
+######################################################
 # CTest/CMake settings 
 
 set(CTEST_TEST_TIMEOUT 3600)
@@ -70,6 +78,11 @@ if(NOT EXISTS "${CTEST_SOURCE_DIRECTORY}")
   set(CTEST_CHECKOUT_COMMAND "${CTEST_GIT_COMMAND} clone http://git.cern.ch/pub/VecGeom ${CTEST_SOURCE_DIRECTORY}")
 endif()
 set(CTEST_GIT_UPDATE_COMMAND "${CTEST_GIT_COMMAND}")
+
+if(NOT "$ENV{GIT_COMMIT}" STREQUAL "")
+   set(CTEST_CHECKOUT_COMMAND "cmake -E chdir ${CTEST_SOURCE_DIRECTORY} ${CTEST_GIT_COMMAND} checkout -f $ENV{GIT_PREVIOUS_COMMIT}")
+   set(CTEST_GIT_UPDATE_CUSTOM  ${CTEST_GIT_COMMAND} checkout -f $ENV{GIT_COMMIT})
+endif()
 
 #########################################################
 ## Output language

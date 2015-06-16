@@ -73,7 +73,7 @@ public:
   // it ensures that placed volumes can be constructed just like ordinary Geant4/ROOT/USolids solids
   template <typename... ArgTypes>
   ShapeImplementationHelper(char const *const label, ArgTypes... params)
-      : ShapeImplementationHelper(label, 
+      : ShapeImplementationHelper(label,
                                   new LogicalVolume(new UnplacedShape_t(params...)),
                                   &Transformation3D::kIdentity) {}
 
@@ -170,6 +170,12 @@ public:
       localPoint,
       output
     );
+
+
+#ifdef VECGEOM_DISTANCE_DEBUG
+    DistanceComparator::CompareUnplacedContains( this, output, localPoint );
+#endif
+
     return output;
   }
 
@@ -181,6 +187,11 @@ public:
       point,
       output
     );
+
+#ifdef VECGEOM_DISTANCE_DEBUG
+    DistanceComparator::CompareUnplacedContains( this, output, point );
+#endif
+
     return output;
   }
 
@@ -188,7 +199,10 @@ public:
   virtual Precision DistanceToIn(Vector3D<Precision> const &point,
                                  Vector3D<Precision> const &direction,
                                  const Precision stepMax = kInfinity) const {
-    Precision output = kInfinity;
+#ifndef VECGEOM_NVCC
+      assert( direction.IsNormalized() && " direction not normalized in call to  DistanceToIn " );
+#endif
+      Precision output = kInfinity;
     Specialization::template DistanceToIn<kScalar>(
       *this->GetUnplacedVolume(),
       *this->GetTransformation(),
@@ -209,6 +223,9 @@ public:
   virtual Precision DistanceToOut(Vector3D<Precision> const &point,
                                   Vector3D<Precision> const &direction,
                                   const Precision stepMax = kInfinity) const {
+#ifndef VECGEOM_NVCC
+      assert( direction.IsNormalized() && " direction not normalized in call to  DistanceToOut " );
+#endif
     Precision output = kInfinity;
     Specialization::template DistanceToOut<kScalar>(
       *this->GetUnplacedVolume(),
@@ -231,6 +248,9 @@ public:
   virtual Precision PlacedDistanceToOut(Vector3D<Precision> const &point,
                                         Vector3D<Precision> const &direction,
                                         const Precision stepMax = kInfinity) const {
+#ifndef VECGEOM_NVCC
+      assert( direction.IsNormalized() && " direction not normalized in call to  PlacedDistanceToOut " );
+#endif
      Precision output = kInfinity;
      Transformation3D const * t = this->GetTransformation();
      Specialization::template DistanceToOut<kScalar>(
@@ -371,8 +391,10 @@ public:
     }
   }
 
-#pragma GCC push_options
-#pragma GCC optimize ("unroll-loops")
+#if !defined(__clang__) && !defined(VECGEOM_INTEL)
+  #pragma GCC push_options
+  #pragma GCC optimize ("unroll-loops")
+#endif
   VECGEOM_INLINE
   void DistanceToInMinimizeTemplate(SOA3D<Precision> const &points,
                                     SOA3D<Precision> const &directions,
@@ -407,6 +429,9 @@ public:
             result( mask ) = stepMaxVc;
             result.store(&currentdistance[i]);
             // currently do not know how to do this better (can do it when Vc offers long ints )
+#ifdef VECGEOM_INTEL
+#pragma unroll
+#endif
             for(unsigned int j=0;j<VcPrecision::Size;++j)
             {
                 nextdaughteridlist[i+j]
@@ -414,7 +439,10 @@ public:
             }
       }
   }
+#if !defined(__clang__) && !defined(VECGEOM_INTEL)
 #pragma GCC pop_options
+#endif
+
   VECGEOM_INLINE
   void DistanceToOutTemplate(SOA3D<Precision> const &points,
                              SOA3D<Precision> const &directions,
