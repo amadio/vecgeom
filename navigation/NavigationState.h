@@ -179,7 +179,10 @@ public:
       bool alloc = other->fPath.fSelfAlloc;
       //std::memcpy(other, this, this->SizeOf());
       // we only need to copy to relevant depth
-      std::memcpy(other,this, NavigationState::SizeOfInstance( this->GetCurrentLevel() ));
+      // GetCurrentLevel indicates the 'next' level, i.e. currentLevel==0 is empty
+      // fCurrentLevel = maxlevel+1 is full
+      // SizeOfInstance expect [0,maxlevel] and add +1 to its params
+      std::memcpy(other,this, NavigationState::SizeOfInstance( this->GetCurrentLevel() - 1 ));
 
       other->fPath.fSelfAlloc = alloc;
    }
@@ -407,12 +410,13 @@ NavigationState::TopMatrix( Transformation3D & global_matrix ) const
    }
 }
 
-
 VECGEOM_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void NavigationState::Dump() const
 {
    const unsigned int* ptr = (const unsigned int*)this;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-qual"
    printf("NavState::Dump(): data: %p(%lu) : %p(%lu) : %p(%lu)\n",(void*)&fCurrentLevel, sizeof(fCurrentLevel),
           (void*)&fOnBoundary, sizeof(fOnBoundary), (void*)&fPath, sizeof(fPath));
    for(unsigned int i=0; i<20; ++i) {
@@ -423,6 +427,7 @@ void NavigationState::Dump() const
       }
       printf("\n");
    }
+#pragma GCC diagnostic pop
 }
 
 VECGEOM_INLINE
@@ -455,7 +460,6 @@ void NavigationState::printVolumePath( std::ostream & stream ) const
    {
     stream << "/" << RootGeoManager::Instance().tgeonode( fPath[i] )->GetName();
    }
-   stream << "\n";
 }
 #endif
 

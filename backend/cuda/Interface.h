@@ -25,6 +25,12 @@ void ConstructOnGpu(DataClass *gpu_ptr, ArgsTypes... params) {
    new (gpu_ptr) DataClass(params...);
 }
 
+template <typename DataClass>
+__global__
+void ConstructArrayOnGpu(DataClass *gpu_ptr, size_t nElements) {
+   new (gpu_ptr) DataClass[nElements];
+}
+
 template <typename DataClass, typename... ArgsTypes>
 void Generic_CopyToGpu(DataClass *const gpu_ptr, ArgsTypes... params)
 {
@@ -132,9 +138,6 @@ protected:
    VECGEOM_CUDA_HEADER_BOTH
    void *GetPtr() const { return fPtr; }
 
-   void Malloc(unsigned long size) {
-      vecgeom::cxx::CudaAssertError(vecgeom::cxx::CudaMalloc((void**)&fPtr, size));
-   }
    void Free() {
       vecgeom::cxx::CudaAssertError(vecgeom::cxx::CudaFree((void*)fPtr));
    }
@@ -146,6 +149,9 @@ public:
    explicit DevicePtrBase(void *input) : fPtr(input) {}
    ~DevicePtrBase() { /* does not own content per se */ }
 
+   void Malloc(unsigned long size) {
+      vecgeom::cxx::CudaAssertError(vecgeom::cxx::CudaMalloc((void**)&fPtr, size));
+   }
 };
 
  template <typename T> class DevicePtr;
@@ -173,12 +179,12 @@ public:
    void ToDevice(const Type* what, unsigned long nelems = 1) {
       MemcpyToDevice(what,nelems*Derived::SizeOf());
    }
-   void FromDevice(Type* where,cudaStream_t stream) {
-      // Async since we past a stream.
+   void FromDevice(Type* where, cudaStream_t stream) {
+      // Async since we pass a stream.
       MemcpyToHostAsync(where,Derived::SizeOf(),stream);
    }
    void FromDevice(Type* where, unsigned long nelems , cudaStream_t stream) {
-      // Async since we past a stream.
+      // Async since we pass a stream.
       MemcpyToHostAsync(where,nelems*Derived::SizeOf(),stream);
    }
 
@@ -249,6 +255,12 @@ public:
       ConstructOnGpu<<<1, 1>>>( this->GetPtr(), params...);
    }
 
+   template <typename... ArgsTypes>
+   void ConstructArray(size_t nElements) const
+   {
+      ConstructArrayOnGpu<<<1, 1>>>( this->GetPtr(), nElements);
+   }
+
    static size_t SizeOf()
    {
       return sizeof(Type);
@@ -257,6 +269,7 @@ public:
 #else
   template <typename... ArgsTypes>
      void Construct(ArgsTypes... params) const;
+  void ConstructArray(size_t nElements) const;
 
   static size_t SizeOf();
 #endif

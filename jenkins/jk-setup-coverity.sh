@@ -18,7 +18,7 @@ else
   return
 fi
 
-if [ $LABEL == slc6 ] || [ $LABEL == cc7 ] 
+if [ $LABEL == slc6 ] || [ $LABEL == cc7 ]
 then
   export PATH=/afs/cern.ch/sw/lcg/contrib/CMake/3.0.0/Linux-i386/bin:${PATH}
 else
@@ -38,17 +38,19 @@ then
   export CXX=`which g++`
   export CC=`which gcc`
 
-  export CMAKE_SOURCE_DIR=$WORKSPACE/VecGeom 
+  export CMAKE_SOURCE_DIR=$WORKSPACE/VecGeom
   export CMAKE_BINARY_DIR=$WORKSPACE/VecGeom/builds
   export CMAKE_BUILD_TYPE=$BUILDTYPE
 
   export CMAKE_INSTALL_PREFIX=$WORKSPACE/VecGeom/installation
   export BACKEND=$BACKEND
   export CTEST_BUILD_OPTIONS="-DROOT=ON -DCTEST=ON -DBENCHMARK=ON ${ExtraCMakeOptions}"
-#  export BACKEND=Vc 
+#  export BACKEND=Vc
 #  export CTEST_BUILD_OPTIONS="-DROOT=ON -DVc=ON -DCTEST=ON -DBENCHMARK=ON -DUSOLIDS=OFF ${ExtraCMakeOptions}"
 
 fi
 
 echo ${THIS}/setup.py -o ${LABEL} -c ${COMPILER} -b ${BUILDTYPE} -v ${EXTERNALS}
 eval `${THIS}/setup.py -o ${LABEL} -c ${COMPILER} -b ${BUILDTYPE} -v ${EXTERNALS}`
+
+cmake ../ $CTEST_BUILD_OPTION && make -j 24 

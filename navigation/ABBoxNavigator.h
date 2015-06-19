@@ -23,6 +23,7 @@
 #endif
 
 #include <map>
+#include <vector>
 #include <cassert>
 
 namespace vecgeom {

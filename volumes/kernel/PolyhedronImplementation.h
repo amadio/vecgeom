@@ -270,18 +270,22 @@ namespace {
 
 /// Polyhedron-specific trait class typedef'ing the tube specialization that
 /// should be called as a bounds check in Contains, Inside and DistanceToIn.
+
+// SW (19.6.2015): switching to UniversalTube as Phi section was not
+// correctly treated with a hollow tube
+// TODO: this could be CORRECTLY put back for optimization
 template <Polyhedron::EInnerRadii innerRadiiT>
 struct HasInnerRadiiTraits {
   /// If polyhedron has inner radii, use a hollow tube
   typedef TubeImplementation<translation::kIdentity,
-      rotation::kIdentity, TubeTypes::HollowTube> TubeKernels;
+      rotation::kIdentity, TubeTypes::UniversalTube> TubeKernels;
 };
 
 template <>
 struct HasInnerRadiiTraits<Polyhedron::EInnerRadii::kFalse> {
   /// If polyhedron has no inner radii, use a non-hollow tube
   typedef TubeImplementation<translation::kIdentity,
-      rotation::kIdentity, TubeTypes::NonHollowTube> TubeKernels;
+      rotation::kIdentity, TubeTypes::UniversalTube> TubeKernels;
 };
 
 template <Polyhedron::EInnerRadii innerRadiiT>
@@ -807,7 +811,8 @@ Inside_t PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarInsideKernel(
 
   // Find correct segment by checking Z-bounds
   int zIndex = FindZSegment<kScalar>(polyhedron, localPoint[2]);
-
+  if(zIndex > (polyhedron.GetZSegmentCount()-1)) zIndex=polyhedron.GetZSegmentCount()-1;
+  if(zIndex < 0) zIndex=0;
   ZSegment const &segment = polyhedron.GetZSegment(zIndex);
 
   // Check that the point is in the outer shell
@@ -1011,7 +1016,10 @@ PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarDistanceToOutKernel(
   ScalarDistanceToEndcaps<true>(unplaced, goingRight, point, direction,
                                 distance);
 
-  return distance < stepMax ? distance : stepMax;
+  // disabling stepMax until convention revised and clear
+  // there is a problem when distance = infinity due to some error condition but stepMax finite
+  // return distance < stepMax ? distance : stepMax;
+  return distance;
 }
 
 template <Polyhedron::EInnerRadii innerRadiiT,
