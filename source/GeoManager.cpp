@@ -6,6 +6,7 @@
 #include <dlfcn.h>
 #include "navigation/NavigationState.h"
 
+#include <dlfcn.h>
 #include <stdio.h>
 #include <list>
 #include <vector>
