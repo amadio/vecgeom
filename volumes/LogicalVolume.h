@@ -93,11 +93,26 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
+  // will be deprecated in favour of better encapsulation of internal storage
   Vector<Daughter> const& daughters() const { return *daughters_; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
+  // will be deprecated in favour of better encapsulation of internal storage
   Vector<Daughter> const * daughtersp() const { return daughters_; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  VPlacedVolume const* GetDaughter(unsigned int i) const { return daughters_->operator[](i); }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  unsigned int GetNDaughters() const { return daughters_->size(); }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  void SetDaughter(unsigned int i, VPlacedVolume const *pvol) { daughters_->operator[](i)=pvol; }
+
 
   VECGEOM_INLINE
   void * getUserExtensionPtr( ) const {  return user_extension_;  }
