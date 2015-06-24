@@ -92,13 +92,13 @@ NavigationState::GlobalToLocal(Vector3D<Precision> const & globalpoint) const
     // clear current nav state
     fCurrentLevel =  indices.size();
     if( indices.size() > 0 ) {
-        fPath[0] = ConvertPlacedVolumeToIndex( world );
+        fPath[0] = ToIndex( world );
         // have to disregard first one;
         // then iterate through list
         int counter=0;
         for( auto x : indices ){
             if(counter>0)
-                fPath[counter] = ConvertPlacedVolumeToIndex( GetDaughterWithinMother( At(counter-1), x ) );
+                fPath[counter] = ToIndex( GetDaughterWithinMother( At(counter-1), x ) );
             counter++;
         }
     }
@@ -124,7 +124,7 @@ NavigationState::GlobalToLocal(Vector3D<Precision> const & globalpoint) const
 
     //tmp->
     for(int i=0;i<fCurrentLevel;++i)
-          array[i]=const_cast<TGeoNode *>(mg.tgeonode( ConvertIndexToPlacedVolume(fPath[i]) ));
+          array[i]=const_cast<TGeoNode *>(mg.tgeonode( ToPlacedVolume(fPath[i]) ));
     // assert( tmp->GetCurrentNode() == mg.tgeonode( Top() ));
 
     /*
@@ -151,7 +151,7 @@ NavigationState::GlobalToLocal(Vector3D<Precision> const & globalpoint) const
      RootGeoManager & mg=RootGeoManager::Instance();
 
      for(int i=0;i<fCurrentLevel;++i)
-       fPath[i]=ConvertPlacedVolumeToIndex( mg.GetPlacedVolume( other.GetNode(i) ) );
+       fPath[i]=ToIndex( mg.GetPlacedVolume( other.GetNode(i) ) );
 
      //other things like onboundary I don't care
      fOnBoundary=false;
