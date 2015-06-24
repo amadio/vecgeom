@@ -36,15 +36,31 @@ VPlacedVolume::VPlacedVolume(char const *const label,
   label_ = new std::string(label);
 }
 
+VECGEOM_CUDA_HEADER_BOTH
 VPlacedVolume::VPlacedVolume(VPlacedVolume const & other) : id_(), label_(NULL), logical_volume_(), transformation_(),
     bounding_box_() {
   assert( 0 && "COPY CONSTRUCTOR FOR PlacedVolumes NOT IMPLEMENTED");
 }
 
+VECGEOM_CUDA_HEADER_BOTH
 VPlacedVolume * VPlacedVolume::operator=( VPlacedVolume const & other )
 {
-  printf("ASSIGNMENT OPERATOR FOR VPlacedVolumes NOT IMPLEMENTED");
-  return NULL;
+// deliberaty copy using memcpy to also copy the virtual table
+   if( this != &other){
+       // overriding the vtable is exactly what I want
+       // so I silence a compier warning via the void* cast
+    std::memcpy((void*)this, (void*)&other, sizeof(VPlacedVolume) );
+   }
+   return this;
+    //    if (this != &other) // protect against invalid self-assignment
+//    {
+//        id_ = other.id_;
+//        label_ = other.label_;
+//        logical_volume_ = other.logical_volume_;
+//        transformation_ = other.transformation_;
+//        bounding_box_ = other.bounding_box_;
+//    }
+//    return this;
 }
 #endif
 

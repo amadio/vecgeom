@@ -138,6 +138,12 @@ public:
    */
   void CloseGeometry();
 
+  // compactify memory space
+  // an internal method which should be called by ClosedGeometry
+  // it analyses the geometry and puts objects in contiguous buffers
+  // it also fixes resulting pointer inconsistencies
+  void CompactifyMemory();
+
   void SetWorld(VPlacedVolume const *const w) { fWorld = w; }
 
   VPlacedVolume const* GetWorld() const { return fWorld; }

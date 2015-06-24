@@ -32,6 +32,57 @@ void GeoManager::DeregisterPlacedVolume(const int id) {
   fPlacedVolumesMap.erase(id);
 }
 
+
+void GeoManager::CompactifyMemory() {
+    // start with just the placedvolumes
+    unsigned int pvolumecount = fPlacedVolumesMap.size();
+
+
+    // conversion map to repair pointers from old to new
+    std::map<VPlacedVolume const *, VPlacedVolume const *> conversionmap;
+
+    // allocate the buffer ( consider alignment issues later )
+    // BIG NOTE HERE: we cannot call new VPlacedVolume[pvolumecount] as it is a pure virtual class
+    // this also means: our mechanism will only work if non of the derived classes of VPlacedVolumes
+    // adds a data member and we have to find a way to check or forbid this
+    VPlacedVolume *buffer = (VPlacedVolume *) new char[pvolumecount*sizeof(VPlacedVolume)];
+
+    // the first element in the buffer has to be the world
+    buffer[0] = *fWorld; // copy assignment of PlacedVolumes
+    // fix the index to pointer map
+    fPlacedVolumesMap[fWorld->id()] = &buffer[0];
+    conversionmap[ fWorld ] = &buffer[0];
+    // free memory ( we should really be doing this with smart pointers --> check CUDA ! )
+    delete fWorld;
+    // fix the global world pointer
+    fWorld = &buffer[0];
+
+    // go through rest of volumes
+    // TODO: we could take an influence on the order here ( to place certain volumes next to each other )
+    unsigned int bufferindex=1;
+    for( auto v : fPlacedVolumesMap ){
+        if ( v.second != fWorld ){
+            unsigned int volumeindex = v.first;
+            buffer[bufferindex] = *v.second;
+            fPlacedVolumesMap[volumeindex] = &buffer[bufferindex];
+            conversionmap[ v.second ] = &buffer[bufferindex];
+            delete v.second;
+            bufferindex++;
+        }
+    }
+
+   // fix pointers to placed volumes referenced in all logical volumes
+    for( auto v : fLogicalVolumesMap){
+        LogicalVolume * lvol = v.second;
+        for( unsigned int i = 0; i < lvol->GetNDaughters(); ++i){
+            lvol->SetDaughter(i, conversionmap[ lvol->GetDaughter(i) ]);
+        }
+    }
+
+   // cleanup conversion map ... automatically done
+}
+
+
 void GeoManager::CloseGeometry() {
     Assert( GetWorld() != NULL, "world volume not set" );
     // cache some important variables of this geometry
@@ -47,6 +98,8 @@ void GeoManager::CloseGeometry() {
     for( auto element : fPlacedVolumesMap ){
         fVolumeToIndexMap[element.second] = element.first;
     }
+
+    CompactifyMemory();
 }
 
 

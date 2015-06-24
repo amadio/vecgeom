@@ -62,10 +62,14 @@ protected:
         bounding_box_(boundingbox), id_(id), label_(NULL) {}
 
 #endif
-  VPlacedVolume(VPlacedVolume const &);
-  VPlacedVolume *operator=(VPlacedVolume const &);
+
 
 public:
+  VECGEOM_CUDA_HEADER_BOTH
+  VPlacedVolume(VPlacedVolume const &);
+  VECGEOM_CUDA_HEADER_BOTH
+  VPlacedVolume *operator=(VPlacedVolume const &);
+
   VECGEOM_CUDA_HEADER_BOTH
   virtual ~VPlacedVolume();
 
