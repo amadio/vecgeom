@@ -36,7 +36,11 @@ private:
 protected:
 
   LogicalVolume const *logical_volume_;
-  Transformation3D const *transformation_;
+#ifdef VECGEOM_INPLACE_TRANSFORMATIONS
+  Transformation3D fTransformation;
+#else
+  Transformation3D const *fTransformation;
+#endif
   PlacedBox const *bounding_box_;
 
 #ifndef VECGEOM_NVCC
@@ -58,9 +62,13 @@ protected:
                 Transformation3D const *const transformation,
                 PlacedBox const *const boundingbox,
                 const int id)
-      : logical_volume_(logical_vol), transformation_(transformation),
+#ifdef VECGEOM_INPLACE_TRANSFORMATIONS
+  : logical_volume_(logical_vol), fTransformation(*transformation),
         bounding_box_(boundingbox), id_(id), label_(NULL) {}
-
+#else
+  : logical_volume_(logical_vol), fTransformation(transformation),
+         bounding_box_(boundingbox), id_(id), label_(NULL) {}
+#endif
 #endif
 
 
@@ -105,7 +113,11 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Transformation3D const* GetTransformation() const {
-    return transformation_;
+#ifdef VECGEOM_INPLACE_TRANSFORMATIONS
+      return &fTransformation;
+#else
+      return fTransformation;
+#endif
   }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -115,7 +127,11 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   void SetTransformation(Transformation3D const *const transform) {
-    transformation_ = transform;
+#ifdef VECGEOM_INPLACE_TRANSFORMATIONS
+      fTransformation = *transform;
+#else
+      fTransformation = transform;
+#endif
   }
 
   void set_label(char const * label) {

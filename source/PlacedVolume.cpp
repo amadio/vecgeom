@@ -29,15 +29,21 @@ VPlacedVolume::VPlacedVolume(char const *const label,
 #ifdef VECGEOM_USOLIDS
     USolidsInterfaceHelper(label),
 #endif
-     id_(), label_(NULL), logical_volume_(logical_volume), transformation_(transformation),
-      bounding_box_(bounding_box) {
+     id_(), label_(NULL), logical_volume_(logical_volume),
+#ifdef VECGEOM_INPLACE_TRANSFORMATIONS
+     fTransformation(*transformation),
+#else
+     fTransformation(transformation),
+#endif
+     bounding_box_(bounding_box) {
   id_ = g_id_count++;
   GeoManager::Instance().RegisterPlacedVolume(this);
   label_ = new std::string(label);
 }
 
+
 VECGEOM_CUDA_HEADER_BOTH
-VPlacedVolume::VPlacedVolume(VPlacedVolume const & other) : id_(), label_(NULL), logical_volume_(), transformation_(),
+VPlacedVolume::VPlacedVolume(VPlacedVolume const & other) : id_(), label_(NULL), logical_volume_(), fTransformation(),
     bounding_box_() {
   assert( 0 && "COPY CONSTRUCTOR FOR PlacedVolumes NOT IMPLEMENTED");
 }
@@ -83,7 +89,7 @@ void VPlacedVolume::Print(const int indent) const {
 #endif
   printf(": \n");
   for (int i = 0; i <= indent; ++i) printf("  ");
-  transformation_->Print();
+  GetTransformation()->Print();
   printf("\n");
   logical_volume_->Print(indent+1);
 }

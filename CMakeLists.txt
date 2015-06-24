@@ -49,6 +49,8 @@ option(PLANESHELL "Enable the use of PlaneShell class for the trapezoid." ON)
 
 option(DISTANCE_DEBUG "Enable comparison of calculated distances againt ROOT/Geant4 behind the scenes" OFF)
 
+option(INPLACE_TRANSFORMATIONS "Put transformation as members rather than pointers into PlacedVolume objects" ON)
+
 option(DATA_DOWNLOAD "Enable downloading of data for tests" OFF)
 
 set(VECGEOM_ARCH native sse2 sse3 ssse3 sse4.1 sse4.2 avx avx2 mic avx512)
@@ -91,6 +93,7 @@ endforeach()
 if (USOLIDS)
   set(USolids ON)
 endif()
+
 
 if (GEANT4)
 #  if (BENCHMARK)
@@ -326,6 +329,10 @@ endif()
 if (VTUNE)
   set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_VTUNE")
 endif()
+if (INPLACE_TRANSFORMATIONS)
+  set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_INPLACE_TRANSFORMATIONS")
+endif()
+
 
 ################################################################################
 
