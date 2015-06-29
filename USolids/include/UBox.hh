@@ -22,24 +22,33 @@
 #ifndef USOLIDS_UBox
 #define USOLIDS_UBox
 
-// #ifndef USOLIDS_VUSolid
-// #include "VUSolid.hh"
-// #endif
-
 #ifdef VECGEOM_REPLACE_USOLIDS
 
+//============== here for VecGeom-based implementation
+
 #include "volumes/SpecializedBox.h"
-//  using UBox = vecgeom::SimpleBox;
-//  typedef vecgeom::SimpleBox UBox;
+#include "volumes/LogicalVolume.h"
+#include "volumes/UnplacedBox.h"
+#include "base/Transformation3D.h"
+
 class UBox: public vecgeom::SimpleBox {
   // just forwards UBox to vecgeom::SimpleBox
   using vecgeom::SimpleBox::SimpleBox;
+
+public:
+  // add default constructor for tests
+  UBox() : vecgeom::SimpleBox(new vecgeom::LogicalVolume(new vecgeom::UnplacedBox(0.,0.,0.)),
+                              &vecgeom::Transformation3D::kIdentity,
+                              this) {}
 };
+//============== end of VecGeom-based implementation
 
 #else
-//#ifndef USOLIDS_UUtils
-//#include "UUtils.hh"
-//#endif
+
+//============== here for USolids-based implementation
+#ifndef USOLIDS_VUSolid
+#include "VUSolid.hh"
+#endif
 
 class UBox : public VUSolid
 {
@@ -158,6 +167,7 @@ inline double UBox::SurfaceArea()
   }
   return fSurfaceArea;
 }
+//============== end of USolids-based implementation
 
 #endif  // VECGEOM_REPLACE_USOLIDS
 #endif  // USOLIDS_UBox
