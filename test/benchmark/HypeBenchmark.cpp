@@ -15,11 +15,11 @@ int main(int argc, char* argv[]) {
   OPTION_INT(npoints,1024);
   OPTION_INT(nrep,10);
   OPTION_DOUBLE(rmin,10.);
-  OPTION_DOUBLE(rmax,15.);
+  OPTION_DOUBLE(rmax,20.);
   OPTION_DOUBLE(sin,PI/6.);
-  OPTION_DOUBLE(sout,PI/6.);
+  OPTION_DOUBLE(sout,PI/4.);
   OPTION_DOUBLE(dz,50);
- 
+
 
   UnplacedBox worldUnplaced = UnplacedBox(rmax*4, rmax*4, dz*4);
   UnplacedHype hypeUnplaced = UnplacedHype(rmin,rmax,sin,sout,dz);
@@ -34,18 +34,18 @@ int main(int argc, char* argv[]) {
   GeoManager::Instance().SetWorld(worldPlaced);
 
   Benchmarker tester(GeoManager::Instance().GetWorld());
-  
+
   tester.SetTolerance(1e-6);
   tester.SetVerbosity(3);
   tester.SetPoolMultiplier(1);
   tester.SetPointCount(npoints);
   tester.SetRepetitions(nrep);
-	
-  //tester.RunInsideBenchmark();
-  //tester.RunToOutBenchmark();
-  //tester.RunToInBenchmark();
-  tester.RunBenchmark();
 
-  
+  tester.RunInsideBenchmark();
+  //tester.RunToOutBenchmark();
+  tester.RunToInBenchmark();
+  //tester.RunBenchmark();
+
+
   return 0;
 }

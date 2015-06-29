@@ -222,8 +222,9 @@ static void PrintType() {
 		template <class Backend>
   		VECGEOM_CUDA_HEADER_BOTH
   		VECGEOM_INLINE
-  		static void ApproxDistOutside(typename Backend::precision_v pr, typename Backend::precision_v pz, Precision r0, Precision tanPhi, typename Backend::precision_v &ret){
+  		static typename Backend::precision_v ApproxDistOutside(typename Backend::precision_v pr, typename Backend::precision_v pz, Precision r0, Precision tanPhi){ //, typename Backend::precision_v &ret){
 
+        /*
 		Precision dbl_min = 2.2250738585072014e-308;
 		typedef typename Backend::precision_v Float_t;
 		MaskedAssign(tanPhi < dbl_min , pr-r0 ,&ret);
@@ -242,12 +243,48 @@ static void PrintType() {
 
 		MaskedAssign(len < dbl_min,pr-r1,&dr);
 		MaskedAssign(len < dbl_min,pz-z1,&dz);
-		MaskedAssign(len < dbl_min,Sqrt(dr*dr + dz*dz),&ret);
 
+
+		MaskedAssign(len < dbl_min,Sqrt(dr*dr + dz*dz),&ret);
+        //ret = Sqrt(dr*dr + dz*dz);
 		MaskedAssign(!(len < dbl_min),( Abs((pr-r1)*dz - (pz-z1)*dr)/len ),&ret);
+        */
+
+
+
+		typedef typename Backend::precision_v Float_t;
+		typedef typename Backend::bool_v Bool_t;
+		Float_t dbl_min(2.2250738585072014e-308);
+		Bool_t done(false);
+		Float_t ret(0.);
+		Float_t tanPhi_v(tanPhi);
+		MaskedAssign(tanPhi_v < dbl_min , pr-r0 ,&ret);
+		done |= (tanPhi_v < dbl_min);
+		if(IsFull(done)) return ret;
+
+		Float_t tan2Phi = tanPhi_v*tanPhi_v;
+		Float_t r1= Sqrt(r0*r0 + pz*pz*tan2Phi);
+
+		Float_t z2 = (pr*tanPhi + pz)/(1 + tan2Phi);
+		Float_t r2 = Sqrt( r0*r0 + z2*z2*tan2Phi );
+
+		Float_t dr = r2-r1;
+		Float_t dz = z2-pz;
+
+		Float_t len=Sqrt(dr*dr + dz*dz);
+		//Float_t test1 = Abs(pr-r1);
+		//Float_t test2 = (Abs((pr-r1)*dz)/len );
+        //CondAssign(!done && (len < dbl_min) ,(pr-r1), (((pr-r1)*dz)/len ),&ret);
+        MaskedAssign(!done && (len < dbl_min) ,(pr-r1),&ret);
+        done |= (len < dbl_min);
+        if(IsFull(done)) return ret;
+
+        MaskedAssign(!done,(((pr-r1)*dz)/len ),&ret);
+        return ret;
 
 	}
 
+/*
 		template <class Backend>
   		VECGEOM_CUDA_HEADER_BOTH
   		VECGEOM_INLINE
@@ -260,6 +297,31 @@ static void PrintType() {
 		    Float_t dz = pz*tan2Phi;
    			Float_t len = Sqrt(dr*dr + dz*dz);
 			ret = Abs((pr-rh)*dr)/len;
+
+	}
+*/
+template <class Backend>
+  		VECGEOM_CUDA_HEADER_BOTH
+  		VECGEOM_INLINE
+  		static typename Backend::precision_v ApproxDistInside(typename Backend::precision_v pr, typename Backend::precision_v pz, Precision r0, Precision tan2Phi){ //, typename Backend::precision_v &ret){
+			//Precision dbl_min = 2.2250738585072014e-308;
+			typedef typename Backend::precision_v Float_t;
+			typedef typename Backend::bool_v Bool_t;
+			Float_t dbl_min(2.2250738585072014e-308);
+			Bool_t done(false);
+			Float_t ret(0.);
+			Float_t tan2Phi_v(tan2Phi);
+			MaskedAssign((tan2Phi_v < dbl_min),r0 - pr,&ret);
+			done |= (tan2Phi_v < dbl_min);
+			if(IsFull(done)) return ret;
+
+			Float_t rh = Sqrt(r0*r0 + pz*pz*tan2Phi_v );
+		    Float_t dr = -rh;
+		    Float_t dz = pz*tan2Phi_v;
+   			Float_t len = Sqrt(dr*dr + dz*dz);
+			//ret = Abs((pr-rh)*dr)/len;
+			MaskedAssign(!done ,Abs((pr-rh)*dr)/len , &ret);
+			return ret;
 
 	}
 
@@ -1286,21 +1348,13 @@ return;
 	Precision tanInnerStereo2 = unplaced.GetTIn2();
 	Precision tanOuterStereo2 = unplaced.GetTOut2();
 	Precision tanOuterStereo = unplaced.GetTOut();
+	Precision tanInnerStereo = unplaced.GetTIn();
 	Float_t dr = endInnerRadius - r;
 	Float_t answer = Sqrt(dr*dr + sigz*sigz);
 
 	Bool_t innerSurfaceExist(unplaced.InnerSurfaceExists());
 
-
-	Bool_t one(false),two(false),three(false);
-	one = (r < endOuterRadius);
-	two = !(r < endOuterRadius);
-	three = innerSurfaceExist;
-
-
-	//Working nicely but slow
-	//Not the finalized one. Needs a relook , cosmetic modification and optimization
-	Bool_t inside(false);
+    Bool_t inside(false);
 	Bool_t done(false);
 
 	UnplacedContains<Backend>(unplaced,point,inside);
@@ -1308,6 +1362,43 @@ return;
 	done |= inside;
 
 
+    safety=0.;
+
+	MaskedAssign(!done && (r < endOuterRadius) && (sigz > -halfTol) && innerSurfaceExist && (r > endInnerRadius) && !(sigz < halfTol),sigz,&safety);
+	done |= (r < endOuterRadius) && (sigz > -halfTol) && innerSurfaceExist &&  (r > endInnerRadius) && !(sigz < halfTol);
+	if(IsFull(done)) return;
+
+    MaskedAssign(!done && (r < endOuterRadius) && (sigz > -halfTol) && innerSurfaceExist && (sigz > dr*tanInnerStereo2) && !(answer < halfTol),answer,&safety);
+    done |= (r < endOuterRadius) && (sigz > -halfTol) && innerSurfaceExist && (sigz > dr*tanInnerStereo2) && !(answer < halfTol);
+    if(IsFull(done)) return;
+
+    MaskedAssign(!done && (r < endOuterRadius) && (sigz > -halfTol) && !innerSurfaceExist && !(sigz < halfTol),sigz,&safety);
+    done |= (r < endOuterRadius) && (sigz > -halfTol) && !innerSurfaceExist && !(sigz < halfTol);
+    if(IsFull(done)) return;
+
+    dr = r - endOuterRadius;
+    answer = Sqrt(dr*dr + sigz*sigz);
+    MaskedAssign(!done && !(r < endOuterRadius) && (sigz > -dr*tanOuterStereo2) && !(answer < halfTol),answer,&safety);
+    done |= !(r < endOuterRadius) && (sigz > -dr*tanOuterStereo2) && !(answer < halfTol);
+    if(IsFull(done)) return;
+
+    answer = ApproxDistOutside<Backend>( r,absZ,outerRadius,tanOuterStereo);
+    answer = Abs(answer);
+
+    MaskedAssign( !done && !(answer < halfTol),answer,&safety);
+    done |= !(answer < halfTol);
+
+    if(unplaced.InnerSurfaceExists())
+        {
+            Float_t radi2;
+            RadiusHypeSq<Backend,false>(unplaced,absZ,radi2);
+            MaskedAssign( !done && (r2 < (radi2+unplaced.GetInnerRadToleranceLevel())),ApproxDistInside<Backend>( r,absZ,innerRadius,tanInnerStereo),&answer);
+            MaskedAssign(!done && !(answer < halfTol), answer, &safety);
+            done |= !(answer < halfTol) ; //&& (r2 < (radi2+unplaced.GetInnerRadToleranceLevel()));
+            if(IsFull(done)) return;
+        }
+
+    /*
 	MaskedAssign(!done && (r < endOuterRadius) && (sigz > -halfTol) && innerSurfaceExist &&  (r > endInnerRadius) && (sigz < halfTol),0.,&safety);
 	done |= (r < endOuterRadius) && (sigz > -halfTol) && innerSurfaceExist &&  (r > endInnerRadius) && (sigz < halfTol);
 
@@ -1352,7 +1443,7 @@ return;
 
 	MaskedAssign( !done && !(answer < halfTol),answer,&safety);
 	done |= !(answer < halfTol);
-
+    */
 
 }
 

@@ -71,7 +71,7 @@ std::cout<<"==========================================================\n";
 	double Dist = testStoIHype.DistanceToIn(testStoIPoint);
 	std::cout<<"SafetyToin Distance is : "<<Dist<<std::endl;
 
-	Hype_t testSurfHype("DistToOutHype",5.,15,PI/4,PI/3,50); 
+	Hype_t testSurfHype("DistToOutHype",5.,15,PI/4,PI/3,50);
 	Vec_t testSurfPoint(-27.923606564455180745, -18.925923051335679759, -33.36043115143591109);
 	Vec_t testSurfDir(0.68594939680747823996, 0.17161750750547485889, -0.70712152854871068719);
 	Vec_t *norm;
@@ -102,11 +102,11 @@ std::cout<<"==========================================================\n";
 
 	//********************************************************************************************
 	//std::cout<<"***************************************************************************************"<<std::endl;
-	//Hype_t testSurfHype("DistToOutHype",5.,20,PI/4,PI/3,50); 
+	//Hype_t testSurfHype("DistToOutHype",5.,20,PI/4,PI/3,50);
     //}
 	std::cout<<std::setprecision(15);
 	std::cout<<"***************************************************************************************"<<std::endl;
-	Hype_t testSurfHype("DistToOutHype",5.,20,PI/4,PI/3,50); 
+	Hype_t testSurfHype("DistToOutHype",5.,20,PI/4,PI/3,50);
 	Vec_t testDToOutPoint(76.8105482935058, 4.2227289090123, 42.8862522583373);
 	Vec_t testDToOutDir(0.725823123403194, -0.686644810231805, -0.0412273951998107);
 
@@ -201,13 +201,13 @@ std::cout<<"==========================================================\n";
 	std::cout<<"DistToIn : "<<Dist<<std::endl;
 	//assert(ApproxEqual(Dist,0.));
 
-	
+
 	Dist = midHype.DistanceToOut(pointOTol_Z,vz,calcNorm,validNorm,norm);
 	std::cout<<"DistToOut : "<<Dist<<std::endl;
 	assert(ApproxEqual(Dist,0.));
-	
+
 	std::cout<<"**************************************************************\n";
-	Hype_t hypeD("test_VecGeomHype",5.,20,PI/6,PI/3,50); 
+	Hype_t hypeD("test_VecGeomHype",5.,20,PI/6,PI/3,50);
 	Vec_t testP(28.4073618747969, -14.7583198850071, -49.8361524659377);
 	Vec_t testD(-0.573820272751705, 0.0885439480090447, 0.814180731686848);
 	Dist = hypeD.DistanceToIn(testP,testD);
@@ -215,12 +215,12 @@ std::cout<<"==========================================================\n";
 	double DistanceOut2 = hypeD.DistanceToOut(testP,testD,calcNorm,validNorm,norm);
 	//Vec_t newPt
 	//double DistanceOut2 = volumeUSolids->DistanceToOut(point, dir ,norm,convex2);
-	
-   
+
+
    Vec_t pointIn = testP+testD*DistanceOut2*(1.-10*1e-9);
-	
+
    double DistanceOut =  hypeD.DistanceToOut(pointIn,testD,calcNorm,validNorm,norm);
-	
+
 
 	std::cout<<"============================================"<<std::endl;
 	std::cout<<"Point : "<<testP<<"   :: Dir : "<<testD<<std::endl;
@@ -236,7 +236,17 @@ std::cout<<"==========================================================\n";
 	std::cout<<"==== Debugging Surface Normal ==== "<<std::endl;
 	Vec_t normPoint(-80.731457466922805111, 37.18106379761455571, -50);
 	std::cout<<"Surface Normal from G4 : "<<hypeD.SurfaceNormal(normPoint)<<std::endl;
-	
+
+
+	std::cout<<"============================================"<<std::endl;
+	Hype_t hypeS("test_VecGeomHype",5.,20,PI/6,PI/3,50);
+    Vec_t pointS(51.3317803344263, 6.208742448696, -15.9749535016947);
+    Vec_t dirS(-0.886749038154024 ,-0.0747924453665009, 0.456160315513102);
+    Dist = hypeS.DistanceToIn(pointS,dirS);
+    double safeDist = hypeS.DistanceToIn(pointS);
+    std::cout<<"Dist : "<<Dist<<" :: SafetyDist : "<<safeDist<<std::endl;
+
+
 	//Vec_t pointOTolI(20-vecgeom::cxx::kSTolerance,0.,0.);
 	//Vec_t dirtOTol(1,0,0);
 /*
@@ -248,4 +258,4 @@ std::cout<<"==========================================================\n";
 
 */
 return 0;
-} 
+}
