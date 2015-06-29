@@ -45,6 +45,8 @@ option(COVERAGE_TESTING "Enable coverage testing flags." OFF)
 
 option(CTEST "Enable CTest when building." ON)
 
+option(VALIDATION "Enable validation tests from CMS geometry." OFF)
+
 option(PLANESHELL "Enable the use of PlaneShell class for the trapezoid." ON)
 
 option(DISTANCE_DEBUG "Enable comparison of calculated distances againt ROOT/Geant4 behind the scenes" OFF)
@@ -158,7 +160,7 @@ endif()
 if (GNU)
   set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -fPIC")
   if (CMAKE_BUILD_TYPE MATCHES Debug)
-    set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Weffc++ -ggdb -O0")
+    set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -ggdb -O0")
 
   else()
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -finline-limit=10000000 -ffast-math -ftree-vectorize")
@@ -176,7 +178,7 @@ elseif(Intel)
 else(Clang)
   set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -fPIC")
   if (CMAKE_BUILD_TYPE MATCHES Debug)
-    set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Weffc++ -ggdb -O0")
+    set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS}  -ggdb -O0")
   else()
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -ffast-math -ftree-vectorize")
   endif()
@@ -195,6 +197,7 @@ string(TOUPPER ${VECGEOM_VECTOR} _arch_up)
 if (${_arch_lo} MATCHES mic)
   if (Intel)
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -m${_arch_lo}")
+    set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -m${_arch_lo}")
     set(MIC TRUE)
   else()
     message(FATAL_ERROR "MIC native of offload compilation requires Intel Compiler.")
@@ -202,19 +205,24 @@ if (${_arch_lo} MATCHES mic)
 elseif (${_arch_lo} MATCHES native)
   if (Intel)
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -xHost")
+    set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -xHost")
   else()
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -march=${_arch_lo}")
+    set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -march=${_arch_lo}")
   endif()
   set(VECGEOM_NVCC_COMPILATION_FLAGS -g -G ${VECGEOM_NVCC_COMPILATION_FLAGS})
 else()
   if (Intel)
     if (${_arch_lo} MATCHES avx2)
       set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -xCORE-${_arch_up}")
+      set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -xCORE-${_arch_up}")
     else()
       set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -x${_arch_up}")
+      set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -x${_arch_up}")
     endif()
   else()
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -m${_arch_lo}")
+    set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -m${_arch_lo}")
   endif()
 endif()
 message(STATUS "Compiling for ${_arch_up} SIMD achitecture")
@@ -263,6 +271,8 @@ endif()
 
 # Enable pretty diagnostics coloring if gcc 4.9+ is being used
 if (GNU)
+  # gcc needs -ldl to be added explicitly
+  set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} dl)
   set(VECGEOM_ERROR_LIMIT 20 CACHE STRING
       "Limit number of errors output by diagnostics.")
   set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -fmax-errors=${VECGEOM_ERROR_LIMIT}")
@@ -361,6 +371,27 @@ if (CUDA)
   set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${VECGEOM_NVCC_COMPILATION_FLAGS})
 endif()
 
+### CXXFLAGS needs to be set early, so that VECGEOM_GEANT4, VECGEOM_ROOT,
+### and VECGEOM_USOLIDS are already defined when compiling USolids, or it breaks
+
+# Pass flags to compilers
+# We may have addition in compiler flags from the above included packages
+# We don't want to have trailing CMAKE_CXX_FLAGS_"BUILD_TYPE" options on the command line
+# but rather have it as first set of argument.
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${_build_type}} ${VECGEOM_CXX_FLAGS} ${VECGEOM_COMPILATION_FLAGS}")
+#set(VECGEOM_CXX_FLAGS ${CMAKE_CXX_FLAGS_${_build_type}})
+#unset(CMAKE_CXX_FLAGS_${_build_type} CACHE)
+
+message(STATUS "Compiling with C++ flags: ${CMAKE_CXX_FLAGS}")
+if (CUDA)
+  message(STATUS "Compiling with NVCC flags: ${CUDA_NVCC_FLAGS}")
+endif()
+
+# until VecCore is separated from VecGeom (then it become something
+# ${VecCore_DIR}/include
+include_directories(${CMAKE_SOURCE_DIR}/VecCore/inc )
+include_directories(${CMAKE_INSTALL_PREFIX}/VecCore)
+
 if (ROOT)
 
   find_package(ROOT REQUIRED)
@@ -416,24 +447,6 @@ if (VTUNE)
   set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${VTUNE_LIBRARIES} -lpthread -ldl)
 endif()
 
-# Pass flags to compilers
-# We may have addition in compiler flags from the above included packages
-# We don't want to have trailing CMAKE_CXX_FLAGS_"BUILD_TYPE" options on the command line
-# but rather have it as first set of argument.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${_build_type}} ${VECGEOM_CXX_FLAGS} ${VECGEOM_COMPILATION_FLAGS}")
-#set(VECGEOM_CXX_FLAGS ${CMAKE_CXX_FLAGS_${_build_type}})
-#unset(CMAKE_CXX_FLAGS_${_build_type} CACHE)
-
-message(STATUS "Compiling with C++ flags: ${CMAKE_CXX_FLAGS}")
-if (CUDA)
-  message(STATUS "Compiling with NVCC flags: ${CUDA_NVCC_FLAGS}")
-endif()
-
-# until VecCore is separated from VecGeom (then it become something
-# ${VecCore_DIR}/include
-include_directories(${CMAKE_SOURCE_DIR}/VecCore/inc )
-include_directories(${CMAKE_INSTALL_PREFIX}/VecCore)
-
 ################################################################################
 
 include_directories(${CMAKE_SOURCE_DIR})
@@ -487,6 +500,15 @@ set(SRC_CPP_RELATIVE
 
   source/USolidsInterfaceHelper.cpp
 )
+
+# avoid "file has no symbols" warning
+if(NOT CUDA)
+  list(REMOVE_ITEM SRC_CPP_RELATIVE souce/RNG.cpp)
+  list(REMOVE_ITEM SRC_CPP_RELATIVE souce/AOS3D.cpp)
+  list(REMOVE_ITEM SRC_CPP_RELATIVE souce/SOA3D.cpp)
+  list(REMOVE_ITEM SRC_CPP_RELATIVE souce/Vector.cpp)
+endif()
+
 foreach(SRC ${SRC_CPP_RELATIVE})
   set(SRC_CPP ${SRC_CPP} ${CMAKE_SOURCE_DIR}/${SRC})
 endforeach()
@@ -610,7 +632,7 @@ set(TEST_EXECUTABLES_CORE
 #  ${CMAKE_SOURCE_DIR}/test/core/boolminustest.cpp
 #  ${CMAKE_SOURCE_DIR}/test/core/boolminustest2.cpp
   ${CMAKE_SOURCE_DIR}/test/core/PhiWedgeTest.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/BitSetTest.cpp
+  ${CMAKE_SOURCE_DIR}/test/core/ThetaConeTest.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestVecGeomPolycone.cpp
 )
 
@@ -624,12 +646,24 @@ set(TEST_EXECUTABLES_ROOT
   ${CMAKE_SOURCE_DIR}/test/root/ImportTGeoPgon.cpp
   ${CMAKE_SOURCE_DIR}/test/root/TestExportToROOT.cpp
   ${CMAKE_SOURCE_DIR}/test/root/ExitingOrEntering.cpp
-  # higher level benchmarks
-  ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/LocatePointsBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/XRayBenchmarkFromROOTFile.cpp
-  ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/TraceTrack.cpp
-  ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/NavigationBenchmark.cpp
 )
+
+# Tests below fail to build when both ROOT and USolids are enabled
+if(NOT USolids)
+  set(TEST_EXECUTABLES_CORE
+    ${TEST_EXECUTABLES_CORE}
+    ${CMAKE_SOURCE_DIR}/test/core/BitSetTest.cpp
+  )
+  # higher level benchmarks
+  set(TEST_EXECUTABLES_ROOT
+    ${TEST_EXECUTABLES_ROOT}
+    ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/LocatePointsBenchmark.cpp
+    ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/NavigationBenchmark.cpp
+    ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/TraceTrack.cpp
+    ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/XRayBenchmarkFromROOTFile.cpp
+  )
+endif()
+
 # separate list for ROOT UNIT tests
 set(TEST_UNITTESTEXECUTABLES_ROOT
   ${CMAKE_SOURCE_DIR}/test/root/complex_test1.cpp
@@ -638,7 +672,6 @@ set(TEST_UNITTESTEXECUTABLES_ROOT
   ${CMAKE_SOURCE_DIR}/test/root/ImportTGeoPgon.cpp
   ${CMAKE_SOURCE_DIR}/test/core/TestNavigationStatePool.cpp
 )
-
 
 if(BENCHMARK)
   set(TEST_EXECUTABLES_ROOT
@@ -701,6 +734,7 @@ set(TEST_EXECUTABLES_CUDA
 set(TEST_EXECUTABLES_SHAPETESTER
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testBox.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testOrb.cpp
+  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testSphere.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testCone.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTube.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTrd.cpp
@@ -771,11 +805,33 @@ add_to_ctest("${TEST_EXECUTABLES_CORE}")
 if (BENCHMARK)
   build_executables("${TEST_EXECUTABLES_BENCHMARK}")
 endif()
+
 if (ROOT)
   build_executables("${TEST_EXECUTABLES_ROOT}")
   build_executables("${TEST_EXECUTABLES_VISUALIZATION}")
   add_to_ctest("${TEST_UNITTESTEXECUTABLES_ROOT}")
+
+  if (VALIDATION)
+    macro(add_cmsshapevalidation_test TESTNAME SHAPEFILE)
+      add_test(NAME ${TESTNAME} COMMAND bash -c "${CMAKE_SOURCE_DIR}/test/scripts/RunRandomValidation ${CMAKE_BINARY_DIR}/BenchmarkShapeFromROOTFile  ${CMAKE_SOURCE_DIR}/test/cmstestdata/cms2015.root  ${CMAKE_SOURCE_DIR}/test/cmstestdata/${SHAPEFILE}" )
+    endmacro()
+
+    # Adding various shapes tests for nightlies
+    add_cmsshapevalidation_test( tubevalidation cmstubes.txt )
+    add_cmsshapevalidation_test( trapvalidation cmstraps.txt )
+    add_cmsshapevalidation_test( polyconevalidation cmspolycones.txt )
+    add_cmsshapevalidation_test( polyhedravalidation cmspolyhedra.txt )
+    add_cmsshapevalidation_test( conevalidation cmscones.txt )
+    add_cmsshapevalidation_test( boxvalidation cmsboxes.txt )
+    #taken out due to problems: add_cmsshapevalidation_test( booleanvalidation cmsbooleans.txt )
+    #taken out due to Issue-133: add_cmsshapevalidation_test( torusvalidation cmstori.txt )
+  endif()
+else()
+  if (VALIDATION)
+    message(WARNING "Validation tests depend on ROOT being enabled")
+  endif()
 endif()
+
 if (USolids)
   build_executables("${TEST_EXECUTABLES_USOLIDS}")
   build_executables("${TEST_EXECUTABLES_SHAPETESTER}")
@@ -787,28 +843,12 @@ if (USolids)
   add_test(NAME VecGeomBox COMMAND TestBox --vecgeom)
   add_test(NAME USolidTube COMMAND TestTube --usolids)
   add_test(NAME VecTube COMMAND TestTube --vecgeom)
-
 endif()
+
 if (CUDA)
   build_executables("${TEST_EXECUTABLES_CUDA}")
 #  add_to_ctest("${TEST_EXECUTABLES_CUDA}")
 endif()
-
-macro(add_cmsshapevalidation_test TESTNAME SHAPEFILE)
-  add_test(NAME ${TESTNAME} COMMAND bash -c "${CMAKE_SOURCE_DIR}/test/scripts/RunRandomValidation ${CMAKE_BINARY_DIR}/BenchmarkShapeFromROOTFile  ${CMAKE_SOURCE_DIR}/test/cmstestdata/cms2015.root  ${CMAKE_SOURCE_DIR}/test/cmstestdata/${SHAPEFILE}" )
-endmacro()
-
-# Adding various shapes tests for nightlies
-add_cmsshapevalidation_test( tubevalidation cmstubes.txt )
-add_cmsshapevalidation_test( trapvalidation cmstraps.txt )
-add_cmsshapevalidation_test( polyconevalidation cmspolycones.txt )
-add_cmsshapevalidation_test( polyhedravalidation cmspolyhedra.txt )
-add_cmsshapevalidation_test( conevalidation cmscones.txt )
-add_cmsshapevalidation_test( boxvalidation cmsboxes.txt )
-#taken out due to problems: add_cmsshapevalidation_test( booleanvalidation cmsbooleans.txt )
-#taken out due to Issue-133: add_cmsshapevalidation_test( torusvalidation cmstori.txt )
-
-
 
 #---------------------------------------------------------------------------
 # Include creation and submission to dashboard cdash.cern.ch
