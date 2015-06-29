@@ -41,7 +41,7 @@ TGeoShape const* PlacedTrapezoid::ConvertToRoot() const {
 }
 #endif
 
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
 ::VUSolid const* PlacedTrapezoid::ConvertToUSolids() const {
   return new ::UTrap(GetLabel().c_str(), GetDz(), GetTheta(), GetPhi(),
                      GetDy1(), GetDx1(), GetDx2(), GetAlpha1(),

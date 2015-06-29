@@ -7,9 +7,9 @@
 #include "base/Global.h"
 #include "backend/Backend.h"
 #ifndef VECGEOM_NVCC
-	#include "base/RNG.h"
-	#include <cassert>
-	#include <cmath>
+    #include "base/RNG.h"
+    #include <cassert>
+    #include <cmath>
 #endif
 #include "volumes/PlacedVolume.h"
 #include "volumes/UnplacedVolume.h"
@@ -109,7 +109,7 @@ public:
   virtual TGeoShape const* ConvertToRoot() const override;
 #endif
 
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
   virtual ::VUSolid const* ConvertToUSolids() const override;
 #endif
 

@@ -38,7 +38,7 @@ TGeoShape const* PlacedSphere::ConvertToRoot() const {
 }
 #endif
 
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
 ::VUSolid const* PlacedSphere::ConvertToUSolids() const {
 
    return new USphere(GetLabel().c_str(),GetInnerRadius(),GetOuterRadius(),

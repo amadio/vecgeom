@@ -263,8 +263,8 @@ public:
   }
 
 
-  virtual bool Normal(Vector3D<double> const &,
-                      Vector3D<double> &) const {
+  virtual bool Normal(Vector3D<double> const &/*point*/,
+                      Vector3D<double> &/*normal*/) const {
 
     assert(0 &&
            "Normal not implemented.");
@@ -320,7 +320,7 @@ public:
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const* ConvertToRoot() const =0;
 #endif
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
   virtual ::VUSolid const* ConvertToUSolids() const =0;
 #endif
 #ifdef VECGEOM_GEANT4

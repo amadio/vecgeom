@@ -35,7 +35,7 @@ TGeoShape const* PlacedTube::ConvertToRoot() const {
 }
 #endif
 
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
 ::VUSolid const* PlacedTube::ConvertToUSolids() const {
   return new UTubs(GetLabel().c_str(), rmin(), rmax(), z(), sphi(), dphi());
 }

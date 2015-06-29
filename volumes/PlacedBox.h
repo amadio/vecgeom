@@ -75,6 +75,28 @@ public:
   VECGEOM_INLINE
   Precision z() const { return GetUnplacedVolume()->z(); }
 
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision GetXHalfLength() const { return x(); }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision GetYHalfLength() const { return y(); }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision GetZHalfLength() const { return z(); }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  void Set(Precision x, Precision y, Precision z,
+           vecgeom::Transformation3D const*const transformation = &Transformation3D::kIdentity) {
+    if(logical_volume_) delete logical_volume_;
+    logical_volume_ = new LogicalVolume(new UnplacedBox(x,y,z));
+    if(transformation_) delete transformation_;
+    transformation_ = new Transformation3D(*transformation);
+  }
+
 #if !defined(VECGEOM_NVCC)
   virtual Precision Capacity() override {
       return GetUnplacedVolume()->volume();
@@ -125,7 +147,7 @@ public:
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const* ConvertToRoot() const override;
 #endif
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
   virtual ::VUSolid const* ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4

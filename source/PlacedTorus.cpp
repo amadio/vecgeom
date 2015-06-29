@@ -28,7 +28,7 @@ TGeoShape const* PlacedTorus::ConvertToRoot() const {
 }
 #endif
 
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
 ::VUSolid const* PlacedTorus::ConvertToUSolids() const {
     return NULL;
     //  return new UTubs(GetLabel().c_str(), rmin(), rmax(), z(), sphi(), dphi());

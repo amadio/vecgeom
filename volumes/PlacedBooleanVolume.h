@@ -134,7 +134,7 @@ public:
       return shape;
   }
 #endif
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
   virtual ::VUSolid const* ConvertToUSolids() const override {
     // currently not supported in USOLIDS -- returning NULL
       return nullptr;

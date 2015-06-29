@@ -37,7 +37,7 @@ TGeoShape const* PlacedTrd::ConvertToRoot() const {
 }
 #endif
 
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
 ::VUSolid const* PlacedTrd::ConvertToUSolids() const {
   return new UTrd("", dx1(), dx2(), dy1(), dy2(), dz());
 }

@@ -88,13 +88,13 @@ public:
      return GetUnplacedVolume()->GetPointOnSurface();
    }
  bool Normal(Vector3D<Precision>const& point, Vector3D<Precision>& normal) const override {
-	  return GetUnplacedVolume()->Normal(point, normal);
+      return GetUnplacedVolume()->Normal(point, normal);
   }
   virtual VPlacedVolume const* ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const* ConvertToRoot() const override;
 #endif
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
   virtual ::VUSolid const* ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4
