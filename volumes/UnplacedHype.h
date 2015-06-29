@@ -46,7 +46,7 @@ private:
     Precision fRmax;    //Outer radius
     Precision fStOut;   //Stereo angle for outer surface
     Precision fDz;      //z-coordinate of the cutting planes
-    
+
     //Precomputed Values
     Precision fTIn;         //Tangent of the Inner stereo angle
     Precision fTOut;        //Tangent of the Outer stereo angle
@@ -57,29 +57,30 @@ private:
     Precision fRmin2;       //Squared Inner radius
     Precision fRmax2;       //Squared Outer radius
     Precision fDz2;         //Squared z-coordinate
-    
+
     Precision fEndInnerRadius2;  // Squared endcap Inner Radius
     Precision fEndOuterRadius2;  // Squared endcap Outer Radius
     Precision fEndInnerRadius;   // Endcap Inner Radius
     Precision fEndOuterRadius;   // Endcap Outer Radius
-    
+
     Precision fInSqSide;         //side of the square inscribed in the inner circle
                                  //Sqrt(2)*unplaced.GetRmin()
-    
+
     //Volume and Surface Area
     Precision fCubicVolume, fSurfaceArea;
-
+    Precision zToleranceLevel;
+    Precision innerRadToleranceLevel, outerRadToleranceLevel;
 	//Precision fInnerRadius, fOuterRadius;
 
 public:
 	//Precision Aout,Ain;
 
 public:
-    
+
     //constructor
     VECGEOM_CUDA_HEADER_BOTH
     UnplacedHype(const Precision rMin, const Precision rMax, const Precision stIn, const Precision stOut, const Precision dz);
-    
+
     //get
 	/*
 	VECGEOM_CUDA_HEADER_BOTH
@@ -95,16 +96,25 @@ public:
 	//VECGEOM_CUDA_HEADER_BOTH
     //Precision GetOuterRadius() const{ return fOuterRadius;}
 
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetZToleranceLevel() const{ return zToleranceLevel;}
+
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetInnerRadToleranceLevel() const{ return innerRadToleranceLevel;}
+
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetOuterRadToleranceLevel() const{ return outerRadToleranceLevel;}
+
 
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetRmin() const{ return fRmin;}
 
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetRmax() const{ return fRmax;}
-    
+
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetRmin2() const{ return fRmin2;}
-    
+
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetRmax2() const{ return fRmax2;}
 
@@ -122,46 +132,46 @@ public:
 
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetTIn2() const{ return fTIn2;}
-    
+
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetTOut2() const{ return fTOut2;}
-    
+
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetTIn2Inv() const{ return fTIn2Inv;}
-    
+
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetTOut2Inv() const{ return fTOut2Inv;}
-    
+
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetDz() const{ return fDz;}
-    
+
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetDz2() const{ return fDz2;}
-    
+
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetEndInnerRadius() const{ return fEndInnerRadius;}
-    
+
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetEndInnerRadius2() const{ return fEndInnerRadius2;}
-    
+
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetEndOuterRadius() const{ return fEndOuterRadius;}
-    
+
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetEndOuterRadius2() const{ return fEndOuterRadius2;}
-    
+
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetInSqSide() const{ return fInSqSide;}
 
     //VECGEOM_CUDA_HEADER_BOTH
 	//bool Normal(Vector3D<Precision> p,Vector3D<Precision> &normal);
-    
+
     //set
     VECGEOM_CUDA_HEADER_BOTH
     void SetParameters(const Precision rMin, const Precision rMax, const Precision stIn, const Precision stOut, const Precision dz);
 
 //________________________________________________________________________________________
- 
+
   //VECGEOM_CUDA_HEADER_BOTH
   Precision Volume(bool outer);
 
@@ -177,38 +187,38 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   void Extent( Vector3D<Precision> &, Vector3D<Precision> &) const;
-   
+
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision Capacity() const{return fCubicVolume;}
-  
+
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision SurfaceArea() const{return fSurfaceArea;}
-  
-  
+
+
   #ifndef VECGEOM_NVCC
   VECGEOM_CUDA_HEADER_BOTH
   #endif
   Vector3D<Precision>  GetPointOnSurface() const;
- 
-  
+
+
   //VECGEOM_CUDA_HEADER_BOTH
   std::string GetEntityType() const;
-  
-    
+
+
   VECGEOM_CUDA_HEADER_BOTH
-  void GetParametersList(int aNumber, Precision *aArray) const; 
-  
+  void GetParametersList(int aNumber, Precision *aArray) const;
+
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedHype* Clone() const;
 
   VECGEOM_CUDA_HEADER_BOTH
   std::ostream& StreamInfo(std::ostream &os) const;
-    
-  
+
+
   VECGEOM_CUDA_HEADER_BOTH
-  void ComputeBBox() const; 
+  void ComputeBBox() const;
 
   VECGEOM_CUDA_HEADER_BOTH
   bool InnerSurfaceExists() const;
@@ -218,17 +228,17 @@ public:
     virtual int memory_size() const { return sizeof(*this); }
 
 //__________________________________________________________________
-    
+
 
     VECGEOM_CUDA_HEADER_BOTH
     virtual void Print() const;
 //__________________________________________________________________
-    
+
 
     virtual void Print(std::ostream &os) const;
-    
+
 //__________________________________________________________________
-    
+
 
 
     template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -247,7 +257,7 @@ public:
 
 private:
 
-  
+
     //Specialized Volume
   VECGEOM_CUDA_HEADER_DEVICE
   virtual VPlacedVolume* SpecializedVolume(

@@ -16,12 +16,12 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-    
+
     VECGEOM_CUDA_HEADER_BOTH
     void UnplacedHype::SetParameters(const Precision rMin, const Precision rMax,
                                      const Precision stIn, const Precision stOut,
                                      const Precision dz){
-        
+
         //TODO: add eventual check
         fRmin=rMin;
         fStIn=stIn;
@@ -29,35 +29,37 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
         fStOut=stOut;
         fDz=dz;
     }
-    
+
     VECGEOM_CUDA_HEADER_BOTH
     UnplacedHype::UnplacedHype(const Precision rMin, const Precision rMax,
                                const Precision stIn, const Precision stOut,
                                const Precision dz){
-        
+
         SetParameters(rMin, rMax, stIn, stOut, dz);
-        
+
         fTIn=tan(fStIn);          			//Tangent of the Inner stereo angle  (*kDegToRad);
         fTOut=tan(fStOut);        //Tangent of the Outer stereo angle
         fTIn2=fTIn*fTIn;                    //squared value of fTIn
         fTOut2=fTOut*fTOut;                 //squared value of fTOut
-        
+
         fTIn2Inv=1./fTIn2;
         fTOut2Inv=1./fTOut2;
-        
+
         fRmin2=fRmin*fRmin;
         fRmax2=fRmax*fRmax;
         fDz2=fDz*fDz;
-        
+
         fEndInnerRadius2=fTIn2*fDz2+fRmin2;
         fEndOuterRadius2=fTOut2*fDz2+fRmax2;
         fEndInnerRadius=Sqrt(fEndInnerRadius2);
         fEndOuterRadius=Sqrt(fEndOuterRadius2);
         fInSqSide=Sqrt(2)*fRmin;
-
+        zToleranceLevel = kTolerance*fDz*2.;
+        innerRadToleranceLevel = kTolerance*GetEndInnerRadius();
+        outerRadToleranceLevel = kTolerance*GetEndOuterRadius();
         CalcCapacity();
-		CalcSurfaceArea(); 
-        
+		CalcSurfaceArea();
+
     }
 
 //__________________New Added function_______________________________________________
@@ -69,10 +71,10 @@ bool UnplacedHype::Normal(Vector3D<Precision> p,Vector3D<Precision> &normal){
   Precision absZ(std::fabs(p.z()));
   Precision distZ(absZ - GetDz());
   Precision dist2Z(distZ*distZ);
-  
+
   Precision xR2( p.x()*p.x()+p.y()*p.y() );
   Precision dist2Outer( std::fabs(xR2 - GetEndOuterRadius2()) );
-  
+
   if (InnerSurfaceExists())
   {
     //
@@ -86,10 +88,10 @@ bool UnplacedHype::Normal(Vector3D<Precision> p,Vector3D<Precision> &normal){
   //
   // Do the "endcaps" win?
   //
-  if (dist2Z < dist2Outer) 
+  if (dist2Z < dist2Outer)
     normal = Vector3D<Precision>( 0.0, 0.0, p.z() < 0 ? -1.0 : 1.0 );
-    
-    
+
+
   //
   // Outer surface wins
   //
@@ -114,7 +116,7 @@ void UnplacedHype::CalcCapacity()
         {
              fCubicVolume = Volume(true)-Volume(false);
         }
-      
+
   }
 
 Precision UnplacedHype::Volume(bool outer)
@@ -128,7 +130,7 @@ Precision UnplacedHype::Volume(bool outer)
 
 void UnplacedHype::CalcSurfaceArea()
   {
-      
+
       if (fSurfaceArea != 0.)
         {
           ;
@@ -138,7 +140,7 @@ void UnplacedHype::CalcSurfaceArea()
 			 // fSurfaceArea = Area(true);
 			  fSurfaceArea = Area(true) + Area(false) + AreaEndCaps();
 														   // For Sphere It is actually addition of surface area of outer and inner shell
-			
+
 		}
   }
 
@@ -148,12 +150,12 @@ Precision UnplacedHype::Area(bool outer)
 	if(outer)
 	{
   		fT = fTOut;
-		fR = fRmax;	
+		fR = fRmax;
 	}
 	else
 	{
   		fT = fTIn;
-		fR = fRmin;	
+		fR = fRmin;
 	}
 
 	Precision ar=0.;
@@ -200,12 +202,12 @@ void UnplacedHype::GetParametersList(int, double* aArray)const
       aArray[4] = GetDz();
 
   }
-  
+
 
   //Definition taken from G4Hype
   #ifdef VECGEOM_NVCC
   Vector3D<Precision> UnplacedHype::GetPointOnSurface() const{}
-  #else 
+  #else
   VECGEOM_CUDA_HEADER_BOTH
   Vector3D<Precision> UnplacedHype::GetPointOnSurface() const
   {
@@ -213,7 +215,7 @@ void UnplacedHype::GetParametersList(int, double* aArray)const
 	Precision xRand, yRand, zRand, r2 , aOne, aTwo, aThree, chose, sinhu;
   	Precision phi, cosphi, sinphi, rBar2Out, rBar2In, alpha, t, rOut, rIn2, rOut2;
 
-  // we use the formula of the area of a surface of revolution to compute 
+  // we use the formula of the area of a surface of revolution to compute
   // the areas, using the equation of the hyperbola:
   // x^2 + y^2 = (z*tanphi)^2 + r^2
 
@@ -230,12 +232,12 @@ void UnplacedHype::GetParametersList(int, double* aArray)const
   t     = std::log(t+std::sqrt(t*t+1)); //sqr(t*t)
   aTwo  = std::fabs(2.*alpha*(std::sinh(2.*t)/4.+t/2.));
 
-  aThree = kPi*((fRmax2+ (fDz*fTOut)*(fDz*fTOut) 
+  aThree = kPi*((fRmax2+ (fDz*fTOut)*(fDz*fTOut)
               -(fRmin2+ (fDz*fTIn)*(fDz*fTIn))));
-  
+
   if(fStOut == 0.) {aOne = std::fabs(2.*kPi*fRmax*2.*fDz);}
   if(fStIn == 0.) {aTwo = std::fabs(2.*kPi*fRmin*2.*fDz);}
-  
+
   phi = RNG::Instance().uniform(0.,2.*kPi);
   cosphi = std::cos(phi);
   sinphi = std::sin(phi);
@@ -269,7 +271,7 @@ void UnplacedHype::GetParametersList(int, double* aArray)const
       yRand = std::sqrt((sinhu*sinhu)+1)*fRmin*sinphi;
       return Vector3D<Precision>(xRand, yRand, zRand);
     }
-    else 
+    else
     {
       return Vector3D<Precision>(fRmin*cosphi,fRmin*sinphi,
                            RNG::Instance().uniform(-1.*fDz,fDz));
@@ -280,7 +282,7 @@ void UnplacedHype::GetParametersList(int, double* aArray)const
     rIn2  = fRmin2+fTIn2*fDz*fDz;
     rOut2 = fRmax2+fTOut2*fDz*fDz;
     rOut  = std::sqrt(rOut2) ;
- 
+
     do {
       xRand = RNG::Instance().uniform(-rOut,rOut) ;
       yRand = RNG::Instance().uniform(-rOut,rOut) ;
@@ -295,7 +297,7 @@ void UnplacedHype::GetParametersList(int, double* aArray)const
     rIn2  = fRmin2+fTIn2*fDz*fDz;
     rOut2 = fRmax2+fTOut2*fDz*fDz;
     rOut  = std::sqrt(rOut2) ;
- 
+
     do {
       xRand = RNG::Instance().uniform(-rOut,rOut) ;
       yRand = RNG::Instance().uniform(-rOut,rOut) ;
@@ -319,20 +321,20 @@ UnplacedHype* UnplacedHype::Clone() const
 #else
   VECGEOM_CUDA_HEADER_BOTH
   std::ostream& UnplacedHype::StreamInfo(std::ostream& os) const
-  //Definition taken from 
+  //Definition taken from
   {
-      
+
    int oldprc = os.precision(16);
    os << "-----------------------------------------------------------\n"
    //  << "		*** Dump for solid - " << GetName() << " ***\n"
    //  << "		===================================================\n"
-   
+
    << " Solid type: VecGeomHype\n"
      << " Parameters: \n"
 
      << "				Inner radius: " << fRmin << " mm \n"
 	 << "				Inner Stereo Angle " << fStIn << " rad \n"
-     << "               Outer radius: " <<fRmax <<"mm\n"    
+     << "               Outer radius: " <<fRmax <<"mm\n"
      << "               Outer Stereo Angle " << fStOut << " rad \n"
      << "               Half Height: "<<fDz<<" mm \n"
      << "-----------------------------------------------------------\n";
@@ -345,16 +347,16 @@ UnplacedHype* UnplacedHype::Clone() const
 
 
 //__________________________________________________________________
-    
+
     void UnplacedHype::Print() const {
-        
+
     }
 //__________________________________________________________________
-    
+
     void UnplacedHype::Print(std::ostream &os) const {
-        
+
     }
-    
+
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECGEOM_CUDA_HEADER_DEVICE
 VPlacedVolume* UnplacedHype::Create(
