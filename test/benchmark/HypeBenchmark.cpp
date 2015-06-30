@@ -14,9 +14,9 @@ using namespace vecgeom;
 int main(int argc, char* argv[]) {
   OPTION_INT(npoints,1024);
   OPTION_INT(nrep,10);
-  OPTION_DOUBLE(rmin,10.);
+  OPTION_DOUBLE(rmin,0.);
   OPTION_DOUBLE(rmax,20.);
-  OPTION_DOUBLE(sin,PI/6.);
+  OPTION_DOUBLE(sin,0.);
   OPTION_DOUBLE(sout,PI/4.);
   OPTION_DOUBLE(dz,50);
 
@@ -37,6 +37,7 @@ int main(int argc, char* argv[]) {
 
   tester.SetTolerance(1e-6);
   tester.SetVerbosity(3);
+  //if(strcmp(argv[1],"show")==0)
   tester.SetPoolMultiplier(1);
   tester.SetPointCount(npoints);
   tester.SetRepetitions(nrep);
