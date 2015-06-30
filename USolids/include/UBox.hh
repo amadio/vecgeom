@@ -40,6 +40,10 @@ public:
   UBox() : vecgeom::SimpleBox(new vecgeom::LogicalVolume(new vecgeom::UnplacedBox(0.,0.,0.)),
                               &vecgeom::Transformation3D::kIdentity,
                               this) {}
+
+  void SetXHalfLength(double dx) { ((vecgeom::UnplacedBox*)unplaced_volume())->SetX(dx); }
+  void SetYHalfLength(double dy) { ((vecgeom::UnplacedBox*)unplaced_volume())->SetY(dy); }
+  void SetZHalfLength(double dz) { ((vecgeom::UnplacedBox*)unplaced_volume())->SetZ(dz); }
 };
 //============== end of VecGeom-based implementation
 

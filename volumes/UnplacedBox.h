@@ -114,7 +114,11 @@ public:
       const int id, VPlacedVolume *const placement = NULL);
 
 #endif
-  
+
+  void SetX(double xx) { dimensions_[0] = xx; }
+  void SetY(double yy) { dimensions_[1] = yy; }
+  void SetZ(double zz) { dimensions_[2] = zz; }
+
 private:
 
 #ifndef VECGEOM_NVCC

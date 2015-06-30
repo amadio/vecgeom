@@ -89,10 +89,10 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void Set(Precision x, Precision y, Precision z,
+  void Set(Precision xx, Precision yy, Precision zz,
            vecgeom::Transformation3D const*const transformation = &Transformation3D::kIdentity) {
     if(logical_volume_) delete logical_volume_;
-    logical_volume_ = new LogicalVolume(new UnplacedBox(x,y,z));
+    logical_volume_ = new LogicalVolume(new UnplacedBox(xx,yy,zz));
     if(transformation_) delete transformation_;
     transformation_ = new Transformation3D(*transformation);
   }
