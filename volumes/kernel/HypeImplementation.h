@@ -1467,11 +1467,51 @@ return;
         typedef typename Backend::precision_v Float_t;
         typedef typename Backend::bool_v Bool_t;
         safety=0.;
-
+        Float_t r=Sqrt(point.x()*point.x() + point.y()*point.y());
         Float_t absZ= Abs(point.z());
-        Float_t safeZ= unplaced.GetDz()-absZ;
-        Float_t rsq = point.x()*point.x()+point.y()*point.y();
-        Float_t r = Sqrt(rsq);
+        Precision innerRadius = unplaced.GetRmin();
+        Precision outerRadius = unplaced.GetRmax();
+        Precision tanOuterStereo = unplaced.GetTOut();
+        Precision tanInnerStereo = unplaced.GetTIn();
+        Float_t r1=outerRadius*outerRadius + tanOuterStereo*tanOuterStereo*absZ*absZ;
+
+
+
+        //New Algo
+
+        Bool_t inside(false);//,outside(false);
+        Bool_t done(false);
+
+        Float_t distZ(0.),distInner(0.),distOuter(0.);
+        safety=0.;
+        ContainsKernel<Backend>(unplaced,point,inside);
+        done |= (!inside);
+        if(IsFull(done)) return;
+
+        MaskedAssign(!done && inside, Abs(Abs(point.z())-unplaced.GetDz()) , &distZ );
+        //MaskedAssign(!done && inside, ApproxDistOutside<Backend>( r,absZ,innerRadius,tanInnerStereo), &distInner);
+        //MaskedAssign(!done && inside, (r1-r)*cos(unplaced.GetStOut()), &distOuter);
+        if(unplaced.InnerSurfaceExists() && unplaced.GetStIn())
+        {
+            MaskedAssign(!done && inside, ApproxDistOutside<Backend>( r,absZ,innerRadius,tanInnerStereo), &distInner);
+        }
+
+        if(unplaced.InnerSurfaceExists() && !unplaced.GetStIn())
+        {
+            MaskedAssign(!done && inside, (r-innerRadius), &distInner);
+        }
+
+         if(!unplaced.InnerSurfaceExists() && !unplaced.GetStIn())
+        {
+            MaskedAssign(!done && inside, kInfinity, &distInner);
+        }
+        MaskedAssign(!done && inside, ApproxDistInside<Backend>( r,absZ,outerRadius,tanOuterStereo), &distOuter);
+
+        //std::cout<<"DistZ : "<<distZ<<"  :: distInner : "<<distInner<<"  :: distOuter : "<<distOuter<<std::endl;
+        safety = Min(distInner,distOuter);
+        safety = Min(safety,distZ);
+        //std::cout<<"SafetTy : "<<safety<<std::endl;
+
 
 #ifdef ROOTLIKE
 
@@ -1530,7 +1570,10 @@ return;
             safety=Min(safety, safermin);
         }
 #endif
-
+        /*
+        Float_t safeZ= unplaced.GetDz()-absZ;
+        Float_t rsq = point.x()*point.x()+point.y()*point.y();
+        Float_t r = Sqrt(rsq);
         Float_t safeOuter;
         Bool_t mask_TOut(unplaced.GetTOut2()< DBL_MIN);
 
@@ -1584,12 +1627,13 @@ return;
 			//std::cout<<"PRINTING SAFETY FROM SafetyToOUt : "<<safety<<std::endl;
 
         }
-
+        */
+        /*
 		Bool_t inside(false);
 		UnplacedContains<Backend>(unplaced,point,inside);
 		//MaskedAssign(!inside || safety<kSTolerance*100.,0.,&safety);
 		MaskedAssign(!inside || safety<kTolerance*10.,0.,&safety);
-
+        */
 
     }
 
