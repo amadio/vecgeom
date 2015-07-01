@@ -1321,7 +1321,7 @@ return;
 	Precision tanInnerStereo2 = unplaced.GetTIn2();
 	Precision tanOuterStereo2 = unplaced.GetTOut2();
 	Precision tanOuterStereo = unplaced.GetTOut();
-	Precision tanInnerStereo = unplaced.GetTIn();
+	//Precision tanInnerStereo = unplaced.GetTIn();
 	Bool_t done(false);
 
 
@@ -1351,7 +1351,7 @@ return;
     MaskedAssign(!done && cond , ApproxDistOutside<Backend>( r,absZ,outerRadius,tanOuterStereo), &safety);
     done |= cond;
 
-    MaskedAssign(!done && (r < (Sqrt(innerRadius*innerRadius + tanInnerStereo2*absZ*absZ )-kHalfTolerance) ) && (absZ > 0.) && (absZ < unplaced.GetDz()) , ApproxDistInside<Backend>( r,absZ,innerRadius,tanInnerStereo), &safety);
+    MaskedAssign(!done && (r < (Sqrt(innerRadius*innerRadius + tanInnerStereo2*absZ*absZ )-kHalfTolerance) ) && (absZ > 0.) && (absZ < unplaced.GetDz()) , ApproxDistInside<Backend>( r,absZ,innerRadius,tanInnerStereo2), &safety);
 
 
 
@@ -1472,6 +1472,7 @@ return;
         Precision innerRadius = unplaced.GetRmin();
         Precision outerRadius = unplaced.GetRmax();
         Precision tanOuterStereo = unplaced.GetTOut();
+        Precision tanOuterStereo2 = tanOuterStereo*tanOuterStereo;
         Precision tanInnerStereo = unplaced.GetTIn();
         Float_t r1=outerRadius*outerRadius + tanOuterStereo*tanOuterStereo*absZ*absZ;
 
@@ -1479,34 +1480,38 @@ return;
 
         //New Algo
 
-        Bool_t inside(false);//,outside(false);
+        Bool_t inside(false),outside(false);
         Bool_t done(false);
 
         Float_t distZ(0.),distInner(0.),distOuter(0.);
         safety=0.;
-        ContainsKernel<Backend>(unplaced,point,inside);
+        GenericKernelForContainsAndInside<Backend,true>(unplaced,point,inside,outside);
         done |= (!inside);
         if(IsFull(done)) return;
 
         MaskedAssign(!done && inside, Abs(Abs(point.z())-unplaced.GetDz()) , &distZ );
+        //std::cout<<"----- 1 -----"<<std::endl;
         //MaskedAssign(!done && inside, ApproxDistOutside<Backend>( r,absZ,innerRadius,tanInnerStereo), &distInner);
         //MaskedAssign(!done && inside, (r1-r)*cos(unplaced.GetStOut()), &distOuter);
         if(unplaced.InnerSurfaceExists() && unplaced.GetStIn())
         {
             MaskedAssign(!done && inside, ApproxDistOutside<Backend>( r,absZ,innerRadius,tanInnerStereo), &distInner);
+          //  std::cout<<"----- 2 -----"<<std::endl;
         }
 
         if(unplaced.InnerSurfaceExists() && !unplaced.GetStIn())
         {
             MaskedAssign(!done && inside, (r-innerRadius), &distInner);
+            //std::cout<<"----- 3 -----"<<std::endl;
         }
 
          if(!unplaced.InnerSurfaceExists() && !unplaced.GetStIn())
         {
             MaskedAssign(!done && inside, kInfinity, &distInner);
+            //std::cout<<"----- 4 -----"<<std::endl;
         }
-        MaskedAssign(!done && inside, ApproxDistInside<Backend>( r,absZ,outerRadius,tanOuterStereo), &distOuter);
-
+        MaskedAssign(!done && inside, ApproxDistInside<Backend>( r,absZ,outerRadius,tanOuterStereo2), &distOuter);
+        //std::cout<<"----- 5 -----"<<std::endl;
         //std::cout<<"DistZ : "<<distZ<<"  :: distInner : "<<distInner<<"  :: distOuter : "<<distOuter<<std::endl;
         safety = Min(distInner,distOuter);
         safety = Min(safety,distZ);
