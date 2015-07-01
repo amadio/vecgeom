@@ -173,6 +173,7 @@ LogicalVolume* RootGeoManager::Convert(TGeoVolume const *const volume) {
   VUnplacedVolume const *const unplaced = Convert(volume->GetShape());
   LogicalVolume *const logical_volume =
       new LogicalVolume(volume->GetName(), unplaced);
+  TMedium *med = new 
 
   fLogicalVolumeMap.Set(volume, logical_volume);
   return logical_volume;

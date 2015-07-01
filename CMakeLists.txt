@@ -495,6 +495,10 @@ set(SRC_CPP_RELATIVE
   source/ABBoxManager.cpp
 
   source/USolidsInterfaceHelper.cpp
+
+  source/Material.cpp
+  source/Medium.cpp
+  source/Nucleus.cpp
 )
 
 # avoid "file has no symbols" warning

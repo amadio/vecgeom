@@ -47,6 +47,8 @@ private:
         included for the moment to model UserExtension like in TGeoVolume
   */
   void * user_extension_;
+  void * tracking_medium_;
+  void * basket_manager_;
 
   Vector<Daughter> *daughters_;
 
@@ -101,10 +103,15 @@ public:
 
   VECGEOM_INLINE
   void * getUserExtensionPtr( ) const {  return user_extension_;  }
+  VECGEOM_INLINE
+  void * getTrackingMediumPtr( ) const {  return tracking_medium_;  }
+  VECGEOM_INLINE
+  void * getBasketManagerPtr() const { return basket_manager_; }
 
   int id() const { return id_; }
 
-  std::string GetLabel() const { return *label_; }
+  const char* GetName() const { return label_->c_str();}
+  std::string GetLabel() const {return *label_;}
 
   void set_label(char const *const label) {
     if(label_) delete label_;
@@ -112,7 +119,13 @@ public:
   }
 
   VECGEOM_INLINE
-  void setUserExtensionPtr( void * userpointer ) { user_extension_ = userpointer; }
+  void asetUserExtensionPtr( void * userpointer ) { user_extension_ = userpointer; }
+
+  VECGEOM_INLINE
+  void setTrackingMediumPtr( void * tmediumpointer ) { tracking_medium_ = tmediumpointer; }
+
+  VECGEOM_INLINE
+  void setBasketManagerPtr( void * basketpointer ) { basket_manager_ = basketpointer; }
 
   VECGEOM_CUDA_HEADER_BOTH
   void Print(const int indent = 0) const;
