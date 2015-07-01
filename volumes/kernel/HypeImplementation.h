@@ -1322,31 +1322,12 @@ return;
 	Precision tanOuterStereo2 = unplaced.GetTOut2();
 	Precision tanOuterStereo = unplaced.GetTOut();
 	Precision tanInnerStereo = unplaced.GetTIn();
-	//Float_t dr = endInnerRadius - r;
-	//Float_t answer = Sqrt(dr*dr + sigz*sigz);
-
-	//Bool_t innerSurfaceExist(unplaced.InnerSurfaceExists());
-
-    //Bool_t inside(false);
 	Bool_t done(false);
 
-	//UnplacedContains<Backend>(unplaced,point,inside);
-	//MaskedAssign(!done && inside,0.,&safety);
-	//done |= inside;
 
+    //New Simple Algo
 
-    //-------------------------------------------------------------
-
-    //New Algo
-    //Considering Solid Hyperboloid
-
-    //Debuggng
-    //std::cout<<"EndInnerRadius : "<<endInnerRadius<<"  :: EndOuterRadius : "<<endOuterRadius<<std::endl;
-
-    //std::cout<<"R : "<<r<<" :: Z : "<<point.z()<<std::endl;
-    //
-
-    safety = -kHalfTolerance;
+    safety = 0.;
 
     Bool_t cond(false);
     Float_t sigz = absZ - unplaced.GetDz();
@@ -1355,28 +1336,23 @@ return;
     done |= cond;
     if(IsFull(done)) return;
 
-    cond = (sigz > kHalfTolerance) && (r >= endOuterRadius) ;
+    cond = (sigz > kHalfTolerance) && (r > endOuterRadius) ;
     MaskedAssign(!done && cond,Sqrt( (r-endOuterRadius)*(r-endOuterRadius) + (sigz)*(sigz) ) , &safety );
     done |= cond;
     if(IsFull(done)) return;
 
 
-    cond = (sigz > kHalfTolerance) && (r <= endInnerRadius);
+    cond = (sigz > kHalfTolerance) && (r < endInnerRadius);
     MaskedAssign(!done && cond,Sqrt( (r-endInnerRadius)*(r-endInnerRadius) + (sigz)*(sigz) ) , &safety );
     done |= cond;
     if(IsFull(done)) return;
 
-    cond = (r > Sqrt(outerRadius*outerRadius + tanOuterStereo2*absZ*absZ )) && (absZ > 0.) && (absZ < unplaced.GetDz());
+    cond = (r > (Sqrt(outerRadius*outerRadius + tanOuterStereo2*absZ*absZ )+kHalfTolerance)) && (absZ > 0.) && (absZ < unplaced.GetDz());
     MaskedAssign(!done && cond , ApproxDistOutside<Backend>( r,absZ,outerRadius,tanOuterStereo), &safety);
     done |= cond;
 
-    MaskedAssign(!done && (r < Sqrt(innerRadius*innerRadius + tanInnerStereo2*absZ*absZ )) && (absZ > 0.) && (absZ < unplaced.GetDz()) , ApproxDistInside<Backend>( r,absZ,innerRadius,tanInnerStereo), &safety);
+    MaskedAssign(!done && (r < (Sqrt(innerRadius*innerRadius + tanInnerStereo2*absZ*absZ )-kHalfTolerance) ) && (absZ > 0.) && (absZ < unplaced.GetDz()) , ApproxDistInside<Backend>( r,absZ,innerRadius,tanInnerStereo), &safety);
 
-    //std::cout<<"EndInnerRadius : "<<endInnerRadius<<"  :: EndOuterRadius : "<<endOuterRadius<<std::endl;
-
-    //std::cout<<"R : "<<r<<" :: Z : "<<point.z()<<std::endl;
-    //std::cout<<":: "<<Sqrt(outerRadius*outerRadius + tanOuterStereo2*absZ*absZ )<<std::endl;
-    //-------------------------------------------------------------
 
 
     /*
