@@ -61,7 +61,7 @@ protected:
   VPlacedVolume(LogicalVolume const *const logical_vol,
                 Transformation3D const *const transformation,
                 PlacedBox const *const boundingbox,
-                const int id)
+                unsigned int id)
 #ifdef VECGEOM_INPLACE_TRANSFORMATIONS
   : logical_volume_(logical_vol), fTransformation(*transformation),
         bounding_box_(boundingbox), id_(id), label_(NULL) {}
@@ -361,7 +361,7 @@ public:
          DevicePtr<cuda::LogicalVolume> const logical_volume, \
          DevicePtr<cuda::Transformation3D> const transform, \
          DevicePtr<cuda::PlacedBox> const boundingBox, \
-         const int id) const; \
+         const unsigned int id) const; \
     }
 
 #define VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol, Extra )    \
@@ -371,7 +371,7 @@ public:
          DevicePtr<cuda::LogicalVolume> const logical_volume, \
          DevicePtr<cuda::Transformation3D> const transform, \
          DevicePtr<cuda::PlacedBox> const boundingBox, \
-         const int id) const; \
+         const unsigned int id) const; \
     }
 
 #ifdef VECGEOM_NO_SPECIALIZATION
@@ -439,7 +439,7 @@ public:
          DevicePtr<cuda::LogicalVolume> const logical_volume, \
          DevicePtr<cuda::Transformation3D> const transform, \
          DevicePtr<cuda::PlacedBox> const boundingBox, \
-         const int id) const; \
+         const unsigned int id) const; \
     }
 
 #ifdef VECGEOM_NO_SPECIALIZATION
@@ -483,7 +483,7 @@ public:
          DevicePtr<cuda::LogicalVolume> const logical_volume, \
          DevicePtr<cuda::Transformation3D> const transform, \
          DevicePtr<cuda::PlacedBox> const boundingBox, \
-         const int id) const; \
+         const unsigned int id) const; \
     }
 
 #ifdef VECGEOM_NO_SPECIALIZATION
