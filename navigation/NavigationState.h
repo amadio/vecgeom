@@ -43,12 +43,12 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 // a short type should be used in case the number of PlacedVolumes can
 // be counted with 16bits
 // TODO: consider putting uint16 + uint32 types
-//#ifdef VECGEOM_USE_SHORT_NAVSTATEINDICES
-//typedef unsigned short NavStateIndex_t;
-//#else
+#ifdef VECGEOM_USE_INDEXEDNAVSTATES
+typedef unsigned short NavStateIndex_t;
 //typedef unsigned long NavStateIndex_t;
-//#endif
+#else
 typedef VPlacedVolume const* NavStateIndex_t;
+#endif
 
 // helper functionality to convert from NavStateIndex_t to *PlacedVolumes and back
 // the template abstraction also allows to go back to pointers as NavStateIndex_t
@@ -59,22 +59,19 @@ struct Index2PVolumeConverter {
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
 static VPlacedVolume const *ToPlacedVolume( T index ){
-     // solution based on offsets
-     // read: index == offset
-     // this supposes that PlacedVolumes are stored in an array where the first element is the world
-     // TODO: on the GPU this is a different world !!
-     return (VPlacedVolume const *) ( ( unsigned long long ) GeoManager::Instance().GetWorld() +
-             sizeof(VPlacedVolume)*index );
- }
- VECGEOM_CUDA_HEADER_BOTH
- VECGEOM_INLINE
- static T ToIndex( VPlacedVolume const *pvol ){
-     // solution based on offsets
-     // TODO: on the GPU this is a different world !!
-     T r = (((unsigned long long) (pvol)
-                           - (unsigned long long) GeoManager::Instance().GetWorld()))/sizeof(VPlacedVolume);
-     return r;
- }
+     // solution based on direct indexing into the buffer of placed volumes
+     // TODO: on the GPU this is a different static buffer !!
+#ifndef VECGEOM_CUDA
+    return &GeoManager::gCompactPlacedVolBuffer[index];
+#else
+    return nullptr;
+#endif
+}
+
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+static T ToIndex( VPlacedVolume const *pvol ){ return pvol->id(); }
+
 };
 
 // template specialization when we directly save VPlacedVolume pointers into the NavStates
@@ -157,15 +154,6 @@ private:
      // The actual size of the data for an instance, excluding the virtual table
   size_t DataSize() const {
      return SizeOf() + (size_t)ObjectStart() - (size_t)DataStart();
-  }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  static VPlacedVolume const * ConvertIndexToPlacedVolume( unsigned int index ){
-      return GeoManager::Instance().Convert( index );
-  }
-  VECGEOM_CUDA_HEADER_BOTH
-  static unsigned int ConvertPlacedVolumeToIndex( VPlacedVolume const *pvol ){
-      return GeoManager::Instance().Convert( pvol );
   }
 
 
@@ -290,9 +278,10 @@ public:
    Top() const;
 
 
-   VECGEOM_INLINE
+   //  VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
    VPlacedVolume const *
+     __attribute__((noinline))
    At(int level) const {return ToPlacedVolume( fPath[level] );}
 
    VECGEOM_INLINE
@@ -565,8 +554,8 @@ void NavigationState::ConvertToGPUPointers() {
 #ifdef HAVENORMALNAMESPACE
 #ifdef VECGEOM_CUDA
       for(int i=0;i<fCurrentLevel;++i){
-         fPath[i] = (vecgeom::cxx::VPlacedVolume*) vecgeom::CudaManager::Instance().LookupPlaced(
-                 ToPlacedVolume( fPath[i] ) ).GetPtr();
+         fPath[i] = ToIndex((vecgeom::cxx::VPlacedVolume*) vecgeom::CudaManager::Instance().LookupPlaced(
+                 ToPlacedVolume( fPath[i] ) ).GetPtr());
       }
 #endif
 #endif
@@ -577,7 +566,7 @@ void NavigationState::ConvertToCPUPointers() {
 #ifdef HAVENORMALNAMESPACE
 #ifdef VECGEOM_CUDA
        for(int i=0;i<fCurrentLevel;++i)
-         fPath[i] = ToIndex( vecgeom::CudaManager::Instance().LookupPlacedCPUPtr( (const void*) fPath[i] ));
+         fPath[i] = ToIndex( vecgeom::CudaManager::Instance().LookupPlacedCPUPtr( (const void*) ToPlacedVolume(fPath[i]) ));
 #endif
 #endif
 }

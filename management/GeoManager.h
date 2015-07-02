@@ -127,6 +127,8 @@ private:
 
 public:
 
+  static VPlacedVolume *gCompactPlacedVolBuffer;
+
   static GeoManager& Instance() {
     static GeoManager instance;
     return instance;

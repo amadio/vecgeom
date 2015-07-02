@@ -51,6 +51,8 @@ option(DISTANCE_DEBUG "Enable comparison of calculated distances againt ROOT/Gea
 
 option(INPLACE_TRANSFORMATIONS "Put transformation as members rather than pointers into PlacedVolume objects" ON)
 
+option(USE_INDEXEDNAVSTATES "Use indices rather than volume pointers in NavigationState objects" OFF)
+
 option(DATA_DOWNLOAD "Enable downloading of data for tests" OFF)
 
 set(VECGEOM_ARCH native sse2 sse3 ssse3 sse4.1 sse4.2 avx avx2 mic avx512)
@@ -331,6 +333,9 @@ if (VTUNE)
 endif()
 if (INPLACE_TRANSFORMATIONS)
   set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_INPLACE_TRANSFORMATIONS")
+endif()
+if (USE_INDEXEDNAVSTATES)
+  set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_USE_INDEXEDNAVSTATES")
 endif()
 
 
@@ -691,8 +696,8 @@ set(TEST_EXECUTABLES_USOLIDS
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestPolycone.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestPolyhedra.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTet.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestOrb.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
+#  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestOrb.cpp
+#  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBoxlikeTrapezoid.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/usolidTest.cpp
 )
@@ -714,8 +719,8 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${CMAKE_SOURCE_DIR}/test/benchmark/TorusBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrapezoidBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrapezoidBenchmarkScript.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/OrbBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/SphereBenchmark.cpp
+#  ${CMAKE_SOURCE_DIR}/test/benchmark/OrbBenchmark.cpp
+#  ${CMAKE_SOURCE_DIR}/test/benchmark/SphereBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrdBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ConeBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/PolyconeBenchmark.cpp
