@@ -77,7 +77,7 @@ void RootGeoManager::ExportToROOTGeometry(VPlacedVolume const * topvolume,
 
 VPlacedVolume* RootGeoManager::Convert(TGeoNode const *const node) {
   if (fPlacedVolumeMap.Contains(node))
-      return const_cast<VPlacedVolume*> (fPlacedVolumeMap[node]);
+      return const_cast<VPlacedVolume*>(GetPlacedVolume( node ));
 
   Transformation3D const *const transformation = Convert(node->GetMatrix());
   LogicalVolume *const logical_volume = Convert(node->GetVolume());
@@ -96,18 +96,18 @@ VPlacedVolume* RootGeoManager::Convert(TGeoNode const *const node) {
     logical_volume->PlaceDaughter(Convert(node->GetDaughter(i)));
   }
 
-  fPlacedVolumeMap.Set(node, placed_volume);
+  fPlacedVolumeMap.Set(node, placed_volume->id());
   return placed_volume;
 }
 
 
 TGeoNode* RootGeoManager::Convert(VPlacedVolume const *const placed_volume) {
-  if (fPlacedVolumeMap.Contains(placed_volume))
-      return const_cast<TGeoNode*> (fPlacedVolumeMap[placed_volume]);
+  if (fPlacedVolumeMap.Contains(placed_volume->id()))
+      return const_cast<TGeoNode*> (fPlacedVolumeMap[placed_volume->id()]);
 
   TGeoVolume * geovolume = Convert(placed_volume, placed_volume->GetLogicalVolume());
   TGeoNode * node = new TGeoNodeMatrix( geovolume, NULL );
-  fPlacedVolumeMap.Set(node, placed_volume);
+  fPlacedVolumeMap.Set(node, placed_volume->id());
 
   // only need to do daughterloop once for every logical volume.
   // So only need to check if
@@ -330,12 +330,15 @@ VUnplacedVolume* RootGeoManager::Convert(TGeoShape const *const shape) {
      VUnplacedVolume const* leftunplaced  = Convert( boolnode->GetLeftShape() );
      VUnplacedVolume const* rightunplaced = Convert( boolnode->GetRightShape() );
 
+     assert( leftunplaced != nullptr );
+     assert( rightunplaced != nullptr );
+
      // the problem is that I can only place logical volumes
      VPlacedVolume *const leftplaced =
-          (new LogicalVolume("", leftunplaced ))->Place(lefttrans);
+          (new LogicalVolume("inner_virtual", leftunplaced ))->Place(lefttrans);
 
      VPlacedVolume *const rightplaced =
-          (new LogicalVolume("", rightunplaced ))->Place(righttrans);
+          (new LogicalVolume("inner_virtual", rightunplaced ))->Place(righttrans);
 
      // now it depends on concrete type
      if( boolnode->GetBooleanOperator() == TGeoBoolNode::kGeoSubtraction ){
