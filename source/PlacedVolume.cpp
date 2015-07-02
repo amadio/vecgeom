@@ -18,7 +18,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-int VPlacedVolume::g_id_count = 0;
+unsigned int VPlacedVolume::g_id_count = 0;
 
 #ifndef VECGEOM_NVCC
 VPlacedVolume::VPlacedVolume(char const *const label,

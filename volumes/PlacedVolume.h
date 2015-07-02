@@ -28,10 +28,10 @@ class VPlacedVolume : public USolidsInterfaceHelper {
 
 private:
 
-  int id_;
+  unsigned int id_;
   // Use a pointer so the string won't be constructed on the GPU
   std::string *label_;
-  static int g_id_count;
+  static unsigned int g_id_count;
 
 protected:
 
@@ -83,7 +83,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  int id() const { return id_; }
+  unsigned int id() const { return id_; }
 
   std::string const& GetLabel() const { return *label_; }
 
