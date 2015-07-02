@@ -278,10 +278,9 @@ public:
    Top() const;
 
 
-   //  VECGEOM_INLINE
+   VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
    VPlacedVolume const *
-     __attribute__((noinline))
    At(int level) const {return ToPlacedVolume( fPath[level] );}
 
    VECGEOM_INLINE

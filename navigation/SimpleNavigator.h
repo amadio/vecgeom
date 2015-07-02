@@ -433,7 +433,11 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
       currentstate.printVolumePath(std::cout); std::cout << "\n";
 #endif
       newstate.Clear();
+#if !defined(VECGEOM_NVCC)
       LocatePoint( GeoManager::Instance().GetWorld(), globalpoint
+#else
+              LocatePoint( nullptr, globalpoint
+#endif
               + vecgeom::kTolerance*globaldir,
               newstate, true );
       step = vecgeom::kTolerance;
