@@ -1,4 +1,4 @@
-#include "Nucleus.h"
+#include "volumes/Nucleus.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -40,7 +40,6 @@ Nucleus::Nucleus(string name, int n, int z, int iso, double a, double dm, double
    
    fNuclei[zniso] = this;
    
-   int niso = 10*n+iso;
    fIsoList[fZ].push_back(this);
    if(natab>0) fNatIsoList[fZ].push_back(this);
 }

@@ -31,6 +31,12 @@ public:
    double Z() const {return fZ;}
    double Iso() const {return fIso;}
    double Life() const {return fLife;}
+
+   double ToxA() const {return fToxa;}
+   double ToxB() const {return fToxb;}
+   int Indx1() const {return fInd1;}
+   int Indx2() const {return fInd2;}
+
    static void CreateNuclei();
 
    const vector<Decay> & DecayList() const {return fDecayList;}
@@ -84,8 +90,8 @@ private:
 		      int &ind2);
 
    string fName;  // Name
-   int fZ;        // Atomic number
    int fN;        // Nucleon number
+   int fZ;        // Atomic number
    int fIso;      // Isomer level
    double fA;     // Atomic weight
    int fIsolevel; // Isomeric mass excess

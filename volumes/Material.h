@@ -56,7 +56,7 @@ public:
    double GetDensity() const {return fDensity;}
    void Dump() const {cout << "To be implemented" << endl;}
    int GetIndex() const {return fIndex;}
-   static vector<Material*>& GeMaterials() {return fMatDB;}
+   static vector<Material*>& GetMaterials() {return fMatDB;}
 
    // remove 
    void SetFWExtension(TGeoRCExtension *ext) {fGeoRCExtension = ext;}
