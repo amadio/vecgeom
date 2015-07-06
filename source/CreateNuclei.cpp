@@ -1,3 +1,7 @@
+#include "volumes/Nucleus.h"
+namespace vecgeom {
+   inline namespace VECGEOM_IMPL_NAMESPACE {
+
 void Nucleus::CreateNuclei() {
    Nucleus *nuc=0;
 
@@ -13444,3 +13448,5 @@ void Nucleus::CreateNuclei() {
    for(map<int,Nucleus*>::const_iterator inuc=Nucleus::Nuclei().begin(); inuc != Nucleus::Nuclei().end(); ++inuc)
       inuc->second->NormDecay();
 }
+ } // End of inline namespace
+ } // End of vecgeom namespace

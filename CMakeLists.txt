@@ -499,6 +499,7 @@ set(SRC_CPP_RELATIVE
   source/Material.cpp
   source/Medium.cpp
   source/Nucleus.cpp
+  source/CreateNuclei.cpp
 )
 
 # avoid "file has no symbols" warning

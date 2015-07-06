@@ -61,6 +61,9 @@ void Nucleus::ReadFile(string infilename, string outfilename) {
    getline(infile,line);  // Get title
    Nucleus *nuc=0;
    if(output) {
+      outfile << "#include \"volumes/Nucleus.h\"" << endl;
+      outfile << "namespace vecgeom {" << endl;
+      outfile << "   inline namespace VECGEOM_IMPL_NAMESPACE {" << endl << endl;
       outfile << "void Nucleus::CreateNuclei() {" << endl;
       outfile << "   Nucleus *nuc=0;" << endl;
    }
@@ -92,6 +95,8 @@ void Nucleus::ReadFile(string infilename, string outfilename) {
       outfile << "   for(map<int,Nucleus*>::const_iterator inuc=Nucleus::Nuclei().begin(); inuc != Nucleus::Nuclei().end(); ++inuc)" << endl;
       outfile << "      inuc->second->NormDecay();" << endl;
       outfile << "}" << endl;      
+      outfile << " } // End of inline namespace" << endl;
+      outfile << " } // End of vecgeom namespace" << endl;
    }
 }
 
@@ -196,8 +201,6 @@ void Nucleus::Getmat(string line, int &n, int &z, int &iso, string &name, double
    stringstream(line.substr(beg,len[ic])) >> ind2;
    
 }
-
-#include "CreateNuclei.cpp"
 
 //________________________________________________________________________________________________
 const string Nucleus::Decay::Name() const {
