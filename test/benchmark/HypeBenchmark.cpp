@@ -7,11 +7,12 @@
 #include "benchmarking/Benchmarker.h"
 #include "management/GeoManager.h"
 #include "ArgParser.h"
-
+#include <iomanip>
 #define PI 3.141592653589793
 using namespace vecgeom;
 
 int main(int argc, char* argv[]) {
+    std::cout<<std::setprecision(15);
   OPTION_INT(npoints,1024);
   OPTION_INT(nrep,10);
   OPTION_DOUBLE(rmin,10.);
@@ -38,14 +39,14 @@ int main(int argc, char* argv[]) {
   //tester.SetTolerance(1e-5);
   tester.SetVerbosity(3);
   //if(strcmp(argv[1],"show")==0)
-  tester.SetPoolMultiplier(1);
+  //tester.SetPoolMultiplier(1);
   tester.SetPointCount(npoints);
   tester.SetRepetitions(nrep);
 
-  tester.RunInsideBenchmark();
-  tester.RunToOutBenchmark();
+  //tester.RunInsideBenchmark();
+  //tester.RunToOutBenchmark();
   //tester.RunToInBenchmark();
-  //tester.RunBenchmark();
+  tester.RunBenchmark();
 
 
   return 0;
