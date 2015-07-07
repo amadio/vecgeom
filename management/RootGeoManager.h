@@ -19,6 +19,8 @@ class Transformation3D;
 class UnplacedBox;
 class VPlacedVolume;
 class VUnplacedVolume;
+class Medium;
+class Material;
 
 /// \brief Manager to handle interaction with ROOT geometry.
 /// \details Allows integration with ROOT geometries for compatability reasons.
@@ -110,6 +112,10 @@ public:
   LogicalVolume* Convert(TGeoVolume const *const volume);
 
   Transformation3D* Convert(TGeoMatrix const *const trans);
+
+  Medium* Convert(TGeoMedium const *const medium);
+
+  Material* Convert(TGeoMaterial const *const material);
 
   // inverse process
   TGeoNode* Convert(VPlacedVolume const *const node);

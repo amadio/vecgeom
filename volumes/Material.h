@@ -37,10 +37,10 @@ class Material {
 
 public:
    Material();
-   Material(const char *name, const char *title, double a, double z, double dens, double radlen=-1,
+   Material(const char *name, double a, double z, double dens, double radlen=-1,
 	double intlen=-1);
    template <typename T, typename U, typename V> 
-      Material(const char *name, const char *title, const T a[], const U z[], const V w[], 
+      Material(const char *name, const T a[], const U z[], const V w[], 
 	   int nelements, double dens, double radlen=-1,
 	   double intlen=-1);
    virtual ~Material();
@@ -50,8 +50,7 @@ public:
    bool IsUsed() const {return fUsed;}
    void Used(bool used=true) {fUsed=used;}
    int GetNelements() const {return fNelem;}
-   const char* GetName() const {return fName.c_str();}
-   const char* GetTitle() const {return fTitle.c_str();}
+   const char* Name() const {return fName.c_str();}
    void GetElementProp(double &ad, double &zd, double &wd, int iel) const;
    double GetDensity() const {return fDensity;}
    void Dump() const {cout << "To be implemented" << endl;}
@@ -78,7 +77,6 @@ private:
    static vector<Material*> fMatDB;
 
    string fName; // name of the material
-   string fTitle; // title of the material
    bool fUsed; // whether the material is used or not
    double fDensity; // density in g/cm3
    double fZ; // z of the material
@@ -92,6 +90,24 @@ private:
 //   ClassDef(Material,1)  //Material X-secs
 
 };
+
+//____________________________________________________________________________
+template <typename T, typename U, typename V> 
+Material::Material(const char *name, const T a[], const U z[], const V w[], 
+	   int nelements, double dens, double radlen,
+	   double intlen): fName(name), fDensity(dens), fNelem(nelements)
+{
+   Element *elem = new Element;
+   for(int iel=0; iel>fNelem; ++iel) {
+      elem->fA = a[iel];
+      elem->fZ = z[iel];
+      elem->fW = w[iel];
+      fElements.push_back(*elem);
+   }
+   delete elem;
+   fIndex = fMatDB.size();
+   fMatDB.push_back(this);
+}
 
 }
 } // End global namespace

@@ -38,15 +38,15 @@ class Medium {
 
 public:
    Medium();
-   Medium(const char *name, const char *title, Material *mat);
+   Medium(const char *name, Material *mat, double params[20]);
    virtual ~Medium();
  
    // Getters and setters
    Material* GetMaterial() const {return fMat;}
+   string Name() const {return fName;}
    bool IsUsed() const {return fUsed;}
    void Used(bool used=true) {fUsed=used;}
    const char* GetName() const {return fName.c_str();}
-   const char* GetTitle() const {return fTitle.c_str();}
    void Dump() const {cout << "To be implemented" << endl;}
    static vector<Medium*>& GetMedia() {return fMedDB;}
 
@@ -57,9 +57,9 @@ private:
    static vector<Medium*> fMedDB;
 
    string fName; // name of the material
-   string fTitle; // title of the material
    bool fUsed; // whether the material is used or not
    Material *fMat; //Material
+   double fParams[20]; // Parameters
 
 //   ClassDef(Medium,1)  //Medium
 
