@@ -12,7 +12,9 @@ vector<Material*> Material::fMatDB;
 Material::Material():
    fName("empty"),
    fUsed(false),
+   fDensity(0),
    fZ(0),
+   fA(0),
    fIndex(0),
    fGeoRCExtension(0)
 {
@@ -24,7 +26,7 @@ Material::~Material() {
 
 //____________________________________________________________________________
 Material::Material(const char *name, double a, double z, double dens, double radlen,
-	   double intlen): fName(name), fDensity(dens), fNelem(1),
+		   double intlen): fName(name), fUsed(false), fDensity(dens), fZ(z), fA(a), fNelem(1),
 			   fIndex(0),fGeoRCExtension(0)
 {
    Element *elem = new Element(a,z,1);
@@ -41,6 +43,13 @@ void Material::GetElementProp(double &ad, double &zd, double &wd, int iel) const
    zd = fElements[iel].fZ;
    wd = fElements[iel].fW;
 }
+
+ostream& operator<<(ostream& os, const Material &mat)
+{
+    os << mat.fName << " Z: " << mat.fZ << " A: " << mat.fA ;
+    return os;
+}
+
 
 } // end of impl namespace
   

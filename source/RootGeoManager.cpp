@@ -204,7 +204,7 @@ Medium* RootGeoManager::Convert(TGeoMedium const *const medium) {
 Material* RootGeoManager::Convert(TGeoMaterial const *const material) {
    vector<Material*> materials = Material::GetMaterials();
    for(vector<Material*>::iterator m = materials.begin(); m != materials.end(); ++m) 
-      if((*m)->Name() == string(material->GetName())) return (*m);
+      if((*m)->GetName() == string(material->GetName())) return (*m);
    Material *vmat = 0;
    int nelem = material->GetNelements();
 
@@ -217,20 +217,24 @@ Material* RootGeoManager::Convert(TGeoMaterial const *const material) {
       int *a = new int[nelem];
       int *z = new int[nelem];
       double *w = new double[nelem];
+      cout << "nelem " << nelem << endl;
       for(int i=0; i<nelem; ++i) {
 	 double aa;
 	 double zz;
 	 const_cast<TGeoMaterial*>(material)->GetElementProp(aa, zz, w[i], i);
+	 cout << "Elem props: A: " << aa << " Z: " << zz << endl;
 	 a[i] = aa;
 	 z[i] = zz;
       }
-      delete a;
-      delete z;
-      delete w;
       vmat = new Material(material->GetName(), a, z, w, nelem, 
 			  material->GetDensity(), material->GetRadLen(),
 			  material->GetIntLen());
+      delete a;
+      delete z;
+      delete w;
    }
+   vmat->Used();
+   cout << *vmat << endl;
    return vmat;
 }
 

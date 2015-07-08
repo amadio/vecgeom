@@ -26,6 +26,7 @@ using std::string;
 using std::vector;
 using std::cout;
 using std::endl;
+using std::ostream;
 
 namespace vecgeom {
   
@@ -47,10 +48,11 @@ public:
  
    // Getters and setters
    double GetZ() const {return fZ;}
+   double GetA() const {return fA;}
    bool IsUsed() const {return fUsed;}
    void Used(bool used=true) {fUsed=used;}
    int GetNelements() const {return fNelem;}
-   const char* Name() const {return fName.c_str();}
+   const char* GetName() const {return fName.c_str();}
    void GetElementProp(double &ad, double &zd, double &wd, int iel) const;
    double GetDensity() const {return fDensity;}
    void Dump() const {cout << "To be implemented" << endl;}
@@ -61,6 +63,7 @@ public:
    void SetFWExtension(TGeoRCExtension *ext) {fGeoRCExtension = ext;}
    TGeoRCExtension* GetFWExtension() const {return fGeoRCExtension;}
 
+   friend ostream& operator<<(ostream& os, const Material& mat);
 
    struct Element {
       Element(): fA(0), fZ(0), fW(0) {}
@@ -80,6 +83,7 @@ private:
    bool fUsed; // whether the material is used or not
    double fDensity; // density in g/cm3
    double fZ; // z of the material
+   double fA; // A of the material
    int fNelem; // number of element
    int fIndex; // index of the material in the vector
    vector<Element> fElements;
@@ -95,16 +99,20 @@ private:
 template <typename T, typename U, typename V> 
 Material::Material(const char *name, const T a[], const U z[], const V w[], 
 	   int nelements, double dens, double radlen,
-	   double intlen): fName(name), fDensity(dens), fNelem(nelements)
+		   double intlen): fName(name), fDensity(dens), fZ(0), fA(0), fNelem(nelements)
 {
-   Element *elem = new Element;
-   for(int iel=0; iel>fNelem; ++iel) {
-      elem->fA = a[iel];
-      elem->fZ = z[iel];
-      elem->fW = w[iel];
-      fElements.push_back(*elem);
+   Element elem;
+   for(int iel=0; iel<fNelem; ++iel) {
+      cout << "Material::ctor: el#" << iel << " A: " << a[iel] << " Z: " << z[iel] << endl;
+      elem.fA = a[iel];
+      fA += elem.fA;
+      elem.fZ = z[iel];
+      fZ += elem.fZ;
+      elem.fW = w[iel];
+      fElements.push_back(elem);
    }
-   delete elem;
+   fA /= fNelem;
+   fZ /= fNelem;
    fIndex = fMatDB.size();
    fMatDB.push_back(this);
 }
