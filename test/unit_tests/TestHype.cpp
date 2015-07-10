@@ -14,7 +14,7 @@
 //#include "UHype.hh"
 #include "UVector3.hh"
 #endif
-
+#include<iomanip>
 #include <cassert>
 #include <cmath>
 
@@ -23,6 +23,7 @@
 template <class Hype_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
 bool TestHype() {
 
+	std::cout<<std::setprecision(15);
     //int verbose=0;
     double fRmin=10,fRmax=20, stIn=PI/4, stOut=PI/3, halfZ=50;
     vecgeom::Precision fR=9.;
