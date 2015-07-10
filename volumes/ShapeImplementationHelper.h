@@ -200,6 +200,7 @@ public:
                                  Vector3D<Precision> const &direction,
                                  const Precision stepMax = kInfinity) const {
 #ifndef VECGEOM_NVCC
+     if(!direction.IsNormalized()) const_cast<Vector3D<Precision>& >(direction).Normalize();
       assert( direction.IsNormalized() && " direction not normalized in call to  DistanceToIn " );
 #endif
       Precision output = kInfinity;
@@ -224,6 +225,7 @@ public:
                                   Vector3D<Precision> const &direction,
                                   const Precision stepMax = kInfinity) const {
 #ifndef VECGEOM_NVCC
+     if(!direction.IsNormalized()) const_cast<Vector3D<Precision>& >(direction).Normalize();
       assert( direction.IsNormalized() && " direction not normalized in call to  DistanceToOut " );
 #endif
     Precision output = kInfinity;
@@ -249,6 +251,7 @@ public:
                                         Vector3D<Precision> const &direction,
                                         const Precision stepMax = kInfinity) const {
 #ifndef VECGEOM_NVCC
+     if(!direction.IsNormalized()) const_cast<Vector3D<Precision>& >(direction).Normalize();
       assert( direction.IsNormalized() && " direction not normalized in call to  PlacedDistanceToOut " );
 #endif
      Precision output = kInfinity;

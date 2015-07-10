@@ -17,6 +17,7 @@
 #include <cstdlib>
 #include <ostream>
 #include <string>
+#include <iostream>
 
 namespace vecgeom {
 
@@ -244,6 +245,9 @@ public:
   bool IsNormalized() const {
       // static_assert here that Type should be primitive type
       Precision norm = Mag2();
+      if(isnan(norm)) {
+	 printf("(x,y,z) (%g,%g,%g) Norm %g Tol %g\n",vec[0],vec[1],vec[2],norm,vecgeom::kTolerance);
+      }
       return 1.-vecgeom::kTolerance < norm && norm < 1 + vecgeom::kTolerance;
   }
 
@@ -564,6 +568,9 @@ public:
   VECGEOM_INLINE
   bool IsNormalized() const {
       Precision norm = Mag2();
+      if(isnan(norm)) {
+	 printf("(x,y,z) (%g,%g,%g) Norm %g Tol %g\n",mem[0],mem[1],mem[2],norm,vecgeom::kTolerance);
+      }
       return 1.-vecgeom::kTolerance < norm && norm < 1 + vecgeom::kTolerance;
   }
 

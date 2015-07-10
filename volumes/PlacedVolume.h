@@ -94,6 +94,12 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
+  const char* GetName() const {
+     return (*label_).c_str();
+  }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
   VUnplacedVolume const* GetUnplacedVolume() const {
     return logical_volume_->GetUnplacedVolume();
   }

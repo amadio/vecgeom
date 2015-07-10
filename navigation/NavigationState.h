@@ -275,10 +275,10 @@ public:
         return true;
    }
 
-#ifdef VECGEOM_ROOT
    VECGEOM_INLINE
    void printVolumePath(std::ostream & = std::cerr) const;
 
+#ifdef VECGEOM_ROOT
    /**
     * returns the number of FILLED LEVELS such that
     * state.GetNode( state.GetLevel() ) == state.Top()
@@ -449,7 +449,6 @@ void NavigationState::Print() const
 }
 
 
-#ifdef VECGEOM_ROOT
 VECGEOM_INLINE
 /**
  * prints the path of the track as a verbose string ( like TGeoBranchArray in ROOT )
@@ -457,12 +456,19 @@ VECGEOM_INLINE
  */
 void NavigationState::printVolumePath( std::ostream & stream ) const
 {
-   for(int i=0; i < fCurrentLevel; ++i)
-   {
-    stream << "/" << RootGeoManager::Instance().tgeonode( fPath[i] )->GetName();
+   if(fCurrentLevel == 0) 
+      stream << "/";
+   else {
+      for(int i=0; i < fCurrentLevel; ++i)
+	 {
+#ifdef VECGEOM_ROOT
+	    stream << "/" << RootGeoManager::Instance().tgeonode( fPath[i] )->GetName();
+#else 
+	    stream << "/" << fPath[i]->GetName();
+#endif
+	 }
    }
 }
-#endif
 
 /**
  * calculates if other navigation state takes a different branch in geometry path or is on same branch

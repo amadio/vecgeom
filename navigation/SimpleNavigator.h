@@ -430,16 +430,14 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
       //InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );
       // set step to zero and retry one level higher
       // if( nexthitvolume!=-1 ) std::cout << "catastrophee\n";
-#if defined(VECGEOM_ROOT)
       currentstate.printVolumePath(std::cout); std::cout << "\n";
-#endif
       newstate.Clear();
       VPlacedVolume const *world = GeoManager::Instance().GetWorld();
       LocatePoint(world, globalpoint + vecgeom::kTolerance*globaldir, newstate, true);
       step = vecgeom::kTolerance;
-#if defined(VECGEOM_ROOT)
      // InspectEnvironmentForPointAndDirection( globalpoint, localpoint, currentstate );
       newstate.printVolumePath(std::cout); std::cout << "\n";
+#if defined(VECGEOM_ROOT)
       InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );
       std::cout << " counter is " << counter << "\n";
 #endif

@@ -445,7 +445,7 @@ endif()
 
 ################################################################################
 
-include_directories(${CMAKE_SOURCE_DIR})
+include_directories(BEFORE ${CMAKE_SOURCE_DIR})
 
 set(SRC_CPP_RELATIVE
   source/RNG.cpp

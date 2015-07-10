@@ -115,7 +115,7 @@ public:
 
   VECGEOM_INLINE
 
-  void asetUserExtensionPtr( void * userpointer ) { user_extension_ = userpointer; }
+  void setUserExtensionPtr( void * userpointer ) { user_extension_ = userpointer; }
 
   VECGEOM_INLINE
   void setTrackingMediumPtr( void * tmediumpointer ) { tracking_medium_ = tmediumpointer; }
