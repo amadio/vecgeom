@@ -10,8 +10,10 @@
 #include "volumes/PlacedVolume.h"
 #include "base/SOA3D.h"
 #include "base/Vector3D.h"
+#include "base/messagelogger.h"
 #include "management/GeoManager.h"
 #include "navigation/NavigationState.h"
+#include "base/messagelogger.h"
 
 #ifdef VECGEOM_ROOT
 #include "management/RootGeoManager.h"
@@ -35,6 +37,11 @@ class SimpleNavigator
 {
 
 public:
+   /**
+    * Returns the class name
+    **/
+   const char* ClassName() const {return "NavigationState";}
+
    /**
     * function to locate a global point in the geometry hierarchy
     * input: pointer to starting placed volume in the hierarchy and a global point, we also give an indication if we call this from top
@@ -426,16 +433,18 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
    if( step == kInfinity && pstep > 0. )
    {
 #if !defined(VECGEOM_NVCC)
-      std::cout << "WARNING: STEP INFINITY; should never happen unless outside\n";
+      //      std::cout << __func__ << ": WARNING: STEP INFINITY; should never happen unless outside\n";
+      log_warning(std::cout,"STEP INFINITY; should never happen unless outside") << std::endl;
       //InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );
       // set step to zero and retry one level higher
       // if( nexthitvolume!=-1 ) std::cout << "catastrophee\n";
-      currentstate.printVolumePath(std::cout); std::cout << "\n";
       newstate.Clear();
       VPlacedVolume const *world = GeoManager::Instance().GetWorld();
       LocatePoint(world, globalpoint + vecgeom::kTolerance*globaldir, newstate, true);
       step = vecgeom::kTolerance;
      // InspectEnvironmentForPointAndDirection( globalpoint, localpoint, currentstate );
+      std::cout << __func__ << ": path moved ";
+      currentstate.printVolumePath(std::cout); std::cout << " => ";
       newstate.printVolumePath(std::cout); std::cout << "\n";
 #if defined(VECGEOM_ROOT)
       InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );

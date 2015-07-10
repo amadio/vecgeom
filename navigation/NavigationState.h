@@ -105,6 +105,9 @@ private:
 
 
 public:
+   // return the name of the class... no C++ standard for this
+   const char* ClassName() const {return "NavigationState";}
+
    // replaces the volume pointers from CPU volumes in fPath
    // to the equivalent pointers on the GPU
    // uses the CudaManager to do so
