@@ -501,6 +501,8 @@ set(SRC_CPP_RELATIVE
   source/Nucleus.cpp
   source/CreateNuclei.cpp
   source/messagelogger.cpp
+  source/Particle.cpp
+  source/CreateParticles.cpp
 )
 
 # avoid "file has no symbols" warning
