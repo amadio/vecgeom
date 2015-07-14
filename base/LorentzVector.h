@@ -23,7 +23,7 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE( template <typename Type> class LorentzVector; )
+VECGEOM_DEVICE_FORWARD_DECLARE( template <typename T> class LorentzVector; )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -32,77 +32,53 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
  * @details If vector acceleration is enabled, the scalar template instantiation
  *          will use vector instructions for operations when possible.
  */
-template <typename Type>
+template <typename T>
 class LorentzVector : public AlignedBase {
 
-  typedef LorentzVector<Type> VecType;
+  typedef LorentzVector<T> VecType;
 
 private:
 
-  Type vec[4];
+  T fVec[4];
 
 public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  LorentzVector(const Type a, const Type b, const Type c, const Type d) {
-    vec[0] = a;
-    vec[1] = b;
-    vec[2] = c;
-    vec[3] = d;
-  }
+  LorentzVector(const T a, const T b, const T c, const T d): 
+  fVec{a,b,c,d} {}
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  LorentzVector() {
-    vec[0] = 0;
-    vec[1] = 0;
-    vec[2] = 0;
-    vec[3] = 0;
-  }
-
+  LorentzVector() : fVec{0,0,0,0} {}
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  LorentzVector(const Type a) {
-    vec[0] = a;
-    vec[1] = a;
-    vec[2] = a;
-    vec[3] = a;
-  }
+  LorentzVector(const T a) : fVec{0,0,0,0} {}
 
-  template <typename TypeOther>
+  template <typename U>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  LorentzVector(LorentzVector<TypeOther> const &other) {
-    vec[0] = other[0];
-    vec[1] = other[1];
-    vec[2] = other[2];
-    vec[3] = other[3];
-  }
+  LorentzVector(LorentzVector<U> const &other) : 
+  fVec{other[0], other[1], other[2], other[3]} {}
 
-  template <typename TypeOther>
+  template <typename U>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-     LorentzVector(Vector3D<TypeOther> const &other, Type t) {
-    vec[0] = other[0];
-    vec[1] = other[1];
-    vec[2] = other[2];
-    vec[3] = t;
-  }
+  LorentzVector(Vector3D<U> const &other, T t) :
+  fVec{other[0], other[1], other[2], t} {}
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   LorentzVector& operator=(LorentzVector const &other) {
     if(this != &other) {
-       vec[0] = other[0];
-       vec[1] = other[1];
-       vec[2] = other[2];
-       vec[3] = other[3];
+       fVec[0] = other[0];
+       fVec[1] = other[1];
+       fVec[2] = other[2];
+       fVec[3] = other[3];
     }
     return *this;
   }
-
 
   /**
    * Constructs a vector from an std::string of the same format as output by the
@@ -112,16 +88,16 @@ public:
   VECGEOM_CUDA_HEADER_HOST
   LorentzVector(std::string const &str) {
     int begin = str.find("(")+1, end = str.find(",")-1;
-    vec[0] = std::atof(str.substr(begin, end-begin+1).c_str());
+    fVec[0] = std::atof(str.substr(begin, end-begin+1).c_str());
     begin = end + 2;
     end = str.find(",", begin)-1;
-    vec[1] = std::atof(str.substr(begin, end-begin+1).c_str());
+    fVec[1] = std::atof(str.substr(begin, end-begin+1).c_str());
     begin = end + 2;
     end = str.find(",", begin)-1;
-    vec[2] = std::atof(str.substr(begin, end-begin+1).c_str());
+    fVec[2] = std::atof(str.substr(begin, end-begin+1).c_str());
     begin = end + 2;
     end = str.find(")", begin)-1;
-    vec[3] = std::atof(str.substr(begin, end-begin+1).c_str());
+    fVec[3] = std::atof(str.substr(begin, end-begin+1).c_str());
   }
 
   /**
@@ -130,8 +106,8 @@ public:
    */
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type& operator[](const int index) {
-    return vec[index];
+  T& operator[](const int index) {
+    return fVec[index];
   }
 
   /**
@@ -140,85 +116,85 @@ public:
    */
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type const& operator[](const int index) const {
-    return vec[index];
+  T const& operator[](const int index) const {
+    return fVec[index];
   }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type& x() { return vec[0]; }
+  T& x() { return fVec[0]; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type const& x() const { return vec[0]; }
+  T const& x() const { return fVec[0]; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type& y() { return vec[1]; }
+  T& y() { return fVec[1]; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type const& y() const { return vec[1]; }
+  T const& y() const { return fVec[1]; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type& z() { return vec[2]; }
+  T& z() { return fVec[2]; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type const& z() const { return vec[2]; }
+  T const& z() const { return fVec[2]; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type& t() { return vec[3]; }
+  T& t() { return fVec[3]; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type const& t() const { return vec[3]; }
+  T const& t() const { return fVec[3]; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  void Set(Type const &a, Type const &b, Type const &c, Type const &d) {
-    vec[0] = a;
-    vec[1] = b;
-    vec[2] = c;
-    vec[3] = d;
+  void Set(T const &a, T const &b, T const &c, T const &d) {
+    fVec[0] = a;
+    fVec[1] = b;
+    fVec[2] = c;
+    fVec[3] = d;
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  void Set(const Type a) {
+  void Set(const T a) {
     Set(a, a, a, a);
   }
 
   /// \return the length squared perpendicular to z direction
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type Perp2() const {
-    return vec[0]*vec[0]+vec[1]*vec[1];
+  T Perp2() const {
+    return fVec[0]*fVec[0]+fVec[1]*fVec[1];
   }
 
   /// \return the length perpendicular to z direction
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type Perp() const {
+  T Perp() const {
     return Sqrt(Perp2());
   }
 
-  template <typename Type2>
+  template <typename U>
   ///The dot product of two LorentzVector<T> objects
   /// \return T (where T is float, double, or various SIMD vector types)
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   static
-  Type Dot(LorentzVector<Type> const &left, LorentzVector<Type2> const &right) {
+  T Dot(LorentzVector<T> const &left, LorentzVector<U> const &right) {
      return left[0]*right[0] + left[1]*right[1] + left[2]*right[2] - left[3]*right[3];
   }
 
-  template <typename Type2>
+  template <typename U>
   /// The dot product of two LorentzVector<T> objects
   /// \return T (where T is float, double, or various SIMD vector types)
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type Dot(LorentzVector<Type2> const &right) const {
+  T Dot(LorentzVector<U> const &right) const {
     return Dot(*this, right);
   }
 
@@ -233,81 +209,69 @@ public:
   /// \return Squared magnitude of the vector.
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type Mag2() const {
+  T Mag2() const {
     return Dot(*this, *this);
   }
 
   /// \return Magnitude of the vector.
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type Mag() const {
+  T Mag() const {
     return Sqrt(Mag2());
-  }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  Type Length() const {
-    return Mag();
-  }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  Type Length2() const {
-    return Mag2();
   }
 
   /// \return Azimuthal angle between -pi and pi.
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type Phi() const {
-    //Type output = 0;
+  T Phi() const {
+    //T output = 0;
     //vecgeom::MaskedAssign(vec[0] != 0. || vec[1] != 0.,
     //                      ATan2(vec[1], vec[0]), &output);
     //return output;
-    return ATan2(vec[1], vec[0]);
+    return ATan2(fVec[1], fVec[0]);
   }
 
   /// \return Polar angle between 0 and pi.
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type Theta() const {
-    return ACos(vec[2]/SpaceVector<Type>().Mag());
+  T Theta() const {
+    return ACos(fVec[2]/SpaceVector<T>().Mag());
   }
 
   /// Maps each vector entry to a function that manipulates the entry type.
-  /// \param f A function of type "Type f(const Type&)" to map over entries.
+  /// \param f A function of type "T f(const T&)" to map over entries.
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void Map(Type (*f)(const Type&)) {
-    vec[0] = f(vec[0]);
-    vec[1] = f(vec[1]);
-    vec[2] = f(vec[2]);
-    vec[3] = f(vec[3]);
+  void Map(T (*f)(const T&)) {
+    fVec[0] = f(fVec[0]);
+    fVec[1] = f(fVec[1]);
+    fVec[2] = f(fVec[2]);
+    fVec[3] = f(fVec[3]);
   }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  LorentzVector<Type> Abs() const {
-    return LorentzVector<Type>(vecgeom::Abs(vec[0]),
-                          vecgeom::Abs(vec[1]),
-                          vecgeom::Abs(vec[2]),
-                          vecgeom::Abs(vec[3]));
+  LorentzVector<T> Abs() const {
+    return LorentzVector<T>(vecgeom::Abs(fVec[0]),
+                          vecgeom::Abs(fVec[1]),
+                          vecgeom::Abs(fVec[2]),
+                          vecgeom::Abs(fVec[3]));
   }
 
-  template <typename BoolType>
+  template <typename U>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void MaskedAssign(LorentzVector<BoolType> const &condition,
-                    LorentzVector<Type> const &value) {
-    vec[0] = (condition[0]) ? value[0] : vec[0];
-    vec[1] = (condition[1]) ? value[1] : vec[1];
-    vec[2] = (condition[2]) ? value[2] : vec[2];
-    vec[3] = (condition[3]) ? value[3] : vec[3];
+  void MaskedAssign(LorentzVector<U> const &condition,
+                    LorentzVector<T> const &value) {
+    fVec[0] = (condition[0]) ? value[0] : fVec[0];
+    fVec[1] = (condition[1]) ? value[1] : fVec[1];
+    fVec[2] = (condition[2]) ? value[2] : fVec[2];
+    fVec[3] = (condition[3]) ? value[3] : fVec[3];
   }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-     static VecType FromCylindrical(Type r, Type phi, Type z, Type t) {
+     static VecType FromCylindrical(T r, T phi, T z, T t) {
      return VecType(r*cos(phi), r*sin(phi), z, t);
   }
 
@@ -315,7 +279,7 @@ public:
   VECGEOM_INLINE
   VecType& FixZeroes() {
     for (int i = 0; i < 4; ++i) {
-      vecgeom::MaskedAssign(vecgeom::Abs(vec[i]) < kTolerance, 0., &vec[i]);
+      vecgeom::MaskedAssign(vecgeom::Abs(fVec[i]) < kTolerance, 0., &fVec[i]);
     }
     return *this;
   }
@@ -326,29 +290,29 @@ public:
   VECGEOM_CUDA_HEADER_BOTH \
   VECGEOM_INLINE \
   VecType& operator OPERATOR(const VecType &other) { \
-    vec[0] OPERATOR other.vec[0]; \
-    vec[1] OPERATOR other.vec[1]; \
-    vec[2] OPERATOR other.vec[2]; \
-    vec[3] OPERATOR other.vec[3]; \
+    fVec[0] OPERATOR other.fVec[0]; \
+    fVec[1] OPERATOR other.fVec[1]; \
+    fVec[2] OPERATOR other.fVec[2]; \
+    fVec[3] OPERATOR other.fVec[3]; \
     return *this; \
   } \
-  template <typename OtherType> \
+  template <typename V> \
   VECGEOM_CUDA_HEADER_BOTH \
   VECGEOM_INLINE \
-  VecType& operator OPERATOR(const LorentzVector<OtherType> &other) { \
-    vec[0] OPERATOR other[0]; \
-    vec[1] OPERATOR other[1]; \
-    vec[2] OPERATOR other[2]; \
-    vec[3] OPERATOR other[3]; \
+  VecType& operator OPERATOR(const LorentzVector<V> &other) { \
+    fVec[0] OPERATOR other[0]; \
+    fVec[1] OPERATOR other[1]; \
+    fVec[2] OPERATOR other[2]; \
+    fVec[3] OPERATOR other[3]; \
     return *this; \
   } \
   VECGEOM_CUDA_HEADER_BOTH \
   VECGEOM_INLINE \
-  VecType& operator OPERATOR(const Type &scalar) { \
-    vec[0] OPERATOR scalar; \
-    vec[1] OPERATOR scalar; \
-    vec[2] OPERATOR scalar; \
-    vec[3] OPERATOR scalar; \
+  VecType& operator OPERATOR(const T &scalar) { \
+    fVec[0] OPERATOR scalar; \
+    fVec[1] OPERATOR scalar; \
+    fVec[2] OPERATOR scalar; \
+    fVec[3] OPERATOR scalar; \
     return *this; \
   }
   LORENTZVECTOR_TEMPLATE_INPLACE_BINARY_OP(+=)
@@ -361,56 +325,56 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   operator bool() const {
-    return vec[0] && vec[1] && vec[2] && vec[3];
+    return fVec[0] && fVec[1] && fVec[2] && fVec[3];
   }
 
-  template <typename TypeOther> 
+  template <typename U> 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Vector3D<TypeOther> SpaceVector() const {
-     return Vector3D<TypeOther>(vec[0], vec[1], vec[2]);
+  Vector3D<U> SpaceVector() const {
+     return Vector3D<U>(fVec[0], fVec[1], fVec[2]);
   }
 
-  template <typename TypeOther> 
+  template <typename U> 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  VecType Boost(const Vector3D<TypeOther> &beta) const {
+  VecType Boost(const Vector3D<U> &beta) const {
     double beta2 = beta.Mag2();
     double gamma = Sqrt(1./(1-beta2));
     double bdotv = beta.Dot(this->SpaceVector());
     return LorentzVector(this->SpaceVector() + 
-			 ((gamma-1)/beta2*bdotv-gamma*vec[3]) * beta,
-			 gamma*(vec[3]-bdotv));
+			 ((gamma-1)/beta2*bdotv-gamma*fVec[3]) * beta,
+			 gamma*(fVec[3]-bdotv));
   }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type Beta2() const {
-     return (SpaceVector<Type>()/vec[4]).Mag2();}
+  T Beta2() const {
+     return (SpaceVector<T>()/fVec[4]).Mag2();}
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type Beta() const {
+  T Beta() const {
      return Sqrt(Beta2());}
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type Gamma2() const {
+  T Gamma2() const {
      return 1/(1-Beta2());}
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type Gamma() const {
+  T Gamma() const {
      return Sqrt(Gamma2());}
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type Rapidity() const {
-     return 0.5*Log((vec[4]+vec[3])/(vec[4]-vec[3]));}
+  T Rapidity() const {
+     return 0.5*Log((fVec[4]+fVec[3])/(fVec[4]-fVec[3]));}
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type PseudoRapidity() const {
+  T PseudoRapidity() const {
      return -Log(Tan(0.5*Theta()));}
 
 };
@@ -435,19 +399,19 @@ class LorentzVector<Precision> : public AlignedBase {
 
 private:
 
-  Vc::Memory<Vc::Vector<Precision>, 4> mem;
+  Vc::Memory<Vc::Vector<Precision>, 4> fMem;
 
 public:
 
   Precision* AsArray() {
-    return &mem[0];
+    return &fMem[0];
   }
 
- LorentzVector(const Precision a, const Precision b, const Precision c, const Precision d) : mem() {
-    mem[0] = a;
-    mem[1] = b;
-    mem[2] = c;
-    mem[3] = d;
+ LorentzVector(const Precision a, const Precision b, const Precision c, const Precision d) : fMem() {
+    fMem[0] = a;
+    fMem[1] = b;
+    fMem[2] = c;
+    fMem[3] = d;
   }
 
   // Performance issue in Vc with: mem = a;
@@ -457,27 +421,27 @@ public:
   VECGEOM_INLINE
   LorentzVector() : LorentzVector(0, 0, 0, 0) {}
 
-  template <typename TypeOther>
+  template <typename U>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-     LorentzVector(Vector3D<TypeOther> const &other, Precision t) {
-    mem[0] = other[0];
-    mem[1] = other[1];
-    mem[2] = other[2];
-    mem[3] = t;
+     LorentzVector(Vector3D<U> const &other, Precision t) {
+    fMem[0] = other[0];
+    fMem[1] = other[1];
+    fMem[2] = other[2];
+    fMem[3] = t;
   }
 
   VECGEOM_INLINE
-    LorentzVector(LorentzVector const &other) : mem() {
+    LorentzVector(LorentzVector const &other) : fMem() {
     //for( int i=0; i < 1 + 3/Base_t::Size; i++ )
 //      {
          //Base_t v1 = other.mem.vector(i);
          //this->mem.vector(i)=v1;
        //}
-     mem[0]=other.mem[0];
-     mem[1]=other.mem[1];
-     mem[2]=other.mem[2];
-     mem[3]=other.mem[3];
+     fMem[0]=other.fMem[0];
+     fMem[1]=other.fMem[1];
+     fMem[2]=other.fMem[2];
+     fMem[3]=other.fMem[3];
   }
 
   VECGEOM_INLINE
@@ -491,89 +455,83 @@ public:
 	 //}
 	 // the following line must not be used: this is a bug in Vc
 	 // this->mem = rhs.mem;
-	 mem[0]=rhs.mem[0];
-	 mem[1]=rhs.mem[1];
-	 mem[2]=rhs.mem[2];
-	 mem[3]=rhs.mem[3];
+	 fMem[0]=rhs.fMem[0];
+	 fMem[1]=rhs.fMem[1];
+	 fMem[2]=rhs.fMem[2];
+	 fMem[3]=rhs.fMem[3];
       }
       return *this;
    }
 
-  LorentzVector(std::string const &str) : mem() {
+  LorentzVector(std::string const &str) : fMem() {
     int begin = str.find("(")+1, end = str.find(",")-1;
-    mem[0] = std::atof(str.substr(begin, end-begin+1).c_str());
+    fMem[0] = std::atof(str.substr(begin, end-begin+1).c_str());
     begin = end + 2;
     end = str.find(",", begin)-1;
-    mem[1] = std::atof(str.substr(begin, end-begin+1).c_str());
+    fMem[1] = std::atof(str.substr(begin, end-begin+1).c_str());
     begin = end + 2;
     end = str.find(",", begin)-1;
-    mem[2] = std::atof(str.substr(begin, end-begin+1).c_str());
+    fMem[2] = std::atof(str.substr(begin, end-begin+1).c_str());
     begin = end + 2;
     end = str.find(")", begin)-1;
-    mem[3] = std::atof(str.substr(begin, end-begin+1).c_str());
+    fMem[3] = std::atof(str.substr(begin, end-begin+1).c_str());
   }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision& operator[](const int index) {
-    return mem[index];
+    return fMem[index];
   }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   const Precision& operator[](const int index) const {
-    return mem[index];
+    return fMem[index];
   }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Precision& x() { return mem[0]; }
+  Precision& x() { return fMem[0]; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  const Precision& x() const { return mem[0]; }
+  const Precision& x() const { return fMem[0]; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Precision& y() { return mem[1]; }
+  Precision& y() { return fMem[1]; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  const Precision& y() const { return mem[1]; }
+  const Precision& y() const { return fMem[1]; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Precision& z() { return mem[2]; }
+  Precision& z() { return fMem[2]; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  const Precision& z() const { return mem[2]; }
+  const Precision& z() const { return fMem[2]; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Precision& t() { return mem[3]; }
+  Precision& t() { return fMem[3]; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  const Precision& t() const { return mem[4]; }
+  const Precision& t() const { return fMem[4]; }
 
   VECGEOM_CUDA_HEADER_BOTH
     void Set(const Precision in_x, const Precision in_y, const Precision in_z, const Precision in_t) {
-    mem[0] = in_x;
-    mem[1] = in_y;
-    mem[2] = in_z;
-    mem[3] = in_t;
+    fMem[0] = in_x;
+    fMem[1] = in_y;
+    fMem[2] = in_z;
+    fMem[3] = in_t;
   }
 
   VECGEOM_CUDA_HEADER_BOTH
   void Set(const Precision in_x) {
      Set(in_x, in_x, in_x, in_x);
-  }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  Precision Length() const {
-    return sqrt(mem[0]*mem[0] + mem[1]*mem[1] + mem[2]*mem[2]-mem[3]*mem[3]);
   }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -592,7 +550,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision Perp2() const {
-    return mem[0]*mem[0] + mem[1]*mem[1];
+    return fMem[0]*fMem[0] + fMem[1]*fMem[1];
   }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -603,34 +561,34 @@ public:
 
   VECGEOM_INLINE
   void Map(Precision (*f)(const Precision&)) {
-    mem[0] = f(mem[0]);
-    mem[1] = f(mem[1]);
-    mem[2] = f(mem[2]);
-    mem[3] = f(mem[3]);
+    fMem[0] = f(fMem[0]);
+    fMem[1] = f(fMem[1]);
+    fMem[2] = f(fMem[2]);
+    fMem[3] = f(fMem[3]);
   }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   void MaskedAssign(LorentzVector<bool> const &condition,
                     LorentzVector<Precision> const &value) {
-    mem[0] = (condition[0]) ? value[0] : mem[0];
-    mem[1] = (condition[1]) ? value[1] : mem[1];
-    mem[2] = (condition[2]) ? value[2] : mem[2];
-    mem[3] = (condition[3]) ? value[3] : mem[3];
+    fMem[0] = (condition[0]) ? value[0] : fMem[0];
+    fMem[1] = (condition[1]) ? value[1] : fMem[1];
+    fMem[2] = (condition[2]) ? value[2] : fMem[2];
+    fMem[3] = (condition[3]) ? value[3] : fMem[3];
   }
 
   /// \return Azimuthal angle between -pi and pi.
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision Phi() const {
-    return (mem[0] != 0. || mem[1] != 0.) ? ATan2(mem[1], mem[0]) : 0.;
+    return (fMem[0] != 0. || fMem[1] != 0.) ? ATan2(fMem[1], fMem[0]) : 0.;
   }
 
   /// \return Polar angle between 0 and pi.
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision Theta() const {
-     Precision theta = ATan2(mem[2],Sqrt(mem[0]*mem[0]+mem[1]*mem[1]));
+     Precision theta = ATan2(fMem[2],Sqrt(fMem[0]*fMem[0]+fMem[1]*fMem[1]));
      if(theta < 0) theta += 3.14159265358979323846264338327950;
      return theta;
   }
@@ -646,7 +604,7 @@ public:
 
     // To avoid to initialize the padding component, we can not use mem.vector's
     // multiplication and addition since it would accumulate also the (random) padding component
-    return left.mem[0]*right.mem[0] + left.mem[1]*right.mem[1] + left.mem[2]*right.mem[2] - left.mem[3]*right.mem[3];
+    return left.fMem[0]*right.fMem[0] + left.fMem[1]*right.fMem[1] + left.fMem[2]*right.fMem[2] - left.fMem[3]*right.fMem[3];
   }
 
   /// \return The dot product with another LorentzVector<Precision> object.
@@ -665,7 +623,7 @@ public:
   VECGEOM_INLINE
   LorentzVector<Precision>& FixZeroes() {
     for (int i = 0; i < 4; ++i) {
-      if (std::abs(mem.scalar(i)) < kTolerance) mem.scalar(i) = 0;
+      if (std::abs(fMem.scalar(i)) < kTolerance) fMem.scalar(i) = 0;
     }
     return *this;
   }
@@ -676,14 +634,14 @@ public:
   VECGEOM_CUDA_HEADER_BOTH \
   VecType& operator OPERATOR(const VecType &other) { \
     for (unsigned i = 0; i < 1 + 4/Vc::Vector<Precision>::Size; ++i) { \
-      this->mem.vector(i) OPERATOR other.mem.vector(i); \
+      this->fMem.vector(i) OPERATOR other.fMem.vector(i); \
     } \
     return *this; \
   } \
   VECGEOM_CUDA_HEADER_BOTH \
   VecType& operator OPERATOR(const Precision &scalar) { \
     for (unsigned i = 0; i < 1 + 4/Vc::Vector<Precision>::Size; ++i) { \
-      this->mem.vector(i) OPERATOR scalar; \
+      this->fMem.vector(i) OPERATOR scalar; \
     } \
     return *this; \
   }
@@ -699,29 +657,29 @@ public:
      return VecType(r*cos(phi), r*sin(phi), z, t);
   }
 
-  template <typename TypeOther> 
+  template <typename U> 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Vector3D<TypeOther> SpaceVector() const {
-     return Vector3D<TypeOther>(mem[0], mem[1], mem[2]);
+  Vector3D<U> SpaceVector() const {
+     return Vector3D<U>(fMem[0], fMem[1], fMem[2]);
   }
 
-  template <typename TypeOther> 
+  template <typename U> 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  VecType Boost(const Vector3D<TypeOther> &beta) const {
+  VecType Boost(const Vector3D<U> &beta) const {
     Precision beta2 = beta.Mag2();
     Precision gamma = Sqrt(1./(1-beta2));
     Precision bdotv = beta.Dot(SpaceVector<Precision>());
     return LorentzVector(SpaceVector<Precision>() + 
-			 ((gamma-1)/beta2*bdotv-gamma*mem[3]) * beta,
-			 gamma*(mem[3]-bdotv));
+			 ((gamma-1)/beta2*bdotv-gamma*fMem[3]) * beta,
+			 gamma*(fMem[3]-bdotv));
   }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision Beta2() const {
-     return (SpaceVector<Precision>()/mem[4]).Mag2();}
+     return (SpaceVector<Precision>()/fMem[4]).Mag2();}
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -741,7 +699,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision Rapidity() const {
-     return 0.5*Log((mem[4]+mem[3])/(mem[4]-mem[3]));}
+     return 0.5*Log((fMem[4]+fMem[3])/(fMem[4]-fMem[3]));}
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -755,30 +713,30 @@ public:
 
 
 #define LORENTZVECTOR_BINARY_OP(OPERATOR, INPLACE) \
-template <typename Type, typename OtherType> \
+template <typename T, typename V> \
 VECGEOM_INLINE \
 VECGEOM_CUDA_HEADER_BOTH \
-LorentzVector<Type> operator OPERATOR(const LorentzVector<Type> &lhs, \
-                                 const LorentzVector<OtherType> &rhs) { \
-  LorentzVector<Type> result(lhs); \
+LorentzVector<T> operator OPERATOR(const LorentzVector<T> &lhs, \
+                                 const LorentzVector<V> &rhs) { \
+  LorentzVector<T> result(lhs); \
   result INPLACE rhs; \
   return result; \
 } \
-template <typename Type, typename ScalarType> \
+template <typename T, typename V> \
 VECGEOM_INLINE \
 VECGEOM_CUDA_HEADER_BOTH \
-LorentzVector<Type> operator OPERATOR(LorentzVector<Type> const &lhs, \
-                                 const ScalarType rhs) { \
-  LorentzVector<Type> result(lhs); \
+LorentzVector<T> operator OPERATOR(LorentzVector<T> const &lhs, \
+                                 const V rhs) { \
+  LorentzVector<T> result(lhs); \
   result INPLACE rhs; \
   return result; \
 } \
-template <typename Type, typename ScalarType> \
+template <typename T, typename V> \
 VECGEOM_INLINE \
 VECGEOM_CUDA_HEADER_BOTH \
-LorentzVector<Type> operator OPERATOR(const ScalarType lhs, \
-                                 LorentzVector<Type> const &rhs) { \
-  LorentzVector<Type> result(lhs); \
+LorentzVector<T> operator OPERATOR(const V lhs, \
+                                 LorentzVector<T> const &rhs) { \
+  LorentzVector<T> result(lhs); \
   result INPLACE rhs; \
   return result; \
 }
@@ -807,11 +765,11 @@ LorentzVector<bool> operator!=(
   return !(lhs == rhs);
 }
 
-template <typename Type>
+template <typename T>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-LorentzVector<Type> operator-(LorentzVector<Type> const &vec) {
-   return LorentzVector<Type>(-vec[0], -vec[1], -vec[2], ~vec[3]);
+LorentzVector<T> operator-(LorentzVector<T> const &vec) {
+   return LorentzVector<T>(-vec[0], -vec[1], -vec[2], ~vec[3]);
 }
 
 VECGEOM_CUDA_HEADER_BOTH
@@ -875,12 +833,6 @@ LORENTZVECTOR_VC_BOOLEAN_LOGICAL_OP(||)
 
 
 #ifdef VECGEOM_VC_ACCELERATION
-
-   /* not sure it makes sense
-LorentzVector<Precision> LorentzVector<Precision>::Normalized() const {
-  return LorentzVector<Precision>(*this) * (1. / Length());
-}
-   */
 
 LorentzVector<Precision> LorentzVector<Precision>::MultiplyByComponents(
     VecType const &other) const {
