@@ -1,8 +1,8 @@
 /// \file vectorlorentz.h
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch) + fca
 
-#ifndef VECGEOM_BASE_VECTORLorentz_H_
-#define VECGEOM_BASE_VECTORLorentz_H_
+#ifndef VECGEOM_BASE_LORENTZVECTOR_H_
+#define VECGEOM_BASE_LORENTZVECTOR_H_
 
 #include "base/Global.h"
 #include "base/Vector3D.h"
@@ -23,7 +23,7 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE( template <typename Type> class VectorLorentz; )
+VECGEOM_DEVICE_FORWARD_DECLARE( template <typename Type> class LorentzVector; )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -33,9 +33,9 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
  *          will use vector instructions for operations when possible.
  */
 template <typename Type>
-class VectorLorentz : public AlignedBase {
+class LorentzVector : public AlignedBase {
 
-  typedef VectorLorentz<Type> VecType;
+  typedef LorentzVector<Type> VecType;
 
 private:
 
@@ -45,7 +45,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  VectorLorentz(const Type a, const Type b, const Type c, const Type d) {
+  LorentzVector(const Type a, const Type b, const Type c, const Type d) {
     vec[0] = a;
     vec[1] = b;
     vec[2] = c;
@@ -54,7 +54,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  VectorLorentz() {
+  LorentzVector() {
     vec[0] = 0;
     vec[1] = 0;
     vec[2] = 0;
@@ -64,7 +64,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  VectorLorentz(const Type a) {
+  LorentzVector(const Type a) {
     vec[0] = a;
     vec[1] = a;
     vec[2] = a;
@@ -74,7 +74,7 @@ public:
   template <typename TypeOther>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  VectorLorentz(VectorLorentz<TypeOther> const &other) {
+  LorentzVector(LorentzVector<TypeOther> const &other) {
     vec[0] = other[0];
     vec[1] = other[1];
     vec[2] = other[2];
@@ -84,7 +84,7 @@ public:
   template <typename TypeOther>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-     VectorLorentz(Vector3D<TypeOther> const &other, Type t) {
+     LorentzVector(Vector3D<TypeOther> const &other, Type t) {
     vec[0] = other[0];
     vec[1] = other[1];
     vec[2] = other[2];
@@ -93,7 +93,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  VectorLorentz& operator=(VectorLorentz const &other) {
+  LorentzVector& operator=(LorentzVector const &other) {
     if(this != &other) {
        vec[0] = other[0];
        vec[1] = other[1];
@@ -110,7 +110,7 @@ public:
    * @param str String formatted as "(%d, %d, %d %d)".
    */
   VECGEOM_CUDA_HEADER_HOST
-  VectorLorentz(std::string const &str) {
+  LorentzVector(std::string const &str) {
     int begin = str.find("(")+1, end = str.find(",")-1;
     vec[0] = std::atof(str.substr(begin, end-begin+1).c_str());
     begin = end + 2;
@@ -204,21 +204,21 @@ public:
   }
 
   template <typename Type2>
-  ///The dot product of two VectorLorentz<T> objects
+  ///The dot product of two LorentzVector<T> objects
   /// \return T (where T is float, double, or various SIMD vector types)
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   static
-  Type Dot(VectorLorentz<Type> const &left, VectorLorentz<Type2> const &right) {
+  Type Dot(LorentzVector<Type> const &left, LorentzVector<Type2> const &right) {
      return left[0]*right[0] + left[1]*right[1] + left[2]*right[2] - left[3]*right[3];
   }
 
   template <typename Type2>
-  /// The dot product of two VectorLorentz<T> objects
+  /// The dot product of two LorentzVector<T> objects
   /// \return T (where T is float, double, or various SIMD vector types)
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type Dot(VectorLorentz<Type2> const &right) const {
+  Type Dot(LorentzVector<Type2> const &right) const {
     return Dot(*this, right);
   }
 
@@ -287,8 +287,8 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  VectorLorentz<Type> Abs() const {
-    return VectorLorentz<Type>(vecgeom::Abs(vec[0]),
+  LorentzVector<Type> Abs() const {
+    return LorentzVector<Type>(vecgeom::Abs(vec[0]),
                           vecgeom::Abs(vec[1]),
                           vecgeom::Abs(vec[2]),
                           vecgeom::Abs(vec[3]));
@@ -297,8 +297,8 @@ public:
   template <typename BoolType>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void MaskedAssign(VectorLorentz<BoolType> const &condition,
-                    VectorLorentz<Type> const &value) {
+  void MaskedAssign(LorentzVector<BoolType> const &condition,
+                    LorentzVector<Type> const &value) {
     vec[0] = (condition[0]) ? value[0] : vec[0];
     vec[1] = (condition[1]) ? value[1] : vec[1];
     vec[2] = (condition[2]) ? value[2] : vec[2];
@@ -322,7 +322,7 @@ public:
 
   // Inplace binary operators
 
-  #define VECTORLorentz_TEMPLATE_INPLACE_BINARY_OP(OPERATOR) \
+  #define LORENTZVECTOR_TEMPLATE_INPLACE_BINARY_OP(OPERATOR) \
   VECGEOM_CUDA_HEADER_BOTH \
   VECGEOM_INLINE \
   VecType& operator OPERATOR(const VecType &other) { \
@@ -335,7 +335,7 @@ public:
   template <typename OtherType> \
   VECGEOM_CUDA_HEADER_BOTH \
   VECGEOM_INLINE \
-  VecType& operator OPERATOR(const VectorLorentz<OtherType> &other) { \
+  VecType& operator OPERATOR(const LorentzVector<OtherType> &other) { \
     vec[0] OPERATOR other[0]; \
     vec[1] OPERATOR other[1]; \
     vec[2] OPERATOR other[2]; \
@@ -351,12 +351,12 @@ public:
     vec[3] OPERATOR scalar; \
     return *this; \
   }
-  VECTORLorentz_TEMPLATE_INPLACE_BINARY_OP(+=)
-  VECTORLorentz_TEMPLATE_INPLACE_BINARY_OP(-=)
-  VECTORLorentz_TEMPLATE_INPLACE_BINARY_OP(*=)
-  VECTORLorentz_TEMPLATE_INPLACE_BINARY_OP(/=)
+  LORENTZVECTOR_TEMPLATE_INPLACE_BINARY_OP(+=)
+  LORENTZVECTOR_TEMPLATE_INPLACE_BINARY_OP(-=)
+  LORENTZVECTOR_TEMPLATE_INPLACE_BINARY_OP(*=)
+  LORENTZVECTOR_TEMPLATE_INPLACE_BINARY_OP(/=)
 
-  #undef VECTORLorentz_TEMPLATE_INPLACE_BINARY_OP
+  #undef LORENTZVECTOR_TEMPLATE_INPLACE_BINARY_OP
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -378,7 +378,7 @@ public:
     double beta2 = beta.Mag2();
     double gamma = Sqrt(1./(1-beta2));
     double bdotv = beta.Dot(this->SpaceVector());
-    return VectorLorentz(this->SpaceVector() + 
+    return LorentzVector(this->SpaceVector() + 
 			 ((gamma-1)/beta2*bdotv-gamma*vec[3]) * beta,
 			 gamma*(vec[3]-bdotv));
   }
@@ -416,21 +416,21 @@ public:
 };
 
 template <typename T>
-std::ostream& operator<<(std::ostream& os, VectorLorentz<T> const &vec) {
+std::ostream& operator<<(std::ostream& os, LorentzVector<T> const &vec) {
   os << "(" << vec[0] << ", " << vec[1] << ", " << vec[2] << ", " << vec[3] << ")";
   return os;
 }
 
 #ifdef VECGEOM_VC_ACCELERATION
 
-/// This is a template specialization of class VectorLorentz<double> or
-/// VectorLorentz<float> that can provide internal vectorization of common vector
+/// This is a template specialization of class LorentzVector<double> or
+/// LorentzVector<float> that can provide internal vectorization of common vector
 /// operations.
 template <>
-class VectorLorentz<Precision> : public AlignedBase {
+class LorentzVector<Precision> : public AlignedBase {
 
-  typedef VectorLorentz<Precision> VecType;
-  typedef VectorLorentz<bool> BoolType;
+  typedef LorentzVector<Precision> VecType;
+  typedef LorentzVector<bool> BoolType;
   typedef Vc::Vector<Precision> Base_t;
 
 private:
@@ -443,7 +443,7 @@ public:
     return &mem[0];
   }
 
- VectorLorentz(const Precision a, const Precision b, const Precision c, const Precision d) : mem() {
+ LorentzVector(const Precision a, const Precision b, const Precision c, const Precision d) : mem() {
     mem[0] = a;
     mem[1] = b;
     mem[2] = c;
@@ -452,15 +452,15 @@ public:
 
   // Performance issue in Vc with: mem = a;
   VECGEOM_INLINE
-  VectorLorentz(const Precision a) : VectorLorentz(a, a, a, a) {}
+  LorentzVector(const Precision a) : LorentzVector(a, a, a, a) {}
 
   VECGEOM_INLINE
-  VectorLorentz() : VectorLorentz(0, 0, 0, 0) {}
+  LorentzVector() : LorentzVector(0, 0, 0, 0) {}
 
   template <typename TypeOther>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-     VectorLorentz(Vector3D<TypeOther> const &other, Precision t) {
+     LorentzVector(Vector3D<TypeOther> const &other, Precision t) {
     mem[0] = other[0];
     mem[1] = other[1];
     mem[2] = other[2];
@@ -468,7 +468,7 @@ public:
   }
 
   VECGEOM_INLINE
-    VectorLorentz(VectorLorentz const &other) : mem() {
+    LorentzVector(LorentzVector const &other) : mem() {
     //for( int i=0; i < 1 + 3/Base_t::Size; i++ )
 //      {
          //Base_t v1 = other.mem.vector(i);
@@ -481,7 +481,7 @@ public:
   }
 
   VECGEOM_INLINE
-  VectorLorentz & operator=( VectorLorentz const & rhs )
+  LorentzVector & operator=( LorentzVector const & rhs )
    {
       if(this != &rhs) {
 	 //for( int i=0; i < 1 + 3/Base_t::Size; i++ )
@@ -499,7 +499,7 @@ public:
       return *this;
    }
 
-  VectorLorentz(std::string const &str) : mem() {
+  LorentzVector(std::string const &str) : mem() {
     int begin = str.find("(")+1, end = str.find(",")-1;
     mem[0] = std::atof(str.substr(begin, end-begin+1).c_str());
     begin = end + 2;
@@ -611,8 +611,8 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void MaskedAssign(VectorLorentz<bool> const &condition,
-                    VectorLorentz<Precision> const &value) {
+  void MaskedAssign(LorentzVector<bool> const &condition,
+                    LorentzVector<Precision> const &value) {
     mem[0] = (condition[0]) ? value[0] : mem[0];
     mem[1] = (condition[1]) ? value[1] : mem[1];
     mem[2] = (condition[2]) ? value[2] : mem[2];
@@ -635,12 +635,12 @@ public:
      return theta;
   }
 
-  /// \return The dot product of two VectorLorentz<Precision> objects.
+  /// \return The dot product of two LorentzVector<Precision> objects.
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   static
-  Precision Dot(VectorLorentz<Precision> const &left,
-                VectorLorentz<Precision> const &right) {
+  Precision Dot(LorentzVector<Precision> const &left,
+                LorentzVector<Precision> const &right) {
     // TODO: This function should be internally vectorized (if proven to be
     //       beneficial)
 
@@ -649,10 +649,10 @@ public:
     return left.mem[0]*right.mem[0] + left.mem[1]*right.mem[1] + left.mem[2]*right.mem[2] - left.mem[3]*right.mem[3];
   }
 
-  /// \return The dot product with another VectorLorentz<Precision> object.
+  /// \return The dot product with another LorentzVector<Precision> object.
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Precision Dot(VectorLorentz<Precision> const &right) const {
+  Precision Dot(LorentzVector<Precision> const &right) const {
     return Dot(*this, right);
   }
 
@@ -663,7 +663,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  VectorLorentz<Precision>& FixZeroes() {
+  LorentzVector<Precision>& FixZeroes() {
     for (int i = 0; i < 4; ++i) {
       if (std::abs(mem.scalar(i)) < kTolerance) mem.scalar(i) = 0;
     }
@@ -672,7 +672,7 @@ public:
 
   // Inplace binary operators
 
-  #define VECTORLorentz_ACCELERATED_INPLACE_BINARY_OP(OPERATOR) \
+  #define LORENTZVECTOR_ACCELERATED_INPLACE_BINARY_OP(OPERATOR) \
   VECGEOM_CUDA_HEADER_BOTH \
   VecType& operator OPERATOR(const VecType &other) { \
     for (unsigned i = 0; i < 1 + 4/Vc::Vector<Precision>::Size; ++i) { \
@@ -687,11 +687,11 @@ public:
     } \
     return *this; \
   }
-  VECTORLorentz_ACCELERATED_INPLACE_BINARY_OP(+=)
-  VECTORLorentz_ACCELERATED_INPLACE_BINARY_OP(-=)
-  VECTORLorentz_ACCELERATED_INPLACE_BINARY_OP(*=)
-  VECTORLorentz_ACCELERATED_INPLACE_BINARY_OP(/=)
-  #undef VECTORLorentz_ACCELERATED_INPLACE_BINARY_OP
+  LORENTZVECTOR_ACCELERATED_INPLACE_BINARY_OP(+=)
+  LORENTZVECTOR_ACCELERATED_INPLACE_BINARY_OP(-=)
+  LORENTZVECTOR_ACCELERATED_INPLACE_BINARY_OP(*=)
+  LORENTZVECTOR_ACCELERATED_INPLACE_BINARY_OP(/=)
+  #undef LORENTZVECTOR_ACCELERATED_INPLACE_BINARY_OP
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -713,7 +713,7 @@ public:
     Precision beta2 = beta.Mag2();
     Precision gamma = Sqrt(1./(1-beta2));
     Precision bdotv = beta.Dot(SpaceVector<Precision>());
-    return VectorLorentz(SpaceVector<Precision>() + 
+    return LorentzVector(SpaceVector<Precision>() + 
 			 ((gamma-1)/beta2*bdotv-gamma*mem[3]) * beta,
 			 gamma*(mem[3]-bdotv));
   }
@@ -750,49 +750,49 @@ public:
 
 };
 #else
-//#pragma message "using normal VectorLorentz.h"
+//#pragma message "using normal LorentzVector.h"
 #endif // VECGEOM_VC_ACCELERATION
 
 
-#define VECTORLorentz_BINARY_OP(OPERATOR, INPLACE) \
+#define LORENTZVECTOR_BINARY_OP(OPERATOR, INPLACE) \
 template <typename Type, typename OtherType> \
 VECGEOM_INLINE \
 VECGEOM_CUDA_HEADER_BOTH \
-VectorLorentz<Type> operator OPERATOR(const VectorLorentz<Type> &lhs, \
-                                 const VectorLorentz<OtherType> &rhs) { \
-  VectorLorentz<Type> result(lhs); \
+LorentzVector<Type> operator OPERATOR(const LorentzVector<Type> &lhs, \
+                                 const LorentzVector<OtherType> &rhs) { \
+  LorentzVector<Type> result(lhs); \
   result INPLACE rhs; \
   return result; \
 } \
 template <typename Type, typename ScalarType> \
 VECGEOM_INLINE \
 VECGEOM_CUDA_HEADER_BOTH \
-VectorLorentz<Type> operator OPERATOR(VectorLorentz<Type> const &lhs, \
+LorentzVector<Type> operator OPERATOR(LorentzVector<Type> const &lhs, \
                                  const ScalarType rhs) { \
-  VectorLorentz<Type> result(lhs); \
+  LorentzVector<Type> result(lhs); \
   result INPLACE rhs; \
   return result; \
 } \
 template <typename Type, typename ScalarType> \
 VECGEOM_INLINE \
 VECGEOM_CUDA_HEADER_BOTH \
-VectorLorentz<Type> operator OPERATOR(const ScalarType lhs, \
-                                 VectorLorentz<Type> const &rhs) { \
-  VectorLorentz<Type> result(lhs); \
+LorentzVector<Type> operator OPERATOR(const ScalarType lhs, \
+                                 LorentzVector<Type> const &rhs) { \
+  LorentzVector<Type> result(lhs); \
   result INPLACE rhs; \
   return result; \
 }
-VECTORLorentz_BINARY_OP(+, +=)
-VECTORLorentz_BINARY_OP(-, -=)
-VECTORLorentz_BINARY_OP(*, *=)
-VECTORLorentz_BINARY_OP(/, /=)
-#undef VECTORLorentz_BINARY_OP
+LORENTZVECTOR_BINARY_OP(+, +=)
+LORENTZVECTOR_BINARY_OP(-, -=)
+LORENTZVECTOR_BINARY_OP(*, *=)
+LORENTZVECTOR_BINARY_OP(/, /=)
+#undef LORENTZVECTOR_BINARY_OP
 
 VECGEOM_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 bool operator==(
-    VectorLorentz<Precision> const &lhs,
-    VectorLorentz<Precision> const &rhs) {
+    LorentzVector<Precision> const &lhs,
+    LorentzVector<Precision> const &rhs) {
   return Abs(lhs[0] - rhs[0]) < kTolerance &&
          Abs(lhs[1] - rhs[1]) < kTolerance &&
          Abs(lhs[2] - rhs[2]) < kTolerance &&
@@ -801,53 +801,53 @@ bool operator==(
 
 VECGEOM_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-VectorLorentz<bool> operator!=(
-    VectorLorentz<Precision> const &lhs,
-    VectorLorentz<Precision> const &rhs) {
+LorentzVector<bool> operator!=(
+    LorentzVector<Precision> const &lhs,
+    LorentzVector<Precision> const &rhs) {
   return !(lhs == rhs);
 }
 
 template <typename Type>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-VectorLorentz<Type> operator-(VectorLorentz<Type> const &vec) {
-   return VectorLorentz<Type>(-vec[0], -vec[1], -vec[2], ~vec[3]);
+LorentzVector<Type> operator-(LorentzVector<Type> const &vec) {
+   return LorentzVector<Type>(-vec[0], -vec[1], -vec[2], ~vec[3]);
 }
 
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-VectorLorentz<bool> operator!(VectorLorentz<bool> const &vec) {
-   return VectorLorentz<bool>(!vec[0], !vec[1], !vec[2], !vec[3]);
+LorentzVector<bool> operator!(LorentzVector<bool> const &vec) {
+   return LorentzVector<bool>(!vec[0], !vec[1], !vec[2], !vec[3]);
 }
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
-#define VECTORLorentz_SCALAR_BOOLEAN_LOGICAL_OP(OPERATOR) \
+#define LORENTZVECTOR_SCALAR_BOOLEAN_LOGICAL_OP(OPERATOR) \
 VECGEOM_CUDA_HEADER_BOTH \
 VECGEOM_INLINE \
-VectorLorentz<bool> operator OPERATOR(VectorLorentz<bool> const &lhs, \
-                                 VectorLorentz<bool> const &rhs) { \
-  return VectorLorentz<bool>(lhs[0] OPERATOR rhs[0], \
+LorentzVector<bool> operator OPERATOR(LorentzVector<bool> const &lhs, \
+                                 LorentzVector<bool> const &rhs) { \
+  return LorentzVector<bool>(lhs[0] OPERATOR rhs[0], \
                         lhs[1] OPERATOR rhs[1], \
 			lhs[2] OPERATOR rhs[2],	\
                         lhs[3] OPERATOR rhs[3]); \
 }
-VECTORLorentz_SCALAR_BOOLEAN_LOGICAL_OP(&&)
-VECTORLorentz_SCALAR_BOOLEAN_LOGICAL_OP(||)
-#undef VECTORLorentz_SCALAR_BOOLEAN_LOGICAL_OP
+LORENTZVECTOR_SCALAR_BOOLEAN_LOGICAL_OP(&&)
+LORENTZVECTOR_SCALAR_BOOLEAN_LOGICAL_OP(||)
+#undef LORENTZVECTOR_SCALAR_BOOLEAN_LOGICAL_OP
 #pragma GCC diagnostic pop
 
 #ifdef VECGEOM_VC
 
 VECGEOM_INLINE
-VectorLorentz<VcBool> operator!(VectorLorentz<VcBool> const &vec) {
-   return VectorLorentz<VcBool>(!vec[0], !vec[1], !vec[2], !vec[3]);
+LorentzVector<VcBool> operator!(LorentzVector<VcBool> const &vec) {
+   return LorentzVector<VcBool>(!vec[0], !vec[1], !vec[2], !vec[3]);
 }
 
 VECGEOM_INLINE
 VcBool operator==(
-    VectorLorentz<VcPrecision> const &lhs,
-    VectorLorentz<VcPrecision> const &rhs) {
+    LorentzVector<VcPrecision> const &lhs,
+    LorentzVector<VcPrecision> const &rhs) {
   return Abs(lhs[0] - rhs[0]) < kTolerance &&
          Abs(lhs[1] - rhs[1]) < kTolerance &&
          Abs(lhs[2] - rhs[2]) < kTolerance &&
@@ -856,19 +856,19 @@ VcBool operator==(
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
-#define VECTORLorentz_VC_BOOLEAN_LOGICAL_OP(OPERATOR) \
+#define LORENTZVECTOR_VC_BOOLEAN_LOGICAL_OP(OPERATOR) \
 VECGEOM_INLINE \
-VectorLorentz<VcBool> operator OPERATOR( \
-    VectorLorentz<VcBool> const &lhs, \
-    VectorLorentz<VcBool> const &rhs) { \
-  return VectorLorentz<VcBool>(lhs[0] OPERATOR rhs[0], \
+LorentzVector<VcBool> operator OPERATOR( \
+    LorentzVector<VcBool> const &lhs, \
+    LorentzVector<VcBool> const &rhs) { \
+  return LorentzVector<VcBool>(lhs[0] OPERATOR rhs[0], \
                           lhs[1] OPERATOR rhs[1], \
                           lhs[2] OPERATOR rhs[2], \
                           lhs[3] OPERATOR rhs[3]); \
 }
-VECTORLorentz_VC_BOOLEAN_LOGICAL_OP(&&)
-VECTORLorentz_VC_BOOLEAN_LOGICAL_OP(||)
-#undef VECTORLorentz_VC_BOOLEAN_LOGICAL_OP
+LORENTZVECTOR_VC_BOOLEAN_LOGICAL_OP(&&)
+LORENTZVECTOR_VC_BOOLEAN_LOGICAL_OP(||)
+#undef LORENTZVECTOR_VC_BOOLEAN_LOGICAL_OP
 #pragma GCC diagnostic pop
 
 #endif // VECGEOM_VC
@@ -877,12 +877,12 @@ VECTORLorentz_VC_BOOLEAN_LOGICAL_OP(||)
 #ifdef VECGEOM_VC_ACCELERATION
 
    /* not sure it makes sense
-VectorLorentz<Precision> VectorLorentz<Precision>::Normalized() const {
-  return VectorLorentz<Precision>(*this) * (1. / Length());
+LorentzVector<Precision> LorentzVector<Precision>::Normalized() const {
+  return LorentzVector<Precision>(*this) * (1. / Length());
 }
    */
 
-VectorLorentz<Precision> VectorLorentz<Precision>::MultiplyByComponents(
+LorentzVector<Precision> LorentzVector<Precision>::MultiplyByComponents(
     VecType const &other) const {
   return (*this) * other;
 }
@@ -893,4 +893,4 @@ VectorLorentz<Precision> VectorLorentz<Precision>::MultiplyByComponents(
 
 } // End global namespace
 
-#endif // VECGEOM_BASE_VECTORLorentz_H_
+#endif // VECGEOM_BASE_LORENTZVECTOR_H_
