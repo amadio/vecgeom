@@ -115,6 +115,11 @@ VcPrecision Sqrt(VcPrecision const &val) {
 }
 
 VECGEOM_INLINE
+VcPrecision Log(VcPrecision const &val) {
+  return Vc::log(val);
+}
+
+VECGEOM_INLINE
 VcPrecision ATan2(VcPrecision const &y, VcPrecision const &x) {
   return Vc::atan2(y, x);
 }

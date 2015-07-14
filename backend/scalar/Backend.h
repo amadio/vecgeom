@@ -118,6 +118,13 @@ Type Sqrt(const Type val) {
 template <typename Type>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
+Type Log(const Type val) {
+  return std::log(val);
+}
+
+template <typename Type>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
 Type Pow(const Type val1, const Type val2) {
   return std::pow(val1, val2);
 }
