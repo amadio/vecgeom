@@ -125,6 +125,20 @@ Type Log(const Type val) {
 template <typename Type>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
+Type ACos(const Type val) {
+  return std::acos(val);
+}
+
+template <typename Type>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+Type Tan(const Type val) {
+  return std::tan(val);
+}
+
+template <typename Type>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
 Type Pow(const Type val1, const Type val2) {
   return std::pow(val1, val2);
 }
