@@ -188,7 +188,7 @@ public:
   VECGEOM_INLINE
   static
   T Dot(LorentzVector<T> const &left, LorentzVector<U> const &right) {
-     return left[0]*right[0] + left[1]*right[1] + left[2]*right[2] - left[3]*right[3];
+     return - left[0]*right[0] - left[1]*right[1] - left[2]*right[2] + left[3]*right[3];
   }
 
   template <typename U>
@@ -608,7 +608,7 @@ public:
 
     // To avoid to initialize the padding component, we can not use mem.vector's
     // multiplication and addition since it would accumulate also the (random) padding component
-    return left.fMem[0]*right.fMem[0] + left.fMem[1]*right.fMem[1] + left.fMem[2]*right.fMem[2] - left.fMem[3]*right.fMem[3];
+    return - left.fMem[0]*right.fMem[0] - left.fMem[1]*right.fMem[1] - left.fMem[2]*right.fMem[2] + left.fMem[3]*right.fMem[3];
   }
 
   /// \return The dot product with another LorentzVector<Precision> object.
