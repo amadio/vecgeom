@@ -80,6 +80,8 @@ public:
     return *this;
   }
 
+  operator Vector3D<T>&() {return reinterpret_cast<Vector3D<T>&>(*this);}
+
   /**
    * Constructs a vector from an std::string of the same format as output by the
    * "<<"-operator for outstreams.
@@ -341,8 +343,8 @@ public:
   VecType Boost(const Vector3D<U> &beta) const {
     double beta2 = beta.Mag2();
     double gamma = Sqrt(1./(1-beta2));
-    double bdotv = beta.Dot(this->SpaceVector());
-    return LorentzVector(this->SpaceVector() + 
+    double bdotv = beta.Dot(SpaceVector());
+    return LorentzVector(SpaceVector() + 
 			 ((gamma-1)/beta2*bdotv-gamma*fVec[3]) * beta,
 			 gamma*(fVec[3]-bdotv));
   }
@@ -476,6 +478,8 @@ public:
     end = str.find(")", begin)-1;
     fMem[3] = std::atof(str.substr(begin, end-begin+1).c_str());
   }
+
+  operator Vector3D<Precision>&() {return reinterpret_cast<Vector3D<Precision>&>(*this);}
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
