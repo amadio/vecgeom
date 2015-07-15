@@ -92,6 +92,13 @@ public:
                    const Precision r7, const Precision r8);
 
   VECGEOM_CUDA_HEADER_BOTH
+  template<typename V> Transformation3D(const Vector3D<V>& axis){
+     SetTranslation(0,0,0);
+     SetRotation(axis.Phi()*kRadToDeg-90, -axis.Theta()*kRadToDeg, 0);
+     SetProperties();
+  }
+
+  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Transformation3D(Transformation3D const &other);
 
