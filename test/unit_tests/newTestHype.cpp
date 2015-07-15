@@ -39,7 +39,7 @@ bool TestHype() {
     std::cout<<"DistToOut : "<<Dist<<std::endl;
 	std::cout<<"Location of Point from VecGeom  : " << hypeD.Inside(testP)<<std::endl;
 	*/
-
+    std::cout<<std::setprecision(15);
 	std::cout<<"**************************************************************\n";
 	Hype_t hypeD("test_VecGeomHype",5.,20,PI/6,PI/4,50);
 	Vec_t testP(28.4073618747969, -14.7583198850071, -49.8361524659377);
@@ -71,13 +71,36 @@ bool TestHype() {
 	std::cout<<"Location of Point from VecGeom  : " << hypeD.Inside(transP)<<std::endl;
 
     std::cout<<"============================================"<<std::endl;
-    Hype_t hypeS("test_VecGeomHype",5.,20,PI/6,PI/3,50);
-    Vec_t pointS(51.3317803344263, 6.208742448696, -15.9749535016947);
-    Vec_t dirS(-0.886749038154024 ,-0.0747924453665009, 0.456160315513102);
-    Dist = hypeS.DistanceToIn(pointS,dirS);
-    double safeDist = hypeS.SafetyToIn(pointS);
-    std::cout<<"Dist : "<<Dist<<" :: SafetyDist : "<<safeDist<<std::endl;
 
+    Hype_t hypeS("test_VecGeomHype",5.,20,PI/6,PI/3,50);
+    Vec_t pointS(9.0825013460852268565 ,88.416671979589253283, 50);
+    Vec_t dirS(0.32775081966036939685, 0.55662483271017915154, -0.76337945729651479621);
+    dirS = dirS.Unit();
+    Dist = hypeS.DistanceToOut(pointS,dirS,norm,convex);
+    //double safeDist = hypeS.SafetyToIn(pointS);
+    //std::cout<<"Dist : "<<Dist<<" :: SafetyDist : "<<safeDist<<std::endl;
+
+    double step=2.7055498516937363611e-07;
+    std::cout<<"Dist : "<<Dist<<"  :: Step : "<<step<<std::endl;
+    std::cout<<"point Radius2 : "<<pointS.Perp2()<<"  :: EndOuterRadius2  :"<<hypeS.GetEndOuterRadius2()<<std::endl;
+
+
+    std::cout<<"Original Point : "<<pointS<<std::endl;
+    std::cout<<"Direction of Motion : "<<dirS<<std::endl;
+    Vec_t newPt = pointS+step*dirS;
+    std::cout<<"newPt : "<<newPt<<std::endl;
+    std::cout<<"Location of Moved newPt : "<<hypeS.Inside(newPt)<<std::endl;
+    std::cout<<"-------- Moving the point throught DistanceToOut dist --------"<<std::endl;
+    Vec_t newPt2 = pointS + Dist*dirS;
+    std::cout<<"newPt2  : "<<newPt2<<std::endl;
+    std::cout<<"Location of Moved newPt2 : "<<hypeS.Inside(newPt2)<<std::endl;
+
+    std::cout<<"---------------------------------------------------"<<std::endl;
+    Vec_t normal;
+    bool valid = hypeS.Normal(pointS,normal);
+    valid = hypeS.Normal(newPt,normal);
+    valid = hypeS.Normal(newPt2,normal);
+    std::cout<<"Normal : "<<normal<<std::endl;
     return true;
 }
 

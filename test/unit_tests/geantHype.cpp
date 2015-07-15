@@ -240,12 +240,15 @@ std::cout<<"==========================================================\n";
 
 	std::cout<<"============================================"<<std::endl;
 	Hype_t hypeS("test_VecGeomHype",5.,20,PI/6,PI/3,50);
-    Vec_t pointS(51.3317803344263, 6.208742448696, -15.9749535016947);
-    Vec_t dirS(-0.886749038154024 ,-0.0747924453665009, 0.456160315513102);
-    Dist = hypeS.DistanceToIn(pointS,dirS);
-    double safeDist = hypeS.DistanceToIn(pointS);
-    std::cout<<"Dist : "<<Dist<<" :: SafetyDist : "<<safeDist<<std::endl;
+    Vec_t pointS(9.0825013460852268565, 88.416671979589253283, 50);
+    Vec_t dirS(0.32775081966036939685 ,0.55662483271017915154, -0.76337945729651479621);
+    Dist = hypeS.DistanceToOut(pointS,dirS,calcNorm,validNorm,norm);
+    //double safeDist = hypeS.DistanceToIn(pointS);
+    //std::cout<<"Dist : "<<Dist<<" :: SafetyDist : "<<safeDist<<std::endl;
+    std::cout<<"Dist : "<<Dist<<std::endl;
 
+    Vec_t newPt2(9.08250162660456, 88.416672456, 49.9999993466296);
+    std::cout<<"NOrmal : "<<hypeS.SurfaceNormal(newPt2)<<std::endl;
 
 	//Vec_t pointOTolI(20-vecgeom::cxx::kSTolerance,0.,0.);
 	//Vec_t dirtOTol(1,0,0);
