@@ -155,11 +155,31 @@ public:
   T const& t() const { return fVec[3]; }
 
   VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
   void Set(T const &a, T const &b, T const &c, T const &d) {
     fVec[0] = a;
     fVec[1] = b;
     fVec[2] = c;
     fVec[3] = d;
+  }
+
+  template <typename U, typename V>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+     void Set(const Vector3D<U> &v, V t) {
+    fVec[0] = v[0];
+    fVec[1] = v[1];
+    fVec[2] = v[2];
+    fVec[3] = t;
+  }
+
+  template <typename U>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  void Set(const Vector3D<U> &v) {
+    fVec[0] = v[0];
+    fVec[1] = v[1];
+    fVec[2] = v[2];
   }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -526,11 +546,31 @@ public:
   const Precision& t() const { return fMem[4]; }
 
   VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
     void Set(const Precision in_x, const Precision in_y, const Precision in_z, const Precision in_t) {
     fMem[0] = in_x;
     fMem[1] = in_y;
     fMem[2] = in_z;
     fMem[3] = in_t;
+  }
+
+  template <typename U, typename V>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+     void Set(const Vector3D<U> &v, V t) {
+    fMem[0] = v[0];
+    fMem[1] = v[1];
+    fMem[2] = v[2];
+    fMem[3] = t;
+  }
+
+  template <typename U>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  void Set(const Vector3D<U> &v) {
+    fMem[0] = v[0];
+    fMem[1] = v[1];
+    fMem[2] = v[2];
   }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -592,7 +632,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision Theta() const {
-     Precision theta = ATan2(fMem[2],Sqrt(fMem[0]*fMem[0]+fMem[1]*fMem[1]));
+     Precision theta = ATan2(Sqrt(fMem[0]*fMem[0]+fMem[1]*fMem[1]),fMem[2]);
      if(theta < 0) theta += 3.14159265358979323846264338327950;
      return theta;
   }
