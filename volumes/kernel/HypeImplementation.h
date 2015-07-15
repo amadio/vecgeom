@@ -1125,11 +1125,11 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
 
 
         intersectionExist = GetPointOfIntersectionWithZPlane<Backend,false>(unplaced,point,direction,zDist) ;
-        MaskedAssign(zDist<0., kInfinity, &zDist);
+        MaskedAssign(zDist < 0., kInfinity, &zDist);
         //MaskedAssign(!done && intersectionExist, zDist, &distance);
 
         intersectionExist = GetPointOfIntersectionWithOuterHyperbolicSurface<Backend,false>(unplaced,point,direction,dist);
-        MaskedAssign(dist<0., kInfinity, &dist);
+        MaskedAssign(dist < 0., kInfinity, &dist);
         distance = Min(zDist,dist);
         //MaskedAssign(!done && intersectionExist && dist<distance , dist , &distance);
 
@@ -1137,7 +1137,7 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
         if(unplaced.InnerSurfaceExists())
         {
         intersectionExist = GetPointOfIntersectionWithInnerHyperbolicSurface<Backend,false>(unplaced,point,direction,dist);
-        MaskedAssign(dist<0., kInfinity, &dist);
+        MaskedAssign(dist < 0., kInfinity, &dist);
         distance = Min(distance,dist);
         //MaskedAssign(!done && intersectionExist && dist<distance, dist , &distance);
 

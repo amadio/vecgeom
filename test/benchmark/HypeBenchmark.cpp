@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
     std::cout<<std::setprecision(15);
   OPTION_INT(npoints,1024);
   OPTION_INT(nrep,10);
-  OPTION_DOUBLE(rmin,15.);
+  OPTION_DOUBLE(rmin,10.);
   OPTION_DOUBLE(rmax,20.);
   OPTION_DOUBLE(sin,PI/5.);
   OPTION_DOUBLE(sout,PI/3.);
