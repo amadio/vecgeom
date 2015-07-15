@@ -27,7 +27,7 @@
 #include <cassert>
 #include <sstream>
 
-#define CALLGRIND
+//#define CALLGRIND
 #ifdef CALLGRIND
 #include <valgrind/callgrind.h>
 #endif
