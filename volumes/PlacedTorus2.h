@@ -1,46 +1,46 @@
-/// \file PlacedTorus.h
+/// \file PlacedTorus2.h
 
-#ifndef VECGEOM_VOLUMES_PLACEDTORUS_H_
-#define VECGEOM_VOLUMES_PLACEDTORUS_H_
+#ifndef VECGEOM_VOLUMES_PLACEDTORUS2_H_
+#define VECGEOM_VOLUMES_PLACEDTORUS2_H_
 
 #include "base/Global.h"
 #include "backend/Backend.h"
  
 #include "volumes/PlacedVolume.h"
 #include "volumes/UnplacedVolume.h"
-#include "volumes/kernel/TorusImplementation.h"
+#include "volumes/kernel/TorusImplementation2.h"
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedTorus; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedTorus );
+VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedTorus2; )
+VECGEOM_DEVICE_DECLARE_CONV( PlacedTorus2 );
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class PlacedTorus : public VPlacedVolume {
+class PlacedTorus2 : public VPlacedVolume {
 
 public:
 
-  typedef UnplacedTorus UnplacedShape_t;
+  typedef UnplacedTorus2 UnplacedShape_t;
 
 
 #ifndef VECGEOM_NVCC
 
-  PlacedTorus(char const *const label,
+  PlacedTorus2(char const *const label,
           LogicalVolume const *const logical_volume,
           Transformation3D const *const transformation,
           PlacedBox const *const boundingBox)
       : VPlacedVolume(label, logical_volume, transformation, boundingBox) {}
 
-  PlacedTorus(LogicalVolume const *const logical_volume,
+  PlacedTorus2(LogicalVolume const *const logical_volume,
           Transformation3D const *const transformation,
           PlacedBox const *const boundingBox)
-      : PlacedTorus("", logical_volume, transformation, boundingBox) {}
+      : PlacedTorus2("", logical_volume, transformation, boundingBox) {}
 
 #else
 
   __device__
-  PlacedTorus(LogicalVolume const *const logical_volume,
+  PlacedTorus2(LogicalVolume const *const logical_volume,
           Transformation3D const *const transformation,
           PlacedBox const *const boundingBox, const int id)
       : VPlacedVolume(logical_volume, transformation, boundingBox, id) {}
@@ -48,11 +48,11 @@ public:
 #endif
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual ~PlacedTorus() {}
+  virtual ~PlacedTorus2() {}
 
   VECGEOM_CUDA_HEADER_BOTH
-  UnplacedTorus const* GetUnplacedVolume() const {
-    return static_cast<UnplacedTorus const *>(
+  UnplacedTorus2 const* GetUnplacedVolume() const {
+    return static_cast<UnplacedTorus2 const *>(
         GetLogicalVolume()->GetUnplacedVolume());
   }
 
@@ -107,7 +107,7 @@ public:
 
 } } // End global namespace
 
-#endif // VECGEOM_VOLUMES_PLACEDTORUS_H_
+#endif // VECGEOM_VOLUMES_PLACEDTORUS2_H_
 
 
 

@@ -45,6 +45,8 @@ option(COVERAGE_TESTING "Enable coverage testing flags." OFF)
 
 option(CTEST "Enable CTest when building." ON)
 
+option(VALIDATION "Enable validation tests from CMS geometry." OFF)
+
 option(PLANESHELL "Enable the use of PlaneShell class for the trapezoid." ON)
 
 option(DISTANCE_DEBUG "Enable comparison of calculated distances againt ROOT/Geant4 behind the scenes" OFF)
@@ -200,7 +202,7 @@ string(TOUPPER ${VECGEOM_VECTOR} _arch_up)
 if (${_arch_lo} MATCHES mic)
   if (Intel)
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -m${_arch_lo}")
-    set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -m{_arch_lo}")
+    set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -m${_arch_lo}")
     set(MIC TRUE)
   else()
     message(FATAL_ERROR "MIC native of offload compilation requires Intel Compiler.")
@@ -465,6 +467,7 @@ set(SRC_CPP_RELATIVE
   source/PlacedBox.cpp
   source/PlacedTube.cpp
   source/PlacedTorus.cpp
+  source/PlacedTorus2.cpp
   source/PlacedTrd.cpp
   source/PlacedParallelepiped.cpp
   source/PlacedParaboloid.cpp
@@ -480,6 +483,7 @@ set(SRC_CPP_RELATIVE
   source/UnplacedBox.cpp
   source/UnplacedTube.cpp
   source/UnplacedTorus.cpp
+  source/UnplacedTorus2.cpp
   source/UnplacedTrd.cpp
   source/UnplacedParaboloid.cpp
   source/UnplacedParallelepiped.cpp
@@ -506,6 +510,15 @@ set(SRC_CPP_RELATIVE
 
   source/USolidsInterfaceHelper.cpp
 )
+
+# avoid "file has no symbols" warning
+if(NOT CUDA)
+  list(REMOVE_ITEM SRC_CPP_RELATIVE souce/RNG.cpp)
+  list(REMOVE_ITEM SRC_CPP_RELATIVE souce/AOS3D.cpp)
+  list(REMOVE_ITEM SRC_CPP_RELATIVE souce/SOA3D.cpp)
+  list(REMOVE_ITEM SRC_CPP_RELATIVE souce/Vector.cpp)
+endif()
+
 foreach(SRC ${SRC_CPP_RELATIVE})
   set(SRC_CPP ${SRC_CPP} ${CMAKE_SOURCE_DIR}/${SRC})
 endforeach()
@@ -802,11 +815,33 @@ add_to_ctest("${TEST_EXECUTABLES_CORE}")
 if (BENCHMARK)
   build_executables("${TEST_EXECUTABLES_BENCHMARK}")
 endif()
+
 if (ROOT)
   build_executables("${TEST_EXECUTABLES_ROOT}")
   build_executables("${TEST_EXECUTABLES_VISUALIZATION}")
   add_to_ctest("${TEST_UNITTESTEXECUTABLES_ROOT}")
+
+  if (VALIDATION)
+    macro(add_cmsshapevalidation_test TESTNAME SHAPEFILE)
+      add_test(NAME ${TESTNAME} COMMAND bash -c "${CMAKE_SOURCE_DIR}/test/scripts/RunRandomValidation ${CMAKE_BINARY_DIR}/BenchmarkShapeFromROOTFile  ${CMAKE_SOURCE_DIR}/test/cmstestdata/cms2015.root  ${CMAKE_SOURCE_DIR}/test/cmstestdata/${SHAPEFILE}" )
+    endmacro()
+
+    # Adding various shapes tests for nightlies
+    add_cmsshapevalidation_test( tubevalidation cmstubes.txt )
+    add_cmsshapevalidation_test( trapvalidation cmstraps.txt )
+    add_cmsshapevalidation_test( polyconevalidation cmspolycones.txt )
+    add_cmsshapevalidation_test( polyhedravalidation cmspolyhedra.txt )
+    add_cmsshapevalidation_test( conevalidation cmscones.txt )
+    add_cmsshapevalidation_test( boxvalidation cmsboxes.txt )
+    #taken out due to problems: add_cmsshapevalidation_test( booleanvalidation cmsbooleans.txt )
+    #taken out due to Issue-133: add_cmsshapevalidation_test( torusvalidation cmstori.txt )
+  endif()
+else()
+  if (VALIDATION)
+    message(WARNING "Validation tests depend on ROOT being enabled")
+  endif()
 endif()
+
 if (USolids)
   build_executables("${TEST_EXECUTABLES_USOLIDS}")
   build_executables("${TEST_EXECUTABLES_SHAPETESTER}")
@@ -818,28 +853,12 @@ if (USolids)
   add_test(NAME VecGeomBox COMMAND TestBox --vecgeom)
   add_test(NAME USolidTube COMMAND TestTube --usolids)
   add_test(NAME VecTube COMMAND TestTube --vecgeom)
-
 endif()
+
 if (CUDA)
   build_executables("${TEST_EXECUTABLES_CUDA}")
 #  add_to_ctest("${TEST_EXECUTABLES_CUDA}")
 endif()
-
-macro(add_cmsshapevalidation_test TESTNAME SHAPEFILE)
-  add_test(NAME ${TESTNAME} COMMAND bash -c "${CMAKE_SOURCE_DIR}/test/scripts/RunRandomValidation ${CMAKE_BINARY_DIR}/BenchmarkShapeFromROOTFile  ${CMAKE_SOURCE_DIR}/test/cmstestdata/cms2015.root  ${CMAKE_SOURCE_DIR}/test/cmstestdata/${SHAPEFILE}" )
-endmacro()
-
-# Adding various shapes tests for nightlies
-add_cmsshapevalidation_test( tubevalidation cmstubes.txt )
-add_cmsshapevalidation_test( trapvalidation cmstraps.txt )
-add_cmsshapevalidation_test( polyconevalidation cmspolycones.txt )
-add_cmsshapevalidation_test( polyhedravalidation cmspolyhedra.txt )
-add_cmsshapevalidation_test( conevalidation cmscones.txt )
-add_cmsshapevalidation_test( boxvalidation cmsboxes.txt )
-#taken out due to problems: add_cmsshapevalidation_test( booleanvalidation cmsbooleans.txt )
-#taken out due to Issue-133: add_cmsshapevalidation_test( torusvalidation cmstori.txt )
-
-
 
 #---------------------------------------------------------------------------
 # Include creation and submission to dashboard cdash.cern.ch
