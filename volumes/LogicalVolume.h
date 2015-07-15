@@ -103,7 +103,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Vector<Daughter> *GetDaughters() { return fDaughters; }
+  Vector<Daughter> *GetDaughtersp() { return fDaughters; }
 
 //  VECGEOM_CUDA_HEADER_BOTH
 //  VECGEOM_INLINE

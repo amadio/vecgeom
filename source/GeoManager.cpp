@@ -110,14 +110,14 @@ void GeoManager::CompactifyMemory() {
    // fix pointers to placed volumes referenced in all logical volumes
     for( auto v : fLogicalVolumesMap ){
         LogicalVolume * lvol = v.second;
-        for( unsigned int i = 0; i < lvol->daughtersp()->size(); ++i){
-            lvol->daughtersp()->operator[](i) = ConvertOldToNew( lvol->daughtersp()->operator[](i) );
+        for( unsigned int i = 0; i < lvol->GetDaughtersp()->size(); ++i){
+            lvol->GetDaughtersp()->operator[](i) = ConvertOldToNew( lvol->GetDaughtersp()->operator[](i) );
         }
     }
 
     for( auto v : fLogicalVolumesMap ){
         UnplacedBooleanVolume *bvol;
-        if( (bvol = const_cast<UnplacedBooleanVolume *>(dynamic_cast<UnplacedBooleanVolume const *>( v.second->unplaced_volume())))){
+        if( (bvol = const_cast<UnplacedBooleanVolume *>(dynamic_cast<UnplacedBooleanVolume const *>( v.second->GetUnplacedVolume())))){
             bvol->SetLeft( ConvertOldToNew( bvol->GetLeft() ) );
             bvol->SetRight( ConvertOldToNew( bvol->GetRight() ));
         }
@@ -279,10 +279,10 @@ GeoManager::visitAllPlacedVolumesWithContext( VPlacedVolume const * currentvolum
    {
       state->Push( currentvolume );
       visitor->apply( state, level );
-      int size = currentvolume->daughters().size();
+      int size = currentvolume->GetDaughters().size();
       for( int i=0; i<size; ++i )
       {
-         visitAllPlacedVolumesWithContext( currentvolume->daughters().operator[](i), visitor, state, level+1 );
+         visitAllPlacedVolumesWithContext( currentvolume->GetDaughters().operator[](i), visitor, state, level+1 );
       }
       state->Pop();
    }
