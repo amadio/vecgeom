@@ -91,10 +91,19 @@ public:
                    const Precision r5, const Precision r6,
                    const Precision r7, const Precision r8);
 
-  VECGEOM_CUDA_HEADER_BOTH
-  template<typename V> Transformation3D(const Vector3D<V>& axis){
+  /**
+   * Constructor for a rotation based on a given direction  
+   * @param axis direction of the new z axis
+   * @param inverse if true the origial axis will be rotated into (0,0,u)
+                    if false a vector (0,0,u) will be rotated into the original axis
+   */
+ VECGEOM_CUDA_HEADER_BOTH
+  template<typename V> Transformation3D(const Vector3D<V>& axis, bool inverse=true){
      SetTranslation(0,0,0);
-     SetRotation(axis.Phi()*kRadToDeg-90, -axis.Theta()*kRadToDeg, 0);
+     if(inverse) 
+	SetRotation(axis.Phi()*kRadToDeg-90, -axis.Theta()*kRadToDeg, 0);
+     else
+	SetRotation(0, axis.Theta()*kRadToDeg, 90-axis.Phi()*kRadToDeg);
      SetProperties();
   }
 
