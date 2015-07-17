@@ -15,6 +15,7 @@
 #endif
 #include "base/AlignedBase.h"
 #include "base/Vector3D.h"
+#include "base/RNG.h"
 
 #include <cstdlib>
 #include <ostream>
@@ -26,6 +27,7 @@ namespace vecgeom {
 VECGEOM_DEVICE_FORWARD_DECLARE( template <typename T> class LorentzVector; )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
+
 
 /**
  * @brief Lorentz dimensional vector class supporting most arithmetic operations.
@@ -341,6 +343,7 @@ public:
   LORENTZVECTOR_TEMPLATE_INPLACE_BINARY_OP(-=)
   LORENTZVECTOR_TEMPLATE_INPLACE_BINARY_OP(*=)
   LORENTZVECTOR_TEMPLATE_INPLACE_BINARY_OP(/=)
+  LORENTZVECTOR_TEMPLATE_INPLACE_BINARY_OP(*)
 
   #undef LORENTZVECTOR_TEMPLATE_INPLACE_BINARY_OP
 
@@ -392,12 +395,61 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   T Rapidity() const {
-     return 0.5*Log((fVec[4]+fVec[3])/(fVec[4]-fVec[3]));}
+     return 0.5*Log((fVec[3]+fVec[2])/(fVec[3]-fVec[2]));}
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   T PseudoRapidity() const {
      return -Log(Tan(0.5*Theta()));}
+
+  template<typename U, typename V, typename W>
+  VECGEOM_CUDA_HEADER_BOTH
+     void TwoBodyDecay(const U masses[], LorentzVector<V> &t1, LorentzVector<W> &t2, void (*func)(double &mthe, double &mphi)=0) const {
+   // Make two body decay
+   double phi=0;
+   double theta=0;
+   if(func) func(theta,phi); 
+      else {
+	 phi = RNG::Instance().uniform() * kTwoPi;
+	 theta = RNG::Instance().uniform() * kPi;
+      }
+   const double mass = Mag();
+   double en1 = 0.5*(mass*mass + masses[0]*masses[0] - masses[1]*masses[1])/mass;
+   double en2 = 0.5*(mass*mass - masses[0]*masses[0] + masses[1]*masses[1])/mass;
+   if((en1-masses[0]<-1e-10) || (en2-masses[1]<-1e-10)) {
+      std::cout << "WARNING::twobody en<0  en1-masses[0] " << en1-masses[0] 
+	   << " en2-masses[1] " << en2-masses[1] << std::endl;
+   }
+   if(en1<masses[0]) en1 = masses[0];
+   if(en2<masses[1]) en2 = masses[1];
+   const double p1 = sqrt((en1+masses[0])*(en1-masses[0]));
+   const double p2 = sqrt((en2+masses[1])*(en2-masses[1]));
+   // debug
+   if(0.5*fabs(p1-p2)/((p1+p2)>0?(p1+p2):1) > 1e-10) std::cout << "WARNING::twobody: momentum imbalance p1-p2 " << p1-p2 << std::endl;
+   if(fabs(mass-en1-en2)/(mass+en1+en2)/3 > 1e-10) std::cout << "WARNING::towbody mass imbalance mass - en1 - en2 " 
+									<< mass - en1 - en2 << std::endl;
+   // Set the two vectors
+   const Vector3D<T> space(p1*sin(theta)*cos(phi),p1*sin(theta)*sin(phi),p1*cos(theta));
+   t1.Set( space, en1);
+   t2.Set(-space, en2);
+
+   // This part only if there is a matrix element, otherwise isotropic is isotropic, but we keep it
+
+   const Transformation3D tr(SpaceVector<T>(),false);
+   tr.Transform(space,static_cast<Vector3D<T>& >(t1));
+   tr.Transform(-space,static_cast<Vector3D<T>& >(t2));
+   
+   Vector3D<T> beta = - SpaceVector()/fVec[3];
+   t1 = t1.Boost(beta);
+   t2 = t2.Boost(beta);
+   // dedbug
+   const LorentzVector<T> metric(1,1,1,-1);
+   const LorentzVector<T> vdiff = (*this) - t1 -t2;
+   const double mdiff = sqrt(vdiff.Dot(vdiff*metric)/(Dot((*this)*metric)+t1.Dot(t1*metric)+t2.Dot(t2*metric)))/3;
+   if(mdiff > 1e-10) std::cout << "WARNING::twobody error in momentum energy balance " << (*this) - t1 - t2 << std::endl;
+   // debug
+}
+
 
 };
 
@@ -633,7 +685,7 @@ public:
   VECGEOM_INLINE
   Precision Theta() const {
      Precision theta = ATan2(Sqrt(fMem[0]*fMem[0]+fMem[1]*fMem[1]),fMem[2]);
-     if(theta < 0) theta += 3.14159265358979323846264338327950;
+     if(theta < 0) theta += kPi;
      return theta;
   }
 
@@ -743,12 +795,66 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision Rapidity() const {
-     return 0.5*Log((fMem[4]+fMem[3])/(fMem[4]-fMem[3]));}
+     return 0.5*Log((fMem[3]+fMem[2])/(fMem[3]-fMem[2]));}
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision PseudoRapidity() const {
      return -Log(tan(0.5*Theta()));}
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VecType operator*(const VecType &other) const {
+     return LorentzVector(fMem[0]*other.fMem[0], fMem[1]*other.fMem[1],
+			  fMem[2]*other.fMem[2], fMem[3]*other.fMem[3]);
+  }
+
+  template <typename U, typename V, typename W> 
+  VECGEOM_CUDA_HEADER_BOTH
+     void TwoBodyDecay(const U masses[], LorentzVector<V> &t1, LorentzVector<W> &t2, void (*func)(double &mthe, double &mphi)=0) const {
+   // Make two body decay
+   double theta=0;
+   double phi=0;
+   if(func) func(theta,phi); 
+      else {
+	 phi = RNG::Instance().uniform() * kTwoPi;
+	 theta = RNG::Instance().uniform() * kPi;
+      }
+   const double mass = Mag();
+   double en1 = 0.5*(mass*mass + masses[0]*masses[0] - masses[1]*masses[1])/mass;
+   double en2 = 0.5*(mass*mass - masses[0]*masses[0] + masses[1]*masses[1])/mass;
+   if((en1-masses[0]<-1e-10) || (en2-masses[1]<-1e-10)) {
+      std::cout << "WARNING::twobody en<0  en1-masses[0] " << en1-masses[0] 
+	   << " en2-masses[1] " << en2-masses[1] << std::endl;
+   }
+   if(en1<masses[0]) en1 = masses[0];
+   if(en2<masses[1]) en2 = masses[1];
+   const double p1 = sqrt((en1+masses[0])*(en1-masses[0]));
+   const double p2 = sqrt((en2+masses[1])*(en2-masses[1]));
+   // debug
+   if(0.5*fabs(p1-p2)/((p1+p2)>0?(p1+p2):1) > 1e-10) std::cout << "WARNING::twobody: momentum imbalance p1-p2 " << p1-p2 << std::endl;
+   if(fabs(mass-en1-en2)/(mass+en1+en2)/3 > 1e-10) std::cout << "WARNING::towbody mass imbalance mass - en1 - en2 " 
+									<< mass - en1 - en2 << std::endl;
+   // Set the two vectors
+   const Vector3D<Precision> space(p1*sin(theta)*cos(phi),p1*sin(theta)*sin(phi),p1*cos(theta));
+   t1.Set( space, en1);
+   t2.Set(-space, en2);
+
+   // This part only if there is a matrix element, otherwise isotropic is isotropic, but we keep it
+
+   const Transformation3D tr(SpaceVector<Precision>(),false);
+   tr.Transform(space,static_cast<Vector3D<Precision>& >(t1));
+   tr.Transform(-space,static_cast<Vector3D<Precision>& >(t2));
+   
+   Vector3D<Precision> beta(-fMem[0]/fMem[3],-fMem[1]/fMem[3],-fMem[2]/fMem[3]);
+   t1 = t1.Boost(beta);
+   t2 = t2.Boost(beta);
+   // dedbug
+   static const LorentzVector<Precision> metric(1,1,1,-1);
+   const LorentzVector<Precision> vdiff = (*this) - t1 -t2;
+   const double mdiff = sqrt(vdiff.Dot(vdiff*metric)/(Dot((*this)*metric)+t1.Dot(t1*metric)+t2.Dot(t2*metric)))/3;
+   if(mdiff > 1e-10) std::cout << "WARNING::twobody error in momentum energy balance " << (*this) - t1 - t2 << std::endl;
+   // debug
+}
 
 };
 #else
@@ -884,6 +990,9 @@ LorentzVector<Precision> LorentzVector<Precision>::MultiplyByComponents(
 }
 
 #endif
+
+static const LorentzVector<double> LorentzMetric(1,1,1,-1);
+
 
 } // End inline namespace
 
