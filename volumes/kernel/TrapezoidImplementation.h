@@ -234,7 +234,7 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToIn(
     Transformation3D const &transformation,
     Vector3D<typename Backend::precision_v> const &masterPoint,
     Vector3D<typename Backend::precision_v> const &masterDir,
-    typename Backend::precision_v const &stepMax,
+    typename Backend::precision_v const &/*stepMax*/,
     typename Backend::precision_v &distance) {
 
   typedef typename Backend::precision_v Float_t;
@@ -386,7 +386,7 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToOut(
     UnplacedTrapezoid const &unplaced,
     Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> const &dir,
-    typename Backend::precision_v const &stepMax,
+    typename Backend::precision_v const &/*stepMax*/,
     typename Backend::precision_v &distance) {
 
   typedef typename Backend::precision_v Float_t;

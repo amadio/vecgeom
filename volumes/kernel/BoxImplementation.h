@@ -752,7 +752,7 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
     Vector3D<Precision> const &dimensions,
     Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> const &direction,
-    typename Backend::precision_v const &stepMax,
+    typename Backend::precision_v const &/*stepMax*/,
     typename Backend::precision_v &distance) {
 
     typedef typename Backend::precision_v Floating_t;
