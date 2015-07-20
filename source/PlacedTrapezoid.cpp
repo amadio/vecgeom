@@ -67,6 +67,24 @@ VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC( SpecializedTrapezoid )
 
 #endif // VECGEOM_NVCC
 
+void PlacedTrapezoid::SetAllParameters(double dz, double theta, double phi,
+                                       double dy1, double dx1, double dx2, double alp1,
+                                       double dy2, double dx3, double dx4, double alp2) {
+
+    UnplacedTrapezoid& utrap = *const_cast<UnplacedTrapezoid*>(GetUnplacedVolume());
+    double mm = 0.1; // to cm
+    utrap.fDz = dz*mm;
+    utrap.fDy1 = dy1*mm;
+    utrap.fDy2 = dy2*mm;
+    utrap.fDx1 = dx1*mm;
+    utrap.fDx2 = dx2*mm;
+    utrap.fDx3 = dx3*mm;
+    utrap.fDx4 = dx4*mm;
+    utrap.fTanAlpha1 = dz*mm;
+    utrap.fTanAlpha2 = dz*mm;
+}
+
+
 /*
 void PlacedTrapezoid::ComputeBoundingBox() {
   Vector3D<Precision> aMin, aMax;

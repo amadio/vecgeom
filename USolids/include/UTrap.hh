@@ -79,6 +79,18 @@
 #include "volumes/UnplacedTrapezoid.h"
 #include "base/Transformation3D.h"
 
+struct UTrapSidePlane
+{
+   double a, b, c, d; // Normal Unit vector (a,b,c) and offset (d)
+   // => ax + by + cz + d = 0
+  UTrapSidePlane(vecgeom::UnplacedTrapezoid::TrapSidePlane const& oth) {
+    this->a = oth.fA;
+    this->b = oth.fB;
+    this->c = oth.fC;
+    this->d = oth.fD;
+  }
+};
+
 class UTrap: public vecgeom::SimpleTrapezoid {
     // just forwards UTrap to vecgeom::SimpleTrapezoid
     using vecgeom::SimpleTrapezoid::SimpleTrapezoid;
@@ -95,8 +107,7 @@ class UTrap: public vecgeom::SimpleTrapezoid {
 
 struct UTrapSidePlane
 {
-  double a, b, c, d; // Normal Unit vector (a,b,c) and offset (d)
-  // => Ax+By+Cz+D=0
+   double a, b, c, d; // Normal Unit vector (a,b,c) and offset (d)
 };
 
 class UTrap : public VUSolid

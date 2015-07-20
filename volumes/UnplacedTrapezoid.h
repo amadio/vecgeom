@@ -23,14 +23,18 @@ typedef Vector3D<Precision> TrapCorners_t[8];
 
 class UnplacedTrapezoid : public VUnplacedVolume, public AlignedBase {
 
-#ifndef VECGEOM_PLANESHELL_DISABLE
-  typedef PlaneShell<4, Precision> Planes;
-#else
+  // this is needed to allow PlacedTrapezoid to reset parameters, as required by G4UTrap class
+  friend class PlacedTrapezoid;
+
+public:
   struct TrapSidePlane {
     Precision fA,fB,fC,fD;
     // Plane equation: Ax+By+Cz+D=0, where
     // normal unit vector nvec=(A,B,C)  and offset=D is the distance from origin to plane
   };
+
+#ifndef VECGEOM_PLANESHELL_DISABLE
+  typedef PlaneShell<4, Precision> Planes;
 #endif
 
 private:
@@ -114,12 +118,22 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedTrapezoid(Precision xbox, Precision ybox, Precision zbox);
 
+  /// \brief Constructor required by Geant4
+  VECGEOM_CUDA_HEADER_BOTH
+  UnplacedTrapezoid(double dx, double dy, double dz, double);
+
+  /// \brief Constructor for a Trd-like trapezoid
+  UnplacedTrapezoid(double dx1, double dx2, double dy1, double dy2, double dz);
+
+  /// \brief Constructor for a Parallelepiped-like trapezoid
+  UnplacedTrapezoid(double dx1, double dx2, double dy1, double alpha, double theta, double phi);
+
   /// \brief Copy constructor
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedTrapezoid(UnplacedTrapezoid const &other);
   /// @}
 
-  /// assignment operator (temporary)
+  /// assignment operator
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedTrapezoid& operator=( UnplacedTrapezoid const& other );
 

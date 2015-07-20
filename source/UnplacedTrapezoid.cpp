@@ -69,6 +69,27 @@ UnplacedTrapezoid::UnplacedTrapezoid(Precision pDz, Precision pTheta, Precision 
     MakePlanes();
 }
 
+// needed for Geant4 STEP interface
+UnplacedTrapezoid::UnplacedTrapezoid(double dx, double dy, double dz, double)
+  : UnplacedTrapezoid(dx,dy,dz)
+
+{
+  Assert(false, "*** ERROR: STEP-based trapezoid constructor called, NOT PROPERLY IMPLEMENTED in VecGeom: please contact GeantV developers and file a bug report.\n");
+ }
+
+// constructor for a Trd
+UnplacedTrapezoid::UnplacedTrapezoid(double dx1, double dx2, double dy1, double dy2, double dz)
+  : UnplacedTrapezoid(dz,0.,0.,dy1,dx1,dx2,0.,dy2,dx1,dx2,0.)
+{ }
+
+// constructor for a Parallelepiped-like trapezoid
+UnplacedTrapezoid::UnplacedTrapezoid(double dx, double dy, double dz, double alpha, double theta, double phi)
+  : UnplacedTrapezoid(dz,theta,phi,dy,dx,dx,0.,dy,dx,dx,0.)
+{
+  fTanAlpha1 = std::tan(alpha);
+  fTanAlpha2 = fTanAlpha1;
+}
+
 UnplacedTrapezoid::UnplacedTrapezoid(Precision const* params )
   : fDz( params[0] )
   , fTheta( params[1] )
