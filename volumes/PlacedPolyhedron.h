@@ -13,7 +13,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedPolyhedron; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedPolyhedron );
+VECGEOM_DEVICE_DECLARE_CONV( PlacedPolyhedron )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

@@ -19,7 +19,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class Planes; )
-VECGEOM_DEVICE_DECLARE_CONV( Planes );
+VECGEOM_DEVICE_DECLARE_CONV( Planes )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

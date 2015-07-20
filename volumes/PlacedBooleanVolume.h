@@ -31,7 +31,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedBooleanVolume; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedBooleanVolume );
+VECGEOM_DEVICE_DECLARE_CONV( PlacedBooleanVolume )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

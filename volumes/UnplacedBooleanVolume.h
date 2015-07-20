@@ -16,7 +16,7 @@ enum BooleanOperation {
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class UnplacedBooleanVolume; )
-VECGEOM_DEVICE_DECLARE_CONV( UnplacedBooleanVolume );
+VECGEOM_DEVICE_DECLARE_CONV( UnplacedBooleanVolume )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

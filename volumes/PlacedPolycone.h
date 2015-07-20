@@ -20,7 +20,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedPolycone; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedPolycone );
+VECGEOM_DEVICE_DECLARE_CONV( PlacedPolycone )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

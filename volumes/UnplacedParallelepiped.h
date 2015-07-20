@@ -9,7 +9,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class UnplacedParallelepiped; )
-VECGEOM_DEVICE_DECLARE_CONV( UnplacedParallelepiped );
+VECGEOM_DEVICE_DECLARE_CONV( UnplacedParallelepiped )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

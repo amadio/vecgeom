@@ -13,7 +13,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedTorus; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedTorus );
+VECGEOM_DEVICE_DECLARE_CONV( PlacedTorus )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
