@@ -45,15 +45,15 @@ private:
     fRmin2 = fRmin * fRmin;
     fRmax2 = fRmax * fRmax;
 
- 	fTolOrmin = (fRmin - kTolerance);
+    fTolOrmin = (fRmin - kTolerance);
     fTolIrmin = (fRmin + kTolerance);
-	fTolOrmin2 = fTolOrmin * fTolOrmin;
-	fTolIrmin2 = fTolIrmin * fTolIrmin;
+    fTolOrmin2 = fTolOrmin * fTolOrmin;
+    fTolIrmin2 = fTolIrmin * fTolIrmin;
 
-	fTolOrmax = (fRmax + kTolerance);
-	fTolIrmax = (fRmax - kTolerance);
-	fTolOrmax2 = fTolOrmax * fTolOrmax;
-	fTolIrmax2 = fTolIrmax * fTolIrmax;
+    fTolOrmax = (fRmax + kTolerance);
+    fTolIrmax = (fRmax - kTolerance);
+    fTolOrmax2 = fTolOrmax * fTolOrmax;
+    fTolIrmax2 = fTolIrmax * fTolIrmax;
 
     GetAlongVectorToPhiSector(fSphi, fAlongPhi1x, fAlongPhi1y);
     GetAlongVectorToPhiSector(fSphi + fDphi, fAlongPhi2x, fAlongPhi2y);
@@ -219,9 +219,9 @@ fPhiWedge(other.fDphi,other.fSphi)
   //  This computes where the random point would be placed
   // 1::rTop, 2::rBot, 3::phiLeft, 4::phiRight, 5::zIn, 6::zOut
   //VECGEOM_CUDA_HEADER_BOTH
-    int ChooseSurface() const;
+  int ChooseSurface() const;
 
-	bool Normal(Vector3D<Precision>const& point, Vector3D<Precision>& normal) const;
+  bool Normal(Vector3D<Precision>const& point, Vector3D<Precision>& normal) const;
 
 #endif
 

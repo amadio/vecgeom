@@ -157,15 +157,15 @@ fFy(0)
   Precision SurfaceArea() const;
 
   Precision GetPlusXArea() const { //  Area in +x direction 
-	  return (fDZ * (fDY1 + fDY2));
+      return (fDZ * (fDY1 + fDY2));
   }
   
   Precision GetMinusXArea() const {  // Area in -x direction
-	  return (fDZ * (fDY1 + fDY2));
+      return (fDZ * (fDY1 + fDY2));
   }
 
   Precision GetPlusYArea() const {    // Area in +y direction
-	  return (fDZ * (fDX1 + fDX2));
+      return (fDZ * (fDX1 + fDX2));
   }
   
   Precision GetMinusYArea() const {  // Area in -y direction

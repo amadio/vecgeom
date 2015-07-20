@@ -89,7 +89,7 @@ public:
 
    VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Precision GetTriangleArea(int index,int iCorner1, int iCorner2) const;
+  Precision GetTriangleArea(int index, int iCorner1, int iCorner2) const;
  
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -97,8 +97,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Vector3D<Precision> GetPointOnTriangle(int index, 
-					 int iCorner1, int iCorner2) const;
+  Vector3D<Precision> GetPointOnTriangle(int index, int iCorner1, int iCorner2) const;
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE

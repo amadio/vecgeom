@@ -247,11 +247,9 @@ public:
   bool InsideTriangle(Vector3D<Precision>& v1, Vector3D<Precision>& v2,  Vector3D<Precision>& v3, const Vector3D<Precision>& p) const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetTriangleArea(Vector3D<Precision>& v1, Vector3D<Precision>& v2,
-                              Vector3D<Precision>& v3 )const;
+  Precision GetTriangleArea(Vector3D<Precision>& v1, Vector3D<Precision>& v2, Vector3D<Precision>& v3 ) const;
   VECGEOM_CUDA_HEADER_BOTH
-  Vector3D<Precision> GetPointOnTriangle(Vector3D<Precision>& v1,
-			Vector3D<Precision>&v2,Vector3D<Precision>& v3 )const;
+  Vector3D<Precision> GetPointOnTriangle(Vector3D<Precision>& v1, Vector3D<Precision>&v2, Vector3D<Precision>& v3 ) const;
   VECGEOM_CUDA_HEADER_BOTH
   Precision Capacity() const;
 
