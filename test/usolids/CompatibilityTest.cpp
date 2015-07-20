@@ -12,11 +12,11 @@ VUSolid* ConstructBox(double x, double y, double z) {
   return new Box_t("test", x, y, z);
 }
 
-template <class Tube_t>
+template <class Trap_t>
 VUSolid* ConstructTrap(double dz, double theta, double phi,
                        double dy1, double dx1, double dx2, double tanAlpha1,
                        double dy2, double dx3, double dx4, double tanAlpha2) {
-  return new Tube_t("testTrap", dz, theta, phi, dy1, dx1, dx2, tanAlpha1, dy2, dx3, dx4, tanAlpha2);
+  return new Trap_t("testTrap", dz, theta, phi, dy1, dx1, dx2, tanAlpha1, dy2, dx3, dx4, tanAlpha2);
 }
 
 template <class Tube_t>
