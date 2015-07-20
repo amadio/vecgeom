@@ -69,7 +69,29 @@
 #ifndef UTrap_HH
 #define UTrap_HH
 
+
+#ifdef VECGEOM_REPLACE_USOLIDS
+
+//============== here for VecGeom-based implementation
+
+#include "volumes/SpecializedTrapezoid.h"
+#include "volumes/LogicalVolume.h"
+#include "volumes/UnplacedTrapezoid.h"
+#include "base/Transformation3D.h"
+
+class UTrap: public vecgeom::SimpleTrapezoid {
+    // just forwards UTrap to vecgeom::SimpleTrapezoid
+    using vecgeom::SimpleTrapezoid::SimpleTrapezoid;
+
+};
+//============== end of VecGeom-based implementation
+
+#else
+
+//============== here for USolids-based implementation
+#ifndef USOLIDS_VUSolid
 #include "VUSolid.hh"
+#endif
 
 struct UTrapSidePlane
 {
@@ -254,4 +276,7 @@ class UTrap : public VUSolid
 
 #include "UTrap.icc"
 
-#endif
+//============== end of USolids-based implementation
+
+#endif  // VECGEOM_REPLACE_USOLIDS
+#endif  // UTrap_HH

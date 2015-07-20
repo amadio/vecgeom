@@ -37,6 +37,7 @@ endif()
 
 if(USOLIDS_VECGEOM)
   list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UBox.cc)
+  list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UTrap.cc)
 endif()
 
 file(GLOB headers_vecgeom
