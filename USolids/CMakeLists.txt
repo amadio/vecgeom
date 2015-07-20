@@ -35,6 +35,10 @@ if(NOT USOLIDS_USE_UVECTOR3)
   list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UVector3.cc)
 endif()
 
+if(USOLIDS_VECGEOM)
+  list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UBox.cc)
+endif()
+
 file(GLOB headers_vecgeom
   ${VECGEOM_DIR}/volumes/*Paraboloid*
   ${VECGEOM_DIR}/volumes/kernel/*Paraboloid*

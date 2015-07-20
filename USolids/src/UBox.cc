@@ -14,8 +14,6 @@
 //          Created from original implementation in Geant4 and ROOT
 // --------------------------------------------------------------------
 
-#ifndef VECGEOM_REPLACE_USOLIDS
-
 #include <iostream>
 #include <sstream>
 #include "UUtils.hh"
@@ -596,5 +594,3 @@ VUSolid* UBox::Clone() const
 {
    return new UBox(*this);
 }
-
-#endif // VECGEOM_REPLACE_USOLIDS
