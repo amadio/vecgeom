@@ -81,11 +81,23 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
+  void SetXHalfLength(double dx) { const_cast<UnplacedBox*>(GetUnplacedVolume())->SetX(dx); }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
   Precision GetYHalfLength() const { return y(); }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
+  void SetYHalfLength(double dy) { const_cast<UnplacedBox*>(GetUnplacedVolume())->SetY(dy); }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
   Precision GetZHalfLength() const { return z(); }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  void SetZHalfLength(double dz) { const_cast<UnplacedBox*>(GetUnplacedVolume())->SetZ(dz); }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
