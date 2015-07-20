@@ -22,6 +22,8 @@
 #include <string>
 #include <iostream>
 
+using std::vector;
+
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( template <typename T> class LorentzVector; )
@@ -365,6 +367,7 @@ public:
   VECGEOM_INLINE
   VecType Boost(const Vector3D<U> &beta) const {
     double beta2 = beta.Mag2();
+    if(beta2<=1e-16) return LorentzVector(*this);
     double gamma = Sqrt(1./(1-beta2));
     double bdotv = beta.Dot(SpaceVector());
     return LorentzVector(SpaceVector() + 
@@ -402,54 +405,128 @@ public:
   T PseudoRapidity() const {
      return -Log(Tan(0.5*Theta()));}
 
+  /**
+   * This method generates a two body decay 
+   @param masses [input] a vector of lenght two with the masses of the products
+   @param t1     [out]   LorentzVector of the first decay product
+   @param t2     [out]   LorentzVector of the second decay product
+   @param func   [in]    function defining the angular distribution of the particles if not uniform
+  */
   template<typename U, typename V, typename W>
   VECGEOM_CUDA_HEADER_BOTH
-     void TwoBodyDecay(const U masses[], LorentzVector<V> &t1, LorentzVector<W> &t2, void (*func)(double &mthe, double &mphi)=0) const {
+  void TwoBodyDecay(const U masses[], LorentzVector<V> &t1, LorentzVector<W> &t2, void (*func)(double &mthe, double &mphi)=0) const {
    // Make two body decay
-   double phi=0;
    double theta=0;
+   double phi=0;
    if(func) func(theta,phi); 
       else {
 	 phi = RNG::Instance().uniform() * kTwoPi;
 	 theta = RNG::Instance().uniform() * kPi;
       }
-   const double mass = Mag();
+   double mass2 = Mag2();
+   if(mass2 > -1e-6 && mass2 < 0) mass2=0;
+   double dmass = masses[0]+masses[1];
+   if(mass2*(1.+1.e-7) < dmass*dmass || (mass2==0 && dmass==0)) {
+      if(dmass !=0)
+	 std::cout << "WARNING::LorentzVector::TwoBodyDecay: daughters' mass square " 
+		   << dmass*dmass << " larger than parent " << mass2 << ", no decay " << std::endl;
+      t1.Set(0,0,0,masses[0]);
+      t2.Set(0,0,0,masses[1]);
+      return;
+   }
+   const double mass = sqrt(mass2);
+	     
    double en1 = 0.5*(mass*mass + masses[0]*masses[0] - masses[1]*masses[1])/mass;
    double en2 = 0.5*(mass*mass - masses[0]*masses[0] + masses[1]*masses[1])/mass;
    if((en1-masses[0]<-1e-10) || (en2-masses[1]<-1e-10)) {
-      std::cout << "WARNING::twobody en<0  en1-masses[0] " << en1-masses[0] 
+      std::cout << "WARNING::LorentzVector::TwoBodyDecay en<0  en1-masses[0] " << en1-masses[0] 
 	   << " en2-masses[1] " << en2-masses[1] << std::endl;
    }
-   if(en1<masses[0]) en1 = masses[0];
-   if(en2<masses[1]) en2 = masses[1];
-   const double p1 = sqrt((en1+masses[0])*(en1-masses[0]));
-   const double p2 = sqrt((en2+masses[1])*(en2-masses[1]));
+   double p1=0;
+   if(en1<masses[0]) 
+      en1 = masses[0];
+  else
+      p1 = sqrt((en1+masses[0])*(en1-masses[0]));
+   double p2=0;
+   if(en2<masses[1]) 
+      en2 = masses[1];
+   else
+      p2 = sqrt((en2+masses[1])*(en2-masses[1]));
+   double p = 0.5*(p1+p2);
    // debug
-   if(0.5*fabs(p1-p2)/((p1+p2)>0?(p1+p2):1) > 1e-10) std::cout << "WARNING::twobody: momentum imbalance p1-p2 " << p1-p2 << std::endl;
-   if(fabs(mass-en1-en2)/(mass+en1+en2)/3 > 1e-10) std::cout << "WARNING::towbody mass imbalance mass - en1 - en2 " 
+   if(fabs(p1-p2)/mass > 1e-4) std::cout << "WARNING::LorentzVector::TwoBodyDecay: momentum imbalance err " 
+					 << fabs(p1-p2)/mass << " p1-p2 " << p1-p2 << " p1 " << p1 << " p2 " << p2 << " mass " << mass << std::endl;
+   if(fabs(mass-en1-en2)/(mass+en1+en2)/3 > 1e-7) std::cout << "WARNING::LorentzVector::TwoBodyDecay: mass imbalance mass - en1 - en2 " 
 									<< mass - en1 - en2 << std::endl;
+   //debug
+
    // Set the two vectors
    const Vector3D<T> space(p1*sin(theta)*cos(phi),p1*sin(theta)*sin(phi),p1*cos(theta));
    t1.Set( space, en1);
    t2.Set(-space, en2);
 
-   // This part only if there is a matrix element, otherwise isotropic is isotropic, but we keep it
-
-   const Transformation3D tr(SpaceVector<T>(),false);
-   tr.Transform(space,static_cast<Vector3D<T>& >(t1));
-   tr.Transform(-space,static_cast<Vector3D<T>& >(t2));
+   if(func) {
+   // This part only if there is a matrix element, otherwise isotropic is isotropic
+      const Transformation3D tr(SpaceVector<T>(),false);
+      tr.Transform(space,static_cast<Vector3D<T>& >(t1));
+      tr.Transform(-space,static_cast<Vector3D<T>& >(t2));
+   }
    
-   Vector3D<T> beta = - SpaceVector()/fVec[3];
+   Vector3D<T> beta(-fVec[0]/fVec[3],-fVec[1]/fVec[3],-fVec[2]/fVec[3]);
    t1 = t1.Boost(beta);
    t2 = t2.Boost(beta);
    // dedbug
-   const LorentzVector<T> metric(1,1,1,-1);
+   static const LorentzVector<T> metric(-1,-1,-1,1);
    const LorentzVector<T> vdiff = (*this) - t1 -t2;
    const double mdiff = sqrt(vdiff.Dot(vdiff*metric)/(Dot((*this)*metric)+t1.Dot(t1*metric)+t2.Dot(t2*metric)))/3;
-   if(mdiff > 1e-10) std::cout << "WARNING::twobody error in momentum energy balance " << (*this) - t1 - t2 << std::endl;
+   if(mdiff > 1e-7) std::cout << "WARNING::LorentzVector::TwoBodyDecay error " << mdiff << " in momentum energy balance this=" 
+			      << (*this) << " difference=" << (*this) - t1 - t2 << std::endl;
    // debug
 }
 
+  /**
+   * This method generate recursively the phase space via two body decays
+   * The method is robust, however it provides a biased distribution
+   * this will be fixed in due time, for the moment it is good enough
+   @param[in] masses the masses of the products
+   @param[out] daughters a vector of LorentzVectors with the decay products
+  */
+ template<typename U>
+ VECGEOM_CUDA_HEADER_BOTH
+ void PhaseSpace(const vector<U> &masses, vector<LorentzVector<T> > &daughters) {
+   //Relativistic phase space
+   LorentzVector<T> pa(*this);
+   LorentzVector<T> d1;
+   LorentzVector<T> d2;
+
+   //
+   int ndec = masses.size();
+   daughters.clear();
+   double mass2=0;
+   for(int j=0; j<ndec; ++j) mass2+=masses[j];
+   if(mass2>Mag()) {
+      std::cout << "LorentzVector::PhaseSpace: cannot decay: parent mass " << Mag() << " sum of daughter mass " << mass2 << std::endl;
+      return;
+   }
+   for(int j=0; j<ndec-1;++j) {
+      mass2=masses[j+1];
+      if(j<ndec-2) {
+	 for(int i=j+2; i<ndec; ++i) mass2+=masses[i];
+	 double dm = 0;
+	 double pam2 = pa.Mag2();
+	 if(pam2<0) pam2=0;
+	 double freen = sqrt(pam2)-masses[j]-mass2;
+	 if(mass2 > 0) dm = freen*std::pow(RNG::Instance().uniform(),masses[j]/(mass2-0.5*(masses[ndec-1]+masses[ndec-2])));
+	 while(dm < 1e-7*freen) dm = freen*RNG::Instance().uniform();
+	 mass2+=dm;
+      }
+      double vmass[2]={masses[j],mass2};
+      pa.TwoBodyDecay(vmass,d1,d2);
+      pa = d2;
+      daughters.push_back(d1);
+   }
+   daughters.push_back(d2);
+}
 
 };
 
@@ -765,6 +842,7 @@ public:
   VECGEOM_INLINE
   VecType Boost(const Vector3D<U> &beta) const {
     Precision beta2 = beta.Mag2();
+    if(beta2 <= 1e-16) return LorentzVector(*this);
     Precision gamma = Sqrt(1./(1-beta2));
     Precision bdotv = beta.Dot(SpaceVector<Precision>());
     return LorentzVector(SpaceVector<Precision>() + 
@@ -810,7 +888,7 @@ public:
 
   template <typename U, typename V, typename W> 
   VECGEOM_CUDA_HEADER_BOTH
-     void TwoBodyDecay(const U masses[], LorentzVector<V> &t1, LorentzVector<W> &t2, void (*func)(double &mthe, double &mphi)=0) const {
+  void TwoBodyDecay(const U masses[], LorentzVector<V> &t1, LorentzVector<W> &t2, void (*func)(double &mthe, double &mphi)=0) const {
    // Make two body decay
    double theta=0;
    double phi=0;
@@ -819,41 +897,110 @@ public:
 	 phi = RNG::Instance().uniform() * kTwoPi;
 	 theta = RNG::Instance().uniform() * kPi;
       }
-   const double mass = Mag();
+   double mass2 = Mag2();
+   if(mass2 > -1e-6 && mass2 < 0) mass2=0;
+   double dmass = masses[0]+masses[1];
+   if(mass2*(1.+1.e-7) < dmass*dmass || (mass2==0 && dmass==0)) {
+      if(dmass !=0)
+	 std::cout << "WARNING::LorentzVector::TwoBodyDecay: daughters' mass square " 
+		   << dmass*dmass << " larger than parent " << mass2 << ", no decay " << std::endl;
+      t1.Set(0,0,0,masses[0]);
+      t2.Set(0,0,0,masses[1]);
+      return;
+   }
+   const double mass = sqrt(mass2);
+	     
    double en1 = 0.5*(mass*mass + masses[0]*masses[0] - masses[1]*masses[1])/mass;
    double en2 = 0.5*(mass*mass - masses[0]*masses[0] + masses[1]*masses[1])/mass;
    if((en1-masses[0]<-1e-10) || (en2-masses[1]<-1e-10)) {
-      std::cout << "WARNING::twobody en<0  en1-masses[0] " << en1-masses[0] 
+      std::cout << "WARNING::LorentzVector::TwoBodyDecay en<0  en1-masses[0] " << en1-masses[0] 
 	   << " en2-masses[1] " << en2-masses[1] << std::endl;
    }
-   if(en1<masses[0]) en1 = masses[0];
-   if(en2<masses[1]) en2 = masses[1];
-   const double p1 = sqrt((en1+masses[0])*(en1-masses[0]));
-   const double p2 = sqrt((en2+masses[1])*(en2-masses[1]));
+   double p1=0;
+   if(en1<masses[0]) 
+      en1 = masses[0];
+  else
+      p1 = sqrt((en1+masses[0])*(en1-masses[0]));
+   double p2=0;
+   if(en2<masses[1]) 
+      en2 = masses[1];
+   else
+      p2 = sqrt((en2+masses[1])*(en2-masses[1]));
+   double p = 0.5*(p1+p2);
    // debug
-   if(0.5*fabs(p1-p2)/((p1+p2)>0?(p1+p2):1) > 1e-10) std::cout << "WARNING::twobody: momentum imbalance p1-p2 " << p1-p2 << std::endl;
-   if(fabs(mass-en1-en2)/(mass+en1+en2)/3 > 1e-10) std::cout << "WARNING::towbody mass imbalance mass - en1 - en2 " 
+   if(fabs(p1-p2)/mass > 1e-4) std::cout << "WARNING::LorentzVector::TwoBodyDecay: momentum imbalance err " 
+					 << fabs(p1-p2)/mass << " p1-p2 " << p1-p2 << " p1 " << p1 << " p2 " << p2 << " mass " << mass << std::endl;
+   if(fabs(mass-en1-en2)/(mass+en1+en2)/3 > 1e-7) std::cout << "WARNING::LorentzVector::TwoBodyDecay: mass imbalance mass - en1 - en2 " 
 									<< mass - en1 - en2 << std::endl;
-   // Set the two vectors
-   const Vector3D<Precision> space(p1*sin(theta)*cos(phi),p1*sin(theta)*sin(phi),p1*cos(theta));
+   // debug
+
+   // Set the two output vectors
+   const Vector3D<Precision> space(p*sin(theta)*cos(phi),p*sin(theta)*sin(phi),p*cos(theta));
    t1.Set( space, en1);
    t2.Set(-space, en2);
 
-   // This part only if there is a matrix element, otherwise isotropic is isotropic, but we keep it
-
-   const Transformation3D tr(SpaceVector<Precision>(),false);
-   tr.Transform(space,static_cast<Vector3D<Precision>& >(t1));
-   tr.Transform(-space,static_cast<Vector3D<Precision>& >(t2));
+   if(func) {
+   // This part only if there is a matrix element, otherwise isotropic is isotropic
+      const Transformation3D tr(SpaceVector<Precision>(),false);
+      tr.Transform(space,static_cast<Vector3D<Precision>& >(t1));
+      tr.Transform(-space,static_cast<Vector3D<Precision>& >(t2));
+   }
    
    Vector3D<Precision> beta(-fMem[0]/fMem[3],-fMem[1]/fMem[3],-fMem[2]/fMem[3]);
    t1 = t1.Boost(beta);
    t2 = t2.Boost(beta);
+
    // dedbug
-   static const LorentzVector<Precision> metric(1,1,1,-1);
+   static const LorentzVector<Precision> metric(-1,-1,-1,1);
    const LorentzVector<Precision> vdiff = (*this) - t1 -t2;
    const double mdiff = sqrt(vdiff.Dot(vdiff*metric)/(Dot((*this)*metric)+t1.Dot(t1*metric)+t2.Dot(t2*metric)))/3;
-   if(mdiff > 1e-10) std::cout << "WARNING::twobody error in momentum energy balance " << (*this) - t1 - t2 << std::endl;
+   if(mdiff > 1e-7) std::cout << "WARNING::LorentzVector::TwoBodyDecay error " << mdiff << " in momentum energy balance this=" 
+			      << (*this) << " difference=" << (*this) - t1 - t2 << std::endl;
    // debug
+}
+
+  /**
+   * This method generate recursively the phase space via two body decays
+   * The method is robust, however it provides a biased distribution
+   * this will be fixed in due time, for the moment it is good enough
+   @param[in] masses the masses of the products
+   @param[out] daughters a vector of LorentzVectors with the decay products
+  */
+ template<typename U>
+ VECGEOM_CUDA_HEADER_BOTH
+ void PhaseSpace(const vector<U> &masses, vector<LorentzVector<Precision> > &daughters) {
+   //Relativistic phase space
+   LorentzVector<Precision> pa(*this);
+   LorentzVector<Precision> d1;
+   LorentzVector<Precision> d2;
+
+   //
+   int ndec = masses.size();
+   daughters.clear();
+   double mass2=0;
+   for(int j=0; j<ndec; ++j) mass2+=masses[j];
+   if(mass2>Mag()) {
+      std::cout << "LorentzVector::PhaseSpace: cannot decay: parent mass " << Mag() << " sum of daughter mass " << mass2 << std::endl;
+      return;
+   }
+   for(int j=0; j<ndec-1;++j) {
+      mass2=masses[j+1];
+      if(j<ndec-2) {
+	 for(int i=j+2; i<ndec; ++i) mass2+=masses[i];
+	 double dm = 0;
+	 double pam2 = pa.Mag2();
+	 if(pam2<0) pam2=0;
+	 double freen = sqrt(pam2)-masses[j]-mass2;
+	 if(mass2 > 0) dm = freen*std::pow(RNG::Instance().uniform(),masses[j]/(mass2-0.5*(masses[ndec-1]+masses[ndec-2])));
+	 while(dm < 1e-7*freen) dm = freen*RNG::Instance().uniform();
+	 mass2+=dm;
+      }
+      double vmass[2]={masses[j],mass2};
+      pa.TwoBodyDecay(vmass,d1,d2);
+      pa = d2;
+      daughters.push_back(d1);
+   }
+   daughters.push_back(d2);
 }
 
 };
@@ -991,7 +1138,7 @@ LorentzVector<Precision> LorentzVector<Precision>::MultiplyByComponents(
 
 #endif
 
-static const LorentzVector<double> LorentzMetric(1,1,1,-1);
+static const LorentzVector<double> LorentzMetric(-1,-1,-1,1);
 
 
 } // End inline namespace
