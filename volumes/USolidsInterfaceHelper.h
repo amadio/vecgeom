@@ -68,11 +68,13 @@ public:
 
   virtual double SafetyFromOutside(Vector3D<double> const &point,
                                    bool accurate = false) const {
+    (void)accurate; // fix 'unused variable' warning
     return SafetyToIn(point);
   }
 
   virtual double SafetyFromInside(Vector3D<double> const &point,
                                   bool accurate = false) const {
+    (void)accurate; // fix 'unused variable' warning
     return SafetyToOut(point);
   }
 
