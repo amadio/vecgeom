@@ -913,16 +913,17 @@ void BoxImplementation<transCodeT, rotCodeT>::NormalKernel(
         Vector3D<Precision> const &point,
         typename Backend::bool_v &inside) {
 
-        inside =  lowercorner.x() < point.x();
-        inside &= uppercorner.x() > point.x();
+        typedef typename Backend::precision_v Real_v;
+        inside =  lowercorner.x() < Real_v(point.x());
+        inside &= uppercorner.x() > Real_v(point.x());
         if( IsEmpty(inside) ) return;
 
-        inside &= lowercorner.y() < point.y();
-        inside &= uppercorner.y() > point.y();
+        inside &= lowercorner.y() < Real_v(point.y());
+        inside &= uppercorner.y() > Real_v(point.y());
         if( IsEmpty(inside) ) return;
 
-        inside &= lowercorner.z() < point.z();
-        inside &= uppercorner.z() > point.z();
+        inside &= lowercorner.z() < Real_v(point.z());
+        inside &= uppercorner.z() > Real_v(point.z());
   }
 
   }; // end aligned bounding box struct
