@@ -5,6 +5,7 @@
 #include "volumes/PlacedVolume.h"
 #include <dlfcn.h>
 #include "navigation/NavigationState.h"
+#include "navigation/ABBoxNavigator.h"
 #include "volumes/UnplacedBooleanVolume.h"
 
 #include <dlfcn.h>
@@ -143,6 +144,7 @@ void GeoManager::CloseGeometry() {
     }
 
     CompactifyMemory();
+    vecgeom::ABBoxManager::Instance().InitABBoxesForCompleteGeometry();
 }
 
 
