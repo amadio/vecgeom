@@ -363,7 +363,7 @@ public:
           stepMax,
           result
         );
-        if (result < currentDistance[i]) {
+        if (result < currentDistance[i] && !IsInf(result)) {
           currentDistance[i] = result;
           nextDaughterIdList[i] = daughterId;
         }
@@ -400,6 +400,7 @@ public:
         stepMax[i],
         output[i]
       );
+      if( output[i] < 0. ) output[i] = vecgeom::kInfinity;
       nodeIndex[i] = (output[i] < stepMax[i]) ? -1 : -2;
     }
   }

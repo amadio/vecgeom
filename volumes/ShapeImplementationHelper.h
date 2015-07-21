@@ -405,43 +405,44 @@ public:
                                     int daughterid,
                                     Precision *const currentdistance,
                                     int *const nextdaughteridlist) const {
-      for (int i = 0, iMax = points.size(); i < iMax; i += VcPrecision::Size) {
-            Vector3D<VcPrecision> point(
-              VcPrecision(points.x()+i),
-              VcPrecision(points.y()+i),
-              VcPrecision(points.z()+i)
-            );
-            Vector3D<VcPrecision> direction(
-              VcPrecision(directions.x()+i),
-              VcPrecision(directions.y()+i),
-              VcPrecision(directions.z()+i)
-            );
-            // currentdistance is also estimate for stepmax
-            VcPrecision stepMaxVc = VcPrecision(&currentdistance[i]);
-            VcPrecision result = kInfinity;
-            Specialization::template DistanceToIn<kVc>(
-              *this->GetUnplacedVolume(),
-              *this->GetTransformation(),
-              point,
-              direction,
-              stepMaxVc,
-              result
-            );
-            // now we have distance and we can compare it to old distance step
-            // and update it if necessary
-            VcBool mask=result>stepMaxVc;
-            result( mask ) = stepMaxVc;
-            result.store(&currentdistance[i]);
-            // currently do not know how to do this better (can do it when Vc offers long ints )
+    unsigned safesize = points.size() - points.size() % VcPrecision::Size;
+    for (int i = 0; i < safesize; i += VcPrecision::Size) {
+      Vector3D<VcPrecision> point(VcPrecision(points.x() + i), VcPrecision(points.y() + i),
+                                  VcPrecision(points.z() + i));
+      Vector3D<VcPrecision> direction(VcPrecision(directions.x() + i), VcPrecision(directions.y() + i),
+                                      VcPrecision(directions.z() + i));
+      // currentdistance is also estimate for stepmax
+      VcPrecision stepMaxVc = VcPrecision(&currentdistance[i]);
+      VcPrecision result = kInfinity;
+      Specialization::template DistanceToIn<kVc>(*this->GetUnplacedVolume(), *this->GetTransformation(), point,
+                                                 direction, stepMaxVc, result);
+      // now we have distance and we can compare it to old distance step
+      // and update it if necessary
+      // -1E20 used here as Vc does not have a check for minus infinity
+      VcBool valid = result < stepMaxVc && result > -1E20;
+      result(!valid) = stepMaxVc; // go back to previous result if we don't get better
+      result.store(&currentdistance[i]);
 #ifdef VECGEOM_INTEL
 #pragma unroll
 #endif
-            for(unsigned int j=0;j<VcPrecision::Size;++j)
-            {
-                nextdaughteridlist[i+j]
-                                   =( ! mask[j] )? daughterid : nextdaughteridlist[i+j];
-            }
+      // currently do not know how to do this better (can do it when Vc offers long ints )
+      for (unsigned int j = 0; j < VcPrecision::Size; ++j) {
+        nextdaughteridlist[i + j] = (valid[j]) ? daughterid : nextdaughteridlist[i + j];
       }
+    }
+    // treat the tail:
+    unsigned tailsize = points.size() - safesize;
+    for (unsigned i = 0; i < tailsize; ++i) {
+      unsigned track = safesize + i;
+      Precision result(vecgeom::kInfinity);
+      Specialization::template DistanceToIn<kScalar>(*this->GetUnplacedVolume(), *this->GetTransformation(), points[track], directions[track],
+                                                      currentdistance[track], result);
+      //bool valid = result < stepMax[track] && ! IsInf(result);
+      if (result < currentdistance[i] && !IsInf(result)) {
+               currentdistance[i] = result;
+               nextdaughteridlist[i] = daughterid;
+      }
+    }
   }
 #if !defined(__clang__) && !defined(VECGEOM_INTEL)
 #pragma GCC pop_options
@@ -482,32 +483,35 @@ public:
                                Precision const *const stepMax,
                                Precision *const output,
                                int *const nodeindex ) const {
-      for (int i = 0, i_max = points.size(); i < i_max; i += VcPrecision::Size) {
-        Vector3D<VcPrecision> point(
-          VcPrecision(points.x()+i),
-          VcPrecision(points.y()+i),
-          VcPrecision(points.z()+i)
-        );
-        Vector3D<VcPrecision> direction(
-          VcPrecision(directions.x()+i),
-          VcPrecision(directions.y()+i),
-          VcPrecision(directions.z()+i)
-        );
+      // if (points.size() % VcPrecision::Size !=0 ) std::cerr << "TAIL TREATMENT PROBLEM\n";
+      unsigned safesize = points.size() - points.size() % VcPrecision::Size;
+      for (int i = 0; i < safesize; i += VcPrecision::Size) {
+        Vector3D<VcPrecision> point(VcPrecision(points.x() + i), VcPrecision(points.y() + i),
+                                    VcPrecision(points.z() + i));
+        Vector3D<VcPrecision> direction(VcPrecision(directions.x() + i), VcPrecision(directions.y() + i),
+                                        VcPrecision(directions.z() + i));
         VcPrecision stepMaxVc = VcPrecision(&stepMax[i]);
         VcPrecision result = kInfinity;
-        Specialization::template DistanceToOut<kVc>(
-          *this->GetUnplacedVolume(),
-          point,
-          direction,
-          stepMaxVc,
-          result
-        );
+        Specialization::template DistanceToOut<kVc>(*this->GetUnplacedVolume(), point, direction, stepMaxVc, result);
+        result(result<0.) = vecgeom::kInfinity;
         result.store(&output[i]);
         for (unsigned int j=0;j<VcPrecision::Size;++j) {
             // -1: physics step is longer than geometry
             // -2: particle may stay inside volume
             nodeindex[i+j] = ( result[j] < stepMaxVc[j] )? -1 : -2;
         }
+      }
+      // treat the tail:
+      unsigned tailsize = points.size() - safesize;
+      for (unsigned i = 0; i < tailsize; ++i){
+          unsigned track = safesize + i;
+          Precision result(vecgeom::kInfinity);
+          Specialization::template DistanceToOut<kScalar>(*this->GetUnplacedVolume(), points[track], directions[track], stepMax[track], result);
+          result = (result<0.)? vecgeom::kInfinity : result;
+          output[track] = result;
+          // -1: physics step is longer than geometry
+          // -2: particle may stay inside volume
+          nodeindex[track] = ( result < stepMax[track] )? -1 : -2;
       }
     }
 
@@ -532,40 +536,42 @@ public:
 
   void SafetyToInMinimizeTemplate(SOA3D<Precision> const &points,
                                   Precision *const safeties) const {
-    for (int i = 0, iMax = points.size(); i < iMax; i += VcPrecision::Size) {
-      Vector3D<VcPrecision> point(
-        VcPrecision(points.x()+i),
-        VcPrecision(points.y()+i),
-        VcPrecision(points.z()+i)
-      );
+    unsigned safesize = points.size() - points.size() % VcPrecision::Size;
+    for (int i = 0; i < safesize; i += VcPrecision::Size) {
+      Vector3D<VcPrecision> point(VcPrecision(points.x() + i), VcPrecision(points.y() + i),
+                                  VcPrecision(points.z() + i));
       VcPrecision estimate = VcPrecision(&safeties[i]);
       VcPrecision result = kInfinity;
-      Specialization::template SafetyToIn<kVc>(
-        *this->GetUnplacedVolume(),
-        *this->GetTransformation(),
-        point,
-        result
-      );
+      Specialization::template SafetyToIn<kVc>(*this->GetUnplacedVolume(), *this->GetTransformation(), point, result);
       result(estimate < result) = estimate;
       result.store(&safeties[i]);
+    }
+    unsigned tailsize = points.size() - safesize;
+    for (unsigned int i=0; i < tailsize; ++i){
+        unsigned int track = safesize + i;
+        Precision result = kInfinity;
+        Specialization::template SafetyToIn<kScalar>(*this->GetUnplacedVolume(), *this->GetTransformation(), points[track], result);
+        safeties[track] = (result < safeties[track])? result : safeties[track];
     }
   }
 
   void SafetyToOutTemplate(SOA3D<Precision> const &points,
                            Precision *const output) const {
-    for (int i = 0, i_max = points.size(); i < i_max; i += VcPrecision::Size) {
-      Vector3D<VcPrecision> point(
-        VcPrecision(points.x()+i),
-        VcPrecision(points.y()+i),
-        VcPrecision(points.z()+i)
-      );
+    unsigned safesize = points.size() - points.size() % VcPrecision::Size;
+    for (unsigned int i = 0; i < safesize; i += VcPrecision::Size) {
+      Vector3D<VcPrecision> point(VcPrecision(points.x() + i), VcPrecision(points.y() + i),
+                                  VcPrecision(points.z() + i));
       VcPrecision result = kInfinity;
-      Specialization::template SafetyToOut<kVc>(
-        *this->GetUnplacedVolume(),
-        point,
-        result
-      );
+      Specialization::template SafetyToOut<kVc>(*this->GetUnplacedVolume(), point, result);
       result.store(&output[i]);
+    }
+    // tail treatment
+    unsigned tailsize = points.size() - safesize;
+    for (unsigned int i = 0; i < tailsize; ++i) {
+        Precision result = kInfinity;
+        unsigned int track = safesize + i;
+        Specialization::template SafetyToOut<kScalar>(*this->GetUnplacedVolume(), points[track], result);
+        output[track] = result;
     }
   }
 
@@ -654,7 +660,8 @@ public:
           stepMax,
           result
         );
-        if (result < currentDistance[i]) {
+
+        if (result < currentDistance[i] && result > -1E20 ) {
           currentDistance[i] = result;
           nextDaughterIdList[i] = daughterId;
         }
@@ -691,6 +698,7 @@ public:
         stepMax[i],
         output[i]
       );
+      if( output[i] < 0 ) output[i] = vecgeom::kInfinity;
       nodeIndex[i] = (output[i] < stepMax[i]) ? -1 : -2;
     }
   }
