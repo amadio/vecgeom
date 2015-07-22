@@ -18,7 +18,8 @@
 #include "volumes/UnplacedOrb.h"
 #include "volumes/UnplacedSphere.h"
 #include "volumes/UnplacedBooleanVolume.h"
-#include "volumes/UnplacedTorus.h"
+//#include "volumes/UnplacedTorus.h"
+#include "volumes/UnplacedTorus2.h"
 #include "volumes/UnplacedTrapezoid.h"
 #include "volumes/UnplacedPolycone.h"
 #include "volumes/Medium.h"
@@ -44,6 +45,7 @@
 #include "TGeoPcon.h"
 
 #include <cassert>
+#include <iostream>
 
 namespace vecgeom {
 
@@ -78,7 +80,7 @@ void RootGeoManager::ExportToROOTGeometry(VPlacedVolume const * topvolume,
 
 VPlacedVolume* RootGeoManager::Convert(TGeoNode const *const node) {
   if (fPlacedVolumeMap.Contains(node))
-      return const_cast<VPlacedVolume*> (fPlacedVolumeMap[node]);
+      return const_cast<VPlacedVolume*>(GetPlacedVolume( node ));
 
   Transformation3D const *const transformation = Convert(node->GetMatrix());
   LogicalVolume *const logical_volume = Convert(node->GetVolume());
@@ -97,18 +99,18 @@ VPlacedVolume* RootGeoManager::Convert(TGeoNode const *const node) {
     logical_volume->PlaceDaughter(Convert(node->GetDaughter(i)));
   }
 
-  fPlacedVolumeMap.Set(node, placed_volume);
+  fPlacedVolumeMap.Set(node, placed_volume->id());
   return placed_volume;
 }
 
 
 TGeoNode* RootGeoManager::Convert(VPlacedVolume const *const placed_volume) {
-  if (fPlacedVolumeMap.Contains(placed_volume))
-      return const_cast<TGeoNode*> (fPlacedVolumeMap[placed_volume]);
+  if (fPlacedVolumeMap.Contains(placed_volume->id()))
+      return const_cast<TGeoNode*> (fPlacedVolumeMap[placed_volume->id()]);
 
   TGeoVolume * geovolume = Convert(placed_volume, placed_volume->GetLogicalVolume());
   TGeoNode * node = new TGeoNodeMatrix( geovolume, NULL );
-  fPlacedVolumeMap.Set(node, placed_volume);
+  fPlacedVolumeMap.Set(node, placed_volume->id());
 
   // only need to do daughterloop once for every logical volume.
   // So only need to check if
@@ -389,12 +391,15 @@ VUnplacedVolume* RootGeoManager::Convert(TGeoShape const *const shape) {
      VUnplacedVolume const* leftunplaced  = Convert( boolnode->GetLeftShape() );
      VUnplacedVolume const* rightunplaced = Convert( boolnode->GetRightShape() );
 
+     assert( leftunplaced != nullptr );
+     assert( rightunplaced != nullptr );
+
      // the problem is that I can only place logical volumes
      VPlacedVolume *const leftplaced =
-          (new LogicalVolume("", leftunplaced ))->Place(lefttrans);
+          (new LogicalVolume("inner_virtual", leftunplaced ))->Place(lefttrans);
 
      VPlacedVolume *const rightplaced =
-          (new LogicalVolume("", rightunplaced ))->Place(righttrans);
+          (new LogicalVolume("inner_virtual", rightunplaced ))->Place(righttrans);
 
      // now it depends on concrete type
      if( boolnode->GetBooleanOperator() == TGeoBoolNode::kGeoSubtraction ){
@@ -415,7 +420,7 @@ VUnplacedVolume* RootGeoManager::Convert(TGeoShape const *const shape) {
     if (shape->IsA() == TGeoTorus::Class()) {
         // make distinction
         TGeoTorus const *const p = static_cast<TGeoTorus const*>(shape);
-            unplaced_volume = new UnplacedTorus(p->GetRmin(),p->GetRmax(),
+            unplaced_volume = new UnplacedTorus2(p->GetRmin(),p->GetRmax(),
                     p->GetR(), p->GetPhi1()*kDegToRad, p->GetDphi()*kDegToRad);
     }
 

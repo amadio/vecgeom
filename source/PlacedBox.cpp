@@ -29,7 +29,7 @@ void PlacedBox::PrintType() const {
 #ifndef VECGEOM_NVCC
 
 VPlacedVolume const* PlacedBox::ConvertToUnspecialized() const {
-  return new SimpleBox(GetLabel().c_str(), logical_volume_, transformation_);
+  return new SimpleBox(GetLabel().c_str(), logical_volume_, GetTransformation());
 }
 
 #ifdef VECGEOM_ROOT

@@ -18,7 +18,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-int VPlacedVolume::g_id_count = 0;
+unsigned int VPlacedVolume::g_id_count = 0;
 
 #ifndef VECGEOM_NVCC
 VPlacedVolume::VPlacedVolume(char const *const label,
@@ -29,22 +29,44 @@ VPlacedVolume::VPlacedVolume(char const *const label,
 #ifdef VECGEOM_USOLIDS
     USolidsInterfaceHelper(label),
 #endif
-     id_(), label_(NULL), logical_volume_(logical_volume), transformation_(transformation),
-      bounding_box_(bounding_box) {
+     id_(), label_(NULL), logical_volume_(logical_volume),
+#ifdef VECGEOM_INPLACE_TRANSFORMATIONS
+     fTransformation(*transformation),
+#else
+     fTransformation(transformation),
+#endif
+     bounding_box_(bounding_box) {
   id_ = g_id_count++;
   GeoManager::Instance().RegisterPlacedVolume(this);
   label_ = new std::string(label);
 }
 
-VPlacedVolume::VPlacedVolume(VPlacedVolume const & other) : id_(), label_(NULL), logical_volume_(), transformation_(),
+
+VECGEOM_CUDA_HEADER_BOTH
+VPlacedVolume::VPlacedVolume(VPlacedVolume const & other) : id_(), label_(NULL), logical_volume_(), fTransformation(),
     bounding_box_() {
   assert( 0 && "COPY CONSTRUCTOR FOR PlacedVolumes NOT IMPLEMENTED");
 }
 
+VECGEOM_CUDA_HEADER_BOTH
 VPlacedVolume * VPlacedVolume::operator=( VPlacedVolume const & other )
 {
-  printf("ASSIGNMENT OPERATOR FOR VPlacedVolumes NOT IMPLEMENTED");
-  return NULL;
+// deliberaty copy using memcpy to also copy the virtual table
+   if( this != &other){
+       // overriding the vtable is exactly what I want
+       // so I silence a compier warning via the void* cast
+    std::memcpy((void*)this, (void*)&other, sizeof(VPlacedVolume) );
+   }
+   return this;
+    //    if (this != &other) // protect against invalid self-assignment
+//    {
+//        id_ = other.id_;
+//        label_ = other.label_;
+//        logical_volume_ = other.logical_volume_;
+//        transformation_ = other.transformation_;
+//        bounding_box_ = other.bounding_box_;
+//    }
+//    return this;
 }
 #endif
 
@@ -67,7 +89,7 @@ void VPlacedVolume::Print(const int indent) const {
 #endif
   printf(": \n");
   for (int i = 0; i <= indent; ++i) printf("  ");
-  transformation_->Print();
+  GetTransformation()->Print();
   printf("\n");
   logical_volume_->Print(indent+1);
 }

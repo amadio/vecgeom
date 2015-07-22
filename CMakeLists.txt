@@ -51,6 +51,10 @@ option(PLANESHELL "Enable the use of PlaneShell class for the trapezoid." ON)
 
 option(DISTANCE_DEBUG "Enable comparison of calculated distances againt ROOT/Geant4 behind the scenes" OFF)
 
+option(INPLACE_TRANSFORMATIONS "Put transformation as members rather than pointers into PlacedVolume objects" ON)
+
+option(USE_INDEXEDNAVSTATES "Use indices rather than volume pointers in NavigationState objects" OFF)
+
 option(DATA_DOWNLOAD "Enable downloading of data for tests" OFF)
 
 set(VECGEOM_ARCH native sse2 sse3 ssse3 sse4.1 sse4.2 avx avx2 mic avx512)
@@ -93,6 +97,7 @@ endforeach()
 if (USOLIDS)
   set(USolids ON)
 endif()
+
 
 if (GEANT4)
 #  if (BENCHMARK)
@@ -328,6 +333,13 @@ endif()
 if (VTUNE)
   set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_VTUNE")
 endif()
+if (INPLACE_TRANSFORMATIONS)
+  set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_INPLACE_TRANSFORMATIONS")
+endif()
+if (USE_INDEXEDNAVSTATES)
+  set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_USE_INDEXEDNAVSTATES")
+endif()
+
 
 ################################################################################
 
@@ -455,6 +467,7 @@ set(SRC_CPP_RELATIVE
   source/PlacedBox.cpp
   source/PlacedTube.cpp
   source/PlacedTorus.cpp
+  source/PlacedTorus2.cpp
   source/PlacedTrd.cpp
   source/PlacedParallelepiped.cpp
   source/PlacedParaboloid.cpp
@@ -470,6 +483,7 @@ set(SRC_CPP_RELATIVE
   source/UnplacedBox.cpp
   source/UnplacedTube.cpp
   source/UnplacedTorus.cpp
+  source/UnplacedTorus2.cpp
   source/UnplacedTrd.cpp
   source/UnplacedParaboloid.cpp
   source/UnplacedParallelepiped.cpp
@@ -703,8 +717,8 @@ set(TEST_EXECUTABLES_USOLIDS
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestPolycone.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestPolyhedra.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTet.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestOrb.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
+#  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestOrb.cpp
+#  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBoxlikeTrapezoid.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/usolidTest.cpp
 )
@@ -726,8 +740,8 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${CMAKE_SOURCE_DIR}/test/benchmark/TorusBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrapezoidBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrapezoidBenchmarkScript.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/OrbBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/SphereBenchmark.cpp
+#  ${CMAKE_SOURCE_DIR}/test/benchmark/OrbBenchmark.cpp
+#  ${CMAKE_SOURCE_DIR}/test/benchmark/SphereBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrdBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ConeBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/PolyconeBenchmark.cpp

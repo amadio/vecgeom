@@ -438,6 +438,9 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
       //InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );
       // set step to zero and retry one level higher
       // if( nexthitvolume!=-1 ) std::cout << "catastrophee\n";
+#if defined(VECGEOM_ROOT)
+      //      currentstate.printVolumePath(std::cout); std::cout << "\n";
+#endif
       newstate.Clear();
       VPlacedVolume const *world = GeoManager::Instance().GetWorld();
       LocatePoint(world, globalpoint + vecgeom::kTolerance*globaldir, newstate, true);
@@ -451,10 +454,11 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
       std::cout << " counter is " << counter << "\n";
 #endif
       newstate.SetBoundaryState(true);
-      if( newstate.HasSamePathAsOther(currentstate) ) {
-          std::cout << "$$$$$$$$$$$$$$$$$$$$$$$4 MASSIVE WARNING $$$$$$$$$$$$$$$$$$$$$$$$$ \n";
-          newstate.Pop();
-      }
+      //      if( newstate.HasSamePathAsOther(currentstate) ) {
+      //          std::cout << "$$$$$$$$$$$$$$$$$$$$$$$4 MASSIVE WARNING $$$$$$$$$$$$$$$$$$$$$$$$$ \n";
+      //          newstate.Pop();
+      //      }
+      newstate.Pop();
       return;
 #else
       // Can't call GeoManager::Instance().GetWorld() from CUDA code
@@ -738,40 +742,49 @@ void SimpleNavigator::FindNextBoundaryAndStep(
    // now we have the candidates
    for( int i=0;i<np;++i )
    {
-     *newstates[i] = *currentstates[i];
+     currentstates[i]->CopyTo(newstates[i]);
 
-     // is geometry further away than physics step?
-     if( distances[i]>pSteps[i] ) {
-       // don't need to do anything
-       distances[i] = pSteps[i];
-       newstates[i]->SetBoundaryState( false );
+     // TODO: the following steps are identical to the scalar treatment; they should hence
+     // be factored out into shared code
+     if (distances[i] == vecgeom::kInfinity && pSteps[i] > 0.) {
+       distances[i] = vecgeom::kTolerance;
+       newstates[i]->SetBoundaryState(true);
+       newstates[i]->Pop();
        continue;
      }
-     newstates[i]->SetBoundaryState( true );
+
+     // is geometry further away than physics step?
+     if (distances[i] > pSteps[i]) {
+       // don't need to do anything
+       distances[i] = pSteps[i];
+       newstates[i]->SetBoundaryState(false);
+       continue; // go to next particle
+     }
+     newstates[i]->SetBoundaryState(true);
+
+     if (distances[i] < 0.) {
+        distances[i] = 0.;
+     }
+     distances[i] += 1E-6;
 
      // TODO: this is tedious, please provide operators in Vector3D!!
      // WE SHOULD HAVE A FUNCTION "TRANSPORT" FOR AN OPERATION LIKE THIS
      Vector3D<Precision> newpointafterboundary = localdirs[i];
-     newpointafterboundary*=(distances[i] + 1e-9);
-     newpointafterboundary+=localpoints[i];
+     newpointafterboundary *= distances[i];
+     newpointafterboundary += localpoints[i];
 
-     if( nextnodeworkspace[i] > -1 ) // not hitting mother
+     if (nextnodeworkspace[i] > -1) // not hitting mother
      {
-        // continue directly further down
-        VPlacedVolume const * nextvol = daughters->operator []( nextnodeworkspace[i] );
-        Transformation3D const * trans = nextvol->GetTransformation();
+       // continue directly further down
+       VPlacedVolume const *nextvol = daughters->operator[](nextnodeworkspace[i]);
+       Transformation3D const *trans = nextvol->GetTransformation();
 
-        // this should be inlined here
-        LocatePoint( nextvol,
-                trans->Transform(newpointafterboundary), *newstates[i], false );
-     }
-     else
-     {
+       LocatePoint(nextvol, trans->Transform(newpointafterboundary), *newstates[i], false);
+     } else {
         // continue directly further up
         RelocatePointFromPath( newpointafterboundary, *newstates[i] );
      }
-
-   } // end loop for relocation
+   } // end loop over tracks for relocation
 }
 
 } } // End global namespace

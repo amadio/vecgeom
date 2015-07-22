@@ -9,6 +9,7 @@
 #include "VariableSizeObj.h"
 #include "base/Transformation3D.h"
 #include "volumes/PlacedVolume.h"
+#include "management/GeoManager.h"
 #ifdef VECGEOM_CUDA
 #include "management/CudaManager.h"
 #endif
@@ -37,14 +38,66 @@ class TGeoBranchArray;
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+// the NavStateIndex type determines is used
+// to calculate addresses of PlacedVolumes
+// a short type should be used in case the number of PlacedVolumes can
+// be counted with 16bits
+// TODO: consider putting uint16 + uint32 types
+#ifdef VECGEOM_USE_INDEXEDNAVSTATES
+typedef unsigned short NavStateIndex_t;
+//typedef unsigned long NavStateIndex_t;
+#else
+typedef VPlacedVolume const* NavStateIndex_t;
+#endif
+
+// helper functionality to convert from NavStateIndex_t to *PlacedVolumes and back
+// the template abstraction also allows to go back to pointers as NavStateIndex_t
+// via a template specialization
+// T stands for NavStateIndex_t
+template <typename T>
+struct Index2PVolumeConverter {
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+static VPlacedVolume const *ToPlacedVolume( T index ){
+     // solution based on direct indexing into the buffer of placed volumes
+     // TODO: on the GPU this is a different static buffer !!
+#ifndef VECGEOM_CUDA
+    return &GeoManager::gCompactPlacedVolBuffer[index];
+#else
+    return nullptr;
+#endif
+}
+
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+static T ToIndex( VPlacedVolume const *pvol ){ return pvol->id(); }
+
+};
+
+// template specialization when we directly save VPlacedVolume pointers into the NavStates
+template <>
+struct Index2PVolumeConverter<VPlacedVolume const *> {
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+static VPlacedVolume const *ToPlacedVolume( VPlacedVolume const *pvol ){
+  return pvol;
+}
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+static VPlacedVolume const *ToIndex( VPlacedVolume const *pvol ){
+  return pvol;
+}
+};
+
 /**
  * a class describing a current geometry state
  * likely there will be such an object for each
  * particle/track currently treated
  */
-class NavigationState : protected VecCore::VariableSizeObjectInterface<NavigationState, VPlacedVolume const *> {
+class NavigationState : protected VecCore::VariableSizeObjectInterface<NavigationState, NavStateIndex_t>,
+                        private Index2PVolumeConverter<NavStateIndex_t> {
 public:
-   using Value_t = VPlacedVolume const *;
+   using Value_t = NavStateIndex_t;
    using Base_t = VecCore::VariableSizeObjectInterface<NavigationState, Value_t>;
    using VariableData_t = VecCore::VariableSizeObj<Value_t>;
 
@@ -62,7 +115,7 @@ private:
    bool fOnBoundary; // flag indicating whether track is on boundary of the "Top()" placed volume
 
    // pointer data follows; has to be last
-   VecCore::VariableSizeObj<VPlacedVolume const *> fPath;
+   VecCore::VariableSizeObj<Value_t> fPath;
 
    // constructors and assignment operators are private
    // states have to be constructed using MakeInstance() function
@@ -123,6 +176,11 @@ public:
    using Base_t::MakeCopyAt;
    using Base_t::ReleaseInstance;
    using Base_t::SizeOf;
+
+   // Enumerate functions from converter which we want to use
+   // ( without retyping of the struct name )
+   using Index2PVolumeConverter<NavStateIndex_t>::ToIndex;
+   using Index2PVolumeConverter<NavStateIndex_t>::ToPlacedVolume;
 
    // produces a compact navigation state object of a certain depth
    // the caller can give a memory address where the object will
@@ -222,10 +280,11 @@ public:
    VPlacedVolume const *
    Top() const;
 
+
    VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
    VPlacedVolume const *
-   At(int level) const {return fPath[level];}
+   At(int level) const {return ToPlacedVolume( fPath[level] );}
 
    VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
@@ -290,7 +349,7 @@ public:
    int GetLevel() const {return fCurrentLevel-1;}
 
    TGeoNode const * GetNode(int level) const {return
-           RootGeoManager::Instance().tgeonode( fPath[level] );}
+           RootGeoManager::Instance().tgeonode( ToPlacedVolume( fPath[level] ) );}
 #endif
 
    /**
@@ -358,7 +417,7 @@ NavigationState::NavigationState( size_t nvalues ) :
          fPath(nvalues)
 {
    // clear the buffer
-   std::memset(fPath.GetValues(), 0, nvalues*sizeof(VPlacedVolume*));
+   std::memset(fPath.GetValues(), 0, nvalues*sizeof(NavStateIndex_t));
 }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -389,13 +448,13 @@ NavigationState::Push( VPlacedVolume const * v )
 #ifdef DEBUG
    assert( fCurrentLevel < GetMaxLevel() );
 #endif
-   fPath[fCurrentLevel++]=v;
+   fPath[fCurrentLevel++] = ToIndex( v );
 }
 
 VPlacedVolume const *
 NavigationState::Top() const
 {
-   return (fCurrentLevel > 0 )? fPath[fCurrentLevel-1] : 0;
+   return (fCurrentLevel > 0 )? ToPlacedVolume( fPath[fCurrentLevel-1] ) : nullptr;
 }
 
 
@@ -410,7 +469,7 @@ NavigationState::TopMatrix( Transformation3D & global_matrix ) const
 // this could be actually cached in case the path does not change ( particle stays inside a volume )
    for(int i=1;i<fCurrentLevel;++i)
    {
-      global_matrix.MultiplyFromRight( *(fPath[i]->GetTransformation()) );
+      global_matrix.MultiplyFromRight( *( ToPlacedVolume( fPath[i] )->GetTransformation()) );
    }
 }
 
@@ -465,7 +524,7 @@ void NavigationState::printVolumePath( std::ostream & stream ) const
       for(int i=0; i < fCurrentLevel; ++i)
 	 {
 #ifdef VECGEOM_ROOT
-	    stream << "/" << RootGeoManager::Instance().tgeonode( fPath[i] )->GetName();
+	    stream << "/" << RootGeoManager::Instance().tgeonode( ToPlacedVolume( fPath[i] ) )->GetName();
 #else 
 	    stream << "/" << fPath[i]->GetName();
 #endif
@@ -485,11 +544,8 @@ int NavigationState::Distance( NavigationState const & other ) const
    int maxlevel = Max( GetCurrentLevel() , other.GetCurrentLevel() );
 
    //  algorithm: start on top and go down until paths split
-   for(int i=0; i < maxlevel; i++)
-   {
-      VPlacedVolume const *v1 = this->fPath[i];
-      VPlacedVolume const *v2 = other.fPath[i];
-      if( v1 == v2 )
+   for(int i=0; i < maxlevel; i++) {
+      if( this->At(i) == other.At(i) )
       {
          lastcommonlevel = i;
       }
@@ -506,7 +562,8 @@ void NavigationState::ConvertToGPUPointers() {
 #ifdef HAVENORMALNAMESPACE
 #ifdef VECGEOM_CUDA
       for(int i=0;i<fCurrentLevel;++i){
-         fPath[i] = (vecgeom::cxx::VPlacedVolume*) vecgeom::CudaManager::Instance().LookupPlaced( fPath[i] ).GetPtr();
+         fPath[i] = ToIndex((vecgeom::cxx::VPlacedVolume*) vecgeom::CudaManager::Instance().LookupPlaced(
+                 ToPlacedVolume( fPath[i] ) ).GetPtr());
       }
 #endif
 #endif
@@ -517,7 +574,7 @@ void NavigationState::ConvertToCPUPointers() {
 #ifdef HAVENORMALNAMESPACE
 #ifdef VECGEOM_CUDA
        for(int i=0;i<fCurrentLevel;++i)
-         fPath[i]=vecgeom::CudaManager::Instance().LookupPlacedCPUPtr( (const void*) fPath[i] );
+         fPath[i] = ToIndex( vecgeom::CudaManager::Instance().LookupPlacedCPUPtr( (const void*) ToPlacedVolume(fPath[i]) ));
 #endif
 #endif
 }

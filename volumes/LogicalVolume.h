@@ -9,6 +9,7 @@
 #include "base/Global.h"
 #include "base/Vector.h"
 #include "volumes/UnplacedVolume.h"
+//#include "volumes/PlacedVolume.h"
 
 #include <string>
 #include <list>
@@ -54,6 +55,10 @@ private:
 
   using CudaDaughter_t = cuda::VPlacedVolume const *;
   friend class CudaManager;
+//  friend class GeoManager;
+
+  // possibility to change pointer of daughter volumes ( can be used by GeoManager )
+//  void SetDaughter(unsigned int i, VPlacedVolume const *pvol);
 
 public:
 
@@ -88,13 +93,27 @@ public:
   VECGEOM_INLINE
   VUnplacedVolume const *GetUnplacedVolume() const { return fUnplacedVolume; }
 
+  // will be deprecated in favour of better encapsulation of internal storage
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Vector<Daughter> const &GetDaughters() const { return *fDaughters; }
 
+  // will be deprecated in favour of better encapsulation of internal storage
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Vector<Daughter> const *GetDaughtersp() const { return fDaughters; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Vector<Daughter> *GetDaughtersp() { return fDaughters; }
+
+//  VECGEOM_CUDA_HEADER_BOTH
+//  VECGEOM_INLINE
+//  VPlacedVolume const* GetDaughter(unsigned int i) const { return daughters_->operator[](i); }
+//
+//  VECGEOM_CUDA_HEADER_BOTH
+//  VECGEOM_INLINE
+//  unsigned int GetNDaughters() const { return daughters_->size(); }
 
   VECGEOM_INLINE
   void * getUserExtensionPtr( ) const {  return user_extension_;  }

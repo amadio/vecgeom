@@ -87,12 +87,12 @@ bool IsEmpty(bool const &cond){
     return !cond;
 }
 
-template <typename Type>
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
-Type Pow(Type const &x, Type arg) {
-   return pow(x,arg);
-}
+/* template <typename Type> */
+/* VECGEOM_CUDA_HEADER_BOTH */
+/* VECGEOM_INLINE */
+/* Type Pow(Type const &x, Type arg) { */
+/*    return pow(x,arg); */
+/* } */
 
 template <typename Type>
 VECGEOM_CUDA_HEADER_BOTH
@@ -205,6 +205,12 @@ VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
 Precision Floor( Precision val ){
     return std::floor(val);
+}
+
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+double CopySign(double x, double y){
+    return copysign(x,y);
 }
 
 template <typename T>

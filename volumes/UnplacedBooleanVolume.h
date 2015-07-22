@@ -99,8 +99,10 @@ public:
  #endif
                                 VPlacedVolume *const placement = NULL);
 
+  VPlacedVolume const *GetLeft() const { return fLeftVolume; }
+  VPlacedVolume const *GetRight() const { return fRightVolume; }
 
- private:
+private:
 
    VECGEOM_CUDA_HEADER_DEVICE
    virtual VPlacedVolume* SpecializedVolume(
@@ -112,6 +114,11 @@ public:
  #endif
        VPlacedVolume *const placement = NULL) const;
 
+   void SetLeft(VPlacedVolume const *pvol){ fLeftVolume = pvol; }
+   void SetRight(VPlacedVolume const *pvol){ fRightVolume = pvol; }
+
+
+   friend class GeoManager;
 }; // End class
 
 } // End impl namespace

@@ -101,6 +101,8 @@ void LogicalVolume::PlaceDaughter(VPlacedVolume const *const placed) {
   fDaughters->push_back(placed);
 }
 
+//void LogicalVolume::SetDaughter(unsigned int i, VPlacedVolume const *pvol) { daughters_->operator[](i) = pvol; }
+
 #endif
 
 VECGEOM_CUDA_HEADER_BOTH

@@ -28,15 +28,19 @@ class VPlacedVolume : public USolidsInterfaceHelper {
 
 private:
 
-  int id_;
+  unsigned int id_;
   // Use a pointer so the string won't be constructed on the GPU
   std::string *label_;
-  static int g_id_count;
+  static unsigned int g_id_count;
 
 protected:
 
   LogicalVolume const *logical_volume_;
-  Transformation3D const *transformation_;
+#ifdef VECGEOM_INPLACE_TRANSFORMATIONS
+  Transformation3D fTransformation;
+#else
+  Transformation3D const *fTransformation;
+#endif
   PlacedBox const *bounding_box_;
 
 #ifndef VECGEOM_NVCC
@@ -57,21 +61,29 @@ protected:
   VPlacedVolume(LogicalVolume const *const logical_vol,
                 Transformation3D const *const transformation,
                 PlacedBox const *const boundingbox,
-                const int id)
-      : logical_volume_(logical_vol), transformation_(transformation),
+                unsigned int id)
+#ifdef VECGEOM_INPLACE_TRANSFORMATIONS
+  : logical_volume_(logical_vol), fTransformation(*transformation),
         bounding_box_(boundingbox), id_(id), label_(NULL) {}
-
+#else
+  : logical_volume_(logical_vol), fTransformation(transformation),
+         bounding_box_(boundingbox), id_(id), label_(NULL) {}
 #endif
-  VPlacedVolume(VPlacedVolume const &);
-  VPlacedVolume *operator=(VPlacedVolume const &);
+#endif
+
 
 public:
+  VECGEOM_CUDA_HEADER_BOTH
+  VPlacedVolume(VPlacedVolume const &);
+  VECGEOM_CUDA_HEADER_BOTH
+  VPlacedVolume *operator=(VPlacedVolume const &);
+
   VECGEOM_CUDA_HEADER_BOTH
   virtual ~VPlacedVolume();
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  int id() const { return id_; }
+  unsigned int id() const { return id_; }
 
   std::string const& GetLabel() const { return *label_; }
 
@@ -107,7 +119,11 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Transformation3D const* GetTransformation() const {
-    return transformation_;
+#ifdef VECGEOM_INPLACE_TRANSFORMATIONS
+      return &fTransformation;
+#else
+      return fTransformation;
+#endif
   }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -117,7 +133,11 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   void SetTransformation(Transformation3D const *const transform) {
-    transformation_ = transform;
+#ifdef VECGEOM_INPLACE_TRANSFORMATIONS
+      fTransformation = *transform;
+#else
+      fTransformation = transform;
+#endif
   }
 
   void set_label(char const * label) {
@@ -347,7 +367,7 @@ public:
          DevicePtr<cuda::LogicalVolume> const logical_volume, \
          DevicePtr<cuda::Transformation3D> const transform, \
          DevicePtr<cuda::PlacedBox> const boundingBox, \
-         const int id) const; \
+         const unsigned int id) const; \
     }
 
 #define VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol, Extra )    \
@@ -357,7 +377,7 @@ public:
          DevicePtr<cuda::LogicalVolume> const logical_volume, \
          DevicePtr<cuda::Transformation3D> const transform, \
          DevicePtr<cuda::PlacedBox> const boundingBox, \
-         const int id) const; \
+         const unsigned int id) const; \
     }
 
 #ifdef VECGEOM_NO_SPECIALIZATION
@@ -425,7 +445,7 @@ public:
          DevicePtr<cuda::LogicalVolume> const logical_volume, \
          DevicePtr<cuda::Transformation3D> const transform, \
          DevicePtr<cuda::PlacedBox> const boundingBox, \
-         const int id) const; \
+         const unsigned int id) const; \
     }
 
 #ifdef VECGEOM_NO_SPECIALIZATION
@@ -469,7 +489,7 @@ public:
          DevicePtr<cuda::LogicalVolume> const logical_volume, \
          DevicePtr<cuda::Transformation3D> const transform, \
          DevicePtr<cuda::PlacedBox> const boundingBox, \
-         const int id) const; \
+         const unsigned int id) const; \
     }
 
 #ifdef VECGEOM_NO_SPECIALIZATION

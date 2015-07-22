@@ -8,7 +8,6 @@
 
 #include "volumes/PlacedVolume.h"
 #include "volumes/LogicalVolume.h"
-#include "navigation/NavigationState.h"
 
 
 #include <map>
@@ -30,7 +29,7 @@ public:
 };
 
 
-
+class NavigationState;
 template<typename Container>
 class GeoVisitorWithAccessToPath
 {
@@ -96,30 +95,6 @@ public:
     int GetTotalNodeCount() const {return fTotalNodeCount;}
 };
 
-template<typename Container>
-class GetPathsForLogicalVolumeVisitor : public GeoVisitorWithAccessToPath<Container>
-{
-private:
-    LogicalVolume const * fReferenceLogicalVolume;
-    int fMaxDepth;
-public:
-    GetPathsForLogicalVolumeVisitor(
-      Container &c, LogicalVolume const * lv, int maxd)
-      : GeoVisitorWithAccessToPath<Container>(c), fReferenceLogicalVolume(lv), fMaxDepth(maxd)
-    {}
-
-    void apply( NavigationState * state, int /* level */ )
-    {
-        if( state->Top()->GetLogicalVolume() == fReferenceLogicalVolume ){
-            // the current state is a good one;
-
-            // make a copy and store it in the container for this visitor
-            NavigationState * copy = NavigationState::MakeCopy( *state );
-
-            this->c_.push_back( copy );
-        }
-    }
-};
 
 
 
@@ -134,8 +109,10 @@ private:
   int fTotalNodeCount; // total number of nodes in the geometry tree
   VPlacedVolume const *fWorld;
 
-  std::map<int, VPlacedVolume*> fPlacedVolumesMap;
-  std::map<int, LogicalVolume*> fLogicalVolumesMap;
+  // consider making these things rvalues
+  std::map<unsigned int, VPlacedVolume *> fPlacedVolumesMap;
+  std::map<unsigned int, LogicalVolume *> fLogicalVolumesMap;
+  std::map<VPlacedVolume const *, unsigned int> fVolumeToIndexMap;
   int fMaxDepth;
 
   // traverses the geometry tree of placed volumes and applies injected Visitor
@@ -150,6 +127,8 @@ private:
 
 public:
 
+  static VPlacedVolume *gCompactPlacedVolBuffer;
+
   static GeoManager& Instance() {
     static GeoManager instance;
     return instance;
@@ -161,6 +140,12 @@ public:
    */
   void CloseGeometry();
 
+  // compactify memory space
+  // an internal method which should be called by ClosedGeometry
+  // it analyses the geometry and puts objects in contiguous buffers
+  // it also fixes resulting pointer inconsistencies
+  void CompactifyMemory();
+
   void SetWorld(VPlacedVolume const *const w) { fWorld = w; }
 
   VPlacedVolume const* GetWorld() const { return fWorld; }
@@ -170,6 +155,12 @@ public:
   // this function sets the world and closes the geometry
   void LoadGeometryFromSharedLib( std::string );
 
+  VPlacedVolume const *Convert( unsigned int index ) {
+      return fPlacedVolumesMap[index];
+  }
+  unsigned int Convert( VPlacedVolume const * pvol ) {
+      return fVolumeToIndexMap[pvol];
+  }
 
   /**
    *  give back container containing all logical volumes in detector
@@ -268,24 +259,6 @@ GeoManager::visitAllPlacedVolumes( VPlacedVolume const * currentvolume, Visitor 
    }
 }
 
-template<typename Visitor>
-void
-GeoManager::visitAllPlacedVolumesWithContext( VPlacedVolume const * currentvolume, Visitor * visitor, NavigationState * state, int level ) const
-{
-   if( currentvolume != NULL )
-   {
-      state->Push( currentvolume );
-      visitor->apply( state, level );
-      int size = currentvolume->GetDaughters().size();
-      for( int i=0; i<size; ++i )
-      {
-         visitAllPlacedVolumesWithContext( currentvolume->GetDaughters().operator[](i), visitor, state, level+1 );
-      }
-      state->Pop();
-   }
-}
-
-
 template<typename Container>
 void GeoManager::getAllLogicalVolumes( Container & c ) const
 {
@@ -307,21 +280,6 @@ void GeoManager::getAllPlacedVolumes( Container & c ) const
    visitAllPlacedVolumes( GetWorld(), &pv );
 }
 
-
-template<typename Container>
-void GeoManager::getAllPathForLogicalVolume( LogicalVolume const * lvol, Container & c ) const
-{
-   NavigationState * state = NavigationState::MakeInstance(getMaxDepth());
-   c.clear();
-   state->Clear();
-
-   // instantiate the visitor
-   GetPathsForLogicalVolumeVisitor<Container> pv(c, lvol, getMaxDepth());
-
-   // now walk the placed volume hierarchy
-   visitAllPlacedVolumesWithContext( GetWorld(), &pv, state );
-   NavigationState::ReleaseInstance( state );
-}
 
 
 
