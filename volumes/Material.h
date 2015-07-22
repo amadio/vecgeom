@@ -16,12 +16,8 @@
  * @details Class to define materials for GeantV
  */
 
-
 // The following is here for the ROOT I/O
 //#include "TStorage.h"
-
-// The following only to provide a 1-1 replacement, to be changed
-class TGeoRCExtension;
 
 #include <iostream> 
 #include <vector>
@@ -66,8 +62,8 @@ public:
    static vector<Material*>& GetMaterials() {return fMatDB;}
 
    // remove 
-   void SetFWExtension(TGeoRCExtension *ext) {fGeoRCExtension = ext;}
-   TGeoRCExtension* GetFWExtension() const {return fGeoRCExtension;}
+   void SetXsecPtr(void *ptr) {xsecPtr = ptr;}
+   void *GetXsecPtr() const {return xsecPtr;}
 
    friend ostream& operator<<(ostream& os, const Material& mat);
 
@@ -95,7 +91,7 @@ private:
    vector<Element> fElements;
 
    //remove
-   TGeoRCExtension *fGeoRCExtension;
+   void *xsecPtr;
 
 //   ClassDef(Material,1)  //Material X-secs
 

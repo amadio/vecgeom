@@ -16,7 +16,7 @@ Material::Material():
    fZ(0),
    fA(0),
    fIndex(0),
-   fGeoRCExtension(0)
+   xsecPtr(0)
 {
 }
 
@@ -27,7 +27,7 @@ Material::~Material() {
 //____________________________________________________________________________
 Material::Material(const char *name, double a, double z, double dens, double radlen,
 		   double intlen): fName(name), fUsed(false), fDensity(dens), fZ(z), fA(a), fNelem(1),
-			   fIndex(0),fGeoRCExtension(0)
+			   fIndex(0),xsecPtr(0)
 {
    fElements.push_back(Element(a,z,1));
    fIndex = fMatDB.size();
