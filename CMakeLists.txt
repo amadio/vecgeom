@@ -507,6 +507,7 @@ set(SRC_CPP_RELATIVE
   source/PlacedPolycone.cpp
   source/Wedge.cpp
   source/ABBoxManager.cpp
+  source/ABBoxNavigator.cpp
 
   source/USolidsInterfaceHelper.cpp
 
