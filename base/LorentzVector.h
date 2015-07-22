@@ -596,7 +596,7 @@ public:
   }
 
   VECGEOM_INLINE
-  LorentzVector & operator=( LorentzVector const & rhs )
+  LorentzVector & operator= (LorentzVector const & rhs)
    {
       if(this != &rhs) {
 	 //for( int i=0; i < 1 + 3/Base_t::Size; i++ )
