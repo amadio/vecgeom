@@ -3,6 +3,9 @@ namespace vecgeom {
    inline namespace VECGEOM_IMPL_NAMESPACE {
 
 void Particle::CreateParticles() {
+   static bool initDone=false;
+   if(initDone) return;
+   initDone = true;
    Particle *part=0;
 
    // Creating nu*_e0_bar

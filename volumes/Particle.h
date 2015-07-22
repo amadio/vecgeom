@@ -53,7 +53,7 @@ public:
    static void ReadFile(string infilename, string outfilename="");
    static void CreateParticle();
 
-   const Particle& GetParticle(int pdg) {return fParticles[pdg];}
+   static const Particle& GetParticle(int pdg) {return fParticles[pdg];}
 
    void NormDecay();
 

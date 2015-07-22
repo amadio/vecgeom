@@ -155,6 +155,9 @@ void Particle::ReadFile(string infilename, string outfilename) {
       outfile << "namespace vecgeom {" << endl;
       outfile << "   inline namespace VECGEOM_IMPL_NAMESPACE {" << endl << endl;
       outfile << "void Particle::CreateParticles() {" << endl;
+      outfile << "   static bool initDone=false;" << endl;
+      outfile << "   if(initDone) return;" << endl;
+      outfile << "   initDone = true;" << endl;
       outfile << "   Particle *part=0;" << endl;
 
       for(map<int,Particle>::const_iterator p=Particle::Particles().begin(); p != Particle::Particles().end(); ++p) {
