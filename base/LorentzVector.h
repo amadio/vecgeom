@@ -1066,7 +1066,7 @@ template <typename T>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
 LorentzVector<T> operator-(LorentzVector<T> const &vec) {
-   return LorentzVector<T>(-vec[0], -vec[1], -vec[2], ~vec[3]);
+   return LorentzVector<T>(-vec[0], -vec[1], -vec[2], -vec[3]);
 }
 
 VECGEOM_CUDA_HEADER_BOTH
