@@ -11,6 +11,12 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
+/**
+ * @brief Material class
+ * @details Class to define materials for GeantV
+ */
+
+
 // The following is here for the ROOT I/O
 //#include "TStorage.h"
 
@@ -95,24 +101,46 @@ private:
 
 };
 
+
 //____________________________________________________________________________
+
+/**
+ * Material class constructor
+ * @param name [in]  name of the material. It must be unique
+ * @param a    [in]  array of atomic masses
+ * @param z    [in]  array of atomic numbers
+ * @param w    [in]  if nelements > 0 array of weight
+                     if nelements < 0 array of molecular abundance
+ * @param nelements [in] number of elements
+ * @param dens      [in] density in g/cm3
+ * @param radlen    [in] radiation length
+ * @param intlen    [in] interaction length
+ */
+
 template <typename T, typename U, typename V> 
 Material::Material(const char *name, const T a[], const U z[], const V w[], 
 	   int nelements, double dens, double radlen,
-		   double intlen): fName(name), fDensity(dens), fZ(0), fA(0), fNelem(nelements)
+		   double intlen): fName(name), fDensity(dens), fZ(0), fA(0), fNelem(abs(nelements))
 {
    Element elem;
+   double totw=0;
+   fA = 0;
+   fZ = 0;
    for(int iel=0; iel<fNelem; ++iel) {
       cout << "Material::ctor: el#" << iel << " A: " << a[iel] << " Z: " << z[iel] << endl;
-      elem.fA = a[iel];
-      fA += elem.fA;
-      elem.fZ = z[iel];
-      fZ += elem.fZ;
       elem.fW = w[iel];
+      if(nelements<0) elem.fW*=elem.fA;
+      totw += elem.fW;
+      elem.fA = a[iel];
+      fA += elem.fA*elem.fW;
+      elem.fZ = z[iel];
+      fZ += elem.fZ*elem.fW;
       fElements.push_back(elem);
    }
-   fA /= fNelem;
-   fZ /= fNelem;
+   totw = 1/totw;
+   fA *= totw;
+   fZ *= totw;
+   for(vector<Element>::iterator el = fElements.begin(); el!=fElements.end(); ++el) el->fW*=totw;
    fIndex = fMatDB.size();
    fMatDB.push_back(this);
 }
