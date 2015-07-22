@@ -1,4 +1,5 @@
 #include "volumes/Nucleus.h"
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -115,7 +116,7 @@ void Nucleus::NormDecay() {
 void Nucleus::AddDecay(int da, int dz, int diso, double qval, double br) {
    Decay dec(da,dz,diso,qval,br);
    bool found = false;
-   if(find(fDecayList.begin(),fDecayList.end(),dec) != fDecayList.end()) {
+   if(std::find(fDecayList.begin(),fDecayList.end(),dec) != fDecayList.end()) {
       cout << "Decay already there!" << endl;
       found = true;
    }

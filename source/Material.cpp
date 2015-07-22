@@ -29,12 +29,7 @@ Material::Material(const char *name, double a, double z, double dens, double rad
 		   double intlen): fName(name), fUsed(false), fDensity(dens), fZ(z), fA(a), fNelem(1),
 			   fIndex(0),fGeoRCExtension(0)
 {
-   static std::mutex mtx;
-   Element *elem = new Element(a,z,1);
-   mtx.lock();
-   fElements.push_back(*elem);
-   mtx.unlock();
-   delete elem;
+   fElements.push_back(Element(a,z,1));
    fIndex = fMatDB.size();
    fMatDB.push_back(this);
 }

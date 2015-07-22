@@ -1,3 +1,5 @@
+#include <cstring>
+#include <mutex>
 #include "volumes/Medium.h"
 
 namespace vecgeom {
