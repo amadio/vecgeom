@@ -40,7 +40,7 @@ public:
    /**
     * Returns the class name
     **/
-   const char* ClassName() const {return "NavigationState";}
+   const char* ClassName() const {return "SimpleNavigator";}
 
    /**
     * function to locate a global point in the geometry hierarchy

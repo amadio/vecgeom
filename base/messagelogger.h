@@ -22,7 +22,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
       typedef enum {kInfo=0, kWarning, kError, kFatal, kDebug} logging_severity;
       
       static messagelogger* I() {
-	 mutex mtx;
+	 static mutex mtx;
 	 mtx.lock();
 	 if(!gMessageLogger) gMessageLogger = new messagelogger();
 	 mtx.unlock();
