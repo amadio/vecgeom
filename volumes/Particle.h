@@ -53,7 +53,10 @@ public:
    static void ReadFile(string infilename, string outfilename="");
    static void CreateParticle();
 
-   static const Particle& GetParticle(int pdg) {return fParticles[pdg];}
+   static const Particle& GetParticle(int pdg) {
+      if(fParticles.find(pdg)!=fParticles.end()) return fParticles[pdg];
+      static Particle p;
+      std::cout << __func__ << "::pdg:" << pdg << " does not exist" << std::endl; return p;}
 
    void NormDecay();
 

@@ -26,8 +26,8 @@ ostream& operator<<(ostream& os, const Particle& part)
 }
 
 //________________________________________________________________________________________________
-Particle::Particle(): fName(""), fPDG(0), fMatter(true), fClass(""), fPcode(0), fCharge(0), fMass(0),
-   fWidth(0), fIsospin(0), fIso3(0), fStrange(0), fFlavor(0), fTrack(0), fNdecay(0) { }
+Particle::Particle(): fName("Default"), fPDG(0), fMatter(true), fClass(""), fPcode(0), fCharge(0), fMass(-1),
+		      fWidth(0), fIsospin(0), fIso3(0), fStrange(0), fFlavor(0), fTrack(0), fNdecay(0) { }
 
 //________________________________________________________________________________________________
 Particle::Particle(const char* name, int pdg, bool matter, const char* pclass, int pcode, double charge, 
