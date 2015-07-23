@@ -216,8 +216,8 @@ Material* RootGeoManager::Convert(TGeoMaterial const *const material) {
 			  material->GetDensity(), material->GetRadLen(),
 			  material->GetIntLen());
    } else {
-      int *a = new int[nelem];
-      int *z = new int[nelem];
+      double *a = new double[nelem];
+      double *z = new double[nelem];
       double *w = new double[nelem];
       cout << "nelem " << nelem << endl;
       for(int i=0; i<nelem; ++i) {
