@@ -526,7 +526,7 @@ void NavigationState::printVolumePath( std::ostream & stream ) const
 #ifdef VECGEOM_ROOT
 	    stream << "/" << RootGeoManager::Instance().tgeonode( ToPlacedVolume( fPath[i] ) )->GetName();
 #else 
-	    stream << "/" << fPath[i]->GetName();
+	    stream << "/" << ToPlacedVolume( fPath[i] )->GetName();
 #endif
 	 }
    }
