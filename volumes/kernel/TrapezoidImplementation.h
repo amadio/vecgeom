@@ -23,6 +23,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(TrapezoidImplementation, TranslationCode
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class PlacedTrapezoid;
+using TrapSidePlane = vecgeom::UnplacedTrapezoid::TrapSidePlane;
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 struct TrapezoidImplementation {
@@ -392,7 +393,7 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToOut(
   typedef typename Backend::precision_v Float_t;
   typedef typename Backend::bool_v Bool_t;
 
-  distance = vecgeom::kInfinity;  // default initialization for distance to out
+  distance = Float_t(0.0);  // default initialization for distance to out
   Bool_t done(Backend::kFalse);
 
   //

@@ -341,10 +341,15 @@ bool TestBox() {
                                   -4.9999999999999928946,
                                   4.8935648380409944025),
                            temp );
+
+#ifdef VECGEOM_REPLACE_USOLIDS
+    assert(Dist<=0.0);
+#else
     if(testingvecgeom )
             assert(Dist<=0.0);
     else
             assert(ApproxEqual(Dist,0.0));
+#endif
 
     /* **********************************************************
     */ /////////////////////////////////////////////////////

@@ -43,17 +43,19 @@ TGeoShape const* PlacedTrapezoid::ConvertToRoot() const {
 
 #if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
 ::VUSolid const* PlacedTrapezoid::ConvertToUSolids() const {
-  return new ::UTrap(GetLabel().c_str(), GetDz(), GetTheta(), GetPhi(),
-                     GetDy1(), GetDx1(), GetDx2(), GetAlpha1(),
-                     GetDy2(), GetDx3(), GetDx4(), GetAlpha2());
+  const UnplacedTrapezoid& unp = *(GetUnplacedVolume());
+  return new ::UTrap(GetLabel().c_str(), unp.GetDz(), unp.GetTheta(), unp.GetPhi(),
+                     unp.GetDy1(), unp.GetDx1(), unp.GetDx2(), unp.GetAlpha1(),
+                     unp.GetDy2(), unp.GetDx3(), unp.GetDx4(), unp.GetAlpha2());
 }
 #endif
 
 #ifdef VECGEOM_GEANT4
 G4VSolid const* PlacedTrapezoid::ConvertToGeant4() const {
-  return new G4Trap(GetLabel().c_str(), GetDz(), GetTheta(), GetPhi(),
-                     GetDy1(), GetDx1(), GetDx2(), GetAlpha1(),
-                     GetDy2(), GetDx3(), GetDx4(), GetAlpha2());
+  const UnplacedTrapezoid& unp = *(GetUnplacedVolume());
+  return new G4Trap(GetLabel().c_str(), unp.GetDz(), unp.GetTheta(), unp.GetPhi(),
+                     unp.GetDy1(), unp.GetDx1(), unp.GetDx2(), unp.GetAlpha1(),
+                     unp.GetDy2(), unp.GetDx3(), unp.GetDx4(), unp.GetAlpha2());
 }
 #endif
 
