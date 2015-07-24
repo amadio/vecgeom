@@ -555,7 +555,11 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
    {
 #if !defined(VECGEOM_NVCC)
       //      std::cout << __func__ << ": WARNING: STEP INFINITY; should never happen unless outside\n";
+      /*
+      static std::mutex m1;m1.lock();
       log_warning(std::cout,"STEP INFINITY; should never happen unless outside") << std::endl;
+      m1.unlock();
+      */
       //InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );
       // set step to zero and retry one level higher
       // if( nexthitvolume!=-1 ) std::cout << "catastrophee\n";
@@ -567,6 +571,9 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
       LocatePoint(world, globalpoint + vecgeom::kTolerance*globaldir, newstate, true);
       step = vecgeom::kTolerance;
      // InspectEnvironmentForPointAndDirection( globalpoint, localpoint, currentstate );
+      // debug
+      /*
+      static std::mutex m;m.lock();
       std::cout << __func__ << ": path moved ";
       currentstate.printVolumePath(std::cout); std::cout << " => ";
       newstate.printVolumePath(std::cout); std::cout << "\n";
@@ -574,6 +581,8 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
       InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );
       std::cout << " counter is " << counter << "\n";
 #endif
+      m.unlock();
+      */
       newstate.SetBoundaryState(true);
       //      if( newstate.HasSamePathAsOther(currentstate) ) {
       //          std::cout << "$$$$$$$$$$$$$$$$$$$$$$$4 MASSIVE WARNING $$$$$$$$$$$$$$$$$$$$$$$$$ \n";
