@@ -10,7 +10,6 @@
 #include "volumes/PlacedVolume.h"
 #include "base/SOA3D.h"
 #include "base/Vector3D.h"
-#include "base/messagelogger.h"
 #include "management/GeoManager.h"
 #include "navigation/NavigationState.h"
 #include "base/messagelogger.h"
@@ -566,9 +565,10 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
 #if defined(VECGEOM_ROOT)
       //      currentstate.printVolumePath(std::cout); std::cout << "\n";
 #endif
-      newstate.Clear();
+      /*      newstate.Clear();
       VPlacedVolume const *world = GeoManager::Instance().GetWorld();
       LocatePoint(world, globalpoint + vecgeom::kTolerance*globaldir, newstate, true);
+      */
       step = vecgeom::kTolerance;
      // InspectEnvironmentForPointAndDirection( globalpoint, localpoint, currentstate );
       // debug
