@@ -26,8 +26,8 @@ int LogicalVolume::gIdCount = 0;
 #ifndef VECGEOM_NVCC
 LogicalVolume::LogicalVolume(char const *const label,
                              VUnplacedVolume const *const unplaced_volume)
-  :  fUnplacedVolume(unplaced_volume), fId(0), fLabel(NULL), user_extension_(NULL),
-     tracking_medium_(NULL), basket_manager_(NULL),
+  :  fUnplacedVolume(unplaced_volume), fId(0), fLabel(NULL), fUserExtensionPtr(NULL),
+     fTrackingMediumPtr(NULL), fBasketManagerPtr(NULL),
      fDaughters() {
   fId = gIdCount++;
   GeoManager::Instance().RegisterLogicalVolume(this);
@@ -36,8 +36,8 @@ LogicalVolume::LogicalVolume(char const *const label,
   }
 
 LogicalVolume::LogicalVolume(LogicalVolume const & other)
-   : fUnplacedVolume(), fId(0), fLabel(NULL), user_extension_(NULL),
-     tracking_medium_(NULL), basket_manager_(NULL),
+   : fUnplacedVolume(), fId(0), fLabel(NULL), fUserExtensionPtr(NULL),
+     fTrackingMediumPtr(NULL), fBasketManagerPtr(NULL),
     fDaughters()
 {
   printf("COPY CONSTRUCTOR FOR LogicalVolumes NOT IMPLEMENTED");

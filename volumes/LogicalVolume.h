@@ -45,9 +45,9 @@ private:
   /** a pointer member to register arbitrary objects with logical volume;
         included for the moment to model UserExtension like in TGeoVolume
   */
-  void * user_extension_;
-  void * tracking_medium_;
-  void * basket_manager_;
+  void * fUserExtensionPtr;
+  void * fTrackingMediumPtr;
+  void * fBasketManagerPtr;
 
   // the container of daughter (placed) volumes which are placed inside this logical
   // Volume
@@ -84,6 +84,9 @@ public:
       : fUnplacedVolume(unplaced_vol),
         fId(-1),
         fLabel(NULL),
+        fUserExtensionPtr(NULL),
+        fTrackingMediumPtr(NULL),
+        fBasketManagerPtr(NULL),
         fDaughters(GetDaughter) {}
 #endif
 
@@ -116,11 +119,11 @@ public:
 //  unsigned int GetNDaughters() const { return daughters_->size(); }
 
   VECGEOM_INLINE
-  void * getUserExtensionPtr( ) const {  return user_extension_;  }
+  void * getUserExtensionPtr( ) const {  return fUserExtensionPtr;  }
   VECGEOM_INLINE
-  void * getTrackingMediumPtr( ) const {  return tracking_medium_;  }
+  void * getTrackingMediumPtr( ) const {  return fTrackingMediumPtr;  }
   VECGEOM_INLINE
-  void * getBasketManagerPtr() const { return basket_manager_; }
+  void * getBasketManagerPtr() const { return fBasketManagerPtr; }
 
   int id() const { return fId; }
 
@@ -134,13 +137,13 @@ public:
 
   VECGEOM_INLINE
 
-  void setUserExtensionPtr( void * userpointer ) { user_extension_ = userpointer; }
+  void setUserExtensionPtr( void * userpointer ) { fUserExtensionPtr = userpointer; }
 
   VECGEOM_INLINE
-  void setTrackingMediumPtr( void * tmediumpointer ) { tracking_medium_ = tmediumpointer; }
+  void setTrackingMediumPtr( void * tmediumpointer ) { fTrackingMediumPtr = tmediumpointer; }
 
   VECGEOM_INLINE
-  void setBasketManagerPtr( void * basketpointer ) { basket_manager_ = basketpointer; }
+  void setBasketManagerPtr( void * basketpointer ) { fBasketManagerPtr = basketpointer; }
 
   VECGEOM_CUDA_HEADER_BOTH
   void Print(const int indent = 0) const;
