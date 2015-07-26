@@ -32,27 +32,27 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 			     const char* methodname,
 			     logging_severity sev,
 			     const char *const fmt, ...) {
-	 mutex mtx;
+	 static mutex mtx;
 	 va_list ap;
 	 char line[256];
 	 snprintf(line,255,fmt,ap);
 	 line[255]='\0';
+	 mtx.lock();
 	 os << string(sevname[sev]) + "=>"
 	    + classname + "::" + methodname + ": "
 	    + line;
-	 mtx.lock();
-	 gMessageCount[sevname[sev]][string(classname)+"::"+methodname][line]+=1;
+	 gMessageCount[sev][string(classname)+"::"+methodname][line]+=1;
 	 mtx.unlock();
 	 return os;}
 		
       void summary(std::ostream &os, const string opt) {
 	 if(opt.find("a")!=string::npos) {
 	    os << string("\n================================== Detailed summary of messages =======================================\n");
-	    for(map<string,map<string,map<string,int> > >::iterator it=gMessageCount.begin(); 
+	    for(map<logging_severity,map<string,map<string,int> > >::iterator it=gMessageCount.begin(); 
 		it != gMessageCount.end(); ++it)
 	       for(map<string,map<string,int> >::iterator jt=it->second.begin(); jt!=it->second.end(); ++jt)
 		  for(map<string,int>::iterator kt=jt->second.begin(); kt!=jt->second.end(); ++kt) {
-		     os << it->first + "=>" + jt->first + ":" + kt->first + " # ";
+		     os << sevname[it->first] << "=>" << jt->first << ":" << kt->first << " # ";
 		     os << kt->second << endl;
 		  }
 	 }
@@ -69,7 +69,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
       messagelogger(const messagelogger&); // not implemented
       messagelogger& operator=(const messagelogger&); // not implemented
       static messagelogger* gMessageLogger;
-      static map<string,map<string,map<string,int> > > gMessageCount;
+      static map<logging_severity,map<string,map<string,int> > > gMessageCount;
 
    };
 
