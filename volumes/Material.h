@@ -123,7 +123,7 @@ Material::Material(const char *name, const T a[], const U z[], const V w[],
    fA = 0;
    fZ = 0;
    for(int iel=0; iel<fNelem; ++iel) {
-      cout << "Material::ctor: el#" << iel << " A: " << a[iel] << " Z: " << z[iel] << endl;
+      //      cout << "Material::ctor: el#" << iel << " A: " << a[iel] << " Z: " << z[iel] << endl;
       elem.fW = w[iel];
       if(nelements<0) elem.fW*=elem.fA;
       totw += elem.fW;

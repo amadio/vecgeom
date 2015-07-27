@@ -553,36 +553,33 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
    if( step == kInfinity && pstep > 0. )
    {
 #if !defined(VECGEOM_NVCC)
-      //      std::cout << __func__ << ": WARNING: STEP INFINITY; should never happen unless outside\n";
-      /*
-      static std::mutex m1;m1.lock();
-      log_warning(std::cout,"STEP INFINITY; should never happen unless outside") << std::endl;
-      m1.unlock();
-      */
+      //log_warning(std::cout,"STEP INFINITY; should never happen unless outside") << std::endl;
       //InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );
       // set step to zero and retry one level higher
       // if( nexthitvolume!=-1 ) std::cout << "catastrophee\n";
 #if defined(VECGEOM_ROOT)
       //      currentstate.printVolumePath(std::cout); std::cout << "\n";
 #endif
-      /*      newstate.Clear();
-      VPlacedVolume const *world = GeoManager::Instance().GetWorld();
-      LocatePoint(world, globalpoint + vecgeom::kTolerance*globaldir, newstate, true);
-      */
+      // newstate.Clear();
+      // VPlacedVolume const *world = GeoManager::Instance().GetWorld();
+      // LocatePoint(world, globalpoint + vecgeom::kTolerance*globaldir, newstate, true);
       step = vecgeom::kTolerance;
      // InspectEnvironmentForPointAndDirection( globalpoint, localpoint, currentstate );
       // debug
-      /*
-      static std::mutex m;m.lock();
-      std::cout << __func__ << ": path moved ";
-      currentstate.printVolumePath(std::cout); std::cout << " => ";
-      newstate.printVolumePath(std::cout); std::cout << "\n";
+      //      static std::mutex m;m.lock();
+      //      std::cout << __func__ << ": path moved ";
+      //      currentstate.printVolumePath(std::cout); std::cout << " => ";
+      //      newstate.printVolumePath(std::cout); std::cout << "\n";
+      //      m.unlock();
+      // debug
+      //static std::mutex m;m.lock();
+      //std::cout << "Path: ";
+      //currentstate.printVolumePath(std::cout); std::cout << endl;
+      //std::cout.flush();m.unlock();
 #if defined(VECGEOM_ROOT)
       InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );
       std::cout << " counter is " << counter << "\n";
 #endif
-      m.unlock();
-      */
       newstate.SetBoundaryState(true);
       //      if( newstate.HasSamePathAsOther(currentstate) ) {
       //          std::cout << "$$$$$$$$$$$$$$$$$$$$$$$4 MASSIVE WARNING $$$$$$$$$$$$$$$$$$$$$$$$$ \n";

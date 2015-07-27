@@ -192,7 +192,7 @@ Medium* RootGeoManager::Convert(TGeoMedium const *const medium) {
       if((*m)->Name() == string(medium->GetName())) return (*m);
    }
 
-   std::cout << "Adding Medium #" << media.size() << " " << medium->GetName() << std::endl;
+   //   std::cout << "Adding Medium #" << media.size() << " " << medium->GetName() << std::endl;
    // Medium not there. We add it
    
    Material *vmat = Convert(medium->GetMaterial());
@@ -210,7 +210,7 @@ Material* RootGeoManager::Convert(TGeoMaterial const *const material) {
    Material *vmat = 0;
    int nelem = material->GetNelements();
 
-   std::cout << "Adding Material #" << materials.size() << " "<< material->GetName() << std::endl;
+   //   std::cout << "Adding Material #" << materials.size() << " "<< material->GetName() << std::endl;
    if(nelem<2) {
       vmat = new Material(material->GetName(),material->GetA(),material->GetZ(),
 			  material->GetDensity(), material->GetRadLen(),
@@ -219,12 +219,12 @@ Material* RootGeoManager::Convert(TGeoMaterial const *const material) {
       double *a = new double[nelem];
       double *z = new double[nelem];
       double *w = new double[nelem];
-      cout << "nelem " << nelem << endl;
+      //      cout << "nelem " << nelem << endl;
       for(int i=0; i<nelem; ++i) {
 	 double aa;
 	 double zz;
 	 const_cast<TGeoMaterial*>(material)->GetElementProp(aa, zz, w[i], i);
-	 cout << "Elem props: A: " << aa << " Z: " << zz << endl;
+	 // cout << "Elem props: A: " << aa << " Z: " << zz << endl;
 	 a[i] = aa;
 	 z[i] = zz;
       }
@@ -236,7 +236,7 @@ Material* RootGeoManager::Convert(TGeoMaterial const *const material) {
       delete w;
    }
    vmat->Used();
-   cout << *vmat << endl;
+   //   cout << *vmat << endl;
    return vmat;
 }
 

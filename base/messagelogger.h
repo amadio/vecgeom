@@ -38,9 +38,9 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 	 snprintf(line,255,fmt,ap);
 	 line[255]='\0';
 	 mtx.lock();
-	 os << string(sevname[sev]) + "=>"
-	    + classname + "::" + methodname + ": "
-	    + line;
+	 os << sevname[sev] << "=>" << classname 
+	    << "::" << methodname << ": " << line;
+	 os.flush();
 	 gMessageCount[sev][string(classname)+"::"+methodname][line]+=1;
 	 mtx.unlock();
 	 return os;}
