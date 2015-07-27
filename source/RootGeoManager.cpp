@@ -231,9 +231,9 @@ Material* RootGeoManager::Convert(TGeoMaterial const *const material) {
       vmat = new Material(material->GetName(), a, z, w, nelem, 
 			  material->GetDensity(), material->GetRadLen(),
 			  material->GetIntLen());
-      delete a;
-      delete z;
-      delete w;
+      delete [] a;
+      delete [] z;
+      delete [] w;
    }
    vmat->Used();
    //   cout << *vmat << endl;
