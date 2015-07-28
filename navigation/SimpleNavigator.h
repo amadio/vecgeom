@@ -388,21 +388,22 @@ VPlacedVolume const *SimpleNavigator::LocatePointExclVolume(VPlacedVolume const 
         if (Any(inBox)) {
           for (auto ii = inBox.firstOne(); ii < kVcFloat::precision_v::Size; ++ii) {
             auto daughterid = boxgroupid * kVcFloat::precision_v::Size + ii;
-            VPlacedVolume const *daughter = candvolume->GetDaughters()[daughterid];
-            Vector3D<Precision> transformedpoint;
-            if (daughterid < daughters->size() && inBox[ii] && daughter != excludedvolume &&
-                daughter->Contains(tmp, transformedpoint)) {
-              path.Push(daughter);
-              tmp = transformedpoint;
-              candvolume = daughter;
-              daughters = candvolume->GetLogicalVolume()->GetDaughtersp();
+            if (daughterid < daughters->size() && inBox[ii]) {
+              VPlacedVolume const *daughter = candvolume->GetDaughters()[daughterid];
+	      Vector3D<Precision> transformedpoint;
+              if (daughter != excludedvolume && daughter->Contains(tmp, transformedpoint)) {
+                path.Push(daughter);
+                tmp = transformedpoint;
+		candvolume = daughter;
+		daughters = candvolume->GetLogicalVolume()->GetDaughtersp();
 #ifdef CROSSCHECKLOCAL
-              boxcrosscheckid = daughterid;
+		boxcrosscheckid = daughterid;
 #endif
-              godeeper = true;
-              // careful: we want to break from the OUTER loop
-              boxgroupid = size;
-              break;
+		godeeper = true;
+		// careful: we want to break from the OUTER loop
+		boxgroupid = size;
+		break;
+	      }
             }
           }
         }
