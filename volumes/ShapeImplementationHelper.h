@@ -406,7 +406,7 @@ public:
                                     Precision *const currentdistance,
                                     int *const nextdaughteridlist) const {
     unsigned safesize = points.size() - points.size() % VcPrecision::Size;
-    for (int i = 0; i < safesize; i += VcPrecision::Size) {
+    for (unsigned i = 0; i < safesize; i += VcPrecision::Size) {
       Vector3D<VcPrecision> point(VcPrecision(points.x() + i), VcPrecision(points.y() + i),
                                   VcPrecision(points.z() + i));
       Vector3D<VcPrecision> direction(VcPrecision(directions.x() + i), VcPrecision(directions.y() + i),
@@ -485,7 +485,7 @@ public:
                                int *const nodeindex ) const {
       // if (points.size() % VcPrecision::Size !=0 ) std::cerr << "TAIL TREATMENT PROBLEM\n";
       unsigned safesize = points.size() - points.size() % VcPrecision::Size;
-      for (int i = 0; i < safesize; i += VcPrecision::Size) {
+      for (unsigned i = 0; i < safesize; i += VcPrecision::Size) {
         Vector3D<VcPrecision> point(VcPrecision(points.x() + i), VcPrecision(points.y() + i),
                                     VcPrecision(points.z() + i));
         Vector3D<VcPrecision> direction(VcPrecision(directions.x() + i), VcPrecision(directions.y() + i),
@@ -537,7 +537,7 @@ public:
   void SafetyToInMinimizeTemplate(SOA3D<Precision> const &points,
                                   Precision *const safeties) const {
     unsigned safesize = points.size() - points.size() % VcPrecision::Size;
-    for (int i = 0; i < safesize; i += VcPrecision::Size) {
+    for (unsigned i = 0; i < safesize; i += VcPrecision::Size) {
       Vector3D<VcPrecision> point(VcPrecision(points.x() + i), VcPrecision(points.y() + i),
                                   VcPrecision(points.z() + i));
       VcPrecision estimate = VcPrecision(&safeties[i]);

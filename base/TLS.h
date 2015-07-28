@@ -140,7 +140,7 @@ public:
 
 #endif // __cplusplus
 
-#include <atomic.h>
+#include <atomic>
 
 inline namespace BaseTLS {
 

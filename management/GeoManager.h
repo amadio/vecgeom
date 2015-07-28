@@ -237,7 +237,7 @@ protected:
 
 private:
  GeoManager() : fVolumeCount(0), fTotalNodeCount(0), fWorld(NULL), fPlacedVolumesMap(),
- fLogicalVolumesMap(), fMaxDepth(-1)
+ fLogicalVolumesMap(), fVolumeToIndexMap(), fMaxDepth(-1)
  {}
 
   GeoManager(GeoManager const&);

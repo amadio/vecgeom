@@ -235,8 +235,8 @@ void Particle::NormDecay() {
 	 brt = 1/brt;
 	 for(vector<Decay>::iterator idec=fDecayList.begin(); idec!=fDecayList.end(); ++idec) 
 	    idec->SetBr(idec->Br()*brt);
-	 for(int i=0; i<fDecayList.size()-1; ++i)
-	    for(int j=i+1; j<fDecayList.size(); ++j)
+	 for(unsigned int i=0; i<fDecayList.size()-1; ++i)
+	    for(unsigned int j=i+1; j<fDecayList.size(); ++j)
 	       if(fDecayList.at(i).Br() < fDecayList.at(j).Br()) {
 		  Decay dec = fDecayList.at(i);
 		  fDecayList.at(i) = fDecayList.at(j);
@@ -304,7 +304,7 @@ void Particle::GetPart(const string &line, int &count, string &name, int &pdg, b
 ostream& operator<<(ostream& os, const Particle::Decay& dec)
 {
    os << "Type " << static_cast<int>(dec.fType) << " br " << dec.fBr << " products: ";
-   for(int i=0; i<dec.fDaughters.size(); ++i)
+   for(unsigned int i=0; i<dec.fDaughters.size(); ++i)
       os << " " << dec.fDaughters[i];
    
    /*   for(int i=0; i<dec.fDaughters.size(); ++i)

@@ -424,7 +424,7 @@ static T DistSqrToTorusR(UnplacedTorus2 const &torus, Vector3D<T> const &point, 
     // look for first positive solution
     Real_v ndotd;
     bool inner = Abs(radius - torus.rmin()) < vecgeom::kTolerance;
-    for (unsigned int i = 0; i < nsol; i++) {
+    for (int i = 0; i < nsol; i++) {
       if (x[i] < -10)
         continue;
 
