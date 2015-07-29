@@ -21,19 +21,22 @@ ostream& operator<<(ostream& os, const Particle& part)
 {
    os << part.fName << "(" << part.fPDG << ") Class:" << part.fClass << " Q:" << part.fCharge << " m:" << part.fMass
       << " lt:" << part.fLife << " I:" << (int) part.fIsospin << " I3:" << (int) part.fIso3 << " S:" << (int) part.fStrange 
-      << " F:" << (int) part.fFlavor << " #:" << (int) part.fNdecay;
+      << " F:" << (int) part.fFlavor << " #:" << (int) part.fNdecay << " code:" << (int)fCode;
    return os;
 }
 
 //________________________________________________________________________________________________
 Particle::Particle(): fName("Default"), fPDG(0), fMatter(true), fClass(""), fPcode(0), fCharge(0), fMass(-1),
-		      fWidth(0), fIsospin(0), fIso3(0), fStrange(0), fFlavor(0), fTrack(0), fNdecay(0) { }
+		      fWidth(0), fIsospin(0), fIso3(0), fStrange(0), fFlavor(0), fTrack(0), fNdecay(0),
+                      fCode(-1) { }
 
 //________________________________________________________________________________________________
 Particle::Particle(const char* name, int pdg, bool matter, const char* pclass, int pcode, double charge, 
-		   double mass, double width, int isospin, int iso3, int strange, int flavor, int track):
+		   double mass, double width, int isospin, int iso3, int strange, int flavor, int track,
+		   int code):
    fName(name), fPDG(pdg), fMatter(matter), fClass(pclass), fPcode(pcode), fCharge(charge), fMass(mass),
-   fWidth(width), fIsospin(isospin), fIso3(iso3), fStrange(strange), fFlavor(flavor), fTrack(track), fNdecay(0) {
+   fWidth(width), fIsospin(isospin), fIso3(iso3), fStrange(strange), fFlavor(flavor), fTrack(track), fNdecay(0),
+   fCode(code) {
 
    if(fParticles.count(fPDG) != 0) {
       cout << "Particle " << fPDG << " already there" << endl;
