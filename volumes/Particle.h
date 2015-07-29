@@ -28,7 +28,7 @@ public:
    class Decay;
    Particle();
    Particle(const char* name, int pdg, bool matter, const char* pclass, int pcode, double charge, double mass,
-	    double width, int isospin, int iso3, int strange, int flavor, int track);
+	    double width, int isospin, int iso3, int strange, int flavor, int track, int code=-1);
 
    static void CreateParticles();
 
@@ -46,6 +46,9 @@ public:
    int Flavor() const {return fFlavor;}
    int Track() const {return fTrack;}
    int Ndecay() const {return fNdecay;}
+   int Code() const  {return fCode;}
+
+   void SetCode(int code) {fCode = code;}
    
 
    const vector<Decay> & DecayList() const {return fDecayList;}
@@ -113,6 +116,7 @@ private:
    char  fFlavor;   // Flavor code (?)
    char  fTrack;   // Track code (?)
    char  fNdecay;  // Number of decay channels
+   short fCode;    // Particle code for a give MC
    vector<Decay>  fDecayList; // Decay channels
 
    static map<int,Particle> fParticles;              // Particle list indexed by PDG code

@@ -21,7 +21,7 @@ ostream& operator<<(ostream& os, const Particle& part)
 {
    os << part.fName << "(" << part.fPDG << ") Class:" << part.fClass << " Q:" << part.fCharge << " m:" << part.fMass
       << " lt:" << part.fLife << " I:" << (int) part.fIsospin << " I3:" << (int) part.fIso3 << " S:" << (int) part.fStrange 
-      << " F:" << (int) part.fFlavor << " #:" << (int) part.fNdecay << " code:" << (int)fCode;
+      << " F:" << (int) part.fFlavor << " #:" << (int) part.fNdecay << " code:" << (int) part.fCode << endl;
    return os;
 }
 
