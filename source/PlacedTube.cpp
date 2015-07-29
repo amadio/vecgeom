@@ -30,20 +30,20 @@ VPlacedVolume const* PlacedTube::ConvertToUnspecialized() const {
 #ifdef VECGEOM_ROOT
 TGeoShape const* PlacedTube::ConvertToRoot() const {
   if(dphi() >= 2*M_PI)
-     return new TGeoTube(GetLabel().c_str(), rmin(), rmax(), z());
-  return new TGeoTubeSeg(GetLabel().c_str(), rmin(), rmax(), z(), sphi()*(180/M_PI), sphi()*(180/M_PI)+dphi()*(180/M_PI) );
+     return new TGeoTube(GetLabel().c_str(), GetRMin(), GetRMax(), GetDz());
+  return new TGeoTubeSeg(GetLabel().c_str(), GetRMin(), GetRMax(), GetDz(), GetSPhi()*(180/M_PI), (GetSPhi()+GetDPhi())*(180/M_PI) );
 }
 #endif
 
 #if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
 ::VUSolid const* PlacedTube::ConvertToUSolids() const {
-  return new UTubs(GetLabel().c_str(), rmin(), rmax(), z(), sphi(), dphi());
+  return new UTubs(GetLabel().c_str(), GetRMin(), GetRMax(), GetZHalfLength(), GetSPhi(), GetDPhi());
 }
 #endif
 
 #ifdef VECGEOM_GEANT4
 G4VSolid const* PlacedTube::ConvertToGeant4() const {
-  return new G4Tubs(GetLabel().c_str(), rmin(), rmax(), z(), sphi(), dphi());
+  return new G4Tubs(GetLabel().c_str(), GetRMin(), GetRMax(), GetZHalfLength(), GetSPhi(), GetDPhi());
 }
 #endif
 
