@@ -1,3 +1,6 @@
+#ifdef __clang__
+#pragma clang optimize off
+#endif
 #include "volumes/Particle.h"
 namespace vecgeom {
    inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -7,6 +10,60 @@ void Particle::CreateParticles() {
    if(initDone) return;
    initDone = true;
    Particle *part=0;
+
+   // Creating Alpha_bar
+   new Particle("Alpha_bar", -1000020040, 0, "ion", 100, -2, 3.7284, 1.6916e-33, 100, 0, 100, 1, -1);
+
+   // Creating HE3_bar
+   new Particle("HE3_bar", -1000020030, 0, "ion", 100, -2, 2.80941, 0, 100, 0, 100, 1, -1);
+
+   // Creating Triton_bar
+   new Particle("Triton_bar", -1000010030, 0, "ion", 100, -1, 2.80941, 1.6916e-33, 100, 0, 100, 1, -1);
+
+   // Creating Deuteron_bar
+   new Particle("Deuteron_bar", -1000010020, 0, "ion", 100, -1, 1.87106, 0, 100, 0, 100, 1, -1);
+
+   // Creating N(2250)+_bar
+   new Particle("N(2250)+_bar", -100012210, 0, "Unknown", 100, -1, 2.275, 0.5, 100, 0, 100, 1, -1);
+
+   // Creating N(2250)0_bar
+   new Particle("N(2250)0_bar", -100012110, 0, "Unknown", 100, -0, 2.275, 0.5, 100, 0, 100, 1, -1);
+
+   // Creating N(2220)+_bar
+   new Particle("N(2220)+_bar", -100002210, 0, "Unknown", 100, -1, 2.25, 0.4, 100, 0, 100, 1, -1);
+
+   // Creating N(2220)0_bar
+   new Particle("N(2220)0_bar", -100002110, 0, "Unknown", 100, -0, 2.25, 0.4, 100, 0, 100, 1, -1);
+
+   // Creating GenericIon_bar
+   new Particle("GenericIon_bar", -50000060, 0, "Unknown", 100, -0.333333, 0.938272, 0, 100, 0, 100, 1, -1);
+
+   // Creating Cherenkov_bar
+   new Particle("Cherenkov_bar", -50000050, 0, "Unknown", 100, -0, 0, 0, 100, 0, 100, 1, -1);
+
+   // Creating f2(2010)_bar
+   new Particle("f2(2010)_bar", -9060225, 0, "Unknown", 100, -0, 2.01, 0.2, 100, 0, 100, 1, -1);
+
+   // Creating f2(1810)_bar
+   new Particle("f2(1810)_bar", -9030225, 0, "Unknown", 100, -0, 1.815, 0.197, 100, 0, 100, 1, -1);
+
+   // Creating f0(1500)_bar
+   new Particle("f0(1500)_bar", -9030221, 0, "Unknown", 100, -0, 1.505, 0.109, 100, 0, 100, 1, -1);
+
+   // Creating eta(1405)_bar
+   new Particle("eta(1405)_bar", -9020221, 0, "Unknown", 100, -0, 1.4098, 0.0511, 100, 0, 100, 1, -1);
+
+   // Creating f0(980)_bar
+   new Particle("f0(980)_bar", -9010221, 0, "Unknown", 100, -0, 0.98, 0.07, 100, 0, 100, 1, -1);
+
+   // Creating f0(600)_bar
+   new Particle("f0(600)_bar", -9000221, 0, "Unknown", 100, -0, 0.8, 0.8, 100, 0, 100, 1, -1);
+
+   // Creating a0(980)-_bar
+   new Particle("a0(980)-_bar", -9000211, 0, "Unknown", 100, -1, 0.98, 0.06, 100, 0, 100, 1, -1);
+
+   // Creating a0(980)0_bar
+   new Particle("a0(980)0_bar", -9000111, 0, "Unknown", 100, -0, 0.98, 0.075, 100, 0, 100, 1, -1);
 
    // Creating nu*_e0_bar
    new Particle("nu*_e0_bar", -4000012, 0, "Excited", 100, -0, 400, 0.41917, 100, 1, 100, 1, -1);
@@ -547,6 +604,189 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(53, 0,  vector<int>{-2000002,37}));
       part->AddDecay(Decay(53, 0,  vector<int>{-1000021,-1}));
 
+   // Creating phi(1680)_bar
+   new Particle("phi(1680)_bar", -100333, 0, "Unknown", 100, -0, 1.68, 0.15, 100, 0, 100, 1, -1);
+
+   // Creating eta(1475)_bar
+   new Particle("eta(1475)_bar", -100331, 0, "Unknown", 100, -0, 1.476, 0.085, 100, 0, 100, 1, -1);
+
+   // Creating k2_star(1980)-_bar
+   new Particle("k2_star(1980)-_bar", -100325, 0, "Unknown", 100, -1, 1.973, 0.373, 100, 0, 100, 1, -1);
+
+   // Creating k_star(1410)-_bar
+   new Particle("k_star(1410)-_bar", -100323, 0, "Unknown", 100, -1, 1.414, 0.232, 100, 0, 100, 1, -1);
+
+   // Creating k(1460)-_bar
+   new Particle("k(1460)-_bar", -100321, 0, "Unknown", 100, -1, 1.46, 0.26, 100, 0, 100, 1, -1);
+
+   // Creating k2_star(1980)0_bar
+   new Particle("k2_star(1980)0_bar", -100315, 0, "Unknown", 100, -0, 1.973, 0.373, 100, 0, 100, 1, -1);
+
+   // Creating k_star(1410)0_bar
+   new Particle("k_star(1410)0_bar", -100313, 0, "Unknown", 100, -0, 1.414, 0.232, 100, 0, 100, 1, -1);
+
+   // Creating k(1460)0_bar
+   new Particle("k(1460)0_bar", -100311, 0, "Unknown", 100, -0, 1.46, 0.26, 100, 0, 100, 1, -1);
+
+   // Creating omega(1420)_bar
+   new Particle("omega(1420)_bar", -100223, 0, "Unknown", 100, -0, 1.425, 0.215, 100, 0, 100, 1, -1);
+
+   // Creating eta(1295)_bar
+   new Particle("eta(1295)_bar", -100221, 0, "Unknown", 100, -0, 1.294, 0.055, 100, 0, 100, 1, -1);
+
+   // Creating rho(1450)-_bar
+   new Particle("rho(1450)-_bar", -100213, 0, "Unknown", 100, -1, 1.465, 0.4, 100, 0, 100, 1, -1);
+
+   // Creating pi(1300)-_bar
+   new Particle("pi(1300)-_bar", -100211, 0, "Unknown", 100, -1, 1.3, 0.4, 100, 0, 100, 1, -1);
+
+   // Creating rho(1450)0_bar
+   new Particle("rho(1450)0_bar", -100113, 0, "Unknown", 100, -0, 1.465, 0.4, 100, 0, 100, 1, -1);
+
+   // Creating pi(1300)0_bar
+   new Particle("pi(1300)0_bar", -100111, 0, "Unknown", 100, -0, 1.3, 0.4, 100, 0, 100, 1, -1);
+
+   // Creating lambda(1810)_bar
+   new Particle("lambda(1810)_bar", -53122, 0, "Unknown", 100, -0, 1.81, 0.15, 100, 0, 100, 1, -1);
+
+   // Creating N(2090)+_bar
+   new Particle("N(2090)+_bar", -52214, 0, "Unknown", 100, -1, 2.08, 0.35, 100, 0, 100, 1, -1);
+
+   // Creating N(2090)0_bar
+   new Particle("N(2090)0_bar", -52114, 0, "Unknown", 100, -0, 2.08, 0.35, 100, 0, 100, 1, -1);
+
+   // Creating lambda(1800)_bar
+   new Particle("lambda(1800)_bar", -43122, 0, "Unknown", 100, -0, 1.8, 0.3, 100, 0, 100, 1, -1);
+
+   // Creating N(1710)+_bar
+   new Particle("N(1710)+_bar", -42212, 0, "Unknown", 100, -1, 1.71, 0.1, 100, 0, 100, 1, -1);
+
+   // Creating N(1900)+_bar
+   new Particle("N(1900)+_bar", -42124, 0, "Unknown", 100, -1, 1.9, 0.5, 100, 0, 100, 1, -1);
+
+   // Creating N(1710)0_bar
+   new Particle("N(1710)0_bar", -42112, 0, "Unknown", 100, -0, 1.71, 0.1, 100, 0, 100, 1, -1);
+
+   // Creating N(1900)0_bar
+   new Particle("N(1900)0_bar", -41214, 0, "Unknown", 100, -0, 1.9, 0.5, 100, 0, 100, 1, -1);
+
+   // Creating xi(1950)0_bar
+   new Particle("xi(1950)0_bar", -33324, 0, "Unknown", 100, -0, 1.95, 0.06, 100, 0, 100, 1, -1);
+
+   // Creating xi(1950)-_bar
+   new Particle("xi(1950)-_bar", -33314, 0, "Unknown", 100, 1, 1.95, 0.06, 100, 0, 100, 1, -1);
+
+   // Creating lambda(1670)_bar
+   new Particle("lambda(1670)_bar", -33122, 0, "Unknown", 100, -0, 1.67, 0.035, 100, 0, 100, 1, -1);
+
+   // Creating delta(1600)++_bar
+   new Particle("delta(1600)++_bar", -32224, 0, "Unknown", 100, -2, 1.6, 0.35, 100, 0, 100, 1, -1);
+
+   // Creating delta(1600)+_bar
+   new Particle("delta(1600)+_bar", -32214, 0, "Unknown", 100, -1, 1.6, 0.35, 100, 0, 100, 1, -1);
+
+   // Creating N(1650)+_bar
+   new Particle("N(1650)+_bar", -32212, 0, "Unknown", 100, -1, 1.655, 0.165, 100, 0, 100, 1, -1);
+
+   // Creating N(1720)+_bar
+   new Particle("N(1720)+_bar", -32124, 0, "Unknown", 100, -1, 1.72, 0.2, 100, 0, 100, 1, -1);
+
+   // Creating delta(1600)0_bar
+   new Particle("delta(1600)0_bar", -32114, 0, "Unknown", 100, -0, 1.6, 0.35, 100, 0, 100, 1, -1);
+
+   // Creating N(1650)0_bar
+   new Particle("N(1650)0_bar", -32112, 0, "Unknown", 100, -0, 1.655, 0.165, 100, 0, 100, 1, -1);
+
+   // Creating N(1720)0_bar
+   new Particle("N(1720)0_bar", -31214, 0, "Unknown", 100, -0, 1.72, 0.2, 100, 0, 100, 1, -1);
+
+   // Creating delta(1600)-_bar
+   new Particle("delta(1600)-_bar", -31114, 0, "Unknown", 100, 1, 1.6, 0.35, 100, 0, 100, 1, -1);
+
+   // Creating k_star(1680)-_bar
+   new Particle("k_star(1680)-_bar", -30323, 0, "Unknown", 100, -1, 1.717, 0.32, 100, 0, 100, 1, -1);
+
+   // Creating k_star(1680)0_bar
+   new Particle("k_star(1680)0_bar", -30313, 0, "Unknown", 100, -0, 1.717, 0.32, 100, 0, 100, 1, -1);
+
+   // Creating omega(1650)_bar
+   new Particle("omega(1650)_bar", -30223, 0, "Unknown", 100, -0, 1.67, 0.315, 100, 0, 100, 1, -1);
+
+   // Creating rho(1700)-_bar
+   new Particle("rho(1700)-_bar", -30213, 0, "Unknown", 100, -1, 1.72, 0.25, 100, 0, 100, 1, -1);
+
+   // Creating rho(1700)0_bar
+   new Particle("rho(1700)0_bar", -30113, 0, "Unknown", 100, -0, 1.72, 0.25, 100, 0, 100, 1, -1);
+
+   // Creating xi(1690)0_bar
+   new Particle("xi(1690)0_bar", -23324, 0, "Unknown", 100, -0, 1.69, 0.05, 100, 0, 100, 1, -1);
+
+   // Creating xi(1690)-_bar
+   new Particle("xi(1690)-_bar", -23314, 0, "Unknown", 100, 1, 1.69, 0.05, 100, 0, 100, 1, -1);
+
+   // Creating sigma(1940)+_bar
+   new Particle("sigma(1940)+_bar", -23224, 0, "Unknown", 100, -1, 1.94, 0.22, 100, 0, 100, 1, -1);
+
+   // Creating sigma(1750)+_bar
+   new Particle("sigma(1750)+_bar", -23222, 0, "Unknown", 100, -1, 1.75, 0.09, 100, 0, 100, 1, -1);
+
+   // Creating sigma(1940)0_bar
+   new Particle("sigma(1940)0_bar", -23214, 0, "Unknown", 100, -0, 1.94, 0.22, 100, 0, 100, 1, -1);
+
+   // Creating sigma(1750)0_bar
+   new Particle("sigma(1750)0_bar", -23212, 0, "Unknown", 100, -0, 1.75, 0.09, 100, 0, 100, 1, -1);
+
+   // Creating lambda(2110)_bar
+   new Particle("lambda(2110)_bar", -23126, 0, "Unknown", 100, -0, 2.11, 0.2, 100, 0, 100, 1, -1);
+
+   // Creating lambda(1890)_bar
+   new Particle("lambda(1890)_bar", -23124, 0, "Unknown", 100, -0, 1.89, 0.1, 100, 0, 100, 1, -1);
+
+   // Creating lambda(1600)_bar
+   new Particle("lambda(1600)_bar", -23122, 0, "Unknown", 100, -0, 1.6, 0.15, 100, 0, 100, 1, -1);
+
+   // Creating sigma(1940)-_bar
+   new Particle("sigma(1940)-_bar", -23114, 0, "Unknown", 100, 1, 1.94, 0.22, 100, 0, 100, 1, -1);
+
+   // Creating sigma(1750)-_bar
+   new Particle("sigma(1750)-_bar", -23112, 0, "Unknown", 100, 1, 1.75, 0.09, 100, 0, 100, 1, -1);
+
+   // Creating delta(1920)++_bar
+   new Particle("delta(1920)++_bar", -22224, 0, "Unknown", 100, -2, 1.92, 0.2, 100, 0, 100, 1, -1);
+
+   // Creating delta(1910)++_bar
+   new Particle("delta(1910)++_bar", -22222, 0, "Unknown", 100, -2, 1.91, 0.25, 100, 0, 100, 1, -1);
+
+   // Creating delta(1920)+_bar
+   new Particle("delta(1920)+_bar", -22214, 0, "Unknown", 100, -1, 1.92, 0.2, 100, 0, 100, 1, -1);
+
+   // Creating N(1535)+_bar
+   new Particle("N(1535)+_bar", -22212, 0, "Unknown", 100, -1, 1.535, 0.15, 100, 0, 100, 1, -1);
+
+   // Creating N(1700)+_bar
+   new Particle("N(1700)+_bar", -22124, 0, "Unknown", 100, -1, 1.7, 0.1, 100, 0, 100, 1, -1);
+
+   // Creating delta(1910)+_bar
+   new Particle("delta(1910)+_bar", -22122, 0, "Unknown", 100, -1, 1.91, 0.25, 100, 0, 100, 1, -1);
+
+   // Creating delta(1920)0_bar
+   new Particle("delta(1920)0_bar", -22114, 0, "Unknown", 100, -0, 1.92, 0.2, 100, 0, 100, 1, -1);
+
+   // Creating N(1535)0_bar
+   new Particle("N(1535)0_bar", -22112, 0, "Unknown", 100, -0, 1.535, 0.15, 100, 0, 100, 1, -1);
+
+   // Creating N(1700)0_bar
+   new Particle("N(1700)0_bar", -21214, 0, "Unknown", 100, -0, 1.7, 0.1, 100, 0, 100, 1, -1);
+
+   // Creating delta(1910)0_bar
+   new Particle("delta(1910)0_bar", -21212, 0, "Unknown", 100, -0, 1.91, 0.25, 100, 0, 100, 1, -1);
+
+   // Creating delta(1920)-_bar
+   new Particle("delta(1920)-_bar", -21114, 0, "Unknown", 100, 1, 1.92, 0.2, 100, 0, 100, 1, -1);
+
+   // Creating delta(1910)-_bar
+   new Particle("delta(1910)-_bar", -21112, 0, "Unknown", 100, 1, 1.91, 0.25, 100, 0, 100, 1, -1);
+
    // Creating B*_1c-
    new Particle("B*_1c-", -20543, 0, "Unknown", 100, -1, 7.3, 0.05, 100, 1, 100, 1, -1);
    part = &fParticles.at(-20543);
@@ -606,6 +846,108 @@ void Particle::CreateParticles() {
    part = &fParticles.at(-20213);
       part->AddDecay(Decay(0, 0.5,  vector<int>{-113,-211}));
       part->AddDecay(Decay(0, 0.5,  vector<int>{-213,-111}));
+
+   // Creating xi(2030)0_bar
+   new Particle("xi(2030)0_bar", -13326, 0, "Unknown", 100, -0, 2.025, 0.02, 100, 0, 100, 1, -1);
+
+   // Creating xi(1820)0_bar
+   new Particle("xi(1820)0_bar", -13324, 0, "Unknown", 100, -0, 1.823, 0.024, 100, 0, 100, 1, -1);
+
+   // Creating xi(2030)-_bar
+   new Particle("xi(2030)-_bar", -13316, 0, "Unknown", 100, 1, 2.025, 0.02, 100, 0, 100, 1, -1);
+
+   // Creating xi(1820)-_bar
+   new Particle("xi(1820)-_bar", -13314, 0, "Unknown", 100, 1, 1.823, 0.024, 100, 0, 100, 1, -1);
+
+   // Creating sigma(1915)+_bar
+   new Particle("sigma(1915)+_bar", -13226, 0, "Unknown", 100, -1, 1.915, 0.12, 100, 0, 100, 1, -1);
+
+   // Creating sigma(1670)+_bar
+   new Particle("sigma(1670)+_bar", -13224, 0, "Unknown", 100, -1, 1.67, 0.06, 100, 0, 100, 1, -1);
+
+   // Creating sigma(1660)+_bar
+   new Particle("sigma(1660)+_bar", -13222, 0, "Unknown", 100, -1, 1.66, 0.1, 100, 0, 100, 1, -1);
+
+   // Creating sigma(1915)0_bar
+   new Particle("sigma(1915)0_bar", -13216, 0, "Unknown", 100, -0, 1.915, 0.12, 100, 0, 100, 1, -1);
+
+   // Creating sigma(1670)0_bar
+   new Particle("sigma(1670)0_bar", -13214, 0, "Unknown", 100, -0, 1.67, 0.06, 100, 0, 100, 1, -1);
+
+   // Creating sigma(1660)0_bar
+   new Particle("sigma(1660)0_bar", -13212, 0, "Unknown", 100, -0, 1.66, 0.1, 100, 0, 100, 1, -1);
+
+   // Creating lambda(1830)_bar
+   new Particle("lambda(1830)_bar", -13126, 0, "Unknown", 100, -0, 1.83, 0.095, 100, 0, 100, 1, -1);
+
+   // Creating lambda(1690)_bar
+   new Particle("lambda(1690)_bar", -13124, 0, "Unknown", 100, -0, 1.69, 0.06, 100, 0, 100, 1, -1);
+
+   // Creating lambda(1405)_bar
+   new Particle("lambda(1405)_bar", -13122, 0, "Unknown", 100, -0, 1.4051, 0.05, 100, 0, 100, 1, -1);
+
+   // Creating sigma(1915)-_bar
+   new Particle("sigma(1915)-_bar", -13116, 0, "Unknown", 100, 1, 1.915, 0.12, 100, 0, 100, 1, -1);
+
+   // Creating sigma(1670)-_bar
+   new Particle("sigma(1670)-_bar", -13114, 0, "Unknown", 100, 1, 1.67, 0.06, 100, 0, 100, 1, -1);
+
+   // Creating sigma(1660)-_bar
+   new Particle("sigma(1660)-_bar", -13112, 0, "Unknown", 100, 1, 1.66, 0.1, 100, 0, 100, 1, -1);
+
+   // Creating delta(1930)++_bar
+   new Particle("delta(1930)++_bar", -12226, 0, "Unknown", 100, -2, 1.96, 0.36, 100, 0, 100, 1, -1);
+
+   // Creating delta(1700)++_bar
+   new Particle("delta(1700)++_bar", -12224, 0, "Unknown", 100, -2, 1.7, 0.3, 100, 0, 100, 1, -1);
+
+   // Creating delta(1900)++_bar
+   new Particle("delta(1900)++_bar", -12222, 0, "Unknown", 100, -2, 1.9, 0.2, 100, 0, 100, 1, -1);
+
+   // Creating N(1990)+_bar
+   new Particle("N(1990)+_bar", -12218, 0, "Unknown", 100, -1, 1.95, 0.555, 100, 0, 100, 1, -1);
+
+   // Creating N(1680)+_bar
+   new Particle("N(1680)+_bar", -12216, 0, "Unknown", 100, -1, 1.685, 0.13, 100, 0, 100, 1, -1);
+
+   // Creating delta(1700)+_bar
+   new Particle("delta(1700)+_bar", -12214, 0, "Unknown", 100, -1, 1.7, 0.3, 100, 0, 100, 1, -1);
+
+   // Creating N(1440)+_bar
+   new Particle("N(1440)+_bar", -12212, 0, "Unknown", 100, -1, 1.44, 0.3, 100, 0, 100, 1, -1);
+
+   // Creating delta(1930)+_bar
+   new Particle("delta(1930)+_bar", -12126, 0, "Unknown", 100, -1, 1.96, 0.36, 100, 0, 100, 1, -1);
+
+   // Creating delta(1900)+_bar
+   new Particle("delta(1900)+_bar", -12122, 0, "Unknown", 100, -1, 1.9, 0.2, 100, 0, 100, 1, -1);
+
+   // Creating N(1990)0_bar
+   new Particle("N(1990)0_bar", -12118, 0, "Unknown", 100, -0, 1.95, 0.555, 100, 0, 100, 1, -1);
+
+   // Creating N(1680)0_bar
+   new Particle("N(1680)0_bar", -12116, 0, "Unknown", 100, -0, 1.685, 0.13, 100, 0, 100, 1, -1);
+
+   // Creating delta(1700)0_bar
+   new Particle("delta(1700)0_bar", -12114, 0, "Unknown", 100, -0, 1.7, 0.3, 100, 0, 100, 1, -1);
+
+   // Creating N(1440)0_bar
+   new Particle("N(1440)0_bar", -12112, 0, "Unknown", 100, -0, 1.44, 0.3, 100, 0, 100, 1, -1);
+
+   // Creating delta(1930)0_bar
+   new Particle("delta(1930)0_bar", -11216, 0, "Unknown", 100, -0, 1.96, 0.36, 100, 0, 100, 1, -1);
+
+   // Creating delta(1900)0_bar
+   new Particle("delta(1900)0_bar", -11212, 0, "Unknown", 100, -0, 1.9, 0.2, 100, 0, 100, 1, -1);
+
+   // Creating delta(1930)-_bar
+   new Particle("delta(1930)-_bar", -11116, 0, "Unknown", 100, 1, 1.96, 0.36, 100, 0, 100, 1, -1);
+
+   // Creating delta(1700)-_bar
+   new Particle("delta(1700)-_bar", -11114, 0, "Unknown", 100, 1, 1.7, 0.3, 100, 0, 100, 1, -1);
+
+   // Creating delta(1900)-_bar
+   new Particle("delta(1900)-_bar", -11112, 0, "Unknown", 100, 1, 1.9, 0.2, 100, 0, 100, 1, -1);
 
    // Creating B_1c-
    new Particle("B_1c-", -10543, 0, "Unknown", 100, -1, 7.3, 0.05, 100, 1, 100, 1, -1);
@@ -691,6 +1033,12 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(0, 0.667,  vector<int>{-421,-211}));
       part->AddDecay(Decay(0, 0.333,  vector<int>{-411,-111}));
 
+   // Creating eta2(1870)_bar
+   new Particle("eta2(1870)_bar", -10335, 0, "Unknown", 100, -0, 1.842, 0.225, 100, 0, 100, 1, -1);
+
+   // Creating k2(1770)-_bar
+   new Particle("k2(1770)-_bar", -10325, 0, "Unknown", 100, -1, 1.773, 0.186, 100, 0, 100, 1, -1);
+
    // Creating K_1-
    new Particle("K_1-", -10323, 0, "Unknown", 100, -1, 1.272, 0.09, 100, 1, 100, 1, -1);
    part = &fParticles.at(-10323);
@@ -705,6 +1053,9 @@ void Particle::CreateParticles() {
    part = &fParticles.at(-10321);
       part->AddDecay(Decay(0, 0.667,  vector<int>{-311,-211}));
       part->AddDecay(Decay(0, 0.333,  vector<int>{-321,-111}));
+
+   // Creating k2(1770)0_bar
+   new Particle("k2(1770)0_bar", -10315, 0, "Unknown", 100, -0, 1.773, 0.186, 100, 0, 100, 1, -1);
 
    // Creating K_10_bar
    new Particle("K_10_bar", -10313, 0, "Unknown", 100, -0, 1.272, 0.09, 100, 1, 100, 1, -1);
@@ -721,6 +1072,12 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(0, 0.667,  vector<int>{-321,211}));
       part->AddDecay(Decay(0, 0.333,  vector<int>{-311,-111}));
 
+   // Creating eta2(1645)_bar
+   new Particle("eta2(1645)_bar", -10225, 0, "Unknown", 100, -0, 1.617, 0.181, 100, 0, 100, 1, -1);
+
+   // Creating pi2(1670)-_bar
+   new Particle("pi2(1670)-_bar", -10215, 0, "Unknown", 100, -1, 1.6722, 0.26, 100, 0, 100, 1, -1);
+
    // Creating b_1-
    new Particle("b_1-", -10213, 0, "Unknown", 100, -1, 1.2295, 0.142, 100, 1, 100, 1, -1);
    part = &fParticles.at(-10213);
@@ -730,6 +1087,9 @@ void Particle::CreateParticles() {
    new Particle("a_0-", -10211, 0, "Unknown", 100, -1, 0.9835, 0.06, 100, 1, 100, 1, -1);
    part = &fParticles.at(-10211);
       part->AddDecay(Decay(0, 1,  vector<int>{-221,-211}));
+
+   // Creating pi2(1670)0_bar
+   new Particle("pi2(1670)0_bar", -10115, 0, "Unknown", 100, -0, 1.6722, 0.26, 100, 0, 100, 1, -1);
 
    // Creating Omega*_bbb+
    new Particle("Omega*_bbb+", -5554, 0, "B-Baryon", 100, 1, 15.1106, 0, 100, 1, 100, 1, -1);
@@ -1410,6 +1770,12 @@ void Particle::CreateParticles() {
    // Creating ss_1_bar
    new Particle("ss_1_bar", -3303, 0, "Unknown", 100, 0.666667, 2.08, 0, 100, 1, 100, 1, -1);
 
+   // Creating sigma(2030)+_bar
+   new Particle("sigma(2030)+_bar", -3228, 0, "Unknown", 100, -1, 2.03, 0.18, 100, 0, 100, 1, -1);
+
+   // Creating sigma(1775)+_bar
+   new Particle("sigma(1775)+_bar", -3226, 0, "Unknown", 100, -1, 1.775, 0.12, 100, 0, 100, 1, -1);
+
    // Creating Sigma*+_bar
    new Particle("Sigma*+_bar", -3224, 0, "Baryon", 100, -1, 1.3828, 0.0358, 100, 1, 100, 1, -1);
    part = &fParticles.at(-3224);
@@ -1423,6 +1789,12 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(0, 0.516,  vector<int>{-2212,-111}));
       part->AddDecay(Decay(0, 0.483,  vector<int>{-2112,-211}));
       part->AddDecay(Decay(0, 0.001,  vector<int>{-2212,-22}));
+
+   // Creating sigma(2030)0_bar
+   new Particle("sigma(2030)0_bar", -3218, 0, "Unknown", 100, -0, 2.03, 0.18, 100, 0, 100, 1, -1);
+
+   // Creating sigma(1775)0_bar
+   new Particle("sigma(1775)0_bar", -3216, 0, "Unknown", 100, -0, 1.775, 0.12, 100, 0, 100, 1, -1);
 
    // Creating Sigma*0_bar
    new Particle("Sigma*0_bar", -3214, 0, "Baryon", 100, -0, 1.3837, 0.036, 100, 1, 100, 1, -1);
@@ -1442,6 +1814,15 @@ void Particle::CreateParticles() {
    // Creating su_0_bar
    new Particle("su_0_bar", -3201, 0, "Unknown", 100, -0.333333, 0.1064, 0, 100, 1, 100, 1, -1);
 
+   // Creating lambda(2100)_bar
+   new Particle("lambda(2100)_bar", -3128, 0, "Unknown", 100, -0, 2.1, 0.2, 100, 0, 100, 1, -1);
+
+   // Creating lambda(1820)_bar
+   new Particle("lambda(1820)_bar", -3126, 0, "Unknown", 100, -0, 1.82, 0.08, 100, 0, 100, 1, -1);
+
+   // Creating lambda(1520)_bar
+   new Particle("lambda(1520)_bar", -3124, 0, "Unknown", 100, -0, 1.5195, 0.0156, 100, 0, 100, 1, -1);
+
    // Creating Lambda0_bar
    new Particle("Lambda0_bar", -3122, 0, "Baryon", 100, -0, 1.11568, 0, 100, 1, 100, 1, -1);
    part = &fParticles.at(-3122);
@@ -1449,6 +1830,12 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(0, 0.358,  vector<int>{-2112,-111}));
       part->AddDecay(Decay(0, 0.002,  vector<int>{-2112,-22}));
       part->AddDecay(Decay(0, 0.001,  vector<int>{12,-11,-2212}));
+
+   // Creating sigma(2030)-_bar
+   new Particle("sigma(2030)-_bar", -3118, 0, "Unknown", 100, 1, 2.03, 0.18, 100, 0, 100, 1, -1);
+
+   // Creating sigma(1775)-_bar
+   new Particle("sigma(1775)-_bar", -3116, 0, "Unknown", 100, 1, 1.775, 0.12, 100, 0, 100, 1, -1);
 
    // Creating Sigma*-_bar
    new Particle("Sigma*-_bar", -3114, 0, "Baryon", 100, 1, 1.3872, 0.0394, 100, 1, 100, 1, -1);
@@ -1469,10 +1856,25 @@ void Particle::CreateParticles() {
    // Creating sd_0_bar
    new Particle("sd_0_bar", -3101, 0, "Unknown", 100, 0.666667, 0.108, 0, 100, 1, 100, 1, -1);
 
+   // Creating delta(1950)++_bar
+   new Particle("delta(1950)++_bar", -2228, 0, "Unknown", 100, -2, 1.93, 0.28, 100, 0, 100, 1, -1);
+
+   // Creating delta(1905)++_bar
+   new Particle("delta(1905)++_bar", -2226, 0, "Unknown", 100, -2, 1.89, 0.33, 100, 0, 100, 1, -1);
+
    // Creating Delta--
    new Particle("Delta--", -2224, 0, "Baryon", 100, -2, 1.232, 0.12, 100, 1, 100, 1, -1);
    part = &fParticles.at(-2224);
       part->AddDecay(Decay(0, 1,  vector<int>{-2212,-211}));
+
+   // Creating delta(1620)++_bar
+   new Particle("delta(1620)++_bar", -2222, 0, "Unknown", 100, -2, 1.63, 0.145, 100, 0, 100, 1, -1);
+
+   // Creating delta(1950)+_bar
+   new Particle("delta(1950)+_bar", -2218, 0, "Unknown", 100, -1, 1.93, 0.28, 100, 0, 100, 1, -1);
+
+   // Creating N(1675)+_bar
+   new Particle("N(1675)+_bar", -2216, 0, "Unknown", 100, -1, 1.675, 0.15, 100, 0, 100, 1, -1);
 
    // Creating Delta+_bar
    new Particle("Delta+_bar", -2214, 0, "Baryon", 100, -1, 1.232, 0.12, 100, 1, 100, 1, -1);
@@ -1489,6 +1891,24 @@ void Particle::CreateParticles() {
 
    // Creating uu_1_bar
    new Particle("uu_1_bar", -2203, 0, "Unknown", 100, -1.33333, 0.0048, 0, 100, 1, 100, 1, -1);
+
+   // Creating N(2190)+_bar
+   new Particle("N(2190)+_bar", -2128, 0, "Unknown", 100, -1, 2.19, 0.5, 100, 0, 100, 1, -1);
+
+   // Creating delta(1905)+_bar
+   new Particle("delta(1905)+_bar", -2126, 0, "Unknown", 100, -1, 1.89, 0.33, 100, 0, 100, 1, -1);
+
+   // Creating N(1520)+_bar
+   new Particle("N(1520)+_bar", -2124, 0, "Unknown", 100, -1, 1.52, 0.115, 100, 0, 100, 1, -1);
+
+   // Creating delta(1620)+_bar
+   new Particle("delta(1620)+_bar", -2122, 0, "Unknown", 100, -1, 1.63, 0.145, 100, 0, 100, 1, -1);
+
+   // Creating delta(1950)0_bar
+   new Particle("delta(1950)0_bar", -2118, 0, "Unknown", 100, -0, 1.93, 0.28, 100, 0, 100, 1, -1);
+
+   // Creating N(1675)0_bar
+   new Particle("N(1675)0_bar", -2116, 0, "Unknown", 100, -0, 1.675, 0.15, 100, 0, 100, 1, -1);
 
    // Creating Delta0_bar
    new Particle("Delta0_bar", -2114, 0, "Baryon", 100, -0, 1.232, 0.12, 100, 1, 100, 1, -1);
@@ -1509,10 +1929,31 @@ void Particle::CreateParticles() {
    // Creating ud_0_bar
    new Particle("ud_0_bar", -2101, 0, "Unknown", 100, -0.333333, 0.0073, 0, 100, 1, 100, 1, -1);
 
+   // Creating N(2190)0_bar
+   new Particle("N(2190)0_bar", -1218, 0, "Unknown", 100, -0, 2.19, 0.5, 100, 0, 100, 1, -1);
+
+   // Creating delta(1905)0_bar
+   new Particle("delta(1905)0_bar", -1216, 0, "Unknown", 100, -0, 1.89, 0.33, 100, 0, 100, 1, -1);
+
+   // Creating N(1520)0_bar
+   new Particle("N(1520)0_bar", -1214, 0, "Unknown", 100, -0, 1.52, 0.115, 100, 0, 100, 1, -1);
+
+   // Creating delta(1620)0_bar
+   new Particle("delta(1620)0_bar", -1212, 0, "Unknown", 100, -0, 1.63, 0.145, 100, 0, 100, 1, -1);
+
+   // Creating delta(1950)-_bar
+   new Particle("delta(1950)-_bar", -1118, 0, "Unknown", 100, 1, 1.93, 0.28, 100, 0, 100, 1, -1);
+
+   // Creating delta(1905)-_bar
+   new Particle("delta(1905)-_bar", -1116, 0, "Unknown", 100, 1, 1.89, 0.33, 100, 0, 100, 1, -1);
+
    // Creating Delta-_bar
    new Particle("Delta-_bar", -1114, 0, "Unknown", 100, 1, 1.232, 0.12, 100, 1, 100, 1, -1);
    part = &fParticles.at(-1114);
       part->AddDecay(Decay(0, 1,  vector<int>{-2112,211}));
+
+   // Creating delta(1620)-_bar
+   new Particle("delta(1620)-_bar", -1112, 0, "Unknown", 100, 1, 1.63, 0.145, 100, 0, 100, 1, -1);
 
    // Creating dd_1_bar
    new Particle("dd_1_bar", -1103, 0, "Unknown", 100, 0.666667, 0.96, 0, 100, 1, 100, 1, -1);
@@ -1955,6 +2396,12 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(0, 0.0006,  vector<int>{-111,-213}));
       part->AddDecay(Decay(0, 0.0006,  vector<int>{-113,-211}));
 
+   // Creating phi3(1850)_bar
+   new Particle("phi3(1850)_bar", -337, 0, "Unknown", 100, -0, 1.854, 0.087, 100, 0, 100, 1, -1);
+
+   // Creating k3_star(1780)-_bar
+   new Particle("k3_star(1780)-_bar", -327, 0, "Unknown", 100, -1, 1.776, 0.159, 100, 0, 100, 1, -1);
+
    // Creating K*_2-
    new Particle("K*_2-", -325, 0, "Meson", 100, -1, 1.4256, 0.098, 100, 1, 100, 1, -1);
    part = &fParticles.at(-325);
@@ -1987,6 +2434,9 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(42, 0.0318,  vector<int>{-14,13,-111}));
       part->AddDecay(Decay(0, 0.0173,  vector<int>{-211,-111,-111}));
 
+   // Creating k3_star(1780)0_bar
+   new Particle("k3_star(1780)0_bar", -317, 0, "Unknown", 100, -0, 1.776, 0.159, 100, 0, 100, 1, -1);
+
    // Creating K*_20_bar
    new Particle("K*_20_bar", -315, 0, "Meson", 100, -0, 1.4324, 0.109, 100, 1, 100, 1, -1);
    part = &fParticles.at(-315);
@@ -2014,6 +2464,12 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(0, 0.5,  vector<int>{-130}));
       part->AddDecay(Decay(0, 0.5,  vector<int>{-310}));
 
+   // Creating omega3(1670)_bar
+   new Particle("omega3(1670)_bar", -227, 0, "Unknown", 100, -0, 1.667, 0.168, 100, 0, 100, 1, -1);
+
+   // Creating rho3(1690)-_bar
+   new Particle("rho3(1690)-_bar", -217, 0, "Unknown", 100, -1, 1.6888, 0.161, 100, 0, 100, 1, -1);
+
    // Creating a_2-
    new Particle("a_2-", -215, 0, "Meson", 100, -1, 1.3183, 0.107, 100, 1, 100, 1, -1);
    part = &fParticles.at(-215);
@@ -2039,6 +2495,9 @@ void Particle::CreateParticles() {
 
    // Creating pi_diffr-
    new Particle("pi_diffr-", -210, 0, "Meson", 100, -1, 0, 0, 100, 1, 100, 1, -1);
+
+   // Creating rho3(1690)0_bar
+   new Particle("rho3(1690)0_bar", -117, 0, "Unknown", 100, -0, 1.6888, 0.161, 100, 0, 100, 1, -1);
 
    // Creating b-hadron_bar
    new Particle("b-hadron_bar", -85, 0, "Generator", 100, 0.333333, 5, 0, 100, 1, 100, 1, -1);
@@ -3387,6 +3846,9 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(0, 0.0057,  vector<int>{331,111}));
       part->AddDecay(Decay(0, 0.0028,  vector<int>{111,22}));
 
+   // Creating rho3(1690)0
+   new Particle("rho3(1690)0", 117, 1, "Unknown", 100, 0, 1.6888, 0.161, -100, 0, -100, -1, -1);
+
    // Creating K_L0
    new Particle("K_L0", 130, 0, "Meson", 100, 0, 0.497614, 0, -100, -1, -100, -1, -1);
    part = &fParticles.at(130);
@@ -3426,6 +3888,9 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(0, 0.0057,  vector<int>{331,211}));
       part->AddDecay(Decay(0, 0.0028,  vector<int>{211,22}));
 
+   // Creating rho3(1690)+
+   new Particle("rho3(1690)+", 217, 1, "Unknown", 100, 1, 1.6888, 0.161, -100, 0, -100, -1, -1);
+
    // Creating omega_di
    new Particle("omega_di", 220, 0, "Meson", 100, 0, 0, 0, -100, -1, -100, -1, -1);
 
@@ -3464,6 +3929,9 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(0, 0.005,  vector<int>{221,221}));
       part->AddDecay(Decay(0, 0.003,  vector<int>{111,111,111,111}));
 
+   // Creating omega3(1670)
+   new Particle("omega3(1670)", 227, 1, "Unknown", 100, 0, 1.667, 0.168, -100, 0, -100, -1, -1);
+
    // Creating K_S0
    new Particle("K_S0", 310, 0, "Meson", 100, 0, 0.497614, 0, -100, -1, -100, -1, -1);
    part = &fParticles.at(310);
@@ -3497,6 +3965,9 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(0, 0.029,  vector<int>{311,223}));
       part->AddDecay(Decay(0, 0.002,  vector<int>{311,221}));
 
+   // Creating k3_star(1780)0
+   new Particle("k3_star(1780)0", 317, 1, "Unknown", 100, 0, 1.776, 0.159, -100, 0, -100, -1, -1);
+
    // Creating K+
    new Particle("K+", 321, 1, "Meson", 100, 1, 0.493677, 5.31674e-17, -100, -1, -100, -1, -1);
    part = &fParticles.at(321);
@@ -3528,6 +3999,9 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(0, 0.029,  vector<int>{321,223}));
       part->AddDecay(Decay(0, 0.002,  vector<int>{321,221}));
       part->AddDecay(Decay(0, 0.002,  vector<int>{321,22}));
+
+   // Creating k3_star(1780)+
+   new Particle("k3_star(1780)+", 327, 1, "Unknown", 100, 1, 1.776, 0.159, -100, 0, -100, -1, -1);
 
    // Creating phi_diff
    new Particle("phi_diff", 330, 0, "Meson", 100, 0, 0, 0, -100, -1, -100, -1, -1);
@@ -3566,6 +4040,9 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(0, 0.104,  vector<int>{221,221}));
       part->AddDecay(Decay(0, 0.004,  vector<int>{211,-211}));
       part->AddDecay(Decay(0, 0.004,  vector<int>{111,111}));
+
+   // Creating phi3(1850)
+   new Particle("phi3(1850)", 337, 1, "Unknown", 100, 0, 1.854, 0.087, -100, 0, -100, -1, -1);
 
    // Creating D+
    new Particle("D+", 411, 1, "CharmedMeson", 100, 1, 1.86962, 0, -100, -1, -100, -1, -1);
@@ -3978,6 +4455,9 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(0, 0.2,  vector<int>{523,-321}));
       part->AddDecay(Decay(0, 0.2,  vector<int>{513,-311}));
 
+   // Creating ChargedRootino_bar-50000052
+   new Particle("ChargedRootino_bar-50000052", 540, 0, "", 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
    // Creating B_c+
    new Particle("B_c+", 541, 1, "B-Meson", 100, 1, 6.276, 0, -100, -1, -100, -1, -1);
    part = &fParticles.at(541);
@@ -4053,10 +4533,31 @@ void Particle::CreateParticles() {
    // Creating dd_1
    new Particle("dd_1", 1103, 1, "Unknown", 100, -0.666667, 0.96, 0, -100, -1, -100, -1, -1);
 
+   // Creating delta(1620)-
+   new Particle("delta(1620)-", 1112, 1, "Unknown", 100, -1, 1.63, 0.145, -100, 0, -100, -1, -1);
+
    // Creating Delta-
    new Particle("Delta-", 1114, 1, "Unknown", 100, -1, 1.232, 0.12, -100, -1, -100, -1, -1);
    part = &fParticles.at(1114);
       part->AddDecay(Decay(0, 1,  vector<int>{2112,-211}));
+
+   // Creating delta(1905)-
+   new Particle("delta(1905)-", 1116, 1, "Unknown", 100, -1, 1.89, 0.33, -100, 0, -100, -1, -1);
+
+   // Creating delta(1950)-
+   new Particle("delta(1950)-", 1118, 1, "Unknown", 100, -1, 1.93, 0.28, -100, 0, -100, -1, -1);
+
+   // Creating delta(1620)0
+   new Particle("delta(1620)0", 1212, 1, "Unknown", 100, 0, 1.63, 0.145, -100, 0, -100, -1, -1);
+
+   // Creating N(1520)0
+   new Particle("N(1520)0", 1214, 1, "Unknown", 100, 0, 1.52, 0.115, -100, 0, -100, -1, -1);
+
+   // Creating delta(1905)0
+   new Particle("delta(1905)0", 1216, 1, "Unknown", 100, 0, 1.89, 0.33, -100, 0, -100, -1, -1);
+
+   // Creating N(2190)0
+   new Particle("N(2190)0", 1218, 1, "Unknown", 100, 0, 2.19, 0.5, -100, 0, -100, -1, -1);
 
    // Creating ud_0
    new Particle("ud_0", 2101, 1, "Unknown", 100, 0.333333, 0.0073, 0, -100, -1, -100, -1, -1);
@@ -4077,6 +4578,24 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(0, 0.331,  vector<int>{2212,-211}));
       part->AddDecay(Decay(0, 0.006,  vector<int>{2112,22}));
 
+   // Creating N(1675)0
+   new Particle("N(1675)0", 2116, 1, "Unknown", 100, 0, 1.675, 0.15, -100, 0, -100, -1, -1);
+
+   // Creating delta(1950)0
+   new Particle("delta(1950)0", 2118, 1, "Unknown", 100, 0, 1.93, 0.28, -100, 0, -100, -1, -1);
+
+   // Creating delta(1620)+
+   new Particle("delta(1620)+", 2122, 1, "Unknown", 100, 1, 1.63, 0.145, -100, 0, -100, -1, -1);
+
+   // Creating N(1520)+
+   new Particle("N(1520)+", 2124, 1, "Unknown", 100, 1, 1.52, 0.115, -100, 0, -100, -1, -1);
+
+   // Creating delta(1905)+
+   new Particle("delta(1905)+", 2126, 1, "Unknown", 100, 1, 1.89, 0.33, -100, 0, -100, -1, -1);
+
+   // Creating N(2190)+
+   new Particle("N(2190)+", 2128, 1, "Unknown", 100, 1, 2.19, 0.5, -100, 0, -100, -1, -1);
+
    // Creating uu_1
    new Particle("uu_1", 2203, 1, "Unknown", 100, 1.33333, 0.0048, 0, -100, -1, -100, -1, -1);
 
@@ -4093,10 +4612,25 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(0, 0.331,  vector<int>{2112,211}));
       part->AddDecay(Decay(0, 0.006,  vector<int>{2212,22}));
 
+   // Creating N(1675)+
+   new Particle("N(1675)+", 2216, 1, "Unknown", 100, 1, 1.675, 0.15, -100, 0, -100, -1, -1);
+
+   // Creating delta(1950)+
+   new Particle("delta(1950)+", 2218, 1, "Unknown", 100, 1, 1.93, 0.28, -100, 0, -100, -1, -1);
+
+   // Creating delta(1620)++
+   new Particle("delta(1620)++", 2222, 1, "Unknown", 100, 2, 1.63, 0.145, -100, 0, -100, -1, -1);
+
    // Creating Delta++
    new Particle("Delta++", 2224, 1, "Baryon", 100, 2, 1.232, 0.12, -100, -1, -100, -1, -1);
    part = &fParticles.at(2224);
       part->AddDecay(Decay(0, 1,  vector<int>{2212,211}));
+
+   // Creating delta(1905)++
+   new Particle("delta(1905)++", 2226, 1, "Unknown", 100, 2, 1.89, 0.33, -100, 0, -100, -1, -1);
+
+   // Creating delta(1950)++
+   new Particle("delta(1950)++", 2228, 1, "Unknown", 100, 2, 1.93, 0.28, -100, 0, -100, -1, -1);
 
    // Creating sd_0
    new Particle("sd_0", 3101, 1, "Unknown", 100, -0.666667, 0.108, 0, -100, -1, -100, -1, -1);
@@ -4117,6 +4651,12 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(0, 0.06,  vector<int>{3212,-211}));
       part->AddDecay(Decay(0, 0.06,  vector<int>{3112,111}));
 
+   // Creating sigma(1775)-
+   new Particle("sigma(1775)-", 3116, 1, "Unknown", 100, -1, 1.775, 0.12, -100, 0, -100, -1, -1);
+
+   // Creating sigma(2030)-
+   new Particle("sigma(2030)-", 3118, 1, "Unknown", 100, -1, 2.03, 0.18, -100, 0, -100, -1, -1);
+
    // Creating Lambda0
    new Particle("Lambda0", 3122, 1, "Baryon", 100, 0, 1.11568, 0, -100, -1, -100, -1, -1);
    part = &fParticles.at(3122);
@@ -4124,6 +4664,15 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(0, 0.358,  vector<int>{2112,111}));
       part->AddDecay(Decay(0, 0.002,  vector<int>{2112,22}));
       part->AddDecay(Decay(0, 0.001,  vector<int>{-12,11,2212}));
+
+   // Creating lambda(1520)
+   new Particle("lambda(1520)", 3124, 1, "Unknown", 100, 0, 1.5195, 0.0156, -100, 0, -100, -1, -1);
+
+   // Creating lambda(1820)
+   new Particle("lambda(1820)", 3126, 1, "Unknown", 100, 0, 1.82, 0.08, -100, 0, -100, -1, -1);
+
+   // Creating lambda(2100)
+   new Particle("lambda(2100)", 3128, 1, "Unknown", 100, 0, 2.1, 0.2, -100, 0, -100, -1, -1);
 
    // Creating su_0
    new Particle("su_0", 3201, 1, "Unknown", 100, 0.333333, 0.1064, 0, -100, -1, -100, -1, -1);
@@ -4143,6 +4692,12 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(0, 0.06,  vector<int>{3222,-211}));
       part->AddDecay(Decay(0, 0.06,  vector<int>{3112,211}));
 
+   // Creating sigma(1775)0
+   new Particle("sigma(1775)0", 3216, 1, "Unknown", 100, 0, 1.775, 0.12, -100, 0, -100, -1, -1);
+
+   // Creating sigma(2030)0
+   new Particle("sigma(2030)0", 3218, 1, "Unknown", 100, 0, 2.03, 0.18, -100, 0, -100, -1, -1);
+
    // Creating Sigma+
    new Particle("Sigma+", 3222, 1, "Baryon", 100, 1, 1.18937, 0, -100, -1, -100, -1, -1);
    part = &fParticles.at(3222);
@@ -4156,6 +4711,12 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(0, 0.88,  vector<int>{3122,211}));
       part->AddDecay(Decay(0, 0.06,  vector<int>{3222,111}));
       part->AddDecay(Decay(0, 0.06,  vector<int>{3212,211}));
+
+   // Creating sigma(1775)+
+   new Particle("sigma(1775)+", 3226, 1, "Unknown", 100, 1, 1.775, 0.12, -100, 0, -100, -1, -1);
+
+   // Creating sigma(2030)+
+   new Particle("sigma(2030)+", 3228, 1, "Unknown", 100, 1, 2.03, 0.18, -100, 0, -100, -1, -1);
 
    // Creating ss_1
    new Particle("ss_1", 3303, 1, "Unknown", 100, -0.666667, 2.08, 0, -100, -1, -100, -1, -1);
@@ -4846,6 +5407,9 @@ void Particle::CreateParticles() {
    part = &fParticles.at(10113);
       part->AddDecay(Decay(0, 1,  vector<int>{223,111}));
 
+   // Creating pi2(1670)0
+   new Particle("pi2(1670)0", 10115, 1, "Unknown", 100, 0, 1.6722, 0.26, -100, 0, -100, -1, -1);
+
    // Creating a_0+
    new Particle("a_0+", 10211, 1, "Unknown", 100, 1, 0.9835, 0.06, -100, -1, -100, -1, -1);
    part = &fParticles.at(10211);
@@ -4855,6 +5419,9 @@ void Particle::CreateParticles() {
    new Particle("b_1+", 10213, 1, "Unknown", 100, 1, 1.2295, 0.142, -100, -1, -100, -1, -1);
    part = &fParticles.at(10213);
       part->AddDecay(Decay(0, 1,  vector<int>{223,211}));
+
+   // Creating pi2(1670)+
+   new Particle("pi2(1670)+", 10215, 1, "Unknown", 100, 1, 1.6722, 0.26, -100, 0, -100, -1, -1);
 
    // Creating f_0
    new Particle("f_0", 10221, 0, "Unknown", 100, 0, 1.3, 0, -100, -1, -100, -1, -1);
@@ -4872,6 +5439,9 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(0, 0.333,  vector<int>{213,-211}));
       part->AddDecay(Decay(0, 0.333,  vector<int>{-213,211}));
 
+   // Creating eta2(1645)
+   new Particle("eta2(1645)", 10225, 1, "Unknown", 100, 0, 1.617, 0.181, -100, 0, -100, -1, -1);
+
    // Creating K*_00
    new Particle("K*_00", 10311, 1, "Unknown", 100, 0, 1.42, 0.287, -100, -1, -100, -1, -1);
    part = &fParticles.at(10311);
@@ -4887,6 +5457,9 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(0, 0.14,  vector<int>{311,113}));
       part->AddDecay(Decay(0, 0.11,  vector<int>{311,223}));
 
+   // Creating k2(1770)0
+   new Particle("k2(1770)0", 10315, 1, "Unknown", 100, 0, 1.773, 0.186, -100, 0, -100, -1, -1);
+
    // Creating K*_0+
    new Particle("K*_0+", 10321, 1, "Unknown", 100, 1, 1.42, 0.287, -100, -1, -100, -1, -1);
    part = &fParticles.at(10321);
@@ -4901,6 +5474,9 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(0, 0.157,  vector<int>{323,111}));
       part->AddDecay(Decay(0, 0.14,  vector<int>{321,113}));
       part->AddDecay(Decay(0, 0.11,  vector<int>{321,223}));
+
+   // Creating k2(1770)+
+   new Particle("k2(1770)+", 10325, 1, "Unknown", 100, 1, 1.773, 0.186, -100, 0, -100, -1, -1);
 
    // Creating f'_0
    new Particle("f'_0", 10331, 0, "Unknown", 100, 0, 1.724, 0.25, -100, -1, -100, -1, -1);
@@ -4920,6 +5496,9 @@ void Particle::CreateParticles() {
       part->AddDecay(Decay(0, 0.25,  vector<int>{-313,311}));
       part->AddDecay(Decay(0, 0.25,  vector<int>{323,-321}));
       part->AddDecay(Decay(0, 0.25,  vector<int>{-323,321}));
+
+   // Creating eta2(1870)
+   new Particle("eta2(1870)", 10335, 1, "Unknown", 100, 0, 1.842, 0.225, -100, 0, -100, -1, -1);
 
    // Creating D*_0+
    new Particle("D*_0+", 10411, 1, "Unknown", 100, 1, 2.272, 0.05, -100, -1, -100, -1, -1);
@@ -5027,6 +5606,108 @@ void Particle::CreateParticles() {
    part = &fParticles.at(10553);
       part->AddDecay(Decay(32, 1,  vector<int>{21,21}));
 
+   // Creating delta(1900)-
+   new Particle("delta(1900)-", 11112, 1, "Unknown", 100, -1, 1.9, 0.2, -100, 0, -100, -1, -1);
+
+   // Creating delta(1700)-
+   new Particle("delta(1700)-", 11114, 1, "Unknown", 100, -1, 1.7, 0.3, -100, 0, -100, -1, -1);
+
+   // Creating delta(1930)-
+   new Particle("delta(1930)-", 11116, 1, "Unknown", 100, -1, 1.96, 0.36, -100, 0, -100, -1, -1);
+
+   // Creating delta(1900)0
+   new Particle("delta(1900)0", 11212, 1, "Unknown", 100, 0, 1.9, 0.2, -100, 0, -100, -1, -1);
+
+   // Creating delta(1930)0
+   new Particle("delta(1930)0", 11216, 1, "Unknown", 100, 0, 1.96, 0.36, -100, 0, -100, -1, -1);
+
+   // Creating N(1440)0
+   new Particle("N(1440)0", 12112, 1, "Unknown", 100, 0, 1.44, 0.3, -100, 0, -100, -1, -1);
+
+   // Creating delta(1700)0
+   new Particle("delta(1700)0", 12114, 1, "Unknown", 100, 0, 1.7, 0.3, -100, 0, -100, -1, -1);
+
+   // Creating N(1680)0
+   new Particle("N(1680)0", 12116, 1, "Unknown", 100, 0, 1.685, 0.13, -100, 0, -100, -1, -1);
+
+   // Creating N(1990)0
+   new Particle("N(1990)0", 12118, 1, "Unknown", 100, 0, 1.95, 0.555, -100, 0, -100, -1, -1);
+
+   // Creating delta(1900)+
+   new Particle("delta(1900)+", 12122, 1, "Unknown", 100, 1, 1.9, 0.2, -100, 0, -100, -1, -1);
+
+   // Creating delta(1930)+
+   new Particle("delta(1930)+", 12126, 1, "Unknown", 100, 1, 1.96, 0.36, -100, 0, -100, -1, -1);
+
+   // Creating N(1440)+
+   new Particle("N(1440)+", 12212, 1, "Unknown", 100, 1, 1.44, 0.3, -100, 0, -100, -1, -1);
+
+   // Creating delta(1700)+
+   new Particle("delta(1700)+", 12214, 1, "Unknown", 100, 1, 1.7, 0.3, -100, 0, -100, -1, -1);
+
+   // Creating N(1680)+
+   new Particle("N(1680)+", 12216, 1, "Unknown", 100, 1, 1.685, 0.13, -100, 0, -100, -1, -1);
+
+   // Creating N(1990)+
+   new Particle("N(1990)+", 12218, 1, "Unknown", 100, 1, 1.95, 0.555, -100, 0, -100, -1, -1);
+
+   // Creating delta(1900)++
+   new Particle("delta(1900)++", 12222, 1, "Unknown", 100, 2, 1.9, 0.2, -100, 0, -100, -1, -1);
+
+   // Creating delta(1700)++
+   new Particle("delta(1700)++", 12224, 1, "Unknown", 100, 2, 1.7, 0.3, -100, 0, -100, -1, -1);
+
+   // Creating delta(1930)++
+   new Particle("delta(1930)++", 12226, 1, "Unknown", 100, 2, 1.96, 0.36, -100, 0, -100, -1, -1);
+
+   // Creating sigma(1660)-
+   new Particle("sigma(1660)-", 13112, 1, "Unknown", 100, -1, 1.66, 0.1, -100, 0, -100, -1, -1);
+
+   // Creating sigma(1670)-
+   new Particle("sigma(1670)-", 13114, 1, "Unknown", 100, -1, 1.67, 0.06, -100, 0, -100, -1, -1);
+
+   // Creating sigma(1915)-
+   new Particle("sigma(1915)-", 13116, 1, "Unknown", 100, -1, 1.915, 0.12, -100, 0, -100, -1, -1);
+
+   // Creating lambda(1405)
+   new Particle("lambda(1405)", 13122, 1, "Unknown", 100, 0, 1.4051, 0.05, -100, 0, -100, -1, -1);
+
+   // Creating lambda(1690)
+   new Particle("lambda(1690)", 13124, 1, "Unknown", 100, 0, 1.69, 0.06, -100, 0, -100, -1, -1);
+
+   // Creating lambda(1830)
+   new Particle("lambda(1830)", 13126, 1, "Unknown", 100, 0, 1.83, 0.095, -100, 0, -100, -1, -1);
+
+   // Creating sigma(1660)0
+   new Particle("sigma(1660)0", 13212, 1, "Unknown", 100, 0, 1.66, 0.1, -100, 0, -100, -1, -1);
+
+   // Creating sigma(1670)0
+   new Particle("sigma(1670)0", 13214, 1, "Unknown", 100, 0, 1.67, 0.06, -100, 0, -100, -1, -1);
+
+   // Creating sigma(1915)0
+   new Particle("sigma(1915)0", 13216, 1, "Unknown", 100, 0, 1.915, 0.12, -100, 0, -100, -1, -1);
+
+   // Creating sigma(1660)+
+   new Particle("sigma(1660)+", 13222, 1, "Unknown", 100, 1, 1.66, 0.1, -100, 0, -100, -1, -1);
+
+   // Creating sigma(1670)+
+   new Particle("sigma(1670)+", 13224, 1, "Unknown", 100, 1, 1.67, 0.06, -100, 0, -100, -1, -1);
+
+   // Creating sigma(1915)+
+   new Particle("sigma(1915)+", 13226, 1, "Unknown", 100, 1, 1.915, 0.12, -100, 0, -100, -1, -1);
+
+   // Creating xi(1820)-
+   new Particle("xi(1820)-", 13314, 1, "Unknown", 100, -1, 1.823, 0.024, -100, 0, -100, -1, -1);
+
+   // Creating xi(2030)-
+   new Particle("xi(2030)-", 13316, 1, "Unknown", 100, -1, 2.025, 0.02, -100, 0, -100, -1, -1);
+
+   // Creating xi(1820)0
+   new Particle("xi(1820)0", 13324, 1, "Unknown", 100, 0, 1.823, 0.024, -100, 0, -100, -1, -1);
+
+   // Creating xi(2030)0
+   new Particle("xi(2030)0", 13326, 1, "Unknown", 100, 0, 2.025, 0.02, -100, 0, -100, -1, -1);
+
    // Creating a_10
    new Particle("a_10", 20113, 0, "Unknown", 100, 0, 1.23, 0.4, -100, -1, -100, -1, -1);
    part = &fParticles.at(20113);
@@ -5130,6 +5811,189 @@ void Particle::CreateParticles() {
    part = &fParticles.at(20553);
       part->AddDecay(Decay(32, 0.65,  vector<int>{21,21}));
       part->AddDecay(Decay(0, 0.35,  vector<int>{553,22}));
+
+   // Creating delta(1910)-
+   new Particle("delta(1910)-", 21112, 1, "Unknown", 100, -1, 1.91, 0.25, -100, 0, -100, -1, -1);
+
+   // Creating delta(1920)-
+   new Particle("delta(1920)-", 21114, 1, "Unknown", 100, -1, 1.92, 0.2, -100, 0, -100, -1, -1);
+
+   // Creating delta(1910)0
+   new Particle("delta(1910)0", 21212, 1, "Unknown", 100, 0, 1.91, 0.25, -100, 0, -100, -1, -1);
+
+   // Creating N(1700)0
+   new Particle("N(1700)0", 21214, 1, "Unknown", 100, 0, 1.7, 0.1, -100, 0, -100, -1, -1);
+
+   // Creating N(1535)0
+   new Particle("N(1535)0", 22112, 1, "Unknown", 100, 0, 1.535, 0.15, -100, 0, -100, -1, -1);
+
+   // Creating delta(1920)0
+   new Particle("delta(1920)0", 22114, 1, "Unknown", 100, 0, 1.92, 0.2, -100, 0, -100, -1, -1);
+
+   // Creating delta(1910)+
+   new Particle("delta(1910)+", 22122, 1, "Unknown", 100, 1, 1.91, 0.25, -100, 0, -100, -1, -1);
+
+   // Creating N(1700)+
+   new Particle("N(1700)+", 22124, 1, "Unknown", 100, 1, 1.7, 0.1, -100, 0, -100, -1, -1);
+
+   // Creating N(1535)+
+   new Particle("N(1535)+", 22212, 1, "Unknown", 100, 1, 1.535, 0.15, -100, 0, -100, -1, -1);
+
+   // Creating delta(1920)+
+   new Particle("delta(1920)+", 22214, 1, "Unknown", 100, 1, 1.92, 0.2, -100, 0, -100, -1, -1);
+
+   // Creating delta(1910)++
+   new Particle("delta(1910)++", 22222, 1, "Unknown", 100, 2, 1.91, 0.25, -100, 0, -100, -1, -1);
+
+   // Creating delta(1920)++
+   new Particle("delta(1920)++", 22224, 1, "Unknown", 100, 2, 1.92, 0.2, -100, 0, -100, -1, -1);
+
+   // Creating sigma(1750)-
+   new Particle("sigma(1750)-", 23112, 1, "Unknown", 100, -1, 1.75, 0.09, -100, 0, -100, -1, -1);
+
+   // Creating sigma(1940)-
+   new Particle("sigma(1940)-", 23114, 1, "Unknown", 100, -1, 1.94, 0.22, -100, 0, -100, -1, -1);
+
+   // Creating lambda(1600)
+   new Particle("lambda(1600)", 23122, 1, "Unknown", 100, 0, 1.6, 0.15, -100, 0, -100, -1, -1);
+
+   // Creating lambda(1890)
+   new Particle("lambda(1890)", 23124, 1, "Unknown", 100, 0, 1.89, 0.1, -100, 0, -100, -1, -1);
+
+   // Creating lambda(2110)
+   new Particle("lambda(2110)", 23126, 1, "Unknown", 100, 0, 2.11, 0.2, -100, 0, -100, -1, -1);
+
+   // Creating sigma(1750)0
+   new Particle("sigma(1750)0", 23212, 1, "Unknown", 100, 0, 1.75, 0.09, -100, 0, -100, -1, -1);
+
+   // Creating sigma(1940)0
+   new Particle("sigma(1940)0", 23214, 1, "Unknown", 100, 0, 1.94, 0.22, -100, 0, -100, -1, -1);
+
+   // Creating sigma(1750)+
+   new Particle("sigma(1750)+", 23222, 1, "Unknown", 100, 1, 1.75, 0.09, -100, 0, -100, -1, -1);
+
+   // Creating sigma(1940)+
+   new Particle("sigma(1940)+", 23224, 1, "Unknown", 100, 1, 1.94, 0.22, -100, 0, -100, -1, -1);
+
+   // Creating xi(1690)-
+   new Particle("xi(1690)-", 23314, 1, "Unknown", 100, -1, 1.69, 0.05, -100, 0, -100, -1, -1);
+
+   // Creating xi(1690)0
+   new Particle("xi(1690)0", 23324, 1, "Unknown", 100, 0, 1.69, 0.05, -100, 0, -100, -1, -1);
+
+   // Creating rho(1700)0
+   new Particle("rho(1700)0", 30113, 1, "Unknown", 100, 0, 1.72, 0.25, -100, 0, -100, -1, -1);
+
+   // Creating rho(1700)+
+   new Particle("rho(1700)+", 30213, 1, "Unknown", 100, 1, 1.72, 0.25, -100, 0, -100, -1, -1);
+
+   // Creating omega(1650)
+   new Particle("omega(1650)", 30223, 1, "Unknown", 100, 0, 1.67, 0.315, -100, 0, -100, -1, -1);
+
+   // Creating k_star(1680)0
+   new Particle("k_star(1680)0", 30313, 1, "Unknown", 100, 0, 1.717, 0.32, -100, 0, -100, -1, -1);
+
+   // Creating k_star(1680)+
+   new Particle("k_star(1680)+", 30323, 1, "Unknown", 100, 1, 1.717, 0.32, -100, 0, -100, -1, -1);
+
+   // Creating delta(1600)-
+   new Particle("delta(1600)-", 31114, 1, "Unknown", 100, -1, 1.6, 0.35, -100, 0, -100, -1, -1);
+
+   // Creating N(1720)0
+   new Particle("N(1720)0", 31214, 1, "Unknown", 100, 0, 1.72, 0.2, -100, 0, -100, -1, -1);
+
+   // Creating N(1650)0
+   new Particle("N(1650)0", 32112, 1, "Unknown", 100, 0, 1.655, 0.165, -100, 0, -100, -1, -1);
+
+   // Creating delta(1600)0
+   new Particle("delta(1600)0", 32114, 1, "Unknown", 100, 0, 1.6, 0.35, -100, 0, -100, -1, -1);
+
+   // Creating N(1720)+
+   new Particle("N(1720)+", 32124, 1, "Unknown", 100, 1, 1.72, 0.2, -100, 0, -100, -1, -1);
+
+   // Creating N(1650)+
+   new Particle("N(1650)+", 32212, 1, "Unknown", 100, 1, 1.655, 0.165, -100, 0, -100, -1, -1);
+
+   // Creating delta(1600)+
+   new Particle("delta(1600)+", 32214, 1, "Unknown", 100, 1, 1.6, 0.35, -100, 0, -100, -1, -1);
+
+   // Creating delta(1600)++
+   new Particle("delta(1600)++", 32224, 1, "Unknown", 100, 2, 1.6, 0.35, -100, 0, -100, -1, -1);
+
+   // Creating lambda(1670)
+   new Particle("lambda(1670)", 33122, 1, "Unknown", 100, 0, 1.67, 0.035, -100, 0, -100, -1, -1);
+
+   // Creating xi(1950)-
+   new Particle("xi(1950)-", 33314, 1, "Unknown", 100, -1, 1.95, 0.06, -100, 0, -100, -1, -1);
+
+   // Creating xi(1950)0
+   new Particle("xi(1950)0", 33324, 1, "Unknown", 100, 0, 1.95, 0.06, -100, 0, -100, -1, -1);
+
+   // Creating N(1900)0
+   new Particle("N(1900)0", 41214, 1, "Unknown", 100, 0, 1.9, 0.5, -100, 0, -100, -1, -1);
+
+   // Creating N(1710)0
+   new Particle("N(1710)0", 42112, 1, "Unknown", 100, 0, 1.71, 0.1, -100, 0, -100, -1, -1);
+
+   // Creating N(1900)+
+   new Particle("N(1900)+", 42124, 1, "Unknown", 100, 1, 1.9, 0.5, -100, 0, -100, -1, -1);
+
+   // Creating N(1710)+
+   new Particle("N(1710)+", 42212, 1, "Unknown", 100, 1, 1.71, 0.1, -100, 0, -100, -1, -1);
+
+   // Creating lambda(1800)
+   new Particle("lambda(1800)", 43122, 1, "Unknown", 100, 0, 1.8, 0.3, -100, 0, -100, -1, -1);
+
+   // Creating N(2090)0
+   new Particle("N(2090)0", 52114, 1, "Unknown", 100, 0, 2.08, 0.35, -100, 0, -100, -1, -1);
+
+   // Creating N(2090)+
+   new Particle("N(2090)+", 52214, 1, "Unknown", 100, 1, 2.08, 0.35, -100, 0, -100, -1, -1);
+
+   // Creating lambda(1810)
+   new Particle("lambda(1810)", 53122, 1, "Unknown", 100, 0, 1.81, 0.15, -100, 0, -100, -1, -1);
+
+   // Creating pi(1300)0
+   new Particle("pi(1300)0", 100111, 1, "Unknown", 100, 0, 1.3, 0.4, -100, 0, -100, -1, -1);
+
+   // Creating rho(1450)0
+   new Particle("rho(1450)0", 100113, 1, "Unknown", 100, 0, 1.465, 0.4, -100, 0, -100, -1, -1);
+
+   // Creating pi(1300)+
+   new Particle("pi(1300)+", 100211, 1, "Unknown", 100, 1, 1.3, 0.4, -100, 0, -100, -1, -1);
+
+   // Creating rho(1450)+
+   new Particle("rho(1450)+", 100213, 1, "Unknown", 100, 1, 1.465, 0.4, -100, 0, -100, -1, -1);
+
+   // Creating eta(1295)
+   new Particle("eta(1295)", 100221, 1, "Unknown", 100, 0, 1.294, 0.055, -100, 0, -100, -1, -1);
+
+   // Creating omega(1420)
+   new Particle("omega(1420)", 100223, 1, "Unknown", 100, 0, 1.425, 0.215, -100, 0, -100, -1, -1);
+
+   // Creating k(1460)0
+   new Particle("k(1460)0", 100311, 1, "Unknown", 100, 0, 1.46, 0.26, -100, 0, -100, -1, -1);
+
+   // Creating k_star(1410)0
+   new Particle("k_star(1410)0", 100313, 1, "Unknown", 100, 0, 1.414, 0.232, -100, 0, -100, -1, -1);
+
+   // Creating k2_star(1980)0
+   new Particle("k2_star(1980)0", 100315, 1, "Unknown", 100, 0, 1.973, 0.373, -100, 0, -100, -1, -1);
+
+   // Creating k(1460)+
+   new Particle("k(1460)+", 100321, 1, "Unknown", 100, 1, 1.46, 0.26, -100, 0, -100, -1, -1);
+
+   // Creating k_star(1410)+
+   new Particle("k_star(1410)+", 100323, 1, "Unknown", 100, 1, 1.414, 0.232, -100, 0, -100, -1, -1);
+
+   // Creating k2_star(1980)+
+   new Particle("k2_star(1980)+", 100325, 1, "Unknown", 100, 1, 1.973, 0.373, -100, 0, -100, -1, -1);
+
+   // Creating eta(1475)
+   new Particle("eta(1475)", 100331, 1, "Unknown", 100, 0, 1.476, 0.085, -100, 0, -100, -1, -1);
+
+   // Creating phi(1680)
+   new Particle("phi(1680)", 100333, 1, "Unknown", 100, 0, 1.68, 0.15, -100, 0, -100, -1, -1);
 
    // Creating psi'
    new Particle("psi'", 100443, 0, "Unknown", 100, 0, 3.68609, 0, -100, -1, -100, -1, -1);
@@ -6012,6 +6876,66 @@ void Particle::CreateParticles() {
    part = &fParticles.at(4000012);
       part->AddDecay(Decay(0, 0.610139,  vector<int>{24,11}));
       part->AddDecay(Decay(0, 0.389861,  vector<int>{23,12}));
+
+   // Creating a0(980)0
+   new Particle("a0(980)0", 9000111, 1, "Unknown", 100, 0, 0.98, 0.075, -100, 0, -100, -1, -1);
+
+   // Creating a0(980)+
+   new Particle("a0(980)+", 9000211, 1, "Unknown", 100, 1, 0.98, 0.06, -100, 0, -100, -1, -1);
+
+   // Creating f0(600)
+   new Particle("f0(600)", 9000221, 1, "Unknown", 100, 0, 0.8, 0.8, -100, 0, -100, -1, -1);
+
+   // Creating f0(980)
+   new Particle("f0(980)", 9010221, 1, "Unknown", 100, 0, 0.98, 0.07, -100, 0, -100, -1, -1);
+
+   // Creating eta(1405)
+   new Particle("eta(1405)", 9020221, 1, "Unknown", 100, 0, 1.4098, 0.0511, -100, 0, -100, -1, -1);
+
+   // Creating f0(1500)
+   new Particle("f0(1500)", 9030221, 1, "Unknown", 100, 0, 1.505, 0.109, -100, 0, -100, -1, -1);
+
+   // Creating f2(1810)
+   new Particle("f2(1810)", 9030225, 1, "Unknown", 100, 0, 1.815, 0.197, -100, 0, -100, -1, -1);
+
+   // Creating f2(2010)
+   new Particle("f2(2010)", 9060225, 1, "Unknown", 100, 0, 2.01, 0.2, -100, 0, -100, -1, -1);
+
+   // Creating Cherenkov
+   new Particle("Cherenkov", 50000050, 1, "Unknown", 100, 0, 0, 0, -100, 0, -100, -1, -1);
+
+   // Creating ChargedRootino
+   new Particle("ChargedRootino", 50000052, 1, "Unknown", 100, -0.333333, 0, 0, -100, 0, -100, -1, -1);
+
+   // Creating GenericIon
+   new Particle("GenericIon", 50000060, 1, "Unknown", 100, 0.333333, 0.938272, 0, -100, 0, -100, -1, -1);
+
+   // Creating N(2220)0
+   new Particle("N(2220)0", 100002110, 1, "Unknown", 100, 0, 2.25, 0.4, -100, 0, -100, -1, -1);
+
+   // Creating N(2220)+
+   new Particle("N(2220)+", 100002210, 1, "Unknown", 100, 1, 2.25, 0.4, -100, 0, -100, -1, -1);
+
+   // Creating N(2250)0
+   new Particle("N(2250)0", 100012110, 1, "Unknown", 100, 0, 2.275, 0.5, -100, 0, -100, -1, -1);
+
+   // Creating N(2250)+
+   new Particle("N(2250)+", 100012210, 1, "Unknown", 100, 1, 2.275, 0.5, -100, 0, -100, -1, -1);
+
+   // Creating Deuteron
+   new Particle("Deuteron", 1000010020, 1, "ion", 100, 1, 1.87106, 0, -100, 0, -100, -1, -1);
+
+   // Creating Triton
+   new Particle("Triton", 1000010030, 1, "ion", 100, 1, 2.80941, 1.6916e-33, -100, 0, -100, -1, -1);
+
+   // Creating HE3
+   new Particle("HE3", 1000020030, 1, "ion", 100, 2, 2.80941, 0, -100, 0, -100, -1, -1);
+
+   // Creating Alpha
+   new Particle("Alpha", 1000020040, 1, "ion", 100, 2, 3.7284, 1.6916e-33, -100, 0, -100, -1, -1);
 }
  } // End of inline namespace
  } // End of vecgeom namespace
+#ifdef __clang__
+#pragma clang optimize on
+#endif
