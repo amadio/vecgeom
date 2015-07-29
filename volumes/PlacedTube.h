@@ -58,23 +58,77 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Precision rmin() const { return GetUnplacedVolume()->rmin(); }
+  Precision GetRMin() const { return GetUnplacedVolume()->rmin(); }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Precision rmax() const { return GetUnplacedVolume()->rmax(); }
+  Precision GetInnerRadius() const { return GetUnplacedVolume()->rmin(); }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Precision z() const { return GetUnplacedVolume()->z(); }
+  void SetInnerRadius(double _rmin) { const_cast<UnplacedTube*>(GetUnplacedVolume())->SetRMin(_rmin); }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Precision sphi() const { return GetUnplacedVolume()->sphi(); }
+  Precision GetRMax() const { return GetUnplacedVolume()->rmax(); }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Precision dphi() const { return GetUnplacedVolume()->dphi(); }
+  Precision GetOuterRadius() const { return GetUnplacedVolume()->rmax(); }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  void SetOuterRadius(double _rmax) { const_cast<UnplacedTube*>(GetUnplacedVolume())->SetRMax(_rmax); }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision GetDz() const { return GetUnplacedVolume()->z(); }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision GetZHalfLength() const { return GetUnplacedVolume()->z(); }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  void SetZHalfLength(double _z) { const_cast<UnplacedTube*>(GetUnplacedVolume())->SetDz(_z); }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision GetSPhi() const { return GetUnplacedVolume()->sphi(); }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision GetStartPhiAngle() const { return GetUnplacedVolume()->sphi(); }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  void SetStartPhiAngle(double _sphi, bool /*compute=true*/) {
+    const_cast<UnplacedTube*>(GetUnplacedVolume())->SetSPhi(_sphi);
+  }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision GetDPhi() const { return GetUnplacedVolume()->dphi(); }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision GetDeltaPhiAngle() const { return GetUnplacedVolume()->dphi(); }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  void SetDeltaPhiAngle(double _dphi) { const_cast<UnplacedTube*>(GetUnplacedVolume())->SetDPhi(_dphi); }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  double SafetyFromInsideR(const Vector3D<Precision>& p, const double rho, bool precise = false) const {
+    return GetUnplacedVolume()->SafetyFromInsideR(p, rho, precise);
+  }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  double SafetyFromOutsideR(const Vector3D<Precision>& p, const double rho, bool precise = false) const {
+    return GetUnplacedVolume()->SafetyFromOutsideR(p, rho, precise);
+  }
 
 #ifndef VECGEOM_NVCC
 
@@ -111,18 +165,8 @@ public:
 #endif
 #endif // VECGEOM_NVCC
 
-}; 
+};
 
 } } // End global namespace
 
 #endif // VECGEOM_VOLUMES_PLACEDTUBE_H_
-
-
-
-
-
-
-
-
-
-

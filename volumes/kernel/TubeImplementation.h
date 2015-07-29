@@ -406,7 +406,7 @@ struct TubeImplementation {
         Transformation3D const &transformation,
         Vector3D<typename Backend::precision_v> const &point,
         Vector3D<typename Backend::precision_v> const &direction,
-        typename Backend::precision_v const &stepMax,
+        typename Backend::precision_v const &/*stepMax*/,
         typename Backend::precision_v &distance) {
       
     using namespace TubeUtilities;
