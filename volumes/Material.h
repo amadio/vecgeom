@@ -59,6 +59,7 @@ public:
    double GetDensity() const {return fDensity;}
    void Dump() const {cout << "To be implemented" << endl;}
    int GetIndex() const {return fIndex;}
+   template <typename T> int GetRatioBW(vector<T> &rbw) const;
    static vector<Material*>& GetMaterials() {return fMatDB;}
 
    // remove 
@@ -127,9 +128,12 @@ Material::Material(const char *name, const T a[], const U z[], const V w[],
       elem.fW = w[iel];
       elem.fA = a[iel];
       elem.fZ = z[iel];
-      if(nelements<0) elem.fW/=elem.fA;
+      if(nelements<0) {
+	 fA += elem.fW;
+	 elem.fW/=elem.fA;
+      } else
+	 fA += elem.fA*elem.fW;
       totw += elem.fW;
-      fA += elem.fA*elem.fW;
       fZ += elem.fZ*elem.fW;
       fElements.push_back(elem);
    }
@@ -140,6 +144,14 @@ Material::Material(const char *name, const T a[], const U z[], const V w[],
    fIndex = fMatDB.size();
    fMatDB.push_back(this);
 }
+
+template <typename T> int Material::GetRatioBW(vector<T> &rbw) const {
+   rbw.clear();
+   for(vector<Element>::const_iterator el = fElements.begin(); el!=fElements.end(); ++el) 
+      rbw.push_back(el->fW*el->fA/fA);
+   return fNelem;
+ }
+
 
 }
 } // End global namespace
