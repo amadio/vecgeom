@@ -39,11 +39,30 @@
 //
 // 19.10.12 Marek Gayer
 //          Created from original implementation in Geant4
+// 29.07.15 Guilherme Lima - Add VecGeom implementation as option for underlying implementation
+//
 // --------------------------------------------------------------------
 
 #ifndef UCons_HH
 #define UCons_HH
 
+#ifdef VECGEOM_REPLACE_USOLIDS
+
+//============== here for VecGeom-based implementation
+#include "base/Transformation3D.h"
+#include "volumes/LogicalVolume.h"
+#include "volumes/SpecializedCone.h"
+#include "volumes/UnplacedCone.h"
+
+class UCons: public vecgeom::SimpleCone {
+    // just forwards UCons to vecgeom::SimpleCone
+    using vecgeom::SimpleCone::SimpleCone;
+};
+//============== end of VecGeom-based implementation
+
+#else
+
+//============== here for USolids-based implementation
 #include "VUSolid.hh"
 
 #include <iostream>
@@ -209,5 +228,7 @@ class UCons : public VUSolid
 };
 
 #include "UCons.icc"
+//============== end of USolids-based implementation
 
-#endif
+#endif  // VECGEOM_REPLACE_USOLIDS
+#endif  // UCons_HH

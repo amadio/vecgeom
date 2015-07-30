@@ -82,6 +82,34 @@ public:
   Precision GetInnerOffset() const {return GetUnplacedVolume()->GetInnerOffset();}
   Precision GetOuterOffset() const {return GetUnplacedVolume()->GetOuterOffset();}
 
+  // interface required by Geant4
+  Precision GetInnerRadiusMinusZ() const {return GetUnplacedVolume()->GetRmin1();}
+  Precision GetOuterRadiusMinusZ() const {return GetUnplacedVolume()->GetRmax1();}
+  Precision GetInnerRadiusPlusZ()  const {return GetUnplacedVolume()->GetRmin2();}
+  Precision GetOuterRadiusPlusZ()  const {return GetUnplacedVolume()->GetRmax2();}
+  Precision GetZHalfLength()       const {return GetUnplacedVolume()->GetDz();}
+  Precision GetStartPhiAngle()     const {return GetUnplacedVolume()->GetSPhi();}
+  Precision GetDeltaPhiAngle()     const {return GetUnplacedVolume()->GetDPhi();}
+  void SetInnerRadiusMinusZ(Precision xin) { const_cast<UnplacedCone*>(GetUnplacedVolume())->SetRmin1(xin);}
+  void SetOuterRadiusMinusZ(Precision xin) { const_cast<UnplacedCone*>(GetUnplacedVolume())->SetRmax1(xin);}
+  void SetInnerRadiusPlusZ(Precision xin)  { const_cast<UnplacedCone*>(GetUnplacedVolume())->SetRmin2(xin);}
+  void SetOuterRadiusPlusZ(Precision xin)  { const_cast<UnplacedCone*>(GetUnplacedVolume())->SetRmax2(xin);}
+  void SetZHalfLength(Precision xin)       { const_cast<UnplacedCone*>(GetUnplacedVolume())->SetDz(xin);}
+  void SetStartPhiAngle(Precision xin, bool) { const_cast<UnplacedCone*>(GetUnplacedVolume())->SetSPhi(xin);}
+  void SetDeltaPhiAngle(Precision xin)     { const_cast<UnplacedCone*>(GetUnplacedVolume())->SetDPhi(xin);}
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  double SafetyFromInsideR(const Vector3D<Precision>& p, const double rho, bool precise = false) const {
+    return GetUnplacedVolume()->SafetyFromInsideR(p, rho, precise);
+  }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  double SafetyFromOutsideR(const Vector3D<Precision>& p, const double rho, bool precise = false) const {
+    return GetUnplacedVolume()->SafetyFromOutsideR(p, rho, precise);
+  }
+
 #if !defined(VECGEOM_NVCC)
   virtual Precision Capacity() override {
       return GetUnplacedVolume()->Capacity();
