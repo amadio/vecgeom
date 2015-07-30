@@ -48,8 +48,6 @@ bool TestBox() {
                            24.707000000000001,  
 	                   22.699999999999999) ;
 
-// Check name
-    assert(b1.GetName()=="Test Box #1");
     // Check cubic volume
 
     assert(b2.Capacity() == 8000);    

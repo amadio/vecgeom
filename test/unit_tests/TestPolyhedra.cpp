@@ -147,8 +147,6 @@ bool TestPolyhedra()
 
 
 
-// Check name
-    assert(MyPGon->GetName()=="MyPGon");
     
 // Check Cubic volume
     //double vol;

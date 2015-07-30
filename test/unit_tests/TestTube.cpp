@@ -74,8 +74,6 @@ bool TestTubs()
 
 
     std::cout.precision(20);
-// Check name
-   //assert(t1.GetName()=="Solid Tube #1");
 
   // Check cubic volume
   vol = t1.Capacity();
