@@ -66,7 +66,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void SetInnerRadius(double _rmin) { const_cast<UnplacedTube*>(GetUnplacedVolume())->SetRMin(_rmin); }
+  void SetInnerRadius(Precision _rmin) { const_cast<UnplacedTube*>(GetUnplacedVolume())->SetRMin(_rmin); }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -78,7 +78,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void SetOuterRadius(double _rmax) { const_cast<UnplacedTube*>(GetUnplacedVolume())->SetRMax(_rmax); }
+  void SetOuterRadius(Precision _rmax) { const_cast<UnplacedTube*>(GetUnplacedVolume())->SetRMax(_rmax); }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -90,7 +90,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void SetZHalfLength(double _z) { const_cast<UnplacedTube*>(GetUnplacedVolume())->SetDz(_z); }
+  void SetZHalfLength(Precision _z) { const_cast<UnplacedTube*>(GetUnplacedVolume())->SetDz(_z); }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -102,7 +102,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void SetStartPhiAngle(double _sphi, bool /*compute=true*/) {
+  void SetStartPhiAngle(Precision _sphi, bool /*compute=true*/) {
     const_cast<UnplacedTube*>(GetUnplacedVolume())->SetSPhi(_sphi);
   }
 
@@ -116,17 +116,17 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void SetDeltaPhiAngle(double _dphi) { const_cast<UnplacedTube*>(GetUnplacedVolume())->SetDPhi(_dphi); }
+  void SetDeltaPhiAngle(Precision _dphi) { const_cast<UnplacedTube*>(GetUnplacedVolume())->SetDPhi(_dphi); }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  double SafetyFromInsideR(const Vector3D<Precision>& p, const double rho, bool precise = false) const {
+  Precision SafetyFromInsideR(const Vector3D<Precision>& p, const Precision rho, bool precise = false) const {
     return GetUnplacedVolume()->SafetyFromInsideR(p, rho, precise);
   }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  double SafetyFromOutsideR(const Vector3D<Precision>& p, const double rho, bool precise = false) const {
+  Precision SafetyFromOutsideR(const Vector3D<Precision>& p, const Precision rho, bool precise = false) const {
     return GetUnplacedVolume()->SafetyFromOutsideR(p, rho, precise);
   }
 
