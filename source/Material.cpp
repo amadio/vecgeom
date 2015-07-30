@@ -44,7 +44,11 @@ void Material::GetElementProp(double &ad, double &zd, double &wd, int iel) const
 
 ostream& operator<<(ostream& os, const Material &mat)
 {
-    os << mat.fName << " Z: " << mat.fZ << " A: " << mat.fA ;
+    os << "Material:" << mat.fName << " Z:" << mat.fZ << " A:" << mat.fA ;
+    if(mat.fNelem>1) 
+       for(int iel=0; iel<mat.fNelem; ++iel)
+	  os << "    Element Z:" << mat.fElements[iel].fZ << " A:"
+	     << mat.fElements[iel].fA << " W:" << mat.fElements[iel].fW;
     return os;
 }
 
