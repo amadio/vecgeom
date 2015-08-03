@@ -17,6 +17,8 @@
 
 #include "volumes/UnplacedPolycone.h"
 
+class UPolyconeHistorical;
+
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedPolycone; )
@@ -56,6 +58,19 @@ public:
   UnplacedPolycone const* GetUnplacedVolume() const {
     return static_cast<UnplacedPolycone const *>(
         GetLogicalVolume()->unplaced_volume());
+  }
+
+  bool IsOpen() const { return (GetUnplacedVolume()->GetDeltaPhi()<kTwoPi); }
+  Precision GetStartPhi() const { return GetUnplacedVolume()->GetStartPhi(); }
+  Precision GetEndPhi() const   { return GetUnplacedVolume()->GetEndPhi(); }
+  Precision GetNumRZCorner() const { return 2*GetUnplacedVolume()->GetNz(); }  // in USolids nCorners = 2*nPlanes
+
+  UPolyconeHistorical* GetOriginalParameters() const {
+    assert(false && "*** Method PlacedPolycone::GetOriginalParameters() has been deprecated.\n");
+    return NULL;
+  }
+  void Reset() {
+    assert(false && "*** Method PlacedPolycone::Reset() has been deprecated, no 'originalParameters' to be used for reInit().\n");
   }
 
 

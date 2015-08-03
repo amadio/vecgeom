@@ -33,7 +33,8 @@ void UnplacedPolycone::Init(double phiStart,
   if (phiTotal <= 0. || phiTotal > kTwoPi-kTolerance) {
      // phiIsOpen=false;
      fStartPhi = 0;
-     fEndPhi = kTwoPi;
+     fDeltaPhi = kTwoPi;
+     //fEndPhi = kTwoPi;
   } else {
      //
      // Convert phi into our convention
@@ -41,8 +42,9 @@ void UnplacedPolycone::Init(double phiStart,
      fStartPhi = phiStart;
      while( fStartPhi < 0 ) fStartPhi += kTwoPi;
 
-     fEndPhi = fStartPhi+fDeltaPhi;
-     while( fEndPhi < fStartPhi ) fEndPhi += kTwoPi;
+     // removing redundant variable fEndPhi, not much used.  fDeltaPhi should be sufficient
+     //fEndPhi = fStartPhi+fDeltaPhi;
+     //while( fEndPhi < fStartPhi ) fEndPhi += kTwoPi;
   }
 
   // Calculate RMax of Polycone in order to determine convexity of sections
@@ -129,6 +131,59 @@ void UnplacedPolycone::Init(double phiStart,
     prevRmax = rMax;
   }
 }
+
+    // Alternative constructor, required for integration with Geant4.
+    // Input must be such that r[i],z[i] describe the outer,inner or inner,outer envelope of the polycone, after
+    // connecting all adjacent points, and closing the polygon by connecting last -> first point.
+    // Hence z[] array must be symmetrical: z[0..Nz] = z[2Nz, 2Nz-1, ..., Nz+1], where 2*Nz = numRz.
+    VECGEOM_CUDA_HEADER_BOTH
+    UnplacedPolycone::UnplacedPolycone(Precision phiStart,   // initial phi starting angle
+                                       Precision phiTotal,   // total phi angle
+                                       int     numRZ,        // number corners in r,z space (must be an even number)
+                                       Precision const* r,   // r coordinate of these corners
+                                       Precision const* z)   // z coordinate of these corners
+      : fStartPhi(phiStart)
+      , fDeltaPhi(phiStart + phiTotal)
+      , fNz(numRZ/2)
+      , fSections()
+      , fZs(numRZ/2)
+    {
+      // data integrity checks
+      int Nz = numRZ/2;
+      assert(numRZ%2==0 && "UnplPolycone ERROR: r[],z[] arrays provided contain odd number of points, please fix.\n");
+      for(int i=0; i<numRZ/2; ++i) {
+        assert( z[i]==z[numRZ-1-i] && "UnplPolycone ERROR: z[] array is not symmetrical, please fix.\n" );
+      }
+
+      // reuse input array as argument, in ascending order
+      bool ascendingZ = true;
+      const Precision* zarg = z;
+      const Precision* r1arg = r;
+      if(z[0] > z[1]) {
+        ascendingZ = false;
+        zarg = z+Nz;  // second half of input z[] is ascending due to symmetry already verified
+        r1arg = r+Nz;
+      }
+
+      // reorganize remainder of r[] data in ascending-z order
+      Precision r2arg[Nz];
+      for(int i=0; i<Nz; ++i) r2arg[i] = ( ascendingZ ? r[2*Nz-1-i] : r[Nz-1-i] );
+
+      // identify which rXarg is rmax and rmin and ensure that Rmax > Rmin for all points provided
+      const Precision *rmin = r1arg, *rmax=r2arg;
+      if(r1arg[0] > r2arg[0]) {
+        rmax = r1arg;
+        rmin = r2arg;
+      }
+
+      // final data integrity cross-check
+      for(int i=0; i<Nz; ++i) {
+          assert(rmax[i]>rmin[i] && "UnplPolycone ERROR: r[] provided has problems of the Rmax < Rmin type, please check!\n");
+      }
+
+      // init internal members
+      Init(phiStart, phiTotal, Nz, zarg, rmin, rmax);
+    }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECGEOM_CUDA_HEADER_DEVICE

@@ -14,7 +14,7 @@
 //
 //   Class implementing a CSG-like type "PCON".
 //
-//   UPolycone( const std::string& name, 
+//   UPolycone( const std::string& name,
 //              double phiStart,     // initial phi starting angle
 //              double phiTotal,     // total phi angle
 //              int numZPlanes,      // number of z planes
@@ -24,7 +24,7 @@
 //
 //   Alternative constructor, but limited to increasing-only Z sections:
 //
-//   UPolycone( const std::string& name, 
+//   UPolycone( const std::string& name,
 //              double phiStart,   // initial phi starting angle
 //              double phiTotal,   // total phi angle
 //              int    numRZ,      // number corners in r,z space
@@ -33,23 +33,16 @@
 //
 // 19.04.13 Marek Gayer
 //          Created from original implementation in Geant4
+// 29.07.15 Guilherme Lima - Add VecGeom implementation as option for underlying implementation
+//
 // --------------------------------------------------------------------
 
 #ifndef UPolycone_hh
 #define UPolycone_hh
 
-#include "VUSolid.hh"
+#ifdef VECGEOM_REPLACE_USOLIDS
 
 #include "UPolyconeSide.hh"
-#include "UVCSGfaceted.hh"
-#include "UVoxelizer.hh"
-
-#include "UCons.hh"
-#include "UTubs.hh"
-#include "UBox.hh"
-
-class UEnclosingCylinder;
-class UReduciblePolygon;
 class UPolyconeHistorical
 {
   public:
@@ -65,6 +58,43 @@ class UPolyconeHistorical
     std::vector<double> Rmin;
     std::vector<double> Rmax;
 };
+
+
+//============== here for VecGeom-based implementation
+#include "base/Transformation3D.h"
+#include "volumes/LogicalVolume.h"
+#include "volumes/SpecializedPolycone.h"
+#include "volumes/UnplacedPolycone.h"
+
+using Precision = vecgeom::Precision;
+
+class UPolycone: public vecgeom::SimplePolycone {
+    // just forwards UPolycone to vecgeom::SimplePolycone
+    using vecgeom::SimplePolycone::SimplePolycone;
+
+public:
+  UPolyconeSideRZ GetCorner(int index) const {
+    Precision r = GetUnplacedVolume()->GetRmaxAtPlane(index);
+    Precision z = GetUnplacedVolume()->GetZAtPlane(index);
+    return UPolyconeSideRZ{r,z};
+  }
+};
+//============== end of VecGeom-based implementation
+
+#else
+
+//============== here for USolids-based implementation
+#include "VUSolid.hh"
+
+#include "UVCSGfaceted.hh"
+#include "UVoxelizer.hh"
+
+#include "UCons.hh"
+#include "UTubs.hh"
+#include "UBox.hh"
+
+class UEnclosingCylinder;
+class UReduciblePolygon;
 
 class UPolycone : public VUSolid
 {
@@ -332,5 +362,7 @@ class UPolycone : public VUSolid
       return section;
     }
 };
+//============== end of USolids-based implementation
 
-#endif
+#endif  // VECGEOM_REPLACE_USOLIDS
+#endif  // UPolycone_hh
