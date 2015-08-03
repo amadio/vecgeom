@@ -1,3 +1,6 @@
+#ifdef __clang__
+#pragma clang optimize off
+#endif
 #include "volumes/Nucleus.h"
 namespace vecgeom {
    inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -13450,3 +13453,6 @@ void Nucleus::CreateNuclei() {
 }
  } // End of inline namespace
  } // End of vecgeom namespace
+#ifdef __clang__
+#pragma clang optimize on
+#endif
