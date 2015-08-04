@@ -298,21 +298,21 @@ bool TreatInner(bool hasInnerRadius) {
 template <>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-bool TreatInner<Polyhedron::EInnerRadii::kFalse>(bool hasInnerRadius) {
+bool TreatInner<Polyhedron::EInnerRadii::kFalse>(bool /*hasInnerRadius*/) {
   return false;
 }
 
 template <Polyhedron::EPhiCutout phiCutoutT>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-bool TreatPhi(bool hasPhiCutout) {
+bool TreatPhi(bool /*hasPhiCutout*/) {
   return true;
 }
 
 template <>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-bool TreatPhi<Polyhedron::EPhiCutout::kFalse>(bool hasPhiCutout) {
+bool TreatPhi<Polyhedron::EPhiCutout::kFalse>(bool /*hasPhiCutout*/) {
   return false;
 }
 
@@ -333,14 +333,14 @@ bool LargePhiCutout(bool largePhiCutout) {
 template <>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-bool LargePhiCutout<Polyhedron::EPhiCutout::kTrue>(bool largePhiCutout) {
+bool LargePhiCutout<Polyhedron::EPhiCutout::kTrue>(bool /*largePhiCutout*/) {
   return false;
 }
 
 template <>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-bool LargePhiCutout<Polyhedron::EPhiCutout::kLarge>(bool largePhiCutout) {
+bool LargePhiCutout<Polyhedron::EPhiCutout::kLarge>(bool /*largePhiCutout*/) {
   return true;
 }
 
@@ -578,7 +578,7 @@ VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
 void PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarDistanceToEndcaps(
     UnplacedPolyhedron const &polyhedron,
-    bool goingRight,
+    bool /*goingRight*/,
     Vector3D<Precision> const &point,
     Vector3D<Precision> const &direction,
     Precision &distance) {
@@ -906,7 +906,7 @@ PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarDistanceToInKernel(
 
   Precision distance = kInfinity;
   if (goingRight) {
-    for (int zMax = unplaced.GetZSegmentCount(); zIndex < zMax; ++zIndex) {
+    for (int zSegCount = unplaced.GetZSegmentCount(); zIndex < zSegCount; ++zIndex) {
       distance = DistanceToInZSegment<kScalar>(
           unplaced, zIndex, localPoint, localDirection);
       // No segment further away can be at a shorter distance to the point, so
@@ -974,7 +974,7 @@ PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarDistanceToOutKernel(
     UnplacedPolyhedron const &unplaced,
     Vector3D<Precision> const &point,
     Vector3D<Precision> const &direction,
-    const Precision stepMax) {
+    const Precision /*stepMax*/) {
 
   int zIndex = FindZSegment<kScalar>(unplaced, point[2]);
   // Don't go out of bounds

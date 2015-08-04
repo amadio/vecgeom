@@ -38,11 +38,7 @@
 #ifndef UPolyhedra_hh
 #define UPolyhedra_hh
 
-#include "UVCSGfaceted.hh"
 #include "UPolyhedraSide.hh"
-
-class UEnclosingCylinder;
-class UReduciblePolygon;
 class UPolyhedraHistorical
 {
   public:
@@ -60,6 +56,35 @@ class UPolyhedraHistorical
     std::vector<double> Rmin;
     std::vector<double> Rmax;
 };
+
+#ifdef VECGEOM_REPLACE_USOLIDS
+
+//============== here for VecGeom-based implementation
+#include "base/Transformation3D.h"
+#include "volumes/LogicalVolume.h"
+#include "volumes/SpecializedPolyhedron.h"
+#include "volumes/UnplacedPolyhedron.h"
+
+class UPolyhedra: public vecgeom::SimplePolyhedron {
+    // just forwards UPolyhedra to vecgeom::SimplePolyhedron
+    using vecgeom::SimplePolyhedron::SimplePolyhedron;
+
+public:
+  UPolyhedraSideRZ GetCorner(int index) const {
+      vecgeom::Precision z = GetUnplacedVolume()->GetZPlane(index);
+      vecgeom::Precision r = GetUnplacedVolume()->GetRMax()[index];
+      return UPolyhedraSideRZ{r,z};
+  }
+};
+//============== end of VecGeom-based implementation
+
+#else
+
+//============== here for USolids-based implementation
+#include "UVCSGfaceted.hh"
+
+class UEnclosingCylinder;
+class UReduciblePolygon;
 
 class UPolyhedra : public UVCSGfaceted
 {
@@ -191,5 +216,7 @@ class UPolyhedra : public UVCSGfaceted
 };
 
 #include "UPolyhedra.icc"
+//============== end of USolids-based implementation
 
-#endif
+#endif  // VECGEOM_REPLACE_USOLIDS
+#endif  // UPolyhedra_hh

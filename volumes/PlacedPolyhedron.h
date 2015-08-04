@@ -10,6 +10,11 @@
 #include "volumes/PlacedVolume.h"
 #include "volumes/UnplacedPolyhedron.h"
 
+class UPolyhedraHistorical;
+struct PolyhedraSideRZ { // Avoid clash in class name UPolyhedraSideRZ
+   vecgeom::Precision r, z;  // start of vector
+};
+
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedPolyhedron; )
@@ -160,6 +165,22 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   int PhiSegmentIndex(Vector3D<Precision> const &point) const;
+
+  bool IsOpen() const { return (GetUnplacedVolume()->GetPhiDelta()<kTwoPi); }
+  bool IsGeneric() const { return false; }
+  Precision GetStartPhi() const { return GetUnplacedVolume()->GetPhiStart(); }
+  Precision GetEndPhi() const   { return GetUnplacedVolume()->GetPhiEnd(); }
+  int GetNumSide() const { return 2*GetUnplacedVolume()->GetSideCount(); }
+  int GetNumRZCorner() const { return 2*GetZPlanes().size(); }  // nCorners = 2*nPlanes
+
+  UPolyhedraHistorical* GetOriginalParameters() const {
+    assert(false && "*** Can method PlacedPolycone::GetOriginalParameters() be deprecated?\n");
+    return NULL;
+  }
+  bool Reset() {
+    assert(false && "*** Method PlacedPolycone::Reset() has been deprecated, no 'originalParameters' to be used for reInit().\n");
+    return false;
+  }
 
   // CUDA specific
 

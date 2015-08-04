@@ -1,8 +1,8 @@
 /// \file UnplacedPolyhedron.cpp
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
 
+#include "base/Global.h"
 #include "volumes/UnplacedPolyhedron.h"
-
 #include "volumes/PlacedPolyhedron.h"
 #include "volumes/SpecializedPolyhedron.h"
 
@@ -18,10 +18,11 @@ using namespace vecgeom::Polyhedron;
 UnplacedPolyhedron::UnplacedPolyhedron(
     const int sideCount,
     const int zPlaneCount,
-    Precision zPlanes[],
+    Precision const zPlanes[],
     Precision const rMin[],
     Precision const rMax[])
     : UnplacedPolyhedron(0, 360, sideCount, zPlaneCount, zPlanes, rMin, rMax) {}
+
 
 VECGEOM_CUDA_HEADER_BOTH
 UnplacedPolyhedron::UnplacedPolyhedron(
@@ -29,7 +30,7 @@ UnplacedPolyhedron::UnplacedPolyhedron(
     Precision phiDelta,
     const int sideCount,
     const int zPlaneCount,
-    Precision zPlanes[],
+    Precision const zPlanes[],
     Precision const rMin[],
     Precision const rMax[])
     : fSideCount(sideCount), fHasInnerRadii(false),
@@ -38,9 +39,20 @@ UnplacedPolyhedron::UnplacedPolyhedron(
       fZSegments(zPlaneCount-1), fZPlanes(zPlaneCount), fRMin(zPlaneCount),
       fRMax(zPlaneCount), fPhiSections(sideCount+1),
       fBoundingTube(0, 1, 1, 0, kTwoPi),fSurfaceArea(0.),fCapacity(0.) {
+  // initialize polyhedron internals
+  Initialize(phiStart, phiDelta, sideCount, zPlaneCount, zPlanes, rMin, rMax);
+}
 
-  (void) fPhiStart; // avoid unused variable compiler warning
-
+VECGEOM_CUDA_HEADER_BOTH
+void UnplacedPolyhedron::Initialize(
+    Precision phiStart,
+    Precision phiDelta,
+    const int sideCount,
+    const int zPlaneCount,
+    Precision const zPlanes[],
+    Precision const rMin[],
+    Precision const rMax[])
+{
   typedef Vector3D<Precision> Vec_t;
 
   // Sanity check of input parameters
@@ -225,6 +237,65 @@ UnplacedPolyhedron::UnplacedPolyhedron(
 
   } // End loop over segments
 } // end constructor
+
+UnplacedPolyhedron::UnplacedPolyhedron(
+  Precision phiStart,
+  Precision phiDelta,
+  const int sideCount,
+  const int zPlaneCount,
+  Precision const r[],  // 2*zPlaneCount elements
+  Precision const z[]   // ditto
+)
+  : fSideCount(sideCount)
+  , fHasInnerRadii(false)
+  , fHasPhiCutout(phiDelta < 360)
+  , fHasLargePhiCutout(phiDelta < 180)
+  , fPhiStart(phiStart)
+  , fPhiDelta(phiDelta)
+  , fZSegments(zPlaneCount-1)
+  , fZPlanes(zPlaneCount)
+  , fRMin(zPlaneCount)
+  , fRMax(zPlaneCount)
+  , fPhiSections(sideCount+1)
+  , fBoundingTube(0, 1, 1, 0, kTwoPi)
+  , fSurfaceArea(0.)
+  , fCapacity(0.)
+{
+  // data integrity checks
+  for(int i=0; i<=zPlaneCount; ++i) {
+    assert( z[i]==z[2*zPlaneCount-1-i] && "UnplPolyhedron ERROR: z[] array is not symmetrical, please fix.\n" );
+  }
+
+  // reuse input array as argument, in ascending order
+  int Nz = zPlaneCount;
+  bool ascendingZ = true;
+  const Precision* zarg = &z[0];
+  const Precision* r1arg = r;
+  if(z[0] > z[1]) {
+    ascendingZ = false;
+    zarg = z+Nz;  // second half of input z[] is ascending due to symmetry already verified
+    r1arg = r+Nz;
+  }
+
+  // reorganize remainder of r[] data in ascending-z order
+  Precision r2arg[Nz];
+  for(int i=0; i<Nz; ++i) r2arg[i] = ( ascendingZ ? r[2*Nz-1-i] : r[Nz-1-i] );
+
+  // identify which rXarg is rmax and rmin and ensure that Rmax > Rmin for all points provided
+  const Precision *rmin = r1arg, *rmax=r2arg;
+  if(r1arg[0] > r2arg[0]) {
+    rmax = r1arg;
+    rmin = r2arg;
+  }
+
+  // final data integrity cross-check
+  for(int i=0; i<Nz; ++i) {
+    assert(rmax[i]>rmin[i] && "UnplPolycone ERROR: r[] provided has problems of the Rmax < Rmin type, please check!\n");
+  }
+
+  // Delegate to full constructor
+  Initialize(phiStart, phiDelta, sideCount, zPlaneCount, zarg, rmin, rmax);
+}
 
 // TODO: move this to HEADER; this is now stored as a member
 VECGEOM_CUDA_HEADER_BOTH
@@ -637,7 +708,7 @@ Vector3D<Precision> UnplacedPolyhedron::GetPointOnSurface() const{
     {
       
       for (j = 0; j < numPlanes - 1; j++)
-	{ 
+    {
         if (((chose >= Achose1) && (chose < Achose2)) || (j == numPlanes - 1))
         {
           Flag = j;
@@ -727,11 +798,11 @@ Vector3D<Precision> UnplacedPolyhedron::GetPointOnSurface() const{
        }
        else
        {
-	
+
         volume = dz*(aTop+aBottom+ std::sqrt(aTop*aBottom));
           
        }
-	            
+
        totVolume+=volume;     
 
      }
@@ -791,7 +862,7 @@ bool UnplacedPolyhedron::Normal(Vector3D<Precision>const& point, Vector3D<Precis
  
   return valid;   
 
-}	 
+}
 
 
 #endif // !VECGEOM_NVCC
