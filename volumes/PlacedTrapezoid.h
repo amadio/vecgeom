@@ -144,8 +144,8 @@ public:
     TrapSidePlane sidePlane;
 
 #ifndef VECGEOM_PLANESHELL_DISABLE
-      using Planes = vecgeom::UnplacedTrapezoid::Planes;
-      Planes const* planes = ((vecgeom::UnplacedTrapezoid*)unplaced_volume())->GetPlanes();
+      using TrapPlanes = vecgeom::UnplacedTrapezoid::Planes;
+      TrapPlanes const* planes = ((vecgeom::UnplacedTrapezoid*)unplaced_volume())->GetPlanes();
       sidePlane.fA = (double)planes->fA[n];
       sidePlane.fB = (double)planes->fA[n];
       sidePlane.fC = (double)planes->fC[n];

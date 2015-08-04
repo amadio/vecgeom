@@ -64,7 +64,7 @@ void VolumePointers::ConvertVolume() {
 #ifdef VECGEOM_ROOT
   if (!fRoot)          fRoot          = fSpecialized->ConvertToRoot();
 #endif
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
   if (!fUSolids)       fUSolids       = fSpecialized->ConvertToUSolids();
 #endif
 #ifdef VECGEOM_GEANT4

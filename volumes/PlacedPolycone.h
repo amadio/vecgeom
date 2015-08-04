@@ -63,7 +63,7 @@ public:
   bool IsOpen() const { return (GetUnplacedVolume()->GetDeltaPhi()<kTwoPi); }
   Precision GetStartPhi() const { return GetUnplacedVolume()->GetStartPhi(); }
   Precision GetEndPhi() const   { return GetUnplacedVolume()->GetEndPhi(); }
-  Precision GetNumRZCorner() const { return 2*GetUnplacedVolume()->GetNz(); }  // in USolids nCorners = 2*nPlanes
+  int GetNumRZCorner() const { return 2*(int)(GetUnplacedVolume()->GetNz()); }  // in USolids nCorners = 2*nPlanes
 
   UPolyconeHistorical* GetOriginalParameters() const {
     assert(false && "*** Method PlacedPolycone::GetOriginalParameters() has been deprecated.\n");
