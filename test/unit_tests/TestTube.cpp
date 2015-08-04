@@ -30,7 +30,7 @@ bool TestTubs()
     std::cout.precision(16) ;
     VUSolid::EnumInside side;
     Vec_t pzero(0,0,0);
-	Vec_t ptS(0,0,0);
+    Vec_t ptS(0,0,0);
 
     double kCarTolerance = VUSolid::Tolerance();
     Vec_t pbigx(100,0,0),pbigy(0,100,0),pbigz(0,0,100);
@@ -46,7 +46,6 @@ bool TestTubs()
     Vec_t vmxy(-1/std::sqrt(2.0),1/std::sqrt(2.0),0);
     Vec_t vmxmy(-1/std::sqrt(2.0),-1/std::sqrt(2.0),0);
     Vec_t vxmy(1/std::sqrt(2.0),-1/std::sqrt(2.0),0);
-
 
 
     double Dist, vol,volCheck;
@@ -70,7 +69,6 @@ bool TestTubs()
       new Tube_t("clad",90.,110.,105,0.,UUtils::kPi);    // external
     Tube_t* core =
       new Tube_t("core",95.,105.,100,0.,UUtils::kPi); // internal
-  
 
 
     std::cout.precision(20);
