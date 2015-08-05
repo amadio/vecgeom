@@ -76,10 +76,10 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 }
 }
 
-#define log_information(os,...) vecgeom::messagelogger::I()->message(os,ClassName(),__func__,messagelogger::kInfo,__VA_ARGS__)
-#define log_warning(os,...) vecgeom::messagelogger::I()->message(os,ClassName(),__func__,messagelogger::kWarning,__VA_ARGS__)
-#define log_error(os,...) vecgeom::messagelogger::I()->message(os,ClassName(),__func__,messagelogger::kError,__VA_ARGS__)
-#define log_fatal(os,...) vecgeom::messagelogger::I()->message(os,ClassName(),__func__,messagelogger::kFatal,__VA_ARGS__)
-#define log_debug(os,...) vecgeom::messagelogger::I()->message(os,ClassName(),__func__,messagelogger::kDebug,__VA_ARGS__)
+#define log_information(os,...) vecgeom::messagelogger::I()->message(os,ClassName(),__func__,vecgeom::messagelogger::kInfo,__VA_ARGS__)
+#define log_warning(os,...) vecgeom::messagelogger::I()->message(os,ClassName(),__func__,vecgeom::messagelogger::kWarning,__VA_ARGS__)
+#define log_error(os,...) vecgeom::messagelogger::I()->message(os,ClassName(),__func__,vecgeom::messagelogger::kError,__VA_ARGS__)
+#define log_fatal(os,...) vecgeom::messagelogger::I()->message(os,ClassName(),__func__,vecgeom::messagelogger::kFatal,__VA_ARGS__)
+#define log_debug(os,...) vecgeom::messagelogger::I()->message(os,ClassName(),__func__,vecgeom::messagelogger::kDebug,__VA_ARGS__)
 
 #endif
