@@ -130,6 +130,7 @@ void testVectorNavigator( VPlacedVolume* world ){
 
        vecgeom::Assert( safeties[i] == nav.GetSafety( points[i], *states[i] ),
                " Problem with safety " );
+       delete cmp;
    }
 
     std::cout << "Navigation test passed\n";
