@@ -77,6 +77,7 @@ void testVectorSafety( VPlacedVolume* world ){
     for (int i=0;i<np;++i){
        NavigationState::ReleaseInstance( states[i] );
     }
+    delete [] states;
 }
 
 // function to test vector navigator
