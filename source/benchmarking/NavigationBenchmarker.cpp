@@ -598,6 +598,8 @@ bool validateVecGeomNavigation( int np, SOA3D<Precision> const& points, SOA3D<Pr
 #endif
   for(int i=0; i<np; ++i) delete vgVectorStates[i];
   delete [] vgVectorStates;
+  for(int i=0; i<np; ++i) delete vgSerialStates[i];
+  delete [] vgSerialStates;
 
   return result;
 }
