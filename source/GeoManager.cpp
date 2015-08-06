@@ -174,6 +174,7 @@ void GeoManager::LoadGeometryFromSharedLib( std::string libname ){
     else {
       std::cerr << "Loading geometry from shared lib failed\n";
     }
+    dlclose(handle);
 }
 
 
