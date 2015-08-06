@@ -596,6 +596,9 @@ bool validateVecGeomNavigation( int np, SOA3D<Precision> const& points, SOA3D<Pr
 #ifdef VECGEOM_NVCC
   _mm_free(gpuSteps);
 #endif
+  for(int i=0; i<np; ++i) delete vgVectorStates[i];
+  delete [] vgVectorStates;
+
   return result;
 }
 
