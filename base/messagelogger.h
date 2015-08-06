@@ -3,6 +3,7 @@
 
 #include "base/Global.h"
 #include <stdio.h>
+#include <stdarg.h>
 #include <map>
 #include <string>
 #include <mutex>
