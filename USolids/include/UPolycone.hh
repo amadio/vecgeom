@@ -40,9 +40,8 @@
 #ifndef UPolycone_hh
 #define UPolycone_hh
 
-#ifdef VECGEOM_REPLACE_USOLIDS
-
 #include "UPolyconeSide.hh"
+
 class UPolyconeHistorical
 {
   public:
@@ -59,6 +58,7 @@ class UPolyconeHistorical
     std::vector<double> Rmax;
 };
 
+#ifdef VECGEOM_REPLACE_USOLIDS
 
 //============== here for VecGeom-based implementation
 #include "base/Transformation3D.h"
