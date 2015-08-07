@@ -361,6 +361,8 @@ void test8()
       assert( state->Top() != newstate->Top() );
    }
    std::cerr << "test8 (statistical navigation) passed" << "\n";
+   delete state;
+   delete newstate;
 }
 
 // testing safety functions via the navigator
