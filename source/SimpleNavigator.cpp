@@ -172,6 +172,7 @@ void SimpleNavigator::InspectSafetyForPoint
       tmpstate->Clear();
       assert( LocatePoint( GeoManager::Instance().GetWorld(),
               globalpoint, *tmpstate, true ) == state.Top() );
+      NavigationState::ReleaseInstance( tmpstate );
    }
 
    std::cout << "############################################ " << "\n";
