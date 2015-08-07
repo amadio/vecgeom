@@ -39,6 +39,7 @@ int main() {
     Vector3D<Precision> const point = Vector3D<Precision>(x, y, z);
     NavigationState * path = NavigationState::MakeInstance(2);
     assert(navigator.LocatePoint(world, point, *path, true) == volume);
+    delete path;
   };
 
   CheckPoint(0, 0, 0, world);
