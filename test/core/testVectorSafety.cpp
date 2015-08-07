@@ -137,6 +137,12 @@ void testVectorNavigator( VPlacedVolume* world ){
    _mm_free(steps);
    _mm_free(intworkspace);
    _mm_free(pSteps);
+   for(int i=0; i<np; ++i) {
+      delete states[i];
+      delete newstates[i];
+   }
+   delete [] states;
+   delete [] newstates;
 }
 
 
