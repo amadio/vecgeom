@@ -676,10 +676,10 @@ UnplacedSphere const &unplaced,
      unplaced.GetWedge().GenericKernelForContainsAndInside<Backend,ForInside>( localPoint,
      completelyinsidephi, completelyoutsidephi );
      completelyoutside |= completelyoutsidephi;
-	
+
      if(ForInside)
             completelyinside &= completelyinsidephi;
-	  
+
 
     }
     //Phi Check for GenericKernel Over
@@ -694,10 +694,10 @@ UnplacedSphere const &unplaced,
      unplaced.GetThetaCone().GenericKernelForContainsAndInside<Backend,ForInside>( localPoint,
      completelyinsidetheta, completelyoutsidetheta );
      completelyoutside |= completelyoutsidetheta;
-	
+
      if(ForInside)
            completelyinside &= completelyinsidetheta;
-	
+
     }
     return;
 }
@@ -712,7 +712,7 @@ UnplacedSphere const &unplaced,
     typename Backend::bool_v &completelyoutside){
     
     
-  	GenericKernelForContainsAndInside<Backend,true>(
+    GenericKernelForContainsAndInside<Backend,true>(
       unplaced, localPoint, completelyinside, completelyoutside);
       
     }
@@ -754,7 +754,7 @@ UnplacedSphere const &unplaced,
         completelyoutside = (rad2 <= tolRMin*tolRMin) || (rad2 >= tolRMax*tolRMax);
     else
         completelyoutside =  (rad2 >= tolRMax*tolRMax);
-	   
+
     // Phi boundaries  : Do not check if it has no phi boundary!
     if(!unplaced.IsFullPhiSphere())
     {
@@ -764,10 +764,10 @@ UnplacedSphere const &unplaced,
      unplaced.GetWedge().GenericKernelForContainsAndInside<Backend,ForInside>( localPoint,
      completelyinsidephi, completelyoutsidephi );
      completelyoutside |= completelyoutsidephi;
-	 
+
      if(ForInside)
             completelyinside &= completelyinsidephi;
-	  
+
 
     }
     //Phi Check for GenericKernel Over
@@ -782,10 +782,10 @@ UnplacedSphere const &unplaced,
      unplaced.GetThetaCone().GenericKernelForContainsAndInside<Backend,ForInside>( localPoint,
      completelyinsidetheta, completelyoutsidetheta );
      completelyoutside |= completelyoutsidetheta;
-	
+
      if(ForInside)
            completelyinside &= completelyinsidetheta;
-	 
+
 
     }
     return;
@@ -890,7 +890,7 @@ void SphereImplementation<transCodeT, rotCodeT>::SafetyToInKernel(UnplacedSphere
     if(!unplaced.IsFullThetaSphere())
     {
         Float_t safetyTheta = unplaced.GetThetaCone().SafetyToIn<Backend>(localPoint);
-		safety = Max(safetyTheta,safety);
+        safety = Max(safetyTheta,safety);
     }
 
     MaskedAssign( (safety < zero) , zero, &safety);
@@ -1047,7 +1047,7 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
        Bool_t completelyinside(false),completelyoutside(false),movingIn(false);
        CheckOnRadialSurface<Backend,true,false>(unplaced,localPoint,completelyinside,completelyoutside,movingIn);
        MaskedAssign(!completelyinside && !completelyoutside && (pDotV3d < 0.), 0. ,&outerDist);
-	
+
    }
    else
    {
@@ -1060,13 +1060,13 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
 
    Bool_t completelyinside(false),completelyoutside(false),ins(false);
 
-	tmpPt.x()= 0.005*localDir.x() + localPoint.x();
-	tmpPt.y()= 0.005*localDir.y() + localPoint.y() ;
-	tmpPt.z()= 0.005*localDir.z() + localPoint.z();
+    tmpPt.x()= 0.005*localDir.x() + localPoint.x();
+    tmpPt.y()= 0.005*localDir.y() + localPoint.y() ;
+    tmpPt.z()= 0.005*localDir.z() + localPoint.z();
 
-	GenericKernelForContainsAndInside<Backend,true>(unplaced,localPoint,completelyinside,completelyoutside);
-	ContainsKernel<Backend>(unplaced, tmpPt, ins);
-	MaskedAssign(!completelyinside && !completelyoutside && ins , 0., &outerDist);
+    GenericKernelForContainsAndInside<Backend,true>(unplaced,localPoint,completelyinside,completelyoutside);
+    ContainsKernel<Backend>(unplaced, tmpPt, ins);
+    MaskedAssign(!completelyinside && !completelyoutside && ins , 0., &outerDist);
 
 
 
@@ -1080,31 +1080,31 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
       MaskedAssign( ( !done && (d2 >= 0.) ) ,(-1.*pDotV3d + Sqrt(d2)),&sd2);
       if(unplaced.IsFullSphere())
       {
-	//typename Backend::inside_v ins;
+    //typename Backend::inside_v ins;
         MaskedAssign(!done , sd2, &innerDist);
-	Bool_t completelyinside(false),completelyoutside(false),movingIn(false);
-	CheckOnRadialSurface<Backend,true,true>(unplaced,localPoint,completelyinside,completelyoutside,movingIn);
-	MaskedAssign(!done && !completelyinside && !completelyoutside && (pDotV3d > 0.), 0. ,&innerDist);
+    Bool_t completelyinside(false),completelyoutside(false),movingIn(false);
+    CheckOnRadialSurface<Backend,true,true>(unplaced,localPoint,completelyinside,completelyoutside,movingIn);
+    MaskedAssign(!done && !completelyinside && !completelyoutside && (pDotV3d > 0.), 0. ,&innerDist);
 
       }
       else
       {
 
-   		tmpPt.x()= sd2 * localDir.x() + localPoint.x();
-		tmpPt.y()= sd2 * localDir.y() + localPoint.y() ;
-	    	tmpPt.z()= sd2 * localDir.z() + localPoint.z();
+        tmpPt.x()= sd2 * localDir.x() + localPoint.x();
+        tmpPt.y()= sd2 * localDir.y() + localPoint.y() ;
+            tmpPt.z()= sd2 * localDir.z() + localPoint.z();
 
-		MaskedAssign(unplaced.GetWedge().Contains<Backend>(tmpPt) && unplaced.GetThetaCone().Contains<Backend>(tmpPt),sd2,&innerDist);
+        MaskedAssign(unplaced.GetWedge().Contains<Backend>(tmpPt) && unplaced.GetThetaCone().Contains<Backend>(tmpPt),sd2,&innerDist);
 
     Bool_t completelyinside(false),completelyoutside(false),ins(false);
 
-		tmpPt.x()= 0.005*localDir.x() + localPoint.x();
-		tmpPt.y()= 0.005*localDir.y() + localPoint.y() ;
-		tmpPt.z()= 0.005*localDir.z() + localPoint.z();
+        tmpPt.x()= 0.005*localDir.x() + localPoint.x();
+        tmpPt.y()= 0.005*localDir.y() + localPoint.y() ;
+        tmpPt.z()= 0.005*localDir.z() + localPoint.z();
 
-		GenericKernelForContainsAndInside<Backend,true>(unplaced,localPoint,completelyinside,completelyoutside);
-		ContainsKernel<Backend>(unplaced, tmpPt, ins);
-		MaskedAssign(!completelyinside && !completelyoutside && ins , 0., &innerDist);
+        GenericKernelForContainsAndInside<Backend,true>(unplaced,localPoint,completelyinside,completelyoutside);
+        ContainsKernel<Backend>(unplaced, tmpPt, ins);
+        MaskedAssign(!completelyinside && !completelyoutside && ins , 0., &innerDist);
 
       }
   }
@@ -1115,7 +1115,7 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
 
    if(!fullPhiSphere)
   {
-	GetMinDistFromPhi<Backend,true>(unplaced,localPoint,localDir,done ,distance);
+    GetMinDistFromPhi<Backend,true>(unplaced,localPoint,localDir,done ,distance);
   }
 
    Float_t distThetaMin(kInfinity);
@@ -1175,10 +1175,10 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
    distance = Min(distThetaMin,distance);
    MaskedAssign(( distance < kTolerance ) , 0. , &distance);
 
-	Bool_t compIn(false),compOut(false);
-	InsideOrOutside<Backend,true>(unplaced,localPoint,compIn,compOut);
-	MaskedAssign(compIn,-kHalfTolerance,&distance);
-	
+    Bool_t compIn(false),compOut(false);
+    InsideOrOutside<Backend,true>(unplaced,localPoint,compIn,compOut);
+    MaskedAssign(compIn,-kHalfTolerance,&distance);
+
 }
 
 //This is fast alternative of GetDistPhiMin below
@@ -1306,7 +1306,7 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(UnplacedSph
        done |= cond;
        MaskedAssign(cond ,0.,&sd2);
       c = rad2 - fRmin * fRmin;
-	  d2 = (pDotV3d * pDotV3d - c);
+      d2 = (pDotV3d * pDotV3d - c);
 
       MaskedAssign( ( !done && (cond1) && (d2 >= 0.) && (pDotV3d < 0.)) ,(-1.*pDotV3d - Sqrt(d2)),&sd2);
       
@@ -1335,15 +1335,15 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(UnplacedSph
 
   if (!unplaced.IsFullPhiSphere())
   {
-	if(unplaced.GetDeltaPhiAngle() <= kPi)
-	{
-	   	Float_t distPhi1;
-      		Float_t distPhi2;
-      		unplaced.GetWedge().DistanceToOut<Backend>(localPoint,localDir,distPhi1,distPhi2);
-     		distPhiMin = Min(distPhi1, distPhi2);
-		distance = Min(distPhiMin,distance);
-	}
-	else
+    if(unplaced.GetDeltaPhiAngle() <= kPi)
+    {
+        Float_t distPhi1;
+            Float_t distPhi2;
+            unplaced.GetWedge().DistanceToOut<Backend>(localPoint,localDir,distPhi1,distPhi2);
+            distPhiMin = Min(distPhi1, distPhi2);
+        distance = Min(distPhiMin,distance);
+    }
+    else
     {
             GetMinDistFromPhi<Backend,false>(unplaced,localPoint,localDir,done ,distance);
     }
