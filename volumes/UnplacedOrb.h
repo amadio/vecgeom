@@ -51,8 +51,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision GetRadius() const { return fR; }
-  
-  
+
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision GetfRTolO() const { return fRTolO; }
@@ -67,7 +66,7 @@ public:
   
   VECGEOM_CUDA_HEADER_BOTH
   //VECGEOM_INLINE
-  void SetRadius (const Precision r);
+  void SetRadius (Precision r);
   
   //_____________________________________________________________________________
   

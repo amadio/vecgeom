@@ -213,19 +213,20 @@ void OrbImplementation<transCodeT, rotCodeT>::NormalKernel(
 
     typedef typename Backend::precision_v Float_t;
 
-    Vector3D<Float_t> localPoint;
-    localPoint = point;
+    // Vector3D<Float_t> localPoint;
+    // localPoint = point;
+    // Float_t rad2 = localPoint.Mag2();
+    // normal = Vector3D<Float_t>(localPoint.x()*invRadius , localPoint.y()*invRadius ,localPoint.z()*invRadius );
 
-    Float_t rad2=localPoint.Mag2();
-    Float_t rad=Sqrt(rad2);
-    normal = Vector3D<Float_t>(localPoint.x()/rad , localPoint.y()/rad ,localPoint.z()/rad );
-    
+    Float_t rad2 = point.Mag2();
+    Float_t invRadius = Float_t(1.) / Sqrt( rad2 );
+    normal = point * invRadius;
+
     Float_t tolRMaxP = unplaced.GetfRTolO();
     Float_t tolRMaxM = unplaced.GetfRTolI();
 
     // Check radial surface
     valid = ((rad2 <= tolRMaxP * tolRMaxP) && (rad2 >= tolRMaxM * tolRMaxM)); // means we are on surface
-   
 }
 
 
@@ -361,7 +362,7 @@ UnplacedOrb const &unplaced,
 
     
     typedef typename Backend::precision_v Float_t;
-    //typedef typename Backend::bool_v      Bool_t;	
+    //typedef typename Backend::bool_v      Bool_t;
         
     Precision fR = unplaced.GetRadius();
     Float_t rad2 = localPoint.Mag2();
@@ -401,7 +402,7 @@ void OrbImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
       UnplacedOrb const &unplaced,
       Vector3D<typename Backend::precision_v> const &point,
       Vector3D<typename Backend::precision_v> const &direction,
-      typename Backend::precision_v const &stepMax,
+      typename Backend::precision_v const &/*stepMax*/,
       typename Backend::precision_v &distance) {
 
     typedef typename Backend::precision_v Float_t;
@@ -415,7 +416,7 @@ void OrbImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
     Bool_t done(false);
 
     Float_t fR(unplaced.GetRadius()); 
-	// General Precalcs
+    // General Precalcs
     Float_t rad2 = localPoint.Mag2();
     Float_t pDotV3d = localPoint.Dot(localDir);
 
@@ -443,7 +444,7 @@ void OrbImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(UnplacedOrb co
       Vector3D<typename Backend::precision_v> const &direction,
       /*Vector3D<typename Backend::precision_v> const &n,  
       typename Backend::bool_v validNorm,  */
-      typename Backend::precision_v const &stepMax,
+      typename Backend::precision_v const &/*stepMax*/,
       typename Backend::precision_v &distance){
 
     typedef typename Backend::precision_v Float_t;
