@@ -451,10 +451,7 @@ void SphereImplementation<transCodeT, rotCodeT>::NormalKernel(
     Float_t sinETheta = std::sin(eTheta);
     Float_t cosETheta = std::cos(eTheta);
 
-
-    Precision kAngTolerance = unplaced.GetAngTolerance();
-    Precision halfAngTolerance = (0.5 * kAngTolerance);
-
+    Precision halfAngTolerance = (0.5 * unplaced.GetAngTolerance());
     Float_t distSPhi(kInfinity),distSTheta(kInfinity);
     Float_t distEPhi(kInfinity),distETheta(kInfinity);
     Float_t distRMax(kInfinity);
@@ -597,7 +594,7 @@ UnplacedSphere const &unplaced,
     Vector3D<typename Backend::precision_v> const &localPoint,
     typename Backend::bool_v &completelyinside,
     typename Backend::bool_v &completelyoutside,
-    typename Backend::bool_v &movingIn) {
+    typename Backend::bool_v &/*movingIn*/) {
 
 
     typedef typename Backend::precision_v Float_t;
@@ -636,7 +633,7 @@ UnplacedSphere const &unplaced,
     Vector3D<typename Backend::precision_v> const &localPoint,
     typename Backend::bool_v &completelyinside,
     typename Backend::bool_v &completelyoutside,
-    typename Backend::bool_v &movingIn) {
+    typename Backend::bool_v &/*movingIn*/) {
 
 
     typedef typename Backend::precision_v Float_t;
@@ -993,7 +990,7 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
       UnplacedSphere const &unplaced,
       Vector3D<typename Backend::precision_v> const &point,
       Vector3D<typename Backend::precision_v> const &direction,
-      typename Backend::precision_v const &stepMax,
+      typename Backend::precision_v const &/*stepMax*/,
       typename Backend::precision_v &distance){
 
     
@@ -1256,7 +1253,7 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(UnplacedSph
       Vector3D<typename Backend::precision_v> const &direction,
       /*Vector3D<typename Backend::precision_v> const &n,
       typename Backend::bool_v validNorm,  */
-      typename Backend::precision_v const &stepMax,
+      typename Backend::precision_v const &/*stepMax*/,
       typename Backend::precision_v &distance){
 
 
