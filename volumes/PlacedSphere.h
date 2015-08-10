@@ -71,7 +71,16 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision GetInnerRadius() const { return GetUnplacedVolume()->GetInnerRadius(); }
-  
+
+  void SetInnerRadius(Precision arg) { const_cast<UnplacedSphere*>(GetUnplacedVolume())->SetInnerRadius(arg);}
+  void SetOuterRadius(Precision arg) { const_cast<UnplacedSphere*>(GetUnplacedVolume())->SetOuterRadius(arg);}
+  void SetStartPhiAngle(Precision arg, bool compute = true) {
+    const_cast<UnplacedSphere*>(GetUnplacedVolume())->SetStartPhiAngle(arg, compute);
+  }
+  void SetDeltaPhiAngle(Precision arg) { const_cast<UnplacedSphere*>(GetUnplacedVolume())->SetDeltaPhiAngle(arg);}
+  void SetStartThetaAngle(Precision arg) { const_cast<UnplacedSphere*>(GetUnplacedVolume())->SetStartThetaAngle(arg);}
+  void SetDeltaThetaAngle(Precision arg) { const_cast<UnplacedSphere*>(GetUnplacedVolume())->SetDeltaThetaAngle(arg);}
+
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision GetOuterRadius() const { return GetUnplacedVolume()->GetOuterRadius(); }

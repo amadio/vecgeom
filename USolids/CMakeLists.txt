@@ -43,6 +43,7 @@ if(USOLIDS_VECGEOM)
   list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UPolycone.cc)
   list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UPolyhedra.cc)
   list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UOrb.cc)
+  list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/USphere.cc)
 endif()
 
 file(GLOB headers_vecgeom
