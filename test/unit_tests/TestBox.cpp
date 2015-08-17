@@ -1,9 +1,8 @@
 //
+// File: TestBox.cpp
 //
-// TestBox
-//             Ensure asserts are compiled in
-
-
+//   Ensure asserts are compiled in
+//
 
 #include "base/Vector3D.h"
 #include "volumes/Box.h"
@@ -17,7 +16,7 @@
 #undef NDEBUG
 #include <cassert>
 
-bool testingvecgeom=false;
+bool testingvecgeom = false;
 
 template <class Box_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
 bool TestBox() {
@@ -46,7 +45,7 @@ bool TestBox() {
     Box_t b2("Test Box #2",10,10,10);
     Box_t box3("BABAR Box",0.14999999999999999, 
                            24.707000000000001,  
-	                   22.699999999999999) ;
+                       22.699999999999999) ;
 
 // Check name
     assert(b1.GetName()=="Test Box #1");
@@ -335,7 +334,7 @@ bool TestBox() {
     // a point very slightly inside should return 0
     temp = Vec_t(0.76315134679548990437,
                                   0.53698876104646497964,
-		 -0.35950395323836459305);
+         -0.35950395323836459305);
     temp = temp*1./temp.Mag();
     Dist = b4.DistanceToIn( Vec_t(-3.0087437277453119577,
                                   -4.9999999999999928946,

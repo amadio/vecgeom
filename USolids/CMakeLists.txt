@@ -37,13 +37,13 @@ endif()
 
 if(USOLIDS_VECGEOM)
   list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UBox.cc)
-  list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UTrap.cc)
-  list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UTubs.cc)
   list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UCons.cc)
+  list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UOrb.cc)
   list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UPolycone.cc)
   list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UPolyhedra.cc)
-  list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UOrb.cc)
   list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/USphere.cc)
+  list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UTrap.cc)
+  list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UTubs.cc)
 endif()
 
 file(GLOB headers_vecgeom

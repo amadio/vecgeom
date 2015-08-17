@@ -64,6 +64,8 @@
 //
 // 12.02.13 Marek Gayer
 //          Created from original implementation in Geant4
+// 19.07.15 Guilherme Lima - Add VecGeom implementation as option for underlying implementation
+//
 // --------------------------------------------------------------------
 
 #ifndef UTrap_HH

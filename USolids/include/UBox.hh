@@ -17,6 +17,8 @@
 //
 // 10.06.11 J.Apostolakis, G.Cosmo, A.Gheata
 //          Created from original implementation in Geant4 and ROOT
+// 30.06.15 Guilherme Lima - Add VecGeom implementation as option for underlying implementation
+//
 // --------------------------------------------------------------------
 
 #ifndef USOLIDS_UBox

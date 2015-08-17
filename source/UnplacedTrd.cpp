@@ -49,12 +49,12 @@ Precision UnplacedTrd::SurfaceArea() const {
 /*
 
 void UnplacedTrd::Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const {
-	aMin.x() = -1.0 * Min(dx1(), dx2());
-	aMax.x() = Max(dx1(), dx2());
-	aMin.y() = -1.0 * Min(dy1(), dy2());
-	aMax.y() = Max(dy1(), dy2());
-	aMin.z() = -dz();
-	aMax.z() = dz();
+    aMin.x() = -1.0 * Min(dx1(), dx2());
+    aMax.x() = Max(dx1(), dx2());
+    aMin.y() = -1.0 * Min(dy1(), dy2());
+    aMax.y() = Max(dy1(), dy2());
+    aMin.z() = -dz();
+    aMax.z() = dz();
 }
 */
 
@@ -152,8 +152,8 @@ Vector3D<Precision> UnplacedTrd::GetPointOnSurface() const {
 
 
 bool UnplacedTrd::Normal(Vector3D<Precision> const& point, Vector3D<Precision>& norm) const {
-	int nosurface = 0;
-	bool onSurf(false);
+    int nosurface = 0;
+    bool onSurf(false);
 
     Precision xp = point[0];
     Precision yp = point[1];
@@ -183,7 +183,7 @@ bool UnplacedTrd::Normal(Vector3D<Precision> const& point, Vector3D<Precision>& 
     Precision ZplusZ   = -2.0 * xx2 * 2.0 * yy2;
     Precision ZminusZ  = 2.0 * xx2 * 2.0 * yy1;
 
-	// Checking for each plane whether the point is on Surface, if yes transfer normal
+    // Checking for each plane whether the point is on Surface, if yes transfer normal
     bool FacPlusX  = XplusX * (xp - xx2) + XplusY * (yp - yy2) + XplusZ * (zp - zz);
     bool FacMinusX = XminusX * (xp + xx2) + XminusY * (yp - yy2) + XminusZ * (zp - zz);
     bool FacPlusY  = YplusX * (xp - xx2)  + YplusY * (yp - yy2) + YplusZ * (zp - zz);
