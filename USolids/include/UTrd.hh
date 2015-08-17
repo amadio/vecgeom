@@ -17,11 +17,44 @@
 //
 // 19.10.12 Marek Gayer
 //          Created from original implementation in Geant4
+// 11.07.15 Guilherme Lima - Add VecGeom implementation as option for underlying implementation
+//
 // --------------------------------------------------------------------
 
 #ifndef USOLIDS_UTrd
 #define USOLIDS_UTrd
 
+#ifdef VECGEOM_REPLACE_USOLIDS
+
+//============== here for VecGeom-based implementation
+
+#include "volumes/SpecializedTrd.h"
+#include "volumes/LogicalVolume.h"
+#include "volumes/UnplacedTrd.h"
+#include "base/Transformation3D.h"
+
+// struct UTrapSidePlane
+// {
+//    double a, b, c, d; // Normal Unit vector (a,b,c) and offset (d)
+//    // => ax + by + cz + d = 0
+//   UTrapSidePlane(vecgeom::UnplacedTrd::TrapSidePlane const& oth) {
+//     this->a = oth.fA;
+//     this->b = oth.fB;
+//     this->c = oth.fC;
+//     this->d = oth.fD;
+//   }
+// };
+
+class UTrd: public vecgeom::SimpleTrd {
+    // just forwards UTrd to vecgeom::SimpleTrd
+    using vecgeom::SimpleTrd::SimpleTrd;
+
+};
+//============== end of VecGeom-based implementation
+
+#else
+
+//============== here for USolids-based implementation
 #include "VUSolid.hh"
 #include "UUtils.hh"
 
@@ -112,4 +145,7 @@ class UTrd : public VUSolid
 
 #include "UTrd.icc"
 
-#endif
+//============== end of USolids-based implementation
+
+#endif  // VECGEOM_REPLACE_USOLIDS
+#endif  // USOLIDS_UTrd

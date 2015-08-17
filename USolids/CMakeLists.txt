@@ -43,6 +43,7 @@ if(USOLIDS_VECGEOM)
   list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UPolyhedra.cc)
   list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/USphere.cc)
   list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UTrap.cc)
+  list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UTrd.cc)
   list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UTubs.cc)
 endif()
 

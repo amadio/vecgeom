@@ -59,95 +59,76 @@ void UnplacedTrd::Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) c
 */
 
 int UnplacedTrd::ChooseSurface() const {
-    int choice = 0;
-    int nChoice = 6;
-    Precision sumWeight = 0.0;
-    Precision PlusXArea = GetPlusXArea();
-    Precision MinusXArea = GetMinusXArea();
-    Precision PlusYArea = GetPlusYArea();
-    Precision MinusYArea = GetMinusYArea();
-    Precision PlusZArea = GetPlusZArea();
-    Precision MinusZArea = GetMinusZArea();
-    Precision totArea = PlusXArea + MinusXArea + PlusYArea + MinusYArea + PlusZArea + MinusZArea;
-    Precision prob[6] ;
+    int choice = 0; // 0 = zm, 1 = zp, 2 = ym, 3 = yp, 4 = xm, 5 = xp
+    Precision S[6], Stotal = 0.0;
 
-    prob[0] = PlusXArea  / totArea;
-    prob[1] = MinusXArea / totArea;
-    prob[2] = PlusYArea  / totArea;
-    prob[3] = MinusYArea / totArea;
-    prob[4] = PlusZArea  / totArea;
-    prob[5] = MinusZArea / totArea;
+    S[0] = S[1] = GetPlusXArea();
+    S[2] = S[3] = GetPlusYArea();
+    S[4] = GetMinusZArea();
+    S[5] = GetPlusZArea();
 
-    for (int i = 0; i < nChoice; i++)
-        sumWeight += prob[i];
+    for (int i = 0; i < 6; ++i)
+        Stotal += S[i];
 
-    Precision rand = RNG::Instance().uniform() * sumWeight;
+    // random value to choose surface to place the point
+    Precision rand = RNG::Instance().uniform() * Stotal;
 
-    while (rand > prob[choice])
-        rand -= prob[choice], choice++;
+    while (rand > S[choice])
+        rand -= S[choice], choice++;
 
-    assert(choice < nChoice);
+    assert(choice < 6);
+
     return choice;
 }
 
 Vector3D<Precision> UnplacedTrd::GetPointOnSurface() const {
-    Precision xVal = 0.0;
-    Precision yVal = 0.0;
-    Precision zVal = 0.0;
-    Precision zz2 = -1.0 * fDZ;
-    Precision minX = Min(fDX1, fDX2);
-    Precision maxX = Max(fDX1, fDX2);
-    Precision minY = Min(fDY1, fDY2);
-    Precision maxY = Max(fDY1, fDY2);
-    Precision dz = 2.*fDZ;
-    bool xvert(false);
-    bool yvert(false);
-    xvert = (fDX1 == fDX2) ? true : false;
-    yvert = (fDY1 == fDY2) ? true : false;
-    Precision llX = (xvert) ? dz : Sqrt(x2minusx1() * x2minusx1()  + dztimes2() * dztimes2());
-    Precision llY = (yvert) ? dz : Sqrt(y2minusy1() * y2minusy1()  + dztimes2() * dztimes2());
-    Precision dzstar;
-    int choice = ChooseSurface();
+    int surface = ChooseSurface();
 
-    switch (choice) {
-        case 0:   // +X plane perpendicular to +X axis
-            xVal = (xvert) ? fDX1 : RNG::Instance().uniform() * (Abs(fDX1 - fDX2)) + minX;
-            zVal = (xvert) ? RNG::Instance().uniform() * dz + zz2 : (maxX - xVal) / fx();
-            dzstar = (xvert) ? zVal : Sqrt((fDX1 - xVal) * (fDX1 - xVal) + (zVal * zVal));
-            yVal = (xvert && yvert) ? RNG::Instance().uniform() * 2.0 * fDY1 - fDY1 : RNG::Instance().uniform() * 2.0 * (llX * fDX1 + x2minusx1() * dzstar) + (-fDY1);
-        break;
-        case 1:  // -X
-            xVal = (xvert) ? fDX1 : RNG::Instance().uniform() * (Abs(fDX1 - fDX2)) + minX;
-            zVal = (xvert) ? RNG::Instance().uniform() * dz + zz2 : (maxX - xVal) / fx();
-            dzstar = (xvert) ? zVal : Sqrt((fDX1 - xVal) * (fDX1 - xVal) + (zVal * zVal));
-            yVal = (xvert && yvert) ? RNG::Instance().uniform() * 2.0 * fDY1 - fDY1 : RNG::Instance().uniform() * 2.0 * (llX * fDX1 + x2minusx1() * dzstar) + (-fDY1);
-            xVal *= -1.0;
-        break;
-        case 2:  // + Y
-            yVal = (yvert) ? fDY1 : RNG::Instance().uniform() * (Abs(fDY1 - fDY2)) + minY;
-            zVal = (yvert) ? RNG::Instance().uniform() * dz + zz2 : (maxY - yVal) / fy();
-            dzstar = (yvert) ? zVal : Sqrt((fDY1 - yVal) * (fDY1 - yVal) + (zVal * zVal));
-            xVal = (xvert && yvert) ? RNG::Instance().uniform() * 2.0 * fDX1 - fDX1 : RNG::Instance().uniform() * 2.0 * (llY * fDY1 + y2minusy1() * dzstar) + (-fDX1);
-        break;
-        case 3:  // -Y
-            yVal = (yvert) ? fDY1 : RNG::Instance().uniform() * (Abs(fDY1 - fDY2)) + minY;
-            zVal = (yvert) ? RNG::Instance().uniform() * dz + zz2 : Abs(minY - yVal) /fy();
-            dzstar = (yvert) ? zVal : Sqrt((fDY1 - yVal) * (fDY1 - yVal) + (zVal * zVal));
-            xVal = (xvert && yvert) ? RNG::Instance().uniform() * 2.0 * fDX1 - fDX1 : RNG::Instance().uniform() * 2.0 * (llY * fDY1 + y2minusy1() * dzstar) + (-fDX1);
-            yVal *= -1.0;
-        break;
-        case 4: // +Z
-            xVal = RNG::Instance().uniform() * (2.0 * fDX2) + (-fDX2);
-            yVal = RNG::Instance().uniform() * (2.0 * fDY2) + (-fDY2);
-            zVal = fDZ;
-        break;
-        case 5: // -Z
-            xVal = RNG::Instance().uniform() * (2.0 * fDX1) + (-fDX1);
-            yVal = RNG::Instance().uniform() * (2.0 * fDY1) + (-fDY1);
-            zVal = zz2;
-        break;
+    Precision invHeight = 0.5 / fDZ;
+    Precision slopeX = (fDX2 - fDX1) * invHeight;
+    Precision slopeY = (fDY2 - fDY1) * invHeight;
+    Precision midX = 0.5*(fDX1+fDX2);
+    Precision midY = 0.5*(fDY1+fDY2);
+
+    // Note that randoms are drawn in range [-1,1], then we just need scales, e.g. xval *= xmax for x = [-xmax, xmax] and so on
+    Precision xval = RNG::Instance().uniform(-1.0, 1.0);
+    Precision yval = RNG::Instance().uniform(-1.0, 1.0);
+    Precision zval = RNG::Instance().uniform(-1.0, 1.0);
+    Precision vmax;
+    switch (surface) {
+    case 0:  // -Z face
+      xval *= fDX1;  // = ran[-fDX1, fDX1]
+      yval *= fDY1;
+      zval = -fDZ;
+      break;
+    case 1:  // +Z face
+      xval *= fDX2;  // = ran[-fDX2, fDX2]
+      yval *= fDY2;
+      zval =  fDZ;
+      break;
+    case 2:  // +X face
+      xval = midX + slopeX*zval;
+      vmax = midY + slopeY*zval;
+      yval *= vmax;  // = rand[-vmax,vmax]
+      break;
+    case 3:  // -X face
+      xval = -(midX + slopeX*zval);
+      vmax = midY + slopeY*zval;
+      yval *= vmax;  // = rand[-vmax,vmax]
+      break;
+    case 4:  // +Y face
+      vmax = midX + slopeX*zval;
+      xval *= vmax;  // = rand[-vmax,vmax]
+      yval = midY + slopeY*zval;
+      break;
+    case 5:  // -Y face
+      vmax = midX + slopeX*zval;
+      xval *= vmax;  // = rand[-vmax,vmax]
+      yval = -(midY + slopeY*zval);
+      break;
     }
-    return Vector3D<Precision> (xVal, yVal, zVal);
+
+    return Vector3D<Precision>(xval, yval, zval);
 }
 
 

@@ -118,7 +118,7 @@ void FaceTrajectoryIntersection(UnplacedTrd const &trd,
         posV *= -1;
         dirV *= -1;
     }
-    Float_t alongZ = trd.dztimes2();
+    Float_t alongZ = Float_t(2.0)*trd.dz();
 
     // distance from trajectory to face
     dist = (alongZ*(posV-v1) - alongV*(pos.z()+trd.dz())  ) / (dir.z()*alongV - dirV*alongZ);
@@ -189,14 +189,14 @@ static void UnplacedInside(
 
     // inside X?
     Float_t cross;
-    PointLineOrientation<Backend>(Abs(point.x()) - trd.dx1(), pzPlusDz, trd.x2minusx1(), trd.dztimes2(), cross);
+    PointLineOrientation<Backend>(Abs(point.x()) - trd.dx1(), pzPlusDz, trd.x2minusx1(), 2.0*trd.dz(), cross);
     completelyoutside |= MakePlusTolerant<surfaceT>(cross) < 0;
     if(surfaceT) completelyinside &= MakeMinusTolerant<surfaceT>(cross) > 0;
 
     if(HasVaryingY<trdTypeT>::value != TrdTypes::kNo) {
         // If Trd type is unknown don't bother with a runtime check, assume
         // the general case
-        PointLineOrientation<Backend>(Abs(point.y()) - trd.dy1(), pzPlusDz, trd.y2minusy1(), trd.dztimes2(), cross);
+        PointLineOrientation<Backend>(Abs(point.y()) - trd.dy1(), pzPlusDz, trd.y2minusy1(), 2.0*trd.dz(), cross);
         completelyoutside |= MakePlusTolerant<surfaceT>(cross) < 0;
         if(surfaceT) completelyinside &= MakeMinusTolerant<surfaceT>(cross) > 0;
     }
@@ -283,7 +283,7 @@ struct TrdImplementation {
       Transformation3D const &transformation,
       Vector3D<typename Backend::precision_v> const &point,
       Vector3D<typename Backend::precision_v> const &direction,
-      typename Backend::precision_v const &stepMax,
+      typename Backend::precision_v const &/*stepMax*/,
       typename Backend::precision_v &distance) {
 
     using namespace TrdUtilities;
@@ -312,8 +312,8 @@ struct TrdImplementation {
       // hitting top face?
       Bool_t okzt = pos_local.z() > trd.dz() && hitx <= trd.dx2() && hity <= trd.dy2();
       // hitting bottom face?
-      Bool_t okzb = pos_local.z() < - trd.dz() && hitx <= trd.dx1() && hity <= trd.dy1();
-     
+      Bool_t okzb = pos_local.z() < -trd.dz() && hitx <= trd.dx1() && hity <= trd.dy1();
+
       okz &= (okzt | okzb);
       MaskedAssign(okz, distz, &distance);
     }
@@ -356,7 +356,7 @@ struct TrdImplementation {
       UnplacedTrd const &trd,
       Vector3D<typename Backend::precision_v> const &point,
       Vector3D<typename Backend::precision_v> const &dir,
-      typename Backend::precision_v const &stepMax,
+      typename Backend::precision_v const &/*stepMax*/,
       typename Backend::precision_v &distance) {
     
     using namespace TrdUtilities;
@@ -370,8 +370,7 @@ struct TrdImplementation {
     distance = kInfinity;
 
     // hit top Z face?
-    Bool_t okzt = dir.z() > 0;
-    if(okzt != Backend::kFalse) {
+    if((dir.z()>0.) != Backend::kFalse) {
       Float_t distz = (trd.dz() - point.z()) / Abs(dir.z());
       hitx = Abs(point.x() + distz*dir.x());
       hity = Abs(point.y() + distz*dir.y());
@@ -382,8 +381,7 @@ struct TrdImplementation {
     }
 
     // hit bottom Z face?
-    Bool_t okzb = dir.z() < 0;
-    if(okzb != Backend::kFalse) {
+    if((dir.z()<0.) != Backend::kFalse) {
       Float_t distz = (point.z() - (-trd.dz()) ) / Abs(dir.z());
       hitx = Abs(point.x() + distz*dir.x());
       hity = Abs(point.y() + distz*dir.y());
