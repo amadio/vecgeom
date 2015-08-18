@@ -358,7 +358,7 @@ struct TrdImplementation {
       Vector3D<typename Backend::precision_v> const &dir,
       typename Backend::precision_v const &/*stepMax*/,
       typename Backend::precision_v &distance) {
-    
+
     using namespace TrdUtilities;
     using namespace TrdTypes;
     typedef typename Backend::bool_v Bool_t;
@@ -367,7 +367,7 @@ struct TrdImplementation {
     Float_t hitx, hity;
     // Float_t hitz;
     // Bool_t done = Backend::kFalse;
-    distance = kInfinity;
+    distance = Float_t(0.0);
 
     // hit top Z face?
     if((dir.z()>0.) != Backend::kFalse) {
