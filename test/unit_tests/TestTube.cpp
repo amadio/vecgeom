@@ -19,9 +19,7 @@
 #undef NDEBUG
 #include <cassert>
 
-bool testvecgeom = false;
-
-template <class Tube_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
+template <typename Constants, class Tube_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
 bool TestTubs()
 {
     std::cout.precision(16) ;
@@ -232,10 +230,7 @@ bool TestTubs()
     Dist=t1.DistanceToIn(pbigmz,vz);
     assert(ApproxEqual(Dist,50));
     Dist=t1.DistanceToIn(pbigx,vxy);
-    if(testvecgeom)
-        assert(ApproxEqual(Dist,vecgeom::kInfinity));
-    else
-        assert(ApproxEqual(Dist,UUtils::kInfinity));
+    assert(ApproxEqual(Dist,Constants::kInfinity));
 
     Dist=t1a.DistanceToIn(pbigz,vmz);
     assert(ApproxEqual(Dist,50));
@@ -267,40 +262,32 @@ bool TestTubs()
    
     Dist=t5.DistanceToIn(Vec_t(30.0,-70.0,0),vxy);
     // std::cout<<"Dist=t5.DistanceToIn((30.0,-70.0,0),vxy) = "<<Dist<<std::endl;
-    if(testvecgeom)
-            assert(ApproxEqual(Dist,vecgeom::kInfinity));
-        else
-            assert(ApproxEqual(Dist,UUtils::kInfinity));
-   
+    assert(ApproxEqual(Dist,Constants::kInfinity));
+
     Dist=t5.DistanceToIn(Vec_t(30.0,-20.0,0),vmxmy);
     //  std::cout<<"Dist=t5.DistanceToIn((30.0,-20.0,0),vmxmy) = "<<Dist<<std::endl;
     assert(ApproxEqual(Dist,42.426407));
    
     Dist=t5.DistanceToIn(Vec_t(30.0,-70.0,0),vmxmy);
     // std::cout<<"Dist=t5.DistanceToIn((30.0,-70.0,0),vmxmy) = "<<Dist<<std::endl;
-    if(testvecgeom)
-        assert(ApproxEqual(Dist,vecgeom::kInfinity));
-    else
-        assert(ApproxEqual(Dist,UUtils::kInfinity));
-   
+    assert(ApproxEqual(Dist,Constants::kInfinity));
+
     Dist=t5.DistanceToIn(Vec_t(50.0,-20.0,0),vy);
     // std::cout<<"Dist=t5.DistanceToIn((50.0,-20.0,0),vy) = "<<Dist<<std::endl;
     assert(ApproxEqual(Dist,20));
 
     Dist=t5.DistanceToIn(Vec_t(100.0,-20.0,0),vy);
     // std::cout<<"Dist=t5.DistanceToIn((100.0,-20.0,0),vy) = "<<Dist<<std::endl;
-    if(testvecgeom) assert(ApproxEqual(Dist,vecgeom::kInfinity));
-    else assert(ApproxEqual(Dist,UUtils::kInfinity));
-   
+    assert(ApproxEqual(Dist,Constants::kInfinity));
+
     Dist=t5.DistanceToIn(Vec_t(30.0,-50.0,0),vmx);
     //  std::cout<<"Dist=t5.DistanceToIn((30.0,-50.0,0),vmx) = "<<Dist<<std::endl;
     assert(ApproxEqual(Dist,30));
    
     Dist=t5.DistanceToIn(Vec_t(30.0,-100.0,0),vmx);
     //  std::cout<<"Dist=t5.DistanceToIn((30.0,-100.0,0),vmx) = "<<Dist<<std::endl;
-    if(testvecgeom) assert(ApproxEqual(Dist,vecgeom::kInfinity));
-    else assert(ApproxEqual(Dist,UUtils::kInfinity));
-   
+    assert(ApproxEqual(Dist,Constants::kInfinity));
+
 
     /* ********************************
        ************************************ */
@@ -347,7 +334,7 @@ bool TestTubs()
     //    std::cout<<"t5.Inside(Vec_t(60,-0.001*kCarTolerance,0)) = "
     //     <<OutputInside(in)<<std::endl;
     in = tube10.Inside(Vec_t(-114.8213313833317 ,
-					   382.7843220719649 ,
+                       382.7843220719649 ,
                                            -32.20788536438663 )) ;
     assert(in == vecgeom::EInside::kOutside);
     // std::cout<<"tube10.Inside(Vec_t(-114.821...)) = "<<OutputInside(in)<<std::endl;
@@ -478,6 +465,16 @@ bool TestTubs()
     return true;
 }
 
+#ifdef VECGEOM_USOLIDS
+struct USOLIDSCONSTANTS
+{
+  static constexpr double kInfinity = DBL_MAX; // UUSolids::kInfinity;
+};
+#endif
+struct VECGEOMCONSTANTS
+{
+  static constexpr double kInfinity = vecgeom::kInfinity;
+};
 
 int main(int argc, char *argv[]) {
  
@@ -487,20 +484,23 @@ int main(int argc, char *argv[]) {
       return 1;
     }
     
-    if( ! strcmp(argv[1], "--usolids") )
-    { 
-      #ifdef VECGEOM_USOLIDS
-       assert(TestTubs<UTubs>());
-       std::cout << "UTube passed\n";
-      #else
+    if( ! strcmp(argv[1], "--usolids") ) {
+#ifndef VECGEOM_USOLIDS
        std::cerr << "VECGEOM_USOLIDS was not defined\n";
        return 2;
-      #endif
+#else
+  #ifndef VECGEOM_REPLACE_USOLIDS
+       TestTubs<USOLIDSCONSTANTS,UTubs>();
+       std::cout << "UTube passed\n";
+  #else
+       TestTubs<VECGEOMCONSTANTS,UTubs>();
+       std::cout << "USolids --> VecGeom tube passed\n";
+  #endif
+#endif
     }
     else if( ! strcmp(argv[1], "--vecgeom") )
     {
-       testvecgeom = true;
-       assert(TestTubs<vecgeom::SimpleTube>());
+       TestTubs<VECGEOMCONSTANTS,vecgeom::SimpleTube>();
        std::cout << "VecGeom tube passed\n";
     }
     else

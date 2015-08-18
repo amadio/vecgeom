@@ -16,8 +16,7 @@
 #undef NDEBUG
 #include <cassert>
 
-template <class Trd_t,class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
-
+template <typename Constants, class Trd_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
 bool TestTrd()
 {
     VUSolid::EnumInside inside ;
@@ -351,9 +350,9 @@ bool TestTrd()
     Dist=trd1.DistanceToIn(pbigmz,vz);
     assert(ApproxEqual(Dist,60));
     Dist=trd1.DistanceToIn(pbigx,vxy);
-    assert(ApproxEqual(Dist,UUtils::kInfinity));
+    assert(ApproxEqual(Dist,Constants::kInfinity));
     Dist=trd1.DistanceToIn(pbigmx,vxy);
-    assert(ApproxEqual(Dist,UUtils::kInfinity));
+    assert(ApproxEqual(Dist,Constants::kInfinity));
 
     Dist=trd2.DistanceToIn(pbigx,vmx);
     assert(ApproxEqual(Dist,80));
@@ -368,9 +367,9 @@ bool TestTrd()
     Dist=trd2.DistanceToIn(pbigmz,vz);
     assert(ApproxEqual(Dist,60));
     Dist=trd2.DistanceToIn(pbigx,vxy);
-    assert(ApproxEqual(Dist,UUtils::kInfinity));
+    assert(ApproxEqual(Dist,Constants::kInfinity));
     Dist=trd2.DistanceToIn(pbigmx,vxy);
-    assert(ApproxEqual(Dist,UUtils::kInfinity));
+    assert(ApproxEqual(Dist,Constants::kInfinity));
 
     Dist=trd3.DistanceToIn(Vec_t(  0.15000000000000185,
                                    -22.048743592955137,
@@ -401,14 +400,44 @@ bool TestTrd()
     return true;
 }
 
-
-int main() {
 #ifdef VECGEOM_USOLIDS
-  assert(TestTrd<UTrd>());
-  std::cout << "UTrd passed\n";
-
+struct USOLIDSCONSTANTS {
+    static constexpr double kInfinity = DBL_MAX;//UUSolids::kInfinity;
+};
 #endif
-  std::cout<< "VecGeomTrd not included yet\n";
-  
+struct VECGEOMCONSTANTS {
+  static constexpr double kInfinity = vecgeom::kInfinity;
+};
+
+int main(int argc, char *argv[]) {
+
+    if( argc < 2) {
+        std::cerr << "need to give argument: --usolids or --vecgeom\n";
+        return 1;
+    }
+
+    if( ! strcmp(argv[1], "--usolids") ) {
+#ifndef VECGEOM_USOLIDS
+        std::cerr << "VECGEOM_USOLIDS was not defined\n";
+        return 2;
+#else
+  #ifndef VECGEOM_REPLACE_USOLIDS
+        TestTrd<USOLIDSCONSTANTS, UTrd>();
+        std::cout << "USolids Trd passed\n";
+  #else
+        TestTrd<VECGEOMCONSTANTS, UTrd>();
+        std::cout << "USolids --> VecGeom Trd passed\n";
+  #endif
+#endif
+    }
+    else if( ! strcmp(argv[1], "--vecgeom") ) {
+        TestTrd<VECGEOMCONSTANTS, vecgeom::SimpleTrd>();
+        std::cout << "VecGeom Trd passed\n";
+    }
+    else {
+        std::cerr << "need to give argument: --usolids or --vecgeom\n";
+        return 1;
+    }
+
   return 0;
 }

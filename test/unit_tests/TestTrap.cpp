@@ -64,6 +64,11 @@ bool TestTrap() {
     Trap_t trap3("trap3",50,0,0,50,50,50,UUtils::kPi/4,50,50,50,UUtils::kPi/4) ;
     Trap_t trap4("trap4",50,0,0,50,50,50,-UUtils::kPi/4,50,50,50,-UUtils::kPi/4) ;
 
+    // confirm Trd calculations
+    Trap_t trap5("Trd2",20,20,30,30,40);
+    // std::cout<<" Trd-like capacity: "<< trap5.Capacity() <<"\n";
+    // std::cout<<" Trd-like surface area: "<< trap5.SurfaceArea() <<"\n";
+
     Vec_t Corners[8];
     Corners[0]=Vec_t(-3.,-3.,-3.);
     Corners[1]=Vec_t(3.,-3.,-3.);
@@ -111,6 +116,10 @@ bool TestTrap() {
                  + 2*((20+40)*std::sqrt(4*40*40+(30-10)*(30-10))
               + (30+10) *std::sqrt(4*40*40+(40-20)*(40-20))) ;
     assert(ApproxEqual(vol,volCheck));
+
+    //std::cout<<"Trd Surface Area : " << trap5.SurfaceArea()<<std::endl;
+    assert(trap5.SurfaceArea() == 20800);
+
 
 // Check Inside
 
@@ -488,12 +497,17 @@ int main(int argc, char *argv[]) {
     }
 
     if( ! strcmp(argv[1], "--usolids") ) {
-#ifdef VECGEOM_USOLIDS
-        TestTrap<USOLIDSCONSTANTS, UTrap>();
-        std::cout << "UTrap passed (but notice discrepancies above, where asserts have been disabled!)\n";
-#else
+#ifndef VECGEOM_USOLIDS
         std::cerr << "VECGEOM_USOLIDS was not defined\n";
         return 2;
+#else
+  #ifndef VECGEOM_REPLACE_USOLIDS
+        TestTrap<USOLIDSCONSTANTS, UTrap>();
+        std::cout << "UTrap passed (but notice discrepancies above, where asserts have been disabled!)\n";
+  #else
+        TestTrap<VECGEOMCONSTANTS, UTrap>();
+        std::cout << "UTrap-->VGTrap passed\n";
+  #endif
 #endif
     }
 
