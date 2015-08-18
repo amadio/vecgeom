@@ -425,7 +425,6 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
    // do nothing (step=0) and retry one level higher
    if( step == kInfinity && pstep > 0. )
    {
-#if !defined(VECGEOM_NVCC)
      //      std::cout << "WARNING: STEP INFINITY; should never happen unless outside\n";
       //InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );
       // set step to zero and retry one level higher
@@ -450,10 +449,6 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
       //      }
       newstate.Pop();
       return;
-#else
-      // Can't call GeoManager::Instance().GetWorld() from CUDA code
-      assert(false && "ERROR: point is outside expected volumes");
-#endif
    }
    // is geometry further away than physics step?
    if(step > pstep)
