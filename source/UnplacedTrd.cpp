@@ -133,52 +133,66 @@ Vector3D<Precision> UnplacedTrd::GetPointOnSurface() const {
 
 
 bool UnplacedTrd::Normal(Vector3D<Precision> const& point, Vector3D<Precision>& norm) const {
-    int nosurface = 0;
-    bool onSurf(false);
 
-    Precision xp = point[0];
-    Precision yp = point[1];
-    Precision zp = point[2];
-    Precision xx1 = dx1();
-    Precision xx2 = dx2();
-    Precision yy1 = dy1();
-    Precision yy2 = dy2();
-    Precision zz = dz();
-    Precision XplusX   = 2.0 * yy1 * 2.0 * zz;
-    Precision XminusX  = XplusX;
-    Precision XplusY   = 0.0;
-    Precision XminusY  = 0.0;
-    Precision XplusZ   = 2.0 * yy1 * (xx1 - xx2);
-    Precision XminusZ  = 2.0 * yy1 * (-xx1 + xx2);
+  int noSurfaces = 0;
+  Vector3D<Precision> sumnorm(0., 0., 0.), vecnorm(0.,0.,0.);
+  Precision distz;
 
-    Precision YplusX   = 0.0;
-    Precision YminusX  = 0.0;
-    Precision YplusY   = -2.0 * xx1 * 2.0 * zz;
-    Precision YminusY  = YplusY;
-    Precision YplusZ   = 2.0 * xx1 * (-yy1 + yy2);
-    Precision YminusZ  = 2.0 * xx1 * (yy1 - yy2);
-    Precision ZplusX   = 0.0;
-    Precision ZminusX  = 0.0;
-    Precision ZplusY   = 0.0;
-    Precision ZminusY  = 0.0;
-    Precision ZplusZ   = -2.0 * xx2 * 2.0 * yy2;
-    Precision ZminusZ  = 2.0 * xx2 * 2.0 * yy1;
+  distz = std::fabs(std::fabs(point[2]) - fDZ);
 
-    // Checking for each plane whether the point is on Surface, if yes transfer normal
-    bool FacPlusX  = XplusX * (xp - xx2) + XplusY * (yp - yy2) + XplusZ * (zp - zz);
-    bool FacMinusX = XminusX * (xp + xx2) + XminusY * (yp - yy2) + XminusZ * (zp - zz);
-    bool FacPlusY  = YplusX * (xp - xx2)  + YplusY * (yp - yy2) + YplusZ * (zp - zz);
-    bool FacMinusY = YplusX * (xp - xx2) + YminusY * (yp + yy2) + YminusZ * (zp - zz);
-    bool FacPlusZ  = ZplusX * (xp - xx2) + ZplusY * (yp - yy2) + ZplusZ * (zp - zz);
-    bool FacMinusZ = ZminusX * (xp - xx2) + ZminusY * (yp + yy2) + ZminusZ * (zp - zz);
-    onSurf = FacPlusX || FacMinusX || FacPlusY || FacMinusY || FacPlusZ || FacMinusZ;
-    if (onSurf && FacPlusX)  norm[0] = XplusX;   norm[1] = XplusY;  norm[2] = XplusZ;  nosurface++;
-    if (onSurf && FacMinusX) norm[0] = XminusX;  norm[1] = XminusY; norm[2] = XminusZ; nosurface++;
-    if (onSurf && FacPlusY)  norm[0] = YplusX;   norm[1] = YplusY;  norm[2] = YplusZ;  nosurface++;
-    if (onSurf && FacMinusY) norm[0] = YminusX;  norm[1] = YminusY; norm[2] = YminusZ; nosurface++;
-    if (onSurf && FacPlusZ)  norm[0] = ZplusX;   norm[1] = ZplusY;  norm[2] = ZplusZ;  nosurface++;
-    if (onSurf && FacMinusZ) norm[0] = ZminusX;  norm[1] = ZminusY; norm[2] = ZminusZ; nosurface++;
-    return nosurface != 0;
+  Precision xnorm = 1.0 / sqrt(4*fDZ*fDZ + (fDX2-fDX1)*(fDX2-fDX1));
+  Precision ynorm = 1.0 / sqrt(4*fDZ*fDZ + (fDY2-fDY1)*(fDY2-fDY1));
+
+  Precision distmx = -2.0*fDZ*point[0] + 0.0*point[1] - (fDX2-fDX1)*point[2] - fDZ*(fDX1+fDX2);
+  distmx *= xnorm;
+
+  Precision distpx =  2.0*fDZ*point[0] + 0.0*point[1] - (fDX2-fDX1)*point[2] - fDZ*(fDX1+fDX2);
+  distpx *= xnorm;
+
+  Precision distmy = 0.0*point[0] - 2.0*fDZ*point[1] - (fDY2-fDY1)*point[2] - fDZ*(fDY1+fDY2);
+  distmy *= ynorm;
+
+  Precision distpy = 0.0*point[0] + 2.0*fDZ*point[1] - (fDY2-fDY1)*point[2] - fDZ*(fDY1+fDY2);
+  distpy *= ynorm;
+
+  if (fabs(distmx) <= kHalfTolerance) {
+    noSurfaces ++;
+    sumnorm += Vector3D<Precision>( -2.0*fDZ, 0.0, -(fDX2-fDX1) ) * xnorm;
+  }
+  if (fabs(distpx) <= kHalfTolerance) {
+    noSurfaces ++;
+    sumnorm += Vector3D<Precision>(  2.0*fDZ, 0.0, -(fDX2-fDX1) ) * xnorm;
+  }
+  if (fabs(distpy) <= kHalfTolerance) {
+    noSurfaces ++;
+    sumnorm += Vector3D<Precision>( 0.0, 2.0*fDZ, -(fDY2-fDY1) ) * ynorm;
+  }
+  if (fabs(distmy) <= kHalfTolerance) {
+    noSurfaces ++;
+    sumnorm += Vector3D<Precision>( 0.0, -2.0*fDZ, -(fDY2-fDY1) ) * ynorm;
+  }
+
+  if ( std::fabs(distz) <= kHalfTolerance) {
+    noSurfaces ++;
+    if (point[2] >= 0.)  sumnorm += Vector3D<Precision>(0.,0.,1.);
+    else                 sumnorm += Vector3D<Precision>(0.,0.,-1.);
+  }
+  if (noSurfaces == 0) {
+#ifdef UDEBUG
+    UUtils::Exception("UnplacedTrapezoid::SurfaceNormal(point)", "GeomSolids1002",
+                      Warning, 1, "Point is not on surface.");
+#endif
+    // vecnorm = ApproxSurfaceNormal( Vector3D<Precision>(point[0],point[1],point[2]) );
+    vecnorm = Vector3D<Precision>(0.,0.,1.);  // any plane will do it, since false is returned, so save the CPU cycles...
+  }
+  else if (noSurfaces == 1) vecnorm = sumnorm;
+  else                      vecnorm = sumnorm.Unit();
+
+  norm[0] = vecnorm[0];
+  norm[1] = vecnorm[1];
+  norm[2] = vecnorm[2];
+
+  return noSurfaces != 0;
 }
 
 
