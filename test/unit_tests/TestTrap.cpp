@@ -1,17 +1,17 @@
 //
-// TestTrap
-//
+// File:    TestTrap.cpp
+// Purpose: Unit test for the trapezoid
 
 #include "base/Vector3D.h"
 #include "volumes/Box.h"
 #include "ApproxEqual.h"
 #ifdef VECGEOM_USOLIDS
-#include "UTrap.hh"
-#include "UVector3.hh"
+  #include "UTrap.hh"
+  #include "UVector3.hh"
 #endif
 #include "volumes/Trapezoid.h"
 
-//             Ensure asserts are compiled in
+//.. ensure asserts are compiled in
 #undef NDEBUG
 #include <cassert>
 #include <cmath>
@@ -483,7 +483,7 @@ struct VECGEOMCONSTANTS
 int main(int argc, char *argv[]) {
 
     if( argc < 2) {
-        std::cerr << "need to give argument :--usolids or --vecgeom\n";
+        std::cerr << "need to give argument: --usolids or --vecgeom\n";
         return 1;
     }
 
@@ -504,7 +504,7 @@ int main(int argc, char *argv[]) {
     }
 
     else {
-        std::cerr << "need to give argument :--usolids or --vecgeom\n";
+        std::cerr << "need to give argument: --usolids or --vecgeom\n";
         return 1;
     }
 

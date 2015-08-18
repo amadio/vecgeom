@@ -1,9 +1,6 @@
 //
-//
-// unit test for tube
-
-
-
+// File:    TestTube.cpp
+// Purpose: unit test for tube
 
 #include "base/Vector3D.h"
 #include "volumes/Tube.h"

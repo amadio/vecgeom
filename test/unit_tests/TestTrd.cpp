@@ -1,9 +1,8 @@
 //
+// File: TestTrd.cpp
 //
-// TestTrd
-//             Ensure asserts are compiled in
-
-
+//    Ensure asserts are compiled in
+//
 
 #include "base/Vector3D.h"
 #include "volumes/Trd.h"
@@ -21,12 +20,11 @@ template <class Trd_t,class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
 
 bool TestTrd()
 {
-
- VUSolid::EnumInside inside ;
-  Vec_t pzero(0,0,0);
-  Vec_t ponxside(20,0,0),ponyside(0,30,0),ponzside(0,0,40);
-  Vec_t ponmxside(-20,0,0),ponmyside(0,-30,0),ponmzside(0,0,-40);
-  Vec_t ponzsidey(0,25,40),ponmzsidey(0,25,-40);
+    VUSolid::EnumInside inside ;
+    Vec_t pzero(0,0,0);
+    Vec_t ponxside(20,0,0),ponyside(0,30,0),ponzside(0,0,40);
+    Vec_t ponmxside(-20,0,0),ponmyside(0,-30,0),ponmzside(0,0,-40);
+    Vec_t ponzsidey(0,25,40),ponmzsidey(0,25,-40);
 
     Vec_t pbigx(100,0,0),pbigy(0,100,0),pbigz(0,0,100);
     Vec_t pbigmx(-100,0,0),pbigmy(0,-100,0),pbigmz(0,0,-100);
@@ -46,8 +44,8 @@ bool TestTrd()
     Trd_t trd1("Test Box #1",20,20,30,30,40);
     Trd_t trd2("Test Trd",10,30,20,40,40);
     Trd_t trd3("BABAR Trd",0.14999999999999999,0.14999999999999999, 
-                           24.707000000000001, 24.707000000000001, 
-	                   22.699999999999999) ;
+               24.707000000000001, 24.707000000000001,
+               22.699999999999999) ;
 
 
 // Check name
@@ -61,8 +59,8 @@ bool TestTrd()
     assert(ApproxEqual(vol,volCheck));
 
  // Check Surface area
-    assert(trd1.SurfaceArea() == 20800);    
-    std::cout<<"Trd Surface Area : " << trd1.SurfaceArea()<<std::endl;
+    //std::cout<<"Trd Surface Area : " << trd1.SurfaceArea()<<std::endl;
+    assert(trd1.SurfaceArea() == 20800);
 
 
 // Check Inside
@@ -375,11 +373,11 @@ bool TestTrd()
     assert(ApproxEqual(Dist,UUtils::kInfinity));
 
     Dist=trd3.DistanceToIn(Vec_t(  0.15000000000000185,
-                                         -22.048743592955137,
-                                           2.4268539333219472),
+                                   -22.048743592955137,
+                                   2.4268539333219472),
                            Vec_t(-0.76165597579890043,
-                                          0.64364445891356026,
-                                         -0.074515708658524193)) ;
+                                 0.64364445891356026,
+                                 -0.074515708658524193).Unit()) ;
 
     //    std::cout<<"BABAR trd distance = "<<Dist<<std::ensl ;
     assert(ApproxEqual(Dist,0.0));
@@ -397,11 +395,9 @@ bool TestTrd()
     assert(ApproxEqual(maxExtent,Vec_t( 20, 30, 40)));
     trd2.Extent(minExtent,maxExtent);
     //std::cout<<" min="<<minExtent<<" max="<<maxExtent<<std::endl;
-     assert(ApproxEqual(minExtent,Vec_t(-30,-40,-40)));
-     assert(ApproxEqual(maxExtent,Vec_t( 30, 40, 40)));
-  
+    assert(ApproxEqual(minExtent,Vec_t(-30,-40,-40)));
+    assert(ApproxEqual(maxExtent,Vec_t( 30, 40, 40)));
 
-   
     return true;
 }
 
