@@ -25,7 +25,7 @@ void ConstructOnGpu(DataClass *gpu_ptr, ArgsTypes... params) {
    new (gpu_ptr) DataClass(params...);
 }
 
- template <typename DataClass, typename... ArgsTypes>
+template <typename DataClass, typename... ArgsTypes>
 __global__
 void ConstructArrayOnGpu(DataClass *gpu_ptr, size_t nElements, ArgsTypes... params) {
 
