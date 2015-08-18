@@ -35,13 +35,13 @@ Precision UnplacedTrd::SurfaceArea() const {
 
   // Sum of area for planes Perp. to +X and -X
   Precision ht = (xvert) ? dz : Sqrt((fDX1-fDX2)*(fDX1-fDX2) + dz*dz);
-  SA += 2.0 * 0.5 * (fDY1 + fDY2) * ht;
+  SA += 2.0 * 2.0 * 0.5 * (fDY1 + fDY2) * ht;
 
   // Sum of area for planes Perp. to +Y and -Y
-  SA += 2.0 * 0.5 * (fDX1 + fDX2) * ht;    // if xvert then topology forces to become yvert for closing
+  SA += 2.0 * 2.0 * 0.5 * (fDX1 + fDX2) * ht;    // if xvert then topology forces to become yvert for closing
 
   // Sum of area for top and bottom planes +Z and -Z
-  SA += (fDX1 * fDY1) + (fDX2 * fDY2);
+  SA += 4.*(fDX1 * fDY1) + 4.*(fDX2 * fDY2);
 
   return SA;
 }
