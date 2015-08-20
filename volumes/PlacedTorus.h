@@ -76,6 +76,28 @@ public:
   VECGEOM_INLINE
   Precision dphi() const { return GetUnplacedVolume()->dphi(); }
 
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetRmin() const { return GetUnplacedVolume()->rmin(); }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetRmax() const { return GetUnplacedVolume()->rmax(); }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetRtor() const { return GetUnplacedVolume()->rtor(); }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetSPhi() const { return GetUnplacedVolume()->sphi(); }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetDPhi() const { return GetUnplacedVolume()->dphi(); }
+
+  void SetRmin(Precision arg) { const_cast<UnplacedTorus*>(GetUnplacedVolume())->SetRMin(arg); }
+  void SetRmax(Precision arg) { const_cast<UnplacedTorus*>(GetUnplacedVolume())->SetRMax(arg); }
+  void SetRtor(Precision arg) { const_cast<UnplacedTorus*>(GetUnplacedVolume())->SetRTor(arg); }
+  void SetSPhi(Precision arg) { const_cast<UnplacedTorus*>(GetUnplacedVolume())->SetSPhi(arg); }
+  void SetDPhi(Precision arg) { const_cast<UnplacedTorus*>(GetUnplacedVolume())->SetDPhi(arg); }
+
+  void SetAllParameters(Precision rminVal, Precision rmaxVal, Precision rtorVal,
+                        Precision sphiVal, Precision dphiVal) {
+    const_cast<UnplacedTorus*>(GetUnplacedVolume())->SetAllParameters(rminVal,rmaxVal,rtorVal,sphiVal,dphiVal);
+  }
+
   virtual Precision Capacity() override { return GetUnplacedVolume()->volume(); }
 
   void Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const override {

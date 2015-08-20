@@ -58,16 +58,21 @@ private:
 public:
   
   VECGEOM_CUDA_HEADER_BOTH
-  UnplacedTorus(const Precision rmin, const Precision rmax, const Precision rtor,
-               const Precision sphi, const Precision dphi) : fRmin(rmin), fRmax(rmax),
-    fRtor(rtor), fSphi(sphi), fDphi(dphi), fPhiWedge(dphi,sphi), fBoundingTube(0, 1, 1, 0, dphi) {
-    calculateCached(); 
-    
-    fBoundingTube = UnplacedTube(fRtor-fRmax - kTolerance,
-    fRtor+fRmax + kTolerance, fRmax,
-     sphi, dphi);
-   
-  }
+  UnplacedTorus(const Precision rminVal, const Precision rmaxVal, const Precision rtorVal,
+                const Precision sphiVal, const Precision dphiVal)
+    : fRmin(rminVal)
+    , fRmax(rmaxVal)
+    , fRtor(rtorVal)
+    , fSphi(sphiVal)
+    , fDphi(dphiVal)
+    , fPhiWedge(dphiVal,sphiVal)
+    , fBoundingTube(0, 1, 1, 0, dphiVal)
+    {
+      calculateCached();
+      fBoundingTube = UnplacedTube(fRtor-fRmax - kTolerance,
+                                   fRtor+fRmax + kTolerance, fRmax,
+                                   sphiVal, dphiVal);
+    }
 
 //  VECGEOM_CUDA_HEADER_BOTH
 //  UnplacedTorus(UnplacedTorus const &other) :
@@ -75,7 +80,6 @@ public:
 //    calculateCached();
 //
 //  }
-
 
     
   VECGEOM_CUDA_HEADER_BOTH
@@ -150,6 +154,27 @@ public:
   VECGEOM_INLINE
   Precision volume() const {
     return fDphi*kPi*fRtor*(fRmax*fRmax-fRmin*fRmin);
+  }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  void SetRMin(Precision arg) { fRmin = arg; calculateCached(); }
+  VECGEOM_CUDA_HEADER_BOTH
+  void SetRMax(Precision arg) { fRmax = arg; calculateCached(); }
+  VECGEOM_CUDA_HEADER_BOTH
+  void SetRTor(Precision arg) { fRtor = arg; calculateCached(); }
+  VECGEOM_CUDA_HEADER_BOTH
+  void SetSPhi(Precision arg) { fSphi = arg; calculateCached(); }
+  VECGEOM_CUDA_HEADER_BOTH
+  void SetDPhi(Precision arg) { fDphi = arg; calculateCached(); }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  void SetAllParameters(Precision val1, Precision val2, Precision val3, Precision val4, Precision val5) {
+    fRmin = val1;
+    fRmax = val2;
+    fRtor = val3;
+    fSphi = val4;
+    fDphi = val5;
+    calculateCached();
   }
 
   VECGEOM_CUDA_HEADER_BOTH

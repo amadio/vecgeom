@@ -431,7 +431,7 @@ double foo(double a, double b)
 typedef Complex<double> CT;
 VECGEOM_CUDA_HEADER_BOTH
 inline
-void solveQuartic2(double a, double b, double c, double d, double e, CT * roots)
+void solveQuartic2(double /*a*/, double b, double c, double d, double e, CT * roots)
 {
 
   // Uses Ferrari's Method; this will vectorize trivially ( at least when we treat the real and imaginary parts separately )
@@ -448,7 +448,7 @@ void solveQuartic2(double a, double b, double c, double d, double e, CT * roots)
 double gamma1= -3.0*bbb*b*inv256;
 double gamma2 =  c*bb*inv16;
 double gamma3 = - 0.25*b*d + e;
-double gammasum = gamma1+gamma2+gamma3;
+//double gammasum = gamma1+gamma2+gamma3;
 
 std::cout<<"g1="<<gamma1<<" g2="<<gamma2<<" g3="<<gamma3<<" g="<<gamma<<" inv256="<<inv256<<" bbb*b="<<bbb*b<<" ***"<<-3.0*bbb*b*inv256<<std::endl;
 #endif
@@ -475,7 +475,7 @@ std::cout<<"g1="<<gamma1<<" g2="<<gamma2<<" g3="<<gamma3<<" g="<<gamma<<" inv256
   //  CT R = Q*0.5 + csqrtrealargument(tmp);
   //    std::cerr << "R " << R << "\n";
 #ifdef DEBUGTORUS
-#if !__CUDA__ || __CUDA_ARCH__ >= 200
+#if __CUDA_ARCH__ >= 200
   printf("CUDA tmp %lf\n",tmp);
   printf("CUDA R (%lf, %lf) \n",R.real(), R.imag());
 #endif
@@ -657,7 +657,6 @@ struct TorusImplementation {
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
 
-
 //    // very fast check on z-height
 //    completelyoutside = point[2] > MakePlusTolerant<ForInside>( torus.rmax() );
 //    if (Backend::early_returns) {
@@ -740,7 +739,7 @@ struct TorusImplementation {
   typedef typename Backend::bool_v      Bool_t;
   //
   Bool_t completelyinside, completelyoutside;
-  GenericKernelForContainsAndInside<Backend,true,true>(torus, 
+  GenericKernelForContainsAndInside<Backend,true,true>(torus,
   point, completelyinside, completelyoutside);
   inside = EInside::kSurface;
   MaskedAssign(completelyoutside, EInside::kOutside, &inside);
@@ -816,7 +815,7 @@ struct TorusImplementation {
     template <class T>
     VECGEOM_CUDA_HEADER_BOTH
     static
-    T NewtonIter(T b, T c, T d, T e, T x, T fold)
+    T NewtonIter(T b, T c, T d, T /*e*/, T x, T fold)
     {
         T x2 = x*x;
         T fprime = 4*x2*x + 3*b*x2 + 2*c*x + d;
@@ -872,7 +871,7 @@ struct TorusImplementation {
        delta = b0*b0-c0;
        if (delta>0) {
         roots[2] = -b0-Sqrt(delta);
-	havevalidsolution = (roots[2] > 0);//-1E-9);
+    havevalidsolution = (roots[2] > 0);//-1E-9);
           MaskedAssign( havevalidsolution, Min(roots[2],validdistance), &validdistance );
           roots[3] = -b0+Sqrt(delta);
           havevalidsolution = (roots[3] > 0);//-1E-9);
@@ -1152,11 +1151,12 @@ struct TorusImplementation {
       UnplacedTorus const &torus,
       Vector3D<typename Backend::precision_v> const &point,
       Vector3D<typename Backend::precision_v> const &dir,
-      typename Backend::precision_v const &stepMax,
+      typename Backend::precision_v const &/*stepMax*/,
       typename Backend::precision_v &distance) {
 
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
+
     Bool_t inBounds;
     Bool_t done;
     distance = kInfinity;
