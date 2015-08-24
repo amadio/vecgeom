@@ -149,8 +149,8 @@ public:
     aArray[0] = GetRmin();
     aArray[1] = GetRmax();
     aArray[2] = GetRtor();
-    aArray[0] = GetSPhi();
-    aArray[1] = GetDPhi();
+    aArray[3] = GetSPhi();
+    aArray[4] = GetDPhi();
   }
 
   UVector3 GetPointOnSurface() const;

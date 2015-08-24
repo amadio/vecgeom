@@ -27,7 +27,7 @@ std::ostream& UTorus::StreamInfo(std::ostream& os) const
   os << "-----------------------------------------------------------\n"
      << "       *** Dump for solid - " << GetName() << " ***\n"
      << "       ===================================================\n"
-     << " Solid type: UBox\n"
+     << " Solid type: UTorus\n"
      << " Parameters: \n"
      << "       tube Rmin: " << fRmin << " mm \n"
      << "       tube Rmax: " << fRmax << " mm \n"
