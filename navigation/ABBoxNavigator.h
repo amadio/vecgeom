@@ -56,6 +56,14 @@ public:
             ABBoxManager::HitContainer_t & hitlist
   ) const;
 
+
+  void GetSafetyCandidates_v( Vector3D<Precision> const & /* point */,
+                            ABBoxManager::ABBoxContainer_v const & /* corners */,
+                            int size,
+                            ABBoxManager::HitContainer_t & /* boxsafetypairs */,
+                            Precision upperlimit ) const;
+
+
   // convert index to physical daugher
   VPlacedVolume const * LookupDaughter( LogicalVolume const *lvol, int id ) const {
       return lvol->GetDaughtersp()->operator []( id );

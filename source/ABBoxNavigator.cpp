@@ -131,4 +131,28 @@ int ABBoxNavigator::GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Preci
 #endif
 }
 
+void ABBoxNavigator::GetSafetyCandidates_v(Vector3D<Precision> const &point, ABBoxManager::ABBoxContainer_v const &corners, int size,
+                                         ABBoxManager::HitContainer_t &boxsafetypairs, Precision upper_squared_limit) const {
+
+#ifdef VECGEOM_VC
+    Vector3D<float> pointfloat((float)point.x(), (float)point.y(), (float)point.z());
+
+    int vecsize = size;
+    for( auto box = 0; box < vecsize; ++box ){
+         ABBoxManager::Real_v safetytoboxsqr =  ABBoxImplementation::ABBoxSafetySqr<kVcFloat, ABBoxManager::Real_t>(
+                        corners[2*box], corners[2*box+1], pointfloat );
+
+         ABBoxManager::Bool_v hit = safetytoboxsqr < ABBoxManager::Real_t(upper_squared_limit);
+         if (Any(hit)) {
+           for (auto i = 0; i < kVcFloat::precision_v::Size; ++i) {
+             if (hit[i])
+               boxsafetypairs.push_back(ABBoxManager::BoxIdDistancePair_t(box * kVcFloat::precision_v::Size + i, safetytoboxsqr[i]));
+           }
+         }
+    }
+#else
+#pragma message ("implementation for GetSafetyCandidates for scalar backend is missing")
+#endif
+}
+
 }}
