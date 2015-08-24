@@ -57,10 +57,10 @@ bool TestTrd()
     volCheck = 8*20*30*40;
     assert(ApproxEqual(vol,volCheck));
 
- // Check Surface area
+// Check Surface area
+
     //std::cout<<"Trd Surface Area : " << trd1.SurfaceArea()<<std::endl;
     assert(trd1.SurfaceArea() == 20800);
-
 
 // Check Inside
 

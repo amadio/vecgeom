@@ -57,7 +57,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedPolycone const* GetUnplacedVolume() const {
     return static_cast<UnplacedPolycone const *>(
-        GetLogicalVolume()->unplaced_volume());
+        GetLogicalVolume()->GetUnplacedVolume());
   }
 
   bool IsOpen() const { return (GetUnplacedVolume()->GetDeltaPhi()<kTwoPi); }

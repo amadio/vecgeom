@@ -214,7 +214,7 @@ SimpleNavigator::LocatePoint( VPlacedVolume const * vol, Vector3D<Precision> con
    }
    if( candvolume ) {
       path.Push( candvolume );
-      Vector<Daughter> const * daughters = candvolume->GetLogicalVolume()->daughtersp();
+      Vector<Daughter> const * daughters = candvolume->GetLogicalVolume()->GetDaughtersp();
 
       bool godeeper = true;
       while( godeeper && daughters->size() > 0)
@@ -230,7 +230,7 @@ SimpleNavigator::LocatePoint( VPlacedVolume const * vol, Vector3D<Precision> con
                path.Push( nextvolume );
                tmp = transformedpoint;
                candvolume =  nextvolume;
-               daughters = candvolume->GetLogicalVolume()->daughtersp();
+               daughters = candvolume->GetLogicalVolume()->GetDaughtersp();
                godeeper=true;
                break;
             }
@@ -260,7 +260,7 @@ SimpleNavigator::LocatePoint( VPlacedVolume const * vol, Vector3D<Precision> con
       }
       if( candvolume ) {
            path.Push( candvolume );
-           Vector<Daughter> const * daughters = candvolume->GetLogicalVolume()->daughtersp();
+           Vector<Daughter> const * daughters = candvolume->GetLogicalVolume()->GetDaughtersp();
 
            bool godeeper = true;
            while( godeeper && daughters->size() > 0)
@@ -277,7 +277,7 @@ SimpleNavigator::LocatePoint( VPlacedVolume const * vol, Vector3D<Precision> con
                         path.Push( nextvolume );
                         tmp = transformedpoint;
                         candvolume =  nextvolume;
-                        daughters = candvolume->GetLogicalVolume()->daughtersp();
+                        daughters = candvolume->GetLogicalVolume()->GetDaughtersp();
                         godeeper=true;
                         break;
                      }
@@ -381,7 +381,7 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
    }
 
    // iterate over all the daughter
-   Vector<Daughter> const * daughters = currentvolume->GetLogicalVolume()->daughtersp();
+   Vector<Daughter> const * daughters = currentvolume->GetLogicalVolume()->GetDaughtersp();
 
    for(int d = 0; d<daughters->size(); ++d)
    {
@@ -425,34 +425,30 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
    // do nothing (step=0) and retry one level higher
    if( step == kInfinity && pstep > 0. )
    {
-#if !defined(VECGEOM_NVCC)
-      std::cout << "WARNING: STEP INFINITY; should never happen unless outside\n";
+     //      std::cout << "WARNING: STEP INFINITY; should never happen unless outside\n";
       //InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );
       // set step to zero and retry one level higher
       // if( nexthitvolume!=-1 ) std::cout << "catastrophee\n";
 #if defined(VECGEOM_ROOT)
-      currentstate.printVolumePath(std::cout); std::cout << "\n";
+      //      currentstate.printVolumePath(std::cout); std::cout << "\n";
 #endif
-      newstate.Clear();
-      VPlacedVolume const *world = GeoManager::Instance().GetWorld();
-      LocatePoint(world, globalpoint + vecgeom::kTolerance*globaldir, newstate, true);
+      //      newstate.Clear();
+      //      VPlacedVolume const *world = GeoManager::Instance().GetWorld();
+      //      LocatePoint(world, globalpoint + vecgeom::kTolerance*globaldir, newstate, true);
       step = vecgeom::kTolerance;
 #if defined(VECGEOM_ROOT)
      // InspectEnvironmentForPointAndDirection( globalpoint, localpoint, currentstate );
-      newstate.printVolumePath(std::cout); std::cout << "\n";
-      InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );
-      std::cout << " counter is " << counter << "\n";
+      //      newstate.printVolumePath(std::cout); std::cout << "\n";
+      //      InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );
+      //      std::cout << " counter is " << counter << "\n";
 #endif
       newstate.SetBoundaryState(true);
-      if( newstate.HasSamePathAsOther(currentstate) ) {
-          std::cout << "$$$$$$$$$$$$$$$$$$$$$$$4 MASSIVE WARNING $$$$$$$$$$$$$$$$$$$$$$$$$ \n";
-          newstate.Pop();
-      }
+      //      if( newstate.HasSamePathAsOther(currentstate) ) {
+      //          std::cout << "$$$$$$$$$$$$$$$$$$$$$$$4 MASSIVE WARNING $$$$$$$$$$$$$$$$$$$$$$$$$ \n";
+      //          newstate.Pop();
+      //      }
+      newstate.Pop();
       return;
-#else
-      // Can't call GeoManager::Instance().GetWorld() from CUDA code
-      assert(false && "ERROR: point is outside expected volumes");
-#endif
    }
    // is geometry further away than physics step?
    if(step > pstep)
@@ -609,7 +605,7 @@ Precision SimpleNavigator::GetSafety(Vector3D<Precision> const & globalpoint,
    //assert( safety > 0 );
 
    // safety to daughters
-   Vector<Daughter> const * daughters = currentvol->GetLogicalVolume()->daughtersp();
+   Vector<Daughter> const * daughters = currentvol->GetLogicalVolume()->GetDaughtersp();
    int numberdaughters = daughters->size();
    for(int d = 0; d<numberdaughters; ++d)
    {
@@ -646,7 +642,7 @@ void SimpleNavigator::GetSafeties(Container3D const & globalpoints,
     currentvol->SafetyToOut( workspaceforlocalpoints, safeties );
 
     // safety to daughters; brute force but each function vectorized
-    Vector<Daughter> const * daughters = currentvol->GetLogicalVolume()->daughtersp();
+    Vector<Daughter> const * daughters = currentvol->GetLogicalVolume()->GetDaughtersp();
     int numberdaughters = daughters->size();
     for (int d = 0; d<numberdaughters; ++d) {
          VPlacedVolume const * daughter = daughters->operator [](d);
@@ -703,7 +699,7 @@ void SimpleNavigator::FindNextBoundaryAndStep(
            pSteps, distances, nextnodeworkspace );
 
    // iterate over all the daughter
-   Vector<Daughter> const * daughters = currentvolume->GetLogicalVolume()->daughtersp();
+   Vector<Daughter> const * daughters = currentvolume->GetLogicalVolume()->GetDaughtersp();
    for (int daughterindex=0; daughterindex < daughters->size(); ++daughterindex)
    {
       VPlacedVolume const * daughter = daughters->operator [](daughterindex);

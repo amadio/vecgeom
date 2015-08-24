@@ -60,7 +60,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedPolyhedron const* GetUnplacedVolume() const {
     return static_cast<UnplacedPolyhedron const *>(
-        GetLogicalVolume()->unplaced_volume());
+        GetLogicalVolume()->GetUnplacedVolume());
   }
 
   VECGEOM_CUDA_HEADER_BOTH
