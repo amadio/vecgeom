@@ -27,14 +27,14 @@
 
 //============== here for VecGeom-based implementation
 
-#include "volumes/SpecializedTorus.h"
+#include "volumes/SpecializedTorus2.h"
 #include "volumes/LogicalVolume.h"
 #include "volumes/UnplacedTorus.h"
 #include "base/Transformation3D.h"
 
-class UTorus: public vecgeom::SimpleTorus {
+class UTorus: public vecgeom::SimpleTorus2 {
   // just forwards UTorus to vecgeom::SimpleTorus
-  using vecgeom::SimpleTorus::SimpleTorus;
+  using vecgeom::SimpleTorus2::SimpleTorus2;
 };
 //============== end of VecGeom-based implementation
 

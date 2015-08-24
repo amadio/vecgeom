@@ -12,7 +12,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class UnplacedTorus2; )
-VECGEOM_DEVICE_DECLARE_CONV( UnplacedTorus2 );
+VECGEOM_DEVICE_DECLARE_CONV( UnplacedTorus2 )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -32,7 +32,7 @@ private:
   Precision fTolIrmin2, fTolOrmin2, fTolIrmax2, fTolOrmax2;
   // bounding tube
   UnplacedTube fBoundingTube;
- 
+
   VECGEOM_CUDA_HEADER_BOTH
   static void GetAlongVectorToPhiSector(Precision phi, Precision &x, Precision &y) {
     x = std::cos(phi);
@@ -47,7 +47,7 @@ private:
 
     fTolOrmin2 = (fRmin - kTolerance)*(fRmin - kTolerance);
     fTolIrmin2 = (fRmin + kTolerance)*(fRmin + kTolerance);
-    
+
     fTolOrmax2 = (fRmax + kTolerance)*(fRmax + kTolerance);
     fTolIrmax2 = (fRmax - kTolerance)*(fRmax - kTolerance);
 
@@ -56,17 +56,16 @@ private:
   }
 
 public:
-  
+
   VECGEOM_CUDA_HEADER_BOTH
-  UnplacedTorus2(const Precision rmin, const Precision rmax, const Precision rtor,
-               const Precision sphi, const Precision dphi) : fRmin(rmin), fRmax(rmax),
-    fRtor(rtor), fSphi(sphi), fDphi(dphi), fPhiWedge(dphi,sphi), fBoundingTube(0, 1, 1, 0, dphi) {
-    calculateCached(); 
-    
+  UnplacedTorus2(const Precision rminVal, const Precision rmaxVal, const Precision rtorVal,
+               const Precision sphiVal, const Precision dphiVal) : fRmin(rminVal), fRmax(rmaxVal),
+    fRtor(rtorVal), fSphi(sphiVal), fDphi(dphiVal), fPhiWedge(dphiVal,sphiVal), fBoundingTube(0, 1, 1, 0, dphiVal) {
+    calculateCached();
+
     fBoundingTube = UnplacedTube(fRtor-fRmax - kTolerance,
     fRtor+fRmax + kTolerance, fRmax,
-     sphi, dphi);
-   
+     sphiVal, dphiVal);
   }
 
 //  VECGEOM_CUDA_HEADER_BOTH
@@ -76,8 +75,6 @@ public:
 //
 //  }
 
-
-    
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision rmin() const { return fRmin; }
@@ -153,12 +150,21 @@ public:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
+  void SetRMin(Precision arg) { fRmin = arg; calculateCached(); }
+  VECGEOM_CUDA_HEADER_BOTH
+  void SetRMax(Precision arg) { fRmax = arg; calculateCached(); }
+  VECGEOM_CUDA_HEADER_BOTH
+  void SetRTor(Precision arg) { fRtor = arg; calculateCached(); }
+  VECGEOM_CUDA_HEADER_BOTH
+  void SetSPhi(Precision arg) { fSphi = arg; calculateCached(); }
+  VECGEOM_CUDA_HEADER_BOTH
+  void SetDPhi(Precision arg) { fDphi = arg; calculateCached(); }
+
+  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision SurfaceArea() const {
-     
      Precision surfaceArea = fDphi*kTwoPi*fRtor*(fRmax+fRmin);
-     if(fDphi < kTwoPi)
-     {
+     if(fDphi < kTwoPi) {
        surfaceArea = surfaceArea + kTwoPi*(fRmax*fRmax-fRmin*fRmin);
      } 
      return surfaceArea;

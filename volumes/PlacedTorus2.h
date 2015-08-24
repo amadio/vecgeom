@@ -13,7 +13,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedTorus2; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedTorus2 );
+VECGEOM_DEVICE_DECLARE_CONV( PlacedTorus2 )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -76,6 +76,23 @@ public:
   VECGEOM_INLINE
   Precision dphi() const { return GetUnplacedVolume()->dphi(); }
 
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetRmin() const { return GetUnplacedVolume()->rmin(); }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetRmax() const { return GetUnplacedVolume()->rmax(); }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetRtor() const { return GetUnplacedVolume()->rtor(); }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetSPhi() const { return GetUnplacedVolume()->sphi(); }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetDPhi() const { return GetUnplacedVolume()->dphi(); }
+
+  void SetRmin(Precision arg) { const_cast<UnplacedTorus2*>(GetUnplacedVolume())->SetRMin(arg); }
+  void SetRmax(Precision arg) { const_cast<UnplacedTorus2*>(GetUnplacedVolume())->SetRMax(arg); }
+  void SetRtor(Precision arg) { const_cast<UnplacedTorus2*>(GetUnplacedVolume())->SetRTor(arg); }
+  void SetSPhi(Precision arg) { const_cast<UnplacedTorus2*>(GetUnplacedVolume())->SetSPhi(arg); }
+  void SetDPhi(Precision arg) { const_cast<UnplacedTorus2*>(GetUnplacedVolume())->SetDPhi(arg); }
+
   virtual Precision Capacity() override { return GetUnplacedVolume()->volume(); }
 
   void Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const override {
@@ -94,7 +111,7 @@ public:
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const* ConvertToRoot() const override;
 #endif
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
   virtual ::VUSolid const* ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4

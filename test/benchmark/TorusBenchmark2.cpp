@@ -2,6 +2,7 @@
 #include "volumes/Torus2.h"
 #include "benchmarking/Benchmarker.h"
 #include "management/GeoManager.h"
+// #include "management/RootGeoManager.h"
 #include "ArgParser.h"
 #include "base/Vector3D.h"
 #include "base/Global.h"
@@ -65,7 +66,7 @@ int main(int argc, char* argv[]) {
 
   VPlacedVolume *worldPlaced = world.Place();
 
-  RootGeoManager::Instance().ExportToROOTGeometry( worldPlaced, "testtorus.root");
+  // RootGeoManager::Instance().ExportToROOTGeometry( worldPlaced, "testtorus.root");
 
   GeoManager::Instance().SetWorld(worldPlaced);
 
