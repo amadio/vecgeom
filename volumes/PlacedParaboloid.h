@@ -119,7 +119,7 @@ public:
     
 #if !defined(VECGEOM_NVCC)
     virtual
-    bool Normal(Vector3D<Precision> const &, Vector3D<double> &normal) const override {
+    bool Normal(Vector3D<Precision> const &, Vector3D<double> &/*normal*/) const override {
       Assert(0, "Normal with point only not implemented for Paraboloid.\n");
       return false;
     }
