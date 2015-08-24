@@ -104,12 +104,12 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   double GetThetaCphi() const {
-      return (double)((vecgeom::UnplacedTrapezoid*)unplaced_volume())->GetTanThetaCosPhi();
+      return (double)GetUnplacedVolume()->GetTanThetaCosPhi();
   }
 
   VECGEOM_CUDA_HEADER_BOTH
   double GetThetaSphi() const {
-      return (double)((vecgeom::UnplacedTrapezoid*)unplaced_volume())->GetTanThetaSinPhi();
+      return (double)GetUnplacedVolume()->GetTanThetaSinPhi();
   }
 
 
@@ -124,7 +124,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   void SetPlanes(const UVector3 upt[8]) {
-    vecgeom::UnplacedTrapezoid* utrap = (vecgeom::UnplacedTrapezoid*)unplaced_volume();
+    vecgeom::UnplacedTrapezoid* utrap = const_cast<vecgeom::UnplacedTrapezoid*>(GetUnplacedVolume());
     if(sizeof(upt)==8*sizeof(Vector3D<Precision>)) {
       utrap->fromCornersToParameters(upt);
     }
@@ -145,14 +145,14 @@ public:
 
 #ifndef VECGEOM_PLANESHELL_DISABLE
       using TrapPlanes = vecgeom::UnplacedTrapezoid::Planes;
-      TrapPlanes const* planes = ((vecgeom::UnplacedTrapezoid*)unplaced_volume())->GetPlanes();
+      TrapPlanes const* planes = GetUnplacedVolume()->GetPlanes();
       sidePlane.fA = (double)planes->fA[n];
       sidePlane.fB = (double)planes->fA[n];
       sidePlane.fC = (double)planes->fC[n];
       sidePlane.fD = (double)planes->fD[n];
 #else
       using TrapSidePlane = vecgeom::UnplacedTrapezoid::TrapSidePlane;
-      TrapSidePlane const* planes = ((vecgeom::UnplacedTrapezoid*)unplaced_volume())->GetPlanes();
+      TrapSidePlane const* planes = GetUnplacedVolume()->GetPlanes();
       sidePlane.fA = (double)(planes[n].fA);
       sidePlane.fB = (double)(planes[n].fB);
       sidePlane.fC = (double)(planes[n].fC);
@@ -162,7 +162,7 @@ public:
   }
 
   UVector3 GetSymAxis() const {
-    vecgeom::UnplacedTrapezoid* utrap = (vecgeom::UnplacedTrapezoid*)unplaced_volume();
+    vecgeom::UnplacedTrapezoid const* utrap = GetUnplacedVolume();
     double tanThetaSphi = utrap->GetTanThetaSinPhi();
     double tanThetaCphi = utrap->GetTanThetaCosPhi();
     double tan2Theta = tanThetaSphi*tanThetaSphi + tanThetaCphi*tanThetaCphi;
@@ -225,7 +225,7 @@ protected:
   // static PlacedBox* make_bounding_box(LogicalVolume const *const logical_volume,
   //                                     Transformation3D const *const transformation) {
 
-  //   UnplacedTrapezoid const *const utrap = static_cast<UnplacedTrapezoid const *const>(logical_volume->unplaced_volume());
+  //   UnplacedTrapezoid const *const utrap = static_cast<UnplacedTrapezoid const *const>(logical_volume->GetUnplacedVolume());
   //   UnplacedBox const *const unplaced_bbox = new UnplacedBox(
   //     std::max(std::max(utrap->GetDx1(),utrap->GetDx2()),std::max(utrap->GetDx3(),utrap->GetDx4())),
   //     std::max(utrap->GetDy1(),utrap->GetDy2()), utrap->GetDz());
