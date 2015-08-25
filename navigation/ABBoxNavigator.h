@@ -322,8 +322,6 @@ ABBoxNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoint
    }
 }
 
-// this is just the brute force method; need to see whether it makes sense to combine it into
-// the FindBoundaryAndStep function
 Precision ABBoxNavigator::GetSafety(Vector3D<Precision> const & globalpoint,
                             NavigationState const & currentstate) const
 {
@@ -332,21 +330,51 @@ Precision ABBoxNavigator::GetSafety(Vector3D<Precision> const & globalpoint,
    currentstate.TopMatrix(m);
    Vector3D<Precision> localpoint=m.Transform(globalpoint);
 
-   // safety to mother
-   VPlacedVolume const * currentvol = currentstate.Top();
+   VPlacedVolume const *currentvol = currentstate.Top();
    double safety = currentvol->SafetyToOut( localpoint );
+   double safetysqr = safety*safety;
 
-   //assert( safety > 0 );
+   // safety to bounding boxes
+   LogicalVolume const *lvol = currentvol->GetLogicalVolume();
+   if( safety > 0. && lvol->GetDaughtersp()->size() > 0 ){
+       ABBoxManager &instance = ABBoxManager::Instance();
+       ABBoxManager::HitContainer_t &boxsafetylist = instance.GetAllocatedHitContainer();
 
-   // safety to daughters
-   Vector<Daughter> const * daughters = currentvol->GetLogicalVolume()->GetDaughtersp();
-   int numberdaughters = daughters->size();
-   for(int d = 0; d<numberdaughters; ++d) {
-      VPlacedVolume const * daughter = daughters->operator [](d);
-      double tmp = daughter->SafetyToIn( localpoint );
-      safety = Min(safety, tmp);
-   }
-   return safety;
-}
+       int size;
+       boxsafetylist.clear();
+
+       ABBoxManager::ABBoxContainer_v bboxes =  instance.GetABBoxes_v( lvol , size );
+       // calculate squared bounding box safeties in vectorized way
+       GetSafetyCandidates_v(localpoint, bboxes, size, boxsafetylist, safetysqr);
+
+       // sorting the list
+       ABBoxManager::sort( boxsafetylist, ABBoxManager::HitBoxComparatorFunctor() );
+
+       // at this moment boxsafetylist only contains
+       // elements whose "bounding box" safetysqr is smaller than safetytooutsqr and which hence have to be checked
+#ifdef VERBOSE
+       std::cerr << "boxsafetylist has " << boxsafetylist.size() << " candidates \n";
+#endif
+       for( auto boxsafetypair : boxsafetylist ){
+       if( boxsafetypair.second < safetysqr ){
+	 //	 std::cerr << " id " << boxsafetypair.first << " safetysqr " << boxsafetypair.second << "\n"; 
+         VPlacedVolume const *candidate = LookupDaughter( lvol, boxsafetypair.first );
+         auto candidatesafety = candidate->SafetyToIn( localpoint );
+#ifdef VERBOSE
+         if( candidatesafety*candidatesafety > boxsafetypair.second && boxsafetypair.second > 0 )
+             std::cerr << "real safety smaller than boxsafety \n";
+#endif
+         if( candidatesafety < safety ){
+           safety = candidatesafety;
+           safetysqr = safety*safety;
+         }
+         else { // this box has a safety which is larger than the best known safety so we can stop here
+           break;
+         }
+       }
+       }}
+       return safety;
+ }
+
 
 } } // End global namespace
