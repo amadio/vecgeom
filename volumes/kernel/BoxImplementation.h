@@ -984,7 +984,7 @@ void BoxImplementation<transCodeT, rotCodeT>::NormalKernel(
         runningmax = Max(runningmax, safety.z());
       }
 
-      Bool_v inside = !(outsidex && outsidey && outsidez);
+      Bool_v inside = !(outsidex || outsidey || outsidez);
       if (Any(inside))
         MaskedAssign(inside, -runningmax * runningmax, &runningsafetysqr);
       return runningsafetysqr;
