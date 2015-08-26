@@ -110,6 +110,46 @@ Precision benchmarkSerialSafety( int nPoints, int nReps, SOA3D<Precision> const&
   return (Precision)elapsed;
 }
 
+template<typename Navigator>
+Precision benchmarkVectorSafety( int nPoints, int nReps, SOA3D<Precision> const& points) {
+   NavigationState ** curStates = new NavigationState*[nPoints];
+   Precision * safety = new Precision[nPoints];
+   SOA3D<Precision> workspace(nPoints);
+   for( int i=0; i<nPoints; ++i) curStates[i] = NavigationState::MakeInstance( GeoManager::Instance().getMaxDepth() );
+
+   {
+     vecgeom::SimpleNavigator nav;
+     for( int i=0; i<nPoints; ++i ){
+       curStates[i]->Clear();
+       nav.LocatePoint( GeoManager::Instance().GetWorld(), points[i], *curStates[i], true);
+     }
+   }
+   Navigator nav;
+   Stopwatch timer;
+   timer.Start();
+#ifdef CALLGRIND_ENABLED
+   CALLGRIND_START_INSTRUMENTATION;
+#endif
+   for(int n=0; n<nReps; ++n) {
+       nav.GetSafeties( points, curStates, workspace, safety );
+   }
+#ifdef CALLGRIND_ENABLED
+   CALLGRIND_STOP_INSTRUMENTATION;
+   CALLGRIND_DUMP_STATS;
+#endif
+   Precision elapsed = timer.Stop();
+
+  // cleanup
+  for( int i=0; i<nPoints; ++i) {
+    NavigationState::ReleaseInstance( curStates[i] );
+  }
+  delete[] curStates;
+
+  return (Precision)elapsed;
+}
+
+
+
 #ifdef VECGEOM_ROOT
 Precision benchmarkROOTSafety( int nPoints, int nReps,
                                SOA3D<Precision> const& points ) {
@@ -351,6 +391,10 @@ Precision benchmarkGeant4Navigation( int nPoints, int nReps,
   // safety
   cputime = benchmarkSerialSafety<vecgeom::ABBoxNavigator>(np,nreps,points);
   printf("CPU elapsed time (safety; ABBoxNavigator) %f ms\n", 1000.*cputime);
+
+  // vector safety
+  cputime = benchmarkVectorSafety<vecgeom::SimpleNavigator>(np,nreps,points);
+  printf("CPU elapsed time (vector safety; SimpleNavigator) %f ms\n", 1000.*cputime);
 
   // ROOT safety
   cputime = benchmarkROOTSafety(np,nreps,points);
