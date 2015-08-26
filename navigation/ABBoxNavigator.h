@@ -66,6 +66,8 @@ public:
 
   // convert index to physical daugher
   VPlacedVolume const * LookupDaughter( LogicalVolume const *lvol, int id ) const {
+      assert( id >= 0 && "access with negative index");
+      assert( id < lvol->GetDaughtersp()->size() && "access beyond size of daughterlist ");
       return lvol->GetDaughtersp()->operator []( id );
   }
 
