@@ -142,12 +142,12 @@ void ABBoxManager::InitABBoxes(LogicalVolume const *lvol) {
       } else {
         // filling in bounding boxes of zero size
         // better to put some irrational number than 0?
-        lower.x()[k] = 0.;
-        lower.y()[k] = 0.;
-        lower.z()[k] = 0.;
-        upper.x()[k] = 0.;
-        upper.y()[k] = 0.;
-        upper.z()[k] = 0.;
+        lower.x()[k] = -vecgeom::kInfinity;
+        lower.y()[k] = -vecgeom::kInfinity;
+        lower.z()[k] = -vecgeom::kInfinity;
+        upper.x()[k] = -vecgeom::kInfinity;
+        upper.y()[k] = -vecgeom::kInfinity;
+        upper.z()[k] = -vecgeom::kInfinity;
       }
     }
     vectorboxes[index++] = lower;
