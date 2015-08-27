@@ -134,7 +134,7 @@ public:
 
     // Computes capacity of the shape in [length^3]
   double Capacity() {
-    return vecgeom::kPi*fDz*(fRlo*fRlo+fRhi*fRhi);
+    return UUtils::kPi*fDz*(fRlo*fRlo+fRhi*fRhi);
   }
 
   inline double SurfaceArea();
