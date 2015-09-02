@@ -1,5 +1,5 @@
-/// \file vectorlorentz.h
-/// \author Johannes de Fine Licht (johannes.definelicht@cern.ch) + fca
+/// \file LorentzVector.h
+/// \author Federico Carminati (based on existing Vector3D.h)
 
 #ifndef VECGEOM_BASE_LORENTZVECTOR_H_
 #define VECGEOM_BASE_LORENTZVECTOR_H_
