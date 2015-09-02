@@ -178,7 +178,7 @@ LogicalVolume* RootGeoManager::Convert(TGeoVolume const *const volume) {
   LogicalVolume *const logical_volume =
       new LogicalVolume(volume->GetName(), unplaced);
   Medium const *const medium = Convert(volume->GetMedium());
-  const_cast<LogicalVolume*>(logical_volume)->setTrackingMediumPtr((void*)medium);
+  const_cast<LogicalVolume*>(logical_volume)->SetTrackingMediumPtr((void*)medium);
     
   fLogicalVolumeMap.Set(volume, logical_volume);
   return logical_volume;

@@ -19,16 +19,8 @@
 // The following is here for the ROOT I/O
 //#include "TStorage.h"
 
-#include <iostream> 
 #include <vector>
-
 #include "base/Global.h"
-
-using std::string;
-using std::vector;
-using std::cout;
-using std::endl;
-using std::ostream;
 
 namespace vecgeom {
   
@@ -57,16 +49,16 @@ public:
    const char* GetName() const {return fName.c_str();}
    void GetElementProp(double &ad, double &zd, double &wd, int iel) const;
    double GetDensity() const {return fDensity;}
-   void Dump() const {cout << "To be implemented" << endl;}
+   void Dump() const;
    int GetIndex() const {return fIndex;}
-   template <typename T> int GetRatioBW(vector<T> &rbw) const;
-   static vector<Material*>& GetMaterials() {return fMatDB;}
+   template <typename T> int GetRatioBW(std::vector<T> &rbw) const;
+   static std::vector<Material*>& GetMaterials() {return gMatDB;}
 
    // remove 
    void SetXsecPtr(void *ptr) {xsecPtr = ptr;}
    void *GetXsecPtr() const {return xsecPtr;}
 
-   friend ostream& operator<<(ostream& os, const Material& mat);
+   template<typename Stream> friend Stream& operator<<(Stream& os, const Material& mat);
 
    struct Element {
       Element(): fA(0), fZ(0), fW(0) {}
@@ -80,22 +72,21 @@ private:
    Material(const Material&);      // Not implemented
    Material& operator=(const Material&);      // Not implemented
 
-   static vector<Material*> fMatDB;
+   static std::vector<Material*> gMatDB;
 
-   string fName; // name of the material
+   std::string fName; // name of the material
    bool fUsed; // whether the material is used or not
    double fDensity; // density in g/cm3
    double fZ; // z of the material
    double fA; // A of the material
    int fNelem; // number of element
    int fIndex; // index of the material in the vector
-   vector<Element> fElements;
+   std::vector<Element> fElements;
 
    //remove
    void *xsecPtr;
 
-//   ClassDef(Material,1)  //Material X-secs
-
+   // ClassDef(Material,1)  //Material X-secs
 };
 
 
@@ -140,18 +131,28 @@ Material::Material(const char *name, const T a[], const U z[], const V w[],
    totw = 1/totw;
    fA *= totw;
    fZ *= totw;
-   for(vector<Element>::iterator el = fElements.begin(); el!=fElements.end(); ++el) el->fW*=totw;
-   fIndex = fMatDB.size();
-   fMatDB.push_back(this);
+   for(auto element : fElements) element.fW*=totw;
+   fIndex = gMatDB.size();
+   gMatDB.push_back(this);
 }
 
-template <typename T> int Material::GetRatioBW(vector<T> &rbw) const {
+template <typename T> int Material::GetRatioBW(std::vector<T> &rbw) const {
    rbw.clear();
-   for(vector<Element>::const_iterator el = fElements.begin(); el!=fElements.end(); ++el) 
-      rbw.push_back(el->fW*el->fA/fA);
+   for(auto element : fElements) rbw.push_back(element.fW*element.fA/fA);
    return fNelem;
  }
 
+// for IO
+template <typename Stream>
+Stream& operator<<(Stream &os, const Material &mat)
+{
+    os << "Material:" << mat.fName << " Z:" << mat.fZ << " A:" << mat.fA ;
+    if(mat.fNelem>1)
+       for(int iel=0; iel<mat.fNelem; ++iel)
+    os << "    Element Z:" << mat.fElements[iel].fZ << " A:"
+         << mat.fElements[iel].fA << " W:" << mat.fElements[iel].fW;
+    return os;
+}
 
 }
 } // End global namespace
