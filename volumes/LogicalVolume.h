@@ -46,6 +46,9 @@ private:
         included for the moment to model UserExtension like in TGeoVolume
   */
   void * fUserExtensionPtr;
+  /** some specific pointers used by Geant-V
+   *
+   */
   void * fTrackingMediumPtr;
   void * fBasketManagerPtr;
 
@@ -83,10 +86,10 @@ public:
       // Id for logical volumes is not needed on the device for CUDA
       : fUnplacedVolume(unplaced_vol),
         fId(-1),
-        fLabel(NULL),
-        fUserExtensionPtr(NULL),
-        fTrackingMediumPtr(NULL),
-        fBasketManagerPtr(NULL),
+        fLabel(nullptr),
+        fUserExtensionPtr(nullptr),
+        fTrackingMediumPtr(nullptr),
+        fBasketManagerPtr(nullptr),
         fDaughters(GetDaughter) {}
 #endif
 
@@ -119,16 +122,16 @@ public:
 //  unsigned int GetNDaughters() const { return daughters_->size(); }
 
   VECGEOM_INLINE
-  void * getUserExtensionPtr( ) const {  return fUserExtensionPtr;  }
+  void *GetUserExtensionPtr() const { return fUserExtensionPtr; }
   VECGEOM_INLINE
-  void * getTrackingMediumPtr( ) const {  return fTrackingMediumPtr;  }
+  void *GetTrackingMediumPtr() const { return fTrackingMediumPtr; }
   VECGEOM_INLINE
-  void * getBasketManagerPtr() const { return fBasketManagerPtr; }
+  void *GetBasketManagerPtr() const { return fBasketManagerPtr; }
 
   int id() const { return fId; }
 
-  const char* GetName() const { return fLabel->c_str();}
-  std::string GetLabel() const {return *fLabel;}
+  const char *GetName() const { return fLabel->c_str(); }
+  std::string GetLabel() const { return *fLabel; }
 
   void SetLabel(char const *const label) {
     if(fLabel) delete fLabel;
@@ -136,14 +139,13 @@ public:
   }
 
   VECGEOM_INLINE
-
-  void setUserExtensionPtr( void * userpointer ) { fUserExtensionPtr = userpointer; }
-
-  VECGEOM_INLINE
-  void setTrackingMediumPtr( void * tmediumpointer ) { fTrackingMediumPtr = tmediumpointer; }
+  void SetUserExtensionPtr(void *userpointer) { fUserExtensionPtr = userpointer; }
 
   VECGEOM_INLINE
-  void setBasketManagerPtr( void * basketpointer ) { fBasketManagerPtr = basketpointer; }
+  void SetTrackingMediumPtr(void *tmediumpointer) { fTrackingMediumPtr = tmediumpointer; }
+
+  VECGEOM_INLINE
+  void SetBasketManagerPtr(void *basketpointer) { fBasketManagerPtr = basketpointer; }
 
   VECGEOM_CUDA_HEADER_BOTH
   void Print(const int indent = 0) const;
