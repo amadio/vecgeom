@@ -137,6 +137,7 @@ private:
   std::map<int, VPlacedVolume*> fPlacedVolumesMap;
   std::map<int, LogicalVolume*> fLogicalVolumesMap;
   int fMaxDepth;
+  bool fIsClosed;
 
   // traverses the geometry tree of placed volumes and applies injected Visitor
   template<typename Visitor>
@@ -246,7 +247,7 @@ protected:
 
 private:
  GeoManager() : fVolumeCount(0), fTotalNodeCount(0), fWorld(NULL), fPlacedVolumesMap(),
- fLogicalVolumesMap(), fMaxDepth(-1)
+ fLogicalVolumesMap(), fMaxDepth(-1), fIsClosed(false)
  {}
 
   GeoManager(GeoManager const&);

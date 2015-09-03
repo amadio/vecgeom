@@ -55,6 +55,7 @@ LogicalVolume::~LogicalVolume() {
        ++i) {
     delete *i;
   }
+  GeoManager::Instance().DeregisterLogicalVolume(fId);
   delete fDaughters;
 }
 
