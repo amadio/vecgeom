@@ -39,7 +39,7 @@ option(GEANT4 "Include Geant4." OFF)
 
 option(BENCHMARK "Enable performance comparisons." OFF)
 
-option(NO_SPECIALIZATION "Disable specialization of volumes." OFF)
+option(NO_SPECIALIZATION "Disable specialization of volumes." ON)
 
 option(COVERAGE_TESTING "Enable coverage testing flags." OFF)
 
@@ -75,7 +75,7 @@ enum_option(BACKEND
             CASE_INSENSITIVE
            )
 
-option(VC_ACCELERATION "Internal vectorization using Vc." ON)
+option(VC_ACCELERATION "Internal vectorization using Vc." OFF)
 
 option(VTUNE "Enable the use of profiler Vtune" OFF)
 
@@ -457,7 +457,7 @@ endif()
 
 ################################################################################
 
-include_directories(${CMAKE_SOURCE_DIR})
+include_directories(BEFORE ${CMAKE_SOURCE_DIR})
 
 set(SRC_CPP_RELATIVE
   source/RNG.cpp
@@ -510,6 +510,14 @@ set(SRC_CPP_RELATIVE
   source/ABBoxNavigator.cpp
 
   source/USolidsInterfaceHelper.cpp
+
+  source/Material.cpp
+  source/Medium.cpp
+  source/Nucleus.cpp
+  source/CreateNuclei.cpp
+  source/messagelogger.cpp
+  source/Particle.cpp
+  source/CreateParticles.cpp
 )
 
 # avoid "file has no symbols" warning

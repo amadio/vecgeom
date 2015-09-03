@@ -521,6 +521,12 @@ if(VERBOSE){
         NavigationState::ReleaseInstance( curnavstates[j] );
         NavigationState::ReleaseInstance( newnavstates[j] );
     }
+    delete [] steps;
+    delete [] psteps;
+    delete [] safeties;
+    delete [] nextnodeworkspace;
+    delete newnavstates;
+    delete curnavstates;
 } // end XRayWithVecGeomVectorInterface
 
 

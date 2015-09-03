@@ -22,6 +22,8 @@
 #include "volumes/UnplacedTorus2.h"
 #include "volumes/UnplacedTrapezoid.h"
 #include "volumes/UnplacedPolycone.h"
+#include "volumes/Medium.h"
+#include "volumes/Material.h"
 
 #include "TGeoManager.h"
 #include "TGeoNode.h"
@@ -175,9 +177,67 @@ LogicalVolume* RootGeoManager::Convert(TGeoVolume const *const volume) {
   VUnplacedVolume const *const unplaced = Convert(volume->GetShape());
   LogicalVolume *const logical_volume =
       new LogicalVolume(volume->GetName(), unplaced);
-
+  Medium const *const medium = Convert(volume->GetMedium());
+  const_cast<LogicalVolume*>(logical_volume)->SetTrackingMediumPtr((void*)medium);
+    
   fLogicalVolumeMap.Set(volume, logical_volume);
   return logical_volume;
+}
+
+Medium* RootGeoManager::Convert(TGeoMedium const *const medium) {
+   // Check whether medium is already there
+   vector<Medium*> media = Medium::GetMedia();
+   for(vector<Medium*>::iterator m = media.begin(); m != media.end(); ++m) {
+      //      std::cout << "Name " << (*m)->Name() << " " << medium->GetName() << std::endl;
+      if((*m)->Name() == string(medium->GetName())) return (*m);
+   }
+
+   //   std::cout << "Adding Medium #" << media.size() << " " << medium->GetName() << std::endl;
+   // Medium not there. We add it
+   
+   Material *vmat = Convert(medium->GetMaterial());
+
+   double pars[20];
+   for(int i=0; i<20; ++i) pars[i]=medium->GetParam(i);
+   Medium *vmed = new Medium(medium->GetName(),vmat,pars);
+   return vmed;
+}
+
+Material* RootGeoManager::Convert(TGeoMaterial const *const material) {
+   vector<Material*> materials = Material::GetMaterials();
+   for(vector<Material*>::iterator m = materials.begin(); m != materials.end(); ++m) 
+      if((*m)->GetName() == string(material->GetName())) return (*m);
+   Material *vmat = 0;
+   int nelem = material->GetNelements();
+
+   //   std::cout << "Adding Material #" << materials.size() << " "<< material->GetName() << std::endl;
+   if(nelem<2) {
+      vmat = new Material(material->GetName(),material->GetA(),material->GetZ(),
+			  material->GetDensity(), material->GetRadLen(),
+			  material->GetIntLen());
+   } else {
+      double *a = new double[nelem];
+      double *z = new double[nelem];
+      double *w = new double[nelem];
+      //      cout << "nelem " << nelem << endl;
+      for(int i=0; i<nelem; ++i) {
+	 double aa;
+	 double zz;
+	 const_cast<TGeoMaterial*>(material)->GetElementProp(aa, zz, w[i], i);
+	 // cout << "Elem props: A: " << aa << " Z: " << zz << endl;
+	 a[i] = aa;
+	 z[i] = zz;
+      }
+      vmat = new Material(material->GetName(), a, z, w, nelem, 
+			  material->GetDensity(), material->GetRadLen(),
+			  material->GetIntLen());
+      delete [] a;
+      delete [] z;
+      delete [] w;
+   }
+   vmat->Used();
+   //   cout << *vmat << endl;
+   return vmat;
 }
 
 // the inverse: here we need both the placed volume and logical volume as input

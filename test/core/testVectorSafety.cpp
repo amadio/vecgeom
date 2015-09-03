@@ -77,6 +77,7 @@ void testVectorSafety( VPlacedVolume* world ){
     for (int i=0;i<np;++i){
        NavigationState::ReleaseInstance( states[i] );
     }
+    delete [] states;
 }
 
 // function to test vector navigator
@@ -129,12 +130,19 @@ void testVectorNavigator( VPlacedVolume* world ){
 
        vecgeom::Assert( safeties[i] == nav.GetSafety( points[i], *states[i] ),
                " Problem with safety " );
+       delete cmp;
    }
 
     std::cout << "Navigation test passed\n";
    _mm_free(steps);
    _mm_free(intworkspace);
    _mm_free(pSteps);
+   for(int i=0; i<np; ++i) {
+      delete states[i];
+      delete newstates[i];
+   }
+   delete [] states;
+   delete [] newstates;
 }
 
 

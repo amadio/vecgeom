@@ -42,9 +42,15 @@ private:
 
   static int gIdCount; // static class counter
 
-  // a pointer member to register arbitrary objects with logical volume;
-  // included for the moment to model UserExtension like in TGeoVolume
-  void *fUserExtensionPtr;
+  /** a pointer member to register arbitrary objects with logical volume;
+        included for the moment to model UserExtension like in TGeoVolume
+  */
+  void * fUserExtensionPtr;
+  /** some specific pointers used by Geant-V
+   *
+   */
+  void * fTrackingMediumPtr;
+  void * fBasketManagerPtr;
 
   // the container of daughter (placed) volumes which are placed inside this logical
   // Volume
@@ -80,8 +86,10 @@ public:
       // Id for logical volumes is not needed on the device for CUDA
       : fUnplacedVolume(unplaced_vol),
         fId(-1),
-        fLabel(NULL),
-        fUserExtensionPtr(NULL),
+        fLabel(nullptr),
+        fUserExtensionPtr(nullptr),
+        fTrackingMediumPtr(nullptr),
+        fBasketManagerPtr(nullptr),
         fDaughters(GetDaughter) {}
 #endif
 
@@ -115,9 +123,14 @@ public:
 
   VECGEOM_INLINE
   void *GetUserExtensionPtr() const { return fUserExtensionPtr; }
+  VECGEOM_INLINE
+  void *GetTrackingMediumPtr() const { return fTrackingMediumPtr; }
+  VECGEOM_INLINE
+  void *GetBasketManagerPtr() const { return fBasketManagerPtr; }
 
   int id() const { return fId; }
 
+  const char *GetName() const { return fLabel->c_str(); }
   std::string GetLabel() const { return *fLabel; }
 
   void SetLabel(char const *const label) {
@@ -127,6 +140,12 @@ public:
 
   VECGEOM_INLINE
   void SetUserExtensionPtr(void *userpointer) { fUserExtensionPtr = userpointer; }
+
+  VECGEOM_INLINE
+  void SetTrackingMediumPtr(void *tmediumpointer) { fTrackingMediumPtr = tmediumpointer; }
+
+  VECGEOM_INLINE
+  void SetBasketManagerPtr(void *basketpointer) { fBasketManagerPtr = basketpointer; }
 
   VECGEOM_CUDA_HEADER_BOTH
   void Print(const int indent = 0) const;

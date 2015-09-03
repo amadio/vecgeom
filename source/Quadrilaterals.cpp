@@ -71,16 +71,21 @@ void Quadrilaterals::Set(
   int cornersassigned=1;
   int cornerstested=1;
 
-  while( cornerstested <= 4 )
-  {
-    do{
-        chosencorners[ cornersassigned ] = fCorners[ cornerstested ][index];
-        cornerstested++;
-    }
-    while( (chosencorners[cornersassigned] == chosencorners[cornersassigned-1]) && cornerstested < 4);
-    cornersassigned++;
-    if( cornersassigned == 3) break;
+  while (cornerstested < 4) {
+     bool chosen = true;
+     for(int j=0; j<cornersassigned; ++j) 
+	if(chosencorners[j] == fCorners[cornerstested][index] ) {
+	   chosen = false;
+	   break;
+	}
+     if(chosen) {
+	chosencorners[cornersassigned] = fCorners[cornerstested][index];
+	++cornersassigned;
+     }
+     ++cornerstested;
   }
+  if(cornersassigned < 3)
+     std::cout << "Quadrilaterals::Set: could not find three non degenerated points" << std::endl;
 
   Precision a, b, c, d;
   a = chosencorners[0][1]*(chosencorners[1][2] - chosencorners[2][2]) +
