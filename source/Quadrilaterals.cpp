@@ -1,6 +1,7 @@
 #include "volumes/Quadrilaterals.h"
 #include "backend/scalar/Backend.h"
 #include <memory>
+#include <iostream>
 
 namespace vecgeom {
 
