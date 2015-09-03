@@ -1,10 +1,12 @@
 #ifdef __clang__
 #pragma clang optimize off
 #endif
-#include "volumes/Particle.h"
+#include "materials/Particle.h"
 namespace vecgeom {
    inline namespace VECGEOM_IMPL_NAMESPACE {
 
+   // this is an auto-generated function to register all particles ( contact Federico.Carminati@cern.ch )
+__attribute__((optimize("O0")))
 void Particle::CreateParticles() {
    static bool initDone=false;
    if(initDone) return;

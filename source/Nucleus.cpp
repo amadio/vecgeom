@@ -1,4 +1,4 @@
-#include "volumes/Nucleus.h"
+#include "materials/Nucleus.h"
 #include <algorithm>
 #include <iostream>
 #include <fstream>
@@ -129,11 +129,9 @@ void Nucleus::AddDecay(int da, int dz, int diso, double qval, double br) {
    if(!found) fDecayList.push_back(dec);
 }
 
-void Nucleus::Getmat(string line, int &n, int &z, int &iso, string &name, double &a, 
-		     double &dm, double &life, int &da, int &dz, int &diso, double &br, 
-		     double &qval, double &natab, double &toxa, double &toxb, int &ind1, 
-		     int &ind2)
-{
+void Nucleus::Getmat(string line, int &n, int &z, int &iso, string &name, double &a, double &dm, double &life, int &da,
+                     int &dz, int &diso, double &br, double &qval, double &natab, double &toxa, double &toxb, int &ind1,
+                     int &ind2) {
    int beg=5;
    int ic=0;
    int len[17]={5,5,5,5,15,15,15,5,5,5,15,15,15,15,15,5,5};

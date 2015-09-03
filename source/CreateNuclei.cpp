@@ -1,10 +1,14 @@
 #ifdef __clang__
 #pragma clang optimize off
 #endif
-#include "volumes/Nucleus.h"
+#include "materials/Nucleus.h"
 namespace vecgeom {
    inline namespace VECGEOM_IMPL_NAMESPACE {
 
+
+
+// this is an auto-generated function ( contact Federico.Carminati@cern.ch )
+__attribute__((optimize("O0")))
 void Nucleus::CreateNuclei() {
    Nucleus *nuc=0;
 

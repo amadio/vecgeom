@@ -1,6 +1,6 @@
 #include <cstring>
 #include <mutex>
-#include "volumes/Medium.h"
+#include "materials/Medium.h"
 
 namespace vecgeom {
   inline namespace VECGEOM_IMPL_NAMESPACE {

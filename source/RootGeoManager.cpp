@@ -22,8 +22,8 @@
 #include "volumes/UnplacedTorus2.h"
 #include "volumes/UnplacedTrapezoid.h"
 #include "volumes/UnplacedPolycone.h"
-#include "volumes/Medium.h"
-#include "volumes/Material.h"
+#include "materials/Medium.h"
+#include "materials/Material.h"
 
 #include "TGeoManager.h"
 #include "TGeoNode.h"

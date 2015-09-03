@@ -17,7 +17,7 @@ using std::to_string;
 
 namespace vecgeom {
   
-  VECGEOM_DEVICE_FORWARD_DECLARE( class Material; )
+  VECGEOM_DEVICE_FORWARD_DECLARE( class Nucleus; )
   
     inline namespace VECGEOM_IMPL_NAMESPACE {
   
@@ -25,7 +25,7 @@ class Nucleus {
 public:
    class Decay;
    Nucleus(string name, int n, int z, int iso, double a, double dm, double life, 
-	   double natab, double toxa, double toxb, int ind1, int ind2);
+           double natab, double toxa, double toxb, int ind1, int ind2);
 
    double A() const {return fA;}
    double Z() const {return fZ;}
@@ -58,12 +58,12 @@ public:
    class Decay {
    public:
       Decay(int da, int dz, int diso, double qval, double br): fDa(da), fDz(dz), fDiso(diso),
-							       fQval(qval), fBr(br) {}
+                                                               fQval(qval), fBr(br) {}
 
-      bool operator== (const Decay& d1) const {
-	 return (this->fDa == d1.fDa) && (this->fDz == d1.fDz) && (this->fDiso == d1.fDiso) 
-	    && (fabs(this->fQval-d1.fQval)/(this->fQval+d1.fQval)>0?(this->fQval+d1.fQval):1>5e-7)
-	    && (fabs(this->fBr-d1.fBr)/(this->fBr+d1.fBr)>0?(this->fBr+d1.fBr):1>5e-7);
+      bool operator==(const Decay &d1) const {
+        return (this->fDa == d1.fDa) && (this->fDz == d1.fDz) && (this->fDiso == d1.fDiso) &&
+               (fabs(this->fQval - d1.fQval) / (this->fQval + d1.fQval) > 0 ? (this->fQval + d1.fQval) : 1 > 5e-7) &&
+               (fabs(this->fBr - d1.fBr) / (this->fBr + d1.fBr) > 0 ? (this->fBr + d1.fBr) : 1 > 5e-7);
       }
 
       int Dz() const {return fDz;}
@@ -83,11 +83,9 @@ public:
    };
 
 private:
-
-   static void Getmat(string line, int &n, int &z, int &iso, string &name, double &a, 
-		      double &dm, double &life, int &da, int &dz, int &diso, double &br, 
-		      double &qval, double &natab, double &toxa, double &toxb, int &ind1, 
-		      int &ind2);
+  static void Getmat(string line, int &n, int &z, int &iso, string &name, double &a, double &dm, double &life, int &da,
+                     int &dz, int &diso, double &br, double &qval, double &natab, double &toxa, double &toxb, int &ind1,
+                     int &ind2);
 
    string fName;  // Name
    int fN;        // Nucleon number
