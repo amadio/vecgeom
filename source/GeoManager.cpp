@@ -60,6 +60,7 @@ void GeoManager::CompactifyMemory() {
 
     std::vector<VPlacedVolume const *> pvolumes;
     getAllPlacedVolumes(pvolumes);
+    // make it a set ( to get rid of potential duplicates )
     std::set<VPlacedVolume const *> pvolumeset(pvolumes.begin(), pvolumes.end());
 
     std::vector<LogicalVolume const *> lvolumes;
@@ -124,6 +125,9 @@ void GeoManager::CompactifyMemory() {
         }
     }
     // cleanup conversion map ... automatically done
+
+    // fix reference to World in GeoManager ( and everywhere else )
+    fWorld = ConvertOldToNew(fWorld);
 }
 
 
