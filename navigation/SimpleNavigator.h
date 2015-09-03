@@ -274,6 +274,7 @@ VPlacedVolume const *SimpleNavigator::LocatePoint(VPlacedVolume const *vol, Vect
           // TODO: could start directly at first 1 in inBox
           for (auto ii = 0; ii < kVcFloat::precision_v::Size; ++ii) {
             auto daughterid = boxgroupid * kVcFloat::precision_v::Size + ii;
+	    if(daughterid < daughters->size()){
             VPlacedVolume const *daughter = candvolume->GetDaughters()[daughterid];
             Vector3D<Precision> transformedpoint;
             if (daughterid < daughters->size() && inBox[ii] && daughter->Contains(tmp, transformedpoint)) {
@@ -289,7 +290,7 @@ VPlacedVolume const *SimpleNavigator::LocatePoint(VPlacedVolume const *vol, Vect
               // careful here: we also want to break on external loop
               boxgroupid = size;
               break;
-            }
+            }}
           }
         }
       }
@@ -378,9 +379,10 @@ VPlacedVolume const *SimpleNavigator::LocatePointExclVolume(VPlacedVolume const 
         if (Any(inBox)) {
           for (auto ii = inBox.firstOne(); ii < kVcFloat::precision_v::Size; ++ii) {
             auto daughterid = boxgroupid * kVcFloat::precision_v::Size + ii;
-            VPlacedVolume const *daughter = candvolume->GetDaughters()[daughterid];
+            if(daughterid < daughters->size()){
+	    VPlacedVolume const *daughter = candvolume->GetDaughters()[daughterid];
             Vector3D<Precision> transformedpoint;
-            if (daughterid < daughters->size() && inBox[ii] && daughter != excludedvolume &&
+            if (inBox[ii] && daughter != excludedvolume &&
                 daughter->Contains(tmp, transformedpoint)) {
               path.Push(daughter);
               tmp = transformedpoint;
@@ -393,7 +395,7 @@ VPlacedVolume const *SimpleNavigator::LocatePointExclVolume(VPlacedVolume const 
               // careful: we want to break from the OUTER loop
               boxgroupid = size;
               break;
-            }
+            }}
           }
         }
       }
