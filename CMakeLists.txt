@@ -520,7 +520,7 @@ set(SRC_CPP_RELATIVE
   source/Medium.cpp
   source/Nucleus.cpp
   source/CreateNuclei.cpp
-  source/messagelogger.cpp
+  source/MessageLogger.cpp
   source/Particle.cpp
   source/CreateParticles.cpp
 )
