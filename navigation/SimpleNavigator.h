@@ -222,7 +222,7 @@ VPlacedVolume const *SimpleNavigator::LocatePoint(VPlacedVolume const *vol, Vect
     while (godeeper && daughters->size() > 0) {
       godeeper = false;
 
-#if defined(USEBRUTEFORCELOCATE) or defined(VECGEOM_NVCC) // switching off bounding box check
+#if !defined(VECGEOM_VC) or defined(USEBRUTEFORCELOCATE) or defined(VECGEOM_NVCC) // switching off bounding box check
       // just the brute force solution
       for (int i = 0; i < daughters->size(); ++i) {
         VPlacedVolume const *nextvolume = (*daughters)[i];
@@ -234,8 +234,6 @@ VPlacedVolume const *SimpleNavigator::LocatePoint(VPlacedVolume const *vol, Vect
           candvolume = nextvolume;
           daughters = candvolume->GetLogicalVolume()->GetDaughtersp();
           godeeper = true;
-          crosscheck = nextvolume;
-          crosscheckid = i;
           break;
         }
       }
@@ -334,7 +332,7 @@ VPlacedVolume const *SimpleNavigator::LocatePointExclVolume(VPlacedVolume const 
       godeeper = false;
 
 
-#if defined(USEBRUTEFORCELOCATE) or defined(VECGEOM_NVCC) // switching off bounding box check
+#if !defined(VECGEOM_VC) or defined(USEBRUTEFORCELOCATE) or defined(VECGEOM_NVCC) // switching off bounding box check
       for (int i = daughters->size() - 1; i >= 0; --i) {
         VPlacedVolume const *nextvolume = (*daughters)[i];
         Vector3D<Precision> transformedpoint;
