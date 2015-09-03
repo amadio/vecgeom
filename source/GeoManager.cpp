@@ -23,19 +23,35 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 VPlacedVolume *GeoManager::gCompactPlacedVolBuffer=nullptr;
 
 void GeoManager::RegisterLogicalVolume(LogicalVolume *const logical_volume) {
-  fLogicalVolumesMap[logical_volume->id()] = logical_volume;
+  if(!fIsClosed) fLogicalVolumesMap[logical_volume->id()] = logical_volume;
+  else{
+      std::cerr << "Logical Volume created after geometry is closed --> will not be registered\n";
+  }
 }
 
 void GeoManager::RegisterPlacedVolume(VPlacedVolume *const placed_volume) {
-  fPlacedVolumesMap[placed_volume->id()] = placed_volume;
+  if(!fIsClosed) fPlacedVolumesMap[placed_volume->id()] = placed_volume;
+  else{
+      std::cerr << "PlacedVolume created after geometry is closed --> will not be registered\n";
+  }
 }
 
 void GeoManager::DeregisterLogicalVolume(const int id) {
-  fLogicalVolumesMap.erase(id);
+  if (fLogicalVolumesMap.find(id) != fLogicalVolumesMap.end()) {
+    if (fIsClosed) {
+      std::cerr << "deregistering an object from GeoManager while geometry is closed\n";
+    }
+    fLogicalVolumesMap.erase(id);
+  }
 }
 
 void GeoManager::DeregisterPlacedVolume(const int id) {
-  fPlacedVolumesMap.erase(id);
+  if (fPlacedVolumesMap.find(id) != fPlacedVolumesMap.end()) {
+    if (fIsClosed) {
+      std::cerr << "deregistering an object from GeoManager while geometry is closed\n";
+    }
+    fPlacedVolumesMap.erase(id);
+  }
 }
 
 
@@ -149,6 +165,8 @@ void GeoManager::CloseGeometry() {
 
     CompactifyMemory();
     vecgeom::ABBoxManager::Instance().InitABBoxesForCompleteGeometry();
+
+    fIsClosed=true;
 }
 
 

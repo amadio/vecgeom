@@ -73,7 +73,8 @@ VPlacedVolume * VPlacedVolume::operator=( VPlacedVolume const & other )
 VECGEOM_CUDA_HEADER_BOTH
 VPlacedVolume::~VPlacedVolume() {
 #ifndef VECGEOM_NVCC_DEVICE
-  delete label_;
+    GeoManager::Instance().DeregisterPlacedVolume(id_);
+    delete label_;
 #endif
 }
 
