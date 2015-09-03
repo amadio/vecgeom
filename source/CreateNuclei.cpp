@@ -2,6 +2,7 @@
 #pragma clang optimize off
 #endif
 #include "materials/Nucleus.h"
+#include <iostream>
 namespace vecgeom {
    inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -10,7 +11,8 @@ namespace vecgeom {
 // this is an auto-generated function ( contact Federico.Carminati@cern.ch )
 __attribute__((optimize("O0")))
 void Nucleus::CreateNuclei() {
-   Nucleus *nuc=0;
+#ifdef VECGEOM_GENERATE_MATERIALS_DB
+    Nucleus *nuc=0;
 
    // Adding 1-H-1-0
    nuc = new Nucleus("H",1,1,0,1.00783,0,0,99.985,0,0,0,0);
@@ -13454,6 +13456,10 @@ void Nucleus::CreateNuclei() {
    nuc->AddDecay(-4,-2,0,11.2831,100);
    for(map<int,Nucleus*>::const_iterator inuc=Nucleus::Nuclei().begin(); inuc != Nucleus::Nuclei().end(); ++inuc)
       inuc->second->NormDecay();
+#else
+    std::cerr << "CREATION OF NUCLEUS DB NOT COMPILED IN; CHANGE CMAKE OPTION \"GENERATE_MATERIALS_DB\" to ON \n";
+#endif
+
 }
  } // End of inline namespace
  } // End of vecgeom namespace

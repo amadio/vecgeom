@@ -57,6 +57,8 @@ option(USE_INDEXEDNAVSTATES "Use indices rather than volume pointers in Navigati
 
 option(DATA_DOWNLOAD "Enable downloading of data for tests" OFF)
 
+option(GENERATE_MATERIALS_DB "Include materials and particle declarations in library" OFF)
+
 set(VECGEOM_ARCH native sse2 sse3 ssse3 sse4.1 sse4.2 avx avx2 mic avx512)
 
 enum_option(VECGEOM_VECTOR
@@ -338,6 +340,9 @@ if (INPLACE_TRANSFORMATIONS)
 endif()
 if (USE_INDEXEDNAVSTATES)
   set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_USE_INDEXEDNAVSTATES")
+endif()
+if (GENERATE_MATERIALS_DB)
+  set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_GENERATE_MATERIALS_DB")
 endif()
 
 

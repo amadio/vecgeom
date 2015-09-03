@@ -2,13 +2,15 @@
 #pragma clang optimize off
 #endif
 #include "materials/Particle.h"
+#include <iostream>
 namespace vecgeom {
    inline namespace VECGEOM_IMPL_NAMESPACE {
 
    // this is an auto-generated function to register all particles ( contact Federico.Carminati@cern.ch )
 __attribute__((optimize("O0")))
 void Particle::CreateParticles() {
-   static bool initDone=false;
+#ifdef VECGEOM_GENERATE_MATERIALS_DB
+    static bool initDone=false;
    if(initDone) return;
    initDone = true;
    Particle *part=0;
@@ -6935,6 +6937,9 @@ void Particle::CreateParticles() {
 
    // Creating Alpha
    new Particle("Alpha", 1000020040, 1, "ion", 100, 2, 3.7284, 1.6916e-33, -100, 0, -100, -1, -1);
+#else
+    std::cerr << "CREATION OF PARTICLE DB NOT COMPILED IN; CHANGE CMAKE OPTION \"GENERATE_MATERIALS_DB\" to ON \n";
+#endif
 }
  } // End of inline namespace
  } // End of vecgeom namespace
