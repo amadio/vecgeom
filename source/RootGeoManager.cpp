@@ -57,6 +57,9 @@ void RootGeoManager::LoadRootGeometry() {
   fWorld = Convert(world_root);
   GeoManager::Instance().SetWorld(fWorld);
   GeoManager::Instance().CloseGeometry();
+  // fix the world --> close geometry might have changed it ( "compactification" )
+  // this is very ugly of course: some observer patter/ super smart pointer might be appropriate
+  fWorld=GeoManager::Instance().GetWorld();
 }
 
 

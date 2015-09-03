@@ -321,7 +321,7 @@ void test8()
 
     
       SimpleNavigator nav;
-      nav.LocatePoint( RootGeoManager::Instance().world(), p, *state, true);
+      nav.LocatePoint( GeoManager::Instance().GetWorld(), p, *state, true);
       double step = 0;
       Navigator n;
       n.FindNextBoundaryAndStep( p, d, *state, *newstate, 1E30, step );
@@ -380,7 +380,7 @@ void test_safety()
          // VecGeom navigation
          Vector3D<Precision> p(x,y,z);
          SimpleNavigator nav;
-         nav.LocatePoint( RootGeoManager::Instance().world(),
+         nav.LocatePoint( GeoManager::Instance().GetWorld(),
                p, *state, true);
          double safety = nav.GetSafety( p, *state );
 
