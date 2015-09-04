@@ -54,7 +54,7 @@ LogicalVolume::~LogicalVolume() {
   delete fLabel;
   for (Daughter* i = GetDaughters().begin(); i != GetDaughters().end();
        ++i) {
-    delete *i;
+    // delete *i;
   }
   GeoManager::Instance().DeregisterLogicalVolume(fId);
   delete fDaughters;
