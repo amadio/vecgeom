@@ -22,10 +22,11 @@ template <> struct kCudaType<const cxx::VPlacedVolume*> { using type_t = const c
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class PlacedBox;
+class GeoManager;
 template <typename T> class SOA3D;
 
 class VPlacedVolume : public USolidsInterfaceHelper {
-
+friend class GeoManager;
 private:
 
   unsigned int id_;

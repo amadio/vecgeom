@@ -25,13 +25,13 @@ VECGEOM_DEVICE_FORWARD_DECLARE( class VPlacedVolume; )
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 typedef VPlacedVolume const* Daughter;
-
+class GeoManager;
 /**
  * @brief Class responsible for storing the unplaced volume, material and
  *        daughter volumes of a mother volume.
  */
 class LogicalVolume {
-
+friend class GeoManager;
 private:
   // pointer to concrete unplaced volume/shape
   VUnplacedVolume const *fUnplacedVolume;

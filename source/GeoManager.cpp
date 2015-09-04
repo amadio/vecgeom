@@ -262,10 +262,19 @@ LogicalVolume* GeoManager::FindLogicalVolume(char const *const label) {
 
 void GeoManager::Clear()
 {
-    fLogicalVolumesMap.clear();
-    fPlacedVolumesMap.clear();
-    fVolumeCount=0; fWorld=NULL;
-    fMaxDepth=-1;
+  fVolumeCount = 0;
+  fTotalNodeCount = 0;
+  fWorld = nullptr;
+  fPlacedVolumesMap.clear();
+  fLogicalVolumesMap.clear();
+  fVolumeToIndexMap.clear();
+  fMaxDepth = -1;
+  fIsClosed=false;
+  // should we also reset the global static id counts?
+  LogicalVolume::gIdCount=0;
+  VPlacedVolume::g_id_count=0;
+  // delete compact buffer for placed volumes
+  if(GeoManager::gCompactPlacedVolBuffer != nullptr) delete[] gCompactPlacedVolBuffer;
 }
 
 
