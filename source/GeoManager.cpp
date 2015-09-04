@@ -94,7 +94,7 @@ void GeoManager::CompactifyMemory() {
     // this also means: our mechanism will only work if none of the derived classes of VPlacedVolumes
     // adds a data member and we have to find a way to check or forbid this
     // ( a runtime check is done above )
-    gCompactPlacedVolBuffer = (VPlacedVolume *) new char[pvolumecount*sizeof(VPlacedVolume)];
+    gCompactPlacedVolBuffer = (VPlacedVolume *) malloc(pvolumecount*sizeof(VPlacedVolume));
 
 //    // the first element in the buffer has to be the world
 //    buffer[0] = *fWorld; // copy assignment of PlacedVolumes
@@ -274,7 +274,10 @@ void GeoManager::Clear()
   LogicalVolume::gIdCount=0;
   VPlacedVolume::g_id_count=0;
   // delete compact buffer for placed volumes
-  if(GeoManager::gCompactPlacedVolBuffer != nullptr) delete[] gCompactPlacedVolBuffer;
+  if(GeoManager::gCompactPlacedVolBuffer != nullptr) {
+      free(gCompactPlacedVolBuffer);
+      gCompactPlacedVolBuffer=nullptr;
+  }
 }
 
 
