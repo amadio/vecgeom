@@ -46,6 +46,9 @@ int main() {
   worldl.PlaceDaughter(&largebox, &placement8);
 
   VPlacedVolume *world_placed = worldl.Place();
+  GeoManager::Instance().SetWorld(world_placed);
+  GeoManager::Instance().CloseGeometry();
+
 
   std::cerr << "Printing world content:\n";
   world_placed->PrintContent();
@@ -58,6 +61,8 @@ int main() {
 
   GeoManager::Instance().FindLogicalVolume("Large box");
   GeoManager::Instance().FindPlacedVolume("Large box");
+
+  NavigationState::ReleaseInstance(path);
 
   return 0;
 }
