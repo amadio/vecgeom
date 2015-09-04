@@ -397,8 +397,10 @@ Precision benchmarkGeant4Navigation( int nPoints, int nReps,
   printf("CPU elapsed time (vector safety; SimpleNavigator) %f ms\n", 1000.*cputime);
 
   // ROOT safety
+#ifdef VECGEOM_ROOT
   cputime = benchmarkROOTSafety(np,nreps,points);
   printf("CPU elapsed time (safety; ROOT) %f ms\n", 1000.*cputime);
+#endif
 
   cputime = benchmarkSerialNavigation(np,nreps,points, dirs, maxStep);
   printf("CPU elapsed time (serialized navigation) %f ms\n", 1000.*cputime);
@@ -743,11 +745,8 @@ bool validateVecGeomNavigation( int np, SOA3D<Precision> const& points, SOA3D<Pr
 #ifdef VECGEOM_NVCC
   _mm_free(gpuSteps);
 #endif
-  for(int i=0; i<np; ++i) delete vgVectorStates[i];
   delete [] vgVectorStates;
-  for(int i=0; i<np; ++i) delete vgSerialStates[i];
   delete [] vgSerialStates;
-  for(int i=0; i<np; ++i) delete origStates[i];
   delete [] origStates;
 
   return result;
