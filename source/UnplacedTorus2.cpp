@@ -110,6 +110,22 @@ Vector3D<Precision> UnplacedTorus2::GetPointOnSurface() const {
      }
 }
 
+bool UnplacedTorus2::IsConvex() const{
+	      //Default safe convexity value
+		  bool convexity = false;
+
+	      //Logic to calculate the convexity
+	      if(fRtor == 0.) //This will turn Torus to Spherical Shell
+	      {
+	      if(fRmin==0.)   //This will turn the Spherical shell to Orb
+	              {
+	                if( fDphi<=kPi || fDphi==kTwoPi)
+	                  convexity = true;
+	              }
+	      }
+	      return convexity;
+      }
+
 #ifdef VECGEOM_CUDA_INTERFACE
 
 DevicePtr<cuda::VUnplacedVolume> UnplacedTorus2::CopyToGpu(

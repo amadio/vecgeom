@@ -87,12 +87,35 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
   CheckPhiAngles(pSPhi, pDPhi);
   CheckThetaAngles(pSTheta, pDTheta);
-  
+  //fPhiWedge=new Wedge(fDPhi,fSPhi);
+  //Wedge *testPhiWedge=new Wedge(fDPhi,fSPhi);
+  //fPhiWedge(testPhiWedge);
 #ifndef VECGEOM_NVCC
   CalcCapacity();
   CalcSurfaceArea();
 #endif
 }
+
+bool UnplacedSphere::IsConvex() const{
+
+  //Default safe convexity value
+  bool convexity = false;
+
+  //Logic to calculate the convexity
+  if(fRmin==0.)
+          {
+          if( ((fDPhi==kTwoPi) && (fSTheta==0.) && (eTheta==kPi)) ||
+                  ((fDPhi<=kPi) && (fSTheta==0) && (eTheta==kPi)) ||
+                  ((fDPhi==kTwoPi) && (fSTheta==0) && (eTheta<=kPi/2)) ||
+				  ((fDPhi==kTwoPi) && (fSTheta>=kPi/2) && (eTheta==kPi))
+                  )
+          convexity = true;
+
+          }
+  return convexity;
+
+  }
+
   
 #ifndef VECGEOM_NVCC
   void UnplacedSphere::CalcCapacity()

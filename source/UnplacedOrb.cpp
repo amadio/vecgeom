@@ -82,6 +82,9 @@ UnplacedOrb::UnplacedOrb() :
   return Vector3D<Precision>(fR * sintheta * cosphi, fR * sintheta * sinphi, fR * costheta);
   }
 
+  bool UnplacedOrb::IsConvex() const{
+          return true;
+      }
 
   std::string UnplacedOrb::GetEntityType() const
   {

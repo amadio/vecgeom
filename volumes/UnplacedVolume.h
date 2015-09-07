@@ -46,6 +46,10 @@ public:
    */
   virtual int memory_size() const =0;
 
+  //Added convexity check
+  //Default safe value for all the shapes
+  virtual bool IsConvex() const{ return false; };
+
   /**
    * Constructs the deriving class on the GPU and returns a pointer to GPU
    * memory where the object has been instantiated.

@@ -115,6 +115,21 @@ int UnplacedTube::ChooseSurface() const
     return choice;
 }
 
+bool UnplacedTube::IsConvex() const{
+
+      //Default safe convexity value
+      bool convexity = false;
+
+      //Logic to calculate the convexity
+      if(fRmin==0.)
+              {
+                if( fDphi<=kPi || fDphi==kTwoPi)
+                  convexity = true;
+              }
+      return convexity;
+
+      }
+
 Vector3D<Precision> UnplacedTube::GetPointOnSurface() const
 {
     int surface = ChooseSurface();
