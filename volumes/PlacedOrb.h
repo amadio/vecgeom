@@ -93,6 +93,8 @@ public:
   
   Vector3D<Precision>  GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface();}
 
+  bool IsConvex() const {return GetUnplacedVolume()->IsConvex(); }
+
   // VECGEOM_CUDA_HEADER_BOTH
   // void ComputeBBox() const { return GetUnplacedVolume()->ComputeBBox();}
   

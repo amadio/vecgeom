@@ -137,6 +137,8 @@ public:
       return GetUnplacedVolume()->GetPointOnSurface();
     }
 
+    bool IsConvex() const {return GetUnplacedVolume()->IsConvex(); }
+
 #if defined(VECGEOM_USOLIDS)
     virtual
     std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType() ;}

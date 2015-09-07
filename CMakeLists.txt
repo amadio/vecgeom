@@ -727,6 +727,9 @@ endif()
 
 set(TEST_EXECUTABLES_VISUALIZATION
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeTrap.cpp
+  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeParboloid.cpp
+  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeCone.cpp
+  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeTorus.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeTube.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/DebugTube.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/DebugPolyhedron.cpp
@@ -746,6 +749,7 @@ set(TEST_EXECUTABLES_USOLIDS
 #  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBoxlikeTrapezoid.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/usolidTest.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestConvexity.cpp
 )
 
 set(TEST_EXECUTABLES_BENCHMARK

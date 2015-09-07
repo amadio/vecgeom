@@ -216,6 +216,8 @@ public:
     
 //__________________________________________________________________
     
+    //Function to check the convexity
+    bool IsConvex() const;
 
 
     template <TranslationCode transCodeT, RotationCode rotCodeT>

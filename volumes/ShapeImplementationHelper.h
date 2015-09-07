@@ -292,8 +292,10 @@ public:
         Vector3D<double> hitpoint = point + d*direction;
         PlacedShape_t::Normal( hitpoint, normal );
         // we could make this something like
-        // convex = PlacedShape_t::IsConvex;
-        convex = false; // the only possible safe choice
+
+        //Lets the shape tell itself whether it is convex or not.
+        convex = PlacedShape_t::IsConvex();
+        //convex = false; // the only possible safe choice
         return d;
   }
 #endif

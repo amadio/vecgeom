@@ -305,6 +305,9 @@ public:
  // }
   virtual Vector3D<Precision> GetPointOnSurface() const;
 
+  //Default safe values for all the shapes
+  virtual bool IsConvex() const{return false;}
+
 public:
 
 #ifdef VECGEOM_CUDA_INTERFACE

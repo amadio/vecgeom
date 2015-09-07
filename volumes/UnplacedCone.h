@@ -222,6 +222,9 @@ Precision fSinEPhi;
     }
 
     // public interfaces
+  //Function to check the convexity
+    bool IsConvex() const;
+
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetRmin1() const {return fRmin1;}
     VECGEOM_CUDA_HEADER_BOTH

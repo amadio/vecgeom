@@ -81,6 +81,7 @@ public:
   Precision GetOuterSlope() const {return GetUnplacedVolume()->GetOuterSlope();}
   Precision GetInnerOffset() const {return GetUnplacedVolume()->GetInnerOffset();}
   Precision GetOuterOffset() const {return GetUnplacedVolume()->GetOuterOffset();}
+  bool IsConvex() const {return GetUnplacedVolume()->IsConvex(); }
 
 #if !defined(VECGEOM_NVCC)
   virtual Precision Capacity() override {
