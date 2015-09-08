@@ -23,7 +23,7 @@ inline namespace cxx {
 
 int ABBoxNavigator::GetHitCandidates(LogicalVolume const *lvol, Vector3D<Precision> const &point,
                                      Vector3D<Precision> const &dir, ABBoxManager::ABBoxContainer_t const &corners,
-                                     int size, ABBoxManager::HitContainer_t &hitlist) const {
+                                     int size, ABBoxManager::BoxIdDistancePair_t *hitlist) const {
 
   Vector3D<Precision> invdir(1. / dir.x(), 1. / dir.y(), 1. / dir.z());
   int vecsize = size;
@@ -40,8 +40,8 @@ int ABBoxNavigator::GetHitCandidates(LogicalVolume const *lvol, Vector3D<Precisi
         BoxImplementation<translation::kIdentity, rotation::kIdentity>::IntersectCachedKernel2<kScalar, double>(
             &corners[2 * box], point, invdir, sign[0], sign[1], sign[2], 0, vecgeom::kInfinity);
     if (distance < vecgeom::kInfinity) {
+      hitlist[hitcount]=ABBoxManager::BoxIdDistancePair_t(box, distance);
       hitcount++;
-      hitlist.push_back(ABBoxManager::BoxIdDistancePair_t(box, distance));
     }
   }
 
@@ -79,7 +79,7 @@ int ABBoxNavigator::GetHitCandidates(LogicalVolume const *lvol, Vector3D<Precisi
 // vector version
 int ABBoxNavigator::GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Precision> const &point,
                                        Vector3D<Precision> const &dir, ABBoxManager::ABBoxContainer_v const &corners,
-                                       int size, ABBoxManager::HitContainer_t &hitlist) const {
+                                       int size, ABBoxManager::BoxIdDistancePair_t *hitlist) const {
 
 #ifdef VECGEOM_VC
   Vector3D<float> invdirfloat(1.f / (float)dir.x(), 1.f / (float)dir.y(), 1.f / (float)dir.z());
@@ -103,7 +103,8 @@ int ABBoxNavigator::GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Preci
     if (Any(hit)) {
       for (auto i = hit.firstOne(); i < kVcFloat::precision_v::Size; ++i) {
         if (hit[i])
-          hitlist.push_back(ABBoxManager::BoxIdDistancePair_t(box * kVcFloat::precision_v::Size + i, distance[i]));
+          hitlist[hitcount]=(ABBoxManager::BoxIdDistancePair_t(box * kVcFloat::precision_v::Size + i, distance[i]));
+          hitcount++;
       }
     }
   }
@@ -125,16 +126,18 @@ int ABBoxNavigator::GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Preci
             static_cast<float>(vecgeom::kInfinity));
     bool hit = distance < static_cast<float>(vecgeom::kInfinity);
     if (hit)
-      hitlist.push_back(ABBoxManager::BoxIdDistancePair_t(box, distance));
+      hitlist[hitcount]=(ABBoxManager::BoxIdDistancePair_t(box, distance));
+      hitcount++;
   }
   return hitcount;
 #endif
 }
 
-void ABBoxNavigator::GetSafetyCandidates_v(Vector3D<Precision> const &point, ABBoxManager::ABBoxContainer_v const &corners, int size,
-                                         ABBoxManager::HitContainer_t &boxsafetypairs, Precision upper_squared_limit) const {
+size_t ABBoxNavigator::GetSafetyCandidates_v(Vector3D<Precision> const &point, ABBoxManager::ABBoxContainer_v const &corners, int size,
+                                         ABBoxManager::BoxIdDistancePair_t *boxsafetypairs, Precision upper_squared_limit) const {
     Vector3D<float> pointfloat((float)point.x(), (float)point.y(), (float)point.z());
-#ifdef VECGEOM_VC
+int candidatecount=0;
+    #ifdef VECGEOM_VC
     int vecsize = size;
     for( auto box = 0; box < vecsize; ++box ){
          ABBoxManager::Real_v safetytoboxsqr =  ABBoxImplementation::ABBoxSafetySqr<kVcFloat, ABBoxManager::Real_t>(
@@ -143,8 +146,9 @@ void ABBoxNavigator::GetSafetyCandidates_v(Vector3D<Precision> const &point, ABB
          ABBoxManager::Bool_v hit = safetytoboxsqr < ABBoxManager::Real_t(upper_squared_limit);
          if (Any(hit)) {
            for (auto i = 0; i < kVcFloat::precision_v::Size; ++i) {
-             if (hit[i])
-               boxsafetypairs.push_back(ABBoxManager::BoxIdDistancePair_t(box * kVcFloat::precision_v::Size + i, safetytoboxsqr[i]));
+             if (hit[i]){
+               boxsafetypairs[candidatecount]=(ABBoxManager::BoxIdDistancePair_t(box * kVcFloat::precision_v::Size + i, safetytoboxsqr[i]));
+             candidatecount++;}
            }
          }
     }
@@ -155,17 +159,23 @@ void ABBoxNavigator::GetSafetyCandidates_v(Vector3D<Precision> const &point, ABB
                         corners[2*box], corners[2*box+1], pointfloat );
 
          bool hit = safetytoboxsqr < ABBoxManager::Real_t(upper_squared_limit);
-         if ( hit )
-               boxsafetypairs.push_back(ABBoxManager::BoxIdDistancePair_t(box, safetytoboxsqr));
+         if ( hit ){
+               boxsafetypairs[candidatecount]=(ABBoxManager::BoxIdDistancePair_t(box, safetytoboxsqr));
+        candidatecount++;}
     }
 #endif
+  return candidatecount;
 }
 
 //#define VERBOSE
 Precision ABBoxNavigator::GetSafety(Vector3D<Precision> const & globalpoint,
                             NavigationState const & currentstate) const
 {
-   // this information might have been cached already ??
+    // a stack based workspace array
+    thread_local static ABBoxManager::BoxIdDistancePair_t boxsafetylist[VECGEOM_MAXDAUGHTERS];
+
+
+    // this information might have been cached already ??
    Transformation3D m;
    currentstate.TopMatrix(m);
    Vector3D<Precision> localpoint=m.Transform(globalpoint);
@@ -178,14 +188,14 @@ Precision ABBoxNavigator::GetSafety(Vector3D<Precision> const & globalpoint,
    LogicalVolume const *lvol = currentvol->GetLogicalVolume();
    if( safety > 0. && lvol->GetDaughtersp()->size() > 0 ){
        ABBoxManager &instance = ABBoxManager::Instance();
-       ABBoxManager::HitContainer_t &boxsafetylist = instance.GetAllocatedHitContainer();
+       //ABBoxManager::HitContainer_t &boxsafetylist = instance.GetAllocatedHitContainer();
+
 
        int size;
-       boxsafetylist.clear();
 
        ABBoxManager::ABBoxContainer_v bboxes =  instance.GetABBoxes_v( lvol , size );
        // calculate squared bounding box safeties in vectorized way
-       GetSafetyCandidates_v(localpoint, bboxes, size, boxsafetylist, safetysqr);
+       auto ncandidates = GetSafetyCandidates_v(localpoint, bboxes, size, boxsafetylist, safetysqr);
 #ifdef SORT
        // sorting the list
        ABBoxManager::sort(boxsafetylist, ABBoxManager::HitBoxComparatorFunctor());
@@ -216,8 +226,9 @@ Precision ABBoxNavigator::GetSafety(Vector3D<Precision> const & globalpoint,
       }
     }
 #else // not sorting the final list
-    for (auto boxsafetypair : boxsafetylist) {
-      if (boxsafetypair.second < safetysqr) {
+    for (unsigned int candidate = 0; candidate < ncandidates; ++candidate){
+        auto boxsafetypair = boxsafetylist[candidate];
+        if (boxsafetypair.second < safetysqr) {
         //   std::cerr << " id " << boxsafetypair.first << " safetysqr " << boxsafetypair.second << "\n";
         VPlacedVolume const *candidate = LookupDaughter(lvol, boxsafetypair.first);
         if(boxsafetypair.first  > lvol->GetDaughtersp()->size()) break;
@@ -237,6 +248,23 @@ Precision ABBoxNavigator::GetSafety(Vector3D<Precision> const & globalpoint,
    return safety;
  }
 
+
+
+// a simple sort class (based on insertionsort)
+//template <typename T, typename Cmp>
+void insertionsort( ABBoxManager::BoxIdDistancePair_t * arr, unsigned int N ){
+    for (unsigned short i = 1; i < N; ++i) {
+           ABBoxManager::BoxIdDistancePair_t value = arr[i];
+           short hole = i;
+
+           for (; hole > 0 && value.second < arr[hole - 1].second; --hole)
+               arr[hole] = arr[hole - 1];
+
+           arr[hole] = value;
+       }
+}
+
+
 //#define VERBOSE
 void
 ABBoxNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoint,
@@ -247,7 +275,9 @@ ABBoxNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoint
                                           Precision                 & step
                                         ) const
 {
-   // this information might have been cached in previous navigators??
+    thread_local static ABBoxManager::BoxIdDistancePair_t hitlist[VECGEOM_MAXDAUGHTERS];
+
+    // this information might have been cached in previous navigators??
 #ifdef VERBOSE
     static int counter = 0;
     if( counter % 1 == 0 )
@@ -301,8 +331,9 @@ ABBoxNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoint
 #ifdef VERBOSE
        std::cerr << " searching through " << currentlvol->GetDaughtersp()->size() << " daughters\n";
 #endif
-     ABBoxManager::HitContainer_t & hitlist = ABBoxManager::Instance().GetAllocatedHitContainer();
-//       hitlist.clear();
+//     ABBoxManager::HitContainer_t & hitlist = ABBoxManager::Instance().GetAllocatedHitContainer();
+
+       //       hitlist.clear();
        int size;
 //       ABBoxManager::ABBoxContainer_t bboxes1 =  ABBoxManager::Instance().GetABBoxes( currentlvol , size );
 //       GetHitCandidates( currentlvol,
@@ -314,9 +345,9 @@ ABBoxNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoint
        int c1 = hitlist.size();
       std::cerr << hitlist << "\n";
 #endif
-       hitlist.clear();
+  //     hitlist.clear();
        ABBoxManager::ABBoxContainer_v bboxes =  ABBoxManager::Instance().GetABBoxes_v( currentlvol , size );
-            GetHitCandidates_v( currentlvol,
+       auto ncandidates = GetHitCandidates_v( currentlvol,
                           localpoint,
                           localdir,
                           bboxes,
@@ -330,15 +361,18 @@ ABBoxNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoint
         #endif
 
         // sorting the histlist
-        ABBoxManager::sort( hitlist, ABBoxManager::HitBoxComparatorFunctor() );
+//        ABBoxManager::sort( hitlist, ABBoxManager::HitBoxComparatorFunctor() );
+        insertionsort( hitlist, ncandidates );
 
         // assumption: here hitlist is sorted in ascending distance order
 #ifdef VERBOSE
         std::cerr << " hitting " << hitlist.size() << " boundary boxes\n";
 #endif
-        for( auto hitbox : hitlist )
+        //for( auto hitbox : hitlist )
+        for(unsigned int index=0;index < ncandidates;++index)
         {
-             VPlacedVolume const * candidate = LookupDaughter( currentlvol, hitbox.first );
+            auto hitbox = hitlist[index];
+            VPlacedVolume const * candidate = LookupDaughter( currentlvol, hitbox.first );
 
             // only consider those hitboxes which are within potential reach of this step
             if( ! ( step < hitbox.second )) {

@@ -362,6 +362,10 @@ namespace details {
    };
 }
 
+// some static MACROS
+#define VECGEOM_MAXDAUGHTERS 100 // macro mainly used to allocated static (stack) arrays/workspaces
+
+
 } } // End global namespace
 
 #endif // VECGEOM_BASE_GLOBAL_H_

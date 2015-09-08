@@ -53,7 +53,7 @@ public:
   typedef ABBox_v *ABBoxContainer_v;
 
   typedef std::pair<int, double> BoxIdDistancePair_t;
-  typedef std::vector<BoxIdDistancePair_t> HitContainer_t;
+  //typedef std::vector<BoxIdDistancePair_t> HitContainer_t;
 
   // build an abstraction of sort to sort vectors and lists portably
   template <typename C, typename Compare> static void sort(C &v, Compare cmp) { std::sort(v.begin(), v.end(), cmp); }
@@ -71,7 +71,7 @@ private:
   std::vector<ABBoxContainer_v> fVolToABBoxesMap_v;
 
   // we have to make this thread safe
-  HitContainer_t fAllocatedHitContainer;
+  //HitContainer_t fAllocatedHitContainer;
 
 
 public:
@@ -124,7 +124,7 @@ public:
     return fVolToABBoxesMap_v[lvol->id()];
   }
 
-  HitContainer_t &GetAllocatedHitContainer() { return fAllocatedHitContainer; }
+  //HitContainer_t &GetAllocatedHitContainer() { return fAllocatedHitContainer; }
 };
 
 // output for hitboxes

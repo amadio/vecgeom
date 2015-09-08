@@ -46,21 +46,21 @@ public:
           Vector3D<Precision> const & point,
           Vector3D<Precision> const & dir,
           ABBoxManager::ABBoxContainer_t const & corners, int size,
-          ABBoxManager::HitContainer_t & hitlist
+          ABBoxManager::BoxIdDistancePair_t * /* hitlist */
   ) const;
 
   int GetHitCandidates_v( LogicalVolume const * lvol,
             Vector3D<Precision> const & point,
             Vector3D<Precision> const & dir,
             ABBoxManager::ABBoxContainer_v const & corners, int size,
-            ABBoxManager::HitContainer_t & hitlist
+            ABBoxManager::BoxIdDistancePair_t * /* hitlist */
   ) const;
 
 
-  void GetSafetyCandidates_v( Vector3D<Precision> const & /* point */,
+  size_t GetSafetyCandidates_v( Vector3D<Precision> const & /* point */,
                             ABBoxManager::ABBoxContainer_v const & /* corners */,
                             int size,
-                            ABBoxManager::HitContainer_t & /* boxsafetypairs */,
+                            ABBoxManager::BoxIdDistancePair_t * /* boxsafetypairs */,
                             Precision upperlimit ) const;
 
 
