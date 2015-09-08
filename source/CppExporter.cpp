@@ -17,6 +17,7 @@
 #include "volumes/UnplacedCone.h"
 #include "volumes/UnplacedTrapezoid.h"
 #include "volumes/UnplacedTorus.h"
+#include "volumes/UnplacedTorus2.h"
 #include "volumes/UnplacedPolycone.h"
 #include "volumes/UnplacedPolyhedron.h"
 #include "volumes/UnplacedTrd.h"
@@ -284,6 +285,22 @@ void GeomCppExporter::DumpLogicalVolumes( std::ostream & dumps,
              line << " )";
 
              fNeededHeaderFiles.insert("volumes/UnplacedTorus.h");
+        }
+
+        // ******* TREAT THE TORUS 2 **********
+        else if( dynamic_cast<UnplacedTorus2 const *>( l->GetUnplacedVolume() ) ){
+             UnplacedTorus2 const * shape
+                 = dynamic_cast<UnplacedTorus2 const *>( l->GetUnplacedVolume() );
+
+             line << " new UnplacedTorus2( " ;
+             line << shape->rmin() << " , ";
+             line << shape->rmax() << " , ";
+             line << shape->rtor() << " , ";
+             line << shape->sphi() << " , ";
+             line << shape->dphi();
+             line << " )";
+
+             fNeededHeaderFiles.insert("volumes/UnplacedTorus2.h");
         }
 
         // ********* TREAT THE PCON **********

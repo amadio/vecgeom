@@ -150,20 +150,11 @@ endif()
 
 # Set Default compiler flags for each build type
 
-#### not sure if this section until next #### is needed ( merge conflict 0
-#set(VECGEOM_COMPILATION_FLAGS)
-#set(VECGEOM_COMPILATION_FLAGS_GNU)
-#set(VECGEOM_COMPILATION_FLAGS_CLANG)
-#set(VECGEOM_COMPILATION_FLAGS_INTEL)
-#set(VECGEOM_NVCC_COMPILATION_FLAGS)
+# some compilers do not default to C++11 standard yet
+if (NOT CUDA)
+  set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -std=c++11")
+endif()
 
-#set(VECGEOM_COMPILATION_FLAGS
-#    "${VECGEOM_COMPILATION_FLAGS} -Wall -fPIC")
-#if (CMAKE_BUILD_TYPE MATCHES Debug)
-#  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
-#  if (APPLE OR UNIX)
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
-############
 if (GNU)
   set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -fPIC")
   if (CMAKE_BUILD_TYPE MATCHES Debug)
@@ -402,8 +393,8 @@ endif()
 
 # until VecCore is separated from VecGeom (then it become something
 # ${VecCore_DIR}/include
-include_directories(${CMAKE_SOURCE_DIR}/VecCore/inc )
-include_directories(${CMAKE_INSTALL_PREFIX}/VecCore)
+# include_directories(${CMAKE_SOURCE_DIR}/VecCore/inc )
+# include_directories(${CMAKE_INSTALL_PREFIX}/VecCore)
 
 if (ROOT)
 
@@ -527,10 +518,10 @@ set(SRC_CPP_RELATIVE
 
 # avoid "file has no symbols" warning
 if(NOT CUDA)
-  list(REMOVE_ITEM SRC_CPP_RELATIVE souce/RNG.cpp)
-  list(REMOVE_ITEM SRC_CPP_RELATIVE souce/AOS3D.cpp)
-  list(REMOVE_ITEM SRC_CPP_RELATIVE souce/SOA3D.cpp)
-  list(REMOVE_ITEM SRC_CPP_RELATIVE souce/Vector.cpp)
+  list(REMOVE_ITEM SRC_CPP_RELATIVE source/RNG.cpp)
+  list(REMOVE_ITEM SRC_CPP_RELATIVE source/AOS3D.cpp)
+  list(REMOVE_ITEM SRC_CPP_RELATIVE source/SOA3D.cpp)
+  list(REMOVE_ITEM SRC_CPP_RELATIVE source/Vector.cpp)
 endif()
 
 foreach(SRC ${SRC_CPP_RELATIVE})
@@ -598,7 +589,9 @@ endif()
 
 # Compile cpp-files for C++11
 
-set_source_files_properties(${SRC_CPP} PROPERTIES COMPILE_FLAGS -std=c++11)
+if (CUDA)
+  set_source_files_properties(${SRC_CPP} PROPERTIES COMPILE_FLAGS -std=c++11)
+endif()
 
 ################################################################################
 
@@ -612,10 +605,12 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} rt)
 endif()
 
-set_source_files_properties(
-  ${SRC_EXECUTABLES}
-  PROPERTIES COMPILE_FLAGS -std=c++11
-)
+if (CUDA)
+  set_source_files_properties(
+    ${SRC_EXECUTABLES}
+    PROPERTIES COMPILE_FLAGS -std=c++11
+  )
+endif()
 
 # build the CUDA version of the library
 if (CUDA)
@@ -782,10 +777,13 @@ set(TEST_EXECUTABLES
   ${TEST_EXECUTABLES_CUDA}
   ${TEST_EXECUTABLES_SHAPETESTER}
 )
-set_source_files_properties(
-  ${TEST_EXECUTABLES}
-  PROPERTIES COMPILE_FLAGS -std=c++11
-)
+
+if (CUDA)
+  set_source_files_properties(
+    ${TEST_EXECUTABLES}
+    PROPERTIES COMPILE_FLAGS -std=c++11
+  )
+endif()
 
 # Build executables
 

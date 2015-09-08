@@ -56,7 +56,9 @@ LogicalVolume::~LogicalVolume() {
        ++i) {
     // delete *i;
   }
+#ifndef VECGEOM_NVCC // this guard might have to be extended 
   GeoManager::Instance().DeregisterLogicalVolume(fId);
+#endif
   delete fDaughters;
 }
 
