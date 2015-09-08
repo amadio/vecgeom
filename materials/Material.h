@@ -20,6 +20,7 @@
 //#include "TStorage.h"
 
 #include <vector>
+#include <string>
 #include "base/Global.h"
 
 namespace vecgeom {
