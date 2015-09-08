@@ -97,15 +97,9 @@ public:
    * @param inverse if true the origial axis will be rotated into (0,0,u)
                     if false a vector (0,0,u) will be rotated into the original axis
    */
- VECGEOM_CUDA_HEADER_BOTH
-  template<typename V> Transformation3D(const Vector3D<V>& axis, bool inverse=true){
-     SetTranslation(0,0,0);
-     if(inverse) 
-	SetRotation(axis.Phi()*kRadToDeg-90, -axis.Theta()*kRadToDeg, 0);
-     else
-	SetRotation(0, axis.Theta()*kRadToDeg, 90-axis.Phi()*kRadToDeg);
-     SetProperties();
-  }
+   VECGEOM_CUDA_HEADER_BOTH
+   Transformation3D(const Vector3D<Precision> &axis, bool inverse=true);
+
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE

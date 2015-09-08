@@ -369,7 +369,7 @@ ABBoxNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoint
         std::cerr << " hitting " << hitlist.size() << " boundary boxes\n";
 #endif
         //for( auto hitbox : hitlist )
-        for(unsigned int index=0;index < ncandidates;++index)
+        for(int index=0;index < ncandidates;++index)
         {
             auto hitbox = hitlist[index];
             VPlacedVolume const * candidate = LookupDaughter( currentlvol, hitbox.first );

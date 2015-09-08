@@ -524,9 +524,17 @@ if(NOT CUDA)
   list(REMOVE_ITEM SRC_CPP_RELATIVE source/Vector.cpp)
 endif()
 
+
 foreach(SRC ${SRC_CPP_RELATIVE})
   set(SRC_CPP ${SRC_CPP} ${CMAKE_SOURCE_DIR}/${SRC})
 endforeach()
+
+# file prefixes that won't be compiled for CUDA
+set(NOT_FOR_CUDA
+   ABBoxManager
+   ABBoxNavigator
+)
+
 
 # Copy all source files to .cu-files in order for NVCC to compile them as CUDA
 # code and not regular C++ files.
@@ -537,7 +545,8 @@ if (CUDA)
 
     get_filename_component(SRC_FILENAME ${SRC_FILE} NAME_WE)
 
-    if (NOT "${SRC_FILENAME}" STREQUAL "ABBoxManager") 
+    list(FIND NOT_FOR_CUDA ${SRC_FILENAME} _index)
+    if(${_index} EQUAL -1)
       ADD_CUSTOM_COMMAND(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/cuda_src/${SRC_FILENAME}.cu
         COMMAND ${CMAKE_COMMAND} -E copy ${SRC_FILE}
@@ -549,6 +558,8 @@ if (CUDA)
         SRC_CUDA ${SRC_CUDA}
         ${CMAKE_CURRENT_BINARY_DIR}/cuda_src/${SRC_FILENAME}.cu
       )
+    else()
+      message(STATUS "EXCLUDING ${SRC_FILENAME} FROM CUDA")
     endif()
   endforeach()
 

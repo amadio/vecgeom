@@ -85,8 +85,10 @@ void Quadrilaterals::Set(
      }
      ++cornerstested;
   }
+#ifndef VECGEOM_NVCC
   if(cornersassigned < 3)
      std::cout << "Quadrilaterals::Set: could not find three non degenerated points" << std::endl;
+#endif
 
   Precision a, b, c, d;
   a = chosencorners[0][1]*(chosencorners[1][2] - chosencorners[2][2]) +
