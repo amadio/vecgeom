@@ -88,6 +88,13 @@ public:
     return GetUnplacedVolume()->GetTanThetaCosPhi();
   }
   
+  virtual
+  void Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & aMax) const override
+  {
+    GetUnplacedVolume()->Extent(aMin, aMax);
+  }
+
+
 #ifndef VECGEOM_NVCC
   virtual VPlacedVolume const* ConvertToUnspecialized() const;
 #ifdef VECGEOM_ROOT

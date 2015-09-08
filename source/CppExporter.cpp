@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <list>
 #include <vector>
+#include <iostream>
 #include <iomanip>
 
 namespace vecgeom {

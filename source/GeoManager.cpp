@@ -4,10 +4,23 @@
 #include "management/GeoManager.h"
 #include "volumes/PlacedVolume.h"
 #include <dlfcn.h>
+#include "navigation/NavigationState.h"
+#include "navigation/ABBoxNavigator.h"
+#include "volumes/UnplacedBooleanVolume.h"
+
+#include <dlfcn.h>
+#include "navigation/NavigationState.h"
+
 #include <stdio.h>
+#include <list>
+#include <vector>
+#include <set>
+#include <functional>
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
+
+VPlacedVolume *GeoManager::gCompactPlacedVolBuffer=nullptr;
 
 void GeoManager::RegisterLogicalVolume(LogicalVolume *const logical_volume) {
   if(!fIsClosed) fLogicalVolumesMap[logical_volume->id()] = logical_volume;
@@ -41,6 +54,99 @@ void GeoManager::DeregisterPlacedVolume(const int id) {
   }
 }
 
+
+void GeoManager::CompactifyMemory() {
+    // this function will compactify the memory a-posteriori
+    // it might be worth investigating other methods that do this directly
+    // ( for instance via specialized allocators )
+
+
+    // ---------------------------------
+    // start with just the placedvolumes
+
+
+    // do a check on a fundamental hypothesis :
+    // all placed volume objects have the same size ( so that we can compactify them in an array )
+    for( auto v : fPlacedVolumesMap ){
+        if( v.second->memory_size() != fWorld->memory_size() )
+            std::cerr << "Fatal Warning : placed volume instances have non-uniform size \n";
+    }
+
+    unsigned int pvolumecount = fPlacedVolumesMap.size();
+
+    std::vector<VPlacedVolume const *> pvolumes;
+    getAllPlacedVolumes(pvolumes);
+    // make it a set ( to get rid of potential duplicates )
+    std::set<VPlacedVolume const *> pvolumeset(pvolumes.begin(), pvolumes.end());
+
+    std::vector<LogicalVolume const *> lvolumes;
+    getAllLogicalVolumes(lvolumes);
+    std::set<LogicalVolume const *> lvolumeset(lvolumes.begin(), lvolumes.end());
+
+    std::cerr << pvolumecount << " vs " << pvolumeset.size() << "\n";
+    std::cerr << fLogicalVolumesMap.size() << " vs " << lvolumeset.size() << "\n";
+
+    // conversion map to repair pointers from old to new
+    std::map<VPlacedVolume const *, VPlacedVolume const *> conversionmap;
+
+    // allocate the buffer ( consider alignment issues later )
+    // BIG NOTE HERE: we cannot call new VPlacedVolume[pvolumecount] as it is a pure virtual class
+    // this also means: our mechanism will only work if none of the derived classes of VPlacedVolumes
+    // adds a data member and we have to find a way to check or forbid this
+    // ( a runtime check is done above )
+    gCompactPlacedVolBuffer = (VPlacedVolume *) malloc(pvolumecount*sizeof(VPlacedVolume));
+
+//    // the first element in the buffer has to be the world
+//    buffer[0] = *fWorld; // copy assignment of PlacedVolumes
+//    // fix the index to pointer map
+//    fPlacedVolumesMap[fWorld->id()] = &buffer[0];
+//    conversionmap[ fWorld ] = &buffer[0];
+//    // free memory ( we should really be doing this with smart pointers --> check CUDA ! )
+//    // delete fWorld;
+//    // fix the global world pointer
+//    fWorld = &buffer[0];
+
+    // go through rest of volumes
+    // TODO: we could take an influence on the order here ( to place certain volumes next to each other )
+    for( auto v : fPlacedVolumesMap ){
+            unsigned int volumeindex = v.first;
+            gCompactPlacedVolBuffer[volumeindex] = *v.second;
+            fPlacedVolumesMap[volumeindex] = &gCompactPlacedVolBuffer[volumeindex];
+            conversionmap[ v.second ] = &gCompactPlacedVolBuffer[volumeindex];
+         //   delete v.second;
+    }
+
+    // a little reusable lambda for the pointer conversion
+    std::function<VPlacedVolume const *(VPlacedVolume const *)> ConvertOldToNew = [&] ( VPlacedVolume const * old ){
+        if(conversionmap.find(old) == conversionmap.cend()){
+            std::cerr << "CANNOT CONVERT ... probably already done" << std::endl;
+            return old;
+        }
+        return conversionmap[old];
+    };
+
+   // fix pointers to placed volumes referenced in all logical volumes
+    for( auto v : fLogicalVolumesMap ){
+        LogicalVolume * lvol = v.second;
+        for( unsigned int i = 0; i < lvol->GetDaughtersp()->size(); ++i){
+            lvol->GetDaughtersp()->operator[](i) = ConvertOldToNew( lvol->GetDaughtersp()->operator[](i) );
+        }
+    }
+
+    for( auto v : fLogicalVolumesMap ){
+        UnplacedBooleanVolume *bvol;
+        if( (bvol = const_cast<UnplacedBooleanVolume *>(dynamic_cast<UnplacedBooleanVolume const *>( v.second->GetUnplacedVolume())))){
+            bvol->SetLeft( ConvertOldToNew( bvol->GetLeft() ) );
+            bvol->SetRight( ConvertOldToNew( bvol->GetRight() ));
+        }
+    }
+    // cleanup conversion map ... automatically done
+
+    // fix reference to World in GeoManager ( and everywhere else )
+    fWorld = ConvertOldToNew(fWorld);
+}
+
+
 void GeoManager::CloseGeometry() {
     Assert( GetWorld() != NULL, "world volume not set" );
     // cache some important variables of this geometry
@@ -51,6 +157,14 @@ void GeoManager::CloseGeometry() {
     GetTotalNodeCountVisitor totalcountvisitor;
     visitAllPlacedVolumes( GetWorld(), &totalcountvisitor, 1 );
     fTotalNodeCount = totalcountvisitor.GetTotalNodeCount();
+
+    // get a consistent state for index - placed volumes lookups
+    for( auto element : fPlacedVolumesMap ){
+        fVolumeToIndexMap[element.second] = element.first;
+    }
+
+    CompactifyMemory();
+    vecgeom::ABBoxManager::Instance().InitABBoxesForCompleteGeometry();
 
     fIsClosed=true;
 }
@@ -82,6 +196,7 @@ void GeoManager::LoadGeometryFromSharedLib( std::string libname ){
     else {
       std::cerr << "Loading geometry from shared lib failed\n";
     }
+    dlclose(handle);
 }
 
 
@@ -147,10 +262,94 @@ LogicalVolume* GeoManager::FindLogicalVolume(char const *const label) {
 
 void GeoManager::Clear()
 {
-    fLogicalVolumesMap.clear();
-    fPlacedVolumesMap.clear();
-    fVolumeCount=0; fWorld=NULL;
-    fMaxDepth=-1;
+  fVolumeCount = 0;
+  fTotalNodeCount = 0;
+  fWorld = nullptr;
+  fPlacedVolumesMap.clear();
+  fLogicalVolumesMap.clear();
+  fVolumeToIndexMap.clear();
+  fMaxDepth = -1;
+  fIsClosed=false;
+  // should we also reset the global static id counts?
+  LogicalVolume::gIdCount=0;
+  VPlacedVolume::g_id_count=0;
+  // delete compact buffer for placed volumes
+  if(GeoManager::gCompactPlacedVolBuffer != nullptr) {
+      free(gCompactPlacedVolBuffer);
+      gCompactPlacedVolBuffer=nullptr;
+  }
 }
+
+
+template<typename Container>
+class GetPathsForLogicalVolumeVisitor : public GeoVisitorWithAccessToPath<Container>
+{
+private:
+    LogicalVolume const * fReferenceLogicalVolume;
+    int fMaxDepth;
+public:
+    GetPathsForLogicalVolumeVisitor(
+      Container &c, LogicalVolume const * lv, int maxd)
+      : GeoVisitorWithAccessToPath<Container>(c), fReferenceLogicalVolume(lv), fMaxDepth(maxd)
+    {}
+
+    void apply( NavigationState * state, int /* level */ )
+    {
+        if( state->Top()->GetLogicalVolume() == fReferenceLogicalVolume ){
+            // the current state is a good one;
+
+            // make a copy and store it in the container for this visitor
+            NavigationState * copy = NavigationState::MakeCopy( *state );
+
+            this->c_.push_back( copy );
+        }
+    }
+};
+
+
+
+template<typename Visitor>
+void
+GeoManager::visitAllPlacedVolumesWithContext( VPlacedVolume const * currentvolume, Visitor * visitor, NavigationState * state, int level ) const
+{
+   if( currentvolume != NULL )
+   {
+      state->Push( currentvolume );
+      visitor->apply( state, level );
+      int size = currentvolume->GetDaughters().size();
+      for( int i=0; i<size; ++i )
+      {
+         visitAllPlacedVolumesWithContext( currentvolume->GetDaughters().operator[](i), visitor, state, level+1 );
+      }
+      state->Pop();
+   }
+}
+
+template<typename Container>
+__attribute__((noinline))
+void GeoManager::getAllPathForLogicalVolume( LogicalVolume const * lvol, Container & c ) const
+{
+   NavigationState * state = NavigationState::MakeInstance(getMaxDepth());
+   c.clear();
+   state->Clear();
+
+   // instantiate the visitor
+   GetPathsForLogicalVolumeVisitor<Container> pv(c, lvol, getMaxDepth());
+
+   // now walk the placed volume hierarchy
+   visitAllPlacedVolumesWithContext( GetWorld(), &pv, state );
+   NavigationState::ReleaseInstance( state );
+}
+
+// init symbols for getAllPathsForLogicalVolume
+int initSymbols(){
+    std::list<NavigationState  * > l;
+    std::vector<NavigationState  * > v;
+    GeoManager::Instance().getAllPathForLogicalVolume( nullptr, l);
+    GeoManager::Instance().getAllPathForLogicalVolume( nullptr, v);
+    return l.size() + v.size();
+}
+
+
 
 } } // End global namespace

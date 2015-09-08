@@ -81,6 +81,13 @@ void UnplacedParallelepiped::Print(std::ostream &os) const {
      << GetTanThetaSinPhi();
 }
 
+void UnplacedParallelepiped::Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & aMax) const
+{
+  // Returns the full 3D cartesian extent of the solid.
+  aMin = 0;
+  aMax = 1;
+}
+
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECGEOM_CUDA_HEADER_DEVICE
 VPlacedVolume* UnplacedParallelepiped::Create(

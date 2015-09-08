@@ -9,6 +9,7 @@
 #include "base/Global.h"
 #include "base/Vector.h"
 #include "volumes/UnplacedVolume.h"
+//#include "volumes/PlacedVolume.h"
 
 #include <string>
 #include <list>
@@ -24,13 +25,13 @@ VECGEOM_DEVICE_FORWARD_DECLARE( class VPlacedVolume; )
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 typedef VPlacedVolume const* Daughter;
-
+class GeoManager;
 /**
  * @brief Class responsible for storing the unplaced volume, material and
  *        daughter volumes of a mother volume.
  */
 class LogicalVolume {
-
+friend class GeoManager;
 private:
   // pointer to concrete unplaced volume/shape
   VUnplacedVolume const *fUnplacedVolume;
@@ -41,9 +42,15 @@ private:
 
   static int gIdCount; // static class counter
 
-  // a pointer member to register arbitrary objects with logical volume;
-  // included for the moment to model UserExtension like in TGeoVolume
-  void *fUserExtensionPtr;
+  /** a pointer member to register arbitrary objects with logical volume;
+        included for the moment to model UserExtension like in TGeoVolume
+  */
+  void * fUserExtensionPtr;
+  /** some specific pointers used by Geant-V
+   *
+   */
+  void * fTrackingMediumPtr;
+  void * fBasketManagerPtr;
 
   // the container of daughter (placed) volumes which are placed inside this logical
   // Volume
@@ -51,6 +58,10 @@ private:
 
   using CudaDaughter_t = cuda::VPlacedVolume const *;
   friend class CudaManager;
+//  friend class GeoManager;
+
+  // possibility to change pointer of daughter volumes ( can be used by GeoManager )
+//  void SetDaughter(unsigned int i, VPlacedVolume const *pvol);
 
 public:
 
@@ -75,8 +86,10 @@ public:
       // Id for logical volumes is not needed on the device for CUDA
       : fUnplacedVolume(unplaced_vol),
         fId(-1),
-        fLabel(NULL),
-        fUserExtensionPtr(NULL),
+        fLabel(nullptr),
+        fUserExtensionPtr(nullptr),
+        fTrackingMediumPtr(nullptr),
+        fBasketManagerPtr(nullptr),
         fDaughters(GetDaughter) {}
 #endif
 
@@ -86,19 +99,38 @@ public:
   VECGEOM_INLINE
   VUnplacedVolume const *GetUnplacedVolume() const { return fUnplacedVolume; }
 
+  // will be deprecated in favour of better encapsulation of internal storage
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Vector<Daughter> const &GetDaughters() const { return *fDaughters; }
 
+  // will be deprecated in favour of better encapsulation of internal storage
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Vector<Daughter> const *GetDaughtersp() const { return fDaughters; }
 
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Vector<Daughter> *GetDaughtersp() { return fDaughters; }
+
+//  VECGEOM_CUDA_HEADER_BOTH
+//  VECGEOM_INLINE
+//  VPlacedVolume const* GetDaughter(unsigned int i) const { return daughters_->operator[](i); }
+//
+//  VECGEOM_CUDA_HEADER_BOTH
+//  VECGEOM_INLINE
+//  unsigned int GetNDaughters() const { return daughters_->size(); }
+
   VECGEOM_INLINE
   void *GetUserExtensionPtr() const { return fUserExtensionPtr; }
+  VECGEOM_INLINE
+  void *GetTrackingMediumPtr() const { return fTrackingMediumPtr; }
+  VECGEOM_INLINE
+  void *GetBasketManagerPtr() const { return fBasketManagerPtr; }
 
   int id() const { return fId; }
 
+  const char *GetName() const { return fLabel->c_str(); }
   std::string GetLabel() const { return *fLabel; }
 
   void SetLabel(char const *const label) {
@@ -108,6 +140,12 @@ public:
 
   VECGEOM_INLINE
   void SetUserExtensionPtr(void *userpointer) { fUserExtensionPtr = userpointer; }
+
+  VECGEOM_INLINE
+  void SetTrackingMediumPtr(void *tmediumpointer) { fTrackingMediumPtr = tmediumpointer; }
+
+  VECGEOM_INLINE
+  void SetBasketManagerPtr(void *basketpointer) { fBasketManagerPtr = basketpointer; }
 
   VECGEOM_CUDA_HEADER_BOTH
   void Print(const int indent = 0) const;

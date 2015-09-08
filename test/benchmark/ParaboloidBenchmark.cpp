@@ -6,6 +6,7 @@
 #include "volumes/Paraboloid.h"
 #include "benchmarking/Benchmarker.h"
 #include "management/GeoManager.h"
+#include <iostream>
 
 using namespace vecgeom;
 

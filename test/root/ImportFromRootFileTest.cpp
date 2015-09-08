@@ -13,6 +13,7 @@
 #endif
 #include "TGeoManager.h"
 #include <cstdio>
+#include <iostream>
 
 //______________________________________________________________________________
 void LoadVecGeomGeometry(bool printcontent = false)

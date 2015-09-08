@@ -28,8 +28,9 @@
 #include <cassert>
 #include <sstream>
 
+//#define CALLGRIND
 #ifdef CALLGRIND
-#include "base/callgrind.h"
+#include <valgrind/callgrind.h>
 #endif
 
 #include "TGeoManager.h"
@@ -520,6 +521,12 @@ if(VERBOSE){
         NavigationState::ReleaseInstance( curnavstates[j] );
         NavigationState::ReleaseInstance( newnavstates[j] );
     }
+    delete [] steps;
+    delete [] psteps;
+    delete [] safeties;
+    delete [] nextnodeworkspace;
+    delete newnavstates;
+    delete curnavstates;
 } // end XRayWithVecGeomVectorInterface
 
 
@@ -1040,8 +1047,6 @@ int *volume_result= (int*) new int[data_size_y * data_size_x*3];
 #endif
     timer.Stop();
 
-    return 0.;
-
     std::stringstream VecGeomABBimage;
     VecGeomABBimage << imagenamebase.str();
     VecGeomABBimage << "_VecGeomABB.bmp";
@@ -1053,6 +1058,8 @@ int *volume_result= (int*) new int[data_size_y * data_size_x*3];
 
     std::cout << std::endl;
     std::cout << " VecGeom ABB Elapsed time : "<< timer.Elapsed() << std::endl;
+
+    return 0.;
 
     // use the vector interface
     timer.Start();
