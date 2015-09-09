@@ -136,7 +136,7 @@ VPlacedVolume* RootGeoManager::Convert(TGeoNode const *const node) {
   int flatteningcount = 0;
   for (int i = 0; i < remaining_daughters; ++i) {
     TGeoHMatrix trans = *node->GetDaughter(i)->GetMatrix();
-    FlattenAssemblies(node->GetDaughter(i), flattenenednodelist, &trans, 0, assemblydepth, flatteningcount);
+    FlattenAssemblies(node->GetDaughter(i), flattenenednodelist, &trans, 0, flatteningcount, assemblydepth);
   }
 
   if (flattenenednodelist.size() > remaining_daughters) {
