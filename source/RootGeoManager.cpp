@@ -43,9 +43,11 @@
 #include "TGeoTorus.h"
 #include "TGeoArb8.h"
 #include "TGeoPcon.h"
+#include "TGeoShapeAssembly.h"
 
 #include <cassert>
 #include <iostream>
+#include <list>
 
 namespace vecgeom {
 
@@ -80,6 +82,35 @@ void RootGeoManager::ExportToROOTGeometry(VPlacedVolume const * topvolume,
    ::gGeoManager->Export(filename.c_str());
 }
 
+// a helper function to convert ROOT assembly constructs into a flat list of nodes
+// allows parsing of more complex ROOT geometries ( until VecGeom supports assemblies natively )
+void FlattenAssemblies(TGeoNode *node, std::list<TGeoNode *> &nodeaccumulator, TGeoHMatrix const *globalmatrix,
+                       int currentdepth, int &count /* keeps track of number of flattenened nodes */, int &maxdepth) {
+  maxdepth = currentdepth;
+  if (dynamic_cast<TGeoVolumeAssembly *>(node->GetVolume())) {
+    // it is an assembly --> so modify the matrix
+    TGeoVolumeAssembly *assembly = dynamic_cast<TGeoVolumeAssembly *>(node->GetVolume());
+    for (int i = 0, Nd = assembly->GetNdaughters(); i < Nd; ++i) {
+      TGeoHMatrix nextglobalmatrix = *globalmatrix;
+      nextglobalmatrix.Multiply(assembly->GetNode(i)->GetMatrix());
+      FlattenAssemblies(assembly->GetNode(i), nodeaccumulator, &nextglobalmatrix, currentdepth + 1, count, maxdepth);
+    }
+  } else {
+    if (currentdepth == 0) // can keep original node ( it was not an assembly )
+      nodeaccumulator.push_back(node);
+    else { // need a new flattened node with a different transformation
+      TGeoMatrix *newmatrix = new TGeoHMatrix(*globalmatrix);
+      TGeoNodeMatrix *newnode = new TGeoNodeMatrix(node->GetVolume(), newmatrix);
+
+      // need a new name for the flattened node
+      std::string *newname = new ::string(node->GetName());
+      *newname += "_assemblyinternalcount_" + std::to_string(count);
+      newnode->SetName(newname->c_str());
+      nodeaccumulator.push_back(newnode);
+      count++;
+    }
+  }
+}
 
 VPlacedVolume* RootGeoManager::Convert(TGeoNode const *const node) {
   if (fPlacedVolumeMap.Contains(node))
@@ -98,8 +129,24 @@ VPlacedVolume* RootGeoManager::Convert(TGeoNode const *const node) {
     assert(remaining_daughters == 0 ||
            remaining_daughters == node->GetNdaughters());
   }
+
+  // we have to convert here assemblies to list of normal nodes
+  std::list<TGeoNode *> flattenenednodelist;
+  int assemblydepth = 0;
+  int flatteningcount = 0;
   for (int i = 0; i < remaining_daughters; ++i) {
-    logical_volume->PlaceDaughter(Convert(node->GetDaughter(i)));
+    TGeoHMatrix trans = *node->GetDaughter(i)->GetMatrix();
+    FlattenAssemblies(node->GetDaughter(i), flattenenednodelist, &trans, 0, assemblydepth, flatteningcount);
+  }
+
+  if (flattenenednodelist.size() > remaining_daughters) {
+    std::cerr << "INFO: flattening of assemblies (depth " << assemblydepth << ") resulted in "
+              << flattenenednodelist.size() << " daughters vs " << remaining_daughters << "\n";
+  }
+
+  //
+  for (auto &n : flattenenednodelist) {
+    logical_volume->PlaceDaughter(Convert(n));
   }
 
   fPlacedVolumeMap.Set(node, placed_volume->id());
@@ -443,8 +490,8 @@ VUnplacedVolume* RootGeoManager::Convert(TGeoShape const *const shape) {
    // New volumes should be implemented here...
   if (!unplaced_volume) {
     if (fVerbose) {
-      printf("Unsupported shape for ROOT volume \"%s\". "
-             "Using ROOT implementation.\n", shape->GetName());
+      printf("Unsupported shape for ROOT volume \"%s\" of type %s. "
+             "Using ROOT implementation.\n", shape->GetName(), shape->ClassName());
     }
     unplaced_volume = new UnplacedRootVolume(shape);
   }
