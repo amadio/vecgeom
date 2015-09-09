@@ -1017,7 +1017,7 @@ if (USolids)
 endif()
 
 # Install headers and libraries
-foreach(FOLDER base benchmarking management navigation volumes backend)
+foreach(FOLDER base benchmarking management navigation volumes materials backend)
   install(DIRECTORY ${FOLDER} DESTINATION ${INSTALL_INCLUDE_DIR})
 endforeach()
 install(TARGETS vecgeom DESTINATION ${INSTALL_LIB_DIR})
