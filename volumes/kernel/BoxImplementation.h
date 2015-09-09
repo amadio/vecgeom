@@ -938,7 +938,7 @@ void BoxImplementation<transCodeT, rotCodeT>::NormalKernel(
     static typename Backend::precision_v ABBoxSafetySqr(
           Vector3D<typename Backend::precision_v> const &lowercorner,
           Vector3D<typename Backend::precision_v> const &uppercorner,
-          Vector3D<Precision> const &point) {
+          Vector3D<Real_t> const &point) {
 
       typedef Vector3D<typename Backend::precision_v> Vector3D_v;
       typedef typename Backend::bool_v Bool_v;
