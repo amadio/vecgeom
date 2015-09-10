@@ -267,8 +267,8 @@ public:
                                   Vector3D<Precision> const &direction,
                                   Vector3D<Precision> &normal,
                                   bool &convex, Precision step = kInfinity ) const {
-      double d = DistanceToOut(point, direction, step );
-        Vector3D<double> hitpoint = point + d*direction;
+        Precision d = DistanceToOut(point, direction, step );
+        Vector3D<Precision> hitpoint = point + d*direction;
         PlacedShape_t::Normal( hitpoint, normal );
         // we could make this something like
         // convex = PlacedShape_t::IsConvex;
