@@ -896,7 +896,8 @@ PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarDistanceToInKernel(
   // SW: Add a check if actually inside ( required by navigation )
   // TODO: check if this is optimal way
   if( inBounds && ScalarSegmentContainsKernel( unplaced,localPoint, zIndex ) ) {
-      return -1.;
+      // return -1.;  // -1 returned causes trouble in Geant4 jobs
+    return kInfinity;
   }
 
   // Traverse Z-segments left or right depending on sign of direction
