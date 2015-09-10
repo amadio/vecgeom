@@ -274,74 +274,74 @@ bool TestTrap() {
 // DistanceToOut(P,V)
 
     Dist=trap1.DistanceToOut(pzero,vx,norm,convex);
-    assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,vx)&&convex);
+    assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,vx)&& !convex);
     Dist=trap1.DistanceToOut(pzero,vmx,norm,convex);
-    assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,vmx)&&convex);
+    assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,vmx)&& !convex);
     Dist=trap1.DistanceToOut(pzero,vy,norm,convex);
-    assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,vy)&&convex);
+    assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,vy)&& !convex);
     Dist=trap1.DistanceToOut(pzero,vmy,norm,convex);
-    assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,vmy)&&convex);
+    assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,vmy)&& !convex);
     Dist=trap1.DistanceToOut(pzero,vz,norm,convex);
-    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vz)&&convex);
+    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vz)&& !convex);
     Dist=trap1.DistanceToOut(pzero,vmz,norm,convex);
-    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vmz)&&convex);
+    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vmz)&& !convex);
     Dist=trap1.DistanceToOut(pzero,vxy,norm,convex);
-    assert(ApproxEqual(Dist,std::sqrt(800.))&&ApproxEqual(norm,vx)&&convex);
+    assert(ApproxEqual(Dist,std::sqrt(800.))&&ApproxEqual(norm,vx)&& !convex);
 
     Dist=trap1.DistanceToOut(ponxside,vx,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vx)&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vx)&& !convex);
     Dist=trap1.DistanceToOut(ponmxside,vmx,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmx)&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmx)&& !convex);
     Dist=trap1.DistanceToOut(ponyside,vy,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vy)&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vy)&& !convex);
     Dist=trap1.DistanceToOut(ponmyside,vmy,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmy)&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmy)&& !convex);
     Dist=trap1.DistanceToOut(ponzside,vz,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vz)&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vz)&& !convex);
     Dist=trap1.DistanceToOut(ponmzside,vmz,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmz)&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmz)&& !convex);
 
     Dist=trap1.DistanceToOut(ponxside,vmx,norm,convex);
-    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vmx)&&convex);
+    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vmx)&& !convex);
     Dist=trap1.DistanceToOut(ponmxside,vx,norm,convex);
-    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vx)&&convex);
+    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vx)&& !convex);
     Dist=trap1.DistanceToOut(ponyside,vmy,norm,convex);
-    assert(ApproxEqual(Dist,60)&&ApproxEqual(norm,vmy)&&convex);
+    assert(ApproxEqual(Dist,60)&&ApproxEqual(norm,vmy)&& !convex);
     Dist=trap1.DistanceToOut(ponmyside,vy,norm,convex);
-    assert(ApproxEqual(Dist,60)&&ApproxEqual(norm,vy)&&convex);
+    assert(ApproxEqual(Dist,60)&&ApproxEqual(norm,vy)&& !convex);
     Dist=trap1.DistanceToOut(ponzside,vmz,norm,convex);
-    assert(ApproxEqual(Dist,80)&&ApproxEqual(norm,vmz)&&convex);
+    assert(ApproxEqual(Dist,80)&&ApproxEqual(norm,vmz)&& !convex);
     Dist=trap1.DistanceToOut(ponmzside,vz,norm,convex);
-    assert(ApproxEqual(Dist,80)&&ApproxEqual(norm,vz)&&convex);
+    assert(ApproxEqual(Dist,80)&&ApproxEqual(norm,vz)&& !convex);
 
 
     Dist=trap2.DistanceToOut(pzero,vx,norm,convex);
-    assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,Vec_t(cosa,0,-sina))&&convex);
+    assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,Vec_t(cosa,0,-sina))&& !convex);
     Dist=trap2.DistanceToOut(pzero,vmx,norm,convex);
-    assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,Vec_t(-cosa,0,-sina))&&convex);
+    assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,Vec_t(-cosa,0,-sina))&& !convex);
     Dist=trap2.DistanceToOut(pzero,vy,norm,convex);
-    assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,Vec_t(0,cosa,-sina))&&convex);
+    assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,Vec_t(0,cosa,-sina))&& !convex);
     Dist=trap2.DistanceToOut(pzero,vmy,norm,convex);
-    assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,Vec_t(0,-cosa,-sina))&&convex);
+    assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,Vec_t(0,-cosa,-sina))&& !convex);
     Dist=trap2.DistanceToOut(pzero,vz,norm,convex);
-    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vz)&&convex);
+    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vz)&& !convex);
     Dist=trap2.DistanceToOut(pzero,vmz,norm,convex);
-    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vmz)&&convex);
+    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vmz)&& !convex);
     Dist=trap2.DistanceToOut(pzero,vxy,norm,convex);
-    assert(ApproxEqual(Dist,std::sqrt(800.))&&convex);
+    assert(ApproxEqual(Dist,std::sqrt(800.))&& !convex);
 
     Dist=trap2.DistanceToOut(ponxside,vx,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(cosa,0,-sina))&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(cosa,0,-sina))&& !convex);
     Dist=trap2.DistanceToOut(ponmxside,vmx,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(-cosa,0,-sina))&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(-cosa,0,-sina))&& !convex);
     Dist=trap2.DistanceToOut(ponyside,vy,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(0,cosa,-sina))&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(0,cosa,-sina))&& !convex);
     Dist=trap2.DistanceToOut(ponmyside,vmy,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(0,-cosa,-sina))&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(0,-cosa,-sina))&& !convex);
     Dist=trap2.DistanceToOut(ponzside,vz,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vz)&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vz)&& !convex);
     Dist=trap2.DistanceToOut(ponmzside,vmz,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmz)&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmz)&& !convex);
 
 
 //SafetyFromOutside(P)

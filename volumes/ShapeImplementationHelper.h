@@ -293,7 +293,7 @@ public:
         PlacedShape_t::Normal( hitpoint, normal );
         // we could make this something like
         // convex = PlacedShape_t::IsConvex;
-        convex = true;
+        convex = false;
         return d;
   }
 #endif
