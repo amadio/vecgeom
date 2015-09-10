@@ -293,6 +293,27 @@ bool UnplacedTube::Normal(Vector3D<Precision> const& point, Vector3D<Precision>&
     return;
   }
 
+#if defined(VECGEOM_USOLIDS)
+  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& UnplacedTube::StreamInfo(std::ostream &os) const {
+    int oldprc = os.precision(16);
+    os << "-----------------------------------------------------------\n"
+       << "     *** Dump for solid - " << GetEntityType() << " ***\n"
+       << "     ===================================================\n"
+       << " Solid type: Tube\n"
+       << " Parameters: \n"
+       << "     Tube Radii Rmin, Rmax: " << fRmin <<"mm, "<< fRmax <<"mm \n"
+       << "     Half-length Z = "<< fZ <<"mm\n";
+    if(fDphi<kTwoPi) {
+        os << "     Wedge starting angles: fSPhi=" << fSphi*kRadToDeg <<"deg, "
+           << ", fDphi="<<fDphi*kRadToDeg <<"deg\n";
+    }
+    os << "-----------------------------------------------------------\n";
+    os.precision(oldprc);
+    return os;
+  }
+#endif
+
 
 #ifdef VECGEOM_CUDA_INTERFACE
 

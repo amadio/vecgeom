@@ -334,6 +334,41 @@ int UnplacedPolyhedron::GetNQuadrilaterals() const {
     return count;
 }
 
+
+#if defined(VECGEOM_USOLIDS)
+  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& UnplacedPolyhedron::StreamInfo(std::ostream &os) const {
+    int oldprc = os.precision(16);
+    os << "-----------------------------------------------------------\n"
+       << "     *** Dump for solid - " << GetEntityType() << " ***\n"
+       << "     ===================================================\n"
+       << " Solid type: Polyhedron\n"
+       << " Parameters:\n"
+       << "     Number of segments along phi: "<< fSideCount <<"\n"
+       << "     N = number of Z-sections: "<< fZSegments.size() <<"\n"
+       << "     N+1 z-coordinates (in mm):\n";
+    uint Nz = (uint)fZSegments.size();
+    Assert((int)Nz == fZPlanes.size()-1, "UnplacedPolyhedron inconsistency: please check #segments vs. #Zplanes\n");
+
+    uint rminIndex = 0;
+    for(uint i=0; i<Nz; ++i) {
+      os<<"       at Z="<< fZPlanes[i] <<"mm: ";
+      if(fZSegments[i].hasInnerRadius) {
+        os<<" Rmin="<< fRMin[rminIndex]<<"mm,";
+        ++rminIndex;
+      }
+      os<<" Rmax="<< fRMax[i]<<"mm\n";
+    }
+    // print last plane info
+    os<<"       at Z="<< fZPlanes[Nz] <<"mm: ";
+    if(fZSegments[Nz].hasInnerRadius) os<<" Rmin="<< fRMin[rminIndex]<<"mm, Rmax="<< fRMax[Nz]<<"mm\n";
+    os << "-----------------------------------------------------------\n";
+    os.precision(oldprc);
+    return os;
+  }
+#endif
+
+
 VECGEOM_CUDA_HEADER_DEVICE
 VPlacedVolume* UnplacedPolyhedron::SpecializedVolume(
     LogicalVolume const *const volume,

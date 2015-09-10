@@ -236,6 +236,44 @@ VPlacedVolume* UnplacedPolycone::Create(LogicalVolume const *const logical_volum
       Print();
     }
 
+#if defined(VECGEOM_USOLIDS)
+  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& UnplacedPolycone::StreamInfo(std::ostream &os) const {
+    int oldprc = os.precision(16);
+    os << "-----------------------------------------------------------\n"
+       << "     *** Dump for solid - " << GetEntityType() << " ***\n"
+       << "     ===================================================\n"
+       << " Solid type: Polycone\n"
+       << " Parameters: \n"
+       << "     N = number of Z-sections: "<< fNz <<"\n"
+       << "     N+1 z-coordinates:\n";
+    for(uint j=0; j<fNz/5+1; ++j) {
+      os <<"       [ ";
+      for(uint i=0; i<5; ++i) {
+        uint ind = 5*j + i;
+        if(ind<=fNz) os<< fZs[ind] <<";";
+      }
+      os <<" ]\n";
+    }
+    if(fDeltaPhi<kTwoPi) {
+        os << "     Wedge starting angles: fSphi=" << fStartPhi*kRadToDeg <<"deg, "
+           << ", fDphi="<<fDeltaPhi*kRadToDeg <<"deg\n";
+    }
+    os <<"\n     Cone sections:\n";
+    for(uint i=0; i<fNz/5+1; ++i) {
+      UnplacedCone* subcone = fSections[i].fSolid;
+      os <<"     cone #"<< i
+         <<" Rmin1="<< subcone->GetRmin1()
+         <<" Rmax1="<< subcone->GetRmax1()
+         <<" Rmin2="<< subcone->GetRmin2()
+         <<" Rmax2="<< subcone->GetRmax2()<<"mm\n";
+    }
+    os << "-----------------------------------------------------------\n";
+    os.precision(oldprc);
+    return os;
+  }
+#endif
+
 
     VECGEOM_CUDA_HEADER_DEVICE
     VPlacedVolume* UnplacedPolycone::SpecializedVolume(

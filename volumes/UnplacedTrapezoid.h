@@ -230,7 +230,6 @@ public:
   // }
 
 #if defined(VECGEOM_USOLIDS)
-  VECGEOM_CUDA_HEADER_BOTH
   std::ostream& StreamInfo(std::ostream &os) const;
 #endif
 

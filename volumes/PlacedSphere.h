@@ -292,6 +292,13 @@ Precision GetDTheta() const { return GetUnplacedVolume()->GetDTheta(); }
     return GetUnplacedVolume()->GetPointOnSurface();
   }
 
+#if defined(VECGEOM_USOLIDS)
+//  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& StreamInfo(std::ostream &os) const override {
+    return GetUnplacedVolume()->StreamInfo(os);
+  }
+#endif
+
   virtual VPlacedVolume const* ConvertToUnspecialized() const override;
 
 #ifdef VECGEOM_ROOT

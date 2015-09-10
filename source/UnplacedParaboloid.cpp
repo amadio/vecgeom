@@ -249,6 +249,16 @@ fDy(0)
 #if defined(VECGEOM_USOLIDS)
     VECGEOM_CUDA_HEADER_BOTH
     std::ostream& UnplacedParaboloid::StreamInfo(std::ostream &os) const {
+      int oldprc = os.precision(16);
+      os << "-----------------------------------------------------------\n"
+         << "     *** Dump for solid - " << GetEntityType() << " ***\n"
+         << "     ===================================================\n"
+         << " Solid type: Paraboloid\n"
+         << " Parameters: \n"
+         << "     Paraboloid Radii Rlo=" << fRlo <<"mm, Rhi"<< fRhi <<"mm \n"
+         << "     Half-length Dz = "<< fDz <<"mm\n";
+      os << "-----------------------------------------------------------\n";
+      os.precision(oldprc);
       return os;
     }
 #endif

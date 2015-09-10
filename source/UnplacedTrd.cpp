@@ -261,6 +261,26 @@ VPlacedVolume* UnplacedTrd::SpecializedVolume(
                               placement);
 }
 
+
+#if defined(VECGEOM_USOLIDS)
+  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& UnplacedTrd::StreamInfo(std::ostream &os) const {
+    int oldprc = os.precision(16);
+    os << "-----------------------------------------------------------\n"
+       << "     *** Dump for solid - " << GetEntityType() << " ***\n"
+       << "     ===================================================\n"
+       << " Solid type: Trd\n"
+       << " Parameters: \n"
+       << "     half lengths X1,X2: " << fDX1 <<"mm, "<< fDX2 <<"mm \n"
+       << "     half lengths Y1,Y2: " << fDY1 <<"mm, "<< fDY2 <<"mm \n"
+       << "     half length Z: " << fDZ << "mm \n"
+       << "-----------------------------------------------------------\n";
+    os.precision(oldprc);
+    return os;
+  }
+#endif
+
+
 #ifdef VECGEOM_CUDA_INTERFACE
 
 DevicePtr<cuda::VUnplacedVolume> UnplacedTrd::CopyToGpu(

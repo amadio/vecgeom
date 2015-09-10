@@ -221,6 +221,8 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual void Print() const;
 
+  std::string GetEntityType() const { return "Trd";}
+
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECGEOM_CUDA_HEADER_DEVICE
   static VPlacedVolume* Create(LogicalVolume const *const logical_volume,
@@ -234,6 +236,10 @@ public:
   virtual size_t DeviceSizeOf() const { return DevicePtr<cuda::UnplacedTrd>::SizeOf(); }
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const;
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
+#endif
+
+#if defined(VECGEOM_USOLIDS)
+  std::ostream& StreamInfo(std::ostream &os) const;
 #endif
 
 private:

@@ -23,6 +23,22 @@ void UnplacedBox::Print(std::ostream &os) const {
   os << "UnplacedBox {" << x() << ", " << y() << ", " << z() << "}";
 }
 
+#if defined(VECGEOM_USOLIDS)
+  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& UnplacedBox::StreamInfo(std::ostream &os) const {
+    int oldprc = os.precision(16);
+    os << "-----------------------------------------------------------\n"
+       << "     *** Dump for solid - " << GetEntityType() << " ***\n"
+       << "     ===================================================\n"
+       << " Solid type: Box\n"
+       << " Parameters: \n"
+       << "     half-dimensions in mm: x,y,z: " << dimensions_ <<"\n"
+       << "-----------------------------------------------------------\n";
+    os.precision(oldprc);
+    return os;
+  }
+#endif
+
 
 #ifndef VECGEOM_NVCC
 //______________________________________________________________________________

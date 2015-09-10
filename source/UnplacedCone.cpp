@@ -271,10 +271,33 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
        RETURN_SPECIALIZATION(UniversalCone);
 
        #undef RETURN_SPECIALIZATION
- }
+  }
 
 
-// this is repetetive code:
+#if defined(VECGEOM_USOLIDS)
+  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& UnplacedCone::StreamInfo(std::ostream &os) const {
+    int oldprc = os.precision(16);
+    os << "-----------------------------------------------------------\n"
+       << "     *** Dump for solid - " << GetEntityType() << " ***\n"
+       << "     ===================================================\n"
+       << " Solid type: Cone\n"
+       << " Parameters: \n"
+       << "     Cone Radii Rmin1, Rmax1: " << fRmin1 <<"mm, "<< fRmax1 <<"mm\n"
+       << "                Rmin2, Rmax2: " << fRmin2 <<"mm, "<< fRmax2 <<"mm\n"
+       << "     Half-length Z = "<< fDz <<"mm\n";
+    if(fDPhi<kTwoPi) {
+        os << "     Wedge starting angles: fSPhi=" << fSPhi*kRadToDeg <<"deg, "
+           << ", fDphi="<<fDPhi*kRadToDeg <<"deg\n";
+    }
+    os << "-----------------------------------------------------------\n";
+    os.precision(oldprc);
+    return os;
+  }
+#endif
+
+
+// this is repetitive code:
 
   VECGEOM_CUDA_HEADER_DEVICE
   VPlacedVolume* UnplacedCone::SpecializedVolume(

@@ -201,7 +201,7 @@ public:
   void GetParameterList() const { return GetUnplacedVolume()->GetParameterList() ;}
 
 #if defined(VECGEOM_USOLIDS)
-  VECGEOM_CUDA_HEADER_BOTH
+//  VECGEOM_CUDA_HEADER_BOTH
   std::ostream& StreamInfo(std::ostream &os) const override {
     return GetUnplacedVolume()->StreamInfo(os);
   }

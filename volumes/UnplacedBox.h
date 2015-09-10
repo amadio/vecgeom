@@ -119,6 +119,11 @@ public:
   void SetY(double yy) { dimensions_[1] = yy; }
   void SetZ(double zz) { dimensions_[2] = zz; }
 
+#if defined(VECGEOM_USOLIDS)
+  std::ostream& StreamInfo(std::ostream &os) const;
+#endif
+
+
 private:
 
 #ifndef VECGEOM_NVCC

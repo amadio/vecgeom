@@ -105,8 +105,16 @@ public:
      return GetUnplacedVolume()->GetPointOnSurface();
    }
  bool Normal(Vector3D<Precision>const& point, Vector3D<Precision>& normal) const override {
-	  return GetUnplacedVolume()->Normal(point, normal);
+      return GetUnplacedVolume()->Normal(point, normal);
   }
+
+#if defined(VECGEOM_USOLIDS)
+//  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& StreamInfo(std::ostream &os) const override {
+    return GetUnplacedVolume()->StreamInfo(os);
+  }
+#endif
+
   virtual VPlacedVolume const* ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const* ConvertToRoot() const override;

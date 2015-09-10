@@ -186,6 +186,18 @@ public:
 
   virtual int memory_size() const override { return sizeof(*this); }
 
+  virtual bool Normal(Vector3D<Precision> const &point,
+                      Vector3D<Precision> &normal) const {
+    return GetUnplacedVolume()->Normal(point,normal);
+  }
+
+#if defined(VECGEOM_USOLIDS)
+//  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& StreamInfo(std::ostream &os) const override {
+    return GetUnplacedVolume()->StreamInfo(os);
+  }
+#endif
+
   // Comparison specific
 #ifndef VECGEOM_NVCC
   virtual VPlacedVolume const* ConvertToUnspecialized() const override;

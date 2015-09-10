@@ -389,6 +389,10 @@ public:
 
   virtual void Print(std::ostream &os) const;
 
+#if defined(VECGEOM_USOLIDS)
+  std::ostream& StreamInfo(std::ostream &os) const;
+#endif
+
   VECGEOM_CUDA_HEADER_DEVICE
   VPlacedVolume* SpecializedVolume(
       LogicalVolume const *const volume,

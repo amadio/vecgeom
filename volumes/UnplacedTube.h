@@ -368,6 +368,8 @@ fPhiWedge(other.fDphi,other.fSphi)
   VECGEOM_CUDA_HEADER_BOTH
   virtual void Print() const;
 
+  std::string GetEntityType() const { return "Tube";}
+
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECGEOM_CUDA_HEADER_DEVICE
   static VPlacedVolume* Create(LogicalVolume const *const logical_volume,
@@ -381,6 +383,10 @@ fPhiWedge(other.fDphi,other.fSphi)
   virtual size_t DeviceSizeOf() const { return DevicePtr<cuda::UnplacedTube>::SizeOf(); }
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const;
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
+#endif
+
+#if defined(VECGEOM_USOLIDS)
+  std::ostream& StreamInfo(std::ostream &os) const;
 #endif
 
 private:

@@ -110,6 +110,28 @@ Vector3D<Precision> UnplacedTorus2::GetPointOnSurface() const {
      }
 }
 
+
+#if defined(VECGEOM_USOLIDS)
+  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& UnplacedTorus2::StreamInfo(std::ostream &os) const {
+    int oldprc = os.precision(16);
+    os << "-----------------------------------------------------------\n"
+       << "     *** Dump for solid - " << GetEntityType() << " ***\n"
+       << "     ===================================================\n"
+       << " Solid type: Torus2\n"
+       << " Parameters: \n"
+       << "      Radii:  Rtor="<< fRtor <<"mm, Rmin=" << fRmin <<"mm, "<< fRmax <<"mm \n";
+    if(fDphi<kTwoPi) {
+        os << "     Wedge starting angles: fSPhi=" << fSphi*kRadToDeg <<"deg, "
+           << ", fDphi="<<fDphi*kRadToDeg <<"deg\n";
+    }
+    os << "-----------------------------------------------------------\n";
+    os.precision(oldprc);
+    return os;
+  }
+#endif
+
+
 #ifdef VECGEOM_CUDA_INTERFACE
 
 DevicePtr<cuda::VUnplacedVolume> UnplacedTorus2::CopyToGpu(

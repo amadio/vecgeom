@@ -708,7 +708,21 @@ void UnplacedTrapezoid::fromCornersToParameters( TrapCorners_t const pt) {
 #if defined(VECGEOM_USOLIDS)
   VECGEOM_CUDA_HEADER_BOTH
   std::ostream& UnplacedTrapezoid::StreamInfo(std::ostream &os) const {
-    Assert( 0 ); // Not implemented yet
+    int oldprc = os.precision(16);
+    os << "-----------------------------------------------------------\n"
+       << "     *** Dump for solid - " << GetEntityType() << " ***\n"
+       << "     ===================================================\n"
+       << " Solid type: Trapezoid\n"
+       << " Parameters: \n"
+       << "     half lengths X1,X2: " << fDx1 <<"mm, "<< fDx2 <<"mm \n"
+       << "     half lengths Y1,Y2: " << fDy1 <<"mm, "<< fDy2 <<"mm \n"
+       << "     half length Z: " << fDz << "mm \n"
+       << "     Solid axis angles: Theta=" << fTheta*kRadToDeg <<"deg, "
+       << " Phi="<< fPhi*kRadToDeg <<"deg\n"
+       << "     Face axis angles: TanAlpha1=" << fTanAlpha1*kRadToDeg <<"deg, "
+       << " TanAlpha2="<< fTanAlpha2*kRadToDeg <<"deg\n"
+       << "-----------------------------------------------------------\n";
+    os.precision(oldprc);
     return os;
   }
 #endif
