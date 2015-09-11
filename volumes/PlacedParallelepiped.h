@@ -88,6 +88,8 @@ public:
     return GetUnplacedVolume()->GetTanThetaCosPhi();
   }
   
+  bool IsConvex() const {return GetUnplacedVolume()->IsConvex(); }
+
 #ifndef VECGEOM_NVCC
   virtual VPlacedVolume const* ConvertToUnspecialized() const;
 #ifdef VECGEOM_ROOT

@@ -81,6 +81,12 @@ void UnplacedParallelepiped::Print(std::ostream &os) const {
      << GetTanThetaSinPhi();
 }
 
+
+bool UnplacedParallelepiped::IsConvex() const{
+		  //Considering that a parallelepiped is alway convex
+          return true;
+      }
+
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECGEOM_CUDA_HEADER_DEVICE
 VPlacedVolume* UnplacedParallelepiped::Create(
