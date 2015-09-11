@@ -125,7 +125,9 @@ message("Dashboard script configuration (check if everything is declared correct
 #######################################################
 # Build dashboard model setup
 
-SET(MODEL Nightly)
+IF(${CTEST_SCRIPT_ARG} MATCHES Nightly)
+  SET(MODEL Nightly)
+ENDIF(${CTEST_SCRIPT_ARG} MATCHES Nightly)
 IF(${CTEST_SCRIPT_ARG} MATCHES CUDA)
   SET(MODEL CUDA)
 ENDIF(${CTEST_SCRIPT_ARG} MATCHES CUDA)
