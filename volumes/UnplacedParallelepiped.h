@@ -94,6 +94,9 @@ public:
 
   void Extent( Vector3D<Precision> &, Vector3D<Precision> &) const;
 
+  //Function to check the convexity
+  bool IsConvex() const;
+
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECGEOM_CUDA_HEADER_DEVICE
   static VPlacedVolume* Create(LogicalVolume const *const logical_volume,

@@ -94,6 +94,7 @@ public:
     GetUnplacedVolume()->Extent(aMin, aMax);
   }
 
+  bool IsConvex() const {return GetUnplacedVolume()->IsConvex(); }
 
 #ifndef VECGEOM_NVCC
   virtual VPlacedVolume const* ConvertToUnspecialized() const override;

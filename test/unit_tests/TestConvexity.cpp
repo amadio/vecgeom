@@ -14,6 +14,11 @@
 #include "volumes/Cone.h"
 #include "volumes/Torus2.h"
 #include "volumes/Tube.h"
+#include "volumes/Parallelepiped.h"
+#include "volumes/Trd.h"
+#include "volumes/Polycone.h"
+#include "volumes/LogicalVolume.h"
+//#include "volumes/UnplacedSphere.h"
 
 //Added just for debugging, should be removed later
 #include "USphere.hh"
@@ -27,6 +32,8 @@
 
 #define PI 3.14159265358979323846
 #define deg PI/180.
+
+using namespace VECGEOM_NAMESPACE;
 
 bool test_ConvexityOrb() {
 
@@ -194,6 +201,28 @@ bool test_ConvexityTube() {
 }
 
 
+bool test_ConvexityParallelepiped() {
+	double dx=20., dy=30., dz=40., alpha=30., theta=15., phi=30. ;
+	vecgeom::SimpleParallelepiped b1("VecGeomParallelepiped1", dx, dy, dz, alpha, theta, phi);
+	assert(b1.IsConvex());
+
+	return true;
+}
+
+bool test_ConvexityTrd() {
+	double xlower=20., xupper=10., ylower=15., yupper=15, dz=40.;
+	vecgeom::SimpleTrd b1("VecGeomParallelepiped1", xlower, xupper, ylower, yupper, dz);
+	assert(b1.IsConvex());
+
+	return true;
+}
+
+
+
+
+//_________________________________________________________________________________________
+
+
 //_________________________________________________________________________________________
 //Temporary tests used for debugging, may be removed later on
 //_________________________________________________________________________________________
@@ -260,6 +289,9 @@ int main(){
 	assert(test_ConvexityCone());
 	assert(test_ConvexityTorus());
 	assert(test_ConvexityTube());
+	assert(test_ConvexityParallelepiped());
+	assert(test_ConvexityTrd());
+	//assert(test_Convexity_Y());
 	std::cout<<"------------------------------"<<std::endl;
 	std::cout<<"--- Convexity Tests Passed ---"<<std::endl;
 	std::cout<<"------------------------------"<<std::endl;
