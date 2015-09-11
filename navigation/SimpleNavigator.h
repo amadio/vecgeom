@@ -458,6 +458,7 @@ SimpleNavigator::HasSamePath( Vector3D<Precision> const & globalpoint,
 }
 
 //#define CHECKCONTAINS
+VECGEOM_CUDA_HEADER_BOTH
 void
 SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoint,
                                           Vector3D<Precision> const & globaldir,
