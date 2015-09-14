@@ -383,7 +383,7 @@ static T DistSqrToTorusR(UnplacedTorus2 const &torus, Vector3D<T> const &point, 
                                      + (torus.rtor2() - radius * radius) * (torus.rtor2() - radius * radius);
 
     Real_v x[4] = { vecgeom::kInfinity, vecgeom::kInfinity, vecgeom::kInfinity, vecgeom::kInfinity };
-    unsigned int nsol = 0;
+    int nsol = 0;
 
     // special condition
     if (Abs(dir[2]) < 1E-3 && Abs(pt[2]) < 0.1 * radius) {

@@ -121,7 +121,7 @@ VPlacedVolume* RootGeoManager::Convert(TGeoNode const *const node) {
   VPlacedVolume *const placed_volume =
       logical_volume->Place(node->GetName(), transformation);
 
-  int remaining_daughters = 0;
+  unsigned int remaining_daughters = 0;
   {
     // All or no daughters should have been placed already
     remaining_daughters = node->GetNdaughters()
@@ -134,7 +134,7 @@ VPlacedVolume* RootGeoManager::Convert(TGeoNode const *const node) {
   std::list<TGeoNode *> flattenenednodelist;
   int assemblydepth = 0;
   int flatteningcount = 0;
-  for (int i = 0; i < remaining_daughters; ++i) {
+  for (unsigned int i = 0; i < remaining_daughters; ++i) {
     TGeoHMatrix trans = *node->GetDaughter(i)->GetMatrix();
     FlattenAssemblies(node->GetDaughter(i), flattenenednodelist, &trans, 0, flatteningcount, assemblydepth);
   }
