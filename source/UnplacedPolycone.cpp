@@ -48,7 +48,18 @@ void UnplacedPolycone::Init(double phiStart,
   // Calculate RMax of Polycone in order to determine convexity of sections
   //
   double RMaxextent = rOuter[0];
+  double startRmax = rOuter[0];
+
+  continuityOverAll &= CheckContinuityInZPlane(rOuter,zPlane);
+  //continuityInRmax &= CheckContinuityInRmax(rOuter);
+ // continuityInZPlane &= CheckContinuityInZPlane(zPlane);
+  //continuityInSlope &= CheckContinuityInSlope(rOuter, zPlane);
+
   for (unsigned int j = 1; j < numZPlanes; j++) {
+	  convexityPossible &= (rInner[j]==0.);
+	  equalRmax &= (startRmax==rOuter[j]);
+	  startRmax = rOuter[j];
+
     if (rOuter[j] > RMaxextent)
       RMaxextent = rOuter[j];
 
@@ -580,6 +591,229 @@ Vector3D<Precision> UnplacedPolycone::GetPointOnSurface() const
                              fZs[numPlanes]);
 }
 
+
+/*
+ *
+ *
+ *
+ Some backup definitions, will be removed later
+ //bool UnplacedPolycone::CheckContinuityInRmax(const double rOuter[]){
+bool UnplacedPolycone::CheckContinuityInRmax(const std::vector<Precision> rOuter){
+
+	bool dec = (rOuter[0]>rOuter[1]);
+	bool inc = (rOuter[0]<rOuter[1]);
+	bool continuous=true;
+	for (unsigned int j = 1; j < fNz; )
+	{
+		if(dec)
+		{
+		    continuous &= ((rOuter[j]==rOuter[j+1]) && (rOuter[j+1] > rOuter[j+2]));
+		    if(!continuous)
+		    	break;
+		}
+
+		if(inc)
+		{
+			continuous &= ((rOuter[j]==rOuter[j+1]) && (rOuter[j+1] < rOuter[j+2]));
+			if(!continuous)
+			    break;
+		}
+
+		j = j+2;
+	}
+
+	return continuous;
+
+}
+
+bool UnplacedPolycone::CheckContinuityInZPlane(const double zPlane[]){
+	//Precision zStart = zPlane[0];
+	bool continuous=true;
+	for (unsigned int j = 1; j < fNz; )
+	{
+		if(j!=(fNz-1))
+		  continuous &= (zPlane[j]==zPlane[j+1]);
+		if(!continuous)
+		  	break;
+
+		j = j+2;
+
+	}
+
+	return continuous;
+
+}
+
+//bool UnplacedPolycone::CheckContinuityInSlope(const double rOuter[], const double zPlane[]){
+bool UnplacedPolycone::CheckContinuityInSlope(const std::vector<Precision> rOuter, const std::vector<Precision> zPlane){
+	bool continuous=true;
+	Precision startSlope = (rOuter[1]-rOuter[0])/(zPlane[1]-zPlane[0]);
+	for (unsigned int j = 2; j < fNz; )
+	{
+		Precision currentSlope = (rOuter[j+1]-rOuter[j])/(zPlane[j+1]-zPlane[j]);
+		continuous &= (currentSlope <= startSlope);
+		std::cout<<"StartSlope : "<<startSlope<<"  : CurrentSlope : "<<currentSlope<<std::endl;
+		startSlope = currentSlope;
+		if(!continuous)
+			break;
+
+		j = j+2;
+	}
+
+	return continuous;
+}
+
+ */
+
+bool UnplacedPolycone::IsConvex() const{
+	//Default safe convexity value
+	  bool convexity = false;
+
+	    if(convexityPossible)
+	    {
+	      if(equalRmax && (fDeltaPhi<=kPi || fDeltaPhi==kTwoPi))	//In this case, Polycone become solid Cylinder, No need to check anything else, 100% convex
+	        convexity = true;
+	      else
+	      {
+	    	 if( fDeltaPhi<=kPi || fDeltaPhi==kTwoPi)
+	    	 {
+	    		 //std::cout<<"ContRMax : "<<continuityInRmax<<" : ContZPlane : "<<continuityInZPlane<<" : ContInSlope : "<<continuityInSlope<<std::endl;
+	    		 //convexity = (continuityInRmax && continuityInZPlane && continuityInSlope);
+	    		 convexity = continuityOverAll;
+	    	 }
+	      }
+	    }
+
+		return convexity;
+
+      }
+
+//bool UnplacedPolycone::CheckContinuityInRmax(const double rOuter[]){
+bool UnplacedPolycone::CheckContinuityInRmax(const std::vector<Precision> rOuter){
+
+	bool dec = (rOuter[0]>rOuter[1]);
+	bool inc = (rOuter[0]<rOuter[1]);
+	bool continuous=true;
+	/*
+	for (unsigned int j = 1; j < fNz; )
+	{
+		if(dec)
+		{
+		    continuous &= ((rOuter[j]==rOuter[j+1]) && (rOuter[j+1] > rOuter[j+2]));
+		    if(!continuous)
+		    	break;
+		}
+
+		if(inc)
+		{
+			continuous &= ((rOuter[j]==rOuter[j+1]) && (rOuter[j+1] < rOuter[j+2]));
+			if(!continuous)
+			    break;
+		}
+
+		j = j+2;
+	}
+	*/
+
+	for (unsigned int j = 1; j < fNz; )
+	{
+		if(j!=(fNz-1))
+		  continuous &= (rOuter[j]==rOuter[j+1]);
+		j = j+2;
+	}
+	return continuous;
+
+}
+
+
+bool UnplacedPolycone::CheckContinuityInZPlane(const double rOuter[],const double zPlane[]){
+
+	bool continuous=true;
+
+
+	std::vector<Precision> rOut;
+	std::vector<Precision> zPl;
+	rOut.push_back(rOuter[0]);
+	zPl.push_back(zPlane[0]);
+	for (unsigned int j = 1; j < fNz; )
+	{
+		if(j==(fNz-1))
+		{
+			rOut.push_back(rOuter[j]);
+			zPl.push_back(zPlane[j]);
+		}
+		else
+		{
+		if(zPlane[j]!=zPlane[j+1])
+		{
+
+
+			rOut.push_back(rOuter[j]);
+			rOut.push_back(rOuter[j]);
+			rOut.push_back(rOuter[j+1]);
+			rOut.push_back(rOuter[j+1]);
+
+			zPl.push_back(zPlane[j]);
+			zPl.push_back(zPlane[j]);
+			zPl.push_back(zPlane[j+1]);
+			zPl.push_back(zPlane[j+1]);
+
+		}
+
+		else
+		{
+		    rOut.push_back(rOuter[j]);
+	   	    rOut.push_back(rOuter[j+1]);
+	   	    zPl.push_back(zPlane[j]);
+	   	    zPl.push_back(zPlane[j+1]);
+
+
+		}
+		}
+
+		j = j+2;
+	}
+
+	std::cout<<"----Printing modified Z Vector -----"<<std::endl;
+	for(int i=0;i<zPl.size();i++)
+		std::cout<<zPl[i]<<" , ";
+	std::cout<<std::endl;
+	std::cout<<"------------------------------------"<<std::endl;
+
+	std::cout<<"----Printing modified RMax Vector -----"<<std::endl;
+		for(int i=0;i<rOut.size();i++)
+			std::cout<<rOut[i]<<" , ";
+		std::cout<<std::endl;
+		std::cout<<"------------------------------------"<<std::endl;
+
+	bool contRmax = CheckContinuityInRmax(rOut);
+	bool contSlope = CheckContinuityInSlope(rOut, zPl);
+	std::cout<<"ContRMax : "<<contRmax<<" : ContSlope : "<<contSlope<<std::endl;
+	return ( contRmax && contSlope );
+	//return true;
+
+
+}
+
+//bool UnplacedPolycone::CheckContinuityInSlope(const double rOuter[], const double zPlane[]){
+bool UnplacedPolycone::CheckContinuityInSlope(const std::vector<Precision> rOuter, const std::vector<Precision> zPlane){
+	bool continuous=true;
+	Precision startSlope = (rOuter[1]-rOuter[0])/(zPlane[1]-zPlane[0]);
+	for (unsigned int j = 2; j < rOuter.size(); )
+	//for(std::vector<Precison>::iterator it = rOuter.begin(); it != rOuter.end(); ++it) {
+	 {
+		Precision currentSlope =  (rOuter[j+1]-rOuter[j])/(zPlane[j+1]-zPlane[j]);
+		continuous &= (currentSlope <= startSlope);
+		std::cout<<"StartSlope : "<<startSlope<<"  : CurrentSlope : "<<currentSlope<<std::endl;
+		startSlope = currentSlope;
+		if(!continuous)
+			break;
+
+		j = j+2;
+	}
+
+	return continuous;
+}
 
 bool UnplacedPolycone::Normal(Vector3D<Precision> const& point, Vector3D<Precision>& norm) const {
      bool valid = true ;

@@ -69,6 +69,21 @@ public:
     Vector<PolyconeSection> fSections;
     Vector<double> fZs;
 
+private:
+    bool convexityPossible;
+    //bool continuityInZPlane;
+    //bool continuityInRmax;
+    //bool continuityInSlope;
+    bool continuityOverAll;
+    bool equalRmax;
+
+    bool CheckContinuityInZPlane(const double rOuter[],const double zPlane[]);
+    bool CheckContinuityInRmax(const std::vector<Precision> rOuter);
+    bool CheckContinuityInSlope(const std::vector<Precision> rOuter, const std::vector<Precision> zPlane);
+
+    //bool CheckContinuityInRmax(const double rOuter[]);
+    //bool CheckContinuityInSlope(const double rOuter[], const double zPlane[]);
+
 public:
     VECGEOM_CUDA_HEADER_BOTH
     void Init(
@@ -91,11 +106,22 @@ public:
                 fDeltaPhi(deltaphi),
                 fNz(Nz),
                 fSections(),
-                fZs(Nz)
+                fZs(Nz),
+				convexityPossible(true),
+                equalRmax(true),
+				//continuityInRmax(true),
+				//continuityInZPlane(true),
+				//continuityInSlope(true),
+				continuityOverAll(true)
+
+
     {
         // init internal members
         Init(phistart, deltaphi, Nz, z, rmin, rmax);
     }
+
+    //Function to check the convexity
+    bool IsConvex() const;
 
     VECGEOM_CUDA_HEADER_BOTH
     unsigned int GetNz() const { return fNz; }

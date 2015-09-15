@@ -103,6 +103,8 @@ public:
     return GetUnplacedVolume()->GetPointOnSurface();
   }
 
+  bool IsConvex() const {return GetUnplacedVolume()->IsConvex(); }
+
   virtual double SurfaceArea() override {
      return GetUnplacedVolume()->SurfaceArea();
   }
