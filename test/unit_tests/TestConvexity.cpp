@@ -217,6 +217,24 @@ bool test_ConvexityTrd() {
 	return true;
 }
 
+bool test_ConvexityPolycone() {
+
+	double phiStart=0., deltaPhi=kTwoPi;
+	int nZ=10;
+	double rmin[10]={0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
+	double rmax[10]={10.,10.,10.,20.,20.,10.,10.,5.,5.,20.};
+	double z[10]={-20.,0.,0.,20.,20.,40.,45.,50.,50.,60.};
+
+	//double rmin[4]={0.,0.,0.,0.};
+	//double rmax[4]={15.,15.,15.,10.};
+	//double z[4]={0.,20.,30.,40.};
+
+	vecgeom::SimplePolycone b1("VecGeomPolycone", phiStart, deltaPhi, nZ, z, rmin, rmax);
+	assert(b1.IsConvex());
+
+	return true;
+}
+
 
 
 
@@ -292,6 +310,7 @@ int main(){
 	assert(test_ConvexityParallelepiped());
 	assert(test_ConvexityTrd());
 	//assert(test_Convexity_Y());
+	assert(test_ConvexityPolycone());
 	std::cout<<"------------------------------"<<std::endl;
 	std::cout<<"--- Convexity Tests Passed ---"<<std::endl;
 	std::cout<<"------------------------------"<<std::endl;
