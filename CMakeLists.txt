@@ -728,6 +728,7 @@ endif()
 set(TEST_EXECUTABLES_VISUALIZATION
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeTrap.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizePolycone.cpp
+  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizePolyhedron.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeParboloid.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeCone.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeTorus.cpp

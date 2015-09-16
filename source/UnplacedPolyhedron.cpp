@@ -23,6 +23,26 @@ UnplacedPolyhedron::UnplacedPolyhedron(
     Precision const rMax[])
     : UnplacedPolyhedron(0, 360, sideCount, zPlaneCount, zPlanes, rMin, rMax) {}
 
+bool UnplacedPolyhedron::CheckContinuityInSlope(const double rOuter[], const double zPlane[],const int fNz){
+
+	bool continuous=true;
+	Precision startSlope = (rOuter[1]-rOuter[0])/(zPlane[1]-zPlane[0]);
+	for (unsigned int j = 1; j < fNz; j++ )
+	//for(std::vector<Precison>::iterator it = rOuter.begin(); it != rOuter.end(); ++it) {
+	 {
+		Precision currentSlope =  (rOuter[j+1]-rOuter[j])/(zPlane[j+1]-zPlane[j]);
+		continuous &= (currentSlope <= startSlope);
+		std::cout<<"StartSlope : "<<startSlope<<"  : CurrentSlope : "<<currentSlope<<std::endl;
+		startSlope = currentSlope;
+		if(!continuous)
+			break;
+
+
+	}
+
+	return continuous;
+}
+
 VECGEOM_CUDA_HEADER_BOTH
 UnplacedPolyhedron::UnplacedPolyhedron(
     Precision phiStart,
@@ -37,7 +57,9 @@ UnplacedPolyhedron::UnplacedPolyhedron(
       fPhiStart(phiStart),fPhiDelta(phiDelta),
       fZSegments(zPlaneCount-1), fZPlanes(zPlaneCount), fRMin(zPlaneCount),
       fRMax(zPlaneCount), fPhiSections(sideCount+1),
-      fBoundingTube(0, 1, 1, 0, kTwoPi),fSurfaceArea(0.),fCapacity(0.) {
+      fBoundingTube(0, 1, 1, 0, kTwoPi),fSurfaceArea(0.),fCapacity(0.),continuousInSlope(true),convexityPossible(true),equalRmax(true) {
+
+
 
   (void) fPhiStart; // avoid unused variable compiler warning
 
@@ -52,6 +74,16 @@ UnplacedPolyhedron::UnplacedPolyhedron(
   copy(zPlanes, zPlanes+zPlaneCount, &fZPlanes[0]);
   copy(rMin, rMin+zPlaneCount, &fRMin[0]);
   copy(rMax, rMax+zPlaneCount, &fRMax[0]);
+
+  double startRmax = rMax[0];
+  for(int i=0 ; i<zPlaneCount ; i++)
+  {
+	  convexityPossible &= (rMin[i]==0.);
+	  equalRmax &= (startRmax==rMax[i]);
+  }
+  continuousInSlope = CheckContinuityInSlope(rMax,zPlanes,zPlaneCount);
+
+  std::cout<<"ConvexityPossible : "<<convexityPossible<<"EqualRmax : "<<equalRmax<<" : ContSlope : "<<continuousInSlope<<std::endl;
 
   // Initialize segments
   // sometimes there will be no quadrilaterals: for instance when
@@ -809,7 +841,34 @@ void UnplacedPolyhedron::Print(std::ostream &os) const {
      << " segments, "
      << ((fHasInnerRadii) ? "has inner radii" : "no inner radii") << "}";
 }
+/*
+bool UnplacedPolyhedron::IsConvex() const{
 
+          return true; //For testing only
+      }
+*/
+bool UnplacedPolyhedron::IsConvex() const{
+	//Default safe convexity value
+	  bool convexity = false;
+
+	    if(convexityPossible)
+	    {
+	      if(equalRmax && (fPhiDelta<=180 || fPhiDelta==360))	//In this case, Polycone become solid Cylinder, No need to check anything else, 100% convex
+	        convexity = true;
+	      else
+	      {
+	    	 if( fPhiDelta<=180 || fPhiDelta==360)
+	    	 {
+	    		 //std::cout<<"ContRMax : "<<continuityInRmax<<" : ContZPlane : "<<continuityInZPlane<<" : ContInSlope : "<<continuityInSlope<<std::endl;
+	    		 //convexity = (continuityInRmax && continuityInZPlane && continuityInSlope);
+	    		 convexity = continuousInSlope;
+	    	 }
+	      }
+	    }
+
+		return convexity;
+
+      }
 
 #ifdef VECGEOM_CUDA_INTERFACE
 
