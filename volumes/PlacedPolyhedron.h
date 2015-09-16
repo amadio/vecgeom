@@ -153,6 +153,9 @@ public:
   Vector3D<Precision> GetPointOnSurface() const override {
     return GetUnplacedVolume()->GetPointOnSurface();
   }
+
+  bool IsConvex() const {return GetUnplacedVolume()->IsConvex(); }
+
 #if defined(VECGEOM_USOLIDS)
   std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType() ;}
 #endif

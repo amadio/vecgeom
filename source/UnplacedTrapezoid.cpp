@@ -154,6 +154,11 @@ void UnplacedTrapezoid::Print() const {
          GetTanThetaSinPhi(), GetTanThetaCosPhi() );
 }
 
+bool UnplacedTrapezoid::IsConvex() const{
+		  //A Trapezoid is convex shape
+          return true;
+      }
+
 void UnplacedTrapezoid::Print(std::ostream &os) const {
   os << "UnplacedTrapezoid {"
      <<' '<< GetDz()

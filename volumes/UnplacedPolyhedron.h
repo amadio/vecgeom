@@ -140,6 +140,12 @@ private:
   mutable Precision fSurfaceArea; ///< Stored SurfaceArea
   mutable Precision fCapacity;    ///< Stored Capacity
 
+private:
+  bool continuousInSlope;
+  bool convexityPossible;
+  bool equalRmax;
+  bool CheckContinuityInSlope(const double rOuter[], const double zPlane[],int zPlaneCount);
+
 public:
 
   /// \param sideCount Number of sides along phi in each Z-segment.
@@ -366,6 +372,10 @@ public:
       }
 
     }
+
+
+  //Function to check the convexity
+  bool IsConvex() const;
 
 
   VECGEOM_CUDA_HEADER_BOTH

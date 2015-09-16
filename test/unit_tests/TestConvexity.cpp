@@ -17,6 +17,8 @@
 #include "volumes/Parallelepiped.h"
 #include "volumes/Trd.h"
 #include "volumes/Polycone.h"
+#include "volumes/Trapezoid.h"
+#include "volumes/Polyhedron.h"
 #include "volumes/LogicalVolume.h"
 //#include "volumes/UnplacedSphere.h"
 
@@ -219,9 +221,10 @@ bool test_ConvexityTrd() {
 
 bool test_ConvexityPolycone() {
 
-	double phiStart=0., deltaPhi=kTwoPi;
+	double phiStart=0., deltaPhi=kTwoPi/3;
 	int nZ=10;
-	double rmin[10]={0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
+	//double rmin[10]={0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
+	double rmin[10]={6.,0.,0.,0.,15.,0.,0.,0.,3.,15.};
 	double rmax[10]={10.,10.,10.,20.,20.,10.,10.,5.,5.,20.};
 	double z[10]={-20.,0.,0.,20.,20.,40.,45.,50.,50.,60.};
 
@@ -230,13 +233,56 @@ bool test_ConvexityPolycone() {
 	//double z[4]={0.,20.,30.,40.};
 
 	vecgeom::SimplePolycone b1("VecGeomPolycone", phiStart, deltaPhi, nZ, z, rmin, rmax);
+	assert(!b1.IsConvex());
+
+	return true;
+}
+
+bool test_ConvexityTrapezoid() {
+
+	vecgeom::SimpleTrapezoid b1("trap3",50,0,0,50,50,50,PI/4,50,50,50,PI/4) ;
 	assert(b1.IsConvex());
 
 	return true;
 }
 
+bool test_ConvexityPolyhedron() {
 
+	double phiStart=0., deltaPhi=170;
+	int sides=4, nZ=10;
+	constexpr int nPlanes = 4;
+	double zPlanes[nPlanes] = {-2, -1, 1, 2};
+	double rInner[nPlanes] = {0, 0, 0, 0};
+	double rOuter[nPlanes] = {2, 2, 2, 2};
 
+	vecgeom::SimplePolyhedron b1("Vecgeom Polyhedron", phiStart, deltaPhi, sides, nPlanes, zPlanes, rInner, rOuter);
+	assert(b1.IsConvex());
+
+	vecgeom::SimplePolyhedron b2("Vecgeom Polyhedron", phiStart, 60, sides, nPlanes, zPlanes, rInner, rOuter);
+	assert(b2.IsConvex());
+
+	vecgeom::SimplePolyhedron b3("Vecgeom Polyhedron", phiStart, 200, sides, nPlanes, zPlanes, rInner, rOuter);
+	assert(!b3.IsConvex());
+
+	rOuter[1]=1.;
+	rOuter[2]=1.;
+	vecgeom::SimplePolyhedron b5("Vecgeom Polyhedron", phiStart, 120, sides, nPlanes, zPlanes, rInner, rOuter);
+	assert(!b5.IsConvex());
+
+	rOuter[0]=1.;
+	rOuter[1]=2.;
+	rOuter[2]=2.;
+	rOuter[3]=1.;
+	vecgeom::SimplePolyhedron b6("Vecgeom Polyhedron", phiStart, 120, sides, nPlanes, zPlanes, rInner, rOuter);
+	assert(!b6.IsConvex());
+
+	rInner[1]=1.;
+	rInner[2]=0.5;
+	vecgeom::SimplePolyhedron b4("Vecgeom Polyhedron", phiStart, 60, sides, nPlanes, zPlanes, rInner, rOuter);
+	assert(!b4.IsConvex());
+
+	return true;
+}
 
 //_________________________________________________________________________________________
 
@@ -311,6 +357,8 @@ int main(){
 	assert(test_ConvexityTrd());
 	//assert(test_Convexity_Y());
 	assert(test_ConvexityPolycone());
+	assert(test_ConvexityTrapezoid());
+	assert(test_ConvexityPolyhedron());
 	std::cout<<"------------------------------"<<std::endl;
 	std::cout<<"--- Convexity Tests Passed ---"<<std::endl;
 	std::cout<<"------------------------------"<<std::endl;
