@@ -174,9 +174,9 @@ public:
   virtual int memory_size() const { return sizeof(*this); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  void Extent(Vector3D<Precision> & min, Vector3D<Precision> & max ) const {
-      min = Vector3D<Precision>(-Max(fDX1, fDX2), -Max(fDY1, fDY2), -fDZ);
-      max = Vector3D<Precision>( Max(fDX1, fDX2), Max(fDY1, fDY2), fDZ);
+  void Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & aMax ) const {
+      aMin = Vector3D<Precision>(-Max(fDX1, fDX2), -Max(fDY1, fDY2), -fDZ);
+      aMax = Vector3D<Precision>( Max(fDX1, fDX2), Max(fDY1, fDY2), fDZ);
   }
 
 

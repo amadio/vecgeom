@@ -706,17 +706,17 @@ PolyhedronImplementation<innerRadiiT, phiCutoutT>::InPhiCutoutWedge(
     bool largePhiCutout,
     Vector3D<typename Backend::precision_v> const &point) {
   typedef typename Backend::bool_v Bool_t;
-  Bool_t first  = point.Dot(segment.phi.GetNormal(0)) +
-                  segment.phi.GetDistance(0) >= 0;
-  Bool_t second = point.Dot(segment.phi.GetNormal(1)) +
-                  segment.phi.GetDistance(1) >= 0;
+  Bool_t pointSeg0  = point.Dot(segment.phi.GetNormal(0)) +
+                      segment.phi.GetDistance(0) >= 0;
+  Bool_t pointSeg1 = point.Dot(segment.phi.GetNormal(1)) +
+                     segment.phi.GetDistance(1) >= 0;
   // For a cutout larger than 180 degrees, the point is in the wedge if it is
   // in front of at least one plane.
   if (LargePhiCutout<phiCutoutT>(largePhiCutout)) {
-    return first || second;
+    return pointSeg0 || pointSeg1;
   }
   // Otherwise it should be in front of both planes
-  return first && second;
+  return pointSeg0 && pointSeg1;
 }
 
 template <Polyhedron::EInnerRadii innerRadiiT,
