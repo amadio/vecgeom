@@ -756,12 +756,11 @@ void UnplacedPolycone::Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & 
     }
 
      aMin.x() = -maxR;
-         aMin.y() = -maxR;
-         aMin.z() = fZs[0];
-         aMax.x() = maxR;
-         aMax.y() = maxR;
-         aMax.z() = fZs[GetNSections()];
-
+     aMin.y() = -maxR;
+     aMin.z() = fZs[0];
+     aMax.x() = maxR;
+     aMax.y() = maxR;
+     aMax.z() = fZs[GetNSections()];
 }
 #endif // !VECGEOM_NVCC
 

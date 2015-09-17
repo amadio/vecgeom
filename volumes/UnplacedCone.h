@@ -38,7 +38,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
  *  fRmax1  outside radius at -fDz
  *  fRmax2  outside radius at +fDz
  *  fSPhi starting angle of the segment in radians
- *  fDPhi delta angle of the segment in radiansdz
+ *  fDPhi delta angle of the segment in radians
  */
 class UnplacedCone : public VUnplacedVolume, public AlignedBase {
 
