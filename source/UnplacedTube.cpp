@@ -298,9 +298,9 @@ bool UnplacedTube::Normal(Vector3D<Precision> const& point, Vector3D<Precision>&
   std::ostream& UnplacedTube::StreamInfo(std::ostream &os) const {
     int oldprc = os.precision(16);
     os << "-----------------------------------------------------------\n"
-       << "     *** Dump for solid - " << GetEntityType() << " ***\n"
+       << "     *** Dump for solid - tube ***\n"
        << "     ===================================================\n"
-       << " Solid type: Tube\n"
+       << " Solid type: "<< GetEntityType() <<"\n"
        << " Parameters: \n"
        << "     Tube Radii Rmin, Rmax: " << fRmin <<"mm, "<< fRmax <<"mm \n"
        << "     Half-length Z = "<< fZ <<"mm\n";

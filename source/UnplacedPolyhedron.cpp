@@ -340,28 +340,26 @@ int UnplacedPolyhedron::GetNQuadrilaterals() const {
   std::ostream& UnplacedPolyhedron::StreamInfo(std::ostream &os) const {
     int oldprc = os.precision(16);
     os << "-----------------------------------------------------------\n"
-       << "     *** Dump for solid - " << GetEntityType() << " ***\n"
+       << "     *** Dump for solid - polyhedron ***\n"
        << "     ===================================================\n"
-       << " Solid type: Polyhedron\n"
+       << " Solid type: "<< GetEntityType() << "\n"
        << " Parameters:\n"
+       << " Phi start="<< fPhiStart <<"deg, Phi delta="<< fPhiDelta <<"deg\n"
        << "     Number of segments along phi: "<< fSideCount <<"\n"
        << "     N = number of Z-sections: "<< fZSegments.size() <<"\n"
-       << "     N+1 z-coordinates (in mm):\n";
+       << "     N+1 z-coordinates (in cm):\n";
     uint Nz = (uint)fZSegments.size();
     Assert((int)Nz == fZPlanes.size()-1, "UnplacedPolyhedron inconsistency: please check #segments vs. #Zplanes\n");
 
-    uint rminIndex = 0;
     for(uint i=0; i<Nz; ++i) {
-      os<<"       at Z="<< fZPlanes[i] <<"mm: ";
-      if(fZSegments[i].hasInnerRadius) {
-        os<<" Rmin="<< fRMin[rminIndex]<<"mm,";
-        ++rminIndex;
-      }
-      os<<" Rmax="<< fRMax[i]<<"mm\n";
+      os<<"       at Z="<< fZPlanes[i] <<"cm:"
+        <<" Rmin="<< fRMin[i]<<"cm,"
+        <<" Rmax="<< fRMax[i]<<"cm\n";
     }
     // print last plane info
-    os<<"       at Z="<< fZPlanes[Nz] <<"mm: ";
-    if(fZSegments[Nz].hasInnerRadius) os<<" Rmin="<< fRMin[rminIndex]<<"mm, Rmax="<< fRMax[Nz]<<"mm\n";
+    os<<"       at Z="<< fZPlanes[Nz] <<"cm:"
+      <<" Rmin="<< fRMin[Nz]<<"cm,"
+      <<" Rmax="<< fRMax[Nz]<<"cm\n";
     os << "-----------------------------------------------------------\n";
     os.precision(oldprc);
     return os;
