@@ -70,6 +70,31 @@ class UPolyhedra: public vecgeom::SimplePolyhedron {
     using vecgeom::SimplePolyhedron::SimplePolyhedron;
 
 public:
+
+  // vecgoem polyhedra expects constructor angles in DEGREES!!
+    UPolyhedra(const std::string& name,
+               double phiStart,    // initial phi starting angle
+               double phiTotal,    // total phi angle
+               int numSide,        // number sides
+               int numZPlanes,     // number of z planes
+               const double zPlane[],    // position of z planes
+               const double rInner[],    // tangent distance to inner surface
+               const double rOuter[])  // tangent distance to outer surface
+      : vecgeom::SimplePolyhedron(name.c_str(),phiStart*180./UUtils::kPi, phiTotal*180./UUtils::kPi,
+                                  numSide, numZPlanes, zPlane, rInner, rOuter)
+    { }
+
+    UPolyhedra(const std::string& name,
+               double phiStart,    // initial phi starting angle
+               double phiTotal,    // total phi angle
+               int    numSide,     // number sides
+               int    numRZ,       // number corners in r,z space
+               const double r[],         // r coordinate of these corners
+               const double z[])         // z coordinate of these corners
+      : vecgeom::SimplePolyhedron(name.c_str(), phiStart*180./UUtils::kPi, phiTotal*180./UUtils::kPi,
+                                  numSide, numRZ, r, z)
+    { }
+
   UPolyhedraSideRZ GetCorner(int index) const {
       vecgeom::Precision z = GetUnplacedVolume()->GetZPlane(index);
       vecgeom::Precision r = GetUnplacedVolume()->GetRMax()[index];
