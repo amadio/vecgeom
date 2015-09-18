@@ -7,7 +7,6 @@
 #include "navigation/NavigationState.h"
 #include "navigation/ABBoxNavigator.h"
 #include "volumes/UnplacedBooleanVolume.h"
-#include "volumes/UnplacedBox.h"
 #include "volumes/LogicalVolume.h"
 
 #include <dlfcn.h>
@@ -65,15 +64,6 @@ void GeoManager::CompactifyMemory() {
 
     // ---------------------------------
     // start with just the placedvolumes
-
-  // the following code is a hack to cross-check that the virtual table in placed volumes
-  // ( which may be obtained from an external library ) is conforming to what the library expects
-  UnplacedBox world_params = UnplacedBox(4., 4., 4.);
-  LogicalVolume worldl = LogicalVolume(&world_params);
-  VPlacedVolume *world_placed = worldl.Place();
-  std::cerr << "VT expected by GeoManager " << (long long*)((long long*)world_placed)[0] << "\n";
-  std::cerr << "VT of world volume  " << (long long*)((long long*)fWorld)[0] << "\n";
-  assert( (long long*)((long long*)world_placed)[0] == (long long*)((long long*)fWorld)[0] && "virtual table corrupted: the likely reason is that we did not use the same compilation flags across compilation units" );
 
     // do a check on a fundamental hypothesis :
     // all placed volume objects have the same size ( so that we can compactify them in an array )
