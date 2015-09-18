@@ -7,6 +7,8 @@
 #include "navigation/NavigationState.h"
 #include "navigation/ABBoxNavigator.h"
 #include "volumes/UnplacedBooleanVolume.h"
+#include "volumes/UnplacedBox.h"
+#include "volumes/LogicalVolume.h"
 
 #include <dlfcn.h>
 #include "navigation/NavigationState.h"
@@ -64,6 +66,14 @@ void GeoManager::CompactifyMemory() {
     // ---------------------------------
     // start with just the placedvolumes
 
+  // the following code is a hack to cross-check that the virtual table in placed volumes
+  // ( which may be obtained from an external library ) is conforming to what the library expects
+  UnplacedBox world_params = UnplacedBox(4., 4., 4.);
+  LogicalVolume worldl = LogicalVolume(&world_params);
+  VPlacedVolume *world_placed = worldl.Place();
+  std::cerr << "VT expected by GeoManager " << (long long*)((long long*)world_placed)[0] << "\n";
+  std::cerr << "VT of world volume  " << (long long*)((long long*)fWorld)[0] << "\n";
+  assert( (long long*)((long long*)world_placed)[0] == (long long*)((long long*)fWorld)[0] && "virtual table corrupted: the likely reason is that we did not use the same compilation flags across compilation units" );
 
     // do a check on a fundamental hypothesis :
     // all placed volume objects have the same size ( so that we can compactify them in an array )
@@ -128,7 +138,8 @@ void GeoManager::CompactifyMemory() {
    // fix pointers to placed volumes referenced in all logical volumes
     for( auto v : fLogicalVolumesMap ){
         LogicalVolume * lvol = v.second;
-        for( unsigned int i = 0; i < lvol->GetDaughtersp()->size(); ++i){
+	auto ndaughter = lvol->GetDaughtersp()->size();
+        for( decltype(ndaughter) i = 0; i < ndaughter; ++i){
             lvol->GetDaughtersp()->operator[](i) = ConvertOldToNew( lvol->GetDaughtersp()->operator[](i) );
         }
     }
@@ -149,6 +160,10 @@ void GeoManager::CompactifyMemory() {
 
 void GeoManager::CloseGeometry() {
     Assert( GetWorld() != NULL, "world volume not set" );
+    if(fIsClosed)
+      {
+	std::cerr << "geometry is already closed; I cannot close it again (very likely this message signifies a substational error !!!\n";
+      }
     // cache some important variables of this geometry
     GetMaxDepthVisitor depthvisitor;
     visitAllPlacedVolumes( GetWorld(), &depthvisitor, 1 );
@@ -170,7 +185,7 @@ void GeoManager::CloseGeometry() {
 }
 
 
-void GeoManager::LoadGeometryFromSharedLib( std::string libname ){
+void GeoManager::LoadGeometryFromSharedLib( std::string libname, bool close ){
     void *handle;
     handle = dlopen(libname.c_str(), RTLD_NOW);
     if (!handle){
@@ -186,12 +201,17 @@ void GeoManager::LoadGeometryFromSharedLib( std::string libname ){
 
     if (create != nullptr ){
       // call the create function and set the geometry world
-      SetWorld( create() );
+      VPlacedVolume const * world = create();
+      world->PrintType();
+      SetWorld( world );
 
       // close the geometry
       // TODO: This step often necessitates extensive computation and could be done
       // as part of the shared lib load itself
-      CloseGeometry();
+      if( close ) CloseGeometry();
+      else{
+	std::cerr << "Geometry left open for further manipulation; Please close later\n";
+      }
     }
     else {
       std::cerr << "Loading geometry from shared lib failed\n";

@@ -154,7 +154,7 @@ public:
   // initialize geometry from a precompiled shared library
   // ( such as obtained from the CppExporter )
   // this function sets the world and closes the geometry
-  void LoadGeometryFromSharedLib( std::string );
+  void LoadGeometryFromSharedLib( std::string, bool close=true );
 
   VPlacedVolume const *Convert( unsigned int index ) {
       return fPlacedVolumesMap[index];
