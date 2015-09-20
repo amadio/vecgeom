@@ -313,7 +313,7 @@ bool TestBox() {
     Dist = b1.DistanceToIn(Vec_t(-25,-35,0),vy) ;
     if( Dist >= UUtils::kInfinity ) Dist = UUtils::Infinity(); 
     assert(ApproxEqual(Dist,UUtils::Infinity()));
-    
+
 
     Dist = b2.DistanceToIn(pJohnXY,vmx) ;
     assert(ApproxEqual(Dist,2));
@@ -342,7 +342,8 @@ bool TestBox() {
                            temp );
 
 #ifdef VECGEOM_REPLACE_USOLIDS
-    assert(Dist<=0.0);
+    // assert(Dist<=0.0);
+    assert(ApproxEqual(Dist,UUtils::Infinity()));  // it seems DistToIn() was changed from 0 to Infinity
 #else
     if(testingvecgeom )
             assert(Dist<=0.0);
