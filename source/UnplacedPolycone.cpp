@@ -130,6 +130,8 @@ void UnplacedPolycone::Init(double phiStart,
     prevRmin = rMin;
     prevRmax = rMax;
   }
+
+  fNz = fZs.size();
 }
 
     // Alternative constructor, required for integration with Geant4.
@@ -245,13 +247,14 @@ VPlacedVolume* UnplacedPolycone::Create(LogicalVolume const *const logical_volum
        << "     ===================================================\n"
        << " Solid type: Polycone\n"
        << " Parameters: \n"
-       << "     N = number of Z-sections: "<< fNz <<"\n"
+       << "     N = number of Z-sections: "<< fSections.size() <<"\n"
        << "     N+1 z-coordinates:\n";
+
     for(uint j=0; j<fNz/5+1; ++j) {
       os <<"       [ ";
       for(uint i=0; i<5; ++i) {
         uint ind = 5*j + i;
-        if(ind<=fNz) os<< fZs[ind] <<";";
+        if(ind<fNz) os<< fZs[ind] <<"; ";
       }
       os <<" ]\n";
     }
@@ -259,14 +262,18 @@ VPlacedVolume* UnplacedPolycone::Create(LogicalVolume const *const logical_volum
         os << "     Wedge starting angles: fSphi=" << fStartPhi*kRadToDeg <<"deg, "
            << ", fDphi="<<fDeltaPhi*kRadToDeg <<"deg\n";
     }
-    os <<"\n     Cone sections:\n";
-    for(uint i=0; i<fNz/5+1; ++i) {
+
+    int nsections = fSections.size();
+    os <<"\n    # cone sections: "<< nsections <<"\n";
+    for(int i=0; i<nsections; ++i) {
       UnplacedCone* subcone = fSections[i].fSolid;
       os <<"     cone #"<< i
          <<" Rmin1="<< subcone->GetRmin1()
          <<" Rmax1="<< subcone->GetRmax1()
          <<" Rmin2="<< subcone->GetRmin2()
-         <<" Rmax2="<< subcone->GetRmax2()<<"mm\n";
+         <<" Rmax2="<< subcone->GetRmax2()
+         <<" HalfZ="<< subcone->GetDz()
+         <<" from z="<< fZs[i] <<" to z="<< fZs[i+1] <<"mm\n";
     }
     os << "-----------------------------------------------------------\n";
     os.precision(oldprc);
