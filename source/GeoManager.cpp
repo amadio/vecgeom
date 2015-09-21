@@ -206,7 +206,7 @@ void GeoManager::LoadGeometryFromSharedLib( std::string libname, bool close ){
     else {
       std::cerr << "Loading geometry from shared lib failed\n";
     }
-    dlclose(handle);
+    //    dlclose(handle);
 }
 
 
