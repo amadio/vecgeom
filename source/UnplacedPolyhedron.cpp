@@ -5,6 +5,8 @@
 
 #include "volumes/PlacedPolyhedron.h"
 #include "volumes/SpecializedPolyhedron.h"
+#include "volumes/utilities/GenerationUtilities.h"
+#include "management/VolumeFactory.h"
 
 #include <cmath>
 #include <memory>
@@ -262,7 +264,7 @@ int UnplacedPolyhedron::GetNQuadrilaterals() const {
     }
     return count;
 }
-
+/*
 VECGEOM_CUDA_HEADER_DEVICE
 VPlacedVolume* UnplacedPolyhedron::SpecializedVolume(
     LogicalVolume const *const volume,
@@ -320,24 +322,100 @@ VPlacedVolume* UnplacedPolyhedron::SpecializedVolume(
 #ifndef VECGEOM_NVCC
   if (placement) {
     return new(placement)
-           SpecializedPolyhedron<EInnerRadii::kGeneric, EPhiCutout::kGeneric>(
+           SpecializedPolyhedron<translation::kGeneric, rotation::kGeneric,EInnerRadii::kGeneric, EPhiCutout::kGeneric>(
                volume, transformation);
   } else {
-    return new SpecializedPolyhedron<EInnerRadii::kGeneric, EPhiCutout::kGeneric>(
+    return new SpecializedPolyhedron<translation::kGeneric, rotation::kGeneric,EInnerRadii::kGeneric, EPhiCutout::kGeneric>(
         volume, transformation);
   }
 #else
   if (placement) {
     return new(placement)
-           SpecializedPolyhedron<EInnerRadii::kGeneric, EPhiCutout::kGeneric>(
+           SpecializedPolyhedron<translation::kGeneric, rotation::kGeneric,EInnerRadii::kGeneric, EPhiCutout::kGeneric>(
                volume, transformation, id);
   } else {
-    return new SpecializedPolyhedron<EInnerRadii::kGeneric, EPhiCutout::kGeneric>(
+    return new SpecializedPolyhedron<translation::kGeneric, rotation::kGeneric,EInnerRadii::kGeneric, EPhiCutout::kGeneric>(
         volume, transformation, id);
   }
 #endif
 
   #undef POLYHEDRON_CREATE_SPECIALIZATION
+}
+*/
+
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+VECGEOM_CUDA_HEADER_DEVICE
+VPlacedVolume* UnplacedPolyhedron::Create(
+    LogicalVolume const *const logical_volume,
+    Transformation3D const *const transformation,
+    //const TranslationCode trans_code, const RotationCode rot_code,
+#ifdef VECGEOM_NVCC
+    const int id,
+#endif
+    VPlacedVolume *const placement) {
+
+//#ifndef VECGEOM_NO_SPECIALIZATION
+
+  UnplacedPolyhedron const *unplaced =
+      static_cast<UnplacedPolyhedron const *>(logical_volume->GetUnplacedVolume());
+
+  EInnerRadii innerRadii = unplaced->HasInnerRadii() ? EInnerRadii::kTrue
+                                                     : EInnerRadii::kFalse;
+
+  EPhiCutout phiCutout = unplaced->HasPhiCutout() ? (unplaced->HasLargePhiCutout() ? EPhiCutout::kLarge
+                                                                                   : EPhiCutout::kTrue)
+                                                  : EPhiCutout::kFalse;
+
+  #ifndef VECGEOM_NVCC
+    #define POLYHEDRON_CREATE_SPECIALIZATION(INNER, PHI) return CreateSpecializedWithPlacement< \
+    SpecializedPolyhedron<transCodeT,rotCodeT,INNER,PHI> >(logical_volume, transformation, placement)
+    #else
+    #define POLYHEDRON_CREATE_SPECIALIZATION(INNER, PHI) return CreateSpecializedWithPlacement< \
+    SpecializedPolyhedron<transCodeT,rotCodeT,INNER,PHI> >(logical_volume, transformation, id, placement)
+    #endif
+  
+  if(innerRadii == EInnerRadii::kTrue)
+  {
+  	if( phiCutout == EPhiCutout::kFalse )
+  	  POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kTrue, EPhiCutout::kFalse);
+  	if( phiCutout == EPhiCutout::kTrue )
+  	  POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kTrue, EPhiCutout::kTrue);
+  	if( phiCutout == EPhiCutout::kLarge )
+  	  POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kTrue, EPhiCutout::kLarge);
+  	  
+  }
+  else
+  {
+    if( phiCutout == EPhiCutout::kFalse )
+  	  POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kFalse, EPhiCutout::kFalse);
+  	if( phiCutout == EPhiCutout::kTrue )
+  	  POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kFalse, EPhiCutout::kTrue);
+  	if( phiCutout == EPhiCutout::kLarge )
+  	  POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kFalse, EPhiCutout::kLarge);
+  }
+  
+//#endif
+
+
+#undef POLYHEDRON_CREATE_SPECIALIZATION
+}
+
+VECGEOM_CUDA_HEADER_DEVICE
+VPlacedVolume* UnplacedPolyhedron::SpecializedVolume(
+    LogicalVolume const *const volume,
+    Transformation3D const *const transformation,
+    const TranslationCode trans_code, const RotationCode rot_code,
+#ifdef VECGEOM_NVCC
+    const int id,
+#endif
+    VPlacedVolume *const placement) const {
+
+  return VolumeFactory::CreateByTransformation<
+      UnplacedPolyhedron>(volume, transformation, trans_code, rot_code,
+#ifdef VECGEOM_NVCC
+                              id,
+#endif
+                              placement);
 }
 
 #ifndef VECGEOM_NVCC
