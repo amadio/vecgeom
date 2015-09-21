@@ -172,7 +172,7 @@ Precision ABBoxNavigator::GetSafety(Vector3D<Precision> const & globalpoint,
                             NavigationState const & currentstate) const
 {
     // a stack based workspace array
-    __thread static ABBoxManager::BoxIdDistancePair_t boxsafetylist[VECGEOM_MAXDAUGHTERS];
+  __thread static ABBoxManager::BoxIdDistancePair_t boxsafetylist[VECGEOM_MAXDAUGHTERS]={};
 
 
     // this information might have been cached already ??
@@ -275,7 +275,7 @@ ABBoxNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoint
                                           Precision                 & step
                                         ) const
 {
-    __thread static ABBoxManager::BoxIdDistancePair_t hitlist[VECGEOM_MAXDAUGHTERS];
+  __thread static ABBoxManager::BoxIdDistancePair_t hitlist[VECGEOM_MAXDAUGHTERS]={};
 
     // this information might have been cached in previous navigators??
 #ifdef VERBOSE
