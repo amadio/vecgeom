@@ -2,17 +2,14 @@
 #pragma clang optimize off
 #endif
 #include "materials/Nucleus.h"
-#include <iostream>
 namespace vecgeom {
    inline namespace VECGEOM_IMPL_NAMESPACE {
 
 
+//________________________________________________________________________________
+static void CreateNuclei0000() {
+   Nucleus *nuc=0;
 
-// this is an auto-generated function ( contact Federico.Carminati@cern.ch )
-__attribute__((optimize("O0")))
-void Nucleus::CreateNuclei() {
-#ifdef VECGEOM_GENERATE_MATERIALS_DB
-    Nucleus *nuc=0;
 
    // Adding 1-H-1-0
    nuc = new Nucleus("H",1,1,0,1.00783,0,0,99.985,0,0,0,0);
@@ -215,6 +212,13 @@ void Nucleus::CreateNuclei() {
 
    // Adding 7-N-14-0
    nuc = new Nucleus("N",14,7,0,14.0031,0,0,99.63,0,0,0,0);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0001() {
+   Nucleus *nuc=0;
+
 
    // Adding 8-O-14-0
    nuc = new Nucleus("O",14,8,0,14.0086,0,70.606,0,0,0,0,0);
@@ -415,6 +419,13 @@ void Nucleus::CreateNuclei() {
    // Adding 11-NA-22-0
    nuc = new Nucleus("NA",22,11,0,21.9944,0,8.20535e+07,0,3.2e-09,2e-09,0,0);
    nuc->AddDecay(0,-1,0,2.84218,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0002() {
+   Nucleus *nuc=0;
+
 
    // Adding 12-MG-22-0
    nuc = new Nucleus("MG",22,12,0,21.9996,0,3.857,0,0,0,0,0);
@@ -628,6 +639,13 @@ void Nucleus::CreateNuclei() {
    // Adding 12-MG-29-0
    nuc = new Nucleus("MG",29,12,0,28.9886,0,1.3,0,0,0,0,0);
    nuc->AddDecay(0,1,0,7.55428,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0003() {
+   Nucleus *nuc=0;
+
 
    // Adding 13-AL-29-0
    nuc = new Nucleus("AL",29,13,0,28.9804,0,393.6,0,0,0,0,0);
@@ -845,6 +863,13 @@ void Nucleus::CreateNuclei() {
    // Adding 14-SI-35-0
    nuc = new Nucleus("SI",35,14,0,34.9846,0,0.78,0,0,0,0,0);
    nuc->AddDecay(0,1,0,10.4978,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0004() {
+   Nucleus *nuc=0;
+
 
    // Adding 15-P-35-0
    nuc = new Nucleus("P",35,15,0,34.9733,0,47.3,0,0,0,0,0);
@@ -1050,6 +1075,13 @@ void Nucleus::CreateNuclei() {
    // Adding 16-S-41-0
    nuc = new Nucleus("S",41,16,0,40.98,0,1e-06,0,0,0,0,-3);
    nuc->AddDecay(0,1,0,8.73724,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0005() {
+   Nucleus *nuc=0;
+
 
    // Adding 17-CL-41-0
    nuc = new Nucleus("CL",41,17,0,40.9706,0,38.4,0,0,0,0,0);
@@ -1254,6 +1286,13 @@ void Nucleus::CreateNuclei() {
 
    // Adding 20-CA-46-0
    nuc = new Nucleus("CA",46,20,0,45.9537,0,0,0.004,0,0,0,0);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0006() {
+   Nucleus *nuc=0;
+
 
    // Adding 21-SC-46-0
    nuc = new Nucleus("SC",46,21,0,45.9552,0,7.23946e+06,0,1.5e-09,6.4e-09,0,0);
@@ -1459,6 +1498,13 @@ void Nucleus::CreateNuclei() {
    // Adding 24-CR-51-0
    nuc = new Nucleus("CR",51,24,0,50.9448,0,2.39345e+06,0,3.8e-11,3.7e-11,0,0);
    nuc->AddDecay(0,-1,0,0.752701,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0007() {
+   Nucleus *nuc=0;
+
 
    // Adding 25-MN-51-0
    nuc = new Nucleus("MN",51,25,0,50.9482,0,2772,0,9.3e-11,6.8e-11,0,0);
@@ -1662,6 +1708,13 @@ void Nucleus::CreateNuclei() {
    // Adding 28-NI-56-0
    nuc = new Nucleus("NI",56,28,0,55.9421,0,509760,0,8.6e-10,9.7e-10,0,0);
    nuc->AddDecay(0,-1,0,2.13551,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0008() {
+   Nucleus *nuc=0;
+
 
    // Adding 29-CU-56-0
    nuc = new Nucleus("CU",56,29,0,55.9586,0,2e-07,0,0,0,0,-8);
@@ -1862,6 +1915,13 @@ void Nucleus::CreateNuclei() {
    // Adding 29-CU-62-0
    nuc = new Nucleus("CU",62,29,0,61.9326,0,584.4,0,0,0,0,0);
    nuc->AddDecay(0,-1,0,3.94817,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0009() {
+   Nucleus *nuc=0;
+
 
    // Adding 30-ZN-62-0
    nuc = new Nucleus("ZN",62,30,0,61.9343,0,33069.6,0,9.4e-10,6.6e-10,0,0);
@@ -2058,6 +2118,13 @@ void Nucleus::CreateNuclei() {
    nuc = new Nucleus("CU",68,29,1,67.9304,0.722,225,0,0,0,0,0);
    nuc->AddDecay(0,0,-1,0.722,84);
    nuc->AddDecay(0,1,-1,5.18407,16);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0010() {
+   Nucleus *nuc=0;
+
 
    // Adding 30-ZN-68-0
    nuc = new Nucleus("ZN",68,30,0,67.9249,0,0,18.8,0,0,0,0);
@@ -2258,6 +2325,13 @@ void Nucleus::CreateNuclei() {
    // Adding 29-CU-73-0
    nuc = new Nucleus("CU",73,29,0,72.9365,0,3.9,0,0,0,0,0);
    nuc->AddDecay(0,1,0,6.25064,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0011() {
+   Nucleus *nuc=0;
+
 
    // Adding 30-ZN-73-0
    nuc = new Nucleus("ZN",73,30,0,72.9298,0,23.5,0,0,0,0,0);
@@ -2467,6 +2541,13 @@ void Nucleus::CreateNuclei() {
    nuc = new Nucleus("GE",77,32,1,76.9237,0.16,52.9,0,0,0,0,0);
    nuc->AddDecay(0,1,-1,2.86201,79);
    nuc->AddDecay(0,0,-1,0.16,21);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0012() {
+   Nucleus *nuc=0;
+
 
    // Adding 33-AS-77-0
    nuc = new Nucleus("AS",77,33,0,76.9206,0,139788,0,4e-10,4.2e-10,0,0);
@@ -2679,6 +2760,13 @@ void Nucleus::CreateNuclei() {
    // Adding 32-GE-81-1
    nuc = new Nucleus("GE",81,32,1,80.9296,0.679,7.6,0,0,0,0,0);
    nuc->AddDecay(0,1,-1,6.90904,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0013() {
+   Nucleus *nuc=0;
+
 
    // Adding 33-AS-81-0
    nuc = new Nucleus("AS",81,33,0,80.9221,0,33.3,0,0,0,0,0);
@@ -2891,6 +2979,13 @@ void Nucleus::CreateNuclei() {
    // Adding 37-RB-84-1
    nuc = new Nucleus("RB",84,37,1,83.9149,0.464,1215.6,0,0,0,0,0);
    nuc->AddDecay(0,0,-1,0.464,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0014() {
+   Nucleus *nuc=0;
+
 
    // Adding 38-SR-84-0
    nuc = new Nucleus("SR",84,38,0,83.9134,0,0,0.56,0,0,0,0);
@@ -3104,6 +3199,13 @@ void Nucleus::CreateNuclei() {
 
    // Adding 38-SR-88-0
    nuc = new Nucleus("SR",88,38,0,87.9056,0,0,82.58,0,0,0,0);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0015() {
+   Nucleus *nuc=0;
+
 
    // Adding 39-Y-88-0
    nuc = new Nucleus("Y",88,39,0,87.9095,0,9.21456e+06,0,1.3e-09,4.2e-09,0,0);
@@ -3316,6 +3418,13 @@ void Nucleus::CreateNuclei() {
    // Adding 43-TC-91-0
    nuc = new Nucleus("TC",91,43,0,90.9184,0,188.4,0,0,0,0,0);
    nuc->AddDecay(0,-1,0,6.21999,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0016() {
+   Nucleus *nuc=0;
+
 
    // Adding 43-TC-91-1
    nuc = new Nucleus("TC",91,43,1,90.9188,0.35,198,0,0,0,0,0);
@@ -3531,6 +3640,13 @@ void Nucleus::CreateNuclei() {
    // Adding 38-SR-95-0
    nuc = new Nucleus("SR",95,38,0,94.9193,0,23.9,0,0,0,0,0);
    nuc->AddDecay(0,1,0,6.08028,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0017() {
+   Nucleus *nuc=0;
+
 
    // Adding 39-Y-95-0
    nuc = new Nucleus("Y",95,39,0,94.9128,0,618,0,4.6e-11,2.6e-11,0,0);
@@ -3755,6 +3871,13 @@ void Nucleus::CreateNuclei() {
    // Adding 40-ZR-98-0
    nuc = new Nucleus("ZR",98,40,0,97.9128,0,30.7,0,0,0,0,0);
    nuc->AddDecay(0,1,0,2.26124,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0018() {
+   Nucleus *nuc=0;
+
 
    // Adding 41-NB-98-0
    nuc = new Nucleus("NB",98,41,0,97.9103,0,2.86,0,1.2e-10,9.9e-11,0,0);
@@ -3971,6 +4094,13 @@ void Nucleus::CreateNuclei() {
    // Adding 43-TC-101-0
    nuc = new Nucleus("TC",101,43,0,100.907,0,853.2,0,1.9e-11,2.1e-11,0,0);
    nuc->AddDecay(0,1,0,1.61359,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0019() {
+   Nucleus *nuc=0;
+
 
    // Adding 44-RU-101-0
    nuc = new Nucleus("RU",101,44,0,100.906,0,0,17,0,0,0,0);
@@ -4180,6 +4310,13 @@ void Nucleus::CreateNuclei() {
    nuc = new Nucleus("RH",104,45,1,103.907,0.129,260.4,0,0,0,0,0);
    nuc->AddDecay(0,0,-1,0.129,99.87);
    nuc->AddDecay(0,1,-1,2.57001,0.13);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0020() {
+   Nucleus *nuc=0;
+
 
    // Adding 46-PD-104-0
    nuc = new Nucleus("PD",104,46,0,103.904,0,0,11.14,0,0,0,0);
@@ -4379,6 +4516,13 @@ void Nucleus::CreateNuclei() {
    // Adding 50-SN-107-0
    nuc = new Nucleus("SN",107,50,0,106.916,0,174,0,0,0,0,0);
    nuc->AddDecay(0,-1,0,4.99963,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0021() {
+   Nucleus *nuc=0;
+
 
    // Adding 51-SB-107-0
    nuc = new Nucleus("SB",107,51,0,106.924,0,0,0,0,0,0,-2);
@@ -4583,6 +4727,13 @@ void Nucleus::CreateNuclei() {
    nuc = new Nucleus("TE",110,52,0,109.922,0,18.6,0,0,0,0,0);
    nuc->AddDecay(0,-1,0,5.25415,100);
    nuc->AddDecay(-4,-2,0,2.7232,0.003);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0022() {
+   Nucleus *nuc=0;
+
 
    // Adding 53-I-110-0
    nuc = new Nucleus("I",110,53,0,109.935,0,0.65,0,0,0,1,0);
@@ -4805,6 +4956,13 @@ void Nucleus::CreateNuclei() {
    nuc->AddDecay(0,-1,0,9.06257,95.77);
    nuc->AddDecay(-4,-2,0,3.09608,0.04);
    nuc->AddDecay(-1,-2,0,7.90864,4.2);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0023() {
+   Nucleus *nuc=0;
+
 
    // Adding 55-CS-113-0
    nuc = new Nucleus("CS",113,55,0,112.945,0,3.3e-05,0,0,0,0,0);
@@ -5021,6 +5179,13 @@ void Nucleus::CreateNuclei() {
    nuc->AddDecay(-4,-3,0,12.4,0);
    nuc->AddDecay(-1,-2,0,6.68023,0);
    nuc->AddDecay(0,-1,0,10.477,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0024() {
+   Nucleus *nuc=0;
+
 
    // Adding 55-CS-116-1
    nuc = new Nucleus("CS",116,55,1,115.933,0,3.84,0,0,0,1,0);
@@ -5244,6 +5409,13 @@ void Nucleus::CreateNuclei() {
    // Adding 53-I-119-0
    nuc = new Nucleus("I",119,53,0,118.91,0,1146,0,0,0,0,0);
    nuc->AddDecay(0,-1,0,3.51363,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0025() {
+   Nucleus *nuc=0;
+
 
    // Adding 54-XE-119-0
    nuc = new Nucleus("XE",119,54,0,118.916,0,348,0,0,0,0,0);
@@ -5454,6 +5626,13 @@ void Nucleus::CreateNuclei() {
 
    // Adding 52-TE-122-0
    nuc = new Nucleus("TE",122,52,0,121.903,0,0,2.6,0,0,0,0);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0026() {
+   Nucleus *nuc=0;
+
 
    // Adding 53-I-122-0
    nuc = new Nucleus("I",122,53,0,121.908,0,217.8,0,0,0,0,0);
@@ -5661,6 +5840,13 @@ void Nucleus::CreateNuclei() {
 
    // Adding 52-TE-125-0
    nuc = new Nucleus("TE",125,52,0,124.904,0,0,7.14,0,0,0,0);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0027() {
+   Nucleus *nuc=0;
+
 
    // Adding 52-TE-125-1
    nuc = new Nucleus("TE",125,52,1,124.905,0.145,4.95936e+06,0,8.7e-10,3.3e-09,0,0);
@@ -5873,6 +6059,13 @@ void Nucleus::CreateNuclei() {
    nuc = new Nucleus("I",128,53,0,127.906,0,1499.4,0,4.6e-11,6.5e-11,0,0);
    nuc->AddDecay(0,-1,0,1.25098,6.9);
    nuc->AddDecay(0,1,0,2.11818,93.1);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0028() {
+   Nucleus *nuc=0;
+
 
    // Adding 54-XE-128-0
    nuc = new Nucleus("XE",128,54,0,127.904,0,0,1.91,0,0,0,0);
@@ -6090,6 +6283,13 @@ void Nucleus::CreateNuclei() {
    // Adding 49-IN-131-1
    nuc = new Nucleus("IN",131,49,1,130.927,0,0.35,0,0,0,0,0);
    nuc->AddDecay(0,1,-1,9.18079,99.982);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0029() {
+   Nucleus *nuc=0;
+
 
    // Adding 49-IN-131-2
    nuc = new Nucleus("IN",131,49,2,130.927,0,0.32,0,0,0,0,0);
@@ -6303,6 +6503,13 @@ void Nucleus::CreateNuclei() {
    // Adding 57-LA-133-0
    nuc = new Nucleus("LA",133,57,0,132.908,0,14083.2,0,0,0,0,0);
    nuc->AddDecay(0,-1,0,2.23001,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0030() {
+   Nucleus *nuc=0;
+
 
    // Adding 58-CE-133-0
    nuc = new Nucleus("CE",133,58,0,132.912,0,17640,0,0,0,0,0);
@@ -6513,6 +6720,13 @@ void Nucleus::CreateNuclei() {
    nuc = new Nucleus("CS",136,55,0,135.907,0,1.13702e+06,0,3.1e-09,1.9e-09,0,0);
    nuc->AddDecay(0,1,0,2.54819,88.8);
    nuc->AddDecay(0,1,1,0.517197,11.2);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0031() {
+   Nucleus *nuc=0;
+
 
    // Adding 55-CS-136-1
    nuc = new Nucleus("CS",136,55,1,135.907,0,19,0,0,0,0,-8);
@@ -6720,6 +6934,13 @@ void Nucleus::CreateNuclei() {
    // Adding 55-CS-139-0
    nuc = new Nucleus("CS",139,55,0,138.913,0,556.2,0,0,0,0,0);
    nuc->AddDecay(0,1,0,4.21268,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0032() {
+   Nucleus *nuc=0;
+
 
    // Adding 56-BA-139-0
    nuc = new Nucleus("BA",139,56,0,138.909,0,4983.6,0,1.2e-10,5.5e-11,0,0);
@@ -6934,6 +7155,13 @@ void Nucleus::CreateNuclei() {
    nuc = new Nucleus("CS",142,55,0,141.924,0,1.7,0,0,0,0,0);
    nuc->AddDecay(0,1,0,7.30647,99.72);
    nuc->AddDecay(-1,1,0,1.1366,0.28);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0033() {
+   Nucleus *nuc=0;
+
 
    // Adding 56-BA-142-0
    nuc = new Nucleus("BA",142,56,0,141.916,0,636,0,3.5e-11,2.7e-11,0,0);
@@ -7147,6 +7375,13 @@ void Nucleus::CreateNuclei() {
    nuc = new Nucleus("CS",145,55,0,144.935,0,0.594,0,0,0,0,0);
    nuc->AddDecay(-1,1,0,3.54507,13.8);
    nuc->AddDecay(0,1,0,7.88681,86.2);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0034() {
+   Nucleus *nuc=0;
+
 
    // Adding 56-BA-145-0
    nuc = new Nucleus("BA",145,56,0,144.927,0,4.31,0,0,0,0,0);
@@ -7357,6 +7592,13 @@ void Nucleus::CreateNuclei() {
    nuc = new Nucleus("ER",147,68,0,146.949,0,2.5,0,0,0,0,0);
    nuc->AddDecay(0,-1,0,9.0999,100);
    nuc->AddDecay(-1,-2,0,8.43851,0);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0035() {
+   Nucleus *nuc=0;
+
 
    // Adding 68-ER-147-1
    nuc = new Nucleus("ER",147,68,1,146.949,0,2.5,0,0,0,0,0);
@@ -7570,6 +7812,13 @@ void Nucleus::CreateNuclei() {
    nuc = new Nucleus("TB",150,65,0,149.924,0,12528,0,2.5e-10,1.8e-10,1,0);
    nuc->AddDecay(-4,-2,0,3.58739,0.05);
    nuc->AddDecay(0,-1,0,4.65639,99.95);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0036() {
+   Nucleus *nuc=0;
+
 
    // Adding 65-TB-150-1
    nuc = new Nucleus("TB",150,65,1,149.924,0,348,0,0,0,0,0);
@@ -7786,6 +8035,13 @@ void Nucleus::CreateNuclei() {
    // Adding 60-ND-153-0
    nuc = new Nucleus("ND",153,60,0,152.928,0,28.9,0,0,0,0,0);
    nuc->AddDecay(0,1,0,3.60001,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0037() {
+   Nucleus *nuc=0;
+
 
    // Adding 61-PM-153-0
    nuc = new Nucleus("PM",153,61,0,152.924,0,324,0,0,0,0,0);
@@ -8007,6 +8263,13 @@ void Nucleus::CreateNuclei() {
    // Adding 62-SM-156-0
    nuc = new Nucleus("SM",156,62,0,155.926,0,33840,0,2.5e-10,2.8e-10,0,0);
    nuc->AddDecay(0,1,0,0.722267,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0038() {
+   Nucleus *nuc=0;
+
 
    // Adding 63-EU-156-0
    nuc = new Nucleus("EU",156,63,0,155.925,0,1.31242e+06,0,2.2e-09,3.3e-09,0,0);
@@ -8220,6 +8483,13 @@ void Nucleus::CreateNuclei() {
    // Adding 63-EU-159-0
    nuc = new Nucleus("EU",159,63,0,158.929,0,1086,0,0,0,0,0);
    nuc->AddDecay(0,1,0,2.51435,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0039() {
+   Nucleus *nuc=0;
+
 
    // Adding 64-GD-159-0
    nuc = new Nucleus("GD",159,64,0,158.926,0,66816,0,5e-10,3.9e-10,0,0);
@@ -8428,6 +8698,13 @@ void Nucleus::CreateNuclei() {
    // Adding 67-HO-162-0
    nuc = new Nucleus("HO",162,67,0,161.929,0,900,0,3.3e-12,4.5e-12,0,0);
    nuc->AddDecay(0,-1,0,2.14019,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0040() {
+   Nucleus *nuc=0;
+
 
    // Adding 67-HO-162-1
    nuc = new Nucleus("HO",162,67,1,161.929,0.106,4020,0,2.6e-11,3.3e-11,0,0);
@@ -8640,6 +8917,13 @@ void Nucleus::CreateNuclei() {
    // Adding 71-LU-165-0
    nuc = new Nucleus("LU",165,71,0,164.94,0,644.4,0,0,0,0,0);
    nuc->AddDecay(0,-1,0,3.91994,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0041() {
+   Nucleus *nuc=0;
+
 
    // Adding 71-LU-165-1
    nuc = new Nucleus("LU",165,71,1,164.94,0,720,0,0,0,0,-8);
@@ -8852,6 +9136,13 @@ void Nucleus::CreateNuclei() {
    // Adding 66-DY-169-0
    nuc = new Nucleus("DY",169,66,0,168.94,0,39,0,0,0,0,0);
    nuc->AddDecay(0,1,0,3.19999,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0042() {
+   Nucleus *nuc=0;
+
 
    // Adding 67-HO-169-0
    nuc = new Nucleus("HO",169,67,0,168.937,0,282,0,0,0,0,0);
@@ -9057,6 +9348,13 @@ void Nucleus::CreateNuclei() {
    // Adding 73-TA-172-0
    nuc = new Nucleus("TA",172,73,0,171.945,0,2208,0,5.3e-11,5.8e-11,0,0);
    nuc->AddDecay(0,-1,0,4.92003,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0043() {
+   Nucleus *nuc=0;
+
 
    // Adding 74-W-172-0
    nuc = new Nucleus("W",172,74,0,171.947,0,402,0,0,0,0,0);
@@ -9271,6 +9569,13 @@ void Nucleus::CreateNuclei() {
 
    // Adding 72-HF-176-0
    nuc = new Nucleus("HF",176,72,0,175.941,0,0,5.206,0,0,0,0);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0044() {
+   Nucleus *nuc=0;
+
 
    // Adding 73-TA-176-0
    nuc = new Nucleus("TA",176,73,0,175.945,0,29124,0,3.2e-10,3.3e-10,0,0);
@@ -9480,6 +9785,13 @@ void Nucleus::CreateNuclei() {
    // Adding 76-OS-179-0
    nuc = new Nucleus("OS",179,76,0,178.954,0,390.001,0,0,0,0,0);
    nuc->AddDecay(0,-1,0,3.67831,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0045() {
+   Nucleus *nuc=0;
+
 
    // Adding 77-IR-179-0
    nuc = new Nucleus("IR",179,77,0,178.959,0,240,0,0,0,0,0);
@@ -9693,6 +10005,13 @@ void Nucleus::CreateNuclei() {
    // Adding 82-PB-182-0
    nuc = new Nucleus("PB",182,82,0,181.993,0,0.055,0,0,0,1,0);
    nuc->AddDecay(-4,-2,0,7.0761,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0046() {
+   Nucleus *nuc=0;
+
 
    // Adding 71-LU-183-0
    nuc = new Nucleus("LU",183,71,0,182.957,0,58,0,0,0,0,0);
@@ -9910,6 +10229,13 @@ void Nucleus::CreateNuclei() {
    nuc = new Nucleus("RE",186,75,0,185.955,0,326304,0,1.5e-09,1.2e-09,0,0);
    nuc->AddDecay(0,1,0,1.0695,93.1);
    nuc->AddDecay(0,-1,0,0.5816,6.9);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0047() {
+   Nucleus *nuc=0;
+
 
    // Adding 75-RE-186-1
    nuc = new Nucleus("RE",186,75,1,185.955,0.149,6.3072e+12,0,2.2e-09,1.1e-08,0,0);
@@ -10129,6 +10455,13 @@ void Nucleus::CreateNuclei() {
    nuc = new Nucleus("HG",189,80,0,188.968,0,456,0,0,0,1,0);
    nuc->AddDecay(-4,-2,0,4.50805,3e-05);
    nuc->AddDecay(0,-1,0,3.94992,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0048() {
+   Nucleus *nuc=0;
+
 
    // Adding 80-HG-189-1
    nuc = new Nucleus("HG",189,80,1,188.968,0,516,0,0,0,0,0);
@@ -10342,6 +10675,13 @@ void Nucleus::CreateNuclei() {
    // Adding 81-TL-192-0
    nuc = new Nucleus("TL",192,81,0,191.972,0,576,0,0,0,0,0);
    nuc->AddDecay(0,-1,0,6.12003,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0049() {
+   Nucleus *nuc=0;
+
 
    // Adding 81-TL-192-1
    nuc = new Nucleus("TL",192,81,1,191.972,0,648,0,0,0,0,0);
@@ -10556,6 +10896,13 @@ void Nucleus::CreateNuclei() {
    nuc = new Nucleus("BI",195,83,1,194.981,0.401,87,0,0,0,1,0);
    nuc->AddDecay(-4,-2,-1,6.2341,33);
    nuc->AddDecay(0,-1,-1,6.25119,67);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0050() {
+   Nucleus *nuc=0;
+
 
    // Adding 84-PO-195-0
    nuc = new Nucleus("PO",195,84,0,194.988,0,4.5,0,0,0,0,0);
@@ -10778,6 +11125,13 @@ void Nucleus::CreateNuclei() {
    nuc->AddDecay(0,0,-1,0.1,33.3333);
    nuc->AddDecay(-4,-2,-1,6.9931,33.3333);
    nuc->AddDecay(0,-1,-1,8.86472,33.3333);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0051() {
+   Nucleus *nuc=0;
+
 
    // Adding 86-RN-198-0
    nuc = new Nucleus("RN",198,86,0,197.999,0,0.05,0,0,0,1,0);
@@ -11003,6 +11357,13 @@ void Nucleus::CreateNuclei() {
    // Adding 81-TL-202-0
    nuc = new Nucleus("TL",202,81,0,201.972,0,1.05667e+06,0,4.5e-10,3.1e-10,0,0);
    nuc->AddDecay(0,-1,0,1.36441,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0052() {
+   Nucleus *nuc=0;
+
 
    // Adding 82-PB-202-0
    nuc = new Nucleus("PB",202,82,0,201.972,0,1.65564e+12,0,8.8e-09,1.4e-08,0,0);
@@ -11222,6 +11583,13 @@ void Nucleus::CreateNuclei() {
 
    // Adding 82-PB-206-0
    nuc = new Nucleus("PB",206,82,0,205.974,0,0,24.1,0,0,0,0);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0053() {
+   Nucleus *nuc=0;
+
 
    // Adding 83-BI-206-0
    nuc = new Nucleus("BI",206,83,0,205.978,0,539395,0,1.9e-09,2.1e-09,0,0);
@@ -11451,6 +11819,13 @@ void Nucleus::CreateNuclei() {
    nuc = new Nucleus("BI",211,83,0,210.987,0,128.4,0,0,0,1,0);
    nuc->AddDecay(-4,-2,0,6.7506,99.72);
    nuc->AddDecay(0,1,0,0.578873,0.28);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0054() {
+   Nucleus *nuc=0;
+
 
    // Adding 84-PO-211-0
    nuc = new Nucleus("PO",211,84,0,210.987,0,0.516,0,0,0,1,0);
@@ -11675,6 +12050,13 @@ void Nucleus::CreateNuclei() {
    // Adding 87-FR-215-0
    nuc = new Nucleus("FR",215,87,0,215,0,8.6e-08,0,0,0,1,0);
    nuc->AddDecay(-4,-2,0,9.54041,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0055() {
+   Nucleus *nuc=0;
+
 
    // Adding 88-RA-215-0
    nuc = new Nucleus("RA",215,88,0,215.003,0,0.00159,0,0,0,1,0);
@@ -11892,6 +12274,13 @@ void Nucleus::CreateNuclei() {
    // Adding 85-AT-221-0
    nuc = new Nucleus("AT",221,85,0,221.018,0,138,0,0,0,0,0);
    nuc->AddDecay(0,1,0,2.1864,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0056() {
+   Nucleus *nuc=0;
+
 
    // Adding 86-RN-221-0
    nuc = new Nucleus("RN",221,86,0,221.016,0,1500,0,0,0,1,0);
@@ -12112,6 +12501,13 @@ void Nucleus::CreateNuclei() {
    nuc = new Nucleus("PA",227,91,0,227.029,0,2298,0,4.6e-10,9.7e-08,1,0);
    nuc->AddDecay(-4,-2,0,6.58,85);
    nuc->AddDecay(0,-1,0,1.01935,15);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0057() {
+   Nucleus *nuc=0;
+
 
    // Adding 92-U-227-0
    nuc = new Nucleus("U",227,92,0,227.031,0,66,0,0,0,1,0);
@@ -12331,6 +12727,13 @@ void Nucleus::CreateNuclei() {
 
    // Adding 95-AM-233-0
    nuc = new Nucleus("AM",233,95,0,233.046,0,0,0,0,0,0,-2);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0058() {
+   Nucleus *nuc=0;
+
 
    // Adding 88-RA-234-0
    nuc = new Nucleus("RA",234,88,0,234.051,0,30,0,0,0,0,0);
@@ -12556,6 +12959,13 @@ void Nucleus::CreateNuclei() {
    // Adding 93-NP-240-0
    nuc = new Nucleus("NP",240,93,0,240.056,0,3714,0,8.2e-11,1.3e-10,0,0);
    nuc->AddDecay(0,1,0,2.19959,100);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0059() {
+   Nucleus *nuc=0;
+
 
    // Adding 93-NP-240-1
    nuc = new Nucleus("NP",240,93,1,240.056,0,433.2,0,0,0,0,0);
@@ -12788,6 +13198,13 @@ void Nucleus::CreateNuclei() {
    nuc = new Nucleus("AM",246,95,1,246.07,0,1500,0,3.5e-11,3.8e-11,0,0);
    nuc->AddDecay(0,1,-1,2.3762,100);
    nuc->AddDecay(0,0,-1,0,0.01);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0060() {
+   Nucleus *nuc=0;
+
 
    // Adding 96-CM-246-0
    nuc = new Nucleus("CM",246,96,0,246.067,0,1.49165e+11,0,2.9e-07,5.5e-05,1,0);
@@ -13027,6 +13444,13 @@ void Nucleus::CreateNuclei() {
    nuc->AddDecay(-4,-2,0,6.75972,76);
    nuc->AddDecay(0,-1,0,1.25999,24);
    nuc->AddDecay(0,1,0,0.47699,0.01);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0061() {
+   Nucleus *nuc=0;
+
 
    // Adding 100-FM-252-0
    nuc = new Nucleus("FM",252,100,0,252.082,0,91404,0,2.7e-09,3e-07,1,0);
@@ -13283,6 +13707,13 @@ void Nucleus::CreateNuclei() {
    nuc = new Nucleus("04",258,104,0,258.103,0,0.012,0,0,0,1,0);
    nuc->AddDecay(-4,-2,0,9.24984,13);
    nuc->AddDecay(0,1000,0,207,87);
+}
+
+
+//________________________________________________________________________________
+static void CreateNuclei0062() {
+   Nucleus *nuc=0;
+
 
    // Adding 105-05-258-0
    nuc = new Nucleus("05",258,105,0,258.109,0,4.4,0,0,0,1,0);
@@ -13454,12 +13885,79 @@ void Nucleus::CreateNuclei() {
    // Adding 109-09-266-0
    nuc = new Nucleus("09",266,109,0,266.138,0,0.0034,0,0,0,1,0);
    nuc->AddDecay(-4,-2,0,11.2831,100);
+}
+
+//________________________________________________________________________________
+void Nucleus::CreateNuclei() {
+   static bool initDone=false;
+   if(initDone) return;
+   initDone = true;
+  CreateNuclei0000();
+  CreateNuclei0001();
+  CreateNuclei0002();
+  CreateNuclei0003();
+  CreateNuclei0004();
+  CreateNuclei0005();
+  CreateNuclei0006();
+  CreateNuclei0007();
+  CreateNuclei0008();
+  CreateNuclei0009();
+  CreateNuclei0010();
+  CreateNuclei0011();
+  CreateNuclei0012();
+  CreateNuclei0013();
+  CreateNuclei0014();
+  CreateNuclei0015();
+  CreateNuclei0016();
+  CreateNuclei0017();
+  CreateNuclei0018();
+  CreateNuclei0019();
+  CreateNuclei0020();
+  CreateNuclei0021();
+  CreateNuclei0022();
+  CreateNuclei0023();
+  CreateNuclei0024();
+  CreateNuclei0025();
+  CreateNuclei0026();
+  CreateNuclei0027();
+  CreateNuclei0028();
+  CreateNuclei0029();
+  CreateNuclei0030();
+  CreateNuclei0031();
+  CreateNuclei0032();
+  CreateNuclei0033();
+  CreateNuclei0034();
+  CreateNuclei0035();
+  CreateNuclei0036();
+  CreateNuclei0037();
+  CreateNuclei0038();
+  CreateNuclei0039();
+  CreateNuclei0040();
+  CreateNuclei0041();
+  CreateNuclei0042();
+  CreateNuclei0043();
+  CreateNuclei0044();
+  CreateNuclei0045();
+  CreateNuclei0046();
+  CreateNuclei0047();
+  CreateNuclei0048();
+  CreateNuclei0049();
+  CreateNuclei0050();
+  CreateNuclei0051();
+  CreateNuclei0052();
+  CreateNuclei0053();
+  CreateNuclei0054();
+  CreateNuclei0055();
+  CreateNuclei0056();
+  CreateNuclei0057();
+  CreateNuclei0058();
+  CreateNuclei0059();
+  CreateNuclei0060();
+  CreateNuclei0061();
+  CreateNuclei0062();
+
    for(map<int,Nucleus*>::const_iterator inuc=Nucleus::Nuclei().begin(); inuc != Nucleus::Nuclei().end(); ++inuc)
       inuc->second->NormDecay();
-#else
-    std::cerr << "CREATION OF NUCLEUS DB NOT COMPILED IN; CHANGE CMAKE OPTION \"GENERATE_MATERIALS_DB\" to ON \n";
-#endif
-
 }
  } // End of inline namespace
  } // End of vecgeom namespace

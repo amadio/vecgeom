@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 
 
 using std::cout;
@@ -10,6 +11,8 @@ using std::endl;
 using std::ofstream;
 using std::ifstream;
 using std::stringstream;
+using std::setw;
+using std::setfill;
 
 namespace vecgeom {
   inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -53,6 +56,9 @@ void Nucleus::ReadFile(string infilename, string outfilename) {
    int da, dz, diso;
    double br, qval, natab, toxa, toxb;
    int ind1, ind2;
+   int kcount=0;
+   const int ksplit=50;
+   int kfunc=0;
    
    bool output=!outfilename.empty();
    ofstream outfile;
@@ -65,11 +71,9 @@ void Nucleus::ReadFile(string infilename, string outfilename) {
       outfile << "#ifdef __clang__" << endl;
       outfile << "#pragma clang optimize off" << endl;
       outfile << "#endif" << endl;
-      outfile << "#include \"volumes/Nucleus.h\"" << endl;
+      outfile << "#include \"materials/Nucleus.h\"" << endl;
       outfile << "namespace vecgeom {" << endl;
       outfile << "   inline namespace VECGEOM_IMPL_NAMESPACE {" << endl << endl;
-      outfile << "void Nucleus::CreateNuclei() {" << endl;
-      outfile << "   Nucleus *nuc=0;" << endl;
    }
    while(getline(infile,line)) {
       Getmat(line, n, z, iso, name, a, dm, life, da, dz, diso, br, qval, 
@@ -80,9 +84,19 @@ void Nucleus::ReadFile(string infilename, string outfilename) {
       if(Nucleus::Nuclei().count(zniso) == 0) {
 	 nuc = new Nucleus(name, n, z, iso, a, dm, life, natab, toxa, toxb, ind1, ind2);
 	 if(output) {
+	    if(kcount%ksplit ==0) {
+	       if(kcount > 0) {
+		  outfile << "}" << endl << endl;
+	       }
+	       outfile << endl << "//" << setw(80) << setfill('_') << "_" << endl << setfill(' ') << setw(0);
+	       outfile << "static void CreateNuclei" << setfill('0') << setw(4) << kfunc << "() {" << endl << setfill(' ') << setw(0);
+	       outfile << "   Nucleus *nuc=0;" << endl << endl;
+	       ++kfunc;
+	    }
 	    outfile << endl << "   // Adding " << nuc->Name() << endl;
 	    outfile << "   nuc = new Nucleus(" << "\"" << name << "\"" << "," << n<< "," << z<< "," << iso<< "," << a<< "," 
 		    << dm<< "," << life<< "," << natab<< "," << toxa<< "," << toxb<< "," << ind1<< "," << ind2 <<");" << endl;
+	    ++kcount;
 	 }
       }
       if(da != 0 || dz !=0 || diso != 0) {
@@ -96,6 +110,16 @@ void Nucleus::ReadFile(string infilename, string outfilename) {
       inuc->second->NormDecay();
    
    if(output) {
+      outfile << "}" << endl;
+
+      outfile << endl << "//" << setw(80) << setfill('_') << "_" << endl << setfill(' ') << setw(0);
+      outfile << "void Nucleus::CreateNuclei() {" << endl;
+      outfile << "   static bool initDone=false;" << endl;
+      outfile << "   if(initDone) return;" << endl;
+      outfile << "   initDone = true;" << endl;
+      for(int i=0; i<kfunc; ++i) 
+	 outfile << "  CreateNuclei" << setfill('0') << setw(4) << i << "();" << endl;
+      outfile << endl;
       outfile << "   for(map<int,Nucleus*>::const_iterator inuc=Nucleus::Nuclei().begin(); inuc != Nucleus::Nuclei().end(); ++inuc)" << endl;
       outfile << "      inuc->second->NormDecay();" << endl;
       outfile << "}" << endl;      

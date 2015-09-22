@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 
 
 using std::cout;
@@ -9,6 +10,8 @@ using std::endl;
 using std::ofstream;
 using std::ifstream;
 using std::stringstream;
+using std::setw;
+using std::setfill;
 
 static const double kPlankBar = 6.5821192815e-25; // GeV s
 
@@ -60,6 +63,9 @@ void Particle::ReadFile(string infilename, string outfilename) {
    double mass, width;
    int isospin, iso3, strange, flavor, track, ndecay;
    int ipart, acode;
+   int kcount=0;
+   const int ksplit=25;
+   int kfunc=0;
    
    bool output=!outfilename.empty();
    ofstream outfile;
@@ -124,7 +130,7 @@ void Particle::ReadFile(string infilename, string outfilename) {
 		  cout << "dcount (" << dcount << ") != i+1 (" << i+1 << ")" << endl;
 		  exit(1);
 	       }
-	       cout << "         " << dcount << " " << decay << endl;
+	       //	       cout << "         " << dcount << " " << decay << endl;
 	       part.AddDecay(decay);
 	    }
 	    part.NormDecay();
@@ -136,8 +142,10 @@ void Particle::ReadFile(string infilename, string outfilename) {
 	    exit(1);
 	 }
 	 Particle p = fParticles.at(-pdg);
-	 new Particle(name.c_str(), pdg, matter, p.Class(), p.Pcode(), -p.Charge(), p.Mass(), p.Width(), -p.Isospin(), 
-			     -p.Iso3(), -p.Strange(), -p.Flavor(), p.Track());
+	 new Particle(name.c_str(), pdg, matter, p.Class(), p.Pcode(), p.Charge()==0?0:-p.Charge(), 
+		      p.Mass(), p.Width(), p.Isospin()==0?0:-p.Isospin(), 
+		      p.Isospin()==0?0:-p.Isospin(),p.Iso3()==0?0:-p.Iso3(), 
+		      p.Strange()==0?0:-p.Strange(), p.Flavor()==0?0:-p.Flavor(), p.Track());
 	 Particle &part = fParticles.at(pdg);
 	 Decay decay;
 	 vector<Particle::Decay>  dl = p.DecayList();
@@ -147,7 +155,7 @@ void Particle::ReadFile(string infilename, string outfilename) {
 	    decay.SetBr(dl.at(i).Br());
 	    for(int j=0; j<dl.at(i).NDaughters(); ++j) 
 	       decay.AddDaughter(-dl.at(i).Daughter(j));
-	    cout << "         " << i << " " << decay << endl;
+	    //	    cout << "         " << i << " " << decay << endl;
 	    part.AddDecay(decay);
 	 }
       }
@@ -157,16 +165,21 @@ void Particle::ReadFile(string infilename, string outfilename) {
       outfile << "#ifdef __clang__" << endl;
       outfile << "#pragma clang optimize off" << endl;
       outfile << "#endif" << endl;
-      outfile << "#include \"volumes/Particle.h\"" << endl;
+      outfile << "#include \"materials/Particle.h\"" << endl;
       outfile << "namespace vecgeom {" << endl;
       outfile << "   inline namespace VECGEOM_IMPL_NAMESPACE {" << endl << endl;
-      outfile << "void Particle::CreateParticles() {" << endl;
-      outfile << "   static bool initDone=false;" << endl;
-      outfile << "   if(initDone) return;" << endl;
-      outfile << "   initDone = true;" << endl;
-      outfile << "   Particle *part=0;" << endl;
 
       for(map<int,Particle>::const_iterator p=Particle::Particles().begin(); p != Particle::Particles().end(); ++p) {
+	 if(kcount%ksplit ==0) {
+	    if(kcount > 0) {
+	       outfile << "}" << endl << endl;
+	    }
+	    outfile << endl << "//" << setw(80) << setfill('_') << "_" << endl << setfill(' ') << setw(0);
+	    outfile << "static void CreateParticle" << setfill('0') << setw(4) << kfunc << "() {" << endl << setfill(' ') << setw(0);
+	    outfile << "   Particle *part = 0;" << endl << endl;
+	    ++kfunc;
+	 }
+	 ++kcount;
 	 const Particle &part = p->second;
 	 string name(part.Name());
 	 outfile << endl << "   // Creating " << name << endl;
@@ -187,11 +200,11 @@ void Particle::ReadFile(string infilename, string outfilename) {
 	      << part.Strange() << ", "
 	      << part.Flavor() << ", "
 	      << part.Track() << ");" << endl;
-	 cout << part.Ndecay() << endl;
+	 //	 cout << name << " " << part.Ndecay() << endl;
 	 if(part.Ndecay() > 0) {
-	    outfile << "   part = &fParticles.at(" << part.PDG() << ");" << endl;
+	    outfile << "   part = const_cast<Particle*>(&Particle::Particles().at(" << part.PDG() << "));" << endl;
 	    for(vector<Decay>::const_iterator d=part.DecayList().begin(); d!=part.DecayList().end(); ++d) {
-	       outfile << "      part->AddDecay(Decay(" << d->Type() << ", " << d->Br() << ", "
+	       outfile << "   part->AddDecay(Particle::Decay(" << d->Type() << ", " << d->Br() << ", "
 		       << " vector<int>{";
 	       for(int i=0; i<d->NDaughters(); ++i) {
 		  outfile << d->Daughter(i);
@@ -202,6 +215,14 @@ void Particle::ReadFile(string infilename, string outfilename) {
 	 }
       }
    
+      outfile << "}" << endl;
+
+      outfile << "void Particle::CreateParticles() {" << endl;
+      outfile << "   static bool initDone=false;" << endl;
+      outfile << "   if(initDone) return;" << endl;
+      outfile << "   initDone = true;" << endl;
+      for(int i=0; i<kfunc; ++i) 
+	 outfile << "  CreateParticle" << setfill('0') << setw(4) << i << "();" << endl;
       outfile << "}" << endl;      
       outfile << " } // End of inline namespace" << endl;
       outfile << " } // End of vecgeom namespace" << endl;
