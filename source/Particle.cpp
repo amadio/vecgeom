@@ -169,6 +169,7 @@ void Particle::ReadFile(string infilename, string outfilename) {
       outfile << "namespace vecgeom {" << endl;
       outfile << "   inline namespace VECGEOM_IMPL_NAMESPACE {" << endl << endl;
 
+      bool partdef = false;
       for(map<int,Particle>::const_iterator p=Particle::Particles().begin(); p != Particle::Particles().end(); ++p) {
 	 if(kcount%ksplit ==0) {
 	    if(kcount > 0) {
@@ -176,7 +177,7 @@ void Particle::ReadFile(string infilename, string outfilename) {
 	    }
 	    outfile << endl << "//" << setw(80) << setfill('_') << "_" << endl << setfill(' ') << setw(0);
 	    outfile << "static void CreateParticle" << setfill('0') << setw(4) << kfunc << "() {" << endl << setfill(' ') << setw(0);
-	    outfile << "   Particle *part = 0;" << endl << endl;
+	    partdef = false;
 	    ++kfunc;
 	 }
 	 ++kcount;
@@ -202,6 +203,10 @@ void Particle::ReadFile(string infilename, string outfilename) {
 	      << part.Track() << ");" << endl;
 	 //	 cout << name << " " << part.Ndecay() << endl;
 	 if(part.Ndecay() > 0) {
+	    if(!partdef) {
+	       outfile << "   Particle *part = 0;" << endl;
+	       partdef = true;
+	    }
 	    outfile << "   part = const_cast<Particle*>(&Particle::Particles().at(" << part.PDG() << "));" << endl;
 	    for(vector<Decay>::const_iterator d=part.DecayList().begin(); d!=part.DecayList().end(); ++d) {
 	       outfile << "   part->AddDecay(Particle::Decay(" << d->Type() << ", " << d->Br() << ", "
