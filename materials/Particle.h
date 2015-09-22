@@ -115,8 +115,8 @@ private:
    char  fStrange; // Strangeness
    char  fFlavor;   // Flavor code (?)
    char  fTrack;   // Track code (?)
-   char  fNdecay;  // Number of decay channels
-   short fCode;    // Particle code for a give MC
+   unsigned char fNdecay;  // Number of decay channels
+   short fCode;    // Particle code for a given MC
    vector<Decay>  fDecayList; // Decay channels
 
    static map<int,Particle> fParticles;              // Particle list indexed by PDG code
