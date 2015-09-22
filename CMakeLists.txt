@@ -1027,4 +1027,4 @@ endif()
 
 
 # Not yet a proper project.
-add_subdirectory (VecCore)
+#add_subdirectory (VecCore)
