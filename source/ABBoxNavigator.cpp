@@ -102,10 +102,10 @@ int ABBoxNavigator::GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Preci
     // a little tricky: need to iterate over the mask -- this does not easily work with scalar types
     if (Any(hit)) {
       for (auto i = hit.firstOne(); i < kVcFloat::precision_v::Size; ++i) {
-        if (hit[i])
+        if (hit[i]){
           hitlist[hitcount]=(ABBoxManager::BoxIdDistancePair_t(box * kVcFloat::precision_v::Size + i, distance[i]));
           hitcount++;
-      }
+	}}
     }
   }
   return hitcount;
@@ -282,7 +282,6 @@ ABBoxNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoint
     static int counter = 0;
     if( counter % 1 == 0 )
     std::cerr << counter << " " << globalpoint << " \n";
-
     counter++;
 #endif
 
