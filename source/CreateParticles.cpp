@@ -53,6 +53,11 @@ static void CreateParticle0000() {
 
    // Creating f0(980)_bar
    new Particle("f0(980)_bar", -9010221, 0, "Unknown", 100, 0, 0.98, 0.07, 100, 100, 0, 100, 1);
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0001() {
 
    // Creating f0(600)_bar
    new Particle("f0(600)_bar", -9000221, 0, "Unknown", 100, 0, 0.8, 0.8, 100, 100, 0, 100, 1);
@@ -117,15 +122,9 @@ static void CreateParticle0000() {
 
    // Creating ~nu_muR_bar
    new Particle("~nu_muR_bar", -2000014, 0, "Sparticle", 100, 0, 500, 0, 100, 100, 1, 100, 1);
-}
-
-
-//________________________________________________________________________________
-static void CreateParticle0001() {
 
    // Creating ~mu_R+
    new Particle("~mu_R+", -2000013, 0, "Sparticle", 100, 1, 500, 1, 100, 100, 1, 100, 1);
-   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(-2000013));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{-1000039,-13}));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{1000024,-14}));
@@ -204,9 +203,15 @@ static void CreateParticle0001() {
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{-1000006,37}));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{-2000006,37}));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{-1000021,-5}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0002() {
 
    // Creating ~c_R_bar
    new Particle("~c_R_bar", -2000004, 0, "Sparticle", 100, -0.666667, 500, 1, 100, 100, 1, 100, 1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(-2000004));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{-1000039,-4}));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{-1000024,-3}));
@@ -560,9 +565,15 @@ static void CreateParticle0001() {
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{-1000003,-37}));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{-2000003,-37}));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{-1000021,-4}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0003() {
 
    // Creating ~s_L_bar
    new Particle("~s_L_bar", -1000003, 0, "Sparticle", 100, 0.333333, 500, 1, 100, 100, 1, 100, 1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(-1000003));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{-1000039,-3}));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{1000024,-4}));
@@ -614,11 +625,6 @@ static void CreateParticle0001() {
 
    // Creating eta(1475)_bar
    new Particle("eta(1475)_bar", -100331, 0, "Unknown", 100, 0, 1.476, 0.085, 100, 100, 0, 100, 1);
-}
-
-
-//________________________________________________________________________________
-static void CreateParticle0002() {
 
    // Creating k2_star(1980)-_bar
    new Particle("k2_star(1980)-_bar", -100325, 0, "Unknown", 100, -1, 1.973, 0.373, 100, 100, 0, 100, 1);
@@ -649,6 +655,11 @@ static void CreateParticle0002() {
 
    // Creating pi(1300)-_bar
    new Particle("pi(1300)-_bar", -100211, 0, "Unknown", 100, -1, 1.3, 0.4, 100, 100, 0, 100, 1);
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0004() {
 
    // Creating rho(1450)0_bar
    new Particle("rho(1450)0_bar", -100113, 0, "Unknown", 100, 0, 1.465, 0.4, 100, 100, 0, 100, 1);
@@ -698,7 +709,7 @@ static void CreateParticle0002() {
 
 
 //________________________________________________________________________________
-static void CreateParticle0003() {
+static void CreateParticle0005() {
 
    // Creating N(1650)+_bar
    new Particle("N(1650)+_bar", -32212, 0, "Unknown", 100, -1, 1.655, 0.165, 100, 100, 0, 100, 1);
@@ -744,6 +755,11 @@ static void CreateParticle0003() {
 
    // Creating sigma(1750)+_bar
    new Particle("sigma(1750)+_bar", -23222, 0, "Unknown", 100, -1, 1.75, 0.09, 100, 100, 0, 100, 1);
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0006() {
 
    // Creating sigma(1940)0_bar
    new Particle("sigma(1940)0_bar", -23214, 0, "Unknown", 100, 0, 1.94, 0.22, 100, 100, 0, 100, 1);
@@ -774,11 +790,6 @@ static void CreateParticle0003() {
 
    // Creating delta(1920)+_bar
    new Particle("delta(1920)+_bar", -22214, 0, "Unknown", 100, -1, 1.92, 0.2, 100, 100, 0, 100, 1);
-}
-
-
-//________________________________________________________________________________
-static void CreateParticle0004() {
 
    // Creating N(1535)+_bar
    new Particle("N(1535)+_bar", -22212, 0, "Unknown", 100, -1, 1.535, 0.15, 100, 100, 0, 100, 1);
@@ -794,6 +805,11 @@ static void CreateParticle0004() {
 
    // Creating N(1535)0_bar
    new Particle("N(1535)0_bar", -22112, 0, "Unknown", 100, 0, 1.535, 0.15, 100, 100, 0, 100, 1);
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0007() {
 
    // Creating N(1700)0_bar
    new Particle("N(1700)0_bar", -21214, 0, "Unknown", 100, 0, 1.7, 0.1, 100, 100, 0, 100, 1);
@@ -870,6 +886,11 @@ static void CreateParticle0004() {
 
    // Creating xi(2030)0_bar
    new Particle("xi(2030)0_bar", -13326, 0, "Unknown", 100, 0, 2.025, 0.02, 100, 100, 0, 100, 1);
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0008() {
 
    // Creating xi(1820)0_bar
    new Particle("xi(1820)0_bar", -13324, 0, "Unknown", 100, 0, 1.823, 0.024, 100, 100, 0, 100, 1);
@@ -885,11 +906,6 @@ static void CreateParticle0004() {
 
    // Creating sigma(1670)+_bar
    new Particle("sigma(1670)+_bar", -13224, 0, "Unknown", 100, -1, 1.67, 0.06, 100, 100, 0, 100, 1);
-}
-
-
-//________________________________________________________________________________
-static void CreateParticle0005() {
 
    // Creating sigma(1660)+_bar
    new Particle("sigma(1660)+_bar", -13222, 0, "Unknown", 100, -1, 1.66, 0.1, 100, 100, 0, 100, 1);
@@ -920,6 +936,11 @@ static void CreateParticle0005() {
 
    // Creating sigma(1660)-_bar
    new Particle("sigma(1660)-_bar", -13112, 0, "Unknown", 100, 1, 1.66, 0.1, 100, 100, 0, 100, 1);
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0009() {
 
    // Creating delta(1930)++_bar
    new Particle("delta(1930)++_bar", -12226, 0, "Unknown", 100, -2, 1.96, 0.36, 100, 100, 0, 100, 1);
@@ -969,7 +990,7 @@ static void CreateParticle0005() {
 
 
 //________________________________________________________________________________
-static void CreateParticle0006() {
+static void CreateParticle0010() {
 
    // Creating delta(1930)-_bar
    new Particle("delta(1930)-_bar", -11116, 0, "Unknown", 100, 1, 1.96, 0.36, 100, 100, 0, 100, 1);
@@ -1052,9 +1073,15 @@ static void CreateParticle0006() {
    part = const_cast<Particle*>(&Particle::Particles().at(-10421));
    part->AddDecay(Particle::Decay(0, 0.667,  vector<int>{-411,211}));
    part->AddDecay(Particle::Decay(0, 0.333,  vector<int>{-421,-111}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0011() {
 
    // Creating D_1-
    new Particle("D_1-", -10413, 0, "Unknown", 100, -1, 2.424, 0.02, 100, 100, 1, 100, 1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(-10413));
    part->AddDecay(Particle::Decay(0, 0.667,  vector<int>{-423,-211}));
    part->AddDecay(Particle::Decay(0, 0.333,  vector<int>{-413,-111}));
@@ -1106,18 +1133,12 @@ static void CreateParticle0006() {
 
    // Creating eta2(1645)_bar
    new Particle("eta2(1645)_bar", -10225, 0, "Unknown", 100, 0, 1.617, 0.181, 100, 100, 0, 100, 1);
-}
-
-
-//________________________________________________________________________________
-static void CreateParticle0007() {
 
    // Creating pi2(1670)-_bar
    new Particle("pi2(1670)-_bar", -10215, 0, "Unknown", 100, -1, 1.6722, 0.26, 100, 100, 0, 100, 1);
 
    // Creating b_1-
    new Particle("b_1-", -10213, 0, "Unknown", 100, -1, 1.2295, 0.142, 100, 100, 1, 100, 1);
-   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(-10213));
    part->AddDecay(Particle::Decay(0, 1,  vector<int>{-223,-211}));
 
@@ -1141,9 +1162,15 @@ static void CreateParticle0007() {
    part->AddDecay(Particle::Decay(42, 0.015,  vector<int>{2,-1,-2,-81}));
    part->AddDecay(Particle::Decay(42, 0.01,  vector<int>{4,-4,-3,-81}));
    part->AddDecay(Particle::Decay(42, 0.005,  vector<int>{4,-3,-2,-81}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0012() {
 
    // Creating Omega*_bbc0_bar
    new Particle("Omega*_bbc0_bar", -5544, 0, "B-Baryon", 100, 0, 11.7115, 0, 100, 100, 1, 100, 1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(-5544));
    part->AddDecay(Particle::Decay(42, 0.5,  vector<int>{2,-1,-4,-81}));
    part->AddDecay(Particle::Decay(42, 0.14,  vector<int>{4,-3,-4,-81}));
@@ -1326,9 +1353,15 @@ static void CreateParticle0007() {
    part->AddDecay(Particle::Decay(42, 0.015,  vector<int>{2,-1,-2,-81}));
    part->AddDecay(Particle::Decay(42, 0.01,  vector<int>{4,-4,-3,-81}));
    part->AddDecay(Particle::Decay(42, 0.005,  vector<int>{4,-3,-2,-81}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0013() {
 
    // Creating Xi*_bc0_bar
    new Particle("Xi*_bc0_bar", -5414, 0, "B-Baryon", 100, 0, 7.0485, 0, 100, 100, 1, 100, 1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(-5414));
    part->AddDecay(Particle::Decay(42, 0.5,  vector<int>{2,-1,-4,-81}));
    part->AddDecay(Particle::Decay(42, 0.14,  vector<int>{4,-3,-4,-81}));
@@ -1371,15 +1404,9 @@ static void CreateParticle0007() {
    part->AddDecay(Particle::Decay(42, 0.015,  vector<int>{2,-1,-2,-81}));
    part->AddDecay(Particle::Decay(42, 0.01,  vector<int>{4,-4,-3,-81}));
    part->AddDecay(Particle::Decay(42, 0.005,  vector<int>{4,-3,-2,-81}));
-}
-
-
-//________________________________________________________________________________
-static void CreateParticle0008() {
 
    // Creating Omega*_b+
    new Particle("Omega*_b+", -5334, 0, "B-Baryon", 100, 1, 6.13, 0, 100, 100, 1, 100, 1);
-   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(-5334));
    part->AddDecay(Particle::Decay(0, 1,  vector<int>{-5332,-22}));
 
@@ -1447,9 +1474,15 @@ static void CreateParticle0008() {
    part->AddDecay(Particle::Decay(42, 0.015,  vector<int>{2,-1,-2,-81}));
    part->AddDecay(Particle::Decay(42, 0.01,  vector<int>{4,-4,-3,-81}));
    part->AddDecay(Particle::Decay(42, 0.005,  vector<int>{4,-3,-2,-81}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0014() {
 
    // Creating Sigma*_b+_bar
    new Particle("Sigma*_b+_bar", -5224, 0, "B-Baryon", 100, -1, 5.829, 0, 100, 100, 1, 100, 1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(-5224));
    part->AddDecay(Particle::Decay(0, 1,  vector<int>{-5122,-211}));
 
@@ -1556,7 +1589,7 @@ static void CreateParticle0008() {
 
 
 //________________________________________________________________________________
-static void CreateParticle0009() {
+static void CreateParticle0015() {
 
    // Creating Omega_cc-
    new Particle("Omega_cc-", -4432, 0, "CharmedBaryon", 100, -1, 3.78663, 0, 100, 100, 1, 100, 1);
@@ -1650,9 +1683,15 @@ static void CreateParticle0009() {
    part->AddDecay(Particle::Decay(42, 0.08,  vector<int>{13,-14,-3,-81}));
    part->AddDecay(Particle::Decay(42, 0.08,  vector<int>{11,-12,-3,-81}));
    part->AddDecay(Particle::Decay(11, 0.08,  vector<int>{-2,3,-3,-81}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0016() {
 
    // Creating Sigma*_c--
    new Particle("Sigma*_c--", -4224, 0, "CharmedBaryon", 100, -2, 2.5184, 0, 100, 100, 1, 100, 1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(-4224));
    part->AddDecay(Particle::Decay(0, 1,  vector<int>{-4122,-211}));
 
@@ -1774,11 +1813,6 @@ static void CreateParticle0009() {
    new Particle("Sigma_c0_bar", -4112, 0, "CharmedBaryon", 100, 0, 2.45376, 0, 100, 100, 1, 100, 1);
    part = const_cast<Particle*>(&Particle::Particles().at(-4112));
    part->AddDecay(Particle::Decay(0, 1,  vector<int>{-4122,211}));
-}
-
-
-//________________________________________________________________________________
-static void CreateParticle0010() {
 
    // Creating cd_1_bar
    new Particle("cd_1_bar", -4103, 0, "Unknown", 100, -0.333333, 2.00808, 0, 100, 100, 1, 100, 1);
@@ -1788,7 +1822,6 @@ static void CreateParticle0010() {
 
    // Creating Omega+
    new Particle("Omega+", -3334, 0, "Baryon", 100, 1, 1.67245, 0, 100, 100, 1, 100, 1);
-   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(-3334));
    part->AddDecay(Particle::Decay(0, 0.676,  vector<int>{-3122,321}));
    part->AddDecay(Particle::Decay(0, 0.234,  vector<int>{-3322,211}));
@@ -1807,9 +1840,15 @@ static void CreateParticle0010() {
    part->AddDecay(Particle::Decay(0, 0.9954,  vector<int>{-3122,-111}));
    part->AddDecay(Particle::Decay(0, 0.0035,  vector<int>{-3212,-22}));
    part->AddDecay(Particle::Decay(0, 0.0011,  vector<int>{-3122,-22}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0017() {
 
    // Creating Xi*+
    new Particle("Xi*+", -3314, 0, "Baryon", 100, 1, 1.535, 0.0099, 100, 100, 1, 100, 1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(-3314));
    part->AddDecay(Particle::Decay(0, 0.667,  vector<int>{-3322,211}));
    part->AddDecay(Particle::Decay(0, 0.333,  vector<int>{-3312,-111}));
@@ -1875,12 +1914,18 @@ static void CreateParticle0010() {
 
    // Creating lambda(1820)_bar
    new Particle("lambda(1820)_bar", -3126, 0, "Unknown", 100, 0, 1.82, 0.08, 100, 100, 0, 100, 1);
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0018() {
 
    // Creating lambda(1520)_bar
    new Particle("lambda(1520)_bar", -3124, 0, "Unknown", 100, 0, 1.5195, 0.0156, 100, 100, 0, 100, 1);
 
    // Creating Lambda0_bar
    new Particle("Lambda0_bar", -3122, 0, "Baryon", 100, 0, 1.11568, 0, 100, 100, 1, 100, 1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(-3122));
    part->AddDecay(Particle::Decay(0, 0.639,  vector<int>{-2212,211}));
    part->AddDecay(Particle::Decay(0, 0.358,  vector<int>{-2112,-111}));
@@ -1899,15 +1944,9 @@ static void CreateParticle0010() {
    part->AddDecay(Particle::Decay(0, 0.88,  vector<int>{-3122,211}));
    part->AddDecay(Particle::Decay(0, 0.06,  vector<int>{-3212,211}));
    part->AddDecay(Particle::Decay(0, 0.06,  vector<int>{-3112,-111}));
-}
-
-
-//________________________________________________________________________________
-static void CreateParticle0011() {
 
    // Creating Sigma-_bar
    new Particle("Sigma-_bar", -3112, 0, "Baryon", 100, 1, 1.19744, 0, 100, 100, 1, 100, 1);
-   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(-3112));
    part->AddDecay(Particle::Decay(0, 0.999,  vector<int>{-2112,211}));
    part->AddDecay(Particle::Decay(0, 0.001,  vector<int>{12,-11,-2112}));
@@ -1944,6 +1983,11 @@ static void CreateParticle0011() {
    part->AddDecay(Particle::Decay(0, 0.663,  vector<int>{-2212,-111}));
    part->AddDecay(Particle::Decay(0, 0.331,  vector<int>{-2112,-211}));
    part->AddDecay(Particle::Decay(0, 0.006,  vector<int>{-2212,-22}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0019() {
 
    // Creating antiproton
    new Particle("antiproton", -2212, 0, "Baryon", 100, -1, 0.938272, 0, 100, 100, 1, 100, 1);
@@ -1974,6 +2018,7 @@ static void CreateParticle0011() {
 
    // Creating Delta0_bar
    new Particle("Delta0_bar", -2114, 0, "Baryon", 100, 0, 1.232, 0.12, 100, 100, 1, 100, 1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(-2114));
    part->AddDecay(Particle::Decay(0, 0.663,  vector<int>{-2112,-111}));
    part->AddDecay(Particle::Decay(0, 0.331,  vector<int>{-2212,211}));
@@ -1997,7 +2042,7 @@ static void CreateParticle0011() {
 
 
 //________________________________________________________________________________
-static void CreateParticle0012() {
+static void CreateParticle0020() {
 
    // Creating delta(1905)0_bar
    new Particle("delta(1905)0_bar", -1216, 0, "Unknown", 100, 0, 1.89, 0.33, 100, 100, 0, 100, 1);
@@ -2141,9 +2186,15 @@ static void CreateParticle0012() {
    part->AddDecay(Particle::Decay(0, 0.08,  vector<int>{-511,-211,-111}));
    part->AddDecay(Particle::Decay(0, 0.06,  vector<int>{-523,-211,211}));
    part->AddDecay(Particle::Decay(0, 0.04,  vector<int>{-521,-211,211}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0021() {
 
    // Creating B*-
    new Particle("B*-", -523, 0, "Meson", 100, -1, 5.3251, 0, 100, 100, 1, 100, 1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(-523));
    part->AddDecay(Particle::Decay(0, 1,  vector<int>{-521,-22}));
 
@@ -2312,15 +2363,9 @@ static void CreateParticle0012() {
    part = const_cast<Particle*>(&Particle::Particles().at(-423));
    part->AddDecay(Particle::Decay(3, 0.619,  vector<int>{-421,-111}));
    part->AddDecay(Particle::Decay(0, 0.381,  vector<int>{-421,-22}));
-}
-
-
-//________________________________________________________________________________
-static void CreateParticle0013() {
 
    // Creating D0_bar
    new Particle("D0_bar", -421, 0, "CharmedMeson", 100, 0, 1.86484, 0, 100, 100, 1, 100, 1);
-   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(-421));
    part->AddDecay(Particle::Decay(0, 0.0923,  vector<int>{321,-211,-111,-111}));
    part->AddDecay(Particle::Decay(0, 0.074,  vector<int>{321,-20213}));
@@ -2472,12 +2517,18 @@ static void CreateParticle0013() {
 
    // Creating phi3(1850)_bar
    new Particle("phi3(1850)_bar", -337, 0, "Unknown", 100, 0, 1.854, 0.087, 100, 100, 0, 100, 1);
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0022() {
 
    // Creating k3_star(1780)-_bar
    new Particle("k3_star(1780)-_bar", -327, 0, "Unknown", 100, -1, 1.776, 0.159, 100, 100, 0, 100, 1);
 
    // Creating K*_2-
    new Particle("K*_2-", -325, 0, "Meson", 100, -1, 1.4256, 0.098, 100, 100, 1, 100, 1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(-325));
    part->AddDecay(Particle::Decay(0, 0.332,  vector<int>{-311,-211}));
    part->AddDecay(Particle::Decay(0, 0.168,  vector<int>{-313,-211}));
@@ -2572,9 +2623,15 @@ static void CreateParticle0013() {
 
    // Creating rho3(1690)0_bar
    new Particle("rho3(1690)0_bar", -117, 0, "Unknown", 100, 0, 1.6888, 0.161, 100, 100, 0, 100, 1);
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0023() {
 
    // Creating b-hadron_bar
    new Particle("b-hadron_bar", -85, 0, "Generator", 100, 0.333333, 5, 0, 100, 100, 1, 100, 1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(-85));
    part->AddDecay(Particle::Decay(42, 0.5,  vector<int>{2,-1,-4,-81}));
    part->AddDecay(Particle::Decay(42, 0.14,  vector<int>{4,-3,-4,-81}));
@@ -2602,18 +2659,12 @@ static void CreateParticle0013() {
 
    // Creating nu_Rmu_bar
    new Particle("nu_Rmu_bar", -65, 0, "Unknown", 100, 0, 750, 0, 100, 100, 1, 100, 1);
-}
-
-
-//________________________________________________________________________________
-static void CreateParticle0014() {
 
    // Creating nu_Re_bar
    new Particle("nu_Re_bar", -64, 0, "Unknown", 100, 0, 750, 0, 100, 100, 1, 100, 1);
 
    // Creating W_R-
    new Particle("W_R-", -63, 0, "Unknown", 100, -1, 750, 19.3391, 100, 100, 1, 100, 1);
-   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(-63));
    part->AddDecay(Particle::Decay(32, 0.325914,  vector<int>{1,-2}));
    part->AddDecay(Particle::Decay(32, 0.32532,  vector<int>{3,-4}));
@@ -2765,9 +2816,15 @@ static void CreateParticle0014() {
    part->AddDecay(Particle::Decay(0, 0,  vector<int>{-24,-23}));
    part->AddDecay(Particle::Decay(0, 0,  vector<int>{-24,-22}));
    part->AddDecay(Particle::Decay(0, 0,  vector<int>{-24,-25}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0024() {
 
    // Creating W-
    new Particle("W-", -24, 0, "GaugeBoson", 100, -1, 80.398, 2.07002, 100, 100, 1, 100, 1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(-24));
    part->AddDecay(Particle::Decay(32, 0.321502,  vector<int>{1,-2}));
    part->AddDecay(Particle::Decay(32, 0.320778,  vector<int>{3,-4}));
@@ -2985,7 +3042,7 @@ static void CreateParticle0014() {
 
 
 //________________________________________________________________________________
-static void CreateParticle0015() {
+static void CreateParticle0025() {
 
    // Creating u_bar
    new Particle("u_bar", -2, 0, "Quark", 100, -0.666667, 0.0024, 0, 100, 100, 1, 100, 1);
@@ -3150,9 +3207,15 @@ static void CreateParticle0015() {
    part = const_cast<Particle*>(&Particle::Particles().at(14));
    part->AddDecay(Particle::Decay(102, 0,  vector<int>{23,14}));
    part->AddDecay(Particle::Decay(102, 0,  vector<int>{24,13}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0026() {
 
    // Creating tau-
    new Particle("tau-", 15, 1, "Lepton", 100, -1, 1.77684, 0, -100, -1, -100, -1, -1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(15));
    part->AddDecay(Particle::Decay(0, 0.2494,  vector<int>{16,-213}));
    part->AddDecay(Particle::Decay(42, 0.1783,  vector<int>{-12,11,16}));
@@ -3389,18 +3452,12 @@ static void CreateParticle0015() {
 
    // Creating reggeon
    new Particle("reggeon", 28, 0, "GaugeBoson", 100, 0, 0, 0, -100, -1, -100, -1, -1);
-}
-
-
-//________________________________________________________________________________
-static void CreateParticle0016() {
 
    // Creating pomeron
    new Particle("pomeron", 29, 0, "GaugeBoson", 100, 0, 0, 0, -100, -1, -100, -1, -1);
 
    // Creating Z'0
    new Particle("Z'0", 32, 0, "GaugeBoson", 100, 0, 500, 14.5485, -100, -1, -100, -1, -1);
-   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(32));
    part->AddDecay(Particle::Decay(32, 0.145869,  vector<int>{1,-1}));
    part->AddDecay(Particle::Decay(32, 0.145869,  vector<int>{3,-3}));
@@ -3540,9 +3597,15 @@ static void CreateParticle0016() {
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{2000016,-2000016}));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{1000016,-2000016}));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{-1000016,2000016}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0027() {
 
    // Creating A0
    new Particle("A0", 36, 0, "GaugeBoson", 100, 0, 300, 4.92026, -100, -1, -100, -1, -1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(36));
    part->AddDecay(Particle::Decay(0, 0.996235,  vector<int>{23,25}));
    part->AddDecay(Particle::Decay(0, 0.002256,  vector<int>{21,21}));
@@ -3841,6 +3904,11 @@ static void CreateParticle0016() {
 
    // Creating nu_Re
    new Particle("nu_Re", 64, 1, "Unknown", 100, 0, 750, 0, -100, -1, -100, -1, -1);
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0028() {
 
    // Creating nu_Rmu
    new Particle("nu_Rmu", 65, 1, "Unknown", 100, 0, 750, 0, -100, -1, -100, -1, -1);
@@ -3856,17 +3924,12 @@ static void CreateParticle0016() {
 
    // Creating phasespa
    new Particle("phasespa", 83, 0, "Generator", 100, 0, 1, 0, -100, -1, -100, -1, -1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(83));
    part->AddDecay(Particle::Decay(12, 1,  vector<int>{82,-82}));
-}
-
-
-//________________________________________________________________________________
-static void CreateParticle0017() {
 
    // Creating c-hadron
    new Particle("c-hadron", 84, 1, "Generator", 100, 0.666667, 2, 0, -100, -1, -100, -1, -1);
-   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(84));
    part->AddDecay(Particle::Decay(11, 0.76,  vector<int>{2,-1,3,81}));
    part->AddDecay(Particle::Decay(42, 0.08,  vector<int>{-13,14,3,81}));
@@ -3909,6 +3972,11 @@ static void CreateParticle0017() {
 
    // Creating CELLjet
    new Particle("CELLjet", 98, 0, "Generator", 100, 0, 0, 0, -100, -1, -100, -1, -1);
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0029() {
 
    // Creating table
    new Particle("table", 99, 0, "Generator", 100, 0, 0, 0, -100, -1, -100, -1, -1);
@@ -3918,6 +3986,7 @@ static void CreateParticle0017() {
 
    // Creating pi0
    new Particle("pi0", 111, 0, "Meson", 100, 0, 0.134977, 0, -100, -1, -100, -1, -1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(111));
    part->AddDecay(Particle::Decay(0, 0.988,  vector<int>{22,22}));
    part->AddDecay(Particle::Decay(2, 0.012,  vector<int>{22,11,-11}));
@@ -4017,7 +4086,7 @@ static void CreateParticle0017() {
 
 
 //________________________________________________________________________________
-static void CreateParticle0018() {
+static void CreateParticle0030() {
 
    // Creating f_2
    new Particle("f_2", 225, 0, "Meson", 100, 0, 1.2751, 0.185, -100, -1, -100, -1, -1);
@@ -4144,12 +4213,18 @@ static void CreateParticle0018() {
    part->AddDecay(Particle::Decay(0, 0.104,  vector<int>{221,221}));
    part->AddDecay(Particle::Decay(0, 0.004,  vector<int>{211,-211}));
    part->AddDecay(Particle::Decay(0, 0.004,  vector<int>{111,111}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0031() {
 
    // Creating phi3(1850)
    new Particle("phi3(1850)", 337, 1, "Unknown", 100, 0, 1.854, 0.087, -100, 0, -100, -1, -1);
 
    // Creating D+
    new Particle("D+", 411, 1, "CharmedMeson", 100, 1, 1.86962, 0, -100, -1, -100, -1, -1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(411));
    part->AddDecay(Particle::Decay(0, 0.087,  vector<int>{-311,211,211,-211,111}));
    part->AddDecay(Particle::Decay(0, 0.076,  vector<int>{-311,20213}));
@@ -4367,18 +4442,12 @@ static void CreateParticle0018() {
    part->AddDecay(Particle::Decay(0, 0.4,  vector<int>{411,311}));
    part->AddDecay(Particle::Decay(0, 0.1,  vector<int>{423,321}));
    part->AddDecay(Particle::Decay(0, 0.1,  vector<int>{413,311}));
-}
-
-
-//________________________________________________________________________________
-static void CreateParticle0019() {
 
    // Creating J/psi_di
    new Particle("J/psi_di", 440, 0, "CharmedMeson", 100, 0, 0, 0, -100, -1, -100, -1, -1);
 
    // Creating eta_c
    new Particle("eta_c", 441, 0, "CharmedMeson", 100, 0, 2.9803, 0.0013, -100, -1, -100, -1, -1);
-   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(441));
    part->AddDecay(Particle::Decay(12, 1,  vector<int>{82,-82}));
 
@@ -4434,9 +4503,15 @@ static void CreateParticle0019() {
    part->AddDecay(Particle::Decay(0, 0.0008,  vector<int>{443,311}));
    part->AddDecay(Particle::Decay(0, 0.0007,  vector<int>{441,313}));
    part->AddDecay(Particle::Decay(0, 0.0004,  vector<int>{441,311}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0032() {
 
    // Creating B*0
    new Particle("B*0", 513, 1, "B-Meson", 100, 0, 5.3251, 0, -100, -1, -100, -1, -1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(513));
    part->AddDecay(Particle::Decay(0, 1,  vector<int>{511,22}));
 
@@ -4639,6 +4714,11 @@ static void CreateParticle0019() {
    part = const_cast<Particle*>(&Particle::Particles().at(555));
    part->AddDecay(Particle::Decay(32, 0.78,  vector<int>{21,21}));
    part->AddDecay(Particle::Decay(0, 0.22,  vector<int>{553,22}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0033() {
 
    // Creating dd_1
    new Particle("dd_1", 1103, 1, "Unknown", 100, -0.666667, 0.96, 0, -100, -1, -100, -1, -1);
@@ -4648,6 +4728,7 @@ static void CreateParticle0019() {
 
    // Creating Delta-
    new Particle("Delta-", 1114, 1, "Unknown", 100, -1, 1.232, 0.12, -100, -1, -100, -1, -1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(1114));
    part->AddDecay(Particle::Decay(0, 1,  vector<int>{2112,-211}));
 
@@ -4656,11 +4737,6 @@ static void CreateParticle0019() {
 
    // Creating delta(1950)-
    new Particle("delta(1950)-", 1118, 1, "Unknown", 100, -1, 1.93, 0.28, -100, 0, -100, -1, -1);
-}
-
-
-//________________________________________________________________________________
-static void CreateParticle0020() {
 
    // Creating delta(1620)0
    new Particle("delta(1620)0", 1212, 1, "Unknown", 100, 0, 1.63, 0.145, -100, 0, -100, -1, -1);
@@ -4688,7 +4764,6 @@ static void CreateParticle0020() {
 
    // Creating Delta0
    new Particle("Delta0", 2114, 1, "Baryon", 100, 0, 1.232, 0.12, -100, -1, -100, -1, -1);
-   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(2114));
    part->AddDecay(Particle::Decay(0, 0.663,  vector<int>{2112,111}));
    part->AddDecay(Particle::Decay(0, 0.331,  vector<int>{2212,-211}));
@@ -4696,6 +4771,11 @@ static void CreateParticle0020() {
 
    // Creating N(1675)0
    new Particle("N(1675)0", 2116, 1, "Unknown", 100, 0, 1.675, 0.15, -100, 0, -100, -1, -1);
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0034() {
 
    // Creating delta(1950)0
    new Particle("delta(1950)0", 2118, 1, "Unknown", 100, 0, 1.93, 0.28, -100, 0, -100, -1, -1);
@@ -4723,6 +4803,7 @@ static void CreateParticle0020() {
 
    // Creating Delta+
    new Particle("Delta+", 2214, 1, "Baryon", 100, 1, 1.232, 0.12, -100, -1, -100, -1, -1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(2214));
    part->AddDecay(Particle::Decay(0, 0.663,  vector<int>{2212,111}));
    part->AddDecay(Particle::Decay(0, 0.331,  vector<int>{2112,211}));
@@ -4751,7 +4832,7 @@ static void CreateParticle0020() {
 
 
 //________________________________________________________________________________
-static void CreateParticle0021() {
+static void CreateParticle0035() {
 
    // Creating sd_0
    new Particle("sd_0", 3101, 1, "Unknown", 100, -0.666667, 0.108, 0, -100, -1, -100, -1, -1);
@@ -4816,12 +4897,18 @@ static void CreateParticle0021() {
 
    // Creating sigma(1775)0
    new Particle("sigma(1775)0", 3216, 1, "Unknown", 100, 0, 1.775, 0.12, -100, 0, -100, -1, -1);
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0036() {
 
    // Creating sigma(2030)0
    new Particle("sigma(2030)0", 3218, 1, "Unknown", 100, 0, 2.03, 0.18, -100, 0, -100, -1, -1);
 
    // Creating Sigma+
    new Particle("Sigma+", 3222, 1, "Baryon", 100, 1, 1.18937, 0, -100, -1, -100, -1, -1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(3222));
    part->AddDecay(Particle::Decay(0, 0.516,  vector<int>{2212,111}));
    part->AddDecay(Particle::Decay(0, 0.483,  vector<int>{2112,211}));
@@ -4870,15 +4957,9 @@ static void CreateParticle0021() {
    part = const_cast<Particle*>(&Particle::Particles().at(3324));
    part->AddDecay(Particle::Decay(0, 0.667,  vector<int>{3312,211}));
    part->AddDecay(Particle::Decay(0, 0.333,  vector<int>{3322,111}));
-}
-
-
-//________________________________________________________________________________
-static void CreateParticle0022() {
 
    // Creating Omega-
    new Particle("Omega-", 3334, 1, "Baryon", 100, -1, 1.67245, 0, -100, -1, -100, -1, -1);
-   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(3334));
    part->AddDecay(Particle::Decay(0, 0.676,  vector<int>{3122,-321}));
    part->AddDecay(Particle::Decay(0, 0.234,  vector<int>{3322,-211}));
@@ -4900,9 +4981,15 @@ static void CreateParticle0022() {
    new Particle("Sigma*_c0", 4114, 1, "CharmedBaryon", 100, 0, 2.518, 0, -100, -1, -100, -1, -1);
    part = const_cast<Particle*>(&Particle::Particles().at(4114));
    part->AddDecay(Particle::Decay(0, 1,  vector<int>{4122,-211}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0037() {
 
    // Creating Lambda_c+
    new Particle("Lambda_c+", 4122, 1, "CharmedBaryon", 100, 1, 2.28646, 0, -100, -1, -100, -1, -1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(4122));
    part->AddDecay(Particle::Decay(13, 0.2432,  vector<int>{2,-1,3,2101}));
    part->AddDecay(Particle::Decay(13, 0.15,  vector<int>{3,2203}));
@@ -5050,9 +5137,15 @@ static void CreateParticle0022() {
    part = const_cast<Particle*>(&Particle::Particles().at(4324));
    part->AddDecay(Particle::Decay(0, 0.5,  vector<int>{4232,111}));
    part->AddDecay(Particle::Decay(0, 0.5,  vector<int>{4232,22}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0038() {
 
    // Creating Omega_c0
    new Particle("Omega_c0", 4332, 1, "CharmedBaryon", 100, 0, 2.6975, 0, -100, -1, -100, -1, -1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(4332));
    part->AddDecay(Particle::Decay(11, 0.76,  vector<int>{2,-1,3,81}));
    part->AddDecay(Particle::Decay(42, 0.08,  vector<int>{-13,14,3,81}));
@@ -5082,15 +5175,9 @@ static void CreateParticle0022() {
    part->AddDecay(Particle::Decay(42, 0.08,  vector<int>{-13,14,3,81}));
    part->AddDecay(Particle::Decay(42, 0.08,  vector<int>{-11,12,3,81}));
    part->AddDecay(Particle::Decay(11, 0.08,  vector<int>{2,-3,3,81}));
-}
-
-
-//________________________________________________________________________________
-static void CreateParticle0023() {
 
    // Creating Xi_cc++
    new Particle("Xi_cc++", 4422, 1, "CharmedBaryon", 100, 2, 3.59798, 0, -100, -1, -100, -1, -1);
-   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(4422));
    part->AddDecay(Particle::Decay(11, 0.76,  vector<int>{2,-1,3,81}));
    part->AddDecay(Particle::Decay(42, 0.08,  vector<int>{-13,14,3,81}));
@@ -5165,9 +5252,15 @@ static void CreateParticle0023() {
    part->AddDecay(Particle::Decay(0, 0.0044,  vector<int>{20443,3122}));
    part->AddDecay(Particle::Decay(0, 0.0022,  vector<int>{443,3122}));
    part->AddDecay(Particle::Decay(0, 0.0011,  vector<int>{441,3122}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0039() {
 
    // Creating Xi_b-
    new Particle("Xi_b-", 5132, 1, "B-Baryon", 100, -1, 5.7924, 0, -100, -1, -100, -1, -1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(5132));
    part->AddDecay(Particle::Decay(42, 0.5,  vector<int>{-2,1,4,81}));
    part->AddDecay(Particle::Decay(42, 0.14,  vector<int>{-4,3,4,81}));
@@ -5268,7 +5361,7 @@ static void CreateParticle0023() {
 
 
 //________________________________________________________________________________
-static void CreateParticle0024() {
+static void CreateParticle0040() {
 
    // Creating Xi*_b0
    new Particle("Xi*_b0", 5324, 1, "B-Baryon", 100, 0, 5.97, 0, -100, -1, -100, -1, -1);
@@ -5419,9 +5512,15 @@ static void CreateParticle0024() {
 
    // Creating bb_1
    new Particle("bb_1", 5503, 1, "Unknown", 100, -0.666667, 10.0735, 0, -100, -1, -100, -1, -1);
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0041() {
 
    // Creating Xi_bb-
    new Particle("Xi_bb-", 5512, 1, "Unknown", 100, -1, 10.4227, 0, -100, -1, -100, -1, -1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(5512));
    part->AddDecay(Particle::Decay(42, 0.5,  vector<int>{-2,1,4,81}));
    part->AddDecay(Particle::Decay(42, 0.14,  vector<int>{-4,3,4,81}));
@@ -5541,15 +5640,9 @@ static void CreateParticle0024() {
    new Particle("a_00", 10111, 0, "Unknown", 100, 0, 0.9835, 0.06, -100, -1, -100, -1, -1);
    part = const_cast<Particle*>(&Particle::Particles().at(10111));
    part->AddDecay(Particle::Decay(0, 1,  vector<int>{221,111}));
-}
-
-
-//________________________________________________________________________________
-static void CreateParticle0025() {
 
    // Creating b_10
    new Particle("b_10", 10113, 0, "Unknown", 100, 0, 1.2295, 0.142, -100, -1, -100, -1, -1);
-   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(10113));
    part->AddDecay(Particle::Decay(0, 1,  vector<int>{223,111}));
 
@@ -5568,9 +5661,15 @@ static void CreateParticle0025() {
 
    // Creating pi2(1670)+
    new Particle("pi2(1670)+", 10215, 1, "Unknown", 100, 1, 1.6722, 0.26, -100, 0, -100, -1, -1);
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0042() {
 
    // Creating f_0
    new Particle("f_0", 10221, 0, "Unknown", 100, 0, 1.3, 0, -100, -1, -100, -1, -1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(10221));
    part->AddDecay(Particle::Decay(0, 0.52,  vector<int>{211,-211}));
    part->AddDecay(Particle::Decay(0, 0.26,  vector<int>{111,111}));
@@ -5663,9 +5762,15 @@ static void CreateParticle0025() {
    part = const_cast<Particle*>(&Particle::Particles().at(10421));
    part->AddDecay(Particle::Decay(0, 0.667,  vector<int>{411,-211}));
    part->AddDecay(Particle::Decay(0, 0.333,  vector<int>{421,111}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0043() {
 
    // Creating D_10
    new Particle("D_10", 10423, 1, "Unknown", 100, 0, 2.4223, 0.02, -100, -1, -100, -1, -1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(10423));
    part->AddDecay(Particle::Decay(0, 0.667,  vector<int>{413,-211}));
    part->AddDecay(Particle::Decay(0, 0.333,  vector<int>{423,111}));
@@ -5692,15 +5797,9 @@ static void CreateParticle0025() {
    new Particle("h_1c", 10443, 0, "Unknown", 100, 0, 3.52593, 0.01, -100, -1, -100, -1, -1);
    part = const_cast<Particle*>(&Particle::Particles().at(10443));
    part->AddDecay(Particle::Decay(12, 1,  vector<int>{82,-82}));
-}
-
-
-//________________________________________________________________________________
-static void CreateParticle0026() {
 
    // Creating B*_00
    new Particle("B*_00", 10511, 1, "Unknown", 100, 0, 5.68, 0.05, -100, -1, -100, -1, -1);
-   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(10511));
    part->AddDecay(Particle::Decay(0, 0.667,  vector<int>{521,-211}));
    part->AddDecay(Particle::Decay(0, 0.333,  vector<int>{511,111}));
@@ -5757,6 +5856,11 @@ static void CreateParticle0026() {
    new Particle("h_1b", 10553, 0, "Unknown", 100, 0, 9.875, 0.01, -100, -1, -100, -1, -1);
    part = const_cast<Particle*>(&Particle::Particles().at(10553));
    part->AddDecay(Particle::Decay(32, 1,  vector<int>{21,21}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0044() {
 
    // Creating delta(1900)-
    new Particle("delta(1900)-", 11112, 1, "Unknown", 100, -1, 1.9, 0.2, -100, 0, -100, -1, -1);
@@ -5806,7 +5910,7 @@ static void CreateParticle0026() {
 
 
 //________________________________________________________________________________
-static void CreateParticle0027() {
+static void CreateParticle0045() {
 
    // Creating delta(1900)++
    new Particle("delta(1900)++", 12222, 1, "Unknown", 100, 2, 1.9, 0.2, -100, 0, -100, -1, -1);
@@ -5852,6 +5956,11 @@ static void CreateParticle0027() {
 
    // Creating sigma(1915)+
    new Particle("sigma(1915)+", 13226, 1, "Unknown", 100, 1, 1.915, 0.12, -100, 0, -100, -1, -1);
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0046() {
 
    // Creating xi(1820)-
    new Particle("xi(1820)-", 13314, 1, "Unknown", 100, -1, 1.823, 0.024, -100, 0, -100, -1, -1);
@@ -5915,15 +6024,9 @@ static void CreateParticle0027() {
    part->AddDecay(Particle::Decay(0, 0.25,  vector<int>{-313,311}));
    part->AddDecay(Particle::Decay(0, 0.25,  vector<int>{323,-321}));
    part->AddDecay(Particle::Decay(0, 0.25,  vector<int>{-323,321}));
-}
-
-
-//________________________________________________________________________________
-static void CreateParticle0028() {
 
    // Creating D*_1+
    new Particle("D*_1+", 20413, 1, "Unknown", 100, 1, 2.372, 0.05, -100, -1, -100, -1, -1);
-   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(20413));
    part->AddDecay(Particle::Decay(0, 0.667,  vector<int>{423,211}));
    part->AddDecay(Particle::Decay(0, 0.333,  vector<int>{413,111}));
@@ -5951,9 +6054,15 @@ static void CreateParticle0028() {
    part = const_cast<Particle*>(&Particle::Particles().at(20513));
    part->AddDecay(Particle::Decay(0, 0.667,  vector<int>{523,-211}));
    part->AddDecay(Particle::Decay(0, 0.333,  vector<int>{513,111}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0047() {
 
    // Creating B*_1+
    new Particle("B*_1+", 20523, 1, "Unknown", 100, 1, 5.78, 0.05, -100, -1, -100, -1, -1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(20523));
    part->AddDecay(Particle::Decay(0, 0.667,  vector<int>{513,211}));
    part->AddDecay(Particle::Decay(0, 0.333,  vector<int>{523,111}));
@@ -6008,6 +6117,11 @@ static void CreateParticle0028() {
 
    // Creating delta(1910)++
    new Particle("delta(1910)++", 22222, 1, "Unknown", 100, 2, 1.91, 0.25, -100, 0, -100, -1, -1);
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0048() {
 
    // Creating delta(1920)++
    new Particle("delta(1920)++", 22224, 1, "Unknown", 100, 2, 1.92, 0.2, -100, 0, -100, -1, -1);
@@ -6023,11 +6137,6 @@ static void CreateParticle0028() {
 
    // Creating lambda(1890)
    new Particle("lambda(1890)", 23124, 1, "Unknown", 100, 0, 1.89, 0.1, -100, 0, -100, -1, -1);
-}
-
-
-//________________________________________________________________________________
-static void CreateParticle0029() {
 
    // Creating lambda(2110)
    new Particle("lambda(2110)", 23126, 1, "Unknown", 100, 0, 2.11, 0.2, -100, 0, -100, -1, -1);
@@ -6058,6 +6167,11 @@ static void CreateParticle0029() {
 
    // Creating omega(1650)
    new Particle("omega(1650)", 30223, 1, "Unknown", 100, 0, 1.67, 0.315, -100, 0, -100, -1, -1);
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0049() {
 
    // Creating k_star(1680)0
    new Particle("k_star(1680)0", 30313, 1, "Unknown", 100, 0, 1.717, 0.32, -100, 0, -100, -1, -1);
@@ -6107,7 +6221,7 @@ static void CreateParticle0029() {
 
 
 //________________________________________________________________________________
-static void CreateParticle0030() {
+static void CreateParticle0050() {
 
    // Creating N(1900)+
    new Particle("N(1900)+", 42124, 1, "Unknown", 100, 1, 1.9, 0.5, -100, 0, -100, -1, -1);
@@ -6153,6 +6267,11 @@ static void CreateParticle0030() {
 
    // Creating k2_star(1980)0
    new Particle("k2_star(1980)0", 100315, 1, "Unknown", 100, 0, 1.973, 0.373, -100, 0, -100, -1, -1);
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0051() {
 
    // Creating k(1460)+
    new Particle("k(1460)+", 100321, 1, "Unknown", 100, 1, 1.46, 0.26, -100, 0, -100, -1, -1);
@@ -6250,15 +6369,9 @@ static void CreateParticle0030() {
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{1000004,-37}));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{2000004,-37}));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{1000021,3}));
-}
-
-
-//________________________________________________________________________________
-static void CreateParticle0031() {
 
    // Creating ~c_L
    new Particle("~c_L", 1000004, 1, "Sparticle", 100, 0.666667, 500, 1, -100, -1, -100, -1, -1);
-   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(1000004));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{1000039,4}));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{1000024,3}));
@@ -6337,9 +6450,15 @@ static void CreateParticle0031() {
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{2000011,24}));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{1000011,37}));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{2000011,37}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0052() {
 
    // Creating ~mu_L-
    new Particle("~mu_L-", 1000013, 1, "Sparticle", 100, -1, 500, 1, -100, -1, -100, -1, -1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(1000013));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{1000039,13}));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{-1000024,14}));
@@ -7037,9 +7156,15 @@ static void CreateParticle0031() {
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{1000004,-37}));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{2000004,-37}));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{1000021,3}));
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0053() {
 
    // Creating ~c_R
    new Particle("~c_R", 2000004, 1, "Sparticle", 100, 0.666667, 500, 1, -100, -1, -100, -1, -1);
+   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(2000004));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{1000039,4}));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{1000024,3}));
@@ -7119,15 +7244,9 @@ static void CreateParticle0031() {
 
    // Creating ~nu_eR
    new Particle("~nu_eR", 2000012, 1, "Sparticle", 100, 0, 500, 0, -100, -1, -100, -1, -1);
-}
-
-
-//________________________________________________________________________________
-static void CreateParticle0032() {
 
    // Creating ~mu_R-
    new Particle("~mu_R-", 2000013, 1, "Sparticle", 100, -1, 500, 1, -100, -1, -100, -1, -1);
-   Particle *part = 0;
    part = const_cast<Particle*>(&Particle::Particles().at(2000013));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{1000039,13}));
    part->AddDecay(Particle::Decay(53, 0,  vector<int>{-1000024,14}));
@@ -7204,6 +7323,11 @@ static void CreateParticle0032() {
 
    // Creating a0(980)+
    new Particle("a0(980)+", 9000211, 1, "Unknown", 100, 1, 0.98, 0.06, -100, 0, -100, -1, -1);
+}
+
+
+//________________________________________________________________________________
+static void CreateParticle0054() {
 
    // Creating f0(600)
    new Particle("f0(600)", 9000221, 1, "Unknown", 100, 0, 0.8, 0.8, -100, 0, -100, -1, -1);
@@ -7253,7 +7377,7 @@ static void CreateParticle0032() {
 
 
 //________________________________________________________________________________
-static void CreateParticle0033() {
+static void CreateParticle0055() {
 
    // Creating HE3
    new Particle("HE3", 1000020030, 1, "ion", 100, 2, 2.80941, 0, -100, 0, -100, -1, -1);
@@ -7299,6 +7423,28 @@ void Particle::CreateParticles() {
   CreateParticle0031();
   CreateParticle0032();
   CreateParticle0033();
+  CreateParticle0034();
+  CreateParticle0035();
+  CreateParticle0036();
+  CreateParticle0037();
+  CreateParticle0038();
+  CreateParticle0039();
+  CreateParticle0040();
+  CreateParticle0041();
+  CreateParticle0042();
+  CreateParticle0043();
+  CreateParticle0044();
+  CreateParticle0045();
+  CreateParticle0046();
+  CreateParticle0047();
+  CreateParticle0048();
+  CreateParticle0049();
+  CreateParticle0050();
+  CreateParticle0051();
+  CreateParticle0052();
+  CreateParticle0053();
+  CreateParticle0054();
+  CreateParticle0055();
 }
  } // End of inline namespace
  } // End of vecgeom namespace

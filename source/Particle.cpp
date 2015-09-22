@@ -64,7 +64,7 @@ void Particle::ReadFile(string infilename, string outfilename) {
    int isospin, iso3, strange, flavor, track, ndecay;
    int ipart, acode;
    int kcount=0;
-   const int ksplit=25;
+   const int ksplit=15;
    int kfunc=0;
    
    bool output=!outfilename.empty();
