@@ -267,6 +267,10 @@ if (CUDA)
         MINSIZEREL -use_fast_math )
 endif()
 
+if (Clang)
+  set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} dl)
+endif()
+
 # Enable pretty diagnostics coloring if gcc 4.9+ is being used
 if (GNU)
   # gcc needs -ldl to be added explicitly
