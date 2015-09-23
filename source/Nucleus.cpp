@@ -233,21 +233,21 @@ void Nucleus::Getmat(string line, int &n, int &z, int &iso, string &name, double
 
 //________________________________________________________________________________________________
 const string Nucleus::Decay::Name() const {
-   string name;
-   name = "(" + to_string(fBr) + "%) ";
+   stringstream name;
+   name << "(" <<fBr<<"%) ";
    if(fDz == -2 && fDa == -4) {
-      name += "Alpha";
-      if(fDiso != 0) name += " iso"; }
+      name<< "Alpha";
+      if(fDiso != 0) name<< " iso"; }
    else if(fDz == 1 && fDa == 0) {
-      name += "Beta-";
-      if(fDiso != 0) name += " iso"; }
+      name<< "Beta-";
+      if(fDiso != 0) name << " iso"; }
    else if(fDz == -1 && fDa == 0) {
-      name += "Beta+";
-      if(fDiso != 0) name += " iso"; }
-   else if(fDz == 0 && fDa == 0 && fDiso == -1) name += "IC";
-   else if(fDz == 1000) name += "Fission";
-   else name =  to_string(fDa) + ":" + to_string(fDz) + ":" + to_string(fDiso);
-   return name;
+      name << "Beta+";
+      if(fDiso != 0) name << " iso"; }
+   else if(fDz == 0 && fDa == 0 && fDiso == -1) name << "IC";
+   else if(fDz == 1000) name << "Fission";
+   else name <<fDa<<":"<<fDz<<":"<<fDiso;
+   return name.str();
 }
 
 }

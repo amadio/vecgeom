@@ -15,7 +15,6 @@ using std::string;
 using std::vector;
 using std::map;
 using std::ostream;
-using std::to_string;
 
 namespace vecgeom {
   

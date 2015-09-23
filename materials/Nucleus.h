@@ -7,13 +7,13 @@
 #include <string>
 #include <map>
 #include <fstream>
+#include <sstream>
 #include <math.h>
 
 using std::string;
 using std::vector;
 using std::map;
 using std::ostream;
-using std::to_string;
 
 namespace vecgeom {
   
@@ -41,7 +41,11 @@ public:
 
    const vector<Decay> & DecayList() const {return fDecayList;}
    
-   string Name() const {return to_string(fZ) + "-" + fName + "-" + to_string(fN) + "-" + to_string(fIso);}
+   string Name() const {
+      std::stringstream ss;
+      ss << fZ<<"-"<<fName<<"-"<<fN<<"-"<<fIso;
+      return ss.str();
+   }
 
    static void ReadFile(string infilename, string outfilename="");
 
