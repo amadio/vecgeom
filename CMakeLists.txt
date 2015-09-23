@@ -618,6 +618,11 @@ target_link_libraries(vecgeom ${VECGEOM_LIBRARIES}
 set(VECGEOM_LIBRARIES ${VECGEOM_LIBRARIES} vecgeom)
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} rt)
+else()
+  if(Clang)
+      # prefer LLVM's standard C++ library on Darwin
+      set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -stdlib=libc++")
+  endif()
 endif()
 
 if (CUDA)
