@@ -378,7 +378,7 @@ VPlacedVolume const *SimpleNavigator::LocatePointExclVolume(VPlacedVolume const 
                                                            alignedbboxes[2 * boxgroupid + 1], tmp, inBox);
         if (Any(inBox)) {
           for (auto ii = inBox.firstOne(); ii < kVcFloat::precision_v::Size; ++ii) {
-            auto daughterid = boxgroupid * kVcFloat::precision_v::Size + ii;
+            int daughterid = boxgroupid * kVcFloat::precision_v::Size + ii;
             if(daughterid < daughters->size()){
 	    VPlacedVolume const *daughter = candvolume->GetDaughters()[daughterid];
             Vector3D<Precision> transformedpoint;
