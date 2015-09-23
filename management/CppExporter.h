@@ -25,6 +25,8 @@ namespace cxx {
 
 class Transformation3D;
 class LogicalVolume;
+class Material;
+class Medium;
 
 // a class to provide serialization functionality of an existing
 // geometry hierarchy to C++ code; This code can then be compiled into a library
@@ -61,6 +63,12 @@ private:
     std::map< LogicalVolume const *, std::string > fLVolumeToStringMap;
     std::set< std::string > fNeededHeaderFiles;
 
+    // mapping pointer to variable names for media
+    std::map< Medium const *, std::string > fMediumToStringMap;
+
+    // mapping pointer to variable names for materials
+    std::map< Material const *, std::string > fMaterialToStringMap;
+
     std::list< LogicalVolume const * > fListofTreatedLogicalVolumes;
     // container to keep track of logical volumes which need to be coded in C++
     // at a later stage because a dependency is not satisfied
@@ -71,6 +79,14 @@ private:
                               std::stringstream &,
                               std::vector< std::stringstream *> &,
                               std::list< Transformation3D const * > const & );
+    void DumpMaterials( std::vector<std::stringstream *> & ,
+			std::stringstream & ,
+			std::vector<std::stringstream *> & ,
+			std::list<Material const *> const & );
+    void DumpMedia( std::vector<std::stringstream *> & ,
+		    std::stringstream & ,
+		    std::vector<std::stringstream *> & ,
+		    std::list<Medium const *> const & );
     void DumpLogicalVolumes( std::ostream &,
                              std::ostream & /* extern decl */,
                              std::ostream & /* lvol definitions */,
