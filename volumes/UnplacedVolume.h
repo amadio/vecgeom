@@ -48,6 +48,7 @@ public:
 
   //Added convexity check
   //Default safe value for all the shapes
+  VECGEOM_CUDA_HEADER_BOTH
   virtual bool IsConvex() const{ return false; };
 
   /**

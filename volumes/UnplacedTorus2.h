@@ -70,7 +70,9 @@ public:
   }
 
   //Function to check the convexity
-    bool IsConvex() const;
+  VECGEOM_CUDA_HEADER_BOTH
+  //VECGEOM_INLINE
+   bool IsConvex() const;
 
 //  VECGEOM_CUDA_HEADER_BOTH
 //  UnplacedTorus2(UnplacedTorus2 const &other) :

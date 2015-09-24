@@ -665,6 +665,8 @@ bool UnplacedPolycone::CheckContinuityInSlope(const std::vector<Precision> rOute
 
  */
 
+VECGEOM_CUDA_HEADER_BOTH
+//VECGEOM_INLINE
 bool UnplacedPolycone::IsConvex() const{
 	//Default safe convexity value
 	  bool convexity = false;
@@ -691,8 +693,8 @@ bool UnplacedPolycone::IsConvex() const{
 //bool UnplacedPolycone::CheckContinuityInRmax(const double rOuter[]){
 bool UnplacedPolycone::CheckContinuityInRmax(const std::vector<Precision> rOuter){
 
-	bool dec = (rOuter[0]>rOuter[1]);
-	bool inc = (rOuter[0]<rOuter[1]);
+	//bool dec = (rOuter[0]>rOuter[1]);
+	//bool inc = (rOuter[0]<rOuter[1]);
 	bool continuous=true;
 	/*
 	for (unsigned int j = 1; j < fNz; )
@@ -728,7 +730,7 @@ bool UnplacedPolycone::CheckContinuityInRmax(const std::vector<Precision> rOuter
 
 bool UnplacedPolycone::CheckContinuityInZPlane(const double rOuter[],const double zPlane[]){
 
-	bool continuous=true;
+	//bool continuous=true;
 
 
 	std::vector<Precision> rOut;
@@ -775,7 +777,7 @@ bool UnplacedPolycone::CheckContinuityInZPlane(const double rOuter[],const doubl
 	}
 
 	std::cout<<"----Printing modified Z Vector -----"<<std::endl;
-	for(int i=0;i<zPl.size();i++)
+	for(unsigned int i=0;i<zPl.size();i++)
 		std::cout<<zPl[i]<<" , ";
 	std::cout<<std::endl;
 	std::cout<<"------------------------------------"<<std::endl;

@@ -23,7 +23,7 @@ UnplacedPolyhedron::UnplacedPolyhedron(
     Precision const rMax[])
     : UnplacedPolyhedron(0, 360, sideCount, zPlaneCount, zPlanes, rMin, rMax) {}
 
-bool UnplacedPolyhedron::CheckContinuityInSlope(const double rOuter[], const double zPlane[],const int fNz){
+bool UnplacedPolyhedron::CheckContinuityInSlope(const double rOuter[], const double zPlane[],const unsigned int fNz){
 
 	bool continuous=true;
 	Precision startSlope = (rOuter[1]-rOuter[0])/(zPlane[1]-zPlane[0]);
@@ -841,12 +841,9 @@ void UnplacedPolyhedron::Print(std::ostream &os) const {
      << " segments, "
      << ((fHasInnerRadii) ? "has inner radii" : "no inner radii") << "}";
 }
-/*
-bool UnplacedPolyhedron::IsConvex() const{
 
-          return true; //For testing only
-      }
-*/
+VECGEOM_CUDA_HEADER_BOTH
+//VECGEOM_INLINE
 bool UnplacedPolyhedron::IsConvex() const{
 	//Default safe convexity value
 	  bool convexity = false;

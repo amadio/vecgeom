@@ -283,6 +283,8 @@ Precision GetDTheta() const { return GetUnplacedVolume()->GetDTheta(); }
     return GetUnplacedVolume()->GetPointOnSurface();
   }
 
+  VECGEOM_CUDA_HEADER_BOTH
+  //VECGEOM_INLINE
   bool IsConvex() const {return GetUnplacedVolume()->IsConvex(); }
 
   virtual VPlacedVolume const* ConvertToUnspecialized() const override;

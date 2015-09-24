@@ -95,6 +95,8 @@ public:
   void Extent( Vector3D<Precision> &, Vector3D<Precision> &) const;
 
   //Function to check the convexity
+  VECGEOM_CUDA_HEADER_BOTH
+  //VECGEOM_INLINE
   bool IsConvex() const;
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>

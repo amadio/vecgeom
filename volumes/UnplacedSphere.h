@@ -545,6 +545,8 @@ VECGEOM_CUDA_HEADER_BOTH
   Precision Capacity() const{return fCubicVolume;}
   
   //Function to check the convexity
+  VECGEOM_CUDA_HEADER_BOTH
+  //VECGEOM_INLINE
   bool IsConvex() const;
 
   VECGEOM_CUDA_HEADER_BOTH

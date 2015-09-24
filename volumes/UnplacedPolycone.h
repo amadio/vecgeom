@@ -71,9 +71,6 @@ public:
 
 private:
     bool convexityPossible;
-    //bool continuityInZPlane;
-    //bool continuityInRmax;
-    //bool continuityInSlope;
     bool continuityOverAll;
     bool equalRmax;
 
@@ -107,13 +104,9 @@ public:
                 fNz(Nz),
                 fSections(),
                 fZs(Nz),
-				convexityPossible(true),
-                equalRmax(true),
-				//continuityInRmax(true),
-				//continuityInZPlane(true),
-				//continuityInSlope(true),
-				continuityOverAll(true)
-
+				equalRmax(true),
+				continuityOverAll(true),
+				convexityPossible(true)
 
     {
         // init internal members
@@ -121,6 +114,8 @@ public:
     }
 
     //Function to check the convexity
+    VECGEOM_CUDA_HEADER_BOTH
+    //VECGEOM_INLINE
     bool IsConvex() const;
 
     VECGEOM_CUDA_HEADER_BOTH
