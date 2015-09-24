@@ -97,11 +97,7 @@ public:
      return GetUnplacedVolume()->Normal(point, normal);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
-  //VECGEOM_INLINE
-  bool IsConvex() const {return GetUnplacedVolume()->IsConvex(); }
-
-  /*
+   /*
   void Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const override {
       GetUnplacedVolume()->Extent(aMin, aMax);
   }

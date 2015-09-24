@@ -280,7 +280,8 @@ public:
 
   //Default safe values for all the shapes
   VECGEOM_CUDA_HEADER_BOTH
-  virtual bool IsConvex() const{return false;}
+  //virtual bool IsConvex() const{return false;}
+  virtual bool IsConvex() const {return GetUnplacedVolume()->IsConvex(); }
 
 public:
 
