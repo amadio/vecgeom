@@ -103,11 +103,7 @@ public:
     return GetUnplacedVolume()->GetPointOnSurface();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
-  //VECGEOM_INLINE
-  bool IsConvex() const {return GetUnplacedVolume()->IsConvex(); }
-
-  virtual double SurfaceArea() override {
+   virtual double SurfaceArea() override {
      return GetUnplacedVolume()->SurfaceArea();
   }
 #endif

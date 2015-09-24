@@ -57,10 +57,6 @@ public:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  //VECGEOM_INLINE
-  bool IsConvex() const {return GetUnplacedVolume()->IsConvex(); }
-
-  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision rmin() const { return GetUnplacedVolume()->rmin(); }
 
