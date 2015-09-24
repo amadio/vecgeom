@@ -222,7 +222,9 @@ Precision fSinEPhi;
     }
 
     // public interfaces
-  //Function to check the convexity
+    //Function to check the convexity
+    VECGEOM_CUDA_HEADER_BOTH
+    //VECGEOM_INLINE
     bool IsConvex() const;
 
     VECGEOM_CUDA_HEADER_BOTH

@@ -81,6 +81,9 @@ public:
   Precision GetOuterSlope() const {return GetUnplacedVolume()->GetOuterSlope();}
   Precision GetInnerOffset() const {return GetUnplacedVolume()->GetInnerOffset();}
   Precision GetOuterOffset() const {return GetUnplacedVolume()->GetOuterOffset();}
+
+  VECGEOM_CUDA_HEADER_BOTH
+  //VECGEOM_INLINE
   bool IsConvex() const {return GetUnplacedVolume()->IsConvex(); }
 
 #if !defined(VECGEOM_NVCC)

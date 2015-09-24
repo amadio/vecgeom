@@ -62,6 +62,8 @@ public:
   virtual int memory_size() const { return sizeof(*this); }
 
   //Function to check the convexity
+  VECGEOM_CUDA_HEADER_BOTH
+  //VECGEOM_INLINE
   bool IsConvex() const;
 
 

@@ -76,6 +76,10 @@ public:
 
   Vector3D<Precision> GetPointOnSurface() const;
 
+  VECGEOM_CUDA_HEADER_BOTH
+  //VECGEOM_INLINE
+  bool IsConvex() const;
+
   virtual std::string GetEntityType() const { return "Box";}
 #endif // !VECGEOM_NVCC
 

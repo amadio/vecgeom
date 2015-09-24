@@ -127,8 +127,10 @@ fDy(0)
         ComputeBoundingBox();
     }
 
+    VECGEOM_CUDA_HEADER_BOTH
+	//VECGEOM_INLINE
     bool UnplacedParaboloid::IsConvex() const{
-    	      //Since paraboloid and nothing like inner radius, or phi or theta cut
+    	      //Since paraboloid has nothing like inner radius, or phi or theta cut
     	      //So it should always return true as its convexity value
               return true;
           }

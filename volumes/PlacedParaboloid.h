@@ -137,6 +137,8 @@ public:
       return GetUnplacedVolume()->GetPointOnSurface();
     }
 
+    VECGEOM_CUDA_HEADER_BOTH
+    //VECGEOM_INLINE
     bool IsConvex() const {return GetUnplacedVolume()->IsConvex(); }
 
 #if defined(VECGEOM_USOLIDS)

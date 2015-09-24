@@ -81,9 +81,10 @@ void UnplacedParallelepiped::Print(std::ostream &os) const {
      << GetTanThetaSinPhi();
 }
 
-
+VECGEOM_CUDA_HEADER_BOTH
+//VECGEOM_INLINE
 bool UnplacedParallelepiped::IsConvex() const{
-		  //Considering that a parallelepiped is alway convex
+		  //A parallelepiped is convex shape
           return true;
       }
 

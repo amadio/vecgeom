@@ -114,7 +114,8 @@ int UnplacedTube::ChooseSurface() const
 
     return choice;
 }
-
+VECGEOM_CUDA_HEADER_BOTH
+//VECGEOM_INLINE
 bool UnplacedTube::IsConvex() const{
 
       //Default safe convexity value

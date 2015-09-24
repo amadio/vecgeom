@@ -96,6 +96,8 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 #endif
 }
 
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
 bool UnplacedSphere::IsConvex() const{
 
   //Default safe convexity value

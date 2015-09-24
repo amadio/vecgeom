@@ -27,6 +27,8 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
         os << "UnplacedCone; please implement Print to outstream\n";
     }
 
+    VECGEOM_CUDA_HEADER_BOTH
+	//VECGEOM_INLINE
     bool UnplacedCone::IsConvex() const{
 
       //Default safe convexity value
