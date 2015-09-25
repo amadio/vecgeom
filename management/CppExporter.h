@@ -74,15 +74,15 @@ private:
   // at a later stage because a dependency is not satisfied
   std::list<LogicalVolume const *> fListofDeferredLogicalVolumes;
 
-  void DumpTransformations(std::vector<std::stringstream *> &, std::stringstream &, std::vector<std::stringstream *> &,
+  void DumpTransformations(std::vector<std::stringstream> &, std::stringstream &, std::vector<std::stringstream> &,
                            std::list<Transformation3D const *> const &);
-  void DumpMaterials(std::vector<std::stringstream *> &, std::stringstream &, std::vector<std::stringstream *> &,
+  void DumpMaterials(std::vector<std::stringstream> &, std::stringstream &, std::vector<std::stringstream> &,
                      std::list<Material const *> const &);
-  void DumpMedia(std::vector<std::stringstream *> &, std::stringstream &, std::vector<std::stringstream *> &,
+  void DumpMedia(std::vector<std::stringstream> &, std::stringstream &, std::vector<std::stringstream> &,
                  std::list<Medium const *> const &);
   void DumpLogicalVolumes(std::ostream &, std::ostream & /* extern decl */, std::ostream & /* lvol definitions */,
                           std::list<LogicalVolume const *> const &);
-  void DumpGeomHierarchy(std::vector<std::stringstream *> &, std::list<LogicalVolume const *> const &);
+  void DumpGeomHierarchy(std::vector<std::stringstream> &, std::list<LogicalVolume const *> const &);
   void DumpHeader(std::ostream &);
 
   void DumpEntryFunction();
