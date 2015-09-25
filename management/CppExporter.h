@@ -21,10 +21,11 @@ namespace vecgeom {
 #ifndef VECGEOM_NVCC
 inline
 #endif
-namespace cxx {
+    namespace cxx {
 
 class Transformation3D;
 class LogicalVolume;
+class VPlacedVolume;
 class Material;
 class Medium;
 
@@ -52,65 +53,59 @@ class Medium;
 // first version: Sandro Wenzel 26.3.2015
 
 class GeomCppExporter {
-    // declare the friend classes
-    friend Transformation3D;
-
+  // declare the friend classes
+  friend Transformation3D;
 
 private:
-    // mapping pointer to variable names for Transformations
-    std::map< Transformation3D const *, std::string > fTrafoToStringMap;
-    // mapping pointer to variable names for logical volumes
-    std::map< LogicalVolume const *, std::string > fLVolumeToStringMap;
-    std::set< std::string > fNeededHeaderFiles;
+  // mapping pointer to variable names for Transformations
+  std::map<Transformation3D const *, std::string> fTrafoToStringMap;
+  // mapping pointer to variable names for logical volumes
+  std::map<LogicalVolume const *, std::string> fLVolumeToStringMap;
+  std::set<std::string> fNeededHeaderFiles;
 
-    // mapping pointer to variable names for media
-    std::map< Medium const *, std::string > fMediumToStringMap;
+  // mapping pointer to variable names for media
+  std::map<Medium const *, std::string> fMediumToStringMap;
 
-    // mapping pointer to variable names for materials
-    std::map< Material const *, std::string > fMaterialToStringMap;
+  // mapping pointer to variable names for materials
+  std::map<Material const *, std::string> fMaterialToStringMap;
 
-    std::list< LogicalVolume const * > fListofTreatedLogicalVolumes;
-    // container to keep track of logical volumes which need to be coded in C++
-    // at a later stage because a dependency is not satisfied
-    std::list< LogicalVolume const * > fListofDeferredLogicalVolumes;
+  std::list<LogicalVolume const *> fListofTreatedLogicalVolumes;
+  // container to keep track of logical volumes which need to be coded in C++
+  // at a later stage because a dependency is not satisfied
+  std::list<LogicalVolume const *> fListofDeferredLogicalVolumes;
 
+  void DumpTransformations(std::vector<std::stringstream *> &, std::stringstream &, std::vector<std::stringstream *> &,
+                           std::list<Transformation3D const *> const &);
+  void DumpMaterials(std::vector<std::stringstream *> &, std::stringstream &, std::vector<std::stringstream *> &,
+                     std::list<Material const *> const &);
+  void DumpMedia(std::vector<std::stringstream *> &, std::stringstream &, std::vector<std::stringstream *> &,
+                 std::list<Medium const *> const &);
+  void DumpLogicalVolumes(std::ostream &, std::ostream & /* extern decl */, std::ostream & /* lvol definitions */,
+                          std::list<LogicalVolume const *> const &);
+  void DumpGeomHierarchy(std::vector<std::stringstream *> &, std::list<LogicalVolume const *> const &);
+  void DumpHeader(std::ostream &);
 
-    void DumpTransformations( std::vector< std::stringstream *> &,
-                              std::stringstream &,
-                              std::vector< std::stringstream *> &,
-                              std::list< Transformation3D const * > const & );
-    void DumpMaterials( std::vector<std::stringstream *> & ,
-			std::stringstream & ,
-			std::vector<std::stringstream *> & ,
-			std::list<Material const *> const & );
-    void DumpMedia( std::vector<std::stringstream *> & ,
-		    std::stringstream & ,
-		    std::vector<std::stringstream *> & ,
-		    std::list<Medium const *> const & );
-    void DumpLogicalVolumes( std::ostream &,
-                             std::ostream & /* extern decl */,
-                             std::ostream & /* lvol definitions */,
-                             std::list< LogicalVolume const * >  const & );
-    void DumpGeomHierarchy( std::vector< std::stringstream *> &, std::list< LogicalVolume const * > const & );
-    void DumpHeader( std::ostream & );
+  void DumpEntryFunction();
 
-    void DumpEntryFunction();
+  void ScanGeometry(VPlacedVolume const *const volume, std::list<LogicalVolume const *> &,
+		    std::list<LogicalVolume const *> &boollvlist, std::list<Transformation3D const *> &,
+		    std::list<Medium const *> &, std::list<Material const *> &);
 
-    // private Constructor
-    GeomCppExporter() : fTrafoToStringMap(), fLVolumeToStringMap(), fNeededHeaderFiles(),
-                        fListofTreatedLogicalVolumes(), fListofDeferredLogicalVolumes() {}
+  // private Constructor
+  GeomCppExporter()
+      : fTrafoToStringMap(), fLVolumeToStringMap(), fNeededHeaderFiles(), fListofTreatedLogicalVolumes(),
+        fListofDeferredLogicalVolumes() {}
 
 public:
-    static GeomCppExporter & Instance(){
-        static GeomCppExporter instance;
-        return instance;
-    }
+  static GeomCppExporter &Instance() {
+    static GeomCppExporter instance;
+    return instance;
+  }
+  const char* ClassName() const {return "GeomCppExporter";}
 
-
-    void DumpGeometry( std::ostream & );
+  void DumpGeometry(std::ostream &);
 };
-
-}} // end namespace
-
+}
+} // end namespace
 
 #endif /* CPPEXPORTER_H_ */
