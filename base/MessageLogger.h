@@ -38,10 +38,10 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
                             const char *const fmt, ...) {
         static mutex mtx;
         va_list ap;
-        va_start(ap, fmt);
+	va_start(ap, fmt);
         char line[1024];
-        snprintf(line, 1023, fmt, ap);
-        va_end(ap);
+        vsnprintf(line, 1023, fmt, ap);
+	va_end(ap);
         line[1023] = '\0';
         mtx.lock();
         os << sevname[sev] << "=>" << classname << "::" << methodname << ": " << line;
