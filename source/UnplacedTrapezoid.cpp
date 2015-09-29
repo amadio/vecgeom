@@ -320,10 +320,12 @@ bool UnplacedTrapezoid::MakePlane(
     printf("\tcorner 3: (%f; %f; %f)\n", p3.x(), p3.y(), p3.z());
     printf("\tcorner 4: (%f; %f; %f)\n", p4.x(), p4.y(), p4.z());
     good = false;
-
-    //Assert( false );
+    //Assert( good );
   }
-  else {
+
+  // cms.gdml does contain some bad trap corners... go ahead and try to build them anyway
+//  else {
+
     // a,b,c correspond to the x/y/z components of the
     // normal vector to the plane
 
@@ -365,7 +367,8 @@ bool UnplacedTrapezoid::MakePlane(
 
     sideAreas[iplane] = 0.5* ( Vcross.Mag() + v13.Cross(v14).Mag() );
     good = true;
-  }
+
+  // } // end of else
   return good;
 }
 
