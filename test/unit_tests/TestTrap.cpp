@@ -478,13 +478,11 @@ bool TestTrap() {
 }
 
 #ifdef VECGEOM_USOLIDS
-struct USOLIDSCONSTANTS
-{
-  static constexpr double kInfinity = DBL_MAX;//UUSolids::kInfinity;
+struct USOLIDSCONSTANTS {
+  static constexpr double kInfinity = DBL_MAX;
 };
 #endif
-struct VECGEOMCONSTANTS
-{
+struct VECGEOMCONSTANTS {
   static constexpr double kInfinity = vecgeom::kInfinity;
 };
 
@@ -506,7 +504,7 @@ int main(int argc, char *argv[]) {
         std::cout << "UTrap passed (but notice discrepancies above, where asserts have been disabled!)\n";
   #else
         TestTrap<VECGEOMCONSTANTS, UTrap>();
-        std::cout << "UTrap-->VGTrap passed\n";
+        std::cout << "UTrap --> VecGeom trap passed\n";
   #endif
 #endif
     }
