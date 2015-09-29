@@ -13,11 +13,13 @@
 #include "base/Transformation3D.h"
 #include "volumes/UnplacedPolycone.h"
 #include "volumes/kernel/ConeImplementation.h"
-
 #include <cassert>
 #include <cstdio>
 
 #define POLYCONEDEBUG = 1
+#ifdef POLYCONEDEBUG
+  #include <iostream>
+#endif
 
 namespace vecgeom {
 
@@ -131,10 +133,7 @@ struct PolyconeImplementation {
           // very uncommon case -- OK to pay the penalty of a branch.  Any other options?!
           if(nextSectionPossible) {
 #ifdef POLYCONEDEBUG
-        std::cout<<" spot 3: finding section - compIn="
-                 << completelyInside <<", compOut="<< completelyOutside
-                 <<" secLocalP="<< secLocalp <<", secShift="<< sec.fShift <<"\n";
-        sec.fSolid->StreamInfo(std::cout);
+            std::cout<<" spot 3: finding section - ";
 #endif
             GenericKernelForASection<Backend,ForInside>(unplaced, isec+1, localPoint, secIn, secOut );
             // if kInside or kSurface returned, use this section instead!
