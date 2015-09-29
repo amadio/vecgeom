@@ -307,6 +307,9 @@ public:
       point,
       output
     );
+    if(output < 0.0 && output > -kTolerance) {
+      output = 0.0;
+    }
     return output;
   }
 
@@ -318,6 +321,9 @@ public:
       point,
       output
     );
+    if(output < 0.0 && output > -kTolerance) {
+      output = 0.0;
+    }
     return output;
   }
 

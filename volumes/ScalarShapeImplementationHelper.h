@@ -286,6 +286,7 @@ public:
       point,
       output
     );
+    if(output < 0.0 && output > -kTolerance) output = 0.0;
     return output;
   }
 
@@ -297,6 +298,7 @@ public:
       point,
       output
     );
+    if(output < 0.0 && output > -kTolerance) output = 0.0;
     return output;
   }
 
@@ -414,6 +416,9 @@ public:
         points[i],
         output[i]
       );
+      if(output[i]<0.0 && output[i]>-kTolerance) {
+        output[i] = 0.0;
+      }
     }
   }
 
@@ -441,6 +446,9 @@ public:
         points[i],
         output[i]
       );
+      if(output[i]<0.0 && output[i]>-kTolerance) {
+        output[i] = 0.0;
+      }
     }
   }
 
