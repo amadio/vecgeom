@@ -49,6 +49,7 @@ Note: the Geant4-integrated VecGeom code is available from the lima/jira-151 bra
    #.. configuration to use USolids algorithms
    mkdir -p ${TOPDIR}/usolids-build
    cd ${TOPDIR}/usolids-build
+
    cmake -DBACKEND=Scalar -DGEANT4=OFF -DUSOLIDS=ON \
        [...other vecgeom switches...] \
        -DUSOLIDS_VECGEOM=OFF -DCMAKE_INSTALL_PREFIX=${TOPDIR}/usolids \
@@ -95,7 +96,7 @@ In this tutorial we assume that the Geant4 sources were unpacked at $SOURCE defi
    VERSION=10.02.b01
    G4SOURCE=${TOPDIR}/geant/geant4.${VERSION}
 
-Before building Geant4, copy a few extra files, which have not yet been included yet into 
+Before building Geant4, copy a few extra files, which have not yet been included into 
 Geant4 releases:
 
    wget http://home.fnal.gov/~lima/download/G4UTorus.hh
@@ -124,14 +125,14 @@ We suggest to build two versions of Geant4, one for each geometry version of USo
 Vecgeom.  Here are the one-time configurations to build each one of the Geant4 libraries:
 
    #.. Configuring Geant4 to use USolids
-   BUILD=${TOPDIR}/geant/build-g4-usolids
-   INSTALL=${TOPDIR}/geant/install-${VERSION}-usolids
+   G4BUILD=${TOPDIR}/geant/build-g4-usolids
+   G4INSTALL=${TOPDIR}/geant/install-${VERSION}-usolids
    export USolids_DIR=${TOPDIR}/usolids/lib/CMake/USolids/
    #.. then build Geant4, see below
 
    #.. Configuring Geant4 to use VecGeom
-   BUILD=${TOPDIR}/geant/build-g4-vecgeom
-   INSTALL=${TOPDIR}/geant/install-${VERSION}-vecgeom
+   G4BUILD=${TOPDIR}/geant/build-g4-vecgeom
+   G4INSTALL=${TOPDIR}/geant/install-${VERSION}-vecgeom
    export USolids_DIR=${TOPDIR}/vecgeom/lib/CMake/USolids/
    #.. then build Geant4, see below
 
@@ -139,30 +140,30 @@ Vecgeom.  Here are the one-time configurations to build each one of the Geant4 l
 and here for the Geant4 cmake and build commands, which are common for both cases above.
 First create directories for build and installation, and setup symlink to external data files:
 
-   mkdir -p ${BUILD}
-   mkdir -p ${INSTALL}/share/Geant4-10.2.0
-   ln -sf ~/geant/data ${INSTALL}/share/Geant4-10.2.0/data
+   mkdir -p ${G4BUILD}
+   mkdir -p ${G4INSTALL}/share/Geant4-10.2.0
+   ln -sf ~/geant/data ${G4INSTALL}/share/Geant4-10.2.0/data
 
 ----------
 Note: instructions are not given here on the external Geant4 data files.
-      It is assumed that their 10.1.1 versions are installed on ~/geant/data.
+      It is assumed that their 10.2.0 versions are installed on ~/geant/data.
      The commands above must be adjusted accordingly. 
 ----------
 
    #.. compile and build Geant4
-   cd ${BUILD}
-   cmake -DCMAKE_INSTALL_PREFIX=${INSTALL} \
+   cd ${G4BUILD}
+   cmake -DCMAKE_INSTALL_PREFIX=${G4INSTALL} \
       -DGEANT4_USE_USOLIDS=ON \
       -DGEANT4_USE_SYSTEM_USOLIDS=ON \
       -DGEANT4_BUILD_CXXSTD=c++11 \
-      -DGEANT4_INSTALL_DATADIR=${INSTALL}/share/Geant4-10.2.0/data \
+      -DGEANT4_INSTALL_DATADIR=${G4INSTALL}/share/Geant4-10.2.0/data \
       -DGEANT4_USE_GDML=ON \
       -DGEANT4_BUILD_MULTITHREADED=OFF \
       ${G4SOURCE}
 
    make -j8 install
 
-Note the ${INSTALL} directories for the two versions (USolids and VecGeom), to be 
+Note the ${G4INSTALL} directories for the two versions (USolids and VecGeom), to be 
 used later when building the Geant4 application.
 
 
@@ -194,22 +195,15 @@ The modified files are needed:
   cmake -DGeant4_DIR=${TOPDIR}/geant/install-${VERSION}-${MODE}/lib/Geant4-10.2.0  ..
   make -j8
 
-  #.. build B1 example against VecGeom version of Geant4
-  Geant4_DIR=${TOPDIR}/geant/install-${VERSION}-vecgeom/lib/Geant4-10.2.0
-  source ${Geant4_DIR}/bin/geant4.sh
-  mkdir ${TOPDIR}/b1/build-vecgeom
-  cd ${TOPDIR}/b1/build-vecgeom
-  cmake -DGeant4_DIR=${TOPDIR}/geant/install-${VERSION}-vecgeom/lib/Geant4-10.2.0  ..
-  make -j8
+Then repeat the last block above for MODE=vecgeom.
 
-Then repeat the last two block above for MODE=vecgeom.
-
-At this point both USolids-based and VecGeom-based Geant4 jobs are ready to be run.
+At this point, if no errors were observed, both USolids-based and VecGeom-based 
+Geant4 jobs are ready to be run.
 
 
 * Running and testing
 
-The runtime setup is much simpler, and most of the steps above are not needed.
+The runtime setup is much simpler, and in principle, none of the steps above are needed.
 A setup script is available to help with this:
 
   cd ${TOPDIR}/b1
@@ -222,10 +216,22 @@ A typical session would then look like this:
 
   #.. set up to run for either mode (e.g. vecgeom)
   cd ${TOPDIR}/b1
-  source setmeup.sh vecgeom
 
   #.. run the Geant4 job 
+  source setmeup.sh geant4
+  build
   exampleB1 run1.mac
+
+  #.. run the USolids-based job 
+  source setmeup.sh usolids
+  build
+  exampleB1 run1.mac
+
+  #.. run the VecGeom-based job 
+  source setmeup.sh vecgeom
+  build
+  exampleB1 run1.mac
+
 
 A callgrind session can be used to show that vecgeom shapes are actually used:
 
