@@ -87,9 +87,18 @@ void GeomCppExporter::ScanGeometry(VPlacedVolume const *const volume, std::list<
   }
 }
 
-void GeomCppExporter::DumpTransformations(std::vector<std::stringstream> &trafoconstrlist,
+void static PushAndReset(std::stringstream &stream,
+                         std::vector<std::string> &output)
+{
+   output.push_back(stream.str());
+   stream.str(""); // Remove accumulated information
+   stream.clear(); // reset the ios (error) flags.
+}
+
+
+void GeomCppExporter::DumpTransformations(std::vector<std::string> &trafoconstrlist,
                                           std::stringstream &trafoexterndecl,
-                                          std::vector<std::stringstream> &trafodecllist,
+                                          std::vector<std::string> &trafodecllist,
                                           std::list<Transformation3D const *> const &tvlist) {
 
   // loop over all transformations
@@ -116,14 +125,12 @@ void GeomCppExporter::DumpTransformations(std::vector<std::stringstream> &trafoc
   // we will split the transformation constructions into different groups
   // of compiler translation units for faster and parallel compilation
   unsigned int group = 0;
-  trafoconstrlist.emplace_back(std::stringstream());
-  std::stringstream *trafoconstr = &trafoconstrlist.back();
-  trafodecllist.emplace_back(std::stringstream());
-  std::stringstream *trafodecl = &trafodecllist.back();
+  std::stringstream trafoconstr;
+  std::stringstream trafodecl;
 
   // generate function that instantiates the transformations
   int groupcounter = 0;
-  *trafoconstr << "void GenerateTransformations_part" << group << "(){\n";
+  trafoconstr << "void GenerateTransformations_part" << group << "(){\n";
   bool iddone = false;
   for (auto t : fTrafoToStringMap) {
     Transformation3D const *tp = t.first;
@@ -137,16 +144,14 @@ void GeomCppExporter::DumpTransformations(std::vector<std::stringstream> &trafoc
     if (++groupcounter > 5000) {
       group++;
       // close old function
-      *trafoconstr << "}\n";
+      trafoconstr << "}\n";
 
       // create a new stream
-      trafoconstrlist.emplace_back(std::stringstream());
-      trafoconstr = &trafoconstrlist.back();
-      trafodecllist.emplace_back(std::stringstream());
-      trafodecl = &trafodecllist.back();
+      PushAndReset( trafoconstr, trafoconstrlist );
+      PushAndReset( trafodecl, trafodecllist );
 
       // init new function
-      *trafoconstr << "void GenerateTransformations_part" << group << "(){\n";
+      trafoconstr << "void GenerateTransformations_part" << group << "(){\n";
 
       // reset counter
       groupcounter = 0;
@@ -156,7 +161,7 @@ void GeomCppExporter::DumpTransformations(std::vector<std::stringstream> &trafoc
 
     // extern declaration line
     trafoexterndecl << "extern Transformation3D *" << t.second << ";\n";
-    *trafodecl << "Transformation3D * " << t.second << " = nullptr;\n";
+    trafodecl << "Transformation3D * " << t.second << " = nullptr;\n";
 
     // instantiation line
     line << std::setprecision(15);
@@ -171,13 +176,16 @@ void GeomCppExporter::DumpTransformations(std::vector<std::stringstream> &trafoc
       line << tp->Rotation(8);
     }
     line << ");\n";
-    *trafoconstr << line.str();
+    trafoconstr << line.str();
   }
-  *trafoconstr << "}\n";
+  trafoconstr << "}\n";
+
+  PushAndReset( trafoconstr, trafoconstrlist );
+  PushAndReset( trafodecl, trafodecllist );
 }
 
-void GeomCppExporter::DumpMaterials(std::vector<std::stringstream> &materials, std::stringstream &materialexterndecl,
-                                    std::vector<std::stringstream> &materialdecl,
+void GeomCppExporter::DumpMaterials(std::vector<std::string> &materials, std::stringstream &materialexterndecl,
+                                    std::vector<std::string> &materialdecl,
                                     std::list<Material const *> const &materiallist) {
 
   // loop over all materials
@@ -197,14 +205,12 @@ void GeomCppExporter::DumpMaterials(std::vector<std::stringstream> &materials, s
   // we will split the material constructions into different groups
   // of compiler translation units for faster and parallel compilation
   unsigned int group = 0;
-  materials.emplace_back(std::stringstream());
-  std::stringstream *materialconstr = &materials.back();
-  materialdecl.emplace_back(std::stringstream());
-  std::stringstream *materialdeclline = &materialdecl.back();
+  std::stringstream materialconstr;
+  std::stringstream materialdeclline;
 
   // generate function that instantiates the materials
   int groupcounter = 0;
-  *materialconstr << "void GenerateMaterials_part" << group << "(){\n";
+  materialconstr << "void GenerateMaterials_part" << group << "(){\n";
   for (auto ma : fMaterialToStringMap) {
 
     // we take a limit if 5000 materials per translation unit
@@ -212,16 +218,14 @@ void GeomCppExporter::DumpMaterials(std::vector<std::stringstream> &materials, s
     if (++groupcounter > 5000) {
       group++;
       // close old function
-      *materialconstr << "}\n";
+      materialconstr << "}\n";
 
       // create a new stream
-      materials.emplace_back(std::stringstream());
-      materialconstr = &materials.back();
-      materialdecl.emplace_back(std::stringstream());
-      materialdeclline = &materialdecl.back();
+      PushAndReset( materialconstr, materials );
+      PushAndReset( materialdeclline, materialdecl );
 
       // init new function
-      *materialconstr << "void GenerateMaterials_part" << group << "(){\n";
+      materialconstr << "void GenerateMaterials_part" << group << "(){\n";
 
       // reset counter
       groupcounter = 0;
@@ -231,7 +235,7 @@ void GeomCppExporter::DumpMaterials(std::vector<std::stringstream> &materials, s
 
     // extern declaration line
     materialexterndecl << "extern Material *" << ma.second << ";\n";
-    *materialdeclline << "Material * " << ma.second << " = nullptr;\n";
+    materialdeclline << "Material * " << ma.second << " = nullptr;\n";
 
     // instantiation line
     line << std::setprecision(15);
@@ -265,13 +269,16 @@ void GeomCppExporter::DumpMaterials(std::vector<std::stringstream> &materials, s
       line << matw[nel - 1] << "}[0],\n";
       line << nel << "," << ma.first->GetDensity() << ");\n";
     }
-    *materialconstr << line.str();
+    materialconstr << line.str();
   }
-  *materialconstr << "}\n";
+  materialconstr << "}\n";
+
+  PushAndReset( materialconstr, materials );
+  PushAndReset( materialdeclline, materialdecl );
 }
 
-void GeomCppExporter::DumpMedia(std::vector<std::stringstream> &media, std::stringstream &mediumexterndecl,
-                                std::vector<std::stringstream> &mediumdecl,
+void GeomCppExporter::DumpMedia(std::vector<std::string> &media, std::stringstream &mediumexterndecl,
+                                std::vector<std::string> &mediumdecl,
                                 std::list<Medium const *> const &mediumlist) {
 
   // loop over all media
@@ -291,14 +298,12 @@ void GeomCppExporter::DumpMedia(std::vector<std::stringstream> &media, std::stri
   // we will split the medium constructions into different groups
   // of compiler translation units for faster and parallel compilation
   unsigned int group = 0;
-  media.emplace_back(std::stringstream());
-  std::stringstream *mediumconstr = &media.back();
-  mediumdecl.emplace_back(std::stringstream());
-  std::stringstream *mediumdeclline = &mediumdecl.back();
+  std::stringstream mediumconstr;
+  std::stringstream mediumdeclline;
 
   // generate function that instantiates the media
   int groupcounter = 0;
-  *mediumconstr << "void GenerateMedia_part" << group << "(){\n";
+  mediumconstr << "void GenerateMedia_part" << group << "(){\n";
   for (auto ma : fMediumToStringMap) {
 
     // we take a limit if 5000 transformations per translation unit
@@ -306,16 +311,14 @@ void GeomCppExporter::DumpMedia(std::vector<std::stringstream> &media, std::stri
     if (++groupcounter > 5000) {
       group++;
       // close old function
-      *mediumconstr << "}\n";
+      mediumconstr << "}\n";
 
       // create a new stream
-      media.emplace_back(std::stringstream());
-      mediumconstr = &media.back();
-      mediumdecl.emplace_back(std::stringstream());
-      mediumdeclline = &mediumdecl.back();
+      PushAndReset( mediumconstr, media );
+      PushAndReset( mediumdeclline, mediumdecl );
 
       // init new function
-      *mediumconstr << "void GenerateMedia_part" << group << "(){\n";
+      mediumconstr << "void GenerateMedia_part" << group << "(){\n";
 
       // reset counter
       groupcounter = 0;
@@ -325,7 +328,7 @@ void GeomCppExporter::DumpMedia(std::vector<std::stringstream> &media, std::stri
 
     // extern declaration line
     mediumexterndecl << "extern Medium *" << ma.second << ";\n";
-    *mediumdeclline << "Medium * " << ma.second << " = nullptr;\n";
+    mediumdeclline << "Medium * " << ma.second << " = nullptr;\n";
 
     // instantiation line
     line << std::setprecision(15);
@@ -337,9 +340,12 @@ void GeomCppExporter::DumpMedia(std::vector<std::stringstream> &media, std::stri
     line << ma.second << " = new Medium(";
     line << "\"" << ma.first->GetName() << "\"," << fMaterialToStringMap[mm] << ", nullptr);\n";
 
-    *mediumconstr << line.str();
+    mediumconstr << line.str();
   }
-  *mediumconstr << "}\n";
+  mediumconstr << "}\n";
+
+  PushAndReset( mediumconstr, media );
+  PushAndReset( mediumdeclline, mediumdecl );
 }
 
 template <typename VectorContainer> void DumpVector(VectorContainer const &v, std::ostream &dumps) {
@@ -632,14 +638,13 @@ void GeomCppExporter::DumpLogicalVolumes(std::ostream &dumps, std::ostream &exte
 
 // now recreate geometry hierarchy
 // the mappings fLogicalVolToStringMap and fTrafoToStringMap need to be initialized
-void GeomCppExporter::DumpGeomHierarchy(std::vector<std::stringstream> &dumps,
+void GeomCppExporter::DumpGeomHierarchy(std::vector<std::string> &dumps,
                                         std::list<LogicalVolume const *> const &lvlist) {
   static unsigned int group = -1;
   group++;
   unsigned int groupcounter = 0;
-  dumps.emplace_back(std::stringstream());
-  std::stringstream *output = &dumps.back();
-  *output << " void GeneratePlacedVolumes_part" << group << "(){\n";
+  std::stringstream output;
+  output << " void GeneratePlacedVolumes_part" << group << "(){\n";
 
   for (auto l : lvlist) {
     // map daughters for logical volume l
@@ -657,12 +662,11 @@ void GeomCppExporter::DumpGeomHierarchy(std::vector<std::stringstream> &dumps,
 
       // only allow 5000 lines per function to speed up compilation
       if (groupcounter++ > 5000) {
-        *output << "}";
-        dumps.emplace_back(std::stringstream());
+        output << "}";
         // new output
-        output = &dumps.back();
+        PushAndReset( output, dumps );
         group++;
-        *output << " void GeneratePlacedVolumes_part" << group << "(){\n";
+        output << " void GeneratePlacedVolumes_part" << group << "(){\n";
         groupcounter = 0;
       }
 
@@ -672,11 +676,13 @@ void GeomCppExporter::DumpGeomHierarchy(std::vector<std::stringstream> &dumps,
       line << lvariable << " , ";
       line << tvariable << " );\n";
 
-      *output << line.str();
+      output << line.str();
     }
   }
   // close the last output
-  *output << "}\n";
+  output << "}\n";
+  // no need to reset here.
+  dumps.push_back( output.str() );
 }
 
 void GeomCppExporter::DumpHeader(std::ostream &dumps) {
@@ -699,24 +705,24 @@ void GeomCppExporter::DumpHeader(std::ostream &dumps) {
 
 void GeomCppExporter::DumpGeometry(std::ostream &s) {
   // stringstreams to assemble code in parts
-  std::vector<std::stringstream> transformations;
+  std::vector<std::string> transformations;
   std::stringstream transexterndecl;
-  std::vector<std::stringstream> transdecl;
+  std::vector<std::string> transdecl;
 
-  std::vector<std::stringstream> materials;
+  std::vector<std::string> materials;
   std::stringstream materialexterndecl;
-  std::vector<std::stringstream> materialdecl;
+  std::vector<std::string> materialdecl;
 
-  std::vector<std::stringstream> media;
+  std::vector<std::string> media;
   std::stringstream mediumexterndecl;
-  std::vector<std::stringstream> mediumdecl;
+  std::vector<std::string> mediumdecl;
 
   std::stringstream logicalvolumes;
   std::stringstream lvoldefinitions;
   std::stringstream lvoldeclarations;
 
   std::stringstream header;
-  std::vector<std::stringstream> geomhierarchy;
+  std::vector<std::string> geomhierarchy;
 
   // create list of transformations, simple logical volumes and boolean logical volumes
   std::list<Transformation3D const *> tlist;
@@ -769,8 +775,8 @@ void GeomCppExporter::DumpGeometry(std::ostream &s) {
     outfile.open(name.str());
     outfile << "#include \"base/Transformation3D.h\"\n";
     outfile << "using namespace vecgeom;\n";
-    outfile << transdecl[i].str();
-    outfile << transformations[i].str();
+    outfile << transdecl[i];
+    outfile << transformations[i];
     outfile.close();
   }
 
@@ -782,8 +788,8 @@ void GeomCppExporter::DumpGeometry(std::ostream &s) {
     outfile.open(name.str());
     outfile << "#include \"materials/Material.h\"\n";
     outfile << "using namespace vecgeom;\n";
-    outfile << materialdecl[i].str();
-    outfile << materials[i].str();
+    outfile << materialdecl[i];
+    outfile << materials[i];
     outfile.close();
   }
 
@@ -797,8 +803,8 @@ void GeomCppExporter::DumpGeometry(std::ostream &s) {
     outfile << "#include \"materials/Medium.h\"\n";
     outfile << "using namespace vecgeom;\n";
     outfile << materialexterndecl.str();
-    outfile << mediumdecl[i].str();
-    outfile << media[i].str();
+    outfile << mediumdecl[i];
+    outfile << media[i];
     outfile.close();
   }
   // return;
@@ -832,7 +838,7 @@ void GeomCppExporter::DumpGeometry(std::ostream &s) {
       outfile << "using namespace vecgeom;\n";
       outfile << transexterndecl.str();
       outfile << lvoldeclarations.str();
-      outfile << geomhierarchy[i].str();
+      outfile << geomhierarchy[i];
       outfile.close();
     }
   }
