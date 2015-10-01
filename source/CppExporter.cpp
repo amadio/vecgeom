@@ -304,9 +304,11 @@ void GeomCppExporter::DumpMedia(std::vector<std::string> &media, std::stringstre
   // generate function that instantiates the media
   int groupcounter = 0;
   mediumconstr << "void GenerateMedia_part" << group << "(){\n";
-  for (auto ma : fMediumToStringMap) {
+  mediumconstr << "  double params[20];\n";
+  mediumconstr << "  for(int i=0; i<20; ++i) params[i]=0;\n";
 
-    // we take a limit if 5000 transformations per translation unit
+  for (auto ma : fMediumToStringMap) {
+    // we take a limit if 5000 media per translation unit
     // which compiles reasonably fast
     if (++groupcounter > 5000) {
       group++;
@@ -319,6 +321,8 @@ void GeomCppExporter::DumpMedia(std::vector<std::string> &media, std::stringstre
 
       // init new function
       mediumconstr << "void GenerateMedia_part" << group << "(){\n";
+      mediumconstr << "  double params[20];\n";
+      mediumconstr << "  for(int i=0; i<20; ++i) params[i]=0;\n";
 
       // reset counter
       groupcounter = 0;
@@ -338,7 +342,7 @@ void GeomCppExporter::DumpMedia(std::vector<std::string> &media, std::stringstre
       exit(1);
     }
     line << ma.second << " = new Medium(";
-    line << "\"" << ma.first->GetName() << "\"," << fMaterialToStringMap[mm] << ", nullptr);\n";
+    line << "\"" << ma.first->GetName() << "\"," << fMaterialToStringMap[mm] << ", params);\n";
 
     mediumconstr << line.str();
   }
@@ -863,6 +867,12 @@ void GeomCppExporter::DumpGeometry(std::ostream &s) {
     for (unsigned int i = 0; i < transdecl.size(); ++i) {
       outfile << "extern void GenerateTransformations_part" << i << "();\n";
     }
+    for (unsigned int i = 0; i < materialdecl.size(); ++i) {
+      outfile << "extern void GenerateMaterials_part" << i << "();\n";
+    }
+    for (unsigned int i = 0; i < mediumdecl.size(); ++i) {
+      outfile << "extern void GenerateMedia_part" << i << "();\n";
+    }
     outfile << "extern void CreateLogicalVolumes();\n";
     for (unsigned int i = 0; i < geomhierarchy.size(); ++i) {
       outfile << "extern void GeneratePlacedVolumes_part" << i << "();\n";
@@ -875,6 +885,12 @@ void GeomCppExporter::DumpGeometry(std::ostream &s) {
     // ...  start with the transformations
     for (unsigned int i = 0; i < transdecl.size(); ++i) {
       outfile << "  GenerateTransformations_part" << i << "();\n";
+    }
+    for (unsigned int i = 0; i < materialdecl.size(); ++i) {
+      outfile << "  GenerateMaterials_part" << i << "();\n";
+    }
+    for (unsigned int i = 0; i < mediumdecl.size(); ++i) {
+      outfile << "  GenerateMedia_part" << i << "();\n";
     }
     outfile << "CreateLogicalVolumes();\n";
     for (unsigned int i = 0; i < geomhierarchy.size(); ++i) {
