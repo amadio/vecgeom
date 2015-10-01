@@ -27,7 +27,10 @@ Medium::Medium(const char *name, Material *mat, double params[20])
    : fName(name), fUsed(false), fMat(mat)
 {
    static std::mutex mtx;
-   memcpy(fParams,params,20*sizeof(double));
+   if(params) 
+      memcpy(fParams,params,20*sizeof(double));
+   else
+      memset(fParams,0,20*sizeof(double));
    
    mtx.lock();
    fMedDB.push_back(this);

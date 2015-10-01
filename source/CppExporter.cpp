@@ -304,8 +304,6 @@ void GeomCppExporter::DumpMedia(std::vector<std::string> &media, std::stringstre
   // generate function that instantiates the media
   int groupcounter = 0;
   mediumconstr << "void GenerateMedia_part" << group << "(){\n";
-  mediumconstr << "  double params[20];\n";
-  mediumconstr << "  for(int i=0; i<20; ++i) params[i]=0;\n";
 
   for (auto ma : fMediumToStringMap) {
     // we take a limit if 5000 media per translation unit
@@ -321,8 +319,6 @@ void GeomCppExporter::DumpMedia(std::vector<std::string> &media, std::stringstre
 
       // init new function
       mediumconstr << "void GenerateMedia_part" << group << "(){\n";
-      mediumconstr << "  double params[20];\n";
-      mediumconstr << "  for(int i=0; i<20; ++i) params[i]=0;\n";
 
       // reset counter
       groupcounter = 0;
@@ -342,7 +338,7 @@ void GeomCppExporter::DumpMedia(std::vector<std::string> &media, std::stringstre
       exit(1);
     }
     line << ma.second << " = new Medium(";
-    line << "\"" << ma.first->GetName() << "\"," << fMaterialToStringMap[mm] << ", params);\n";
+    line << "\"" << ma.first->GetName() << "\"," << fMaterialToStringMap[mm] << ", nullptr);\n";
 
     mediumconstr << line.str();
   }
