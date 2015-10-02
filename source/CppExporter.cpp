@@ -439,11 +439,11 @@ void GeomCppExporter::DumpLogicalVolumes(std::ostream &dumps, std::ostream &exte
       line << shape->GetDy1() << " , ";
       line << shape->GetDx1() << " , ";
       line << shape->GetDx2() << " , ";
-      line << shape->GetAlpha1() << " , ";
+      line << shape->GetTanAlpha1() << " , ";
       line << shape->GetDy2() << " , ";
       line << shape->GetDx3() << " , ";
       line << shape->GetDx4() << " , ";
-      line << shape->GetAlpha2();
+      line << shape->GetTanAlpha2();
       line << " )";
 
       fNeededHeaderFiles.insert("volumes/UnplacedTrapezoid.h");
