@@ -696,7 +696,7 @@ bool IntersectionExist(Vector3D<Precision> const lowercornerFirstBox, Vector3D<P
 VECGEOM_INLINE
 bool IntersectionExist(Vector3D<Precision> const lowercornerFirstBox, Vector3D<Precision> const uppercornerFirstBox,
 		Vector3D<Precision> const lowercornerSecondBox, Vector3D<Precision> const uppercornerSecondBox,
-		Transformation3D const transformFirstBox,Transformation3D const *transformSecondBox,bool aux){
+		Transformation3D const *transformFirstBox,Transformation3D const *transformSecondBox,bool aux){
 
 	std::cout<<"Entered new Intersection method"<<std::endl;
 
@@ -733,13 +733,13 @@ bool IntersectionExist(Vector3D<Precision> const lowercornerFirstBox, Vector3D<P
 	*/
 
 	//Vector3D<Precision> centreTransformedBox = m->InverseTransform(Vector3D<Precision>(0,0,0));
-	Vector3D<Precision> pA = transformFirstBox.InverseTransform(Vector3D<Precision>(0,0,0));
+	Vector3D<Precision> pA = transformFirstBox->InverseTransform(Vector3D<Precision>(0,0,0));
 	Vector3D<Precision> pB = transformSecondBox->InverseTransform(Vector3D<Precision>(0,0,0));
 	Vector3D<Precision> T = pB-pA;
 
-	Vector3D<Precision> Ax = transformFirstBox.InverseTransformDirection(Vector3D<Precision>(1.,0.,0.));
-	Vector3D<Precision> Ay = transformFirstBox.InverseTransformDirection(Vector3D<Precision>(0.,1.,0.));
-	Vector3D<Precision> Az = transformFirstBox.InverseTransformDirection(Vector3D<Precision>(0.,0.,1.));
+	Vector3D<Precision> Ax = transformFirstBox->InverseTransformDirection(Vector3D<Precision>(1.,0.,0.));
+	Vector3D<Precision> Ay = transformFirstBox->InverseTransformDirection(Vector3D<Precision>(0.,1.,0.));
+	Vector3D<Precision> Az = transformFirstBox->InverseTransformDirection(Vector3D<Precision>(0.,0.,1.));
 
 	Vector3D<Precision> Bx = transformSecondBox->InverseTransformDirection(Vector3D<Precision>(1.,0.,0.));
 	Vector3D<Precision> By = transformSecondBox->InverseTransformDirection(Vector3D<Precision>(0.,1.,0.));
@@ -866,7 +866,7 @@ bool IntersectionExist(Vector3D<Precision> const lowercornerFirstBox, Vector3D<P
 	}
 
 
-	std::cout<<"---- Intersection Exist ----"<<std::endl;
+	std::cout<<"\033[1;31m ---- Intersection Exist ----\033[0m\n"<<std::endl;
 	return true;
 
 }
