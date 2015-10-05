@@ -109,6 +109,7 @@ int main( int argc, char *argv[] ) {
         double dist;
         std::cout << "VecGeom Capacity " << vecgeomplaced->Capacity( ) << "\n";
         std::cout << "VecGeom CONTAINS " << vecgeomplaced->Contains( point ) << "\n";
+        std::cout << "VecGeom INSIDE " << vecgeomplaced->Inside( point ) << "\n";
         dist = vecgeomplaced->DistanceToIn( point, dir );
         std::cout << "VecGeom DI " << dist << "\n";
         if(dist < vecgeom::kInfinity )
@@ -150,7 +151,7 @@ int main( int argc, char *argv[] ) {
         VUSolid const * usolid = vecgeomplaced->ConvertToUSolids();
         if( usolid != NULL ){
           std::cout << "USolids Capacity " << const_cast<VUSolid*>(usolid)->Capacity(  ) << "\n";
-          std::cout << "USolids CONTAINS " << usolid->Inside( point ) << "\n";
+          std::cout << "USolids INSIDE " << usolid->Inside( point ) << "\n";
           std::cout << "USolids DI " << usolid->DistanceToIn( point, dir ) << "\n";
 
           Vector3D<Precision> norm; bool valid;
