@@ -53,10 +53,17 @@
 #include "volumes/LogicalVolume.h"
 #include "volumes/SpecializedCone.h"
 #include "volumes/UnplacedCone.h"
+#include "volumes/kernel/shapetypes/ConeTypes.h"
 
-class UCons: public vecgeom::SimpleCone {
-    // just forwards UCons to vecgeom::SimpleCone
-    using vecgeom::SimpleCone::SimpleCone;
+class UCons: public vecgeom::SpecializedCone<vecgeom::translation::kIdentity,
+                                             vecgeom::rotation::kIdentity,
+                                             vecgeom::ConeTypes::UniversalCone> {
+  // just forwards UCons to vecgeom::SpecializedCone
+  typedef typename vecgeom::SpecializedCone<vecgeom::translation::kIdentity,
+                                            vecgeom::rotation::kIdentity,
+                                            vecgeom::ConeTypes::UniversalCone> Shape_t;
+  // inherit all constructors
+  using Shape_t::Shape_t;
 };
 //============== end of VecGeom-based implementation
 

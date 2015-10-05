@@ -93,11 +93,12 @@ struct UTrapSidePlane
   }
 };
 
-class UTrap: public vecgeom::SimpleTrapezoid {
-    // just forwards UTrap to vecgeom::SimpleTrapezoid
-    using vecgeom::SimpleTrapezoid::SimpleTrapezoid;
-
+class UTrap: public vecgeom::SpecializedTrapezoid<vecgeom::translation::kIdentity, vecgeom::rotation::kIdentity> {
+  // just forwards UTrap to vecgeom trapezoid
+  typedef typename vecgeom::SpecializedTrapezoid<vecgeom::translation::kIdentity, vecgeom::rotation::kIdentity> Shape_t;
+  using Shape_t::Shape_t;
 };
+
 //============== end of VecGeom-based implementation
 
 #else

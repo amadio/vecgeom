@@ -68,9 +68,11 @@ class UPolyconeHistorical
 
 using Precision = vecgeom::Precision;
 
-class UPolycone: public vecgeom::SimplePolycone {
-    // just forwards UPolycone to vecgeom::SimplePolycone
-    using vecgeom::SimplePolycone::SimplePolycone;
+class UPolycone: public vecgeom::SpecializedPolycone<vecgeom::translation::kIdentity, vecgeom::rotation::kIdentity> {
+  // just forwards UPolycone to vecgeom polycone
+  typedef typename vecgeom::SpecializedPolycone<vecgeom::translation::kIdentity, vecgeom::rotation::kIdentity> Shape_t;
+  // inherit all constructors
+  using Shape_t::Shape_t;
 
 public:
   UPolyconeSideRZ GetCorner(int index) const {

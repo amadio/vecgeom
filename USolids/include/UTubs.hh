@@ -49,12 +49,20 @@
 #include "base/Transformation3D.h"
 #include "volumes/LogicalVolume.h"
 #include "volumes/SpecializedTube.h"
+#include "volumes/kernel/shapetypes/TubeTypes.h"
 #include "volumes/UnplacedTube.h"
 
-class UTubs: public vecgeom::SimpleTube {
-    // just forwards UTubs to vecgeom::SimpleTube
-    using vecgeom::SimpleTube::SimpleTube;
+class UTubs: public vecgeom::SpecializedTube<vecgeom::translation::kIdentity,
+                                             vecgeom::rotation::kIdentity,
+                                             vecgeom::TubeTypes::UniversalTube> {
+  // just forwards UTubs to vecgeom tube
+  typedef typename vecgeom::SpecializedTube<vecgeom::translation::kIdentity,
+                                            vecgeom::rotation::kIdentity,
+                                            vecgeom::TubeTypes::UniversalTube> Shape_t;
+  // inherits all constructors
+  using Shape_t::Shape_t;
 };
+
 //============== end of VecGeom-based implementation
 
 #else

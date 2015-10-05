@@ -33,15 +33,17 @@
 #include "volumes/UnplacedBox.h"
 #include "base/Transformation3D.h"
 
-class UBox: public vecgeom::SimpleBox {
-  // just forwards UBox to vecgeom::SimpleBox
-  using vecgeom::SimpleBox::SimpleBox;
+class UBox: public vecgeom::SpecializedBox<vecgeom::translation::kIdentity, vecgeom::rotation::kIdentity> {
+  // just forwards UBox to vecgeom box
+  typedef typename vecgeom::SpecializedBox<vecgeom::translation::kIdentity, vecgeom::rotation::kIdentity> Shape_t;
+  // inherit all constructors
+  using Shape_t::Shape_t;
 
 public:
   // add default constructor for tests
-  UBox() : vecgeom::SimpleBox(new vecgeom::LogicalVolume(new vecgeom::UnplacedBox(0.,0.,0.)),
-                              &vecgeom::Transformation3D::kIdentity,
-                              this) {}
+  UBox() : Shape_t(new vecgeom::LogicalVolume(new vecgeom::UnplacedBox(0.,0.,0.)),
+                   &vecgeom::Transformation3D::kIdentity,
+                   this) {}
 };
 //============== end of VecGeom-based implementation
 

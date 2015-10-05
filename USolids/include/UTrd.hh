@@ -30,8 +30,9 @@
 
 #include "volumes/SpecializedTrd.h"
 #include "volumes/LogicalVolume.h"
-#include "volumes/UnplacedTrd.h"
 #include "base/Transformation3D.h"
+#include "volumes/UnplacedTrd.h"
+#include "volumes/kernel/shapetypes/TrdTypes.h"
 
 // struct UTrapSidePlane
 // {
@@ -45,10 +46,11 @@
 //   }
 // };
 
-class UTrd: public vecgeom::SimpleTrd {
-    // just forwards UTrd to vecgeom::SimpleTrd
-    using vecgeom::SimpleTrd::SimpleTrd;
-
+class UTrd: public vecgeom::SpecializedTrd<vecgeom::translation::kIdentity, vecgeom::rotation::kIdentity, vecgeom::TrdTypes::UniversalTrd> {
+  // just forwards UTrd to vecgeom Trd
+  typedef typename vecgeom::SpecializedTrd<vecgeom::translation::kIdentity, vecgeom::rotation::kIdentity, vecgeom::TrdTypes::UniversalTrd> Shape_t;
+  // inherit all constructors
+  using Shape_t::Shape_t;
 };
 //============== end of VecGeom-based implementation
 
