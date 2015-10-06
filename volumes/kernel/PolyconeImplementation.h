@@ -43,17 +43,198 @@ struct PolyconeImplementation {
       printf("SpecializedPolycone<%i, %i>", transCodeT, rotCodeT);
   }
 
+  /////GenericKernel Contains/Inside implementation for a section of the polycone
+  template <typename Backend, bool ForInside>
+  VECGEOM_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
+  static void GenericKernelForASection(UnplacedPolycone const &unplaced, int isect,
+                                       Vector3D<typename Backend::precision_v> const &polyconePoint,
+                                       typename Backend::bool_v &secFullyInside,
+                                       typename Backend::bool_v &secFullyOutside) {
+
+    if(isect<0) {
+      secFullyInside = false;
+      secFullyOutside = true;
+      return;
+    }
+
+    PolyconeSection const & sec = unplaced.GetSection(isect);
+    Vector3D<Precision> secLocalp = polyconePoint - Vector3D<Precision>(0,0,sec.fShift);
+#ifdef POLYCONEDEBUG
+    std::cout<<" isect="<< isect <<"/"<< unplaced.GetNSections()
+             <<" secLocalP="<< secLocalp <<", secShift="<< sec.fShift
+             <<" sec.fSolid="<< sec.fSolid
+             << std::endl;
+    if( sec.fSolid ) sec.fSolid->StreamInfo(std::cout);
+#endif
+    ConeImplementation< translation::kIdentity, rotation::kIdentity,
+                        ConeTypes::UniversalCone>::GenericKernelForContainsAndInside<Backend,ForInside>(
+                          *sec.fSolid, secLocalp, secFullyInside, secFullyOutside );
+  }
+
   /////GenericKernel Contains/Inside implementation
   template <typename Backend, bool ForInside>
   VECGEOM_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void GenericKernelForContainsAndInside(UnplacedPolycone const &polycone,
-            Vector3D<typename Backend::precision_v> const &point,
-            typename Backend::bool_v &completelyinside,
-            typename Backend::bool_v &completelyoutside)
-     {
-        // TBD
-     }
+  static void GenericKernelForContainsAndInside(UnplacedPolycone const &unplaced,
+                                                Vector3D<typename Backend::precision_v> const &localPoint,
+                                                typename Backend::bool_v &completelyInside,
+                                                typename Backend::bool_v &completelyOutside)
+    {
+      // ??? Can I assume that this code will never be used in vector mode?  If yes, some of this code is not needed (done, IsFull(), etc)
+      // static_assert(!std::is_same<Backend::bool_v,bool>::value, "Must use scalar interface!\n");
+
+#ifdef POLYCONEDEBUG
+      std::cout<<"=== Polycone::GenKern4ContainsAndInside(): localPoint = "<< localPoint
+               <<" and kTolerance = "<< kTolerance <<"\n";
+#endif
+      typedef typename Backend::precision_v Float_t;
+      typedef typename Backend::bool_v Bool_t;
+      Bool_t done = Bool_t(false);
+
+      // z-region
+      int Nz = unplaced.GetNz();
+      completelyInside = Bool_t(false);
+      completelyOutside = localPoint[2] < MakeMinusTolerant<ForInside>( unplaced.GetZAtPlane(0) );
+      completelyOutside |= localPoint[2] > MakePlusTolerant<ForInside>( unplaced.GetZAtPlane(Nz-1) );
+      done |= completelyOutside;
+
+#ifdef POLYCONEDEBUG
+      std::cout<<" spot 2: checked z-region - compOut="<< completelyOutside
+               <<", zAtPlane[0]="<< unplaced.GetZAtPlane(0)
+               <<", zAtPlane[Nz-1]="<< unplaced.GetZAtPlane(Nz-1)
+               <<", done="<< done <<"\n";
+#endif
+
+      // ??? Can I assume that this code will never be used in vector mode?  If yes, some of this code is not needed (done, IsFull(), etc)
+      if ( Backend::early_returns && IsFull(completelyOutside) ) return;
+#ifdef POLYCONEDEBUG
+      if ( Backend::early_returns && IsFull(completelyOutside) ) {
+        std::cout<<"Polycone::GenKern4ConAndInside() (spot 2a): returning compIn="<< completelyInside <<", compOut="<< completelyOutside <<"\n";
+      }
+#endif
+
+      if(ForInside) {
+        // z-check only so far
+        completelyInside = ( localPoint[2] > MakePlusTolerant<ForInside>( unplaced.GetZAtPlane(0) ) &&
+                             localPoint[2] < MakeMinusTolerant<ForInside>( unplaced.GetZAtPlane(Nz-1) ) );
+#ifdef POLYCONEDEBUG
+        std::cout<<" spot 2b: ForInside only: compIn="<< completelyInside <<", compOut="<< completelyOutside <<"\n";
+#endif
+      }
+
+      // find section
+      int isec = unplaced.GetSectionIndex( localPoint.z() );
+      Bool_t secIn=false, secOut=false;
+      // test if point is inside this section (note that surface may be very tricky!)
+#ifdef POLYCONEDEBUG
+      std::cout<<"Polycone::GenKern4ContAndInside(): spot 3: ";
+#endif
+
+      // is it inside of isec?
+      GenericKernelForASection<Backend,ForInside>(unplaced, isec, localPoint, secIn, secOut );
+      // if fully inside that section, we may be done
+      Bool_t update = (!done && secIn);
+      MaskedAssign(update, secIn, &completelyInside);
+      done |= update;
+
+#ifdef POLYCONEDEBUG
+      if ( Backend::early_returns && IsFull(done) ) {
+        std::cout<<"Polycone::GenKern4ConAndInside() (spot 2a): returning compIn="<< completelyInside <<", compOut="<< completelyOutside <<"\n";
+      }
+#endif
+      if( Backend::early_returns && IsFull(done) ) return;
+
+      // once here, need to check if near z-plane
+      //========================================
+      //-- Check a possible scenario that can produce incorrect results:
+      //  I have seen cases where isec returns outside, but point is right at the Z-plane
+      //  between isec & isec+1 -- and isec+1 returns Surface.  We must check it here first!
+      Float_t zplus = unplaced.GetZAtPlane(isec);
+      Bool_t nearPlusZ = localPoint.z() > zplus-kTolerance;
+      Bool_t nextSectionPossible = nearPlusZ && isec+1<unplaced.GetNSections();
+
+      // away from z-plane and outside isec
+      update = (!done && !nextSectionPossible && secOut);
+      completelyOutside |= update;
+      done |= update;
+
+      // away from z-plane and on isec surface
+      update = (!done && !nextSectionPossible && !secOut && !secIn);
+      MaskedAssign( update, false, &completelyInside );
+      done |= update;
+
+#ifdef POLYCONEDEBUG
+      if ( Backend::early_returns && IsFull(done) ) {
+        std::cout<<"Polycone::GenKern4ConAndInside() (spot 2b): returning compIn="<< completelyInside <<", compOut="<< completelyOutside <<"\n";
+      }
+#endif
+      if( Backend::early_returns && IsFull(done) ) return;
+
+      // ok, we are indeed near z-plane - need to check next surface
+      assert( IsFull(nextSectionPossible) );
+
+      Bool_t secIn2=false, secOut2=false;
+      // very uncommon case -- OK to pay the penalty of a branch.  Any other options?!
+#ifdef POLYCONEDEBUG
+      std::cout<<"Polycone::GenKern4ContAndInside(): spot pre-3 (RARE): ";
+#endif
+      GenericKernelForASection<Backend,ForInside>(unplaced, isec+1, localPoint, secIn2, secOut2 );
+
+      // near z-plane: outside in both
+      update = (!done && nextSectionPossible && secOut && secOut2);
+      completelyOutside |= update;
+      done |= update;
+
+      if(ForInside) {
+        // near z-plane: check if inside radii on *both* sections
+        Float_t localx = localPoint.x();
+        Float_t localy = localPoint.y();
+        Float_t rho2 = localx*localx + localy*localy;
+
+        // for isec...
+        Float_t rmaxtol = unplaced.GetRmaxAtPlane(isec) - kTolerance;
+        Bool_t insideRmaxA = (rho2 < rmaxtol*rmaxtol);
+        Float_t rmin = unplaced.GetRminAtPlane(isec);
+        Bool_t insideRminA = (rmin == 0);
+        // take tolerance into account
+        rmin += kTolerance;
+        insideRminA |= (rho2 > rmin*rmin);
+
+        // for isec+1...
+        rmaxtol = unplaced.GetRmaxAtPlane(isec+1) - kTolerance;
+        Bool_t insideRmaxB = (rho2 < rmaxtol*rmaxtol);
+        rmin = unplaced.GetRminAtPlane(isec+1);
+        Bool_t insideRminB = (rmin == 0);
+        // take tolerance into account
+        rmin += kTolerance;
+        insideRminB |= (rho2 > rmin*rmin);
+
+        // near z-plane AND inside radii on *both* sections
+        update = (!done && insideRminA && insideRmaxA && insideRminB && insideRmaxB );
+        completelyInside |= update;
+        done |= update;
+
+        // .... hopefully last case left...  surface -- 
+        MaskedAssign(!done, false, &completelyInside);
+        MaskedAssign(!done, false, &completelyOutside);
+      } // end if(ForInside)
+
+#ifdef POLYCONEDEBUG
+      if ( Backend::early_returns && IsFull(done) )  {
+          std::cout<<"Section::GenKern4ConAndInside() spot 4: returning from section - secIn="<< secIn
+                   <<", secOut="<< secOut
+                   <<", done="<< done
+                   <<", compIn="<< completelyInside
+                   <<", compOut="<< completelyOutside
+                   <<"\n";
+      }
+#endif
+
+#ifdef POLYCONEDEBUG
+      std::cout<<" Polycone::GenKern4ConAndInside(): spot FINAL - near surf: compIn="<< completelyInside <<", compOut="<< completelyOutside <<"\n";
+#endif
+    } // end of GenericKernelForContainsAndInside()
 
     template <class Backend>
     VECGEOM_CUDA_HEADER_BOTH
@@ -61,12 +242,12 @@ struct PolyconeImplementation {
     static void ContainsKernel(
         UnplacedPolycone const &polycone,
         Vector3D<typename Backend::precision_v> const &point,
-        typename Backend::bool_v &inside)
+        typename Backend::bool_v &contains)
     {
         // add z check
         if( point.z() < polycone.fZs[0] || point.z() > polycone.fZs[polycone.GetNSections()] )
         {
-            inside = Backend::kFalse;
+            contains = Backend::kFalse;
             return;
         }
 
@@ -79,40 +260,32 @@ struct PolyconeImplementation {
                 Transformation3D(),
                 point - Vector3D<Precision>(0,0,sec.fShift),
                 localp,
-                inside
+                contains
         );
         return;
     }
-
-    //template <TranslationCode transCodeT, RotationCode rotCodeT>
-    template <class Backend>
-    VECGEOM_CUDA_HEADER_BOTH
-    static void InsideKernel(
-       UnplacedPolycone const &polycone,
-       Vector3D<typename Backend::precision_v> const &point,
-       typename Backend::inside_v &inside) {
-
-        typename Backend::bool_v contains;
-        ContainsKernel<Backend>(polycone,point,contains);
-        if(contains){
-            inside = EInside::kInside;
-        }
-        else
-        {
-            inside = EInside::kOutside;
-        }
-    }
-
 
     template <class Backend>
     VECGEOM_CUDA_HEADER_BOTH
     VECGEOM_INLINE
     static void UnplacedContains( UnplacedPolycone const &polycone,
         Vector3D<typename Backend::precision_v> const &point,
-        typename Backend::bool_v &inside) {
+        typename Backend::bool_v &contains) {
       // TODO: do this generically WITH a generic contains/inside kernel
       // forget about sector for the moment
-      ContainsKernel<Backend>(polycone, point, inside);
+      ContainsKernel<Backend>(polycone, point, contains);
+
+      typedef typename Backend::bool_v Bool_t;
+      Bool_t unused, outside;
+      GenericKernelForContainsAndInside<Backend, false>(polycone, point, unused, outside);
+      Bool_t contains2 = !outside;
+#if POLYCONEDEBUG
+      if(contains != contains2) {
+        polycone.StreamInfo(std::cout);
+        std::cout<<" Comparing Contains() fails!!!  old="<< contains <<", new="<< contains2 << std::endl;
+      }
+#endif
+      assert( contains == contains2 );
     }
 
     template <typename Backend>
@@ -123,22 +296,34 @@ struct PolyconeImplementation {
         Transformation3D const &transformation,
         Vector3D<typename Backend::precision_v> const &point,
         Vector3D<typename Backend::precision_v> &localPoint,
-        typename Backend::bool_v &inside){
+        typename Backend::bool_v &contains){
 
         localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
-        UnplacedContains<Backend>(unplaced, localPoint, inside);
+        UnplacedContains<Backend>(unplaced, localPoint, contains);
     }
 
     template <class Backend>
     VECGEOM_CUDA_HEADER_BOTH
     VECGEOM_INLINE
-    static void Inside(UnplacedPolycone const &polycone,
+    static void Inside(UnplacedPolycone const &unplaced,
                        Transformation3D const &transformation,
-                       Vector3D<typename Backend::precision_v> const &point,
+                       Vector3D<typename Backend::precision_v> const &masterPoint,
                        typename Backend::inside_v &inside) {
 
-      InsideKernel<Backend>(polycone, transformation.Transform<transCodeT, rotCodeT>(point),  inside);
+      typedef typename Backend::bool_v Bool_t;
 
+      // convert from master to local coordinates
+      Vector3D<typename Backend::precision_v> localPoint =
+        transformation.Transform<transCodeT, rotCodeT>(masterPoint);
+
+      std::cout<<" Polycone::Inside(): localz="<< localPoint.z() <<"\n";
+
+      Bool_t fullyInside, fullyOutside;
+      GenericKernelForContainsAndInside<Backend,true>( unplaced, localPoint, fullyInside, fullyOutside);
+
+      inside = EInside::kSurface;
+      MaskedAssign(fullyInside,  EInside::kInside,  &inside);
+      MaskedAssign(fullyOutside, EInside::kOutside, &inside);
   }
 
 
@@ -158,14 +343,13 @@ struct PolyconeImplementation {
         // TODO
         // TODO: add bounding box check maybe??
 
-    distance=kInfinity;
+         distance=kInfinity;
         int increment = (v.z() > 0) ? 1 : -1;
         if (std::fabs(v.z()) < kTolerance) increment = 0;
         int index = polycone.GetSectionIndex(p.z());
         if(index == -1) index = 0;
         if(index == -2) index = polycone.GetNSections()-1;
-       
-    //std::cout<<" Entering DIN index="<<index<<" NSec="<<polycone.GetNSections()<<std::endl;
+
         do{
         // now we have to find a section
 
@@ -188,8 +372,6 @@ struct PolyconeImplementation {
        while (index >= 0 && index < polycone.GetNSections());
         
        return;
-
-       
     }
 
     template <class Backend>
@@ -301,7 +483,7 @@ struct PolyconeImplementation {
             }
         } // end if surface case
 
-	/* this was on the master: 
+    /* this was on the master:
         Vector3D<Precision> pte = point+(totalDistance+dist)*dir;
         const PolyconeSection& section1 = polycone.GetSection(index1);
         bool inside1;
@@ -321,7 +503,7 @@ struct PolyconeImplementation {
    
     totalDistance += dist;
     index += increment;
-	*/ 
+    */
    
         totalDistance += dist;
         index += increment;
@@ -489,10 +671,9 @@ struct PolyconeImplementation {
     //std::cout<<"Sout-1="<<safety<<" i="<<i<<"dz="<<dz<<std::endl;
     }
   }
- 
+
   safety=minSafety;
-  return ;
-   
+  return;
 }
 
 

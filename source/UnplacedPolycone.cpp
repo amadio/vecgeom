@@ -33,7 +33,8 @@ void UnplacedPolycone::Init(double phiStart,
   if (phiTotal <= 0. || phiTotal > kTwoPi-kTolerance) {
      // phiIsOpen=false;
      fStartPhi = 0;
-     fEndPhi = kTwoPi;
+     fDeltaPhi = kTwoPi;
+     //fEndPhi = kTwoPi;
   } else {
      //
      // Convert phi into our convention
@@ -41,8 +42,9 @@ void UnplacedPolycone::Init(double phiStart,
      fStartPhi = phiStart;
      while( fStartPhi < 0 ) fStartPhi += kTwoPi;
 
-     fEndPhi = fStartPhi+fDeltaPhi;
-     while( fEndPhi < fStartPhi ) fEndPhi += kTwoPi;
+     // removing redundant variable fEndPhi, not much used.  fDeltaPhi should be sufficient
+     //fEndPhi = fStartPhi+fDeltaPhi;
+     //while( fEndPhi < fStartPhi ) fEndPhi += kTwoPi;
   }
 
   // Calculate RMax of Polycone in order to determine convexity of sections
@@ -136,6 +138,8 @@ void UnplacedPolycone::Init(double phiStart,
     prevRmin = rMin;
     prevRmax = rMax;
   }
+
+  fNz = fZs.size();
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
