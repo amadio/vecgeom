@@ -685,17 +685,15 @@ bool UnplacedPolycone::Normal(Vector3D<Precision> const& point, Vector3D<Precisi
      bool valid = true ;
      int index = GetSectionIndex(point.z());
 
-     if(index < 0)
-     {
+     if(index < 0) {
        valid = true;
        if(index == -1) norm = Vector3D<Precision>(0.,0.,-1.);
-       if(index == -2)  norm  = Vector3D<Precision>(0.,0.,1.);
+       if(index == -2) norm = Vector3D<Precision>(0.,0.,1.);
        return valid;
       }
      PolyconeSection const & sec = GetSection(index);
      valid = sec.fSolid->Normal(point,norm);
      return valid;
-
 }
 
 Precision UnplacedPolycone::SurfaceArea() const {

@@ -122,7 +122,7 @@ public:
     int GetSectionIndex( Precision zposition ) const {
       //TODO: consider binary search
       if( zposition < fZs[0] ) return -1;
-      for(int i=0;i<GetNSections();++i) {
+      for( int i=0; i<GetNSections(); ++i) {
         if( zposition >= fZs[i] && zposition <= fZs[i+1] ) return i;
       }
       return -2;
