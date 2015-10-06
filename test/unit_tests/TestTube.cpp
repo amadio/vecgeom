@@ -150,19 +150,26 @@ bool TestTubs()
 // DistanceToOut(P,V)
     bool convex;
     Dist=t1.DistanceToOut(pzero,vx,norm,convex);
-    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vx)&&convex);
+    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vx));
+    if(!testvecgeom) assert(convex);
     Dist=t1.DistanceToOut(pzero,vmx,norm,convex);
-    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vmx)&&convex);
+    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vmx));
+    if(!testvecgeom) assert(convex);
     Dist=t1.DistanceToOut(pzero,vy,norm,convex);
-    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vy)&&convex);
+    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vy));
+    if(!testvecgeom) assert(convex);
     Dist=t1.DistanceToOut(pzero,vmy,norm,convex);
-    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vmy)&&convex);
+    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vmy));
+    if(!testvecgeom) assert(convex);
     Dist=t1.DistanceToOut(pzero,vz,norm,convex);
-    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vz)&&convex);
+    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vz));
+    if(!testvecgeom) assert(convex);
     Dist=t1.DistanceToOut(pzero,vmz,norm,convex);
-    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vmz)&&convex);
+    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vmz));
+    if(!testvecgeom) assert(convex);
     Dist=t1.DistanceToOut(pzero,vxy,norm,convex);
-    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vxy)&&convex);
+    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vxy));
+    if(!testvecgeom) assert(convex);
 
     Dist=t2.DistanceToOut(pzero,vxy,norm,convex);
     //  std::cout<<"Dist=t2.DistanceToOut(pzero,vxy) = "<<Dist<<std::endl;
