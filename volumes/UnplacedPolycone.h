@@ -120,19 +120,17 @@ public:
 
     VECGEOM_CUDA_HEADER_BOTH
     int GetSectionIndex( Precision zposition ) const {
-     //TODO: consider bindary search
-     if( zposition < fZs[0] ) return -1;
-     for(int i=0;i<GetNSections();++i)
-       {
-           if( zposition >= fZs[i] && zposition <= fZs[i+1] )
-                return i;
-       }
-     return -2;
+      //TODO: consider binary search
+      if( zposition < fZs[0] ) return -1;
+      for(int i=0;i<GetNSections();++i) {
+        if( zposition >= fZs[i] && zposition <= fZs[i+1] ) return i;
+      }
+      return -2;
     }
 
     VECGEOM_CUDA_HEADER_BOTH
     PolyconeSection const & GetSection( Precision zposition ) const {
-        //TODO: consider bindary search
+        //TODO: consider binary search
         int i = GetSectionIndex(zposition);
         return fSections[i];
     }

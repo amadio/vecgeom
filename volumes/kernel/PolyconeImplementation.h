@@ -142,7 +142,6 @@ struct PolyconeImplementation {
           }
         } //============= end of special case scenario
 
-
         // test if point is inside this section (note that surface is very tricky!)
         GenericKernelForASection<Backend,ForInside>(unplaced, isec, localPoint, secIn, secOut );
 

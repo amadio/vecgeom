@@ -1,9 +1,7 @@
 //
+// File:    TestPolycone.cpp
+// Purpose: Unit test for the polycone
 //
-// TestPolycone
-
-
-
 #include "base/Vector3D.h"
 #include "volumes/Polycone.h"
 #include "volumes/Tube.h"
@@ -18,7 +16,7 @@
 #endif
 #include <cmath>
 
-//             ensure asserts are compiled in
+//.. ensure asserts are compiled in
 #undef NDEBUG
 #include <cassert>
 
@@ -26,13 +24,10 @@ using namespace vecgeom;
 
 bool testingvecgeom=false;
 
-
-
 template <class Polycone_t,class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
-
 bool TestPolycone()
 {
- double RMINVec[8];
+  double RMINVec[8];
   RMINVec[0] = 30;
   RMINVec[1] = 30;
   RMINVec[2] =  0;
@@ -66,12 +61,12 @@ bool TestPolycone()
   Phi_Values[0]=-10.*UUtils::kPi/180.;
   Phi_Values[1]=10.*UUtils::kPi/180.;
   Polycone_t *MyPCone = new Polycone_t ("MyPCone",
-						    Phi_Values[0],
-						    Phi_Values[1],
-						    8        ,
-						    Z_Values ,
-						    RMINVec  ,
-						    RMAXVec   );
+                            Phi_Values[0],
+                            Phi_Values[1],
+                            8        ,
+                            Z_Values ,
+                            RMINVec  ,
+                            RMAXVec   );
   double RMIN[3];
   RMIN[0] = 0;
   RMIN[1] = 0;
@@ -85,13 +80,13 @@ bool TestPolycone()
   Z_Val2[1] =-0;
   Z_Val2[2] = 10;
  
- Polycone_t Simple("SimpleTube+Cone",
-		                      0,
-		                      360.*UUtils::kPi/180.,
-         	                      3      ,
-		                      Z_Val2 ,
-		                      RMIN ,
-		                      RMAX );
+  Polycone_t Simple("SimpleTube+Cone",
+                              0,
+                              360.*UUtils::kPi/180.,
+                                  3      ,
+                              Z_Val2 ,
+                              RMIN ,
+                              RMAX );
 
 if(testingvecgeom){
 
@@ -101,13 +96,12 @@ if(testingvecgeom){
     double rmax[] = { 1., 2., 2. , 1.5 };
     double z[] = { -1, -0.5, 0.5, 2 };
 
-
-            UnplacedPolycone poly1( 0.,    /* initial phi starting angle */
-				360.*UUtils::kPi/180.,  //kTwoPi,    /* total phi angle */
-            Nz,        /* number corners in r,z space */
-	    z,       /* z coordinates */
-            rmin,   /* r coordinate of these corners */
-            rmax);
+    UnplacedPolycone poly1( 0.,    /* initial phi starting angle */
+                            360.*UUtils::kPi/180.,  //kTwoPi,    /* total phi angle */
+                            Nz,    /* number corners in r,z space */
+                            z,     /* z coordinates */
+                            rmin,  /* r coordinate of these corners */
+                            rmax);
 
     poly1.Print();
 
@@ -132,7 +126,7 @@ if(testingvecgeom){
     assert( poly1.Capacity() > 0 );
     assert( std::fabs(poly1.Capacity() - ( section0.Capacity() + section1.Capacity() + section2.Capacity() ))< 1e-6);
 
-    // create a place version
+    // create a placed version
     VPlacedVolume const * placedpoly1 = (new LogicalVolume("poly1", &poly1))->Place( new Transformation3D( ) );
 
     // test contains/inside
@@ -157,8 +151,7 @@ if(testingvecgeom){
     assert( placedpoly1-> SafetyToIn( Vec_t(0.,0.,3) ) == 1 );
     assert( placedpoly1-> SafetyToIn( Vec_t(2.,0.,0.1) ) == 0 );
    
-    // test SafetyToOut
-   
+    // test SafetyToOut   
     assert( placedpoly1-> SafetyToOut( Vec_t(0.,0.,0.)) == 0.5 );
     assert( placedpoly1-> SafetyToOut( Vec_t(0.,0.,0.5)) == 0. );
     assert( std::fabs(placedpoly1-> SafetyToOut( Vec_t(1.9,0.,0.0) ) - 0.1 )<1000.*kTolerance);
@@ -188,12 +181,12 @@ if(testingvecgeom){
     vol =  Simple.Capacity();
     volCheck = UUtils::kPi*(70*70*10+10*(70*70+80*80+70*80)/3.);
     assert(ApproxEqual(vol,volCheck));
-   
- // Check Surface area
+
+// Check Surface area
     vol = Simple.SurfaceArea();
     volCheck = UUtils::kPi*(70*70+80*80+(70+80)*std::sqrt(10*10+10*10)+10*2*70);
-    assert(ApproxEqual(vol,volCheck));  
-  
+    assert(ApproxEqual(vol,volCheck));
+
 
 // Check Inside
   
@@ -399,9 +392,9 @@ if(testingvecgeom){
       std::cout <<" is inside";
     else
       if( in == vecgeom::EInside::kOutside )
-	std::cout <<" is outside";
+    std::cout <<" is outside";
       else
-	std::cout <<" is on the surface";
+    std::cout <<" is on the surface";
   }
 
   std::cout<<"\n\n==================================================";
@@ -517,23 +510,23 @@ if(testingvecgeom){
          std::cout<<"  distance to out="<<d4;
          d4 = MyPCone->SafetyFromInside(start4);
          std::cout<<" closest distance to out="<<d4<<std::endl;
-	}
+    }
     else
       if( in == vecgeom::EInside::kOutside )
-	{
+    {
          std::cout <<" is outside";
           d4 = MyPCone->DistanceToIn(start4, dir4);
          std::cout<<"  distance to in="<<d4;
          d4 = MyPCone->SafetyFromOutside(start4);
          std::cout<<" closest distance to in="<<d4<<std::endl;
-	}
+    }
       else
-	{std::cout <<" is on the surface";
+    {std::cout <<" is on the surface";
          d4 = MyPCone->DistanceToIn(start4, dir4);
          std::cout<<"  distance to in="<<d4;
          d4 = MyPCone->SafetyFromOutside(start4);
          std::cout<<" closest distance to in="<<d4<<std::endl;
-	}
+    }
     
   }
    }
@@ -574,7 +567,7 @@ if(testingvecgeom){
     else
       if( in ==  vecgeom::EInside::kOutside )
         {
-	 std::cout <<" is outside";
+     std::cout <<" is outside";
          d5 = MyPCone->DistanceToIn(start5, dir5);
          std::cout<<"  distance to in="<<d5;
          d5 = MyPCone->SafetyFromOutside(start5);
@@ -582,7 +575,7 @@ if(testingvecgeom){
         }
       else
         {
-	 std::cout <<" is on the surface";
+     std::cout <<" is on the surface";
          d5 = MyPCone->DistanceToIn(start5, dir5);
          std::cout<<"  distance to in="<<d5;
          d5 = MyPCone->SafetyFromOutside(start5);
@@ -599,20 +592,6 @@ if(testingvecgeom){
     return true;
 }
 
-/*
-
-int main() {
-#ifdef VECGEOM_USOLIDS
-  assert(TestPolycone<UPolycone>());
-  //assert(TestPolycone<UGenericPolycone>());
-  std::cout << "UPolycone passed\n";
-
-#endif
-  std::cout<< "VecGeom Polycone not included yet\n";
-  
-  return 0;
-}
-*/
 
 //bool testingvecgeom=false;
 int main(int argc, char *argv[]) {
@@ -644,7 +623,6 @@ int main(int argc, char *argv[]) {
       std::cerr << "need to give argument :--usolids or --vecgeom\n";     
       return 1;
     }
-
 
   return 0;
 }
