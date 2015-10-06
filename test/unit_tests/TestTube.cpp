@@ -82,15 +82,10 @@ bool TestTubs()
 
     dir174 /= dir174.Mag();
     double din = jira174Tube.DistanceToIn( pos174, dir174 );
-    // assert(ApproxEqual(din,0));
+    assert(ApproxEqual(din,0));
     double dout = jira174Tube.DistanceToOut( pos174, dir174, norm174, conv174);
-    // assert(ApproxEqual(dout,19.499));
-    std::cout <<"===> pos="<< pos174
-              <<"\n dir="<< dir174
-              <<"\n distIn="<< din
-              <<" distOut="<< dout
-              <<"\n";
-
+    assert(ApproxEqual(dout,19.499));
+ 
     // Check cubic volume
     vol = t1.Capacity();
     volCheck = 50*2*UUtils::kPi*50*50;
