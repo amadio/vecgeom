@@ -58,7 +58,7 @@ public:
     // for the phi section --> will be replaced by a wedge
     Precision fStartPhi;
     Precision fDeltaPhi;
-    Precision fEndPhi;
+  //Precision fEndPhi;
 
     unsigned int fNz;
     //Precision * fRmin;
@@ -112,19 +112,17 @@ public:
 
     VECGEOM_CUDA_HEADER_BOTH
     int GetSectionIndex( Precision zposition ) const {
-     //TODO: consider bindary search
-     if( zposition < fZs[0] ) return -1;
-     for(int i=0;i<GetNSections();++i)
-       {
-           if( zposition >= fZs[i] && zposition <= fZs[i+1] )
-                return i;
-       }
-     return -2;
+      //TODO: consider binary search
+      if( zposition < fZs[0] ) return -1;
+      for( int i=0; i<GetNSections(); ++i ) {
+        if( zposition >= fZs[i] && zposition <= fZs[i+1] ) return i;
+      }
+      return -2;
     }
 
     VECGEOM_CUDA_HEADER_BOTH
     PolyconeSection const & GetSection( Precision zposition ) const {
-        //TODO: consider bindary search
+        // TODO: consider binary search
         int i = GetSectionIndex(zposition);
         return fSections[i];
     }
@@ -134,6 +132,22 @@ public:
     PolyconeSection const & GetSection( int index ) const {
       return fSections[index];
     }
+
+    Precision GetRminAtPlane( int index ) const {
+      int nsect = GetNSections();
+      if(index<0 || index>nsect) return 0.0;
+      else if(index==nsect) return fSections[index-1].fSolid->GetRmin2();
+      else                  return fSections[index].fSolid->GetRmin1();
+    }
+
+    Precision GetRmaxAtPlane( int index ) const {
+      int nsect = GetNSections();
+      if(index<0 || index>nsect) return 0.0;
+      else if(index==nsect) return fSections[index-1].fSolid->GetRmax2();
+      else                  return fSections[index].fSolid->GetRmax1();
+    }
+
+    Precision GetZAtPlane( int index ) const { return fZs[index]; }
 
 #if !defined(VECGEOM_NVCC)
     Precision Capacity() const {
