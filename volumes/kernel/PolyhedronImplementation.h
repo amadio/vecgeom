@@ -24,10 +24,10 @@ namespace vecgeom {
 // TODO: this is unclear
 // we should declare it in a way such that we can use the specialization on the GPU
 //
-VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_poly(PolyhedronImplementation,
-		TranslationCode, translation::kGeneric, RotationCode, rotation::kGeneric,
-              Polyhedron::EInnerRadii, Polyhedron::EInnerRadii::kGeneric,
-              Polyhedron::EPhiCutout, Polyhedron::EPhiCutout::kGeneric)
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_poly(PolyhedronImplementation, TranslationCode, translation::kGeneric,
+                                          RotationCode, rotation::kGeneric, Polyhedron::EInnerRadii,
+                                          Polyhedron::EInnerRadii::kGeneric, Polyhedron::EPhiCutout,
+                                          Polyhedron::EPhiCutout::kGeneric)
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -40,8 +40,8 @@ template <TranslationCode transCodeT, RotationCode rotCodeT,
 struct PolyhedronImplementation {
 
     // there is currently no specialization
-   static const int transC = translation::kGeneric;
-   static const int rotC   = rotation::kGeneric;
+    static const int transC = transCodeT;
+    static const int rotC = rotCodeT;
 
    using PlacedShape_t = PlacedPolyhedron;
    using UnplacedShape_t = UnplacedPolyhedron;
