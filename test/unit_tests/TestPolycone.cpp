@@ -88,6 +88,17 @@ bool TestPolycone()
                               RMIN ,
                               RMAX );
 
+  // Jira-175 test - old CMS volume SBSC
+  const int Nz3 = 6;
+  double rmin3[Nz3] = { 53, 53,  53,  53, 114, 114};
+  double rmax3[Nz3] = { 54, 54, 115, 115, 115, 115};
+  double z3[Nz3]    = { 71, 121.5, 121.5, 122.5, 122.5, 282};
+  Polycone_t pcon175("PCone175", 0, 360.*UUtils::kPi/180., Nz3, z3, rmin3, rmax3);
+
+  Vec_t point175a{ -18.1079855387881, -54.3917837284389, 121.5 };
+  assert( pcon175.Contains( point175a ) == false );
+  assert( pcon175.Inside( point175a )   == vecgeom::EInside::kSurface );
+
 if(testingvecgeom){
 
     int Nz = 4;
