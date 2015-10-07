@@ -68,7 +68,7 @@ void Nucleus::ReadFile(string infilename, string outfilename) {
    getline(infile,line);  // Get title
    Nucleus *nuc=0;
    if(output) {
-      outfile << "#ifdef __clang__" << endl;
+      outfile << "#if defined(__clang__) && !defined(__APPLE__)" << endl;
       outfile << "#pragma clang optimize off" << endl;
       outfile << "#endif" << endl;
       outfile << "#include \"materials/Nucleus.h\"" << endl;
@@ -125,7 +125,7 @@ void Nucleus::ReadFile(string infilename, string outfilename) {
       outfile << "}" << endl;      
       outfile << " } // End of inline namespace" << endl;
       outfile << " } // End of vecgeom namespace" << endl;
-      outfile << "#ifdef __clang__" << endl;
+      outfile << "#if defined(__clang__) && !defined(__APPLE__)" << endl;
       outfile << "#pragma clang optimize on" << endl;
       outfile << "#endif" << endl;
    }
