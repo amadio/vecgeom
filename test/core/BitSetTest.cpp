@@ -1,4 +1,4 @@
-#include "BitSet.h"
+#include "base/BitSet.h"
 
 #include <cassert>
 
@@ -83,6 +83,7 @@ void BitSetTest() {
    }
 
    CheckValues(s, nbits);    
+   delete s;
 }
 
 int main() {

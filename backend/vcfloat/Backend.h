@@ -61,7 +61,8 @@ typedef kVcFloat::inside_v    VcInsideFloat;
 //  (*output)(cond) = thenval;
 //}
 
-
+// in case of scalar VcBoolFloat == VcBoolDouble == bool
+#ifndef VC_IMPL_Scalar
 VECGEOM_INLINE
 void MaskedAssign(VcBoolFloat const &cond,
                   const Inside_t thenval,
@@ -84,6 +85,7 @@ VECGEOM_INLINE
 bool IsEmpty(VcBoolFloat const &cond) {
   return cond.isEmpty();
 }
+#endif
 
 VECGEOM_INLINE
 VcPrecisionFloat Abs(VcPrecisionFloat const &val) {

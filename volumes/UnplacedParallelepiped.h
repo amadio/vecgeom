@@ -92,6 +92,8 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual void Print() const;
 
+  void Extent( Vector3D<Precision> &, Vector3D<Precision> &) const;
+
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECGEOM_CUDA_HEADER_DEVICE
   static VPlacedVolume* Create(LogicalVolume const *const logical_volume,

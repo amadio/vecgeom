@@ -87,10 +87,8 @@ void MaskedAssign(VcBool const &cond,
   (*output)(VcInside::Mask(cond)) = thenval;
 }
 
-
-template <typename Type>
 VECGEOM_INLINE
-  bool IsFull(typename Vc::Vector<Type>::Mask const &cond) {
+  bool IsFull(VcBool const &cond) {
   return cond.isFull();
 }
 
@@ -112,6 +110,11 @@ VcPrecision Abs(VcPrecision const &val) {
 VECGEOM_INLINE
 VcPrecision Sqrt(VcPrecision const &val) {
   return Vc::sqrt(val);
+}
+
+VECGEOM_INLINE
+VcPrecision Log(VcPrecision const &val) {
+  return Vc::log(val);
 }
 
 VECGEOM_INLINE

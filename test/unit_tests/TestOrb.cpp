@@ -52,9 +52,6 @@ bool TestOrb() {
     Orb_t b1("Solid VecGeomOrb #1",fR);
     Orb_t b2("Solid VecGeomOrb #2",6);
 
-    // Check name
-    assert(b1.GetName()=="Solid VecGeomOrb #1");
-    assert(b2.GetName()=="Solid VecGeomOrb #2");
 
     
    // Check cubic volume

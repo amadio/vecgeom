@@ -50,9 +50,6 @@ bool TestTrd()
 	                   22.699999999999999) ;
 
 
-// Check name
-    assert(trd1.GetName()=="Test Box #1");
-    assert(trd2.GetName()=="Test Trd");
 
 // check Cubic volume
 

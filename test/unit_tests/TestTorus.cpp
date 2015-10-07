@@ -107,8 +107,6 @@ bool testTorus()
 		      -3.552713678800501e-15,
                       22.37458414788935       );
 
-  // Check name
-   assert(t1.GetName()=="Solid Torus #1");
 
   // Check cubic volume
 

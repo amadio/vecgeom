@@ -25,7 +25,7 @@ NavigationState::GlobalToLocal(Vector3D<Precision> const & globalpoint, int tole
     Vector3D<Precision> current;
     for(int level=0;level<tolevel;++level)
     {
-      Transformation3D const *m = fPath[level]->GetTransformation();
+      Transformation3D const *m = At(level)->GetTransformation();
       current = m->Transform( tmp );
       tmp = current;
     }
@@ -38,7 +38,7 @@ void
 NavigationState::TopMatrix( int tolevel, Transformation3D & global_matrix ) const {
     for(int i=1;i<tolevel;++i)
     {
-       global_matrix.MultiplyFromRight( *(fPath[i]->GetTransformation()) );
+       global_matrix.MultiplyFromRight( *(At(i)->GetTransformation()) );
     }
 }
 
@@ -55,7 +55,7 @@ NavigationState::GlobalToLocal(Vector3D<Precision> const & globalpoint) const
    Vector3D<Precision> current;
    for(int level=0;level<fCurrentLevel;++level)
    {
-      Transformation3D const *m = fPath[level]->GetTransformation();
+      Transformation3D const *m = At(level)->GetTransformation();
       current = m->Transform( tmp );
       tmp = current;
    }
@@ -68,7 +68,7 @@ NavigationState::GlobalToLocal(Vector3D<Precision> const & globalpoint) const
     {
         if ( mother->GetDaughters()[d] == daughter) return d;
     }
-    return -1;
+    return static_cast<uint>(-1);
   }
 
   VPlacedVolume const * GetDaughterWithinMother( VPlacedVolume const * mother, uint index )
@@ -92,13 +92,13 @@ NavigationState::GlobalToLocal(Vector3D<Precision> const & globalpoint) const
     // clear current nav state
     fCurrentLevel =  indices.size();
     if( indices.size() > 0 ) {
-        fPath[0] = world;
+        fPath[0] = ToIndex( world );
         // have to disregard first one;
         // then iterate through list
         int counter=0;
         for( auto x : indices ){
             if(counter>0)
-                fPath[counter] = GetDaughterWithinMother( At(counter-1), x );
+                fPath[counter] = ToIndex( GetDaughterWithinMother( At(counter-1), x ) );
             counter++;
         }
     }
@@ -124,7 +124,7 @@ NavigationState::GlobalToLocal(Vector3D<Precision> const & globalpoint) const
 
     //tmp->
     for(int i=0;i<fCurrentLevel;++i)
-          array[i]=const_cast<TGeoNode *>(mg.tgeonode( fPath[i] ));
+          array[i]=const_cast<TGeoNode *>(mg.tgeonode( ToPlacedVolume(fPath[i]) ));
     // assert( tmp->GetCurrentNode() == mg.tgeonode( Top() ));
 
     /*
@@ -151,7 +151,7 @@ NavigationState::GlobalToLocal(Vector3D<Precision> const & globalpoint) const
      RootGeoManager & mg=RootGeoManager::Instance();
 
      for(int i=0;i<fCurrentLevel;++i)
-       fPath[i]=mg.GetPlacedVolume( other.GetNode(i) );
+       fPath[i]=ToIndex( mg.GetPlacedVolume( other.GetNode(i) ) );
 
      //other things like onboundary I don't care
      fOnBoundary=false;

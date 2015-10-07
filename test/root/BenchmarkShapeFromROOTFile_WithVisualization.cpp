@@ -18,6 +18,7 @@
 #include "utilities/Visualizer.h"
 #include <string>
 #include <cmath>
+#include <iostream>
 
 using namespace vecgeom;
 

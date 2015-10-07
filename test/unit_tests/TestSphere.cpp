@@ -40,9 +40,6 @@ bool TestSphere() {
     Sphere_t b2("Solid VecGeomSphere #2",fRmin, fRmax, PI/6, PI/2, fSTheta, fDTheta);
     Sphere_t b3("Solid VecGeomSphere #3",1, fRmax, PI/6, PI/2, fSTheta, fDTheta);
     
-    // Check name
-    assert(b1.GetName()=="Solid VecGeomSphere #1");
-    assert(b2.GetName()=="Solid VecGeomSphere #2");
 
     
    // Check cubic volume
