@@ -527,7 +527,12 @@ set(SRC_CPP_RELATIVE
   source/CreateParticles.cpp
 )
 
-# avoid "file has no symbols" warning
+# avoid "file has no symbols" warnings
+
+if (NOT USolids)
+  list(REMOVE_ITEM SRC_CPP_RELATIVE source/USolidsInterfaceHelper.cpp)
+endif()
+
 if(NOT CUDA)
   list(REMOVE_ITEM SRC_CPP_RELATIVE source/RNG.cpp)
   list(REMOVE_ITEM SRC_CPP_RELATIVE source/AOS3D.cpp)
