@@ -423,13 +423,6 @@ double UMultiUnion::DistanceToOutVoxels(const UVector3& aPoint, const UVector3& 
   return distance;
 }
 
-
-struct USurface
-{
-  UVector3 point;
-  VUSolid* solid;
-};
-
 //______________________________________________________________________________
 VUSolid::EnumInside UMultiUnion::InsideWithExclusion(const UVector3& aPoint, UBits* exclusion) const
 {
@@ -448,7 +441,7 @@ VUSolid::EnumInside UMultiUnion::InsideWithExclusion(const UVector3& aPoint, UBi
   VUSolid::EnumInside location = EnumInside::eOutside;
 
   vector<int> candidates;
-  vector<USurface> surfaces;
+  vector<UMultiUnionSurface> surfaces;
 
   // TODO: test if it works well and if so measure performance
   // TODO: getPointIndex should not be used, instead GetVoxel + GetVoxelsIndex should be used
@@ -471,7 +464,7 @@ VUSolid::EnumInside UMultiUnion::InsideWithExclusion(const UVector3& aPoint, UBi
       if (location == EnumInside::eInside) return EnumInside::eInside;
       else if (location == EnumInside::eSurface)
       {
-        USurface surface;
+        UMultiUnionSurface surface;
         surface.point = localPoint;
         surface.solid = &solid;
         surfaces.push_back(surface);
@@ -486,10 +479,10 @@ VUSolid::EnumInside UMultiUnion::InsideWithExclusion(const UVector3& aPoint, UBi
   int size = surfaces.size();
   for (int i = 0; i < size - 1; ++i)
   {
-    USurface& left = surfaces[i];
+    UMultiUnionSurface& left = surfaces[i];
     for (int j = i + 1; j < size; ++j)
     {
-      USurface& right = surfaces[j];
+      UMultiUnionSurface& right = surfaces[j];
       UVector3 n, n2;
       left.solid->Normal(left.point, n);
       right.solid->Normal(right.point, n2);
@@ -502,70 +495,6 @@ VUSolid::EnumInside UMultiUnion::InsideWithExclusion(const UVector3& aPoint, UBi
 
   return location;
 }
-
-/*
-//______________________________________________________________________________
-VUSolid::EnumInside UMultiUnion::InsideWithExclusion(const UVector3 &aPoint, UBits *exclusion) const
-{
-  // Classify point location with respect to solid:
-  //  o eInside       - inside the solid
-  //  o eSurface      - close to surface within tolerance
-  //  o eOutside      - outside the solid
-
-  // Hitherto, it is considered that:
-  //        - only parallelepipedic nodes can be added to the container
-
-  // Implementation using voxelisation techniques:
-  // ---------------------------------------------
-
-  UVector3 localPoint;
-  VUSolid::EnumInside location = EnumInside::eOutside;
-  bool surface = false;
-
-  // TODO: test if it works well and if so measure performance
-  // TODO: getPointIndex should not be used, instead GetVoxel + GetVoxelsIndex should be used
-  // TODO: than pass result to GetVoxel further to GetCandidatesVoxelArray
-  // TODO: eventually GetVoxel should be inlined here, early exit if any binary search is -1
-
-  // the code bellow makes it currently only slower
-  //  if (!fVoxels.empty.GetNbits() || !fVoxels.empty[fVoxels.GetPointIndex(aPoint)])
-  {
-    vector<int> curVoxel(3);
-    if (fVoxels.GetPointVoxel(aPoint, curVoxel))
-    {
-      int index = fVoxels.GetVoxelsIndex(curVoxel);
-      if (!fVoxels.Empty()[index])
-      {
-    //    int limit = fVoxels.GetCandidatesVoxelArray(aPoint, candidates, exclusion);
-        const vector<int> &candidates = fVoxels.GetCandidates(curVoxel);
-        int limit = candidates.size();
-        for(int i = 0 ; i < limit ; ++i)
-        {
-          int candidate = candidates[i];
-          VUSolid &solid = *solids[candidate];
-          UTransform3D &transform = *transforms[candidate];
-
-          // The coordinates of the point are modified so as to fit the intrinsic solid local frame:
-          localPoint = transform.LocalPoint(aPoint);
-          location = solid.Inside(localPoint);
-          if(location == EnumInside::eSurface) surface = true;
-
-          if(location == EnumInside::eInside) return EnumInside::eInside;
-        }
-      }
-    }
-  }
-  ///////////////////////////////////////////////////////////////////////////
-  // Important comment: When two solids touch each other along a flat
-  // surface, the surface points will be considered as eSurface, while points
-  // located around will correspond to eInside (cf. G4UnionSolid in GEANT4)
-  location = surface ? eSurface : eOutside;
-
-  return location;
-}
-*/
-
-#define DEBU
 
 //______________________________________________________________________________
 VUSolid::EnumInside UMultiUnion::Inside(const UVector3& aPoint) const
