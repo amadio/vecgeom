@@ -115,11 +115,7 @@ private:
    bool fOnBoundary; // flag indicating whether track is on boundary of the "Top()" placed volume
 
    // pointer data follows; has to be last
-<<<<<<< HEAD
-   veccore::VariableSizeObj<VPlacedVolume const *> fPath;
-=======
    veccore::VariableSizeObj<Value_t> fPath;
->>>>>>> origin/devel
 
    // constructors and assignment operators are private
    // states have to be constructed using MakeInstance() function
