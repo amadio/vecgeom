@@ -61,7 +61,7 @@ if( vecgeom::GeoManager::Instance().GetWorld() == NULL )
     Printf("Loading VecGeom geometry done\n");
     Printf("Have depth %d\n", vecgeom::GeoManager::Instance().getMaxDepth());
     std::vector<vecgeom::LogicalVolume *> v1;
-    vecgeom::GeoManager::Instance().getAllLogicalVolumes( v1 );
+    vecgeom::GeoManager::Instance().GetAllLogicalVolumes( v1 );
     Printf("Have logical volumes %ld\n", v1.size() );
     std::vector<vecgeom::VPlacedVolume *> v2;
     vecgeom::GeoManager::Instance().getAllPlacedVolumes( v2 );

@@ -168,7 +168,7 @@ public:
    *  Container is supposed to be any Container that can store pointers to
    */
   template<typename Container>
-  void getAllLogicalVolumes( Container & c ) const;
+  void GetAllLogicalVolumes( Container & c ) const;
 
   /**
    *  give back container containing all logical volumes in detector
@@ -267,7 +267,7 @@ GeoManager::visitAllPlacedVolumes( VPlacedVolume const * currentvolume, Visitor 
 }
 
 template<typename Container>
-void GeoManager::getAllLogicalVolumes( Container & c ) const
+void GeoManager::GetAllLogicalVolumes( Container & c ) const
 {
    c.clear();
    // walk all the volume hierarchy and insert

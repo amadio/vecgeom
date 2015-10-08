@@ -80,7 +80,7 @@ void GeoManager::CompactifyMemory() {
     std::set<VPlacedVolume const *> pvolumeset(pvolumes.begin(), pvolumes.end());
 
     std::vector<LogicalVolume const *> lvolumes;
-    getAllLogicalVolumes(lvolumes);
+    GetAllLogicalVolumes(lvolumes);
     std::set<LogicalVolume const *> lvolumeset(lvolumes.begin(), lvolumes.end());
 
     std::cerr << pvolumecount << " vs " << pvolumeset.size() << "\n";
