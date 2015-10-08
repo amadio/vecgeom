@@ -17,6 +17,8 @@
 #include <cmath>
 
 bool testvecgeom = false;
+const double degToRad = UUtils::kPi/180.0;
+const double mm = 0.1;
 
 template <class Polyhedra_t,class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
 
@@ -54,58 +56,34 @@ bool TestPolyhedra()
   Z_Values[7] = 40;
 
 
-  double Phi_Values[2];
-  Phi_Values[0]=0.;
-  if(testvecgeom)
-  Phi_Values[1]=45.;
-  else
-  Phi_Values[1]=45.*UUtils::kPi/180.;
-
-  // Phi_Values[1]=2*UUtils::kPi;
-  
-  Polyhedra_t *MyPGon = new Polyhedra_t ("MyPGon",
-                                                    Phi_Values[0],
-				                    Phi_Values[1],						                    5        ,
-						    8        ,
-						    Z_Values ,
-						    RMINVec  ,
-						    RMAXVec   );
-  
+  double sphi = 0.0;
+  double dphi = 45.0;
+  if(!testvecgeom) {
+    dphi *= degToRad;
+    sphi *= degToRad;
+  }
+  Polyhedra_t *MyPGon = new Polyhedra_t ("MyPGon", sphi, dphi, 5, 8, Z_Values, RMINVec, RMAXVec );
 
   double RMINVec0[2];
   RMINVec0[0] = 1;
   RMINVec0[1] = 1;
-  
 
   double RMAXVec0[2];
   RMAXVec0[0] = 2;
   RMAXVec0[1] = 2;
- 
 
   double Z_Values0[2];
   Z_Values0[0] =-1;
   Z_Values0[1] = 1;
   
-  Polyhedra_t *MyPGon0;
-  if(testvecgeom)
-  MyPGon0 = new Polyhedra_t ("MyPGon0",
-                                         0,
-					 180.,
-					 2  ,
-				         2        ,
-				         Z_Values0 ,
-				         RMINVec0  ,
-			                 RMAXVec0   );
-  else
-  MyPGon0 = new Polyhedra_t ("MyPGon0",
-                                         0,
-					 UUtils::kPi,
-					 2  ,
-				         2        ,
-				         Z_Values0 ,
-				         RMINVec0  ,
-				         RMAXVec0   );
+  double sphi0 = 0.0;
+  double dphi0 = 180.0;
+  if(!testvecgeom) {
+    sphi0 *= degToRad;
+    dphi0 *= degToRad;
+  }
 
+  Polyhedra_t *MyPGon0 = new Polyhedra_t ("MyPGon0", sphi0, dphi0, 2, 2, Z_Values0, RMINVec0, RMAXVec0 );
 
   double RMINVec1[3];
   RMINVec1[0] = 0;
@@ -123,33 +101,23 @@ bool TestPolyhedra()
   Z_Values1[0] =-1;
   Z_Values1[1] = 0;
   Z_Values1[2] = 1;
-  
-  Polyhedra_t *MyPGon1;
-  if(testvecgeom)
-  MyPGon1 = new Polyhedra_t ("MyPGon1",
-                                         0,
-					 360.,
-				         4  ,
-					 3        ,
-					 Z_Values1 ,
-					 RMINVec1  ,
-					 RMAXVec1   );
-  else
-  MyPGon1 = new Polyhedra_t ("MyPGon1",
-                                          0,
-					  2.0*UUtils::kPi,
-					  4  ,
-					  3        ,
-					  Z_Values1 ,
-					  RMINVec1  ,
-					  RMAXVec1   );
+
+  double sphi1 = 0.;
+  double dphi1 = 360.;
+  if(!testvecgeom) {
+    sphi1 *= degToRad;
+    dphi1 *= degToRad;
+  }
+
+  Polyhedra_t *MyPGon1 = new Polyhedra_t ("MyPGon1", sphi1, dphi1, 4, 3, Z_Values1, RMINVec1, RMAXVec1 );
 
 
-
-
-// Check name
+// Check names
     assert(MyPGon->GetName()=="MyPGon");
-    
+
+// show units and bounding tube
+  std::cout<<"=== Polyhedron: "<< MyPGon->StreamInfo(std::cout) <<"\n";
+
 // Check Cubic volume
     //double vol;
     //vol = MyPGon->Capacity();
@@ -188,15 +156,32 @@ bool TestPolyhedra()
  diry=Vec_t(0,1,0);
  dirz=Vec_t(0,0,1);
 
+// CalculateExtent
+    Vec_t minExtent,maxExtent;
+    MyPGon->Extent(minExtent,maxExtent);
+    std::cout<<"polyhedra Extent():  min="<<minExtent<<" max="<<maxExtent<<std::endl;
+    assert(ApproxEqual(minExtent,Vec_t(-80.247375,-80.247375,-30)));
+    assert(ApproxEqual(maxExtent,Vec_t( 80.247375, 80.247375, 40)));
+
  //Check Inside
-  assert(MyPGon->Inside(p1) ==  vecgeom::EInside::kSurface);
+ std::cout<<" EInside values:  kInside="<< vecgeom::EInside::kInside
+          <<", kSurface="<< vecgeom::EInside::kSurface
+          <<", kOutside="<< vecgeom::EInside::kOutside <<"\n";
+ std::cout<<" MyPGon->Inside("<< p1 <<") = "<< MyPGon->Inside(p1) <<"\n";
+ std::cout<<" MyPGon->Inside("<< p2 <<") = "<< MyPGon->Inside(p2) <<"\n";
+ std::cout<<" MyPGon->Inside("<< p3 <<") = "<< MyPGon->Inside(p3) <<"\n";
+ std::cout<<" MyPGon->Inside("<< p4 <<") = "<< MyPGon->Inside(p4) <<"\n";
+ std::cout<<" MyPGon->Inside("<< p5 <<") = "<< MyPGon->Inside(p5) <<"\n";
+ std::cout<<" MyPGon->Inside("<< p6 <<") = "<< MyPGon->Inside(p6) <<"\n";
+
+  assert(MyPGon->Inside(p1) ==  vecgeom::EInside::kInside);
   assert(MyPGon->Inside(p2) ==  vecgeom::EInside::kSurface);
   assert(MyPGon->Inside(p3) ==  vecgeom::EInside::kInside);
   assert(MyPGon->Inside(p4) ==  vecgeom::EInside::kInside);
   assert(MyPGon->Inside(p5) ==  vecgeom::EInside::kOutside);
-  //assert(MyPGon->Inside(p6) ==  vecgeom::EInside::kOutside);
+  assert(MyPGon->Inside(p6) ==  vecgeom::EInside::kOutside);
+
  //Check DistanceToIn
- 
   double tolerance = 1e-9;
   assert(std::fabs((MyPGon->DistanceToIn(p1,dirx))) < tolerance);
   assert(std::fabs((MyPGon->DistanceToIn(p1,-diry)))< tolerance);
@@ -213,13 +198,6 @@ bool TestPolyhedra()
   assert(std::fabs((MyPGon->DistanceToOut(p4,dirz,normal,convex)  -10.))           < tolerance);
   assert(std::fabs((MyPGon->DistanceToOut(p4,dirx,normal,convex)  -34.8538673445)) < tolerance);
   assert(std::fabs((MyPGon->DistanceToOut(p4,diry,normal,convex)  -40.))           < tolerance);
-
-// CalculateExtent
-    Vec_t minExtent,maxExtent;
-    MyPGon->Extent(minExtent,maxExtent);
-    // std::cout<<" min="<<minExtent<<" max="<<maxExtent<<std::endl;
-    assert(ApproxEqual(minExtent,Vec_t(-80.247375,-80.247375,-30)));
-    assert(ApproxEqual(maxExtent,Vec_t( 80.247375, 80.247375, 40)));
 
 
  #ifdef SCAN_SOLID 
