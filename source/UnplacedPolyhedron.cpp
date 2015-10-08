@@ -373,7 +373,7 @@ VPlacedVolume* UnplacedPolyhedron::Create(
     #define POLYHEDRON_CREATE_SPECIALIZATION(INNER, PHI) return CreateSpecializedWithPlacement< \
     SpecializedPolyhedron<transCodeT,rotCodeT,INNER,PHI> >(logical_volume, transformation, id, placement)
     #endif
-  
+
   if(innerRadii == EInnerRadii::kTrue)
   {
   	if( phiCutout == EPhiCutout::kFalse )
@@ -393,8 +393,15 @@ VPlacedVolume* UnplacedPolyhedron::Create(
   	if( phiCutout == EPhiCutout::kLarge )
   	  POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kFalse, EPhiCutout::kLarge);
   }
-  
-//#endif
+
+if (placement){
+ new (placement) SpecializedPolyhedron<transCodeT,rotCodeT, Polyhedron::EInnerRadii::kGeneric,
+   Polyhedron::EPhiCutout::kGeneric>(logical_volume,transformation);
+ return placement;
+}
+
+return new SpecializedPolyhedron<transCodeT,rotCodeT, Polyhedron::EInnerRadii::kGeneric,
+   Polyhedron::EPhiCutout::kGeneric>(logical_volume,transformation);
 
 
 #undef POLYHEDRON_CREATE_SPECIALIZATION
