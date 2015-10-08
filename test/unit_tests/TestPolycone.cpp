@@ -121,7 +121,6 @@ if(testingvecgeom){
     UnplacedCone section1(rmin[1], rmax[1], rmin[2], rmax[2], (z[2] - z[1])/2., 0, kTwoPi);
     UnplacedCone section2(rmin[2], rmax[2], rmin[3], rmax[3], (z[3] - z[2])/2., 0, kTwoPi);
 
-
     assert( poly1.GetNz() == 4 );
     assert( poly1.GetNSections() == 3 );
     assert( poly1.GetSectionIndex( -0.8 ) == 0 );

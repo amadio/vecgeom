@@ -60,27 +60,26 @@ bool TestTubs()
     Tube_t tube8("tube8",2550,2580,2000,0,2*UUtils::kPi);
     Tube_t tube9("tube9",1150,1180,2000,0,2*UUtils::kPi);
     Tube_t tube10("tube10",400 ,405 ,400 ,0,2*UUtils::kPi) ;
-    Tube_t* clad =
-      new Tube_t("clad",90.,110.,105,0.,UUtils::kPi);    // external
-    Tube_t* core =
-      new Tube_t("core",95.,105.,100,0.,UUtils::kPi); // internal
+    Tube_t* clad = new Tube_t("clad",90.,110.,105,0.,UUtils::kPi);    // external
+    Tube_t* core = new Tube_t("core",95.,105.,100,0.,UUtils::kPi); // internal
 
 
     std::cout.precision(20);
-// Check name
-   //assert(t1.GetName()=="Solid Tube #1");
+    // Check name
+    //assert(t1.GetName()=="Solid Tube #1");
 
-  // Check cubic volume
-  vol = t1.Capacity();
-  volCheck = 50*2*UUtils::kPi*50*50;
-  assert(ApproxEqual(vol,volCheck));
+
+    // Check cubic volume
+    vol = t1.Capacity();
+    volCheck = 50*2*UUtils::kPi*50*50;
+    assert(ApproxEqual(vol,volCheck));
  
-  // Check Surface area
-  vol = t2.SurfaceArea();
-  volCheck = 2.*UUtils::kPi*(45+50)*(50-45+2*50);
-  assert(ApproxEqual(vol,volCheck));
+    // Check Surface area
+    vol = t2.SurfaceArea();
+    volCheck = 2.*UUtils::kPi*(45+50)*(50-45+2*50);
+    assert(ApproxEqual(vol,volCheck));
 
-  Tube_t myClad("myClad", 90.0, 110.0, 105.0, 0.0, PI);    // TEST MINE
+    Tube_t myClad("myClad", 90.0, 110.0, 105.0, 0.0, PI);    // TEST MINE
   
 // Check Inside
     assert(t1.Inside(pzero)==vecgeom::EInside::kInside);
@@ -466,49 +465,43 @@ bool TestTubs()
 }
 
 #ifdef VECGEOM_USOLIDS
-struct USOLIDSCONSTANTS
-{
+struct USOLIDSCONSTANTS {
   static constexpr double kInfinity = DBL_MAX; // UUSolids::kInfinity;
 };
 #endif
-struct VECGEOMCONSTANTS
-{
+struct VECGEOMCONSTANTS {
   static constexpr double kInfinity = vecgeom::kInfinity;
 };
 
 int main(int argc, char *argv[]) {
- 
-   if( argc < 2)
-    {
-      std::cerr << "need to give argument :--usolids or --vecgeom\n";     
+
+   if( argc < 2) {
+      std::cerr << "need to give argument :--usolids or --vecgeom\n";
       return 1;
-    }
-    
-    if( ! strcmp(argv[1], "--usolids") ) {
+   }
+
+   if( ! strcmp(argv[1], "--usolids") ) {
 #ifndef VECGEOM_USOLIDS
-       std::cerr << "VECGEOM_USOLIDS was not defined\n";
-       return 2;
+     std::cerr << "VECGEOM_USOLIDS was not defined\n";
+     return 2;
 #else
   #ifndef VECGEOM_REPLACE_USOLIDS
-       TestTubs<USOLIDSCONSTANTS,UTubs>();
-       std::cout << "UTube passed\n";
+     TestTubs<USOLIDSCONSTANTS,UTubs>();
+     std::cout << "UTube passed\n";
   #else
-       TestTubs<VECGEOMCONSTANTS,UTubs>();
-       std::cout << "USolids --> VecGeom tube passed\n";
+     TestTubs<VECGEOMCONSTANTS,UTubs>();
+     std::cout << "USolids --> VecGeom tube passed\n";
   #endif
 #endif
     }
-    else if( ! strcmp(argv[1], "--vecgeom") )
-    {
+    else if( ! strcmp(argv[1], "--vecgeom") ) {
        TestTubs<VECGEOMCONSTANTS,vecgeom::SimpleTube>();
        std::cout << "VecGeom tube passed\n";
     }
-    else
-    {
-      std::cerr << "need to give argument :--usolids or --vecgeom\n";     
+    else {
+      std::cerr << "need to give argument: --usolids or --vecgeom\n";
       return 1;
     }
 
   return 0;
-
 }

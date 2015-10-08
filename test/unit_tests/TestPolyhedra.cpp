@@ -23,7 +23,7 @@ template <class Polyhedra_t,class Vec_t = vecgeom::Vector3D<vecgeom::Precision> 
 bool TestPolyhedra()
 {
 
- double RMINVec[8];
+  double RMINVec[8];
   RMINVec[0] = 30;
   RMINVec[1] = 30;
   RMINVec[2] =  0;
@@ -248,9 +248,9 @@ bool TestPolyhedra()
       std::cout <<" is inside";
     else
       if( in == vecgeom::EInside::kOutside )
-	std::cout <<" is outside";
+    std::cout <<" is outside";
       else
-	std::cout <<" is on the surface";
+    std::cout <<" is on the surface";
   }
 
   std::cout<<"\n\n==================================================";
@@ -366,23 +366,23 @@ bool TestPolyhedra()
          std::cout<<"  distance to out="<<d4;
          d4 = MyPGon->SafetyFromInside(start4);
          std::cout<<" closest distance to out="<<d4<<std::endl;
-	}
+    }
     else
       if( in == vecgeom::EInside::kOutside )
-	{
+    {
          std::cout <<" is outside";
           d4 = MyPGon->DistanceToIn(start4, dir4);
          std::cout<<"  distance to in="<<d4;
          d4 = MyPGon->SafetyFromOutside(start4);
          std::cout<<" closest distance to in="<<d4<<std::endl;
-	}
+    }
       else
-	{std::cout <<" is on the surface";
+    {std::cout <<" is on the surface";
          d4 = MyPGon->DistanceToIn(start4, dir4);
          std::cout<<"  distance to in="<<d4;
          d4 = MyPGon->SafetyFromOutside(start4);
          std::cout<<" closest distance to in="<<d4<<std::endl;
-	}
+    }
     
   }
    }
@@ -423,7 +423,7 @@ bool TestPolyhedra()
     else
       if( in ==  vecgeom::EInside::kOutside )
         {
-	 std::cout <<" is outside";
+     std::cout <<" is outside";
          d5 = MyPGon->DistanceToIn(start5, dir5);
          std::cout<<"  distance to in="<<d5;
          d5 = MyPGon->SafetyFromOutside(start5);
@@ -431,7 +431,7 @@ bool TestPolyhedra()
         }
       else
         {
-	 std::cout <<" is on the surface";
+     std::cout <<" is on the surface";
          d5 = MyPGon->DistanceToIn(start5, dir5);
          std::cout<<"  distance to in="<<d5;
          d5 = MyPGon->SafetyFromOutside(start5);

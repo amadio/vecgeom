@@ -1,17 +1,14 @@
 //
-//
-// TestCones
-
-
-
+// File: TestCons.cpp
+// Purpose: Unit tests for cones and cone sections
 
 #include "base/Vector3D.h"
 #include "ApproxEqual.h"
 #include "volumes/Cone.h"
 #include "base/Global.h"
 #ifdef VECGEOM_USOLIDS
-#include "UCons.hh"
-#include "UVector3.hh"
+  #include "UCons.hh"
+  #include "UVector3.hh"
 #endif
 #include <cmath>
 
@@ -19,26 +16,26 @@
 #undef NDEBUG
 #include <cassert>
 
-
 #define DELTA 0.0001
 
 bool testingvecgeom=false;
 
 // Returns false if actual is within wanted+/- DELTA
 //         true if error
-bool OutRange(double actual,double wanted)
-{
-    bool rng = false ;
-    if (actual < wanted-DELTA || actual > wanted + DELTA ) rng = true ;
-    return rng ;
+bool OutRange(double actual,double wanted) {
+  bool rng = false ;
+  if (actual < wanted-DELTA || actual > wanted + DELTA ) rng = true ;
+  return rng ;
 }
-bool OutRange(UVector3 actual,UVector3 wanted)
-{
-    bool rng = false ;
-    if (OutRange(actual.x(),wanted.x())
-    ||OutRange(actual.y(),wanted.y())
-    ||OutRange(actual.z(),wanted.z())  ) rng = true ;
-    return rng ;
+
+bool OutRange(UVector3 actual,UVector3 wanted) {
+  bool rng = false ;
+  if( OutRange(actual.x(),wanted.x()) ||
+      OutRange(actual.y(),wanted.y()) ||
+      OutRange(actual.z(),wanted.z())  ) {
+    rng = true;
+  }
+  return rng;
 }
 
 template <typename Constants, class Cone_t,class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
@@ -83,27 +80,28 @@ bool TestCons()
                     vx2mz(1.0/std::sqrt(5.0),0,-2.0/std::sqrt(5.0)),
                 vxmz(1./std::sqrt(2.),0,-1./std::sqrt(2.));
 
-  Cone_t c1("Hollow Full Tube",50,100,50,100,50,0,2*VECGEOM_NAMESPACE::kPi),
+  Cone_t c1("c1 Hollow Full Tube",50,100,50,100,50,0,2*VECGEOM_NAMESPACE::kPi),
          cn1("cn1",45.,50.,45.,50.,50,0.5*VECGEOM_NAMESPACE::kPi,0.5*VECGEOM_NAMESPACE::kPi),
-         cn2("cn1",45.,50.,45.,50.,50,0.5*VECGEOM_NAMESPACE::kPi,1.5*VECGEOM_NAMESPACE::kPi),
-         c2("Hollow Full Cone",50,100,50,200,50,-1,2*VECGEOM_NAMESPACE::kPi),
-         c3("Hollow Cut Tube",50,100,50,100,50,-VECGEOM_NAMESPACE::kPi/6,VECGEOM_NAMESPACE::kPi/3),
-         c4("Hollow Cut Cone",50,100,50,200,50,-VECGEOM_NAMESPACE::kPi/6,VECGEOM_NAMESPACE::kPi/3),
-         c5("Hollow Cut Cone",25,50,75,150,50,0,1.5*VECGEOM_NAMESPACE::kPi),
-         c6("Solid Full Tube",0,150,0,150,50,0,2*VECGEOM_NAMESPACE::kPi),
-         c7("Thin Tube",95,100,95,100,50,0,2*VECGEOM_NAMESPACE::kPi),
-         c8a("Solid Full Cone2",0,100,0,150,50,0,2*VECGEOM_NAMESPACE::kPi),
-         c8b("Hollow Full Cone2",50,100,100,150,50,0,2*VECGEOM_NAMESPACE::kPi),
-         c8c("Hollow Full Cone2inv",100,150,50,100,50,0,2*VECGEOM_NAMESPACE::kPi),
-         c9("Exotic Cone",50,60,
+         cn2("cn2",45.,50.,45.,50.,50,0.5*VECGEOM_NAMESPACE::kPi,1.5*VECGEOM_NAMESPACE::kPi),
+         c2("c2 Hollow Full Cone",50,100,50,200,50,-1,2*VECGEOM_NAMESPACE::kPi),
+         c3("c3 Hollow Cut Tube",50,100,50,100,50,-VECGEOM_NAMESPACE::kPi/6,VECGEOM_NAMESPACE::kPi/3),
+         c4("c4 Hollow Cut Cone",50,100,50,200,50,-VECGEOM_NAMESPACE::kPi/6,VECGEOM_NAMESPACE::kPi/3),
+         c5("c5 Hollow Cut Cone",25,50,75,150,50,0,1.5*VECGEOM_NAMESPACE::kPi),
+         c6("c6 Solid Full Tube",0,150,0,150,50,0,2*VECGEOM_NAMESPACE::kPi),
+         c7("c7 Thin Tube",95,100,95,100,50,0,2*VECGEOM_NAMESPACE::kPi),
+         c8a("c8a Solid Full Cone2",0,100,0,150,50,0,2*VECGEOM_NAMESPACE::kPi),
+         c8b("c8b Hollow Full Cone2",50,100,100,150,50,0,2*VECGEOM_NAMESPACE::kPi),
+         c8c("c8c Hollow Full Cone2inv",100,150,50,100,50,0,2*VECGEOM_NAMESPACE::kPi),
+         c9("c9 Exotic Cone",50,60,
             0,           // 1.0e-7,   500*kRadTolerance,
                            10,50,0,2*VECGEOM_NAMESPACE::kPi),
          cms("cms cone",0.0,70.0,0.0,157.8,2949.0,0.0,6.283185307179586);
 
-   Cone_t cms2("RearAirCone",401.0,1450.0,
-                            1020.0,1450.0,175.0,0.0,6.283185307179586) ;
-      Cone_t   ctest10( "aCone", 20., 60., 80., 140.,
-                           100., 10*VECGEOM_NAMESPACE::kPi/180., 300*VECGEOM_NAMESPACE::kPi/180. );
+  Cone_t cms2("RearAirCone",401.0,1450.0,
+              1020.0,1450.0,175.0,0.0,6.283185307179586) ;
+  Cone_t   ctest10( "ctest10 cone", 20., 60., 80., 140.,
+                    100., 10*VECGEOM_NAMESPACE::kPi/180., 300*VECGEOM_NAMESPACE::kPi/180. );
+
 
   Vec_t pct10(60,0,0);
   Vec_t pct10mx(-50,0,0);
@@ -130,21 +128,21 @@ bool TestCons()
   a3=pct10e2.z()-pct10e1.z();
   am=std::sqrt(a1*a1+a2*a2+a3*a3);
   Vec_t  d1(a1/am,a2/am,a3/am);
-  //std::cout<<d1.x()<<"\t"<<d1.y()<<"\t"<<d1.z()<<std::endl;
+  // std::cout<<d1.x()<<"\t"<<d1.y()<<"\t"<<d1.z()<<std::endl;
 
   a1=pct10e3.x()-pct10e2.x();
   a2=pct10e3.y()-pct10e2.y();
   a3=pct10e3.z()-pct10e2.z();
   am=std::sqrt(a1*a1+a2*a2+a3*a3);
   Vec_t  d2(a1/am,a2/am,a3/am);
-  //std::cout<<d2.x()<<"\t"<<d2.y()<<"\t"<<d2.z()<<std::endl;
+  // std::cout<<d2.x()<<"\t"<<d2.y()<<"\t"<<d2.z()<<std::endl;
 
   a1=pct10e4.x()-pct10e3.x();
   a2=pct10e4.y()-pct10e3.y();
   a3=pct10e4.z()-pct10e3.z();
   am=std::sqrt(a1*a1+a2*a2+a3*a3);
   Vec_t  d3(a1/am,a2/am,a3/am);
-  //std::cout<<d3.x()<<"\t"<<d3.y()<<"\t"<<d3.z()<<std::endl;
+  // std::cout<<d3.x()<<"\t"<<d3.y()<<"\t"<<d3.z()<<std::endl;
 
 
   // 19.01.04 modified test10 info:
@@ -170,7 +168,7 @@ bool TestCons()
 
   // Check name
 
-  assert(c1.GetName()=="Hollow Full Tube");
+  assert(c1.GetName()=="c1 Hollow Full Tube");
 
   // Check Cubic volume
   double vol,volCheck;
@@ -436,10 +434,10 @@ bool TestCons()
     dist=c7.DistanceToOut(ponr2,vmx,norm,convex);
     if(testingvecgeom){
     if (OutRange(dist,100/std::sqrt(2.)-std::sqrt(95*95-100*100/2.)))
-        std::cout << "Error rmax root bug" << dist << std::endl;
+        std::cout << "Error rmax root bug " << dist << std::endl;
     }else{
      if (OutRange(dist,100/std::sqrt(2.)-std::sqrt(95*95-100*100/2.))||convex)
-        std::cout << "Error rmax root bug" << dist << std::endl;
+        std::cout << "Error rmax root bug " << dist << std::endl;
     }
 
 // Parallel radii test cases
