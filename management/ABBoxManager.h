@@ -100,8 +100,8 @@ public:
     std::vector<LogicalVolume const *> logicalvolumes;
     GeoManager::Instance().getAllLogicalVolumes(logicalvolumes);
     // size containers
-    fVolToABBoxesMap.resize( GeoManager::Instance().GetLogicalVolumesCount(), nullptr );
-    fVolToABBoxesMap_v.resize( GeoManager::Instance().GetLogicalVolumesCount(), nullptr );
+    fVolToABBoxesMap.resize( GeoManager::Instance().GetRegisteredVolumesCount(), nullptr );
+    fVolToABBoxesMap_v.resize( GeoManager::Instance().GetRegisteredVolumesCount(), nullptr );
     InitABBoxes(logicalvolumes);
   }
 

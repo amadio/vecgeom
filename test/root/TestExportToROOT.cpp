@@ -161,7 +161,7 @@ int main()
     GeoManager::Instance().CloseGeometry();
     int md1 = GeoManager::Instance().getMaxDepth();
     int mpv1 = GeoManager::Instance().GetPlacedVolumesCount();
-    int mlv1 = GeoManager::Instance().GetLogicalVolumesCount();
+    int mlv1 = GeoManager::Instance().GetRegisteredVolumesCount();
     int ntotalnodes1 = GeoManager::Instance().GetTotalNodeCount();
 
     // test one million points
@@ -232,7 +232,7 @@ int main()
 
     int md2 = GeoManager::Instance().getMaxDepth();
     int mpv2 = GeoManager::Instance().GetPlacedVolumesCount();
-    int mlv2 = GeoManager::Instance().GetLogicalVolumesCount();
+    int mlv2 = GeoManager::Instance().GetRegisteredVolumesCount();
     int ntotalnodes2 = GeoManager::Instance().GetTotalNodeCount();
 
     assert( md2 == md1 );
