@@ -232,49 +232,49 @@ bool TestCons()
 
 
       if (c1.Inside(pzero)!=vecgeom::EInside::kOutside)
-            std::cout << "Error A" << std::endl;
+            std::cout <<"Mismatch: Line "<< __LINE__ <<", Error A" << std::endl;
         if (c6.Inside(pzero)!=vecgeom::EInside::kInside)
-            std::cout << "Error A2" << std::endl;
+            std::cout <<"Mismatch: Line "<< __LINE__ <<", Error A2" << std::endl;
         if (c1.Inside(pplx)!=vecgeom::EInside::kOutside)
-            std::cout << "Error B1" << std::endl;
+            std::cout <<"Mismatch: Line "<< __LINE__ <<", Error B1" << std::endl;
         if (c2.Inside(pplx)!=vecgeom::EInside::kInside)
-            std::cout << "Error B2" << std::endl;
+            std::cout <<"Mismatch: Line "<< __LINE__ <<", Error B2" << std::endl;
         if (c3.Inside(pplx)!=vecgeom::EInside::kOutside)
-            std::cout << "Error B3" << std::endl;
+            std::cout <<"Mismatch: Line "<< __LINE__ <<", Error B3" << std::endl;
         if (c4.Inside(pplx)!=vecgeom::EInside::kInside)
-            std::cout << "Error B4" << std::endl;
+            std::cout <<"Mismatch: Line "<< __LINE__ <<", Error B4" << std::endl;
         if (c1.Inside(ponmiz)!=vecgeom::EInside::kSurface)
-            std::cout << "Error C" << std::endl;
+            std::cout <<"Mismatch: Line "<< __LINE__ <<", Error C" << std::endl;
         if (c1.Inside(ponplz)!=vecgeom::EInside::kSurface)
-            std::cout << "Error D" << std::endl;
+            std::cout <<"Mismatch: Line "<< __LINE__ <<", Error D" << std::endl;
         if (c1.Inside(ponr1)!=vecgeom::EInside::kSurface)
-            std::cout << "Error E" << std::endl;
+            std::cout <<"Mismatch: Line "<< __LINE__ <<", Error E" << std::endl;
         if (c1.Inside(ponr2)!=vecgeom::EInside::kSurface)
-            std::cout << "Error F" << std::endl;
+            std::cout <<"Mismatch: Line "<< __LINE__ <<", Error F" << std::endl;
         if (c3.Inside(ponphi1)!=vecgeom::EInside::kSurface)
-            std::cout << "Error G" << std::endl;
+            std::cout <<"Mismatch: Line "<< __LINE__ <<", Error G" << std::endl;
         if (c3.Inside(ponphi2)!=vecgeom::EInside::kSurface)
-            std::cout << "Error H" << std::endl;
+            std::cout <<"Mismatch: Line "<< __LINE__ <<", Error H" << std::endl;
 
         if (c5.Inside(Vec_t(70,1,0))!=vecgeom::EInside::kInside)
-            std::cout << "Error I" << std::endl;
+            std::cout <<"Mismatch: Line "<< __LINE__ <<", Error I" << std::endl;
         if (c5.Inside(Vec_t(50,-50,0))!=vecgeom::EInside::kOutside)
-            std::cout << "Error I2" << std::endl;
+            std::cout <<"Mismatch: Line "<< __LINE__ <<", Error I2" << std::endl;
         if (c5.Inside(Vec_t(70,0,0))!=vecgeom::EInside::kSurface)
-            std::cout << "Error I3" << std::endl;
+            std::cout <<"Mismatch: Line "<< __LINE__ <<", Error I3" << std::endl;
     // on tolerant r, inside z, within phi
         if (c5.Inside(Vec_t(100,0,0))!=vecgeom::EInside::kSurface)
-            std::cout << "Error I4" << std::endl;
+            std::cout <<"Mismatch: Line "<< __LINE__ <<", Error I4" << std::endl;
         if (c3.Inside(Vec_t(100,0,0))!=vecgeom::EInside::kSurface)
-            std::cout << "Error I5" << std::endl;
+            std::cout <<"Mismatch: Line "<< __LINE__ <<", Error I5" << std::endl;
     // on tolerant r, tolerant z, within phi
         if (c5.Inside(Vec_t(100,0,50))!=vecgeom::EInside::kSurface)
-            std::cout << "Error I4" << std::endl;
+            std::cout <<"Mismatch: Line "<< __LINE__ <<", Error I4" << std::endl;
         if (c3.Inside(Vec_t(100,0,50))!=vecgeom::EInside::kSurface)
-            std::cout << "Error I5" << std::endl;
+            std::cout <<"Mismatch: Line "<< __LINE__ <<", Error I5" << std::endl;
 
 
-    //std::cout << "Testing Cone_t::SurfaceNormal...\n";
+    //std::cout <<"Mismatch: Line "<< __LINE__ <<", Testing Cone_t::SurfaceNormal...\n";
 
     Vec_t normal;
     double p2=1./std::sqrt(2.),p3=1./std::sqrt(3.);
@@ -299,244 +299,244 @@ bool TestCons()
 
     valid=c1.Normal(ponplz,norm);
     if (OutRange(norm,Vec_t(0,0,1)))
-        std::cout << "Error A " << norm << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error A " << norm << std::endl;
     valid=c1.Normal(ponmiz,norm);
     if (OutRange(norm,Vec_t(0,0,-1)))
-        std::cout << "Error B " << norm << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error B " << norm << std::endl;
     valid=c1.Normal(ponr1,norm);
     if (OutRange(norm,Vec_t(-1.0/std::sqrt(2.0),-1.0/std::sqrt(2.0),0)))
-        std::cout << "Error C " << norm << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error C " << norm << std::endl;
     valid=c1.Normal(ponr2,norm);
     if (OutRange(norm,Vec_t(1.0/std::sqrt(2.0),1.0/std::sqrt(2.0),0)))
-        std::cout << "Error D " << norm << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error D " << norm << std::endl;
     valid=c3.Normal(ponphi1,norm);
     if (OutRange(norm,vnphi1))
-        std::cout << "Error E " << norm << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error E " << norm << std::endl;
     valid=c3.Normal(ponphi2,norm);
     if (OutRange(norm,vnphi2))
-        std::cout << "Error F " << norm << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error F " << norm << std::endl;
     valid=c4.Normal(ponr2b,norm);
     if (OutRange(norm,vxmz))
-        std::cout << "Error G " << norm << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error G " << norm << std::endl;
 
     valid=c5.Normal(Vec_t(51,0,-50),norm);
     if (OutRange(norm,Vec_t(0.,-p2,-p2)))
-        std::cout << "Errot H " << norm << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Errot H " << norm << std::endl;
 
-    //std::cout << "Testing Cone_t::DistanceToOut...\n";
+    //std::cout <<"Mismatch: Line "<< __LINE__ <<", Testing Cone_t::DistanceToOut...\n";
         double dist;
 
     dist=c4.SafetyFromInside(ponphi1);
     if (OutRange(dist,0))
-        std::cout << "Error A " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error A " << dist << std::endl;
 
     dist=c1.SafetyFromInside(ponphi1);
     if (OutRange(dist,10))
-        std::cout << "Error B " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error B " << dist << std::endl;
 
     dist=c1.SafetyFromInside(pnearplz);
     if (OutRange(dist,5))
-        std::cout << "Error C " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error C " << dist << std::endl;
     dist=c1.SafetyFromInside(pnearmiz);
     if (OutRange(dist,5))
-        std::cout << "Error D " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error D " << dist << std::endl;
 
     dist=c1.SafetyFromInside(ponr1);
     if (OutRange(dist,0))
-        std::cout << "Error E " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error E " << dist << std::endl;
     dist=c1.SafetyFromInside(ponr2);
     if (OutRange(dist,0))
-        std::cout << "Error F " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error F " << dist << std::endl;
 
     dist=c6.SafetyFromInside(pzero);
     if (OutRange(dist,50))
-        std::cout << "Error G " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error G " << dist << std::endl;
 
     dist=c5.SafetyFromInside(Vec_t(0,-70,0));
     if (OutRange(dist,0))
-        std::cout << "Error H " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error H " << dist << std::endl;
 
-        //std::cout << "Testing Cone_t::DistanceToOut...\n";
+        //std::cout <<"Mismatch: Line "<< __LINE__ <<", Testing Cone_t::DistanceToOut...\n";
 
     dist=c4.DistanceToOut(pplx,vx,norm,convex);
-    if (OutRange(dist,30)||OutRange(norm,vxmz)||!convex)
-        std::cout << "Error Rmax1 " << dist << std::endl;
+    if (OutRange(dist,30)||OutRange(norm,vxmz)||convex)
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error Rmax1 " << dist << std::endl;
 
     dist=c2.DistanceToOut(pplx,vx,norm,convex);
-    if (OutRange(dist,30)||OutRange(norm,vxmz)||!convex)
-        std::cout << "Error Rmax2 " << dist << std::endl;
+    if (OutRange(dist,30)||OutRange(norm,vxmz)||convex)
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error Rmax2 " << dist << std::endl;
 
     dist=c4.DistanceToOut(pplx,vmx,norm,convex);
     if(testingvecgeom){
     if (OutRange(dist,70))
-        std::cout << "Error Rmin1 " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error Rmin1 " << dist << std::endl;
 
 
     dist=c2.DistanceToOut(pplx,vmx,norm,convex);
     if (OutRange(dist,70))
-        std::cout << "Error Rmin2 " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error Rmin2 " << dist << std::endl;
     }else{
 
     if (OutRange(dist,70)||convex)
-        std::cout << "Error Rmin1 " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error Rmin1 " << dist << std::endl;
     dist=c2.DistanceToOut(pplx,vmx,norm,convex);
     if (OutRange(dist,70)||convex)
-        std::cout << "Error Rmin2 " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error Rmin2 " << dist << std::endl;
 
     }
     dist=c3.DistanceToOut(ponphi1,vmy,norm,convex);
     if (OutRange(dist,0)||
         OutRange(norm,vnphi1)||
-        !convex)
-        std::cout << "Error PhiS 1" << dist << std::endl;
+        convex)
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error PhiS1 " << dist << std::endl;
     dist=c3.DistanceToOut(ponphi1,vy,norm,convex);
     //norm=pNorm->unit();
     if (OutRange(dist,2*60*std::sin(VECGEOM_NAMESPACE::kPi/6))||
         OutRange(norm,vnphi2)||
-        !convex)
-        std::cout << "Error PhiS 2" << dist << std::endl;
+        convex)
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error PhiS2 " << dist << std::endl;
 
     dist=c3.DistanceToOut(ponphi2,vy,norm,convex);
     if (OutRange(dist,0)||
         OutRange(norm,vnphi2)||
-        !convex)
-        std::cout << "Error PhiE 1" << dist << std::endl;
+        convex)
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error PhiE1 " << dist << std::endl;
     dist=c3.DistanceToOut(ponphi2,vmy,norm,convex);
     if (OutRange(dist,2*60*std::sin(VECGEOM_NAMESPACE::kPi/6))||
         OutRange(norm,vnphi1)||
-        !convex)
-        std::cout << "Error PhiS 2" << dist << std::endl;
+        convex)
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error PhiS3 " << dist << std::endl;
 
 
     dist=c6.DistanceToOut(ponplz,vmz,norm,convex);
     if (OutRange(dist,100)||
         OutRange(norm,vmz)||
-        !convex)
-        std::cout << "Error Top Z 1" << dist << std::endl;
+        convex)
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error Top Z1 " << dist << std::endl;
     dist=c6.DistanceToOut(ponplz,vz,norm,convex);
     if (OutRange(dist,0)||
         OutRange(norm,vz)||
-        !convex)
-        std::cout << "Error Top Z 2" << dist << std::endl;
+        convex)
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error Top Z2 " << dist << std::endl;
 
     dist=c6.DistanceToOut(ponmiz,vz,norm,convex);
     if (OutRange(dist,100)||
         OutRange(norm,vz)||
-        !convex)
-        std::cout << "Error Lower Z 1" << dist << std::endl;
+        convex)
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error Lower Z1 " << dist << std::endl;
     dist=c6.DistanceToOut(ponmiz,vmz,norm,convex);
     if (OutRange(dist,0)||
         OutRange(norm,vmz)||
-        !convex)
-        std::cout << "Error Lower Z 2" << dist << std::endl;
+        convex)
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error Lower Z2 " << dist << std::endl;
 
 // Test case for rmax root bug
     dist=c7.DistanceToOut(ponr2,vmx,norm,convex);
     if(testingvecgeom){
     if (OutRange(dist,100/std::sqrt(2.)-std::sqrt(95*95-100*100/2.)))
-        std::cout << "Error rmax root bug " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error rmax root bug " << dist << std::endl;
     }else{
      if (OutRange(dist,100/std::sqrt(2.)-std::sqrt(95*95-100*100/2.))||convex)
-        std::cout << "Error rmax root bug " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error rmax root bug " << dist << std::endl;
     }
 
 // Parallel radii test cases
     dist=c8a.DistanceToOut(pparr2,vparr,norm,convex);
     if (OutRange(dist,100.*std::sqrt(5.)/2.)||
-                     !convex||
+                     convex||
                      OutRange(norm,vz))
-        std::cout << "Error solid parr2a " <<dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error solid parr2a " <<dist << std::endl;
     dist=c8a.DistanceToOut(pparr2,-vparr,norm,convex);
     if (OutRange(dist,0)||
-        !convex||
+        convex||
         OutRange(norm,vmz))
-        std::cout << "Error solid parr2b " <<dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error solid parr2b " <<dist << std::endl;
 
     dist=c8a.DistanceToOut(pparr2,vz,norm,convex);
     if (OutRange(dist,100)||
-        !convex||
+        convex||
         OutRange(norm,vz))
-        std::cout << "Error solid parr2c " <<dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error solid parr2c " <<dist << std::endl;
     dist=c8a.DistanceToOut(pparr2,vmz,norm,convex);
     if (OutRange(dist,0)||
-        !convex||
+        convex||
         OutRange(norm,vmz))
-        std::cout << "Error solid parr2d " <<dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error solid parr2d " <<dist << std::endl;
 
     dist=c8a.DistanceToOut(pparr3,vparr,norm,convex);
     if (OutRange(dist,0)||
-        !convex||
+        convex||
         OutRange(norm,vz))
-        std::cout << "Error solid parr3a " <<dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error solid parr3a " <<dist << std::endl;
 
     dist=c8a.DistanceToOut(pparr3,-vparr,norm,convex);
     if (OutRange(dist,100*std::sqrt(5.)/2.)||
-        !convex||
+        convex||
         OutRange(norm,vmz))
-        std::cout << "Error solid parr3b " <<dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error solid parr3b " <<dist << std::endl;
     dist=c8a.DistanceToOut(pparr3,vz,norm,convex);
     if (OutRange(dist,0)||
-        !convex||
+        convex||
         OutRange(norm,vz))
-        std::cout << "Error solid parr3c " <<dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error solid parr3c " <<dist << std::endl;
 
     dist=c8a.DistanceToOut(pparr3,vmz,norm,convex);
     if (OutRange(dist,50)||
-        !convex||
+        convex||
         OutRange(norm,Vec_t(0,2./std::sqrt(5.0),-1./std::sqrt(5.0))))
-        std::cout << "Error solid parr3d " <<dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error solid parr3d " <<dist << std::endl;
 
 
     dist=c8b.DistanceToOut(pparr2,vparr,norm,convex);
     if (OutRange(dist,100*std::sqrt(5.)/2.)||
-                     !convex||
+                     convex||
                      OutRange(norm,vz))
-        std::cout << "Error hollow parr2a " <<dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error hollow parr2a " <<dist << std::endl;
     dist=c8b.DistanceToOut(pparr2,-vparr,norm,convex);
     if (OutRange(dist,0)||
-        !convex||
+        convex||
         OutRange(norm,vmz))
-        std::cout << "Error hollow parr2b " <<dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error hollow parr2b " <<dist << std::endl;
 
     dist=c8b.DistanceToOut(pparr2,vz,norm,convex);
     if(testingvecgeom)
       {
         if (OutRange(dist,50))
-        std::cout << "Error hollow parr2c " <<dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error hollow parr2c " <<dist << std::endl;
       }
     else
       {
         if (OutRange(dist,50)||convex)
-        std::cout << "Error hollow parr2c " <<dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error hollow parr2c " <<dist << std::endl;
       }
     dist=c8b.DistanceToOut(pparr2,vmz,norm,convex);
     if (OutRange(dist,0)||
-        !convex||
+        convex||
         OutRange(norm,vmz))
-        std::cout << "Error hollow parr2d " <<dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error hollow parr2d " <<dist << std::endl;
 
 
     dist=c8b.DistanceToOut(pparr3,vparr,norm,convex);
     if (OutRange(dist,0)||
-        !convex||
+        convex||
         OutRange(norm,vz))
-        std::cout << "Error hollow parr3a " <<dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error hollow parr3a " <<dist << std::endl;
     dist=c8b.DistanceToOut(pparr3,-vparr,norm,convex);
     if (OutRange(dist,100.*std::sqrt(5.)/2.)||
-        !convex||
+        convex||
         OutRange(norm,vmz))
-        std::cout << "Error hollow parr3b " <<dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error hollow parr3b " <<dist << std::endl;
     dist=c8b.DistanceToOut(pparr3,vz,norm,convex);
     if (OutRange(dist,0)||
-        !convex||
+        convex||
         OutRange(norm,vz))
-        std::cout << "Error hollow parr3c " <<dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error hollow parr3c " <<dist << std::endl;
 
     dist=c8b.DistanceToOut(pparr3,vmz,norm,convex);
     if (OutRange(dist,50)||
-        !convex||
+        convex||
         OutRange(norm,Vec_t(0,2./std::sqrt(5.),-1.0/std::sqrt(5.))))
-        std::cout << "Error hollow parr3d " <<dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error hollow parr3d " <<dist << std::endl;
 
     dist=c9.DistanceToOut(Vec_t(1e3*tolerance,0,50),
                               vx2mz,norm,convex);
@@ -546,7 +546,7 @@ bool TestCons()
 std::cout<<"Error:c9.Out((1e3*tolerance,0,50),vx2mz,...) = " <<dist << std::endl;
       }else{
        if (OutRange(dist,111.8033988)||
-        !convex||
+        convex||
         OutRange(norm,Vec_t(0,0,-1.0)))
 std::cout<<"Error:c9.Out((1e3*tolerance,0,50),vx2mz,...) = " <<dist << std::endl;
 
@@ -554,23 +554,23 @@ std::cout<<"Error:c9.Out((1e3*tolerance,0,50),vx2mz,...) = " <<dist << std::endl
     dist=c9.DistanceToOut(Vec_t(5,0,50),
                               vx2mz,norm,convex);
     if (OutRange(dist,111.8033988)||
-        !convex||
+        convex||
         OutRange(norm,Vec_t(0,0,-1.0)))
-        std::cout << "Error:c9.Out((5,0,50),vx2mz,...) = " <<dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c9.Out((5,0,50),vx2mz,...) = " <<dist << std::endl;
 
     dist=c9.DistanceToOut(Vec_t(10,0,50),
                               vx2mz,norm,convex);
     if(testingvecgeom)
       {
       if (OutRange(dist,111.8033988))
-        std::cout << "Error:c9.Out((10,0,50),vx2mz,...) = " <<dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c9.Out((10,0,50),vx2mz,...) = " <<dist << std::endl;
       }
     else
       {
         if (OutRange(dist,111.8033988)||
-        !convex||
+        convex||
         OutRange(norm,Vec_t(0,0,-1.0)))
-        std::cout << "Error:c9.Out((10,0,50),vx2mz,...) = " <<dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c9.Out((10,0,50),vx2mz,...) = " <<dist << std::endl;
 
       }
     dist=cms.DistanceToOut(
@@ -578,7 +578,7 @@ std::cout<<"Error:c9.Out((1e3*tolerance,0,50),vx2mz,...) = " <<dist << std::endl
         Vec_t(6.0886686196674e-05,-9.2382200635766e-05,0.99999999387917),
         norm,convex);
     if (OutRange(dist,5898.0))
-    std::cout << "Error:cms.DistToOut() =  " <<dist << std::endl;
+    std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:cms.DistToOut() =  " <<dist << std::endl;
 
     dist=cms.DistanceToOut(
         Vec_t(0.28628920024909,-0.43438111004815,
@@ -586,7 +586,7 @@ std::cout<<"Error:c9.Out((1e3*tolerance,0,50),vx2mz,...) = " <<dist << std::endl
         Vec_t(6.0886686196674e-05,-9.2382200635766e-05,0.99999999387917),
         norm,convex);
     if (OutRange(dist,5898.0))
-    std::cout << "Error:cms.DistToOut(+) =  " <<dist << std::endl;
+    std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:cms.DistToOut(+) =  " <<dist << std::endl;
 
     dist=cms.DistanceToOut(Vec_t(0.28628920024909,
                                             -0.43438111004815,
@@ -596,7 +596,7 @@ std::cout<<"Error:c9.Out((1e3*tolerance,0,50),vx2mz,...) = " <<dist << std::endl
                                              0.99999999387917),
         norm,convex);
     if (OutRange(dist,5898.0))
-    std::cout << "Error:cms.DistToOut(-) =  " <<dist << std::endl;
+    std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:cms.DistToOut(-) =  " <<dist << std::endl;
 
     dist=cms2.DistanceToOut(Vec_t(-344.13684353113,
                                        258.98049377272,
@@ -610,97 +610,100 @@ std::cout<<"Error:c9.Out((1e3*tolerance,0,50),vx2mz,...) = " <<dist << std::endl
 
     dist=ctest10.DistanceToOut(pct10e2,
                               d1,norm,convex);
-    //norm=pNorm->unit();
-    if (OutRange(dist,111.8033988)||
-        !convex||
-        OutRange(norm,Vec_t(0,0,-1.0)))
-      std::cout << "ctest10.DistanceToOut(pct10e2,d1,...) = " <<dist <<" p is on "<<ctest10.Inside(pct10e2)<<" p="<<pct10e2<< std::endl;
+    // if (OutRange(dist,111.8033988)||
+    //     convex) //||
+//        OutRange(norm,Vec_t(0,0,-1.0))) this is false!
+    // instead of checking an arbitrary value, check that point+step*direction is on the surface
+    if( ctest10.Inside(pct10e2+dist*d1) != vecgeom::EInside::kSurface )
+      std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToOut(pct10e2,d1,...) = " <<dist <<" p is on "<<ctest10.Inside(pct10e2)<<" p="<<pct10e2<<" norm="<< norm << std::endl;
+
     dist=ctest10.DistanceToOut(pct10e3,
                               d1,norm,convex);
     //norm=pNorm->unit();
-    if (OutRange(dist,111.8033988)||
-        !convex||
-        OutRange(norm,Vec_t(0,0,-1.0)))
-       std::cout << "ctest10.DistanceToOut(pct10e3,d1,...) = " <<dist << std::endl;
+    // if (OutRange(dist,111.8033988)||
+    //     convex||
+    //     OutRange(norm,Vec_t(0,0,-1.0)))
+    if( ctest10.Inside(pct10e3+dist*d1) != vecgeom::EInside::kSurface )
+       std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToOut(pct10e3,d1,...) = " <<dist << std::endl;
 
     /////////////////////////////////////////////
     //
 
-    //std::cout << "Testing Cone_t::DistanceToIn(p) ...\n";
+    //std::cout <<"Mismatch: Line "<< __LINE__ <<", Testing Cone_t::DistanceToIn(p) ...\n";
 
 
     dist=c1.SafetyFromOutside(pzero);
     if (OutRange(dist,50))
-      std::cout << "Error A " << dist << std::endl;
+      std::cout <<"Mismatch: Line "<< __LINE__ <<", Error A " << dist << std::endl;
 
     dist=c1.SafetyFromOutside(pplx);
     if (OutRange(dist,20))
-      std::cout << "Error B " << dist << std::endl;
+      std::cout <<"Mismatch: Line "<< __LINE__ <<", Error B " << dist << std::endl;
 
     dist=c1.SafetyFromOutside(pply);
     if (OutRange(dist,20))
-      std::cout << "Error C " << dist << std::endl;
+      std::cout <<"Mismatch: Line "<< __LINE__ <<", Error C " << dist << std::endl;
 
     dist=c4.SafetyFromOutside(pply);
     if (OutRange(dist,120*std::sin(VECGEOM_NAMESPACE::kPi/3)))
-      std::cout << "Error D " << dist << std::endl;
+      std::cout <<"Mismatch: Line "<< __LINE__ <<", Error D " << dist << std::endl;
 
     dist=c4.SafetyFromOutside(pmiy);
     if (OutRange(dist,120*std::sin(VECGEOM_NAMESPACE::kPi/3)))
-      std::cout << "Error D " << dist << std::endl;
+      std::cout <<"Mismatch: Line "<< __LINE__ <<", Error D " << dist << std::endl;
 
     dist=c1.SafetyFromOutside(pplz);
     if (OutRange(dist,70))
-        std::cout << "Error E " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error E " << dist << std::endl;
 // Check with both rmins=0
     dist=c5.SafetyFromOutside(pplx);
     if (OutRange(dist,20./std::sqrt(2.)))
-      std::cout << "Error F " << dist << std::endl;
+      std::cout <<"Mismatch: Line "<< __LINE__ <<", Error F " << dist << std::endl;
 
     /////////////////////////////////////////////////////
     //
 
-    //std::cout << "Testing Cone_t::DistanceToIn(p,v,...) ...\n";
+    //std::cout <<"Mismatch: Line "<< __LINE__ <<", Testing Cone_t::DistanceToIn(p,v,...) ...\n";
 
     dist=c1.DistanceToIn(pplz,vmz);
     if (OutRange(dist,Constants::kInfinity))
-      std::cout << "Error A " << dist << std::endl;
+      std::cout <<"Mismatch: Line "<< __LINE__ <<", Error A " << dist << std::endl;
 
     dist=c2.DistanceToIn(pplz,vmz);
     if (OutRange(dist,Constants::kInfinity))
-    std::cout << "Error:c2.DistanceToIn(pplz,vmz) = " << dist << std::endl;
+    std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c2.DistanceToIn(pplz,vmz) = " << dist << std::endl;
 
     dist=c3.DistanceToIn(pplz,vmz);
     if (OutRange(dist,Constants::kInfinity))
-    std::cout << "Error:c3.DistanceToIn(pplz,vmz) = " << dist << std::endl;
+    std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c3.DistanceToIn(pplz,vmz) = " << dist << std::endl;
 
     dist=c4.DistanceToIn(pplz,vmz);
     if (OutRange(dist,Constants::kInfinity))
-    std::cout << "Error:c4.DistanceToIn(pplz,vmz) = " << dist << std::endl;
+    std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c4.DistanceToIn(pplz,vmz) = " << dist << std::endl;
 
     dist=c5.DistanceToIn(pplz,vmz);
     if (OutRange(dist,Constants::kInfinity))
-    std::cout << "Error:c5.DistanceToIn(pplz,vmz) = " << dist << std::endl;
+    std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c5.DistanceToIn(pplz,vmz) = " << dist << std::endl;
 
     dist=c6.DistanceToIn(pplz,vmz);
     if (OutRange(dist,70.0))
-    std::cout << "Error:c6.DistanceToIn(pplz,vmz) = " << dist << std::endl;
+    std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c6.DistanceToIn(pplz,vmz) = " << dist << std::endl;
 
     dist=c7.DistanceToIn(pplz,vmz);
     if (OutRange(dist,Constants::kInfinity))
-    std::cout << "Error:c7.DistanceToIn(pplz,vmz) = " << dist << std::endl;
+    std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c7.DistanceToIn(pplz,vmz) = " << dist << std::endl;
 
     dist=c8a.DistanceToIn(pplz,vmz);
     if (OutRange(dist,70.0))
-    std::cout << "Error:c8a.DistanceToIn(pplz,vmz) = " << dist << std::endl;
+    std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c8a.DistanceToIn(pplz,vmz) = " << dist << std::endl;
 
     dist=c8b.DistanceToIn(pplz,vmz);
     if (OutRange(dist,Constants::kInfinity))
-    std::cout << "Error:c8b.DistanceToIn(pplz,vmz) = " << dist << std::endl;
+    std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c8b.DistanceToIn(pplz,vmz) = " << dist << std::endl;
 
     dist=c8c.DistanceToIn(pplz,vmz);
     if (OutRange(dist,Constants::kInfinity))
-    std::cout << "Error:c8c.DistanceToIn(pplz,vmz) = " << dist << std::endl;
+    std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c8c.DistanceToIn(pplz,vmz) = " << dist << std::endl;
 
     if(testingvecgeom)
     //Cone is with Rmin=Rmax=0 at +dz
@@ -708,142 +711,142 @@ std::cout<<"Error:c9.Out((1e3*tolerance,0,50),vx2mz,...) = " <<dist << std::endl
       {
       dist=c9.DistanceToIn(pplz,vmz);
       if (OutRange(dist,70.0))
-      std::cout << "Error:c9.DistanceToIn(pplz,vmz) = " << dist << std::endl;
+      std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c9.DistanceToIn(pplz,vmz) = " << dist << std::endl;
 
       dist=c9.DistanceToIn(Vec_t(0,0,50),vmz);
       if (OutRange(dist,0.0))
-      std::cout << "Error:c9.DistanceToIn((0,0,50),vmz) = " << dist << std::endl;
+      std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c9.DistanceToIn((0,0,50),vmz) = " << dist << std::endl;
       }
     else{
       dist=c9.DistanceToIn(pplz,vmz);
       if (OutRange(dist,Constants::kInfinity))
-      std::cout << "Error:c9.DistanceToIn(pplz,vmz) = " << dist << std::endl;
+      std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c9.DistanceToIn(pplz,vmz) = " << dist << std::endl;
 
       dist=c9.DistanceToIn(Vec_t(0,0,50),vmz);
       if (OutRange(dist,Constants::kInfinity))
-      std::cout << "Error:c9.DistanceToIn((0,0,50),vmz) = " << dist << std::endl;
+      std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c9.DistanceToIn((0,0,50),vmz) = " << dist << std::endl;
     }
 
     ///////////////
 
     dist=c1.DistanceToIn(pmiz,vz);
     if (OutRange(dist,Constants::kInfinity))
-    std::cout << "Error A " << dist << std::endl;
+    std::cout <<"Mismatch: Line "<< __LINE__ <<", Error A " << dist << std::endl;
 
     dist=c2.DistanceToIn(pmiz,vz);
     if (OutRange(dist,Constants::kInfinity))
-    std::cout << "Error:c2.DistanceToIn(pmiz,vz) = " << dist << std::endl;
+    std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c2.DistanceToIn(pmiz,vz) = " << dist << std::endl;
 
     dist=c3.DistanceToIn(pmiz,vz);
     if (OutRange(dist,Constants::kInfinity))
-    std::cout << "Error:c3.DistanceToIn(pmiz,vz) = " << dist << std::endl;
+    std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c3.DistanceToIn(pmiz,vz) = " << dist << std::endl;
 
     dist=c4.DistanceToIn(pmiz,vz);
     if (OutRange(dist,Constants::kInfinity))
-    std::cout << "Error:c4.DistanceToIn(pmiz,vz) = " << dist << std::endl;
+    std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c4.DistanceToIn(pmiz,vz) = " << dist << std::endl;
 
     dist=c5.DistanceToIn(pmiz,vz);
     if (OutRange(dist,Constants::kInfinity))
-    std::cout << "Error:c5.DistanceToIn(pmiz,vz) = " << dist << std::endl;
+    std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c5.DistanceToIn(pmiz,vz) = " << dist << std::endl;
 
     dist=c6.DistanceToIn(pmiz,vz);
     if (OutRange(dist,70.0))
-    std::cout << "Error:c6.DistanceToIn(pmiz,vz) = " << dist << std::endl;
+    std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c6.DistanceToIn(pmiz,vz) = " << dist << std::endl;
 
     dist=c7.DistanceToIn(pmiz,vz);
     if (OutRange(dist,Constants::kInfinity))
-    std::cout << "Error:c7.DistanceToIn(pmiz,vz) = " << dist << std::endl;
+    std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c7.DistanceToIn(pmiz,vz) = " << dist << std::endl;
 
     dist=c8a.DistanceToIn(pmiz,vz);
     if (OutRange(dist,70.0))
-    std::cout << "Error:c8a.DistanceToIn(pmiz,vz) = " << dist << std::endl;
+    std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c8a.DistanceToIn(pmiz,vz) = " << dist << std::endl;
 
     dist=c8b.DistanceToIn(pmiz,vz);
     if (OutRange(dist,Constants::kInfinity))
-    std::cout << "Error:c8b.DistanceToIn(pmiz,vz) = " << dist << std::endl;
+    std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c8b.DistanceToIn(pmiz,vz) = " << dist << std::endl;
 
     dist=c8c.DistanceToIn(pmiz,vz);
     if (OutRange(dist,Constants::kInfinity))
-    std::cout << "Error:c8c.DistanceToIn(pmiz,vz) = " << dist << std::endl;
+    std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c8c.DistanceToIn(pmiz,vz) = " << dist << std::endl;
 
     dist=c9.DistanceToIn(pmiz,vz);
     if (OutRange(dist,Constants::kInfinity))
-    std::cout << "Error:c9.DistanceToIn(pmiz,vz) = " << dist << std::endl;
+    std::cout <<"Mismatch: Line "<< __LINE__ <<", Error:c9.DistanceToIn(pmiz,vz) = " << dist << std::endl;
 
     //////////////
 
     dist=c1.DistanceToIn(pplx,vmx);
     if (OutRange(dist,20))
-      std::cout << "Error B " << dist << std::endl;
+      std::cout <<"Mismatch: Line "<< __LINE__ <<", Error B " << dist << std::endl;
     dist=c1.DistanceToIn(pplz,vx);
     if (OutRange(dist,Constants::kInfinity))
-      std::cout << "Error C " << dist << std::endl;
+      std::cout <<"Mismatch: Line "<< __LINE__ <<", Error C " << dist << std::endl;
     dist=c4.DistanceToIn(pply,vmy);
     if (OutRange(dist,Constants::kInfinity))
-      std::cout << "Error D " << dist << std::endl;
+      std::cout <<"Mismatch: Line "<< __LINE__ <<", Error D " << dist << std::endl;
 
     dist=c1.DistanceToIn(pydx,vmy);
     if (OutRange(dist,70))
-      std::cout << "Error E " << dist << std::endl;
+      std::cout <<"Mismatch: Line "<< __LINE__ <<", Error E " << dist << std::endl;
     dist=c3.DistanceToIn(pydx,vmy);
     if (OutRange(dist,150-60*std::tan(VECGEOM_NAMESPACE::kPi/6)))
-      std::cout << "Error F " << dist << std::endl;
+      std::cout <<"Mismatch: Line "<< __LINE__ <<", Error F " << dist << std::endl;
 
     dist=c1.DistanceToIn(pplx,vmx);
     if (OutRange(dist,20))
-      std::cout << "Error G " << dist << std::endl;
+      std::cout <<"Mismatch: Line "<< __LINE__ <<", Error G " << dist << std::endl;
     dist=c1.DistanceToIn(pplx,vx);
     if (OutRange(dist,Constants::kInfinity))
-      std::cout << "Error G2 " << dist << std::endl;
+      std::cout <<"Mismatch: Line "<< __LINE__ <<", Error G2 " << dist << std::endl;
 
     dist=c4.DistanceToIn(pbigx,vmx);
     if (OutRange(dist,350))
-        std::cout << "Error G3 " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error G3 " << dist << std::endl;
 
     dist=c4.DistanceToIn(pzero,vx);
     if (OutRange(dist,50))
-      std::cout << "Error H " << dist << std::endl;
+      std::cout <<"Mismatch: Line "<< __LINE__ <<", Error H " << dist << std::endl;
 
     dist=c1.DistanceToIn(ponr2,vx);
     if (OutRange(dist,Constants::kInfinity))
-        std::cout << "Error I" << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error I" << dist << std::endl;
     dist=c1.DistanceToIn(ponr2,vmx);
     if (OutRange(dist,0))
-        std::cout << "Error I2" << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error I2" << dist << std::endl;
 
     dist=c1.DistanceToIn(ponr1,vx);
     if (OutRange(dist,0))
-        std::cout << "Error J" << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error J" << dist << std::endl;
     dist=c1.DistanceToIn(ponr1,vmx);
     if (OutRange(dist,2.0*std::sqrt(50*50/2.)))
-        std::cout << "Error J2" << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error J2" << dist << std::endl;
 
     dist=c1.DistanceToIn(ponr2,vmxmy);
     if (OutRange(dist,0))
-        std::cout << "Error K" << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error K" << dist << std::endl;
 
 // Parallel test case -> parallel to both radii
     dist=c8b.DistanceToIn(pparr1,vparr);
     if (OutRange(dist,100*std::sqrt(5.)/2.))
-        std::cout << "Error parr1 " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error parr1 " << dist << std::endl;
     dist=c8b.DistanceToIn(pparr2,-vparr);
     if (OutRange(dist,Constants::kInfinity))
-        std::cout << "Error parr2 " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error parr2 " << dist << std::endl;
     dist=c8b.DistanceToIn(pparr3,vparr);
     if (OutRange(dist,Constants::kInfinity))
-        std::cout << "Error parr3a " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error parr3a " << dist << std::endl;
     dist=c8b.DistanceToIn(pparr3,-vparr);
     if (OutRange(dist,0))
-        std::cout << "Error parr3b " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error parr3b " << dist << std::endl;
 
 // Check we don't Hit `shadow cone' at `-ve radius' on rmax or rmin
     dist=c8a.DistanceToIn(proot1,vz);
     if (OutRange(dist,1000))
-        std::cout << "Error shadow rmax root problem " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error shadow rmax root problem " << dist << std::endl;
 
     dist=c8c.DistanceToIn(proot2,vz);
     if (OutRange(dist,1000))
-        std::cout << "Error shadow rmin root problem " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", Error shadow rmin root problem " << dist << std::endl;
 
         dist = cms2.DistanceToIn(Vec_t(-344.13684353113,
                                                 258.98049377272,
@@ -856,110 +859,110 @@ std::cout<<"Error:c9.Out((1e3*tolerance,0,50),vx2mz,...) = " <<dist << std::endl
 
     dist=ctest10.DistanceToIn(pct10,vx);
     if (OutRange(dist,Constants::kInfinity))
-        std::cout << "ctest10.DistanceToIn(pct10,vx) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10,vx) = " << dist << std::endl;
 
     dist=ctest10.DistanceToIn(pct10,vmx);
     if (OutRange(dist,110))
-        std::cout << "ctest10.DistanceToIn(pct10,vmx) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10,vmx) = " << dist << std::endl;
 
     dist=ctest10.DistanceToIn(pct10,vy);
     if (OutRange(dist,10.57961))
-        std::cout << "ctest10.DistanceToIn(pct10,vy) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10,vy) = " << dist << std::endl;
 
     dist=ctest10.DistanceToIn(pct10,vmy);
     if (OutRange(dist,71.5052))
-        std::cout << "ctest10.DistanceToIn(pct10,vmy) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10,vmy) = " << dist << std::endl;
 
     dist=ctest10.DistanceToIn(pct10,vz);
     if (OutRange(dist,Constants::kInfinity))
-        std::cout << "ctest10.DistanceToIn(pct10,vz) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10,vz) = " << dist << std::endl;
 
 
     dist=ctest10.DistanceToIn(pct10phi1,vx);
     if (OutRange(dist,Constants::kInfinity))
-        std::cout << "ctest10.DistanceToIn(pct10phi1,vx) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10phi1,vx) = " << dist << std::endl;
 
     dist=ctest10.DistanceToIn(pct10phi1,vmx);
     if (OutRange(dist,0))
-        std::cout << "ctest10.DistanceToIn(pct10phi1,vmx) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10phi1,vmx) = " << dist << std::endl;
 
     dist=ctest10.DistanceToIn(pct10phi1,vy);
     if (OutRange(dist,0))
-        std::cout << "ctest10.DistanceToIn(pct10phi1,vy) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10phi1,vy) = " << dist << std::endl;
 
     dist=ctest10.DistanceToIn(pct10phi1,vmy);
     if (OutRange(dist,80.83778))
-        std::cout << "ctest10.DistanceToIn(pct10phi1,vmy) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10phi1,vmy) = " << dist << std::endl;
 
     dist=ctest10.DistanceToIn(pct10phi1,vz);
     if (OutRange(dist,33.3333))
-        std::cout << "ctest10.DistanceToIn(pct10phi1,vz) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10phi1,vz) = " << dist << std::endl;
 
     dist=ctest10.DistanceToIn(pct10phi1,vmz);
     if (OutRange(dist,Constants::kInfinity))
-        std::cout << "ctest10.DistanceToIn(pct10phi1,vmz) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10phi1,vmz) = " << dist << std::endl;
 
     dist=ctest10.DistanceToIn(pct10phi2,vx);
     if (OutRange(dist,Constants::kInfinity))
-        std::cout << "ctest10.DistanceToIn(pct10phi2,vx) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10phi2,vx) = " << dist << std::endl;
 
     dist=ctest10.DistanceToIn(pct10phi2,vmx);
     if (OutRange(dist,0))
-        std::cout << "ctest10.DistanceToIn(pct10phi2,vmx) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10phi2,vmx) = " << dist << std::endl;
 
     dist=ctest10.DistanceToIn(pct10phi2,vy);
     if (OutRange(dist,77.78352))
-        std::cout << "ctest10.DistanceToIn(pct10phi2,vy) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10phi2,vy) = " << dist << std::endl;
 
     dist=ctest10.DistanceToIn(pct10phi2,vmy);
     if (OutRange(dist,0))
-        std::cout << "ctest10.DistanceToIn(pct10phi2,vmy) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10phi2,vmy) = " << dist << std::endl;
 
     dist=ctest10.DistanceToIn(pct10phi2,vz);
     if (OutRange(dist,33.3333))
-        std::cout << "ctest10.DistanceToIn(pct10phi2,vz) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10phi2,vz) = " << dist << std::endl;
 
     dist=ctest10.DistanceToIn(pct10phi2,vmz);
     if (OutRange(dist,Constants::kInfinity))
-        std::cout << "ctest10.DistanceToIn(pct10phi2,vmz) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10phi2,vmz) = " << dist << std::endl;
 
     dist=ctest10.DistanceToIn(pct10mx,vx);
     if (OutRange(dist,Constants::kInfinity))
-        std::cout << "ctest10.DistanceToIn(pct10mx,vx) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10mx,vx) = " << dist << std::endl;
 
     dist=ctest10.DistanceToIn(pct10mx,vmx);
     if (OutRange(dist,0))
-        std::cout << "ctest10.DistanceToIn(pct10mx,vmx) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10mx,vmx) = " << dist << std::endl;
 
     dist=ctest10.DistanceToIn(pct10mx,vy);
     if (OutRange(dist,77.78352))
-        std::cout << "ctest10.DistanceToIn(pct10mx,vy) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10mx,vy) = " << dist << std::endl;
 
     dist=ctest10.DistanceToIn(pct10mx,vmy);
     if (OutRange(dist,0))
-        std::cout << "ctest10.DistanceToIn(pct10mx,vmy) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10mx,vmy) = " << dist << std::endl;
 
     dist=ctest10.DistanceToIn(pct10mx,vz);
     if (OutRange(dist,33.3333))
-        std::cout << "ctest10.DistanceToIn(pct10mx,vz) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10mx,vz) = " << dist << std::endl;
 
     dist=ctest10.DistanceToIn(pct10mx,vmz);
     if (OutRange(dist,Constants::kInfinity))
-        std::cout << "ctest10.DistanceToIn(pct10mx,vmz) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10mx,vmz) = " << dist << std::endl;
 
 
 
     dist=ctest10.DistanceToIn(pct10e1,d1);
     if (OutRange(dist,Constants::kInfinity))
-        std::cout << "ctest10.DistanceToIn(pct10e1,d1) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10e1,d1) = " << dist << std::endl;
 
     dist=ctest10.DistanceToIn(pct10e4,d1);
     if (OutRange(dist,Constants::kInfinity))
-        std::cout << "ctest10.DistanceToIn(pct10e4,d1) = " << dist << std::endl;
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10e4,d1) = " << dist << std::endl;
 
     dist=ctest10.DistanceToIn(pt10s2,vt10d);
-    // if (OutRange(dist,kInfinity))
-        std::cout << "ctest10.DistanceToIn(pt10s2,vt10d) = " << dist << std::endl;
+    if (OutRange(dist,Constants::kInfinity))
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pt10s2,vt10d) = " << dist << std::endl;
 
         double arad = 90.;
 
@@ -967,40 +970,40 @@ std::cout<<"Error:c9.Out((1e3*tolerance,0,50),vx2mz,...) = " <<dist << std::endl
   Vec_t pct10phi2r( arad*std::cos(50.*VECGEOM_NAMESPACE::kPi/180.), -arad*std::sin(50*VECGEOM_NAMESPACE::kPi/180.), 0);
 
     dist = ctest10.DistanceToIn(pct10phi1r,vmy);
-    // if (OutRange(dist,kInfinity))
-        std::cout << "ctest10.DistanceToIn(pct10phi1r,vmy) = " << dist << std::endl;
+    if (OutRange(dist,Constants::kInfinity))
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10phi1r,vmy) = " << dist << std::endl;
 
     dist = ctest10.DistanceToIn(pct10phi2r,vx);
-    // if (OutRange(dist,kInfinity))
-        std::cout << "ctest10.DistanceToIn(pct10phi2r,vx) = " << dist << std::endl;
+    if (OutRange(dist,Constants::kInfinity))
+        std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(pct10phi2r,vx) = " << dist << std::endl;
 
 
   Vec_t alex1P(49.840299921054168,-59.39735648688918,-20.893051766050633);
   Vec_t alex1V(0.6068108874999103,0.35615926907657169,0.71058505603651234);
 
   in = ctest10.Inside(alex1P);
-  //std::cout << "ctest10.Inside(alex1P) = " <<in<< std::endl;
+  //std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.Inside(alex1P) = " <<in<< std::endl;
   //assert(in == vecgeom::EInside::kSurface);
 
   dist = ctest10.DistanceToIn(alex1P,alex1V);
   if (OutRange(dist,Constants::kInfinity))
-  std::cout << "ctest10.DistanceToIn(alex1P,alex1V) = " << dist << std::endl;
+  std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(alex1P,alex1V) = " << dist << std::endl;
 
   dist = ctest10.DistanceToOut(alex1P,alex1V,norm,convex);
   if (OutRange(dist,0))
-  std::cout << "ctest10.DistanceToOut(alex1P,alex1V) = " << dist << std::endl;
+  std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToOut(alex1P,alex1V) = " << dist << std::endl;
 
 
   Vec_t alex2P(127.0075852717127, -514.1050841937065, 69.47104834263656);
   Vec_t alex2V(0.1277616879490939, 0.4093610465777845, 0.9033828007202369);
 
   in = ctest10.Inside(alex2P);
-  //std::cout << "ctest10.Inside(alex2P) = " <<in<< std::endl;
+  //std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.Inside(alex2P) = " <<in<< std::endl;
   assert(in == vecgeom::EInside::kOutside);
 
   dist = ctest10.DistanceToIn(alex2P,alex2V);
   if (OutRange(dist,Constants::kInfinity))
-  std::cout << "ctest10.DistanceToIn(alex2P,alex2V) = " << dist << std::endl;
+  std::cout <<"Mismatch: Line "<< __LINE__ <<", ctest10.DistanceToIn(alex2P,alex2V) = " << dist << std::endl;
 
   //Add Error of CMS, point on the Inner Surface going // to imaginary cone
   Cone_t  testc( "cCone", 261.9,270.4,1066.5,1068.7,274.75 , 0., 2*VECGEOM_NAMESPACE::kPi);
@@ -1053,19 +1056,19 @@ std::cout<<"Error:c9.Out((1e3*tolerance,0,50),vx2mz,...) = " <<dist << std::endl
 
 // DistanceToOut(P,V)
     Dist=t1.DistanceToOut(pzero,vx,norm,convex);
-    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vx)&&convex);
+    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vx)); //&&convex);
     Dist=t1.DistanceToOut(pzero,vmx,norm,convex);
-    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vmx)&&convex);
+    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vmx)); //&&convex);
     Dist=t1.DistanceToOut(pzero,vy,norm,convex);
-    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vy)&&convex);
+    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vy)); //&&convex);
     Dist=t1.DistanceToOut(pzero,vmy,norm,convex);
-    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vmy)&&convex);
+    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vmy)); //&&convex);
     Dist=t1.DistanceToOut(pzero,vz,norm,convex);
-    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vz)&&convex);
+    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vz)); //&&convex);
     Dist=t1.DistanceToOut(pzero,vmz,norm,convex);
-    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vmz)&&convex);
+    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vmz)); //&&convex);
     Dist=t1.DistanceToOut(pzero,vxy,norm,convex);
-    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vxy)&&convex);
+    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vxy)); //&&convex);
 
 
 //SafetyFromOutside(P)
@@ -1100,7 +1103,7 @@ std::cout<<"Error:c9.Out((1e3*tolerance,0,50),vx2mz,...) = " <<dist << std::endl
 
     Dist=test10.DistanceToIn(Vec_t(19.218716967888,5.5354239324172,-100.0),
         Vec_t(-0.25644483536346,-0.073799216676426,0.96373737191901));
-    std::cout<<"test10::DistToIn ="<<Dist<<std::endl;
+    std::cout<<"Check: Line "<< __LINE__ <<", test10::DistToIn ="<<Dist<<std::endl;
     assert(ApproxEqual(Dist,Constants::kInfinity));
     Dist=test10.DistanceToOut(Vec_t(19.218716967888,5.5354239324172,-100.0),
         Vec_t(-0.25644483536346,-0.073799216676426,0.96373737191901),
