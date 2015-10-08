@@ -98,7 +98,7 @@ public:
 
   void InitABBoxesForCompleteGeometry() {
     std::vector<LogicalVolume const *> logicalvolumes;
-    GeoManager::Instance().getAllLogicalVolumes(logicalvolumes);
+    GeoManager::Instance().GetAllLogicalVolumes(logicalvolumes);
     // size containers
     fVolToABBoxesMap.resize( GeoManager::Instance().GetLogicalVolumesCount(), nullptr );
     fVolToABBoxesMap_v.resize( GeoManager::Instance().GetLogicalVolumesCount(), nullptr );
