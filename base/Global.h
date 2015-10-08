@@ -263,6 +263,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 #else
   VECGEOM_GLOBAL int kAlignmentBoundary = 32;
 #endif
+VECGEOM_GLOBAL Precision kAvogadro = 6.02214085774e23;
 VECGEOM_GLOBAL Precision kPi = 3.14159265358979323846;
 VECGEOM_GLOBAL Precision kTwoPi = 2.*kPi;
 VECGEOM_GLOBAL Precision kTwoPiInv = 1./kTwoPi;
@@ -360,6 +361,10 @@ namespace details {
       static DataType const *Get(DataType *ptr) { return ptr; }
    };
 }
+
+// some static MACROS
+#define VECGEOM_MAXDAUGHTERS 100 // macro mainly used to allocated static (stack) arrays/workspaces
+
 
 } } // End global namespace
 

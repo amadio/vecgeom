@@ -185,9 +185,6 @@ if(testingvecgeom){
 }
 
 
-// Check name
-    assert(MyPCone->GetName()=="MyPCone");
-    assert(Simple.GetName()=="SimpleTube+Cone");
 
 // Check Cubic volume
     double vol,volCheck;

@@ -31,8 +31,6 @@ bool TestTet()
     Tet_t   t1( "Solid Tet #1", pzero, pnt1, pnt2, pnt3, &goodTet); 
     Tet_t   t2( "Solid Tet #2", pzero, pt1, pt2, pt3, &goodTet);
 
-// Check name
-    assert(t1.GetName()=="Solid Tet #1");
 
 // Check  Cubic Volume
     double vol,volCheck;

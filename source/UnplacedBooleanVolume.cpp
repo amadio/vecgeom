@@ -91,11 +91,48 @@ VPlacedVolume* UnplacedBooleanVolume::SpecializedVolume(
 #endif
 }
 
+  void TransformedExtent( VPlacedVolume const *pvol, Vector3D<Precision> &aMin, Vector3D<Precision> &aMax ){
+      Vector3D<Precision> lower,upper;
+      pvol->Extent(lower, upper);
+      Vector3D<Precision> delta = upper-lower;
+      Precision minx,miny,minz,maxx,maxy,maxz;
+      minx = kInfinity;
+      miny = kInfinity;
+      minz = kInfinity;
+      maxx = -kInfinity;
+      maxy = -kInfinity;
+      maxz = -kInfinity;
+      auto * transf = pvol->GetTransformation();
+      for(int x=0;x<=1;++x)
+          for(int y=0;y<=1;++y)
+              for(int z=0;z<=1;++z){
+                    Vector3D<Precision> corner;
+                    corner.x() = lower.x() + x*delta.x();
+                    corner.y() = lower.y() + y*delta.y();
+                    corner.z() = lower.z() + z*delta.z();
+                    Vector3D<Precision> transformedcorner =
+                      transf->InverseTransform( corner );
+                    minx = std::min(minx, transformedcorner.x());
+                    miny = std::min(miny, transformedcorner.y());
+                    minz = std::min(minz, transformedcorner.z());
+                    maxx = std::max(maxx, transformedcorner.x());
+                    maxy = std::max(maxy, transformedcorner.y());
+                    maxz = std::max(maxz, transformedcorner.z());
+              }
+      aMin.x()=minx;aMin.y()=miny;aMin.z()=minz;
+      aMax.x()=maxx;aMax.y()=maxy;aMax.z()=maxz;
+  }
+
   void UnplacedBooleanVolume::Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const {
 
     Vector3D<Precision> minLeft, maxLeft, minRight, maxRight;
-    fLeftVolume->Extent(minLeft, maxLeft);
-    fRightVolume->Extent(minRight,maxRight);
+    //ATTENTION: Extent gives coordinates in the reference frame of the callee
+    //therefore we have to calculate Extent in THIS frame using:
+    TransformedExtent(fLeftVolume, minLeft, maxLeft);
+    TransformedExtent(fRightVolume, minRight, maxRight);
+    // rather than just
+    // fLeftVolume->Extent(minLeft, maxLeft);
+    // fRightVolume->Extent(minRight,maxRight);
 
     if( this->GetOp() == kUnion ) {
       aMin = Vector3D<Precision>( Min(minLeft.x(), minRight.x()),

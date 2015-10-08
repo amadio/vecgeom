@@ -166,8 +166,8 @@ bool TestCons()
 
   Vec_t norm;
 
-  // Check name
 
+  // Check name
   assert(c1.GetName()=="c1 Hollow Full Tube");
 
   // Check Cubic volume
@@ -1038,8 +1038,6 @@ std::cout<<"Error:c9.Out((1e3*tolerance,0,50),vx2mz,...) = " <<dist << std::endl
             10.*VECGEOM_NAMESPACE::kPi/180., 300.*VECGEOM_NAMESPACE::kPi/180. );
 
 
-// Check name
-    assert(t1.GetName()=="Solid TubeLike #1");
 
 // Check Inside
     assert(t1.Inside(pzero)==vecgeom::EInside::kInside);

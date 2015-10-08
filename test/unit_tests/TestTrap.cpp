@@ -82,10 +82,7 @@ bool TestTrap() {
     Trap_t tempTrap("temp trap", Corners);
 
 
-// Check name
 
-    assert(trap1.GetName()=="Test Boxlike #1");
-    assert(trap2.GetName()=="Test Trdlike #2");
 
 // Check cubic volume
 

@@ -65,14 +65,29 @@ bool TestTubs()
 
 
     std::cout.precision(20);
+
     // Check name
     //assert(t1.GetName()=="Solid Tube #1");
-
 
     // Check cubic volume
     vol = t1.Capacity();
     volCheck = 50*2*UUtils::kPi*50*50;
     assert(ApproxEqual(vol,volCheck));
+
+    // add a test for a previously fixed bug -- point near phi-surface of a wedged tube
+    using vecgeom::cxx::kDegToRad;
+
+    Tube_t jira174Tube("jira174Tube",57.555599999999998, 205.55599999999998, 348, -5.5747247*kDegToRad, 5.5747247*kDegToRad);
+    Vec_t pos174(92.4733, 5.32907e-15, 19.943);
+    Vec_t dir174(0.303163, -0.492481, 0.815815);
+    Vec_t norm174;
+    bool conv174=false;
+
+    dir174 /= dir174.Mag();
+    double din = jira174Tube.DistanceToIn( pos174, dir174 );
+    assert(ApproxEqual(din,0));
+    double dout = jira174Tube.DistanceToOut( pos174, dir174, norm174, conv174);
+    assert(ApproxEqual(dout,19.499));
  
     // Check Surface area
     vol = t2.SurfaceArea();
@@ -133,19 +148,26 @@ bool TestTubs()
 // DistanceToOut(P,V)
     bool convex;
     Dist=t1.DistanceToOut(pzero,vx,norm,convex);
-    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vx)&& !convex);
+    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vx));
+    if(!testvecgeom) assert(convex);
     Dist=t1.DistanceToOut(pzero,vmx,norm,convex);
-    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vmx)&& !convex);
+    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vmx));
+    if(!testvecgeom) assert(convex);
     Dist=t1.DistanceToOut(pzero,vy,norm,convex);
-    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vy)&& !convex);
+    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vy));
+    if(!testvecgeom) assert(convex);
     Dist=t1.DistanceToOut(pzero,vmy,norm,convex);
-    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vmy)&& !convex);
+    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vmy));
+    if(!testvecgeom) assert(convex);
     Dist=t1.DistanceToOut(pzero,vz,norm,convex);
-    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vz)&& !convex);
+    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vz));
+    if(!testvecgeom) assert(convex);
     Dist=t1.DistanceToOut(pzero,vmz,norm,convex);
-    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vmz)&& !convex);
+    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vmz));
+    if(!testvecgeom) assert(convex);
     Dist=t1.DistanceToOut(pzero,vxy,norm,convex);
-    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vxy)&& !convex);
+    assert(ApproxEqual(Dist,50)&&ApproxEqual(norm,vxy));
+    if(!testvecgeom) assert(convex);
 
     Dist=t2.DistanceToOut(pzero,vxy,norm,convex);
     //  std::cout<<"Dist=t2.DistanceToOut(pzero,vxy) = "<<Dist<<std::endl;

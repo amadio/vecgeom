@@ -83,6 +83,7 @@ void BitSetTest() {
    }
 
    CheckValues(s, nbits);    
+   delete s;
 }
 
 int main() {

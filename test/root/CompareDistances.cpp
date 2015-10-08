@@ -11,6 +11,7 @@
 #include "utilities/Visualizer.h"
 #include <string>
 #include <cmath>
+#include <iostream>
 
 #ifdef VECGEOM_GEANT4
 #include "G4ThreeVector.hh"

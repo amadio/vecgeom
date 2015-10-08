@@ -1,20 +1,21 @@
 //
+// File:    TestPolyhedra
+// Purpose: Polyhedra unit tests
 //
-// TestTrd
-//             Ensure asserts are compiled in
-
-#undef NDEBUG
 
 #include "base/Vector3D.h"
 #include "volumes/Polyhedron.h"
 #include "ApproxEqual.h"
 #ifdef VECGEOM_USOLIDS
-#include "UPolyhedra.hh"
-#include "UVector3.hh"
+  #include "UPolyhedra.hh"
+  #include "UVector3.hh"
 #endif
 
-//#include <cassert>
 #include <cmath>
+
+//-- ensure asserts are compiled in
+#undef NDEBUG
+#include <cassert>
 
 bool testvecgeom = false;
 const double degToRad = UUtils::kPi/180.0;

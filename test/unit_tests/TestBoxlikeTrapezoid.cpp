@@ -49,8 +49,6 @@ bool TestTrapezoid() {
                       24.707000000000001,0.14999999999999999, 0.14999999999999999, 0,
                       24.707000000000001,0.14999999999999999, 0.14999999999999999, 0);
 
-// Check name
-    assert(trap1.GetName()=="Test Trapezoid #1");
 
     // Check cubic volume
 

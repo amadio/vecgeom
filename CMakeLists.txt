@@ -51,7 +51,13 @@ option(PLANESHELL "Enable the use of PlaneShell class for the trapezoid." ON)
 
 option(DISTANCE_DEBUG "Enable comparison of calculated distances againt ROOT/Geant4 behind the scenes" OFF)
 
+option(INPLACE_TRANSFORMATIONS "Put transformation as members rather than pointers into PlacedVolume objects" ON)
+
+option(USE_INDEXEDNAVSTATES "Use indices rather than volume pointers in NavigationState objects" OFF)
+
 option(DATA_DOWNLOAD "Enable downloading of data for tests" OFF)
+
+option(GENERATE_MATERIALS_DB "Include materials and particle declarations in library" OFF)
 
 set(VECGEOM_ARCH native sse2 sse3 ssse3 sse4.1 sse4.2 avx avx2 mic avx512)
 
@@ -93,6 +99,7 @@ endforeach()
 if (USOLIDS)
   set(USolids ON)
 endif()
+
 
 if (GEANT4)
 #  if (BENCHMARK)
@@ -166,7 +173,11 @@ elseif(Intel)
   else()
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -fno-alias")
   endif()
-else(Clang)
+elseif(Clang)
+  if (APPLE)
+    # prefer LLVM's standard C++ library on Mac OS X
+    set (VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -stdlib=libc++")
+  endif()
   set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -fPIC")
   if (CMAKE_BUILD_TYPE MATCHES Debug)
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS}  -ggdb -O0")
@@ -260,6 +271,10 @@ if (CUDA)
         MINSIZEREL -use_fast_math )
 endif()
 
+if (Clang)
+  set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} dl)
+endif()
+
 # Enable pretty diagnostics coloring if gcc 4.9+ is being used
 if (GNU)
   # gcc needs -ldl to be added explicitly
@@ -323,6 +338,16 @@ endif()
 if (VTUNE)
   set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_VTUNE")
 endif()
+if (INPLACE_TRANSFORMATIONS)
+  set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_INPLACE_TRANSFORMATIONS")
+endif()
+if (USE_INDEXEDNAVSTATES)
+  set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_USE_INDEXEDNAVSTATES")
+endif()
+if (GENERATE_MATERIALS_DB)
+  set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_GENERATE_MATERIALS_DB")
+endif()
+
 
 ################################################################################
 
@@ -440,7 +465,7 @@ endif()
 
 ################################################################################
 
-include_directories(${CMAKE_SOURCE_DIR})
+include_directories(BEFORE ${CMAKE_SOURCE_DIR})
 
 set(SRC_CPP_RELATIVE
   source/RNG.cpp
@@ -490,11 +515,25 @@ set(SRC_CPP_RELATIVE
   source/PlacedPolycone.cpp
   source/Wedge.cpp
   source/ABBoxManager.cpp
+  source/ABBoxNavigator.cpp
 
   source/USolidsInterfaceHelper.cpp
+
+  source/Material.cpp
+  source/Medium.cpp
+  source/Nucleus.cpp
+  source/CreateNuclei.cpp
+  source/MessageLogger.cpp
+  source/Particle.cpp
+  source/CreateParticles.cpp
 )
 
-# avoid "file has no symbols" warning
+# avoid "file has no symbols" warnings
+
+if (NOT USolids)
+  list(REMOVE_ITEM SRC_CPP_RELATIVE source/USolidsInterfaceHelper.cpp)
+endif()
+
 if(NOT CUDA)
   list(REMOVE_ITEM SRC_CPP_RELATIVE source/RNG.cpp)
   list(REMOVE_ITEM SRC_CPP_RELATIVE source/AOS3D.cpp)
@@ -502,9 +541,17 @@ if(NOT CUDA)
   list(REMOVE_ITEM SRC_CPP_RELATIVE source/Vector.cpp)
 endif()
 
+
 foreach(SRC ${SRC_CPP_RELATIVE})
   set(SRC_CPP ${SRC_CPP} ${CMAKE_SOURCE_DIR}/${SRC})
 endforeach()
+
+# file prefixes that won't be compiled for CUDA
+set(NOT_FOR_CUDA
+   ABBoxManager
+   ABBoxNavigator
+)
+
 
 # Copy all source files to .cu-files in order for NVCC to compile them as CUDA
 # code and not regular C++ files.
@@ -515,7 +562,8 @@ if (CUDA)
 
     get_filename_component(SRC_FILENAME ${SRC_FILE} NAME_WE)
 
-    if (NOT "${SRC_FILENAME}" STREQUAL "ABBoxManager") 
+    list(FIND NOT_FOR_CUDA ${SRC_FILENAME} _index)
+    if(${_index} EQUAL -1)
       ADD_CUSTOM_COMMAND(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/cuda_src/${SRC_FILENAME}.cu
         COMMAND ${CMAKE_COMMAND} -E copy ${SRC_FILE}
@@ -527,6 +575,8 @@ if (CUDA)
         SRC_CUDA ${SRC_CUDA}
         ${CMAKE_CURRENT_BINARY_DIR}/cuda_src/${SRC_FILENAME}.cu
       )
+    else()
+      message(STATUS "EXCLUDING ${SRC_FILENAME} FROM CUDA")
     endif()
   endforeach()
 
@@ -696,8 +746,8 @@ set(TEST_EXECUTABLES_USOLIDS
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestPolycone.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestPolyhedra.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTet.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestOrb.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
+#  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestOrb.cpp
+#  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBoxlikeTrapezoid.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTorus.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTorus2.cpp
@@ -722,8 +772,8 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${CMAKE_SOURCE_DIR}/test/benchmark/TorusBenchmark2.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrapezoidBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrapezoidBenchmarkScript.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/OrbBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/SphereBenchmark.cpp
+#  ${CMAKE_SOURCE_DIR}/test/benchmark/OrbBenchmark.cpp
+#  ${CMAKE_SOURCE_DIR}/test/benchmark/SphereBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrdBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ConeBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/PolyconeBenchmark.cpp
@@ -993,7 +1043,7 @@ if (USolids)
 endif()
 
 # Install headers and libraries
-foreach(FOLDER base benchmarking management navigation volumes backend)
+foreach(FOLDER base benchmarking management navigation volumes materials backend)
   install(DIRECTORY ${FOLDER} DESTINATION ${INSTALL_INCLUDE_DIR})
 endforeach()
 install(TARGETS vecgeom DESTINATION ${INSTALL_LIB_DIR})
@@ -1003,4 +1053,4 @@ endif()
 
 
 # Not yet a proper project.
-add_subdirectory (VecCore)
+#add_subdirectory (VecCore)

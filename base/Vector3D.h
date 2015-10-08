@@ -258,6 +258,13 @@ public:
     return ATan2(vec[1], vec[0]);
   }
 
+  /// \return Polar angle between 0 and pi.
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Type Theta() const {
+    return ACos(vec[2]/Mag());
+  }
+
   /// The cross (vector) product of two Vector3D<T> objects
   /// \return Type (where Type is float, double, or various SIMD vector types)
   template <class FirstType, class SecondType>
@@ -609,6 +616,15 @@ public:
   VECGEOM_INLINE
   Precision Phi() const {
     return (mem[0] != 0. || mem[1] != 0.) ? ATan2(mem[1], mem[0]) : 0.;
+  }
+
+  /// \return Polar angle between 0 and pi.
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision Theta() const {
+     Precision theta = ATan2(Sqrt(mem[0]*mem[0]+mem[1]*mem[1]),mem[2]);
+     if(theta < 0) theta += 3.14159265358979323846264338327950;
+     return theta;
   }
 
   /// \return The dot product of two Vector3D<Precision> objects.

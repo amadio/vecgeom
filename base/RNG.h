@@ -131,6 +131,19 @@ public:
     return min + (max - min) * GetUniform();
   }
 
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  int Poisson(const Precision lambda) {
+     int k=0;
+     const Precision target = exp(-lambda);
+     Precision p=GetUniform();
+     while(p<target) {
+	p*=GetUniform();
+	++k;
+     }
+     return k;
+  }
+
   /**
    * Uniformly distributed array of floating point number between 0 and 1 unless
    *         range arguments are passed.

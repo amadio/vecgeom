@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <cassert>
 #include <stdio.h>
+#include <iostream>
 
 namespace vecgeom {
 inline namespace cxx {

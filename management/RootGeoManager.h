@@ -6,6 +6,8 @@
 
 #include "base/Global.h"
 #include "base/TypeMap.h"
+#include "volumes/PlacedVolume.h"
+#include "management/GeoManager.h"
 
 #include "TGeoNode.h"
 class TGeoVolume;
@@ -17,8 +19,9 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class LogicalVolume;
 class Transformation3D;
 class UnplacedBox;
-class VPlacedVolume;
 class VUnplacedVolume;
+class Medium;
+class Material;
 
 /// \brief Manager to handle interaction with ROOT geometry.
 /// \details Allows integration with ROOT geometries for compatability reasons.
@@ -32,7 +35,7 @@ private:
   /** Remember pointer to generated world from imported ROOT geometry. */
   VPlacedVolume const* fWorld;
 
-  BidirectionalTypeMap<VPlacedVolume const*, TGeoNode const*> fPlacedVolumeMap;
+  BidirectionalTypeMap<unsigned int, TGeoNode const*> fPlacedVolumeMap;
   BidirectionalTypeMap<VUnplacedVolume const*, TGeoShape const*> fUnplacedVolumeMap;
   BidirectionalTypeMap<LogicalVolume const*, TGeoVolume const*> fLogicalVolumeMap;
   BidirectionalTypeMap<Transformation3D const*, TGeoMatrix const*> fTransformationMap;
@@ -59,13 +62,13 @@ public:
   TGeoNode const * tgeonode( VPlacedVolume const * p ) const
   {
       if( p==NULL ) return NULL;
-      return (fPlacedVolumeMap[const_cast<VPlacedVolume*>(p)]);
+      return (fPlacedVolumeMap[p->id()]);
   }
 
   /// Get placed volume that corresponds to a TGeoNode
   VPlacedVolume const * GetPlacedVolume( TGeoNode const * n ) const {
       if( n==NULL ) return NULL;
-      return (fPlacedVolumeMap[n]);
+      return (GeoManager::Instance().Convert( fPlacedVolumeMap[n] ));
   }
 
   char const *  GetName( VPlacedVolume const * p  ) const { return tgeonode(p)->GetName(); }
@@ -110,6 +113,10 @@ public:
   LogicalVolume* Convert(TGeoVolume const *const volume);
 
   Transformation3D* Convert(TGeoMatrix const *const trans);
+
+  Medium* Convert(TGeoMedium const *const medium);
+
+  Material* Convert(TGeoMaterial const *const material);
 
   // inverse process
   TGeoNode* Convert(VPlacedVolume const *const node);

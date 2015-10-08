@@ -54,6 +54,16 @@ fIdentity(false), fHasRotation(true), fHasTranslation(true){
   SetProperties();
 }
 
+
+Transformation3D::Transformation3D(const Vector3D<Precision> &axis, bool inverse){
+  SetTranslation(0,0,0);
+  if(inverse)
+    SetRotation(axis.Phi()*kRadToDeg-90, -axis.Theta()*kRadToDeg, 0);
+  else
+    SetRotation(0, axis.Theta()*kRadToDeg, 90-axis.Phi()*kRadToDeg);
+    SetProperties();
+}
+
 VECGEOM_CUDA_HEADER_BOTH
 void Transformation3D::Print() const {
   printf("Transformation3D {{%.2f, %.2f, %.2f}, ",
