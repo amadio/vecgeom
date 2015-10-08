@@ -41,7 +41,7 @@
   #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(X,ArgType1,Def1,ArgType2,Def2)
   #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(X,ArgType1,Def1,ArgType2,Def2,ArgType3)
   #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_3v(X,ArgType1,Def1,ArgType2,Def2,ArgType3,Def3)
-  #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_poly(X,ArgType1,Def1,ArgType2,Def2,ArgType3,Def3,ArgType4,Def4)
+  #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_4v(X,ArgType1,Def1,ArgType2,Def2,ArgType3,Def3,ArgType4,Def4)
   #undef VECGEOM_VC
   #undef VECGEOM_VC_ACCELERATION
   #undef VECGEOM_CILK
@@ -112,7 +112,7 @@
      template <ArgType1 Arg1,ArgType2 Arg2,ArgType3 Arg3> struct kCudaType<cxx::X<Arg1,Arg2,Arg3> > \
      { using type_t = cuda::X<Arg1,Arg2,Arg3 >; };
 
-#define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_poly(X,ArgType1,Def1,ArgType2,Def2,ArgType3,Def3,ArgType4,Def4) \
+#define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_4v(X,ArgType1,Def1,ArgType2,Def2,ArgType3,Def3,ArgType4,Def4) \
     namespace cuda { template <ArgType1 Arg1,ArgType2 Arg2,ArgType3 Arg3,ArgType4 Arg4> struct X; } \
     inline namespace cxx  { template <ArgType1 Arg1,ArgType2 Arg2,ArgType3 Arg3,ArgType4 Arg4> struct X; } \
     template <ArgType1 Arg1,ArgType2 Arg2,ArgType3 Arg3,ArgType4 Arg4> struct kCudaType<cxx::X<Arg1,Arg2,Arg3,Arg4> > \
@@ -140,7 +140,7 @@
      inline namespace cxx  { template <ArgType1 Arg1,ArgType2 Arg2,ArgType3 Arg3> struct X; } \
      template <ArgType1 Arg1,ArgType2 Arg2,ArgType3 Arg3> struct kCudaType<cxx::X<Arg1,Arg2,Arg3> > \
      { using type_t = cuda::X<Def1,Def2,Def3 >; };
-#define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_poly(X,ArgType1,Def1,ArgType2,Def2,ArgType3,Def3,ArgType4,Def4) \
+#define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_4v(X,ArgType1,Def1,ArgType2,Def2,ArgType3,Def3,ArgType4,Def4) \
      namespace cuda { template <ArgType1 Arg1,ArgType2 Arg2,ArgType3 Arg3,ArgType4 Arg4> struct X; } \
      inline namespace cxx  { template <ArgType1 Arg1,ArgType2 Arg2,ArgType3 Arg3,ArgType4 Arg4> struct X; } \
      template <ArgType1 Arg1,ArgType2 Arg2,ArgType3 Arg3,ArgType4 Arg4> struct kCudaType<cxx::X<Arg1,Arg2,Arg3,Arg4> > \
