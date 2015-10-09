@@ -130,8 +130,6 @@ void UnplacedPolycone::Init(double phiStart,
     prevRmin = rMin;
     prevRmax = rMax;
   }
-
-  fNz = fZs.size();
 }
 
     // Alternative constructor, required for integration with Geant4.

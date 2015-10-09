@@ -60,7 +60,7 @@ public:
     Precision fDeltaPhi;
   //Precision fEndPhi;
 
-    unsigned int fNz;
+    unsigned int fNz;  // number of planes the polycone was constructed with; It should not be modified
     //Precision * fRmin;
     //Precision * fRmax;
     //Precision * fZ;

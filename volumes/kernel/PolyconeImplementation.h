@@ -81,7 +81,7 @@ struct PolyconeImplementation {
       Bool_t done = Bool_t(false);
 
       // z-region
-      int Nz = unplaced.GetNz();
+      int Nz = unplaced.fZs.size();
       completelyInside = Bool_t(false);
       completelyOutside = localPoint[2] < MakeMinusTolerant<ForInside>( unplaced.GetZAtPlane(0) );
       completelyOutside |= localPoint[2] > MakePlusTolerant<ForInside>( unplaced.GetZAtPlane(Nz-1) );
