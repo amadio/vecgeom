@@ -168,7 +168,7 @@ bool TestCons()
 
 
   // Check name
-  assert(c1.GetName()=="c1 Hollow Full Tube");
+  //assert(c1.GetName()=="c1 Hollow Full Tube");
 
   // Check Cubic volume
   double vol,volCheck;

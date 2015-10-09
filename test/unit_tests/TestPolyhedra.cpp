@@ -114,7 +114,7 @@ bool TestPolyhedra()
 
 
 // Check names
-    assert(MyPGon->GetName()=="MyPGon");
+  //assert(MyPGon->GetName()=="MyPGon");
 
 // show units and bounding tube
   std::cout<<"=== Polyhedron: "<< MyPGon->StreamInfo(std::cout) <<"\n";

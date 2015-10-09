@@ -19,6 +19,8 @@
 #undef NDEBUG
 #include <cassert>
 
+bool testvecgeom = false;
+
 template <typename Constants, class Tube_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
 bool TestTubs()
 {
@@ -498,7 +500,7 @@ struct VECGEOMCONSTANTS {
 int main(int argc, char *argv[]) {
 
    if( argc < 2) {
-      std::cerr << "need to give argument :--usolids or --vecgeom\n";
+      std::cerr << "need to give argument: --usolids or --vecgeom\n";
       return 1;
    }
 
@@ -517,6 +519,7 @@ int main(int argc, char *argv[]) {
 #endif
     }
     else if( ! strcmp(argv[1], "--vecgeom") ) {
+       testvecgeom = true;
        TestTubs<VECGEOMCONSTANTS,vecgeom::SimpleTube>();
        std::cout << "VecGeom tube passed\n";
     }

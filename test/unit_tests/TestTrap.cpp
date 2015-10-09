@@ -1,6 +1,7 @@
 //
 // File:    TestTrap.cpp
-// Purpose: Unit test for the trapezoid
+// Purpose: Unit tests for the trapezoid
+//
 
 #include "base/Vector3D.h"
 #include "volumes/Box.h"
@@ -9,12 +10,15 @@
   #include "UTrap.hh"
   #include "UVector3.hh"
 #endif
+
 #include "volumes/Trapezoid.h"
 
 //.. ensure asserts are compiled in
 #undef NDEBUG
 #include <cassert>
 #include <cmath>
+
+bool testvecgeom=false;
 
 template <typename Constants, class Trap_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
 bool TestTrap() {
@@ -270,75 +274,107 @@ bool TestTrap() {
 
 // DistanceToOut(P,V)
 
-    Dist=trap1.DistanceToOut(pzero,vx,norm,convex);
-    assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,vx)&& !convex);
-    Dist=trap1.DistanceToOut(pzero,vmx,norm,convex);
-    assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,vmx)&& !convex);
-    Dist=trap1.DistanceToOut(pzero,vy,norm,convex);
-    assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,vy)&& !convex);
-    Dist=trap1.DistanceToOut(pzero,vmy,norm,convex);
-    assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,vmy)&& !convex);
-    Dist=trap1.DistanceToOut(pzero,vz,norm,convex);
-    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vz)&& !convex);
-    Dist=trap1.DistanceToOut(pzero,vmz,norm,convex);
-    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vmz)&& !convex);
-    Dist=trap1.DistanceToOut(pzero,vxy,norm,convex);
-    assert(ApproxEqual(Dist,std::sqrt(800.))&&ApproxEqual(norm,vx)&& !convex);
+  Dist=trap1.DistanceToOut(pzero,vx,norm,convex);
+  assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,vx));
+  if(!testvecgeom) assert(convex);
+  Dist=trap1.DistanceToOut(pzero,vmx,norm,convex);
+  assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,vmx));
+  if(!testvecgeom) assert(convex);
+  Dist=trap1.DistanceToOut(pzero,vy,norm,convex);
+  assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,vy));
+  if(!testvecgeom) assert(convex);
+  Dist=trap1.DistanceToOut(pzero,vmy,norm,convex);
+  assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,vmy));
+  if(!testvecgeom) assert(convex);
+  Dist=trap1.DistanceToOut(pzero,vz,norm,convex);
+  assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vz));
+  if(!testvecgeom) assert(convex);
+  Dist=trap1.DistanceToOut(pzero,vmz,norm,convex);
+  assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vmz));
+  if(!testvecgeom) assert(convex);
+  Dist=trap1.DistanceToOut(pzero,vxy,norm,convex);
+  assert(ApproxEqual(Dist,std::sqrt(800.))&&ApproxEqual(norm,vx));
+  if(!testvecgeom) assert(convex);
 
-    Dist=trap1.DistanceToOut(ponxside,vx,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vx)&& !convex);
-    Dist=trap1.DistanceToOut(ponmxside,vmx,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmx)&& !convex);
-    Dist=trap1.DistanceToOut(ponyside,vy,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vy)&& !convex);
-    Dist=trap1.DistanceToOut(ponmyside,vmy,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmy)&& !convex);
-    Dist=trap1.DistanceToOut(ponzside,vz,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vz)&& !convex);
-    Dist=trap1.DistanceToOut(ponmzside,vmz,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmz)&& !convex);
+  Dist=trap1.DistanceToOut(ponxside,vx,norm,convex);
+  assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vx));
+  if(!testvecgeom) assert(convex);
+  Dist=trap1.DistanceToOut(ponmxside,vmx,norm,convex);
+  assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmx));
+  if(!testvecgeom) assert(convex);
+  Dist=trap1.DistanceToOut(ponyside,vy,norm,convex);
+  assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vy));
+  if(!testvecgeom) assert(convex);
+  Dist=trap1.DistanceToOut(ponmyside,vmy,norm,convex);
+  assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmy));
+  if(!testvecgeom) assert(convex);
+  Dist=trap1.DistanceToOut(ponzside,vz,norm,convex);
+  assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vz));
+  if(!testvecgeom) assert(convex);
+  Dist=trap1.DistanceToOut(ponmzside,vmz,norm,convex);
+  assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmz));
+  if(!testvecgeom) assert(convex);
 
-    Dist=trap1.DistanceToOut(ponxside,vmx,norm,convex);
-    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vmx)&& !convex);
-    Dist=trap1.DistanceToOut(ponmxside,vx,norm,convex);
-    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vx)&& !convex);
-    Dist=trap1.DistanceToOut(ponyside,vmy,norm,convex);
-    assert(ApproxEqual(Dist,60)&&ApproxEqual(norm,vmy)&& !convex);
-    Dist=trap1.DistanceToOut(ponmyside,vy,norm,convex);
-    assert(ApproxEqual(Dist,60)&&ApproxEqual(norm,vy)&& !convex);
-    Dist=trap1.DistanceToOut(ponzside,vmz,norm,convex);
-    assert(ApproxEqual(Dist,80)&&ApproxEqual(norm,vmz)&& !convex);
-    Dist=trap1.DistanceToOut(ponmzside,vz,norm,convex);
-    assert(ApproxEqual(Dist,80)&&ApproxEqual(norm,vz)&& !convex);
+  Dist=trap1.DistanceToOut(ponxside,vmx,norm,convex);
+  assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vmx));
+  if(!testvecgeom) assert(convex);
+  Dist=trap1.DistanceToOut(ponmxside,vx,norm,convex);
+  assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vx));
+  if(!testvecgeom) assert(convex);
+  Dist=trap1.DistanceToOut(ponyside,vmy,norm,convex);
+  assert(ApproxEqual(Dist,60)&&ApproxEqual(norm,vmy));
+  if(!testvecgeom) assert(convex);
+  Dist=trap1.DistanceToOut(ponmyside,vy,norm,convex);
+  assert(ApproxEqual(Dist,60)&&ApproxEqual(norm,vy));
+  if(!testvecgeom) assert(convex);
+  Dist=trap1.DistanceToOut(ponzside,vmz,norm,convex);
+  assert(ApproxEqual(Dist,80)&&ApproxEqual(norm,vmz));
+  if(!testvecgeom) assert(convex);
+  Dist=trap1.DistanceToOut(ponmzside,vz,norm,convex);
+  assert(ApproxEqual(Dist,80)&&ApproxEqual(norm,vz));
+  if(!testvecgeom) assert(convex);
 
 
-    Dist=trap2.DistanceToOut(pzero,vx,norm,convex);
-    assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,Vec_t(cosa,0,-sina))&& !convex);
-    Dist=trap2.DistanceToOut(pzero,vmx,norm,convex);
-    assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,Vec_t(-cosa,0,-sina))&& !convex);
-    Dist=trap2.DistanceToOut(pzero,vy,norm,convex);
-    assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,Vec_t(0,cosa,-sina))&& !convex);
-    Dist=trap2.DistanceToOut(pzero,vmy,norm,convex);
-    assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,Vec_t(0,-cosa,-sina))&& !convex);
-    Dist=trap2.DistanceToOut(pzero,vz,norm,convex);
-    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vz)&& !convex);
-    Dist=trap2.DistanceToOut(pzero,vmz,norm,convex);
-    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vmz)&& !convex);
-    Dist=trap2.DistanceToOut(pzero,vxy,norm,convex);
-    assert(ApproxEqual(Dist,std::sqrt(800.))&& !convex);
+  Dist=trap2.DistanceToOut(pzero,vx,norm,convex);
+  assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,Vec_t(cosa,0,-sina)));
+  if(!testvecgeom) assert(convex);
+  Dist=trap2.DistanceToOut(pzero,vmx,norm,convex);
+  assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,Vec_t(-cosa,0,-sina)));
+  if(!testvecgeom) assert(convex);
+  Dist=trap2.DistanceToOut(pzero,vy,norm,convex);
+  assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,Vec_t(0,cosa,-sina)));
+  if(!testvecgeom) assert(convex);
+  Dist=trap2.DistanceToOut(pzero,vmy,norm,convex);
+  assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,Vec_t(0,-cosa,-sina)));
+  if(!testvecgeom) assert(convex);
+  Dist=trap2.DistanceToOut(pzero,vz,norm,convex);
+  assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vz));
+  if(!testvecgeom) assert(convex);
+  Dist=trap2.DistanceToOut(pzero,vmz,norm,convex);
+  assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vmz));
+  if(!testvecgeom) assert(convex);
+  Dist=trap2.DistanceToOut(pzero,vxy,norm,convex);
+  assert(ApproxEqual(Dist,std::sqrt(800.)));
+  if(!testvecgeom) assert(convex);
 
-    Dist=trap2.DistanceToOut(ponxside,vx,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(cosa,0,-sina))&& !convex);
-    Dist=trap2.DistanceToOut(ponmxside,vmx,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(-cosa,0,-sina))&& !convex);
-    Dist=trap2.DistanceToOut(ponyside,vy,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(0,cosa,-sina))&& !convex);
-    Dist=trap2.DistanceToOut(ponmyside,vmy,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(0,-cosa,-sina))&& !convex);
-    Dist=trap2.DistanceToOut(ponzside,vz,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vz)&& !convex);
-    Dist=trap2.DistanceToOut(ponmzside,vmz,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmz)&& !convex);
+  Dist=trap2.DistanceToOut(ponxside,vx,norm,convex);
+  assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(cosa,0,-sina)));
+  if(!testvecgeom) assert(convex);
+  Dist=trap2.DistanceToOut(ponmxside,vmx,norm,convex);
+  assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(-cosa,0,-sina)));
+  if(!testvecgeom) assert(convex);
+  Dist=trap2.DistanceToOut(ponyside,vy,norm,convex);
+  assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(0,cosa,-sina)));
+  if(!testvecgeom) assert(convex);
+  Dist=trap2.DistanceToOut(ponmyside,vmy,norm,convex);
+  assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(0,-cosa,-sina)));
+  if(!testvecgeom) assert(convex);
+  Dist=trap2.DistanceToOut(ponzside,vz,norm,convex);
+  assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vz));
+  if(!testvecgeom) assert(convex);
+  Dist=trap2.DistanceToOut(ponmzside,vmz,norm,convex);
+  assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmz));
+  if(!testvecgeom) assert(convex);
 
 
 //SafetyFromOutside(P)
@@ -507,13 +543,13 @@ int main(int argc, char *argv[]) {
     }
 
     else if( ! strcmp(argv[1], "--vecgeom") ) {
-        //testingvecgeom = true;
+        testvecgeom = true;
         TestTrap<VECGEOMCONSTANTS, VECGEOM_NAMESPACE::SimpleTrapezoid>();
         std::cout << "VecGeom Trap passed.\n";
     }
 
     else {
-        std::cerr << "need to give argument: --usolids or --vecgeom\n";
+        std::cerr << "argument needs to be either of: --usolids or --vecgeom\n";
         return 1;
     }
 
