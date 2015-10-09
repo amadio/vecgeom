@@ -1,5 +1,5 @@
 //
-// File: TestBox.cpp
+// File:    TestBox.cpp
 // Purpose: Unit tests for the box
 //
 
@@ -357,10 +357,13 @@ bool TestBox() {
     // assert(Dist<=0.0);
     assert(ApproxEqual(Dist,UUtils::Infinity()));  // it seems DistToIn() was changed from 0 to Infinity
 #else
-    if(testvecgeom )
-            assert(Dist<=0.0);
-    else
-            assert(ApproxEqual(Dist,0.0));
+    if(testvecgeom ) {
+      if( Dist >= UUtils::kInfinity ) Dist = UUtils::Infinity(); 
+      assert(ApproxEqual(Dist,UUtils::Infinity()));
+    }
+    else {
+      assert(ApproxEqual(Dist,0.0));
+    }
 #endif
 
     /* **********************************************************

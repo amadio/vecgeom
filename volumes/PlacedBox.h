@@ -105,8 +105,12 @@ public:
            vecgeom::Transformation3D const*const transformation = &Transformation3D::kIdentity) {
     if(logical_volume_) delete logical_volume_;
     logical_volume_ = new LogicalVolume(new UnplacedBox(xx,yy,zz));
-    if(transformation_) delete transformation_;
-    transformation_ = new Transformation3D(*transformation);
+#ifdef VECGEOM_INPLACE_TRANSFORMATIONS
+    fTransformation = *transformation;
+#else
+    if(fTransformation) delete fTransformation;
+    fTransformation = new Transformation3D(*transformation);
+#endif
   }
 
 #if !defined(VECGEOM_NVCC)
