@@ -29,7 +29,7 @@ TGeoShape const* PlacedParallelepiped::ConvertToRoot() const {
 }
 #endif
 
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
 ::VUSolid const* PlacedParallelepiped::ConvertToUSolids() const {
   assert(0 && "Parallelepiped unsupported for USolids.");
   return NULL;
