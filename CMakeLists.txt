@@ -755,6 +755,7 @@ set(TEST_EXECUTABLES_USOLIDS
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestConvexity.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/BooleanConvexityTest.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/BoxBoxIntersectionTest.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/SplittedABBox.cpp
 )
 
 set(TEST_EXECUTABLES_BENCHMARK

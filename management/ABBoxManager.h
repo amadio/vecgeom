@@ -78,6 +78,7 @@ public:
 
   // computes the aligned bounding box for a certain placed volume
   static void ComputeABBox(VPlacedVolume const *pvol, ABBox_t *lower, ABBox_t *upper);
+  static void ComputeSplittedABBox(VPlacedVolume const *pvol, std::vector<ABBox_t> &lower, std::vector<ABBox_t> &upper, int numOfSlices);
 
   static ABBoxManager &Instance() {
     static ABBoxManager instance;
