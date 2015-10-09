@@ -746,8 +746,8 @@ set(TEST_EXECUTABLES_USOLIDS
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestPolycone.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestPolyhedra.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTet.cpp
-#  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestOrb.cpp
-#  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestOrb.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBoxlikeTrapezoid.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTorus.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTorus2.cpp
