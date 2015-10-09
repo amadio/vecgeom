@@ -513,6 +513,7 @@ int main(int argc, char *argv[]) {
      TestTubs<USOLIDSCONSTANTS,UTubs>();
      std::cout << "UTube passed\n";
   #else
+     testvecgeom = true;
      TestTubs<VECGEOMCONSTANTS,UTubs>();
      std::cout << "USolids --> VecGeom tube passed\n";
   #endif

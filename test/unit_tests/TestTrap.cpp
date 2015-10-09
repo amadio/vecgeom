@@ -536,6 +536,7 @@ int main(int argc, char *argv[]) {
         TestTrap<USOLIDSCONSTANTS, UTrap>();
         std::cout << "UTrap passed (but notice discrepancies above, where asserts have been disabled!)\n";
   #else
+        testvecgeom = true;  // needed to avoid testing convexity when vecgeom is used
         TestTrap<VECGEOMCONSTANTS, UTrap>();
         std::cout << "UTrap --> VecGeom trap passed\n";
   #endif
@@ -543,7 +544,7 @@ int main(int argc, char *argv[]) {
     }
 
     else if( ! strcmp(argv[1], "--vecgeom") ) {
-        testvecgeom = true;
+        testvecgeom = true;  // needed to avoid testing convexity when vecgeom is used
         TestTrap<VECGEOMCONSTANTS, VECGEOM_NAMESPACE::SimpleTrapezoid>();
         std::cout << "VecGeom Trap passed.\n";
     }

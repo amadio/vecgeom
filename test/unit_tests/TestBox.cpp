@@ -18,6 +18,7 @@
 
 bool testvecgeom=false;
 
+
 template <class Box_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
 bool TestBox() {
 
@@ -374,34 +375,38 @@ bool TestBox() {
 
 int main(int argc, char *argv[]) {
  
-   if( argc < 2)
-    {
+   if( argc < 2) {
       std::cerr << "need to give argument :--usolids or --vecgeom\n";     
       return 1;
     }
     
-    if( ! strcmp(argv[1], "--usolids") )
-    { 
-      #ifdef VECGEOM_USOLIDS
-      assert(TestBox<UBox>());
-      std::cout << "UBox passed\n";
-      #else
-      std::cerr << "VECGEOM_USOLIDS was not defined\n";
-      return 2;
-      #endif
+    if( ! strcmp(argv[1], "--usolids") ) { 
+
+#ifndef VECGEOM_USOLIDS
+        std::cerr << "VECGEOM_USOLIDS was not defined\n";
+        return 2;
+#else
+  #ifndef VECGEOM_REPLACE_USOLIDS
+        TestBox<UBox>();
+        std::cout << "UBox passed\n";
+  #else
+        testvecgeom = true;  // needed to avoid testing convexity when vecgeom is used
+        TestBox<UBox>();
+        std::cout << "USolid --> VecGeom box passed\n";
+  #endif
+#endif
     }
-    else if( ! strcmp(argv[1], "--vecgeom") )
-    {
+
+    else if( ! strcmp(argv[1], "--vecgeom") ) {
         testvecgeom = true;
         assert(TestBox<vecgeom::SimpleBox>());
         std::cout << "VecGeomBox passed\n";
     }
-    else
-    {
+
+    else {
       std::cerr << "need to give argument :--usolids or --vecgeom\n";     
       return 1;
     }
-
 
   return 0;
 }

@@ -379,18 +379,26 @@ bool TestOrb() {
      
      if( ! strcmp(argv[1], "--usolids") )
      { 
- #ifdef VECGEOM_USOLIDS
-   assert(TestOrb<UOrb>());
-   std::cout << "UOrb passed\n";
-       #else
-       std::cerr << "VECGEOM_USOLIDS was not defined\n";
-       return 2;
- #endif
+#ifndef VECGEOM_USOLIDS
+        std::cerr << "VECGEOM_USOLIDS was not defined\n";
+        return 2;
+#else
+  #ifndef VECGEOM_REPLACE_USOLIDS
+        TestOrb<UOrb>();
+        std::cout << "UOrb passed (but notice discrepancies above, where asserts have been disabled!)\n";
+  #else
+        testvecgeom = true;  // needed to avoid testing convexity when vecgeom is used
+        TestOrb<UOrb>();
+        std::cout << "UOrb --> VecGeom orb passed\n";
+  #endif
+#endif
      }
+
      else if( ! strcmp(argv[1], "--vecgeom") )
      {
-   assert(TestOrb<vecgeom::SimpleOrb>());
-   std::cout << "VecGeomOrb passed\n";
+       testvecgeom = true;
+       assert(TestOrb<vecgeom::SimpleOrb>());
+       std::cout << "VecGeomOrb passed\n";
      }
      else
      {

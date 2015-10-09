@@ -450,6 +450,7 @@ int main(int argc, char *argv[]) {
         TestTrd<USOLIDSCONSTANTS, UTrd>();
         std::cout << "USolids Trd passed\n";
   #else
+        testvecgeom = true;
         TestTrd<VECGEOMCONSTANTS, UTrd>();
         std::cout << "USolids --> VecGeom Trd passed\n";
   #endif
