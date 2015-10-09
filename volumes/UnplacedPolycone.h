@@ -143,9 +143,9 @@ public:
 
     Precision GetRminAtPlane( int index ) const {
       int nsect = GetNSections();
-      if(index<0 || index>nsect) return 0.0;
-      else if(index==nsect) return fSections[index-1].fSolid->GetRmin2();
-      else                  return fSections[index].fSolid->GetRmin1();
+      assert(index>=0 && index<=nsect);
+      if(index==nsect) return fSections[index-1].fSolid->GetRmin2();
+      else             return fSections[index].fSolid->GetRmin1();
     }
 
     Precision GetRmaxAtPlane( int index ) const {
