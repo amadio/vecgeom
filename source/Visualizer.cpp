@@ -12,6 +12,8 @@
 #include "TGeoShape.h"
 #include "TPolyLine3D.h"
 #include "TPolyMarker3D.h"
+#include "TVirtualPad.h"
+#include "TView.h"
 
 #include <iostream>
 
@@ -140,6 +142,7 @@ void Visualizer::Show() const {
   for (auto &line : fLines) {
     line->Draw();
   }
+  gPad->GetView()->ShowAxis();
  // axes.Draw();
   app.Run();
 }

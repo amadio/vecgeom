@@ -21,10 +21,12 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class UnplacedScaledShape : public VUnplacedVolume, public AlignedBase {
 
-private:
+public:
 
-  VPlacedVolume      *fPlaced;  /// Need a placed volue for the navigation interface
-  Scale3D             fScale;   /// Scale object
+  VPlacedVolume const *fPlaced;  /// Need a placed volue for the navigation interface
+  Scale3D              fScale;   /// Scale object
+
+private:
 
 /// Copy constructor - not to use
   VECGEOM_CUDA_HEADER_BOTH
@@ -48,7 +50,7 @@ public:
 
 /// Constructor
   VECGEOM_CUDA_HEADER_BOTH
-  UnplacedScaledShape(VUnplacedVolume *shape, Precision sx, Precision sy, Precision sz) : fPlaced(0), fScale(sx,sy,sz) {
+  UnplacedScaledShape(VUnplacedVolume const *shape, Precision sx, Precision sy, Precision sz) : fPlaced(0), fScale(sx,sy,sz) {
     // We need to create a placement with identity transformation from the unplaced version
     // Hopefully we don't need to create a logical volume 
     LogicalVolume *lvol = new LogicalVolume("", shape);
@@ -75,12 +77,8 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Scale3D GetScale() const { return fScale; }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
   Precision Volume() const {
-    Precision capacity = fPlaced->Capacity();
+    Precision capacity = ((VPlacedVolume*)fPlaced)->Capacity();
     const Vector3D<Precision> &scl = fScale.Scale();
     capacity *=scl[0]*scl[1]*scl[2];
     return capacity;
@@ -94,7 +92,7 @@ public:
   VECGEOM_INLINE
   Precision SurfaceArea() const {
   /// To do - not so easy as for the capacity...
-    Precision area = fPlaced->SurfaceArea();
+    Precision area = ((VPlacedVolume*)fPlaced)->SurfaceArea();
     return area;	
   }
 

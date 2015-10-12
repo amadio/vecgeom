@@ -113,69 +113,87 @@ public:
   /**
    * Transform point from master to local frame
    */
+  template <typename InputType>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void Transform(Vector3D<Precision> const &master,
-                                Vector3D<Precision> &local) const {
+  void Transform(Vector3D<InputType> const &master,
+                                Vector3D<InputType> &local) const {
     local.Set(master[0]*fInvScale[0], master[1]*fInvScale[1], master[2]*fInvScale[2]);      
   }
   
+  template <typename InputType>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Vector3D<Precision> Transform(Vector3D<Precision> const &master) const {
-    Vector3D<Precision> local(master[0]*fInvScale[0], master[1]*fInvScale[1], master[2]*fInvScale[2]);
+  Vector3D<InputType> Transform(Vector3D<InputType> const &master) const {
+    Vector3D<InputType> local(master[0]*fInvScale[0], master[1]*fInvScale[1], master[2]*fInvScale[2]);
     return local;
   }     
     
   /**
    * Transform point from local to master frame
    */
+  template <typename InputType>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void InverseTransform(Vector3D<Precision> const &local, 
-                                Vector3D<Precision> & master) const {
+  void InverseTransform(Vector3D<InputType> const &local, 
+                                Vector3D<InputType> & master) const {
     master.Set(local[0]*fScale[0], local[1]*fScale[1], local[2]*fScale[2]);
   }
 
 
+  template <typename InputType>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Vector3D<Precision> InverseTransform(Vector3D<Precision> const &local) const {
-    Vector3D<Precision> master(local[0]*fScale[0], local[1]*fScale[1], local[2]*fScale[2]);
+  Vector3D<InputType> InverseTransform(Vector3D<InputType> const &local) const {
+    Vector3D<InputType> master(local[0]*fScale[0], local[1]*fScale[1], local[2]*fScale[2]);
     return master;
   }
 
   /**
    * Transform distance along given direction from master to local frame
    */
+  template <typename InputType>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Precision TransformDistance(Precision dist,
-                                Vector3D<Precision> &dir) const;
+  InputType TransformDistance(InputType const &dist,
+                                Vector3D<InputType> const &dir) const {
+    InputType scale = Sqrt(dir[0]*dir[0]*fInvScale[0]*fInvScale[0] +
+                           dir[1]*dir[1]*fInvScale[1]*fInvScale[1] +
+                           dir[2]*dir[2]*fInvScale[2]*fInvScale[2]);
+    return ( scale*dist );
+  }
 
   /**
    * Transform safe distance from master to local frame (conservative)
    */
+  template <typename InputType>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Precision TransformSafety(Precision safety) const {
+  InputType TransformSafety(InputType safety) const {
     return (safety * fSclLocal);  
   }
     
   /**
    * Transform distance along given direction from local to master frame
    */
+  template <typename InputType>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Precision InverseTransformDistance(Precision dist,
-                                Vector3D<Precision> &dir) const;
+  InputType InverseTransformDistance(InputType const &dist,
+                                Vector3D<InputType> const &dir) const {
+    InputType scale = Sqrt(dir[0]*dir[0]*fScale[0]*fScale[0] +
+                           dir[1]*dir[1]*fScale[1]*fScale[1] +
+                           dir[2]*dir[2]*fScale[2]*fScale[2]);
+    return ( scale*dist );
+  }
 
   /**
    * Transform safe distance from local to master frame (conservative)
    */
+  template <typename InputType>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Precision InverseTransformSafety(Precision safety) const {
+  InputType InverseTransformSafety(InputType safety) const {
     return (safety * fSclMaster);  
   }
 

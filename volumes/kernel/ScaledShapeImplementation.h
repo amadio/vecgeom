@@ -19,7 +19,6 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(ScaledShapeImplementation, TranslationCo
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class PlacedScaledShape;
-class UnplacedScaledShape;
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 struct ScaledShapeImplementation {
@@ -61,14 +60,6 @@ struct ScaledShapeImplementation {
       Transformation3D const &transformation,
       Vector3D<typename Backend::precision_v> const &point,
       typename Backend::inside_v &inside);
-
-  template <typename Backend, bool ForInside>
-  VECGEOM_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
-  static void GenericKernelForContainsAndInside(UnplacedScaledShape const &,
-          Vector3D<typename Backend::precision_v> const &,
-          typename Backend::bool_v &,
-          typename Backend::bool_v &);
 
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH
@@ -299,25 +290,12 @@ void ScaledShapeImplementation<transCodeT, rotCodeT>::ContainsKernel(
     Vector3D<typename Backend::precision_v> const &localPoint,
     typename Backend::bool_v &inside) {
 
-  typedef typename Backend::bool_v Boolean_t;
-  Boolean_t unused;
-  Boolean_t outside;
-  GenericKernelForContainsAndInside<Backend, false>(unplaced,
-    localPoint, unused, outside);
-  inside=!outside;
-}
+  // Transform local point to unscaled shape frame
+  Vector3D<typename Backend::precision_v> ulocalPoint;
+  unplaced.fScale.Transform(localPoint, ulocalPoint);
 
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend, bool ForInside>
-VECGEOM_CUDA_HEADER_BOTH
-void ScaledShapeImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndInside(
-    UnplacedScaledShape const &unplaced,
-    Vector3D<typename Backend::precision_v> const &localPoint,
-    typename Backend::bool_v &completelyinside,
-    typename Backend::bool_v &completelyoutside) {
-
-    return;
+  // Now call Contains for the unscaled shape
+  inside = unplaced.fPlaced->Contains(ulocalPoint);
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -325,16 +303,15 @@ template <class Backend>
 VECGEOM_CUDA_HEADER_BOTH
 void ScaledShapeImplementation<transCodeT, rotCodeT>::InsideKernel(
     UnplacedScaledShape const &unplaced,
-    Vector3D<typename Backend::precision_v> const &point,
+    Vector3D<typename Backend::precision_v> const &localPoint,
     typename Backend::inside_v &inside) {
 
-  typedef typename Backend::bool_v      Boolean_t;
-  Boolean_t completelyinside, completelyoutside;
-  GenericKernelForContainsAndInside<Backend,true>(
-      unplaced, point, completelyinside, completelyoutside);
-  inside=EInside::kSurface;
-  MaskedAssign(completelyoutside, EInside::kOutside, &inside);
-  MaskedAssign(completelyinside, EInside::kInside, &inside);
+  // Transform local point to unscaled shape frame
+  Vector3D<typename Backend::precision_v> ulocalPoint;
+  unplaced.fScale.Transform(localPoint, ulocalPoint);
+
+  // Now call Inside for the unscaled shape
+  inside = unplaced.fPlaced->Inside(ulocalPoint);
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -347,7 +324,22 @@ void ScaledShapeImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
     typename Backend::precision_v const &stepMax,
     typename Backend::precision_v &distance) {
 
-  return;  
+  // Transform point, direction and stepMax to unscaled shape frame
+  Vector3D<typename Backend::precision_v> ulocalPoint;
+  unplaced.fScale.Transform(point, ulocalPoint);
+
+  // Direction is un-normalized after scale transformation
+  Vector3D<typename Backend::precision_v> ulocalDir;
+  unplaced.fScale.Transform(direction, ulocalDir);
+  ulocalDir.Normalize();
+
+  auto ustepMax = unplaced.fScale.TransformDistance(stepMax, direction);
+
+  // Compute distance in unscaled system
+  distance = unplaced.fPlaced->DistanceToIn(ulocalPoint, ulocalDir, ustepMax);
+
+  // Convert distance back to master
+  distance = unplaced.fScale.InverseTransformDistance(distance, ulocalDir);
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -360,7 +352,22 @@ void ScaledShapeImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
     typename Backend::precision_v const &stepMax,
     typename Backend::precision_v &distance) {
 
-  return;
+  // Transform point, direction and stepMax to unscaled shape frame
+  Vector3D<typename Backend::precision_v> ulocalPoint;
+  unplaced.fScale.Transform(point, ulocalPoint);
+
+  // Direction is un-normalized after scale transformation
+  Vector3D<typename Backend::precision_v> ulocalDir;
+  unplaced.fScale.Transform(direction, ulocalDir);
+  ulocalDir.Normalize();
+
+  auto ustepMax = unplaced.fScale.TransformDistance(stepMax, direction);
+
+  // Compute distance in unscaled system
+  distance = unplaced.fPlaced->DistanceToOut(ulocalPoint, ulocalDir, ustepMax);
+
+  // Convert distance back to master
+  distance = unplaced.fScale.InverseTransformDistance(distance, ulocalDir);
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -371,7 +378,13 @@ void ScaledShapeImplementation<transCodeT, rotCodeT>::SafetyToInKernel(
     Vector3D<typename Backend::precision_v> const &point,
     typename Backend::precision_v &safety) {
 
-  return;
+  // Transform point to unscaled shape frame
+  Vector3D<typename Backend::precision_v> ulocalPoint;
+  unplaced.fScale.Transform(point, ulocalPoint);
+
+  // Compute unscaled safety, then scale it.
+  safety = unplaced.fPlaced->SafetyToIn(ulocalPoint);
+  safety = unplaced.fScale.InverseTransformSafety(safety);
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -382,7 +395,13 @@ void ScaledShapeImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(
     Vector3D<typename Backend::precision_v> const &point,
     typename Backend::precision_v &safety) {
 
-  return;
+  // Transform point to unscaled shape frame
+  Vector3D<typename Backend::precision_v> ulocalPoint;
+  unplaced.fScale.Transform(point, ulocalPoint);
+
+  // Compute unscaled safety, then scale it.
+  safety = unplaced.fPlaced->SafetyToOut(ulocalPoint);
+  safety = unplaced.fScale.InverseTransformSafety(safety);
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -394,7 +413,17 @@ void ScaledShapeImplementation<transCodeT, rotCodeT>::NormalKernel(
      Vector3D<typename Backend::precision_v> &normal,
      typename Backend::bool_v &valid) {
 
-  return;
+  // Transform point to unscaled shape frame
+  Vector3D<typename Backend::precision_v> ulocalPoint;
+  unplaced.fScale.Transform(point, ulocalPoint);
+
+  // Compute normal in unscaled frame
+  Vector3D<typename Backend::precision_v> ulocalNorm;
+  unplaced.fPlaced->Normal(ulocalPoint, ulocalNorm/*, valid*/);
+
+  // Convert normal to scaled frame
+  unplaced.fScale.InverseTransform(ulocalNorm, normal);
+  normal.Normalize();
 }
 
 

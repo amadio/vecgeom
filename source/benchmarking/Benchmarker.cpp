@@ -193,8 +193,10 @@ int Benchmarker::CompareDistances(
       }
 #ifdef VECGEOM_ROOT
       if(fOkToRunROOT){
+          // The miss condition 'root[i]==1e30' does not hold for scaled shape, where
+	  // the returned distance is scaled with respact to the unscaled value
           if (std::fabs(specialized[i] - root[i]) > fTolerance
-              && !(specialized[i] == kInfinity && root[i] == 1e30)) {
+              && !(specialized[i] == kInfinity && root[i] > 1e20)) {
             mismatch = true;
           }
           if (fVerbosity > 2) mismatchOutput << " / " << root[i];

@@ -59,24 +59,6 @@ void Scale3D::SetScale(Precision sx, Precision sy, Precision sz) {
   fScale.Set(sx,sy,sz);
   Update();
 }
-    
-VECGEOM_CUDA_HEADER_BOTH
-Precision Scale3D::TransformDistance(Precision dist,
-                                Vector3D<Precision> &dir) const {
-  Precision scale = Sqrt(dir[0]*dir[0]*fInvScale[0]*fInvScale[0] +
-                         dir[1]*dir[1]*fInvScale[1]*fInvScale[1] +
-                         dir[2]*dir[2]*fInvScale[2]*fInvScale[2]);
-  return ( scale*dist );
-}
-    
-VECGEOM_CUDA_HEADER_BOTH
-Precision Scale3D::InverseTransformDistance(Precision dist,
-                                Vector3D<Precision> &dir) const {
-  Precision scale = Sqrt(dir[0]*dir[0]*fScale[0]*fScale[0] +
-                         dir[1]*dir[1]*fScale[1]*fScale[1] +
-                         dir[2]*dir[2]*fScale[2]*fScale[2]);
-  return ( scale*dist );
-}
 
 std::ostream& operator<<(std::ostream& os,
                          Scale3D const &scale) {

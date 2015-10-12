@@ -8,14 +8,14 @@
 
 #include "volumes/kernel/ScaledShapeImplementation.h"
 #include "volumes/PlacedScaledShape.h"
-#include "volumes/ShapeImplementationHelper.h"
+#include "volumes/ScalarShapeImplementationHelper.h"
 
 namespace vecgeom {
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedScaledShape = ShapeImplementationHelper<ScaledShapeImplementation<transCodeT, rotCodeT> >;
+using SpecializedScaledShape = ScalarShapeImplementationHelper<ScaledShapeImplementation<transCodeT, rotCodeT> >;
 
 using SimpleScaledShape = SpecializedScaledShape<translation::kGeneric, rotation::kGeneric>;
 

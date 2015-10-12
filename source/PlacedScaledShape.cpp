@@ -9,6 +9,11 @@
 
 #include <stdio.h>
 
+#ifdef VECGEOM_ROOT
+#include "TGeoScaledShape.h"
+#include "TGeoMatrix.h"
+#endif
+
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -20,15 +25,15 @@ void PlacedScaledShape::PrintType() const {
 #ifndef VECGEOM_NVCC
 
 VPlacedVolume const* PlacedScaledShape::ConvertToUnspecialized() const {
-  return 0;
-//  return new SimpleAssembly(GetLabel().c_str(), logical_volume_, fTransformation);
+  return new SimpleScaledShape(GetLabel().c_str(), logical_volume_, GetTransformation());
 }
 
 #ifdef VECGEOM_ROOT
 TGeoShape const* PlacedScaledShape::ConvertToRoot() const {
-// To be implemented
-//  return new TGeoBBox(GetLabel().c_str(), x(), y(), z());
-  return 0;
+  UnplacedScaledShape const *unplaced = const_cast<UnplacedScaledShape*>(GetUnplacedVolume());
+  return new TGeoScaledShape(GetLabel().c_str(),
+                 (TGeoShape*)unplaced->fPlaced->ConvertToRoot(), 
+                 new TGeoScale(unplaced->fScale.Scale()[0], unplaced->fScale.Scale()[1], unplaced->fScale.Scale()[2]));
 }
 #endif
 
@@ -41,8 +46,7 @@ TGeoShape const* PlacedScaledShape::ConvertToRoot() const {
 
 #ifdef VECGEOM_GEANT4
 G4VSolid const* PlacedScaledShape::ConvertToGeant4() const {
-// To be implemented
-//  return new G4Box("", x(), y(), z());
+// No implementation in Geant4
   return 0;
 }
 #endif
