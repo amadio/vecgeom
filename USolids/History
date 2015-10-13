@@ -16,6 +16,13 @@ committal in the SVN repository !
      * Reverse chronological order (last date on top), please *
      ----------------------------------------------------------
 
+September 2, 2015  G.Cosmo
+- Some code cleanup to UMultiUnion; moved struct defined at global scope
+  in source code to private section of the class.
+
+August 5, 2015  G.Cosmo
+- Fixed compilation warnings on Windows Visual-Studio 2015 in UVoxelizer.
+
 May 27, 2015  T.Nikitina
 - Fixed DistanceToOut(p) and Inside(p) in USphere for sphere cut in theta
   for point (0,0,0) and for cases when Start/End angle have not to be taken
