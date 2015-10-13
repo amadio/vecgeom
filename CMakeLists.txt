@@ -173,7 +173,11 @@ elseif(Intel)
   else()
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -fno-alias")
   endif()
-else(Clang)
+elseif(Clang)
+  if (APPLE)
+    # prefer LLVM's standard C++ library on Mac OS X
+    set (VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -stdlib=libc++")
+  endif()
   set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -fPIC")
   if (CMAKE_BUILD_TYPE MATCHES Debug)
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS}  -ggdb -O0")
@@ -520,7 +524,12 @@ set(SRC_CPP_RELATIVE
   source/CreateParticles.cpp
 )
 
-# avoid "file has no symbols" warning
+# avoid "file has no symbols" warnings
+
+if (NOT USolids)
+  list(REMOVE_ITEM SRC_CPP_RELATIVE source/USolidsInterfaceHelper.cpp)
+endif()
+
 if(NOT CUDA)
   list(REMOVE_ITEM SRC_CPP_RELATIVE source/RNG.cpp)
   list(REMOVE_ITEM SRC_CPP_RELATIVE source/AOS3D.cpp)
@@ -618,11 +627,6 @@ target_link_libraries(vecgeom ${VECGEOM_LIBRARIES}
 set(VECGEOM_LIBRARIES ${VECGEOM_LIBRARIES} vecgeom)
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} rt)
-else()
-  if(Clang)
-      # prefer LLVM's standard C++ library on Darwin
-      set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -stdlib=libc++")
-  endif()
 endif()
 
 if (CUDA)

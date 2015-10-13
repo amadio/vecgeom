@@ -121,13 +121,13 @@ VPlacedVolume* RootGeoManager::Convert(TGeoNode const *const node) {
   VPlacedVolume *const placed_volume =
       logical_volume->Place(node->GetName(), transformation);
 
-  int remaining_daughters = 0;
+  unsigned int remaining_daughters = 0;
   {
     // All or no daughters should have been placed already
     remaining_daughters = node->GetNdaughters()
                           - logical_volume->GetDaughters().size();
     assert(remaining_daughters == 0 ||
-           remaining_daughters == node->GetNdaughters());
+           remaining_daughters == (unsigned int) node->GetNdaughters());
   }
 
   // we have to convert here assemblies to list of normal nodes

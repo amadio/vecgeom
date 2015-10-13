@@ -1,4 +1,4 @@
-#ifdef __clang__
+#if defined(__clang__) && !defined(__APPLE__)
 #pragma clang optimize off
 #endif
 #include "materials/Nucleus.h"
@@ -13961,6 +13961,6 @@ void Nucleus::CreateNuclei() {
 }
  } // End of inline namespace
  } // End of vecgeom namespace
-#ifdef __clang__
+#if defined(__clang__) && !defined(__APPLE__)
 #pragma clang optimize on
 #endif

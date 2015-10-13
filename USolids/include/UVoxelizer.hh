@@ -48,8 +48,6 @@ struct UVoxelInfo
 
 class UVoxelizer
 {
-//  friend class UVoxelCandidatesIterator;
-
   public:
 
     // Binary search
@@ -78,7 +76,7 @@ class UVoxelizer
     ~UVoxelizer();
 
     // Method displaying the nodes located in a voxel characterized by its three indexes:
-    void               GetCandidatesVoxel(std::vector<int>& voxels);
+    void GetCandidatesVoxel(std::vector<int>& voxels);
     // Method returning in a vector container the nodes located in a voxel characterized by its three indexes:
     int GetCandidatesVoxelArray(const UVector3& point, std::vector<int>& list, UBits* crossed = NULL) const;
 
@@ -236,6 +234,25 @@ class UVoxelizer
 
     static void FindComponentsFastest(unsigned int mask,
                                       std::vector<int> &list, int i);
+  private:
+
+    class UVoxelComparator
+    {
+      public:
+
+        std::vector<UVoxelInfo>& fVoxels;
+
+        UVoxelComparator(std::vector<UVoxelInfo>& voxels) : fVoxels(voxels) {}
+
+        bool operator()(const int& l, const int& r) const
+        {
+          UVoxelInfo& lv = fVoxels[l], &rv = fVoxels[r];
+          int left = lv.count +  fVoxels[lv.next].count;
+          int right = rv.count + fVoxels[rv.next].count;;
+          return (left == right) ? l < r : left < right;
+        }
+    };
+
   private:
 
     static int fDefaultVoxelsCount;

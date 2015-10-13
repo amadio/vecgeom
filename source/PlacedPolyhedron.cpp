@@ -26,6 +26,8 @@ int PlacedPolyhedron::PhiSegmentIndex(Vector3D<Precision> const &point) const {
   Vector3D<Precision> localPoint =
      VPlacedVolume::GetTransformation()->Transform(point);
   return PolyhedronImplementation<
+		  translation::kGeneric,
+		  rotation::kGeneric,
      Polyhedron::EInnerRadii::kGeneric,
      Polyhedron::EPhiCutout::kGeneric>::FindPhiSegment<kScalar>(
           *GetUnplacedVolume(), localPoint);
