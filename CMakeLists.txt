@@ -531,6 +531,9 @@ if(NOT CUDA)
   list(REMOVE_ITEM SRC_CPP_RELATIVE source/Vector.cpp)
 endif()
 
+if(NOT USOLIDS)
+  list(REMOVE_ITEM SRC_CPP_RELATIVE source/USolidsInterfaceHelper.cpp)
+endif()
 
 foreach(SRC ${SRC_CPP_RELATIVE})
   set(SRC_CPP ${SRC_CPP} ${CMAKE_SOURCE_DIR}/${SRC})
