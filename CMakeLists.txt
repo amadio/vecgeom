@@ -529,7 +529,6 @@ if(NOT CUDA)
   list(REMOVE_ITEM SRC_CPP_RELATIVE source/AOS3D.cpp)
   list(REMOVE_ITEM SRC_CPP_RELATIVE source/SOA3D.cpp)
   list(REMOVE_ITEM SRC_CPP_RELATIVE source/Vector.cpp)
-  list(REMOVE_ITEM SRC_CPP_RELATIVE source/USolidsInterfaceHelper.cpp)
 endif()
 
 
