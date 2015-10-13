@@ -53,26 +53,37 @@ public:
    * @param sz Scale value on z
    */
   VECGEOM_CUDA_HEADER_BOTH
-  Scale3D(Precision sx, Precision sy, Precision sz);
+  Scale3D(Precision sx, Precision sy, Precision sz) : fScale(sx,sy,sz), fInvScale(), fSclLocal(1.), fSclMaster(1.) {
+    Update();
+  }  
 
   /**
    * Constructor with scale parameters in a Vector3D
    * @param scale Scale as Vector3D
    */
   VECGEOM_CUDA_HEADER_BOTH
-  Scale3D(Vector3D<Precision> const &scale);
-    
+  Scale3D(Vector3D<Precision> const &scale) : fScale(scale), fInvScale(), fSclLocal(1.), fSclMaster(1.) {
+    Update();
+  }
+        
   /**
    * Copy constructor.
    */
   VECGEOM_CUDA_HEADER_BOTH
-  Scale3D(Scale3D const &other);
+  Scale3D(Scale3D const &other) : fScale(other.fScale), fInvScale(other.fInvScale),
+         fSclLocal(other.fSclLocal), fSclMaster(other.fSclMaster) { }
   
   /**
    * Assignment operator
    */
   VECGEOM_CUDA_HEADER_BOTH
-  Scale3D& operator=(Scale3D const &other);
+    Scale3D& operator=(Scale3D const &other) {
+    fScale = other.fScale;
+    fInvScale = other.fInvScale;
+    fSclLocal = other.fSclLocal;
+    fSclMaster = other.fSclMaster;
+    return *this;
+  }
           
   /**
    * Update the backed-up inverse scale and special conversion factors based
@@ -80,7 +91,14 @@ public:
    */
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void Update();
+  void Update() {
+    assert( ((fScale[0]>0) && (fScale[1]>0) && (fScale[2]>0)) );
+    fInvScale.Set(1./fScale[0], 1./fScale[1], 1./fScale[2]);
+    fSclLocal = Min(fInvScale[0], fInvScale[1]);
+    fSclLocal = Min(fSclLocal, fInvScale[2]);
+    fSclMaster = Min(fScale[0], fScale[1]);
+    fSclMaster = Min(fSclMaster, fScale[2]);    
+  }
 
   /**
    * Get reference to the scale vector.
@@ -101,14 +119,14 @@ public:
    */  
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void SetScale(Vector3D<Precision> const &scale);
+  void SetScale(Vector3D<Precision> const &scale) { fScale=scale; Update(); }
 
   /**
    * Set scale based on values.
    */  
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void SetScale(Precision sx, Precision sy, Precision sz);
+  void SetScale(Precision sx, Precision sy, Precision sz) { fScale.Set(sx,sy,sz); Update(); }
 
   /**
    * Transform point from master to local frame
