@@ -130,8 +130,6 @@ void UnplacedPolycone::Init(double phiStart,
     prevRmin = rMin;
     prevRmax = rMax;
   }
-
-  fNz = fZs.size();
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -593,13 +591,27 @@ bool UnplacedPolycone::Normal(Vector3D<Precision> const& point, Vector3D<Precisi
      {
        valid = true;
        if(index == -1) norm = Vector3D<Precision>(0.,0.,-1.);
-       if(index == -2)  norm  = Vector3D<Precision>(0.,0.,1.);
+       if(index == -2) norm = Vector3D<Precision>(0.,0.,1.);
        return valid;
       }
      PolyconeSection const & sec = GetSection(index);
-     valid = sec.fSolid->Normal(point,norm);
-     return valid;
+     valid = sec.fSolid->Normal(point-Vector3D<Precision>(0,0,sec.fShift),norm);
 
+     if( index+1<fSections.size() && point.z()-fZs[index+1]<kTolerance) {
+       bool valid2 = false;
+       PolyconeSection const& sec2 = GetSection(index+1);
+       Vector3D<Precision> norm2;
+       valid2 = sec2.fSolid->Normal(point-Vector3D<Precision>(0,0,sec2.fShift),norm2);
+       if(valid2) {
+         if(valid) norm += norm2;
+         else  {
+           norm = norm2;
+           valid = true;
+         }
+       }
+     }
+     if(valid) norm /= norm.Mag();
+     return valid;
 }
 
 Precision UnplacedPolycone::SurfaceArea() const {
@@ -659,20 +671,18 @@ void UnplacedPolycone::Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & 
     int i = 0;
     Precision maxR = 0;
 
-    for (i = 0; i < GetNSections(); i++)
-    {
+    for (i = 0; i < GetNSections(); i++) {
      PolyconeSection const & sec = GetSection(i);
      if(maxR < sec.fSolid->GetRmax1())  maxR = sec.fSolid->GetRmax1();
      if(maxR < sec.fSolid->GetRmax2())  maxR = sec.fSolid->GetRmax2();
     }
 
-     aMin.x() = -maxR;
-         aMin.y() = -maxR;
-         aMin.z() = fZs[0];
-         aMax.x() = maxR;
-         aMax.y() = maxR;
-         aMax.z() = fZs[GetNSections()];
-
+    aMin.x() = -maxR;
+    aMin.y() = -maxR;
+    aMin.z() = fZs[0];
+    aMax.x() = maxR;
+    aMax.y() = maxR;
+    aMax.z() = fZs[GetNSections()];
 }
 #endif // !VECGEOM_NVCC
 
