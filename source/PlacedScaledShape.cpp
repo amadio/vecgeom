@@ -38,7 +38,7 @@ TGeoShape const* PlacedScaledShape::ConvertToRoot() const {
 #endif
 
 #ifdef VECGEOM_USOLIDS
-::VUSolid const* PlacedAssembly::ConvertToUSolids() const {
+::VUSolid const* PlacedScaledShape::ConvertToUSolids() const {
   // No implementation in USolids
   return 0;
 }
