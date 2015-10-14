@@ -173,6 +173,7 @@ public:
    using Base_t::MakeCopyAt;
    using Base_t::ReleaseInstance;
    using Base_t::SizeOf;
+   using Base_t::ConstExprSizeOf;
 
    // Enumerate functions from converter which we want to use
    // ( without retyping of the struct name )
@@ -246,6 +247,18 @@ public:
       other->fPath.fSelfAlloc = alloc;
    }
  
+   // copies a fixed and predetermined number of bytes
+   // might be useful for specialized navigators which know the depth + SizeOf in advance
+   // N is number of bytes to be copied and can be obtained by a prior call to NavigationState::ConstExprSizeOf( ... );
+   template <size_t N>
+   void CopyToFixedSize(NavigationState *other) const {
+     bool alloc = other->fPath.fSelfAlloc;
+     for(int i=0;i<N;++i){
+       ((char *)other)[i]=((char*)this)[i];
+     }
+     other->fPath.fSelfAlloc = alloc;
+   }
+
 #ifdef VECGEOM_ROOT
    TGeoBranchArray * ToTGeoBranchArray() const;
    NavigationState & operator=( TGeoBranchArray const & rhs );
