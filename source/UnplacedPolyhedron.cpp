@@ -394,14 +394,26 @@ VPlacedVolume* UnplacedPolyhedron::Create(
   	  POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kFalse, EPhiCutout::kLarge);
   }
 
+#ifdef VECGEOM_NVCC
 if (placement){
- new (placement) SpecializedPolyhedron<transCodeT,rotCodeT, Polyhedron::EInnerRadii::kGeneric,
+ new (placement) SpecializedPolyhedron<transCodeT, rotCodeT, Polyhedron::EInnerRadii::kGeneric,
+   Polyhedron::EPhiCutout::kGeneric>(logical_volume,transformation,id);
+ return placement;
+}
+
+return new SpecializedPolyhedron<translation::kGeneric, rotation::kGeneric, Polyhedron::EInnerRadii::kGeneric,
+   Polyhedron::EPhiCutout::kGeneric>(logical_volume,transformation,id);
+#else
+if (placement){
+ new (placement) SpecializedPolyhedron<transCodeT, rotCodeT, Polyhedron::EInnerRadii::kGeneric,
    Polyhedron::EPhiCutout::kGeneric>(logical_volume,transformation);
  return placement;
 }
 
-return new SpecializedPolyhedron<transCodeT,rotCodeT, Polyhedron::EInnerRadii::kGeneric,
+return new SpecializedPolyhedron<translation::kGeneric, rotation::kGeneric, Polyhedron::EInnerRadii::kGeneric,
    Polyhedron::EPhiCutout::kGeneric>(logical_volume,transformation);
+
+#endif
 
 
 #undef POLYHEDRON_CREATE_SPECIALIZATION
