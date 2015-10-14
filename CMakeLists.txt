@@ -546,6 +546,12 @@ endforeach()
 set(NOT_FOR_CUDA
    ABBoxManager
    ABBoxNavigator
+   CreateParticles
+   Particle
+   Medium
+   Nucleus
+   CreateNuclei
+   Material
 )
 
 
