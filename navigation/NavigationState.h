@@ -173,7 +173,6 @@ public:
    using Base_t::MakeCopyAt;
    using Base_t::ReleaseInstance;
    using Base_t::SizeOf;
-   using Base_t::ConstExprSizeOf;
 
    // Enumerate functions from converter which we want to use
    // ( without retyping of the struct name )
@@ -249,7 +248,7 @@ public:
  
    // copies a fixed and predetermined number of bytes
    // might be useful for specialized navigators which know the depth + SizeOf in advance
-   // N is number of bytes to be copied and can be obtained by a prior call to NavigationState::ConstExprSizeOf( ... );
+   // N is number of bytes to be copied and can be obtained by a prior call to constexpr NavigationState::SizeOf( ... );
    template <size_t N>
    void CopyToFixedSize(NavigationState *other) const {
      bool alloc = other->fPath.fSelfAlloc;
