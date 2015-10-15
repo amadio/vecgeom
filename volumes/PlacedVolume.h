@@ -491,7 +491,7 @@ public:
          DevicePtr<cuda::LogicalVolume> const logical_volume, \
          DevicePtr<cuda::Transformation3D> const transform, \
          DevicePtr<cuda::PlacedBox> const boundingBox, \
-         const int id) const; \
+         const unsigned int id) const; \
     }
 
 #ifdef VECGEOM_NO_SPECIALIZATION
