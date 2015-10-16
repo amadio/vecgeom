@@ -392,7 +392,7 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToOut(
   typedef typename Backend::precision_v Float_t;
   typedef typename Backend::bool_v Bool_t;
 
-  distance = vecgeom::kInfinity;  // default initialization for distance to out
+  distance = 0.0;  // default initialization when input point is already outside
   Bool_t done(Backend::kFalse);
 
   //
