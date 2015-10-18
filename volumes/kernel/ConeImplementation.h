@@ -2007,7 +2007,7 @@ struct ConeImplementation {
       )
   {
       // TODO: provide generic vectorized implementation
-      // TODO: tranform point p to local coordinates
+      // TODO: transform point p to local coordinates
 
       int noSurfaces = 0;
       double rho, pPhi;
@@ -2019,19 +2019,39 @@ struct ConeImplementation {
       const double delta = 0.5 * kTolerance;
       const double dAngle = 0.5 * kAngTolerance;
       typedef Vector3D<typename Backend::precision_v> Vec3D_t;
-      Vec3D_t norm, sumnorm(0., 0., 0.), nZ(0., 0., 1.);
+      Vec3D_t sumnorm(0., 0., 0.), nZ(0., 0., 1.);
       Vec3D_t nR, nr(0., 0., 0.), nPs, nPe;
+      normal = sumnorm;
 
-      distZ = Abs(Abs(p.z()) - unplaced.GetDz());
+      // distZ<0 for between z-planes, distZ>0 for outside
+      distZ = Abs(p.z()) - unplaced.GetDz();
+      if(distZ>kTolerance) {
+        // outside of cone z-range -- early return
+        valid = (bool)noSurfaces;
+        return;
+      }
+
       rho  = Sqrt(p.x() * p.x() + p.y() * p.y());
 
       pRMin   = rho - p.z() * unplaced.fTanRMin;
       widRMin = unplaced.GetRmin2() - unplaced.GetDz() * unplaced.fTanRMin;
-      distRMin = Abs(pRMin - widRMin) * unplaced.fInvSecRMin;
+      distRMin = (pRMin - widRMin) * unplaced.fInvSecRMin;
 
       pRMax   = rho - p.z() * unplaced.fTanRMax;
       widRMax = unplaced.GetRmax2() - unplaced.GetDz() * unplaced.fTanRMax;
-      distRMax = Abs(pRMax - widRMax) * unplaced.fInvSecRMax;
+      distRMax = (pRMax - widRMax) * unplaced.fInvSecRMax;
+
+      if(distRMax>kTolerance ) {
+        // outside of cone Rmax -- early return
+        valid = (bool) noSurfaces;
+        return;
+      }
+
+      if ((unplaced.GetRmin1() || unplaced.GetRmin2()) && (distRMin < -kTolerance) ) {
+        // outside, within hollow region of cone -- early return
+        valid = (bool)noSurfaces;
+        return;
+      }
 
       if (! unplaced.IsFullPhi() )   // Protected against (0,0,z)
       {
@@ -2061,21 +2081,23 @@ struct ConeImplementation {
         }
         if (rho > delta)
         {
-          nR = Vec3D_t(p.x() / rho / unplaced.fSecRMax, p.y() / rho / unplaced.fSecRMax,
-                  -unplaced.fTanRMax * unplaced.fInvSecRMax);
+          nR = Vec3D_t(p.x() / rho * unplaced.fInvSecRMax,
+                       p.y() / rho * unplaced.fInvSecRMax,
+                       -unplaced.fTanRMax * unplaced.fInvSecRMax);
           if (unplaced.GetRmin1() || unplaced.GetRmin2())
           {
-            nr = Vec3D_t(-p.x() / rho / unplaced.fSecRMin, -p.y() / rho / unplaced.fSecRMin,
-                    unplaced.fTanRMin * unplaced.fInvSecRMin);
+            nr = Vec3D_t(-p.x() / rho * unplaced.fInvSecRMin,
+                         -p.y() / rho * unplaced.fInvSecRMin,
+                         unplaced.fTanRMin * unplaced.fInvSecRMin);
           }
         }
 
-        if (distRMax <= delta)
+        if (Abs(distRMax) <= delta)
         {
           noSurfaces ++;
           sumnorm += nR;
         }
-        if ((unplaced.GetRmin1() || unplaced.GetRmin2()) && (distRMin <= delta))
+        if ((unplaced.GetRmin1() || unplaced.GetRmin2()) && (Abs(distRMin) <= delta) && distZ<delta)
         {
           noSurfaces ++;
           sumnorm += nr;
@@ -2093,7 +2115,7 @@ struct ConeImplementation {
             sumnorm += nPe;
           }
         }
-        if (distZ <= delta)
+        if (Abs(distZ) <= delta)
         {
           noSurfaces ++;
           if (p.z() >= 0.)
@@ -2107,19 +2129,18 @@ struct ConeImplementation {
         }
         if (noSurfaces == 0)
         {
-            Assert(false, "approximate surface normal not implemented");
-            //          norm = ApproxSurfaceNormal(p);
+          //Assert(false, "approximate surface normal not implemented");
+          // normal = ApproxSurfaceNormal(p);
+          normal = sumnorm;
         }
         else if (noSurfaces == 1)
         {
-          norm = sumnorm;
+          normal = sumnorm;
         }
         else
         {
-          norm = sumnorm.Unit();
+          normal = sumnorm.Unit();
         }
-
-        normal = norm;
 
         valid = (bool) noSurfaces;
   }
