@@ -37,20 +37,36 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
     Precision pRMax, widRMax;
 
     const double kHalfTolerance = 0.5 * kTolerance;
-  
+
     Vector3D<Precision> sumnorm(0., 0., 0.), nZ =  Vector3D<Precision> (0., 0., 1.);
     Vector3D<Precision> nR, nr(0., 0., 0.), nPs, nPe;
+    norm = sumnorm;
 
-    distZ = std::fabs(std::fabs(p.z()) - fDz);
+    distZ = std::fabs(p.z()) - fDz;
+    if(distZ>kHalfTolerance) {
+      // outside of cone z-range -- early return
+      return noSurfaces!=0;
+    }
+
     rho  = std::sqrt(p.x() * p.x() + p.y() * p.y());
 
     pRMin   = rho - p.z() * fTanRMin;
     widRMin = fRmin2 - fDz * fTanRMin;
-    distRMin = std::fabs(pRMin - widRMin) / fSecRMin;
+    distRMin = (pRMin - widRMin) / fSecRMin;
 
     pRMax   = rho - p.z() * fTanRMax;
     widRMax = fRmax2 - fDz * fTanRMax;
-    distRMax = std::fabs(pRMax - widRMax) / fSecRMax;
+    distRMax = (pRMax - widRMax) / fSecRMax;
+
+    if(distRMax>kHalfTolerance ) {
+      // outside of cone Rmax -- early return
+      return noSurfaces!=0;
+    }
+
+    if ((fRmin1 || fRmin2) && (distRMin < -kHalfTolerance)) {
+      // outside, within hollow region of cone -- early return
+      return noSurfaces!=0;
+    }
 
     if (!IsFullPhi())   // Protected against (0,0,z)
     {
@@ -87,12 +103,12 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
     }
    }
 
-  if (distRMax <= kHalfTolerance)
+   if (std::abs(distRMax) <= kHalfTolerance)
   {
     noSurfaces ++;
     sumnorm += nR;
   }
-  if ((fRmin1 || fRmin2) && (distRMin <= kHalfTolerance))
+   if ((fRmin1 || fRmin2) && (std::abs(distRMin) <= kHalfTolerance))
   {
     noSurfaces ++;
     sumnorm += nr;
@@ -110,7 +126,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
       sumnorm += nPe;
     }
   }
-  if (distZ <= kHalfTolerance)
+  if (std::abs(distZ) <= kHalfTolerance)
   {
     noSurfaces ++;
     if (p.z() >= 0.)
@@ -136,7 +152,6 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
   {
     norm = sumnorm.Unit();
   }
-
 
   return noSurfaces != 0;
  }
