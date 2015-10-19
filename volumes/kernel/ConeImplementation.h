@@ -2007,7 +2007,7 @@ struct ConeImplementation {
       )
   {
       // TODO: provide generic vectorized implementation
-      // TODO: transform point p to local coordinates
+      // TODO: transform point p to local coordinates (GL: code assumes input point is in local coords already)
 
       int noSurfaces = 0;
       double rho, pPhi;
@@ -2017,20 +2017,13 @@ struct ConeImplementation {
       double pRMax, widRMax;
 
       const double delta = 0.5 * kTolerance;
-      const double dAngle = 0.5 * kAngTolerance;
+      // const double dAngle = 0.5 * kAngTolerance;
       typedef Vector3D<typename Backend::precision_v> Vec3D_t;
       Vec3D_t sumnorm(0., 0., 0.), nZ(0., 0., 1.);
       Vec3D_t nR, nr(0., 0., 0.), nPs, nPe;
-      normal = sumnorm;
 
       // distZ<0 for between z-planes, distZ>0 for outside
       distZ = Abs(p.z()) - unplaced.GetDz();
-      if(distZ>kTolerance) {
-        // outside of cone z-range -- early return
-        valid = (bool)noSurfaces;
-        return;
-      }
-
       rho  = Sqrt(p.x() * p.x() + p.y() * p.y());
 
       pRMin   = rho - p.z() * unplaced.fTanRMin;
@@ -2041,108 +2034,103 @@ struct ConeImplementation {
       widRMax = unplaced.GetRmax2() - unplaced.GetDz() * unplaced.fTanRMax;
       distRMax = (pRMax - widRMax) * unplaced.fInvSecRMax;
 
-      if(distRMax>kTolerance ) {
-        // outside of cone Rmax -- early return
-        valid = (bool) noSurfaces;
-        return;
-      }
+      bool inside = distZ<kTolerance && distRMax<kTolerance
+                 && (unplaced.GetRmin1() || unplaced.GetRmin2()) && distRMin>-kTolerance;
 
-      if ((unplaced.GetRmin1() || unplaced.GetRmin2()) && (distRMin < -kTolerance) ) {
-        // outside, within hollow region of cone -- early return
-        valid = (bool)noSurfaces;
-        return;
-      }
+      distZ = Abs(distZ);
+      distRMin = Abs(distRMin);
+      distRMax = Abs(distRMax);
 
-      if (! unplaced.IsFullPhi() )   // Protected against (0,0,z)
-      {
-          if (rho)
-          {
-            pPhi = ATan2(p.y(), p.x());
+      // keep track of which surface is nearest point P, needed in case point is not on a surface
+      double distNearest = distZ;
+      Vector3D<Precision> normNearest = nZ;
+      if( p.z() < 0. ) normNearest.Set(0,0,-1.);
+      //std::cout<<"ConeImpl: spot 1: p="<< p <<", normNearest="<< normNearest <<", distZ="<< distZ <<"\n";
 
-            if (pPhi  < unplaced.GetSPhi() - delta)
-            {
-              pPhi += kTwoPi;
-            }
-            else if (pPhi > unplaced.GetSPhi() + unplaced.GetDPhi() + delta)
-            {
-              pPhi -= kTwoPi;
-            }
-
-            distSPhi = Abs(pPhi - unplaced.GetSPhi());
-            distEPhi = Abs(pPhi - unplaced.GetSPhi() - unplaced.GetDPhi());
-          }
-          else if (!(unplaced.GetRmin1()) || !(unplaced.GetRmin2()))
-          {
-            distSPhi = 0.;
-            distEPhi = 0.;
-          }
-          nPs = Vec3D_t( unplaced.fSinSPhi, -unplaced.fCosSPhi, 0);
-          nPe = Vec3D_t(-unplaced.fSinEPhi, unplaced.fCosEPhi, 0);
-        }
-        if (rho > delta)
-        {
-          nR = Vec3D_t(p.x() / rho * unplaced.fInvSecRMax,
-                       p.y() / rho * unplaced.fInvSecRMax,
-                       -unplaced.fTanRMax * unplaced.fInvSecRMax);
-          if (unplaced.GetRmin1() || unplaced.GetRmin2())
-          {
-            nr = Vec3D_t(-p.x() / rho * unplaced.fInvSecRMin,
-                         -p.y() / rho * unplaced.fInvSecRMin,
-                         unplaced.fTanRMin * unplaced.fInvSecRMin);
-          }
-        }
-
-        if (Abs(distRMax) <= delta)
-        {
+      if (inside && distZ <= delta) {
           noSurfaces ++;
-          sumnorm += nR;
+          if (p.z() >= 0.) sumnorm += nZ;
+          else             sumnorm.Set(0,0,-1.);
+      }
+
+      if (! unplaced.IsFullPhi() ) {
+        // Protect against (0,0,z)
+        if (rho) {
+          pPhi = ATan2(p.y(), p.x());
+          if (pPhi  < unplaced.GetSPhi() - delta) pPhi += kTwoPi;
+          else if (pPhi > unplaced.GetSPhi() + unplaced.GetDPhi() + delta) pPhi -= kTwoPi;
+
+          distSPhi = rho*(pPhi - unplaced.GetSPhi());
+          distEPhi = rho*(pPhi - unplaced.GetSPhi() - unplaced.GetDPhi());
+          inside = inside && distSPhi>-delta && distEPhi<delta;
+          distSPhi = Abs(distSPhi);
+          distEPhi = Abs(distEPhi);
         }
-        if ((unplaced.GetRmin1() || unplaced.GetRmin2()) && (Abs(distRMin) <= delta) && distZ<delta)
-        {
+        else if (!(unplaced.GetRmin1()) || !(unplaced.GetRmin2())) {
+          distSPhi = 0.;
+          distEPhi = 0.;
+        }
+        nPs = Vec3D_t( unplaced.fSinSPhi, -unplaced.fCosSPhi, 0);
+        nPe = Vec3D_t(-unplaced.fSinEPhi, unplaced.fCosEPhi, 0);
+      }
+
+      if (rho > delta) {
+        nR = Vec3D_t(p.x() / rho * unplaced.fInvSecRMax,
+                     p.y() / rho * unplaced.fInvSecRMax,
+                     -unplaced.fTanRMax * unplaced.fInvSecRMax);
+        if (unplaced.GetRmin1() || unplaced.GetRmin2()) {
+          nr = Vec3D_t(-p.x() / rho * unplaced.fInvSecRMin,
+                       -p.y() / rho * unplaced.fInvSecRMin,
+                       unplaced.fTanRMin * unplaced.fInvSecRMin);
+        }
+      }
+
+      if (inside && distRMax <= delta) {
+        noSurfaces ++;
+        sumnorm += nR;
+      }
+      else if(noSurfaces==0 && distRMax<distNearest) {
+        distNearest = distRMax;
+        normNearest = nR;
+      }
+
+      if (unplaced.GetRmin1() || unplaced.GetRmin2()) {
+        if( inside && distRMin <= delta ) {
           noSurfaces ++;
           sumnorm += nr;
         }
-        if (!unplaced.IsFullPhi())
-        {
-          if (distSPhi <= dAngle)
-          {
-            noSurfaces ++;
-            sumnorm += nPs;
-          }
-          if (distEPhi <= dAngle)
-          {
-            noSurfaces ++;
-            sumnorm += nPe;
-          }
+        else if( noSurfaces==0 && distRMin < distNearest) {
+          distNearest = distRMin;
+          normNearest = nr;
         }
-        if (Abs(distZ) <= delta)
-        {
+      }
+
+      if (!unplaced.IsFullPhi()) {
+        if (inside && distSPhi <= delta) {
           noSurfaces ++;
-          if (p.z() >= 0.)
-          {
-            sumnorm += nZ;
-          }
-          else
-          {
-            sumnorm -= nZ;
-          }
+          sumnorm += nPs;
         }
-        if (noSurfaces == 0)
-        {
-          //Assert(false, "approximate surface normal not implemented");
-          // normal = ApproxSurfaceNormal(p);
-          normal = sumnorm;
-        }
-        else if (noSurfaces == 1)
-        {
-          normal = sumnorm;
-        }
-        else
-        {
-          normal = sumnorm.Unit();
+        else if(noSurfaces==0 && distSPhi<distNearest ) {
+          distNearest = distSPhi;
+          normNearest = nPs;
         }
 
-        valid = (bool) noSurfaces;
+        if (inside && distEPhi <= delta) {
+          noSurfaces ++;
+          sumnorm += nPe;
+        }
+        else if(noSurfaces==0 && distEPhi<distNearest ) {
+          distNearest = distEPhi;
+          normNearest = nPe;
+        }
+      }
+
+      // Final checks
+      if (noSurfaces == 0)      normal = normNearest;
+      else if (noSurfaces == 1) normal = sumnorm;
+      else                      normal = sumnorm.Unit();
+
+      valid = (bool) noSurfaces;
   }
 
 }; // end struct
