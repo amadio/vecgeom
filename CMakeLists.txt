@@ -924,6 +924,8 @@ if (USolids)
   add_test(NAME VecGeomTrap COMMAND TestTrap --vecgeom)
   add_test(NAME USolidCone COMMAND TestCons --usolids)
   add_test(NAME VecGeomCone COMMAND TestCons --vecgeom)
+  add_test(NAME USolidPolycone COMMAND TestPolycone --usolids)
+  add_test(NAME VecGeomPolycone COMMAND TestPolycone --vecgeom)
 endif()
 
 if (CUDA)
