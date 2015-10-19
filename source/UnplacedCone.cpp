@@ -46,132 +46,124 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 #if !defined(VECGEOM_NVCC)
     bool UnplacedCone::Normal(Vector3D<Precision> const& p, Vector3D<Precision>& norm) const {
-    int noSurfaces = 0;
-    Precision rho, pPhi;
-    Precision distZ, distRMin, distRMax;
-    Precision distSPhi = kInfinity, distEPhi = kInfinity;
-    Precision pRMin, widRMin;
-    Precision pRMax, widRMax;
+      int noSurfaces = 0;
+      Precision rho, pPhi;
+      Precision distZ, distRMin, distRMax;
+      Precision distSPhi = kInfinity, distEPhi = kInfinity;
+      Precision pRMin, widRMin;
+      Precision pRMax, widRMax;
 
-    const double kHalfTolerance = 0.5 * kTolerance;
+      const double kHalfTolerance = 0.5 * kTolerance;
 
-    Vector3D<Precision> sumnorm(0., 0., 0.), nZ =  Vector3D<Precision> (0., 0., 1.);
-    Vector3D<Precision> nR, nr(0., 0., 0.), nPs, nPe;
-    norm = sumnorm;
+      Vector3D<Precision> sumnorm(0., 0., 0.), nZ =  Vector3D<Precision> (0., 0., 1.);
+      Vector3D<Precision> nR, nr(0., 0., 0.), nPs, nPe;
+      norm = sumnorm;
 
-    distZ = std::fabs(p.z()) - fDz;
-    if(distZ>kHalfTolerance) {
-      // outside of cone z-range -- early return
-      return noSurfaces!=0;
-    }
+      // do not use an extra fabs here -- negative/positive distZ tells us when point is outside or inside
+      distZ = std::fabs(p.z()) - fDz;
+      rho  = std::sqrt(p.x() * p.x() + p.y() * p.y());
 
-    rho  = std::sqrt(p.x() * p.x() + p.y() * p.y());
+      pRMin   = rho - p.z() * fTanRMin;
+      widRMin = fRmin2 - fDz * fTanRMin;
+      distRMin = (pRMin - widRMin) / fSecRMin;
 
-    pRMin   = rho - p.z() * fTanRMin;
-    widRMin = fRmin2 - fDz * fTanRMin;
-    distRMin = (pRMin - widRMin) / fSecRMin;
+      pRMax   = rho - p.z() * fTanRMax;
+      widRMax = fRmax2 - fDz * fTanRMax;
+      distRMax = (pRMax - widRMax) / fSecRMax;
 
-    pRMax   = rho - p.z() * fTanRMax;
-    widRMax = fRmax2 - fDz * fTanRMax;
-    distRMax = (pRMax - widRMax) / fSecRMax;
+      bool inside = distZ<kTolerance && distRMax < kTolerance;
+      if(fRmin1 || fRmin2) inside &= distRMin > -kTolerance;
 
-    if(distRMax>kHalfTolerance ) {
-      // outside of cone Rmax -- early return
-      return noSurfaces!=0;
-    }
+      distZ = std::fabs(distZ);
+      distRMax = std::fabs(distRMax);
+      distRMin = std::fabs(distRMin);
 
-    if ((fRmin1 || fRmin2) && (distRMin < -kHalfTolerance)) {
-      // outside, within hollow region of cone -- early return
-      return noSurfaces!=0;
-    }
+      // keep track of nearest normal, needed in case point is not on a surface
+      double distNearest = distZ;
+      Vector3D<Precision> normNearest = nZ;
+      if(p.z()<0.) normNearest.Set(0,0,-1.);
 
-    if (!IsFullPhi())   // Protected against (0,0,z)
-    {
-     if (rho)
-     {
-      pPhi = std::atan2(p.y(), p.x());
+      if (!IsFullPhi()) {
+        if (rho) {  // Protected against (0,0,z)
+          pPhi = std::atan2(p.y(), p.x());
 
-      if (pPhi  < fSPhi - kHalfTolerance)
-      {
-        pPhi += 2 * kPi;
+          if (pPhi  < fSPhi - kHalfTolerance) pPhi += 2 * kPi;
+          else if (pPhi > fSPhi + fDPhi + kHalfTolerance) pPhi -= 2 * kPi;
+
+          distSPhi = rho*(pPhi - fSPhi);
+          distEPhi = rho*(pPhi - fSPhi - fDPhi);
+          inside = inside && (distSPhi>-kTolerance) && (distEPhi<kTolerance);
+          distSPhi = std::abs(distSPhi);
+          distEPhi = std::abs(distEPhi);
+        }
+
+        else if (!(fRmin1) || !(fRmin2)) {
+          distSPhi = 0.;
+          distEPhi = 0.;
+        }
+        nPs = Vector3D<Precision>(std::sin(fSPhi), -std::cos(fSPhi), 0);
+        nPe = Vector3D<Precision>(-std::sin(fSPhi + fDPhi), std::cos(fSPhi + fDPhi), 0);
       }
-      else if (pPhi > fSPhi + fDPhi + kHalfTolerance)
-      {
-        pPhi -= 2 * kPi;
+
+      if (rho > kHalfTolerance) {
+        nR = Vector3D<Precision>(p.x() / rho / fSecRMax, p.y() / rho / fSecRMax, -fTanRMax / fSecRMax);
+        if (fRmin1 || fRmin2) {
+          nr = Vector3D<Precision>(-p.x() / rho / fSecRMin, -p.y() / rho / fSecRMin, fTanRMin / fSecRMin);
+        }
       }
 
-      distSPhi = std::fabs(pPhi - fSPhi);
-      distEPhi = std::fabs(pPhi - fSPhi - fDPhi);
-     }
-     else if (!(fRmin1) || !(fRmin2))
-     {
-      distSPhi = 0.;
-      distEPhi = 0.;
-     }
-     nPs = Vector3D<Precision>(std::sin(fSPhi), -std::cos(fSPhi), 0);
-     nPe = Vector3D<Precision>(-std::sin(fSPhi + fDPhi), std::cos(fSPhi + fDPhi), 0);
-   }
-   if (rho > kHalfTolerance)
-   {
-    nR = Vector3D<Precision>(p.x() / rho / fSecRMax, p.y() / rho / fSecRMax, -fTanRMax / fSecRMax);
-    if (fRmin1 || fRmin2)
-    {
-      nr = Vector3D<Precision>(-p.x() / rho / fSecRMin, -p.y() / rho / fSecRMin, fTanRMin / fSecRMin);
-    }
-   }
+      if ( inside && distZ <= kHalfTolerance ) {
+        noSurfaces ++;
+        if (p.z() >= 0.) sumnorm += nZ;
+        else sumnorm.Set(0,0,-1.);
+      }
 
-   if (std::abs(distRMax) <= kHalfTolerance)
-  {
-    noSurfaces ++;
-    sumnorm += nR;
-  }
-   if ((fRmin1 || fRmin2) && (std::abs(distRMin) <= kHalfTolerance))
-  {
-    noSurfaces ++;
-    sumnorm += nr;
-  }
-  if (!IsFullPhi())
-  {
-    if (distSPhi <= kHalfTolerance)
-    {
-      noSurfaces ++;
-      sumnorm += nPs;
-    }
-    if (distEPhi <= kHalfTolerance)
-    {
-      noSurfaces ++;
-      sumnorm += nPe;
-    }
-  }
-  if (std::abs(distZ) <= kHalfTolerance)
-  {
-    noSurfaces ++;
-    if (p.z() >= 0.)
-    {
-      sumnorm += nZ;
-    }
-    else
-    {
-      sumnorm -= nZ;
-    }
-  }
-  if (noSurfaces == 0)
-  {
-    //TO DO
-    //norm = ApproxSurfaceNormal(p);
-    norm = sumnorm;
-  }
-  else if (noSurfaces == 1)
-  {
-    norm = sumnorm;
-  }
-  else
-  {
-    norm = sumnorm.Unit();
-  }
+      if (inside && distRMax <= kHalfTolerance) {
+        noSurfaces ++;
+        sumnorm += nR;
+      }
+      else if(noSurfaces==0 && distRMax<distNearest) {
+        distNearest = distRMax;
+        normNearest = nR;
+      }
 
-  return noSurfaces != 0;
- }
+      if (fRmin1 || fRmin2) {
+        if (inside && distRMin <= kHalfTolerance) {
+          noSurfaces ++;
+          sumnorm += nr;
+        }
+        else if(noSurfaces==0 && distRMin<distNearest) {
+          distNearest = distRMin;
+          normNearest = nr;
+        }
+      }
+
+      if (!IsFullPhi()) {
+        if (inside && distSPhi <= kHalfTolerance) {
+          noSurfaces ++;
+          sumnorm += nPs;
+        }
+        else if(noSurfaces==0 && distSPhi<distNearest) {
+          distNearest = distSPhi;
+          normNearest = nPs;
+        }
+
+        if (inside && distEPhi <= kHalfTolerance) {
+          noSurfaces ++;
+          sumnorm += nPe;
+        }
+        else if(noSurfaces==0 && distEPhi<distNearest ) {
+          distNearest = distEPhi;
+          normNearest = nPe;
+        }
+      }
+
+      // Final checks
+      if (noSurfaces == 0) norm = normNearest;
+      else if (noSurfaces == 1) norm = sumnorm;
+      else norm = sumnorm.Unit();
+      return noSurfaces != 0;
+    }
 
     Vector3D<Precision> UnplacedCone::GetPointOnSurface() const {
        // implementation taken from UCons; not verified
