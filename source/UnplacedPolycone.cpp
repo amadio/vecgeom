@@ -589,11 +589,11 @@ bool UnplacedPolycone::Normal(Vector3D<Precision> const& point, Vector3D<Precisi
 
      if(index < 0)
      {
-       valid = true;
-       if(index == -1) norm = Vector3D<Precision>(0.,0.,-1.);
-       if(index == -2) norm = Vector3D<Precision>(0.,0.,1.);
+       valid = false;
+       if(index == -1) norm = Vector3D<Precision>(0.,0.,0.);
+       if(index == -2) norm = Vector3D<Precision>(0.,0.,0.);
        return valid;
-      }
+     }
      PolyconeSection const & sec = GetSection(index);
      valid = sec.fSolid->Normal(point-Vector3D<Precision>(0,0,sec.fShift),norm);
 

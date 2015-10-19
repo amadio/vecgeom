@@ -210,9 +210,22 @@ if(testingvecgeom) {
     assert(Simple.Inside(ponmzside)==vecgeom::EInside::kSurface);
     assert(Simple.Inside(ponzsidey)==vecgeom::EInside::kInside);
     assert(Simple.Inside(ponmzsidey)==vecgeom::EInside::kInside);
+    
+    //check that Normal() returns (0,0,0) for points away from the surface
 
-// Check Surface Normal
- 
+    Vec_t point(70,70,-5);
+    if( (valid=Simple.Normal(point,norm)) && !ApproxEqual(norm,pzero) )
+      std::cout <<"Simple.Normal() mismatch: Line "<< __LINE__ <<", p="<< point <<", normal=" << norm <<", valid="<<valid<<"\n";
+    point.z() = -10;
+    if( (valid=Simple.Normal(point,norm)) || !ApproxEqual(norm,pzero) )
+      std::cout <<"Simple.Normal() mismatch: Line "<< __LINE__ <<", p="<< point <<", normal=" << norm <<", valid="<<valid<<"\n";
+    if( (valid=Simple.Normal(pbigz,norm)) || !ApproxEqual(norm,pzero) )
+      std::cout <<"Simple.Normal() mismatch: Line "<< __LINE__ <<", p="<< pbigz <<", normal=" << norm <<", valid="<<valid<<"\n";
+    if( (valid=Simple.Normal(pbigmz,norm)) || !ApproxEqual(norm,pzero) )
+      std::cout <<"Simple.Normal() mismatch: Line "<< __LINE__ <<", p="<< pbigmz <<", normal=" << norm <<", valid="<<valid<<"\n";
+
+    // Check Surface Normal
+
     valid=Simple.Normal(ponxside,normal);
     assert(ApproxEqual(normal,Vec_t(1,0,0))&&valid);
     valid=Simple.Normal(ponmxside,normal);
@@ -584,14 +597,14 @@ if(testingvecgeom) {
    Vec_t point175a{ -18.1079855387881, -54.3917837284389, 121.5 };
 
 #ifndef VECGEOM_USOLIDS
+   // Contains() is not defined in USolids
    assert( pcon175.Contains( point175a ) == false );
 #endif
    assert( pcon175.Inside( point175a )   == vecgeom::EInside::kSurface );
 
    Vec_t norm175;
    bool valid175 = pcon175.Normal( point175a, norm175 );
-   std::cout<<"norm175="<< norm175 <<" and valid="<<valid175<<"\n";
-   // assert( ApproxEqual(norm175,Vec_t(0,0,-1)) && valid175 );  // this does not crash when norm175=(-nan,-nan,-nan)!!
+   assert( ApproxEqual(norm175,Vec_t(0,0,-1)) && valid175 );
 
    return true;
 }
