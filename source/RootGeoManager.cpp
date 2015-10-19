@@ -505,8 +505,8 @@ VUnplacedVolume* RootGeoManager::Convert(TGeoShape const *const shape) {
      TGeoEltu const *const p = static_cast<TGeoEltu const*>(shape);
      // Create the corresponding unplaced tube, with:
      //   rmin=0, rmax=A, dz=dz, which is scaled with (1., A/B, 1.)
-     UnplacedTube tubeUnplaced = UnplacedTube(0, p->GetA(), p->GetDZ(), 0, kTwoPi);
-     unplaced_volume = new UnplacedScaledShape(&tubeUnplaced, 1.,p->GetB()/p->GetA(), 1.);
+     UnplacedTube *tubeUnplaced = new UnplacedTube(0, p->GetA(), p->GetDZ(), 0, kTwoPi);
+     unplaced_volume = new UnplacedScaledShape(tubeUnplaced, 1.,p->GetB()/p->GetA(), 1.);
    }  
 
    // New volumes should be implemented here...

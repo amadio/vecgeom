@@ -175,9 +175,8 @@ public:
   VECGEOM_INLINE
   InputType TransformDistance(InputType const &dist,
                                 Vector3D<InputType> const &dir) const {
-    InputType scale = Sqrt(dir[0]*dir[0]*fInvScale[0]*fInvScale[0] +
-                           dir[1]*dir[1]*fInvScale[1]*fInvScale[1] +
-                           dir[2]*dir[2]*fInvScale[2]*fInvScale[2]);
+    Vector3D<InputType> v = dir * fInvScale;
+    InputType scale = Sqrt(Vector3D<InputType>::Dot(v,v));
     return ( scale*dist );
   }
 
@@ -199,9 +198,8 @@ public:
   VECGEOM_INLINE
   InputType InverseTransformDistance(InputType const &dist,
                                 Vector3D<InputType> const &dir) const {
-    InputType scale = Sqrt(dir[0]*dir[0]*fScale[0]*fScale[0] +
-                           dir[1]*dir[1]*fScale[1]*fScale[1] +
-                           dir[2]*dir[2]*fScale[2]*fScale[2]);
+    Vector3D<InputType> v = dir * fScale;
+    InputType scale = Sqrt(Vector3D<InputType>::Dot(v,v));
     return ( scale*dist );
   }
 
