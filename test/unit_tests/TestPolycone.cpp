@@ -210,18 +210,18 @@ if(testingvecgeom) {
     assert(Simple.Inside(ponmzside)==vecgeom::EInside::kSurface);
     assert(Simple.Inside(ponzsidey)==vecgeom::EInside::kInside);
     assert(Simple.Inside(ponmzsidey)==vecgeom::EInside::kInside);
-    
-    //check that Normal() returns (0,0,0) for points away from the surface
+
+    //check that Normal() returns valid=false and a non-zero normal for points away from the surface
 
     Vec_t point(70,70,-5);
-    if( (valid=Simple.Normal(point,norm)) && !ApproxEqual(norm,pzero) )
+    if( (valid=Simple.Normal(point,norm)) || !ApproxEqual(norm.Mag2(),1) )
       std::cout <<"Simple.Normal() mismatch: Line "<< __LINE__ <<", p="<< point <<", normal=" << norm <<", valid="<<valid<<"\n";
     point.z() = -10;
-    if( (valid=Simple.Normal(point,norm)) || !ApproxEqual(norm,pzero) )
+    if( (valid=Simple.Normal(point,norm)) || !ApproxEqual(norm.Mag2(),1) )
       std::cout <<"Simple.Normal() mismatch: Line "<< __LINE__ <<", p="<< point <<", normal=" << norm <<", valid="<<valid<<"\n";
-    if( (valid=Simple.Normal(pbigz,norm)) || !ApproxEqual(norm,pzero) )
+    if( (valid=Simple.Normal(pbigz,norm)) || !ApproxEqual(norm.Mag2(),1) )
       std::cout <<"Simple.Normal() mismatch: Line "<< __LINE__ <<", p="<< pbigz <<", normal=" << norm <<", valid="<<valid<<"\n";
-    if( (valid=Simple.Normal(pbigmz,norm)) || !ApproxEqual(norm,pzero) )
+    if( (valid=Simple.Normal(pbigmz,norm)) || !ApproxEqual(norm.Mag2(),1) )
       std::cout <<"Simple.Normal() mismatch: Line "<< __LINE__ <<", p="<< pbigmz <<", normal=" << norm <<", valid="<<valid<<"\n";
 
     // Check Surface Normal
