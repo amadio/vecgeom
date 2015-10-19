@@ -71,7 +71,7 @@ public:
   virtual
   bool Normal(Vector3D<Precision> const & point, Vector3D<Precision> & normal ) const override
   {
-      bool valid;
+      bool valid = false;
       ScaledShapeImplementation<translation::kIdentity, rotation::kIdentity>::NormalKernel<kScalar>(
               *GetUnplacedVolume(),
               point,

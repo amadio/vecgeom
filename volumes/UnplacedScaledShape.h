@@ -59,7 +59,8 @@ public:
   } 
   
 /// Destructor
-  ~UnplacedScaledShape() {
+  VECGEOM_CUDA_HEADER_BOTH
+  virtual ~UnplacedScaledShape() {
     delete fPlaced;
   }    
     
@@ -75,7 +76,7 @@ public:
   VECGEOM_INLINE
   const VUnplacedVolume *UnscaledShape() const { return fPlaced->GetLogicalVolume()->GetUnplacedVolume(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_CUDA_HEADER_HOST
   VECGEOM_INLINE
   Precision Volume() const {
     Precision capacity = ((VPlacedVolume*)fPlaced)->Capacity();
@@ -84,11 +85,11 @@ public:
     return capacity;
   }  
   	
-  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_CUDA_HEADER_HOST
   VECGEOM_INLINE
   Precision Capacity() { return Volume(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_CUDA_HEADER_HOST
   VECGEOM_INLINE
   Precision SurfaceArea() const {
   /// To do - not so easy as for the capacity...

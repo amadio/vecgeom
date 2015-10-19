@@ -116,7 +116,8 @@ VPlacedVolume* UnplacedScaledShape::CreateSpecializedVolume(
 DevicePtr<cuda::VUnplacedVolume> UnplacedScaledShape::CopyToGpu(
    DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
 {
-   return CopyToGpuImpl<UnplacedScaledShape>(in_gpu_ptr, x(), y(), z());
+   Vector3D<Precision> const &scale = fScale.Scale();
+   return CopyToGpuImpl<UnplacedScaledShape>(in_gpu_ptr, UnscaledShape(), scale[0], scale[1], scale[2]);
 }
 
 DevicePtr<cuda::VUnplacedVolume> UnplacedScaledShape::CopyToGpu() const
@@ -134,7 +135,7 @@ namespace cxx {
 
 template size_t DevicePtr<cuda::UnplacedScaledShape>::SizeOf();
 template void DevicePtr<cuda::UnplacedScaledShape>::Construct(
-    const Precision x, const Precision y, const Precision z) const;
+    VUnplacedVolume const *shape, Precision sx, Precision sy, Precision sz) const;
 
 } // End cxx namespace
 
