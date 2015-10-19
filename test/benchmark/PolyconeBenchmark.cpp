@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
   double z[] = { -1, -0.5, 0.5, 10 };
 
   UnplacedBox worldUnplaced( 5, 5, 15 );
-  UnplacedPolycone pconUnplaced(phistart, phidelta, Nz, rmin, rmax, z);
+  UnplacedPolycone pconUnplaced(phistart, phidelta, Nz, z, rmin, rmax);
 
   pconUnplaced.Print();
 
