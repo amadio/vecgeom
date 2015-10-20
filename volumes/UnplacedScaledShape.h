@@ -55,7 +55,8 @@ public:
     // Hopefully we don't need to create a logical volume 
     LogicalVolume *lvol = new LogicalVolume("", shape);
     //   we would have to replace nullptr by lvol below...
-    fPlaced = shape->PlaceVolume(lvol, &Transformation3D::kIdentity);
+    Transformation3D identity;
+    fPlaced = shape->PlaceVolume(lvol, &identity);
   } 
   
 /// Destructor
