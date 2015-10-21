@@ -61,9 +61,18 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
     std::vector<double> rmax;
     std::vector<double> z;
     unplaced->ReconstructSectionArrays(z, rmin, rmax);
+    std::cout<<"\n Conv2USolids: array sizes: z="<< z.size() <<", rmin,rmax="<< rmin.size()<<", "<< rmax.size() <<"\n";
+    std::cout<<"  z: {";
+    for(auto&& zi : z) std::cout<< zi <<"; ";
+    std::cout<<"}\n rmin: {";
+    for(auto&& rmini : rmin) std::cout<< rmini <<"; ";
+    std::cout<<"}\n rmax: {";
+    for(auto&& rmaxi : rmax) std::cout<< rmaxi <<"; ";
+    std::cout<<"}\n";
 
     UPolycone * usolidshape = new UPolycone("", unplaced->fStartPhi,
         unplaced->fDeltaPhi, unplaced->fNz, &z[0], &rmin[0], &rmax[0]);
+    usolidshape->StreamInfo(std::cout);
 
     return usolidshape;
   }
