@@ -28,61 +28,20 @@ bool testingvecgeom=false;
 template <typename Constants, class Polycone_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
 bool TestPolycone()
 {
-  double RMINVec[8];
-  RMINVec[0] = 30;
-  RMINVec[1] = 30;
-  RMINVec[2] =  0;
-  RMINVec[3] =  0;
-  RMINVec[4] =  0;  
-  RMINVec[5] =  0;
-  RMINVec[6] = 40;
-  RMINVec[7] = 40;  
-
-  double RMAXVec[8];
-  RMAXVec[0] = 70;
-  RMAXVec[1] = 70;
-  RMAXVec[2] = 70;
-  RMAXVec[3] = 40;
-  RMAXVec[4] = 40;
-  RMAXVec[5] = 80;
-  RMAXVec[6] = 80;
-  RMAXVec[7] = 60; 
-
-  double Z_Values[8];
-  Z_Values[0] =-20;
-  Z_Values[1] =-10;
-  Z_Values[2] =-10;
-  Z_Values[3] =  0;
-  Z_Values[4] = 10;
-  Z_Values[5] = 20;
-  Z_Values[6] = 30;
-  Z_Values[7] = 40;
-
+  double RMINVec[8] = { 30, 30,  0,  0,  0,  0, 40, 40};
+  double RMAXVec[8] = { 70, 70, 70, 40, 40, 80, 80, 60};
+  double Z_Values[8]= {-20,-10,-10,  0, 10, 20, 30, 40};
   double Phi_Values[2];
   Phi_Values[0]=-10.*UUtils::kPi/180.;
   Phi_Values[1]=10.*UUtils::kPi/180.;
-  Polycone_t *MyPCone = new Polycone_t ("MyPCone",
-                            Phi_Values[0],
-                            Phi_Values[1],
-                            8        ,
-                            Z_Values ,
-                            RMINVec  ,
-                            RMAXVec   );
-  double RMIN[3];
-  RMIN[0] = 0;
-  RMIN[1] = 0;
-  RMIN[2] = 0;
-  double RMAX[3];
-  RMAX[0] = 70;
-  RMAX[1] = 70;
-  RMAX[2] = 80;
-  double Z_Val2[3];
-  Z_Val2[0] =-10;
-  Z_Val2[1] = 0;
-  Z_Val2[2] = 10;
- 
-  Polycone_t Simple("SimpleTube+Cone", 0, 360.*UUtils::kPi/180.,
-                    3, Z_Val2, RMIN, RMAX );
+  Polycone_t *MyPCone = new Polycone_t ("MyPCone", Phi_Values[0], Phi_Values[1],
+                                        8, Z_Values, RMINVec, RMAXVec );
+
+
+  double RMIN[3] = {  0, 0, 0 };
+  double RMAX[3] = { 70,70,80 };
+  double Z_Val2[3]={-10, 0,10 };
+  Polycone_t Simple("SimpleTube+Cone", 0, 360.*UUtils::kPi/180., 3, Z_Val2, RMIN, RMAX );
 
 if(testingvecgeom) {
 
