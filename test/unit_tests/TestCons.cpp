@@ -549,12 +549,12 @@ bool TestCons()
   if(testingvecgeom)
   {
     if (OutRange(dist,111.8033988))
-      std::cout<<"c9.D2Out((1e3*tolerance,0,50),vx2mz,...) = " <<dist <<"\n";
+      std::cout<<"c9.D2Out() mismatch: Line "<< __LINE__ <<", p=(1e3*tolerance,0,50), dir="<< vx2mz <<", dist=" << dist <<" "<< norm <<", convex="<< convex <<"\n";
   }else{
     if (OutRange(dist,111.8033988)||
         (testingvecgeom==convex)||
         OutRange(norm,Vec_t(0,0,-1.0)))
-      std::cout<<"Error:c9.Out((1e3*tolerance,0,50),vx2mz,...) = " <<dist <<"\n";
+        std::cout <<"c9.D2Out() mismatch: Line "<< __LINE__ <<", p=(1e3*tolerance,0,50), dir="<< vx2mz <<", dist=" << dist <<" "<< norm <<", convex="<< convex <<"\n";
 
   }
   dist=c9.DistanceToOut(Vec_t(5,0,50),

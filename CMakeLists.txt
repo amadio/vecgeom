@@ -742,9 +742,11 @@ set(TEST_EXECUTABLES_USOLIDS
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestPolycone.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestPolyhedra.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTet.cpp
-#  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestOrb.cpp
-#  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestOrb.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBoxlikeTrapezoid.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTorus.cpp
+#  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTorus2.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/usolidTest.cpp
 )
 
@@ -763,6 +765,7 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${CMAKE_SOURCE_DIR}/test/benchmark/BoxUnionBoxBenchmark_virtual.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/3LevelSubtractionBenchmark_virtual.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TorusBenchmark.cpp
+#  ${CMAKE_SOURCE_DIR}/test/benchmark/TorusBenchmark2.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrapezoidBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrapezoidBenchmarkScript.cpp
 #  ${CMAKE_SOURCE_DIR}/test/benchmark/OrbBenchmark.cpp
@@ -885,16 +888,18 @@ if (USolids)
   #add_to_ctest("${TEST_EXECUTABLES_SHAPETESTER}")
 
   # add unit tests
-  add_test(NAME USolidBox COMMAND TestBox --usolids)
+  add_test(NAME USolidsBox COMMAND TestBox --usolids)
   add_test(NAME VecGeomBox COMMAND TestBox --vecgeom)
-  add_test(NAME USolidTube COMMAND TestTube --usolids)
-  add_test(NAME VecGeomTube COMMAND TestTube --vecgeom)
-  add_test(NAME USolidTrap COMMAND TestTrap --usolids)
+  add_test(NAME USolidsTrap COMMAND TestTrap --usolids)
   add_test(NAME VecGeomTrap COMMAND TestTrap --vecgeom)
-  add_test(NAME USolidCone COMMAND TestCons --usolids)
+  add_test(NAME USolidsTube COMMAND TestTube --usolids)
+  add_test(NAME VecGeomTube COMMAND TestTube --vecgeom)
+  add_test(NAME USolidsCone COMMAND TestCons --usolids)
   add_test(NAME VecGeomCone COMMAND TestCons --vecgeom)
-  add_test(NAME USolidPolycone COMMAND TestPolycone --usolids)
-  add_test(NAME VecGeomPolycone COMMAND TestPolycone --vecgeom)
+  add_test(NAME USolidsTrd COMMAND TestTrd --usolids)
+  add_test(NAME VecGeomTrd COMMAND TestTrd --vecgeom)
+  add_test(NAME USolidsOrb COMMAND TestOrb --usolids)
+  add_test(NAME VecGeomOrb COMMAND TestOrb --vecgeom)
 endif()
 
 if (CUDA)
