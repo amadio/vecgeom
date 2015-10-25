@@ -1,9 +1,8 @@
 //
+// File: TestTrd.cpp
 //
-// TestTrd
-//             Ensure asserts are compiled in
-
-
+//    Ensure asserts are compiled in
+//
 
 #include "base/Vector3D.h"
 #include "volumes/Trd.h"

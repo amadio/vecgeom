@@ -345,6 +345,8 @@ bool TestCons()
   if( (valid=c1.Normal(pzero,norm)) || OutRange(norm,pzero) )
     std::cout <<"c1.Normal() mismatch: Line "<< __LINE__ <<", p="<< pzero <<", normal=" << norm <<", valid="<<valid<<"\n";
 
+// safety
+
   double dist;
   dist=c4.SafetyFromInside(ponphi1);
   if (OutRange(dist,0))
@@ -357,6 +359,7 @@ bool TestCons()
   dist=c1.SafetyFromInside(pnearplz);
   if (OutRange(dist,5))
     std::cout <<"c1.S2O() mismatch: Line "<< __LINE__ <<", p="<< pnearplz <<", dist=" << dist <<"\n";
+
   dist=c1.SafetyFromInside(pnearmiz);
   if (OutRange(dist,5))
     std::cout <<"c1.S2O() mismatch: Line "<< __LINE__ <<", p="<< pnearmiz <<", dist=" << dist <<"\n";
@@ -376,7 +379,7 @@ bool TestCons()
   if (OutRange(dist,0))
     std::cout <<"c5.S2O() mismatch: Line "<< __LINE__ <<", p="<< Vec_t(0,-70,0) <<", dist=" << dist <<"\n";
 
-  //std::cout <<"S2O() mismatch: Line "<< __LINE__ <<", Testing Cone_t::DistanceToOut...\n";
+// distToOut
 
   dist=c4.DistanceToOut(pplx,vx,norm,convex);
   if (OutRange(dist,30)||OutRange(norm,vxmz)||(testingvecgeom==convex))

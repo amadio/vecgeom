@@ -117,9 +117,11 @@ struct PolyconeImplementation {
                              localPoint[2] < MakeMinusTolerant<ForInside>( unplaced.fZs[Nz-1] ) );
 #ifdef POLYCONEDEBUG
         std::cout<<", compIn="<< completelyInside;
-#endif
       }
       std::cout<<", done="<< done <<"\n";
+#else
+      }
+#endif
 
       if ( Backend::early_returns && IsFull(completelyOutside) ) return;
 
