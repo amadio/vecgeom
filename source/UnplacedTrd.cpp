@@ -41,169 +41,152 @@ Precision UnplacedTrd::SurfaceArea() const {
 
   // Sum of area for planes Perp. to +X and -X
   Precision ht = (xvert) ? dz : Sqrt((fDX1-fDX2)*(fDX1-fDX2) + dz*dz);
-  SA += 2.0 * 0.5 * (fDY1 + fDY2) * ht;
+  SA += 2.0 * 2.0 * 0.5 * (fDY1 + fDY2) * ht;
 
   // Sum of area for planes Perp. to +Y and -Y
-  SA += 2.0 * 0.5 * (fDX1 + fDX2) * ht;    // if xvert then topology forces to become yvert for closing
+  SA += 2.0 * 2.0 * 0.5 * (fDX1 + fDX2) * ht;    // if xvert then topology forces to become yvert for closing
 
   // Sum of area for top and bottom planes +Z and -Z
-  SA += (fDX1 * fDY1) + (fDX2 * fDY2);
+  SA += 4.*(fDX1 * fDY1) + 4.*(fDX2 * fDY2);
 
   return SA;
 }
 
-/*
-
-void UnplacedTrd::Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const {
-	aMin.x() = -1.0 * Min(dx1(), dx2());
-	aMax.x() = Max(dx1(), dx2());
-	aMin.y() = -1.0 * Min(dy1(), dy2());
-	aMax.y() = Max(dy1(), dy2());
-	aMin.z() = -dz();
-	aMax.z() = dz();
-}
-*/
-
 int UnplacedTrd::ChooseSurface() const {
-    int choice = 0;
-    int nChoice = 6;
-    Precision sumWeight = 0.0;
-    Precision PlusXArea = GetPlusXArea();
-    Precision MinusXArea = GetMinusXArea();
-    Precision PlusYArea = GetPlusYArea();
-    Precision MinusYArea = GetMinusYArea();
-    Precision PlusZArea = GetPlusZArea();
-    Precision MinusZArea = GetMinusZArea();
-    Precision totArea = PlusXArea + MinusXArea + PlusYArea + MinusYArea + PlusZArea + MinusZArea;
-    Precision prob[6] ;
+    int choice = 0; // 0 = zm, 1 = zp, 2 = ym, 3 = yp, 4 = xm, 5 = xp
+    Precision S[6], Stotal = 0.0;
 
-    prob[0] = PlusXArea  / totArea;
-    prob[1] = MinusXArea / totArea;
-    prob[2] = PlusYArea  / totArea;
-    prob[3] = MinusYArea / totArea;
-    prob[4] = PlusZArea  / totArea;
-    prob[5] = MinusZArea / totArea;
+    S[0] = S[1] = GetPlusXArea();
+    S[2] = S[3] = GetPlusYArea();
+    S[4] = GetMinusZArea();
+    S[5] = GetPlusZArea();
 
-    for (int i = 0; i < nChoice; i++)
-        sumWeight += prob[i];
+    for (int i = 0; i < 6; ++i)
+        Stotal += S[i];
 
-    Precision rand = RNG::Instance().uniform() * sumWeight;
+    // random value to choose surface to place the point
+    Precision rand = RNG::Instance().uniform() * Stotal;
 
-    while (rand > prob[choice])
-        rand -= prob[choice], choice++;
+    while (rand > S[choice])
+        rand -= S[choice], choice++;
 
-    assert(choice < nChoice);
+    assert(choice < 6);
+
     return choice;
 }
 
 Vector3D<Precision> UnplacedTrd::GetPointOnSurface() const {
-    Precision xVal = 0.0;
-    Precision yVal = 0.0;
-    Precision zVal = 0.0;
-    Precision zz2 = -1.0 * fDZ;
-    Precision minX = Min(fDX1, fDX2);
-    Precision maxX = Max(fDX1, fDX2);
-    Precision minY = Min(fDY1, fDY2);
-    Precision maxY = Max(fDY1, fDY2);
-    Precision dz = 2.*fDZ;
-    bool xvert(false);
-    bool yvert(false);
-    xvert = (fDX1 == fDX2) ? true : false;
-    yvert = (fDY1 == fDY2) ? true : false;
-    Precision llX = (xvert) ? dz : Sqrt(x2minusx1() * x2minusx1()  + dztimes2() * dztimes2());
-    Precision llY = (yvert) ? dz : Sqrt(y2minusy1() * y2minusy1()  + dztimes2() * dztimes2());
-    Precision dzstar;
-    int choice = ChooseSurface();
+    int surface = ChooseSurface();
 
-    switch (choice) {
-        case 0:   // +X plane perpendicular to +X axis
-            xVal = (xvert) ? fDX1 : RNG::Instance().uniform() * (Abs(fDX1 - fDX2)) + minX;
-            zVal = (xvert) ? RNG::Instance().uniform() * dz + zz2 : (maxX - xVal) / fx();
-            dzstar = (xvert) ? zVal : Sqrt((fDX1 - xVal) * (fDX1 - xVal) + (zVal * zVal));
-            yVal = (xvert && yvert) ? RNG::Instance().uniform() * 2.0 * fDY1 - fDY1 : RNG::Instance().uniform() * 2.0 * (llX * fDX1 + x2minusx1() * dzstar) + (-fDY1);
-        break;
-        case 1:  // -X
-            xVal = (xvert) ? fDX1 : RNG::Instance().uniform() * (Abs(fDX1 - fDX2)) + minX;
-            zVal = (xvert) ? RNG::Instance().uniform() * dz + zz2 : (maxX - xVal) / fx();
-            dzstar = (xvert) ? zVal : Sqrt((fDX1 - xVal) * (fDX1 - xVal) + (zVal * zVal));
-            yVal = (xvert && yvert) ? RNG::Instance().uniform() * 2.0 * fDY1 - fDY1 : RNG::Instance().uniform() * 2.0 * (llX * fDX1 + x2minusx1() * dzstar) + (-fDY1);
-            xVal *= -1.0;
-        break;
-        case 2:  // + Y
-            yVal = (yvert) ? fDY1 : RNG::Instance().uniform() * (Abs(fDY1 - fDY2)) + minY;
-            zVal = (yvert) ? RNG::Instance().uniform() * dz + zz2 : (maxY - yVal) / fy();
-            dzstar = (yvert) ? zVal : Sqrt((fDY1 - yVal) * (fDY1 - yVal) + (zVal * zVal));
-            xVal = (xvert && yvert) ? RNG::Instance().uniform() * 2.0 * fDX1 - fDX1 : RNG::Instance().uniform() * 2.0 * (llY * fDY1 + y2minusy1() * dzstar) + (-fDX1);
-        break;
-        case 3:  // -Y
-            yVal = (yvert) ? fDY1 : RNG::Instance().uniform() * (Abs(fDY1 - fDY2)) + minY;
-            zVal = (yvert) ? RNG::Instance().uniform() * dz + zz2 : Abs(minY - yVal) /fy();
-            dzstar = (yvert) ? zVal : Sqrt((fDY1 - yVal) * (fDY1 - yVal) + (zVal * zVal));
-            xVal = (xvert && yvert) ? RNG::Instance().uniform() * 2.0 * fDX1 - fDX1 : RNG::Instance().uniform() * 2.0 * (llY * fDY1 + y2minusy1() * dzstar) + (-fDX1);
-            yVal *= -1.0;
-        break;
-        case 4: // +Z
-            xVal = RNG::Instance().uniform() * (2.0 * fDX2) + (-fDX2);
-            yVal = RNG::Instance().uniform() * (2.0 * fDY2) + (-fDY2);
-            zVal = fDZ;
-        break;
-        case 5: // -Z
-            xVal = RNG::Instance().uniform() * (2.0 * fDX1) + (-fDX1);
-            yVal = RNG::Instance().uniform() * (2.0 * fDY1) + (-fDY1);
-            zVal = zz2;
-        break;
+    Precision invHeight = 0.5 / fDZ;
+    Precision slopeX = (fDX2 - fDX1) * invHeight;
+    Precision slopeY = (fDY2 - fDY1) * invHeight;
+    Precision midX = 0.5*(fDX1+fDX2);
+    Precision midY = 0.5*(fDY1+fDY2);
+
+    // Note that randoms are drawn in range [-1,1], then we just need scales, e.g. xval *= xmax for x = [-xmax, xmax] and so on
+    Precision xval = RNG::Instance().uniform(-1.0, 1.0);
+    Precision yval = RNG::Instance().uniform(-1.0, 1.0);
+    Precision zval = RNG::Instance().uniform(-1.0, 1.0);
+    Precision vmax;
+    switch (surface) {
+    case 0:  // -Z face
+      xval *= fDX1;  // = ran[-fDX1, fDX1]
+      yval *= fDY1;
+      zval = -fDZ;
+      break;
+    case 1:  // +Z face
+      xval *= fDX2;  // = ran[-fDX2, fDX2]
+      yval *= fDY2;
+      zval =  fDZ;
+      break;
+    case 2:  // +X face
+      xval = midX + slopeX*zval;
+      vmax = midY + slopeY*zval;
+      yval *= vmax;  // = rand[-vmax,vmax]
+      break;
+    case 3:  // -X face
+      xval = -(midX + slopeX*zval);
+      vmax = midY + slopeY*zval;
+      yval *= vmax;  // = rand[-vmax,vmax]
+      break;
+    case 4:  // +Y face
+      vmax = midX + slopeX*zval;
+      xval *= vmax;  // = rand[-vmax,vmax]
+      yval = midY + slopeY*zval;
+      break;
+    case 5:  // -Y face
+      vmax = midX + slopeX*zval;
+      xval *= vmax;  // = rand[-vmax,vmax]
+      yval = -(midY + slopeY*zval);
+      break;
     }
-    return Vector3D<Precision> (xVal, yVal, zVal);
+
+    return Vector3D<Precision>(xval, yval, zval);
 }
 
 
 bool UnplacedTrd::Normal(Vector3D<Precision> const& point, Vector3D<Precision>& norm) const {
-	int nosurface = 0;
-	bool onSurf(false);
 
-    Precision xp = point[0];
-    Precision yp = point[1];
-    Precision zp = point[2];
-    Precision xx1 = dx1();
-    Precision xx2 = dx2();
-    Precision yy1 = dy1();
-    Precision yy2 = dy2();
-    Precision zz = dz();
-    Precision XplusX   = 2.0 * yy1 * 2.0 * zz;
-    Precision XminusX  = XplusX;
-    Precision XplusY   = 0.0;
-    Precision XminusY  = 0.0;
-    Precision XplusZ   = 2.0 * yy1 * (xx1 - xx2);
-    Precision XminusZ  = 2.0 * yy1 * (-xx1 + xx2);
+  int noSurfaces = 0;
+  Vector3D<Precision> sumnorm(0., 0., 0.), vecnorm(0.,0.,0.);
+  Precision distz;
 
-    Precision YplusX   = 0.0;
-    Precision YminusX  = 0.0;
-    Precision YplusY   = -2.0 * xx1 * 2.0 * zz;
-    Precision YminusY  = YplusY;
-    Precision YplusZ   = 2.0 * xx1 * (-yy1 + yy2);
-    Precision YminusZ  = 2.0 * xx1 * (yy1 - yy2);
-    Precision ZplusX   = 0.0;
-    Precision ZminusX  = 0.0;
-    Precision ZplusY   = 0.0;
-    Precision ZminusY  = 0.0;
-    Precision ZplusZ   = -2.0 * xx2 * 2.0 * yy2;
-    Precision ZminusZ  = 2.0 * xx2 * 2.0 * yy1;
+  distz = std::fabs(std::fabs(point[2]) - fDZ);
 
-	// Checking for each plane whether the point is on Surface, if yes transfer normal
-    bool FacPlusX  = XplusX * (xp - xx2) + XplusY * (yp - yy2) + XplusZ * (zp - zz);
-    bool FacMinusX = XminusX * (xp + xx2) + XminusY * (yp - yy2) + XminusZ * (zp - zz);
-    bool FacPlusY  = YplusX * (xp - xx2)  + YplusY * (yp - yy2) + YplusZ * (zp - zz);
-    bool FacMinusY = YplusX * (xp - xx2) + YminusY * (yp + yy2) + YminusZ * (zp - zz);
-    bool FacPlusZ  = ZplusX * (xp - xx2) + ZplusY * (yp - yy2) + ZplusZ * (zp - zz);
-    bool FacMinusZ = ZminusX * (xp - xx2) + ZminusY * (yp + yy2) + ZminusZ * (zp - zz);
-    onSurf = FacPlusX || FacMinusX || FacPlusY || FacMinusY || FacPlusZ || FacMinusZ;
-    if (onSurf && FacPlusX)  norm[0] = XplusX;   norm[1] = XplusY;  norm[2] = XplusZ;  nosurface++;
-    if (onSurf && FacMinusX) norm[0] = XminusX;  norm[1] = XminusY; norm[2] = XminusZ; nosurface++;
-    if (onSurf && FacPlusY)  norm[0] = YplusX;   norm[1] = YplusY;  norm[2] = YplusZ;  nosurface++;
-    if (onSurf && FacMinusY) norm[0] = YminusX;  norm[1] = YminusY; norm[2] = YminusZ; nosurface++;
-    if (onSurf && FacPlusZ)  norm[0] = ZplusX;   norm[1] = ZplusY;  norm[2] = ZplusZ;  nosurface++;
-    if (onSurf && FacMinusZ) norm[0] = ZminusX;  norm[1] = ZminusY; norm[2] = ZminusZ; nosurface++;
-    return nosurface != 0;
+  Precision xnorm = 1.0 / sqrt(4*fDZ*fDZ + (fDX2-fDX1)*(fDX2-fDX1));
+  Precision ynorm = 1.0 / sqrt(4*fDZ*fDZ + (fDY2-fDY1)*(fDY2-fDY1));
+
+  Precision distmx = -2.0*fDZ*point[0] + 0.0*point[1] - (fDX2-fDX1)*point[2] - fDZ*(fDX1+fDX2);
+  distmx *= xnorm;
+
+  Precision distpx =  2.0*fDZ*point[0] + 0.0*point[1] - (fDX2-fDX1)*point[2] - fDZ*(fDX1+fDX2);
+  distpx *= xnorm;
+
+  Precision distmy = 0.0*point[0] - 2.0*fDZ*point[1] - (fDY2-fDY1)*point[2] - fDZ*(fDY1+fDY2);
+  distmy *= ynorm;
+
+  Precision distpy = 0.0*point[0] + 2.0*fDZ*point[1] - (fDY2-fDY1)*point[2] - fDZ*(fDY1+fDY2);
+  distpy *= ynorm;
+
+  if (fabs(distmx) <= kHalfTolerance) {
+    noSurfaces ++;
+    sumnorm += Vector3D<Precision>( -2.0*fDZ, 0.0, -(fDX2-fDX1) ) * xnorm;
+  }
+  if (fabs(distpx) <= kHalfTolerance) {
+    noSurfaces ++;
+    sumnorm += Vector3D<Precision>(  2.0*fDZ, 0.0, -(fDX2-fDX1) ) * xnorm;
+  }
+  if (fabs(distpy) <= kHalfTolerance) {
+    noSurfaces ++;
+    sumnorm += Vector3D<Precision>( 0.0, 2.0*fDZ, -(fDY2-fDY1) ) * ynorm;
+  }
+  if (fabs(distmy) <= kHalfTolerance) {
+    noSurfaces ++;
+    sumnorm += Vector3D<Precision>( 0.0, -2.0*fDZ, -(fDY2-fDY1) ) * ynorm;
+  }
+
+  if ( std::fabs(distz) <= kHalfTolerance) {
+    noSurfaces ++;
+    if (point[2] >= 0.)  sumnorm += Vector3D<Precision>(0.,0.,1.);
+    else                 sumnorm += Vector3D<Precision>(0.,0.,-1.);
+  }
+  if (noSurfaces == 0) {
+#ifdef UDEBUG
+    UUtils::Exception("UnplacedTrapezoid::SurfaceNormal(point)", "GeomSolids1002",
+                      Warning, 1, "Point is not on surface.");
+#endif
+    // vecnorm = ApproxSurfaceNormal( Vector3D<Precision>(point[0],point[1],point[2]) );
+    vecnorm = Vector3D<Precision>(0.,0.,1.);  // any plane will do it, since false is returned, so save the CPU cycles...
+  }
+  else if (noSurfaces == 1) vecnorm = sumnorm;
+  else                      vecnorm = sumnorm.Unit();
+
+  norm[0] = vecnorm[0];
+  norm[1] = vecnorm[1];
+  norm[2] = vecnorm[2];
+
+  return noSurfaces != 0;
 }
 
 
