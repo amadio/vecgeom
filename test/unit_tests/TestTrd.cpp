@@ -16,16 +16,16 @@
 #undef NDEBUG
 #include <cassert>
 
-template <class Trd_t,class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
+bool testvecgeom = false;
 
+template <typename Constants, class Trd_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
 bool TestTrd()
 {
-
- VUSolid::EnumInside inside ;
-  Vec_t pzero(0,0,0);
-  Vec_t ponxside(20,0,0),ponyside(0,30,0),ponzside(0,0,40);
-  Vec_t ponmxside(-20,0,0),ponmyside(0,-30,0),ponmzside(0,0,-40);
-  Vec_t ponzsidey(0,25,40),ponmzsidey(0,25,-40);
+    VUSolid::EnumInside inside ;
+    Vec_t pzero(0,0,0);
+    Vec_t ponxside(20,0,0),ponyside(0,30,0),ponzside(0,0,40);
+    Vec_t ponmxside(-20,0,0),ponmyside(0,-30,0),ponmzside(0,0,-40);
+    Vec_t ponzsidey(0,25,40),ponmzsidey(0,25,-40);
 
     Vec_t pbigx(100,0,0),pbigy(0,100,0),pbigz(0,0,100);
     Vec_t pbigmx(-100,0,0),pbigmy(0,-100,0),pbigmz(0,0,-100);
@@ -45,8 +45,8 @@ bool TestTrd()
     Trd_t trd1("Test Box #1",20,20,30,30,40);
     Trd_t trd2("Test Trd",10,30,20,40,40);
     Trd_t trd3("BABAR Trd",0.14999999999999999,0.14999999999999999, 
-                           24.707000000000001, 24.707000000000001, 
-	                   22.699999999999999) ;
+               24.707000000000001, 24.707000000000001,
+               22.699999999999999) ;
 
 
 
@@ -56,9 +56,10 @@ bool TestTrd()
     volCheck = 8*20*30*40;
     assert(ApproxEqual(vol,volCheck));
 
- // Check Surface area    
+// Check Surface area
+
     std::cout<<"Trd Surface Area : " << trd1.SurfaceArea()<<std::endl;
-    //assert(trd1.SurfaceArea() == 20800);
+    //assert(ApproxEqual(trd1.SurfaceArea(), 20800));
 
 // Check Inside
 
@@ -248,60 +249,86 @@ bool TestTrd()
 // DistanceToOut(P,V)
 
     Dist=trd1.DistanceToOut(pzero,vx,norm,convex);
-    assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,vx)&&convex);
+    assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,vx));
+    if(!testvecgeom) assert(convex);
     Dist=trd1.DistanceToOut(pzero,vmx,norm,convex);
-    assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,vmx)&&convex);
+    assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,vmx));
+    if(!testvecgeom) assert(convex);
     Dist=trd1.DistanceToOut(pzero,vy,norm,convex);
-    assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,vy)&&convex);
+    assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,vy));
+    if(!testvecgeom) assert(convex);
     Dist=trd1.DistanceToOut(pzero,vmy,norm,convex);
-    assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,vmy)&&convex);
+    assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,vmy));
+    if(!testvecgeom) assert(convex);
     Dist=trd1.DistanceToOut(pzero,vz,norm,convex);
-    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vz)&&convex);
+    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vz));
+    if(!testvecgeom) assert(convex);
     Dist=trd1.DistanceToOut(pzero,vmz,norm,convex);
-    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vmz)&&convex);
+    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vmz));
+    if(!testvecgeom) assert(convex);
     Dist=trd1.DistanceToOut(pzero,vxy,norm,convex);
-    assert(ApproxEqual(Dist,std::sqrt(800.))&&convex);
+    assert(ApproxEqual(Dist,std::sqrt(800.)));
+    if(!testvecgeom) assert(convex);
 
     Dist=trd1.DistanceToOut(ponxside,vx,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vx)&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vx));
+    if(!testvecgeom) assert(convex);
     Dist=trd1.DistanceToOut(ponmxside,vmx,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmx)&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmx));
+    if(!testvecgeom) assert(convex);
     Dist=trd1.DistanceToOut(ponyside,vy,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vy)&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vy));
+    if(!testvecgeom) assert(convex);
     Dist=trd1.DistanceToOut(ponmyside,vmy,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmy)&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmy));
+    if(!testvecgeom) assert(convex);
     Dist=trd1.DistanceToOut(ponzside,vz,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vz)&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vz));
+    if(!testvecgeom) assert(convex);
     Dist=trd1.DistanceToOut(ponmzside,vmz,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmz)&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmz));
+    if(!testvecgeom) assert(convex);
 
     Dist=trd2.DistanceToOut(pzero,vx,norm,convex);
-    assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,Vec_t(cosa,0,-sina))&&convex);
+    assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,Vec_t(cosa,0,-sina)));
+    if(!testvecgeom) assert(convex);
     Dist=trd2.DistanceToOut(pzero,vmx,norm,convex);
-    assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,Vec_t(-cosa,0,-sina))&&convex);
+    assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,Vec_t(-cosa,0,-sina)));
+    if(!testvecgeom) assert(convex);
     Dist=trd2.DistanceToOut(pzero,vy,norm,convex);
-    assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,Vec_t(0,cosa,-sina))&&convex);
+    assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,Vec_t(0,cosa,-sina)));
+    if(!testvecgeom) assert(convex);
     Dist=trd2.DistanceToOut(pzero,vmy,norm,convex);
-    assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,Vec_t(0,-cosa,-sina))&&convex);
+    assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,Vec_t(0,-cosa,-sina)));
+    if(!testvecgeom) assert(convex);
     Dist=trd2.DistanceToOut(pzero,vz,norm,convex);
-    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vz)&&convex);
+    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vz));
+    if(!testvecgeom) assert(convex);
     Dist=trd2.DistanceToOut(pzero,vmz,norm,convex);
-    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vmz)&&convex);
+    assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vmz));
+    if(!testvecgeom) assert(convex);
     Dist=trd2.DistanceToOut(pzero,vxy,norm,convex);
-    assert(ApproxEqual(Dist,std::sqrt(800.))&&convex);
+    assert(ApproxEqual(Dist,std::sqrt(800.)));
+    if(!testvecgeom) assert(convex);
 
     Dist=trd2.DistanceToOut(ponxside,vx,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(cosa,0,-sina))&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(cosa,0,-sina)));
+    if(!testvecgeom) assert(convex);
     Dist=trd2.DistanceToOut(ponmxside,vmx,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(-cosa,0,-sina))&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(-cosa,0,-sina)));
+    if(!testvecgeom) assert(convex);
     Dist=trd2.DistanceToOut(ponyside,vy,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(0,cosa,-sina))&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(0,cosa,-sina)));
+    if(!testvecgeom) assert(convex);
     Dist=trd2.DistanceToOut(ponmyside,vmy,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(0,-cosa,-sina))&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,Vec_t(0,-cosa,-sina)));
+    if(!testvecgeom) assert(convex);
     Dist=trd2.DistanceToOut(ponzside,vz,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vz)&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vz));
+    if(!testvecgeom) assert(convex);
     Dist=trd2.DistanceToOut(ponmzside,vmz,norm,convex);
-    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmz)&&convex);
+    assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmz));
+    if(!testvecgeom) assert(convex);
 
 
 //SafetyFromOutside(P)
@@ -348,9 +375,9 @@ bool TestTrd()
     Dist=trd1.DistanceToIn(pbigmz,vz);
     assert(ApproxEqual(Dist,60));
     Dist=trd1.DistanceToIn(pbigx,vxy);
-    assert(ApproxEqual(Dist,UUtils::kInfinity));
+    assert(ApproxEqual(Dist,Constants::kInfinity));
     Dist=trd1.DistanceToIn(pbigmx,vxy);
-    assert(ApproxEqual(Dist,UUtils::kInfinity));
+    assert(ApproxEqual(Dist,Constants::kInfinity));
 
     Dist=trd2.DistanceToIn(pbigx,vmx);
     assert(ApproxEqual(Dist,80));
@@ -365,16 +392,16 @@ bool TestTrd()
     Dist=trd2.DistanceToIn(pbigmz,vz);
     assert(ApproxEqual(Dist,60));
     Dist=trd2.DistanceToIn(pbigx,vxy);
-    assert(ApproxEqual(Dist,UUtils::kInfinity));
+    assert(ApproxEqual(Dist,Constants::kInfinity));
     Dist=trd2.DistanceToIn(pbigmx,vxy);
-    assert(ApproxEqual(Dist,UUtils::kInfinity));
+    assert(ApproxEqual(Dist,Constants::kInfinity));
 
     Dist=trd3.DistanceToIn(Vec_t(  0.15000000000000185,
-                                         -22.048743592955137,
-                                           2.4268539333219472),
+                                   -22.048743592955137,
+                                   2.4268539333219472),
                            Vec_t(-0.76165597579890043,
-                                          0.64364445891356026,
-                                         -0.074515708658524193)) ;
+                                 0.64364445891356026,
+                                 -0.074515708658524193).Unit()) ;
 
     //    std::cout<<"BABAR trd distance = "<<Dist<<std::ensl ;
     assert(ApproxEqual(Dist,0.0));
@@ -392,45 +419,46 @@ bool TestTrd()
     assert(ApproxEqual(maxExtent,Vec_t( 20, 30, 40)));
     trd2.Extent(minExtent,maxExtent);
     //std::cout<<" min="<<minExtent<<" max="<<maxExtent<<std::endl;
-     assert(ApproxEqual(minExtent,Vec_t(-30,-40,-40)));
-     assert(ApproxEqual(maxExtent,Vec_t( 30, 40, 40)));
-  
+    assert(ApproxEqual(minExtent,Vec_t(-30,-40,-40)));
+    assert(ApproxEqual(maxExtent,Vec_t( 30, 40, 40)));
 
-   
     return true;
 }
 
+#ifdef VECGEOM_USOLIDS
+struct USOLIDSCONSTANTS {
+    static constexpr double kInfinity = DBL_MAX;//UUSolids::kInfinity;
+};
+#endif
+struct VECGEOMCONSTANTS {
+  static constexpr double kInfinity = vecgeom::kInfinity;
+};
 
 int main(int argc, char *argv[]) {
- 
-   if( argc < 2)
-    {
-      std::cerr << "need to give argument :--usolids or --vecgeom\n";     
-      return 1;
-    }
-    
-    if( ! strcmp(argv[1], "--usolids") )
-    { 
-      #ifdef VECGEOM_USOLIDS
-      assert(TestTrd<UTrd>());
-      std::cout << "UTrd passed\n";
-      #else
-      std::cerr << "VECGEOM_USOLIDS was not defined\n";
-      return 2;
-      #endif
-    }
-    else if( ! strcmp(argv[1], "--vecgeom") )
-    {
-      //testingvecgeom = true;
-        assert(TestTrd<vecgeom::SimpleTrd>());
-     std::cout << "VecGeomTrd passed\n";
-    }
-    else
-    {
-      std::cerr << "need to give argument :--usolids or --vecgeom\n";     
-      return 1;
+
+    if( argc < 2) {
+        std::cerr << "need to give argument: --usolids or --vecgeom\n";
+        return 1;
     }
 
+    if( ! strcmp(argv[1], "--usolids") ) {
+#ifndef VECGEOM_USOLIDS
+        std::cerr << "VECGEOM_USOLIDS was not defined\n";
+        return 2;
+#else
+      TestTrd<USOLIDSCONSTANTS, UTrd>();
+      std::cout << "UTrd passed\n";
+#endif
+    }
+    else if( ! strcmp(argv[1], "--vecgeom") ) {
+        testvecgeom = true;
+        TestTrd<VECGEOMCONSTANTS, vecgeom::SimpleTrd>();
+        std::cout << "VecGeom Trd passed\n";
+    }
+    else {
+        std::cerr << "need to give argument: --usolids or --vecgeom\n";
+        return 1;
+    }
 
   return 0;
 }

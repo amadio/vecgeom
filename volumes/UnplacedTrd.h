@@ -27,10 +27,11 @@ private:
   // cached values
   Precision fX2minusX1;
   Precision fY2minusY1;
-  Precision fDZtimes2;
+  // Precision fDZtimes2;
   Precision fHalfX1plusX2;
   Precision fHalfY1plusY2;
   Precision fCalfX, fCalfY;
+  Precision fSecxz, fSecyz;
 
   Precision fFx, fFy;
 
@@ -40,11 +41,12 @@ private:
     fY2minusY1 = fDY2 - fDY1;
     fHalfX1plusX2 = 0.5 * (fDX1 + fDX2);
     fHalfY1plusY2 = 0.5 * (fDY1 + fDY2);
-
-    fDZtimes2 = fDZ * 2;
+    // fDZtimes2 = fDZ * 2;
 
     fFx = 0.5*(fDX1 - fDX2)/fDZ;
     fFy = 0.5*(fDY1 - fDY2)/fDZ;
+    fSecxz = sqrt(1+fFx*fFx);
+    fSecyz = sqrt(1+fFy*fFy);
 
     fCalfX = 1./Sqrt(1.0+fFx*fFx);
     fCalfY = 1./Sqrt(1.0+fFy*fFy);
@@ -53,35 +55,43 @@ private:
 public:
   // special case Trd1 when dY1 == dY2
   VECGEOM_CUDA_HEADER_BOTH
-  UnplacedTrd(const Precision dx1, const Precision dx2, const Precision dy1, const Precision dz) :
-  fDX1(dx1), fDX2(dx2), fDY1(dy1), fDY2(dy1), fDZ(dz),
-fX2minusX1(0),
-fY2minusY1(0),
-fDZtimes2(0),
-fHalfX1plusX2(0),
-fHalfY1plusY2(0),
-fCalfX(0),
-fCalfY(0),
-fFx(0),
-fFy(0)
-{
+  UnplacedTrd(const Precision x1, const Precision x2, const Precision y1, const Precision z)
+    : fDX1(x1)
+    , fDX2(x2)
+    , fDY1(y1)
+    , fDY2(y1)
+    , fDZ(z)
+    , fX2minusX1(0)
+    , fY2minusY1(0)
+    // , fDZtimes2(0)
+    , fHalfX1plusX2(0)
+    , fHalfY1plusY2(0)
+    , fCalfX(0)
+    , fCalfY(0)
+    , fFx(0)
+    , fFy(0)
+  {
     calculateCached();
   }
 
   // general case
   VECGEOM_CUDA_HEADER_BOTH
-  UnplacedTrd(const Precision dx1, const Precision dx2, const Precision dy1, const Precision dy2, const Precision dz) :
-  fDX1(dx1), fDX2(dx2), fDY1(dy1), fDY2(dy2), fDZ(dz),
-fX2minusX1(0),
-fY2minusY1(0),
-fDZtimes2(0),
-fHalfX1plusX2(0),
-fHalfY1plusY2(0),
-fCalfX(0),
-fCalfY(0),
-fFx(0),
-fFy(0)
- {
+  UnplacedTrd(const Precision x1, const Precision x2, const Precision y1, const Precision y2, const Precision z)
+    : fDX1(x1)
+    , fDX2(x2)
+    , fDY1(y1)
+    , fDY2(y2)
+    , fDZ(z)
+    , fX2minusX1(0)
+    , fY2minusY1(0)
+ // , fDZtimes2(0)
+    , fHalfX1plusX2(0)
+    , fHalfY1plusY2(0)
+    , fCalfX(0)
+    , fCalfY(0)
+    , fFx(0)
+    , fFy(0)
+  {
     calculateCached();
   }
 
@@ -121,9 +131,9 @@ fFy(0)
   VECGEOM_INLINE
   Precision halfy1plusy2() const { return fHalfY1plusY2; }
 
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  Precision dztimes2() const { return fDZtimes2; }
+  // VECGEOM_CUDA_HEADER_BOTH
+  // VECGEOM_INLINE
+  // Precision dztimes2() const { return fDZtimes2; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -144,9 +154,9 @@ fFy(0)
   virtual int memory_size() const { return sizeof(*this); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  void Extent(Vector3D<Precision> & min, Vector3D<Precision> & max ) const {
-      min = Vector3D<Precision>(-Max(fDX1, fDX2), -Max(fDY1, fDY2), -fDZ);
-      max = Vector3D<Precision>( Max(fDX1, fDX2), Max(fDY1, fDY2), fDZ);
+  void Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & aMax ) const {
+      aMin = Vector3D<Precision>(-Max(fDX1, fDX2), -Max(fDY1, fDY2), -fDZ);
+      aMax = Vector3D<Precision>( Max(fDX1, fDX2), Max(fDY1, fDY2), fDZ);
   }
 
 
@@ -157,27 +167,27 @@ fFy(0)
   Precision SurfaceArea() const;
 
   Precision GetPlusXArea() const { //  Area in +x direction 
-	  return (fDZ * (fDY1 + fDY2));
+      return 2*fDZ * (fDY1 + fDY2) * fSecyz;
   }
-  
+
   Precision GetMinusXArea() const {  // Area in -x direction
-	  return (fDZ * (fDY1 + fDY2));
+      return GetPlusXArea();
   }
 
   Precision GetPlusYArea() const {    // Area in +y direction
-	  return (fDZ * (fDX1 + fDX2));
+      return 2*fDZ * (fDX1 + fDX2) * fSecxz;
   }
-  
+
   Precision GetMinusYArea() const {  // Area in -y direction
-      return (fDZ * (fDX1 + fDX2));
+      return GetPlusYArea();
   }  
 
   Precision GetPlusZArea() const {   // Area in +Z
-      return (fDX2 * fDY2);
+      return 4 * fDX2 * fDY2;
   }
   
   Precision GetMinusZArea() const {  // Area in -Z
-      return (fDX1 * fDY1);
+      return 4 * fDX1 * fDY1;
   }
  
   int ChooseSurface() const;
@@ -186,12 +196,12 @@ fFy(0)
 
   bool Normal(Vector3D<Precision> const& point, Vector3D<Precision>& normal) const;
 
-  //void Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const;
-
 #endif
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual void Print() const;
+
+  std::string GetEntityType() const { return "Trd";}
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECGEOM_CUDA_HEADER_DEVICE
