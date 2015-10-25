@@ -18,6 +18,8 @@
 #undef NDEBUG
 #include <cassert>
 
+bool testvecgeom = false;
+
 #define PI 3.14159265358979323846
 
 template <class Orb_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
@@ -52,13 +54,13 @@ bool TestOrb() {
 
 
     
-   // Check cubic volume
-    assert(b1.Capacity() == ((4 * PI / 3) * fR * fR * fR));    
-    assert(b2.Capacity() == ((4 * PI / 3) * 6 * 6 * 6));    
+    // Check cubic volume
+    assert( ApproxEqual( b1.Capacity(), (4 * PI / 3) * fR * fR * fR) );
+    assert( ApproxEqual( b2.Capacity(), (4 * PI / 3) * 6 * 6 * 6) );
 
     // Check Surface area
-    assert(b1.SurfaceArea() == ((4 * PI) * fR * fR));   
-    assert(b2.SurfaceArea() == ((4 * PI) * 6 * 6));
+    assert( ApproxEqual( b1.SurfaceArea(), ((4 * PI) * fR * fR)) );
+    assert( ApproxEqual( b2.SurfaceArea(), ((4 * PI) * 6 * 6)) );
 
     Vec_t minExtent,maxExtent;
     b1.Extent(minExtent,maxExtent);
@@ -99,46 +101,64 @@ bool TestOrb() {
     valid = b1.Normal(ponmz,normal);
     assert(ApproxEqual(normal,Vec_t(0,0,-1)));
     assert(valid);    
-    // DistanceToOut(P,V) with asserts for norm and convex
-    Dist=b1.DistanceToOut(pzero,vx,norm,convex);
-    assert(ApproxEqual(Dist,fR)&&ApproxEqual(norm,vx)&&convex);
-    Dist=b1.DistanceToOut(pzero,vmx,norm,convex);
-    assert(ApproxEqual(Dist,fR)&&ApproxEqual(norm,vmx)&&convex);
-    Dist=b1.DistanceToOut(pzero,vy,norm,convex);
-     assert(ApproxEqual(Dist,fR)&&ApproxEqual(norm,vy)&&convex);
-     Dist=b1.DistanceToOut(pzero,vmy,norm,convex);
-     assert(ApproxEqual(Dist,fR)&&ApproxEqual(norm,vmy)&&convex);
-     Dist=b1.DistanceToOut(pzero,vz,norm,convex);
-     assert(ApproxEqual(Dist,fR)&&ApproxEqual(norm,vz)&&convex);
-     Dist=b1.DistanceToOut(pzero,vmz,norm,convex);
-     assert(ApproxEqual(Dist,fR)&&ApproxEqual(norm,vmz)&&convex);
+  // DistanceToOut(P,V) with asserts for norm and convex
+  Dist=b1.DistanceToOut(pzero,vx,norm,convex);
+  assert(ApproxEqual(Dist,fR)&&ApproxEqual(norm,vx));
+  if(!testvecgeom) assert(convex);
+  Dist=b1.DistanceToOut(pzero,vmx,norm,convex);
+  assert(ApproxEqual(Dist,fR)&&ApproxEqual(norm,vmx));
+  if(!testvecgeom) assert(convex);
+  Dist=b1.DistanceToOut(pzero,vy,norm,convex);
+  assert(ApproxEqual(Dist,fR)&&ApproxEqual(norm,vy));
+  if(!testvecgeom) assert(convex);
+  Dist=b1.DistanceToOut(pzero,vmy,norm,convex);
+  assert(ApproxEqual(Dist,fR)&&ApproxEqual(norm,vmy));
+  if(!testvecgeom) assert(convex);
+  Dist=b1.DistanceToOut(pzero,vz,norm,convex);
+  assert(ApproxEqual(Dist,fR)&&ApproxEqual(norm,vz));
+  if(!testvecgeom) assert(convex);
+  Dist=b1.DistanceToOut(pzero,vmz,norm,convex);
+  assert(ApproxEqual(Dist,fR)&&ApproxEqual(norm,vmz));
+  if(!testvecgeom) assert(convex);
     
-     Dist=b1.DistanceToOut(ponxside,vx,norm,convex);
-     assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vx)&&convex);
-     Dist=b1.DistanceToOut(ponxside,vmx,norm,convex);
-     assert(ApproxEqual(Dist,2*fR)&&ApproxEqual(norm,vmx)&&convex);
-     Dist=b1.DistanceToOut(ponmxside,vx,norm,convex);
-     assert(ApproxEqual(Dist,2*fR)&&ApproxEqual(norm,vx)&&convex);
-     Dist=b1.DistanceToOut(ponmxside,vmx,norm,convex);
-     assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmx)&&convex);
+  Dist=b1.DistanceToOut(ponxside,vx,norm,convex);
+  assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vx));
+  if(!testvecgeom) assert(convex);
+  Dist=b1.DistanceToOut(ponxside,vmx,norm,convex);
+  assert(ApproxEqual(Dist,2*fR)&&ApproxEqual(norm,vmx));
+  if(!testvecgeom) assert(convex);
+  Dist=b1.DistanceToOut(ponmxside,vx,norm,convex);
+  assert(ApproxEqual(Dist,2*fR)&&ApproxEqual(norm,vx));
+  if(!testvecgeom) assert(convex);
+  Dist=b1.DistanceToOut(ponmxside,vmx,norm,convex);
+  assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmx));
+  if(!testvecgeom) assert(convex);
      
-     Dist=b1.DistanceToOut(ponyside,vy,norm,convex);
-     assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vy)&&convex);
-     Dist=b1.DistanceToOut(ponyside,vmy,norm,convex);
-     assert(ApproxEqual(Dist,2*fR)&&ApproxEqual(norm,vmy)&&convex);
-     Dist=b1.DistanceToOut(ponmyside,vy,norm,convex);
-     assert(ApproxEqual(Dist,2*fR)&&ApproxEqual(norm,vy)&&convex);
-     Dist=b1.DistanceToOut(ponmyside,vmy,norm,convex);
-     assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmy)&&convex);
+  Dist=b1.DistanceToOut(ponyside,vy,norm,convex);
+  assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vy));
+  if(!testvecgeom) assert(convex);
+  Dist=b1.DistanceToOut(ponyside,vmy,norm,convex);
+  assert(ApproxEqual(Dist,2*fR)&&ApproxEqual(norm,vmy));
+  if(!testvecgeom) assert(convex);
+  Dist=b1.DistanceToOut(ponmyside,vy,norm,convex);
+  assert(ApproxEqual(Dist,2*fR)&&ApproxEqual(norm,vy));
+  if(!testvecgeom) assert(convex);
+  Dist=b1.DistanceToOut(ponmyside,vmy,norm,convex);
+  assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmy));
+  if(!testvecgeom) assert(convex);
      
-     Dist=b1.DistanceToOut(ponzside,vz,norm,convex);
-     assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vz)&&convex);
-     Dist=b1.DistanceToOut(ponzside,vmz,norm,convex);
-     assert(ApproxEqual(Dist,2*fR)&&ApproxEqual(norm,vmz)&&convex);
-     Dist=b1.DistanceToOut(ponmzside,vz,norm,convex);
-     assert(ApproxEqual(Dist,2*fR)&&ApproxEqual(norm,vz)&&convex);
-     Dist=b1.DistanceToOut(ponmzside,vmz,norm,convex);
-     assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmz)&&convex);
+  Dist=b1.DistanceToOut(ponzside,vz,norm,convex);
+  assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vz));
+  if(!testvecgeom) assert(convex);
+  Dist=b1.DistanceToOut(ponzside,vmz,norm,convex);
+  assert(ApproxEqual(Dist,2*fR)&&ApproxEqual(norm,vmz));
+  if(!testvecgeom) assert(convex);
+  Dist=b1.DistanceToOut(ponmzside,vz,norm,convex);
+  assert(ApproxEqual(Dist,2*fR)&&ApproxEqual(norm,vz));
+  if(!testvecgeom) assert(convex);
+  Dist=b1.DistanceToOut(ponmzside,vmz,norm,convex);
+  assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmz));
+  if(!testvecgeom) assert(convex);
     
      
     // Check Inside
@@ -367,10 +387,12 @@ bool TestOrb() {
        return 2;
  #endif
      }
+
      else if( ! strcmp(argv[1], "--vecgeom") )
      {
-   assert(TestOrb<vecgeom::SimpleOrb>());
-   std::cout << "VecGeomOrb passed\n";
+       testvecgeom = true;
+       assert(TestOrb<vecgeom::SimpleOrb>());
+       std::cout << "VecGeomOrb passed\n";
      }
      else
      {
