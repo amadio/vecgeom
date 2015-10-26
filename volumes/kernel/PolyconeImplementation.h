@@ -267,12 +267,11 @@ struct PolyconeImplementation {
           Vector3D<typename Backend::precision_v> const &point,
           Vector3D<typename Backend::precision_v> const &direction,
           typename Backend::precision_v const &stepMax,
-          typename Backend::precision_v &distance)  {
+          typename Backend::precision_v &distance) {
 
         Vector3D<typename Backend::precision_v> p = transformation.Transform<transCodeT,rotCodeT>(point);
         Vector3D<typename Backend::precision_v> v = transformation.TransformDirection<rotCodeT>(direction);
 
-        // TODO
         // TODO: add bounding box check maybe??
 
         distance=kInfinity;
@@ -300,7 +299,6 @@ struct PolyconeImplementation {
          index += increment;
        }
        while (index >= 0 && index < polycone.GetNSections());
-        
        return;
     }
 

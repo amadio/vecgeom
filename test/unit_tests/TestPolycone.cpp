@@ -1,7 +1,8 @@
 //
 // File:    TestPolycone.cpp
-// Purpose: Unit test for the polycone
+// Purpose: Unit tests for the polycone
 //
+
 #include "base/Vector3D.h"
 #include "volumes/Polycone.h"
 #include "volumes/Tube.h"
@@ -10,9 +11,9 @@
 #include "volumes/PlacedVolume.h"
 #include "ApproxEqual.h"
 #ifdef VECGEOM_USOLIDS
-#include "UPolycone.hh"
-#include "UGenericPolycone.hh"
-#include "UVector3.hh"
+  #include "UPolycone.hh"
+  #include "UGenericPolycone.hh"
+  #include "UVector3.hh"
 #endif
 #include <cmath>
 
@@ -74,8 +75,8 @@ if(testingvecgeom) {
     assert( poly1.GetStartPhi() == 0. );
     assert( (std::fabs(poly1.GetDeltaPhi()-kTwoPi))<1e-10 );
 
-    assert(  poly1.fZs[0] == z[0] );
-    assert(  poly1.fZs[poly1.GetNSections()] == z[Nz-1] );
+    assert( poly1.fZs[0] == z[0] );
+    assert( poly1.fZs[poly1.GetNSections()] == z[Nz-1] );
     assert( poly1.Capacity() > 0 );
     assert( std::fabs(poly1.Capacity() - ( section0.Capacity() + section1.Capacity() + section2.Capacity() ))< 1e-6);
 
@@ -120,8 +121,6 @@ if(testingvecgeom) {
     assert( placedpoly1-> DistanceToOut( Vec_t(1.,0.,2) , Vec_t(0.,0.,1.)) == 0. );
     assert( placedpoly1-> DistanceToOut( Vec_t(0.5,0., -1) , Vec_t(0.,0.,-1.)) == 0. );
     assert( placedpoly1-> DistanceToOut( Vec_t(0.5,0., -1) , Vec_t(0.,0., 1.)) == 3. );
-
-   
 }
 
 
@@ -485,7 +484,7 @@ if(testingvecgeom) {
          d4 = MyPCone->DistanceToIn(start4, dir4);
          std::cout<<"  distance to in="<<d4;
          d4 = MyPCone->SafetyFromOutside(start4);
-         std::cout<<" closest distance to in="<<d4<<std::endl;
+         std::cout<<" closest distance to in="<<d4<< std::endl;
     }
     
   }
@@ -566,7 +565,7 @@ if(testingvecgeom) {
    bool valid175 = pcon175.Normal( point175a, norm175 );
    assert( ApproxEqual(norm175,Vec_t(0,0,-1)) && valid175 );
 
-    return true;
+   return true;
 }
 
 

@@ -773,19 +773,18 @@ void UnplacedPolycone::Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & 
     int i = 0;
     Precision maxR = 0;
 
-    for (i = 0; i < GetNSections(); i++)
-    {
+    for (i = 0; i < GetNSections(); i++) {
      PolyconeSection const & sec = GetSection(i);
      if(maxR < sec.fSolid->GetRmax1())  maxR = sec.fSolid->GetRmax1();
      if(maxR < sec.fSolid->GetRmax2())  maxR = sec.fSolid->GetRmax2();
     }
 
-     aMin.x() = -maxR;
-     aMin.y() = -maxR;
-     aMin.z() = fZs[0];
-     aMax.x() = maxR;
-     aMax.y() = maxR;
-     aMax.z() = fZs[GetNSections()];
+    aMin.x() = -maxR;
+    aMin.y() = -maxR;
+    aMin.z() = fZs[0];
+    aMax.x() = maxR;
+    aMax.y() = maxR;
+    aMax.z() = fZs[GetNSections()];
 }
 #endif // !VECGEOM_NVCC
 

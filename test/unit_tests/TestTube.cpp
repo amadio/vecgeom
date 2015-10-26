@@ -6,11 +6,10 @@
 #include "volumes/Tube.h"
 #include "ApproxEqual.h"
 #ifdef VECGEOM_USOLIDS
-#include "UTubs.hh"
-#include "UVector3.hh"
+  #include "UTubs.hh"
+  #include "UVector3.hh"
 #endif
 
-#include "ApproxEqual.h"
 #include <cmath>
 
 #define PI 3.14159265358979323846
