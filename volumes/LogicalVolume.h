@@ -65,16 +65,14 @@ private:
 
 public:
 
+#ifndef VECGEOM_NVCC
   // Standard constructor when constructing geometries. Will initiate an empty
   // daughter list which can be populated by placing daughters.
   // \sa PlaceDaughter()
-  VECGEOM_CUDA_HEADER_BOTH
   LogicalVolume(char const *const label, VUnplacedVolume const *const unplaced_vol);
 
-  VECGEOM_CUDA_HEADER_BOTH
   LogicalVolume(VUnplacedVolume const *const unplaced_vol) : LogicalVolume("", unplaced_vol) {}
 
-#ifndef VECGEOM_NVCC
   //
   // copy operator since we have pointer data members
   //

@@ -96,7 +96,6 @@ public:
       Transformation3D const *const transformation,
       VPlacedVolume *const placement = NULL) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
   VPlacedVolume* PlaceVolume(
       LogicalVolume const *const volume,
       Transformation3D const *const transformation,
