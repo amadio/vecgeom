@@ -11,6 +11,10 @@
 #endif
 #include <stdio.h>
 
+#ifdef VECGEOM_CUDA_INTERFACE
+#include "management/CudaManager.h"
+#endif
+
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -18,15 +22,13 @@ VECGEOM_CUDA_HEADER_BOTH
 void UnplacedScaledShape::Print() const {
   printf("UnplacedScaledShape: scale:{%g, %g, %g} shape: ",
          fScale.Scale()[0],fScale.Scale()[1], fScale.Scale()[2]);
-  UnscaledShape()->Print();	 
+//  UnscaledShape()->Print();	 
 }
 
 void UnplacedScaledShape::Print(std::ostream &os) const {
   os << "UnplacedScaledShape: " << fScale.Scale() << *UnscaledShape();
 }
 
-
-#ifndef VECGEOM_NVCC
 //______________________________________________________________________________
 void UnplacedScaledShape::Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & aMax) const
 {
@@ -54,72 +56,64 @@ Vector3D<Precision> UnplacedScaledShape::GetPointOnSurface() const
   return sampled;
 }
 
-#endif
-
-#ifndef VECGEOM_NVCC
+//______________________________________________________________________________
 template <TranslationCode trans_code, RotationCode rot_code>
+VECGEOM_CUDA_HEADER_DEVICE
 VPlacedVolume* UnplacedScaledShape::Create(
     LogicalVolume const *const logical_volume,
     Transformation3D const *const transformation,
+#ifdef VECGEOM_NVCC
+    const int id, 
+#endif    
     VPlacedVolume *const placement) {
   if (placement) {
     new(placement) SpecializedScaledShape<trans_code, rot_code>(logical_volume,
-                                                        transformation);
+                                                        transformation 
+#ifdef VECGEOM_NVCC
+                                                        ,id
+#endif
+                                                        );
     return placement;
   }
   return new SpecializedScaledShape<trans_code, rot_code>(logical_volume,
-                                                  transformation);
+                                                  transformation 
+#ifdef VECGEOM_NVCC
+                                                  ,id
+#endif
+                                                  );
 }
 
+//______________________________________________________________________________
+VECGEOM_CUDA_HEADER_DEVICE
 VPlacedVolume* UnplacedScaledShape::CreateSpecializedVolume(
     LogicalVolume const *const volume,
     Transformation3D const *const transformation,
     const TranslationCode trans_code, const RotationCode rot_code,
+#ifdef VECGEOM_NVCC
+    const int id, 
+#endif    
     VPlacedVolume *const placement) {
   return VolumeFactory::CreateByTransformation<UnplacedScaledShape>(
-           volume, transformation, trans_code, rot_code, placement
-         );
-}
-
-#else
-
-template <TranslationCode trans_code, RotationCode rot_code>
-__device__
-VPlacedVolume* UnplacedScaledShape::Create(
-    LogicalVolume const *const logical_volume,
-    Transformation3D const *const transformation,
-    const int id, VPlacedVolume *const placement) {
-  if (placement) {
-    new(placement) SpecializedScaledShape<trans_code, rot_code>(logical_volume,
-                                                        transformation, id);
-    return placement;
-  }
-  return new SpecializedScaledShape<trans_code, rot_code>(logical_volume,
-                                                  transformation, id);
-}
-
-__device__
-VPlacedVolume* UnplacedScaledShape::CreateSpecializedVolume(
-    LogicalVolume const *const volume,
-    Transformation3D const *const transformation,
-    const TranslationCode trans_code, const RotationCode rot_code,
-    const int id, VPlacedVolume *const placement) {
-  return VolumeFactory::CreateByTransformation<UnplacedScaledShape>(
-           volume, transformation, trans_code, rot_code, id, placement
-         );
-}
-
+           volume, transformation, trans_code, rot_code, 
+#ifdef VECGEOM_NVCC
+           id, 
 #endif
+           placement);
+}
+
 
 #ifdef VECGEOM_CUDA_INTERFACE
 
+//______________________________________________________________________________
 DevicePtr<cuda::VUnplacedVolume> UnplacedScaledShape::CopyToGpu(
    DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
 {
-   Vector3D<Precision> const &scale = fScale.Scale();
-   return CopyToGpuImpl<UnplacedScaledShape>(in_gpu_ptr, UnscaledShape(), scale[0], scale[1], scale[2]);
+   DevicePtr<cuda::VPlacedVolume> gpuptr = CudaManager::Instance().LookupPlaced(fPlaced);   
+   Vector3D<Precision> const &scl = fScale.Scale();
+   return CopyToGpuImpl<UnplacedScaledShape>(in_gpu_ptr,gpuptr,scl[0],scl[1],scl[2]);
 }
 
+//______________________________________________________________________________
 DevicePtr<cuda::VUnplacedVolume> UnplacedScaledShape::CopyToGpu() const
 {
    return CopyToGpuImpl<UnplacedScaledShape>();
@@ -134,8 +128,11 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedScaledShape::CopyToGpu() const
 namespace cxx {
 
 template size_t DevicePtr<cuda::UnplacedScaledShape>::SizeOf();
+//template void DevicePtr<cuda::UnplacedScaledShape>::Construct(
+//    DevicePtr<cuda::VPlacedVolume> gpuptr, Scale3D const scale) const;
 template void DevicePtr<cuda::UnplacedScaledShape>::Construct(
-    VUnplacedVolume const *shape, Precision sx, Precision sy, Precision sz) const;
+      DevicePtr<cuda::VPlacedVolume> gpuptr, 
+      Precision sx, Precision sy, Precision sz) const;
 
 } // End cxx namespace
 

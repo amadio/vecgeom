@@ -43,13 +43,17 @@ private:
   }    
 
 public:
-
-/// Dummy constructor
+/// Dummy ctor
   VECGEOM_CUDA_HEADER_BOTH
-  UnplacedScaledShape() : fPlaced(0), fScale() { }
-
-/// Constructor
+  UnplacedScaledShape() : fPlaced(nullptr), fScale() { }
+  
+/// Constructor based on placed volume
   VECGEOM_CUDA_HEADER_BOTH
+  UnplacedScaledShape(VPlacedVolume const* placed, Precision sx, Precision sy, Precision sz) : 
+     fPlaced(placed), fScale(sx,sy,sz) { assert(placed->GetTransformation()->IsIdentity()); }
+
+/// Constructor based on unplaced volume
+#if !defined(VECGEOM_NVCC) 
   UnplacedScaledShape(VUnplacedVolume const *shape, Precision sx, Precision sy, Precision sz) : fPlaced(0), fScale(sx,sy,sz) {
     // We need to create a placement with identity transformation from the unplaced version
     // Hopefully we don't need to create a logical volume 
@@ -57,7 +61,8 @@ public:
     //   we would have to replace nullptr by lvol below...
     Transformation3D identity;
     fPlaced = shape->PlaceVolume(lvol, &identity);
-  } 
+  }
+#endif  
   
 /// Destructor
   VECGEOM_CUDA_HEADER_BOTH
@@ -73,11 +78,13 @@ public:
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
   #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   const VUnplacedVolume *UnscaledShape() const { return fPlaced->GetLogicalVolume()->GetUnplacedVolume(); }
 
-  VECGEOM_CUDA_HEADER_HOST
+  VECGEOM_INLINE
+  VPlacedVolume const* GetPlaced() { return fPlaced; }
+
+#ifndef VECGEOM_NVCC
   VECGEOM_INLINE
   Precision Volume() const {
     Precision capacity = ((VPlacedVolume*)fPlaced)->Capacity();
@@ -86,89 +93,69 @@ public:
     return capacity;
   }  
   	
-  VECGEOM_CUDA_HEADER_HOST
   VECGEOM_INLINE
   Precision Capacity() { return Volume(); }
 
-  VECGEOM_CUDA_HEADER_HOST
   VECGEOM_INLINE
   Precision SurfaceArea() const {
   /// To do - not so easy as for the capacity...
     Precision area = ((VPlacedVolume*)fPlaced)->SurfaceArea();
     return area;	
   }
+#endif // !VECGEOM_NVCC
 
   void Extent( Vector3D<Precision> &min, Vector3D<Precision> &max) const;
     	
   Vector3D<Precision> GetPointOnSurface() const;
 
-#if !defined(VECGEOM_NVCC)
   virtual std::string GetEntityType() const { return "ScaledShape";}
-#endif // !VECGEOM_NVCC
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual void Print() const;
 
   virtual void Print(std::ostream &os) const;
 
-#ifndef VECGEOM_NVCC
 
   template <TranslationCode trans_code, RotationCode rot_code>
+  VECGEOM_CUDA_HEADER_DEVICE
   static VPlacedVolume* Create(LogicalVolume const *const logical_volume,
                                Transformation3D const *const transformation,
-                               VPlacedVolume *const placement = NULL);
-
-  static VPlacedVolume* CreateSpecializedVolume(
-      LogicalVolume const *const volume,
-      Transformation3D const *const transformation,
-      const TranslationCode trans_code, const RotationCode rot_code,
-      VPlacedVolume *const placement = NULL);
-
-#else
-
-  template <TranslationCode trans_code, RotationCode rot_code>
-  __device__
-  static VPlacedVolume* Create(LogicalVolume const *const logical_volume,
-                               Transformation3D const *const transformation,
+ #ifdef VECGEOM_NVCC
                                const int id,
+ #endif// !VECGEOM_NVCC
                                VPlacedVolume *const placement = NULL);
 
-  __device__
+  VECGEOM_CUDA_HEADER_DEVICE
   static VPlacedVolume* CreateSpecializedVolume(
-      LogicalVolume const *const volume,
-      Transformation3D const *const transformation,
-      const TranslationCode trans_code, const RotationCode rot_code,
-      const int id, VPlacedVolume *const placement = NULL);
+                               LogicalVolume const *const volume,
+                               Transformation3D const *const transformation,
+                               const TranslationCode trans_code, const RotationCode rot_code,
+ #ifdef VECGEOM_NVCC
+                               const int id, 
+ #endif// !VECGEOM_NVCC
+                               VPlacedVolume *const placement = NULL);
 
-#endif
   
 private:
 
-#ifndef VECGEOM_NVCC
-
+  VECGEOM_CUDA_HEADER_DEVICE
   virtual VPlacedVolume* SpecializedVolume(
-      LogicalVolume const *const lvolume,
-      Transformation3D const *const transformation,
-      const TranslationCode trans_code, const RotationCode rot_code,
-      VPlacedVolume *const placement = NULL) const {
-    return CreateSpecializedVolume(lvolume, transformation, trans_code, rot_code,
-                                   placement);
-  }
-
-#else
-
-  __device__
-  virtual VPlacedVolume* SpecializedVolume(
-      LogicalVolume const *const volume,
-      Transformation3D const *const transformation,
-      const TranslationCode trans_code, const RotationCode rot_code,
-      const int id, VPlacedVolume *const placement = NULL) const {
+       LogicalVolume const *const volume,
+       Transformation3D const *const transformation,
+       const TranslationCode trans_code, const RotationCode rot_code,
+ #ifdef VECGEOM_NVCC
+       const int id,
+ #endif
+       VPlacedVolume *const placement = NULL) const {
     return CreateSpecializedVolume(volume, transformation, trans_code, rot_code,
-                                   id, placement);
-  }
-
-#endif
-  
+ #ifdef VECGEOM_NVCC
+                                   id,
+ #endif
+                                   placement); } 
+  void SetPlaced(VPlacedVolume const *pvol) { fPlaced = pvol; }
+  void SetScale(Scale3D const &scale) { fScale = scale; }
+   
+  friend class GeoManager;
 };
 
 } } // End global namespace
