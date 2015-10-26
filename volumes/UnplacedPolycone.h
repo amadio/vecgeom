@@ -58,7 +58,6 @@ public:
     // for the phi section --> will be replaced by a wedge
     Precision fStartPhi;
     Precision fDeltaPhi;
-  //Precision fEndPhi;
 
     unsigned int fNz;  // number of planes the polycone was constructed with; It should not be modified
     //Precision * fRmin;
@@ -130,7 +129,7 @@ public:
 
     VECGEOM_CUDA_HEADER_BOTH
     PolyconeSection const & GetSection( Precision zposition ) const {
-        //TODO: consider binary search
+        // TODO: consider binary search
         int i = GetSectionIndex(zposition);
         return fSections[i];
     }
@@ -150,12 +149,15 @@ public:
 
     Precision GetRmaxAtPlane( int index ) const {
       int nsect = GetNSections();
-      if(index<0 || index>nsect) return 0.0;
-      else if(index==nsect) return fSections[index-1].fSolid->GetRmax2();
-      else                  return fSections[index].fSolid->GetRmax1();
+      assert(index>=0 || index<=nsect);
+      if(index==nsect) return fSections[index-1].fSolid->GetRmax2();
+      else             return fSections[index].fSolid->GetRmax1();
     }
 
-    Precision GetZAtPlane( int index ) const { return fZs[index]; }
+    Precision GetZAtPlane( int index ) const {
+      assert(index>=0 || index<=GetNSections());
+      return fZs[index];
+    }
 
 #if !defined(VECGEOM_NVCC)
     Precision Capacity() const {

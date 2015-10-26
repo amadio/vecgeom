@@ -87,7 +87,6 @@ struct PolyconeImplementation {
       completelyOutside |= localPoint[2] > MakePlusTolerant<ForInside>( unplaced.GetZAtPlane(Nz-1) );
       done |= completelyOutside;
 
-      if ( Backend::early_returns && IsFull(completelyOutside) ) return;
 
       if(ForInside) {
         // z-check only so far
@@ -95,8 +94,9 @@ struct PolyconeImplementation {
                              localPoint[2] < MakeMinusTolerant<ForInside>( unplaced.GetZAtPlane(Nz-1) ) );
       }
 
-      // test if point is inside this section (note that surface may be very tricky!)
+      if ( Backend::early_returns && IsFull(completelyOutside) ) return;
 
+      // test if point is inside this section (note that surface may be very tricky!)
       // find section
       int isec = unplaced.GetSectionIndex( localPoint.z() );
 
@@ -110,12 +110,8 @@ struct PolyconeImplementation {
 
       if( Backend::early_returns && IsFull(done) ) return;
 
-      // once here, need to check if near z-plane
-      //========================================
-      //-- Check a possible scenario that can produce incorrect results:
-      //  I have seen cases where isec returns outside, but point is right at the Z-plane
-      //  between isec & isec+1 -- and isec+1 returns Surface.  We must check it here first!
-      Float_t zplus = unplaced.GetZAtPlane(isec);
+      //-- once here, need to check if point is near a z-plane
+      Float_t zplus = unplaced.GetZAtPlane(isec+1);
       Bool_t nearPlusZ = localPoint.z() > zplus-kTolerance;
       Bool_t nextSectionPossible = nearPlusZ && isec+1<unplaced.GetNSections();
 
@@ -135,6 +131,7 @@ struct PolyconeImplementation {
 
       // ok, we are indeed near z-plane - need to check next surface
       Bool_t secIn2=false, secOut2=false;
+      // very uncommon case -- OK to pay the penalty of a branch.  Any other options?!
       GenericKernelForASection<Backend,ForInside>(unplaced, isec+1, localPoint, secIn2, secOut2 );
 
       // near z-plane: outside in both
@@ -285,11 +282,11 @@ struct PolyconeImplementation {
         if(index == -1) index = 0;
         if(index == -2) index = polycone.GetNSections()-1;
 
-        do{
-        // now we have to find a section
+        do {
+          // now we have to find a section
+          PolyconeSection const & sec = polycone.GetSection(index);
 
-         PolyconeSection const & sec = polycone.GetSection(index);
-        
+
          ConeImplementation< translation::kIdentity, rotation::kIdentity,
                              ConeTypes::UniversalCone>::DistanceToIn<Backend>(
                 *sec.fSolid,
