@@ -387,7 +387,7 @@ int main(int argc, char *argv[]) {
         return 2;
 #else
   #ifndef VECGEOM_REPLACE_USOLIDS
-        TestBox<UBox>();
+        assert(TestBox<UBox>());
         std::cout << "UBox passed\n";
   #else
         testvecgeom = true;  // needed to avoid testing convexity when vecgeom is used
