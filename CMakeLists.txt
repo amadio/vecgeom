@@ -29,7 +29,7 @@ include(MacroUtilities)
 
 option(CUDA "Enable compilation for CUDA." OFF)
 
-option(CUDA_VOLUME_SPECIALIZATION "Use specialized volumes for CUDA." ON)
+option(CUDA_VOLUME_SPECIALIZATION "Use specialized volumes for CUDA." OFF)
 
 option(ROOT "Include ROOT." OFF)
 
@@ -546,6 +546,12 @@ endforeach()
 set(NOT_FOR_CUDA
    ABBoxManager
    ABBoxNavigator
+   CreateParticles
+   Particle
+   Medium
+   Nucleus
+   CreateNuclei
+   Material
 )
 
 
