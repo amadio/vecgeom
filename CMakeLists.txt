@@ -29,7 +29,7 @@ include(MacroUtilities)
 
 option(CUDA "Enable compilation for CUDA." OFF)
 
-option(CUDA_VOLUME_SPECIALIZATION "Use specialized volumes for CUDA." ON)
+option(CUDA_VOLUME_SPECIALIZATION "Use specialized volumes for CUDA." OFF)
 
 option(ROOT "Include ROOT." OFF)
 
@@ -53,7 +53,7 @@ option(DISTANCE_DEBUG "Enable comparison of calculated distances againt ROOT/Gea
 
 option(INPLACE_TRANSFORMATIONS "Put transformation as members rather than pointers into PlacedVolume objects" ON)
 
-option(USE_INDEXEDNAVSTATES "Use indices rather than volume pointers in NavigationState objects" OFF)
+option(USE_INDEXEDNAVSTATES "Use indices rather than volume pointers in NavigationState objects" ON)
 
 option(DATA_DOWNLOAD "Enable downloading of data for tests" OFF)
 
@@ -546,6 +546,12 @@ endforeach()
 set(NOT_FOR_CUDA
    ABBoxManager
    ABBoxNavigator
+   CreateParticles
+   Particle
+   Medium
+   Nucleus
+   CreateNuclei
+   Material
 )
 
 
@@ -755,8 +761,8 @@ set(TEST_EXECUTABLES_USOLIDS
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestPolycone.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestPolyhedra.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTet.cpp
-#  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestOrb.cpp
-#  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
+  #${CMAKE_SOURCE_DIR}/test/unit_tests/TestOrb.cpp
+  #${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBoxlikeTrapezoid.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/usolidTest.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/BoxBoxIntersectionTest.cpp
@@ -780,7 +786,7 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${CMAKE_SOURCE_DIR}/test/benchmark/TorusBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrapezoidBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrapezoidBenchmarkScript.cpp
-#  ${CMAKE_SOURCE_DIR}/test/benchmark/OrbBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/OrbBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/SphereBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrdBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ConeBenchmark.cpp

@@ -388,7 +388,26 @@ public:
   void PrintSegments() const;
 
   virtual void Print(std::ostream &os) const;
-
+  
+  template <TranslationCode transCodeT, RotationCode rotCodeT>
+  VECGEOM_CUDA_HEADER_DEVICE
+  static VPlacedVolume* Create(LogicalVolume const *const logical_volume,
+                               Transformation3D const *const transformation,
+#ifdef VECGEOM_NVCC
+                               const int id,
+#endif
+                               VPlacedVolume *const placement = NULL);
+                               
+  VECGEOM_CUDA_HEADER_DEVICE
+  virtual VPlacedVolume* SpecializedVolume(
+      LogicalVolume const *const volume,
+      Transformation3D const *const transformation,
+      const TranslationCode trans_code, const RotationCode rot_code,
+#ifdef VECGEOM_NVCC
+      const int id,
+#endif
+      VPlacedVolume *const placement = NULL) const;
+/*
   VECGEOM_CUDA_HEADER_DEVICE
   VPlacedVolume* SpecializedVolume(
       LogicalVolume const *const volume,
@@ -398,7 +417,7 @@ public:
       const int id,
 #endif
       VPlacedVolume *const placement) const;
-
+*/
   VECGEOM_INLINE
     virtual int memory_size() const { return sizeof(*this); }
 

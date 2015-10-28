@@ -487,6 +487,25 @@ public:
 
 #endif // VECGEOM_NO_SPECIALIZATION
 
+
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol, trans, radii, phi )    \
+   namespace cxx { \
+      template size_t DevicePtr<cuda::PlacedVol, trans, radii, phi>::SizeOf(); \
+      template void DevicePtr<cuda::PlacedVol, trans, radii, phi>::Construct( \
+         DevicePtr<cuda::LogicalVolume> const logical_volume, \
+         DevicePtr<cuda::Transformation3D> const transform, \
+         DevicePtr<cuda::PlacedBox> const boundingBox, \
+         const unsigned int id) const; \
+    }
+
+#ifdef VECGEOM_NO_SPECIALIZATION
+
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_4( PlacedVol, trans, radii, phi ) \
+   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, rotation::kGeneric, radii, phi> )
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_4( PlacedVol ) \
+	VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_4(PlacedVol, translation::kGeneric, Polyhedron::EInnerRadii::kGeneric, Polyhedron::EPhiCutout::kGeneric)
+#endif
+
 #define VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol, trans, rot ) \
    namespace cxx { \
       template size_t DevicePtr<cuda::PlacedVol, trans, rot>::SizeOf(); \

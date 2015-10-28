@@ -758,30 +758,29 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
     typedef typename Backend::precision_v Floating_t;
     // typedef typename Backend::bool_v Boolean_t;
 
-    Vector3D<Floating_t> safety;
-    // Boolean_t inside;
-
     distance = kInfinity;
 
+    //Vector3D<Floating_t> safety;
     //safety[0] = Abs(point[0]) - dimensions[0];
     //safety[1] = Abs(point[1]) - dimensions[1];
     //safety[2] = Abs(point[2]) - dimensions[2];
 
+    //Boolean_t inside;
     //inside = safety[0] < stepMax &&
     //         safety[1] < stepMax &&
     //         safety[2] < stepMax;
     //if (inside == Backend::kFalse) return;
 
-    Vector3D<Floating_t> inverseDirection = Vector3D<Floating_t>(
+    Vector3D<Floating_t> inverseDirection {
       1. / (direction[0] + kMinimum),
       1. / (direction[1] + kMinimum),
       1. / (direction[2] + kMinimum)
-    );
-    Vector3D<Floating_t> distances = Vector3D<Floating_t>(
+    };
+    Vector3D<Floating_t> distances {
       (dimensions[0] - point[0]) * inverseDirection[0],
       (dimensions[1] - point[1]) * inverseDirection[1],
       (dimensions[2] - point[2]) * inverseDirection[2]
-    );
+    };
 
     MaskedAssign(direction[0] < 0,
                  (-dimensions[0] - point[0]) * inverseDirection[0],
@@ -858,7 +857,7 @@ void BoxImplementation<transCodeT, rotCodeT>::NormalKernel(
          //     tolerance - we will have to revise this value - TODO
          // this version does not yet consider the case when we are not on the surface
 
-         Vector3D<Precision> dimensions= box.dimensions();
+         Vector3D<Precision> dimensions { box.dimensions() };
 
          constexpr double delta = 100.*kTolerance;
          constexpr double kInvSqrt2 = 0.7071067811865475; // = 1. / Sqrt(2.);

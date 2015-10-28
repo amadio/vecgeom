@@ -453,27 +453,6 @@ void UVoxelizer::BuildBoundingBox(UVector3& amin, UVector3& amax, double toleran
 // future reduction (fBitmasks will be rebuilded later, therefore they need not to be updated).
 // the merged voxel need to be added to the tree again, so it's position would be updated
 
-
-class UVoxelComparator
-{
-  public:
-
-    vector<UVoxelInfo>& fVoxels;
-
-    UVoxelComparator(vector<UVoxelInfo>& voxels) : fVoxels(voxels)
-    {
-
-    }
-
-    bool operator()(int l, int r)
-    {
-      UVoxelInfo& lv = fVoxels[l], &rv = fVoxels[r];
-      int left = lv.count +  fVoxels[lv.next].count;
-      int right = rv.count + fVoxels[rv.next].count;;
-      return (left == right) ? l < r : left < right;
-    }
-};
-
 void UVoxelizer::SetReductionRatio(int maxVoxels, UVector3& reductionRatio)
 {
   double maxTotal = (double) fCandidatesCounts[0].size() * fCandidatesCounts[1].size() * fCandidatesCounts[2].size();

@@ -453,7 +453,7 @@ void test_geoapi()
    std::vector<VPlacedVolume *> v1;
    std::vector<LogicalVolume *> v2;
 
-   GeoManager::Instance().getAllLogicalVolumes( v2 );
+   GeoManager::Instance().GetAllLogicalVolumes( v2 );
    assert(v2.size() == 4 );
 
    GeoManager::Instance().getAllPlacedVolumes( v1 );
