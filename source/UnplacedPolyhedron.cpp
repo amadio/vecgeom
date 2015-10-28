@@ -23,6 +23,7 @@ UnplacedPolyhedron::UnplacedPolyhedron(
     Precision const rMax[])
     : UnplacedPolyhedron(0, 360, sideCount, zPlaneCount, zPlanes, rMin, rMax) {}
 
+VECGEOM_CUDA_HEADER_BOTH
 bool UnplacedPolyhedron::CheckContinuityInSlope(const double rOuter[], const double zPlane[],const unsigned int fNz){
 
 	bool continuous=true;
@@ -32,7 +33,7 @@ bool UnplacedPolyhedron::CheckContinuityInSlope(const double rOuter[], const dou
 	 {
 		Precision currentSlope =  (rOuter[j+1]-rOuter[j])/(zPlane[j+1]-zPlane[j]);
 		continuous &= (currentSlope <= startSlope);
-		std::cout<<"StartSlope : "<<startSlope<<"  : CurrentSlope : "<<currentSlope<<std::endl;
+		//std::cout<<"StartSlope : "<<startSlope<<"  : CurrentSlope : "<<currentSlope<<std::endl;
 		startSlope = currentSlope;
 		if(!continuous)
 			break;
@@ -83,7 +84,7 @@ UnplacedPolyhedron::UnplacedPolyhedron(
   }
   continuousInSlope = CheckContinuityInSlope(rMax,zPlanes,zPlaneCount);
 
-  std::cout<<"ConvexityPossible : "<<convexityPossible<<"EqualRmax : "<<equalRmax<<" : ContSlope : "<<continuousInSlope<<std::endl;
+  //std::cout<<"ConvexityPossible : "<<convexityPossible<<"EqualRmax : "<<equalRmax<<" : ContSlope : "<<continuousInSlope<<std::endl;
 
   // Initialize segments
   // sometimes there will be no quadrilaterals: for instance when
@@ -843,7 +844,6 @@ void UnplacedPolyhedron::Print(std::ostream &os) const {
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-//VECGEOM_INLINE
 bool UnplacedPolyhedron::IsConvex() const{
 	//Default safe convexity value
 	  bool convexity = false;
@@ -856,8 +856,6 @@ bool UnplacedPolyhedron::IsConvex() const{
 	      {
 	    	 if( fPhiDelta<=180 || fPhiDelta==360)
 	    	 {
-	    		 //std::cout<<"ContRMax : "<<continuityInRmax<<" : ContZPlane : "<<continuityInZPlane<<" : ContInSlope : "<<continuityInSlope<<std::endl;
-	    		 //convexity = (continuityInRmax && continuityInZPlane && continuityInSlope);
 	    		 convexity = continuousInSlope;
 	    	 }
 	      }

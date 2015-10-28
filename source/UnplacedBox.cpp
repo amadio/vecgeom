@@ -24,11 +24,9 @@ void UnplacedBox::Print(std::ostream &os) const {
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-//VECGEOM_INLINE
-bool UnplacedBox::IsConvex() const{
-		  //A box is convex shape
-          return true;
-      }
+bool UnplacedBox::IsConvex() const {
+	  return true;
+  }
 
 #ifndef VECGEOM_NVCC
 //______________________________________________________________________________

@@ -82,7 +82,7 @@ public:
   //Function to check the convexity
   VECGEOM_CUDA_HEADER_BOTH
   //VECGEOM_INLINE
-  bool IsConvex() const;
+  virtual bool IsConvex() const override;
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE

@@ -61,25 +61,20 @@ public:
     Precision fEndPhi;
 
     unsigned int fNz;
-    //Precision * fRmin;
-    //Precision * fRmax;
-    //Precision * fZ;
 
     // actual internal storage
     Vector<PolyconeSection> fSections;
     Vector<double> fZs;
 
+
+//These private data member and member functions are added for convexity detection
 private:
-    bool convexityPossible;
-    bool continuityOverAll;
-    bool equalRmax;
-
-    bool CheckContinuityInZPlane(const double rOuter[],const double zPlane[]);
-    bool CheckContinuityInRmax(const std::vector<Precision> rOuter);
-    bool CheckContinuityInSlope(const std::vector<Precision> rOuter, const std::vector<Precision> zPlane);
-
-    //bool CheckContinuityInRmax(const double rOuter[]);
-    //bool CheckContinuityInSlope(const double rOuter[], const double zPlane[]);
+        bool equalRmax;
+        bool continuityOverAll;
+        bool convexityPossible;
+        bool CheckContinuityInZPlane(const double rOuter[],const double zPlane[]);
+        bool CheckContinuityInRmax(const std::vector<Precision> rOuter);
+        bool CheckContinuityInSlope(const std::vector<Precision> rOuter, const std::vector<Precision> zPlane);
 
 public:
     VECGEOM_CUDA_HEADER_BOTH
@@ -91,6 +86,7 @@ public:
          const double rInner[],  // tangent distance to inner surface
          const double rOuter[]);
 
+
     // the constructor
     VECGEOM_CUDA_HEADER_BOTH
     UnplacedPolycone( Precision phistart, Precision deltaphi,
@@ -99,7 +95,7 @@ public:
             Precision * rmin,
             Precision * rmax
             ) :
-                fStartPhi(phistart),
+	            fStartPhi(phistart),
                 fDeltaPhi(deltaphi),
                 fNz(Nz),
                 fSections(),
@@ -108,6 +104,8 @@ public:
 				continuityOverAll(true),
 				convexityPossible(true)
 
+
+
     {
         // init internal members
         Init(phistart, deltaphi, Nz, z, rmin, rmax);
@@ -115,8 +113,7 @@ public:
 
     //Function to check the convexity
     VECGEOM_CUDA_HEADER_BOTH
-    //VECGEOM_INLINE
-    bool IsConvex() const;
+    virtual bool IsConvex() const override;
 
     VECGEOM_CUDA_HEADER_BOTH
     unsigned int GetNz() const { return fNz; }

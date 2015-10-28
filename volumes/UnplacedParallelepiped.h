@@ -96,8 +96,7 @@ public:
 
   //Function to check the convexity
   VECGEOM_CUDA_HEADER_BOTH
-  //VECGEOM_INLINE
-  bool IsConvex() const;
+  virtual bool IsConvex() const override;
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECGEOM_CUDA_HEADER_DEVICE

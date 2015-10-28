@@ -144,6 +144,7 @@ private:
   bool continuousInSlope;
   bool convexityPossible;
   bool equalRmax;
+  VECGEOM_CUDA_HEADER_BOTH
   bool CheckContinuityInSlope(const double rOuter[], const double zPlane[],unsigned int zPlaneCount);
 
 public:
@@ -377,7 +378,7 @@ public:
   //Function to check the convexity
   VECGEOM_CUDA_HEADER_BOTH
   //VECGEOM_INLINE
-  bool IsConvex() const;
+  virtual bool IsConvex() const override;
 
 
   VECGEOM_CUDA_HEADER_BOTH

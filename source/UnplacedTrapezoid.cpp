@@ -156,7 +156,6 @@ void UnplacedTrapezoid::Print() const {
 
 
 VECGEOM_CUDA_HEADER_BOTH
-//VECGEOM_INLINE
 bool UnplacedTrapezoid::IsConvex() const{
 		  //A Trapezoid is convex shape
           return true;

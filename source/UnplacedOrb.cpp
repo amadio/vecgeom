@@ -83,7 +83,6 @@ UnplacedOrb::UnplacedOrb() :
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  //VECGEOM_INLINE
   bool UnplacedOrb::IsConvex() const{
           return true;
       }

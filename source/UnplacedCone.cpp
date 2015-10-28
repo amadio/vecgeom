@@ -28,8 +28,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
     }
 
     VECGEOM_CUDA_HEADER_BOTH
-	//VECGEOM_INLINE
-    bool UnplacedCone::IsConvex() const{
+	bool UnplacedCone::IsConvex() const{
 
       //Default safe convexity value
       bool convexity = false;

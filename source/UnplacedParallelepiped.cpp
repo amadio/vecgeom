@@ -89,7 +89,6 @@ void UnplacedParallelepiped::Extent(Vector3D<Precision> & aMin, Vector3D<Precisi
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-//VECGEOM_INLINE
 bool UnplacedParallelepiped::IsConvex() const{
 		  //A parallelepiped is convex shape
           return true;

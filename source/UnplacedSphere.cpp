@@ -96,28 +96,21 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 #endif
 }
 
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
-bool UnplacedSphere::IsConvex() const{
+  VECGEOM_CUDA_HEADER_BOTH
+  bool UnplacedSphere::IsConvex() const {
+  	//Default safe convexity value
+  	bool convexity = false;
 
-  //Default safe convexity value
-  bool convexity = false;
-
-  //Logic to calculate the convexity
-  if(fRmin==0.)
-          {
-          if( ((fDPhi==kTwoPi) && (fSTheta==0.) && (eTheta==kPi)) ||
-                  ((fDPhi<=kPi) && (fSTheta==0) && (eTheta==kPi)) ||
-                  ((fDPhi==kTwoPi) && (fSTheta==0) && (eTheta<=kPi/2)) ||
-				  ((fDPhi==kTwoPi) && (fSTheta>=kPi/2) && (eTheta==kPi))
-                  )
-          convexity = true;
-
-          }
-  return convexity;
-
+    //Logic to calculate the convexity
+  	if(fRmin==0.){
+  		if( ((fDPhi==kTwoPi) && (fSTheta==0.) && (eTheta==kPi)) ||
+  						((fDPhi<=kPi) && (fSTheta==0) && (eTheta==kPi)) ||
+  						((fDPhi==kTwoPi) && (fSTheta==0) && (eTheta<=kPi/2)) ||
+  						((fDPhi==kTwoPi) && (fSTheta>=kPi/2) && (eTheta==kPi)))
+  			convexity = true;
+  	    }
+  		return convexity;
   }
-
   
 #ifndef VECGEOM_NVCC
   void UnplacedSphere::CalcCapacity()

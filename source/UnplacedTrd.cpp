@@ -13,7 +13,6 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 VECGEOM_CUDA_HEADER_BOTH
-//VECGEOM_INLINE
 bool UnplacedTrd::IsConvex() const{
 		  //A Trd is convex shape
           return true;

@@ -249,7 +249,7 @@ bool test_ConvexityTrapezoid() {
 bool test_ConvexityPolyhedron() {
 
 	double phiStart=0., deltaPhi=170;
-	int sides=4, nZ=10;
+	int sides=4;//, nZ=10;
 	constexpr int nPlanes = 4;
 	double zPlanes[nPlanes] = {-2, -1, 1, 2};
 	double rInner[nPlanes] = {0, 0, 0, 0};
@@ -303,27 +303,32 @@ bool test_Sphere(){
 	Sphere_t b12("Solide VecGeomSphere #12", rmin, rmax, 0. , 4*PI, stheta, dtheta);
 	std::cout<<"New Calculate value of DPHI - B12 : "<<b12.GetDPhi()<<std::endl;
 
+	return true;
 }
 
 template <class Torus_t>
 bool test_Torus(){
-	double rmin=0., rmax=5., rtor=0., sphi=0., dphi=2*PI;
-	Torus_t b1("VecGeomTorus1",rmin,rmax,rtor,sphi,1.5*PI);
+	double rmin=0., rmax=5., rtor=0., sphi=0., dphi=1.5*PI;
+	Torus_t b1("VecGeomTorus1",rmin,rmax,rtor,sphi,dphi);
 	std::cout<<b1.dphi()<<std::endl;
+	return true;
 }
 
 template <class Tube_t>
 bool test_Tube(){
-	double rmin=0., rmax=5., dz=10., sphi=0., dphi=2*PI;
-	Tube_t b1("VecGeomTube1",rmin,rmax,dz,sphi,3*PI);
+	double rmin=0., rmax=5., dz=10., sphi=0., dphi=3*PI;
+	Tube_t b1("VecGeomTube1",rmin,rmax,dz,sphi,dphi);
 	std::cout<<b1.dphi()<<std::endl;
+	return true;
 }
 
 template <class Cone_t>
 bool test_Cone(){
-	double rmin1=0., rmax1=5., rmin2=0., rmax2=7., dz=10., sphi=0., dphi=2*PI;
-	Cone_t b8("VecGeomCone8",rmin1,rmax1,rmin2,rmax2,dz,sphi,1.5*PI);
+	double rmin1=0., rmax1=5., rmin2=0., rmax2=7., dz=10., sphi=0., dphi=1.5*PI;
+	Cone_t b8("VecGeomCone8",rmin1,rmax1,rmin2,rmax2,dz,sphi,dphi);
 	std::cout<<b8.GetDPhi()<<std::endl;
+
+	return true;
 }
 
 

@@ -20,7 +20,7 @@ int main() {
   
   double phiStart=0., deltaPhi=120.;
   int sides=4;
-  	int nZ=10;
+  	//int nZ=10;
   	//double rmin[4]={0.,0.,0.,0.};
   	//double rmax[4]={15.,15.,15.,10.};
   	//double z[4]={0.,20.,30.,40.};

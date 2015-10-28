@@ -111,7 +111,6 @@ Vector3D<Precision> UnplacedTorus2::GetPointOnSurface() const {
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-//VECGEOM_INLINE
 bool UnplacedTorus2::IsConvex() const{
 	      //Default safe convexity value
 		  bool convexity = false;

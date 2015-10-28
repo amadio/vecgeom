@@ -49,7 +49,7 @@ public:
   //Added convexity check
   //Default safe value for all the shapes
   VECGEOM_CUDA_HEADER_BOTH
-  virtual bool IsConvex() const{ return false; };
+  virtual bool IsConvex() const { return false; }
 
   /**
    * Constructs the deriving class on the GPU and returns a pointer to GPU
