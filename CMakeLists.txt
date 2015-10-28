@@ -53,7 +53,7 @@ option(DISTANCE_DEBUG "Enable comparison of calculated distances againt ROOT/Gea
 
 option(INPLACE_TRANSFORMATIONS "Put transformation as members rather than pointers into PlacedVolume objects" ON)
 
-option(USE_INDEXEDNAVSTATES "Use indices rather than volume pointers in NavigationState objects" OFF)
+option(USE_INDEXEDNAVSTATES "Use indices rather than volume pointers in NavigationState objects" ON)
 
 option(DATA_DOWNLOAD "Enable downloading of data for tests" OFF)
 
