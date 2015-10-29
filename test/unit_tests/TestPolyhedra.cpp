@@ -117,7 +117,8 @@ bool TestPolyhedra()
   //assert(MyPGon->GetName()=="MyPGon");
 
 // show units and bounding tube
-  std::cout<<"=== Polyhedron: "<< MyPGon->StreamInfo(std::cout) <<"\n";
+  std::cout<<"=== Polyhedron: \n";
+  MyPGon->StreamInfo(std::cout);
 
 // Check Cubic volume
     //double vol;
