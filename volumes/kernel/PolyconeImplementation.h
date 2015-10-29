@@ -211,14 +211,17 @@ struct PolyconeImplementation {
         Vector3D<typename Backend::precision_v> const &point,
         typename Backend::bool_v &contains) {
       // TODO: do this generically WITH a generic contains/inside kernel
-      // forget about sector for the moment
+      // // forget about sector for the moment
       ContainsKernel<Backend>(polycone, point, contains);
 
-      typedef typename Backend::bool_v Bool_t;
-      Bool_t unused, outside;
-      GenericKernelForContainsAndInside<Backend, false>(polycone, point, unused, outside);
-      Bool_t contains2 = !outside;
-      assert( contains == contains2 );
+      // typedef typename Backend::bool_v Bool_t;
+      // Bool_t unused, outside;
+      // GenericKernelForContainsAndInside<Backend, false>(polycone, point, unused, outside);
+
+      // contains = !outside;
+
+      // Bool_t contains2 = !outside;
+      // assert( contains == contains2 );
     }
 
     template <typename Backend>
