@@ -245,10 +245,11 @@ VPlacedVolume* UnplacedPolycone::Create(LogicalVolume const *const logical_volum
        << "     ===================================================\n"
        << " Solid type: Polycone\n"
        << " Parameters: \n"
-       << "     N = number of Z-sections: "<< fSections.size() <<"\n"
-       << "     N+1 z-coordinates:\n";
+       << "     N = number of Z-sections: "<< fSections.size() <<", # Z-coords="<< fZs.size() <<"\n"
+       << "     z-coordinates:\n";
 
-    for(uint j=0; j<fNz/5+1; ++j) {
+    uint nz = fZs.size();
+    for(uint j=0; j<(nz-1)/5+1; ++j) {
       os <<"       [ ";
       for(uint i=0; i<5; ++i) {
         uint ind = 5*j + i;
