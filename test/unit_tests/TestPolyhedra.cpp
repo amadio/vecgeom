@@ -19,7 +19,6 @@
 
 bool testvecgeom = false;
 const double degToRad = UUtils::kPi/180.0;
-const double mm = 0.1;
 
 template <class Polyhedra_t,class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
 

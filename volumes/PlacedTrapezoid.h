@@ -125,7 +125,10 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   void SetPlanes(const UVector3 upt[8]) {
     vecgeom::UnplacedTrapezoid* utrap = const_cast<vecgeom::UnplacedTrapezoid*>(GetUnplacedVolume());
-    if(sizeof(upt)==8*sizeof(Vector3D<Precision>)) {
+    // std::cout<<"PlacedTrap.h: sizeof's for: upt="<< sizeof(upt)
+    //          <<", opt[8]="<< sizeof(upt[8])
+    //          <<", Vec3D: "<< sizeof(Vector3D<Precision>) <<"\n";
+    if(sizeof(upt[8])==8*sizeof(Vector3D<Precision>)) {
       utrap->fromCornersToParameters(upt);
     }
     else {

@@ -187,7 +187,7 @@ public:
   virtual int memory_size() const override { return sizeof(*this); }
 
   virtual bool Normal(Vector3D<Precision> const &point,
-                      Vector3D<Precision> &normal) const {
+                      Vector3D<Precision> &normal) const override {
     return GetUnplacedVolume()->Normal(point,normal);
   }
 
