@@ -17,7 +17,7 @@ VECGEOM_DEVICE_DECLARE_CONV( AlignedBase )
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 #ifdef VECGEOM_VC
-class AlignedBase : public Vc::VectorAlignedBase {
+  class AlignedBase : public Vc::VectorAlignedBase<Vc::Vector<double> > {
 public:
       virtual ~AlignedBase() {}
 };
