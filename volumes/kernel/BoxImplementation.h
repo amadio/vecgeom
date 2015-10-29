@@ -376,7 +376,7 @@ struct BoxImplementation {
     tmin = Max(tmin, tzmin);
     tmax = Min(tmax, tzmax);
 
-    done |= ! ((tmin < t1) && (tmax > t0));
+    done |= ! ((tmin < Float_t(t1)) && (tmax > Float_t(t0)));
    // if( ! ((tmin < t1) && (tmax > t0)) )
    //     return vecgeom::kInfinity;
     MaskedAssign(done, Float_t((basep) vecgeom::kInfinity), &tmin);
