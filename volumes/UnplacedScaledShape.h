@@ -26,22 +26,6 @@ public:
   VPlacedVolume const *fPlaced;  /// Need a placed volue for the navigation interface
   Scale3D              fScale;   /// Scale object
 
-private:
-
-/// Copy constructor - not to use
-  VECGEOM_CUDA_HEADER_BOTH
-  UnplacedScaledShape(UnplacedScaledShape const &other) : fPlaced(other.fPlaced), fScale(other.fScale) { }
-
-/// Assignment operator - not to use
-  VECGEOM_CUDA_HEADER_BOTH
-  UnplacedScaledShape &operator=(UnplacedScaledShape const &other) {
-    if (&other != this) {
-      fPlaced = other.fPlaced;
-      fScale = other.fScale;
-    }
-    return *this;
-  }    
-
 public:
 /// Dummy ctor
   VECGEOM_CUDA_HEADER_BOTH
@@ -50,7 +34,7 @@ public:
 /// Constructor based on placed volume
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedScaledShape(VPlacedVolume const* placed, Precision sx, Precision sy, Precision sz) : 
-     fPlaced(placed), fScale(sx,sy,sz) { assert(placed->GetTransformation()->IsIdentity()); }
+     fPlaced(placed), fScale(sx,sy,sz) {/* assert(placed->GetTransformation()->IsIdentity());*/ }
 
 /// Constructor based on unplaced volume
 #if !defined(VECGEOM_NVCC) 
@@ -58,11 +42,23 @@ public:
     // We need to create a placement with identity transformation from the unplaced version
     // Hopefully we don't need to create a logical volume 
     LogicalVolume *lvol = new LogicalVolume("", shape);
-    //   we would have to replace nullptr by lvol below...
-    Transformation3D identity;
-    fPlaced = shape->PlaceVolume(lvol, &identity);
+    fPlaced = lvol->Place();    
   }
 #endif  
+
+/// Copy constructor 
+//  VECGEOM_CUDA_HEADER_BOTH
+  UnplacedScaledShape(UnplacedScaledShape const &other) : fPlaced(other.fPlaced->GetLogicalVolume()->Place()), fScale(other.fScale) { }
+
+/// Assignment operator 
+//  VECGEOM_CUDA_HEADER_BOTH
+  UnplacedScaledShape &operator=(UnplacedScaledShape const &other) {
+    if (&other != this) {
+      fPlaced = other.fPlaced->GetLogicalVolume()->Place();
+      fScale = other.fScale;
+    }
+    return *this;
+  }    
   
 /// Destructor
   VECGEOM_CUDA_HEADER_BOTH
@@ -70,7 +66,7 @@ public:
     delete fPlaced;
   }    
     
-  virtual int memory_size() const { return sizeof(*this); } // should add size of *fPlaced ??
+  virtual int memory_size() const { return ( sizeof(*this) + fPlaced->memory_size() ); } 
 
   #ifdef VECGEOM_CUDA_INTERFACE
   virtual size_t DeviceSizeOf() const { return DevicePtr<cuda::UnplacedScaledShape>::SizeOf(); }
@@ -82,7 +78,10 @@ public:
   const VUnplacedVolume *UnscaledShape() const { return fPlaced->GetLogicalVolume()->GetUnplacedVolume(); }
 
   VECGEOM_INLINE
-  VPlacedVolume const* GetPlaced() { return fPlaced; }
+  VPlacedVolume const* GetPlaced() const { return fPlaced; }
+
+  VECGEOM_INLINE
+  Scale3D const  &GetScale() const { return fScale; }
 
 #ifndef VECGEOM_NVCC
   VECGEOM_INLINE

@@ -22,6 +22,7 @@
 #include "volumes/UnplacedPolyhedron.h"
 #include "volumes/UnplacedTrd.h"
 #include "volumes/UnplacedBooleanVolume.h"
+#include "volumes/ScaledShape.h"
 #include "materials/Medium.h"
 #include "materials/Material.h"
 #include "base/MessageLogger.h"
@@ -73,7 +74,11 @@ void GeomCppExporter::ScanGeometry(VPlacedVolume const *const volume, std::list<
       PlacedBooleanVolume const *v = dynamic_cast<PlacedBooleanVolume const *>(volume);
       ScanGeometry(v->GetUnplacedVolume()->fLeftVolume, lvlist, boollvlist, tlist, mediumlist, materiallist);
       ScanGeometry(v->GetUnplacedVolume()->fRightVolume, lvlist, boollvlist, tlist, mediumlist, materiallist);
-    } else {
+    } else if (dynamic_cast<PlacedScaledShape const *>(volume)) {
+      boollvlist.push_front(volume->GetLogicalVolume());
+      PlacedScaledShape const *v = dynamic_cast<PlacedScaledShape const *>(volume);
+      ScanGeometry(v->GetUnplacedVolume()->fPlaced, lvlist, boollvlist, tlist, mediumlist, materiallist);
+    } else {      
       // ordinary logical volume
       lvlist.push_back(volume->GetLogicalVolume());
     }
@@ -607,7 +612,20 @@ void GeomCppExporter::DumpLogicalVolumes(std::ostream &dumps, std::ostream &exte
       line << " )";
 
       fNeededHeaderFiles.insert("volumes/UnplacedTrd.h");
-    } else {
+    } 
+    
+    else if (dynamic_cast<UnplacedScaledShape const *>(l->GetUnplacedVolume())) {
+      UnplacedScaledShape const *shape = dynamic_cast<UnplacedScaledShape const *>(l->GetUnplacedVolume());
+      VPlacedVolume const *placed = shape->GetPlaced();
+      Scale3D const &scale = shape->GetScale();
+      const Vector3D<Precision> &scl = scale.Scale();
+      line << " new UnplacedScaledShape( ";
+      line << fLVolumeToStringMap[placed->GetLogicalVolume()] << "->Place( ),";
+      line << scl[0] << " , " << scl[1] << " , " << scl[2];
+      line << " )";    
+    }
+    
+    else {
       line << " = new UNSUPPORTEDSHAPE()";
       line << l->GetLabel() << "\n";
     }
