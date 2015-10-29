@@ -372,11 +372,14 @@ struct BoxImplementation {
    //     return vecgeom::kInfinity; // false
    if( IsFull(done) ) return (basep) vecgeom::kInfinity;
 
-    // not sure if this has to be maskedassignments
     tmin = Max(tmin, tzmin);
     tmax = Min(tmax, tzmax);
 
-    done |= ! ((tmin < Float_t(t1)) && (tmax > Float_t(t0)));
+    Float_t t1p(1.*t1); // this is madness just to make the compiler not crash here ( gcc 5.2 had internal error when doing t1p(t1)
+    Float_t t0p(1.*t0);
+    Bool_t c1 = tmin < t1p;//Float_t(t1);
+    Bool_t c2 = tmax > t0p;//Float_t(t0);
+    done |= !( c1 && c2 );
    // if( ! ((tmin < t1) && (tmax > t0)) )
    //     return vecgeom::kInfinity;
     MaskedAssign(done, Float_t((basep) vecgeom::kInfinity), &tmin);
