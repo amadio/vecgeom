@@ -352,8 +352,8 @@ Complex<Vc::double_v> cbrt( const Complex<Vc::double_v>& x )
   else
     {
       r = x.real();
-      sinnewangle=Vc::Zero;
-      cosnewangle=Vc::One;
+      sinnewangle=Vc::double_v(0.);
+      cosnewangle=Vc::double_v(1.);
     }
   // use cubic root function defined above
   Vc::double_v rcbrt = Vccbrt( r );
@@ -849,8 +849,9 @@ struct TorusImplementation {
       // tolerance
      Float_t radTolerance = 1E-8*torus.rtor();
 
-     if ( Abs(dir[2]) < 1E-5 && Abs(point[2]) < 0.1*radius){// problematic cases
-       radTolerance = 1E-6*torus.rtor();
+
+     //if ( Abs(dir[2]) < 1E-5 && Abs(point[2]) < 0.1*radius ){// problematic cases
+     //  radTolerance = 1E-6*torus.rtor();
        //Code from TGeo Torus is not improuving the situation
       /*Float_t r0 = torus.rtor() - Sqrt((radius-point[2])*(radius+point[2]));
        Float_t b0 = (point[0]*dir[0]+point[1]*dir[1])/(dir[0]*dir[0]+dir[1]*dir[1]);
@@ -885,7 +886,7 @@ struct TorusImplementation {
        return validdistance;
       */
 
-     }
+     //}
       
      // actually a scalar product
      Float_t r0sq  = point[0]*point[0]+point[1]*point[1]+point[2]*point[2];
@@ -933,7 +934,7 @@ struct TorusImplementation {
          havevalidsolution &= (torus.GetWedge().ContainsWithBoundary<Backend>(point + roots[0].real() * dir));
 
        MaskedAssign(havevalidsolution, roots[0].real(), &validdistance);
-       MaskedAssign(out && havevalidsolution, validdistance, &secondvalidroot);
+       MaskedAssign(Bool_t(out) && havevalidsolution, validdistance, &secondvalidroot);
        havevalidroot = havevalidsolution || havevalidroot;
 
        havevalidsolution = Abs(roots[1].imag()) < radTolerance && roots[1].real() > -radTolerance;
@@ -941,21 +942,21 @@ struct TorusImplementation {
          havevalidsolution &= (torus.GetWedge().ContainsWithBoundary<Backend>(point + roots[1].real() * dir));
 
        MaskedAssign(havevalidsolution, Min(roots[1].real(), validdistance), &validdistance);
-       MaskedAssign(out && havevalidsolution, Max(roots[1].real(), validdistance), &secondvalidroot);
+       MaskedAssign(Bool_t(out) && havevalidsolution, Max(roots[1].real(), validdistance), &secondvalidroot);
        havevalidroot = havevalidsolution || havevalidroot;
 
        havevalidsolution = Abs(roots[2].imag()) < radTolerance && roots[2].real() > -radTolerance;
        if (needphi && !IsEmpty(havevalidsolution))
          havevalidsolution &= (torus.GetWedge().ContainsWithBoundary<Backend>(point + roots[2].real() * dir));
        MaskedAssign(havevalidsolution, Min(roots[2].real(), validdistance), &validdistance);
-       MaskedAssign(out && havevalidsolution, Max(roots[2].real(), validdistance), &secondvalidroot);
+       MaskedAssign(Bool_t(out) && havevalidsolution, Max(roots[2].real(), validdistance), &secondvalidroot);
        havevalidroot = havevalidsolution || havevalidroot;
 
        havevalidsolution = Abs(roots[3].imag()) < radTolerance && roots[3].real() > -radTolerance;
        if (needphi && !IsEmpty(havevalidsolution))
          havevalidsolution &= (torus.GetWedge().ContainsWithBoundary<Backend>(point + roots[3].real() * dir));
        MaskedAssign(havevalidsolution, Min(roots[3].real(), validdistance), &validdistance);
-       MaskedAssign(out && havevalidsolution, Max(roots[3].real(), validdistance), &secondvalidroot);
+       MaskedAssign(Bool_t(out) && havevalidsolution, Max(roots[3].real(), validdistance), &secondvalidroot);
 
        havevalidroot = havevalidsolution || havevalidroot;
 
@@ -987,8 +988,8 @@ struct TorusImplementation {
              norm = -norm;
            Float_t dot_product = dir.Dot(norm);
 
-           MaskedAssign(!out && (dot_product > 0.), secondvalidroot, &validdistance);
-           MaskedAssign(out && (dot_product < 0.), secondvalidroot, &validdistance);
+           MaskedAssign(Bool_t(!out) && (dot_product > 0.), secondvalidroot, &validdistance);
+           MaskedAssign(Bool_t(out) && (dot_product < 0.), secondvalidroot, &validdistance);
          }
        }
        return validdistance;
@@ -1270,7 +1271,7 @@ struct TorusImplementation {
     //std::cerr << "#SAF IN "<<" rxy="<<rxy <<" rad="<< rad<<" saf="<<safety<<std::endl;
     // TODO: extend implementation for phi sector case
      bool hasphi = (torus.dphi()<kTwoPi);
-     if ( hasphi && (rxy !=0.) )
+     if ( hasphi && Any(rxy !=0.) )
      {
 
        Float_t safetyPhi = torus.GetWedge().SafetyToIn<Backend>(localPoint);

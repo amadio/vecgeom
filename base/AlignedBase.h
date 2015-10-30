@@ -17,8 +17,23 @@ VECGEOM_DEVICE_DECLARE_CONV( AlignedBase )
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 #ifdef VECGEOM_VC
-class AlignedBase : public Vc::VectorAlignedBase {
-public:
+  // unfortunately the version macros have changed in Vc over time
+  // so I am checking which one exist
+#ifdef Vc_VERSION_NUMBER
+#if Vc_VERSION_NUMBER >= Vc_VERSION_CHECK(0,99,71)
+    class AlignedBase : public Vc::VectorAlignedBase<Vc::Vector<double> > {
+#else
+    class AlignedBase : public Vc::VectorAlignedBase {
+#endif
+#endif
+#ifdef VC_VERSION_NUMBER
+#if VC_VERSION_NUMBER >= VC_VERSION_CHECK(0,99,71)
+    class AlignedBase : public Vc::VectorAlignedBase<Vc::Vector<double> > {
+#else
+    class AlignedBase : public Vc::VectorAlignedBase {
+#endif
+#endif
+    public:
       virtual ~AlignedBase() {}
 };
 #elif !defined(VECGEOM_NVCC)
