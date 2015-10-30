@@ -46,8 +46,11 @@ public:
    */
   virtual int memory_size() const =0;
 
-  //Added convexity check
-  //Default safe value for all the shapes
+  /** Function to detect whether a volume is globally convex or not.
+   *  Return a boolean, true if volume is convex, otherwise false.
+   *
+   *  Default safe value for all the shapes is set to false.
+   */
   VECGEOM_CUDA_HEADER_BOTH
   virtual bool IsConvex() const { return false; }
 

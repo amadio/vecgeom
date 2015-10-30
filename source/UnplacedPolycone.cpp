@@ -50,11 +50,11 @@ void UnplacedPolycone::Init(double phiStart,
   double RMaxextent = rOuter[0];
   double startRmax = rOuter[0];
 
-  continuityOverAll &= CheckContinuityInZPlane(rOuter,zPlane);
+  fContinuityOverAll &= CheckContinuityInZPlane(rOuter,zPlane);
 
   for (unsigned int j = 1; j < numZPlanes; j++) {
-	  convexityPossible &= (rInner[j]==0.);
-	  equalRmax &= (startRmax==rOuter[j]);
+	  fConvexityPossible &= (rInner[j]==0.);
+	  fEqualRmax &= (startRmax==rOuter[j]);
 	  startRmax = rOuter[j];
 
     if (rOuter[j] > RMaxextent)
@@ -758,15 +758,15 @@ bool UnplacedPolycone::IsConvex() const{
 	//Default safe convexity value
 	  bool convexity = false;
 
-	    if(convexityPossible)
+	    if(fConvexityPossible)
 	    {
-	      if(equalRmax && (fDeltaPhi<=kPi || fDeltaPhi==kTwoPi))	//In this case, Polycone become solid Cylinder, No need to check anything else, 100% convex
+	      if(fEqualRmax && (fDeltaPhi<=kPi || fDeltaPhi==kTwoPi))	//In this case, Polycone become solid Cylinder, No need to check anything else, 100% convex
 	        convexity = true;
 	      else
 	      {
 	    	 if( fDeltaPhi<=kPi || fDeltaPhi==kTwoPi)
 	    	 {
-	    		 convexity = continuityOverAll;
+	    		 convexity = fContinuityOverAll;
 	    	 }
 	      }
 	    }

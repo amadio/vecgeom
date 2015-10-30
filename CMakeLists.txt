@@ -682,6 +682,10 @@ set(TEST_EXECUTABLES_CORE
 #  ${CMAKE_SOURCE_DIR}/test/core/boolminustest2.cpp
   ${CMAKE_SOURCE_DIR}/test/core/PhiWedgeTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/ThetaConeTest.cpp
+  ${CMAKE_SOURCE_DIR}/test/core/TestConvexity.cpp
+  ${CMAKE_SOURCE_DIR}/test/core/BooleanConvexityTest.cpp
+  ${CMAKE_SOURCE_DIR}/test/core/BoxBoxIntersectionTest.cpp
+  ${CMAKE_SOURCE_DIR}/test/core/SplittedABBox.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestVecGeomPolycone.cpp
 )
 
@@ -731,13 +735,6 @@ if(BENCHMARK)
 )
 endif()
 
-if(TESTCONVEXITY)
-set(TEST_EXECUTABLES_CONVEXITY
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestConvexity.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/BooleanConvexityTest.cpp
-)
-endif()
-
 set(TEST_EXECUTABLES_VISUALIZATION
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeTrap.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizePolycone.cpp
@@ -765,8 +762,6 @@ set(TEST_EXECUTABLES_USOLIDS
   #${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBoxlikeTrapezoid.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/usolidTest.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/BoxBoxIntersectionTest.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/SplittedABBox.cpp
 )
 
 set(TEST_EXECUTABLES_BENCHMARK
@@ -821,7 +816,6 @@ set(TEST_EXECUTABLES
   ${TEST_EXECUTABLES_BENCHMARK}
   ${TEST_EXECUTABLES_CUDA}
   ${TEST_EXECUTABLES_SHAPETESTER}
-  ${TEST_EXECUTABLES_CONVEXITY}
 )
 
 if (CUDA)
@@ -918,9 +912,6 @@ if (CUDA)
   #  add_to_ctest("${TEST_EXECUTABLES_CUDA}")
 endif()
 
-if (TESTCONVEXITY)
- build_executables("${TEST_EXECUTABLES_CONVEXITY}")
-endif ()
 #---------------------------------------------------------------------------
 # Include creation and submission to dashboard cdash.cern.ch
 

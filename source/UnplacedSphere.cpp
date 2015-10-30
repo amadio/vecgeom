@@ -59,8 +59,6 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
      fFullSphere(true),
      fCubicVolume(0.), 
      fSurfaceArea(0.), 
-     //epsilon(kSEpsilon), 
-     // frTolerance(kTolerance*10.),
      fPhiWedge(pDPhi,pSPhi),
      fThetaCone(pSTheta,pDTheta)
             
@@ -87,9 +85,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
   CheckPhiAngles(pSPhi, pDPhi);
   CheckThetaAngles(pSTheta, pDTheta);
-  //fPhiWedge=new Wedge(fDPhi,fSPhi);
-  //Wedge *testPhiWedge=new Wedge(fDPhi,fSPhi);
-  //fPhiWedge(testPhiWedge);
+
 #ifndef VECGEOM_NVCC
   CalcCapacity();
   CalcSurfaceArea();

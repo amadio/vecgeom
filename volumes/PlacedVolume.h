@@ -305,9 +305,6 @@ public:
  // }
   virtual Vector3D<Precision> GetPointOnSurface() const;
 
-  //Default safe values for all the shapes
-  VECGEOM_CUDA_HEADER_BOTH
-  virtual bool IsConvex() const {return GetUnplacedVolume()->IsConvex(); }
 
 public:
 

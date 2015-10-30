@@ -18,7 +18,6 @@ int main() {
 
 	//Now trying to generate aligned bounding box for cone
 
-	Vector3D<Precision> *lower, *upper;
 	std::vector<Vector3D<Precision> > lowerc, upperc;
 
 	int numOfSlices = 10;

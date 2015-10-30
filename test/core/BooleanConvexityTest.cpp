@@ -42,7 +42,7 @@ int main(int argc, char * argv[])
 
     //VPlacedVolume placedBooleanVolume = booleanlogical.Place();
     VPlacedVolume * placedBooleanVolume = (new LogicalVolume("",&booleansolid))->Place();
-    assert(!placedBooleanVolume->IsConvex());
+    assert(!placedBooleanVolume->GetUnplacedVolume()->IsConvex());
 
     return 0;
 }

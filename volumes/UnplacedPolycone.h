@@ -69,9 +69,9 @@ public:
 
 //These private data member and member functions are added for convexity detection
 private:
-        bool equalRmax;
-        bool continuityOverAll;
-        bool convexityPossible;
+        bool fEqualRmax;
+        bool fContinuityOverAll;
+        bool fConvexityPossible;
         bool CheckContinuityInZPlane(const double rOuter[],const double zPlane[]);
         bool CheckContinuityInRmax(const std::vector<Precision> rOuter);
         bool CheckContinuityInSlope(const std::vector<Precision> rOuter, const std::vector<Precision> zPlane);
@@ -100,9 +100,9 @@ public:
                 fNz(Nz),
                 fSections(),
                 fZs(Nz),
-				equalRmax(true),
-				continuityOverAll(true),
-				convexityPossible(true)
+				fEqualRmax(true),
+				fContinuityOverAll(true),
+				fConvexityPossible(true)
 
 
 
