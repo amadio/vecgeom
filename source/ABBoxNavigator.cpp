@@ -125,9 +125,10 @@ int ABBoxNavigator::GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Preci
             &corners[2 * box], pfloat, invdirfloat, sign[0], sign[1], sign[2], 0,
             static_cast<float>(vecgeom::kInfinity));
     bool hit = distance < static_cast<float>(vecgeom::kInfinity);
-    if (hit)
+    if (hit){
       hitlist[hitcount]=(ABBoxManager::BoxIdDistancePair_t(box, distance));
       hitcount++;
+    }
   }
   return hitcount;
 #endif

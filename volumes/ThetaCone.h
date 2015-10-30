@@ -646,8 +646,8 @@ class ThetaCone{
             if(fETheta >= kPi/2 - halfAngTolerance && fETheta <= kPi/2 + halfAngTolerance)
             {
     
-            	completelyinside |= ((Abs(localPoint.z())<halfAngTolerance) && Bool_t(false));
-            	completelyoutside |= ((Abs(localPoint.z())<halfAngTolerance) && Bool_t(false));
+            	completelyinside &= !(Abs(localPoint.z())<halfAngTolerance) ;
+            	completelyoutside &= !(Abs(localPoint.z())<halfAngTolerance) ;
             }
             
 	      }
@@ -657,8 +657,8 @@ class ThetaCone{
              if(fSTheta >= kPi/2 - halfAngTolerance && fSTheta <= kPi/2 + halfAngTolerance)
             {
     
-            	 completelyinside |= ((Abs(localPoint.z())<halfAngTolerance) && Bool_t(false)) ;
-            	 completelyoutside |= ((Abs(localPoint.z())<halfAngTolerance)  && Bool_t(false));
+            	 completelyinside &= !(Abs(localPoint.z())<halfAngTolerance) ;
+            	 completelyoutside &= !(Abs(localPoint.z())<halfAngTolerance) ;
             }
             
 		if(fSTheta > kPi/2 + halfAngTolerance)

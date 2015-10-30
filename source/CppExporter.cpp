@@ -22,6 +22,7 @@
 #include "volumes/UnplacedPolyhedron.h"
 #include "volumes/UnplacedTrd.h"
 #include "volumes/UnplacedBooleanVolume.h"
+#include "volumes/ScaledShape.h"
 #include "materials/Medium.h"
 #include "materials/Material.h"
 #include "base/MessageLogger.h"
@@ -73,7 +74,11 @@ void GeomCppExporter::ScanGeometry(VPlacedVolume const *const volume, std::list<
       PlacedBooleanVolume const *v = dynamic_cast<PlacedBooleanVolume const *>(volume);
       ScanGeometry(v->GetUnplacedVolume()->fLeftVolume, lvlist, boollvlist, tlist, mediumlist, materiallist);
       ScanGeometry(v->GetUnplacedVolume()->fRightVolume, lvlist, boollvlist, tlist, mediumlist, materiallist);
-    } else {
+    } else if (dynamic_cast<PlacedScaledShape const *>(volume)) {
+      boollvlist.push_front(volume->GetLogicalVolume());
+      PlacedScaledShape const *v = dynamic_cast<PlacedScaledShape const *>(volume);
+      ScanGeometry(v->GetUnplacedVolume()->fPlaced, lvlist, boollvlist, tlist, mediumlist, materiallist);
+    } else {      
       // ordinary logical volume
       lvlist.push_back(volume->GetLogicalVolume());
     }
@@ -323,7 +328,6 @@ void GeomCppExporter::DumpMedia(std::vector<std::string> &media, std::stringstre
       // reset counter
       groupcounter = 0;
     }
-
     std::stringstream line;
 
     // extern declaration line
@@ -339,7 +343,6 @@ void GeomCppExporter::DumpMedia(std::vector<std::string> &media, std::stringstre
     }
     line << ma.second << " = new Medium(";
     line << "\"" << ma.first->GetName() << "\"," << fMaterialToStringMap[mm] << ", nullptr);\n";
-
     mediumconstr << line.str();
   }
   mediumconstr << "}\n";

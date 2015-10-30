@@ -66,7 +66,6 @@ private:
 public:
 
 #ifndef VECGEOM_NVCC
-
   // Standard constructor when constructing geometries. Will initiate an empty
   // daughter list which can be populated by placing daughters.
   // \sa PlaceDaughter()

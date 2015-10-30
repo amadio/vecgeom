@@ -10,6 +10,7 @@
 #include "management/VolumeFactory.h"
 #include "volumes/PlacedVolume.h"
 #include "volumes/PlacedBooleanVolume.h"
+#include "volumes/PlacedScaledShape.h"
 
 #include <algorithm>
 #include <cassert>
@@ -311,6 +312,11 @@ void CudaManager::ScanGeometry(VPlacedVolume const *const volume) {
     PlacedBooleanVolume const* v =  dynamic_cast<PlacedBooleanVolume const*>(volume);
     ScanGeometry(v->GetUnplacedVolume()->fLeftVolume);
     ScanGeometry(v->GetUnplacedVolume()->fRightVolume);
+  }
+
+  if( dynamic_cast<PlacedScaledShape const*>(volume) ){
+    PlacedScaledShape const* v =  dynamic_cast<PlacedScaledShape const*>(volume);
+    ScanGeometry(v->GetUnplacedVolume()->fPlaced);
   }
 
 
