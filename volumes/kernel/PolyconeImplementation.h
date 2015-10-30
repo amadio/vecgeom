@@ -288,22 +288,11 @@ struct PolyconeImplementation {
     static void UnplacedContains( UnplacedPolycone const &polycone,
         Vector3D<typename Backend::precision_v> const &point,
         typename Backend::bool_v &contains) {
-      // TODO: do this generically WITH a generic contains/inside kernel
-      // forget about sector for the moment
-      ContainsKernel<Backend>(polycone, point, contains);
 
       typedef typename Backend::bool_v Bool_t;
       Bool_t unused, outside;
       GenericKernelForContainsAndInside<Backend, false>(polycone, point, unused, outside);
-      Bool_t contains2 = !outside;
-
-#if POLYCONEDEBUG
-      if(contains != contains2) {
-        polycone.Print();
-        std::cout<<" Comparing Contains() fails!!!  old="<< contains <<", new="<< contains2 << std::endl;
-      }
-#endif
-      assert( contains == contains2 );
+      contains = !outside;
     }
 
     template <typename Backend>
