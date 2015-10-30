@@ -20,6 +20,9 @@
 #include "volumes/Trapezoid.h"
 #include "volumes/Polyhedron.h"
 #include "volumes/LogicalVolume.h"
+#include "volumes/ScaledShape.h"
+#include "volumes/utilities/VolumeUtilities.h"
+
 //#include "volumes/UnplacedSphere.h"
 
 //Added just for debugging, should be removed later
@@ -43,7 +46,6 @@ bool test_ConvexityOrb() {
 	assert(b1.GetUnplacedVolume()->IsConvex());
 	return true;
 }
-
 
 bool test_ConvexitySphere() {
 
@@ -285,6 +287,15 @@ bool test_ConvexityPolyhedron() {
 }
 
 //_________________________________________________________________________________________
+//Convexity test for scaled Shapes
+
+bool test_ConvexityScaledOrb() {
+  vecgeom::SimpleOrb orb("Visualizer Orb", 3);
+  vecgeom::SimpleScaledShape scaledOrb("Scaled Orb", orb.GetUnplacedVolume(), 0.5, 1.2, 1.);
+  assert(scaledOrb.GetUnplacedVolume()->IsConvex());
+
+  return true;
+}
 
 
 //_________________________________________________________________________________________
@@ -364,6 +375,10 @@ int main(){
 	assert(test_ConvexityPolycone());
 	assert(test_ConvexityTrapezoid());
 	assert(test_ConvexityPolyhedron());
+
+	//Test for ScaledShapes
+	test_ConvexityScaledOrb();
+
 	std::cout<<"------------------------------"<<std::endl;
 	std::cout<<"--- Convexity Tests Passed ---"<<std::endl;
 	std::cout<<"------------------------------"<<std::endl;

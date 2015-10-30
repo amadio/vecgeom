@@ -103,6 +103,9 @@ public:
   }
 #endif // !VECGEOM_NVCC
 
+  VECGEOM_CUDA_HEADER_BOTH
+  virtual bool IsConvex() const override {return fPlaced->GetUnplacedVolume()->IsConvex();}
+
   void Extent( Vector3D<Precision> &min, Vector3D<Precision> &max) const;
     	
   Vector3D<Precision> GetPointOnSurface() const;
