@@ -328,7 +328,6 @@ void GeomCppExporter::DumpMedia(std::vector<std::string> &media, std::stringstre
       // reset counter
       groupcounter = 0;
     }
-
     std::stringstream line;
 
     // extern declaration line
@@ -344,7 +343,6 @@ void GeomCppExporter::DumpMedia(std::vector<std::string> &media, std::stringstre
     }
     line << ma.second << " = new Medium(";
     line << "\"" << ma.first->GetName() << "\"," << fMaterialToStringMap[mm] << ", nullptr);\n";
-
     mediumconstr << line.str();
   }
   mediumconstr << "}\n";
@@ -612,20 +610,7 @@ void GeomCppExporter::DumpLogicalVolumes(std::ostream &dumps, std::ostream &exte
       line << " )";
 
       fNeededHeaderFiles.insert("volumes/UnplacedTrd.h");
-    } 
-    
-    else if (dynamic_cast<UnplacedScaledShape const *>(l->GetUnplacedVolume())) {
-      UnplacedScaledShape const *shape = dynamic_cast<UnplacedScaledShape const *>(l->GetUnplacedVolume());
-      VPlacedVolume const *placed = shape->GetPlaced();
-      Scale3D const &scale = shape->GetScale();
-      const Vector3D<Precision> &scl = scale.Scale();
-      line << " new UnplacedScaledShape( ";
-      line << fLVolumeToStringMap[placed->GetLogicalVolume()] << "->Place( ),";
-      line << scl[0] << " , " << scl[1] << " , " << scl[2];
-      line << " )";    
-    }
-    
-    else {
+    } else {
       line << " = new UNSUPPORTEDSHAPE()";
       line << l->GetLabel() << "\n";
     }
