@@ -23,12 +23,6 @@
 #include "volumes/ScaledShape.h"
 #include "volumes/utilities/VolumeUtilities.h"
 
-//#include "volumes/UnplacedSphere.h"
-
-//Added just for debugging, should be removed later
-#include "USphere.hh"
-#include "UCons.hh"
-
 #include <cmath>
 #include <iomanip>
 
@@ -344,13 +338,6 @@ bool test_Cone(){
 
 
 void test_phiCheck(){
-
-	//std::cout<<"--- USphere ---"<<std::endl;
-	//test_Sphere<USphere>();
-	//std::cout<<"--- VecGeom Sphere ---"<<std::endl;
-	//test_Sphere<vecgeom::SimpleSphere>();
-	std::cout<<"UCons Cone : ";
-	test_Cone<UCons>();
 	std::cout<<"VecGeom Cone ";
 	test_Cone<vecgeom::SimpleCone>();
 	std::cout<<"VecGeom Torus : ";
