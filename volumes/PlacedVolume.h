@@ -305,6 +305,7 @@ public:
  // }
   virtual Vector3D<Precision> GetPointOnSurface() const;
 
+
 public:
 
 #ifdef VECGEOM_CUDA_INTERFACE

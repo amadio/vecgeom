@@ -61,13 +61,20 @@ public:
     Precision fEndPhi;
 
     unsigned int fNz;
-    //Precision * fRmin;
-    //Precision * fRmax;
-    //Precision * fZ;
 
     // actual internal storage
     Vector<PolyconeSection> fSections;
     Vector<double> fZs;
+
+
+//These private data member and member functions are added for convexity detection
+private:
+        bool fEqualRmax;
+        bool fContinuityOverAll;
+        bool fConvexityPossible;
+        bool CheckContinuityInZPlane(const double rOuter[],const double zPlane[]);
+        bool CheckContinuityInRmax(const std::vector<Precision> &rOuter);
+        bool CheckContinuityInSlope(const std::vector<Precision> &rOuter, const std::vector<Precision> &zPlane);
 
 public:
     VECGEOM_CUDA_HEADER_BOTH
@@ -79,6 +86,7 @@ public:
          const double rInner[],  // tangent distance to inner surface
          const double rOuter[]);
 
+
     // the constructor
     VECGEOM_CUDA_HEADER_BOTH
     UnplacedPolycone( Precision phistart, Precision deltaphi,
@@ -87,15 +95,25 @@ public:
             Precision * rmin,
             Precision * rmax
             ) :
-                fStartPhi(phistart),
+	            fStartPhi(phistart),
                 fDeltaPhi(deltaphi),
                 fNz(Nz),
                 fSections(),
-                fZs(Nz)
+                fZs(Nz),
+				fEqualRmax(true),
+				fContinuityOverAll(true),
+				fConvexityPossible(true)
+
+
+
     {
         // init internal members
         Init(phistart, deltaphi, Nz, z, rmin, rmax);
     }
+
+    //Function to check the convexity
+    VECGEOM_CUDA_HEADER_BOTH
+    virtual bool IsConvex() const override;
 
     VECGEOM_CUDA_HEADER_BOTH
     unsigned int GetNz() const { return fNz; }

@@ -103,7 +103,7 @@ public:
     return GetUnplacedVolume()->GetPointOnSurface();
   }
 
-  virtual double SurfaceArea() override {
+   virtual double SurfaceArea() override {
      return GetUnplacedVolume()->SurfaceArea();
   }
 #endif

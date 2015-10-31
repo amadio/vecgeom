@@ -79,6 +79,11 @@ public:
   VECGEOM_INLINE
   Precision Capacity() const {return fCubicVolume;}
   
+  //Function to check the convexity
+  VECGEOM_CUDA_HEADER_BOTH
+  //VECGEOM_INLINE
+  virtual bool IsConvex() const override;
+
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision SurfaceArea() const {return fSurfaceArea;}

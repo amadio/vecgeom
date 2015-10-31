@@ -82,6 +82,7 @@ public:
   Precision GetInnerOffset() const {return GetUnplacedVolume()->GetInnerOffset();}
   Precision GetOuterOffset() const {return GetUnplacedVolume()->GetOuterOffset();}
 
+  
 #if !defined(VECGEOM_NVCC)
   virtual Precision Capacity() override {
       return GetUnplacedVolume()->Capacity();

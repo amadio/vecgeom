@@ -59,8 +59,6 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
      fFullSphere(true),
      fCubicVolume(0.), 
      fSurfaceArea(0.), 
-     //epsilon(kSEpsilon), 
-     // frTolerance(kTolerance*10.),
      fPhiWedge(pDPhi,pSPhi),
      fThetaCone(pSTheta,pDTheta)
             
@@ -87,12 +85,28 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
   CheckPhiAngles(pSPhi, pDPhi);
   CheckThetaAngles(pSTheta, pDTheta);
-  
+
 #ifndef VECGEOM_NVCC
   CalcCapacity();
   CalcSurfaceArea();
 #endif
 }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  bool UnplacedSphere::IsConvex() const {
+  	//Default safe convexity value
+  	bool convexity = false;
+
+    //Logic to calculate the convexity
+  	if(fRmin==0.){
+  		if( ((fDPhi==kTwoPi) && (fSTheta==0.) && (eTheta==kPi)) ||
+  						((fDPhi<=kPi) && (fSTheta==0) && (eTheta==kPi)) ||
+  						((fDPhi==kTwoPi) && (fSTheta==0) && (eTheta<=kPi/2)) ||
+  						((fDPhi==kTwoPi) && (fSTheta>=kPi/2) && (eTheta==kPi)))
+  			convexity = true;
+  	    }
+  		return convexity;
+  }
   
 #ifndef VECGEOM_NVCC
   void UnplacedSphere::CalcCapacity()

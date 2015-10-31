@@ -97,7 +97,7 @@ public:
      return GetUnplacedVolume()->Normal(point, normal);
   }
 
-  /*
+   /*
   void Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const override {
       GetUnplacedVolume()->Extent(aMin, aMax);
   }

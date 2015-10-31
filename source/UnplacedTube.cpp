@@ -115,6 +115,7 @@ int UnplacedTube::ChooseSurface() const
     return choice;
 }
 
+
 Vector3D<Precision> UnplacedTube::GetPointOnSurface() const
 {
     int surface = ChooseSurface();
@@ -238,6 +239,22 @@ bool UnplacedTube::Normal(Vector3D<Precision> const& point, Vector3D<Precision>&
 
   */
 #endif
+
+VECGEOM_CUDA_HEADER_BOTH
+bool UnplacedTube::IsConvex() const{
+
+      //Default safe convexity value
+      bool convexity = false;
+
+      //Logic to calculate the convexity
+      if(fRmin==0.)
+              {
+                if( fDphi<=kPi || fDphi==kTwoPi)
+                  convexity = true;
+              }
+      return convexity;
+
+      }
 
   void UnplacedTube::Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const {
     // most general case
