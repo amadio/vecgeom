@@ -73,8 +73,8 @@ private:
         bool fContinuityOverAll;
         bool fConvexityPossible;
         bool CheckContinuityInZPlane(const double rOuter[],const double zPlane[]);
-        bool CheckContinuityInRmax(const std::vector<Precision> rOuter);
-        bool CheckContinuityInSlope(const std::vector<Precision> rOuter, const std::vector<Precision> zPlane);
+        bool CheckContinuityInRmax(const std::vector<Precision> &rOuter);
+        bool CheckContinuityInSlope(const std::vector<Precision> &rOuter, const std::vector<Precision> &zPlane);
 
 public:
     VECGEOM_CUDA_HEADER_BOTH

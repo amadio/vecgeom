@@ -678,7 +678,7 @@ void UnplacedPolycone::Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & 
 }
 #endif // !VECGEOM_NVCC
 
-bool UnplacedPolycone::CheckContinuityInRmax(const std::vector<Precision> rOuter){
+bool UnplacedPolycone::CheckContinuityInRmax(const std::vector<Precision> &rOuter){
 
 	bool continuous=true;
 
@@ -735,7 +735,7 @@ bool UnplacedPolycone::CheckContinuityInZPlane(const double rOuter[],const doubl
 	return ( contRmax && contSlope );
 }
 
-bool UnplacedPolycone::CheckContinuityInSlope(const std::vector<Precision> rOuter, const std::vector<Precision> zPlane){
+bool UnplacedPolycone::CheckContinuityInSlope(const std::vector<Precision> &rOuter, const std::vector<Precision> &zPlane){
 	bool continuous=true;
 	Precision startSlope = (rOuter[1]-rOuter[0])/(zPlane[1]-zPlane[0]);
 	for (unsigned int j = 2; j < rOuter.size(); )
