@@ -35,6 +35,7 @@ constexpr int kVectorSize = kVc::precision_v::Size;
 typedef kVc::int_v       VcInt;
 typedef kVc::precision_v VcPrecision;
 typedef kVc::bool_v      VcBool;
+ typedef kVc::int_v::Mask     VcIntBool;
 typedef kVc::inside_v    VcInside;
 
 template <typename Type>
@@ -100,6 +101,11 @@ bool Any(VcBool const &cond) {
 VECGEOM_INLINE
 bool IsEmpty(VcBool const &cond) {
   return cond.isEmpty();
+}
+
+VECGEOM_INLINE
+bool IsEmpty(VcIntBool const &cond){
+    return cond.isEmpty();
 }
 
 VECGEOM_INLINE

@@ -62,6 +62,18 @@ public:
 
 #if !defined(VECGEOM_NVCC)
   VECGEOM_INLINE
+  void SetX( Precision number ) { dimensions_[0]=number; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  void SetY( Precision number ) { dimensions_[1]=number; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  void SetZ( Precision number ) { dimensions_[2]=number; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
   Precision volume() const {
     return 8.0*dimensions_[0]*dimensions_[1]*dimensions_[2];
   }

@@ -1,0 +1,195 @@
+/// \file UnplacedGenTrap.cpp
+
+//#include "base/Global.h"
+//#include "backend/Backend.h"
+#include "volumes/UnplacedGenTrap.h"
+#include <ostream>
+#include <iomanip>
+#include <iostream>
+#include "management/VolumeFactory.h"
+#include "volumes/SpecializedGenTrap.h"
+
+namespace VECGEOM_NAMESPACE {
+
+ void UnplacedGenTrap::ComputeBoundingBox()
+ {
+    //
+    double  minX, maxX, minY, maxY;
+    minX = maxX = fVertices[0].x();
+    minY = maxY = fVertices[0].y();
+
+    for (int  i=1; i<4; ++i)
+    {
+      if (minX > fVertices[i].x())  minX = fVertices[i].x();
+      if (maxX < fVertices[i].x())  maxX = fVertices[i].x();
+      if (minY > fVertices[i].y())  minY = fVertices[i].y();
+      if (maxY < fVertices[i].y())  maxY = fVertices[i].y();
+    }
+    fBoundingBox.SetX(std::max(std::fabs(minX), std::fabs(maxX)));
+    fBoundingBox.SetY(std::max(std::fabs(minY), std::fabs(maxY)));
+    fBoundingBox.SetZ(fDz);
+ }
+
+ // computes if this gentrap is twisted
+ // should be a private method?
+ bool UnplacedGenTrap::ComputeIsTwisted()
+ {
+   // Computes tangents of twist angles (angles between projections on XY plane
+   // of corresponding -dz +dz edges).
+
+   bool twisted = false;
+   double  dx1, dy1, dx2, dy2;
+   const int nv = 4; // half the number of verices
+
+   for (int  i = 0; i < 4; ++i)
+   {
+     dx1 = fVertices[(i + 1) % nv].x() - fVertices[i].x();
+     dy1 = fVertices[(i + 1) % nv].y() - fVertices[i].y();
+     if ((dx1 == 0) && (dy1 == 0))
+     {
+       continue;
+     }
+
+     dx2 = fVertices[nv + (i + 1) % nv].x() - fVertices[nv + i].x();
+     dy2 = fVertices[nv + (i + 1) % nv].y() - fVertices[nv + i].y();
+
+     if ((dx2 == 0 && dy2 == 0))
+     {
+       continue;
+     }
+     double  twist_angle = std::fabs(dy1 * dx2 - dx1 * dy2);
+     // attention: this thing was a different tolerance: UGenTrap::tolerance
+     if (twist_angle < kTolerance)
+     {
+       continue;
+     }
+     twisted = true;
+
+     // SetTwistAngle(i, twist_angle);
+     // Check on big angles, potentially navigation problem
+
+     // calculate twist angle
+     //twist_angle = std::acos((dx1 * dx2 + dy1 * dy2)
+     //                        /(std::sqrt(dx1 * dx1 + dy1 * dy1)
+      //                        *std::sqrt(dx2 * dx2 + dy2 * dy2)));
+
+  //   if (std::fabs(twist_angle) > 0.5 * UUtils::kPi + VUSolid::fgTolerance)
+  //   {
+  //     std::ostringstream message;
+  //     message << "Twisted Angle is bigger than 90 degrees - " << GetName()
+  //             << std::endl
+  //             << "     Potential problem of malformed Solid !" << std::endl
+  //             << "     TwistANGLE = " << twist_angle
+  //             << "*rad  for lateral plane N= " << i;
+  //   }
+
+   }
+    return twisted;
+ }
+
+
+VECGEOM_CUDA_HEADER_BOTH
+void UnplacedGenTrap::Print() const {
+//    printf("UnplacedGenTrap; more precise print to be implemented");
+    UnplacedGenTrap::Print(std::cout);
+}
+
+void UnplacedGenTrap::Print(std::ostream &os) const {
+    int  oldprc = os.precision(16);
+    os << "--------------------------------------------------------\n"
+//     << "    *** Dump for solid - " << GetName() << " *** \n"
+       << "    =================================================== \n"
+       << " Solid geometry type: UnplacedGenTrap \n"
+       << "   half length Z: " << fDz << " mm \n"
+       << "   list of vertices:\n";
+
+      for (int  i = 0; i < 8; ++i)
+      {
+        os << std::setw(5) << "#" << i
+           << "   vx = " << fVertices[i].x() << " mm"
+           << "   vy = " << fVertices[i].y() << " mm\n";
+      }
+     os.precision(oldprc);
+}
+
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+VECGEOM_CUDA_HEADER_DEVICE
+VPlacedVolume* UnplacedGenTrap::Create(
+    LogicalVolume const *const logical_volume,
+    Transformation3D const *const transformation,
+#ifdef VECGEOM_NVCC
+    const int id,
+#endif
+    VPlacedVolume *const placement) {
+      if (placement) {
+       return new(placement) SpecializedGenTrap<transCodeT, rotCodeT>(
+#ifdef VECGEOM_NVCC
+       logical_volume, transformation, NULL, id); // TODO: add bounding box?
+#else
+       logical_volume, transformation);
+#endif
+      }
+      return new SpecializedGenTrap<transCodeT, rotCodeT>(
+#ifdef VECGEOM_NVCC
+      logical_volume, transformation, NULL, id); // TODO: add bounding box?
+#else
+      logical_volume, transformation);
+#endif
+}
+
+//
+VECGEOM_CUDA_HEADER_DEVICE
+VPlacedVolume* UnplacedGenTrap::SpecializedVolume(
+    LogicalVolume const *const volume,
+    Transformation3D const *const transformation,
+    const TranslationCode trans_code, const RotationCode rot_code,
+#ifdef VECGEOM_NVCC
+    const int id,
+#endif
+    VPlacedVolume *const placement) const {
+    return VolumeFactory::CreateByTransformation<
+         UnplacedGenTrap>(volume, transformation, trans_code, rot_code,
+#ifdef VECGEOM_NVCC
+         id,
+#endif
+         placement);
+}
+
+} // End global namespace
+
+//namespace vecgeom {
+//
+//#ifdef VECGEOM_CUDA_INTERFACE
+//
+//void UnplacedParaboloid_CopyToGpu(VUnplacedVolume *const gpu_ptr);
+//
+//VUnplacedVolume* UnplacedParaboloid::CopyToGpu(
+//    VUnplacedVolume *const gpu_ptr) const {
+//  UnplacedParaboloid_CopyToGpu(gpu_ptr);
+//  CudaAssertError();
+//  return gpu_ptr;
+//}
+//
+//VUnplacedVolume* UnplacedParaboloid::CopyToGpu() const {
+//  VUnplacedVolume *const gpu_ptr = AllocateOnGpu<UnplacedParaboloid>();
+//  return this->CopyToGpu(gpu_ptr);
+//}
+//
+//#endif
+//
+//#ifdef VECGEOM_NVCC
+//
+//class VUnplacedVolume;
+//
+//__global__
+//void UnplacedParaboloid_ConstructOnGpu(VUnplacedVolume *const gpu_ptr) {
+//  new(gpu_ptr) vecgeom_cuda::UnplacedParaboloid();
+//}
+//
+//void UnplacedParaboloid_CopyToGpu(VUnplacedVolume *const gpu_ptr) {
+//  UnplacedParaboloid_ConstructOnGpu<<<1, 1>>>(gpu_ptr);
+//}
+//
+//#endif
+//
+// } // End namespace vecgeom

@@ -473,6 +473,7 @@ set(SRC_CPP_RELATIVE
   source/PlacedTorus.cpp
   source/PlacedTorus2.cpp
   source/PlacedTrd.cpp
+  source/PlacedGenTrap.cpp
   source/PlacedParallelepiped.cpp
   source/PlacedParaboloid.cpp
   source/PlacedPolyhedron.cpp
@@ -496,6 +497,7 @@ set(SRC_CPP_RELATIVE
   source/UnplacedPolyhedron.cpp
   source/UnplacedScaledShape.cpp
   source/UnplacedTrapezoid.cpp
+  source/UnplacedGenTrap.cpp	
   source/UnplacedVolume.cpp
   source/Vector.cpp
   source/NavigationState.cpp
@@ -683,6 +685,7 @@ set(TEST_EXECUTABLES_CORE
   ${CMAKE_SOURCE_DIR}/test/core/PlanesTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/QuadrilateralTest.cpp
 #  ${CMAKE_SOURCE_DIR}/test/core/SOATest.cpp
+  ${CMAKE_SOURCE_DIR}/test/core/gentraptest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/Transformation3DTest.cpp
 #  ${CMAKE_SOURCE_DIR}/test/core/boolminustest.cpp
 #  ${CMAKE_SOURCE_DIR}/test/core/boolminustest2.cpp
@@ -795,7 +798,9 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${CMAKE_SOURCE_DIR}/test/benchmark/ConeBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/PolyconeBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ScaledBenchmark.cpp
-   ${CMAKE_SOURCE_DIR}/test/benchmark/BoxScaledBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/BoxScaledBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/GenTrapBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/GenTrapBenchmark_planar.cpp
 )
 set(TEST_EXECUTABLES_CUDA
   # Files go here

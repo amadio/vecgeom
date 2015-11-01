@@ -84,6 +84,20 @@ struct BoxImplementation {
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
+  static void DistanceToIn(
+      UnplacedBox const &unplaced,
+      Transformation3D const &transformation,
+      Vector3D<typename Backend::precision_v> const &point,
+      Vector3D<typename Backend::precision_v> const &direction,
+      typename Backend::precision_v const &stepMax,
+      typename Backend::precision_v &distance,
+      typename Backend::int_v &surface,
+      typename Backend::precision_v &inversedistancecomponent
+  );
+
+  template <class Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
   static void DistanceToOut(
       UnplacedBox const &unplaced,
       Vector3D<typename Backend::precision_v> const &point,
@@ -133,6 +147,18 @@ struct BoxImplementation {
       Vector3D<typename Backend::precision_v> const &direction,
       typename Backend::precision_v const &stepMax,
       typename Backend::precision_v &distance);
+
+  template <class Backend, bool returnHitPlane >
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  static void DistanceToInKernel2(
+      Vector3D<Precision> const &dimensions,
+      Vector3D<typename Backend::precision_v> const &point,
+      Vector3D<typename Backend::precision_v> const &direction,
+      typename Backend::precision_v const &stepMax,
+      typename Backend::precision_v &distance,
+      typename Backend::int_v *planeid=NULL,
+      Vector3D<typename Backend::precision_v> *hitpoint=NULL);
 
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH
@@ -529,13 +555,12 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToIn(
     typename Backend::precision_v const &stepMax,
     typename Backend::precision_v &distance) {
 
-  DistanceToInKernel<Backend>(
+  DistanceToInKernel2<Backend,false>(
     unplaced.dimensions(),
     transformation.Transform<transCodeT, rotCodeT>(point),
     transformation.TransformDirection<rotCodeT>(direction),
     stepMax,
-    distance
-  );
+    distance);
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -697,7 +722,7 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   done |= (safety[0] >= stepMax ||
            safety[1] >= stepMax ||
            safety[2] >= stepMax);
-  if ( IsFull(done) ) return;
+  if( IsFull(done) ) return;
 
 
   Boolean_t inside = Backend::kFalse;
@@ -746,6 +771,96 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
 #ifdef VECGEOM_NVCC
   #undef surfacetolerant
 #endif
+}
+
+
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+template <class Backend, bool returnPlaneId>
+VECGEOM_CUDA_HEADER_BOTH
+void BoxImplementation<transCodeT, rotCodeT>::DistanceToInKernel2(
+    Vector3D<Precision> const &dimensions,
+    Vector3D<typename Backend::precision_v> const &point,
+    Vector3D<typename Backend::precision_v> const &direction,
+    typename Backend::precision_v const &stepMax,
+    typename Backend::precision_v &distance,
+    typename Backend::int_v * planeid,
+    Vector3D<typename Backend::precision_v> *hitpoint) {
+
+  typedef typename Backend::precision_v Float_t;
+  typedef typename Backend::bool_v      Bool_t;
+
+  distance = kInfinity;
+
+  Vector3D<Float_t> safety;
+  Bool_t done = Backend::kFalse;
+
+  safety[0] = Abs(point[0]) - dimensions[0];
+  safety[1] = Abs(point[1]) - dimensions[1];
+  safety[2] = Abs(point[2]) - dimensions[2];
+  done |= (safety[0] >= stepMax ||
+           safety[1] >= stepMax ||
+           safety[2] >= stepMax);
+  if( IsFull(done) ) return;
+
+  Float_t next, coord1, coord2;
+  Bool_t hit;
+
+  // x
+  next = safety[0] / Abs(direction[0] + kTiny);
+  coord1 = point[1] + next * direction[1];
+  coord2 = point[2] + next * direction[2];
+  hit = safety[0] >= 0 &&
+        point[0] * direction[0] < 0 &&
+        Abs(coord1) <= dimensions[1] &&
+        Abs(coord2) <= dimensions[2];
+  Bool_t ok = !done && hit;
+  MaskedAssign(ok, next, &distance);
+  if( returnPlaneId ) {
+      //MaskedAssign(ok, 0, planeid);
+           // assign hitpoint
+         //  MaskedAssign(ok && direction[0] <  0., dimensions[0], &(*hitpoint)[0] );
+         //  MaskedAssign(ok && direction[0] >= 0., -dimensions[0], &(*hitpoint)[0] );
+         //  MaskedAssign(ok, coord1 , &(*hitpoint)[1] );
+         //  MaskedAssign(ok, coord2 , &(*hitpoint)[2] );
+  }
+  done |= hit;
+  if( IsFull(done) ) return;
+
+  // y
+  next = safety[1] / Abs(direction[1] + kTiny);
+  coord1 = point[0] + next * direction[0];
+  coord2 = point[2] + next * direction[2];
+  hit = safety[1] >= 0 &&
+        point[1] * direction[1] < 0 &&
+        Abs(coord1) <= dimensions[0] &&
+        Abs(coord2) <= dimensions[2];
+  MaskedAssign(!done && hit, next, &distance);
+  if( returnPlaneId ) {
+      // MaskedAssign(!done && hit, 1, planeid);
+      // assign hitpoint
+  }
+  done |= hit;
+  if( IsFull(done) ) return;
+
+  // z
+  next = safety[2] / Abs(direction[2] + kTiny);
+  coord1 = point[0] + next * direction[0];
+  coord2 = point[1] + next * direction[1];
+  hit = safety[2] >= 0 &&
+        point[2] * direction[2] < 0 &&
+        Abs(coord1) <= dimensions[0] &&
+        Abs(coord2) <= dimensions[1];
+  ok = !done && hit;
+  MaskedAssign(ok, next, &distance);
+  if( returnPlaneId ) {
+      MaskedAssign(ok, 2, planeid);
+      // assign hitpoint
+    //  MaskedAssign(ok && direction[2] <  0., dimensions[2], &(*hitpoint)[2] );
+     // MaskedAssign(ok && direction[2] >= 0., -dimensions[2], &(*hitpoint)[2] );
+      MaskedAssign(ok, coord1 , &(*hitpoint)[0] );
+      MaskedAssign(ok, coord2 , &(*hitpoint)[1] );
+      // assign hitpoint
+  }
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
