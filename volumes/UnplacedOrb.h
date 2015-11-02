@@ -104,12 +104,12 @@ public:
 #endif
     
 public:
-  virtual int memory_size() const { return sizeof(*this); }
+  virtual int memory_size() const final { return sizeof(*this); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void Print() const;
+  virtual void Print() const final;
 
-  virtual void Print(std::ostream &os) const;
+  virtual void Print(std::ostream &os) const final;
 
   #ifndef VECGEOM_NVCC
 
@@ -160,7 +160,7 @@ private:
       LogicalVolume const *const volume,
       Transformation3D const *const transformation,
       const TranslationCode trans_code, const RotationCode rot_code,
-      VPlacedVolume *const placement = NULL) const {
+      VPlacedVolume *const placement = NULL) const final {
     return CreateSpecializedVolume(volume, transformation, trans_code, rot_code,
                                    placement);
   }
@@ -172,7 +172,7 @@ private:
       LogicalVolume const *const volume,
       Transformation3D const *const transformation,
       const TranslationCode trans_code, const RotationCode rot_code,
-      const int id, VPlacedVolume *const placement = NULL) const {
+      const int id, VPlacedVolume *const placement = NULL) const final {
     return CreateSpecializedVolume(volume, transformation, trans_code, rot_code,
                                    id, placement);
   }

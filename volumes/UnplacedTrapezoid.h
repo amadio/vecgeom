@@ -63,7 +63,7 @@ private:
 
 public:
 
-  virtual int memory_size() const { return sizeof(*this); }
+  virtual int memory_size() const final { return sizeof(*this); }
 
   //Function to check the convexity
   VECGEOM_CUDA_HEADER_BOTH
@@ -71,7 +71,7 @@ public:
 
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void Print() const;
+  virtual void Print() const final;
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECGEOM_CUDA_HEADER_DEVICE
@@ -90,7 +90,7 @@ public:
 
 private:
 
-  virtual void Print(std::ostream &os) const;
+  virtual void Print(std::ostream &os) const final;
 
 //***** Here is the trapezoid-specific code
 
@@ -261,7 +261,7 @@ private:
 #ifdef VECGEOM_NVCC
     const int id,
 #endif
-    VPlacedVolume *const placement = NULL) const;
+    VPlacedVolume *const placement = NULL) const final;
 
   /// \brief Construct the four side planes from pre-stored parameters.
   ///

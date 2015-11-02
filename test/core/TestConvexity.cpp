@@ -298,7 +298,7 @@ bool test_ConvexityScaledOrb() {
 template <class Sphere_t>
 bool test_Sphere(){
 
-    double rmin=0., rmax=5., sphi=0., dphi=2*PI, stheta=0., dtheta=PI;
+    double rmin=0., rmax=5., /*sphi=0., dphi=2*PI,*/ stheta=0., dtheta=PI;
     Sphere_t b9("Solide VecGeomSphere #9", rmin, rmax, PI/3. , 4*PI, stheta, dtheta);
     std::cout<<"New Calculate value of DPHI - B9  : "<<b9.GetDPhi()<<std::endl;
     Sphere_t b10("Solide VecGeomSphere #10", rmin, rmax, PI/3. , 5*PI, stheta, dtheta);

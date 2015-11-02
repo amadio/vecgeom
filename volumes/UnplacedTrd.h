@@ -163,7 +163,7 @@ public:
   VECGEOM_INLINE
   Precision calfy() const { return fCalfY; }
 
-  virtual int memory_size() const { return sizeof(*this); }
+  virtual int memory_size() const final { return sizeof(*this); }
 
   //Function to check the convexity
   VECGEOM_CUDA_HEADER_BOTH
@@ -215,7 +215,7 @@ public:
 #endif
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void Print() const;
+  virtual void Print() const final;
 
   std::string GetEntityType() const { return "Trd";}
 
@@ -240,7 +240,7 @@ public:
 
 private:
 
-  virtual void Print(std::ostream &os) const;
+  virtual void Print(std::ostream &os) const final;
 
   VECGEOM_CUDA_HEADER_DEVICE
   virtual VPlacedVolume* SpecializedVolume(
@@ -250,7 +250,7 @@ private:
 #ifdef VECGEOM_NVCC
       const int id,
 #endif
-      VPlacedVolume *const placement = NULL) const;
+      VPlacedVolume *const placement = NULL) const final;
 };
 
 } } // end global namespace

@@ -292,11 +292,11 @@ public:
     VECGEOM_CUDA_HEADER_BOTH
     double SafetyFromOutsideR(Vector3D<Precision> const& p, double rho, bool /*precise = false*/ ) const;
 
-    virtual int memory_size() const { return sizeof(*this); }
+    virtual int memory_size() const final { return sizeof(*this); }
 
     VECGEOM_CUDA_HEADER_BOTH
-    virtual void Print() const;
-    virtual void Print(std::ostream &os) const;
+    virtual void Print() const final;
+    virtual void Print(std::ostream &os) const final;
 
 #if defined(VECGEOM_USOLIDS)
   std::ostream& StreamInfo(std::ostream &os) const;
@@ -310,7 +310,7 @@ public:
    #ifdef VECGEOM_NVCC
          const int id,
    #endif
-         VPlacedVolume *const placement = NULL) const;
+         VPlacedVolume *const placement = NULL) const final;
 
     template <TranslationCode transCodeT, RotationCode rotCodeT>
      VECGEOM_CUDA_HEADER_DEVICE
