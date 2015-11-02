@@ -15,7 +15,7 @@
 #include "volumes/UnplacedVolume.h"
 #include "volumes/UnplacedCone.h"
 #include "base/Vector.h"
-
+#include <vector>
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedPolycone;)
@@ -68,6 +68,16 @@ public:
     Vector<PolyconeSection> fSections;
     Vector<double> fZs;
 
+
+//These private data member and member functions are added for convexity detection
+private:
+        bool fEqualRmax;
+        bool fContinuityOverAll;
+        bool fConvexityPossible;
+        bool CheckContinuityInZPlane(const double rOuter[],const double zPlane[]);
+        bool CheckContinuityInRmax(const std::vector<Precision> &rOuter);
+        bool CheckContinuityInSlope(const std::vector<Precision> &rOuter, const std::vector<Precision> &zPlane);
+
 public:
     VECGEOM_CUDA_HEADER_BOTH
     void Init(
@@ -77,6 +87,7 @@ public:
          const double zPlane[],  // position of z planes
          const double rInner[],  // tangent distance to inner surface
          const double rOuter[]);
+
 
     // the constructor
     VECGEOM_CUDA_HEADER_BOTH
@@ -90,7 +101,13 @@ public:
                 fDeltaPhi(deltaphi),
                 fNz(Nz),
                 fSections(),
-                fZs(Nz)
+                fZs(Nz),
+                fEqualRmax(true),
+                fContinuityOverAll(true),
+                fConvexityPossible(true)
+
+
+
     {
         // init internal members
         Init(phistart, deltaphi, Nz, z, rmin, rmax);
@@ -103,6 +120,10 @@ public:
                      int     numRZ,        // number corners in r,z space
                      Precision const* r,   // r coordinate of these corners
                      Precision const* z);  // z coordinate of these corners
+
+    //Function to check the convexity
+    VECGEOM_CUDA_HEADER_BOTH
+    virtual bool IsConvex() const override;
 
     VECGEOM_CUDA_HEADER_BOTH
     unsigned int GetNz() const { return fNz; }

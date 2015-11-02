@@ -29,7 +29,7 @@ option(USOLIDS_VECGEOM "Forward USOLIDS volumes to their VecGeom implementation"
 
 option(CUDA "Enable compilation for CUDA." OFF)
 
-option(CUDA_VOLUME_SPECIALIZATION "Use specialized volumes for CUDA." ON)
+option(CUDA_VOLUME_SPECIALIZATION "Use specialized volumes for CUDA." OFF)
 
 option(ROOT "Include ROOT." OFF)
 
@@ -53,7 +53,7 @@ option(DISTANCE_DEBUG "Enable comparison of calculated distances againt ROOT/Gea
 
 option(INPLACE_TRANSFORMATIONS "Put transformation as members rather than pointers into PlacedVolume objects" ON)
 
-option(USE_INDEXEDNAVSTATES "Use indices rather than volume pointers in NavigationState objects" OFF)
+option(USE_INDEXEDNAVSTATES "Use indices rather than volume pointers in NavigationState objects" ON)
 
 option(DATA_DOWNLOAD "Enable downloading of data for tests" OFF)
 
@@ -480,11 +480,13 @@ set(SRC_CPP_RELATIVE
   source/PlacedParallelepiped.cpp
   source/PlacedParaboloid.cpp
   source/PlacedPolyhedron.cpp
+  source/PlacedScaledShape.cpp
   source/PlacedTrapezoid.cpp
   source/PlacedVolume.cpp
   source/Planes.cpp
   source/Quadrilaterals.cpp
   source/Rectangles.cpp
+  source/Scale3D.cpp
   source/SOA3D.cpp
   source/Transformation3D.cpp
   source/UnplacedCone.cpp
@@ -496,6 +498,7 @@ set(SRC_CPP_RELATIVE
   source/UnplacedParaboloid.cpp
   source/UnplacedParallelepiped.cpp
   source/UnplacedPolyhedron.cpp
+  source/UnplacedScaledShape.cpp
   source/UnplacedTrapezoid.cpp
   source/UnplacedVolume.cpp
   source/Vector.cpp
@@ -541,6 +544,9 @@ if(NOT CUDA)
   list(REMOVE_ITEM SRC_CPP_RELATIVE source/Vector.cpp)
 endif()
 
+if(NOT USOLIDS)
+  list(REMOVE_ITEM SRC_CPP_RELATIVE source/USolidsInterfaceHelper.cpp)
+endif()
 
 foreach(SRC ${SRC_CPP_RELATIVE})
   set(SRC_CPP ${SRC_CPP} ${CMAKE_SOURCE_DIR}/${SRC})
@@ -550,6 +556,12 @@ endforeach()
 set(NOT_FOR_CUDA
    ABBoxManager
    ABBoxNavigator
+   CreateParticles
+   Particle
+   Medium
+   Nucleus
+   CreateNuclei
+   Material
 )
 
 
@@ -680,6 +692,8 @@ set(TEST_EXECUTABLES_CORE
 #  ${CMAKE_SOURCE_DIR}/test/core/boolminustest2.cpp
   ${CMAKE_SOURCE_DIR}/test/core/PhiWedgeTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/ThetaConeTest.cpp
+  ${CMAKE_SOURCE_DIR}/test/core/TestConvexity.cpp
+  ${CMAKE_SOURCE_DIR}/test/core/BooleanConvexityTest.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestVecGeomPolycone.cpp
 )
 
@@ -693,6 +707,9 @@ set(TEST_EXECUTABLES_ROOT
   ${CMAKE_SOURCE_DIR}/test/root/ImportTGeoPgon.cpp
   ${CMAKE_SOURCE_DIR}/test/root/TestExportToROOT.cpp
   ${CMAKE_SOURCE_DIR}/test/root/ExitingOrEntering.cpp
+  ${CMAKE_SOURCE_DIR}/test/core/BoxBoxIntersectionTest.cpp
+  ${CMAKE_SOURCE_DIR}/test/core/SplittedABBox.cpp
+ 
 )
 
 # Tests below fail to build when both ROOT and USolids are enabled
@@ -731,9 +748,16 @@ endif()
 
 set(TEST_EXECUTABLES_VISUALIZATION
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeTrap.cpp
+  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizePolycone.cpp
+  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizePolyhedron.cpp
+  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeParboloid.cpp
+  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeCone.cpp
+  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeTorus.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeTube.cpp
+  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeScaled.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/DebugTube.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/DebugPolyhedron.cpp
+  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeSphere.cpp
 )
 
 set(TEST_EXECUTABLES_USOLIDS
@@ -772,11 +796,13 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${CMAKE_SOURCE_DIR}/test/benchmark/TorusBenchmark2.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrapezoidBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrapezoidBenchmarkScript.cpp
-#  ${CMAKE_SOURCE_DIR}/test/benchmark/OrbBenchmark.cpp
-#  ${CMAKE_SOURCE_DIR}/test/benchmark/SphereBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/OrbBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/SphereBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrdBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ConeBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/PolyconeBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/ScaledBenchmark.cpp
+   ${CMAKE_SOURCE_DIR}/test/benchmark/BoxScaledBenchmark.cpp
 )
 set(TEST_EXECUTABLES_CUDA
   # Files go here
@@ -908,7 +934,7 @@ endif()
 
 if (CUDA)
   build_executables("${TEST_EXECUTABLES_CUDA}")
-#  add_to_ctest("${TEST_EXECUTABLES_CUDA}")
+  #  add_to_ctest("${TEST_EXECUTABLES_CUDA}")
 endif()
 
 #---------------------------------------------------------------------------

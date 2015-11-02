@@ -481,8 +481,8 @@ class ThetaCone{
                           Bool_t cond = (point.x()==0. && point.y()==0. && point.z()==0. && dir.z()<zs && dir.z()<ze);
                           MaskedAssign(cond,0.,&distThetaCone1);
                           MaskedAssign(cond,0.,&distThetaCone2);
-                          MaskedAssign(cond,tr,&intsect1); //intsect1=cond;
-                          MaskedAssign(cond,tr,&intsect2); //intsect2=cond;
+                          intsect1 |= (cond && tr);
+                          intsect2 |= (cond && tr);
 
                       }
                   }
@@ -503,32 +503,14 @@ class ThetaCone{
                       if(fSTheta < fETheta)
                       {
                           distThetaCone1 = firstRoot;
-                          //MaskedAssign((d22 > 0.), (-1*b2 - Sqrt(d22))/a2, &secondRoot);
                           MaskedAssign((d22 >= 0.) && b2>0. && a2!=0.,( (-b2 - Sqrt(d22))/(a2) ),&secondRoot);
                           MaskedAssign((d22 >= 0.) && b2<=0.,((c2)/(-b2 + Sqrt(d22)) ),&secondRoot);
-						  //std::cout<<"FirstRoot : "<<firstRoot<<"  :: SecondRoot : "<<secondRoot<<std::endl;
                           MaskedAssign(secondRoot < 0. ,kInfinity, &secondRoot);
                           distThetaCone2 = secondRoot;
-		
-						  //std::cout<<"DistThetaCone1 : "<<distThetaCone1<<std::endl;
-						  //std::cout<<"DistThetaCone2 : "<<distThetaCone2<<std::endl;
-						  //std::cout<<"--------------------------------------------------------\n";
                           Float_t zOfIntSecPtCone1 = (point.z() + distThetaCone1 * dir.z());
                           Float_t zOfIntSecPtCone2 = (point.z() + distThetaCone2 * dir.z());
-
-						  //std::cout<<"zOfIntSecPtCone1 : "<<zOfIntSecPtCone1<<std::endl;
-						  //std::cout<<"zOfIntSecPtCone2 : "<<zOfIntSecPtCone2<<std::endl;
-						  //std::cout<<"--------------------------------------------------------\n";
-
-                          //intsect1 = ((d2 >= 0) && (distThetaCone1!=kInfinity) && (zOfIntSecPtCone1 >= 0.));
-                          //intsect2 = ((d22 >= 0) && (distThetaCone2!=kInfinity) && (zOfIntSecPtCone2 <= 0.));
-						  intsect1 = ((d2 >= 0) && (distThetaCone1!=kInfinity) && ((zOfIntSecPtCone1) > -kHalfTolerance));
+			  intsect1 = ((d2 >= 0) && (distThetaCone1!=kInfinity) && ((zOfIntSecPtCone1) > -kHalfTolerance));
                           intsect2 = ((d22 >= 0) && (distThetaCone2!=kInfinity) && ((zOfIntSecPtCone2) < kHalfTolerance));
-						
-						//std::cout<<"Insect-1 : "<<intsect1<<std::endl;
-						//std::cout<<"Insect-2 : "<<intsect2<<std::endl;
-	
-            
                       }
                   }
               }
@@ -549,13 +531,10 @@ class ThetaCone{
                             MaskedAssign(firstRoot < 0. ,kInfinity, &firstRoot);
                             distThetaCone1 = firstRoot;
                             Float_t zOfIntSecPtCone1 = (point.z() + distThetaCone1 * dir.z());
-                            //intsect1 = ((d2 > 0) && (distThetaCone1!=kInfinity) && (zOfIntSecPtCone1 < 0.));
-						  intsect1 = ((d2 > 0) && (distThetaCone1!=kInfinity) && ((zOfIntSecPtCone1) < kHalfTolerance));
-            
-			              Float_t zOfIntSecPtCone2 = (point.z() + distThetaCone2 * dir.z());
-                          //intsect2 = ((d22 > 0) && (distThetaCone2!=kInfinity) && (zOfIntSecPtCone2 < 0.));
-						  intsect2 = ((d22 > 0) && (distThetaCone2!=kInfinity) && ((zOfIntSecPtCone2) < kHalfTolerance));
-
+			    intsect1 = ((d2 > 0) && (distThetaCone1!=kInfinity) && ((zOfIntSecPtCone1) < kHalfTolerance));
+			    Float_t zOfIntSecPtCone2 = (point.z() + distThetaCone2 * dir.z());
+		            intsect2 = ((d22 > 0) && (distThetaCone2!=kInfinity) && ((zOfIntSecPtCone2) < kHalfTolerance));
+ 
                           Float_t dirRho2 = dir.x()*dir.x() + dir.y()*dir.y();
                           Float_t zs(-kInfinity);
                           if(tanSTheta)
@@ -566,8 +545,8 @@ class ThetaCone{
                           Bool_t cond = (point.x()==0. && point.y()==0. && point.z()==0. && dir.z()>zs && dir.z()>ze);
                           MaskedAssign(cond,0.,&distThetaCone1);
                           MaskedAssign(cond,0.,&distThetaCone2);
-                          MaskedAssign(cond,tr,&intsect1); //intsect1=cond;
-                          MaskedAssign(cond,tr,&intsect2); //intsect2=cond;
+                          intsect1 |= (cond && tr);
+                          intsect2 |= (cond && tr);
                          }
                       }
                   }
@@ -618,11 +597,11 @@ class ThetaCone{
 	
 	completelyinside = (isPointOnZAxis && ((startTheta==zero && endTheta==pi) || (localPoint.z()>zero && startTheta==zero) || (localPoint.z()<zero && endTheta==pi) ));
 	
-	MaskedAssign(!completelyoutside,(isPointOnXYPlane && ((startTheta<pi/2 && endTheta<pi/2 && (pi/2 - startTheta)>kAngTolerance && (pi/2 - endTheta)>kTolerance)
-		|| (startTheta>pi/2 && endTheta>pi/2 && (startTheta-pi/2)>kAngTolerance && (endTheta-pi/2)>kTolerance))),&completelyoutside);
+	completelyoutside |= (!completelyoutside && (isPointOnXYPlane && ((startTheta<pi/2 && endTheta<pi/2 && (pi/2 - startTheta)>kAngTolerance && (pi/2 - endTheta)>kTolerance)
+			|| (startTheta>pi/2 && endTheta>pi/2 && (startTheta-pi/2)>kAngTolerance && (endTheta-pi/2)>kTolerance))));
 	
-		
-	MaskedAssign(!completelyinside, (isPointOnXYPlane && (startTheta<pi/2 && endTheta>pi/2 && (pi/2 - startTheta)>kAngTolerance && (endTheta-pi/2)>kTolerance)),&completelyinside);	
+
+	completelyinside |= (!completelyinside && (isPointOnXYPlane && (startTheta<pi/2 && endTheta>pi/2 && (pi/2 - startTheta)>kAngTolerance && (endTheta-pi/2)>kTolerance)));
 		 
 	if(fSTheta < kPi/2 + halfAngTolerance )
               {
@@ -635,7 +614,7 @@ class ThetaCone{
 			if(ForInside)
             {
     
-                	MaskedAssign(!completelyinside,( ((rad <= tolAngMax) && (rad >= tolAngMin) && (localPoint.z() > zero) && (fSTheta!=zero)) || ((rad <= tolAngMax) && (fSTheta==zero) && (localPoint.z() > zero) )  ),&completelyinside);
+				completelyinside |= (!completelyinside && ( ((rad <= tolAngMax) && (rad >= tolAngMin) && (localPoint.z() > zero) && (fSTheta!=zero)) || ((rad <= tolAngMax) && (fSTheta==zero) && (localPoint.z() > zero) )  ));
     
 
             }
@@ -643,7 +622,7 @@ class ThetaCone{
             		Float_t tolAngMin2 = cone1Radius - 2*kAngTolerance*10.;
             		Float_t tolAngMax2 = cone2Radius + 2*kAngTolerance*10.;
     
-			MaskedAssign(!completelyoutside,((rad < tolAngMin2) || (rad > tolAngMax2) || (localPoint.z() < 0.)),&completelyoutside);
+            completelyoutside |= (!completelyoutside && ((rad < tolAngMin2) || (rad > tolAngMax2) || (localPoint.z() < 0.)));
 	
 					
             }
@@ -656,10 +635,10 @@ class ThetaCone{
             		Float_t tolAngMax = cone2Radius + 2*kAngTolerance*10.;
 					if(ForInside)
             		
-					MaskedAssign(!completelyinside,(((rad >= tolAngMin) && (localPoint.z() > 0.)) || ((rad >= tolAngMax) && (localPoint.z() < 0.))),&completelyinside);
+					completelyinside |= (!completelyinside && (((rad >= tolAngMin) && (localPoint.z() > 0.)) || ((rad >= tolAngMax) && (localPoint.z() < 0.))) );
             		Float_t tolAngMin2 = cone1Radius - 2*kAngTolerance*10.;
             		Float_t tolAngMax2 = cone2Radius - 2*kAngTolerance*10.;
-            		MaskedAssign(!completelyoutside,(((rad < tolAngMin2) && (localPoint.z() > 0.))  || ((rad < tolAngMax2) && (localPoint.z() < 0.))),&completelyoutside);
+            		completelyoutside |= (!completelyoutside && (((rad < tolAngMin2) && (localPoint.z() > 0.))  || ((rad < tolAngMax2) && (localPoint.z() < 0.))));
             		
 		      }
 		  }
@@ -667,8 +646,8 @@ class ThetaCone{
             if(fETheta >= kPi/2 - halfAngTolerance && fETheta <= kPi/2 + halfAngTolerance)
             {
     
-                    MaskedAssign(Abs(localPoint.z())<halfAngTolerance ,Bool_t(false) ,&completelyinside);
-                    MaskedAssign(Abs(localPoint.z())<halfAngTolerance ,Bool_t(false) ,&completelyoutside);
+            	completelyinside &= !(Abs(localPoint.z())<halfAngTolerance) ;
+            	completelyoutside &= !(Abs(localPoint.z())<halfAngTolerance) ;
             }
             
 	      }
@@ -678,8 +657,8 @@ class ThetaCone{
              if(fSTheta >= kPi/2 - halfAngTolerance && fSTheta <= kPi/2 + halfAngTolerance)
             {
     
-                    MaskedAssign(Abs(localPoint.z())<halfAngTolerance ,Bool_t(false) ,&completelyinside);
-                    MaskedAssign(Abs(localPoint.z())<halfAngTolerance ,Bool_t(false) ,&completelyoutside);
+            	 completelyinside &= !(Abs(localPoint.z())<halfAngTolerance) ;
+            	 completelyoutside &= !(Abs(localPoint.z())<halfAngTolerance) ;
             }
             
 		if(fSTheta > kPi/2 + halfAngTolerance)
@@ -691,13 +670,13 @@ class ThetaCone{
 					if(ForInside)
                     {
                     
-                    MaskedAssign(!completelyinside,(((rad <= tolAngMin) && (rad >= tolAngMax) && (localPoint.z() < zero) && (fETheta!=pi)) || ((rad <= tolAngMin) && (localPoint.z() < zero) && (fETheta==pi))),&completelyinside);
+						completelyinside |= (!completelyinside && (((rad <= tolAngMin) && (rad >= tolAngMax) && (localPoint.z() < zero) && (fETheta!=pi)) || ((rad <= tolAngMin) && (localPoint.z() < zero) && (fETheta==pi))));
                        
                     }
 
             				Float_t tolAngMin2 = cone1Radius + 2*kAngTolerance*10.;
             				Float_t tolAngMax2 = cone2Radius - 2*kAngTolerance*10.;
-           				MaskedAssign(!completelyoutside,((rad < tolAngMax2) || (rad > tolAngMin2) || (localPoint.z() > 0.)),&completelyoutside);
+            				completelyoutside |= (!completelyoutside && ((rad < tolAngMax2) || (rad > tolAngMin2) || (localPoint.z() > 0.)));
            				
 
 				}

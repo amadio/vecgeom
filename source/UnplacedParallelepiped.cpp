@@ -88,6 +88,12 @@ void UnplacedParallelepiped::Extent(Vector3D<Precision> & aMin, Vector3D<Precisi
   aMax = 1;
 }
 
+VECGEOM_CUDA_HEADER_BOTH
+bool UnplacedParallelepiped::IsConvex() const{
+		  //A parallelepiped is convex shape
+          return true;
+      }
+
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECGEOM_CUDA_HEADER_DEVICE
 VPlacedVolume* UnplacedParallelepiped::Create(

@@ -137,6 +137,14 @@ private:
   mutable Precision fSurfaceArea; ///< Stored SurfaceArea
   mutable Precision fCapacity;    ///< Stored Capacity
 
+//These private data member and member functions are added for convexity detection
+private:
+  bool fContinuousInSlope;
+  bool fConvexityPossible;
+  bool fEqualRmax;
+  VECGEOM_CUDA_HEADER_BOTH
+  bool CheckContinuityInSlope(const double rOuter[], const double zPlane[],unsigned int zPlaneCount);
+
 public:
 
   /// \param sideCount Number of sides along phi in each Z-segment.
@@ -381,6 +389,12 @@ public:
     }
 
 
+  //Function to check the convexity
+  VECGEOM_CUDA_HEADER_BOTH
+  //VECGEOM_INLINE
+  virtual bool IsConvex() const override;
+
+
   VECGEOM_CUDA_HEADER_BOTH
   virtual void Print() const;
 
@@ -393,6 +407,26 @@ public:
   std::ostream& StreamInfo(std::ostream &os) const;
 #endif
 
+  template <TranslationCode transCodeT, RotationCode rotCodeT>
+  VECGEOM_CUDA_HEADER_DEVICE
+  static VPlacedVolume* Create(LogicalVolume const *const logical_volume,
+                               Transformation3D const *const transformation,
+#ifdef VECGEOM_NVCC
+                               const int id,
+#endif
+                               VPlacedVolume *const placement = NULL);
+                               
+  VECGEOM_CUDA_HEADER_DEVICE
+  virtual VPlacedVolume* SpecializedVolume(
+      LogicalVolume const *const volume,
+      Transformation3D const *const transformation,
+      const TranslationCode trans_code, const RotationCode rot_code,
+#ifdef VECGEOM_NVCC
+      const int id,
+#endif
+      VPlacedVolume *const placement = NULL) const;
+/*
+>>>>>>> master
   VECGEOM_CUDA_HEADER_DEVICE
   VPlacedVolume* SpecializedVolume(
       LogicalVolume const *const volume,
@@ -402,7 +436,7 @@ public:
       const int id,
 #endif
       VPlacedVolume *const placement) const;
-
+*/
   VECGEOM_INLINE
     virtual int memory_size() const { return sizeof(*this); }
 

@@ -221,6 +221,10 @@ public:
     }
 
     // public interfaces
+    //Function to check the convexity
+    VECGEOM_CUDA_HEADER_BOTH
+    virtual bool IsConvex() const override;
+
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetRmin1() const {return fRmin1;}
     VECGEOM_CUDA_HEADER_BOTH

@@ -12,6 +12,12 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+VECGEOM_CUDA_HEADER_BOTH
+bool UnplacedTrd::IsConvex() const{
+          //A Trd is convex shape
+          return true;
+      }
+
 void UnplacedTrd::Print() const {
   printf("UnplacedTrd {%.2f, %.2f, %.2f, %.2f, %.2f}",
          dx1(), dx2(), dy1(), dy2(), dz() );
@@ -46,18 +52,6 @@ Precision UnplacedTrd::SurfaceArea() const {
   return SA;
 }
 
-/*
-
-void UnplacedTrd::Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const {
-    aMin.x() = -1.0 * Min(dx1(), dx2());
-    aMax.x() = Max(dx1(), dx2());
-    aMin.y() = -1.0 * Min(dy1(), dy2());
-    aMax.y() = Max(dy1(), dy2());
-    aMin.z() = -dz();
-    aMax.z() = dz();
-}
-*/
-
 int UnplacedTrd::ChooseSurface() const {
     int choice = 0; // 0 = zm, 1 = zp, 2 = ym, 3 = yp, 4 = xm, 5 = xp
     Precision S[6], Stotal = 0.0;
@@ -77,7 +71,6 @@ int UnplacedTrd::ChooseSurface() const {
         rand -= S[choice], choice++;
 
     assert(choice < 6);
-
     return choice;
 }
 
@@ -143,16 +136,16 @@ bool UnplacedTrd::Normal(Vector3D<Precision> const& point, Vector3D<Precision>& 
   Precision xnorm = 1.0 / sqrt(4*fDZ*fDZ + (fDX2-fDX1)*(fDX2-fDX1));
   Precision ynorm = 1.0 / sqrt(4*fDZ*fDZ + (fDY2-fDY1)*(fDY2-fDY1));
 
-  Precision distmx = -2.0*fDZ*point[0] + 0.0*point[1] - (fDX2-fDX1)*point[2] - fDZ*(fDX1+fDX2);
+  Precision distmx = -2.0*fDZ*point[0] - (fDX2-fDX1)*point[2] - fDZ*(fDX1+fDX2);
   distmx *= xnorm;
 
-  Precision distpx =  2.0*fDZ*point[0] + 0.0*point[1] - (fDX2-fDX1)*point[2] - fDZ*(fDX1+fDX2);
+  Precision distpx =  2.0*fDZ*point[0] - (fDX2-fDX1)*point[2] - fDZ*(fDX1+fDX2);
   distpx *= xnorm;
 
-  Precision distmy = 0.0*point[0] - 2.0*fDZ*point[1] - (fDY2-fDY1)*point[2] - fDZ*(fDY1+fDY2);
+  Precision distmy = -2.0*fDZ*point[1] - (fDY2-fDY1)*point[2] - fDZ*(fDY1+fDY2);
   distmy *= ynorm;
 
-  Precision distpy = 0.0*point[0] + 2.0*fDZ*point[1] - (fDY2-fDY1)*point[2] - fDZ*(fDY1+fDY2);
+  Precision distpy =  2.0*fDZ*point[1] - (fDY2-fDY1)*point[2] - fDZ*(fDY1+fDY2);
   distpy *= ynorm;
 
   if (fabs(distmx) <= kHalfTolerance) {

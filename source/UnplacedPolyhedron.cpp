@@ -5,6 +5,8 @@
 #include "volumes/UnplacedPolyhedron.h"
 #include "volumes/PlacedPolyhedron.h"
 #include "volumes/SpecializedPolyhedron.h"
+#include "volumes/utilities/GenerationUtilities.h"
+#include "management/VolumeFactory.h"
 
 #include <cmath>
 #include <memory>
@@ -25,6 +27,25 @@ UnplacedPolyhedron::UnplacedPolyhedron(
 
 
 VECGEOM_CUDA_HEADER_BOTH
+bool UnplacedPolyhedron::CheckContinuityInSlope(const double rOuter[], const double zPlane[],const unsigned int fNz){
+
+    bool continuous=true;
+    Precision startSlope = (rOuter[1]-rOuter[0])/(zPlane[1]-zPlane[0]);
+    for (unsigned int j = 1; j < fNz; j++ )
+    {
+        Precision currentSlope =  (rOuter[j+1]-rOuter[j])/(zPlane[j+1]-zPlane[j]);
+        continuous &= (currentSlope <= startSlope);
+        startSlope = currentSlope;
+        if(!continuous)
+            break;
+
+
+    }
+
+    return continuous;
+}
+
+VECGEOM_CUDA_HEADER_BOTH
 UnplacedPolyhedron::UnplacedPolyhedron(
     Precision phiStart,
     Precision phiDelta,
@@ -38,7 +59,9 @@ UnplacedPolyhedron::UnplacedPolyhedron(
       fPhiStart(phiStart),fPhiDelta(phiDelta),
       fZSegments(zPlaneCount-1), fZPlanes(zPlaneCount), fRMin(zPlaneCount),
       fRMax(zPlaneCount), fPhiSections(sideCount+1),
-      fBoundingTube(0, 1, 1, 0, kTwoPi),fSurfaceArea(0.),fCapacity(0.) {
+        fBoundingTube(0, 1, 1, 0, kTwoPi),fSurfaceArea(0.),
+        fCapacity(0.),fContinuousInSlope(true),fConvexityPossible(true),fEqualRmax(true) {
+
   // initialize polyhedron internals
   Initialize(phiStart, phiDelta, sideCount, zPlaneCount, zPlanes, rMin, rMax);
 }
@@ -64,6 +87,14 @@ void UnplacedPolyhedron::Initialize(
   copy(zPlanes, zPlanes+zPlaneCount, &fZPlanes[0]);
   copy(rMin, rMin+zPlaneCount, &fRMin[0]);
   copy(rMax, rMax+zPlaneCount, &fRMax[0]);
+
+  double startRmax = rMax[0];
+  for(int i=0 ; i<zPlaneCount ; i++)
+  {
+      fConvexityPossible &= (rMin[i]==0.);
+      fEqualRmax &= (startRmax==rMax[i]);
+  }
+  fContinuousInSlope = CheckContinuityInSlope(rMax,zPlanes,zPlaneCount);
 
   // Initialize segments
   // sometimes there will be no quadrilaterals: for instance when
@@ -367,6 +398,79 @@ int UnplacedPolyhedron::GetNQuadrilaterals() const {
 #endif
 
 
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+VECGEOM_CUDA_HEADER_DEVICE
+VPlacedVolume* UnplacedPolyhedron::Create(
+    LogicalVolume const *const logical_volume,
+    Transformation3D const *const transformation,
+    //const TranslationCode trans_code, const RotationCode rot_code,
+#ifdef VECGEOM_NVCC
+    const int id,
+#endif
+    VPlacedVolume *const placement) {
+
+//#ifndef VECGEOM_NO_SPECIALIZATION
+
+  UnplacedPolyhedron const *unplaced =
+      static_cast<UnplacedPolyhedron const *>(logical_volume->GetUnplacedVolume());
+
+  EInnerRadii innerRadii = unplaced->HasInnerRadii() ? EInnerRadii::kTrue
+                                                     : EInnerRadii::kFalse;
+
+  EPhiCutout phiCutout = unplaced->HasPhiCutout() ? (unplaced->HasLargePhiCutout() ? EPhiCutout::kLarge
+                                                                                   : EPhiCutout::kTrue)
+                                                  : EPhiCutout::kFalse;
+
+  #ifndef VECGEOM_NVCC
+    #define POLYHEDRON_CREATE_SPECIALIZATION(INNER, PHI) return CreateSpecializedWithPlacement< \
+    SpecializedPolyhedron<transCodeT,rotCodeT,INNER,PHI> >(logical_volume, transformation, placement)
+    #else
+    #define POLYHEDRON_CREATE_SPECIALIZATION(INNER, PHI) return CreateSpecializedWithPlacement< \
+    SpecializedPolyhedron<transCodeT,rotCodeT,INNER,PHI> >(logical_volume, transformation, id, placement)
+    #endif
+
+  if(innerRadii == EInnerRadii::kTrue)
+  {
+    if( phiCutout == EPhiCutout::kFalse )
+      POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kTrue, EPhiCutout::kFalse);
+    if( phiCutout == EPhiCutout::kTrue )
+      POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kTrue, EPhiCutout::kTrue);
+    if( phiCutout == EPhiCutout::kLarge )
+      POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kTrue, EPhiCutout::kLarge);
+      
+  }
+  else
+  {
+    if( phiCutout == EPhiCutout::kFalse )
+      POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kFalse, EPhiCutout::kFalse);
+    if( phiCutout == EPhiCutout::kTrue )
+      POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kFalse, EPhiCutout::kTrue);
+    if( phiCutout == EPhiCutout::kLarge )
+      POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kFalse, EPhiCutout::kLarge);
+  }
+
+
+//Return value in case of NO_SPECIALIZATION
+if (placement){
+ new (placement) SpecializedPolyhedron<transCodeT, rotCodeT, Polyhedron::EInnerRadii::kGeneric,
+#ifdef VECGEOM_NVCC
+   Polyhedron::EPhiCutout::kGeneric>(logical_volume,transformation, id);
+#else
+ Polyhedron::EPhiCutout::kGeneric>(logical_volume,transformation);
+#endif
+ return placement;
+}
+
+return new SpecializedPolyhedron<translation::kGeneric, rotation::kGeneric, Polyhedron::EInnerRadii::kGeneric,
+#ifdef VECGEOM_NVCC
+   Polyhedron::EPhiCutout::kGeneric>(logical_volume,transformation ,id);
+#else
+   Polyhedron::EPhiCutout::kGeneric>(logical_volume,transformation);
+#endif
+
+#undef POLYHEDRON_CREATE_SPECIALIZATION
+}
+
 VECGEOM_CUDA_HEADER_DEVICE
 VPlacedVolume* UnplacedPolyhedron::SpecializedVolume(
     LogicalVolume const *const volume,
@@ -377,71 +481,12 @@ VPlacedVolume* UnplacedPolyhedron::SpecializedVolume(
 #endif
     VPlacedVolume *const placement) const {
 
-#ifndef VECGEOM_NO_SPECIALIZATION
-
-  UnplacedPolyhedron const *unplaced =
-      static_cast<UnplacedPolyhedron const *>(volume->GetUnplacedVolume());
-
-  EInnerRadii innerRadii = unplaced->HasInnerRadii() ? EInnerRadii::kTrue
-                                                     : EInnerRadii::kFalse;
-
-  EPhiCutout phiCutout = unplaced->HasPhiCutout() ? (unplaced->HasLargePhiCutout() ? EPhiCutout::kLarge
-                                                                                   : EPhiCutout::kTrue)
-                                                  : EPhiCutout::kFalse;
-
-  #ifndef VECGEOM_NVCC
-    #define POLYHEDRON_CREATE_SPECIALIZATION(INNER, PHI) \
-    if (innerRadii == INNER && phiCutout == PHI) { \
-      if (placement) { \
-        return new(placement) \
-               SpecializedPolyhedron<INNER, PHI>(volume, transformation); \
-      } else { \
-        return new SpecializedPolyhedron<INNER, PHI>(volume, transformation); \
-      } \
-    }
-  #else
-    #define POLYHEDRON_CREATE_SPECIALIZATION(INNER, PHI) \
-    if (innerRadii == INNER && phiCutout == PHI) { \
-      if (placement) { \
-        return new(placement) \
-               SpecializedPolyhedron<INNER, PHI>(volume, transformation, id); \
-      } else { \
-        return new \
-               SpecializedPolyhedron<INNER, PHI>(volume, transformation, id); \
-      } \
-    }
-  #endif
-
-  POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kTrue, EPhiCutout::kFalse);
-  POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kTrue, EPhiCutout::kTrue);
-  POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kTrue, EPhiCutout::kLarge);
-  POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kFalse, EPhiCutout::kFalse);
-  POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kFalse, EPhiCutout::kTrue);
-  POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kFalse, EPhiCutout::kLarge);
-
+  return VolumeFactory::CreateByTransformation<
+      UnplacedPolyhedron>(volume, transformation, trans_code, rot_code,
+#ifdef VECGEOM_NVCC
+                              id,
 #endif
-
-#ifndef VECGEOM_NVCC
-  if (placement) {
-    return new(placement)
-           SpecializedPolyhedron<EInnerRadii::kGeneric, EPhiCutout::kGeneric>(
-               volume, transformation);
-  } else {
-    return new SpecializedPolyhedron<EInnerRadii::kGeneric, EPhiCutout::kGeneric>(
-        volume, transformation);
-  }
-#else
-  if (placement) {
-    return new(placement)
-           SpecializedPolyhedron<EInnerRadii::kGeneric, EPhiCutout::kGeneric>(
-               volume, transformation, id);
-  } else {
-    return new SpecializedPolyhedron<EInnerRadii::kGeneric, EPhiCutout::kGeneric>(
-        volume, transformation, id);
-  }
-#endif
-
-  #undef POLYHEDRON_CREATE_SPECIALIZATION
+                              placement);
 }
 
 #ifndef VECGEOM_NVCC
@@ -968,6 +1013,27 @@ void UnplacedPolyhedron::Print(std::ostream &os) const {
      << ((fHasInnerRadii) ? "has inner radii" : "no inner radii") << "}";
 }
 
+VECGEOM_CUDA_HEADER_BOTH
+bool UnplacedPolyhedron::IsConvex() const{
+    //Default safe convexity value
+      bool convexity = false;
+
+        if(fConvexityPossible)
+        {
+          if(fEqualRmax && (fPhiDelta<=180 || fPhiDelta==360))  //In this case, Polycone become solid Cylinder, No need to check anything else, 100% convex
+            convexity = true;
+          else
+          {
+             if( fPhiDelta<=180 || fPhiDelta==360)
+             {
+                 convexity = fContinuousInSlope;
+             }
+          }
+        }
+
+        return convexity;
+
+      }
 
 #ifdef VECGEOM_CUDA_INTERFACE
 

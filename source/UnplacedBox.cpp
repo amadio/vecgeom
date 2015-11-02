@@ -39,6 +39,10 @@ void UnplacedBox::Print(std::ostream &os) const {
   }
 #endif
 
+VECGEOM_CUDA_HEADER_BOTH
+bool UnplacedBox::IsConvex() const {
+      return true;
+  }
 
 #ifndef VECGEOM_NVCC
 //______________________________________________________________________________

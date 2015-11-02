@@ -22,6 +22,7 @@
 #include "volumes/UnplacedTorus2.h"
 #include "volumes/UnplacedTrapezoid.h"
 #include "volumes/UnplacedPolycone.h"
+#include "volumes/UnplacedScaledShape.h"
 #include "materials/Medium.h"
 #include "materials/Material.h"
 
@@ -44,6 +45,8 @@
 #include "TGeoArb8.h"
 #include "TGeoPcon.h"
 #include "TGeoShapeAssembly.h"
+#include "TGeoScaledShape.h"
+#include "TGeoEltu.h"
 
 #include <cassert>
 #include <iostream>
@@ -486,6 +489,25 @@ VUnplacedVolume* RootGeoManager::Convert(TGeoShape const *const shape) {
             p->GetRmin(),
             p->GetRmax());
    }
+
+  // THE SCALED SHAPE
+   if (shape->IsA() == TGeoScaledShape::Class()) {
+     TGeoScaledShape const *const p = static_cast<TGeoScaledShape const*>(shape);
+     // First convert the referenced shape
+     VUnplacedVolume *referenced_shape = Convert(p->GetShape());
+     const double *scale_root = p->GetScale()->GetScale();
+     unplaced_volume = new UnplacedScaledShape(referenced_shape,
+                               scale_root[0], scale_root[1], scale_root[2]);
+   }
+   
+   // THE ELLIPTICAL TUBE AS SCALED TUBE      
+   if (shape->IsA() == TGeoEltu::Class()) {
+     TGeoEltu const *const p = static_cast<TGeoEltu const*>(shape);
+     // Create the corresponding unplaced tube, with:
+     //   rmin=0, rmax=A, dz=dz, which is scaled with (1., A/B, 1.)
+     UnplacedTube *tubeUnplaced = new UnplacedTube(0, p->GetA(), p->GetDZ(), 0, kTwoPi);
+     unplaced_volume = new UnplacedScaledShape(tubeUnplaced, 1.,p->GetB()/p->GetA(), 1.);
+   }  
 
    // New volumes should be implemented here...
   if (!unplaced_volume) {

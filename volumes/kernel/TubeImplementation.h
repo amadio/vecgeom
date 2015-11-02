@@ -444,10 +444,10 @@ struct TubeImplementation {
     Bool_t okz = (pos_local.z() * dir_local.z()) < 0;
 
     // outside of Z range and going away?
-    if(Backend::early_returns && abspz > tube.z() && !okz) return;
+    if(Backend::early_returns && IsFull(abspz > tube.z() && !okz)) return;
     // outside of tube and going away?
-    if(Backend::early_returns && Abs(pos_local.x()) > tube.rmax() && pos_dot_dir_x >= 0) return;
-    if(Backend::early_returns && Abs(pos_local.y()) > tube.rmax() && pos_dot_dir_y >= 0) return;
+    if(Backend::early_returns && IsFull(Abs(pos_local.x()) > tube.rmax() && pos_dot_dir_x >= 0)) return;
+    if(Backend::early_returns && IsFull(Abs(pos_local.y()) > tube.rmax() && pos_dot_dir_y >= 0)) return;
 
 
 
@@ -710,7 +710,7 @@ struct TubeImplementation {
       Bool_t insector;
       PointInCyclicalSector<Backend, tubeTypeT, UnplacedTube, false>(tube, local_point.x(), local_point.y(), insector);
 
-      if(Backend::early_returns && insector) return;
+      if(Backend::early_returns && IsFull(insector)) return;
 
       Float_t safephi;
       PhiPlaneSafety<Backend, tubeTypeT, false>(tube, local_point, safephi);

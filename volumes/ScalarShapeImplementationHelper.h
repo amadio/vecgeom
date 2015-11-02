@@ -267,13 +267,17 @@ public:
                                   Vector3D<Precision> const &direction,
                                   Vector3D<Precision> &normal,
                                   bool &convex, Precision step = kInfinity ) const {
-        Precision d = DistanceToOut(point, direction, step );
-        Vector3D<Precision> hitpoint = point + d*direction;
-        PlacedShape_t::Normal( hitpoint, normal );
-        // we could make this something like
-        // convex = PlacedShape_t::IsConvex;
-        convex = false;
-        return d;
+    Precision d = DistanceToOut(point, direction, step );
+    Vector3D<Precision> hitpoint = point + d*direction;
+    PlacedShape_t::Normal( hitpoint, normal );
+
+    // Lets the shape tell itself whether it is convex or not.
+    // convex = PlacedShape_t::IsConvex;
+
+    // Now Convexity is defined only for UnplacedVolume, not required for PlacedVolume
+    convex = this->GetUnplacedVolume()->UnplacedShape_t::IsConvex();
+
+    return d;
   }
 #endif
 

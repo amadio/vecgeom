@@ -7,6 +7,7 @@
 #include "navigation/NavigationState.h"
 #include "navigation/ABBoxNavigator.h"
 #include "volumes/UnplacedBooleanVolume.h"
+#include "volumes/UnplacedScaledShape.h"
 #include "volumes/LogicalVolume.h"
 
 #include <dlfcn.h>
@@ -140,6 +141,11 @@ void GeoManager::CompactifyMemory() {
             bvol->SetLeft( ConvertOldToNew( bvol->GetLeft() ) );
             bvol->SetRight( ConvertOldToNew( bvol->GetRight() ));
         }
+	     // same for scaled shape volume
+        UnplacedScaledShape *svol;
+        if( (svol = const_cast<UnplacedScaledShape *>(dynamic_cast<UnplacedScaledShape const *>( v.second->GetUnplacedVolume())))){
+            svol->SetPlaced( ConvertOldToNew( svol->GetPlaced() ) );
+        }	
     }
     // cleanup conversion map ... automatically done
 

@@ -20,6 +20,99 @@
 namespace vecgeom {
 inline namespace cxx {
 
+/** Splitted Aligned bounding boxes
+ *
+ *  This function will calculate the "numOfSlices" num of aligned bounding
+ *  boxes of "numOfSlices" divisions of Bounding box of Placed Volume
+ *
+ *  input : 1. *pvol : A pointer to the Placed Volume.
+ *  	    2. numOfSlices : that user want
+ *
+ *  output : lowerc : A STL vector containing the lower extent of the newly
+ *  				  calculated "numOfSlices" num of Aligned Bounding boxes
+ *
+ *           upperc : A STL vector containing the upper extent of the newly
+ *  				  calculated "numOfSlices" num of Aligned Bounding boxes
+ *
+ */
+void ABBoxManager::ComputeSplittedABBox(VPlacedVolume const *pvol, std::vector<ABBox_t> &lowerc,
+                                        std::vector<ABBox_t> &upperc, int numOfSlices) {
+
+  // idea: Split the Placed Bounding Box of volume into the numOfSlices.
+  //		  Then pass each placed slice to the ComputABBox function,
+  //		  Get the coordinates of lower and upper corner of splittedABBox,
+  //		  store these coordinates into the vector of coordinates provided
+  //		  by the calling function.
+
+  Vector3D<Precision> tmpLower, tmpUpper;
+  pvol->Extent(tmpLower, tmpUpper);
+  Vector3D<Precision> delta = tmpUpper - tmpLower;
+  // chose the largest dimension for splitting
+  int dim = 0;                                        // 0 for x, 1 for y,  2 for z //default considering X is largest
+  if (delta.y() > delta.x() && delta.y() > delta.z()) // if y is largest
+    dim = 1;
+  if (delta.z() > delta.x() && delta.z() > delta.y()) // if z is largest
+    dim = 2;
+
+  Precision splitDx = 0., splitDy = 0., splitDz = 0.;
+  splitDx = delta.x();
+  splitDy = delta.y();
+  splitDz = delta.z();
+
+  // Only one will execute, considering slicing only in one dimension
+  Precision val = 0.;
+
+  if (dim == 0) {
+    splitDx = delta.x() / numOfSlices;
+    val = -delta.x() / 2 + splitDx / 2;
+  }
+  if (dim == 1) {
+    splitDy = delta.y() / numOfSlices;
+    val = -delta.y() / 2 + splitDy / 2;
+  }
+  if (dim == 2) {
+    splitDz = delta.z() / numOfSlices;
+    val = -delta.z() / 2 + splitDz / 2;
+  }
+
+  // Precision minx, miny, minz, maxx, maxy, maxz;
+  Transformation3D const *transf = pvol->GetTransformation();
+
+  // Actual Stuff of slicing
+  for (int i = 0; i < numOfSlices; i++) {
+    // TODO :  Try to create sliced placed box.
+    // Needs to modifiy translation parameters, without touching rotation
+    // parameters
+
+    Transformation3D transf2;
+    Vector3D<Precision> transVec(0., 0., 0.);
+    if (dim == 0) {
+      transVec = transf->InverseTransform(Vector3D<Precision>(val, 0., 0.));
+      val += splitDx;
+    }
+    if (dim == 1) {
+      transVec = transf->InverseTransform(Vector3D<Precision>(0., val, 0.));
+      val += splitDy;
+    }
+    if (dim == 2) {
+      transVec = transf->InverseTransform(Vector3D<Precision>(0., 0., val));
+      val += splitDz;
+    }
+
+    transf2.SetTranslation(transVec);
+    transf2.SetRotation(transf->Rotation()[0], transf->Rotation()[1], transf->Rotation()[2], transf->Rotation()[3],
+                        transf->Rotation()[4], transf->Rotation()[5], transf->Rotation()[6], transf->Rotation()[7],
+                        transf->Rotation()[8]);
+    transf2.SetProperties();
+
+    Vector3D<Precision> lower1(0., 0., 0.), upper1(0., 0., 0.);
+    UnplacedBox newBox2(splitDx / 2., splitDy / 2., splitDz / 2.);
+    VPlacedVolume const *newBoxPlaced2 = LogicalVolume("", &newBox2).Place(&transf2);
+    ABBoxManager::Instance().ComputeABBox(newBoxPlaced2, &lower1, &upper1);
+    lowerc.push_back(lower1);
+    upperc.push_back(upper1);
+  }
+}
 
 void ABBoxManager::ComputeABBox(VPlacedVolume const *pvol, ABBox_t *lowerc, ABBox_t *upperc) {
   // idea: take the 8 corners of the bounding box in the reference frame of pvol

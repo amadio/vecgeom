@@ -27,6 +27,23 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
         os << "UnplacedCone; please implement Print to outstream\n";
     }
 
+    VECGEOM_CUDA_HEADER_BOTH
+    bool UnplacedCone::IsConvex() const{
+
+      //Default safe convexity value
+      bool convexity = false;
+
+      //Logic to calculate the convexity
+      if(fRmin1==0. && fRmin2==0.) //Implies Solid cone
+              {
+                if( fDPhi<=kPi || fDPhi==kTwoPi)
+                  convexity = true;
+              }
+      return convexity;
+
+      }
+
+
 #if !defined(VECGEOM_NVCC)
     bool UnplacedCone::Normal(Vector3D<Precision> const& p, Vector3D<Precision>& norm) const {
       int noSurfaces = 0;
@@ -130,7 +147,6 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
           distNearest = distSPhi;
           normNearest = nPs;
         }
-
         if (inside && distEPhi <= kHalfTolerance) {
           noSurfaces ++;
           sumnorm += nPe;
@@ -140,7 +156,6 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
           normNearest = nPe;
         }
       }
-
       // Final checks
       if (noSurfaces == 0) norm = normNearest;
       else if (noSurfaces == 1) norm = sumnorm;

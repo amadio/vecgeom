@@ -57,6 +57,9 @@ public:
   VECGEOM_INLINE
   Precision z() const { return dimensions_[2]; }
 
+  VECGEOM_CUDA_HEADER_BOTH
+  virtual bool IsConvex() const override;
+
 #if !defined(VECGEOM_NVCC)
   VECGEOM_INLINE
   Precision volume() const {
@@ -75,6 +78,8 @@ public:
   void Extent( Vector3D<Precision> &, Vector3D<Precision> &) const;
 
   Vector3D<Precision> GetPointOnSurface() const;
+
+
 
   virtual std::string GetEntityType() const { return "Box";}
 #endif // !VECGEOM_NVCC

@@ -60,9 +60,9 @@ bool TestTrap() {
                           Vec_t(+30.0,+40.0,+40.0)  } ;
     
     Trap_t trap1("Test Boxlike #1",40,0,0,30,20,20,0,30,20,20,0); // box:20,30,40
-    
+
     //    Trap_t trap2("Test Trdlike #2",40,0,0,20,10,10,0,40,30,30,0);
-    
+
     Trap_t trap2("Test Trdlike #2",trapvert);
 
     Trap_t trap3("trap3",50,0,0,50,50,50,UUtils::kPi/4,50,50,50,UUtils::kPi/4) ;

@@ -34,23 +34,26 @@ void UnplacedPolycone::Init(double phiStart,
      // phiIsOpen=false;
      fStartPhi = 0;
      fDeltaPhi = kTwoPi;
-     //fEndPhi = kTwoPi;
   } else {
      //
      // Convert phi into our convention
      //
      fStartPhi = phiStart;
      while( fStartPhi < 0 ) fStartPhi += kTwoPi;
-
-     // removing redundant variable fEndPhi, not much used.  fDeltaPhi should be sufficient
-     //fEndPhi = fStartPhi+fDeltaPhi;
-     //while( fEndPhi < fStartPhi ) fEndPhi += kTwoPi;
   }
 
   // Calculate RMax of Polycone in order to determine convexity of sections
   //
   double RMaxextent = rOuter[0];
+  double startRmax = rOuter[0];
+
+  fContinuityOverAll &= CheckContinuityInZPlane(rOuter,zPlane);
+
   for (unsigned int j = 1; j < numZPlanes; j++) {
+      fConvexityPossible &= (rInner[j]==0.);
+      fEqualRmax &= (startRmax==rOuter[j]);
+      startRmax = rOuter[j];
+
     if (rOuter[j] > RMaxextent)
       RMaxextent = rOuter[j];
 
@@ -279,7 +282,6 @@ VPlacedVolume* UnplacedPolycone::Create(LogicalVolume const *const logical_volum
     return os;
   }
 #endif
-
 
     VECGEOM_CUDA_HEADER_DEVICE
     VPlacedVolume* UnplacedPolycone::SpecializedVolume(
@@ -585,8 +587,6 @@ Vector3D<Precision> UnplacedPolycone::GetPointOnCut(Precision fRMin1, Precision 
   return GetPointOnCone(fRMin1, fRMax1, fRMin2, fRMax2, zOne, zTwo, totArea);
 }
 
-
-
 //
 // GetPointOnSurface
 //
@@ -744,7 +744,7 @@ Precision UnplacedPolycone::SurfaceArea() const {
                  4.*sec.fSolid->GetDz()*sec.fSolid->GetDz());
 
      Area *= 0.5 * GetDeltaPhi();
-    
+
      if (GetDeltaPhi() < kTwoPi)
       {
      Area += std::fabs(2*sec.fSolid->GetDz()) *
@@ -762,7 +762,7 @@ Precision UnplacedPolycone::SurfaceArea() const {
 
      totArea += (areas[0] + areas[numPlanes+1]);
      fSurfaceArea = totArea;
-  
+
 
   return fSurfaceArea;
 
@@ -789,6 +789,102 @@ void UnplacedPolycone::Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & 
 }
 #endif // !VECGEOM_NVCC
 
+bool UnplacedPolycone::CheckContinuityInRmax(const std::vector<Precision> &rOuter){
+
+    bool continuous=true;
+
+    for (unsigned int j = 1; j < fNz; )
+    {
+        if(j!=(fNz-1))
+          continuous &= (rOuter[j]==rOuter[j+1]);
+        j = j+2;
+    }
+    return continuous;
+}
+
+bool UnplacedPolycone::CheckContinuityInZPlane(const double rOuter[],const double zPlane[]){
+
+    std::vector<Precision> rOut;
+    std::vector<Precision> zPl;
+    rOut.push_back(rOuter[0]);
+    zPl.push_back(zPlane[0]);
+    for (unsigned int j = 1; j < fNz; )
+    {
+        if(j==(fNz-1))
+        {
+            rOut.push_back(rOuter[j]);
+            zPl.push_back(zPlane[j]);
+        }
+        else
+        {
+        if(zPlane[j]!=zPlane[j+1])
+        {
+            rOut.push_back(rOuter[j]);
+            rOut.push_back(rOuter[j]);
+            rOut.push_back(rOuter[j+1]);
+            rOut.push_back(rOuter[j+1]);
+
+            zPl.push_back(zPlane[j]);
+            zPl.push_back(zPlane[j]);
+            zPl.push_back(zPlane[j+1]);
+            zPl.push_back(zPlane[j+1]);
+        }
+        else
+        {
+            rOut.push_back(rOuter[j]);
+            rOut.push_back(rOuter[j+1]);
+            zPl.push_back(zPlane[j]);
+            zPl.push_back(zPlane[j+1]);
+        }
+        }
+        j = j+2;
+    }
+
+
+    bool contRmax = CheckContinuityInRmax(rOut);
+    bool contSlope = CheckContinuityInSlope(rOut, zPl);
+    return ( contRmax && contSlope );
+}
+
+bool UnplacedPolycone::CheckContinuityInSlope(const std::vector<Precision> &rOuter, const std::vector<Precision> &zPlane){
+    bool continuous=true;
+    Precision startSlope = (rOuter[1]-rOuter[0])/(zPlane[1]-zPlane[0]);
+    for (unsigned int j = 2; j < rOuter.size(); )
+    {
+        Precision currentSlope =  (rOuter[j+1]-rOuter[j])/(zPlane[j+1]-zPlane[j]);
+        continuous &= (currentSlope <= startSlope);
+        startSlope = currentSlope;
+        if(!continuous)
+            break;
+
+        j = j+2;
+    }
+
+    return continuous;
+}
+
+
+VECGEOM_CUDA_HEADER_BOTH
+bool UnplacedPolycone::IsConvex() const{
+    //Default safe convexity value
+      bool convexity = false;
+
+        if(fConvexityPossible)
+        {
+          if(fEqualRmax && (fDeltaPhi<=kPi || fDeltaPhi==kTwoPi))   //In this case, Polycone become solid Cylinder, No need to check anything else, 100% convex
+            convexity = true;
+          else
+          {
+             if( fDeltaPhi<=kPi || fDeltaPhi==kTwoPi)
+             {
+                 convexity = fContinuityOverAll;
+             }
+          }
+        }
+
+        return convexity;
+
+      }
 } // End impl namespace
 
 #ifdef VECGEOM_NVCC

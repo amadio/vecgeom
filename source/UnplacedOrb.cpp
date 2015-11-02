@@ -82,6 +82,10 @@ UnplacedOrb::UnplacedOrb() :
   return Vector3D<Precision>(fR * sintheta * cosphi, fR * sintheta * sinphi, fR * costheta);
   }
 
+  VECGEOM_CUDA_HEADER_BOTH
+  bool UnplacedOrb::IsConvex() const{
+          return true;
+      }
 
   std::string UnplacedOrb::GetEntityType() const
   {

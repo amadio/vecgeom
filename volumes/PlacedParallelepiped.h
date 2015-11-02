@@ -94,7 +94,6 @@ public:
     GetUnplacedVolume()->Extent(aMin, aMax);
   }
 
-
 #ifndef VECGEOM_NVCC
   virtual VPlacedVolume const* ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT

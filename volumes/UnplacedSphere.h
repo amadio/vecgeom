@@ -537,13 +537,18 @@ VECGEOM_CUDA_HEADER_BOTH
   void CalcSurfaceArea();
 
 
+//Function to check the convexity
+VECGEOM_CUDA_HEADER_BOTH
+virtual bool IsConvex() const override;
+
 #if !defined(VECGEOM_NVCC)
   void Extent( Vector3D<Precision> &, Vector3D<Precision> &) const;
-   
+
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision Capacity() const{return fCubicVolume;}
-  
+
+
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision SurfaceArea() const{return fSurfaceArea;}
