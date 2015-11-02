@@ -8,6 +8,7 @@
 #include "benchmarking/Benchmarker.h"
 //#include "ArgParser.h"
 
+//.. ensure asserts are compiled in
 #undef NDEBUG
 #include <cassert>
 
