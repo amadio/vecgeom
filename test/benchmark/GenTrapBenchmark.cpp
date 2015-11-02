@@ -32,9 +32,9 @@ int main() {
 
   VPlacedVolume *worldPlaced = world.Place();
 
-  GeoManager::Instance().set_world(worldPlaced);
+  GeoManager::Instance().SetWorld(worldPlaced);
 
-  Benchmarker tester(GeoManager::Instance().world());
+  Benchmarker tester(GeoManager::Instance().GetWorld());
   tester.SetVerbosity(2);
   //tester.SetRepetitions(1);
   tester.SetPoolMultiplier(1); // set this if we want to compare results
