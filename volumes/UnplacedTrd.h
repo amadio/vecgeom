@@ -27,7 +27,6 @@ private:
   // cached values
   Precision fX2minusX1;
   Precision fY2minusY1;
-  // Precision fDZtimes2;
   Precision fHalfX1plusX2;
   Precision fHalfY1plusY2;
   Precision fCalfX, fCalfY;
@@ -41,7 +40,6 @@ private:
     fY2minusY1 = fDY2 - fDY1;
     fHalfX1plusX2 = 0.5 * (fDX1 + fDX2);
     fHalfY1plusY2 = 0.5 * (fDY1 + fDY2);
-    // fDZtimes2 = fDZ * 2;
 
     fFx = 0.5*(fDX1 - fDX2)/fDZ;
     fFy = 0.5*(fDY1 - fDY2)/fDZ;
@@ -63,7 +61,6 @@ public:
     , fDZ(z)
     , fX2minusX1(0)
     , fY2minusY1(0)
-    // , fDZtimes2(0)
     , fHalfX1plusX2(0)
     , fHalfY1plusY2(0)
     , fCalfX(0)
@@ -84,7 +81,6 @@ public:
     , fDZ(z)
     , fX2minusX1(0)
     , fY2minusY1(0)
- // , fDZtimes2(0)
     , fHalfX1plusX2(0)
     , fHalfY1plusY2(0)
     , fCalfX(0)
@@ -130,10 +126,6 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision halfy1plusy2() const { return fHalfY1plusY2; }
-
-  // VECGEOM_CUDA_HEADER_BOTH
-  // VECGEOM_INLINE
-  // Precision dztimes2() const { return fDZtimes2; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
