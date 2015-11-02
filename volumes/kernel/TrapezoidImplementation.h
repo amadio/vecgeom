@@ -392,7 +392,7 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToOut(
   typedef typename Backend::precision_v Float_t;
   typedef typename Backend::bool_v Bool_t;
 
-  distance = 0.0;  // default initialization when input point is already outside
+  distance = kInfinity;  // default initialization
   Bool_t done(Backend::kFalse);
 
   //
@@ -417,6 +417,7 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToOut(
   done |= (negZdir && max >= MakeMinusTolerant<true>(0.));
 
   // if all particles moving away, we're done
+  MaskedAssign( done, Float_t(0.0), &distance );
   if ( IsFull(done) ) return;
 
   // Step 1.b) general case: assign distance to z plane
