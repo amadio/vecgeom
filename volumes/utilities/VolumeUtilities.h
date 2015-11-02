@@ -673,6 +673,225 @@ inline Precision GetRadiusInRing(Precision rmin, Precision rmax) {
   return rmin;
 }
 
+/** This function will detect whether two aligned boxes intersects or not.
+ *  returns a boolean, true if intersection exist, else false
+ *
+ *  Since the boxes are already aligned so we don't need Transformation matrices
+ *  for the intersection detection algorithm.
+ *                                  _
+ *  input : 1. lowercornerFirstBox   |__ Extent of First Aligned UnplacedBox in mother's reference frame.
+ *          2. uppercornerFirstBox  _|
+ *                                  _
+ *          3. lowercornerSecondBox  |__ Extent of Second Aligned UnplacedBox in mother's reference frame.
+ *          4. uppercornerSecondBox _|
+ *
+ *  output :  Return a boolean, true if intersection exists, otherwise false.
+ *
+ */
+VECGEOM_INLINE
+bool IntersectionExist(Vector3D<Precision> const lowercornerFirstBox, Vector3D<Precision> const uppercornerFirstBox,
+                       Vector3D<Precision> const lowercornerSecondBox, Vector3D<Precision> const uppercornerSecondBox) {
+
+  // Simplest algorithm
+  // Needs to handle a total of 6 cases
+
+  // Case 1: First Box is on left of Second Box
+  if (uppercornerFirstBox.x() < lowercornerSecondBox.x())
+    return false;
+
+  // Case 2: First Box is on right of Second Box
+  if (lowercornerFirstBox.x() > uppercornerSecondBox.x())
+    return false;
+
+  // Case 3: First Box is back side
+  if (uppercornerFirstBox.y() < lowercornerSecondBox.y())
+    return false;
+
+  // Case 4: First Box is front side
+  if (lowercornerFirstBox.y() > uppercornerSecondBox.y())
+    return false;
+
+  // Case 5: First Box is below the Second Box
+  if (uppercornerFirstBox.z() < lowercornerSecondBox.z())
+    return false;
+
+  // Case 6: First Box is above the Second Box
+  if (lowercornerFirstBox.z() > uppercornerSecondBox.z())
+    return false;
+
+  return true; // boxes overlap
+}
+
+/** This function will detect whether two boxes in arbitrary orientation intersects or not.
+ *  returns a boolean, true if intersection exist, else false
+ *
+ *  Logic is implemented using Separation Axis Theorem (SAT) for 3D
+ *                                  _
+ *  input : 1. lowercornerFirstBox   |__ Extent of First UnplacedBox in mother's reference frame.
+ *          2. uppercornerFirstBox  _|
+ *                                  _
+ *          3. lowercornerSecondBox  |__ Extent of Second UnplacedBox in mother's reference frame.
+ *          4. uppercornerSecondBox _|
+ *                                  _
+ *          5. transformFirstBox     |__ Transformation matrix of First and Second Unplaced Box
+ *          6. transformSecondBox   _|
+ *
+ *  output :  Return a boolean, true if intersection exists, otherwise false.
+ */
+VECGEOM_INLINE
+bool IntersectionExist(Vector3D<Precision> const lowercornerFirstBox, Vector3D<Precision> const uppercornerFirstBox,
+                       Vector3D<Precision> const lowercornerSecondBox, Vector3D<Precision> const uppercornerSecondBox,
+                       Transformation3D const *transformFirstBox, Transformation3D const *transformSecondBox,
+                       bool aux) {
+
+  // Required variables
+  Precision halfAx, halfAy, halfAz; // Half lengths of box A
+  Precision halfBx, halfBy, halfBz; // Half lengths of box B
+
+  halfAx = std::fabs(uppercornerFirstBox.x() - lowercornerFirstBox.x()) / 2.;
+  halfAy = std::fabs(uppercornerFirstBox.y() - lowercornerFirstBox.y()) / 2.;
+  halfAz = std::fabs(uppercornerFirstBox.z() - lowercornerFirstBox.z()) / 2.;
+
+  halfBx = std::fabs(uppercornerSecondBox.x() - lowercornerSecondBox.x()) / 2.;
+  halfBy = std::fabs(uppercornerSecondBox.y() - lowercornerSecondBox.y()) / 2.;
+  halfBz = std::fabs(uppercornerSecondBox.z() - lowercornerSecondBox.z()) / 2.;
+
+  Vector3D<Precision> pA = transformFirstBox->InverseTransform(Vector3D<Precision>(0, 0, 0));
+  Vector3D<Precision> pB = transformSecondBox->InverseTransform(Vector3D<Precision>(0, 0, 0));
+  Vector3D<Precision> T = pB - pA;
+
+  Vector3D<Precision> Ax = transformFirstBox->InverseTransformDirection(Vector3D<Precision>(1., 0., 0.));
+  Vector3D<Precision> Ay = transformFirstBox->InverseTransformDirection(Vector3D<Precision>(0., 1., 0.));
+  Vector3D<Precision> Az = transformFirstBox->InverseTransformDirection(Vector3D<Precision>(0., 0., 1.));
+
+  Vector3D<Precision> Bx = transformSecondBox->InverseTransformDirection(Vector3D<Precision>(1., 0., 0.));
+  Vector3D<Precision> By = transformSecondBox->InverseTransformDirection(Vector3D<Precision>(0., 1., 0.));
+  Vector3D<Precision> Bz = transformSecondBox->InverseTransformDirection(Vector3D<Precision>(0., 0., 1.));
+
+  /** Needs to handle total 15 cases for 3D.
+  *   Literature can be found at following link
+  *   http://www.jkh.me/files/tutorials/Separating%20Axis%20Theorem%20for%20Oriented%20Bounding%20Boxes.pdf
+  */
+
+  // Case 1:
+  // L = Ax
+  // std::cout<<" 1 : "<<std::fabs(T.Dot(Ax))<<" :: 2 : "<<(halfAx + std::fabs(halfBx*Ax.Dot(Bx)) +
+  // std::fabs(halfBy*Ax.Dot(By)) + std::fabs(halfBz*Ax.Dot(Bz)) )<<std::endl;
+  if (std::fabs(T.Dot(Ax)) >
+      (halfAx + std::fabs(halfBx * Ax.Dot(Bx)) + std::fabs(halfBy * Ax.Dot(By)) + std::fabs(halfBz * Ax.Dot(Bz)))) {
+    return false;
+  }
+
+  // Case 2:
+  // L = Ay
+  if (std::fabs(T.Dot(Ay)) >
+      (halfAy + std::fabs(halfBx * Ay.Dot(Bx)) + std::fabs(halfBy * Ay.Dot(By)) + std::fabs(halfBz * Ay.Dot(Bz)))) {
+    return false;
+  }
+
+  // Case 3:
+  // L = Az
+  if (std::fabs(T.Dot(Az)) >
+      (halfAz + std::fabs(halfBx * Az.Dot(Bx)) + std::fabs(halfBy * Az.Dot(By)) + std::fabs(halfBz * Az.Dot(Bz)))) {
+    return false;
+  }
+
+  // Case 4:
+  // L = Bx
+  if (std::fabs(T.Dot(Bx)) >
+      (halfBx + std::fabs(halfAx * Ax.Dot(Bx)) + std::fabs(halfAy * Ay.Dot(Bx)) + std::fabs(halfAz * Az.Dot(Bx)))) {
+    return false;
+  }
+
+  // Case 5:
+  // L = By
+  if (std::fabs(T.Dot(By)) >
+      (halfBy + std::fabs(halfAx * Ax.Dot(By)) + std::fabs(halfAy * Ay.Dot(By)) + std::fabs(halfAz * Az.Dot(By)))) {
+    return false;
+  }
+
+  // Case 6:
+  // L = Bz
+  if (std::fabs(T.Dot(Bz)) >
+      (halfBz + std::fabs(halfAx * Ax.Dot(Bz)) + std::fabs(halfAy * Ay.Dot(Bz)) + std::fabs(halfAz * Az.Dot(Bz)))) {
+    return false;
+  }
+
+  // Case 7:
+  // L = Ax X Bx
+  if ((std::fabs(T.Dot(Az) * Ay.Dot(Bx) - T.Dot(Ay) * Az.Dot(Bx))) >
+      (std::fabs(halfAy * Az.Dot(Bx)) + std::fabs(halfAz * Ay.Dot(Bx)) + std::fabs(halfBy * Ax.Dot(Bz)) +
+       std::fabs(halfBz * Ax.Dot(By)))) {
+    return false;
+  }
+
+  // Case 8:
+  // L = Ax X By
+  if ((std::fabs(T.Dot(Az) * Ay.Dot(By) - T.Dot(Ay) * Az.Dot(By))) >
+      (std::fabs(halfAy * Az.Dot(By)) + std::fabs(halfAz * Ay.Dot(By)) + std::fabs(halfBx * Ax.Dot(Bz)) +
+       std::fabs(halfBz * Ax.Dot(Bx)))) {
+    return false;
+  }
+
+  // Case 9:
+  // L = Ax X Bz
+  if ((std::fabs(T.Dot(Az) * Ay.Dot(Bz) - T.Dot(Ay) * Az.Dot(Bz))) >
+      (std::fabs(halfAy * Az.Dot(Bz)) + std::fabs(halfAz * Ay.Dot(Bz)) + std::fabs(halfBx * Ax.Dot(By)) +
+       std::fabs(halfBy * Ax.Dot(Bx)))) {
+    return false;
+  }
+
+  // Case 10:
+  // L = Ay X Bx
+  if ((std::fabs(T.Dot(Ax) * Az.Dot(Bx) - T.Dot(Az) * Ax.Dot(Bx))) >
+      (std::fabs(halfAx * Az.Dot(Bx)) + std::fabs(halfAz * Ax.Dot(Bx)) + std::fabs(halfBy * Ay.Dot(Bz)) +
+       std::fabs(halfBz * Ay.Dot(By)))) {
+    return false;
+  }
+
+  // Case 11:
+  // L = Ay X By
+  if ((std::fabs(T.Dot(Ax) * Az.Dot(By) - T.Dot(Az) * Ax.Dot(By))) >
+      (std::fabs(halfAx * Az.Dot(By)) + std::fabs(halfAz * Ax.Dot(By)) + std::fabs(halfBx * Ay.Dot(Bz)) +
+       std::fabs(halfBz * Ay.Dot(Bx)))) {
+    return false;
+  }
+
+  // Case 12:
+  // L = Ay X Bz
+  if ((std::fabs(T.Dot(Ax) * Az.Dot(Bz) - T.Dot(Az) * Ax.Dot(Bz))) >
+      (std::fabs(halfAx * Az.Dot(Bz)) + std::fabs(halfAz * Ax.Dot(Bz)) + std::fabs(halfBx * Ay.Dot(By)) +
+       std::fabs(halfBy * Ay.Dot(Bx)))) {
+    return false;
+  }
+
+  // Case 13:
+  // L = Az X Bx
+  if ((std::fabs(T.Dot(Ay) * Ax.Dot(Bx) - T.Dot(Ax) * Ay.Dot(Bx))) >
+      (std::fabs(halfAx * Ay.Dot(Bx)) + std::fabs(halfAy * Ax.Dot(Bx)) + std::fabs(halfBy * Az.Dot(Bz)) +
+       std::fabs(halfBz * Az.Dot(By)))) {
+    return false;
+  }
+
+  // Case 14:
+  // L = Az X By
+  if ((std::fabs(T.Dot(Ay) * Ax.Dot(By) - T.Dot(Ax) * Ay.Dot(By))) >
+      (std::fabs(halfAx * Ay.Dot(By)) + std::fabs(halfAy * Ax.Dot(By)) + std::fabs(halfBx * Az.Dot(Bz)) +
+       std::fabs(halfBz * Az.Dot(Bx)))) {
+    return false;
+  }
+
+  // Case 15:
+  // L = Az X Bz
+  if ((std::fabs(T.Dot(Ay) * Ax.Dot(Bz) - T.Dot(Ax) * Ay.Dot(Bz))) >
+      (std::fabs(halfAx * Ay.Dot(Bz)) + std::fabs(halfAy * Ax.Dot(Bz)) + std::fabs(halfBx * Az.Dot(By)) +
+       std::fabs(halfBy * Az.Dot(Bx)))) {
+    return false;
+  }
+
+  return true;
+}
+
 } // end namespace volumeUtilities
 } } // end global namespace
 

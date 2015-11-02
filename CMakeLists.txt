@@ -688,6 +688,8 @@ set(TEST_EXECUTABLES_CORE
 #  ${CMAKE_SOURCE_DIR}/test/core/boolminustest2.cpp
   ${CMAKE_SOURCE_DIR}/test/core/PhiWedgeTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/ThetaConeTest.cpp
+  ${CMAKE_SOURCE_DIR}/test/core/TestConvexity.cpp
+  ${CMAKE_SOURCE_DIR}/test/core/BooleanConvexityTest.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestVecGeomPolycone.cpp
 )
 
@@ -701,6 +703,9 @@ set(TEST_EXECUTABLES_ROOT
   ${CMAKE_SOURCE_DIR}/test/root/ImportTGeoPgon.cpp
   ${CMAKE_SOURCE_DIR}/test/root/TestExportToROOT.cpp
   ${CMAKE_SOURCE_DIR}/test/root/ExitingOrEntering.cpp
+  ${CMAKE_SOURCE_DIR}/test/core/BoxBoxIntersectionTest.cpp
+  ${CMAKE_SOURCE_DIR}/test/core/SplittedABBox.cpp
+ 
 )
 
 # Tests below fail to build when both ROOT and USolids are enabled
@@ -739,10 +744,16 @@ endif()
 
 set(TEST_EXECUTABLES_VISUALIZATION
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeTrap.cpp
+  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizePolycone.cpp
+  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizePolyhedron.cpp
+  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeParboloid.cpp
+  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeCone.cpp
+  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeTorus.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeTube.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeScaled.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/DebugTube.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/DebugPolyhedron.cpp
+  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeSphere.cpp
 )
 
 set(TEST_EXECUTABLES_USOLIDS
@@ -919,7 +930,7 @@ endif()
 
 if (CUDA)
   build_executables("${TEST_EXECUTABLES_CUDA}")
-#  add_to_ctest("${TEST_EXECUTABLES_CUDA}")
+  #  add_to_ctest("${TEST_EXECUTABLES_CUDA}")
 endif()
 
 #---------------------------------------------------------------------------

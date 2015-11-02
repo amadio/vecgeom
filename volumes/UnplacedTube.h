@@ -99,6 +99,10 @@ fTolOz(other.fTolOz),
 fPhiWedge(other.fDphi,other.fSphi)
 {  }
 
+  //Function to check the convexity
+  VECGEOM_CUDA_HEADER_BOTH
+  virtual bool IsConvex() const override;
+
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision rmin() const { return fRmin; }
