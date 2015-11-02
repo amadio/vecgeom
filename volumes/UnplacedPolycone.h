@@ -15,7 +15,7 @@
 #include "volumes/UnplacedVolume.h"
 #include "volumes/UnplacedCone.h"
 #include "base/Vector.h"
-
+#include <vector>
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedPolycone;)
