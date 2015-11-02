@@ -367,7 +367,7 @@ struct TrdImplementation {
     Float_t hitx, hity;
     // Float_t hitz;
     // Bool_t done = Backend::kFalse;
-    distance = Float_t(0.0);
+    distance = kInfinity;
 
     // hit top Z face?
     if((dir.z()>0.) != Backend::kFalse) {

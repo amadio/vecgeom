@@ -131,16 +131,16 @@ bool UnplacedTrd::Normal(Vector3D<Precision> const& point, Vector3D<Precision>& 
   Precision xnorm = 1.0 / sqrt(4*fDZ*fDZ + (fDX2-fDX1)*(fDX2-fDX1));
   Precision ynorm = 1.0 / sqrt(4*fDZ*fDZ + (fDY2-fDY1)*(fDY2-fDY1));
 
-  Precision distmx = -2.0*fDZ*point[0] + 0.0*point[1] - (fDX2-fDX1)*point[2] - fDZ*(fDX1+fDX2);
+  Precision distmx = -2.0*fDZ*point[0] - (fDX2-fDX1)*point[2] - fDZ*(fDX1+fDX2);
   distmx *= xnorm;
 
-  Precision distpx =  2.0*fDZ*point[0] + 0.0*point[1] - (fDX2-fDX1)*point[2] - fDZ*(fDX1+fDX2);
+  Precision distpx =  2.0*fDZ*point[0] - (fDX2-fDX1)*point[2] - fDZ*(fDX1+fDX2);
   distpx *= xnorm;
 
-  Precision distmy = 0.0*point[0] - 2.0*fDZ*point[1] - (fDY2-fDY1)*point[2] - fDZ*(fDY1+fDY2);
+  Precision distmy = -2.0*fDZ*point[1] - (fDY2-fDY1)*point[2] - fDZ*(fDY1+fDY2);
   distmy *= ynorm;
 
-  Precision distpy = 0.0*point[0] + 2.0*fDZ*point[1] - (fDY2-fDY1)*point[2] - fDZ*(fDY1+fDY2);
+  Precision distpy =  2.0*fDZ*point[1] - (fDY2-fDY1)*point[2] - fDZ*(fDY1+fDY2);
   distpy *= ynorm;
 
   if (fabs(distmx) <= kHalfTolerance) {
