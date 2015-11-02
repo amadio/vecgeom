@@ -60,7 +60,6 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual bool IsConvex() const override;
 
-#if !defined(VECGEOM_NVCC)
   VECGEOM_INLINE
   void SetX( Precision number ) { dimensions_[0]=number; }
 
@@ -72,7 +71,7 @@ public:
   VECGEOM_INLINE
   void SetZ( Precision number ) { dimensions_[2]=number; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+#if !defined(VECGEOM_NVCC)
   VECGEOM_INLINE
   Precision volume() const {
     return 8.0*dimensions_[0]*dimensions_[1]*dimensions_[2];

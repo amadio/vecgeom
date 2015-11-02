@@ -15,10 +15,14 @@
 #include "volumes/UnplacedGenTrap.h"
 #include "volumes/LogicalVolume.h"
 
-namespace VECGEOM_NAMESPACE {
+namespace vecgeom {
+
+VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedGenTrap; )
+VECGEOM_DEVICE_DECLARE_CONV( PlacedGenTrap )
+
+inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class Transformation3D;
-
 
 class PlacedGenTrap : public VPlacedVolume {
 
@@ -55,7 +59,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedGenTrap const* GetUnplacedVolume() const {
     return static_cast<UnplacedGenTrap const *>(
-        logical_volume()->unplaced_volume());
+        GetLogicalVolume()->GetUnplacedVolume());
   }
 
   // method giving access to members of unplaced ...
@@ -70,7 +74,7 @@ public:
 
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void PrintType() const {};
+  virtual void PrintType() const;
 
   // CUDA specific
 
@@ -104,7 +108,7 @@ public:
 
 };
 
-} // end namespace
+} } // end global namespace
 
 
 #endif /* VECGEOM_VOLUMES_PLACEDGENTRAP_H_ */

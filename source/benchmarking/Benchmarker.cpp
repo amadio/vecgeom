@@ -682,7 +682,6 @@ int Benchmarker::RunToInBenchmark() {
   // Generate points not contained in any daughters and set the fraction hitting
   // a daughter to the specified bias.
   volumeUtilities::FillUncontainedPoints(*fWorld, *fPointPool);
-  fprintf(stderr, "Points filled ...\n");
   volumeUtilities::FillBiasedDirections(*fWorld, *fPointPool, fToInBias,
                                         *fDirectionPool);
 

@@ -22,13 +22,19 @@
 #include "G4TwoVector.hh"
 #endif
 
-namespace VECGEOM_NAMESPACE {
+namespace vecgeom {
+inline namespace VECGEOM_IMPL_NAMESPACE {
 
-#ifdef VECGEOM_BENCHMARK
+VECGEOM_CUDA_HEADER_BOTH
+
+void PlacedGenTrap::PrintType() const {
+  printf("PlacedGenTrap");
+}
+
+#ifndef VECGEOM_NVCC
 
 VPlacedVolume const* PlacedGenTrap::ConvertToUnspecialized() const {
-  return new SimpleGenTrap(GetLabel().c_str(), logical_volume(),
-                                  transformation());
+  return new SimpleGenTrap(GetLabel().c_str(), logical_volume_, GetTransformation());
 }
 
 #ifdef VECGEOM_ROOT
@@ -63,7 +69,15 @@ G4VSolid const* PlacedGenTrap::ConvertToGeant4() const {
 }
 #endif
 
-#endif // VECGEOM_BENCHMARK
+#endif // VECGEOM_NVCC
+
+} // End impl namespace
+
+#ifdef VECGEOM_NVCC
+
+VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC( SpecializedGenTrap )
+
+#endif // VECGEOM_NVCC
 
 } // End global namespace
 

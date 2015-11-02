@@ -16,13 +16,20 @@
 
 #include <stdio.h>
 
-namespace VECGEOM_NAMESPACE {
+namespace vecgeom {
+
+inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
+using SpecializedGenTrap = ShapeImplementationHelper<GenTrapImplementation<transCodeT, rotCodeT> >;
+
+using SimpleGenTrap = SpecializedGenTrap<translation::kGeneric, rotation::kGeneric>;
+
+} } // End global namespace
+
+/*
 class SpecializedGenTrap
-    : public ShapeImplementationHelper<PlacedGenTrap,
-                                       GenTrapImplementation<
-                                           transCodeT, rotCodeT> > {
+    : public ShapeImplementationHelper<GenTrapImplementation<transCodeT, rotCodeT> > {
 
   typedef ShapeImplementationHelper<PlacedGenTrap,
                                     GenTrapImplementation<
@@ -78,6 +85,6 @@ void SpecializedGenTrap<transCodeT, rotCodeT>::PrintType() const {
   printf("SpecializedGenTrap<%i, %i>", transCodeT, rotCodeT);
 }
 
-} // end of namespace
-
+} } // End global namespace
+*/
 #endif /* VECGEOM_VOLUMES_SPECIALIZEDGENTRAP_H_ */

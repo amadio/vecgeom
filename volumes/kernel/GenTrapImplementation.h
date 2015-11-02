@@ -13,14 +13,28 @@
 #include "volumes/kernel/GenericKernels.h"
 #include "volumes/kernel/BoxImplementation.h"
 #include "volumes/UnplacedGenTrap.h"
+#include "volumes/PlacedGenTrap.h"
 #include "backend/Backend.h"
 #include <iostream>
 
-namespace VECGEOM_NAMESPACE {
+namespace vecgeom {
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, translation::kGeneric, RotationCode, rotation::kGeneric)
+
+inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 struct GenTrapImplementation {
 
+  static const int transC = transCodeT;
+  static const int rotC   = rotCodeT;
+
+  using PlacedShape_t = PlacedGenTrap;
+  using UnplacedShape_t = UnplacedGenTrap;
+
+  VECGEOM_CUDA_HEADER_BOTH
+  static void PrintType() {
+     printf("SpecializedGenTrap<%i, %i>", transCodeT, rotCodeT);
+  }
   template<typename Backend>
   VECGEOM_INLINE
   VECGEOM_CUDA_HEADER_BOTH
@@ -453,7 +467,8 @@ typename Backend::bool_v IsInTopOrBottomPolygon( UnplacedGenTrap const& unplaced
         Float_t cornerY;
 
         // thats the only place where scalar and vector code diverge
-        FillPlaneDataHelper<Backend::IsSIMD, Backend>::FillPlaneData(
+	// IsSIMD misses...replaced with early_returns
+        FillPlaneDataHelper<!Backend::early_returns, Backend>::FillPlaneData(
                 unplaced, cornerX, cornerY, deltaX, deltaY, top, i );
 
       //  std::cerr << i << " CORNERS " << cornerX << " " << cornerY << " " << deltaX << " " << deltaY << "\n";
@@ -494,7 +509,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
 #ifdef GENTRAP_USENEWBB
   typename Backend::int_v planeid(-1);
   Vector3D<Float_t> hitpoint;
-  BoxImplementation<translation::kIdentity, rotation::kIdentity>::DistanceToInKernel2<Backend,true>(
+  BoxImplementation<translation::kIdentity, rotation::kIdentity>::DistanceToInKernel2<Backend>(
       unplaced.fBoundingBox.dimensions(),
       point,
       direction,
@@ -502,7 +517,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
       bbdistance,
       &planeid, &hitpoint );
 #else
-  BoxImplementation<translation::kIdentity, rotation::kIdentity>::DistanceToInKernel2<Backend,false>(
+  BoxImplementation<translation::kIdentity, rotation::kIdentity>::DistanceToInKernel<Backend>(
         unplaced.fBoundingBox.dimensions(),
         point,
         direction,
@@ -801,6 +816,6 @@ void GenTrapImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(
 //**** Implementations end here
 //*****************************
 
-} // end namespace
+} } // End global namespace
 
 #endif /* GENTRAPIMPLEMENTATION_H_ */

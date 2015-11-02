@@ -7,7 +7,12 @@
 #include "volumes/SecondOrderSurfaceShell.h"
 #include "volumes/UnplacedBox.h" // for bounding box
 
-namespace VECGEOM_NAMESPACE {
+namespace vecgeom {
+
+VECGEOM_DEVICE_FORWARD_DECLARE( class UnplacedGenTrap; )
+VECGEOM_DEVICE_DECLARE_CONV( UnplacedGenTrap )
+
+inline namespace VECGEOM_IMPL_NAMESPACE {
 
 /**
  * A generic trap:
@@ -145,6 +150,6 @@ public:
 
 }; // end of class declaration
 
-} // End global namespace
+} } // End global namespace
 
 #endif

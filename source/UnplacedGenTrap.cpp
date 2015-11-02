@@ -9,7 +9,8 @@
 #include "management/VolumeFactory.h"
 #include "volumes/SpecializedGenTrap.h"
 
-namespace VECGEOM_NAMESPACE {
+namespace vecgeom {
+inline namespace VECGEOM_IMPL_NAMESPACE {
 
  void UnplacedGenTrap::ComputeBoundingBox()
  {
@@ -155,7 +156,7 @@ VPlacedVolume* UnplacedGenTrap::SpecializedVolume(
          placement);
 }
 
-} // End global namespace
+} } // End global namespace
 
 //namespace vecgeom {
 //

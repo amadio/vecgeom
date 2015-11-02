@@ -15,11 +15,15 @@
 
 //#define GENTRAPDEB = 1
 
-namespace VECGEOM_NAMESPACE {
+namespace vecgeom {
 /**
  * class providing a (SOA) encapsulation of
  * second order curved surfaces used in generic trap
  */
+VECGEOM_DEVICE_FORWARD_DECLARE( class SecondOrderSurfaceShell; )
+
+inline namespace VECGEOM_IMPL_NAMESPACE {
+
 template <int N>
 class SecondOrderSurfaceShell
 {
@@ -375,6 +379,8 @@ typename Backend::precision_v DistanceToIn (
 
 }; // end class definition
 
-}
+} // End inline namespace
+
+} // End global namespace
 
 #endif /* SECONDORDERSURFACESHELL_H_ */

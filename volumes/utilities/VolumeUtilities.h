@@ -21,9 +21,6 @@
 #include "TGeoShape.h"
 #endif
 #include <cassert>
-#ifdef VECGEOM_ROOT
-#include "TGeoShape.h"
-#endif
 
 #ifdef VECGEOM_ROOT
 #include "TGeoShape.h"
