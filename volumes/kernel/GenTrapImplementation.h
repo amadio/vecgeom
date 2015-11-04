@@ -3,6 +3,8 @@
  *
  *  Created on: Aug 2, 2014
  *      Author: swenzel
+ *   Review/completion: Nov 4, 2015
+ *      Author: mgheata
  */
 
 #ifndef VECGEOM_VOLUMES_KERNEL_GENTRAPIMPLEMENTATION_H_
@@ -300,37 +302,43 @@ template <typename Backend, bool ForInside>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
 void GenTrapImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndInside(
-    UnplacedGenTrap const &unplaced,
-    Vector3D<typename Backend::precision_v> const &localPoint,
-    typename Backend::bool_v &completelyinside,
-    typename Backend::bool_v &completelyoutside) {
+  UnplacedGenTrap const &unplaced,
+  Vector3D<typename Backend::precision_v> const &localPoint,
+  typename Backend::bool_v &completelyinside,
+  typename Backend::bool_v &completelyoutside) {
 
-    typedef typename Backend::precision_v Float_t;
-    completelyoutside = Abs(localPoint.z()) > MakePlusTolerant<ForInside>( unplaced.fDz );
-    if (ForInside)
-    {
-       completelyinside = Abs(localPoint.z()) < MakeMinusTolerant<ForInside>( unplaced.fDz );
+  typedef typename Backend::precision_v Float_t;
+  // Add stronger check against the bounding box, which can allow early returns if point is outside. 
+  // Local point has to be translated in the bbox local frame.
+//  completelyoutside = Abs(localPoint.z()) > MakePlusTolerant<ForInside>( unplaced.fDz );
+  BoxImplementation<translation::kIdentity, rotation::kIdentity>::GenericKernelForContainsAndInside<Backend, false>(
+      unplaced.fBoundingBox.dimensions(),
+      localPoint-unplaced.fBoundingBoxOrig,
+      completelyinside, 
+      completelyoutside);
+  if (Backend::early_returns) {
+    if ( completelyoutside == Backend::kTrue ) {
+      return;
     }
-    if (Backend::early_returns) {
-       if ( completelyoutside == Backend::kTrue ) {
-         return;
-        }
-    }
+  }
 
-    // analyse z
-    Float_t  cf = unplaced.fHalfInverseDz * (unplaced.fDz - localPoint.z());
-    // analyse if x-y coordinates of localPoint are within polygon at z-height
+  if (ForInside)  {
+    completelyinside = Abs(localPoint.z()) < MakeMinusTolerant<ForInside>( unplaced.fDz );
+  }
 
-    //  loop over edges connecting points i with i+4
-    Float_t vertexX[4];
-    Float_t vertexY[4];
-    // vectorizes for scalar backend
-    for (int  i = 0; i < 4; i++)
-    {
-       // calculate x-y positions of vertex i at this z-height
-       vertexX[i] = unplaced.fVerticesX[i + 4] + cf * unplaced.fConnectingComponentsX[i];
-       vertexY[i] = unplaced.fVerticesY[i + 4] + cf * unplaced.fConnectingComponentsY[i];
-    }
+  // analyse z
+  Float_t  cf = unplaced.fHalfInverseDz * (unplaced.fDz - localPoint.z());
+  // analyse if x-y coordinates of localPoint are within polygon at z-height
+
+  //  loop over edges connecting points i with i+4
+  Float_t vertexX[4];
+  Float_t vertexY[4];
+  // vectorizes for scalar backend
+  for (int  i = 0; i < 4; i++) {
+    // calculate x-y positions of vertex i at this z-height
+    vertexX[i] = unplaced.fVerticesX[i + 4] + cf * unplaced.fConnectingComponentsX[i];
+    vertexY[i] = unplaced.fVerticesY[i + 4] + cf * unplaced.fConnectingComponentsY[i];
+  }
 
     // this does not vectorize now
     // TODO: study if we get better by storing Delta and scaling it in z
@@ -340,45 +348,43 @@ void GenTrapImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndIns
     //
    // }
 
-    Float_t cross[4];
-    Float_t localPointX = localPoint.x();
-    Float_t localPointY = localPoint.y();
-    // I currently found out that it is beneficial to keep the early return
-    // in disfavor of the vectorizing solution; should be reinvestigated on AVX
-    for (int  i = 0; i < 4; i++)
-    {
-      // this is based on the following idea:
-      // we decided for each edge whether the point is above or below the
-      // 2d line defined by that edge
-      // In fact, this calculation is part of the calculation of the distance
-      // of localPoint to that line which is a cross product. In this case it is
-      // an embedded cross product of 2D vectors in 3D. The resulting vector always points
-      // in z-direction whose z-magnitude is directly related to the distance.
-      // see, e.g.,  http://geomalgorithms.com/a02-_lines.html
-      int  j = (i + 1) % 4;
-      Float_t  DeltaX = vertexX[j]-vertexX[i];
-      Float_t  DeltaY = vertexY[j]-vertexY[i];
-      cross[i]  = ( localPointX - vertexX[i] ) * DeltaY;
-      cross[i] -= ( localPointY - vertexY[i] ) * DeltaX;
+  Float_t cross[4];
+  Float_t localPointX = localPoint.x();
+  Float_t localPointY = localPoint.y();
+  // I currently found out that it is beneficial to keep the early return
+  // in disfavor of the vectorizing solution; should be reinvestigated on AVX
+  for (int  i = 0; i < 4; i++) {
+    // this is based on the following idea:
+    // we decided for each edge whether the point is above or below the
+    // 2d line defined by that edge
+    // In fact, this calculation is part of the calculation of the distance
+    // of localPoint to that line which is a cross product. In this case it is
+    // an embedded cross product of 2D vectors in 3D. The resulting vector always points
+    // in z-direction whose z-magnitude is directly related to the distance.
+    // see, e.g.,  http://geomalgorithms.com/a02-_lines.html
+    int  j = (i + 1) % 4;
+    Float_t  DeltaX = vertexX[j]-vertexX[i];
+    Float_t  DeltaY = vertexY[j]-vertexY[i];
+    cross[i]  = ( localPointX - vertexX[i] ) * DeltaY;
+    cross[i] -= ( localPointY - vertexY[i] ) * DeltaX;
 
-     completelyoutside |= cross[i] < MakeMinusTolerant<ForInside>( 0 );
-     if (Backend::early_returns) {
+    completelyoutside |= cross[i] < MakeMinusTolerant<ForInside>( 0 );
+    if (Backend::early_returns) {
       if ( completelyoutside == Backend::kTrue ) {
-               return;
-            }
+        return;
       }
     }
+  }
 
-    for (int  i = 0; i < 4; i++)
-    {
-        completelyoutside |= cross[i] < 0;
-             if (Backend::early_returns) {
-                  if ( completelyoutside == Backend::kTrue ) {
-                       return;
-                    }
-             }
-        completelyinside  &= cross[i] > 0;
+  for (int  i = 0; i < 4; i++) {
+    completelyoutside |= cross[i] < 0;
+    if (Backend::early_returns) {
+      if ( completelyoutside == Backend::kTrue ) {
+        return;
+      }
     }
+    completelyinside  &= cross[i] > 0;
+  }
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -511,7 +517,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   Vector3D<Float_t> hitpoint;
   BoxImplementation<translation::kIdentity, rotation::kIdentity>::DistanceToInKernel2<Backend>(
       unplaced.fBoundingBox.dimensions(),
-      point,
+      point-unplaced.fBoundingBoxOrig,
       direction,
       stepMax,
       bbdistance,
@@ -519,7 +525,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
 #else
   BoxImplementation<translation::kIdentity, rotation::kIdentity>::DistanceToInKernel<Backend>(
         unplaced.fBoundingBox.dimensions(),
-        point,
+        point-unplaced.fBoundingBoxOrig,
         direction,
         stepMax,
         bbdistance );

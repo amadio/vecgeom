@@ -12,25 +12,41 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+//______________________________________________________________________________
  void UnplacedGenTrap::ComputeBoundingBox()
  {
-    //
-    double  minX, maxX, minY, maxY;
-    minX = maxX = fVertices[0].x();
-    minY = maxY = fVertices[0].y();
-
-    for (int  i=1; i<4; ++i)
-    {
-      if (minX > fVertices[i].x())  minX = fVertices[i].x();
-      if (maxX < fVertices[i].x())  maxX = fVertices[i].x();
-      if (minY > fVertices[i].y())  minY = fVertices[i].y();
-      if (maxY < fVertices[i].y())  maxY = fVertices[i].y();
-    }
-    fBoundingBox.SetX(std::max(std::fabs(minX), std::fabs(maxX)));
-    fBoundingBox.SetY(std::max(std::fabs(minY), std::fabs(maxY)));
-    fBoundingBox.SetZ(fDz);
+    // Computes bounding box parameters
+   Vector3D<Precision> aMin, aMax;
+   Extent(aMin, aMax);
+   fBoundingBoxOrig = 0.5 * (aMin + aMax);
+   Vector3D<Precision> halfLengths =  0.5 * (aMax - aMin);
+   fBoundingBox.SetX(halfLengths.x());
+   fBoundingBox.SetY(halfLengths.y());
+   fBoundingBox.SetZ(halfLengths.z());
  }
 
+//______________________________________________________________________________
+void UnplacedGenTrap::Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & aMax) const
+{
+  // Returns the full 3D cartesian extent of the solid.
+  aMin = aMax = fVertices[0];
+  aMin[2] = -fDz;
+  aMax[2] = fDz;
+  for (int  i=0; i<4; ++i) {
+     // lower -fDz vertices
+     if (aMin[0] > fVertices[i].x()) aMin[0] = fVertices[i].x();
+     if (aMax[0] < fVertices[i].x()) aMax[0] = fVertices[i].x();
+     if (aMin[1] > fVertices[i].y()) aMin[1] = fVertices[i].y();
+     if (aMax[1] < fVertices[i].y()) aMax[1] = fVertices[i].y();
+     // upper fDz vertices
+     if (aMin[0] > fVertices[i+4].x()) aMin[0] = fVertices[i+4].x();
+     if (aMax[0] < fVertices[i+4].x()) aMax[0] = fVertices[i+4].x();
+     if (aMin[1] > fVertices[i+4].y()) aMin[1] = fVertices[i+4].y();
+     if (aMax[1] < fVertices[i+4].y()) aMax[1] = fVertices[i+4].y();
+  }
+}
+
+//______________________________________________________________________________
  // computes if this gentrap is twisted
  // should be a private method?
  bool UnplacedGenTrap::ComputeIsTwisted()

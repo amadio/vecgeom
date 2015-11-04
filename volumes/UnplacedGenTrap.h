@@ -22,8 +22,9 @@ class UnplacedGenTrap : public VUnplacedVolume, public AlignedBase {
 
 public:
   typedef Vector3D<Precision> VertexType;
-  // the bounding box
+  // the bounding box: half lengths and origin
   UnplacedBox fBoundingBox;
+   Vector3D<Precision> fBoundingBoxOrig;
 
   // the eight points that define the Arb8
   // actually we will neglect the z coordinates of those
@@ -63,6 +64,7 @@ public:
   UnplacedGenTrap(Vector3D<Precision> vertices[],
                   Precision halfzheight) :
                   fBoundingBox(Vector3D<Precision>(0.,0.,0.)),
+                  fBoundingBoxOrig(0.,0.,0.),
                   fDz(halfzheight),
                   fIstwisted(true), fSurfaceShell(vertices, halfzheight),
                   fHalfInverseDz(1./(2.*halfzheight))
@@ -135,6 +137,7 @@ public:
   virtual VUnplacedVolume* CopyToGpu(VUnplacedVolume *const gpu_ptr) const;
 #endif
 
+  void Extent( Vector3D<Precision> &, Vector3D<Precision> &) const;
 
   virtual void Print(std::ostream &os) const;
 
