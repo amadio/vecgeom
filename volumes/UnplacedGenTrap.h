@@ -137,7 +137,10 @@ public:
   virtual VUnplacedVolume* CopyToGpu(VUnplacedVolume *const gpu_ptr) const;
 #endif
 
-  Precision Capacity() {
+  Precision Capacity() { return volume(); }
+
+  VECGEOM_INLINE
+  Precision volume() const {
     int i,j;
     Precision capacity = 0;
     for (i=0; i<4; i++) {
@@ -146,9 +149,9 @@ public:
                             (fVerticesX[j]+fVerticesX[j+4])*(fVerticesY[i]+fVerticesY[i+4]) +
                     (1./3)*((fVerticesX[i+4]-fVerticesX[i])*(fVerticesY[j+4]-fVerticesY[j]) -
                             (fVerticesX[j]-fVerticesX[j+4])*(fVerticesY[i]-fVerticesY[i+4])));
-   }
-   return Abs(capacity);
-}
+     }
+     return Abs(capacity);
+  }
 
   VECGEOM_INLINE
   Precision SurfaceArea() const {
@@ -156,6 +159,10 @@ public:
   }
 
   void Extent( Vector3D<Precision> &, Vector3D<Precision> &) const;
+
+  Vector3D<Precision> GetPointOnSurface() const { return Vector3D<Precision>(); }
+
+  virtual std::string GetEntityType() const { return "GenTrap";}
 
   virtual void Print(std::ostream &os) const;
 
