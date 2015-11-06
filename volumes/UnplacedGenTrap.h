@@ -137,6 +137,24 @@ public:
   virtual VUnplacedVolume* CopyToGpu(VUnplacedVolume *const gpu_ptr) const;
 #endif
 
+  Precision Capacity() {
+    int i,j;
+    Precision capacity = 0;
+    for (i=0; i<4; i++) {
+      j = (i+1)%4;
+      capacity += 0.25*fDz*((fVerticesX[i]+fVerticesX[i+4])*(fVerticesY[j]+fVerticesY[j+4]) -
+                            (fVerticesX[j]+fVerticesX[j+4])*(fVerticesY[i]+fVerticesY[i+4]) +
+                    (1./3)*((fVerticesX[i+4]-fVerticesX[i])*(fVerticesY[j+4]-fVerticesY[j]) -
+                            (fVerticesX[j]-fVerticesX[j+4])*(fVerticesY[i]-fVerticesY[i+4])));
+   }
+   return Abs(capacity);
+}
+
+  VECGEOM_INLINE
+  Precision SurfaceArea() const {
+    return 0.;
+  }
+
   void Extent( Vector3D<Precision> &, Vector3D<Precision> &) const;
 
   virtual void Print(std::ostream &os) const;
