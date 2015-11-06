@@ -794,20 +794,37 @@ bool UnplacedPolycone::CheckContinuityInZPlane(const double rOuter[],const doubl
 }
 
 bool UnplacedPolycone::CheckContinuityInSlope(const std::vector<Precision> &rOuter, const std::vector<Precision> &zPlane){
-	bool continuous=true;
-	Precision startSlope = (rOuter[1]-rOuter[0])/(zPlane[1]-zPlane[0]);
-	for (unsigned int j = 2; j < rOuter.size(); )
-	{
-		Precision currentSlope =  (rOuter[j+1]-rOuter[j])/(zPlane[j+1]-zPlane[j]);
-		continuous &= (currentSlope <= startSlope);
-		startSlope = currentSlope;
-		if(!continuous)
+
+		bool continuous=true;
+		Precision startSlope = kInfinity;
+		for (unsigned int j = 0; j < rOuter.size(); )
+		{
+			Precision currentSlope = kInfinity;
+			if( (zPlane[j]==zPlane[j+1]) )
+			{
+				if(j==0)
+				{
+					currentSlope = startSlope;
+					break;
+				}
+				else
+				{
+					if( (rOuter[j]==rOuter[j+1]) && (rOuter[j]==rOuter[j-1]) )
+					currentSlope = startSlope;
+					else
+					break;
+				}
+			}
+			currentSlope = (rOuter[j+1]-rOuter[j])/(zPlane[j+1]-zPlane[j]);
+			continuous &= (currentSlope <= startSlope);
+			startSlope = currentSlope;
+			if(!continuous)
 			break;
 
-		j = j+2;
-	}
+			j = j+2;
+		}
+		return continuous;
 
-	return continuous;
 }
 
 
