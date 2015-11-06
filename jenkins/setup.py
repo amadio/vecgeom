@@ -10,7 +10,7 @@ system = platform.system()
 # --------------------- Setting command lines options 
 def main(argv):
    global compiler, build_type, op_sys, external, rootDir
-   global comp, build
+   global comp, build, label
 
    compiler = ''
    build_type = ''
@@ -18,6 +18,7 @@ def main(argv):
    external = ''
    build = ''
    comp = ''
+   label = ''
 
    opts, args = getopt.getopt(argv,"hc:b:o:v:")
    for opt, arg in opts:
@@ -31,7 +32,7 @@ def main(argv):
          build = arg
 
       elif opt in ("-o"):
-         op_sys = arg
+         label = arg
 
       elif opt in ("-v"):
          external = arg
@@ -41,6 +42,13 @@ def main(argv):
    elif build == 'Debug' : build_type = 'dbg'
    elif build == 'Optimized' : build_type = 'opt'
    else : build_type = 'unk'
+   
+   if label == 'cuda7' :
+      ops_sys = 'slc6'
+   elif label == 'xeonphi' :
+      ops_sys = 'slc6'
+   else :
+      ops_sys = label
 
    if comp == 'clang34' : 
       compiler = 'gcc48'
