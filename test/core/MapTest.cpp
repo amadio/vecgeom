@@ -3,7 +3,7 @@
 #include  <cstdlib>
 //#include  <iostream>
 #include  <vector>
-#include  "Map.h"
+#include  "base/Map.h"
 
 #if defined(VECGEOM_VTUNE)
 #include "ittnotify.h"
@@ -27,14 +27,14 @@ int main() {
 
   std::vector<int> map_keys(size);
   std::vector<int> map_values(size);
-  std::vector<int> retrieve_keys(size);
+  //std::vector<int> retrieve_keys(size);
 
    
   for (int i=0;i<size;i++)
   {
     map_values[i] = get_random_int();
     map_keys[i] = get_random_int();
-    retrieve_keys[i] = get_random_int();
+    //retrieve_keys[i] = get_random_int();
   }
 
 // test VecCore::map
@@ -55,7 +55,7 @@ int main() {
   {
      int my_1 = myMap[map_keys[i]];    
      int my_2 = myMap.find(map_keys[i])->second;    
-     std::cout<<"from the vector= "<< map_values[i]<<" from the map= "<<my_1<<" and with find "<<my_2<<std::endl;
+     std::cout<<"From the map= "<<my_1<<" and with find "<<my_2<<std::endl;
   }
 #if defined(VECGEOM_VTUNE)
   __itt_frame_end_v3(__itt_mymap,NULL); 
@@ -75,7 +75,7 @@ int main() {
   {
      int std_1 = stdMap[map_keys[i]];
      int std_2 = stdMap.find(map_keys[i])->second;
-     std::cout<<"from the vector= "<< map_values[i]<<" from std map= "<<std_1<<" and with find "<<std_2<<std::endl;
+     std::cout<<"From std map= "<<std_1<<" and with find "<<std_2<<std::endl;
   }
 
 
