@@ -8,16 +8,16 @@
 #include "volumes/GenTrap.h"
 
 
-#if defined(VECGEOM_BENCHMARK) && defined(VECGEOM_ROOT)
+#ifdef VECGEOM_ROOT
 #include "TGeoArb8.h"
 #endif
 
-#if defined(VECGEOM_BENCHMARK) && defined(VECGEOM_USOLIDS)
+#ifdef VECGEOM_USOLIDS
 #include "UGenericTrap.hh"
 #include "UVector2.hh"
 #endif
 
-#if defined(VECGEOM_BENCHMARK) && defined(VECGEOM_GEANT4)
+#ifdef VECGEOM_GEANT4
 #include "G4GenericTrap.hh"
 #include "G4TwoVector.hh"
 #endif
