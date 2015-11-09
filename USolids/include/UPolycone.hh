@@ -58,6 +58,7 @@ class UPolyconeHistorical
     std::vector<double> Rmax;
 };
 
+/*
 #ifdef VECGEOM_REPLACE_USOLIDS
 
 //============== here for VecGeom-based implementation
@@ -86,6 +87,8 @@ public:
 #else
 
 //============== here for USolids-based implementation
+*/
+
 #include "VUSolid.hh"
 
 #include "UVCSGfaceted.hh"
@@ -366,5 +369,5 @@ class UPolycone : public VUSolid
 };
 //============== end of USolids-based implementation
 
-#endif  // VECGEOM_REPLACE_USOLIDS
+//#endif  // VECGEOM_REPLACE_USOLIDS
 #endif  // UPolycone_hh
