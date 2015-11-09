@@ -18,7 +18,7 @@ else
   return
 fi
 
-if [ $LABEL == slc6 ] || [ $LABEL == cc7 ] || [ $LABEL == cuda7 ] || [ $LABEL == xeonphi ]
+if [ $LABEL == slc6 ] || [ $LABEL == cc7 ] || [ $LABEL == cuda7 ] || [ $LABEL == xeonphi ] || [ $LABEL == slc6-physical ]
 then
   kinit sftnight@CERN.CH -5 -V -k -t /ec/conf/sftnight.keytab
   export PATH=/afs/cern.ch/sw/lcg/contrib/CMake/3.0.0/Linux-i386/bin:${PATH}
@@ -35,7 +35,7 @@ then
 
   ARCH=$(uname -m)
 
-  if [ $LABEL == cuda7 ]
+  if [ $LABEL == cuda7 ] || [ $LABEL == slc6-physical ]
   then
     . /afs/cern.ch/sw/lcg/contrib/gcc/${!COMPILERversion}/${ARCH}-slc6/setup.sh
   else
