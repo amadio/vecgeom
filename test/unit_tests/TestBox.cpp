@@ -1,5 +1,5 @@
 //
-// File:    TestBox
+// File:    TestBox.cpp
 // Purpose: Unit tests for the box
 //
 
@@ -17,6 +17,7 @@
 #include <cassert>
 
 bool testvecgeom=false;
+
 
 template <class Box_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
 bool TestBox() {
@@ -45,7 +46,7 @@ bool TestBox() {
     Box_t b2("Test Box #2",10,10,10);
     Box_t box3("BABAR Box",0.14999999999999999, 
                            24.707000000000001,  
-	                   22.699999999999999) ;
+                       22.699999999999999) ;
 
     // Check cubic volume
 
@@ -325,7 +326,7 @@ bool TestBox() {
     Dist = b1.DistanceToIn(Vec_t(-25,-35,0),vy) ;
     if( Dist >= UUtils::kInfinity ) Dist = UUtils::Infinity(); 
     assert(ApproxEqual(Dist,UUtils::Infinity()));
-    
+
 
     Dist = b2.DistanceToIn(pJohnXY,vmx) ;
     assert(ApproxEqual(Dist,2));
@@ -346,7 +347,7 @@ bool TestBox() {
     // a point very slightly inside should return 0
     temp = Vec_t(0.76315134679548990437,
                                   0.53698876104646497964,
-		 -0.35950395323836459305);
+         -0.35950395323836459305);
     temp = temp*1./temp.Mag();
     Dist = b4.DistanceToIn( Vec_t(-3.0087437277453119577,
                                   -4.9999999999999928946,
@@ -365,14 +366,13 @@ bool TestBox() {
 
 int main(int argc, char *argv[]) {
  
-   if( argc < 2)
-    {
+   if( argc < 2) {
       std::cerr << "need to give argument :--usolids or --vecgeom\n";     
       return 1;
     }
     
-    if( ! strcmp(argv[1], "--usolids") )
-    { 
+    if( ! strcmp(argv[1], "--usolids") ) { 
+
       #ifdef VECGEOM_USOLIDS
       assert(TestBox<UBox>());
       std::cout << "UBox passed\n";
@@ -381,18 +381,17 @@ int main(int argc, char *argv[]) {
       return 2;
       #endif
     }
-    else if( ! strcmp(argv[1], "--vecgeom") )
-    {
+
+    else if( ! strcmp(argv[1], "--vecgeom") ) {
         testvecgeom = true;
         assert(TestBox<vecgeom::SimpleBox>());
         std::cout << "VecGeomBox passed\n";
     }
-    else
-    {
+
+    else {
       std::cerr << "need to give argument :--usolids or --vecgeom\n";     
       return 1;
     }
-
 
   return 0;
 }

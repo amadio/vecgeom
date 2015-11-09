@@ -164,7 +164,7 @@ struct GenTrapImplementation {
 
 //********************************
 //**** implementations start here
-//********************************
+//********************************/
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
@@ -311,13 +311,15 @@ void GenTrapImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndIns
   // Add stronger check against the bounding box, which can allow early returns if point is outside. 
   // Local point has to be translated in the bbox local frame.
 //  completelyoutside = Abs(localPoint.z()) > MakePlusTolerant<ForInside>( unplaced.fDz );
+  completelyinside = Backend::kFalse;
+  completelyoutside = Backend::kFalse;
   BoxImplementation<translation::kIdentity, rotation::kIdentity>::GenericKernelForContainsAndInside<Backend, false>(
       unplaced.fBoundingBox.dimensions(),
       localPoint-unplaced.fBoundingBoxOrig,
       completelyinside, 
       completelyoutside);
   if (Backend::early_returns) {
-    if ( completelyoutside == Backend::kTrue ) {
+    if ( IsFull(completelyoutside) ) {
       return;
     }
   }
@@ -368,23 +370,15 @@ void GenTrapImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndIns
     cross[i]  = ( localPointX - vertexX[i] ) * DeltaY;
     cross[i] -= ( localPointY - vertexY[i] ) * DeltaX;
 
-    completelyoutside |= cross[i] < MakeMinusTolerant<ForInside>( 0 );
+    completelyoutside |= (cross[i] < MakeMinusTolerant<ForInside>( 0 ));
+    completelyinside  &= (cross[i] > 0);
     if (Backend::early_returns) {
-      if ( completelyoutside == Backend::kTrue ) {
+      if ( IsFull(completelyoutside) ) {
         return;
       }
     }
   }
 
-  for (int  i = 0; i < 4; i++) {
-    completelyoutside |= cross[i] < 0;
-    if (Backend::early_returns) {
-      if ( completelyoutside == Backend::kTrue ) {
-        return;
-      }
-    }
-    completelyinside  &= cross[i] > 0;
-  }
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -397,7 +391,8 @@ void GenTrapImplementation<transCodeT, rotCodeT>::InsideKernel(
     typename Backend::inside_v &inside) {
 
   typedef typename Backend::bool_v  Bool_t;
-  Bool_t completelyinside, completelyoutside;
+  Bool_t completelyinside;
+  Bool_t completelyoutside;
   GenericKernelForContainsAndInside<Backend,true>(
       unplaced, point, completelyinside, completelyoutside);
   inside=EInside::kSurface;
@@ -511,7 +506,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   //actually this could also give us some indication which face is likely to be hit
 
 // let me see if we can temporarily force the box function to be a function call
-  Float_t bbdistance;
+  Float_t bbdistance = 0.;
 #ifdef GENTRAP_USENEWBB
   typename Backend::int_v planeid(-1);
   Vector3D<Float_t> hitpoint;
@@ -798,7 +793,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::SafetyToInKernel(
     Vector3D<typename Backend::precision_v> const &point,
     typename Backend::precision_v &safety) {
 
-  typedef typename Backend::precision_v Float_t;
+//  typedef typename Backend::precision_v Float_t;
 
   // to be done
 }
@@ -811,7 +806,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(
     Vector3D<typename Backend::precision_v> const &point,
     typename Backend::precision_v &safety) {
 
-   typedef typename Backend::precision_v Float_t;
+//   typedef typename Backend::precision_v Float_t;
    safety = 1.;
    return;
    // to be done

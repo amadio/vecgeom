@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
 
   VPlacedVolume *worldPlaced = world.Place();
 
-  RootGeoManager::Instance().ExportToROOTGeometry( worldPlaced, "testtorus.root");
+  // RootGeoManager::Instance().ExportToROOTGeometry( worldPlaced, "testtorus.root");
 
   GeoManager::Instance().SetWorld(worldPlaced);
 

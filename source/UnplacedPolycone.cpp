@@ -133,8 +133,6 @@ void UnplacedPolycone::Init(double phiStart,
     prevRmin = rMin;
     prevRmax = rMax;
   }
-
-  fNz = fZs.size();
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -188,6 +186,48 @@ VPlacedVolume* UnplacedPolycone::Create(LogicalVolume const *const logical_volum
       Print();
     }
 
+#if defined(VECGEOM_USOLIDS)
+  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& UnplacedPolycone::StreamInfo(std::ostream &os) const {
+    int oldprc = os.precision(16);
+    os << "-----------------------------------------------------------\n"
+       << "     *** Dump for solid - " << GetEntityType() << " ***\n"
+       << "     ===================================================\n"
+       << " Solid type: Polycone\n"
+       << " Parameters: \n"
+       << "     N = number of Z-sections: "<< fSections.size() <<"\n"
+       << "     N+1 z-coordinates:\n";
+
+    for(uint j=0; j<fNz/5+1; ++j) {
+      os <<"       [ ";
+      for(uint i=0; i<5; ++i) {
+        uint ind = 5*j + i;
+        if(ind<fNz) os<< fZs[ind] <<"; ";
+      }
+      os <<" ]\n";
+    }
+    if(fDeltaPhi<kTwoPi) {
+        os << "     Wedge starting angles: fSphi=" << fStartPhi*kRadToDeg <<"deg, "
+           << ", fDphi="<<fDeltaPhi*kRadToDeg <<"deg\n";
+    }
+
+    int nsections = fSections.size();
+    os <<"\n    # cone sections: "<< nsections <<"\n";
+    for(int i=0; i<nsections; ++i) {
+      UnplacedCone* subcone = fSections[i].fSolid;
+      os <<"     cone #"<< i
+         <<" Rmin1="<< subcone->GetRmin1()
+         <<" Rmax1="<< subcone->GetRmax1()
+         <<" Rmin2="<< subcone->GetRmin2()
+         <<" Rmax2="<< subcone->GetRmax2()
+         <<" HalfZ="<< subcone->GetDz()
+         <<" from z="<< fZs[i] <<" to z="<< fZs[i+1] <<"mm\n";
+    }
+    os << "-----------------------------------------------------------\n";
+    os.precision(oldprc);
+    return os;
+  }
+#endif
 
     VECGEOM_CUDA_HEADER_DEVICE
     VPlacedVolume* UnplacedPolycone::SpecializedVolume(
@@ -592,15 +632,36 @@ bool UnplacedPolycone::Normal(Vector3D<Precision> const& point, Vector3D<Precisi
 
      if(index < 0)
      {
-       valid = true;
+       valid = false;
        if(index == -1) norm = Vector3D<Precision>(0.,0.,-1.);
-       if(index == -2)  norm  = Vector3D<Precision>(0.,0.,1.);
+       if(index == -2) norm = Vector3D<Precision>(0.,0.,1.);
        return valid;
-      }
+     }
      PolyconeSection const & sec = GetSection(index);
-     valid = sec.fSolid->Normal(point,norm);
-     return valid;
+     valid = sec.fSolid->Normal(point-Vector3D<Precision>(0,0,sec.fShift),norm);
 
+     // if point is within tolerance of a Z-plane between 2 sections, get normal from other section too
+     if( index+1<fSections.size() && std::abs(point.z()-fZs[index+1])<kTolerance) {
+       PolyconeSection const& sec2 = GetSection(index+1);
+       bool valid2 = false;
+       Vector3D<Precision> norm2;
+       valid2 = sec2.fSolid->Normal(point-Vector3D<Precision>(0,0,sec2.fShift),norm2);
+
+       if( !valid && valid2 ) {
+         norm = norm2;
+         valid = valid2;
+       }
+
+       // if both valid && valid2 true, norm and norm2 should be added...
+       if(valid&&valid2) {
+         norm = norm + norm2;
+         // but we might be in the interior of the polycone, and norm2=(0,0,-1) and norm1=(0,0,1) --> norm=(0,0,0)
+         // quick fix:  set a normal pointing to the input point, but setting its z=0 (radial)
+         if(norm.Mag2()<kTolerance) norm = Vector3D<Precision>(point.x(), point.y(), 0);
+       }
+     }
+     if(valid) norm /= norm.Mag();
+     return valid;
 }
 
 Precision UnplacedPolycone::SurfaceArea() const {
@@ -660,20 +721,18 @@ void UnplacedPolycone::Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & 
     int i = 0;
     Precision maxR = 0;
 
-    for (i = 0; i < GetNSections(); i++)
-    {
+    for (i = 0; i < GetNSections(); i++) {
      PolyconeSection const & sec = GetSection(i);
      if(maxR < sec.fSolid->GetRmax1())  maxR = sec.fSolid->GetRmax1();
      if(maxR < sec.fSolid->GetRmax2())  maxR = sec.fSolid->GetRmax2();
     }
 
-     aMin.x() = -maxR;
-         aMin.y() = -maxR;
-         aMin.z() = fZs[0];
-         aMax.x() = maxR;
-         aMax.y() = maxR;
-         aMax.z() = fZs[GetNSections()];
-
+    aMin.x() = -maxR;
+    aMin.y() = -maxR;
+    aMin.z() = fZs[0];
+    aMax.x() = maxR;
+    aMax.y() = maxR;
+    aMax.z() = fZs[GetNSections()];
 }
 #endif // !VECGEOM_NVCC
 

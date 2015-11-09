@@ -132,7 +132,7 @@ if (_backend_up MATCHES VC)
   message(STATUS "Configuring with \"Vc\" vector backend")
 elseif (_backend_up MATCHES SCALAR)
   set(Scalar ON)
-  message(STATUS "Configuring with \"Scalar\" vector backend")
+  message(STATUS "Configuring with \"Scalar\" backend")
 elseif (_backend_up MATCHES CILK)
   if (NOT Intel)
     message(FATAL_ERROR "Must use Intel C++ compiler (icpc) for Cilk+ backend.")
@@ -202,7 +202,7 @@ if (${_arch_lo} MATCHES mic)
     set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -m${_arch_lo}")
     set(MIC TRUE)
   else()
-    message(FATAL_ERROR "MIC native of offload compilation requires Intel Compiler.")
+    message(FATAL_ERROR "MIC native or offload compilation requires Intel Compiler.")
   endif()
 elseif (${_arch_lo} MATCHES native)
   if (Intel)
@@ -227,7 +227,7 @@ else()
     set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -m${_arch_lo}")
   endif()
 endif()
-message(STATUS "Compiling for ${_arch_up} SIMD achitecture")
+message(STATUS "Compiling for ${_arch_up} SIMD architecture")
 
 ################################################################################
 
@@ -757,6 +757,7 @@ set(TEST_EXECUTABLES_VISUALIZATION
   ${CMAKE_SOURCE_DIR}/test/visualization/DebugTube.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/DebugPolyhedron.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeSphere.cpp
+  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeGenTrap.cpp
 )
 
 set(TEST_EXECUTABLES_USOLIDS
@@ -769,9 +770,11 @@ set(TEST_EXECUTABLES_USOLIDS
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestPolycone.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestPolyhedra.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTet.cpp
-  #${CMAKE_SOURCE_DIR}/test/unit_tests/TestOrb.cpp
-  #${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestOrb.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBoxlikeTrapezoid.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTorus.cpp
+#  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTorus2.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/usolidTest.cpp
 )
 
@@ -790,6 +793,7 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${CMAKE_SOURCE_DIR}/test/benchmark/BoxUnionBoxBenchmark_virtual.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/3LevelSubtractionBenchmark_virtual.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TorusBenchmark.cpp
+#  ${CMAKE_SOURCE_DIR}/test/benchmark/TorusBenchmark2.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrapezoidBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrapezoidBenchmarkScript.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/OrbBenchmark.cpp
@@ -798,7 +802,7 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${CMAKE_SOURCE_DIR}/test/benchmark/ConeBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/PolyconeBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ScaledBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/BoxScaledBenchmark.cpp
+   ${CMAKE_SOURCE_DIR}/test/benchmark/BoxScaledBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/GenTrapBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/GenTrapBenchmark_planar.cpp
 )
@@ -916,16 +920,18 @@ if (USolids)
   #add_to_ctest("${TEST_EXECUTABLES_SHAPETESTER}")
 
   # add unit tests
-  add_test(NAME USolidBox COMMAND TestBox --usolids)
+  add_test(NAME USolidsBox COMMAND TestBox --usolids)
   add_test(NAME VecGeomBox COMMAND TestBox --vecgeom)
-  add_test(NAME USolidTube COMMAND TestTube --usolids)
-  add_test(NAME VecGeomTube COMMAND TestTube --vecgeom)
-  add_test(NAME USolidTrap COMMAND TestTrap --usolids)
+  add_test(NAME USolidsTrap COMMAND TestTrap --usolids)
   add_test(NAME VecGeomTrap COMMAND TestTrap --vecgeom)
-  add_test(NAME USolidCone COMMAND TestCons --usolids)
+  add_test(NAME USolidsTube COMMAND TestTube --usolids)
+  add_test(NAME VecGeomTube COMMAND TestTube --vecgeom)
+  add_test(NAME USolidsCone COMMAND TestCons --usolids)
   add_test(NAME VecGeomCone COMMAND TestCons --vecgeom)
-  add_test(NAME USolidPolycone COMMAND TestPolycone --usolids)
-  add_test(NAME VecGeomPolycone COMMAND TestPolycone --vecgeom)
+  add_test(NAME USolidsTrd COMMAND TestTrd --usolids)
+  add_test(NAME VecGeomTrd COMMAND TestTrd --vecgeom)
+  add_test(NAME USolidsOrb COMMAND TestOrb --usolids)
+  add_test(NAME VecGeomOrb COMMAND TestOrb --vecgeom)
 endif()
 
 if (CUDA)

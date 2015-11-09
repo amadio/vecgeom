@@ -1,9 +1,7 @@
 //
+// File:    TestOrb.cpp
+// Purpose: unit tests for the Orb
 //
-// TestOrb
-
-
-
 #include "base/Global.h"
 #include "base/Vector3D.h"
 #include "volumes/Box.h"

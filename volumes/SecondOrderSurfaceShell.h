@@ -104,7 +104,7 @@ public:
     Vector3D<typename Backend::precision_v> const &dir ) const {
 
     typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
+//    typedef typename Backend::bool_v Bool_t;
 
   Float_t dist(kInfinity);
   Float_t dzp =fDz+point[2];

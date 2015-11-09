@@ -65,9 +65,12 @@ public:
                   Precision halfzheight) :
                   fBoundingBox(Vector3D<Precision>(0.,0.,0.)),
                   fBoundingBoxOrig(0.,0.,0.),
-                  fDz(halfzheight),
-                  fIstwisted(true), fSurfaceShell(vertices, halfzheight),
-                  fHalfInverseDz(1./(2.*halfzheight))
+                  fVertices(), fVerticesX(),  fVerticesY(),
+                  fDz(halfzheight), fInverseDz(1./halfzheight), fHalfInverseDz(0.5/halfzheight),
+                  fIstwisted(true), 
+                  fConnectingComponentsX(), fConnectingComponentsY(),
+                  fDeltaX(), fDeltaY(),
+                  fSurfaceShell(vertices, halfzheight)
   {
       for (int i=0;i<8;++i)
         fVertices[i]=vertices[i];

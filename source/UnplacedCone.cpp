@@ -295,10 +295,10 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
        RETURN_SPECIALIZATION(UniversalCone);
 
        #undef RETURN_SPECIALIZATION
- }
+  }
 
 
-// this is repetetive code:
+// this is repetitive code:
 
   VECGEOM_CUDA_HEADER_DEVICE
   VPlacedVolume* UnplacedCone::SpecializedVolume(

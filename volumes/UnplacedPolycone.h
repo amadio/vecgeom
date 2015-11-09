@@ -19,13 +19,13 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedPolycone;)
-VECGEOM_DEVICE_DECLARE_CONV(UnplacedPolycone);
+VECGEOM_DEVICE_DECLARE_CONV(UnplacedPolycone)
 
 VECGEOM_DEVICE_FORWARD_DECLARE(struct PolyconeSection;)
 #if !defined(VECGEOM_NVCC)
-VECGEOM_DEVICE_DECLARESTRUCT_CONV(PolyconeSection);
+VECGEOM_DEVICE_DECLARESTRUCT_CONV(PolyconeSection)
 #else
-VECGEOM_DEVICE_DECLARE_CONV(PolyconeSection);
+VECGEOM_DEVICE_DECLARE_CONV(PolyconeSection)
 #endif
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -58,9 +58,11 @@ public:
     // for the phi section --> will be replaced by a wedge
     Precision fStartPhi;
     Precision fDeltaPhi;
-  //Precision fEndPhi;
 
-    unsigned int fNz;
+    unsigned int fNz;  // number of planes the polycone was constructed with; It should not be modified
+    //Precision * fRmin;
+    //Precision * fRmax;
+    //Precision * fZ;
 
     // actual internal storage
     Vector<PolyconeSection> fSections;
@@ -153,19 +155,22 @@ public:
 
     Precision GetRminAtPlane( int index ) const {
       int nsect = GetNSections();
-      if(index<0 || index>nsect) return 0.0;
-      else if(index==nsect) return fSections[index-1].fSolid->GetRmin2();
-      else                  return fSections[index].fSolid->GetRmin1();
+      assert(index>=0 && index<=nsect);
+      if(index==nsect) return fSections[index-1].fSolid->GetRmin2();
+      else             return fSections[index].fSolid->GetRmin1();
     }
 
     Precision GetRmaxAtPlane( int index ) const {
       int nsect = GetNSections();
-      if(index<0 || index>nsect) return 0.0;
-      else if(index==nsect) return fSections[index-1].fSolid->GetRmax2();
-      else                  return fSections[index].fSolid->GetRmax1();
+      assert(index>=0 || index<=nsect);
+      if(index==nsect) return fSections[index-1].fSolid->GetRmax2();
+      else             return fSections[index].fSolid->GetRmax1();
     }
 
-    Precision GetZAtPlane( int index ) const { return fZs[index]; }
+    Precision GetZAtPlane( int index ) const {
+      assert(index>=0 || index<=GetNSections());
+      return fZs[index];
+    }
 
 #if !defined(VECGEOM_NVCC)
     Precision Capacity() const {
@@ -237,6 +242,10 @@ public:
       virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const;
       virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
     #endif
+
+#if defined(VECGEOM_USOLIDS)
+  std::ostream& StreamInfo(std::ostream &os) const;
+#endif
 
     private:
 
