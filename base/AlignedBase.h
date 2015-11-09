@@ -27,7 +27,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 #endif
 #endif
 #ifdef VC_VERSION_NUMBER
-#if VC_VERSION_NUMBER >= VC_VERSION_CHECK(0,99,71)
+#if VC_VERSION_NUMBER >= VC_VERSION_CHECK(0,99,72)
     class AlignedBase : public Vc::VectorAlignedBase<Vc::Vector<double> > {
 #else
     class AlignedBase : public Vc::VectorAlignedBase {
