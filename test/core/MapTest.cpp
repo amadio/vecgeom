@@ -37,13 +37,13 @@ int main() {
     //retrieve_keys[i] = get_random_int();
   }
 
-// test VecCore::map
+// test vecgeom::map
 #if defined(VECGEOM_VTUNE)
  __itt_resume();
  __itt_frame_begin_v3(__itt_mymap,NULL); 
 #endif
 
-  VecCore::map<int,int> myMap;
+  vecgeom::map<int,int> myMap;
   for (int i=0;i<size;i++)
   {
       //myMap[map_keys[i]]=map_values[i];

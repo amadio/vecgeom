@@ -2,7 +2,7 @@
 #define VECCORE_MAP_H
 
 #include "RBTree.h"
-namespace VecCore {
+namespace vecgeom {
 VECGEOM_DEVICE_FORWARD_DECLARE(template <typename Type>  class map; )
  
 
