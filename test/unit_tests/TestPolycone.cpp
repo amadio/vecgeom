@@ -16,6 +16,7 @@
   #include "UVector3.hh"
 #endif
 #include <cmath>
+#include <fenv.h>
 
 //.. ensure asserts are compiled in
 #undef NDEBUG
@@ -42,6 +43,11 @@ bool TestPolycone()
   double RMAX[3] = { 70,70,80 };
   double Z_Val2[3]={-10, 0,10 };
   Polycone_t Simple("SimpleTube+Cone", 0, 360.*UUtils::kPi/180., 3, Z_Val2, RMIN, RMAX );
+
+  double z1[8] = {-2935., -1899., -1899., -1899., 1899., 1899., 1899., 2935.};
+  double rmin1[8] = {74., 34., 31., 31., 31., 31., 34., 74.};
+  double rmax1[8] = {1233., 1233., 1233., 1233., 1233., 1233., 1233., 1233.};
+  Polycone_t cms_TRAK("oldcms_TRAK", 0, 360.*UUtils::kPi/180., 8, z1, rmin1, rmax1);
 
 if(testingvecgeom) {
 
@@ -104,20 +110,20 @@ if(testingvecgeom) {
     assert( placedpoly1-> SafetyToIn( Vec_t(0.5,0.,-1.)) == 0. );
     assert( placedpoly1-> SafetyToIn( Vec_t(0.,0.,3) ) == 1 );
     assert( placedpoly1-> SafetyToIn( Vec_t(2.,0.,0.1) ) == 0 );
-   
-    // test SafetyToOut   
+
+    // test SafetyToOut
     assert( placedpoly1-> SafetyToOut( Vec_t(0.,0.,0.)) == 0.5 );
     assert( placedpoly1-> SafetyToOut( Vec_t(0.,0.,0.5)) == 0. );
     assert( std::fabs(placedpoly1-> SafetyToOut( Vec_t(1.9,0.,0.0) ) - 0.1 )<1000.*kTolerance);
     assert( placedpoly1-> SafetyToOut( Vec_t(0.2,0.,-1) ) == 0. );
     assert( placedpoly1-> SafetyToOut( Vec_t(1.4,0.,2) ) == 0. );
-    
+
     // test DistanceToOut
     assert( placedpoly1-> DistanceToOut( Vec_t(0.,0.,0.) , Vec_t(0.,0.,1.)) == 0.5 );
     assert( placedpoly1-> DistanceToOut( Vec_t(0.,0.,0.) , Vec_t(0.,0.,-1.)) == 0.5 );
     assert( placedpoly1-> DistanceToOut( Vec_t(2.,0.,0.) , Vec_t(1.,0.,0.)) == 0. );
     assert( placedpoly1-> DistanceToOut( Vec_t(2.,0.,0.) , Vec_t(-1.,0.,0.)) == 4. );
-     
+
     assert( placedpoly1-> DistanceToOut( Vec_t(1.,0.,2) , Vec_t(0.,0.,1.)) == 0. );
     assert( placedpoly1-> DistanceToOut( Vec_t(0.5,0., -1) , Vec_t(0.,0.,-1.)) == 0. );
     assert( placedpoly1-> DistanceToOut( Vec_t(0.5,0., -1) , Vec_t(0.,0., 1.)) == 3. );
@@ -138,7 +144,7 @@ if(testingvecgeom) {
 
 
 // Check Inside
-    Vec_t pzero(0,0,0); 
+    Vec_t pzero(0,0,0);
     Vec_t ponxside(70,0,-5 ),ponyside(0,70,-5),ponzside(70,0,10);
     Vec_t ponmxside(-70,0,-5),ponmyside(0,-70,-5),ponmzside(0,0,-10);
     Vec_t ponzsidey(0,25,0),ponmzsidey(4,25,0);
@@ -197,7 +203,7 @@ if(testingvecgeom) {
     assert(ApproxEqual(normal,Vec_t(0,0,-1)));
 
     // Normals on Edges
-   
+
     Vec_t edgeXZ(   80.0,  0.0,  10.0);
     Vec_t edgeYZ(     0., 80.0,  10.0);
     Vec_t edgeXmZ(  70.0,  0.0, -10.0);
@@ -206,8 +212,8 @@ if(testingvecgeom) {
     Vec_t edgemYZ(    0.,-80.0,  10.0);
     Vec_t edgemXmZ(-70.0,  0.0, -10.0);
     Vec_t edgemYmZ(  0.0,-70.0, -10.0);
-    double invSqrt2 = 1.0 / std::sqrt( 2.0); 
-    // double invSqrt3 = 1.0 / std::sqrt( 3.0); 
+    double invSqrt2 = 1.0 / std::sqrt( 2.0);
+    // double invSqrt3 = 1.0 / std::sqrt( 3.0);
 
     valid = Simple.Normal( edgeXmZ ,normal);
     assert(ApproxEqual( normal, Vec_t(  invSqrt2, 0.0, -invSqrt2) ));
@@ -220,6 +226,8 @@ if(testingvecgeom) {
 
     const double xyn=0.92388, zn=0.382683;
     valid = Simple.Normal( edgeXZ ,normal);
+    std::cout<<"Simple.Normal(): p="
+             << edgeXZ <<", normal="<< normal <<", valid="<< valid << std::endl;
     assert(ApproxEqual( normal, Vec_t( xyn, 0, zn) ));
     valid = Simple.Normal( edgemXZ ,normal);
     assert(ApproxEqual( normal, Vec_t(-xyn, 0, zn) ));
@@ -239,7 +247,7 @@ if(testingvecgeom) {
     Dist=Simple.SafetyFromInside(Vec_t(-3,-3,8));
     assert(ApproxEqual(Dist,2));
 
-   
+
 // DistanceToOut(P,V)
 
     Dist=Simple.DistanceToOut(pzero,vx,norm,convex);
@@ -255,7 +263,7 @@ if(testingvecgeom) {
     std::cout <<"D2O mismatch: Line "<< __LINE__ <<", p="<< pzero<<", dir="<< vmy <<", norm="<< norm <<"\n";
     assert(ApproxEqual(Dist,70) && !convex );  //&&ApproxEqual(norm,vmy)
     Dist=Simple.DistanceToOut(pzero,vz,norm,convex);
-    // std::cout<<Dist<< " " <<norm<<"\n"; 
+    // std::cout<<Dist<< " " <<norm<<"\n";
     assert(ApproxEqual(Dist,10)&&ApproxEqual(norm,vz));
     Dist=Simple.DistanceToOut(Vec_t(70,0,-10),vx,norm,convex);
     std::cout <<"D2O mismatch: Line "<< __LINE__ <<", p="<< pzero<<", dir="<< vx <<", dist="<<Dist<<", norm="<< norm <<", convex="<< convex <<"\n";
@@ -267,7 +275,7 @@ if(testingvecgeom) {
     // assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vy));
     Dist=Simple.DistanceToOut(Vec_t(0,-70,-1),vmy,norm,convex);
     assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmy));
-   
+
 //SafetyFromOutside(P)
 
     Dist=Simple.SafetyFromOutside(pbigx);
@@ -310,7 +318,7 @@ if(testingvecgeom) {
     //std::cout <<"D2I mismatch: Line "<< __LINE__ <<", p="<< pbigx <<", dir="<< vxy <<", dist="<<Dist<<"\n";
     assert(ApproxEqual(Dist,Constants::kInfinity));
 
-   
+
   // CalculateExtent
     Vec_t minExtent,maxExtent;
     Simple.Extent(minExtent,maxExtent);
@@ -321,11 +329,11 @@ if(testingvecgeom) {
     //std::cout<<" min="<<minExtent<<" max="<<maxExtent<<std::endl;
     assert(ApproxEqual(minExtent,Vec_t(-80,-80,-20)));
     assert(ApproxEqual(maxExtent,Vec_t( 80, 80, 40)));
-  
-   
+
+
 
 #ifdef SCAN_SOLID
-  
+
   std::cout << "\n=======     Polycone SCAN test      ========";
   std::cout << "\n\nPCone created ! "<<std::endl;
   // -> Check methods :
@@ -333,9 +341,9 @@ if(testingvecgeom) {
   //  - DistanceToIn
   //  - DistanceToOut
 
-  
+
   VUSolid::EnumInside in;
-  
+
   std::cout<<"\n\n==================================================";
   Vec_t pt(0, -100, 24);
   int y;
@@ -344,9 +352,9 @@ if(testingvecgeom) {
     //pt.setY(y);
     pt.Set(0,y,24);
     in = MyPCone->Inside(pt);
-    
+
     std::cout << "\nx=" << pt.x() << "  y=" << pt.y() << "  z=" << pt.z();
-    
+
     if( in == vecgeom::EInside::kInside )
       std::cout <<" is inside";
     else
@@ -362,7 +370,7 @@ if(testingvecgeom) {
   double   d;
   int z;
   bool convex;
-  
+
   std::cout<<"\nPdep is (0, 0, z)";
   std::cout<<"\nDir is (1, 1, 0)\n";
 
@@ -373,7 +381,7 @@ if(testingvecgeom) {
 
     in = MyPCone->Inside(start);
     std::cout<< "x=" << start.x() << "  y=" << start.y() << "  z=" << start.z();
-    
+
     if( in == vecgeom::EInside::kInside )
     {
       std::cout <<" is inside";
@@ -383,7 +391,7 @@ if(testingvecgeom) {
       d = MyPCone->SafetyFromInside(start);
       std::cout<<"  closest distance to out="<<d<<std::endl;
     }
-    else if( in == vecgeom::EInside::kOutside ) 
+    else if( in == vecgeom::EInside::kOutside )
     {
       std::cout <<" is outside";
 
@@ -437,7 +445,7 @@ if(testingvecgeom) {
   // Point move in Phi direction for differents Z
   //
    std::cout<<"\n\n==================================================";
-   Vec_t start4; 
+   Vec_t start4;
  for(z=-10; z<=50; z+=5)
    {
      std::cout<<"\n\n===================Z="<<z<<"==============================";
@@ -456,7 +464,7 @@ if(testingvecgeom) {
 
   for(y=-0; y<=50; y+=5)
   {
-    
+
     //start4.setX(y*std::cos(phi));
     //start4.setY(y*std::sin(phi));
     start4.Set(y*std::cos(phi),y*std::sin(phi),z);
@@ -486,7 +494,7 @@ if(testingvecgeom) {
          d4 = MyPCone->SafetyFromOutside(start4);
          std::cout<<" closest distance to in="<<d4<< std::endl;
     }
-    
+
   }
    }
  //
@@ -510,7 +518,7 @@ if(testingvecgeom) {
 
   for(y=-0; y<=50; y+=5)
   {
-    
+
     //start5.setX(y);
     start5.Set(0,y,z);
     std::cout<<" Start"<<start5;
@@ -540,7 +548,7 @@ if(testingvecgeom) {
          d5 = MyPCone->SafetyFromOutside(start5);
          std::cout<<" closest distance to in="<<d5<<std::endl;
         }
-    
+
   }
    }
 
@@ -579,13 +587,15 @@ struct VECGEOMCONSTANTS {
 };
 
 int main(int argc, char *argv[]) {
- 
+
    if( argc < 2) {
-      std::cerr << "need to give argument: --usolids or --vecgeom\n";     
+      std::cerr << "need to give argument: --usolids or --vecgeom\n";
       return 1;
    }
-    
-   if( ! strcmp(argv[1], "--usolids") ) { 
+
+   feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
+
+   if( ! strcmp(argv[1], "--usolids") ) {
 #ifdef VECGEOM_USOLIDS
       TestPolycone<USOLIDSCONSTANTS, UPolycone>();
       std::cout << "UPolycone passed\n";
@@ -600,7 +610,7 @@ int main(int argc, char *argv[]) {
      std::cout << "VecGeomPolycone passed\n";
    }
    else {
-      std::cerr << "need to give argument :--usolids or --vecgeom\n";     
+      std::cerr << "need to give argument :--usolids or --vecgeom\n";
       return 1;
    }
 
