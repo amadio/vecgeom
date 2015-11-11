@@ -815,11 +815,14 @@ bool UnplacedPolycone::CheckContinuityInSlope(const std::vector<Precision> &rOut
 					break;
 				}
 			}
+                        else
+                        {
 			currentSlope = (rOuter[j+1]-rOuter[j])/(zPlane[j+1]-zPlane[j]);
 			continuous &= (currentSlope <= startSlope);
 			startSlope = currentSlope;
 			if(!continuous)
 			break;
+                        }
 
 			j = j+2;
 		}
