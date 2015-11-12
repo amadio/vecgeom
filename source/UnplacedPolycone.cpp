@@ -736,122 +736,102 @@ void UnplacedPolycone::Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & 
 }
 #endif // !VECGEOM_NVCC
 
-bool UnplacedPolycone::CheckContinuityInRmax(const std::vector<Precision> &rOuter){
+bool UnplacedPolycone::CheckContinuityInRmax(const std::vector<Precision> &rOuter) {
 
-	bool continuous=true;
+  bool continuous = true;
 
-	for (unsigned int j = 1; j < fNz; )
-	{
-		if(j!=(fNz-1))
-		  continuous &= (rOuter[j]==rOuter[j+1]);
-		j = j+2;
-	}
-	return continuous;
+  for (unsigned int j = 1; j < fNz;) {
+    if (j != (fNz - 1))
+      continuous &= (rOuter[j] == rOuter[j + 1]);
+    j = j + 2;
+  }
+  return continuous;
 }
 
-bool UnplacedPolycone::CheckContinuityInZPlane(const double rOuter[],const double zPlane[]){
+bool UnplacedPolycone::CheckContinuityInZPlane(const double rOuter[], const double zPlane[]) {
 
-	std::vector<Precision> rOut;
-	std::vector<Precision> zPl;
-	rOut.push_back(rOuter[0]);
-	zPl.push_back(zPlane[0]);
-	for (unsigned int j = 1; j < fNz; )
-	{
-		if(j==(fNz-1))
-		{
-			rOut.push_back(rOuter[j]);
-			zPl.push_back(zPlane[j]);
-		}
-		else
-		{
-		if(zPlane[j]!=zPlane[j+1])
-		{
-			rOut.push_back(rOuter[j]);
-			rOut.push_back(rOuter[j]);
-			rOut.push_back(rOuter[j+1]);
-			rOut.push_back(rOuter[j+1]);
+  std::vector<Precision> rOut;
+  std::vector<Precision> zPl;
+  rOut.push_back(rOuter[0]);
+  zPl.push_back(zPlane[0]);
+  for (unsigned int j = 1; j < fNz;) {
+    if (j == (fNz - 1)) {
+      rOut.push_back(rOuter[j]);
+      zPl.push_back(zPlane[j]);
+    } else {
+      if (zPlane[j] != zPlane[j + 1]) {
+        rOut.push_back(rOuter[j]);
+        rOut.push_back(rOuter[j]);
+        rOut.push_back(rOuter[j + 1]);
+        rOut.push_back(rOuter[j + 1]);
 
-			zPl.push_back(zPlane[j]);
-			zPl.push_back(zPlane[j]);
-			zPl.push_back(zPlane[j+1]);
-			zPl.push_back(zPlane[j+1]);
-		}
-		else
-		{
-		    rOut.push_back(rOuter[j]);
-	   	    rOut.push_back(rOuter[j+1]);
-	   	    zPl.push_back(zPlane[j]);
-	   	    zPl.push_back(zPlane[j+1]);
-		}
-		}
-		j = j+2;
-	}
+        zPl.push_back(zPlane[j]);
+        zPl.push_back(zPlane[j]);
+        zPl.push_back(zPlane[j + 1]);
+        zPl.push_back(zPlane[j + 1]);
+      } else {
+        rOut.push_back(rOuter[j]);
+        rOut.push_back(rOuter[j + 1]);
+        zPl.push_back(zPlane[j]);
+        zPl.push_back(zPlane[j + 1]);
+      }
+    }
+    j = j + 2;
+  }
 
-
-	bool contRmax = CheckContinuityInRmax(rOut);
-	bool contSlope = CheckContinuityInSlope(rOut, zPl);
-	return ( contRmax && contSlope );
+  bool contRmax = CheckContinuityInRmax(rOut);
+  bool contSlope = CheckContinuityInSlope(rOut, zPl);
+  return (contRmax && contSlope);
 }
 
-bool UnplacedPolycone::CheckContinuityInSlope(const std::vector<Precision> &rOuter, const std::vector<Precision> &zPlane){
+bool UnplacedPolycone::CheckContinuityInSlope(const std::vector<Precision> &rOuter,
+                                              const std::vector<Precision> &zPlane) {
 
-		bool continuous=true;
-		Precision startSlope = kInfinity;
-		for (unsigned int j = 0; j < rOuter.size(); )
-		{
-			Precision currentSlope = kInfinity;
-			if( (zPlane[j]==zPlane[j+1]) )
-			{
-				if(j==0)
-				{
-					currentSlope = startSlope;
-					break;
-				}
-				else
-				{
-					if( (rOuter[j]==rOuter[j+1]) && (rOuter[j]==rOuter[j-1]) )
-					currentSlope = startSlope;
-					else
-					break;
-				}
-			}
-                        else
-                        {
-			currentSlope = (rOuter[j+1]-rOuter[j])/(zPlane[j+1]-zPlane[j]);
-			continuous &= (currentSlope <= startSlope);
-			startSlope = currentSlope;
-			if(!continuous)
-			break;
-                        }
+  bool continuous = true;
+  Precision startSlope = kInfinity;
+  for (unsigned int j = 0; j < rOuter.size();) {
+    Precision currentSlope = kInfinity;
+    if ((zPlane[j] == zPlane[j + 1])) {
+      if (j == 0) {
+        currentSlope = startSlope;
+        break;
+      } else {
+        if ((rOuter[j] == rOuter[j + 1]) && (rOuter[j] == rOuter[j - 1]))
+          currentSlope = startSlope;
+        else
+          break;
+      }
+    } else {
+      currentSlope = (rOuter[j + 1] - rOuter[j]) / (zPlane[j + 1] - zPlane[j]);
+      continuous &= (currentSlope <= startSlope);
+      startSlope = currentSlope;
+      if (!continuous)
+        break;
+    }
 
-			j = j+2;
-		}
-		return continuous;
-
+    j = j + 2;
+  }
+  return continuous;
 }
-
 
 VECGEOM_CUDA_HEADER_BOTH
-bool UnplacedPolycone::IsConvex() const{
-	//Default safe convexity value
-	  bool convexity = false;
+bool UnplacedPolycone::IsConvex() const {
+  // Default safe convexity value
+  bool convexity = false;
 
-	    if(fConvexityPossible)
-	    {
-	      if(fEqualRmax && (fDeltaPhi<=kPi || fDeltaPhi==kTwoPi))	//In this case, Polycone become solid Cylinder, No need to check anything else, 100% convex
-	        convexity = true;
-	      else
-	      {
-	    	 if( fDeltaPhi<=kPi || fDeltaPhi==kTwoPi)
-	    	 {
-	    		 convexity = fContinuityOverAll;
-	    	 }
-	      }
-	    }
-
-		return convexity;
-
+  if (fConvexityPossible) {
+    if (fEqualRmax && (fDeltaPhi <= kPi || fDeltaPhi == kTwoPi))
+      // In this case, Polycone become solid Cylinder, No need to check anything else, 100% convex
+      convexity = true;
+    else {
+      if (fDeltaPhi <= kPi || fDeltaPhi == kTwoPi) {
+        convexity = fContinuityOverAll;
       }
+    }
+  }
+
+  return convexity;
+}
 } // End impl namespace
 
 #ifdef VECGEOM_NVCC
