@@ -514,7 +514,7 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::SafetyToOut(
 
   Bool_t done(false);
 
-  // If point is outside, set distance to zero
+  // If point is outside, set safety to zero
   safety = unplaced.GetDz() - Abs(point.z());
   MaskedAssign( safety<0.0, 0.0, &safety );
   done |= safety==0.0;
