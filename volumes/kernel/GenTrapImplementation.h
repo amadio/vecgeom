@@ -311,22 +311,22 @@ void GenTrapImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndIns
   // Add stronger check against the bounding box, which can allow early returns if point is outside. 
   // Local point has to be translated in the bbox local frame.
 //  completelyoutside = Abs(localPoint.z()) > MakePlusTolerant<ForInside>( unplaced.fDz );
-  completelyinside = Backend::kFalse;
-  completelyoutside = Backend::kFalse;
-  BoxImplementation<translation::kIdentity, rotation::kIdentity>::GenericKernelForContainsAndInside<Backend, false>(
+//  completelyinside = Backend::kFalse;
+//  completelyoutside = Backend::kFalse;
+  BoxImplementation<translation::kIdentity, rotation::kIdentity>::GenericKernelForContainsAndInside<Backend, ForInside>(
       unplaced.fBoundingBox.dimensions(),
       localPoint-unplaced.fBoundingBoxOrig,
       completelyinside, 
       completelyoutside);
-  if (Backend::early_returns) {
+//  if (Backend::early_returns) {
     if ( IsFull(completelyoutside) ) {
       return;
     }
-  }
+//  }
 
-  if (ForInside)  {
-    completelyinside = Abs(localPoint.z()) < MakeMinusTolerant<ForInside>( unplaced.fDz );
-  }
+//  if (ForInside)  {
+//    completelyinside = Abs(localPoint.z()) < MakeMinusTolerant<ForInside>( unplaced.fDz );
+//  }
 
   // analyse z
   Float_t  cf = unplaced.fHalfInverseDz * (unplaced.fDz - localPoint.z());
@@ -371,12 +371,14 @@ void GenTrapImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndIns
     cross[i] -= ( localPointY - vertexY[i] ) * DeltaX;
 
     completelyoutside |= (cross[i] < MakeMinusTolerant<ForInside>( 0 ));
-    completelyinside  &= (cross[i] > 0);
-    if (Backend::early_returns) {
+    if (ForInside)
+      completelyinside  &= (cross[i] > MakePlusTolerant<ForInside>( 0 ));
+
+//    if (Backend::early_returns) {
       if ( IsFull(completelyoutside) ) {
         return;
       }
-    }
+//    }
   }
 
 }
