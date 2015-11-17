@@ -149,7 +149,11 @@ inline namespace BaseTLS {
 
   inline int ThreadId() {
     // Utility getting a thread local id
-    TTHREAD_TLS(Int_t) tid = -1;
+#ifdef VECGEOM_ROOT
+   TTHREAD_TLS(Int_t) tid = -1;
+#else
+   THREAD_TLS(int) tid = -1;
+#endif 
     int ttid = tid;
     if (ttid > -1) return ttid;
     while (BaseTLS::gLock.test_and_set(std::memory_order_acquire))
