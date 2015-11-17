@@ -151,6 +151,7 @@ Precision Planes::GetDistance(int i) const {
   return fDistances[i];
 }
 
+#ifdef VECGEOM_VC
 namespace {
 
 template <class Backend>
@@ -166,7 +167,7 @@ void AcceleratedContains(
   return;
 }
 
-#ifdef VECGEOM_VC
+#if defined(VECGEOM_QUADRILATERALS_VC)
 template <>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
@@ -192,6 +193,7 @@ void AcceleratedContains<kScalar>(
 #endif
 
 } // End anonymous namespace
+#endif // VECGEOM_VC
 
 
 template <class Backend>
@@ -214,9 +216,9 @@ typename Backend::bool_v Planes::Contains(
   return result;
 }
 
+#ifdef VECGEOM_VC
 namespace {
 
-#if defined(VECGEOM_VC) && defined(VECGEOM_QUADRILATERALS_VC)
 template <class Backend>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
@@ -229,10 +231,9 @@ void AcceleratedInside(
     typename Backend::inside_v &result) {
   return;
 }
-#endif
 
 
-#ifdef VECGEOM_VC
+#if defined(VECGEOM_QUADRILATERALS_VC)
 template <>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
@@ -263,6 +264,7 @@ void AcceleratedInside<kScalar>(
 #endif
 
 } // End anonymous namespace
+#endif // VECGEOM_VC
 
 template <class Backend>
 VECGEOM_CUDA_HEADER_BOTH
