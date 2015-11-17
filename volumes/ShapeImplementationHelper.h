@@ -311,9 +311,9 @@ public:
       point,
       output
     );
-    if(output < 0.0 && output > -kTolerance) {
-      output = 0.0;
-    }
+#ifdef VECGEOM_REPLACE_USOLIDS
+    if(output < 0.0 && output > -kTolerance) output = 0.0;
+#endif
     return output;
   }
 
@@ -325,9 +325,9 @@ public:
       point,
       output
     );
-    if(output < 0.0 && output > -kTolerance) {
-      output = 0.0;
-    }
+#ifdef VECGEOM_REPLACE_USOLIDS
+    if(output < 0.0 && output > -kTolerance) output = 0.0;
+#endif
     return output;
   }
 
