@@ -45,7 +45,12 @@ bool TestPolycone()
   Polycone_t Simple("SimpleTube+Cone", 0, 360.*UUtils::kPi/180., 3, Z_Val2, RMIN, RMAX );
 
   //enabling FPE exception
-  feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
+  #if defined(__clang__) && defined(__clang_major__) == 5 && defined(__clang_minor__) <= 6
+        feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
+  #else
+        feclearexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
+  #endif
+
   double z1[8] = {-2935., -1899., -1899., -1899., 1899., 1899., 1899., 2935.};
   double rmin1[8] = {74., 34., 31., 31., 31., 31., 34., 74.};
   double rmax1[8] = {1233., 1233., 1233., 1233., 1233., 1233., 1233., 1233.};
