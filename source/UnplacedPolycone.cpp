@@ -15,6 +15,7 @@
 #include <iostream>
 #include <cstdio>
 #include <vector>
+#include "base/Vector.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -736,7 +737,7 @@ void UnplacedPolycone::Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & 
 }
 #endif // !VECGEOM_NVCC
 
-bool UnplacedPolycone::CheckContinuityInRmax(const std::vector<Precision> &rOuter) {
+bool UnplacedPolycone::CheckContinuityInRmax(const Vector<Precision> &rOuter) {
 
   bool continuous = true;
 
@@ -750,8 +751,8 @@ bool UnplacedPolycone::CheckContinuityInRmax(const std::vector<Precision> &rOute
 
 bool UnplacedPolycone::CheckContinuityInZPlane(const double rOuter[], const double zPlane[]) {
 
-  std::vector<Precision> rOut;
-  std::vector<Precision> zPl;
+  Vector<Precision> rOut;
+  Vector<Precision> zPl;
   rOut.push_back(rOuter[0]);
   zPl.push_back(zPlane[0]);
   for (unsigned int j = 1; j < fNz;) {
@@ -784,12 +785,12 @@ bool UnplacedPolycone::CheckContinuityInZPlane(const double rOuter[], const doub
   return (contRmax && contSlope);
 }
 
-bool UnplacedPolycone::CheckContinuityInSlope(const std::vector<Precision> &rOuter,
-                                              const std::vector<Precision> &zPlane) {
+bool UnplacedPolycone::CheckContinuityInSlope(const Vector<Precision> &rOuter,
+                                              const Vector<Precision> &zPlane) {
 
   bool continuous = true;
   Precision startSlope = kInfinity;
-  for (unsigned int j = 0; j < rOuter.size();) {
+  for (int j = 0; j < rOuter.size();) {
     Precision currentSlope = kInfinity;
     if ((zPlane[j] == zPlane[j + 1])) {
       if (j == 0) {
