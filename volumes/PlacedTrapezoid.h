@@ -123,7 +123,7 @@ public:
   PlacedTrapezoid(double dx, double dy, double dz, double);
 
   VECGEOM_CUDA_HEADER_BOTH
-  void SetPlanes(const UVector3 upt[8]) {
+  void SetPlanes(const Vector3D<Precision>* upt) {
     vecgeom::UnplacedTrapezoid* utrap = const_cast<vecgeom::UnplacedTrapezoid*>(GetUnplacedVolume());
     // std::cout<<"PlacedTrap.h: sizeof's for: upt="<< sizeof(upt)
     //          <<", opt[8]="<< sizeof(upt[8])
@@ -164,13 +164,13 @@ public:
       return sidePlane;
   }
 
-  UVector3 GetSymAxis() const {
+  Vector3D<Precision> GetSymAxis() const {
     vecgeom::UnplacedTrapezoid const* utrap = GetUnplacedVolume();
     double tanThetaSphi = utrap->GetTanThetaSinPhi();
     double tanThetaCphi = utrap->GetTanThetaCosPhi();
     double tan2Theta = tanThetaSphi*tanThetaSphi + tanThetaCphi*tanThetaCphi;
     double cosTheta = 1.0 / std::sqrt(1 + tan2Theta);
-    return UVector3( tanThetaCphi*cosTheta, tanThetaSphi*cosTheta, cosTheta );
+    return Vector3D<Precision>( tanThetaCphi*cosTheta, tanThetaSphi*cosTheta, cosTheta );
   }
 
 #ifndef VECGEOM_NVCC
