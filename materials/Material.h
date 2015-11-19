@@ -33,14 +33,12 @@ class Material {
 
 public:
    Material();
-   Material(const char *name, double a, double z, double dens, double radlen=-1,
-	double intlen=-1);
-   template <typename T, typename U, typename V> 
-      Material(const char *name, const T a[], const U z[], const V w[], 
-	   int nelements, double dens, double radlen=-1,
-	   double intlen=-1);
+   Material(const char *name, double a, double z, double dens, double radlen = -1, double intlen = -1);
+   template <typename T, typename U, typename V>
+   Material(const char *name, const T a[], const U z[], const V w[], int nelements, double dens, double radlen = -1,
+            double intlen = -1);
    virtual ~Material();
- 
+
    // Getters and setters
    double GetZ() const {return fZ;}
    double GetA() const {return fA;}
@@ -106,35 +104,35 @@ private:
  * @param intlen    [in] interaction length
  */
 
-template <typename T, typename U, typename V> 
-Material::Material(const char *name, const T a[], const U z[], const V w[], 
-	   int nelements, double dens, double radlen,
-		   double intlen): fName(name), fDensity(dens), fZ(0), fA(0), fNelem(abs(nelements))
-{
-   Element elem;
-   double totw=0;
-   fA = 0;
-   fZ = 0;
-   for(int iel=0; iel<fNelem; ++iel) {
-      //      cout << "Material::ctor: el#" << iel << " A: " << a[iel] << " Z: " << z[iel] << endl;
-      elem.fW = w[iel];
-      elem.fA = a[iel];
-      elem.fZ = z[iel];
-      if(nelements<0) {
-	 fA += elem.fW;
-	 elem.fW/=elem.fA;
-      } else
-	 fA += elem.fA*elem.fW;
-      totw += elem.fW;
-      fZ += elem.fZ*elem.fW;
-      fElements.push_back(elem);
-   }
-   totw = 1/totw;
-   fA *= totw;
-   fZ *= totw;
-   for(auto element : fElements) element.fW*=totw;
-   fIndex = gMatDB.size();
-   gMatDB.push_back(this);
+template <typename T, typename U, typename V>
+Material::Material(const char *name, const T a[], const U z[], const V w[], int nelements, double dens, double radlen,
+                   double intlen)
+    : fName(name), fDensity(dens), fZ(0), fA(0), fNelem(abs(nelements)) {
+  Element elem;
+  double totw = 0;
+  fA = 0;
+  fZ = 0;
+  for (int iel = 0; iel < fNelem; ++iel) {
+    //      cout << "Material::ctor: el#" << iel << " A: " << a[iel] << " Z: " << z[iel] << endl;
+    elem.fW = w[iel];
+    elem.fA = a[iel];
+    elem.fZ = z[iel];
+    if (nelements < 0) {
+      fA += elem.fW;
+      elem.fW /= elem.fA;
+    } else
+      fA += elem.fA * elem.fW;
+    totw += elem.fW;
+    fZ += elem.fZ * elem.fW;
+    fElements.push_back(elem);
+  }
+  totw = 1 / totw;
+  fA *= totw;
+  fZ *= totw;
+  for (auto &element : fElements)
+    element.fW *= totw;
+  fIndex = gMatDB.size();
+  gMatDB.push_back(this);
 }
 
 template <typename T> int Material::GetRatioBW(std::vector<T> &rbw) const {
