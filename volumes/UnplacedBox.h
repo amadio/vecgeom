@@ -33,12 +33,12 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedBox(UnplacedBox const &other) : dimensions_(other.dimensions_) {}
 
-  virtual int memory_size() const final { return sizeof(*this); }
+  int memory_size() const override { return sizeof(*this); }
 
   #ifdef VECGEOM_CUDA_INTERFACE
-  virtual size_t DeviceSizeOf() const { return DevicePtr<cuda::UnplacedBox>::SizeOf(); }
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const;
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
+  size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedBox>::SizeOf(); }
+  DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
+  DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
   #endif
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -58,7 +58,7 @@ public:
   Precision z() const { return dimensions_[2]; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual bool IsConvex() const override;
+  bool IsConvex() const override;
 
 #if !defined(VECGEOM_NVCC)
   VECGEOM_INLINE
@@ -81,13 +81,13 @@ public:
 
 
 
-  virtual std::string GetEntityType() const { return "Box";}
+  std::string GetEntityType() const { return "Box";}
 #endif // !VECGEOM_NVCC
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void Print() const final;
+  void Print() const override;
 
-  virtual void Print(std::ostream &os) const final;
+  void Print(std::ostream &os) const override;
 
 #ifndef VECGEOM_NVCC
 
@@ -133,11 +133,11 @@ private:
 
 #ifndef VECGEOM_NVCC
 
-  virtual VPlacedVolume* SpecializedVolume(
+  VPlacedVolume* SpecializedVolume(
       LogicalVolume const *const lvolume,
       Transformation3D const *const transformation,
       const TranslationCode trans_code, const RotationCode rot_code,
-      VPlacedVolume *const placement = NULL) const final {
+      VPlacedVolume *const placement = NULL) const override {
     return CreateSpecializedVolume(lvolume, transformation, trans_code, rot_code,
                                    placement);
   }
@@ -145,11 +145,11 @@ private:
 #else
 
   __device__
-  virtual VPlacedVolume* SpecializedVolume(
+  VPlacedVolume* SpecializedVolume(
       LogicalVolume const *const volume,
       Transformation3D const *const transformation,
       const TranslationCode trans_code, const RotationCode rot_code,
-      const int id, VPlacedVolume *const placement = NULL) const final {
+      const int id, VPlacedVolume *const placement = NULL) const override {
     return CreateSpecializedVolume(volume, transformation, trans_code, rot_code,
                                    id, placement);
   }

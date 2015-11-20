@@ -83,6 +83,17 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
   timer.Stop();
   if (verbose_ > 2) std::cout << " OK; TIME NEEDED " << timer.Elapsed() << "s \n";
 
+  if (verbose_ > 2) std::cout << "Copying transformations_...";
+  timer.Start();
+  for (std::set<Transformation3D const*>::const_iterator i =
+       transformations_.begin(); i != transformations_.end(); ++i) {
+
+     (*i)->CopyToGpu(LookupTransformation(*i));
+  }
+  timer.Stop();
+  if (verbose_ > 2) std::cout << " OK; TIME NEEDED " << timer.Elapsed() << "s \n";
+
+
   if (verbose_ > 2) std::cout << "Copying placed volumes...";
   timer.Start();
   for (std::set<VPlacedVolume const*>::const_iterator i =
@@ -93,17 +104,6 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
       LookupTransformation((*i)->GetTransformation()),
       LookupPlaced(*i)
     );
-
-  }
-  timer.Stop();
-  if (verbose_ > 2) std::cout << " OK; TIME NEEDED " << timer.Elapsed() << "s \n";
-
-  if (verbose_ > 2) std::cout << "Copying transformations_...";
-  timer.Start();
-  for (std::set<Transformation3D const*>::const_iterator i =
-       transformations_.begin(); i != transformations_.end(); ++i) {
-
-     (*i)->CopyToGpu(LookupTransformation(*i));
 
   }
   timer.Stop();
