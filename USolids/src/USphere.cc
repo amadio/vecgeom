@@ -679,6 +679,22 @@ double USphere::DistanceToIn(const UVector3& p, const UVector3& v, double /*aPst
   {
     tolSTheta = fSTheta - halfAngTolerance;
     tolETheta = eTheta + halfAngTolerance;
+
+    // Special case rad2 = 0 comparing with direction
+    //
+    if ((rad2!=0.0) || (fRmin!=0.0))
+    {
+      // Keep going for computation of distance...
+    }
+    else  // Positioned on the sphere's origin
+    {
+      double vTheta = std::atan2(std::sqrt(v.x()*v.x()+v.y()*v.y()),v.z()) ;
+      if ( (vTheta < tolSTheta) || (vTheta > tolETheta) )
+      {
+        return snxt ; // UUtils::Infinity()
+      }
+      return snxt = 0.0 ;
+    }
   }
 
   // Outer spherical shell intersection
@@ -2076,7 +2092,10 @@ double USphere::DistanceToOut(const UVector3& p, const UVector3& v, UVector3& n,
           b = t2 / t1;
           c = dist2ETheta / t1;
           d2 = b * b - c;
-
+          if ( (d2 <halfTolerance) && (d2 > -halfTolerance) )
+          {
+            d2 = 0.;
+          }
           if (d2 >= 0.)
           {
             d = std::sqrt(d2);
@@ -2104,11 +2123,11 @@ double USphere::DistanceToOut(const UVector3& p, const UVector3& v, UVector3& n,
               sd = -b - d;         // First root
 
               if (((std::fabs(sd) < halfTolerance) && (t2 >= 0.))
-                  || (sd < 0.) || ((sd > 0.) && (p.z() + sd * v.z() > 0.)))
+                  || (sd < 0.) || ((sd > 0.) && (p.z() + sd * v.z() > halfTolerance)))
               {
                 sd = -b + d; // 2nd root
               }
-              if ((sd > halfTolerance) && (p.z() + sd * v.z() <= 0.))
+              if ((sd > halfTolerance) && (p.z() + sd * v.z() <= halfTolerance))
               {
                 if (sd < stheta)
                 {
