@@ -44,11 +44,6 @@ bool TestPolycone()
   double Z_Val2[3]={-10, 0,10 };
   Polycone_t Simple("SimpleTube+Cone", 0, 360.*UUtils::kPi/180., 3, Z_Val2, RMIN, RMAX );
 
-  //enabling FPE exception
-  //  #if !defined(__clang__)
-  //       feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
-  //#endif
-
   double z1[8] = {-2935., -1899., -1899., -1899., 1899., 1899., 1899., 2935.};
   double rmin1[8] = {74., 34., 31., 31., 31., 31., 34., 74.};
   double rmax1[8] = {1233., 1233., 1233., 1233., 1233., 1233., 1233., 1233.};
@@ -183,16 +178,18 @@ if(testingvecgeom) {
 
     //check that Normal() returns valid=false and a non-zero normal for points away from the surface
 
-    Vec_t point(70,70,-5);
-    if( (valid=Simple.Normal(point,norm)) || !ApproxEqual(norm.Mag2(),1) )
-      std::cout <<"Simple.Normal() mismatch: Line "<< __LINE__ <<", p="<< point <<", normal=" << norm <<", valid="<<valid<<"\n";
-    point.z() = -10;
-    if( (valid=Simple.Normal(point,norm)) || !ApproxEqual(norm.Mag2(),1) )
-      std::cout <<"Simple.Normal() mismatch: Line "<< __LINE__ <<", p="<< point <<", normal=" << norm <<", valid="<<valid<<"\n";
-    if( (valid=Simple.Normal(pbigz,norm)) || !ApproxEqual(norm.Mag2(),1) )
-      std::cout <<"Simple.Normal() mismatch: Line "<< __LINE__ <<", p="<< pbigz <<", normal=" << norm <<", valid="<<valid<<"\n";
-    if( (valid=Simple.Normal(pbigmz,norm)) || !ApproxEqual(norm.Mag2(),1) )
-      std::cout <<"Simple.Normal() mismatch: Line "<< __LINE__ <<", p="<< pbigmz <<", normal=" << norm <<", valid="<<valid<<"\n";
+    if(testingvecgeom) {
+      Vec_t point(70,70,-5);
+      if( (valid=Simple.Normal(point,norm)) || !ApproxEqual(norm.Mag2(),1) )
+        std::cout <<"Simple.Normal() mismatch: Line "<< __LINE__ <<", p="<< point <<", normal=" << norm <<", valid="<<valid<<"\n";
+      point.z() = -10;
+      if( (valid=Simple.Normal(point,norm)) || !ApproxEqual(norm.Mag2(),1) )
+        std::cout <<"Simple.Normal() mismatch: Line "<< __LINE__ <<", p="<< point <<", normal=" << norm <<", valid="<<valid<<"\n";
+      if( (valid=Simple.Normal(pbigz,norm)) || !ApproxEqual(norm.Mag2(),1) )
+        std::cout <<"Simple.Normal() mismatch: Line "<< __LINE__ <<", p="<< pbigz <<", normal=" << norm <<", valid="<<valid<<"\n";
+      if( (valid=Simple.Normal(pbigmz,norm)) || !ApproxEqual(norm.Mag2(),1) )
+        std::cout <<"Simple.Normal() mismatch: Line "<< __LINE__ <<", p="<< pbigmz <<", normal=" << norm <<", valid="<<valid<<"\n";
+    }
 
     // Check Surface Normal
 
@@ -598,7 +595,10 @@ int main(int argc, char *argv[]) {
       return 1;
    }
 
-   feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
+   //enabling FPE exception
+// #if defined(__GNUC__)
+//    feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
+// #endif
 
    if( ! strcmp(argv[1], "--usolids") ) {
 #ifdef VECGEOM_USOLIDS
