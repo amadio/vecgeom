@@ -10,6 +10,10 @@
 #include "backend/Backend.h"
 #include <string>
 
+#ifdef VECGEOM_VC
+#include <Vc/Vc>
+#endif
+
 class G4VSolid;
 
 namespace vecgeom {

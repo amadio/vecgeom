@@ -28,6 +28,7 @@ LogicalVolume::LogicalVolume(char const *const label,
                              VUnplacedVolume const *const unplaced_volume)
   :  fUnplacedVolume(unplaced_volume), fId(0), fLabel(nullptr), fUserExtensionPtr(nullptr),
      fTrackingMediumPtr(nullptr), fBasketManagerPtr(nullptr),
+     fLevelLocator(nullptr), fSafetyEstimator(nullptr),
      fDaughters() {
   fId = gIdCount++;
   GeoManager::Instance().RegisterLogicalVolume(this);

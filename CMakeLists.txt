@@ -691,6 +691,7 @@ endif()
 # Define executables
 
 set(TEST_EXECUTABLES_CORE
+  ${CMAKE_SOURCE_DIR}/test/core/SafetyEstimatorTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/ContainerTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/create_geometry.cpp
   ${CMAKE_SOURCE_DIR}/test/core/testVectorSafety.cpp
@@ -732,6 +733,8 @@ if(NOT USolids)
   set(TEST_EXECUTABLES_ROOT
     ${TEST_EXECUTABLES_ROOT}
     ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/LocatePointsBenchmark.cpp
+    ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/SafetyKernelBenchmarker.cpp
+    #${CMAKE_SOURCE_DIR}/test/globalbenchmarks/NavigationKernelBenchmarker.cpp
     ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/NavigationBenchmark.cpp
     ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/TraceTrack.cpp
     ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/XRayBenchmarkFromROOTFile.cpp
