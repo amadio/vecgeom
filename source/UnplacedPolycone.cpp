@@ -218,14 +218,14 @@ VPlacedVolume* UnplacedPolycone::Create(LogicalVolume const *const logical_volum
     void UnplacedPolycone::Print() const {
     printf("UnplacedPolycone {%.2f, %.2f, %d}\n",
             fStartPhi, fDeltaPhi, fNz);
-    printf("have %d size Z\n", fZs.size());
+    printf("have %zu size Z\n", fZs.size());
     printf("------- z planes follow ---------\n");
-    for(int p = 0; p < fZs.size(); ++p)
+    for(size_t p = 0; p < fZs.size(); ++p)
     {
-        printf(" plane %d at z pos %lf\n", p, fZs[p]);
+        printf(" plane %zu at z pos %lf\n", p, fZs[p]);
     }
 
-    printf("have %d size fSections\n", fSections.size());
+    printf("have %zu size fSections\n", fSections.size());
     printf("------ sections follow ----------\n");
     for(int s=0;s<GetNSections();++s)
     {
@@ -266,9 +266,9 @@ VPlacedVolume* UnplacedPolycone::Create(LogicalVolume const *const logical_volum
            << ", fDphi="<<fDeltaPhi*kRadToDeg <<"deg\n";
     }
 
-    int nsections = fSections.size();
+    size_t nsections = fSections.size();
     os <<"\n    # cone sections: "<< nsections <<"\n";
-    for(int i=0; i<nsections; ++i) {
+    for(size_t i=0; i<nsections; ++i) {
       UnplacedCone* subcone = fSections[i].fSolid;
       os <<"     cone #"<< i
          <<" Rmin1="<< subcone->GetRmin1()
@@ -695,7 +695,7 @@ bool UnplacedPolycone::Normal(Vector3D<Precision> const& point, Vector3D<Precisi
      valid = sec.fSolid->Normal(point-Vector3D<Precision>(0,0,sec.fShift),norm);
 
      // if point is within tolerance of a Z-plane between 2 sections, get normal from other section too
-     if( index+1<fSections.size() && std::abs(point.z()-fZs[index+1])<kTolerance) {
+     if( size_t(index+1)<fSections.size() && std::abs(point.z()-fZs[index+1])<kTolerance) {
        PolyconeSection const& sec2 = GetSection(index+1);
        bool valid2 = false;
        Vector3D<Precision> norm2;
@@ -843,7 +843,7 @@ bool UnplacedPolycone::CheckContinuityInSlope(const Vector<Precision> &rOuter,
 
   bool continuous = true;
   Precision startSlope = kInfinity;
-  for (int j = 0; j < rOuter.size();) {
+  for (size_t j = 0; j < rOuter.size();) {
     Precision currentSlope = kInfinity;
     if ((zPlane[j] == zPlane[j + 1])) {
       if (j == 0) {

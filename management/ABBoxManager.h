@@ -52,7 +52,7 @@ public:
   typedef ABBox_t *ABBoxContainer_t;
   typedef ABBox_v *ABBoxContainer_v;
 
-  typedef std::pair<int, double> BoxIdDistancePair_t;
+  typedef std::pair<unsigned int, double> BoxIdDistancePair_t;
   //typedef std::vector<BoxIdDistancePair_t> HitContainer_t;
 
   // build an abstraction of sort to sort vectors and lists portably

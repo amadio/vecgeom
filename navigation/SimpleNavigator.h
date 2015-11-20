@@ -224,7 +224,7 @@ VPlacedVolume const *SimpleNavigator::LocatePoint(VPlacedVolume const *vol, Vect
 
 #if !defined(VECGEOM_VC) or defined(USEBRUTEFORCELOCATE) or defined(VECGEOM_NVCC) // switching off bounding box check
       // just the brute force solution
-      for (int i = 0; i < daughters->size(); ++i) {
+      for (size_t i = 0; i < daughters->size(); ++i) {
         VPlacedVolume const *nextvolume = (*daughters)[i];
         Vector3D<Precision> transformedpoint;
 
@@ -272,9 +272,9 @@ VPlacedVolume const *SimpleNavigator::LocatePoint(VPlacedVolume const *vol, Vect
                                                            alignedbboxes[2 * boxgroupid + 1], tmp, inBox);
         if (Any(inBox)) {
           // TODO: could start directly at first 1 in inBox
-          for (auto ii = 0; ii < kVcFloat::precision_v::Size; ++ii) {
+        for (size_t ii = 0; ii < kVcFloat::precision_v::Size; ++ii) {
             auto daughterid = boxgroupid * kVcFloat::precision_v::Size + ii;
-	    if(daughterid < daughters->size()){
+            if(daughterid < daughters->size()){
             VPlacedVolume const *daughter = candvolume->GetDaughters()[daughterid];
             Vector3D<Precision> transformedpoint;
             if (daughterid < daughters->size() && inBox[ii] && daughter->Contains(tmp, transformedpoint)) {
@@ -377,10 +377,10 @@ VPlacedVolume const *SimpleNavigator::LocatePointExclVolume(VPlacedVolume const 
         ABBoxImplementation::ABBoxContainsKernel<kVcFloat>(alignedbboxes[2 * boxgroupid],
                                                            alignedbboxes[2 * boxgroupid + 1], tmp, inBox);
         if (Any(inBox)) {
-          for (auto ii = inBox.firstOne(); ii < kVcFloat::precision_v::Size; ++ii) {
-            int daughterid = boxgroupid * kVcFloat::precision_v::Size + ii;
+           for (size_t ii = inBox.firstOne(); ii < kVcFloat::precision_v::Size; ++ii) {
+            auto daughterid = boxgroupid * kVcFloat::precision_v::Size + ii;
             if(daughterid < daughters->size()){
-	    VPlacedVolume const *daughter = candvolume->GetDaughters()[daughterid];
+             VPlacedVolume const *daughter = candvolume->GetDaughters()[daughterid];
             Vector3D<Precision> transformedpoint;
             if (inBox[ii] && daughter != excludedvolume &&
                 daughter->Contains(tmp, transformedpoint)) {
@@ -505,7 +505,7 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
    // iterate over all the daughter
    Vector<Daughter> const * daughters = currentvolume->GetLogicalVolume()->GetDaughtersp();
 
-   for(int d = 0; d<daughters->size(); ++d)
+   for(size_t d = 0; d<daughters->size(); ++d)
    {
       VPlacedVolume const * daughter = daughters->operator [](d);
       //    previous distance becomes step estimate, distance to daughter returned in workspace
@@ -822,7 +822,7 @@ void SimpleNavigator::FindNextBoundaryAndStep(
 
    // iterate over all the daughter
    Vector<Daughter> const * daughters = currentvolume->GetLogicalVolume()->GetDaughtersp();
-   for (int daughterindex=0; daughterindex < daughters->size(); ++daughterindex)
+   for (size_t daughterindex=0; daughterindex < daughters->size(); ++daughterindex)
    {
       VPlacedVolume const * daughter = daughters->operator [](daughterindex);
 #ifdef CALCSAFETY

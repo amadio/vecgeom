@@ -60,7 +60,7 @@ inline
 bool IsHittingAnyDaughter( Vector3D<Precision> const &point,
                            Vector3D<Precision> const &dir,
                            LogicalVolume const &volume ){
-  for (int daughter = 0; daughter < volume.GetDaughters().size(); ++daughter) {
+  for (size_t daughter = 0; daughter < volume.GetDaughters().size(); ++daughter) {
     if (IsHittingVolume(point, dir, *volume.GetDaughters()[daughter])) {
                 return true;
     }

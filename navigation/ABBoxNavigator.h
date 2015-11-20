@@ -42,24 +42,24 @@ public:
   ABBoxNavigator(){}
 
 
-  int GetHitCandidates( LogicalVolume const * lvol,
+  size_t GetHitCandidates( LogicalVolume const * lvol,
           Vector3D<Precision> const & point,
           Vector3D<Precision> const & dir,
-          ABBoxManager::ABBoxContainer_t const & corners, int size,
+          ABBoxManager::ABBoxContainer_t const & corners, size_t size,
           ABBoxManager::BoxIdDistancePair_t * /* hitlist */
   ) const;
 
-  int GetHitCandidates_v( LogicalVolume const * lvol,
+  size_t GetHitCandidates_v( LogicalVolume const * lvol,
             Vector3D<Precision> const & point,
             Vector3D<Precision> const & dir,
-            ABBoxManager::ABBoxContainer_v const & corners, int size,
+            ABBoxManager::ABBoxContainer_v const & corners, size_t size,
             ABBoxManager::BoxIdDistancePair_t * /* hitlist */
   ) const;
 
 
   size_t GetSafetyCandidates_v( Vector3D<Precision> const & /* point */,
                             ABBoxManager::ABBoxContainer_v const & /* corners */,
-                            int size,
+                            size_t size,
                             ABBoxManager::BoxIdDistancePair_t * /* boxsafetypairs */,
                             Precision upperlimit ) const;
 
@@ -67,7 +67,7 @@ public:
   // convert index to physical daugher
   VPlacedVolume const * LookupDaughter( LogicalVolume const *lvol, int id ) const {
       assert( id >= 0 && "access with negative index");
-      assert( id < lvol->GetDaughtersp()->size() && "access beyond size of daughterlist ");
+      assert( size_t(id) < lvol->GetDaughtersp()->size() && "access beyond size of daughterlist ");
       return lvol->GetDaughtersp()->operator []( id );
   }
 
