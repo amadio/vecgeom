@@ -81,7 +81,7 @@ public:
 
 
 
-  std::string GetEntityType() const override { return "Box";}
+  std::string GetEntityType() const { return "Box";}
 #endif // !VECGEOM_NVCC
 
   VECGEOM_CUDA_HEADER_BOTH
