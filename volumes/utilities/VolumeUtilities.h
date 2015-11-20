@@ -465,10 +465,11 @@ void FillContainedPoints(VPlacedVolume const &volume,
  *    for sampling.
  * @param volume containing all points
  * @param points is the output container, provided by the caller.
+ * returns if successful or not
  */
 template <typename TrackContainer>
 VECGEOM_INLINE
-void FillRandomPoints(VPlacedVolume const &volume,
+bool FillRandomPoints(VPlacedVolume const &volume,
                       TrackContainer &points) {
   const int size = points.capacity();
   points.resize(points.capacity());
@@ -484,15 +485,21 @@ void FillRandomPoints(VPlacedVolume const &volume,
     Vector3D<Precision> point;
     do {
       ++tries;
-      if(tries%1000000==0) {
-        printf("%s line %i: Warning: %i tries to find contained points... volume=%s.  Please check.\n", __FILE__, __LINE__, tries, volume.GetLabel().c_str());
+      if (tries % 1000000 == 0) {
+        printf("%s line %i: Warning: %i tries to find contained points... volume=%s.  Please check.\n", __FILE__,
+               __LINE__, tries, volume.GetLabel().c_str());
+      }
+      if (tries > 100000000) {
+        printf("%s line %i: giving up\n", __FILE__, __LINE__);
+        return false;
       }
       point = offset + SamplePoint(dim);
     } while (!volume.UnplacedContains(point));
 
-      //} while (!volume.Contains(point));
+    //} while (!volume.Contains(point));
     points.set(i, point);
   }
+  return true;
 }
 
 
@@ -657,6 +664,94 @@ void FillGlobalPointsAndDirectionsForLogicalVolume(
     if( vol != NULL )
     FillGlobalPointsAndDirectionsForLogicalVolume( vol, localpoints, globalpoints, directions, fraction, np );
 }
+
+/**
+ * @brief Generates _uncontained_ global points based
+ *   on a logical volume.
+ *
+ * @details Points coordinates are based on the global
+ *   reference frame.  The positions have to be within a given logical
+ *   volume, and not within any daughters of that logical volume.
+ *
+ * * @param np: number of particles
+ *
+ */
+template <typename TrackContainer>
+inline
+void FillGlobalPointsForLogicalVolume(
+        LogicalVolume const * lvol,
+        TrackContainer  & localpoints,
+        TrackContainer  & globalpoints,
+        int np ) {
+
+    // we need to generate a list of all the paths ( or placements ) which reference
+    // the logical volume as their deepest node
+
+    std::list<NavigationState *> allpaths;
+    GeoManager::Instance().getAllPathForLogicalVolume( lvol, allpaths );
+
+    if(allpaths.size() > 0){
+        // get one representative of such a logical volume
+        VPlacedVolume const * pvol = allpaths.front()->Top();
+
+        // generate points which are in lvol but not in its daughters
+        FillUncontainedPoints( *pvol, localpoints );
+
+        // transform points to global frame
+        globalpoints.resize(globalpoints.capacity());
+        int placedcount=0;
+
+        while( placedcount < np )
+        {
+            std::list<NavigationState *>::iterator iter = allpaths.begin();
+            while( placedcount < np && iter!=allpaths.end() )
+            {
+                // this is matrix linking local and global reference frame
+                Transformation3D m;
+                (*iter)->TopMatrix(m);
+
+                globalpoints.set(placedcount, m.InverseTransform(localpoints[placedcount]));
+
+                placedcount++;
+                iter++;
+            }
+        }
+    }
+    else{
+      // an error message
+      printf("VolumeUtilities: FillGlobalPointsForLogicalVolume()... ERROR condition detected.\n");
+    }
+}
+
+// same as above; logical volume is given by name
+template <typename TrackContainer>
+inline
+void FillGlobalPointsForLogicalVolume(
+        std::string const & name,
+        TrackContainer & localpoints,
+        TrackContainer & globalpoints,
+        int np ){
+
+    LogicalVolume const * vol = GeoManager::Instance().FindLogicalVolume( name.c_str() );
+    if( vol != NULL )
+    FillGlobalPointsForLogicalVolume( vol, localpoints, globalpoints, np );
+}
+
+
+// same as above; logical volume is given by id
+template <typename TrackContainer>
+inline
+void FillGlobalPointsForLogicalVolume(
+        int id,
+        TrackContainer & localpoints,
+        TrackContainer & globalpoints,
+        int np ){
+
+    LogicalVolume const * vol = GeoManager::Instance().FindLogicalVolume( id );
+    if( vol != NULL )
+    FillGlobalPointsForLogicalVolume( vol, localpoints, globalpoints, np );
+}
+
 
 inline Precision GetRadiusInRing(Precision rmin, Precision rmax) {
 

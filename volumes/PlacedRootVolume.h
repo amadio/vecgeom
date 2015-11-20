@@ -127,6 +127,13 @@ public:
 
   VECGEOM_INLINE
   virtual Precision SafetyToOut(Vector3D<Precision> const &position) const;
+#ifdef VECGEOM_VC
+  // we also need a direct SIMD vector interface (to avoid temporaries)
+  // this interface, unfortunately, depends on the SIMD backend
+  // we could make it a private interface though
+  virtual Vc::double_v SafetyToOut(Vector3D<Vc::double_v> const &position) const override { assert(false && "not implemented"); return -1.; }
+  virtual Vc::double_v SafetyToIn(Vector3D<Vc::double_v> const &position) const override { assert(false && "not implemented"); return -1.; }
+#endif
 
   virtual void SafetyToOut(SOA3D<Precision> const &position,
                            Precision *const safeties) const;

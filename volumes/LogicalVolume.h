@@ -21,9 +21,13 @@ namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class LogicalVolume; )
 VECGEOM_DEVICE_FORWARD_DECLARE( class VPlacedVolume; )
+VECGEOM_DEVICE_FORWARD_DECLARE( class VLevelLocator; )
+VECGEOM_DEVICE_FORWARD_DECLARE( class VSafetyEstimator; )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+class VLevelLocator;
+class VSafetyEstimator;
 typedef VPlacedVolume const* Daughter;
 class GeoManager;
 /**
@@ -51,6 +55,9 @@ private:
    */
   void * fTrackingMediumPtr;
   void * fBasketManagerPtr;
+
+  VLevelLocator const *fLevelLocator; // a locator class for this logical volume
+  VSafetyEstimator const *fSafetyEstimator; // a safety estimator class for this logical volume
 
   // the container of daughter (placed) volumes which are placed inside this logical
   // Volume
@@ -126,6 +133,23 @@ public:
   void *GetTrackingMediumPtr() const { return fTrackingMediumPtr; }
   VECGEOM_INLINE
   void *GetBasketManagerPtr() const { return fBasketManagerPtr; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  VLevelLocator const *GetLevelLocator() const { return fLevelLocator; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  void SetLevelLocator(VLevelLocator const *locator) { fLevelLocator=locator; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  VSafetyEstimator const *GetSafetyEstimator() const { return fSafetyEstimator; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  void SetSafetyEstimator(VSafetyEstimator const *est) { fSafetyEstimator=est; }
+
 
   int id() const { return fId; }
 
