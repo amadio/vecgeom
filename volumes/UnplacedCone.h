@@ -283,13 +283,10 @@ public:
     bool IsFullPhi() const { return fDPhi == kTwoPi; }
 
     // Safety From Inside R, used for UPolycone Section
-    VECGEOM_CUDA_HEADER_BOTH
     Precision SafetyToPhi(Vector3D<Precision> const& p, Precision rho, bool& outside) const;
 
-    VECGEOM_CUDA_HEADER_BOTH
     double SafetyFromInsideR(Vector3D<Precision> const& p, double rho, bool /*precise = false*/) const;
 
-    VECGEOM_CUDA_HEADER_BOTH
     double SafetyFromOutsideR(Vector3D<Precision> const& p, double rho, bool /*precise = false*/ ) const;
 
     virtual int memory_size() const final { return sizeof(*this); }
@@ -361,7 +358,6 @@ public:
 
 };
 
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
 Precision UnplacedCone::SafetyToPhi(Vector3D<Precision> const& p, Precision rho, bool& outside) const {
 
@@ -383,7 +379,6 @@ Precision UnplacedCone::SafetyToPhi(Vector3D<Precision> const& p, Precision rho,
   return safePhi;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
 double UnplacedCone::SafetyFromInsideR(Vector3D<Precision> const& p, double rho, bool /*precise = false*/) const {
 
@@ -410,7 +405,6 @@ double UnplacedCone::SafetyFromInsideR(Vector3D<Precision> const& p, double rho,
   return safe;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
 double UnplacedCone::SafetyFromOutsideR(Vector3D<Precision> const& p, double rho, bool /*precise = false*/) const {
 

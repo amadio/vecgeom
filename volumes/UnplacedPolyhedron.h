@@ -274,36 +274,28 @@ public:
   VECGEOM_INLINE
   Precision GetBoundingTubeOffset() const { return fBoundingTubeOffset; }
 
+  VECGEOM_CUDA_HEADER_BOTH
+  bool Normal(Vector3D<Precision>const& point, Vector3D<Precision>& normal) const;
+
 #ifndef VECGEOM_NVCC
-  VECGEOM_CUDA_HEADER_BOTH
   Precision DistanceSquarePointToSegment(Vector3D<Precision>& v1,Vector3D<Precision>&v2, const Vector3D<Precision>&p) const;
-  VECGEOM_CUDA_HEADER_BOTH
   bool InsideTriangle(Vector3D<Precision>& v1, Vector3D<Precision>& v2,  Vector3D<Precision>& v3, const Vector3D<Precision>& p) const;
 
   // calculate array of triangle spanned by points v1,v2,v3
   // TODO: this function has nothing to do with a Polyhedron. It should live somewhere else ( indeed: the Quadriteral seems to have such a function, too )
-  VECGEOM_CUDA_HEADER_BOTH
   Precision GetTriangleArea(Vector3D<Precision> const &v1, Vector3D<Precision> const &v2, Vector3D<Precision> const &v3) const;
 
   // returns a random point inside the triangle described by v1,v2,v3
   // TODO: this function has nothing to do with a Polyhedron. It should live somewhere else ( indeed: the Quadriteral seems to have such a function, too )
-  VECGEOM_CUDA_HEADER_BOTH
   Vector3D<Precision> GetPointOnTriangle(Vector3D<Precision> const &v1, Vector3D<Precision> const &v2, Vector3D<Precision> const &v3) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
   Precision Capacity() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
   Precision SurfaceArea() const ;
 
-  VECGEOM_CUDA_HEADER_BOTH
   void Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const;
   
-  VECGEOM_CUDA_HEADER_BOTH
   Vector3D<Precision> GetPointOnSurface() const;
-
-  VECGEOM_CUDA_HEADER_BOTH
-  bool Normal(Vector3D<Precision>const& point, Vector3D<Precision>& normal) const;
 
   std::string GetEntityType() const { return "Polyhedron"; }
 #endif // !VECGEOM_NVCC
@@ -391,7 +383,6 @@ public:
 
   //Function to check the convexity
   VECGEOM_CUDA_HEADER_BOTH
-  //VECGEOM_INLINE
   virtual bool IsConvex() const override;
 
 

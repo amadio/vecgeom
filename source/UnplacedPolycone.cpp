@@ -170,7 +170,7 @@ void UnplacedPolycone::Init(double phiStart,
       }
 
       // reorganize remainder of r[] data in ascending-z order
-      Precision r2arg[Nz];
+      Precision* r2arg = new Precision[Nz];
       for(int i=0; i<Nz; ++i) r2arg[i] = ( ascendingZ ? r[2*Nz-1-i] : r[Nz-1-i] );
 
       // identify which rXarg is rmax and rmin and ensure that Rmax > Rmin for all points provided
@@ -179,6 +179,7 @@ void UnplacedPolycone::Init(double phiStart,
         rmax = r1arg;
         rmin = r2arg;
       }
+      delete[] r2arg;
 
       // final data integrity cross-check
       for(int i=0; i<Nz; ++i) {

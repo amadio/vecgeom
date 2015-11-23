@@ -125,25 +125,22 @@ fPhiWedge(other.fDphi,other.fSphi)
   VECGEOM_INLINE
   Precision dphi() const { return fDphi; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+#ifndef VECGEOM_NVCC
   VECGEOM_INLINE
   void SetRMin(Precision const& _rmin) { fRmin = _rmin; }
 
-  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   void SetRMax(Precision const& _rmax) { fRmax = _rmax; }
 
-  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   void SetDz(Precision const& _z) { fZ = _z; }
 
-  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   void SetSPhi(Precision const& _sphi) { CheckSPhiAngle(_sphi); }
 
-  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   void SetDPhi(Precision const& _dphi) { CheckDPhiAngle(_dphi); }
+#endif
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -212,7 +209,7 @@ fPhiWedge(other.fDphi,other.fSphi)
     }
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+#ifndef VECGEOM_NVCC
   VECGEOM_INLINE
   void CheckDPhiAngle(double dPhi) {
     if (dPhi >= kTwoPi - 0.5*kAngTolerance) {
@@ -234,7 +231,6 @@ fPhiWedge(other.fDphi,other.fSphi)
     }
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   void CheckPhiAngles(double sPhi, double dPhi) {
     CheckDPhiAngle(dPhi);
@@ -244,8 +240,6 @@ fPhiWedge(other.fDphi,other.fSphi)
     calculateCached();
   }
 
-
-  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   double SafetyToPhi(Vector3D<Precision> const& p, double rho, bool& outside) const {
 
@@ -271,7 +265,6 @@ fPhiWedge(other.fDphi,other.fSphi)
   }
 
   // Safety From Inside R, used for UPolycone Section
-  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   double SafetyFromInsideR(Vector3D<Precision> const& p, double rho, bool /*precise = false*/) const {
     double safe = fRmax - rho;
@@ -289,7 +282,6 @@ fPhiWedge(other.fDphi,other.fSphi)
     return safe;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   double SafetyFromOutsideR(Vector3D<Precision> const& p, double rho, bool /*precise = false*/ ) const {
     // Safety for R, used in UPolycone for sections
@@ -311,7 +303,7 @@ fPhiWedge(other.fDphi,other.fSphi)
 
     return safe; // not accurate safety
   }
-
+#endif
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE

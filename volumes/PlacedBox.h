@@ -51,6 +51,7 @@ public:
   // Accessors
 
   VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
   UnplacedBox const* GetUnplacedVolume() const {
     return static_cast<UnplacedBox const *>(
         GetLogicalVolume()->GetUnplacedVolume());
@@ -81,25 +82,22 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void SetXHalfLength(double dx) { const_cast<UnplacedBox*>(GetUnplacedVolume())->SetX(dx); }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
   Precision GetYHalfLength() const { return y(); }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  void SetYHalfLength(double dy) { const_cast<UnplacedBox*>(GetUnplacedVolume())->SetY(dy); }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision GetZHalfLength() const { return z(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+#if !defined(VECGEOM_NVCC)
+  VECGEOM_INLINE
+  void SetXHalfLength(double dx) { const_cast<UnplacedBox*>(GetUnplacedVolume())->SetX(dx); }
+
+  VECGEOM_INLINE
+  void SetYHalfLength(double dy) { const_cast<UnplacedBox*>(GetUnplacedVolume())->SetY(dy); }
+
   VECGEOM_INLINE
   void SetZHalfLength(double dz) { const_cast<UnplacedBox*>(GetUnplacedVolume())->SetZ(dz); }
 
-  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   void Set(Precision xx, Precision yy, Precision zz,
            vecgeom::Transformation3D const*const transformation = &Transformation3D::kIdentity) {
@@ -113,7 +111,6 @@ public:
 #endif
   }
 
-#if !defined(VECGEOM_NVCC)
   virtual Precision Capacity() override {
       return GetUnplacedVolume()->volume();
   }
@@ -154,12 +151,12 @@ public:
 
   // CUDA specific
 
+  VECGEOM_INLINE
   virtual int memory_size() const override { return sizeof(*this); }
 
   // Comparison specific
 
 #if defined(VECGEOM_USOLIDS)
-//  VECGEOM_CUDA_HEADER_BOTH
   std::ostream& StreamInfo(std::ostream &os) const override {
     return GetUnplacedVolume()->StreamInfo(os);
   }

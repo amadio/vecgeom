@@ -112,6 +112,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   void SetZHalfLength(Precision arg)  { fDZ  = arg; calculateCached(); }
 
+  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision dx1() const { return fDX1; }
 

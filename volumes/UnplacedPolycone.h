@@ -108,9 +108,6 @@ public:
                 fEqualRmax(true),
                 fContinuityOverAll(true),
                 fConvexityPossible(true)
-
-
-
     {
         // init internal members
         Init(phistart, deltaphi, Nz, z, rmin, rmax);
@@ -130,10 +127,8 @@ public:
 
     VECGEOM_CUDA_HEADER_BOTH
     unsigned int GetNz() const { return fNz; }
-
     VECGEOM_CUDA_HEADER_BOTH
     int GetNSections() const {return fSections.size();}
-
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetStartPhi() const {return fStartPhi;}
     VECGEOM_CUDA_HEADER_BOTH
@@ -164,6 +159,7 @@ public:
       return fSections[index];
     }
 
+    VECGEOM_CUDA_HEADER_BOTH
     Precision GetRminAtPlane( int index ) const {
       int nsect = GetNSections();
       assert(index>=0 && index<=nsect);
@@ -171,6 +167,7 @@ public:
       else             return fSections[index].fSolid->GetRmin1();
     }
 
+    VECGEOM_CUDA_HEADER_BOTH
     Precision GetRmaxAtPlane( int index ) const {
       int nsect = GetNSections();
       assert(index>=0 || index<=nsect);
@@ -178,6 +175,7 @@ public:
       else             return fSections[index].fSolid->GetRmax1();
     }
 
+    VECGEOM_CUDA_HEADER_BOTH
     Precision GetZAtPlane( int index ) const {
       assert(index>=0 || index<=GetNSections());
       return fZs[index];
