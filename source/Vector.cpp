@@ -14,11 +14,11 @@ namespace cxx {
 template size_t DevicePtr<cuda::Vector<Precision> >::SizeOf();
 template void DevicePtr<cuda::Vector<Precision> >::Construct(
    DevicePtr<Precision> const arr,
-   const unsigned int size) const;
+   const size_t size) const;
 template void DevicePtr<cuda::Vector<Precision> >::Construct(
    DevicePtr<Precision> const arr,
-   const unsigned int size,
-   const unsigned int maxsize) const;
+   const size_t size,
+   const size_t maxsize) const;
 
 template size_t DevicePtr<cuda::Vector<cuda::VPlacedVolume* > >::SizeOf();
 template void DevicePtr<cuda::Vector<cuda::VPlacedVolume* > >::Construct(
