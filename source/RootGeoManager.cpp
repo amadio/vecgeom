@@ -168,13 +168,13 @@ TGeoNode* RootGeoManager::Convert(VPlacedVolume const *const placed_volume) {
   // only need to do daughterloop once for every logical volume.
   // So only need to check if
   // logical volume already done ( if it already has the right number of daughters )
-  int remaining_daughters = placed_volume->GetDaughters().size()
+  auto remaining_daughters = placed_volume->GetDaughters().size()
           - geovolume->GetNdaughters();
   assert(remaining_daughters == 0 ||
          remaining_daughters == placed_volume->GetDaughters().size());
 
   // do daughters
-  for (int i = 0; i < remaining_daughters; ++i) {
+  for (size_t i = 0; i < remaining_daughters; ++i) {
       // get placed daughter
       VPlacedVolume const * daughter_placed =
               placed_volume->GetDaughters().operator[](i);
