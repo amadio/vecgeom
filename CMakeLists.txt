@@ -540,6 +540,7 @@ set(SRC_CPP_RELATIVE
   source/PlacedBooleanVolume.cpp
   source/Wedge.cpp
   source/ABBoxManager.cpp
+  source/HybridManager2.cpp
   source/ABBoxNavigator.cpp
 
   source/USolidsInterfaceHelper.cpp
@@ -734,7 +735,7 @@ if(NOT USolids)
     ${TEST_EXECUTABLES_ROOT}
     ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/LocatePointsBenchmark.cpp
     ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/SafetyKernelBenchmarker.cpp
-    #${CMAKE_SOURCE_DIR}/test/globalbenchmarks/NavigationKernelBenchmarker.cpp
+    ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/NavigationKernelBenchmarker.cpp
     ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/NavigationBenchmark.cpp
     ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/TraceTrack.cpp
     ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/XRayBenchmarkFromROOTFile.cpp
