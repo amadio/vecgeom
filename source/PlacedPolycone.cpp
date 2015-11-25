@@ -52,7 +52,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
   }
 #endif
 
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
   ::VUSolid const* PlacedPolycone::ConvertToUSolids() const
   {
     UnplacedPolycone const * unplaced = GetUnplacedVolume();

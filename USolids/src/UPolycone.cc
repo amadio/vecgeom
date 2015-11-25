@@ -1544,16 +1544,8 @@ bool  UPolycone::SetOriginalParameters(UReduciblePolygon* rz)
   inextr = 1 + icurr;
   inextl = (icurl <= 0) ? numPlanes - 1 : icurl - 1;
 
-  if (corners[inextr].z == corners[inextl].z)
-  {
-    Rmax.push_back(corners[inextr].r);
-    Rmin.push_back(corners[inextl].r);
-  }
-  else
-  {
-    Rmax.push_back(corners[inextr].r);
-    Rmin.push_back(corners[inextl].r);
-  }
+  Rmax.push_back(corners[inextr].r);
+  Rmin.push_back(corners[inextl].r);
 
   // Set original parameters Rmin,Rmax,Z
   //

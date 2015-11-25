@@ -19,7 +19,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class Planes; )
-VECGEOM_DEVICE_DECLARE_CONV( Planes );
+VECGEOM_DEVICE_DECLARE_CONV( Planes )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -58,7 +58,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void reserve(size_t size) { fNormals.reserve(size); fDistances.Allocate(size); }
+  void reserve(size_t newsize) { fNormals.reserve(newsize); fDistances.Allocate(newsize); }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -151,6 +151,7 @@ Precision Planes::GetDistance(int i) const {
   return fDistances[i];
 }
 
+#ifdef VECGEOM_VC
 namespace {
 
 template <class Backend>
@@ -166,6 +167,7 @@ void AcceleratedContains(
   return;
 }
 
+#if defined(VECGEOM_QUADRILATERALS_VC)
 template <>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
@@ -176,7 +178,6 @@ void AcceleratedContains<kScalar>(
     Array<Precision> const &distances,
     Vector3D<Precision> const &point,
     bool &result) {
-#ifdef VECGEOM_VC
   for (; i < n-kVectorSize; i += kVectorSize) {
     VcBool valid = VcPrecision(normals.x()+i)*point[0] +
                    VcPrecision(normals.y()+i)*point[1] +
@@ -188,10 +189,11 @@ void AcceleratedContains<kScalar>(
       break;
     }
   }
-#endif
 }
+#endif
 
 } // End anonymous namespace
+#endif // VECGEOM_VC
 
 
 template <class Backend>
@@ -203,15 +205,18 @@ typename Backend::bool_v Planes::Contains(
 
   int i = 0;
   const int n = size();
-  // AcceleratedContains<Backend>(i, n, fNormals, fDistances, point, result);
-
+#ifdef VECGEOM_VC
+  AcceleratedContains<Backend>(i, n, fNormals, fDistances, point, result);
+#else
   for (; i < n; ++i) {
     result &= point.Dot(fNormals[i]) + fDistances[i] < 0;
   }
+#endif
 
   return result;
 }
 
+#ifdef VECGEOM_VC
 namespace {
 
 template <class Backend>
@@ -227,6 +232,8 @@ void AcceleratedInside(
   return;
 }
 
+
+#if defined(VECGEOM_QUADRILATERALS_VC)
 template <>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
@@ -237,7 +244,6 @@ void AcceleratedInside<kScalar>(
     Array<Precision> const &distances,
     Vector3D<Precision> const &point,
     Inside_t &result) {
-#ifdef VECGEOM_VC
   for (; i < n-kVectorSize; i += kVectorSize) {
     VcPrecision distance = VcPrecision(normals.x()+i)*point[0] +
                            VcPrecision(normals.y()+i)*point[1] +
@@ -254,10 +260,11 @@ void AcceleratedInside<kScalar>(
     // Otherwise point must be on a surface, but could still be outside
     result = EInside::kSurface;
   }
-#endif
 }
+#endif
 
 } // End anonymous namespace
+#endif // VECGEOM_VC
 
 template <class Backend>
 VECGEOM_CUDA_HEADER_BOTH
@@ -268,18 +275,18 @@ typename Backend::inside_v Planes::Inside(
 
   int i = 0;
   const int n = size();
+#ifdef VECGEOM_VC
   AcceleratedInside<Backend>(i, n, fNormals, fDistances, point, result);
-
+#else
   for (; i < n; ++i) {
     typename Backend::precision_v distanceResult =
         fNormals.x(i)*point[0] + fNormals.y(i)*point[1] +
         fNormals.z(i)*point[2] + fDistances[i];
-    MaskedAssign(distanceResult > kTolerance, EInside::kOutside,
-                 &result);
-    MaskedAssign(result == EInside::kInside && distanceResult > -kTolerance,
-                 EInside::kSurface, &result);
+    MaskedAssign(distanceResult > kTolerance, EInside::kOutside, &result);
+    MaskedAssign(result == EInside::kInside && distanceResult > -kTolerance, EInside::kSurface, &result);
     if (IsFull(result) == EInside::kOutside) break;
   }
+#endif
 
   return result;
 }
@@ -295,10 +302,8 @@ typename Backend::precision_v Planes::Distance(
   Float_t bestDistance = kInfinity;
   for (int i = 0, iMax = size(); i < iMax; ++i) {
     Vector3D<Precision> normal = fNormals[i];
-    Float_t distance = -(point.Dot(normal) + fDistances[i]) /
-                       direction.Dot(normal);
-    MaskedAssign(distance >= 0 && distance < bestDistance, distance,
-                 &bestDistance);
+    Float_t distance = -(point.Dot(normal) + fDistances[i]) / direction.Dot(normal);
+    MaskedAssign(distance >= 0 && distance < bestDistance, distance, &bestDistance);
   }
 
   return bestDistance;
@@ -313,10 +318,8 @@ typename Backend::precision_v Planes::Distance(
 
   Float_t bestDistance = kInfinity;
   for (int i = 0, iMax = size(); i < iMax; ++i) {
-    Float_t distance = Flip<!pointInsideT>::FlipSign(
-        point.Dot(fNormals[i]) + fDistances[i]);
-    MaskedAssign(distance >= 0 && distance < bestDistance, distance,
-                 &bestDistance);
+    Float_t distance = Flip<!pointInsideT>::FlipSign( point.Dot(fNormals[i]) + fDistances[i] );
+    MaskedAssign(distance >= 0 && distance < bestDistance, distance, &bestDistance);
   }
   return bestDistance;
 }

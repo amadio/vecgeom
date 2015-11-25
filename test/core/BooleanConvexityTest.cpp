@@ -8,6 +8,9 @@
 #include "benchmarking/Benchmarker.h"
 //#include "ArgParser.h"
 
+//.. ensure asserts are compiled in
+#undef NDEBUG
+#include <cassert>
 
 using namespace vecgeom;
 
@@ -43,6 +46,9 @@ int main(int argc, char * argv[])
     //VPlacedVolume placedBooleanVolume = booleanlogical.Place();
     VPlacedVolume * placedBooleanVolume = (new LogicalVolume("",&booleansolid))->Place();
     assert(!placedBooleanVolume->GetUnplacedVolume()->IsConvex());
+
+    // cleanup
+    delete placedBooleanVolume;
 
     return 0;
 }

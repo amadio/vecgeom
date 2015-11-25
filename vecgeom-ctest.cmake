@@ -125,27 +125,19 @@ message("Dashboard script configuration (check if everything is declared correct
 #######################################################
 # Build dashboard model setup
 
-IF(${CTEST_SCRIPT_ARG} MATCHES Nightly)
+if("$ENV{MODE}" STREQUAL "")
+  set(CTEST_MODE Experimental)
+else()
+  set(CTEST_MODE "$ENV{MODE}")
+endif()
+
+if(${CTEST_MODE} MATCHES nightly)
   SET(MODEL Nightly)
-ENDIF(${CTEST_SCRIPT_ARG} MATCHES Nightly)
-IF(${CTEST_SCRIPT_ARG} MATCHES CUDA)
-  SET(MODEL CUDA)
-ENDIF(${CTEST_SCRIPT_ARG} MATCHES CUDA)
-IF(${CTEST_SCRIPT_ARG} MATCHES MIC)
-  SET(MODEL MIC)
-ENDIF(${CTEST_SCRIPT_ARG} MATCHES MIC)
-IF(${CTEST_SCRIPT_ARG} MATCHES Devel)
-  SET(MODEL Devel)
-ENDIF(${CTEST_SCRIPT_ARG} MATCHES Devel)
-IF(${CTEST_SCRIPT_ARG} MATCHES Scalar)
-  SET(MODEL Scalar)
-ENDIF(${CTEST_SCRIPT_ARG} MATCHES Scalar)
-IF(${CTEST_SCRIPT_ARG} MATCHES Experimental)
-  SET(MODEL Experimental)
-ENDIF(${CTEST_SCRIPT_ARG} MATCHES Experimental)
-IF(${CTEST_SCRIPT_ARG} MATCHES Continuous)
+elseif(${CTEST_MODE} MATCHES continuous)
   SET(MODEL Continuous)
-ENDIF(${CTEST_SCRIPT_ARG} MATCHES Continuous)
+else()
+  SET(MODEL Experimental)
+endif()
 
 find_program(CTEST_COMMAND_BIN NAMES ctest)
 SET (CTEST_COMMAND

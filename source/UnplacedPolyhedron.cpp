@@ -1,8 +1,8 @@
 /// \file UnplacedPolyhedron.cpp
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
 
+#include "base/Global.h"
 #include "volumes/UnplacedPolyhedron.h"
-
 #include "volumes/PlacedPolyhedron.h"
 #include "volumes/SpecializedPolyhedron.h"
 #include "volumes/utilities/GenerationUtilities.h"
@@ -20,28 +20,29 @@ using namespace vecgeom::Polyhedron;
 UnplacedPolyhedron::UnplacedPolyhedron(
     const int sideCount,
     const int zPlaneCount,
-    Precision zPlanes[],
+    Precision const zPlanes[],
     Precision const rMin[],
     Precision const rMax[])
     : UnplacedPolyhedron(0, 360, sideCount, zPlaneCount, zPlanes, rMin, rMax) {}
 
+
 VECGEOM_CUDA_HEADER_BOTH
 bool UnplacedPolyhedron::CheckContinuityInSlope(const double rOuter[], const double zPlane[],const unsigned int fNz){
 
-	bool continuous=true;
-	Precision startSlope = (rOuter[1]-rOuter[0])/(zPlane[1]-zPlane[0]);
-	for (unsigned int j = 1; j < fNz; j++ )
-	{
-		Precision currentSlope =  (rOuter[j+1]-rOuter[j])/(zPlane[j+1]-zPlane[j]);
-		continuous &= (currentSlope <= startSlope);
-		startSlope = currentSlope;
-		if(!continuous)
-			break;
+    bool continuous=true;
+    Precision startSlope = (rOuter[1]-rOuter[0])/(zPlane[1]-zPlane[0]);
+    for (unsigned int j = 1; j < fNz; j++ )
+    {
+        Precision currentSlope =  (rOuter[j+1]-rOuter[j])/(zPlane[j+1]-zPlane[j]);
+        continuous &= (currentSlope <= startSlope);
+        startSlope = currentSlope;
+        if(!continuous)
+            break;
 
 
-	}
+    }
 
-	return continuous;
+    return continuous;
 }
 
 VECGEOM_CUDA_HEADER_BOTH
@@ -50,7 +51,7 @@ UnplacedPolyhedron::UnplacedPolyhedron(
     Precision phiDelta,
     const int sideCount,
     const int zPlaneCount,
-    Precision zPlanes[],
+    Precision const zPlanes[],
     Precision const rMin[],
     Precision const rMax[])
     : fSideCount(sideCount), fHasInnerRadii(false),
@@ -58,12 +59,23 @@ UnplacedPolyhedron::UnplacedPolyhedron(
       fPhiStart(phiStart),fPhiDelta(phiDelta),
       fZSegments(zPlaneCount-1), fZPlanes(zPlaneCount), fRMin(zPlaneCount),
       fRMax(zPlaneCount), fPhiSections(sideCount+1),
-	fBoundingTube(0, 1, 1, 0, kTwoPi),fSurfaceArea(0.),fCapacity(0.),fContinuousInSlope(true),fConvexityPossible(true),fEqualRmax(true) {
+        fBoundingTube(0, 1, 1, 0, kTwoPi),fSurfaceArea(0.),
+        fCapacity(0.),fContinuousInSlope(true),fConvexityPossible(true),fEqualRmax(true) {
 
+  // initialize polyhedron internals
+  Initialize(phiStart, phiDelta, sideCount, zPlaneCount, zPlanes, rMin, rMax);
+}
 
-
-  (void) fPhiStart; // avoid unused variable compiler warning
-
+VECGEOM_CUDA_HEADER_BOTH
+void UnplacedPolyhedron::Initialize(
+    Precision phiStart,
+    Precision phiDelta,
+    const int sideCount,
+    const int zPlaneCount,
+    Precision const zPlanes[],
+    Precision const rMin[],
+    Precision const rMax[])
+{
   typedef Vector3D<Precision> Vec_t;
 
   // Sanity check of input parameters
@@ -79,8 +91,8 @@ UnplacedPolyhedron::UnplacedPolyhedron(
   double startRmax = rMax[0];
   for(int i=0 ; i<zPlaneCount ; i++)
   {
-	  fConvexityPossible &= (rMin[i]==0.);
-	  fEqualRmax &= (startRmax==rMax[i]);
+      fConvexityPossible &= (rMin[i]==0.);
+      fEqualRmax &= (startRmax==rMax[i]);
   }
   fContinuousInSlope = CheckContinuityInSlope(rMax,zPlanes,zPlaneCount);
 
@@ -257,6 +269,65 @@ UnplacedPolyhedron::UnplacedPolyhedron(
   } // End loop over segments
 } // end constructor
 
+UnplacedPolyhedron::UnplacedPolyhedron(
+  Precision phiStart,
+  Precision phiDelta,
+  const int sideCount,
+  const int zPlaneCount,
+  Precision const r[],  // 2*zPlaneCount elements
+  Precision const z[]   // ditto
+)
+  : fSideCount(sideCount)
+  , fHasInnerRadii(false)
+  , fHasPhiCutout(phiDelta < 360)
+  , fHasLargePhiCutout(phiDelta < 180)
+  , fPhiStart(phiStart)
+  , fPhiDelta(phiDelta)
+  , fZSegments(zPlaneCount-1)
+  , fZPlanes(zPlaneCount)
+  , fRMin(zPlaneCount)
+  , fRMax(zPlaneCount)
+  , fPhiSections(sideCount+1)
+  , fBoundingTube(0, 1, 1, 0, kTwoPi)
+  , fSurfaceArea(0.)
+  , fCapacity(0.)
+{
+  // data integrity checks
+  for(int i=0; i<=zPlaneCount; ++i) {
+    assert( z[i]==z[2*zPlaneCount-1-i] && "UnplPolyhedron ERROR: z[] array is not symmetrical, please fix.\n" );
+  }
+
+  // reuse input array as argument, in ascending order
+  int Nz = zPlaneCount;
+  bool ascendingZ = true;
+  const Precision* zarg = &z[0];
+  const Precision* r1arg = r;
+  if(z[0] > z[1]) {
+    ascendingZ = false;
+    zarg = z+Nz;  // second half of input z[] is ascending due to symmetry already verified
+    r1arg = r+Nz;
+  }
+
+  // reorganize remainder of r[] data in ascending-z order
+  Precision r2arg[Nz];
+  for(int i=0; i<Nz; ++i) r2arg[i] = ( ascendingZ ? r[2*Nz-1-i] : r[Nz-1-i] );
+
+  // identify which rXarg is rmax and rmin and ensure that Rmax > Rmin for all points provided
+  const Precision *rmin = r1arg, *rmax=r2arg;
+  if(r1arg[0] > r2arg[0]) {
+    rmax = r1arg;
+    rmin = r2arg;
+  }
+
+  // final data integrity cross-check
+  for(int i=0; i<Nz; ++i) {
+    assert(rmax[i]>rmin[i] && "UnplPolycone ERROR: r[] provided has problems of the Rmax < Rmin type, please check!\n");
+  }
+
+  // Delegate to full constructor
+  Initialize(phiStart, phiDelta, sideCount, zPlaneCount, zarg, rmin, rmax);
+}
+
 // TODO: move this to HEADER; this is now stored as a member
 VECGEOM_CUDA_HEADER_BOTH
 Precision UnplacedPolyhedron::GetPhiStart() const {
@@ -294,6 +365,39 @@ int UnplacedPolyhedron::GetNQuadrilaterals() const {
     return count;
 }
 
+
+#if defined(VECGEOM_USOLIDS)
+  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& UnplacedPolyhedron::StreamInfo(std::ostream &os) const {
+    int oldprc = os.precision(16);
+    os << "-----------------------------------------------------------\n"
+       << "     *** Dump for solid - polyhedron ***\n"
+       << "     ===================================================\n"
+       << " Solid type: "<< GetEntityType() << "\n"
+       << " Parameters:\n"
+       << " Phi start="<< fPhiStart <<"deg, Phi delta="<< fPhiDelta <<"deg\n"
+       << "     Number of segments along phi: "<< fSideCount <<"\n"
+       << "     N = number of Z-sections: "<< fZSegments.size() <<"\n"
+       << "     N+1 z-coordinates (in cm):\n";
+    uint Nz = (uint)fZSegments.size();
+    Assert((int)Nz == fZPlanes.size()-1, "UnplacedPolyhedron inconsistency: please check #segments vs. #Zplanes\n");
+
+    for(uint i=0; i<Nz; ++i) {
+      os<<"       at Z="<< fZPlanes[i] <<"cm:"
+        <<" Rmin="<< fRMin[i]<<"cm,"
+        <<" Rmax="<< fRMax[i]<<"cm\n";
+    }
+    // print last plane info
+    os<<"       at Z="<< fZPlanes[Nz] <<"cm:"
+      <<" Rmin="<< fRMin[Nz]<<"cm,"
+      <<" Rmax="<< fRMax[Nz]<<"cm\n";
+    os << "-----------------------------------------------------------\n";
+    os.precision(oldprc);
+    return os;
+  }
+#endif
+
+
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECGEOM_CUDA_HEADER_DEVICE
 VPlacedVolume* UnplacedPolyhedron::Create(
@@ -327,22 +431,22 @@ VPlacedVolume* UnplacedPolyhedron::Create(
 
   if(innerRadii == EInnerRadii::kTrue)
   {
-  	if( phiCutout == EPhiCutout::kFalse )
-  	  POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kTrue, EPhiCutout::kFalse);
-  	if( phiCutout == EPhiCutout::kTrue )
-  	  POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kTrue, EPhiCutout::kTrue);
-  	if( phiCutout == EPhiCutout::kLarge )
-  	  POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kTrue, EPhiCutout::kLarge);
-  	  
+    if( phiCutout == EPhiCutout::kFalse )
+      POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kTrue, EPhiCutout::kFalse);
+    if( phiCutout == EPhiCutout::kTrue )
+      POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kTrue, EPhiCutout::kTrue);
+    if( phiCutout == EPhiCutout::kLarge )
+      POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kTrue, EPhiCutout::kLarge);
+      
   }
   else
   {
     if( phiCutout == EPhiCutout::kFalse )
-  	  POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kFalse, EPhiCutout::kFalse);
-  	if( phiCutout == EPhiCutout::kTrue )
-  	  POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kFalse, EPhiCutout::kTrue);
-  	if( phiCutout == EPhiCutout::kLarge )
-  	  POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kFalse, EPhiCutout::kLarge);
+      POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kFalse, EPhiCutout::kFalse);
+    if( phiCutout == EPhiCutout::kTrue )
+      POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kFalse, EPhiCutout::kTrue);
+    if( phiCutout == EPhiCutout::kLarge )
+      POLYHEDRON_CREATE_SPECIALIZATION(EInnerRadii::kFalse, EPhiCutout::kLarge);
   }
 
 
@@ -417,7 +521,7 @@ else
 
 VECGEOM_CUDA_HEADER_BOTH
 bool UnplacedPolyhedron::InsideTriangle(Vector3D<Precision>& v1, 
-					Vector3D<Precision>& v2,  Vector3D<Precision>& v3,
+                    Vector3D<Precision>& v2,  Vector3D<Precision>& v3,
                                         const Vector3D<Precision>& p) const {
   Precision fEpsilon_square=0.00000001;
   Vector3D<Precision> vec1 = p-v1;
@@ -483,15 +587,15 @@ Precision UnplacedPolyhedron::SurfaceArea() const{
        
         if(GetZSegment(j).hasInnerRadius)
         {
-	 area=GetZSegment(j).inner.GetQuadrilateralArea(0)*GetSideCount();
-	 totArea += area;
+     area=GetZSegment(j).inner.GetQuadrilateralArea(0)*GetSideCount();
+     totArea += area;
         }
 
         if (HasPhiCutout())
         {
           area=GetZSegment(j).phi.GetQuadrilateralArea(0)*2.0;
-	  totArea += area;
-	}
+      totArea += area;
+    }
      }
 
      // Must include top and bottom areas
@@ -505,7 +609,7 @@ Precision UnplacedPolyhedron::SurfaceArea() const{
          point3 =GetZSegment(0).inner.GetCorners()[0][0];
          point4 =GetZSegment(0).inner.GetCorners()[1][0];
          aTop  = GetSideCount() * (GetTriangleArea(point1,point2,point3)+
-				     GetTriangleArea(point3,point4,point2));
+                     GetTriangleArea(point3,point4,point2));
 
      }
      else
@@ -524,7 +628,7 @@ Precision UnplacedPolyhedron::SurfaceArea() const{
         point3 =GetZSegment(GetZSegmentCount()-1).inner.GetCorners()[2][0];
         point4 =GetZSegment(GetZSegmentCount()-1).inner.GetCorners()[3][0];
         aBottom  = GetSideCount() *  (GetTriangleArea(point1,point2,point3)+
-				     GetTriangleArea(point3,point4,point2));
+                     GetTriangleArea(point3,point4,point2));
       }
      else
      {
@@ -561,20 +665,20 @@ Vector3D<Precision> UnplacedPolyhedron::GetPointOnSurface() const{
        if(GetZSegment(j).hasInnerRadius)
         {
          area=GetZSegment(j).inner.GetQuadrilateralArea(0);
-	 totArea += area*GetSideCount();
+     totArea += area*GetSideCount();
          aVector2.push_back(area);
         }else{
          aVector2.push_back(0.0);
-	}
+    }
 
        if (HasPhiCutout())
        {
          area=GetZSegment(j).phi.GetQuadrilateralArea(0);
-	 totArea += area*2;
+     totArea += area*2;
          aVector3.push_back(area);
        }
        else{
-	 aVector3.push_back(0.0);
+     aVector3.push_back(0.0);
        }
       }
       
@@ -589,7 +693,7 @@ Vector3D<Precision> UnplacedPolyhedron::GetPointOnSurface() const{
         point3 =GetZSegment(0).inner.GetCorners()[0][0];
         point4 =GetZSegment(0).inner.GetCorners()[1][0];
         aTop  = GetSideCount() * (GetTriangleArea(point1,point2,point3)+
-				     GetTriangleArea(point3,point4,point2));
+                     GetTriangleArea(point3,point4,point2));
      }
      else{
         point3.Set(0.0,0.0,GetZSegment(0).outer.GetCorners()[0][0].z());
@@ -605,7 +709,7 @@ Vector3D<Precision> UnplacedPolyhedron::GetPointOnSurface() const{
         point3 =GetZSegment(GetZSegmentCount()-1).inner.GetCorners()[2][0];
         point4 =GetZSegment(GetZSegmentCount()-1).inner.GetCorners()[3][0];
         aBottom  = GetSideCount() *  (GetTriangleArea(point1,point2,point3)+
-			     GetTriangleArea(point3,point4,point2));
+                 GetTriangleArea(point3,point4,point2));
      }
      else{
         point3.Set(0.0,0.0,GetZSegment(GetZSegmentCount()-1).outer.GetCorners()[2][0].z());
@@ -632,22 +736,22 @@ Vector3D<Precision> UnplacedPolyhedron::GetPointOnSurface() const{
           point1 =GetZSegment(GetZSegmentCount()-1).outer.GetCorners()[2][Flag];
           point2 =GetZSegment(GetZSegmentCount()-1).outer.GetCorners()[3][Flag];    
           if(GetZSegment(GetZSegmentCount()-1).hasInnerRadius)
-	  {
+      {
            point3 =GetZSegment(GetZSegmentCount()-1).inner.GetCorners()[2][Flag];
            point4 =GetZSegment(GetZSegmentCount()-1).inner.GetCorners()[3][Flag];
           
-	  }
+      }
           else{
-	   point3.Set(0.0,0.0,GetZSegment(0).outer.GetCorners()[2][Flag].z());
+       point3.Set(0.0,0.0,GetZSegment(0).outer.GetCorners()[2][Flag].z());
            point4.Set(0.0,0.0,GetZSegment(0).outer.GetCorners()[2][Flag].z());
          
-	  }
+      }
         rnd = RNG::Instance().uniform(0.0, 1.0);
         if(rnd<0.5){
-	  pReturn = GetPointOnTriangle(point3,point1,point2);
-	}else{
+      pReturn = GetPointOnTriangle(point3,point1,point2);
+    }else{
           pReturn = GetPointOnTriangle(point4,point3,point2);
-	}
+    }
         return pReturn;
       }
       else
@@ -655,22 +759,22 @@ Vector3D<Precision> UnplacedPolyhedron::GetPointOnSurface() const{
          point1 =GetZSegment(0).outer.GetCorners()[0][Flag];
          point2 =GetZSegment(0).outer.GetCorners()[1][Flag];
         
-	 if(GetZSegment(0).hasInnerRadius)
-	  {
+     if(GetZSegment(0).hasInnerRadius)
+      {
            point3 =GetZSegment(0).inner.GetCorners()[0][Flag];
            point4 =GetZSegment(0).inner.GetCorners()[1][Flag];
-	  }
+      }
           else{
             
            point3.Set(0.0,0.0,GetZSegment(0).outer.GetCorners()[0][Flag].z());
            point4.Set(0.0,0.0,GetZSegment(0).outer.GetCorners()[0][Flag].z());
-	  }
+      }
           rnd = RNG::Instance().uniform(0.0, 1.0);
           if(rnd<0.5){
-	   pReturn = GetPointOnTriangle(point3,point1,point2);
-	  }else{
-	    pReturn = GetPointOnTriangle(point4,point3,point2);
-	  }
+       pReturn = GetPointOnTriangle(point3,point1,point2);
+      }else{
+        pReturn = GetPointOnTriangle(point4,point3,point2);
+      }
         return pReturn;
       }
 
@@ -679,7 +783,7 @@ Vector3D<Precision> UnplacedPolyhedron::GetPointOnSurface() const{
     {
       
       for (j = 0; j < numPlanes - 1; j++)
-	{ 
+    {
         if (((chose >= Achose1) && (chose < Achose2)) || (j == numPlanes - 1))
         {
           Flag = j;
@@ -717,11 +821,65 @@ Vector3D<Precision> UnplacedPolyhedron::GetPointOnSurface() const{
       return RandVec;
     }
 
-   
     return Vector3D<Precision>(0,0,0);//error
-
-
 }
+
+// <<<<<<< HEAD
+//  Precision UnplacedPolyhedron::Capacity() const{
+//  if(fCapacity == 0.)
+//  {
+//   int j;
+//   Precision  totVolume = 0., volume,volume1, aTop, aBottom;
+  
+//   //Formula for section : V=h(f+F+sqrt(f*F))/3;
+//   //Fand f-areas of surfaces on +/-dz
+//   //h-heigh
+  
+//       AOS3D<Precision> const * innercorners;
+//       AOS3D<Precision> const * outercorners;
+
+
+//      for(j=0; j < GetZSegmentCount(); ++j)
+//      {
+//        outercorners = GetZSegment(j).outer.GetCorners();
+//        Vector3D<Precision> a = outercorners[0][0];
+//        Vector3D<Precision> b = outercorners[1][0];
+//        Vector3D<Precision> c = outercorners[2][0];
+//        Vector3D<Precision> d = outercorners[3][0];
+       
+//        Precision dz= std::fabs(a.z()-c.z());
+//        Vector3D<Precision> a1,b1,c1,d1,temp;
+//        temp = Vector3D<Precision>(0,0,a.z());
+//        aBottom=GetTriangleArea(a,b,temp);
+//        temp=Vector3D<Precision>(0,0,c.z());
+//        aTop=GetTriangleArea(c,d,temp);
+
+//        if(GetZSegment(j).hasInnerRadius )
+//        {
+//          innercorners  = GetZSegment(j).inner.GetCorners();
+//          a1 = innercorners[0][0];
+//          b1 = innercorners[1][0];
+//          c1 = innercorners[2][0];
+//          d1 = innercorners[3][0];
+            
+//          volume = dz*(aTop+aBottom+ std::sqrt(aTop*aBottom));//outer volume
+//          temp = Vector3D<Precision>(0,0,a.z());
+//          aBottom = GetTriangleArea(a1,b1,temp);
+//          temp = Vector3D<Precision>(0,0,c.z());
+//          aTop= GetTriangleArea(c1,d1,temp);
+//          volume1 = dz*(aTop+aBottom+ std::sqrt(aTop*aBottom));//inner volume
+//          volume -= volume1;//outer piramide -inner piramide
+//        }
+//        else
+//        {
+
+//         volume = dz*(aTop+aBottom+ std::sqrt(aTop*aBottom));
+          
+//        }
+
+//        totVolume+=volume;
+// =======
+// >>>>>>> devel
 
 // TODO: this functions seems to be neglecting the phi cut !!
 Precision UnplacedPolyhedron::Capacity() const {
@@ -817,7 +975,7 @@ bool UnplacedPolyhedron::Normal(Vector3D<Precision>const& point, Vector3D<Precis
  
   return valid;   
 
-}	 
+}
 
 
 #endif // !VECGEOM_NVCC
@@ -857,23 +1015,23 @@ void UnplacedPolyhedron::Print(std::ostream &os) const {
 
 VECGEOM_CUDA_HEADER_BOTH
 bool UnplacedPolyhedron::IsConvex() const{
-	//Default safe convexity value
-	  bool convexity = false;
+    //Default safe convexity value
+      bool convexity = false;
 
-	    if(fConvexityPossible)
-	    {
-	      if(fEqualRmax && (fPhiDelta<=180 || fPhiDelta==360))	//In this case, Polycone become solid Cylinder, No need to check anything else, 100% convex
-	        convexity = true;
-	      else
-	      {
-	    	 if( fPhiDelta<=180 || fPhiDelta==360)
-	    	 {
-	    		 convexity = fContinuousInSlope;
-	    	 }
-	      }
-	    }
+        if(fConvexityPossible)
+        {
+          if(fEqualRmax && (fPhiDelta<=180 || fPhiDelta==360))  //In this case, Polycone become solid Cylinder, No need to check anything else, 100% convex
+            convexity = true;
+          else
+          {
+             if( fPhiDelta<=180 || fPhiDelta==360)
+             {
+                 convexity = fContinuousInSlope;
+             }
+          }
+        }
 
-		return convexity;
+        return convexity;
 
       }
 

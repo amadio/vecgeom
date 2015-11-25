@@ -83,7 +83,7 @@ void GeomCppExporter::ScanGeometry(VPlacedVolume const *const volume, std::list<
       lvlist.push_back(volume->GetLogicalVolume());
     }
 
-    for (auto d = 0; d < volume->GetDaughters().size(); ++d)
+    for (size_t d = 0; d < volume->GetDaughters().size(); ++d)
       ScanGeometry(volume->GetDaughters()[d], lvlist, boollvlist, tlist, mediumlist, materiallist);
   }
 
@@ -653,7 +653,7 @@ void GeomCppExporter::DumpGeomHierarchy(std::vector<std::string> &dumps,
     // map daughters for logical volume l
     std::string thisvolumevariable = fLVolumeToStringMap[l];
 
-    for (auto d = 0; d < l->GetDaughters().size(); ++d) {
+    for (size_t d = 0; d < l->GetDaughters().size(); ++d) {
       VPlacedVolume const *daughter = l->GetDaughters()[d];
 
       // get transformation and logical volume for this daughter

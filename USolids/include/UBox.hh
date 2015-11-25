@@ -17,17 +17,41 @@
 //
 // 10.06.11 J.Apostolakis, G.Cosmo, A.Gheata
 //          Created from original implementation in Geant4 and ROOT
+// 30.06.15 Guilherme Lima - Add VecGeom implementation as option for underlying implementation
+//
 // --------------------------------------------------------------------
 
 #ifndef USOLIDS_UBox
 #define USOLIDS_UBox
 
+#ifdef VECGEOM_REPLACE_USOLIDS
+
+//============== here for VecGeom-based implementation
+
+#include "volumes/SpecializedBox.h"
+#include "volumes/LogicalVolume.h"
+#include "volumes/UnplacedBox.h"
+#include "base/Transformation3D.h"
+
+class UBox: public vecgeom::SpecializedBox<vecgeom::translation::kIdentity, vecgeom::rotation::kIdentity> {
+  // just forwards UBox to vecgeom box
+  typedef typename vecgeom::SpecializedBox<vecgeom::translation::kIdentity, vecgeom::rotation::kIdentity> Shape_t;
+  // inherit all constructors
+  using Shape_t::Shape_t;
+
+public:
+  // add default constructor for tests
+  UBox() : Shape_t(new vecgeom::LogicalVolume(new vecgeom::UnplacedBox(0.,0.,0.)),
+                   &vecgeom::Transformation3D::kIdentity,
+                   this) {}
+};
+//============== end of VecGeom-based implementation
+
+#else
+
+//============== here for USolids-based implementation
 #ifndef USOLIDS_VUSolid
 #include "VUSolid.hh"
-#endif
-
-#ifndef USOLIDS_UUtils
-#include "UUtils.hh"
 #endif
 
 class UBox : public VUSolid
@@ -47,8 +71,6 @@ class UBox : public VUSolid
     void Set(const UVector3& vec);
 
     // Accessors and modifiers
-
-
 
     inline double GetXHalfLength() const;
     inline double GetYHalfLength() const;
@@ -149,6 +171,7 @@ inline double UBox::SurfaceArea()
   }
   return fSurfaceArea;
 }
+//============== end of USolids-based implementation
 
-
-#endif
+#endif  // VECGEOM_REPLACE_USOLIDS
+#endif  // USOLIDS_UBox

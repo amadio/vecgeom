@@ -21,13 +21,13 @@
 namespace vecgeom {
 inline namespace cxx {
 
-int ABBoxNavigator::GetHitCandidates(LogicalVolume const *lvol, Vector3D<Precision> const &point,
+size_t ABBoxNavigator::GetHitCandidates(LogicalVolume const *lvol, Vector3D<Precision> const &point,
                                      Vector3D<Precision> const &dir, ABBoxManager::ABBoxContainer_t const &corners,
-                                     int size, ABBoxManager::BoxIdDistancePair_t *hitlist) const {
+                                     size_t size, ABBoxManager::BoxIdDistancePair_t *hitlist) const {
 
   Vector3D<Precision> invdir(1. / dir.x(), 1. / dir.y(), 1. / dir.z());
-  int vecsize = size;
-  int hitcount = 0;
+  size_t vecsize = size;
+  size_t hitcount = 0;
   int sign[3];
   sign[0] = invdir.x() < 0;
   sign[1] = invdir.y() < 0;
@@ -35,7 +35,7 @@ int ABBoxNavigator::GetHitCandidates(LogicalVolume const *lvol, Vector3D<Precisi
   // interpret as binary number and do a switch statement
   // do a big switch statement here
   // int code = 2 << size[0] + 2 << size[1] + 2 << size[2];
-  for (auto box = 0; box < vecsize; ++box) {
+  for (size_t box = 0; box < vecsize; ++box) {
     double distance =
         BoxImplementation<translation::kIdentity, rotation::kIdentity>::IntersectCachedKernel2<kScalar, double>(
             &corners[2 * box], point, invdir, sign[0], sign[1], sign[2], 0, vecgeom::kInfinity);
@@ -77,21 +77,21 @@ int ABBoxNavigator::GetHitCandidates(LogicalVolume const *lvol, Vector3D<Precisi
 }
 
 // vector version
-int ABBoxNavigator::GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Precision> const &point,
+size_t ABBoxNavigator::GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Precision> const &point,
                                        Vector3D<Precision> const &dir, ABBoxManager::ABBoxContainer_v const &corners,
-                                       int size, ABBoxManager::BoxIdDistancePair_t *hitlist) const {
+                                       size_t size, ABBoxManager::BoxIdDistancePair_t *hitlist) const {
 
 #ifdef VECGEOM_VC
   Vector3D<float> invdirfloat(1.f / (float)dir.x(), 1.f / (float)dir.y(), 1.f / (float)dir.z());
   Vector3D<float> pfloat((float)point.x(), (float)point.y(), (float)point.z());
 
-  int vecsize = size;
-  int hitcount = 0;
+  size_t vecsize = size;
+  size_t hitcount = 0;
   int sign[3];
   sign[0] = invdirfloat.x() < 0;
   sign[1] = invdirfloat.y() < 0;
   sign[2] = invdirfloat.z() < 0;
-  for (auto box = 0; box < vecsize; ++box) {
+  for (size_t box = 0; box < vecsize; ++box) {
     ABBoxManager::Real_v distance =
         BoxImplementation<translation::kIdentity, rotation::kIdentity>::IntersectCachedKernel2<kVcFloat,
                                                                                                ABBoxManager::Real_t>(
@@ -101,7 +101,7 @@ int ABBoxNavigator::GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Preci
     // this is Vc specific
     // a little tricky: need to iterate over the mask -- this does not easily work with scalar types
     if (Any(hit)) {
-      for (auto i = hit.firstOne(); i < kVcFloat::precision_v::Size; ++i) {
+      for (size_t i = hit.firstOne(); i < kVcFloat::precision_v::Size; ++i) {
         if (hit[i]){
           hitlist[hitcount]=(ABBoxManager::BoxIdDistancePair_t(box * kVcFloat::precision_v::Size + i, distance[i]));
           hitcount++;
@@ -113,13 +113,13 @@ int ABBoxNavigator::GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Preci
   Vector3D<float> invdirfloat(1.f / (float)dir.x(), 1.f / (float)dir.y(), 1.f / (float)dir.z());
   Vector3D<float> pfloat((float)point.x(), (float)point.y(), (float)point.z());
 
-  int vecsize = size;
-  int hitcount = 0;
+  size_t vecsize = size;
+  size_t hitcount = 0;
   int sign[3];
   sign[0] = invdirfloat.x() < 0;
   sign[1] = invdirfloat.y() < 0;
   sign[2] = invdirfloat.z() < 0;
-  for (auto box = 0; box < vecsize; ++box) {
+  for (size_t box = 0; box < vecsize; ++box) {
     float distance =
         BoxImplementation<translation::kIdentity, rotation::kIdentity>::IntersectCachedKernel2<kScalarFloat, float>(
             &corners[2 * box], pfloat, invdirfloat, sign[0], sign[1], sign[2], 0,
@@ -134,19 +134,19 @@ int ABBoxNavigator::GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Preci
 #endif
 }
 
-size_t ABBoxNavigator::GetSafetyCandidates_v(Vector3D<Precision> const &point, ABBoxManager::ABBoxContainer_v const &corners, int size,
+size_t ABBoxNavigator::GetSafetyCandidates_v(Vector3D<Precision> const &point, ABBoxManager::ABBoxContainer_v const &corners, size_t size,
                                          ABBoxManager::BoxIdDistancePair_t *boxsafetypairs, Precision upper_squared_limit) const {
     Vector3D<float> pointfloat((float)point.x(), (float)point.y(), (float)point.z());
 int candidatecount=0;
-    #ifdef VECGEOM_VC
-    int vecsize = size;
-    for( auto box = 0; box < vecsize; ++box ){
+    size_t vecsize = size;
+#ifdef VECGEOM_VC
+    for( size_t box = 0; box < vecsize; ++box ){
          ABBoxManager::Real_v safetytoboxsqr =  ABBoxImplementation::ABBoxSafetySqr<kVcFloat, ABBoxManager::Real_t>(
                         corners[2*box], corners[2*box+1], pointfloat );
 
          ABBoxManager::Bool_v hit = safetytoboxsqr < ABBoxManager::Real_t(upper_squared_limit);
          if (Any(hit)) {
-           for (auto i = 0; i < kVcFloat::precision_v::Size; ++i) {
+           for (size_t i = 0; i < kVcFloat::precision_v::Size; ++i) {
              if (hit[i]){
                boxsafetypairs[candidatecount]=(ABBoxManager::BoxIdDistancePair_t(box * kVcFloat::precision_v::Size + i, safetytoboxsqr[i]));
              candidatecount++;}
@@ -154,8 +154,7 @@ int candidatecount=0;
          }
     }
 #else
-    int vecsize = size;
-    for( auto box = 0; box < vecsize; ++box ){
+    for( size_t box = 0; box < vecsize; ++box ){
          ABBoxManager::Real_v safetytoboxsqr =  ABBoxImplementation::ABBoxSafetySqr<kScalarFloat, float>(
                         corners[2*box], corners[2*box+1], pointfloat );
 
@@ -369,7 +368,7 @@ ABBoxNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoint
         std::cerr << " hitting " << hitlist.size() << " boundary boxes\n";
 #endif
         //for( auto hitbox : hitlist )
-        for(int index=0;index < ncandidates;++index)
+        for(size_t index=0;index < ncandidates;++index)
         {
             auto hitbox = hitlist[index];
             VPlacedVolume const * candidate = LookupDaughter( currentlvol, hitbox.first );

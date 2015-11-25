@@ -267,15 +267,16 @@ public:
                                   Vector3D<Precision> const &direction,
                                   Vector3D<Precision> &normal,
                                   bool &convex, Precision step = kInfinity ) const {
-    double d = DistanceToOut(point, direction, step);
-    Vector3D<double> hitpoint = point + d * direction;
-    PlacedShape_t::Normal(hitpoint, normal);
+    Precision d = DistanceToOut(point, direction, step );
+    Vector3D<Precision> hitpoint = point + d*direction;
+    PlacedShape_t::Normal( hitpoint, normal );
 
     // Lets the shape tell itself whether it is convex or not.
     // convex = PlacedShape_t::IsConvex;
 
     // Now Convexity is defined only for UnplacedVolume, not required for PlacedVolume
     convex = this->GetUnplacedVolume()->UnplacedShape_t::IsConvex();
+
     return d;
   }
 #endif
@@ -289,6 +290,9 @@ public:
       point,
       output
     );
+#ifdef VECGEOM_REPLACE_USOLIDS
+    if(output < 0.0 && output > -kTolerance) output = 0.0;
+#endif
     return output;
   }
 
@@ -300,6 +304,9 @@ public:
       point,
       output
     );
+#ifdef VECGEOM_REPLACE_USOLIDS
+    if(output < 0.0 && output > -kTolerance) output = 0.0;
+#endif
     return output;
   }
 
@@ -418,6 +425,9 @@ public:
         points[i],
         output[i]
       );
+      if(output[i]<0.0 && output[i]>-kTolerance) {
+        output[i] = 0.0;
+      }
     }
   }
 
@@ -445,6 +455,9 @@ public:
         points[i],
         output[i]
       );
+      if(output[i]<0.0 && output[i]>-kTolerance) {
+        output[i] = 0.0;
+      }
     }
   }
 

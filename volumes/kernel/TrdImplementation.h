@@ -283,7 +283,7 @@ struct TrdImplementation {
       Transformation3D const &transformation,
       Vector3D<typename Backend::precision_v> const &point,
       Vector3D<typename Backend::precision_v> const &direction,
-      typename Backend::precision_v const &stepMax,
+      typename Backend::precision_v const &/*stepMax*/,
       typename Backend::precision_v &distance) {
 
     using namespace TrdUtilities;
@@ -356,7 +356,7 @@ struct TrdImplementation {
       UnplacedTrd const &trd,
       Vector3D<typename Backend::precision_v> const &point,
       Vector3D<typename Backend::precision_v> const &dir,
-      typename Backend::precision_v const &stepMax,
+      typename Backend::precision_v const &/*stepMax*/,
       typename Backend::precision_v &distance) {
 
     using namespace TrdUtilities;
@@ -367,7 +367,7 @@ struct TrdImplementation {
     Float_t hitx, hity;
     // Float_t hitz;
     // Bool_t done = Backend::kFalse;
-    distance = kInfinity;
+    distance = Float_t(0.0);
 
     // hit top Z face?
     if((dir.z()>0.) != Backend::kFalse) {

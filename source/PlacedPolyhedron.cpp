@@ -10,7 +10,7 @@
 #include "TGeoPgon.h"
 #endif
 
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
 #include "UPolyhedra.hh"
 #endif
 
@@ -59,7 +59,7 @@ TGeoShape const* PlacedPolyhedron::ConvertToRoot() const {
 }
 #endif
 
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
 ::VUSolid const* PlacedPolyhedron::ConvertToUSolids() const {
 
   return new UPolyhedra(

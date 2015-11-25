@@ -29,36 +29,35 @@ double USolidsInterfaceHelper::DistanceToOut(Vector3D<double> const &point,
 }
 
 std::string USolidsInterfaceHelper::GetEntityType() const {
-  assert(0 && "GetEntityType not implemented for USolids interface compatible"
-              " volume.");
+  assert(0 && "GetEntityType() not implemented for USolids interface compatible shape.");
   return std::string();
 }
 
 void USolidsInterfaceHelper::GetParametersList(int number, double *array) const {
-  assert(0 && "GetParameterList not implemented for USolids interface"
+  assert(0 && "GetParameterList(int, double*) not implemented for USolids interface"
               " compatible volume.");
 }
 
 VUSolid* USolidsInterfaceHelper::Clone() const {
-  assert(0 && "Clone not implemented for USolids interface compatible"
+  assert(0 && "Clone() not implemented for USolids interface compatible"
               " volume.");
   return NULL;
 }
 
 std::ostream& USolidsInterfaceHelper::StreamInfo(std::ostream &os) const {
-  assert(0 && "StreamInfo not implemented for USolids interface compatible"
+  assert(0 && "StreamInfo(ostream&) not implemented for USolids interface compatible"
               " volume.");
   return os;
 }
 
 UVector3 USolidsInterfaceHelper::GetPointOnSurface() const {
-  assert(0 && "GetPointOnSurface not implemented for USolids interface"
+  assert(0 && "GetPointOnSurface() not implemented for USolids interface"
               " compatible volume.");
   return UVector3();
 }
 
 void USolidsInterfaceHelper::ComputeBBox(UBBox *aBox, bool aStore) {
-  assert(0 && "ComputeBBox not implemented for USolids interface compatible"
+  assert(0 && "ComputeBBox() not implemented for USolids interface compatible"
               " volume.");
 }
 

@@ -17,10 +17,12 @@
 
 #include "volumes/UnplacedPolycone.h"
 
+class UPolyconeHistorical;
+
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedPolycone; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedPolycone );
+VECGEOM_DEVICE_DECLARE_CONV( PlacedPolycone )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -58,13 +60,33 @@ public:
         GetLogicalVolume()->GetUnplacedVolume());
   }
 
+  bool IsOpen() const { return (GetUnplacedVolume()->GetDeltaPhi()<kTwoPi); }
+  Precision GetStartPhi() const { return GetUnplacedVolume()->GetStartPhi(); }
+  Precision GetEndPhi() const   { return GetUnplacedVolume()->GetEndPhi(); }
+  int GetNumRZCorner() const { return 2*(int)(GetUnplacedVolume()->GetNz()); }  // in USolids nCorners = 2*nPlanes
+
+  UPolyconeHistorical* GetOriginalParameters() const {
+    assert(false && "*** Method PlacedPolycone::GetOriginalParameters() has been deprecated.\n");
+    return NULL;
+  }
+  void Reset() {
+    assert(false && "*** Method PlacedPolycone::Reset() has been deprecated, no 'originalParameters' to be used for reInit().\n");
+  }
+
+
+#if defined(VECGEOM_USOLIDS)
+//  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& StreamInfo(std::ostream &os) const override {
+    return GetUnplacedVolume()->StreamInfo(os);
+  }
+#endif
 
 #ifndef VECGEOM_NVCC
   virtual VPlacedVolume const* ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const* ConvertToRoot() const override;
 #endif
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
   virtual ::VUSolid const* ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4

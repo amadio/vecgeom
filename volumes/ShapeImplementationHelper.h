@@ -30,7 +30,7 @@ class ShapeImplementationHelper : public Specialization::PlacedShape_t {
 using PlacedShape_t = typename Specialization::PlacedShape_t;
 using UnplacedShape_t = typename Specialization::UnplacedShape_t;
 using Helper_t = ShapeImplementationHelper<Specialization>;
-using Implementation_t = Specialization;
+//using Implementation_t = Specialization;  // not used
 
 public:
 
@@ -311,6 +311,9 @@ public:
       point,
       output
     );
+#ifdef VECGEOM_REPLACE_USOLIDS
+    if(output < 0.0 && output > -kTolerance) output = 0.0;
+#endif
     return output;
   }
 
@@ -322,6 +325,9 @@ public:
       point,
       output
     );
+#ifdef VECGEOM_REPLACE_USOLIDS
+    if(output < 0.0 && output > -kTolerance) output = 0.0;
+#endif
     return output;
   }
 

@@ -110,21 +110,42 @@ Vector3D<Precision> UnplacedTorus2::GetPointOnSurface() const {
      }
 }
 
+
+#if defined(VECGEOM_USOLIDS)
+  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& UnplacedTorus2::StreamInfo(std::ostream &os) const {
+    int oldprc = os.precision(16);
+    os << "-----------------------------------------------------------\n"
+       << "     *** Dump for solid - " << GetEntityType() << " ***\n"
+       << "     ===================================================\n"
+       << " Solid type: Torus2\n"
+       << " Parameters: \n"
+       << "      Radii:  Rtor="<< fRtor <<"mm, Rmin=" << fRmin <<"mm, "<< fRmax <<"mm \n";
+    if(fDphi<kTwoPi) {
+        os << "     Wedge starting angles: fSPhi=" << fSphi*kRadToDeg <<"deg, "
+           << ", fDphi="<<fDphi*kRadToDeg <<"deg\n";
+    }
+    os << "-----------------------------------------------------------\n";
+    os.precision(oldprc);
+    return os;
+  }
+#endif
+
 VECGEOM_CUDA_HEADER_BOTH
 bool UnplacedTorus2::IsConvex() const{
-	      //Default safe convexity value
-		  bool convexity = false;
+          //Default safe convexity value
+          bool convexity = false;
 
-	      //Logic to calculate the convexity
-	      if(fRtor == 0.) //This will turn Torus to Spherical Shell
-	      {
-	      if(fRmin==0.)   //This will turn the Spherical shell to Orb
-	              {
-	                if( fDphi<=kPi || fDphi==kTwoPi)
-	                  convexity = true;
-	              }
-	      }
-	      return convexity;
+          //Logic to calculate the convexity
+          if(fRtor == 0.) //This will turn Torus to Spherical Shell
+          {
+          if(fRmin==0.)   //This will turn the Spherical shell to Orb
+                  {
+                    if( fDphi<=kPi || fDphi==kTwoPi)
+                      convexity = true;
+                  }
+          }
+          return convexity;
       }
 
 #ifdef VECGEOM_CUDA_INTERFACE

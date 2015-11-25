@@ -14,7 +14,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedOrb; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedOrb );
+VECGEOM_DEVICE_DECLARE_CONV( PlacedOrb )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -55,12 +55,15 @@ public:
     return static_cast<UnplacedOrb const *>(
         GetLogicalVolume()->GetUnplacedVolume());
   }
-  
+
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision GetRadius() const { return GetUnplacedVolume()->GetRadius(); }
-  
+
+  VECGEOM_CUDA_HEADER_BOTH
+  void SetRadius(Precision arg) { const_cast<UnplacedOrb*>(GetUnplacedVolume())->SetRadius(arg); }
+
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision GetfRTolO() const { return GetUnplacedVolume()->GetfRTolO(); }
@@ -72,6 +75,9 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision GetfRTolerance() const { return GetUnplacedVolume()->GetfRTolerance(); }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetRadialTolerance() const { return GetUnplacedVolume()->GetfRTolerance(); }
 
 #ifndef VECGEOM_NVCC
   virtual Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
@@ -107,11 +113,18 @@ public:
       return valid;
   }
 
+#if defined(VECGEOM_USOLIDS)
+//  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& StreamInfo(std::ostream &os) const override {
+    return GetUnplacedVolume()->StreamInfo(os);
+  }
+#endif
+
   virtual VPlacedVolume const* ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const* ConvertToRoot() const override;
 #endif
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
   virtual ::VUSolid const* ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4

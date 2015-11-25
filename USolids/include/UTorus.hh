@@ -8,37 +8,33 @@
 //
 // --------------------------------------------------------------------
 //
-// UParaboloid - Inherits from the VecGeom implementation.
-//
+// UTorus - Inherits from the VecGeom implementation.
 //   Please note that there is an incomplete/incorrect implementation
-//   of the USolids class UParaboloid, used only to fix compilation errors in
+//   of the USolids class UTorus, used only to fix compilation errors in
 //   case of USolids usage in the context of Geant4 integration.
 //
 // Class description:
 //
-// 22.09.14 J. de Fine Licht
-//          Including VecGeom paraboloid implementation by Marilena
-//          Bandieramonte.
-// 2015-08-20 Guilherme Lima - Integration with Geant4
+// 2015-08-19 Guilherme Lima - Including VecGeom torus implementation
 //         Note: quick and dirty implementation (incomplete) for integration tests only.
 //
 // --------------------------------------------------------------------
 
-#ifndef USOLIDS_UParaboloid
-#define USOLIDS_UParaboloid
+#ifndef USOLIDS_UTorus
+#define USOLIDS_UTorus
 
 #ifdef VECGEOM_REPLACE_USOLIDS
 
 //============== here for VecGeom-based implementation
 
-#include "volumes/SpecializedParaboloid.h"
+#include "volumes/SpecializedTorus2.h"
 #include "volumes/LogicalVolume.h"
-#include "volumes/UnplacedParaboloid.h"
+#include "volumes/UnplacedTorus.h"
 #include "base/Transformation3D.h"
 
-class UParaboloid: public vecgeom::SimpleParaboloid {
-  // just forwards UParaboloid to vecgeom::SimpleParaboloid
-  using vecgeom::SimpleParaboloid::SimpleParaboloid;
+class UTorus: public vecgeom::SimpleTorus2 {
+  // just forwards UTorus to vecgeom::SimpleTorus
+  using vecgeom::SimpleTorus2::SimpleTorus2;
 };
 //============== end of VecGeom-based implementation
 
@@ -50,45 +46,50 @@ class UParaboloid: public vecgeom::SimpleParaboloid {
 #include "VUSolid.hh"
 #endif
 
-/// GL NOTE: this is not meant to be a COMPLETE implementation of UParaboloid!!!
-class UParaboloid : public VUSolid {
+/// GL NOTE: this is not meant to be a COMPLETE implementation of UTorus!!!
+class UTorus : public VUSolid {
 public:
-  UParaboloid() : VUSolid(), fDz(0), fRhi(0), fRlo(0) { }
-  UParaboloid(const std::string& name, double val1, double val2, double val3)
+  UTorus() : VUSolid(), fRmin(0), fRmax(0), fRtor(0), fSphi(0), fDphi(0) { }
+  UTorus(const std::string& name, double val1, double val2, double val3, double val4, double val5)
     : VUSolid(name)
-    , fDz(val1)
-    , fRhi(val2)
-    , fRlo(val3)
+    , fRmin(val1)
+    , fRmax(val2)
+    , fRtor(val3)
+    , fSphi(val4)
+    , fDphi(val5)
     { }
 
-  ~UParaboloid() {}
+  virtual ~UTorus() {};
 
   // Copy constructor and assignment operator
 
-  UParaboloid(const UParaboloid& rhs)
+  UTorus(const UTorus& rhs)
     : VUSolid(rhs.GetName() )
-    , fDz( rhs.GetDz() )
-    , fRhi( rhs.GetRhi() )
-    , fRlo( rhs.GetRlo() )
+    , fRmin( rhs.GetRmin() )
+    , fRmax( rhs.GetRmax() )
+    , fRtor( rhs.GetRtor() )
+    , fSphi( rhs.GetSPhi() )
+    , fDphi( rhs.GetDPhi() )
     {  }
 
-  UParaboloid& operator=(const UParaboloid& rhs) = delete;
+  UTorus& operator=(const UTorus& rhs) = delete;
 
   // Accessors and modifiers
 
-  inline double GetDz() const;
-  inline double GetRhi() const;
-  inline double GetRlo() const;
+  inline double GetRmin() const;
+  inline double GetRmax() const;
+  inline double GetRtor() const;
+  inline double GetSPhi() const;
+  inline double GetDPhi() const;
 
-  void SetDz(double arg);
-  void SetRhi(double arg);
-  void SetRlo(double arg);
+  void SetRmin(double arg);
+  void SetRmax(double arg);
+  void SetRtor(double arg);
+  void SetSPhi(double arg);
+  void SetDPhi(double arg);
 
   // Navigation methods
-  EnumInside     Inside(const UVector3& /*aPoint*/) const {
-    assert(false && "Not implemented.");
-    return EnumInside::eInside;
-  }
+  EnumInside     Inside(const UVector3& aPoint) const;
 
   double  SafetyFromInside(const UVector3& /*aPoint*/,
                            bool /*aAccurate*/ = false) const {
@@ -121,27 +122,23 @@ public:
 
   bool Normal(const UVector3& /*aPoint*/, UVector3& /*aNormal*/) const {
     assert(false && "Not implemented.");
-    return false;
+    return 0.;
   }
 
   void Extent(UVector3& aMin, UVector3& aMax) const {
     // Returns the full 3D cartesian extent of the solid.
-    aMax.x() = fRhi;
-    aMax.y() = fRhi;
-    aMax.z() = fDz;
+    aMax.x() = fRtor+fRmax;
+    aMax.y() = fRtor+fRmax;
+    aMax.z() = fRmax;
     aMin = -aMax;
   }
 
-    // Computes capacity of the shape in [length^3]
-  double Capacity() {
-    return UUtils::kPi*fDz*(fRlo*fRlo+fRhi*fRhi);
-  }
-
+  inline double Capacity();
   inline double SurfaceArea();
 
-  VUSolid* Clone() const { return new UParaboloid(*this); }
+  VUSolid* Clone() const { return new UTorus(*this); }
 
-  UGeometryType GetEntityType() const { return "Paraboloid"; }
+  UGeometryType GetEntityType() const { return "Torus"; }
 
   std::ostream& StreamInfo( std::ostream& os ) const;
 
@@ -149,38 +146,51 @@ public:
 
   // Visualisation
   void GetParametersList(int, double* aArray) const {
-    aArray[0] = GetDz();
-    aArray[1] = GetRhi();
-    aArray[2] = GetRlo();
+    aArray[0] = GetRmin();
+    aArray[1] = GetRmax();
+    aArray[2] = GetRtor();
+    aArray[3] = GetSPhi();
+    aArray[4] = GetDPhi();
   }
 
   UVector3 GetPointOnSurface() const;
   UVector3 GetPointOnEdge() const;
 
 private:
-  double fDz;   // Half-length
-  double fRhi;  // external radius
-  double fRlo;  // internal radius
-  double fA, fB;
+  double fRmin;  // Rmin of torus tube
+  double fRmax;  // Rmax of torus tube
+  double fRtor;  // Main radius of torus to center of the tube
+  double fSphi;  // start phi angle
+  double fDphi;  // delta phi angle
 };
 
-inline double UParaboloid::GetDz() const {
-  return fDz;
+inline double UTorus::GetRmin() const {
+  return fRmin;
 }
 
-inline double UParaboloid::GetRhi() const {
-  return fRhi;
+inline double UTorus::GetRmax() const {
+  return fRmax;
 }
 
-inline double UParaboloid::GetRlo() const {
-  return fRlo;
+inline double UTorus::GetRtor() const {
+  return fRtor;
 }
 
-inline void UParaboloid::SetDz(double val)  { fDz = val; }
-inline void UParaboloid::SetRhi(double val) { fRhi = val; }
-inline void UParaboloid::SetRlo(double val) { fRlo = val; }
+inline double UTorus::GetSPhi() const {
+  return fSphi;
+}
+
+inline double UTorus::GetDPhi() const {
+  return fDphi;
+}
+
+inline void UTorus::SetRmin(double val) { fRmin = val; }
+inline void UTorus::SetRmax(double val) { fRmax = val; }
+inline void UTorus::SetRtor(double val) { fRtor = val; }
+inline void UTorus::SetSPhi(double val) { fSphi = val; }
+inline void UTorus::SetDPhi(double val) { fDphi = val; }
 
 //============== end of USolids-based implementation
 
 #endif  // VECGEOM_REPLACE_USOLIDS
-#endif  // USOLIDS_UParaboloid
+#endif  // USOLIDS_UTorus

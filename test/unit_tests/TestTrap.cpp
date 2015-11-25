@@ -16,7 +16,6 @@
 //.. ensure asserts are compiled in
 #undef NDEBUG
 #include <cassert>
-#include <cmath>
 
 bool testvecgeom=false;
 
@@ -58,7 +57,7 @@ bool TestTrap() {
                           Vec_t(+30.0,-40.0,+40.0),
                           Vec_t(-30.0,+40.0,+40.0),
                           Vec_t(+30.0,+40.0,+40.0)  } ;
-    
+
     Trap_t trap1("Test Boxlike #1",40,0,0,30,20,20,0,30,20,20,0); // box:20,30,40
 
     //    Trap_t trap2("Test Trdlike #2",40,0,0,20,10,10,0,40,30,30,0);
@@ -68,8 +67,8 @@ bool TestTrap() {
     Trap_t trap3("trap3",50,0,0,50,50,50,UUtils::kPi/4,50,50,50,UUtils::kPi/4) ;
     Trap_t trap4("trap4",50,0,0,50,50,50,-UUtils::kPi/4,50,50,50,-UUtils::kPi/4) ;
 
-    // // confirm Trd calculations
-    // Trap_t trap5("Trd2",20,20,30,30,40);
+    // confirm Trd calculations
+    Trap_t trap5("Trd2",20,20,30,30,40);
     // std::cout<<" Trd-like capacity: "<< trap5.Capacity() <<"\n";
     // std::cout<<" Trd-like surface area: "<< trap5.SurfaceArea() <<"\n";
 
@@ -119,7 +118,7 @@ bool TestTrap() {
     assert(ApproxEqual(vol,volCheck));
 
     //std::cout<<"Trd Surface Area : " << trap5.SurfaceArea()<<std::endl;
-    // assert(trap5.SurfaceArea() == 20800);
+    assert(trap5.SurfaceArea() == 20800);
 
 
 // Check Inside
@@ -412,6 +411,83 @@ bool TestTrap() {
     assert(ApproxEqual(Dist,60));
     Dist=trap2.SafetyFromOutside(pbigmz);
     assert(ApproxEqual(Dist,60));
+
+    //=== add test cases to reproduce a crash in Geant4: negative SafetyFromInside() is not acceptable
+    //std::cout <<"trap1.S2O(): Line "<< __LINE__ <<", p="<< testp <<", saf2out=" << Dist <<"\n";
+
+    Vec_t testp;
+    double testValue = 0.11;
+    testp = ponxside + testValue*vx;
+    Dist = trap1.SafetyFromOutside(testp);
+    assert(ApproxEqual(Dist,testValue));
+    Dist = trap1.SafetyFromInside(testp);
+    assert(Dist>=0);
+
+    testp = ponxside - testValue*vx;
+    Dist=trap1.SafetyFromOutside(testp);
+    std::cout <<"trap1.S2I(): Line "<< __LINE__ <<", p="<< testp <<", saf2in=" << Dist <<"\n";
+    Dist=trap1.SafetyFromInside(testp);
+    assert(Dist>=0);
+
+    testp = ponmxside + 0.11*vx;
+    Dist=trap1.SafetyFromOutside(testp);
+    std::cout <<"trap1.S2I(): Line "<< __LINE__ <<", p="<< testp <<", saf2in=" << Dist <<"\n";
+    Dist=trap1.SafetyFromInside(testp);
+    assert(Dist>=0);
+
+    testp = ponmxside - 0.11*vx;
+    Dist=trap1.SafetyFromOutside(testp);
+    assert(ApproxEqual(Dist,testValue));
+    Dist=trap1.SafetyFromInside(testp);
+    assert(Dist>=0);
+
+    testp = ponyside + 0.11*vy;
+    Dist=trap1.SafetyFromOutside(testp);
+    assert(ApproxEqual(Dist,testValue));
+    Dist=trap1.SafetyFromInside(testp);
+    assert(Dist>=0);
+
+    testp = ponyside - 0.11*vy;
+    Dist=trap1.SafetyFromOutside(testp);
+    std::cout <<"trap1.S2I(): Line "<< __LINE__ <<", p="<< testp <<", saf2in=" << Dist <<"\n";
+    Dist=trap1.SafetyFromInside(testp);
+    assert(Dist>=0);
+
+    testp = ponmyside + 0.11*vy;
+    Dist=trap1.SafetyFromOutside(testp);
+    std::cout <<"trap1.S2I(): Line "<< __LINE__ <<", p="<< testp <<", saf2in=" << Dist <<"\n";
+    Dist=trap1.SafetyFromInside(testp);
+    assert(Dist>=0);
+
+    testp = ponmyside - 0.11*vy;
+    Dist=trap1.SafetyFromOutside(testp);
+    assert(ApproxEqual(Dist,testValue));
+    Dist=trap1.SafetyFromInside(testp);
+    assert(Dist>=0);
+
+    testp = ponzside + 0.11*vz;
+    Dist=trap1.SafetyFromOutside(testp);
+    assert(ApproxEqual(Dist,testValue));
+    Dist=trap1.SafetyFromInside(testp);
+    assert(Dist>=0);
+
+    testp = ponzside - 0.11*vz;
+    Dist=trap1.SafetyFromOutside(testp);
+    std::cout <<"trap1.S2I(): Line "<< __LINE__ <<", p="<< testp <<", saf2in=" << Dist <<"\n";
+    Dist=trap1.SafetyFromInside(testp);
+    assert(Dist>=0);
+
+    testp = ponmzside + 0.11*vz;
+    Dist=trap1.SafetyFromOutside(testp);
+    std::cout <<"trap1.S2I(): Line "<< __LINE__ <<", p="<< testp <<", saf2in=" << Dist <<"\n";
+    Dist=trap1.SafetyFromInside(testp);
+    assert(Dist>=0);
+
+    testp = ponmzside - 0.11*vz;
+    Dist=trap1.SafetyFromOutside(testp);
+    assert(ApproxEqual(Dist,testValue));
+    Dist=trap1.SafetyFromInside(testp);
+    assert(Dist>=0);
 
 
 // DistanceToIn(P,V)

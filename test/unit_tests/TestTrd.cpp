@@ -58,8 +58,8 @@ bool TestTrd()
 
 // Check Surface area
 
-    std::cout<<"Trd Surface Area : " << trd1.SurfaceArea()<<std::endl;
-    //assert(ApproxEqual(trd1.SurfaceArea(), 20800));
+    //std::cout<<"Trd Surface Area : " << trd1.SurfaceArea()<<std::endl;
+    assert(trd1.SurfaceArea() == 20800);
 
 // Check Inside
 
@@ -446,8 +446,14 @@ int main(int argc, char *argv[]) {
         std::cerr << "VECGEOM_USOLIDS was not defined\n";
         return 2;
 #else
-      TestTrd<USOLIDSCONSTANTS, UTrd>();
-      std::cout << "UTrd passed\n";
+  #ifndef VECGEOM_REPLACE_USOLIDS
+        TestTrd<USOLIDSCONSTANTS, UTrd>();
+        std::cout << "USolids Trd passed\n";
+  #else
+        testvecgeom = true;
+        TestTrd<VECGEOMCONSTANTS, UTrd>();
+        std::cout << "USolids --> VecGeom Trd passed\n";
+  #endif
 #endif
     }
     else if( ! strcmp(argv[1], "--vecgeom") ) {

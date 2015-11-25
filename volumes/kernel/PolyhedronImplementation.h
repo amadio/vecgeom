@@ -301,21 +301,21 @@ bool TreatInner(bool hasInnerRadius) {
 template <>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-bool TreatInner<Polyhedron::EInnerRadii::kFalse>(bool hasInnerRadius) {
+bool TreatInner<Polyhedron::EInnerRadii::kFalse>(bool /*hasInnerRadius*/) {
   return false;
 }
 
 template <Polyhedron::EPhiCutout phiCutoutT>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-bool TreatPhi(bool hasPhiCutout) {
+bool TreatPhi(bool /*hasPhiCutout*/) {
   return true;
 }
 
 template <>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-bool TreatPhi<Polyhedron::EPhiCutout::kFalse>(bool hasPhiCutout) {
+bool TreatPhi<Polyhedron::EPhiCutout::kFalse>(bool /*hasPhiCutout*/) {
   return false;
 }
 
@@ -336,14 +336,14 @@ bool LargePhiCutout(bool largePhiCutout) {
 template <>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-bool LargePhiCutout<Polyhedron::EPhiCutout::kTrue>(bool largePhiCutout) {
+bool LargePhiCutout<Polyhedron::EPhiCutout::kTrue>(bool /*largePhiCutout*/) {
   return false;
 }
 
 template <>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-bool LargePhiCutout<Polyhedron::EPhiCutout::kLarge>(bool largePhiCutout) {
+bool LargePhiCutout<Polyhedron::EPhiCutout::kLarge>(bool /*largePhiCutout*/) {
   return true;
 }
 
@@ -587,7 +587,7 @@ VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
 void PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::ScalarDistanceToEndcaps(
     UnplacedPolyhedron const &polyhedron,
-    bool goingRight,
+    bool /*goingRight*/,
     Vector3D<Precision> const &point,
     Vector3D<Precision> const &direction,
     Precision &distance) {
@@ -716,17 +716,17 @@ PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::InPhiCut
     bool largePhiCutout,
     Vector3D<typename Backend::precision_v> const &point) {
   typedef typename Backend::bool_v Bool_t;
-  Bool_t first  = point.Dot(segment.phi.GetNormal(0)) +
-                  segment.phi.GetDistance(0) >= 0;
-  Bool_t second = point.Dot(segment.phi.GetNormal(1)) +
-                  segment.phi.GetDistance(1) >= 0;
+  Bool_t pointSeg0  = point.Dot(segment.phi.GetNormal(0)) +
+                      segment.phi.GetDistance(0) >= 0;
+  Bool_t pointSeg1 = point.Dot(segment.phi.GetNormal(1)) +
+                     segment.phi.GetDistance(1) >= 0;
   // For a cutout larger than 180 degrees, the point is in the wedge if it is
   // in front of at least one plane.
   if (LargePhiCutout<phiCutoutT>(largePhiCutout)) {
-    return first || second;
+    return pointSeg0 || pointSeg1;
   }
   // Otherwise it should be in front of both planes
-  return first && second;
+  return pointSeg0 && pointSeg1;
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT,
@@ -910,7 +910,8 @@ PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::ScalarDi
   // SW: Add a check if actually inside ( required by navigation )
   // TODO: check if this is optimal way
   if( inBounds && ScalarSegmentContainsKernel( unplaced,localPoint, zIndex ) ) {
-      return -1.;
+      // return -1.;  // -1 returned causes trouble in Geant4 jobs
+    return kInfinity;
   }
 
   // Traverse Z-segments left or right depending on sign of direction
@@ -918,7 +919,7 @@ PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::ScalarDi
 
   Precision distance = kInfinity;
   if (goingRight) {
-    for (int zMax = unplaced.GetZSegmentCount(); zIndex < zMax; ++zIndex) {
+    for (int zSegCount = unplaced.GetZSegmentCount(); zIndex < zSegCount; ++zIndex) {
       distance = DistanceToInZSegment<kScalar>(unplaced, zIndex, localPoint, localDirection);
       // No segment further away can be at a shorter distance to the point, so
       // if a valid distance is found, only endcaps remain to be investigated
@@ -986,7 +987,7 @@ PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::ScalarDi
     UnplacedPolyhedron const &unplaced,
     Vector3D<Precision> const &point,
     Vector3D<Precision> const &direction,
-    const Precision stepMax) {
+    const Precision /*stepMax*/) {
 
   int zIndex = FindZSegment<kScalar>(unplaced, point[2]);
   // Don't go out of bounds

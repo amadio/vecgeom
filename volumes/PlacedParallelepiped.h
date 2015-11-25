@@ -11,7 +11,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedParallelepiped; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedParallelepiped );
+VECGEOM_DEVICE_DECLARE_CONV( PlacedParallelepiped )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -99,7 +99,7 @@ public:
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const* ConvertToRoot() const override;
 #endif
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
   virtual ::VUSolid const* ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4

@@ -69,6 +69,27 @@ UnplacedTrapezoid::UnplacedTrapezoid(Precision pDz, Precision pTheta, Precision 
     MakePlanes();
 }
 
+// needed for Geant4 STEP interface
+UnplacedTrapezoid::UnplacedTrapezoid(double dx, double dy, double dz, double)
+  : UnplacedTrapezoid(dx,dy,dz)
+
+{
+  Assert(false, "*** ERROR: STEP-based trapezoid constructor called, NOT PROPERLY IMPLEMENTED in VecGeom: please contact GeantV developers and file a bug report.\n");
+ }
+
+// constructor for a Trd
+UnplacedTrapezoid::UnplacedTrapezoid(double dx1, double dx2, double dy1, double dy2, double dz)
+  : UnplacedTrapezoid(dz,0.,0.,dy1,dx1,dx2,0.,dy2,dx1,dx2,0.)
+{ }
+
+// constructor for a Parallelepiped-like trapezoid
+UnplacedTrapezoid::UnplacedTrapezoid(double dx, double dy, double dz, double alpha, double theta, double phi)
+  : UnplacedTrapezoid(dz,theta,phi,dy,dx,dx,0.,dy,dx,dx,0.)
+{
+  fTanAlpha1 = std::tan(alpha);
+  fTanAlpha2 = fTanAlpha1;
+}
+
 UnplacedTrapezoid::UnplacedTrapezoid(Precision const* params )
   : fDz( params[0] )
   , fTheta( params[1] )
@@ -306,10 +327,12 @@ bool UnplacedTrapezoid::MakePlane(
     printf("\tcorner 3: (%f; %f; %f)\n", p3.x(), p3.y(), p3.z());
     printf("\tcorner 4: (%f; %f; %f)\n", p4.x(), p4.y(), p4.z());
     good = false;
-
-    //Assert( false );
+    //Assert( good );
   }
-  else {
+
+  // cms.gdml does contain some bad trap corners... go ahead and try to build them anyway
+//  else {
+
     // a,b,c correspond to the x/y/z components of the
     // normal vector to the plane
 
@@ -351,7 +374,8 @@ bool UnplacedTrapezoid::MakePlane(
 
     sideAreas[iplane] = 0.5* ( Vcross.Mag() + v13.Cross(v14).Mag() );
     good = true;
-  }
+
+  // } // end of else
   return good;
 }
 
@@ -694,7 +718,21 @@ void UnplacedTrapezoid::fromCornersToParameters( TrapCorners_t const pt) {
 #if defined(VECGEOM_USOLIDS)
   VECGEOM_CUDA_HEADER_BOTH
   std::ostream& UnplacedTrapezoid::StreamInfo(std::ostream &os) const {
-    Assert( 0 ); // Not implemented yet
+    int oldprc = os.precision(16);
+    os << "-----------------------------------------------------------\n"
+       << "     *** Dump for solid - " << GetEntityType() << " ***\n"
+       << "     ===================================================\n"
+       << " Solid type: Trapezoid\n"
+       << " Parameters: \n"
+       << "     half lengths X1,X2: " << fDx1 <<"mm, "<< fDx2 <<"mm \n"
+       << "     half lengths Y1,Y2: " << fDy1 <<"mm, "<< fDy2 <<"mm \n"
+       << "     half length Z: " << fDz << "mm \n"
+       << "     Solid axis angles: Theta=" << fTheta*kRadToDeg <<"deg, "
+       << " Phi="<< fPhi*kRadToDeg <<"deg\n"
+       << "     Face axis angles: TanAlpha1=" << fTanAlpha1*kRadToDeg <<"deg, "
+       << " TanAlpha2="<< fTanAlpha2*kRadToDeg <<"deg\n"
+       << "-----------------------------------------------------------\n";
+    os.precision(oldprc);
     return os;
   }
 #endif

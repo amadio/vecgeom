@@ -310,6 +310,27 @@ bool UnplacedTube::IsConvex() const{
     return;
   }
 
+#if defined(VECGEOM_USOLIDS)
+  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& UnplacedTube::StreamInfo(std::ostream &os) const {
+    int oldprc = os.precision(16);
+    os << "-----------------------------------------------------------\n"
+       << "     *** Dump for solid - tube ***\n"
+       << "     ===================================================\n"
+       << " Solid type: "<< GetEntityType() <<"\n"
+       << " Parameters: \n"
+       << "     Tube Radii Rmin, Rmax: " << fRmin <<"mm, "<< fRmax <<"mm \n"
+       << "     Half-length Z = "<< fZ <<"mm\n";
+    if(fDphi<kTwoPi) {
+        os << "     Wedge starting angles: fSPhi=" << fSphi*kRadToDeg <<"deg, "
+           << ", fDphi="<<fDphi*kRadToDeg <<"deg\n";
+    }
+    os << "-----------------------------------------------------------\n";
+    os.precision(oldprc);
+    return os;
+  }
+#endif
+
 
 #ifdef VECGEOM_CUDA_INTERFACE
 

@@ -19,7 +19,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedParaboloid; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedParaboloid );
+VECGEOM_DEVICE_DECLARE_CONV( PlacedParaboloid )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -119,7 +119,7 @@ public:
     
 #if !defined(VECGEOM_NVCC)
     virtual
-    bool Normal(Vector3D<Precision> const &, Vector3D<double> &normal) const override {
+    bool Normal(Vector3D<Precision> const &, Vector3D<double> &/*normal*/) const override {
       Assert(0, "Normal with point only not implemented for Paraboloid.\n");
       return false;
     }
@@ -162,7 +162,7 @@ public:
 #ifdef VECGEOM_ROOT
     virtual TGeoShape const* ConvertToRoot() const override;
 #endif
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
     virtual ::VUSolid const* ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4

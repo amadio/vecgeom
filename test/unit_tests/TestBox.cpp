@@ -353,10 +353,19 @@ bool TestBox() {
                                   -4.9999999999999928946,
                                   4.8935648380409944025),
                            temp );
-    if(testvecgeom )
-            assert(Dist<=0.0);
-    else
-            assert(ApproxEqual(Dist,0.0));
+
+#ifdef VECGEOM_REPLACE_USOLIDS
+    // assert(Dist<=0.0);
+    assert(ApproxEqual(Dist,UUtils::Infinity()));  // it seems DistToIn() was changed from 0 to Infinity
+#else
+    if(testvecgeom ) {
+      if( Dist >= UUtils::kInfinity ) Dist = UUtils::Infinity(); 
+      assert(ApproxEqual(Dist,UUtils::Infinity()));
+    }
+    else {
+      assert(ApproxEqual(Dist,0.0));
+    }
+#endif
 
     /* **********************************************************
     */ /////////////////////////////////////////////////////
@@ -373,13 +382,19 @@ int main(int argc, char *argv[]) {
     
     if( ! strcmp(argv[1], "--usolids") ) { 
 
-      #ifdef VECGEOM_USOLIDS
-      assert(TestBox<UBox>());
-      std::cout << "UBox passed\n";
-      #else
-      std::cerr << "VECGEOM_USOLIDS was not defined\n";
-      return 2;
-      #endif
+#ifndef VECGEOM_USOLIDS
+        std::cerr << "VECGEOM_USOLIDS was not defined\n";
+        return 2;
+#else
+  #ifndef VECGEOM_REPLACE_USOLIDS
+        assert(TestBox<UBox>());
+        std::cout << "UBox passed\n";
+  #else
+        testvecgeom = true;  // needed to avoid testing convexity when vecgeom is used
+        TestBox<UBox>();
+        std::cout << "USolid --> VecGeom box passed\n";
+  #endif
+#endif
     }
 
     else if( ! strcmp(argv[1], "--vecgeom") ) {

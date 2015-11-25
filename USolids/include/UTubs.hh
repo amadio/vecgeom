@@ -37,11 +37,37 @@
 //
 // 19.10.12 Marek Gayer
 //          Created from original implementation in Geant4
+// 29.07.15 Guilherme Lima - Add VecGeom implementation as option for underlying implementation
 // --------------------------------------------------------------------
 
 #ifndef UTUBS_HH
 #define UTUBS_HH
 
+#ifdef VECGEOM_REPLACE_USOLIDS
+
+//============== here for VecGeom-based implementation
+#include "base/Transformation3D.h"
+#include "volumes/LogicalVolume.h"
+#include "volumes/SpecializedTube.h"
+#include "volumes/kernel/shapetypes/TubeTypes.h"
+#include "volumes/UnplacedTube.h"
+
+class UTubs: public vecgeom::SpecializedTube<vecgeom::translation::kIdentity,
+                                             vecgeom::rotation::kIdentity,
+                                             vecgeom::TubeTypes::UniversalTube> {
+  // just forwards UTubs to vecgeom tube
+  typedef typename vecgeom::SpecializedTube<vecgeom::translation::kIdentity,
+                                            vecgeom::rotation::kIdentity,
+                                            vecgeom::TubeTypes::UniversalTube> Shape_t;
+  // inherits all constructors
+  using Shape_t::Shape_t;
+};
+
+//============== end of VecGeom-based implementation
+
+#else
+
+//============== here for USolids-based implementation
 #include "VUSolid.hh"
 #include <sstream>
 
@@ -189,4 +215,7 @@ class UTubs : public VUSolid
 
 #include "UTubs.icc"
 
-#endif
+//============== end of USolids-based implementation
+
+#endif  // VECGEOM_REPLACE_USOLIDS
+#endif  // UTubs_HH

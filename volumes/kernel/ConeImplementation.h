@@ -242,7 +242,7 @@ struct ConeImplementation {
      Transformation3D const &transformation,
      Vector3D<typename Backend::precision_v> const &point,
      Vector3D<typename Backend::precision_v> const &direction,
-     typename Backend::precision_v const &stepMax ) {
+     typename Backend::precision_v const &/*stepMax*/ ) {
 
      // first of all: transform points and directions
       Vector3D<typename Backend::precision_v> p = transformation.Transform<transCodeT,rotCodeT>(point);
@@ -1225,7 +1225,7 @@ struct ConeImplementation {
        UnplacedCone const &unplaced,
        Vector3D<typename Backend::precision_v> p,
        Vector3D<typename Backend::precision_v> v,
-       typename Backend::precision_v const &stepMax
+       typename Backend::precision_v const &/*stepMax*/
        ) {
 
 

@@ -39,7 +39,7 @@ TGeoShape const* PlacedParaboloid::ConvertToRoot() const {
 }
 #endif
 
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
 ::VUSolid const* PlacedParaboloid::ConvertToUSolids() const {
     std::cerr << "**************************************************************\n";
     std::cerr << "WARNING: Paraboloid unsupported for USolids.; returning NULL\n";

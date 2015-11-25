@@ -10,10 +10,15 @@
 #include "volumes/PlacedVolume.h"
 #include "volumes/UnplacedPolyhedron.h"
 
+class UPolyhedraHistorical;
+struct PolyhedraSideRZ { // Avoid clash in class name UPolyhedraSideRZ
+   vecgeom::Precision r, z;  // start of vector
+};
+
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedPolyhedron; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedPolyhedron );
+VECGEOM_DEVICE_DECLARE_CONV( PlacedPolyhedron )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -162,9 +167,37 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   int PhiSegmentIndex(Vector3D<Precision> const &point) const;
 
+  bool IsOpen() const { return (GetUnplacedVolume()->GetPhiDelta()<kTwoPi); }
+  bool IsGeneric() const { return false; }
+  Precision GetStartPhi() const { return GetUnplacedVolume()->GetPhiStart(); }
+  Precision GetEndPhi() const   { return GetUnplacedVolume()->GetPhiEnd(); }
+  int GetNumSide() const { return 2*GetUnplacedVolume()->GetSideCount(); }
+  int GetNumRZCorner() const { return 2*GetZPlanes().size(); }  // nCorners = 2*nPlanes
+
+  UPolyhedraHistorical* GetOriginalParameters() const {
+    assert(false && "*** Can method PlacedPolycone::GetOriginalParameters() be deprecated?\n");
+    return NULL;
+  }
+  bool Reset() {
+    assert(false && "*** Method PlacedPolycone::Reset() has been deprecated, no 'originalParameters' to be used for reInit().\n");
+    return false;
+  }
+
   // CUDA specific
 
   virtual int memory_size() const override { return sizeof(*this); }
+
+  virtual bool Normal(Vector3D<Precision> const &point,
+                      Vector3D<Precision> &normal) const override {
+    return GetUnplacedVolume()->Normal(point,normal);
+  }
+
+#if defined(VECGEOM_USOLIDS)
+//  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& StreamInfo(std::ostream &os) const override {
+    return GetUnplacedVolume()->StreamInfo(os);
+  }
+#endif
 
   // Comparison specific
 #ifndef VECGEOM_NVCC
@@ -172,7 +205,7 @@ public:
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const* ConvertToRoot() const override;
 #endif
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
   virtual ::VUSolid const* ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4

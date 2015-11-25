@@ -35,25 +35,27 @@ VPlacedVolume const* PlacedTrapezoid::ConvertToUnspecialized() const {
 
 #ifdef VECGEOM_ROOT
 TGeoShape const* PlacedTrapezoid::ConvertToRoot() const {
-  return new TGeoTrap( GetLabel().c_str(), GetDz(), GetTheta()*kRadToDeg, GetPhi()*kRadToDeg,
-                       GetDy1(), GetDx1(), GetDx2(), GetAlpha1()*kRadToDeg,
-                       GetDy2(), GetDx3(), GetDx4(), GetAlpha2()*kRadToDeg );
+  return new TGeoTrap( GetLabel().c_str(), GetZHalfLength(), GetTheta()*kRadToDeg, GetPhi()*kRadToDeg,
+                       GetYHalfLength1(), GetXHalfLength1(), GetXHalfLength2(), GetAlpha1()*kRadToDeg,
+                       GetYHalfLength2(), GetXHalfLength3(), GetXHalfLength4(), GetAlpha2()*kRadToDeg );
 }
 #endif
 
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
 ::VUSolid const* PlacedTrapezoid::ConvertToUSolids() const {
-  return new ::UTrap(GetLabel().c_str(), GetDz(), GetTheta(), GetPhi(),
-                     GetDy1(), GetDx1(), GetDx2(), GetAlpha1(),
-                     GetDy2(), GetDx3(), GetDx4(), GetAlpha2());
+  const UnplacedTrapezoid& unp = *(GetUnplacedVolume());
+  return new ::UTrap(GetLabel().c_str(), unp.GetDz(), unp.GetTheta(), unp.GetPhi(),
+                     unp.GetDy1(), unp.GetDx1(), unp.GetDx2(), unp.GetAlpha1(),
+                     unp.GetDy2(), unp.GetDx3(), unp.GetDx4(), unp.GetAlpha2());
 }
 #endif
 
 #ifdef VECGEOM_GEANT4
 G4VSolid const* PlacedTrapezoid::ConvertToGeant4() const {
-  return new G4Trap(GetLabel().c_str(), GetDz(), GetTheta(), GetPhi(),
-                     GetDy1(), GetDx1(), GetDx2(), GetAlpha1(),
-                     GetDy2(), GetDx3(), GetDx4(), GetAlpha2());
+  const UnplacedTrapezoid& unp = *(GetUnplacedVolume());
+  return new G4Trap(GetLabel().c_str(), unp.GetDz(), unp.GetTheta(), unp.GetPhi(),
+                     unp.GetDy1(), unp.GetDx1(), unp.GetDx2(), unp.GetAlpha1(),
+                     unp.GetDy2(), unp.GetDx3(), unp.GetDx4(), unp.GetAlpha2());
 }
 #endif
 
@@ -66,6 +68,24 @@ G4VSolid const* PlacedTrapezoid::ConvertToGeant4() const {
 VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC( SpecializedTrapezoid )
 
 #endif // VECGEOM_NVCC
+
+void PlacedTrapezoid::SetAllParameters(double dz, double theta, double phi,
+                                       double dy1, double dx1, double dx2, double alp1,
+                                       double dy2, double dx3, double dx4, double alp2) {
+
+    UnplacedTrapezoid& utrap = *const_cast<UnplacedTrapezoid*>(GetUnplacedVolume());
+    double mm = 0.1; // to cm
+    utrap.fDz = dz*mm;
+    utrap.fDy1 = dy1*mm;
+    utrap.fDy2 = dy2*mm;
+    utrap.fDx1 = dx1*mm;
+    utrap.fDx2 = dx2*mm;
+    utrap.fDx3 = dx3*mm;
+    utrap.fDx4 = dx4*mm;
+    utrap.fTanAlpha1 = dz*mm;
+    utrap.fTanAlpha2 = dz*mm;
+}
+
 
 /*
 void PlacedTrapezoid::ComputeBoundingBox() {

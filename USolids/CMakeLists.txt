@@ -35,6 +35,20 @@ if(NOT USOLIDS_USE_UVECTOR3)
   list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UVector3.cc)
 endif()
 
+if(USOLIDS_VECGEOM)
+  list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UBox.cc)
+  list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UCons.cc)
+  list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UOrb.cc)
+  list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UParaboloid.cc)
+  #list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UPolycone.cc)
+  #list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UPolyhedra.cc)
+  list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/USphere.cc)
+  list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UTrap.cc)
+  list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UTrd.cc)
+  list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UTubs.cc)
+  list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UTorus.cc)
+endif()
+
 file(GLOB headers_vecgeom
   ${VECGEOM_DIR}/volumes/*Paraboloid*
   ${VECGEOM_DIR}/volumes/kernel/*Paraboloid*

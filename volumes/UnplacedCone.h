@@ -20,7 +20,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class UnplacedCone; )
-VECGEOM_DEVICE_DECLARE_CONV( UnplacedCone );
+VECGEOM_DEVICE_DECLARE_CONV( UnplacedCone )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -38,7 +38,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
  *  fRmax1  outside radius at -fDz
  *  fRmax2  outside radius at +fDz
  *  fSPhi starting angle of the segment in radians
- *  fDPhi delta angle of the segment in radiansdz
+ *  fDPhi delta angle of the segment in radians
  */
 class UnplacedCone : public VUnplacedVolume, public AlignedBase {
 
@@ -96,7 +96,7 @@ public:
   Precision fCosEPhi;
 
   Precision fCosHDPhi;
-Precision fSinEPhi;
+  Precision fSinEPhi;
   Precision fCosHDPhiIT;
   Precision fCosHDPhiOT;
   Precision fTanRMin;
@@ -141,9 +141,8 @@ Precision fSinEPhi;
    fCosSPhi(0),
    fSinSPhi(0),
    fCosEPhi(0),
-
    fCosHDPhi(0),
- fSinEPhi(0),
+   fSinEPhi(0),
    fCosHDPhiIT(0),
    fCosHDPhiOT(0),
    fTanRMin(0),
@@ -260,6 +259,14 @@ Precision fSinEPhi;
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetOuterOffsetSquare() const {return fOuterOffset*fOuterOffset;}
 
+    void SetRmin1(Precision const& arg) { fRmin1 = arg; }
+    void SetRmax1(Precision const& arg) { fRmax1 = arg; }
+    void SetRmin2(Precision const& arg) { fRmin2 = arg; }
+    void SetRmax2(Precision const& arg) { fRmax2 = arg; }
+    void SetDz(Precision const& arg)    { fDz    = arg; }
+    void SetSPhi(Precision const& arg)  { fSPhi  = arg; }
+    void SetDPhi(Precision const& arg)  { fDPhi  = arg; }
+
     VECGEOM_CUDA_HEADER_BOTH
     Precision alongPhi1x() const { return fAlongPhi1x; }
     VECGEOM_CUDA_HEADER_BOTH
@@ -275,11 +282,22 @@ Precision fSinEPhi;
     VECGEOM_CUDA_HEADER_BOTH
     bool IsFullPhi() const { return fDPhi == kTwoPi; }
 
-    virtual int memory_size() const { return sizeof(*this); }
+    // Safety From Inside R, used for UPolycone Section
+    Precision SafetyToPhi(Vector3D<Precision> const& p, Precision rho, bool& outside) const;
+
+    double SafetyFromInsideR(Vector3D<Precision> const& p, double rho, bool /*precise = false*/) const;
+
+    double SafetyFromOutsideR(Vector3D<Precision> const& p, double rho, bool /*precise = false*/ ) const;
+
+    virtual int memory_size() const final { return sizeof(*this); }
 
     VECGEOM_CUDA_HEADER_BOTH
-    virtual void Print() const;
-    virtual void Print(std::ostream &os) const;
+    virtual void Print() const final;
+    virtual void Print(std::ostream &os) const final;
+
+#if defined(VECGEOM_USOLIDS)
+  std::ostream& StreamInfo(std::ostream &os) const;
+#endif
 
     VECGEOM_CUDA_HEADER_DEVICE
      virtual VPlacedVolume* SpecializedVolume(
@@ -289,7 +307,7 @@ Precision fSinEPhi;
    #ifdef VECGEOM_NVCC
          const int id,
    #endif
-         VPlacedVolume *const placement = NULL) const;
+         VPlacedVolume *const placement = NULL) const final;
 
     template <TranslationCode transCodeT, RotationCode rotCodeT>
      VECGEOM_CUDA_HEADER_DEVICE
@@ -339,6 +357,76 @@ Precision fSinEPhi;
 #endif // !VECGEOM_NVCC
 
 };
+
+VECGEOM_INLINE
+Precision UnplacedCone::SafetyToPhi(Vector3D<Precision> const& p, Precision rho, bool& outside) const {
+
+  Precision safePhi = 0.0;
+  outside = false;
+
+  Precision cosPsi = (p.x() * fCosCPhi + p.y() * fSinCPhi) / rho;
+  if (cosPsi < std::cos(fDPhi * 0.5)) {
+    // Point lies outside phi range
+    outside = true;
+    if ((p.y() * fCosCPhi - p.x() * fSinCPhi) <= 0.0) {
+      safePhi = std::fabs(p.x() * fSinSPhi - p.y() * fCosSPhi);
+    }
+    else {
+      safePhi = std::fabs(p.x() * fSinEPhi - p.y() * fCosEPhi);
+    }
+  }
+
+  return safePhi;
+}
+
+VECGEOM_INLINE
+double UnplacedCone::SafetyFromInsideR(Vector3D<Precision> const& p, double rho, bool /*precise = false*/) const {
+
+  double safe = 0.0;
+  double safeR1 = kInfinity;
+  if (fRmin1 || fRmin2) {
+    double pRMin  = fTanRMin * p.z() + (fRmin1 + fRmin2) * 0.5;
+    safeR1  = (rho - pRMin) * fInvSecRMin;
+  }
+
+  double pRMax  = fTanRMax * p.z() + (fRmax1 + fRmax2) * 0.5;
+  double safeR2  = (pRMax - rho) * fInvSecRMax;
+  safe = Min(safeR1, safeR2);
+
+  // Check if phi divided, Calc distances closest phi plane
+  if (!IsFullPhi()) {
+    // Above/below central phi of UCons?
+    double safePhi1 = p.y() * fCosSPhi - p.x() * fSinSPhi;
+    double safePhi2 = p.x() * fSinEPhi - p.y() * fCosEPhi;
+    safe = Min(safe, Min(safePhi1, safePhi2));
+  }
+
+  if (safe < 0.0) safe = 0.0;
+  return safe;
+}
+
+VECGEOM_INLINE
+double UnplacedCone::SafetyFromOutsideR(Vector3D<Precision> const& p, double rho, bool /*precise = false*/) const {
+
+  double pRMax = fTanRMax * p.z() + (fRmax1 + fRmax2) * 0.5;
+  double safe = (rho - pRMax) * fInvSecRMax;
+  if (fRmin1 || fRmin2) {
+    double pRMin  = fTanRMin * p.z() + (fRmin1 + fRmin2) * 0.5;
+    double safeR1 = (rho - pRMin) * fInvSecRMin;
+    safe = Min(safe, safeR1);
+  }
+
+  if (!IsFullPhi()) {
+    bool outside = false;
+    double safePhi = SafetyToPhi(p,rho,outside);
+    if ((outside) && (safePhi > safe)) {
+      safe = safePhi;
+    }
+  }
+
+  if (safe < 0.0) safe = 0.0;
+  return safe; // not accurate safety
+}
 
 
 } }  // End global namespace

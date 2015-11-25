@@ -74,9 +74,12 @@ private:
         bool fEqualRmax;
         bool fContinuityOverAll;
         bool fConvexityPossible;
+        VECGEOM_CUDA_HEADER_BOTH
         bool CheckContinuityInZPlane(const double rOuter[],const double zPlane[]);
-        bool CheckContinuityInRmax(const std::vector<Precision> &rOuter);
-        bool CheckContinuityInSlope(const std::vector<Precision> &rOuter, const std::vector<Precision> &zPlane);
+        VECGEOM_CUDA_HEADER_BOTH
+        bool CheckContinuityInRmax(const Vector<Precision> &rOuter);
+        VECGEOM_CUDA_HEADER_BOTH
+        bool CheckContinuityInSlope(const Vector<Precision> &rOuter, const Vector<Precision> &zPlane);
 
 public:
     VECGEOM_CUDA_HEADER_BOTH
@@ -93,25 +96,30 @@ public:
     VECGEOM_CUDA_HEADER_BOTH
     UnplacedPolycone( Precision phistart, Precision deltaphi,
             int Nz,
-            Precision * z,
-            Precision * rmin,
-            Precision * rmax
+            Precision const* z,
+            Precision const* rmin,
+            Precision const* rmax
             ) :
-	            fStartPhi(phistart),
+                fStartPhi(phistart),
                 fDeltaPhi(deltaphi),
                 fNz(Nz),
                 fSections(),
                 fZs(Nz),
-				fEqualRmax(true),
-				fContinuityOverAll(true),
-				fConvexityPossible(true)
-
-
-
+                fEqualRmax(true),
+                fContinuityOverAll(true),
+                fConvexityPossible(true)
     {
         // init internal members
         Init(phistart, deltaphi, Nz, z, rmin, rmax);
     }
+
+    // alternative constructor, required for integration with Geant4
+    VECGEOM_CUDA_HEADER_BOTH
+    UnplacedPolycone(Precision phiStart,   // initial phi starting angle
+                     Precision phiTotal,   // total phi angle
+                     int     numRZ,        // number corners in r,z space
+                     Precision const* r,   // r coordinate of these corners
+                     Precision const* z);  // z coordinate of these corners
 
     //Function to check the convexity
     VECGEOM_CUDA_HEADER_BOTH
@@ -119,10 +127,8 @@ public:
 
     VECGEOM_CUDA_HEADER_BOTH
     unsigned int GetNz() const { return fNz; }
-
     VECGEOM_CUDA_HEADER_BOTH
     int GetNSections() const {return fSections.size();}
-
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetStartPhi() const {return fStartPhi;}
     VECGEOM_CUDA_HEADER_BOTH
@@ -153,6 +159,7 @@ public:
       return fSections[index];
     }
 
+    VECGEOM_CUDA_HEADER_BOTH
     Precision GetRminAtPlane( int index ) const {
       int nsect = GetNSections();
       assert(index>=0 && index<=nsect);
@@ -160,6 +167,7 @@ public:
       else             return fSections[index].fSolid->GetRmin1();
     }
 
+    VECGEOM_CUDA_HEADER_BOTH
     Precision GetRmaxAtPlane( int index ) const {
       int nsect = GetNSections();
       assert(index>=0 || index<=nsect);
@@ -167,6 +175,7 @@ public:
       else             return fSections[index].fSolid->GetRmax1();
     }
 
+    VECGEOM_CUDA_HEADER_BOTH
     Precision GetZAtPlane( int index ) const {
       assert(index>=0 || index<=GetNSections());
       return fZs[index];
@@ -222,10 +231,10 @@ public:
     // these methods are required by VUnplacedVolume
     //
 public:
-    virtual int memory_size() const { return sizeof(*this); }
+    virtual int memory_size() const final { return sizeof(*this); }
 
     VECGEOM_CUDA_HEADER_BOTH
-    virtual void Print() const;
+    virtual void Print() const final;
 
     template <TranslationCode transCodeT, RotationCode rotCodeT>
     VECGEOM_CUDA_HEADER_DEVICE
@@ -249,7 +258,7 @@ public:
 
     private:
 
-      virtual void Print(std::ostream &os) const;
+      virtual void Print(std::ostream &os) const final;
 
       VECGEOM_CUDA_HEADER_DEVICE
       virtual VPlacedVolume* SpecializedVolume(
@@ -259,7 +268,7 @@ public:
     #ifdef VECGEOM_NVCC
           const int id,
     #endif
-          VPlacedVolume *const placement = NULL) const;
+          VPlacedVolume *const placement = NULL) const final;
 
 
 }; // end class UnplacedPolycone

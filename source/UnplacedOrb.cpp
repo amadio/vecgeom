@@ -48,7 +48,7 @@ UnplacedOrb::UnplacedOrb() :
   }
   
   VECGEOM_CUDA_HEADER_BOTH
-  void UnplacedOrb::SetRadius(const Precision r)
+  void UnplacedOrb::SetRadius(Precision r)
   {
     fR=r;
     fRTolerance =  Max(frTolerance, fepsilon * r);

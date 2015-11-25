@@ -23,6 +23,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(TrapezoidImplementation, TranslationCode
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class PlacedTrapezoid;
+using TrapSidePlane = vecgeom::UnplacedTrapezoid::TrapSidePlane;
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 struct TrapezoidImplementation {
@@ -234,7 +235,7 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToIn(
     Transformation3D const &transformation,
     Vector3D<typename Backend::precision_v> const &masterPoint,
     Vector3D<typename Backend::precision_v> const &masterDir,
-    typename Backend::precision_v const &stepMax,
+    typename Backend::precision_v const &/*stepMax*/,
     typename Backend::precision_v &distance) {
 
   typedef typename Backend::precision_v Float_t;
@@ -386,7 +387,7 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToOut(
     UnplacedTrapezoid const &unplaced,
     Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> const &dir,
-    typename Backend::precision_v const &stepMax,
+    typename Backend::precision_v const &/*stepMax*/,
     typename Backend::precision_v &distance) {
 
   typedef typename Backend::precision_v Float_t;
@@ -513,7 +514,7 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::SafetyToOut(
 
   Bool_t done(false);
 
-  // If point is outside, set distance to zero
+  // If point is outside, set safety to zero
   safety = unplaced.GetDz() - Abs(point.z());
   MaskedAssign( safety<0.0, 0.0, &safety );
   done |= safety==0.0;

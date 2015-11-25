@@ -66,7 +66,7 @@ public:
     delete fPlaced;
   }    
     
-  virtual int memory_size() const { return ( sizeof(*this) + fPlaced->memory_size() ); } 
+  virtual int memory_size() const final { return ( sizeof(*this) + fPlaced->memory_size() ); }
 
   #ifdef VECGEOM_CUDA_INTERFACE
   virtual size_t DeviceSizeOf() const { return DevicePtr<cuda::UnplacedScaledShape>::SizeOf(); }
@@ -113,9 +113,9 @@ public:
   virtual std::string GetEntityType() const { return "ScaledShape";}
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void Print() const;
+  virtual void Print() const final;
 
-  virtual void Print(std::ostream &os) const;
+  virtual void Print(std::ostream &os) const final;
 
 
   template <TranslationCode trans_code, RotationCode rot_code>
@@ -148,7 +148,7 @@ private:
  #ifdef VECGEOM_NVCC
        const int id,
  #endif
-       VPlacedVolume *const placement = NULL) const {
+       VPlacedVolume *const placement = NULL) const final {
     return CreateSpecializedVolume(volume, transformation, trans_code, rot_code,
  #ifdef VECGEOM_NVCC
                                    id,

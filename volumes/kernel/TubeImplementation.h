@@ -416,7 +416,7 @@ struct TubeImplementation {
         Transformation3D const &transformation,
         Vector3D<typename Backend::precision_v> const &point,
         Vector3D<typename Backend::precision_v> const &direction,
-        typename Backend::precision_v const &stepMax,
+        typename Backend::precision_v const &/*stepMax*/,
         typename Backend::precision_v &distance) {
       
     using namespace TubeUtilities;
@@ -573,7 +573,7 @@ struct TubeImplementation {
       UnplacedTube const &tube,
       Vector3D<typename Backend::precision_v> const &point,
       Vector3D<typename Backend::precision_v> const &dir,
-      typename Backend::precision_v const &stepMax,
+      typename Backend::precision_v const &/*stepMax*/,
       typename Backend::precision_v &distance) {
 
     using namespace TubeTypes;

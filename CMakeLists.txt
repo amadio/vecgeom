@@ -13,7 +13,6 @@ if (NOT CMAKE_BUILD_TYPE)
 endif()
 string(TOUPPER ${CMAKE_BUILD_TYPE} _build_type)
 
-
 # Setting the C++ compiler to use
 set("${CMAKE_CXX_COMPILER_ID}" TRUE CACHE STRING "C++ Compiler")
 if (NOT GNU AND NOT Clang AND NOT Intel)
@@ -26,6 +25,7 @@ include(MacroUtilities)
 ################################################################################
 
 # Configuration options
+option(USOLIDS_VECGEOM "Forward USOLIDS volumes to their VecGeom implementation" OFF)
 
 option(CUDA "Enable compilation for CUDA." OFF)
 
@@ -212,7 +212,6 @@ elseif (${_arch_lo} MATCHES native)
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -march=${_arch_lo}")
     set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -march=${_arch_lo}")
   endif()
-  set(VECGEOM_NVCC_COMPILATION_FLAGS -g -G ${VECGEOM_NVCC_COMPILATION_FLAGS})
 else()
   if (Intel)
     if (${_arch_lo} MATCHES avx2)
@@ -306,6 +305,10 @@ if (COVERAGE_TESTING)
 endif()
 
 # Forward CMake options
+if (USOLIDS_VECGEOM)
+  set(VECGEOM_COMPILATION_FLAGS
+      "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_REPLACE_USOLIDS")
+endif()
 if (VC_ACCELERATION)
   set(VECGEOM_COMPILATION_FLAGS
       "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_VC_ACCELERATION")
@@ -774,7 +777,7 @@ set(TEST_EXECUTABLES_USOLIDS
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBoxlikeTrapezoid.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTorus.cpp
-#  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTorus2.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTorus2.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/usolidTest.cpp
 )
 
@@ -793,7 +796,7 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${CMAKE_SOURCE_DIR}/test/benchmark/BoxUnionBoxBenchmark_virtual.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/3LevelSubtractionBenchmark_virtual.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TorusBenchmark.cpp
-#  ${CMAKE_SOURCE_DIR}/test/benchmark/TorusBenchmark2.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/TorusBenchmark2.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrapezoidBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrapezoidBenchmarkScript.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/OrbBenchmark.cpp
@@ -1076,7 +1079,16 @@ endif()
 foreach(FOLDER base benchmarking management navigation volumes materials backend)
   install(DIRECTORY ${FOLDER} DESTINATION ${INSTALL_INCLUDE_DIR})
 endforeach()
-install(TARGETS vecgeom DESTINATION ${INSTALL_LIB_DIR})
+
+string(REPLACE "." ";" SYSTEM_VERSION_LIST ${CMAKE_SYSTEM_VERSION})
+list(GET SYSTEM_VERSION_LIST 0 SYSTEM_VERSION_MAJOR)
+list(GET SYSTEM_VERSION_LIST 1 SYSTEM_VERSION_MINOR)
+list(GET SYSTEM_VERSION_LIST 2 SYSTEM_VERSION_PATCH)
+if(APPLE AND ${SYSTEM_VERSION_MAJOR} LESS 14)
+   install(FILES ${PROJECT_BINARY_DIR}/libvecgeom.a DESTINATION ${INSTALL_LIB_DIR})
+else ()
+   install(TARGETS vecgeom DESTINATION ${INSTALL_LIB_DIR})
+endif ()
 if (CUDA)
   install(TARGETS vecgeomcuda DESTINATION ${INSTALL_LIB_DIR})
 endif()

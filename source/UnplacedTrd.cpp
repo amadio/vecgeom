@@ -14,7 +14,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 VECGEOM_CUDA_HEADER_BOTH
 bool UnplacedTrd::IsConvex() const{
-		  //A Trd is convex shape
+          //A Trd is convex shape
           return true;
       }
 
@@ -71,7 +71,6 @@ int UnplacedTrd::ChooseSurface() const {
         rand -= S[choice], choice++;
 
     assert(choice < 6);
-
     return choice;
 }
 
@@ -254,6 +253,26 @@ VPlacedVolume* UnplacedTrd::SpecializedVolume(
 #endif
                               placement);
 }
+
+
+#if defined(VECGEOM_USOLIDS)
+  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& UnplacedTrd::StreamInfo(std::ostream &os) const {
+    int oldprc = os.precision(16);
+    os << "-----------------------------------------------------------\n"
+       << "     *** Dump for solid - " << GetEntityType() << " ***\n"
+       << "     ===================================================\n"
+       << " Solid type: Trd\n"
+       << " Parameters: \n"
+       << "     half lengths X1,X2: " << fDX1 <<"mm, "<< fDX2 <<"mm \n"
+       << "     half lengths Y1,Y2: " << fDY1 <<"mm, "<< fDY2 <<"mm \n"
+       << "     half length Z: " << fDZ << "mm \n"
+       << "-----------------------------------------------------------\n";
+    os.precision(oldprc);
+    return os;
+  }
+#endif
+
 
 #ifdef VECGEOM_CUDA_INTERFACE
 

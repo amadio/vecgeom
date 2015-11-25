@@ -17,11 +17,30 @@
 //
 // 19.10.12 Marek Gayer
 //          Created from original implementation in Geant4
+// 09.08.15 Guilherme Lima - Add VecGeom implementation as option for underlying implementation
+//
 // --------------------------------------------------------------------
 
 #ifndef USOLIDS_UOrb
 #define USOLIDS_UOrb
 
+#ifdef VECGEOM_REPLACE_USOLIDS
+
+//============== here for VecGeom-based implementation
+#include "base/Transformation3D.h"
+#include "volumes/LogicalVolume.h"
+#include "volumes/SpecializedOrb.h"
+#include "volumes/UnplacedOrb.h"
+
+class UOrb: public vecgeom::SimpleOrb {
+    // just forwards UOrb to vecgeom::SimpleOrb
+    using vecgeom::SimpleOrb::SimpleOrb;
+};
+//============== end of VecGeom-based implementation
+
+#else
+
+//============== here for USolids-based implementation
 #include "VUSolid.hh"
 #include "UUtils.hh"
 
@@ -127,4 +146,7 @@ inline double UOrb::SurfaceArea()
   return fSurfaceArea;
 }
 
-#endif
+//============== end of USolids-based implementation
+
+#endif  // VECGEOM_REPLACE_USOLIDS
+#endif  // USOLIDS_UOrb

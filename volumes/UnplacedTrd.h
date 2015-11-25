@@ -11,7 +11,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class UnplacedTrd; )
-VECGEOM_DEVICE_DECLARE_CONV( UnplacedTrd );
+VECGEOM_DEVICE_DECLARE_CONV( UnplacedTrd )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -92,6 +92,27 @@ public:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
+  void SetAllParameters(Precision x1, Precision x2, Precision y1, Precision y2, Precision z) {
+    fDX1 = x1;
+    fDX2 = x2;
+    fDY1 = y1;
+    fDY2 = y2;
+    fDZ  = z;
+    calculateCached();
+  }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  void SetXHalfLength1(Precision arg) { fDX1 = arg; calculateCached(); }
+  VECGEOM_CUDA_HEADER_BOTH
+  void SetXHalfLength2(Precision arg) { fDX2 = arg; calculateCached(); }
+  VECGEOM_CUDA_HEADER_BOTH
+  void SetYHalfLength1(Precision arg) { fDY1 = arg; calculateCached(); }
+  VECGEOM_CUDA_HEADER_BOTH
+  void SetYHalfLength2(Precision arg) { fDY2 = arg; calculateCached(); }
+  VECGEOM_CUDA_HEADER_BOTH
+  void SetZHalfLength(Precision arg)  { fDZ  = arg; calculateCached(); }
+
+  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision dx1() const { return fDX1; }
 
@@ -143,7 +164,7 @@ public:
   VECGEOM_INLINE
   Precision calfy() const { return fCalfY; }
 
-  virtual int memory_size() const { return sizeof(*this); }
+  virtual int memory_size() const final { return sizeof(*this); }
 
   //Function to check the convexity
   VECGEOM_CUDA_HEADER_BOTH
@@ -195,7 +216,7 @@ public:
 #endif
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void Print() const;
+  virtual void Print() const final;
 
   std::string GetEntityType() const { return "Trd";}
 
@@ -214,9 +235,13 @@ public:
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
 #endif
 
+#if defined(VECGEOM_USOLIDS)
+  std::ostream& StreamInfo(std::ostream &os) const;
+#endif
+
 private:
 
-  virtual void Print(std::ostream &os) const;
+  virtual void Print(std::ostream &os) const final;
 
   VECGEOM_CUDA_HEADER_DEVICE
   virtual VPlacedVolume* SpecializedVolume(
@@ -226,7 +251,7 @@ private:
 #ifdef VECGEOM_NVCC
       const int id,
 #endif
-      VPlacedVolume *const placement = NULL) const;
+      VPlacedVolume *const placement = NULL) const final;
 };
 
 } } // end global namespace

@@ -702,7 +702,8 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
 
   Boolean_t inside = Backend::kFalse;
   inside = safety[0] < 0 && safety[1] < 0 && safety[2] < 0;
-  MaskedAssign(!done && inside, -1., &distance);
+  // MaskedAssign(!done && inside, -1., &distance);  // -1 causes problems in Geant4 navigation (track travels back in time)
+  MaskedAssign(!done && inside, kInfinity, &distance);
   done |= inside;
   if ( IsFull(done) ) return;
 
@@ -755,7 +756,7 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
     Vector3D<Precision> const &dimensions,
     Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> const &direction,
-    typename Backend::precision_v const &stepMax,
+    typename Backend::precision_v const &/*stepMax*/,
     typename Backend::precision_v &distance) {
 
     typedef typename Backend::precision_v Floating_t;

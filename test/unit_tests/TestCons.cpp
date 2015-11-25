@@ -1117,13 +1117,11 @@ bool TestCons()
 }
 
 #ifdef VECGEOM_USOLIDS
-struct USOLIDSCONSTANTS
-{
-  static constexpr double kInfinity = DBL_MAX;//UUtils::kInfinity;
+struct USOLIDSCONSTANTS {
+  static constexpr double kInfinity = DBL_MAX;
 };
 #endif
-struct VECGEOMCONSTANTS
-{
+struct VECGEOMCONSTANTS {
   static constexpr double kInfinity = vecgeom::kInfinity;
 };
 
@@ -1136,12 +1134,18 @@ int main(int argc, char *argv[]) {
   }
 
   if( ! strcmp(argv[1], "--usolids") ) {
-#ifdef VECGEOM_USOLIDS
-    TestCons<USOLIDSCONSTANTS, UCons >();
-    std::cout << "UCons passed\n";
+#ifndef VECGEOM_USOLIDS
+        std::cerr << "VECGEOM_USOLIDS was not defined\n";
+        return 2;
 #else
-    std::cerr << "VECGEOM_USOLIDS was not defined\n";
-    return 2;
+  #ifndef VECGEOM_REPLACE_USOLIDS
+        TestCons<USOLIDSCONSTANTS, UCons >();
+        std::cout << "UCons passed (but notice discrepancies above, where asserts have been disabled!)\n";
+  #else
+        testingvecgeom = true;  // needed to avoid testing convexity when vecgeom is used
+        TestCons<VECGEOMCONSTANTS, UCons>();
+        std::cout << "UCons --> VecGeom trap passed\n";
+  #endif
 #endif
   }
 
@@ -1153,7 +1157,7 @@ int main(int argc, char *argv[]) {
   }
 
   else {
-    std::cerr << "need to give argument :--usolids or --vecgeom\n";
+    std::cerr << "argument needs to be either of: --usolids or --vecgeom\n";
     return 1;
   }
 

@@ -14,7 +14,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedSphere; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedSphere );
+VECGEOM_DEVICE_DECLARE_CONV( PlacedSphere )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -71,7 +71,16 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision GetInnerRadius() const { return GetUnplacedVolume()->GetInnerRadius(); }
-  
+
+  void SetInnerRadius(Precision arg) { const_cast<UnplacedSphere*>(GetUnplacedVolume())->SetInnerRadius(arg);}
+  void SetOuterRadius(Precision arg) { const_cast<UnplacedSphere*>(GetUnplacedVolume())->SetOuterRadius(arg);}
+  void SetStartPhiAngle(Precision arg, bool compute = true) {
+    const_cast<UnplacedSphere*>(GetUnplacedVolume())->SetStartPhiAngle(arg, compute);
+  }
+  void SetDeltaPhiAngle(Precision arg) { const_cast<UnplacedSphere*>(GetUnplacedVolume())->SetDeltaPhiAngle(arg);}
+  void SetStartThetaAngle(Precision arg) { const_cast<UnplacedSphere*>(GetUnplacedVolume())->SetStartThetaAngle(arg);}
+  void SetDeltaThetaAngle(Precision arg) { const_cast<UnplacedSphere*>(GetUnplacedVolume())->SetDeltaThetaAngle(arg);}
+
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision GetOuterRadius() const { return GetUnplacedVolume()->GetOuterRadius(); }
@@ -283,12 +292,19 @@ Precision GetDTheta() const { return GetUnplacedVolume()->GetDTheta(); }
     return GetUnplacedVolume()->GetPointOnSurface();
   }
 
+#if defined(VECGEOM_USOLIDS)
+//  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& StreamInfo(std::ostream &os) const override {
+    return GetUnplacedVolume()->StreamInfo(os);
+  }
+#endif
+
   virtual VPlacedVolume const* ConvertToUnspecialized() const override;
 
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const* ConvertToRoot() const override;
 #endif
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
   virtual ::VUSolid const* ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4

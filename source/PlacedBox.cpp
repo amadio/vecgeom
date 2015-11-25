@@ -38,7 +38,7 @@ TGeoShape const* PlacedBox::ConvertToRoot() const {
 }
 #endif
 
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) and !defined(VECGEOM_REPLACE_USOLIDS)
 ::VUSolid const* PlacedBox::ConvertToUSolids() const {
   return new UBox(GetLabel(), x(), y(), z());
 }

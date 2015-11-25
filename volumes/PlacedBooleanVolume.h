@@ -31,7 +31,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedBooleanVolume; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedBooleanVolume );
+VECGEOM_DEVICE_DECLARE_CONV( PlacedBooleanVolume )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -134,7 +134,7 @@ public:
       return shape;
   }
 #endif
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
   virtual ::VUSolid const* ConvertToUSolids() const override {
     // currently not supported in USOLIDS -- returning NULL
       return nullptr;

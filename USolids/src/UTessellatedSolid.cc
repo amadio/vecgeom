@@ -1592,6 +1592,28 @@ double UTessellatedSolid::GetMaxZExtent() const
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+double UTessellatedSolid::Capacity()
+{
+  if (fCubicVolume != 0.) return fCubicVolume;
+
+  // For explanation of the following algorithm see:
+  // https://en.wikipedia.org/wiki/Polyhedron#Volume
+  // http://wwwf.imperial.ac.uk/~rn/centroid.pdf
+
+  int size = fFacets.size();
+  for (int i = 0; i < size; ++i)
+  {
+    VUFacet &facet = *fFacets[i];
+    double area = facet.GetArea();
+    UVector3 unit_normal = facet.GetSurfaceNormal();
+    fCubicVolume += area * (facet.GetVertex(0).Dot(unit_normal));
+  }
+  fCubicVolume /= 3.;
+  return fCubicVolume;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 double UTessellatedSolid::GetSurfaceArea()
 {
   if (fSurfaceArea != 0.) return fSurfaceArea;

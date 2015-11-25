@@ -33,12 +33,12 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedBox(UnplacedBox const &other) : dimensions_(other.dimensions_) {}
 
-  virtual int memory_size() const { return sizeof(*this); }
+  int memory_size() const override { return sizeof(*this); }
 
   #ifdef VECGEOM_CUDA_INTERFACE
-  virtual size_t DeviceSizeOf() const { return DevicePtr<cuda::UnplacedBox>::SizeOf(); }
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const;
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
+  size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedBox>::SizeOf(); }
+  DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
+  DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
   #endif
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -58,18 +58,7 @@ public:
   Precision z() const { return dimensions_[2]; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual bool IsConvex() const override;
-
-  VECGEOM_INLINE
-  void SetX( Precision number ) { dimensions_[0]=number; }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  void SetY( Precision number ) { dimensions_[1]=number; }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  void SetZ( Precision number ) { dimensions_[2]=number; }
+  bool IsConvex() const override;
 
 #if !defined(VECGEOM_NVCC)
   VECGEOM_INLINE
@@ -92,13 +81,13 @@ public:
 
 
 
-  virtual std::string GetEntityType() const { return "Box";}
+  std::string GetEntityType() const { return "Box";}
 #endif // !VECGEOM_NVCC
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void Print() const;
+  void Print() const override;
 
-  virtual void Print(std::ostream &os) const;
+  void Print(std::ostream &os) const override;
 
 #ifndef VECGEOM_NVCC
 
@@ -130,16 +119,25 @@ public:
       const int id, VPlacedVolume *const placement = NULL);
 
 #endif
-  
+
+  void SetX(double xx) { dimensions_[0] = xx; }
+  void SetY(double yy) { dimensions_[1] = yy; }
+  void SetZ(double zz) { dimensions_[2] = zz; }
+
+#if defined(VECGEOM_USOLIDS)
+  std::ostream& StreamInfo(std::ostream &os) const;
+#endif
+
+
 private:
 
 #ifndef VECGEOM_NVCC
 
-  virtual VPlacedVolume* SpecializedVolume(
+  VPlacedVolume* SpecializedVolume(
       LogicalVolume const *const lvolume,
       Transformation3D const *const transformation,
       const TranslationCode trans_code, const RotationCode rot_code,
-      VPlacedVolume *const placement = NULL) const {
+      VPlacedVolume *const placement = NULL) const override {
     return CreateSpecializedVolume(lvolume, transformation, trans_code, rot_code,
                                    placement);
   }
@@ -147,11 +145,11 @@ private:
 #else
 
   __device__
-  virtual VPlacedVolume* SpecializedVolume(
+  VPlacedVolume* SpecializedVolume(
       LogicalVolume const *const volume,
       Transformation3D const *const transformation,
       const TranslationCode trans_code, const RotationCode rot_code,
-      const int id, VPlacedVolume *const placement = NULL) const {
+      const int id, VPlacedVolume *const placement = NULL) const override {
     return CreateSpecializedVolume(volume, transformation, trans_code, rot_code,
                                    id, placement);
   }

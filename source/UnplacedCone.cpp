@@ -28,7 +28,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
     }
 
     VECGEOM_CUDA_HEADER_BOTH
-	bool UnplacedCone::IsConvex() const{
+    bool UnplacedCone::IsConvex() const{
 
       //Default safe convexity value
       bool convexity = false;
@@ -147,7 +147,6 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
           distNearest = distSPhi;
           normNearest = nPs;
         }
-
         if (inside && distEPhi <= kHalfTolerance) {
           noSurfaces ++;
           sumnorm += nPe;
@@ -157,7 +156,6 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
           normNearest = nPe;
         }
       }
-
       // Final checks
       if (noSurfaces == 0) norm = normNearest;
       else if (noSurfaces == 1) norm = sumnorm;
@@ -296,6 +294,29 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
        #undef RETURN_SPECIALIZATION
   }
+
+
+#if defined(VECGEOM_USOLIDS)
+  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& UnplacedCone::StreamInfo(std::ostream &os) const {
+    int oldprc = os.precision(16);
+    os << "-----------------------------------------------------------\n"
+       << "     *** Dump for solid - " << GetEntityType() << " ***\n"
+       << "     ===================================================\n"
+       << " Solid type: Cone\n"
+       << " Parameters: \n"
+       << "     Cone Radii Rmin1, Rmax1: " << fRmin1 <<"mm, "<< fRmax1 <<"mm\n"
+       << "                Rmin2, Rmax2: " << fRmin2 <<"mm, "<< fRmax2 <<"mm\n"
+       << "     Half-length Z = "<< fDz <<"mm\n";
+    if(fDPhi<kTwoPi) {
+        os << "     Wedge starting angles: fSPhi=" << fSPhi*kRadToDeg <<"deg, "
+           << ", fDphi="<<fDPhi*kRadToDeg <<"deg\n";
+    }
+    os << "-----------------------------------------------------------\n";
+    os.precision(oldprc);
+    return os;
+  }
+#endif
 
 
 // this is repetitive code:

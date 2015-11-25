@@ -286,15 +286,14 @@ public:
 
   virtual void Extent(Vector3D<Precision> & /* min */,
                       Vector3D<Precision> & /* max */) const {
-    assert(0 && "Extent not implemented for this shape type.");
+    assert(0 && "Extent() not implemented for this shape type.");
   }
 
 
-  virtual bool Normal(Vector3D<double> const &,
-                      Vector3D<double> &) const {
+  virtual bool Normal(Vector3D<Precision> const &/*point*/,
+                      Vector3D<Precision> &/*normal*/) const {
 
-    assert(0 &&
-           "Normal not implemented.");
+    assert(0 && "Normal() not implemented for this shape type.\n");
     return false;
   }
 
@@ -348,7 +347,7 @@ public:
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const* ConvertToRoot() const =0;
 #endif
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
   virtual ::VUSolid const* ConvertToUSolids() const =0;
 #endif
 #ifdef VECGEOM_GEANT4
