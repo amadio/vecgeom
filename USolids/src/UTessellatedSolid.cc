@@ -1606,7 +1606,7 @@ double UTessellatedSolid::Capacity()
     VUFacet &facet = *fFacets[i];
     double area = facet.GetArea();
     UVector3 unit_normal = facet.GetSurfaceNormal();
-    fCubicVolume += area * (facet.GetVertex(0) * unit_normal);
+    fCubicVolume += area * (facet.GetVertex(0).Dot(unit_normal));
   }
   fCubicVolume /= 3.;
   return fCubicVolume;
