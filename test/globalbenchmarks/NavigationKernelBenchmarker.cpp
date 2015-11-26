@@ -168,8 +168,6 @@ int main( int argc, char * argv[] )
   TGeoBBox const *rootbbox = dynamic_cast<TGeoBBox const *>(gGeoManager->GetTopVolume()->GetShape());
   Vector3D<Precision> bbox(rootbbox->GetDX(), rootbbox->GetDY(), rootbbox->GetDZ());
 
-
-
   // play with some heuristics to init level locators
   for (auto &element : GeoManager::Instance().GetLogicalVolumesMap()) {
     LogicalVolume *lvol = element.second;
@@ -180,25 +178,36 @@ int main( int argc, char * argv[] )
     }
   }
 
-
-
   std::string volname(argv[2]);
-  volumeUtilities::FillGlobalPointsAndDirectionsForLogicalVolume<SOA3D<Precision>>(
-      GeoManager::Instance().FindLogicalVolume(volname.c_str()), localpoints, points, directions, 0.4, npoints);
-  std::cerr << "\n points filled\n";
-  SimpleNavigator nav;
-  for (unsigned int i = 0; i < points.size(); ++i) {
-    GlobalLocator::LocateGlobalPoint(GeoManager::Instance().GetWorld(), points[i], *(statepool[i]), true);
-    if (statepool[i]->Top()->GetLogicalVolume() != GeoManager::Instance().FindLogicalVolume(volname.c_str())) {
-      //
-      std::cerr << "problem : point " << i << " probably in overlapping region \n";
-      points.set(i, points[i - 1]);
-      statepool[i - 1]->CopyTo(statepool[i]);
-    }
-  }
   HybridManager2::Instance().InitStructure(GeoManager::Instance().FindLogicalVolume(volname.c_str()));
 
-  std::cerr << "located ...\n";
+  bool usecached=false;
+  if( argc >= 4 && strcmp(argv[3], "--usecache") ) usecached=true;
+
+  if (!usecached) {
+    volumeUtilities::FillGlobalPointsAndDirectionsForLogicalVolume<SOA3D<Precision>>(
+        GeoManager::Instance().FindLogicalVolume(volname.c_str()), localpoints, points, directions, 0.4, npoints);
+    std::cerr << "\n points filled\n";
+    SimpleNavigator nav;
+    for (unsigned int i = 0; i < points.size(); ++i) {
+      GlobalLocator::LocateGlobalPoint(GeoManager::Instance().GetWorld(), points[i], *(statepool[i]), true);
+      if (statepool[i]->Top()->GetLogicalVolume() != GeoManager::Instance().FindLogicalVolume(volname.c_str())) {
+        //
+        std::cerr << "problem : point " << i << " probably in overlapping region \n";
+        points.set(i, points[i - 1]);
+        statepool[i - 1]->CopyTo(statepool[i]);
+      }
+    }
+    std::cerr << "located ...\n";
+
+    points.ToFile("points.bin");
+    directions.ToFile("directions.bin");
+    statepool.ToFile("states.bin");
+  } else {
+    points.FromFile("points.bin");
+    directions.FromFile("directions.bin");
+    statepool.FromFile("states.bin");
+  }
   benchDifferentNavigators(points, directions, statepool, statepoolout);
   return 0;
 }
