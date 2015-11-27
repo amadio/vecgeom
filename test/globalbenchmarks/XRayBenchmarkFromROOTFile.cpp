@@ -27,7 +27,11 @@
 #include <vector>
 #include <sstream>
 
-//#define CALLGRIND
+#include "navigation/VNavigator.h"
+#include "navigation/GlobalLocator.h"
+#include "navigation/NewSimpleNavigator.h"
+
+#define CALLGRIND
 #ifdef CALLGRIND
 #include <valgrind/callgrind.h>
 #endif
@@ -344,6 +348,129 @@ if(VERBOSE){
 
 //                std::cout << p << "\n";
 
+                newnavstate->CopyTo(curnavstate);
+
+                // Increase passed_volume
+                // TODO: correct counting of travel in "world" bounding box
+                if(step>0) crossedvolumecount++;
+
+              //  if(crossedvolumecount > 1000){
+                    //std::cerr << "OOPS: Problem for pixel " << pixel_count_1 << " " << pixel_count_2 << " \n";
+                    //break;}
+             } // end while
+
+             ///////////////////////////////////
+             // Store the number of passed volume at 'volume_result'
+             *(image+pixel_count_2*data_size_x+pixel_count_1) = crossedvolumecount;
+
+      } // end inner loop
+    } // end outer loop
+
+    NavigationState::ReleaseInstance( curnavstate );
+    NavigationState::ReleaseInstance( newnavstate );
+
+} // end XRayWithVecGeom
+
+
+void XRayWithVecGeom_PolymorphicNavigationFramework(int axis,
+                  Vector3D<Precision> origin,
+                  Vector3D<Precision> bbox,
+                  Vector3D<Precision> dir,
+                  double axis1_start, double axis1_end,
+                  double axis2_start, double axis2_end,
+                  int data_size_x,
+                  int data_size_y,
+                  double pixel_axis,
+                  int * image) {
+
+if(VERBOSE){
+    std::cout << "from [" << axis1_start << ";" << axis2_start
+              << "] to [" << axis1_end   << ";" << axis2_end << "]\n";
+    std::cout << "Xpixels " << data_size_x << " YPixels " << data_size_y << "\n";
+
+    std::cout << pixel_axis << "\n";
+}
+    double pixel_width_1 = (axis1_end-axis1_start)/data_size_x;
+    double pixel_width_2 = (axis2_end-axis2_start)/data_size_y;
+
+    if(VERBOSE){
+        std::cout << pixel_width_1 << "\n";
+        std::cout << pixel_width_2 << "\n";
+    }
+
+    NavigationState * newnavstate = NavigationState::MakeInstance( GeoManager::Instance().getMaxDepth() );
+    NavigationState * curnavstate = NavigationState::MakeInstance( GeoManager::Instance().getMaxDepth() );
+
+    for( int pixel_count_2 = 0; pixel_count_2 < data_size_y; ++pixel_count_2 ){
+        for( int pixel_count_1 = 0; pixel_count_1 < data_size_x; ++pixel_count_1 )
+        {
+            double axis1_count = axis1_start + pixel_count_1 * pixel_width_1 + 1E-6;
+            double axis2_count = axis2_start + pixel_count_2 * pixel_width_2 + 1E-6;
+
+            if(VERBOSE) {
+                std::cout << "\n OutputPoint("<< axis1_count<< ", "<< axis2_count<< ")\n";
+            }
+         //   std::cout << pixel_count_1 << " " << pixel_count_2 << "\n";
+
+            // set start point of XRay
+            Vector3D<Precision> p;
+            if( axis== 1 )
+              p.Set( origin[0]-bbox[0], axis1_count, axis2_count);
+            else if( axis== 2)
+              p.Set( axis1_count, origin[1]-bbox[1], axis2_count);
+            else if( axis== 3)
+              p.Set( axis1_count, axis2_count, origin[2]-bbox[2]);
+
+            curnavstate->Clear();
+            GlobalLocator::LocateGlobalPoint( GeoManager::Instance().GetWorld(), p, *curnavstate, true );
+
+#ifdef VECGEOM_DISTANCE_DEBUG
+            gGeoManager->GetCurrentNavigator()->FindNode( p.x(), p.y(), p.z() );
+#endif
+            double distancetravelled=0.;
+            int crossedvolumecount=0;
+
+            if(VERBOSE) {
+              std::cout << " StartPoint(" << p[0] << ", " << p[1] << ", " << p[2] << ")";
+              std::cout << " Direction <" << dir[0] << ", " << dir[1] << ", " << dir[2] << ">"<< std::endl;
+            }
+
+            while( ! curnavstate->IsOutside() ) {
+                double step = 0;
+                newnavstate->Clear();
+                VNavigator const* navigator = curnavstate->Top()->GetLogicalVolume()->GetNavigator();
+                step = navigator->ComputeStepAndPropagatedState( p, dir, vecgeom::kInfinity, *curnavstate, *newnavstate );
+
+                //std::cout << "step " << step << "\n";
+                distancetravelled+=step;
+//
+//              std::cout << "GOING FROM "
+//                       << curnavstate->Top()->GetLabel() << "(";
+//                        curnavstate->Top()->PrintType();
+//                     std::cout << ") to ";
+//
+//                if( newnavstate->Top() ){
+//                    std::cout << newnavstate->Top()->GetLabel() << "(";
+//                    newnavstate->Top()->PrintType();
+//                    std::cout << ")";
+//                }
+//                else
+//                    std::cout << "outside ";
+//
+//                if ( curnavstate->Top() == newnavstate->Top() ) {
+//                    std::cout << " CROSSING PROBLEM \n";
+//                    curnavstate->Print();
+//                    newnavstate->Print();
+//                }
+//
+//                std::cout << "# step " << step << " crossed "<< crossedvolumecount << "\n";
+
+                // here we have to propagate particle ourselves and adjust navigation state
+                p = p + dir*(step + 1E-6);
+
+//                std::cout << p << "\n";
+
+                // pointer swap should do
                 newnavstate->CopyTo(curnavstate);
 
                 // Increase passed_volume
@@ -950,10 +1077,10 @@ int *volume_result= (int*) new int[data_size_y * data_size_x*3];
     std::stringstream ROOTimage;
     ROOTimage << imagenamebase.str();
     ROOTimage << "_ROOT.bmp";
-
     make_bmp(volume_result, ROOTimage.str().c_str(), data_size_x, data_size_y);
-#ifdef VECGEOM_GEANT4
 
+
+#ifdef VECGEOM_GEANT4
     G4VPhysicalVolume * world = SetupGeant4Geometry( testvolume, Vector3D<Precision>( std::abs(origin[0]) + dx,
             std::abs(origin[1]) + dy,
             std::abs(origin[2]) + dz ), cutlevel, cutatlevel );
@@ -1007,7 +1134,7 @@ int *volume_result= (int*) new int[data_size_y * data_size_x*3];
     CALLGRIND_DUMP_STATS;
 #endif
     timer.Stop();
-
+    std::cout << " VG Elapsed time : "<< timer.Elapsed() << std::endl;
     std::stringstream VecGeomimage;
     VecGeomimage << imagenamebase.str();
     VecGeomimage << "_VecGeom.bmp";
@@ -1024,8 +1151,40 @@ int *volume_result= (int*) new int[data_size_y * data_size_x*3];
     make_diff_bmp(volume_result_Geant4, volume_result_VecGeom, VGG4diffimage.str().c_str(), data_size_x, data_size_y);
 #endif
 
-    std::cout << std::endl;
-    std::cout << " VecGeom Elapsed time : "<< timer.Elapsed() << std::endl;
+    timer.Start();
+  #ifdef CALLGRIND
+      CALLGRIND_START_INSTRUMENTATION;
+  #endif
+      XRayWithVecGeom_PolymorphicNavigationFramework( axis,
+                 Vector3D<Precision>(origin[0],origin[1],origin[2]),
+                 Vector3D<Precision>(dx,dy,dz),
+                 dir,
+                 axis1_start, axis1_end,
+                 axis2_start, axis2_end,
+                 data_size_x, data_size_y,
+                 pixel_axis,
+                 volume_result_VecGeom );
+  #ifdef CALLGRIND
+      CALLGRIND_START_INSTRUMENTATION;
+      CALLGRIND_DUMP_STATS;
+  #endif
+      timer.Stop();
+      std::cout << " VG (NEW) Elapsed time : "<< timer.Elapsed() << std::endl;
+
+      VecGeomimage << imagenamebase.str();
+      VecGeomimage << "_VecGeomNEW.bmp";
+      make_bmp(volume_result_VecGeom, VecGeomimage.str().c_str(), data_size_x, data_size_y);
+
+      // std::stringstream VGRdiffimage;
+      VGRdiffimage << imagenamebase.str();
+      VGRdiffimage << "_diffROOTVGNEW.bmp";
+      make_diff_bmp(volume_result, volume_result_VecGeom, VGRdiffimage.str().c_str(), data_size_x, data_size_y);
+#ifdef VECGEOM_GEANT4
+      // std::stringstream VGG4diffimage;
+      VGG4diffimage << imagenamebase.str();
+      VGG4diffimage << "_diffG4VGNEW.bmp";
+      make_diff_bmp(volume_result_Geant4, volume_result_VecGeom, VGG4diffimage.str().c_str(), data_size_x, data_size_y);
+#endif
 
     timer.Start();
 #ifdef CALLGRIND
@@ -1053,7 +1212,6 @@ int *volume_result= (int*) new int[data_size_y * data_size_x*3];
 
     make_diff_bmp(volume_result_VecGeom, volume_result_VecGeomABB, "diffVecGeomSimplevsABB.bmp", data_size_x, data_size_y);
     make_diff_bmp(volume_result, volume_result_VecGeomABB, "diffROOTVecGeomABB.bmp", data_size_x, data_size_y);
-
 
     std::cout << std::endl;
     std::cout << " VecGeom ABB Elapsed time : "<< timer.Elapsed() << std::endl;
