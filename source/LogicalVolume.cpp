@@ -35,18 +35,18 @@ LogicalVolume::LogicalVolume(char const *const label,
   fDaughters = new Vector<Daughter>();
   }
 
-LogicalVolume::LogicalVolume(LogicalVolume const & other)
-   : fUnplacedVolume(), fId(0), fLabel(nullptr), fUserExtensionPtr(nullptr),
-     fTrackingMediumPtr(nullptr), fBasketManagerPtr(nullptr),
-     fDaughters()
-{
-  printf("COPY CONSTRUCTOR FOR LogicalVolumes NOT IMPLEMENTED");
-}
-
-LogicalVolume *LogicalVolume::operator=(LogicalVolume const &other) {
-  printf("COPY CONSTRUCTOR FOR LogicalVolumes NOT IMPLEMENTED");
-  return nullptr;
-}
+//LogicalVolume::LogicalVolume(LogicalVolume const & other)
+//   : fUnplacedVolume(), fId(0), fLabel(nullptr), fUserExtensionPtr(nullptr),
+//     fTrackingMediumPtr(nullptr), fBasketManagerPtr(nullptr),
+//     fDaughters()
+//{
+//  printf("COPY CONSTRUCTOR FOR LogicalVolumes NOT IMPLEMENTED");
+//}
+//
+//LogicalVolume *LogicalVolume::operator=(LogicalVolume const &other) {
+//  printf("COPY CONSTRUCTOR FOR LogicalVolumes NOT IMPLEMENTED");
+//  return nullptr;
+//}
 
 #endif
 

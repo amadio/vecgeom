@@ -29,8 +29,8 @@ int main(int argc, char* argv[]) {
   UnplacedBox boxUnplaced = UnplacedBox(dx, dy, dz);
   UnplacedScaledShape scaledUnplaced(&boxUnplaced, sx, sy, sz);
   
-  LogicalVolume world = LogicalVolume("world", &worldUnplaced);
-  LogicalVolume scaled = LogicalVolume("scaledbOX", &scaledUnplaced);
+  LogicalVolume world ("world", &worldUnplaced);
+  LogicalVolume scaled ("scaledbOX", &scaledUnplaced);
   world.PlaceDaughter("pScaledBox", &scaled, &placement);
 //  world.PlaceDaughter("pScaledTube", &scaled, &Transformation3D::kIdentity);
 
