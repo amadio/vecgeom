@@ -13,7 +13,8 @@
 #include "management/GeoManager.h"
 #include "management/VolumeFactory.h"
 #include "volumes/PlacedVolume.h"
-
+#include "navigation/SimpleSafetyEstimator.h"
+#include "navigation/NewSimpleNavigator.h"
 #include <cassert>
 #include <climits>
 #include <stdio.h>
@@ -28,7 +29,7 @@ LogicalVolume::LogicalVolume(char const *const label,
                              VUnplacedVolume const *const unplaced_volume)
   :  fUnplacedVolume(unplaced_volume), fId(0), fLabel(nullptr), fUserExtensionPtr(nullptr),
      fTrackingMediumPtr(nullptr), fBasketManagerPtr(nullptr),
-     fLevelLocator(nullptr), fSafetyEstimator(nullptr),
+     fLevelLocator(nullptr), fSafetyEstimator(SimpleSafetyEstimator::Instance()), fNavigator(NewSimpleNavigator<>::Instance()),
      fDaughters() {
   fId = gIdCount++;
   GeoManager::Instance().RegisterLogicalVolume(this);

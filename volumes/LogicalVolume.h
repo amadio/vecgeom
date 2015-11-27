@@ -23,11 +23,13 @@ VECGEOM_DEVICE_FORWARD_DECLARE( class LogicalVolume; )
 VECGEOM_DEVICE_FORWARD_DECLARE( class VPlacedVolume; )
 VECGEOM_DEVICE_FORWARD_DECLARE( class VLevelLocator; )
 VECGEOM_DEVICE_FORWARD_DECLARE( class VSafetyEstimator; )
+VECGEOM_DEVICE_FORWARD_DECLARE( class VNavigator; )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class VLevelLocator;
 class VSafetyEstimator;
+class VNavigator;
 typedef VPlacedVolume const* Daughter;
 class GeoManager;
 /**
@@ -58,6 +60,7 @@ private:
 
   VLevelLocator const *fLevelLocator; // a locator class for this logical volume
   VSafetyEstimator const *fSafetyEstimator; // a safety estimator class for this logical volume
+  VNavigator const *fNavigator; // the attached navigator
 
   // the container of daughter (placed) volumes which are placed inside this logical
   // Volume
@@ -149,6 +152,14 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   void SetSafetyEstimator(VSafetyEstimator const *est) { fSafetyEstimator=est; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  VNavigator const *GetNavigator() const { return fNavigator; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  void SetNavigator(VNavigator const *n) { fNavigator=n; }
 
 
   int id() const { return fId; }
