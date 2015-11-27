@@ -83,8 +83,8 @@ public:
   //
   // copy operator since we have pointer data members
   //
-  LogicalVolume(LogicalVolume const &other);
-  LogicalVolume *operator=(LogicalVolume const &other);
+  LogicalVolume(LogicalVolume const &other) = delete;
+  LogicalVolume *operator=(LogicalVolume const &other) = delete;
 
 #else
   __device__
