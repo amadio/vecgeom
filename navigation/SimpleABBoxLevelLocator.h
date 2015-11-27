@@ -22,7 +22,8 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class SimpleABBoxLevelLocator : public VLevelLocator {
 
 private:
-  SimpleABBoxLevelLocator()  {}
+  ABBoxManager & fAccelerationStructure;
+    SimpleABBoxLevelLocator() : fAccelerationStructure(ABBoxManager::Instance()) {}
 
 public:
   virtual bool LevelLocate(LogicalVolume const *lvol, Vector3D<Precision> const &localpoint, VPlacedVolume const *&pvol,
@@ -30,7 +31,7 @@ public:
 
     int size;
     ABBoxManager::ABBoxContainer_v alignedbboxes =
-        ABBoxManager::Instance().GetABBoxes_v(lvol, size);
+        fAccelerationStructure.GetABBoxes_v(lvol, size);
 
     auto daughters = lvol->GetDaughtersp();
     // here the loop is over groups of bounding boxes
@@ -41,7 +42,7 @@ public:
                                                          alignedbboxes[2 * boxgroupid + 1], localpoint, inBox);
       if (Any(inBox)) {
         // TODO: could start directly at first 1 in inBox
-        for (auto ii = 0; ii < kVcFloat::precision_v::Size; ++ii) {
+        for (size_t ii = 0; ii < kVcFloat::precision_v::Size; ++ii) {
           auto daughterid = boxgroupid * kVcFloat::precision_v::Size + ii;
           VPlacedVolume const *daughter = (*daughters)[daughterid];
           if (daughterid < daughters->size() && inBox[ii] && daughter->Contains(localpoint, daughterlocalpoint)) {
