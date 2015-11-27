@@ -31,6 +31,7 @@
 #include "navigation/VNavigator.h"
 #include "navigation/GlobalLocator.h"
 #include "navigation/NewSimpleNavigator.h"
+#include "navigation/SimpleABBoxNavigator.h"
 
 #define CALLGRIND
 #ifdef CALLGRIND
@@ -111,6 +112,19 @@ bool voxelize = true;
 int make_bmp_header( );
 int make_bmp(int const * image_result, char const *, int data_size_x, int data_size_y, bool linear = true);
 int make_diff_bmp(int const * image1, int const * image2, char const *, int sizex, int sizey);
+
+
+
+void InitNavigators(){
+    for( auto & lvol : GeoManager::Instance().GetLogicalVolumesMap() ){
+        if( lvol.second->GetDaughtersp()->size() < 1 ){
+            lvol.second->SetNavigator(NewSimpleNavigator<>::Instance());
+        }
+        if( lvol.second->GetDaughtersp()->size() >= 1 ){
+            lvol.second->SetNavigator(SimpleABBoxNavigator<>::Instance());
+        }
+    }
+}
 
 
 __attribute__((noinline))
@@ -1067,6 +1081,8 @@ int *volume_result= (int*) new int[data_size_y * data_size_x*3];
 
     std::cout << std::endl;
     std::cout << " ROOT Elapsed time : "<< timer.Elapsed() << std::endl;
+
+      InitNavigators();
 
     // Make bitmap file; generate filename
     std::stringstream imagenamebase;

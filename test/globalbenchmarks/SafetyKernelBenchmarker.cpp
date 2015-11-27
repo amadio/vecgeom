@@ -21,6 +21,8 @@
 #include "base/Stopwatch.h"
 #include "navigation/SimpleSafetyEstimator.h"
 #include "navigation/SimpleABBoxSafetyEstimator.h"
+#include "navigation/HybridSafetyEstimator.h"
+#include "management/HybridManager2.h"
 
 // in case someone has written a special safety estimator for the CAHL logical volume
 //#include "navigation/CAHLSafetyEstimator.h"
@@ -168,6 +170,8 @@ void benchDifferentSafeties(SOA3D<Precision> const &points, NavStatePool &pool){
   RUNBENCH( benchSafety<SimpleSafetyEstimator>(points, pool) );
   std::cerr << "##\n";
   RUNBENCH( benchSafety<SimpleABBoxSafetyEstimator>(points, pool) );
+  std::cerr << "##\n";
+  RUNBENCH( benchSafety<HybridSafetyEstimator>(points, pool) );
 
   //std::cerr << "##\n";
   //benchVectorSafety<SPECIALESTIMATOR>(points, pool);
@@ -219,6 +223,9 @@ int main( int argc, char * argv[] )
       statepool[i - 1]->CopyTo(statepool[i]);
     }
   }
+
+  HybridManager2::Instance().InitStructure( GeoManager::Instance().FindLogicalVolume(volname.c_str()) );
+
   std::cerr << "located ...\n";
   benchDifferentSafeties(points, statepool);
   return 0;
