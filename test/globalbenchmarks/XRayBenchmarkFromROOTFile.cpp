@@ -31,6 +31,7 @@
 #include "navigation/GlobalLocator.h"
 #include "navigation/NewSimpleNavigator.h"
 #include "navigation/SimpleABBoxNavigator.h"
+#include "navigation/HybridNavigator2.h"
 
 #define CALLGRIND
 #ifdef CALLGRIND
@@ -116,11 +117,14 @@ int make_diff_bmp(int const * image1, int const * image2, char const *, int size
 
 void InitNavigators(){
     for( auto & lvol : GeoManager::Instance().GetLogicalVolumesMap() ){
-        if( lvol.second->GetDaughtersp()->size() < 1 ){
+        if( lvol.second->GetDaughtersp()->size() < 4 ){
             lvol.second->SetNavigator(NewSimpleNavigator<>::Instance());
         }
-        if( lvol.second->GetDaughtersp()->size() >= 1 ){
+        if( lvol.second->GetDaughtersp()->size() >= 5 ){
             lvol.second->SetNavigator(SimpleABBoxNavigator<>::Instance());
+        }
+	if( lvol.second->GetDaughtersp()->size() >= 10 ){
+            lvol.second->SetNavigator(HybridNavigator<>::Instance());
         }
     }
 }
@@ -453,6 +457,7 @@ if(VERBOSE){
                 double step = 0;
                 newnavstate->Clear();
                 VNavigator const* navigator = curnavstate->Top()->GetLogicalVolume()->GetNavigator();
+		//	std::cerr << "navigating with " << navigator->GetName() << "\n";
                 step = navigator->ComputeStepAndPropagatedState( p, dir, vecgeom::kInfinity, *curnavstate, *newnavstate );
 
                 //std::cout << "step " << step << "\n";
@@ -1081,7 +1086,7 @@ int *volume_result= (int*) new int[data_size_y * data_size_x*3];
     std::cout << std::endl;
     std::cout << " ROOT Elapsed time : "<< timer.Elapsed() << std::endl;
 
-      InitNavigators();
+ 
 
     // Make bitmap file; generate filename
     std::stringstream imagenamebase;
@@ -1132,6 +1137,9 @@ int *volume_result= (int*) new int[data_size_y * data_size_x*3];
     std::cout << "Detector loaded " << "\n";
     ABBoxManager::Instance().InitABBoxesForCompleteGeometry();
     std::cout << "voxelized " << "\n";
+
+    InitNavigators();
+
     timer.Start();
 #ifdef CALLGRIND
     CALLGRIND_START_INSTRUMENTATION;
