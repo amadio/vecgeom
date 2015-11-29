@@ -339,7 +339,7 @@ VPlacedVolume* UnplacedPolycone::Create(LogicalVolume const *const logical_volum
 
     // attention here z.size() might be different than fNz due to compactification during Reconstruction
     DevicePtr<cuda::VUnplacedVolume> gpupolycon =  CopyToGpuImpl<UnplacedPolycone>(gpu_ptr,
-             fStartPhi, fDeltaPhi, s, rmin_gpu_ptr, rmax_gpu_ptr, z_gpu_ptr);
+	      fStartPhi, fDeltaPhi, s, z_gpu_ptr, rmin_gpu_ptr, rmax_gpu_ptr);
 
         // remove temporary space from GPU
         FreeFromGpu(z_gpu_ptr);
