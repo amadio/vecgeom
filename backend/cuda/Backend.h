@@ -38,6 +38,13 @@ typedef kCuda::int_v       CudaInt;
 typedef kCuda::precision_v CudaPrecision;
 typedef kCuda::bool_v      CudaBool;
 
+#if defined(VECGEOM_CUDA) && !defined(VECGEOM_BACKEND_TYPE)
+#define VECGEOM_BACKEND_TYPE         kScalar
+#define VECGEOM_BACKEND_PRECISION(P) (*(P))
+#define VECGEOM_BACKEND_BOOL         ScalarBool
+#define VECGEOM_BACKEND_INSIDE       kScalar::inside_v
+#endif
+
 static const unsigned kThreadsPerBlock = 256;
 
 VECGEOM_CUDA_HEADER_BOTH
