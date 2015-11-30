@@ -16,7 +16,7 @@
 #include "volumes/Planes.h"
 
 // Switches on/off explicit vectorization of algorithms using Vc
-#define VECGEOM_QUADRILATERALS_VC
+//#define VECGEOM_QUADRILATERALS_VC --> now done in CMakeFile
 
 namespace vecgeom {
 
