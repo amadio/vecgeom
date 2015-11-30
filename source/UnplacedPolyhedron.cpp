@@ -27,22 +27,18 @@ UnplacedPolyhedron::UnplacedPolyhedron(
 
 
 VECGEOM_CUDA_HEADER_BOTH
-bool UnplacedPolyhedron::CheckContinuityInSlope(const double rOuter[], const double zPlane[],const unsigned int nz){
+bool UnplacedPolyhedron::CheckContinuityInSlope(const double rOuter[], const double zPlane[],const unsigned int nz) {
 
-    bool continuous=true;
-    Precision startSlope = (rOuter[1]-rOuter[0])/(zPlane[1]-zPlane[0]);
-    for (unsigned int j = 1; j < nz; j++ )
-    {
-        Precision currentSlope =  (rOuter[j+1]-rOuter[j])/(zPlane[j+1]-zPlane[j]);
-        continuous &= (currentSlope <= startSlope);
-        startSlope = currentSlope;
-        if(!continuous)
-            break;
-
-
-    }
-
-    return continuous;
+  bool continuous = true;
+  Precision startSlope = (rOuter[1]-rOuter[0])/(zPlane[1]-zPlane[0]);
+  for (unsigned int j = 1; j < nz; j++ ) {
+    Precision currentSlope =  (rOuter[j+1]-rOuter[j])/(zPlane[j+1]-zPlane[j]);
+    continuous &= (currentSlope <= startSlope);
+    startSlope = currentSlope;
+    if(!continuous)
+      break;
+  }
+  return continuous;
 }
 
 VECGEOM_CUDA_HEADER_BOTH
