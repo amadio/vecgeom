@@ -13,6 +13,8 @@
 #include "backend/vcfloat/Backend.h"
 #elif defined(VECGEOM_CILK)
 #include "backend/cilk/Backend.h"
+#elif defined(VECGEOM_MICVEC)
+#include "backend/micvec/Backend.h"
 #else
 #include "backend/scalar/Backend.h"
 #endif
