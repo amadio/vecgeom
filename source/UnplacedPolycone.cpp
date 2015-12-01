@@ -849,12 +849,9 @@ bool UnplacedPolycone::CheckContinuityInSlope(const Vector<Precision> &rOuter,
     if ((zPlane[j] == zPlane[j + 1])) {
       if (j == 0) {
         currentSlope = startSlope;
-        break;
       } else {
         if ((rOuter[j] == rOuter[j + 1]) && (rOuter[j] == rOuter[j - 1]))
           currentSlope = startSlope;
-        else
-          break;
       }
     } else {
       currentSlope = (rOuter[j + 1] - rOuter[j]) / (zPlane[j + 1] - zPlane[j]);

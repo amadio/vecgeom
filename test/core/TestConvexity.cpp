@@ -231,6 +231,17 @@ bool test_ConvexityPolycone() {
     vecgeom::SimplePolycone b1("VecGeomPolycone", phiStart, deltaPhi, nZ, z, rmin, rmax);
     assert(!b1.GetUnplacedVolume()->IsConvex());
 
+    //Added this new test case provided by Guilherme lima and Phillipe,
+    int nZ2 = 5;
+    double rmin2[5] = {0., 0., 0., 0., 0.};
+    // double rmax[5] = {5.,10.,10.,20.,20.};   // bad
+    double rmax2[5] = {15., 20., 20., 10., 5.}; // bad
+    double z2[5] = {0., 10., 20., 20., 40.};
+    phiStart = 0.;
+    deltaPhi = kTwoPi;
+    vecgeom::SimplePolycone b2("VecGeomPolycone2", phiStart, deltaPhi, nZ2, z2, rmin2, rmax2);
+    assert(!b2.GetUnplacedVolume()->IsConvex());
+
     return true;
 }
 
