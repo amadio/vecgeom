@@ -281,7 +281,7 @@ bool test_ConvexityPolyhedron() {
     rOuter[2]=2.;
     rOuter[3]=1.;
     vecgeom::SimplePolyhedron b6("Vecgeom Polyhedron", phiStart, 120, sides, nPlanes, zPlanes, rInner, rOuter);
-    assert(!b6.GetUnplacedVolume()->IsConvex());
+    assert(b6.GetUnplacedVolume()->IsConvex());
 
     rInner[1]=1.;
     rInner[2]=0.5;
