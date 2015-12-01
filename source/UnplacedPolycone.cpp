@@ -833,6 +833,11 @@ bool UnplacedPolycone::CheckContinuityInZPlane(const double rOuter[], const doub
     }
     j = j + 2;
   }
+  if (fNz % 2 != 0) {
+     // fNz is odd, the adding of the last item.
+     rOut.push_back(rOuter[fNz-1]);
+     zPl.push_back(zPlane[fNz-1]);
+  }
 
   bool contRmax = CheckContinuityInRmax(rOut);
   bool contSlope = CheckContinuityInSlope(rOut, zPl);
@@ -846,6 +851,9 @@ bool UnplacedPolycone::CheckContinuityInSlope(const Vector<Precision> &rOuter,
   Precision startSlope = kInfinity;
   for (size_t j = 0; j < rOuter.size();) {
     Precision currentSlope = kInfinity;
+#ifndef VECGEOM_NVCC
+    fprintf(stderr,"zPlane fNz=%ld size=%ld j=%d\n",fNz,rOuter.size(), j);
+#endif
     if ((zPlane[j] == zPlane[j + 1])) {
       if (j == 0) {
         currentSlope = startSlope;
