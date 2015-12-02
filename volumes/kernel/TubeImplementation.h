@@ -242,20 +242,23 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY,
 
   typedef typename Backend::precision_v Float_t;
   typedef typename Backend::bool_v Bool_t;
+  dist = kInfinity;
+
   // approaching phi plane from the right side?
   // this depends whether we use it for DistanceToIn or DistanceToOut
-  if( ! insectorCheck ) {
-  ok = dir.x()*normalX + dir.y()*normalY <= 0.;
-  if( IsFull(!ok) ) return;
-  }
-  else {
-      ok = Bool_t(true);
-  }
+  Bool_t leaving = ( dir.x()*normalX + dir.y()*normalY <= 0 );
+
+  // For DistanceToIn (insectorCheck==true) -- tracks leaving volume are not ok
+  // For DistanceToOut (insectorCheck==false) -- tracks leaving volume are ok
+  // this means ok = insector XNOR leaving
+  ok = ( insectorCheck && !leaving ) || (!insectorCheck && leaving);
+  if( Backend::early_returns && IsEmpty(ok) ) return;
+
   dist = (alongY*pos.x() - alongX*pos.y() ) / (dir.y()*alongX - dir.x()*alongY);
 
+  Float_t hitx = pos.x() + dist * dir.x();
+  Float_t hity = pos.y() + dist * dir.y();
   if(insectorCheck) {
-    Float_t hitx = pos.x() + dist * dir.x();
-    Float_t hity = pos.y() + dist * dir.y();
     Float_t hitz = pos.z() + dist * dir.z();
     Float_t r2 = hitx*hitx + hity*hity;
 
@@ -263,17 +266,9 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY,
           (r2 >= tube.tolIrmin2()) &&
           (r2 <= tube.tolIrmax2()) &&
           dist > 0;
+  }
 
-    if(PositiveDirectionOfPhiVector)
-      ok = ok && (hitx*alongX + hity*alongY) > 0.;
-  }
-  else {
-    if(PositiveDirectionOfPhiVector) {
-      Float_t hitx = pos.x() + dist * dir.x();
-      Float_t hity = pos.y() + dist * dir.y();
-      ok = ok && (hitx*alongX + hity*alongY) >= 0.;
-    }
-  }
+  if(PositiveDirectionOfPhiVector)  ok = ok && (hitx*alongX + hity*alongY) > 0.;
 }
 }
 
@@ -547,7 +542,7 @@ struct TubeImplementation {
               w.GetNormal1().x(), w.GetNormal1().y(),
               tube, pos_local, dir_local, dist_phi, ok_phi);
 
-      MaskedAssign(ok_phi && dist_phi < distance, dist_phi, &distance);
+      MaskedAssign(ok_phi && dist_phi>-kTolerance && dist_phi<distance, dist_phi, &distance);
 
       /*
        * If the tube is pi degrees, there's just one phi plane,
@@ -560,10 +555,12 @@ struct TubeImplementation {
                 w.GetNormal2().x(), w.GetNormal2().y(),
               tube, pos_local, dir_local, dist_phi, ok_phi);
 
-        MaskedAssign(ok_phi && dist_phi < distance, dist_phi, &distance);
+        MaskedAssign(ok_phi && dist_phi>-kTolerance && dist_phi<distance, dist_phi, &distance);
       }
     }
 
+    // avoid distances within kTolerance
+    MaskedAssign(Abs(distance)<kTolerance, 0., &distance);
   }
 
   template <class Backend>
@@ -604,9 +601,9 @@ struct TubeImplementation {
      * rmin
      */
 
-    Float_t dist_rmin;
-    Bool_t ok_rmin;
     if(checkRminTreatment<tubeTypeT>(tube)) {
+      Float_t dist_rmin;
+      Bool_t ok_rmin;
       Float_t crmin = invnsq * (rsq - tube.rmin2());
       CircleTrajectoryIntersection<Backend, tubeTypeT, false, false>(b, crmin, tube, point, dir, dist_rmin, ok_rmin);
       MaskedAssign(ok_rmin && dist_rmin >= 0 && dist_rmin < distance, dist_rmin, &distance);
@@ -634,46 +631,45 @@ struct TubeImplementation {
      */
 
     if(checkPhiTreatment<tubeTypeT>(tube)) {
-      Float_t dist_phi;
-      Bool_t ok_phi;
-      Bool_t unused;
-
+      Float_t dist_phi(kInfinity);
+      Bool_t ok_phi(false);
 
       Wedge const& w = tube.GetWedge();
       if(SectorType<tubeTypeT>::value == kSmallerThanPi) { 
 
-
         Precision normal1X = w.GetNormal1().x();
         Precision normal1Y = w.GetNormal1().y();
         PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, false, false>(
-                tube.alongPhi1x(), tube.alongPhi1y(), normal1X, normal1Y,  tube, point, dir, dist_phi, unused);
-        MaskedAssign(dist_phi > 0 && dist_phi < distance, dist_phi, &distance);
+                tube.alongPhi1x(), tube.alongPhi1y(), normal1X, normal1Y,  tube, point, dir, dist_phi, ok_phi);
+        MaskedAssign(ok_phi && dist_phi > -kTolerance && dist_phi < distance, dist_phi, &distance);
 
         PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, false, false>(
-        tube.alongPhi2x(), tube.alongPhi2y(), w.GetNormal2().x(), w.GetNormal2().y(), tube, point, dir, dist_phi, unused);
-        MaskedAssign(dist_phi > 0 && dist_phi < distance, dist_phi, &distance);
+        tube.alongPhi2x(), tube.alongPhi2y(), w.GetNormal2().x(), w.GetNormal2().y(), tube, point, dir, dist_phi, ok_phi);
+        MaskedAssign(ok_phi && dist_phi > -kTolerance && dist_phi < distance, dist_phi, &distance);
 
       }
       else if(SectorType<tubeTypeT>::value == kOnePi) {
         PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, false, false>(
           tube.alongPhi2x(), tube.alongPhi2y(),
           w.GetNormal2().x(), w.GetNormal2().x(),
-          tube, point, dir, dist_phi, unused);
-        MaskedAssign(dist_phi > 0 && dist_phi < distance, dist_phi, &distance);
+          tube, point, dir, dist_phi, ok_phi);
+        MaskedAssign(ok_phi && dist_phi > -kTolerance && dist_phi < distance, dist_phi, &distance);
       }
       else {
         // angle bigger than pi or unknown
         // need to check that point falls on positive direction of phi-vectors
         PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, true, false>(
             tube.alongPhi1x(), tube.alongPhi1y(), w.GetNormal1().x(), w.GetNormal1().y(), tube, point, dir, dist_phi, ok_phi);
-        MaskedAssign(ok_phi && dist_phi > 0 && dist_phi < distance, dist_phi, &distance);
+        MaskedAssign(ok_phi && dist_phi > -kTolerance && dist_phi < distance, dist_phi, &distance);
 
         PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, true, false>(
           tube.alongPhi2x(), tube.alongPhi2y(), w.GetNormal2().x(), w.GetNormal2().y(), tube, point, dir, dist_phi, ok_phi);
-        MaskedAssign(ok_phi && dist_phi > 0 && dist_phi < distance, dist_phi, &distance);
+        MaskedAssign(ok_phi && dist_phi > -kTolerance && dist_phi < distance, dist_phi, &distance);
       }
     }
 
+    // avoid distance values within kTolerance
+    MaskedAssign(Abs(distance)<kTolerance, 0., &distance);
   }
 
   template <class Backend>
