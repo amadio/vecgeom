@@ -66,6 +66,16 @@ void CondAssign(typename Vc::Vector<Type>::Mask const &cond,
   (*output)(!cond) = elseval;
 }
 
+VECGEOM_INLINE
+void CondAssign(typename Vc::Vector<double>::Mask const &cond,
+                int const &thenval,
+                int const &elseval,
+                int *const output) {
+  Vc::Vector<int> out(output);
+  out(VcInside::Mask(cond)) = thenval;
+  out(VcInside::Mask(!cond)) = elseval;
+}
+
 template <typename Type>
 VECGEOM_INLINE
 void MaskedAssign(typename Vc::Vector<Type>::Mask const &cond,
@@ -91,9 +101,33 @@ void MaskedAssign(typename Vc::Vector<Type>::Mask const &cond,
 
 VECGEOM_INLINE
 void MaskedAssign(VcBool const &cond,
+                  const int thenval,
+                  int *const output) {
+  Vc::Vector<int> out(output);
+  out(VcInside::Mask(cond)) = thenval;
+}
+
+VECGEOM_INLINE
+void MaskedAssign(VcBool const &cond,
                   const Inside_t thenval,
                   VcInside *const output) {
   (*output)(VcInside::Mask(cond)) = thenval;
+}
+
+// stores a vector type into a memory position ( normally an array ) toaddr
+// toaddr has to be properly aligned
+// this function is an abstraction for the Vc API "store"
+template <typename Type>
+VECGEOM_INLINE
+void StoreTo( typename Vc::Vector<Type> const & what,
+            Type * toaddr ){
+  what.store(toaddr);
+}
+
+VECGEOM_INLINE
+void StoreTo( VcBool const & what,
+            bool * toaddr ){
+  what.store(toaddr);
 }
 
 VECGEOM_INLINE

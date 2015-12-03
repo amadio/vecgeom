@@ -77,6 +77,13 @@ void MaskedAssign(const bool cond,
   *output = (cond) ? thenval : *output;
 }
 
+template <typename Type>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+void StoreTo(Type const &what, Type *toAddr) {
+  *toAddr = what;
+}
+
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
 bool IsFull(bool const &cond){
