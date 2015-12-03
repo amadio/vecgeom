@@ -254,7 +254,8 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY,
   ok = ( insectorCheck && !leaving ) || (!insectorCheck && leaving);
   if( Backend::early_returns && IsEmpty(ok) ) return;
 
-  dist = (alongY*pos.x() - alongX*pos.y() ) / (dir.y()*alongX - dir.x()*alongY);
+  Float_t dirDotXY = (dir.y()*alongX - dir.x()*alongY);
+  MaskedAssign( dirDotXY!=0, (alongY*pos.x() - alongX*pos.y() ) / dirDotXY, &dist );
 
   Float_t hitx = pos.x() + dist * dir.x();
   Float_t hity = pos.y() + dist * dir.y();
@@ -578,11 +579,16 @@ struct TubeImplementation {
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
     distance = kInfinity;
+    Bool_t done(Backend::kFalse);
 
     Float_t dirzsign(1.);
     MaskedAssign(dir.z() < 0, Float_t(-1.), &dirzsign);
-    Float_t distz = (tube.z()*dirzsign - point.z()) / dir.z();
-    MaskedAssign(distz >= 0, distz, &distance);
+    MaskedAssign(dir.z() != 0, (tube.z()*dirzsign - point.z()) / dir.z(), &distance);
+
+    // if all particles are outside and moving away, we're done
+    done = (distance <= MakePlusTolerant<true>(0.));
+    MaskedAssign( done, Float_t(0.0), &distance );
+    if( IsFull(done) ) return;
 
     /*
      * Calculate the intersection of the trajectory of

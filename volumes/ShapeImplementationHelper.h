@@ -326,7 +326,7 @@ public:
       output
     );
 #ifdef VECGEOM_REPLACE_USOLIDS
-    if(output < 0.0 && output > -kTolerance) output = 0.0;
+    if(output < 0.0) output = 0.0;
 #endif
     return output;
   }
