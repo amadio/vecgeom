@@ -217,157 +217,146 @@ bool test_ConvexityTrd() {
 
 bool test_ConvexityPolycone() {
 
-    double phiStart=0., deltaPhi=kTwoPi/3;
-    int nZ=10;
-    //double rmin[10]={0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
-    double rmin[10]={6.,0.,0.,0.,15.,0.,0.,0.,3.,15.};
-    double rmax[10]={10.,10.,10.,20.,20.,10.,10.,5.,5.,20.};
-    double z[10]={-20.,0.,0.,20.,20.,40.,45.,50.,50.,60.};
+  double phiStart = 0., deltaPhi = kTwoPi / 3;
+  int nZ = 10;
+  // double rmin[10]={0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
+  double rmin[10] = {6., 0., 0., 0., 15., 0., 0., 0., 3., 15.};
+  double rmax[10] = {10., 10., 10., 20., 20., 10., 10., 5., 5., 20.};
+  double z[10] = {-20., 0., 0., 20., 20., 40., 45., 50., 50., 60.};
 
-    //double rmin[4]={0.,0.,0.,0.};
-    //double rmax[4]={15.,15.,15.,10.};
-    //double z[4]={0.,20.,30.,40.};
+  // double rmin[4]={0.,0.,0.,0.};
+  // double rmax[4]={15.,15.,15.,10.};
+  // double z[4]={0.,20.,30.,40.};
 
-    vecgeom::SimplePolycone b1("VecGeomPolycone", phiStart, deltaPhi, nZ, z, rmin, rmax);
-    assert(!b1.GetUnplacedVolume()->IsConvex());
+  vecgeom::SimplePolycone b1("VecGeomPolycone", phiStart, deltaPhi, nZ, z, rmin, rmax);
+  assert(!b1.GetUnplacedVolume()->IsConvex());
 
-    //Added this new test case provided by Guilherme lima and Phillipe,
-    int nZ2 = 5;
-    double rmin2[5] = {0., 0., 0., 0., 0.};
-    // double rmax[5] = {5.,10.,10.,20.,20.};   // bad
-    double rmax2[5] = {15., 20., 20., 10., 5.}; // bad
-    double z2[5] = {0., 10., 20., 20., 40.};
-    phiStart = 0.;
-    deltaPhi = kTwoPi;
-    vecgeom::SimplePolycone b2("VecGeomPolycone2", phiStart, deltaPhi, nZ2, z2, rmin2, rmax2);
-    assert(!b2.GetUnplacedVolume()->IsConvex());
+  // Added this new test case provided by Guilherme lima and Phillipe,
+  int nZ2 = 5;
+  double rmin2[5] = {0., 0., 0., 0., 0.};
+  // double rmax[5] = {5.,10.,10.,20.,20.};   // bad
+  double rmax2[5] = {15., 20., 20., 10., 5.}; // bad
+  double z2[5] = {0., 10., 20., 20., 40.};
+  phiStart = 0.;
+  deltaPhi = kTwoPi;
+  vecgeom::SimplePolycone b2("VecGeomPolycone2", phiStart, deltaPhi, nZ2, z2, rmin2, rmax2);
+  assert(!b2.GetUnplacedVolume()->IsConvex());
 
-    int nZ3 = 6;
-    double rmin3[6] = {0., 0., 0., 0., 0.,0.};
-    double rmax3[6] = {10., 20., 20., 30., 20.,10.};
-    double z3[6] = {0., 10., 20., 20., 20.,30.};
-    vecgeom::SimplePolycone b3("VecGeomPolycone3", phiStart, deltaPhi, nZ3, z3, rmin3, rmax3);
-    assert(b3.GetUnplacedVolume()->IsConvex());
+  int nZ3 = 6;
+  double rmin3[6] = {0., 0., 0., 0., 0., 0.};
+  double rmax3[6] = {10., 20., 20., 30., 20., 10.};
+  double z3[6] = {0., 10., 20., 20., 20., 30.};
+  vecgeom::SimplePolycone b3("VecGeomPolycone3", phiStart, deltaPhi, nZ3, z3, rmin3, rmax3);
+  assert(b3.GetUnplacedVolume()->IsConvex());
 
+  int nZ4 = 3;
+  double rmin4[3] = {0., 0., 0.};
+  double rmax4[3] = {10., 20., 30.};
+  double z4[3] = {0., 10., 10.};
+  vecgeom::SimplePolycone b4("VecGeomPolycone3", phiStart, deltaPhi, nZ4, z4, rmin4, rmax4);
+  assert(b4.GetUnplacedVolume()->IsConvex());
 
-    int nZ4 = 3 ;
-    double rmin4[3]={0.,0.,0.};
-    double rmax4[3]={10.,20.,30.};
-    double z4[3]={0.,10.,10.};
-    vecgeom::SimplePolycone b4("VecGeomPolycone3", phiStart, deltaPhi, nZ4, z4, rmin4, rmax4);
-    assert(b4.GetUnplacedVolume()->IsConvex());
-    
-    
-//Some more test cases
-//Convex polycone,
-{
-//constexpr int nZ = 0;
-{
-deltaPhi = kTwoPi;
-constexpr int nZ=6;
-double rmin[nZ] = {0., 0., 0., 0., 0.,0.};
-double rmax[nZ] = {10., 20., 20., 30., 20.,10.};
-double z[nZ] = {0., 10., 20., 20., 20.,30.};
-vecgeom::SimplePolycone B("VecGeomPolycone", phiStart, deltaPhi, nZ, z, rmin, rmax);
-assert(B.GetUnplacedVolume()->IsConvex());
-    
-}
+  // Some more test cases
+  // Convex polycone,
+  {
+    // constexpr int nZ = 0;
+    {
+      deltaPhi = kTwoPi;
+      constexpr int nZ = 6;
+      double rmin[nZ] = {0., 0., 0., 0., 0., 0.};
+      double rmax[nZ] = {10., 20., 20., 30., 20., 10.};
+      double z[nZ] = {0., 10., 20., 20., 20., 30.};
+      vecgeom::SimplePolycone B("VecGeomPolycone", phiStart, deltaPhi, nZ, z, rmin, rmax);
+      assert(B.GetUnplacedVolume()->IsConvex());
+    }
 
-//The below two test cases are very important because of introduction
-//of non zero inner radius for some sections of polycone.
+    // The below two test cases are very important because of introduction
+    // of non zero inner radius for some sections of polycone.
 
-//Not Convex
-//Because of non zero inner radius at some section, which 
-//exist in the final polycone also
-{
-deltaPhi = kTwoPi;
-constexpr int nZ=6;
-double rmin[nZ] = {0., 0., 10., 0., 0.,0.};
-double rmax[nZ] = {10., 20., 20., 30., 20.,10.};
-double z[nZ] = {0., 10., 20., 20., 20.,30.};
-vecgeom::SimplePolycone B("VecGeomPolycone", phiStart, deltaPhi, nZ, z, rmin, rmax);
-assert(!B.GetUnplacedVolume()->IsConvex());
-    
-}
+    // Not Convex
+    // Because of non zero inner radius at some section, which
+    // exist in the final polycone also
+    {
+      deltaPhi = kTwoPi;
+      constexpr int nZ = 6;
+      double rmin[nZ] = {0., 0., 10., 0., 0., 0.};
+      double rmax[nZ] = {10., 20., 20., 30., 20., 10.};
+      double z[nZ] = {0., 10., 20., 20., 20., 30.};
+      vecgeom::SimplePolycone B("VecGeomPolycone", phiStart, deltaPhi, nZ, z, rmin, rmax);
+      assert(!B.GetUnplacedVolume()->IsConvex());
+    }
 
-//Convex
-//Even if a non zero inner radius at some section, 
-//but this inner radius does not exist in the final polycone.
-{
-deltaPhi = kTwoPi;
-constexpr int nZ=6;
-double rmin[nZ] = {0., 0., 0., 10., 0.,0.};
-double rmax[nZ] = {10., 20., 20., 30., 20.,10.};
-double z[nZ] = {0., 10., 20., 20., 20.,30.};
-vecgeom::SimplePolycone B("VecGeomPolycone", phiStart, deltaPhi, nZ, z, rmin, rmax);
-assert(B.GetUnplacedVolume()->IsConvex());
-    
-}
+    // Convex
+    // Even if a non zero inner radius at some section,
+    // but this inner radius does not exist in the final polycone.
+    {
+      deltaPhi = kTwoPi;
+      constexpr int nZ = 6;
+      double rmin[nZ] = {0., 0., 0., 10., 0., 0.};
+      double rmax[nZ] = {10., 20., 20., 30., 20., 10.};
+      double z[nZ] = {0., 10., 20., 20., 20., 30.};
+      vecgeom::SimplePolycone B("VecGeomPolycone", phiStart, deltaPhi, nZ, z, rmin, rmax);
+      assert(B.GetUnplacedVolume()->IsConvex());
+    }
 
-//Not Convex
-{
-deltaPhi = kTwoPi;
-constexpr int  nZ=8;
-  	double rmin[nZ]={0.,0.,0.,0.,0.,0.,0.,0.};
-  	double rmax[nZ]={10.,20.,20.,10.,10.,5.,5.,20.};
-  	double z[nZ]={0.,20.,20.,40.,45.,50.,50.,60.};
-  	vecgeom::SimplePolycone B("VecGeomPolycone", phiStart, deltaPhi, nZ, z, rmin, rmax);
-assert(!B.GetUnplacedVolume()->IsConvex());
+    // Not Convex
+    {
+      deltaPhi = kTwoPi;
+      constexpr int nZ = 8;
+      double rmin[nZ] = {0., 0., 0., 0., 0., 0., 0., 0.};
+      double rmax[nZ] = {10., 20., 20., 10., 10., 5., 5., 20.};
+      double z[nZ] = {0., 20., 20., 40., 45., 50., 50., 60.};
+      vecgeom::SimplePolycone B("VecGeomPolycone", phiStart, deltaPhi, nZ, z, rmin, rmax);
+      assert(!B.GetUnplacedVolume()->IsConvex());
+    }
 
- } 	
+    // Not Convex
+    {
+      deltaPhi = kTwoPi;
+      constexpr int nZ = 6;
+      double rmin[nZ] = {0., 0., 0., 0., 0., 0.};
+      double rmax[nZ] = {10., 20., 30., 25., 20., 30.};
+      double z[nZ] = {0., 10., 10., 10., 20., 30.};
+      vecgeom::SimplePolycone B("VecGeomPolycone", phiStart, deltaPhi, nZ, z, rmin, rmax);
+      assert(!B.GetUnplacedVolume()->IsConvex());
+    }
 
-//Not Convex
-{
-deltaPhi = kTwoPi;
- constexpr int nZ = 6;
-    double rmin[nZ] = {0., 0., 0., 0., 0.,0.};
-    double rmax[nZ] = {10., 20., 30., 25., 20.,30.};
-    double z[nZ] = {0., 10., 10., 10., 20.,30.};
-    vecgeom::SimplePolycone B("VecGeomPolycone", phiStart, deltaPhi, nZ, z, rmin, rmax);
-assert(!B.GetUnplacedVolume()->IsConvex());
+    // Simple, important and nice test case of non convex polycone.
+    {
+      deltaPhi = kTwoPi;
+      constexpr int nZ = 3;
+      double rmin[nZ] = {0., 0., 0.};
+      double rmax[nZ] = {10., 20., 30.};
+      double z[nZ] = {0., 10., 15.};
+      vecgeom::SimplePolycone B("VecGeomPolycone", phiStart, deltaPhi, nZ, z, rmin, rmax);
+      assert(!B.GetUnplacedVolume()->IsConvex());
+    }
 
-}
+    // Same as above but this time nature is convex because of increased Z with same Rmax
+    {
+      deltaPhi = kTwoPi;
+      constexpr int nZ = 3;
+      double rmin[nZ] = {0., 0., 0.};
+      double rmax[nZ] = {10., 20., 30.};
+      double z[nZ] = {0., 10., 30.};
+      vecgeom::SimplePolycone B("VecGeomPolycone", phiStart, deltaPhi, nZ, z, rmin, rmax);
+      assert(B.GetUnplacedVolume()->IsConvex());
+    }
 
-//Simple, important and nice test case of non convex polycone.
-{
-deltaPhi = kTwoPi;
-constexpr int  nZ = 3;
-    double rmin[nZ] = {0., 0., 0.};
-    double rmax[nZ] = {10., 20., 30.};
-    double z[nZ] = {0., 10., 15.}; 	
-    vecgeom::SimplePolycone B("VecGeomPolycone", phiStart, deltaPhi, nZ, z, rmin, rmax);
-assert(!B.GetUnplacedVolume()->IsConvex());
+    // Not Convex
+    // Introducing non-zero rmin at the starting section
+    {
+      deltaPhi = kTwoPi;
+      constexpr int nZ = 3;
+      double rmin[nZ] = {5., 0., 0.};
+      double rmax[nZ] = {10., 20., 30.};
+      double z[nZ] = {0., 10., 30.};
+      vecgeom::SimplePolycone B("VecGeomPolycone", phiStart, deltaPhi, nZ, z, rmin, rmax);
+      assert(!B.GetUnplacedVolume()->IsConvex());
+    }
+  }
 
-}
-
-//Same as above but this time nature is convex because of increased Z with same Rmax
-{
-deltaPhi = kTwoPi;
-constexpr int  nZ = 3;
-    double rmin[nZ] = {0., 0., 0.};
-    double rmax[nZ] = {10., 20., 30.};
-    double z[nZ] = {0., 10., 30.}; 
-    vecgeom::SimplePolycone B("VecGeomPolycone", phiStart, deltaPhi, nZ, z, rmin, rmax);
-assert(B.GetUnplacedVolume()->IsConvex());
-
-}
-
-//Not Convex
-//Introducing non-zero rmin at the starting section
-{
-deltaPhi = kTwoPi;
-constexpr int  nZ = 3;
-    double rmin[nZ] = {5., 0., 0.};
-    double rmax[nZ] = {10., 20., 30.};
-    double z[nZ] = {0., 10., 30.};
-    vecgeom::SimplePolycone B("VecGeomPolycone", phiStart, deltaPhi, nZ, z, rmin, rmax);
-assert(!B.GetUnplacedVolume()->IsConvex());
-
-}
-    
-}
-    
-    return true;
+  return true;
 }
 
 bool test_ConvexityTrapezoid() {
