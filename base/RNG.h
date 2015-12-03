@@ -104,6 +104,9 @@ public:
   }
 #endif
 
+  void seed(unsigned long seed_val){
+     rng.seed(seed_val);
+  }
   /**
    * Access singleton instance.
    */
