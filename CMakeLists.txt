@@ -689,7 +689,7 @@ endif()
 # Define executables
 
 set(TEST_EXECUTABLES_CORE
-  ${CMAKE_SOURCE_DIR}/test/core/MapTest.cpp
+#  ${CMAKE_SOURCE_DIR}/test/core/MapTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/ContainerTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/create_geometry.cpp
   ${CMAKE_SOURCE_DIR}/test/core/testVectorSafety.cpp
@@ -820,6 +820,7 @@ set(TEST_EXECUTABLES_BENCHMARK
 )
 set(TEST_EXECUTABLES_CUDA
   # Files go here
+  ${CMAKE_SOURCE_DIR}/test/core/MapTest.cpp
 )
 set(TEST_EXECUTABLES_SHAPETESTER
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testBox.cpp
