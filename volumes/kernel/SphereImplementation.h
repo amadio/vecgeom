@@ -336,7 +336,7 @@ void SphereImplementation<transCodeT, rotCodeT>::Normal(
 }
 
 /* This function should be called from NormalKernel, only for the
- * cases when the point is already outside and one want to calculate
+ * cases when the point is not on the surface and one want to calculate
  * the SurfaceNormal.
  *
  * Algo : Find the boundary which is closest to the point,

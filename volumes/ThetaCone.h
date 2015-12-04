@@ -109,12 +109,12 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   Vector3D<typename Backend::precision_v> GetNormal1(Vector3D<typename Backend::precision_v> const &point) const {
 
-    Vector3D<typename Backend::precision_v> normal(2 * point.x(), 2 * point.y(), -2 * tanSTheta2 * point.z());
+    Vector3D<typename Backend::precision_v> normal(2. * point.x(), 2. * point.y(), -2. * tanSTheta2 * point.z());
 
     if (fSTheta <= kPi / 2.)
-      return -normal;
+      return -normal.Unit();
     else
-      return normal;
+      return normal.Unit();
   }
 
   /* Function to calculate normal at a point to the Cone formed at
@@ -132,9 +132,9 @@ public:
     Vector3D<typename Backend::precision_v> normal(2 * point.x(), 2 * point.y(), -2 * tanETheta2 * point.z());
 
     if (fETheta <= kPi / 2.)
-      return normal;
+      return normal.Unit();
     else
-      return -normal;
+      return -normal.Unit();
   }
 
   template <typename Backend>
