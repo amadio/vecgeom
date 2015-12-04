@@ -151,7 +151,7 @@ Precision Planes::GetDistance(int i) const {
   return fDistances[i];
 }
 
-#ifdef VECGEOM_VC
+
 namespace {
 
 template <class Backend>
@@ -167,7 +167,7 @@ void AcceleratedContains(
   return;
 }
 
-#if defined(VECGEOM_QUADRILATERALS_VC)
+#if defined(VECGEOM_VC) && defined(VECGEOM_QUADRILATERALS_VC)
 template <>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
@@ -193,7 +193,6 @@ void AcceleratedContains<kScalar>(
 #endif
 
 } // End anonymous namespace
-#endif // VECGEOM_VC
 
 
 template <class Backend>
@@ -205,18 +204,15 @@ typename Backend::bool_v Planes::Contains(
 
   int i = 0;
   const int n = size();
-#ifdef VECGEOM_VC
   AcceleratedContains<Backend>(i, n, fNormals, fDistances, point, result);
-#else
   for (; i < n; ++i) {
     result &= point.Dot(fNormals[i]) + fDistances[i] < 0;
   }
-#endif
 
   return result;
 }
 
-#ifdef VECGEOM_VC
+
 namespace {
 
 template <class Backend>
@@ -233,7 +229,7 @@ void AcceleratedInside(
 }
 
 
-#if defined(VECGEOM_QUADRILATERALS_VC)
+#if defined(VECGEOM_VC) and defined(VECGEOM_QUADRILATERALS_VC)
 template <>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
@@ -264,7 +260,6 @@ void AcceleratedInside<kScalar>(
 #endif
 
 } // End anonymous namespace
-#endif // VECGEOM_VC
 
 template <class Backend>
 VECGEOM_CUDA_HEADER_BOTH
@@ -275,9 +270,7 @@ typename Backend::inside_v Planes::Inside(
 
   int i = 0;
   const int n = size();
-#ifdef VECGEOM_VC
   AcceleratedInside<Backend>(i, n, fNormals, fDistances, point, result);
-#else
   for (; i < n; ++i) {
     typename Backend::precision_v distanceResult =
         fNormals.x(i)*point[0] + fNormals.y(i)*point[1] +
@@ -286,7 +279,6 @@ typename Backend::inside_v Planes::Inside(
     MaskedAssign(result == EInside::kInside && distanceResult > -kTolerance, EInside::kSurface, &result);
     if (IsFull(result) == EInside::kOutside) break;
   }
-#endif
 
   return result;
 }

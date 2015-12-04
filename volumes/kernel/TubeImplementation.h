@@ -241,17 +241,17 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY,
                                     typename Backend::bool_v &ok) {
 
   typedef typename Backend::precision_v Float_t;
-  typedef typename Backend::bool_v Bool_t;
+  dist = kInfinity;
+
   // approaching phi plane from the right side?
   // this depends whether we use it for DistanceToIn or DistanceToOut
-  if( ! insectorCheck ) {
-  ok = dir.x()*normalX + dir.y()*normalY <= 0.;
-  if( IsFull(!ok) ) return;
-  }
-  else {
-      ok = Bool_t(true);
-  }
-  dist = (alongY*pos.x() - alongX*pos.y() ) / (dir.y()*alongX - dir.x()*alongY);
+  if(insectorCheck) ok = ( dir.x()*normalX + dir.y()*normalY > 0. );  // DistToIn  -- require tracks entering volume
+  else              ok = ( dir.x()*normalX + dir.y()*normalY < 0. );  // DistToOut -- require tracks leaving volume
+
+  if( Backend::early_returns && IsEmpty(ok) ) return;
+
+  Float_t dirDotXY = (dir.y()*alongX - dir.x()*alongY);
+  MaskedAssign( dirDotXY!=0, (alongY*pos.x() - alongX*pos.y() ) / dirDotXY, &dist );
 
   if(insectorCheck) {
     Float_t hitx = pos.x() + dist * dir.x();
@@ -547,7 +547,7 @@ struct TubeImplementation {
               w.GetNormal1().x(), w.GetNormal1().y(),
               tube, pos_local, dir_local, dist_phi, ok_phi);
 
-      MaskedAssign(ok_phi && dist_phi < distance, dist_phi, &distance);
+      MaskedAssign(ok_phi && dist_phi>-kTolerance && dist_phi<distance, dist_phi, &distance);
 
       /*
        * If the tube is pi degrees, there's just one phi plane,
@@ -560,11 +560,12 @@ struct TubeImplementation {
                 w.GetNormal2().x(), w.GetNormal2().y(),
               tube, pos_local, dir_local, dist_phi, ok_phi);
 
-        MaskedAssign(ok_phi && dist_phi < distance, dist_phi, &distance);
+        MaskedAssign(ok_phi && dist_phi>-kTolerance && dist_phi<distance, dist_phi, &distance);
       }
     }
 
-  }
+  } // end of DistanceToIn()
+
 
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH
@@ -581,11 +582,16 @@ struct TubeImplementation {
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
     distance = kInfinity;
+    Bool_t done(Backend::kFalse);
 
     Float_t dirzsign(1.);
     MaskedAssign(dir.z() < 0, Float_t(-1.), &dirzsign);
-    Float_t distz = (tube.z()*dirzsign - point.z()) / dir.z();
-    MaskedAssign(distz >= 0, distz, &distance);
+    MaskedAssign(dir.z() != 0, (tube.z()*dirzsign - point.z()) / dir.z(), &distance);
+
+    // if all particles are outside and moving away, we're done
+    done = (distance <= MakePlusTolerant<true>(0.));
+    MaskedAssign( done, Float_t(0.0), &distance );
+    if( IsFull(done) ) return;
 
     /*
      * Calculate the intersection of the trajectory of
@@ -604,9 +610,9 @@ struct TubeImplementation {
      * rmin
      */
 
-    Float_t dist_rmin;
-    Bool_t ok_rmin;
     if(checkRminTreatment<tubeTypeT>(tube)) {
+      Float_t dist_rmin;
+      Bool_t ok_rmin;
       Float_t crmin = invnsq * (rsq - tube.rmin2());
       CircleTrajectoryIntersection<Backend, tubeTypeT, false, false>(b, crmin, tube, point, dir, dist_rmin, ok_rmin);
       MaskedAssign(ok_rmin && dist_rmin >= 0 && dist_rmin < distance, dist_rmin, &distance);
@@ -634,46 +640,42 @@ struct TubeImplementation {
      */
 
     if(checkPhiTreatment<tubeTypeT>(tube)) {
-      Float_t dist_phi;
-      Bool_t ok_phi;
-      Bool_t unused;
-
+      Float_t dist_phi(kInfinity);
+      Bool_t ok_phi(false);
 
       Wedge const& w = tube.GetWedge();
       if(SectorType<tubeTypeT>::value == kSmallerThanPi) { 
 
-
         Precision normal1X = w.GetNormal1().x();
         Precision normal1Y = w.GetNormal1().y();
         PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, false, false>(
-                tube.alongPhi1x(), tube.alongPhi1y(), normal1X, normal1Y,  tube, point, dir, dist_phi, unused);
-        MaskedAssign(dist_phi > 0 && dist_phi < distance, dist_phi, &distance);
+                tube.alongPhi1x(), tube.alongPhi1y(), normal1X, normal1Y,  tube, point, dir, dist_phi, ok_phi);
+        MaskedAssign(ok_phi && dist_phi > -kTolerance && dist_phi < distance, dist_phi, &distance);
 
         PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, false, false>(
-        tube.alongPhi2x(), tube.alongPhi2y(), w.GetNormal2().x(), w.GetNormal2().y(), tube, point, dir, dist_phi, unused);
-        MaskedAssign(dist_phi > 0 && dist_phi < distance, dist_phi, &distance);
+        tube.alongPhi2x(), tube.alongPhi2y(), w.GetNormal2().x(), w.GetNormal2().y(), tube, point, dir, dist_phi, ok_phi);
+        MaskedAssign(ok_phi && dist_phi > -kTolerance && dist_phi < distance, dist_phi, &distance);
 
       }
       else if(SectorType<tubeTypeT>::value == kOnePi) {
         PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, false, false>(
           tube.alongPhi2x(), tube.alongPhi2y(),
           w.GetNormal2().x(), w.GetNormal2().x(),
-          tube, point, dir, dist_phi, unused);
-        MaskedAssign(dist_phi > 0 && dist_phi < distance, dist_phi, &distance);
+          tube, point, dir, dist_phi, ok_phi);
+        MaskedAssign(ok_phi && dist_phi > -kTolerance && dist_phi < distance, dist_phi, &distance);
       }
       else {
         // angle bigger than pi or unknown
         // need to check that point falls on positive direction of phi-vectors
         PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, true, false>(
             tube.alongPhi1x(), tube.alongPhi1y(), w.GetNormal1().x(), w.GetNormal1().y(), tube, point, dir, dist_phi, ok_phi);
-        MaskedAssign(ok_phi && dist_phi > 0 && dist_phi < distance, dist_phi, &distance);
+        MaskedAssign(ok_phi && dist_phi > -kTolerance && dist_phi < distance, dist_phi, &distance);
 
         PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, true, false>(
           tube.alongPhi2x(), tube.alongPhi2y(), w.GetNormal2().x(), w.GetNormal2().y(), tube, point, dir, dist_phi, ok_phi);
-        MaskedAssign(ok_phi && dist_phi > 0 && dist_phi < distance, dist_phi, &distance);
+        MaskedAssign(ok_phi && dist_phi > -kTolerance && dist_phi < distance, dist_phi, &distance);
       }
     }
-
   }
 
   template <class Backend>

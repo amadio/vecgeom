@@ -49,6 +49,9 @@ option(VALIDATION "Enable validation tests from CMS geometry." OFF)
 
 option(PLANESHELL "Enable the use of PlaneShell class for the trapezoid." ON)
 
+option(QUADRILATERAL_ACCELERATION "Enable SIMD vectorization when
+looping over quadrilaterals (in Polyhedron)." ON)
+
 option(DISTANCE_DEBUG "Enable comparison of calculated distances againt ROOT/Geant4 behind the scenes" OFF)
 
 option(INPLACE_TRANSFORMATIONS "Put transformation as members rather than pointers into PlacedVolume objects" ON)
@@ -312,6 +315,10 @@ endif()
 if (VC_ACCELERATION)
   set(VECGEOM_COMPILATION_FLAGS
       "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_VC_ACCELERATION")
+endif()
+if (QUADRILATERAL_ACCELERATION)
+  set(VECGEOM_COMPILATION_FLAGS
+      "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_QUADRILATERALS_VC")
 endif()
 if (BENCHMARK)
   set(VECGEOM_COMPILATION_FLAGS

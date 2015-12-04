@@ -46,14 +46,20 @@ void UnplacedPolycone::Init(double phiStart,
   // Calculate RMax of Polycone in order to determine convexity of sections
   //
   double RMaxextent = rOuter[0];
-  double startRmax = rOuter[0];
 
-  fContinuityOverAll &= CheckContinuityInZPlane(rOuter,zPlane);
+  Vector<Precision> newROuter,newZPlane,newRInner;
+  fContinuityOverAll &= CheckContinuity(rOuter,rInner,zPlane,newROuter,newRInner,newZPlane);
+  fConvexityPossible &= (newRInner[0]==0.);
+  
+  Precision startRmax = newROuter[0];
+  for(unsigned int j = 1 ; j < newROuter.size(); j++)
+  {
+    fEqualRmax &= (startRmax==newROuter[j]);
+    startRmax = newROuter[j];
+    fConvexityPossible &= (newRInner[j]==0.);
+  } 
 
   for (unsigned int j = 1; j < numZPlanes; j++) {
-      fConvexityPossible &= (rInner[j]==0.);
-      fEqualRmax &= (startRmax==rOuter[j]);
-      startRmax = rOuter[j];
 
     if (rOuter[j] > RMaxextent)
       RMaxextent = rOuter[j];
@@ -339,7 +345,7 @@ VPlacedVolume* UnplacedPolycone::Create(LogicalVolume const *const logical_volum
 
     // attention here z.size() might be different than fNz due to compactification during Reconstruction
     DevicePtr<cuda::VUnplacedVolume> gpupolycon =  CopyToGpuImpl<UnplacedPolycone>(gpu_ptr,
-             fStartPhi, fDeltaPhi, s, rmin_gpu_ptr, rmax_gpu_ptr, z_gpu_ptr);
+	      fStartPhi, fDeltaPhi, s, z_gpu_ptr, rmin_gpu_ptr, rmax_gpu_ptr);
 
         // remove temporary space from GPU
         FreeFromGpu(z_gpu_ptr);
@@ -794,77 +800,121 @@ void UnplacedPolycone::Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & 
 bool UnplacedPolycone::CheckContinuityInRmax(const Vector<Precision> &rOuter) {
 
   bool continuous = true;
-
-  for (unsigned int j = 1; j < fNz;) {
-    if (j != (fNz - 1))
-      continuous &= (rOuter[j] == rOuter[j + 1]);
-    j = j + 2;
+  unsigned int len = rOuter.size();
+  if (len > 2) {
+    for (unsigned int j = 1; j < len;) {
+      if (j != (len - 1))
+        continuous &= (rOuter[j] == rOuter[j + 1]);
+      j = j + 2;
+    }
   }
   return continuous;
 }
 
-bool UnplacedPolycone::CheckContinuityInZPlane(const double rOuter[], const double zPlane[]) {
+/*Improvising the convexity detection algo.
+* Much Better implementation, currently passes all
+* the existing test and newly added test also.
+*
+* Algo: Instead of putting complex checks on slope, especially the
+* conditions where z[i]==z[i+1], convert the polycone to reduced
+* polycone, so that it is not having those section, which are
+* basically not required for convexity calculation.
+*
+* Once reduced polycone is calculated, pass it to do the check
+* for Slope continuity and Rmax continuity
+*
+* return the output of AND operation of SlopeContinuity and RmaxContinuity
+*
+* Much cleaner implementation, and easy to debug.
+*/
 
-  Vector<Precision> rOut;
+bool UnplacedPolycone::CheckContinuity(const double rOuter[], const double rInner[], const double zPlane[],
+                                       Vector<Precision> &newROuter, Vector<Precision> &newRInner,
+                                       Vector<Precision> &newZPlane) {
+
+  Vector<Precision> rOut, rIn;
   Vector<Precision> zPl;
   rOut.push_back(rOuter[0]);
+  rIn.push_back(rInner[0]);
   zPl.push_back(zPlane[0]);
-  for (unsigned int j = 1; j < fNz;) {
-    if (j == (fNz - 1)) {
+  for (unsigned int j = 1; j < fNz; j++) {
+
+    if (j == fNz - 1) {
       rOut.push_back(rOuter[j]);
+      rIn.push_back(rInner[j]);
       zPl.push_back(zPlane[j]);
     } else {
-      if (zPlane[j] != zPlane[j + 1]) {
+      if ((zPlane[j] != zPlane[j + 1]) || (rOuter[j] != rOuter[j + 1])) {
         rOut.push_back(rOuter[j]);
         rOut.push_back(rOuter[j]);
-        rOut.push_back(rOuter[j + 1]);
-        rOut.push_back(rOuter[j + 1]);
 
         zPl.push_back(zPlane[j]);
         zPl.push_back(zPlane[j]);
-        zPl.push_back(zPlane[j + 1]);
-        zPl.push_back(zPlane[j + 1]);
+
+        rIn.push_back(rInner[j]);
+        rIn.push_back(rInner[j]);
+
       } else {
         rOut.push_back(rOuter[j]);
-        rOut.push_back(rOuter[j + 1]);
         zPl.push_back(zPlane[j]);
-        zPl.push_back(zPlane[j + 1]);
+        rIn.push_back(rInner[j]);
       }
     }
-    j = j + 2;
   }
 
-  bool contRmax = CheckContinuityInRmax(rOut);
-  bool contSlope = CheckContinuityInSlope(rOut, zPl);
+  if (rOut.size() % 2 != 0) {
+    // fNz is odd, the adding of the last item did not happen in the loop.
+    rOut.push_back(rOut[rOut.size() - 1]);
+    rIn.push_back(rIn[rIn.size() - 1]);
+    zPl.push_back(zPl[zPl.size() - 1]);
+  }
+
+  /* Creating a new temporary Reduced polycone with desired data elements,
+  *  which makes sure that denominator will never be zero (hence avoiding FPE(division by zero)),
+  *  while calculating slope.
+  *
+  *  This will be the minimum polycone,i.e. no extra section which
+  *  affect its shape
+  */
+
+  for (size_t j = 0; j < rOut.size();) {
+
+    if (zPl[j] != zPl[j + 1]) {
+      newZPlane.push_back(zPl[j]);
+      newZPlane.push_back(zPl[j + 1]);
+      newROuter.push_back(rOut[j]);
+      newROuter.push_back(rOut[j + 1]);
+      newRInner.push_back(rIn[j]);
+      newRInner.push_back(rIn[j + 1]);
+    }
+
+    j = j + 2;
+  }
+  // Minimum polycone construction over
+
+  // Checking Slope continuity and Rmax Continuity
+  bool contRmax = CheckContinuityInRmax(newROuter);
+  bool contSlope = CheckContinuityInSlope(newROuter, newZPlane);
+
+  // If both are true then the polycone can be convex
+  // but still final convexity depends on Inner Radius also.
   return (contRmax && contSlope);
 }
 
-bool UnplacedPolycone::CheckContinuityInSlope(const Vector<Precision> &rOuter,
-                                              const Vector<Precision> &zPlane) {
+/* Cleaner CheckContinuityInSlope.
+ * Because of new design, it will not get the case of FPE exception
+ * (division by zero)
+ */
+bool UnplacedPolycone::CheckContinuityInSlope(const Vector<Precision> &rOuter, const Vector<Precision> &zPlane) {
 
   bool continuous = true;
   Precision startSlope = kInfinity;
-  for (size_t j = 0; j < rOuter.size();) {
-    Precision currentSlope = kInfinity;
-    if ((zPlane[j] == zPlane[j + 1])) {
-      if (j == 0) {
-        currentSlope = startSlope;
-        break;
-      } else {
-        if ((rOuter[j] == rOuter[j + 1]) && (rOuter[j] == rOuter[j - 1]))
-          currentSlope = startSlope;
-        else
-          break;
-      }
-    } else {
-      currentSlope = (rOuter[j + 1] - rOuter[j]) / (zPlane[j + 1] - zPlane[j]);
-      continuous &= (currentSlope <= startSlope);
-      startSlope = currentSlope;
-      if (!continuous)
-        break;
-    }
 
-    j = j + 2;
+  // Doing the actual slope calculation here, and checking continuity,
+  for (size_t j = 0; j < rOuter.size(); j = j + 2) {
+    Precision currentSlope = (rOuter[j + 1] - rOuter[j]) / (zPlane[j + 1] - zPlane[j]);
+    continuous &= (currentSlope <= startSlope);
+    startSlope = currentSlope;
   }
   return continuous;
 }
@@ -873,7 +923,6 @@ VECGEOM_CUDA_HEADER_BOTH
 bool UnplacedPolycone::IsConvex() const {
   // Default safe convexity value
   bool convexity = false;
-
   if (fConvexityPossible) {
     if (fEqualRmax && (fDeltaPhi <= kPi || fDeltaPhi == kTwoPi))
       // In this case, Polycone become solid Cylinder, No need to check anything else, 100% convex
