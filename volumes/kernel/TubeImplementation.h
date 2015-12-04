@@ -241,25 +241,21 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY,
                                     typename Backend::bool_v &ok) {
 
   typedef typename Backend::precision_v Float_t;
-  typedef typename Backend::bool_v Bool_t;
   dist = kInfinity;
 
   // approaching phi plane from the right side?
   // this depends whether we use it for DistanceToIn or DistanceToOut
-  Bool_t leaving = ( dir.x()*normalX + dir.y()*normalY <= 0 );
+  if(insectorCheck) ok = ( dir.x()*normalX + dir.y()*normalY > 0. );  // DistToIn  -- require tracks entering volume
+  else              ok = ( dir.x()*normalX + dir.y()*normalY < 0. );  // DistToOut -- require tracks leaving volume
 
-  // For DistanceToIn (insectorCheck==true) -- tracks leaving volume are not ok
-  // For DistanceToOut (insectorCheck==false) -- tracks leaving volume are ok
-  // this means ok = insector XNOR leaving
-  ok = ( insectorCheck && !leaving ) || (!insectorCheck && leaving);
   if( Backend::early_returns && IsEmpty(ok) ) return;
 
   Float_t dirDotXY = (dir.y()*alongX - dir.x()*alongY);
   MaskedAssign( dirDotXY!=0, (alongY*pos.x() - alongX*pos.y() ) / dirDotXY, &dist );
 
-  Float_t hitx = pos.x() + dist * dir.x();
-  Float_t hity = pos.y() + dist * dir.y();
   if(insectorCheck) {
+    Float_t hitx = pos.x() + dist * dir.x();
+    Float_t hity = pos.y() + dist * dir.y();
     Float_t hitz = pos.z() + dist * dir.z();
     Float_t r2 = hitx*hitx + hity*hity;
 
@@ -267,9 +263,17 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY,
           (r2 >= tube.tolIrmin2()) &&
           (r2 <= tube.tolIrmax2()) &&
           dist > 0;
-  }
 
-  if(PositiveDirectionOfPhiVector)  ok = ok && (hitx*alongX + hity*alongY) > 0.;
+    if(PositiveDirectionOfPhiVector)
+      ok = ok && (hitx*alongX + hity*alongY) > 0.;
+  }
+  else {
+    if(PositiveDirectionOfPhiVector) {
+      Float_t hitx = pos.x() + dist * dir.x();
+      Float_t hity = pos.y() + dist * dir.y();
+      ok = ok && (hitx*alongX + hity*alongY) >= 0.;
+    }
+  }
 }
 }
 
@@ -560,9 +564,8 @@ struct TubeImplementation {
       }
     }
 
-    // avoid distances within kTolerance
-    MaskedAssign(Abs(distance)<kTolerance, 0., &distance);
-  }
+  } // end of DistanceToIn()
+
 
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH
@@ -673,9 +676,6 @@ struct TubeImplementation {
         MaskedAssign(ok_phi && dist_phi > -kTolerance && dist_phi < distance, dist_phi, &distance);
       }
     }
-
-    // avoid distance values within kTolerance
-    MaskedAssign(Abs(distance)<kTolerance, 0., &distance);
   }
 
   template <class Backend>
