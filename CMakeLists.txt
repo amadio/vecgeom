@@ -261,7 +261,7 @@ if (MICVEC)
 endif()
 
 if (CUDA)
-  set(CUDA_ARCH 20 CACHE STRING "CUDA device architecture.")
+  set(CUDA_ARCH 30 CACHE STRING "CUDA device architecture.")
   set(CUDA_ARCH "-arch=sm_${CUDA_ARCH}")
   set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_CUDA")
   if (CUDA_VOLUME_SPECIALIZATION)
