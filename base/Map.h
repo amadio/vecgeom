@@ -3,8 +3,14 @@
 
 #include "RBTree.h"
 namespace vecgeom {
-VECGEOM_DEVICE_FORWARD_DECLARE(template <typename Type>  class map; )
- 
+   //This fails because of the commas, we would need to use another (new) macro
+   //VECGEOM_DEVICE_FORWARD_DECLARE(template <class _Key, class _Tp, class _Compare>  class map; )
+#ifndef VECGEOM_NVCC
+   namespace cuda {
+      template <class _key> struct less;
+      template <class _Key, class _Tp, class _Compare = cuda::less<_Key> >  class map;
+   }
+#endif
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
