@@ -13,6 +13,9 @@ __itt_domain* __itt_mymap = __itt_domain_create("myMapTest");
 __itt_domain* __itt_stdmap = __itt_domain_create("stdMapTest");
 #endif
 
+void launch_test_new(vecgeom::DevicePtr<vecgeom::cuda::map<double,double> > &devMap, vecgeom::DevicePtr<double> key, int nBlocks, int nThreads);
+void launch_rebuild_map(vecgeom::DevicePtr<vecgeom::cuda::map<double,double> > &devMap, vecgeom::DevicePtr<double> key, vecgeom::DevicePtr<double> value, int N, int nBlocks, int nThreads);
+
 VECGEOM_CUDA_HEADER_HOST
 double get_random_int()
 {
@@ -36,29 +39,6 @@ void test_std(int size, double* keys,double* values) {
       }
 }
 
-VECGEOM_CUDA_HEADER_DEVICE
-void test_new(vecgeom::map<double,double>* map, double* key) {
-   for (int i=0;i<250;i++)
-      {
-         double my_1 = (*map)[key[i]];
-         double my_2 = map->find(key[i])->second;
-         std::cout<<"From the map= "<<my_1<<" and with find "<<my_2<<std::endl;
-      }
-}
-
-
-VECGEOM_CUDA_HEADER_DEVICE
-void rebuild_map(vecgeom::map<double,double>* &devMap,double* key, double* value, int N) {
-   vecgeom::map<double,double> *myDevMap = new vecgeom::map<double, double>;
-   for (int i=0;i<N;i++)
-      std::cout<<" i "<<value[i]<<std::endl;
-
-   for (int i=0;i<N;i++){
-      std::cout<<" i "<<key[i]<<" "<<value[i]<<std::endl;
-      (*myDevMap)[key[i]] = value[i];
-   }
-}
-
 
 int main() {
    const int size = 50;
@@ -66,7 +46,6 @@ int main() {
    double* map_keys = new double[size];
    double* map_values=new double[size]   ;
    //std::vector<int> retrieve_keys(size);
-   vecgeom::map<double,double>* devMap = NULL;
    
    for (int i=0;i<size;i++)
       {
@@ -98,15 +77,21 @@ int main() {
    vecgeom::DevicePtr<double> map_values_dev;
    map_values_dev.Allocate(size);
    if (cudaGetLastError() != cudaSuccess) std::cout<<" ERROR ALLOC VALUES "<<std::endl;
-   
+
+   vecgeom::DevicePtr<vecgeom::cuda::map<double,double> > devMap;
+   devMap.Allocate(size);
+   if (cudaGetLastError() != cudaSuccess) std::cout<<" ERROR ALLOC VALUES "<<std::endl;
+   devMap.Construct();
+
    // vecgeom::cxx::CopyToGpu<double*>(const_cast<double*> (map_keys_dev), map_keys);
    map_keys_dev.ToDevice(map_keys,size);
    if(cudaSuccess!=cudaGetLastError()) std::cout<<"ERROR MEMCPY keys"<<std::endl;
    map_values_dev.ToDevice(map_values,size);
    if(cudaSuccess!=cudaGetLastError()) std::cout<<"ERROR MEMCPY values"<<std::endl;
+
    std::cout<<" rebuild map "<<std::endl;
-   rebuild_map(devMap, map_keys_dev,map_values_dev,size);
-   test_new(devMap, map_keys_dev);
+   launch_rebuild_map(devMap, map_keys_dev,map_values_dev,size,1,1);
+   launch_test_new(devMap, map_keys_dev,1,1);
   
    //vecgeom::cxx::CopyFromGpu<vecgeom::map<double,double>> (const_cast<vecgeom::map<double,double>*> (hostMap), devMap);
    // cudaMemcpy(hostMap, devMap, sizeof(devMap),cudaMemcpyDeviceToHost);
@@ -143,7 +128,7 @@ int main() {
    // free(hostMap);
    delete map_keys;
    delete map_values;
-   // cudaFree(devMap);
+   // devMap.Destruct(devMap);
    map_keys_dev.Deallocate();
    map_values_dev.Deallocate();
    return 0;

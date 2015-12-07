@@ -632,12 +632,15 @@ set(SRC_CPP ${SRC_CPP} ${SRC_EXTERNAL}
   source/benchmarking/NavigationBenchmarker.cpp
 )
 
-# some CUDA kernel code in "userspace"
+# some CUDA kernel code in "userspace" and test
 if (CUDA)
-    set(SRC_USER_CUDA_CPP
-        userexamples/src/TestNavigationStatePool.cu
-    )
-endif()
+   set(SRC_USER_CUDA_CPP
+       userexamples/src/TestNavigationStatePool.cu
+   )
+  set(SRC_CUDA ${SRC_CUDA}
+        test/core/MapTest.cu
+   )
+ endif()
 
 
 # Compile cpp-files for C++11
