@@ -30,7 +30,16 @@ struct kVc {
   typedef Vc::Vector<Precision>       Index_t;
 };
 
+#ifdef kVectorSize
+#undef kVectorSize
+#endif
 constexpr int kVectorSize = kVc::precision_v::Size;
+#ifdef VECGEOM_VC
+#define VECGEOM_BACKEND_TYPE         kVc
+#define VECGEOM_BACKEND_PRECISION    VcPrecision
+#define VECGEOM_BACKEND_BOOL         VcBool
+#define VECGEOM_BACKEND_INSIDE       kVc::inside_v
+#endif
 
 typedef kVc::int_v       VcInt;
 typedef kVc::precision_v VcPrecision;
@@ -55,6 +64,16 @@ void CondAssign(typename Vc::Vector<Type>::Mask const &cond,
                 Vc::Vector<Type> *const output) {
   (*output)(cond) = thenval;
   (*output)(!cond) = elseval;
+}
+
+VECGEOM_INLINE
+void CondAssign(typename Vc::Vector<double>::Mask const &cond,
+                int const &thenval,
+                int const &elseval,
+                int *const output) {
+  Vc::Vector<int> out(output);
+  out(VcInside::Mask(cond)) = thenval;
+  out(VcInside::Mask(!cond)) = elseval;
 }
 
 template <typename Type>
@@ -82,9 +101,33 @@ void MaskedAssign(typename Vc::Vector<Type>::Mask const &cond,
 
 VECGEOM_INLINE
 void MaskedAssign(VcBool const &cond,
+                  const int thenval,
+                  int *const output) {
+  Vc::Vector<int> out(output);
+  out(VcInside::Mask(cond)) = thenval;
+}
+
+VECGEOM_INLINE
+void MaskedAssign(VcBool const &cond,
                   const Inside_t thenval,
                   VcInside *const output) {
   (*output)(VcInside::Mask(cond)) = thenval;
+}
+
+// stores a vector type into a memory position ( normally an array ) toaddr
+// toaddr has to be properly aligned
+// this function is an abstraction for the Vc API "store"
+template <typename Type>
+VECGEOM_INLINE
+void StoreTo( typename Vc::Vector<Type> const & what,
+            Type * toaddr ){
+  what.store(toaddr);
+}
+
+VECGEOM_INLINE
+void StoreTo( VcBool const & what,
+            bool * toaddr ){
+  what.store(toaddr);
 }
 
 VECGEOM_INLINE

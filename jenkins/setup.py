@@ -45,9 +45,15 @@ def main(argv):
 
    if label == 'cuda7' :
       ops_sys = 'slc6'
-   elif label == 'xeonphi' :
+   elif label == "xeonphi" :
       ops_sys = 'slc6'
    elif label == 'slc6-physical' :
+       ops_sys = 'slc6'
+   elif label == 'continuous-xeonphi' :
+       ops_sys = 'slc6'
+   elif label == 'continuous-cuda7' :
+       ops_sys = 'slc6'
+   elif label == 'continuous-sl6' :
        ops_sys = 'slc6'
    else :
       ops_sys = label

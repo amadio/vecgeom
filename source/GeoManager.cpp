@@ -120,7 +120,7 @@ void GeoManager::CompactifyMemory() {
     // a little reusable lambda for the pointer conversion
     std::function<VPlacedVolume const *(VPlacedVolume const *)> ConvertOldToNew = [&] ( VPlacedVolume const * old ){
         if(conversionmap.find(old) == conversionmap.cend()){
-            std::cerr << "CANNOT CONVERT ... probably already done" << std::endl;
+           // std::cerr << "CANNOT CONVERT ... probably already done" << std::endl;
             return old;
         }
         return conversionmap[old];
