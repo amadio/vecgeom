@@ -18,7 +18,10 @@ void rebuild_map(vecgeom::map<double,double>* devMap, double* key, double* value
    //for (int i=0;i<N;i++)
       //std::cout<<" i "<<value[i]<<std::endl;
 
-   for (int i=0;i<N;i++){
+   unsigned int tid = threadIdx.x + blockIdx.x * blockDim.x;
+   unsigned int stride = blockDim.x * gridDim.x;
+
+   for (unsigned int i = tid; i < N; i += stride){
       printf(" REBUILDING key %f and value %f\n ",key[i],value[i]);
       (*devMap)[key[i]] = value[i];
    }
