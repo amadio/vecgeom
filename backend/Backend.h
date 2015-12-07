@@ -6,7 +6,7 @@
 
 #include "base/Global.h"
 
-#ifdef VECGEOM_NVCC
+#ifdef VECGEOM_CUDA
 #include "backend/cuda/Backend.h"
 #elif defined(VECGEOM_VC)
 #include "backend/vc/Backend.h"
