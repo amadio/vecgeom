@@ -446,7 +446,7 @@ public:
                                     Precision *const currentDistance,
                                     int *const nextDaughterIdList) const {
     unsigned safesize = points.size() - points.size() % kVectorSize;
-    for (int i = 0; i < safesize; i += kVectorSize) {
+    for (unsigned int i = 0; i < safesize; i += kVectorSize) {
       Vector3D<VECGEOM_BACKEND_TYPE::precision_v> point(
         VECGEOM_BACKEND_PRECISION(points.x()+i),
         VECGEOM_BACKEND_PRECISION(points.y()+i),
@@ -516,7 +516,7 @@ public:
                              SOA3D<Precision> const &directions,
                              Precision const *const stepMax,
                              Precision *const output) const {
-    for (int i = 0, i_max = points.size(); i < i_max; i += kVectorSize) {
+    for (unsigned int i = 0, i_max = points.size(); i < i_max; i += kVectorSize) {
       Vector3D<VECGEOM_BACKEND_TYPE::precision_v> point(
         VECGEOM_BACKEND_PRECISION(points.x()+i),
         VECGEOM_BACKEND_PRECISION(points.y()+i),
@@ -546,7 +546,7 @@ public:
                              Precision *const output,
                              int *const nextNodeIndex) const {
     unsigned safesize = points.size() - points.size() % kVectorSize;
-    for (int i = 0; i < safesize; i += kVectorSize) {
+    for (unsigned int i = 0; i < safesize; i += kVectorSize) {
       Vector3D<VECGEOM_BACKEND_TYPE::precision_v> point(
         VECGEOM_BACKEND_PRECISION(points.x()+i),
         VECGEOM_BACKEND_PRECISION(points.y()+i),
@@ -613,7 +613,7 @@ public:
   virtual void SafetyToInMinimize(SOA3D<Precision> const &points,
                                   Precision *const safeties) const {
     unsigned safesize = points.size() - points.size() % kVectorSize;
-    for (int i = 0; i < safesize; i += kVectorSize) {
+    for (unsigned int i = 0; i < safesize; i += kVectorSize) {
       Vector3D<VECGEOM_BACKEND_TYPE::precision_v> point(
         VECGEOM_BACKEND_PRECISION(points.x()+i),
         VECGEOM_BACKEND_PRECISION(points.y()+i),
