@@ -64,9 +64,7 @@ int main() {
    const int size = 50;
 
    double* map_keys = new double[size];
-   double* map_keys_dev;
    double* map_values=new double[size]   ;
-   double* map_values_dev;
    //std::vector<int> retrieve_keys(size);
    vecgeom::map<double,double>* devMap = NULL;
    
@@ -94,13 +92,18 @@ int main() {
      }
    */
 
-   unsigned int N=size*sizeof(double);
-   if (cudaMalloc((void **)&map_keys_dev,N) != cudaSuccess) std::cout<<" ERROR ALLOC KEYS "<<std::endl;
-   if (cudaMalloc((void **)&map_values_dev,N) != cudaSuccess) std::cout<<" ERROR ALLOC VALUES "<<std::endl;
+   vecgeom::DevicePtr<double> map_keys_dev;
+   map_keys_dev.Allocate(size);
+   if (cudaGetLastError() != cudaSuccess) std::cout<<" ERROR ALLOC KEYS "<<std::endl;
+   vecgeom::DevicePtr<double> map_values_dev;
+   map_values_dev.Allocate(size);
+   if (cudaGetLastError() != cudaSuccess) std::cout<<" ERROR ALLOC VALUES "<<std::endl;
    
    // vecgeom::cxx::CopyToGpu<double*>(const_cast<double*> (map_keys_dev), map_keys);
-   if(cudaSuccess!=cudaMemcpy(map_keys_dev,map_keys,N,cudaMemcpyHostToDevice)) std::cout<<"ERROR MEMCPY keys"<<std::endl;
-   if(cudaSuccess!=cudaMemcpy(map_values_dev,map_values,N,cudaMemcpyHostToDevice)) std::cout<<"ERROR MEMCPY values"<<std::endl;
+   map_keys_dev.ToDevice(map_keys,size);
+   if(cudaSuccess!=cudaGetLastError()) std::cout<<"ERROR MEMCPY keys"<<std::endl;
+   map_values_dev.ToDevice(map_values,size);
+   if(cudaSuccess!=cudaGetLastError()) std::cout<<"ERROR MEMCPY values"<<std::endl;
    std::cout<<" rebuild map "<<std::endl;
    rebuild_map(devMap, map_keys_dev,map_values_dev,size);
    test_new(devMap, map_keys_dev);
@@ -141,7 +144,8 @@ int main() {
    delete map_keys;
    delete map_values;
    // cudaFree(devMap);
-   cudaFree(map_keys_dev);
+   map_keys_dev.Deallocate();
+   map_values_dev.Deallocate();
    return 0;
 
 }
