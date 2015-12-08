@@ -47,7 +47,7 @@ public:
   typedef _Key                  key_type;
   typedef _Tp                   data_type;
   typedef _Tp                   mapped_type;
-  typedef std::pair< _Key, _Tp> value_type;
+  typedef vecgeom::pair< _Key, _Tp> value_type;
   typedef _Compare              key_compare;
 
 
@@ -157,7 +157,7 @@ public:
 
   // insert/erase
   VECGEOM_CUDA_HEADER_BOTH
-  std::pair<iterator,bool> insert(const value_type& __x) 
+  pair<iterator,bool> insert(const value_type& __x) 
     { return _M_t.insert_unique(__x); }
   VECGEOM_CUDA_HEADER_BOTH
   iterator insert(iterator position, const value_type& __x)
@@ -203,11 +203,11 @@ public:
     return _M_t.upper_bound(__x); 
   }
   VECGEOM_CUDA_HEADER_BOTH
-  std::pair<iterator,iterator> equal_range(const key_type& __x) {
+  pair<iterator,iterator> equal_range(const key_type& __x) {
     return _M_t.equal_range(__x);
   }
   VECGEOM_CUDA_HEADER_BOTH
-  std::pair<const_iterator,const_iterator> equal_range(const key_type& __x) const {
+  pair<const_iterator,const_iterator> equal_range(const key_type& __x) const {
     return _M_t.equal_range(__x);
   }
 
