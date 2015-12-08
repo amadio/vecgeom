@@ -8,7 +8,7 @@ void test_new(vecgeom::map<double,double>* map, double* key, int N) {
    {
       double my_1 = (*map)[key[i]];
       double my_2 = map->find(key[i])->second;
-      //printf("Key %f, Value from op[] = %f and from find %f\n",key[i],my_1, my_2);
+      printf("Key %f, Value from op[] = %f and from find %f\n",key[i],my_1, my_2);
    }
 }
 
