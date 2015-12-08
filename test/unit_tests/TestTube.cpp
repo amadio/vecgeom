@@ -372,7 +372,7 @@ bool TestTubs()
     // std::cout<<"tube10.Inside(Vec_t(-114.821...)) = "<<OutputInside(in)<<std::endl;
 
      
-       // bug #76
+    // bug #76
     Dist=tube6.DistanceToOut(
     Vec_t(-388.20504321896431,-641.71398957741451,332.85995254027955),
     Vec_t(-0.47312863350457468,-0.782046391443315, 0.40565100491504164),
@@ -381,34 +381,28 @@ bool TestTubs()
     assert(ApproxEqual(Dist,10.940583));
 
       // bug #91
-    Dist=tube7.DistanceToOut(
-    Vec_t(-2460,1030,-2500),
-    Vec_t(-0.086580540180167642,0.070084247882560638,0.9937766390194761),
-    norm,convex);
-    // std::cout<<"Dist=tube7.DistanceToOut(p,v) = "<<Dist<<std::endl;
-    // assert(ApproxEqual(Dist,4950.348576972614));
+    Dist=tube7.DistanceToOut( Vec_t(-2460,1030,-2500),
+                              Vec_t(-0.086580540180167642,0.070084247882560638,0.9937766390194761),
+                              norm,convex);
+    assert(ApproxEqual(Dist,4950.348576972614));
 
-    Dist=tube8.DistanceToOut(
- Vec_t(6.71645645882942,2579.415860329989,-1.519530725281157),
- Vec_t(-0.6305220496340839,-0.07780451841562354,0.7722618738739774),
- norm,convex);
-    // std::cout<<"Dist=tube8.DistanceToOut(p,v) = "<<Dist<<std::endl;
-    // assert(ApproxEqual(Dist,4950.348576972614));
+    Dist=tube8.DistanceToOut( Vec_t(6.71645645882942,2579.415860329989,-1.519530725281157),
+                              Vec_t(-0.6305220496340839,-0.07780451841562354,0.7722618738739774),
+                              norm,convex);
+    assert(ApproxEqual(Dist,1022.64931421));
 
-    Dist=tube9.DistanceToOut(
- Vec_t(2.267347771505638,1170.164934028592,4.820317321984064),
- Vec_t(-0.1443054266272111,-0.01508874701037938,0.9894181489944458),
-    norm,convex);
-    // std::cout<<"Dist=tube9.DistanceToOut(p,v) = "<<Dist<<std::endl;
-    // assert(ApproxEqual(Dist,4950.348576972614));
+    Dist=tube9.DistanceToOut( Vec_t(2.267347771505638,1170.164934028592,4.820317321984064),
+                              Vec_t(-0.1443054266272111,-0.01508874701037938,0.9894181489944458),
+                              norm,convex);
+    assert(ApproxEqual(Dist,2016.51817758));
 
     Dist=t1a.DistanceToOut(Vec_t(0.,0.,50.),vx,norm,convex);
     //std::cout<<"Dist=t1a.DistanceToOut((0,0,50),vx) = "<<Dist<<std::endl;
     assert(ApproxEqual(Dist,50));
 
     Dist=t1a.DistanceToOut(Vec_t(0.,5.,50.),vmy,norm,convex);
-    std::cout<<"Mismatch: L"<<__LINE__<<": Dist=t1a.DistanceToOut((0,5,50),vmy) = "<<Dist<<std::endl;
-    //assert(ApproxEqual(Dist,55));
+    // std::cout<<"Mismatch: L"<<__LINE__<<": Dist=t1a.DistanceToOut((0,5,50),vmy) = "<<Dist<<std::endl;
+    assert(ApproxEqual(Dist,5));
 
     std::cout<<std::endl ;
 
