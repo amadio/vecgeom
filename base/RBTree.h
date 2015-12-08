@@ -11,11 +11,53 @@ VECGEOM_DEVICE_FORWARD_DECLARE( template <typename Type> class _Rb_tree; )
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <class T> struct less {
+  VECGEOM_CUDA_HEADER_BOTH
   bool operator() (const T& x, const T& y) const {return x<y;}
   typedef T first_argument_type;
   typedef T second_argument_type;
   typedef bool result_type;
 };
+
+
+
+template <class T1, class T2>
+struct pair {
+    typedef T1 first_type;
+    typedef T2 second_type;
+ 
+    T1 first;
+    T2 second;
+
+  VECGEOM_CUDA_HEADER_BOTH
+    pair():first(),second() {}
+
+  VECGEOM_CUDA_HEADER_BOTH
+    pair(const pair& apair){
+      first = apair.first; 
+      second = apair.second;
+    };
+  VECGEOM_CUDA_HEADER_BOTH
+    pair(const T1& x, const T2& y)
+    {
+      first = x;
+      second = y;
+    };
+  VECGEOM_CUDA_HEADER_BOTH
+    pair& operator=(const pair& p)
+    {
+      first = p.first;
+      second = p.second;
+       return *this;
+    };
+ 
+  VECGEOM_CUDA_HEADER_BOTH
+    void swap(pair& p){
+       T1 temp = p.first;
+       first = p.second;
+       second = temp;
+    };
+};
+
 
 
 typedef bool _Rb_tree_Color_type;
@@ -52,6 +94,10 @@ struct _Rb_tree_node : public _Rb_tree_node_base
 {
   typedef _Rb_tree_node<_Value>* _Link_type;
   _Value _M_value_field;
+  VECGEOM_CUDA_HEADER_BOTH
+  _Value get_value() { return _M_value_field;};
+  VECGEOM_CUDA_HEADER_BOTH
+  void set_value(_Value _new_value) { _M_value_field = _new_value;};
 };
 
 
@@ -423,7 +469,7 @@ protected:
 };
 
 
-template <class _Key, class _Value, class _KeyOfValue, class _Compare = std::less<_Key>>
+template <class _Key, class _Value, class _KeyOfValue, class _Compare = less<_Key>>
 class _Rb_tree : protected _Rb_tree_base<_Value> {
   typedef _Rb_tree_base<_Value> _Base;
 protected:
@@ -448,7 +494,8 @@ protected:
   _Link_type _M_create_node(const value_type& __x)
   {
     _Link_type __tmp = new _Rb_tree_node<value_type>;
-     __tmp->_M_value_field = __x ;
+     //__tmp->_M_value_field = __x ;
+     __tmp->set_value( __x) ;
     return __tmp;
   }
 
@@ -638,7 +685,7 @@ public:
 public:
                                 // insert/erase
   VECGEOM_CUDA_HEADER_BOTH
-  std::pair<iterator,bool> insert_unique(const value_type& __x);
+  pair<iterator,bool> insert_unique(const value_type& __x);
   VECGEOM_CUDA_HEADER_BOTH
   iterator insert_equal(const value_type& __x);
 
@@ -692,9 +739,9 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   const_iterator upper_bound(const key_type& __x) const;
   VECGEOM_CUDA_HEADER_BOTH
-  std::pair<iterator,iterator> equal_range(const key_type& __x);
+  pair<iterator,iterator> equal_range(const key_type& __x);
   VECGEOM_CUDA_HEADER_BOTH
-  std::pair<const_iterator, const_iterator> equal_range(const key_type& __x) const;
+  pair<const_iterator, const_iterator> equal_range(const key_type& __x) const;
 
 public:
                                 // Debugging.
@@ -859,7 +906,7 @@ _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>
 template <class _Key, class _Value, class _KeyOfValue, 
           class _Compare>
 VECGEOM_CUDA_HEADER_BOTH
-std::pair<typename _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::iterator, 
+pair<typename _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::iterator, 
      bool>
 _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>
   ::insert_unique(const _Value& __v)
@@ -875,13 +922,13 @@ _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>
   iterator __j = iterator(__y);   
   if (__comp) {
     if (__j == begin())     
-      return std::pair<iterator,bool>(_M_insert(__x, __y, __v), true);
+      return pair<iterator,bool>(_M_insert(__x, __y, __v), true);
     else
       --__j;
   }
   if (_M_key_compare(_S_key(__j._M_node), _KeyOfValue()(__v)))
-    return std::pair<iterator,bool>(_M_insert(__x, __y, __v), true);
-  return std::pair<iterator,bool>(__j, false);
+    return pair<iterator,bool>(_M_insert(__x, __y, __v), true);
+  return pair<iterator,bool>(__j, false);
 }
 
 
@@ -1015,7 +1062,7 @@ VECGEOM_CUDA_HEADER_BOTH
 typename _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::size_type 
 _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::erase(const _Key& __x)
 {
-  std::pair<iterator,iterator> __p = equal_range(__x);
+  pair<iterator,iterator> __p = equal_range(__x);
   size_type __n = 0;
   distance(__p.first, __p.second, __n);
   erase(__p.first, __p.second);
@@ -1133,7 +1180,7 @@ typename _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::size_type
 _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>
   ::count(const _Key& __k) const
 {
-  std::pair<const_iterator, const_iterator> __p = equal_range(__k);
+  pair<const_iterator, const_iterator> __p = equal_range(__k);
   size_type __n = 0;
   distance(__p.first, __p.second, __n);
   return __n;
@@ -1219,23 +1266,23 @@ template <class _Key, class _Value, class _KeyOfValue,
           class _Compare>
 VECGEOM_CUDA_HEADER_BOTH
 inline 
-std::pair<typename _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::iterator,
+pair<typename _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::iterator,
      typename _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::iterator>
 _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>
   ::equal_range(const _Key& __k)
 {
-  return std::pair<iterator, iterator>(lower_bound(__k), upper_bound(__k));
+  return pair<iterator, iterator>(lower_bound(__k), upper_bound(__k));
 }
 
 template <class _Key, class _Value, class _KoV, class _Compare>
 VECGEOM_CUDA_HEADER_BOTH
 inline 
-std::pair<typename _Rb_tree<_Key, _Value, _KoV, _Compare>::const_iterator,
+pair<typename _Rb_tree<_Key, _Value, _KoV, _Compare>::const_iterator,
      typename _Rb_tree<_Key, _Value, _KoV, _Compare>::const_iterator>
 _Rb_tree<_Key, _Value, _KoV, _Compare>
   ::equal_range(const _Key& __k) const
 {
-  return std::pair<const_iterator,const_iterator>(lower_bound(__k),
+  return pair<const_iterator,const_iterator>(lower_bound(__k),
                                              upper_bound(__k));
 }
 
