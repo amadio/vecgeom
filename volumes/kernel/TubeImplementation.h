@@ -408,17 +408,16 @@ struct TubeImplementation {
       MaskedAssign(completelyinside,  EInside::kInside, &inside);
   }
 
-    template <class Backend>
-    VECGEOM_CUDA_HEADER_BOTH
-    VECGEOM_INLINE
-    static void DistanceToIn(
-        UnplacedTube const &tube,
-        Transformation3D const &transformation,
-        Vector3D<typename Backend::precision_v> const &point,
-        Vector3D<typename Backend::precision_v> const &direction,
-        typename Backend::precision_v const &/*stepMax*/,
-        typename Backend::precision_v &distance) {
-      
+  template <class Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  static void DistanceToIn(UnplacedTube const &tube,
+                           Transformation3D const &transformation,
+                           Vector3D<typename Backend::precision_v> const &point,
+                           Vector3D<typename Backend::precision_v> const &direction,
+                           typename Backend::precision_v const &/*stepMax*/,
+                           typename Backend::precision_v &distance)
+  {
     using namespace TubeUtilities;
     using namespace TubeTypes;  
     typedef typename Backend::precision_v Float_t;
@@ -678,50 +677,75 @@ struct TubeImplementation {
     }
   }
 
+  /// This function keeps track of both positive (outside) and negative (inside) distances separately
+  template <class Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  static void SafetyAssign(typename Backend::precision_v safety,
+                    typename Backend::precision_v& positiveSafety,
+                    typename Backend::precision_v& negativeSafety) {
+    MaskedAssign( safety>=0 && safety<positiveSafety, safety, &positiveSafety );
+    MaskedAssign( safety<=0 && safety>negativeSafety, safety, &negativeSafety );
+  }
+
+/** SafetyKernel finds distances from point to each face of the tube, returning
+    largest negative distance (w.r.t. faces which point is inside of ) and
+    smallest positive distance (w.r.t. faces which point is outside of)
+ */
+  template <class Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  static void SafetyKernel(UnplacedTube const &tube,
+                           Vector3D<typename Backend::precision_v> const &local_point,
+                           typename Backend::precision_v &safePos,
+                           typename Backend::precision_v &safeNeg) {
+
+    // TODO: implement caching if input point is not changed
+    using namespace TubeTypes;
+    using namespace TubeUtilities;
+    typedef typename Backend::precision_v Float_t;
+    // typedef typename Backend::bool_v Bool_t;
+
+    safePos = kInfinity;
+    safeNeg = -safePos;   // reuse to avoid casting overhead
+
+    Float_t safez = Abs(local_point.z()) - tube.z();
+    SafetyAssign<Backend>( safez, safePos, safeNeg );
+
+    Float_t r = Sqrt(local_point.x()*local_point.x() + local_point.y()*local_point.y());
+    Float_t safermax = r - tube.rmax();
+    SafetyAssign<Backend>( safermax, safePos, safeNeg );
+
+    if(checkRminTreatment<tubeTypeT>(tube)) {
+      Float_t safermin = tube.rmin() - r;
+      SafetyAssign<Backend>(safermin, safePos, safeNeg);
+    }
+
+    if(checkPhiTreatment<tubeTypeT>(tube)) {
+      Float_t safephi;
+      PhiPlaneSafety<Backend, tubeTypeT, false>(tube, local_point, safephi);
+      SafetyAssign<Backend>(safephi, safePos, safeNeg);
+    }
+  }
+
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   static void SafetyToIn(UnplacedTube const &tube,
                          Transformation3D const &transformation,
                          Vector3D<typename Backend::precision_v> const &point,
-                         typename Backend::precision_v &safety) {
-
-
-    using namespace TubeTypes;
-    using namespace TubeUtilities;
+                         typename Backend::precision_v &safety)
+  {
     typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
 
     Vector3D<Float_t> local_point = transformation.Transform<transCodeT,rotCodeT>(point);
-    safety = 0;
 
-    Float_t r = Sqrt(local_point.x()*local_point.x() + local_point.y()*local_point.y());
+    Float_t safetyInsidePoint, safetyOutsidePoint;
+    SafetyKernel<Backend>(tube, local_point, safetyOutsidePoint, safetyInsidePoint);
 
-    Float_t safez = Abs(local_point.z()) - tube.z();
-    Float_t safermax = r - tube.rmax();
-
-    safety = Max(safez, safermax);
-
-    if(checkRminTreatment<tubeTypeT>(tube)) {
-      Float_t safermin = tube.rmin() - r;
-      safety = Max(safety, safermin);
-    }
-
-    if(checkPhiTreatment<tubeTypeT>(tube)) {
-
-      Bool_t insector;
-      PointInCyclicalSector<Backend, tubeTypeT, UnplacedTube, false>(tube, local_point.x(), local_point.y(), insector);
-
-      if(Backend::early_returns && IsFull(insector)) return;
-
-      Float_t safephi;
-      PhiPlaneSafety<Backend, tubeTypeT, false>(tube, local_point, safephi);
-      MaskedAssign(insector, Float_t(-1), &safephi);
-      safety = Max(safety, safephi);
-    }
-
-
-
+    // Mostly called for points outside --> safetyOutside is finite --> return safetyOutside
+    // If safetyOutside == infinity --> return safetyInside
+    CondAssign( safetyOutsidePoint==kInfinity, safetyInsidePoint, safetyOutsidePoint, &safety );
   }
 
   template <class Backend>
@@ -729,31 +753,16 @@ struct TubeImplementation {
   VECGEOM_INLINE
   static void SafetyToOut(UnplacedTube const &tube,
                           Vector3D<typename Backend::precision_v> const &point,
-                          typename Backend::precision_v &safety) {
+                          typename Backend::precision_v &safety)
+  {
+    typedef typename Backend::precision_v Float_t;
 
-     using namespace TubeTypes;
-     using namespace TubeUtilities;
-     typedef typename Backend::precision_v Float_t;
+    Float_t safetyInsidePoint, safetyOutsidePoint;
+    SafetyKernel<Backend>(tube, point, safetyOutsidePoint, safetyInsidePoint);
 
-     safety = 0;
-     Float_t r = Sqrt(point.x()*point.x() + point.y()*point.y());
-     Float_t safez = tube.z() - Abs(point.z());
-     Float_t safermax = tube.rmax() - r;
-
-     safety = Min(safez, safermax);
-
-     if(checkRminTreatment<tubeTypeT>(tube)) {
-       Float_t safermin = r - tube.rmin();
-       safety = Min(safety, safermin);
-     }
-
-    if(checkPhiTreatment<tubeTypeT>(tube)) {
-
-      Float_t safephi;
-      PhiPlaneSafety<Backend, tubeTypeT, true>(tube, point, safephi);
-      MaskedAssign(safephi < 0, kInfinity, &safephi);
-      safety = Min(safety, safephi);
-    }
+    // Mostly called for points inside --> safetyOutside==infinity, return |safetyInside| (flip sign)
+    // If called for points outside -- return -safetyOutside
+    CondAssign( safetyOutsidePoint==kInfinity, -safetyInsidePoint, -safetyOutsidePoint, &safety );
   }
 
 }; // End of TubeUtilties
