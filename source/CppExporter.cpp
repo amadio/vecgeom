@@ -23,6 +23,7 @@
 #include "volumes/UnplacedTrd.h"
 #include "volumes/UnplacedBooleanVolume.h"
 #include "volumes/ScaledShape.h"
+#include "volumes/GenTrap.h"
 #include "materials/Medium.h"
 #include "materials/Material.h"
 #include "base/MessageLogger.h"
@@ -378,9 +379,21 @@ void GeomCppExporter::DumpLogicalVolumes(std::ostream &dumps, std::ostream &exte
 
   // generate code that instantiates LogicalVolumes
   for (auto l : lvlist) {
-
+    
+    // Some shapes need to pre-build arrays
     std::stringstream line;
     line << std::setprecision(15);
+    if (dynamic_cast<UnplacedGenTrap const *>(l->GetUnplacedVolume())) {
+      UnplacedGenTrap const *shape = dynamic_cast<UnplacedGenTrap const *>(l->GetUnplacedVolume());
+      line << std::setprecision(15);
+      line << "std::vector<Vector3D<Precision> > ";
+      line << fLVolumeToStringMap[l] << "_arr;\n";
+      for (auto ivert=0; ivert<8; ++ivert) {
+        Vector3D<Precision> vert = shape->GetVertex(ivert);
+        line << fLVolumeToStringMap[l] << "_arr.push_back(Vector3D<Precision>(";
+	line << vert.x() << ", " << vert.y() << ", 0.) );\n";
+      }
+    }
     line << fLVolumeToStringMap[l];
     line << " = new LogicalVolume ( \"" << l->GetLabel() << "\" , ";
 
@@ -480,6 +493,17 @@ void GeomCppExporter::DumpLogicalVolumes(std::ostream &dumps, std::ostream &exte
       line << " )";
 
       fNeededHeaderFiles.insert("volumes/UnplacedTorus2.h");
+    }
+
+    // ******* TREAT THE GENERAL TRAP **********
+    else if (dynamic_cast<UnplacedGenTrap const *>(l->GetUnplacedVolume())) {
+      UnplacedGenTrap const *shape = dynamic_cast<UnplacedGenTrap const *>(l->GetUnplacedVolume());
+     
+      line << " new UnplacedGenTrap( &" << fLVolumeToStringMap[l] << "_arr[0],";
+      line << shape->GetDZ();
+      line << " )";
+
+      fNeededHeaderFiles.insert("volumes/GenTrap.h");
     }
 
     // ********* TREAT THE PCON **********

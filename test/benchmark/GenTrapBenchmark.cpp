@@ -36,14 +36,12 @@ int main() {
 
   Benchmarker tester(GeoManager::Instance().GetWorld());
   tester.SetVerbosity(2);
-  //tester.SetRepetitions(1);
+  tester.SetRepetitions(1);
   tester.SetPoolMultiplier(1); // set this if we want to compare results
   tester.SetPointCount(10000);
-  tester.SetToInBias(0.1);
-  tester.RunBenchmark();
-  // tester.RunInsideBenchmark();
-  // tester.RunToOutBenchmark();
-//  tester.RunToInBenchmark();
+//   tester.RunInsideBenchmark();
+//   tester.RunToOutBenchmark();
 //  tester.SetToInBias(0.8);
 //  tester.RunToInBenchmark();
+ tester.RunBenchmark();
 }

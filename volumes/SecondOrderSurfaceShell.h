@@ -260,6 +260,7 @@ typename Backend::precision_v DistanceToIn (
   Float_t dist[N];
   for (int i=0;i<N;++i){
      dist[i]=kInfinity;
+//#define GENTRAPDEB = 1
 #ifdef GENTRAPDEB
      std::cerr << "i " << i << " smin " << smin[i] << " smax " << smax[i] << " signa " << signa[i] << "\n";
      std::cerr << "i " << i << " 1./smin " << 1./smin[i] << " 1./smax " << 1./smax[i] << " signa " << signa[i] << "\n";
@@ -290,6 +291,9 @@ typename Backend::precision_v DistanceToIn (
       // put this into a separate kernel
       Float_t zhit = point.z() + dist[i]*dir.z();
       Bool_t isinz = Abs(zhit) < fDz;
+#ifdef GENTRAPDEB
+          std::cerr << "isinz " << i << ": " << isinz << "\n";
+#endif
       if( ! IsEmpty(isinz) )
       {
 #ifdef GENTRAPDEB
@@ -306,6 +310,7 @@ typename Backend::precision_v DistanceToIn (
           // check x hit
           Bool_t xok = ((MakeMinusTolerant<true>(leftcmpx) <= xhit) && (xhit <= MakePlusTolerant<true>(rightcmpx)))
                        || ((MakeMinusTolerant<true>(rightcmpx) <= xhit) && (xhit <= MakePlusTolerant<true>(leftcmpx)));
+          xok &= isinz;
 #ifdef GENTRAPDEB
                     std::cerr << "zhit " << zhit << " leftcmpx "
                              << leftcmpx << "rightcmpx " << rightcmpx <<
@@ -321,6 +326,7 @@ typename Backend::precision_v DistanceToIn (
             Bool_t yok = ( (MakeMinusTolerant<true>(leftcmpy) <= yhit)
                          && (yhit <= MakePlusTolerant<true>(rightcmpy)) ) || ( (MakeMinusTolerant<true>(rightcmpy) <= yhit)
                                    && (yhit <= MakePlusTolerant<true>(leftcmpy)) ) ;
+            yok &= xok;
 #ifdef GENTRAPDEB
               std::cerr << " leftcmpy "
                                           << leftcmpy << "rightcmpy " << rightcmpy <<
@@ -341,7 +347,7 @@ typename Backend::precision_v DistanceToIn (
 #endif
               // if( ! IsEmpty(yok) ) std::cerr << "i " << i << " yhit\n ";
               // note here: since xok might be a SIMD mask it is not true to assume that xok==true here !!
-              Bool_t ok = xok && yok && dist[i] < resultdistance;
+              Bool_t ok = yok && dist[i] < resultdistance;
              // TODO: still minimize !! ( might hit two planes at same time ) !!!!
               // MaskedAssign( !done && ok, dist[i], &resultdistance);
               MaskedAssign( ok, dist[i], &resultdistance );

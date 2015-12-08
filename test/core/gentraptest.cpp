@@ -121,26 +121,26 @@ void createGenTrap()
     vecgeom::GenTrapImplementation<vecgeom::translation::kGeneric,
     vecgeom::rotation::kIdentity>::DistanceToIn<kScalar>(trapUnplaced3, Transformation3D(5.,5.,5.),
                            Vec_t(-9.441650,0.902802, 10.916641), Vec_t(0.954990,0.247627,-0.163324), step, d);
-    assert(abs(d-11.9809)<1E-4);
+    assert(std::abs(d-11.9809)<1E-4);
 
     vecgeom::GenTrapImplementation<vecgeom::translation::kGeneric,
         vecgeom::rotation::kIdentity>::DistanceToIn<kScalar>(trapUnplaced3, Transformation3D(5.,5.,5.),
              Vec_t(4.546874, 8.865740, 8.098616), Vec_t(-0.382036, -0.561047, -0.734353), step, d);
 //    std::cerr << "final " << d << "\n"; //  1.86284
-    assert( abs(d-1.86284)<1.E-4);
+    assert( std::abs(d-1.86284)<1.E-4);
 
     // should have a macro for this
     vecgeom::GenTrapImplementation<vecgeom::translation::kGeneric,
             vecgeom::rotation::kIdentity>::DistanceToIn<kScalar>(trapUnplaced3, Transformation3D(5.,5.,5.),
                  Vec_t(-3.642379, -7.785746, 18.814608), Vec_t(0.390819, 0.361792, -0.846385), step, d);
     //    std::cerr << "final " << d << "\n"; //  27.2668
-        assert( abs(d-27.2668 )<1.E-4);
+        assert( std::abs(d-27.2668 )<1.E-4);
 
     vecgeom::GenTrapImplementation<vecgeom::translation::kGeneric,
             vecgeom::rotation::kIdentity>::DistanceToIn<kScalar>(trapUnplaced3, Transformation3D(5.,5.,5.),
                         Vec_t(-7.569044, -4.983397, 4.661511), Vec_t(0.838801, 0.531342, -0.118692), step, d);
     std::cerr << "final " << d << "\n"; //  13.5376
-    assert( abs(d-13.5376 )<1.E-4);
+    assert( std::abs(d-13.5376 )<1.E-4);
 
     // see if root result is actually good
     Vec_t localp;
@@ -155,7 +155,7 @@ void createGenTrap()
                vecgeom::rotation::kIdentity>::DistanceToIn<kScalar>(trapUnplaced3, Transformation3D(5.,5.,5.),
                            Vec_t(2.919067, 8.152522, 15.885466), Vec_t(-0.173286, -0.788227, -0.590482), step, d);
        std::cerr << "final " << d << "\n"; //  13.5376
-       assert( abs(d-1.49956 )<1.E-4);
+       assert( std::abs(d-1.49956 )<1.E-4);
 
    // test with the vector interface
    typedef Vc::double_v Vc_t;
@@ -165,7 +165,7 @@ void createGenTrap()
              VecVc_t(Vc_t(2.919067),  Vc_t(8.152522),  Vc_t(15.885466)),
              VecVc_t(Vc_t(-0.173286), Vc_t(-0.788227), Vc_t(-0.590482)), Vc_t(100.), vcd);
    std::cerr << "final " << vcd << "\n"; //  13.5376
-  // assert( abs(d-1.49956 )<1.E-4);
+  // assert( std::abs(d-1.49956 )<1.E-4);
 
 
    vecgeom::GenTrapImplementation<vecgeom::translation::kGeneric,
@@ -177,7 +177,7 @@ void createGenTrap()
 //                       Vec_t(0.231799, -7.654186, 1.220068), Vec_t(0.298617, 0.862225, -0.409141), step, d);
 //    std::cerr << "final " << d << "\n"; //  11.5825
 //
-//    assert( abs(d-11.5825 ) < 1.E-4 );
+//    assert( std::abs(d-11.5825 ) < 1.E-4 );
 
 }
 

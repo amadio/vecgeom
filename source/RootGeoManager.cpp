@@ -23,6 +23,7 @@
 #include "volumes/UnplacedTrapezoid.h"
 #include "volumes/UnplacedPolycone.h"
 #include "volumes/UnplacedScaledShape.h"
+#include "volumes/UnplacedGenTrap.h"
 #include "materials/Medium.h"
 #include "materials/Material.h"
 
@@ -507,7 +508,19 @@ VUnplacedVolume* RootGeoManager::Convert(TGeoShape const *const shape) {
      //   rmin=0, rmax=A, dz=dz, which is scaled with (1., A/B, 1.)
      UnplacedTube *tubeUnplaced = new UnplacedTube(0, p->GetA(), p->GetDZ(), 0, kTwoPi);
      unplaced_volume = new UnplacedScaledShape(tubeUnplaced, 1.,p->GetB()/p->GetA(), 1.);
-   }  
+   }
+   
+   // THE ARB8
+   if (shape->IsA() == TGeoArb8::Class() || shape->IsA() == TGeoGtra::Class()) {
+     TGeoArb8 *p = (TGeoArb8*)(shape);
+     // Create the corresponding GenTrap
+     std::vector<Vector3D<Precision> > vertexlist;
+     const double *vertices = p->GetVertices();
+     for (auto ivert=0; ivert<8; ++ivert) {
+       vertexlist.push_back(Vector3D<Precision>(vertices[8*ivert],vertices[8*ivert+1], 0 ) );
+     }
+     unplaced_volume = new UnplacedGenTrap(&vertexlist[0], p->GetDz());
+   }
 
    // New volumes should be implemented here...
   if (!unplaced_volume) {

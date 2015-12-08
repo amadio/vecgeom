@@ -413,18 +413,19 @@ static void FillPlaneData(UnplacedGenTrap const &unplaced,
                          typename Backend::precision_v & deltax,
                          typename Backend::precision_v & deltay,
                          typename Backend::bool_v const & top, int edgeindex ) {
+  
     // no vectorized data lookup for SIMD
     // need to fill the SIMD types individually
 
     // now we only need to get the number 2 from somewhere
-    for(int i=0; i< 2; ++i) {
+    for(int i=0; i< kVectorSize; ++i) {
          int index = edgeindex+top[i]*4;
          deltax[i] = unplaced.fDeltaX[index];
          deltay[i] = unplaced.fDeltaY[index];
          cornerx[i] = unplaced.fVerticesX[index];
          cornery[i] = unplaced.fVerticesY[index];
     }
-}
+  }
 };
 
 // a partial template specialization for nonSIMD cases (scalar, cuda, ... )
@@ -461,6 +462,7 @@ typename Backend::bool_v IsInTopOrBottomPolygon( UnplacedGenTrap const& unplaced
     // stripped down version of the Contains kernel ( not yet shared with that kernel )
     typedef typename Backend::bool_v  Bool_t;
     typedef typename Backend::precision_v  Float_t;
+    // std::cerr << "IsInTopOrBottom: pointx: " << pointx << "  pointy: " << pointy << "  top: " << top << "\n";
 
     Bool_t completelyoutside( Backend::kFalse );
     for (int  i=0; i<4; ++i) {
@@ -474,7 +476,7 @@ typename Backend::bool_v IsInTopOrBottomPolygon( UnplacedGenTrap const& unplaced
         FillPlaneDataHelper<!Backend::early_returns, Backend>::FillPlaneData(
                 unplaced, cornerX, cornerY, deltaX, deltaY, top, i );
 
-      //  std::cerr << i << " CORNERS " << cornerX << " " << cornerY << " " << deltaX << " " << deltaY << "\n";
+        // std::cerr << i << " CORNERS " << cornerX << " " << cornerY << " " << deltaX << " " << deltaY << "\n";
 
         Float_t cross  = (pointx - cornerX) * deltaY;
         cross -= (pointy - cornerY) * deltaX;
@@ -503,6 +505,11 @@ void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   typedef typename Backend::precision_v Float_t;
   typedef typename Backend::bool_v      Bool_t;
 
+//#define GENTRAPDEB = 1
+#ifdef GENTRAPDEB
+  std::cerr << "point: " << point << std::endl;
+  std::cerr << "direction: " << direction << std::endl;
+#endif  
   //do a quick boundary box check (Arb8, USolids) is doing this
   //unplaced.GetBBox();
   //actually this could also give us some indication which face is likely to be hit
@@ -528,7 +535,6 @@ void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
         bbdistance );
 #endif
 
-  //#define GENTRAPDEB = 1
 #ifdef GENTRAPDEB
    std::cerr << "BB gave " << bbdistance << "\n";
 #endif
@@ -539,12 +545,11 @@ void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   Bool_t done = bbdistance >= kInfinity;
   if( IsFull ( done ) ) return;
 #ifdef GENTRAPDEB
-  std::cerr << " bbdistance " << bbdistance << "\n";
   Float_t x,y,z;
   x=point.x()+bbdistance*direction.x();
   y=point.y()+bbdistance*direction.y();
   z=point.z()+bbdistance*direction.z();
-  std::cerr << "x " << x << " y " << y << " z " << z << "\n";
+  std::cerr << "prolongated to box:  x " << x << " y " << y << " z " << z << "\n";
 #endif
 
 
@@ -556,20 +561,24 @@ void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
       Bool_t top = direction.z() < 0;
       Bool_t hits = IsInTopOrBottomPolygon<Backend>(unplaced, hitpoint.x(), hitpoint.y(), top );
       #ifdef GENTRAPDEB
-      std::cerr << " hit result " << hits << " \n";
+      std::cerr << " top/bottom hit result " << hits << " \n";
       #endif
       MaskedAssign(hits, bbdistance, &distance);
       done |= hits;
       if( IsFull(done) ) return;
   }
 #else // do this check again
-#pragma message("WITH OLD BB")
+//#pragma message("WITH OLD BB")
   // IDEA: we don't need to do this if bbox does not hit z planes
   // IDEA2: and if bbbox hits z-plane everything here is already calculated
-  Float_t snext;
+//  Float_t snext;
   Float_t zsafety = Abs(point.z()) - unplaced.fDz;
   Bool_t canhitz =  zsafety > MakeMinusTolerant<true>(0.);
   canhitz        &= point.z()*direction.z() < 0; // coming towards the origin
+  canhitz        &= !done;
+#ifdef GENTRAPDEB
+      std::cerr << " canhitz " << canhitz << " \n";
+#endif      
 
   if( ! IsEmpty (canhitz)  ){
    //   std::cerr << "can potentially hit\n";
@@ -585,12 +594,12 @@ void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
       Bool_t top = direction.z() < 0;
      // Bool_t hits = IsInTopOrBottomPolygon<Backend>(unplaced, hitpoint.x(), hitpoint.y(), top );
       Bool_t hits = IsInTopOrBottomPolygon<Backend>(unplaced, coord1, coord2, top );
-
-      #ifdef GENTRAPDEB
-      std::cerr << " hit result " << hits << " \n";
-      #endif
+      hits &= canhitz;
       MaskedAssign(hits, bbdistance, &distance);
       done |= hits;
+      #ifdef GENTRAPDEB
+      std::cerr << " hit result " << hits << " bbdistance " << distance << "\n";
+      #endif
 
       if( IsFull(done) ) return;
   }
@@ -599,10 +608,14 @@ void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   // now treat lateral surfaces
   Float_t disttoplanes = unplaced.GetShell().DistanceToIn<Backend>(
           point, direction, done );
- // std::cerr << disttoplanes << "\n";
+#ifdef GENTRAPDEB
+  std::cerr << "disttoplanes " << disttoplanes << "\n";
+#endif
 
   MaskedAssign( ! done, Min(disttoplanes, distance), &distance );
- // std::cerr << distance << "\n";
+#ifdef GENTRAPDEB
+  std::cerr << distance << "\n";
+#endif
 //  std::cerr << std::endl;
 }
 
@@ -629,7 +642,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
     Bool_t negDirMask = direction.z() < 0;
     Float_t sign = 1.;
     MaskedAssign( negDirMask, -Backend::kOne, &sign);
-    Float_t invDirZ = 1./direction.z();
+//    Float_t invDirZ = 1./direction.z();
     // this construct costs one multiplication more
     Float_t distmin = ( sign*unplaced.fDz - point.z() ) / direction.z();
 
