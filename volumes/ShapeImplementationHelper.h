@@ -212,10 +212,8 @@ public:
       output
     );
 
-#ifdef VECGEOM_REPLACE_USOLIDS
-    // avoid distance values within kTolerance
+    // avoid distance values within tolerance
     MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
-#endif
 
 #ifdef VECGEOM_DISTANCE_DEBUG
     DistanceComparator::CompareDistanceToIn( this, output, point, direction, stepMax );
@@ -234,12 +232,13 @@ public:
     VECGEOM_BACKEND_PRECISION_TYPE output = kInfinity;
     Specialization::template DistanceToIn<VECGEOM_BACKEND_TYPE>(
         *this->GetUnplacedVolume(), *this->GetTransformation(), point, direction, stepMax, output);
-#ifdef VECGEOM_REPLACE_USOLIDS
-    MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
-#endif
-    //#ifdef VECGEOM_DISTANCE_DEBUG
-    //    DistanceComparator::CompareDistanceToIn(this, output, point, direction, stepMax);
-    //#endif
+
+    //MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
+
+//#ifdef VECGEOM_DISTANCE_DEBUG
+//    DistanceComparator::CompareDistanceToIn(this, output, point, direction, stepMax);
+//#endif
+
     return output;
   }
 #endif
@@ -259,9 +258,10 @@ public:
       stepMax,
       output
     );
-#ifdef VECGEOM_REPLACE_USOLIDS
+
+    // avoid distance values within tolerance
     MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
-#endif
+
 #ifdef VECGEOM_DISTANCE_DEBUG
     DistanceComparator::CompareDistanceToOut( this, output, point, direction, stepMax );
 #endif
@@ -284,9 +284,8 @@ public:
     VECGEOM_BACKEND_PRECISION_TYPE output = kInfinity;
     Specialization::template DistanceToOut<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), point, direction, stepMax,
                                                                  output);
-#ifdef VECGEOM_REPLACE_USOLIDS
-    MaskedAssign(Abs(output) < kHalfTolerance, 0., &output);
-#endif
+    // avoid distance values within tolerance
+    // MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
 
 // TODO: provide CompareDistance check for vector interface
 //#ifdef VECGEOM_DISTANCE_DEBUG
@@ -347,9 +346,6 @@ public:
     Vector3D<double> hitpoint = point + d * direction;
     PlacedShape_t::Normal(hitpoint, normal);
 
-    // Lets the shape tell itself whether it is convex or not.
-    // convex = PlacedShape_t::IsConvex();
-
     // Now Convexity is defined only for UnplacedVolume, not required for PlacedVolume
     convex = this->GetUnplacedVolume()->UnplacedShape_t::IsConvex();
 
@@ -366,9 +362,10 @@ public:
       point,
       output
     );
-#ifdef VECGEOM_REPLACE_USOLIDS
-    if(output < 0.0 && output > -kHalfTolerance) output = 0.0;
-#endif
+
+    // avoid distance values within tolerance
+    MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
+
     return output;
   }
 
@@ -380,9 +377,10 @@ public:
       point,
       output
     );
-#ifdef VECGEOM_REPLACE_USOLIDS
-    if(output < 0.0) output = 0.0;
-#endif
+
+    // avoid distance values within tolerance
+    MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
+
     return output;
   }
 
@@ -391,6 +389,10 @@ public:
   virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const {
     VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
     Specialization::template SafetyToIn<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), *this->GetTransformation(), position, output);
+
+    // avoid distance values within tolerance
+    // MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
+
     return output;
   }
 
@@ -398,6 +400,10 @@ public:
   virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOut(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const {
     VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
     Specialization::template SafetyToOut<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), position, output);
+
+    // avoid distance values within tolerance
+    // MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
+
     return output;
   }
 #endif
@@ -622,6 +628,7 @@ public:
         stepMaxBackend,
         result
       );
+
       MaskedAssign(result < 0., kInfinity, &result);
       StoreTo(result, output+i);
       // -1: physics step is longer than geometry
@@ -657,6 +664,10 @@ public:
         point,
         result
       );
+
+      // avoid distance values within tolerance
+      MaskedAssign(Abs(result)<kHalfTolerance, 0., &result);
+
       StoreTo(result, output+i);
     }
   }
