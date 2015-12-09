@@ -53,6 +53,14 @@ typedef kScalar::int_v    ScalarInt;
 typedef kScalar::precision_v ScalarDouble;
 typedef kScalar::bool_v   ScalarBool;
 
+#define kVectorSize 1
+#ifdef VECGEOM_SCALAR
+#define VECGEOM_BACKEND_TYPE         kScalar
+#define VECGEOM_BACKEND_PRECISION(P) (*(P))
+#define VECGEOM_BACKEND_BOOL         ScalarBool
+#define VECGEOM_BACKEND_INSIDE       kScalar::inside_v
+#endif
+
 template <typename Type>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
@@ -67,6 +75,13 @@ VECGEOM_INLINE
 void MaskedAssign(const bool cond,
                   Type const &thenval, Type *const output) {
   *output = (cond) ? thenval : *output;
+}
+
+template <typename Type>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+void StoreTo(Type const &what, Type *toAddr) {
+  *toAddr = what;
 }
 
 VECGEOM_CUDA_HEADER_BOTH

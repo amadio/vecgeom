@@ -71,7 +71,7 @@ enum_option(VECGEOM_VECTOR
       CASE_INSENSITIVE
     )
 
-set(VECGEOM_BACKEND default Scalar Vc Cilk)
+set(VECGEOM_BACKEND default Scalar Vc Cilk MicVec)
 
 enum_option(BACKEND
             DOC "Backend infrastructure to be used"
@@ -142,6 +142,12 @@ elseif (_backend_up MATCHES CILK)
   endif()
   set(Cilk ON)
   message(STATUS "Configuring with \"Cilk+\" vector backend")
+elseif (_backend_up MATCHES MICVEC)
+  if (NOT Intel)
+    message(FATAL_ERROR "Must use Intel C++ compiler (icpc) with MIC SIMD for MICVEC backend.")
+  endif()
+  set(MICVEC ON)
+  message(STATUS "Configuring with \"Micvec\" vector backend")
 elseif (_backend_up MATCHES DEFAULT)
   set(Vc ON)
   message(WARNING "Backend not specified. Defaulting to Vc.")
@@ -250,9 +256,12 @@ endif()
 if (Cilk)
   set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_CILK")
 endif()
+if (MICVEC)
+  set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_MICVEC")
+endif()
 
 if (CUDA)
-  set(CUDA_ARCH 20 CACHE STRING "CUDA device architecture.")
+  set(CUDA_ARCH 30 CACHE STRING "CUDA device architecture.")
   set(CUDA_ARCH "-arch=sm_${CUDA_ARCH}")
   set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_CUDA")
   if (CUDA_VOLUME_SPECIALIZATION)
@@ -377,6 +386,10 @@ endif()
 
 if (Cilk)
   set(SRC_EXTERNAL ${SRC_EXTERNAL} source/backend/cilk/Backend.cpp)
+endif()
+
+if (MICVEC)
+  set(SRC_EXTERNAL ${SRC_EXTERNAL} source/backend/micvec/Backend.cpp)
 endif()
 
 if (CUDA)

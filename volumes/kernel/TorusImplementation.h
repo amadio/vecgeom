@@ -621,6 +621,32 @@ std::cout<<"g1="<<gamma1<<" g2="<<gamma2<<" g3="<<gamma3<<" g="<<gammasum<<" inv
   roots[3] = aRoot;
 }
 #endif
+#ifdef VECGEOM_MICVEC
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+void solveQuartic2(MicPrecision a, MicPrecision b, MicPrecision c,
+                   MicPrecision d, MicPrecision e, Complex<MicPrecision> *root) {
+  // FIXME: must create a generic algorithm for this solver. Is it really necessary? (there is a Torus2 implementation...)
+  Complex<Precision> localRoots[4];
+  MicPrecision real[4]={kMic::kZero,kMic::kZero,kMic::kZero,kMic::kZero};
+  MicPrecision imag[4]={kMic::kZero,kMic::kZero,kMic::kZero,kMic::kZero};
+#pragma unroll
+  for (int i = 0; i < kVectorSize; ++i) {
+    // call the scalar version
+    solveQuartic2(a[i], b[i], c[i], d[i], e[i], localRoots);
+#pragma unroll
+    for (int j = 0; j < 4; ++j) {
+      real[j][i] = localRoots[j].real();
+      imag[j][i] = localRoots[j].imag();
+    }
+  }
+#pragma unroll
+  for(int i = 0; i < 4; ++i) {
+    Complex<MicPrecision> r(real[i], imag[i]);
+    root[i] = r;
+  }
+}
+#endif
 #endif
  
 class PlacedTorus;
