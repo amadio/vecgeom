@@ -32,6 +32,7 @@
 #include "navigation/GlobalLocator.h"
 #include "navigation/NewSimpleNavigator.h"
 #include "navigation/SimpleABBoxNavigator.h"
+#include "navigation/SimpleABBoxLevelLocator.h"
 #include "navigation/HybridNavigator2.h"
 
 #define CALLGRIND
@@ -114,7 +115,73 @@ int make_bmp_header( );
 int make_bmp(int const * image_result, char const *, int data_size_x, int data_size_y, bool linear = true);
 int make_diff_bmp(int const * image1, int const * image2, char const *, int sizex, int sizey);
 
+typedef Vector3D<Precision> Vec3_t;
+typedef std::pair<Vec3_t, Vec3_t> PointAndDir_t;
+typedef std::pair<PointAndDir_t, NavigationState *> TrackAndState_t;
+typedef std::map<LogicalVolume const*, std::vector<TrackAndState_t> *> VolumeTracksMap_t;
+VolumeTracksMap_t gVolumeTrackMap;
+VolumeTracksMap_t gVolumeTrackForLevelLocate;
 
+#define LOGDATA
+
+void AddTrack( LogicalVolume const *lvol, Vec3_t p, Vec3_t d, NavigationState const * state ){
+  NavigationState * newstate = NavigationState::MakeCopy( *state );
+  if(gVolumeTrackMap.find(lvol)==gVolumeTrackMap.end()){
+    std::vector<TrackAndState_t> *v=new std::vector<TrackAndState_t>();
+    gVolumeTrackMap[lvol] = v;
+    v->push_back( TrackAndState_t( PointAndDir_t(p, d ), newstate) );
+  }
+  else {
+    auto & v = gVolumeTrackMap[lvol];
+    v->push_back( TrackAndState_t(PointAndDir_t(p, d ), newstate) );
+  }
+}
+
+void PrintTracks(){
+  for( auto &key : gVolumeTrackMap ){
+    std::cerr << key.first->GetName() << " " << key.second->size() << "\n";
+  }
+}
+
+
+void BenchNavigationUsingLoggedTracks( LogicalVolume const* lvol, std::vector<VNavigator const *> const & navs, std::vector<TrackAndState_t> const & tracks ) {
+  NavigationState * newstate = NavigationState::MakeInstance( GeoManager::Instance().getMaxDepth() );
+  std::cerr << "lvol " << lvol->GetName() << " CURRENT NAV " << lvol->GetNavigator()->GetName() << "\n";
+  int i=1000;
+  int j=0;  
+    double bestT=kInfinity;
+
+ for( auto & nav : navs ){
+    double step=0;
+    Stopwatch timer;
+    timer.Start();
+    for( size_t rep=0; rep < 3; rep++ ){
+      for( auto & t : tracks ){
+	step += nav->ComputeStepAndPropagatedState( t.first.first, t.first.second, vecgeom::kInfinity, *t.second, *newstate );
+      }
+    }
+    timer.Stop();
+    double T = timer.Elapsed();
+    if( T < bestT) { 
+      bestT=T; 
+      i = j;
+    }
+    std::cerr << "lvol " << lvol->GetName() << " NAV " << nav->GetName() << " " << T << " " << i << "\n";
+    j++;
+  }
+  std::cerr << "SETTING lvol " << lvol->GetName() << " to NAV " << navs[i]->GetName() << "\n";
+  const_cast<LogicalVolume*>(lvol)->SetNavigator(navs[i]);
+}
+
+void BenchTracks(){
+ 
+  for( auto &key : gVolumeTrackMap ){
+    std::vector<VNavigator const *> navs = {NewSimpleNavigator<>::Instance(), SimpleABBoxNavigator<>::Instance()  };    
+    navs.push_back( key.first->GetNavigator() );
+//  std::cerr << key.first->GetName() << " " << key.second->size() << "\n";
+    BenchNavigationUsingLoggedTracks( key.first, navs, *key.second );
+  }
+}
 
 void InitNavigators(){
     for( auto & lvol : GeoManager::Instance().GetLogicalVolumesMap() ){
@@ -125,8 +192,10 @@ void InitNavigators(){
             lvol.second->SetNavigator(SimpleABBoxNavigator<>::Instance());
         }
 	if( lvol.second->GetDaughtersp()->size() >= 10 ){
-            lvol.second->SetNavigator(HybridNavigator<>::Instance());
-        }
+	    lvol.second->SetNavigator(HybridNavigator<>::Instance());
+	    HybridManager2::Instance().InitStructure((lvol.second));
+	}
+	lvol.second->SetLevelLocator(SimpleABBoxLevelLocator::GetInstance());
     }
 }
 
@@ -455,10 +524,13 @@ if(VERBOSE){
             }
 
             while( ! curnavstate->IsOutside() ) {
+#ifdef LOGDATA
+	      AddTrack( curnavstate->Top()->GetLogicalVolume(), p, dir, curnavstate );
+#endif
                 double step = 0;
                 newnavstate->Clear();
                 VNavigator const* navigator = curnavstate->Top()->GetLogicalVolume()->GetNavigator();
-		//	std::cerr << "navigating with " << navigator->GetName() << "\n";
+		//	if(navigator==HybridNavigator<>::Instance()) std::cerr << "navigating with " << navigator->GetName() << "\n";
                 step = navigator->ComputeStepAndPropagatedState( p, dir, vecgeom::kInfinity, *curnavstate, *newnavstate );
 
                 //std::cout << "step " << step << "\n";
@@ -1195,6 +1267,8 @@ int *volume_result= (int*) new int[data_size_y * data_size_x*3];
   #endif
       timer.Stop();
       std::cout << " VG (NEW) Elapsed time : "<< timer.Elapsed() << std::endl;
+      //      PrintTracks();
+      BenchTracks();
 
       VecGeomimage << imagenamebase.str();
       VecGeomimage << "_VecGeomNEW.bmp";
