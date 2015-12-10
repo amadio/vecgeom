@@ -690,6 +690,7 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   static const bool surfacetolerant=true;
 #endif
 
+  distance = stepMax;
   safety[0] = Abs(point[0]) - dimensions[0];
   safety[1] = Abs(point[1]) - dimensions[1];
   safety[2] = Abs(point[2]) - dimensions[2];
@@ -701,9 +702,11 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
 
 
   Boolean_t inside = Backend::kFalse;
-  inside = safety[0] < 0 && safety[1] < 0 && safety[2] < 0;
-  // MaskedAssign(!done && inside, -1., &distance);  // -1 causes problems in Geant4 navigation (track travels back in time)
-  MaskedAssign(!done && inside, kInfinity, &distance);
+  inside = safety[0] < -kTolerance && safety[1] < -kTolerance && safety[2] < -kTolerance;
+  MaskedAssign(!done && inside, -1., &distance);
+  done |= inside;
+  if ( IsFull(done) ) return;
+
   done |= inside;
   if ( IsFull(done) ) return;
 
