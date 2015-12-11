@@ -13,6 +13,7 @@ CTEST="ON"
 GEANT4="ON"
 ROOT="ON"
 USOLIDS="ON"
+NO_SPECIALIZATION="ON"
 
 # process options
 
@@ -55,6 +56,9 @@ case ${option} in
 	validation)   VALIDATION="ON"  ;;
 	novalidation) VALIDATION="OFF" ;;
 
+	specialized)   NO_SPECIALIZATION="OFF" ;;
+	unspecialized) NO_SPECIALIZATION="ON"  ;;
+
 	usolids)   USOLIDS="ON"  ;;
 	nousolids) USOLIDS="OFF" ;;
 
@@ -66,9 +70,19 @@ case ${option} in
 esac
 done
 
+echo -------------------------------------------------------------
+echo
+echo "Using CMake command:"
+echo "cmake ${SRCDIR} -DCMAKE_INSTALL_PREFIX=${DESTDIR}          "
+echo "    -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ${BACKEND} ${CUDA}    "
+echo "    -DUSOLIDS=${USOLIDS} -DROOT=${ROOT} -DGEANT4=${GEANT4} "
+echo "    -DBENCHMARK=${BENCHMARK} -DCTEST=${CTEST}              "
+echo "    -DVALIDATION=${VALIDATION} -DNO_SPECIALIZATION=${NO_SPECIALIZATION}"
+echo
+echo -------------------------------------------------------------
+
 cmake ${SRCDIR} -DCMAKE_INSTALL_PREFIX=${DESTDIR}          \
     -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ${BACKEND} ${CUDA}    \
     -DUSOLIDS=${USOLIDS} -DROOT=${ROOT} -DGEANT4=${GEANT4} \
-    -DCTEST=${CTEST} -DBENCHMARK=${BENCHMARK}              \
-    -DVALIDATION=${VALIDATION} ${EXTRA_CONF}
-
+    -DBENCHMARK=${BENCHMARK} -DCTEST=${CTEST}              \
+    -DVALIDATION=${VALIDATION} -DNO_SPECIALIZATION=${NO_SPECIALIZATION}
