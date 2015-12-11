@@ -745,25 +745,7 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
         Abs(coord2) <= MakeMinusTolerant<surfacetolerant>(dimensions[1]);
   MaskedAssign(!done && hit, next, &distance);
   done |= hit;
-  // std::cout<<"next="<<next<<", coord1,2="<< coord1 <<", "<< coord2
-  //          <<" hit="<< (safety[2] >= MakeMinusTolerant<surfacetolerant>(0.))
-  //          <<"*"<< (point[2] * direction[2] < 0)
-  //          <<"*"<< (Abs(coord1) <= MakeMinusTolerant<surfacetolerant>(dimensions[0]))
-  //          <<"*"<< (Abs(coord2) <= MakeMinusTolerant<surfacetolerant>(dimensions[1]))
-  //          <<"="< hit <<", dist="<< distance <<"\n";
-  //          <<" done="<< done <<"\n";
   if ( IsFull(done) ) return;
-
-
-  // // Next step: surface treatment
-  // Boolean_t surface = Backend::kFalse;
-  // Boolean_t surfacex = safety[0] <  kHalfTolerance && safety[1] < -kHalfTolerance && safety[2] < -kHalfTolerance;
-  // Boolean_t surfacey = safety[0] < -kHalfTolerance && safety[1] <  kHalfTolerance && safety[2] < -kHalfTolerance;
-  // Boolean_t surfacez = safety[0] < -kHalfTolerance && safety[1] < -kHalfTolerance && safety[2] <  kHalfTolerance;
-
-  // MaskedAssign(!done && surface, 0., &distance);
-  // done |= inside;
-  // if ( IsFull(done) ) return;
 
 #ifdef VECGEOM_NVCC
   #undef surfacetolerant
