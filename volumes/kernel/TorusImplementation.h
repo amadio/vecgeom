@@ -13,7 +13,7 @@
 
 #ifndef VECGEOM_NVCC
 #include <iomanip>
-  #if (defined(VECGEOM_VC) || defined(VECGEOM_VC_ACCELERATION))
+  #if defined(VECGEOM_VC)
     #include <Vc/Vc>
   #endif
 #endif
@@ -29,7 +29,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 
 #ifndef VECGEOM_NVCC
-  #if (defined(VECGEOM_VC) || defined(VECGEOM_VC_ACCELERATION))
+  #if defined(VECGEOM_VC)
 using namespace Vc;
 
 inline
@@ -270,7 +270,7 @@ Complex<T> csqrtrealargument( const T & x )
 }
 
 #ifndef VECGEOM_NVCC
-  #if (defined(VECGEOM_VC) || defined(VECGEOM_VC_ACCELERATION))
+  #if defined(VECGEOM_VC)
 // template specialization for Vc
 typedef Vc::double_v VCT;
 template <>
@@ -328,7 +328,7 @@ Complex<T> cbrt( const Complex<T>& x )
 }
 
 #ifndef VECGEOM_NVCC
-  #if (defined(VECGEOM_VC) || defined(VECGEOM_VC_ACCELERATION))
+  #if defined(VECGEOM_VC)
 
 // template specialization for Vc
 // we need standalone function for cubic root
@@ -547,7 +547,7 @@ std::cout <<"roots for scalar case"<<std::endl;
 // CT == complextype
 //typedef Vc::double_v VCT2;
 #ifndef VECGEOM_NVCC
-  #if (defined(VECGEOM_VC) || defined(VECGEOM_VC_ACCELERATION))
+  #if defined(VECGEOM_VC)
 typedef Complex<VCT> CVCT;
 inline
 void solveQuartic2(VCT a, VCT b, VCT c, VCT d, VCT e, CVCT * roots)

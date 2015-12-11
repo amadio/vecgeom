@@ -80,8 +80,6 @@ enum_option(BACKEND
             CASE_INSENSITIVE
            )
 
-option(VC_ACCELERATION "Internal vectorization using Vc." OFF)
-
 option(VTUNE "Enable the use of profiler Vtune" OFF)
 
 
@@ -114,10 +112,6 @@ if (GEANT4)
 #    set(Geant4 OFF)
 #  endif()
    set(Geant4 ON)
-endif()
-
-if (VC_ACCELERATION)
-  set (Vc ON)
 endif()
 
 if (CTEST)
@@ -321,10 +315,6 @@ if (USOLIDS_VECGEOM)
   set(VECGEOM_COMPILATION_FLAGS
       "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_REPLACE_USOLIDS")
 endif()
-if (VC_ACCELERATION)
-  set(VECGEOM_COMPILATION_FLAGS
-      "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_VC_ACCELERATION")
-endif()
 if (QUADRILATERAL_ACCELERATION)
   set(VECGEOM_COMPILATION_FLAGS
       "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_QUADRILATERALS_VC")
@@ -368,8 +358,7 @@ endif()
 
 # Backend configuration
 
-if (VC_ACCELERATION OR Vc)
-
+if (Vc)
   find_package(Vc REQUIRED)
   if (MIC)
     set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${Vc_MIC_LIBRARIES})
@@ -381,7 +370,6 @@ if (VC_ACCELERATION OR Vc)
   if (Vc)
     set(SRC_EXTERNAL ${SRC_EXTERNAL} source/backend/vc/Backend.cpp)
   endif()
-
 endif()
 
 if (Cilk)

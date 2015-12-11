@@ -2,7 +2,7 @@
 
 # defaults
 
-BACKEND=${BACKEND:-"-DVc=ON  -DVC_ACCELERATION=ON -DBACKEND=Vc"}
+BACKEND=${BACKEND:-"-DVc=ON -DBACKEND=Vc"}
 BUILD_TYPE=${BUILD_TYPE:-"Release"}
 SRCDIR=${SRCDIR:-${HOME}/src/vecgeom}
 DESTDIR=${DESTDIR:-${PWD}}
@@ -33,11 +33,11 @@ case ${option} in
 
 	# backends
 	scalar|Scalar)
-	BACKEND="-DVc=OFF -DVC_ACCELERATION=OFF -DBACKEND=Scalar"
+	BACKEND="-DVc=OFF -DBACKEND=Scalar"
 	;;
 
 	vc|Vc|VC)
-	BACKEND="-DVc=ON  -DVC_ACCELERATION=ON -DBACKEND=Vc"
+	BACKEND="-DVc=ON -DBACKEND=Vc"
 	;;
 
 	# other options
