@@ -207,10 +207,10 @@ public:
       output
     );
 
-#ifdef VECGEOM_REPLACE_USOLIDS
+// #ifdef VECGEOM_REPLACE_USOLIDS
     // avoid distance values within kTolerance
-    MaskedAssign(Abs(output)<kTolerance, 0., &distance);
-#endif
+    MaskedAssign(Abs(output)<kTolerance, 0., &output);
+// #endif
 
 #ifdef VECGEOM_DISTANCE_DEBUG
     DistanceComparator::CompareDistanceToIn( this, output, point, direction, stepMax );
@@ -231,10 +231,10 @@ public:
       output
     );
 
-#ifdef VECGEOM_REPLACE_USOLIDS
+// #ifdef VECGEOM_REPLACE_USOLIDS
     // avoid distance values within kTolerance
-    MaskedAssign(Abs(output)<kTolerance, 0., &distance);
-#endif
+    MaskedAssign(Abs(output)<kTolerance, 0., &output);
+// #endif
 
     // detect -inf responses which are often an indication for a real bug
 #ifndef VECGEOM_NVCC

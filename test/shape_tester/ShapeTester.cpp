@@ -645,8 +645,6 @@ int ShapeTester::TestSurfacePoint()
           }
         }
       }
-
-
     }
 
   }
@@ -808,7 +806,7 @@ int ShapeTester::TestOutsidePoint( )
 
     if (safeDistance <= 0.0) {
       UVector3 zero(0);
-      ReportError(  &nError, point, zero, safeDistance,"T0: SafetyFromOutside(p) <= 0");
+      ReportError(  &nError, point, zero, safeDistance,"TO: SafetyFromOutside(p) <= 0");
 
       if( CountErrors() )
         errCode= 2; // errCode: 0000 0000 0010
@@ -820,7 +818,7 @@ int ShapeTester::TestOutsidePoint( )
 
     if (safeDistanceFromInside > 0.0) {
       UVector3 zero(0);
-      ReportError(  &nError, point, zero, safeDistanceFromInside,"T0: SafetyFromInside(p) not 0 for point Outside");
+      ReportError(  &nError, point, zero, safeDistanceFromInside,"TO: SafetyFromInside(p) not 0 for point Outside");
       //continue;
     }
 
@@ -830,22 +828,22 @@ int ShapeTester::TestOutsidePoint( )
 
       double dist = volumeUSolids->DistanceToIn( point, v );
       if (dist <= 0) {
-        ReportError(  &nError, point, v, safeDistance, "T0: DistanceToIn(p,v) <= 0" );
+        ReportError(  &nError, point, v, safeDistance, "TO: DistanceToIn(p,v) <= 0" );
         continue;
       }
       if (dist >= UUtils::kInfinity) {
-        ReportError(&nError, point, v, safeDistance, "T0: DistanceToIn(p,v) == kInfinity" );
+        ReportError(&nError, point, v, safeDistance, "TO: DistanceToIn(p,v) == kInfinity" );
         continue;
       }
       if (dist < safeDistance-1E-10) {
-        ReportError(  &nError, point, v, safeDistance, "T0: DistanceToIn(p,v) < DistanceToIn(p)" );
+        ReportError(  &nError, point, v, safeDistance, "TO: DistanceToIn(p,v) < DistanceToIn(p)" );
         continue;
       }
 
       UVector3 p = point + dist*v;
       VUSolid::EnumInside insideOrNot = volumeUSolids->Inside( p );
       if (insideOrNot == vecgeom::EInside::kOutside) {
-        ReportError(  &nError, point, v, safeDistance, "T0: DistanceToIn(p,v) undershoots");
+        ReportError(  &nError, point, v, safeDistance, "TO: DistanceToIn(p,v) undershoots");
         continue;
       }
       if (insideOrNot == vecgeom::EInside::kInside) {
@@ -857,7 +855,7 @@ int ShapeTester::TestOutsidePoint( )
 
       //if (dist != 0) {
       if (dist > VUSolid::Tolerance()) {
-        ReportError(  &nError, p, v, safeDistance, "T02: DistanceToIn(p) should be zero" );
+        ReportError(  &nError, p, v, safeDistance, "TO2: DistanceToIn(p) should be zero" );
         // logger << "Dist != 0 : " << dist << endl;
         continue;
       }
@@ -865,7 +863,7 @@ int ShapeTester::TestOutsidePoint( )
       dist = volumeUSolids->SafetyFromInside( p );
       //if (dist != 0) {
       if (dist > VUSolid::Tolerance()) {
-        ReportError(&nError , p, v, safeDistance, "T02: DistanceToOut(p) should be zero" );
+        ReportError(&nError , p, v, safeDistance, "TO2: DistanceToOut(p) should be zero" );
         continue;
       }
 
@@ -878,7 +876,7 @@ int ShapeTester::TestOutsidePoint( )
       //
       //if (dist != UUtils::kInfinity) {
       if (dist >= UUtils::kInfinity) {
-        ReportError(  &nError, p, v, safeDistance, "T02: DistanceToIn(p,v) == kInfinity" );
+        ReportError(  &nError, p, v, safeDistance, "TO2: DistanceToIn(p,v) == kInfinity" );
         continue;
       }
 
@@ -890,17 +888,17 @@ int ShapeTester::TestOutsidePoint( )
       if (dist == 0) continue;
 
       if (dist >= UUtils::kInfinity) {
-        ReportError(  &nError, p, v, safeDistance, "T02: DistanceToOut(p,v) == kInfinity" );
+        ReportError(  &nError, p, v, safeDistance, "TO2: DistanceToOut(p,v) == kInfinity" );
         continue;
       }
       else if (dist < 0) {
-        ReportError(  &nError, p, v, safeDistance, "T02: DistanceToOut(p,v) < 0");
+        ReportError(  &nError, p, v, safeDistance, "TO2: DistanceToOut(p,v) < 0");
         continue;
       }
 
       if (valid) {
         if (norm.Dot(v) < 0) {
-          ReportError(  &nError, p, v, safeDistance, "T02: Outgoing normal incorrect" );
+          ReportError(  &nError, p, v, safeDistance, "TO2: Outgoing normal incorrect" );
           continue;
         }
       }
@@ -908,7 +906,7 @@ int ShapeTester::TestOutsidePoint( )
       UVector3 norm1;
       valid = volumeUSolids->Normal( p,norm1 );
       if (norm1.Dot(v) > 0) {
-        ReportError(  &nError, p, v, safeDistance, "T02: Ingoing surfaceNormal is incorrect" );
+        ReportError(  &nError, p, v, safeDistance, "TO2: Ingoing surfaceNormal is incorrect" );
       }
 
 
@@ -916,7 +914,7 @@ int ShapeTester::TestOutsidePoint( )
 
       insideOrNot = volumeUSolids->Inside(p2);
       if (insideOrNot == vecgeom::EInside::kInside) {
-        ReportError(  &nError, p, v, safeDistance, "T02: DistanceToOut(p,v) undershoots" );
+        ReportError(  &nError, p, v, safeDistance, "TO2: DistanceToOut(p,v) undershoots" );
         continue;
       }
       if (insideOrNot == vecgeom::EInside::kOutside) {
@@ -928,11 +926,11 @@ int ShapeTester::TestOutsidePoint( )
       valid = volumeUSolids->Normal( p2 , norm2);
       if (norm2.Dot(v) < 0) {
         if (volumeUSolids->DistanceToIn(p2,v) != 0)
-          ReportError(  &nError, p2, v, safeDistance, "T02: Outgoing surfaceNormal is incorrect" );
+          ReportError(  &nError, p2, v, safeDistance, "TO2: Outgoing surfaceNormal is incorrect" );
       }
       if (convex) {
         if (norm.Dot(norm2) < 0.0) {
-          ReportError(  &nError, p2, v, safeDistance, "T02: SurfaceNormal and DistanceToOut disagree on normal" );
+          ReportError(  &nError, p2, v, safeDistance, "TO2: SurfaceNormal and DistanceToOut disagree on normal" );
         }
       }
 
@@ -943,8 +941,10 @@ int ShapeTester::TestOutsidePoint( )
           // We may have grazed a corner, which is a problem of design.
           // Check distance out
           //
-          if (volumeUSolids->DistanceToOut(p2,v,norm3,convex1) != 0) {
-            ReportError(  &nError, p, v, safeDistance, "TO2: DistanceToOut incorrectly returns validNorm==true (line of sight)(c)");
+          dist = volumeUSolids->DistanceToOut(p2,v,norm3,convex1);
+          if (dist != 0) {
+            ReportError(  &nError, p, v, dist, "TO2: DistanceToOut incorrectly returns validNorm==true (line of sight)(c)");
+            if(nError<=3) std::cout<<"Point on opposite surface: p2="<< p2 <<"\n";
             continue;
           }
         }
@@ -960,7 +960,7 @@ int ShapeTester::TestOutsidePoint( )
 
           if (p2top.Dot(norm) > 0) {
             ReportError(  &nError, p, v,safeDistance,
-                          "T02: DistanceToOut incorrectly returns validNorm==true (horizon)" );
+                          "TO2: DistanceToOut incorrectly returns validNorm==true (horizon)" );
             continue;
           }
         }
@@ -978,7 +978,7 @@ int ShapeTester::TestOutsidePoint( )
       double dist = volumeUSolids->DistanceToIn( point, v );
 
       if (dist <= 0) {
-        ReportError(  &nError, point, v, safeDistance, "T03: DistanceToIn(p,v) <= 0" );
+        ReportError(  &nError, point, v, safeDistance, "TO3: DistanceToIn(p,v) <= 0" );
         continue;
       }
       if (dist >= UUtils::kInfinity) {
@@ -986,14 +986,14 @@ int ShapeTester::TestOutsidePoint( )
         continue;
       }
       if (dist < safeDistance-1E-10) {
-        ReportError(  &nError, point, v, safeDistance, "T03: DistanceToIn(p,v) < DistanceToIn(p)" );
+        ReportError(  &nError, point, v, safeDistance, "TO3: DistanceToIn(p,v) < DistanceToIn(p)" );
         continue;
       }
       UVector3 p = point + dist*v;
 
       VUSolid::EnumInside insideOrNot = volumeUSolids->Inside( p );
       if (insideOrNot == vecgeom::EInside::kOutside) {
-        ReportError(  &nError, point, v, safeDistance, "T03: DistanceToIn(p,v) undershoots" );
+        ReportError(  &nError, point, v, safeDistance, "TO3: DistanceToIn(p,v) undershoots" );
         continue;
       }
       if (insideOrNot == vecgeom::EInside::kInside) {
@@ -1077,7 +1077,7 @@ int ShapeTester::TestAccuracyDistanceToIn(double dist)
             iOutInf++;
             ReportError(  &nError, point, vec, distOut, "TAD: DistanceToOut is Infinity for point Outside");
           }
-          if(std::fabs(distOut) < -tolerance){
+          if(std::fabs(distOut) < tolerance){
             iOutZero++;
             ReportError(  &nError, point, vec, distOut, "TAD: DistanceToOut is < tolerance for point Outside");
           }
@@ -1103,9 +1103,12 @@ int ShapeTester::TestAccuracyDistanceToIn(double dist)
               iInZero++;
               ReportError(  &nError, pointIn, vec,distOut1 , "TAD: Distance ToOut < tolerance  for point Inside");
             }
-            if(std::fabs(distIn1)>tolerance){
+            // for VecGeom, distIn1 should be -1 for points inside
+            //if(std::fabs(distIn1)>tolerance && std::fabs(distIn1+1)) {
+            if(distIn1>0) {
               iInZero++;
-              ReportError(  &nError, pointIn, vec,distIn1 , "TAD: Distance ToIn > tolerance  for point Inside");
+              // ReportError(  &nError, pointIn, vec,distIn1 , "TAD: Abs(DistToIn) > tolerance  for point Inside");
+              ReportError(  &nError, pointIn, vec,distIn1 , "TAD: distToIn > 0  for point Inside");
             }
             double safFromOut = volumeUSolids->SafetyFromOutside(pointIn);
             if(safFromOut > tolerance){
@@ -1135,7 +1138,7 @@ int ShapeTester::TestAccuracyDistanceToIn(double dist)
           }
         }
       }
-      else
+      else  // here for point Inside
       {
         for(int j = 0; j < 1000; j++ )
         {
@@ -1148,25 +1151,25 @@ int ShapeTester::TestAccuracyDistanceToIn(double dist)
           iWrongSideIn++;
           if(distOut>=UUtils::kInfinity){
             iInInf++;
-            ReportError(  &nError, point, vec,distOut , "TAD: Distance ToOut is Infinity  for point Inside");
+            ReportError(  &nError, point, vec,distOut , "TAD2: Distance ToOut is Infinity  for point Inside");
           }
           if(std::fabs(distOut)<tolerance){
             iInZero++;
-            ReportError(  &nError, point, vec,distOut , "TAD: Distance ToOut < tolerance  for point Inside");
+            ReportError(  &nError, point, vec,distOut , "TAD2: Distance ToOut < tolerance  for point Inside");
           }
           if(std::fabs(distIn)>tolerance){
             iInZero++;
-            ReportError(  &nError, point, vec,distOut , "TAD: Distance ToIn > tolerance  for point Inside");
+            ReportError(  &nError, point, vec,distOut , "TAD2: Distance ToIn > tolerance  for point Inside");
           }
           double safFromOut = volumeUSolids->SafetyFromOutside(point);
           if(safFromOut > tolerance){
             iSafIn++;
-            ReportError(  &nError, point, vec,safFromOut , "TAD: SafetyFromOutside > tolerance  for point Inside");
+            ReportError(  &nError, point, vec,safFromOut , "TAD2: SafetyFromOutside > tolerance  for point Inside");
           }
           if(surfaceP != vecgeom::EInside::kSurface )
           {
             iOutNoSurf++;
-            ReportError(  &nError, point, vec, 0. , "TAD: Moved to Surface point is not on Surface");
+            ReportError(  &nError, point, vec, 0. , "TAD2: Moved to Surface point is not on Surface");
           }
         }
       }

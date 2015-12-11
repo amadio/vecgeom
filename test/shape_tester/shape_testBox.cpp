@@ -21,6 +21,7 @@ int main(  int argc,char *argv[]) {
     if(strcmp(argv[1],"vec")==0)
     {
      box=new Box_t("test_VecGeomBox",5.,5.,5.);
+     box->StreamInfo(std::cout);
     }
     else
     {   
@@ -31,7 +32,7 @@ int main(  int argc,char *argv[]) {
   else
     {
      box=new Box_t("test_VecGeomBox",5.,5.,5.);
-    
+     box->StreamInfo(std::cout);
     }
   ShapeTester tester;
 
