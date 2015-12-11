@@ -325,6 +325,7 @@ namespace veccore{
          return true;
       }
 
+      VECGEOM_CUDA_HEADER_BOTH
       bool TestBitNumber(size_t bitnumber) const
       {
          // Return the current value of the bit
@@ -604,11 +605,16 @@ namespace veccore{
          return count;
       }
 
+      VECGEOM_CUDA_HEADER_BOTH
       size_t  FirstNullBit(size_t startBit=0)  const
       {
          // Return position of first null bit (starting from position 0 and up)
 
+#ifdef VECGEOM_NVCC_DEVICE
+         constexpr unsigned char fbits[256] = {
+#else
          static const unsigned char fbits[256] = {
+#endif
              0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,
              0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,
              0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,
@@ -697,12 +703,18 @@ namespace veccore{
          }
          return fNbits;
       }
+      VECGEOM_CUDA_HEADER_BOTH
       size_t  LastNullBit() const { return LastNullBit(fNbits-1); }
+      VECGEOM_CUDA_HEADER_BOTH
       size_t  LastNullBit(size_t startBit) const
       {
          // Return position of first null bit (starting from position startBit and down)
 
+#ifdef VECGEOM_NVCC_DEVICE
+         constexpr unsigned char fbits[256] = {
+#else
          static const unsigned char fbits[256] = {
+#endif
             7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
             7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
             7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
@@ -735,12 +747,18 @@ namespace veccore{
          }
          return fNbits;
       }
+      VECGEOM_CUDA_HEADER_BOTH
       size_t  LastSetBit()  const { return LastSetBit(fNbits-1); }
+      VECGEOM_CUDA_HEADER_BOTH
       size_t  LastSetBit(size_t startBit)  const
       {
          // Return position of first non null bit (starting from position fNbits and down)
 
+#ifdef VECGEOM_NVCC_DEVICE
+         constexpr unsigned char fbits[256] = {
+#else
          static const char fbits[256] = {
+#endif
              8,0,1,1,2,2,2,2,3,3,3,3,3,3,3,3,
              4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
              5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
