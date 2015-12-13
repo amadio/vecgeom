@@ -19,7 +19,6 @@ static const double kPlankBar = 6.5821192815e-25; // GeV s
 namespace vecgeom {
   inline namespace VECGEOM_IMPL_NAMESPACE {
   
-map<int,Particle> Particle::fParticles;
 #ifndef VECGEOM_NVCC_DEVICE
 ostream& operator<<(ostream& os, const Particle& part)
 {
@@ -256,7 +255,6 @@ void Particle::ReadFile(string infilename, string outfilename) {
 
    }
 }
-#endif
 //________________________________________________________________________________________________
 void Particle::GetDecay(const string &line, int &dcount, Decay &decay) {
    int dtype;
@@ -355,7 +353,6 @@ void Particle::GetPart(const string &line, int &count, string &name, int &pdg, b
       ss >> ndecay;
    }
 }
-#ifndef VECGEOM_NVCC_DEVICE
 ostream& operator<<(ostream& os, const Particle::Decay& dec)
 {
    os << "Type " << static_cast<int>(dec.fType) << " br " << dec.fBr << " products: ";

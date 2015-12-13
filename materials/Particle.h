@@ -33,7 +33,12 @@ namespace vecgeom {
   VECGEOM_DEVICE_FORWARD_DECLARE( class Material; )
   
     inline namespace VECGEOM_IMPL_NAMESPACE {
-  
+ 
+#ifdef VECGEOM_NVCC_DEVICE
+class Particle; 
+VECGEOM_CUDA_HEADER_DEVICE  map<int,Particle> fParticles;              // Particle list indexed by PDG code
+#endif
+
 class Particle {
 public:
    class Decay;
@@ -44,10 +49,16 @@ public:
 	    double width, int isospin, int iso3, int strange, int flavor, int track, int code=-1);
 
    VECGEOM_CUDA_HEADER_BOTH
-   Particle(const Particle & other):fName(other.fName), fPDG(other.fPDG), fMatter(other.fMatter), fClass(other.fClass), fPcode(other.fPcode), fCharge(other.fCharge), fMass(other.fMass),fWidth(other.fWidth),fIsospin(other.fIsospin),fStrange(other.fStrange),fFlavor(other.fFlavor),fTrack(other.fTrack),fCode(other.fCode){}
+   //Particle(const Particle & other):fName(other.fName), fPDG(other.fPDG), fMatter(other.fMatter), fClass(other.fClass), fPcode(other.fPcode), fCharge(other.fCharge), fMass(other.fMass),fWidth(other.fWidth),fIsospin(other.fIsospin),fStrange(other.fStrange),fFlavor(other.fFlavor),fTrack(other.fTrack),fCode(other.fCode){}
 
    VECGEOM_CUDA_HEADER_BOTH
    static void CreateParticles();
+#ifdef VECGEOM_NVCC_DEVICE
+   VECGEOM_CUDA_HEADER_DEVICE
+Particle operator=(const Particle &part) {
+   return part;
+}
+#endif
 
    const char* Name() const {return fName;}
    int PDG() const {return fPDG;}
@@ -87,6 +98,7 @@ VECGEOM_CUDA_HEADER_BOTH
    void NormDecay();
 
    friend ostream& operator<<(ostream& os, const Particle& part);
+   
 #endif
    void AddDecay(const Decay &decay) {fDecayList.push_back(decay); fNdecay = fDecayList.size();}
 
@@ -119,6 +131,11 @@ VECGEOM_CUDA_HEADER_BOTH
 
 #ifndef VECGEOM_NVCC_DEVICE   
       friend ostream& operator<<(ostream& os, const Decay& dec);
+#else
+   VECGEOM_CUDA_HEADER_DEVICE
+      Decay operator=(const Decay &dec) {
+         return dec;
+      }
 #endif
    private:
       char fType;
@@ -160,8 +177,9 @@ private:
 #else
    Vector<Decay>  fDecayList; // Decay channels
 #endif
+#ifndef VECGEOM_NVCC_DEVICE
    static map<int,Particle> fParticles;              // Particle list indexed by PDG code
-
+#endif
 
 };
 
