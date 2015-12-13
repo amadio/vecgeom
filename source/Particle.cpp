@@ -4,8 +4,9 @@
 #include <sstream>
 #include <iomanip>
 
-
+#ifndef VECGEOM_NVCC
 using std::cout;
+#endif
 using std::endl;
 using std::ofstream;
 using std::ifstream;
@@ -19,7 +20,7 @@ namespace vecgeom {
   inline namespace VECGEOM_IMPL_NAMESPACE {
   
 map<int,Particle> Particle::fParticles;
-
+#ifndef VECGEOM_NVCC_DEVICE
 ostream& operator<<(ostream& os, const Particle& part)
 {
    os << part.fName << "(" << part.fPDG << ") Class:" << part.fClass << " Q:" << part.fCharge << " m:" << part.fMass
@@ -27,22 +28,27 @@ ostream& operator<<(ostream& os, const Particle& part)
       << " F:" << (int) part.fFlavor << " #:" << (int) part.fNdecay << " code:" << (int) part.fCode << endl;
    return os;
 }
-
+#endif
 //________________________________________________________________________________________________
-Particle::Particle(): fName("Default"), fPDG(0), fMatter(true), fClass(""), fPcode(0), fCharge(0), fMass(-1),
+Particle::Particle(): fPDG(0), fMatter(true), fPcode(0), fCharge(0), fMass(-1),
 		      fWidth(0), fIsospin(0), fIso3(0), fStrange(0), fFlavor(0), fTrack(0), fNdecay(0),
-                      fCode(-1) { }
+                      fCode(-1) { 
+   strncpy(fName, "Default", 8);
+   strncpy(fClass, "", 1);}
 
 //________________________________________________________________________________________________
 Particle::Particle(const char* name, int pdg, bool matter, const char* pclass, int pcode, double charge, 
 		   double mass, double width, int isospin, int iso3, int strange, int flavor, int track,
 		   int code):
-   fName(name), fPDG(pdg), fMatter(matter), fClass(pclass), fPcode(pcode), fCharge(charge), fMass(mass),
+   fPDG(pdg), fMatter(matter), fPcode(pcode), fCharge(charge), fMass(mass),
    fWidth(width), fIsospin(isospin), fIso3(iso3), fStrange(strange), fFlavor(flavor), fTrack(track), fNdecay(0),
    fCode(code) {
-
+   strncpy ( fName, name, 255 );
+   fName[255]='\0';
+   strncpy ( fClass, pclass, 255 );
+   fClass[255]='\0';
    if(fParticles.count(fPDG) != 0) {
-      cout << "Particle " << fPDG << " already there" << endl;
+      printf("Particle %d already there\n", fPDG); 
       return;
    }
 
@@ -52,6 +58,7 @@ Particle::Particle(const char* name, int pdg, bool matter, const char* pclass, i
 }
 
 //________________________________________________________________________________________________
+#ifndef VECGEOM_NVCC_DEVICE
 void Particle::ReadFile(string infilename, string outfilename) {
    int count;
    string name;
@@ -77,13 +84,13 @@ void Particle::ReadFile(string infilename, string outfilename) {
    while(getline(infile,line)) {
       if(np == 0) for(int i=0; i<3; ++i) {
 	    if(line.substr(0,1) != "#") {
-	       cout << "There should be three lines of comments at the beginning " << line << endl;
+	       printf("There should be three lines of comments at the beginning \n");
 	       exit(1);
 	    }
 	    getline(infile, line);
 	 }
       if(line.substr(0,1) == "#") {
-	 cout << "Disaster embedded comment!!!" << endl;
+	 printf("Disaster embedded comment!!!\n");
 	 exit(1);
       }
 
@@ -92,7 +99,7 @@ void Particle::ReadFile(string infilename, string outfilename) {
       GetPart(line, count, name, pdg, matter, pcode, pclass, charge, mass, width, isospin, iso3, 
 	      strange, flavor, track, ndecay, ipart, acode);
       if(np != count) {
-	 cout << "Disaster count np(" <<np << ") != count(" << count << ")"<< endl;
+	 printf("Disaster count np(%d) != count(%d)",np,count);
 	 exit(1);
       }
       /*
@@ -106,12 +113,16 @@ void Particle::ReadFile(string infilename, string outfilename) {
 	 if(strange != -100) strange = (strange-1)/2;
 	 new Particle(name.c_str(), pdg, matter, pclass.c_str(), pcode, charge/3., mass, width, isospin, iso3, 
 			     strange, flavor, track);
+         #ifdef VECGEOM_NVCC
+	 Particle &part = fParticles[pdg];
+         #else
 	 Particle &part = fParticles.at(pdg);
+         #endif
 	 if(ndecay > 0) {
 	    for(int i=0; i<3; ++i) {
 	       getline(infile, line);
 	       if(line.substr(0,1) != "#") {
-		  cout << "Disaster comment!!!" << endl;
+		  printf("Disaster comment!!!\n");
 		  exit(1);
 	       }
 	    }
@@ -120,14 +131,14 @@ void Particle::ReadFile(string infilename, string outfilename) {
 	    for(int i=0; i< ndecay; ++i) {
 	       getline(infile,line);
 	       if(line.substr(0,1) == "#") {
-		  cout << "Disaster embedded comment!!!" << endl;
+		  printf("Disaster embedded comment!!!\n");
 		  exit(1);
 	       }
 	       Decay decay;
 	       int dcount;
 	       GetDecay(line,dcount,decay);
 	       if(dcount != i+1) {
-		  cout << "dcount (" << dcount << ") != i+1 (" << i+1 << ")" << endl;
+		  printf("dcount (%d) != i+1 (%d)",dcount, i+1);
 		  exit(1);
 	       }
 	       //	       cout << "         " << dcount << " " << decay << endl;
@@ -138,15 +149,23 @@ void Particle::ReadFile(string infilename, string outfilename) {
       } else {
 	 // Create antiparticle from particle
 	 if(fParticles.find(-pdg) == fParticles.end()) {
-	    cout << "Cannot build the antiparticle because the partiche " << -pdg << " is not there!" << endl;
+	    printf("Cannot build the antiparticle because the particle %d is not there!",-pdg);
 	    exit(1);
 	 }
+         #ifdef VECGEOM_NVCC
+	 Particle p = fParticles[-pdg];
+         #else  
 	 Particle p = fParticles.at(-pdg);
+         #endif
 	 new Particle(name.c_str(), pdg, matter, p.Class(), p.Pcode(), p.Charge()==0?0:-p.Charge(), 
 		      p.Mass(), p.Width(), p.Isospin()==0?0:-p.Isospin(), 
 		      p.Isospin()==0?0:-p.Isospin(),p.Iso3()==0?0:-p.Iso3(), 
 		      p.Strange()==0?0:-p.Strange(), p.Flavor()==0?0:-p.Flavor(), p.Track());
+         #ifdef VECGEOM_NVCC
+	 Particle &part = fParticles[pdg];
+         #else
 	 Particle &part = fParticles.at(pdg);
+         #endif 
 	 Decay decay;
 	 vector<Particle::Decay>  dl = p.DecayList();
 	 for(int i=0; i<p.Ndecay(); ++i) {
@@ -237,7 +256,7 @@ void Particle::ReadFile(string infilename, string outfilename) {
 
    }
 }
-
+#endif
 //________________________________________________________________________________________________
 void Particle::GetDecay(const string &line, int &dcount, Decay &decay) {
    int dtype;
@@ -336,7 +355,7 @@ void Particle::GetPart(const string &line, int &count, string &name, int &pdg, b
       ss >> ndecay;
    }
 }
-
+#ifndef VECGEOM_NVCC_DEVICE
 ostream& operator<<(ostream& os, const Particle::Decay& dec)
 {
    os << "Type " << static_cast<int>(dec.fType) << " br " << dec.fBr << " products: ";
@@ -348,7 +367,7 @@ ostream& operator<<(ostream& os, const Particle::Decay& dec)
    
    return os;
 }
-
+#endif
 
 }
 }

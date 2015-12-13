@@ -44,8 +44,23 @@ public:
      : fData(vec), fSize(sz), fMemorySize(maxsize), fAllocated(false) {}
 
   VECGEOM_CUDA_HEADER_BOTH
+  Vector(Vector const &other): fSize(other.fSize),fMemorySize(other.fMemorySize),fAllocated(true){
+      fData = new Type[fMemorySize];
+      for (size_t i = 0; i < fSize; ++i) fData[i] = other.fData[i];
+  } 
+
+  VECGEOM_CUDA_HEADER_BOTH
   ~Vector() {
     if (fAllocated) delete[] fData;
+  }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  void clear() {
+    if (fAllocated) {
+      delete[] fData;
+      fData = new Type[fMemorySize];
+    }
+    fSize=0;
   }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -112,7 +127,6 @@ public:
 private:
 
   // Not implemented
-  Vector(Vector const &other);
   Vector * operator=(Vector const & other);
 
 };

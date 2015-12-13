@@ -102,8 +102,6 @@ int main() {
    printf(" rebuild map\n");
    launch_rebuild_map(devMap, map_keys_dev,map_values_dev,size,1,1);
    launch_test_new(devMap, map_keys_dev,size,1,1);
- /*
-  */
 
 #if defined(VECGEOM_VTUNE)
    __itt_frame_end_v3(__itt_mymap,NULL); 

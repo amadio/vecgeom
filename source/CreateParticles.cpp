@@ -7,6 +7,7 @@ namespace vecgeom {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0000() {
 
    // Creating Alpha_bar
@@ -57,6 +58,7 @@ static void CreateParticle0000() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0001() {
 
    // Creating f0(600)_bar
@@ -207,6 +209,7 @@ static void CreateParticle0001() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0002() {
 
    // Creating ~c_R_bar
@@ -569,6 +572,7 @@ static void CreateParticle0002() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0003() {
 
    // Creating ~s_L_bar
@@ -659,6 +663,7 @@ static void CreateParticle0003() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0004() {
 
    // Creating rho(1450)0_bar
@@ -709,6 +714,7 @@ static void CreateParticle0004() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0005() {
 
    // Creating N(1650)+_bar
@@ -759,6 +765,7 @@ static void CreateParticle0005() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0006() {
 
    // Creating sigma(1940)0_bar
@@ -809,6 +816,7 @@ static void CreateParticle0006() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0007() {
 
    // Creating N(1700)0_bar
@@ -890,6 +898,7 @@ static void CreateParticle0007() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0008() {
 
    // Creating xi(1820)0_bar
@@ -940,6 +949,7 @@ static void CreateParticle0008() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0009() {
 
    // Creating delta(1930)++_bar
@@ -990,6 +1000,7 @@ static void CreateParticle0009() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0010() {
 
    // Creating delta(1930)-_bar
@@ -1077,6 +1088,7 @@ static void CreateParticle0010() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0011() {
 
    // Creating D_1-
@@ -1166,6 +1178,7 @@ static void CreateParticle0011() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0012() {
 
    // Creating Omega*_bbc0_bar
@@ -1357,6 +1370,7 @@ static void CreateParticle0012() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0013() {
 
    // Creating Xi*_bc0_bar
@@ -1478,6 +1492,7 @@ static void CreateParticle0013() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0014() {
 
    // Creating Sigma*_b+_bar
@@ -1589,6 +1604,7 @@ static void CreateParticle0014() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0015() {
 
    // Creating Omega_cc-
@@ -1687,6 +1703,7 @@ static void CreateParticle0015() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0016() {
 
    // Creating Sigma*_c--
@@ -1844,6 +1861,7 @@ static void CreateParticle0016() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0017() {
 
    // Creating Xi*+
@@ -1918,6 +1936,7 @@ static void CreateParticle0017() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0018() {
 
    // Creating lambda(1520)_bar
@@ -1987,6 +2006,7 @@ static void CreateParticle0018() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0019() {
 
    // Creating antiproton
@@ -2042,6 +2062,7 @@ static void CreateParticle0019() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0020() {
 
    // Creating delta(1905)0_bar
@@ -2190,6 +2211,7 @@ static void CreateParticle0020() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0021() {
 
    // Creating B*-
@@ -2521,6 +2543,7 @@ static void CreateParticle0021() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0022() {
 
    // Creating k3_star(1780)-_bar
@@ -2627,6 +2650,7 @@ static void CreateParticle0022() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0023() {
 
    // Creating b-hadron_bar
@@ -2820,6 +2844,7 @@ static void CreateParticle0023() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0024() {
 
    // Creating W-
@@ -3042,6 +3067,7 @@ static void CreateParticle0024() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0025() {
 
    // Creating u_bar
@@ -3211,6 +3237,7 @@ static void CreateParticle0025() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0026() {
 
    // Creating tau-
@@ -3601,6 +3628,7 @@ static void CreateParticle0026() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0027() {
 
    // Creating A0
@@ -3908,6 +3936,7 @@ static void CreateParticle0027() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0028() {
 
    // Creating nu_Rmu
@@ -3976,6 +4005,7 @@ static void CreateParticle0028() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0029() {
 
    // Creating table
@@ -4086,6 +4116,7 @@ static void CreateParticle0029() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0030() {
 
    // Creating f_2
@@ -4217,6 +4248,7 @@ static void CreateParticle0030() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0031() {
 
    // Creating phi3(1850)
@@ -4507,6 +4539,7 @@ static void CreateParticle0031() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0032() {
 
    // Creating B*0
@@ -4718,6 +4751,7 @@ static void CreateParticle0032() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0033() {
 
    // Creating dd_1
@@ -4775,6 +4809,7 @@ static void CreateParticle0033() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0034() {
 
    // Creating delta(1950)0
@@ -4832,6 +4867,7 @@ static void CreateParticle0034() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0035() {
 
    // Creating sd_0
@@ -4901,6 +4937,7 @@ static void CreateParticle0035() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0036() {
 
    // Creating sigma(2030)0
@@ -4985,6 +5022,7 @@ static void CreateParticle0036() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0037() {
 
    // Creating Lambda_c+
@@ -5141,6 +5179,7 @@ static void CreateParticle0037() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0038() {
 
    // Creating Omega_c0
@@ -5256,6 +5295,7 @@ static void CreateParticle0038() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0039() {
 
    // Creating Xi_b-
@@ -5361,6 +5401,7 @@ static void CreateParticle0039() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0040() {
 
    // Creating Xi*_b0
@@ -5516,6 +5557,7 @@ static void CreateParticle0040() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0041() {
 
    // Creating Xi_bb-
@@ -5665,6 +5707,7 @@ static void CreateParticle0041() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0042() {
 
    // Creating f_0
@@ -5766,6 +5809,7 @@ static void CreateParticle0042() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0043() {
 
    // Creating D_10
@@ -5860,6 +5904,7 @@ static void CreateParticle0043() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0044() {
 
    // Creating delta(1900)-
@@ -5910,6 +5955,7 @@ static void CreateParticle0044() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0045() {
 
    // Creating delta(1900)++
@@ -5960,6 +6006,7 @@ static void CreateParticle0045() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0046() {
 
    // Creating xi(1820)-
@@ -6058,6 +6105,7 @@ static void CreateParticle0046() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0047() {
 
    // Creating B*_1+
@@ -6121,6 +6169,7 @@ static void CreateParticle0047() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0048() {
 
    // Creating delta(1920)++
@@ -6171,6 +6220,7 @@ static void CreateParticle0048() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0049() {
 
    // Creating k_star(1680)0
@@ -6221,6 +6271,7 @@ static void CreateParticle0049() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0050() {
 
    // Creating N(1900)+
@@ -6271,6 +6322,7 @@ static void CreateParticle0050() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0051() {
 
    // Creating k(1460)+
@@ -6454,6 +6506,7 @@ static void CreateParticle0051() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0052() {
 
    // Creating ~mu_L-
@@ -7160,6 +7213,7 @@ static void CreateParticle0052() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0053() {
 
    // Creating ~c_R
@@ -7327,6 +7381,7 @@ static void CreateParticle0053() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0054() {
 
    // Creating f0(600)
@@ -7377,6 +7432,7 @@ static void CreateParticle0054() {
 
 
 //________________________________________________________________________________
+ VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0055() {
 
    // Creating HE3
@@ -7385,8 +7441,13 @@ static void CreateParticle0055() {
    // Creating Alpha
    new Particle("Alpha", 1000020040, 1, "ion", 100, 2, 3.7284, 1.6916e-33, -100, 0, -100, -1, -1);
 }
+#ifdef VECGEOM_NVCC_DEVICE
+VECGEOM_CUDA_HEADER_DEVICE bool initDone=false;
+#endif
 void Particle::CreateParticles() {
+#ifndef VECGEOM_NVCC_DEVICE
    static bool initDone=false;
+#endif
    if(initDone) return;
    initDone = true;
   CreateParticle0000();

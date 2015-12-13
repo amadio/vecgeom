@@ -123,8 +123,8 @@ public:
     _M_t = __x._M_t;
     return *this; 
   }
-
-  //key/value compare funtions
+ 
+ //key/value compare funtions
   VECGEOM_CUDA_HEADER_BOTH
   key_compare key_comp() const { return _M_t.key_comp(); }
   VECGEOM_CUDA_HEADER_BOTH
@@ -153,6 +153,14 @@ public:
   size_type max_size() const { return _M_t.max_size(); }
   VECGEOM_CUDA_HEADER_BOTH
   _Tp& operator[](const key_type& __k) {
+    iterator __i = lower_bound(__k);
+    // __i->first is greater than or equivalent to __k.
+    if (__i == end() || key_comp()(__k, (*__i).first))
+      __i = insert(__i, value_type(__k, _Tp()));
+    return (*__i).second;
+  }
+  VECGEOM_CUDA_HEADER_BOTH
+  const _Tp& at(const key_type& __k) const {
     iterator __i = lower_bound(__k);
     // __i->first is greater than or equivalent to __k.
     if (__i == end() || key_comp()(__k, (*__i).first))

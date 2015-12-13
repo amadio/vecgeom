@@ -15,7 +15,6 @@ namespace vecgeom {
 VECGEOM_DEVICE_FORWARD_DECLARE( template <typename Type> class _Rb_tree; )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
-
 template <class T> struct less {
   VECGEOM_CUDA_HEADER_BOTH
   bool operator() (const T& x, const T& y) const {return x<y;}
@@ -61,10 +60,7 @@ struct pair {
        first = p.second;
        second = temp;
     };
-};
-
-
-
+}; 
 typedef bool _Rb_tree_Color_type;
 const _Rb_tree_Color_type _S_rb_tree_red = false;
 const _Rb_tree_Color_type _S_rb_tree_black = true;
@@ -95,6 +91,7 @@ template <class _Value>
 struct _Rb_tree_node : public _Rb_tree_node_base {
   typedef _Rb_tree_node<_Value>* _Link_type;
   _Value _M_value_field;
+  
   VECGEOM_CUDA_HEADER_BOTH
   _Value get_value() { return _M_value_field;};
   VECGEOM_CUDA_HEADER_BOTH
@@ -454,7 +451,6 @@ struct _Rb_tree_base {
     : _M_header(0) { _M_header = new _Rb_tree_node<_Tp>;}
   VECGEOM_CUDA_HEADER_BOTH
   ~_Rb_tree_base() { delete _M_header; }
-
 protected:
   _Rb_tree_node<_Tp>* _M_header;
 
