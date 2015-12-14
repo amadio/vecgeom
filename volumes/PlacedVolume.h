@@ -234,14 +234,14 @@ public:
       Vector3D<Precision> const &position,
       Vector3D<Precision> const &direction,
       Precision const step_max = kInfinity) const =0;
-
+#endif
   // define this interface in case we don't have the Scalar interface
 #ifndef VECGEOM_SCALAR
   virtual VECGEOM_BACKEND_PRECISION DistanceToOut(Vector3D<VECGEOM_BACKEND_PRECISION> const &position,
                                                   Vector3D<VECGEOM_BACKEND_PRECISION> const &direction,
                                                   VECGEOM_BACKEND_PRECISION const step_max = kInfinity) const = 0;
 #endif
-#endif
+
 
   // a "placed" version of the distancetoout function; here
   // the point and direction are first of all transformed into the reference frame of the
