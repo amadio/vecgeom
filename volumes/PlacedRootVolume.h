@@ -149,6 +149,32 @@ public:
   virtual void SafetyToInMinimize(SOA3D<Precision> const &position,
                                   Precision *const safeties) const;
 
+  // the SIMD vector interfaces (not implemented)
+#ifndef VECGEOM_SCALAR
+  virtual VECGEOM_BACKEND_PRECISION DistanceToIn(Vector3D<VECGEOM_BACKEND_PRECISION> const &position,
+                                                 Vector3D<VECGEOM_BACKEND_PRECISION> const &direction,
+                                                 VECGEOM_BACKEND_PRECISION const step_max = kInfinity) const override {
+    assert(false && "not implemented");
+    return VECGEOM_BACKEND_PRECISION(-1);
+  }
+  virtual VECGEOM_BACKEND_PRECISION DistanceToOut(Vector3D<VECGEOM_BACKEND_PRECISION> const &position,
+                                                  Vector3D<VECGEOM_BACKEND_PRECISION> const &direction,
+                                                  VECGEOM_BACKEND_PRECISION const step_max = kInfinity) const override {
+    assert(false && "not implemented");
+    return VECGEOM_BACKEND_PRECISION(-1);
+  }
+  virtual VECGEOM_BACKEND_PRECISION SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION> const &position) const override {
+    assert(false && "not implemented");
+    return VECGEOM_BACKEND_PRECISION(-1);
+  }
+
+  virtual VECGEOM_BACKEND_PRECISION SafetyToOut(Vector3D<VECGEOM_BACKEND_PRECISION> const &position) const override {
+    assert(false && "not implemented");
+    return VECGEOM_BACKEND_PRECISION(-1);
+  }
+#endif
+
+
   virtual VPlacedVolume const* ConvertToUnspecialized() const;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const* ConvertToRoot() const;
