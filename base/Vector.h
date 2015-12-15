@@ -5,7 +5,7 @@
 #define VECGEOM_BASE_VECTOR_H_
 
 #include "base/Global.h"
-
+#include <initializer_list>
 #ifdef VECGEOM_CUDA
 #include "backend/cuda/Interface.h"
 #endif
@@ -49,6 +49,14 @@ public:
       for (size_t i = 0; i < fSize; ++i) fData[i] = other.fData[i];
   } 
 
+  VECGEOM_CUDA_HEADER_BOTH
+  Vector(std::initializer_list<Type> entries) {
+    fSize - entries.size();
+    fData = new Type[fSize];
+    for  (size_t i = 0; i < fSize; ++i) fData[i] = entries[i]; 
+   }
+
+ 
   VECGEOM_CUDA_HEADER_BOTH
   ~Vector() {
     if (fAllocated) delete[] fData;

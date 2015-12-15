@@ -36,7 +36,7 @@ namespace vecgeom {
  
 #ifdef VECGEOM_NVCC_DEVICE
 class Particle; 
-VECGEOM_CUDA_HEADER_DEVICE  map<int,Particle> fParticles;              // Particle list indexed by PDG code
+extern VECGEOM_CUDA_HEADER_DEVICE map<int,Particle> *fParticles;              // Particle list indexed by PDG code
 #endif
 
 class Particle {
@@ -53,8 +53,8 @@ public:
 
    VECGEOM_CUDA_HEADER_BOTH
    static void CreateParticles();
-#ifdef VECGEOM_NVCC_DEVICE
-   VECGEOM_CUDA_HEADER_DEVICE
+#ifdef VECGEOM_NVCC
+   VECGEOM_CUDA_HEADER_BOTH
 Particle operator=(const Particle &part) {
    return part;
 }
@@ -83,7 +83,7 @@ Particle operator=(const Particle &part) {
 #else
    const Vector<Decay> & DecayList() const {return fDecayList;}
 #endif
-#ifndef VECGEOM_NVCC_DEVICE   
+#ifndef VECGEOM_NVCC
    static void ReadFile(string infilename, string outfilename="");
 #endif
 VECGEOM_CUDA_HEADER_BOTH
@@ -91,7 +91,7 @@ VECGEOM_CUDA_HEADER_BOTH
 
 #ifndef VECGEOM_NVCC_DEVICE   
    static const Particle& GetParticle(int pdg) {
-      if(fParticles.find(pdg)!=fParticles.end()) return fParticles[pdg];
+      if(fParticles->find(pdg)!=fParticles->end()) return (*fParticles)[pdg];
       static Particle p;
       std::cout << __func__ << "::pdg:" << pdg << " does not exist" << std::endl; return p;}
 
@@ -102,15 +102,18 @@ VECGEOM_CUDA_HEADER_BOTH
 #endif
    void AddDecay(const Decay &decay) {fDecayList.push_back(decay); fNdecay = fDecayList.size();}
 
-   static const map<int,Particle> & Particles() {return fParticles;}
+   static const map<int,Particle> & Particles() {return *fParticles;}
    
    class Decay {
    public:
+VECGEOM_CUDA_HEADER_BOTH
       Decay(): fType(0), fBr(0) {}
+VECGEOM_CUDA_HEADER_BOTH
       Decay(const Decay & other): fType(other.fType), fBr(other.fBr), fDaughters(other.fDaughters) {}
 #ifndef VECGEOM_NVCC
       Decay(int type, double br, const vector<int>& daughters): fType(type), fBr(br), fDaughters(daughters) {}
 #else
+VECGEOM_CUDA_HEADER_BOTH
       Decay(int type, double br, const Vector<int>& daughters): fType(type), fBr(br), fDaughters(daughters) {}
 #endif
       void Clear() {fType = 0; fBr = 0; fDaughters.clear();}
@@ -129,10 +132,10 @@ VECGEOM_CUDA_HEADER_BOTH
       void SetBr(double br) {fBr = br;}
       void AddDaughter(int daughter) {fDaughters.push_back(daughter);}
 
-#ifndef VECGEOM_NVCC_DEVICE   
+#ifndef VECGEOM_NVCC
       friend ostream& operator<<(ostream& os, const Decay& dec);
 #else
-   VECGEOM_CUDA_HEADER_DEVICE
+   VECGEOM_CUDA_HEADER_BOTH
       Decay operator=(const Decay &dec) {
          return dec;
       }
@@ -149,7 +152,7 @@ VECGEOM_CUDA_HEADER_BOTH
 
 private:
 
-#ifndef VECGEOM_NVCC_DEVICE   
+#ifndef VECGEOM_NVCC  
    static void GetPart(const string &line, int &count, string &name, int &pdg, bool &matter, int &pcode, 
 		       string &pclass, int &charge, double &mass, double &width, int &isospin, int &iso3, 
 		       int &strange, int &flavor, int &track, int &ndecay, int &ipart, int &acode);
@@ -178,7 +181,7 @@ private:
    Vector<Decay>  fDecayList; // Decay channels
 #endif
 #ifndef VECGEOM_NVCC_DEVICE
-   static map<int,Particle> fParticles;              // Particle list indexed by PDG code
+   static map<int,Particle> *fParticles;              // Particle list indexed by PDG code
 #endif
 
 };

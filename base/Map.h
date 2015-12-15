@@ -101,6 +101,8 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   map() : _M_t( _Compare()) {}
   VECGEOM_CUDA_HEADER_BOTH
+  map(const key_type _key) : _M_t(){}   // TEST
+  VECGEOM_CUDA_HEADER_BOTH
   map(const value_type* __first, const value_type* __last)
     : _M_t(_Compare())
     { _M_t.insert_unique(__first, __last); }

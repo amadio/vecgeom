@@ -3,7 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
-
+#include <cstring>
 #ifndef VECGEOM_NVCC
 using std::cout;
 #endif
@@ -18,7 +18,28 @@ static const double kPlankBar = 6.5821192815e-25; // GeV s
 
 namespace vecgeom {
   inline namespace VECGEOM_IMPL_NAMESPACE {
-  
+ 
+
+
+
+#ifdef VECGEOM_NVCC_DEVICE
+
+VECGEOM_CUDA_HEADER_DEVICE map<int,Particle> *fParticles = nullptr;
+
+VECGEOM_CUDA_HEADER_DEVICE
+char *strncpy(char *dest, const char *src, size_t n)
+{
+    char *ret = dest;
+    do {
+        if (!n--)
+            return ret;
+    } while (*dest++ = *src++);
+    while (n--)
+        *dest++ = 0;
+    return ret;
+}
+#endif
+ 
 #ifndef VECGEOM_NVCC_DEVICE
 ostream& operator<<(ostream& os, const Particle& part)
 {
@@ -29,6 +50,7 @@ ostream& operator<<(ostream& os, const Particle& part)
 }
 #endif
 //________________________________________________________________________________________________
+
 Particle::Particle(): fPDG(0), fMatter(true), fPcode(0), fCharge(0), fMass(-1),
 		      fWidth(0), fIsospin(0), fIso3(0), fStrange(0), fFlavor(0), fTrack(0), fNdecay(0),
                       fCode(-1) { 
@@ -46,18 +68,19 @@ Particle::Particle(const char* name, int pdg, bool matter, const char* pclass, i
    fName[255]='\0';
    strncpy ( fClass, pclass, 255 );
    fClass[255]='\0';
-   if(fParticles.count(fPDG) != 0) {
+   if(!fParticles) fParticles=new map<int,Particle>;
+   if(fParticles->count(fPDG) != 0) {
       printf("Particle %d already there\n", fPDG); 
       return;
    }
 
    if(fWidth > 0) fLife = kPlankBar/fWidth;
    else fLife = 0;
-   fParticles[fPDG] = *this;
+   (*fParticles)[fPDG] = *this;
 }
 
 //________________________________________________________________________________________________
-#ifndef VECGEOM_NVCC_DEVICE
+#ifndef VECGEOM_NVCC
 void Particle::ReadFile(string infilename, string outfilename) {
    int count;
    string name;
@@ -112,11 +135,7 @@ void Particle::ReadFile(string infilename, string outfilename) {
 	 if(strange != -100) strange = (strange-1)/2;
 	 new Particle(name.c_str(), pdg, matter, pclass.c_str(), pcode, charge/3., mass, width, isospin, iso3, 
 			     strange, flavor, track);
-         #ifdef VECGEOM_NVCC
-	 Particle &part = fParticles[pdg];
-         #else
-	 Particle &part = fParticles.at(pdg);
-         #endif
+	 Particle &part = fParticles->at(pdg);
 	 if(ndecay > 0) {
 	    for(int i=0; i<3; ++i) {
 	       getline(infile, line);
@@ -147,24 +166,16 @@ void Particle::ReadFile(string infilename, string outfilename) {
 	 }
       } else {
 	 // Create antiparticle from particle
-	 if(fParticles.find(-pdg) == fParticles.end()) {
+	 if(fParticles->find(-pdg) == fParticles->end()) {
 	    printf("Cannot build the antiparticle because the particle %d is not there!",-pdg);
 	    exit(1);
 	 }
-         #ifdef VECGEOM_NVCC
-	 Particle p = fParticles[-pdg];
-         #else  
-	 Particle p = fParticles.at(-pdg);
-         #endif
+	 Particle p = fParticles->at(-pdg);
 	 new Particle(name.c_str(), pdg, matter, p.Class(), p.Pcode(), p.Charge()==0?0:-p.Charge(), 
 		      p.Mass(), p.Width(), p.Isospin()==0?0:-p.Isospin(), 
 		      p.Isospin()==0?0:-p.Isospin(),p.Iso3()==0?0:-p.Iso3(), 
 		      p.Strange()==0?0:-p.Strange(), p.Flavor()==0?0:-p.Flavor(), p.Track());
-         #ifdef VECGEOM_NVCC
-	 Particle &part = fParticles[pdg];
-         #else
-	 Particle &part = fParticles.at(pdg);
-         #endif 
+	 Particle &part = fParticles->at(pdg);
 	 Decay decay;
 	 vector<Particle::Decay>  dl = p.DecayList();
 	 for(int i=0; i<p.Ndecay(); ++i) {

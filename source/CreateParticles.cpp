@@ -2,8 +2,15 @@
 #pragma clang optimize off
 #endif
 #include "materials/Particle.h"
+#ifdef VECGEOM_NVCC
+#include "base/Vector.h"
+#endif
 namespace vecgeom {
    inline namespace VECGEOM_IMPL_NAMESPACE {
+
+#ifdef VECGEOM_NVCC
+	    template <typename Type> using vector = Vector<Type>;
+#endif
 
 
 //________________________________________________________________________________
