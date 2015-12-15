@@ -17,43 +17,43 @@ public:
 	ShapeTester();
 	~ShapeTester();
 
-	int Run(VUSolid *testVolume);//std::ofstream &logger);
-	int RunMethod(VUSolid *testVolume, std::string method1 );//std::ofstream &logger);
+	int Run(VUSolid *testVolume);//std::ofstream &fLogger);
+	int RunMethod(VUSolid *testVolume, std::string fMethod1 );//std::ofstream &fLogger);
 
-	inline void SetFilename( const std::string &newFilename ) { filename = newFilename; }
-	inline void SetMaxPoints( const int newMaxPoints ) { maxPoints = newMaxPoints; }
-	inline void SetRepeat( const int newRepeat ) { repeat = newRepeat; }
-	inline void SetMethod( const std::string &newMethod ) { method = newMethod; }
-	inline void SetInsidePercent( const double percent ) { insidePercent = percent; }
-	inline void SetOutsidePercent( const double percent ) { outsidePercent = percent; }
-        inline void SetEdgePercent( const double percent ) { edgePercent = percent; }
+	inline void SetFilename( const std::string &newFilename ) { fFilename = newFilename; }
+	inline void SetMaxPoints( const int newMaxPoints ) { fMaxPoints = newMaxPoints; }
+	inline void SetRepeat( const int newRepeat ) { fRepeat = newRepeat; }
+	inline void SetMethod( const std::string &newMethod ) { fMethod = newMethod; }
+	inline void SetInsidePercent( const double percent ) { fInsidePercent = percent; }
+	inline void SetOutsidePercent( const double percent ) { fOutsidePercent = percent; }
+        inline void SetEdgePercent( const double percent ) { fEdgePercent = percent; }
 
-	inline void SetOutsideMaxRadiusMultiple( const double percent ) { outsideMaxRadiusMultiple = percent; }
-	inline void SetOutsideRandomDirectionPercent( const double percent ) { outsideRandomDirectionPercent = percent; }
-	inline void SetDifferenceTolerance( const double tolerance ) { differenceTolerance = tolerance; }
-        inline void SetNewSaveValue( const double tolerance ) { minDifference = tolerance; }
-        inline void SetSaveAllData( const bool safe ) { ifSaveAllData = safe; }
-        inline void SetRunAllTests( const bool safe ) { ifMoreTests = safe; }
+	inline void SetOutsideMaxRadiusMultiple( const double percent ) { fOutsideMaxRadiusMultiple = percent; }
+	inline void SetOutsideRandomDirectionPercent( const double percent ) { fOutsideRandomDirectionPercent = percent; }
+	inline void SetDifferenceTolerance( const double tolerance ) { fDifferenceTolerance = tolerance; }
+        inline void SetNewSaveValue( const double tolerance ) { fMinDifference = tolerance; }
+        inline void SetSaveAllData( const bool safe ) { fIfSaveAllData = safe; }
+        inline void SetRunAllTests( const bool safe ) { fIfMoreTests = safe; }
 	void SetFolder( const std::string &newFolder );
         void SetVerbose(int verbose){ fVerbose = verbose; }
-        inline int GetMaxPoints() const { return maxPoints; }
-        inline int GetRepeat() const { return repeat; }
-        inline UVector3 GetPoint(int index){ return points[index];}
-        inline void SetNumberOfScans(int num){ gNumberOfScans = num; } 
+        inline int GetMaxPoints() const { return fMaxPoints; }
+        inline int GetRepeat() const { return fRepeat; }
+        inline UVector3 GetPoint(int index){ return fPoints[index];}
+        inline void SetNumberOfScans(int num){ fGNumberOfScans = num; } 
     
-  	std::vector<UVector3> points, directions;
+  	std::vector<UVector3> fPoints, fDirections;
 private:
 	void SetDefaults();
 
-	int SaveVectorToExternalFile(const std::vector<double> &vector, const std::string &filename);
-	int SaveVectorToExternalFile(const std::vector<UVector3> &vector, const std::string &filename);
-	int SaveLegend(const std::string &filename);
-        int SaveDifLegend(const std::string &filename);
-	int SaveDoubleResults(const std::string &filename);
-        int SaveDifDoubleResults(const std::string &filename);
-	int SaveVectorResults(const std::string &filename);
-        int SaveDifVectorResults(const std::string &filename);
-         int SaveDifVectorResults1(const std::string &filename);
+	int SaveVectorToExternalFile(const std::vector<double> &vector, const std::string &fFilename);
+	int SaveVectorToExternalFile(const std::vector<UVector3> &vector, const std::string &fFilename);
+	int SaveLegend(const std::string &fFilename);
+        int SaveDifLegend(const std::string &fFilename);
+	int SaveDoubleResults(const std::string &fFilename);
+        int SaveDifDoubleResults(const std::string &fFilename);
+	int SaveVectorResults(const std::string &fFilename);
+        int SaveDifVectorResults(const std::string &fFilename);
+         int SaveDifVectorResults1(const std::string &fFilename);
 
 	std::string PrintCoordinates (const UVector3 &vec, const std::string &delimiter, int precision=4);
 	std::string PrintCoordinates (const UVector3 &vec, const char *delimiter, int precision=4);
@@ -69,7 +69,7 @@ private:
 	int CountDoubleDifferences(const std::vector<double> &differences);
 	int CountDoubleDifferences(const std::vector<double> &differences, const std::vector<double> &values1, const std::vector<double> &values2);
 
- //	int CompareVectorDifference(std::string filename);
+ //	int CompareVectorDifference(std::string fFilename);
 
 protected:
 	UVector3	GetRandomPoint() const;
@@ -77,69 +77,69 @@ protected:
 
 	void	ReportError( int *nError, UVector3 &p, 
 		UVector3 &v, double distance,
-			     std::string comment);//, std::ostream &logger );
+			     std::string comment);//, std::ostream &fLogger );
 	void 	ClearErrors();		
 	int 	CountErrors() const;
 
         
 protected:
 
-	int maxPoints, repeat;
+	int fMaxPoints, fRepeat;
         int fVerbose;   
-        double	insidePercent, outsidePercent,edgePercent, outsideMaxRadiusMultiple, outsideRandomDirectionPercent, differenceTolerance;
+        double	fInsidePercent, fOutsidePercent,fEdgePercent, fOutsideMaxRadiusMultiple, fOutsideRandomDirectionPercent, fDifferenceTolerance;
         // XRay profile statistics
-        int gNumberOfScans ;
-        double gCapacitySampled,gCapacityError ,gCapacityAnalytical ;
-	std::string method;
+        int fGNumberOfScans ;
+        double fGCapacitySampled,fGCapacityError ,fGCapacityAnalytical ;
+	std::string fMethod;
 
 
 	typedef struct sShapeTesterErrorList {
-	  std::string	message;
-	  int		nUsed;
-		struct sShapeTesterErrorList *next;
+	  std::string	sMessage;
+	  int		sNUsed;
+		struct sShapeTesterErrorList *sNext;
 	} ShapeTesterErrorList;
 
-	ShapeTesterErrorList *errorList;
+	ShapeTesterErrorList *fErrorList;
 
 private:
-	int numCheckPoints;
+	int fNumCheckPoints;
 
-	int compositeCounter;
+	int fCompositeCounter;
 
 	void FlushSS(std::stringstream &ss);
 	void Flush(const std::string &s);
        
-	VUSolid *volumeUSolids;
-        std::stringstream volumeSS;
-	std::string volumeString;
+	VUSolid *fVolumeUSolids;
+        std::stringstream fVolumeSS;
+	std::string fVolumeString;
    
 
    
- 	//std::vector<UVector3> points, directions;
-	std::vector<UVector3> resultVectorGeant4;
-	std::vector<UVector3> resultVectorRoot;
-        std::vector<UVector3> resultVectorUSolids,resultVectorDifference;
-        std::vector<double> resultDoubleGeant4, resultDoubleRoot, resultDoubleUSolids, resultDoubleDifference;
-        std::vector<bool> resultBoolGeant4, resultBoolUSolids, resultBoolDifference;
+ 	//std::vector<UVector3> fPoints, fDirections;
+	std::vector<UVector3> fResultVectorGeant4;
+	std::vector<UVector3> fResultVectorRoot;
+        std::vector<UVector3> fResultVectorUSolids,fResultVectorDifference;
+        std::vector<double> fResultDoubleGeant4, fResultDoubleRoot, fResultDoubleUSolids, fResultDoubleDifference;
+        std::vector<bool> fResultBoolGeant4, fResultBoolUSolids, fResultBoolDifference;
        
-  int offsetSurface, offsetInside, offsetOutside, offsetEdge;
-  int maxPointsInside, maxPointsOutside, maxPointsSurface,maxPointsEdge;
-	std::ostream *log, *perftab, *perflabels;
-	std::string folder;
-	std::string filename;
+  int fOffsetSurface, fOffsetInside, fOffsetOutside, fOffsetEdge;
+  int fMaxPointsInside, fMaxPointsOutside, fMaxPointsSurface,fMaxPointsEdge;
+	std::ostream *fLog, *fPerftab, *fPerflabels;
+	std::string fFolder;
+	std::string fFilename;
         //Save only differences
-        bool ifSaveAllData;//save alldata, big files 
-        bool ifMoreTests;//do all additional tests, 
+        bool fIfSaveAllData;//save alldata, big files
+        bool fIfMoreTests;//do all additional tests,
                          //take more time, but not affect performance measures
-        bool ifDifUSolids;//save differences of Geant4 with Usolids or with ROOT
-        double minDifference;//save data, when difference is bigger that min
-        bool definedNormal, ifException; 
-        std::vector<UVector3> difPoints;
-        std::vector<UVector3> difDirections;
-        std::vector<UVector3> difVectorGeant4,difVectorRoot,difVectorUSolids;
-        std::vector<double> difGeant4,difRoot,difUSolids;
-        int difPointsInside,difPointsSurface,difPointsOutside;
-        int maxErrorBreak;
+        bool fIfDifUSolids;//save differences of Geant4 with Usolids or with ROOT
+        double fMinDifference;//save data, when difference is bigger that min
+        bool fDefinedNormal, fIfException;
+        std::vector<UVector3> fDifPoints;
+        std::vector<UVector3> fDifDirections;
+        std::vector<UVector3> fDifVectorGeant4,fDifVectorRoot,fDifVectorUSolids;
+        std::vector<double> fDifGeant4,fDifRoot,fDifUSolids;
+        int fDifPointsInside,fDifPointsSurface,fDifPointsOutside;
+        int fMaxErrorBreak;
 
 	UVector3 GetPointOnOrb(double r);
 	UVector3 GetRandomDirection();
@@ -179,13 +179,13 @@ private:
 	void CreatePointsAndDirectionsInside();
 	void CreatePointsAndDirectionsOutside();
 
-	void CompareAndSaveResults(const std::string &method, double resG, double resR, double resU);
+	void CompareAndSaveResults(const std::string &fMethod, double resG, double resR, double resU);
 
-	int SaveResultsToFile(const std::string &method);
+	int SaveResultsToFile(const std::string &fMethod);
 
-	void SavePolyhedra(const std::string &method);
+	void SavePolyhedra(const std::string &fMethod);
 
-	double MeasureTest (int (ShapeTester::*funcPtr)(int), const std::string &method);
+	double MeasureTest (int (ShapeTester::*funcPtr)(int), const std::string &fMethod);
 
 	double NormalizeToNanoseconds(double time);
 
@@ -197,15 +197,15 @@ private:
     double rand = min + (max - min) * UUtils::Random();
     return rand;
   }
-    inline void GetVectorUSolids(UVector3 &point, const std::vector<UVector3> &apoints, int index)
+    inline void GetVectorUSolids(UVector3 &point, const std::vector<UVector3> &afPoints, int index)
   {
-    const UVector3 &p = apoints[index];
+    const UVector3 &p = afPoints[index];
     point.Set(p.x(), p.y(), p.z());
   }
  
-  inline void SetVectorUSolids(const UVector3 &point, std::vector<UVector3> &apoints, int index)
+  inline void SetVectorUSolids(const UVector3 &point, std::vector<UVector3> &afPoints, int index)
   {
-    UVector3 &p = apoints[index];
+    UVector3 &p = afPoints[index];
     p.Set(point.x(), point.y(), point.z());
   }
   
