@@ -7,6 +7,7 @@
 #include "base/Global.h"
 #include "volumes/LogicalVolume.h"
 #include "volumes/USolidsInterfaceHelper.h"
+#include "backend/Backend.h"
 #include <string>
 
 class G4VSolid;
