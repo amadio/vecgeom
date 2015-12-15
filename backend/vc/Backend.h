@@ -127,7 +127,7 @@ void StoreTo( typename Vc::Vector<Type> const & what,
 VECGEOM_INLINE
 void StoreTo( VcBool const & what,
             bool * toaddr ){
-  (VcBool&)(*toaddr) = what;
+  what.store(toaddr);
 }
 
 VECGEOM_INLINE
