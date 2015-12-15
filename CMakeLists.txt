@@ -154,9 +154,7 @@ endif()
 # Set Default compiler flags for each build type
 
 # some compilers do not default to C++11 standard yet
-if (NOT CUDA)
-  set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -std=c++11")
-endif()
+set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -std=c++11")
 
 if (GNU)
   set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -fPIC")
