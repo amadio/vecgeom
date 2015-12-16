@@ -560,7 +560,7 @@ public:
   VECGEOM_INLINE
   virtual VECGEOM_BACKEND_PRECISION SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION> const &position) const {
     VECGEOM_BACKEND_PRECISION output(kInfinity);
-    for (int i = 0; i < VECGEOM_BACKEND_PRECISION::Size; ++i) {
+    for (auto i = decltype(VECGEOM_BACKEND_PRECISION::Size){0}; i < VECGEOM_BACKEND_PRECISION::Size; ++i) {
       Precision tmp;
       Vector3D<Precision> pos(position.x()[i], position.y()[i], position.z()[i]);
       Specialization::template SafetyToIn<kScalar>(*this->GetUnplacedVolume(), *this->GetTransformation(), pos, tmp);
@@ -572,7 +572,7 @@ public:
   VECGEOM_INLINE
   virtual VECGEOM_BACKEND_PRECISION SafetyToOut(Vector3D<VECGEOM_BACKEND_PRECISION> const &position) const {
     VECGEOM_BACKEND_PRECISION output(kInfinity);
-    for (int i = 0; i < VECGEOM_BACKEND_PRECISION::Size; ++i) {
+    for (auto i = decltype(VECGEOM_BACKEND_PRECISION::Size){0}; i < VECGEOM_BACKEND_PRECISION::Size; ++i) {
       Precision tmp;
       Vector3D<Precision> pos(position.x()[i], position.y()[i], position.z()[i]);
       Specialization::template SafetyToOut<kScalar>(*this->GetUnplacedVolume(), pos, tmp);
@@ -588,7 +588,7 @@ public:
                                                  const VECGEOM_BACKEND_PRECISION stepMax) const override {
 
     VECGEOM_BACKEND_PRECISION output(kInfinity);
-    for (int i = 0; i < VECGEOM_BACKEND_PRECISION::Size; ++i) {
+    for (auto i = decltype(VECGEOM_BACKEND_PRECISION::Size){0}; i < VECGEOM_BACKEND_PRECISION::Size; ++i) {
       Precision tmp;
       Vector3D<Precision> pos(position.x()[i], position.y()[i], position.z()[i]);
       Vector3D<Precision> dir(direction.x()[i], direction.y()[i], direction.z()[i]);
@@ -607,7 +607,7 @@ public:
                                                   const VECGEOM_BACKEND_PRECISION stepMax) const override {
 
     VECGEOM_BACKEND_PRECISION output(kInfinity);
-    for (int i = 0; i < VECGEOM_BACKEND_PRECISION::Size; ++i) {
+    for (auto i = decltype(VECGEOM_BACKEND_PRECISION::Size){0}; i < VECGEOM_BACKEND_PRECISION::Size; ++i) {
       Precision tmp;
       Vector3D<Precision> pos(position.x()[i], position.y()[i], position.z()[i]);
       Vector3D<Precision> dir(direction.x()[i], direction.y()[i], direction.z()[i]);
