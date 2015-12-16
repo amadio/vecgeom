@@ -55,7 +55,7 @@ template <typename T>
 __attribute__((noinline))
 void benchNavigator(SOA3D<Precision> const & points,
                     SOA3D<Precision> const & dirs,
-                    NavStatePool &inpool) {
+                    NavStatePool const &inpool) {
   Precision *steps = new Precision[points.size()];
   NavigationState *newstate = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
   Stopwatch timer;
@@ -80,9 +80,9 @@ void benchNavigator(SOA3D<Precision> const & points,
 
 template <typename T>
 __attribute__((noinline))
-void benchVectorNavigator(SOA3D<Precision> const & points,
-                          SOA3D<Precision> const & dirs,
-                          NavStatePool &inpool, NavStatePool &outpool) {
+void benchVectorNavigator(SOA3D<Precision> const & __restrict__ points,
+                          SOA3D<Precision> const & __restrict__ dirs,
+                          NavStatePool const & __restrict__ inpool, NavStatePool & __restrict__ outpool) {
   Precision *step_max = (double *)_mm_malloc(sizeof(double) * points.size(), 32);
   for (decltype(points.size()) i = 0; i < points.size(); ++i)
     step_max[i] = vecgeom::kInfinity;
@@ -138,7 +138,15 @@ void benchDifferentNavigators(SOA3D<Precision> const &points,
   std::cerr << "##\n";
   RUNBENCH(benchNavigator<NewSimpleNavigator<false>>(points, dirs, pool));
   std::cerr << "##\n";
+  RUNBENCH(benchNavigator<NewSimpleNavigator<true>>(points, dirs, pool));
+  //std::cerr << "##\n";
+  // RUNBENCH(benchVectorNavigator<NewSimpleNavigator<false>>(points, dirs, pool, outpool));
+  std::cerr << "##\n";
   RUNBENCH(benchNavigator<SimpleABBoxNavigator<false>>(points, dirs, pool));
+  std::cerr << "##\n";
+  RUNBENCH(benchVectorNavigator<NewSimpleNavigator<false>>(points, dirs, pool, outpool));
+  std::cerr << "##\n";
+  RUNBENCH(benchVectorNavigator<SimpleABBoxNavigator<false>>(points, dirs, pool, outpool));
   std::cerr << "##\n";
   RUNBENCH(benchNavigator<HybridNavigator<false>>(points, dirs, pool));
   std::cerr << "##\n";
@@ -204,7 +212,8 @@ int main( int argc, char * argv[] )
     directions.ToFile("directions.bin");
     statepool.ToFile("states.bin");
   } else {
-    points.FromFile("points.bin");
+    std::cerr << " loading points from cache \n";
+	points.FromFile("points.bin");
     directions.FromFile("directions.bin");
     statepool.FromFile("states.bin");
   }

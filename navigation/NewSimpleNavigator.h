@@ -117,7 +117,19 @@ public:
       }
 #endif
     }
+    return false;
   }
+
+
+  // specialization for NewSimpleNavigator
+//  template <typename T, unsigned int ChunkSize> // we may go to Backend as template parameter in future
+//    static void DaughterIntersectionsLooper(VNavigator const *nav, LogicalVolume const *lvol, Vector3D<T> const &localpoint,
+//                                            Vector3D<T> const &localdir, NavStatePool const &in_states,
+//                                            NavStatePool &out_states, unsigned int from_index, unsigned int to_index,
+//                                            Precision *out_step, VPlacedVolume const * hitcandidates[ChunkSize]) {
+//      // dispatch to ordinary implementation ( which itself might be vectorized )
+//	  std::cerr << "YES VERY COOL\n" << std::endl;
+//  }
 
 //  template <typename Backend>
 //  VECGEOM_INLINE
