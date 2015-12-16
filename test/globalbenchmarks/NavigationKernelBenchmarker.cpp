@@ -182,7 +182,7 @@ int main( int argc, char * argv[] )
   HybridManager2::Instance().InitStructure(GeoManager::Instance().FindLogicalVolume(volname.c_str()));
 
   bool usecached=false;
-  if( argc >= 4 && strcmp(argv[3], "--usecache") ) usecached=true;
+  if( argc >= 4 && strcmp(argv[3], "--usecache") == 0 ) usecached=true;
 
   if (!usecached) {
     volumeUtilities::FillGlobalPointsAndDirectionsForLogicalVolume<SOA3D<Precision>>(
