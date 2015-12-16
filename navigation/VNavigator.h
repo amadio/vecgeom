@@ -188,22 +188,23 @@ class VNavigatorHelper : public VNavigator {
 public:
     // the default implementation for hit detection with daughters for a chunk of data
     // is to loop over the implementation for the scalar case
-    // this may be overridden by the specialized implementations (such as done in SimpleNavigator)
+    // this static function may be overridden by the specialized implementations (such as done in NewSimpleNavigator)
     // the from_index, to_index indicate which states from the NavStatePool are actually treated
     // in the worst case, we might have to implement this stuff over there
   template <typename T, unsigned int ChunkSize> // we may go to Backend as template parameter in future
-  static void DaughterIntersectionsLooper(VNavigator const *nav, LogicalVolume const *lvol, Vector3D<T> const &localpoint,
-                                          Vector3D<T> const &localdir, NavStatePool const &in_states,
-                                          NavStatePool &out_states, unsigned int from_index, unsigned int to_index,
-                                          T &out_step, VPlacedVolume const **&hitcandidates) {
+  static void DaughterIntersectionsLooper(VNavigator const *nav, LogicalVolume const *lvol,
+                                          Vector3D<T> const &localpoint, Vector3D<T> const &localdir,
+                                          NavStatePool const &in_states, NavStatePool &out_states,
+                                          unsigned int from_index, Precision *out_steps,
+                                          VPlacedVolume const *hitcandidates[ChunkSize]) {
     // dispatch to ordinary implementation ( which itself might be vectorized )
     for (unsigned int i = 0; i < ChunkSize; ++i) {
       unsigned int trackid = from_index + i;
       ((Impl *)nav)
           ->Impl::CheckDaughterIntersections(
               lvol, Vector3D<Precision>(localpoint.x()[i], localpoint.y()[i], localpoint.z()[i]),
-              Vector3D<Precision>(localdir.x()[i], localdir.y()[i], localdir.z()[i]), in_states[trackid],
-              out_states[trackid], out_step[i], hitcandidates[i]);
+              Vector3D<Precision>(localdir.x()[i], localdir.y()[i], localdir.z()[i]), *in_states[trackid],
+              *out_states[trackid], out_steps[trackid], hitcandidates[i]);
     }
   }
 
@@ -299,78 +300,119 @@ public :
     // this kernel is a generic implementation to navigate with chunks of data
     // can be used also for the scalar imple
     template <typename T, unsigned int ChunkSize>
-    static void NavigateAChunk(VNavigator const *nav, VPlacedVolume const *pvol, LogicalVolume const *lvol,
-                               SOA3D<Precision> const &globalpoints, SOA3D<Precision> const &globaldirs,
-                               Precision const *step_limit, NavStatePool const &in_states, NavStatePool &out_states,
-                               Precision  *out_step, unsigned int from_index, unsigned int to_index) {
-        // we need to transform the points and fill the vector input
-        assert(ChunkSize == from_index - to_index && "inconsistency in chunksize and from/to track indices");
+    static void
+    NavigateAChunk(VNavigator const *__restrict__ nav, VPlacedVolume const *__restrict__ pvol,
+                   LogicalVolume const *__restrict__ lvol, SOA3D<Precision> const &__restrict__ globalpoints,
+                   SOA3D<Precision> const &__restrict__ globaldirs, Precision const *__restrict__ step_limits,
+                   NavStatePool const &__restrict__ in_states, NavStatePool &__restrict__ out_states,
+                   Precision *__restrict__ out_steps, unsigned int from_index) {
 
-        VPlacedVolume *hitcandidates[ChunkSize];
+      VPlacedVolume const *hitcandidates[ChunkSize] = {}; // initialize all to nullptr
 
-        Vector3D<T> localpoint, localdir;
-        for(unsigned int i=0; i < ChunkSize; ++i ){
-          unsigned int trackid = from_index + i;
-          Transformation3D m;
-          in_states[trackid]->TopMatrix(m); // could benefit from interal vec
-          localpoint[i] = m.Transform(globalpoints[trackid]); // could benefit from internal vec
-          localdir[i] = m.TransformDirection(globaldirs[trackid]); // could benefit from internal vec
-         // Precision step = step_limit;
-        }
+      Vector3D<T> localpoint, localdir;
+      for (unsigned int i = 0; i < ChunkSize; ++i) {
+        unsigned int trackid = from_index + i;
+        Transformation3D m;
+        assert(in_states[trackid]->Top()->GetLogicalVolume() == lvol &&
+               "not all states in same logical volume "); // the logical volume of all the states should be the same
+        in_states[trackid]->TopMatrix(m);                 // could benefit from interal vec
+        auto tmp = m.Transform(globalpoints[trackid]);    // could benefit from internal vec
+        localpoint.x()[i] = tmp.x();
+        localpoint.y()[i] = tmp.y();
+        localpoint.z()[i] = tmp.z();
+        tmp = m.TransformDirection(globaldirs[trackid]); // could benefit from internal vec
+        localdir.x()[i] = tmp.x();
+        localdir.y()[i] = tmp.y();
+        localdir.z()[i] = tmp.z();
+        // Precision step = step_limit;
+      }
 
-        T slimit(step_limit + from_index); // will only work with new ScalarWrapper
-        T step;
-        if (MotherIsConvex) {
-          // if mother is convex we may not need to do treatment of mother
-          // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
+      T slimit(step_limits + from_index); // will only work with new ScalarWrapper
+      T step;
+      if (MotherIsConvex) {
+        Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, out_states,
+                                                                 out_steps, hitcandidates);
 
-        //  Impl::DaughterIntersectionsLooper<T,ChunkSize>(this, lvol, localpoint, localdir, in_states, out_states, out_step,
-        //                                    hitcandidates);
-
-         // if (hitcandidates == nullptr)
-          //  step = TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
-        } else {
-          // need to calc DistanceToOut first
+        // parse the hitcandidates pointer as double to apply a mask
+        T hitcandidates_as_doubles((double *)hitcandidates);
+        if (Any(hitcandidates_as_doubles != 0.))
           step = TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
-          // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
-          Impl::template DaughterIntersectionsLooper<T,ChunkSize>(nav, lvol, localpoint, localdir, in_states, out_states, from_index, to_index, out_step,
-                                            hitcandidates);
-        }
+      } else {
+        // need to calc DistanceToOut first
+        step = TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
+        step.store(out_steps + from_index);
 
-        // fix state ( seems to be serial so we iterate over indices )
-        for (unsigned int i = 0; i < ChunkSize; ++i) {
-          unsigned int trackid = from_index + i;
-          out_step[trackid] = PrepareOutState(in_states[trackid], out_states[trackid], out_step[trackid], slimit[i], hitcandidates[i]);
+        // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
+        Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, out_states,
+                                                                 from_index, out_steps, hitcandidates);
+      }
 
-          // step was physics limited
-          if (!out_states[trackid]->IsOnBoundary())
-            continue;
-          // otherwise if necessary do a relocation
-          // try relocation to refine out_state to correct location after the boundary
-          ((Impl *)nav)->Impl::Relocate(MovePointAfterBoundary(localpoint[i], localdir[i], out_step[trackid]), in_states[trackid], out_states[trackid]);
-        }
+      // fix state ( seems to be serial so we iterate over indices )
+      for (unsigned int i = 0; i < ChunkSize; ++i) {
+        unsigned int trackid = from_index + i;
+        out_steps[trackid] =
+            PrepareOutState(*in_states[trackid], *out_states[trackid], out_steps[trackid], slimit[i], hitcandidates[i]);
+
+        // step was physics limited
+        if (!out_states[trackid]->IsOnBoundary())
+          continue;
+        // otherwise if necessary do a relocation
+        // try relocation to refine out_state to correct location after the boundary
+        ((Impl *)nav)
+            ->Impl::Relocate(
+                MovePointAfterBoundary(Vector3D<Precision>(localpoint.x()[i], localpoint.y()[i], localpoint.z()[i]),
+                                       Vector3D<Precision>(localdir.x()[i], localdir.y()[i], localdir.z()[i]),
+                                       out_steps[trackid]),
+                *in_states[trackid], *out_states[trackid]);
+      }
     }
 
     // generic implementation for the vector interface
-    virtual void ComputeStepsAndPropagatedStates(SOA3D<Precision> const &globalpoints, SOA3D<Precision> const &globaldirs,
-                                                 Precision const *step_limit, NavStatePool const &in_states,
-                                                 NavStatePool &out_states, Precision *out_steps) const override {
+    // this implementation tries to process everything in vector CHUNKS
+    // at the very least this enables at least the DistanceToOut call to be vectorized
+//    virtual void ComputeStepsAndPropagatedStates(SOA3D<Precision> const &__restrict__ globalpoints,
+//                                                 SOA3D<Precision> const &__restrict__ globaldirs,
+//                                                 Precision const *__restrict__ step_limit,
+//                                                 NavStatePool const &__restrict__ in_states,
+//                                                 NavStatePool &__restrict__ out_states,
+//                                                 Precision *__restrict__ out_steps) const override {
+//
+//      // process SIMD part and TAIL part
+//      // something like
+//      using Real_v = Vc::double_v;
+//      const unsigned int size = globalpoints.size();
+//      const unsigned int tail = size % Real_v::Size;
+//      const unsigned int corsize = size - tail;
+//      const unsigned int stride = Real_v::Size;
+//      auto pvol = in_states[0]->Top();
+//      auto lvol = pvol->GetLogicalVolume();
+//      // loop over all tracks in chunks
+//      for (unsigned int i = 0; i < corsize; i += stride) {
+//        NavigateAChunk<Real_v, Real_v::Size>(this, pvol, lvol, globalpoints, globaldirs, step_limit, in_states,
+//                                             out_states, out_steps, i);
+//      }
+//
+//      // has to be cross-checked
+//      // for (unsigned int i = 0; i < tail; ++i) {
+//      //        unsigned int trackid = corsize + i;
+//      // NavigateAChunk<Vc::Scalar::Vector<double>, 1>(this, pvol, lvol, globalpoints, globaldirs, step_limit,
+//      // in_states,
+//      // out_states, out_steps, trackid, trackid);
+//      //}
+//    }
 
-      // process SIMD part and TAIL part
-      // something like
-        using Real_v = Vc::double_v;
-      const unsigned int size = globalpoints.size();
-      const unsigned int tail = size % Real_v::Size;
-      const unsigned int corsize = size - tail;
-      const unsigned int stride = Real_v::Size;
-      auto pvol = in_states[0]->Top();
-      auto lvol = pvol->GetLogicalVolume();
-      for( unsigned int i = 0; i < corsize; i+=stride ){
-        NavigateAChunk<Real_v, Real_v::Size>(this, pvol, lvol, globalpoints, globaldirs, step_limit, in_states, out_states, out_steps, i, i+corsize);
-      }
-      for ( unsigned int i = 0; i < tail; ++i) {
-        unsigned int trackid = corsize + i;
-        NavigateAChunk<Vc::Scalar::Vector<double>,1>(this, pvol, lvol, globalpoints, globaldirs, step_limit, in_states, out_states, out_steps, trackid, trackid);
+    // another generic implementation for the vector interface
+    // this implementation just loops over the scalar interface
+    virtual void ComputeStepsAndPropagatedStates(SOA3D<Precision> const &__restrict__ globalpoints,
+                                                 SOA3D<Precision> const &__restrict__ globaldirs,
+                                                 Precision const *__restrict__ step_limit,
+                                                 NavStatePool const &__restrict__ in_states,
+                                                 NavStatePool &__restrict__ out_states,
+                                                 Precision *__restrict__ out_steps) const override {
+      for (unsigned int i = 0; i < globalpoints.size(); ++i) {
+        out_steps[i] = ((Impl *)this)
+                           ->Impl::ComputeStepAndPropagatedState(globalpoints[i], globaldirs[i], step_limit[i],
+                                                                 *in_states[i], *out_states[i]);
       }
     }
 
