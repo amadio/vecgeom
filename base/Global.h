@@ -43,7 +43,6 @@
   #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_3v(X,ArgType1,Def1,ArgType2,Def2,ArgType3,Def3)
   #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_4v(X,ArgType1,Def1,ArgType2,Def2,ArgType3,Def3,ArgType4,Def4)
   #undef VECGEOM_VC
-  #undef VECGEOM_VC_ACCELERATION
   #undef VECGEOM_CILK
   #undef VECGEOM_ROOT
   #undef VECGEOM_USOLIDS

@@ -80,8 +80,6 @@ enum_option(BACKEND
             CASE_INSENSITIVE
            )
 
-option(VC_ACCELERATION "Internal vectorization using Vc." OFF)
-
 option(VTUNE "Enable the use of profiler Vtune" OFF)
 
 
@@ -114,10 +112,6 @@ if (GEANT4)
 #    set(Geant4 OFF)
 #  endif()
    set(Geant4 ON)
-endif()
-
-if (VC_ACCELERATION)
-  set (Vc ON)
 endif()
 
 if (CTEST)
@@ -321,10 +315,6 @@ if (USOLIDS_VECGEOM)
   set(VECGEOM_COMPILATION_FLAGS
       "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_REPLACE_USOLIDS")
 endif()
-if (VC_ACCELERATION)
-  set(VECGEOM_COMPILATION_FLAGS
-      "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_VC_ACCELERATION")
-endif()
 if (QUADRILATERAL_ACCELERATION)
   set(VECGEOM_COMPILATION_FLAGS
       "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_QUADRILATERALS_VC")
@@ -368,8 +358,7 @@ endif()
 
 # Backend configuration
 
-if (VC_ACCELERATION OR Vc)
-
+if (Vc)
   find_package(Vc REQUIRED)
   if (MIC)
     set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${Vc_MIC_LIBRARIES})
@@ -381,7 +370,6 @@ if (VC_ACCELERATION OR Vc)
   if (Vc)
     set(SRC_EXTERNAL ${SRC_EXTERNAL} source/backend/vc/Backend.cpp)
   endif()
-
 endif()
 
 if (Cilk)
@@ -487,6 +475,14 @@ endif()
 include_directories(BEFORE ${CMAKE_SOURCE_DIR})
 
 set(SRC_CPP_RELATIVE
+  #.. moved up for faster compilation
+  source/CreateNuclei.cpp
+  source/CreateParticles.cpp
+  source/UnplacedPolycone.cpp
+  source/UnplacedPolyhedron.cpp
+  source/PlacedPolycone.cpp
+  source/PlacedPolyhedron.cpp
+
   source/RNG.cpp
   source/AOS3D.cpp
   source/LogicalVolume.cpp
@@ -499,7 +495,6 @@ set(SRC_CPP_RELATIVE
   source/PlacedGenTrap.cpp
   source/PlacedParallelepiped.cpp
   source/PlacedParaboloid.cpp
-  source/PlacedPolyhedron.cpp
   source/PlacedScaledShape.cpp
   source/PlacedTrapezoid.cpp
   source/PlacedVolume.cpp
@@ -517,7 +512,6 @@ set(SRC_CPP_RELATIVE
   source/UnplacedTrd.cpp
   source/UnplacedParaboloid.cpp
   source/UnplacedParallelepiped.cpp
-  source/UnplacedPolyhedron.cpp
   source/UnplacedScaledShape.cpp
   source/UnplacedTrapezoid.cpp
   source/UnplacedGenTrap.cpp	
@@ -528,15 +522,10 @@ set(SRC_CPP_RELATIVE
 
   source/UnplacedOrb.cpp
   source/PlacedOrb.cpp
-
   source/UnplacedSphere.cpp
   source/PlacedSphere.cpp
-
   source/UnplacedBooleanVolume.cpp
   source/PlacedBooleanVolume.cpp
-
-  source/UnplacedPolycone.cpp
-  source/PlacedPolycone.cpp
   source/Wedge.cpp
   source/ABBoxManager.cpp
   source/ABBoxNavigator.cpp
@@ -546,10 +535,8 @@ set(SRC_CPP_RELATIVE
   source/Material.cpp
   source/Medium.cpp
   source/Nucleus.cpp
-  source/CreateNuclei.cpp
   source/MessageLogger.cpp
   source/Particle.cpp
-  source/CreateParticles.cpp
 )
 
 # avoid "file has no symbols" warnings

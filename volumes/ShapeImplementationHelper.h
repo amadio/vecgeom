@@ -212,10 +212,10 @@ public:
       output
     );
 
-#ifdef VECGEOM_REPLACE_USOLIDS
+//#ifdef VECGEOM_REPLACE_USOLIDS
     // avoid distance values within kTolerance
-    MaskedAssign(Abs(output)<kTolerance, 0., &distance);
-#endif
+    MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
+//#endif
 
 #ifdef VECGEOM_DISTANCE_DEBUG
     DistanceComparator::CompareDistanceToIn( this, output, point, direction, stepMax );
@@ -224,13 +224,31 @@ public:
     return output;
   }
 
+#ifndef VECGEOM_SCALAR
+  virtual VECGEOM_BACKEND_PRECISION DistanceToIn(Vector3D<VECGEOM_BACKEND_PRECISION> const &point,
+                                                 Vector3D<VECGEOM_BACKEND_PRECISION> const &direction,
+                                                 const VECGEOM_BACKEND_PRECISION stepMax) const override {
+//#ifndef VECGEOM_NVCC
+//    assert(direction.IsNormalized() && " direction not normalized in call to  DistanceToIn ");
+//#endif
+    VECGEOM_BACKEND_PRECISION output = kInfinity;
+    Specialization::template DistanceToIn<VECGEOM_BACKEND_TYPE>(
+        *this->GetUnplacedVolume(), *this->GetTransformation(), point, direction, stepMax, output);
+    MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
+    //#ifdef VECGEOM_DISTANCE_DEBUG
+    //    DistanceComparator::CompareDistanceToIn(this, output, point, direction, stepMax);
+    //#endif
+    return output;
+  }
+#endif
+
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToOut(Vector3D<Precision> const &point,
                                   Vector3D<Precision> const &direction,
                                   const Precision stepMax = kInfinity) const {
-#ifndef VECGEOM_NVCC
-      assert( direction.IsNormalized() && " direction not normalized in call to  DistanceToOut " );
-#endif
+//#ifndef VECGEOM_NVCC
+//      assert( direction.IsNormalized() && " direction not normalized in call to  DistanceToOut " );
+//#endif
     Precision output = kInfinity;
     Specialization::template DistanceToOut<kScalar>(
       *this->GetUnplacedVolume(),
@@ -239,23 +257,45 @@ public:
       stepMax,
       output
     );
-
-#ifdef VECGEOM_REPLACE_USOLIDS
-    // avoid distance values within kTolerance
-    MaskedAssign(Abs(output)<kTolerance, 0., &distance);
-#endif
+    MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
 
 #ifdef VECGEOM_DISTANCE_DEBUG
     DistanceComparator::CompareDistanceToOut( this, output, point, direction, stepMax );
 #endif
 
     // detect -inf responses which are often an indication for a real bug
-#ifndef VECGEOM_NVCC
-    assert( ! ( (output < 0.) && std::isinf(output) ) );
-#endif
+//#ifndef VECGEOM_NVCC
+//    assert( ! ( (output < 0.) && std::isinf(output) ) );
+//#endif
 
     return output;
   }
+
+#ifndef VECGEOM_SCALAR
+  virtual VECGEOM_BACKEND_PRECISION DistanceToOut(Vector3D<VECGEOM_BACKEND_PRECISION> const &point,
+                                                  Vector3D<VECGEOM_BACKEND_PRECISION> const &direction,
+                                                  const VECGEOM_BACKEND_PRECISION stepMax) const override {
+//#ifndef VECGEOM_NVCC
+//    assert(direction.IsNormalized() && " direction not normalized in call to  DistanceToOut ");
+//#endif
+    VECGEOM_BACKEND_PRECISION output = kInfinity;
+    Specialization::template DistanceToOut<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), point, direction, stepMax,
+                                                                 output);
+    MaskedAssign(Abs(output) < kHalfTolerance, 0., &output);
+
+// TODO: provide CompareDistance check for vector interface
+//#ifdef VECGEOM_DISTANCE_DEBUG
+//    DistanceComparator::CompareDistanceToOut(this, output, point, direction, stepMax);
+//#endif
+
+// detect -inf responses which are often an indication for a real bug
+//#ifndef VECGEOM_NVCC
+   // assert(!((output < 0.) && std::isinf(output)));
+//#endif
+
+    return output;
+  }
+#endif
 
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -322,7 +362,7 @@ public:
       output
     );
 #ifdef VECGEOM_REPLACE_USOLIDS
-    if(output < 0.0 && output > -kTolerance) output = 0.0;
+    if(output < 0.0 && output > -kHalfTolerance) output = 0.0;
 #endif
     return output;
   }
@@ -341,10 +381,21 @@ public:
     return output;
   }
 
-  // virtual void Contains(AOS3D<Precision> const &points,
-  //                       bool *const output) const {
-  //   ContainsTemplate(points, output);
-  // }
+#ifndef VECGEOM_SCALAR
+  VECGEOM_INLINE
+  virtual VECGEOM_BACKEND_PRECISION SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION> const &position) const {
+    VECGEOM_BACKEND_PRECISION output(kInfinity);
+    Specialization::template SafetyToIn<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), *this->GetTransformation(), position, output);
+    return output;
+  }
+
+  VECGEOM_INLINE
+  virtual VECGEOM_BACKEND_PRECISION SafetyToOut(Vector3D<VECGEOM_BACKEND_PRECISION> const &position) const {
+    VECGEOM_BACKEND_PRECISION output(kInfinity);
+    Specialization::template SafetyToOut<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), position, output);
+    return output;
+  }
+#endif
 
   virtual void Contains(SOA3D<Precision> const &points,
                         bool *const output) const {

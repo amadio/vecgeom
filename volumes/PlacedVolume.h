@@ -7,6 +7,7 @@
 #include "base/Global.h"
 #include "volumes/LogicalVolume.h"
 #include "volumes/USolidsInterfaceHelper.h"
+#include "backend/Backend.h"
 #include <string>
 
 class G4VSolid;
@@ -200,11 +201,20 @@ public:
                                  Vector3D<Precision> const &direction,
                                  const Precision step_max = kInfinity) const =0;
 
+
+  // if we have any SIMD backend, we offer a SIMD interface
+#ifndef VECGEOM_SCALAR
+  virtual VECGEOM_BACKEND_PRECISION DistanceToIn(Vector3D<VECGEOM_BACKEND_PRECISION> const &position,
+                                                 Vector3D<VECGEOM_BACKEND_PRECISION> const &direction,
+                                                 const VECGEOM_BACKEND_PRECISION step_max = kInfinity) const = 0;
+#endif
+
   virtual void DistanceToIn(SOA3D<Precision> const &position,
                             SOA3D<Precision> const &direction,
                             Precision const *const step_max,
                             Precision *const output) const =0;
 
+  // to be deprecated
   virtual void DistanceToInMinimize(SOA3D<Precision> const &position,
                                     SOA3D<Precision> const &direction,
                                     int daughterindex,
@@ -226,6 +236,13 @@ public:
       Vector3D<Precision> const &direction,
       Precision const step_max = kInfinity) const =0;
 #endif
+  // define this interface in case we don't have the Scalar interface
+#ifndef VECGEOM_SCALAR
+  virtual VECGEOM_BACKEND_PRECISION DistanceToOut(Vector3D<VECGEOM_BACKEND_PRECISION> const &position,
+                                                  Vector3D<VECGEOM_BACKEND_PRECISION> const &direction,
+                                                  VECGEOM_BACKEND_PRECISION const step_max = kInfinity) const = 0;
+#endif
+
 
   // a "placed" version of the distancetoout function; here
   // the point and direction are first of all transformed into the reference frame of the
@@ -255,17 +272,26 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision SafetyToIn(Vector3D<Precision> const &position) const =0;
 
+#ifndef VECGEOM_SCALAR
+  virtual VECGEOM_BACKEND_PRECISION SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION> const &position) const = 0;
+#endif
+
   virtual void SafetyToIn(SOA3D<Precision> const &position,
                           Precision *const safeties) const =0;
 
   // virtual void SafetyToIn(AOS3D<Precision> const &position,
   //                         Precision *const safeties) const =0;
 
+  // to be deprecated
   virtual void SafetyToInMinimize(SOA3D<Precision> const &points,
                                   Precision *const safeties) const =0;
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision SafetyToOut(Vector3D<Precision> const &position) const =0;
+
+#ifndef VECGEOM_SCALAR
+  virtual VECGEOM_BACKEND_PRECISION SafetyToOut(Vector3D<VECGEOM_BACKEND_PRECISION> const &position) const = 0;
+#endif
 
   virtual void SafetyToOut(SOA3D<Precision> const &position,
                            Precision *const safeties) const =0;
@@ -273,6 +299,7 @@ public:
   // virtual void SafetyToOut(AOS3D<Precision> const &position,
   //                          Precision *const safeties) const =0;
 
+  // to be deprecated
   virtual void SafetyToOutMinimize(SOA3D<Precision> const &points,
                                    Precision *const safeties) const =0;
 

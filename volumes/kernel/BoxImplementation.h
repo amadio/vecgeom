@@ -617,7 +617,7 @@ void BoxImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndInside(
     typename Backend::bool_v &completelyoutside) {
 
 //    using vecgeom::GenericKernels;
-// here we are explicitely unrolling the loop since  a for statement will likely be a penality
+// here we are explicitely unrolling the loop since  a for statement will likely be a penalty
 // check if second call to Abs is compiled away
     // and it can anyway not be vectorized
     /* x */
@@ -690,6 +690,7 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   static const bool surfacetolerant=true;
 #endif
 
+  distance = stepMax;
   safety[0] = Abs(point[0]) - dimensions[0];
   safety[1] = Abs(point[1]) - dimensions[1];
   safety[2] = Abs(point[2]) - dimensions[2];
@@ -701,48 +702,50 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
 
 
   Boolean_t inside = Backend::kFalse;
-  inside = safety[0] < 0 && safety[1] < 0 && safety[2] < 0;
-  // MaskedAssign(!done && inside, -1., &distance);  // -1 causes problems in Geant4 navigation (track travels back in time)
-  MaskedAssign(!done && inside, 0., &distance);
+  inside = safety[0] < -kHalfTolerance && safety[1] < -kHalfTolerance && safety[2] < -kHalfTolerance;
+  MaskedAssign(!done && inside, -1., &distance);
   done |= inside;
   if ( IsFull(done) ) return;
 
+  // Next step: from outside
   Floating_t next, coord1, coord2;
   Boolean_t hit;
 
   // x
-  next = safety[0] / Abs(direction[0] + kMinimum);
+  next = safety[0] / Abs(direction[0]); // + kMinimum);
   coord1 = point[1] + next * direction[1];
   coord2 = point[2] + next * direction[2];
   hit = safety[0] >= MakeMinusTolerant<surfacetolerant>(0.) &&
-        point[0] * direction[0] < 0 &&
-        Abs(coord1) <= dimensions[1] &&
-        Abs(coord2) <= dimensions[2];
+                     point[0] * direction[0] < 0 &&
+                     Abs(coord1) <= MakeMinusTolerant<surfacetolerant>(dimensions[1]) &&
+                     Abs(coord2) <= MakeMinusTolerant<surfacetolerant>(dimensions[2]);
   MaskedAssign(!done && hit, next, &distance);
   done |= hit;
   if ( IsFull(done) ) return;
 
   // y
-  next = safety[1] / Abs(direction[1] + kMinimum);
+  next = safety[1] / Abs(direction[1]); // + kMinimum);
   coord1 = point[0] + next * direction[0];
   coord2 = point[2] + next * direction[2];
   hit = safety[1] >= MakeMinusTolerant<surfacetolerant>(0.) &&
         point[1] * direction[1] < 0 &&
-        Abs(coord1) <= dimensions[0] &&
-        Abs(coord2) <= dimensions[2];
+        Abs(coord1) <= MakeMinusTolerant<surfacetolerant>(dimensions[0]) &&
+        Abs(coord2) <= MakeMinusTolerant<surfacetolerant>(dimensions[2]);
   MaskedAssign(!done && hit, next, &distance);
   done |= hit;
   if ( IsFull(done) ) return;
 
   // z
-  next = safety[2] / Abs(direction[2] + kMinimum);
+  next = safety[2] / Abs(direction[2]); // + kMinimum);
   coord1 = point[0] + next * direction[0];
   coord2 = point[1] + next * direction[1];
   hit = safety[2] >= MakeMinusTolerant<surfacetolerant>(0.) &&
         point[2] * direction[2] < 0 &&
-        Abs(coord1) <= dimensions[0] &&
-        Abs(coord2) <= dimensions[1];
+        Abs(coord1) <= MakeMinusTolerant<surfacetolerant>(dimensions[0]) &&
+        Abs(coord2) <= MakeMinusTolerant<surfacetolerant>(dimensions[1]);
   MaskedAssign(!done && hit, next, &distance);
+  done |= hit;
+  if ( IsFull(done) ) return;
 
 #ifdef VECGEOM_NVCC
   #undef surfacetolerant
