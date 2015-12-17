@@ -39,9 +39,9 @@ int main() {
   tester.SetRepetitions(1);
   tester.SetPoolMultiplier(1); // set this if we want to compare results
   tester.SetPointCount(10000);
-//   tester.RunInsideBenchmark();
-//   tester.RunToOutBenchmark();
-//  tester.SetToInBias(0.8);
-//  tester.RunToInBenchmark();
- tester.RunBenchmark();
+  tester.RunInsideBenchmark();
+  tester.RunToOutBenchmark();
+  tester.SetToInBias(0.8);
+  tester.RunToInBenchmark();
+// tester.RunBenchmark();
 }

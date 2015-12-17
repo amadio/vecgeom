@@ -47,6 +47,24 @@ void UnplacedGenTrap::Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & a
 }
 
 //______________________________________________________________________________
+bool UnplacedGenTrap::SegmentsCrossing(Vector3D<Precision> p, Vector3D<Precision> p1,
+                 Vector3D<Precision> q, Vector3D<Precision> q1) const
+{
+// Check if 2 segments defined by (p,p1) and (q,q1) are crossing.
+  using Vector = Vector3D<Precision>;
+  Vector r = p1 - p; // p1 = p+r
+  Vector s = q1 - q; // q1 = q+s
+  Vector r_cross_s = Vector::Cross(r,s);
+  if ( r_cross_s.Mag2() < kTolerance ) // parallel or colinear - ignore crossing
+    return false;
+  Precision t = Vector::Cross(q-p,s)/r_cross_s;
+  if (t < 0 || t > 1) return false;
+  Precision u = Vector::Cross(q-p,r)/r_cross_s;
+  if (u < 0 || u > 1) return false;
+  return true;
+}
+
+//______________________________________________________________________________
  // computes if this gentrap is twisted
  // should be a private method?
  bool UnplacedGenTrap::ComputeIsTwisted()

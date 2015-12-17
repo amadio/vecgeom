@@ -67,7 +67,7 @@ public:
                   fBoundingBoxOrig(0.,0.,0.),
                   fVertices(), fVerticesX(),  fVerticesY(),
                   fDz(halfzheight), fInverseDz(1./halfzheight), fHalfInverseDz(0.5/halfzheight),
-                  fIstwisted(true), 
+                  fIstwisted(false), 
                   fConnectingComponentsX(), fConnectingComponentsY(),
                   fDeltaX(), fDeltaY(),
                   fSurfaceShell(vertices, halfzheight)
@@ -75,6 +75,43 @@ public:
       for (int i=0;i<8;++i)
         fVertices[i]=vertices[i];
 
+      // Make sure vertices are defined clockwise
+      Precision sum1 = 0.;
+      Precision sum2 = 0.;
+      for (int i=0;i<4;++i){
+        int j = (i + 1) % 4;
+	sum1 += fVertices[i].x()*fVertices[j].y()-fVertices[j].x()*fVertices[i].y();
+	sum2 += fVertices[i+4].x()*fVertices[j+4].y()-fVertices[j+4].x()*fVertices[i+4].y();
+      }
+      
+      // we should generate an exception here
+      if (sum1*sum2 < -kTolerance) {
+        std::cerr << "ERROR: Unplaced generic trap defined with opposite clockwise" << std::endl;
+	Print();
+	return;
+      }
+            
+      // revert sequence of vertices to have them clockwise
+      if (sum1 > kTolerance) {
+        std::cerr << "Reverting to clockwise vertices of GenTrap shape:" << std::endl;
+        Print();
+	Vector3D<Precision> vtemp;
+	vtemp = fVertices[1];
+	fVertices[1] = fVertices[3];
+	fVertices[3] = vtemp;
+	vtemp = fVertices[5];
+	fVertices[5] = fVertices[7];
+	fVertices[7] = vtemp;
+      }
+
+      // Check that opposite segments are not crossing -> exception
+      if (SegmentsCrossing(fVertices[0], fVertices[1], fVertices[2], fVertices[3]) ||
+          SegmentsCrossing(fVertices[4], fVertices[5], fVertices[6], fVertices[7])) {
+          std::cerr << "ERROR: Unplaced generic trap defined with crossing opposite segments" << std::endl;
+          Print();
+          return;
+      }	  
+      
       // initialize the connecting components
       for (int i=0;i<4;++i){
         fConnectingComponentsX[i]=(fVertices[i]-fVertices[i+4]).x();
@@ -91,7 +128,8 @@ public:
         fDeltaY[i] = fVerticesY[j]-fVerticesY[i];
         fDeltaY[i+4] = fVerticesY[j+4]-fVerticesY[i+4];
       }
-
+    fIstwisted = ComputeIsTwisted();
+    std::cout << "twisted= " << fIstwisted << std::endl;
     ComputeBoundingBox();
 
   }
@@ -117,6 +155,11 @@ public:
   // computes if this gentrap is twisted
   // should be a private method?
   bool ComputeIsTwisted();
+  
+  // computes if opposite segments are crossing, making a malformed shape
+  // This can become a general utility
+  bool SegmentsCrossing(Vector3D<Precision> pa, Vector3D<Precision> pb,
+                        Vector3D<Precision> pc, Vector3D<Precision> pd) const;
 
   // computes and sets the bounding box member of this class
   void ComputeBoundingBox();

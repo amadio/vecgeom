@@ -446,7 +446,6 @@ static void FillPlaneData(UnplacedGenTrap const &unplaced,
 }
 };
 
-
 template<class Backend>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
@@ -552,8 +551,6 @@ void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   std::cerr << "prolongated to box:  x " << x << " y " << y << " z " << z << "\n";
 #endif
 
-
-
   /*some particle could hit z*/
  #ifdef GENTRAP_USENEWBB
 #pragma message("WITH IMPROVED BB")
@@ -619,8 +616,6 @@ void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
 //  std::cerr << std::endl;
 }
 
-
-
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend, bool treatNormal>
 VECGEOM_CUDA_HEADER_BOTH
@@ -649,154 +644,6 @@ void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
     Float_t distplane = unplaced.GetShell().DistanceToOut<Backend>( point, direction );
     distance = Min( distmin, distplane );
 
-    // to be done
-//    if (direction.z() < 0)
-//      {
-//        distmin = (-unplaced.fDz - point.z()) / direction.z();
-//        if( treatNormal ){
-//          // side = topZ ;
-//          // aNormalVector.Set(0, 0, -1);
-//        }
-//      }
-//    else
-//      {
-//        if (direction.z() > 0)
-//        {
-//          distmin = (unplaced.fDz - point.z()) / direction.z();
-//          if ( treatNormal )
-//          {
-//            side = kPZ;
-//            aNormalVector.Set(0, 0, 1);
-//          }
-//          else // this else statement can be avoided by applying "tiny" trick
-//          {
-//            distmin = UUtils::Infinity();
-//          }
-//      }
-
-//        analysing code from TGeoArb8
-//        // Computes distance to plane ipl :
-//        // ipl=0 : points 0,4,1,5
-//        // ipl=1 : points 1,5,2,6
-//        // ipl=2 : points 2,6,3,7
-//        // ipl=3 : points 3,7,0,4
-//           Double_t xa,xb,xc,xd;
-//           Double_t ya,yb,yc,yd;
-//           Double_t eps = 10.*TGeoShape::Tolerance();
-//           Double_t norm[3];
-//           Double_t dirp[3];
-//           Double_t ndotd = 0;
-//           Int_t j = (ipl+1)%4;
-//           xa=fXY[ipl][0];
-//           ya=fXY[ipl][1];
-//           xb=fXY[ipl+4][0];
-//           yb=fXY[ipl+4][1];
-//           xc=fXY[j][0];
-//           yc=fXY[j][1];
-//           xd=fXY[4+j][0];
-//           yd=fXY[4+j][1];
-//           Double_t dz2 =0.5/fDz;
-//           Double_t tx1 =dz2*(xb-xa);
-//           Double_t ty1 =dz2*(yb-ya);
-//           Double_t tx2 =dz2*(xd-xc);
-//           Double_t ty2 =dz2*(yd-yc);
-//           Double_t dzp =fDz+point[2];
-//           Double_t xs1 =xa+tx1*dzp;
-//           Double_t ys1 =ya+ty1*dzp;
-//           Double_t xs2 =xc+tx2*dzp;
-//           Double_t ys2 =yc+ty2*dzp;
-//           Double_t dxs =xs2-xs1;
-//           Double_t dys =ys2-ys1;
-//           Double_t dtx =tx2-tx1;
-//           Double_t dty =ty2-ty1;
-//           Double_t a=(dtx*dir[1]-dty*dir[0]+(tx1*ty2-tx2*ty1)*dir[2])*dir[2];
-//           Double_t signa = TMath::Sign(1.,a);
-//           Double_t b=dxs*dir[1]-dys*dir[0]+(dtx*point[1]-dty*point[0]+ty2*xs1-ty1*xs2
-//                      +tx1*ys2-tx2*ys1)*dir[2];
-//           Double_t c=dxs*point[1]-dys*point[0]+xs1*ys2-xs2*ys1;
-//           Double_t s=TGeoShape::Big();
-//           Double_t x1,x2,y1,y2,xp,yp,zi;
-//           if (TMath::Abs(a)<eps) {
-//              // Surface is planar
-//              if (TMath::Abs(b)<eps) return TGeoShape::Big(); // Track parallel to surface
-//              s=-c/b;
-//              if (TMath::Abs(s)<1.E-6 && TMath::Abs(TMath::Abs(point[2])-fDz)>eps) {
-//                 memcpy(dirp,dir,3*sizeof(Double_t));
-//                 dirp[0] = -3;
-//                 // Compute normal pointing outside
-//                 ((TGeoArb8*)this)->ComputeNormal(point,dirp,norm);
-//                 ndotd = dir[0]*norm[0]+dir[1]*norm[1]+dir[2]*norm[2];
-//                 if (!in) ndotd*=-1.;
-//                 if (ndotd>0) {
-//                    s = TMath::Max(0.,s);
-//                    zi = (point[0]-xs1)*(point[0]-xs2)+(point[1]-ys1)*(point[1]-ys2);
-//                    if (zi<=0) return s;
-//                 }
-//                 return TGeoShape::Big();
-//              }
-//              if (s<0) return TGeoShape::Big();
-//           }
-//           else {
-//              // Surface is curved
-//              Double_t d=b*b-4*a*c;
-//              if (d<0) return TGeoShape::Big();
-//              Double_t smin=0.5*(-b-signa*TMath::Sqrt(d))/a;
-//              Double_t smax=0.5*(-b+signa*TMath::Sqrt(d))/a;
-//              s = smin;
-//              if (TMath::Abs(s)<1.E-6 && TMath::Abs(TMath::Abs(point[2])-fDz)>eps) {
-//                 memcpy(dirp,dir,3*sizeof(Double_t));
-//                 dirp[0] = -3;
-//                 // Compute normal pointing outside
-//                 ((TGeoArb8*)this)->ComputeNormal(point,dirp,norm);
-//                 ndotd = dir[0]*norm[0]+dir[1]*norm[1]+dir[2]*norm[2];
-//                 if (!in) ndotd*=-1.;
-//                 if (ndotd>0) return TMath::Max(0.,s);
-//                 s = 0.; // ignore
-//              }
-//              if (s>eps) {
-//                 // Check smin
-//                 zi=point[2]+s*dir[2];
-//                 if (TMath::Abs(zi)<fDz) {
-//                    x1=xs1+tx1*dir[2]*s;
-//                    x2=xs2+tx2*dir[2]*s;
-//                    xp=point[0]+s*dir[0];
-//                    y1=ys1+ty1*dir[2]*s;
-//                    y2=ys2+ty2*dir[2]*s;
-//                    yp=point[1]+s*dir[1];
-//                    zi = (xp-x1)*(xp-x2)+(yp-y1)*(yp-y2);
-//                    if (zi<=0) return s;
-//                 }
-//              }
-//              // Smin failed, try smax
-//              s=smax;
-//              if (TMath::Abs(s)<1.E-6 && TMath::Abs(TMath::Abs(point[2])-fDz)>eps) {
-//                 memcpy(dirp,dir,3*sizeof(Double_t));
-//                 dirp[0] = -3;
-//                 // Compute normal pointing outside
-//                 ((TGeoArb8*)this)->ComputeNormal(point,dirp,norm);
-//                 ndotd = dir[0]*norm[0]+dir[1]*norm[1]+dir[2]*norm[2];
-//                 if (!in) ndotd*=-1.;
-//                 if (ndotd>0) s = TMath::Max(0.,s);
-//                 else         s = TGeoShape::Big();
-//                 return s;
-//              }
-//           }
-//           if (s>eps) {
-//              // Check smin
-//              zi=point[2]+s*dir[2];
-//              if (TMath::Abs(zi)<fDz) {
-//                 x1=xs1+tx1*dir[2]*s;
-//                 x2=xs2+tx2*dir[2]*s;
-//                 xp=point[0]+s*dir[0];
-//                 y1=ys1+ty1*dir[2]*s;
-//                 y2=ys2+ty2*dir[2]*s;
-//                 yp=point[1]+s*dir[1];
-//                 zi = (xp-x1)*(xp-x2)+(yp-y1)*(yp-y2);
-//                 if (zi<=0) return s;
-//              }
-//           }
-//           return TGeoShape::Big();
-
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -808,9 +655,27 @@ void GenTrapImplementation<transCodeT, rotCodeT>::SafetyToInKernel(
     Vector3D<typename Backend::precision_v> const &point,
     typename Backend::precision_v &safety) {
 
-//  typedef typename Backend::precision_v Float_t;
-
-  // to be done
+  typedef typename Backend::bool_v Boolean_t;
+  
+  Boolean_t inside;  
+  // Check if all points are outside bounding box
+  BoxImplementation<translation::kIdentity, rotation::kIdentity>::ContainsKernel<Backend>(
+      unplaced.fBoundingBox.dimensions(),
+      point-unplaced.fBoundingBoxOrig,
+      inside);
+  if (IsEmpty( inside )) {
+    // All points outside, so compute safety using the bounding box
+    // This is not optimal if top and bottom faces are not on top of each other
+    BoxImplementation<translation::kIdentity, rotation::kIdentity>::SafetyToInKernel<Backend>(
+      unplaced.fBoundingBox.dimensions(),
+      point-unplaced.fBoundingBoxOrig,
+      safety);
+    return;  
+  }
+    
+  // Do Z
+  safety = Abs(point[2]) - unplaced.GetDZ();
+  safety = unplaced.GetShell().SafetyToIn<Backend>( point, safety );
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -821,10 +686,9 @@ void GenTrapImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(
     Vector3D<typename Backend::precision_v> const &point,
     typename Backend::precision_v &safety) {
 
-//   typedef typename Backend::precision_v Float_t;
-   safety = 1.;
-   return;
-   // to be done
+  // Do Z
+   safety = unplaced.GetDZ() - Abs(point[2]);
+   safety = unplaced.GetShell().SafetyToOut<Backend>( point, safety );
 }
 
 
