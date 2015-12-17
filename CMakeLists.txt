@@ -640,10 +640,7 @@ endif()
 
 
 # Compile cpp-files for C++11
-
-if (CUDA)
-  set_source_files_properties(${SRC_CPP} PROPERTIES COMPILE_FLAGS -std=c++11)
-endif()
+set_source_files_properties(${SRC_CPP} PROPERTIES COMPILE_FLAGS -std=c++11)
 
 ################################################################################
 
