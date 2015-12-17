@@ -24,13 +24,8 @@ struct kScalar {
   typedef bool Bool_t;
   typedef int  Index_t; // the type of indices
 
-#ifdef VECGEOM_STD_CXX11
   constexpr static precision_v kOne = 1.0;
   constexpr static precision_v kZero = 0.0;
-#else
-  const static precision_v kOne = 1.0;
-  const static precision_v kZero = 0.0;
-#endif
   const static bool_v kTrue = true;
   const static bool_v kFalse = false;
 
@@ -316,15 +311,7 @@ template <typename IteratorType>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
 bool all_of(IteratorType first, IteratorType last) {
-#ifdef VECGEOM_STD_CXX11
   return std::all_of(first, last, [](bool b){return b;});
-#else
-  while (first < last) {
-    if (!(*first)) return false;
-    ++first;
-  }
-  return true;
-#endif
 }
 
 template <typename InputIterator1, typename InputIterator2>
