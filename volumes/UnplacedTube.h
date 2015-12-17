@@ -11,11 +11,13 @@
 #include "base/AlignedBase.h"
 #include "volumes/UnplacedVolume.h"
 #include "volumes/Wedge.h"
+#include <sstream>
+#include <iostream>
 
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class UnplacedTube; )
-VECGEOM_DEVICE_DECLARE_CONV( UnplacedTube );
+VECGEOM_DEVICE_DECLARE_CONV( UnplacedTube )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -45,15 +47,15 @@ private:
     fRmin2 = fRmin * fRmin;
     fRmax2 = fRmax * fRmax;
 
- 	fTolOrmin = (fRmin - kTolerance);
+    fTolOrmin = (fRmin - kTolerance);
     fTolIrmin = (fRmin + kTolerance);
-	fTolOrmin2 = fTolOrmin * fTolOrmin;
-	fTolIrmin2 = fTolIrmin * fTolIrmin;
+    fTolOrmin2 = fTolOrmin * fTolOrmin;
+    fTolIrmin2 = fTolIrmin * fTolIrmin;
 
-	fTolOrmax = (fRmax + kTolerance);
-	fTolIrmax = (fRmax - kTolerance);
-	fTolOrmax2 = fTolOrmax * fTolOrmax;
-	fTolIrmax2 = fTolIrmax * fTolIrmax;
+    fTolOrmax = (fRmax + kTolerance);
+    fTolIrmax = (fRmax - kTolerance);
+    fTolOrmax2 = fTolOrmax * fTolOrmax;
+    fTolIrmax2 = fTolIrmax * fTolIrmax;
 
     GetAlongVectorToPhiSector(fSphi, fAlongPhi1x, fAlongPhi1y);
     GetAlongVectorToPhiSector(fSphi + fDphi, fAlongPhi2x, fAlongPhi2y);
@@ -62,9 +64,9 @@ private:
 public:
 
   VECGEOM_CUDA_HEADER_BOTH
-  UnplacedTube(const Precision rmin, const Precision rmax, const Precision z,
-               const Precision sphi, const Precision dphi) : fRmin(rmin), fRmax(rmax),
-     fZ(z), fSphi(sphi), fDphi(dphi),
+  UnplacedTube(Precision const& _rmin, Precision const& _rmax, Precision const& _z,
+               Precision const& _sphi, Precision const& _dphi)
+    : fRmin(_rmin<0.0?0.0:_rmin), fRmax(_rmax), fZ(_z), fSphi(_sphi), fDphi(_dphi),
 fRmin2(0),
 fRmax2(0),
 fAlongPhi1x(0),
@@ -77,10 +79,10 @@ fTolIrmax2(0),
 fTolOrmax2(0),
 fTolIz(0),
 fTolOz(0),
-fPhiWedge(dphi,sphi)
+fPhiWedge(_dphi,_sphi)
 {
     calculateCached();
-  }
+}
 
   VECGEOM_CUDA_HEADER_BOTH
      UnplacedTube(UnplacedTube const &other) : fRmin(other.fRmin), fRmax(other.fRmax), fZ(other.fZ), fSphi(other.fSphi), fDphi(other.fDphi),
@@ -98,6 +100,10 @@ fTolIz(other.fTolIz),
 fTolOz(other.fTolOz),
 fPhiWedge(other.fDphi,other.fSphi)
 {  }
+
+  //Function to check the convexity
+  VECGEOM_CUDA_HEADER_BOTH
+  virtual bool IsConvex() const override;
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -118,6 +124,23 @@ fPhiWedge(other.fDphi,other.fSphi)
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision dphi() const { return fDphi; }
+
+#ifndef VECGEOM_NVCC
+  VECGEOM_INLINE
+  void SetRMin(Precision const& _rmin) { fRmin = _rmin; }
+
+  VECGEOM_INLINE
+  void SetRMax(Precision const& _rmax) { fRmax = _rmax; }
+
+  VECGEOM_INLINE
+  void SetDz(Precision const& _z) { fZ = _z; }
+
+  VECGEOM_INLINE
+  void SetSPhi(Precision const& _sphi) { CheckSPhiAngle(_sphi); }
+
+  VECGEOM_INLINE
+  void SetDPhi(Precision const& _dphi) { CheckDPhiAngle(_dphi); }
+#endif
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -173,6 +196,117 @@ fPhiWedge(other.fDphi,other.fSphi)
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
+  void CheckSPhiAngle(double sPhi) {
+    // Ensure fSphi in 0-2PI or -2PI-0 range if shape crosses 0
+    if (sPhi < 0) {
+      fSphi = kTwoPi - std::fmod(std::fabs(sPhi), kTwoPi);
+    }
+    else {
+      fSphi = std::fmod(sPhi, kTwoPi);
+    }
+    if (fSphi + fDphi > kTwoPi) {
+      fSphi -= kTwoPi ;
+    }
+  }
+
+#ifndef VECGEOM_NVCC
+  VECGEOM_INLINE
+  void CheckDPhiAngle(double dPhi) {
+    if (dPhi >= kTwoPi - 0.5*kAngTolerance) {
+      fDphi = kTwoPi;
+      fSphi = 0;
+    }
+    else {
+      if (dPhi > 0) {
+        fDphi = dPhi;
+      }
+      else {
+        std::ostringstream message;
+        message << "Invalid dphi.\n"
+                << "Negative or zero delta-Phi (" << dPhi << ")\n";
+        std::cout<<"UnplacedTube::CheckDPhiAngle(): Fatal error: "<< message.str().c_str() <<"\n";
+        // UUtils::Exception("UTubs::CheckDPhiAngle()", "GeomSolids0002",
+        //                   UFatalError, 1, message.str().c_str());
+      }
+    }
+  }
+
+  VECGEOM_INLINE
+  void CheckPhiAngles(double sPhi, double dPhi) {
+    CheckDPhiAngle(dPhi);
+    if ((fDphi < kTwoPi) && (sPhi)) {
+      CheckSPhiAngle(sPhi);
+    }
+    calculateCached();
+  }
+
+  VECGEOM_INLINE
+  double SafetyToPhi(Vector3D<Precision> const& p, double rho, bool& outside) const {
+
+    double safePhi = 0.0;
+    double cosCPhi, sinCPhi;
+    GetAlongVectorToPhiSector(fSphi+0.5*fDphi, cosCPhi, sinCPhi);
+
+    // Psi=angle from central phi to point
+    double cosPsi = (p.x() * cosCPhi + p.y() * sinCPhi) / rho;
+    outside = false;
+    if (cosPsi < std::cos(fDphi * 0.5)) {
+      // Point lies outside phi range
+      outside=true;
+      if ((p.y() * cosCPhi - p.x() * sinCPhi) <= 0) {
+        safePhi = std::fabs(p.x() * fAlongPhi1y - p.y() * fAlongPhi1x);
+      }
+      else {
+        safePhi = std::fabs(p.x() * fAlongPhi2y - p.y() * fAlongPhi2x);
+      }
+    }
+
+    return safePhi;
+  }
+
+  // Safety From Inside R, used for UPolycone Section
+  VECGEOM_INLINE
+  double SafetyFromInsideR(Vector3D<Precision> const& p, double rho, bool /*precise = false*/) const {
+    double safe = fRmax - rho;
+    if (fRmin) {
+      safe = Min<Precision>(safe, rho-fRmin);
+    }
+
+    // Check if phi divided, compute distance to closest phi plane
+    if (fDphi<kTwoPi) {
+      double safePhi1 = p.y() * fAlongPhi1x - p.x() * fAlongPhi1y;
+      double safePhi2 = p.x() * fAlongPhi2y - p.y() * fAlongPhi2x;
+      safe = Min<Precision>( safe, Min(safePhi1, safePhi2) );
+    }
+
+    return safe;
+  }
+
+  VECGEOM_INLINE
+  double SafetyFromOutsideR(Vector3D<Precision> const& p, double rho, bool /*precise = false*/ ) const {
+    // Safety for R, used in UPolycone for sections
+    double safe = fRmax - rho;
+    if (fRmin) {
+      safe = Min<Precision>(safe, rho-fRmin);
+    }
+
+    // GL Note: I'm not sure point is checked whether inside or outside w.r.t. phi planes and DPhi
+    // e.g. I don't see any distinction for DPhi<Pi or DPhi>Pi (maybe necessary?).  I plan to test it further.
+    double safePhi;
+    bool outside;
+    if( fDphi<kTwoPi && (rho) ) {
+      safePhi = SafetyToPhi(p,rho,outside);
+      if ((outside) && (safePhi > safe)) {
+        safe = safePhi;
+      }
+    }
+
+    return safe; // not accurate safety
+  }
+#endif
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
   Precision volume() const {
     return fZ * (fRmax2 - fRmin2) * fDphi;
   }
@@ -219,16 +353,18 @@ fPhiWedge(other.fDphi,other.fSphi)
   //  This computes where the random point would be placed
   // 1::rTop, 2::rBot, 3::phiLeft, 4::phiRight, 5::zIn, 6::zOut
   //VECGEOM_CUDA_HEADER_BOTH
-    int ChooseSurface() const;
+  int ChooseSurface() const;
 
-	bool Normal(Vector3D<Precision>const& point, Vector3D<Precision>& normal) const;
+  bool Normal(Vector3D<Precision>const& point, Vector3D<Precision>& normal) const;
 
 #endif
 
-  virtual int memory_size() const { return sizeof(*this); }
+  virtual int memory_size() const final { return sizeof(*this); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void Print() const;
+  virtual void Print() const final;
+
+  std::string GetEntityType() const { return "Tube";}
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECGEOM_CUDA_HEADER_DEVICE
@@ -245,9 +381,13 @@ fPhiWedge(other.fDphi,other.fSphi)
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
 #endif
 
+#if defined(VECGEOM_USOLIDS)
+  std::ostream& StreamInfo(std::ostream &os) const;
+#endif
+
 private:
 
-  virtual void Print(std::ostream &os) const;
+  virtual void Print(std::ostream &os) const final;
 
   VECGEOM_CUDA_HEADER_DEVICE
   virtual VPlacedVolume* SpecializedVolume(
@@ -257,7 +397,7 @@ private:
 #ifdef VECGEOM_NVCC
       const int id,
 #endif
-      VPlacedVolume *const placement = NULL) const;
+      VPlacedVolume *const placement = NULL) const final;
 
 };
 

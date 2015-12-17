@@ -59,20 +59,15 @@ public:
   // these function names are specific to USolids but can be reimplemented in terms of
   // other interfaces:
 
-  virtual double DistanceToOut(Vector3D<double> const &point,
-                               Vector3D<double> const &direction,
-                               Vector3D<double> &normal,
-                               bool &convex) const {
-    return DistanceToOut(point, direction,normal, convex, kInfinity);
-  }
-
   virtual double SafetyFromOutside(Vector3D<double> const &point,
                                    bool accurate = false) const {
+    (void)accurate; // fix 'unused variable' warning
     return SafetyToIn(point);
   }
 
   virtual double SafetyFromInside(Vector3D<double> const &point,
                                   bool accurate = false) const {
+    (void)accurate; // fix 'unused variable' warning
     return SafetyToOut(point);
   }
 
@@ -90,7 +85,9 @@ public:
 
   virtual VUSolid* Clone() const;
 
+#if defined(VECGEOM_USOLIDS)
   virtual std::ostream& StreamInfo(std::ostream &os) const;
+#endif
 
   virtual UVector3 GetPointOnSurface() const;
 

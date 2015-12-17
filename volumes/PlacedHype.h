@@ -46,13 +46,14 @@ public:
 
 #endif
 
+  VECGEOM_CUDA_HEADER_BOTH
   virtual ~PlacedHype() {}
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   UnplacedHype const* GetUnplacedVolume() const {
     return static_cast<UnplacedHype const *>(
-        GetLogicalVolume()->unplaced_volume());
+        GetLogicalVolume()->GetUnplacedVolume());
   }
 
 //GetFunctions
@@ -207,8 +208,6 @@ bool PointOnInnerHyperbolicSurface(Vector3D<Precision> const &p) const
 
 
 //New Definition of Normal
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
  bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal ) const
   {
 
@@ -299,25 +298,18 @@ Precision absZ(std::fabs(p.z()));
   }
 */
 
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
-Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
+  Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
 
 
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
   Precision SurfaceArea() override  { return GetUnplacedVolume()->SurfaceArea(); }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   std::string GetEntityType() const { return GetUnplacedVolume()->GetEntityType() ;}
 
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+
   void Extent( Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override { return GetUnplacedVolume()->Extent(aMin,aMax);}
 
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
   void GetParametersList(int aNumber, double *aArray) const { return GetUnplacedVolume()->GetParametersList(aNumber, aArray);}
 
   Vector3D<Precision>  GetPointOnSurface() const { return GetUnplacedVolume()->GetPointOnSurface();}
@@ -328,7 +320,7 @@ Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
   void ComputeBBox() const { return GetUnplacedVolume()->ComputeBBox();}
 
 
-#ifdef VECGEOM_BENCHMARK
+#ifndef VECGEOM_NVCC
   virtual VPlacedVolume const* ConvertToUnspecialized() const;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const* ConvertToRoot() const;
@@ -339,16 +331,7 @@ Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const* ConvertToGeant4() const;
 #endif
-#endif // VECGEOM_BENCHMARK
-
-#ifdef VECGEOM_CUDA_INTERFACE
-  virtual VPlacedVolume* CopyToGpu(LogicalVolume const *const logical_volume,
-                                   Transformation3D const *const transformation,
-                                   VPlacedVolume *const gpu_ptr) const;
-  virtual VPlacedVolume* CopyToGpu(
-      LogicalVolume const *const logical_volume,
-      Transformation3D const *const transformation) const;
-#endif
+#endif // VECGEOM_NVCC
 
 };
 

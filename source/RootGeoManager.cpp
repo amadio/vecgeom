@@ -18,9 +18,13 @@
 #include "volumes/UnplacedOrb.h"
 #include "volumes/UnplacedSphere.h"
 #include "volumes/UnplacedBooleanVolume.h"
-#include "volumes/UnplacedTorus.h"
+//#include "volumes/UnplacedTorus.h"
+#include "volumes/UnplacedTorus2.h"
 #include "volumes/UnplacedTrapezoid.h"
 #include "volumes/UnplacedPolycone.h"
+#include "volumes/UnplacedScaledShape.h"
+#include "materials/Medium.h"
+#include "materials/Material.h"
 
 #include "TGeoManager.h"
 #include "TGeoNode.h"
@@ -40,8 +44,13 @@
 #include "TGeoTorus.h"
 #include "TGeoArb8.h"
 #include "TGeoPcon.h"
+#include "TGeoShapeAssembly.h"
+#include "TGeoScaledShape.h"
+#include "TGeoEltu.h"
 
 #include <cassert>
+#include <iostream>
+#include <list>
 
 namespace vecgeom {
 
@@ -53,6 +62,9 @@ void RootGeoManager::LoadRootGeometry() {
   fWorld = Convert(world_root);
   GeoManager::Instance().SetWorld(fWorld);
   GeoManager::Instance().CloseGeometry();
+  // fix the world --> close geometry might have changed it ( "compactification" )
+  // this is very ugly of course: some observer patter/ super smart pointer might be appropriate
+  fWorld=GeoManager::Instance().GetWorld();
 }
 
 
@@ -73,54 +85,99 @@ void RootGeoManager::ExportToROOTGeometry(VPlacedVolume const * topvolume,
    ::gGeoManager->Export(filename.c_str());
 }
 
+// a helper function to convert ROOT assembly constructs into a flat list of nodes
+// allows parsing of more complex ROOT geometries ( until VecGeom supports assemblies natively )
+void FlattenAssemblies(TGeoNode *node, std::list<TGeoNode *> &nodeaccumulator, TGeoHMatrix const *globalmatrix,
+                       int currentdepth, int &count /* keeps track of number of flattenened nodes */, int &maxdepth) {
+  maxdepth = currentdepth;
+  if (dynamic_cast<TGeoVolumeAssembly *>(node->GetVolume())) {
+    // it is an assembly --> so modify the matrix
+    TGeoVolumeAssembly *assembly = dynamic_cast<TGeoVolumeAssembly *>(node->GetVolume());
+    for (int i = 0, Nd = assembly->GetNdaughters(); i < Nd; ++i) {
+      TGeoHMatrix nextglobalmatrix = *globalmatrix;
+      nextglobalmatrix.Multiply(assembly->GetNode(i)->GetMatrix());
+      FlattenAssemblies(assembly->GetNode(i), nodeaccumulator, &nextglobalmatrix, currentdepth + 1, count, maxdepth);
+    }
+  } else {
+    if (currentdepth == 0) // can keep original node ( it was not an assembly )
+      nodeaccumulator.push_back(node);
+    else { // need a new flattened node with a different transformation
+      TGeoMatrix *newmatrix = new TGeoHMatrix(*globalmatrix);
+      TGeoNodeMatrix *newnode = new TGeoNodeMatrix(node->GetVolume(), newmatrix);
+
+      // need a new name for the flattened node
+      std::string *newname = new ::string(node->GetName());
+      *newname += "_assemblyinternalcount_" + std::to_string(count);
+      newnode->SetName(newname->c_str());
+      nodeaccumulator.push_back(newnode);
+      count++;
+    }
+  }
+}
 
 VPlacedVolume* RootGeoManager::Convert(TGeoNode const *const node) {
   if (fPlacedVolumeMap.Contains(node))
-      return const_cast<VPlacedVolume*> (fPlacedVolumeMap[node]);
+      return const_cast<VPlacedVolume*>(GetPlacedVolume( node ));
 
   Transformation3D const *const transformation = Convert(node->GetMatrix());
   LogicalVolume *const logical_volume = Convert(node->GetVolume());
   VPlacedVolume *const placed_volume =
       logical_volume->Place(node->GetName(), transformation);
 
-  int remaining_daughters = 0;
+  unsigned int remaining_daughters = 0;
   {
     // All or no daughters should have been placed already
     remaining_daughters = node->GetNdaughters()
-                          - logical_volume->daughters().size();
+                          - logical_volume->GetDaughters().size();
     assert(remaining_daughters == 0 ||
-           remaining_daughters == node->GetNdaughters());
-  }
-  for (int i = 0; i < remaining_daughters; ++i) {
-    logical_volume->PlaceDaughter(Convert(node->GetDaughter(i)));
+           remaining_daughters == (unsigned int) node->GetNdaughters());
   }
 
-  fPlacedVolumeMap.Set(node, placed_volume);
+  // we have to convert here assemblies to list of normal nodes
+  std::list<TGeoNode *> flattenenednodelist;
+  int assemblydepth = 0;
+  int flatteningcount = 0;
+  for (unsigned int i = 0; i < remaining_daughters; ++i) {
+    TGeoHMatrix trans = *node->GetDaughter(i)->GetMatrix();
+    FlattenAssemblies(node->GetDaughter(i), flattenenednodelist, &trans, 0, flatteningcount, assemblydepth);
+  }
+
+  if (flattenenednodelist.size() > remaining_daughters) {
+    std::cerr << "INFO: flattening of assemblies (depth " << assemblydepth << ") resulted in "
+              << flattenenednodelist.size() << " daughters vs " << remaining_daughters << "\n";
+  }
+
+  //
+  for (auto &n : flattenenednodelist) {
+    logical_volume->PlaceDaughter(Convert(n));
+  }
+
+  fPlacedVolumeMap.Set(node, placed_volume->id());
   return placed_volume;
 }
 
 
 TGeoNode* RootGeoManager::Convert(VPlacedVolume const *const placed_volume) {
-  if (fPlacedVolumeMap.Contains(placed_volume))
-      return const_cast<TGeoNode*> (fPlacedVolumeMap[placed_volume]);
+  if (fPlacedVolumeMap.Contains(placed_volume->id()))
+      return const_cast<TGeoNode*> (fPlacedVolumeMap[placed_volume->id()]);
 
   TGeoVolume * geovolume = Convert(placed_volume, placed_volume->GetLogicalVolume());
   TGeoNode * node = new TGeoNodeMatrix( geovolume, NULL );
-  fPlacedVolumeMap.Set(node, placed_volume);
+  fPlacedVolumeMap.Set(node, placed_volume->id());
 
   // only need to do daughterloop once for every logical volume.
   // So only need to check if
   // logical volume already done ( if it already has the right number of daughters )
-  int remaining_daughters = placed_volume->daughters().size()
+  auto remaining_daughters = placed_volume->GetDaughters().size()
           - geovolume->GetNdaughters();
   assert(remaining_daughters == 0 ||
-         remaining_daughters == placed_volume->daughters().size());
+         remaining_daughters == placed_volume->GetDaughters().size());
 
   // do daughters
-  for (int i = 0; i < remaining_daughters; ++i) {
+  for (size_t i = 0; i < remaining_daughters; ++i) {
       // get placed daughter
       VPlacedVolume const * daughter_placed =
-              placed_volume->daughters().operator[](i);
+              placed_volume->GetDaughters().operator[](i);
 
       // RECURSE DOWN HERE
       TGeoNode * daughternode = Convert( daughter_placed );
@@ -173,9 +230,67 @@ LogicalVolume* RootGeoManager::Convert(TGeoVolume const *const volume) {
   VUnplacedVolume const *const unplaced = Convert(volume->GetShape());
   LogicalVolume *const logical_volume =
       new LogicalVolume(volume->GetName(), unplaced);
-
+  Medium const *const medium = Convert(volume->GetMedium());
+  const_cast<LogicalVolume*>(logical_volume)->SetTrackingMediumPtr((void*)medium);
+    
   fLogicalVolumeMap.Set(volume, logical_volume);
   return logical_volume;
+}
+
+Medium* RootGeoManager::Convert(TGeoMedium const *const medium) {
+   // Check whether medium is already there
+   vector<Medium*> media = Medium::GetMedia();
+   for(vector<Medium*>::iterator m = media.begin(); m != media.end(); ++m) {
+      //      std::cout << "Name " << (*m)->Name() << " " << medium->GetName() << std::endl;
+      if((*m)->Name() == string(medium->GetName())) return (*m);
+   }
+
+   //   std::cout << "Adding Medium #" << media.size() << " " << medium->GetName() << std::endl;
+   // Medium not there. We add it
+   
+   Material *vmat = Convert(medium->GetMaterial());
+
+   double pars[20];
+   for(int i=0; i<20; ++i) pars[i]=medium->GetParam(i);
+   Medium *vmed = new Medium(medium->GetName(),vmat,pars);
+   return vmed;
+}
+
+Material* RootGeoManager::Convert(TGeoMaterial const *const material) {
+   vector<Material*> materials = Material::GetMaterials();
+   for(vector<Material*>::iterator m = materials.begin(); m != materials.end(); ++m) 
+      if((*m)->GetName() == string(material->GetName())) return (*m);
+   Material *vmat = 0;
+   int nelem = material->GetNelements();
+
+   //   std::cout << "Adding Material #" << materials.size() << " "<< material->GetName() << std::endl;
+   if(nelem<2) {
+      vmat = new Material(material->GetName(),material->GetA(),material->GetZ(),
+			  material->GetDensity(), material->GetRadLen(),
+			  material->GetIntLen());
+   } else {
+      double *a = new double[nelem];
+      double *z = new double[nelem];
+      double *w = new double[nelem];
+      //      cout << "nelem " << nelem << endl;
+      for(int i=0; i<nelem; ++i) {
+	 double aa;
+	 double zz;
+	 const_cast<TGeoMaterial*>(material)->GetElementProp(aa, zz, w[i], i);
+	 // cout << "Elem props: A: " << aa << " Z: " << zz << endl;
+	 a[i] = aa;
+	 z[i] = zz;
+      }
+      vmat = new Material(material->GetName(), a, z, w, nelem, 
+			  material->GetDensity(), material->GetRadLen(),
+			  material->GetIntLen());
+      delete [] a;
+      delete [] z;
+      delete [] w;
+   }
+   vmat->Used();
+   //   cout << *vmat << endl;
+   return vmat;
 }
 
 // the inverse: here we need both the placed volume and logical volume as input
@@ -329,12 +444,15 @@ VUnplacedVolume* RootGeoManager::Convert(TGeoShape const *const shape) {
      VUnplacedVolume const* leftunplaced  = Convert( boolnode->GetLeftShape() );
      VUnplacedVolume const* rightunplaced = Convert( boolnode->GetRightShape() );
 
+     assert( leftunplaced != nullptr );
+     assert( rightunplaced != nullptr );
+
      // the problem is that I can only place logical volumes
      VPlacedVolume *const leftplaced =
-          (new LogicalVolume("", leftunplaced ))->Place(lefttrans);
+          (new LogicalVolume("inner_virtual", leftunplaced ))->Place(lefttrans);
 
      VPlacedVolume *const rightplaced =
-          (new LogicalVolume("", rightunplaced ))->Place(righttrans);
+          (new LogicalVolume("inner_virtual", rightunplaced ))->Place(righttrans);
 
      // now it depends on concrete type
      if( boolnode->GetBooleanOperator() == TGeoBoolNode::kGeoSubtraction ){
@@ -355,7 +473,7 @@ VUnplacedVolume* RootGeoManager::Convert(TGeoShape const *const shape) {
     if (shape->IsA() == TGeoTorus::Class()) {
         // make distinction
         TGeoTorus const *const p = static_cast<TGeoTorus const*>(shape);
-            unplaced_volume = new UnplacedTorus(p->GetRmin(),p->GetRmax(),
+            unplaced_volume = new UnplacedTorus2(p->GetRmin(),p->GetRmax(),
                     p->GetR(), p->GetPhi1()*kDegToRad, p->GetDphi()*kDegToRad);
     }
 
@@ -372,11 +490,30 @@ VUnplacedVolume* RootGeoManager::Convert(TGeoShape const *const shape) {
             p->GetRmax());
    }
 
+  // THE SCALED SHAPE
+   if (shape->IsA() == TGeoScaledShape::Class()) {
+     TGeoScaledShape const *const p = static_cast<TGeoScaledShape const*>(shape);
+     // First convert the referenced shape
+     VUnplacedVolume *referenced_shape = Convert(p->GetShape());
+     const double *scale_root = p->GetScale()->GetScale();
+     unplaced_volume = new UnplacedScaledShape(referenced_shape,
+                               scale_root[0], scale_root[1], scale_root[2]);
+   }
+   
+   // THE ELLIPTICAL TUBE AS SCALED TUBE      
+   if (shape->IsA() == TGeoEltu::Class()) {
+     TGeoEltu const *const p = static_cast<TGeoEltu const*>(shape);
+     // Create the corresponding unplaced tube, with:
+     //   rmin=0, rmax=A, dz=dz, which is scaled with (1., A/B, 1.)
+     UnplacedTube *tubeUnplaced = new UnplacedTube(0, p->GetA(), p->GetDZ(), 0, kTwoPi);
+     unplaced_volume = new UnplacedScaledShape(tubeUnplaced, 1.,p->GetB()/p->GetA(), 1.);
+   }  
+
    // New volumes should be implemented here...
   if (!unplaced_volume) {
     if (fVerbose) {
-      printf("Unsupported shape for ROOT volume \"%s\". "
-             "Using ROOT implementation.\n", shape->GetName());
+      printf("Unsupported shape for ROOT volume \"%s\" of type %s. "
+             "Using ROOT implementation.\n", shape->GetName(), shape->ClassName());
     }
     unplaced_volume = new UnplacedRootVolume(shape);
   }

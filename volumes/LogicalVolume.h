@@ -7,9 +7,9 @@
 #define VECGEOM_VOLUMES_LOGICALVOLUME_H_
 
 #include "base/Global.h"
-
 #include "base/Vector.h"
 #include "volumes/UnplacedVolume.h"
+//#include "volumes/PlacedVolume.h"
 
 #include <string>
 #include <list>
@@ -25,94 +25,126 @@ VECGEOM_DEVICE_FORWARD_DECLARE( class VPlacedVolume; )
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 typedef VPlacedVolume const* Daughter;
-
+class GeoManager;
 /**
  * @brief Class responsible for storing the unplaced volume, material and
  *        daughter volumes of a mother volume.
  */
 class LogicalVolume {
-
+friend class GeoManager;
 private:
+  // pointer to concrete unplaced volume/shape
+  VUnplacedVolume const *fUnplacedVolume;
 
-  VUnplacedVolume const *unplaced_volume_;
+  int fId; // global id of logical volume object
 
-  using CudaDaughter_t = cuda::VPlacedVolume const*;
+  std::string *fLabel; // name of logical volume
 
-  int id_;
-  std::string *label_;
-
-  static int g_id_count;
+  static int gIdCount; // static class counter
 
   /** a pointer member to register arbitrary objects with logical volume;
         included for the moment to model UserExtension like in TGeoVolume
   */
-  void * user_extension_;
+  void * fUserExtensionPtr;
+  /** some specific pointers used by Geant-V
+   *
+   */
+  void * fTrackingMediumPtr;
+  void * fBasketManagerPtr;
 
-  Vector<Daughter> *daughters_;
+  // the container of daughter (placed) volumes which are placed inside this logical
+  // Volume
+  Vector<Daughter> *fDaughters;
 
-
+  using CudaDaughter_t = cuda::VPlacedVolume const *;
   friend class CudaManager;
+//  friend class GeoManager;
+
+  // possibility to change pointer of daughter volumes ( can be used by GeoManager )
+//  void SetDaughter(unsigned int i, VPlacedVolume const *pvol);
 
 public:
 
 #ifndef VECGEOM_NVCC
+  // Standard constructor when constructing geometries. Will initiate an empty
+  // daughter list which can be populated by placing daughters.
+  // \sa PlaceDaughter()
+  LogicalVolume(char const *const label, VUnplacedVolume const *const unplaced_vol);
 
-  /**
-   * Standard constructor when constructing geometries. Will initiate an empty
-   * daughter list which can be populated by placing daughters.
-   * \sa PlaceDaughter()
-   */
-  LogicalVolume(char const *const label,
-                VUnplacedVolume const *const unplaced_vol);
+  LogicalVolume(VUnplacedVolume const *const unplaced_vol) : LogicalVolume("", unplaced_vol) {}
 
-  LogicalVolume(VUnplacedVolume const *const unplaced_vol)
-      : LogicalVolume("", unplaced_vol) {}
-
-  /** 
-   * copy operator since we have pointer data members
-   */
-  LogicalVolume( LogicalVolume const & other );    
-  LogicalVolume * operator=( LogicalVolume const & other );
+  //
+  // copy operator since we have pointer data members
+  //
+  LogicalVolume(LogicalVolume const &other);
+  LogicalVolume *operator=(LogicalVolume const &other);
 
 #else
-
   __device__
-  LogicalVolume(VUnplacedVolume const *const unplaced_vol,
-                Vector<Daughter> *daughters)
+  LogicalVolume(VUnplacedVolume const *const unplaced_vol, Vector<Daughter> *GetDaughter)
       // Id for logical volumes is not needed on the device for CUDA
-      : unplaced_volume_(unplaced_vol), id_(-1), label_(NULL),
-        user_extension_(NULL), daughters_(daughters) {}
-
+      : fUnplacedVolume(unplaced_vol),
+        fId(-1),
+        fLabel(nullptr),
+        fUserExtensionPtr(nullptr),
+        fTrackingMediumPtr(nullptr),
+        fBasketManagerPtr(nullptr),
+        fDaughters(GetDaughter) {}
 #endif
 
   ~LogicalVolume();
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  VUnplacedVolume const* unplaced_volume() const { return unplaced_volume_; }
+  VUnplacedVolume const *GetUnplacedVolume() const { return fUnplacedVolume; }
+
+  // will be deprecated in favour of better encapsulation of internal storage
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Vector<Daughter> const &GetDaughters() const { return *fDaughters; }
+
+  // will be deprecated in favour of better encapsulation of internal storage
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Vector<Daughter> const *GetDaughtersp() const { return fDaughters; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Vector<Daughter> const& daughters() const { return *daughters_; }
+  Vector<Daughter> *GetDaughtersp() { return fDaughters; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+//  VECGEOM_CUDA_HEADER_BOTH
+//  VECGEOM_INLINE
+//  VPlacedVolume const* GetDaughter(unsigned int i) const { return daughters_->operator[](i); }
+//
+//  VECGEOM_CUDA_HEADER_BOTH
+//  VECGEOM_INLINE
+//  unsigned int GetNDaughters() const { return daughters_->size(); }
+
   VECGEOM_INLINE
-  Vector<Daughter> const * daughtersp() const { return daughters_; }
-
+  void *GetUserExtensionPtr() const { return fUserExtensionPtr; }
   VECGEOM_INLINE
-  void * getUserExtensionPtr( ) const {  return user_extension_;  }
+  void *GetTrackingMediumPtr() const { return fTrackingMediumPtr; }
+  VECGEOM_INLINE
+  void *GetBasketManagerPtr() const { return fBasketManagerPtr; }
 
-  int id() const { return id_; }
+  int id() const { return fId; }
 
-  std::string GetLabel() const { return *label_; }
+  const char *GetName() const { return fLabel->c_str(); }
+  std::string GetLabel() const { return *fLabel; }
 
-  void set_label(char const *const label) {
-    if(label_) delete label_;
-    label_ = new std::string(label);
+  void SetLabel(char const *const label) {
+    if(fLabel) delete fLabel;
+    fLabel = new std::string(label);
   }
 
   VECGEOM_INLINE
-  void setUserExtensionPtr( void * userpointer ) { user_extension_ = userpointer; }
+  void SetUserExtensionPtr(void *userpointer) { fUserExtensionPtr = userpointer; }
+
+  VECGEOM_INLINE
+  void SetTrackingMediumPtr(void *tmediumpointer) { fTrackingMediumPtr = tmediumpointer; }
+
+  VECGEOM_INLINE
+  void SetBasketManagerPtr(void *basketpointer) { fBasketManagerPtr = basketpointer; }
 
   VECGEOM_CUDA_HEADER_BOTH
   void Print(const int indent = 0) const;
@@ -120,39 +152,34 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   void PrintContent(const int depth = 0) const;
 
-  VPlacedVolume* Place(char const *const label,
-                       Transformation3D const *const transformation) const;
+  VPlacedVolume *Place(char const *const label, Transformation3D const *const transformation) const;
 
-  VPlacedVolume* Place(Transformation3D const *const transformation) const;
+  VPlacedVolume *Place(Transformation3D const *const transformation) const;
 
-  VPlacedVolume* Place(char const *const label) const;
+  VPlacedVolume *Place(char const *const label) const;
 
-  VPlacedVolume* Place() const;
+  VPlacedVolume *Place() const;
 
-  VPlacedVolume const* PlaceDaughter(char const *const label,
-                     LogicalVolume const *const volume,
-                     Transformation3D const *const transformation);
+  VPlacedVolume const *PlaceDaughter(char const *const label, LogicalVolume const *const volume,
+                                     Transformation3D const *const transformation);
 
-  VPlacedVolume const* PlaceDaughter(LogicalVolume const *const volume,
-                     Transformation3D const *const transformation);
+  VPlacedVolume const *PlaceDaughter(LogicalVolume const *const volume,
+                                     Transformation3D const *const transformation);
 
   void PlaceDaughter(VPlacedVolume const *const placed);
 
-  VECGEOM_CUDA_HEADER_BOTH
-  int CountVolumes() const;
-
-  friend std::ostream& operator<<(std::ostream& os, LogicalVolume const &vol);
+  friend std::ostream &operator<<(std::ostream &os, LogicalVolume const &vol);
 
 #ifdef VECGEOM_CUDA_INTERFACE
   DevicePtr<cuda::LogicalVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const unplaced_vol,
-                                           DevicePtr<cuda::Vector<CudaDaughter_t>> daughters) const;
+                                           DevicePtr<cuda::Vector<CudaDaughter_t>> GetDaughter) const;
   DevicePtr<cuda::LogicalVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const unplaced_vol,
-                                           DevicePtr<cuda::Vector<CudaDaughter_t>> daughters,
+                                           DevicePtr<cuda::Vector<CudaDaughter_t>> GetDaughter,
                                            DevicePtr<cuda::LogicalVolume> const gpu_ptr) const;
 #endif
 
-};
-
-} } // End global namespace
+}; // End class
+} // End inline namespace
+} // End global namespace
 
 #endif // VECGEOM_VOLUMES_LOGICALVOLUME_H_

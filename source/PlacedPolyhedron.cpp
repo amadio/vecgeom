@@ -10,7 +10,7 @@
 #include "TGeoPgon.h"
 #endif
 
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
 #include "UPolyhedra.hh"
 #endif
 
@@ -26,6 +26,8 @@ int PlacedPolyhedron::PhiSegmentIndex(Vector3D<Precision> const &point) const {
   Vector3D<Precision> localPoint =
      VPlacedVolume::GetTransformation()->Transform(point);
   return PolyhedronImplementation<
+		  translation::kGeneric,
+		  rotation::kGeneric,
      Polyhedron::EInnerRadii::kGeneric,
      Polyhedron::EPhiCutout::kGeneric>::FindPhiSegment<kScalar>(
           *GetUnplacedVolume(), localPoint);
@@ -57,7 +59,7 @@ TGeoShape const* PlacedPolyhedron::ConvertToRoot() const {
 }
 #endif
 
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
 ::VUSolid const* PlacedPolyhedron::ConvertToUSolids() const {
 
   return new UPolyhedra(
@@ -92,7 +94,7 @@ G4VSolid const* PlacedPolyhedron::ConvertToGeant4() const {
 
 #ifdef VECGEOM_NVCC
 
-VECGEOM_DEVICE_INST_PLACED_POLYHEDRON_ALLSPEC( SpecializedPolyhedron )
+VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_4( SpecializedPolyhedron )
 
 #endif
 

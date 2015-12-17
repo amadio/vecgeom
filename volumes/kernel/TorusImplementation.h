@@ -13,7 +13,7 @@
 
 #ifndef VECGEOM_NVCC
 #include <iomanip>
-  #if (defined(VECGEOM_VC) || defined(VECGEOM_VC_ACCELERATION))
+  #if defined(VECGEOM_VC)
     #include <Vc/Vc>
   #endif
 #endif
@@ -29,7 +29,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 
 #ifndef VECGEOM_NVCC
-  #if (defined(VECGEOM_VC) || defined(VECGEOM_VC_ACCELERATION))
+  #if defined(VECGEOM_VC)
 using namespace Vc;
 
 inline
@@ -270,7 +270,7 @@ Complex<T> csqrtrealargument( const T & x )
 }
 
 #ifndef VECGEOM_NVCC
-  #if (defined(VECGEOM_VC) || defined(VECGEOM_VC_ACCELERATION))
+  #if defined(VECGEOM_VC)
 // template specialization for Vc
 typedef Vc::double_v VCT;
 template <>
@@ -328,7 +328,7 @@ Complex<T> cbrt( const Complex<T>& x )
 }
 
 #ifndef VECGEOM_NVCC
-  #if (defined(VECGEOM_VC) || defined(VECGEOM_VC_ACCELERATION))
+  #if defined(VECGEOM_VC)
 
 // template specialization for Vc
 // we need standalone function for cubic root
@@ -352,8 +352,8 @@ Complex<Vc::double_v> cbrt( const Complex<Vc::double_v>& x )
   else
     {
       r = x.real();
-      sinnewangle=Vc::Zero;
-      cosnewangle=Vc::One;
+      sinnewangle=Vc::double_v(0.);
+      cosnewangle=Vc::double_v(1.);
     }
   // use cubic root function defined above
   Vc::double_v rcbrt = Vccbrt( r );
@@ -431,7 +431,7 @@ double foo(double a, double b)
 typedef Complex<double> CT;
 VECGEOM_CUDA_HEADER_BOTH
 inline
-void solveQuartic2(double a, double b, double c, double d, double e, CT * roots)
+void solveQuartic2(double /*a*/, double b, double c, double d, double e, CT * roots)
 {
 
   // Uses Ferrari's Method; this will vectorize trivially ( at least when we treat the real and imaginary parts separately )
@@ -448,7 +448,7 @@ void solveQuartic2(double a, double b, double c, double d, double e, CT * roots)
 double gamma1= -3.0*bbb*b*inv256;
 double gamma2 =  c*bb*inv16;
 double gamma3 = - 0.25*b*d + e;
-double gammasum = gamma1+gamma2+gamma3;
+//double gammasum = gamma1+gamma2+gamma3;
 
 std::cout<<"g1="<<gamma1<<" g2="<<gamma2<<" g3="<<gamma3<<" g="<<gamma<<" inv256="<<inv256<<" bbb*b="<<bbb*b<<" ***"<<-3.0*bbb*b*inv256<<std::endl;
 #endif
@@ -475,7 +475,7 @@ std::cout<<"g1="<<gamma1<<" g2="<<gamma2<<" g3="<<gamma3<<" g="<<gamma<<" inv256
   //  CT R = Q*0.5 + csqrtrealargument(tmp);
   //    std::cerr << "R " << R << "\n";
 #ifdef DEBUGTORUS
-#if !__CUDA__ || __CUDA_ARCH__ >= 200
+#if __CUDA_ARCH__ >= 200
   printf("CUDA tmp %lf\n",tmp);
   printf("CUDA R (%lf, %lf) \n",R.real(), R.imag());
 #endif
@@ -547,7 +547,7 @@ std::cout <<"roots for scalar case"<<std::endl;
 // CT == complextype
 //typedef Vc::double_v VCT2;
 #ifndef VECGEOM_NVCC
-  #if (defined(VECGEOM_VC) || defined(VECGEOM_VC_ACCELERATION))
+  #if defined(VECGEOM_VC)
 typedef Complex<VCT> CVCT;
 inline
 void solveQuartic2(VCT a, VCT b, VCT c, VCT d, VCT e, CVCT * roots)
@@ -621,6 +621,32 @@ std::cout<<"g1="<<gamma1<<" g2="<<gamma2<<" g3="<<gamma3<<" g="<<gammasum<<" inv
   roots[3] = aRoot;
 }
 #endif
+#ifdef VECGEOM_MICVEC
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+void solveQuartic2(MicPrecision a, MicPrecision b, MicPrecision c,
+                   MicPrecision d, MicPrecision e, Complex<MicPrecision> *root) {
+  // FIXME: must create a generic algorithm for this solver. Is it really necessary? (there is a Torus2 implementation...)
+  Complex<Precision> localRoots[4];
+  MicPrecision real[4]={kMic::kZero,kMic::kZero,kMic::kZero,kMic::kZero};
+  MicPrecision imag[4]={kMic::kZero,kMic::kZero,kMic::kZero,kMic::kZero};
+#pragma unroll
+  for (int i = 0; i < kVectorSize; ++i) {
+    // call the scalar version
+    solveQuartic2(a[i], b[i], c[i], d[i], e[i], localRoots);
+#pragma unroll
+    for (int j = 0; j < 4; ++j) {
+      real[j][i] = localRoots[j].real();
+      imag[j][i] = localRoots[j].imag();
+    }
+  }
+#pragma unroll
+  for(int i = 0; i < 4; ++i) {
+    Complex<MicPrecision> r(real[i], imag[i]);
+    root[i] = r;
+  }
+}
+#endif
 #endif
  
 class PlacedTorus;
@@ -656,7 +682,6 @@ struct TorusImplementation {
     /* rmax */
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
-
 
 //    // very fast check on z-height
 //    completelyoutside = point[2] > MakePlusTolerant<ForInside>( torus.rmax() );
@@ -740,7 +765,7 @@ struct TorusImplementation {
   typedef typename Backend::bool_v      Bool_t;
   //
   Bool_t completelyinside, completelyoutside;
-  GenericKernelForContainsAndInside<Backend,true,true>(torus, 
+  GenericKernelForContainsAndInside<Backend,true,true>(torus,
   point, completelyinside, completelyoutside);
   inside = EInside::kSurface;
   MaskedAssign(completelyoutside, EInside::kOutside, &inside);
@@ -816,7 +841,7 @@ struct TorusImplementation {
     template <class T>
     VECGEOM_CUDA_HEADER_BOTH
     static
-    T NewtonIter(T b, T c, T d, T e, T x, T fold)
+    T NewtonIter(T b, T c, T d, T /*e*/, T x, T fold)
     {
         T x2 = x*x;
         T fprime = 4*x2*x + 3*b*x2 + 2*c*x + d;
@@ -849,8 +874,9 @@ struct TorusImplementation {
       // tolerance
      Float_t radTolerance = 1E-8*torus.rtor();
 
-     if ( Abs(dir[2]) < 1E-5 && Abs(point[2]) < 0.1*radius){// problematic cases
-       radTolerance = 1E-6*torus.rtor();
+
+     //if ( Abs(dir[2]) < 1E-5 && Abs(point[2]) < 0.1*radius ){// problematic cases
+     //  radTolerance = 1E-6*torus.rtor();
        //Code from TGeo Torus is not improuving the situation
       /*Float_t r0 = torus.rtor() - Sqrt((radius-point[2])*(radius+point[2]));
        Float_t b0 = (point[0]*dir[0]+point[1]*dir[1])/(dir[0]*dir[0]+dir[1]*dir[1]);
@@ -872,7 +898,7 @@ struct TorusImplementation {
        delta = b0*b0-c0;
        if (delta>0) {
         roots[2] = -b0-Sqrt(delta);
-	havevalidsolution = (roots[2] > 0);//-1E-9);
+    havevalidsolution = (roots[2] > 0);//-1E-9);
           MaskedAssign( havevalidsolution, Min(roots[2],validdistance), &validdistance );
           roots[3] = -b0+Sqrt(delta);
           havevalidsolution = (roots[3] > 0);//-1E-9);
@@ -885,7 +911,7 @@ struct TorusImplementation {
        return validdistance;
       */
 
-     }
+     //}
       
      // actually a scalar product
      Float_t r0sq  = point[0]*point[0]+point[1]*point[1]+point[2]*point[2];
@@ -933,7 +959,7 @@ struct TorusImplementation {
          havevalidsolution &= (torus.GetWedge().ContainsWithBoundary<Backend>(point + roots[0].real() * dir));
 
        MaskedAssign(havevalidsolution, roots[0].real(), &validdistance);
-       MaskedAssign(out && havevalidsolution, validdistance, &secondvalidroot);
+       MaskedAssign(Bool_t(out) && havevalidsolution, validdistance, &secondvalidroot);
        havevalidroot = havevalidsolution || havevalidroot;
 
        havevalidsolution = Abs(roots[1].imag()) < radTolerance && roots[1].real() > -radTolerance;
@@ -941,21 +967,21 @@ struct TorusImplementation {
          havevalidsolution &= (torus.GetWedge().ContainsWithBoundary<Backend>(point + roots[1].real() * dir));
 
        MaskedAssign(havevalidsolution, Min(roots[1].real(), validdistance), &validdistance);
-       MaskedAssign(out && havevalidsolution, Max(roots[1].real(), validdistance), &secondvalidroot);
+       MaskedAssign(Bool_t(out) && havevalidsolution, Max(roots[1].real(), validdistance), &secondvalidroot);
        havevalidroot = havevalidsolution || havevalidroot;
 
        havevalidsolution = Abs(roots[2].imag()) < radTolerance && roots[2].real() > -radTolerance;
        if (needphi && !IsEmpty(havevalidsolution))
          havevalidsolution &= (torus.GetWedge().ContainsWithBoundary<Backend>(point + roots[2].real() * dir));
        MaskedAssign(havevalidsolution, Min(roots[2].real(), validdistance), &validdistance);
-       MaskedAssign(out && havevalidsolution, Max(roots[2].real(), validdistance), &secondvalidroot);
+       MaskedAssign(Bool_t(out) && havevalidsolution, Max(roots[2].real(), validdistance), &secondvalidroot);
        havevalidroot = havevalidsolution || havevalidroot;
 
        havevalidsolution = Abs(roots[3].imag()) < radTolerance && roots[3].real() > -radTolerance;
        if (needphi && !IsEmpty(havevalidsolution))
          havevalidsolution &= (torus.GetWedge().ContainsWithBoundary<Backend>(point + roots[3].real() * dir));
        MaskedAssign(havevalidsolution, Min(roots[3].real(), validdistance), &validdistance);
-       MaskedAssign(out && havevalidsolution, Max(roots[3].real(), validdistance), &secondvalidroot);
+       MaskedAssign(Bool_t(out) && havevalidsolution, Max(roots[3].real(), validdistance), &secondvalidroot);
 
        havevalidroot = havevalidsolution || havevalidroot;
 
@@ -987,8 +1013,8 @@ struct TorusImplementation {
              norm = -norm;
            Float_t dot_product = dir.Dot(norm);
 
-           MaskedAssign(!out && (dot_product > 0.), secondvalidroot, &validdistance);
-           MaskedAssign(out && (dot_product < 0.), secondvalidroot, &validdistance);
+           MaskedAssign(Bool_t(!out) && (dot_product > 0.), secondvalidroot, &validdistance);
+           MaskedAssign(Bool_t(out) && (dot_product < 0.), secondvalidroot, &validdistance);
          }
        }
        return validdistance;
@@ -1152,11 +1178,12 @@ struct TorusImplementation {
       UnplacedTorus const &torus,
       Vector3D<typename Backend::precision_v> const &point,
       Vector3D<typename Backend::precision_v> const &dir,
-      typename Backend::precision_v const &stepMax,
+      typename Backend::precision_v const &/*stepMax*/,
       typename Backend::precision_v &distance) {
 
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
+
     Bool_t inBounds;
     Bool_t done;
     distance = kInfinity;
@@ -1270,7 +1297,7 @@ struct TorusImplementation {
     //std::cerr << "#SAF IN "<<" rxy="<<rxy <<" rad="<< rad<<" saf="<<safety<<std::endl;
     // TODO: extend implementation for phi sector case
      bool hasphi = (torus.dphi()<kTwoPi);
-     if ( hasphi && (rxy !=0.) )
+     if ( hasphi && Any(rxy !=0.) )
      {
 
        Float_t safetyPhi = torus.GetWedge().SafetyToIn<Backend>(localPoint);

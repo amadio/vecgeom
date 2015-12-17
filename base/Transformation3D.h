@@ -91,6 +91,16 @@ public:
                    const Precision r5, const Precision r6,
                    const Precision r7, const Precision r8);
 
+  /**
+   * Constructor for a rotation based on a given direction  
+   * @param axis direction of the new z axis
+   * @param inverse if true the origial axis will be rotated into (0,0,u)
+                    if false a vector (0,0,u) will be rotated into the original axis
+   */
+   VECGEOM_CUDA_HEADER_BOTH
+   Transformation3D(const Vector3D<Precision> &axis, bool inverse=true);
+
+
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Transformation3D(Transformation3D const &other);

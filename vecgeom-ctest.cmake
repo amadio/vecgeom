@@ -4,14 +4,17 @@
 # $CTEST_BUILD_OPTIONS // CMake flags for VecGeom build
 # $CMAKE_SOURCE_DIR    // CMake source directory
 # $CMAKE_BINARY_DIR    // CMake binary directory
-# $CMAKE_BUILD_TYPE    // CMake build type: Debug, Release 
+# $CMAKE_BUILD_TYPE    // CMake build type: Debug, Release
 # $CMAKE_INSTALL_PREFIX // Installation prefix for CMake (Jenkins trigger)
 # CC and CXX (In Jenkins this step has been done authomaticly)
-# Enviroment for name of build for CERN CDash: 
+# Enviroment for name of build for CERN CDash:
 # $LABEL                // Name of node (Jenkins trigger)
 # Name of $BACKEND     // Backend for VecGeom (CUDA/Vc/Scalar/..)
 
 cmake_minimum_required(VERSION 2.8)
+set(CTEST_CUSTOM_MAXIMUM_NUMBER_OF_ERRORS "1000")
+set(CTEST_CUSTOM_MAXIMUM_NUMBER_OF_WARNINGS "1000")
+set(CTEST_CUSTOM_MAXIMUM_PASSED_TEST_OUTPUT_SIZE "50000")
 ###################################################################
 macro(CheckExitCode)
   if(NOT ${ExitCode} EQUAL 0)
@@ -58,12 +61,12 @@ set(CTEST_CUSTOM_MAXIMUM_FAILED_TEST_OUTPUT_SIZE "5000")
 #set(ENV{CTEST_USE_LAUNCHERS_DEFAULT} ${CTEST_USE_LAUNCHERS})
 
 ######################################################
-# CTest/CMake settings 
+# CTest/CMake settings
 
-set(CTEST_TEST_TIMEOUT 3600)
+set(CTEST_TEST_TIMEOUT 900)
 set(CTEST_BUILD_CONFIGURATION "$ENV{CMAKE_BUILD_TYPE}")
 set(CMAKE_INSTALL_PREFIX "$ENV{CMAKE_INSTALL_PREFIX}")
-set(CTEST_SOURCE_DIRECTORY "$ENV{CMAKE_SOURCE_DIR}")  
+set(CTEST_SOURCE_DIRECTORY "$ENV{CMAKE_SOURCE_DIR}")
 set(CTEST_BINARY_DIRECTORY "$ENV{CMAKE_BINARY_DIR}")
 set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
 set(CTEST_BUILD_OPTIONS "$ENV{CTEST_BUILD_OPTIONS}")
@@ -75,7 +78,7 @@ ctest_empty_binary_directory(${CTEST_BINARY_DIRECTORY})
 
 find_program(CTEST_GIT_COMMAND NAMES git)
 if(NOT EXISTS "${CTEST_SOURCE_DIRECTORY}")
-  set(CTEST_CHECKOUT_COMMAND "${CTEST_GIT_COMMAND} clone http://git.cern.ch/pub/VecGeom ${CTEST_SOURCE_DIRECTORY}")
+  set(CTEST_CHECKOUT_COMMAND "${CTEST_GIT_COMMAND} clone https://gitlab.cern.ch/VecGeom/VecGeom.git ${CTEST_SOURCE_DIRECTORY}")
 endif()
 set(CTEST_GIT_UPDATE_COMMAND "${CTEST_GIT_COMMAND}")
 
@@ -122,16 +125,19 @@ message("Dashboard script configuration (check if everything is declared correct
 #######################################################
 # Build dashboard model setup
 
-SET(MODEL Nightly)
-IF(${CTEST_SCRIPT_ARG} MATCHES NightlyCUDA)
-  SET(MODEL NightlyCUDA)
-ENDIF(${CTEST_SCRIPT_ARG} MATCHES NightlyCUDA)
-IF(${CTEST_SCRIPT_ARG} MATCHES Experimental)
-  SET(MODEL Experimental)
-ENDIF(${CTEST_SCRIPT_ARG} MATCHES Experimental)
-IF(${CTEST_SCRIPT_ARG} MATCHES Continuous)
+if("$ENV{MODE}" STREQUAL "")
+  set(CTEST_MODE Experimental)
+else()
+  set(CTEST_MODE "$ENV{MODE}")
+endif()
+
+if(${CTEST_MODE} MATCHES nightly)
+  SET(MODEL Nightly)
+elseif(${CTEST_MODE} MATCHES continuous)
   SET(MODEL Continuous)
-ENDIF(${CTEST_SCRIPT_ARG} MATCHES Continuous)
+else()
+  SET(MODEL Experimental)
+endif()
 
 find_program(CTEST_COMMAND_BIN NAMES ctest)
 SET (CTEST_COMMAND

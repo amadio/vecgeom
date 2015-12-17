@@ -5,11 +5,10 @@
 #include "volumes/SpecializedTube.h"
 #include "backend/Backend.h"
 #ifndef VECGEOM_NVCC
-  #include "base/RNG.h"
-#include <cmath>
-
-#undef NDEBUG
+#include "base/RNG.h"
 #include <cassert>
+#include <cmath>
+#include <iostream>
 #endif
 
 #include "volumes/utilities/GenerationUtilities.h"
@@ -39,7 +38,7 @@ VPlacedVolume* UnplacedTube::Create(
     VPlacedVolume *const placement) {
 
       using namespace TubeTypes;
-      __attribute__((unused)) const UnplacedTube &tube = static_cast<const UnplacedTube&>( *(logical_volume->unplaced_volume()) );
+      __attribute__((unused)) const UnplacedTube &tube = static_cast<const UnplacedTube&>( *(logical_volume->GetUnplacedVolume()) );
 
       #ifdef VECGEOM_NVCC
         #define RETURN_SPECIALIZATION(tubeTypeT) return CreateSpecializedWithPlacement< \
@@ -115,6 +114,7 @@ int UnplacedTube::ChooseSurface() const
 
     return choice;
 }
+
 
 Vector3D<Precision> UnplacedTube::GetPointOnSurface() const
 {
@@ -240,7 +240,22 @@ bool UnplacedTube::Normal(Vector3D<Precision> const& point, Vector3D<Precision>&
   */
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_CUDA_HEADER_BOTH
+bool UnplacedTube::IsConvex() const{
+
+      //Default safe convexity value
+      bool convexity = false;
+
+      //Logic to calculate the convexity
+      if(fRmin==0.)
+              {
+                if( fDphi<=kPi || fDphi==kTwoPi)
+                  convexity = true;
+              }
+      return convexity;
+
+      }
+
   void UnplacedTube::Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const {
     // most general case
     aMin = Vector3D<Precision>(-fRmax,-fRmax,-fZ);
@@ -294,6 +309,27 @@ bool UnplacedTube::Normal(Vector3D<Precision> const& point, Vector3D<Precision>&
 
     return;
   }
+
+#if defined(VECGEOM_USOLIDS)
+  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& UnplacedTube::StreamInfo(std::ostream &os) const {
+    int oldprc = os.precision(16);
+    os << "-----------------------------------------------------------\n"
+       << "     *** Dump for solid - tube ***\n"
+       << "     ===================================================\n"
+       << " Solid type: "<< GetEntityType() <<"\n"
+       << " Parameters: \n"
+       << "     Tube Radii Rmin, Rmax: " << fRmin <<"mm, "<< fRmax <<"mm \n"
+       << "     Half-length Z = "<< fZ <<"mm\n";
+    if(fDphi<kTwoPi) {
+        os << "     Wedge starting angles: fSPhi=" << fSphi*kRadToDeg <<"deg, "
+           << ", fDphi="<<fDphi*kRadToDeg <<"deg\n";
+    }
+    os << "-----------------------------------------------------------\n";
+    os.precision(oldprc);
+    return os;
+  }
+#endif
 
 
 #ifdef VECGEOM_CUDA_INTERFACE

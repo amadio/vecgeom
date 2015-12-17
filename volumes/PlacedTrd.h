@@ -7,9 +7,9 @@
 #include "base/Global.h"
 #include "backend/Backend.h"
 #ifndef VECGEOM_NVCC
-	#include "base/RNG.h"
-	#include <cassert>
-	#include <cmath>
+    #include "base/RNG.h"
+    #include <cassert>
+    #include <cmath>
 #endif
 #include "volumes/PlacedVolume.h"
 #include "volumes/UnplacedVolume.h"
@@ -18,7 +18,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedTrd; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedTrd );
+VECGEOM_DEVICE_DECLARE_CONV( PlacedTrd )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -55,7 +55,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedTrd const* GetUnplacedVolume() const {
     return static_cast<UnplacedTrd const *>(
-        GetLogicalVolume()->unplaced_volume());
+        GetLogicalVolume()->GetUnplacedVolume());
   }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -78,6 +78,20 @@ public:
   VECGEOM_INLINE
   Precision dz() const { return GetUnplacedVolume()->dz(); }
 
+  Precision GetXHalfLength1() const { return GetUnplacedVolume()->dx1(); }
+  Precision GetXHalfLength2() const { return GetUnplacedVolume()->dx2(); }
+  Precision GetYHalfLength1() const { return GetUnplacedVolume()->dy1(); }
+  Precision GetYHalfLength2() const { return GetUnplacedVolume()->dy2(); }
+  Precision GetZHalfLength() const  { return GetUnplacedVolume()->dz(); }
+  void SetXHalfLength1(Precision arg) { const_cast<UnplacedTrd*>(GetUnplacedVolume())->SetXHalfLength1(arg);}
+  void SetXHalfLength2(Precision arg) { const_cast<UnplacedTrd*>(GetUnplacedVolume())->SetXHalfLength2(arg);}
+  void SetYHalfLength1(Precision arg) { const_cast<UnplacedTrd*>(GetUnplacedVolume())->SetYHalfLength1(arg);}
+  void SetYHalfLength2(Precision arg) { const_cast<UnplacedTrd*>(GetUnplacedVolume())->SetYHalfLength2(arg);}
+  void SetZHalfLength(Precision arg)  { const_cast<UnplacedTrd*>(GetUnplacedVolume())->SetZHalfLength(arg);}
+  void SetAllParameters(Precision x1, Precision x2, Precision y1, Precision y2, Precision z)  {
+    const_cast<UnplacedTrd*>(GetUnplacedVolume())->SetAllParameters(x1,x2,y1,y2,z);
+  }
+
   void Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const override {
       GetUnplacedVolume()->Extent(aMin, aMax);
     }
@@ -89,32 +103,39 @@ public:
   virtual
   Precision SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea();}
 
-  virtual Vector3D<Precision> GetPointOnSurface() const {
+  virtual Vector3D<Precision> GetPointOnSurface() const override {
      return GetUnplacedVolume()->GetPointOnSurface();
   }
 
-  bool Normal(Vector3D<Precision>const& point, Vector3D<Precision>& normal) const {
+  bool Normal(Vector3D<Precision>const& point, Vector3D<Precision>& normal) const override {
      return GetUnplacedVolume()->Normal(point, normal);
   }
 
-  /*
+   /*
   void Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const override {
       GetUnplacedVolume()->Extent(aMin, aMax);
   }
   */
 
-  virtual VPlacedVolume const* ConvertToUnspecialized() const;
-
-#ifdef VECGEOM_ROOT
-  virtual TGeoShape const* ConvertToRoot() const;
+#if defined(VECGEOM_USOLIDS)
+//  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& StreamInfo(std::ostream &os) const override {
+    return GetUnplacedVolume()->StreamInfo(os);
+  }
 #endif
 
-#ifdef VECGEOM_USOLIDS
-  virtual ::VUSolid const* ConvertToUSolids() const;
+  virtual VPlacedVolume const* ConvertToUnspecialized() const override;
+
+#ifdef VECGEOM_ROOT
+  virtual TGeoShape const* ConvertToRoot() const override;
+#endif
+
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
+  virtual ::VUSolid const* ConvertToUSolids() const override;
 #endif
 
 #ifdef VECGEOM_GEANT4
-  G4VSolid const* ConvertToGeant4() const;
+  G4VSolid const* ConvertToGeant4() const override;
 #endif
 #endif // VECGEOM_NVCC
 

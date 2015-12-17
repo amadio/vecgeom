@@ -120,8 +120,8 @@ int main(int argc, char* argv[])
     world = GeoManager::Instance().FindPlacedVolume(logvol.c_str());
     visualizer.AddVolume( *world );
 
-    Vector<Daughter> const* daughters = world->GetLogicalVolume()->daughtersp();
-    for(int i=0; i<daughters->size(); ++i) {
+    Vector<Daughter> const* daughters = world->GetLogicalVolume()->GetDaughtersp();
+    for(size_t i=0; i<daughters->size(); ++i) {
       VPlacedVolume const* daughter = (*daughters)[i];
       Transformation3D const& trf1 = *(daughter->GetTransformation());
       visualizer.AddVolume(*daughter, trf1);

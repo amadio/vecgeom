@@ -99,8 +99,6 @@ class UPolyhedraSide : public UVCSGface
     // persistency for clients requiring preallocation of memory for
     // persistifiable objects.
 
-  protected:
-
     //
     // A couple internal data structures
     //
@@ -124,6 +122,8 @@ class UPolyhedraSide : public UVCSGface
       //     [0]=low phi [1]=high phi
       UVector3  edgeNorm[2];     // RZ edge normals [i] at {r[i],z[i]}
     } UPolyhedraSideVec;
+
+  protected:
 
     bool IntersectSidePlane(const UVector3& p, const UVector3& v,
                             const UPolyhedraSideVec& vec,

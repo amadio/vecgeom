@@ -127,6 +127,13 @@ fDy(0)
         ComputeBoundingBox();
     }
 
+    VECGEOM_CUDA_HEADER_BOTH
+	bool UnplacedParaboloid::IsConvex() const{
+    	      //Since paraboloid has nothing like inner radius, or phi or theta cut
+    	      //So it should always return true as its convexity value
+              return true;
+          }
+
 //__________________________________________________________________
 
 #ifndef VECGEOM_NVCC
@@ -245,11 +252,23 @@ fDy(0)
     }
 
 //__________________________________________________________________
-    
+
+#if defined(VECGEOM_USOLIDS)
     VECGEOM_CUDA_HEADER_BOTH
-    void UnplacedParaboloid::StreamInfo(std::ostream &os) const{
-        //NYI
+    std::ostream& UnplacedParaboloid::StreamInfo(std::ostream &os) const {
+      int oldprc = os.precision(16);
+      os << "-----------------------------------------------------------\n"
+         << "     *** Dump for solid - " << GetEntityType() << " ***\n"
+         << "     ===================================================\n"
+         << " Solid type: Paraboloid\n"
+         << " Parameters: \n"
+         << "     Paraboloid Radii Rlo=" << fRlo <<"mm, Rhi"<< fRhi <<"mm \n"
+         << "     Half-length Dz = "<< fDz <<"mm\n";
+      os << "-----------------------------------------------------------\n";
+      os.precision(oldprc);
+      return os;
     }
+#endif
 
 //__________________________________________________________________
     

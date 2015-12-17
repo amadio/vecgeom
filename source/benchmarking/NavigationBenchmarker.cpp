@@ -11,11 +11,13 @@
 
 #include "volumes/PlacedVolume.h"
 #include "navigation/SimpleNavigator.h"
+#include "navigation/ABBoxNavigator.h"
 #include "navigation/NavStatePool.h"
 
 #ifdef VECGEOM_ROOT
   #include "TGeoNavigator.h"
   #include "TGeoManager.h"
+  #include "TGeoBranchArray.h"
 #endif
 
 #ifdef VECGEOM_GEANT4
@@ -26,6 +28,11 @@
 #ifdef VECGEOM_CUDA_INTERFACE
   #include "backend/cuda/Backend.h"
   #include "management/CudaManager.h"
+#endif
+
+
+#ifdef CALLGRIND_ENABLED
+#include "valgrind/callgrind.h"
 #endif
 
 namespace vecgeom {
@@ -63,6 +70,130 @@ Precision benchmarkLocatePoint( int nPoints, int nReps, SOA3D<Precision> const& 
    NavigationState::ReleaseInstance( state );
    return (Precision)elapsed;
 }
+
+template<typename Navigator>
+Precision benchmarkSerialSafety( int nPoints, int nReps, SOA3D<Precision> const& points) {
+   NavigationState ** curStates = new NavigationState*[nPoints];
+   Precision * safety = new Precision[nPoints];
+   for( int i=0; i<nPoints; ++i) curStates[i] = NavigationState::MakeInstance( GeoManager::Instance().getMaxDepth() );
+
+   {
+     vecgeom::SimpleNavigator nav;
+     for( int i=0; i<nPoints; ++i ){
+       curStates[i]->Clear();
+       nav.LocatePoint( GeoManager::Instance().GetWorld(), points[i], *curStates[i], true);
+     }
+   }
+   Navigator nav;
+   Stopwatch timer;
+   timer.Start();
+#ifdef CALLGRIND_ENABLED
+   CALLGRIND_START_INSTRUMENTATION;
+#endif
+   for(int n=0; n<nReps; ++n) {
+     for( int i=0; i<nPoints; ++i ) {
+       safety[i] = nav.GetSafety( points[i], *curStates[i] );
+     }
+   }
+#ifdef CALLGRIND_ENABLED
+   CALLGRIND_STOP_INSTRUMENTATION;
+   CALLGRIND_DUMP_STATS;
+#endif
+   Precision elapsed = timer.Stop();
+
+  // cleanup
+  for( int i=0; i<nPoints; ++i) {
+    NavigationState::ReleaseInstance( curStates[i] );
+  }
+  delete[] curStates;
+
+  return (Precision)elapsed;
+}
+
+template<typename Navigator>
+Precision benchmarkVectorSafety( int nPoints, int nReps, SOA3D<Precision> const& points) {
+   NavigationState ** curStates = new NavigationState*[nPoints];
+   Precision * safety = new Precision[nPoints];
+   SOA3D<Precision> workspace(nPoints);
+   for( int i=0; i<nPoints; ++i) curStates[i] = NavigationState::MakeInstance( GeoManager::Instance().getMaxDepth() );
+
+   {
+     vecgeom::SimpleNavigator nav;
+     for( int i=0; i<nPoints; ++i ){
+       curStates[i]->Clear();
+       nav.LocatePoint( GeoManager::Instance().GetWorld(), points[i], *curStates[i], true);
+     }
+   }
+   Navigator nav;
+   Stopwatch timer;
+   timer.Start();
+#ifdef CALLGRIND_ENABLED
+   CALLGRIND_START_INSTRUMENTATION;
+#endif
+   for(int n=0; n<nReps; ++n) {
+       nav.GetSafeties( points, curStates, workspace, safety );
+   }
+#ifdef CALLGRIND_ENABLED
+   CALLGRIND_STOP_INSTRUMENTATION;
+   CALLGRIND_DUMP_STATS;
+#endif
+   Precision elapsed = timer.Stop();
+
+  // cleanup
+  for( int i=0; i<nPoints; ++i) {
+    NavigationState::ReleaseInstance( curStates[i] );
+  }
+  delete[] curStates;
+
+  return (Precision)elapsed;
+}
+
+
+
+#ifdef VECGEOM_ROOT
+Precision benchmarkROOTSafety( int nPoints, int nReps,
+                               SOA3D<Precision> const& points ) {
+
+  TGeoNavigator * rootnav = ::gGeoManager->GetCurrentNavigator();
+  TGeoBranchArray * brancharrays[nPoints];
+  Precision *safety = new Precision[nPoints];
+
+  for (int i=0;i<nPoints;++i) {
+    Vector3D<Precision> const& pos = points[i];
+    rootnav->ResetState();
+    rootnav->FindNode( pos.x(), pos.y(), pos.z() );
+    brancharrays[i] = TGeoBranchArray::MakeInstance(GeoManager::Instance().getMaxDepth());
+    brancharrays[i]->InitFromNavigator( rootnav );
+  }
+
+#ifdef CALLGRIND_ENABLED
+  CALLGRIND_START_INSTRUMENTATION;
+#endif
+  Stopwatch timer;
+  timer.Start();
+  for(int n=0; n<nReps; ++n) {
+    for (int i=0;i<nPoints;++i) {
+      Vector3D<Precision> const& pos = points[i];
+      brancharrays[i]->UpdateNavigator(rootnav);
+      rootnav->SetCurrentPoint( pos.x(), pos.y(), pos.z() );
+      safety[i] = rootnav->Safety();
+    }
+  }
+  timer.Stop();
+#ifdef CALLGRIND_ENABLED
+  CALLGRIND_STOP_INSTRUMENTATION;
+  CALLGRIND_DUMP_STATS;
+#endif
+
+  // cleanup
+  delete[] safety;
+  for (int i=0;i<nPoints;++i)
+       TGeoBranchArray::ReleaseInstance(brancharrays[i]);
+
+  return (Precision)timer.Elapsed();
+}
+#endif
+
 
 //==================================
 
@@ -252,6 +383,24 @@ Precision benchmarkGeant4Navigation( int nPoints, int nReps,
 
   cputime = benchmarkLocatePoint(np,nreps,points);
   printf("CPU elapsed time (locating and setting steps) %f ms\n", 1000.*cputime);
+
+  // safety
+  cputime = benchmarkSerialSafety<vecgeom::SimpleNavigator>(np,nreps,points);
+  printf("CPU elapsed time (safety; SimpleNavigator) %f ms\n", 1000.*cputime);
+
+  // safety
+  cputime = benchmarkSerialSafety<vecgeom::ABBoxNavigator>(np,nreps,points);
+  printf("CPU elapsed time (safety; ABBoxNavigator) %f ms\n", 1000.*cputime);
+
+  // vector safety
+  cputime = benchmarkVectorSafety<vecgeom::SimpleNavigator>(np,nreps,points);
+  printf("CPU elapsed time (vector safety; SimpleNavigator) %f ms\n", 1000.*cputime);
+
+  // ROOT safety
+#ifdef VECGEOM_ROOT
+  cputime = benchmarkROOTSafety(np,nreps,points);
+  printf("CPU elapsed time (safety; ROOT) %f ms\n", 1000.*cputime);
+#endif
 
   cputime = benchmarkSerialNavigation(np,nreps,points, dirs, maxStep);
   printf("CPU elapsed time (serialized navigation) %f ms\n", 1000.*cputime);
@@ -596,6 +745,10 @@ bool validateVecGeomNavigation( int np, SOA3D<Precision> const& points, SOA3D<Pr
 #ifdef VECGEOM_NVCC
   _mm_free(gpuSteps);
 #endif
+  delete [] vgVectorStates;
+  delete [] vgSerialStates;
+  delete [] origStates;
+
   return result;
 }
 

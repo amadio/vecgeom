@@ -32,7 +32,7 @@ The library has been tested to compile with (but is not necessarily limited to):
 #### Vc
 If Vc is used as the backend for SIMD instructions, CMake must be able to find the package. The Vc library is an [open source project](http://code.compeng.uni-frankfurt.de/projects/vc/).
 
-Tested to compile with Vc >= 0.7.3-3.
+Tested to compile with Vc >= 1.0
 
 #### Cilk Plus
 When using Intel's Cilk Plus for SIMD instructions, CMake must be configured to compile with ICC.
@@ -40,7 +40,7 @@ When using Intel's Cilk Plus for SIMD instructions, CMake must be configured to 
 #### CUDA
 For CUDA support, an nVIDIA GPU with [compute capability](http://en.wikipedia.org/wiki/CUDA#Supported_GPUs) >= 2.0 must be available, and the [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) must be installed.
 
-Tested to compile with CUDA >= 5.5 on GTX series >= 500.
+Tested to compile with CUDA >= 7.0 on GTX series >= 500.
 
 CMake options
 -------------
@@ -53,9 +53,6 @@ CMake options
       - Vc
       - Cilk
       - Scalar
-
-    VC_ACCELERATION [ON]
-      Utilize Vc to accelerate operations performed on three dimensional vectors with SIMD instructions.
 
     CUDA [OFF]
       Enable CUDA support.

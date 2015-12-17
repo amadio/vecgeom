@@ -11,7 +11,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedParallelepiped; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedParallelepiped );
+VECGEOM_DEVICE_DECLARE_CONV( PlacedParallelepiped )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -49,7 +49,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedParallelepiped const* GetUnplacedVolume() const {
     return static_cast<UnplacedParallelepiped const *>(
-        GetLogicalVolume()->unplaced_volume());
+        GetLogicalVolume()->GetUnplacedVolume());
   }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -88,16 +88,22 @@ public:
     return GetUnplacedVolume()->GetTanThetaCosPhi();
   }
   
+  virtual
+  void Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & aMax) const override
+  {
+    GetUnplacedVolume()->Extent(aMin, aMax);
+  }
+
 #ifndef VECGEOM_NVCC
-  virtual VPlacedVolume const* ConvertToUnspecialized() const;
+  virtual VPlacedVolume const* ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
-  virtual TGeoShape const* ConvertToRoot() const;
+  virtual TGeoShape const* ConvertToRoot() const override;
 #endif
-#ifdef VECGEOM_USOLIDS
-  virtual ::VUSolid const* ConvertToUSolids() const;
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
+  virtual ::VUSolid const* ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4
-  virtual G4VSolid const* ConvertToGeant4() const;
+  virtual G4VSolid const* ConvertToGeant4() const override;
 #endif
 #endif // VECGEOM_NVCC
 

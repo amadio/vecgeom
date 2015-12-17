@@ -14,10 +14,14 @@
 #include <cmath>
 #endif
 
+
+#include "volumes/Wedge.h"
+#include "volumes/ThetaCone.h"
+
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class UnplacedSphere; )
-VECGEOM_DEVICE_DECLARE_CONV( UnplacedSphere );
+VECGEOM_DEVICE_DECLARE_CONV( UnplacedSphere )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -28,8 +32,8 @@ private:
     Precision fRmin, fRmax, fSPhi, fDPhi, fSTheta, fDTheta;
     
     //Radial and angular tolerances
-    Precision fRminTolerance, mkTolerance, kAngTolerance,
-            kRadTolerance, fEpsilon;
+    Precision fRminTolerance, mkTolerance, //, kAngTolerance, kRadTolerance,
+             fEpsilon; 
     
     // Cached trigonometric values for Phi angle
     Precision sinCPhi, cosCPhi, cosHDPhiOT, cosHDPhiIT,
@@ -39,6 +43,8 @@ private:
     Precision sinSTheta, cosSTheta, sinETheta, cosETheta,
            tanSTheta, tanSTheta2, tanETheta, tanETheta2, eTheta;
     
+    Precision fabsTanSTheta,fabsTanETheta;
+    
     // Flags for identification of section, shell or full sphere
     bool fFullPhiSphere, fFullThetaSphere, fFullSphere;
     
@@ -46,15 +52,13 @@ private:
     Precision fCubicVolume, fSurfaceArea;
     
     //Tolerance compatiable with USolids
-    Precision epsilon;// = 2e-11; 
-    Precision frTolerance;//=1e-9;     //radial tolerance;
-    Precision fgTolerance ;//= 1e-9;  // cartesian tolerance;
-    Precision faTolerance ;//= 1e-9;  // angular tolerance;
-
+    // Precision epsilon;// = 2e-11;
+    // Precision frTolerance;//=1e-9;     //radial tolerance;
 
     // Member variables go here
     // Precision fR,fRTolerance, fRTolI, fRTolO;
- 
+    Wedge     fPhiWedge; // the Phi bounding of the Sphere
+    ThetaCone fThetaCone; 
 
 public:
     
@@ -88,8 +92,10 @@ void InitializeThetaTrigonometry()
   cosETheta = std::cos(eTheta);
 
   tanSTheta = std::tan(fSTheta);
+  fabsTanSTheta = std::fabs(tanSTheta);
   tanSTheta2 = tanSTheta * tanSTheta;
   tanETheta = std::tan(eTheta);
+  fabsTanETheta = std::fabs(tanETheta);
   tanETheta2 = tanETheta * tanETheta;
 }
 
@@ -167,11 +173,13 @@ VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
 void CheckDPhiAngle(Precision dPhi)
 {
-  fFullPhiSphere = true;
-  if (dPhi >= 2 * kPi - kAngTolerance * 0.5)
+   if (dPhi >= 2 * kPi - kAngTolerance * 0.5)
   {
+      
     fDPhi = 2 * kPi;
     fSPhi = 0;
+    fFullPhiSphere = true;
+    
   }
   else
   {
@@ -194,6 +202,8 @@ void CheckDPhiAngle(Precision dPhi)
         //                FatalError, 1, message.str().c_str());
     }
   }
+  
+  
 }
 
 VECGEOM_CUDA_HEADER_BOTH
@@ -214,6 +224,15 @@ void CheckPhiAngles(Precision sPhi, Precision dPhi)
   //constructor
   //VECGEOM_CUDA_HEADER_BOTH
   //UnplacedSphere();
+
+
+  VECGEOM_CUDA_HEADER_BOTH
+    VECGEOM_INLINE
+    Wedge const & GetWedge() const { return fPhiWedge; }
+  
+  VECGEOM_CUDA_HEADER_BOTH
+    VECGEOM_INLINE
+    ThetaCone const & GetThetaCone() const { return fThetaCone; }
 
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedSphere(Precision pRmin, Precision pRmax,
@@ -252,6 +271,10 @@ void CheckPhiAngles(Precision sPhi, Precision dPhi)
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision GetFRminTolerance() const { return fRminTolerance; }
+
+VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision GetMKTolerance() const { return mkTolerance; }
   
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -259,11 +282,11 @@ void CheckPhiAngles(Precision sPhi, Precision dPhi)
   
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  bool IsFullSphere() const { return fFullPhiSphere; }
+  bool IsFullSphere() const { return fFullSphere; }
   
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  bool IsFullPhiSphere() const { return fFullSphere; }
+  bool IsFullPhiSphere() const { return fFullPhiSphere; }
   
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -318,6 +341,32 @@ void CheckPhiAngles(Precision sPhi, Precision dPhi)
   VECGEOM_INLINE
   Precision GetCosSTheta() const { return cosSTheta;}
   
+  //****************************************************************
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision GetTanSTheta() const { return tanSTheta;}
+  
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision GetTanETheta() const { return tanETheta;}
+  
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision GetFabsTanSTheta() const { return fabsTanSTheta;}
+  
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision GetFabsTanETheta() const { return fabsTanETheta;}
+  
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision GetTanSTheta2() const { return tanSTheta2;}
+  
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision GetTanETheta2() const { return tanETheta2;}
+  //****************************************************************
+  
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision GetSinETheta() const { return sinETheta;}
@@ -325,6 +374,15 @@ void CheckPhiAngles(Precision sPhi, Precision dPhi)
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision GetCosETheta() const { return cosETheta;}
+  
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision GetCosHDPhiOT() const { return cosHDPhiOT;}
+  
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision GetCosHDPhiIT() const { return cosHDPhiIT;}
+  
   
   
   VECGEOM_CUDA_HEADER_BOTH
@@ -365,7 +423,7 @@ void CheckPhiAngles(Precision sPhi, Precision dPhi)
   
   //VECGEOM_CUDA_HEADER_BOTH
   //VECGEOM_INLINE
-  void SetStartPhiAngle(Precision newSPhi, bool compute)
+  void SetStartPhiAngle(Precision newSPhi, bool compute=true)
   {
    // Flag 'compute' can be used to explicitely avoid recomputation of
    // trigonometry in case SetDeltaPhiAngle() is invoked afterwards
@@ -479,15 +537,29 @@ VECGEOM_CUDA_HEADER_BOTH
   void CalcSurfaceArea();
 
 
+//Function to check the convexity
+VECGEOM_CUDA_HEADER_BOTH
+virtual bool IsConvex() const override;
+
 #if !defined(VECGEOM_NVCC)
   void Extent( Vector3D<Precision> &, Vector3D<Precision> &) const;
 
-  Precision Capacity() const;
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision Capacity() const{return fCubicVolume;}
 
-  Precision SurfaceArea() const;
 
-  Vector3D<Precision> GetPointOnSurface() const;
-
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision SurfaceArea() const{return fSurfaceArea;}
+  
+  
+  #ifndef VECGEOM_NVCC
+  VECGEOM_CUDA_HEADER_BOTH
+  #endif
+  Vector3D<Precision>  GetPointOnSurface() const;
+ 
+  
   std::string GetEntityType() const;
 #endif
 
@@ -495,8 +567,10 @@ VECGEOM_CUDA_HEADER_BOTH
   
   UnplacedSphere* Clone() const;
 
+#if defined(VECGEOM_USOLIDS)
   std::ostream& StreamInfo(std::ostream &os) const;
-    
+#endif
+
   
   VECGEOM_CUDA_HEADER_BOTH
   void ComputeBBox() const; 
@@ -506,14 +580,14 @@ VECGEOM_CUDA_HEADER_BOTH
    
   
 public:
-  virtual int memory_size() const { return sizeof(*this); }
+  virtual int memory_size() const final { return sizeof(*this); }
 
   
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void Print() const;//{}//;
+  virtual void Print() const final;
   
   //VECGEOM_CUDA_HEADER_BOTH 
-  virtual void Print(std::ostream &os) const;//{}//;
+  virtual void Print(std::ostream &os) const final;
 
   
   #ifndef VECGEOM_NVCC
@@ -563,7 +637,7 @@ private:
       LogicalVolume const *const volume,
       Transformation3D const *const transformation,
       const TranslationCode trans_code, const RotationCode rot_code,
-      VPlacedVolume *const placement = NULL) const {
+      VPlacedVolume *const placement = NULL) const final {
     return CreateSpecializedVolume(volume, transformation, trans_code, rot_code,
                                    placement);
   }
@@ -575,7 +649,7 @@ private:
       LogicalVolume const *const volume,
       Transformation3D const *const transformation,
       const TranslationCode trans_code, const RotationCode rot_code,
-      const int id, VPlacedVolume *const placement = NULL) const {
+      const int id, VPlacedVolume *const placement = NULL) const final {
     return CreateSpecializedVolume(volume, transformation, trans_code, rot_code,
                                    id, placement);
   }

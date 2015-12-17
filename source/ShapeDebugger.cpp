@@ -21,7 +21,10 @@ namespace vecgeom {
    inline namespace cxx {
 
 ShapeDebugger::ShapeDebugger(VPlacedVolume const *volume)
-  : fVolume(volume), fMaxMismatches(8), fShowCorrectResults(false) {}
+  : fVolume(volume), fMaxMismatches(8), fShowCorrectResults(false)
+  {
+    (void) fVolume; /* avoid unused field compiler warning */
+  }
 
 void ShapeDebugger::SetMaxMismatches(int max) {
   if (max < 0) max = 0;

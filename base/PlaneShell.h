@@ -314,7 +314,8 @@ public:
 
     // non-vectorizable part
     for(int i=0; i<N; ++i) {
-      MaskedAssign( dist[i]<safety, dist[i], &safety );
+      MaskedAssign( dist[i]<0, 0.0, &safety );
+      MaskedAssign( dist[i]>=0 && dist[i]<safety, dist[i], &safety );
     }
 
     return;

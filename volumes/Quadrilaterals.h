@@ -16,12 +16,12 @@
 #include "volumes/Planes.h"
 
 // Switches on/off explicit vectorization of algorithms using Vc
-#define VECGEOM_QUADRILATERALS_VC
+//#define VECGEOM_QUADRILATERALS_VC --> now done in CMakeFile
 
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class Quadrilaterals; )
-VECGEOM_DEVICE_DECLARE_CONV( Quadrilaterals );
+VECGEOM_DEVICE_DECLARE_CONV( Quadrilaterals )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -89,7 +89,7 @@ public:
 
    VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Precision GetTriangleArea(int index,int iCorner1, int iCorner2) const;
+  Precision GetTriangleArea(int index, int iCorner1, int iCorner2) const;
  
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -97,8 +97,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Vector3D<Precision> GetPointOnTriangle(int index, 
-					 int iCorner1, int iCorner2) const;
+  Vector3D<Precision> GetPointOnTriangle(int index, int iCorner1, int iCorner2) const;
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -118,6 +117,7 @@ public:
      return valid;
   }
 
+  /// Sets the corners of a pre-existing quadrilateral.
   /// \param corner0 First corner in counterclockwise order.
   /// \param corner1 Second corner in counterclockwise order.
   /// \param corner2 Third corner in counterclockwise order.
@@ -255,15 +255,13 @@ Vector3D<Precision> Quadrilaterals::GetPointOnTriangle(int index,
 VECGEOM_CUDA_HEADER_BOTH
 Vector3D<Precision> Quadrilaterals::GetPointOnFace(int index) const{
 
-   Precision choice =RNG::Instance().uniform(0, 1.0);
-   if (choice < 0.5)
-     {
+   Precision choice = RNG::Instance().uniform(0, 1.0);
+   if (choice < 0.5) {
        return GetPointOnTriangle(index,1,2);
-     }
-   else
-     {
+   }
+   else {
        return GetPointOnTriangle(index,2,3);
-     }
+   }
 }
 
 
@@ -285,24 +283,23 @@ namespace {
 
 template <class Backend>
 struct AcceleratedDistanceToIn {
-
   template <bool behindPlanesT>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   static void VectorLoop(
-      int &i,
-      const int n,
-      Planes const &planes,
-      Planes const (&sideVectors)[4],
-      Vector3D<typename Backend::precision_v> const &point,
-      Vector3D<typename Backend::precision_v> const &direction,
-      typename Backend::precision_v &distance) {
+    int &/*i*/,
+    const int /*n*/,
+    Planes const &/*planes*/,
+    Planes const (&/*sideVectors*/)[4],
+    Vector3D<typename Backend::precision_v> const &/*point*/,
+    Vector3D<typename Backend::precision_v> const &/*direction*/,
+    typename Backend::precision_v &/*distance*/) {
     // Do nothing if not scalar backend
     return;
   }
-
 };
 
+#if defined(VECGEOM_VC) && defined(VECGEOM_QUADRILATERALS_VC)
 template <>
 struct AcceleratedDistanceToIn<kScalar> {
 
@@ -317,7 +314,7 @@ struct AcceleratedDistanceToIn<kScalar> {
       Vector3D<Precision> const &point,
       Vector3D<Precision> const &direction,
       Precision &distance) {
-  #if defined(VECGEOM_VC) && defined(VECGEOM_QUADRILATERALS_VC)
+
     // Explicitly vectorize over quadrilaterals using Vc
     for (; i <= n-kVectorSize; i += kVectorSize) {
       Vector3D<VcPrecision> plane(
@@ -326,16 +323,18 @@ struct AcceleratedDistanceToIn<kScalar> {
           VcPrecision(planes.GetNormals().z()+i));
       VcPrecision dPlane(&planes.GetDistances()[0]+i);
       VcPrecision distanceTest = plane.Dot(point) + dPlane;
-      // Check if the point is in front of/behind the plane according to the
-      // template parameter
+
+      // Check if the point is in front of/behind the plane according to the template parameter
       VcBool valid = Flip<behindPlanesT>::FlipSign(distanceTest) >= 0;
       if (IsEmpty(valid)) continue;
+
       VcPrecision directionProjection = plane.Dot(direction);
       valid &= Flip<!behindPlanesT>::FlipSign(directionProjection) >= 0;
       if (IsEmpty(valid)) continue;
-      distanceTest /= -directionProjection;
-      Vector3D<VcPrecision> intersection =
-          Vector3D<VcPrecision>(direction)*distanceTest + point;
+      VcPrecision tiny = VcPrecision(1E-20).copySign(directionProjection);
+      distanceTest /= -(directionProjection + tiny);
+      Vector3D<VcPrecision> intersection = Vector3D<VcPrecision>(direction)*distanceTest + point;
+
       for (int j = 0; j < 4; ++j) {
         Vector3D<VcPrecision> sideVector(
             VcPrecision(sideVectors[j].GetNormals().x()+i),
@@ -355,11 +354,10 @@ struct AcceleratedDistanceToIn<kScalar> {
       // Continue label of outer loop
       distanceToInVcContinueOuter:;
     }
-  #endif
     return;
   }
-
 };
+#endif
 
 } // End anonymous namespace
 
@@ -402,7 +400,7 @@ typename Backend::precision_v Quadrilaterals::DistanceToIn(
     Float_t directionProjection = direction.Dot(normal);
     valid &= Flip<!behindPlanesT>::FlipSign(directionProjection) >= 0;
     if (IsEmpty(valid)) continue;
-    distance /= -directionProjection;
+    distance /= -(directionProjection + CopySign(1E-20, directionProjection));
     Vector3D<Float_t> intersection = point + direction*distance;
     for (int j = 0; j < 4; ++j) {
       valid &= intersection.Dot(fSideVectors[j].GetNormal(i)) +
@@ -424,19 +422,20 @@ template <class Backend>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
 void AcceleratedDistanceToOut(
-    int &i,
-    const int n,
-    Planes const &planes,
-    Planes const (&sideVectors)[4],
-    const Precision zMin,
-    const Precision zMax,
-    Vector3D<typename Backend::precision_v> const &point,
-    Vector3D<typename Backend::precision_v> const &direction,
-    typename Backend::precision_v &distance) {
+  int &/*i*/,
+  const int /*n*/,
+  Planes const &/*planes*/,
+  Planes const (&/*sideVectors*/)[4],
+    const Precision /*zMin*/,
+  const Precision /*zMax*/,
+  Vector3D<typename Backend::precision_v> const &/*point*/,
+  Vector3D<typename Backend::precision_v> const &/*direction*/,
+    typename Backend::precision_v &/*distance*/) {
   // Do nothing if the backend is not scalar
   return;
 }
 
+#if defined(VECGEOM_VC) && defined(VECGEOM_QUADRILATERALS_VC)
 template <>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
@@ -450,7 +449,7 @@ void AcceleratedDistanceToOut<kScalar>(
     Vector3D<Precision> const &point,
     Vector3D<Precision> const &direction,
     Precision &distance) {
-#if defined(VECGEOM_VC) && defined(VECGEOM_QUADRILATERALS_VC)
+
   // Explicitly vectorize over quadrilaterals using Vc
   for (;i <= n-kVectorSize; i += kVectorSize) {
     Vector3D<VcPrecision> plane(
@@ -496,9 +495,9 @@ distanceToOutVcContinueOuter:
     distanceTest(!valid) = kInfinity;
     distance = distanceTest.min();
   }
-#endif
   return;
 }
+#endif
 
 } // End anonymous namespace
 
@@ -525,8 +524,7 @@ typename Backend::precision_v Quadrilaterals::DistanceToOut(
 
   int i = 0;
   const int n = size();
-  AcceleratedDistanceToOut<Backend>(
-      i, n, fPlanes, fSideVectors, zMin, zMax, point, direction, bestDistance);
+  AcceleratedDistanceToOut<Backend>(i, n, fPlanes, fSideVectors, zMin, zMax, point, direction, bestDistance);
 
   for (; i < n; ++i) {
     Vector3D<Precision> normal = fPlanes.GetNormal(i);

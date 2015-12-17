@@ -10,10 +10,12 @@
 #include "management/VolumeFactory.h"
 #include "volumes/PlacedVolume.h"
 #include "volumes/PlacedBooleanVolume.h"
+#include "volumes/PlacedScaledShape.h"
 
 #include <algorithm>
 #include <cassert>
 #include <stdio.h>
+#include <iostream>
 
 namespace vecgeom {
 inline namespace cxx {
@@ -61,8 +63,8 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
        logical_volumes_.begin(); i != logical_volumes_.end(); ++i) {
 
     (*i)->CopyToGpu(
-      LookupUnplaced((*i)->unplaced_volume()),
-      LookupDaughters((*i)->daughters_),
+      LookupUnplaced((*i)->GetUnplacedVolume()),
+      LookupDaughters((*i)->fDaughters),
       LookupLogical(*i)
     );
 
@@ -81,6 +83,17 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
   timer.Stop();
   if (verbose_ > 2) std::cout << " OK; TIME NEEDED " << timer.Elapsed() << "s \n";
 
+  if (verbose_ > 2) std::cout << "Copying transformations_...";
+  timer.Start();
+  for (std::set<Transformation3D const*>::const_iterator i =
+       transformations_.begin(); i != transformations_.end(); ++i) {
+
+     (*i)->CopyToGpu(LookupTransformation(*i));
+  }
+  timer.Stop();
+  if (verbose_ > 2) std::cout << " OK; TIME NEEDED " << timer.Elapsed() << "s \n";
+
+
   if (verbose_ > 2) std::cout << "Copying placed volumes...";
   timer.Start();
   for (std::set<VPlacedVolume const*>::const_iterator i =
@@ -91,17 +104,6 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
       LookupTransformation((*i)->GetTransformation()),
       LookupPlaced(*i)
     );
-
-  }
-  timer.Stop();
-  if (verbose_ > 2) std::cout << " OK; TIME NEEDED " << timer.Elapsed() << "s \n";
-
-  if (verbose_ > 2) std::cout << "Copying transformations_...";
-  timer.Start();
-  for (std::set<Transformation3D const*>::const_iterator i =
-       transformations_.begin(); i != transformations_.end(); ++i) {
-
-     (*i)->CopyToGpu(LookupTransformation(*i));
 
   }
   timer.Stop();
@@ -297,13 +299,13 @@ void CudaManager::ScanGeometry(VPlacedVolume const *const volume) {
       == transformations_.end()) {
     transformations_.insert(volume->GetTransformation());
   }
-  if (unplaced_volumes_.find(volume->unplaced_volume())
+  if (unplaced_volumes_.find(volume->GetUnplacedVolume())
       == unplaced_volumes_.end()) {
-    unplaced_volumes_.insert(volume->unplaced_volume());
+    unplaced_volumes_.insert(volume->GetUnplacedVolume());
   }
-  if (daughters_.find(volume->GetLogicalVolume()->daughters_)
+  if (daughters_.find(volume->GetLogicalVolume()->fDaughters)
       == daughters_.end()) {
-    daughters_.insert(volume->GetLogicalVolume()->daughters_);
+    daughters_.insert(volume->GetLogicalVolume()->fDaughters);
   }
 
   if( dynamic_cast<PlacedBooleanVolume const*>(volume) ){
@@ -312,9 +314,14 @@ void CudaManager::ScanGeometry(VPlacedVolume const *const volume) {
     ScanGeometry(v->GetUnplacedVolume()->fRightVolume);
   }
 
+  if( dynamic_cast<PlacedScaledShape const*>(volume) ){
+    PlacedScaledShape const* v =  dynamic_cast<PlacedScaledShape const*>(volume);
+    ScanGeometry(v->GetUnplacedVolume()->fPlaced);
+  }
 
-  for (Daughter_t* i = volume->daughters().begin();
-       i != volume->daughters().end(); ++i) {
+
+  for (Daughter_t* i = volume->GetDaughters().begin();
+       i != volume->GetDaughters().end(); ++i) {
     ScanGeometry(*i);
   }
 

@@ -16,7 +16,7 @@
 //   between specified phi and theta angles
 //
 //   The phi and theta segments are described by a starting angle,
-//   and the +ve delta angle for the shape.
+//   and the positive delta angle for the shape.
 //   If the delta angle is >=2*UUtils::kPi, or >=UUtils::kPi the shape is treated as
 //   continuous in phi or theta respectively.
 //
@@ -41,11 +41,30 @@
 //
 // 19.10.12 Marek Gayer
 //          Created from original implementation in Geant4
+// 10.08.15 Guilherme Lima - Add VecGeom implementation as option for underlying implementation
+//
 // --------------------------------------------------------------------
 
 #ifndef USphere_HH
 #define USphere_HH
 
+#ifdef VECGEOM_REPLACE_USOLIDS
+
+//============== here for VecGeom-based implementation
+#include "base/Transformation3D.h"
+#include "volumes/LogicalVolume.h"
+#include "volumes/SpecializedSphere.h"
+#include "volumes/UnplacedSphere.h"
+
+class USphere: public vecgeom::SimpleSphere {
+    // just forwards USphere to vecgeom::SimpleSphere
+    using vecgeom::SimpleSphere::SimpleSphere;
+};
+//============== end of VecGeom-based implementation
+
+#else
+
+//============== here for USolids-based implementation
 #include <sstream>
 
 #include "VUSolid.hh"
@@ -500,4 +519,7 @@ double USphere::Capacity()
   return fCubicVolume;
 }
 
-#endif
+//============== end of USolids-based implementation
+
+#endif  // VECGEOM_REPLACE_USOLIDS
+#endif  // USphere_HH

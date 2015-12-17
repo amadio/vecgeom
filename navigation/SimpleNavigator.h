@@ -12,6 +12,9 @@
 #include "base/Vector3D.h"
 #include "management/GeoManager.h"
 #include "navigation/NavigationState.h"
+#include "volumes/kernel/BoxImplementation.h"
+#include "management/ABBoxManager.h"
+#include "backend/Backend.h"
 
 #ifdef VECGEOM_ROOT
 #include "management/RootGeoManager.h"
@@ -27,6 +30,8 @@
 #include "G4Navigator.hh"
 #include "G4VPhysicalVolume.hh"
 #endif
+
+// #define CROSSCHECKLOCAL
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -107,7 +112,7 @@ public:
    * A function to navigate ( find next boundary and/or the step to do )
    */
    VECGEOM_CUDA_HEADER_BOTH
-   VECGEOM_INLINE
+   inline
    void FindNextBoundaryAndStep( Vector3D<Precision> const & /* global point */,
                           Vector3D<Precision> const & /* global dir */,
                           NavigationState const & /* currentstate */,
@@ -201,123 +206,239 @@ public:
 
 }; // end of class declaration
 
-VPlacedVolume const *
-SimpleNavigator::LocatePoint( VPlacedVolume const * vol, Vector3D<Precision> const & point,
-                       NavigationState & path, bool top ) const
-{
-   VPlacedVolume const * candvolume = vol;
-   Vector3D<Precision> tmp(point);
-   if( top )
-   {
-      assert( vol != NULL );
-      candvolume = ( vol->UnplacedContains( point ) ) ? vol : 0;
-   }
-   if( candvolume ) {
-      path.Push( candvolume );
-      Vector<Daughter> const * daughters = candvolume->GetLogicalVolume()->daughtersp();
+VPlacedVolume const *SimpleNavigator::LocatePoint(VPlacedVolume const *vol, Vector3D<Precision> const &point,
+                                                  NavigationState &path, bool top) const {
+  VPlacedVolume const *candvolume = vol;
+  Vector3D<Precision> tmp(point);
+  if (top) {
+    assert(vol != NULL);
+    candvolume = (vol->UnplacedContains(point)) ? vol : 0;
+  }
+  if (candvolume) {
+    path.Push(candvolume);
+    Vector<Daughter> const *daughters = candvolume->GetLogicalVolume()->GetDaughtersp();
 
-      bool godeeper = true;
-      while( godeeper && daughters->size() > 0)
-      {
-         godeeper = false;
-         for(int i=0; i<daughters->size(); ++i)
-         {
-            VPlacedVolume const * nextvolume = (*daughters)[i];
+    bool godeeper = true;
+    while (godeeper && daughters->size() > 0) {
+      godeeper = false;
+
+#if !defined(VECGEOM_VC) or defined(USEBRUTEFORCELOCATE) or defined(VECGEOM_NVCC) // switching off bounding box check
+      // just the brute force solution
+      for (size_t i = 0; i < daughters->size(); ++i) {
+        VPlacedVolume const *nextvolume = (*daughters)[i];
+        Vector3D<Precision> transformedpoint;
+
+        if (nextvolume->Contains(tmp, transformedpoint)) {
+          path.Push(nextvolume);
+          tmp = transformedpoint;
+          candvolume = nextvolume;
+          daughters = candvolume->GetLogicalVolume()->GetDaughtersp();
+          godeeper = true;
+          break;
+        }
+      }
+
+#else // the now default solution based on quick bounding box exclusions
+
+#ifdef CROSSCHECKLOCAL
+      // keep this here for crosschecking
+      VPlacedVolume const *crosscheck = nullptr;
+      int crosscheckid = -1;
+      for (int i = 0; i < daughters->size(); ++i) {
+        VPlacedVolume const *nextvolume = (*daughters)[i];
+        Vector3D<Precision> transformedpoint;
+
+        if (nextvolume->Contains(tmp, transformedpoint)) {
+          crosscheck = nextvolume;
+          crosscheckid = i;
+          break;
+        }
+      }
+#endif
+      // bounding box accelerated
+
+      int size;
+      ABBoxManager::ABBoxContainer_v alignedbboxes =
+          ABBoxManager::Instance().GetABBoxes_v(candvolume->GetLogicalVolume(), size);
+      // here the loop is over groups of bounding boxes
+      // it is basically linear but vectorizable search
+
+#ifdef CROSSCHECKLOCAL
+      int boxcrosscheckid=-1;
+#endif
+      for (int boxgroupid = 0; boxgroupid < size; ++boxgroupid) {
+        typename kVcFloat::bool_v inBox;
+        ABBoxImplementation::ABBoxContainsKernel<kVcFloat>(alignedbboxes[2 * boxgroupid],
+                                                           alignedbboxes[2 * boxgroupid + 1], tmp, inBox);
+        if (Any(inBox)) {
+          // TODO: could start directly at first 1 in inBox
+        for (size_t ii = 0; ii < kVcFloat::precision_v::Size; ++ii) {
+            auto daughterid = boxgroupid * kVcFloat::precision_v::Size + ii;
+            if(daughterid < daughters->size()){
+            VPlacedVolume const *daughter = candvolume->GetDaughters()[daughterid];
             Vector3D<Precision> transformedpoint;
+            if (daughterid < daughters->size() && inBox[ii] && daughter->Contains(tmp, transformedpoint)) {
+              path.Push(daughter);
+#ifdef CROSSCHECKLOCAL
+              boxcrosscheckid = daughterid;
+#endif
+              tmp = transformedpoint;
+              candvolume = daughter;
+              daughters = candvolume->GetLogicalVolume()->GetDaughtersp();
+              godeeper = true;
 
-            if( nextvolume->Contains( tmp, transformedpoint ) )
-            {
-               path.Push( nextvolume );
-               tmp = transformedpoint;
-               candvolume =  nextvolume;
-               daughters = candvolume->GetLogicalVolume()->daughtersp();
-               godeeper=true;
+              // careful here: we also want to break on external loop
+              boxgroupid = size;
+              break;
+            }}
+          }
+        }
+      }
+
+#ifdef CROSSCHECKLOCAL
+      if( crosscheckid != boxcrosscheckid ){
+          //assert( false && "inconsistency in Box locate\n");
+          std::cerr << " WRONG " << crosscheckid << " vs " << boxcrosscheckid << "\n";
+      }
+#endif
+
+#endif // default implementation
+
+    }
+  }
+  return candvolume;
+}
+
+/** special version of a function that excludes searching a given volume
+ *  ( useful when we know that a particle must have traversed a boundary )
+ */
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+VPlacedVolume const *SimpleNavigator::LocatePointExclVolume(VPlacedVolume const *vol,
+                                                            VPlacedVolume const *excludedvolume,
+                                                            Vector3D<Precision> const &point, NavigationState &path,
+                                                            bool top) const {
+  VPlacedVolume const *candvolume = vol;
+  Vector3D<Precision> tmp(point);
+  if (top) {
+    assert(vol != NULL);
+    candvolume = (vol->UnplacedContains(point)) ? vol : 0;
+  }
+  if (candvolume) {
+    path.Push(candvolume);
+    Vector<Daughter> const *daughters = candvolume->GetLogicalVolume()->GetDaughtersp();
+
+    bool godeeper = true;
+    while (godeeper && daughters->size() > 0) {
+      godeeper = false;
+
+
+#if !defined(VECGEOM_VC) or defined(USEBRUTEFORCELOCATE) or defined(VECGEOM_NVCC) // switching off bounding box check
+      for (int i = daughters->size() - 1; i >= 0; --i) {
+        VPlacedVolume const *nextvolume = (*daughters)[i];
+        Vector3D<Precision> transformedpoint;
+        if (nextvolume != excludedvolume) {
+          if (nextvolume->Contains(tmp, transformedpoint)) {
+              path.Push( nextvolume );
+              tmp = transformedpoint;
+              candvolume =  nextvolume;
+              daughters = candvolume->GetLogicalVolume()->GetDaughtersp();
+              godeeper=true;
                break;
-            }
-         }
+          }
+        }
       }
-   }
-   return candvolume;
-}
 
-  /** special version of a function that excludes searching a given volume
-   *  ( useful when we know that a particle must have traversed a boundary )
-   */
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  VPlacedVolume const *
-  SimpleNavigator::LocatePointExclVolume( VPlacedVolume const * vol,
-               VPlacedVolume const * excludedvolume,
-               Vector3D<Precision> const & point,
-               NavigationState & path,
-               bool top) const
-  {
-      VPlacedVolume const * candvolume = vol;
-      Vector3D<Precision> tmp(point);
-      if( top ){
-           assert( vol != NULL );
-           candvolume = ( vol->UnplacedContains( point ) ) ? vol : 0;
+#else // default implementation
+
+#ifdef CROSSCHECKLOCAL
+      int crosscheckid = -1;
+      for (int i = daughters->size() - 1; i >= 0; --i) {
+        VPlacedVolume const *nextvolume = (*daughters)[i];
+        Vector3D<Precision> transformedpoint;
+        if (nextvolume != excludedvolume) {
+          if (nextvolume->Contains(tmp, transformedpoint)) {
+            crosscheckid = i;
+            break;
+          }
+        }
       }
-      if( candvolume ) {
-           path.Push( candvolume );
-           Vector<Daughter> const * daughters = candvolume->GetLogicalVolume()->daughtersp();
 
-           bool godeeper = true;
-           while( godeeper && daughters->size() > 0)
-           {
-              godeeper = false;
-              // for(int i=0; i<daughters->size(); ++i)
-              for(int i=daughters->size()-1; i>=0; --i)
-              {
-                 VPlacedVolume const * nextvolume = (*daughters)[i];
-                 Vector3D<Precision> transformedpoint;
-                 if( nextvolume != excludedvolume ){
-                     if( nextvolume->Contains( tmp, transformedpoint ) )
-                     {
-                        path.Push( nextvolume );
-                        tmp = transformedpoint;
-                        candvolume =  nextvolume;
-                        daughters = candvolume->GetLogicalVolume()->daughtersp();
-                        godeeper=true;
-                        break;
-                     }
-                 }
-              }
-           }
-     }
-     return candvolume;
-}
+      int boxcrosscheckid = -1;
+#endif
 
+      int size; // the number of "vectors of bounding boxes"
+      ABBoxManager::ABBoxContainer_v alignedbboxes =
+          ABBoxManager::Instance().GetABBoxes_v(candvolume->GetLogicalVolume(), size);
+      // here the loop is over groups of bounding boxes
+      // it is basically linear but vectorizable search
+      for (int boxgroupid = 0; boxgroupid < size; ++boxgroupid) {
+        typename kVcFloat::bool_v inBox;
+        ABBoxImplementation::ABBoxContainsKernel<kVcFloat>(alignedbboxes[2 * boxgroupid],
+                                                           alignedbboxes[2 * boxgroupid + 1], tmp, inBox);
+        if (Any(inBox)) {
+           for (size_t ii = inBox.firstOne(); ii < kVcFloat::precision_v::Size; ++ii) {
+            auto daughterid = boxgroupid * kVcFloat::precision_v::Size + ii;
+            if(daughterid < daughters->size()){
+             VPlacedVolume const *daughter = candvolume->GetDaughters()[daughterid];
+            Vector3D<Precision> transformedpoint;
+            if (inBox[ii] && daughter != excludedvolume &&
+                daughter->Contains(tmp, transformedpoint)) {
+              path.Push(daughter);
+              tmp = transformedpoint;
+              candvolume = daughter;
+              daughters = candvolume->GetLogicalVolume()->GetDaughtersp();
+#ifdef CROSSCHECKLOCAL
+              boxcrosscheckid = daughterid;
+#endif
+              godeeper = true;
+              // careful: we want to break from the OUTER loop
+              boxgroupid = size;
+              break;
+            }}
+          }
+        }
+      }
+
+#ifdef CROSSCHECKLOCAL
+      if (boxcrosscheckid != crosscheckid) {
+        std::cerr << "PROBLEM IN RELOC " << crosscheckid << " vs " << boxcrosscheckid << "\n";
+      }
+#endif
+
+#endif // default implementation
+
+    } // end while
+  }   // end if
+  return candvolume;
+} // end function
 
 VPlacedVolume const *
 SimpleNavigator::RelocatePointFromPath( Vector3D<Precision> const & localpoint,
                               NavigationState & path ) const
 {
-   // idea: do the following:
-   // ----- is localpoint still in current mother ? : then go down
-   // if not: have to go up until we reach a volume that contains the
-   // localpoint and then go down again (neglecting the volumes currently stored in the path)
-   VPlacedVolume const * currentmother = path.Top();
-   if( currentmother != NULL )
-   {
-        Vector3D<Precision> tmp = localpoint;
-      // go up iteratively
-      while( currentmother && ! currentmother->UnplacedContains( tmp ) )
-      {
-         path.Pop();
-         Vector3D<Precision> pointhigherup = currentmother->GetTransformation()->InverseTransform( tmp );
-         tmp=pointhigherup;
-         currentmother=path.Top();
-      }
+  // idea: do the following:
+  // ----- is localpoint still in current mother ? : then go down
+  // if not: have to go up until we reach a volume that contains the
+  // localpoint and then go down again (neglecting the volumes currently stored in the path)
+  VPlacedVolume const *currentmother = path.Top();
+  if (currentmother != NULL) {
+    Vector3D<Precision> tmp = localpoint;
+    // go up iteratively
+    while (currentmother && !currentmother->UnplacedContains(tmp)) {
+      path.Pop();
+      Vector3D<Precision> pointhigherup = currentmother->GetTransformation()->InverseTransform(tmp);
+      tmp = pointhigherup;
+      currentmother = path.Top();
+    }
 
-      if(currentmother)
-      {
-         path.Pop();
-         // may inline this
-         return LocatePointExclVolume(currentmother, currentmother, tmp, path, false);
-      }
-   }
-   return currentmother;
+    if (currentmother) {
+      path.Pop();
+      // may inline this
+      return LocatePointExclVolume(currentmother, currentmother, tmp, path, false);
+    }
+  }
+  return currentmother;
 }
 
 
@@ -337,6 +458,7 @@ SimpleNavigator::HasSamePath( Vector3D<Precision> const & globalpoint,
 }
 
 //#define CHECKCONTAINS
+VECGEOM_CUDA_HEADER_BOTH
 void
 SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoint,
                                           Vector3D<Precision> const & globaldir,
@@ -347,9 +469,9 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
                                         ) const
 {
 #ifndef VECGEOM_NVCC
- //  static int counter=0;
+   static int counter=0;
+   counter++;
 #endif
-   
    // this information might have been cached in previous navigators??
    Transformation3D m;
    currentstate.TopMatrix(m);
@@ -357,7 +479,7 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
    Vector3D<Precision> localdir=m.TransformDirection(globaldir);
 
    VPlacedVolume const * currentvolume = currentstate.Top();
-#ifdef VERBOSE
+#if defined(VERBOSE) && !defined(VECGEOM_NVCC)
    if( counter % 1 == 0)
    {
        std::cerr << "navigating in " << currentvolume->GetLabel() << " stepnumber " << counter << "pstep " << pstep << " pos " << globalpoint << " dir " << globaldir ;
@@ -372,7 +494,7 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
    // NOTE: IF STEP IS NEGATIVE HERE, SOMETHING IS TERRIBLY WRONG. WE CAN TRY TO HANDLE THE SITUATION
    // IN TRYING TO PROPOSE THE RIGHT LOCATION IN NEWSTATE AND RETURN
    // I WOULD MUCH FAVOUR IF THIS WAS DONE OUTSIDE OF THIS FUNCTION BY THE USER
-   if( step <= 0. )
+   if( step < 0. )
    {
 //       newstate = currentstate;
 //       RelocatePointFromPath( localpoint, newstate );
@@ -381,9 +503,9 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
    }
 
    // iterate over all the daughter
-   Vector<Daughter> const * daughters = currentvolume->GetLogicalVolume()->daughtersp();
+   Vector<Daughter> const * daughters = currentvolume->GetLogicalVolume()->GetDaughtersp();
 
-   for(int d = 0; d<daughters->size(); ++d)
+   for(size_t d = 0; d<daughters->size(); ++d)
    {
       VPlacedVolume const * daughter = daughters->operator [](d);
       //    previous distance becomes step estimate, distance to daughter returned in workspace
@@ -425,12 +547,29 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
    // do nothing (step=0) and retry one level higher
    if( step == kInfinity && pstep > 0. )
    {
-      //std::cout << "WARNING: STEP INFINITY; should never happen unless outside\n";
+     //      std::cout << "WARNING: STEP INFINITY; should never happen unless outside\n";
       //InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );
       // set step to zero and retry one level higher
-      step = 0;
-      newstate.Pop();
+      // if( nexthitvolume!=-1 ) std::cout << "catastrophee\n";
+#if defined(VECGEOM_ROOT)
+      //      currentstate.printVolumePath(std::cout); std::cout << "\n";
+#endif
+      //      newstate.Clear();
+      //      VPlacedVolume const *world = GeoManager::Instance().GetWorld();
+      //      LocatePoint(world, globalpoint + vecgeom::kTolerance*globaldir, newstate, true);
+      step = vecgeom::kTolerance;
+#if defined(VECGEOM_ROOT)
+     // InspectEnvironmentForPointAndDirection( globalpoint, localpoint, currentstate );
+      //      newstate.printVolumePath(std::cout); std::cout << "\n";
+      //      InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );
+      //      std::cout << " counter is " << counter << "\n";
+#endif
       newstate.SetBoundaryState(true);
+      //      if( newstate.HasSamePathAsOther(currentstate) ) {
+      //          std::cout << "$$$$$$$$$$$$$$$$$$$$$$$4 MASSIVE WARNING $$$$$$$$$$$$$$$$$$$$$$$$$ \n";
+      //          newstate.Pop();
+      //      }
+      newstate.Pop();
       return;
    }
    // is geometry further away than physics step?
@@ -454,11 +593,11 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
     }
 
 #ifdef VERBOSE
-    std::cerr << " step " << step << " nextvol " << nexthitvolume << "\n";
+   std::cout << " step " << step << " nextvol " << nexthitvolume << "\n";
 #endif
-
+   step+=1E-6;
    Vector3D<Precision> newpointafterboundary = localdir;
-   newpointafterboundary*=(step + 1e-6);
+   newpointafterboundary*=step;
    newpointafterboundary+=localpoint;
 
    if( nexthitvolume != -1 ) // not hitting mother
@@ -502,15 +641,18 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
        if( orignode!= NULL)
            vecgeomcmpcur = RootGeoManager::Instance().GetPlacedVolume( orignode );
 
+#ifndef VECGEOM_NVCC
        if ( currentstate.Top() != vecgeomcmpcur )
        {
            std::cout << "##-- INCONSISTENT START STATE --##\n";
        }
+#endif
 
        if( newstate.Top() != vecgeomcmpnext || currentstate.Top() != vecgeomcmpcur )
        {
            CreateDebugDump( globalpoint, globaldir, currentstate, pstep);
 
+#ifndef VECGEOM_NVCC
            std::cout << "##-- INCONSISTENCY IN NAVIGATION --##\n";
            std::cout << "  ROOT step " << nav->GetStep() << "\n";
            std::cout << "  VecGeom step " << step << "\n";
@@ -548,6 +690,7 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
            // list exiting ; entering etc.
            InspectEnvironmentForPointAndDirection(
                globalpoint, globaldir, currentstate);
+#endif
        }
    //#endif
    #endif // distance debug
@@ -584,7 +727,7 @@ Precision SimpleNavigator::GetSafety(Vector3D<Precision> const & globalpoint,
    //assert( safety > 0 );
 
    // safety to daughters
-   Vector<Daughter> const * daughters = currentvol->GetLogicalVolume()->daughtersp();
+   Vector<Daughter> const * daughters = currentvol->GetLogicalVolume()->GetDaughtersp();
    int numberdaughters = daughters->size();
    for(int d = 0; d<numberdaughters; ++d)
    {
@@ -621,7 +764,7 @@ void SimpleNavigator::GetSafeties(Container3D const & globalpoints,
     currentvol->SafetyToOut( workspaceforlocalpoints, safeties );
 
     // safety to daughters; brute force but each function vectorized
-    Vector<Daughter> const * daughters = currentvol->GetLogicalVolume()->daughtersp();
+    Vector<Daughter> const * daughters = currentvol->GetLogicalVolume()->GetDaughtersp();
     int numberdaughters = daughters->size();
     for (int d = 0; d<numberdaughters; ++d) {
          VPlacedVolume const * daughter = daughters->operator [](d);
@@ -634,7 +777,7 @@ void SimpleNavigator::GetSafeties(Container3D const & globalpoints,
  * Navigation interface for baskets; templates on Container3D which might be a SOA3D or AOS3D container
  */
 
-//#define CALCSAFETY
+#define CALCSAFETY
 template <typename Container3D>
 void SimpleNavigator::FindNextBoundaryAndStep(
          Container3D const & globalpoints,
@@ -678,8 +821,8 @@ void SimpleNavigator::FindNextBoundaryAndStep(
            pSteps, distances, nextnodeworkspace );
 
    // iterate over all the daughter
-   Vector<Daughter> const * daughters = currentvolume->GetLogicalVolume()->daughtersp();
-   for (int daughterindex=0; daughterindex < daughters->size(); ++daughterindex)
+   Vector<Daughter> const * daughters = currentvolume->GetLogicalVolume()->GetDaughtersp();
+   for (size_t daughterindex=0; daughterindex < daughters->size(); ++daughterindex)
    {
       VPlacedVolume const * daughter = daughters->operator [](daughterindex);
 #ifdef CALCSAFETY
@@ -706,40 +849,49 @@ void SimpleNavigator::FindNextBoundaryAndStep(
    // now we have the candidates
    for( int i=0;i<np;++i )
    {
-     *newstates[i] = *currentstates[i];
+     currentstates[i]->CopyTo(newstates[i]);
 
-     // is geometry further away than physics step?
-     if( distances[i]>pSteps[i] ) {
-       // don't need to do anything
-       distances[i] = pSteps[i];
-       newstates[i]->SetBoundaryState( false );
+     // TODO: the following steps are identical to the scalar treatment; they should hence
+     // be factored out into shared code
+     if (distances[i] == vecgeom::kInfinity && pSteps[i] > 0.) {
+       distances[i] = vecgeom::kTolerance;
+       newstates[i]->SetBoundaryState(true);
+       newstates[i]->Pop();
        continue;
      }
-     newstates[i]->SetBoundaryState( true );
+
+     // is geometry further away than physics step?
+     if (distances[i] > pSteps[i]) {
+       // don't need to do anything
+       distances[i] = pSteps[i];
+       newstates[i]->SetBoundaryState(false);
+       continue; // go to next particle
+     }
+     newstates[i]->SetBoundaryState(true);
+
+     if (distances[i] < 0.) {
+        distances[i] = 0.;
+     }
+     distances[i] += 1E-6;
 
      // TODO: this is tedious, please provide operators in Vector3D!!
      // WE SHOULD HAVE A FUNCTION "TRANSPORT" FOR AN OPERATION LIKE THIS
      Vector3D<Precision> newpointafterboundary = localdirs[i];
-     newpointafterboundary*=(distances[i] + 1e-9);
-     newpointafterboundary+=localpoints[i];
+     newpointafterboundary *= distances[i];
+     newpointafterboundary += localpoints[i];
 
-     if( nextnodeworkspace[i] > -1 ) // not hitting mother
+     if (nextnodeworkspace[i] > -1) // not hitting mother
      {
-        // continue directly further down
-        VPlacedVolume const * nextvol = daughters->operator []( nextnodeworkspace[i] );
-        Transformation3D const * trans = nextvol->GetTransformation();
+       // continue directly further down
+       VPlacedVolume const *nextvol = daughters->operator[](nextnodeworkspace[i]);
+       Transformation3D const *trans = nextvol->GetTransformation();
 
-        // this should be inlined here
-        LocatePoint( nextvol,
-                trans->Transform(newpointafterboundary), *newstates[i], false );
-     }
-     else
-     {
+       LocatePoint(nextvol, trans->Transform(newpointafterboundary), *newstates[i], false);
+     } else {
         // continue directly further up
         RelocatePointFromPath( newpointafterboundary, *newstates[i] );
      }
-
-   } // end loop for relocation
+   } // end loop over tracks for relocation
 }
 
 } } // End global namespace

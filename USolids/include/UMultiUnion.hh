@@ -128,6 +128,15 @@ class UMultiUnion : public VUSolid
     int SafetyFromOutsideNumberNode(const UVector3& aPoint, bool aAccurate, double& safety) const;
     double DistanceToInCandidates(const UVector3& aPoint, const UVector3& aDirection, double aPstep, std::vector<int>& candidates, UBits& bits) const;
 
+  private:
+
+
+    struct UMultiUnionSurface
+    {
+      UVector3 point;
+      VUSolid* solid;
+    };
+
     std::vector<VUSolid*> fSolids;
     std::vector<UTransform3D> fTransformObjs;
     UVoxelizer fVoxels;  // Pointer to the vozelized solid

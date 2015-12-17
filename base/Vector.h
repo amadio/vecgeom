@@ -22,7 +22,7 @@ class Vector {
 private:
 
   Type *fData;
-  int fSize, fMemorySize;
+  size_t fSize, fMemorySize;
   bool fAllocated;
 
 public:
@@ -66,7 +66,7 @@ public:
       assert(fAllocated && "Trying to push on a 'fixed' size vector (memory not allocated by Vector itself)");
       fMemorySize = fMemorySize<<1;
       Type *fDataNew = new Type[fMemorySize];
-      for (int i = 0; i < fSize; ++i) fDataNew[i] = fData[i];
+      for (size_t i = 0; i < fSize; ++i) fDataNew[i] = fData[i];
       delete[] fData;
       fData = fDataNew;
     }
@@ -95,7 +95,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  int size() const {
+  size_t size() const {
     return fSize;
   }
 

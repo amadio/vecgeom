@@ -93,8 +93,8 @@ Array<Type>::Array() : fData(NULL), fSize(0), fAllocated(false) {}
 
 template <typename Type>
 VECGEOM_CUDA_HEADER_BOTH
-Array<Type>::Array(const unsigned size) : fData(NULL), fAllocated(true) {
-  Allocate(size);
+Array<Type>::Array(const unsigned initSize) : fData(NULL), fAllocated(true) {
+  Allocate(initSize);
 }
 
 template <typename Type>
@@ -106,8 +106,8 @@ Array<Type>::Array(Array<Type> const &other) : fData(NULL), fAllocated(true) {
 template <typename Type>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-Array<Type>::Array(Type *data, int size)
-    : fData(data), fSize(size), fAllocated(false) {}
+Array<Type>::Array(Type *data, int initSize)
+    : fData(data), fSize(initSize), fAllocated(false) {}
 
 template <typename Type>
 Array<Type>::~Array() {
@@ -117,9 +117,9 @@ Array<Type>::~Array() {
 }
 
 template <typename Type>
-void Array<Type>::Allocate(const unsigned size) {
+void Array<Type>::Allocate(const unsigned initSize) {
   Deallocate();
-  fSize = size;
+  fSize = initSize;
 #ifndef VECGEOM_NVCC
   fData = static_cast<Type*>(_mm_malloc(fSize*sizeof(Type),
                                         kAlignmentBoundary));

@@ -47,9 +47,8 @@ UnplacedOrb::UnplacedOrb() :
   {
   }
   
-  
   VECGEOM_CUDA_HEADER_BOTH
-  void UnplacedOrb::SetRadius(const Precision r)
+  void UnplacedOrb::SetRadius(Precision r)
   {
     fR=r;
     fRTolerance =  Max(frTolerance, fepsilon * r);
@@ -59,19 +58,14 @@ UnplacedOrb::UnplacedOrb() :
     fRTolO = fR +  fRTolerance;
   }
   
-  VECGEOM_CUDA_HEADER_BOTH
-  void UnplacedOrb::GetParametersList(int, double* aArray)const
-  {
-      aArray[0] = GetRadius();
-  }
-
-#if !defined(VECGEOM_NVCC)
+#ifndef VECGEOM_NVCC
   void UnplacedOrb::Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & aMax) const
   {
     // Returns the full 3D cartesian extent of the solid.
       aMin.Set(-fR);
       aMax.Set(fR);
   }
+
 
   Vector3D<Precision> UnplacedOrb::GetPointOnSurface() const
   {
@@ -88,12 +82,24 @@ UnplacedOrb::UnplacedOrb() :
   return Vector3D<Precision>(fR * sintheta * cosphi, fR * sintheta * sinphi, fR * costheta);
   }
 
+  VECGEOM_CUDA_HEADER_BOTH
+  bool UnplacedOrb::IsConvex() const{
+          return true;
+      }
+
   std::string UnplacedOrb::GetEntityType() const
   {
       return "Orb\n";
   }
-#endif  // !VECGEOM_NVCC
+#endif
   
+#if defined(VECGEOM_USOLIDS)
+  VECGEOM_CUDA_HEADER_BOTH
+  void UnplacedOrb::GetParametersList(int, double* aArray) const
+  {
+      aArray[0] = GetRadius();
+  }
+
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedOrb* UnplacedOrb::Clone() const
   {
@@ -118,7 +124,7 @@ UnplacedOrb::UnplacedOrb() :
 
    return os;
   }
-
+#endif
   
 void UnplacedOrb::Print() const {
   printf("UnplacedOrb {%.2f}",GetRadius());

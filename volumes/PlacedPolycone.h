@@ -17,10 +17,12 @@
 
 #include "volumes/UnplacedPolycone.h"
 
+class UPolyconeHistorical;
+
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedPolycone; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedPolycone );
+VECGEOM_DEVICE_DECLARE_CONV( PlacedPolycone )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -55,20 +57,40 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedPolycone const* GetUnplacedVolume() const {
     return static_cast<UnplacedPolycone const *>(
-        GetLogicalVolume()->unplaced_volume());
+        GetLogicalVolume()->GetUnplacedVolume());
+  }
+
+  bool IsOpen() const { return (GetUnplacedVolume()->GetDeltaPhi()<kTwoPi); }
+  Precision GetStartPhi() const { return GetUnplacedVolume()->GetStartPhi(); }
+  Precision GetEndPhi() const   { return GetUnplacedVolume()->GetEndPhi(); }
+  int GetNumRZCorner() const { return 2*(int)(GetUnplacedVolume()->GetNz()); }  // in USolids nCorners = 2*nPlanes
+
+  UPolyconeHistorical* GetOriginalParameters() const {
+    assert(false && "*** Method PlacedPolycone::GetOriginalParameters() has been deprecated.\n");
+    return NULL;
+  }
+  void Reset() {
+    assert(false && "*** Method PlacedPolycone::Reset() has been deprecated, no 'originalParameters' to be used for reInit().\n");
   }
 
 
-#ifndef VECGEOM_NVCC
-  virtual VPlacedVolume const* ConvertToUnspecialized() const;
-#ifdef VECGEOM_ROOT
-  virtual TGeoShape const* ConvertToRoot() const;
+#if defined(VECGEOM_USOLIDS)
+//  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& StreamInfo(std::ostream &os) const override {
+    return GetUnplacedVolume()->StreamInfo(os);
+  }
 #endif
-#ifdef VECGEOM_USOLIDS
-  virtual ::VUSolid const* ConvertToUSolids() const;
+
+#ifndef VECGEOM_NVCC
+  virtual VPlacedVolume const* ConvertToUnspecialized() const override;
+#ifdef VECGEOM_ROOT
+  virtual TGeoShape const* ConvertToRoot() const override;
+#endif
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
+  virtual ::VUSolid const* ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4
-  virtual G4VSolid const* ConvertToGeant4() const;
+  virtual G4VSolid const* ConvertToGeant4() const override;
 #endif
 
   virtual Precision Capacity() override {
@@ -81,10 +103,12 @@ public:
     GetUnplacedVolume()->Extent(aMin, aMax);
   }
 
-  std::string GetEntityType() const { return GetUnplacedVolume()->GetEntityType() ;}
+#if defined(VECGEOM_USOLIDS)
+  std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType() ;}
+#endif
 
   //virtual
-  bool Normal(Vector3D<Precision> const & point, Vector3D<Precision> & normal ) const
+  bool Normal(Vector3D<Precision> const & point, Vector3D<Precision> & normal ) const override
   {
    return GetUnplacedVolume()->Normal(point, normal);
   }
@@ -97,11 +121,11 @@ public:
   //}
 
   virtual
-  Vector3D<Precision> GetPointOnSurface() const  {
+  Vector3D<Precision> GetPointOnSurface() const override {
     return GetUnplacedVolume()->GetPointOnSurface();
   }
 
-  virtual double SurfaceArea() override {
+   virtual double SurfaceArea() override {
      return GetUnplacedVolume()->SurfaceArea();
   }
 #endif

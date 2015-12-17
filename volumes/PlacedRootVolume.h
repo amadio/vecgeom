@@ -15,7 +15,7 @@ class TGeoShape;
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedRootVolume; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedRootVolume );
+VECGEOM_DEVICE_DECLARE_CONV( PlacedRootVolume )
 
    inline namespace cxx {
 
@@ -149,6 +149,32 @@ public:
   virtual void SafetyToInMinimize(SOA3D<Precision> const &position,
                                   Precision *const safeties) const;
 
+  // the SIMD vector interfaces (not implemented)
+#ifndef VECGEOM_SCALAR
+  virtual VECGEOM_BACKEND_PRECISION DistanceToIn(Vector3D<VECGEOM_BACKEND_PRECISION> const &position,
+                                                 Vector3D<VECGEOM_BACKEND_PRECISION> const &direction,
+                                                 VECGEOM_BACKEND_PRECISION const step_max = kInfinity) const override {
+    assert(false && "not implemented");
+    return VECGEOM_BACKEND_PRECISION(-1);
+  }
+  virtual VECGEOM_BACKEND_PRECISION DistanceToOut(Vector3D<VECGEOM_BACKEND_PRECISION> const &position,
+                                                  Vector3D<VECGEOM_BACKEND_PRECISION> const &direction,
+                                                  VECGEOM_BACKEND_PRECISION const step_max = kInfinity) const override {
+    assert(false && "not implemented");
+    return VECGEOM_BACKEND_PRECISION(-1);
+  }
+  virtual VECGEOM_BACKEND_PRECISION SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION> const &position) const override {
+    assert(false && "not implemented");
+    return VECGEOM_BACKEND_PRECISION(-1);
+  }
+
+  virtual VECGEOM_BACKEND_PRECISION SafetyToOut(Vector3D<VECGEOM_BACKEND_PRECISION> const &position) const override {
+    assert(false && "not implemented");
+    return VECGEOM_BACKEND_PRECISION(-1);
+  }
+#endif
+
+
   virtual VPlacedVolume const* ConvertToUnspecialized() const;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const* ConvertToRoot() const;
@@ -173,13 +199,13 @@ public:
 };
 
 bool PlacedRootVolume::Contains(Vector3D<Precision> const &point) const {
-  const Vector3D<Precision> local = this->transformation_->Transform(point);
+  const Vector3D<Precision> local = GetTransformation()->Transform(point);
   return UnplacedContains(local);
 }
 
 bool PlacedRootVolume::Contains(Vector3D<Precision> const &point,
                                 Vector3D<Precision> &localPoint) const {
-  localPoint = this->transformation_->Transform(point);
+  localPoint = GetTransformation()->Transform(point);
   return UnplacedContains(localPoint);
 }
 
@@ -190,7 +216,7 @@ bool PlacedRootVolume::UnplacedContains(
 }
 
 EnumInside PlacedRootVolume::Inside(Vector3D<Precision> const &point) const {
-  const Vector3D<Precision> local = this->transformation_->Transform(point);
+  const Vector3D<Precision> local = GetTransformation()->Transform(point);
   return (UnplacedContains(local)) ?
           static_cast<EnumInside> (EInside::kInside) : static_cast<EnumInside> (EInside::kOutside);
 }
@@ -199,9 +225,9 @@ Precision PlacedRootVolume::DistanceToIn(Vector3D<Precision> const &position,
                                          Vector3D<Precision> const &direction,
                                          const Precision stepMax) const {
   Vector3D<Precision> positionLocal =
-      this->transformation_->Transform(position);
+      GetTransformation()->Transform(position);
   Vector3D<Precision> directionLocal =
-      this->transformation_->TransformDirection(direction);
+      GetTransformation()->TransformDirection(direction);
   return fRootShape->DistFromOutside(
            &positionLocal[0],
            &directionLocal[0],
@@ -228,9 +254,9 @@ Precision PlacedRootVolume::PlacedDistanceToOut(Vector3D<Precision> const &posit
                                           Vector3D<Precision> const &direction,
                                           const Precision stepMax) const {
   Vector3D<Precision> positionLocal =
-      this->transformation_->Transform(position);
+      GetTransformation()->Transform(position);
   Vector3D<Precision> directionLocal =
-      this->transformation_->TransformDirection(direction);
+      GetTransformation()->TransformDirection(direction);
   return fRootShape->DistFromInside(
            &positionLocal[0],
            &directionLocal[0],
@@ -244,7 +270,7 @@ VECGEOM_INLINE
 Precision PlacedRootVolume::SafetyToOut(
     Vector3D<Precision> const &position) const {
   Vector3D<Precision> position_local =
-      this->transformation_->Transform(position);
+      GetTransformation()->Transform(position);
   return fRootShape->Safety(&position_local[0], true);
 }
 
@@ -252,7 +278,7 @@ VECGEOM_INLINE
 Precision PlacedRootVolume::SafetyToIn(
     Vector3D<Precision> const &position) const {
   Vector3D<Precision> position_local =
-      this->transformation_->Transform(position);
+      GetTransformation()->Transform(position);
   return fRootShape->Safety(&position_local[0], false);
 }
 

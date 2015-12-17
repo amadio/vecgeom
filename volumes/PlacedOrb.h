@@ -14,7 +14,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedOrb; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedOrb );
+VECGEOM_DEVICE_DECLARE_CONV( PlacedOrb )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -53,14 +53,17 @@ public:
   VECGEOM_INLINE
   UnplacedOrb const* GetUnplacedVolume() const {
     return static_cast<UnplacedOrb const *>(
-        GetLogicalVolume()->unplaced_volume());
+        GetLogicalVolume()->GetUnplacedVolume());
   }
-  
+
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision GetRadius() const { return GetUnplacedVolume()->GetRadius(); }
-  
+
+  VECGEOM_CUDA_HEADER_BOTH
+  void SetRadius(Precision arg) { const_cast<UnplacedOrb*>(GetUnplacedVolume())->SetRadius(arg); }
+
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision GetfRTolO() const { return GetUnplacedVolume()->GetfRTolO(); }
@@ -74,25 +77,33 @@ public:
   Precision GetfRTolerance() const { return GetUnplacedVolume()->GetfRTolerance(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  void GetParametersList(int aNumber, double *aArray) const { return GetUnplacedVolume()->GetParametersList(aNumber, aArray);}
+  Precision GetRadialTolerance() const { return GetUnplacedVolume()->GetfRTolerance(); }
 
 #ifndef VECGEOM_NVCC
   virtual Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
 
   Precision SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
   
-  std::string GetEntityType() const { return GetUnplacedVolume()->GetEntityType() ;}
+#if defined(VECGEOM_USOLIDS)
+  VECGEOM_CUDA_HEADER_BOTH
+  void GetParametersList(int aNumber, double *aArray) const override {
+    return GetUnplacedVolume()->GetParametersList(aNumber, aArray);
+  }
+
+  std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType() ;}
+#endif
   
   void Extent( Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override {
     return GetUnplacedVolume()->Extent(aMin,aMax);
   }
   
-  Vector3D<Precision>  GetPointOnSurface() const { return GetUnplacedVolume()->GetPointOnSurface();}
+  Vector3D<Precision>  GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface();}
 
+  
   // VECGEOM_CUDA_HEADER_BOTH
   // void ComputeBBox() const { return GetUnplacedVolume()->ComputeBBox();}
   
-  bool Normal(Vector3D<Precision> const & point, Vector3D<Precision> & normal ) const
+  bool Normal(Vector3D<Precision> const & point, Vector3D<Precision> & normal ) const override
   {
       bool valid;
       OrbImplementation<translation::kIdentity, rotation::kIdentity>::NormalKernel<kScalar>(
@@ -102,15 +113,22 @@ public:
       return valid;
   }
 
-  virtual VPlacedVolume const* ConvertToUnspecialized() const;
-#ifdef VECGEOM_ROOT
-  virtual TGeoShape const* ConvertToRoot() const;
+#if defined(VECGEOM_USOLIDS)
+//  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& StreamInfo(std::ostream &os) const override {
+    return GetUnplacedVolume()->StreamInfo(os);
+  }
 #endif
-#ifdef VECGEOM_USOLIDS
-  virtual ::VUSolid const* ConvertToUSolids() const;
+
+  virtual VPlacedVolume const* ConvertToUnspecialized() const override;
+#ifdef VECGEOM_ROOT
+  virtual TGeoShape const* ConvertToRoot() const override;
+#endif
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
+  virtual ::VUSolid const* ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4
-  virtual G4VSolid const* ConvertToGeant4() const;
+  virtual G4VSolid const* ConvertToGeant4() const override;
 #endif
 #endif // VECGEOM_NVCC
 

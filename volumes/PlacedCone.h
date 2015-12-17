@@ -15,7 +15,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedCone; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedCone );
+VECGEOM_DEVICE_DECLARE_CONV( PlacedCone )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -53,20 +53,26 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedCone const* GetUnplacedVolume() const {
     return static_cast<UnplacedCone const *>(
-        GetLogicalVolume()->unplaced_volume());
+        GetLogicalVolume()->GetUnplacedVolume());
   }
 
+#if defined(VECGEOM_USOLIDS)
+//  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& StreamInfo(std::ostream &os) const override {
+    return GetUnplacedVolume()->StreamInfo(os);
+  }
+#endif
 
 #ifndef VECGEOM_NVCC
-  virtual VPlacedVolume const* ConvertToUnspecialized() const;
+  virtual VPlacedVolume const* ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
-  virtual TGeoShape const* ConvertToRoot() const;
+  virtual TGeoShape const* ConvertToRoot() const override;
 #endif
-#ifdef VECGEOM_USOLIDS
-  virtual ::VUSolid const* ConvertToUSolids() const;
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
+  virtual ::VUSolid const* ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4
-  virtual G4VSolid const* ConvertToGeant4() const;
+  virtual G4VSolid const* ConvertToGeant4() const override;
 #endif
 #endif // VECGEOM_BENCHMARK
 
@@ -82,6 +88,33 @@ public:
   Precision GetInnerOffset() const {return GetUnplacedVolume()->GetInnerOffset();}
   Precision GetOuterOffset() const {return GetUnplacedVolume()->GetOuterOffset();}
 
+  // interface required by Geant4
+  Precision GetInnerRadiusMinusZ() const {return GetUnplacedVolume()->GetRmin1();}
+  Precision GetOuterRadiusMinusZ() const {return GetUnplacedVolume()->GetRmax1();}
+  Precision GetInnerRadiusPlusZ()  const {return GetUnplacedVolume()->GetRmin2();}
+  Precision GetOuterRadiusPlusZ()  const {return GetUnplacedVolume()->GetRmax2();}
+  Precision GetZHalfLength()       const {return GetUnplacedVolume()->GetDz();}
+  Precision GetStartPhiAngle()     const {return GetUnplacedVolume()->GetSPhi();}
+  Precision GetDeltaPhiAngle()     const {return GetUnplacedVolume()->GetDPhi();}
+
+  void SetInnerRadiusMinusZ(Precision xin) { const_cast<UnplacedCone*>(GetUnplacedVolume())->SetRmin1(xin);}
+  void SetOuterRadiusMinusZ(Precision xin) { const_cast<UnplacedCone*>(GetUnplacedVolume())->SetRmax1(xin);}
+  void SetInnerRadiusPlusZ(Precision xin)  { const_cast<UnplacedCone*>(GetUnplacedVolume())->SetRmin2(xin);}
+  void SetOuterRadiusPlusZ(Precision xin)  { const_cast<UnplacedCone*>(GetUnplacedVolume())->SetRmax2(xin);}
+  void SetZHalfLength(Precision xin)       { const_cast<UnplacedCone*>(GetUnplacedVolume())->SetDz(xin);}
+  void SetStartPhiAngle(Precision xin, bool) { const_cast<UnplacedCone*>(GetUnplacedVolume())->SetSPhi(xin);}
+  void SetDeltaPhiAngle(Precision xin)     { const_cast<UnplacedCone*>(GetUnplacedVolume())->SetDPhi(xin);}
+
+  VECGEOM_INLINE
+  double SafetyFromInsideR(const Vector3D<Precision>& p, const double rho, bool precise = false) const {
+    return GetUnplacedVolume()->SafetyFromInsideR(p, rho, precise);
+  }
+
+  VECGEOM_INLINE
+  double SafetyFromOutsideR(const Vector3D<Precision>& p, const double rho, bool precise = false) const {
+    return GetUnplacedVolume()->SafetyFromOutsideR(p, rho, precise);
+  }
+
 #if !defined(VECGEOM_NVCC)
   virtual Precision Capacity() override {
       return GetUnplacedVolume()->Capacity();
@@ -93,7 +126,7 @@ public:
   }
 
   virtual
-  bool Normal(Vector3D<Precision> const & point, Vector3D<Precision> & normal ) const {
+  bool Normal(Vector3D<Precision> const & point, Vector3D<Precision> & normal ) const override {
       bool valid;
       ConeImplementation<translation::kIdentity, rotation::kIdentity, ConeTypes::UniversalCone>::NormalKernel<kScalar>(
               *GetUnplacedVolume(),
@@ -103,7 +136,7 @@ public:
   }
 
   virtual
-  Vector3D<Precision> GetPointOnSurface() const {
+  Vector3D<Precision> GetPointOnSurface() const override {
     return GetUnplacedVolume()->GetPointOnSurface();
   }
 
@@ -111,9 +144,11 @@ public:
      return GetUnplacedVolume()->SurfaceArea();
   }
 
-  virtual std::string GetEntityType() const {
+#if defined(VECGEOM_USOLIDS)
+  virtual std::string GetEntityType() const override {
       return "Cone";
   }
+#endif
 #endif
 
 }; // end class

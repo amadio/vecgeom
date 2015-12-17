@@ -17,7 +17,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class UnplacedOrb; )
-VECGEOM_DEVICE_DECLARE_CONV( UnplacedOrb );
+VECGEOM_DEVICE_DECLARE_CONV( UnplacedOrb )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -51,8 +51,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision GetRadius() const { return fR; }
-  
-  
+
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision GetfRTolO() const { return fRTolO; }
@@ -67,42 +66,50 @@ public:
   
   VECGEOM_CUDA_HEADER_BOTH
   //VECGEOM_INLINE
-  void SetRadius (const Precision r);
+  void SetRadius (Precision r);
   
   //_____________________________________________________________________________
   
 #if !defined(VECGEOM_NVCC)
   void Extent( Vector3D<Precision> &, Vector3D<Precision> &) const;
   
-  Precision Capacity() const { return fCubicVolume; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision Capacity() const {return fCubicVolume;}
   
-  Precision SurfaceArea() const { return fSurfaceArea; }
+  //Function to check the convexity
+  VECGEOM_CUDA_HEADER_BOTH
+  //VECGEOM_INLINE
+  virtual bool IsConvex() const override;
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision SurfaceArea() const {return fSurfaceArea;}
+
   
   virtual Vector3D<Precision> GetPointOnSurface() const;
 
   std::string GetEntityType() const;
 #endif
   
-    
+#if defined(VECGEOM_USOLIDS)
   VECGEOM_CUDA_HEADER_BOTH
   void GetParametersList(int aNumber, double *aArray) const; 
   
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedOrb* Clone() const;
 
-  //VECGEOM_CUDA_HEADER_BOTH
   std::ostream& StreamInfo(std::ostream &os) const;
+#endif
     
-  // VECGEOM_CUDA_HEADER_BOTH
-  // void ComputeBBox() const; 
-  
 public:
-  virtual int memory_size() const { return sizeof(*this); }
+  virtual int memory_size() const final { return sizeof(*this); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void Print() const;
+  virtual void Print() const final;
 
-  virtual void Print(std::ostream &os) const;
+  virtual void Print(std::ostream &os) const final;
 
   #ifndef VECGEOM_NVCC
 
@@ -153,7 +160,7 @@ private:
       LogicalVolume const *const volume,
       Transformation3D const *const transformation,
       const TranslationCode trans_code, const RotationCode rot_code,
-      VPlacedVolume *const placement = NULL) const {
+      VPlacedVolume *const placement = NULL) const final {
     return CreateSpecializedVolume(volume, transformation, trans_code, rot_code,
                                    placement);
   }
@@ -165,7 +172,7 @@ private:
       LogicalVolume const *const volume,
       Transformation3D const *const transformation,
       const TranslationCode trans_code, const RotationCode rot_code,
-      const int id, VPlacedVolume *const placement = NULL) const {
+      const int id, VPlacedVolume *const placement = NULL) const final {
     return CreateSpecializedVolume(volume, transformation, trans_code, rot_code,
                                    id, placement);
   }

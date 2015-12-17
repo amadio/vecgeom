@@ -24,8 +24,8 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedSphere::UnplacedSphere(Precision pRmin, Precision pRmax,
                  Precision pSPhi, Precision pDPhi,
-                 Precision pSTheta, Precision pDTheta): 
-     fRmin(0),
+
+                 Precision pSTheta, Precision pDTheta)  :
      fRmax(0),
      fSPhi(0),
      fDPhi(0),
@@ -33,9 +33,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
      fDTheta(0),
      fRminTolerance(0),
      mkTolerance(0),
-     kAngTolerance(0),
-     kRadTolerance(0),
-     fEpsilon(2.e-11), 
+     fEpsilon(kEpsilon), 
      sinCPhi(0),
      cosCPhi(0),
      cosHDPhiOT(0),
@@ -61,16 +59,13 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
      fFullSphere(true),
      fCubicVolume(0.), 
      fSurfaceArea(0.), 
-     epsilon(2e-11), 
-     frTolerance(1e-9),
-     fgTolerance(1e-9),
-     faTolerance(1e-9)
+     fPhiWedge(pDPhi,pSPhi),
+     fThetaCone(pSTheta,pDTheta)
+            
 {
-  kAngTolerance = faTolerance;
-
   // Check radii and Set radial tolerances
 
-  kRadTolerance = frTolerance;
+ 
   if ((pRmin >= pRmax) || (pRmax < 1.1 * kRadTolerance) || (pRmin < 0))
   {/*
     std::ostringstream message;
@@ -90,12 +85,28 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
   CheckPhiAngles(pSPhi, pDPhi);
   CheckThetaAngles(pSTheta, pDTheta);
-  
+
 #ifndef VECGEOM_NVCC
   CalcCapacity();
   CalcSurfaceArea();
 #endif
 }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  bool UnplacedSphere::IsConvex() const {
+  	//Default safe convexity value
+  	bool convexity = false;
+
+    //Logic to calculate the convexity
+  	if(fRmin==0.){
+  		if( ((fDPhi==kTwoPi) && (fSTheta==0.) && (eTheta==kPi)) ||
+  						((fDPhi<=kPi) && (fSTheta==0) && (eTheta==kPi)) ||
+  						((fDPhi==kTwoPi) && (fSTheta==0) && (eTheta<=kPi/2)) ||
+  						((fDPhi==kTwoPi) && (fSTheta>=kPi/2) && (eTheta==kPi)))
+  			convexity = true;
+  	    }
+  		return convexity;
+  }
   
 #ifndef VECGEOM_NVCC
   void UnplacedSphere::CalcCapacity()
@@ -110,12 +121,6 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
                 (fRmax * fRmax * fRmax - fRmin * fRmin * fRmin) / 3.;
         }
       
-  }
-
-
-  Precision UnplacedSphere::Capacity() const
-  {
-    return fCubicVolume;
   }
   
 
@@ -165,11 +170,6 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
         }
   }
   
-
-  Precision UnplacedSphere::SurfaceArea() const
-  {
-      return fSurfaceArea;
-  }
   
   void UnplacedSphere::Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & aMax) const
   {
@@ -189,7 +189,8 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
       aArray[5] = GetDeltaThetaAngle();
   }
   
-#if !defined(VECGEOM_NVCC)
+  
+  #ifndef VECGEOM_NVCC
   Vector3D<Precision> UnplacedSphere::GetPointOnSurface() const
   {
       
@@ -304,6 +305,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
       return new UnplacedSphere(fRmin,fRmax,fSPhi,fDPhi,fSTheta,fDTheta);
   }
   
+#if defined(VECGEOM_USOLIDS)
   std::ostream& UnplacedSphere::StreamInfo(std::ostream& os) const
   //Definition taken from USphere
   {
@@ -327,15 +329,14 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
    return os;
   }
+#endif
   
-  VECGEOM_CUDA_HEADER_BOTH
 void UnplacedSphere::Print() const {
   printf("UnplacedSphere {%.2f , %.2f , %.2f , %.2f , %.2f , %.2f}",GetInnerRadius(),GetOuterRadius(),
                                                           GetStartPhiAngle(), GetDeltaPhiAngle(),
                                                           GetStartThetaAngle(), GetDeltaThetaAngle() );
 }
   
-//VECGEOM_CUDA_HEADER_BOTH
 void UnplacedSphere::Print(std::ostream &os) const {
   os << "UnplacedSphere { " << GetInnerRadius() <<" " << GetOuterRadius() <<" " << GetStartPhiAngle() <<" " << GetDeltaPhiAngle() <<" "
            << GetStartThetaAngle() <<" " << GetDeltaThetaAngle() <<" }";

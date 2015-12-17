@@ -64,17 +64,21 @@ void SimpleNavigator::InspectEnvironmentForPointAndDirection
    outstream << "Navigating in placed volume : " << RootGeoManager::Instance().GetName( currentvolume ) << "\n";
 
    int nexthitvolume = -1; // means mother
+   int tmp = outstream.precision();
+   outstream << std::setprecision(20);
    outstream << "localpoint " << localpoint << "\n";
-   outstream << "check containment in mother " << currentvolume->Contains( localpoint ) << "\n";
+   outstream << "localdir " << localdir << "\n";
+   outstream << std::setprecision(tmp);
+   outstream << "check containment in mother " << currentvolume->UnplacedContains( localpoint ) << "\n";
    double step = currentvolume->DistanceToOut( localpoint, localdir );
 
    outstream << "DistanceToOutMother : " << step << "\n";
 
    // iterate over all the daughters
-   Vector<Daughter> const * daughters = currentvolume->GetLogicalVolume()->daughtersp();
+   Vector<Daughter> const * daughters = currentvolume->GetLogicalVolume()->GetDaughtersp();
 
    outstream << "ITERATING OVER " << daughters->size() << " DAUGHTER VOLUMES " << "\n";
-   for(int d = 0; d<daughters->size(); ++d)
+   for(unsigned int d = 0; d<daughters->size(); ++d)
    {
       VPlacedVolume const * daughter = daughters->operator [](d);
       //    previous distance becomes step estimate, distance to daughter returned in workspace
@@ -168,6 +172,7 @@ void SimpleNavigator::InspectSafetyForPoint
       tmpstate->Clear();
       assert( LocatePoint( GeoManager::Instance().GetWorld(),
               globalpoint, *tmpstate, true ) == state.Top() );
+      NavigationState::ReleaseInstance( tmpstate );
    }
 
    std::cout << "############################################ " << "\n";
@@ -180,7 +185,7 @@ void SimpleNavigator::InspectSafetyForPoint
    //assert( safety > 0 );
 
    // safety to daughters
-   Vector<Daughter> const * daughters = currentvol->GetLogicalVolume()->daughtersp();
+   Vector<Daughter> const * daughters = currentvol->GetLogicalVolume()->GetDaughtersp();
    int numberdaughters = daughters->size();
    for(int d = 0; d<numberdaughters; ++d)
    {

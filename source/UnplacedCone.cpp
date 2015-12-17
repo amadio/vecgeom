@@ -27,119 +27,141 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
         os << "UnplacedCone; please implement Print to outstream\n";
     }
 
+    VECGEOM_CUDA_HEADER_BOTH
+    bool UnplacedCone::IsConvex() const{
+
+      //Default safe convexity value
+      bool convexity = false;
+
+      //Logic to calculate the convexity
+      if(fRmin1==0. && fRmin2==0.) //Implies Solid cone
+              {
+                if( fDPhi<=kPi || fDPhi==kTwoPi)
+                  convexity = true;
+              }
+      return convexity;
+
+      }
+
+
 #if !defined(VECGEOM_NVCC)
     bool UnplacedCone::Normal(Vector3D<Precision> const& p, Vector3D<Precision>& norm) const {
-    int noSurfaces = 0;
-    Precision rho, pPhi;
-    Precision distZ, distRMin, distRMax;
-    Precision distSPhi = kInfinity, distEPhi = kInfinity;
-    Precision pRMin, widRMin;
-    Precision pRMax, widRMax;
+      int noSurfaces = 0;
+      Precision rho, pPhi;
+      Precision distZ, distRMin, distRMax;
+      Precision distSPhi = kInfinity, distEPhi = kInfinity;
+      Precision pRMin, widRMin;
+      Precision pRMax, widRMax;
 
-    const double kHalfTolerance = 0.5 * kTolerance;
-  
-    Vector3D<Precision> sumnorm(0., 0., 0.), nZ =  Vector3D<Precision> (0., 0., 1.);
-    Vector3D<Precision> nR, nr(0., 0., 0.), nPs, nPe;
+      const double kHalfTolerance = 0.5 * kTolerance;
 
-    distZ = std::fabs(std::fabs(p.z()) - fDz);
-    rho  = std::sqrt(p.x() * p.x() + p.y() * p.y());
+      Vector3D<Precision> sumnorm(0., 0., 0.), nZ =  Vector3D<Precision> (0., 0., 1.);
+      Vector3D<Precision> nR, nr(0., 0., 0.), nPs, nPe;
+      norm = sumnorm;
 
-    pRMin   = rho - p.z() * fTanRMin;
-    widRMin = fRmin2 - fDz * fTanRMin;
-    distRMin = std::fabs(pRMin - widRMin) / fSecRMin;
+      // do not use an extra fabs here -- negative/positive distZ tells us when point is outside or inside
+      distZ = std::fabs(p.z()) - fDz;
+      rho  = std::sqrt(p.x() * p.x() + p.y() * p.y());
 
-    pRMax   = rho - p.z() * fTanRMax;
-    widRMax = fRmax2 - fDz * fTanRMax;
-    distRMax = std::fabs(pRMax - widRMax) / fSecRMax;
+      pRMin   = rho - p.z() * fTanRMin;
+      widRMin = fRmin2 - fDz * fTanRMin;
+      distRMin = (pRMin - widRMin) / fSecRMin;
 
-    if (!IsFullPhi())   // Protected against (0,0,z)
-    {
-     if (rho)
-     {
-      pPhi = std::atan2(p.y(), p.x());
+      pRMax   = rho - p.z() * fTanRMax;
+      widRMax = fRmax2 - fDz * fTanRMax;
+      distRMax = (pRMax - widRMax) / fSecRMax;
 
-      if (pPhi  < fSPhi - kHalfTolerance)
-      {
-        pPhi += 2 * kPi;
+      bool inside = distZ<kTolerance && distRMax < kTolerance;
+      if(fRmin1 || fRmin2) inside &= distRMin > -kTolerance;
+
+      distZ = std::fabs(distZ);
+      distRMax = std::fabs(distRMax);
+      distRMin = std::fabs(distRMin);
+
+      // keep track of nearest normal, needed in case point is not on a surface
+      double distNearest = distZ;
+      Vector3D<Precision> normNearest = nZ;
+      if(p.z()<0.) normNearest.Set(0,0,-1.);
+
+      if (!IsFullPhi()) {
+        if (rho) {  // Protected against (0,0,z)
+          pPhi = std::atan2(p.y(), p.x());
+
+          if (pPhi  < fSPhi - kHalfTolerance) pPhi += 2 * kPi;
+          else if (pPhi > fSPhi + fDPhi + kHalfTolerance) pPhi -= 2 * kPi;
+
+          distSPhi = rho*(pPhi - fSPhi);
+          distEPhi = rho*(pPhi - fSPhi - fDPhi);
+          inside = inside && (distSPhi>-kTolerance) && (distEPhi<kTolerance);
+          distSPhi = std::abs(distSPhi);
+          distEPhi = std::abs(distEPhi);
+        }
+
+        else if (!(fRmin1) || !(fRmin2)) {
+          distSPhi = 0.;
+          distEPhi = 0.;
+        }
+        nPs = Vector3D<Precision>(std::sin(fSPhi), -std::cos(fSPhi), 0);
+        nPe = Vector3D<Precision>(-std::sin(fSPhi + fDPhi), std::cos(fSPhi + fDPhi), 0);
       }
-      else if (pPhi > fSPhi + fDPhi + kHalfTolerance)
-      {
-        pPhi -= 2 * kPi;
+
+      if (rho > kHalfTolerance) {
+        nR = Vector3D<Precision>(p.x() / rho / fSecRMax, p.y() / rho / fSecRMax, -fTanRMax / fSecRMax);
+        if (fRmin1 || fRmin2) {
+          nr = Vector3D<Precision>(-p.x() / rho / fSecRMin, -p.y() / rho / fSecRMin, fTanRMin / fSecRMin);
+        }
       }
 
-      distSPhi = std::fabs(pPhi - fSPhi);
-      distEPhi = std::fabs(pPhi - fSPhi - fDPhi);
-     }
-     else if (!(fRmin1) || !(fRmin2))
-     {
-      distSPhi = 0.;
-      distEPhi = 0.;
-     }
-     nPs = Vector3D<Precision>(std::sin(fSPhi), -std::cos(fSPhi), 0);
-     nPe = Vector3D<Precision>(-std::sin(fSPhi + fDPhi), std::cos(fSPhi + fDPhi), 0);
-   }
-   if (rho > kHalfTolerance)
-   {
-    nR = Vector3D<Precision>(p.x() / rho / fSecRMax, p.y() / rho / fSecRMax, -fTanRMax / fSecRMax);
-    if (fRmin1 || fRmin2)
-    {
-      nr = Vector3D<Precision>(-p.x() / rho / fSecRMin, -p.y() / rho / fSecRMin, fTanRMin / fSecRMin);
-    }
-   }
+      if ( inside && distZ <= kHalfTolerance ) {
+        noSurfaces ++;
+        if (p.z() >= 0.) sumnorm += nZ;
+        else sumnorm.Set(0,0,-1.);
+      }
 
-  if (distRMax <= kHalfTolerance)
-  {
-    noSurfaces ++;
-    sumnorm += nR;
-  }
-  if ((fRmin1 || fRmin2) && (distRMin <= kHalfTolerance))
-  {
-    noSurfaces ++;
-    sumnorm += nr;
-  }
-  if (!IsFullPhi())
-  {
-    if (distSPhi <= kHalfTolerance)
-    {
-      noSurfaces ++;
-      sumnorm += nPs;
-    }
-    if (distEPhi <= kHalfTolerance)
-    {
-      noSurfaces ++;
-      sumnorm += nPe;
-    }
-  }
-  if (distZ <= kHalfTolerance)
-  {
-    noSurfaces ++;
-    if (p.z() >= 0.)
-    {
-      sumnorm += nZ;
-    }
-    else
-    {
-      sumnorm -= nZ;
-    }
-  }
-  if (noSurfaces == 0)
-  {
-    //TO DO
-    //norm = ApproxSurfaceNormal(p);
-    norm = sumnorm;
-  }
-  else if (noSurfaces == 1)
-  {
-    norm = sumnorm;
-  }
-  else
-  {
-    norm = sumnorm.Unit();
-  }
+      if (inside && distRMax <= kHalfTolerance) {
+        noSurfaces ++;
+        sumnorm += nR;
+      }
+      else if(noSurfaces==0 && distRMax<distNearest) {
+        distNearest = distRMax;
+        normNearest = nR;
+      }
 
+      if (fRmin1 || fRmin2) {
+        if (inside && distRMin <= kHalfTolerance) {
+          noSurfaces ++;
+          sumnorm += nr;
+        }
+        else if(noSurfaces==0 && distRMin<distNearest) {
+          distNearest = distRMin;
+          normNearest = nr;
+        }
+      }
 
-  return noSurfaces != 0;
- }
+      if (!IsFullPhi()) {
+        if (inside && distSPhi <= kHalfTolerance) {
+          noSurfaces ++;
+          sumnorm += nPs;
+        }
+        else if(noSurfaces==0 && distSPhi<distNearest) {
+          distNearest = distSPhi;
+          normNearest = nPs;
+        }
+        if (inside && distEPhi <= kHalfTolerance) {
+          noSurfaces ++;
+          sumnorm += nPe;
+        }
+        else if(noSurfaces==0 && distEPhi<distNearest ) {
+          distNearest = distEPhi;
+          normNearest = nPe;
+        }
+      }
+      // Final checks
+      if (noSurfaces == 0) norm = normNearest;
+      else if (noSurfaces == 1) norm = sumnorm;
+      else norm = sumnorm.Unit();
+      return noSurfaces != 0;
+    }
 
     Vector3D<Precision> UnplacedCone::GetPointOnSurface() const {
        // implementation taken from UCons; not verified
@@ -242,7 +264,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
      VPlacedVolume *const placement) {
 
        using namespace ConeTypes;
-       __attribute__((unused)) const UnplacedCone &cone = static_cast<const UnplacedCone&>( *(logical_volume->unplaced_volume()) );
+       __attribute__((unused)) const UnplacedCone &cone = static_cast<const UnplacedCone&>( *(logical_volume->GetUnplacedVolume()) );
 
        #ifdef VECGEOM_NVCC
          #define RETURN_SPECIALIZATION(coneTypeT) return CreateSpecializedWithPlacement< \
@@ -271,10 +293,33 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
        RETURN_SPECIALIZATION(UniversalCone);
 
        #undef RETURN_SPECIALIZATION
- }
+  }
 
 
-// this is repetetive code:
+#if defined(VECGEOM_USOLIDS)
+  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& UnplacedCone::StreamInfo(std::ostream &os) const {
+    int oldprc = os.precision(16);
+    os << "-----------------------------------------------------------\n"
+       << "     *** Dump for solid - " << GetEntityType() << " ***\n"
+       << "     ===================================================\n"
+       << " Solid type: Cone\n"
+       << " Parameters: \n"
+       << "     Cone Radii Rmin1, Rmax1: " << fRmin1 <<"mm, "<< fRmax1 <<"mm\n"
+       << "                Rmin2, Rmax2: " << fRmin2 <<"mm, "<< fRmax2 <<"mm\n"
+       << "     Half-length Z = "<< fDz <<"mm\n";
+    if(fDPhi<kTwoPi) {
+        os << "     Wedge starting angles: fSPhi=" << fSPhi*kRadToDeg <<"deg, "
+           << ", fDphi="<<fDPhi*kRadToDeg <<"deg\n";
+    }
+    os << "-----------------------------------------------------------\n";
+    os.precision(oldprc);
+    return os;
+  }
+#endif
+
+
+// this is repetitive code:
 
   VECGEOM_CUDA_HEADER_DEVICE
   VPlacedVolume* UnplacedCone::SpecializedVolume(

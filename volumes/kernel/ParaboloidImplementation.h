@@ -212,7 +212,7 @@ struct ParaboloidImplementation {
                              Transformation3D const &transformation,
                              Vector3D<typename Backend::precision_v> const &point,
                              Vector3D<typename Backend::precision_v> const &direction,
-                             typename Backend::precision_v const &stepMax,
+                             typename Backend::precision_v const &/*stepMax*/,
                              typename Backend::precision_v &distance) {
         
         using namespace ParaboloidUtilities;
@@ -326,7 +326,7 @@ struct ParaboloidImplementation {
                               UnplacedParaboloid const &unplaced,
                               Vector3D<typename Backend::precision_v> point,
                               Vector3D<typename Backend::precision_v> direction,
-                              typename Backend::precision_v const &stepMax,
+                              typename Backend::precision_v const &/*stepMax*/,
                               typename Backend::precision_v &distance) {
       
         typedef typename Backend::precision_v Float_t;

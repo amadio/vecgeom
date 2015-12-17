@@ -64,17 +64,53 @@
 //
 // 12.02.13 Marek Gayer
 //          Created from original implementation in Geant4
+// 19.07.15 Guilherme Lima - Add VecGeom implementation as option for underlying implementation
+//
 // --------------------------------------------------------------------
 
 #ifndef UTrap_HH
 #define UTrap_HH
 
-#include "VUSolid.hh"
+
+#ifdef VECGEOM_REPLACE_USOLIDS
+
+//============== here for VecGeom-based implementation
+
+#include "volumes/SpecializedTrapezoid.h"
+#include "volumes/LogicalVolume.h"
+#include "volumes/UnplacedTrapezoid.h"
+#include "base/Transformation3D.h"
 
 struct UTrapSidePlane
 {
-  double a, b, c, d; // Normal Unit vector (a,b,c) and offset (d)
-  // => Ax+By+Cz+D=0
+   double a, b, c, d; // Normal Unit vector (a,b,c) and offset (d)
+   // => ax + by + cz + d = 0
+  UTrapSidePlane(vecgeom::UnplacedTrapezoid::TrapSidePlane const& oth) {
+    this->a = oth.fA;
+    this->b = oth.fB;
+    this->c = oth.fC;
+    this->d = oth.fD;
+  }
+};
+
+class UTrap: public vecgeom::SpecializedTrapezoid<vecgeom::translation::kIdentity, vecgeom::rotation::kIdentity> {
+  // just forwards UTrap to vecgeom trapezoid
+  typedef typename vecgeom::SpecializedTrapezoid<vecgeom::translation::kIdentity, vecgeom::rotation::kIdentity> Shape_t;
+  using Shape_t::Shape_t;
+};
+
+//============== end of VecGeom-based implementation
+
+#else
+
+//============== here for USolids-based implementation
+#ifndef USOLIDS_VUSolid
+#include "VUSolid.hh"
+#endif
+
+struct UTrapSidePlane
+{
+   double a, b, c, d; // Normal Unit vector (a,b,c) and offset (d)
 };
 
 class UTrap : public VUSolid
@@ -254,4 +290,7 @@ class UTrap : public VUSolid
 
 #include "UTrap.icc"
 
-#endif
+//============== end of USolids-based implementation
+
+#endif  // VECGEOM_REPLACE_USOLIDS
+#endif  // UTrap_HH

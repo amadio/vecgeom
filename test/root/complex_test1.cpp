@@ -65,7 +65,7 @@ void testVecAssign( Vector3D<Precision> const & a, Vector3D<Precision> & b )
 
 void test1()
 {
-   VPlacedVolume const * world = RootGeoManager::Instance().world();
+   VPlacedVolume const * world = GeoManager::Instance().GetWorld();
    SimpleNavigator nav;
    NavigationState * state = NavigationState::MakeInstance(4);
    VPlacedVolume const * vol;
@@ -81,7 +81,7 @@ void test1()
 void test2()
 {
    // inside box3 check
-   VPlacedVolume const * world = RootGeoManager::Instance().world();
+   VPlacedVolume const * world = GeoManager::Instance().GetWorld();
    SimpleNavigator nav;
    NavigationState * state = NavigationState::MakeInstance(4);
    VPlacedVolume const * vol;
@@ -104,7 +104,7 @@ void test2()
 void test3()
 {
    // inside box1 left check
-   VPlacedVolume const * world = RootGeoManager::Instance().world();
+   VPlacedVolume const * world = GeoManager::Instance().GetWorld();
    SimpleNavigator nav;
    NavigationState * state = NavigationState::MakeInstance(4);
 
@@ -118,7 +118,7 @@ void test3()
 void test3_2()
 {
    // inside box1 right check
-   VPlacedVolume const * world = RootGeoManager::Instance().world();
+   VPlacedVolume const * world = GeoManager::Instance().GetWorld();
    SimpleNavigator nav;
    NavigationState * state = NavigationState::MakeInstance(4);
    VPlacedVolume const * vol;
@@ -131,7 +131,7 @@ void test3_2()
 void test4()
 {
    // inside box2 check
-   VPlacedVolume const * world = RootGeoManager::Instance().world();
+   VPlacedVolume const * world = GeoManager::Instance().GetWorld();
    SimpleNavigator nav;
    NavigationState * state = NavigationState::MakeInstance(4);
    VPlacedVolume const * vol;
@@ -144,7 +144,7 @@ void test4()
 void test5()
 {
    // outside world check
-   VPlacedVolume const * world = RootGeoManager::Instance().world();
+   VPlacedVolume const * world = GeoManager::Instance().GetWorld();
    SimpleNavigator nav;
    NavigationState * state = NavigationState::MakeInstance(4);
 
@@ -176,7 +176,7 @@ void test6()
       // VecGeom navigation
       SimpleNavigator vecnav;
       state->Clear();
-      VPlacedVolume const *vol= vecnav.LocatePoint( RootGeoManager::Instance().world(),
+      VPlacedVolume const *vol= vecnav.LocatePoint( GeoManager::Instance().GetWorld(),
             Vector3D<Precision>(x,y,z) , *state, true);
 
       assert( RootGeoManager::Instance().tgeonode(vol) == node );
@@ -204,7 +204,7 @@ void test7()
       // VecGeom navigation
       Vector3D<Precision> p(x,y,z);
       SimpleNavigator vecnav;
-      vecnav.LocatePoint(RootGeoManager::Instance().world(), p, *state, true);
+      vecnav.LocatePoint(GeoManager::Instance().GetWorld(), p, *state, true);
 
       /*
       if ( vol1 != NULL )
@@ -215,7 +215,7 @@ void test7()
 
       // now we move global point in x direction and find new volume and path
       p+=Vector3D<Precision>(1.,0,0);
-      VPlacedVolume const *vol2= vecnav.LocatePoint( RootGeoManager::Instance().world(),
+      VPlacedVolume const *vol2= vecnav.LocatePoint( GeoManager::Instance().GetWorld(),
                p , *state2, true);
    /*
       if ( vol2 != NULL )
@@ -277,22 +277,22 @@ void testnavsimple()
     NavigationState * newstate = NavigationState::MakeInstance( maxdepth );
 
     // check with a large physical step
-    double step = 0;
+    double step = 0.0, tolerance = 1.0e-4;
     nav.FindNextBoundaryAndStep( p1, d, *currentstate, *newstate, vecgeom::kInfinity, step );
-    assert( step == 4 );
+    assert(std::abs(step - 4.0) < tolerance);
     assert( newstate->IsOnBoundary() == true );
     assert( std::strcmp( RootGeoManager::Instance().tgeonode( newstate->Top() )->GetName() , "b2l_0" ));
 
     newstate->Clear();
     nav.FindNextBoundaryAndStep( p1, d, *currentstate, *newstate, 0.02, step );
-    assert( step == 0.02 );
+    assert(std::abs(step - 0.02) < tolerance);
     assert( newstate->Top() == currentstate->Top() );
     assert( newstate->IsOnBoundary() == false );
     assert( newstate->IsOutside() == false );
 
     newstate->Clear();
     nav.FindNextBoundaryAndStep( p1, d2, *currentstate, *newstate, vecgeom::kInfinity, step );
-    assert( step == 1 );
+    assert(std::abs(step - 1.0) < tolerance);
     assert( newstate->IsOnBoundary( ) == true );
     assert( newstate->Top() == NULL );
     assert( newstate->IsOutside( ) == true );
@@ -321,7 +321,7 @@ void test8()
 
     
       SimpleNavigator nav;
-      nav.LocatePoint( RootGeoManager::Instance().world(), p, *state, true);
+      nav.LocatePoint( GeoManager::Instance().GetWorld(), p, *state, true);
       double step = 0;
       Navigator n;
       n.FindNextBoundaryAndStep( p, d, *state, *newstate, 1E30, step );
@@ -380,7 +380,7 @@ void test_safety()
          // VecGeom navigation
          Vector3D<Precision> p(x,y,z);
          SimpleNavigator nav;
-         nav.LocatePoint( RootGeoManager::Instance().world(),
+         nav.LocatePoint( GeoManager::Instance().GetWorld(),
                p, *state, true);
          double safety = nav.GetSafety( p, *state );
 
@@ -453,7 +453,7 @@ void test_geoapi()
    std::vector<VPlacedVolume *> v1;
    std::vector<LogicalVolume *> v2;
 
-   GeoManager::Instance().getAllLogicalVolumes( v2 );
+   GeoManager::Instance().GetAllLogicalVolumes( v2 );
    assert(v2.size() == 4 );
 
    GeoManager::Instance().getAllPlacedVolumes( v1 );

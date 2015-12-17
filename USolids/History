@@ -16,6 +16,28 @@ committal in the SVN repository !
      * Reverse chronological order (last date on top), please *
      ----------------------------------------------------------
 
+November 18, 2015  G.Cosmo
+- Added implementation for Capacity() in UTessellatedSolid.
+
+October 26, 2015  G.Cosmo
+- Removed redundant condition in UPolycone::SetOriginalParameters() method.
+
+October 23, 2015  G.Cosmo
+- UPolyhedraSide: moved internal struct definitions to public section
+  to overcome deficiencies in object-persistency class parsing.
+
+October 22, 2015  T.Nikitina
+- Introduced check in G4Sphere::DistanceToIn(p,v) for
+  concave Theta and point located on the origin. Also make proper use of
+  radial tolerance in DistanceToOut(p,v).
+
+September 2, 2015  G.Cosmo
+- Some code cleanup to UMultiUnion; moved struct defined at global scope
+  in source code to private section of the class.
+
+August 5, 2015  G.Cosmo
+- Fixed compilation warnings on Windows Visual-Studio 2015 in UVoxelizer.
+
 May 27, 2015  T.Nikitina
 - Fixed DistanceToOut(p) and Inside(p) in USphere for sphere cut in theta
   for point (0,0,0) and for cases when Start/End angle have not to be taken

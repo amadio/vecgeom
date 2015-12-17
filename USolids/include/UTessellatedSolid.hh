@@ -138,7 +138,7 @@ class UTessellatedSolid : public VUSolid
 
     virtual std::ostream& StreamInfo(std::ostream& os) const;
 
-    virtual double Capacity()  { return 0; }
+    virtual double Capacity();
     virtual double SurfaceArea()  { return GetSurfaceArea(); }
 
     inline virtual void GetParametersList(int /*aNumber*/, double* /*aArray*/) const {}

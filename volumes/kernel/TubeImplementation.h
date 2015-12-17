@@ -10,6 +10,7 @@
 #include "volumes/kernel/GenericKernels.h"
 #include "volumes/UnplacedTube.h"
 #include "volumes/kernel/shapetypes/TubeTypes.h"
+#include "volumes/Wedge.h"
 #include <cstdio>
 
 namespace vecgeom {
@@ -232,6 +233,7 @@ template<typename Backend, typename TubeType, bool PositiveDirectionOfPhiVector,
 VECGEOM_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY,
+                                    Precision normalX, Precision normalY,
                                     UnplacedTube const& tube,
                                     Vector3D<typename Backend::precision_v> const &pos,
                                     Vector3D<typename Backend::precision_v> const &dir,
@@ -239,9 +241,17 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY,
                                     typename Backend::bool_v &ok) {
 
   typedef typename Backend::precision_v Float_t;
+  dist = kInfinity;
 
-  dist = (alongY*pos.x() - alongX*pos.y() ) / (dir.y()*alongX - dir.x()*alongY);
+  // approaching phi plane from the right side?
+  // this depends whether we use it for DistanceToIn or DistanceToOut
+  if(insectorCheck) ok = ( dir.x()*normalX + dir.y()*normalY > 0. );  // DistToIn  -- require tracks entering volume
+  else              ok = ( dir.x()*normalX + dir.y()*normalY < 0. );  // DistToOut -- require tracks leaving volume
 
+  if( Backend::early_returns && IsEmpty(ok) ) return;
+
+  Float_t dirDotXY = (dir.y()*alongX - dir.x()*alongY);
+  MaskedAssign( dirDotXY!=0, (alongY*pos.x() - alongX*pos.y() ) / dirDotXY, &dist );
 
   if(insectorCheck) {
     Float_t hitx = pos.x() + dist * dir.x();
@@ -249,7 +259,7 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY,
     Float_t hitz = pos.z() + dist * dir.z();
     Float_t r2 = hitx*hitx + hity*hity;
 
-    ok = Abs(hitz) <= tube.tolIz() &&
+    ok = ok && Abs(hitz) <= tube.tolIz() &&
           (r2 >= tube.tolIrmin2()) &&
           (r2 <= tube.tolIrmax2()) &&
           dist > 0;
@@ -261,7 +271,7 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY,
     if(PositiveDirectionOfPhiVector) {
       Float_t hitx = pos.x() + dist * dir.x();
       Float_t hity = pos.y() + dist * dir.y();
-      ok = (hitx*alongX + hity*alongY) >= 0.;
+      ok = ok && (hitx*alongX + hity*alongY) >= 0.;
     }
   }
 }
@@ -406,7 +416,7 @@ struct TubeImplementation {
         Transformation3D const &transformation,
         Vector3D<typename Backend::precision_v> const &point,
         Vector3D<typename Backend::precision_v> const &direction,
-        typename Backend::precision_v const &stepMax,
+        typename Backend::precision_v const &/*stepMax*/,
         typename Backend::precision_v &distance) {
       
     using namespace TubeUtilities;
@@ -434,10 +444,10 @@ struct TubeImplementation {
     Bool_t okz = (pos_local.z() * dir_local.z()) < 0;
 
     // outside of Z range and going away?
-    if(Backend::early_returns && abspz > tube.z() && !okz) return;
+    if(Backend::early_returns && IsFull(abspz > tube.z() && !okz)) return;
     // outside of tube and going away?
-    if(Backend::early_returns && Abs(pos_local.x()) > tube.rmax() && pos_dot_dir_x >= 0) return;
-    if(Backend::early_returns && Abs(pos_local.y()) > tube.rmax() && pos_dot_dir_y >= 0) return;
+    if(Backend::early_returns && IsFull(Abs(pos_local.x()) > tube.rmax() && pos_dot_dir_x >= 0)) return;
+    if(Backend::early_returns && IsFull(Abs(pos_local.y()) > tube.rmax() && pos_dot_dir_y >= 0)) return;
 
 
 
@@ -531,12 +541,13 @@ struct TubeImplementation {
 
       Float_t dist_phi;
       Bool_t ok_phi;
-
+      Wedge const& w = tube.GetWedge();
       PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, SectorType<tubeTypeT>::value != kOnePi, true>(
               tube.alongPhi1x(), tube.alongPhi1y(),
+              w.GetNormal1().x(), w.GetNormal1().y(),
               tube, pos_local, dir_local, dist_phi, ok_phi);
 
-      MaskedAssign(ok_phi && dist_phi < distance, dist_phi, &distance);
+      MaskedAssign(ok_phi && dist_phi>-kTolerance && dist_phi<distance, dist_phi, &distance);
 
       /*
        * If the tube is pi degrees, there's just one phi plane,
@@ -544,14 +555,17 @@ struct TubeImplementation {
        */
 
       if(SectorType<tubeTypeT>::value != kOnePi) {
-        PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, true, true>(tube.alongPhi2x(), tube.alongPhi2y(),
+        PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, true, true>(
+                tube.alongPhi2x(), tube.alongPhi2y(),
+                w.GetNormal2().x(), w.GetNormal2().y(),
               tube, pos_local, dir_local, dist_phi, ok_phi);
 
-        MaskedAssign(ok_phi && dist_phi < distance, dist_phi, &distance);
+        MaskedAssign(ok_phi && dist_phi>-kTolerance && dist_phi<distance, dist_phi, &distance);
       }
     }
 
-  }
+  } // end of DistanceToIn()
+
 
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH
@@ -560,7 +574,7 @@ struct TubeImplementation {
       UnplacedTube const &tube,
       Vector3D<typename Backend::precision_v> const &point,
       Vector3D<typename Backend::precision_v> const &dir,
-      typename Backend::precision_v const &stepMax,
+      typename Backend::precision_v const &/*stepMax*/,
       typename Backend::precision_v &distance) {
 
     using namespace TubeTypes;
@@ -568,11 +582,16 @@ struct TubeImplementation {
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
     distance = kInfinity;
+    Bool_t done(Backend::kFalse);
 
     Float_t dirzsign(1.);
     MaskedAssign(dir.z() < 0, Float_t(-1.), &dirzsign);
-    Float_t distz = (tube.z()*dirzsign - point.z()) / dir.z();
-    MaskedAssign(distz >= 0, distz, &distance);
+    MaskedAssign(dir.z() != 0, (tube.z()*dirzsign - point.z()) / dir.z(), &distance);
+
+    // if all particles are outside and moving away, we're done
+    done = (distance <= MakePlusTolerant<true>(0.));
+    MaskedAssign( done, Float_t(0.0), &distance );
+    if( IsFull(done) ) return;
 
     /*
      * Calculate the intersection of the trajectory of
@@ -591,9 +610,9 @@ struct TubeImplementation {
      * rmin
      */
 
-    Float_t dist_rmin;
-    Bool_t ok_rmin;
     if(checkRminTreatment<tubeTypeT>(tube)) {
+      Float_t dist_rmin;
+      Bool_t ok_rmin;
       Float_t crmin = invnsq * (rsq - tube.rmin2());
       CircleTrajectoryIntersection<Backend, tubeTypeT, false, false>(b, crmin, tube, point, dir, dist_rmin, ok_rmin);
       MaskedAssign(ok_rmin && dist_rmin >= 0 && dist_rmin < distance, dist_rmin, &distance);
@@ -621,37 +640,42 @@ struct TubeImplementation {
      */
 
     if(checkPhiTreatment<tubeTypeT>(tube)) {
-      Float_t dist_phi;
-      Bool_t ok_phi;
-      Bool_t unused;
+      Float_t dist_phi(kInfinity);
+      Bool_t ok_phi(false);
 
+      Wedge const& w = tube.GetWedge();
       if(SectorType<tubeTypeT>::value == kSmallerThanPi) { 
+
+        Precision normal1X = w.GetNormal1().x();
+        Precision normal1Y = w.GetNormal1().y();
         PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, false, false>(
-            tube.alongPhi1x(), tube.alongPhi1y(), tube, point, dir, dist_phi, unused);
-        MaskedAssign(dist_phi > 0 && dist_phi < distance, dist_phi, &distance);
+                tube.alongPhi1x(), tube.alongPhi1y(), normal1X, normal1Y,  tube, point, dir, dist_phi, ok_phi);
+        MaskedAssign(ok_phi && dist_phi > -kTolerance && dist_phi < distance, dist_phi, &distance);
 
         PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, false, false>(
-          tube.alongPhi2x(), tube.alongPhi2y(), tube, point, dir, dist_phi, unused);
-        MaskedAssign(dist_phi > 0 && dist_phi < distance, dist_phi, &distance);
+        tube.alongPhi2x(), tube.alongPhi2y(), w.GetNormal2().x(), w.GetNormal2().y(), tube, point, dir, dist_phi, ok_phi);
+        MaskedAssign(ok_phi && dist_phi > -kTolerance && dist_phi < distance, dist_phi, &distance);
+
       }
       else if(SectorType<tubeTypeT>::value == kOnePi) {
         PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, false, false>(
-          tube.alongPhi2x(), tube.alongPhi2y(), tube, point, dir, dist_phi, unused);
-        MaskedAssign(dist_phi > 0 && dist_phi < distance, dist_phi, &distance);
+          tube.alongPhi2x(), tube.alongPhi2y(),
+          w.GetNormal2().x(), w.GetNormal2().x(),
+          tube, point, dir, dist_phi, ok_phi);
+        MaskedAssign(ok_phi && dist_phi > -kTolerance && dist_phi < distance, dist_phi, &distance);
       }
       else {
         // angle bigger than pi or unknown
         // need to check that point falls on positive direction of phi-vectors
         PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, true, false>(
-            tube.alongPhi1x(), tube.alongPhi1y(), tube, point, dir, dist_phi, ok_phi);
-        MaskedAssign(ok_phi && dist_phi > 0 && dist_phi < distance, dist_phi, &distance);
+            tube.alongPhi1x(), tube.alongPhi1y(), w.GetNormal1().x(), w.GetNormal1().y(), tube, point, dir, dist_phi, ok_phi);
+        MaskedAssign(ok_phi && dist_phi > -kTolerance && dist_phi < distance, dist_phi, &distance);
 
         PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, true, false>(
-          tube.alongPhi2x(), tube.alongPhi2y(), tube, point, dir, dist_phi, ok_phi);
-        MaskedAssign(ok_phi && dist_phi > 0 && dist_phi < distance, dist_phi, &distance);
+          tube.alongPhi2x(), tube.alongPhi2y(), w.GetNormal2().x(), w.GetNormal2().y(), tube, point, dir, dist_phi, ok_phi);
+        MaskedAssign(ok_phi && dist_phi > -kTolerance && dist_phi < distance, dist_phi, &distance);
       }
     }
-
   }
 
   template <class Backend>
@@ -688,7 +712,7 @@ struct TubeImplementation {
       Bool_t insector;
       PointInCyclicalSector<Backend, tubeTypeT, UnplacedTube, false>(tube, local_point.x(), local_point.y(), insector);
 
-      if(Backend::early_returns && insector) return;
+      if(Backend::early_returns && IsFull(insector)) return;
 
       Float_t safephi;
       PhiPlaneSafety<Backend, tubeTypeT, false>(tube, local_point, safephi);

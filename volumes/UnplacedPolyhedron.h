@@ -15,8 +15,8 @@
 
 #include <ostream>
 
-// This enums should be in the scope vecgeom::Polyhedron but when using in the
-// shape implementation helper instantiation's, this consfused nvcc:
+// These enums should be in the scope vecgeom::Polyhedron, but when used in the
+// shape implementation helper instantiations, nvcc gets confused:
 /*
 In file included from tmpxft_00004012_00000000-3_PlacedPolyhedron.cudafe1.stub.c:1:0:
 /tmp/tmpxft_00004012_00000000-3_PlacedPolyhedron.cudafe1.stub.c:5:136: error: template argument 2 is invalid
@@ -37,17 +37,19 @@ enum struct EPhiCutout {
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE( class UnplacedPolyhedron; )
-VECGEOM_DEVICE_FORWARD_DECLARE( struct ZSegment; )
-VECGEOM_DEVICE_DECLARE_CONV( UnplacedPolyhedron );
-VECGEOM_DEVICE_DECLARE_CONV( ZSegment );
+VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedPolyhedron;)
+VECGEOM_DEVICE_FORWARD_DECLARE(struct ZSegment;)
+VECGEOM_DEVICE_DECLARE_CONV(UnplacedPolyhedron)
+#if !defined(VECGEOM_NVCC)
+VECGEOM_DEVICE_DECLARESTRUCT_CONV(ZSegment)
+#else
+VECGEOM_DEVICE_DECLARE_CONV(ZSegment)
+#endif
 
 // Declare types shared by cxx and cuda.
 namespace Polyhedron {
-
    using ::EInnerRadii;
    using ::EPhiCutout;
-
 }
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -100,8 +102,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
       Quadrilaterals outer; ///< Should always be non-empty.
       Quadrilaterals phi;   ///< Is empty if fHasPhiCutout is false.
       Quadrilaterals inner; ///< Is empty hasInnerRadius is false.
-      bool hasInnerRadius;  ///< Indicates whether any inner quadrilaterals are
-                            ///  present in this segment.
+      bool hasInnerRadius;  ///< Indicates whether any inner quadrilaterals are present in this segment.
    };
 
 class UnplacedPolyhedron : public VUnplacedVolume, public AlignedBase {
@@ -136,6 +137,14 @@ private:
   mutable Precision fSurfaceArea; ///< Stored SurfaceArea
   mutable Precision fCapacity;    ///< Stored Capacity
 
+//These private data member and member functions are added for convexity detection
+private:
+  bool fContinuousInSlope;
+  bool fConvexityPossible;
+  bool fEqualRmax;
+  VECGEOM_CUDA_HEADER_BOTH
+  bool CheckContinuityInSlope(const double rOuter[], const double zPlane[],unsigned int zPlaneCount);
+
 public:
 
   /// \param sideCount Number of sides along phi in each Z-segment.
@@ -149,9 +158,10 @@ public:
   UnplacedPolyhedron(
       const int sideCount,
       const int zPlaneCount,
-      Precision zPlanes[],
+      Precision const zPlanes[],
       Precision const rMin[],
       Precision const rMax[]);
+
   /// \param phiStart Angle in phi of first corner. This will be one phi angle
   ///                 of the phi cutout, if any cutout is specified. Specified
   ///                 in degrees (not radians).
@@ -173,9 +183,33 @@ public:
       Precision phiDelta,
       const int sideCount,
       const int zPlaneCount,
-      Precision zPlanes[],
+      Precision const zPlanes[],
       Precision const rMin[],
       Precision const rMax[]);
+
+  /// Alternative constructor, required for integration with Geant4.
+  /// This constructor mirrors one in UnplacedPolycone(), for which the r[],z[] idea makes more sense.
+  /// Input must be such that r[i],z[i] arrays describe the outer,inner or inner,outer envelope of the
+  /// polyhedron, after connecting all adjacent points, and closing the polygon by connecting last -> first points.
+  /// Hence z[] array must be symmetrical: z[0..Nz] = z[2Nz, 2Nz-1, ..., Nz+1], where Nz = zPlaneCount.
+  ///
+  /// \param phiStart Angle in phi of first corner. This will be one phi angle of the phi cutout, if any
+  ///                 cutout is specified. Specified in degrees (not radians).
+  /// \param phiDelta Total angle in phi over which the sides of each segment will be drawn. When added to the
+  ///                 starting angle, this will mark one of the angles of the phi cutout, if a cutout is specified.
+  /// \param sideCount Number of sides along phi in each Z-segment.
+  /// \param zPlaneCount Number of Z-planes to draw segments between. The number
+  ///                    of segments will always be this number minus one.
+  /// \param zPlanes Z-coordinates of each Z-plane to draw segments between.
+  /// \param rMin Radius to the sides (not to the corners!) of the inner shell for the corresponding Z-plane.
+  /// \param rMax Radius to the sides (not to the corners!) of the outer shell for the corresponding Z-plane.
+  UnplacedPolyhedron(
+      Precision phiStart,
+      Precision phiDelta,
+      const int sideCount,
+      const int zPlaneCount,
+      Precision const r[],
+      Precision const z[]);
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual ~UnplacedPolyhedron() {}
@@ -236,59 +270,48 @@ public:
   VECGEOM_INLINE
   UnplacedTube const &GetBoundingTube() const { return fBoundingTube; }
 
-#ifndef VECGEOM_NVCC
-  VECGEOM_CUDA_HEADER_BOTH
-  Precision DistanceSquarePointToSegment(Vector3D<Precision>& v1,Vector3D<Precision>&v2, const Vector3D<Precision>&p) const;
-  VECGEOM_CUDA_HEADER_BOTH
-  bool InsideTriangle(Vector3D<Precision>& v1, Vector3D<Precision>& v2,  Vector3D<Precision>& v3, const Vector3D<Precision>& p) const;
-
-  VECGEOM_CUDA_HEADER_BOTH
-  Precision GetTriangleArea(Vector3D<Precision>& v1, Vector3D<Precision>& v2,
-                              Vector3D<Precision>& v3 )const;
-  VECGEOM_CUDA_HEADER_BOTH
-  Vector3D<Precision> GetPointOnTriangle(Vector3D<Precision>& v1,
-			Vector3D<Precision>&v2,Vector3D<Precision>& v3 )const;
-  VECGEOM_CUDA_HEADER_BOTH
-  Precision Capacity() const;
-
-  VECGEOM_CUDA_HEADER_BOTH
-  Precision SurfaceArea() const ;
-
-  VECGEOM_CUDA_HEADER_BOTH
-  void Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const;
-  
-  VECGEOM_CUDA_HEADER_BOTH
-  Vector3D<Precision> GetPointOnSurface() const;
-
-  VECGEOM_CUDA_HEADER_BOTH
-  bool Normal(Vector3D<Precision>const& point, Vector3D<Precision>& normal) const;
-
-  std::string GetEntityType() const { return "Polyhedron"; }
-#endif // !VECGEOM_NVCC
-
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision GetBoundingTubeOffset() const { return fBoundingTubeOffset; }
 
+  VECGEOM_CUDA_HEADER_BOTH
+  bool Normal(Vector3D<Precision>const& point, Vector3D<Precision>& normal) const;
 
-  /// Not a stored value, and should not be called from performance critical
-  /// code.
-  /// \return The angle along phi where the first corner is placed, specified in
-  ///         degrees.
+#ifndef VECGEOM_NVCC
+  Precision DistanceSquarePointToSegment(Vector3D<Precision>& v1,Vector3D<Precision>&v2, const Vector3D<Precision>&p) const;
+  bool InsideTriangle(Vector3D<Precision>& v1, Vector3D<Precision>& v2,  Vector3D<Precision>& v3, const Vector3D<Precision>& p) const;
+
+  // calculate array of triangle spanned by points v1,v2,v3
+  // TODO: this function has nothing to do with a Polyhedron. It should live somewhere else ( indeed: the Quadriteral seems to have such a function, too )
+  Precision GetTriangleArea(Vector3D<Precision> const &v1, Vector3D<Precision> const &v2, Vector3D<Precision> const &v3) const;
+
+  // returns a random point inside the triangle described by v1,v2,v3
+  // TODO: this function has nothing to do with a Polyhedron. It should live somewhere else ( indeed: the Quadriteral seems to have such a function, too )
+  Vector3D<Precision> GetPointOnTriangle(Vector3D<Precision> const &v1, Vector3D<Precision> const &v2, Vector3D<Precision> const &v3) const;
+
+  Precision Capacity() const;
+
+  Precision SurfaceArea() const ;
+
+  void Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const;
+  
+  Vector3D<Precision> GetPointOnSurface() const;
+
+  std::string GetEntityType() const { return "Polyhedron"; }
+#endif // !VECGEOM_NVCC
+
+  /// Not a stored value, and should not be called from performance critical code.
+  /// \return The angle along phi where the first corner is placed, specified in degrees.
   VECGEOM_CUDA_HEADER_BOTH
   Precision GetPhiStart() const;
 
-  /// Not a stored value, and should not be called from performance critical
-  /// code.
-  /// \return The angle along phi where the last corner is placed, specified in
-  ///         degrees.
+  /// Not a stored value, and should not be called from performance critical code.
+  /// \return The angle along phi where the last corner is placed, specified in degrees.
   VECGEOM_CUDA_HEADER_BOTH
   Precision GetPhiEnd() const;
 
-  /// Not a stored value, and should not be called from performance critical
-  /// code.
-  /// \return The difference in angle along phi between the last corner and the
-  ///         first corner.
+  /// Not a stored value, and should not be called from performance critical code.
+  /// \return The difference in angle along phi between the last corner and the first corner.
   VECGEOM_CUDA_HEADER_BOTH
   Precision GetPhiDelta() const;
 
@@ -312,7 +335,7 @@ public:
       AOS3D<Precision> const * innercorners;
       AOS3D<Precision> const * outercorners;
 
-      // lambda function to recalculate the radiuses
+      // lambda function to recalculate the radii
       auto getradius = [](Vector3D<Precision> const & a, Vector3D<Precision> const & b) {
           return  std::sqrt(a.Perp2() - (a-b).Mag2()/4.);
       };
@@ -358,14 +381,43 @@ public:
     }
 
 
+  //Function to check the convexity
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void Print() const;
+  virtual bool IsConvex() const override;
+
+
+  VECGEOM_CUDA_HEADER_BOTH
+  virtual void Print() const final;
 
   VECGEOM_CUDA_HEADER_BOTH
   void PrintSegments() const;
 
-  virtual void Print(std::ostream &os) const;
+  virtual void Print(std::ostream &os) const final;
 
+#if defined(VECGEOM_USOLIDS)
+  std::ostream& StreamInfo(std::ostream &os) const;
+#endif
+
+  template <TranslationCode transCodeT, RotationCode rotCodeT>
+  VECGEOM_CUDA_HEADER_DEVICE
+  static VPlacedVolume* Create(LogicalVolume const *const logical_volume,
+                               Transformation3D const *const transformation,
+#ifdef VECGEOM_NVCC
+                               const int id,
+#endif
+                               VPlacedVolume *const placement = NULL);
+                               
+  VECGEOM_CUDA_HEADER_DEVICE
+  virtual VPlacedVolume* SpecializedVolume(
+      LogicalVolume const *const volume,
+      Transformation3D const *const transformation,
+      const TranslationCode trans_code, const RotationCode rot_code,
+#ifdef VECGEOM_NVCC
+      const int id,
+#endif
+      VPlacedVolume *const placement = NULL) const final;
+/*
+>>>>>>> master
   VECGEOM_CUDA_HEADER_DEVICE
   VPlacedVolume* SpecializedVolume(
       LogicalVolume const *const volume,
@@ -374,16 +426,29 @@ public:
 #ifdef VECGEOM_NVCC
       const int id,
 #endif
-      VPlacedVolume *const placement) const;
-
+      VPlacedVolume *const placement) const final;
+*/
   VECGEOM_INLINE
-    virtual int memory_size() const { return sizeof(*this); }
+    virtual int memory_size() const final { return sizeof(*this); }
 
 #ifdef VECGEOM_CUDA_INTERFACE
   virtual size_t DeviceSizeOf() const { return DevicePtr<cuda::UnplacedPolyhedron>::SizeOf(); }
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const;
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
 #endif
+
+private:
+  // This method does the proper construction of planes and segments.
+  // Used by multiple constructors.
+  VECGEOM_CUDA_HEADER_BOTH
+  void Initialize(
+      Precision phiStart,
+      Precision phiDelta,
+      const int sideCount,
+      const int zPlaneCount,
+      Precision const zPlanes[],
+      Precision const rMin[],
+      Precision const rMax[]);
 
 }; // End class UnplacedPolyhedron
 

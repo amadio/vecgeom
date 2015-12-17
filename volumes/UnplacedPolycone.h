@@ -15,16 +15,18 @@
 #include "volumes/UnplacedVolume.h"
 #include "volumes/UnplacedCone.h"
 #include "base/Vector.h"
-
+#include <vector>
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE( class UnplacedPolycone; )
-VECGEOM_DEVICE_DECLARE_CONV( UnplacedPolycone );
+VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedPolycone;)
+VECGEOM_DEVICE_DECLARE_CONV(UnplacedPolycone)
 
-VECGEOM_DEVICE_FORWARD_DECLARE( struct PolyconeSection; )
-  //VECGEOM_DEVICE_DECLARESTRUCT_CONV( PolyconeSection );
-VECGEOM_DEVICE_DECLARE_CONV( PolyconeSection );
-
+VECGEOM_DEVICE_FORWARD_DECLARE(struct PolyconeSection;)
+#if !defined(VECGEOM_NVCC)
+VECGEOM_DEVICE_DECLARESTRUCT_CONV(PolyconeSection)
+#else
+VECGEOM_DEVICE_DECLARE_CONV(PolyconeSection)
+#endif
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -38,7 +40,7 @@ struct PolyconeSection
 
    VECGEOM_CUDA_HEADER_BOTH
    ~PolyconeSection() = default;
-   
+
    UnplacedCone *fSolid;
    double fShift;
    bool fTubular;
@@ -56,9 +58,8 @@ public:
     // for the phi section --> will be replaced by a wedge
     Precision fStartPhi;
     Precision fDeltaPhi;
-    Precision fEndPhi;
 
-    int fNz;
+    unsigned int fNz;  // number of planes the polycone was constructed with; It should not be modified
     //Precision * fRmin;
     //Precision * fRmax;
     //Precision * fZ;
@@ -67,40 +68,68 @@ public:
     Vector<PolyconeSection> fSections;
     Vector<double> fZs;
 
+
+//These private data member and member functions are added for convexity detection
+private:
+        bool fEqualRmax;
+        bool fContinuityOverAll;
+        bool fConvexityPossible;
+        VECGEOM_CUDA_HEADER_BOTH
+        bool CheckContinuity(const double rOuter[], const double rInner[], const double zPlane[],
+                             Vector<Precision> &newROuter, Vector<Precision> &newRInner, Vector<Precision> &zewZPlane);
+        VECGEOM_CUDA_HEADER_BOTH
+        bool CheckContinuityInRmax(const Vector<Precision> &rOuter);
+        VECGEOM_CUDA_HEADER_BOTH
+        bool CheckContinuityInSlope(const Vector<Precision> &rOuter, const Vector<Precision> &zPlane);
+
 public:
     VECGEOM_CUDA_HEADER_BOTH
     void Init(
          double phiStart,        // initial phi starting angle
          double phiTotal,        // total phi angle
-         int numZPlanes,         // number of z planes
+         unsigned int numZPlanes,// number of z planes
          const double zPlane[],  // position of z planes
          const double rInner[],  // tangent distance to inner surface
          const double rOuter[]);
+
 
     // the constructor
     VECGEOM_CUDA_HEADER_BOTH
     UnplacedPolycone( Precision phistart, Precision deltaphi,
             int Nz,
-            Precision * z,
-            Precision * rmin,
-            Precision * rmax
+            Precision const* z,
+            Precision const* rmin,
+            Precision const* rmax
             ) :
                 fStartPhi(phistart),
                 fDeltaPhi(deltaphi),
                 fNz(Nz),
                 fSections(),
-                fZs(Nz)
+                fZs(Nz),
+                fEqualRmax(true),
+                fContinuityOverAll(true),
+                fConvexityPossible(true)
     {
         // init internal members
         Init(phistart, deltaphi, Nz, z, rmin, rmax);
     }
 
+    // alternative constructor, required for integration with Geant4
     VECGEOM_CUDA_HEADER_BOTH
-    int GetNz() const {return fNz;}
+    UnplacedPolycone(Precision phiStart,   // initial phi starting angle
+                     Precision phiTotal,   // total phi angle
+                     int     numRZ,        // number corners in r,z space
+                     Precision const* r,   // r coordinate of these corners
+                     Precision const* z);  // z coordinate of these corners
 
+    //Function to check the convexity
+    VECGEOM_CUDA_HEADER_BOTH
+    virtual bool IsConvex() const override;
+
+    VECGEOM_CUDA_HEADER_BOTH
+    unsigned int GetNz() const { return fNz; }
     VECGEOM_CUDA_HEADER_BOTH
     int GetNSections() const {return fSections.size();}
-
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetStartPhi() const {return fStartPhi;}
     VECGEOM_CUDA_HEADER_BOTH
@@ -110,19 +139,17 @@ public:
 
     VECGEOM_CUDA_HEADER_BOTH
     int GetSectionIndex( Precision zposition ) const {
-     //TODO: consider bindary search
-     if( zposition < fZs[0] ) return -1;
-     for(int i=0;i<GetNSections();++i)
-       {
-           if( zposition >= fZs[i] && zposition <= fZs[i+1] )
-                return i;
-       }
-     return -2;
+      //TODO: consider binary search
+      if( zposition < fZs[0] ) return -1;
+      for( int i=0; i<GetNSections(); ++i ) {
+        if( zposition >= fZs[i] && zposition <= fZs[i+1] ) return i;
+      }
+      return -2;
     }
 
     VECGEOM_CUDA_HEADER_BOTH
     PolyconeSection const & GetSection( Precision zposition ) const {
-        //TODO: consider bindary search
+        // TODO: consider binary search
         int i = GetSectionIndex(zposition);
         return fSections[i];
     }
@@ -131,6 +158,28 @@ public:
     // GetSection if index is known
     PolyconeSection const & GetSection( int index ) const {
       return fSections[index];
+    }
+
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetRminAtPlane( int index ) const {
+      int nsect = GetNSections();
+      assert(index>=0 && index<=nsect);
+      if(index==nsect) return fSections[index-1].fSolid->GetRmin2();
+      else             return fSections[index].fSolid->GetRmin1();
+    }
+
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetRmaxAtPlane( int index ) const {
+      int nsect = GetNSections();
+      assert(index>=0 || index<=nsect);
+      if(index==nsect) return fSections[index-1].fSolid->GetRmax2();
+      else             return fSections[index].fSolid->GetRmax1();
+    }
+
+    VECGEOM_CUDA_HEADER_BOTH
+    Precision GetZAtPlane( int index ) const {
+      assert(index>=0 || index<=GetNSections());
+      return fZs[index];
     }
 
 #if !defined(VECGEOM_NVCC)
@@ -183,10 +232,10 @@ public:
     // these methods are required by VUnplacedVolume
     //
 public:
-    virtual int memory_size() const { return sizeof(*this); }
+    virtual int memory_size() const final { return sizeof(*this); }
 
     VECGEOM_CUDA_HEADER_BOTH
-    virtual void Print() const;
+    virtual void Print() const final;
 
     template <TranslationCode transCodeT, RotationCode rotCodeT>
     VECGEOM_CUDA_HEADER_DEVICE
@@ -204,9 +253,13 @@ public:
       virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
     #endif
 
+#if defined(VECGEOM_USOLIDS)
+  std::ostream& StreamInfo(std::ostream &os) const;
+#endif
+
     private:
 
-      virtual void Print(std::ostream &os) const;
+      virtual void Print(std::ostream &os) const final;
 
       VECGEOM_CUDA_HEADER_DEVICE
       virtual VPlacedVolume* SpecializedVolume(
@@ -216,7 +269,7 @@ public:
     #ifdef VECGEOM_NVCC
           const int id,
     #endif
-          VPlacedVolume *const placement = NULL) const;
+          VPlacedVolume *const placement = NULL) const final;
 
 
 }; // end class UnplacedPolycone

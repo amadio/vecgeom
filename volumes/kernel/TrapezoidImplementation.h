@@ -23,6 +23,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(TrapezoidImplementation, TranslationCode
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class PlacedTrapezoid;
+using TrapSidePlane = vecgeom::UnplacedTrapezoid::TrapSidePlane;
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 struct TrapezoidImplementation {
@@ -234,7 +235,7 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToIn(
     Transformation3D const &transformation,
     Vector3D<typename Backend::precision_v> const &masterPoint,
     Vector3D<typename Backend::precision_v> const &masterDir,
-    typename Backend::precision_v const &stepMax,
+    typename Backend::precision_v const &/*stepMax*/,
     typename Backend::precision_v &distance) {
 
   typedef typename Backend::precision_v Float_t;
@@ -386,13 +387,13 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToOut(
     UnplacedTrapezoid const &unplaced,
     Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> const &dir,
-    typename Backend::precision_v const &stepMax,
+    typename Backend::precision_v const &/*stepMax*/,
     typename Backend::precision_v &distance) {
 
   typedef typename Backend::precision_v Float_t;
   typedef typename Backend::bool_v Bool_t;
 
-  distance = Backend::kZero;     // early return value
+  distance = kInfinity;  // default initialization
   Bool_t done(Backend::kFalse);
 
   //
@@ -403,6 +404,8 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToOut(
   // Note that both posZdir and NegZdir may be false, if dir.z() is zero!
   Bool_t posZdir = dir.z() > 0.0;
   Bool_t negZdir = dir.z() <= -0.0;  // -0.0 is needed, see JIRA-150
+
+  // TODO: consider use of copysign or some other standard function
   Float_t zdirSign = Backend::kOne;  // z-direction
   MaskedAssign( negZdir, -Backend::kOne, &zdirSign);
 
@@ -415,10 +418,11 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToOut(
   done |= (negZdir && max >= MakeMinusTolerant<true>(0.));
 
   // if all particles moving away, we're done
+  MaskedAssign( done, Float_t(0.0), &distance );
   if ( IsFull(done) ) return;
 
   // Step 1.b) general case: assign distance to z plane
-  distance = max/dir.z();
+  distance = max/( dir.z() + zdirSign * vecgeom::kEpsilon );
 
   //
   // Step 2: find distances for intersections with side planes.
@@ -510,7 +514,7 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::SafetyToOut(
 
   Bool_t done(false);
 
-  // If point is outside, set distance to zero
+  // If point is outside, set safety to zero
   safety = unplaced.GetDz() - Abs(point.z());
   MaskedAssign( safety<0.0, 0.0, &safety );
   done |= safety==0.0;

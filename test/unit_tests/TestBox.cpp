@@ -1,9 +1,7 @@
 //
+// File:    TestBox.cpp
+// Purpose: Unit tests for the box
 //
-// TestBox
-//             Ensure asserts are compiled in
-
-
 
 #include "base/Vector3D.h"
 #include "volumes/Box.h"
@@ -14,10 +12,12 @@
 #endif
 #include <cmath>
 
+//-- ensure asserts are compiled in
 #undef NDEBUG
 #include <cassert>
 
-bool testingvecgeom=false;
+bool testvecgeom=false;
+
 
 template <class Box_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
 bool TestBox() {
@@ -46,10 +46,8 @@ bool TestBox() {
     Box_t b2("Test Box #2",10,10,10);
     Box_t box3("BABAR Box",0.14999999999999999, 
                            24.707000000000001,  
-	                   22.699999999999999) ;
+                       22.699999999999999) ;
 
-// Check name
-    assert(b1.GetName()=="Test Box #1");
     // Check cubic volume
 
     assert(b2.Capacity() == 8000);    
@@ -167,34 +165,48 @@ bool TestBox() {
     
     // DistanceToOut(P,V) with asserts for norm and convex
      Dist=b1.DistanceToOut(pzero,vx,norm,convex);
-     assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,vx)&&convex);
+     assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,vx));
+     if(!testvecgeom) assert(convex);
      Dist=b1.DistanceToOut(pzero,vmx,norm,convex);
-     assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,vmx)&&convex);
+     assert(ApproxEqual(Dist,20)&&ApproxEqual(norm,vmx));
+     if(!testvecgeom) assert(convex);
      Dist=b1.DistanceToOut(pzero,vy,norm,convex);
-     assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,vy)&&convex);
+     assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,vy));
+     if(!testvecgeom) assert(convex);
      Dist=b1.DistanceToOut(pzero,vmy,norm,convex);
-     assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,vmy)&&convex);
+     assert(ApproxEqual(Dist,30)&&ApproxEqual(norm,vmy));
+     if(!testvecgeom) assert(convex);
      Dist=b1.DistanceToOut(pzero,vz,norm,convex);
-     assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vz)&&convex);
+     assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vz));
+     if(!testvecgeom) assert(convex);
      Dist=b1.DistanceToOut(pzero,vmz,norm,convex);
-     assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vmz)&&convex);
+     assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vmz));
+     if(!testvecgeom) assert(convex);
      Dist=b1.DistanceToOut(pzero,vxy,norm,convex);
-     assert(ApproxEqual(Dist,std::sqrt(800.))&&convex);
+     assert(ApproxEqual(Dist,std::sqrt(800.)));
+     if(!testvecgeom) assert(convex);
 
      Dist=b1.DistanceToOut(ponxside,vx,norm,convex);
-     assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vx)&&convex);
+     assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vx));
+     if(!testvecgeom) assert(convex);
      Dist=b1.DistanceToOut(ponxside,vmx,norm,convex);
-     assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vmx)&&convex);
+     assert(ApproxEqual(Dist,40)&&ApproxEqual(norm,vmx));
+     if(!testvecgeom) assert(convex);
      Dist=b1.DistanceToOut(ponmxside,vmx,norm,convex);
-     assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmx)&&convex);
+     assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmx));
+     if(!testvecgeom) assert(convex);
      Dist=b1.DistanceToOut(ponyside,vy,norm,convex);
-     assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vy)&&convex);
+     assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vy));
+     if(!testvecgeom) assert(convex);
      Dist=b1.DistanceToOut(ponmyside,vmy,norm,convex);
-     assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmy)&&convex);
+     assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmy));
+     if(!testvecgeom) assert(convex);
      Dist=b1.DistanceToOut(ponzside,vz,norm,convex);
-     assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vz)&&convex);
+     assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vz));
+     if(!testvecgeom) assert(convex);
      Dist=b1.DistanceToOut(ponmzside,vmz,norm,convex);
-     assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmz)&&convex);
+     assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vmz));
+     if(!testvecgeom) assert(convex);
 //#endif
 
 // Check Inside
@@ -314,37 +326,32 @@ bool TestBox() {
     Dist = b1.DistanceToIn(Vec_t(-25,-35,0),vy) ;
     if( Dist >= UUtils::kInfinity ) Dist = UUtils::Infinity(); 
     assert(ApproxEqual(Dist,UUtils::Infinity()));
-    
+
 
     Dist = b2.DistanceToIn(pJohnXY,vmx) ;
     assert(ApproxEqual(Dist,2));
    
 
-    Vec_t temp = Vec_t( -0.76165597579890043,
+    Vec_t tempDir = Vec_t( -0.76165597579890043,
                         0.64364445891356026,
                         -0.074515708658524193);
-    temp = temp*1./temp.Mag();
     Dist=box3.DistanceToIn(Vec_t(  0.15000000000000185,
-                                         -22.048743592955137,
-                                           2.4268539333219472), temp) ;
+                                   -22.048743592955137,
+                                   2.4268539333219472), tempDir.Unit() ) ;
 
     assert(ApproxEqual(Dist,0.0));
 
     /** testing tolerance of DistanceToIn **/
     Box_t b4("Box4",5.,5.,5.);
     // a point very slightly inside should return 0
-    temp = Vec_t(0.76315134679548990437,
-                                  0.53698876104646497964,
-		 -0.35950395323836459305);
-    temp = temp*1./temp.Mag();
+    tempDir = Vec_t(0.76315134679548990437,
+                    0.53698876104646497964,
+                    -0.35950395323836459305);
     Dist = b4.DistanceToIn( Vec_t(-3.0087437277453119577,
                                   -4.9999999999999928946,
                                   4.8935648380409944025),
-                           temp );
-    if(testingvecgeom )
-            assert(Dist<=0.0);
-    else
-            assert(ApproxEqual(Dist,0.0));
+                            tempDir.Unit() );
+    assert(Dist<=0.0);
 
     /* **********************************************************
     */ /////////////////////////////////////////////////////
@@ -354,34 +361,38 @@ bool TestBox() {
 
 int main(int argc, char *argv[]) {
  
-   if( argc < 2)
-    {
+   if( argc < 2) {
       std::cerr << "need to give argument :--usolids or --vecgeom\n";     
       return 1;
     }
     
-    if( ! strcmp(argv[1], "--usolids") )
-    { 
-      #ifdef VECGEOM_USOLIDS
-      assert(TestBox<UBox>());
-      std::cout << "UBox passed\n";
-      #else
-      std::cerr << "VECGEOM_USOLIDS was not defined\n";
-      return 2;
-      #endif
+    if( ! strcmp(argv[1], "--usolids") ) { 
+
+#ifndef VECGEOM_USOLIDS
+        std::cerr << "VECGEOM_USOLIDS was not defined\n";
+        return 2;
+#else
+  #ifndef VECGEOM_REPLACE_USOLIDS
+        assert(TestBox<UBox>());
+        std::cout << "UBox passed\n";
+  #else
+        testvecgeom = true;  // needed to avoid testing convexity when vecgeom is used
+        TestBox<UBox>();
+        std::cout << "USolid --> VecGeom box passed\n";
+  #endif
+#endif
     }
-    else if( ! strcmp(argv[1], "--vecgeom") )
-    {
-        testingvecgeom = true;
+
+    else if( ! strcmp(argv[1], "--vecgeom") ) {
+        testvecgeom = true;
         assert(TestBox<vecgeom::SimpleBox>());
-     std::cout << "VecGeomBox passed\n";
+        std::cout << "VecGeomBox passed\n";
     }
-    else
-    {
+
+    else {
       std::cerr << "need to give argument :--usolids or --vecgeom\n";     
       return 1;
     }
-
 
   return 0;
 }

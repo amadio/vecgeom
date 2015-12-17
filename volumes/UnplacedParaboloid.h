@@ -41,7 +41,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class UnplacedParaboloid; )
-VECGEOM_DEVICE_DECLARE_CONV( UnplacedParaboloid );
+VECGEOM_DEVICE_DECLARE_CONV( UnplacedParaboloid )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -194,26 +194,31 @@ public:
 //__________________________________________________________________
     
    
+#if defined(VECGEOM_USOLIDS)
     VECGEOM_CUDA_HEADER_BOTH
-    void StreamInfo(std::ostream &os) const;
+    std::ostream& StreamInfo(std::ostream &os) const;
+#endif
     
 //__________________________________________________________________
     
 
-    virtual int memory_size() const { return sizeof(*this); }
+    virtual int memory_size() const final { return sizeof(*this); }
 
 //__________________________________________________________________
     
 
     VECGEOM_CUDA_HEADER_BOTH
-    virtual void Print() const;
+    virtual void Print() const final;
 //__________________________________________________________________
     
 
-    virtual void Print(std::ostream &os) const;
+    virtual void Print(std::ostream &os) const final;
     
 //__________________________________________________________________
     
+    //Function to check the convexity
+    VECGEOM_CUDA_HEADER_BOTH
+    virtual bool IsConvex() const override;
 
 
     template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -243,7 +248,7 @@ private:
 #ifdef VECGEOM_NVCC
       const int id,
 #endif
-      VPlacedVolume *const placement = NULL) const;
+      VPlacedVolume *const placement = NULL) const final;
 
 };
 

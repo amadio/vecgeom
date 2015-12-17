@@ -53,6 +53,14 @@ typedef kScalar::int_v    ScalarInt;
 typedef kScalar::precision_v ScalarDouble;
 typedef kScalar::bool_v   ScalarBool;
 
+#define kVectorSize 1
+#ifdef VECGEOM_SCALAR
+#define VECGEOM_BACKEND_TYPE         kScalar
+#define VECGEOM_BACKEND_PRECISION(P) (*(P))
+#define VECGEOM_BACKEND_BOOL         ScalarBool
+#define VECGEOM_BACKEND_INSIDE       kScalar::inside_v
+#endif
+
 template <typename Type>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
@@ -67,6 +75,13 @@ VECGEOM_INLINE
 void MaskedAssign(const bool cond,
                   Type const &thenval, Type *const output) {
   *output = (cond) ? thenval : *output;
+}
+
+template <typename Type>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+void StoreTo(Type const &what, Type *toAddr) {
+  *toAddr = what;
 }
 
 VECGEOM_CUDA_HEADER_BOTH
@@ -87,12 +102,12 @@ bool IsEmpty(bool const &cond){
     return !cond;
 }
 
-template <typename Type>
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
-Type Pow(Type const &x, Type arg) {
-   return pow(x,arg);
-}
+/* template <typename Type> */
+/* VECGEOM_CUDA_HEADER_BOTH */
+/* VECGEOM_INLINE */
+/* Type Pow(Type const &x, Type arg) { */
+/*    return pow(x,arg); */
+/* } */
 
 template <typename Type>
 VECGEOM_CUDA_HEADER_BOTH
@@ -113,6 +128,27 @@ VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
 Type Sqrt(const Type val) {
   return std::sqrt(val);
+}
+
+template <typename Type>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+Type Log(const Type val) {
+  return std::log(val);
+}
+
+template <typename Type>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+Type ACos(const Type val) {
+  return std::acos(val);
+}
+
+template <typename Type>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+Type Tan(const Type val) {
+  return std::tan(val);
 }
 
 template <typename Type>
@@ -184,6 +220,12 @@ VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
 Precision Floor( Precision val ){
     return std::floor(val);
+}
+
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+double CopySign(double x, double y){
+    return copysign(x,y);
 }
 
 template <typename T>

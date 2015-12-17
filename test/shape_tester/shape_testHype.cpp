@@ -19,23 +19,9 @@ int main(int argc,char *argv[]) {
 
   int errCode= 0;
   VUSolid* hype;
-  if(argc>1){
-    if(strcmp(argv[1],"vec")==0)
-    {
-     hype=new Hype_t("test_VecGeomHype",5.,20,PI/6,PI/3,50); 
-    }
-    else
-    { 
-     //hype=new UTubs("test_USolidsHype",1.,6.,2,0,vecgeom::kTwoPi*0.6);
-     //hype->StreamInfo(std::cout);
-    }
-  }
-  else
-    {
-     //hype=new UTubs("test_USolidsHype",1.,6.,2,0,vecgeom::kTwoPi*0.6);
-     //hype->StreamInfo(std::cout);
-    }
-  
+  if(argc>=1){
+    hype = new Hype_t("test_VecGeomHype", 5., 20, PI / 6, PI / 3, 50);
+ }
   ShapeTester tester;
 
   if(argc>2)

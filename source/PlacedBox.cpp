@@ -29,7 +29,7 @@ void PlacedBox::PrintType() const {
 #ifndef VECGEOM_NVCC
 
 VPlacedVolume const* PlacedBox::ConvertToUnspecialized() const {
-  return new SimpleBox(GetLabel().c_str(), logical_volume_, transformation_);
+  return new SimpleBox(GetLabel().c_str(), logical_volume_, GetTransformation());
 }
 
 #ifdef VECGEOM_ROOT
@@ -38,7 +38,7 @@ TGeoShape const* PlacedBox::ConvertToRoot() const {
 }
 #endif
 
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) and !defined(VECGEOM_REPLACE_USOLIDS)
 ::VUSolid const* PlacedBox::ConvertToUSolids() const {
   return new UBox(GetLabel(), x(), y(), z());
 }

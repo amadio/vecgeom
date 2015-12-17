@@ -31,7 +31,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedBooleanVolume; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedBooleanVolume );
+VECGEOM_DEVICE_DECLARE_CONV( PlacedBooleanVolume )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -68,7 +68,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedVol_t const* GetUnplacedVolume() const {
     return static_cast<UnplacedVol_t const *>(
-        GetLogicalVolume()->unplaced_volume());
+        GetLogicalVolume()->GetUnplacedVolume());
   }
 
 //#ifndef VECGEOM_NVCC
@@ -81,25 +81,27 @@ public:
     GetUnplacedVolume()->Extent(aMin, aMax);
   }
 
-  std::string GetEntityType() const { return GetUnplacedVolume()->GetEntityType() ;}
+#if defined(VECGEOM_USOLIDS)
+  std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType() ;}
+#endif
 
-  virtual Vector3D<Precision> GetPointOnSurface() const;
+  virtual Vector3D<Precision> GetPointOnSurface() const override;
 //#endif
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void PrintType() const { };
+  virtual void PrintType() const override { };
 
   // CUDA specific
-  virtual int memory_size() const { return sizeof(*this); }
+  virtual int memory_size() const override { return sizeof(*this); }
 
   // Comparison specific
 
 #ifndef VECGEOM_NVCC
-  virtual VPlacedVolume const* ConvertToUnspecialized() const {
+  virtual VPlacedVolume const* ConvertToUnspecialized() const override {
    return this;
   }
 #ifdef VECGEOM_ROOT
- virtual TGeoShape const* ConvertToRoot() const {
+ virtual TGeoShape const* ConvertToRoot() const override {
       // printf("Converting to ROOT\n");
       // what do we need?
       VPlacedVolume const * left = GetUnplacedVolume()->fLeftVolume;
@@ -132,14 +134,14 @@ public:
       return shape;
   }
 #endif
-#ifdef VECGEOM_USOLIDS
-  virtual ::VUSolid const* ConvertToUSolids() const {
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
+  virtual ::VUSolid const* ConvertToUSolids() const override {
     // currently not supported in USOLIDS -- returning NULL
       return nullptr;
   }
 #endif
 #ifdef VECGEOM_GEANT4
-  virtual G4VSolid const* ConvertToGeant4() const {
+  virtual G4VSolid const* ConvertToGeant4() const override {
       VPlacedVolume const * left = GetUnplacedVolume()->fLeftVolume;
       VPlacedVolume const * right = GetUnplacedVolume()->fRightVolume;
       Transformation3D const * rightm = right->GetTransformation();

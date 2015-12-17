@@ -7,6 +7,7 @@
 #include "base/Global.h"
 #include "volumes/LogicalVolume.h"
 #include "volumes/USolidsInterfaceHelper.h"
+#include "backend/Backend.h"
 #include <string>
 
 class G4VSolid;
@@ -22,21 +23,26 @@ template <> struct kCudaType<const cxx::VPlacedVolume*> { using type_t = const c
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class PlacedBox;
+class GeoManager;
 template <typename T> class SOA3D;
 
 class VPlacedVolume : public USolidsInterfaceHelper {
-
+friend class GeoManager;
 private:
 
-  int id_;
+  unsigned int id_;
   // Use a pointer so the string won't be constructed on the GPU
   std::string *label_;
-  static int g_id_count;
+  static unsigned int g_id_count;
 
 protected:
 
   LogicalVolume const *logical_volume_;
-  Transformation3D const *transformation_;
+#ifdef VECGEOM_INPLACE_TRANSFORMATIONS
+  Transformation3D fTransformation;
+#else
+  Transformation3D const *fTransformation;
+#endif
   PlacedBox const *bounding_box_;
 
 #ifndef VECGEOM_NVCC
@@ -57,21 +63,29 @@ protected:
   VPlacedVolume(LogicalVolume const *const logical_vol,
                 Transformation3D const *const transformation,
                 PlacedBox const *const boundingbox,
-                const int id)
-      : logical_volume_(logical_vol), transformation_(transformation),
+                unsigned int id)
+#ifdef VECGEOM_INPLACE_TRANSFORMATIONS
+  : logical_volume_(logical_vol), fTransformation(*transformation),
         bounding_box_(boundingbox), id_(id), label_(NULL) {}
-
+#else
+  : logical_volume_(logical_vol), fTransformation(transformation),
+         bounding_box_(boundingbox), id_(id), label_(NULL) {}
 #endif
-  VPlacedVolume(VPlacedVolume const &);
-  VPlacedVolume *operator=(VPlacedVolume const &);
+#endif
+
 
 public:
+  VECGEOM_CUDA_HEADER_BOTH
+  VPlacedVolume(VPlacedVolume const &);
+  VECGEOM_CUDA_HEADER_BOTH
+  VPlacedVolume *operator=(VPlacedVolume const &);
+
   VECGEOM_CUDA_HEADER_BOTH
   virtual ~VPlacedVolume();
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  int id() const { return id_; }
+  unsigned int id() const { return id_; }
 
   std::string const& GetLabel() const { return *label_; }
 
@@ -88,20 +102,30 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Vector<Daughter> const& daughters() const {
-    return logical_volume_->daughters();
+  Vector<Daughter> const& GetDaughters() const {
+    return logical_volume_->GetDaughters();
   }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  VUnplacedVolume const* unplaced_volume() const {
-    return logical_volume_->unplaced_volume();
+  const char* GetName() const {
+     return (*label_).c_str();
+  }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  VUnplacedVolume const* GetUnplacedVolume() const {
+    return logical_volume_->GetUnplacedVolume();
   }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Transformation3D const* GetTransformation() const {
-    return transformation_;
+#ifdef VECGEOM_INPLACE_TRANSFORMATIONS
+      return &fTransformation;
+#else
+      return fTransformation;
+#endif
   }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -111,7 +135,11 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   void SetTransformation(Transformation3D const *const transform) {
-    transformation_ = transform;
+#ifdef VECGEOM_INPLACE_TRANSFORMATIONS
+      fTransformation = *transform;
+#else
+      fTransformation = transform;
+#endif
   }
 
   void set_label(char const * label) {
@@ -173,11 +201,20 @@ public:
                                  Vector3D<Precision> const &direction,
                                  const Precision step_max = kInfinity) const =0;
 
+
+  // if we have any SIMD backend, we offer a SIMD interface
+#ifndef VECGEOM_SCALAR
+  virtual VECGEOM_BACKEND_PRECISION DistanceToIn(Vector3D<VECGEOM_BACKEND_PRECISION> const &position,
+                                                 Vector3D<VECGEOM_BACKEND_PRECISION> const &direction,
+                                                 const VECGEOM_BACKEND_PRECISION step_max = kInfinity) const = 0;
+#endif
+
   virtual void DistanceToIn(SOA3D<Precision> const &position,
                             SOA3D<Precision> const &direction,
                             Precision const *const step_max,
                             Precision *const output) const =0;
 
+  // to be deprecated
   virtual void DistanceToInMinimize(SOA3D<Precision> const &position,
                                     SOA3D<Precision> const &direction,
                                     int daughterindex,
@@ -199,6 +236,13 @@ public:
       Vector3D<Precision> const &direction,
       Precision const step_max = kInfinity) const =0;
 #endif
+  // define this interface in case we don't have the Scalar interface
+#ifndef VECGEOM_SCALAR
+  virtual VECGEOM_BACKEND_PRECISION DistanceToOut(Vector3D<VECGEOM_BACKEND_PRECISION> const &position,
+                                                  Vector3D<VECGEOM_BACKEND_PRECISION> const &direction,
+                                                  VECGEOM_BACKEND_PRECISION const step_max = kInfinity) const = 0;
+#endif
+
 
   // a "placed" version of the distancetoout function; here
   // the point and direction are first of all transformed into the reference frame of the
@@ -228,17 +272,26 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision SafetyToIn(Vector3D<Precision> const &position) const =0;
 
+#ifndef VECGEOM_SCALAR
+  virtual VECGEOM_BACKEND_PRECISION SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION> const &position) const = 0;
+#endif
+
   virtual void SafetyToIn(SOA3D<Precision> const &position,
                           Precision *const safeties) const =0;
 
   // virtual void SafetyToIn(AOS3D<Precision> const &position,
   //                         Precision *const safeties) const =0;
 
+  // to be deprecated
   virtual void SafetyToInMinimize(SOA3D<Precision> const &points,
                                   Precision *const safeties) const =0;
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision SafetyToOut(Vector3D<Precision> const &position) const =0;
+
+#ifndef VECGEOM_SCALAR
+  virtual VECGEOM_BACKEND_PRECISION SafetyToOut(Vector3D<VECGEOM_BACKEND_PRECISION> const &position) const = 0;
+#endif
 
   virtual void SafetyToOut(SOA3D<Precision> const &position,
                            Precision *const safeties) const =0;
@@ -246,6 +299,7 @@ public:
   // virtual void SafetyToOut(AOS3D<Precision> const &position,
   //                          Precision *const safeties) const =0;
 
+  // to be deprecated
   virtual void SafetyToOutMinimize(SOA3D<Precision> const &points,
                                    Precision *const safeties) const =0;
 
@@ -259,15 +313,14 @@ public:
 
   virtual void Extent(Vector3D<Precision> & /* min */,
                       Vector3D<Precision> & /* max */) const {
-    assert(0 && "Extent not implemented for this shape type.");
+    assert(0 && "Extent() not implemented for this shape type.");
   }
 
 
-  virtual bool Normal(Vector3D<double> const &point,
-                      Vector3D<double> &normal) const {
+  virtual bool Normal(Vector3D<Precision> const &/*point*/,
+                      Vector3D<Precision> &/*normal*/) const {
 
-    assert(0 &&
-           "Normal not implemented.");
+    assert(0 && "Normal() not implemented for this shape type.\n");
     return false;
   }
 
@@ -277,6 +330,7 @@ public:
    // return 0.0;
  // }
   virtual Vector3D<Precision> GetPointOnSurface() const;
+
 
 public:
 
@@ -320,7 +374,7 @@ public:
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const* ConvertToRoot() const =0;
 #endif
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
   virtual ::VUSolid const* ConvertToUSolids() const =0;
 #endif
 #ifdef VECGEOM_GEANT4
@@ -341,7 +395,7 @@ public:
          DevicePtr<cuda::LogicalVolume> const logical_volume, \
          DevicePtr<cuda::Transformation3D> const transform, \
          DevicePtr<cuda::PlacedBox> const boundingBox, \
-         const int id) const; \
+         const unsigned int id) const; \
     }
 
 #define VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol, Extra )    \
@@ -351,7 +405,7 @@ public:
          DevicePtr<cuda::LogicalVolume> const logical_volume, \
          DevicePtr<cuda::Transformation3D> const transform, \
          DevicePtr<cuda::PlacedBox> const boundingBox, \
-         const int id) const; \
+         const unsigned int id) const; \
     }
 
 #ifdef VECGEOM_NO_SPECIALIZATION
@@ -419,7 +473,7 @@ public:
          DevicePtr<cuda::LogicalVolume> const logical_volume, \
          DevicePtr<cuda::Transformation3D> const transform, \
          DevicePtr<cuda::PlacedBox> const boundingBox, \
-         const int id) const; \
+         const unsigned int id) const; \
     }
 
 #ifdef VECGEOM_NO_SPECIALIZATION
@@ -456,6 +510,25 @@ public:
 
 #endif // VECGEOM_NO_SPECIALIZATION
 
+
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol, trans, radii, phi )    \
+   namespace cxx { \
+      template size_t DevicePtr<cuda::PlacedVol, trans, radii, phi>::SizeOf(); \
+      template void DevicePtr<cuda::PlacedVol, trans, radii, phi>::Construct( \
+         DevicePtr<cuda::LogicalVolume> const logical_volume, \
+         DevicePtr<cuda::Transformation3D> const transform, \
+         DevicePtr<cuda::PlacedBox> const boundingBox, \
+         const unsigned int id) const; \
+    }
+
+#ifdef VECGEOM_NO_SPECIALIZATION
+
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_4( PlacedVol, trans, radii, phi ) \
+   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, rotation::kGeneric, radii, phi> )
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_4( PlacedVol ) \
+	VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_4(PlacedVol, translation::kGeneric, Polyhedron::EInnerRadii::kGeneric, Polyhedron::EPhiCutout::kGeneric)
+#endif
+
 #define VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol, trans, rot ) \
    namespace cxx { \
       template size_t DevicePtr<cuda::PlacedVol, trans, rot>::SizeOf(); \
@@ -463,7 +536,7 @@ public:
          DevicePtr<cuda::LogicalVolume> const logical_volume, \
          DevicePtr<cuda::Transformation3D> const transform, \
          DevicePtr<cuda::PlacedBox> const boundingBox, \
-         const int id) const; \
+         const unsigned int id) const; \
     }
 
 #ifdef VECGEOM_NO_SPECIALIZATION

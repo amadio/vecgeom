@@ -14,6 +14,7 @@
 #include "volumes/PlacedBox.h"
 #include "volumes/LogicalVolume.h"
 #include "navigation/NavigationState.h"
+#include "navigation/SimpleNavigator.h"
 #include "management/GeoManager.h"
 #include <cstdio>
 #ifdef VECGEOM_ROOT
@@ -42,18 +43,29 @@ VECGEOM_INLINE
 bool IsHittingVolume(Vector3D<Precision> const &point,
                      Vector3D<Precision> const &dir,
                      VPlacedVolume const &volume) {
-
-#if defined(VECGEOM_ROOT) && defined(VECGEOM_BENCHMARK)
-static const TGeoShape * rootshape = volume.ConvertToRoot();
-double *safe = NULL;
-double rpoint[3];
-double rdir[3];
-for(int i=0;i<3;i++){
-  rpoint[i]=point[i]; rdir[i]=dir[i];}
-  return rootshape->DistFromOutside(&rpoint[0], &rdir[0], 3, kInfinity, safe) < 1E20;
+   assert( !volume.Contains(point) );
+#if defined(USEROOTFORHITDETECTION)
+   std::shared_ptr<TGeoShape const> rootshape(volume.ConvertToRoot());
+   Transformation3D const *m = volume.GetTransformation();
+   Vector3D<Precision> rpoint = m->Transform(point);
+   Vector3D<Precision> rdir = m->TransformDirection(dir);
+   return rootshape->DistFromOutside((double*)&rpoint[0], (double*)&rdir[0], 3, vecgeom::kInfinity) < 1E20;
 #else
-   return volume.DistanceToIn(point, dir, kInfinity) < kInfinity;
+   return volume.DistanceToIn(point, dir, vecgeom::kInfinity) < vecgeom::kInfinity;
 #endif
+}
+
+// utility function to check if track hits any daughter of input logical volume
+inline
+bool IsHittingAnyDaughter( Vector3D<Precision> const &point,
+                           Vector3D<Precision> const &dir,
+                           LogicalVolume const &volume ){
+  for (size_t daughter = 0; daughter < volume.GetDaughters().size(); ++daughter) {
+    if (IsHittingVolume(point, dir, *volume.GetDaughters()[daughter])) {
+                return true;
+    }
+  }
+  return false;
 }
 
 /**
@@ -131,7 +143,7 @@ void FillBiasedDirections(VPlacedVolume const &volume,
                           TrackContainer & dirs) {
   assert(bias >= 0. && bias <= 1.);
 
-  if( bias>0. && volume.daughters().size()==0 ) {
+  if( bias>0. && volume.GetDaughters().size()==0 ) {
     printf("\nFillBiasedDirections ERROR:\n bias=%f requested, but no daughter volumes found.\n", bias);
     //// should throw exception, but for now just abort
     // printf("FillBiasedDirections: aborting...\n");
@@ -143,20 +155,15 @@ void FillBiasedDirections(VPlacedVolume const &volume,
   const int size = dirs.capacity();
   int n_hits = 0;
   std::vector<bool> hit(size, false);
-  int h;
 
   // Randomize directions
   FillRandomDirections(dirs);
 
   // Check hits
-  for (int i = 0; i < size; ++i) {
-    for (Vector<Daughter>::const_iterator j = volume.daughters().cbegin();
-         j != volume.daughters().cend(); ++j) {
-      if (IsHittingVolume(points[i], dirs[i], **j)) {
-        n_hits++;
-        hit[i] = true;
-        break;
-      }
+  for (int track = 0; track < size; ++track) {
+    if (IsHittingAnyDaughter(points[track], dirs[track], *volume.GetLogicalVolume())) {
+      n_hits++;
+      hit[track] = true;
     }
   }
 
@@ -165,35 +172,44 @@ void FillBiasedDirections(VPlacedVolume const &volume,
   int tries = 0;
   int maxtries = 10000*size;
   while (static_cast<Precision>(n_hits)/static_cast<Precision>(size) > bias) {
+    //while (n_hits > 0) {
     tries++;
     if(tries%1000000 == 0) {
       printf("%s line %i: Warning: %i tries to reduce bias... volume=%s. Please check.\n", __FILE__, __LINE__, tries, volume.GetLabel().c_str());
     }
 
-    h = static_cast<int>(
-        static_cast<Precision>(size) * RNG::Instance().uniform()
-    );
-    while (hit[h]) {
-      dirs.set(h, SampleDirection());
-      for (Vector<Daughter>::const_iterator i = volume.daughters().cbegin(),
-           iEnd = volume.daughters().cend(); i != iEnd; ++i) {
-        if (!IsHittingVolume(points[h], dirs[h], **i)) {
-          n_hits--;
-          hit[h] = false;
-          tries = 0;
-          break;
-        }
+    int track =  static_cast<int>(static_cast<Precision>(size) * RNG::Instance().uniform());
+    int internaltries = 0;
+    while (hit[track]) {
+      dirs.set(track, SampleDirection());
+      internaltries++;
+      if( ! IsHittingAnyDaughter( points[track], dirs[track], *volume.GetLogicalVolume() ) ){
+	  n_hits--;
+	  hit[track]=false;
+	  //	  tries = 0;
+      }
+      if(internaltries%1000000 == 0) {
+	printf("%s line %i: Warning: %i tries to reduce bias... current bias %d volume=%s. Please check.\n", __FILE__, __LINE__, internaltries, n_hits, volume.GetLabel().c_str());
+	// try another track
+	break;
       }
     }
+  }
+
+  // crosscheck
+  {
+  int crosscheckhits=0;
+  for( int track = 0; track<size; ++track )
+    if( IsHittingAnyDaughter( points[track], dirs[track], *volume.GetLogicalVolume() ) ) crosscheckhits++;
+  assert( crosscheckhits == n_hits && "problem with hit count == 0");
   }
 
   // Add hits until threshold
   tries = 0;
   while (static_cast<Precision>(n_hits)/static_cast<Precision>(size) < bias && tries < maxtries) {
-    h = static_cast<int>(
-        static_cast<Precision>(size) * RNG::Instance().uniform()
-    );
-    while (!hit[h] && tries < maxtries) {
+    int track = static_cast<int>(
+        static_cast<Precision>(size) * RNG::Instance().uniform());
+    while (!hit[track] && tries < maxtries) {
       ++tries;
       if (tries%1000000==0) {
         printf("%s line %i: Warning: %i tries to increase bias... volume=%s, current bias=%i/%i=%f.  Please check.\n",
@@ -204,26 +220,30 @@ void FillBiasedDirections(VPlacedVolume const &volume,
       // SW: a potentially much faster algorithm is the following:
       // sample a daughter to hit ( we can adjust the sampling probability according to Capacity or something; then generate point on surface of daughter )
       // set direction accordingly
-      uint selecteddaughter = (uint) RNG::Instance().uniform() * volume.daughters().size();
-      Vector3D<Precision> pointonsurface = volume.daughters()[selecteddaughter]->GetPointOnSurface();
-      Vector3D<Precision> dirtosurfacepoint = pointonsurface - points[h];
+      uint selecteddaughter = (uint) RNG::Instance().uniform() * volume.GetDaughters().size();
+      VPlacedVolume const * daughter = volume.GetDaughters()[selecteddaughter];
+      Vector3D<Precision> pointonsurface = daughter->GetPointOnSurface();
+      // point is in reference frame of daughter so need to transform it back
+      Vector3D<Precision> dirtosurfacepoint = daughter->GetTransformation()->InverseTransform( pointonsurface ) - points[track];
       dirtosurfacepoint.Normalize();
-      dirs.set(h, dirtosurfacepoint );
+      dirs.set(track, dirtosurfacepoint );
 
       // the brute force and simple sampling technique is the following
       // dirs.set(h, SampleDirection());
-      for (Vector<Daughter>::const_iterator i = volume.daughters().cbegin(),
-           iEnd = volume.daughters().cend(); i != iEnd; ++i) {
-        if (IsHittingVolume(points[h], dirs[h], **i)) {
+      if(IsHittingAnyDaughter(points[track], dirs[track], *volume.GetLogicalVolume()))
           n_hits++;
-          hit[h] = true;
+          hit[track] = true;
           tries = 0;
-          break;
-        }
       }
-    }
   }
 
+  // crosscheck
+  {
+  int crosscheckhits=0;
+  for( int p = 0; p<size; ++p )
+    if( IsHittingAnyDaughter( points[p], dirs[p], *volume.GetLogicalVolume() ) ) crosscheckhits++;
+  assert( crosscheckhits == n_hits && "problem with hit count");
+  }
 
   if( tries == maxtries )
   {
@@ -253,8 +273,8 @@ Precision UncontainedCapacity(VPlacedVolume const &volume) {
   Precision momCapacity = const_cast<VPlacedVolume&>(volume).Capacity();
   Precision dauCapacity = 0.;
   unsigned int kk = 0;
-  for (Vector<Daughter>::const_iterator j = volume.daughters().cbegin(),
-         jEnd = volume.daughters().cend(); j != jEnd; ++j, ++kk) {
+  for (Vector<Daughter>::const_iterator j = volume.GetDaughters().cbegin(),
+         jEnd = volume.GetDaughters().cend(); j != jEnd; ++j, ++kk) {
     dauCapacity += const_cast<VPlacedVolume*>(*j)->Capacity();
   }
   return momCapacity - dauCapacity;
@@ -275,10 +295,10 @@ void FillUncontainedPoints(VPlacedVolume const &volume,
   static double lastUncontCap = 0.0;
   double uncontainedCapacity = UncontainedCapacity(volume);
   if(uncontainedCapacity != lastUncontCap) {
-    printf("Uncontained capacity for %s: %f units\n", volume.GetLabel().c_str(), UncontainedCapacity(volume));
+    printf("Uncontained capacity for %s: %g units\n", volume.GetLabel().c_str(), uncontainedCapacity);
     lastUncontCap = uncontainedCapacity;
   }
-  if( UncontainedCapacity(volume) <= 0.0 ) {
+  if( uncontainedCapacity <= 1000*kTolerance ) {
     std::cout<<"\nVolUtil: FillUncontPts: ERROR: Volume provided <"
              << volume.GetLabel() <<"> does not have uncontained capacity!  Aborting.\n";
     Assert(false);
@@ -312,8 +332,8 @@ void FillUncontainedPoints(VPlacedVolume const &volume,
 
       contained = false;
       int kk=0;
-      for (Vector<Daughter>::const_iterator j = volume.daughters().cbegin(),
-             jEnd = volume.daughters().cend(); j != jEnd; ++j, ++kk) {
+      for (Vector<Daughter>::const_iterator j = volume.GetDaughters().cbegin(),
+             jEnd = volume.GetDaughters().cend(); j != jEnd; ++j, ++kk) {
         if ((*j)->Contains( points[i] )) {
           contained = true;
           break;
@@ -360,8 +380,8 @@ void FillContainedPoints(VPlacedVolume const &volume,
   for (int i = 0; i < size; ++i) {
     points.set(i, offset + SamplePoint(dim));
     // measure bias, which is the fraction of points contained in daughters
-    for (Vector<Daughter>::const_iterator v = volume.daughters().cbegin(),
-         v_end = volume.daughters().cend(); v != v_end; ++v) {
+    for (Vector<Daughter>::const_iterator v = volume.GetDaughters().cbegin(),
+         v_end = volume.GetDaughters().cend(); v != v_end; ++v) {
       bool inside = (placed) ? (*v)->Contains(points[i])
                              : (*v)->UnplacedContains(points[i]);
       if (inside) {
@@ -384,8 +404,8 @@ void FillContainedPoints(VPlacedVolume const &volume,
       }
 
       points.set(i, offset + SamplePoint(dim));
-      for (Vector<Daughter>::const_iterator v = volume.daughters().cbegin(),
-           v_end = volume.daughters().end(); v != v_end; ++v) {
+      for (Vector<Daughter>::const_iterator v = volume.GetDaughters().cbegin(),
+           v_end = volume.GetDaughters().end(); v != v_end; ++v) {
         bool inside = (placed) ? (*v)->Contains(points[i])
                                : (*v)->UnplacedContains(points[i]);
         if (inside) {
@@ -412,8 +432,8 @@ void FillContainedPoints(VPlacedVolume const &volume,
         printf("%s line %i: Warning: %i tries to increase bias... volume=%s.  Please check.\n", __FILE__, __LINE__, tries, volume.GetLabel().c_str());
       }
       const Vector3D<Precision> sample = offset + SamplePoint(dim);
-      for (Vector<Daughter>::const_iterator v = volume.daughters().cbegin(),
-           v_end = volume.daughters().cend(); v != v_end; ++v) {
+      for (Vector<Daughter>::const_iterator v = volume.GetDaughters().cbegin(),
+           v_end = volume.GetDaughters().cend(); v != v_end; ++v) {
         bool inside = (placed) ? (*v)->Contains(sample)
                                : (*v)->UnplacedContains(sample);
         if (inside) {
@@ -469,7 +489,9 @@ void FillRandomPoints(VPlacedVolume const &volume,
         printf("%s line %i: Warning: %i tries to find contained points... volume=%s.  Please check.\n", __FILE__, __LINE__, tries, volume.GetLabel().c_str());
       }
       point = offset + SamplePoint(dim);
-    } while (!volume.Contains(point));
+    } while (!volume.UnplacedContains(point));
+
+      //} while (!volume.Contains(point));
     points.set(i, point);
   }
 }
@@ -541,6 +563,10 @@ void FillGlobalPointsAndDirectionsForLogicalVolume(
     std::list<NavigationState *> allpaths;
     GeoManager::Instance().getAllPathForLogicalVolume( lvol, allpaths );
 
+    NavigationState *s1 = NavigationState::MakeInstance( GeoManager::Instance().getMaxDepth( ));
+    NavigationState *s2 = NavigationState::MakeInstance( GeoManager::Instance().getMaxDepth( ));
+    int virtuallyhitsdaughter = 0;
+    int reallyhitsdaughter = 0;
     if(allpaths.size() > 0){
         // get one representative of such a logical volume
         VPlacedVolume const * pvol = allpaths.front()->Top();
@@ -554,6 +580,7 @@ void FillGlobalPointsAndDirectionsForLogicalVolume(
         // transform points to global frame
         globalpoints.resize(globalpoints.capacity());
         int placedcount=0;
+
         while( placedcount < np )
         {
             std::list<NavigationState *>::iterator iter = allpaths.begin();
@@ -563,8 +590,26 @@ void FillGlobalPointsAndDirectionsForLogicalVolume(
                 Transformation3D m;
                 (*iter)->TopMatrix(m);
 
+                bool hitsdaughter = IsHittingAnyDaughter( localpoints[placedcount], directions[placedcount], *lvol );
+                if( hitsdaughter ) virtuallyhitsdaughter++;
                 globalpoints.set(placedcount, m.InverseTransform(localpoints[placedcount]));
                 directions.set(placedcount, m.InverseTransformDirection(directions[placedcount]));
+
+                // do extensive cross tests
+                s1->Clear(); s2->Clear();
+                SimpleNavigator nav;
+                nav.LocatePoint( GeoManager::Instance().GetWorld( ), globalpoints[placedcount], *s1, true);
+                assert( s1->Top()->GetLogicalVolume() == lvol );
+                double step = vecgeom::kInfinity;
+                nav.FindNextBoundaryAndStep(globalpoints[placedcount], directions[placedcount], *s1, *s2, vecgeom::kInfinity, step );
+#ifdef DEBUG
+                if( ! hitsdaughter )
+                    assert( s1->Distance(*s2) > s2->GetCurrentLevel() - s1->GetCurrentLevel() );
+#endif
+                if( hitsdaughter )
+                    if( s1->Distance(*s2) == s2->GetCurrentLevel() - s1->GetCurrentLevel() ){
+                        reallyhitsdaughter++;
+                    }
 
                 placedcount++;
                 iter++;
@@ -575,6 +620,9 @@ void FillGlobalPointsAndDirectionsForLogicalVolume(
       // an error message
       printf("VolumeUtilities: FillGlobalPointsAndDirectionsForLogicalVolume()... ERROR condition detected.\n");
     }
+    printf(" really hits %d, virtually hits %d ", reallyhitsdaughter, virtuallyhitsdaughter );
+    NavigationState::ReleaseInstance(s1);
+    NavigationState::ReleaseInstance(s2);
 }
 
 
@@ -623,6 +671,225 @@ inline Precision GetRadiusInRing(Precision rmin, Precision rmax) {
     return std::sqrt( rmin2 + RNG::Instance().uniform()*(rmax2 - rmin2) );
   }
   return rmin;
+}
+
+/** This function will detect whether two aligned boxes intersects or not.
+ *  returns a boolean, true if intersection exist, else false
+ *
+ *  Since the boxes are already aligned so we don't need Transformation matrices
+ *  for the intersection detection algorithm.
+ *                                  _
+ *  input : 1. lowercornerFirstBox   |__ Extent of First Aligned UnplacedBox in mother's reference frame.
+ *          2. uppercornerFirstBox  _|
+ *                                  _
+ *          3. lowercornerSecondBox  |__ Extent of Second Aligned UnplacedBox in mother's reference frame.
+ *          4. uppercornerSecondBox _|
+ *
+ *  output :  Return a boolean, true if intersection exists, otherwise false.
+ *
+ */
+VECGEOM_INLINE
+bool IntersectionExist(Vector3D<Precision> const lowercornerFirstBox, Vector3D<Precision> const uppercornerFirstBox,
+                       Vector3D<Precision> const lowercornerSecondBox, Vector3D<Precision> const uppercornerSecondBox) {
+
+  // Simplest algorithm
+  // Needs to handle a total of 6 cases
+
+  // Case 1: First Box is on left of Second Box
+  if (uppercornerFirstBox.x() < lowercornerSecondBox.x())
+    return false;
+
+  // Case 2: First Box is on right of Second Box
+  if (lowercornerFirstBox.x() > uppercornerSecondBox.x())
+    return false;
+
+  // Case 3: First Box is back side
+  if (uppercornerFirstBox.y() < lowercornerSecondBox.y())
+    return false;
+
+  // Case 4: First Box is front side
+  if (lowercornerFirstBox.y() > uppercornerSecondBox.y())
+    return false;
+
+  // Case 5: First Box is below the Second Box
+  if (uppercornerFirstBox.z() < lowercornerSecondBox.z())
+    return false;
+
+  // Case 6: First Box is above the Second Box
+  if (lowercornerFirstBox.z() > uppercornerSecondBox.z())
+    return false;
+
+  return true; // boxes overlap
+}
+
+/** This function will detect whether two boxes in arbitrary orientation intersects or not.
+ *  returns a boolean, true if intersection exist, else false
+ *
+ *  Logic is implemented using Separation Axis Theorem (SAT) for 3D
+ *                                  _
+ *  input : 1. lowercornerFirstBox   |__ Extent of First UnplacedBox in mother's reference frame.
+ *          2. uppercornerFirstBox  _|
+ *                                  _
+ *          3. lowercornerSecondBox  |__ Extent of Second UnplacedBox in mother's reference frame.
+ *          4. uppercornerSecondBox _|
+ *                                  _
+ *          5. transformFirstBox     |__ Transformation matrix of First and Second Unplaced Box
+ *          6. transformSecondBox   _|
+ *
+ *  output :  Return a boolean, true if intersection exists, otherwise false.
+ */
+VECGEOM_INLINE
+bool IntersectionExist(Vector3D<Precision> const lowercornerFirstBox, Vector3D<Precision> const uppercornerFirstBox,
+                       Vector3D<Precision> const lowercornerSecondBox, Vector3D<Precision> const uppercornerSecondBox,
+                       Transformation3D const *transformFirstBox, Transformation3D const *transformSecondBox,
+                       bool aux) {
+
+  // Required variables
+  Precision halfAx, halfAy, halfAz; // Half lengths of box A
+  Precision halfBx, halfBy, halfBz; // Half lengths of box B
+
+  halfAx = std::fabs(uppercornerFirstBox.x() - lowercornerFirstBox.x()) / 2.;
+  halfAy = std::fabs(uppercornerFirstBox.y() - lowercornerFirstBox.y()) / 2.;
+  halfAz = std::fabs(uppercornerFirstBox.z() - lowercornerFirstBox.z()) / 2.;
+
+  halfBx = std::fabs(uppercornerSecondBox.x() - lowercornerSecondBox.x()) / 2.;
+  halfBy = std::fabs(uppercornerSecondBox.y() - lowercornerSecondBox.y()) / 2.;
+  halfBz = std::fabs(uppercornerSecondBox.z() - lowercornerSecondBox.z()) / 2.;
+
+  Vector3D<Precision> pA = transformFirstBox->InverseTransform(Vector3D<Precision>(0, 0, 0));
+  Vector3D<Precision> pB = transformSecondBox->InverseTransform(Vector3D<Precision>(0, 0, 0));
+  Vector3D<Precision> T = pB - pA;
+
+  Vector3D<Precision> Ax = transformFirstBox->InverseTransformDirection(Vector3D<Precision>(1., 0., 0.));
+  Vector3D<Precision> Ay = transformFirstBox->InverseTransformDirection(Vector3D<Precision>(0., 1., 0.));
+  Vector3D<Precision> Az = transformFirstBox->InverseTransformDirection(Vector3D<Precision>(0., 0., 1.));
+
+  Vector3D<Precision> Bx = transformSecondBox->InverseTransformDirection(Vector3D<Precision>(1., 0., 0.));
+  Vector3D<Precision> By = transformSecondBox->InverseTransformDirection(Vector3D<Precision>(0., 1., 0.));
+  Vector3D<Precision> Bz = transformSecondBox->InverseTransformDirection(Vector3D<Precision>(0., 0., 1.));
+
+  /** Needs to handle total 15 cases for 3D.
+  *   Literature can be found at following link
+  *   http://www.jkh.me/files/tutorials/Separating%20Axis%20Theorem%20for%20Oriented%20Bounding%20Boxes.pdf
+  */
+
+  // Case 1:
+  // L = Ax
+  // std::cout<<" 1 : "<<std::fabs(T.Dot(Ax))<<" :: 2 : "<<(halfAx + std::fabs(halfBx*Ax.Dot(Bx)) +
+  // std::fabs(halfBy*Ax.Dot(By)) + std::fabs(halfBz*Ax.Dot(Bz)) )<<std::endl;
+  if (std::fabs(T.Dot(Ax)) >
+      (halfAx + std::fabs(halfBx * Ax.Dot(Bx)) + std::fabs(halfBy * Ax.Dot(By)) + std::fabs(halfBz * Ax.Dot(Bz)))) {
+    return false;
+  }
+
+  // Case 2:
+  // L = Ay
+  if (std::fabs(T.Dot(Ay)) >
+      (halfAy + std::fabs(halfBx * Ay.Dot(Bx)) + std::fabs(halfBy * Ay.Dot(By)) + std::fabs(halfBz * Ay.Dot(Bz)))) {
+    return false;
+  }
+
+  // Case 3:
+  // L = Az
+  if (std::fabs(T.Dot(Az)) >
+      (halfAz + std::fabs(halfBx * Az.Dot(Bx)) + std::fabs(halfBy * Az.Dot(By)) + std::fabs(halfBz * Az.Dot(Bz)))) {
+    return false;
+  }
+
+  // Case 4:
+  // L = Bx
+  if (std::fabs(T.Dot(Bx)) >
+      (halfBx + std::fabs(halfAx * Ax.Dot(Bx)) + std::fabs(halfAy * Ay.Dot(Bx)) + std::fabs(halfAz * Az.Dot(Bx)))) {
+    return false;
+  }
+
+  // Case 5:
+  // L = By
+  if (std::fabs(T.Dot(By)) >
+      (halfBy + std::fabs(halfAx * Ax.Dot(By)) + std::fabs(halfAy * Ay.Dot(By)) + std::fabs(halfAz * Az.Dot(By)))) {
+    return false;
+  }
+
+  // Case 6:
+  // L = Bz
+  if (std::fabs(T.Dot(Bz)) >
+      (halfBz + std::fabs(halfAx * Ax.Dot(Bz)) + std::fabs(halfAy * Ay.Dot(Bz)) + std::fabs(halfAz * Az.Dot(Bz)))) {
+    return false;
+  }
+
+  // Case 7:
+  // L = Ax X Bx
+  if ((std::fabs(T.Dot(Az) * Ay.Dot(Bx) - T.Dot(Ay) * Az.Dot(Bx))) >
+      (std::fabs(halfAy * Az.Dot(Bx)) + std::fabs(halfAz * Ay.Dot(Bx)) + std::fabs(halfBy * Ax.Dot(Bz)) +
+       std::fabs(halfBz * Ax.Dot(By)))) {
+    return false;
+  }
+
+  // Case 8:
+  // L = Ax X By
+  if ((std::fabs(T.Dot(Az) * Ay.Dot(By) - T.Dot(Ay) * Az.Dot(By))) >
+      (std::fabs(halfAy * Az.Dot(By)) + std::fabs(halfAz * Ay.Dot(By)) + std::fabs(halfBx * Ax.Dot(Bz)) +
+       std::fabs(halfBz * Ax.Dot(Bx)))) {
+    return false;
+  }
+
+  // Case 9:
+  // L = Ax X Bz
+  if ((std::fabs(T.Dot(Az) * Ay.Dot(Bz) - T.Dot(Ay) * Az.Dot(Bz))) >
+      (std::fabs(halfAy * Az.Dot(Bz)) + std::fabs(halfAz * Ay.Dot(Bz)) + std::fabs(halfBx * Ax.Dot(By)) +
+       std::fabs(halfBy * Ax.Dot(Bx)))) {
+    return false;
+  }
+
+  // Case 10:
+  // L = Ay X Bx
+  if ((std::fabs(T.Dot(Ax) * Az.Dot(Bx) - T.Dot(Az) * Ax.Dot(Bx))) >
+      (std::fabs(halfAx * Az.Dot(Bx)) + std::fabs(halfAz * Ax.Dot(Bx)) + std::fabs(halfBy * Ay.Dot(Bz)) +
+       std::fabs(halfBz * Ay.Dot(By)))) {
+    return false;
+  }
+
+  // Case 11:
+  // L = Ay X By
+  if ((std::fabs(T.Dot(Ax) * Az.Dot(By) - T.Dot(Az) * Ax.Dot(By))) >
+      (std::fabs(halfAx * Az.Dot(By)) + std::fabs(halfAz * Ax.Dot(By)) + std::fabs(halfBx * Ay.Dot(Bz)) +
+       std::fabs(halfBz * Ay.Dot(Bx)))) {
+    return false;
+  }
+
+  // Case 12:
+  // L = Ay X Bz
+  if ((std::fabs(T.Dot(Ax) * Az.Dot(Bz) - T.Dot(Az) * Ax.Dot(Bz))) >
+      (std::fabs(halfAx * Az.Dot(Bz)) + std::fabs(halfAz * Ax.Dot(Bz)) + std::fabs(halfBx * Ay.Dot(By)) +
+       std::fabs(halfBy * Ay.Dot(Bx)))) {
+    return false;
+  }
+
+  // Case 13:
+  // L = Az X Bx
+  if ((std::fabs(T.Dot(Ay) * Ax.Dot(Bx) - T.Dot(Ax) * Ay.Dot(Bx))) >
+      (std::fabs(halfAx * Ay.Dot(Bx)) + std::fabs(halfAy * Ax.Dot(Bx)) + std::fabs(halfBy * Az.Dot(Bz)) +
+       std::fabs(halfBz * Az.Dot(By)))) {
+    return false;
+  }
+
+  // Case 14:
+  // L = Az X By
+  if ((std::fabs(T.Dot(Ay) * Ax.Dot(By) - T.Dot(Ax) * Ay.Dot(By))) >
+      (std::fabs(halfAx * Ay.Dot(By)) + std::fabs(halfAy * Ax.Dot(By)) + std::fabs(halfBx * Az.Dot(Bz)) +
+       std::fabs(halfBz * Az.Dot(Bx)))) {
+    return false;
+  }
+
+  // Case 15:
+  // L = Az X Bz
+  if ((std::fabs(T.Dot(Ay) * Ax.Dot(Bz) - T.Dot(Ax) * Ay.Dot(Bz))) >
+      (std::fabs(halfAx * Ay.Dot(Bz)) + std::fabs(halfAy * Ax.Dot(Bz)) + std::fabs(halfBx * Az.Dot(By)) +
+       std::fabs(halfBy * Az.Dot(Bx)))) {
+    return false;
+  }
+
+  return true;
 }
 
 } // end namespace volumeUtilities

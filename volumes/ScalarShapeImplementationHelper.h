@@ -206,6 +206,15 @@ public:
       stepMax,
       output
     );
+
+// #ifdef VECGEOM_REPLACE_USOLIDS
+    // avoid distance values within kTolerance
+    MaskedAssign(Abs(output)<kTolerance, 0., &output);
+// #endif
+
+#ifdef VECGEOM_DISTANCE_DEBUG
+    DistanceComparator::CompareDistanceToIn( this, output, point, direction, stepMax );
+#endif
     return output;
   }
 
@@ -221,6 +230,18 @@ public:
       stepMax,
       output
     );
+
+// #ifdef VECGEOM_REPLACE_USOLIDS
+    // avoid distance values within kTolerance
+    MaskedAssign(Abs(output)<kTolerance, 0., &output);
+// #endif
+
+    // detect -inf responses which are often an indication for a real bug
+#ifndef VECGEOM_NVCC
+    assert( ! ( (output < 0.) && std::isinf(output) ) );
+#endif
+
+
     return output;
   }
 
@@ -256,13 +277,17 @@ public:
                                   Vector3D<Precision> const &direction,
                                   Vector3D<Precision> &normal,
                                   bool &convex, Precision step = kInfinity ) const {
-      double d = DistanceToOut(point, direction, step );
-        Vector3D<double> hitpoint = point + d*direction;
-        PlacedShape_t::Normal( hitpoint, normal );
-        // we could make this something like
-        // convex = PlacedShape_t::IsConvex;
-        convex = true;
-        return d;
+    Precision d = DistanceToOut(point, direction, step );
+    Vector3D<Precision> hitpoint = point + d*direction;
+    PlacedShape_t::Normal( hitpoint, normal );
+
+    // Lets the shape tell itself whether it is convex or not.
+    // convex = PlacedShape_t::IsConvex;
+
+    // Now Convexity is defined only for UnplacedVolume, not required for PlacedVolume
+    convex = this->GetUnplacedVolume()->UnplacedShape_t::IsConvex();
+
+    return d;
   }
 #endif
 
@@ -275,6 +300,9 @@ public:
       point,
       output
     );
+#ifdef VECGEOM_REPLACE_USOLIDS
+    if(output < 0.0 && output > -kTolerance) output = 0.0;
+#endif
     return output;
   }
 
@@ -286,6 +314,9 @@ public:
       point,
       output
     );
+#ifdef VECGEOM_REPLACE_USOLIDS
+    if(output < 0.0 && output > -kTolerance) output = 0.0;
+#endif
     return output;
   }
 
@@ -352,7 +383,7 @@ public:
           stepMax,
           result
         );
-        if (result < currentDistance[i]) {
+        if (result < currentDistance[i] && !IsInf(result)) {
           currentDistance[i] = result;
           nextDaughterIdList[i] = daughterId;
         }
@@ -389,6 +420,7 @@ public:
         stepMax[i],
         output[i]
       );
+      if( output[i] < 0. ) output[i] = vecgeom::kInfinity;
       nodeIndex[i] = (output[i] < stepMax[i]) ? -1 : -2;
     }
   }
@@ -403,6 +435,9 @@ public:
         points[i],
         output[i]
       );
+      if(output[i]<0.0 && output[i]>-kTolerance) {
+        output[i] = 0.0;
+      }
     }
   }
 
@@ -430,6 +465,9 @@ public:
         points[i],
         output[i]
       );
+      if(output[i]<0.0 && output[i]>-kTolerance) {
+        output[i] = 0.0;
+      }
     }
   }
 
@@ -517,6 +555,70 @@ public:
     SafetyToInTemplate(points, output);
   }
 
+#ifndef VECGEOM_SCALAR
+  // scalar fallback: dispatch a SIMD interface to a scalar kernel
+  VECGEOM_INLINE
+  virtual VECGEOM_BACKEND_PRECISION SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION> const &position) const {
+    VECGEOM_BACKEND_PRECISION output(kInfinity);
+    for (int i = 0; i < VECGEOM_BACKEND_PRECISION::Size; ++i) {
+      Precision tmp;
+      Vector3D<Precision> pos(position.x()[i], position.y()[i], position.z()[i]);
+      Specialization::template SafetyToIn<kScalar>(*this->GetUnplacedVolume(), *this->GetTransformation(), pos, tmp);
+      output[i] = tmp;
+    }
+    return output;
+  }
+
+  VECGEOM_INLINE
+  virtual VECGEOM_BACKEND_PRECISION SafetyToOut(Vector3D<VECGEOM_BACKEND_PRECISION> const &position) const {
+    VECGEOM_BACKEND_PRECISION output(kInfinity);
+    for (int i = 0; i < VECGEOM_BACKEND_PRECISION::Size; ++i) {
+      Precision tmp;
+      Vector3D<Precision> pos(position.x()[i], position.y()[i], position.z()[i]);
+      Specialization::template SafetyToOut<kScalar>(*this->GetUnplacedVolume(), pos, tmp);
+      output[i] = tmp;
+    }
+    return output;
+  }
+#endif
+
+#ifndef VECGEOM_SCALAR
+  virtual VECGEOM_BACKEND_PRECISION DistanceToIn(Vector3D<VECGEOM_BACKEND_PRECISION> const &position,
+                                                 Vector3D<VECGEOM_BACKEND_PRECISION> const &direction,
+                                                 const VECGEOM_BACKEND_PRECISION stepMax) const override {
+
+    VECGEOM_BACKEND_PRECISION output(kInfinity);
+    for (int i = 0; i < VECGEOM_BACKEND_PRECISION::Size; ++i) {
+      Precision tmp;
+      Vector3D<Precision> pos(position.x()[i], position.y()[i], position.z()[i]);
+      Vector3D<Precision> dir(direction.x()[i], direction.y()[i], direction.z()[i]);
+      Specialization::template DistanceToIn<kScalar>(*this->GetUnplacedVolume(), *this->GetTransformation(), pos, dir,
+                                                     stepMax[i], tmp);
+      MaskedAssign(Abs(tmp)<kTolerance, 0., &tmp);
+      output[i] = tmp;
+    }
+    return output;
+  }
+#endif
+
+#ifndef VECGEOM_SCALAR
+  virtual VECGEOM_BACKEND_PRECISION DistanceToOut(Vector3D<VECGEOM_BACKEND_PRECISION> const &position,
+                                                  Vector3D<VECGEOM_BACKEND_PRECISION> const &direction,
+                                                  const VECGEOM_BACKEND_PRECISION stepMax) const override {
+
+    VECGEOM_BACKEND_PRECISION output(kInfinity);
+    for (int i = 0; i < VECGEOM_BACKEND_PRECISION::Size; ++i) {
+      Precision tmp;
+      Vector3D<Precision> pos(position.x()[i], position.y()[i], position.z()[i]);
+      Vector3D<Precision> dir(direction.x()[i], direction.y()[i], direction.z()[i]);
+      Specialization::template DistanceToOut<kScalar>(*this->GetUnplacedVolume(), pos, dir,
+                                                      stepMax[i], tmp);
+      MaskedAssign(Abs(tmp)<kTolerance, 0., &tmp);
+      output[i] = tmp;
+    }
+    return output;
+  }
+#endif
   // virtual void SafetyToIn(AOS3D<Precision> const &points,
   //                         Precision *const output) const {
   //   SafetyToInTemplate(points, output);
