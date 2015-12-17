@@ -475,6 +475,14 @@ endif()
 include_directories(BEFORE ${CMAKE_SOURCE_DIR})
 
 set(SRC_CPP_RELATIVE
+  #.. moved up for faster compilation
+  source/CreateNuclei.cpp
+  source/CreateParticles.cpp
+  source/UnplacedPolycone.cpp
+  source/UnplacedPolyhedron.cpp
+  source/PlacedPolycone.cpp
+  source/PlacedPolyhedron.cpp
+
   source/RNG.cpp
   source/AOS3D.cpp
   source/LogicalVolume.cpp
@@ -486,7 +494,6 @@ set(SRC_CPP_RELATIVE
   source/PlacedTrd.cpp
   source/PlacedParallelepiped.cpp
   source/PlacedParaboloid.cpp
-  source/PlacedPolyhedron.cpp
   source/PlacedScaledShape.cpp
   source/PlacedTrapezoid.cpp
   source/PlacedVolume.cpp
@@ -504,7 +511,6 @@ set(SRC_CPP_RELATIVE
   source/UnplacedTrd.cpp
   source/UnplacedParaboloid.cpp
   source/UnplacedParallelepiped.cpp
-  source/UnplacedPolyhedron.cpp
   source/UnplacedScaledShape.cpp
   source/UnplacedTrapezoid.cpp
   source/UnplacedVolume.cpp
@@ -514,15 +520,10 @@ set(SRC_CPP_RELATIVE
 
   source/UnplacedOrb.cpp
   source/PlacedOrb.cpp
-
   source/UnplacedSphere.cpp
   source/PlacedSphere.cpp
-
   source/UnplacedBooleanVolume.cpp
   source/PlacedBooleanVolume.cpp
-
-  source/UnplacedPolycone.cpp
-  source/PlacedPolycone.cpp
   source/Wedge.cpp
   source/ABBoxManager.cpp
   source/ABBoxNavigator.cpp
@@ -532,10 +533,8 @@ set(SRC_CPP_RELATIVE
   source/Material.cpp
   source/Medium.cpp
   source/Nucleus.cpp
-  source/CreateNuclei.cpp
   source/MessageLogger.cpp
   source/Particle.cpp
-  source/CreateParticles.cpp
 )
 
 # avoid "file has no symbols" warnings
