@@ -50,31 +50,25 @@ ShapeTester::ShapeTester() { SetDefaults(); }
 ShapeTester::~ShapeTester() {}
 
 void ShapeTester::SetDefaults() {
-  fNumCheckPoints = 10;
+  fNumDisp = 2;
   fMaxPoints = 10000;
   fVerbose = 1;
-  fRepeat = 1000;
+  //fRepeat = 1000;
   fInsidePercent = 100.0 / 3;
   fOutsidePercent = 100.0 / 3;
   fEdgePercent = 0;
 
   fOutsideMaxRadiusMultiple = 10;
   fOutsideRandomDirectionPercent = 50;
-  fDifferenceTolerance = 0.01;
   fIfSaveAllData = true; // false;//true;
   fIfMoreTests = true; // false;//true;
   fIfDifUSolids = true;
   fMinDifference = VUSolid::Tolerance();
-  fDifPointsInside = 0;
-  fDifPointsSurface = 0;
-  fDifPointsOutside = 0;
 
   fDefinedNormal = false;
   fIfException = false;
-  fMaxErrorBreak = 1000;
 
   fMethod = "all";
-  fPerftab = fPerflabels = NULL;
   fVolumeUSolids = NULL;
 
   fGCapacitySampled = 0;
@@ -983,8 +977,8 @@ int ShapeTester::TestAccuracyDistanceToIn(double dist) {
   double maxDistIn = 0, diff = 0, difMax = 0;
   int nError = 0;
   ClearErrors();
-  int iIn = 0, iInNoSurf = 0, iOut = 0, iOutNoSurf = 0, iWrongSideIn = 0, iWrongSideOut = 0, iOutInf = 0, iOutZero = 0,
-      iInInf = 0, iInZero = 0, iSafIn = 0, iSafOut = 0;
+  int iIn = 0, iInNoSurf = 0, iOut = 0, iOutNoSurf = 0;
+  int  iInInf = 0, iInZero = 0;
   double tolerance = VUSolid::Tolerance();
 
 #ifdef VECGEOM_ROOT
@@ -1030,28 +1024,12 @@ int ShapeTester::TestAccuracyDistanceToIn(double dist) {
 
           distIn = fVolumeUSolids->DistanceToIn(point, vec);
           distOut = fVolumeUSolids->DistanceToOut(point, vec, normal, convex);
-          iWrongSideOut++;
-          if (distOut >= UUtils::kInfinity) {
-            iOutInf++;
-            ReportError(&nError, point, vec, distOut, "TAD: DistanceToOut is Infinity for point Outside");
-          }
-          if (std::fabs(distOut) < tolerance) {
-            iOutZero++;
-            ReportError(&nError, point, vec, distOut, "TAD: DistanceToOut is < tolerance for point Outside");
-          }
-          double safFromIn = fVolumeUSolids->SafetyFromInside(point);
-          if (safFromIn > tolerance) {
-            iSafOut++;
-            ReportError(&nError, point, vec, safFromIn, "TAD: SafetyFromInside is > tolerance for point Outside");
-          }
 
           // Test for consistency for fPoints situated Inside
           pointIn = pointSurf + vec * 1000. * VUSolid::Tolerance();
           if (fVolumeUSolids->Inside(pointIn) == vecgeom::EInside::kInside) {
             double distOut1 = fVolumeUSolids->DistanceToOut(pointIn, vec, normal, convex);
             VUSolid::EnumInside surfaceP = fVolumeUSolids->Inside(pointIn + distOut1 * vec);
-            double distIn1 = fVolumeUSolids->DistanceToIn(pointIn, vec);
-            iWrongSideIn++;
             if (distOut1 >= UUtils::kInfinity) {
               iInInf++;
               ReportError(&nError, pointIn, vec, distOut1, "TAD: Distance ToOut is Infinity  for point Inside");
@@ -1059,18 +1037,6 @@ int ShapeTester::TestAccuracyDistanceToIn(double dist) {
             if (std::fabs(distOut1) < tolerance) {
               iInZero++;
               ReportError(&nError, pointIn, vec, distOut1, "TAD: Distance ToOut < tolerance  for point Inside");
-            }
-            // for VecGeom, distIn1 should be -1 for fPoints inside
-            // if(std::fabs(distIn1)>tolerance && std::fabs(distIn1+1)) {
-            if (distIn1 > 0) {
-              iInZero++;
-              // ReportError(  &nError, pointIn, vec,distIn1 , "TAD: Abs(DistToIn) > tolerance  for point Inside");
-              ReportError(&nError, pointIn, vec, distIn1, "TAD: distToIn > 0  for point Inside");
-            }
-            double safFromOut = fVolumeUSolids->SafetyFromOutside(pointIn);
-            if (safFromOut > tolerance) {
-              iSafIn++;
-              ReportError(&nError, pointIn, vec, safFromOut, "TAD: SafetyFromOutside > tolerance  for point Inside");
             }
             iIn++;
             if (surfaceP != vecgeom::EInside::kSurface) {
@@ -1100,7 +1066,7 @@ int ShapeTester::TestAccuracyDistanceToIn(double dist) {
           distOut = fVolumeUSolids->DistanceToOut(point, vec, normal, convex);
           VUSolid::EnumInside surfaceP = fVolumeUSolids->Inside(point + distOut * vec);
           distIn = fVolumeUSolids->DistanceToIn(point, vec);
-          iWrongSideIn++;
+         // iWrongSideIn++;
           if (distOut >= UUtils::kInfinity) {
             iInInf++;
             ReportError(&nError, point, vec, distOut, "TAD2: Distance ToOut is Infinity  for point Inside");
@@ -1109,15 +1075,7 @@ int ShapeTester::TestAccuracyDistanceToIn(double dist) {
             iInZero++;
             ReportError(&nError, point, vec, distOut, "TAD2: Distance ToOut < tolerance  for point Inside");
           }
-          if (std::fabs(distIn) > tolerance) {
-            iInZero++;
-            ReportError(&nError, point, vec, distOut, "TAD2: Distance ToIn > tolerance  for point Inside");
-          }
-          double safFromOut = fVolumeUSolids->SafetyFromOutside(point);
-          if (safFromOut > tolerance) {
-            iSafIn++;
-            ReportError(&nError, point, vec, safFromOut, "TAD2: SafetyFromOutside > tolerance  for point Inside");
-          }
+
           if (surfaceP != vecgeom::EInside::kSurface) {
             iOutNoSurf++;
             ReportError(&nError, point, vec, 0., "TAD2: Moved to Surface point is not on Surface");
@@ -1131,18 +1089,6 @@ int ShapeTester::TestAccuracyDistanceToIn(double dist) {
     std::cout << "TestAccuracyDistanceToIn::Errors for moved point is not on Surface ::iInNoSurf = " << iInNoSurf
               << ";    iOutNoSurf = " << iOutNoSurf << std::endl;
     std::cout << "TestAccuracyDistanceToIn::Errors SolidUSolid ::From total number of fPoints  = " << iIn << std::endl;
-    // Distances
-    std::cout << "TestForWrongSide Error in DistanceToOut:: Point is Outside DistanceToOut not zero = " << iOutZero
-              << " from total number " << iWrongSideOut << "\n";
-    std::cout << "TestForWrongSide Error in DistanceToOut:: Point is Outside DistanceToOut is Infinity = " << iOutInf
-              << " from total number " << iWrongSideOut << "\n";
-    std::cout << "TestForWrongSide Error in DistanceToIn:: Point is Inside DistanceToIn not zero = " << iInZero
-              << " from total number " << iWrongSideIn << "\n";
-    std::cout << "TestForWrongSide Error in DistanceToIn:: Point is Inside DistanceToIn not zero = " << iInInf
-              << " from total number " << iWrongSideIn << "\n";
-    // Safety
-    std::cout << "TestForWrongSide Error in Safety:: Point is Outside SafetyFromInside not zero = " << iSafOut << "\n";
-    std::cout << "TestForWrongSide Error in Safety:: Point is Inside SafetyFromOutside not zero = " << iSafIn << "\n";
   }
 #ifdef VECGEOM_ROOT
   TCanvas *c7 = new TCanvas("c7", "Accuracy DistancsToIn", 800, 600);
@@ -1554,40 +1500,6 @@ void ShapeTester::Flush(const string &s) {
   *fLog << s;
 }
 
-// NEW: results written normalized to nano seconds per operation
-double ShapeTester::NormalizeToNanoseconds(double time) {
-  double res = ((time * (double)1e+9) / ((double)fRepeat * (double)fMaxPoints));
-  return res;
-}
-
-double ShapeTester::MeasureTest(int (ShapeTester::*funcPtr)(int), const string &afMethod) {
-  Flush("Measuring performance of fMethod " + afMethod + "\n");
-
-  // NEW: storing data phase, timer is off
-  // See: http://www.newty.de/fpt/fpt.html , The Function Pointer Tutorials
-  (*this.*funcPtr)(0);
-
-  clock_t start_t, end_t;
-
-  start_t = clock();
-  // performance phase, timer is on
-  for (int i = 1; i <= fRepeat; i++) {
-    (*this.*funcPtr)(i);
-  }
-
-  end_t = clock();
-  double realTime = end_t - start_t;
-
-  stringstream ss;
-  // NEW: write time per operation / bunch of operations
-  ss << "Time elapsed: " << realTime << "s\n";
-  ss << "Time per one fRepeat: " << realTime / fRepeat << "s\n";
-  ss << "Nanoseconds per one fMethod call: " << NormalizeToNanoseconds(realTime) << "\n";
-  FlushSS(ss);
-
-  return realTime;
-}
-
 void ShapeTester::CreatePointsAndDirectionsSurface() {
   UVector3 norm, point;
   for (int i = 0; i < fMaxPointsSurface; i++) {
@@ -1754,43 +1666,6 @@ void ShapeTester::PrintCoordinates(stringstream &ss, const UVector3 &vec, const 
   return PrintCoordinates(ss, vec, d, precision);
 }
 
-int ShapeTester::CountDoubleDifferences(const vector<double> &differences, const vector<double> &values1,
-                                        const vector<double> &values2) {
-  int countOfDifferences = 0;
-  stringstream ss;
-
-  for (int i = 0; i < fMaxPoints; i++) {
-    double value1 = values1[i];
-    double value2 = values2[i];
-    double dif = differences[i];
-    double difference = std::abs(dif);
-    if (difference > std::abs(fDifferenceTolerance * value1)) {
-      if (++countOfDifferences <= 10)
-        ss << "Different point found: index " << i << "; point coordinates:" << PrintCoordinates(fPoints[i], ",")
-           << "; direction coordinates:" << PrintCoordinates(fDirections[i], ",") << "; difference=" << difference
-           << ")"
-           << "; value2 =" << value2 << "; value1 = " << value1 << "\n";
-    }
-  }
-  ss << "Number of differences is " << countOfDifferences << "\n";
-  FlushSS(ss);
-  return countOfDifferences;
-}
-
-int ShapeTester::CountDoubleDifferences(const vector<double> &differences) {
-  int countOfDifferences = 0;
-
-  for (int i = 0; i < fMaxPoints; i++) {
-    double difference = std::abs(differences[i]);
-    if (difference > fDifferenceTolerance)
-      countOfDifferences++;
-  }
-  stringstream ss;
-  ss << "Number of differences is " << countOfDifferences << "\n";
-  FlushSS(ss);
-  return countOfDifferences;
-}
-
 // NEW: output values precision setprecision (16)
 // NEW: for each fMethod, one file
 
@@ -1909,6 +1784,9 @@ void ShapeTester::SetFolder(const string &newFolder) {
 }
 
 int ShapeTester::Run(VUSolid *testVolume) {
+  //Running Convention first before running any ShapeTester tests
+  RunConventionChecker(testVolume);
+  fNumDisp = 5;
   int errCode = 0;
   stringstream ss;
 
@@ -1955,6 +1833,14 @@ int ShapeTester::Run(VUSolid *testVolume) {
   ClearErrors();
   fMethod = "all";
 
+  errCode += fScore;
+  if (errCode) {
+    std::cout << "--------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "--- Either Shape Conventions not followed or some of the ShapeTester's test failed ---" << std::endl;
+    std::cout << "--------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "----------------- Generated Overall Error Code : " << errCode << " -------------------" << std::endl;
+    std::cout << "--------------------------------------------------------------------------------------" << std::endl;
+  }
   return errCode;
 }
 int ShapeTester::RunMethod(VUSolid *testVolume, std::string fMethod1) {
@@ -2023,7 +1909,7 @@ void ShapeTester::ReportError(int *nError, UVector3 &p, UVector3 &v, double dist
   while (errors) {
 
     if (errors->sMessage == comment) {
-      if (++errors->sNUsed > 5)
+      if (++errors->sNUsed > fNumDisp)
         return;
       break;
     }
@@ -2050,7 +1936,7 @@ void ShapeTester::ReportError(int *nError, UVector3 &p, UVector3 &v, double dist
   //
 
   std::cout << "% " << comment;
-  if (errors->sNUsed == 5)
+  if (errors->sNUsed == fNumDisp)
     std::cout << " (any further such errors suppressed)";
   std::cout << " Distance = " << distance;
   std::cout << std::endl;
