@@ -204,9 +204,9 @@ public:
 
   // if we have any SIMD backend, we offer a SIMD interface
 #ifndef VECGEOM_SCALAR
-  virtual VECGEOM_BACKEND_PRECISION DistanceToIn(Vector3D<VECGEOM_BACKEND_PRECISION> const &position,
-                                                 Vector3D<VECGEOM_BACKEND_PRECISION> const &direction,
-                                                 const VECGEOM_BACKEND_PRECISION step_max = kInfinity) const = 0;
+  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToIn(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
+                                                 Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
+                                                 const VECGEOM_BACKEND_PRECISION_TYPE step_max = kInfinity) const = 0;
 #endif
 
   virtual void DistanceToIn(SOA3D<Precision> const &position,
@@ -238,9 +238,9 @@ public:
 #endif
   // define this interface in case we don't have the Scalar interface
 #ifndef VECGEOM_SCALAR
-  virtual VECGEOM_BACKEND_PRECISION DistanceToOut(Vector3D<VECGEOM_BACKEND_PRECISION> const &position,
-                                                  Vector3D<VECGEOM_BACKEND_PRECISION> const &direction,
-                                                  VECGEOM_BACKEND_PRECISION const step_max = kInfinity) const = 0;
+  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToOut(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
+                                                  Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
+                                                  VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfinity) const = 0;
 #endif
 
 
@@ -273,7 +273,7 @@ public:
   virtual Precision SafetyToIn(Vector3D<Precision> const &position) const =0;
 
 #ifndef VECGEOM_SCALAR
-  virtual VECGEOM_BACKEND_PRECISION SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION> const &position) const = 0;
+  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const = 0;
 #endif
 
   virtual void SafetyToIn(SOA3D<Precision> const &position,
@@ -290,7 +290,7 @@ public:
   virtual Precision SafetyToOut(Vector3D<Precision> const &position) const =0;
 
 #ifndef VECGEOM_SCALAR
-  virtual VECGEOM_BACKEND_PRECISION SafetyToOut(Vector3D<VECGEOM_BACKEND_PRECISION> const &position) const = 0;
+  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOut(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const = 0;
 #endif
 
   virtual void SafetyToOut(SOA3D<Precision> const &position,

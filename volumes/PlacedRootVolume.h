@@ -151,26 +151,26 @@ public:
 
   // the SIMD vector interfaces (not implemented)
 #ifndef VECGEOM_SCALAR
-  virtual VECGEOM_BACKEND_PRECISION DistanceToIn(Vector3D<VECGEOM_BACKEND_PRECISION> const &position,
-                                                 Vector3D<VECGEOM_BACKEND_PRECISION> const &direction,
-                                                 VECGEOM_BACKEND_PRECISION const step_max = kInfinity) const override {
+  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToIn(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
+                                                 Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
+                                                 VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfinity) const override {
     assert(false && "not implemented");
-    return VECGEOM_BACKEND_PRECISION(-1);
+    return VECGEOM_BACKEND_PRECISION_FROM_PTR(nullptr);
   }
-  virtual VECGEOM_BACKEND_PRECISION DistanceToOut(Vector3D<VECGEOM_BACKEND_PRECISION> const &position,
-                                                  Vector3D<VECGEOM_BACKEND_PRECISION> const &direction,
-                                                  VECGEOM_BACKEND_PRECISION const step_max = kInfinity) const override {
+  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToOut(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
+                                                  Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
+                                                  VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfinity) const override {
     assert(false && "not implemented");
-    return VECGEOM_BACKEND_PRECISION(-1);
+    return VECGEOM_BACKEND_PRECISION_FROM_PTR(nullptr);
   }
-  virtual VECGEOM_BACKEND_PRECISION SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION> const &position) const override {
+  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override {
     assert(false && "not implemented");
-    return VECGEOM_BACKEND_PRECISION(-1);
+    return VECGEOM_BACKEND_PRECISION_FROM_PTR(nullptr);
   }
 
-  virtual VECGEOM_BACKEND_PRECISION SafetyToOut(Vector3D<VECGEOM_BACKEND_PRECISION> const &position) const override {
+  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOut(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override {
     assert(false && "not implemented");
-    return VECGEOM_BACKEND_PRECISION(-1);
+    return VECGEOM_BACKEND_PRECISION_FROM_PTR(nullptr);
   }
 #endif
 
