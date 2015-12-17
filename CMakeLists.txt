@@ -654,12 +654,10 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} rt)
 endif()
 
-if (CUDA)
-  set_source_files_properties(
-    ${SRC_EXECUTABLES}
-    PROPERTIES COMPILE_FLAGS -std=c++11
-  )
-endif()
+set_source_files_properties(
+  ${SRC_EXECUTABLES}
+  PROPERTIES COMPILE_FLAGS -std=c++11
+)
 
 # build the CUDA version of the library
 if (CUDA)
@@ -849,12 +847,10 @@ set(TEST_EXECUTABLES
   ${TEST_EXECUTABLES_SHAPETESTER}
 )
 
-if (CUDA)
-  set_source_files_properties(
-    ${TEST_EXECUTABLES}
-    PROPERTIES COMPILE_FLAGS -std=c++11
-  )
-endif()
+set_source_files_properties(
+  ${TEST_EXECUTABLES}
+  PROPERTIES COMPILE_FLAGS -std=c++11
+)
 
 # Build executables
 
