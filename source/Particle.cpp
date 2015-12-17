@@ -17,15 +17,13 @@ using std::setfill;
 static const double kPlankBar = 6.5821192815e-25; // GeV s
 
 namespace vecgeom {
-  inline namespace VECGEOM_IMPL_NAMESPACE {
+  inline  namespace VECGEOM_IMPL_NAMESPACE {
  
 
 
 
 #ifdef VECGEOM_NVCC_DEVICE
-
 VECGEOM_CUDA_HEADER_DEVICE map<int,Particle> *fParticles = nullptr;
-
 VECGEOM_CUDA_HEADER_DEVICE
 char *strncpy(char *dest, const char *src, size_t n)
 {
@@ -51,6 +49,7 @@ ostream& operator<<(ostream& os, const Particle& part)
 #endif
 //________________________________________________________________________________________________
 
+VECGEOM_CUDA_HEADER_BOTH
 Particle::Particle(): fPDG(0), fMatter(true), fPcode(0), fCharge(0), fMass(-1),
 		      fWidth(0), fIsospin(0), fIso3(0), fStrange(0), fFlavor(0), fTrack(0), fNdecay(0),
                       fCode(-1) { 
@@ -58,6 +57,7 @@ Particle::Particle(): fPDG(0), fMatter(true), fPcode(0), fCharge(0), fMass(-1),
    strncpy(fClass, "", 1);}
 
 //________________________________________________________________________________________________
+VECGEOM_CUDA_HEADER_BOTH
 Particle::Particle(const char* name, int pdg, bool matter, const char* pclass, int pcode, double charge, 
 		   double mass, double width, int isospin, int iso3, int strange, int flavor, int track,
 		   int code):

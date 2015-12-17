@@ -31,8 +31,9 @@ using std::ostream;
 namespace vecgeom {
   
   VECGEOM_DEVICE_FORWARD_DECLARE( class Material; )
+  VECGEOM_DEVICE_FORWARD_DECLARE( class Particle; )
   
-    inline namespace VECGEOM_IMPL_NAMESPACE {
+    inline  namespace VECGEOM_IMPL_NAMESPACE {
  
 #ifdef VECGEOM_NVCC_DEVICE
 class Particle; 
@@ -48,16 +49,16 @@ public:
    Particle(const char* name, int pdg, bool matter, const char* pclass, int pcode, double charge, double mass,
 	    double width, int isospin, int iso3, int strange, int flavor, int track, int code=-1);
 
-   VECGEOM_CUDA_HEADER_BOTH
+  // VECGEOM_CUDA_HEADER_BOTH
    //Particle(const Particle & other):fName(other.fName), fPDG(other.fPDG), fMatter(other.fMatter), fClass(other.fClass), fPcode(other.fPcode), fCharge(other.fCharge), fMass(other.fMass),fWidth(other.fWidth),fIsospin(other.fIsospin),fStrange(other.fStrange),fFlavor(other.fFlavor),fTrack(other.fTrack),fCode(other.fCode){}
 
    VECGEOM_CUDA_HEADER_BOTH
    static void CreateParticles();
 #ifdef VECGEOM_NVCC
    VECGEOM_CUDA_HEADER_BOTH
-Particle operator=(const Particle &part) {
-   return part;
-}
+   Particle operator=(const Particle &part) {
+     return part;
+   }
 #endif
 
    const char* Name() const {return fName;}
@@ -89,7 +90,7 @@ Particle operator=(const Particle &part) {
 VECGEOM_CUDA_HEADER_BOTH
    static void CreateParticle();
 
-#ifndef VECGEOM_NVCC_DEVICE   
+#ifndef VECGEOM_NVCC_DEVICE
    static const Particle& GetParticle(int pdg) {
       if(fParticles->find(pdg)!=fParticles->end()) return (*fParticles)[pdg];
       static Particle p;
@@ -100,10 +101,12 @@ VECGEOM_CUDA_HEADER_BOTH
    friend ostream& operator<<(ostream& os, const Particle& part);
    
 #endif
+VECGEOM_CUDA_HEADER_BOTH
    void AddDecay(const Decay &decay) {fDecayList.push_back(decay); fNdecay = fDecayList.size();}
 
+VECGEOM_CUDA_HEADER_BOTH
    static const map<int,Particle> & Particles() {return *fParticles;}
-   
+
    class Decay {
    public:
 VECGEOM_CUDA_HEADER_BOTH

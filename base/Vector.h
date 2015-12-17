@@ -16,6 +16,7 @@ VECGEOM_DEVICE_FORWARD_DECLARE( template <typename Type> class Vector; )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+
 template <typename Type>
 class Vector {
 
@@ -53,7 +54,7 @@ public:
   Vector(std::initializer_list<Type> entries) {
     fSize - entries.size();
     fData = new Type[fSize];
-    for  (size_t i = 0; i < fSize; ++i) fData[i] = entries[i]; 
+    for  (auto itm : entries) this->push_back(itm); 
    }
 
  

@@ -162,11 +162,13 @@ public:
     return (*__i).second;
   }
   VECGEOM_CUDA_HEADER_BOTH
-  const _Tp& at(const key_type& __k) const {
-    iterator __i = lower_bound(__k);
+  const _Tp& at( const key_type& __k) const {
+    const_iterator __i = lower_bound(__k);
     // __i->first is greater than or equivalent to __k.
     if (__i == end() || key_comp()(__k, (*__i).first))
-      __i = insert(__i, value_type(__k, _Tp()));
+    {
+       printf("at(): key out of range \n");
+    }
     return (*__i).second;
   }
  //void swap(map<_Key,_Tp,_Compare,_Alloc>& __x) { _M_t.swap(__x._M_t); }
