@@ -609,6 +609,7 @@ endif()
 if (USOLIDS)
   set(SRC_CPP ${SRC_CPP}
     test/shape_tester/ShapeTester.cpp
+    test/shape_tester/ConventionChecker.cpp
   )
 endif()
 if (BENCHMARK)
