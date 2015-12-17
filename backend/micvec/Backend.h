@@ -51,10 +51,11 @@ constexpr int kVectorSize = 8;
 #undef VECGEOM_BACKEND_INSIDE
 #endif
 #endif
-#define VECGEOM_BACKEND_TYPE         kMic
-#define VECGEOM_BACKEND_PRECISION    MicPrecision
-#define VECGEOM_BACKEND_BOOL         MicBool
-#define VECGEOM_BACKEND_INSIDE       kMic::inside_v
+#define VECGEOM_BACKEND_TYPE         vecgeom::kMic
+#define VECGEOM_BACKEND_PRECISION_FROM_PTR(P) vecgeom::MicPrecision(P)
+#define VECGEOM_BACKEND_PRECISION_TYPE        vecgeom::MicPrecision
+#define VECGEOM_BACKEND_BOOL         vecgeom::MicBool
+#define VECGEOM_BACKEND_INSIDE       vecgeom::kMic::inside_v
 
 typedef kMic::int_v       MicInt;
 typedef kMic::precision_v MicPrecision;

@@ -558,9 +558,9 @@ public:
 #ifndef VECGEOM_SCALAR
   // scalar fallback: dispatch a SIMD interface to a scalar kernel
   VECGEOM_INLINE
-  virtual VECGEOM_BACKEND_PRECISION SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION> const &position) const {
-    VECGEOM_BACKEND_PRECISION output(kInfinity);
-    for (auto i = decltype(VECGEOM_BACKEND_PRECISION::Size){0}; i < VECGEOM_BACKEND_PRECISION::Size; ++i) {
+  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const {
+    VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
+    for (auto i = decltype(VECGEOM_BACKEND_PRECISION_TYPE::Size){0}; i < VECGEOM_BACKEND_PRECISION_TYPE::Size; ++i) {
       Precision tmp;
       Vector3D<Precision> pos(position.x()[i], position.y()[i], position.z()[i]);
       Specialization::template SafetyToIn<kScalar>(*this->GetUnplacedVolume(), *this->GetTransformation(), pos, tmp);
@@ -570,9 +570,9 @@ public:
   }
 
   VECGEOM_INLINE
-  virtual VECGEOM_BACKEND_PRECISION SafetyToOut(Vector3D<VECGEOM_BACKEND_PRECISION> const &position) const {
-    VECGEOM_BACKEND_PRECISION output(kInfinity);
-    for (auto i = decltype(VECGEOM_BACKEND_PRECISION::Size){0}; i < VECGEOM_BACKEND_PRECISION::Size; ++i) {
+  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOut(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const {
+    VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
+    for (auto i = decltype(VECGEOM_BACKEND_PRECISION_TYPE::Size){0}; i < VECGEOM_BACKEND_PRECISION_TYPE::Size; ++i) {
       Precision tmp;
       Vector3D<Precision> pos(position.x()[i], position.y()[i], position.z()[i]);
       Specialization::template SafetyToOut<kScalar>(*this->GetUnplacedVolume(), pos, tmp);
@@ -583,12 +583,12 @@ public:
 #endif
 
 #ifndef VECGEOM_SCALAR
-  virtual VECGEOM_BACKEND_PRECISION DistanceToIn(Vector3D<VECGEOM_BACKEND_PRECISION> const &position,
-                                                 Vector3D<VECGEOM_BACKEND_PRECISION> const &direction,
-                                                 const VECGEOM_BACKEND_PRECISION stepMax) const override {
+  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToIn(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
+                                                 Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
+                                                 const VECGEOM_BACKEND_PRECISION_TYPE stepMax) const override {
 
-    VECGEOM_BACKEND_PRECISION output(kInfinity);
-    for (auto i = decltype(VECGEOM_BACKEND_PRECISION::Size){0}; i < VECGEOM_BACKEND_PRECISION::Size; ++i) {
+    VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
+    for (auto i = decltype(VECGEOM_BACKEND_PRECISION_TYPE::Size){0}; i < VECGEOM_BACKEND_PRECISION_TYPE::Size; ++i) {
       Precision tmp;
       Vector3D<Precision> pos(position.x()[i], position.y()[i], position.z()[i]);
       Vector3D<Precision> dir(direction.x()[i], direction.y()[i], direction.z()[i]);
@@ -602,12 +602,12 @@ public:
 #endif
 
 #ifndef VECGEOM_SCALAR
-  virtual VECGEOM_BACKEND_PRECISION DistanceToOut(Vector3D<VECGEOM_BACKEND_PRECISION> const &position,
-                                                  Vector3D<VECGEOM_BACKEND_PRECISION> const &direction,
-                                                  const VECGEOM_BACKEND_PRECISION stepMax) const override {
+  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToOut(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
+                                                  Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
+                                                  const VECGEOM_BACKEND_PRECISION_TYPE stepMax) const override {
 
-    VECGEOM_BACKEND_PRECISION output(kInfinity);
-    for (auto i = decltype(VECGEOM_BACKEND_PRECISION::Size){0}; i < VECGEOM_BACKEND_PRECISION::Size; ++i) {
+    VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
+    for (auto i = decltype(VECGEOM_BACKEND_PRECISION_TYPE::Size){0}; i < VECGEOM_BACKEND_PRECISION_TYPE::Size; ++i) {
       Precision tmp;
       Vector3D<Precision> pos(position.x()[i], position.y()[i], position.z()[i]);
       Vector3D<Precision> dir(direction.x()[i], direction.y()[i], direction.z()[i]);

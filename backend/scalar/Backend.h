@@ -55,10 +55,11 @@ typedef kScalar::bool_v   ScalarBool;
 
 #define kVectorSize 1
 #ifdef VECGEOM_SCALAR
-#define VECGEOM_BACKEND_TYPE         kScalar
-#define VECGEOM_BACKEND_PRECISION(P) (*(P))
+#define VECGEOM_BACKEND_TYPE         vecgeom::kScalar
+#define VECGEOM_BACKEND_PRECISION_FROM_PTR(P) (*(P))
+#define VECGEOM_BACKEND_PRECISION_TYPE        Precision
 #define VECGEOM_BACKEND_BOOL         ScalarBool
-#define VECGEOM_BACKEND_INSIDE       kScalar::inside_v
+#define VECGEOM_BACKEND_INSIDE       vecgeom::kScalar::inside_v
 #endif
 
 template <typename Type>
