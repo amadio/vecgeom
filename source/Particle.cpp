@@ -22,9 +22,10 @@ namespace vecgeom {
 
 
 
-#ifdef VECGEOM_NVCC_DEVICE
-VECGEOM_CUDA_HEADER_DEVICE map<int,Particle> *fParticles = nullptr;
-VECGEOM_CUDA_HEADER_DEVICE
+#ifdef VECGEOM_NVCC
+VECGEOM_CUDA_HEADER_DEVICE map<int,Particle> *fParticlesDev = nullptr;
+map<int,Particle> *fParticlesHost = nullptr;
+VECGEOM_CUDA_HEADER_BOTH
 char *strncpy(char *dest, const char *src, size_t n)
 {
     char *ret = dest;
@@ -38,7 +39,7 @@ char *strncpy(char *dest, const char *src, size_t n)
 }
 #endif
  
-#ifndef VECGEOM_NVCC_DEVICE
+#ifndef VECGEOM_NVCC
 ostream& operator<<(ostream& os, const Particle& part)
 {
    os << part.fName << "(" << part.fPDG << ") Class:" << part.fClass << " Q:" << part.fCharge << " m:" << part.fMass
@@ -68,6 +69,8 @@ Particle::Particle(const char* name, int pdg, bool matter, const char* pclass, i
    fName[255]='\0';
    strncpy ( fClass, pclass, 255 );
    fClass[255]='\0';
+
+   #ifndef VECGEOM_NVCC
    if(!fParticles) fParticles=new map<int,Particle>;
    if(fParticles->count(fPDG) != 0) {
       printf("Particle %d already there\n", fPDG); 
@@ -77,6 +80,31 @@ Particle::Particle(const char* name, int pdg, bool matter, const char* pclass, i
    if(fWidth > 0) fLife = kPlankBar/fWidth;
    else fLife = 0;
    (*fParticles)[fPDG] = *this;
+  #else
+   #ifndef VECGEOM_NVCC_DEVICE
+   if(!fParticlesHost) fParticlesHost=new map<int,Particle>;
+   if(fParticlesHost->count(fPDG) != 0) {
+      printf("Particle %d already there\n", fPDG); 
+      return;
+   }
+
+   if(fWidth > 0) fLife = kPlankBar/fWidth;
+   else fLife = 0;
+   (*fParticlesHost)[fPDG] = *this;
+
+   #else
+   if(fParticlesDev == nullptr) fParticlesDev=new map<int,Particle>;
+   if(fParticlesDev->count(fPDG) != 0) {
+      printf("Particle %d already there\n", fPDG); 
+      return;
+   }
+
+   if(fWidth > 0) fLife = kPlankBar/fWidth;
+   else fLife = 0;
+   (*fParticlesDev)[fPDG] = *this;
+   #endif
+  #endif
+
 }
 
 //________________________________________________________________________________________________
