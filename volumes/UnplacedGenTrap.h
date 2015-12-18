@@ -72,64 +72,64 @@ public:
                   fDeltaX(), fDeltaY(),
                   fSurfaceShell(vertices, halfzheight)
   {
-      for (int i=0;i<8;++i)
-        fVertices[i]=vertices[i];
+    for (int i=0;i<8;++i)
+      fVertices[i]=vertices[i];
 
-      // Make sure vertices are defined clockwise
-      Precision sum1 = 0.;
-      Precision sum2 = 0.;
-      for (int i=0;i<4;++i){
-        int j = (i + 1) % 4;
-	sum1 += fVertices[i].x()*fVertices[j].y()-fVertices[j].x()*fVertices[i].y();
-	sum2 += fVertices[i+4].x()*fVertices[j+4].y()-fVertices[j+4].x()*fVertices[i+4].y();
-      }
-      
-      // we should generate an exception here
-      if (sum1*sum2 < -kTolerance) {
-        std::cerr << "ERROR: Unplaced generic trap defined with opposite clockwise" << std::endl;
-	Print();
-	return;
-      }
+    // Make sure vertices are defined clockwise
+    Precision sum1 = 0.;
+    Precision sum2 = 0.;
+    for (int i=0;i<4;++i){
+      int j = (i + 1) % 4;
+      sum1 += fVertices[i].x()*fVertices[j].y()-fVertices[j].x()*fVertices[i].y();
+      sum2 += fVertices[i+4].x()*fVertices[j+4].y()-fVertices[j+4].x()*fVertices[i+4].y();
+    }
+
+    // we should generate an exception here
+    if (sum1*sum2 < -kTolerance) {
+      std::cerr << "ERROR: Unplaced generic trap defined with opposite clockwise" << std::endl;
+      Print();
+      return;
+    }
             
-      // revert sequence of vertices to have them clockwise
-      if (sum1 > kTolerance) {
-        std::cerr << "Reverting to clockwise vertices of GenTrap shape:" << std::endl;
-        Print();
-	Vector3D<Precision> vtemp;
-	vtemp = fVertices[1];
-	fVertices[1] = fVertices[3];
-	fVertices[3] = vtemp;
-	vtemp = fVertices[5];
-	fVertices[5] = fVertices[7];
-	fVertices[7] = vtemp;
-      }
+    // revert sequence of vertices to have them clockwise
+    if (sum1 > kTolerance) {
+      std::cerr << "Reverting to clockwise vertices of GenTrap shape:" << std::endl;
+      Print();
+      Vector3D<Precision> vtemp;
+      vtemp = fVertices[1];
+      fVertices[1] = fVertices[3];
+      fVertices[3] = vtemp;
+      vtemp = fVertices[5];
+      fVertices[5] = fVertices[7];
+      fVertices[7] = vtemp;
+    }
 
-      // Check that opposite segments are not crossing -> exception
-      if (SegmentsCrossing(fVertices[0], fVertices[1], fVertices[2], fVertices[3]) ||
-          SegmentsCrossing(fVertices[4], fVertices[5], fVertices[6], fVertices[7])) {
-          std::cerr << "ERROR: Unplaced generic trap defined with crossing opposite segments" << std::endl;
-          Print();
-          return;
-      }	  
+    // Check that opposite segments are not crossing -> exception
+    if (SegmentsCrossing(fVertices[0], fVertices[1], fVertices[2], fVertices[3]) ||
+        SegmentsCrossing(fVertices[4], fVertices[5], fVertices[6], fVertices[7])) {
+      std::cerr << "ERROR: Unplaced generic trap defined with crossing opposite segments" << std::endl;
+      Print();
+      return;
+    }	  
       
-      // initialize the connecting components
-      for (int i=0;i<4;++i){
-        fConnectingComponentsX[i]=(fVertices[i]-fVertices[i+4]).x();
-        fConnectingComponentsY[i]=(fVertices[i]-fVertices[i+4]).y();
-        fVerticesX[i]=fVertices[i].x();
-        fVerticesX[i+4]=fVertices[i+4].x();
-        fVerticesY[i]=fVertices[i].y();
-        fVerticesY[i+4]=fVertices[i+4].y();
-      }
-      for (int i=0;i<4;++i){
-        int j = (i + 1) % 4;
-        fDeltaX[i] = fVerticesX[j]-fVerticesX[i];
-        fDeltaX[i+4] = fVerticesX[j+4]-fVerticesX[i+4];
-        fDeltaY[i] = fVerticesY[j]-fVerticesY[i];
-        fDeltaY[i+4] = fVerticesY[j+4]-fVerticesY[i+4];
-      }
+    // initialize the connecting components
+    for (int i=0;i<4;++i){
+      fConnectingComponentsX[i]=(fVertices[i]-fVertices[i+4]).x();
+      fConnectingComponentsY[i]=(fVertices[i]-fVertices[i+4]).y();
+      fVerticesX[i]=fVertices[i].x();
+      fVerticesX[i+4]=fVertices[i+4].x();
+      fVerticesY[i]=fVertices[i].y();
+      fVerticesY[i+4]=fVertices[i+4].y();
+    }
+    for (int i=0;i<4;++i){
+      int j = (i + 1) % 4;
+      fDeltaX[i] = fVerticesX[j]-fVerticesX[i];
+      fDeltaX[i+4] = fVerticesX[j+4]-fVerticesX[i+4];
+      fDeltaY[i] = fVerticesY[j]-fVerticesY[i];
+      fDeltaY[i+4] = fVerticesY[j+4]-fVerticesY[i+4];
+    }
     fIstwisted = ComputeIsTwisted();
-    std::cout << "twisted= " << fIstwisted << std::endl;
+    //std::cout << "twisted= " << fIstwisted << std::endl;
     ComputeBoundingBox();
 
   }
@@ -191,12 +191,13 @@ public:
     Precision capacity = 0;
     for (i=0; i<4; i++) {
       j = (i+1)%4;
+      
       capacity += 0.25*fDz*((fVerticesX[i]+fVerticesX[i+4])*(fVerticesY[j]+fVerticesY[j+4]) -
                             (fVerticesX[j]+fVerticesX[j+4])*(fVerticesY[i]+fVerticesY[i+4]) +
                     (1./3)*((fVerticesX[i+4]-fVerticesX[i])*(fVerticesY[j+4]-fVerticesY[j]) -
                             (fVerticesX[j]-fVerticesX[j+4])*(fVerticesY[i]-fVerticesY[i+4])));
-     }
-     return Abs(capacity);
+    }
+    return Abs(0.5*capacity);
   }
 
   VECGEOM_INLINE
