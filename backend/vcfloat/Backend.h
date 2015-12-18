@@ -35,6 +35,16 @@ typedef kVcFloat::precision_v VcPrecisionFloat;
 typedef kVcFloat::bool_v      VcBoolFloat;
 typedef kVcFloat::inside_v    VcInsideFloat;
 
+#if 0
+// The VcFloat backend is included at the same type as Vc backend, consequently
+// this can not be used ...
+#define VECGEOM_BACKEND_TYPE         vecgeom::kVcFloat
+#define VECGEOM_BACKEND_PRECISION_FROM_PTR(P) vecgeom::kVcFloat::VcPrecision(P)
+#define VECGEOM_BACKEND_PRECISION_TYPE        vecgeom::kVcFloat::VcPrecision
+#define VECGEOM_BACKEND_BOOL         vecgeom::kVcFloat::VcBoolFloat
+#define VECGEOM_BACKEND_INSIDE       vecgeom::kVcFloat::inside_v
+#endif
+
 //template <typename Type>
 //VECGEOM_INLINE
 //void CondAssign(typename Vc::Vector<Type>::Mask const &cond,

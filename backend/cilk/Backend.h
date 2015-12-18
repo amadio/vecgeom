@@ -42,7 +42,15 @@ typedef kCilk::int_v       CilkInt;
 typedef kCilk::precision_v CilkPrecision;
 typedef kCilk::bool_v      CilkBool;
 
-/**
+#ifdef VECGEOM_CILK
+#define VECGEOM_BACKEND_TYPE         vecgeom::kCilk
+#define VECGEOM_BACKEND_PRECISION_FROM_PTR(P) vecgeom::CilkPrecision(P)
+#define VECGEOM_BACKEND_PRECISION_TYPE        vecgeom::CilkPrecision
+#define VECGEOM_BACKEND_BOOL         vecgeom::CilkBool
+#define VECGEOM_BACKEND_INSIDE       vecgeom::kCilk::inside_v
+#endif
+
+    /**
  * Wrapper struct to allow arithmetic operations to be performed using the Cilk
  * backend without explicitly using array notation in the kernel.
  */
