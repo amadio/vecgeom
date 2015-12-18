@@ -41,6 +41,7 @@ typedef kVcFloat::inside_v    VcInsideFloat;
 #define VECGEOM_BACKEND_TYPE         vecgeom::kVcFloat
 #define VECGEOM_BACKEND_PRECISION_FROM_PTR(P) vecgeom::kVcFloat::VcPrecision(P)
 #define VECGEOM_BACKEND_PRECISION_TYPE        vecgeom::kVcFloat::VcPrecision
+#define VECGEOM_BACKEND_PRECISION_NOT_SCALAR
 #define VECGEOM_BACKEND_BOOL         vecgeom::kVcFloat::VcBoolFloat
 #define VECGEOM_BACKEND_INSIDE       vecgeom::kVcFloat::inside_v
 #endif
