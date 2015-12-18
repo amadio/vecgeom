@@ -39,6 +39,18 @@ struct kScalarFloat {
   static Precision Convert(Precision const &input) { return input; }
 };
 
+#if 0
+// ScalarFloat is an auxiliary backend, supposed to be used in conjunction with another
+// one (assummedly Scalar), so we can not use this.
+#ifdef VECGEOM_SCALAR_FLOAT
+#define VECGEOM_BACKEND_TYPE         vecgeom::kScalarFloat
+#define VECGEOM_BACKEND_PRECISION_FROM_PTR(P) (*(P))
+#define VECGEOM_BACKEND_PRECISION_TYPE        Precision
+#define VECGEOM_BACKEND_BOOL         vecgeom::kScalarFloat::ScalarBool
+#define VECGEOM_BACKEND_INSIDE       vecgeom::kScalarFloat::inside_v
+#endif
+#endif
+
 //template <>
 //VECGEOM_CUDA_HEADER_BOTH
 //inline VECGEOM_CONSTEXPR_RETURN bool kScalar::IsEqual<kScalar>() {
