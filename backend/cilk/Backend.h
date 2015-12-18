@@ -46,6 +46,7 @@ typedef kCilk::bool_v      CilkBool;
 #define VECGEOM_BACKEND_TYPE         vecgeom::kCilk
 #define VECGEOM_BACKEND_PRECISION_FROM_PTR(P) vecgeom::CilkPrecision(P)
 #define VECGEOM_BACKEND_PRECISION_TYPE        vecgeom::CilkPrecision
+#define VECGEOM_BACKEND_PRECISION_NOT_SCALAR
 #define VECGEOM_BACKEND_BOOL         vecgeom::CilkBool
 #define VECGEOM_BACKEND_INSIDE       vecgeom::kCilk::inside_v
 #endif

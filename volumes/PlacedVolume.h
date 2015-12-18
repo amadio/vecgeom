@@ -203,7 +203,7 @@ public:
 
 
   // if we have any SIMD backend, we offer a SIMD interface
-#ifndef VECGEOM_SCALAR
+#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
   virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToIn(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
                                                  Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
                                                  const VECGEOM_BACKEND_PRECISION_TYPE step_max = kInfinity) const = 0;
@@ -237,7 +237,7 @@ public:
       Precision const step_max = kInfinity) const =0;
 #endif
   // define this interface in case we don't have the Scalar interface
-#ifndef VECGEOM_SCALAR
+#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
   virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToOut(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
                                                   Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
                                                   VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfinity) const = 0;
@@ -272,7 +272,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision SafetyToIn(Vector3D<Precision> const &position) const =0;
 
-#ifndef VECGEOM_SCALAR
+#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
   virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const = 0;
 #endif
 
@@ -289,7 +289,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision SafetyToOut(Vector3D<Precision> const &position) const =0;
 
-#ifndef VECGEOM_SCALAR
+#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
   virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOut(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const = 0;
 #endif
 

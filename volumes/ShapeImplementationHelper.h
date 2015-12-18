@@ -224,7 +224,7 @@ public:
     return output;
   }
 
-#ifndef VECGEOM_SCALAR
+#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
   virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToIn(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &point,
                                                  Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
                                                  const VECGEOM_BACKEND_PRECISION_TYPE stepMax) const override {
@@ -271,7 +271,7 @@ public:
     return output;
   }
 
-#ifndef VECGEOM_SCALAR
+#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
   virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToOut(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &point,
                                                   Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
                                                   const VECGEOM_BACKEND_PRECISION_TYPE stepMax) const override {
@@ -381,7 +381,7 @@ public:
     return output;
   }
 
-#ifndef VECGEOM_SCALAR
+#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
   VECGEOM_INLINE
   virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const {
     VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
