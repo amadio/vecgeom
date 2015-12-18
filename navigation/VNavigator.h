@@ -224,7 +224,7 @@ public:
 public :
     // a generic implementation
     // may be completely specialized in child-navigators
-#define OLD
+//#define OLD
 #ifdef OLD
     virtual Precision
     ComputeStepAndPropagatedState(Vector3D<Precision> const &globalpoint, Vector3D<Precision> const &globaldir,
@@ -331,8 +331,7 @@ public :
       T step;
       if (MotherIsConvex) {
         Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, out_states,
-                                                                 out_steps, hitcandidates);
-
+                                                                 from_index, out_steps, hitcandidates);
         // parse the hitcandidates pointer as double to apply a mask
         T hitcandidates_as_doubles((double *)hitcandidates);
         if (Any(hitcandidates_as_doubles != 0.))
