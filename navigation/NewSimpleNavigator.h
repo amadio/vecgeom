@@ -120,16 +120,55 @@ public:
     return false;
   }
 
+  // Vector specialization for NewSimpleNavigator
+  // TODO: unify with scalar use case
+  template <typename T, unsigned int ChunkSize> // we may go to Backend as template parameter in future
+  static void DaughterIntersectionsLooper(VNavigator const *nav, LogicalVolume const *lvol,
+                                          Vector3D<T> const &localpoint, Vector3D<T> const &localdir,
+                                          NavStatePool const &in_states, NavStatePool &out_states,
+                                          unsigned int from_index, Precision *out_steps,
+                                          VPlacedVolume const *hitcandidates[ChunkSize]) {
+    // dispatch to vector implementation
+    //   iterate over all daughters
+    // using Real_v = typename Backend::Real_v;
+    // using Bool_v = Real_v::Mask;
+    T step(out_steps + from_index);
+    const auto *daughters = lvol->GetDaughtersp();
+    auto ndaughters = daughters->size();
+    for (decltype(ndaughters) d = 0; d < ndaughters; ++d) {
+      auto daughter = daughters->operator[](d);
+      // SW: this makes the navigation more robust and it appears that I have to
+      // put this at the moment since not all shapes respond yet with a negative distance if
+      // the point is actually inside the daughter
+      //  #ifdef CHECKCONTAINS
+      // #pragma message "CHECKCONTAINS"
+      //        Bool_v contains = daughter->Contains(localpoint);
+      //        if (!contains) {
+      //  #endif
+      T ddistance = daughter->DistanceToIn(localpoint, localdir, step);
 
-  // specialization for NewSimpleNavigator
-//  template <typename T, unsigned int ChunkSize> // we may go to Backend as template parameter in future
-//    static void DaughterIntersectionsLooper(VNavigator const *nav, LogicalVolume const *lvol, Vector3D<T> const &localpoint,
-//                                            Vector3D<T> const &localdir, NavStatePool const &in_states,
-//                                            NavStatePool &out_states, unsigned int from_index, unsigned int to_index,
-//                                            Precision *out_step, VPlacedVolume const * hitcandidates[ChunkSize]) {
-//      // dispatch to ordinary implementation ( which itself might be vectorized )
-//	  std::cerr << "YES VERY COOL\n" << std::endl;
-//  }
+      // if distance is negative; we are inside that daughter and should relocate
+      // unless distance is minus infinity
+      typename T::Mask valid = (ddistance < step && !IsInf(ddistance));
+
+      // serial treatment of hit candidate until I find a better way
+      // we might do this using a cast to a double vector with subsequent masked assignment
+      for (unsigned int i = valid.firstOne(); i < ChunkSize; ++i) {
+        hitcandidates[i] = valid[i] ? daughter : hitcandidates[i];
+      }
+
+      step(valid) = ddistance; // or maskedAssign
+                               //  #ifdef CHECKCONTAINS
+                               //        } else {
+                               //          std::cerr << " INDA ";
+                               //          step = -1.;
+                               //          hitcandidate = daughter;
+                               //          break;
+                               //        }
+                               //  #endif
+    }
+    step.store(out_steps + from_index);
+  }
 
 //  template <typename Backend>
 //  VECGEOM_INLINE

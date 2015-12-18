@@ -122,7 +122,7 @@ typedef std::map<LogicalVolume const*, std::vector<TrackAndState_t> *> VolumeTra
 VolumeTracksMap_t gVolumeTrackMap;
 VolumeTracksMap_t gVolumeTrackForLevelLocate;
 
-#define LOGDATA
+//#define LOGDATA
 
 void AddTrack( LogicalVolume const *lvol, Vec3_t p, Vec3_t d, NavigationState const * state ){
   NavigationState * newstate = NavigationState::MakeCopy( *state );

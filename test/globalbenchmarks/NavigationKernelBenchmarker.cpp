@@ -94,11 +94,13 @@ void benchVectorNavigator(SOA3D<Precision> const & __restrict__ points,
   timer.Stop();
   std::cerr << timer.Elapsed() << "\n";
   double accum(0.);
+  size_t hittargetchecksum=0L;
   for (decltype(points.size()) i = 0; i < points.size(); ++i) {
     // std::cerr << "---- " << steps[i] << "\n";
     accum += steps[i];
+    hittargetchecksum+=(size_t) outpool[i]->Top();
   }
-  std::cerr << "VECTOR accum  " << T::GetClassName() << " " << accum << "\n";
+  std::cerr << "VECTOR accum  " << T::GetClassName() << " " << accum << " target checksum " << hittargetchecksum << "\n";
   _mm_free(steps);
   _mm_free(step_max);
 }
@@ -139,16 +141,26 @@ void benchDifferentNavigators(SOA3D<Precision> const &points,
   RUNBENCH(benchNavigator<NewSimpleNavigator<false>>(points, dirs, pool));
   std::cerr << "##\n";
   RUNBENCH(benchNavigator<NewSimpleNavigator<true>>(points, dirs, pool));
-  //std::cerr << "##\n";
-  // RUNBENCH(benchVectorNavigator<NewSimpleNavigator<false>>(points, dirs, pool, outpool));
-  std::cerr << "##\n";
-  RUNBENCH(benchNavigator<SimpleABBoxNavigator<false>>(points, dirs, pool));
   std::cerr << "##\n";
   RUNBENCH(benchVectorNavigator<NewSimpleNavigator<false>>(points, dirs, pool, outpool));
   std::cerr << "##\n";
+  RUNBENCH(benchVectorNavigator<NewSimpleNavigator<true>>(points, dirs, pool, outpool));
+  std::cerr << "##\n";
+  RUNBENCH(benchNavigator<SimpleABBoxNavigator<false>>(points, dirs, pool));
+  std::cerr << "##\n";
+  RUNBENCH(benchNavigator<SimpleABBoxNavigator<true>>(points, dirs, pool));
+  std::cerr << "##\n";
   RUNBENCH(benchVectorNavigator<SimpleABBoxNavigator<false>>(points, dirs, pool, outpool));
   std::cerr << "##\n";
+  RUNBENCH(benchVectorNavigator<SimpleABBoxNavigator<true>>(points, dirs, pool, outpool));
+  std::cerr << "##\n";
   RUNBENCH(benchNavigator<HybridNavigator<false>>(points, dirs, pool));
+  std::cerr << "##\n";
+  RUNBENCH(benchNavigator<HybridNavigator<true>>(points, dirs, pool));
+  std::cerr << "##\n";
+  RUNBENCH(benchVectorNavigator<HybridNavigator<false>>(points, dirs, pool, outpool));
+  std::cerr << "##\n";
+  RUNBENCH(benchVectorNavigator<HybridNavigator<true>>(points, dirs, pool, outpool));
   std::cerr << "##\n";
   RUNBENCH(benchmarkOldNavigator(points, dirs, pool));
 }
