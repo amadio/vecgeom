@@ -43,11 +43,12 @@ struct kScalarFloat {
 // ScalarFloat is an auxiliary backend, supposed to be used in conjunction with another
 // one (assummedly Scalar), so we can not use this.
 #ifdef VECGEOM_SCALAR_FLOAT
+constexpr size_t kVectorSize  = 1;
 #define VECGEOM_BACKEND_TYPE         vecgeom::kScalarFloat
 #define VECGEOM_BACKEND_PRECISION_FROM_PTR(P) (*(P))
 #define VECGEOM_BACKEND_PRECISION_TYPE        Precision
 //#define VECGEOM_BACKEND_PRECISION_NOT_SCALAR
-#define VECGEOM_BACKEND_BOOL         vecgeom::kScalarFloat::ScalarBool
+#define VECGEOM_BACKEND_BOOL         vecgeom::ScalarBool
 #define VECGEOM_BACKEND_INSIDE       vecgeom::kScalarFloat::inside_v
 #endif
 #endif
