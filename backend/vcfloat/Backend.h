@@ -38,6 +38,7 @@ typedef kVcFloat::inside_v    VcInsideFloat;
 #if 0
 // The VcFloat backend is included at the same type as Vc backend, consequently
 // this can not be used ...
+constexpr int kVectorSize = kVcFloat::precision_v::Size;
 #define VECGEOM_BACKEND_TYPE         vecgeom::kVcFloat
 #define VECGEOM_BACKEND_PRECISION_FROM_PTR(P) vecgeom::kVcFloat::VcPrecision(P)
 #define VECGEOM_BACKEND_PRECISION_TYPE        vecgeom::kVcFloat::VcPrecision

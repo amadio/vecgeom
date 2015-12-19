@@ -39,11 +39,8 @@ struct kMic {
   typedef MicDoubleVector Index_t;
 };
 
-#ifdef kVectorSize
-#undef kVectorSize
-#endif
-constexpr int kVectorSize = 8;
 #ifdef OFFLOAD_MODE
+constexpr size_t kVectorSize = 8;
 #ifdef VECGEOM_SCALAR
 #undef VECGEOM_BACKEND_TYPE
 #undef VECGEOM_BACKEND_PRECISION
@@ -52,6 +49,7 @@ constexpr int kVectorSize = 8;
 #endif
 #endif
 #ifdef VECGEOM_MIC
+constexpr size_t kVectorSize = 8;
 #define VECGEOM_BACKEND_TYPE         vecgeom::kMic
 #define VECGEOM_BACKEND_PRECISION_FROM_PTR(P) vecgeom::kMic::MicPrecision(P)
 #define VECGEOM_BACKEND_PRECISION_TYPE        vecgeom::kMic::MicPrecision

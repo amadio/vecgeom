@@ -48,13 +48,13 @@ typedef kScalar::int_v    ScalarInt;
 typedef kScalar::precision_v ScalarDouble;
 typedef kScalar::bool_v   ScalarBool;
 
-#define kVectorSize 1
 #ifdef VECGEOM_SCALAR
+constexpr size_t kVectorSize = 1;
 #define VECGEOM_BACKEND_TYPE         vecgeom::kScalar
 #define VECGEOM_BACKEND_PRECISION_FROM_PTR(P) (*(P))
-#define VECGEOM_BACKEND_PRECISION_TYPE        Precision
+#define VECGEOM_BACKEND_PRECISION_TYPE        vecgeom::Precision
 //#define VECGEOM_BACKEND_PRECISION_NOT_SCALAR
-#define VECGEOM_BACKEND_BOOL         ScalarBool
+#define VECGEOM_BACKEND_BOOL         vecgeom::ScalarBool
 #define VECGEOM_BACKEND_INSIDE       vecgeom::kScalar::inside_v
 #endif
 
