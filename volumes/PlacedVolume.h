@@ -408,7 +408,7 @@ public:
          const unsigned int id) const; \
     }
 
-#ifdef VECGEOM_NO_SPECIALIZATION
+#if defined(VECGEOM_NO_SPECIALIZATION) || !defined(VECGEOM_CUDA_VOLUME_SPECIALIZATION)
 
 #define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT( PlacedVol, trans )   \
    VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<trans, rotation::kGeneric> )
@@ -443,7 +443,7 @@ public:
 
 #endif // VECGEOM_NO_SPECIALIZATION
 
-#ifdef VECGEOM_NO_SPECIALIZATION
+#if defined(VECGEOM_NO_SPECIALIZATION) || !defined(VECGEOM_CUDA_VOLUME_SPECIALIZATION)
 
 #define VECGEOM_DEVICE_INST_PLACED_POLYHEDRON_ALL_CUTOUT( PlacedVol, radii )   \
    VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<radii, Polyhedron::EPhiCutout::kGeneric> )
@@ -476,7 +476,7 @@ public:
          const unsigned int id) const; \
     }
 
-#ifdef VECGEOM_NO_SPECIALIZATION
+#if defined(VECGEOM_NO_SPECIALIZATION) || !defined(VECGEOM_CUDA_VOLUME_SPECIALIZATION)
 
 #define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_3( PlacedVol, trans, Type ) \
    VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3( PlacedVol<trans, rotation::kGeneric, Type> )
@@ -521,7 +521,7 @@ public:
          const unsigned int id) const; \
     }
 
-#ifdef VECGEOM_NO_SPECIALIZATION
+#if defined(VECGEOM_NO_SPECIALIZATION) || !defined(VECGEOM_CUDA_VOLUME_SPECIALIZATION)
 
 #define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_4( PlacedVol, trans, radii, phi ) \
    VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, rotation::kGeneric, radii, phi> )
@@ -578,7 +578,7 @@ public:
          const unsigned int id) const; \
     }
 
-#ifdef VECGEOM_NO_SPECIALIZATION
+#if defined(VECGEOM_NO_SPECIALIZATION) || !defined(VECGEOM_CUDA_VOLUME_SPECIALIZATION)
 
 #define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_BOOLEAN( PlacedVol, Op, trans) \
    VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol<Op, trans, rotation::kGeneric> )
