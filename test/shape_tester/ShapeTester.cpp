@@ -1898,7 +1898,7 @@ int ShapeTester::RunMethod(VUSolid *testVolume, std::string fMethod1) {
 //
 // ReportError
 //
-// Report the specified error sMessage, but only if it has not been reported a zillion
+// Report the specified error fMessage, but only if it has not been reported a zillion
 // times already.
 //
 void ShapeTester::ReportError(int *nError, UVector3 &p, UVector3 &v, double distance,
@@ -1908,13 +1908,13 @@ void ShapeTester::ReportError(int *nError, UVector3 &p, UVector3 &v, double dist
   ShapeTesterErrorList *last = 0, *errors = fErrorList;
   while (errors) {
 
-    if (errors->sMessage == comment) {
-      if (++errors->sNUsed > fNumDisp)
+    if (errors->fMessage == comment) {
+      if (++errors->fNUsed > fNumDisp)
         return;
       break;
     }
     last = errors;
-    errors = errors->sNext;
+    errors = errors->fNext;
   }
 
   if (errors == 0) {
@@ -1922,21 +1922,21 @@ void ShapeTester::ReportError(int *nError, UVector3 &p, UVector3 &v, double dist
     // New error: add it the end of our list
     //
     errors = new ShapeTesterErrorList;
-    errors->sMessage = comment;
-    errors->sNUsed = 1;
-    errors->sNext = 0;
+    errors->fMessage = comment;
+    errors->fNUsed = 1;
+    errors->fNext = 0;
     if (fErrorList)
-      last->sNext = errors;
+      last->fNext = errors;
     else
       fErrorList = errors;
   }
 
   //
-  // Output the sMessage
+  // Output the fMessage
   //
 
   std::cout << "% " << comment;
-  if (errors->sNUsed == fNumDisp)
+  if (errors->fNUsed == fNumDisp)
     std::cout << " (any further such errors suppressed)";
   std::cout << " Distance = " << distance;
   std::cout << std::endl;
@@ -1962,7 +1962,7 @@ void ShapeTester::ClearErrors() {
 
   here = fErrorList;
   while (here) {
-    sNext = here->sNext;
+    sNext = here->fNext;
     delete here;
     here = sNext;
   }
@@ -1977,8 +1977,8 @@ int ShapeTester::CountErrors() const {
 
   here = fErrorList;
   while (here) {
-    answer += here->sNUsed;
-    here = here->sNext;
+    answer += here->fNUsed;
+    here = here->fNext;
   }
 
   return answer;
