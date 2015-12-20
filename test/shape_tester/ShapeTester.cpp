@@ -45,6 +45,12 @@
 
 using namespace std;
 
+/* The definitions of core ShapeTester functions are not modified, 
+ * Only duplicate tests which are now implemented in Convention checker  
+ * are removed. These are basically tests for wrong side points.
+ * 
+ */
+
 ShapeTester::ShapeTester() { SetDefaults(); }
 
 ShapeTester::~ShapeTester() {}
