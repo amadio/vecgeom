@@ -13,11 +13,11 @@
 
 const double kApproxEqualTolerance = 1E-6;
 
-typedef struct sShapeTesterErrorList {
-    std::string sMessage;
-    int sNUsed;
-    struct sShapeTesterErrorList *sNext;
-  } ShapeTesterErrorList;
+struct ShapeTesterErrorList {
+    std::string fMessage;
+    int fNUsed;
+    struct ShapeTesterErrorList *fNext;
+  } ;
 
 class ShapeTester {
 
@@ -45,7 +45,7 @@ public:
   inline UVector3 GetPoint(int index) { return fPoints[index]; }
   inline void SetNumberOfScans(int num) { fGNumberOfScans = num; }
 
-  /* Keep this Function as public to allow, if somebody just want
+  /* Keeping this Function as public to allow, if somebody just want
    * to do the Convention Check
    */
   bool RunConventionChecker(VUSolid *testVolume);
@@ -146,15 +146,15 @@ private:
   /* Private functions for Convention Checker, These functions never need
    * to be called from Outside the class
    */
-  void PrintConventionMessages();
-  void GenerateConventionReport();
-  void SetupConventionMessages();
-  bool ShapeConventionChecker();
-  bool ShapeConventionSurfacePoint();
-  bool ShapeConventionInsidePoint();
-  bool ShapeConventionOutsidePoint();
-  void SetNumDisp(int);
-  bool ApproxEqual(const double x, const double y);
+  void PrintConventionMessages(); //Function to print convention messages
+  void GenerateConventionReport(); //Function to generate Convention Report
+  void SetupConventionMessages();  //Function to setup convention messages
+  bool ShapeConventionChecker();   //Function that call other core convention checking function
+  bool ShapeConventionSurfacePoint(); //Function to check conventions for Surface Points
+  bool ShapeConventionInsidePoint();  //Function to check conventions for Inside Points
+  bool ShapeConventionOutsidePoint(); //Function to check conventions for Outside Points
+  void SetNumDisp(int); //Function to set num. of points to be displayed during convention failure
+  bool ApproxEqual(const double x, const double y); //Helper function to check approximate equality
   //Return true if the 3vector check is approximately equal to target
   template <class Vec_t>
   bool ApproxEqual(const Vec_t &check, const Vec_t &target);

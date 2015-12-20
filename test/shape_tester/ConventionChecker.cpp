@@ -1,5 +1,11 @@
-#include "base/RNG.h"
+/// @file ConventionChecker.cpp
+/// @author Raman Sehgal (raman.sehgal@cern.ch)
 
+/* This file contains implementation of additional functions added to ShapeTester,
+ * to have the shape convention checking feature.
+ */
+
+#include "base/RNG.h"
 #include <iomanip>
 #include <sstream>
 #include <ctime>
@@ -15,7 +21,6 @@
 #include "base/Vector3D.h"
 #include "volumes/Box.h"
 
-//#include "ApproxEqual.h"
 #ifdef VECGEOM_ROOT
 #include "TGeoShape.h"
 #include "TGeoParaboloid.h"
@@ -43,7 +48,7 @@
 #undef NDEBUG
 #include <cassert>
 
-
+//Function to set the number of Points to be displayed in case of convention not followed
 void ShapeTester::SetNumDisp(int num) {
   fNumDisp = num;
 }
@@ -70,8 +75,11 @@ bool ShapeTester::ApproxEqual(const Vec_t &check, const Vec_t &target) {
              ? true
              : false;
 }
-///-------------------------------------------------------------------------
 
+/* Function to Setup all the convention messages
+ * With this interface it will be easy, if we want to put
+ * some more conventions in future
+ */
 void ShapeTester::SetupConventionMessages() {
     // For Surface Points
   fScore = 0;                                                                                  // index
@@ -97,6 +105,7 @@ void ShapeTester::SetupConventionMessages() {
   fNumDisp = 1;
 }
 
+//Funtion to check conventions for Surface Points
 bool ShapeTester::ShapeConventionSurfacePoint() {
   int nError=0;
   bool surfPointConventionPassed = true;
@@ -218,6 +227,7 @@ bool ShapeTester::ShapeConventionSurfacePoint() {
   return surfPointConventionPassed;
 }
 
+//Function to check conventions for Inside points
 bool ShapeTester::ShapeConventionInsidePoint() {
 
   int nError=0;
@@ -288,10 +298,10 @@ bool ShapeTester::ShapeConventionInsidePoint() {
     }
   }
 
-  // return true;
   return insidePointConventionPassed;
 }
 
+//Function to check conventions for outside points
 bool ShapeTester::ShapeConventionOutsidePoint() {
   int nError=0;
   double Dist;
@@ -359,10 +369,10 @@ bool ShapeTester::ShapeConventionOutsidePoint() {
     }
   }
 
-  // return true;
   return outsidePointConventionPassed;
 }
-// bool ShapeTester::ShapeConventionChecker(VUSolid *testVolume){
+
+//Function that will call the above three functions to do the convention check
 bool ShapeTester::ShapeConventionChecker() {
 
   // Setting up Convention sMessages
@@ -394,6 +404,7 @@ bool ShapeTester::ShapeConventionChecker() {
   return true;
 }
 
+//Function to print all the conventions messages
 void ShapeTester::PrintConventionMessages() {
 
   for (auto i : fConventionMessage)
@@ -401,6 +412,7 @@ void ShapeTester::PrintConventionMessages() {
 
 }
 
+//Functions to generate Convention Report at the end
 void ShapeTester::GenerateConventionReport() {
 
   int n = fScore;
@@ -430,6 +442,10 @@ void ShapeTester::GenerateConventionReport() {
   }
 }
 
+/* Public interface to run convention checker.
+ * This interface is intentionally left public, so as to allow, if one want to call 
+ * just the convention checker without the ShapeTester's tests.
+ */
 bool ShapeTester::RunConventionChecker(VUSolid *testVolume) {
   fVolumeUSolids = testVolume;
   ShapeConventionChecker();
