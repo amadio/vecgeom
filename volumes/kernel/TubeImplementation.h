@@ -8,10 +8,12 @@
 #include "base/Transformation3D.h"
 #include "base/Vector3D.h"
 #include "volumes/kernel/GenericKernels.h"
-#include "volumes/UnplacedTube.h"
 #include "volumes/kernel/shapetypes/TubeTypes.h"
+#include "volumes/UnplacedTube.h"
 #include "volumes/Wedge.h"
 #include <cstdio>
+
+#define TUBE_SAFETY_OLD  // use old (and faster) definitions of SafetyToIn() and SafetyToOut()
 
 namespace vecgeom {
 
@@ -84,10 +86,10 @@ template<typename Backend, typename ShapeType, typename UnplacedVolumeType, bool
   }
   else {
     if(smallerthanpi) {
-      ret = (startCheck >= -kTolerance) & (endCheck >= -kTolerance);
+      ret = (startCheck >= 0) & (endCheck >= 0);
     }
     else {
-      ret = (startCheck >= -kTolerance) | (endCheck >= -kTolerance);
+      ret = (startCheck >= 0) | (endCheck >= 0);
     }    
   }
 }
@@ -130,7 +132,7 @@ void CircleTrajectoryIntersection(typename Backend::precision_v const &b,
 //      PointInCyclicalSector<Backend, TubeType, UnplacedTube, false>(tube, hitx, hity, insector);
         insector = tube.GetWedge().ContainsWithBoundary<Backend>( Vector3D<typename Backend::precision_v>(hitx, hity, hitz) );
     }
-    ok = delta_mask & (dist >= 0) & (Abs(hitz) <= tube.z()) & insector;
+    ok = delta_mask & (dist >= -kTolerance) & (Abs(hitz) <= tube.z()) & insector;
   }
   else {
     ok = delta_mask;
@@ -159,7 +161,7 @@ void CircleTrajectoryIntersection(typename Backend::precision_v const &b,
  *
  * But.. the magnitude of the cross product between the point vector
  * and the v vector is:
- * 
+ *
  * |p x v| = |p| * |v| * sin theta
  * 
  * Since |v| = 1, the magnitude of the cross product is exactly
@@ -201,15 +203,15 @@ void PhiPlaneSafety( UnplacedTube const& tube,
   }
 
   // make sure point falls on positive part of projection
-  MaskedAssign(phi1<0 || pos.x()*tube.alongPhi1x()+pos.y()*tube.alongPhi1y() < 0, kInfinity, &phi1);
+  MaskedAssign(phi1<-kTolerance || pos.x()*tube.alongPhi1x()+pos.y()*tube.alongPhi1y() < 0, kInfinity, &phi1);
+
   Float_t phi2;
   PerpendicularDistance2D<Backend>(pos.x(), pos.y(), tube.alongPhi2x(), tube.alongPhi2y(), phi2);
-  if(inside)
+  if(!inside)
     phi2 *= -1;
 
   // make sure point falls on positive part of projection
-  phi2 *= -1;
-  MaskedAssign(phi2<0 || pos.x()*tube.alongPhi2x()+pos.y()*tube.alongPhi2y() < 0, kInfinity, &phi2);
+  MaskedAssign(phi2<-kTolerance || pos.x()*tube.alongPhi2x()+pos.y()*tube.alongPhi2y() < 0, kInfinity, &phi2);
   safety = Min(phi1, phi2);
   MaskedAssign(safety == kInfinity, Float_t(-1), &safety);
 }
@@ -430,46 +432,52 @@ struct TubeImplementation {
     transformation.Transform<transCodeT, rotCodeT>(point, pos_local);
     transformation.TransformDirection<rotCodeT>(direction, dir_local);
 
-    Float_t hitx, hity, r2;
-    Float_t rsq = pos_local.x()*pos_local.x() + pos_local.y()*pos_local.y();
-    Float_t pos_dot_dir_x = pos_local.x()*dir_local.x();
-    Float_t pos_dot_dir_y = pos_local.y()*dir_local.y();
-
-
     // Determine which particles hit the Z face
     Float_t abspz = Abs(pos_local.z());
     Float_t distz = (abspz - tube.z()) / Abs( dir_local.z() );
+
     // exclude case in which particle is going away
-    Bool_t okz = (pos_local.z() * dir_local.z()) < 0;
-
+    Bool_t leaving = (pos_local.z() * dir_local.z()) > 0;
     // outside of Z range and going away?
-    if(Backend::early_returns && IsFull(abspz > tube.z() && !okz)) return;
+    if(Backend::early_returns && IsFull(abspz > tube.z()+kTolerance && leaving)) return;
+
     // outside of tube and going away?
-    if(Backend::early_returns && IsFull(Abs(pos_local.x()) > tube.rmax() && pos_dot_dir_x >= 0)) return;
-    if(Backend::early_returns && IsFull(Abs(pos_local.y()) > tube.rmax() && pos_dot_dir_y >= 0)) return;
+    Float_t pos_dot_dir_x = pos_local.x()*dir_local.x();
+    Float_t pos_dot_dir_y = pos_local.y()*dir_local.y();
+    if(Backend::early_returns && IsFull(Abs(pos_local.x()) > tube.rmax()+kTolerance && pos_dot_dir_x >= 0)) return;
+    if(Backend::early_returns && IsFull(Abs(pos_local.y()) > tube.rmax()+kTolerance && pos_dot_dir_y >= 0)) return;
 
+    // keep track if point is completely inside
+    Float_t rsq = pos_local.x()*pos_local.x() + pos_local.y()*pos_local.y();
+    Bool_t completelyInside = distz<-kHalfTolerance && (rsq-tube.rmax2())<-kTolerance*tube.rmax();
 
-
+    //*** Next step: check if z-plane is the right entry point (both r,phi should be valid at z-plane crossing)
+    Float_t hitx, hity, r2;
     hitx = pos_local.x() + distz*dir_local.x();
     hity = pos_local.y() + distz*dir_local.y();
-    r2 = hitx*hitx + hity*hity;
+    r2 = hitx*hitx + hity*hity;  // radius of intersection with z-plane
 
-    okz =  (okz) & (distz > 0) & (r2 <= tube.tolIrmax2());
+    Bool_t okz =  (!leaving) && (distz > -kTolerance) && (r2 <= tube.rmax2());
     if(checkRminTreatment<tubeTypeT>(tube)) {
-      okz = okz && (tube.tolIrmin2() <= r2);
+      okz = okz & (tube.rmin2() <= r2);
+      completelyInside &= (tube.rmin2()-rsq)<-kTolerance*tube.rmin();
     }
     if(checkPhiTreatment<tubeTypeT>(tube)) {
       Bool_t insector;
       PointInCyclicalSector<Backend, tubeTypeT, UnplacedTube, false>(tube, hitx, hity, insector);
       okz = okz & insector;
+      completelyInside &= insector;
     }
 
-    if(Backend::early_returns && okz == Backend::kTrue) {
+    if(Backend::early_returns && IsFull(okz) ) {
       distance = distz;
       return;
     }
 
-    /*
+    MaskedAssign( completelyInside, -1.0, &distance );
+    if(Backend::early_returns && IsFull(completelyInside));
+
+    /* Next step:
      * Calculate the intersection of the trajectory of
      * the particles with the two circles
      *
@@ -492,11 +500,11 @@ struct TubeImplementation {
     Bool_t ok_rmax;
     CircleTrajectoryIntersection<Backend, tubeTypeT, false, true>(b, crmax, tube, pos_local, dir_local, dist_rmax, ok_rmax);
 
-    if(Backend::early_returns && ok_rmax == Backend::kTrue) {
+    if(Backend::early_returns && IsFull(ok_rmax)) {
       distance = dist_rmax;
       return;
     }
-    
+
     /*
      * rmin
      * If the particle were to hit rmin, it would hit
@@ -522,8 +530,9 @@ struct TubeImplementation {
      * will overwrite it in case both are valid
      */
 
-    if(checkRminTreatment<tubeTypeT>(tube))
+    if(checkRminTreatment<tubeTypeT>(tube)) {
       MaskedAssign(ok_rmin, dist_rmin, &distance);
+    }
     MaskedAssign(ok_rmax, dist_rmax, &distance);
 
     /*
@@ -545,7 +554,6 @@ struct TubeImplementation {
               tube.alongPhi1x(), tube.alongPhi1y(),
               w.GetNormal1().x(), w.GetNormal1().y(),
               tube, pos_local, dir_local, dist_phi, ok_phi);
-
       MaskedAssign(ok_phi && dist_phi>-kTolerance && dist_phi<distance, dist_phi, &distance);
 
       /*
@@ -562,7 +570,6 @@ struct TubeImplementation {
         MaskedAssign(ok_phi && dist_phi>-kTolerance && dist_phi<distance, dist_phi, &distance);
       }
     }
-
   } // end of DistanceToIn()
 
 
@@ -580,30 +587,60 @@ struct TubeImplementation {
     using namespace TubeUtilities;
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
-    distance = kInfinity;
+    distance = -1;
     Bool_t done(Backend::kFalse);
 
-    Float_t dirzsign(1.);
-    MaskedAssign(dir.z() < 0, Float_t(-1.), &dirzsign);
-    MaskedAssign(dir.z() != 0, (tube.z()*dirzsign - point.z()) / dir.z(), &distance);
+    //*** First we check all dimensions of the tube, whether points are outside --> return -1
 
-    // if all particles are outside and moving away, we're done
-    done = (distance <= MakePlusTolerant<true>(0.));
-    MaskedAssign( done, Float_t(0.0), &distance );
-    if( IsFull(done) ) return;
+    // For points outside z-range, return -1
+    Float_t distz = tube.z() - Abs(point.z());   // avoid a division for now
+    done |= distz<-kHalfTolerance;  // distance is already set to -1
+    // add surface points exiting the volume
+    Bool_t leaving = distz<kHalfTolerance && point.z()*dir.z()>0.;
+    MaskedAssign( !done && leaving, 0.0, &distance );
+    done |= leaving;
+    if(Backend::early_returns && IsFull(done)) return;
+
+    Float_t rsq = point.x()*point.x() + point.y()*point.y();
+    Float_t rdotn = dir.x()*point.x() + dir.y()*point.y();
+    Float_t crmax = rsq - tube.rmax2();  // avoid a division for now
+    Float_t crmin = rsq - tube.rmin2();  // avoid a division for now
+
+    // if outside of Rmax, return -1
+    done |= crmax > kTolerance*tube.rmax();
+    leaving = crmax > -kTolerance*tube.rmax() && rdotn>0.;  // on the surface and leaving
+    MaskedAssign( !done && leaving, 0.0, &distance );
+    done |= leaving;
+    if( Backend::early_returns && IsFull(done) ) return;
+
+    if(checkRminTreatment<tubeTypeT>(tube)) {
+      // if point is within inner-hole of a hollow tube, it is outside of the tube --> return -1
+      done |=  crmin < -kTolerance*tube.rmin();
+      leaving = crmin < kTolerance*tube.rmin() && rdotn<0.;  // on the surface and leaving
+      MaskedAssign( !done && leaving, 0.0, &distance );
+      done |= leaving;
+      if( Backend::early_returns && IsFull(done) ) return;
+    }
+
+    // TODO: add outside check for phi-sections here
+
+    // OK, since we're here, then distance must be non-negative, and the smallest of possible intersections
+    MaskedAssign( !done, kInfinity, &distance );
+
+    Float_t invdirz = 1./dir.z();
+    distz = (tube.z() - point.z()) * invdirz;
+    MaskedAssign(dir.z() < 0, (-tube.z() - point.z()) * invdirz, &distz);
+    MaskedAssign( !done && distz<distance, distz, &distance );
+
 
     /*
-     * Calculate the intersection of the trajectory of
-     * the particles with the two circles
-     *
-     * Here I compute values used in both rmin and
-     * rmax calculations
+     * Find the intersection of the trajectories with the two circles.
+     * Here I compute values used in both rmin and rmax calculations.
      */
 
     Float_t invnsq = 1 / ( dir.x()*dir.x() + dir.y()*dir.y() );
-    Float_t rdotn = dir.x()*point.x() + dir.y()*point.y();
-    Float_t rsq = point.x()*point.x() + point.y()*point.y();
     Float_t b = invnsq * rdotn;
+
 
     /*
      * rmin
@@ -612,7 +649,7 @@ struct TubeImplementation {
     if(checkRminTreatment<tubeTypeT>(tube)) {
       Float_t dist_rmin;
       Bool_t ok_rmin;
-      Float_t crmin = invnsq * (rsq - tube.rmin2());
+      crmin *= invnsq;
       CircleTrajectoryIntersection<Backend, tubeTypeT, false, false>(b, crmin, tube, point, dir, dist_rmin, ok_rmin);
       MaskedAssign(ok_rmin && dist_rmin >= 0 && dist_rmin < distance, dist_rmin, &distance);
     }
@@ -623,11 +660,13 @@ struct TubeImplementation {
 
     Float_t dist_rmax;
     Bool_t ok_rmax;
-    Float_t crmax = invnsq * (rsq - tube.rmax2());
+    crmax *= invnsq;
     CircleTrajectoryIntersection<Backend, tubeTypeT, true, false>(b, crmax, tube, point, dir, dist_rmax, ok_rmax);
-    MaskedAssign(ok_rmax && dist_rmax >= 0 && dist_rmax < distance, dist_rmax, &distance);
+    MaskedAssign(ok_rmax && dist_rmax >= -kTolerance && dist_rmax < distance, dist_rmax, &distance);
 
-    /* Phi planes 
+
+
+    /* Phi planes
      *
      * OK, this is getting weird - the only time I need to
      * check if hit-point falls on the positive direction
@@ -736,6 +775,10 @@ struct TubeImplementation {
                          Vector3D<typename Backend::precision_v> const &point,
                          typename Backend::precision_v &safety)
   {
+
+#ifdef TUBE_SAFETY_OLD
+    SafetyToInOld<Backend>(tube, transformation, point, safety);
+#else
     typedef typename Backend::precision_v Float_t;
 
     Vector3D<Float_t> local_point = transformation.Transform<transCodeT,rotCodeT>(point);
@@ -746,6 +789,7 @@ struct TubeImplementation {
     // Mostly called for points outside --> safetyOutside is finite --> return safetyOutside
     // If safetyOutside == infinity --> return safetyInside
     CondAssign( safetyOutsidePoint==kInfinity, safetyInsidePoint, safetyOutsidePoint, &safety );
+#endif
   }
 
   template <class Backend>
@@ -755,6 +799,10 @@ struct TubeImplementation {
                           Vector3D<typename Backend::precision_v> const &point,
                           typename Backend::precision_v &safety)
   {
+
+#ifdef TUBE_SAFETY_OLD
+    SafetyToOutOld<Backend>(tube, point, safety);
+#else
     typedef typename Backend::precision_v Float_t;
 
     Float_t safetyInsidePoint, safetyOutsidePoint;
@@ -763,10 +811,89 @@ struct TubeImplementation {
     // Mostly called for points inside --> safetyOutside==infinity, return |safetyInside| (flip sign)
     // If called for points outside -- return -safetyOutside
     CondAssign( safetyOutsidePoint==kInfinity, -safetyInsidePoint, -safetyOutsidePoint, &safety );
+#endif
   }
 
-}; // End of TubeUtilties
+  template <class Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  static void SafetyToInOld(UnplacedTube const &tube,
+                            Transformation3D const &transformation,
+                            Vector3D<typename Backend::precision_v> const &point,
+                            typename Backend::precision_v &safety)
+  {
+    using namespace TubeTypes;
+    using namespace TubeUtilities;
+    typedef typename Backend::precision_v Float_t;
+    typedef typename Backend::bool_v Bool_t;
 
-} } // End global namespace
+    Vector3D<Float_t> local_point = transformation.Transform<transCodeT,rotCodeT>(point);
+    safety = 0;
+
+    Float_t r = Sqrt(local_point.x()*local_point.x() + local_point.y()*local_point.y());
+
+    Float_t safez = Abs(local_point.z()) - tube.z();
+    Float_t safermax = r - tube.rmax();
+
+    safety = Max(safez, safermax);
+
+    if(checkRminTreatment<tubeTypeT>(tube)) {
+      Float_t safermin = tube.rmin() - r;
+      safety = Max(safety, safermin);
+    }
+
+    if(checkPhiTreatment<tubeTypeT>(tube)) {
+
+      Bool_t insector;
+      PointInCyclicalSector<Backend, tubeTypeT, UnplacedTube, false>(tube, local_point.x(), local_point.y(), insector);
+      if(Backend::early_returns && IsFull(insector)) return;
+
+      Float_t safephi;
+      PhiPlaneSafety<Backend, tubeTypeT, false>(tube, local_point, safephi);
+      MaskedAssign(insector, Float_t(-1), &safephi);
+      safety = Max(safety, safephi);
+    }
+  }
+
+  template <class Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  static void SafetyToOutOld(UnplacedTube const &tube,
+                             Vector3D<typename Backend::precision_v> const &point,
+                             typename Backend::precision_v &safety)
+  {
+     using namespace TubeTypes;
+     using namespace TubeUtilities;
+     typedef typename Backend::precision_v Float_t;
+
+     safety = 0;
+     Float_t r = Sqrt(point.x()*point.x() + point.y()*point.y());
+     Float_t safez = tube.z() - Abs(point.z());
+     Float_t safermax = tube.rmax() - r;
+
+     safety = Min(safez, safermax);
+     // std::cout<<"S2Oold: safez="<< safez
+     //          <<", safermax="<< safermax <<", safety="<< safety << std::endl;
+
+     if(checkRminTreatment<tubeTypeT>(tube)) {
+       Float_t safermin = r - tube.rmin();
+       safety = Min(safety, safermin);
+       // std::cout<<"S2Oold: safermin="<< safermin
+       //          <<", safety="<< safety << std::endl;
+     }
+
+    if(checkPhiTreatment<tubeTypeT>(tube)) {
+      Float_t safephi;
+      PhiPlaneSafety<Backend, tubeTypeT, true>(tube, point, safephi);
+      MaskedAssign(safephi < -kTolerance, kInfinity, &safephi);
+      safety = Min(safety, safephi);
+      // std::cout<<"S2Oold: safephi="<< safephi
+      //          <<", safety="<< safety << std::endl;
+    }
+  }
+
+}; // End of NS TubeUtilities
+} // end of inline NS
+} // End global namespace
 
 #endif // VECGEOM_VOLUMES_KERNEL_TUBEIMPLEMENTATION_H_
