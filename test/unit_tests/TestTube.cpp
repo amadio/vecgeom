@@ -76,6 +76,17 @@ bool TestTubs()
     volCheck = 50*2*UUtils::kPi*50*50;
     assert(ApproxEqual(vol,volCheck));
 
+  {
+    // adding a test case found in VECGEOM-206: point on the Rmax surface, and going away - distanceToOut must be <= zero
+    Vec_t pos221(44.991, 21.816, 4.677);
+    Vec_t dir221(0.16636, 0.64765, -0.74356);
+    Vec_t norm;
+    bool convex;
+    Dist = t1.DistanceToOut(pos221, dir221.Unit(), norm, convex);
+    assert(Dist<=0);  // USolids returns zero
+  }
+
+  {
     // add a test for a previously fixed bug -- point near phi-surface of a wedged tube
     using vecgeom::cxx::kDegToRad;
 
@@ -99,7 +110,8 @@ bool TestTubs()
     dout = jira174Tube.DistanceToOut( pos174, dir206, norm174, conv174);
     // std::cout<<"L"<<__LINE__<<": Dist=jira174tube: pos="<<pos174<<", dir="<< dir206 <<", DistToOut="<< dout <<std::endl;
     assert(ApproxEqual(dout,0));
- 
+  }
+
     // Check Surface area
     vol = t2.SurfaceArea();
     volCheck = 2.*UUtils::kPi*(45+50)*(50-45+2*50);
@@ -404,7 +416,7 @@ bool TestTubs()
     // std::cout<<"Mismatch: L"<<__LINE__<<": Dist=t1a.DistanceToOut((0,5,50),vmy) = "<<Dist<<std::endl;
     assert(ApproxEqual(Dist,5));
 
-    std::cout<<std::endl ;
+    //std::cout<<std::endl ;
 
     // Bug 810
 
