@@ -13,6 +13,8 @@
 #endif
 
 #include <ctime>
+#include <unistd.h>
+#include <sys/times.h>
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -58,13 +60,39 @@ inline double seconds( count_t value ) {
  * @brief Timer for benchmarking purposes
  */
 class Stopwatch {
+  // Note see http://jogojapan.github.io/blog/2012/11/25/measuring-cpu-time/
+  // for some interesting ideas on how to implement in a
 private:
   standardtimer::count_t t1;
   standardtimer::count_t t2;
+  double fCpuStart;
+  double fCpuStop;
+
+  static std::intmax_t GetTickFactor() {
+    auto setter = []() {
+      std::intmax_t result = ::sysconf(_SC_CLK_TCK);
+      if (result <= 0) {
+        fprintf(stderr,"Error StopWatch::GetTickFactor: Could not retrieve number of clock ticks per second (_SC_CLK_TCK).\n");
+        result = -1;
+      }
+      return result;
+    };
+    static std::intmax_t result = setter();
+    return result;
+  }
+
+  double GetCPUTime() {
+    struct tms cpt;
+    times(&cpt);
+    return (double)(cpt.tms_utime+cpt.tms_stime) / GetTickFactor();
+  }
 
 public:
   inline
-  void Start() { t1 = standardtimer::now(); }
+  void Start() {
+    t1 = standardtimer::now();
+    fCpuStart = GetCPUTime();
+  }
 
   /**
    * @return Elapsed time since start.
@@ -72,11 +100,15 @@ public:
   inline
   double Stop() {
     t2 = standardtimer::now();
+    fCpuStop = GetCPUTime();
     return Elapsed();
   }
 
   inline
   double Elapsed() const { return standardtimer::seconds( t2-t1 ); }
+
+  inline
+  double CpuElapsed() const { return fCpuStop - fCpuStart; }
 };
 
 } } // End global namespace
