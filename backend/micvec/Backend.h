@@ -48,7 +48,7 @@ constexpr size_t kVectorSize = 8;
 #undef VECGEOM_BACKEND_INSIDE
 #endif
 #endif
-#ifdef VECGEOM_MIC
+#ifdef VECGEOM_MICVEC
 constexpr size_t kVectorSize = 8;
 #define VECGEOM_BACKEND_TYPE         vecgeom::kMic
 #define VECGEOM_BACKEND_PRECISION_FROM_PTR(P) vecgeom::kMic::MicPrecision(P)
