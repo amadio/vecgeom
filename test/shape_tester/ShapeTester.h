@@ -193,7 +193,7 @@ private:
   std::vector<UVector3> fPoints; //STL vector to store the points generated for various tests of ShapeTester
   std::vector<UVector3> fDirections; //STL vector to store the directions generated for corresponding points.
 
-  VUSolid *fVolumeUSolids; // Data member to store pointer to the shape under test
+  VUSolid *fVolumeUSolids; // Pointer that owns shape object.
   std::string fVolumeString; // data member to store the name of volume;
 
   std::vector<UVector3> fResultVectorUSolids; // stl vector for storing the vector results
