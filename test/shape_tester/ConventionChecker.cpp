@@ -112,7 +112,9 @@ bool ShapeTester::ShapeConventionSurfacePoint() {
     UVector3 point = fPoints[fOffsetSurface + i];
     UVector3 direction = fDirections[fOffsetSurface + i];
     if (fVolumeUSolids->Inside(point) != vecgeom::EInside::kSurface) {
-      assert(false && "For Surface point, Inside says that the Point is not on the Surface");
+      //Using ReportError() function instead of assert to return error message, incase inside is not working properly
+      ReportError(&nError, point, direction, 0., "For Surface point, Inside says that the Point is not on the Surface");
+
     }
 
     // Point on Surface and moving inside
@@ -238,7 +240,7 @@ bool ShapeTester::ShapeConventionInsidePoint() {
     UVector3 point = fPoints[fOffsetInside + i];
     UVector3 direction = fDirections[fOffsetInside + i];
     if (fVolumeUSolids->Inside(point) != vecgeom::EInside::kInside) {
-      assert(false && "For Inside point, Inside function says that the Point is not on inside");
+      ReportError(&nError, point, direction, 0., "For Inside point, Inside function says that the Point is not inside");
     }
 
     // Convention Check for DistanceToIn
@@ -311,7 +313,7 @@ bool ShapeTester::ShapeConventionOutsidePoint() {
     UVector3 point = fPoints[fOffsetOutside + i];
     UVector3 direction = fDirections[fOffsetOutside + i];
     if (fVolumeUSolids->Inside(point) != vecgeom::EInside::kOutside) {
-      assert(false && "For Outside point, Inside function says that the Point is not Outside");
+      ReportError(&nError, point, direction, 0., "For Outside point, Inside function says that the Point is not Outside");
     }
 
     int indx = 10;
