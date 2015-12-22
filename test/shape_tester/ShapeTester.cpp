@@ -66,8 +66,8 @@ void ShapeTester::SetDefaults() {
 
   fOutsideMaxRadiusMultiple = 10;
   fOutsideRandomDirectionPercent = 50;
-  fIfSaveAllData = true; // false;//true;
-  fIfMoreTests = true; // false;//true;
+  fIfSaveAllData = true; 
+  fIfMoreTests = true; 
   fIfDifUSolids = true;
   fMinDifference = VUSolid::Tolerance();
 
@@ -112,7 +112,7 @@ UVector3 ShapeTester::GetPointOnOrb(double r) {
   return vec;
 }
 
-// DONE: all set point fMethods are performance equivalent
+// DONE: all set point Methods are performance equivalent
 
 int ShapeTester::TestConsistencySolids() {
   int errCode = 0;
@@ -257,11 +257,11 @@ int ShapeTester::ShapeDistances() {
   hist1->GetXaxis()->SetTitle("delta[mm] - first bin=overflow");
   hist1->GetYaxis()->SetTitle("count");
   hist1->SetMarkerStyle(kFullCircle);
-  TH1D *hist2 = new TH1D("AccuracyIn", "Accuracy distanceToIn for fPoints near Surface", 200, -20, 0);
+  TH1D *hist2 = new TH1D("AccuracyIn", "Accuracy distanceToIn for Points near Surface", 200, -20, 0);
   hist2->GetXaxis()->SetTitle("delta[mm] - first bin=overflow");
   hist2->GetYaxis()->SetTitle("count");
   hist2->SetMarkerStyle(kFullCircle);
-  TH1D *hist3 = new TH1D("AccuracyOut", "Accuracy distanceToOut for fPoints near Surface", 200, -20, 0);
+  TH1D *hist3 = new TH1D("AccuracyOut", "Accuracy distanceToOut for Points near Surface", 200, -20, 0);
   hist3->GetXaxis()->SetTitle("delta[mm] - first bin=overflow");
   hist3->GetYaxis()->SetTitle("count");
   hist3->SetMarkerStyle(kFullCircle);
@@ -301,8 +301,6 @@ int ShapeTester::ShapeDistances() {
         ReportError(&nError, point, dir, DistanceToInSurf, "SD: Error in convexity, must be NOT convex");
     }
     double DistanceToIn2 = fVolumeUSolids->DistanceToIn(point + dir * dmove, -dir);
-    // double Dif=maxXYZ-DistanceIn-DistanceOut2;
-    // std::cout<<"Diff="<<Dif<<std::endl;
 
     if (DistanceOut > 1000. * tolerance)
       ReportError(&nError, pointIn, dir, DistanceOut, "SD: DistanceToOut is not precise");
@@ -429,10 +427,6 @@ void ShapeTester::PropagatedNormalU(const UVector3 &point, const UVector3 &direc
     UVector3 shift = distance * direction;
     UVector3 surfacePoint = point + shift;
     fVolumeUSolids->Normal(surfacePoint, normal);
-    // Possible additional test for future : Test if moved point is on the surface
-    // VUSolid::EnumInside e = fVolumeUSolids->Inside(surfacePoint);
-    // if (e != vecgeom::EInside::kSurface)
-    //    e = e;
   }
 }
 
@@ -527,7 +521,7 @@ int ShapeTester::TestFarAwayPoint() {
     }
   }
   if (fVerbose) {
-    std::cout << "% TestFarAwayPoints:: number of fPoints with big difference (( DistanceToIn- Dist) ) >  tolerance ="
+    std::cout << "% TestFarAwayPoints:: number of Points with big difference (( DistanceToIn- Dist) ) >  tolerance ="
               << icount << std::endl;
     std::cout << "%  Maxdif = " << difMax << " from MaxDist=" << maxDistIn
               << " Number of fPoints missing Solid (DistanceToIn = Infinity) = " << icount1 << std::endl;
@@ -1094,7 +1088,7 @@ int ShapeTester::TestAccuracyDistanceToIn(double dist) {
     // Surface
     std::cout << "TestAccuracyDistanceToIn::Errors for moved point is not on Surface ::iInNoSurf = " << iInNoSurf
               << ";    iOutNoSurf = " << iOutNoSurf << std::endl;
-    std::cout << "TestAccuracyDistanceToIn::Errors SolidUSolid ::From total number of fPoints  = " << iIn << std::endl;
+    std::cout << "TestAccuracyDistanceToIn::Errors SolidUSolid ::From total number of Points  = " << iIn << std::endl;
   }
 #ifdef VECGEOM_ROOT
   TCanvas *c7 = new TCanvas("c7", "Accuracy DistancsToIn", 800, 600);
@@ -1155,7 +1149,7 @@ int ShapeTester::ShapeSafetyFromInside(int max) {
   if (fVerbose) {
     std::cout << "% " << std::endl;
     std::cout << "% ShapeSafetyFromInside ::  number of Points Outside Safety=" << count
-              << " number of fPoints with  distance smaller that safety=" << count1 << std::endl;
+              << " number of Points with  distance smaller that safety=" << count1 << std::endl;
     std::cout << "% " << std::endl;
   }
 #ifdef VECGEOM_ROOT
@@ -1190,10 +1184,6 @@ int ShapeTester::ShapeSafetyFromOutside(int max) {
 
   UVector3 minExtent, maxExtent;
   fVolumeUSolids->Extent(minExtent, maxExtent);
-  // double maxX=std::max(std::fabs(maxExtent.x()),std::fabs(minExtent.x()));
-  // double maxY=std::max(std::fabs(maxExtent.y()),std::fabs(minExtent.y()));
-  // double maxZ=std::max(std::fabs(maxExtent.z()),std::fabs(minExtent.z()));
-  // double maxXYZ= std::sqrt(maxX*maxX+maxY*maxY+maxZ*maxZ);
   if (max > fMaxPointsOutside)
     max = fMaxPointsOutside;
   for (int i = 0; i < max; i++) {
@@ -1203,11 +1193,7 @@ int ShapeTester::ShapeSafetyFromOutside(int max) {
     if (res > 0) { // Safety Sphere test
       bool convex;
       int numTrials = 1000;
-      // if(res > maxXYZ)
-      //{
-      // int dummy = (int)(std::pow((maxXYZ/res),2));
-      // numTrials = numTrials*dummy;
-      //}
+     
       for (int j = 0; j < numTrials; j++) {
         dir = GetRandomDirection();
         double distIn = fVolumeUSolids->DistanceToIn(point, dir);
@@ -1233,7 +1219,7 @@ int ShapeTester::ShapeSafetyFromOutside(int max) {
   }
   if (fVerbose) {
     std::cout << "% " << std::endl;
-    std::cout << "% TestShapeSafetyFromOutside::  number of fPoints Inside Safety Sphere =" << count
+    std::cout << "% TestShapeSafetyFromOutside::  number of Points Inside Safety Sphere =" << count
               << " number of fPoints with Distance smaller that Safety=" << count1 << std::endl;
     std::cout << "% " << std::endl;
   }
@@ -1359,9 +1345,6 @@ int ShapeTester::Integration(double theta, double phi, int ngrid, bool useeps, i
   }
 #endif
 
-  // TGeoRotation *rot = new TGeoRotation("rot",phi-90,-theta,0);
-  // TGeoCombiTrans *matrix = new TGeoCombiTrans(extent*dir[0], extent*dir[1], extent*dir[2], rot);
-
   UTransform3D *matrix = new UTransform3D(0, 0, 0, phi, theta, 0.);
   UVector3 origin = UVector3(extent * dir.x(), extent * dir.y(), extent * dir.z());
 
@@ -1380,7 +1363,6 @@ int ShapeTester::Integration(double theta, double phi, int ngrid, bool useeps, i
         point.y() = ymin + 0.5 * cell;
         point.z() = 0;
         grid_fPoints[ip] = matrix->GlobalPoint(point) + origin;
-// std::cout<<"ip="<<ip<<" grid="<<grid_fPoints[ip]<<" xy="<<point.x()<<" "<<point.y()<<std::endl;
 #ifdef VECGEOM_ROOT
         if (graphics)
           pmx->SetNextPoint(grid_fPoints[ip].x(), grid_fPoints[ip].y(), grid_fPoints[ip].z());
@@ -1392,7 +1374,6 @@ int ShapeTester::Integration(double theta, double phi, int ngrid, bool useeps, i
           point.y() = ymin + cell * vecgeom::RNG::Instance().uniform();
           point.z() = 0;
           grid_fPoints[ip] = matrix->GlobalPoint(point) + origin;
-// std::cout<<"ip="<<ip<<" grid="<<grid_fPoints[ip]<<std::endl;
 #ifdef VECGEOM_ROOT
           if (graphics)
             pmx->SetNextPoint(grid_fPoints[ip].x(), grid_fPoints[ip].y(), grid_fPoints[ip].z());
@@ -1449,14 +1430,6 @@ int ShapeTester::Integration(double theta, double phi, int ngrid, bool useeps, i
 
 #ifdef VECGEOM_ROOT
   if (graphics) {
-
-    // new TCanvas("X-ray-test", "Shape and projection plane");
-
-    // TGeoBBox *box = new TGeoBBox("box",5,5,5);
-    // box->Draw();
-    // pmx->Draw("SAME");
-
-    //((TView3D*)gPad->GetView())->ShowAxis();
 
     new TCanvas("c11", "X-ray scan");
     xprof->DrawCopy("LEGO1");
@@ -1728,11 +1701,11 @@ int ShapeTester::TestMethod(int (ShapeTester::*funcPtr)()) {
   std::cout << "========================================================= " << std::endl;
 
   if (fMethod != "XRayProfile") {
-    std::cout << "% Creating " << fMaxPoints << " fPoints and fDirections for fMethod =" << fMethod << std::endl;
+    std::cout << "% Creating " << fMaxPoints << " Points and Directions for Method =" << fMethod << std::endl;
 
     CreatePointsAndDirections();
     cout.precision(20);
-    std::cout << "% Statistics: fPoints=" << fMaxPoints << ",\n";
+    std::cout << "% Statistics: Points=" << fMaxPoints << ",\n";
 
     std::cout << "%             ";
     std::cout << "surface=" << fMaxPointsSurface << ", inside=" << fMaxPointsInside << ", outside=" << fMaxPointsOutside
@@ -1799,17 +1772,17 @@ int ShapeTester::Run(VUSolid *testVolume) {
   int (ShapeTester::*funcPtr)() = NULL;
 
   fVolumeUSolids = testVolume;
-  std::ofstream fLogger("/fLog/box");
+  std::ofstream fLogger("/Log/box");
   fLog = &fLogger;
 
-  SetFolder("fLog");
+  SetFolder("Log");
 
   if (fMethod == "")
     fMethod = "all";
   string name = testVolume->GetName();
   std::cout << "\n\n";
   std::cout << "===============================================================================\n";
-  std::cout << "Invoking test for fMethod " << fMethod << " on " << name << " ..."
+  std::cout << "Invoking test for Method " << fMethod << " on " << name << " ..."
             << "\nFolder is " << fFolder << std::endl;
   std::cout << "===============================================================================\n";
   std::cout << "\n";
@@ -1856,10 +1829,10 @@ int ShapeTester::RunMethod(VUSolid *testVolume, std::string fMethod1) {
   int (ShapeTester::*funcPtr)() = NULL;
 
   fVolumeUSolids = testVolume;
-  std::ofstream fLogger("/fLog/box");
+  std::ofstream fLogger("/Log/box");
   fLog = &fLogger;
 
-  SetFolder("fLog");
+  SetFolder("Log");
 
   fMethod = fMethod1;
 
@@ -1869,7 +1842,7 @@ int ShapeTester::RunMethod(VUSolid *testVolume, std::string fMethod1) {
 
   std::cout << "\n\n";
   std::cout << "===============================================================================\n";
-  std::cout << "Invoking test for fMethod " << fMethod << " on " << name << " ..."
+  std::cout << "Invoking test for Method " << fMethod << " on " << name << " ..."
             << "\nFolder is " << fFolder << std::endl;
   std::cout << "===============================================================================\n";
   std::cout << "\n";
@@ -1955,7 +1928,7 @@ void ShapeTester::ReportError(int *nError, UVector3 &p, UVector3 &v, double dist
   //
   if (fIfException) {
     std::ostringstream text;
-    text << "Abborting due to Debugging mode in solid: " << fVolumeUSolids->GetName();
+    text << "Aborting due to Debugging mode in solid: " << fVolumeUSolids->GetName();
     UUtils::Exception("ShapeTester", "Debugging mode", UFatalErrorInArguments, 1, text.str().c_str());
   }
 }

@@ -5,48 +5,47 @@
  * to have the shape convention checking feature.
  */
 
-#include "base/RNG.h"
-#include <iomanip>
-#include <sstream>
-#include <ctime>
-#include <vector>
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-
 #include "ShapeTester.h"
-#include "VUSolid.hh"
-#include "UTransform3D.hh"
-
+#include "base/RNG.h"
 #include "base/Vector3D.h"
+#include "UTransform3D.hh"
+#include "VUSolid.hh"
 #include "volumes/Box.h"
 
 #ifdef VECGEOM_ROOT
-#include "TGeoShape.h"
-#include "TGeoParaboloid.h"
-#include "TGeoBBox.h"
-#include "TGraph2D.h"
-#include "TCanvas.h"
 #include "TApplication.h"
+#include "TCanvas.h"
+#include "TColor.h"
+#include "TGeoBBox.h"
+#include "TGeoParaboloid.h"
 #include "TGeoManager.h"
 #include "TGeoMaterial.h"
 #include "TGeoMedium.h"
 #include "TGeoParaboloid.h"
+#include "TGeoShape.h"
 #include "TGeoVolume.h"
+#include "TGraph2D.h"
 #include "TPolyMarker3D.h"
 #include "TRandom3.h"
-#include "TColor.h"
 #include "TROOT.h"
 #include "TAttMarker.h"
+#include "TF1.h"
 #include "TH1D.h"
 #include "TH2F.h"
-#include "TF1.h"
-#include "TVirtualPad.h"
 #include "TView3D.h"
+#include "TVirtualPad.h"
 #endif
 
 #undef NDEBUG
 #include <cassert>
+
+#include <ctime>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <vector>
+
 
 //Function to set the number of Points to be displayed in case of convention not followed
 void ShapeTester::SetNumDisp(int num) {
