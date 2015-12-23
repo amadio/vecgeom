@@ -30,15 +30,14 @@ struct kVc {
   typedef Vc::Vector<Precision>       Index_t;
 };
 
-#ifdef kVectorSize
-#undef kVectorSize
-#endif
-constexpr int kVectorSize = kVc::precision_v::Size;
 #ifdef VECGEOM_VC
-#define VECGEOM_BACKEND_TYPE         kVc
-#define VECGEOM_BACKEND_PRECISION    VcPrecision
-#define VECGEOM_BACKEND_BOOL         VcBool
-#define VECGEOM_BACKEND_INSIDE       kVc::inside_v
+constexpr int kVectorSize = kVc::precision_v::Size;
+#define VECGEOM_BACKEND_TYPE         vecgeom::kVc
+#define VECGEOM_BACKEND_PRECISION_FROM_PTR(P) vecgeom::VcPrecision(P)
+#define VECGEOM_BACKEND_PRECISION_TYPE        vecgeom::VcPrecision
+#define VECGEOM_BACKEND_PRECISION_NOT_SCALAR
+#define VECGEOM_BACKEND_BOOL         vecgeom::VcBool
+#define VECGEOM_BACKEND_INSIDE       vecgeom::kVc::inside_v
 #endif
 
 typedef kVc::int_v       VcInt;

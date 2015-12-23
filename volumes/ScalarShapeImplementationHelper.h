@@ -555,6 +555,70 @@ public:
     SafetyToInTemplate(points, output);
   }
 
+#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
+  // scalar fallback: dispatch a SIMD interface to a scalar kernel
+  VECGEOM_INLINE
+  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const {
+    VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
+    for (auto i = decltype(VECGEOM_BACKEND_PRECISION_TYPE::Size){0}; i < VECGEOM_BACKEND_PRECISION_TYPE::Size; ++i) {
+      Precision tmp;
+      Vector3D<Precision> pos(position.x()[i], position.y()[i], position.z()[i]);
+      Specialization::template SafetyToIn<kScalar>(*this->GetUnplacedVolume(), *this->GetTransformation(), pos, tmp);
+      output[i] = tmp;
+    }
+    return output;
+  }
+
+  VECGEOM_INLINE
+  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOut(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const {
+    VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
+    for (auto i = decltype(VECGEOM_BACKEND_PRECISION_TYPE::Size){0}; i < VECGEOM_BACKEND_PRECISION_TYPE::Size; ++i) {
+      Precision tmp;
+      Vector3D<Precision> pos(position.x()[i], position.y()[i], position.z()[i]);
+      Specialization::template SafetyToOut<kScalar>(*this->GetUnplacedVolume(), pos, tmp);
+      output[i] = tmp;
+    }
+    return output;
+  }
+#endif
+
+#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
+  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToIn(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
+                                                 Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
+                                                 const VECGEOM_BACKEND_PRECISION_TYPE stepMax) const override {
+
+    VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
+    for (auto i = decltype(VECGEOM_BACKEND_PRECISION_TYPE::Size){0}; i < VECGEOM_BACKEND_PRECISION_TYPE::Size; ++i) {
+      Precision tmp;
+      Vector3D<Precision> pos(position.x()[i], position.y()[i], position.z()[i]);
+      Vector3D<Precision> dir(direction.x()[i], direction.y()[i], direction.z()[i]);
+      Specialization::template DistanceToIn<kScalar>(*this->GetUnplacedVolume(), *this->GetTransformation(), pos, dir,
+                                                     stepMax[i], tmp);
+      MaskedAssign(Abs(tmp)<kTolerance, 0., &tmp);
+      output[i] = tmp;
+    }
+    return output;
+  }
+#endif
+
+#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
+  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToOut(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
+                                                  Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
+                                                  const VECGEOM_BACKEND_PRECISION_TYPE stepMax) const override {
+
+    VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
+    for (auto i = decltype(VECGEOM_BACKEND_PRECISION_TYPE::Size){0}; i < VECGEOM_BACKEND_PRECISION_TYPE::Size; ++i) {
+      Precision tmp;
+      Vector3D<Precision> pos(position.x()[i], position.y()[i], position.z()[i]);
+      Vector3D<Precision> dir(direction.x()[i], direction.y()[i], direction.z()[i]);
+      Specialization::template DistanceToOut<kScalar>(*this->GetUnplacedVolume(), pos, dir,
+                                                      stepMax[i], tmp);
+      MaskedAssign(Abs(tmp)<kTolerance, 0., &tmp);
+      output[i] = tmp;
+    }
+    return output;
+  }
+#endif
   // virtual void SafetyToIn(AOS3D<Precision> const &points,
   //                         Precision *const output) const {
   //   SafetyToInTemplate(points, output);

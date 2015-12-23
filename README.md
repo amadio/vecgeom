@@ -54,9 +54,6 @@ CMake options
       - Cilk
       - Scalar
 
-    VC_ACCELERATION [ON]
-      Utilize Vc to accelerate operations performed on three dimensional vectors with SIMD instructions.
-
     CUDA [OFF]
       Enable CUDA support.
 

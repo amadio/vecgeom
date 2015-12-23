@@ -331,7 +331,7 @@ struct AcceleratedDistanceToIn<kScalar> {
       VcPrecision directionProjection = plane.Dot(direction);
       valid &= Flip<!behindPlanesT>::FlipSign(directionProjection) >= 0;
       if (IsEmpty(valid)) continue;
-      VcPrecision tiny = VcPrecision(1E-20).copySign(directionProjection);
+      VcPrecision tiny = Vc::copysign(VcPrecision(1E-20), directionProjection);
       distanceTest /= -(directionProjection + tiny);
       Vector3D<VcPrecision> intersection = Vector3D<VcPrecision>(direction)*distanceTest + point;
 

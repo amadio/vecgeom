@@ -14,8 +14,8 @@
 
 #define VECGEOM
 
-#if __cplusplus >= 201103L
-  #define VECGEOM_STD_CXX11
+#if __cplusplus < 201103L
+  #error "VecGeom requires C++11 or higher"
 #endif
 
 #if (defined(__CUDACC__) || defined(__NVCC__))
@@ -43,7 +43,6 @@
   #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_3v(X,ArgType1,Def1,ArgType2,Def2,ArgType3,Def3)
   #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_4v(X,ArgType1,Def1,ArgType2,Def2,ArgType3,Def3,ArgType4,Def4)
   #undef VECGEOM_VC
-  #undef VECGEOM_VC_ACCELERATION
   #undef VECGEOM_CILK
   #undef VECGEOM_ROOT
   #undef VECGEOM_USOLIDS
@@ -186,13 +185,8 @@ struct kCudaType<cxx::BoxImplementation<Arguments...>  >
 #endif
 
 // Allow constexpr variables and functions if possible
-#ifdef VECGEOM_STD_CXX11
-  #define VECGEOM_CONSTEXPR constexpr
-  #define VECGEOM_CONSTEXPR_RETURN constexpr
-#else
-  #define VECGEOM_CONSTEXPR const
-  #define VECGEOM_CONSTEXPR_RETURN
-#endif
+#define VECGEOM_CONSTEXPR constexpr
+#define VECGEOM_CONSTEXPR_RETURN constexpr
 
 // Qualifier(s) of global constants
 #ifdef VECGEOM_NVCC_DEVICE

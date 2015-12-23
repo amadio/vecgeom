@@ -9,9 +9,6 @@
 #include "backend/scalar/Backend.h"
 #include "base/AlignedBase.h"
 
-#ifdef VECGEOM_VC_ACCELERATION
-#include <Vc/Vc>
-#endif
 #include <algorithm>
 #include <ostream>
 
@@ -22,11 +19,7 @@ class Vector2D : public AlignedBase {
 
 private:
 
-#ifndef VECGEOM_VC_ACCELERATION
   Type vec[2];
-#else
-  Vc::Memory<Vc::Vector<Type>, 2> vec;
-#endif
 
   typedef Vector2D<Type> VecType;
 
