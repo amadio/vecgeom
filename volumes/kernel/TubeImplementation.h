@@ -415,8 +415,8 @@ struct TubeImplementation {
   VECGEOM_INLINE
   static void DistanceToIn(UnplacedTube const &tube,
                            Transformation3D const &transformation,
-                           Vector3D<typename Backend::precision_v> const &point,
-                           Vector3D<typename Backend::precision_v> const &direction,
+                           Vector3D<typename Backend::precision_v> const &masterPoint,
+                           Vector3D<typename Backend::precision_v> const &masterDirection,
                            typename Backend::precision_v const &/*stepMax*/,
                            typename Backend::precision_v &distance)
   {
@@ -425,36 +425,36 @@ struct TubeImplementation {
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
 
-    Vector3D<Float_t> pos_local;
-    Vector3D<Float_t> dir_local;
+    Vector3D<Float_t> point;
+    Vector3D<Float_t> dir;
     distance = kInfinity;
 
-    transformation.Transform<transCodeT, rotCodeT>(point, pos_local);
-    transformation.TransformDirection<rotCodeT>(direction, dir_local);
+    transformation.Transform<transCodeT, rotCodeT>(masterPoint, point);
+    transformation.TransformDirection<rotCodeT>(masterDirection, dir);
 
     // Determine which particles hit the Z face
-    Float_t abspz = Abs(pos_local.z());
-    Float_t distz = (abspz - tube.z()) / Abs( dir_local.z() );
+    Float_t abspz = Abs(point.z());
+    Float_t distz = (abspz - tube.z()) / Abs( dir.z() );
 
     // exclude case in which particle is going away
-    Bool_t leaving = (pos_local.z() * dir_local.z()) > 0;
+    Bool_t leaving = (point.z() * dir.z()) > 0;
     // outside of Z range and going away?
     if(Backend::early_returns && IsFull(abspz > tube.z()+kTolerance && leaving)) return;
 
     // outside of tube and going away?
-    Float_t pos_dot_dir_x = pos_local.x()*dir_local.x();
-    Float_t pos_dot_dir_y = pos_local.y()*dir_local.y();
-    if(Backend::early_returns && IsFull(Abs(pos_local.x()) > tube.rmax()+kTolerance && pos_dot_dir_x >= 0)) return;
-    if(Backend::early_returns && IsFull(Abs(pos_local.y()) > tube.rmax()+kTolerance && pos_dot_dir_y >= 0)) return;
+    Float_t pos_dot_dir_x = point.x()*dir.x();
+    Float_t pos_dot_dir_y = point.y()*dir.y();
+    if(Backend::early_returns && IsFull(Abs(point.x()) > tube.rmax()+kTolerance && pos_dot_dir_x >= 0)) return;
+    if(Backend::early_returns && IsFull(Abs(point.y()) > tube.rmax()+kTolerance && pos_dot_dir_y >= 0)) return;
 
     // keep track if point is completely inside
-    Float_t rsq = pos_local.x()*pos_local.x() + pos_local.y()*pos_local.y();
+    Float_t rsq = point.x()*point.x() + point.y()*point.y();
     Bool_t completelyInside = distz<-kHalfTolerance && (rsq-tube.rmax2())<-kTolerance*tube.rmax();
 
     //*** Next step: check if z-plane is the right entry point (both r,phi should be valid at z-plane crossing)
     Float_t hitx, hity, r2;
-    hitx = pos_local.x() + distz*dir_local.x();
-    hity = pos_local.y() + distz*dir_local.y();
+    hitx = point.x() + distz*dir.x();
+    hity = point.y() + distz*dir.y();
     r2 = hitx*hitx + hity*hity;  // radius of intersection with z-plane
 
     Bool_t okz =  (!leaving) && (distz > -kTolerance) && (r2 <= tube.rmax2());
@@ -485,7 +485,7 @@ struct TubeImplementation {
      * rmax calculations
      */
 
-    Float_t invnsq = 1 / ( 1 - dir_local.z()*dir_local.z() );
+    Float_t invnsq = 1 / ( 1 - dir.z()*dir.z() );
     Float_t rdotn = pos_dot_dir_x + pos_dot_dir_y;
     Float_t b = invnsq * rdotn;
 
@@ -498,7 +498,7 @@ struct TubeImplementation {
     Float_t crmax = invnsq * (rsq - tube.rmax2());
     Float_t dist_rmax;
     Bool_t ok_rmax;
-    CircleTrajectoryIntersection<Backend, tubeTypeT, false, true>(b, crmax, tube, pos_local, dir_local, dist_rmax, ok_rmax);
+    CircleTrajectoryIntersection<Backend, tubeTypeT, false, true>(b, crmax, tube, point, dir, dist_rmax, ok_rmax);
 
     if(Backend::early_returns && IsFull(ok_rmax)) {
       distance = dist_rmax;
@@ -516,7 +516,7 @@ struct TubeImplementation {
     Bool_t ok_rmin(false);
     if(checkRminTreatment<tubeTypeT>(tube)) {
       Float_t crmin = invnsq * (rsq - tube.rmin2());
-      CircleTrajectoryIntersection<Backend, tubeTypeT, true, true>(b, crmin, tube, pos_local, dir_local, dist_rmin, ok_rmin);
+      CircleTrajectoryIntersection<Backend, tubeTypeT, true, true>(b, crmin, tube, point, dir, dist_rmin, ok_rmin);
     }
 
     /* 
@@ -553,7 +553,7 @@ struct TubeImplementation {
       PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, SectorType<tubeTypeT>::value != kOnePi, true>(
               tube.alongPhi1x(), tube.alongPhi1y(),
               w.GetNormal1().x(), w.GetNormal1().y(),
-              tube, pos_local, dir_local, dist_phi, ok_phi);
+              tube, point, dir, dist_phi, ok_phi);
       MaskedAssign(ok_phi && dist_phi>-kTolerance && dist_phi<distance, dist_phi, &distance);
 
       /*
@@ -565,7 +565,7 @@ struct TubeImplementation {
         PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, true, true>(
                 tube.alongPhi2x(), tube.alongPhi2y(),
                 w.GetNormal2().x(), w.GetNormal2().y(),
-              tube, pos_local, dir_local, dist_phi, ok_phi);
+              tube, point, dir, dist_phi, ok_phi);
 
         MaskedAssign(ok_phi && dist_phi>-kTolerance && dist_phi<distance, dist_phi, &distance);
       }
