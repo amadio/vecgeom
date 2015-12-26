@@ -427,83 +427,85 @@ struct TubeImplementation {
 
     Vector3D<Float_t> point;
     Vector3D<Float_t> dir;
-    distance = kInfinity;
-
     transformation.Transform<transCodeT, rotCodeT>(masterPoint, point);
     transformation.TransformDirection<rotCodeT>(masterDirection, dir);
 
-    // Determine which particles hit the Z face
-    Float_t abspz = Abs(point.z());
-    Float_t distz = (abspz - tube.z()) / Abs( dir.z() );
 
-    // exclude case in which particle is going away
-    Bool_t leaving = (point.z() * dir.z()) > 0;
-    // outside of Z range and going away?
-    if(Backend::early_returns && IsFull(abspz > tube.z()+kTolerance && leaving)) return;
+    distance = -1;
+    Bool_t done{ Backend::kFalse };
 
-    // outside of tube and going away?
-    Float_t pos_dot_dir_x = point.x()*dir.x();
-    Float_t pos_dot_dir_y = point.y()*dir.y();
-    if(Backend::early_returns && IsFull(Abs(point.x()) > tube.rmax()+kTolerance && pos_dot_dir_x >= 0)) return;
-    if(Backend::early_returns && IsFull(Abs(point.y()) > tube.rmax()+kTolerance && pos_dot_dir_y >= 0)) return;
+    //*** First we check all dimensions of the tube, whether points are inside --> return -1
 
-    // keep track if point is completely inside
+    // For points inside z-range, return -1
+    Float_t distz = Abs(point.z()) - tube.z();   // avoid a division for now
+    Bool_t inside = distz < -kHalfTolerance;
+
     Float_t rsq = point.x()*point.x() + point.y()*point.y();
-    Bool_t completelyInside = distz<-kHalfTolerance && (rsq-tube.rmax2())<-kTolerance*tube.rmax();
+    inside &= (rsq-tube.rmax2()) < -kTolerance*tube.rmax();
+    if(checkRminTreatment<tubeTypeT>(tube) && !IsEmpty(inside)) {
+      inside &= (tube.rmin2()-rsq) < -kTolerance*tube.rmin();
+    }
+    if(checkPhiTreatment<tubeTypeT>(tube) && !IsEmpty(inside)) {
+      Bool_t insector;
+      PointInCyclicalSector<Backend, tubeTypeT, UnplacedTube, false>(tube, point.x(), point.y(), insector);
+      inside &= insector;
+    }
+    done |= inside;
+    if(Backend::early_returns && IsFull(done)) return;
+
+    //*** Next: for tracks not inside and going away  -->  return infinity
+    MaskedAssign( !done, kInfinity, &distance);
+
+    // outside of Z range and going away?
+    done |= distz >= -kHalfTolerance && (point.z() * dir.z()) >= 0;
+    if( Backend::early_returns && IsFull(done) ) return;
+
+    // outside of outer tube and going away?
+    Float_t rdotn = point.x()*dir.x() + point.y()*dir.y();
+    done |= (rsq -tube.rmax2()) > -kTolerance*tube.rmax() && rdotn >= 0;
+    if( Backend::early_returns && IsFull(done) ) return;
 
     //*** Next step: check if z-plane is the right entry point (both r,phi should be valid at z-plane crossing)
-    Float_t hitx, hity, r2;
-    hitx = point.x() + distz*dir.x();
-    hity = point.y() + distz*dir.y();
-    r2 = hitx*hitx + hity*hity;  // radius of intersection with z-plane
 
-    Bool_t okz =  (!leaving) && (distz > -kTolerance) && (r2 <= tube.rmax2());
-    if(checkRminTreatment<tubeTypeT>(tube)) {
-      okz = okz & (tube.rmin2() <= r2);
-      completelyInside &= (tube.rmin2()-rsq)<-kTolerance*tube.rmin();
+    distz /= Abs(dir.z());
+    Float_t hitx = point.x() + distz*dir.x();
+    Float_t hity = point.y() + distz*dir.y();
+    Float_t r2 = hitx*hitx + hity*hity;  // radius of intersection with z-plane
+
+    Bool_t okz = distz > -kHalfTolerance  && (point.z()*dir.z()<0);
+    okz &= (r2 <= tube.rmax2());
+    if(checkRminTreatment<tubeTypeT>(tube) && !IsEmpty(okz)) {
+      okz &= (tube.rmin2() <= r2);
     }
-    if(checkPhiTreatment<tubeTypeT>(tube)) {
+    if(checkPhiTreatment<tubeTypeT>(tube) && !IsEmpty(okz)) {
       Bool_t insector;
       PointInCyclicalSector<Backend, tubeTypeT, UnplacedTube, false>(tube, hitx, hity, insector);
-      okz = okz & insector;
-      completelyInside &= insector;
+      okz &= insector;
     }
 
-    if(Backend::early_returns && IsFull(okz) ) {
-      distance = distz;
-      return;
-    }
+    MaskedAssign( !done && okz, distz, &distance);
+    done |= okz;
+    if(Backend::early_returns && IsFull(done) ) return;
 
-    MaskedAssign( completelyInside, -1.0, &distance );
-    if(Backend::early_returns && IsFull(completelyInside));
+    //*** Next step: intersection of the trajectories with the two circles
 
-    /* Next step:
-     * Calculate the intersection of the trajectory of
-     * the particles with the two circles
-     *
-     * Here I compute values used in both rmin and
-     * rmax calculations
-     */
-
+    // Here for values used in both rmin and rmax calculations
     Float_t invnsq = 1 / ( 1 - dir.z()*dir.z() );
-    Float_t rdotn = pos_dot_dir_x + pos_dot_dir_y;
     Float_t b = invnsq * rdotn;
 
     /*
      * rmax
-     * If the particle were to hit rmax, it would hit
-     * the closest point of the two - I only consider
-     * the smallest solution
+     * If the particle were to hit rmax, it would hit the closest point of the two
+     * --> only consider the smallest solution of the quadratic equation
      */
     Float_t crmax = invnsq * (rsq - tube.rmax2());
     Float_t dist_rmax;
-    Bool_t ok_rmax;
+    Bool_t ok_rmax{ Backend::kFalse };
     CircleTrajectoryIntersection<Backend, tubeTypeT, false, true>(b, crmax, tube, point, dir, dist_rmax, ok_rmax);
 
-    if(Backend::early_returns && IsFull(ok_rmax)) {
-      distance = dist_rmax;
-      return;
-    }
+    ok_rmax &= dist_rmax > -kHalfTolerance && dist_rmax<distance;
+    MaskedAssign( !done && ok_rmax, dist_rmax, &distance);
+    done |= ok_rmax;
 
     /*
      * rmin
@@ -531,18 +533,19 @@ struct TubeImplementation {
      */
 
     if(checkRminTreatment<tubeTypeT>(tube)) {
-      MaskedAssign(ok_rmin, dist_rmin, &distance);
+      ok_rmin &= dist_rmin > -kHalfTolerance && dist_rmin<distance;
+      MaskedAssign(!done && ok_rmin, dist_rmin, &distance);
     }
-    MaskedAssign(ok_rmax, dist_rmax, &distance);
+    MaskedAssign(!done && ok_rmax, dist_rmax, &distance);
 
     /*
      * Now write result from hitting Z face
      */
-    MaskedAssign(okz && distz < distance && distz >= 0., distz, &distance);
+//    MaskedAssign(okz && distz < distance && distz >= 0., distz, &distance);
+
 
     /*
-     * Calculate intersection between trajectory and the 
-     * two phi planes
+     * Calculate intersection between trajectory and the two phi planes
      */
 
     if(checkPhiTreatment<tubeTypeT>(tube)) {
@@ -587,8 +590,9 @@ struct TubeImplementation {
     using namespace TubeUtilities;
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
+
     distance = -1;
-    Bool_t done(Backend::kFalse);
+    Bool_t done{ Backend::kFalse };
 
     //*** First we check all dimensions of the tube, whether points are outside --> return -1
 
