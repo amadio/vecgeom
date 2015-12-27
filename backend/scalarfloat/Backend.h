@@ -25,13 +25,8 @@ struct kScalarFloat {
   typedef bool Bool_t;
   typedef int  Index_t; // the type of indices
 
-#ifdef VECGEOM_STD_CXX11
   constexpr static precision_v kOne = 1.0;
   constexpr static precision_v kZero = 0.0;
-#else
-  const static precision_v kOne = 1.0;
-  const static precision_v kZero = 0.0;
-#endif
   const static bool_v kTrue = true;
   const static bool_v kFalse = false;
 
@@ -43,6 +38,20 @@ struct kScalarFloat {
   VECGEOM_INLINE
   static Precision Convert(Precision const &input) { return input; }
 };
+
+#if 0
+// ScalarFloat is an auxiliary backend, supposed to be used in conjunction with another
+// one (assummedly Scalar), so we can not use this.
+#ifdef VECGEOM_SCALAR_FLOAT
+constexpr size_t kVectorSize  = 1;
+#define VECGEOM_BACKEND_TYPE         vecgeom::kScalarFloat
+#define VECGEOM_BACKEND_PRECISION_FROM_PTR(P) (*(P))
+#define VECGEOM_BACKEND_PRECISION_TYPE        Precision
+//#define VECGEOM_BACKEND_PRECISION_NOT_SCALAR
+#define VECGEOM_BACKEND_BOOL         vecgeom::ScalarBool
+#define VECGEOM_BACKEND_INSIDE       vecgeom::kScalarFloat::inside_v
+#endif
+#endif
 
 //template <>
 //VECGEOM_CUDA_HEADER_BOTH
@@ -263,14 +272,7 @@ float Floor( float val ){
 //VECGEOM_CUDA_HEADER_BOTH
 //VECGEOM_INLINE
 //bool all_of(IteratorType first, IteratorType last) {
-//#ifdef VECGEOM_STD_CXX11
 //  return std::all_of(first, last, [](bool b){return b;});
-//#else
-//  while (first < last) {
-//    if (!(*first)) return false;
-//    ++first;
-//  }
-//  return true;
 //#endif
 //}
 //

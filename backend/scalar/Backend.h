@@ -24,13 +24,8 @@ struct kScalar {
   typedef bool Bool_t;
   typedef int  Index_t; // the type of indices
 
-#ifdef VECGEOM_STD_CXX11
   constexpr static precision_v kOne = 1.0;
   constexpr static precision_v kZero = 0.0;
-#else
-  const static precision_v kOne = 1.0;
-  const static precision_v kZero = 0.0;
-#endif
   const static bool_v kTrue = true;
   const static bool_v kFalse = false;
 
@@ -53,12 +48,14 @@ typedef kScalar::int_v    ScalarInt;
 typedef kScalar::precision_v ScalarDouble;
 typedef kScalar::bool_v   ScalarBool;
 
-#define kVectorSize 1
 #ifdef VECGEOM_SCALAR
-#define VECGEOM_BACKEND_TYPE         kScalar
-#define VECGEOM_BACKEND_PRECISION(P) (*(P))
-#define VECGEOM_BACKEND_BOOL         ScalarBool
-#define VECGEOM_BACKEND_INSIDE       kScalar::inside_v
+constexpr size_t kVectorSize = 1;
+#define VECGEOM_BACKEND_TYPE         vecgeom::kScalar
+#define VECGEOM_BACKEND_PRECISION_FROM_PTR(P) (*(P))
+#define VECGEOM_BACKEND_PRECISION_TYPE        vecgeom::Precision
+//#define VECGEOM_BACKEND_PRECISION_NOT_SCALAR
+#define VECGEOM_BACKEND_BOOL         vecgeom::ScalarBool
+#define VECGEOM_BACKEND_INSIDE       vecgeom::kScalar::inside_v
 #endif
 
 template <typename Type>
@@ -315,15 +312,7 @@ template <typename IteratorType>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
 bool all_of(IteratorType first, IteratorType last) {
-#ifdef VECGEOM_STD_CXX11
   return std::all_of(first, last, [](bool b){return b;});
-#else
-  while (first < last) {
-    if (!(*first)) return false;
-    ++first;
-  }
-  return true;
-#endif
 }
 
 template <typename InputIterator1, typename InputIterator2>

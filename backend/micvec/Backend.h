@@ -39,11 +39,8 @@ struct kMic {
   typedef MicDoubleVector Index_t;
 };
 
-#ifdef kVectorSize
-#undef kVectorSize
-#endif
-constexpr int kVectorSize = 8;
 #ifdef OFFLOAD_MODE
+constexpr size_t kVectorSize = 8;
 #ifdef VECGEOM_SCALAR
 #undef VECGEOM_BACKEND_TYPE
 #undef VECGEOM_BACKEND_PRECISION
@@ -51,10 +48,15 @@ constexpr int kVectorSize = 8;
 #undef VECGEOM_BACKEND_INSIDE
 #endif
 #endif
-#define VECGEOM_BACKEND_TYPE         kMic
-#define VECGEOM_BACKEND_PRECISION    MicPrecision
-#define VECGEOM_BACKEND_BOOL         MicBool
-#define VECGEOM_BACKEND_INSIDE       kMic::inside_v
+#ifdef VECGEOM_MICVEC
+constexpr size_t kVectorSize = 8;
+#define VECGEOM_BACKEND_TYPE         vecgeom::kMic
+#define VECGEOM_BACKEND_PRECISION_FROM_PTR(P) vecgeom::MicPrecision(P)
+#define VECGEOM_BACKEND_PRECISION_TYPE        vecgeom::MicPrecision
+#define VECGEOM_BACKEND_PRECISION_NOT_SCALAR
+#define VECGEOM_BACKEND_BOOL         vecgeom::MicBool
+#define VECGEOM_BACKEND_INSIDE       vecgeom::kMic::inside_v
+#endif
 
 typedef kMic::int_v       MicInt;
 typedef kMic::precision_v MicPrecision;
@@ -166,6 +168,8 @@ public:
   VECGEOM_INLINE
   MicDoubleVector operator -(Precision const &val) const { return (*this) - MicDoubleVector(val); }
 
+  // adding a member that mimic Vc
+  constexpr static unsigned int Size = 8;
 };
 
 // Operators and Functions for MicDoubleVector/MicPrecision

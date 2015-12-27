@@ -13,7 +13,7 @@
 
 #ifndef VECGEOM_NVCC
 #include <iomanip>
-  #if (defined(VECGEOM_VC) || defined(VECGEOM_VC_ACCELERATION))
+  #if defined(VECGEOM_VC)
     #include <Vc/Vc>
   #endif
 #endif
@@ -29,7 +29,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 
 #ifndef VECGEOM_NVCC
-  #if (defined(VECGEOM_VC) || defined(VECGEOM_VC_ACCELERATION))
+  #if defined(VECGEOM_VC)
 using namespace Vc;
 
 inline
@@ -38,7 +38,7 @@ double_v Vccbrt( double_v x )
   Vc::double_v xorig=x;
   x=Vc::abs(x);
   Vc::double_v tmp= Vc::exp(0.33333333333333333333*Vc::log(x) );
-  return tmp.copySign(xorig);
+  return Vc::copysign(tmp, xorig);
 }
 #endif
 #endif
@@ -270,7 +270,7 @@ Complex<T> csqrtrealargument( const T & x )
 }
 
 #ifndef VECGEOM_NVCC
-  #if (defined(VECGEOM_VC) || defined(VECGEOM_VC_ACCELERATION))
+  #if defined(VECGEOM_VC)
 // template specialization for Vc
 typedef Vc::double_v VCT;
 template <>
@@ -328,7 +328,7 @@ Complex<T> cbrt( const Complex<T>& x )
 }
 
 #ifndef VECGEOM_NVCC
-  #if (defined(VECGEOM_VC) || defined(VECGEOM_VC_ACCELERATION))
+  #if defined(VECGEOM_VC)
 
 // template specialization for Vc
 // we need standalone function for cubic root
@@ -345,7 +345,7 @@ Complex<Vc::double_v> cbrt( const Complex<Vc::double_v>& x )
       r = x.cabs();
       Vc::double_v angle = x.carg();
       angle( ! imaginary ) = 0.;
-      r( ! imaginary ) = r.copySign( x.real() );
+      r( ! imaginary ) = Vc::copysign(r, x.real());
       Vc::double_v newangle = 0.33333333333333333*angle;
       sincos(newangle, &sinnewangle, &cosnewangle);
     }
@@ -547,7 +547,7 @@ std::cout <<"roots for scalar case"<<std::endl;
 // CT == complextype
 //typedef Vc::double_v VCT2;
 #ifndef VECGEOM_NVCC
-  #if (defined(VECGEOM_VC) || defined(VECGEOM_VC_ACCELERATION))
+  #if defined(VECGEOM_VC)
 typedef Complex<VCT> CVCT;
 inline
 void solveQuartic2(VCT a, VCT b, VCT c, VCT d, VCT e, CVCT * roots)

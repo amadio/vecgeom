@@ -7,6 +7,7 @@
 #include "base/Global.h"
 #include "volumes/LogicalVolume.h"
 #include "volumes/USolidsInterfaceHelper.h"
+#include "backend/Backend.h"
 #include <string>
 
 class G4VSolid;
@@ -200,11 +201,20 @@ public:
                                  Vector3D<Precision> const &direction,
                                  const Precision step_max = kInfinity) const =0;
 
+
+  // if we have any SIMD backend, we offer a SIMD interface
+#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
+  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToIn(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
+                                                 Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
+                                                 const VECGEOM_BACKEND_PRECISION_TYPE step_max = kInfinity) const = 0;
+#endif
+
   virtual void DistanceToIn(SOA3D<Precision> const &position,
                             SOA3D<Precision> const &direction,
                             Precision const *const step_max,
                             Precision *const output) const =0;
 
+  // to be deprecated
   virtual void DistanceToInMinimize(SOA3D<Precision> const &position,
                                     SOA3D<Precision> const &direction,
                                     int daughterindex,
@@ -226,6 +236,13 @@ public:
       Vector3D<Precision> const &direction,
       Precision const step_max = kInfinity) const =0;
 #endif
+  // define this interface in case we don't have the Scalar interface
+#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
+  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToOut(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
+                                                  Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
+                                                  VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfinity) const = 0;
+#endif
+
 
   // a "placed" version of the distancetoout function; here
   // the point and direction are first of all transformed into the reference frame of the
@@ -255,17 +272,26 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision SafetyToIn(Vector3D<Precision> const &position) const =0;
 
+#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
+  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const = 0;
+#endif
+
   virtual void SafetyToIn(SOA3D<Precision> const &position,
                           Precision *const safeties) const =0;
 
   // virtual void SafetyToIn(AOS3D<Precision> const &position,
   //                         Precision *const safeties) const =0;
 
+  // to be deprecated
   virtual void SafetyToInMinimize(SOA3D<Precision> const &points,
                                   Precision *const safeties) const =0;
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision SafetyToOut(Vector3D<Precision> const &position) const =0;
+
+#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
+  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOut(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const = 0;
+#endif
 
   virtual void SafetyToOut(SOA3D<Precision> const &position,
                            Precision *const safeties) const =0;
@@ -273,6 +299,7 @@ public:
   // virtual void SafetyToOut(AOS3D<Precision> const &position,
   //                          Precision *const safeties) const =0;
 
+  // to be deprecated
   virtual void SafetyToOutMinimize(SOA3D<Precision> const &points,
                                    Precision *const safeties) const =0;
 
@@ -381,7 +408,7 @@ public:
          const unsigned int id) const; \
     }
 
-#ifdef VECGEOM_NO_SPECIALIZATION
+#if defined(VECGEOM_NO_SPECIALIZATION) || !defined(VECGEOM_CUDA_VOLUME_SPECIALIZATION)
 
 #define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT( PlacedVol, trans )   \
    VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<trans, rotation::kGeneric> )
@@ -416,7 +443,7 @@ public:
 
 #endif // VECGEOM_NO_SPECIALIZATION
 
-#ifdef VECGEOM_NO_SPECIALIZATION
+#if defined(VECGEOM_NO_SPECIALIZATION) || !defined(VECGEOM_CUDA_VOLUME_SPECIALIZATION)
 
 #define VECGEOM_DEVICE_INST_PLACED_POLYHEDRON_ALL_CUTOUT( PlacedVol, radii )   \
    VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<radii, Polyhedron::EPhiCutout::kGeneric> )
@@ -449,7 +476,7 @@ public:
          const unsigned int id) const; \
     }
 
-#ifdef VECGEOM_NO_SPECIALIZATION
+#if defined(VECGEOM_NO_SPECIALIZATION) || !defined(VECGEOM_CUDA_VOLUME_SPECIALIZATION)
 
 #define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_3( PlacedVol, trans, Type ) \
    VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3( PlacedVol<trans, rotation::kGeneric, Type> )
@@ -494,12 +521,51 @@ public:
          const unsigned int id) const; \
     }
 
-#ifdef VECGEOM_NO_SPECIALIZATION
+#if defined(VECGEOM_NO_SPECIALIZATION) || !defined(VECGEOM_CUDA_VOLUME_SPECIALIZATION)
 
 #define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_4( PlacedVol, trans, radii, phi ) \
    VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, rotation::kGeneric, radii, phi> )
 #define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_4( PlacedVol ) \
 	VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_4(PlacedVol, translation::kGeneric, Polyhedron::EInnerRadii::kGeneric, Polyhedron::EPhiCutout::kGeneric)
+
+#else
+
+// Really we should be enumerating the option
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_4( PlacedVol, trans, radii, phi ) \
+   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, rotation::kGeneric, radii, phi> ) \
+   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, rotation::kDiagonal, radii, phi> ) \
+   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, rotation::kIdentity, radii, phi> ) \
+   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x046, radii, phi> ) \
+   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x054, radii, phi> ) \
+   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x062, radii, phi> ) \
+   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x076, radii, phi> ) \
+   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x0a1, radii, phi> ) \
+   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x0ad, radii, phi> ) \
+   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x0dc, radii, phi> ) \
+   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x0e3, radii, phi> ) \
+   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x10a, radii, phi> ) \
+   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x11b, radii, phi> ) \
+   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x155, radii, phi> ) \
+   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x16a, radii, phi> ) \
+   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x18e, radii, phi> ) \
+   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x1b1, radii, phi> )
+
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_TRANS_4( PlacedVol, radii, phi ) \
+	VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_4(PlacedVol, translation::kGeneric, radii, phi) \
+	VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_4(PlacedVol, translation::kIdentity, radii, phi)
+
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_RADII_4( PlacedVol, phi ) \
+	VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_TRANS_4(PlacedVol, Polyhedron::EInnerRadii::kFalse, phi) \
+	VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_TRANS_4(PlacedVol, Polyhedron::EInnerRadii::kGeneric, phi) \
+	VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_TRANS_4(PlacedVol, Polyhedron::EInnerRadii::kTrue, phi)
+
+
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_4( PlacedVol ) \
+	VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_RADII_4(PlacedVol, Polyhedron::EPhiCutout::kFalse) \
+	VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_RADII_4(PlacedVol, Polyhedron::EPhiCutout::kGeneric) \
+	VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_RADII_4(PlacedVol, Polyhedron::EPhiCutout::kTrue) \
+	VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_RADII_4(PlacedVol, Polyhedron::EPhiCutout::kLarge)
+
 #endif
 
 #define VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol, trans, rot ) \
@@ -512,7 +578,7 @@ public:
          const unsigned int id) const; \
     }
 
-#ifdef VECGEOM_NO_SPECIALIZATION
+#if defined(VECGEOM_NO_SPECIALIZATION) || !defined(VECGEOM_CUDA_VOLUME_SPECIALIZATION)
 
 #define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_BOOLEAN( PlacedVol, Op, trans) \
    VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol<Op, trans, rotation::kGeneric> )

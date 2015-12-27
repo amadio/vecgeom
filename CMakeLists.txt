@@ -80,8 +80,6 @@ enum_option(BACKEND
             CASE_INSENSITIVE
            )
 
-option(VC_ACCELERATION "Internal vectorization using Vc." OFF)
-
 option(VTUNE "Enable the use of profiler Vtune" OFF)
 
 
@@ -114,10 +112,6 @@ if (GEANT4)
 #    set(Geant4 OFF)
 #  endif()
    set(Geant4 ON)
-endif()
-
-if (VC_ACCELERATION)
-  set (Vc ON)
 endif()
 
 if (CTEST)
@@ -158,11 +152,6 @@ endif()
 ################################################################################
 
 # Set Default compiler flags for each build type
-
-# some compilers do not default to C++11 standard yet
-if (NOT CUDA)
-  set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -std=c++11")
-endif()
 
 if (GNU)
   set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -fPIC")
@@ -243,33 +232,33 @@ message(STATUS "Compiling for ${_arch_up} SIMD architecture")
 
 if ((NOT PLANESHELL))
   message(STATUS "Disabling PlaneShell class")
-  set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_PLANESHELL_DISABLE")
+  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_PLANESHELL_DISABLE")
 endif()
 
 # Backend specific
 if (Scalar)
-  set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_SCALAR")
+  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_SCALAR")
 endif()
 if (Vc)
-  set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_VC")
+  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_VC")
 endif()
 if (Cilk)
-  set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_CILK")
+  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_CILK")
 endif()
 if (MICVEC)
-  set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_MICVEC")
+  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_MICVEC")
 endif()
 
 if (CUDA)
   set(CUDA_ARCH 30 CACHE STRING "CUDA device architecture.")
   set(CUDA_ARCH "-arch=sm_${CUDA_ARCH}")
-  set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_CUDA")
+  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_CUDA")
   if (CUDA_VOLUME_SPECIALIZATION)
-    set(VECGEOM_COMPILATION_FLAGS
-        "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_CUDA_VOLUME_SPECIALIZATION")
+    set(VECGEOM_DEFINITIONS
+        "${VECGEOM_DEFINITIONS} -DVECGEOM_CUDA_VOLUME_SPECIALIZATION")
   else()
-    set(VECGEOM_COMPILATION_FLAGS
-        "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_CUDA_NO_VOLUME_SPECIALIZATION")
+    set(VECGEOM_DEFINITIONS
+        "${VECGEOM_DEFINITIONS} -DVECGEOM_CUDA_NO_VOLUME_SPECIALIZATION")
   endif()
   set(VECGEOM_NVCC_COMPILATION_FLAGS ${VECGEOM_NVCC_COMPILATION_FLAGS} 
       -std=c++11
@@ -318,58 +307,62 @@ endif()
 
 # Forward CMake options
 if (USOLIDS_VECGEOM)
-  set(VECGEOM_COMPILATION_FLAGS
-      "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_REPLACE_USOLIDS")
-endif()
-if (VC_ACCELERATION)
-  set(VECGEOM_COMPILATION_FLAGS
-      "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_VC_ACCELERATION")
+  set(VECGEOM_DEFINITIONS
+      "${VECGEOM_DEFINITIONS} -DVECGEOM_REPLACE_USOLIDS")
 endif()
 if (QUADRILATERAL_ACCELERATION)
-  set(VECGEOM_COMPILATION_FLAGS
-      "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_QUADRILATERALS_VC")
+  set(VECGEOM_DEFINITIONS
+      "${VECGEOM_DEFINITIONS} -DVECGEOM_QUADRILATERALS_VC")
 endif()
 if (BENCHMARK)
-  set(VECGEOM_COMPILATION_FLAGS
-      "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_BENCHMARK")
+  set(VECGEOM_DEFINITIONS
+      "${VECGEOM_DEFINITIONS} -DVECGEOM_BENCHMARK")
 endif()
 if (NO_SPECIALIZATION)
-  set(VECGEOM_COMPILATION_FLAGS
-      "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_NO_SPECIALIZATION")
+  set(VECGEOM_DEFINITIONS
+      "${VECGEOM_DEFINITIONS} -DVECGEOM_NO_SPECIALIZATION")
 endif()
 if (ROOT)
-  set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_ROOT")
+  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_ROOT")
 endif()
 if (USolids)
-  set(VECGEOM_COMPILATION_FLAGS
-      "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_USOLIDS")
+  set(VECGEOM_DEFINITIONS
+      "${VECGEOM_DEFINITIONS} -DVECGEOM_USOLIDS")
 endif()
 if (Geant4)
-  set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_GEANT4")
+  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_GEANT4")
 endif()
 if (DISTANCE_DEBUG)
-  set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_DISTANCE_DEBUG")
+  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_DISTANCE_DEBUG")
 endif()
 if (VTUNE)
-  set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_VTUNE")
+  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_VTUNE")
 endif()
 if (INPLACE_TRANSFORMATIONS)
-  set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_INPLACE_TRANSFORMATIONS")
+  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_INPLACE_TRANSFORMATIONS")
 endif()
 if (USE_INDEXEDNAVSTATES)
-  set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_USE_INDEXEDNAVSTATES")
+  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_USE_INDEXEDNAVSTATES")
 endif()
 if (GENERATE_MATERIALS_DB)
-  set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_GENERATE_MATERIALS_DB")
+  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_GENERATE_MATERIALS_DB")
 endif()
 
 
 ################################################################################
 
+# see if we have CCACHE ( to avoid recompilation on branch switches )
+find_program(CCACHE_FOUND ccache)
+if(CCACHE_FOUND)
+  message(STATUS "found ccache")
+  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+  set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+endif(CCACHE_FOUND)
+
+
 # Backend configuration
 
-if (VC_ACCELERATION OR Vc)
-
+if (Vc)
   find_package(Vc REQUIRED)
   if (MIC)
     set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${Vc_MIC_LIBRARIES})
@@ -381,7 +374,6 @@ if (VC_ACCELERATION OR Vc)
   if (Vc)
     set(SRC_EXTERNAL ${SRC_EXTERNAL} source/backend/vc/Backend.cpp)
   endif()
-
 endif()
 
 if (Cilk)
@@ -413,7 +405,7 @@ endif()
 # We may have addition in compiler flags from the above included packages
 # We don't want to have trailing CMAKE_CXX_FLAGS_"BUILD_TYPE" options on the command line
 # but rather have it as first set of argument.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${_build_type}} ${VECGEOM_CXX_FLAGS} ${VECGEOM_COMPILATION_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${_build_type}} ${VECGEOM_CXX_FLAGS} ${VECGEOM_DEFINITIONS} ${VECGEOM_COMPILATION_FLAGS}")
 #set(VECGEOM_CXX_FLAGS ${CMAKE_CXX_FLAGS_${_build_type}})
 #unset(CMAKE_CXX_FLAGS_${_build_type} CACHE)
 
@@ -487,6 +479,14 @@ endif()
 include_directories(BEFORE ${CMAKE_SOURCE_DIR})
 
 set(SRC_CPP_RELATIVE
+  #.. moved up for faster compilation
+  source/CreateNuclei.cpp
+  source/CreateParticles.cpp
+  source/UnplacedPolycone.cpp
+  source/UnplacedPolyhedron.cpp
+  source/PlacedPolycone.cpp
+  source/PlacedPolyhedron.cpp
+
   source/RNG.cpp
   source/AOS3D.cpp
   source/LogicalVolume.cpp
@@ -498,7 +498,6 @@ set(SRC_CPP_RELATIVE
   source/PlacedTrd.cpp
   source/PlacedParallelepiped.cpp
   source/PlacedParaboloid.cpp
-  source/PlacedPolyhedron.cpp
   source/PlacedScaledShape.cpp
   source/PlacedTrapezoid.cpp
   source/PlacedVolume.cpp
@@ -516,7 +515,6 @@ set(SRC_CPP_RELATIVE
   source/UnplacedTrd.cpp
   source/UnplacedParaboloid.cpp
   source/UnplacedParallelepiped.cpp
-  source/UnplacedPolyhedron.cpp
   source/UnplacedScaledShape.cpp
   source/UnplacedTrapezoid.cpp
   source/UnplacedVolume.cpp
@@ -526,15 +524,10 @@ set(SRC_CPP_RELATIVE
 
   source/UnplacedOrb.cpp
   source/PlacedOrb.cpp
-
   source/UnplacedSphere.cpp
   source/PlacedSphere.cpp
-
   source/UnplacedBooleanVolume.cpp
   source/PlacedBooleanVolume.cpp
-
-  source/UnplacedPolycone.cpp
-  source/PlacedPolycone.cpp
   source/Wedge.cpp
   source/ABBoxManager.cpp
   source/ABBoxNavigator.cpp
@@ -544,10 +537,8 @@ set(SRC_CPP_RELATIVE
   source/Material.cpp
   source/Medium.cpp
   source/Nucleus.cpp
-  source/CreateNuclei.cpp
   source/MessageLogger.cpp
   source/Particle.cpp
-  source/CreateParticles.cpp
 )
 
 # avoid "file has no symbols" warnings
@@ -618,6 +609,7 @@ endif()
 if (USOLIDS)
   set(SRC_CPP ${SRC_CPP}
     test/shape_tester/ShapeTester.cpp
+    test/shape_tester/ConventionChecker.cpp
   )
 endif()
 if (BENCHMARK)
@@ -647,10 +639,7 @@ endif()
 
 
 # Compile cpp-files for C++11
-
-if (CUDA)
-  set_source_files_properties(${SRC_CPP} PROPERTIES COMPILE_FLAGS -std=c++11)
-endif()
+set_source_files_properties(${SRC_CPP} PROPERTIES COMPILE_FLAGS -std=c++11)
 
 ################################################################################
 
@@ -664,12 +653,10 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} rt)
 endif()
 
-if (CUDA)
-  set_source_files_properties(
-    ${SRC_EXECUTABLES}
-    PROPERTIES COMPILE_FLAGS -std=c++11
-  )
-endif()
+set_source_files_properties(
+  ${SRC_EXECUTABLES}
+  PROPERTIES COMPILE_FLAGS -std=c++11
+)
 
 # build the CUDA version of the library
 if (CUDA)
@@ -854,12 +841,10 @@ set(TEST_EXECUTABLES
   ${TEST_EXECUTABLES_SHAPETESTER}
 )
 
-if (CUDA)
-  set_source_files_properties(
-    ${TEST_EXECUTABLES}
-    PROPERTIES COMPILE_FLAGS -std=c++11
-  )
-endif()
+set_source_files_properties(
+  ${TEST_EXECUTABLES}
+  PROPERTIES COMPILE_FLAGS -std=c++11
+)
 
 # Build executables
 
