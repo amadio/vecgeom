@@ -16,8 +16,8 @@ int main(int argc, char* argv[]) {
   OPTION_DOUBLE(rmin,10.);
   OPTION_DOUBLE(rmax,15.);
   OPTION_DOUBLE(sphi,0.);
-  OPTION_DOUBLE(dphi,2*kPi/6);
-  OPTION_DOUBLE(stheta,kPi/6.);
+  OPTION_DOUBLE(dphi,2*kPi);
+  OPTION_DOUBLE(stheta,kPi/4.);
   OPTION_DOUBLE(dtheta,kPi/6.); 
   //OPTION_DOUBLE(stheta,0);
   //OPTION_DOUBLE(dtheta,kPi); 

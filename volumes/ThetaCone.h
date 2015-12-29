@@ -156,14 +156,14 @@ public:
       Vector3D<typename Backend::precision_v> normal(point.x(), point.y(), -tanSTheta2 * point.z());
 
     if (fSTheta <= kHalfPi)
-      return -normal.Unit();
+      return -normal;
     else
-      return normal.Unit();
+      return normal;
 
     }
     else {
 
-    Vector3D<typename Backend::precision_v> normal(2 * point.x(), 2 * point.y(), -2 * tanETheta2 * point.z());
+    Vector3D<typename Backend::precision_v> normal(point.x(), point.y(), -tanETheta2 * point.z());
 
     if (fETheta <= kHalfPi)
       return normal;
@@ -181,10 +181,11 @@ public:
     Float_t rho2 = point.Perp2();
     Float_t rhs2(0.);
     if(ForStartTheta)
-      rhs2 = tanSTheta2 * point.z() * point.z();
+      rhs2 = Sqrt(tanSTheta2 * point.z() * point.z());
     else
-      rhs2 = tanETheta2 * point.z() * point.z();
+      rhs2 = Sqrt(tanETheta2 * point.z() * point.z());
       
+    //std::cout<<"Rho2  : "<<rho2 <<"  :: rhs2  : "<<rhs2<<std::endl;  
     return Abs(rho2 - rhs2) < kTolerance;
   }
 
@@ -231,7 +232,14 @@ VECGEOM_CUDA_HEADER_BOTH
     }
     else {
 
-    return IsOnSurfaceGeneric<Backend,ForStartTheta>(point) && (dir.Dot(GetNormal<Backend,ForStartTheta>(point)) < 0.);
+    typename Backend::bool_v cond = IsOnSurfaceGeneric<Backend,ForStartTheta>(point) && (dir.Dot(GetNormal<Backend,ForStartTheta>(point)) < 0.);
+    // typedef typename Backend::bool_v Bool_t;
+    // Bool_t cond1 = IsOnSurfaceGeneric<Backend,ForStartTheta>(point) ;
+    // Bool_t cond2 = (dir.Dot(GetNormal<Backend,ForStartTheta>(point)) < 0.);
+    // std::cout<<"---------------------------------------"<<std::endl;
+    // std::cout<<"Cond1  : "<<cond1<<"  :: Cond2 : "<<cond2<<std::endl;
+    // std::cout<<"COND from ThetaCone : "<<cond<<std::endl;
+    return cond;
 
     }
       
@@ -395,59 +403,64 @@ VECGEOM_CUDA_HEADER_BOTH
       Bool_t done(false);
       Bool_t fal(false);
 
-      Float_t a, b, c, d2;
-      Float_t a2, b2, c2, d22;
+      // Float_t a, b, c, d2;
+      // Float_t a2, b2, c2, d22;
 
       Float_t firstRoot(kInfinity), secondRoot(kInfinity);
 
       Float_t pDotV2d = point.x() * dir.x() + point.y() * dir.y();
       Float_t rho2 = point.x() * point.x() + point.y() * point.y();
+      Float_t dirRho2 = dir.Perp2();
 
-      b = pDotV2d - point.z() * dir.z() * tanSTheta2;
-      a = dir.x() * dir.x() + dir.y() * dir.y() - dir.z() * dir.z() * tanSTheta2;
-      c = rho2 - point.z() * point.z() * tanSTheta2;
-      d2 = b * b - a * c;
+      Float_t b = pDotV2d - point.z() * dir.z() * tanSTheta2;
+      //Float_t a = dir.x() * dir.x() + dir.y() * dir.y() - dir.z() * dir.z() * tanSTheta2;
+      Float_t a = dirRho2 - dir.z() * dir.z() * tanSTheta2;
+      Float_t c = rho2 - point.z() * point.z() * tanSTheta2;
+      Float_t d2 = b * b - a * c;
+      Float_t aInv = 1./a;
 
-      MaskedAssign((d2 > 0.), (-1 * b + Sqrt(d2)) / a, &firstRoot);
+      MaskedAssign((d2 > 0.), (-b + Sqrt(d2)) * aInv, &firstRoot);
       done |= (Abs(firstRoot) < 3.0 * kTolerance);
       MaskedAssign(((Abs(firstRoot) < 3.0 * kTolerance)), 0., &firstRoot);
       MaskedAssign((!done && (firstRoot < 0.)), kInfinity, &firstRoot);
 
-      b2 = pDotV2d - point.z() * dir.z() * tanETheta2;
-      a2 = dir.x() * dir.x() + dir.y() * dir.y() - dir.z() * dir.z() * tanETheta2;
-      c2 = rho2 - point.z() * point.z() * tanETheta2;
-      d22 = b2 * b2 - a2 * c2;
+      Float_t b2 = pDotV2d - point.z() * dir.z() * tanETheta2;
+      //Float_t a2 = dir.x() * dir.x() + dir.y() * dir.y() - dir.z() * dir.z() * tanETheta2;
+      Float_t a2 = dirRho2 - dir.z() * dir.z() * tanETheta2;
+      Float_t c2 = rho2 - point.z() * point.z() * tanETheta2;
+      Float_t d22 = b2 * b2 - a2 * c2;
+      Float_t a2Inv = 1./a2;
 
-      MaskedAssign((d22 > 0.), (-1 * b2 - Sqrt(d22)) / a2, &secondRoot);
+      MaskedAssign((d22 > 0.), (-b2 - Sqrt(d22)) * a2Inv, &secondRoot);
       // done = fal;
       // done |= (Abs(secondRoot) < 3.0*kSTolerance*10.);
       MaskedAssign((!done && (Abs(secondRoot) < 3.0 * kTolerance)), 0., &secondRoot);
       done |= (Abs(secondRoot) < 3.0 * kTolerance);
       MaskedAssign(!done && (secondRoot < 0.), kInfinity, &secondRoot);
 
-      if (fSTheta < kPi / 2 + halfAngTolerance) {
-        if (fETheta < kPi / 2 + halfAngTolerance) {
+      if (fSTheta < kHalfPi + halfAngTolerance) {
+        if (fETheta < kHalfPi + halfAngTolerance) {
           if (fSTheta < fETheta) {
             distThetaCone1 = firstRoot;
             distThetaCone2 = secondRoot;
             Float_t zOfIntSecPtCone1 = (point.z() + distThetaCone1 * dir.z());
             Float_t zOfIntSecPtCone2 = (point.z() + distThetaCone2 * dir.z());
 
-            intsect1 = ((d2 > 0) /*&& (distThetaCone1!=kInfinity)*/ && (zOfIntSecPtCone1 > 0.));
-            intsect2 = ((d22 > 0) /*&& (distThetaCone2!=kInfinity)*/ && (zOfIntSecPtCone2 > 0.));
+            intsect1 = ((d2 > 0.) /*&& (distThetaCone1!=kInfinity)*/ && (zOfIntSecPtCone1 > 0.));
+            intsect2 = ((d22 > 0.) /*&& (distThetaCone2!=kInfinity)*/ && (zOfIntSecPtCone2 > 0.));
           }
         }
 
-        if (fETheta >= kPi / 2 - halfAngTolerance && fETheta <= kPi / 2 + halfAngTolerance) {
-          MaskedAssign((dir.z() > 0.), -1. * point.z() / dir.z(), &distThetaCone2);
+        if (fETheta >= kHalfPi - halfAngTolerance && fETheta <= kHalfPi + halfAngTolerance) {
+          MaskedAssign((dir.z() > 0.), -point.z() / dir.z(), &distThetaCone2);
           Float_t zOfIntSecPtCone2 = (point.z() + distThetaCone2 * dir.z());
           intsect2 = ((distThetaCone2 != kInfinity) && (Abs(zOfIntSecPtCone2) < halfAngTolerance));
         }
 
-        if (fETheta > kPi / 2 + halfAngTolerance) {
+        if (fETheta > kHalfPi + halfAngTolerance) {
           if (fSTheta < fETheta) {
             distThetaCone1 = firstRoot;
-            MaskedAssign((d22 > 0.), (-1 * b2 + Sqrt(d22)) / a2, &secondRoot);
+            MaskedAssign((d22 > 0.), (-b2 + Sqrt(d22)) * a2Inv, &secondRoot);
 
             done = fal;
             done |= (Abs(secondRoot) < 3.0 * kTolerance);
@@ -464,17 +477,17 @@ VECGEOM_CUDA_HEADER_BOTH
         }
       }
 
-      if (fSTheta >= kPi / 2 - halfAngTolerance) {
-        if (fETheta > kPi / 2 + halfAngTolerance) {
+      if (fSTheta >= kHalfPi - halfAngTolerance) {
+        if (fETheta > kHalfPi + halfAngTolerance) {
           if (fSTheta < fETheta) {
-            MaskedAssign((d2 > 0.), (-1 * b - Sqrt(d2)) / a, &firstRoot);
+            MaskedAssign((d2 > 0.), (-b - Sqrt(d2)) * aInv, &firstRoot);
             done = fal;
             done |= (Abs(firstRoot) < 3.0 * kTolerance);
             MaskedAssign(((Abs(firstRoot) < 3.0 * kTolerance)), 0., &firstRoot);
             MaskedAssign(!done && (firstRoot < 0.), kInfinity, &firstRoot);
             distThetaCone1 = firstRoot;
 
-            MaskedAssign((d22 > 0.), (-1 * b2 + Sqrt(d22)) / a2, &secondRoot);
+            MaskedAssign((d22 > 0.), (-b2 + Sqrt(d22)) * a2Inv, &secondRoot);
             done = fal;
             done |= (Abs(secondRoot) < 3.0 * kTolerance);
             MaskedAssign(((Abs(secondRoot) < 3.0 * kTolerance)), 0., &secondRoot);
@@ -490,15 +503,15 @@ VECGEOM_CUDA_HEADER_BOTH
         }
       }
 
-      if (fSTheta >= kPi / 2 - halfAngTolerance && fSTheta <= kPi / 2 + halfAngTolerance) {
-        MaskedAssign((dir.z() < 0.), -1. * point.z() / dir.z(), &distThetaCone1);
+      if (fSTheta >= kHalfPi - halfAngTolerance && fSTheta <= kHalfPi + halfAngTolerance) {
+        MaskedAssign((dir.z() < 0.), -point.z() / dir.z(), &distThetaCone1);
         Float_t zOfIntSecPtCone1 = (point.z() + distThetaCone1 * dir.z());
         intsect1 = ((distThetaCone1 != kInfinity) && (Abs(zOfIntSecPtCone1) < halfAngTolerance));
       }
 
       // std::cout<<"DistThetaCone-1 : "<<distThetaCone1<<"  :: DistThetaCone-2 : "<<distThetaCone2<<std::endl;
-      MaskedAssign((distThetaCone1 < halfAngTolerance), 0., &distThetaCone1);
-      MaskedAssign((distThetaCone2 < halfAngTolerance), 0., &distThetaCone2);
+      // MaskedAssign((distThetaCone1 < halfAngTolerance), 0., &distThetaCone1);
+      // MaskedAssign((distThetaCone2 < halfAngTolerance), 0., &distThetaCone2);
     }
   }
 
