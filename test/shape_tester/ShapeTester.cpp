@@ -296,7 +296,7 @@ int ShapeTester::ShapeDistances() {
       }
 
     } else { // reentering solid, it is not convex
-      dmove = DistanceToInSurf * 0.5;
+      dmove = DistanceOut2 + DistanceToInSurf * 0.5;
       if (convex2)
         ReportError(&nError, point, dir, DistanceToInSurf, "SD: Error in convexity, must be NOT convex");
     }
@@ -316,7 +316,7 @@ int ShapeTester::ShapeDistances() {
     }
 
     double difDelta = dmove - DistanceOut2 - DistanceToIn2;
-    if (difDelta > 1000. * tolerance)
+    if (std::fabs(difDelta) > 10. * tolerance)
       ReportError(&nError, point, dir, difDelta, "SD: Distances calculation is not precise");
     if (difDelta > delta)
       delta = std::fabs(difDelta);
