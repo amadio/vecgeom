@@ -93,6 +93,30 @@ class Wedge{
                                                             Vector3D<Precision> const & normalVector,
                                                             Vector3D<typename Backend::precision_v> const& point );
 
+        template<typename Backend, bool ForStartPhi, bool MovingOut>
+        VECGEOM_CUDA_HEADER_BOTH
+        typename Backend::bool_v IsPointOnSurfaceAndMovingOut( //Vector3D<Precision> const & alongVector,
+                                                            //Vector3D<Precision> const & normalVector,
+                                                            Vector3D<typename Backend::precision_v> const& point,
+                                                            Vector3D<typename Backend::precision_v> const& dir ) const {
+          if(ForStartPhi)
+          {
+            if(MovingOut)
+              return IsOnSurfaceGeneric<Backend>(fAlongVector1,fNormalVector1, point) && (dir.Dot(-fNormalVector1) > 0.);
+            else
+              return IsOnSurfaceGeneric<Backend>(fAlongVector1,fNormalVector1, point) && (dir.Dot(-fNormalVector1) < 0.);
+          }
+          else {
+            if(MovingOut)
+              return IsOnSurfaceGeneric<Backend>(fAlongVector2,fNormalVector2, point) && (dir.Dot(-fNormalVector2) > 0.);
+            else
+              return IsOnSurfaceGeneric<Backend>(fAlongVector2,fNormalVector2, point) && (dir.Dot(-fNormalVector2) < 0.);
+
+          }
+
+        }
+
+
         VECGEOM_CUDA_HEADER_BOTH
         bool IsOnSurface1( Vector3D<Precision> const& point ) const {
             return Wedge::IsOnSurfaceGeneric<kScalar>( fAlongVector1, fNormalVector1, point );
@@ -183,6 +207,21 @@ class Wedge{
         return !outside;
     }
 
+/*
+    template<typename Backend>
+    VECGEOM_CUDA_HEADER_BOTH
+    typename Backend::bool_v Wedge::IsCompletelyInside(Vector3D<typename Backend::precision_v> const &localPoint) {
+
+
+    }
+
+    template<typename Backend>
+    VECGEOM_CUDA_HEADER_BOTH
+    typename Backend::bool_v Wedge::IsCompletelyOutside(Vector3D<typename Backend::precision_v> const &localPoint) {
+    
+
+    }
+*/
     // Implementation follows
     template<typename Backend, bool ForInside>
     VECGEOM_CUDA_HEADER_BOTH

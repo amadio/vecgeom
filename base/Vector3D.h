@@ -329,7 +329,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   VecType Unit() const {
-    const Precision mag2 = Mag2();
+    const Type mag2 = Mag2();
     VecType output(*this);
     output /= Sqrt(mag2 + kMinimum);
     return output;
