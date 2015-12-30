@@ -72,14 +72,19 @@ class Wedge{
         VECGEOM_CUDA_HEADER_BOTH
         Vector3D<Precision> GetNormal2() const {return fNormalVector2; }
 
+        /* Function Name : GetNormal<ForStartPhi>() 
+         *
+         * The function is the templatized version GetNormal1() and GetNormal2() function and will 
+         * return the normal depending upon the boolean template parameter "ForStartPhi"
+         * which if passed as true, will return normal to the StartingPhi of Wedge, 
+         * if passed as false, will return normal to the EndingPhi of Wedge
+         *
+         * from user point of view the same work can be done by calling GetNormal1() and GetNormal2()
+         * functions, but this implementation will be used by "IsPointOnSurfaceAndMovingOut()" function
+         */
         template<bool ForStartPhi>
         VECGEOM_CUDA_HEADER_BOTH
-        Vector3D<Precision> GetNormal() const {
-          if(ForStartPhi)
-            return fNormalVector1; 
-          else
-            return fNormalVector2;
-        }
+        Vector3D<Precision> GetNormal() const ;
 
         // very important:
         template<typename Backend>
@@ -102,27 +107,41 @@ class Wedge{
                                                             Vector3D<Precision> const & normalVector,
                                                             Vector3D<typename Backend::precision_v> const& point );
 
+
+        /* Function Name :  IsOnSurfaceGeneric<Backend, ForStartPhi>()
+         *
+         * This version of IsOnSurfaceGeneric is having one more template parameter of type boolean,
+         * which if passed as true, will check whether the point is on StartingPhi Surface of Wedge,
+         * and if passed as false, will check whether the point is on EndingPhi Surface of Wedge
+         *
+         * this implementation will be used by "IsPointOnSurfaceAndMovingOut()" function.
+         */ 
         template<typename Backend, bool ForStartPhi>
         VECGEOM_CUDA_HEADER_BOTH
-        typename Backend::bool_v IsOnSurfaceGeneric( Vector3D<typename Backend::precision_v> const& point ) const {
+        typename Backend::bool_v IsOnSurfaceGeneric( Vector3D<typename Backend::precision_v> const& point ) const;
 
-          if(ForStartPhi)
-            return IsOnSurfaceGeneric<Backend>(fAlongVector1,fNormalVector1, point);
-          else
-            return IsOnSurfaceGeneric<Backend>(fAlongVector2,fNormalVector2, point);
-        }
-
+        /* Function Name : IsPointOnSurfaceAndMovingOut<Backend, ForStartPhi, MovingOut>
+         *
+         * This function is written to check if the point is on surface and is moving inside or outside.
+         * This will basically be used by "DistanceToInKernel()" and "DistanceToOutKernel()" of the shapes,
+         * which uses wedge.
+         *
+         * It contains two extra template boolean parameters "ForStartPhi" and "MovingOut",
+         * So call like "IsPointOnSurfaceAndMovingOut<Backend,true,true>" will check whether the points is on
+         * the StartingPhi Surface of wedge and moving outside.
+         * 
+         * So overall can be called in following four combinations 
+         * 1) "IsPointOnSurfaceAndMovingOut<Backend,true,true>" : Point on StartingPhi surface of wedge and moving OUT
+         * 2) "IsPointOnSurfaceAndMovingOut<Backend,true,false>" : Point on StartingPhi surface of wedge and moving IN
+         * 3) "IsPointOnSurfaceAndMovingOut<Backend,false,true>" : Point on EndingPhi surface of wedge and moving OUT
+         * 2) "IsPointOnSurfaceAndMovingOut<Backend,false,false>" : Point on EndingPhi surface of wedge and moving IN
+         *
+         * Very useful for DistanceToIn and DistanceToOut.
+         */       
         template<typename Backend, bool ForStartPhi, bool MovingOut>
         VECGEOM_CUDA_HEADER_BOTH
         typename Backend::bool_v IsPointOnSurfaceAndMovingOut( Vector3D<typename Backend::precision_v> const& point,
-                                                            Vector3D<typename Backend::precision_v> const& dir ) const {
-
-          if(MovingOut)
-            return IsOnSurfaceGeneric<Backend,ForStartPhi>(point) && (dir.Dot(-GetNormal<ForStartPhi>()) > 0.);
-          else
-            return IsOnSurfaceGeneric<Backend,ForStartPhi>(point) && (dir.Dot(-GetNormal<ForStartPhi>()) < 0.);
-
-        }
+                                                            Vector3D<typename Backend::precision_v> const& dir ) const ;
 
 
         VECGEOM_CUDA_HEADER_BOTH
@@ -157,12 +176,13 @@ class Wedge{
          */
         template<typename Backend>
         VECGEOM_CUDA_HEADER_BOTH
-	void DistanceToIn(Vector3D<typename Backend::precision_v> const &point,
-           Vector3D<typename Backend::precision_v> const &dir,typename  Backend::precision_v &distWedge1,typename  Backend::precision_v &distWedge2 ) const;
-          template<typename Backend>
+	      void DistanceToIn(Vector3D<typename Backend::precision_v> const &point,
+        Vector3D<typename Backend::precision_v> const &dir,typename  Backend::precision_v &distWedge1,typename  Backend::precision_v &distWedge2 ) const;
+          
+        template<typename Backend>
         VECGEOM_CUDA_HEADER_BOTH
-	void DistanceToOut(Vector3D<typename Backend::precision_v> const &point,
-           Vector3D<typename Backend::precision_v> const &dir,typename  Backend::precision_v &distWedge1,typename  Backend::precision_v &distWedge2 ) const;
+	      void DistanceToOut(Vector3D<typename Backend::precision_v> const &point,
+        Vector3D<typename Backend::precision_v> const &dir,typename  Backend::precision_v &distWedge1,typename  Backend::precision_v &distWedge2 ) const;
 
 
         // this could be useful to be public such that other shapes can directly
@@ -176,6 +196,37 @@ class Wedge{
                 typename Backend::bool_v &completelyoutside) const;
 
 }; // end of class Wedge
+
+    template<bool ForStartPhi>
+    VECGEOM_CUDA_HEADER_BOTH
+    Vector3D<Precision> Wedge::GetNormal() const {
+        if(ForStartPhi)
+          return fNormalVector1; 
+        else
+          return fNormalVector2;
+        }
+
+    template<typename Backend, bool ForStartPhi, bool MovingOut>
+    VECGEOM_CUDA_HEADER_BOTH
+    typename Backend::bool_v Wedge::IsPointOnSurfaceAndMovingOut( Vector3D<typename Backend::precision_v> const& point,
+                                                            Vector3D<typename Backend::precision_v> const& dir ) const {
+
+        if(MovingOut)
+          return IsOnSurfaceGeneric<Backend,ForStartPhi>(point) && (dir.Dot(-GetNormal<ForStartPhi>()) > 0.);
+        else
+          return IsOnSurfaceGeneric<Backend,ForStartPhi>(point) && (dir.Dot(-GetNormal<ForStartPhi>()) < 0.);
+
+        }
+
+    template<typename Backend, bool ForStartPhi>
+    VECGEOM_CUDA_HEADER_BOTH
+    typename Backend::bool_v Wedge::IsOnSurfaceGeneric( Vector3D<typename Backend::precision_v> const& point ) const {
+
+      if(ForStartPhi)
+        return IsOnSurfaceGeneric<Backend>(fAlongVector1,fNormalVector1, point);
+      else
+        return IsOnSurfaceGeneric<Backend>(fAlongVector2,fNormalVector2, point);
+    }
 
     template<typename Backend>
     VECGEOM_CUDA_HEADER_BOTH
