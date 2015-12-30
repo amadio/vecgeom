@@ -1330,7 +1330,7 @@ Precision fRmax = unplaced.GetOuterRadius();
             || ((dist == distPhi2) && unplaced.GetWedge().IsOnSurfaceGeneric<Backend,false>(tmpPt));
  
  containsCond1 =  tempCond && (rad2 > fRmin*fRmin) && (rad2 < fRmax*fRmax) && unplaced.GetThetaCone().Contains<Backend>(tmpPt);
- 
+
   MaskedAssign(!done && containsCond1  ,Min(dist,distance), &distance);
 
  //Max Face
@@ -1517,6 +1517,7 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(UnplacedSph
     {
             GetMinDistFromPhi<Backend,false>(unplaced,localPoint,localDir,done ,distance);
     }
+    //GetMinDistFromPhi<Backend,false>(unplaced,localPoint,localDir,done ,distance);
   }
   
   // Bool_t compIn(false),compOut(false);

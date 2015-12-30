@@ -72,6 +72,15 @@ class Wedge{
         VECGEOM_CUDA_HEADER_BOTH
         Vector3D<Precision> GetNormal2() const {return fNormalVector2; }
 
+        template<bool ForStartPhi>
+        VECGEOM_CUDA_HEADER_BOTH
+        Vector3D<Precision> GetNormal() const {
+          if(ForStartPhi)
+            return fNormalVector1; 
+          else
+            return fNormalVector2;
+        }
+
         // very important:
         template<typename Backend>
         VECGEOM_CUDA_HEADER_BOTH
@@ -105,24 +114,13 @@ class Wedge{
 
         template<typename Backend, bool ForStartPhi, bool MovingOut>
         VECGEOM_CUDA_HEADER_BOTH
-        typename Backend::bool_v IsPointOnSurfaceAndMovingOut( //Vector3D<Precision> const & alongVector,
-                                                            //Vector3D<Precision> const & normalVector,
-                                                            Vector3D<typename Backend::precision_v> const& point,
+        typename Backend::bool_v IsPointOnSurfaceAndMovingOut( Vector3D<typename Backend::precision_v> const& point,
                                                             Vector3D<typename Backend::precision_v> const& dir ) const {
-          if(ForStartPhi)
-          {
-            if(MovingOut)
-              return IsOnSurfaceGeneric<Backend>(fAlongVector1,fNormalVector1, point) && (dir.Dot(-fNormalVector1) > 0.);
-            else
-              return IsOnSurfaceGeneric<Backend>(fAlongVector1,fNormalVector1, point) && (dir.Dot(-fNormalVector1) < 0.);
-          }
-          else {
-            if(MovingOut)
-              return IsOnSurfaceGeneric<Backend>(fAlongVector2,fNormalVector2, point) && (dir.Dot(-fNormalVector2) > 0.);
-            else
-              return IsOnSurfaceGeneric<Backend>(fAlongVector2,fNormalVector2, point) && (dir.Dot(-fNormalVector2) < 0.);
 
-          }
+          if(MovingOut)
+            return IsOnSurfaceGeneric<Backend,ForStartPhi>(point) && (dir.Dot(-GetNormal<ForStartPhi>()) > 0.);
+          else
+            return IsOnSurfaceGeneric<Backend,ForStartPhi>(point) && (dir.Dot(-GetNormal<ForStartPhi>()) < 0.);
 
         }
 
