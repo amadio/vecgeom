@@ -5,6 +5,7 @@
 #include "base/Vector3D.h"
 #include "volumes/Tube.h"
 #include "ApproxEqual.h"
+#include "base/Global.h"
 #ifdef VECGEOM_USOLIDS
   #include "UTubs.hh"
   #include "UVector3.hh"
@@ -19,7 +20,16 @@
 #include <cassert>
 //#undef VECGEOM_REPLACE_USOLIDS
 
+using vecgeom::Sqrt;
+
 bool testvecgeom = false;
+
+const char* OutputInside(vecgeom::Inside_t side) {
+    using vecgeom::EnumInside;
+    const char* insideChar;
+    insideChar = (side == EnumInside::kInside ? "inside" : (side==EnumInside::kOutside ? "outside" : "surface"));
+    return insideChar;
+}
 
 template <typename Constants, class Tube_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
 bool TestTubs()
@@ -77,16 +87,6 @@ bool TestTubs()
     assert(ApproxEqual(vol,volCheck));
 
   {
-    // adding a test case found in VECGEOM-206: point on the Rmax surface, and going away - distanceToOut must be <= zero
-    Vec_t pos221(44.991, 21.816, 4.677);
-    Vec_t dir221(0.16636, 0.64765, -0.74356);
-    Vec_t norm;
-    bool convex;
-    Dist = t1.DistanceToOut(pos221, dir221.Unit(), norm, convex);
-    assert(Dist<=0);  // USolids returns zero
-  }
-
-  {
     // add a test for a previously fixed bug -- point near phi-surface of a wedged tube
     using vecgeom::cxx::kDegToRad;
 
@@ -118,7 +118,26 @@ bool TestTubs()
     assert(ApproxEqual(vol,volCheck));
 
     Tube_t myClad("myClad", 90.0, 110.0, 105.0, 0.0, PI);    // TEST MINE
-  
+
+  {
+    // adding a test case found in VECGEOM-206: point on the Rmax surface, and going away - distanceToOut must be <= zero
+    Vec_t pos221(44.991, 21.816, 4.677);
+    Vec_t dir221(0.16636, 0.64765, -0.74356);
+    Vec_t norm;
+    bool convex;
+    Dist = t1.DistanceToOut(pos221, dir221.Unit(), norm, convex);
+    assert(Dist<=0);  // USolids returns zero
+  }
+
+  {
+    // adding a test case found in VECGEOM-222: point on the outside, and going away - distanceToOut must be <= zero
+    Vec_t pos222(60, -60, 10);
+    Vec_t dir222(-1, 1, 0.001);
+    Dist = t5.DistanceToIn(pos222, dir222.Unit() );
+    //std::cout<<" T5.DistToIn( "<< pos222 <<", "<< dir222 <<") = "<< Dist <<"\n";
+    assert(ApproxEqual(Dist,134.8528474556));
+  }
+
 // Check Inside
     assert(t1.Inside(pzero)==vecgeom::EInside::kInside);
     assert(t1.Inside(pbigz)==vecgeom::EInside::kOutside);
@@ -424,17 +443,17 @@ bool TestTubs()
 
     Dist = clad->DistanceToIn(pTmp,vy);   
     pTmp += Dist*vy;
-    //std::cout<<"pTmpX = "<<pTmp.x<<";  pTmpY = "<<pTmp.y<<";  pTmpZ = "<<pTmp.z<<std::endl;
+    //std::cout<<"Dist="<< Dist <<" --> pTmp = "<< pTmp << std::endl;
     side=core->Inside(pTmp);    
     assert(side==vecgeom::EInside::kOutside);
     //std::cout<<"core->Inside(pTmp) = "<<OutputInside(side)<<std::endl;
     side=clad->Inside(pTmp);  
+    //std::cout<<"clad->Inside(pTmp) = "<< OutputInside(side) <<std::endl;
     assert(side==vecgeom::EInside::kSurface);  
-    //std::cout<<"clad->Inside(pTmp) = "<<OutputInside(side)<<std::endl;
 
     Dist = core->DistanceToIn(pTmp,vy);   
     pTmp += Dist*vy;
-    //std::cout<<"pTmpX = "<<pTmp.x<<";  pTmpY = "<<pTmp.y<<";  pTmpZ = "<<pTmp.z<<std::endl;
+    //std::cout<<"Dist="<< Dist <<" --> pTmp = "<< pTmp <<"\n";
     side=core->Inside(pTmp);   
     assert(side==vecgeom::EInside::kSurface);   
     //std::cout<<"core->Inside(pTmp) = "<<OutputInside(side)<<std::endl;
