@@ -176,12 +176,12 @@ class Wedge{
          */
         template<typename Backend>
         VECGEOM_CUDA_HEADER_BOTH
-	      void DistanceToIn(Vector3D<typename Backend::precision_v> const &point,
+        void DistanceToIn(Vector3D<typename Backend::precision_v> const &point,
         Vector3D<typename Backend::precision_v> const &dir,typename  Backend::precision_v &distWedge1,typename  Backend::precision_v &distWedge2 ) const;
           
         template<typename Backend>
         VECGEOM_CUDA_HEADER_BOTH
-	      void DistanceToOut(Vector3D<typename Backend::precision_v> const &point,
+        void DistanceToOut(Vector3D<typename Backend::precision_v> const &point,
         Vector3D<typename Backend::precision_v> const &dir,typename  Backend::precision_v &distWedge1,typename  Backend::precision_v &distWedge2 ) const;
 
 
