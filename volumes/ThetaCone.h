@@ -86,10 +86,6 @@ public:
       tanBisector = tan(tempfSTheta - (fDTheta / 2));
     slope1 = tan(kPi / 2 - fSTheta);
     slope2 = tan(kPi / 2 - fETheta);
-
-    // cosTheta1 = cos(fSTheta); sinTheta1 = sin(fSTheta);
-    // cosTheta2 = cos(fETheta); sinTheta2 = sin(fETheta);
-
   }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -121,9 +117,9 @@ public:
     Vector3D<typename Backend::precision_v> normal(2. * point.x(), 2. * point.y(), -2. * tanSTheta2 * point.z());
 
     if (fSTheta <= kPi / 2.)
-      return -normal.Unit();
+      return -normal;
     else
-      return normal.Unit();
+      return normal;
   }
 
   /* Function to calculate normal at a point to the Cone formed at
@@ -141,40 +137,56 @@ public:
     Vector3D<typename Backend::precision_v> normal(2 * point.x(), 2 * point.y(), -2 * tanETheta2 * point.z());
 
     if (fETheta <= kPi / 2.)
-      return normal.Unit();
+      return normal;
     else
-      return -normal.Unit();
+      return -normal;
   }
 
+  /* Function Name : GetNormal<Backend, ForStartTheta>() 
+   *
+   * The function is the templatized version GetNormal1() and GetNormal2() function with one more template 
+   * parameter and will return the normal depending upon the boolean template parameter "ForStartTheta"
+   * which if passed as true, will return normal to the StartingTheta of ThetaCone, 
+   * if passed as false, will return normal to the EndingTheta of ThetaCone
+   *
+   * from user point of view the same work can be done by calling GetNormal1() and GetNormal2()
+   * functions, but this implementation will be used by "IsPointOnSurfaceAndMovingOut()" function
+   */
   template <typename Backend, bool ForStartTheta>
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
   Vector3D<typename Backend::precision_v> GetNormal(Vector3D<typename Backend::precision_v> const &point) const {
 
     if(ForStartTheta){
-     //Vector3D<typename Backend::precision_v> normal(2. * point.x(), 2. * point.y(), -2. * tanSTheta2 * point.z());
+     
       Vector3D<typename Backend::precision_v> normal(point.x(), point.y(), -tanSTheta2 * point.z());
 
-    if (fSTheta <= kHalfPi)
-      return -normal;
-    else
-      return normal;
+      if (fSTheta <= kHalfPi)
+        return -normal;
+      else
+        return normal;
 
     }
     else {
+   
+      Vector3D<typename Backend::precision_v> normal(point.x(), point.y(), -tanETheta2 * point.z());
 
-    Vector3D<typename Backend::precision_v> normal(point.x(), point.y(), -tanETheta2 * point.z());
-
-    if (fETheta <= kHalfPi)
-      return normal;
-    else
-      return -normal;
+      if (fETheta <= kHalfPi)
+        return normal;
+      else
+        return -normal;
    }
   }
 
+  /* Function Name :  IsOnSurfaceGeneric<Backend, ForStartTheta>()
+   *
+   * This version of IsOnSurfaceGeneric is having one more template parameter of type boolean,
+   * which if passed as true, will check whether the point is on StartingTheta Surface of ThetaCone,
+   * and if passed as false, will check whether the point is on EndingTheta Surface of ThetaCone
+   *
+   * this implementation will be used by "IsPointOnSurfaceAndMovingOut()" function.
+   */ 
   template<typename Backend, bool ForStartTheta>
   VECGEOM_CUDA_HEADER_BOTH
-  //VECGEOM_INLINE
   typename Backend::bool_v IsOnSurfaceGeneric( Vector3D<typename Backend::precision_v> const& point ) const {
 
     typedef typename Backend::precision_v Float_t;
@@ -184,65 +196,39 @@ public:
       rhs2 = tanSTheta2 * point.z() * point.z();
     else
       rhs2 = tanETheta2 * point.z() * point.z();
-      
-    //std::cout<<"Rho2  : "<<rho2 <<"  :: rhs2  : "<<rhs2<<std::endl;  
+       
     return Abs(rho2 - rhs2) < kTolerance;
   }
 
-// These two function can be removed, written just for testing purpose
-  ////---------------------------------------------------------------------
-
-template<typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
-  //VECGEOM_INLINE
-  typename Backend::bool_v IsPointOnStartSurfaceAndMovingOut( Vector3D<typename Backend::precision_v> const& point ,
-                                                    Vector3D<typename Backend::precision_v> const& dir) const {
-
-    
-
-      return IsOnSurfaceGeneric<Backend,true>(point) && (dir.Dot(GetNormal1<Backend>(point)) > 0.);
-   
-      
-  }
-
-
-template<typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
-  //VECGEOM_INLINE
-  typename Backend::bool_v IsPointOnEndSurfaceAndMovingOut( Vector3D<typename Backend::precision_v> const& point ,
-                                                    Vector3D<typename Backend::precision_v> const& dir) const {
-
-    
-
-      return IsOnSurfaceGeneric<Backend,false>(point) && (dir.Dot(GetNormal2<Backend>(point)) > 0.);
-    
-      
-  }
-
- ////---------------------------------------------------------------------
+  /* Function Name : IsPointOnSurfaceAndMovingOut<Backend, ForStartTheta, MovingOut>
+   *
+   * This function is written to check if the point is on surface and is moving inside or outside.
+   * This will basically be used by "DistanceToInKernel()" and "DistanceToOutKernel()" of the shapes,
+   * which uses ThetaCone.
+   *
+   * It contains two extra template boolean parameters "ForStartTheta" and "MovingOut",
+   * So call like "IsPointOnSurfaceAndMovingOut<Backend,true,true>" will check whether the points is on
+   * the StartingTheta Surface of Theta and moving outside.
+   * 
+   * So overall can be called in following four combinations 
+   * 1) "IsPointOnSurfaceAndMovingOut<Backend,true,true>" : Point on StartingTheta surface of ThetaCone and moving OUT
+   * 2) "IsPointOnSurfaceAndMovingOut<Backend,true,false>" : Point on StartingTheta surface of ThetaCone and moving IN
+   * 3) "IsPointOnSurfaceAndMovingOut<Backend,false,true>" : Point on EndingTheta surface of ThetaCone and moving OUT
+   * 4) "IsPointOnSurfaceAndMovingOut<Backend,false,false>" : Point on EndingTheta surface of ThetaCone and moving IN
+   *
+   * Very useful for DistanceToIn and DistanceToOut.
+   */
   template<typename Backend, bool ForStartTheta, bool MovingOut>
   VECGEOM_CUDA_HEADER_BOTH
-  //VECGEOM_INLINE
   typename Backend::bool_v IsPointOnSurfaceAndMovingOut( Vector3D<typename Backend::precision_v> const& point ,
                                                     Vector3D<typename Backend::precision_v> const& dir) const {
 
     if(MovingOut){
-
       return IsOnSurfaceGeneric<Backend,ForStartTheta>(point) && (dir.Dot(GetNormal<Backend,ForStartTheta>(point)) > 0.);
     }
     else {
-
-    typename Backend::bool_v cond = IsOnSurfaceGeneric<Backend,ForStartTheta>(point) && (dir.Dot(GetNormal<Backend,ForStartTheta>(point)) < 0.);
-    // typedef typename Backend::bool_v Bool_t;
-    // Bool_t cond1 = IsOnSurfaceGeneric<Backend,ForStartTheta>(point) ;
-    // Bool_t cond2 = (dir.Dot(GetNormal<Backend,ForStartTheta>(point)) < 0.);
-    // std::cout<<"---------------------------------------"<<std::endl;
-    // std::cout<<"Cond1  : "<<cond1<<"  :: Cond2 : "<<cond2<<std::endl;
-    // std::cout<<"COND from ThetaCone : "<<cond<<std::endl;
-    return cond;
-
+      return IsOnSurfaceGeneric<Backend,ForStartTheta>(point) && (dir.Dot(GetNormal<Backend,ForStartTheta>(point)) < 0.);
     }
-      
   }
 
   template <typename Backend>
@@ -253,7 +239,6 @@ VECGEOM_CUDA_HEADER_BOTH
     Bool_t unused(false);
     Bool_t outside(false);
     GenericKernelForContainsAndInside<Backend, false>(point, unused, outside);
-    //std::cout<<"ContainsThetaCone : "<<outside<<std::endl;
     return !outside;
   }
 
@@ -365,7 +350,6 @@ VECGEOM_CUDA_HEADER_BOTH
     if (fETheta > kPi / 2 + halfAngTolerance) {
       if (fSTheta > kPi / 2 + halfAngTolerance) {
         if (fSTheta < fETheta) {
-          // MaskedAssign(fSTheta==0.,DistanceToLine<Backend>(slope2,pointRad, point.z()),&safeTheta);
           MaskedAssign(fETheta == kPi, DistanceToLine<Backend>(slope1, pointRad, point.z()), &safeTheta);
           CondAssign((pointRad < bisectorRad) && /*(fSTheta!=0.) && */ (fETheta != Float_t(kPi)),
                      DistanceToLine<Backend>(slope2, pointRad, point.z()),
@@ -404,9 +388,6 @@ VECGEOM_CUDA_HEADER_BOTH
       Bool_t done(false);
       Bool_t fal(false);
 
-      // Float_t a, b, c, d2;
-      // Float_t a2, b2, c2, d22;
-
       Float_t firstRoot(kInfinity), secondRoot(kInfinity);
 
       Float_t pDotV2d = point.x() * dir.x() + point.y() * dir.y();
@@ -433,8 +414,6 @@ VECGEOM_CUDA_HEADER_BOTH
       Float_t a2Inv = 1./a2;
 
       MaskedAssign((d22 > 0.), (-b2 - Sqrt(d22)) * a2Inv, &secondRoot);
-      // done = fal;
-      // done |= (Abs(secondRoot) < 3.0*kSTolerance*10.);
       MaskedAssign((!done && (Abs(secondRoot) < 3.0 * kTolerance)), 0., &secondRoot);
       done |= (Abs(secondRoot) < 3.0 * kTolerance);
       MaskedAssign(!done && (secondRoot < 0.), kInfinity, &secondRoot);
@@ -447,8 +426,8 @@ VECGEOM_CUDA_HEADER_BOTH
             Float_t zOfIntSecPtCone1 = (point.z() + distThetaCone1 * dir.z());
             Float_t zOfIntSecPtCone2 = (point.z() + distThetaCone2 * dir.z());
 
-            intsect1 = ((d2 > 0.) /*&& (distThetaCone1!=kInfinity)*/ && (zOfIntSecPtCone1 > 0.));
-            intsect2 = ((d22 > 0.) /*&& (distThetaCone2!=kInfinity)*/ && (zOfIntSecPtCone2 > 0.));
+            intsect1 = ((d2 > 0.)  && (zOfIntSecPtCone1 > 0.));
+            intsect2 = ((d22 > 0.) && (zOfIntSecPtCone2 > 0.));
           }
         }
 
@@ -509,10 +488,6 @@ VECGEOM_CUDA_HEADER_BOTH
         Float_t zOfIntSecPtCone1 = (point.z() + distThetaCone1 * dir.z());
         intsect1 = ((distThetaCone1 != kInfinity) && (Abs(zOfIntSecPtCone1) < halfAngTolerance));
       }
-
-      // std::cout<<"DistThetaCone-1 : "<<distThetaCone1<<"  :: DistThetaCone-2 : "<<distThetaCone2<<std::endl;
-      // MaskedAssign((distThetaCone1 < halfAngTolerance), 0., &distThetaCone1);
-      // MaskedAssign((distThetaCone2 < halfAngTolerance), 0., &distThetaCone2);
     }
   }
 
@@ -525,10 +500,7 @@ VECGEOM_CUDA_HEADER_BOTH
 
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
-    Bool_t tr(true);
-    //Float_t a, b, c, d2;
-    //Float_t a2, b2, c2, d22;
-
+    
     Float_t inf(kInfinity);
 
     Float_t firstRoot(kInfinity), secondRoot(kInfinity);
@@ -581,14 +553,8 @@ VECGEOM_CUDA_HEADER_BOTH
           Bool_t cond = (point.x() == 0. && point.y() == 0. && point.z() == 0. && dir.z() < zs && dir.z() < ze);
           MaskedAssign(cond, 0., &distThetaCone1);
           MaskedAssign(cond, 0., &distThetaCone2);
-          intsect1 |= cond ; //(cond && tr);
-          intsect2 |= cond ; //(cond && tr);
-
-          // Float_t dirCos = Sqrt(dir.x()*dir.x() + dir.y()*dir.y());
-          // intsect1 = (dirCos*cosTheta1 + dir.z()*sinTheta1) > (dirCos*cosTheta2+dir.z()*sinTheta2) && (dirCos!=cosTheta1);
-          // intsect2 = (dirCos*cosTheta1 + dir.z()*sinTheta1) < (dirCos*cosTheta2+dir.z()*sinTheta2) && (dirCos!=cosTheta2);
-          // intsect1 |= cond ;
-          // intsect2 |= cond ;
+          intsect1 |= cond ; 
+          intsect2 |= cond ; 
         }
       }
 
@@ -830,134 +796,17 @@ typedef typename Backend::precision_v Float_t;
     return completelyoutside;
   }
 
-  //Once ready, these can be used in below GenericKernel.
-
   template <typename Backend, bool ForInside>
   VECGEOM_CUDA_HEADER_BOTH
   void GenericKernelForContainsAndInside(Vector3D<typename Backend::precision_v> const &localPoint,
                                     typename Backend::bool_v &completelyinside,
                                     typename Backend::bool_v &completelyoutside) const {
-
-    typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
-
     if(ForInside)
       completelyinside = IsCompletelyInside<Backend>(localPoint);
 
     completelyoutside = IsCompletelyOutside<Backend>(localPoint);
   }
 
-  // this could be useful to be public such that other shapes can directly
-  // use completelyinside + completelyoutside
-  /*
-  template <typename Backend, bool ForInside>
-  VECGEOM_CUDA_HEADER_BOTH
-  void GenericKernelForContainsAndInside(Vector3D<typename Backend::precision_v> const &localPoint,
-                                    typename Backend::bool_v &completelyinside,
-                                    typename Backend::bool_v &completelyoutside) const {
-
-    typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
-    Float_t pi(kPi), zero(0.);
-    Float_t rad = Sqrt(localPoint.Mag2() - (localPoint.z() * localPoint.z()));
-    Float_t cone1Radius = Abs(localPoint.z() * tanSTheta);
-    Float_t cone2Radius = Abs(localPoint.z() * tanETheta);
-    Bool_t isPointOnZAxis = localPoint.z() != zero && localPoint.x() == zero && localPoint.y() == zero;
-
-    Bool_t isPointOnXYPlane = localPoint.z() == zero && (localPoint.x() != zero || localPoint.y() != zero);
-
-    Float_t startTheta(fSTheta), endTheta(fETheta);
-
-    completelyoutside =
-        (isPointOnZAxis && ((startTheta != zero && endTheta != pi) || (localPoint.z() > zero && startTheta != zero) ||
-                            (localPoint.z() < zero && endTheta != pi)));
-
-    completelyinside =
-        (isPointOnZAxis && ((startTheta == zero && endTheta == pi) || (localPoint.z() > zero && startTheta == zero) ||
-                            (localPoint.z() < zero && endTheta == pi)));
-
-    completelyoutside |=
-        (!completelyoutside &&
-         (isPointOnXYPlane && ((startTheta < pi / 2 && endTheta < pi / 2 && (pi / 2 - startTheta) > kAngTolerance &&
-                                (pi / 2 - endTheta) > kTolerance) ||
-                               (startTheta > pi / 2 && endTheta > pi / 2 && (startTheta - pi / 2) > kAngTolerance &&
-                                (endTheta - pi / 2) > kTolerance))));
-
-    completelyinside |= (!completelyinside && (isPointOnXYPlane && (startTheta < pi / 2 && endTheta > pi / 2 &&
-                                                                    (pi / 2 - startTheta) > kAngTolerance &&
-                                                                    (endTheta - pi / 2) > kTolerance)));
-
-    if (fSTheta < kPi / 2 + halfAngTolerance) {
-      if (fETheta < kPi / 2 + halfAngTolerance) {
-        if (fSTheta < fETheta) {
-          Float_t tolAngMin = cone1Radius + 2 * kAngTolerance * 10.;
-          Float_t tolAngMax = cone2Radius - 2 * kAngTolerance * 10.;
-          if (ForInside) {
-
-            completelyinside |=
-                (!completelyinside &&
-                 (((rad <= tolAngMax) && (rad >= tolAngMin) && (localPoint.z() > zero) && (fSTheta != zero)) ||
-                  ((rad <= tolAngMax) && (fSTheta == zero) && (localPoint.z() > zero))));
-          }
-
-          Float_t tolAngMin2 = cone1Radius - 2 * kAngTolerance * 10.;
-          Float_t tolAngMax2 = cone2Radius + 2 * kAngTolerance * 10.;
-
-          completelyoutside |=
-              (!completelyoutside && ((rad < tolAngMin2) || (rad > tolAngMax2) || (localPoint.z() < 0.)));
-        }
-      }
-
-      if (fETheta > kPi / 2 + halfAngTolerance) {
-        if (fSTheta < fETheta) {
-          Float_t tolAngMin = cone1Radius + 2 * kAngTolerance * 10.;
-          Float_t tolAngMax = cone2Radius + 2 * kAngTolerance * 10.;
-          if (ForInside)
-
-            completelyinside |= (!completelyinside && (((rad >= tolAngMin) && (localPoint.z() > 0.)) ||
-                                                       ((rad >= tolAngMax) && (localPoint.z() < 0.))));
-          Float_t tolAngMin2 = cone1Radius - 2 * kAngTolerance * 10.;
-          Float_t tolAngMax2 = cone2Radius - 2 * kAngTolerance * 10.;
-          completelyoutside |= (!completelyoutside && (((rad < tolAngMin2) && (localPoint.z() > 0.)) ||
-                                                       ((rad < tolAngMax2) && (localPoint.z() < 0.))));
-        }
-      }
-
-      if (fETheta >= kPi / 2 - halfAngTolerance && fETheta <= kPi / 2 + halfAngTolerance) {
-
-        completelyinside &= !(Abs(localPoint.z()) < halfAngTolerance);
-        completelyoutside &= !(Abs(localPoint.z()) < halfAngTolerance);
-      }
-    }
-
-    if (fETheta > kPi / 2 + halfAngTolerance) {
-      if (fSTheta >= kPi / 2 - halfAngTolerance && fSTheta <= kPi / 2 + halfAngTolerance) {
-
-        completelyinside &= !(Abs(localPoint.z()) < halfAngTolerance);
-        completelyoutside &= !(Abs(localPoint.z()) < halfAngTolerance);
-      }
-
-      if (fSTheta > kPi / 2 + halfAngTolerance) {
-        if (fSTheta < fETheta) {
-          Float_t tolAngMin = cone1Radius - 2 * kAngTolerance * 10.;
-          Float_t tolAngMax = cone2Radius + 2 * kAngTolerance * 10.;
-          if (ForInside) {
-
-            completelyinside |=
-                (!completelyinside &&
-                 (((rad <= tolAngMin) && (rad >= tolAngMax) && (localPoint.z() < zero) && (fETheta != pi)) ||
-                  ((rad <= tolAngMin) && (localPoint.z() < zero) && (fETheta == pi))));
-          }
-
-          Float_t tolAngMin2 = cone1Radius + 2 * kAngTolerance * 10.;
-          Float_t tolAngMax2 = cone2Radius - 2 * kAngTolerance * 10.;
-          completelyoutside |=
-              (!completelyoutside && ((rad < tolAngMax2) || (rad > tolAngMin2) || (localPoint.z() > 0.)));
-        }
-      }
-    }
-  }
-*/
 }; // end of class ThetaCone
 }
 } // end of namespace
