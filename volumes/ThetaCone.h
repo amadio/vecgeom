@@ -181,9 +181,9 @@ public:
     Float_t rho2 = point.Perp2();
     Float_t rhs2(0.);
     if(ForStartTheta)
-      rhs2 = Sqrt(tanSTheta2 * point.z() * point.z());
+      rhs2 = tanSTheta2 * point.z() * point.z();
     else
-      rhs2 = Sqrt(tanETheta2 * point.z() * point.z());
+      rhs2 = tanETheta2 * point.z() * point.z();
       
     //std::cout<<"Rho2  : "<<rho2 <<"  :: rhs2  : "<<rhs2<<std::endl;  
     return Abs(rho2 - rhs2) < kTolerance;
@@ -253,6 +253,7 @@ VECGEOM_CUDA_HEADER_BOTH
     Bool_t unused(false);
     Bool_t outside(false);
     GenericKernelForContainsAndInside<Backend, false>(point, unused, outside);
+    //std::cout<<"ContainsThetaCone : "<<outside<<std::endl;
     return !outside;
   }
 

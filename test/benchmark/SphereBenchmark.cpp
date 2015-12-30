@@ -13,10 +13,10 @@ using namespace vecgeom;
 int main(int argc, char* argv[]) {
   OPTION_INT(npoints,1024);
   OPTION_INT(nrep,10);
-  OPTION_DOUBLE(rmin,10.);
-  OPTION_DOUBLE(rmax,15.);
+  OPTION_DOUBLE(rmin,15.);
+  OPTION_DOUBLE(rmax,20.);
   OPTION_DOUBLE(sphi,0.);
-  OPTION_DOUBLE(dphi,2*kPi);
+  OPTION_DOUBLE(dphi,2*kPi/3.);
   OPTION_DOUBLE(stheta,kPi/4.);
   OPTION_DOUBLE(dtheta,kPi/6.); 
   //OPTION_DOUBLE(stheta,0);

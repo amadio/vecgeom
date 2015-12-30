@@ -58,8 +58,9 @@ static typename Backend::precision_v fabs(typename Backend::precision_v &v)
 
    
     Precision innerRad2 = unplaced.GetInnerRadius() * unplaced.GetInnerRadius();
-    Precision toler2 = kTolerance ;
-    return ((point.Mag2() >= (innerRad2 - toler2)) && (point.Mag2() <= (innerRad2 + toler2)));
+    //Precision toler2 = kTolerance ;
+    //return ((point.Mag2() >= (innerRad2 - toler2)) && (point.Mag2() <= (innerRad2 + toler2)));
+    return ((point.Mag2() >= (innerRad2 - kTolerance)) && (point.Mag2() <= (innerRad2 + kTolerance)));
   }
 
   template <class Backend>
@@ -69,8 +70,9 @@ static typename Backend::precision_v fabs(typename Backend::precision_v &v)
 		                                               Vector3D<typename Backend::precision_v> const &point) {
 
     Precision outerRad2 = unplaced.GetOuterRadius() * unplaced.GetOuterRadius();
-    Precision toler2 = kTolerance;
-    return ((point.Mag2() >= (outerRad2 - toler2)) && (point.Mag2() <= (outerRad2 + toler2)));
+    //Precision toler2 = kTolerance;
+    //return ((point.Mag2() >= (outerRad2 - toler2)) && (point.Mag2() <= (outerRad2 + toler2)));
+    return ((point.Mag2() >= (outerRad2 - kTolerance)) && (point.Mag2() <= (outerRad2 + kTolerance)));
 
   }
 
@@ -1306,23 +1308,57 @@ void SphereImplementation<transCodeT, rotCodeT>::GetMinDistFromPhi(
  Bool_t containsCond1(false),containsCond2(false);
  //Min Face
  dist = Min(distPhi1,distPhi2);
- tmpPt.x() = localPoint.x() + dist*localDir.x();
- tmpPt.y() = localPoint.y() + dist*localDir.y();
- tmpPt.z() = localPoint.z() + dist*localDir.z();
- GenericKernelForContainsAndInside<Backend,true>(unplaced,tmpPt,completelyinside,completelyoutside);
- containsCond1 = !completelyinside && !completelyoutside;
- MaskedAssign(!done && containsCond1  ,Min(dist,distance), &distance);
+
+ // tmpPt.x() = localPoint.x() + dist*localDir.x();
+ // tmpPt.y() = localPoint.y() + dist*localDir.y();
+ // tmpPt.z() = localPoint.z() + dist*localDir.z();
+ tmpPt = localPoint + dist*localDir;
+
+ // GenericKernelForContainsAndInside<Backend,true>(unplaced,tmpPt,completelyinside,completelyoutside);
+ // containsCond1 = !completelyinside && !completelyoutside;
+
+Precision fRmax = unplaced.GetOuterRadius();
+ Precision fRmin = unplaced.GetInnerRadius();
+ Float_t rad2 = tmpPt.Mag2();
+
+ // std::cout<<"Inside of PHI : "<< unplaced.GetWedge().IsOnSurfaceGeneric<Backend,true>(tmpPt)<<std::endl;
+ // std::cout<<"Inside Rad Range : "<< ((rad2 > fRmin*fRmin) && (rad2 < fRmax*fRmax))<<std::endl;
+ // std::cout<<"Inside Theta : "<< unplaced.GetThetaCone().Contains<Backend>(tmpPt)<<std::endl;
+
+ Bool_t tempCond(false);
+ tempCond = ((dist == distPhi1) && unplaced.GetWedge().IsOnSurfaceGeneric<Backend,true>(tmpPt))
+            || ((dist == distPhi2) && unplaced.GetWedge().IsOnSurfaceGeneric<Backend,false>(tmpPt));
+ 
+ containsCond1 =  tempCond && (rad2 > fRmin*fRmin) && (rad2 < fRmax*fRmax) && unplaced.GetThetaCone().Contains<Backend>(tmpPt);
+ 
+  MaskedAssign(!done && containsCond1  ,Min(dist,distance), &distance);
 
  //Max Face
  dist = Max(distPhi1,distPhi2);
- MaskedAssign(!containsCond1 ,localPoint.x() + dist*localDir.x() , &tmpPt.x());
- MaskedAssign(!containsCond1 ,localPoint.y() + dist*localDir.y() , &tmpPt.y());
- MaskedAssign(!containsCond1 ,localPoint.z() + dist*localDir.z() , &tmpPt.z());
 
- completelyinside = Bool_t(false); completelyoutside = Bool_t(false);
- GenericKernelForContainsAndInside<Backend,true>(unplaced,tmpPt,completelyinside,completelyoutside);
- containsCond2 = !completelyinside && !completelyoutside;
+ // MaskedAssign(!containsCond1 ,localPoint.x() + dist*localDir.x() , &tmpPt.x());
+ // MaskedAssign(!containsCond1 ,localPoint.y() + dist*localDir.y() , &tmpPt.y());
+ // MaskedAssign(!containsCond1 ,localPoint.z() + dist*localDir.z() , &tmpPt.z());
+ tmpPt = localPoint + dist*localDir;
+ 
+
+ // completelyinside = Bool_t(false); completelyoutside = Bool_t(false);
+ // GenericKernelForContainsAndInside<Backend,true>(unplaced,tmpPt,completelyinside,completelyoutside);
+ // containsCond2 = !completelyinside && !completelyoutside;
+
+ rad2 = tmpPt.Mag2();
+ tempCond=Bool_t(false);
+ // MaskedAssign( (dist == distPhi1), unplaced.GetWedge().IsOnSurfaceGeneric<Backend,true>(tmpPt), &tempCond );
+ // MaskedAssign( (dist == distPhi2), unplaced.GetWedge().IsOnSurfaceGeneric<Backend,false>(tmpPt), &tempCond );
+
+ tempCond = ((dist == distPhi1) && unplaced.GetWedge().IsOnSurfaceGeneric<Backend,true>(tmpPt))
+            || ((dist == distPhi2) && unplaced.GetWedge().IsOnSurfaceGeneric<Backend,false>(tmpPt));
+ 
+ containsCond2 = tempCond && (rad2 > fRmin*fRmin) && (rad2 < fRmax*fRmax) && unplaced.GetThetaCone().Contains<Backend>(tmpPt);
+
  MaskedAssign( ( (!done) && (!containsCond1) && containsCond2)  ,Min(dist,distance), &distance);
+
+ //std::cout<<"ContainsCond1 : "<<containsCond1<<"   :: containsCond2 : "<<containsCond2<<std::endl;
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>

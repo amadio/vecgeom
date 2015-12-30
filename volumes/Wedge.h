@@ -93,6 +93,16 @@ class Wedge{
                                                             Vector3D<Precision> const & normalVector,
                                                             Vector3D<typename Backend::precision_v> const& point );
 
+        template<typename Backend, bool ForStartPhi>
+        VECGEOM_CUDA_HEADER_BOTH
+        typename Backend::bool_v IsOnSurfaceGeneric( Vector3D<typename Backend::precision_v> const& point ) const {
+
+          if(ForStartPhi)
+            return IsOnSurfaceGeneric<Backend>(fAlongVector1,fNormalVector1, point);
+          else
+            return IsOnSurfaceGeneric<Backend>(fAlongVector2,fNormalVector2, point);
+        }
+
         template<typename Backend, bool ForStartPhi, bool MovingOut>
         VECGEOM_CUDA_HEADER_BOTH
         typename Backend::bool_v IsPointOnSurfaceAndMovingOut( //Vector3D<Precision> const & alongVector,
