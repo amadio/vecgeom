@@ -38,7 +38,7 @@ double_v Vccbrt( double_v x )
   Vc::double_v xorig=x;
   x=Vc::abs(x);
   Vc::double_v tmp= Vc::exp(0.33333333333333333333*Vc::log(x) );
-  return tmp.copySign(xorig);
+  return Vc::copysign(tmp, xorig);
 }
 #endif
 #endif
@@ -345,7 +345,7 @@ Complex<Vc::double_v> cbrt( const Complex<Vc::double_v>& x )
       r = x.cabs();
       Vc::double_v angle = x.carg();
       angle( ! imaginary ) = 0.;
-      r( ! imaginary ) = r.copySign( x.real() );
+      r( ! imaginary ) = Vc::copysign(r, x.real());
       Vc::double_v newangle = 0.33333333333333333*angle;
       sincos(newangle, &sinnewangle, &cosnewangle);
     }

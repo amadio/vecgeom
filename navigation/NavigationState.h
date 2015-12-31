@@ -64,6 +64,7 @@ static VPlacedVolume const *ToPlacedVolume( T index ){
 #ifndef VECGEOM_CUDA
     return &GeoManager::gCompactPlacedVolBuffer[index];
 #else
+    (void)index; // avoid unused parameter warning.
     return nullptr;
 #endif
 }
