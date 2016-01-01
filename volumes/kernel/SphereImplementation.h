@@ -889,7 +889,8 @@ void SphereImplementation<transCodeT, rotCodeT>::SafetyToInKernel(UnplacedSphere
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
     
-    Float_t zero=Backend::kZero;
+    Bool_t done(false);
+    //Float_t zero=Backend::kZero;
 
     Vector3D<Float_t> localPoint = point;
 
@@ -905,41 +906,43 @@ void SphereImplementation<transCodeT, rotCodeT>::SafetyToInKernel(UnplacedSphere
     Float_t safeRMin(0.);
     Float_t safeRMax(0.);
 
+    Bool_t completelyinside(false), completelyoutside(false);
+    GenericKernelForContainsAndInside<Backend,true>(unplaced,point,completelyinside,completelyoutside);
+
+    MaskedAssign(completelyinside, -1. , &safety);
+    done |= completelyinside;
+    if(IsFull(done)) return;
+
+    Bool_t isOnSurface = !completelyinside && !completelyoutside;
+    MaskedAssign(!done && isOnSurface, 0., &safety);
+    done |= isOnSurface;
+    if(IsFull(done)) return;
+
     if(fRmin)
     {
        safeRMin = fRminV - rad;
        safeRMax = rad - fRmaxV;
-       CondAssign((safeRMin > safeRMax),safeRMin,safeRMax,&safety);
+       CondAssign(!done && (safeRMin > safeRMax),safeRMin,safeRMax,&safety);
     }
     else
     {
-        safety = rad - fRmaxV;
+      MaskedAssign(!done, (rad - fRmaxV) ,&safety);
     }
-
     //Distance to r shells over
 
     // Distance to phi extent
     if(!unplaced.IsFullPhiSphere())
     {
         Float_t safetyPhi = unplaced.GetWedge().SafetyToIn<Backend>(localPoint);
-        safety = Max(safetyPhi,safety);
+        MaskedAssign(!done, Max(safetyPhi,safety), &safety);
     }
 
     // Distance to Theta extent
     if(!unplaced.IsFullThetaSphere())
     {
         Float_t safetyTheta = unplaced.GetThetaCone().SafetyToIn<Backend>(localPoint);
-        safety = Max(safetyTheta,safety);
+        MaskedAssign(!done, Max(safetyTheta,safety) ,&safety);
     }
-
-    MaskedAssign( (safety < kTolerance) , zero, &safety);
-    Bool_t insideRadiusRange = (rad < (fRmax - kTolerance)) && (rad > (fRmin + kTolerance));
-    Bool_t outsidePhiRange(false), insidePhiRange(false);
-    unplaced.GetWedge().GenericKernelForContainsAndInside<Backend,true>(localPoint,insidePhiRange,outsidePhiRange);
-    Bool_t insideThetaRange = unplaced.GetThetaCone().IsCompletelyInside<Backend>(localPoint);
-    Bool_t completelyinside = insideRadiusRange && insidePhiRange && insideThetaRange;
-
-    MaskedAssign(completelyinside, -1. , &safety);
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -965,57 +968,54 @@ void SphereImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(UnplacedSpher
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
 
-    Float_t zero=Backend::kZero;
-
     Vector3D<Float_t> localPoint=point;
     Float_t rad=localPoint.Mag();
 
-    //Distance to r shells
+    Bool_t done(false);
 
+    //Distance to r shells
     Precision fRmin = unplaced.GetInnerRadius();
     Float_t fRminV(fRmin);
     Precision fRmax = unplaced.GetOuterRadius();
     Float_t fRmaxV(fRmax);
+
+    Bool_t completelyinside(false), completelyoutside(false);
+    GenericKernelForContainsAndInside<Backend,true>(unplaced,point,completelyinside,completelyoutside);
+    MaskedAssign(completelyoutside, -1. , &safety);
+    done |= completelyoutside;
+    if(IsFull(done)) return;
+
+    Bool_t isOnSurface = !completelyinside && !completelyoutside ;
+    MaskedAssign(!done && isOnSurface , 0., &safety);
+    done |= isOnSurface;
+    if(IsFull(done)) return;
 
     // Distance to r shells
     if(fRmin)
     {
         Float_t safeRMin=(rad - fRminV);
         Float_t safeRMax=(fRmaxV - rad);
-        CondAssign( ( (safeRMin < safeRMax) ),safeRMin,safeRMax,&safety);
+        CondAssign( (!done && (safeRMin < safeRMax) ),safeRMin,safeRMax,&safety);
     }
     else
     {
-        safety = (fRmaxV - rad);
+        MaskedAssign(!done, (fRmaxV - rad), &safety);
     }
 
     // Distance to phi extent
     if(!unplaced.IsFullPhiSphere() )
     {
        Float_t safetyPhi = unplaced.GetWedge().SafetyToOut<Backend>(localPoint);
-       safety = Min(safetyPhi,safety);
+       MaskedAssign(!done, Min(safetyPhi,safety), &safety);
     }
 
     // Distance to Theta extent
-
     Float_t safeTheta(0.);
-
     if(!unplaced.IsFullThetaSphere() )
     {
        safeTheta = unplaced.GetThetaCone().SafetyToOut<Backend>(localPoint);
-       safety = Min(safeTheta,safety);
+       MaskedAssign(!done, Min(safeTheta,safety) ,&safety);
     }
-
-    MaskedAssign( ((safety < kTolerance) /* || (safety < kTolerance0)*/), zero, &safety);
-
-    Bool_t outsideRadiusRange = (rad > (fRmax + kTolerance)) || (rad < (fRmin - kTolerance));
-    Bool_t outsidePhiRange(false), insidePhiRange(false);
-    unplaced.GetWedge().GenericKernelForContainsAndInside<Backend,true>(localPoint,insidePhiRange,outsidePhiRange);
-    Bool_t outsideThetaRange = unplaced.GetThetaCone().IsCompletelyOutside<Backend>(localPoint);
-    Bool_t completelyoutside = outsideRadiusRange || outsidePhiRange || outsideThetaRange;
-
-    MaskedAssign(completelyoutside, -1. , &safety);
-
 }  
 
 
