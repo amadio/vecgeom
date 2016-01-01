@@ -57,8 +57,7 @@ static void PrintType() {
         template<typename Backend>
         VECGEOM_INLINE
         VECGEOM_CUDA_HEADER_BOTH
-        static void UnplacedContains(
-                                     UnplacedHype const &hype,
+        static void UnplacedContains(UnplacedHype const &hype,
                                      Vector3D<typename Backend::precision_v> const &localPoint,
                                      typename Backend::bool_v &inside);
 
@@ -66,8 +65,7 @@ static void PrintType() {
         template <typename Backend>
         VECGEOM_INLINE
         VECGEOM_CUDA_HEADER_BOTH
-        static void Contains(
-                             UnplacedHype const &unplaced,
+        static void Contains(UnplacedHype const &unplaced,
                              Transformation3D const &transformation,
                              Vector3D<typename Backend::precision_v> const &point,
                              Vector3D<typename Backend::precision_v> &localPoint,
@@ -76,8 +74,7 @@ static void PrintType() {
         template <typename Backend>
         VECGEOM_INLINE
         VECGEOM_CUDA_HEADER_BOTH
-        static void Inside(
-                           UnplacedHype const &unplaced,
+        static void Inside(UnplacedHype const &unplaced,
                            Transformation3D const &transformation,
                            Vector3D<typename Backend::precision_v> const &point,
                            typename Backend::inside_v &inside);
@@ -105,8 +102,7 @@ static void PrintType() {
         template <class Backend>
         VECGEOM_CUDA_HEADER_BOTH
         VECGEOM_INLINE
-        static void DistanceToIn(
-                                 UnplacedHype const &unplaced,
+        static void DistanceToIn(UnplacedHype const &unplaced,
                                  Transformation3D const &transformation,
                                  Vector3D<typename Backend::precision_v> const &point,
                                  Vector3D<typename Backend::precision_v> const &direction,
@@ -159,8 +155,7 @@ static void PrintType() {
         template <class Backend>
         VECGEOM_CUDA_HEADER_BOTH
         VECGEOM_INLINE
-        static void DistanceToInKernel(
-                                       UnplacedHype const &unplaced,
+        static void DistanceToInKernel(UnplacedHype const &unplaced,
                                        Vector3D<typename Backend::precision_v> const &point,
                                        Vector3D<typename Backend::precision_v> const &direction,
                                        typename Backend::precision_v const &stepMax,
@@ -169,8 +164,7 @@ static void PrintType() {
         template <class Backend>
         VECGEOM_CUDA_HEADER_BOTH
         VECGEOM_INLINE
-        static void DistanceToOutKernel(
-                                        UnplacedHype const &unplaced,
+        static void DistanceToOutKernel(UnplacedHype const &unplaced,
                                         Vector3D<typename Backend::precision_v> const &point,
                                         Vector3D<typename Backend::precision_v> const &direction,
                                         typename Backend::precision_v const &stepMax,
@@ -193,88 +187,103 @@ static void PrintType() {
         template <class Backend>
         VECGEOM_CUDA_HEADER_BOTH
         VECGEOM_INLINE
-        static void
-        Normal(UnplacedHype const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-               Vector3D<typename Backend::precision_v> &normal, typename Backend::bool_v &valid);
+        static void Normal(
+                    UnplacedHype const &unplaced, Vector3D<typename Backend::precision_v> const &point,
+                    Vector3D<typename Backend::precision_v> &normal, typename Backend::bool_v &valid);
 
         template <class Backend>
         VECGEOM_CUDA_HEADER_BOTH
         VECGEOM_INLINE
-        static void
-        NormalKernel(UnplacedHype const &unplaced, Vector3D<typename Backend::precision_v> const &point,
+        static void NormalKernel(
+                     UnplacedHype const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                      Vector3D<typename Backend::precision_v> &normal, typename Backend::bool_v &valid);
 
         template <typename Backend, bool ForInnerRad>
         VECGEOM_CUDA_HEADER_BOTH
-        VECGEOM_INLINE static typename Backend::precision_v
-        RadiusHypeSq(UnplacedHype const &unplaced, typename Backend::precision_v z);
+        VECGEOM_INLINE 
+        static typename Backend::precision_v RadiusHypeSq(
+                                             UnplacedHype const &unplaced, 
+                                            typename Backend::precision_v z);
 
                 template <class Backend>
   		VECGEOM_CUDA_HEADER_BOTH
   		VECGEOM_INLINE
-  		static typename Backend::precision_v ApproxDistOutside(typename Backend::precision_v pr, typename Backend::precision_v pz, Precision r0, Precision tanPhi);
+  		static typename Backend::precision_v ApproxDistOutside(
+                                             typename Backend::precision_v pr, 
+                                             typename Backend::precision_v pz, 
+                                             Precision r0, Precision tanPhi);
 
         template <class Backend>
   		VECGEOM_CUDA_HEADER_BOTH
   		VECGEOM_INLINE
-  		static typename Backend::precision_v ApproxDistInside(typename Backend::precision_v pr, typename Backend::precision_v pz, Precision r0, Precision tan2Phi);
+  		static typename Backend::precision_v ApproxDistInside(
+                                             typename Backend::precision_v pr, 
+                                             typename Backend::precision_v pz,
+                                             Precision r0, Precision tan2Phi);
 
         template <class Backend>
         VECGEOM_CUDA_HEADER_BOTH
         VECGEOM_INLINE
         static typename Backend::bool_v IsPointOnSurfaceAndMovingOutside(
-                                   UnplacedHype const &unplaced,
-                                   Vector3D<typename Backend::precision_v> const &point,Vector3D<typename Backend::precision_v> const &direction);//,
+                                        UnplacedHype const &unplaced,
+                                        Vector3D<typename Backend::precision_v> const &point,
+                                        Vector3D<typename Backend::precision_v> const &direction);
 
 
         template <class Backend>
         VECGEOM_CUDA_HEADER_BOTH
         VECGEOM_INLINE
         static typename Backend::bool_v IsPointOnInnerSurfaceAndMovingOutside(
-                                   UnplacedHype const &unplaced,
-                                   Vector3D<typename Backend::precision_v> const &point,Vector3D<typename Backend::precision_v> const &direction);//,
+                                        UnplacedHype const &unplaced,
+                                        Vector3D<typename Backend::precision_v> const &point,
+                                        Vector3D<typename Backend::precision_v> const &direction);
 
         template <class Backend>
         VECGEOM_CUDA_HEADER_BOTH
         VECGEOM_INLINE
         static typename Backend::bool_v IsPointOnOuterSurfaceAndMovingOutside(
-                                   UnplacedHype const &unplaced,
-                                   Vector3D<typename Backend::precision_v> const &point,Vector3D<typename Backend::precision_v> const &direction);//,
+                                        UnplacedHype const &unplaced,
+                                        Vector3D<typename Backend::precision_v> const &point,
+                                        Vector3D<typename Backend::precision_v> const &direction);
 
 
         template <class Backend>
         VECGEOM_CUDA_HEADER_BOTH
         VECGEOM_INLINE
         static typename Backend::bool_v IsPointOnSurfaceAndMovingInside(
-                                   UnplacedHype const &unplaced,
-                                   Vector3D<typename Backend::precision_v> const &point,Vector3D<typename Backend::precision_v> const &direction);//,
+                                        UnplacedHype const &unplaced,
+                                        Vector3D<typename Backend::precision_v> const &point,
+                                        Vector3D<typename Backend::precision_v> const &direction);
 
 
 
         template <class Backend,bool ForDistToIn>
         VECGEOM_CUDA_HEADER_BOTH
         VECGEOM_INLINE
-        static typename Backend::bool_v GetPointOfIntersectionWithZPlane(UnplacedHype const &unplaced,
-                                                                     Vector3D<typename Backend::precision_v> const &point,
-                                                                     Vector3D<typename Backend::precision_v> const &direction,
-                                                                    typename Backend::precision_v &zDist);
+        static typename Backend::bool_v GetPointOfIntersectionWithZPlane(
+                                        UnplacedHype const &unplaced,
+                                        Vector3D<typename Backend::precision_v> const &point,
+                                        Vector3D<typename Backend::precision_v> const &direction,
+                                        typename Backend::precision_v &zDist);
 
 
         template <class Backend,bool ForDistToIn>
         VECGEOM_CUDA_HEADER_BOTH
         VECGEOM_INLINE
-        static typename Backend::bool_v GetPointOfIntersectionWithOuterHyperbolicSurface(UnplacedHype const &unplaced,
-                                                                     Vector3D<typename Backend::precision_v> const &point,
-                                                                     Vector3D<typename Backend::precision_v> const &direction,
-                                                                    typename Backend::precision_v &dist);
+        static typename Backend::bool_v GetPointOfIntersectionWithOuterHyperbolicSurface(
+                                        UnplacedHype const &unplaced,
+                                        Vector3D<typename Backend::precision_v> const &point,
+                                        Vector3D<typename Backend::precision_v> const &direction,
+                                        typename Backend::precision_v &dist);
 
         template <class Backend,bool ForDistToIn>
         VECGEOM_CUDA_HEADER_BOTH
         VECGEOM_INLINE
-        static typename Backend::bool_v GetPointOfIntersectionWithInnerHyperbolicSurface(UnplacedHype const &unplaced,
-                                                                     Vector3D<typename Backend::precision_v> const &point,
-                                                                     Vector3D<typename Backend::precision_v> const &direction,
-                                                                    typename Backend::precision_v &dist);
+        static typename Backend::bool_v GetPointOfIntersectionWithInnerHyperbolicSurface(
+                                        UnplacedHype const &unplaced,
+                                        Vector3D<typename Backend::precision_v> const &point,
+                                        Vector3D<typename Backend::precision_v> const &direction,
+                                        typename Backend::precision_v &dist);
 
         template <class Backend>
         VECGEOM_CUDA_HEADER_BOTH
@@ -324,8 +333,10 @@ static void PrintType() {
 template <TranslationCode transCodeT, RotationCode rotCodeT>
     template <typename Backend>
     VECGEOM_CUDA_HEADER_BOTH
-    typename Backend::precision_v HypeImplementation<transCodeT, rotCodeT>::ApproxDistOutside(typename Backend::precision_v pr, typename Backend::precision_v pz, Precision r0, Precision tanPhi){ //, typename Backend::precision_v &ret){
-
+    typename Backend::precision_v HypeImplementation<transCodeT, rotCodeT>::ApproxDistOutside(
+                                                                            typename Backend::precision_v pr, 
+                                                                            typename Backend::precision_v pz, 
+                                                                            Precision r0, Precision tanPhi) { 
 		typedef typename Backend::precision_v Float_t;
         Float_t ret(0.);
         Float_t dbl_min(2.2250738585072014e-308);
@@ -349,7 +360,10 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <TranslationCode transCodeT, RotationCode rotCodeT>
     template <typename Backend>
     VECGEOM_CUDA_HEADER_BOTH
-    typename Backend::precision_v HypeImplementation<transCodeT, rotCodeT>::ApproxDistInside(typename Backend::precision_v pr, typename Backend::precision_v pz, Precision r0, Precision tan2Phi){ //, typename Backend::precision_v &ret){
+    typename Backend::precision_v HypeImplementation<transCodeT, rotCodeT>::ApproxDistInside(
+                                                                            typename Backend::precision_v pr, 
+                                                                            typename Backend::precision_v pz, 
+                                                                            Precision r0, Precision tan2Phi) {
 
 			typedef typename Backend::precision_v Float_t;
 			typedef typename Backend::bool_v Bool_t;
@@ -377,8 +391,7 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
     typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::IsPointMovingInsideOuterSurface(
                                    UnplacedHype const &unplaced,
                                    Vector3D<typename Backend::precision_v> const &point,
-									Vector3D<typename Backend::precision_v> const &direction)
-                                   {
+								   Vector3D<typename Backend::precision_v> const &direction) {
 
       typedef typename Backend::precision_v Float_t;
 
@@ -389,7 +402,6 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
       MaskedAssign(pz < 0., -pz, &pz);
 
       Precision tanOuterStereo2 = unplaced.GetTOut2();
-      //Float_t pxy = (point.x() * direction.x() + point.y() * direction.y());
       return ((point.x() * direction.x() + point.y() * direction.y() - pz * tanOuterStereo2 * vz) < 0);
     }
 
@@ -409,7 +421,6 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
        MaskedAssign(pz < 0., -pz, &pz);
 
        Precision tanInnerStereo2 = unplaced.GetTIn2();
-       //Float_t pxy = (point.x() * direction.x() + point.y() * direction.y());
        return ((point.x() * direction.x() + point.y() * direction.y() - pz * tanInnerStereo2 * vz) > 0);
      }
 
@@ -484,9 +495,8 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
     VECGEOM_CUDA_HEADER_BOTH
     typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::IsPointOnSurfaceAndMovingOutside(
                                                                  UnplacedHype const &unplaced,
-                                                                 Vector3D<typename Backend::precision_v> const &point,Vector3D<typename Backend::precision_v> const &direction)//,
-                                                                 //typename Backend::bool_v &surface, typename Backend::bool_v &inner,typename Backend::bool_v &outer,typename Backend::bool_v &zSurf)
-                                                                 {
+                                                                 Vector3D<typename Backend::precision_v> const &point,
+                                                                 Vector3D<typename Backend::precision_v> const &direction) {
 
       typedef typename Backend::bool_v Bool_t;
       typedef typename Backend::precision_v Float_t;
@@ -545,9 +555,7 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
 
       if (unplaced.InnerSurfaceExists()) {
         innerHypeSurf =
-            (Abs((radI2) - (rho2)) < unplaced.GetInnerRadToleranceLevel()) && (absZ >= 0.) && (absZ < unplaced.GetDz());
-        // MaskedAssign(innerHypeSurf,Bool_t(IsPointMovingOutsideInnerSurface<Backend>(unplaced,point,direction))
-        // ,&out);
+          (Abs((radI2) - (rho2)) < unplaced.GetInnerRadToleranceLevel()) && (absZ >= 0.) && (absZ < unplaced.GetDz());
         out = innerHypeSurf && IsPointMovingOutsideInnerSurface<Backend>(unplaced, point, direction);
       }
 
@@ -569,15 +577,9 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
       Float_t radO2 = RadiusHypeSq<Backend, false>(unplaced, point.z());
 
       Bool_t out(false), outerHypeSurf(false);
-
-      
-        outerHypeSurf =
-            (Abs((radO2) - (rho2)) < unplaced.GetOuterRadToleranceLevel()) && (absZ >= 0.) && (absZ < unplaced.GetDz());
-        // MaskedAssign(innerHypeSurf,Bool_t(IsPointMovingOutsideInnerSurface<Backend>(unplaced,point,direction))
-        // ,&out);
-        out = outerHypeSurf && IsPointMovingOutsideOuterSurface<Backend>(unplaced, point, direction);
-      
-
+      outerHypeSurf =
+        (Abs((radO2) - (rho2)) < unplaced.GetOuterRadToleranceLevel()) && (absZ >= 0.) && (absZ < unplaced.GetDz());
+      out = outerHypeSurf && IsPointMovingOutsideOuterSurface<Backend>(unplaced, point, direction);
       return out;
     }
 
@@ -593,7 +595,7 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
       Bool_t innerHypeSurf(false), outerHypeSurf(false), zSurf(false);
       Bool_t done(false);
 
-      Float_t rho2 = point.x() * point.x() + point.y() * point.y();
+      Float_t rho2 = point.Perp2();
 
       Float_t radI2 = RadiusHypeSq<Backend, true>(unplaced, point.z());
       Float_t radO2 = RadiusHypeSq<Backend, false>(unplaced, point.z());
@@ -602,7 +604,6 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
       zSurf = ((rho2 - unplaced.GetEndOuterRadius2()) < kTolerance) &&
               ((unplaced.GetEndInnerRadius2() - rho2) < kTolerance) &&
               (Abs(Abs(point.z()) - unplaced.GetDz()) < kTolerance);
-      // MaskedAssign(zSurf,(point.z()*direction.z() < 0.),&in);
       in |= (zSurf && (point.z() * direction.z() < 0.));
 
       done |= zSurf;
@@ -666,13 +667,13 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
 
       Float_t xR2 = localPoint.x() * localPoint.x() + localPoint.y() * localPoint.y();
       // Float_t radOSq(0.);
-      Float_t radOSq = RadiusHypeSq<Backend, false>(unplaced, localPoint.z()); //,radOSq);
+      Float_t radOSq = RadiusHypeSq<Backend, false>(unplaced, localPoint.z()); 
       Float_t dist2Outer = Abs(xR2 - radOSq);
       Bool_t done(false);
 
       // Inner Surface Wins
       if (unplaced.InnerSurfaceExists()) {
-        Float_t radISq = RadiusHypeSq<Backend, true>(unplaced, localPoint.z()); //,radISq);
+        Float_t radISq = RadiusHypeSq<Backend, true>(unplaced, localPoint.z()); 
         Float_t dist2Inner = Abs(xR2 - radISq);
         Bool_t cond = (dist2Inner < dist2Z && dist2Inner < dist2Outer);
         MaskedAssign(!done && cond, -localPoint.x(), &normal.x());
@@ -785,10 +786,10 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
     VECGEOM_CUDA_HEADER_BOTH
     VECGEOM_INLINE
     void HypeImplementation<transCodeT, rotCodeT>::SafetyToIn(
-                                                             UnplacedHype const &unplaced,
-                                                             Transformation3D const &transformation,
-                                                             Vector3D<typename Backend::precision_v> const &point,
-                                                             typename Backend::precision_v &safety) {
+                                                   UnplacedHype const &unplaced,
+                                                   Transformation3D const &transformation,
+                                                   Vector3D<typename Backend::precision_v> const &point,
+                                                   typename Backend::precision_v &safety) {
 
         SafetyToInKernel<Backend>(
                                   unplaced,
@@ -817,9 +818,9 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
     template <typename Backend>
     VECGEOM_CUDA_HEADER_BOTH
     void HypeImplementation<transCodeT, rotCodeT>::ContainsKernel(
-                                                                 UnplacedHype const &unplaced,
-                                                                 Vector3D<typename Backend::precision_v> const &localPoint,
-                                                                 typename Backend::bool_v &inside) {
+                                                   UnplacedHype const &unplaced,
+                                                   Vector3D<typename Backend::precision_v> const &localPoint,
+                                                   typename Backend::bool_v &inside) {
 
         typedef typename Backend::bool_v Bool_t;
         Bool_t unused;
@@ -833,8 +834,9 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
     template <TranslationCode transCodeT, RotationCode rotCodeT>
     template <typename Backend>
     VECGEOM_CUDA_HEADER_BOTH
-    typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::IsCompletelyInside( UnplacedHype const &unplaced,
-                                                                                           Vector3D<typename Backend::precision_v> const &point) {
+    typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::IsCompletelyInside(
+                                                                       UnplacedHype const &unplaced,
+                                                                       Vector3D<typename Backend::precision_v> const &point) {
 
       typedef typename Backend::precision_v Float_t;
       typedef typename Backend::bool_v Bool_t;
@@ -843,7 +845,7 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
       Precision zToleranceLevel = unplaced.GetZToleranceLevel();
       Precision innerRadToleranceLevel = unplaced.GetInnerRadToleranceLevel();
       Precision outerRadToleranceLevel = unplaced.GetOuterRadToleranceLevel();
-      Float_t r2 = point.Perp2(); //(point.x() * point.x() + point.y() * point.y());
+      Float_t r2 = point.Perp2(); 
       Float_t oRad2 = (unplaced.GetRmax2() + unplaced.GetTOut2() * point.z() * point.z());
 
       Bool_t completelyinside = (Abs(point.z()) < (fDz - zToleranceLevel)) && (r2 < oRad2 - outerRadToleranceLevel);
@@ -857,8 +859,9 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
     template <TranslationCode transCodeT, RotationCode rotCodeT>
     template <typename Backend>
     VECGEOM_CUDA_HEADER_BOTH
-    typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::IsCompletelyOutside( UnplacedHype const &unplaced,
-                                                                                           Vector3D<typename Backend::precision_v> const &point) {
+    typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::IsCompletelyOutside( 
+                                                                       UnplacedHype const &unplaced,
+                                                                       Vector3D<typename Backend::precision_v> const &point) {
 
       typedef typename Backend::precision_v Float_t;
       typedef typename Backend::bool_v Bool_t;
@@ -867,7 +870,7 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
       Precision zToleranceLevel = unplaced.GetZToleranceLevel();
       Precision innerRadToleranceLevel = unplaced.GetInnerRadToleranceLevel();
       Precision outerRadToleranceLevel = unplaced.GetOuterRadToleranceLevel();
-      Float_t r2 = point.Perp2(); //(point.x() * point.x() + point.y() * point.y());
+      Float_t r2 = point.Perp2(); 
       Float_t oRad2 = (unplaced.GetRmax2() + unplaced.GetTOut2() * point.z() * point.z());
 
       Bool_t completelyoutside = (Abs(point.z()) > (fDz + zToleranceLevel)) || (r2 > oRad2 + outerRadToleranceLevel);
@@ -886,32 +889,10 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
                                                                                     Vector3D<typename Backend::precision_v> const &point,
                                                                                     typename Backend::bool_v &completelyinside,
                                                                                     typename Backend::bool_v &completelyoutside) {
-      // typedef typename Backend::precision_v Float_t;
-      // Precision fDz = unplaced.GetDz();
-      // Precision zToleranceLevel = unplaced.GetZToleranceLevel();
-      // Precision innerRadToleranceLevel = unplaced.GetInnerRadToleranceLevel();
-      // Precision outerRadToleranceLevel = unplaced.GetOuterRadToleranceLevel();
-
-      // completelyoutside = Abs(point.z()) > (fDz + zToleranceLevel);
-      // Float_t r2 = point.Perp2(); //(point.x() * point.x() + point.y() * point.y());
-      // Float_t oRad2 = (unplaced.GetRmax2() + unplaced.GetTOut2() * point.z() * point.z());
-
-      // completelyoutside |= (r2 > oRad2 + outerRadToleranceLevel);
-      // if (ForInside) {
-      //   completelyinside = (Abs(point.z()) < (fDz - zToleranceLevel)) && (r2 < oRad2 - outerRadToleranceLevel);
-      // }
-
-      // if (unplaced.InnerSurfaceExists()) {
-      //   Float_t iRad2 = (unplaced.GetRmin2() + unplaced.GetTIn2() * point.z() * point.z());
-      //   completelyoutside |= (r2 < (iRad2 - innerRadToleranceLevel));
-      //   completelyinside &= (r2 > (iRad2 + innerRadToleranceLevel));
-      // }
-
-      // return;
 
         completelyoutside = IsCompletelyOutside<Backend>(unplaced,point);
         if(ForInside)
-            completelyinside = IsCompletelyInside<Backend>(unplaced,point);
+          completelyinside = IsCompletelyInside<Backend>(unplaced,point);
     }
 
     template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -941,7 +922,6 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
                                                                      Vector3D<typename Backend::precision_v> const &direction,
                                                                      typename Backend::precision_v const &stepMax,
                                                                      typename Backend::precision_v &distance) {
-        //std::cout<<"----- Entered DistanceToOutKernel -------"<<std::endl;
         typedef typename Backend::precision_v Float_t;
         typedef typename Backend::bool_v      Bool_t;
 
@@ -963,10 +943,7 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
         done |= surfaceCond;
         if(IsFull(done)) return;
 
-        //Bool_t inside(false),outside(false);
-        //Bool_t inside(false);
         cond = IsCompletelyInside<Backend>(unplaced,point);
-        //GenericKernelForContainsAndInside<Backend,true>(unplaced,point,inside,outside);
         MaskedAssign(!done && cond, -1., &distance);
         done |= cond;
         if(IsFull(done)) return;
@@ -983,7 +960,11 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
         Vector3D<Float_t> newPt = point + zDist*direction;
         Float_t rp2 = newPt.Perp2();
 
-        //checking whether point hits the outer hyperbolic surface of hyperboloid
+        /* checking whether point hits the outer hyperbolic surface of hyperboloid
+           If it hits outer hyperbolic surface then distance will be the distance to point of intersection with outer hyperbolic surface
+           Or if the point is on the outer Hyperbolic surface but going out then the distance will be the distance to the next point of intersection
+           with outer hyperbolic surface.
+         */
         Bool_t hittingOuterSurfaceFromOutsideZRange = isPointAboveOrBelowHypeAndGoingInside && !hittingZPlane && (rp2 >= unplaced.GetEndOuterRadius2());
         Bool_t hittingOuterSurfaceFromWithinZRange = ((r > ((outerRadius*outerRadius + tanOuterStereo2*absZ*absZ )+kHalfTolerance)) ) && (absZ >= 0.) && (absZ <= fDz);
 
@@ -1003,21 +984,9 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
         cond = (hittingInnerSurfaceFromOutsideZRange || hittingInnerSurfaceFromWithinZRange || (IsPointOnInnerSurfaceAndMovingOutside<Backend>(unplaced,point,direction)))
                 && GetPointOfIntersectionWithInnerHyperbolicSurface<Backend,true>(unplaced,point,direction,dist);
         MaskedAssign(!done && cond , dist , &distance);
-        done |= cond;
-        if(IsFull(done)) return;
-        }
-
-        //std::cout<<"Distance from DistanceToInKernel : "<<distance<<std::endl;
-        // Bool_t surfaceCond = IsPointOnSurfaceAndMovingInside<Backend>(unplaced,point,direction);
-        // MaskedAssign(!done && surfaceCond , 0. , &distance);//,isSurfacePoint,inner,outer,zSurf),0., &distance);
-        // done |= surfaceCond;
+        // done |= cond;
         // if(IsFull(done)) return;
-
-        // Bool_t inside(false),outside(false);
-        // GenericKernelForContainsAndInside<Backend,true>(unplaced,point,inside,outside);
-        // MaskedAssign(!done && inside,-1.,&distance);
-
-
+        }
     }
 
     template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -1147,37 +1116,17 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
 
         GetPointOfIntersectionWithZPlane<Backend,false>(unplaced,point,direction,zDist) ;
         MaskedAssign(zDist < 0., kInfinity, &zDist);
-        //std::cout<<"ZDist : "<<zDist<<std::endl;
-        //MaskedAssign(!done && intersectionExist, zDist, &distance);
-
+    
         GetPointOfIntersectionWithOuterHyperbolicSurface<Backend,false>(unplaced,point,direction,dist);
         MaskedAssign(dist < 0. , kInfinity, &dist);
-        //distance = Min(zDist,dist);
         MaskedAssign(!done, Min(zDist,dist), &distance);
-        //std::cout<<"DistFrom Outer Hype Surface : "<<dist<<"  :: Distance : "<<distance<< std::endl;
-        //MaskedAssign(!done && intersectionExist && dist<distance , dist , &distance);
-
-
+    
         if(unplaced.InnerSurfaceExists())
         {
         GetPointOfIntersectionWithInnerHyperbolicSurface<Backend,false>(unplaced,point,direction,dist);
         MaskedAssign(dist < 0., kInfinity, &dist);
-        //distance = Min(distance,dist);
         MaskedAssign(!done, Min(distance,dist), &distance);
-        //std::cout<<"DistFrom Inner Hype Surface : "<<dist<<std::endl;
-        //MaskedAssign(!done && intersectionExist && dist<distance, dist , &distance);
-
         }
-
-        // Bool_t surfaceCond = IsPointOnSurfaceAndMovingOutside<Backend>(unplaced,point,direction);
-        // MaskedAssign(!done && surfaceCond , 0. , &distance);//,isSurfacePoint,inner,outer,zSurf),0., &distance);
-        // done |= surfaceCond;
-        // if(IsFull(done)) return;
-
-        // MaskedAssign(IsCompletelyOutside<Backend>(unplaced,point), -1., &distance);
-
-       // std::cout<<"Final Distance from DistanceToOutKernel : "<<distance<<std::endl;
-
     }
 
 
