@@ -54,7 +54,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
         fEndInnerRadius=Sqrt(fEndInnerRadius2);
         fEndOuterRadius=Sqrt(fEndOuterRadius2);
         fInSqSide=Sqrt(2)*fRmin;
-        zToleranceLevel = kTolerance*fDz*2.;
+        zToleranceLevel = kTolerance*fDz;
         innerRadToleranceLevel = kTolerance*GetEndInnerRadius();
         outerRadToleranceLevel = kTolerance*GetEndOuterRadius();
         CalcCapacity();
