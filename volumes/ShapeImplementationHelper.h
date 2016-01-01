@@ -214,7 +214,7 @@ public:
 
 //#ifdef VECGEOM_REPLACE_USOLIDS
     // avoid distance values within kTolerance
-    MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
+    //MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
 //#endif
 
 #ifdef VECGEOM_DISTANCE_DEBUG
@@ -234,7 +234,7 @@ public:
     VECGEOM_BACKEND_PRECISION_TYPE output = kInfinity;
     Specialization::template DistanceToIn<VECGEOM_BACKEND_TYPE>(
         *this->GetUnplacedVolume(), *this->GetTransformation(), point, direction, stepMax, output);
-    MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
+    //MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
     //#ifdef VECGEOM_DISTANCE_DEBUG
     //    DistanceComparator::CompareDistanceToIn(this, output, point, direction, stepMax);
     //#endif
@@ -257,7 +257,7 @@ public:
       stepMax,
       output
     );
-    MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
+    //MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
 
 #ifdef VECGEOM_DISTANCE_DEBUG
     DistanceComparator::CompareDistanceToOut( this, output, point, direction, stepMax );
@@ -281,7 +281,7 @@ public:
     VECGEOM_BACKEND_PRECISION_TYPE output = kInfinity;
     Specialization::template DistanceToOut<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), point, direction, stepMax,
                                                                  output);
-    MaskedAssign(Abs(output) < kHalfTolerance, 0., &output);
+    //MaskedAssign(Abs(output) < kHalfTolerance, 0., &output);
 
 // TODO: provide CompareDistance check for vector interface
 //#ifdef VECGEOM_DISTANCE_DEBUG
