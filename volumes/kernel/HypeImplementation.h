@@ -929,7 +929,7 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
         Precision fDz = unplaced.GetDz();
         distance = kInfinity;
         Float_t zDist(kInfinity),dist(kInfinity);
-        Float_t r=(point.x()*point.x() + point.y()*point.y());
+        Float_t r = point.Perp2();
         Precision innerRadius = unplaced.GetRmin();
         Precision outerRadius = unplaced.GetRmax();
         Precision tanOuterStereo2 = unplaced.GetTOut2();
@@ -1025,28 +1025,29 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
       typedef typename Backend::bool_v Bool_t;
       Bool_t exist(false);
 
-      Vector3D<Float_t> newPt, tempPt;
+      Float_t newPtZ;
 
       Precision tanInnerStereo2 = unplaced.GetTIn2();
       Precision fRmin2 = unplaced.GetRmin2();
 
       Float_t a = direction.Perp2() - tanInnerStereo2 * direction.z() * direction.z();
       Float_t b =
-          2 * (direction.x() * point.x() + direction.y() * point.y() - tanInnerStereo2 * direction.z() * point.z());
+          (direction.x() * point.x() + direction.y() * point.y() - tanInnerStereo2 * direction.z() * point.z());
       Float_t c = point.Perp2() - tanInnerStereo2 * point.z() * point.z() - fRmin2;
-      exist = (b * b - 4 * a * c > 0.);
-
+      exist = (b * b - a * c > 0.);
+      
       if (ForDistToIn) {
-        MaskedAssign(exist && b < 0., ((-b + Sqrt(b * b - 4 * a * c)) / (2 * a)), &dist);
-        MaskedAssign(exist && b >= 0., ((2 * c) / (-b - Sqrt(b * b - 4 * a * c))), &dist);
+        MaskedAssign(exist && b < 0., ((-b + Sqrt(b * b - a * c)) / (a)), &dist);
+        MaskedAssign(exist && b >= 0., ((c) / (-b - Sqrt(b * b - a * c))), &dist);
+
       } else {
-        MaskedAssign(exist && b > 0., ((-b - Sqrt(b * b - 4 * a * c)) / (2 * a)), &dist);
-        MaskedAssign(exist && b <= 0., ((2 * c) / (-b + Sqrt(b * b - 4 * a * c))), &dist);
+        MaskedAssign(exist && b > 0., ((-b - Sqrt(b * b - a * c)) / (a)), &dist);
+        MaskedAssign(exist && b <= 0., ((c) / (-b + Sqrt(b * b - a * c))), &dist);
       }
       MaskedAssign(dist < 0., kInfinity, &dist);
-      newPt = point + dist * direction;
+      newPtZ = point.z() + dist * direction.z();
 
-      return (Abs(newPt.z()) <= unplaced.GetDz());
+      return (Abs(newPtZ) <= unplaced.GetDz());
     }
 
     template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -1061,28 +1062,28 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
       typedef typename Backend::bool_v Bool_t;
       Bool_t exist(false);
 
-      Vector3D<Float_t> newPt, tempPt;
+      Float_t newPtZ;
 
       Precision tanOuterStereo2 = unplaced.GetTOut2();
       Precision fRmax2 = unplaced.GetRmax2();
 
       Float_t a = direction.Perp2() - tanOuterStereo2 * direction.z() * direction.z();
       Float_t b =
-          2 * (direction.x() * point.x() + direction.y() * point.y() - tanOuterStereo2 * direction.z() * point.z());
+          (direction.x() * point.x() + direction.y() * point.y() - tanOuterStereo2 * direction.z() * point.z());
       Float_t c = point.Perp2() - tanOuterStereo2 * point.z() * point.z() - fRmax2;
-      exist = (b * b - 4 * a * c > 0.);
+      exist = (b * b - a * c > 0.);
       if (ForDistToIn) {
-        MaskedAssign(exist && b >= 0., ((-b - Sqrt(b * b - 4 * a * c)) / (2 * a)), &dist);
-        MaskedAssign(exist && b < 0., ((2 * c) / (-b + Sqrt(b * b - 4 * a * c))), &dist);
+        MaskedAssign(exist && b >= 0., ((-b - Sqrt(b * b - a * c)) / (a)), &dist);
+        MaskedAssign(exist && b < 0., ((c) / (-b + Sqrt(b * b - a * c))), &dist);
       } else {
-        MaskedAssign(exist && b < 0., ((-b + Sqrt(b * b - 4 * a * c)) / (2 * a)), &dist);
-        MaskedAssign(exist && b >= 0., ((2 * c) / (-b - Sqrt(b * b - 4 * a * c))), &dist);
+        MaskedAssign(exist && b < 0., ((-b + Sqrt(b * b - a * c)) / (a)), &dist);
+        MaskedAssign(exist && b >= 0., ((c) / (-b - Sqrt(b * b - a * c))), &dist);
       }
       MaskedAssign(dist < 0., kInfinity, &dist);
 
-      newPt = point + dist * direction;
+      newPtZ = point.z() + dist * direction.z();
 
-      return (Abs(newPt.z()) <= unplaced.GetDz());
+      return (Abs(newPtZ) <= unplaced.GetDz());
     }
 
     //New Definition
