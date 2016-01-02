@@ -56,12 +56,6 @@ private:
   Precision tanSTheta2;
   Precision tanETheta2;
 
-
-  // Precision cosTheta1, sinTheta1;
-  // Precision cosTheta2, sinTheta2;
-
-  // Precision cone1Radius,cone2Radius;
-
 public:
   VECGEOM_CUDA_HEADER_BOTH
   ThetaCone(Precision sTheta, Precision dTheta) : fSTheta(sTheta), fDTheta(dTheta), kAngTolerance(kTolerance) {
@@ -395,7 +389,6 @@ public:
       Float_t dirRho2 = dir.Perp2();
 
       Float_t b = pDotV2d - point.z() * dir.z() * tanSTheta2;
-      //Float_t a = dir.x() * dir.x() + dir.y() * dir.y() - dir.z() * dir.z() * tanSTheta2;
       Float_t a = dirRho2 - dir.z() * dir.z() * tanSTheta2;
       Float_t c = rho2 - point.z() * point.z() * tanSTheta2;
       Float_t d2 = b * b - a * c;
@@ -407,7 +400,6 @@ public:
       MaskedAssign((!done && (firstRoot < 0.)), kInfinity, &firstRoot);
 
       Float_t b2 = pDotV2d - point.z() * dir.z() * tanETheta2;
-      //Float_t a2 = dir.x() * dir.x() + dir.y() * dir.y() - dir.z() * dir.z() * tanETheta2;
       Float_t a2 = dirRho2 - dir.z() * dir.z() * tanETheta2;
       Float_t c2 = rho2 - point.z() * point.z() * tanETheta2;
       Float_t d22 = b2 * b2 - a2 * c2;
@@ -612,8 +604,6 @@ public:
           Bool_t cond = (point.x() == 0. && point.y() == 0. && point.z() == 0. && dir.z() > zs && dir.z() > ze);
           MaskedAssign(cond, 0., &distThetaCone1);
           MaskedAssign(cond, 0., &distThetaCone2);
-          // intsect1 |= (cond && tr);
-          // intsect2 |= (cond && tr);
           intsect1 |= cond;
           intsect2 |= cond;
         }
@@ -721,17 +711,15 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   typename Backend::bool_v IsCompletelyOutside(Vector3D<typename Backend::precision_v> const  &localPoint) const {
 
-typedef typename Backend::precision_v Float_t;
+    typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
-    //Float_t pi(kPi), zero(0.);
+    
     Float_t rad = Sqrt(localPoint.Mag2() - (localPoint.z() * localPoint.z()));
     Float_t cone1Radius = Abs(localPoint.z() * tanSTheta);
     Float_t cone2Radius = Abs(localPoint.z() * tanETheta);
     Bool_t isPointOnZAxis = localPoint.z() != 0. && localPoint.x() == 0. && localPoint.y() == 0.;
 
     Bool_t isPointOnXYPlane = localPoint.z() == 0. && (localPoint.x() != 0. || localPoint.y() != 0.);
-
-    //Float_t startTheta(fSTheta), endTheta(fETheta);
 
     Bool_t completelyoutside =
         (isPointOnZAxis && ((Bool_t(fSTheta != 0.) && Bool_t(fETheta != kPi)) || (localPoint.z() > 0. && Bool_t(fSTheta != 0.)) ||
