@@ -94,7 +94,7 @@ template<typename Backend, typename ShapeType, typename UnplacedVolumeType, bool
   }
 }
 
-template<typename Backend, typename TubeType, bool LargestSolution, bool insectorCheck>
+template<typename Backend, typename TubeType, bool LargestSolution, bool insectorCheck, bool directionCheck = false>
 VECGEOM_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void CircleTrajectoryIntersection(typename Backend::precision_v const &b,
@@ -138,10 +138,17 @@ void CircleTrajectoryIntersection(typename Backend::precision_v const &b,
         insector = tube.GetWedge().ContainsWithBoundary<Backend>( Vector3D<typename Backend::precision_v>(hitx, hity, hitz) );
     }
     ok = delta_mask & (dist >= -kTolerance) & (Abs(hitz) <= tube.z()) & insector;
+
+    Float_t hitDotN = hitx*dir.x() + hity*dir.y();
+    if(directionCheck) {
+      // require that track is entering volume at intersection
+      ok &= hitDotN < 0;
+    }
   }
-  else {
+  else { // !insectorCheck
     ok = delta_mask;
   }
+
 }
 
 /*
@@ -507,9 +514,9 @@ struct TubeImplementation {
     Float_t crmax = invnsq * (rsq - tube.rmax2());
     Float_t dist_rmax;
     Bool_t ok_rmax{ Backend::kFalse };
-    CircleTrajectoryIntersection<Backend, tubeTypeT, false, true>(b, crmax, tube, point, dir, dist_rmax, ok_rmax);
+    CircleTrajectoryIntersection<Backend, tubeTypeT, false, true, true>(b, crmax, tube, point, dir, dist_rmax, ok_rmax);
 
-    ok_rmax &= dist_rmax > -kHalfTolerance && dist_rmax<distance && rdotn<=0;
+    ok_rmax &= dist_rmax > -kHalfTolerance && dist_rmax<distance;
     MaskedAssign( !done && ok_rmax, dist_rmax, &distance);
     done |= ok_rmax;
     if(Backend::early_returns && IsFull(done)) return;
