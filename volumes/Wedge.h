@@ -206,16 +206,17 @@ class Wedge{
           return fNormalVector2;
         }
 
-    template<typename Backend, bool ForStartPhi, bool MovingOut>
-    VECGEOM_CUDA_HEADER_BOTH
-    typename Backend::bool_v Wedge::IsPointOnSurfaceAndMovingOut( Vector3D<typename Backend::precision_v> const& point,
-                                                            Vector3D<typename Backend::precision_v> const& dir ) const {
+        template <typename Backend, bool ForStartPhi, bool MovingOut>
+        VECGEOM_CUDA_HEADER_BOTH typename Backend::bool_v
+        Wedge::IsPointOnSurfaceAndMovingOut(Vector3D<typename Backend::precision_v> const &point,
+                                            Vector3D<typename Backend::precision_v> const &dir) const {
 
-        if(MovingOut)
-          return IsOnSurfaceGeneric<Backend,ForStartPhi>(point) && (dir.Dot(-GetNormal<ForStartPhi>()) > 0.);
-        else
-          return IsOnSurfaceGeneric<Backend,ForStartPhi>(point) && (dir.Dot(-GetNormal<ForStartPhi>()) < 0.);
-
+          if (MovingOut)
+            return IsOnSurfaceGeneric<Backend, ForStartPhi>(point) &&
+                   (dir.Dot(-GetNormal<ForStartPhi>()) > 0.005 * kHalfTolerance);
+          else
+            return IsOnSurfaceGeneric<Backend, ForStartPhi>(point) &&
+                   (dir.Dot(-GetNormal<ForStartPhi>()) < 0.005 * kHalfTolerance);
         }
 
     template<typename Backend, bool ForStartPhi>
