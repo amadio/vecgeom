@@ -117,14 +117,14 @@ class Wedge{
         typename Backend::bool_v IsPointOnSurfaceAndMovingOut( Vector3D<typename Backend::precision_v> const& point,
                                                             Vector3D<typename Backend::precision_v> const& dir ) const {
 
-          if(MovingOut)
-          {  // std::cout<<IsOnSurfaceGeneric<Backend,ForStartPhi>(point)<<"  :  "<<(dir.Dot(-GetNormal<ForStartPhi>()) > kHalfTolerance)<<std::endl;
-        	  return IsOnSurfaceGeneric<Backend,ForStartPhi>(point) && (dir.Dot(-GetNormal<ForStartPhi>()) > kTolerance);
-
-          }
+          if (MovingOut)
+            return IsOnSurfaceGeneric<Backend, ForStartPhi>(point) &&
+                   (dir.Dot(-GetNormal<ForStartPhi>()) > 0.005 * kHalfTolerance);
+            // Tolerance is added for handling the case when point is grazing on the wedge surface, otherwise grazing case
+            // will be missed
           else
-            return IsOnSurfaceGeneric<Backend,ForStartPhi>(point) && (dir.Dot(-GetNormal<ForStartPhi>()) < kTolerance);
-
+            return IsOnSurfaceGeneric<Backend, ForStartPhi>(point) &&
+                   (dir.Dot(-GetNormal<ForStartPhi>()) < 0.005 * kTolerance);
         }
 
 
@@ -218,21 +218,6 @@ class Wedge{
         return !outside;
     }
 
-/*
-    template<typename Backend>
-    VECGEOM_CUDA_HEADER_BOTH
-    typename Backend::bool_v Wedge::IsCompletelyInside(Vector3D<typename Backend::precision_v> const &localPoint) {
-
-
-    }
-
-    template<typename Backend>
-    VECGEOM_CUDA_HEADER_BOTH
-    typename Backend::bool_v Wedge::IsCompletelyOutside(Vector3D<typename Backend::precision_v> const &localPoint) {
-    
-
-    }
-*/
     // Implementation follows
     template<typename Backend, bool ForInside>
     VECGEOM_CUDA_HEADER_BOTH
@@ -415,7 +400,6 @@ class Wedge{
         MaskedAssign( cmp2 && tmp>0., tmp, &distWedge2 );
       }
      
-      //std::cout<<"Distwedge1 : "<<distWedge1<<"  :: DistWedge2 : "<<distWedge2<<std::endl;
       //std::cerr << "c1 " << comp1 <<" d1="<<distWedge1<<" "<<point<< "\n";
       //std::cerr << "c2 " << comp2 <<" d2=" <<distWedge2<<" "<<point<<"\n";
    }
