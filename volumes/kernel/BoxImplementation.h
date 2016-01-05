@@ -690,7 +690,7 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   static const bool surfacetolerant=true;
 #endif
 
-  distance = stepMax;
+  distance = kInfinity;
   safety[0] = Abs(point[0]) - dimensions[0];
   safety[1] = Abs(point[1]) - dimensions[1];
   safety[2] = Abs(point[2]) - dimensions[2];
