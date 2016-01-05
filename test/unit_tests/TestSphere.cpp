@@ -110,23 +110,22 @@ bool TestSphere() {
     
     //SafetyFromInside return 0 if point is outside 
     Dist=b4.SafetyFromInside(pzero);
-    assert(ApproxEqual(Dist,0));
-    
+    assert(Dist < 0.);
         
     Dist=b4.SafetyFromInside(pointO); //using outside point for b4
-    assert(ApproxEqual(Dist,0));
+    assert(Dist < 0.);
     
     Vec_t pointO2(9,0,0);
     Dist=b4.SafetyFromInside(pointO2); //using outside point for b4
-    assert(ApproxEqual(Dist,0));
+    assert(Dist < 0.);
     
     Vec_t pointO3(0,9,0);
     Dist=b4.SafetyFromInside(pointO3); //using outside point for b4
-    assert(ApproxEqual(Dist,0));
+    assert(Dist < 0.);
     
     Vec_t pointO4(0,0,9);
     Dist=b4.SafetyFromInside(pointO4); //using outside point for b4
-    assert(ApproxEqual(Dist,0));
+    assert(Dist < 0.);
     
     
     Vec_t pointBWRminRmaxXI(6.5,0,0);
@@ -155,15 +154,18 @@ bool TestSphere() {
     
     //For Inside point SafetyFromOutside returns 0
     Dist=b4.SafetyFromOutside(pointBWRminRmaxXO); 
-    assert(ApproxEqual(Dist,0)); //should pass
+    assert(Dist < 0.);
+
     Dist=b4.SafetyFromOutside(pointBWRminRmaxYO); 
-    assert(ApproxEqual(Dist,0)); //should pass
+    assert(Dist < 0.);
+
     Dist=b4.SafetyFromOutside(pointBWRminRmaxZO); 
-    assert(ApproxEqual(Dist,0)); //should pass
+    assert(Dist < 0.);
     
     Vec_t genPointBWRminRmax(3.796560684305335,-6.207283535497058,2.519078815824183); //Point at distance of 7.7 from center. i.e. inside point, SafetyFromOutside should return 0
     Dist=b4.SafetyFromOutside(genPointBWRminRmax); 
-    assert(ApproxEqual(Dist,0)); //should pass
+    assert(Dist < 0.);
+
     valid = b4.Normal(ponx,normal);
     assert(ApproxEqual(normal,Vec_t(1,0,0)));
     assert(valid);
@@ -200,7 +202,7 @@ bool TestSphere() {
     //Point very very very close to end Phi angle (fSPhi+fDPhi) should be considered on the surface
     Vec_t pointISurface_Sec_0_PI(-6.975035234148935,0.000000000583791,-0.590663594934467); //Point at the distance of 7 from center of sphere and very very very close to PI in the inside region in 0-PI Phi range
                                                                                         //i.e.  radially inside for fullPhiSphere but for spherical section of 0-PI it should be on surface
-    //assert(b5.Inside(pointISurface_Sec_0_PI)==vecgeom::EInside::kSurface); //Should pass
+    assert(b5.Inside(pointISurface_Sec_0_PI)==vecgeom::EInside::kSurface); //Should pass
     
     
     Vec_t pointOSurface_Sec_0_PI(-6.859517189252706,-0.000000002746520,1.395357993615493); //Point at the distance of 7 from center of sphere and very very very close to PI in the outside region in 0-PI Phi range
@@ -216,10 +218,10 @@ bool TestSphere() {
     assert(b6.Inside(pointO_30_60)==vecgeom::EInside::kOutside); //Should pass
     
     Vec_t pointISurface_Sec_30_60(0.139868946641446,0.080753374000628,6.998136578429498);
-    //assert(b6.Inside(pointISurface_Sec_30_60)==vecgeom::EInside::kSurface); //Should pass
+    assert(b6.Inside(pointISurface_Sec_30_60)==vecgeom::EInside::kSurface); //Should pass
     
     Vec_t pointOSurface_Sec_30_60(4.589551141500899,2.649778586424563,4.573258549707597); //Point at the distance of 7 from center of sphere and very very very close to 30 in the outside region in 30-60 Phi range
-    //assert(b6.Inside(pointOSurface_Sec_30_60)==vecgeom::EInside::kSurface); //Should pass
+    assert(b6.Inside(pointOSurface_Sec_30_60)==vecgeom::EInside::kSurface); //Should pass
             
     Sphere_t b8("Solid VecGeomSphere #8",6, 8, PI/6, PI/6, fSTheta, fDTheta); //Spherical section from 30-60 degree in PHI and 0-180 in THETA
     Vec_t pointOSafety_phi_30_60_theta_0_180(0,5,0);
@@ -241,25 +243,29 @@ bool TestSphere() {
     
     //For Outside point SafetyFromInside return zero. Following test should pass
     Dist=b8.SafetyFromInside(pbigx);
-    assert(ApproxEqual(Dist,0));
+    assert(Dist < 0.);
+
     Dist=b8.SafetyFromInside(pbigy);
-    assert(ApproxEqual(Dist,0));
+    assert(Dist < 0.);
+
     Dist=b8.SafetyFromInside(pbigz);
-    assert(ApproxEqual(Dist,0));
+    assert(Dist < 0.);
+
     Dist=b8.SafetyFromInside(pbigmx);
-    assert(ApproxEqual(Dist,0));
+    assert(Dist < 0.);
+
     Dist=b8.SafetyFromInside(pbigmy);
-    assert(ApproxEqual(Dist,0));
+    assert(Dist < 0.);
+
     Dist=b8.SafetyFromInside(pbigmz);
-    assert(ApproxEqual(Dist,0));
+    assert(Dist < 0.);
     
     //Point between Rmin and Rmax but outside Phi Range
     Vec_t point_phi_60_90(0.041433182037376,3.902131470711286,-6.637895244481554); //Point at a distance of 7.7 from center and in 60-90 phi range. i.e completely outside point. DistanceFromInside shoudl return zero
     Dist=b8.SafetyFromInside(point_phi_60_90);
-    assert(ApproxEqual(Dist,0));
+    assert(Dist < 0.);
     
     Dist=b8.SafetyFromOutside(point_phi_60_90);
-    //std::cout<<std::setprecision(20)<<"SafetyFromOutside for point outside phi range line 304 : "<<b8.SafetyFromOutside(point_phi_60_90)<<std::endl;
     assert(ApproxEqual(Dist,1.91518354715165));
     
     //Checking NORMAL FUNCTION
@@ -304,24 +310,29 @@ bool TestSphere() {
     
     //For Outside point SafetyFromInside return zero. Following test should pass
     Dist=b9.SafetyFromInside(pbigx);
-    assert(ApproxEqual(Dist,0));
+    assert(Dist < 0.);
+
     Dist=b9.SafetyFromInside(pbigy);
-    assert(ApproxEqual(Dist,0));
+    assert(Dist < 0.);
+
     Dist=b9.SafetyFromInside(pbigz);
-    assert(ApproxEqual(Dist,0));
+    assert(Dist < 0.);
+
     Dist=b9.SafetyFromInside(pbigmx);
-    assert(ApproxEqual(Dist,0));
+    assert(Dist < 0.);
+
     Dist=b9.SafetyFromInside(pbigmy);
-    assert(ApproxEqual(Dist,0));
+    assert(Dist < 0.);
+
     Dist=b9.SafetyFromInside(pbigmz);
-    assert(ApproxEqual(Dist,0));
+    assert(Dist < 0.);
     
     //For Completely inside point it should Dist should be zero. Using data of b7 sphere.
     Dist=b7.SafetyFromOutside(pointI_phi_30_60_theta_0_30);
-    assert(ApproxEqual(Dist,0));
+    assert(Dist < 0.);
     
     Dist=b7.SafetyFromOutside(pointO_phi_30_60_theta_31_45);
-     assert(ApproxEqual(Dist,1.142348737370068));
+    assert(ApproxEqual(Dist,1.142348737370068));
     
     valid = b7.Normal(pointO_phi_30_60_theta_31_45,normal);
     assert(ApproxEqual(normal,Vec_t(-0.434127 , -0.462908 , -0.772819))); //Verified with Geant4
@@ -596,7 +607,8 @@ bool TestSphere() {
     assert(ApproxEqual(Dist,20));
     //Full Sphere with Rmin
     Dist=s2.SafetyFromInside(pzero);
-    assert(ApproxEqual(Dist,0));
+    assert(Dist < 0.);
+
     Dist=s2.SafetyFromInside(ponrmax1);
     assert(ApproxEqual(Dist,0));
     Dist=s2.SafetyFromInside(ponrmin1);
@@ -615,7 +627,7 @@ bool TestSphere() {
     Dist=sn13.SafetyFromInside(-pz);
     assert(ApproxEqual(Dist,20));
     Dist=s3.SafetyFromInside(pzero);
-    assert(ApproxEqual(Dist,0));
+    assert(Dist < 0.);
     //std::cout<<"Dist=sn3.pzero = "<<Dist<<std::endl;
 
     Dist=s9.SafetyFromInside(pzero);
@@ -625,7 +637,8 @@ bool TestSphere() {
     assert(ApproxEqual(Dist,0));
     //Sphere with Phi section
     Dist=s41.SafetyFromInside(pzero);
-    assert(ApproxEqual(Dist,0));
+    assert(Dist < 0.);
+
     Dist=s41.SafetyFromInside(ponrmax1);
     assert(ApproxEqual(Dist,0));
 
@@ -641,6 +654,7 @@ bool TestSphere() {
      assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vx));
 
      Dist=s2.DistanceToOut(ponrmin1,vx,norm,convex);
+     //std::cout<<"Dist : "<<Dist<<" :: Normal : "<<norm<<std::endl;
      assert(ApproxEqual(Dist,5)&&ApproxEqual(norm,vx));
 
      Dist=s2.DistanceToOut(ponrmax2,vx,norm,convex);
@@ -687,15 +701,23 @@ bool TestSphere() {
     Dist=s2.DistanceToOut(ponrmax1,vz,norm,convex);
     //    std::cout<<"Dist=s2.DistanceToOut(ponxside,vz) = "<<Dist<<std::endl;
 
-    //    Dist=s2.DistanceToOut(pbigx,vx,norm,convex);
-    //    std::cout<<"Dist=s2.DistanceToOut(pbigx,vx) = "<<Dist<<std::endl;
-    //    Dist=s2.DistanceToOut(pbigx,vxy,norm,convex);
-    //    std::cout<<"Dist=s2.DistanceToOut(pbigx,vxy) = "<<Dist<<std::endl;
-    //    Dist=s2.DistanceToOut(pbigx,vz,norm,convex);
-    //    std::cout<<"Dist=s2.DistanceToOut(pbigx,vz) = "<<Dist<<std::endl;
+    Dist=s2.DistanceToOut(pbigx,vx,norm,convex);
+    assert(Dist < 0.);
+
+    Dist=s2.DistanceToOut(pbigx,vmx,norm,convex);
+    assert(Dist < 0.);
+
+    Dist=s2.DistanceToOut(pbigy,vy,norm,convex);
+    assert(Dist < 0.);
+
+    Dist=s2.DistanceToOut(pbigy,vmy,norm,convex);
+    assert(Dist < 0.);
+
     //Test Distance for phi section
+    //This test case is for the point grazing on the Wedge surface
     Dist=sn22.DistanceToOut(Vec_t(0.,49.,0.),vmy,norm,convex);
     assert(ApproxEqual(Dist,49.));
+
     Dist=sn22.DistanceToOut(Vec_t(-45.,0.,0.),vx,norm,convex);
     assert(ApproxEqual(Dist,45.));
     //std::cout<<"Dist from Center ="<<sn22.DistanceToOut(Vec_t(0.,49.,0),Vec_t(0,-1,0),norm,convex)<<std::endl;
@@ -826,6 +848,7 @@ bool TestSphere() {
     //std::cout<<"s2.DistanceToIn(ponmin1,vx) = "<<Dist<<std::endl;
     assert(Dist==0);
     Dist=s2.DistanceToIn(ponrmin1,vmx);
+    //std::cout<<"Dist of Line 872 : "<<Dist<<std::endl;
     assert(ApproxEqual(Dist,90));
 
     Dist=s2.DistanceToIn(ponrmin2,vx);
@@ -1062,7 +1085,6 @@ std::cout<<"--------------------------------------------------------------------
 
     Dist = sntest.DistanceToIn(southPolePoint,vz);
     assert(ApproxEqual(Dist,50.));
-
     assert(sntest.Inside(southPolePoint) == vecgeom::EInside::kOutside);
 
     Dist = sntest.DistanceToIn(northPolePoint,vmz);

@@ -68,6 +68,7 @@ static typename Backend::precision_v fabs(typename Backend::precision_v &v)
     Precision outerRad2 = unplaced.GetOuterRadius() * unplaced.GetOuterRadius();
     //Precision toler2 = kTolerance;
     //return ((point.Mag2() >= (outerRad2 - toler2)) && (point.Mag2() <= (outerRad2 + toler2)));
+    //std::cout<< "Point on Outer rad : "<<((point.Mag2() >= (outerRad2 - kTolerance)) && (point.Mag2() <= (outerRad2 + kTolerance)));
     return ((point.Mag2() >= (outerRad2 - kTolerance)) && (point.Mag2() <= (outerRad2 + kTolerance)));
 
   }
@@ -357,9 +358,15 @@ template <class Backend>
                                   Vector3D<typename Backend::precision_v> const &dir){
     if(MovingOut) {
       if(ForInnerRadius)
+      {
+        ///std::cout<<"IsPointOnInnerRadius : "<<IsPointOnInnerRadius<Backend>(unplaced,point)<< "  :: (dir.Dot(point) > 0.) : "<<(dir.Dot(-point) > 0.)<<std::endl;
         return IsPointOnInnerRadius<Backend>(unplaced,point) && (dir.Dot(-point) > 0.);
+      }
       else
+      {
+        //std::cout<<"IsPointOnOuterRadius : "<<IsPointOnOuterRadius<Backend>(unplaced,point)<< "  :: (dir.Dot(point) > 0.) : "<<(dir.Dot(point) > 0.)<<std::endl;
         return IsPointOnOuterRadius<Backend>(unplaced,point) && (dir.Dot(point) > 0.);
+      }
     }
     else {
       if(ForInnerRadius){
@@ -377,20 +384,55 @@ template <class Backend>
                                                                Vector3D<typename Backend::precision_v> const &dir) {
 
       typedef typename Backend::bool_v Bool_t;
-      Bool_t temp = IsPointOnRadialSurfaceAndMovingOut<Backend,true,MovingOut>(unplaced,point,dir) || 
-             unplaced.GetWedge().IsPointOnSurfaceAndMovingOut<Backend,true,MovingOut>(point,dir) ||
-             unplaced.GetWedge().IsPointOnSurfaceAndMovingOut<Backend,false,MovingOut>(point,dir) ;
+      // Bool_t temp = IsPointOnRadialSurfaceAndMovingOut<Backend,false,MovingOut>(unplaced,point,dir) || 
+      //        unplaced.GetWedge().IsPointOnSurfaceAndMovingOut<Backend,true,MovingOut>(point,dir) ||
+      //        unplaced.GetWedge().IsPointOnSurfaceAndMovingOut<Backend,false,MovingOut>(point,dir) ;
 
-      Bool_t tempInnerRad(false), tempStartTheta(false), tempEndTheta(false);
+      // Bool_t tempInnerRad(false), tempStartTheta(false), tempEndTheta(false);
+      // if(unplaced.GetInnerRadius())
+      //    tempInnerRad = IsPointOnRadialSurfaceAndMovingOut<Backend,true,MovingOut>(unplaced,point,dir);
+      // if(unplaced.GetSTheta())
+      //    tempStartTheta = unplaced.GetThetaCone().IsPointOnSurfaceAndMovingOut<Backend,true,MovingOut>(point,dir);
+      // if(unplaced.GetETheta() != kPi)
+      //    tempEndTheta = unplaced.GetThetaCone().IsPointOnSurfaceAndMovingOut<Backend,false,MovingOut>(point,dir);
+
+      // std::cout<<"Temp : "<<temp<<std::endl
+      //          <<"TempInnerRad : "<<tempInnerRad<<std::endl;
+
+
+      // return temp || tempInnerRad || tempStartTheta || tempEndTheta;
+
+
+
+      Bool_t tempOuterRad = IsPointOnRadialSurfaceAndMovingOut<Backend,false,MovingOut>(unplaced,point,dir);
+      Bool_t tempInnerRad(false), tempStartPhi(false), tempEndPhi(false), tempStartTheta(false), tempEndTheta(false);
       if(unplaced.GetInnerRadius())
-         tempInnerRad = IsPointOnRadialSurfaceAndMovingOut<Backend,false,MovingOut>(unplaced,point,dir);
-      if(unplaced.GetSTheta())
-         tempStartTheta = unplaced.GetThetaCone().IsPointOnSurfaceAndMovingOut<Backend,true,MovingOut>(point,dir);
-      if(unplaced.GetETheta() != kPi)
-         tempEndTheta = unplaced.GetThetaCone().IsPointOnSurfaceAndMovingOut<Backend,false,MovingOut>(point,dir);
-
-      return temp || tempInnerRad || tempStartTheta || tempEndTheta;
+        tempInnerRad = IsPointOnRadialSurfaceAndMovingOut<Backend,true,MovingOut>(unplaced,point,dir);
+      if(unplaced.GetDeltaPhiAngle() < (kTwoPi - kHalfTolerance)) {
+        tempStartPhi = unplaced.GetWedge().IsPointOnSurfaceAndMovingOut<Backend,true,MovingOut>(point,dir);
+        tempEndPhi = unplaced.GetWedge().IsPointOnSurfaceAndMovingOut<Backend,false,MovingOut>(point,dir);
       }
+      if(unplaced.GetDeltaThetaAngle() < (kPi - kHalfTolerance) ) {
+        tempStartTheta = unplaced.GetThetaCone().IsPointOnSurfaceAndMovingOut<Backend,true,MovingOut>(point,dir);
+        tempEndTheta = unplaced.GetThetaCone().IsPointOnSurfaceAndMovingOut<Backend,false,MovingOut>(point,dir);
+        //std::cout<<"TempStartTheta : "<<tempStartTheta<<"  :: TempEndTheta : "<<tempEndTheta<<std::endl;
+      }
+
+      // tempOuterRad = Bool_t(false);
+      //std::cout<<tempOuterRad << " : "<< tempInnerRad << " : "<< tempStartPhi << " : "<<tempEndPhi << " : "<< tempStartTheta << " : "<< tempEndTheta << std::endl;
+      // std::cout<< "IsPointOnSurfaceAndMovingOut : "<< (tempOuterRad || tempInnerRad || tempStartPhi || tempEndPhi || tempStartTheta || tempEndTheta ) <<std::endl;
+
+
+      Bool_t isPointOnSurfaceAndMovingOut = ((tempOuterRad || tempInnerRad) && unplaced.GetWedge().Contains<Backend>(point) && unplaced.GetThetaCone().Contains<Backend>(point)) ||
+                                            ((tempStartPhi || tempEndPhi) && (point.Mag2() >= unplaced.GetInnerRadius()*unplaced.GetInnerRadius()) && 
+                                              (point.Mag2() <= unplaced.GetOuterRadius()*unplaced.GetOuterRadius()) && unplaced.GetThetaCone().Contains<Backend>(point) ) ||
+                                            ((tempStartTheta || tempEndTheta) && (point.Mag2() >= unplaced.GetInnerRadius()*unplaced.GetInnerRadius()) &&
+                                              (point.Mag2() <= unplaced.GetOuterRadius()*unplaced.GetOuterRadius()) && unplaced.GetWedge().Contains<Backend>(point) );
+
+     // std::cout<<"IsPointOnSurfaceAndMovingOut : "<<isPointOnSurfaceAndMovingOut<<std::endl;
+      return isPointOnSurfaceAndMovingOut;
+      }
+
    
 };
 
@@ -1122,8 +1164,8 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
       Vector3D<Float_t> coneIntSecPt2 = localPoint + distTheta2*localDir;
       Float_t distCone2 = coneIntSecPt2.Mag2();
 
-      Bool_t isValidCone1 = (distCone1 > fRmin*fRmin && distCone1 < fRmax*fRmax) && intsect1;
-      Bool_t isValidCone2 = (distCone2 > fRmin*fRmin && distCone2 < fRmax*fRmax) && intsect2;
+      Bool_t isValidCone1 = (distCone1 >= fRmin*fRmin && distCone1 <= fRmax*fRmax) && intsect1;
+      Bool_t isValidCone2 = (distCone2 >= fRmin*fRmin && distCone2 <= fRmax*fRmax) && intsect2;
 
       if(!fullPhiSphere)
           {
@@ -1138,6 +1180,14 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
       }
 
    distance = Min(distThetaMin,distance);
+
+   Vector3D<Float_t> directDir = (Vector3D<Float_t>(0.,0.,0.) - point);
+   // std::cout<<"Actual direction : "<<direction.Unit()<<" :: New Direction : "<<directDir.Unit()<<std::endl;
+   Float_t newDist = directDir.Mag();
+   // //distance = Min(distance,newDist);
+   MaskedAssign( Bool_t(unplaced.GetSTheta() > kHalfTolerance || unplaced.GetETheta() < (kPi - kHalfTolerance) ) &&
+		          (Abs(directDir.Unit().x()-direction.x()) < kHalfTolerance) && (Abs(directDir.Unit().y()-direction.y()) < kHalfTolerance) && (Abs(directDir.Unit().z()-direction.z()) < kHalfTolerance)
+                 , Min(distance,newDist), &distance);
 }
 
 //This is fast alternative of GetDistPhiMin below
@@ -1270,7 +1320,7 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(UnplacedSph
       d2 = (pDotV3d * pDotV3d - c);
       MaskedAssign( ( !done && (d2 >= 0.) && (pDotV3d < 0.)) ,(-pDotV3d - Sqrt(d2)),&sd2);
     }
-
+    //std::cout<<"SD1 : "<<sd1<<"  :: SD2 : "<<sd2<<std::endl;
     snxt=Min(sd1,sd2);
     Float_t distThetaMin(kInfinity);
     Float_t distPhiMin(kInfinity);
@@ -1303,6 +1353,7 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(UnplacedSph
      {
         GetMinDistFromPhi<Backend,false>(unplaced,localPoint,localDir,done ,distance);
      }
+     //std::cout<<"Final Dist : "<<distance<<std::endl;
   }
 }
 

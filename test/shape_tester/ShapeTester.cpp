@@ -1920,7 +1920,7 @@ void ShapeTester::ReportError(int *nError, UVector3 &p, UVector3 &v, double dist
   std::cout << " Distance = " << distance;
   std::cout << std::endl;
 
-  std::cout << ++(*nError) << " " << p.x() << " " << p.y() << " " << p.z() << " " << v.x() << " " << v.y() << " "
+  std::cout << std::setprecision(20) << ++(*nError) << " " << p.x() << " " << p.y() << " " << p.z() << " " << v.x() << " " << v.y() << " "
             << v.z() << std::endl;
 
   //

@@ -118,9 +118,12 @@ class Wedge{
                                                             Vector3D<typename Backend::precision_v> const& dir ) const {
 
           if(MovingOut)
-            return IsOnSurfaceGeneric<Backend,ForStartPhi>(point) && (dir.Dot(-GetNormal<ForStartPhi>()) > 0.);
+          {  // std::cout<<IsOnSurfaceGeneric<Backend,ForStartPhi>(point)<<"  :  "<<(dir.Dot(-GetNormal<ForStartPhi>()) > kHalfTolerance)<<std::endl;
+        	  return IsOnSurfaceGeneric<Backend,ForStartPhi>(point) && (dir.Dot(-GetNormal<ForStartPhi>()) > kTolerance);
+
+          }
           else
-            return IsOnSurfaceGeneric<Backend,ForStartPhi>(point) && (dir.Dot(-GetNormal<ForStartPhi>()) < 0.);
+            return IsOnSurfaceGeneric<Backend,ForStartPhi>(point) && (dir.Dot(-GetNormal<ForStartPhi>()) < kTolerance);
 
         }
 
@@ -412,6 +415,7 @@ class Wedge{
         MaskedAssign( cmp2 && tmp>0., tmp, &distWedge2 );
       }
      
+      //std::cout<<"Distwedge1 : "<<distWedge1<<"  :: DistWedge2 : "<<distWedge2<<std::endl;
       //std::cerr << "c1 " << comp1 <<" d1="<<distWedge1<<" "<<point<< "\n";
       //std::cerr << "c2 " << comp2 <<" d2=" <<distWedge2<<" "<<point<<"\n";
    }
