@@ -82,14 +82,14 @@ template<typename Backend, typename ShapeType, typename UnplacedVolumeType, bool
   Float_t endCheck = (-endx*y + endy*x);
 
   if(onSurfaceT) {
-    ret = (Abs(startCheck) <= kTolerance) | (Abs(endCheck) <= kTolerance);
+    ret = (Abs(startCheck) <= kHalfTolerance) | (Abs(endCheck) <= kHalfTolerance);
   }
   else {
     if(smallerthanpi) {
-      ret = (startCheck >= 0) & (endCheck >= 0);
+      ret = (startCheck >= -kHalfTolerance) & (endCheck >= -kHalfTolerance);
     }
     else {
-      ret = (startCheck >= 0) | (endCheck >= 0);
+      ret = (startCheck >= -kHalfTolerance) | (endCheck >= -kHalfTolerance);
     }    
   }
 }
@@ -123,13 +123,18 @@ void CircleTrajectoryIntersection(typename Backend::precision_v const &b,
   dist = -b + delta;
 
   if(insectorCheck) {
+    // this may be the right solution when phi-sections are present
+    if(!LargestSolution) {
+      // this reassign is needed to catch surface points entering/exiting Rmax,Rmin faces or through phi-wedges
+      MaskedAssign( dist<-kTolerance && -b-delta>-kTolerance, -b-delta, &dist);
+    }
+
     Float_t hitz = pos.z() + dist * dir.z();
     Float_t hity = pos.y() + dist * dir.y();
     Float_t hitx = pos.x() + dist * dir.x();
 
     Bool_t insector = Backend::kTrue;
     if(checkPhiTreatment<TubeType>(tube)) {
-//      PointInCyclicalSector<Backend, TubeType, UnplacedTube, false>(tube, hitx, hity, insector);
         insector = tube.GetWedge().ContainsWithBoundary<Backend>( Vector3D<typename Backend::precision_v>(hitx, hity, hitz) );
     }
     ok = delta_mask & (dist >= -kTolerance) & (Abs(hitz) <= tube.z()) & insector;
@@ -264,10 +269,11 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY,
     ok = ok && Abs(hitz) <= tube.tolIz() &&
           (r2 >= tube.tolIrmin2()) &&
           (r2 <= tube.tolIrmax2()) &&
-          dist > 0;
+          dist > -kTolerance;
 
-    if(PositiveDirectionOfPhiVector)
+    if(PositiveDirectionOfPhiVector) {
       ok = ok && (hitx*alongX + hity*alongY) > 0.;
+    }
   }
   else {
     if(PositiveDirectionOfPhiVector) {
@@ -441,17 +447,18 @@ struct TubeImplementation {
     Bool_t inside = distz < -kHalfTolerance;
 
     Float_t rsq = point.x()*point.x() + point.y()*point.y();
-    inside &= (rsq-tube.rmax2()) < -kTolerance*tube.rmax();
+    if(!IsEmpty(inside)) {
+      inside &= (rsq-tube.rmax2()) < -kTolerance*tube.rmax();
+    }
     if(checkRminTreatment<tubeTypeT>(tube) && !IsEmpty(inside)) {
       inside &= (tube.rmin2()-rsq) < -kTolerance*tube.rmin();
     }
     if(checkPhiTreatment<tubeTypeT>(tube) && !IsEmpty(inside)) {
-      Bool_t insector;
-      PointInCyclicalSector<Backend, tubeTypeT, UnplacedTube, false>(tube, point.x(), point.y(), insector);
-      inside &= insector;
+      inside &= tube.GetWedge().ContainsWithoutBoundary<Backend>( point );
     }
     done |= inside;
     if(Backend::early_returns && IsFull(done)) return;
+
 
     //*** Next: for tracks not inside and going away  -->  return infinity
     MaskedAssign( !done, kInfinity, &distance);
@@ -462,30 +469,29 @@ struct TubeImplementation {
 
     // outside of outer tube and going away?
     Float_t rdotn = point.x()*dir.x() + point.y()*dir.y();
-    done |= (rsq -tube.rmax2()) > -kTolerance*tube.rmax() && rdotn >= 0;
+    done |= (rsq-tube.rmax2()) > -kTolerance*tube.rmax() && rdotn >= 0;
     if( Backend::early_returns && IsFull(done) ) return;
+
 
     //*** Next step: check if z-plane is the right entry point (both r,phi should be valid at z-plane crossing)
 
     distz /= Abs(dir.z());
+
     Float_t hitx = point.x() + distz*dir.x();
     Float_t hity = point.y() + distz*dir.y();
     Float_t r2 = hitx*hitx + hity*hity;  // radius of intersection with z-plane
-
     Bool_t okz = distz > -kHalfTolerance  && (point.z()*dir.z()<0);
     okz &= (r2 <= tube.rmax2());
     if(checkRminTreatment<tubeTypeT>(tube) && !IsEmpty(okz)) {
       okz &= (tube.rmin2() <= r2);
     }
     if(checkPhiTreatment<tubeTypeT>(tube) && !IsEmpty(okz)) {
-      Bool_t insector;
-      PointInCyclicalSector<Backend, tubeTypeT, UnplacedTube, false>(tube, hitx, hity, insector);
-      okz &= insector;
+      okz &= tube.GetWedge().ContainsWithBoundary<Backend>( point );
     }
-
     MaskedAssign( !done && okz, distz, &distance);
     done |= okz;
     if(Backend::early_returns && IsFull(done) ) return;
+
 
     //*** Next step: intersection of the trajectories with the two circles
 
@@ -503,19 +509,18 @@ struct TubeImplementation {
     Bool_t ok_rmax{ Backend::kFalse };
     CircleTrajectoryIntersection<Backend, tubeTypeT, false, true>(b, crmax, tube, point, dir, dist_rmax, ok_rmax);
 
-    ok_rmax &= dist_rmax > -kHalfTolerance && dist_rmax<distance;
+    ok_rmax &= dist_rmax > -kHalfTolerance && dist_rmax<distance && rdotn<=0;
     MaskedAssign( !done && ok_rmax, dist_rmax, &distance);
     done |= ok_rmax;
+    if(Backend::early_returns && IsFull(done)) return;
 
     /*
      * rmin
-     * If the particle were to hit rmin, it would hit
-     * the furthest away point of the two - so I only 
-     * consider the largest solution to the quadratic 
-     * equation
+     * If the particle were to hit rmin, it would hit the farthest point of the two
+     * --> only consider the largest solution to the quadratic equation
      */
-    Float_t dist_rmin;
-    Bool_t ok_rmin(false);
+    Float_t dist_rmin{ -kInfinity };
+    Bool_t ok_rmin{ Backend::kFalse };
     if(checkRminTreatment<tubeTypeT>(tube)) {
       Float_t crmin = invnsq * (rsq - tube.rmin2());
       CircleTrajectoryIntersection<Backend, tubeTypeT, true, true>(b, crmin, tube, point, dir, dist_rmin, ok_rmin);
@@ -537,11 +542,6 @@ struct TubeImplementation {
       MaskedAssign(!done && ok_rmin, dist_rmin, &distance);
     }
     MaskedAssign(!done && ok_rmax, dist_rmax, &distance);
-
-    /*
-     * Now write result from hitting Z face
-     */
-//    MaskedAssign(okz && distz < distance && distz >= 0., distz, &distance);
 
 
     /*
@@ -847,9 +847,7 @@ struct TubeImplementation {
     }
 
     if(checkPhiTreatment<tubeTypeT>(tube)) {
-
-      Bool_t insector;
-      PointInCyclicalSector<Backend, tubeTypeT, UnplacedTube, false>(tube, local_point.x(), local_point.y(), insector);
+      Bool_t insector = tube.GetWedge().ContainsWithoutBoundary<Backend>( local_point );
       if(Backend::early_returns && IsFull(insector)) return;
 
       Float_t safephi;
