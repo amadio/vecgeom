@@ -444,16 +444,40 @@ struct TubeImplementation {
     transformation.TransformDirection<rotCodeT>(masterDirection, dir);
 
 
-    distance = -1;
     Bool_t done{ Backend::kFalse };
 
-    //*** First we check all dimensions of the tube, whether points are inside --> return -1
+    //*** First, for points outside and moving away --> return infinity
+    distance = kInfinity;
+
+    // outside of Z range and going away?
+    Float_t distz = Abs(point.z()) - tube.z();   // avoid a division for now
+    done |= distz>kHalfTolerance && point.z()*dir.z() >= 0;
+    // outside of tube and going away?
+    done |= Abs(point.x()) > tube.rmax()+kHalfTolerance && point.x()*dir.x() >= 0;
+    done |= Abs(point.y()) > tube.rmax()+kHalfTolerance && point.y()*dir.y() >= 0;
+    if(Backend::early_returns && IsFull(done)) return;
+
+    // outside of outer tube and going away?
+    Float_t rsq = point.x()*point.x() + point.y()*point.y();
+    Float_t rdotn = point.x()*dir.x() + point.y()*dir.y();
+    done |= (rsq-tube.rmax2()) > -kTolerance*tube.rmax() && rdotn >= 0;
+#ifdef TUBEDEBUG
+    if( !IsEmpty((rsq-tube.rmax2()) > kTolerance*tube.rmax() && rdotn >= 0)) {
+      std::cout<<"Tube D2I(): spot 2a - rsq-rmax2()="<< rsq-tube.rmax2()
+               <<", -kTol*rmax()="<< -kTolerance*tube.rmax()
+               <<", rdotn="<< rdotn <<", done="<< done <<" and distance="<< distance <<"\n";
+    }
+#endif
+    if( Backend::early_returns && IsFull(done) ) return;
+
+
+    //*** Next, check all dimensions of the tube, whether points are inside --> return -1
+
+    MaskedAssign( !done, -1.0, &distance );
 
     // For points inside z-range, return -1
-    Float_t distz = Abs(point.z()) - tube.z();   // avoid a division for now
     Bool_t inside = distz < -kHalfTolerance;
 
-    Float_t rsq = point.x()*point.x() + point.y()*point.y();
     if(!IsEmpty(inside)) {
       inside &= (rsq-tube.rmax2()) < -kTolerance*tube.rmax();
     }
@@ -461,26 +485,17 @@ struct TubeImplementation {
       inside &= (tube.rmin2()-rsq) < -kTolerance*tube.rmin();
     }
     if(checkPhiTreatment<tubeTypeT>(tube) && !IsEmpty(inside)) {
+      // Bool_t insector;
+      // PointInCyclicalSector<Backend, tubeTypeT, UnplacedTube, true>(tube, point.x(), point.y(), insector); // GLtemp try true
+      // inside &= insector;
       inside &= tube.GetWedge().ContainsWithoutBoundary<Backend>( point );
     }
     done |= inside;
     if(Backend::early_returns && IsFull(done)) return;
 
 
-    //*** Next: for tracks not inside and going away  -->  return infinity
-    MaskedAssign( !done, kInfinity, &distance);
-
-    // outside of Z range and going away?
-    done |= distz >= -kHalfTolerance && (point.z() * dir.z()) >= 0;
-    if( Backend::early_returns && IsFull(done) ) return;
-
-    // outside of outer tube and going away?
-    Float_t rdotn = point.x()*dir.x() + point.y()*dir.y();
-    done |= (rsq-tube.rmax2()) > -kTolerance*tube.rmax() && rdotn >= 0;
-    if( Backend::early_returns && IsFull(done) ) return;
-
-
     //*** Next step: check if z-plane is the right entry point (both r,phi should be valid at z-plane crossing)
+    MaskedAssign( !done, kInfinity, &distance );
 
     distz /= Abs(dir.z());
 
@@ -493,7 +508,10 @@ struct TubeImplementation {
       okz &= (tube.rmin2() <= r2);
     }
     if(checkPhiTreatment<tubeTypeT>(tube) && !IsEmpty(okz)) {
-      okz &= tube.GetWedge().ContainsWithBoundary<Backend>( point );
+      Bool_t insector;
+      PointInCyclicalSector<Backend, tubeTypeT, UnplacedTube, false>(tube, hitx, hity, insector);
+      okz &= insector;
+      //okz &= tube.GetWedge().ContainsWithBoundary<Backend>( point ); // GLtemp: point is not right: use hitx,hity
     }
     MaskedAssign( !done && okz, distz, &distance);
     done |= okz;
@@ -529,32 +547,22 @@ struct TubeImplementation {
     Float_t dist_rmin{ -kInfinity };
     Bool_t ok_rmin{ Backend::kFalse };
     if(checkRminTreatment<tubeTypeT>(tube)) {
+      /*
+       * What happens if both intersections are valid for the same particle?
+       * This can only happen when particle is outside of the hollow space and will certainly hit rmax, not rmin
+       * So rmax solution always takes priority over rmin, and will overwrite it in case both are valid
+       */
       Float_t crmin = invnsq * (rsq - tube.rmin2());
       CircleTrajectoryIntersection<Backend, tubeTypeT, true, true>(b, crmin, tube, point, dir, dist_rmin, ok_rmin);
-    }
-
-    /* 
-     * What happens if both intersections are valid
-     * for the same particle?
-     *
-     * This can only happen when particle is outside of 
-     * the hollow space and will certainly hit rmax, not rmin
-     *
-     * So rmax solution always takes priority over rmin, and
-     * will overwrite it in case both are valid
-     */
-
-    if(checkRminTreatment<tubeTypeT>(tube)) {
       ok_rmin &= dist_rmin > -kHalfTolerance && dist_rmin<distance;
       MaskedAssign(!done && ok_rmin, dist_rmin, &distance);
+      done |= ok_rmin;
     }
-    MaskedAssign(!done && ok_rmax, dist_rmax, &distance);
 
 
     /*
      * Calculate intersection between trajectory and the two phi planes
      */
-
     if(checkPhiTreatment<tubeTypeT>(tube)) {
 
       Float_t dist_phi;
