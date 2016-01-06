@@ -156,6 +156,10 @@ public:
   // should be a private method?
   bool ComputeIsTwisted();
   
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  bool IsPlanar() const { return (!fIstwisted); }
+  
   // computes if opposite segments are crossing, making a malformed shape
   // This can become a general utility
   bool SegmentsCrossing(Vector3D<Precision> pa, Vector3D<Precision> pb,
@@ -202,7 +206,22 @@ public:
 
   VECGEOM_INLINE
   Precision SurfaceArea() const {
-    return 0.;
+    using Vector3 = Vector3D<Precision>;
+    Vector3 vi, vj, hi0, vres;
+    Precision surfTop = 0.;
+    Precision surfBottom = 0.;
+    Precision surfLateral = 0;
+    for (int i=0; i<4; ++i) {
+      int j = (i+1)%4;
+      surfBottom     += 0.5 * (fVerticesX[i]*fVerticesY[j] - fVerticesX[j]*fVerticesY[i]);
+      surfTop += 0.5 * (fVerticesX[i+4]*fVerticesY[j+4] - fVerticesX[j+4]*fVerticesY[i+4]);
+      vi.Set(fVerticesX[i+4] - fVerticesX[i], fVerticesY[i+4] - fVerticesY[i], 2*fDz);
+      vj.Set(fVerticesX[j+4] - fVerticesX[j], fVerticesY[j+4] - fVerticesY[j], 2*fDz);
+      hi0.Set(fVerticesX[j] - fVerticesX[i], fVerticesY[j] - fVerticesY[i], 0.);
+      vres = 0.5 * (Vector3::Cross(vi+vj, hi0) + Vector3::Cross(vi, vj));
+      surfLateral += vres.Mag();
+    }
+    return (Abs(surfTop) + Abs(surfBottom) + surfLateral);
   }
 
   void Extent( Vector3D<Precision> &, Vector3D<Precision> &) const;

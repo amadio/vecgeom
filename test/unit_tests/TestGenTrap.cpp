@@ -40,28 +40,29 @@ bool TestGenTrap() {
   SimpleGenTrap trap2("twisted_trap", &vertexlist2[0], 5 );
 
   Precision vol, volCheck1, volCheck2;
-  Precision surf, surfCheck1, surfCheck2;
+  Precision surf, surfCheck;
 // Check cubic volume
 
     vol = trap1.Capacity();
     volCheck1 = (1./3)*(6*6+4*6+4*4)*5;
-    std::cout << "volume= " << vol << "   volCheck= " << volCheck1 << std::endl;
+    std::cout << "volume1= " << vol << "   volCheck= " << volCheck1 << std::endl;
  //   assert(ApproxEqual(vol,volCheck1));
 
     vol = trap2.Capacity();
     volCheck2 = (1./3)*(6*6+3.9*6+3.9*3.9)*5;
-    std::cout << "volume= " << vol << "   volCheck= " << volCheck2 << std::endl;
+    std::cout << "volume2= " << vol << "   volCheck= " << volCheck2 << std::endl;
     assert(vol<volCheck1 && vol>volCheck2);
 
 // Check surface area
 
     surf = trap1.SurfaceArea();
-    surfCheck1 = 6*6+4*4+4*0.5*(6+4)*std::sqrt(10*10+1*1);
-    assert(ApproxEqual(surf,surfCheck1));
+    surfCheck = 6*6+4*4+4*0.5*(6+4)*std::sqrt(10*10+1*1);
+    std::cout << "surface1= " << surf << "   surfCheck= " << surfCheck << std::endl;
+    assert(ApproxEqual(surf,surfCheck));
 
     surf = trap2.SurfaceArea();
-    surfCheck2 =  6*6+4*3.9+4*0.5*(6+4)*std::sqrt(10*10+1*1);
-    assert(surf<surfCheck1 && surf>surfCheck2);
+    std::cout << "surface2= " << surf << std::endl;
+    assert(surf<surfCheck);
 
 
 // Check Inside

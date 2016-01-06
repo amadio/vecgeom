@@ -52,6 +52,7 @@ private:
     Vector3D<Precision> fNormals[N];
 
 public:
+    
     SecondOrderSurfaceShell( Vector3D<Precision> * vertices, Precision dz ) : fDz(dz) {
 				Vector3D<Precision> va, vb, vc, vd;
 				for(int i=0;i<N;++i)
@@ -575,6 +576,10 @@ typename Backend::precision_v DistanceToIn (
 	return safety;
 } // end SafetyFace	
 
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Vector3D<Precision> const *GetNormals() const { return fNormals; } 
+  
 
 }; // end class definition
 

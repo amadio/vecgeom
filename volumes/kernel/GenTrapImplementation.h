@@ -108,6 +108,12 @@ struct GenTrapImplementation {
                           Vector3D<typename Backend::precision_v> const &point,
                           typename Backend::precision_v &safety);
 
+ // template <class Backend>
+ // static void Normal( Vector3D<Precision> const &dimensions,
+ //         Vector3D<typename Backend::precision_v> const &point,
+ //        Vector3D<typename Backend::precision_v> &normal,
+ //         Vector3D<typename Backend::precision_v> &valid )
+
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -159,6 +165,24 @@ struct GenTrapImplementation {
       UnplacedGenTrap const &unplaced,
       Vector3D<typename Backend::precision_v> const &point,
       typename Backend::precision_v &safety);
+
+  template <class Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  static void NormalKernel(
+       UnplacedGenTrap const &unplaced,
+       Vector3D<typename Backend::precision_v> const &point,
+       Vector3D<typename Backend::precision_v> &normal,
+       typename Backend::bool_v &valid );
+
+  template <class Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  static void GetClosestEdge(
+     Vector3D<typename Backend::precision_v> const &point,
+     typename Backend::precision_v vertexX[4],
+     typename Backend::precision_v vertexY[4],
+     typename Backend::precision_v &iseg,
+     typename Backend::precision_v &fraction);
 
 }; // End struct GenTrapImplementation
 
@@ -691,7 +715,140 @@ void GenTrapImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(
    safety = unplaced.GetShell().SafetyToOut<Backend>( point, safety );
 }
 
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+template <class Backend>
+VECGEOM_CUDA_HEADER_BOTH
+void GenTrapImplementation<transCodeT, rotCodeT>::NormalKernel(
+     UnplacedGenTrap const &unplaced,
+     Vector3D<typename Backend::precision_v> const &point,
+     Vector3D<typename Backend::precision_v> &normal,
+     typename Backend::bool_v &valid
+    ) {
 
+  // Computes the normal on a surface and returns it as a unit vector
+  //   In case a point is further than tolerance_normal from a surface, set validNormal=false
+  //   Must return a valid vector. (even if the point is not on the surface.)
+  //
+  //   On an edge or corner, provide an average normal of all facets within tolerance
+  // NOTE: the tolerance value used in here is not yet the global surface
+  //     tolerance - we will have to revise this value - TODO
+  // this version does not yet consider the case when we are not on the surface
+
+  typedef typename Backend::precision_v Float_t;
+  typedef typename Backend::int_v Int_t;
+  typedef typename Backend::bool_v Bool_t;
+  valid = Backend::kTrue;
+  normal.Set(0., 0., 0.);
+  // Do bottom and top faces
+  Float_t safz = Abs(unplaced.GetDZ() - Abs(point.z()));
+  Bool_t onZ = ( safz < 10.*kTolerance );
+  MaskedAssign(point.z()>0, Backend::kOne, &normal[2]);
+  MaskedAssign(point.z()<0, -Backend::kOne, &normal[2]);
+  
+//    if (Backend::early_returns) {
+      if ( IsFull(onZ) ) {
+        return;
+      }
+//    }
+  Float_t done = onZ;
+  // Get the closest edge (point should be on this edge within tolerance)
+  Float_t  cf = unplaced.fHalfInverseDz * (unplaced.fDz - point.z());
+  Float_t vertexX[4];
+  Float_t vertexY[4];
+  for (int  i = 0; i < 4; i++) {
+    // calculate x-y positions of vertex i at this z-height
+    vertexX[i] = unplaced.fVerticesX[i + 4] + cf * unplaced.fConnectingComponentsX[i];
+    vertexY[i] = unplaced.fVerticesY[i + 4] + cf * unplaced.fConnectingComponentsY[i];
+  }
+  Float_t seg;
+  Float_t frac;
+  GetClosestEdge(point, vertexX, vertexY, seg, frac);
+  MaskedAssign( frac < Backend::kZero, Backend::kZero, &frac);
+  Int_t iseg = seg;
+  if (unplaced.IsPlanar()) {
+    // Normals for the planar case are pre-computed
+    Vector3D<Precision> const *normals = unplaced.GetShell().GetNormals();
+    normal = normals[iseg];
+    return;
+  }
+  Int_t jseg = (iseg+1)%4;
+  Float_t x0 = vertexX[iseg];
+  Float_t y0 = vertexY[iseg];
+  Float_t x2 = vertexX[jseg];
+  Float_t y2 = vertexY[jseg];
+  x0 += frac*(x2-x0);
+  y0 += frac*(y2-y0);
+  Float_t x1 = unplaced.fVerticesX[iseg+4];
+  Float_t y1 = unplaced.fVerticesY[iseg+4];
+  x1 += frac*(unplaced.fVerticesX[jseg+4]-x1);
+  y1 += frac*(unplaced.fVerticesY[jseg+4]-y1);
+  Float_t ax = x1-x0;
+  Float_t ay = y1-y0;
+  Float_t az = unplaced.GetDZ() - point.z();
+  Float_t bx = x2-x0;
+  Float_t by = y2-y0;
+  Float_t bz = Backend::kZero;
+  // Cross product of the vector given by the section segment (that contains the 
+  // point) at z=point[2] and the vector connecting the point projection to its 
+  // correspondent on the top edge.
+  normal.Set(ay*bz-az*by, az*bx-ax*bz, ax*by-ay*bx);
+  normal.Normalize();
+}
+
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+template <class Backend>
+VECGEOM_CUDA_HEADER_BOTH
+void GenTrapImplementation<transCodeT, rotCodeT>::GetClosestEdge(
+     Vector3D<typename Backend::precision_v> const &point,
+     typename Backend::precision_v vertexX[4],
+     typename Backend::precision_v vertexY[4],
+     typename Backend::precision_v &iseg,
+     typename Backend::precision_v &fraction)
+{
+/// Get index of the edge of the quadrilater represented by vert closest to point.
+/// If [P1,P2] is the closest segment and P is the point, the function returns the fraction of the
+/// projection of (P1P) over (P1P2). If projection of P is not in range [P1,P2] return -1.
+  typedef typename Backend::precision_v Float_t;
+//  typedef typename Backend::int_v Int_t;
+  typedef typename Backend::bool_v Bool_t;
+  iseg = Backend::kZero;
+  Float_t p1X, p1Y, p2X, p2Y;
+  Float_t lsq, dx, dy, dpx, dpy, u;
+  fraction = -Backend::kOne;
+  Float_t safe = kInfinity;
+  Float_t ssq = kInfinity;
+  for (int i=0; i<4; ++i) {
+    int j = (i+1)%4;
+    dx = vertexX[j] - vertexX[i];
+    dy = vertexY[j] - vertexY[i];
+    dpx = point.x() - vertexX[i];
+    dpy = point.y() - vertexY[i];
+    lsq = dx*dx+dy*dy;
+    // Current segment collapsed to a point
+    Bool_t collapsed = lsq < kTolerance;
+    if ( !IsEmpty(collapsed) ) {
+      MaskedAssign( lsq < kTolerance, dpx*dpx + dpy*dpy, &ssq );
+      // Missing a masked assign allowing to perform multiple assignments...
+      MaskedAssign( ssq < safe, ssq, &safe );
+      MaskedAssign( ssq < safe, i, &iseg );
+      MaskedAssign( ssq < safe, -Backend::kOne, &fraction );
+      if ( IsFull(collapsed) ) continue;
+    }
+    // Projection fraction
+    u = (dpx*dx + dpy*dy)/(lsq+kTiny);
+    MaskedAssign( u>1 && !collapsed, point.x()-vertexX[j], &dpx );
+    MaskedAssign( u>1 && !collapsed, point.y()-vertexY[j], &dpy );
+    MaskedAssign( u>=0 && u<=1 && !collapsed, dpx - u*dx, &dpx );
+    MaskedAssign( u>=0 && u<=1 && !collapsed, dpy - u*dy, &dpy );
+    MaskedAssign( (u>1 || u<0) && !collapsed, -Backend::kOne, &u ); 
+    ssq = dpx*dpx + dpy*dpy;
+    MaskedAssign( ssq < safe, ssq, &safe );
+    MaskedAssign( ssq < safe, j, &iseg );
+    MaskedAssign( ssq < safe, u, &fraction );
+  }  
+}
+   
+  
 //*****************************
 //**** Implementations end here
 //*****************************
