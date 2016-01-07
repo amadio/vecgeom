@@ -214,6 +214,7 @@ public:
         break;
       }
     }
+    return false; // no assembly seen
   }
 
   static VNavigator *Instance() {
