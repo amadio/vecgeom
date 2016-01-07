@@ -178,6 +178,44 @@ protected:
     return step;
   }
 
+  // default static function doing the global to local transformation
+  // may be redefined in concrete implementations ( for instance in cases where we know the form of the global matrix a-priori )
+  // input
+  // TODO: think about how we can have scalar + SIMD version
+  template <typename T>
+  VECGEOM_INLINE static void DoGlobalToLocalTransformation(NavigationState const &in_state,
+                                                           Vector3D<T> const &globalpoint, Vector3D<T> const &globaldir,
+                                                           Vector3D<T> &localpoint, Vector3D<T> &localdir) {
+    // calculate local point/dir from global point/dir
+    Transformation3D m;
+    in_state.TopMatrix(m);
+    localpoint = m.Transform(globalpoint);
+    localdir = m.TransformDirection(globaldir);
+  }
+
+  // version used for SIMD processing
+  // should be specialized in Impl for faster treatment
+  template <typename T, unsigned int ChunkSize>
+  VECGEOM_INLINE static void DoGlobalToLocalTransformations(NavStatePool const &in_states,
+                                                            SOA3D<Precision> const &globalpoints,
+                                                            SOA3D<Precision> const &globaldirs, unsigned int from_index,
+                                                            Vector3D<T> &localpoint, Vector3D<T> &localdir) {
+    for (unsigned int i = 0; i < ChunkSize; ++i) {
+      unsigned int trackid = from_index + i;
+      Transformation3D m;
+    //  assert(in_states[trackid]->Top()->GetLogicalVolume() == lvol &&
+    //         "not all states in same logical volume"); // the logical volume of all the states should be the same
+      in_states[trackid]->TopMatrix(m);                // could benefit from interal vec
+      auto tmp = m.Transform(globalpoints[trackid]);   // could benefit from internal vec
+      localpoint.x()[i] = tmp.x();
+      localpoint.y()[i] = tmp.y();
+      localpoint.z()[i] = tmp.z();
+      tmp = m.TransformDirection(globaldirs[trackid]); // could benefit from internal vec
+      localdir.x()[i] = tmp.x();
+      localdir.y()[i] = tmp.y();
+      localdir.z()[i] = tmp.z();
+    }
+  }
 };
 
 //! template class providing a standard implementation for
@@ -257,11 +295,12 @@ public :
                                   Precision step_limit, NavigationState const &in_state,
                                   NavigationState &out_state) const override {
       static size_t counter=0;
-      // calculate local point from global point
-      Transformation3D m;
-      in_state.TopMatrix(m);
-      auto localpoint = m.Transform(globalpoint);
-      auto localdir = m.TransformDirection(globaldir);
+      // calculate local point/dir from global point/dir
+      // call the static function for this provided/specialized by the Impl
+      Vector3D<Precision> localpoint;
+      Vector3D<Precision> localdir;
+      Impl::DoGlobalToLocalTransformation(in_state, globalpoint, globaldir, localpoint, localdir);
+
       Precision step = step_limit;
       VPlacedVolume const *hitcandidate=nullptr;
       auto pvol= in_state.Top();
@@ -310,22 +349,7 @@ public :
       VPlacedVolume const *hitcandidates[ChunkSize] = {}; // initialize all to nullptr
 
       Vector3D<T> localpoint, localdir;
-      for (unsigned int i = 0; i < ChunkSize; ++i) {
-        unsigned int trackid = from_index + i;
-        Transformation3D m;
-        assert(in_states[trackid]->Top()->GetLogicalVolume() == lvol &&
-               "not all states in same logical volume "); // the logical volume of all the states should be the same
-        in_states[trackid]->TopMatrix(m);                 // could benefit from interal vec
-        auto tmp = m.Transform(globalpoints[trackid]);    // could benefit from internal vec
-        localpoint.x()[i] = tmp.x();
-        localpoint.y()[i] = tmp.y();
-        localpoint.z()[i] = tmp.z();
-        tmp = m.TransformDirection(globaldirs[trackid]); // could benefit from internal vec
-        localdir.x()[i] = tmp.x();
-        localdir.y()[i] = tmp.y();
-        localdir.z()[i] = tmp.z();
-        // Precision step = step_limit;
-      }
+      Impl::template DoGlobalToLocalTransformations<T,ChunkSize>(in_states, globalpoints, globaldirs, from_index, localpoint, localdir);
 
       T slimit(step_limits + from_index); // will only work with new ScalarWrapper
       T step;
@@ -415,41 +439,39 @@ public :
       }
     }
 
-// a similar interface also returning the safety
-virtual Precision
-ComputeStepAndSafetyAndPropagatedState(Vector3D<Precision> const &globalpoint, Vector3D<Precision> const &globaldir,
-                                       Precision step_limit, NavigationState const &in_state,
-                                       NavigationState &out_state, Precision &safety_out) const override {
-        // calculate local point from global point
-        Transformation3D m;
-        in_state.TopMatrix(m);
-        auto localpoint = m.Transform(globalpoint);
-        auto localdir = m.TransformDirection(globaldir);
+    // a similar interface also returning the safety
+    virtual Precision ComputeStepAndSafetyAndPropagatedState(Vector3D<Precision> const &globalpoint,
+                                                             Vector3D<Precision> const &globaldir, Precision step_limit,
+                                                             NavigationState const &in_state,
+                                                             NavigationState &out_state,
+                                                             Precision &safety_out) const override {
+      // calculate local point/dir from global point/dir
+      Vector3D<Precision> localpoint;
+      Vector3D<Precision> localdir;
+      Impl::DoGlobalToLocalTransformation(in_state, globalpoint, globaldir, localpoint, localdir);
 
-        // get safety first ( the only benefit here is when we reuse the local points
-        using SafetyE_t = typename Impl::SafetyEstimator_t;
-        if (!in_state.IsOnBoundary()) {
-          // call the appropriate safety Estimator
-          safety_out = ((SafetyE_t*) fSafetyEstimator)->SafetyE_t::ComputeSafetyForLocalPoint(localpoint, in_state.Top());
-        }
+      // get safety first ( the only benefit here is when we reuse the local points
+      using SafetyE_t = typename Impl::SafetyEstimator_t;
+      if (!in_state.IsOnBoundary()) {
+        // call the appropriate safety Estimator
+        safety_out = ((SafetyE_t *)fSafetyEstimator)->SafetyE_t::ComputeSafetyForLocalPoint(localpoint, in_state.Top());
+      }
 
-        // "suck in" algorithm from Impl and treat hit detection in local coordinates
-        Precision step = ((Impl*)this)->Impl::ComputeStepAndHittingBoundaryForLocalPoint(
-                localpoint, localdir,
-                step_limit, in_state, out_state);
+      // "suck in" algorithm from Impl and treat hit detection in local coordinates
+      Precision step =
+          ((Impl *)this)
+              ->Impl::ComputeStepAndHittingBoundaryForLocalPoint(localpoint, localdir, step_limit, in_state, out_state);
 
-        // step was physics limited
-        if( ! out_state.IsOnBoundary() )
-          return step;
-
-        // otherwise if necessary do a relocation
-
-        // try relocation to refine out_state to correct location after the boundary
-        ((Impl*)this)->Impl::Relocate( MovePointAfterBoundary( localpoint, localdir, step ), in_state, out_state);
+      // step was physics limited
+      if (!out_state.IsOnBoundary())
         return step;
+
+      // otherwise if necessary do a relocation
+
+      // try relocation to refine out_state to correct location after the boundary
+      ((Impl *)this)->Impl::Relocate(MovePointAfterBoundary(localpoint, localdir, step), in_state, out_state);
+      return step;
     }
-
-
 
 protected:
   // a common relocate method ( to calculate propagated states after the boundary )
