@@ -37,6 +37,22 @@ static void PrintType() {
    printf("SpecializedSphere<%i, %i>", transCodeT, rotCodeT);
 }
 
+VECGEOM_CUDA_HEADER_BOTH
+ template <typename Stream> static void PrintType(Stream &s) {
+   s << "SpecializedSphere<" << transCodeT << "," << rotCodeT << ","
+     << ">";
+ }
+
+VECGEOM_CUDA_HEADER_BOTH
+template <typename Stream> static void PrintImplementationType(Stream &s) {
+  s << "SphereImplementation<" << transCodeT << "," << rotCodeT << ">";
+}
+
+VECGEOM_CUDA_HEADER_BOTH
+template <typename Stream> static void PrintUnplacedType(Stream &s) {
+  s << "UnplacedSphere";
+}
+
 template <class Backend>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE

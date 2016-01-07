@@ -167,6 +167,14 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual void PrintType() const =0;
 
+  // some functions allowing for some very basic "introspection"
+  // print the volume type to an outstream
+  virtual void PrintType(std::ostream &os) const = 0;
+  // print the implemtation struct of this volume to an outstream
+  virtual void PrintImplementationType(std::ostream &os) const = 0;
+  // print the unplaced type to an outstream
+  virtual void PrintUnplacedType(std::ostream &os) const = 0;
+
   /// Recursively prints contained volumes to standard output.
   VECGEOM_CUDA_HEADER_BOTH
   void PrintContent(const int depth = 0) const;
