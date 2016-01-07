@@ -101,6 +101,10 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual void PrintType() const { Specialization::PrintType(); }
 
+  virtual void PrintType(std::ostream &os) const { Specialization::PrintType(os); }
+  virtual void PrintImplementationType(std::ostream &os) const { Specialization::PrintImplementationType(os); }
+  virtual void PrintUnplacedType(std::ostream &os) const { Specialization::PrintUnplacedType(os); }
+
 #ifdef VECGEOM_CUDA_INTERFACE
 
   virtual size_t DeviceSizeOf() const { return DevicePtr<CudaType_t<Helper_t> >::SizeOf(); }
