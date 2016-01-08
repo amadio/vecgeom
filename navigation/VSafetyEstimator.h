@@ -88,8 +88,8 @@ public:
   virtual void ComputeVectorSafety(SOA3D<Precision> const &globalpoints, NavStatePool &states,
                                    SOA3D<Precision> &localpointworkspace, Precision *safeties) const override {
     // calculate local point from global point
-    int np = globalpoints.size();
-    for (int i = 0; i < np; ++i) {
+    auto np = globalpoints.size();
+    for (auto i=decltype(np){0}; i < np; ++i) {
       Transformation3D m;
       states[i]->TopMatrix(m);
       localpointworkspace.set(i, m.Transform(globalpoints[i]));
