@@ -72,11 +72,11 @@ class Wedge{
         VECGEOM_CUDA_HEADER_BOTH
         Vector3D<Precision> GetNormal2() const {return fNormalVector2; }
 
-        // very important:
         template<typename Backend>
         VECGEOM_CUDA_HEADER_BOTH
         typename Backend::bool_v Contains( Vector3D<typename Backend::precision_v> const& point ) const;
 
+        // GL note: for tubes, use of TubeImpl::PointInCyclicalSector outperformed next two methods in vector mode
         template<typename Backend>
         VECGEOM_CUDA_HEADER_BOTH
         typename Backend::bool_v ContainsWithBoundary( Vector3D<typename Backend::precision_v> const& point ) const;

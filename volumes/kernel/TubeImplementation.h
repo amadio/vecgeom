@@ -55,7 +55,7 @@ namespace TubeUtilities {
  * to use either at compile time (if it has enough information, saving an if statement) or at runtime.
 **/
 
-template<typename Backend, typename ShapeType, typename UnplacedVolumeType, bool onSurfaceT>
+  template<typename Backend, typename ShapeType, typename UnplacedVolumeType, bool onSurfaceT, bool includeSurface=true>
  VECGEOM_INLINE
  VECGEOM_CUDA_HEADER_BOTH
  void PointInCyclicalSector(UnplacedVolumeType const& volume, typename Backend::precision_v const &x, 
@@ -82,15 +82,18 @@ template<typename Backend, typename ShapeType, typename UnplacedVolumeType, bool
   Float_t endCheck = (-endx*y + endy*x);
 
   if(onSurfaceT) {
+    //in this case, includeSurface is irrelevant
     ret = (Abs(startCheck) <= kHalfTolerance) | (Abs(endCheck) <= kHalfTolerance);
   }
   else {
     if(smallerthanpi) {
-      ret = (startCheck >= -kHalfTolerance) & (endCheck >= -kHalfTolerance);
+      if(includeSurface) ret = (startCheck >= -kHalfTolerance) & (endCheck >= -kHalfTolerance);
+      else               ret = (startCheck >=  kHalfTolerance) & (endCheck >=  kHalfTolerance);
     }
     else {
-      ret = (startCheck >= -kHalfTolerance) | (endCheck >= -kHalfTolerance);
-    }    
+      if(includeSurface) ret = (startCheck >= -kHalfTolerance) | (endCheck >= -kHalfTolerance);
+      else               ret = (startCheck >=  kHalfTolerance) | (endCheck >=  kHalfTolerance);
+    }
   }
 }
 
@@ -110,24 +113,22 @@ void CircleTrajectoryIntersection(typename Backend::precision_v const &b,
 
   Float_t delta = b*b - c;
   Bool_t delta_mask;
-  if(!LargestSolution)
-   delta_mask = delta > 0.;
-  else
-   delta_mask = delta >= 0.;
+  if(!LargestSolution) delta_mask = delta > 0.;
+  else                 delta_mask = delta >= 0.;
   MaskedAssign(!delta_mask, 0. , &delta);
   delta = Sqrt(delta);
 
-  if(!LargestSolution)
-    delta = -delta;
+  if(!LargestSolution)  delta = -delta;
 
   dist = -b + delta;
 
   if(insectorCheck) {
-    // this may be the right solution when phi-sections are present
+/*    // this may be the right solution when phi-sections are present  // GLtemp: OK to remove
     if(!LargestSolution) {
       // this reassign is needed to catch surface points entering/exiting Rmax,Rmin faces or through phi-wedges
       MaskedAssign( dist<-kTolerance && -b-delta>-kTolerance, -b-delta, &dist);
     }
+*/
 
     Float_t hitz = pos.z() + dist * dir.z();
     Float_t hity = pos.y() + dist * dir.y();
@@ -135,13 +136,14 @@ void CircleTrajectoryIntersection(typename Backend::precision_v const &b,
 
     Bool_t insector = Backend::kTrue;
     if(checkPhiTreatment<TubeType>(tube)) {
-        insector = tube.GetWedge().ContainsWithBoundary<Backend>( Vector3D<typename Backend::precision_v>(hitx, hity, hitz) );
+      PointInCyclicalSector<Backend, TubeType, UnplacedTube, false, false>(tube, hitx, hity, insector);
+      //insector = tube.GetWedge().ContainsWithBoundary<Backend>( Vector3D<typename Backend::precision_v>(hitx, hity, hitz) );
     }
     ok = delta_mask & (dist >= -kTolerance) & (Abs(hitz) <= tube.z()) & insector;
 
-    Float_t hitDotN = hitx*dir.x() + hity*dir.y();
     if(directionCheck) {
-      // require that track is entering volume at intersection
+      // require that track is radially moving away at intersection
+      Float_t hitDotN = hitx*dir.x() + hity*dir.y();
       ok &= hitDotN < 0;
     }
   }
@@ -259,6 +261,7 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY,
 
   // approaching phi plane from the right side?
   // this depends whether we use it for DistanceToIn or DistanceToOut
+  // Note: wedge normals poing towards the wedge inside, by convention!
   if(insectorCheck) ok = ( dir.x()*normalX + dir.y()*normalY > 0. );  // DistToIn  -- require tracks entering volume
   else              ok = ( dir.x()*normalX + dir.y()*normalY < 0. );  // DistToOut -- require tracks leaving volume
 
@@ -266,31 +269,34 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY,
 
   Float_t dirDotXY = (dir.y()*alongX - dir.x()*alongY);
   MaskedAssign( dirDotXY!=0, (alongY*pos.x() - alongX*pos.y() ) / dirDotXY, &dist );
+  ok &= dist > -kTolerance;
+  if( Backend::early_returns && IsEmpty(ok) ) return;
 
   if(insectorCheck) {
     Float_t hitx = pos.x() + dist * dir.x();
     Float_t hity = pos.y() + dist * dir.y();
     Float_t hitz = pos.z() + dist * dir.z();
     Float_t r2 = hitx*hitx + hity*hity;
+    ok &= Abs(hitz) <= tube.tolIz()
+       && (r2 >= tube.tolIrmin2())
+       && (r2 <= tube.tolIrmax2());
 
-    ok = ok && Abs(hitz) <= tube.tolIz() &&
-          (r2 >= tube.tolIrmin2()) &&
-          (r2 <= tube.tolIrmax2()) &&
-          dist > -kTolerance;
-
+    // GL: tested with this if(PosDirPhiVec) around if(insector), so if(insector){} requires PosDirPhiVec==true to run
+    //  --> shapeTester still finishes OK (no mismatches) (some cycles saved...)
     if(PositiveDirectionOfPhiVector) {
       ok = ok && (hitx*alongX + hity*alongY) > 0.;
     }
   }
   else {
+    Float_t hitx = pos.x() + dist * dir.x();
+    Float_t hity = pos.y() + dist * dir.y();
     if(PositiveDirectionOfPhiVector) {
-      Float_t hitx = pos.x() + dist * dir.x();
-      Float_t hity = pos.y() + dist * dir.y();
       ok = ok && (hitx*alongX + hity*alongY) >= 0.;
     }
   }
 }
-}
+
+} // End of NS TubeUtilities
 
 class PlacedTube;
 
@@ -485,10 +491,10 @@ struct TubeImplementation {
       inside &= (tube.rmin2()-rsq) < -kTolerance*tube.rmin();
     }
     if(checkPhiTreatment<tubeTypeT>(tube) && !IsEmpty(inside)) {
-      // Bool_t insector;
-      // PointInCyclicalSector<Backend, tubeTypeT, UnplacedTube, true>(tube, point.x(), point.y(), insector); // GLtemp try true
-      // inside &= insector;
-      inside &= tube.GetWedge().ContainsWithoutBoundary<Backend>( point );
+      Bool_t insector;
+      PointInCyclicalSector<Backend, tubeTypeT, UnplacedTube, false, false>(tube, point.x(), point.y(), insector);
+      inside &= insector;
+      //inside &= tube.GetWedge().ContainsWithoutBoundary<Backend>( point );  // slower than PointInCyclicalSector()
     }
     done |= inside;
     if(Backend::early_returns && IsFull(done)) return;
@@ -511,7 +517,7 @@ struct TubeImplementation {
       Bool_t insector;
       PointInCyclicalSector<Backend, tubeTypeT, UnplacedTube, false>(tube, hitx, hity, insector);
       okz &= insector;
-      //okz &= tube.GetWedge().ContainsWithBoundary<Backend>( point ); // GLtemp: point is not right: use hitx,hity
+      //okz &= tube.GetWedge().ContainsWithBoundary<Backend>(  Vector3D<Float_t>(hitx, hity, 0.0) );
     }
     MaskedAssign( !done && okz, distz, &distance);
     done |= okz;
@@ -532,9 +538,9 @@ struct TubeImplementation {
     Float_t crmax = invnsq * (rsq - tube.rmax2());
     Float_t dist_rmax;
     Bool_t ok_rmax{ Backend::kFalse };
-    CircleTrajectoryIntersection<Backend, tubeTypeT, false, true, true>(b, crmax, tube, point, dir, dist_rmax, ok_rmax);
-
-    ok_rmax &= dist_rmax > -kHalfTolerance && dist_rmax<distance;
+//    CircleTrajectoryIntersection<Backend, tubeTypeT, false, true, false>(b, crmax, tube, point, dir, dist_rmax, ok_rmax);
+    CircleTrajectoryIntersection<Backend, tubeTypeT, false, true>(b, crmax, tube, point, dir, dist_rmax, ok_rmax);  // GLtemp - setting directionCheck=false for now
+    ok_rmax &= dist_rmax<distance;
     MaskedAssign( !done && ok_rmax, dist_rmax, &distance);
     done |= ok_rmax;
     if(Backend::early_returns && IsFull(done)) return;
@@ -554,7 +560,9 @@ struct TubeImplementation {
        */
       Float_t crmin = invnsq * (rsq - tube.rmin2());
       CircleTrajectoryIntersection<Backend, tubeTypeT, true, true>(b, crmin, tube, point, dir, dist_rmin, ok_rmin);
-      ok_rmin &= dist_rmin > -kHalfTolerance && dist_rmin<distance;
+
+      //ok_rmin &= dist_rmin > -kHalfTolerance && dist_rmin<distance;  // GLtemp: dist<-kHalfTol is already tested in function
+      ok_rmin &= dist_rmin<distance;
       MaskedAssign(!done && ok_rmin, dist_rmin, &distance);
       done |= ok_rmin;
     }
@@ -701,7 +709,7 @@ struct TubeImplementation {
       Bool_t ok_phi(false);
 
       Wedge const& w = tube.GetWedge();
-      if(SectorType<tubeTypeT>::value == kSmallerThanPi) { 
+      if(SectorType<tubeTypeT>::value == kSmallerThanPi) {
 
         Precision normal1X = w.GetNormal1().x();
         Precision normal1Y = w.GetNormal1().y();
@@ -909,7 +917,7 @@ struct TubeImplementation {
     }
   }
 
-}; // End of NS TubeUtilities
+}; // End of struct TubeImplementation
 } // end of inline NS
 } // End global namespace
 
