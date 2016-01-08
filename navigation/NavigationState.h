@@ -298,6 +298,11 @@ public:
 
    VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
+   Value_t
+   ValueAt(int level) const {return fPath[level];}
+
+   VECGEOM_INLINE
+   VECGEOM_CUDA_HEADER_BOTH
    void
    TopMatrix( Transformation3D & ) const;
 
