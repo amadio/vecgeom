@@ -313,17 +313,17 @@ public :
         ((Impl *)this)
             ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, in_state, out_state, step, hitcandidate);
         if(hitcandidate == nullptr)
-            step = TreatDistanceToMother(pvol, localpoint, localdir, step_limit);
+            step = Impl::TreatDistanceToMother(pvol, localpoint, localdir, step_limit);
       } else {
         // need to calc DistanceToOut first
-        step = TreatDistanceToMother( pvol, localpoint, localdir, step_limit );
+        step = Impl::TreatDistanceToMother( pvol, localpoint, localdir, step_limit );
           // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
         ((Impl *)this)->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, in_state, out_state, step, hitcandidate);
         if(hitcandidate==nullptr) counter++;
       }
 
       // fix state
-      step = PrepareOutState(in_state, out_state, step, step_limit, hitcandidate);
+      step = Impl::PrepareOutState(in_state, out_state, step, step_limit, hitcandidate);
 
       // step was physics limited
       if (!out_state.IsOnBoundary())
@@ -359,10 +359,10 @@ public :
         // parse the hitcandidates pointer as double to apply a mask
         T hitcandidates_as_doubles((double *)hitcandidates);
         if (Any(hitcandidates_as_doubles != 0.))
-          step = TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
+          step = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
       } else {
         // need to calc DistanceToOut first
-        step = TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
+        step = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
         step.store(out_steps + from_index);
 
         // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
@@ -374,7 +374,7 @@ public :
       for (unsigned int i = 0; i < ChunkSize; ++i) {
         unsigned int trackid = from_index + i;
         out_steps[trackid] =
-            PrepareOutState(*in_states[trackid], *out_states[trackid], out_steps[trackid], slimit[i], hitcandidates[i]);
+            Impl::PrepareOutState(*in_states[trackid], *out_states[trackid], out_steps[trackid], slimit[i], hitcandidates[i]);
 
         // step was physics limited
         if (!out_states[trackid]->IsOnBoundary())
