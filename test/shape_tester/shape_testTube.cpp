@@ -34,7 +34,7 @@ int main(int argc,char *argv[]) {
     }
   
   ShapeTester tester;
-
+  tester.EnableDebugger(true);
   if(argc>2)
   {
     if(strcmp(argv[2],"vis")==0)

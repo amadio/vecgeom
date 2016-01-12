@@ -23,7 +23,7 @@ int main(  int argc,char *argv[]) {
 VUSolid* sphere=new Sphere_t("test_sphere",15. , 20. ,PI/6, 4.265389, PI/3 ,0.235869);
    // VUSolid* sphere=new USphere("test_USphere",3.);
   ShapeTester tester;
-
+  tester.EnableDebugger(true);
   if(argc>1)
   {
     if(strcmp(argv[1],"vis")==0)

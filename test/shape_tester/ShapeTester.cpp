@@ -86,8 +86,13 @@ void ShapeTester::SetDefaults() {
   // Zero error list
   //
   fErrorList = 0;
+
+  fVisualize = false;
 }
 
+void ShapeTester::EnableDebugger(bool val) {
+  fVisualize = val;
+}
 UVector3 ShapeTester::GetRandomDirection() {
   double phi = 2. * UUtils::kPi * UUtils::Random();
   double theta = UUtils::ACos(1. - 2. * UUtils::Random());
@@ -1920,9 +1925,14 @@ void ShapeTester::ReportError(int *nError, UVector3 &p, UVector3 &v, double dist
   std::cout << " Distance = " << distance;
   std::cout << std::endl;
 
-  std::cout << ++(*nError) << " " << p.x() << " " << p.y() << " " << p.z() << " " << v.x() << " " << v.y() << " "
-            << v.z() << std::endl;
+  std::cout << std::setprecision(15) << ++(*nError) << " : [point] : [direction] ::  " << p <<" : "<< v << std::endl;
 
+  if(fVisualize) {
+    fVisualizer.AddVolume(fVolumeUSolids);
+    fVisualizer.AddPoint(p);
+    fVisualizer.AddLine(p, (p + distance * v) );
+    fVisualizer.Show();
+  }
   //
   // if debugging mode we have to exit now
   //

@@ -51,6 +51,10 @@ public:
 
   void AddVolume(VPlacedVolume const &volume);
 
+  void AddVolume(VPlacedVolume const *volume);
+  
+  void AddVolume(VUSolid const *volume);
+
   void AddVolume(VPlacedVolume const &volume,
                  Transformation3D const &transformation);
 
