@@ -34,6 +34,22 @@ void Visualizer::AddVolume(VPlacedVolume const &volume) {
   }
 }
 
+void Visualizer::AddVolume(VPlacedVolume const *volume) {
+  TGeoShape const *rootShape = volume->ConvertToRoot();
+  fVolumes.push_back(std::make_tuple(
+    std::shared_ptr<const TGeoShape>(rootShape),
+    std::unique_ptr<TGeoMatrix>(new TGeoIdentity()),
+    std::unique_ptr<TGeoVolume>(new TGeoVolume("", rootShape, nullptr))));
+  if (fVerbosity > 0) {
+    std::cout << "Added volume " << volume << " to Visualizer.\n";
+  }
+}
+
+void Visualizer::AddVolume(VUSolid const *volume){
+VPlacedVolume const *vol = dynamic_cast<VPlacedVolume const *>(volume);
+AddVolume(vol);
+}
+
 void Visualizer::AddVolume(VPlacedVolume const &volume,
                            Transformation3D const &transformation) {
   // Cannot store const pointer because Draw() is not const

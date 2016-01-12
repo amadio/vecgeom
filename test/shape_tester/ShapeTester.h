@@ -11,6 +11,8 @@
 #include "VUSolid.hh"
 #include "UUtils.hh"
 
+#include "utilities/Visualizer.h"
+
 const double kApproxEqualTolerance = 1E-6;
 
 struct ShapeTesterErrorList {
@@ -49,7 +51,7 @@ public:
    * to do the Convention Check
    */
   bool RunConventionChecker(VUSolid *testVolume);
-
+  void EnableDebugger(bool val); //function to enable or disable visualization for debugging
 
 private:
   void SetDefaults();
@@ -230,7 +232,9 @@ private:
   std::vector<std::string> fConventionMessage; //STL vector for convention error messages.
   int fScore; // an error code generate if conventions not followed, 0 mean convenetion followed.
   int fNumDisp; // number of points to be displayed in case a shape is not following conventions.
-
+  bool fVisualize;  //Flag to be set or unset by EnableDebugger() function that user will
+                    //call with true parameter if want to see visualization in case of some mismatch
+  vecgeom::Visualizer fVisualizer; //Visualizer object to visualize the geometry if fVisualize is set.
 };
 
 #endif
