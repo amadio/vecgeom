@@ -206,6 +206,15 @@ void PhiPlaneSafety( UnplacedTube const& tube,
   using namespace TubeTypes;
   typedef typename Backend::precision_v Float_t;
 
+  safety = kInfinity;
+  if(SectorType<TubeType>::value == kUnknownAngle) {
+    // for phi-sections w/dphi>PI, the right result could be distance to origin
+    MaskedAssign( tube.dphi() > M_PI, Sqrt(pos.x()*pos.x() + pos.y()*pos.y()), &safety);
+  }
+  else if( SectorType<TubeType>::value == kBiggerThanPi ) {
+    safety = Sqrt( pos.x()*pos.x() + pos.y()*pos.y() );
+  }
+
   Float_t phi1;
   PerpendicularDistance2D<Backend>(pos.x(), pos.y(), tube.alongPhi1x(), tube.alongPhi1y(), phi1);
   if(inside)
@@ -217,7 +226,9 @@ void PhiPlaneSafety( UnplacedTube const& tube,
   }
 
   // make sure point falls on positive part of projection
-  MaskedAssign(phi1<-kTolerance || pos.x()*tube.alongPhi1x()+pos.y()*tube.alongPhi1y() < 0, kInfinity, &phi1);
+  MaskedAssign(phi1>-kTolerance
+               && pos.x()*tube.alongPhi1x()+pos.y()*tube.alongPhi1y() > 0
+               && phi1<safety, phi1, &safety);
 
   Float_t phi2;
   PerpendicularDistance2D<Backend>(pos.x(), pos.y(), tube.alongPhi2x(), tube.alongPhi2y(), phi2);
@@ -225,9 +236,10 @@ void PhiPlaneSafety( UnplacedTube const& tube,
     phi2 *= -1;
 
   // make sure point falls on positive part of projection
-  MaskedAssign(phi2<-kTolerance || pos.x()*tube.alongPhi2x()+pos.y()*tube.alongPhi2y() < 0, kInfinity, &phi2);
-  safety = Min(phi1, phi2);
-  MaskedAssign(safety == kInfinity, Float_t(-1), &safety);
+  MaskedAssign(phi2>-kTolerance
+               && pos.x()*tube.alongPhi2x()+pos.y()*tube.alongPhi2y() > 0
+               && phi2<safety, phi2, &safety);
+
 }
 
 /*
@@ -467,13 +479,6 @@ struct TubeImplementation {
     Float_t rsq = point.x()*point.x() + point.y()*point.y();
     Float_t rdotn = point.x()*dir.x() + point.y()*dir.y();
     done |= (rsq-tube.rmax2()) > -kTolerance*tube.rmax() && rdotn >= 0;
-#ifdef TUBEDEBUG
-    if( !IsEmpty((rsq-tube.rmax2()) > kTolerance*tube.rmax() && rdotn >= 0)) {
-      std::cout<<"Tube D2I(): spot 2a - rsq-rmax2()="<< rsq-tube.rmax2()
-               <<", -kTol*rmax()="<< -kTolerance*tube.rmax()
-               <<", rdotn="<< rdotn <<", done="<< done <<" and distance="<< distance <<"\n";
-    }
-#endif
     if( Backend::early_returns && IsFull(done) ) return;
 
 
@@ -895,10 +900,7 @@ struct TubeImplementation {
      Float_t r = Sqrt(point.x()*point.x() + point.y()*point.y());
      Float_t safez = tube.z() - Abs(point.z());
      Float_t safermax = tube.rmax() - r;
-
      safety = Min(safez, safermax);
-     // std::cout<<"S2Oold: safez="<< safez
-     //          <<", safermax="<< safermax <<", safety="<< safety << std::endl;
 
      if(checkRminTreatment<tubeTypeT>(tube)) {
        Float_t safermin = r - tube.rmin();
@@ -912,8 +914,6 @@ struct TubeImplementation {
       PhiPlaneSafety<Backend, tubeTypeT, true>(tube, point, safephi);
       MaskedAssign(safephi < -kTolerance, kInfinity, &safephi);
       safety = Min(safety, safephi);
-      // std::cout<<"S2Oold: safephi="<< safephi
-      //          <<", safety="<< safety << std::endl;
     }
   }
 
