@@ -93,6 +93,7 @@ void ShapeTester::SetDefaults() {
 void ShapeTester::EnableDebugger(bool val) {
   fVisualize = val;
 }
+
 UVector3 ShapeTester::GetRandomDirection() {
   double phi = 2. * UUtils::kPi * UUtils::Random();
   double theta = UUtils::ACos(1. - 2. * UUtils::Random());
@@ -663,10 +664,10 @@ int ShapeTester::TestInsidePoint() {
       return errCode;
     }
     double safeDistanceFromOut = fVolumeUSolids->SafetyFromOutside(point);
-    if (safeDistanceFromOut > 0.0) {
+    if (safeDistanceFromOut >= 0.0) {
       UVector3 zero(0);
-      ReportError(&nError, point, zero, safeDistanceFromOut, "TI: SafetyFromOutside(p) not 0 for Point Inside");
-      // continue;
+      ReportError(&nError, point, zero, safeDistanceFromOut, "TI: SafetyFromOutside(p) should be Negative value (-1.) for Point Inside");
+      continue;
     }
 
     // Check values of Extent
@@ -715,8 +716,8 @@ int ShapeTester::TestInsidePoint() {
       }
       // Check DistanceToIn, 0 for now, has to be -1 in future
       double distIn = fVolumeUSolids->DistanceToIn(point, v);
-      if (distIn > 0.) {
-        // ReportError( nError, point, v, distIn, "TI: DistanceToIn(p,v) has to be 0 or negative");
+      if (distIn >= 0.) {
+         ReportError( &nError, point, v, distIn, "TI: DistanceToIn(p,v) has to be Negative value (-1.) for Inside point.");
         // std::cout<<"distIn="<<distIn<<std::endl;
         continue;
       }
@@ -734,6 +735,8 @@ int ShapeTester::TestInsidePoint() {
       }
       UVector3 norm1;
       valid = fVolumeUSolids->Normal(p, norm1);
+
+      //Direction of motion should not be inward
       if (norm1.Dot(v) < 0) {
         if (fVolumeUSolids->DistanceToIn(p, v) != 0) {
           ReportError(&nError, p, v, safeDistance, "TI: SurfaceNormal is incorrect");
@@ -774,9 +777,9 @@ int ShapeTester::TestOutsidePoint() {
 
     double safeDistanceFromInside = fVolumeUSolids->SafetyFromInside(point);
 
-    if (safeDistanceFromInside > 0.0) {
+    if (safeDistanceFromInside >= 0.0) {
       UVector3 zero(0);
-      ReportError(&nError, point, zero, safeDistanceFromInside, "TO: SafetyFromInside(p) not 0 for point Outside");
+      ReportError(&nError, point, zero, safeDistanceFromInside, "TO: SafetyFromInside(p) should be Negative value (-1.) for point Outside");
       // continue;
     }
 
@@ -798,6 +801,7 @@ int ShapeTester::TestOutsidePoint() {
         continue;
       }
 
+      //Moving the point to the Surface
       UVector3 p = point + dist * v;
       VUSolid::EnumInside insideOrNot = fVolumeUSolids->Inside(p);
       if (insideOrNot == vecgeom::EInside::kOutside) {
@@ -811,16 +815,16 @@ int ShapeTester::TestOutsidePoint() {
 
       dist = fVolumeUSolids->SafetyFromOutside(p);
 
-      // if (dist != 0) {
-      if (dist > VUSolid::Tolerance()) {
+       if (dist != 0) {
+      //if (dist > VUSolid::Tolerance()) {
         ReportError(&nError, p, v, safeDistance, "TO2: DistanceToIn(p) should be zero");
         // fLogger << "Dist != 0 : " << dist << endl;
         continue;
       }
 
       dist = fVolumeUSolids->SafetyFromInside(p);
-      // if (dist != 0) {
-      if (dist > VUSolid::Tolerance()) {
+      if (dist != 0) {
+      //if (dist > VUSolid::Tolerance()) {
         ReportError(&nError, p, v, safeDistance, "TO2: DistanceToOut(p) should be zero");
         continue;
       }
@@ -845,7 +849,8 @@ int ShapeTester::TestOutsidePoint() {
       dist = fVolumeUSolids->DistanceToOut(p, v, norm, convex);
       if (dist == 0)
         continue;
-
+      //But distance can be infinity if it is a corner point. Needs to handled carefully.
+      //For the time being considering that those situation does not happens.
       if (dist >= UUtils::kInfinity) {
         ReportError(&nError, p, v, safeDistance, "TO2: DistanceToOut(p,v) == kInfinity");
         continue;
@@ -913,8 +918,8 @@ int ShapeTester::TestOutsidePoint() {
         }
 
         int k;
-        // for( k=0; k < n; k++ ) {
-        for (k = 0; k < 10; k++) {
+        for( k=0; k < n; k++ ) {
+        //for (k = 0; k < 10; k++) {
           UVector3 p2top = fPoints[k + fOffsetInside] - p2;
 
           if (p2top.Dot(norm) > 0) {
