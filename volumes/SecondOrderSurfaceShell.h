@@ -139,8 +139,9 @@ public:
     Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> const &dir ) const {
 
-    typedef typename Backend::precision_v Float_t;
-//    typedef typename Backend::bool_v Bool_t;
+  typedef typename Backend::precision_v Float_t;
+//  typedef typename Backend::int_v Int_t;
+  typedef typename Backend::bool_v Bool_t;
 
   Float_t dist(kInfinity);
   Float_t dzp =fDz+point[2];
@@ -192,12 +193,15 @@ public:
 //     std::cout<<"  inva= "<< inva[i] << "  smin: " << smin[i] << " smax: " << smax[i] << "\n";
   }
 
-  // does not vectorize
   for (int i=0;i<N;++i){
-     {
-       MaskedAssign( (smin[i] > 0) && (smin[i] < dist), smin[i], &dist);
-       MaskedAssign( (smax[i] > 0) && (smax[i] < dist), smax[i], &dist);
-     }
+    Bool_t planar = Bool_t(fiscurved[i]==0);
+//    Bool_t crtbound = ( Abs(smin[i]) < 10*kTolerance || Abs(smax[i]) < 10*kTolerance);
+    
+    // Starting point may be propagated close to boundary
+    MaskedAssign(planar && Abs(smin[i])<10*kTolerance && dir.Dot(fNormals[i])<0, kInfinity, &smin[i]);
+    MaskedAssign(planar && Abs(smax[i])<10*kTolerance && dir.Dot(fNormals[i])<0, kInfinity, &smax[i]);
+    MaskedAssign( (smin[i] > -10*kTolerance) && (smin[i] < dist), Max(smin[i],0.), &dist);
+    MaskedAssign( (smax[i] > -10*kTolerance) && (smax[i] < dist), Max(smax[i],0.), &dist);
   }
   return (dist);
 } // end of function
@@ -290,13 +294,14 @@ typename Backend::precision_v DistanceToIn (
      std::cerr << "i " << i << " 1./smin " << 1./smin[i] << " 1./smax " << 1./smax[i] << " signa " << signa[i] << "\n";
 #endif
 //     if( fiscurved[i] > 0 ) {
-       MaskedAssign( (smin[i] > 0) , smin[i], &dist[i]);
-       MaskedAssign( (smax[i] > 0) && (smax[i] < dist[i]), smax[i], &dist[i] );
-//     }
-//    else // in planar case smin is the inverse distance and smin == smax
-//     {
-//       MaskedAssign( smin[i] > 0, 1./smin[i], &dist[i] );
-//     }
+    Bool_t planar = Bool_t(fiscurved[i]==0);
+//    Bool_t crtbound = ( Abs(smin[i]) < 10*kTolerance || Abs(smax[i]) < 10*kTolerance);
+    
+    // Starting point may be propagated close to boundary
+    MaskedAssign(planar && Abs(smin[i])<10*kTolerance && dir.Dot(fNormals[i])>0, kInfinity, &smin[i]);
+    MaskedAssign(planar && Abs(smax[i])<10*kTolerance && dir.Dot(fNormals[i])>0, kInfinity, &smax[i]);
+    MaskedAssign( (smin[i] > -10*kTolerance) , Max(smin[i],0.), &dist[i]);
+    MaskedAssign( (smax[i] > -10*kTolerance) && (smax[i] < dist[i]), Max(smax[i],0.), &dist[i] );
 #ifdef GENTRAPDEB
     std::cerr << "i " << i << " dist[i] " << dist[i] << "\n";
 #endif

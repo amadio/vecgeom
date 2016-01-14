@@ -66,7 +66,6 @@ bool UnplacedGenTrap::SegmentsCrossing(Vector3D<Precision> p, Vector3D<Precision
 
 //______________________________________________________________________________
  // computes if this gentrap is twisted
- // should be a private method?
  bool UnplacedGenTrap::ComputeIsTwisted()
  {
    // Computes tangents of twist angles (angles between projections on XY plane
@@ -122,13 +121,30 @@ bool UnplacedGenTrap::SegmentsCrossing(Vector3D<Precision> p, Vector3D<Precision
     return twisted;
  }
 
+//______________________________________________________________________________
+// computes if this gentrap is convex
+bool UnplacedGenTrap::ComputeIsConvex()
+{
+// Convexity is assured if the generic trap is planar and if one of the top or
+// bottom faces is a convex quadrilateral.
+  if (fIsTwisted) return false;
+  // All cross products of consecutive segments should be negative or zero
+  for (int i=0; i<4; ++i) {
+    int j = (i+1)%4;
+    Precision crossij = fVertices[i].x()*fVertices[j].y()-fVertices[j].x()*fVertices[i].y();
+    if (crossij > 0) return false;
+  }
+  return true;  
+}
 
+//______________________________________________________________________________
 VECGEOM_CUDA_HEADER_BOTH
 void UnplacedGenTrap::Print() const {
 //    printf("UnplacedGenTrap; more precise print to be implemented");
     UnplacedGenTrap::Print(std::cout);
 }
 
+//______________________________________________________________________________
 void UnplacedGenTrap::Print(std::ostream &os) const {
     int  oldprc = os.precision(16);
     os << "--------------------------------------------------------\n"
@@ -144,7 +160,8 @@ void UnplacedGenTrap::Print(std::ostream &os) const {
            << "   vx = " << fVertices[i].x() << " mm"
            << "   vy = " << fVertices[i].y() << " mm\n";
       }
-     os.precision(oldprc);
+    os << "   planar: " << IsPlanar() << "  convex: " << fIsConvex << std::endl;
+    os.precision(oldprc);
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>

@@ -11,9 +11,8 @@
 
 #include "base/Global.h"
 #include "volumes/PlacedVolume.h"
-#include "volumes/PlacedBox.h"
 #include "volumes/UnplacedGenTrap.h"
-#include "volumes/LogicalVolume.h"
+#include "volumes/kernel/GenTrapImplementation.h"
 
 namespace vecgeom {
 
@@ -84,9 +83,17 @@ public:
   }
 
   virtual
-  bool Normal(Vector3D<Precision> const & /*point*/, Vector3D<Precision> & /*normal*/ ) const override
+  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal ) const override
   {
-      return false;
+//    return false;
+
+    bool valid;
+    GenTrapImplementation<translation::kIdentity, rotation::kIdentity>::NormalKernel<kScalar>(
+              *GetUnplacedVolume(),
+              point,
+              normal, valid);
+    return valid;
+
   }
 
   virtual

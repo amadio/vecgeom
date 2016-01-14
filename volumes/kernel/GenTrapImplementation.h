@@ -15,7 +15,6 @@
 #include "volumes/kernel/GenericKernels.h"
 #include "volumes/kernel/BoxImplementation.h"
 #include "volumes/UnplacedGenTrap.h"
-#include "volumes/PlacedGenTrap.h"
 #include "backend/Backend.h"
 #include <iostream>
 
@@ -23,6 +22,8 @@ namespace vecgeom {
 VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, translation::kGeneric, RotationCode, rotation::kGeneric)
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
+
+class PlacedGenTrap;
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 struct GenTrapImplementation {
@@ -107,12 +108,6 @@ struct GenTrapImplementation {
   static void SafetyToOut(UnplacedGenTrap const &unplaced,
                           Vector3D<typename Backend::precision_v> const &point,
                           typename Backend::precision_v &safety);
-
- // template <class Backend>
- // static void Normal( Vector3D<Precision> const &dimensions,
- //         Vector3D<typename Backend::precision_v> const &point,
- //        Vector3D<typename Backend::precision_v> &normal,
- //         Vector3D<typename Backend::precision_v> &valid )
 
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH
@@ -332,6 +327,8 @@ void GenTrapImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndIns
   typename Backend::bool_v &completelyoutside) {
 
   typedef typename Backend::precision_v Float_t;
+  typedef typename Backend::bool_v Bool_t;
+  constexpr Precision tolerancesq = kTolerance*kTolerance;
   // Add stronger check against the bounding box, which can allow early returns if point is outside. 
   // Local point has to be translated in the bbox local frame.
 //  completelyoutside = Abs(localPoint.z()) > MakePlusTolerant<ForInside>( unplaced.fDz );
@@ -393,10 +390,13 @@ void GenTrapImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndIns
     Float_t  DeltaY = vertexY[j]-vertexY[i];
     cross[i]  = ( localPointX - vertexX[i] ) * DeltaY;
     cross[i] -= ( localPointY - vertexY[i] ) * DeltaX;
-
-    completelyoutside |= (cross[i] < MakeMinusTolerant<ForInside>( 0 ));
-    if (ForInside)
-      completelyinside  &= (cross[i] > MakePlusTolerant<ForInside>( 0 ));
+    if (ForInside) {
+      Bool_t onsurf = ( cross[i]*cross[i] < tolerancesq*(DeltaX*DeltaX+DeltaY*DeltaY) );
+      completelyoutside |= ((cross[i] < 0.) && (!onsurf));
+      completelyinside &= ((cross[i] > 0.) && (!onsurf));      
+    } else {
+      completelyoutside |= (cross[i] < MakeMinusTolerant<ForInside>( 0 ));
+    }  
 
 //    if (Backend::early_returns) {
       if ( IsFull(completelyoutside) ) {
@@ -660,7 +660,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
 
     Bool_t negDirMask = direction.z() < 0;
     Float_t sign = 1.;
-    MaskedAssign( negDirMask, -Backend::kOne, &sign);
+    MaskedAssign( negDirMask, -1., &sign);
 //    Float_t invDirZ = 1./direction.z();
     // this construct costs one multiplication more
     Float_t distmin = ( sign*unplaced.fDz - point.z() ) / direction.z();
@@ -742,8 +742,8 @@ void GenTrapImplementation<transCodeT, rotCodeT>::NormalKernel(
   // Do bottom and top faces
   Float_t safz = Abs(unplaced.GetDZ() - Abs(point.z()));
   Bool_t onZ = ( safz < 10.*kTolerance );
-  MaskedAssign(point.z()>0, Backend::kOne, &normal[2]);
-  MaskedAssign(point.z()<0, -Backend::kOne, &normal[2]);
+  MaskedAssign(onZ && (point.z()>0), 1., &normal[2]);
+  MaskedAssign(onZ && (point.z()<0), -1., &normal[2]);
   
 //    if (Backend::early_returns) {
       if ( IsFull(onZ) ) {
@@ -762,8 +762,8 @@ void GenTrapImplementation<transCodeT, rotCodeT>::NormalKernel(
   }
   Float_t seg;
   Float_t frac;
-  GetClosestEdge(point, vertexX, vertexY, seg, frac);
-  MaskedAssign( frac < Backend::kZero, Backend::kZero, &frac);
+  GetClosestEdge<Backend>(point, vertexX, vertexY, seg, frac);
+  MaskedAssign( frac < 0., 0., &frac);
   Int_t iseg = seg;
   if (unplaced.IsPlanar()) {
     // Normals for the planar case are pre-computed
@@ -787,7 +787,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::NormalKernel(
   Float_t az = unplaced.GetDZ() - point.z();
   Float_t bx = x2-x0;
   Float_t by = y2-y0;
-  Float_t bz = Backend::kZero;
+  Float_t bz = 0.;
   // Cross product of the vector given by the section segment (that contains the 
   // point) at z=point[2] and the vector connecting the point projection to its 
   // correspondent on the top edge.
@@ -811,10 +811,10 @@ void GenTrapImplementation<transCodeT, rotCodeT>::GetClosestEdge(
   typedef typename Backend::precision_v Float_t;
 //  typedef typename Backend::int_v Int_t;
   typedef typename Backend::bool_v Bool_t;
-  iseg = Backend::kZero;
+  iseg = 0.;
   Float_t p1X, p1Y, p2X, p2Y;
   Float_t lsq, dx, dy, dpx, dpy, u;
-  fraction = -Backend::kOne;
+  fraction = -1.;
   Float_t safe = kInfinity;
   Float_t ssq = kInfinity;
   for (int i=0; i<4; ++i) {
@@ -829,9 +829,9 @@ void GenTrapImplementation<transCodeT, rotCodeT>::GetClosestEdge(
     if ( !IsEmpty(collapsed) ) {
       MaskedAssign( lsq < kTolerance, dpx*dpx + dpy*dpy, &ssq );
       // Missing a masked assign allowing to perform multiple assignments...
+      MaskedAssign( ssq < safe, (Precision)i, &iseg );
+      MaskedAssign( ssq < safe, -1., &fraction );
       MaskedAssign( ssq < safe, ssq, &safe );
-      MaskedAssign( ssq < safe, i, &iseg );
-      MaskedAssign( ssq < safe, -Backend::kOne, &fraction );
       if ( IsFull(collapsed) ) continue;
     }
     // Projection fraction
@@ -840,11 +840,11 @@ void GenTrapImplementation<transCodeT, rotCodeT>::GetClosestEdge(
     MaskedAssign( u>1 && !collapsed, point.y()-vertexY[j], &dpy );
     MaskedAssign( u>=0 && u<=1 && !collapsed, dpx - u*dx, &dpx );
     MaskedAssign( u>=0 && u<=1 && !collapsed, dpy - u*dy, &dpy );
-    MaskedAssign( (u>1 || u<0) && !collapsed, -Backend::kOne, &u ); 
+    MaskedAssign( (u>1 || u<0) && !collapsed, -1., &u ); 
     ssq = dpx*dpx + dpy*dpy;
-    MaskedAssign( ssq < safe, ssq, &safe );
-    MaskedAssign( ssq < safe, j, &iseg );
+    MaskedAssign( ssq < safe, (Precision)i, &iseg );
     MaskedAssign( ssq < safe, u, &fraction );
+    MaskedAssign( ssq < safe, ssq, &safe );
   }  
 }
    

@@ -38,7 +38,8 @@ public:
   Precision fDz;
   Precision fInverseDz;
   Precision fHalfInverseDz;
-  bool fIstwisted;
+  bool fIsTwisted;
+  bool fIsConvex;
 
 
   // we store the connecting vectors in SOA Form
@@ -67,7 +68,7 @@ public:
                   fBoundingBoxOrig(0.,0.,0.),
                   fVertices(), fVerticesX(),  fVerticesY(),
                   fDz(halfzheight), fInverseDz(1./halfzheight), fHalfInverseDz(0.5/halfzheight),
-                  fIstwisted(false), 
+                  fIsTwisted(false), fIsConvex(false),
                   fConnectingComponentsX(), fConnectingComponentsY(),
                   fDeltaX(), fDeltaY(),
                   fSurfaceShell(vertices, halfzheight)
@@ -128,8 +129,9 @@ public:
       fDeltaY[i] = fVerticesY[j]-fVerticesY[i];
       fDeltaY[i+4] = fVerticesY[j+4]-fVerticesY[i+4];
     }
-    fIstwisted = ComputeIsTwisted();
-    //std::cout << "twisted= " << fIstwisted << std::endl;
+    fIsTwisted = ComputeIsTwisted();
+    fIsConvex = ComputeIsConvex();
+    //std::cout << "twisted= " << fIsTwisted << "  convex= " << fIsConvex << std::endl;
     ComputeBoundingBox();
 
   }
@@ -153,13 +155,19 @@ public:
   }
 
   // computes if this gentrap is twisted
-  // should be a private method?
   bool ComputeIsTwisted();
+
+  // computes if this gentrap is twisted
+  bool ComputeIsConvex();
   
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  bool IsPlanar() const { return (!fIstwisted); }
-  
+  bool IsPlanar() const { return (!fIsTwisted); }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  bool IsConvex() const override { return (fIsConvex); }
+ 
   // computes if opposite segments are crossing, making a malformed shape
   // This can become a general utility
   bool SegmentsCrossing(Vector3D<Precision> pa, Vector3D<Precision> pb,
