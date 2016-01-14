@@ -29,6 +29,7 @@ public:
   ~ShapeTester();
 
   int Run(VUSolid *testVolume);
+  void Run(VUSolid *testVolume,char *type);
   int RunMethod(VUSolid *testVolume, std::string fMethod1);
   inline void SetFilename(const std::string &newFilename) { fFilename = newFilename; }
   inline void SetMaxPoints(const int newMaxPoints) { fMaxPoints = newMaxPoints; }
@@ -235,6 +236,8 @@ private:
   bool fVisualize;  //Flag to be set or unset by EnableDebugger() function that user will
                     //call with true parameter if want to see visualization in case of some mismatch
   vecgeom::Visualizer fVisualizer; //Visualizer object to visualize the geometry if fVisualize is set.
+  bool fStat; // data member to show the statistic visualtion if set to true
+  bool fDebug;// data member to visualized the shape and first mismatched point with direction
 };
 
 #endif
