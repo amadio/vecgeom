@@ -52,6 +52,7 @@ using namespace std;
  */
 
 ShapeTester::ShapeTester() { SetDefaults(); }
+//ShapeTester::ShapeTester(bool val) { SetDefaults(); fVisualizer = new vecgeom::Visualizer(val); fVisualize = val; }
 
 ShapeTester::~ShapeTester() {}
 
@@ -88,6 +89,9 @@ void ShapeTester::SetDefaults() {
   fErrorList = 0;
 
   fVisualize = false;
+  fStat = false;
+  fDebug = false;
+
 }
 
 void ShapeTester::EnableDebugger(bool val) {
@@ -228,8 +232,10 @@ int ShapeTester::ShapeNormal() {
 
 #ifdef VECGEOM_ROOT
   // visualisation
-  new TCanvas("shape03", "ShapeNormals", 1000, 800);
-  pm2->Draw();
+  if (fStat) {
+    new TCanvas("shape03", "ShapeNormals", 1000, 800);
+    pm2->Draw();
+  }
 #endif
   std::cout << "% " << std::endl;
   std::cout << "% TestShapeNormal reported = " << CountErrors() << " errors" << std::endl;
@@ -356,15 +362,17 @@ int ShapeTester::ShapeDistances() {
 
 #ifdef VECGEOM_ROOT
   // Histograms
-  TCanvas *c4 = new TCanvas("c4", "Residuals DistancsToIn/Out", 800, 600);
-  c4->Update();
-  hist1->Draw();
-  TCanvas *c5 = new TCanvas("c5", "Residuals DistancsToIn", 800, 600);
-  c5->Update();
-  hist2->Draw();
-  TCanvas *c6 = new TCanvas("c6", "Residuals DistancsToOut", 800, 600);
-  c6->Update();
-  hist3->Draw();
+  if (fStat) {
+    TCanvas *c4 = new TCanvas("c4", "Residuals DistancsToIn/Out", 800, 600);
+    c4->Update();
+    hist1->Draw();
+    TCanvas *c5 = new TCanvas("c5", "Residuals DistancsToIn", 800, 600);
+    c5->Update();
+    hist2->Draw();
+    TCanvas *c6 = new TCanvas("c6", "Residuals DistancsToOut", 800, 600);
+    c6->Update();
+    hist3->Draw();
+  }
 #endif
 
   return errCode;
@@ -559,6 +567,7 @@ int ShapeTester::TestSurfacePoint() {
   pm5->SetMarkerStyle(20);
   pm5->SetMarkerSize(1);
   pm5->SetMarkerColor(kRed);
+
 #endif
 
   for (int i = 0; i < fMaxPointsSurface + fMaxPointsEdge; i++) { // test GetPointOnSurface()
@@ -624,8 +633,10 @@ int ShapeTester::TestSurfacePoint() {
   }
 #ifdef VECGEOM_ROOT
   // visualisation
-  new TCanvas("shape05", "GetPointOnSurface", 1000, 800);
-  pm5->Draw();
+  if (fStat) {
+    new TCanvas("shape05", "GetPointOnSurface", 1000, 800);
+    pm5->Draw();
+  }
 #endif
   std::cout << "% " << std::endl;
   std::cout << "% Test Surface Point reported = " << CountErrors() << " errors" << std::endl;
@@ -726,11 +737,11 @@ int ShapeTester::TestInsidePoint() {
 
       VUSolid::EnumInside insideOrNot = fVolumeUSolids->Inside(p);
       if (insideOrNot == vecgeom::EInside::kInside) {
-        ReportError(&nError, point, v, safeDistance, "TI: DistanceToOut(p,v) undershoots");
+        ReportError(&nError, point, v, dist, "TI: DistanceToOut(p,v) undershoots");
         continue;
       }
       if (insideOrNot == vecgeom::EInside::kOutside) {
-        ReportError(&nError, point, v, safeDistance, "TI: DistanceToOut(p,v) overshoots");
+        ReportError(&nError, point, v, dist, "TI: DistanceToOut(p,v) overshoots");
         continue;
       }
       UVector3 norm1;
@@ -1042,11 +1053,11 @@ int ShapeTester::TestAccuracyDistanceToIn(double dist) {
             VUSolid::EnumInside surfaceP = fVolumeUSolids->Inside(pointIn + distOut1 * vec);
             if (distOut1 >= UUtils::kInfinity) {
               iInInf++;
-              ReportError(&nError, pointIn, vec, distOut1, "TAD: Distance ToOut is Infinity  for point Inside");
+              ReportError(&nError, pointIn, vec, distOut1, "TAD1: Distance ToOut is Infinity  for point Inside");
             }
             if (std::fabs(distOut1) < tolerance) {
               iInZero++;
-              ReportError(&nError, pointIn, vec, distOut1, "TAD: Distance ToOut < tolerance  for point Inside");
+              ReportError(&nError, pointIn, vec, distOut1, "TAD1: Distance ToOut < tolerance  for point Inside");
             }
             iIn++;
             if (surfaceP != vecgeom::EInside::kSurface) {
@@ -1101,9 +1112,11 @@ int ShapeTester::TestAccuracyDistanceToIn(double dist) {
     std::cout << "TestAccuracyDistanceToIn::Errors SolidUSolid ::From total number of Points  = " << iIn << std::endl;
   }
 #ifdef VECGEOM_ROOT
-  TCanvas *c7 = new TCanvas("c7", "Accuracy DistancsToIn", 800, 600);
-  c7->Update();
-  hist10->Draw();
+  if (fStat) {
+    TCanvas *c7 = new TCanvas("c7", "Accuracy DistancsToIn", 800, 600);
+    c7->Update();
+    hist10->Draw();
+  }
 #endif
   std::cout << "% " << std::endl;
   std::cout << "% TestAccuracyDistanceToIn reported = " << CountErrors() << " errors" << std::endl;
@@ -1164,8 +1177,10 @@ int ShapeTester::ShapeSafetyFromInside(int max) {
   }
 #ifdef VECGEOM_ROOT
   // visualisation
-  new TCanvas("shape", "ShapeSafetyFromInside", 1000, 800);
-  pm3->Draw();
+  if (fStat) {
+    new TCanvas("shape", "ShapeSafetyFromInside", 1000, 800);
+    pm3->Draw();
+  }
 #endif
   std::cout << "% " << std::endl;
   std::cout << "% TestShapeSafetyFromInside reported = " << CountErrors() << " errors" << std::endl;
@@ -1235,8 +1250,10 @@ int ShapeTester::ShapeSafetyFromOutside(int max) {
   }
 #ifdef VECGEOM_ROOT
   // visualisation
-  new TCanvas("shapeTest", "ShapeSafetyFromOutside", 1000, 800);
-  pm4->Draw();
+  if (fStat) {
+    new TCanvas("shapeTest", "ShapeSafetyFromOutside", 1000, 800);
+    pm4->Draw();
+  }
 #endif
   std::cout << "% " << std::endl;
   std::cout << "% TestShapeSafetyFromOutside reported = " << CountErrors() << " errors" << std::endl;
@@ -1273,7 +1290,9 @@ int ShapeTester::XRayProfile(double theta, int nphi, int ngrid, bool useeps) {
   TH1F *hxprofile = new TH1F("xprof", Form("X-ray capacity profile of shape %s for theta=%g degrees",
                                            fVolumeUSolids->GetName().c_str(), theta),
                              nphi, 0, 360);
-  new TCanvas("c8", "X-ray capacity profile");
+  if (fStat) {
+    new TCanvas("c8", "X-ray capacity profile");
+  }
   double dphi = 360. / nphi;
   double phi = 0;
   double phi0 = 5;
@@ -1302,7 +1321,9 @@ int ShapeTester::XRayProfile(double theta, int nphi, int ngrid, bool useeps) {
   hxprofile->GetYaxis()->SetRangeUser(minval, maxval);
   hxprofile->SetMarkerStyle(4);
   hxprofile->SetStats(kFALSE);
-  hxprofile->Draw();
+  if (fStat) {
+    hxprofile->Draw();
+  }
   TF1 *lin = new TF1("linear", Form("%f", fGCapacityAnalytical), 0, 360);
   lin->SetLineColor(kRed);
   lin->SetLineStyle(kDotted);
@@ -1440,9 +1461,10 @@ int ShapeTester::Integration(double theta, double phi, int ngrid, bool useeps, i
 
 #ifdef VECGEOM_ROOT
   if (graphics) {
-
-    new TCanvas("c11", "X-ray scan");
-    xprof->DrawCopy("LEGO1");
+    if (fStat) {
+      new TCanvas("c11", "X-ray scan");
+      xprof->DrawCopy("LEGO1");
+    }
   }
 #endif
 
@@ -1772,8 +1794,22 @@ void ShapeTester::SetFolder(const string &newFolder) {
   fFolder = newFolder + "/";
 }
 
+void ShapeTester::Run(VUSolid *testVolume,char *type){
+  if (strcmp(type, "stat") == 0) {
+    fStat = true;
+    Run(testVolume);
+    fVisualizer.GetTApp()->Run();
+  } else {
+    if (strcmp(type, "debug") == 0) {
+      fDebug = true;
+      Run(testVolume);
+    } else
+      Run(testVolume);
+  }
+}
+
 int ShapeTester::Run(VUSolid *testVolume) {
-  //Running Convention first before running any ShapeTester tests
+ //Running Convention first before running any ShapeTester tests
   RunConventionChecker(testVolume);
   fNumDisp = 5;
   int errCode = 0;
@@ -1897,7 +1933,7 @@ void ShapeTester::ReportError(int *nError, UVector3 &p, UVector3 &v, double dist
   ShapeTesterErrorList *last = 0, *errors = fErrorList;
   while (errors) {
 
-    if (errors->fMessage == comment) {
+   if (errors->fMessage == comment) {
       if (++errors->fNUsed > fNumDisp)
         return;
       break;
@@ -1925,17 +1961,17 @@ void ShapeTester::ReportError(int *nError, UVector3 &p, UVector3 &v, double dist
   //
 
   std::cout << "% " << comment;
-  if (errors->fNUsed == fNumDisp)
+ if (errors->fNUsed == fNumDisp)
     std::cout << " (any further such errors suppressed)";
   std::cout << " Distance = " << distance;
   std::cout << std::endl;
 
   std::cout << std::setprecision(15) << ++(*nError) << " : [point] : [direction] ::  " << p <<" : "<< v << std::endl;
 
-  if(fVisualize) {
-    fVisualizer.AddVolume(fVolumeUSolids);
+  if (fDebug) {
+    fVisualizer.AddVolume(*dynamic_cast<vecgeom::VPlacedVolume *>(fVolumeUSolids));
     fVisualizer.AddPoint(p);
-    fVisualizer.AddLine(p, (p + distance * v) );
+    fVisualizer.AddLine(p, (p + vecgeom::kInfinity * v));
     fVisualizer.Show();
   }
   //

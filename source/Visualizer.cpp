@@ -19,11 +19,17 @@
 
 namespace vecgeom {
 
-   Visualizer::Visualizer() : fVerbosity(0), fVolumes(), fMarkers(), fLines() {}
+Visualizer::Visualizer() : fVerbosity(0), fVolumes(), fMarkers(), fLines(), fApp(0), fGeoManager(0) {
+  fApp = new TApplication("VecGeom Visualizer", NULL, NULL);
+}
 
-Visualizer::~Visualizer() {}
+Visualizer::~Visualizer() {
+  delete fApp;
+}
 
 void Visualizer::AddVolume(VPlacedVolume const &volume) {
+  if (fGeoManager) delete fGeoManager;
+  fGeoManager = new TGeoManager("visualizer","");
   TGeoShape const *rootShape = volume.ConvertToRoot();
   fVolumes.push_back(std::make_tuple(
     std::shared_ptr<const TGeoShape>(rootShape),
@@ -32,22 +38,6 @@ void Visualizer::AddVolume(VPlacedVolume const &volume) {
   if (fVerbosity > 0) {
     std::cout << "Added volume " << volume << " to Visualizer.\n";
   }
-}
-
-void Visualizer::AddVolume(VPlacedVolume const *volume) {
-  TGeoShape const *rootShape = volume->ConvertToRoot();
-  fVolumes.push_back(std::make_tuple(
-    std::shared_ptr<const TGeoShape>(rootShape),
-    std::unique_ptr<TGeoMatrix>(new TGeoIdentity()),
-    std::unique_ptr<TGeoVolume>(new TGeoVolume("", rootShape, nullptr))));
-  if (fVerbosity > 0) {
-    std::cout << "Added volume " << volume << " to Visualizer.\n";
-  }
-}
-
-void Visualizer::AddVolume(VUSolid const *volume){
-VPlacedVolume const *vol = dynamic_cast<VPlacedVolume const *>(volume);
-AddVolume(vol);
 }
 
 void Visualizer::AddVolume(VPlacedVolume const &volume,
@@ -141,17 +131,14 @@ void Visualizer::AddLine(TPolyLine3D const &line) {
 }
 
 void Visualizer::Show() const {
-  TApplication app("VecGeom Visualizer", NULL, NULL);
-  TAxis3D axes;
-  TGeoManager &geoManager(*std::get<2>(fVolumes.front())->GetGeoManager());
-  geoManager.SetTopVolume(
-      geoManager.MakeBox("Top", NULL, kInfinity, kInfinity, kInfinity));
-  TGeoVolume *top = geoManager.GetTopVolume();
-  for (auto &volume : fVolumes) {
+ TAxis3D axes;
+ TGeoVolume *top = fGeoManager->MakeBox("Top", NULL,kInfinity, kInfinity, kInfinity); 
+ fGeoManager->SetTopVolume(top);
+ for (auto &volume : fVolumes) {
     top->AddNode(std::get<2>(volume).get(), top->GetNdaughters(),
                  std::get<1>(volume).get());
   }
-  geoManager.GetTopVolume()->Draw();
+  top->Draw();
   for (auto &marker : fMarkers) {
     marker->Draw();
   }
@@ -159,8 +146,8 @@ void Visualizer::Show() const {
     line->Draw();
   }
   gPad->GetView()->ShowAxis();
- // axes.Draw();
-  app.Run();
+  axes.Draw();
+  fApp->Run();
 }
 
 void Visualizer::Clear() {
