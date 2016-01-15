@@ -3,8 +3,6 @@
 export LC_CTYPE=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
-kinit sftnight@CERN.CH -5 -V -k -t /ec/conf/sftnight.keytab
-
 THIS=$(dirname ${BASH_SOURCE[0]})
 
 # first arguments is the source directory
