@@ -328,7 +328,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndIns
 
   typedef typename Backend::precision_v Float_t;
   typedef typename Backend::bool_v Bool_t;
-  constexpr Precision tolerancesq = kTolerance*kTolerance;
+  constexpr Precision tolerancesq = 100.*kTolerance*kTolerance;
   // Add stronger check against the bounding box, which can allow early returns if point is outside. 
   // Local point has to be translated in the bbox local frame.
 //  completelyoutside = Abs(localPoint.z()) > MakePlusTolerant<ForInside>( unplaced.fDz );

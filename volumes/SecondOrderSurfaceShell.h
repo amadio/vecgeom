@@ -41,6 +41,7 @@ private:
 
     // height of surface (coming from the height of the GenTrap)
     Precision fDz;
+    Precision fDz2;  // 0.5/fDz
 
     // indicate which surfaces are planar
     Precision fiscurved[N];
@@ -50,10 +51,15 @@ private:
 		
     // pre-computed normals
     Vector3D<Precision> fNormals[N];
-
+    
+    // pre-computed cross products for normal computation
+    Vector3D<Precision> fViCrossHi0[N];
+    Vector3D<Precision> fViCrossVj[N];
+    Vector3D<Precision> fHi1CrossHi0[N];
+    
 public:
     
-    SecondOrderSurfaceShell( Vector3D<Precision> * vertices, Precision dz ) : fDz(dz) {
+    SecondOrderSurfaceShell( Vector3D<Precision> * vertices, Precision dz ) : fDz(dz), fDz2(0.5/dz) {
 				Vector3D<Precision> va, vb, vc, vd;
 				for(int i=0;i<N;++i)
         {
@@ -74,11 +80,10 @@ public:
 						vd[2] = dz;
             fxd[i]=vertices[N+j][0];
             fyd[i]=vertices[N+j][1];
-            Precision dz2 =0.5/fDz;
-            ftx1[i]=dz2*(fxb[i]-fxa[i]);
-            fty1[i]=dz2*(fyb[i]-fya[i]);
-            ftx2[i]=dz2*(fxd[i]-fxc[i]);
-            fty2[i]=dz2*(fyd[i]-fyc[i]);
+            ftx1[i]=fDz2*(fxb[i]-fxa[i]);
+            fty1[i]=fDz2*(fyb[i]-fya[i]);
+            ftx2[i]=fDz2*(fxd[i]-fxc[i]);
+            fty2[i]=fDz2*(fyd[i]-fyc[i]);
 
             ft1crosst2[i]=ftx1[i]*fty2[i] - ftx2[i]*fty1[i];
             fDeltatx[i]=ftx2[i]-ftx1[i];
@@ -90,7 +95,11 @@ public:
 							fNormals[i] = Vector3D<Precision>::Cross(vb-va, vd-vb);
 							if (fNormals[i].Mag2() < kTolerance) fNormals[i].Set(0.,0.,1.); // No surface, just a line
 						}
-						fNormals[i].Normalize();	
+						fNormals[i].Normalize();
+            // Cross products used for normal computation
+            fViCrossHi0[i] = Vector3D<Precision>::Cross(vb-va, vc-va);
+            fViCrossVj[i] = Vector3D<Precision>::Cross(vb-va, vd-vc);
+            fHi1CrossHi0[i] = Vector3D<Precision>::Cross(vd-vb, vc-va);
 #ifdef GENTRAPDEB
 						std::cout << "fNormals[" << i << "] = " << fNormals[i] << std::endl;				
 #endif
@@ -144,54 +153,8 @@ public:
   typedef typename Backend::bool_v Bool_t;
 
   Float_t dist(kInfinity);
-  Float_t dzp =fDz+point[2];
-  // calculate everything needed to solve the second order equation
-  Float_t a[N],b[N],c[N],d[N];
-  Float_t signa[N], inva[N];
-
-	// vectorizes
-  for (int i=0;i<N;++i) {
-     Float_t xs1 =fxa[i]+ftx1[i]*dzp;
-     Float_t ys1 =fya[i]+fty1[i]*dzp;
-     Float_t xs2 =fxc[i]+ftx2[i]*dzp;
-     Float_t ys2 =fyc[i]+fty2[i]*dzp;
-     Float_t dxs =xs2-xs1;
-     Float_t dys =ys2-ys1;
-     a[i]=(fDeltatx[i]*dir[1]-fDeltaty[i]*dir[0]+ft1crosst2[i]*dir[2])*dir[2];
-
-     // I am wondering whether we can simplify this a bit ( the minuses might cancel out some terms )
-     b[i]=dxs*dir[1]-dys*dir[0]+(fDeltatx[i]*point[1]-fDeltaty[i]*point[0]+fty2[i]*xs1-fty1[i]*xs2
-                           +ftx1[i]*ys2-ftx2[i]*ys1)*dir[2];
-
-     c[i]=dxs*point[1]-dys*point[0] + xs1*ys2-xs2*ys1;
-     d[i]=b[i]*b[i]-4*a[i]*c[i];
-  }
-
-  // does not vectorize
-  for (int i=0;i<N;++i) {
-     // zero or one to start with
-      signa[i] = 0.;
-      MaskedAssign( a[i] < -kTolerance, (Float_t)(-Backend::kOne), &signa[i]);
-      MaskedAssign( a[i] > kTolerance, (Float_t)Backend::kOne, &signa[i]);
-      inva[i] = c[i]/(b[i]*b[i]);
-      MaskedAssign( Abs(a[i]) > kTolerance, 1./(2.*a[i]), &inva[i]);
-  }
-
   Float_t smin[N],smax[N];
-  // vectorizes
-//  std::cout<<point<<std::endl;
-  for (int i=0;i<N;++i) {
-     // treatment for curved surfaces. Invalid solutions will be excluded.
-
-//     Float_t inva = (fiscurved[i]>0) ?  1./(2.*a[i]) : c[i]/(b[i]*b[i]);
-//     Float_t inva = 1./(2.*a[i]);
-     Float_t sqrtd = signa[i]*Sqrt(d[i]);
-     // what is the meaning of this??
-     smin[i]=(-b[i]-sqrtd)*inva[i];
-     smax[i]=(-b[i]+sqrtd)*inva[i]; 
-//     std::cout<<i<< ": a= "<< a[i] << " b= " << b[i] << " c= " << c[i] << " d= "<<d[i]<<"\n";  
-//     std::cout<<"  inva= "<< inva[i] << "  smin: " << smin[i] << " smax: " << smax[i] << "\n";
-  }
+  ComputeSminSmax<Backend>(point,dir,smin,smax);
 
   for (int i=0;i<N;++i){
     Bool_t planar = Bool_t(fiscurved[i]==0);
@@ -237,65 +200,58 @@ typename Backend::precision_v DistanceToIn (
   typedef typename Backend::precision_v Float_t;
   typedef typename Backend::bool_v Bool_t;
 
-
-  Float_t dzp =fDz+point[2];
-  // calculate everything needed to solve the second order equation
-  Float_t a[N],b[N],c[N],d[N];
-  Float_t signa[N], inva[N];
-
-  // vectorizes
-  for (int i=0;i<N;++i)
-  {
-     Float_t xs1 =fxa[i]+ftx1[i]*dzp;
-     Float_t ys1 =fya[i]+fty1[i]*dzp;
-     Float_t xs2 =fxc[i]+ftx2[i]*dzp;
-     Float_t ys2 =fyc[i]+fty2[i]*dzp;
-     Float_t dxs =xs2-xs1;
-     Float_t dys =ys2-ys1;
-     a[i]=(fDeltatx[i]*dir[1]-fDeltaty[i]*dir[0]+ft1crosst2[i]*dir[2])*dir[2];
-
-     // I am wondering whether we can simplify this a bit ( the minuses might cancel out some terms )
-     b[i]=dxs*dir[1]-dys*dir[0]+
-             (fDeltatx[i]*point[1]-fDeltaty[i]*point[0]+fty2[i]*xs1-fty1[i]*xs2
-                                  +ftx1[i]*ys2-ftx2[i]*ys1)*dir[2];
-
-     c[i]=dxs*point[1]-dys*point[0] + xs1*ys2-xs2*ys1;
-     d[i]=b[i]*b[i]-4*a[i]*c[i];
-  }
-
-  // does not vectorize
-  for (int i=0;i<N;++i) {
-     // zero or one to start with
-      signa[i] = 0.;
-      MaskedAssign( a[i] < -kTolerance, (Float_t)(-Backend::kOne), &signa[i]);
-      MaskedAssign( a[i] > kTolerance, (Float_t)Backend::kOne, &signa[i]);
-      inva[i] = c[i]/(b[i]*b[i]);
-      MaskedAssign( Abs(a[i]) > kTolerance, 1./(2.*a[i]), &inva[i]);
-  }
-
   Float_t smin[N],smax[N];
-  // vectorizes
-  for (int i=0;i<N;++i)
-  {
-    Float_t sqrtd = signa[i]*Sqrt(d[i]);
-    smin[i]=(-b[i]-sqrtd)*inva[i];
-    smax[i]=(-b[i]+sqrtd)*inva[i];     
-  }
-
+  ComputeSminSmax<Backend>(point,dir,smin,smax);
 
   // now we need to analyse which of those distances is good
   // does not vectorize
+  Float_t crtdist;
   Float_t dist[N];
+  Vector3D<Float_t> hit;
+  Float_t resultdistance(kInfinity);
+  Float_t tolerance = 10. * kTolerance;
+  Vector3D<Float_t> unorm;
+  Float_t r = -1.;
+  Float_t rz;
   for (int i=0;i<N;++i){
-     dist[i]=kInfinity;
+    crtdist=smin[i];
+    // Extrapolate with hit distance candidate
+    hit = point + crtdist*dir;
+    Bool_t crossing = (Abs(hit.z()) < fDz+kTolerance);
+    // Early skip surface if not in Z range
+    if ( !IsEmpty(crossing) ) {;
+      // Compute local un-normalized outwards normal direction and hit ratio factors
+      UNormal<Backend>(hit, i, unorm, rz, r);
+      // Distance have to be positive within tolerance, and crossing must be inwards
+      crossing &= ( crtdist > -tolerance) & (dir.Dot(unorm)<0.);
+      // Propagated hitpoint must be on surface (rz in [0,1] checked already)
+      crossing &= (r >= 0.) & (r <= 1.);
+      MaskedAssign(crossing && crtdist<resultdistance, Max(crtdist,0.), &resultdistance);
+    }  
+    // For the particle(s) not crossing at smin, try smax
+    if ( !IsFull(crossing) ) {
+      // Treat only particles not crossing at smin
+      crossing = !crossing;
+      crtdist=smax[i];
+      hit = point + crtdist*dir;
+      crossing &= (Abs(hit.z()) < fDz+kTolerance);
+      if ( IsEmpty(crossing) ) continue;
+      UNormal<Backend>(hit, i, unorm, rz, r);
+      crossing &= ( crtdist > -tolerance) & (dir.Dot(unorm)<0.);
+      crossing &= (r >= 0.) & (r <= 1.);
+      MaskedAssign(crossing && crtdist<resultdistance, Max(crtdist,0.), &resultdistance);
+    }
+  }  
+  return (resultdistance);
+        
 //#define GENTRAPDEB = 1
 #ifdef GENTRAPDEB
      std::cerr << "i " << i << " smin " << smin[i] << " smax " << smax[i] << " signa " << signa[i] << "\n";
      std::cerr << "i " << i << " 1./smin " << 1./smin[i] << " 1./smax " << 1./smax[i] << " signa " << signa[i] << "\n";
 #endif
-//     if( fiscurved[i] > 0 ) {
+
+  for (int i=0;i<N;++i){
     Bool_t planar = Bool_t(fiscurved[i]==0);
-//    Bool_t crtbound = ( Abs(smin[i]) < 10*kTolerance || Abs(smax[i]) < 10*kTolerance);
     
     // Starting point may be propagated close to boundary
     MaskedAssign(planar && Abs(smin[i])<10*kTolerance && dir.Dot(fNormals[i])>0, kInfinity, &smin[i]);
@@ -313,13 +269,16 @@ typename Backend::precision_v DistanceToIn (
   // so we can not early return on the first hit ( unless we sort the distances first )
 
   // an alternative approach would be to do some prefiltering ( like in the box ) based on safeties and directions
-  Float_t resultdistance(kInfinity);
+//  Float_t resultdistance(kInfinity);
 #ifndef GENTRAP_VEC_HITCHECK
   for (int i=0;i<N;++i)
   {
       // put this into a separate kernel
       Float_t zhit = point.z() + dist[i]*dir.z();
       Bool_t isinz = Abs(zhit) < fDz;
+      // Do the treatment of points near boundaries, where the normal
+      // direction is required.
+//      Bool_t nearby = 
 #ifdef GENTRAPDEB
           std::cerr << "isinz " << i << ": " << isinz << "\n";
 #endif
@@ -356,30 +315,12 @@ typename Backend::precision_v DistanceToIn (
                          && (yhit <= MakePlusTolerant<true>(rightcmpy)) ) || ( (MakeMinusTolerant<true>(rightcmpy) <= yhit)
                                    && (yhit <= MakePlusTolerant<true>(leftcmpy)) ) ;
             yok &= xok;
-#ifdef GENTRAPDEB
-              std::cerr << " leftcmpy "
-                                          << leftcmpy << "rightcmpy " << rightcmpy <<
-                                          " yhit " << yhit << " bool " << yok << "\n";
-              std::cerr << " here is what ROOT would do \n";
-              Float_t xs1 =fxa[i]+ftx1[i]*dzp;
-              Float_t ys1 =fya[i]+fty1[i]*dzp;
-              Float_t xs2 =fxc[i]+ftx2[i]*dzp;
-              Float_t ys2 =fyc[i]+fty2[i]*dzp;
-              Float_t x1=xs1+ftx1[i]*dir[2]*dist[i];
-              Float_t x2=xs2+ftx2[i]*dir[2]*dist[i];
-              Float_t xp=point.x()+dist[i]*dir.x();
-              Float_t y1=ys1+fty1[i]*dir[2]*dist[i];
-              Float_t y2=ys2+fty2[i]*dir[2]*dist[i];
-              Float_t yp=point.y()+dist[i]*dir.y();
-              Float_t zi=(xp-x1)*(xp-x2)+(yp-y1)*(yp-y2);
-              std::cerr << "Rlx " << x1 << " Rrx " << x2 << " Rly " << y1 << " Rry " << y2 << " hit " << zi << "\n";
-#endif
               // if( ! IsEmpty(yok) ) std::cerr << "i " << i << " yhit\n ";
               // note here: since xok might be a SIMD mask it is not true to assume that xok==true here !!
-              Bool_t ok = yok && dist[i] < resultdistance;
+            Bool_t ok = yok && dist[i] < resultdistance;
              // TODO: still minimize !! ( might hit two planes at same time ) !!!!
               // MaskedAssign( !done && ok, dist[i], &resultdistance);
-              MaskedAssign( ok, dist[i], &resultdistance );
+            MaskedAssign( ok, dist[i], &resultdistance );
               // modify done flag
               // done |= ok;
           }
@@ -427,6 +368,7 @@ typename Backend::precision_v DistanceToIn (
 
   typedef typename Backend::precision_v Float_t;
 //  typedef typename Backend::bool_v Bool_t;
+  constexpr Precision eps = 100.*kTolerance;
 	
 	Float_t safety = safmax;
 	Float_t safetyface = kInfinity;
@@ -444,6 +386,7 @@ typename Backend::precision_v DistanceToIn (
 	    safetyface = (pa - point).Dot(fNormals[i]);
 		  MaskedAssign(safetyface < safety, safetyface, &safety);
 	  }
+    MaskedAssign(safety<eps, 0., &safety);
     return safety;
   }
   
@@ -464,6 +407,7 @@ typename Backend::precision_v DistanceToIn (
 	  MaskedAssign(safetyface < safety, safetyface, &safety);
   }  
 //  std::cout << "safety = " << safety << std::endl;
+  MaskedAssign(safety<eps, 0., &safety);
 	return safety;
 	
 } // end SafetyToOut	
@@ -479,6 +423,7 @@ typename Backend::precision_v DistanceToIn (
 
   typedef typename Backend::precision_v Float_t;
 //  typedef typename Backend::bool_v Bool_t;
+  constexpr Precision eps = 100.*kTolerance;
 	
 	Float_t safety = safmax;
 	Float_t safetyface = kInfinity;
@@ -496,6 +441,7 @@ typename Backend::precision_v DistanceToIn (
 	    safetyface = (point - pa).Dot(fNormals[i]);
 		  MaskedAssign(safetyface > safety, safetyface, &safety);
 	  }
+    MaskedAssign(safety<eps, 0., &safety);
     return safety;
   }
   
@@ -505,7 +451,7 @@ typename Backend::precision_v DistanceToIn (
     count++;
     va.Set(fxa[i], fya[i], -fDz);
 		pa = va;
-	  safetyface = (pa - point).Dot(fNormals[i]);
+	  safetyface = (point - pa).Dot(fNormals[i]);
 		MaskedAssign(safetyface > safety, safetyface, &safety);
 	}
 //  std::cout << "safetyz = " << safmax << std::endl;
@@ -516,6 +462,7 @@ typename Backend::precision_v DistanceToIn (
 	  MaskedAssign(safetyface > safety, safetyface, &safety);
   }  
 //  std::cout << "safety = " << safety << std::endl;
+  MaskedAssign(safety<eps, 0., &safety);
 	return safety;
 	
 } // end SafetyToIn
@@ -584,7 +531,98 @@ typename Backend::precision_v DistanceToIn (
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Vector3D<Precision> const *GetNormals() const { return fNormals; } 
+
+//______________________________________________________________________________
+  /// Computes un-normalized normal to surface isurf, on the input point
+  template<typename Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  void UNormal(
+    Vector3D<typename Backend::precision_v> const &point, int isurf,
+    Vector3D<typename Backend::precision_v> &unorm,
+    typename Backend::precision_v &rz, typename Backend::precision_v &r) const {
+
+  // unorm = (vi X hi0) + rz*(vi X vj) + r*(hi1 X hi0)
+  //    where: vi, vj are the vectors (AB) and (CD) (see constructor)
+  //           hi0 = (AC) and hi1 = (BD)
+  //           rz = 0.5*(point.z()+dz)/dz is the vertical ratio 
+  //           r = ((AP)-rz*vi) / (hi0+rz(vj-vi)) is the horizontal ratio
+  // Any point within the surface range should reurn r and rz in the range [0,1]
+  // These can be used as surface crossing criteria
+  typedef typename Backend::precision_v Float_t;
+  rz = fDz2*(point.z()+fDz);
+/*
+  Vector3D<Float_t> a(fxa[isurf], fya[isurf], -fDz);
+  Vector3D<Float_t> vi(fxb[isurf]-fxa[isurf], fyb[isurf]-fya[isurf], 2*fDz);
+  Vector3D<Float_t> vj(fxd[isurf]-fxc[isurf], fyd[isurf]-fyc[isurf], 2*fDz);
+  Vector3D<Float_t> hi0(fxc[isurf]-fxa[isurf], fyc[isurf]-fya[isurf], 0.);
+*/
+  Float_t num = (point.x() - fxa[isurf]) - rz*(fxb[isurf]-fxa[isurf]);
+  Float_t denom = (fxc[isurf]-fxa[isurf]) + rz*(fxd[isurf]-fxc[isurf]-fxb[isurf]+fxa[isurf]);
+  MaskedAssign(Abs(denom)>1.e-6, num/denom, &r);
+  num = (point.y() - fya[isurf]) - rz*(fyb[isurf]-fya[isurf]);
+  denom = (fyc[isurf]-fya[isurf]) + rz*(fyd[isurf]-fyc[isurf]-fyb[isurf]+fya[isurf]);
+  MaskedAssign(Abs(denom)>1.e-6, num/denom, &r);
+
+  unorm = (Vector3D<Float_t>)fViCrossHi0[isurf] + 
+          rz*(Vector3D<Float_t>)fViCrossVj[isurf] + 
+          r*(Vector3D<Float_t>)fHi1CrossHi0[isurf];
+} // end UNormal  
   
+  template<typename Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  /**
+   * Function to compute smin and smax crossings with the N lateral surfaces.
+   */
+  void ComputeSminSmax(
+    Vector3D<typename Backend::precision_v> const &point,
+    Vector3D<typename Backend::precision_v> const &dir,
+    typename Backend::precision_v smin[N], 
+    typename Backend::precision_v smax[N]) const {
+
+  typedef typename Backend::precision_v Float_t;
+
+  Float_t dzp =fDz+point[2];
+  // calculate everything needed to solve the second order equation
+  Float_t a[N],b[N],c[N],d[N];
+  Float_t signa[N], inva[N];
+
+	// vectorizes
+  for (int i=0;i<N;++i) {
+     Float_t xs1 =fxa[i]+ftx1[i]*dzp;
+     Float_t ys1 =fya[i]+fty1[i]*dzp;
+     Float_t xs2 =fxc[i]+ftx2[i]*dzp;
+     Float_t ys2 =fyc[i]+fty2[i]*dzp;
+     Float_t dxs =xs2-xs1;
+     Float_t dys =ys2-ys1;
+     a[i]=(fDeltatx[i]*dir[1]-fDeltaty[i]*dir[0]+ft1crosst2[i]*dir[2])*dir[2];
+     b[i]=dxs*dir[1]-dys*dir[0]+(fDeltatx[i]*point[1]-fDeltaty[i]*point[0]+fty2[i]*xs1-fty1[i]*xs2
+                           +ftx1[i]*ys2-ftx2[i]*ys1)*dir[2];
+     c[i]=dxs*point[1]-dys*point[0] + xs1*ys2-xs2*ys1;
+     d[i]=b[i]*b[i]-4*a[i]*c[i];
+  }
+
+  // does not vectorize
+  for (int i=0;i<N;++i) {
+     // zero or one to start with
+      signa[i] = 0.;
+      MaskedAssign( a[i] < -kTolerance, (Float_t)(-Backend::kOne), &signa[i]);
+      MaskedAssign( a[i] > kTolerance, (Float_t)Backend::kOne, &signa[i]);
+      inva[i] = c[i]/(b[i]*b[i]);
+      MaskedAssign( Abs(a[i]) > kTolerance, 1./(2.*a[i]), &inva[i]);
+  }
+
+  // vectorizes
+  for (int i=0;i<N;++i) {
+     // treatment for curved surfaces. Invalid solutions will be excluded.
+
+     Float_t sqrtd = signa[i]*Sqrt(d[i]);
+     // what is the meaning of this??
+     smin[i]=(-b[i]-sqrtd)*inva[i];
+     smax[i]=(-b[i]+sqrtd)*inva[i]; 
+  }
+} // end ComputeSminSmax  
 
 }; // end class definition
 

@@ -106,8 +106,10 @@ public:
     }
 
     // Check that opposite segments are not crossing -> exception
-    if (SegmentsCrossing(fVertices[0], fVertices[1], fVertices[2], fVertices[3]) ||
-        SegmentsCrossing(fVertices[4], fVertices[5], fVertices[6], fVertices[7])) {
+    if (SegmentsCrossing(fVertices[0], fVertices[1], fVertices[3], fVertices[2]) ||
+        SegmentsCrossing(fVertices[1], fVertices[2], fVertices[0], fVertices[3]) ||
+        SegmentsCrossing(fVertices[4], fVertices[5], fVertices[7], fVertices[6]) ||
+        SegmentsCrossing(fVertices[5], fVertices[6], fVertices[4], fVertices[7]) ) {
       std::cerr << "ERROR: Unplaced generic trap defined with crossing opposite segments" << std::endl;
       Print();
       return;

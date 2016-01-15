@@ -58,10 +58,10 @@ bool UnplacedGenTrap::SegmentsCrossing(Vector3D<Precision> p, Vector3D<Precision
   if ( r_cross_s.Mag2() < kTolerance ) // parallel or colinear - ignore crossing
     return false;
   Precision t = Vector::Cross(q-p,s)/r_cross_s;
-  if (t < 0 || t > 1) return false;
+  if (t < 0 || t > 1) return true;
   Precision u = Vector::Cross(q-p,r)/r_cross_s;
-  if (u < 0 || u > 1) return false;
-  return true;
+  if (u < 0 || u > 1) return true;
+  return false;
 }
 
 //______________________________________________________________________________
