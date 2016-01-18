@@ -326,7 +326,21 @@ public:
    VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
    int Distance( NavigationState const & ) const;
-//   int Distance(NavigationState const &) const;
+
+   // returns a string representation of a (relative) sequence of operations/moves
+   // that transforms this navigation state into the other navigation state
+   // example:
+   // state1 = /0/1/1/
+   // state2 = /0/2/2/3
+   // results in string
+   // "/up/horiz/1/down/2/down/3" with 4 operations "up", "horiz", "down", "down"
+   // the sequence of moves is the following
+   // up: /0/1/1 --> /0/1/
+   // horiz/1 : 0/1 --> /0/2 ( == /0/(1+1) )   "we are hopping from daughter 1 to 2 (which corresponds to a step of 1)"
+   // down/2 : /0/2 --> /0/2/2   "going further down 2nd daughter"
+   // down/3 : /0/2/2/3 --> /0/2/2/3  "going further down 2nd daughter"
+   VECGEOM_CUDA_HEADER_BOTH
+   std::string RelativePath(NavigationState const & /*other*/) const;
 
    // clear all information
    VECGEOM_INLINE
