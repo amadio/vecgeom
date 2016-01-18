@@ -313,6 +313,12 @@ public:
    void
    TopMatrix( Transformation3D & ) const;
 
+   // returning a "delta" transformation that can transform
+   // coordinates given in reference frame of this->Top() to the reference frame of other->Top()
+   // simply with otherlocalcoordinate = delta.Transform( thislocalcoordinate )
+   VECGEOM_CUDA_HEADER_BOTH
+   void DeltaTransformation(NavigationState const &other, Transformation3D & /* delta */) const;
+
    VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
    Vector3D<Precision>
