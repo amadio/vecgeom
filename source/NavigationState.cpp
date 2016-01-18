@@ -43,6 +43,22 @@ NavigationState::TopMatrix( int tolevel, Transformation3D & global_matrix ) cons
     }
 }
 
+// returning a "delta" transformation that can transform
+// coordinates given in reference frame of this->Top() to the reference frame of other->Top()
+// simply with otherlocalcoordinate = delta.Transform( thislocalcoordinate )
+VECGEOM_CUDA_HEADER_BOTH
+void NavigationState::DeltaTransformation(NavigationState const &other, Transformation3D &delta) const {
+  Transformation3D g2;
+  Transformation3D g1;
+  other.TopMatrix(g2);
+  this->TopMatrix(g1);
+  g1.Inverse(delta);
+  g2.SetProperties();
+  delta.SetProperties();
+  delta.FixZeroes();
+  delta.MultiplyFromRight(g2);
+  delta.FixZeroes();
+}
 
 /**
  * function that transforms a global point to local point in reference frame of deepest volume in current navigation state
