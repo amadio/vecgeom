@@ -151,7 +151,6 @@ struct kCudaType<cxx::BoxImplementation<Arguments...>  >
 #ifdef __INTEL_COMPILER
   // Compiling with icc
   #define VECGEOM_INTEL
-  //#define VECGEOM_INLINE inline __attribute__((always_inline))
   #define VECGEOM_INLINE inline
   #ifndef VECGEOM_NVCC
     #define VECGEOM_ALIGNED __attribute__((aligned(64)))
@@ -165,17 +164,12 @@ struct kCudaType<cxx::BoxImplementation<Arguments...>  >
       #define VECGEOM_ALIGNED __attribute__((aligned(64)))
     #endif
   #else
-//#pragma message "forced inlining disabled"
   // Clang or forced inlining is disabled ( by falling back to compiler decision )
     #define VECGEOM_INLINE inline
     #ifndef VECGEOM_NVCC
       #define VECGEOM_ALIGNED
     #endif
   #endif
-#endif
-
-#ifndef NULL
-  #define NULL nullptr
 #endif
 
 // Allow constexpr variables and functions if possible
@@ -207,28 +201,15 @@ typedef double Precision;
    eOutside = 2,
    kOutside = eOutside,
  };
-// typedef EInside::EInside Inside_t;
 typedef int Inside_t;
 }}
-
-//namespace vecgeom::cuda {
-//typedef vecgeom::Precision Precision;
-//typedef vecgeom::Inside_t Inside_t;
-//}
-
-
-//namespace std {
-//  template< class T, class Deleter=std::default_delete<T> > class unique_ptr;
-//}
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 #ifndef VECGEOM_NVCC
    using std::unique_ptr;
-
 #else
-
    template <typename T>
    class unique_ptr {
       T *fValue;
@@ -263,6 +244,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 #else
   VECGEOM_GLOBAL int kAlignmentBoundary = 32;
 #endif
+
 VECGEOM_GLOBAL Precision kAvogadro = 6.02214085774e23;
 VECGEOM_GLOBAL Precision kPi = 3.14159265358979323846;
 VECGEOM_GLOBAL Precision kHalfPi = 0.5*kPi;
@@ -314,16 +296,6 @@ VECGEOM_GLOBAL vecgeom::Inside_t kSurface = 1;
 VECGEOM_GLOBAL vecgeom::Inside_t kOutside = 2;
 }
 
-// namespace EMatrix3DEntry {
-// enum EMatrix3DEntry {
-//   k00 = 0x001, k01 = 0x002, k02 = 0x004,
-//   k10 = 0x008, k11 = 0x010, k12 = 0x020,
-//   k20 = 0x040, k21 = 0x080, k22 = 0x100
-// };
-// }
-// rotation::kGeneric
-// translation::kGeneric
-
 typedef int RotationCode;
 typedef int TranslationCode;
 namespace rotation {
@@ -365,7 +337,6 @@ namespace details {
 
 // some static MACROS
 #define VECGEOM_MAXDAUGHTERS 100 // macro mainly used to allocated static (stack) arrays/workspaces
-
 
 } } // End global namespace
 
