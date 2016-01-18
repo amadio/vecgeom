@@ -2,9 +2,11 @@
 cmake_minimum_required(VERSION 2.8.8)
 project(VecGeom)
 
-enable_language(CXX)
-
 set(VECGEOM ON)
+
+enable_language(CXX)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 ################################################################################
 if (NOT CMAKE_BUILD_TYPE)
