@@ -7,6 +7,7 @@
 #include <cassert>
 #include <iostream>
 #include <list>
+#include <sstream>
 
 #ifdef VECGEOM_ROOT
 #include "management/RootGeoManager.h"
@@ -140,6 +141,67 @@ NavigationState::GlobalToLocal(Vector3D<Precision> const & globalpoint) const
     */
     
     return tmp;
+  }
+
+  std::string NavigationState::RelativePath(NavigationState const &other) const {
+    int lastcommonlevel = -1;
+    int maxlevel = Min(GetCurrentLevel(), other.GetCurrentLevel());
+    std::stringstream str;
+    //  algorithm: start on top and go down until paths split
+    for (int i = 0; i < maxlevel; i++) {
+      if (this->At(i) == other.At(i)) {
+        lastcommonlevel = i;
+      } else {
+        break;
+      }
+    }
+
+    auto filledlevel1 = GetCurrentLevel() - 1;
+    auto filledlevel2 = other.GetCurrentLevel() - 1;
+
+    // paths are the same
+    if (filledlevel1 == lastcommonlevel && filledlevel2 == lastcommonlevel) {
+      return std::string("");
+    }
+
+    // emit only ups
+    if (filledlevel1 > lastcommonlevel && filledlevel2 == lastcommonlevel) {
+      for (int i = 0; i < filledlevel1 - lastcommonlevel; ++i) {
+        str << "/up";
+      }
+      return str.str();
+    }
+
+    // emit only downs
+    if (filledlevel1 == lastcommonlevel && filledlevel2 > lastcommonlevel) {
+      for (int i = lastcommonlevel + 1; i <= filledlevel2; ++i) {
+        str << "/down";
+        str << "/" << other.ValueAt(i);
+      }
+      return str.str();
+    }
+
+    // mixed case: first up; then down
+    if (filledlevel1 > lastcommonlevel && filledlevel2 > lastcommonlevel) {
+      // emit ups
+      int level = filledlevel1;
+      for (; level > lastcommonlevel + 1; --level) {
+        str << "/up";
+      }
+
+      level = lastcommonlevel + 1;
+      // emit horiz ( exists when there is a turning point )
+      auto delta = other.ValueAt(level) - this->ValueAt(level);
+      if (delta != 0)
+        str << "/horiz/" << delta;
+
+      level++;
+      // emit downs with index
+      for (; level <= filledlevel2; ++level) {
+        str << "/down/" << other.ValueAt(level);
+      }
+    }
+    return str.str();
   }
 
   NavigationState & NavigationState::operator=( TGeoBranchArray const & other )
