@@ -72,6 +72,12 @@ public:
 #endif
     }
 
+    void ReadDepthAndCapacityFromFile(std::string filename, int &cap, int &dep) {
+      std::ifstream fin(filename, std::ios::binary);
+      fin.read(reinterpret_cast<char *>(&cap), sizeof(cap));
+      fin.read(reinterpret_cast<char *>(&dep), sizeof(dep));
+    }
+
     void FromFile(std::string filename) {
 #ifdef VECGEOM_USE_INDEXEDNAVSTATES
         // assumes existing NavStatePool object
@@ -106,6 +112,8 @@ public:
     void* GetGPUPointer() const {
        return fGPUPointer;
     }
+
+    int capacity() const { return fCapacity; }
 
 private: // protected methods
 #ifdef VECGEOM_CUDA
