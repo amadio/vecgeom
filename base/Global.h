@@ -9,7 +9,6 @@
 #include <cfloat>
 #include <limits>
 #include <memory>
-#include <cstdlib>
 
 #define VECGEOM
 
