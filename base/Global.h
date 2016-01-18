@@ -14,10 +14,6 @@
 
 #define VECGEOM
 
-#if __cplusplus < 201103L
-  #error "VecGeom requires C++11 or higher"
-#endif
-
 #if (defined(__CUDACC__) || defined(__NVCC__))
   // Compiling with nvcc
   #define VECGEOM_NVCC
