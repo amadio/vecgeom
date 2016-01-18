@@ -87,8 +87,8 @@ public:
 
 protected:
   // a common relocate method ( to calculate propagated states after the boundary )
-  virtual void Relocate( Vector3D<Precision> /*localpoint*/, NavigationState const & /*in_state*/,
-                         NavigationState & /*out_state*/) const = 0;
+  virtual void Relocate( Vector3D<Precision> const &/*localpoint*/, NavigationState const & __restrict__ /*in_state*/,
+                         NavigationState & __restrict__ /*out_state*/ ) const = 0;
 
   // a common function to be used by all navigators to ensure consistency in transporting points
   // after a boundary
@@ -113,7 +113,7 @@ protected:
 
   // some common code to prepare the
   VECGEOM_INLINE
-  static Precision PrepareOutState(NavigationState const &in_state, NavigationState &out_state, Precision geom_step,
+  static Precision PrepareOutState(NavigationState const & __restrict__ in_state, NavigationState & __restrict__ out_state, Precision geom_step,
                                    Precision step_limit, VPlacedVolume const *hitcandidate){
     // now we have the candidates and we prepare the out_state
     in_state.CopyTo(&out_state);
@@ -442,8 +442,8 @@ public :
     // a similar interface also returning the safety
     virtual Precision ComputeStepAndSafetyAndPropagatedState(Vector3D<Precision> const &globalpoint,
                                                              Vector3D<Precision> const &globaldir, Precision step_limit,
-                                                             NavigationState const &in_state,
-                                                             NavigationState &out_state,
+                                                             NavigationState const & __restrict__ in_state,
+                                                             NavigationState & __restrict__ out_state,
                                                              Precision &safety_out) const override {
       // calculate local point/dir from global point/dir
       Vector3D<Precision> localpoint;
@@ -476,15 +476,14 @@ public :
 protected:
   // a common relocate method ( to calculate propagated states after the boundary )
   VECGEOM_INLINE
-  virtual void Relocate(Vector3D<Precision> pointafterboundary, NavigationState const & in_state,
-                        NavigationState & out_state) const override {
+  virtual void Relocate(Vector3D<Precision> const &pointafterboundary, NavigationState const &__restrict__ in_state,
+                        NavigationState &__restrict__ out_state) const override {
     // this means that we are leaving the mother
     // alternatively we could use nextvolumeindex like before
-    if( out_state.Top() == in_state.Top() ){
-        GlobalLocator::RelocatePointFromPath( pointafterboundary, out_state );
-    }
-    else {
-        // continue directly further down ( next volume should have been stored in out_state already )
+    if (out_state.Top() == in_state.Top()) {
+      GlobalLocator::RelocatePointFromPath(pointafterboundary, out_state);
+    } else {
+      // continue directly further down ( next volume should have been stored in out_state already )
       VPlacedVolume const *nextvol = out_state.Top();
       out_state.Pop();
       GlobalLocator::LocateGlobalPoint(nextvol, nextvol->GetTransformation()->Transform(pointafterboundary), out_state,
