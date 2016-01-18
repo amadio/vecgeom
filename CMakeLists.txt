@@ -550,6 +550,8 @@ set(SRC_CPP_RELATIVE
   source/Nucleus.cpp
   source/MessageLogger.cpp
   source/Particle.cpp
+
+  services/NavigationSpecializer.cpp
 )
 
 # avoid "file has no symbols" warnings
@@ -707,6 +709,9 @@ set(TEST_EXECUTABLES_CORE
   ${CMAKE_SOURCE_DIR}/test/core/TestConvexity.cpp
   ${CMAKE_SOURCE_DIR}/test/core/BooleanConvexityTest.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestVecGeomPolycone.cpp
+  ${CMAKE_SOURCE_DIR}/services/NavigationSpecializerTest.cpp
+
+  ${CMAKE_SOURCE_DIR}/services/CompNavStatePools.cpp
 )
 
 
