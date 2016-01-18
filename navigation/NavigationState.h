@@ -285,6 +285,13 @@ public:
    void
    Push(VPlacedVolume const *);
 
+
+   // a push version operating on IndexTypes
+   VECGEOM_INLINE
+   VECGEOM_CUDA_HEADER_BOTH
+   void
+   PushIndexType(NavStateIndex_t);
+
    VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
    VPlacedVolume const *
@@ -478,6 +485,15 @@ NavigationState::Push( VPlacedVolume const * v )
    assert( fCurrentLevel < GetMaxLevel() );
 #endif
    fPath[fCurrentLevel++] = ToIndex( v );
+}
+
+void
+NavigationState::PushIndexType( NavStateIndex_t v )
+{
+#ifdef DEBUG
+   assert( fCurrentLevel < GetMaxLevel() );
+#endif
+   fPath[fCurrentLevel++] = v;
 }
 
 VPlacedVolume const *
