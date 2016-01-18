@@ -550,7 +550,7 @@ VECGEOM_CUDA_HEADER_BOTH
 int NavigationState::Distance( NavigationState const & other ) const
 {
    int lastcommonlevel=0;
-   int maxlevel = Max( GetCurrentLevel() , other.GetCurrentLevel() );
+   int maxlevel = Min( GetCurrentLevel() , other.GetCurrentLevel() );
 
    //  algorithm: start on top and go down until paths split
    for(int i=0; i < maxlevel; i++) {
