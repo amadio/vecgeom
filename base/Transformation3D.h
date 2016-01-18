@@ -128,6 +128,18 @@ public:
   int memory_size() const { return sizeof(*this); }
 
   VECGEOM_CUDA_HEADER_BOTH
+  void FixZeroes() {
+    for (unsigned int i = 0; i < 9; ++i) {
+      if (std::abs(fRotation[i]) < vecgeom::kTolerance)
+        fRotation[i] = 0.;
+    }
+    for (unsigned int i = 0; i < 3; ++i) {
+      if (std::abs(fTranslation[i]) < vecgeom::kTolerance)
+        fTranslation[i] = 0.;
+    }
+  }
+
+  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Vector3D<Precision> Translation() const {
     return Vector3D<Precision>(fTranslation[0], fTranslation[1],
@@ -168,6 +180,10 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   void Print() const;
+
+  // print to a stream
+  VECGEOM_CUDA_HEADER_BOTH
+  void Print(std::ostream &) const;
 
   // Mutators
 
@@ -327,6 +343,54 @@ public:
   {
     // not sure this compiles under CUDA
     copy(&rhs, &rhs+1, this);
+  }
+
+  // stores the inverse of this matrix into inverse
+  // taken from CLHEP implementation
+  VECGEOM_CUDA_HEADER_BOTH
+  void Inverse(Transformation3D &inverse) {
+    double xx_ = fRotation[0];
+    double zz_ = fRotation[8];
+    double yy_ = fRotation[4];
+    double xy_ = fRotation[1];
+    double xz_ = fRotation[2];
+    double yx_ = fRotation[3];
+    double yz_ = fRotation[5];
+    double zx_ = fRotation[6];
+    double zy_ = fRotation[7];
+    double dx_ = fTranslation[0];
+    double dy_ = fTranslation[1];
+    double dz_ = fTranslation[2];
+
+    double detxx = yy_ * zz_ - yz_ * zy_;
+    double detxy = yx_ * zz_ - yz_ * zx_;
+    double detxz = yx_ * zy_ - yy_ * zx_;
+    double det = xx_ * detxx - xy_ * detxy + xz_ * detxz;
+    if (det == 0) {
+      std::cerr << "Transform3D::inverse error: zero determinant" << std::endl;
+    }
+    det = 1. / det;
+    detxx *= det;
+    detxy *= det;
+    detxz *= det;
+    double detyx = (xy_ * zz_ - xz_ * zy_) * det;
+    double detyy = (xx_ * zz_ - xz_ * zx_) * det;
+    double detyz = (xx_ * zy_ - xy_ * zx_) * det;
+    double detzx = (xy_ * yz_ - xz_ * yy_) * det;
+    double detzy = (xx_ * yz_ - xz_ * yx_) * det;
+    double detzz = (xx_ * yy_ - xy_ * yx_) * det;
+    inverse.fRotation[0] = detxx;
+    inverse.fRotation[1] = -detyx;
+    inverse.fRotation[2] = detzx;
+    inverse.fTranslation[0] = -detxx * dx_ + detyx * dy_ - detzx * dz_;
+    inverse.fRotation[3] = -detxy, inverse.fRotation[4] = detyy, inverse.fRotation[5] = -detzy,
+    inverse.fTranslation[1] = detxy * dx_ - detyy * dy_ + detzy * dz_;
+    inverse.fRotation[6] = detxz, inverse.fRotation[7] = -detyz, inverse.fRotation[8] = detzz,
+    inverse.fTranslation[2] = -detxz * dx_ + detyz * dy_ - detzz * dz_;
+
+    inverse.fHasTranslation = HasTranslation();
+    inverse.fHasRotation = HasRotation();
+    inverse.fIdentity = fIdentity;
   }
 
   // Utility and CUDA
