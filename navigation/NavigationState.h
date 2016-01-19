@@ -379,6 +379,8 @@ public:
         return true;
    }
 
+   void printValueSequence(std::ostream & = std::cerr) const;
+
 #ifdef VECGEOM_ROOT
    VECGEOM_INLINE
    void printVolumePath(std::ostream & = std::cerr) const;
@@ -559,6 +561,18 @@ void NavigationState::Print() const
           Top(), (const void*)this );
 #endif
 
+}
+
+
+
+/**
+ * encodes the geometry path as a concatenated string of ( Value_t ) present in fPath
+ */
+inline
+void NavigationState::printValueSequence(std::ostream &stream) const {
+  for (int i = 0; i < fCurrentLevel; ++i) {
+    stream << "/" << fPath[i];
+  }
 }
 
 
