@@ -1,6 +1,8 @@
 #ifndef VECGEOM_CUDA_H
 #define VECGEOM_CUDA_H
 
+#include <memory>
+
 #if (defined(__CUDACC__) || defined(__NVCC__))
   // Compiling with nvcc
   #define VECGEOM_NVCC
@@ -136,5 +138,41 @@ struct kCudaType<cxx::BoxImplementation<Arguments...>  >
    { using type_t = typename cuda::BoxImplementation<CudaType_t<Arguments...> >; };
 */
 #endif
+
+namespace vecgeom {
+inline namespace VECGEOM_IMPL_NAMESPACE {
+
+#ifndef VECGEOM_NVCC
+   using std::unique_ptr;
+#else
+   template <typename T>
+   class unique_ptr {
+      T *fValue;
+   public:
+     VECGEOM_CUDA_HEADER_BOTH
+     unique_ptr(T *in) : fValue(in) {}
+
+     VECGEOM_CUDA_HEADER_BOTH
+     ~unique_ptr() { delete fValue; }
+
+     VECGEOM_CUDA_HEADER_BOTH
+     T* operator->() { return fValue; }
+   };
+
+   template <typename T>
+   class unique_ptr<T[]> {
+      T *fValue;
+   public:
+     VECGEOM_CUDA_HEADER_BOTH
+     unique_ptr(T *in) : fValue(in) {}
+
+     VECGEOM_CUDA_HEADER_BOTH
+     ~unique_ptr() { delete [] fValue; }
+
+     VECGEOM_CUDA_HEADER_BOTH
+     T &operator[](size_t idx) { return fValue[idx]; }
+   };
+#endif
+} }
 
 #endif
