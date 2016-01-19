@@ -73,15 +73,6 @@ VECGEOM_GLOBAL vecgeom::Inside_t kSurface = 1;
 VECGEOM_GLOBAL vecgeom::Inside_t kOutside = 2;
 }
 
-typedef int RotationCode;
-typedef int TranslationCode;
-namespace rotation {
-enum RotationId { kGeneric = -1, kDiagonal = 0x111, kIdentity = 0x200 };
-}
-namespace translation {
-enum TranslationId { kGeneric = -1, kIdentity = 0 };
-}
-
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
 void Assert(const bool condition, char const *const message) {
