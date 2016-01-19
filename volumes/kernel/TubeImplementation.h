@@ -221,12 +221,12 @@ void PhiPlaneSafety( UnplacedTube const& tube,
     phi1 *= -1;
 
   if(SectorType<TubeType>::value == kOnePi) {
-    safety = Abs(phi1);
+    MaskedAssign( Abs(phi1)>kHalfTolerance, Abs(phi1), &safety );
     return;
   }
 
   // make sure point falls on positive part of projection
-  MaskedAssign(phi1>-kTolerance
+  MaskedAssign(phi1>-kHalfTolerance
                && pos.x()*tube.alongPhi1x()+pos.y()*tube.alongPhi1y() > 0
                && phi1<safety, phi1, &safety);
 
@@ -236,10 +236,9 @@ void PhiPlaneSafety( UnplacedTube const& tube,
     phi2 *= -1;
 
   // make sure point falls on positive part of projection
-  MaskedAssign(phi2>-kTolerance
+  MaskedAssign(phi2>-kHalfTolerance
                && pos.x()*tube.alongPhi2x()+pos.y()*tube.alongPhi2y() > 0
                && phi2<safety, phi2, &safety);
-
 }
 
 /*
@@ -281,8 +280,8 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY,
 
   Float_t dirDotXY = (dir.y()*alongX - dir.x()*alongY);
   MaskedAssign( dirDotXY!=0, (alongY*pos.x() - alongX*pos.y() ) / dirDotXY, &dist );
-  ok &= dist > -kTolerance;
   if( Backend::early_returns && IsEmpty(ok) ) return;
+  ok &= dist > -kHalfTolerance;
 
   if(insectorCheck) {
     Float_t hitx = pos.x() + dist * dir.x();
