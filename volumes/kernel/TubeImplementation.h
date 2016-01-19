@@ -545,11 +545,9 @@ struct TubeImplementation {
        */
       Float_t crmin = invnsq * (rsq - tube.rmin2());
       CircleTrajectoryIntersection<Backend, tubeTypeT, true, true>(b, crmin, tube, point, dir, dist_rmin, ok_rmin);
-
-      //ok_rmin &= dist_rmin > -kHalfTolerance && dist_rmin<distance;  // GLtemp: dist<-kHalfTol is already tested in function
       ok_rmin &= dist_rmin<distance;
       MaskedAssign(!done && ok_rmin, dist_rmin, &distance);
-      done |= ok_rmin;
+      // done |= ok_rmin; // can't be done here, it's wrong in case phi-treatment is needed!
     }
 
 
