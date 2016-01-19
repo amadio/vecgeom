@@ -15,7 +15,7 @@
 #include "navigation/SimpleNavigator.h"
 #include "navigation/NewSimpleNavigator.h"
 #include "navigation/SimpleABBoxNavigator.h"
-//#include "navigation/ZDCEMAbsorberNavigator.h"
+#include "navigation/GeneratedNavigator.h"
 #include "navigation/SimpleABBoxLevelLocator.h"
 #include "navigation/HybridLevelLocator.h"
 #include "navigation/HybridNavigator2.h"
@@ -30,6 +30,11 @@
 #endif
 
 #include <iostream>
+#include <set>
+#include <sstream>
+
+#undef NDEBUG
+#include <cassert>
 
 #define CALLGRIND_ENABLED
 #ifdef CALLGRIND_ENABLED
@@ -50,22 +55,157 @@
 
 using namespace vecgeom;
 
+bool NavStateUnitTest() {
+  NavigationState *state1 = NavigationState::MakeInstance(10);
+  NavigationState *state2 = NavigationState::MakeInstance(10);
+
+  // test - 1 ( equal paths )
+  state1->Clear();
+  state2->Clear();
+  state1->PushIndexType(1);
+  state2->PushIndexType(1);
+  assert(state1->RelativePath(*state2).compare("") == 0);
+  assert(state1->Distance(*state2) == 0);
+  std::cerr << state1->RelativePath(*state2) << "\n";
+
+  // test - 2
+  state1->Clear();
+  state2->Clear();
+  state1->PushIndexType(1);
+  state2->PushIndexType(1);
+  state2->PushIndexType(2);
+  assert(state1->RelativePath(*state2).compare("/down/2") == 0);
+  assert(state1->Distance(*state2) == 1);
+  std::cerr << state1->RelativePath(*state2) << "\n";
+
+  // test - 3
+  state1->Clear();
+  state2->Clear();
+  state1->PushIndexType(1);
+  state2->PushIndexType(1);
+  state2->PushIndexType(2);
+  state2->PushIndexType(4);
+  std::cerr << state1->RelativePath(*state2) << "\n";
+  std::cerr << state1->Distance(*state2) << "\n";
+  assert(state1->RelativePath(*state2).compare("/down/2/down/4") == 0);
+  assert(state1->Distance(*state2) == 2);
+
+
+  // test - 4
+  state1->Clear();
+  state2->Clear();
+  state1->PushIndexType(1);
+  state1->PushIndexType(2);
+  state1->PushIndexType(2);
+  state2->PushIndexType(1);
+  std::cerr << "HUHU " << state1->Distance(*state2) << "\n";
+  assert(state1->Distance(*state2) == 2);
+  assert(state1->RelativePath(*state2).compare("/up/up") == 0);
+  std::cerr << state1->RelativePath(*state2) << "\n";
+
+  // test - 5
+  state1->Clear();
+  state2->Clear();
+  state1->PushIndexType(1);
+  state1->PushIndexType(1);
+  state1->PushIndexType(2);
+  state1->PushIndexType(2);
+  state2->PushIndexType(1);
+  state2->PushIndexType(1);
+  state2->PushIndexType(5);
+  state2->PushIndexType(1);
+  std::cerr << state1->RelativePath(*state2) << "\n";
+  assert(state1->RelativePath(*state2).compare("/up/horiz/3/down/1") == 0);
+
+  // test - 6
+  state1->Clear();
+  state2->Clear();
+  state1->PushIndexType(1);
+  state1->PushIndexType(1);
+  state1->PushIndexType(2);
+  state1->PushIndexType(2);
+  state1->PushIndexType(3);
+
+  state2->PushIndexType(1);
+  state2->PushIndexType(1);
+  state2->PushIndexType(5);
+  state2->PushIndexType(1);
+  state2->PushIndexType(1);
+  std::cerr << state1->RelativePath(*state2) << "\n";
+  assert(state1->RelativePath(*state2).compare("/up/up/horiz/3/down/1/down/1") == 0);
+}
+
+void analyseOutStates( NavStatePool & inpool, NavStatePool const & outpool ){
+    std::set<VPlacedVolume const *> pset;
+    std::set<LogicalVolume const *> lset;
+    std::set<std::string > pathset;
+    std::set<std::string > crossset;
+    std::set<std::string > diffset;
+    std::set<std::string > matrices;
+    for (auto j = decltype(outpool.capacity()){0}; j < outpool.capacity(); ++j) {
+      std::stringstream pathstringstream2;
+      auto *navstate = outpool[j];
+      navstate->printValueSequence(pathstringstream2);
+      pset.insert(navstate->Top());
+      lset.insert(navstate->Top()->GetLogicalVolume());
+      pathset.insert(pathstringstream2.str());
+
+      std::stringstream pathstringstream1;
+      auto *instate = inpool[j];
+      instate->printValueSequence(pathstringstream1);
+      crossset.insert(pathstringstream1.str() + " -- " + pathstringstream2.str() );
+      diffset.insert( instate->RelativePath(*navstate) );
+
+      Transformation3D g;
+      Transformation3D g2;
+      Transformation3D invg2;
+
+      instate->TopMatrix(g);
+      navstate->TopMatrix(g2);
+      g.SetProperties();
+      g2.SetProperties();
+      g2.Inverse(invg2);
+      invg2.MultiplyFromRight(g);
+      invg2.FixZeroes();
+      std::stringstream matrixstream;
+      invg2.Print(matrixstream);
+      matrices.insert(matrixstream.str());
+    }
+
+    std::cerr << " size of diffset " << diffset.size() << "\n";
+    std::cerr << " size of matrixset " << matrices.size() << "\n";
+    std::cerr << " size of target pset " << pset.size() << "\n";
+    std::cerr << " size of target lset " << lset.size() << "\n";
+    std::cerr << " size of target state set " << pathset.size() << "\n";
+    std::cerr << " total combinations " << crossset.size() << "\n";
+    std::cerr << " normalized per input state " << crossset.size()/(1.*pathset.size()) << "\n";
+
+    for(auto & s : crossset ){
+      std::cerr << s << "\n";
+    }
+    for(auto & s : diffset ){
+      std::cerr << s << "\n";
+    }
+    for(auto & s : matrices ){
+         std::cerr << s << "\n";
+       }
+}
 
 template <typename T>
 __attribute__((noinline))
 void benchNavigator(SOA3D<Precision> const & points,
                     SOA3D<Precision> const & dirs,
-                    NavStatePool const &inpool) {
+                    NavStatePool const &inpool, NavStatePool & outpool) {
   Precision *steps = new Precision[points.size()];
-  NavigationState *newstate = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
+ // NavigationState *newstate = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
   Stopwatch timer;
   VNavigator *se = T::Instance();
   size_t hittargetchecksum=0L;
   timer.Start();
   for (decltype(points.size()) i = 0; i < points.size(); ++i) {
-    steps[i] = se->ComputeStepAndPropagatedState(points[i], dirs[i], vecgeom::kInfinity, *inpool[i], *newstate);
+    steps[i] = se->ComputeStepAndPropagatedState(points[i], dirs[i], vecgeom::kInfinity, *inpool[i], *outpool[i]);
     //   std::cerr << "** " << newstate->Top()->GetLabel() << "\n";
-    hittargetchecksum+=(size_t)newstate->Top();
+    // hittargetchecksum+=(size_t)outpool[i]->Top();
   }
   timer.Stop();
   std::cerr << timer.Elapsed() << "\n";
@@ -75,7 +215,7 @@ void benchNavigator(SOA3D<Precision> const & points,
   }
   delete[] steps;
   std::cerr << "accum  " << T::GetClassName() << " " << accum << " target checksum " << hittargetchecksum << "\n";
-  NavigationState::ReleaseInstance(newstate);
+ // NavigationState::ReleaseInstance(newstate);
 }
 
 template <typename T>
@@ -138,35 +278,41 @@ void benchDifferentNavigators(SOA3D<Precision> const &points,
   std::cerr << "##\n";
   //    RUNBENCH( benchNavigator<ZDCEMAbsorberNavigator>(points, dirs, pool) );
   std::cerr << "##\n";
-  RUNBENCH(benchNavigator<NewSimpleNavigator<false>>(points, dirs, pool));
+  RUNBENCH(benchNavigator<NewSimpleNavigator<false>>(points, dirs, pool, outpool));
+  outpool.ToFile("simplenavoutpool.bin");
   std::cerr << "##\n";
-  RUNBENCH(benchNavigator<NewSimpleNavigator<true>>(points, dirs, pool));
+  RUNBENCH(benchNavigator<NewSimpleNavigator<true>>(points, dirs, pool,outpool));
+  std::cerr << "##\n";
+  RUNBENCH(benchNavigator<GeneratedNavigator>(points, dirs, pool, outpool));
+  outpool.ToFile("generatedoutpool.bin");
   std::cerr << "##\n";
   RUNBENCH(benchVectorNavigator<NewSimpleNavigator<false>>(points, dirs, pool, outpool));
   std::cerr << "##\n";
   RUNBENCH(benchVectorNavigator<NewSimpleNavigator<true>>(points, dirs, pool, outpool));
   std::cerr << "##\n";
-  RUNBENCH(benchNavigator<SimpleABBoxNavigator<false>>(points, dirs, pool));
+  RUNBENCH(benchNavigator<SimpleABBoxNavigator<false>>(points, dirs, pool, outpool));
   std::cerr << "##\n";
-  RUNBENCH(benchNavigator<SimpleABBoxNavigator<true>>(points, dirs, pool));
+  RUNBENCH(benchNavigator<SimpleABBoxNavigator<true>>(points, dirs, pool, outpool));
   std::cerr << "##\n";
   RUNBENCH(benchVectorNavigator<SimpleABBoxNavigator<false>>(points, dirs, pool, outpool));
   std::cerr << "##\n";
   RUNBENCH(benchVectorNavigator<SimpleABBoxNavigator<true>>(points, dirs, pool, outpool));
   std::cerr << "##\n";
-  RUNBENCH(benchNavigator<HybridNavigator<false>>(points, dirs, pool));
+  RUNBENCH(benchNavigator<HybridNavigator<false>>(points, dirs, pool, outpool));
   std::cerr << "##\n";
-  RUNBENCH(benchNavigator<HybridNavigator<true>>(points, dirs, pool));
+  RUNBENCH(benchNavigator<HybridNavigator<true>>(points, dirs, pool, outpool));
   std::cerr << "##\n";
   RUNBENCH(benchVectorNavigator<HybridNavigator<false>>(points, dirs, pool, outpool));
   std::cerr << "##\n";
   RUNBENCH(benchVectorNavigator<HybridNavigator<true>>(points, dirs, pool, outpool));
   std::cerr << "##\n";
   RUNBENCH(benchmarkOldNavigator(points, dirs, pool));
+  analyseOutStates(pool, outpool);
 }
 
 int main( int argc, char * argv[] )
 {
+    NavStateUnitTest();
   // read in detector passed as argument
   if (argc > 1) {
     RootGeoManager::Instance().set_verbose(3);
@@ -177,7 +323,7 @@ int main( int argc, char * argv[] )
   }
 
   // setup data structures
-  int npoints = 50000;
+  int npoints = 500000;
   SOA3D<Precision> points(npoints);
   SOA3D<Precision> localpoints(npoints);
   SOA3D<Precision> directions(npoints);
@@ -225,7 +371,7 @@ int main( int argc, char * argv[] )
     statepool.ToFile("states.bin");
   } else {
     std::cerr << " loading points from cache \n";
-	points.FromFile("points.bin");
+    points.FromFile("points.bin");
     directions.FromFile("directions.bin");
     statepool.FromFile("states.bin");
   }
