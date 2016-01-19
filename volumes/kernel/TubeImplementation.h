@@ -830,28 +830,29 @@ struct TubeImplementation {
     typedef typename Backend::bool_v Bool_t;
 
     Vector3D<Float_t> local_point = transformation.Transform<transCodeT,rotCodeT>(point);
-    safety = 0;
+
+    safety = Abs(local_point.z()) - tube.z();
 
     Float_t r = Sqrt(local_point.x()*local_point.x() + local_point.y()*local_point.y());
-
-    Float_t safez = Abs(local_point.z()) - tube.z();
     Float_t safermax = r - tube.rmax();
-
-    safety = Max(safez, safermax);
+    MaskedAssign( safermax>safety, safermax, &safety );
 
     if(checkRminTreatment<tubeTypeT>(tube)) {
       Float_t safermin = tube.rmin() - r;
-      safety = Max(safety, safermin);
+      MaskedAssign( safermin>safety, safermin, &safety);
     }
 
     if(checkPhiTreatment<tubeTypeT>(tube)) {
-      Bool_t insector = tube.GetWedge().ContainsWithoutBoundary<Backend>( local_point );
-      if(Backend::early_returns && IsFull(insector)) return;
+      Bool_t insector;
+      PointInCyclicalSector<Backend, tubeTypeT, UnplacedTube, false, false>(tube, local_point.x(), local_point.y(), insector);
+      // Bool_t insector = tube.GetWedge().ContainsWithoutBoundary<Backend>( local_point );
+      if(Backend::early_returns && IsFull(insector)) {
+        return;
+      }
 
       Float_t safephi;
       PhiPlaneSafety<Backend, tubeTypeT, false>(tube, local_point, safephi);
-      MaskedAssign(insector, Float_t(-1), &safephi);
-      safety = Max(safety, safephi);
+      MaskedAssign( safephi<kInfinity && safephi>safety, safephi, &safety );
     }
   }
 
@@ -866,24 +867,20 @@ struct TubeImplementation {
      using namespace TubeUtilities;
      typedef typename Backend::precision_v Float_t;
 
-     safety = 0;
+     safety = tube.z() - Abs(point.z());
      Float_t r = Sqrt(point.x()*point.x() + point.y()*point.y());
-     Float_t safez = tube.z() - Abs(point.z());
      Float_t safermax = tube.rmax() - r;
-     safety = Min(safez, safermax);
+     MaskedAssign( safermax<safety, safermax, &safety );
 
      if(checkRminTreatment<tubeTypeT>(tube)) {
        Float_t safermin = r - tube.rmin();
-       safety = Min(safety, safermin);
-       // std::cout<<"S2Oold: safermin="<< safermin
-       //          <<", safety="<< safety << std::endl;
+       MaskedAssign( safermin<safety, safermin, &safety );
      }
 
     if(checkPhiTreatment<tubeTypeT>(tube)) {
       Float_t safephi;
       PhiPlaneSafety<Backend, tubeTypeT, true>(tube, point, safephi);
-      MaskedAssign(safephi < -kTolerance, kInfinity, &safephi);
-      safety = Min(safety, safephi);
+      MaskedAssign( safephi<safety, safephi, &safety);
     }
   }
 
