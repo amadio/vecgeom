@@ -5,11 +5,9 @@
 #define VECGEOM_BASE_GLOBAL_H_
 
 #include <cassert>
-#include <cmath>
-#include <cfloat>
-#include <limits>
 
 #include "base/CUDA.h"
+#include "base/Math.h"
 
 #define VECGEOM
 
@@ -53,11 +51,6 @@
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE{
-#ifdef VECGEOM_FLOAT_PRECISION
-typedef float Precision;
-#else
-typedef double Precision;
-#endif
  enum EnumInside {
    eInside = 0, /* for USOLID compatibility */
    kInside = eInside,
@@ -67,61 +60,12 @@ typedef double Precision;
    kOutside = eOutside,
  };
 typedef int Inside_t;
-}}
-
-namespace vecgeom {
-inline namespace VECGEOM_IMPL_NAMESPACE {
 
 #if defined (__MIC__)
   VECGEOM_GLOBAL int kAlignmentBoundary = 64;
 #else
   VECGEOM_GLOBAL int kAlignmentBoundary = 32;
 #endif
-
-VECGEOM_GLOBAL Precision kAvogadro = 6.02214085774e23;
-VECGEOM_GLOBAL Precision kPi = 3.14159265358979323846;
-VECGEOM_GLOBAL Precision kHalfPi = 0.5*kPi;
-VECGEOM_GLOBAL Precision kTwoPi = 2.*kPi;
-VECGEOM_GLOBAL Precision kTwoPiInv = 1./kTwoPi;
-VECGEOM_GLOBAL Precision kDegToRad = kPi/180.;
-VECGEOM_GLOBAL Precision kRadToDeg = 180./kPi;
-VECGEOM_GLOBAL Precision kInfinity =
-#ifndef VECGEOM_NVCC
-    std::numeric_limits<Precision>::infinity();
-#else
-    INFINITY;
-#endif
-VECGEOM_GLOBAL Precision kEpsilon =
-#ifndef VECGEOM_NVCC
-    std::numeric_limits<Precision>::epsilon();
-#elif VECGEOM_FLOAT_PRECISION
-    FLT_EPSILON;
-#else
-    DBL_EPSILON;
-#endif
-VECGEOM_GLOBAL Precision kMinimum =
-#ifndef VECGEOM_NVCC
-    std::numeric_limits<Precision>::min();
-#elif VECGEOM_FLOAT_PRECISION
-    FLT_MIN;
-#else
-    DBL_MIN;
-#endif
-VECGEOM_GLOBAL Precision kMaximum =
-#ifndef VECGEOM_NVCC
-    std::numeric_limits<Precision>::max();
-#elif VECGEOM_FLOAT_PRECISION
-    FLT_MAX;
-#else
-    DBL_MAX;
-#endif
-VECGEOM_GLOBAL Precision kTiny = 1e-30;
-VECGEOM_GLOBAL Precision kTolerance = 1e-9;
-VECGEOM_GLOBAL Precision kRadTolerance = 1e-9;
-VECGEOM_GLOBAL Precision kAngTolerance = 1e-9;
-
-VECGEOM_GLOBAL Precision kHalfTolerance = 0.5*kTolerance;
-VECGEOM_GLOBAL Precision kToleranceSquared = kTolerance*kTolerance;
 
 namespace EInside {
 VECGEOM_GLOBAL vecgeom::Inside_t kInside = 0;
