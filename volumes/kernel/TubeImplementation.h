@@ -472,11 +472,9 @@ struct TubeImplementation {
     // For points inside z-range, return -1
     Bool_t inside = distz < -kHalfTolerance;
 
-    if(!IsEmpty(inside)) {
-      inside &= (rsq-tube.rmax2()) < -kTolerance*tube.rmax();
-    }
-    if(checkRminTreatment<tubeTypeT>(tube) && !IsEmpty(inside)) {
-      inside &= (tube.rmin2()-rsq) < -kTolerance*tube.rmin();
+    inside &= rsq < tube.tolIrmax2();
+    if(checkRminTreatment<tubeTypeT>(tube)) {
+      inside &= rsq > tube.tolIrmin2();
     }
     if(checkPhiTreatment<tubeTypeT>(tube) && !IsEmpty(inside)) {
       Bool_t insector;
