@@ -447,8 +447,7 @@ struct TubeImplementation {
 
     Bool_t done = Backend::kFalse;
 
-
-    //*** First, for points outside and moving away --> return infinity
+    //=== First, for points outside and moving away --> return infinity
     distance = kInfinity;
 
     // outside of Z range and going away?
@@ -467,8 +466,7 @@ struct TubeImplementation {
     if( Backend::early_returns && IsFull(done) ) return;
 
 
-    //*** Next, check all dimensions of the tube, whether points are inside --> return -1
-
+    //=== Next, check all dimensions of the tube, whether points are inside --> return -1
     MaskedAssign( !done, -1.0, &distance );
 
     // For points inside z-range, return -1
@@ -490,7 +488,7 @@ struct TubeImplementation {
     if(Backend::early_returns && IsFull(done)) return;
 
 
-    //*** Next step: check if z-plane is the right entry point (both r,phi should be valid at z-plane crossing)
+    //=== Next step: check if z-plane is the right entry point (both r,phi should be valid at z-plane crossing)
     MaskedAssign( !done, kInfinity, &distance );
 
     distz /= Abs(dir.z());
@@ -514,7 +512,7 @@ struct TubeImplementation {
     //if(Backend::early_returns && IsFull(done) ) return;
 
 
-    //*** Next step: intersection of the trajectories with the two circles
+    //=== Next step: intersection of the trajectories with the two circles
 
     // Here for values used in both rmin and rmax calculations
     Float_t invnsq = 1.0 / ( 1.0 - dir.z()*dir.z() );
@@ -608,7 +606,7 @@ struct TubeImplementation {
     distance = -1;
     Bool_t done = Backend::kFalse;
 
-    //*** First we check all dimensions of the tube, whether points are outside --> return -1
+    //=== First we check all dimensions of the tube, whether points are outside --> return -1
 
     // For points outside z-range, return -1
     Float_t distz = tube.z() - Abs(point.z());   // avoid a division for now
@@ -649,7 +647,6 @@ struct TubeImplementation {
 
     Float_t invnsq = 1 / ( dir.x()*dir.x() + dir.y()*dir.y() );
     Float_t b = invnsq * rdotn;
-
 
     /*
      * rmin
