@@ -1242,16 +1242,18 @@ void NavigationSpecializer::DumpStaticPrepareOutstateFunction(std::ostream &outs
                "}\n";
 
   // otherwise it is a geometry step
-  outstream << "out_state.SetBoundaryState(true);"
-               "if (hitcandidate)"
-               "out_state.Push(hitcandidate);"
+  outstream << "out_state.SetBoundaryState(true);\n";
 
-               "if (geom_step < 0.) {"
+  if(fLogicalVolume->GetDaughtersp()->size()>0){
+       outstream << "if (hitcandidate)"
+                    "out_state.Push(hitcandidate);\n";
+  }
+  outstream << "if (geom_step < 0.) {"
                "// InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );\n"
                "geom_step = 0.;"
                "}"
                "return geom_step;"
-               "}";
+               "}\n";
 }
 
 void NavigationSpecializer::DumpTransformationAsserts(std::ostream &outstream) {
@@ -1335,97 +1337,171 @@ void NavigationSpecializer::DumpFoo(std::ostream &outstream) const {
         outstream << "step = valid ? ddistance : step;}\n";
       }
     } else {
-//      // emit smaller loops
-//      int offset = 0;
-//      for (auto &pair : looplist) {
-//        if (pair.second > 1) {
-//          outstream << "for(int i = " << offset << ";i<" << offset + pair.second << ";++i){";
-//          outstream << "s = Min(s, ((" << pair.first << "*) (*daughters)[ i ])->" << pair.first
-//                    << "::DistanceToIn(localpoint, localdir, step));\n";
-//          outstream << "} // end loop\n";
-//        } else {
-//          outstream << "s = Min(s, ((" << pair.first << "*) (*daughters)[" << offset << "])->" << pair.first
-//                    << "::DistanceToIn(localpoint, localdir, step));\n";
-//        }
-//        offset += pair.second;
-//      }
+      outstream << "// reach currently unimplemented point in code generation\n";
+      //      // emit smaller loops
+      //      int offset = 0;
+      //      for (auto &pair : looplist) {
+      //        if (pair.second > 1) {
+      //          outstream << "for(int i = " << offset << ";i<" << offset + pair.second << ";++i){";
+      //          outstream << "s = Min(s, ((" << pair.first << "*) (*daughters)[ i ])->" << pair.first
+      //                    << "::DistanceToIn(localpoint, localdir, step));\n";
+      //          outstream << "} // end loop\n";
+      //        } else {
+      //          outstream << "s = Min(s, ((" << pair.first << "*) (*daughters)[" << offset << "])->" << pair.first
+      //                    << "::DistanceToIn(localpoint, localdir, step));\n";
+      //        }
+      //        offset += pair.second;
+      //      }
     }
   }
   outstream << "return false;\n";
 }
 
 void NavigationSpecializer::DumpRelocateMethod(std::ostream &outstream) const {
-    // function header
-    outstream << "VECGEOM_INLINE\n";
-    outstream << "virtual void Relocate(Vector3D<Precision> const &pointafterboundary, NavigationState const &__restrict__ in_state,"
-                                  "NavigationState &__restrict__ out_state) const override {\n";
-    outstream << "// this means that we are leaving the mother\n";
-    outstream << "// alternatively we could use nextvolumeindex like before\n";
+  // function header
+  outstream << "VECGEOM_INLINE\n";
+  outstream << "virtual void Relocate(Vector3D<Precision> const &pointafterboundary, NavigationState const "
+               "&__restrict__ in_state,"
+               "NavigationState &__restrict__ out_state) const override {\n";
+  outstream << "// this means that we are leaving the mother\n";
+  outstream << "// alternatively we could use nextvolumeindex like before\n";
+
+  if (fLogicalVolume->GetDaughtersp()->size() > 0) {
     outstream << "if( out_state.Top() == in_state.Top() ){\n";
-    outstream << "auto pathindex = PathToIndex(&in_state);\n";
+  }
+  outstream << "// this was calculated before ( we should find a way to cache it -- which is not easy since I am a "
+               "singleton )\n";
+  outstream << "auto pathindex = PathToIndex(&in_state);\n";
+  for (size_t i = 0; i < fTransitionOrder.size(); ++i) {
+    size_t transitionid = fTransitionOrder[i];
+    auto &transitionstring = fTransitionStrings[transitionid];
+    // tokenize the string with getline
+
+    std::istringstream ss(transitionstring);
+    std::string token;
+    bool horizstate = false;
+    bool downstate = false;
+
+    // count number of ops first of all
+    unsigned int downcount = 0;
+    unsigned int upcount = 0;
+    unsigned int horizcount = 0;
+    while (std::getline(ss, token, '/')) {
+      if (token.compare("down") == 0)
+        downcount++;
+      if (token.compare("up") == 0)
+        upcount++;
+      if (token.compare("horiz") == 0)
+        horizcount++;
+    }
+    if ((downcount > 0) && !(upcount || horizcount)) {
+      // filter out pure down states
+      std::cerr << "not doing" << transitionstring << "\n";
+      continue;
+    } else {
+      std::cerr << transitionstring << " has " << downcount << ";" << upcount << ";" << horizcount << "\n";
+    }
+
+    outstream << "{\n";
+    outstream << "// considering transition " << transitionstring << "\n";
+    outstream << "short index = deltamatrixmapping[pathindex][" << transitionid << "];\n";
+    outstream << "if(index!=-1){\n";
+    outstream << fDeltaTransformationCode.str();
+    outstream << "VPlacedVolume const * pvol = &GeoManager::gCompactPlacedVolBuffer[" << fTargetVolIds[transitionid]
+              << "];\n";
+    outstream << "bool intarget = "
+              << "((" << fTransitionTargetTypes[transitionid].second << "const *) pvol)->"
+              << fTransitionTargetTypes[transitionid].second << "::UnplacedContains(localpoint);\n";
+    outstream << "if(intarget){\n";
+    // now parse the transition string an calculate the outstate from this
+
+    std::stringstream ss2(transitionstring);
+
+    while (std::getline(ss2, token, '/')) {
+      // try parse a number first of all
+      if (horizstate || downstate) {
+        int number = std::stoi(token);
+
+        if (horizstate) {
+          outstream << "auto oldvalue = out_state.ValueAt( out_state.GetCurrentLevel()-1 );\n";
+          outstream << "out_state.Pop();\n";
+          outstream << "out_state.PushIndexType( oldvalue  + " << number << " );\n";
+          horizstate = false;
+        }
+        if (downstate) {
+          outstream << "out_state.PushIndexType(" << number << ");\n";
+          downstate = false;
+        }
+      }
+
+      // analyse token
+      if (token.compare("up") == 0) {
+        outstream << "out_state.Pop();\n";
+      }
+      if (token.compare("horiz") == 0) {
+
+        // expect number as next token
+        horizstate = true;
+      }
+      if (token.compare("down") == 0) {
+        downstate = true;
+      }
+    }
+    outstream << "return;}\n";
+    outstream << "}\n";
+    outstream << "}\n";
+  }
+  if (fLogicalVolume->GetDaughtersp()->size() > 0) {
+    outstream << "}\n";
+    outstream << "else {\n";
+
+    // for the moment we find out whether all possible daughters are entered directly
+    // in which case we don't do any further action
+    // TODO: put into place a more generic but optimized treatment like for leaving the mother
+    bool alldowntransitionsaretrivial = true;
     for (size_t i = 0; i < fTransitionOrder.size(); ++i) {
       size_t transitionid = fTransitionOrder[i];
-      outstream << "{\n";
-      outstream << "short index = deltamatrixmapping[pathindex]["<< transitionid <<"];\n";
-      outstream << "if(index!=-1){\n";
-      outstream << fDeltaTransformationCode.str();
-      outstream << "VPlacedVolume const * pvol = &GeoManager::gCompactPlacedVolBuffer[" << fTargetVolIds[transitionid] <<  "];\n";
-      outstream << "bool intarget = " << "((" << fTransitionTargetTypes[transitionid].second << "const *) pvol)->" << fTransitionTargetTypes[transitionid].second << "::UnplacedContains(localpoint);\n";
-      outstream << "if(intarget){\n";
-      // now parse the transition string an calculate the outstate from this
-
-      auto & transitionstring = fTransitionStrings[transitionid];
+      auto &transitionstring = fTransitionStrings[transitionid];
       // tokenize the string with getline
 
       std::istringstream ss(transitionstring);
       std::string token;
-      bool horizstate = false;
-      bool downstate = false;
+
+      // count number of ops first of all
+      unsigned int downcount = 0;
+      unsigned int upcount = 0;
+      unsigned int horizcount = 0;
       while (std::getline(ss, token, '/')) {
-        // try parse a number first of all
-        if (horizstate || downstate) {
-          int number = std::stoi(token);
-
-          if( horizstate ){
-              outstream << "auto oldvalue = out_state.ValueAt( out_state.GetCurrentLevel()-1 );\n";
-              outstream << "out_state.Pop();\n";
-              outstream << "out_state.PushIndexType( oldvalue  + " << number << " );\n";
-              horizstate = false;
-          }
-          if( downstate ){
-              outstream << "out_state.PushIndexType(" << number << ")\n";
-              downstate = false;
-          }
-        }
-
-        // analyse token
-        if (token.compare("up") == 0) {
-          outstream << "out_state.Pop();\n";
-        }
-        if (token.compare("horiz") == 0) {
-
-          // expect number as next token
-          horizstate = true;
-        }
-        if (token.compare("down") == 0) {
-          downstate = true;
-        }
+        if (token.compare("down") == 0)
+          downcount++;
+        if (token.compare("up") == 0)
+          upcount++;
+        if (token.compare("horiz") == 0)
+          horizcount++;
       }
-      outstream <<  "return;}\n";
+      if (downcount && !(upcount || horizcount)) {
+        // this is a down transition
+        if (downcount > 1)
+          alldowntransitionsaretrivial = false;
+      }
+    }
+    if (alldowntransitionsaretrivial) {
+      outstream << "// we don't do anything; the outstate should already be correct in any case\n";
+      outstream << "return;\n";
       outstream << "}\n";
+    } else {
+      outstream << " // fallback to generic treatment first of all\n";
+      outstream << "// continue directly further down ( next volume should have been stored in out_state already )\n";
+      outstream << "VPlacedVolume const *nextvol = out_state.Top();\n";
+      outstream << "out_state.Pop();\n";
+      outstream << "GlobalLocator::LocateGlobalPoint(nextvol, "
+                   "nextvol->GetTransformation()->Transform(pointafterboundary), out_state, false);\n";
+
+      outstream << "assert(in_state.Distance(out_state) != 0 && \" error relocating when entering \")\n";
       outstream << "}\n";
     }
-
-    outstream << "}\n";
-    outstream << "else {\n";
-    outstream << "// continue directly further down ( next volume should have been stored in out_state already )\n";
-    outstream << "VPlacedVolume const *nextvol = out_state.Top();\n";
-    outstream << "out_state.Pop();\n";
-    outstream << "GlobalLocator::LocateGlobalPoint(nextvol, nextvol->GetTransformation()->Transform(pointafterboundary), out_state, false);\n";
-
-    outstream << "//assert(in_state.Top() != out_state.Top() && \" error relocating when entering \")\n";
-    outstream << "}\n";
-    outstream << "}\n";
+  }
+  outstream << "}\n";
 }
 
 void NavigationSpecializer::DumpLocalHitDetectionFunction(std::ostream &outstream) const {
@@ -1459,11 +1535,14 @@ void NavigationSpecializer::DumpLocalHitDetectionFunction(std::ostream &outstrea
     // empty function; do nothing
     outstream << "return false;\n";
   } else {
+      outstream << "// we need daughter treatment\n";
   if (fUseBaseNavigator) {
-     outstream << "return fBaseNavigator." << fBaseNavigator << "<>::CheckDaughterIntersections(lvol, localpoint, localdir, in_state, out_state, "
+      outstream << "// we fall back daughter treatment of existing navigator \n";
+      outstream << "return fBaseNavigator." << fBaseNavigator << "<>::CheckDaughterIntersections(lvol, localpoint, localdir, in_state, out_state, "
                  "step, hitcandidate);\n";
   } else {
-    // put specialized local hit detection ( probably only useful for small number of daughters )
+      outstream << "// we emit specialized daughter treatment\n";
+      // put specialized local hit detection ( probably only useful for small number of daughters )
     DumpFoo(outstream);
   }}
 

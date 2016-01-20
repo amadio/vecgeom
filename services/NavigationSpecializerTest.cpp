@@ -28,30 +28,30 @@ void bar( double r1, double r2, Vector3D<Precision> & __restrict__ localdir, Vec
 #include <iostream>
 #include <fstream>
 int main(int argc, char * argv[]){
-    if(argc < 3){
-    	std::cerr << "usage: " << argv[0] << " geometryfile.root volumename [--loopunroll]\n";
-    	return 1;
-    }
+  if (argc < 3) {
+    std::cerr << "usage: " << argv[0] << " geometryfile.root volumename [--loopunroll]\n";
+    return 1;
+  }
+  vecgeom::NavigationSpecializer specializer;
+  for (auto i = 1; i < argc; i++) {
+     if (strcmp(argv[i], "--basenav") == 0) {
+       std::cerr << "setting a basenav\n";
+       specializer.SetBaseNavigator(argv[i + 1]);
+     }
+   }
 
-	vecgeom::NavigationSpecializer specializer;
-    vecgeom::RootGeoManager::Instance().LoadRootGeometry(argv[1]);
+  vecgeom::RootGeoManager::Instance().LoadRootGeometry(argv[1]);
 
-    for (auto i = 1; i < argc; i++) {
-      if (strcmp(argv[i], "--loopunroll") == 0)
-        specializer.EnableLoopUnrolling();
-    }
+  for (auto i = 1; i < argc; i++) {
+    if (strcmp(argv[i], "--loopunroll") == 0)
+      specializer.EnableLoopUnrolling();
+  }
 
 
-    for (auto i = 1; i < argc; i++) {
-      if (strcmp(argv[i], "--basenav") == 0)
-        specializer.SetBaseNavigator(argv[i+1]);
-    }
 
-    std::ofstream outputfile;
-    outputfile.open("GeneratedNavigator.h");
-    specializer.ProduceSpecializedNavigator( vecgeom::GeoManager::Instance().FindLogicalVolume(argv[2]), outputfile );
-    outputfile.close();
-    return 0;
+  std::ofstream outputfile;
+  outputfile.open("GeneratedNavigator.h");
+  specializer.ProduceSpecializedNavigator(vecgeom::GeoManager::Instance().FindLogicalVolume(argv[2]), outputfile);
+  outputfile.close();
+  return 0;
 }
-
-
