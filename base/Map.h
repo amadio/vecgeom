@@ -1,3 +1,5 @@
+// modified from stl map
+// no allocators
 #ifndef VECCORE_MAP_H
 #define VECCORE_MAP_H
 
@@ -16,7 +18,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 
 template <typename P>
-struct select1st{
+struct select1st {
   VECGEOM_CUDA_HEADER_BOTH
   typename P::first_type const& operator() (P const &p) const {
      return p.first;
@@ -102,8 +104,7 @@ public:
     : _M_t(__comp) { _M_t.insert_unique(__first, __last); }
   VECGEOM_CUDA_HEADER_BOTH
   map(const_iterator __first, const_iterator __last)
-    : _M_t(_Compare()) 
-    { _M_t.insert_unique(__first, __last); }
+    : _M_t(_Compare()) { _M_t.insert_unique(__first, __last); }
   VECGEOM_CUDA_HEADER_BOTH
   map(const_iterator __first, const_iterator __last, const _Compare& __comp)
     : _M_t(__comp) { _M_t.insert_unique(__first, __last); }
@@ -112,8 +113,7 @@ public:
   map(const map<_Key,_Tp,_Compare>& __x) : _M_t(__x._M_t) {}
   VECGEOM_CUDA_HEADER_BOTH
   map<_Key,_Tp,_Compare>&
-  operator=(const map<_Key, _Tp, _Compare>& __x)
-  {
+  operator=(const map<_Key, _Tp, _Compare>& __x) {
     _M_t = __x._M_t;
     return *this; 
   }
@@ -157,11 +157,11 @@ public:
 
   // insert/erase
   VECGEOM_CUDA_HEADER_BOTH
-  pair<iterator,bool> insert(const value_type& __x) 
-    { return _M_t.insert_unique(__x); }
+  pair<iterator,bool> insert(const value_type& __x) { 
+    return _M_t.insert_unique(__x); }
   VECGEOM_CUDA_HEADER_BOTH
-  iterator insert(iterator position, const value_type& __x)
-    { return _M_t.insert_unique(position, __x); }
+  iterator insert(iterator position, const value_type& __x) {
+    return _M_t.insert_unique(position, __x); }
   VECGEOM_CUDA_HEADER_BOTH
   void insert(const value_type* __first, const value_type* __last) {
     _M_t.insert_unique(__first, __last);
@@ -176,8 +176,8 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   size_type erase(const key_type& __x) { return _M_t.erase(__x); }
   VECGEOM_CUDA_HEADER_BOTH
-  void erase(iterator __first, iterator __last)
-    { _M_t.erase(__first, __last); }
+  void erase(iterator __first, iterator __last) {
+    _M_t.erase(__first, __last); }
   VECGEOM_CUDA_HEADER_BOTH
   void clear() { _M_t.clear(); }
 
@@ -191,13 +191,13 @@ public:
     return _M_t.find(__x) == _M_t.end() ? 0 : 1; 
   }
   VECGEOM_CUDA_HEADER_BOTH
-  iterator lower_bound(const key_type& __x) {return _M_t.lower_bound(__x); }
+  iterator lower_bound(const key_type& __x) { return _M_t.lower_bound(__x); }
   VECGEOM_CUDA_HEADER_BOTH
   const_iterator lower_bound(const key_type& __x) const {
     return _M_t.lower_bound(__x); 
   }
   VECGEOM_CUDA_HEADER_BOTH
-  iterator upper_bound(const key_type& __x) {return _M_t.upper_bound(__x); }
+  iterator upper_bound(const key_type& __x) { return _M_t.upper_bound(__x); }
   VECGEOM_CUDA_HEADER_BOTH
   const_iterator upper_bound(const key_type& __x) const {
     return _M_t.upper_bound(__x); 
