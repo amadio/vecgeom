@@ -10,9 +10,9 @@
 
 #include "VUSolid.hh"
 #include "UUtils.hh"
-
+#ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"
-
+#endif
 const double kApproxEqualTolerance = 1E-6;
 
 struct ShapeTesterErrorList {
@@ -235,7 +235,9 @@ private:
   int fNumDisp; // number of points to be displayed in case a shape is not following conventions.
   bool fVisualize;  //Flag to be set or unset by EnableDebugger() function that user will
                     //call with true parameter if want to see visualization in case of some mismatch
+#ifdef VECGEOM_ROOT
   vecgeom::Visualizer fVisualizer; //Visualizer object to visualize the geometry if fVisualize is set.
+#endif
   bool fStat; // data member to show the statistic visualtion if set to true
   bool fDebug;// data member to visualized the shape and first mismatched point with direction
 };
