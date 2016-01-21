@@ -1534,12 +1534,21 @@ void ShapeTester::CreatePointsAndDirectionsSurface() {
     }
     while (fVolumeUSolids->Inside(pointU) != vecgeom::EInside::kSurface);
 #endif
+    int retry = 100;
+    do{
     pointU = fVolumeUSolids->GetPointOnSurface();
     UVector3 vec = GetRandomDirection();
     fDirections[i + fOffsetSurface] = vec;
     point.Set(pointU.x(), pointU.y(), pointU.z());
     fPoints[i + fOffsetSurface] = point;
-  }
+    if (retry-- == 0)
+    {
+      std::cout<<"Couldn't find point on surface in 100 trials, so skipping this point."<<std::endl;
+      break;
+    }
+    }while (fVolumeUSolids->Inside(pointU) != vecgeom::EInside::kSurface);
+    }
+
 }
 void ShapeTester::CreatePointsAndDirectionsEdge() {
   UVector3 norm, point;
@@ -1798,7 +1807,9 @@ void ShapeTester::Run(VUSolid *testVolume,char *type){
   if (strcmp(type, "stat") == 0) {
     fStat = true;
     Run(testVolume);
+#ifdef VECGEOM_ROOT
     fVisualizer.GetTApp()->Run();
+#endif
   } else {
     if (strcmp(type, "debug") == 0) {
       fDebug = true;
@@ -1967,13 +1978,14 @@ void ShapeTester::ReportError(int *nError, UVector3 &p, UVector3 &v, double dist
   std::cout << std::endl;
 
   std::cout << std::setprecision(15) << ++(*nError) << " : [point] : [direction] ::  " << p <<" : "<< v << std::endl;
-
+#ifdef VECGEOM_ROOT
   if (fDebug) {
     fVisualizer.AddVolume(*dynamic_cast<vecgeom::VPlacedVolume *>(fVolumeUSolids));
     fVisualizer.AddPoint(p);
-    fVisualizer.AddLine(p, (p + vecgeom::kInfinity * v));
+    fVisualizer.AddLine(p, (p + 10000. * v));
     fVisualizer.Show();
   }
+#endif
   //
   // if debugging mode we have to exit now
   //
