@@ -1,3 +1,4 @@
+// modified from  stl RBtree
 #ifndef VECCORE_RB_TREE_H
 #define VECCORE_RB_TREE_H
 #include <exception>
@@ -19,6 +20,7 @@ template <class T> struct less {
 };
 
 
+///// re-implemeting std::pair struct to compile RBTree and map for CUDA
 
 template <class T1, class T2>
 struct pair {
@@ -32,26 +34,24 @@ struct pair {
     pair():first(),second() {}
 
   VECGEOM_CUDA_HEADER_BOTH
-    pair(const pair& apair){
+    pair(const pair& apair) {
       first = apair.first; 
       second = apair.second;
     };
   VECGEOM_CUDA_HEADER_BOTH
-    pair(const T1& x, const T2& y)
-    {
+    pair(const T1& x, const T2& y) {
       first = x;
       second = y;
     };
   VECGEOM_CUDA_HEADER_BOTH
-    pair& operator=(const pair& p)
-    {
+    pair& operator=(const pair& p) {
       first = p.first;
       second = p.second;
        return *this;
     };
  
   VECGEOM_CUDA_HEADER_BOTH
-    void swap(pair& p){
+    void swap(pair& p) {
        T1 temp = p.first;
        first = p.second;
        second = temp;
@@ -64,8 +64,7 @@ typedef bool _Rb_tree_Color_type;
 const _Rb_tree_Color_type _S_rb_tree_red = false;
 const _Rb_tree_Color_type _S_rb_tree_black = true;
 
-struct _Rb_tree_node_base
-{
+struct _Rb_tree_node_base {
   typedef _Rb_tree_Color_type _Color_type;
   typedef _Rb_tree_node_base* _Base_ptr;
 
@@ -75,23 +74,20 @@ struct _Rb_tree_node_base
   _Base_ptr _M_right;
 
   VECGEOM_CUDA_HEADER_BOTH
-  static _Base_ptr _S_minimum(_Base_ptr __x)
-  {
+  static _Base_ptr _S_minimum(_Base_ptr __x) {
     while (__x->_M_left != 0) __x = __x->_M_left;
     return __x;
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  static _Base_ptr _S_maximum(_Base_ptr __x)
-  {
+  static _Base_ptr _S_maximum(_Base_ptr __x) {
     while (__x->_M_right != 0) __x = __x->_M_right;
     return __x;
   }
 };
 
 template <class _Value>
-struct _Rb_tree_node : public _Rb_tree_node_base
-{
+struct _Rb_tree_node : public _Rb_tree_node_base {
   typedef _Rb_tree_node<_Value>* _Link_type;
   _Value _M_value_field;
   VECGEOM_CUDA_HEADER_BOTH
@@ -101,15 +97,13 @@ struct _Rb_tree_node : public _Rb_tree_node_base
 };
 
 
-struct _Rb_tree_base_iterator
-{
+struct _Rb_tree_base_iterator {
   typedef _Rb_tree_node_base::_Base_ptr _Base_ptr;
   typedef ptrdiff_t difference_type;
   _Base_ptr _M_node;
   
   VECGEOM_CUDA_HEADER_BOTH
-  void _M_increment()
-  {
+  void _M_increment() {
     if (_M_node->_M_right != 0) {
       _M_node = _M_node->_M_right;
       while (_M_node->_M_left != 0)
@@ -127,8 +121,7 @@ struct _Rb_tree_base_iterator
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  void _M_decrement()
-  {
+  void _M_decrement() {
     if (_M_node->_M_color == _S_rb_tree_red &&
         _M_node->_M_parent->_M_parent == _M_node)
       _M_node = _M_node->_M_right;
@@ -150,8 +143,7 @@ struct _Rb_tree_base_iterator
 };
 
 template <class _Value, class _Ref, class _Ptr>
-struct _Rb_tree_iterator : public _Rb_tree_base_iterator
-{
+struct _Rb_tree_iterator : public _Rb_tree_base_iterator {
   typedef _Value value_type;
   typedef _Ref reference;
   typedef _Ptr pointer;
@@ -223,8 +215,7 @@ inline _Value* value_type(const _Rb_tree_iterator<_Value, _Ref, _Ptr>&) {
 
 VECGEOM_CUDA_HEADER_BOTH
 inline void 
-_Rb_tree_rotate_left(_Rb_tree_node_base* __x, _Rb_tree_node_base*& __root)
-{
+_Rb_tree_rotate_left(_Rb_tree_node_base* __x, _Rb_tree_node_base*& __root) {
   _Rb_tree_node_base* __y = __x->_M_right;
   __x->_M_right = __y->_M_left;
   if (__y->_M_left !=0)
@@ -243,8 +234,7 @@ _Rb_tree_rotate_left(_Rb_tree_node_base* __x, _Rb_tree_node_base*& __root)
 
 VECGEOM_CUDA_HEADER_BOTH
 inline void 
-_Rb_tree_rotate_right(_Rb_tree_node_base* __x, _Rb_tree_node_base*& __root)
-{
+_Rb_tree_rotate_right(_Rb_tree_node_base* __x, _Rb_tree_node_base*& __root) {
   _Rb_tree_node_base* __y = __x->_M_left;
   __x->_M_left = __y->_M_right;
   if (__y->_M_right != 0)
@@ -264,8 +254,7 @@ _Rb_tree_rotate_right(_Rb_tree_node_base* __x, _Rb_tree_node_base*& __root)
 
 VECGEOM_CUDA_HEADER_BOTH
 inline void 
-_Rb_tree_rebalance(_Rb_tree_node_base* __x, _Rb_tree_node_base*& __root)
-{
+_Rb_tree_rebalance(_Rb_tree_node_base* __x, _Rb_tree_node_base*& __root) {
   __x->_M_color = _S_rb_tree_red;
   while (__x != __root && __x->_M_parent->_M_color == _S_rb_tree_red) {
     if (__x->_M_parent == __x->_M_parent->_M_parent->_M_left) {
@@ -313,8 +302,7 @@ inline _Rb_tree_node_base*
 _Rb_tree_rebalance_for_erase(_Rb_tree_node_base* __z,
                              _Rb_tree_node_base*& __root,
                              _Rb_tree_node_base*& __leftmost,
-                             _Rb_tree_node_base*& __rightmost)
-{
+                             _Rb_tree_node_base*& __rightmost) {
   _Rb_tree_node_base* __y = __z;
   _Rb_tree_node_base* __x = 0;
   _Rb_tree_node_base* __x_parent = 0;
@@ -454,8 +442,7 @@ _Rb_tree_rebalance_for_erase(_Rb_tree_node_base* __z,
 
 
 template <class _Tp>
-struct _Rb_tree_base
-{
+struct _Rb_tree_base {
 
   VECGEOM_CUDA_HEADER_BOTH
   _Rb_tree_base() 
@@ -491,8 +478,7 @@ public:
 protected:
 
   VECGEOM_CUDA_HEADER_BOTH
-  _Link_type _M_create_node(const value_type& __x)
-  {
+  _Link_type _M_create_node(const value_type& __x) {
     _Link_type __tmp = new _Rb_tree_node<value_type>;
      //__tmp->_M_value_field = __x ;
      __tmp->set_value( __x) ;
@@ -500,8 +486,7 @@ protected:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  _Link_type _M_clone_node(_Link_type __x)
-  {
+  _Link_type _M_clone_node(_Link_type __x) {
     _Link_type __tmp = _M_create_node(__x->_M_value_field);
     __tmp->_M_color = __x->_M_color;
     __tmp->_M_left = 0;
@@ -510,8 +495,7 @@ protected:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  void destroy_node(_Link_type __p)
-  {
+  void destroy_node(_Link_type __p) {
     (__p->_M_value_field).~_Value();
     //delete(&__p->_M_value_field);
     //&__p->~_Value();
@@ -523,60 +507,60 @@ protected:
   _Compare _M_key_compare;
 
   VECGEOM_CUDA_HEADER_BOTH
-  _Link_type& _M_root() const 
-    { return (_Link_type&) _Base::_M_header->_M_parent; }
+  _Link_type& _M_root() const { 
+    return (_Link_type&) _Base::_M_header->_M_parent; }
   VECGEOM_CUDA_HEADER_BOTH
-  _Link_type& _M_leftmost() const 
-    { return (_Link_type&) _Base::_M_header->_M_left; }
+  _Link_type& _M_leftmost() const { 
+    return (_Link_type&) _Base::_M_header->_M_left; }
   VECGEOM_CUDA_HEADER_BOTH
-  _Link_type& _M_rightmost() const 
-    { return (_Link_type&) _Base::_M_header->_M_right; }
+  _Link_type& _M_rightmost() const {
+    return (_Link_type&) _Base::_M_header->_M_right; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  static _Link_type& _S_left(_Link_type __x)
-    { return (_Link_type&)(__x->_M_left); }
+  static _Link_type& _S_left(_Link_type __x) {
+    return (_Link_type&)(__x->_M_left); }
   VECGEOM_CUDA_HEADER_BOTH
-  static _Link_type& _S_right(_Link_type __x)
-    { return (_Link_type&)(__x->_M_right); }
+  static _Link_type& _S_right(_Link_type __x) {
+    return (_Link_type&)(__x->_M_right); }
   VECGEOM_CUDA_HEADER_BOTH
-  static _Link_type& _S_parent(_Link_type __x)
-    { return (_Link_type&)(__x->_M_parent); }
+  static _Link_type& _S_parent(_Link_type __x) {
+    return (_Link_type&)(__x->_M_parent); }
   VECGEOM_CUDA_HEADER_BOTH
-  static reference _S_value(_Link_type __x)
-    { return __x->_M_value_field; }
+  static reference _S_value(_Link_type __x) {
+    return __x->_M_value_field; }
   VECGEOM_CUDA_HEADER_BOTH
-  static const _Key& _S_key(_Link_type __x)
-    { return _KeyOfValue()(_S_value(__x)); }
+  static const _Key& _S_key(_Link_type __x) {
+    return _KeyOfValue()(_S_value(__x)); }
   VECGEOM_CUDA_HEADER_BOTH
-  static _Color_type& _S_color(_Link_type __x)
-    { return (_Color_type&)(__x->_M_color); }
+  static _Color_type& _S_color(_Link_type __x) {
+    return (_Color_type&)(__x->_M_color); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  static _Link_type& _S_left(_Base_ptr __x)
-    { return (_Link_type&)(__x->_M_left); }
+  static _Link_type& _S_left(_Base_ptr __x) {
+    return (_Link_type&)(__x->_M_left); }
   VECGEOM_CUDA_HEADER_BOTH
-  static _Link_type& _S_right(_Base_ptr __x)
-    { return (_Link_type&)(__x->_M_right); }
+  static _Link_type& _S_right(_Base_ptr __x) {
+    return (_Link_type&)(__x->_M_right); }
   VECGEOM_CUDA_HEADER_BOTH
-  static _Link_type& _S_parent(_Base_ptr __x)
-    { return (_Link_type&)(__x->_M_parent); }
+  static _Link_type& _S_parent(_Base_ptr __x) {
+    return (_Link_type&)(__x->_M_parent); }
   VECGEOM_CUDA_HEADER_BOTH
-  static reference _S_value(_Base_ptr __x)
-    { return ((_Link_type)__x)->_M_value_field; }
+  static reference _S_value(_Base_ptr __x) {
+    return ((_Link_type)__x)->_M_value_field; }
   VECGEOM_CUDA_HEADER_BOTH
-  static const _Key& _S_key(_Base_ptr __x)
-    { return _KeyOfValue()(_S_value(_Link_type(__x)));} 
+  static const _Key& _S_key(_Base_ptr __x) {
+    return _KeyOfValue()(_S_value(_Link_type(__x)));} 
   VECGEOM_CUDA_HEADER_BOTH
-  static _Color_type& _S_color(_Base_ptr __x)
-    { return (_Color_type&)(_Link_type(__x)->_M_color); }
+  static _Color_type& _S_color(_Base_ptr __x) {
+    return (_Color_type&)(_Link_type(__x)->_M_color); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  static _Link_type _S_minimum(_Link_type __x) 
-    { return (_Link_type)  _Rb_tree_node_base::_S_minimum(__x); }
+  static _Link_type _S_minimum(_Link_type __x) {
+    return (_Link_type)  _Rb_tree_node_base::_S_minimum(__x); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  static _Link_type _S_maximum(_Link_type __x)
-    { return (_Link_type) _Rb_tree_node_base::_S_maximum(__x); }
+  static _Link_type _S_maximum(_Link_type __x) {
+    return (_Link_type) _Rb_tree_node_base::_S_maximum(__x); }
 
 public:
   typedef _Rb_tree_iterator<value_type, reference, pointer> iterator;
@@ -598,21 +582,19 @@ private:
 public:
                                 // allocation/deallocation
   VECGEOM_CUDA_HEADER_BOTH
-  _Rb_tree():_Base(), _M_node_count(0), _M_key_compare()
-   { _M_empty_initialize();}
-  //_Rb_tree():_Base( _M_node_count(0), _M_key_compare())
+  _Rb_tree():_Base(), _M_node_count(0), _M_key_compare() {
+   _M_empty_initialize();}
 
   VECGEOM_CUDA_HEADER_BOTH
   _Rb_tree(const _Compare& __comp)
-    : _Base(),_M_node_count(0)
-    { _M_key_compare = __comp;
+    : _Base(),_M_node_count(0) {
+    _M_key_compare = __comp;
      _M_empty_initialize();}
 
   VECGEOM_CUDA_HEADER_BOTH
   _Rb_tree(const _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>& __x) 
     : _Base(),
-      _M_node_count(0), _M_key_compare(__x._M_key_compare)
-  { 
+      _M_node_count(0), _M_key_compare(__x._M_key_compare) {
     if (__x._M_root() == 0)
       _M_empty_initialize();
     else {
@@ -754,8 +736,7 @@ template <class _Key, class _Value, class _KeyOfValue,
 VECGEOM_CUDA_HEADER_BOTH
 inline bool 
 operator==(const _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>& __x, 
-           const _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>& __y)
-{
+           const _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>& __y) {
   return __x.size() == __y.size() &&
          equal(__x.begin(), __x.end(), __y.begin());
 }
@@ -765,8 +746,8 @@ template <class _Key, class _Value, class _KeyOfValue,
 VECGEOM_CUDA_HEADER_BOTH
 inline bool 
 operator<(const _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>& __x, 
-          const _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>& __y)
-{
+          const _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>& __y) {
+
   return lexicographical_compare(__x.begin(), __x.end(), 
                                  __y.begin(), __y.end());
 }
@@ -826,8 +807,7 @@ template <class _Key, class _Value, class _KeyOfValue,
 VECGEOM_CUDA_HEADER_BOTH
 _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>& 
 _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>
-  ::operator=(const _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>& __x)
-{
+  ::operator=(const _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>& __x) {
   if (this != &__x) {
                                 // Note that _Key may be a constant type.
     clear();
@@ -853,8 +833,7 @@ template <class _Key, class _Value, class _KeyOfValue,
 VECGEOM_CUDA_HEADER_BOTH
 typename _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::iterator
 _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>
-  ::_M_insert(_Base_ptr __x_, _Base_ptr __y_, const _Value& __v)
-{
+  ::_M_insert(_Base_ptr __x_, _Base_ptr __y_, const _Value& __v) {
   _Link_type __x = (_Link_type) __x_;
   _Link_type __y = (_Link_type) __y_;
   _Link_type __z;
@@ -890,8 +869,7 @@ template <class _Key, class _Value, class _KeyOfValue,
 VECGEOM_CUDA_HEADER_BOTH
 typename _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::iterator
 _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>
-  ::insert_equal(const _Value& __v)
-{
+  ::insert_equal(const _Value& __v) {
   _Link_type __y = _Base::_M_header;
   _Link_type __x = _M_root();
   while (__x != 0) {
@@ -909,8 +887,7 @@ VECGEOM_CUDA_HEADER_BOTH
 pair<typename _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::iterator, 
      bool>
 _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>
-  ::insert_unique(const _Value& __v)
-{
+  ::insert_unique(const _Value& __v) {
   _Link_type __y = _Base::_M_header;
   _Link_type __x = _M_root();
   bool __comp = true;
@@ -937,8 +914,7 @@ template <class _Key, class _Val, class _KeyOfValue,
 VECGEOM_CUDA_HEADER_BOTH
 typename _Rb_tree<_Key, _Val, _KeyOfValue, _Compare>::iterator 
 _Rb_tree<_Key, _Val, _KeyOfValue, _Compare>
-  ::insert_unique(iterator __position, const _Val& __v)
-{
+  ::insert_unique(iterator __position, const _Val& __v) {
   if (__position._M_node == _Base::_M_header->_M_left) { // begin()
     if (size() > 0 && 
         _M_key_compare(_KeyOfValue()(__v), _S_key(__position._M_node)))
@@ -971,8 +947,7 @@ template <class _Key, class _Val, class _KeyOfValue,
 VECGEOM_CUDA_HEADER_BOTH
 typename _Rb_tree<_Key,_Val,_KeyOfValue,_Compare>::iterator 
 _Rb_tree<_Key,_Val,_KeyOfValue,_Compare>
-  ::insert_equal(iterator __position, const _Val& __v)
-{
+  ::insert_equal(iterator __position, const _Val& __v) {
   if (__position._M_node == _Base::_M_header->_M_left) { // begin()
     if (size() > 0 && 
         !_M_key_compare(_S_key(__position._M_node), _KeyOfValue()(__v)))
@@ -1005,8 +980,7 @@ template <class _Key, class _Val, class _KoV, class _Cmp>
 VECGEOM_CUDA_HEADER_BOTH
 void
 _Rb_tree<_Key,_Val,_KoV,_Cmp>
-  ::insert_equal(const _Val* __first, const _Val* __last)
-{
+  ::insert_equal(const _Val* __first, const _Val* __last) {
   for ( ; __first != __last; ++__first)
     insert_equal(*__first);
 }
@@ -1015,8 +989,7 @@ template <class _Key, class _Val, class _KoV, class _Cmp>
 VECGEOM_CUDA_HEADER_BOTH
 void
 _Rb_tree<_Key,_Val,_KoV,_Cmp>
-  ::insert_equal(const_iterator __first, const_iterator __last)
-{
+  ::insert_equal(const_iterator __first, const_iterator __last) {
   for ( ; __first != __last; ++__first)
     insert_equal(*__first);
 }
@@ -1025,8 +998,7 @@ template <class _Key, class _Val, class _KoV, class _Cmp>
 VECGEOM_CUDA_HEADER_BOTH
 void 
 _Rb_tree<_Key,_Val,_KoV,_Cmp>
-  ::insert_unique(const _Val* __first, const _Val* __last)
-{
+  ::insert_unique(const _Val* __first, const _Val* __last) {
   for ( ; __first != __last; ++__first)
     insert_unique(*__first);
 }
@@ -1034,8 +1006,7 @@ _Rb_tree<_Key,_Val,_KoV,_Cmp>
 template <class _Key, class _Val, class _KoV, class _Cmp>
 VECGEOM_CUDA_HEADER_BOTH
 void _Rb_tree<_Key,_Val,_KoV,_Cmp>
-  ::insert_unique(const_iterator __first, const_iterator __last)
-{
+  ::insert_unique(const_iterator __first, const_iterator __last) {
   for ( ; __first != __last; ++__first)
     insert_unique(*__first);
 }
@@ -1045,8 +1016,7 @@ template <class _Key, class _Value, class _KeyOfValue,
           class _Compare>
 VECGEOM_CUDA_HEADER_BOTH
 inline void _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>
-  ::erase(iterator __position)
-{
+  ::erase(iterator __position) {
   _Link_type __y = 
     (_Link_type) _Rb_tree_rebalance_for_erase(__position._M_node,
                                               _Base::_M_header->_M_parent,
@@ -1060,8 +1030,7 @@ template <class _Key, class _Value, class _KeyOfValue,
           class _Compare>
 VECGEOM_CUDA_HEADER_BOTH
 typename _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::size_type 
-_Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::erase(const _Key& __x)
-{
+_Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::erase(const _Key& __x) {
   pair<iterator,iterator> __p = equal_range(__x);
   size_type __n = 0;
   distance(__p.first, __p.second, __n);
@@ -1073,8 +1042,7 @@ template <class _Key, class _Val, class _KoV, class _Compare>
 VECGEOM_CUDA_HEADER_BOTH
 typename _Rb_tree<_Key, _Val, _KoV, _Compare>::_Link_type 
 _Rb_tree<_Key,_Val,_KoV,_Compare>
-  ::_M_copy(_Link_type __x, _Link_type __p)
-{
+  ::_M_copy(_Link_type __x, _Link_type __p) {
                         // structural copy.  __x and __p must be non-null.
   _Link_type __top = _M_clone_node(__x);
   __top->_M_parent = __p;
@@ -1101,8 +1069,7 @@ template <class _Key, class _Value, class _KeyOfValue,
           class _Compare>
 VECGEOM_CUDA_HEADER_BOTH
 void _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>
-  ::_M_erase(_Link_type __x)
-{
+  ::_M_erase(_Link_type __x) {
                                 // erase without rebalancing
   while (__x != 0) {
     _M_erase(_S_right(__x));
@@ -1116,8 +1083,7 @@ template <class _Key, class _Value, class _KeyOfValue,
           class _Compare>
 VECGEOM_CUDA_HEADER_BOTH
 void _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>
-  ::erase(iterator __first, iterator __last)
-{
+  ::erase(iterator __first, iterator __last) {
   if (__first == begin() && __last == end())
     clear();
   else
@@ -1128,8 +1094,7 @@ template <class _Key, class _Value, class _KeyOfValue,
           class _Compare>
 VECGEOM_CUDA_HEADER_BOTH
 void _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>
-  ::erase(const _Key* __first, const _Key* __last) 
-{
+  ::erase(const _Key* __first, const _Key* __last) {
   while (__first != __last) erase(*__first++);
 }
 
@@ -1137,8 +1102,7 @@ template <class _Key, class _Value, class _KeyOfValue,
           class _Compare>
 VECGEOM_CUDA_HEADER_BOTH
 typename _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::iterator 
-_Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::find(const _Key& __k)
-{
+_Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::find(const _Key& __k) {
   _Link_type __y = _Base::_M_header;      // Last node which is not less than __k. 
   _Link_type __x = _M_root();      // Current node. 
 
@@ -1157,8 +1121,7 @@ template <class _Key, class _Value, class _KeyOfValue,
           class _Compare>
 VECGEOM_CUDA_HEADER_BOTH
 typename _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::const_iterator 
-_Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::find(const _Key& __k) const
-{
+_Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::find(const _Key& __k) const {
   _Link_type __y = _Base::_M_header; /* Last node which is not less than __k. */
   _Link_type __x = _M_root(); /* Current node. */
 
@@ -1178,8 +1141,7 @@ template <class _Key, class _Value, class _KeyOfValue,
 VECGEOM_CUDA_HEADER_BOTH
 typename _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::size_type 
 _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>
-  ::count(const _Key& __k) const
-{
+  ::count(const _Key& __k) const {
   pair<const_iterator, const_iterator> __p = equal_range(__k);
   size_type __n = 0;
   distance(__p.first, __p.second, __n);
@@ -1191,8 +1153,7 @@ template <class _Key, class _Value, class _KeyOfValue,
 VECGEOM_CUDA_HEADER_BOTH
 typename _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::iterator 
 _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>
-  ::lower_bound(const _Key& __k)
-{
+  ::lower_bound(const _Key& __k) {
   _Link_type __y = _Base::_M_header; /* Last node which is not less than __k. */
   _Link_type __x = _M_root(); /* Current node. */
 
@@ -1210,8 +1171,7 @@ template <class _Key, class _Value, class _KeyOfValue,
 VECGEOM_CUDA_HEADER_BOTH
 typename _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::const_iterator 
 _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>
-  ::lower_bound(const _Key& __k) const
-{
+  ::lower_bound(const _Key& __k) const {
   _Link_type __y = _Base::_M_header; /* Last node which is not less than __k. */
   _Link_type __x = _M_root(); /* Current node. */
 
@@ -1229,8 +1189,7 @@ template <class _Key, class _Value, class _KeyOfValue,
 VECGEOM_CUDA_HEADER_BOTH
 typename _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::iterator 
 _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>
-  ::upper_bound(const _Key& __k)
-{
+  ::upper_bound(const _Key& __k) {
   _Link_type __y = _Base::_M_header; /* Last node which is greater than __k. */
   _Link_type __x = _M_root(); /* Current node. */
 
@@ -1248,8 +1207,7 @@ template <class _Key, class _Value, class _KeyOfValue,
 VECGEOM_CUDA_HEADER_BOTH
 typename _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::const_iterator 
 _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>
-  ::upper_bound(const _Key& __k) const
-{
+  ::upper_bound(const _Key& __k) const {
   _Link_type __y = _Base::_M_header; /* Last node which is greater than __k. */
   _Link_type __x = _M_root(); /* Current node. */
 
@@ -1269,8 +1227,7 @@ inline
 pair<typename _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::iterator,
      typename _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::iterator>
 _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>
-  ::equal_range(const _Key& __k)
-{
+  ::equal_range(const _Key& __k) {
   return pair<iterator, iterator>(lower_bound(__k), upper_bound(__k));
 }
 
@@ -1280,16 +1237,14 @@ inline
 pair<typename _Rb_tree<_Key, _Value, _KoV, _Compare>::const_iterator,
      typename _Rb_tree<_Key, _Value, _KoV, _Compare>::const_iterator>
 _Rb_tree<_Key, _Value, _KoV, _Compare>
-  ::equal_range(const _Key& __k) const
-{
+  ::equal_range(const _Key& __k) const {
   return pair<const_iterator,const_iterator>(lower_bound(__k),
                                              upper_bound(__k));
 }
 
 VECGEOM_CUDA_HEADER_BOTH
 inline int 
-__black_count(_Rb_tree_node_base* __node, _Rb_tree_node_base* __root)
-{
+__black_count(_Rb_tree_node_base* __node, _Rb_tree_node_base* __root) {
   if (__node == 0)
     return 0;
   else {
@@ -1304,8 +1259,7 @@ __black_count(_Rb_tree_node_base* __node, _Rb_tree_node_base* __root)
 template <class _Key, class _Value, class _KeyOfValue, 
           class _Compare>
 VECGEOM_CUDA_HEADER_BOTH
-bool _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::__rb_verify() const
-{
+bool _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>::__rb_verify() const {
   if (_M_node_count == 0 || begin() == end())
     return _M_node_count == 0 && begin() == end() &&
       _Base::_M_header->_M_left == _Base::_M_header && _Base::_M_header->_M_right == _Base::_M_header;
