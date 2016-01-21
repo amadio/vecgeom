@@ -464,9 +464,6 @@ void NavigationSpecializer::AnalysePaths(std::list<NavigationState *> const &pat
   if (!transalwayszero[2])
     fTransformationCode << "- gTrans2[index]";
   fTransformationCode << ");\n";
-  // fTransformationCode << "Vector3D<Precision> local(0.);\n";
-  fTransformationCode << "localpoint=Vector3D<Precision>(0.);\n";
-  fTransformationCodeDir << "localdir=Vector3D<Precision>(0.);\n";
 
   // for vectorized version this is a bit different ( we need a SIMD global point first of all )
   fVectorTransformationCode << "Vector3D<Vc::double_v> gpoint_v("
@@ -483,20 +480,17 @@ void NavigationSpecializer::AnalysePaths(std::list<NavigationState *> const &pat
   if (!transalwayszero[2])
     fVectorTransformationCode << "- gTrans2_v";
   fVectorTransformationCode << ");\n";
-  fVectorTransformationCode << "Vector3D<Vc::double_v> local(0.);\n";
 
   int rotindex = 0;
+  bool indexseen[3] = {false,false,false};
   // tmp loop
   for (int tmpindex = 0; tmpindex < 3; ++tmpindex) {
-    // local loop
-    std::string op;
-    if (tmpindex == 0)
-      op = " = ";
-    else
-      op = " += ";
+     // local loop
     for (int localindex = 0; localindex < 3; ++localindex) {
-      if (!rotalwayszero[rotindex]) {
-        // new line
+        std::string op = indexseen[localindex] ? "+=" : "=";
+        if (!rotalwayszero[rotindex]) {
+         indexseen[localindex] = true;
+          // new line
         fTransformationCode << "localpoint[" << localindex << "]" << op;
         fTransformationCodeDir << "localdir[" << localindex << "]" << op;
         fVectorTransformationCode << "localpoint[" << localindex << "]" << op;
@@ -849,8 +843,7 @@ void NavigationSpecializer::AnalyseTargetPaths(NavStatePool const &inpool, NavSt
   if (!transalwayszero[2])
     fDeltaTransformationCode << "- gDeltaTrans2[index]";
   fDeltaTransformationCode << ");\n";
-  // fTransformationCode << "Vector3D<Precision> local(0.);\n";
-  fDeltaTransformationCode << "Vector3D<Precision> localpoint(0.);\n";
+  fDeltaTransformationCode << "Vector3D<Precision> localpoint;\n";
 
   // for vectorized version this is a bit different ( we need a SIMD global point first of all )
   //   fVectorTransformationCode << "Vector3D<Vc::double_v> gpoint_v("
@@ -870,16 +863,14 @@ void NavigationSpecializer::AnalyseTargetPaths(NavStatePool const &inpool, NavSt
   //   fVectorTransformationCode << "Vector3D<Vc::double_v> local(0.);\n";
 
   int rotindex = 0;
+  bool indexseen[3] = {false,false,false};
   // tmp loop
   for (int tmpindex = 0; tmpindex < 3; ++tmpindex) {
     // local loop
-    std::string op;
-    if (tmpindex == 0)
-      op = " = ";
-    else
-      op = " += ";
     for (int localindex = 0; localindex < 3; ++localindex) {
-      if (!rotalwayszero[rotindex]) {
+      std::string op = indexseen[localindex] ? "+=" : "=";
+       if (!rotalwayszero[rotindex]) {
+          indexseen[localindex]=true;
         // new line
         fDeltaTransformationCode << "localpoint[" << localindex << "]" << op;
         //            fVectorTransformationCode << "localpoint[" << localindex << "]" << op;
