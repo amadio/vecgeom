@@ -112,8 +112,9 @@ void CircleTrajectoryIntersection(typename Backend::precision_v const &b,
   typedef typename Backend::bool_v Bool_t;
 
   Float_t delta = b*b - c;
+  ok = delta > 0.0;
+  if(LargestSolution)  ok |= delta == 0.;  // this takes care of scratching conventions
 
-  ok = delta>=0;
   MaskedAssign( !ok, 0., &delta);
   delta = Sqrt(delta);
   if(!LargestSolution) delta = -delta;
@@ -131,7 +132,7 @@ void CircleTrajectoryIntersection(typename Backend::precision_v const &b,
       Bool_t insector = Backend::kFalse;
       Float_t hitx = pos.x() + dist * dir.x();
       Float_t hity = pos.y() + dist * dir.y();
-      PointInCyclicalSector<Backend, TubeType, UnplacedTube, false, false>(tube, hitx, hity, insector);
+      PointInCyclicalSector<Backend, TubeType, UnplacedTube, false, true>(tube, hitx, hity, insector);
       //insector = tube.GetWedge().ContainsWithBoundary<Backend>( Vector3D<typename Backend::precision_v>(hitx, hity, hitz) );
       ok &= insector;
     }
@@ -224,6 +225,7 @@ void PhiPlaneSafety( UnplacedTube const& tube,
   MaskedAssign(phi2>-kHalfTolerance
                && pos.x()*tube.alongPhi2x()+pos.y()*tube.alongPhi2y() > 0
                && phi2<safety, phi2, &safety);
+
 }
 
 /*
@@ -495,6 +497,7 @@ struct TubeImplementation {
     Float_t hity = point.y() + distz*dir.y();
     Float_t r2 = hitx*hitx + hity*hity;  // radius of intersection with z-plane
     Bool_t okz = distz > -kHalfTolerance  && (point.z()*dir.z()<0);
+
     okz &= (r2 <= tube.rmax2());
     if(checkRminTreatment<tubeTypeT>(tube)) {
       okz &= (tube.rmin2() <= r2);
@@ -845,10 +848,7 @@ struct TubeImplementation {
     if(checkPhiTreatment<tubeTypeT>(tube)) {
       Bool_t insector;
       PointInCyclicalSector<Backend, tubeTypeT, UnplacedTube, false, false>(tube, local_point.x(), local_point.y(), insector);
-      // Bool_t insector = tube.GetWedge().ContainsWithoutBoundary<Backend>( local_point );
-      if(Backend::early_returns && IsFull(insector)) {
-        return;
-      }
+      if(Backend::early_returns && IsFull(insector)) return;
 
       Float_t safephi;
       PhiPlaneSafety<Backend, tubeTypeT, false>(tube, local_point, safephi);

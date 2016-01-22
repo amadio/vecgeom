@@ -315,9 +315,11 @@ bool TestTubs()
    
     Dist=t3.DistanceToIn(Vec_t(49.5,5,0),vmx);
     //  std::cout<<"Dist=t2.DistanceToIn((49.5,5,0),vmx) = "<<Dist<<std::endl;
+    assert(ApproxEqual(Dist,49.5));
    
     Dist=t3.DistanceToIn(Vec_t(49.5,-0.5,0),vmx);
     //  std::cout<<"Dist=t2.DistanceToIn((49.5,-0.5,0),vmx) = "<<Dist<<std::endl;
+    assert(ApproxEqual(Dist,Constants::kInfinity));
    
     Dist=t5.DistanceToIn(Vec_t(30.0,-20.0,0),vxy);
     // std::cout<<"Dist=t5.DistanceToIn((30.0,-20.0,0),vxy) = "<<Dist<<std::endl;
