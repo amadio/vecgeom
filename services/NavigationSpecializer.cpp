@@ -36,7 +36,7 @@ int PathsAreDifferentAtGivenLevel(std::list<NavigationState *> const &paths, siz
 
 // generic function to check if a collection contains just one element
 template<typename Container, typename T >
-bool CollectionIsConstant(Container &c, T oneelementinc){
+bool CollectionIsConstant(Container const &c, T oneelementinc){
   for(auto element : c){
       if(element != oneelementinc)
           return false;
@@ -57,6 +57,65 @@ auto printlambda = [](std::string name, std::vector<double> &v, std::ostream &ou
   }
   outstream << "};\n";
 };
+
+void TabulatedTransData::Analyse() {
+  for (int i = 0; i < 9; ++i) {
+    // rotation
+    auto const &coeffs = fRotCoefficients[i];
+    // if there is anything to analyse
+    if (coeffs.size() > 0) {
+      if (!CollectionIsConstant(coeffs, coeffs[0])) {
+        fRotIsConstant[i] = false;
+      }
+      for (auto c : coeffs) {
+        if (std::abs(c) > 1E-9) {
+          fRotalwayszero[i] = false;
+        }
+        if (!(std::abs(c - 1.) < 1E-9)) {
+          fRotalwaysone[i] = false;
+        }
+        if (!(std::abs(c + 1) < 1E-9)) {
+          fRotalwaysminusone[i] = false;
+        }
+        if (!((std::abs(c + 1) < 1E-9) || (std::abs(c - 1) < 1E-9))) {
+          fRotalwaysminusoneorone[i] = false;
+        }
+      }
+    }
+  }
+
+  // translation
+  for (int i = 0; i < 3; ++i) {
+    auto const &coeffs = fTransCoefficients[i];
+    if (coeffs.size() > 0) {
+      if (!CollectionIsConstant(coeffs, coeffs[0])) {
+        fTransIsConstant[i] = false;
+      }
+      for (auto c : coeffs) {
+        if (std::abs(c) > 1E-9) {
+          fTransalwayszero[i] = false;
+        }
+      }
+    }
+  } // end translation analysis
+}
+
+void TabulatedTransData::Print() const {
+  std::cerr << " --- output of analysis ---- \n";
+  for (size_t i = 0; i < 9; ++i) {
+    std::cerr << "rot[" << i << "] exists: " << (fRotCoefficients[i].size() > 0) << "\n";
+    std::cerr << "rot[" << i << "] is constant " << fRotIsConstant[i] << "\n";
+    std::cerr << "rot[" << i << "] is zero " << fRotalwayszero[i] << "\n";
+    std::cerr << "rot[" << i << "] is one " << fRotalwaysone[i] << "\n";
+    std::cerr << "rot[" << i << "] is minus one " << fRotalwaysminusone[i] << "\n";
+    std::cerr << "rot[" << i << "] is either one or minus one " << fRotalwaysminusoneorone[i] << "\n";
+  }
+  for (size_t i = 0; i < 3; ++i) {
+    std::cerr << "trans[" << i << "] exists: " << (fTransCoefficients[i].size() > 0) << "\n";
+    std::cerr << "trans[" << i << "] is constant " << fTransIsConstant[i] << "\n";
+    std::cerr << "trans[" << i << "] is zero " << fTransIsConstant[i] << "\n";
+  }
+}
 
 // function that generates a classification table in form of nested switch statements
 // the table will be used to map a geometry path object to a unique integer which indexes
@@ -542,6 +601,7 @@ void NavigationSpecializer::AnalysePaths(std::list<NavigationState *> const &pat
       std::string variable("gTrans" + std::to_string(i));
       // export the following into a lambda
       std::vector<double> values(paths.size());
+      fGlobalTransData.ReserveTrans(i, paths.size());
       for (auto path : paths) {
         Transformation3D m;
         path->TopMatrix(m);
@@ -550,6 +610,7 @@ void NavigationSpecializer::AnalysePaths(std::list<NavigationState *> const &pat
           std::cerr << "SCHEISSE " << index << " \n";
         assert(index >= 0 && index < paths.size());
         values[index] = m.Translation(i);
+        fGlobalTransData.SetTransCoef(i, index, m.Translation(i));
       }
       //
       if (CollectionIsConstant(values, values[0])) {
@@ -568,10 +629,13 @@ void NavigationSpecializer::AnalysePaths(std::list<NavigationState *> const &pat
       std::string variable("gRot" + std::to_string(i));
       // export the following into a lambda
       std::vector<double> values(paths.size());
+      fGlobalTransData.ReserveRot(i, paths.size());
       for (auto &path : paths) {
         Transformation3D m;
         path->TopMatrix(m);
-        values[PathToIndex(path)] = m.Rotation(i);
+        auto index = PathToIndex(path);
+        values[index] = m.Rotation(i);
+        fGlobalTransData.SetRotCoef(i, index, m.Rotation(i));
       }
       //
       if (CollectionIsConstant(values, values[0])) {
@@ -583,6 +647,29 @@ void NavigationSpecializer::AnalysePaths(std::list<NavigationState *> const &pat
       fTransformVariables.push_back(variable);
     }
   }
+
+  fGlobalTransData.Analyse();
+  fGlobalTransData.Print();
+
+}
+
+void NavigationSpecializer::DumpGlobalTranformationData(std::ostream & outstream) const {
+  // can distinguish SOA/AOS
+
+  // for the moment implementing as AOS
+  std::stringstream stringbuilder;
+
+  // start with the struct declaration // put only things into struct which vary
+  stringbuilder << "struct gTransfData {\n";
+  for(size_t i = 0; i<3; ++i){
+
+  }
+  for(size_t i = 0; i<9; ++i){
+
+  }
+  stringbuilder << "double gTransfData {\n";
+  stringbuilder << "}; // end struct\n";
+
 }
 
 template <typename T> std::vector<size_t> sort_indexes(const std::vector<T> &v) {
