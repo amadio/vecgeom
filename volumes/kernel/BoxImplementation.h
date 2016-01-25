@@ -763,25 +763,23 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
     typename Backend::precision_v &distance) {
 
     typedef typename Backend::precision_v Floating_t;
-    // typedef typename Backend::bool_v Boolean_t;
+    typedef typename Backend::bool_v Bool_t;
 
-    distance = kInfinity;
+    distance = -1;
 
-    //Vector3D<Floating_t> safety;
-    //safety[0] = Abs(point[0]) - dimensions[0];
-    //safety[1] = Abs(point[1]) - dimensions[1];
-    //safety[2] = Abs(point[2]) - dimensions[2];
+    Vector3D<Floating_t> safety {
+      dimensions[0] - Abs(point[0]),
+      dimensions[1] - Abs(point[1]),
+      dimensions[2] - Abs(point[2])
+    };
 
-    //Boolean_t inside;
-    //inside = safety[0] < stepMax &&
-    //         safety[1] < stepMax &&
-    //         safety[2] < stepMax;
-    //if (inside == Backend::kFalse) return;
+    Bool_t done = safety[0]<-kHalfTolerance || safety[1]<-kHalfTolerance || safety[2]<-kHalfTolerance;
+    if(Backend::early_returns && IsFull(done)) return;
 
     Vector3D<Floating_t> inverseDirection {
-      1. / (direction[0] + kMinimum),
-      1. / (direction[1] + kMinimum),
-      1. / (direction[2] + kMinimum)
+      1. / (direction[0]), // + kMinimum),
+      1. / (direction[1]), // + kMinimum),
+      1. / (direction[2])  // + kMinimum)
     };
     Vector3D<Floating_t> distances {
       (dimensions[0] - point[0]) * inverseDirection[0],
@@ -799,9 +797,9 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
                  (-dimensions[2] - point[2]) * inverseDirection[2],
                  &distances[2]);
 
-    distance = distances[0];
-    MaskedAssign(distances[1] < distance, distances[1], &distance);
-    MaskedAssign(distances[2] < distance, distances[2], &distance);
+    MaskedAssign(!done, distances[0], &distance);
+    MaskedAssign(!done && distances[1] < distance, distances[1], &distance);
+    MaskedAssign(!done && distances[2] < distance, distances[2], &distance);
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
