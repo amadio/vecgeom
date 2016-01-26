@@ -1,4 +1,9 @@
 // modified from  stl RBtree
+//https://gcc.gnu.org/onlinedocs/gcc-4.9.3/libstdc++/api/a01266.html
+//removed allocator
+//added CUDA annotations
+//added less and pair structs
+
 #ifndef VECCORE_RB_TREE_H
 #define VECCORE_RB_TREE_H
 #include <exception>
