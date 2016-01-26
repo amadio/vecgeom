@@ -1,5 +1,11 @@
 // modified from stl map
-// no allocators
+//https://gcc.gnu.org/onlinedocs/gcc-4.9.3/libstdc++/api/a01255.html
+//
+//removed allocators
+//removed inverted iterators
+//added CUDA annotations
+//added select1st struct
+
 #ifndef VECCORE_MAP_H
 #define VECCORE_MAP_H
 
