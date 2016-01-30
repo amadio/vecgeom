@@ -13,7 +13,6 @@
 #include "base/SOA3D.h"
 #include "base/Transformation3D.h"
 #include "navigation/NavigationState.h"
-#include "navigation/NavStatePool.h"
 #include "navigation/GlobalLocator.h"
 #include "volumes/PlacedVolume.h"
 #include "volumes/LogicalVolume.h"
@@ -82,8 +81,8 @@ public:
   virtual void ComputeStepsAndPropagatedStates(SOA3D<Precision> const & /*globalpoints*/,
                                                SOA3D<Precision> const & /*globaldirs*/,
                                                Precision const */*(physics) step limits */,
-                                               NavStatePool const & /*in_states*/,
-                                               NavStatePool & /*out_states*/, Precision */*out_steps*/) const = 0;
+                                               NavigationState const ** /*in_states*/,
+                                               NavigationState ** /*out_states*/, Precision */*out_steps*/) const = 0;
 
 protected:
   // a common relocate method ( to calculate propagated states after the boundary )
@@ -196,7 +195,7 @@ protected:
   // version used for SIMD processing
   // should be specialized in Impl for faster treatment
   template <typename T, unsigned int ChunkSize>
-  VECGEOM_INLINE static void DoGlobalToLocalTransformations(NavStatePool const &in_states,
+  VECGEOM_INLINE static void DoGlobalToLocalTransformations(NavigationState const ** in_states,
                                                             SOA3D<Precision> const &globalpoints,
                                                             SOA3D<Precision> const &globaldirs, unsigned int from_index,
                                                             Vector3D<T> &localpoint, Vector3D<T> &localdir) {
@@ -227,12 +226,12 @@ public:
     // the default implementation for hit detection with daughters for a chunk of data
     // is to loop over the implementation for the scalar case
     // this static function may be overridden by the specialized implementations (such as done in NewSimpleNavigator)
-    // the from_index, to_index indicate which states from the NavStatePool are actually treated
+    // the from_index, to_index indicate which states from the NavigationState ** are actually treated
     // in the worst case, we might have to implement this stuff over there
   template <typename T, unsigned int ChunkSize> // we may go to Backend as template parameter in future
   static void DaughterIntersectionsLooper(VNavigator const *nav, LogicalVolume const *lvol,
                                           Vector3D<T> const &localpoint, Vector3D<T> const &localdir,
-                                          NavStatePool const &in_states, NavStatePool &out_states,
+                                          NavigationState const ** in_states, NavigationState ** out_states,
                                           unsigned int from_index, Precision *out_steps,
                                           VPlacedVolume const *hitcandidates[ChunkSize]) {
     // dispatch to ordinary implementation ( which itself might be vectorized )
@@ -343,7 +342,7 @@ public :
     NavigateAChunk(VNavigator const *__restrict__ nav, VPlacedVolume const *__restrict__ pvol,
                    LogicalVolume const *__restrict__ lvol, SOA3D<Precision> const &__restrict__ globalpoints,
                    SOA3D<Precision> const &__restrict__ globaldirs, Precision const *__restrict__ step_limits,
-                   NavStatePool const &__restrict__ in_states, NavStatePool &__restrict__ out_states,
+                   NavigationState const ** __restrict__ in_states, NavigationState ** __restrict__ out_states,
                    Precision *__restrict__ out_steps, unsigned int from_index) {
 
       VPlacedVolume const *hitcandidates[ChunkSize] = {}; // initialize all to nullptr
@@ -396,8 +395,8 @@ public :
 //    virtual void ComputeStepsAndPropagatedStates(SOA3D<Precision> const &__restrict__ globalpoints,
 //                                                 SOA3D<Precision> const &__restrict__ globaldirs,
 //                                                 Precision const *__restrict__ step_limit,
-//                                                 NavStatePool const &__restrict__ in_states,
-//                                                 NavStatePool &__restrict__ out_states,
+//                                                 NavigationState const ** __restrict__ in_states,
+//                                                 NavigationState ** __restrict__ out_states,
 //                                                 Precision *__restrict__ out_steps) const override {
 //
 //      // process SIMD part and TAIL part
@@ -429,8 +428,8 @@ public :
     virtual void ComputeStepsAndPropagatedStates(SOA3D<Precision> const &__restrict__ globalpoints,
                                                  SOA3D<Precision> const &__restrict__ globaldirs,
                                                  Precision const *__restrict__ step_limit,
-                                                 NavStatePool const &__restrict__ in_states,
-                                                 NavStatePool &__restrict__ out_states,
+                                                 NavigationState const ** __restrict__ in_states,
+                                                 NavigationState ** __restrict__ out_states,
                                                  Precision *__restrict__ out_steps) const override {
       for (unsigned int i = 0; i < globalpoints.size(); ++i) {
         out_steps[i] = ((Impl *)this)

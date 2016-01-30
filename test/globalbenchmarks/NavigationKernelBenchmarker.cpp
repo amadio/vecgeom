@@ -229,8 +229,12 @@ void benchVectorNavigator(SOA3D<Precision> const & __restrict__ points,
   Precision *steps = (double *)_mm_malloc(sizeof(double) * points.size(), 32);
   Stopwatch timer;
   VNavigator *se = T::Instance();
+  NavigationState const ** inpoolarray;
+  NavigationState ** outpoolarray;
+  inpool.ToPlainPointerArray(inpoolarray);
+  outpool.ToPlainPointerArray(outpoolarray);
   timer.Start();
-  se->ComputeStepsAndPropagatedStates(points, dirs, step_max, inpool, outpool, steps);
+  se->ComputeStepsAndPropagatedStates(points, dirs, step_max, inpoolarray, outpoolarray, steps);
   timer.Stop();
   std::cerr << timer.Elapsed() << "\n";
   double accum(0.);
@@ -243,6 +247,8 @@ void benchVectorNavigator(SOA3D<Precision> const & __restrict__ points,
   std::cerr << "VECTOR accum  " << T::GetClassName() << " " << accum << " target checksum " << hittargetchecksum << "\n";
   _mm_free(steps);
   _mm_free(step_max);
+  delete[] inpoolarray;
+  delete[] outpoolarray;
 }
 
 
@@ -321,7 +327,6 @@ int main( int argc, char * argv[] )
     std::cerr << "please give a ROOT geometry file\n";
     return 1;
   }
-
   // setup data structures
   int npoints = 500000;
   SOA3D<Precision> points(npoints);
