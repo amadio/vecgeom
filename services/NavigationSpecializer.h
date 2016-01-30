@@ -27,7 +27,8 @@ class NavStatePool;
 // could make it a private subclass if we don't want to expose it
 class TabulatedTransData {
 public:
-  TabulatedTransData(std::string name) : fTransCoefficients(3), fRotCoefficients(9) {
+  TabulatedTransData(std::string name, bool soa = true)
+      : fName(name), fSOA(soa), fTransCoefficients(3), fRotCoefficients(9), fTransVariableName(3), fRotVariableName(9) {
     for (size_t i = 0; i < 9; ++i)
       fRotCoefficients[i].resize(0);
     for (size_t i = 0; i < 3; ++i)
@@ -46,6 +47,14 @@ public:
   }
   void Print() const; // some debugging output
 
+  void EmitTableDefinition(std::string /*classname*/, std::ostream &) const;
+  void EmitTableDeclaration(std::ostream &);
+
+  void EmitScalarGlobalTransformationCode(std::ostream &) const;
+  void EmitScalarDeltaTransformationCode(std::ostream &) const;
+
+//  void IsSOA() const {return fSOA;}
+
   void PrintStaticSOADefinition() const;
   void PrintStaticAOSDefinition(/*might need a name*/) const;
 
@@ -60,6 +69,7 @@ private:
   std::string fName; // a name addressing this transformation ( example: gGlobalTransf )
   std::vector<std::vector<double>> fTransCoefficients; // the raw numbers for transformations
   std::vector<std::vector<double>> fRotCoefficients;   // the raw number for rotations
+  bool fSOA = false; // emit SOA tables ( or AOS )
 
   // the following variables are initialized to true because its easier to convert them to false
   // during the analysis
@@ -72,6 +82,8 @@ private:
   bool fTransIsConstant[3] = {true, true, true}; // indicates if this component is a constant for all entries
   bool fRotIsConstant[9] = {true, true, true, true, true,
                             true, true, true, true}; // indicates if this component is a constant for all entries
+  std::vector<std::string> fTransVariableName; // variable names which are set according to SOA/AOS choices etc
+  std::vector<std::string> fRotVariableName;
 };
 
 /* A class which can produce (per logical volume) specialized C++ code
@@ -110,7 +122,7 @@ public:
         fUseBaseNavigator(false),    // whether to use the DaughterDetection from another navigator ( makes sense when
                                      // combined with voxel techniques )
         fBaseNavigator(),
-        fGlobalTransData("globalTrans") // init 12 vectors : 3 for translation, 9 for rotation
+        fGlobalTransData("globalTrans", false) // init 12 vectors : 3 for translation, 9 for rotation
         {};
 
     // produce a specialized SafetyEstimator class for a given logical volume
@@ -173,7 +185,6 @@ private :
     void DumpStaticTreatDistanceToMotherFunction( std::ostream & ) const;
     void DumpStaticPrepareOutstateFunction( std::ostream & ) const;
 
-    void DumpGlobalTranformationData( std::ostream & ) const;
 
 public:
   void EnableLoopUnrolling() { fUnrollLoops = true; }
