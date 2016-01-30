@@ -104,6 +104,27 @@ public:
       return reinterpret_cast<NavigationState const *>(fBuffer + NavigationState::SizeOf(fDepth) * i);
     }
 
+    // convert/init this to a plain NavigationState** array
+    // so that array[0] points to the first state in the NavStatePool, etc
+    // this method also allocates memory; array should be a nullptr initially
+    // this is a convenience function
+    VECGEOM_CUDA_HEADER_BOTH
+    void ToPlainPointerArray(NavigationState const **&array) const {
+      array = new NavigationState const *[fCapacity];
+      for (size_t i = 0; i < fCapacity; ++i) {
+        array[i] = (*this)[i];
+      }
+    }
+
+    // dito for the non-const version
+    VECGEOM_CUDA_HEADER_BOTH
+    void ToPlainPointerArray(NavigationState **&array) {
+      array = new NavigationState *[fCapacity];
+      for (size_t i = 0; i < fCapacity; ++i) {
+        array[i] = (*this)[i];
+      }
+    }
+
     void Print() const {
       for(int i=0;i<fCapacity;++i)
             (*this)[i]->Print();
