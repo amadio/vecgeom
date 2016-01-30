@@ -44,8 +44,8 @@ bool CollectionIsConstant(Container const &c, T oneelementinc){
   return true;
 }
 
-// print all elements in vectors
-auto printlambda = [](std::string name, std::vector<double> &v, std::ostream &outstream) {
+// print all elements in vectors into a static array initializer list
+auto printlambda = [](std::string name, std::vector<double> const &v, std::ostream &outstream) {
   outstream << "static constexpr double " << name << "[" << v.size() << "] = {";
   size_t numberofelements = v.size();
   size_t counter = 0;
@@ -56,6 +56,13 @@ auto printlambda = [](std::string name, std::vector<double> &v, std::ostream &ou
     counter++;
   }
   outstream << "};\n";
+};
+
+// print one element static variables
+auto printlambdasingle = [](std::string name, double e, std::ostream &outstream) {
+  outstream << "static constexpr double " << name << "= ";
+  outstream << std::setprecision(35) << e;
+  outstream << ";\n";
 };
 
 void TabulatedTransData::Analyse() {
@@ -115,6 +122,182 @@ void TabulatedTransData::Print() const {
     std::cerr << "trans[" << i << "] is constant " << fTransIsConstant[i] << "\n";
     std::cerr << "trans[" << i << "] is zero " << fTransIsConstant[i] << "\n";
   }
+}
+
+
+void TabulatedTransData::EmitTableDeclaration(std::ostream & outstream) {
+  // emit in SOA form
+  outstream << "// ------- generated tables ------\n";
+  if (fSOA) {
+    for (size_t i = 0; i < 3; ++i) {
+      if (fTransCoefficients[i].size() > 0) {
+        std::stringstream ss;
+        ss << fName << "trans" << i;
+        std::stringstream ss2; ss2 << ss.str();
+        if (!fTransIsConstant[i]) {
+            ss2 << "[index]";
+          printlambda(ss.str(), fTransCoefficients[i], outstream);
+        } else {
+          printlambdasingle(ss.str(), fTransCoefficients[i][0], outstream);
+        }
+        fTransVariableName[i]=ss2.str();
+      }
+    }
+    for (size_t i = 0; i < 9; ++i) {
+      if (fRotCoefficients[i].size() > 0) {
+        std::stringstream ss;
+        ss << fName << "rot" << i;
+        std::stringstream ss2; ss2 << ss.str();
+        if (!fRotIsConstant[i]) {
+          ss2 << "[index]";
+          printlambda(ss.str(), fRotCoefficients[i], outstream);
+        } else {
+          printlambdasingle(ss.str(), fRotCoefficients[i][0], outstream);
+        }
+        fRotVariableName[i]=ss2.str();
+      }
+    }
+  } else { // emit in AOS form
+    // convenience data view to emit AOS data
+    std::vector<std::vector<double> const *> data;
+
+    // we need to emit a struct for the non-const variabels
+    outstream << "struct " << fName << "Struct{\n";
+    for (size_t i = 0; i < 3; ++i) {
+      if (fTransCoefficients[i].size() > 0 && !fTransIsConstant[i]) {
+        outstream << "double trans" << i << ";\n";
+        std::stringstream stringbuilder;
+        stringbuilder << fName << "[index]." << "trans" << i;
+        fTransVariableName[i]=stringbuilder.str();
+        data.push_back(&fTransCoefficients[i]);
+      }
+    }
+    for (size_t i = 0; i < 9; ++i) {
+      if (fRotCoefficients[i].size() > 0 && !fRotIsConstant[i]) {
+        outstream << "double rot" << i << ";\n";
+        std::stringstream stringbuilder;
+        stringbuilder << fName << "[index]." << "rot" << i;
+        fRotVariableName[i]=stringbuilder.str();
+        data.push_back(&fRotCoefficients[i]);
+      }
+    }
+    outstream << "};\n";
+
+    // still need to do the const variables externally
+    for (size_t i = 0; i < 3; ++i) {
+      if (fTransCoefficients[i].size() > 0 && fTransIsConstant[i]) {
+        std::stringstream ss;
+        ss << fName << "trans" << i;
+        fTransVariableName[i]=ss.str();
+        printlambdasingle(ss.str(), fTransCoefficients[i][0], outstream);
+      }
+    }
+    for (size_t i = 0; i < 9; ++i) {
+      if (fRotCoefficients[i].size() > 0 && fRotIsConstant[i]) {
+        std::stringstream ss;
+        ss << fName << "rot" << i;
+        fRotVariableName[i]=ss.str();
+        printlambdasingle(ss.str(), fRotCoefficients[i][0], outstream);
+      }
+    }
+
+    // now the actual data
+    outstream << "static constexpr " << fName << "Struct " << fName << "[] = {\n";
+    for (size_t i = 0; i < data[0]->size(); ++i) {
+      outstream << "{";
+      for (size_t j = 0; j < data.size(); ++j) {
+        outstream << (*data[j])[i];
+        if (j < data.size() - 1)
+          outstream << ",";
+      }
+      outstream << "}";
+      if (i < data[0]->size() - 1)
+        outstream << ",";
+    }
+    outstream << "};\n";
+  }
+}
+
+void TabulatedTransData::EmitTableDefinition(std::string classname, std::ostream &outstream) const {
+  if (!fSOA) {
+    outstream << "constexpr " << classname << "::" << fName << "Struct " << classname << "::" << fName << "[];\n";
+  } else {
+    for (size_t i = 0; i < 3; ++i) // translations
+    {
+      if (fTransCoefficients[i].size() > 0) {
+        std::stringstream ss;
+        ss << fName << "trans" << i;
+        if (!fTransIsConstant[i]) {
+          ss << "[]";
+        }
+        outstream << "constexpr double " << classname << "::" << ss.str() << ";\n";
+      }
+    }
+    for (size_t i = 0; i < 9; ++i) {
+      if (fRotCoefficients[i].size() > 0) {
+        std::stringstream ss;
+        ss << fName << "rot" << i;
+        if (!fRotIsConstant[i]) {
+          ss << "[]";
+        }
+        outstream << "constexpr double " << classname << "::" << ss.str() << ";\n";
+      }
+    }
+  }
+}
+
+
+
+void TabulatedTransData::EmitScalarGlobalTransformationCode(std::ostream &outstream) const {
+  std::stringstream pointtransf;
+  std::stringstream dirtrans;
+  pointtransf << "Vector3D<Precision> tmp( globalpoint[0]";
+  if (!fTransalwayszero[0]) {
+    pointtransf << "- " << fTransVariableName[0] << "\n";
+  }
+  pointtransf << ", globalpoint[1]";
+  if (!fTransalwayszero[1]) {
+    pointtransf << "- " << fTransVariableName[1] << "\n";
+  }
+  pointtransf << ", globalpoint[2]";
+  if (!fTransalwayszero[2]) {
+    pointtransf << "- " << fTransVariableName[2] << "\n";
+  }
+  pointtransf << ");\n";
+
+  int rotindex = 0;
+  bool indexseen[3] = {false, false, false};
+  // tmp loop
+  for (int tmpindex = 0; tmpindex < 3; ++tmpindex) {
+    // local loop
+    for (int localindex = 0; localindex < 3; ++localindex) {
+      std::string op = indexseen[localindex] ? "+=" : "=";
+      if (!fRotalwayszero[rotindex]) {
+        indexseen[localindex] = true;
+        // new line
+        pointtransf << "localpoint[" << localindex << "]" << op;
+        dirtrans << "localdir[" << localindex << "]" << op;
+        //}
+        if (fRotalwaysone[rotindex]) {
+          pointtransf << "tmp[" << tmpindex << "];\n";
+          dirtrans << "globaldir[" << tmpindex << "];\n";
+        } else if (fRotalwaysminusone[rotindex]) {
+          pointtransf << "-tmp[" << tmpindex << "];\n";
+          dirtrans << "-globaldir[" << tmpindex << "];\n";
+          //   else if check for plusorminus one --> could just copy sign instead of doing a multiplication
+
+        } else { // generic version
+                 // pointtransf << "tmp[" << tmpindex << "] * gRot" << rotindex << "[index];\n";
+                 // dirtrans << "globaldir[" << tmpindex << "] * gRot" << rotindex << "[index];\n";
+          pointtransf << "tmp[" << tmpindex << "] * " << fRotVariableName[rotindex] << ";\n";
+          dirtrans << "globaldir[" << tmpindex << "] * " << fRotVariableName[rotindex] << ";\n";
+        }
+      }
+      rotindex++;
+    }
+  }
+  outstream << pointtransf.str();
+  outstream << dirtrans.str();
 }
 
 // function that generates a classification table in form of nested switch statements
@@ -443,6 +626,7 @@ void NavigationSpecializer::AnalysePaths(std::list<NavigationState *> const &pat
     }
   }
 
+  // iteratively check if we reach a situation where all dependencies have been resolved
   AnalyseIndexCorrelations(paths);
   AnalyseIndexCorrelations(paths);
   AnalyseIndexCorrelations(paths);
@@ -617,8 +801,8 @@ void NavigationSpecializer::AnalysePaths(std::list<NavigationState *> const &pat
         fStaticArraysInitStream << "// **** HEY: THESE VALUES ARE ALL THE SAME ---> can safe memory\n";
       }
       printlambda(variable, values, fStaticArraysInitStream);
-      fStaticArraysDefinitions << "constexpr double " << fClassName << "::" << variable << "[" << values.size()
-                               << "];\n";
+    //  fStaticArraysDefinitions << "constexpr double " << fClassName << "::" << variable << "[" << values.size()
+     //                          << "];\n";
       fTransformVariables.push_back(variable);
     }
   }
@@ -642,35 +826,21 @@ void NavigationSpecializer::AnalysePaths(std::list<NavigationState *> const &pat
         fStaticArraysInitStream << "// **** HEY: THESE VALUES ARE ALL THE SAME ---> can safe memory\n";
       }
       printlambda(variable, values, fStaticArraysInitStream);
-      fStaticArraysDefinitions << "constexpr double " << fClassName << "::" << variable << "[" << values.size()
-                               << "];\n";
+   //   fStaticArraysDefinitions << "constexpr double " << fClassName << "::" << variable << "[" << values.size()
+    //                           << "];\n";
       fTransformVariables.push_back(variable);
     }
   }
 
   fGlobalTransData.Analyse();
   fGlobalTransData.Print();
-
+  fGlobalTransData.EmitTableDeclaration(fStaticArraysInitStream);
+  fGlobalTransData.EmitTableDefinition(fClassName,fStaticArraysDefinitions);
+  std::stringstream ss;
+  fGlobalTransData.EmitScalarGlobalTransformationCode(ss);
+  std::cout << ss.str() << "\n";
 }
 
-void NavigationSpecializer::DumpGlobalTranformationData(std::ostream & outstream) const {
-  // can distinguish SOA/AOS
-
-  // for the moment implementing as AOS
-  std::stringstream stringbuilder;
-
-  // start with the struct declaration // put only things into struct which vary
-  stringbuilder << "struct gTransfData {\n";
-  for(size_t i = 0; i<3; ++i){
-
-  }
-  for(size_t i = 0; i<9; ++i){
-
-  }
-  stringbuilder << "double gTransfData {\n";
-  stringbuilder << "}; // end struct\n";
-
-}
 
 template <typename T> std::vector<size_t> sort_indexes(const std::vector<T> &v) {
 
@@ -1266,8 +1436,9 @@ void NavigationSpecializer::DumpStaticTreatGlobalToLocalTransformationFunction(s
 
   // calculate index
   outstream << "size_t index = PathToIndex(&in_state);\n";
-  outstream << fTransformationCode.str();
-  outstream << fTransformationCodeDir.str();
+  //outstream << fTransformationCode.str();
+  //outstream << fTransformationCodeDir.str();
+  fGlobalTransData.EmitScalarGlobalTransformationCode(outstream);
   outstream <<  "}\n";
 }
 
