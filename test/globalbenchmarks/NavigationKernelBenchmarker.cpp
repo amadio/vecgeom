@@ -292,6 +292,8 @@ void benchDifferentNavigators(SOA3D<Precision> const &points,
   RUNBENCH(benchNavigator<GeneratedNavigator>(points, dirs, pool, outpool));
   outpool.ToFile("generatedoutpool.bin");
   std::cerr << "##\n";
+  RUNBENCH(benchVectorNavigator<GeneratedNavigator>(points, dirs, pool, outpool));
+  std::cerr << "##\n";
   RUNBENCH(benchVectorNavigator<NewSimpleNavigator<false>>(points, dirs, pool, outpool));
   std::cerr << "##\n";
   RUNBENCH(benchVectorNavigator<NewSimpleNavigator<true>>(points, dirs, pool, outpool));
