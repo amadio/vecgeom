@@ -351,17 +351,21 @@ public :
       Impl::template DoGlobalToLocalTransformations<T,ChunkSize>(in_states, globalpoints, globaldirs, from_index, localpoint, localdir);
 
       T slimit(step_limits + from_index); // will only work with new ScalarWrapper
-      T step;
       if (MotherIsConvex) {
+
         Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, out_states,
                                                                  from_index, out_steps, hitcandidates);
         // parse the hitcandidates pointer as double to apply a mask
+        T step(out_steps + from_index);
         T hitcandidates_as_doubles((double *)hitcandidates);
-        if (Any(hitcandidates_as_doubles != 0.))
-          step = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
+        auto cond = hitcandidates_as_doubles == 0.;
+        if (Any(cond)){
+          step(cond) = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
+          step.store(out_steps + from_index);
+        }
       } else {
         // need to calc DistanceToOut first
-        step = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
+        T step = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
         step.store(out_steps + from_index);
 
         // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
@@ -392,51 +396,51 @@ public :
     // generic implementation for the vector interface
     // this implementation tries to process everything in vector CHUNKS
     // at the very least this enables at least the DistanceToOut call to be vectorized
-//    virtual void ComputeStepsAndPropagatedStates(SOA3D<Precision> const &__restrict__ globalpoints,
-//                                                 SOA3D<Precision> const &__restrict__ globaldirs,
-//                                                 Precision const *__restrict__ step_limit,
-//                                                 NavigationState const ** __restrict__ in_states,
-//                                                 NavigationState ** __restrict__ out_states,
-//                                                 Precision *__restrict__ out_steps) const override {
-//
-//      // process SIMD part and TAIL part
-//      // something like
-//      using Real_v = Vc::double_v;
-//      const unsigned int size = globalpoints.size();
-//      const unsigned int tail = size % Real_v::Size;
-//      const unsigned int corsize = size - tail;
-//      const unsigned int stride = Real_v::Size;
-//      auto pvol = in_states[0]->Top();
-//      auto lvol = pvol->GetLogicalVolume();
-//      // loop over all tracks in chunks
-//      for (unsigned int i = 0; i < corsize; i += stride) {
-//        NavigateAChunk<Real_v, Real_v::Size>(this, pvol, lvol, globalpoints, globaldirs, step_limit, in_states,
-//                                             out_states, out_steps, i);
-//      }
-//
-//      // has to be cross-checked
-//      // for (unsigned int i = 0; i < tail; ++i) {
-//      //        unsigned int trackid = corsize + i;
-//      // NavigateAChunk<Vc::Scalar::Vector<double>, 1>(this, pvol, lvol, globalpoints, globaldirs, step_limit,
-//      // in_states,
-//      // out_states, out_steps, trackid, trackid);
-//      //}
-//    }
-
-    // another generic implementation for the vector interface
-    // this implementation just loops over the scalar interface
     virtual void ComputeStepsAndPropagatedStates(SOA3D<Precision> const &__restrict__ globalpoints,
                                                  SOA3D<Precision> const &__restrict__ globaldirs,
                                                  Precision const *__restrict__ step_limit,
                                                  NavigationState const ** __restrict__ in_states,
                                                  NavigationState ** __restrict__ out_states,
                                                  Precision *__restrict__ out_steps) const override {
-      for (unsigned int i = 0; i < globalpoints.size(); ++i) {
-        out_steps[i] = ((Impl *)this)
-                           ->Impl::ComputeStepAndPropagatedState(globalpoints[i], globaldirs[i], step_limit[i],
-                                                                 *in_states[i], *out_states[i]);
+
+      // process SIMD part and TAIL part
+      // something like
+      using Real_v = Vc::double_v;
+      const unsigned int size = globalpoints.size();
+      const unsigned int tail = size % Real_v::Size;
+      const unsigned int corsize = size - tail;
+      const unsigned int stride = Real_v::Size;
+      auto pvol = in_states[0]->Top();
+      auto lvol = pvol->GetLogicalVolume();
+      // loop over all tracks in chunks
+      for (unsigned int i = 0; i < corsize; i += stride) {
+        NavigateAChunk<Real_v, Real_v::Size>(this, pvol, lvol, globalpoints, globaldirs, step_limit, in_states,
+                                             out_states, out_steps, i);
       }
+
+       // tail treatment has to be cross-checked ( it does not compile yet due to backend problems )
+//       for (unsigned int i = 0; i < tail; ++i) {
+//              unsigned int trackid = corsize + i;
+//       NavigateAChunk<Vc::Scalar::Vector<double>, 1>(this, pvol, lvol, globalpoints, globaldirs, step_limit,
+//       in_states,
+//       out_states, out_steps, corsize + i);
+//      }
     }
+
+    // another generic implementation for the vector interface
+    // this implementation just loops over the scalar interface
+//    virtual void ComputeStepsAndPropagatedStates(SOA3D<Precision> const &__restrict__ globalpoints,
+//                                                 SOA3D<Precision> const &__restrict__ globaldirs,
+//                                                 Precision const *__restrict__ step_limit,
+//                                                 NavigationState const ** __restrict__ in_states,
+//                                                 NavigationState ** __restrict__ out_states,
+//                                                 Precision *__restrict__ out_steps) const override {
+//      for (unsigned int i = 0; i < globalpoints.size(); ++i) {
+//        out_steps[i] = ((Impl *)this)
+//                           ->Impl::ComputeStepAndPropagatedState(globalpoints[i], globaldirs[i], step_limit[i],
+//                                                                 *in_states[i], *out_states[i]);
+//      }
+//    }
 
     // a similar interface also returning the safety
     virtual Precision ComputeStepAndSafetyAndPropagatedState(Vector3D<Precision> const &globalpoint,
