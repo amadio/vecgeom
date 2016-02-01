@@ -125,7 +125,8 @@ public:
   template <typename T, unsigned int ChunkSize> // we may go to Backend as template parameter in future
   static void DaughterIntersectionsLooper(VNavigator const *nav, LogicalVolume const *lvol,
                                           Vector3D<T> const &localpoint, Vector3D<T> const &localdir,
-                                          NavStatePool const &in_states, NavStatePool &out_states,
+//                                          NavStatePool const &in_states, NavStatePool &out_states,
+                                          NavigationState const **in_states, NavigationState **out_states,
                                           unsigned int from_index, Precision *out_steps,
                                           VPlacedVolume const *hitcandidates[ChunkSize]) {
     // dispatch to vector implementation
