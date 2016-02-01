@@ -28,7 +28,8 @@ class NavStatePool;
 class TabulatedTransData {
 public:
   TabulatedTransData(std::string name, bool soa = true)
-      : fName(name), fSOA(soa), fTransCoefficients(3), fRotCoefficients(9), fTransVariableName(3), fRotVariableName(9) {
+      : fName(name), fSOA(soa), fTransCoefficients(3), fRotCoefficients(9), fTransVariableName(3), fRotVariableName(9),
+        fVecTransVariableName(3), fVecRotVariableName(9) {
     for (size_t i = 0; i < 9; ++i)
       fRotCoefficients[i].resize(0);
     for (size_t i = 0; i < 3; ++i)
@@ -52,6 +53,8 @@ public:
 
   void EmitScalarGlobalTransformationCode(std::ostream &) const;
   void EmitScalarDeltaTransformationCode(std::ostream &) const;
+
+  void EmitVectorGlobalTransformationCode(std::ostream &) const;
 
 //  void IsSOA() const {return fSOA;}
 
@@ -84,6 +87,8 @@ private:
                             true, true, true, true}; // indicates if this component is a constant for all entries
   std::vector<std::string> fTransVariableName; // variable names which are set according to SOA/AOS choices etc
   std::vector<std::string> fRotVariableName;
+  std::vector<std::string> fVecTransVariableName; // variable names which are set according to SOA/AOS choices etc
+  std::vector<std::string> fVecRotVariableName;
 };
 
 /* A class which can produce (per logical volume) specialized C++ code
@@ -122,7 +127,7 @@ public:
         fUseBaseNavigator(false),    // whether to use the DaughterDetection from another navigator ( makes sense when
                                      // combined with voxel techniques )
         fBaseNavigator(),
-        fGlobalTransData("globalTrans", false) // init 12 vectors : 3 for translation, 9 for rotation
+        fGlobalTransData("globalTrans", true) // init 12 vectors : 3 for translation, 9 for rotation
         {};
 
     // produce a specialized SafetyEstimator class for a given logical volume
@@ -182,6 +187,9 @@ private :
     // they produce static component functions which are plugged into the generic implementation of VNavigatorHelper
     void DumpFoo(std::ostream &) const;
     void DumpStaticTreatGlobalToLocalTransformationFunction( std::ostream & ) const;
+    // the vector version of for the coordinate transformation
+    void DumpStaticTreatGlobalToLocalTransformationsFunction( std::ostream & ) const;
+
     void DumpStaticTreatDistanceToMotherFunction( std::ostream & ) const;
     void DumpStaticPrepareOutstateFunction( std::ostream & ) const;
 

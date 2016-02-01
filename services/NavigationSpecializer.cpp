@@ -141,12 +141,15 @@ void TabulatedTransData::EmitTableDeclaration(std::ostream & outstream) {
           printlambdasingle(ss.str(), fTransCoefficients[i][0], outstream);
         }
         fTransVariableName[i]=ss2.str();
+        ss << "_v";
+        fVecTransVariableName[i]=ss.str();
       }
     }
     for (size_t i = 0; i < 9; ++i) {
       if (fRotCoefficients[i].size() > 0) {
         std::stringstream ss;
         ss << fName << "rot" << i;
+        std::stringstream ssv; ssv << ss.str();
         std::stringstream ss2; ss2 << ss.str();
         if (!fRotIsConstant[i]) {
           ss2 << "[index]";
@@ -155,6 +158,8 @@ void TabulatedTransData::EmitTableDeclaration(std::ostream & outstream) {
           printlambdasingle(ss.str(), fRotCoefficients[i][0], outstream);
         }
         fRotVariableName[i]=ss2.str();
+        ss << "_v";
+        fVecRotVariableName[i]=ss.str();
       }
     }
   } else { // emit in AOS form
@@ -167,18 +172,24 @@ void TabulatedTransData::EmitTableDeclaration(std::ostream & outstream) {
       if (fTransCoefficients[i].size() > 0 && !fTransIsConstant[i]) {
         outstream << "double trans" << i << ";\n";
         std::stringstream stringbuilder;
+        std::stringstream vecstringbuilder;
         stringbuilder << fName << "[index]." << "trans" << i;
+        vecstringbuilder << "trans" << i << "_v";
         fTransVariableName[i]=stringbuilder.str();
         data.push_back(&fTransCoefficients[i]);
+        fVecTransVariableName[i]=vecstringbuilder.str();
       }
     }
     for (size_t i = 0; i < 9; ++i) {
       if (fRotCoefficients[i].size() > 0 && !fRotIsConstant[i]) {
         outstream << "double rot" << i << ";\n";
         std::stringstream stringbuilder;
+        std::stringstream vecstringbuilder;
         stringbuilder << fName << "[index]." << "rot" << i;
+        vecstringbuilder << "rot" << i << "_v";
         fRotVariableName[i]=stringbuilder.str();
         data.push_back(&fRotCoefficients[i]);
+        fVecRotVariableName[i]=vecstringbuilder.str();
       }
     }
     outstream << "};\n";
@@ -299,6 +310,97 @@ void TabulatedTransData::EmitScalarGlobalTransformationCode(std::ostream &outstr
   outstream << pointtransf.str();
   outstream << dirtrans.str();
 }
+
+
+void TabulatedTransData::EmitVectorGlobalTransformationCode(std::ostream &outstream) const {
+  std::stringstream pointtransf;
+  std::stringstream dirtrans;
+
+  // declare local vector variable names
+  for (size_t i = 0; i < 3; ++i) {
+    if (fTransCoefficients[i].size() > 0) {
+      outstream << "T " << fVecTransVariableName[i] << ";\n";
+    }
+  }
+  for (size_t i = 0; i < 9; ++i) {
+    if (fRotCoefficients[i].size() > 0) {
+      outstream << "T " << fVecRotVariableName[i] << ";\n";
+    }
+  }
+  // fill them vector
+  outstream << "// filling the vectors from the tabulated data \n";
+  outstream << "// TODO: index independent data should come first (outside the loop)\n";
+  outstream << "for(size_t i=0;i<ChunkSize;++i){\n";
+  outstream << "auto trackindex = from_index + i;\n";
+  outstream << "auto index = PathToIndex( in_states[trackindex] );\n";
+
+  for(size_t i=0;i<3;++i){
+    if(fTransCoefficients[i].size() > 0 && !(fTransIsConstant[i])){
+        outstream << fVecTransVariableName[i] << "[i] = " << fTransVariableName[i] << ";\n";
+    }
+  }
+  for(size_t i=0;i<9;++i){
+    if (fRotCoefficients[i].size() > 0 && !(fRotIsConstant[i])) {
+        outstream << fVecRotVariableName[i] << "[i] = " << fRotVariableName[i] << ";\n";
+    }
+  }
+  outstream << "}\n";
+
+  // create gpoint_v and gdir_v
+  outstream << "Vector3D<T> gpoint_v(T(globalpoints.x()+from_index),T(globalpoints.y()+from_index),T(globalpoints.z()+from_index));\n";
+  outstream << "Vector3D<T> gdir_v(T(globaldirs.x()+from_index),T(globaldirs.y()+from_index),T(globaldirs.z()+from_index));\n";
+
+  // emit vector code
+
+  pointtransf << "Vector3D<T> tmp_v( gpoint_v.x()";
+  if (!fTransalwayszero[0]) {
+    pointtransf << "- " << fVecTransVariableName[0] << "\n";
+  }
+  pointtransf << ", gpoint_v.y()";
+  if (!fTransalwayszero[1]) {
+    pointtransf << "- " << fVecTransVariableName[1] << "\n";
+  }
+  pointtransf << ", gpoint_v.z()";
+  if (!fTransalwayszero[2]) {
+    pointtransf << "- " << fVecTransVariableName[2] << "\n";
+  }
+  pointtransf << ");\n";
+
+  int rotindex = 0;
+  bool indexseen[3] = {false, false, false};
+  // tmp loop
+  for (int tmpindex = 0; tmpindex < 3; ++tmpindex) {
+    // local loop
+    for (int localindex = 0; localindex < 3; ++localindex) {
+      std::string op = indexseen[localindex] ? "+=" : "=";
+      if (!fRotalwayszero[rotindex]) {
+        indexseen[localindex] = true;
+        // new line
+        pointtransf << "localpoint[" << localindex << "]" << op;
+        dirtrans << "localdir[" << localindex << "]" << op;
+        //}
+        if (fRotalwaysone[rotindex]) {
+          pointtransf << "tmp_v[" << tmpindex << "];\n";
+          dirtrans << "gdir_v[" << tmpindex << "];\n";
+        } else if (fRotalwaysminusone[rotindex]) {
+          pointtransf << "-tmp_v[" << tmpindex << "];\n";
+          dirtrans << "-gdir_v[" << tmpindex << "];\n";
+          //   else if check for plusorminus one --> could just copy sign instead of doing a multiplication
+
+        } else { // generic version
+                 // pointtransf << "tmp[" << tmpindex << "] * gRot" << rotindex << "[index];\n";
+                 // dirtrans << "globaldir[" << tmpindex << "] * gRot" << rotindex << "[index];\n";
+          pointtransf << "tmp_v[" << tmpindex << "] * " << fVecRotVariableName[rotindex] << ";\n";
+          dirtrans << "gdir_v[" << tmpindex << "] * " << fVecRotVariableName[rotindex] << ";\n";
+        }
+      }
+      rotindex++;
+    }
+  }
+  outstream << pointtransf.str();
+  outstream << dirtrans.str();
+}
+
 
 // function that generates a classification table in form of nested switch statements
 // the table will be used to map a geometry path object to a unique integer which indexes
@@ -447,6 +549,7 @@ void NavigationSpecializer::DumpPublicClassDefinitions(std::ostream &outstream) 
   outstream << "typedef SimpleSafetyEstimator SafetyEstimator_t;\n";//static constexpr const char *gClassNameString=\"" << fClassName << "\";\n";
   DumpStaticInstanceFunction(outstream);
   DumpStaticTreatGlobalToLocalTransformationFunction(outstream);
+  DumpStaticTreatGlobalToLocalTransformationsFunction(outstream);
   DumpStaticTreatDistanceToMotherFunction(outstream);
   DumpStaticPrepareOutstateFunction(outstream);
   DumpLocalHitDetectionFunction(outstream);
@@ -1428,17 +1531,27 @@ void NavigationSpecializer::DumpLocalVectorSafetyFunctionDeclarationPerSIMDVecto
 
 void NavigationSpecializer::DumpStaticTreatGlobalToLocalTransformationFunction(std::ostream &outstream) const {
 
-  outstream << "template <typename T> VECGEOM_INLINE static void DoGlobalToLocalTransformation(NavigationState const &in_state,"
+  outstream << "template <typename T>\n VECGEOM_INLINE\n static void DoGlobalToLocalTransformation(NavigationState const &in_state,"
                << "Vector3D<T> const &globalpoint, Vector3D<T> const &globaldir,"
                << "Vector3D<T> &localpoint, Vector3D<T> &localdir)  {\n";
 
+  outstream << "auto index = PathToIndex( &in_state );\n";
+  // TODO: check if we have to do anything at all ( check for unity )
+  fGlobalTransData.EmitScalarGlobalTransformationCode(outstream);
+  outstream <<  "}\n";
+}
+
+void NavigationSpecializer::DumpStaticTreatGlobalToLocalTransformationsFunction(std::ostream &outstream) const {
+  outstream << "template <typename T, unsigned int ChunkSize>\n"
+ <<     "VECGEOM_INLINE\n static void DoGlobalToLocalTransformations(NavigationState const ** in_states,"
+ <<                                                               "SOA3D<Precision> const &globalpoints,"
+ <<                                                               "SOA3D<Precision> const &globaldirs, unsigned int from_index,"
+ <<                                                               "Vector3D<T> &localpoint, Vector3D<T> &localdir) {\n";
+
   // TODO: check if we have to do anything at all ( check for unity )
 
-  // calculate index
-  outstream << "size_t index = PathToIndex(&in_state);\n";
-  //outstream << fTransformationCode.str();
-  //outstream << fTransformationCodeDir.str();
-  fGlobalTransData.EmitScalarGlobalTransformationCode(outstream);
+  fGlobalTransData.EmitVectorGlobalTransformationCode(outstream);
+
   outstream <<  "}\n";
 }
 
