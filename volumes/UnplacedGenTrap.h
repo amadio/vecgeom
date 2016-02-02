@@ -256,4 +256,4 @@ public:
 
 } } // End global namespace
 
-#endif
+#endif // VECGEOM_VOLUMES_PLACEDGENTRAP_H_

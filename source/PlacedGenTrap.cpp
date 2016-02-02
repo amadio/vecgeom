@@ -81,6 +81,7 @@ VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC( SpecializedGenTrap )
 
 } // End global namespace
 
+/*
 namespace vecgeom {
 
 #ifdef VECGEOM_CUDA_INTERFACE
@@ -140,4 +141,4 @@ void PlacedGenTrap_CopyToGpu(
 
 } // End namespace vecgeom
 
-
+*/

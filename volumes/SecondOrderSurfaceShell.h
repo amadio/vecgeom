@@ -154,17 +154,47 @@ public:
 
   Float_t dist(kInfinity);
   Float_t smin[N],smax[N];
+  Vector3D<Float_t> unorm;
+  Float_t r = -1.;
+  Float_t rz;
+  Bool_t inside = (Abs(point.z()) < fDz+kTolerance);
+  Float_t cross;
+  Float_t vertexX[N];
+  Float_t vertexY[N];
+  Float_t dzp =fDz+point[2];
+  // Point may be on the wrong side - check this
+  for (int  i = 0; i < N; i++) {
+    // calculate x-y positions of vertex i at this z-height
+    vertexX[i] = fxa[i]+ftx1[i]*dzp;
+    vertexY[i] = fya[i]+fty1[i]*dzp;
+  }
+  for (int  i = 0; i < N; i++) {
+    int  j = (i + 1) % 4;
+    Float_t  DeltaX = vertexX[j]-vertexX[i];
+    Float_t  DeltaY = vertexY[j]-vertexY[i];
+    cross  = ( point.x() - vertexX[i] ) * DeltaY - ( point.y() - vertexY[i] ) * DeltaX;
+    inside &= (cross > -1.e-6);
+  }
+  // If on the wrong side, return -1.
+  Float_t wrongsidedist = -1.;
+  MaskedAssign(!inside , wrongsidedist, &dist);
+  if ( IsEmpty(inside) ) return dist;
+  
   ComputeSminSmax<Backend>(point,dir,smin,smax);
 
   for (int i=0;i<N;++i){
-    Bool_t planar = Bool_t(fiscurved[i]==0);
-//    Bool_t crtbound = ( Abs(smin[i]) < 10*kTolerance || Abs(smax[i]) < 10*kTolerance);
-    
+    // Check if point(s) is(are) on boundary
+    Bool_t crtbound = ( Abs(smin[i]) < 10*kTolerance || Abs(smax[i]) < 10*kTolerance);
+    if (!IsEmpty(crtbound)) {
+      if (fiscurved[i]) UNormal<Backend>(point, i, unorm, rz, r);
+      else unorm = fNormals[i];
+    }
     // Starting point may be propagated close to boundary
-    MaskedAssign(planar && Abs(smin[i])<10*kTolerance && dir.Dot(fNormals[i])<0, kInfinity, &smin[i]);
-    MaskedAssign(planar && Abs(smax[i])<10*kTolerance && dir.Dot(fNormals[i])<0, kInfinity, &smax[i]);
-    MaskedAssign( (smin[i] > -10*kTolerance) && (smin[i] < dist), Max(smin[i],0.), &dist);
-    MaskedAssign( (smax[i] > -10*kTolerance) && (smax[i] < dist), Max(smax[i],0.), &dist);
+    MaskedAssign(inside && Abs(smin[i])<10*kTolerance && dir.Dot(unorm)<0, kInfinity, &smin[i]);
+    MaskedAssign(inside && Abs(smax[i])<10*kTolerance && dir.Dot(unorm)<0, kInfinity, &smax[i]);
+
+    MaskedAssign( inside && (smin[i] > -10*kTolerance) && (smin[i] < dist), Max(smin[i],0.), &dist);
+    MaskedAssign( inside && (smax[i] > -10*kTolerance) && (smax[i] < dist), Max(smax[i],0.), &dist);
   }
   return (dist);
 } // end of function
@@ -195,7 +225,7 @@ VECGEOM_INLINE
 typename Backend::precision_v DistanceToIn (
        Vector3D<typename Backend::precision_v> const& point,
        Vector3D<typename Backend::precision_v> const &dir,
-       typename Backend::bool_v & done ) const {
+       typename Backend::bool_v &done) const {
 
   typedef typename Backend::precision_v Float_t;
   typedef typename Backend::bool_v Bool_t;
@@ -206,30 +236,54 @@ typename Backend::precision_v DistanceToIn (
   // now we need to analyse which of those distances is good
   // does not vectorize
   Float_t crtdist;
-  Float_t dist[N];
   Vector3D<Float_t> hit;
   Float_t resultdistance(kInfinity);
-  Float_t tolerance = 10. * kTolerance;
+  Float_t tolerance = 100. * kTolerance;
   Vector3D<Float_t> unorm;
   Float_t r = -1.;
   Float_t rz;
+  Bool_t inside = (Abs(point.z()) < fDz-kTolerance);
+  Float_t cross;
+  Float_t vertexX[N];
+  Float_t vertexY[N];
+  Float_t dzp =fDz+point[2];
+  // Point may be on the wrong side - check this
+  for (int  i = 0; i < N; i++) {
+    // calculate x-y positions of vertex i at this z-height
+    vertexX[i] = fxa[i]+ftx1[i]*dzp;
+    vertexY[i] = fya[i]+fty1[i]*dzp;
+  }
+  for (int  i = 0; i < N; i++) {
+    int  j = (i + 1) % 4;
+    Float_t  DeltaX = vertexX[j]-vertexX[i];
+    Float_t  DeltaY = vertexY[j]-vertexY[i];
+    cross  = ( point.x() - vertexX[i] ) * DeltaY - ( point.y() - vertexY[i] ) * DeltaX;
+    inside &= (cross > 1.e-6);
+  }
+  
+  // If on the wrong side, return -1.
+  Float_t wrongsidedist = -1.;
+  MaskedAssign(inside & (!done), wrongsidedist, &resultdistance);
+  Bool_t checked = inside | done;
+  if (IsFull(checked)) return (resultdistance);
+  
   for (int i=0;i<N;++i){
     crtdist=smin[i];
     // Extrapolate with hit distance candidate
     hit = point + crtdist*dir;
-    Bool_t crossing = (Abs(hit.z()) < fDz+kTolerance);
+    Bool_t crossing = (crtdist > -tolerance) & (Abs(hit.z()) < fDz+kTolerance);
     // Early skip surface if not in Z range
-    if ( !IsEmpty(crossing) ) {;
+    if ( !IsEmpty(crossing & (!checked)) ) {;
       // Compute local un-normalized outwards normal direction and hit ratio factors
       UNormal<Backend>(hit, i, unorm, rz, r);
       // Distance have to be positive within tolerance, and crossing must be inwards
       crossing &= ( crtdist > -tolerance) & (dir.Dot(unorm)<0.);
       // Propagated hitpoint must be on surface (rz in [0,1] checked already)
       crossing &= (r >= 0.) & (r <= 1.);
-      MaskedAssign(crossing && crtdist<resultdistance, Max(crtdist,0.), &resultdistance);
+      MaskedAssign(crossing && (!checked) && crtdist<resultdistance, Max(crtdist,0.), &resultdistance);
     }  
     // For the particle(s) not crossing at smin, try smax
-    if ( !IsFull(crossing) ) {
+    if ( !IsFull(crossing | checked) ) {
       // Treat only particles not crossing at smin
       crossing = !crossing;
       crtdist=smax[i];
@@ -239,118 +293,11 @@ typename Backend::precision_v DistanceToIn (
       UNormal<Backend>(hit, i, unorm, rz, r);
       crossing &= ( crtdist > -tolerance) & (dir.Dot(unorm)<0.);
       crossing &= (r >= 0.) & (r <= 1.);
-      MaskedAssign(crossing && crtdist<resultdistance, Max(crtdist,0.), &resultdistance);
+      MaskedAssign(crossing && (!checked) && crtdist<resultdistance, Max(crtdist,0.), &resultdistance);
     }
   }  
   return (resultdistance);
         
-//#define GENTRAPDEB = 1
-#ifdef GENTRAPDEB
-     std::cerr << "i " << i << " smin " << smin[i] << " smax " << smax[i] << " signa " << signa[i] << "\n";
-     std::cerr << "i " << i << " 1./smin " << 1./smin[i] << " 1./smax " << 1./smax[i] << " signa " << signa[i] << "\n";
-#endif
-
-  for (int i=0;i<N;++i){
-    Bool_t planar = Bool_t(fiscurved[i]==0);
-    
-    // Starting point may be propagated close to boundary
-    MaskedAssign(planar && Abs(smin[i])<10*kTolerance && dir.Dot(fNormals[i])>0, kInfinity, &smin[i]);
-    MaskedAssign(planar && Abs(smax[i])<10*kTolerance && dir.Dot(fNormals[i])>0, kInfinity, &smax[i]);
-    MaskedAssign( (smin[i] > -10*kTolerance) , Max(smin[i],0.), &dist[i]);
-    MaskedAssign( (smax[i] > -10*kTolerance) && (smax[i] < dist[i]), Max(smax[i],0.), &dist[i] );
-#ifdef GENTRAPDEB
-    std::cerr << "i " << i << " dist[i] " << dist[i] << "\n";
-#endif
-  }
-
-  // now check if those distances hit
-  // this could vectorize depending on backend scalar or vector
-  // NOTE: in this algorithm the ray might have hit more than one surface.
-  // so we can not early return on the first hit ( unless we sort the distances first )
-
-  // an alternative approach would be to do some prefiltering ( like in the box ) based on safeties and directions
-//  Float_t resultdistance(kInfinity);
-#ifndef GENTRAP_VEC_HITCHECK
-  for (int i=0;i<N;++i)
-  {
-      // put this into a separate kernel
-      Float_t zhit = point.z() + dist[i]*dir.z();
-      Bool_t isinz = Abs(zhit) < fDz;
-      // Do the treatment of points near boundaries, where the normal
-      // direction is required.
-//      Bool_t nearby = 
-#ifdef GENTRAPDEB
-          std::cerr << "isinz " << i << ": " << isinz << "\n";
-#endif
-      if( ! IsEmpty(isinz) )
-      {
-#ifdef GENTRAPDEB
-          std::cerr << "i " << i << " zhit\n ";
-#endif
-          Float_t leftcmpx   =  fxa[i] + (zhit+fDz)*ftx1[i];
-          Float_t rightcmpx  =  fxc[i] + (zhit+fDz)*ftx2[i];
-          Float_t xhit = point.x() + dist[i]*dir.x();
-#ifdef GENTRAPDEB
-                    std::cerr << "zhit " << zhit << " leftcmpx "
-                    << leftcmpx << "rightcmpx " << rightcmpx <<
-                    " xhit " << xhit << "\n";
-#endif
-          // check x hit
-          Bool_t xok = ((MakeMinusTolerant<true>(leftcmpx) <= xhit) && (xhit <= MakePlusTolerant<true>(rightcmpx)))
-                       || ((MakeMinusTolerant<true>(rightcmpx) <= xhit) && (xhit <= MakePlusTolerant<true>(leftcmpx)));
-          xok &= isinz;
-#ifdef GENTRAPDEB
-                    std::cerr << "zhit " << zhit << " leftcmpx "
-                             << leftcmpx << "rightcmpx " << rightcmpx <<
-                             " xhit " << xhit << " bool " << xok << "\n";
-#endif
-         if( ! IsEmpty( xok ) )
-          {
-//          std::cerr << "i " << i << " xhit\n ";
-            Float_t leftcmpy  = fya[i] + (zhit+fDz)*fty1[i];
-            Float_t rightcmpy = fyc[i] + (zhit+fDz)*fty2[i];
-            Float_t yhit = point.y() + dist[i]*dir.y();
-            // check y hit
-            Bool_t yok = ( (MakeMinusTolerant<true>(leftcmpy) <= yhit)
-                         && (yhit <= MakePlusTolerant<true>(rightcmpy)) ) || ( (MakeMinusTolerant<true>(rightcmpy) <= yhit)
-                                   && (yhit <= MakePlusTolerant<true>(leftcmpy)) ) ;
-            yok &= xok;
-              // if( ! IsEmpty(yok) ) std::cerr << "i " << i << " yhit\n ";
-              // note here: since xok might be a SIMD mask it is not true to assume that xok==true here !!
-            Bool_t ok = yok && dist[i] < resultdistance;
-             // TODO: still minimize !! ( might hit two planes at same time ) !!!!
-              // MaskedAssign( !done && ok, dist[i], &resultdistance);
-            MaskedAssign( ok, dist[i], &resultdistance );
-              // modify done flag
-              // done |= ok;
-          }
-      }
-  } // end of check
-#else // if we want hit vectorization
-  Float_t zi[N];
-  // vectorizes nicely -- this solution seems to be faster then the one above with many checks
-  for (int i=0;i<N;++i)
-  {
-     // put this into a separate kernel
-     Float_t zhit = point.z() + dist[i]*dir.z();
-     Float_t zfrombottom = zhit+fDz;
-     Float_t leftcmpx  = fxa[i] + zfrombottom*ftx1[i];
-     Float_t rightcmpx = fxc[i] + zfrombottom*ftx2[i];
-     Float_t leftcmpy  = fya[i] + zfrombottom*fty1[i];
-     Float_t rightcmpy = fyc[i] + zfrombottom*fty2[i];
-     Float_t xhit = point.x() + dist[i]*dir.x();
-     Float_t yhit = point.y() + dist[i]*dir.y();
-     zi[i]=(xhit-leftcmpx)*(xhit-rightcmpx)+(yhit-leftcmpy)*(yhit-rightcmpy);
-  } // end of check
-
-  // final reduction
-  for (int i=0;i<N;++i)
-  {
-      Bool_t ok = zi[i]<0. && dist[i]<resultdistance;
-      MaskedAssign( ok, dist[i], &resultdistance );
-  }
-#endif
-  return (resultdistance);
 } // end distanceToIn function
 
   /**
@@ -367,10 +314,12 @@ typename Backend::precision_v DistanceToIn (
 		typename Backend::precision_v const &safmax) const {
 
   typedef typename Backend::precision_v Float_t;
-//  typedef typename Backend::bool_v Bool_t;
+  typedef typename Backend::bool_v Bool_t;
   constexpr Precision eps = 100.*kTolerance;
 	
 	Float_t safety = safmax;
+  Bool_t done = (Abs(safety) < eps);
+  if (IsFull(done)) return (safety);
 	Float_t safetyface = kInfinity;
 	
 	// loop lateral surfaces
@@ -384,9 +333,8 @@ typename Backend::precision_v DistanceToIn (
       va.Set(fxa[i], fya[i], -fDz);
 	    pa = va;
 	    safetyface = (pa - point).Dot(fNormals[i]);
-		  MaskedAssign(safetyface < safety, safetyface, &safety);
+		  MaskedAssign((safetyface<safety) && (!done), safetyface, &safety);
 	  }
-    MaskedAssign(safety<eps, 0., &safety);
     return safety;
   }
   
@@ -397,17 +345,16 @@ typename Backend::precision_v DistanceToIn (
     va.Set(fxa[i], fya[i], -fDz);
 		pa = va;
 	  safetyface = (pa - point).Dot(fNormals[i]);
-		MaskedAssign(safetyface < safety, safetyface, &safety);
+		MaskedAssign((safetyface<safety) && (!done), safetyface, &safety);
 	}
 //  std::cout << "safetyz = " << safmax << std::endl;
 //  std::cout << "safetyplanar = " << safety << std::endl;
   if (count<N) {
-    safetyface = SafetyCurved<Backend>(point);		
+    safetyface = SafetyCurved<Backend>(point, Backend::kTrue);		
 //  std::cout << "safetycurved = " << safetyface << std::endl;
-	  MaskedAssign(safetyface < safety, safetyface, &safety);
+	  MaskedAssign((safetyface<safety) && (!done), safetyface, &safety);
   }  
 //  std::cout << "safety = " << safety << std::endl;
-  MaskedAssign(safety<eps, 0., &safety);
 	return safety;
 	
 } // end SafetyToOut	
@@ -422,48 +369,46 @@ typename Backend::precision_v DistanceToIn (
 		typename Backend::precision_v const &safmax) const {
 
   typedef typename Backend::precision_v Float_t;
-//  typedef typename Backend::bool_v Bool_t;
+  typedef typename Backend::bool_v Bool_t;
   constexpr Precision eps = 100.*kTolerance;
 	
-	Float_t safety = safmax;
-	Float_t safetyface = kInfinity;
-	
-	// loop lateral surfaces
+  Float_t safety = safmax;
+  Bool_t done = (Abs(safety) < eps);
+  if (IsFull(done)) return (safety);
+  Float_t safetyface = kInfinity;
+
+  // loop lateral surfaces
   // We can use the surface normals to get safety for non-curved surfaces
-	Vector3D<Precision> va; // vertex i of lower base
-	Vector3D<Float_t> pa;   // same vertex converted to backend type
+  Vector3D<Precision> va; // vertex i of lower base
+  Vector3D<Float_t> pa;   // same vertex converted to backend type
   int count = 0;
   if (fisplanar) {
-	  for (int i=0; i<N; ++i)
-	  {
+    for (int i=0; i<N; ++i) {
       va.Set(fxa[i], fya[i], -fDz);
-	    pa = va;
-	    safetyface = (point - pa).Dot(fNormals[i]);
-		  MaskedAssign(safetyface > safety, safetyface, &safety);
-	  }
-    MaskedAssign(safety<eps, 0., &safety);
+      pa = va;
+      safetyface = (point - pa).Dot(fNormals[i]);
+      MaskedAssign((safetyface>safety) && (!done), safetyface, &safety);
+    }
     return safety;
   }
   
-	for (int i=0; i<N; ++i)
-	{
-	  if ( fiscurved[i] > 0 ) continue;
+  for (int i=0; i<N; ++i) {
+    if ( fiscurved[i] > 0 ) continue;
     count++;
     va.Set(fxa[i], fya[i], -fDz);
-		pa = va;
-	  safetyface = (point - pa).Dot(fNormals[i]);
-		MaskedAssign(safetyface > safety, safetyface, &safety);
-	}
+    pa = va;
+    safetyface = (point - pa).Dot(fNormals[i]);
+    MaskedAssign(safetyface > safety, safetyface, &safety);
+  }
 //  std::cout << "safetyz = " << safmax << std::endl;
 //  std::cout << "safetyplanar = " << safety << std::endl;
   if (count<N) {
-    safetyface = SafetyCurved<Backend>(point);		
+    safetyface = SafetyCurved<Backend>(point, Backend::kFalse);		
 //  std::cout << "safetycurved = " << safetyface << std::endl;
-	  MaskedAssign(safetyface > safety, safetyface, &safety);
+	  MaskedAssign((safetyface>safety) && (!done), safetyface, &safety);
   }  
 //  std::cout << "safety = " << safety << std::endl;
-  MaskedAssign(safety<eps, 0., &safety);
-	return safety;
+	return (safety);
 	
 } // end SafetyToIn
 
@@ -473,15 +418,15 @@ typename Backend::precision_v DistanceToIn (
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   typename Backend::precision_v SafetyCurved(
-    Vector3D<typename Backend::precision_v> const &point) const {
+    Vector3D<typename Backend::precision_v> const &point, typename Backend::bool_v in) const {
 
   typedef typename Backend::precision_v Float_t;
 //  typedef typename Backend::int_v Int_t;
-//  typedef typename Backend::bool_v Bool_t;
+  typedef typename Backend::bool_v Bool_t;
 	
-	Float_t safety = kInfinity;
-  Float_t  cf = 0.5 * (1. - point[2]/fDz);
-  // analyse if x-y coordinates of localPoint are within polygon at z-height
+  Float_t safety = kInfinity;
+  Float_t tolerance = 100*kTolerance;
+  MaskedAssign(!in, -tolerance, &tolerance);
 
   //  loop over edges connecting points i with i+4
   Float_t vertexX[N];
@@ -495,9 +440,25 @@ typename Backend::precision_v DistanceToIn (
   // vectorizes for scalar backend
   for (int  i = 0; i < N; i++) {
     // calculate x-y positions of vertex i at this z-height
-		vertexX[i] = fxa[i]+ftx1[i]*dzp;
+    vertexX[i] = fxa[i]+ftx1[i]*dzp;
     vertexY[i] = fya[i]+fty1[i]*dzp;
   }
+  // Check if point is where it is supposed to be
+  Bool_t inside = (Abs(point.z()) < fDz+tolerance);
+  Float_t cross;
+  for (int  i = 0; i < N; i++) {
+    int  j = (i + 1) % 4;
+    Float_t  DeltaX = vertexX[j]-vertexX[i];
+    Float_t  DeltaY = vertexY[j]-vertexY[i];
+    cross  = ( point.x() - vertexX[i] ) * DeltaY - ( point.y() - vertexY[i] ) * DeltaX;
+    inside &= (cross > -tolerance);
+  }
+  Bool_t wrong = in & (!inside);
+  wrong |= (!in) & inside;
+  if ( IsFull(wrong) ) {
+    safety = -kTolerance;
+    return safety;
+  }     
   Float_t umin = 0.0;
   for (int  i = 0; i < N; i++) {
     if (fiscurved[i] == 0) continue;
@@ -519,13 +480,14 @@ typename Backend::precision_v DistanceToIn (
     MaskedAssign(ssq<safety, fyd[i] - fyb[i], &dy2);
     MaskedAssign(ssq<safety, u, &umin);
     MaskedAssign(ssq<safety, ssq, &safety);
-	}
+  }
   MaskedAssign(umin<0 || umin>1, 0.0, &umin);
   dx = dx1 + umin*(dx2-dx1);
   dy = dy1 + umin*(dy2-dy1);
   safety *= 1.- 4.*fDz*fDz/(dx*dx+dy*dy+4.*fDz*fDz);
   safety = Sqrt(safety);
-	return safety;
+  MaskedAssign(wrong, -safety, &safety);
+  return safety;
 } // end SafetyFace	
 
   VECGEOM_CUDA_HEADER_BOTH

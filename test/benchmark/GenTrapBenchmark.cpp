@@ -14,13 +14,13 @@ int main() {
   std::vector<Vector3D<Precision> > vertexlist;
   // no twist
   vertexlist.push_back( Vector3D<Precision>(-3,-2.5, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>(-3, 3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>( 3, 3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>( 3,-3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>(-3,-3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>(-3, 3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>( 3, 2, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>( 3,-3, 0 ) );
+  vertexlist.push_back( Vector3D<Precision>(-2.5, 3, 0 ) );
+  vertexlist.push_back( Vector3D<Precision>( 3, 2.5, 0 ) );
+  vertexlist.push_back( Vector3D<Precision>( 2.5,-3, 0 ) );
+  vertexlist.push_back( Vector3D<Precision>(-2,-2, 0 ) );
+  vertexlist.push_back( Vector3D<Precision>(-2, 2, 0 ) );
+  vertexlist.push_back( Vector3D<Precision>( 2, 2, 0 ) );
+  vertexlist.push_back( Vector3D<Precision>( 2,-2, 0 ) );
 
   UnplacedGenTrap trapUnplaced1( &vertexlist[0], 10 );
 

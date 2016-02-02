@@ -18,10 +18,10 @@ int main(int argc,char *argv[]) {
  using Vec_t = vecgeom::Vector3D<vecgeom::Precision>;
  using namespace vecgeom;
   std::vector<Vec_t> vertexlist1;
-  vertexlist1.push_back( Vec_t(-3,-3, 0 ) );
-  vertexlist1.push_back( Vec_t(-3, 3, 0 ) );
-  vertexlist1.push_back( Vec_t( 3, 3, 0 ) );
-  vertexlist1.push_back( Vec_t( 3,-3, 0 ) );
+  vertexlist1.push_back( Vec_t(-3,-2.5, 0 ) );
+  vertexlist1.push_back( Vec_t(-2.5, 3, 0 ) );
+  vertexlist1.push_back( Vec_t( 3, 2.5, 0 ) );
+  vertexlist1.push_back( Vec_t( 2.5,-3, 0 ) );
   vertexlist1.push_back( Vec_t(-2,-2, 0 ) );
   vertexlist1.push_back( Vec_t(-2, 2, 0 ) );
   vertexlist1.push_back( Vec_t( 2, 2, 0 ) );
@@ -31,6 +31,7 @@ int main(int argc,char *argv[]) {
   GenTrap_t* solid=new GenTrap_t("test_VecGeomGenTrap", &vertexlist1[0], 5);    
   
   ShapeTester tester;
+//  tester.EnableDebugger(true);
 
   if(argc>1)
   {
@@ -45,7 +46,8 @@ int main(int argc,char *argv[]) {
   }
   else
   {
-    errCode = tester.Run(solid);
+   errCode = tester.Run(solid);
+//    tester.Run(solid, "debug");
    }
   std::cout<<"Final Error count for Shape *** "<<solid->GetName()<<"*** = "<<errCode<<std::endl;
   std::cout<<"========================================================="<<std::endl;

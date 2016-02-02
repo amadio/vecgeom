@@ -38,13 +38,6 @@ struct GenTrapImplementation {
   static void PrintType() {
      printf("SpecializedGenTrap<%i, %i>", transCodeT, rotCodeT);
   }
-  template<typename Backend>
-  VECGEOM_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
-  static void UnplacedContains(
-      UnplacedGenTrap const &box,
-      Vector3D<typename Backend::precision_v> const &localPoint,
-      typename Backend::bool_v &inside);
 
   template <typename Backend>
   VECGEOM_INLINE
@@ -108,6 +101,14 @@ struct GenTrapImplementation {
   static void SafetyToOut(UnplacedGenTrap const &unplaced,
                           Vector3D<typename Backend::precision_v> const &point,
                           typename Backend::precision_v &safety);
+
+  template<typename Backend>
+  VECGEOM_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
+  static void UnplacedContains(
+      UnplacedGenTrap const &box,
+      Vector3D<typename Backend::precision_v> const &localPoint,
+      typename Backend::bool_v &inside);
 
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH
@@ -188,17 +189,6 @@ struct GenTrapImplementation {
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
 VECGEOM_CUDA_HEADER_BOTH
-void GenTrapImplementation<transCodeT, rotCodeT>::UnplacedContains(
-    UnplacedGenTrap const &box,
-    Vector3D<typename Backend::precision_v> const &localPoint,
-    typename Backend::bool_v &inside) {
-
-    ContainsKernel<Backend>(box, localPoint, inside);
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
 void GenTrapImplementation<transCodeT, rotCodeT>::Contains(
     UnplacedGenTrap const &unplaced,
     Transformation3D const &transformation,
@@ -207,8 +197,19 @@ void GenTrapImplementation<transCodeT, rotCodeT>::Contains(
     typename Backend::bool_v &inside) {
 
   localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
-  UnplacedContains<Backend>(unplaced, localPoint, inside);
+  ContainsKernel<Backend>(unplaced, localPoint, inside);
 
+}
+
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+template <typename Backend>
+VECGEOM_CUDA_HEADER_BOTH
+void GenTrapImplementation<transCodeT, rotCodeT>::UnplacedContains(
+    UnplacedGenTrap const &box,
+    Vector3D<typename Backend::precision_v> const &localPoint,
+    typename Backend::bool_v &inside) {
+
+    ContainsKernel<Backend>(box, localPoint, inside);
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -328,7 +329,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndIns
 
   typedef typename Backend::precision_v Float_t;
   typedef typename Backend::bool_v Bool_t;
-  constexpr Precision tolerancesq = 100.*kTolerance*kTolerance;
+  constexpr Precision tolerancesq = 10000.*kTolerance*kTolerance;
   // Add stronger check against the bounding box, which can allow early returns if point is outside. 
   // Local point has to be translated in the bbox local frame.
 //  completelyoutside = Abs(localPoint.z()) > MakePlusTolerant<ForInside>( unplaced.fDz );
@@ -711,8 +712,8 @@ void GenTrapImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(
     typename Backend::precision_v &safety) {
 
   // Do Z
-   safety = unplaced.GetDZ() - Abs(point[2]);
-   safety = unplaced.GetShell().SafetyToOut<Backend>( point, safety );
+  safety = unplaced.GetDZ() - Abs(point[2]);
+  safety = unplaced.GetShell().SafetyToOut<Backend>( point, safety );
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -750,7 +751,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::NormalKernel(
         return;
       }
 //    }
-  Float_t done = onZ;
+//  Float_t done = onZ;
   // Get the closest edge (point should be on this edge within tolerance)
   Float_t  cf = unplaced.fHalfInverseDz * (unplaced.fDz - point.z());
   Float_t vertexX[4];
@@ -812,7 +813,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::GetClosestEdge(
 //  typedef typename Backend::int_v Int_t;
   typedef typename Backend::bool_v Bool_t;
   iseg = 0.;
-  Float_t p1X, p1Y, p2X, p2Y;
+//  Float_t p1X, p1Y, p2X, p2Y;
   Float_t lsq, dx, dy, dpx, dpy, u;
   fraction = -1.;
   Float_t safe = kInfinity;

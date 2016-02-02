@@ -50,7 +50,7 @@ public:
       : VPlacedVolume(logicalVolume, transformation, boundingBox, id) {}
 
 #endif
-
+  VECGEOM_CUDA_HEADER_BOTH
   virtual ~PlacedGenTrap() {}
 
   // Accessors
@@ -134,7 +134,7 @@ public:
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const* ConvertToRoot() const override;
 #endif
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
   virtual ::VUSolid const* ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4
