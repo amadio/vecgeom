@@ -960,6 +960,19 @@ template <typename T> std::vector<size_t> sort_indexes(const std::vector<T> &v) 
   return idx;
 }
 
+template <typename T> std::vector<size_t> sort_indexes(const std::vector<T> &v, const std::vector<size_t> &v2) {
+
+  // initialize original index locations
+  std::vector<size_t> idx(v.size());
+  for (size_t i = 0; i != idx.size(); ++i)
+    idx[i] = i;
+
+  // sort indexes based on comparing values in v then in v2
+  std::sort(idx.begin(), idx.end(), [&v,&v2](size_t i1, size_t i2) { if(v[i1].first == v[i2].first){ return v2[i1] > v2[i2]; }
+  else { return v[i1].first > v[i2].first; }});
+  return idx;
+}
+
 void NavigationSpecializer::AnalyseTargetPaths(NavStatePool const &inpool, NavStatePool const &outpool) {
   // the purpose of this function is to generate a list of possible target states
   // including their corresponding matrix transformations
@@ -980,7 +993,11 @@ void NavigationSpecializer::AnalyseTargetPaths(NavStatePool const &inpool, NavSt
 
   std::vector<std::string> matrixstrings;
   std::vector<Transformation3D> matrixcache;
+  // mapping of navigation state index x transitionindex -> delta matrices
   std::vector<std::tuple<unsigned int, unsigned int, unsigned int>> mapping;
+
+  std::vector<size_t> transitioncounter; // counts the number of transitions of each type
+  // could be used as a sorting criterion to optimize early returns from relocation
 
   for (auto j = decltype(outpool.capacity()){0}; j < outpool.capacity(); ++j) {
     std::stringstream pathstringstream2;
@@ -1011,9 +1028,11 @@ void NavigationSpecializer::AnalyseTargetPaths(NavStatePool const &inpool, NavSt
       fTransitionTargetTypes.push_back(FinalDepthShapeType_t(navstate->GetCurrentLevel(), type.str()));
 
       fTargetVolIds.push_back(navstate->Top()->id());
+      transitioncounter.push_back(0);
     } else {
       transitionindex = std::distance(fTransitionStrings.begin(), found);
     }
+    transitioncounter[transitionindex]++;
 
     Transformation3D deltamatrix;
     instate->DeltaTransformation(*navstate, deltamatrix);
@@ -1127,8 +1146,11 @@ void NavigationSpecializer::AnalyseTargetPaths(NavStatePool const &inpool, NavSt
   for (auto &s : crossset) {
     std::cerr << s << "\n";
   }
+
+  size_t index=0;
   for (auto &s : fTransitionStrings) {
-    std::cerr << s << "\n";
+    std::cerr << s << "\t" << transitioncounter[index] << "\n";
+    index++;
   }
   for (auto &s : matrixstrings) {
     std::cerr << s << "\n";
@@ -1140,9 +1162,11 @@ void NavigationSpecializer::AnalyseTargetPaths(NavStatePool const &inpool, NavSt
   // sort the possible transitions from most specific ( deepest depth ) to least specific
   // we are not sorting the vector itself but create an "index" vector
 
-  fTransitionOrder = sort_indexes(fTransitionTargetTypes);
+  //fTransitionOrder = sort_indexes(fTransitionTargetTypes);
+  fTransitionOrder = sort_indexes(fTransitionTargetTypes, transitioncounter);
 
   // std::sort(fTransitionTargetTypes.begin(), fTransitionTargetTypes.end());
+  std::cerr << "transition order\n";
   for (auto &tp : fTransitionTargetTypes) {
     std::cerr << tp.first << " " << tp.second << "\n";
   }
