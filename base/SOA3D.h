@@ -250,7 +250,7 @@ size_t SOA3D<T>::capacity() const { return fCapacity; }
 
 template <typename T>
 void SOA3D<T>::resize(size_t newSize) {
-  Assert(newSize <= fCapacity);
+  assert(newSize <= fCapacity);
   fSize = newSize;
 }
 
@@ -359,7 +359,7 @@ T const* SOA3D<T>::z() const { return fZ; }
 template <typename T>
 VECGEOM_CUDA_HEADER_BOTH
 void SOA3D<T>::set(size_t index, T xval, T yval, T zval) {
-  Assert(index < fCapacity, "Invalid index beyond fCapacity");
+  assert(index < fCapacity);
   fX[index] = xval;
   fY[index] = yval;
   fZ[index] = zval;
@@ -369,7 +369,7 @@ void SOA3D<T>::set(size_t index, T xval, T yval, T zval) {
 template <typename T>
 VECGEOM_CUDA_HEADER_BOTH
 void SOA3D<T>::set(size_t index, Vector3D<T> const &vec) {
-  Assert(index < fCapacity, "Invalid index beyond fCapacity");
+  assert(index < fCapacity);
   fX[index] = vec[0];
   fY[index] = vec[1];
   fZ[index] = vec[2];

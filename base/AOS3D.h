@@ -196,7 +196,7 @@ size_t AOS3D<T>::capacity() const { return fCapacity; }
 
 template <typename T>
 void AOS3D<T>::resize(size_t newSize) {
-  Assert(newSize <= fCapacity);
+  assert(newSize <= fCapacity);
   fSize = newSize;
 }
 
