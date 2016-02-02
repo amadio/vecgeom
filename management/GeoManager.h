@@ -187,7 +187,7 @@ public:
    *  return max depth of volume hierarchy
    */
   int getMaxDepth() const {
-      Assert( fMaxDepth > 0, "geometry not closed" );
+      assert(fIsClosed == true);
       return fMaxDepth;
   }
 

@@ -155,7 +155,7 @@ void GeoManager::CompactifyMemory() {
 
 
 void GeoManager::CloseGeometry() {
-    Assert( GetWorld() != NULL, "world volume not set" );
+    assert(GetWorld() != nullptr);
     if(fIsClosed)
       {
 	std::cerr << "geometry is already closed; I cannot close it again (very likely this message signifies a substational error !!!\n";
