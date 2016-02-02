@@ -308,6 +308,13 @@ public:
    Value_t
    ValueAt(int level) const {return fPath[level];}
 
+   // direct write access to the path
+   // (no one should ever call this function unless you know what you are doing)
+   // TODO: consider making this private + friend or so
+   VECGEOM_INLINE
+   VECGEOM_CUDA_HEADER_BOTH
+   void SetValueAt(int level, Value_t v) { fPath[level] = v; }
+
    VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
    void
