@@ -252,7 +252,6 @@ bool UnplacedTrapezoid::MakePlanes(TrapCorners_t const pt) {
   good = MakePlane(pt[0],pt[1],pt[5],pt[4],fPlanes[0]);
 #endif
   if(!good) printf("***** GeomSolids0002 - Face at ~-Y not planar for Solid: UnplacedTrapezoid\n");
-  //  Assert( good );
 
   // Top side with normal approx. +Y
 #ifndef VECGEOM_PLANESHELL_DISABLE
@@ -261,7 +260,6 @@ bool UnplacedTrapezoid::MakePlanes(TrapCorners_t const pt) {
   good = MakePlane(pt[2],pt[6],pt[7],pt[3],fPlanes[1]);
 #endif
   if(!good) printf("***** GeomSolids0002 - Face at ~+Y not planar for Solid: UnplacedTrapezoid\n");
-  // Assert( good );
 
   // Front side with normal approx. -X
 #ifndef VECGEOM_PLANESHELL_DISABLE
@@ -270,7 +268,6 @@ bool UnplacedTrapezoid::MakePlanes(TrapCorners_t const pt) {
   good = MakePlane(pt[0],pt[4],pt[6],pt[2],fPlanes[2]);
 #endif
   if(!good) printf("***** GeomSolids0002 - Face at ~-X not planar for Solid: UnplacedTrapezoid\n");
-  // Assert( good );
 
   // Back side with normal approx. +X
 #ifndef VECGEOM_PLANESHELL_DISABLE
@@ -279,7 +276,6 @@ bool UnplacedTrapezoid::MakePlanes(TrapCorners_t const pt) {
   good = MakePlane(pt[1],pt[3],pt[7],pt[5],fPlanes[3]);
 #endif
   if(!good) printf("***** GeomSolids0002 - Face at ~+X not planar for Solid: UnplacedTrapezoid\n");
-  // Assert( good );
 
   // include areas for -Z,+Z surfaces
   sideAreas[4] = 2*(fDx1+fDx2)*fDy1;
@@ -327,7 +323,6 @@ bool UnplacedTrapezoid::MakePlane(
     printf("\tcorner 3: (%f; %f; %f)\n", p3.x(), p3.y(), p3.z());
     printf("\tcorner 4: (%f; %f; %f)\n", p4.x(), p4.y(), p4.z());
     good = false;
-    //Assert( good );
   }
 
   // cms.gdml does contain some bad trap corners... go ahead and try to build them anyway
