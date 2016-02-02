@@ -76,10 +76,8 @@ void UnplacedPolyhedron::Initialize(
   typedef Vector3D<Precision> Vec_t;
 
   // Sanity check of input parameters
-  Assert(zPlaneCount > 1, "Need at least two z-planes to construct polyhedron"
-         " segments.\n");
-  Assert(fSideCount > 0, "Need at least one side to construct polyhedron"
-         " segments.\n");
+  assert(zPlaneCount > 1);
+  assert(fSideCount > 0);
 
   copy(zPlanes, zPlanes+zPlaneCount, &fZPlanes[0]);
   copy(rMin, rMin+zPlaneCount, &fRMin[0]);
@@ -97,8 +95,9 @@ void UnplacedPolyhedron::Initialize(
   // sometimes there will be no quadrilaterals: for instance when
   // rmin jumps at some z and rmax remains continouus
   for (int i = 0; i < zPlaneCount-1; ++i) {
-    Assert(zPlanes[i] <= zPlanes[i+1], "Polyhedron Z-planes must be "
-           "monotonically increasing.\n");
+    // Z-planes must be monotonically increasing
+    assert(zPlanes[i] <= zPlanes[i+1]);
+
     fZSegments[i].hasInnerRadius = rMin[i] > 0 || rMin[i+1] > 0;
 
     int multiplier = (zPlanes[i] == zPlanes[i+1] && rMax[i] == rMax[i+1])? 0 : 1;
@@ -121,8 +120,7 @@ void UnplacedPolyhedron::Initialize(
   }
 
   // Compute the cylindrical coordinate phi along which the corners are placed
-  Assert(phiDelta > 0, "Invalid phi angle provided in polyhedron constructor. "
-         "Value must be greater than zero.\n");
+  assert(phiDelta > 0);
   phiStart = NormalizeAngle<kScalar>(kDegToRad*phiStart);
   phiDelta *= kDegToRad;
   if (phiDelta > kTwoPi) phiDelta = kTwoPi;
@@ -149,8 +147,7 @@ void UnplacedPolyhedron::Initialize(
     if (rMin[i] < innerRadius) innerRadius = rMin[i];
     //rMin[i] /= cosHalfDeltaPhi;
     //rMax[i] /= cosHalfDeltaPhi;
-    Assert(rMin[i] >= 0 && rMax[i] > 0, "Invalid radius provided to "
-           "polyhedron constructor.");
+    assert(rMin[i] >= 0 && rMax[i] > 0);
     // Use distance to corner for minimizing outer radius of bounding tube
     if (rMax[i] > outerRadius) outerRadius = rMax[i];
   }
@@ -377,7 +374,9 @@ int UnplacedPolyhedron::GetNQuadrilaterals() const {
        << "     N = number of Z-sections: "<< fZSegments.size() <<"\n"
        << "     N+1 z-coordinates (in cm):\n";
     uint Nz = (uint)fZSegments.size();
-    Assert((int)Nz == fZPlanes.size()-1, "UnplacedPolyhedron inconsistency: please check #segments vs. #Zplanes\n");
+
+    // check that we have the right number of planes
+    assert((int)Nz == fZPlanes.size()-1);
 
     for(uint i=0; i<Nz; ++i) {
       os<<"       at Z="<< fZPlanes[i] <<"cm:"
