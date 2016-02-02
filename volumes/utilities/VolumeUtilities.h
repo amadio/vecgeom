@@ -301,7 +301,7 @@ void FillUncontainedPoints(VPlacedVolume const &volume,
   if( uncontainedCapacity <= 1000*kTolerance ) {
     std::cout<<"\nVolUtil: FillUncontPts: ERROR: Volume provided <"
              << volume.GetLabel() <<"> does not have uncontained capacity!  Aborting.\n";
-    Assert(false);
+    assert(false);
   }
 
   const int size = points.capacity();
