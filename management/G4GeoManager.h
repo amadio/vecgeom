@@ -63,7 +63,6 @@ public:
 #else
         std::cerr<<"\n*** WARNING: LoadG4Geometry() is incompatible with USOLIDS!\n";
         std::cerr<<"      Please turn off USOLIDS and rebuild.  Aborting...\n\n";
-        // Assert(false);
         exit(-1);
 #endif
     }

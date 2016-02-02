@@ -1051,7 +1051,6 @@ void PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::Con
     Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> &localPoint,
     typename Backend::bool_v &inside) {
- // Assert(0, "Generic Contains not implemented.\n");
 
  // we should assert if Backend != scalar
     localPoint = transformation.Transform<transC,rotC>(point);
@@ -1085,7 +1084,6 @@ void PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::Dis
     Vector3D<typename Backend::precision_v> const &direction,
     typename Backend::precision_v const &stepMax,
     typename Backend::precision_v &distance) {
- // Assert(0, "Generic DistanceToIn not implemented.\n");
     distance = ScalarDistanceToInKernel( unplaced, transformation,
            point, direction, stepMax) ;
 }
