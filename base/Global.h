@@ -73,25 +73,6 @@ VECGEOM_GLOBAL vecgeom::Inside_t kSurface = 1;
 VECGEOM_GLOBAL vecgeom::Inside_t kOutside = 2;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
-void Assert(const bool condition, char const *const message) {
-#ifndef VECGEOM_NVCC
-  assert(condition && message);
-#ifdef NDEBUG
-  (void)condition; (void)message; // Avoid warning about unused arguments.
-#endif
-#else
-  if (!condition) printf("Assertion failed: %s", message);
-#endif
-}
-
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
-void Assert(const bool condition) {
-  Assert(condition, "");
-}
-
 namespace details {
    template <typename DataType, typename Target> struct UseIfSameType {
       VECGEOM_CUDA_HEADER_BOTH
