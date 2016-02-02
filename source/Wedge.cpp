@@ -17,18 +17,7 @@ VECGEOM_CUDA_HEADER_BOTH
             // fSPhi(zeroangle),
             fDPhi(angle), fAlongVector1(), fAlongVector2() {
             // check input
-            Assert( angle > 0., " wedge angle has to be larger than zero " );
-            //
-            if( ! ( angle <= kTwoPi + vecgeom::kTolerance ) ){
-#ifndef VECGEOM_NVCC
-                std::cerr << std::setprecision(20) << "\n";
-                std::cerr << "wedge angle is larger than 2PI: "
-                          << angle << " "
-                          << kTwoPi-angle << "\n";
-#else
-                printf("\nwedge angle is larger than 2PI: angle=%f 2pi-angle=%f\n", angle, kTwoPi-angle);
-#endif
-            }
+            assert(angle > 0.0 && angle <= kTwoPi);
 
             // initialize angles
             fAlongVector1.x() = std::cos(zeroangle);
