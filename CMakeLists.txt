@@ -167,6 +167,8 @@ if (GNU)
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -fabi-version=6")
   endif()
 elseif(Intel)
+  # CMake fails to add -std=c++11 for icc, so add it manually
+  list(APPEND CMAKE_CXX_FLAGS -std=c++11)
   set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -fPIC -diag-disable 3438")
   if (CMAKE_BUILD_TYPE MATCHES Debug)
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -g -O0")
