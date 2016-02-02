@@ -41,9 +41,6 @@ UnplacedTrapezoid::UnplacedTrapezoid(Precision pDz, Precision pTheta, Precision 
       printf("\t X=%f, %f, %f, %f", pDx1, pDx2, pDx3, pDx4);
       printf("\t Y=%f, %f", pDy1, pDy2);
       printf("\t Z=%f\n", pDz);
-
-      // force a crash in a CPU/GPU portable way -- any better (graceful) way to do this?
-      Assert(true);
     }
 
     fTthetaSphi = tan(pTheta)*sin(pPhi);
@@ -61,9 +58,6 @@ UnplacedTrapezoid::UnplacedTrapezoid(Precision pDz, Precision pTheta, Precision 
   if( xbox <= 0 || ybox <= 0 || zbox <= 0 ) {
       printf("UnplacedTrapezoid(xbox,...) - GeomSolids0002, Fatal Exception: Invalid input length parameters for Solid: UnplacedTrapezoid\n");
       printf("\t X=%f, Y=%f, Z=%f", xbox, ybox, zbox);
-
-      // force a crash in a CPU/GPU portable way -- any better (graceful) way to do this?
-      Assert(true);
     }
 
     MakePlanes();
@@ -74,7 +68,10 @@ UnplacedTrapezoid::UnplacedTrapezoid(double dx, double dy, double dz, double)
   : UnplacedTrapezoid(dx,dy,dz)
 
 {
-  Assert(false, "*** ERROR: STEP-based trapezoid constructor called, NOT PROPERLY IMPLEMENTED in VecGeom: please contact GeantV developers and file a bug report.\n");
+#ifndef VECGEOM_NVCC
+  fprintf(stderr, "*** ERROR: STEP-based trapezoid constructor called, but not implemented ***");
+#endif
+  assert(false);
  }
 
 // constructor for a Trd
