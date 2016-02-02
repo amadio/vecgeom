@@ -34,9 +34,8 @@ void CompareBox(VUSolid const *first, VUSolid const *second) {
   assert(first->Inside(insidePoint) == second->Inside(insidePoint));
   assert(std::abs(first->DistanceToIn(outsidePoint, direction) -
          second->DistanceToIn(outsidePoint, direction)) < kTolerance);
-  Assert(std::abs(first->DistanceToOut(insidePoint, direction, normal, convex) -
-         second->DistanceToOut(insidePoint, direction, normal, convex))
-         < kTolerance);
+  assert(std::abs(first->DistanceToOut(insidePoint, direction, normal, convex) -
+         second->DistanceToOut(insidePoint, direction, normal, convex)) < kTolerance);
 }
 
 void CompareTube(VUSolid const *first, VUSolid const *second) {
@@ -48,9 +47,8 @@ void CompareTube(VUSolid const *first, VUSolid const *second) {
   assert(first->Inside(insidePoint) == second->Inside(insidePoint));
   assert(std::abs(first->DistanceToIn(outsidePoint, direction) -
          second->DistanceToIn(outsidePoint, direction)) < kTolerance);
-  Assert(std::abs(first->DistanceToOut(insidePoint, direction, normal, convex) -
-         second->DistanceToOut(insidePoint, direction, normal, convex))
-         < kTolerance);
+  assert(std::abs(first->DistanceToOut(insidePoint, direction, normal, convex) -
+         second->DistanceToOut(insidePoint, direction, normal, convex)) < kTolerance);
 }
 
 void CompareTrap(VUSolid const *first, VUSolid const *second) {
@@ -62,9 +60,8 @@ void CompareTrap(VUSolid const *first, VUSolid const *second) {
   assert(first->Inside(insidePoint) == second->Inside(insidePoint));
   assert(std::abs(first->DistanceToIn(outsidePoint, direction) -
          second->DistanceToIn(outsidePoint, direction)) < 10.*kTolerance);
-  Assert(std::abs(first->DistanceToOut(insidePoint, direction, normal, convex) -
-         second->DistanceToOut(insidePoint, direction, normal, convex))
-         < kTolerance);
+  assert(std::abs(first->DistanceToOut(insidePoint, direction, normal, convex) -
+         second->DistanceToOut(insidePoint, direction, normal, convex)) < kTolerance);
 }
 
 int main() {

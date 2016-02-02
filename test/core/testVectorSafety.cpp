@@ -119,17 +119,15 @@ void testVectorNavigator( VPlacedVolume* world ){
        Precision s=0;
        NavigationState * cmp = NavigationState::MakeInstance( GeoManager::Instance().getMaxDepth() );
        cmp->Clear();
-       nav.FindNextBoundaryAndStep( points[i], dirs[i], *states[i],
-               *cmp, pSteps[i], s );
-       vecgeom::Assert( steps[i] == s ,
-               " Problem in VectorNavigation (steps) (in SimpleNavigator)" );
-       vecgeom::Assert( cmp->Top() == newstates[i]->Top() ,
-                      " Problem in VectorNavigation (states) (in SimpleNavigator)" );
-       vecgeom::Assert( cmp->IsOnBoundary() == newstates[i]->IsOnBoundary(),
-                      " Problem in VectorNavigation (boundary) (in SimpleNavigator)" );
+       nav.FindNextBoundaryAndStep(points[i], dirs[i], *states[i], *cmp, pSteps[i], s);
 
-       vecgeom::Assert( safeties[i] == nav.GetSafety( points[i], *states[i] ),
-               " Problem with safety " );
+       // check for consistency of navigator
+
+       assert(steps[i] == s);
+       assert(cmp->Top() == newstates[i]->Top());
+       assert(cmp->IsOnBoundary() == newstates[i]->IsOnBoundary());
+       assert(safeties[i] == nav.GetSafety(points[i], *states[i]));
+
        delete cmp;
    }
 
