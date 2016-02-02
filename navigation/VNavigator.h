@@ -118,7 +118,7 @@ protected:
     in_state.CopyTo(&out_state);
 
     // if the following is the case we are in the wrong volume;
-    // assuming that DistanceToIn return negative number when point is inside
+    // assuming that DistanceToIn returns negative number when point is inside
     // do nothing (step=0) and retry one level higher
 
     // TODO: put diagnostic code here ( like in original SimpleNavigator )
@@ -181,10 +181,11 @@ protected:
   // may be redefined in concrete implementations ( for instance in cases where we know the form of the global matrix a-priori )
   // input
   // TODO: think about how we can have scalar + SIMD version
+  // note: the last argument is a trick to pass information across function calls ( only exploited in specialized navigators )
   template <typename T>
   VECGEOM_INLINE static void DoGlobalToLocalTransformation(NavigationState const &in_state,
                                                            Vector3D<T> const &globalpoint, Vector3D<T> const &globaldir,
-                                                           Vector3D<T> &localpoint, Vector3D<T> &localdir) {
+                                                           Vector3D<T> &localpoint, Vector3D<T> &localdir, NavigationState *internalptr = nullptr) {
     // calculate local point/dir from global point/dir
     Transformation3D m;
     in_state.TopMatrix(m);
@@ -198,7 +199,7 @@ protected:
   VECGEOM_INLINE static void DoGlobalToLocalTransformations(NavigationState const ** in_states,
                                                             SOA3D<Precision> const &globalpoints,
                                                             SOA3D<Precision> const &globaldirs, unsigned int from_index,
-                                                            Vector3D<T> &localpoint, Vector3D<T> &localdir) {
+                                                            Vector3D<T> &localpoint, Vector3D<T> &localdir, NavigationState **internalptr = nullptr) {
     for (unsigned int i = 0; i < ChunkSize; ++i) {
       unsigned int trackid = from_index + i;
       Transformation3D m;
@@ -298,7 +299,7 @@ public :
       // call the static function for this provided/specialized by the Impl
       Vector3D<Precision> localpoint;
       Vector3D<Precision> localdir;
-      Impl::DoGlobalToLocalTransformation(in_state, globalpoint, globaldir, localpoint, localdir);
+      Impl::DoGlobalToLocalTransformation(in_state, globalpoint, globaldir, localpoint, localdir, &out_state);
 
       Precision step = step_limit;
       VPlacedVolume const *hitcandidate=nullptr;
@@ -348,7 +349,7 @@ public :
       VPlacedVolume const *hitcandidates[ChunkSize] = {}; // initialize all to nullptr
 
       Vector3D<T> localpoint, localdir;
-      Impl::template DoGlobalToLocalTransformations<T,ChunkSize>(in_states, globalpoints, globaldirs, from_index, localpoint, localdir);
+      Impl::template DoGlobalToLocalTransformations<T,ChunkSize>(in_states, globalpoints, globaldirs, from_index, localpoint, localdir, out_states);
 
       T slimit(step_limits + from_index); // will only work with new ScalarWrapper
       if (MotherIsConvex) {
@@ -451,7 +452,7 @@ public :
       // calculate local point/dir from global point/dir
       Vector3D<Precision> localpoint;
       Vector3D<Precision> localdir;
-      Impl::DoGlobalToLocalTransformation(in_state, globalpoint, globaldir, localpoint, localdir);
+      Impl::DoGlobalToLocalTransformation(in_state, globalpoint, globaldir, localpoint, localdir, &out_state);
 
       // get safety first ( the only benefit here is when we reuse the local points
       using SafetyE_t = typename Impl::SafetyEstimator_t;
