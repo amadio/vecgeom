@@ -6,6 +6,10 @@
 
 #include <cassert>
 
+#if __cplusplus < 201103L
+#error VecGeom requires compiler and library support for the ISO C++ 2011 standard.
+#endif
+
 #include "base/CUDA.h"
 #include "base/Math.h"
 
