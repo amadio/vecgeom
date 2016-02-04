@@ -10,7 +10,7 @@
 #error VecGeom requires compiler and library support for the ISO C++ 2011 standard.
 #endif
 
-#include "base/CUDA.h"
+#include "base/Cuda.h"
 #include "base/Math.h"
 
 #define VECGEOM
