@@ -59,7 +59,8 @@ private:
     
 public:
     
-    SecondOrderSurfaceShell( Vector3D<Precision> * vertices, Precision dz ) : fDz(dz), fDz2(0.5/dz) {
+  VECGEOM_CUDA_HEADER_BOTH
+  SecondOrderSurfaceShell( Vector3D<Precision> * vertices, Precision dz ) : fDz(dz), fDz2(0.5/dz) {
 				Vector3D<Precision> va, vb, vc, vd;
 				for(int i=0;i<N;++i)
         {
@@ -116,10 +117,9 @@ public:
 													  (Abs((fxc[i]-fxa[i])*(fyd[i]-fyb[i])-(fxd[i]-fxb[i])*(fyc[i]-fya[i])) < kTolerance))? 0 : 1;
             if (fiscurved[i]) fisplanar = false;                
 #ifdef GENTRAPDEB
-						std::cout << "fiscurved[" << i << "] = " << fiscurved[i] << std::endl;				
+						printf("fiscurved[%d] = %s", i, fiscurved[i]?"true":"false");				
 #endif
         }
-        std::cout << "fisplanar = " << fisplanar << std::endl;
     }
 
   /// The type returned is the type corresponding to the backend given

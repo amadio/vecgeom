@@ -24,7 +24,7 @@ public:
   typedef Vector3D<Precision> VertexType;
   // the bounding box: half lengths and origin
   UnplacedBox fBoundingBox;
-   Vector3D<Precision> fBoundingBoxOrig;
+  Vector3D<Precision> fBoundingBoxOrig;
 
   // the eight points that define the Arb8
   // actually we will neglect the z coordinates of those
@@ -73,8 +73,14 @@ public:
                   fDeltaX(), fDeltaY(),
                   fSurfaceShell(vertices, halfzheight)
   {
-    for (int i=0;i<8;++i)
+    for (int i=0;i<4;++i) {
       fVertices[i]=vertices[i];
+      fVertices[i].operator[](2) = -halfzheight;
+    }  
+    for (int i=4;i<8;++i) {
+      fVertices[i]=vertices[i];
+      fVertices[i].operator[](2) = halfzheight;
+    }  
 
     // Make sure vertices are defined clockwise
     Precision sum1 = 0.;
@@ -87,14 +93,14 @@ public:
 
     // we should generate an exception here
     if (sum1*sum2 < -kTolerance) {
-      std::cerr << "ERROR: Unplaced generic trap defined with opposite clockwise" << std::endl;
+      printf("ERROR: Unplaced generic trap defined with opposite clockwise\n");
       Print();
       return;
     }
             
     // revert sequence of vertices to have them clockwise
     if (sum1 > kTolerance) {
-      std::cerr << "Reverting to clockwise vertices of GenTrap shape:" << std::endl;
+      printf("INFO: Reverting to clockwise vertices of GenTrap shape:\n");
       Print();
       Vector3D<Precision> vtemp;
       vtemp = fVertices[1];
@@ -110,7 +116,7 @@ public:
         SegmentsCrossing(fVertices[1], fVertices[2], fVertices[0], fVertices[3]) ||
         SegmentsCrossing(fVertices[4], fVertices[5], fVertices[7], fVertices[6]) ||
         SegmentsCrossing(fVertices[5], fVertices[6], fVertices[4], fVertices[7]) ) {
-      std::cerr << "ERROR: Unplaced generic trap defined with crossing opposite segments" << std::endl;
+      printf("ERROR: Unplaced generic trap defined with crossing opposite segments\n");
       Print();
       return;
     }	  
@@ -138,6 +144,7 @@ public:
 
   }
 
+  VECGEOM_CUDA_HEADER_BOTH
   virtual ~UnplacedGenTrap() {}
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -157,9 +164,11 @@ public:
   }
 
   // computes if this gentrap is twisted
+  VECGEOM_CUDA_HEADER_BOTH
   bool ComputeIsTwisted();
 
   // computes if this gentrap is twisted
+  VECGEOM_CUDA_HEADER_BOTH
   bool ComputeIsConvex();
   
   VECGEOM_CUDA_HEADER_BOTH
@@ -172,19 +181,25 @@ public:
  
   // computes if opposite segments are crossing, making a malformed shape
   // This can become a general utility
+  VECGEOM_CUDA_HEADER_BOTH
   bool SegmentsCrossing(Vector3D<Precision> pa, Vector3D<Precision> pb,
                         Vector3D<Precision> pc, Vector3D<Precision> pd) const;
 
   // computes and sets the bounding box member of this class
+  VECGEOM_CUDA_HEADER_BOTH
   void ComputeBoundingBox();
 
-  virtual int memory_size() const { return sizeof(*this); }
+  virtual int memory_size() const override { return sizeof(*this); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void Print() const;
+  virtual void Print() const override;
+
+  virtual void Print(std::ostream &os) const override;
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
+#ifdef VECGEOM_NVCC
   VECGEOM_CUDA_HEADER_DEVICE
+#endif
   static VPlacedVolume* Create(LogicalVolume const *const logical_volume,
                                Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
@@ -192,9 +207,23 @@ public:
 #endif
                                VPlacedVolume *const placement = NULL);
 
+#ifdef VECGEOM_NVCC
+  VECGEOM_CUDA_HEADER_DEVICE
+#endif
+  static VPlacedVolume* CreateSpecializedVolume(
+      LogicalVolume const *const volume,
+      Transformation3D const *const transformation,
+      const TranslationCode trans_code, const RotationCode rot_code,
+#ifdef VECGEOM_NVCC
+                               const int id,
+#endif
+      VPlacedVolume *const placement = NULL);
+
+
 #ifdef VECGEOM_CUDA_INTERFACE
-  virtual VUnplacedVolume* CopyToGpu() const;
-  virtual VUnplacedVolume* CopyToGpu(VUnplacedVolume *const gpu_ptr) const;
+  size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedBox>::SizeOf(); }
+  DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
+  DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
 #endif
 
   Precision Capacity() { return volume(); }
@@ -211,7 +240,7 @@ public:
                     (1./3)*((fVerticesX[i+4]-fVerticesX[i])*(fVerticesY[j+4]-fVerticesY[j]) -
                             (fVerticesX[j]-fVerticesX[j+4])*(fVerticesY[i]-fVerticesY[i+4])));
     }
-    return Abs(0.5*capacity);
+    return Abs(capacity);
   }
 
   VECGEOM_INLINE
@@ -234,13 +263,12 @@ public:
     return (Abs(surfTop) + Abs(surfBottom) + surfLateral);
   }
 
+  VECGEOM_CUDA_HEADER_BOTH
   void Extent( Vector3D<Precision> &, Vector3D<Precision> &) const;
 
-  Vector3D<Precision> GetPointOnSurface() const { return Vector3D<Precision>(); }
+  Vector3D<Precision> GetPointOnSurface() const;
 
   virtual std::string GetEntityType() const { return "GenTrap";}
-
-  virtual void Print(std::ostream &os) const;
 
   VECGEOM_CUDA_HEADER_DEVICE
   virtual VPlacedVolume* SpecializedVolume(

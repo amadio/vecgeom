@@ -372,7 +372,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndIns
     //
    // }
 
-  Float_t cross[4];
+  Float_t cross;
   Float_t localPointX = localPoint.x();
   Float_t localPointY = localPoint.y();
   // I currently found out that it is beneficial to keep the early return
@@ -389,14 +389,14 @@ void GenTrapImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndIns
     int  j = (i + 1) % 4;
     Float_t  DeltaX = vertexX[j]-vertexX[i];
     Float_t  DeltaY = vertexY[j]-vertexY[i];
-    cross[i]  = ( localPointX - vertexX[i] ) * DeltaY;
-    cross[i] -= ( localPointY - vertexY[i] ) * DeltaX;
+    cross  = ( localPointX - vertexX[i] ) * DeltaY;
+    cross -= ( localPointY - vertexY[i] ) * DeltaX;
     if (ForInside) {
-      Bool_t onsurf = ( cross[i]*cross[i] < tolerancesq*(DeltaX*DeltaX+DeltaY*DeltaY) );
-      completelyoutside |= ((cross[i] < 0.) && (!onsurf));
-      completelyinside &= ((cross[i] > 0.) && (!onsurf));      
+      Bool_t onsurf = ( cross*cross < tolerancesq*(DeltaX*DeltaX+DeltaY*DeltaY) );
+      completelyoutside |= ((cross < 0.) && (!onsurf));
+      completelyinside &= ((cross > 0.) && (!onsurf));      
     } else {
-      completelyoutside |= (cross[i] < MakeMinusTolerant<ForInside>( 0 ));
+      completelyoutside |= (cross < MakeMinusTolerant<ForInside>( 0 ));
     }  
 
 //    if (Backend::early_returns) {
@@ -431,6 +431,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::InsideKernel(
 template<bool IsSIMD, class Backend>
 struct FillPlaneDataHelper
 {
+VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
 static void FillPlaneData(UnplacedGenTrap const &unplaced,
                          typename Backend::precision_v & cornerx,
@@ -457,6 +458,7 @@ static void FillPlaneData(UnplacedGenTrap const &unplaced,
 template<class Backend>
 struct FillPlaneDataHelper<false, Backend>
 {
+VECGEOM_CUDA_HEADER_BOTH
 static void FillPlaneData(UnplacedGenTrap const &unplaced,
                           typename Backend::precision_v & cornerx,
                           typename Backend::precision_v & cornery,
