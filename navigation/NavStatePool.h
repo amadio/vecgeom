@@ -42,11 +42,8 @@ public:
         fGPUPointer( NULL )
     {
 
-#ifdef HAVENORMALNAMESPACE
-// #pragma message "in namespace vecgeom"
-#ifdef VECGEOM_CUDA
+#if !defined(VECGEOM_NVCC) && defined(VECGEOM_CUDA)
         vecgeom::CudaMalloc( &fGPUPointer, NavigationState::SizeOf(depth)*size );
-#endif
 #endif
         // now create the states
         for(int i=0;i<fCapacity;++i){
@@ -57,11 +54,9 @@ public:
     ~NavStatePool(){
         delete [] fBuffer;
     }
-#ifdef HAVENORMALNAMESPACE
-#ifdef VECGEOM_CUDA
+#if !defined(VECGEOM_NVCC) && defined(VECGEOM_CUDA)
     void CopyToGpu();
     void CopyFromGpu();
-#endif
 #endif
 
     VECGEOM_CUDA_HEADER_BOTH
@@ -107,8 +102,7 @@ private: // members
 
 
 // an implementation of the CopyOperation could be as follows
-#ifdef HAVENORMALNAMESPACE
-#ifdef VECGEOM_CUDA
+#if !defined(VECGEOM_NVCC) && defined(VECGEOM_CUDA)
 inline
 void NavStatePool::CopyToGpu() {
 
@@ -150,8 +144,6 @@ void NavStatePool::CopyFromGpu() {
     state->ConvertToCPUPointers();
     }
 } // end CopyFunction
-
-#endif
 #endif
 
 } } // end Global namespace

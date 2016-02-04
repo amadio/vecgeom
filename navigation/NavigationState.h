@@ -563,23 +563,19 @@ int NavigationState::Distance( NavigationState const & other ) const
 
 inline
 void NavigationState::ConvertToGPUPointers() {
-#ifdef HAVENORMALNAMESPACE
-#ifdef VECGEOM_CUDA
+#if !defined(VECGEOM_NVCC) && defined(VECGEOM_CUDA)
       for(int i=0;i<fCurrentLevel;++i){
          fPath[i] = ToIndex((vecgeom::cxx::VPlacedVolume*) vecgeom::CudaManager::Instance().LookupPlaced(
                  ToPlacedVolume( fPath[i] ) ).GetPtr());
       }
 #endif
-#endif
 }
 
 inline
 void NavigationState::ConvertToCPUPointers() {
-#ifdef HAVENORMALNAMESPACE
-#ifdef VECGEOM_CUDA
+#if !defined(VECGEOM_NVCC) && defined(VECGEOM_CUDA)
        for(int i=0;i<fCurrentLevel;++i)
          fPath[i] = ToIndex( vecgeom::CudaManager::Instance().LookupPlacedCPUPtr( (const void*) ToPlacedVolume(fPath[i]) ));
-#endif
 #endif
 }
 
