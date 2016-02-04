@@ -757,6 +757,9 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
     done       |= Abs(point[2]) > dimensions[2]+kHalfTolerance;
     if(Backend::early_returns && IsFull(done)) return;
 
+    // Each component used to have a kMinimum added, to avoid divisions by zero.
+    // This is not needed anymore, since VecGeom properly handles infinities caused by divisions by zero.
+    // Only 0/0 --> Nan are a real problem
     Vector3D<Floating_t> inverseDirection { 1./direction[0], 1./direction[1], 1./direction[2] };
 
     Vector3D<Floating_t> distances {
@@ -791,14 +794,12 @@ void BoxImplementation<transCodeT, rotCodeT>::SafetyToInKernel(
 
   typedef typename Backend::precision_v Floating_t;
 
-  // x
   safety = Abs(point[0]) - dimensions[0];
-  // y
-  Floating_t temp = Abs(point[1]) - dimensions[1];
-  MaskedAssign( temp > safety, temp, &safety);
-  // z
-  temp = Abs(point[2]) - dimensions[2];
-  MaskedAssign( temp > safety, temp, &safety);
+  const Floating_t safetyY = Abs(point[1]) - dimensions[1];
+  const Floating_t safetyZ = Abs(point[2]) - dimensions[2];
+
+  MaskedAssign( safetyY > safety, safetyY, &safety);
+  MaskedAssign( safetyZ > safety, safetyZ, &safety);
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -811,14 +812,12 @@ void BoxImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(
 
    typedef typename Backend::precision_v Floating_t;
 
-   // x
    safety = dimensions[0] - Abs(point[0]);
-   // y
-   Floating_t temp = dimensions[1] - Abs(point[1]);
-   MaskedAssign(temp < safety, temp, &safety);
-   // z
-   temp = dimensions[2] - Abs(point[2]);
-   MaskedAssign(temp < safety, temp, &safety);
+   const Floating_t safetyY = dimensions[1] - Abs(point[1]);
+   const Floating_t safetyZ = dimensions[2] - Abs(point[2]);
+
+   MaskedAssign(safetyY < safety, safetyY, &safety);
+   MaskedAssign(safetyZ < safety, safetyZ, &safety);
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
