@@ -5,8 +5,7 @@ project(VecGeom)
 set(VECGEOM ON)
 
 enable_language(CXX)
-set(VECGEOM_CXX_STANDARD 11 CACHE STRING "C++ ISO Standard")
-set(CMAKE_CXX_STANDARD ${VECGEOM_CXX_STANDARD})
+set(CMAKE_CXX_STANDARD 11 CACHE STRING "C++ ISO Standard")
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 ################################################################################
@@ -169,9 +168,9 @@ if (GNU)
   endif()
 elseif(Intel)
   # CMake fails to add -std option for icc, so add it manually
-  if(VECGEOM_CXX_STANDARD STREQUAL 11)
+  if(CMAKE_CXX_STANDARD STREQUAL 11)
     list(APPEND CMAKE_CXX_FLAGS -std=c++11)
-  elseif(VECGEOM_CXX_STANDARD STREQUAL 14)
+  elseif(CMAKE_CXX_STANDARD STREQUAL 14)
     list(APPEND CMAKE_CXX_FLAGS -std=c++14)
   else()
     message(FATAL_ERROR "Unsupported C++ standard requested")
