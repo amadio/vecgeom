@@ -105,6 +105,24 @@ NavigationState::GlobalToLocal(Vector3D<Precision> const & globalpoint) const
     indices.push_front(0);
   }
 
+  VECGEOM_CUDA_HEADER_BOTH
+  void NavigationState::Print() const
+  {
+   // printf("VariableSizeObj: fPath=%p (%l bytes)\n", fPath, sizeof(fPath));
+#ifndef VECGEOM_NVCC
+   printf("NavState: Level=%i/%i,  onBoundary=%s, path=<",
+          fCurrentLevel, GetMaxLevel(), (fOnBoundary?"true":"false"));
+   for (int i=0; i<fCurrentLevel; ++i)
+     printf("/%s", ToPlacedVolume( fPath[i] )?
+       ToPlacedVolume( fPath[i] )->GetLabel().c_str() : "NULL" );
+   printf(">\n");
+#else
+   printf("NavState: Level=%i/%i,  onBoundary=%s, topVol=<%p>, this=%p\n",
+          fCurrentLevel, GetMaxLevel(), (fOnBoundary?"true":"false"),
+          Top(), (const void*)this );
+#endif
+  }
+
   void NavigationState::ResetPathFromListOfIndices( VPlacedVolume const * world, std::list<uint> const & indices ){
     // clear current nav state
     fCurrentLevel =  indices.size();

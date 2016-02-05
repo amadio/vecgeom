@@ -367,7 +367,6 @@ public:
    VECGEOM_CUDA_HEADER_BOTH
    void Clear();
 
-   VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
    void Print() const;
 
@@ -553,25 +552,6 @@ void NavigationState::Dump() const
 #pragma GCC diagnostic pop
 }
 
-VECGEOM_INLINE
-VECGEOM_CUDA_HEADER_BOTH
-void NavigationState::Print() const
-{
-   // printf("VariableSizeObj: fPath=%p (%l bytes)\n", fPath, sizeof(fPath));
-#ifndef VECGEOM_NVCC
-   printf("NavState: Level(cur/max)=%i/%i,  onBoundary=%s, topVol=<%s>, this=%p\n",
-          fCurrentLevel, GetMaxLevel(), (fOnBoundary?"true":"false"),
-          (Top()? Top()->GetLabel().c_str():"NULL"), (const void*)this );
-#else
-   printf("NavState: Level(cur/max)=%i/%i,  onBoundary=%s, topVol=<%p>, this=%p\n",
-          fCurrentLevel, GetMaxLevel(), (fOnBoundary?"true":"false"),
-          Top(), (const void*)this );
-#endif
-
-}
-
-
-
 /**
  * encodes the geometry path as a concatenated string of ( Value_t ) present in fPath
  */
@@ -581,7 +561,6 @@ void NavigationState::printValueSequence(std::ostream &stream) const {
     stream << "/" << fPath[i];
   }
 }
-
 
 #ifdef VECGEOM_ROOT
 VECGEOM_INLINE
