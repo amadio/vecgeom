@@ -110,12 +110,13 @@ public:
 protected:
   VSafetyEstimator *fSafetyEstimator; // a pointer to the safetyEstimator which can be used by the Navigator
 
-  // some common code to prepare the
+  // some common code to prepare the outstate
   VECGEOM_INLINE
   static Precision PrepareOutState(NavigationState const & __restrict__ in_state, NavigationState & __restrict__ out_state, Precision geom_step,
-                                   Precision step_limit, VPlacedVolume const *hitcandidate){
+                                   Precision step_limit, VPlacedVolume const *hitcandidate, bool &doneafterthisstep){
     // now we have the candidates and we prepare the out_state
     in_state.CopyTo(&out_state);
+    doneafterthisstep=false;
 
     // if the following is the case we are in the wrong volume;
     // assuming that DistanceToIn returns negative number when point is inside
@@ -126,6 +127,7 @@ protected:
       geom_step = vecgeom::kTolerance;
       out_state.SetBoundaryState(true);
       out_state.Pop();
+      doneafterthisstep=true;
       return geom_step;
     }
 
@@ -295,6 +297,7 @@ public :
                                   Precision step_limit, NavigationState const &in_state,
                                   NavigationState &out_state) const override {
       static size_t counter=0;
+      counter++;
       // calculate local point/dir from global point/dir
       // call the static function for this provided/specialized by the Impl
       Vector3D<Precision> localpoint;
@@ -319,11 +322,13 @@ public :
         step = Impl::TreatDistanceToMother( pvol, localpoint, localdir, step_limit );
           // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
         ((Impl *)this)->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, in_state, out_state, step, hitcandidate);
-        if(hitcandidate==nullptr) counter++;
+        //if(hitcandidate==nullptr) counter++;
       }
 
       // fix state
-      step = Impl::PrepareOutState(in_state, out_state, step, step_limit, hitcandidate);
+      bool done;
+      step = Impl::PrepareOutState(in_state, out_state, step, step_limit, hitcandidate, done);
+      if(done) return step;
 
       // step was physics limited
       if (!out_state.IsOnBoundary())
@@ -377,9 +382,11 @@ public :
       // fix state ( seems to be serial so we iterate over indices )
       for (unsigned int i = 0; i < ChunkSize; ++i) {
         unsigned int trackid = from_index + i;
+        bool done;
         out_steps[trackid] =
-            Impl::PrepareOutState(*in_states[trackid], *out_states[trackid], out_steps[trackid], slimit[i], hitcandidates[i]);
-
+            Impl::PrepareOutState(*in_states[trackid], *out_states[trackid], out_steps[trackid], slimit[i], hitcandidates[i], done);
+        if (done)
+          continue;
         // step was physics limited
         if (!out_states[trackid]->IsOnBoundary())
           continue;
@@ -486,6 +493,7 @@ protected:
     // alternatively we could use nextvolumeindex like before
     if (out_state.Top() == in_state.Top()) {
       GlobalLocator::RelocatePointFromPath(pointafterboundary, out_state);
+      assert(in_state.Distance(out_state)!=0 && " error relocating when leaving ");
     } else {
       // continue directly further down ( next volume should have been stored in out_state already )
       VPlacedVolume const *nextvol = out_state.Top();
@@ -493,7 +501,7 @@ protected:
       GlobalLocator::LocateGlobalPoint(nextvol, nextvol->GetTransformation()->Transform(pointafterboundary), out_state,
                                        false);
 
-      assert(in_state.Top() != out_state.Top() && " error relocating when entering ");
+      assert(in_state.Distance(out_state)!=0 && " error relocating when entering ");
       return;
     }
   }
