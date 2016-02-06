@@ -168,7 +168,8 @@ public:
           break;
         }
     }
-    return VNavigator::PrepareOutState(in_state, out_state, step, step_limit, nexthitvolume);
+    bool done;
+    return VNavigator::PrepareOutState(in_state, out_state, step, step_limit, nexthitvolume, done);
   }
 
   VECGEOM_INLINE
