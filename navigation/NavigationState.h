@@ -111,9 +111,16 @@ private:
    VECGEOM_CUDA_HEADER_BOTH
    const VariableData_t &GetVariableData() const { return fPath; }
 
-   int fCurrentLevel;
-   // add other navigation state here, stuff like:
+   unsigned char fCurrentLevel; // value indicating the next free slot in the fPath array ( ergo the current geometry depth )
+   // we choose unsigned char in order to save memory, thus supporting geometry depths up to 255 which seems large enough
+
    bool fOnBoundary; // flag indicating whether track is on boundary of the "Top()" placed volume
+
+   // a member to cache some state information across state usages
+   // one particular example could be a calculated index for this state
+   // if fCache == -1 it means the we have to recalculate it; otherwise we don't
+   short fCache;
+
 
    // pointer data follows; has to be last
    veccore::VariableSizeObj<Value_t> fPath;
@@ -126,7 +133,7 @@ private:
 
    VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
-   NavigationState(size_t new_size, NavigationState &other )  : fCurrentLevel(other.fCurrentLevel), fOnBoundary(other.fOnBoundary), fPath(new_size, other.fPath)  {
+   NavigationState(size_t new_size, NavigationState &other )  : fCurrentLevel(other.fCurrentLevel), fOnBoundary(other.fOnBoundary), fCache(-1), fPath(new_size, other.fPath)  {
        // Raw memcpy of the content to another existing state.
        //
        // in case NavigationState was a virtual class: change to
@@ -273,11 +280,11 @@ public:
 
    VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
-   int GetMaxLevel() const { return fPath.fN-1; }
+   unsigned char GetMaxLevel() const { return fPath.fN-1; }
 
    VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
-   int GetCurrentLevel() const {return fCurrentLevel;}
+   unsigned char GetCurrentLevel() const { return fCurrentLevel; }
 
    // better to use pop and push
    VECGEOM_INLINE
@@ -396,7 +403,7 @@ public:
     * state.GetNode( state.GetLevel() ) == state.Top()
     */
    VECGEOM_INLINE
-   int GetLevel() const {return fCurrentLevel-1;}
+   unsigned char GetLevel() const { return fCurrentLevel - 1; }
 
    TGeoNode const * GetNode(int level) const {return
            RootGeoManager::Instance().tgeonode( ToPlacedVolume( fPath[level] ) );}
@@ -409,7 +416,6 @@ public:
    VECGEOM_CUDA_HEADER_BOTH
    bool IsOutside() const { return !(fCurrentLevel>0); }
 
-
    VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
    bool IsOnBoundary() const { return fOnBoundary; }
@@ -417,6 +423,14 @@ public:
    VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
    void SetBoundaryState( bool b ) { fOnBoundary = b; }
+
+   VECGEOM_INLINE
+   VECGEOM_CUDA_HEADER_BOTH
+   short GetCacheValue() const { return fCache; }
+
+   VECGEOM_INLINE
+   VECGEOM_CUDA_HEADER_BOTH
+   void SetCacheValue(short v) { fCache = v; }
 
 #ifdef VECGEOM_ROOT
    /**
@@ -440,7 +454,7 @@ NavigationState & NavigationState::operator=( NavigationState const & rhs )
    if (this != &rhs) {
       fCurrentLevel=rhs.fCurrentLevel;
       fOnBoundary = rhs.fOnBoundary;
-      // what about the matrix????
+      fCache = rhs.fCache;
 
       // Use memcpy.  Potential truncation if this is smaller than rhs.
       fPath = rhs.fPath;
@@ -464,6 +478,7 @@ NavigationState::NavigationState( NavigationState const & rhs ) :
 NavigationState::NavigationState( size_t nvalues ) :
          fCurrentLevel(0),
          fOnBoundary(false),
+         fCache(-1),
          fPath(nvalues)
 {
    // clear the buffer
@@ -490,6 +505,7 @@ NavigationState::Clear()
 {
    fCurrentLevel=0;
    fOnBoundary=false;
+   fCache=-1;
 }
 
 void
@@ -497,6 +513,7 @@ NavigationState::Push( VPlacedVolume const * v )
 {
 #ifdef DEBUG
    assert( fCurrentLevel < GetMaxLevel() );
+   assert( fCurrentLevel < 2<<sizeof(char) - 1;
 #endif
    fPath[fCurrentLevel++] = ToIndex( v );
 }
@@ -506,6 +523,7 @@ NavigationState::PushIndexType( NavStateIndex_t v )
 {
 #ifdef DEBUG
    assert( fCurrentLevel < GetMaxLevel() );
+   assert( fCurrentLevel < 2<<sizeof(char) - 1;
 #endif
    fPath[fCurrentLevel++] = v;
 }
