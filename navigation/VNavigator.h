@@ -414,14 +414,12 @@ public :
       // process SIMD part and TAIL part
       // something like
       using Real_v = Vc::double_v;
-      const unsigned int size = globalpoints.size();
-      const unsigned int tail = size % Real_v::Size;
-      const unsigned int corsize = size - tail;
-      const unsigned int stride = Real_v::Size;
+      const auto size = globalpoints.size();
       auto pvol = in_states[0]->Top();
       auto lvol = pvol->GetLogicalVolume();
       // loop over all tracks in chunks
-      for (unsigned int i = 0; i < corsize; i += stride) {
+      int i = 0;
+      for (; i < (int)size - (int)(Real_v::Size - 1); i += Real_v::Size) {
         NavigateAChunk<Real_v, Real_v::Size>(this, pvol, lvol, globalpoints, globaldirs, step_limit, in_states,
                                              out_states, out_steps, i);
       }
@@ -434,12 +432,10 @@ public :
 //       out_states, out_steps, corsize + i);
 //      }
       // fall back to scalar interface for tail treatment
-      for (unsigned int i = 0; i < tail; ++i) {
-        auto trackid = corsize + i;
-        out_steps[trackid] =
-            ((Impl *)this)
-                ->Impl::ComputeStepAndPropagatedState(globalpoints[trackid], globaldirs[trackid], step_limit[trackid],
-                                                      *in_states[trackid], *out_states[trackid]);
+      for (; i < (int)size; ++i) {
+        out_steps[i] = ((Impl *)this)
+                           ->Impl::ComputeStepAndPropagatedState(globalpoints[i], globaldirs[i], step_limit[i],
+                                                                 *in_states[i], *out_states[i]);
       }
     }
 
