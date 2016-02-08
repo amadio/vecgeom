@@ -11,20 +11,19 @@ int main() {
   std::vector<Vector3D<Precision> > vertexlist;
   // no twist
   vertexlist.push_back( Vector3D<Precision>(-3,-2.5, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>(-3, 3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>( 3, 3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>( 3,-3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>(-3,-3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>(-3, 3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>( 3, 2, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>( 3,-3, 0 ) );
+  vertexlist.push_back( Vector3D<Precision>(-2.5, 3, 0 ) );
+  vertexlist.push_back( Vector3D<Precision>( 3, 2.5, 0 ) );
+  vertexlist.push_back( Vector3D<Precision>( 2.5,-3, 0 ) );
+  vertexlist.push_back( Vector3D<Precision>(-2,-2, 0 ) );
+  vertexlist.push_back( Vector3D<Precision>(-2, 2, 0 ) );
+  vertexlist.push_back( Vector3D<Precision>( 2, 2, 0 ) );
+  vertexlist.push_back( Vector3D<Precision>( 2,-2, 0 ) );
 
   SimpleGenTrap trap("gentrap", &vertexlist[0], 10 );
   TPolyMarker3D pm(nSamples);
   pm.SetMarkerColor(kRed);
   pm.SetMarkerStyle(6);
   Inside_t inside;
-  bool contains;
   int nerrors = 0;
   for (int i = 0; i < nSamples; ++i) {
     Vector3D<Precision> sample;
@@ -32,7 +31,8 @@ int main() {
     inside  = trap.Inside(sample);
     if (inside != kSurface) nerrors++;
 /*
-    do {
+   bool contains;
+   do {
       sample = volumeUtilities::SamplePoint(Vector3D<Precision>(4, 4, 10));
       sample = trap.GetPointOnSurface();
       inside = trap.Inside(sample);

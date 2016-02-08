@@ -11,18 +11,18 @@ using namespace vecgeom;
 int main() {
   UnplacedBox worldUnplaced = UnplacedBox(10., 10., 20.);
 
-  std::vector<Vector3D<Precision> > vertexlist;
+  std::vector<Vector3D<Precision>> vertexlist;
   // no twist
-  vertexlist.push_back( Vector3D<Precision>(-3,-2.5, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>(-2.5, 3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>( 3, 2.5, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>( 2.5,-3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>(-2,-2, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>(-2, 2, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>( 2, 2, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>( 2,-2, 0 ) );
+  vertexlist.push_back(Vector3D<Precision>(-3, -2.5, 0));
+  vertexlist.push_back(Vector3D<Precision>(-2.5, 3, 0));
+  vertexlist.push_back(Vector3D<Precision>(3, 2.5, 0));
+  vertexlist.push_back(Vector3D<Precision>(2.5, -3, 0));
+  vertexlist.push_back(Vector3D<Precision>(-2, -2, 0));
+  vertexlist.push_back(Vector3D<Precision>(-2, 2, 0));
+  vertexlist.push_back(Vector3D<Precision>(2, 2, 0));
+  vertexlist.push_back(Vector3D<Precision>(2, -2, 0));
 
-  UnplacedGenTrap trapUnplaced1( &vertexlist[0], 10 );
+  UnplacedGenTrap trapUnplaced1(&vertexlist[0], 10);
   trapUnplaced1.Print();
 
   LogicalVolume world = LogicalVolume("world", &worldUnplaced);
@@ -44,5 +44,5 @@ int main() {
   tester.RunToOutBenchmark();
   tester.SetToInBias(0.8);
   tester.RunToInBenchmark();
-// tester.RunBenchmark();
+  // tester.RunBenchmark();
 }
