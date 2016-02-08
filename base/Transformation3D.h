@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <iostream>
 
 #ifdef VECGEOM_ROOT
 class TGeoMatrix;
