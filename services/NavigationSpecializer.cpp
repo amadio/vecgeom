@@ -335,7 +335,7 @@ void TabulatedTransData::EmitVectorGlobalTransformationCode(std::ostream &outstr
   outstream << "auto index = PathToIndex( in_states[trackindex] );\n";
   outstream << "// caching this index in internal navigationstate for later reuse\n";
   outstream << "// we know that is safe to do this because of static analysis (never do this in user code)\n";
-  outstream << "internal[trackindex]->SetValueAt(" << GeoManager::Instance().getMaxDepth()-1 << ", index);\n";
+  outstream << "internal[trackindex]->SetCache(index);\n";
   for(size_t i=0;i<3;++i){
     if(fTransCoefficients[i].size() > 0 && !(fTransIsConstant[i])){
         outstream << fVecTransVariableName[i] << "[i] = " << fTransVariableName[i] << ";\n";
@@ -1565,7 +1565,7 @@ void NavigationSpecializer::DumpStaticTreatGlobalToLocalTransformationFunction(s
   // TODO: check if we have to do anything at all ( check for unity )
   outstream << "// caching this index in internal navigationstate for later reuse\n";
   outstream << "// we know that is safe to do this because of static analysis (never do this in user code)\n";
-  outstream << "internal->SetValueAt(" << GeoManager::Instance().getMaxDepth()-1 << ", index);\n";
+  outstream << "internal->SetCache(index);\n";
   fGlobalTransData.EmitScalarGlobalTransformationCode(outstream);
   outstream <<  "}\n";
 }
@@ -1760,13 +1760,9 @@ void NavigationSpecializer::DumpRelocateMethod(std::ostream &outstream) const {
   if (fLogicalVolume->GetDaughtersp()->size() > 0) {
     outstream << "if( out_state.Top() == in_state.Top() ){\n";
   }
-  outstream << "// this was calculated before ( we should find a way to cache it -- which is not easy since I am a "
-               "singleton )\n";
-  outstream << "//auto cmpindex = PathToIndex(&in_state);\n";
-
-  outstream << "// fetch hidden cached index value\n";
-  outstream << "auto pathindex = out_state.ValueAt(" << GeoManager::Instance().getMaxDepth()-1 << ");\n";
-  outstream << "//if( pathindex != cmpindex ) std::cerr << \"cached index does not match calculated index\";\n";
+  outstream << "// this was probably calculated before \n";
+   outstream << "auto pathindex = out_state.GetCache();\n";
+  outstream << "if(pathindex < 0){ pathindex = PathToIndex(&in_state);\n }";
 
   for (size_t i = 0; i < fTransitionOrder.size(); ++i) {
     size_t transitionid = fTransitionOrder[i];
