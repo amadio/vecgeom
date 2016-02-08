@@ -585,21 +585,19 @@ VECGEOM_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 int NavigationState::Distance( NavigationState const & other ) const
 {
-   int lastcommonlevel=0;
-   int maxlevel = Min( GetCurrentLevel() , other.GetCurrentLevel() );
+  int lastcommonlevel = 0;
+  int maxlevel = Min(GetCurrentLevel(), other.GetCurrentLevel());
 
-   //  algorithm: start on top and go down until paths split
-   for(int i=0; i < maxlevel; i++) {
-      if( this->At(i) == other.At(i) )
-      {
-         lastcommonlevel = i;
-      }
-      else
-      {
-         break;
-      }
-   }
-   return (GetCurrentLevel()-lastcommonlevel) + ( other.GetCurrentLevel() - lastcommonlevel ) - 2;
+  //  algorithm: start on top and go down until paths split
+  for (int i = 0; i < maxlevel; i++) {
+    if (this->At(i) == other.At(i)) {
+      lastcommonlevel = i;
+    } else {
+      break;
+    }
+  }
+  int subtract = (lastcommonlevel > 0) ? 2 : 0;
+  return (GetCurrentLevel() - lastcommonlevel) + (other.GetCurrentLevel() - lastcommonlevel) - subtract;
 }
 
 inline
