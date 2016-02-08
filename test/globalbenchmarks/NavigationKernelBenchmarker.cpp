@@ -58,6 +58,11 @@ using namespace vecgeom;
 bool NavStateUnitTest() {
   NavigationState *state1 = NavigationState::MakeInstance(10);
   NavigationState *state2 = NavigationState::MakeInstance(10);
+  // test - 0 ( one empty path )
+  state1->Clear();
+  state2->Clear();
+  state2->PushIndexType(1);
+  assert(state1->Distance(*state2) == 1);
 
   // test - 1 ( equal paths )
   state1->Clear();
@@ -116,6 +121,7 @@ bool NavStateUnitTest() {
   state2->PushIndexType(1);
   std::cerr << state1->RelativePath(*state2) << "\n";
   assert(state1->RelativePath(*state2).compare("/up/horiz/3/down/1") == 0);
+  assert(state1->Distance(*state2) == 4);
 
   // test - 6
   state1->Clear();
@@ -133,6 +139,7 @@ bool NavStateUnitTest() {
   state2->PushIndexType(1);
   std::cerr << state1->RelativePath(*state2) << "\n";
   assert(state1->RelativePath(*state2).compare("/up/up/horiz/3/down/1/down/1") == 0);
+  assert(state1->Distance(*state2) == 6);
 }
 
 void analyseOutStates( NavStatePool & inpool, NavStatePool const & outpool ){
