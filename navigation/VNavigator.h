@@ -433,6 +433,14 @@ public :
 //       in_states,
 //       out_states, out_steps, corsize + i);
 //      }
+      // fall back to scalar interface for tail treatment
+      for (unsigned int i = 0; i < tail; ++i) {
+        auto trackid = corsize + i;
+        out_steps[trackid] =
+            ((Impl *)this)
+                ->Impl::ComputeStepAndPropagatedState(globalpoints[trackid], globaldirs[trackid], step_limit[trackid],
+                                                      *in_states[trackid], *out_states[trackid]);
+      }
     }
 
     // another generic implementation for the vector interface
