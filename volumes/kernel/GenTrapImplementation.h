@@ -332,9 +332,6 @@ void GenTrapImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndIns
   constexpr Precision tolerancesq = 10000.*kTolerance*kTolerance;
   // Add stronger check against the bounding box, which can allow early returns if point is outside. 
   // Local point has to be translated in the bbox local frame.
-//  completelyoutside = Abs(localPoint.z()) > MakePlusTolerant<ForInside>( unplaced.fDz );
-//  completelyinside = Backend::kFalse;
-//  completelyoutside = Backend::kFalse;
   BoxImplementation<translation::kIdentity, rotation::kIdentity>::GenericKernelForContainsAndInside<Backend, ForInside>(
       unplaced.fBoundingBox.dimensions(),
       localPoint-unplaced.fBoundingBoxOrig,
@@ -364,17 +361,6 @@ void GenTrapImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndIns
     vertexY[i] = unplaced.fVerticesY[i + 4] + cf * unplaced.fConnectingComponentsY[i];
   }
 
-    // this does not vectorize now
-    // TODO: study if we get better by storing Delta and scaling it in z
-    // ( because then it should vectorize but the cost is to have multiplications )
-   // for (int  i = 0; i < 4; i++)
-   // {
-    //
-   // }
-
-  Float_t cross;
-  Float_t localPointX = localPoint.x();
-  Float_t localPointY = localPoint.y();
   // I currently found out that it is beneficial to keep the early return
   // in disfavor of the vectorizing solution; should be reinvestigated on AVX
   for (int  i = 0; i < 4; i++) {
@@ -389,8 +375,8 @@ void GenTrapImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndIns
     int  j = (i + 1) % 4;
     Float_t  DeltaX = vertexX[j]-vertexX[i];
     Float_t  DeltaY = vertexY[j]-vertexY[i];
-    cross  = ( localPointX - vertexX[i] ) * DeltaY;
-    cross -= ( localPointY - vertexY[i] ) * DeltaX;
+    Float_t cross =  ( localPoint.x() - vertexX[i] ) * DeltaY
+                    -( localPoint.y() - vertexY[i] ) * DeltaX;
     if (ForInside) {
       Bool_t onsurf = ( cross*cross < tolerancesq*(DeltaX*DeltaX+DeltaY*DeltaY) );
       completelyoutside |= ((cross < 0.) && (!onsurf));

@@ -149,9 +149,12 @@ public:
     Vector3D<typename Backend::precision_v> const &dir ) const {
 
   typedef typename Backend::precision_v Float_t;
-//  typedef typename Backend::int_v Int_t;
   typedef typename Backend::bool_v Bool_t;
 
+  // Planar case
+  if (fisplanar) return DistanceToOutPlanar<Backend>(point,dir);
+
+  Float_t tolerance = 100. * kTolerance;
   Float_t dist(kInfinity);
   Float_t smin[N],smax[N];
   Vector3D<Float_t> unorm;
@@ -184,23 +187,103 @@ public:
 
   for (int i=0;i<N;++i){
     // Check if point(s) is(are) on boundary
-    Bool_t crtbound = ( Abs(smin[i]) < 10*kTolerance || Abs(smax[i]) < 10*kTolerance);
+    Bool_t crtbound = ( Abs(smin[i]) < tolerance || Abs(smax[i]) < tolerance);
     if (!IsEmpty(crtbound)) {
       if (fiscurved[i]) UNormal<Backend>(point, i, unorm, rz, r);
       else unorm = fNormals[i];
     }
     // Starting point may be propagated close to boundary
-    MaskedAssign(inside && Abs(smin[i])<10*kTolerance && dir.Dot(unorm)<0, kInfinity, &smin[i]);
-    MaskedAssign(inside && Abs(smax[i])<10*kTolerance && dir.Dot(unorm)<0, kInfinity, &smax[i]);
+    MaskedAssign(inside && Abs(smin[i])<tolerance && dir.Dot(unorm)<0, kInfinity, &smin[i]);
+    MaskedAssign(inside && Abs(smax[i])<tolerance && dir.Dot(unorm)<0, kInfinity, &smax[i]);
 
-    MaskedAssign( inside && (smin[i] > -10*kTolerance) && (smin[i] < dist), Max(smin[i],0.), &dist);
-    MaskedAssign( inside && (smax[i] > -10*kTolerance) && (smax[i] < dist), Max(smax[i],0.), &dist);
+    MaskedAssign( inside && (smin[i] > -tolerance) && (smin[i] < dist), Max(smin[i],0.), &dist);
+    MaskedAssign( inside && (smax[i] > -tolerance) && (smax[i] < dist), Max(smax[i],0.), &dist);
   }
   return (dist);
 } // end of function
 
+template<typename Backend>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+typename Backend::precision_v DistanceToOutPlanar (
+       Vector3D<typename Backend::precision_v> const& point,
+       Vector3D<typename Backend::precision_v> const &dir) const {
 
-/// The type returned is the type corresponding to the backend given
+  typedef typename Backend::precision_v Float_t;
+  typedef typename Backend::bool_v Bool_t;
+  
+	Vector3D<Precision> va; // vertex i of lower base
+	Vector3D<Float_t> pa;   // same vertex converted to backend type
+  Float_t distance = kInfinity;
+
+  // Check every surface
+  Bool_t outside = (Abs(point.z()) > MakePlusTolerant<true>(fDz)); // If point is outside, we need to know
+  for (int i=0; i<N && (!IsFull(outside)); ++i) {
+    // Point A is the current vertex on lower Z. P is the point we come from.
+    pa.Set(fxa[i], fya[i], -fDz);
+    Vector3D<Float_t> vecAP = point - pa;
+    // Dot product between AP vector and normal to surface has to be negative
+    Float_t dotAPNorm = vecAP.Dot(fNormals[i]);
+    Bool_t otherside = (dotAPNorm > 10.*kTolerance);
+    // Dot product between direction and normal to surface has to be positive
+    Float_t dotDirNorm = dir.Dot(fNormals[i]);
+    Bool_t outgoing = (dotDirNorm > 0.);
+    dotDirNorm += kTiny; // Avoid division by 0 without changing result
+    // Update globally outside flag
+    outside |= otherside;
+    Bool_t valid = outgoing & (!otherside);
+    if ( IsEmpty(valid) ) continue;
+    Float_t snext = -dotAPNorm/dotDirNorm;
+    MaskedAssign(valid && snext<distance, Max(snext, 0.), &distance);
+  }
+  // Return -1 for points actually outside
+  MaskedAssign(outside, -1., &distance);
+  return distance;
+}
+
+template<typename Backend>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+typename Backend::precision_v DistanceToInPlanar (
+       Vector3D<typename Backend::precision_v> const& point,
+       Vector3D<typename Backend::precision_v> const &dir,
+       typename Backend::bool_v &done) const {
+
+  typedef typename Backend::precision_v Float_t;
+  typedef typename Backend::bool_v Bool_t;
+  
+	Vector3D<Precision> va; // vertex i of lower base
+	Vector3D<Float_t> pa;   // same vertex converted to backend type
+  Float_t distance = kInfinity;
+
+  // Check every surface
+  Bool_t inside = (Abs(point.z()) < MakeMinusTolerant<true>(fDz)); // If point is inside, we need to know
+  for (int i=0; i<N; ++i) {
+    // Point A is the current vertex on lower Z. P is the point we come from.
+    pa.Set(fxa[i], fya[i], -fDz);
+    Vector3D<Float_t> vecAP = point - pa;
+    // Dot product between AP vector and normal to surface has to be positive
+    Float_t dotAPNorm = vecAP.Dot(fNormals[i]);
+    Bool_t otherside = (dotAPNorm < -10.*kTolerance);
+    // Dot product between direction and normal to surface has to be negative
+    Float_t dotDirNorm = dir.Dot(fNormals[i]);
+    Bool_t ingoing = (dotDirNorm < 0.);
+    dotDirNorm += kTiny; // Avoid division by 0 without changing result
+    // Update globally outside flag
+    inside &= otherside;
+    Bool_t valid = ingoing & (!otherside);
+    if ( IsEmpty(valid) ) continue;
+    Float_t snext = -dotAPNorm/dotDirNorm;
+    // Now propagate the point to surface and check if in range
+    Vector3D<Float_t> psurf = point + snext*dir;
+    valid &= InSurfLimits<Backend>(psurf, i);
+    MaskedAssign((!done) && valid && snext<distance, Max(snext,0.), &distance);
+  }
+  // Return -1 for points actually inside
+  MaskedAssign((!done) && inside, -1., &distance);
+  return distance;
+}
+
 template<typename Backend>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
@@ -230,11 +313,8 @@ typename Backend::precision_v DistanceToIn (
   typedef typename Backend::precision_v Float_t;
   typedef typename Backend::bool_v Bool_t;
 
-  Float_t smin[N],smax[N];
-  ComputeSminSmax<Backend>(point,dir,smin,smax);
-
-  // now we need to analyse which of those distances is good
-  // does not vectorize
+  // Planar case
+  if (fisplanar) return DistanceToInPlanar<Backend>(point,dir,done);
   Float_t crtdist;
   Vector3D<Float_t> hit;
   Float_t resultdistance(kInfinity);
@@ -258,7 +338,7 @@ typename Backend::precision_v DistanceToIn (
     Float_t  DeltaX = vertexX[j]-vertexX[i];
     Float_t  DeltaY = vertexY[j]-vertexY[i];
     cross  = ( point.x() - vertexX[i] ) * DeltaY - ( point.y() - vertexY[i] ) * DeltaX;
-    inside &= (cross > 1.e-6);
+    inside &= (cross > 1.e-8);
   }
   
   // If on the wrong side, return -1.
@@ -266,7 +346,13 @@ typename Backend::precision_v DistanceToIn (
   MaskedAssign(inside & (!done), wrongsidedist, &resultdistance);
   Bool_t checked = inside | done;
   if (IsFull(checked)) return (resultdistance);
+
+  // Now solve the second degree equation to find crossings
+  Float_t smin[N],smax[N];
+  ComputeSminSmax<Backend>(point,dir,smin,smax);
   
+  // now we need to analyse which of those distances is good
+  // does not vectorize
   for (int i=0;i<N;++i){
     crtdist=smin[i];
     // Extrapolate with hit distance candidate
@@ -277,7 +363,7 @@ typename Backend::precision_v DistanceToIn (
       // Compute local un-normalized outwards normal direction and hit ratio factors
       UNormal<Backend>(hit, i, unorm, rz, r);
       // Distance have to be positive within tolerance, and crossing must be inwards
-      crossing &= ( crtdist > -tolerance) & (dir.Dot(unorm)<0.);
+      crossing &= ( crtdist > -10*tolerance) & (dir.Dot(unorm)<0.);
       // Propagated hitpoint must be on surface (rz in [0,1] checked already)
       crossing &= (r >= 0.) & (r <= 1.);
       MaskedAssign(crossing && (!checked) && crtdist<resultdistance, Max(crtdist,0.), &resultdistance);
@@ -421,7 +507,6 @@ typename Backend::precision_v DistanceToIn (
     Vector3D<typename Backend::precision_v> const &point, typename Backend::bool_v in) const {
 
   typedef typename Backend::precision_v Float_t;
-//  typedef typename Backend::int_v Int_t;
   typedef typename Backend::bool_v Bool_t;
 	
   Float_t safety = kInfinity;
@@ -493,6 +578,32 @@ typename Backend::precision_v DistanceToIn (
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Vector3D<Precision> const *GetNormals() const { return fNormals; } 
+
+//______________________________________________________________________________
+  /// Computes if point on surface isurf is within surface limits
+  template<typename Backend>
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  typename Backend::bool_v InSurfLimits(
+    Vector3D<typename Backend::precision_v> const &point, int isurf) const {
+  
+  typedef typename Backend::precision_v Float_t;
+  typedef typename Backend::bool_v Bool_t;
+  // Check first if Z is in range
+  Float_t rz = fDz2*(point.z()+fDz);
+  Bool_t insurf = (rz>MakeMinusTolerant<true>(0.)) & (rz<MakePlusTolerant<true>(1.));
+  if ( IsEmpty(insurf) ) return insurf;
+  
+  Float_t r = kInfinity;
+  Float_t num = (point.x() - fxa[isurf]) - rz*(fxb[isurf]-fxa[isurf]);
+  Float_t denom = (fxc[isurf]-fxa[isurf]) + rz*(fxd[isurf]-fxc[isurf]-fxb[isurf]+fxa[isurf]);
+  MaskedAssign((Abs(denom)>1.e-6), num/denom, &r);
+  num = (point.y() - fya[isurf]) - rz*(fyb[isurf]-fya[isurf]);
+  denom = (fyc[isurf]-fya[isurf]) + rz*(fyd[isurf]-fyc[isurf]-fyb[isurf]+fya[isurf]);
+  MaskedAssign((Abs(denom)>1.e-6), num/denom, &r);
+  insurf &= (r > MakeMinusTolerant<true>(0.)) & (r < MakePlusTolerant<true>(1.));
+  return insurf;
+}  
 
 //______________________________________________________________________________
   /// Computes un-normalized normal to surface isurf, on the input point

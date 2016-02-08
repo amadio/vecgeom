@@ -129,20 +129,18 @@ bool UnplacedGenTrap::ComputeIsTwisted()
  }
 
 //______________________________________________________________________________
-// computes if this gentrap is convex
+// computes if this gentrap top and bottom quadrilaterals are convex
 VECGEOM_CUDA_HEADER_BOTH
-bool UnplacedGenTrap::ComputeIsConvex()
+bool UnplacedGenTrap::ComputeIsConvexQuadrilaterals()
 {
-// Convexity is assured if the generic trap is planar and if one of the top or
-// bottom faces is a convex quadrilateral.
-  if (fIsTwisted) return false;
-  // All cross products of consecutive segments should be negative or zero
   for (int i=0; i<4; ++i) {
     int j = (i+1)%4;
     Precision crossij = fVertices[i].x()*fVertices[j].y()-fVertices[j].x()*fVertices[i].y();
     if (crossij > 0) return false;
+    crossij = fVertices[i+4].x()*fVertices[j+4].y()-fVertices[j+4].x()*fVertices[i+4].y();
+    if (crossij > 0) return false;
   }
-  return true;  
+  return true;
 }
 
 //______________________________________________________________________________
@@ -217,7 +215,7 @@ void UnplacedGenTrap::Print() const {
     printf("   vx = %f mm", fVertices[i].x());
     printf("   vy = %f mm\n", fVertices[i].y());
   }
-  printf("   planar: %s  convex: %s\n", IsPlanar() ? "true":"false", fIsConvex ? "true" : "false");
+  printf("   planar: %s\n", IsPlanar() ? "true":"false");
 }
 
 //______________________________________________________________________________
@@ -236,7 +234,7 @@ void UnplacedGenTrap::Print(std::ostream &os) const {
            << "   vx = " << fVertices[i].x() << " mm"
            << "   vy = " << fVertices[i].y() << " mm\n";
       }
-    os << "   planar: " << IsPlanar() << "  convex: " << fIsConvex << std::endl;
+    os << "   planar: " << IsPlanar() << std::endl;
     os.precision(oldprc);
 }
 

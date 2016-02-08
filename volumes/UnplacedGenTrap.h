@@ -39,8 +39,6 @@ public:
   Precision fInverseDz;
   Precision fHalfInverseDz;
   bool fIsTwisted;
-  bool fIsConvex;
-
 
   // we store the connecting vectors in SOA Form
   // these vectors are used to calculate the polygon at a certain z-height
@@ -68,7 +66,7 @@ public:
                   fBoundingBoxOrig(0.,0.,0.),
                   fVertices(), fVerticesX(),  fVerticesY(),
                   fDz(halfzheight), fInverseDz(1./halfzheight), fHalfInverseDz(0.5/halfzheight),
-                  fIsTwisted(false), fIsConvex(false),
+                  fIsTwisted(false),
                   fConnectingComponentsX(), fConnectingComponentsY(),
                   fDeltaX(), fDeltaY(),
                   fSurfaceShell(vertices, halfzheight)
@@ -119,7 +117,14 @@ public:
       printf("ERROR: Unplaced generic trap defined with crossing opposite segments\n");
       Print();
       return;
-    }	  
+    }
+    
+    // Check that top and bottom quadrilaterals are convex
+    if (!ComputeIsConvexQuadrilaterals()) {
+      printf("ERROR: Unplaced generic trap defined with top/bottom quadrilaterals not convex\n");
+      Print();
+      return;
+    }
       
     // initialize the connecting components
     for (int i=0;i<4;++i){
@@ -138,8 +143,7 @@ public:
       fDeltaY[i+4] = fVerticesY[j+4]-fVerticesY[i+4];
     }
     fIsTwisted = ComputeIsTwisted();
-    fIsConvex = ComputeIsConvex();
-    //std::cout << "twisted= " << fIsTwisted << "  convex= " << fIsConvex << std::endl;
+    //std::cout << "twisted= " << fIsTwisted ? "true":"false" << std::endl;
     ComputeBoundingBox();
 
   }
@@ -167,9 +171,9 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   bool ComputeIsTwisted();
 
-  // computes if this gentrap is twisted
+  // computes if the top and bottom quadrilaterals are convex (mandatory)
   VECGEOM_CUDA_HEADER_BOTH
-  bool ComputeIsConvex();
+  bool ComputeIsConvexQuadrilaterals();
   
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -177,7 +181,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  bool IsConvex() const override { return (fIsConvex); }
+  bool IsConvex() const override { return (!fIsTwisted); }
  
   // computes if opposite segments are crossing, making a malformed shape
   // This can become a general utility

@@ -13,21 +13,22 @@ int main() {
 
   std::vector<Vector3D<Precision> > vertexlist;
   // no twist
-  vertexlist.push_back( Vector3D<Precision>(-3,-3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>(-3, 3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>( 3, 3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>( 3,-3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>(-3,-3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>(-3, 3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>( 3, 3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>( 3,-3, 0 ) );
+  vertexlist.push_back( Vector3D<Precision>(-3,-2.5, 0 ) );
+  vertexlist.push_back( Vector3D<Precision>(-2.5, 3, 0 ) );
+  vertexlist.push_back( Vector3D<Precision>( 3, 2.5, 0 ) );
+  vertexlist.push_back( Vector3D<Precision>( 2.5,-3, 0 ) );
+  vertexlist.push_back( Vector3D<Precision>(-2,-2, 0 ) );
+  vertexlist.push_back( Vector3D<Precision>(-2, 2, 0 ) );
+  vertexlist.push_back( Vector3D<Precision>( 2, 2, 0 ) );
+  vertexlist.push_back( Vector3D<Precision>( 2,-2, 0 ) );
 
   UnplacedGenTrap trapUnplaced1( &vertexlist[0], 10 );
+  trapUnplaced1.Print();
 
   LogicalVolume world = LogicalVolume("world", &worldUnplaced);
   LogicalVolume trap = LogicalVolume("gentrap", &trapUnplaced1);
 
-  Transformation3D placement(5, 5, 5);
+  Transformation3D placement(0, 0, 0);
   world.PlaceDaughter("gentrap", &trap, &placement);
 
   VPlacedVolume *worldPlaced = world.Place();
@@ -38,7 +39,7 @@ int main() {
   tester.SetVerbosity(2);
   tester.SetRepetitions(1);
   tester.SetPoolMultiplier(1); // set this if we want to compare results
-  tester.SetPointCount(10000);
+  tester.SetPointCount(1000000);
   tester.RunInsideBenchmark();
   tester.RunToOutBenchmark();
   tester.SetToInBias(0.8);
