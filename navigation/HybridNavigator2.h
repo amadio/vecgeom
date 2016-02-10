@@ -177,8 +177,8 @@ public:
 
   VECGEOM_INLINE
   virtual bool CheckDaughterIntersections(LogicalVolume const *lvol, Vector3D<Precision> const &localpoint,
-                                          Vector3D<Precision> const &localdir, NavigationState const &in_state,
-                                          NavigationState &out_state, Precision &step,
+                                          Vector3D<Precision> const &localdir, NavigationState const & /*in_state*/,
+                                          NavigationState & /*out_state*/, Precision &step,
                                           VPlacedVolume const *&hitcandidate) const override {
     static __thread HybridManager2::BoxIdDistancePair_t hitlist[VECGEOM_MAXDAUGHTERS] = {};
     if(lvol->GetDaughtersp()->size() == 0) return false;

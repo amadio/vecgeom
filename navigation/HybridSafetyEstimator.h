@@ -114,8 +114,8 @@ public:
 
   // vector interface
   VECGEOM_INLINE
-  virtual void ComputeSafetyForLocalPoints(SOA3D<Precision> const &localpoints, VPlacedVolume const *pvol,
-                                           Precision *safeties) const override {
+    virtual void ComputeSafetyForLocalPoints(SOA3D<Precision> const & /*localpoints*/, VPlacedVolume const * /*pvol*/,
+					     Precision * /*safeties*/) const override {
 //    // a stack based workspace array
 //    static __thread ABBoxManager::BoxIdDistancePair_t boxsafetylist[VECGEOM_MAXDAUGHTERS] = {};
 //

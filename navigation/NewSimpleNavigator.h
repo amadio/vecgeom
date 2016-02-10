@@ -86,7 +86,7 @@ public:
   VECGEOM_INLINE
   virtual bool
   CheckDaughterIntersections(LogicalVolume const *lvol, Vector3D<Precision> const & localpoint, Vector3D<Precision> const & localdir,
-                             NavigationState const & in_state, NavigationState & out_state, Precision & step, VPlacedVolume const *&hitcandidate) const override {
+                             NavigationState const & /*in_state*/, NavigationState & /*out_state*/, Precision & step, VPlacedVolume const *&hitcandidate) const override {
 
     // iterate over all daughters
     auto *daughters = lvol->GetDaughtersp();
@@ -124,10 +124,10 @@ public:
   // Vector specialization for NewSimpleNavigator
   // TODO: unify with scalar use case
   template <typename T, unsigned int ChunkSize> // we may go to Backend as template parameter in future
-  static void DaughterIntersectionsLooper(VNavigator const *nav, LogicalVolume const *lvol,
+static void DaughterIntersectionsLooper(VNavigator const * /*nav*/, LogicalVolume const *lvol,
                                           Vector3D<T> const &localpoint, Vector3D<T> const &localdir,
 //                                          NavStatePool const &in_states, NavStatePool &out_states,
-                                          NavigationState const **in_states, NavigationState **out_states,
+					NavigationState const ** /*in_states*/, NavigationState ** /*out_states*/,
                                           unsigned int from_index, Precision *out_steps,
                                           VPlacedVolume const *hitcandidates[ChunkSize]) {
     // dispatch to vector implementation
