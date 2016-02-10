@@ -41,13 +41,13 @@ public:
         fDepth( depth ),
         fBuffer( new char[NavigationState::SizeOf( depth )*size ] ),
         fGPUPointer( NULL )
-    {
+   {
 
 #if !defined(VECGEOM_NVCC) && defined(VECGEOM_CUDA)
         vecgeom::CudaMalloc( &fGPUPointer, NavigationState::SizeOf(depth)*size );
 #endif
         // now create the states
-        for(int i=0;i<fCapacity;++i){
+        for(int i=0;i<(int)fCapacity;++i){
             NavigationState::MakeInstanceAt( depth, fBuffer + NavigationState::SizeOf(depth)*i );
         }
     }
@@ -111,7 +111,7 @@ public:
     VECGEOM_CUDA_HEADER_BOTH
     void ToPlainPointerArray(NavigationState const **&array) const {
       array = new NavigationState const *[fCapacity];
-      for (size_t i = 0; i < fCapacity; ++i) {
+      for (int i = 0; i < fCapacity; ++i) {
         array[i] = (*this)[i];
       }
     }
@@ -120,7 +120,7 @@ public:
     VECGEOM_CUDA_HEADER_BOTH
     void ToPlainPointerArray(NavigationState **&array) {
       array = new NavigationState *[fCapacity];
-      for (size_t i = 0; i < fCapacity; ++i) {
+      for (int i = 0; i < fCapacity; ++i) {
         array[i] = (*this)[i];
       }
     }
