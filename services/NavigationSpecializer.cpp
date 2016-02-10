@@ -335,7 +335,7 @@ void TabulatedTransData::EmitVectorGlobalTransformationCode(std::ostream &outstr
   outstream << "auto index = PathToIndex( in_states[trackindex] );\n";
   outstream << "// caching this index in internal navigationstate for later reuse\n";
   outstream << "// we know that is safe to do this because of static analysis (never do this in user code)\n";
-  outstream << "internal[trackindex]->SetCache(index);\n";
+  outstream << "internal[trackindex]->SetCacheValue(index);\n";
   for(size_t i=0;i<3;++i){
     if(fTransCoefficients[i].size() > 0 && !(fTransIsConstant[i])){
         outstream << fVecTransVariableName[i] << "[i] = " << fTransVariableName[i] << ";\n";
@@ -527,7 +527,8 @@ void NavigationSpecializer::DumpPathToIndexFunction(std::ostream &outstream) {
   int sizeaccum = 1;
   for (auto &mapelement : fIndexMap) {
     outstream << "{\n"; // anonymous scope;
-    outstream << "size_t levelindex;\n";
+    outstream << "// it might be better to init to -1 ( to detect possible inconsitencies )\n";
+    outstream << "size_t levelindex(0);\n";
     outstream << "switch (path->ValueAt( " << mapelement.first << " )){\n";
     // iterate over possible values
     for (auto &valueindexpair : mapelement.second) {
@@ -1565,7 +1566,7 @@ void NavigationSpecializer::DumpStaticTreatGlobalToLocalTransformationFunction(s
   // TODO: check if we have to do anything at all ( check for unity )
   outstream << "// caching this index in internal navigationstate for later reuse\n";
   outstream << "// we know that is safe to do this because of static analysis (never do this in user code)\n";
-  outstream << "internal->SetCache(index);\n";
+  outstream << "internal->SetCacheValue(index);\n";
   fGlobalTransData.EmitScalarGlobalTransformationCode(outstream);
   outstream <<  "}\n";
 }
@@ -1606,7 +1607,7 @@ void NavigationSpecializer::DumpStaticTreatDistanceToMotherFunction(std::ostream
 void NavigationSpecializer::DumpStaticPrepareOutstateFunction(std::ostream &outstream) const {
 
   outstream << "VECGEOM_INLINE static Precision PrepareOutState(NavigationState const &in_state, NavigationState "
-               "&out_state, Precision geom_step, Precision step_limit, VPlacedVolume const *hitcandidate){\n";
+               "&out_state, Precision geom_step, Precision step_limit, VPlacedVolume const *hitcandidate, bool &done){\n";
   // now we have the candidates and we prepare the out_state
 
   outstream
@@ -1615,11 +1616,13 @@ void NavigationSpecializer::DumpStaticPrepareOutstateFunction(std::ostream &outs
 
   outstream << "// this is just the first try -- we should factor out the following part which is probably not \n";
   outstream << "// special code\n";
+  outstream << "done = false;\n";
 
   outstream << "if (geom_step == kInfinity && step_limit > 0.) {"
                "geom_step = vecgeom::kTolerance;"
                "out_state.SetBoundaryState(true);"
                "out_state.Pop();"
+               "done=true;"
                "return geom_step;"
                "}\n";
 
@@ -1761,7 +1764,7 @@ void NavigationSpecializer::DumpRelocateMethod(std::ostream &outstream) const {
     outstream << "if( out_state.Top() == in_state.Top() ){\n";
   }
   outstream << "// this was probably calculated before \n";
-   outstream << "auto pathindex = out_state.GetCache();\n";
+   outstream << "auto pathindex = out_state.GetCacheValue();\n";
   outstream << "if(pathindex < 0){ pathindex = PathToIndex(&in_state);\n }";
 
   for (size_t i = 0; i < fTransitionOrder.size(); ++i) {
@@ -1911,6 +1914,8 @@ void NavigationSpecializer::DumpLocalHitDetectionFunction(std::ostream &outstrea
                  "in_state, out_state);\n";
   } else {
     // put specialized local hit detection ( probably only useful for small number of daughters )
+    outstream << " assert(false && \"reached unimplemented point\");\n";
+    outstream << " return -1;\n";
   }
 
   // function closing

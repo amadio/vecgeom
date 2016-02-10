@@ -19,6 +19,7 @@
 #include "navigation/HybridLevelLocator.h"
 #include "navigation/HybridNavigator2.h"
 #include "management/HybridManager2.h"
+#define BENCH_GENERATED_NAVIGATOR
 #ifdef BENCH_GENERATED_NAVIGATOR
 #include "navigation/GeneratedNavigator.h"
 #endif
@@ -57,7 +58,7 @@
 
 using namespace vecgeom;
 
-bool NavStateUnitTest() {
+void NavStateUnitTest() {
   NavigationState *state1 = NavigationState::MakeInstance(10);
   NavigationState *state2 = NavigationState::MakeInstance(10);
   // test - 0 ( one empty path )
