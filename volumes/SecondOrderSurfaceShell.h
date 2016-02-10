@@ -313,7 +313,7 @@ public:
       Float_t DeltaX = vertexX[j] - vertexX[i];
       Float_t DeltaY = vertexY[j] - vertexY[i];
       cross = (point.x() - vertexX[i]) * DeltaY - (point.y() - vertexY[i]) * DeltaX;
-      inside &= (cross > 1.e-8);
+      inside &= (cross > tolerance);
     }
 
     // If on the wrong side, return -1.
