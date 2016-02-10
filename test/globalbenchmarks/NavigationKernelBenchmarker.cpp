@@ -19,7 +19,7 @@
 #include "navigation/HybridLevelLocator.h"
 #include "navigation/HybridNavigator2.h"
 #include "management/HybridManager2.h"
-#define BENCH_GENERATED_NAVIGATOR
+//#define BENCH_GENERATED_NAVIGATOR
 #ifdef BENCH_GENERATED_NAVIGATOR
 #include "navigation/GeneratedNavigator.h"
 #endif
