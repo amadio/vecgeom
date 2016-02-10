@@ -226,8 +226,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     // Local point has to be translated in the bbox local frame.
     BoxImplementation<translation::kIdentity, rotation::kIdentity>::GenericKernelForContainsAndInside<Backend,
                                                                                                       ForInside>(
-        unplaced.fBBdimensions, localPoint - unplaced.fBBorigin, completelyinside,
-        completelyoutside);
+        unplaced.fBBdimensions, localPoint - unplaced.fBBorigin, completelyinside, completelyoutside);
     //  if (Backend::early_returns) {
     if (IsFull(completelyoutside)) {
       return;
@@ -401,8 +400,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     typename Backend::int_v planeid(-1);
     Vector3D<Float_t> hitpoint;
     BoxImplementation<translation::kIdentity, rotation::kIdentity>::DistanceToInKernel2<Backend>(
-        unplaced.fBBdimensions, point - unplaced.fBBorigin, direction, stepMax, bbdistance, &planeid,
-        &hitpoint);
+        unplaced.fBBdimensions, point - unplaced.fBBorigin, direction, stepMax, bbdistance, &planeid, &hitpoint);
 #else
     BoxImplementation<translation::kIdentity, rotation::kIdentity>::DistanceToInKernel<Backend>(
         unplaced.fBBdimensions, point - unplaced.fBBorigin, direction, stepMax, bbdistance);

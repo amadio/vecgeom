@@ -8,8 +8,8 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE( class UnplacedGenTrap; )
-VECGEOM_DEVICE_DECLARE_CONV( UnplacedGenTrap )
+VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedGenTrap;)
+VECGEOM_DEVICE_DECLARE_CONV(UnplacedGenTrap)
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -22,8 +22,8 @@ class UnplacedGenTrap : public VUnplacedVolume, public AlignedBase {
 public:
   using Vertex_t = Vector3D<Precision>;
 
-  Vertex_t fBBdimensions;  // Bounding box dimensions
-  Vertex_t fBBorigin;      // Bounding box origin
+  Vertex_t fBBdimensions; // Bounding box dimensions
+  Vertex_t fBBorigin;     // Bounding box origin
 
   // the eight points that define the Arb8
   // actually we will neglect the z coordinates of those
@@ -52,17 +52,16 @@ public:
   Precision fDeltaX[8]; // int  j = (i + 1) % 4;
   Precision fDeltaY[8];
 
-  // Utility class for twisted surface algorithms 
+  // Utility class for twisted surface algorithms
   SecondOrderSurfaceShell<4> fSurfaceShell;
 
 public:
   // constructor
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedGenTrap(const Precision verticesx[], const Precision verticesy[], Precision halfzheight)
-      : fBBdimensions(0., 0., 0.), fBBorigin(0., 0., 0.), fVertices(), fVerticesX(),
-        fVerticesY(), fDz(halfzheight), fInverseDz(1. / halfzheight), fHalfInverseDz(0.5 / halfzheight),
-        fIsTwisted(false), fConnectingComponentsX(), fConnectingComponentsY(), fDeltaX(), fDeltaY(),
-        fSurfaceShell(verticesx, verticesy, halfzheight) {
+      : fBBdimensions(0., 0., 0.), fBBorigin(0., 0., 0.), fVertices(), fVerticesX(), fVerticesY(), fDz(halfzheight),
+        fInverseDz(1. / halfzheight), fHalfInverseDz(0.5 / halfzheight), fIsTwisted(false), fConnectingComponentsX(),
+        fConnectingComponentsY(), fDeltaX(), fDeltaY(), fSurfaceShell(verticesx, verticesy, halfzheight) {
     for (int i = 0; i < 4; ++i) {
       fVertices[i].operator[](0) = verticesx[i];
       fVertices[i].operator[](1) = verticesy[i];
@@ -155,7 +154,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Vertex_t const &GetVertex(int i) const { return fVertices[i]; }
-  
+
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   const Precision *GetVerticesX() const { return fVerticesX; }
@@ -199,7 +198,6 @@ public:
   virtual void Print() const final;
 
   virtual void Print(std::ostream &os) const final;
-
 
 #ifdef VECGEOM_CUDA_INTERFACE
   size_t DeviceSizeOf() const final { return DevicePtr<cuda::UnplacedGenTrap>::SizeOf(); }
@@ -251,13 +249,12 @@ public:
   virtual std::string GetEntityType() const { return "GenTrap"; }
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
-  VECGEOM_CUDA_HEADER_DEVICE
-      static VPlacedVolume* Create(LogicalVolume const *const logical_volume,
-             Transformation3D const *const transformation,
+  VECGEOM_CUDA_HEADER_DEVICE static VPlacedVolume *Create(LogicalVolume const *const logical_volume,
+                                                          Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
-             const int id,
+                                                          const int id,
 #endif
-             VPlacedVolume *const placement = NULL);
+                                                          VPlacedVolume *const placement = NULL);
 
 /*
   VECGEOM_CUDA_HEADER_DEVICE
@@ -270,11 +267,10 @@ public:
                                                 VPlacedVolume *const placement = NULL);
 */
 #if defined(VECGEOM_USOLIDS)
-  std::ostream& StreamInfo(std::ostream &os) const;
+  std::ostream &StreamInfo(std::ostream &os) const;
 #endif
 
 private:
-
   VECGEOM_CUDA_HEADER_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,

@@ -56,8 +56,7 @@ void UnplacedGenTrap::Extent(Vertex_t &aMin, Vertex_t &aMax) const {
 
 //______________________________________________________________________________
 VECGEOM_CUDA_HEADER_BOTH
-bool UnplacedGenTrap::SegmentsCrossing(Vertex_t p, Vertex_t p1, Vertex_t q,
-                                       Vertex_t q1) const {
+bool UnplacedGenTrap::SegmentsCrossing(Vertex_t p, Vertex_t p1, Vertex_t q, Vertex_t q1) const {
   // Check if 2 segments defined by (p,p1) and (q,q1) are crossing.
   using Vector = Vertex_t;
   Vector r = p1 - p; // p1 = p+r
@@ -244,8 +243,8 @@ void UnplacedGenTrap::Print(std::ostream &os) const {
 }
 
 #if defined(VECGEOM_USOLIDS)
-  VECGEOM_CUDA_HEADER_BOTH
-  std::ostream& UnplacedGenTrap::StreamInfo(std::ostream &os) const {
+VECGEOM_CUDA_HEADER_BOTH
+std::ostream &UnplacedGenTrap::StreamInfo(std::ostream &os) const {
   int oldprc = os.precision(16);
   os << "--------------------------------------------------------\n"
      //     << "    *** Dump for solid - " << GetName() << " *** \n"
@@ -260,8 +259,8 @@ void UnplacedGenTrap::Print(std::ostream &os) const {
   }
   os << "   planar: " << IsPlanar() << std::endl;
   os.precision(oldprc);
-    return os;
-  }
+  return os;
+}
 #endif
 
 //
@@ -282,13 +281,12 @@ VPlacedVolume *UnplacedGenTrap::SpecializedVolume(LogicalVolume const *const vol
 
 //______________________________________________________________________________
 template <TranslationCode trans_code, RotationCode rot_code>
-VECGEOM_CUDA_HEADER_DEVICE
-    VPlacedVolume *
-    UnplacedGenTrap::Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
+VECGEOM_CUDA_HEADER_DEVICE VPlacedVolume *UnplacedGenTrap::Create(LogicalVolume const *const logical_volume,
+                                                                  Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
-                            const int id,
+                                                                  const int id,
 #endif
-                            VPlacedVolume *const placement) {
+                                                                  VPlacedVolume *const placement) {
   if (placement) {
     new (placement) SpecializedGenTrap<trans_code, rot_code>(logical_volume, transformation
 #ifdef VECGEOM_NVCC
@@ -328,14 +326,14 @@ VPlacedVolume *UnplacedGenTrap::CreateSpecializedVolume(LogicalVolume const *con
 //______________________________________________________________________________
 DevicePtr<cuda::VUnplacedVolume> UnplacedGenTrap::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const {
   // Copy vertices on GPU, then create the object
-  Precision *xv_gpu_ptr = AllocateOnGpu<Precision>( 8*sizeof(Precision) );
-  Precision *yv_gpu_ptr = AllocateOnGpu<Precision>( 8*sizeof(Precision) );
-  
-  vecgeom::CopyToGpu(fVerticesX, xv_gpu_ptr, 8*sizeof(Precision));
-  vecgeom::CopyToGpu(fVerticesY, yv_gpu_ptr, 8*sizeof(Precision));
-    
-  DevicePtr<cuda::VUnplacedVolume> gpugentrap = CopyToGpuImpl<UnplacedGenTrap>(
-        in_gpu_ptr, xv_gpu_ptr, yv_gpu_ptr, GetDZ());
+  Precision *xv_gpu_ptr = AllocateOnGpu<Precision>(8 * sizeof(Precision));
+  Precision *yv_gpu_ptr = AllocateOnGpu<Precision>(8 * sizeof(Precision));
+
+  vecgeom::CopyToGpu(fVerticesX, xv_gpu_ptr, 8 * sizeof(Precision));
+  vecgeom::CopyToGpu(fVerticesY, yv_gpu_ptr, 8 * sizeof(Precision));
+
+  DevicePtr<cuda::VUnplacedVolume> gpugentrap =
+      CopyToGpuImpl<UnplacedGenTrap>(in_gpu_ptr, xv_gpu_ptr, yv_gpu_ptr, GetDZ());
   FreeFromGpu(xv_gpu_ptr);
   FreeFromGpu(yv_gpu_ptr);
   return gpugentrap;
@@ -353,8 +351,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedGenTrap::CopyToGpu() const { return Cop
 namespace cxx {
 
 template size_t DevicePtr<cuda::UnplacedGenTrap>::SizeOf();
-template void DevicePtr<cuda::UnplacedGenTrap>::Construct(
-        Precision *, Precision *, Precision) const;
+template void DevicePtr<cuda::UnplacedGenTrap>::Construct(Precision *, Precision *, Precision) const;
 
 } // End cxx namespace
 

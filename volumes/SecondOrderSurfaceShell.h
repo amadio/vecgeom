@@ -26,7 +26,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <int N> class SecondOrderSurfaceShell {
 
-using Vertex_t = Vector3D<Precision>;
+  using Vertex_t = Vector3D<Precision>;
 
 private:
   // caching some important values for each of the curved planes
@@ -60,21 +60,21 @@ private:
 
 public:
   VECGEOM_CUDA_HEADER_BOTH
-  SecondOrderSurfaceShell(const Precision *verticesx, const Precision *verticesy,
-        Precision dz) : fDz(dz), fDz2(0.5 / dz) {
+  SecondOrderSurfaceShell(const Precision *verticesx, const Precision *verticesy, Precision dz)
+      : fDz(dz), fDz2(0.5 / dz) {
     Vertex_t va, vb, vc, vd;
     for (int i = 0; i < N; ++i) {
       int j = (i + 1) % N;
       va.Set(verticesx[i], verticesy[i], -dz);
       fxa[i] = verticesx[i];
       fya[i] = verticesy[i];
-      vb.Set(verticesx[i+N], verticesy[i+N], dz);
+      vb.Set(verticesx[i + N], verticesy[i + N], dz);
       fxb[i] = verticesx[i + N];
       fyb[i] = verticesy[i + N];
       vc.Set(verticesx[j], verticesy[j], -dz);
       fxc[i] = verticesx[j];
       fyc[i] = verticesy[j];
-      vd.Set(verticesx[j+N], verticesy[j+N], dz);
+      vd.Set(verticesx[j + N], verticesy[j + N], dz);
       fxd[i] = verticesx[N + j];
       fyd[i] = verticesy[N + j];
       ftx1[i] = fDz2 * (fxb[i] - fxa[i]);
@@ -215,8 +215,8 @@ public:
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
 
-    Vertex_t va; // vertex i of lower base
-    Vector3D<Float_t> pa;   // same vertex converted to backend type
+    Vertex_t va;          // vertex i of lower base
+    Vector3D<Float_t> pa; // same vertex converted to backend type
     Float_t distance = kInfinity;
 
     // Check every surface
@@ -253,8 +253,8 @@ public:
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
 
-    Vertex_t va; // vertex i of lower base
-    Vector3D<Float_t> pa;   // same vertex converted to backend type
+    Vertex_t va;          // vertex i of lower base
+    Vector3D<Float_t> pa; // same vertex converted to backend type
     Float_t distance = kInfinity;
 
     // Check every surface
@@ -413,8 +413,8 @@ public:
 
     // loop lateral surfaces
     // We can use the surface normals to get safety for non-curved surfaces
-    Vertex_t va; // vertex i of lower base
-    Vector3D<Float_t> pa;   // same vertex converted to backend type
+    Vertex_t va;          // vertex i of lower base
+    Vector3D<Float_t> pa; // same vertex converted to backend type
     int count = 0;
     if (fisplanar) {
       for (int i = 0; i < N; ++i) {
@@ -465,8 +465,8 @@ public:
 
     // loop lateral surfaces
     // We can use the surface normals to get safety for non-curved surfaces
-    Vertex_t va; // vertex i of lower base
-    Vector3D<Float_t> pa;   // same vertex converted to backend type
+    Vertex_t va;          // vertex i of lower base
+    Vector3D<Float_t> pa; // same vertex converted to backend type
     int count = 0;
     if (fisplanar) {
       for (int i = 0; i < N; ++i) {
