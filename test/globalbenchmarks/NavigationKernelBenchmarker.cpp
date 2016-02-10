@@ -15,11 +15,13 @@
 #include "navigation/SimpleNavigator.h"
 #include "navigation/NewSimpleNavigator.h"
 #include "navigation/SimpleABBoxNavigator.h"
-#include "navigation/GeneratedNavigator.h"
 #include "navigation/SimpleABBoxLevelLocator.h"
 #include "navigation/HybridLevelLocator.h"
 #include "navigation/HybridNavigator2.h"
 #include "management/HybridManager2.h"
+#ifdef BENCH_GENERATED_NAVIGATOR
+#include "navigation/GeneratedNavigator.h"
+#endif
 
 #ifdef VECGEOM_ROOT
 #include "TGeoNavigator.h"
@@ -296,11 +298,13 @@ void benchDifferentNavigators(SOA3D<Precision> const &points,
   std::cerr << "##\n";
   RUNBENCH(benchNavigator<NewSimpleNavigator<true>>(points, dirs, pool,outpool));
   std::cerr << "##\n";
+#ifdef BENCH_GENERATED_NAVIGATOR
   RUNBENCH(benchNavigator<GeneratedNavigator>(points, dirs, pool, outpool));
   outpool.ToFile("generatedoutpool.bin");
   std::cerr << "##\n";
   RUNBENCH(benchVectorNavigator<GeneratedNavigator>(points, dirs, pool, outpool));
   std::cerr << "##\n";
+#endif
   RUNBENCH(benchVectorNavigator<NewSimpleNavigator<false>>(points, dirs, pool, outpool));
   std::cerr << "##\n";
   RUNBENCH(benchVectorNavigator<NewSimpleNavigator<true>>(points, dirs, pool, outpool));
