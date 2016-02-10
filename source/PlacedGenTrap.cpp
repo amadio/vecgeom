@@ -22,17 +22,19 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+//______________________________________________________________________________
 VECGEOM_CUDA_HEADER_BOTH
-
 void PlacedGenTrap::PrintType() const { printf("PlacedGenTrap"); }
 
 #ifndef VECGEOM_NVCC
 
+//______________________________________________________________________________
 VPlacedVolume const *PlacedGenTrap::ConvertToUnspecialized() const {
   return new SimpleGenTrap(GetLabel().c_str(), logical_volume_, GetTransformation());
 }
 
 #ifdef VECGEOM_ROOT
+//______________________________________________________________________________
 TGeoShape const *PlacedGenTrap::ConvertToRoot() const {
   double vertexarray[16];
   for (int i = 0; i < 8; ++i) {
@@ -44,6 +46,7 @@ TGeoShape const *PlacedGenTrap::ConvertToRoot() const {
 #endif
 
 #ifdef VECGEOM_USOLIDS
+//______________________________________________________________________________
 ::VUSolid const *PlacedGenTrap::ConvertToUSolids() const {
   std::vector<UVector2> vertices;
   for (int i = 0; i < 8; ++i) {
@@ -54,6 +57,7 @@ TGeoShape const *PlacedGenTrap::ConvertToRoot() const {
 #endif
 
 #ifdef VECGEOM_GEANT4
+//______________________________________________________________________________
 G4VSolid const *PlacedGenTrap::ConvertToGeant4() const {
   std::vector<G4TwoVector> vertices;
   for (int i = 0; i < 8; ++i) {

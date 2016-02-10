@@ -25,86 +25,116 @@ class PlacedGenTrap : public VPlacedVolume {
 public:
 #ifndef VECGEOM_NVCC
 
+  /** @brief PlacedGenTrap constructor
+  * @param label Name of the object
+  * @param logicalVolume Logical volume
+  * @param transformation Transformation matrix (local to mother)
+  * @param halfzheight The half-height of the GenTrap
+  * @param boundingBox Bounding box
+  */
   PlacedGenTrap(char const *const label, LogicalVolume const *const logicalVolume,
                 Transformation3D const *const transformation, PlacedBox const *const boundingBox)
       : VPlacedVolume(label, logicalVolume, transformation, boundingBox) {}
 
+  /** @brief PlacedGenTrap constructor
+  * @param logicalVolume Logical volume
+  * @param transformation Transformation matrix (local to mother)
+  * @param halfzheight The half-height of the GenTrap
+  * @param boundingBox Bounding box
+  */
   PlacedGenTrap(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
                 PlacedBox const *const boundingBox)
       : PlacedGenTrap("", logicalVolume, transformation, boundingBox) {}
 
 #else
 
+  /** @brief PlacedGenTrap device constructor
+  * @param logicalVolume Logical volume
+  * @param transformation Transformation matrix (local to mother)
+  * @param halfzheight The half-height of the GenTrap
+  * @param boundingBox Bounding box
+  */
   __device__ PlacedGenTrap(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
                            PlacedBox const *const boundingBox, const int id)
       : VPlacedVolume(logicalVolume, transformation, boundingBox, id) {}
 
 #endif
+  /** @brief PlacedGenTrap destructor */
   VECGEOM_CUDA_HEADER_BOTH
   virtual ~PlacedGenTrap() {}
 
-  // Accessors
-
+  /** @brief Getter for unplaced volume */
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedGenTrap const *GetUnplacedVolume() const {
     return static_cast<UnplacedGenTrap const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
-  // method giving access to members of unplaced ...
+  /** @brief Getter for one of the 8 vertices in Vector3D<Precision> form */
   VECGEOM_CUDA_HEADER_BOTH
   Vector3D<Precision> const &GetVertex(int i) const { return GetUnplacedVolume()->GetVertex(i); }
 
+  /** @brief Getter for the half-height */
   VECGEOM_CUDA_HEADER_BOTH
   Precision GetDZ() const { return GetUnplacedVolume()->GetDZ(); }
 
 #if !defined(VECGEOM_NVCC)
+  /** @brief Interface method for computing capacity */
   virtual Precision Capacity() override { return GetUnplacedVolume()->volume(); }
 
+  /** @brief Computes the extent on X/Y/Z of the trapezoid */
   virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override {
     GetUnplacedVolume()->Extent(aMin, aMax);
   }
 
+  /** @brief Shortcut for computing the normal */
   virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override {
-    //    return false;
-
     bool valid;
-    GenTrapImplementation<translation::kIdentity, rotation::kIdentity>::NormalKernel<kScalar>(*GetUnplacedVolume(),
-                                                                                              point, normal, valid);
+    GenTrapImplementation<translation::kIdentity, rotation::kIdentity>::NormalKernel<kScalar>(*GetUnplacedVolume(),                                                                                              point, normal, valid);
     return valid;
   }
 
+  /** @brief Generates randomly a point on the surface of the trapezoid */
   virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface(); }
 
+  /** @brief Implementation of surface area computation */
   virtual double SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
 
 #if defined(VECGEOM_USOLIDS)
+  /** @brief Get type name */
   virtual std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType(); }
 #endif
 #endif
 
+  /** @brief Print type name */
   VECGEOM_CUDA_HEADER_BOTH
   virtual void PrintType() const override;
 
   // CUDA specific
 
+  /** @brief Memory size in bytes */
   VECGEOM_INLINE
   virtual int memory_size() const override { return sizeof(*this); }
 
 // Comparison specific
 
 #if defined(VECGEOM_USOLIDS)
+  /** @brief Stream trapezoid information in the USolids style */
   std::ostream &StreamInfo(std::ostream &os) const override { return GetUnplacedVolume()->StreamInfo(os); }
 #endif
 
 #ifndef VECGEOM_NVCC
+  /** @brief Convert to unspecialized placement */
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
+  /** @brief Convert to ROOT shape */
   virtual TGeoShape const *ConvertToRoot() const override;
 #endif
 #if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
+  /** @brief Convert to USolids solid */
   virtual ::VUSolid const *ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4
+  /** @brief Convert to Geant4 solid */
   virtual G4VSolid const *ConvertToGeant4() const override;
 #endif
 

@@ -13,7 +13,7 @@
 
 namespace vecgeom {
 /**
- * class providing a (SOA) encapsulation of
+ * Templated class providing a (SOA) encapsulation of
  * second order curved surfaces used in generic trap
  */
 VECGEOM_DEVICE_FORWARD_DECLARE(class SecondOrderSurfaceShell;)
@@ -26,38 +26,35 @@ template <int N> class SecondOrderSurfaceShell {
 
 private:
   // caching some important values for each of the curved planes
-  Precision fxa[N], fya[N], fxb[N], fyb[N], fxc[N], fyc[N], fxd[N], fyd[N];
-  Precision ftx1[N], fty1[N], ftx2[N], fty2[N];
+  Precision fxa[N], fya[N], fxb[N], fyb[N], fxc[N], fyc[N], fxd[N], fyd[N]; /** Coordinates of vertices */
+  Precision ftx1[N], fty1[N], ftx2[N], fty2[N]; /** Connecting components */
+  Precision ft1crosst2[N]; /** Cross term ftx1[i]*fty2[i] - ftx2[i]*fty1[i] */
+  Precision fDeltatx[N]; /** Term ftx2[i] - ftx1[i] */
+  Precision fDeltaty[N]; /** Term fty2[i] - fty1[i] */
 
-  // the cross term ftx1[i]*fty2[i] - ftx2[i]*fty1[i]
-  Precision ft1crosst2[N];
-  // the term ftx2[i] - ftx1[i];
-  Precision fDeltatx[N];
-  // the term fty2[i] - fty1[i]
-  Precision fDeltaty[N];
+  Precision fDz;  /** height of surface (coming from the height of the GenTrap) */
+  Precision fDz2; /** 0.5/fDz */
+  Precision fiscurved[N]; /** Indicate which surfaces are planar */
+  bool fisplanar; /** Flag that all surfaces are planar */
 
-  // height of surface (coming from the height of the GenTrap)
-  Precision fDz;
-  Precision fDz2; // 0.5/fDz
-
-  // indicate which surfaces are planar
-  Precision fiscurved[N];
-
-  // flag that all surfaces are planar
-  bool fisplanar;
-
-  // pre-computed normals
-  Vertex_t fNormals[N];
+  Vertex_t fNormals[N]; /** Pre-computed normals for the planar case */
 
   // pre-computed cross products for normal computation
-  Vertex_t fViCrossHi0[N];
-  Vertex_t fViCrossVj[N];
-  Vertex_t fHi1CrossHi0[N];
+  Vertex_t fViCrossHi0[N]; /** Pre-computed vi X hi0 */
+  Vertex_t fViCrossVj[N]; /** Pre-computed vi X vj */
+  Vertex_t fHi1CrossHi0[N]; /** Pre-computed hi1 X hi0 */
 
 public:
+  /** @brief SecondOrderSurfaceShell constructor
+  * @param verticesx X positions of vertices in array form
+  * @param verticesy Y positions of vertices in array form
+  * @param dz The half-height of the GenTrap
+  */
   VECGEOM_CUDA_HEADER_BOTH
   SecondOrderSurfaceShell(const Precision *verticesx, const Precision *verticesy, Precision dz)
       : fDz(dz), fDz2(0.5 / dz) {
+    // Constructor
+    // Store vertex coordinates
     Vertex_t va, vb, vc, vd;
     for (int i = 0; i < N; ++i) {
       int j = (i + 1) % N;
@@ -94,17 +91,11 @@ public:
       fViCrossHi0[i] = Vertex_t::Cross(vb - va, vc - va);
       fViCrossVj[i] = Vertex_t::Cross(vb - va, vd - vc);
       fHi1CrossHi0[i] = Vertex_t::Cross(vd - vb, vc - va);
-#ifdef GENTRAPDEB
-      std::cout << "fNormals[" << i << "] = " << fNormals[i] << std::endl;
-#endif
     }
 
-    // analyse planarity and precompute normals
+    // Analyze planarity and precompute normals
     fisplanar = true;
     for (int i = 0; i < N; ++i) {
-      //            int j = (i+1)%N;
-      //            fiscurved[i] = ((Abs(fDeltatx[i]) < kTolerance) && (Abs(fDeltaty[i]) < kTolerance)
-      //                    && (Abs(ft1crosst2[i]) < kTolerance))? 0 : 1 ;   // this test does not seem to work
       fiscurved[i] = (((Abs(fxc[i] - fxa[i]) < kTolerance) && (Abs(fyc[i] - fya[i]) < kTolerance)) ||
                       ((Abs(fxd[i] - fxb[i]) < kTolerance) && (Abs(fyd[i] - fyb[i]) < kTolerance)) ||
                       (Abs((fxc[i] - fxa[i]) * (fyd[i] - fyb[i]) - (fxd[i] - fxb[i]) * (fyc[i] - fya[i])) < kTolerance))
@@ -112,36 +103,17 @@ public:
                          : 1;
       if (fiscurved[i])
         fisplanar = false;
-#ifdef GENTRAPDEB
-      printf("fiscurved[%d] = %s", i, fiscurved[i] ? "true" : "false");
-#endif
     }
   }
 
-  /// The type returned is the type corresponding to the backend given
+//______________________________________________________________________________
   template <typename Backend>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE
-      /**
-       * A generic function calculation the distance to a set of curved/planar surfaces
-       * The calculations:
-       * a) autovectorizes largely then Backend=scalar
-       * b) vectorizes by definition when Backend=Vc by use of the Vc library
-       * c) unifies the treatment of curved/planar surfaces as much as possible to render internal vectorization
-       *possible
-       *
-       * Possible improvements could be: distinguish code for planar / curved at some places. Might speed up in
-       *particular the external vectorization
-       * ( need a template specialization for some parts of code )
-       * moreover we could get rid of some runtime if statements ( shape specialization ... )
-       *
-       * things to improve: error handling for boundary cases
-       *
-       * very likely: this kernel will not be efficient when we have only planar surfaces
-       *
-       * another possibility relies on the following idea:
-       * we always have an even number of planar/curved surfaces. We could organize them in separate substructures...
-       */
-      typename Backend::precision_v
+  /** @brief Compute distance to a set of curved/planar surfaces
+   * @param point Starting point in the local frame
+   * @param dir Direction in the local frame
+   */
+  typename Backend::precision_v
       DistanceToOut(Vector3D<typename Backend::precision_v> const &point,
                     Vector3D<typename Backend::precision_v> const &dir) const {
 
@@ -152,7 +124,9 @@ public:
     if (fisplanar)
       return DistanceToOutPlanar<Backend>(point, dir);
 
-    Float_t tolerance = 100. * kTolerance;
+    // The algorithmic tolerance in distance
+    const Float_t tolerance = 100. * kTolerance;
+
     Float_t dist(kInfinity);
     Float_t smin[N], smax[N];
     Vector3D<Float_t> unorm;
@@ -163,6 +137,7 @@ public:
     Float_t vertexX[N];
     Float_t vertexY[N];
     Float_t dzp = fDz + point[2];
+
     // Point may be on the wrong side - check this
     for (int i = 0; i < N; i++) {
       // calculate x-y positions of vertex i at this z-height
@@ -174,7 +149,7 @@ public:
       Float_t DeltaX = vertexX[j] - vertexX[i];
       Float_t DeltaY = vertexY[j] - vertexY[i];
       cross = (point.x() - vertexX[i]) * DeltaY - (point.y() - vertexY[i]) * DeltaX;
-      inside &= (cross > -1.e-6);
+      inside &= (cross > -tolerance);
     }
     // If on the wrong side, return -1.
     Float_t wrongsidedist = -1.;
@@ -182,10 +157,11 @@ public:
     if (IsEmpty(inside))
       return dist;
 
+    // Solve the second order equation and return distance solutions for each surface
     ComputeSminSmax<Backend>(point, dir, smin, smax);
 
     for (int i = 0; i < N; ++i) {
-      // Check if point(s) is(are) on boundary
+      // Check if point(s) is(are) on boundary, and in this case compute normal
       Bool_t crtbound = (Abs(smin[i]) < tolerance || Abs(smax[i]) < tolerance);
       if (!IsEmpty(crtbound)) {
         if (fiscurved[i])
@@ -194,6 +170,7 @@ public:
           unorm = fNormals[i];
       }
       // Starting point may be propagated close to boundary
+      // === MaskedMultipleAssign needed
       MaskedAssign(inside && Abs(smin[i]) < tolerance && dir.Dot(unorm) < 0, kInfinity, &smin[i]);
       MaskedAssign(inside && Abs(smax[i]) < tolerance && dir.Dot(unorm) < 0, kInfinity, &smax[i]);
 
@@ -203,6 +180,11 @@ public:
     return (dist);
   } // end of function
 
+//______________________________________________________________________________
+  /** @brief Compute distance to exiting the set of surfaces in the planar case.
+   * @param point Starting point in the local frame
+   * @param dir Direction in the local frame
+   */
   template <typename Backend>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE typename Backend::precision_v
   DistanceToOutPlanar(Vector3D<typename Backend::precision_v> const &point,
@@ -241,6 +223,11 @@ public:
     return distance;
   }
 
+//______________________________________________________________________________
+  /** @brief Compute distance to entering the set of surfaces in the planar case.
+   * @param point Starting point in the local frame
+   * @param dir Direction in the local frame
+   */
   template <typename Backend>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE typename Backend::precision_v
   DistanceToInPlanar(Vector3D<typename Backend::precision_v> const &point,
@@ -282,23 +269,13 @@ public:
     return distance;
   }
 
+//______________________________________________________________________________
   template <typename Backend>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE
       /**
       * A generic function calculation the distance to a set of curved/planar surfaces
-      * The calculations:
-      * a) autovectorizes largely then Backend=scalar
-      * b) vectorizes by definition when Backend=Vc by use of the Vc library
-      * c) unifies the treatment of curved/planar surfaces as much as possible to render internal vectorization possible
-      *
-      * Possible improvements could be: distinguish code for planar / curved at some places. Might speed up in
-      *particular the external vectorization
-      * ( need a template specialization for some parts of code )
-      * moreover we could get rid of some runtime if statements ( shape specialization ... )
       *
       * things to improve: error handling for boundary cases
-      *
-      * very likely: this kernel will not be efficient when we have only planar surfaces
       *
       * another possibility relies on the following idea:
       * we always have an even number of planar/curved surfaces. We could organize them in separate substructures...
@@ -387,12 +364,13 @@ public:
 
   } // end distanceToIn function
 
+//______________________________________________________________________________
   /**
-   * A generic function calculation for the safety to a set of curved/planar surfaces.
+   * @brief A generic function calculation for the safety to a set of curved/planar surfaces.
            Should be smaller than safmax
+   * @param point Starting point inside, in the local frame
+   * @param safmax current safety value
    */
-  //______________________________________________________________________________
-  /// The type returned is the type corresponding to the backend given
   template <typename Backend>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE typename Backend::precision_v
   SafetyToOut(Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v const &safmax) const {
@@ -443,8 +421,13 @@ public:
 
   } // end SafetyToOut
 
-  //______________________________________________________________________________
-  /// The type returned is the type corresponding to the backend given
+//______________________________________________________________________________
+  /**
+   * @brief A generic function calculation for the safety to a set of curved/planar surfaces.
+           Should be smaller than safmax
+   * @param point Starting point outside, in the local frame
+   * @param safmax current safety value
+   */
   template <typename Backend>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE typename Backend::precision_v
   SafetyToIn(Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v const &safmax) const {
@@ -495,8 +478,13 @@ public:
 
   } // end SafetyToIn
 
-  //______________________________________________________________________________
-  /// The type returned is the type corresponding to the backend given
+//______________________________________________________________________________
+  /**
+   * @brief A generic function calculation for the safety to a set of curved/planar surfaces.
+           Should be smaller than safmax
+   * @param point Starting point
+   * @param in Inside value for starting point
+   */
   template <typename Backend>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE typename Backend::precision_v
   SafetyCurved(Vector3D<typename Backend::precision_v> const &point, typename Backend::bool_v in) const {
@@ -575,8 +563,12 @@ public:
   VECGEOM_INLINE
   Vertex_t const *GetNormals() const { return fNormals; }
 
-  //______________________________________________________________________________
-  /// Computes if point on surface isurf is within surface limits
+//______________________________________________________________________________
+  /**
+   * @brief Computes if point on surface isurf is within surface limits
+   * @param point Starting point
+   * @param isurf Surface index
+   */
   template <typename Backend>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE typename Backend::bool_v
   InSurfLimits(Vector3D<typename Backend::precision_v> const &point, int isurf) const {
@@ -601,7 +593,7 @@ public:
   }
 
   //______________________________________________________________________________
-  /// Computes un-normalized normal to surface isurf, on the input point
+  /** @brief Computes un-normalized normal to surface isurf, on the input point */
   template <typename Backend>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE void UNormal(Vector3D<typename Backend::precision_v> const &point, int isurf,
                                                        Vector3D<typename Backend::precision_v> &unorm,
@@ -634,6 +626,8 @@ public:
             r * (Vector3D<Float_t>)fHi1CrossHi0[isurf];
   } // end UNormal
 
+//______________________________________________________________________________
+  /** @brief Solver for the second degree equation for curved surface crossing */
   template <typename Backend>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE
       /**

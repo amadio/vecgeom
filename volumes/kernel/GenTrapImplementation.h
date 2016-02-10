@@ -131,6 +131,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
   //**** implementations start here
   //********************************/
 
+//______________________________________________________________________________
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   template <typename Backend>
   VECGEOM_CUDA_HEADER_BOTH void GenTrapImplementation<transCodeT, rotCodeT>::Contains(
@@ -142,6 +143,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     ContainsKernel<Backend>(unplaced, localPoint, inside);
   }
 
+//______________________________________________________________________________
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   template <typename Backend>
   VECGEOM_CUDA_HEADER_BOTH void GenTrapImplementation<transCodeT, rotCodeT>::UnplacedContains(
@@ -151,6 +153,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     ContainsKernel<Backend>(box, localPoint, inside);
   }
 
+//______________________________________________________________________________
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   template <typename Backend>
   VECGEOM_CUDA_HEADER_BOTH void GenTrapImplementation<transCodeT, rotCodeT>::Inside(
@@ -160,6 +163,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     InsideKernel<Backend>(unplaced, transformation.Transform<transCodeT, rotCodeT>(point), inside);
   }
 
+//______________________________________________________________________________
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToIn(
@@ -171,6 +175,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
                                 transformation.TransformDirection<rotCodeT>(direction), stepMax, distance);
   }
 
+//______________________________________________________________________________
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToOut(
@@ -181,6 +186,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     DistanceToOutKernel<Backend, false>(unplaced, point, direction, stepMax, distance);
   }
 
+//______________________________________________________________________________
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE void GenTrapImplementation<transCodeT, rotCodeT>::SafetyToIn(
@@ -190,6 +196,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     SafetyToInKernel<Backend>(unplaced, transformation.Transform<transCodeT, rotCodeT>(point), safety);
   }
 
+//______________________________________________________________________________
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE void GenTrapImplementation<transCodeT, rotCodeT>::SafetyToOut(
@@ -199,6 +206,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     SafetyToOutKernel<Backend>(unplaced, point, safety);
   }
 
+//______________________________________________________________________________
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   template <typename Backend>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE void GenTrapImplementation<transCodeT, rotCodeT>::ContainsKernel(
@@ -212,6 +220,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     inside = !outside;
   }
 
+//______________________________________________________________________________
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   template <typename Backend, bool ForInside>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE void
@@ -222,19 +231,14 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
     constexpr Precision tolerancesq = 10000. * kTolerance * kTolerance;
-    // Add stronger check against the bounding box, which can allow early returns if point is outside.
     // Local point has to be translated in the bbox local frame.
     BoxImplementation<translation::kIdentity, rotation::kIdentity>::GenericKernelForContainsAndInside<Backend,
                                                                                                       ForInside>(
-        unplaced.fBBdimensions, localPoint - unplaced.fBBorigin, completelyinside, completelyoutside);
+      unplaced.fBBdimensions, localPoint - unplaced.fBBorigin, completelyinside, completelyoutside);
     //  if (Backend::early_returns) {
     if (IsFull(completelyoutside)) {
       return;
     }
-    //  }
-
-    //  if (ForInside)  {
-    //    completelyinside = Abs(localPoint.z()) < MakeMinusTolerant<ForInside>( unplaced.fDz );
     //  }
 
     // analyse z
@@ -251,8 +255,6 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
       vertexY[i] = unplaced.fVerticesY[i + 4] + cf * unplaced.fConnectingComponentsY[i];
     }
 
-    // I currently found out that it is beneficial to keep the early return
-    // in disfavor of the vectorizing solution; should be reinvestigated on AVX
     for (int i = 0; i < 4; i++) {
       // this is based on the following idea:
       // we decided for each edge whether the point is above or below the
@@ -282,6 +284,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     }
   }
 
+//______________________________________________________________________________
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE void GenTrapImplementation<transCodeT, rotCodeT>::InsideKernel(
@@ -297,6 +300,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     MaskedAssign(completelyinside, EInside::kInside, &inside);
   }
 
+//______________________________________________________________________________
   template <bool IsSIMD, class Backend> struct FillPlaneDataHelper {
     VECGEOM_CUDA_HEADER_BOTH
     VECGEOM_INLINE
@@ -319,7 +323,8 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     }
   };
 
-  // a partial template specialization for nonSIMD cases (scalar, cuda, ... )
+//______________________________________________________________________________
+  /** @brief A partial template specialization for nonSIMD cases (scalar, cuda, ... ) */
   template <class Backend> struct FillPlaneDataHelper<false, Backend> {
     VECGEOM_CUDA_HEADER_BOTH
     static void FillPlaneData(UnplacedGenTrap const &unplaced, typename Backend::precision_v &cornerx,
@@ -334,6 +339,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     }
   };
 
+//______________________________________________________________________________
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE
       // optimized "inside" check for top or bottom z-surfaces
@@ -375,6 +381,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     return !completelyoutside;
   }
 
+//______________________________________________________________________________
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
@@ -424,25 +431,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     std::cerr << "prolongated to box:  x " << x << " y " << y << " z " << z << "\n";
 #endif
 
-/*some particle could hit z*/
-#ifdef GENTRAP_USENEWBB
-#pragma message("WITH IMPROVED BB")
-    if (!IsEmpty(planeid == 2)) {
-      Bool_t top = direction.z() < 0;
-      Bool_t hits = IsInTopOrBottomPolygon<Backend>(unplaced, hitpoint.x(), hitpoint.y(), top);
-#ifdef GENTRAPDEB
-      std::cerr << " top/bottom hit result " << hits << " \n";
-#endif
-      MaskedAssign(hits, bbdistance, &distance);
-      done |= hits;
-      if (IsFull(done))
-        return;
-    }
-#else // do this check again
-    //#pragma message("WITH OLD BB")
-    // IDEA: we don't need to do this if bbox does not hit z planes
-    // IDEA2: and if bbbox hits z-plane everything here is already calculated
-    //  Float_t snext;
+    // some particle could hit z
     Float_t zsafety = Abs(point.z()) - unplaced.fDz;
     Bool_t canhitz = zsafety > MakeMinusTolerant<true>(0.);
     canhitz &= point.z() * direction.z() < 0; // coming towards the origin
@@ -471,11 +460,9 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
 #ifdef GENTRAPDEB
       std::cerr << " hit result " << hits << " bbdistance " << distance << "\n";
 #endif
-
       if (IsFull(done))
         return;
     }
-#endif
 
     // now treat lateral surfaces
     Float_t disttoplanes = unplaced.GetShell().DistanceToIn<Backend>(point, direction, done);
@@ -487,9 +474,9 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
 #ifdef GENTRAPDEB
     std::cerr << distance << "\n";
 #endif
-    //  std::cerr << std::endl;
   }
 
+//______________________________________________________________________________
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   template <class Backend, bool treatNormal>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
@@ -515,6 +502,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     distance = Min(distmin, distplane);
   }
 
+//______________________________________________________________________________
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE void GenTrapImplementation<transCodeT, rotCodeT>::SafetyToInKernel(
@@ -540,6 +528,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     safety = unplaced.GetShell().SafetyToIn<Backend>(point, safety);
   }
 
+//______________________________________________________________________________
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH void GenTrapImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(
@@ -551,6 +540,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     safety = unplaced.GetShell().SafetyToOut<Backend>(point, safety);
   }
 
+//______________________________________________________________________________
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH void GenTrapImplementation<transCodeT, rotCodeT>::NormalKernel(
@@ -627,6 +617,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     normal.Normalize();
   }
 
+//______________________________________________________________________________
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH void GenTrapImplementation<transCodeT, rotCodeT>::GetClosestEdge(

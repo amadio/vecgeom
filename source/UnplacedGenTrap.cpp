@@ -17,6 +17,94 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 //______________________________________________________________________________
 VECGEOM_CUDA_HEADER_BOTH
+UnplacedGenTrap::UnplacedGenTrap(const Precision verticesx[], const Precision verticesy[], Precision halfzheight)
+    : fBBdimensions(0., 0., 0.), fBBorigin(0., 0., 0.), fVertices(), fVerticesX(), fVerticesY(), fDz(halfzheight),
+      fInverseDz(1. / halfzheight), fHalfInverseDz(0.5 / halfzheight), fIsTwisted(false), fConnectingComponentsX(),
+      fConnectingComponentsY(), fDeltaX(), fDeltaY(), fSurfaceShell(verticesx, verticesy, halfzheight) {
+  // Constructor
+  
+  // Set vertices in Vector3D form
+  for (int i = 0; i < 4; ++i) {
+    fVertices[i].operator[](0) = verticesx[i];
+    fVertices[i].operator[](1) = verticesy[i];
+    fVertices[i].operator[](2) = -halfzheight;
+  }
+  for (int i = 4; i < 8; ++i) {
+    fVertices[i].operator[](0) = verticesx[i];
+    fVertices[i].operator[](1) = verticesy[i];
+    fVertices[i].operator[](2) = halfzheight;
+  }
+
+  // Make sure vertices are defined clockwise
+  Precision sum1 = 0.;
+  Precision sum2 = 0.;
+  for (int i = 0; i < 4; ++i) {
+    int j = (i + 1) % 4;
+    sum1 += fVertices[i].x() * fVertices[j].y() - fVertices[j].x() * fVertices[i].y();
+    sum2 += fVertices[i + 4].x() * fVertices[j + 4].y() - fVertices[j + 4].x() * fVertices[i + 4].y();
+  }
+
+  // Me should generate an exception here
+  if (sum1 * sum2 < -kTolerance) {
+    printf("ERROR: Unplaced generic trap defined with opposite clockwise\n");
+    Print();
+    return;
+  }
+
+  // Revert sequence of vertices to have them clockwise
+  if (sum1 > kTolerance) {
+    printf("INFO: Reverting to clockwise vertices of GenTrap shape:\n");
+    Print();
+    Vertex_t vtemp;
+    vtemp = fVertices[1];
+    fVertices[1] = fVertices[3];
+    fVertices[3] = vtemp;
+    vtemp = fVertices[5];
+    fVertices[5] = fVertices[7];
+    fVertices[7] = vtemp;
+  }
+
+  // Check that opposite segments are not crossing -> fatal exception
+  if (SegmentsCrossing(fVertices[0], fVertices[1], fVertices[3], fVertices[2]) ||
+      SegmentsCrossing(fVertices[1], fVertices[2], fVertices[0], fVertices[3]) ||
+      SegmentsCrossing(fVertices[4], fVertices[5], fVertices[7], fVertices[6]) ||
+      SegmentsCrossing(fVertices[5], fVertices[6], fVertices[4], fVertices[7])) {
+    printf("ERROR: Unplaced generic trap defined with crossing opposite segments\n");
+    Print();
+    return;
+  }
+
+  // Check that top and bottom quadrilaterals are convex
+  if (!ComputeIsConvexQuadrilaterals()) {
+    printf("ERROR: Unplaced generic trap defined with top/bottom quadrilaterals not convex\n");
+    Print();
+    return;
+  }
+
+  // Initialize the vertices components and connecting components
+  for (int i = 0; i < 4; ++i) {
+    fConnectingComponentsX[i] = (fVertices[i] - fVertices[i + 4]).x();
+    fConnectingComponentsY[i] = (fVertices[i] - fVertices[i + 4]).y();
+    fVerticesX[i] = fVertices[i].x();
+    fVerticesX[i + 4] = fVertices[i + 4].x();
+    fVerticesY[i] = fVertices[i].y();
+    fVerticesY[i + 4] = fVertices[i + 4].y();
+  }
+    
+  // Initialize components of horizontal connecting vectors
+  for (int i = 0; i < 4; ++i) {
+    int j = (i + 1) % 4;
+    fDeltaX[i] = fVerticesX[j] - fVerticesX[i];
+    fDeltaX[i + 4] = fVerticesX[j + 4] - fVerticesX[i + 4];
+    fDeltaY[i] = fVerticesY[j] - fVerticesY[i];
+    fDeltaY[i + 4] = fVerticesY[j + 4] - fVerticesY[i + 4];
+  }
+  fIsTwisted = ComputeIsTwisted();
+  ComputeBoundingBox();
+}
+  
+//______________________________________________________________________________
+VECGEOM_CUDA_HEADER_BOTH
 void UnplacedGenTrap::ComputeBoundingBox() {
   // Computes bounding box parameters
   Vertex_t aMin, aMax;
@@ -58,6 +146,7 @@ void UnplacedGenTrap::Extent(Vertex_t &aMin, Vertex_t &aMax) const {
 VECGEOM_CUDA_HEADER_BOTH
 bool UnplacedGenTrap::SegmentsCrossing(Vertex_t p, Vertex_t p1, Vertex_t q, Vertex_t q1) const {
   // Check if 2 segments defined by (p,p1) and (q,q1) are crossing.
+  // See: http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
   using Vector = Vertex_t;
   Vector r = p1 - p; // p1 = p+r
   Vector s = q1 - q; // q1 = q+s
@@ -77,8 +166,8 @@ bool UnplacedGenTrap::SegmentsCrossing(Vertex_t p, Vertex_t p1, Vertex_t q, Vert
 // computes if this gentrap is twisted
 VECGEOM_CUDA_HEADER_BOTH
 bool UnplacedGenTrap::ComputeIsTwisted() {
-  // Computes tangents of twist angles (angles between projections on XY plane
-  // of corresponding -dz +dz edges).
+  // Check if the trapezoid is twisted. A lateral face is twisted if the top and
+  // bottom segments are not parallel (cross product not null)
 
   bool twisted = false;
   double dx1, dy1, dx2, dy2;
@@ -103,37 +192,25 @@ bool UnplacedGenTrap::ComputeIsTwisted() {
       continue;
     }
     twisted = true;
-
-    // SetTwistAngle(i, twist_angle);
-    // Check on big angles, potentially navigation problem
-
-    // calculate twist angle
-    // twist_angle = std::acos((dx1 * dx2 + dy1 * dy2)
-    //                        /(std::sqrt(dx1 * dx1 + dy1 * dy1)
-    //                        *std::sqrt(dx2 * dx2 + dy2 * dy2)));
-
-    //   if (std::fabs(twist_angle) > 0.5 * UUtils::kPi + VUSolid::fgTolerance)
-    //   {
-    //     std::ostringstream message;
-    //     message << "Twisted Angle is bigger than 90 degrees - " << GetName()
-    //             << std::endl
-    //             << "     Potential problem of malformed Solid !" << std::endl
-    //             << "     TwistANGLE = " << twist_angle
-    //             << "*rad  for lateral plane N= " << i;
-    //   }
   }
   return twisted;
 }
 
 //______________________________________________________________________________
-// computes if this gentrap top and bottom quadrilaterals are convex
 VECGEOM_CUDA_HEADER_BOTH
 bool UnplacedGenTrap::ComputeIsConvexQuadrilaterals() {
+  // Computes if this gentrap top and bottom quadrilaterals are convex. The vertices
+  // have to be pre-ordered clockwise in the XY plane.
+ 
+  // The cross product of all vector pairs corresponding to ordered consecutive
+  // segments has to be positive.
   for (int i = 0; i < 4; ++i) {
     int j = (i + 1) % 4;
+    // Bottom face
     Precision crossij = fVertices[i].x() * fVertices[j].y() - fVertices[j].x() * fVertices[i].y();
     if (crossij > 0)
       return false;
+    // Top face  
     crossij = fVertices[i + 4].x() * fVertices[j + 4].y() - fVertices[j + 4].x() * fVertices[i + 4].y();
     if (crossij > 0)
       return false;
@@ -146,7 +223,7 @@ Vector3D<Precision> UnplacedGenTrap::GetPointOnSurface() const {
   // Generate randomly a point on one of the surfaces
   // Select randomly a surface
   Vertex_t point;
-#ifndef VECGEOM_NVCC
+#ifndef VECGEOM_NVCC  // CUDA does not support RNG:: for now
   int i = int(RNG::Instance().uniform(0., 6.));
   if (i < 4) {
     int j = (i + 1) % 4;
@@ -201,10 +278,51 @@ Vector3D<Precision> UnplacedGenTrap::GetPointOnSurface() const {
       }
     }
   }
-  // Now point inside
+  // Set point coordinates
   point.Set(x, y, z);
 #endif // VECGEOM_NVCC
   return point;
+}
+
+//______________________________________________________________________________
+Precision UnplacedGenTrap::SurfaceArea() const {
+  // Computes analytically the surface area of the trapezoid. The formula is
+  // computed by integrating along Z axis the sum of areas for infinitezimal
+  // trapezoids of each lateral surface. Since this can be twisted, the area 
+  // of each such mini-surface is computed separately for the top/bottom parts 
+  // separated by the diagonal.
+  //    vi, vj = vectors bottom->top for each lateral surface // j=(i+1)%4 
+  //    hi0 = vector connecting consecutive bottom vertices
+  Vertex_t vi, vj, hi0, vres;
+  Precision surfTop = 0.;
+  Precision surfBottom = 0.;
+  Precision surfLateral = 0;
+  for (int i = 0; i < 4; ++i) {
+    int j = (i + 1) % 4;
+    surfBottom += 0.5 * (fVerticesX[i] * fVerticesY[j] - fVerticesX[j] * fVerticesY[i]);
+    surfTop += 0.5 * (fVerticesX[i + 4] * fVerticesY[j + 4] - fVerticesX[j + 4] * fVerticesY[i + 4]);
+    vi.Set(fVerticesX[i + 4] - fVerticesX[i], fVerticesY[i + 4] - fVerticesY[i], 2 * fDz);
+    vj.Set(fVerticesX[j + 4] - fVerticesX[j], fVerticesY[j + 4] - fVerticesY[j], 2 * fDz);
+    hi0.Set(fVerticesX[j] - fVerticesX[i], fVerticesY[j] - fVerticesY[i], 0.);
+    vres = 0.5 * (Vertex_t::Cross(vi + vj, hi0) + Vertex_t::Cross(vi, vj));
+    surfLateral += vres.Mag();
+  }
+  return (Abs(surfTop) + Abs(surfBottom) + surfLateral);
+}
+
+//______________________________________________________________________________
+Precision UnplacedGenTrap::volume() const {
+  // Computes analytically the capacity of the trapezoid
+  int i, j;
+  Precision capacity = 0;
+  for (i = 0; i < 4; i++) {
+    j = (i + 1) % 4;
+    capacity += 0.25 * fDz * ((fVerticesX[i] + fVerticesX[i + 4]) * (fVerticesY[j] + fVerticesY[j + 4]) -
+                              (fVerticesX[j] + fVerticesX[j + 4]) * (fVerticesY[i] + fVerticesY[i + 4]) +
+                              (1. / 3) * ((fVerticesX[i + 4] - fVerticesX[i]) * (fVerticesY[j + 4] - fVerticesY[j]) -
+                                          (fVerticesX[j] - fVerticesX[j + 4]) * (fVerticesY[i] - fVerticesY[i + 4])));
+  }
+  return Abs(capacity);
 }
 
 //______________________________________________________________________________
@@ -243,6 +361,7 @@ void UnplacedGenTrap::Print(std::ostream &os) const {
 }
 
 #if defined(VECGEOM_USOLIDS)
+//______________________________________________________________________________
 VECGEOM_CUDA_HEADER_BOTH
 std::ostream &UnplacedGenTrap::StreamInfo(std::ostream &os) const {
   int oldprc = os.precision(16);
@@ -263,7 +382,7 @@ std::ostream &UnplacedGenTrap::StreamInfo(std::ostream &os) const {
 }
 #endif
 
-//
+//______________________________________________________________________________
 VECGEOM_CUDA_HEADER_DEVICE
 VPlacedVolume *UnplacedGenTrap::SpecializedVolume(LogicalVolume const *const volume,
                                                   Transformation3D const *const transformation,
