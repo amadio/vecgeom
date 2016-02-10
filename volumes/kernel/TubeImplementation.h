@@ -851,7 +851,7 @@ struct TubeImplementation {
 
       Float_t safephi;
       PhiPlaneSafety<Backend, tubeTypeT, false>(tube, point, safephi);
-      MaskedAssign( safephi<kInfinity && safephi>safety, safephi, &safety );
+      MaskedAssign(!insector && safephi<kInfinity && safephi>safety, safephi, &safety );
     }
   }
 
