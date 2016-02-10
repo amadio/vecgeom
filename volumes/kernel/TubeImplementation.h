@@ -420,8 +420,7 @@ struct TubeImplementation {
 
       typedef typename Backend::bool_v Bool_t;
       Bool_t completelyinside, completelyoutside;
-      GenericKernelForContainsAndInside<Backend,true>(tube,
-          localPoint, completelyinside, completelyoutside);
+      GenericKernelForContainsAndInside<Backend,true>(tube, localPoint, completelyinside, completelyoutside);
       inside = EInside::kSurface;
       MaskedAssign(completelyoutside, EInside::kOutside, &inside);
       MaskedAssign(completelyinside,  EInside::kInside, &inside);
@@ -740,7 +739,7 @@ struct TubeImplementation {
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   static void SafetyKernel(UnplacedTube const &tube,
-                           Vector3D<typename Backend::precision_v> const &local_point,
+                           Vector3D<typename Backend::precision_v> const &point,
                            typename Backend::precision_v &safePos,
                            typename Backend::precision_v &safeNeg) {
 
@@ -753,10 +752,10 @@ struct TubeImplementation {
     safePos = kInfinity;
     safeNeg = -safePos;   // reuse to avoid casting overhead
 
-    Float_t safez = Abs(local_point.z()) - tube.z();
+    Float_t safez = Abs(point.z()) - tube.z();
     SafetyAssign<Backend>( safez, safePos, safeNeg );
 
-    Float_t r = Sqrt(local_point.x()*local_point.x() + local_point.y()*local_point.y());
+    Float_t r = Sqrt(point.x()*point.x() + point.y()*point.y());
     Float_t safermax = r - tube.rmax();
     SafetyAssign<Backend>( safermax, safePos, safeNeg );
 
@@ -767,7 +766,7 @@ struct TubeImplementation {
 
     if(checkPhiTreatment<tubeTypeT>(tube)) {
       Float_t safephi;
-      PhiPlaneSafety<Backend, tubeTypeT, false>(tube, local_point, safephi);
+      PhiPlaneSafety<Backend, tubeTypeT, false>(tube, point, safephi);
       SafetyAssign<Backend>(safephi, safePos, safeNeg);
     }
   }
@@ -824,7 +823,7 @@ struct TubeImplementation {
   VECGEOM_INLINE
   static void SafetyToInOld(UnplacedTube const &tube,
                             Transformation3D const &transformation,
-                            Vector3D<typename Backend::precision_v> const &point,
+                            Vector3D<typename Backend::precision_v> const &motherPoint,
                             typename Backend::precision_v &safety)
   {
     using namespace TubeTypes;
@@ -832,11 +831,11 @@ struct TubeImplementation {
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
 
-    Vector3D<Float_t> local_point = transformation.Transform<transCodeT,rotCodeT>(point);
+    Vector3D<Float_t> point = transformation.Transform<transCodeT,rotCodeT>(motherPoint);
 
-    safety = Abs(local_point.z()) - tube.z();
+    safety = Abs(point.z()) - tube.z();
 
-    Float_t r = Sqrt(local_point.x()*local_point.x() + local_point.y()*local_point.y());
+    Float_t r = Sqrt(point.x()*point.x() + point.y()*point.y());
     Float_t safermax = r - tube.rmax();
     MaskedAssign( safermax>safety, safermax, &safety );
 
@@ -847,11 +846,11 @@ struct TubeImplementation {
 
     if(checkPhiTreatment<tubeTypeT>(tube)) {
       Bool_t insector;
-      PointInCyclicalSector<Backend, tubeTypeT, UnplacedTube, false, false>(tube, local_point.x(), local_point.y(), insector);
+      PointInCyclicalSector<Backend, tubeTypeT, UnplacedTube, false, false>(tube, point.x(), point.y(), insector);
       if(Backend::early_returns && IsFull(insector)) return;
 
       Float_t safephi;
-      PhiPlaneSafety<Backend, tubeTypeT, false>(tube, local_point, safephi);
+      PhiPlaneSafety<Backend, tubeTypeT, false>(tube, point, safephi);
       MaskedAssign( safephi<kInfinity && safephi>safety, safephi, &safety );
     }
   }
