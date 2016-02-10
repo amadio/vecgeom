@@ -518,7 +518,7 @@ set(SRC_CPP_RELATIVE
   source/UnplacedParallelepiped.cpp
   source/UnplacedScaledShape.cpp
   source/UnplacedTrapezoid.cpp
-  source/UnplacedGenTrap.cpp	
+  source/UnplacedGenTrap.cpp
   source/UnplacedVolume.cpp
   source/Vector.cpp
   source/NavigationState.cpp
