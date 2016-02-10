@@ -698,7 +698,6 @@ set(TEST_EXECUTABLES_CORE
   ${CMAKE_SOURCE_DIR}/test/core/PlanesTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/QuadrilateralTest.cpp
 #  ${CMAKE_SOURCE_DIR}/test/core/SOATest.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/gentraptest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/Transformation3DTest.cpp
 #  ${CMAKE_SOURCE_DIR}/test/core/boolminustest.cpp
 #  ${CMAKE_SOURCE_DIR}/test/core/boolminustest2.cpp

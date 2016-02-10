@@ -1,7 +1,7 @@
 /// \file UnplacedGenTrap.cpp
+/// \author: swenzel
+///  Modified and completed: mihaela.gheata@cern.ch
 
-//#include "base/Global.h"
-//#include "backend/Backend.h"
 #include "volumes/UnplacedGenTrap.h"
 #include <ostream>
 #include <iomanip>

@@ -1156,7 +1156,6 @@ double UGenericTrap::DistanceToOut(const UVector3& p, const UVector3&  v,
     double  c = dxs * p.y() - dys * p.x() + xs1 * ys2 - xs2 * ys1;
     double  q = UUtils::kInfinity;
 
-    // this treats case when we have planes
     if (std::fabs(a) < VUSolid::fgTolerance)
     {
       if (std::fabs(b) < VUSolid::fgTolerance)
@@ -1182,8 +1181,6 @@ double UGenericTrap::DistanceToOut(const UVector3& p, const UVector3&  v,
       }
       continue;
     }
-
-    // this treats general case with quasi-twist (when all vertices are connected by lines)
     double  d = b * b - 4 * a * c;
     if (d >= 0.)
     {

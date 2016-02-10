@@ -11,36 +11,39 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedBox;)
-VECGEOM_DEVICE_DECLARE_CONV(UnplacedBox)
+VECGEOM_DEVICE_FORWARD_DECLARE( class UnplacedBox; )
+VECGEOM_DEVICE_DECLARE_CONV( UnplacedBox )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class UnplacedBox : public VUnplacedVolume, public AlignedBase {
 
 private:
+
   Vector3D<Precision> dimensions_;
 
 public:
-  UnplacedBox(Vector3D<Precision> const &dim) : dimensions_(dim) {}
+
+  UnplacedBox(Vector3D<Precision> const &dim) : dimensions_(dim) { }
 
   VECGEOM_CUDA_HEADER_BOTH
-  UnplacedBox(const Precision dx, const Precision dy, const Precision dz) : dimensions_(dx, dy, dz) {}
+  UnplacedBox(const Precision dx, const Precision dy, const Precision dz)
+      : dimensions_(dx, dy, dz) {}
 
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedBox(UnplacedBox const &other) : dimensions_(other.dimensions_) {}
 
   int memory_size() const override { return sizeof(*this); }
 
-#ifdef VECGEOM_CUDA_INTERFACE
+  #ifdef VECGEOM_CUDA_INTERFACE
   size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedBox>::SizeOf(); }
   DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
   DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
-#endif
+  #endif
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Vector3D<Precision> const &dimensions() const { return dimensions_; }
+  Vector3D<Precision> const& dimensions() const { return dimensions_; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -59,21 +62,26 @@ public:
 
 #if !defined(VECGEOM_NVCC)
   VECGEOM_INLINE
-  Precision volume() const { return 8.0 * dimensions_[0] * dimensions_[1] * dimensions_[2]; }
+  Precision volume() const {
+    return 8.0*dimensions_[0]*dimensions_[1]*dimensions_[2];
+  }
 
   Precision Capacity() { return volume(); }
 
   VECGEOM_INLINE
   Precision SurfaceArea() const {
-    // factor 8 because dimensions_ are half-lengths
-    return 8.0 * (dimensions_[0] * dimensions_[1] + dimensions_[1] * dimensions_[2] + dimensions_[2] * dimensions_[0]);
+     // factor 8 because dimensions_ are half-lengths
+     return 8.0*(dimensions_[0]*dimensions_[1] +
+             dimensions_[1]*dimensions_[2] + dimensions_[2]*dimensions_[0]);
   }
 
-  void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const;
+  void Extent( Vector3D<Precision> &, Vector3D<Precision> &) const;
 
   Vector3D<Precision> GetPointOnSurface() const;
 
-  std::string GetEntityType() const { return "Box"; }
+
+
+  std::string GetEntityType() const { return "Box";}
 #endif // !VECGEOM_NVCC
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -84,66 +92,72 @@ public:
 #ifndef VECGEOM_NVCC
 
   template <TranslationCode trans_code, RotationCode rot_code>
-  static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
+  static VPlacedVolume* Create(LogicalVolume const *const logical_volume,
+                               Transformation3D const *const transformation,
                                VPlacedVolume *const placement = NULL);
 
-  static VPlacedVolume *CreateSpecializedVolume(LogicalVolume const *const volume,
-                                                Transformation3D const *const transformation,
-                                                const TranslationCode trans_code, const RotationCode rot_code,
-                                                VPlacedVolume *const placement = NULL);
+  static VPlacedVolume* CreateSpecializedVolume(
+      LogicalVolume const *const volume,
+      Transformation3D const *const transformation,
+      const TranslationCode trans_code, const RotationCode rot_code,
+      VPlacedVolume *const placement = NULL);
 
 #else
 
   template <TranslationCode trans_code, RotationCode rot_code>
-  __device__ static VPlacedVolume *Create(LogicalVolume const *const logical_volume,
-                                          Transformation3D const *const transformation, const int id,
-                                          VPlacedVolume *const placement = NULL);
+  __device__
+  static VPlacedVolume* Create(LogicalVolume const *const logical_volume,
+                               Transformation3D const *const transformation,
+                               const int id,
+                               VPlacedVolume *const placement = NULL);
 
-  __device__ static VPlacedVolume *CreateSpecializedVolume(LogicalVolume const *const volume,
-                                                           Transformation3D const *const transformation,
-                                                           const TranslationCode trans_code,
-                                                           const RotationCode rot_code, const int id,
-                                                           VPlacedVolume *const placement = NULL);
+  __device__
+  static VPlacedVolume* CreateSpecializedVolume(
+      LogicalVolume const *const volume,
+      Transformation3D const *const transformation,
+      const TranslationCode trans_code, const RotationCode rot_code,
+      const int id, VPlacedVolume *const placement = NULL);
 
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
   void SetX(double xx) { dimensions_[0] = xx; }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
   void SetY(double yy) { dimensions_[1] = yy; }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
   void SetZ(double zz) { dimensions_[2] = zz; }
 
 #if defined(VECGEOM_USOLIDS)
-  std::ostream &StreamInfo(std::ostream &os) const;
+  std::ostream& StreamInfo(std::ostream &os) const;
 #endif
 
+
 private:
+
 #ifndef VECGEOM_NVCC
 
-  VPlacedVolume *SpecializedVolume(LogicalVolume const *const lvolume, Transformation3D const *const transformation,
-                                   const TranslationCode trans_code, const RotationCode rot_code,
-                                   VPlacedVolume *const placement = NULL) const override {
-    return CreateSpecializedVolume(lvolume, transformation, trans_code, rot_code, placement);
+  VPlacedVolume* SpecializedVolume(
+      LogicalVolume const *const lvolume,
+      Transformation3D const *const transformation,
+      const TranslationCode trans_code, const RotationCode rot_code,
+      VPlacedVolume *const placement = NULL) const override {
+    return CreateSpecializedVolume(lvolume, transformation, trans_code, rot_code,
+                                   placement);
   }
 
 #else
 
-  __device__ VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
-                                              Transformation3D const *const transformation,
-                                              const TranslationCode trans_code, const RotationCode rot_code,
-                                              const int id, VPlacedVolume *const placement = NULL) const override {
-    return CreateSpecializedVolume(volume, transformation, trans_code, rot_code, id, placement);
+  __device__
+  VPlacedVolume* SpecializedVolume(
+      LogicalVolume const *const volume,
+      Transformation3D const *const transformation,
+      const TranslationCode trans_code, const RotationCode rot_code,
+      const int id, VPlacedVolume *const placement = NULL) const override {
+    return CreateSpecializedVolume(volume, transformation, trans_code, rot_code,
+                                   id, placement);
   }
 
 #endif
+  
 };
-}
-} // End global namespace
+
+} } // End global namespace
 
 #endif // VECGEOM_VOLUMES_UNPLACEDBOX_H_

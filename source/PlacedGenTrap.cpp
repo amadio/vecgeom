@@ -1,9 +1,7 @@
-/*
- * PlacedGenTrap.cpp
- *
- *  Created on: Aug 3, 2014
- *      Author: swenzel
- */
+/// \file PlacedGenTrap.cpp
+/// \author: swenzel
+/// Created on: Aug 3, 2014
+///  Modified and completed: mihaela.gheata@cern.ch
 
 #include "volumes/GenTrap.h"
 

@@ -1,3 +1,7 @@
+/// \file UnplacedGenTrap.h
+/// \author: swenzel
+///  Modified and completed: mihaela.gheata@cern.ch
+
 #ifndef VECGEOM_VOLUMES_UNPLACEDGENTRAP_H_
 #define VECGEOM_VOLUMES_UNPLACEDGENTRAP_H_
 

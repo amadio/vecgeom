@@ -3,7 +3,8 @@
  *
  *  Created on: Aug 3, 2014
  *      Author: swenzel
- */
+ *      Modified: mihaela.gheata@cern.ch
+*/
 
 #include "volumes/LogicalVolume.h"
 #include "volumes/GenTrap.h"
@@ -18,15 +19,15 @@ using namespace vecgeom;
 int main() {
   UnplacedBox worldUnplaced = UnplacedBox(10., 10., 10.);
 
-  std::vector<Vector3D<Precision>> vertexlist;
-  // no twist
+   // no twist
   Precision verticesx[8] = {-3, -3, 3, 3, -2, -2, 2, 2};
   Precision verticesy[8] = {-3, 3, 3, -3, -2, 2, 2, -2};
 
-  UnplacedGenTrap trapUnplaced1(verticesx, verticesy, 10);
+  UnplacedGenTrap trapUnplaced(verticesx, verticesy, 10);
+  trapUnplaced.Print();
 
   LogicalVolume world = LogicalVolume("world", &worldUnplaced);
-  LogicalVolume trap = LogicalVolume("gentrap", &trapUnplaced1);
+  LogicalVolume trap = LogicalVolume("gentrap", &trapUnplaced);
 
   Transformation3D placement(5, 5, 5);
   world.PlaceDaughter("gentrap", &trap, &placement);
@@ -36,10 +37,10 @@ int main() {
   GeoManager::Instance().SetWorld(worldPlaced);
 
   Benchmarker tester(GeoManager::Instance().GetWorld());
-  tester.SetVerbosity(3);
-  //  tester.SetRepetitions(1);
+  tester.SetVerbosity(2);
+  tester.SetRepetitions(1);
   tester.SetPoolMultiplier(1); // set this if we want to compare results
-  tester.SetPointCount(1 << 10);
-  tester.RunInsideBenchmark();
-  tester.RunToInBenchmark();
+  tester.SetPointCount(100000);
+  tester.SetToInBias(0.8);
+  tester.RunBenchmark();
 }

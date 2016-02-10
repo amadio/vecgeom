@@ -1,9 +1,7 @@
-/*
- * SecondOrderSurfaceShell.h
- *
- *  Created on: Aug 1, 2014
- *      Author: swenzel
- */
+/// \file SecondOrderSurfaceShell.h
+/// \author: swenzel
+///  Created on: Aug 1, 2014
+///  Modified and completed: mihaela.gheata@cern.ch
 
 #ifndef VECGEOM_SECONDORDERSURFACESHELL_H_
 #define VECGEOM_SECONDORDERSURFACESHELL_H_
@@ -12,8 +10,6 @@
 #include "backend/Backend.h"
 #include "volumes/kernel/GenericKernels.h"
 #include <iostream>
-
-//#define GENTRAPDEB = 1
 
 namespace vecgeom {
 /**

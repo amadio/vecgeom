@@ -1,9 +1,7 @@
-/*
- * PlacedGenTrap.h
- *
- *  Created on: Aug 3, 2014
- *      Author: swenzel
- */
+/// \file PlacedGenTrap.h
+/// \author: swenzel 
+/// Created on: Aug 3, 2014
+///  Modified and completed: mihaela.gheata@cern.ch
 
 #ifndef VECGEOM_VOLUMES_PLACEDGENTRAP_H_
 #define VECGEOM_VOLUMES_PLACEDGENTRAP_H_
