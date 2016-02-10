@@ -497,15 +497,18 @@ protected:
     // alternatively we could use nextvolumeindex like before
     if (out_state.Top() == in_state.Top()) {
       GlobalLocator::RelocatePointFromPath(pointafterboundary, out_state);
+#ifdef CHECK_RELOCATION_ERRORS
       assert(in_state.Distance(out_state)!=0 && " error relocating when leaving ");
+#endif
     } else {
       // continue directly further down ( next volume should have been stored in out_state already )
       VPlacedVolume const *nextvol = out_state.Top();
       out_state.Pop();
       GlobalLocator::LocateGlobalPoint(nextvol, nextvol->GetTransformation()->Transform(pointafterboundary), out_state,
                                        false);
-
+#ifdef CHECK_RELOCATION_ERRORS
       assert(in_state.Distance(out_state)!=0 && " error relocating when entering ");
+#endif
       return;
     }
   }
