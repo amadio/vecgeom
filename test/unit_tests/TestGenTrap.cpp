@@ -18,26 +18,15 @@ bool testvecgeom=false;
 bool TestGenTrap() {
   using Vec_t = vecgeom::Vector3D<vecgeom::Precision>;
   using namespace vecgeom;
-  std::vector<Vec_t> vertexlist1;
-  vertexlist1.push_back( Vec_t(-3,-3, -5 ) );
-  vertexlist1.push_back( Vec_t(-3, 3, -5 ) );
-  vertexlist1.push_back( Vec_t( 3, 3, -5 ) );
-  vertexlist1.push_back( Vec_t( 3,-3, -5 ) );
-  vertexlist1.push_back( Vec_t(-2,-2, 5 ) );
-  vertexlist1.push_back( Vec_t(-2, 2, 5 ) );
-  vertexlist1.push_back( Vec_t( 2, 2, 5 ) );
-  vertexlist1.push_back( Vec_t( 2,-2, 5 ) );
-  std::vector<Vec_t> vertexlist2;
-  vertexlist2.push_back( Vec_t(-3,-3, -5 ) );
-  vertexlist2.push_back( Vec_t(-3, 3, -5 ) );
-  vertexlist2.push_back( Vec_t( 3, 3, -5 ) );
-  vertexlist2.push_back( Vec_t( 3,-3, -5 ) );
-  vertexlist2.push_back( Vec_t(-2,-1.9, 5 ) );
-  vertexlist2.push_back( Vec_t(-2, 2, 5 ) );
-  vertexlist2.push_back( Vec_t( 2, 2, 5 ) );
-  vertexlist2.push_back( Vec_t( 2,-2, 5 ) );
-  SimpleGenTrap trap1("planar_trap", &vertexlist1[0], 5 );
-  SimpleGenTrap trap2("twisted_trap", &vertexlist2[0], 5 );
+  // Planar
+  Precision verticesx1[8] = {-3, -3, 3, 3, -2, -2, 2, 2};
+  Precision verticesy1[8] = {-3, 3, 3, -3, -2, 2, 2, -2};
+  // Twisted
+  Precision verticesx2[8] = {-3, -3, 3, 3, -2, -2, 2, 2};
+  Precision verticesy2[8] = {-3, 3, 3, -3, -1.9, 2, 2, -2};
+
+  SimpleGenTrap trap1("planar_trap", verticesx1, verticesy1, 5 );
+  SimpleGenTrap trap2("twisted_trap", verticesx2, verticesy2, 5 );
 
 // Some particular points
   Vec_t pzero(0,0,0);
@@ -127,7 +116,7 @@ bool TestGenTrap() {
     assert(Dist<0.);
     for (int i=0; i<8; i++) {
       // Shoot to every vertex of the twisted trapezoid
-      direction = vertexlist2[i];
+      direction.Set(verticesx2[i], verticesy2[i], (i<4)?-5:5);
       Distref = direction.Mag();
       direction.Normalize();
       Dist=trap2.DistanceToOut(pzero,direction,normal,convex);

@@ -5,12 +5,11 @@
 #include "base/AlignedBase.h"
 #include "volumes/UnplacedVolume.h"
 #include "volumes/SecondOrderSurfaceShell.h"
-#include "volumes/UnplacedBox.h" // for bounding box
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedGenTrap;)
-VECGEOM_DEVICE_DECLARE_CONV(UnplacedGenTrap)
+VECGEOM_DEVICE_FORWARD_DECLARE( class UnplacedGenTrap; )
+VECGEOM_DEVICE_DECLARE_CONV( UnplacedGenTrap )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -21,14 +20,14 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class UnplacedGenTrap : public VUnplacedVolume, public AlignedBase {
 
 public:
-  typedef Vector3D<Precision> VertexType;
-  // the bounding box: half lengths and origin
-  UnplacedBox fBoundingBox;
-  Vector3D<Precision> fBoundingBoxOrig;
+  using Vertex_t = Vector3D<Precision>;
+
+  Vertex_t fBBdimensions;  // Bounding box dimensions
+  Vertex_t fBBorigin;      // Bounding box origin
 
   // the eight points that define the Arb8
   // actually we will neglect the z coordinates of those
-  Vector3D<Precision> fVertices[8];
+  Vertex_t fVertices[8];
 
   // we also store this in SOA form
   Precision fVerticesX[8];
@@ -53,23 +52,25 @@ public:
   Precision fDeltaX[8]; // int  j = (i + 1) % 4;
   Precision fDeltaY[8];
 
-  // to be done
+  // Utility class for twisted surface algorithms 
   SecondOrderSurfaceShell<4> fSurfaceShell;
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
   // constructor
-  UnplacedGenTrap(Vector3D<Precision> vertices[], Precision halfzheight)
-      : fBoundingBox(Vector3D<Precision>(0., 0., 0.)), fBoundingBoxOrig(0., 0., 0.), fVertices(), fVerticesX(),
+  VECGEOM_CUDA_HEADER_BOTH
+  UnplacedGenTrap(const Precision verticesx[], const Precision verticesy[], Precision halfzheight)
+      : fBBdimensions(0., 0., 0.), fBBorigin(0., 0., 0.), fVertices(), fVerticesX(),
         fVerticesY(), fDz(halfzheight), fInverseDz(1. / halfzheight), fHalfInverseDz(0.5 / halfzheight),
         fIsTwisted(false), fConnectingComponentsX(), fConnectingComponentsY(), fDeltaX(), fDeltaY(),
-        fSurfaceShell(vertices, halfzheight) {
+        fSurfaceShell(verticesx, verticesy, halfzheight) {
     for (int i = 0; i < 4; ++i) {
-      fVertices[i] = vertices[i];
+      fVertices[i].operator[](0) = verticesx[i];
+      fVertices[i].operator[](1) = verticesy[i];
       fVertices[i].operator[](2) = -halfzheight;
     }
     for (int i = 4; i < 8; ++i) {
-      fVertices[i] = vertices[i];
+      fVertices[i].operator[](0) = verticesx[i];
+      fVertices[i].operator[](1) = verticesy[i];
       fVertices[i].operator[](2) = halfzheight;
     }
 
@@ -93,7 +94,7 @@ public:
     if (sum1 > kTolerance) {
       printf("INFO: Reverting to clockwise vertices of GenTrap shape:\n");
       Print();
-      Vector3D<Precision> vtemp;
+      Vertex_t vtemp;
       vtemp = fVertices[1];
       fVertices[1] = fVertices[3];
       fVertices[3] = vtemp;
@@ -144,16 +145,28 @@ public:
   virtual ~UnplacedGenTrap() {}
 
   VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
   SecondOrderSurfaceShell<4> const &GetShell() const { return (fSurfaceShell); }
 
   VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
   Precision GetDZ() const { return (fDz); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VertexType const &GetVertex(int i) const {
-    //  assert(i<8);
-    return fVertices[i];
-  }
+  VECGEOM_INLINE
+  Vertex_t const &GetVertex(int i) const { return fVertices[i]; }
+  
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  const Precision *GetVerticesX() const { return fVerticesX; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  const Precision *GetVerticesY() const { return fVerticesY; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  const Vertex_t *GetVertices() const { return fVertices; }
 
   // computes if this gentrap is twisted
   VECGEOM_CUDA_HEADER_BOTH
@@ -169,51 +182,29 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  bool IsConvex() const override { return (!fIsTwisted); }
+  bool IsConvex() const final { return (!fIsTwisted); }
 
   // computes if opposite segments are crossing, making a malformed shape
   // This can become a general utility
   VECGEOM_CUDA_HEADER_BOTH
-  bool SegmentsCrossing(Vector3D<Precision> pa, Vector3D<Precision> pb, Vector3D<Precision> pc,
-                        Vector3D<Precision> pd) const;
+  bool SegmentsCrossing(Vertex_t pa, Vertex_t pb, Vertex_t pc, Vertex_t pd) const;
 
   // computes and sets the bounding box member of this class
   VECGEOM_CUDA_HEADER_BOTH
   void ComputeBoundingBox();
 
-  virtual int memory_size() const override { return sizeof(*this); }
+  virtual int memory_size() const final { return sizeof(*this); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void Print() const override;
+  virtual void Print() const final;
 
-  virtual void Print(std::ostream &os) const override;
+  virtual void Print(std::ostream &os) const final;
 
-  template <TranslationCode transCodeT, RotationCode rotCodeT>
-#ifdef VECGEOM_NVCC
-  VECGEOM_CUDA_HEADER_DEVICE
-#endif
-      static VPlacedVolume *
-      Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-#ifdef VECGEOM_NVCC
-             const int id,
-#endif
-             VPlacedVolume *const placement = NULL);
-
-#ifdef VECGEOM_NVCC
-  VECGEOM_CUDA_HEADER_DEVICE
-#endif
-  static VPlacedVolume *CreateSpecializedVolume(LogicalVolume const *const volume,
-                                                Transformation3D const *const transformation,
-                                                const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
-                                                const int id,
-#endif
-                                                VPlacedVolume *const placement = NULL);
 
 #ifdef VECGEOM_CUDA_INTERFACE
-  size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedBox>::SizeOf(); }
-  DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
-  DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
+  size_t DeviceSizeOf() const final { return DevicePtr<cuda::UnplacedGenTrap>::SizeOf(); }
+  DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const final;
+  DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const final;
 #endif
 
   Precision Capacity() { return volume(); }
@@ -235,8 +226,7 @@ public:
 
   VECGEOM_INLINE
   Precision SurfaceArea() const {
-    using Vector3 = Vector3D<Precision>;
-    Vector3 vi, vj, hi0, vres;
+    Vertex_t vi, vj, hi0, vres;
     Precision surfTop = 0.;
     Precision surfBottom = 0.;
     Precision surfLateral = 0;
@@ -247,18 +237,43 @@ public:
       vi.Set(fVerticesX[i + 4] - fVerticesX[i], fVerticesY[i + 4] - fVerticesY[i], 2 * fDz);
       vj.Set(fVerticesX[j + 4] - fVerticesX[j], fVerticesY[j + 4] - fVerticesY[j], 2 * fDz);
       hi0.Set(fVerticesX[j] - fVerticesX[i], fVerticesY[j] - fVerticesY[i], 0.);
-      vres = 0.5 * (Vector3::Cross(vi + vj, hi0) + Vector3::Cross(vi, vj));
+      vres = 0.5 * (Vertex_t::Cross(vi + vj, hi0) + Vertex_t::Cross(vi, vj));
       surfLateral += vres.Mag();
     }
     return (Abs(surfTop) + Abs(surfBottom) + surfLateral);
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const;
+  void Extent(Vertex_t &, Vertex_t &) const;
 
-  Vector3D<Precision> GetPointOnSurface() const;
+  Vertex_t GetPointOnSurface() const;
 
   virtual std::string GetEntityType() const { return "GenTrap"; }
+
+  template <TranslationCode transCodeT, RotationCode rotCodeT>
+  VECGEOM_CUDA_HEADER_DEVICE
+      static VPlacedVolume* Create(LogicalVolume const *const logical_volume,
+             Transformation3D const *const transformation,
+#ifdef VECGEOM_NVCC
+             const int id,
+#endif
+             VPlacedVolume *const placement = NULL);
+
+/*
+  VECGEOM_CUDA_HEADER_DEVICE
+  static VPlacedVolume *CreateSpecializedVolume(LogicalVolume const *const volume,
+                                                Transformation3D const *const transformation,
+                                                const TranslationCode trans_code, const RotationCode rot_code,
+#ifdef VECGEOM_NVCC
+                                                const int id,
+#endif
+                                                VPlacedVolume *const placement = NULL);
+*/
+#if defined(VECGEOM_USOLIDS)
+  std::ostream& StreamInfo(std::ostream &os) const;
+#endif
+
+private:
 
   VECGEOM_CUDA_HEADER_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
@@ -267,7 +282,7 @@ public:
 #ifdef VECGEOM_NVCC
                                            const int id,
 #endif
-                                           VPlacedVolume *const placement = NULL) const;
+                                           VPlacedVolume *const placement = NULL) const final;
 
 }; // end of class declaration
 }

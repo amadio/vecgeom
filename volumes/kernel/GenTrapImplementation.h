@@ -31,6 +31,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     static const int transC = transCodeT;
     static const int rotC = rotCodeT;
 
+    using Vertex_t = Vector3D<Precision>;
     using PlacedShape_t = PlacedGenTrap;
     using UnplacedShape_t = UnplacedGenTrap;
 
@@ -225,7 +226,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     // Local point has to be translated in the bbox local frame.
     BoxImplementation<translation::kIdentity, rotation::kIdentity>::GenericKernelForContainsAndInside<Backend,
                                                                                                       ForInside>(
-        unplaced.fBoundingBox.dimensions(), localPoint - unplaced.fBoundingBoxOrig, completelyinside,
+        unplaced.fBBdimensions, localPoint - unplaced.fBBorigin, completelyinside,
         completelyoutside);
     //  if (Backend::early_returns) {
     if (IsFull(completelyoutside)) {
@@ -400,11 +401,11 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     typename Backend::int_v planeid(-1);
     Vector3D<Float_t> hitpoint;
     BoxImplementation<translation::kIdentity, rotation::kIdentity>::DistanceToInKernel2<Backend>(
-        unplaced.fBoundingBox.dimensions(), point - unplaced.fBoundingBoxOrig, direction, stepMax, bbdistance, &planeid,
+        unplaced.fBBdimensions, point - unplaced.fBBorigin, direction, stepMax, bbdistance, &planeid,
         &hitpoint);
 #else
     BoxImplementation<translation::kIdentity, rotation::kIdentity>::DistanceToInKernel<Backend>(
-        unplaced.fBoundingBox.dimensions(), point - unplaced.fBoundingBoxOrig, direction, stepMax, bbdistance);
+        unplaced.fBBdimensions, point - unplaced.fBBorigin, direction, stepMax, bbdistance);
 #endif
 
 #ifdef GENTRAPDEB
@@ -527,12 +528,12 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     Boolean_t inside;
     // Check if all points are outside bounding box
     BoxImplementation<translation::kIdentity, rotation::kIdentity>::ContainsKernel<Backend>(
-        unplaced.fBoundingBox.dimensions(), point - unplaced.fBoundingBoxOrig, inside);
+        unplaced.fBBdimensions, point - unplaced.fBBorigin, inside);
     if (IsEmpty(inside)) {
       // All points outside, so compute safety using the bounding box
       // This is not optimal if top and bottom faces are not on top of each other
       BoxImplementation<translation::kIdentity, rotation::kIdentity>::SafetyToInKernel<Backend>(
-          unplaced.fBoundingBox.dimensions(), point - unplaced.fBoundingBoxOrig, safety);
+          unplaced.fBBdimensions, point - unplaced.fBBorigin, safety);
       return;
     }
 
@@ -600,7 +601,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     Int_t iseg = seg;
     if (unplaced.IsPlanar()) {
       // Normals for the planar case are pre-computed
-      Vector3D<Precision> const *normals = unplaced.GetShell().GetNormals();
+      Vertex_t const *normals = unplaced.GetShell().GetNormals();
       normal = normals[iseg];
       return;
     }

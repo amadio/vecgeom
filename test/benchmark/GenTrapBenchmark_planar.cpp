@@ -22,16 +22,10 @@ int main() {
 
   std::vector<Vector3D<Precision> > vertexlist;
   // no twist
-  vertexlist.push_back( Vector3D<Precision>(-3,-3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>(-3, 3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>( 3, 3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>( 3,-3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>(-3,-3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>(-3, 3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>( 3, 3, 0 ) );
-  vertexlist.push_back( Vector3D<Precision>( 3,-3, 0 ) );
+  Precision verticesx[8] = {-3, -3, 3, 3, -2, -2, 2, 2};
+  Precision verticesy[8] = {-3, 3, 3, -3, -2, 2, 2, -2};
 
-  UnplacedGenTrap trapUnplaced1( &vertexlist[0], 10 );
+  UnplacedGenTrap trapUnplaced1( verticesx, verticesy, 10 );
 
   LogicalVolume world = LogicalVolume("world", &worldUnplaced);
   LogicalVolume trap = LogicalVolume("gentrap", &trapUnplaced1);

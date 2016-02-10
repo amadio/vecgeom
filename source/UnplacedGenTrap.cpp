@@ -19,18 +19,15 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 VECGEOM_CUDA_HEADER_BOTH
 void UnplacedGenTrap::ComputeBoundingBox() {
   // Computes bounding box parameters
-  Vector3D<Precision> aMin, aMax;
+  Vertex_t aMin, aMax;
   Extent(aMin, aMax);
-  fBoundingBoxOrig = 0.5 * (aMin + aMax);
-  Vector3D<Precision> halfLengths = 0.5 * (aMax - aMin);
-  fBoundingBox.SetX(halfLengths.x());
-  fBoundingBox.SetY(halfLengths.y());
-  fBoundingBox.SetZ(halfLengths.z());
+  fBBorigin = 0.5 * (aMin + aMax);
+  fBBdimensions = 0.5 * (aMax - aMin);
 }
 
 //______________________________________________________________________________
 VECGEOM_CUDA_HEADER_BOTH
-void UnplacedGenTrap::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const {
+void UnplacedGenTrap::Extent(Vertex_t &aMin, Vertex_t &aMax) const {
   // Returns the full 3D cartesian extent of the solid.
   aMin = aMax = fVertices[0];
   aMin[2] = -fDz;
@@ -59,10 +56,10 @@ void UnplacedGenTrap::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMa
 
 //______________________________________________________________________________
 VECGEOM_CUDA_HEADER_BOTH
-bool UnplacedGenTrap::SegmentsCrossing(Vector3D<Precision> p, Vector3D<Precision> p1, Vector3D<Precision> q,
-                                       Vector3D<Precision> q1) const {
+bool UnplacedGenTrap::SegmentsCrossing(Vertex_t p, Vertex_t p1, Vertex_t q,
+                                       Vertex_t q1) const {
   // Check if 2 segments defined by (p,p1) and (q,q1) are crossing.
-  using Vector = Vector3D<Precision>;
+  using Vector = Vertex_t;
   Vector r = p1 - p; // p1 = p+r
   Vector s = q1 - q; // q1 = q+s
   Vector r_cross_s = Vector::Cross(r, s);
@@ -149,13 +146,14 @@ bool UnplacedGenTrap::ComputeIsConvexQuadrilaterals() {
 Vector3D<Precision> UnplacedGenTrap::GetPointOnSurface() const {
   // Generate randomly a point on one of the surfaces
   // Select randomly a surface
+  Vertex_t point;
+#ifndef VECGEOM_NVCC
   int i = int(RNG::Instance().uniform(0., 6.));
-  Vector3D<Precision> point;
   if (i < 4) {
     int j = (i + 1) % 4;
-    Vector3D<Precision> vi(fVertices[i + 4] - fVertices[i]);
-    Vector3D<Precision> vj(fVertices[j + 4] - fVertices[j]);
-    Vector3D<Precision> h0(fVertices[j] - fVertices[i]);
+    Vertex_t vi(fVertices[i + 4] - fVertices[i]);
+    Vertex_t vj(fVertices[j + 4] - fVertices[j]);
+    Vertex_t h0(fVertices[j] - fVertices[i]);
     // Random height
     Precision fz = RNG::Instance().uniform(0., 1.);
     // Random fraction along the horizontal hi at selected z
@@ -206,6 +204,7 @@ Vector3D<Precision> UnplacedGenTrap::GetPointOnSurface() const {
   }
   // Now point inside
   point.Set(x, y, z);
+#endif // VECGEOM_NVCC
   return point;
 }
 
@@ -214,7 +213,7 @@ VECGEOM_CUDA_HEADER_BOTH
 void UnplacedGenTrap::Print() const {
   printf("--------------------------------------------------------\n");
   printf("    =================================================== \n");
-  printf(" Solid geometry type: UnplacedGenTrap \n");
+  printf(" Solid type: UnplacedGenTrap \n");
   printf("   half length Z: %f mm \n", fDz);
   printf("   list of vertices:\n");
 
@@ -232,7 +231,7 @@ void UnplacedGenTrap::Print(std::ostream &os) const {
   os << "--------------------------------------------------------\n"
      //     << "    *** Dump for solid - " << GetName() << " *** \n"
      << "    =================================================== \n"
-     << " Solid geometry type: UnplacedGenTrap \n"
+     << " Solid type: UnplacedGenTrap \n"
      << "   half length Z: " << fDz << " mm \n"
      << "   list of vertices:\n";
 
@@ -244,10 +243,29 @@ void UnplacedGenTrap::Print(std::ostream &os) const {
   os.precision(oldprc);
 }
 
-//
-#ifdef VECGEOM_NVCC
-VECGEOM_CUDA_HEADER_DEVICE
+#if defined(VECGEOM_USOLIDS)
+  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream& UnplacedGenTrap::StreamInfo(std::ostream &os) const {
+  int oldprc = os.precision(16);
+  os << "--------------------------------------------------------\n"
+     //     << "    *** Dump for solid - " << GetName() << " *** \n"
+     << "    =================================================== \n"
+     << " Solid type: UnplacedGenTrap \n"
+     << "   half length Z: " << fDz << " mm \n"
+     << "   list of vertices:\n";
+
+  for (int i = 0; i < 8; ++i) {
+    os << std::setw(5) << "#" << i << "   vx = " << fVertices[i].x() << " mm"
+       << "   vy = " << fVertices[i].y() << " mm\n";
+  }
+  os << "   planar: " << IsPlanar() << std::endl;
+  os.precision(oldprc);
+    return os;
+  }
 #endif
+
+//
+VECGEOM_CUDA_HEADER_DEVICE
 VPlacedVolume *UnplacedGenTrap::SpecializedVolume(LogicalVolume const *const volume,
                                                   Transformation3D const *const transformation,
                                                   const TranslationCode trans_code, const RotationCode rot_code,
@@ -264,9 +282,7 @@ VPlacedVolume *UnplacedGenTrap::SpecializedVolume(LogicalVolume const *const vol
 
 //______________________________________________________________________________
 template <TranslationCode trans_code, RotationCode rot_code>
-#ifdef VECGEOM_NVCC
 VECGEOM_CUDA_HEADER_DEVICE
-#endif
     VPlacedVolume *
     UnplacedGenTrap::Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
@@ -291,6 +307,7 @@ VECGEOM_CUDA_HEADER_DEVICE
 }
 
 //______________________________________________________________________________
+/*
 VECGEOM_CUDA_HEADER_DEVICE
 VPlacedVolume *UnplacedGenTrap::CreateSpecializedVolume(LogicalVolume const *const volume,
                                                         Transformation3D const *const transformation,
@@ -305,12 +322,23 @@ VPlacedVolume *UnplacedGenTrap::CreateSpecializedVolume(LogicalVolume const *con
 #endif
                                                                 placement);
 }
-
+*/
 #ifdef VECGEOM_CUDA_INTERFACE
 
 //______________________________________________________________________________
 DevicePtr<cuda::VUnplacedVolume> UnplacedGenTrap::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const {
-  return CopyToGpuImpl<UnplacedGenTrap>(in_gpu_ptr, fVertices, fDz);
+  // Copy vertices on GPU, then create the object
+  Precision *xv_gpu_ptr = AllocateOnGpu<Precision>( 8*sizeof(Precision) );
+  Precision *yv_gpu_ptr = AllocateOnGpu<Precision>( 8*sizeof(Precision) );
+  
+  vecgeom::CopyToGpu(fVerticesX, xv_gpu_ptr, 8*sizeof(Precision));
+  vecgeom::CopyToGpu(fVerticesY, yv_gpu_ptr, 8*sizeof(Precision));
+    
+  DevicePtr<cuda::VUnplacedVolume> gpugentrap = CopyToGpuImpl<UnplacedGenTrap>(
+        in_gpu_ptr, xv_gpu_ptr, yv_gpu_ptr, GetDZ());
+  FreeFromGpu(xv_gpu_ptr);
+  FreeFromGpu(yv_gpu_ptr);
+  return gpugentrap;
 }
 
 //______________________________________________________________________________
@@ -325,7 +353,8 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedGenTrap::CopyToGpu() const { return Cop
 namespace cxx {
 
 template size_t DevicePtr<cuda::UnplacedGenTrap>::SizeOf();
-template void DevicePtr<cuda::UnplacedGenTrap>::Construct(Vector3D<Precision> vertices[], Precision halfzheight) const;
+template void DevicePtr<cuda::UnplacedGenTrap>::Construct(
+        Precision *, Precision *, Precision) const;
 
 } // End cxx namespace
 

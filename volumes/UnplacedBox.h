@@ -120,8 +120,16 @@ public:
 
 #endif
 
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
   void SetX(double xx) { dimensions_[0] = xx; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
   void SetY(double yy) { dimensions_[1] = yy; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
   void SetZ(double zz) { dimensions_[2] = zz; }
 
 #if defined(VECGEOM_USOLIDS)

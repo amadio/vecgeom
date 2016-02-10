@@ -15,20 +15,12 @@
 typedef vecgeom::SimpleGenTrap GenTrap_t;
 
 int main(int argc,char *argv[]) {
- using Vec_t = vecgeom::Vector3D<vecgeom::Precision>;
  using namespace vecgeom;
-  std::vector<Vec_t> vertexlist1;
-  vertexlist1.push_back( Vec_t(-3,-2.5, 0 ) );
-  vertexlist1.push_back( Vec_t(-2.5, 3, 0 ) );
-  vertexlist1.push_back( Vec_t( 3, 2.5, 0 ) );
-  vertexlist1.push_back( Vec_t( 2.5,-3, 0 ) );
-  vertexlist1.push_back( Vec_t(-2,-2, 0 ) );
-  vertexlist1.push_back( Vec_t(-2, 2, 0 ) );
-  vertexlist1.push_back( Vec_t( 2, 2, 0 ) );
-  vertexlist1.push_back( Vec_t( 2,-2, 0 ) );
+  Precision verticesx[8] = {-3, -2.5, 3, 2.5, -2, -2, 2, 2};
+  Precision verticesy[8] = {-2.5, 3, 2.5, -3, -2, 2, 2, -2};
 
   int errCode= 0;
-  GenTrap_t* solid=new GenTrap_t("test_VecGeomGenTrap", &vertexlist1[0], 5);    
+  GenTrap_t* solid=new GenTrap_t("test_VecGeomGenTrap", verticesx, verticesy, 5);    
   
   ShapeTester tester;
 //  tester.EnableDebugger(true);

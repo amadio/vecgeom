@@ -516,10 +516,12 @@ VUnplacedVolume* RootGeoManager::Convert(TGeoShape const *const shape) {
      // Create the corresponding GenTrap
      std::vector<Vector3D<Precision> > vertexlist;
      const double *vertices = p->GetVertices();
+     Precision verticesx[8], verticesy[8];
      for (auto ivert=0; ivert<8; ++ivert) {
-       vertexlist.push_back(Vector3D<Precision>(vertices[8*ivert],vertices[8*ivert+1], 0 ) );
+       verticesx[ivert] = vertices[8*ivert];
+       verticesy[ivert] = vertices[8*ivert+1];
      }
-     unplaced_volume = new UnplacedGenTrap(&vertexlist[0], p->GetDz());
+     unplaced_volume = new UnplacedGenTrap(verticesx, verticesy, p->GetDz());
    }
 
    // New volumes should be implemented here...

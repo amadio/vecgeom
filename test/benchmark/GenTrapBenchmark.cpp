@@ -11,18 +11,10 @@ using namespace vecgeom;
 int main() {
   UnplacedBox worldUnplaced = UnplacedBox(10., 10., 20.);
 
-  std::vector<Vector3D<Precision>> vertexlist;
-  // no twist
-  vertexlist.push_back(Vector3D<Precision>(-3, -2.5, 0));
-  vertexlist.push_back(Vector3D<Precision>(-2.5, 3, 0));
-  vertexlist.push_back(Vector3D<Precision>(3, 2.5, 0));
-  vertexlist.push_back(Vector3D<Precision>(2.5, -3, 0));
-  vertexlist.push_back(Vector3D<Precision>(-2, -2, 0));
-  vertexlist.push_back(Vector3D<Precision>(-2, 2, 0));
-  vertexlist.push_back(Vector3D<Precision>(2, 2, 0));
-  vertexlist.push_back(Vector3D<Precision>(2, -2, 0));
+  Precision verticesx[8] = {-3, -2.5, 3, 2.5, -2, -2, 2, 2};
+  Precision verticesy[8] = {-2.5, 3, 2.5, -3, -2, 2, 2, -2};
 
-  UnplacedGenTrap trapUnplaced1(&vertexlist[0], 10);
+  UnplacedGenTrap trapUnplaced1(verticesx, verticesy, 10);
   trapUnplaced1.Print();
 
   LogicalVolume world = LogicalVolume("world", &worldUnplaced);

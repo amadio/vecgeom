@@ -8,18 +8,10 @@ using namespace vecgeom;
 
 int main() {
   constexpr int nSamples = 10000;
-  std::vector<Vector3D<Precision>> vertexlist;
-  // no twist
-  vertexlist.push_back(Vector3D<Precision>(-3, -2.5, 0));
-  vertexlist.push_back(Vector3D<Precision>(-2.5, 3, 0));
-  vertexlist.push_back(Vector3D<Precision>(3, 2.5, 0));
-  vertexlist.push_back(Vector3D<Precision>(2.5, -3, 0));
-  vertexlist.push_back(Vector3D<Precision>(-2, -2, 0));
-  vertexlist.push_back(Vector3D<Precision>(-2, 2, 0));
-  vertexlist.push_back(Vector3D<Precision>(2, 2, 0));
-  vertexlist.push_back(Vector3D<Precision>(2, -2, 0));
+  Precision verticesx[8] = {-3, -2.5, 3, 2.5, -2, -2, 2, 2};
+  Precision verticesy[8] = {-2.5, 3, 2.5, -3, -2, 2, 2, -2};
 
-  SimpleGenTrap trap("gentrap", &vertexlist[0], 10);
+  SimpleGenTrap trap("gentrap", verticesx, verticesy, 10);
   TPolyMarker3D pm(nSamples);
   pm.SetMarkerColor(kRed);
   pm.SetMarkerStyle(6);

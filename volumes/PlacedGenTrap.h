@@ -63,7 +63,7 @@ public:
 
   // method giving access to members of unplaced ...
   VECGEOM_CUDA_HEADER_BOTH
-  UnplacedGenTrap::VertexType const & GetVertex(int i) const
+  Vector3D<Precision> const & GetVertex(int i) const
   {
       return GetUnplacedVolume()->GetVertex(i);
   }
@@ -115,19 +115,16 @@ public:
 
   // CUDA specific
 
+  VECGEOM_INLINE
   virtual int memory_size() const override { return sizeof(*this); }
 
-#ifdef VECGEOM_CUDA_INTERFACE
-  virtual VPlacedVolume* CopyToGpu(
-      LogicalVolume const *const logical_volume,
-      Transformation3D const *const transformation,
-      VPlacedVolume *const gpu_ptr) const;
-  virtual VPlacedVolume* CopyToGpu(
-      LogicalVolume const *const logical_volume,
-      Transformation3D const *const transformation) const;
-#endif
-
   // Comparison specific
+
+#if defined(VECGEOM_USOLIDS)
+  std::ostream& StreamInfo(std::ostream &os) const override {
+    return GetUnplacedVolume()->StreamInfo(os);
+  }
+#endif
 
 #ifndef VECGEOM_NVCC
   virtual VPlacedVolume const* ConvertToUnspecialized() const override;

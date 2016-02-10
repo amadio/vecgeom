@@ -25,6 +25,9 @@ VECGEOM_DEVICE_FORWARD_DECLARE(class SecondOrderSurfaceShell;)
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <int N> class SecondOrderSurfaceShell {
+
+using Vertex_t = Vector3D<Precision>;
+
 private:
   // caching some important values for each of the curved planes
   Precision fxa[N], fya[N], fxb[N], fyb[N], fxc[N], fyc[N], fxd[N], fyd[N];
@@ -48,35 +51,32 @@ private:
   bool fisplanar;
 
   // pre-computed normals
-  Vector3D<Precision> fNormals[N];
+  Vertex_t fNormals[N];
 
   // pre-computed cross products for normal computation
-  Vector3D<Precision> fViCrossHi0[N];
-  Vector3D<Precision> fViCrossVj[N];
-  Vector3D<Precision> fHi1CrossHi0[N];
+  Vertex_t fViCrossHi0[N];
+  Vertex_t fViCrossVj[N];
+  Vertex_t fHi1CrossHi0[N];
 
 public:
   VECGEOM_CUDA_HEADER_BOTH
-  SecondOrderSurfaceShell(Vector3D<Precision> *vertices, Precision dz) : fDz(dz), fDz2(0.5 / dz) {
-    Vector3D<Precision> va, vb, vc, vd;
+  SecondOrderSurfaceShell(const Precision *verticesx, const Precision *verticesy,
+        Precision dz) : fDz(dz), fDz2(0.5 / dz) {
+    Vertex_t va, vb, vc, vd;
     for (int i = 0; i < N; ++i) {
       int j = (i + 1) % N;
-      va = vertices[i];
-      va[2] = -dz;
-      fxa[i] = vertices[i][0];
-      fya[i] = vertices[i][1];
-      vb = vertices[i + N];
-      vb[2] = dz;
-      fxb[i] = vertices[i + N][0];
-      fyb[i] = vertices[i + N][1];
-      vc = vertices[j];
-      vc[2] = -dz;
-      fxc[i] = vertices[j][0];
-      fyc[i] = vertices[j][1];
-      vd = vertices[j + N];
-      vd[2] = dz;
-      fxd[i] = vertices[N + j][0];
-      fyd[i] = vertices[N + j][1];
+      va.Set(verticesx[i], verticesy[i], -dz);
+      fxa[i] = verticesx[i];
+      fya[i] = verticesy[i];
+      vb.Set(verticesx[i+N], verticesy[i+N], dz);
+      fxb[i] = verticesx[i + N];
+      fyb[i] = verticesy[i + N];
+      vc.Set(verticesx[j], verticesy[j], -dz);
+      fxc[i] = verticesx[j];
+      fyc[i] = verticesy[j];
+      vd.Set(verticesx[j+N], verticesy[j+N], dz);
+      fxd[i] = verticesx[N + j];
+      fyd[i] = verticesy[N + j];
       ftx1[i] = fDz2 * (fxb[i] - fxa[i]);
       fty1[i] = fDz2 * (fyb[i] - fya[i]);
       ftx2[i] = fDz2 * (fxd[i] - fxc[i]);
@@ -85,19 +85,19 @@ public:
       ft1crosst2[i] = ftx1[i] * fty2[i] - ftx2[i] * fty1[i];
       fDeltatx[i] = ftx2[i] - ftx1[i];
       fDeltaty[i] = fty2[i] - fty1[i];
-      fNormals[i] = Vector3D<Precision>::Cross(vb - va, vc - va);
+      fNormals[i] = Vertex_t::Cross(vb - va, vc - va);
       // The computation of normals is done also for the curved surfaces, even if they will not be used
       if (fNormals[i].Mag2() < kTolerance) {
         // points i and i+1/N are overlapping - use i+N and j+N instead
-        fNormals[i] = Vector3D<Precision>::Cross(vb - va, vd - vb);
+        fNormals[i] = Vertex_t::Cross(vb - va, vd - vb);
         if (fNormals[i].Mag2() < kTolerance)
           fNormals[i].Set(0., 0., 1.); // No surface, just a line
       }
       fNormals[i].Normalize();
       // Cross products used for normal computation
-      fViCrossHi0[i] = Vector3D<Precision>::Cross(vb - va, vc - va);
-      fViCrossVj[i] = Vector3D<Precision>::Cross(vb - va, vd - vc);
-      fHi1CrossHi0[i] = Vector3D<Precision>::Cross(vd - vb, vc - va);
+      fViCrossHi0[i] = Vertex_t::Cross(vb - va, vc - va);
+      fViCrossVj[i] = Vertex_t::Cross(vb - va, vd - vc);
+      fHi1CrossHi0[i] = Vertex_t::Cross(vd - vb, vc - va);
 #ifdef GENTRAPDEB
       std::cout << "fNormals[" << i << "] = " << fNormals[i] << std::endl;
 #endif
@@ -215,7 +215,7 @@ public:
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
 
-    Vector3D<Precision> va; // vertex i of lower base
+    Vertex_t va; // vertex i of lower base
     Vector3D<Float_t> pa;   // same vertex converted to backend type
     Float_t distance = kInfinity;
 
@@ -253,7 +253,7 @@ public:
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
 
-    Vector3D<Precision> va; // vertex i of lower base
+    Vertex_t va; // vertex i of lower base
     Vector3D<Float_t> pa;   // same vertex converted to backend type
     Float_t distance = kInfinity;
 
@@ -413,7 +413,7 @@ public:
 
     // loop lateral surfaces
     // We can use the surface normals to get safety for non-curved surfaces
-    Vector3D<Precision> va; // vertex i of lower base
+    Vertex_t va; // vertex i of lower base
     Vector3D<Float_t> pa;   // same vertex converted to backend type
     int count = 0;
     if (fisplanar) {
@@ -465,7 +465,7 @@ public:
 
     // loop lateral surfaces
     // We can use the surface normals to get safety for non-curved surfaces
-    Vector3D<Precision> va; // vertex i of lower base
+    Vertex_t va; // vertex i of lower base
     Vector3D<Float_t> pa;   // same vertex converted to backend type
     int count = 0;
     if (fisplanar) {
@@ -577,7 +577,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Vector3D<Precision> const *GetNormals() const { return fNormals; }
+  Vertex_t const *GetNormals() const { return fNormals; }
 
   //______________________________________________________________________________
   /// Computes if point on surface isurf is within surface limits
