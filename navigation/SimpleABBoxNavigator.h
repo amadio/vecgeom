@@ -15,7 +15,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-// A basic implementation of a navigator which is SIMD accelerated by using an flat aligned bounding box list (much like SimpleABBoxNavigator)
+// A basic implementation of a navigator which is SIMD accelerated by using an flat aligned bounding box list
 template <bool MotherIsConvex=false>
 class SimpleABBoxNavigator : public VNavigatorHelper<SimpleABBoxNavigator<MotherIsConvex>, MotherIsConvex> {
 
@@ -45,7 +45,7 @@ private:
   }
 
   // vector version
-  size_t GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Precision> const &point,
+size_t GetHitCandidates_v(LogicalVolume const * /*lvol*/, Vector3D<Precision> const &point,
                             Vector3D<Precision> const &dir, ABBoxManager::ABBoxContainer_v const &corners,
                             size_t size, ABBoxManager::BoxIdDistancePair_t *hitlist) const {
     size_t vecsize = size;
@@ -175,7 +175,7 @@ public:
   VECGEOM_INLINE
     virtual bool
     CheckDaughterIntersections(LogicalVolume const *lvol, Vector3D<Precision> const & localpoint, Vector3D<Precision> const & localdir,
-                               NavigationState const & in_state, NavigationState & out_state, Precision & step, VPlacedVolume const *&hitcandidate) const override {
+                               NavigationState const & /*in_state*/, NavigationState & /*out_state*/, Precision & step, VPlacedVolume const *&hitcandidate) const override {
 
 
       static __thread ABBoxManager::BoxIdDistancePair_t hitlist[VECGEOM_MAXDAUGHTERS]={};

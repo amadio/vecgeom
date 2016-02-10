@@ -57,7 +57,7 @@ public:
 
   // interfaces to treat vectors/collections of points (uses the approach without intermediate storage; requires access
   // to new SIMD interface)
-  virtual void ComputeVectorSafety(SOA3D<Precision> const & /*globalpoints*/, NavStatePool &states,
+  virtual void ComputeVectorSafety(SOA3D<Precision> const & /*globalpoints*/, NavStatePool & /*states*/,
                                    Precision * /*safeties*/) const {};
 
   virtual void ComputeSafetyForLocalPoints(SOA3D<Precision> const & /*localpoints*/, VPlacedVolume const * /*pvol*/,

@@ -72,8 +72,8 @@ public:
 
   // the bool return type indicates if out_state was already modified; this may happen in assemblies;
   // in this case we don't need to copy the in_state to the out state later on
-  virtual bool CheckDaughterIntersections(LogicalVolume const *lvol, Vector3D<Precision> const & /*localpoint*/, Vector3D<Precision> const & /*localdir*/,
-                                          NavigationState const & /*in_state*/, NavigationState & /*out_state*/, Precision & step, VPlacedVolume const *& /*hitcandidate*/) const {return false;}
+  virtual bool CheckDaughterIntersections(LogicalVolume const * /*lvol*/, Vector3D<Precision> const & /*localpoint*/, Vector3D<Precision> const & /*localdir*/,
+                                          NavigationState const & /*in_state*/, NavigationState & /*out_state*/, Precision & /*step*/, VPlacedVolume const *& /*hitcandidate*/) const {return false;}
 
   // for vector navigation
   //! this methods transforms the global coordinates into local ones usually calls more specialized methods
