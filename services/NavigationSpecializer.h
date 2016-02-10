@@ -28,7 +28,7 @@ class NavStatePool;
 class TabulatedTransData {
 public:
   TabulatedTransData(std::string name, bool soa = true)
-      : fName(name), fSOA(soa), fTransCoefficients(3), fRotCoefficients(9), fTransVariableName(3), fRotVariableName(9),
+      : fName(name), fTransCoefficients(3), fRotCoefficients(9), fSOA(soa), fTransVariableName(3), fRotVariableName(9),
         fVecTransVariableName(3), fVecRotVariableName(9) {
     for (size_t i = 0; i < 9; ++i)
       fRotCoefficients[i].resize(0);
