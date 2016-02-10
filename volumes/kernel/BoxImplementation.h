@@ -622,32 +622,30 @@ void BoxImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndInside(
     // and it can anyway not be vectorized
     /* x */
     completelyoutside = Abs(localPoint[0]) > MakePlusTolerant<ForInside>( dimensions[0] );
-    if (ForInside)
-    {
-        completelyinside = Abs(localPoint[0]) < MakeMinusTolerant<ForInside>( dimensions[0] );
-    }
-    if (Backend::early_returns) {
-      if ( IsFull (completelyoutside) ) {
-        return;
+    if (ForInside) {
+      if (Backend::early_returns && IsFull(completelyoutside) ) {
+          completelyinside = Backend::kFalse;
+          return;
       }
+      completelyinside = Abs(localPoint[0]) < MakeMinusTolerant<ForInside>( dimensions[0] );
     }
+
 /* y */
     completelyoutside |= Abs(localPoint[1]) > MakePlusTolerant<ForInside>( dimensions[1] );
-    if (ForInside)
-    {
+    if (ForInside) {
+      if (Backend::early_returns && IsFull(completelyoutside) ) {
+          completelyinside = Backend::kFalse;
+          return;
+      }
       completelyinside &= Abs(localPoint[1]) < MakeMinusTolerant<ForInside>( dimensions[1] );
     }
-    if (Backend::early_returns) {
-      if ( IsFull (completelyoutside) ) {
-        return;
-      }
-    }
+
 /* z */
     completelyoutside |= Abs(localPoint[2]) > MakePlusTolerant<ForInside>( dimensions[2] );
-    if (ForInside)
-    {
+    if (ForInside) {
       completelyinside &= Abs(localPoint[2]) < MakeMinusTolerant<ForInside>( dimensions[2] );
     }
+
     return;
 }
 
@@ -684,12 +682,6 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   Vector3D<Floating_t> safety;
   Boolean_t done = Backend::kFalse;
 
-#ifdef VECGEOM_NVCC
-  #define surfacetolerant true
-#else
-  static const bool surfacetolerant=true;
-#endif
-
   distance = kInfinity;
   safety[0] = Abs(point[0]) - dimensions[0];
   safety[1] = Abs(point[1]) - dimensions[1];
@@ -698,58 +690,50 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   done |= (safety[0] >= stepMax ||
            safety[1] >= stepMax ||
            safety[2] >= stepMax);
-  if ( IsFull(done) ) return;
+  if ( Backend::early_returns && IsFull(done) ) return;
 
-
-  Boolean_t inside = Backend::kFalse;
-  inside = safety[0] < -kHalfTolerance && safety[1] < -kHalfTolerance && safety[2] < -kHalfTolerance;
+  Boolean_t inside = safety[0] < -kHalfTolerance && safety[1] < -kHalfTolerance && safety[2] < -kHalfTolerance;
   MaskedAssign(!done && inside, -1., &distance);
   done |= inside;
-  if ( IsFull(done) ) return;
+  if ( Backend::early_returns && IsFull(done) ) return;
 
   // Next step: from outside
   Floating_t next, coord1, coord2;
   Boolean_t hit;
 
   // x
-  next = safety[0] / Abs(direction[0]); // + kMinimum);
+  next = safety[0] / Abs(direction[0]);
   coord1 = point[1] + next * direction[1];
   coord2 = point[2] + next * direction[2];
-  hit = safety[0] >= MakeMinusTolerant<surfacetolerant>(0.) &&
-                     point[0] * direction[0] < 0 &&
-                     Abs(coord1) <= MakeMinusTolerant<surfacetolerant>(dimensions[1]) &&
-                     Abs(coord2) <= MakeMinusTolerant<surfacetolerant>(dimensions[2]);
+  hit = safety[0] >= -kHalfTolerance &&
+        point[0] * direction[0] < 0 &&
+        Abs(coord1) <= dimensions[1]-kHalfTolerance &&
+        Abs(coord2) <= dimensions[2]-kHalfTolerance;
   MaskedAssign(!done && hit, next, &distance);
   done |= hit;
-  if ( IsFull(done) ) return;
+  if ( Backend::early_returns && IsFull(done) ) return;
 
   // y
-  next = safety[1] / Abs(direction[1]); // + kMinimum);
+  next = safety[1] / Abs(direction[1]);
   coord1 = point[0] + next * direction[0];
   coord2 = point[2] + next * direction[2];
-  hit = safety[1] >= MakeMinusTolerant<surfacetolerant>(0.) &&
+  hit = safety[1] >= -kHalfTolerance &&
         point[1] * direction[1] < 0 &&
-        Abs(coord1) <= MakeMinusTolerant<surfacetolerant>(dimensions[0]) &&
-        Abs(coord2) <= MakeMinusTolerant<surfacetolerant>(dimensions[2]);
+        Abs(coord1) <= dimensions[0]-kHalfTolerance &&
+        Abs(coord2) <= dimensions[2]-kHalfTolerance;
   MaskedAssign(!done && hit, next, &distance);
   done |= hit;
-  if ( IsFull(done) ) return;
+  if ( Backend::early_returns && IsFull(done) ) return;
 
   // z
-  next = safety[2] / Abs(direction[2]); // + kMinimum);
+  next = safety[2] / Abs(direction[2]);
   coord1 = point[0] + next * direction[0];
   coord2 = point[1] + next * direction[1];
-  hit = safety[2] >= MakeMinusTolerant<surfacetolerant>(0.) &&
+  hit = safety[2] >= -kHalfTolerance &&
         point[2] * direction[2] < 0 &&
-        Abs(coord1) <= MakeMinusTolerant<surfacetolerant>(dimensions[0]) &&
-        Abs(coord2) <= MakeMinusTolerant<surfacetolerant>(dimensions[1]);
+        Abs(coord1) <= dimensions[0]-kHalfTolerance &&
+        Abs(coord2) <= dimensions[1]-kHalfTolerance;
   MaskedAssign(!done && hit, next, &distance);
-  done |= hit;
-  if ( IsFull(done) ) return;
-
-#ifdef VECGEOM_NVCC
-  #undef surfacetolerant
-#endif
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -763,26 +747,21 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
     typename Backend::precision_v &distance) {
 
     typedef typename Backend::precision_v Floating_t;
-    // typedef typename Backend::bool_v Boolean_t;
+    typedef typename Backend::bool_v Bool_t;
 
-    distance = kInfinity;
+    distance = -1;
 
-    //Vector3D<Floating_t> safety;
-    //safety[0] = Abs(point[0]) - dimensions[0];
-    //safety[1] = Abs(point[1]) - dimensions[1];
-    //safety[2] = Abs(point[2]) - dimensions[2];
+    // tag the ones on the wrong side
+    Bool_t done = Abs(point[0]) > dimensions[0]+kHalfTolerance;
+    done       |= Abs(point[1]) > dimensions[1]+kHalfTolerance;
+    done       |= Abs(point[2]) > dimensions[2]+kHalfTolerance;
+    if(Backend::early_returns && IsFull(done)) return;
 
-    //Boolean_t inside;
-    //inside = safety[0] < stepMax &&
-    //         safety[1] < stepMax &&
-    //         safety[2] < stepMax;
-    //if (inside == Backend::kFalse) return;
+    // Each component used to have a kMinimum added, to avoid divisions by zero.
+    // This is not needed anymore, since VecGeom properly handles infinities caused by divisions by zero.
+    // Only 0/0 --> Nan are a real problem
+    Vector3D<Floating_t> inverseDirection { 1./direction[0], 1./direction[1], 1./direction[2] };
 
-    Vector3D<Floating_t> inverseDirection {
-      1. / (direction[0] + kMinimum),
-      1. / (direction[1] + kMinimum),
-      1. / (direction[2] + kMinimum)
-    };
     Vector3D<Floating_t> distances {
       (dimensions[0] - point[0]) * inverseDirection[0],
       (dimensions[1] - point[1]) * inverseDirection[1],
@@ -799,7 +778,8 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
                  (-dimensions[2] - point[2]) * inverseDirection[2],
                  &distances[2]);
 
-    distance = distances[0];
+    MaskedAssign(!done, distances[0], &distance);
+    // if(done), distance is -1, no need to ask for !done again
     MaskedAssign(distances[1] < distance, distances[1], &distance);
     MaskedAssign(distances[2] < distance, distances[2], &distance);
 }
@@ -814,13 +794,12 @@ void BoxImplementation<transCodeT, rotCodeT>::SafetyToInKernel(
 
   typedef typename Backend::precision_v Floating_t;
 
-  safety = -dimensions[0] + Abs(point[0]);
-  Floating_t safetyY = -dimensions[1] + Abs(point[1]);
-  Floating_t safetyZ = -dimensions[2] + Abs(point[2]);
+  safety = Abs(point[0]) - dimensions[0];
+  const Floating_t safetyY = Abs(point[1]) - dimensions[1];
+  const Floating_t safetyZ = Abs(point[2]) - dimensions[2];
 
-  // TODO: check if we should use MIN/MAX here instead
-  MaskedAssign(safetyY > safety, safetyY, &safety);
-  MaskedAssign(safetyZ > safety, safetyZ, &safety);
+  MaskedAssign( safetyY > safety, safetyY, &safety);
+  MaskedAssign( safetyZ > safety, safetyZ, &safety);
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -834,10 +813,9 @@ void BoxImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(
    typedef typename Backend::precision_v Floating_t;
 
    safety = dimensions[0] - Abs(point[0]);
-   Floating_t safetyY = dimensions[1] - Abs(point[1]);
-   Floating_t safetyZ = dimensions[2] - Abs(point[2]);
+   const Floating_t safetyY = dimensions[1] - Abs(point[1]);
+   const Floating_t safetyZ = dimensions[2] - Abs(point[2]);
 
-   // TODO: check if we should use MIN here instead
    MaskedAssign(safetyY < safety, safetyY, &safety);
    MaskedAssign(safetyZ < safety, safetyZ, &safety);
 }
