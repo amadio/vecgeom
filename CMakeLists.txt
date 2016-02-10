@@ -404,7 +404,7 @@ if (CUDA)
   set(SRC_CUDA ${SRC_CUDA}
       source/CudaManager.cu)
 
-  set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${VECGEOM_NVCC_COMPILATION_FLAGS})
+  set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${VECGEOM_NVCC_COMPILATION_FLAGS} --relocatable-device-code=true)
 endif()
 
 ### CXXFLAGS needs to be set early, so that VECGEOM_GEANT4, VECGEOM_ROOT,
@@ -678,6 +678,14 @@ if (CUDA)
   target_link_libraries(vecgeomcuda ${VECGEOM_LIBRARIES}
                         ${VECGEOM_LIBRARIES_EXTERNAL})
   set(VECGEOM_LIBRARIES ${VECGEOM_LIBRARIES} vecgeomcuda)
+
+  add_custom_command(TARGET vecgeomcuda
+  PRE_BUILD
+  COMMAND ${CMAKE_COMMAND} -E  echo ${vecgeomcuda_SEPARABLE_COMPILATION_OBJECTS}
+  COMMAND ${CMAKE_AR} cr librawvecgeomcuda.a ${vecgeomcuda_SEPARABLE_COMPILATION_OBJECTS}
+  COMMAND ${CMAKE_RANLIB} librawvecgeomcuda.a
+  )
+
 endif()
 
 
