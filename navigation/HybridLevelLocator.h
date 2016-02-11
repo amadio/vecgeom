@@ -64,9 +64,45 @@ public:
       return false;
   }
 
+  virtual bool LevelLocateExclVol(LogicalVolume const *lvol, VPlacedVolume const *exclvol,
+                                  Vector3D<Precision> const &localpoint, VPlacedVolume const *&pvol,
+                                  Vector3D<Precision> &transformedPoint) const override {
+    int halfvectorsize, numberOfNodes;
+    auto boxes_v = fAccelerationStructure.GetABBoxes_v(lvol, halfvectorsize, numberOfNodes);
+    std::vector<int> *nodeToDaughters = fAccelerationStructure.GetNodeToDaughters(lvol);
+    auto simdsize = kVcFloat::precision_v::Size;
+
+    for (int index = 0, nodeindex = 0; index < halfvectorsize * 2; index += 2 * (simdsize + 1), nodeindex += simdsize) {
+      HybridManager2::Bool_v inChildNodes;
+      ABBoxImplementation::ABBoxContainsKernel<kVcFloat>(boxes_v[index], boxes_v[index + 1], localpoint, inChildNodes);
+      if (Any(inChildNodes)) {
+        for (size_t i = inChildNodes.firstOne(); i < simdsize; ++i) {
+          if (inChildNodes[i]) {
+            HybridManager2::Bool_v inDaughterBox;
+            ABBoxImplementation::ABBoxContainsKernel<kVcFloat>(boxes_v[index + 2 * i + 2], boxes_v[index + 2 * i + 3],
+                                                               localpoint, inDaughterBox);
+            if (Any(inDaughterBox)) {
+              for (size_t j = inDaughterBox.firstOne(); j < simdsize; ++j) { // leaf node
+                if (inDaughterBox[j]) {
+                  auto daughter = lvol->GetDaughters()[nodeToDaughters[nodeindex + i][j]];
+                  if (daughter == exclvol)
+                    continue;
+                  if (daughter->Contains(localpoint, transformedPoint)) {
+                    pvol = daughter;
+                    return true;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
 
   static std::string GetClassName() { return "HybridLevelLocator"; }
-  virtual std::string GetName() const { return GetClassName(); }
+  virtual std::string GetName() const override { return GetClassName(); }
 
   static
   VLevelLocator const *GetInstance(){
