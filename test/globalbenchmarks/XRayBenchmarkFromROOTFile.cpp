@@ -722,7 +722,7 @@ int main(int argc, char * argv[])
   {
     std::cerr<< std::endl;
     std::cerr<< "Need to give rootfile, volumename, axis and number of axis"<< std::endl;
-    std::cerr<< "USAGE : ./XRayBenchmarkFromROOTFile [rootfile] [VolumeName] [ViewDirection(Axis)]"
+    std::cerr<< "USAGE : ./XRayBenchmarkFromROOTFile [rootfile] [VolumeName] [ViewDirection(Axis)] "
              << "[PixelWidth(OutputImageSize)] [--usolids|--vecgeom(Default:usolids)] [--novoxel(Default:voxel)]"
              << std::endl;
     std::cerr<< "  ex) ./XRayBenchmarkFromROOTFile cms2015.root BSCTrap y 95"<< std::endl;
