@@ -26,7 +26,7 @@ class VPlacedVolume;
 //! its a namespace rather than a class since it offers only a static function
 namespace  GlobalLocator {
 
-    // this function is a generic variant which can pick on each volume
+    // this function is a generic variant which can pick from each volume
     // the best (or default) LevelLocator
     static
     VPlacedVolume const *
@@ -76,6 +76,58 @@ namespace  GlobalLocator {
        return candvolume;
     }
 
+    // special version of locate point function that excludes searching a given volume
+    // (useful when we know that a particle must have traversed a boundary)
+    static VPlacedVolume const *LocateGlobalPointExclVolume(VPlacedVolume const *vol,
+                                                            VPlacedVolume const *excludedvolume,
+                                                            Vector3D<Precision> const &point, NavigationState &path,
+                                                            bool top) {
+      VPlacedVolume const *candvolume = vol;
+      Vector3D<Precision> currentpoint(point);
+      if (top) {
+        assert(vol != nullptr);
+        candvolume = (vol->UnplacedContains(point)) ? vol : nullptr;
+      }
+      if (candvolume) {
+        path.Push(candvolume);
+        LogicalVolume const *lvol = candvolume->GetLogicalVolume();
+        Vector<Daughter> const *daughters = lvol->GetDaughtersp();
+
+        bool godeeper = true;
+        while (daughters->size() > 0 && godeeper) {
+          godeeper = false;
+          // returns nextvolume; and transformedpoint; modified path
+          VLevelLocator const *locator = lvol->GetLevelLocator();
+          if (locator != nullptr) { // if specialized/optimized technique attached to logical volume
+            Vector3D<Precision> transformedpoint;
+            godeeper = locator->LevelLocateExclVol(lvol, excludedvolume, currentpoint, candvolume, transformedpoint);
+            if (godeeper) {
+              lvol = candvolume->GetLogicalVolume();
+              daughters = lvol->GetDaughtersp();
+              currentpoint = transformedpoint;
+              path.Push(candvolume);
+            }
+          } else { // otherwise do a default implementation
+            for (size_t i = 0; i < daughters->size(); ++i) {
+              VPlacedVolume const *nextvolume = (*daughters)[i];
+              if (nextvolume != excludedvolume) {
+                Vector3D<Precision> transformedpoint;
+                if (nextvolume->Contains(currentpoint, transformedpoint)) {
+                  path.Push(nextvolume);
+                  currentpoint = transformedpoint;
+                  candvolume = nextvolume;
+                  daughters = candvolume->GetLogicalVolume()->GetDaughtersp();
+                  godeeper = true;
+                  break;
+                }
+              } // end if excludedvolume
+            }
+          }
+        }
+      }
+      return candvolume;
+    }
+
     VECGEOM_INLINE
     static VPlacedVolume const *
     RelocatePointFromPath( Vector3D<Precision> const & localpoint,
@@ -97,7 +149,7 @@ namespace  GlobalLocator {
 
         if (currentmother) {
           path.Pop();
-          // return LocateGlobalPointExclMother(currentmother, currentmother, tmp, path, false);
+          //return LocateGlobalPointExclVolume(currentmother, currentmother, tmp, path, false);
           return LocateGlobalPoint( currentmother, tmp, path, false);
         }
       }
