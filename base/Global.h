@@ -4,12 +4,11 @@
 #ifndef VECGEOM_BASE_GLOBAL_H_
 #define VECGEOM_BASE_GLOBAL_H_
 
-#include <cassert>
-
 #if __cplusplus < 201103L
 #error VecGeom requires compiler and library support for the ISO C++ 2011 standard.
 #endif
 
+#include "base/Assert.h"
 #include "base/Cuda.h"
 #include "base/Math.h"
 
