@@ -12,7 +12,6 @@
 #include "benchmarking/Benchmarker.h"
 #include "management/GeoManager.h"
 #include "ArgParser.h"
-#include <cassert>
 
 using namespace vecgeom;
 

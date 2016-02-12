@@ -6,7 +6,6 @@
 #include <memory>
 
 #undef NDEBUG
-#include <cassert>
 
 using namespace vecgeom;
 

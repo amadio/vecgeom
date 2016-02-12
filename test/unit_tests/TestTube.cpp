@@ -17,7 +17,6 @@
 
 //  ensure asserts are compiled in
 #undef NDEBUG
-#include <cassert>
 //#undef VECGEOM_REPLACE_USOLIDS
 
 using vecgeom::Sqrt;

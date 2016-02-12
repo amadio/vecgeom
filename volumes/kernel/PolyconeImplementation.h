@@ -13,7 +13,6 @@
 #include "base/Transformation3D.h"
 #include "volumes/UnplacedPolycone.h"
 #include "volumes/kernel/ConeImplementation.h"
-#include <cassert>
 #include <cstdio>
 
 //#define POLYCONEDEBUG 1

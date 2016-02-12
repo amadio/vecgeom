@@ -17,7 +17,6 @@
 #include <cmath>
 
 #undef NDEBUG
-#include <cassert>
 
 
 template <class Trapezoid_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >

@@ -37,7 +37,6 @@
 #endif
 
 #undef NDEBUG
-#include <cassert>
 
 #include <ctime>
 #include <fstream>

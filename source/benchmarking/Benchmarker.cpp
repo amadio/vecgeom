@@ -27,7 +27,6 @@
 #ifdef VECGEOM_GEANT4
 #endif
 
-#include <cassert>
 #include <random>
 #include <sstream>
 #include <utility>

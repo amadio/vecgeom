@@ -19,7 +19,6 @@
 
 
 #undef NDEBUG
-#include <cassert>
 
 #define PI 3.14159265358979323846
 #define deg PI/180.

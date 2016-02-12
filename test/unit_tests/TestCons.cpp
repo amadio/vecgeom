@@ -14,7 +14,6 @@
 
 //  Ensure asserts are compiled in
 #undef NDEBUG
-#include <cassert>
 
 #define DELTA 0.0001
 

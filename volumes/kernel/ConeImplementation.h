@@ -12,7 +12,6 @@
 #include "base/Transformation3D.h"
 #include "volumes/UnplacedCone.h"
 #include "volumes/kernel/shapetypes/ConeTypes.h"
-#include <cassert>
 #include <cstdio>
 
 namespace vecgeom {

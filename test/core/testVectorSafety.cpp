@@ -14,7 +14,6 @@
 #include "management/GeoManager.h"
 #include "base/Global.h"
 #undef NDEBUG
-#include <cassert>
 
 using namespace vecgeom;
 

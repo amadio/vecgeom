@@ -13,7 +13,6 @@
 #include "volumes/PlacedScaledShape.h"
 
 #include <algorithm>
-#include <cassert>
 #include <stdio.h>
 #include <iostream>
 

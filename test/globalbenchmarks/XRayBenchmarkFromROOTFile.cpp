@@ -25,7 +25,6 @@
 #include <cmath>
 #include <map>
 #include <vector>
-#include <cassert>
 #include <sstream>
 
 //#define CALLGRIND

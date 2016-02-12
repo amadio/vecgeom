@@ -14,7 +14,6 @@
 
 //-- ensure asserts are compiled in
 #undef NDEBUG
-#include <cassert>
 
 bool testvecgeom=false;
 

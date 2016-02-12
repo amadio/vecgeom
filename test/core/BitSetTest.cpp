@@ -1,6 +1,5 @@
 #include "base/BitSet.h"
 
-#include <cassert>
 
 using namespace veccore;
 

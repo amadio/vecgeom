@@ -14,7 +14,6 @@
 #include <cmath>
 
 #undef NDEBUG
-#include <cassert>
 
 bool testvecgeom = false;
 

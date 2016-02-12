@@ -11,7 +11,6 @@
 #include "TGeoVolume.h"
 
 #undef NDEBUG
-#include <cassert>
 
 using namespace VECGEOM_NAMESPACE;
 

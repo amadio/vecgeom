@@ -1,5 +1,4 @@
 #include  <map>
-#include  <cassert>
 #include  <cstdlib>
 #include  <vector>
 #include  "base/Map.h"

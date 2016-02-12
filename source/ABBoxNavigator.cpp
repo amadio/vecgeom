@@ -16,7 +16,6 @@
 #include "backend/scalarfloat/Backend.h"
 #endif
 
-#include <cassert>
 
 namespace vecgeom {
 inline namespace cxx {

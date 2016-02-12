@@ -48,7 +48,6 @@
 #include "TGeoScaledShape.h"
 #include "TGeoEltu.h"
 
-#include <cassert>
 #include <iostream>
 #include <list>
 

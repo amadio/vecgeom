@@ -21,7 +21,6 @@
 
 #endif // VECGEOM_NVCC
 
-#include <cassert>
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
