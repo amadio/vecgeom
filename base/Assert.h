@@ -5,6 +5,12 @@
 #include <cassert>
 #else
 
+// NVCC sometimes cannot process plain assert() from <cassert>, so
+// we need to provide our own implementation that works around the bug
+// by avoiding the __PRETTY_FUNCTION__ macro where it causes problems.
+// A bug for this has been filed by Philippe Canal at the link below:
+// https://developer.nvidia.com/nvbugs/cuda/edit/1729798
+
 #ifdef assert
 #undef assert
 #endif
