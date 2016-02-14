@@ -49,6 +49,12 @@ public:
                                                   NavigationState const & /*in_state*/,
                                                   NavigationState & /*out_state*/) const = 0;
 
+  // an alias interface ( using TGeo name )
+  void FindNextBoundaryAndStep(Vector3D<Precision> const & globalpoint, Vector3D<Precision> const & globaldir,
+          NavigationState const & in_state, NavigationState & out_state, Precision step_limit, Precision & step) const {
+      step = ComputeStepAndPropagatedState( globalpoint, globaldir, step_limit, in_state, out_state );
+  }
+
   // a similar interface also returning the local coordinates as a result
   // might be reused by other calculations such as Safety
   virtual Precision ComputeStepAndSafetyAndPropagatedState(Vector3D<Precision> const & /*globalpoint*/,
