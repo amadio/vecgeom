@@ -151,22 +151,23 @@ public:
       // only consider those hitboxes which are within potential reach of this step
       if (!(step < hitbox.second)) {
         //      std::cerr << "checking id " << hitbox.first << " at box distance " << hitbox.second << "\n";
-        if (hitbox.second < 0) {
-          bool checkindaughter = candidate->Contains(localpoint);
-          if (checkindaughter == true) {
-            // need to relocate
-            step = 0;
-            nexthitvolume = candidate;
-            // THE ALTERNATIVE WOULD BE TO PUSH THE CURRENT STATE AND RETURN DIRECTLY
-            break;
-          }
-        }
+//        if (hitbox.second < 0) {
+//          bool checkindaughter = candidate->Contains(localpoint);
+//          if (checkindaughter == true) {
+//            // need to relocate
+//            step = 0;
+//            nexthitvolume = candidate;
+//            // THE ALTERNATIVE WOULD BE TO PUSH THE CURRENT STATE AND RETURN DIRECTLY
+//            break;
+//          }
+//        }
         Precision ddistance = candidate->DistanceToIn(localpoint, localdir, step);
 #ifdef VERBOSE
         std::cerr << "distance to " << candidate->GetLabel() << " is " << ddistance << "\n";
 #endif
-        nexthitvolume = (ddistance < step) ? candidate : nexthitvolume;
-        step = (ddistance < step) ? ddistance : step;
+        auto valid = !IsInf(ddistance) && ddistance < step;
+        nexthitvolume = valid ? candidate : nexthitvolume;
+        step = valid ? ddistance : step;
       } else {
         break;
       }
@@ -195,22 +196,25 @@ public:
       // only consider those hitboxes which are within potential reach of this step
       if (!(step < hitbox.second)) {
         //      std::cerr << "checking id " << hitbox.first << " at box distance " << hitbox.second << "\n";
-        if (hitbox.second < 0) {
-          bool checkindaughter = candidate->Contains(localpoint);
-          if (checkindaughter == true) {
-            // need to relocate
-            step = 0;
-            hitcandidate = candidate;
-            // THE ALTERNATIVE WOULD BE TO PUSH THE CURRENT STATE AND RETURN DIRECTLY
-            break;
-          }
-        }
+//        if (hitbox.second < 0) {
+//          bool checkindaughter = candidate->Contains(localpoint);
+//          if (checkindaughter == true) {
+//            // need to relocate
+//            step = 0;
+//            hitcandidate = candidate;
+//            // THE ALTERNATIVE WOULD BE TO PUSH THE CURRENT STATE AND RETURN DIRECTLY
+//            break;
+//          }
+//        }
         Precision ddistance = candidate->DistanceToIn(localpoint, localdir, step);
 #ifdef VERBOSE
         std::cerr << "distance to " << candidate->GetLabel() << " is " << ddistance << "\n";
 #endif
-        hitcandidate = (ddistance < step) ? candidate : hitcandidate;
-        step = (ddistance < step) ? ddistance : step;
+        auto valid = !IsInf(ddistance) && ddistance < step;
+        hitcandidate = valid ? candidate : hitcandidate;
+        step      = valid ? ddistance  : step;
+//        hitcandidate = (ddistance < step) ? candidate : hitcandidate;
+//        step = (ddistance < step) ? ddistance : step;
       } else {
         break;
       }
