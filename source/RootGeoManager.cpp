@@ -206,8 +206,8 @@ Transformation3D* RootGeoManager::Convert(TGeoMatrix const *const geomatrix) {
       new Transformation3D(t[0], t[1], t[2], r[0], r[1], r[2],
                            r[3], r[4], r[5], r[6], r[7], r[8]);
 
-  transformation->FixZeroes();
-  transformation->SetProperties();
+  //  transformation->FixZeroes();
+  // transformation->SetProperties();
   fTransformationMap.Set(geomatrix, transformation);
   return transformation;
 }
