@@ -19,7 +19,8 @@ template <bool MotherIsConvex=false>
 class NewSimpleNavigator : public VNavigatorHelper<class NewSimpleNavigator<MotherIsConvex>, MotherIsConvex> {
 
 private:
-  NewSimpleNavigator() {}
+  NewSimpleNavigator()
+      : VNavigatorHelper<class NewSimpleNavigator<MotherIsConvex>, MotherIsConvex>(SimpleSafetyEstimator::Instance()) {}
   virtual ~NewSimpleNavigator() {}
 
 public:

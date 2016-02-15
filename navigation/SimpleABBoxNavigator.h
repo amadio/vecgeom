@@ -21,7 +21,7 @@ class SimpleABBoxNavigator : public VNavigatorHelper<SimpleABBoxNavigator<Mother
 
 private:
   ABBoxManager &fABBoxManager;
-  SimpleABBoxNavigator() : fABBoxManager(ABBoxManager::Instance()) {}
+  SimpleABBoxNavigator() : fABBoxManager(ABBoxManager::Instance()), VNavigatorHelper<SimpleABBoxNavigator<MotherIsConvex>, MotherIsConvex>(SimpleABBoxSafetyEstimator::Instance()) {}
 
   // convert index to physical daugher
   VPlacedVolume const * LookupDaughter( LogicalVolume const *lvol, int id ) const {

@@ -20,6 +20,7 @@
 #include "management/HybridManager2.h"
 #include "navigation/VNavigator.h"
 #include "navigation/HybridSafetyEstimator.h"
+#include "navigation/SimpleABBoxNavigator.h"
 
 #ifdef VECGEOM_VC
 #include "backend/vc/Backend.h"
@@ -42,7 +43,7 @@ class HybridNavigator : public VNavigatorHelper<HybridNavigator<MotherIsConvex>,
 
 private:
   HybridManager2 &fAccelerationManager;
-  HybridNavigator() : fAccelerationManager(HybridManager2::Instance()) {}
+  HybridNavigator() : fAccelerationManager(HybridManager2::Instance()), VNavigatorHelper<HybridNavigator<MotherIsConvex>, MotherIsConvex>(SimpleABBoxSafetyEstimator::Instance()) {}
 
   VPlacedVolume const *LookupDaughter(LogicalVolume const *lvol, int const daughterIndex) const {
     return lvol->GetDaughters()[daughterIndex];
@@ -228,7 +229,8 @@ public:
   }
 
   static constexpr const char *gClassNameString = "HybridNavigator";
-  typedef HybridSafetyEstimator SafetyEstimator_t;
+  typedef SimpleABBoxSafetyEstimator SafetyEstimator_t;
+
 };
 } } // End global namespace
 

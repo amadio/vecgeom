@@ -55,13 +55,19 @@ public:
       step = ComputeStepAndPropagatedState( globalpoint, globaldir, step_limit, in_state, out_state );
   }
 
+  // an alias interface ( using TGeo name )
+   void FindNextBoundaryAndStepAndSafety(Vector3D<Precision> const & globalpoint, Vector3D<Precision> const & globaldir,
+           NavigationState const & in_state, NavigationState & out_state, Precision step_limit, Precision & step, bool calcsafety, Precision & safety) const {
+       step = ComputeStepAndSafetyAndPropagatedState( globalpoint, globaldir, step_limit, in_state, out_state, calcsafety, safety );
+   }
+
   // a similar interface also returning the local coordinates as a result
   // might be reused by other calculations such as Safety
   virtual Precision ComputeStepAndSafetyAndPropagatedState(Vector3D<Precision> const & /*globalpoint*/,
                                                  Vector3D<Precision> const & /*globaldir*/,
                                                  Precision /*(physics) step limit */,
                                                  NavigationState const & /*in_state*/,
-                                                 NavigationState & /*out_state*/, Precision & /*safety_out*/) const = 0;
+                                                 NavigationState & /*out_state*/, bool /*calcsafefty*/, Precision & /*safety_out*/) const = 0;
 
   virtual Precision ComputeStepAndHittingBoundaryForLocalPoint(Vector3D<Precision> const & /*localpoint*/,
                                                                Vector3D<Precision> const & /*localdir*/,
@@ -114,6 +120,7 @@ public:
   typedef VSafetyEstimator SafetyEstimator_t;
 
 protected:
+  VNavigator(VSafetyEstimator *s) : fSafetyEstimator(s) {}
   VSafetyEstimator *fSafetyEstimator; // a pointer to the safetyEstimator which can be used by the Navigator
 
   // some common code to prepare the outstate
@@ -230,7 +237,8 @@ protected:
 //! some interfaces in VSafetyEstimator (using the CRT pattern)
 template <typename Impl, bool MotherIsConvex=false>
 class VNavigatorHelper : public VNavigator {
-
+protected:
+  using VNavigator::VNavigator;
 public:
     // the default implementation for hit detection with daughters for a chunk of data
     // is to loop over the implementation for the scalar case
@@ -461,34 +469,58 @@ public :
 //    }
 
     // a similar interface also returning the safety
+    // TODO: reduce this evident code duplication with ComputeStepAndPropagatedState
     virtual Precision ComputeStepAndSafetyAndPropagatedState(Vector3D<Precision> const &globalpoint,
                                                              Vector3D<Precision> const &globaldir, Precision step_limit,
                                                              NavigationState const & __restrict__ in_state,
                                                              NavigationState & __restrict__ out_state,
-                                                             Precision &safety_out) const override {
+                                                             bool calcsafety, Precision &safety_out) const override {
       // calculate local point/dir from global point/dir
       Vector3D<Precision> localpoint;
       Vector3D<Precision> localdir;
       Impl::DoGlobalToLocalTransformation(in_state, globalpoint, globaldir, localpoint, localdir, &out_state);
 
-      // get safety first ( the only benefit here is when we reuse the local points
+      // get safety first ( the benefit here is that we reuse the local points )
       using SafetyE_t = typename Impl::SafetyEstimator_t;
-      if (!in_state.IsOnBoundary()) {
+      safety_out = 0.;
+      if (calcsafety) {
         // call the appropriate safety Estimator
         safety_out = ((SafetyE_t *)fSafetyEstimator)->SafetyE_t::ComputeSafetyForLocalPoint(localpoint, in_state.Top());
       }
 
-      // "suck in" algorithm from Impl and treat hit detection in local coordinates
-      Precision step =
-          ((Impl *)this)
-              ->Impl::ComputeStepAndHittingBoundaryForLocalPoint(localpoint, localdir, step_limit, in_state, out_state);
+      Precision step = step_limit;
+      VPlacedVolume const *hitcandidate = nullptr;
+      auto pvol = in_state.Top();
+      auto lvol = pvol->GetLogicalVolume();
+
+      // think about calling template specializations instead of branching
+      if (MotherIsConvex) {
+        // if mother is convex we may not need to do treatment of mother
+        // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
+        ((Impl *)this)
+            ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, in_state, out_state, step, hitcandidate);
+        if (hitcandidate == nullptr)
+          step = Impl::TreatDistanceToMother(pvol, localpoint, localdir, step_limit);
+      } else {
+        // need to calc DistanceToOut first
+        step = Impl::TreatDistanceToMother(pvol, localpoint, localdir, step_limit);
+        // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
+        ((Impl *)this)
+            ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, in_state, out_state, step, hitcandidate);
+        // if(hitcandidate==nullptr) counter++;
+      }
+
+      // fix state
+      bool done;
+      step = Impl::PrepareOutState(in_state, out_state, step, step_limit, hitcandidate, done);
+      if (done)
+        return step;
 
       // step was physics limited
       if (!out_state.IsOnBoundary())
         return step;
 
       // otherwise if necessary do a relocation
-
       // try relocation to refine out_state to correct location after the boundary
       ((Impl *)this)->Impl::Relocate(MovePointAfterBoundary(localpoint, localdir, step), in_state, out_state);
       return step;
@@ -523,7 +555,7 @@ public:
   static const char *GetClassName() { return Impl::gClassNameString; }
 
   virtual const char *GetName() const override { return GetClassName(); }
-}; // end class VSafetyEstimatorHelper
+}; // end class VNavigatorHelper
 
 
 
