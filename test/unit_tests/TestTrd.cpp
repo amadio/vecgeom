@@ -4,6 +4,9 @@
 //    Ensure asserts are compiled in
 //
 
+//.. ensure asserts are compiled in
+#undef NDEBUG
+
 #include "base/Vector3D.h"
 #include "volumes/Trd.h"
 #include "ApproxEqual.h"
@@ -12,8 +15,6 @@
 #include "UVector3.hh"
 #endif
 #include <cmath>
-
-#undef NDEBUG
 
 bool testvecgeom = false;
 

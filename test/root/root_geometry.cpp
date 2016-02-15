@@ -1,3 +1,7 @@
+
+// force assert() to be used, even in Release mode
+#undef NDEBUG
+
 #include "management/GeoManager.h"
 #include "management/RootGeoManager.h"
 #include "navigation/NavigationState.h"
@@ -9,8 +13,6 @@
 #include "TGeoMatrix.h"
 #include "TGeoTube.h"
 #include "TGeoVolume.h"
-
-#undef NDEBUG
 
 using namespace VECGEOM_NAMESPACE;
 

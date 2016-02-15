@@ -3,7 +3,9 @@
 // TestTotus
 //             Ensure asserts are compiled in
 
+//.. ensure asserts are compiled in
 #undef NDEBUG
+
 #include "base/Vector3D.h"
 #include "ApproxEqual.h"
 #include "base/Vector3D.h"
@@ -99,11 +101,11 @@ bool testTorus()
                        37.47827539879173);
 
    Vec_t vt6( 0.3059312222729116,
-		      0.8329513862588347,
-		     -0.461083588265824);
+              0.8329513862588347,
+             -0.461083588265824);
 
    Vec_t p2t6(70.75950555416668,
-		      -3.552713678800501e-15,
+              -3.552713678800501e-15,
                       22.37458414788935       );
 
 

@@ -3,6 +3,9 @@
 // Purpose: Unit tests for the trapezoid
 //
 
+//.. ensure asserts are compiled in
+#undef NDEBUG
+
 #include "base/Vector3D.h"
 #include "volumes/Box.h"
 #include "ApproxEqual.h"
@@ -12,9 +15,6 @@
 #endif
 
 #include "volumes/Trapezoid.h"
-
-//.. ensure asserts are compiled in
-#undef NDEBUG
 
 bool testvecgeom=false;
 

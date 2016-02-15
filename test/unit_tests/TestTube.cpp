@@ -2,6 +2,9 @@
 // File:    TestTube.cpp
 // Purpose: unit test for tube
 
+//.. ensure asserts are compiled in
+#undef NDEBUG
+
 #include "base/Vector3D.h"
 #include "volumes/Tube.h"
 #include "ApproxEqual.h"
@@ -14,10 +17,6 @@
 #include <cmath>
 
 #define PI 3.14159265358979323846
-
-//  ensure asserts are compiled in
-#undef NDEBUG
-//#undef VECGEOM_REPLACE_USOLIDS
 
 using vecgeom::Sqrt;
 

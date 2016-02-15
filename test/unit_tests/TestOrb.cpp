@@ -2,6 +2,10 @@
 // File:    TestOrb.cpp
 // Purpose: unit tests for the Orb
 //
+
+// ensure asserts are compiled in
+#undef NDEBUG
+
 #include "base/Global.h"
 #include "base/Vector3D.h"
 #include "volumes/Box.h"
@@ -13,9 +17,6 @@
 #include "UVector3.hh"
 #endif
 #include <cmath>
-
-// ensure asserts are compiled in
-#undef NDEBUG
 
 bool testvecgeom = false;
 

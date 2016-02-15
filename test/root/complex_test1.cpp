@@ -7,6 +7,9 @@
 // b) creation of a VecGeom geometry
 // c) navigation in VecGeom geometry
 
+// Forced asserts() to be defined, even for Release mode
+#undef NDEBUG
+
 #include <iostream>
 
 #include "base/SOA3D.h"
@@ -30,10 +33,6 @@
 
 #include <vector>
 #include <set>
-
-#ifdef NDEBUG
-#undef NDEBUG
-#endif
 
 using namespace VECGEOM_NAMESPACE;
 

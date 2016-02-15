@@ -7,6 +7,9 @@
 
 // a file to test compilation of features during development
 
+//.. ensure asserts are compiled in
+#undef NDEBUG
+
 #include "volumes/Polycone.h"
 #include "volumes/Tube.h"
 #include "volumes/Cone.h"
@@ -20,9 +23,6 @@
 #include "UVector3.hh"
 #endif
 
-#ifdef NDEBUG
-#undef NDEBUG
-#endif
 #include <iostream>
 
 
@@ -51,8 +51,8 @@ int main()
     UnplacedPolycone poly1( 0.,    /* initial phi starting angle */
             kTwoPi,    /* total phi angle */
             Nz,        /* number corners in r,z space */
-	    z,
-	    rmin,   /* r coordinate of these corners */
+        z,
+        rmin,   /* r coordinate of these corners */
             rmax
             );
 

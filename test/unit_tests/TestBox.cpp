@@ -3,6 +3,9 @@
 // Purpose: Unit tests for the box
 //
 
+//-- ensure asserts are compiled in
+#undef NDEBUG
+
 #include "base/Vector3D.h"
 #include "volumes/Box.h"
 #include "ApproxEqual.h"
@@ -11,9 +14,6 @@
 #include "UVector3.hh"
 #endif
 #include <cmath>
-
-//-- ensure asserts are compiled in
-#undef NDEBUG
 
 bool testvecgeom=false;
 

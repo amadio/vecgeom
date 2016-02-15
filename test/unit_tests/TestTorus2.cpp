@@ -3,7 +3,9 @@
 // TestTotus
 //             Ensure asserts are compiled in
 
+//.. ensure asserts are compiled in
 #undef NDEBUG
+
 #include "base/Vector3D.h"
 #include "ApproxEqual.h"
 #include "base/Vector3D.h"
