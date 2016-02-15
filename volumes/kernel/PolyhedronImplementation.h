@@ -999,10 +999,14 @@ PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::ScalarDi
     Vector3D<Precision> const &point,
     Vector3D<Precision> const &direction,
     const Precision /*stepMax*/) {
+  // Fast exclusion if out of Z range
+  const int zMax = unplaced.GetZSegmentCount();
+  if ((point[2] < unplaced.GetZPlanes()[0]-kTolerance) ||
+      (point[2] > unplaced.GetZPlanes()[zMax]+kTolerance))
+    return -1.;
 
   int zIndex = FindZSegment<kScalar>(unplaced, point[2]);
   // Don't go out of bounds
-  const int zMax = unplaced.GetZSegmentCount();
   zIndex = zIndex < 0 ? 0 : (zIndex >= zMax ? zMax-1 : zIndex);
 
   // Traverse Z-segments left or right depending on sign of direction
@@ -1034,6 +1038,9 @@ PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::ScalarDi
   // disabling stepMax until convention revised and clear
   // there is a problem when distance = infinity due to some error condition but stepMax finite
   // return distance < stepMax ? distance : stepMax;
+  // signal error with returning negative number
+  if(distance>=kInfinity)
+    distance = -1.;
   return distance;
 }
 

@@ -670,6 +670,8 @@ static T DistSqrToTorusR(UnplacedTorus2 const &torus, Vector3D<T> const &point, 
       din = ToBoundary<Backend,true>(torus,point,dir,torus.rmin(),true);
     }
     distance = Min(dout,din);
+    if (distance >= kInfinity)
+      distance = -1.;
 
     if( hasphi )
     {
