@@ -148,7 +148,7 @@ int main( int argc, char *argv[] ) {
         else{
             std::cerr << "ROOT backconversion failed\n";
         }
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
         VUSolid const * usolid = vecgeomplaced->ConvertToUSolids();
         if( usolid != NULL ){
           std::cout << "USolids Capacity " << const_cast<VUSolid*>(usolid)->Capacity(  ) << "\n";

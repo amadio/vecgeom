@@ -1,3 +1,12 @@
+//
+// File:    shapeDebug.cpp
+// Purpose: Similar to CompareDistances, user provide 6 floats at input:
+//  a point (x,y,z) and a direction (vx,vy,vz), and the shape, point and
+//  track is drawn using ROOT, from original point to next intersection with shape,
+//  and all distances and safeties are compared with ROOT.
+//  Note: ROOT is required for visualization.
+//        Geant4 and USolids are also used when available, but they are not mandatory.
+//
 #include "management/RootGeoManager.h"
 #include "volumes/LogicalVolume.h"
 #include "volumes/PlacedVolume.h"
@@ -127,7 +136,7 @@ int main( int argc, char *argv[] ) {
     else{
       std::cerr << "ROOT backconversion failed\n";
     }
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
     VUSolid const * usolid = vecgeomplaced->ConvertToUSolids();
     if( usolid != NULL ){
       std::cout << "USolids Capacity " << const_cast<VUSolid*>(usolid)->Capacity(  ) << "\n";
