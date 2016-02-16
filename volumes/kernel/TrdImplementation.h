@@ -189,20 +189,29 @@ static void UnplacedInside(
 
     // inside X?
     Float_t cross;
+    // Note: we cannot compare directly the cross product with the surface tolerance, but with
+    // the tolerance multiplied by the length of the lateral segment connecting dx1 and dx2
     PointLineOrientation<Backend>(Abs(point.x()) - trd.dx1(), pzPlusDz, trd.x2minusx1(), 2.0*trd.dz(), cross);
-    completelyoutside |= MakePlusTolerant<surfaceT>(cross) < 0;
-    if(surfaceT) completelyinside &= MakeMinusTolerant<surfaceT>(cross) > 0;
-
-    if(HasVaryingY<trdTypeT>::value != TrdTypes::kNo) {
-        // If Trd type is unknown don't bother with a runtime check, assume
-        // the general case
-        PointLineOrientation<Backend>(Abs(point.y()) - trd.dy1(), pzPlusDz, trd.y2minusy1(), 2.0*trd.dz(), cross);
-        completelyoutside |= MakePlusTolerant<surfaceT>(cross) < 0;
-        if(surfaceT) completelyinside &= MakeMinusTolerant<surfaceT>(cross) > 0;
+    if (surfaceT) {
+      completelyoutside |= cross < -trd.ToleranceX();
+      completelyinside  &= cross >  trd.ToleranceX();
+    } else {
+      completelyoutside |= cross < 0;
     }
-    else {
-        completelyoutside |= Abs(point.y()) > MakePlusTolerant<surfaceT>(trd.dy1());
-        if(surfaceT) completelyinside &= Abs(point.y()) < MakeMinusTolerant<surfaceT>(trd.dy1());
+
+    // inside Y?
+    if(HasVaryingY<trdTypeT>::value != TrdTypes::kNo) {
+      // If Trd type is unknown don't bother with a runtime check, assume the general case
+      PointLineOrientation<Backend>(Abs(point.y()) - trd.dy1(), pzPlusDz, trd.y2minusy1(), 2.0*trd.dz(), cross);
+      if (surfaceT) {
+        completelyoutside |= cross < -trd.ToleranceY();
+        completelyinside  &= cross >  trd.ToleranceY();
+      } else {
+        completelyoutside |= cross < 0;
+      }
+    } else {
+      completelyoutside |= Abs(point.y()) > MakePlusTolerant<surfaceT>(trd.dy1());
+      if(surfaceT) completelyinside &= Abs(point.y()) < MakeMinusTolerant<surfaceT>(trd.dy1());
     }
 }
 
