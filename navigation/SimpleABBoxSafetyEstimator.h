@@ -60,17 +60,13 @@ private:
     return count;
   }
 
-public:
-  static constexpr const char *gClassNameString = "SimpleABBoxSafetyEstimator";
-
+private:
   VECGEOM_INLINE
-  virtual Precision ComputeSafetyForLocalPoint(Vector3D<Precision> const &localpoint,
-                                               VPlacedVolume const *pvol) const override {
+  Precision TreatSafetyToIn(Vector3D<Precision> const &localpoint, VPlacedVolume const *pvol, Precision outsafety ) const {
     // a stack based workspace array
     static __thread ABBoxManager::BoxIdDistancePair_t boxsafetylist[VECGEOM_MAXDAUGHTERS] = {};
 
-    // safety to mother
-    double safety = pvol->SafetyToOut(localpoint);
+    double safety = outsafety; // we use the outsafety estimate as starting point
     double safetysqr = safety * safety;
 
     // safety to bounding boxes
@@ -102,6 +98,35 @@ public:
     }
     return safety;
   }
+
+public:
+  static constexpr const char *gClassNameString = "SimpleABBoxSafetyEstimator";
+
+  VECGEOM_INLINE
+  virtual Precision ComputeSafetyForLocalPoint(Vector3D<Precision> const &localpoint,
+                                               VPlacedVolume const *pvol) const override {
+
+
+    // safety to mother
+    double safety = pvol->SafetyToOut(localpoint);
+    return TreatSafetyToIn(localpoint,pvol,safety);
+  }
+
+#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
+  VECGEOM_INLINE
+   virtual VECGEOM_BACKEND_PRECISION_TYPE ComputeSafetyForLocalPoint(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &localpoint,
+                                                VPlacedVolume const *pvol, VECGEOM_BACKEND_PRECISION_TYPE::Mask m) const override {
+     // SIMD safety to mother
+     auto safety = pvol->SafetyToOut(localpoint);
+
+     // now loop over the voxelized treatment of safety to in
+     for(unsigned int i = 0; i < VECGEOM_BACKEND_PRECISION_TYPE::Size; ++i){
+        safety[i] = TreatSafetyToIn( Vector3D<Precision>(localpoint.x()[i],localpoint.y()[i],localpoint.z()[i]), pvol, safety[i]);
+     }
+    return safety;
+  }
+#endif
+
 
   // vector interface
   VECGEOM_INLINE

@@ -72,6 +72,22 @@ private:
     return count;
   }
 
+#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
+  VECGEOM_INLINE
+   virtual VECGEOM_BACKEND_PRECISION_TYPE ComputeSafetyForLocalPoint(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &localpoint,
+                                                VPlacedVolume const *pvol, VECGEOM_BACKEND_PRECISION_TYPE::Mask m) const override {
+     // SIMD safety to mother
+     auto safety = pvol->SafetyToOut(localpoint);
+
+     /*
+     // now loop over the voxelized treatment of safety to in
+     for(unsigned int i = 0; i < VECGEOM_BACKEND_PRECISION_TYPE::Size; ++i){
+        safety[i] = TreatSafetyToIn( Vector3D<Precision>(localpoint.x()[i],localpoint.y()[i],localpoint.z()[i]), pvol, safety[i]);
+     }*/
+    return safety;
+  }
+#endif
+
 public:
   static constexpr const char *gClassNameString = "HybridSafetyEstimator";
 

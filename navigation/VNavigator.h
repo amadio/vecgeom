@@ -35,6 +35,7 @@ class VNavigator {
 
 public:
   VNavigator() : fSafetyEstimator(nullptr) {}
+  VSafetyEstimator const * GetSafetyEstimator() const { return fSafetyEstimator; }
 
   //! computes the step (distance) to the next object in the geometry hierarchy obtained
   //! by propagating with step along the ray
@@ -95,6 +96,17 @@ public:
                                                Precision const */*(physics) step limits */,
                                                NavigationState const ** /*in_states*/,
                                                NavigationState ** /*out_states*/, Precision */*out_steps*/) const = 0;
+
+  // for vector navigation
+  //! this methods transforms the global coordinates into local ones usually calls more specialized methods
+  //! like the hit detection on local coordinates
+  virtual void ComputeStepsAndSafetiesAndPropagatedStates(SOA3D<Precision> const & /*globalpoints*/,
+                                                          SOA3D<Precision> const & /*globaldirs*/,
+                                                          Precision const * /*(physics) step limits */,
+                                                          NavigationState const ** /*in_states*/,
+                                                          NavigationState ** /*out_states*/,
+                                                          Precision * /*out_steps*/, bool const * /*calcsafety*/,
+                                                          Precision * /*out_safeties*/) const = 0;
 
 protected:
   // a common relocate method ( to calculate propagated states after the boundary )
@@ -262,8 +274,27 @@ public:
     }
   }
 
+ // the default implementation for safety calculation for a chunk of data
+  template <typename T, unsigned int ChunkSize> // we may go to Backend as template parameter in future
+  static void SafetyLooper(VNavigator const *nav, VPlacedVolume const *pvol, Vector3D<T> const &localpoint,
+                           unsigned int from_index, bool const *calcsafeties, Precision *out_safeties) {
+    // dispatch to ordinary implementation ( which itself might be vectorized )
+    // TODO: check calcsafeties if we need to do this at all
+    using SafetyE_t = typename Impl::SafetyEstimator_t;
+    typename T::Mask m;
+    for(unsigned int i=0;i<ChunkSize;++i){
+        m[i]=calcsafeties[from_index+i];
+    }
+    T safety(0);
+    if(Any(m)){
+       safety = ((SafetyE_t*) nav->GetSafetyEstimator())->ComputeSafetyForLocalPoint(localpoint, pvol,m);
+    }
+    safety.store(&out_safeties[from_index]);
+  }
+
 //  template <>
-//  static void DaughterIntersectionsLooper<Precision, 1>(VNavigator const *nav, LogicalVolume const *lvol, Vector3D<Precision> const &localpoint,
+//  static void DaughterIntersectionsLooper<Precision, 1>(VNavigator const *nav, LogicalVolume const *lvol,
+//  Vector3D<Precision> const &localpoint,
 //                                                        Vector3D<Precision> const &localdir,
 //                                                        NavStatePool const &in_states, NavStatePool &out_states,
 //                                                        unsigned int from_index, unsigned int to_index,
@@ -415,6 +446,75 @@ public :
       }
     }
 
+    // this kernel is a generic implementation to navigate with chunks of data
+    // can be used also for the scalar imple
+    // same as above but including safety treatment
+    // TODO: remerge with above to avoid code duplication
+    template <typename T, unsigned int ChunkSize>
+    static void
+    NavigateAChunk(VNavigator const *__restrict__ nav, VPlacedVolume const *__restrict__ pvol,
+                   LogicalVolume const *__restrict__ lvol, SOA3D<Precision> const &__restrict__ globalpoints,
+                   SOA3D<Precision> const &__restrict__ globaldirs, Precision const *__restrict__ step_limits,
+                   NavigationState const **__restrict__ in_states, NavigationState **__restrict__ out_states,
+                   Precision *__restrict__ out_steps,
+                   bool const *__restrict__ calcsafeties,
+                   Precision *__restrict__ out_safeties,
+                   unsigned int from_index) {
+
+      VPlacedVolume const *hitcandidates[ChunkSize] = {}; // initialize all to nullptr
+
+      Vector3D<T> localpoint, localdir;
+      Impl::template DoGlobalToLocalTransformations<T, ChunkSize>(in_states, globalpoints, globaldirs, from_index,
+                                                                  localpoint, localdir, out_states);
+
+      // safety part
+      Impl::template SafetyLooper<T, ChunkSize>(nav, pvol, localpoint, from_index, calcsafeties, out_safeties);
+
+      T slimit(step_limits + from_index); // will only work with new ScalarWrapper
+      if (MotherIsConvex) {
+
+        Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, out_states,
+                                                                 from_index, out_steps, hitcandidates);
+        // parse the hitcandidates pointer as double to apply a mask
+        T step(out_steps + from_index);
+        T hitcandidates_as_doubles((double *)hitcandidates);
+        auto cond = hitcandidates_as_doubles == 0.;
+        if (Any(cond)) {
+          step(cond) = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
+          step.store(out_steps + from_index);
+        }
+      } else {
+        // need to calc DistanceToOut first
+        T step = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
+        step.store(out_steps + from_index);
+
+        // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
+        Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, out_states,
+                                                                 from_index, out_steps, hitcandidates);
+      }
+
+      // fix state ( seems to be serial so we iterate over indices )
+      for (unsigned int i = 0; i < ChunkSize; ++i) {
+        unsigned int trackid = from_index + i;
+        bool done;
+        out_steps[trackid] = Impl::PrepareOutState(*in_states[trackid], *out_states[trackid], out_steps[trackid],
+                                                   slimit[i], hitcandidates[i], done);
+        if (done)
+          continue;
+        // step was physics limited
+        if (!out_states[trackid]->IsOnBoundary())
+          continue;
+        // otherwise if necessary do a relocation
+        // try relocation to refine out_state to correct location after the boundary
+        ((Impl *)nav)
+            ->Impl::Relocate(
+                MovePointAfterBoundary(Vector3D<Precision>(localpoint.x()[i], localpoint.y()[i], localpoint.z()[i]),
+                                       Vector3D<Precision>(localdir.x()[i], localdir.y()[i], localdir.z()[i]),
+                                       out_steps[trackid]),
+                *in_states[trackid], *out_states[trackid]);
+      }
+    }
+
     // generic implementation for the vector interface
     // this implementation tries to process everything in vector CHUNKS
     // at the very least this enables at least the DistanceToOut call to be vectorized
@@ -452,6 +552,40 @@ public :
                                                                  *in_states[i], *out_states[i]);
       }
     }
+
+    // generic implementation for the vector interface
+       // this implementation tries to process everything in vector CHUNKS
+       // at the very least this enables at least the DistanceToOut call to be vectorized
+       virtual void ComputeStepsAndSafetiesAndPropagatedStates(SOA3D<Precision> const &__restrict__ globalpoints,
+                                                               SOA3D<Precision> const &__restrict__ globaldirs,
+                                                               Precision const *__restrict__ step_limit,
+                                                               NavigationState const ** __restrict__ in_states,
+                                                               NavigationState ** __restrict__ out_states,
+                                                               Precision *__restrict__ out_steps,
+                                                               bool const *__restrict__ calcsafeties,
+                                                               Precision *__restrict__ out_safeties
+       ) const override {
+
+         // process SIMD part and TAIL part
+         // something like
+         using Real_v = Vc::double_v;
+         const auto size = globalpoints.size();
+         auto pvol = in_states[0]->Top();
+         auto lvol = pvol->GetLogicalVolume();
+         // loop over all tracks in chunks
+         int i = 0;
+         for (; i < (int)size - (int)(Real_v::Size - 1); i += Real_v::Size) {
+           NavigateAChunk<Real_v, Real_v::Size>(this, pvol, lvol, globalpoints, globaldirs, step_limit, in_states,
+                                                out_states, out_steps, calcsafeties, out_safeties, i);
+         }
+         // fall back to scalar interface for tail treatment
+         for (; i < (int)size; ++i) {
+           out_steps[i] = ((Impl *)this)
+                              ->Impl::ComputeStepAndSafetyAndPropagatedState(globalpoints[i], globaldirs[i], step_limit[i],
+                                                                    *in_states[i], *out_states[i], calcsafeties[i], out_safeties[i]);
+         }
+       }
+
 
     // another generic implementation for the vector interface
     // this implementation just loops over the scalar interface
