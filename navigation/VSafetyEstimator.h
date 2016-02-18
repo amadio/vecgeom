@@ -46,9 +46,15 @@ public:
   virtual Precision ComputeSafetyForLocalPoint(Vector3D<Precision> const & /*localpoint*/,
                                                VPlacedVolume const * /*pvol*/) const = 0;
 
-  // TODO: We might want to add an explicit vector interface
-  //
-  // virtual SIMDTYPE ComputeSafetyForLocalPoint(Vector3D<SIMDTYPE> const &, ) = 0;
+  // in addition useful to offer an explicit SIMD interface
+  // which could be used from other clients (such as VNavigator when it treats basket data)
+  // the mask is supposed to indicate which lane needs a safety result since often the track is
+  // on a boundary where the safety is zero anyway
+#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
+  virtual VECGEOM_BACKEND_PRECISION_TYPE
+  ComputeSafetyForLocalPoint(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const & /*localpoint*/,
+                             VPlacedVolume const * /*pvol*/, VECGEOM_BACKEND_PRECISION_TYPE::Mask /*m*/) const = 0;
+#endif
 
   // interfaces to treat vectors/collections of points (uses the approach with intermediate storage and passing down the
   // loops to shapes)

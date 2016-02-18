@@ -39,6 +39,25 @@ public:
     return safety;
   }
 
+#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
+  VECGEOM_INLINE
+   virtual VECGEOM_BACKEND_PRECISION_TYPE ComputeSafetyForLocalPoint(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &localpoint,
+                                                VPlacedVolume const *pvol, VECGEOM_BACKEND_PRECISION_TYPE::Mask m) const override {
+     // safety to mother
+     auto safety = pvol->SafetyToOut(localpoint);
+
+     // safety to daughters
+     auto daughters = pvol->GetLogicalVolume()->GetDaughtersp();
+     auto numberdaughters = daughters->size();
+     for (decltype(numberdaughters) d = 0; d < numberdaughters; ++d) {
+       VPlacedVolume const *daughter = daughters->operator[](d);
+       auto tmp = daughter->SafetyToIn(localpoint);
+       safety = Min(safety, tmp);
+     }
+     return safety;
+   }
+#endif
+
   VECGEOM_INLINE
   virtual void ComputeSafetyForLocalPoints(SOA3D<Precision> const &localpoints, VPlacedVolume const *pvol,
                                            Precision *safeties) const override {
@@ -85,6 +104,8 @@ public:
       }
       safety.store(safeties + i);
     }
+#else
+#pragma message("implementation for ComputeVectorSafety missing");
 #endif
   }
 
