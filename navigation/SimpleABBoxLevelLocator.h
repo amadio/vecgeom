@@ -44,11 +44,13 @@ public:
         // TODO: could start directly at first 1 in inBox
         for (size_t ii = 0; ii < kVcFloat::precision_v::Size; ++ii) {
           auto daughterid = boxgroupid * kVcFloat::precision_v::Size + ii;
-          VPlacedVolume const *daughter = (*daughters)[daughterid];
-          if (daughterid < daughters->size() && inBox[ii] && daughter->Contains(localpoint, daughterlocalpoint)) {
-            pvol = daughter;
-            // careful here: we also want to break on external loop
-            return true;
+          if (daughterid < daughters->size() && inBox[ii]) {
+            VPlacedVolume const *daughter = (*daughters)[daughterid];
+            if (daughter->Contains(localpoint, daughterlocalpoint)) {
+              pvol = daughter;
+              // careful here: we also want to break on external loop
+              return true;
+            }
           }
         }
       }
@@ -74,12 +76,15 @@ public:
         // TODO: could start directly at first 1 in inBox
         for (size_t ii = 0; ii < kVcFloat::precision_v::Size; ++ii) {
           auto daughterid = boxgroupid * kVcFloat::precision_v::Size + ii;
-          VPlacedVolume const *daughter = (*daughters)[daughterid];
-          if (daughter==exclvol) continue;
-          if (daughterid < daughters->size() && inBox[ii] && daughter->Contains(localpoint, daughterlocalpoint)) {
-            pvol = daughter;
-            // careful here: we also want to break on external loop
-            return true;
+          if (daughterid < daughters->size() && inBox[ii]) {
+            VPlacedVolume const *daughter = (*daughters)[daughterid];
+            if (daughter == exclvol)
+              continue;
+            if (daughter->Contains(localpoint, daughterlocalpoint)) {
+              pvol = daughter;
+              // careful here: we also want to break on external loop
+              return true;
+            }
           }
         }
       }
