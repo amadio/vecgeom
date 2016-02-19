@@ -22,7 +22,7 @@ private:
   // we keep a reference to the ABBoxManager ( avoids calling Instance() on this guy all the time )
   ABBoxManager &fABBoxManager;
 
-  SimpleABBoxSafetyEstimator() : fABBoxManager(ABBoxManager::Instance()) {}
+  SimpleABBoxSafetyEstimator() : VSafetyEstimatorHelper<SimpleABBoxSafetyEstimator>(), fABBoxManager(ABBoxManager::Instance()) {}
 
   // convert index to physical daugher
   VPlacedVolume const *LookupDaughter(LogicalVolume const *lvol, int id) const {
@@ -116,14 +116,23 @@ public:
   VECGEOM_INLINE
    virtual VECGEOM_BACKEND_PRECISION_TYPE ComputeSafetyForLocalPoint(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &localpoint,
                                                 VPlacedVolume const *pvol, VECGEOM_BACKEND_PRECISION_TYPE::Mask m) const override {
-     // SIMD safety to mother
-     auto safety = pvol->SafetyToOut(localpoint);
+     VECGEOM_BACKEND_PRECISION_TYPE safety(0.);
+     if (Any(m)) {
+       // SIMD safety to mother
+       auto safety = pvol->SafetyToOut(localpoint);
 
-     // now loop over the voxelized treatment of safety to in
-     for(unsigned int i = 0; i < VECGEOM_BACKEND_PRECISION_TYPE::Size; ++i){
-        safety[i] = TreatSafetyToIn( Vector3D<Precision>(localpoint.x()[i],localpoint.y()[i],localpoint.z()[i]), pvol, safety[i]);
+       // now loop over the voxelized treatment of safety to in
+       for (unsigned int i = 0; i < VECGEOM_BACKEND_PRECISION_TYPE::Size; ++i) {
+         if (m[i]) {
+           safety[i] = TreatSafetyToIn(Vector3D<Precision>(localpoint.x()[i], localpoint.y()[i], localpoint.z()[i]),
+                                       pvol, safety[i]);
+         }
+         else{
+           safety[i] = 0;
+         }
+       }
      }
-    return safety;
+     return safety;
   }
 #endif
 

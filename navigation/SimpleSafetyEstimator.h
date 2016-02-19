@@ -44,15 +44,18 @@ public:
    virtual VECGEOM_BACKEND_PRECISION_TYPE ComputeSafetyForLocalPoint(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &localpoint,
                                                 VPlacedVolume const *pvol, VECGEOM_BACKEND_PRECISION_TYPE::Mask m) const override {
      // safety to mother
-     auto safety = pvol->SafetyToOut(localpoint);
+     VECGEOM_BACKEND_PRECISION_TYPE safety(0.);
+     if (Any(m)) {
+       auto safety = pvol->SafetyToOut(localpoint);
 
-     // safety to daughters
-     auto daughters = pvol->GetLogicalVolume()->GetDaughtersp();
-     auto numberdaughters = daughters->size();
-     for (decltype(numberdaughters) d = 0; d < numberdaughters; ++d) {
-       VPlacedVolume const *daughter = daughters->operator[](d);
-       auto tmp = daughter->SafetyToIn(localpoint);
-       safety = Min(safety, tmp);
+       // safety to daughters
+       auto daughters = pvol->GetLogicalVolume()->GetDaughtersp();
+       auto numberdaughters = daughters->size();
+       for (decltype(numberdaughters) d = 0; d < numberdaughters; ++d) {
+         VPlacedVolume const *daughter = daughters->operator[](d);
+         auto tmp = daughter->SafetyToIn(localpoint);
+         safety = Min(safety, tmp);
+       }
      }
      return safety;
    }
