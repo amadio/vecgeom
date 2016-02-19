@@ -24,7 +24,7 @@ private:
   // we keep a reference to the ABBoxManager ( avoids calling Instance() on this guy all the time )
   HybridManager2 &fAccelerationStructureManager;
 
-  HybridSafetyEstimator() : fAccelerationStructureManager(HybridManager2::Instance()) {}
+  HybridSafetyEstimator() : VSafetyEstimatorHelper<HybridSafetyEstimator>(), fAccelerationStructureManager(HybridManager2::Instance()) {}
 
   // convert index to physical daugher
   VPlacedVolume const *LookupDaughter(LogicalVolume const *lvol, int id) const {
@@ -72,33 +72,39 @@ private:
     return count;
   }
 
+public:
+  static constexpr const char *gClassNameString = "HybridSafetyEstimator";
+
 #ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
   VECGEOM_INLINE
    virtual VECGEOM_BACKEND_PRECISION_TYPE ComputeSafetyForLocalPoint(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &localpoint,
                                                 VPlacedVolume const *pvol, VECGEOM_BACKEND_PRECISION_TYPE::Mask m) const override {
-     // SIMD safety to mother
-     auto safety = pvol->SafetyToOut(localpoint);
+     VECGEOM_BACKEND_PRECISION_TYPE safety(0.);
+     if (Any(m)) {
+       // SIMD safety to mother
+       auto safety = pvol->SafetyToOut(localpoint);
 
-     /*
-     // now loop over the voxelized treatment of safety to in
-     for(unsigned int i = 0; i < VECGEOM_BACKEND_PRECISION_TYPE::Size; ++i){
-        safety[i] = TreatSafetyToIn( Vector3D<Precision>(localpoint.x()[i],localpoint.y()[i],localpoint.z()[i]), pvol, safety[i]);
-     }*/
-    return safety;
+       // now loop over the voxelized treatment of safety to in
+       for (unsigned int i = 0; i < VECGEOM_BACKEND_PRECISION_TYPE::Size; ++i) {
+         if (m[i]) {
+           safety[i] = TreatSafetyToIn(Vector3D<Precision>(localpoint.x()[i], localpoint.y()[i], localpoint.z()[i]),
+                                       pvol, safety[i]);
+         } else {
+           safety[i] = 0;
+         }
+       }
+     }
+     return safety;
   }
 #endif
 
-public:
-  static constexpr const char *gClassNameString = "HybridSafetyEstimator";
-
   VECGEOM_INLINE
-  virtual Precision ComputeSafetyForLocalPoint(Vector3D<Precision> const &localpoint,
-                                               VPlacedVolume const *pvol) const override {
+  Precision TreatSafetyToIn(Vector3D<Precision> const &localpoint, VPlacedVolume const *pvol,
+                            Precision outsafety) const {
     // a stack based workspace array
     static __thread HybridManager2::BoxIdDistancePair_t boxsafetylist[VECGEOM_MAXDAUGHTERS] = {};
 
-    // safety to mother
-    double safety = pvol->SafetyToOut(localpoint);
+    double safety = outsafety; // we use the outsafety estimate as starting point
     double safetysqr = safety * safety;
 
     // safety to bounding boxes
@@ -128,10 +134,19 @@ public:
     return safety;
   }
 
+  // this is (almost) the same code as in SimpleABBoxSafetyEstimator --> avoid this
+  VECGEOM_INLINE
+  virtual Precision ComputeSafetyForLocalPoint(Vector3D<Precision> const &localpoint,
+                                               VPlacedVolume const *pvol) const override {
+    // safety to mother
+    double safety = pvol->SafetyToOut(localpoint);
+    return TreatSafetyToIn(localpoint,pvol,safety);
+  }
+
   // vector interface
   VECGEOM_INLINE
     virtual void ComputeSafetyForLocalPoints(SOA3D<Precision> const & /*localpoints*/, VPlacedVolume const * /*pvol*/,
-					     Precision * /*safeties*/) const override {
+                                             Precision * /*safeties*/) const override {
 //    // a stack based workspace array
 //    static __thread ABBoxManager::BoxIdDistancePair_t boxsafetylist[VECGEOM_MAXDAUGHTERS] = {};
 //

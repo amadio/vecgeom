@@ -43,7 +43,7 @@ class HybridNavigator : public VNavigatorHelper<HybridNavigator<MotherIsConvex>,
 
 private:
   HybridManager2 &fAccelerationManager;
-  HybridNavigator() : fAccelerationManager(HybridManager2::Instance()), VNavigatorHelper<HybridNavigator<MotherIsConvex>, MotherIsConvex>(SimpleABBoxSafetyEstimator::Instance()) {}
+  HybridNavigator() : VNavigatorHelper<HybridNavigator<MotherIsConvex>, MotherIsConvex>(SimpleABBoxSafetyEstimator::Instance()), fAccelerationManager(HybridManager2::Instance()) {}
 
   VPlacedVolume const *LookupDaughter(LogicalVolume const *lvol, int const daughterIndex) const {
     return lvol->GetDaughters()[daughterIndex];
