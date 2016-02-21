@@ -23,7 +23,6 @@
 #include <stdlib.h>
 #include <cmath>
 #include <map>
-#include <cassert>
 #include <sstream>
 
 #include "TGeoManager.h"

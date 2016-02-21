@@ -16,7 +16,6 @@
 #include "volumes/Quadrilaterals.h"
 #include "volumes/UnplacedPolyhedron.h"
 #include <cstdio>
-#include <cassert>
 
 namespace vecgeom {
 

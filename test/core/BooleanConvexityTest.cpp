@@ -10,7 +10,6 @@
 
 //.. ensure asserts are compiled in
 #undef NDEBUG
-#include <cassert>
 
 using namespace vecgeom;
 

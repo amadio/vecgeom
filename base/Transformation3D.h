@@ -24,11 +24,14 @@ class TGeoMatrix;
 
 typedef int RotationCode;
 typedef int TranslationCode;
+
+namespace vecgeom {
 namespace rotation {
 enum RotationId { kGeneric = -1, kDiagonal = 0x111, kIdentity = 0x200 };
 }
 namespace translation {
 enum TranslationId { kGeneric = -1, kIdentity = 0 };
+}
 }
 
 namespace vecgeom {

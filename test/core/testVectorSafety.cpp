@@ -5,6 +5,9 @@
  *      Author: swenzel
  */
 
+// Forced asserts() to be defined, even for Release mode
+#undef NDEBUG
+
 #include "volumes/utilities/VolumeUtilities.h"
 #include "volumes/Box.h"
 #include "base/Transformation3D.h"
@@ -13,8 +16,6 @@
 #include "navigation/SimpleNavigator.h"
 #include "management/GeoManager.h"
 #include "base/Global.h"
-#undef NDEBUG
-#include <cassert>
 
 using namespace vecgeom;
 

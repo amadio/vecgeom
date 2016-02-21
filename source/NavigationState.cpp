@@ -4,7 +4,6 @@
 
 #include "navigation/NavigationState.h"
  
-#include <cassert>
 #include <iostream>
 #include <list>
 

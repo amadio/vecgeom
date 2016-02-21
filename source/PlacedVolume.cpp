@@ -9,7 +9,6 @@
 #include "base/SOA3D.h"
 
 #include <stdio.h>
-#include <cassert>
 
 #ifdef VECGEOM_USOLIDS
 #include "volumes/USolidsInterfaceHelper.h"

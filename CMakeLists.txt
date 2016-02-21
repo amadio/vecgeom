@@ -1,5 +1,4 @@
-
-cmake_minimum_required(VERSION 2.8.8)
+cmake_minimum_required(VERSION 3.1.0)
 project(VecGeom)
 
 set(VECGEOM ON)
@@ -441,8 +440,8 @@ if (ROOT)
       source/PlacedRootVolume.cpp
       source/RootGeoManager.cpp
       source/UnplacedRootVolume.cpp
+      source/ShapeDebugger.cpp
       source/Visualizer.cpp)
-
 endif()
 
 if (USolids)
@@ -637,7 +636,6 @@ if (BENCHMARK)
 endif()
 set(SRC_CPP ${SRC_CPP} ${SRC_EXTERNAL}
   source/GeoManager.cpp
-  source/ShapeDebugger.cpp
   source/CppExporter.cpp
   source/benchmarking/NavigationBenchmarker.cpp
 )
@@ -755,6 +753,7 @@ if(BENCHMARK)
   ${CMAKE_SOURCE_DIR}/test/root/BenchmarkShapeFromROOTFile.cpp
   ${CMAKE_SOURCE_DIR}/test/root/BenchmarkShapeFromROOTFile_WithVisualization.cpp
   ${CMAKE_SOURCE_DIR}/test/root/CompareDistances.cpp
+  ${CMAKE_SOURCE_DIR}/test/shape_tester/shapeDebug.cpp
 )
 endif()
 
@@ -835,6 +834,7 @@ set(TEST_EXECUTABLES_SHAPETESTER
   # ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testParaboloid.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testPolycone.cpp 
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testGenTrap.cpp
+  ${CMAKE_SOURCE_DIR}/test/shape_tester/convention_testTube.cpp
 )
 
 if(ROOT) # add shape testers that depend on ROOT

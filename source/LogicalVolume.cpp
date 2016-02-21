@@ -14,7 +14,6 @@
 #include "management/VolumeFactory.h"
 #include "volumes/PlacedVolume.h"
 
-#include <cassert>
 #include <climits>
 #include <stdio.h>
 

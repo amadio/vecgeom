@@ -72,14 +72,18 @@ class Wedge{
         VECGEOM_CUDA_HEADER_BOTH
         Vector3D<Precision> GetNormal2() const {return fNormalVector2; }
 
-        // very important:
         template<typename Backend>
         VECGEOM_CUDA_HEADER_BOTH
         typename Backend::bool_v Contains( Vector3D<typename Backend::precision_v> const& point ) const;
 
+        // GL note: for tubes, use of TubeImpl::PointInCyclicalSector outperformed next two methods in vector mode
         template<typename Backend>
         VECGEOM_CUDA_HEADER_BOTH
         typename Backend::bool_v ContainsWithBoundary( Vector3D<typename Backend::precision_v> const& point ) const;
+
+        template<typename Backend>
+        VECGEOM_CUDA_HEADER_BOTH
+        typename Backend::bool_v ContainsWithoutBoundary( Vector3D<typename Backend::precision_v> const& point ) const;
 
         template<typename Backend>
         VECGEOM_CUDA_HEADER_BOTH
@@ -173,6 +177,17 @@ class Wedge{
 
     template<typename Backend>
     VECGEOM_CUDA_HEADER_BOTH
+    typename Backend::bool_v Wedge::ContainsWithoutBoundary( Vector3D<typename Backend::precision_v> const& point ) const
+    {
+        typedef typename Backend::bool_v      Bool_t;
+        Bool_t completelyinside, completelyoutside;
+        GenericKernelForContainsAndInside<Backend,true>(
+              point, completelyinside, completelyoutside);
+        return completelyinside;
+    }
+
+    template<typename Backend>
+    VECGEOM_CUDA_HEADER_BOTH
     typename Backend::bool_v Wedge::Contains( Vector3D<typename Backend::precision_v> const& point ) const
     {
         typedef typename Backend::bool_v Bool_t;
@@ -210,9 +225,9 @@ class Wedge{
             completelyoutside |= endCheck < 0.;
         else
             completelyoutside &= endCheck < 0.;
-        if( ForInside ){
-            // TODO: see if the compiler optimizes across these function calls sinc
-            // a couple of multiplications inside IsOnSurfaceGeneric are already done preveously
+        if( ForInside ) {
+            // TODO: see if the compiler optimizes across these function calls since
+            // a couple of multiplications inside IsOnSurfaceGeneric are already done previously
             typename Backend::bool_v onSurface =
                     Wedge::IsOnSurfaceGeneric<Backend>(fAlongVector1, fNormalVector1, localPoint)
                     || Wedge::IsOnSurfaceGeneric<Backend>(fAlongVector2,fNormalVector2, localPoint);

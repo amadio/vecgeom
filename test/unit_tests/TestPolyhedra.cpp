@@ -15,7 +15,6 @@
 
 //-- ensure asserts are compiled in
 #undef NDEBUG
-#include <cassert>
 
 bool testvecgeom = false;
 const double degToRad = UUtils::kPi/180.0;
