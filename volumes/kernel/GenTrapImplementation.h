@@ -264,16 +264,17 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
       // an embedded cross product of 2D vectors in 3D. The resulting vector always points
       // in z-direction whose z-magnitude is directly related to the distance.
       // see, e.g.,  http://geomalgorithms.com/a02-_lines.html
+      if (unplaced.IsDegenerated(i)) continue;
       int j = (i + 1) % 4;
       Float_t DeltaX = vertexX[j] - vertexX[i];
       Float_t DeltaY = vertexY[j] - vertexY[i];
       Float_t cross = (localPoint.x() - vertexX[i]) * DeltaY - (localPoint.y() - vertexY[i]) * DeltaX;
       if (ForInside) {
         Bool_t onsurf = (cross * cross < tolerancesq * (DeltaX * DeltaX + DeltaY * DeltaY));
-        completelyoutside |= ((cross < 0.) && (!onsurf));
-        completelyinside &= ((cross > 0.) && (!onsurf));
+        completelyoutside |= ((cross < MakeMinusTolerant<ForInside>(0.)) && (!onsurf));
+        completelyinside &= ((cross > MakePlusTolerant<ForInside>(0.)) && (!onsurf));
       } else {
-        completelyoutside |= (cross < MakeMinusTolerant<ForInside>(0));
+        completelyoutside |= (cross < MakeMinusTolerant<ForInside>(0.));
       }
 
       //    if (Backend::early_returns) {
@@ -355,6 +356,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     // std::cerr << "IsInTopOrBottom: pointx: " << pointx << "  pointy: " << pointy << "  top: " << top << "\n";
 
     Bool_t completelyoutside(Backend::kFalse);
+    Bool_t degenerate(Backend::kTrue);
     for (int i = 0; i < 4; ++i) {
       Float_t deltaX;
       Float_t deltaY;
@@ -370,14 +372,16 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
 
       Float_t cross = (pointx - cornerX) * deltaY;
       cross -= (pointy - cornerY) * deltaX;
-
+      degenerate &= deltaX < MakePlusTolerant<true>(0.);
+      degenerate &= deltaY < MakePlusTolerant<true>(0.);
       completelyoutside |= cross < MakeMinusTolerant<true>(0.);
-      if (Backend::early_returns) {
+     // if (Backend::early_returns) {
         if (IsFull(completelyoutside)) {
           return Backend::kFalse;
         }
-      }
+     // }
     }
+    completelyoutside |= degenerate;
     return !completelyoutside;
   }
 

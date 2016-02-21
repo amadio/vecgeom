@@ -50,6 +50,8 @@ public:
   Precision fDeltaX[8];       /** X components of connecting horizontal vectors hij */
   Precision fDeltaY[8];       /** Y components of connecting horizontal vectors hij */
 
+  bool fDegenerated[4];       /** Flags for each top-bottom edge marking that this is degenerated */
+
   SecondOrderSurfaceShell<4> fSurfaceShell; /** Utility class for twisted surface algorithms */
 
 public:
@@ -112,6 +114,11 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   bool IsConvex() const final { return (!fIsTwisted); }
+
+  /** @brief Getter for the global convexity of the trapezoid */
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  bool IsDegenerated(int i) const { return (fDegenerated[i]); }
 
   /** @brief Computes if opposite segments are crossing, making a malformed shape */
   // This can become a general utility

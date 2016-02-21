@@ -37,7 +37,7 @@ int main() {
   tester.SetVerbosity(2);
   tester.SetRepetitions(1);
   tester.SetPoolMultiplier(1); // set this if we want to compare results
-  tester.SetPointCount(100000);
+  tester.SetPointCount(1000000);
   tester.SetToInBias(0.8);
   tester.RunBenchmark();
 }

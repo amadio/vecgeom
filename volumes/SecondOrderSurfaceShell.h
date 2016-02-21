@@ -36,6 +36,7 @@ private:
   Precision fDz2; /** 0.5/fDz */
   Precision fiscurved[N]; /** Indicate which surfaces are planar */
   bool fisplanar; /** Flag that all surfaces are planar */
+  bool fdegenerated[N]; /** Flags for each top-bottom edge marking that this is degenerated */
 
   Vertex_t fNormals[N]; /** Pre-computed normals for the planar case */
 
@@ -70,6 +71,10 @@ public:
       vd.Set(verticesx[j + N], verticesy[j + N], dz);
       fxd[i] = verticesx[N + j];
       fyd[i] = verticesy[N + j];
+      fdegenerated[i] = (Abs(fxa[i]-fxc[i])<kTolerance) &&
+                        (Abs(fya[i]-fyc[i])<kTolerance) &&
+                        (Abs(fxb[i]-fxd[i])<kTolerance) &&
+                        (Abs(fyb[i]-fyd[i])<kTolerance);
       ftx1[i] = fDz2 * (fxb[i] - fxa[i]);
       fty1[i] = fDz2 * (fyb[i] - fya[i]);
       ftx2[i] = fDz2 * (fxd[i] - fxc[i]);
@@ -145,6 +150,7 @@ public:
       vertexY[i] = fya[i] + fty1[i] * dzp;
     }
     for (int i = 0; i < N; i++) {
+      if (fdegenerated[i]) continue;
       int j = (i + 1) % 4;
       Float_t DeltaX = vertexX[j] - vertexX[i];
       Float_t DeltaY = vertexY[j] - vertexY[i];
@@ -309,6 +315,7 @@ public:
       vertexY[i] = fya[i] + fty1[i] * dzp;
     }
     for (int i = 0; i < N; i++) {
+      if (fdegenerated[i]) continue;
       int j = (i + 1) % 4;
       Float_t DeltaX = vertexX[j] - vertexX[i];
       Float_t DeltaY = vertexY[j] - vertexY[i];
@@ -389,7 +396,6 @@ public:
     // We can use the surface normals to get safety for non-curved surfaces
     Vertex_t va;          // vertex i of lower base
     Vector3D<Float_t> pa; // same vertex converted to backend type
-    int count = 0;
     if (fisplanar) {
       for (int i = 0; i < N; ++i) {
         va.Set(fxa[i], fya[i], -fDz);
@@ -399,23 +405,11 @@ public:
       }
       return safety;
     }
-
-    for (int i = 0; i < N; ++i) {
-      if (fiscurved[i] > 0)
-        continue;
-      count++;
-      va.Set(fxa[i], fya[i], -fDz);
-      pa = va;
-      safetyface = (pa - point).Dot(fNormals[i]);
-      MaskedAssign((safetyface < safety) && (!done), safetyface, &safety);
-    }
-    //  std::cout << "safetyz = " << safmax << std::endl;
-    //  std::cout << "safetyplanar = " << safety << std::endl;
-    if (count < N) {
-      safetyface = SafetyCurved<Backend>(point, Backend::kTrue);
-      //  std::cout << "safetycurved = " << safetyface << std::endl;
-      MaskedAssign((safetyface < safety) && (!done), safetyface, &safety);
-    }
+    
+    // Not fully planar - use mixed case
+    safetyface = SafetyCurved<Backend>(point, Backend::kTrue);
+    //  std::cout << "safetycurved = " << safetyface << std::endl;
+    MaskedAssign((safetyface < safety) && (!done), safetyface, &safety);
     //  std::cout << "safety = " << safety << std::endl;
     return safety;
 
@@ -446,7 +440,6 @@ public:
     // We can use the surface normals to get safety for non-curved surfaces
     Vertex_t va;          // vertex i of lower base
     Vector3D<Float_t> pa; // same vertex converted to backend type
-    int count = 0;
     if (fisplanar) {
       for (int i = 0; i < N; ++i) {
         va.Set(fxa[i], fya[i], -fDz);
@@ -457,22 +450,10 @@ public:
       return safety;
     }
 
-    for (int i = 0; i < N; ++i) {
-      if (fiscurved[i] > 0)
-        continue;
-      count++;
-      va.Set(fxa[i], fya[i], -fDz);
-      pa = va;
-      safetyface = (point - pa).Dot(fNormals[i]);
-      MaskedAssign(safetyface > safety, safetyface, &safety);
-    }
-    //  std::cout << "safetyz = " << safmax << std::endl;
-    //  std::cout << "safetyplanar = " << safety << std::endl;
-    if (count < N) {
-      safetyface = SafetyCurved<Backend>(point, Backend::kFalse);
-      //  std::cout << "safetycurved = " << safetyface << std::endl;
-      MaskedAssign((safetyface > safety) && (!done), safetyface, &safety);
-    }
+    // Not fully planar - use mixed case
+    safetyface = SafetyCurved<Backend>(point, Backend::kFalse);
+    //  std::cout << "safetycurved = " << safetyface << std::endl;
+    MaskedAssign((safetyface > safety) && (!done), safetyface, &safety);
     //  std::cout << "safety = " << safety << std::endl;
     return (safety);
 
@@ -493,6 +474,7 @@ public:
     typedef typename Backend::bool_v Bool_t;
 
     Float_t safety = kInfinity;
+    Float_t safplanar = kInfinity;
     Float_t tolerance = 100 * kTolerance;
     MaskedAssign(!in, -tolerance, &tolerance);
 
@@ -515,6 +497,7 @@ public:
     Bool_t inside = (Abs(point.z()) < fDz + tolerance);
     Float_t cross;
     for (int i = 0; i < N; i++) {
+      if (fdegenerated[i]) continue;
       int j = (i + 1) % 4;
       Float_t DeltaX = vertexX[j] - vertexX[i];
       Float_t DeltaY = vertexY[j] - vertexY[i];
@@ -529,8 +512,16 @@ public:
     }
     Float_t umin = 0.0;
     for (int i = 0; i < N; i++) {
-      if (fiscurved[i] == 0)
+      if (fiscurved[i] == 0) {
+      // We can use the surface normals to get safety for non-curved surfaces
+        Vertex_t va;          // vertex i of lower base
+        Vector3D<Float_t> pa; // same vertex converted to backend type
+        va.Set(fxa[i], fya[i], -fDz);
+        pa = va;
+        Float_t sface = Abs((point - pa).Dot(fNormals[i]));
+        MaskedAssign(sface < safplanar, sface, &safplanar);
         continue;
+      }  
       int j = (i + 1) % N;
       dx = vertexX[j] - vertexX[i];
       dy = vertexY[j] - vertexY[i];
@@ -555,6 +546,7 @@ public:
     dy = dy1 + umin * (dy2 - dy1);
     safety *= 1. - 4. * fDz * fDz / (dx * dx + dy * dy + 4. * fDz * fDz);
     safety = Sqrt(safety);
+    MaskedAssign(safplanar<safety, safplanar, &safety);
     MaskedAssign(wrong, -safety, &safety);
     return safety;
   } // end SafetyFace
@@ -661,7 +653,7 @@ public:
       c[i] = dxs * point[1] - dys * point[0] + xs1 * ys2 - xs2 * ys1;
       d[i] = b[i] * b[i] - 4 * a[i] * c[i];
     }
-
+       
     // does not vectorize
     for (int i = 0; i < N; ++i) {
       // zero or one to start with
@@ -680,6 +672,23 @@ public:
       // what is the meaning of this??
       smin[i] = (-b[i] - sqrtd) * inva[i];
       smax[i] = (-b[i] + sqrtd) * inva[i];
+    }
+    // For the planar surfaces, the above may be wrong, redo the work using
+    // just the normal. This does not vectorize    
+    for (int i = 0; i < N; ++i) {
+      if (fiscurved[i]) continue;
+      Vertex_t va;          // vertex i of lower base
+      Vector3D<Float_t> pa; // same vertex converted to backend type
+      // Point A is the current vertex on lower Z. P is the point we come from.
+      pa.Set(fxa[i], fya[i], -fDz);
+      Vector3D<Float_t> vecAP = point - pa;
+      // Dot product between AP vector and normal to surface has to be negative
+      Float_t dotAPNorm = vecAP.Dot(fNormals[i]);
+      // Dot product between direction and normal to surface has to be positive
+      Float_t dotDirNorm = dir.Dot(fNormals[i]);
+      dotDirNorm += kTiny; // Avoid division by 0 without changing result
+      smin[i] = -dotAPNorm / dotDirNorm;
+      smax[i] = kInfinity; // not to be checked       
     }
   } // end ComputeSminSmax
 
