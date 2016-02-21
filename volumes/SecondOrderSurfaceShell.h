@@ -164,7 +164,6 @@ public:
 
     // Solve the second order equation and return distance solutions for each surface
     ComputeSminSmax<Backend>(point, dir, smin, smax);
-
     for (int i = 0; i < N; ++i) {
       // Check if point(s) is(are) on boundary, and in this case compute normal
       Bool_t crtbound = (Abs(smin[i]) < tolerance || Abs(smax[i]) < tolerance);
@@ -632,6 +631,7 @@ public:
                       typename Backend::precision_v smax[N]) const {
 
     typedef typename Backend::precision_v Float_t;
+    const Float_t big = kInfinity;
 
     Float_t dzp = fDz + point[2];
     // calculate everything needed to solve the second order equation
@@ -661,7 +661,7 @@ public:
       signa[i] = 0.;
       MaskedAssign(a[i] < -kTolerance, (Float_t)(-Backend::kOne), &signa[i]);
       MaskedAssign(a[i] > kTolerance, (Float_t)Backend::kOne, &signa[i]);
-      inva[i] = c[i] / (b[i] * b[i]);
+      inva[i] = c[i] / (b[i] * b[i] + kTiny);
       MaskedAssign(Abs(a[i]) > kTolerance, 1. / (2. * a[i]), &inva[i]);
     }
 
@@ -669,7 +669,8 @@ public:
     for (int i = 0; i < N; ++i) {
       // treatment for curved surfaces. Invalid solutions will be excluded.
 
-      Float_t sqrtd = signa[i] * Sqrt(d[i]);
+      Float_t sqrtd = signa[i] * Sqrt(Abs(d[i]));
+      MaskedAssign(d[i]<0., big, &sqrtd);
       // what is the meaning of this??
       smin[i] = (-b[i] - sqrtd) * inva[i];
       smax[i] = (-b[i] + sqrtd) * inva[i];
