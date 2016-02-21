@@ -22,7 +22,7 @@ UnplacedGenTrap::UnplacedGenTrap(const Precision verticesx[], const Precision ve
       fInverseDz(1. / halfzheight), fHalfInverseDz(0.5 / halfzheight), fIsTwisted(false), fConnectingComponentsX(),
       fConnectingComponentsY(), fDeltaX(), fDeltaY(), fSurfaceShell(verticesx, verticesy, halfzheight) {
   // Constructor
-  
+
   // Set vertices in Vector3D form
   for (int i = 0; i < 4; ++i) {
     fVertices[i].operator[](0) = verticesx[i];
@@ -34,15 +34,15 @@ UnplacedGenTrap::UnplacedGenTrap(const Precision verticesx[], const Precision ve
     fVertices[i].operator[](1) = verticesy[i];
     fVertices[i].operator[](2) = halfzheight;
   }
-  
+
   for (int i = 0; i < 4; ++i) {
     int j = (i + 1) % 4;
-    fDegenerated[i] = (Abs(verticesx[i]-verticesx[j])<kTolerance) && 
-                      (Abs(verticesy[i]-verticesy[j])<kTolerance) &&
-                      (Abs(verticesx[i+4]-verticesx[j+4])<kTolerance) &&
-                      (Abs(verticesy[i+4]-verticesy[j+4])<kTolerance);
+    fDegenerated[i] = (Abs(verticesx[i] - verticesx[j]) < kTolerance) &&
+                      (Abs(verticesy[i] - verticesy[j]) < kTolerance) &&
+                      (Abs(verticesx[i + 4] - verticesx[j + 4]) < kTolerance) &&
+                      (Abs(verticesy[i + 4] - verticesy[j + 4]) < kTolerance);
   }
-  
+
   // Make sure vertices are defined clockwise
   Precision sum1 = 0.;
   Precision sum2 = 0.;
@@ -81,7 +81,7 @@ UnplacedGenTrap::UnplacedGenTrap(const Precision verticesx[], const Precision ve
     fVerticesY[i] = fVertices[i].y();
     fVerticesY[i + 4] = fVertices[i + 4].y();
   }
-    
+
   // Initialize components of horizontal connecting vectors
   for (int i = 0; i < 4; ++i) {
     int j = (i + 1) % 4;
@@ -111,7 +111,7 @@ UnplacedGenTrap::UnplacedGenTrap(const Precision verticesx[], const Precision ve
   fIsTwisted = ComputeIsTwisted();
   ComputeBoundingBox();
 }
-  
+
 //______________________________________________________________________________
 VECGEOM_CUDA_HEADER_BOTH
 void UnplacedGenTrap::ComputeBoundingBox() {
@@ -210,7 +210,7 @@ VECGEOM_CUDA_HEADER_BOTH
 bool UnplacedGenTrap::ComputeIsConvexQuadrilaterals() {
   // Computes if this gentrap top and bottom quadrilaterals are convex. The vertices
   // have to be pre-ordered clockwise in the XY plane.
- 
+
   // The cross product of all vector pairs corresponding to ordered consecutive
   // segments has to be positive.
   for (int i = 0; i < 4; ++i) {
@@ -219,7 +219,7 @@ bool UnplacedGenTrap::ComputeIsConvexQuadrilaterals() {
     Precision crossij = fDeltaX[i] * fDeltaY[j] - fDeltaY[i] * fDeltaX[j];
     if (crossij > kTolerance)
       return false;
-    // Top face  
+    // Top face
     crossij = fDeltaX[i + 4] * fDeltaY[j + 4] - fDeltaY[i + 4] * fDeltaX[j + 4];
     if (crossij > kTolerance)
       return false;
@@ -232,32 +232,37 @@ Vector3D<Precision> UnplacedGenTrap::GetPointOnSurface() const {
   // Generate randomly a point on one of the surfaces
   // Select randomly a surface
   Vertex_t point;
-#ifndef VECGEOM_NVCC  // CUDA does not support RNG:: for now
+#ifndef VECGEOM_NVCC // CUDA does not support RNG:: for now
   // Avoid using the bounding box due to possible point-like top/bottom
   // which would be impossible to sample
   bool degenerate[6] = {false};
-  int nvertices = 4;  // by default 4 vertices on top/bottom faces
+  int nvertices = 4; // by default 4 vertices on top/bottom faces
   // bottom
-  for (int j = 0; j< 4 ; ++j) {
-    if ( (Abs(fDeltaX[j]) < kTolerance) && (Abs(fDeltaY[j]) < kTolerance) ) nvertices--;
+  for (int j = 0; j < 4; ++j) {
+    if ((Abs(fDeltaX[j]) < kTolerance) && (Abs(fDeltaY[j]) < kTolerance))
+      nvertices--;
   }
-  if (nvertices<3) degenerate[4] = true;
+  if (nvertices < 3)
+    degenerate[4] = true;
   nvertices = 4;
   // top
-  for (int j = 0; j< 4 ; ++j) {
-    if ( (Abs(fDeltaX[j+4]) < kTolerance) && (Abs(fDeltaY[j+4]) < kTolerance) ) nvertices--;
+  for (int j = 0; j < 4; ++j) {
+    if ((Abs(fDeltaX[j + 4]) < kTolerance) && (Abs(fDeltaY[j + 4]) < kTolerance))
+      nvertices--;
   }
-  if (nvertices<3) degenerate[5] = true;
-  for (int j = 0; j< 4 ; ++j) {
-    if ( (Abs(fDeltaX[j]) < kTolerance) && (Abs(fDeltaY[j]) < kTolerance) && 
-         (Abs(fDeltaX[j+4]) < kTolerance) && (Abs(fDeltaY[j+4]) < kTolerance) )
+  if (nvertices < 3)
+    degenerate[5] = true;
+  for (int j = 0; j < 4; ++j) {
+    if ((Abs(fDeltaX[j]) < kTolerance) && (Abs(fDeltaY[j]) < kTolerance) && (Abs(fDeltaX[j + 4]) < kTolerance) &&
+        (Abs(fDeltaY[j + 4]) < kTolerance))
       degenerate[j] = true;
   }
   // Shoot on non-degenerate surface
   int i = 0;
   while (1) {
     i = int(RNG::Instance().uniform(0., 6.));
-    if (!degenerate[i]) break;
+    if (!degenerate[i])
+      break;
   }
   // Generate point on lateral surface
   if (i < 4) {
@@ -277,29 +282,29 @@ Vector3D<Precision> UnplacedGenTrap::GetPointOnSurface() const {
   Precision cross, x, y;
   Precision z = (2 * i - 1) * fDz;
   i *= 4; // now matching the index of the start vertex
-  // Compute min/max  in x and y for the selected surface
+          // Compute min/max  in x and y for the selected surface
 
   // Consider degenerate cases (if we would like to generate points also on these)
-/*
-  if (nvertices <= 1) {
-    // A single vertex. Generate the point identical to the vertex
-    point.Set(fVertices[i].x(), fVertices[i].y(), z);
-    return point;
-  } else if (nvertices == 2) {
-    for (int j = i; j< i + 4 ; ++j) {
-      if ( (Abs(fDeltaX[j]) < kTolerance) && (Abs(fDeltaY[j]) < kTolerance) ) continue;
-      // We have found two different points. Generate a random x:
-      x = RNG::Instance().uniform(fVertices[j].x(), fVertices[j+1].x());
-      // Calculate corresponding y
-      if (Abs(fDeltaX[j]) < kTolerance) 
-        y = RNG::Instance().uniform(fVertices[j].y(), fVertices[j+1].y());
-      else
-        y = fVertices[j].y() + (x - fVertices[j].x())*fDeltaY[j]/fDeltaX[j];
-      point.Set(x,y,z);
-      return point;  
+  /*
+    if (nvertices <= 1) {
+      // A single vertex. Generate the point identical to the vertex
+      point.Set(fVertices[i].x(), fVertices[i].y(), z);
+      return point;
+    } else if (nvertices == 2) {
+      for (int j = i; j< i + 4 ; ++j) {
+        if ( (Abs(fDeltaX[j]) < kTolerance) && (Abs(fDeltaY[j]) < kTolerance) ) continue;
+        // We have found two different points. Generate a random x:
+        x = RNG::Instance().uniform(fVertices[j].x(), fVertices[j+1].x());
+        // Calculate corresponding y
+        if (Abs(fDeltaX[j]) < kTolerance)
+          y = RNG::Instance().uniform(fVertices[j].y(), fVertices[j+1].y());
+        else
+          y = fVertices[j].y() + (x - fVertices[j].x())*fDeltaY[j]/fDeltaX[j];
+        point.Set(x,y,z);
+        return point;
+      }
     }
-  }
-*/  
+  */
   // Generate point on top/bottom surfaces
   Precision xmin = fVertices[i].x();
   Precision xmax = xmin;
@@ -344,10 +349,10 @@ Vector3D<Precision> UnplacedGenTrap::GetPointOnSurface() const {
 Precision UnplacedGenTrap::SurfaceArea() const {
   // Computes analytically the surface area of the trapezoid. The formula is
   // computed by integrating along Z axis the sum of areas for infinitezimal
-  // trapezoids of each lateral surface. Since this can be twisted, the area 
-  // of each such mini-surface is computed separately for the top/bottom parts 
+  // trapezoids of each lateral surface. Since this can be twisted, the area
+  // of each such mini-surface is computed separately for the top/bottom parts
   // separated by the diagonal.
-  //    vi, vj = vectors bottom->top for each lateral surface // j=(i+1)%4 
+  //    vi, vj = vectors bottom->top for each lateral surface // j=(i+1)%4
   //    hi0 = vector connecting consecutive bottom vertices
   Vertex_t vi, vj, hi0, vres;
   Precision surfTop = 0.;

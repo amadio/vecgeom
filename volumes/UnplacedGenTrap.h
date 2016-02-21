@@ -26,18 +26,18 @@ class UnplacedGenTrap : public VUnplacedVolume, public AlignedBase {
 public:
   using Vertex_t = Vector3D<Precision>;
 
-  Vertex_t fBBdimensions;     /** Bounding box dimensions */
-  Vertex_t fBBorigin;         /** Bounding box origin */
-  Vertex_t fVertices[8];      /** The eight points that define the Arb8 */
+  Vertex_t fBBdimensions; /** Bounding box dimensions */
+  Vertex_t fBBorigin;     /** Bounding box origin */
+  Vertex_t fVertices[8];  /** The eight points that define the Arb8 */
 
   // we also store this in SOA form
-  Precision fVerticesX[8];    /** Backed-up X positions of vertices */
-  Precision fVerticesY[8];    /** Backed-up Y positions of vertices */
+  Precision fVerticesX[8]; /** Backed-up X positions of vertices */
+  Precision fVerticesY[8]; /** Backed-up Y positions of vertices */
 
-  Precision fDz;              /** The half-height of the GenTrap */
-  Precision fInverseDz;       /** Pre-computed 1/fDz */
-  Precision fHalfInverseDz;   /** Pre-computed 0.5/fDz */
-  bool fIsTwisted;            /** Twisted flag */
+  Precision fDz;            /** The half-height of the GenTrap */
+  Precision fInverseDz;     /** Pre-computed 1/fDz */
+  Precision fHalfInverseDz; /** Pre-computed 0.5/fDz */
+  bool fIsTwisted;          /** Twisted flag */
 
   // we store the connecting vectors in SOA Form
   // these vectors are used to calculate the polygon at a certain z-height
@@ -47,10 +47,10 @@ public:
   Precision fConnectingComponentsX[4]; /** X components of connecting bottom-top vectors vi */
   Precision fConnectingComponentsY[4]; /** Y components of connecting bottom-top vectors vi */
 
-  Precision fDeltaX[8];       /** X components of connecting horizontal vectors hij */
-  Precision fDeltaY[8];       /** Y components of connecting horizontal vectors hij */
+  Precision fDeltaX[8]; /** X components of connecting horizontal vectors hij */
+  Precision fDeltaY[8]; /** Y components of connecting horizontal vectors hij */
 
-  bool fDegenerated[4];       /** Flags for each top-bottom edge marking that this is degenerated */
+  bool fDegenerated[4]; /** Flags for each top-bottom edge marking that this is degenerated */
 
   SecondOrderSurfaceShell<4> fSurfaceShell; /** Utility class for twisted surface algorithms */
 

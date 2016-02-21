@@ -27,22 +27,22 @@ template <int N> class SecondOrderSurfaceShell {
 private:
   // caching some important values for each of the curved planes
   Precision fxa[N], fya[N], fxb[N], fyb[N], fxc[N], fyc[N], fxd[N], fyd[N]; /** Coordinates of vertices */
-  Precision ftx1[N], fty1[N], ftx2[N], fty2[N]; /** Connecting components */
+  Precision ftx1[N], fty1[N], ftx2[N], fty2[N];                             /** Connecting components */
   Precision ft1crosst2[N]; /** Cross term ftx1[i]*fty2[i] - ftx2[i]*fty1[i] */
-  Precision fDeltatx[N]; /** Term ftx2[i] - ftx1[i] */
-  Precision fDeltaty[N]; /** Term fty2[i] - fty1[i] */
+  Precision fDeltatx[N];   /** Term ftx2[i] - ftx1[i] */
+  Precision fDeltaty[N];   /** Term fty2[i] - fty1[i] */
 
-  Precision fDz;  /** height of surface (coming from the height of the GenTrap) */
-  Precision fDz2; /** 0.5/fDz */
+  Precision fDz;          /** height of surface (coming from the height of the GenTrap) */
+  Precision fDz2;         /** 0.5/fDz */
   Precision fiscurved[N]; /** Indicate which surfaces are planar */
-  bool fisplanar; /** Flag that all surfaces are planar */
-  bool fdegenerated[N]; /** Flags for each top-bottom edge marking that this is degenerated */
+  bool fisplanar;         /** Flag that all surfaces are planar */
+  bool fdegenerated[N];   /** Flags for each top-bottom edge marking that this is degenerated */
 
   Vertex_t fNormals[N]; /** Pre-computed normals for the planar case */
 
   // pre-computed cross products for normal computation
-  Vertex_t fViCrossHi0[N]; /** Pre-computed vi X hi0 */
-  Vertex_t fViCrossVj[N]; /** Pre-computed vi X vj */
+  Vertex_t fViCrossHi0[N];  /** Pre-computed vi X hi0 */
+  Vertex_t fViCrossVj[N];   /** Pre-computed vi X vj */
   Vertex_t fHi1CrossHi0[N]; /** Pre-computed hi1 X hi0 */
 
 public:
@@ -71,10 +71,8 @@ public:
       vd.Set(verticesx[j + N], verticesy[j + N], dz);
       fxd[i] = verticesx[N + j];
       fyd[i] = verticesy[N + j];
-      fdegenerated[i] = (Abs(fxa[i]-fxc[i])<kTolerance) &&
-                        (Abs(fya[i]-fyc[i])<kTolerance) &&
-                        (Abs(fxb[i]-fxd[i])<kTolerance) &&
-                        (Abs(fyb[i]-fyd[i])<kTolerance);
+      fdegenerated[i] = (Abs(fxa[i] - fxc[i]) < kTolerance) && (Abs(fya[i] - fyc[i]) < kTolerance) &&
+                        (Abs(fxb[i] - fxd[i]) < kTolerance) && (Abs(fyb[i] - fyd[i]) < kTolerance);
       ftx1[i] = fDz2 * (fxb[i] - fxa[i]);
       fty1[i] = fDz2 * (fyb[i] - fya[i]);
       ftx2[i] = fDz2 * (fxd[i] - fxc[i]);
@@ -111,14 +109,14 @@ public:
     }
   }
 
-//______________________________________________________________________________
+  //______________________________________________________________________________
   template <typename Backend>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE
-  /** @brief Compute distance to a set of curved/planar surfaces
-   * @param point Starting point in the local frame
-   * @param dir Direction in the local frame
-   */
-  typename Backend::precision_v
+      /** @brief Compute distance to a set of curved/planar surfaces
+       * @param point Starting point in the local frame
+       * @param dir Direction in the local frame
+       */
+      typename Backend::precision_v
       DistanceToOut(Vector3D<typename Backend::precision_v> const &point,
                     Vector3D<typename Backend::precision_v> const &dir) const {
 
@@ -150,7 +148,8 @@ public:
       vertexY[i] = fya[i] + fty1[i] * dzp;
     }
     for (int i = 0; i < N; i++) {
-      if (fdegenerated[i]) continue;
+      if (fdegenerated[i])
+        continue;
       int j = (i + 1) % 4;
       Float_t DeltaX = vertexX[j] - vertexX[i];
       Float_t DeltaY = vertexY[j] - vertexY[i];
@@ -186,7 +185,7 @@ public:
     return (dist);
   } // end of function
 
-//______________________________________________________________________________
+  //______________________________________________________________________________
   /** @brief Compute distance to exiting the set of surfaces in the planar case.
    * @param point Starting point in the local frame
    * @param dir Direction in the local frame
@@ -229,7 +228,7 @@ public:
     return distance;
   }
 
-//______________________________________________________________________________
+  //______________________________________________________________________________
   /** @brief Compute distance to entering the set of surfaces in the planar case.
    * @param point Starting point in the local frame
    * @param dir Direction in the local frame
@@ -275,7 +274,7 @@ public:
     return distance;
   }
 
-//______________________________________________________________________________
+  //______________________________________________________________________________
   template <typename Backend>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE
       /**
@@ -315,7 +314,8 @@ public:
       vertexY[i] = fya[i] + fty1[i] * dzp;
     }
     for (int i = 0; i < N; i++) {
-      if (fdegenerated[i]) continue;
+      if (fdegenerated[i])
+        continue;
       int j = (i + 1) % 4;
       Float_t DeltaX = vertexX[j] - vertexX[i];
       Float_t DeltaY = vertexY[j] - vertexY[i];
@@ -371,7 +371,7 @@ public:
 
   } // end distanceToIn function
 
-//______________________________________________________________________________
+  //______________________________________________________________________________
   /**
    * @brief A generic function calculation for the safety to a set of curved/planar surfaces.
            Should be smaller than safmax
@@ -405,7 +405,7 @@ public:
       }
       return safety;
     }
-    
+
     // Not fully planar - use mixed case
     safetyface = SafetyCurved<Backend>(point, Backend::kTrue);
     //  std::cout << "safetycurved = " << safetyface << std::endl;
@@ -415,7 +415,7 @@ public:
 
   } // end SafetyToOut
 
-//______________________________________________________________________________
+  //______________________________________________________________________________
   /**
    * @brief A generic function calculation for the safety to a set of curved/planar surfaces.
            Should be smaller than safmax
@@ -459,7 +459,7 @@ public:
 
   } // end SafetyToIn
 
-//______________________________________________________________________________
+  //______________________________________________________________________________
   /**
    * @brief A generic function calculation for the safety to a set of curved/planar surfaces.
            Should be smaller than safmax
@@ -497,7 +497,8 @@ public:
     Bool_t inside = (Abs(point.z()) < fDz + tolerance);
     Float_t cross;
     for (int i = 0; i < N; i++) {
-      if (fdegenerated[i]) continue;
+      if (fdegenerated[i])
+        continue;
       int j = (i + 1) % 4;
       Float_t DeltaX = vertexX[j] - vertexX[i];
       Float_t DeltaY = vertexY[j] - vertexY[i];
@@ -513,7 +514,7 @@ public:
     Float_t umin = 0.0;
     for (int i = 0; i < N; i++) {
       if (fiscurved[i] == 0) {
-      // We can use the surface normals to get safety for non-curved surfaces
+        // We can use the surface normals to get safety for non-curved surfaces
         Vertex_t va;          // vertex i of lower base
         Vector3D<Float_t> pa; // same vertex converted to backend type
         va.Set(fxa[i], fya[i], -fDz);
@@ -521,7 +522,7 @@ public:
         Float_t sface = Abs((point - pa).Dot(fNormals[i]));
         MaskedAssign(sface < safplanar, sface, &safplanar);
         continue;
-      }  
+      }
       int j = (i + 1) % N;
       dx = vertexX[j] - vertexX[i];
       dy = vertexY[j] - vertexY[i];
@@ -546,7 +547,7 @@ public:
     dy = dy1 + umin * (dy2 - dy1);
     safety *= 1. - 4. * fDz * fDz / (dx * dx + dy * dy + 4. * fDz * fDz);
     safety = Sqrt(safety);
-    MaskedAssign(safplanar<safety, safplanar, &safety);
+    MaskedAssign(safplanar < safety, safplanar, &safety);
     MaskedAssign(wrong, -safety, &safety);
     return safety;
   } // end SafetyFace
@@ -555,7 +556,7 @@ public:
   VECGEOM_INLINE
   Vertex_t const *GetNormals() const { return fNormals; }
 
-//______________________________________________________________________________
+  //______________________________________________________________________________
   /**
    * @brief Computes if point on surface isurf is within surface limits
    * @param point Starting point
@@ -618,7 +619,7 @@ public:
             r * (Vector3D<Float_t>)fHi1CrossHi0[isurf];
   } // end UNormal
 
-//______________________________________________________________________________
+  //______________________________________________________________________________
   /** @brief Solver for the second degree equation for curved surface crossing */
   template <typename Backend>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE
@@ -653,7 +654,7 @@ public:
       c[i] = dxs * point[1] - dys * point[0] + xs1 * ys2 - xs2 * ys1;
       d[i] = b[i] * b[i] - 4 * a[i] * c[i];
     }
-       
+
     // does not vectorize
     for (int i = 0; i < N; ++i) {
       // zero or one to start with
@@ -674,9 +675,10 @@ public:
       smax[i] = (-b[i] + sqrtd) * inva[i];
     }
     // For the planar surfaces, the above may be wrong, redo the work using
-    // just the normal. This does not vectorize    
+    // just the normal. This does not vectorize
     for (int i = 0; i < N; ++i) {
-      if (fiscurved[i]) continue;
+      if (fiscurved[i])
+        continue;
       Vertex_t va;          // vertex i of lower base
       Vector3D<Float_t> pa; // same vertex converted to backend type
       // Point A is the current vertex on lower Z. P is the point we come from.
@@ -688,7 +690,7 @@ public:
       Float_t dotDirNorm = dir.Dot(fNormals[i]);
       dotDirNorm += kTiny; // Avoid division by 0 without changing result
       smin[i] = -dotAPNorm / dotDirNorm;
-      smax[i] = kInfinity; // not to be checked       
+      smax[i] = kInfinity; // not to be checked
     }
   } // end ComputeSminSmax
 

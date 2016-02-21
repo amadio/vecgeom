@@ -19,7 +19,7 @@ using namespace vecgeom;
 int main() {
   UnplacedBox worldUnplaced = UnplacedBox(10., 10., 10.);
 
-   // no twist
+  // no twist
   Precision verticesx[8] = {-3, -3, 3, 3, -2, -2, 2, 2};
   Precision verticesy[8] = {-3, 3, 3, -3, -2, 2, 2, -2};
 
