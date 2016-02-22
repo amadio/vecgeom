@@ -181,7 +181,7 @@ public:
       MaskedAssign(inside && (smin[i] > -tolerance) && (smin[i] < dist), Max(smin[i], 0.), &dist);
       MaskedAssign(inside && (smax[i] > -tolerance) && (smax[i] < dist), Max(smax[i], 0.), &dist);
     }
-    MaskedAssign(dist<tolerance && dist>wrongsidedist, Backend::kZero, &dist);
+    MaskedAssign(dist<tolerance && dist>wrongsidedist, 0., &dist);
     return (dist);
   } // end of function
 
@@ -225,7 +225,7 @@ public:
       MaskedAssign(valid && snext < distance, Max(snext, 0.), &distance);
     }
     // Return -1 for points actually outside
-    MaskedAssign(distance < tolerance, Backend::kZero, &distance);
+    MaskedAssign(distance < tolerance, 0., &distance);
     MaskedAssign(outside, -1., &distance);
     return distance;
   }
@@ -273,7 +273,7 @@ public:
       MaskedAssign((!done) && valid && snext < distance, Max(snext, 0.), &distance);
     }
     // Return -1 for points actually inside
-    MaskedAssign((!done) && (distance < tolerance), Backend::kZero, &distance);
+    MaskedAssign((!done) && (distance < tolerance), 0., &distance);
     MaskedAssign((!done) && inside, -1., &distance);
     return distance;
   }
@@ -371,7 +371,7 @@ public:
         MaskedAssign(crossing && (!checked) && crtdist < resultdistance, Max(crtdist, 0.), &resultdistance);
       }
     }
-    MaskedAssign(resultdistance<tolerance && resultdistance>wrongsidedist, Backend::kZero, &resultdistance);
+    MaskedAssign(resultdistance<tolerance && resultdistance>wrongsidedist, 0., &resultdistance);
     return (resultdistance);
 
   } // end distanceToIn function
@@ -416,7 +416,7 @@ public:
     //  std::cout << "safetycurved = " << safetyface << std::endl;
     MaskedAssign((safetyface < safety) && (!done), safetyface, &safety);
     //  std::cout << "safety = " << safety << std::endl;
-    MaskedAssign(safety<eps, Backend::kZero, &safety);
+    MaskedAssign(safety>0. && safety<eps, 0., &safety);
     return safety;
 
   } // end SafetyToOut
@@ -461,7 +461,7 @@ public:
     //  std::cout << "safetycurved = " << safetyface << std::endl;
     MaskedAssign((safetyface > safety) && (!done), safetyface, &safety);
     //  std::cout << "safety = " << safety << std::endl;
-    MaskedAssign(safety<eps, Backend::kZero, &safety);
+    MaskedAssign(safety>0. && safety<eps, 0., &safety);
     return (safety);
 
   } // end SafetyToIn
