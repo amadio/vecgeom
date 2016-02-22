@@ -52,7 +52,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   Vector(std::initializer_list<Type> entries) {
-    fSize - entries.size();
+    fSize = entries.size();
     fData = new Type[fSize];
     for  (auto itm : entries) this->push_back(itm); 
    }
@@ -123,6 +123,29 @@ public:
     return fSize;
   }
 
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  void resize (int newsize, Type value) {
+      Type *temp = new Type[newsize];
+      if (newsize <= fSize) {
+         for (int i=0;i<newsize; ++i) 
+             temp[i]=fData[i];
+         delete fData;
+         fData = new Type[newsize];
+         fSize = newsize;
+         for (int i=0;i<newsize; ++i) 
+            fData[i]=temp[i];
+      } else {
+         for (int i=0;i<fSize; ++i) 
+            temp[i]=fData[i];
+         delete fData;
+         fData = new Type[newsize];
+         for (int i =0; i<fSize; ++i ) fData[i] = temp[i];
+         for (int i =fSize; i<newsize; ++i ) fData[i] = value;
+     }     
+     fSize = newsize;
+     delete temp;
+  }
 #ifdef VECGEOM_CUDA_INTERFACE
   DevicePtr<cuda::Vector<CudaType_t<Type> > > CopyToGpu(
      DevicePtr<CudaType_t<Type> > const gpu_ptr_arr,

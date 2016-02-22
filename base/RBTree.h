@@ -56,6 +56,11 @@ struct pair {
     };
  
   VECGEOM_CUDA_HEADER_BOTH
+  friend bool operator<(const pair<T1,T2>& lhs, const pair<T1,T2>& rhs) { 
+     return lhs.first<rhs.first || (!(rhs.first<lhs.first) && lhs.second<rhs.second); 
+  };
+
+  VECGEOM_CUDA_HEADER_BOTH
     void swap(pair& p) {
        T1 temp = p.first;
        first = p.second;

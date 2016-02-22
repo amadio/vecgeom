@@ -62,6 +62,7 @@ public:
    }
 #endif
 
+   VECGEOM_CUDA_HEADER_BOTH
    const char* Name() const {return fName;}
    int PDG() const {return fPDG;}
    bool Matter() const {return fMatter;}
@@ -95,8 +96,25 @@ VECGEOM_CUDA_HEADER_BOTH
    static const Particle& GetParticle(int pdg) {
       if(fParticles->find(pdg)!=fParticles->end()) return (*fParticles)[pdg];
       static Particle p;
-      std::cout << __func__ << "::pdg:" << pdg << " does not exist" << std::endl; return p;}
+      std::cout << __func__ << "::pdg:" << pdg << " does not exist" << std::endl; return p;
+ }
+#else
+   static const Particle& GetParticle(int pdg) {
+      if(fParticlesHost->find(pdg)!=fParticlesHost->end()) return (*fParticlesHost)[pdg];
+      static Particle p;
+      printf(" pdg %d does not exist\n",pdg);
+      return p;
+ }
+VECGEOM_CUDA_HEADER_DEVICE
+   static const Particle& GetParticleDev(int pdg) {
+      if(fParticlesDev->find(pdg)!=fParticlesDev->end()) return (*fParticlesDev)[pdg];
+      Particle p;
+      printf(" pdg %d does not exist\n",pdg);
+      return p;
+ }
+#endif
 
+#ifndef VECGEOM_NVCC
    void NormDecay();
 
    friend ostream& operator<<(ostream& os, const Particle& part);

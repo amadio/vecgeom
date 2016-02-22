@@ -679,7 +679,7 @@ if (CUDA)
                         ${VECGEOM_LIBRARIES_EXTERNAL})
   set(VECGEOM_LIBRARIES ${VECGEOM_LIBRARIES} vecgeomcuda)
 
-  ADD_CUSTOM_TARGET(rawvecgeomcuda ALL)
+  ADD_CUSTOM_TARGET(rawvecgeomcuda ALL DEPENDS  vecgeomcuda)
   add_custom_command(TARGET rawvecgeomcuda
   PRE_BUILD
   COMMAND ${CMAKE_COMMAND} -E  echo ${vecgeomcuda_SEPARABLE_COMPILATION_OBJECTS}

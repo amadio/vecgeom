@@ -5,12 +5,16 @@
 #include "base/Global.h"
 #include <stdio.h>
 #include <stdarg.h>
-#include <map>
 #include <string>
 #include <mutex>
 #include <iostream>
-
+#ifndef VECGEOM_NVCC
+#include <map>
 using std::map;
+#else
+#include "base/Map.h"
+using vecgeom::map;
+#endif
 using std::string;
 using std::mutex;
 using std::endl;
