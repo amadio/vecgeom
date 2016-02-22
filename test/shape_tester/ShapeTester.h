@@ -42,6 +42,7 @@ public:
   inline void SetNewSaveValue(const double tolerance) { fMinDifference = tolerance; }
   inline void SetSaveAllData(const bool safe) { fIfSaveAllData = safe; }
   inline void SetRunAllTests(const bool safe) { fIfMoreTests = safe; }
+  inline void SetSolidTolerance(double value) {fSolidTolerance = value;}
   void SetFolder(const std::string &newFolder);
   void SetVerbose(int verbose) { fVerbose = verbose; }
   inline int GetMaxPoints() const { return fMaxPoints; }
@@ -235,6 +236,7 @@ private:
   int fNumDisp; // number of points to be displayed in case a shape is not following conventions.
   bool fVisualize;  //Flag to be set or unset by EnableDebugger() function that user will
                     //call with true parameter if want to see visualization in case of some mismatch
+  double fSolidTolerance; // Tolerance on boundary declared by solid (default kTolerance)
 #ifdef VECGEOM_ROOT
   vecgeom::Visualizer fVisualizer; //Visualizer object to visualize the geometry if fVisualize is set.
 #endif
