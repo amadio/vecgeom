@@ -13,6 +13,7 @@
 #include <fstream>
 
 #include "ShapeTester.h"
+#include "volumes/PlacedVolume.h"
 #include "VUSolid.hh"
 #include "UTransform3D.hh"
 
@@ -44,6 +45,7 @@
 #endif
 
 using namespace std;
+using namespace vecgeom;
 
 /* The definitions of core ShapeTester functions are not modified, 
  * Only duplicate tests which are now implemented in Convention checker  
@@ -275,6 +277,10 @@ int ShapeTester::ShapeDistances() {
   ClearErrors();
   double maxDifOut = 0, maxDifIn = 0., delta = 0., tolerance = fSolidTolerance;
   bool convex, convex2;
+  bool globalConvex = true;
+  if (dynamic_cast<VPlacedVolume*>(fVolumeUSolids))
+    globalConvex = dynamic_cast<VPlacedVolume*>(fVolumeUSolids)->GetUnplacedVolume()->IsConvex();
+  std::cout << "globalConvex = " << globalConvex << std::endl;  
   UVector3 norm;
   UVector3 minExtent, maxExtent;
 
@@ -328,8 +334,8 @@ int ShapeTester::ShapeDistances() {
       // The solid is not crossed again, so it may be convex on this surface
       // Aim to move the point outside, but not too far
       dmove = maxXYZ;
-      if (!convex2) {
-        bool testConvexity = false;
+      if (globalConvex && !convex2) {
+        bool matchConvexity = false;
         UVector3 pointSurf = point + dir * DistanceOut2;
         // To cross-check convexity, shoot randomly in the attempt to cross
         // again the solid. Note that this check may fail even if the solid is
@@ -338,19 +344,19 @@ int ShapeTester::ShapeDistances() {
           UVector3 rndDir = GetRandomDirection();
           double distTest = fVolumeUSolids->DistanceToIn(pointSurf, rndDir);
           if ((distTest <= UUtils::kInfinity) && (distTest > fSolidTolerance)) {
-            testConvexity = true;
+            matchConvexity = true;
             break;
           }
         }
         // #### Check disabled until the check of convexity from DistanceToOut gets
         // activated ####
-//        if (!testConvexity)
-//          ReportError(&nError, point, dir, DistanceToInSurf, "SD: Error in convexity, must be convex");
+        if (!matchConvexity)
+          ReportError(&nError, point, dir, DistanceToInSurf, "SD: Error in convexity, must be convex");
       }
 
     } else { 
       // Re-entering solid, it is not convex
-      if (convex2)
+      if (globalConvex && convex2)
         ReportError(&nError, point, dir, DistanceToInSurf, "SD: Error in convexity, must be NOT convex");
       // Aim to move the point outside, but not re-enter
       dmove = DistanceOut2 + DistanceToInSurf * 0.5;
@@ -1216,8 +1222,8 @@ int ShapeTester::ShapeSafetyFromInside(int max) {
   pm3->SetMarkerColor(kBlue);
 #endif
 
-  if (max > fMaxPoints)
-    max = fMaxPoints;
+  if (max > fMaxPointsInside)
+    max = fMaxPointsInside;
   for (int i = 0; i < max; i++) {
     GetVectorUSolids(point, fPoints, i);
     double res = fVolumeUSolids->SafetyFromInside(point);
