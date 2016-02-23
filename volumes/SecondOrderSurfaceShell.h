@@ -118,9 +118,9 @@ public:
        * @param completelyoutside Onside flag
        * @param onsurf On boundary flag
        */
-  void CheckInside(Vector3D<typename Backend::precision_v> const &point,
-      typename Backend::bool_v &completelyinside, typename Backend::bool_v &completelyoutside,
-      typename Backend::bool_v &onsurf) const {
+      void
+      CheckInside(Vector3D<typename Backend::precision_v> const &point, typename Backend::bool_v &completelyinside,
+                  typename Backend::bool_v &completelyoutside, typename Backend::bool_v &onsurf) const {
 
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
@@ -130,7 +130,7 @@ public:
     completelyinside = (Abs(point.z()) < MakeMinusTolerant<true>(fDz));
     completelyoutside = (Abs(point.z()) > MakePlusTolerant<true>(fDz));
     //  if (Backend::early_returns) {
-    if (IsFull(completelyoutside)) 
+    if (IsFull(completelyoutside))
       return;
     //  }
 
@@ -146,8 +146,8 @@ public:
     }
     Bool_t degenerated = Backend::kTrue; // Can only happen if |zpoint| = fDz
     for (int i = 0; i < N; i++) {
-//      if (fdegenerated[i])
-//        continue;
+      //      if (fdegenerated[i])
+      //        continue;
       int j = (i + 1) % 4;
       Float_t DeltaX = vertexX[j] - vertexX[i];
       Float_t DeltaY = vertexY[j] - vertexY[i];
@@ -158,7 +158,7 @@ public:
       // Cross product to check if point is right side or left side
       // If vertices are same, this will be 0
       cross = (point.x() - vertexX[i]) * DeltaY - (point.y() - vertexY[i]) * DeltaX;
-      
+
       onsurf = (cross * cross < tolerancesq * deltasq) & (!samevertex);
       completelyoutside |= ((cross < MakeMinusTolerant<true>(0.)) & (!onsurf));
       completelyinside &= samevertex | ((cross > MakePlusTolerant<true>(0.)) & (!onsurf));
@@ -167,7 +167,7 @@ public:
     // In fully degenerated case consider the point outside always
     completelyoutside |= degenerated;
   }
-  
+
   //______________________________________________________________________________
   template <typename Backend>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE
@@ -202,7 +202,7 @@ public:
     MaskedAssign(completelyoutside, wrongsidedist, &dist);
     if (IsFull(completelyoutside))
       return dist;
-      
+
     // Solve the second order equation and return distance solutions for each surface
     ComputeSminSmax<Backend>(point, dir, smin, smax);
     for (int i = 0; i < N; ++i) {
@@ -222,7 +222,7 @@ public:
       MaskedAssign(!completelyoutside && (smin[i] > -tolerance) && (smin[i] < dist), Max(smin[i], 0.), &dist);
       MaskedAssign(!completelyoutside && (smax[i] > -tolerance) && (smax[i] < dist), Max(smax[i], 0.), &dist);
     }
-    MaskedAssign(dist<tolerance && onsurf, 0., &dist);
+    MaskedAssign(dist < tolerance && onsurf, 0., &dist);
     return (dist);
   } // end of function
 
@@ -238,7 +238,7 @@ public:
 
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
-//    const Float_t tolerance = 100. * kTolerance;
+    //    const Float_t tolerance = 100. * kTolerance;
 
     Vertex_t va;          // vertex i of lower base
     Vector3D<Float_t> pa; // same vertex converted to backend type
@@ -283,7 +283,7 @@ public:
 
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
-//    const Float_t tolerance = 100. * kTolerance;
+    //    const Float_t tolerance = 100. * kTolerance;
 
     Vertex_t va;          // vertex i of lower base
     Vector3D<Float_t> pa; // same vertex converted to backend type
@@ -396,7 +396,7 @@ public:
         MaskedAssign(crossing && (!checked) && crtdist < distance, Max(crtdist, 0.), &distance);
       }
     }
-    MaskedAssign(distance<tolerance && onsurf, 0., &distance);
+    MaskedAssign(distance < tolerance && onsurf, 0., &distance);
     return (distance);
 
   } // end distanceToIn function
@@ -441,7 +441,7 @@ public:
     //  std::cout << "safetycurved = " << safetyface << std::endl;
     MaskedAssign((safetyface < safety) && (!done), safetyface, &safety);
     //  std::cout << "safety = " << safety << std::endl;
-    MaskedAssign(safety>0. && safety<eps, 0., &safety);
+    MaskedAssign(safety > 0. && safety < eps, 0., &safety);
     return safety;
 
   } // end SafetyToOut
@@ -486,7 +486,7 @@ public:
     //  std::cout << "safetycurved = " << safetyface << std::endl;
     MaskedAssign((safetyface > safety) && (!done), safetyface, &safety);
     //  std::cout << "safety = " << safety << std::endl;
-    MaskedAssign(safety>0. && safety<eps, 0., &safety);
+    MaskedAssign(safety > 0. && safety < eps, 0., &safety);
     return (safety);
 
   } // end SafetyToIn
@@ -696,7 +696,7 @@ public:
       // treatment for curved surfaces. Invalid solutions will be excluded.
 
       Float_t sqrtd = signa[i] * Sqrt(Abs(d[i]));
-      MaskedAssign(d[i]<0., big, &sqrtd);
+      MaskedAssign(d[i] < 0., big, &sqrtd);
       // what is the meaning of this??
       smin[i] = (-b[i] - sqrtd) * inva[i];
       smax[i] = (-b[i] + sqrtd) * inva[i];
