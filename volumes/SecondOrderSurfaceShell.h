@@ -112,6 +112,65 @@ public:
   //______________________________________________________________________________
   template <typename Backend>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE
+      /** @brief Stripped down version of Inside method used for boundary and wrong side detection
+       * @param point Starting point in the local frame
+       * @param completelyinside Inside flag
+       * @param completelyoutside Onside flag
+       * @param onsurf On boundary flag
+       */
+  void CheckInside(Vector3D<typename Backend::precision_v> const &point,
+      typename Backend::bool_v &completelyinside, typename Backend::bool_v &completelyoutside,
+      typename Backend::bool_v &onsurf) const {
+
+    typedef typename Backend::precision_v Float_t;
+    typedef typename Backend::bool_v Bool_t;
+    constexpr Precision tolerancesq = 10000. * kTolerance * kTolerance;
+
+    onsurf = Backend::kFalse;
+    completelyinside = (Abs(point.z()) < MakeMinusTolerant<true>(fDz));
+    completelyoutside = (Abs(point.z()) > MakePlusTolerant<true>(fDz));
+    //  if (Backend::early_returns) {
+    if (IsFull(completelyoutside)) 
+      return;
+    //  }
+
+    Float_t cross;
+    Float_t vertexX[N];
+    Float_t vertexY[N];
+    Float_t dzp = fDz + point[2];
+    // vectorizes for scalar backend
+    for (int i = 0; i < N; i++) {
+      // calculate x-y positions of vertex i at this z-height
+      vertexX[i] = fxa[i] + ftx1[i] * dzp;
+      vertexY[i] = fya[i] + fty1[i] * dzp;
+    }
+    Bool_t degenerated = Backend::kTrue; // Can only happen if |zpoint| = fDz
+    for (int i = 0; i < N; i++) {
+//      if (fdegenerated[i])
+//        continue;
+      int j = (i + 1) % 4;
+      Float_t DeltaX = vertexX[j] - vertexX[i];
+      Float_t DeltaY = vertexY[j] - vertexY[i];
+      Float_t deltasq = DeltaX * DeltaX + DeltaY * DeltaY;
+      // If the current vertex is degenerated, ignore the check
+      Bool_t samevertex = deltasq < MakePlusTolerant<true>(0.);
+      degenerated &= samevertex;
+      // Cross product to check if point is right side or left side
+      // If vertices are same, this will be 0
+      cross = (point.x() - vertexX[i]) * DeltaY - (point.y() - vertexY[i]) * DeltaX;
+      
+      onsurf = (cross * cross < tolerancesq * deltasq) & (!samevertex);
+      completelyoutside |= ((cross < MakeMinusTolerant<true>(0.)) & (!onsurf));
+      completelyinside &= samevertex | ((cross > MakePlusTolerant<true>(0.)) & (!onsurf));
+    }
+    onsurf = (!completelyoutside) & (!completelyinside);
+    // In fully degenerated case consider the point outside always
+    completelyoutside |= degenerated;
+  }
+  
+  //______________________________________________________________________________
+  template <typename Backend>
+  VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE
       /** @brief Compute distance to a set of curved/planar surfaces
        * @param point Starting point in the local frame
        * @param dir Direction in the local frame
@@ -135,33 +194,15 @@ public:
     Vector3D<Float_t> unorm;
     Float_t r = -1.;
     Float_t rz;
-    Bool_t inside = (Abs(point.z()) < fDz + kTolerance);
-    Float_t cross;
-    Float_t vertexX[N];
-    Float_t vertexY[N];
-    Float_t dzp = fDz + point[2];
+    Bool_t completelyinside, completelyoutside, onsurf;
+    CheckInside<Backend>(point, completelyinside, completelyoutside, onsurf);
 
-    // Point may be on the wrong side - check this
-    for (int i = 0; i < N; i++) {
-      // calculate x-y positions of vertex i at this z-height
-      vertexX[i] = fxa[i] + ftx1[i] * dzp;
-      vertexY[i] = fya[i] + fty1[i] * dzp;
-    }
-    for (int i = 0; i < N; i++) {
-      if (fdegenerated[i])
-        continue;
-      int j = (i + 1) % 4;
-      Float_t DeltaX = vertexX[j] - vertexX[i];
-      Float_t DeltaY = vertexY[j] - vertexY[i];
-      cross = (point.x() - vertexX[i]) * DeltaY - (point.y() - vertexY[i]) * DeltaX;
-      inside &= (cross > -tolerance);
-    }
     // If on the wrong side, return -1.
     Float_t wrongsidedist = -1.;
-    MaskedAssign(!inside, wrongsidedist, &dist);
-    if (IsEmpty(inside))
+    MaskedAssign(completelyoutside, wrongsidedist, &dist);
+    if (IsFull(completelyoutside))
       return dist;
-
+      
     // Solve the second order equation and return distance solutions for each surface
     ComputeSminSmax<Backend>(point, dir, smin, smax);
     for (int i = 0; i < N; ++i) {
@@ -175,13 +216,13 @@ public:
       }
       // Starting point may be propagated close to boundary
       // === MaskedMultipleAssign needed
-      MaskedAssign(inside && Abs(smin[i]) < tolerance && dir.Dot(unorm) < 0, kInfinity, &smin[i]);
-      MaskedAssign(inside && Abs(smax[i]) < tolerance && dir.Dot(unorm) < 0, kInfinity, &smax[i]);
+      MaskedAssign(!completelyoutside && Abs(smin[i]) < tolerance && dir.Dot(unorm) < 0, kInfinity, &smin[i]);
+      MaskedAssign(!completelyoutside && Abs(smax[i]) < tolerance && dir.Dot(unorm) < 0, kInfinity, &smax[i]);
 
-      MaskedAssign(inside && (smin[i] > -tolerance) && (smin[i] < dist), Max(smin[i], 0.), &dist);
-      MaskedAssign(inside && (smax[i] > -tolerance) && (smax[i] < dist), Max(smax[i], 0.), &dist);
+      MaskedAssign(!completelyoutside && (smin[i] > -tolerance) && (smin[i] < dist), Max(smin[i], 0.), &dist);
+      MaskedAssign(!completelyoutside && (smax[i] > -tolerance) && (smax[i] < dist), Max(smax[i], 0.), &dist);
     }
-    MaskedAssign(dist<tolerance && dist>wrongsidedist, 0., &dist);
+    MaskedAssign(dist<tolerance && onsurf, 0., &dist);
     return (dist);
   } // end of function
 
@@ -197,7 +238,7 @@ public:
 
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
-    const Float_t tolerance = 100. * kTolerance;
+//    const Float_t tolerance = 100. * kTolerance;
 
     Vertex_t va;          // vertex i of lower base
     Vector3D<Float_t> pa; // same vertex converted to backend type
@@ -225,7 +266,7 @@ public:
       MaskedAssign(valid && snext < distance, Max(snext, 0.), &distance);
     }
     // Return -1 for points actually outside
-    MaskedAssign(distance < tolerance, 0., &distance);
+    MaskedAssign(distance < kTolerance, 0., &distance);
     MaskedAssign(outside, -1., &distance);
     return distance;
   }
@@ -242,7 +283,7 @@ public:
 
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
-    const Float_t tolerance = 100. * kTolerance;
+//    const Float_t tolerance = 100. * kTolerance;
 
     Vertex_t va;          // vertex i of lower base
     Vector3D<Float_t> pa; // same vertex converted to backend type
@@ -273,7 +314,7 @@ public:
       MaskedAssign((!done) && valid && snext < distance, Max(snext, 0.), &distance);
     }
     // Return -1 for points actually inside
-    MaskedAssign((!done) && (distance < tolerance), 0., &distance);
+    MaskedAssign((!done) && (distance < kTolerance), 0., &distance);
     MaskedAssign((!done) && inside, -1., &distance);
     return distance;
   }
@@ -301,38 +342,20 @@ public:
       return DistanceToInPlanar<Backend>(point, dir, done);
     Float_t crtdist;
     Vector3D<Float_t> hit;
-    Float_t resultdistance(kInfinity);
+    Float_t distance(kInfinity);
     Float_t tolerance = 100. * kTolerance;
     Vector3D<Float_t> unorm;
     Float_t r = -1.;
     Float_t rz;
-    Bool_t inside = (Abs(point.z()) < fDz - kTolerance);
-    Float_t cross;
-    Float_t vertexX[N];
-    Float_t vertexY[N];
-    Float_t dzp = fDz + point[2];
-    // Point may be on the wrong side - check this
-    for (int i = 0; i < N; i++) {
-      // calculate x-y positions of vertex i at this z-height
-      vertexX[i] = fxa[i] + ftx1[i] * dzp;
-      vertexY[i] = fya[i] + fty1[i] * dzp;
-    }
-    for (int i = 0; i < N; i++) {
-      if (fdegenerated[i])
-        continue;
-      int j = (i + 1) % 4;
-      Float_t DeltaX = vertexX[j] - vertexX[i];
-      Float_t DeltaY = vertexY[j] - vertexY[i];
-      cross = (point.x() - vertexX[i]) * DeltaY - (point.y() - vertexY[i]) * DeltaX;
-      inside &= (cross > tolerance);
-    }
+    Bool_t completelyinside, completelyoutside, onsurf;
+    CheckInside<Backend>(point, completelyinside, completelyoutside, onsurf);
 
     // If on the wrong side, return -1.
     Float_t wrongsidedist = -1.;
-    MaskedAssign(inside & (!done), wrongsidedist, &resultdistance);
-    Bool_t checked = inside | done;
+    MaskedAssign(completelyinside & (!done), wrongsidedist, &distance);
+    Bool_t checked = completelyinside | done;
     if (IsFull(checked))
-      return (resultdistance);
+      return (distance);
 
     // Now solve the second degree equation to find crossings
     Float_t smin[N], smax[N];
@@ -347,14 +370,13 @@ public:
       Bool_t crossing = (crtdist > -tolerance) & (Abs(hit.z()) < fDz + kTolerance);
       // Early skip surface if not in Z range
       if (!IsEmpty(crossing & (!checked))) {
-        ;
         // Compute local un-normalized outwards normal direction and hit ratio factors
         UNormal<Backend>(hit, i, unorm, rz, r);
         // Distance have to be positive within tolerance, and crossing must be inwards
-        crossing &= (crtdist > -10 * tolerance) & (dir.Dot(unorm) < 0.);
+        crossing &= dir.Dot(unorm) < 0.;
         // Propagated hitpoint must be on surface (rz in [0,1] checked already)
         crossing &= (r >= 0.) & (r <= 1.);
-        MaskedAssign(crossing && (!checked) && crtdist < resultdistance, Max(crtdist, 0.), &resultdistance);
+        MaskedAssign(crossing && (!checked) && crtdist < distance, Max(crtdist, 0.), &distance);
       }
       // For the particle(s) not crossing at smin, try smax
       if (!IsFull(crossing | checked)) {
@@ -362,17 +384,20 @@ public:
         crossing = !crossing;
         crtdist = smax[i];
         hit = point + crtdist * dir;
-        crossing &= (Abs(hit.z()) < fDz + kTolerance);
+        crossing &= (crtdist > -tolerance) & (Abs(hit.z()) < fDz + kTolerance);
         if (IsEmpty(crossing))
           continue;
-        UNormal<Backend>(hit, i, unorm, rz, r);
-        crossing &= (crtdist > -tolerance) & (dir.Dot(unorm) < 0.);
+        if (fiscurved[i])
+          UNormal<Backend>(hit, i, unorm, rz, r);
+        else
+          unorm = fNormals[i];
+        crossing &= dir.Dot(unorm) < 0.;
         crossing &= (r >= 0.) & (r <= 1.);
-        MaskedAssign(crossing && (!checked) && crtdist < resultdistance, Max(crtdist, 0.), &resultdistance);
+        MaskedAssign(crossing && (!checked) && crtdist < distance, Max(crtdist, 0.), &distance);
       }
     }
-    MaskedAssign(resultdistance<tolerance && resultdistance>wrongsidedist, 0., &resultdistance);
-    return (resultdistance);
+    MaskedAssign(distance<tolerance && onsurf, 0., &distance);
+    return (distance);
 
   } // end distanceToIn function
 
@@ -486,37 +511,29 @@ public:
     MaskedAssign(!in, -tolerance, &tolerance);
 
     //  loop over edges connecting points i with i+4
-    Float_t vertexX[N];
-    Float_t vertexY[N];
     Float_t dx, dy, dpx, dpy, lsq, u;
     Float_t dx1 = 0.0;
     Float_t dx2 = 0.0;
     Float_t dy1 = 0.0;
     Float_t dy2 = 0.0;
+
+    Bool_t completelyinside, completelyoutside, onsurf;
+    CheckInside<Backend>(point, completelyinside, completelyoutside, onsurf);
+    if (IsFull(onsurf))
+      return (0.);
+
+    Bool_t wrong = in & (completelyoutside);
+    wrong |= (!in) & completelyinside;
+    if (IsFull(wrong)) {
+      return (-1.);
+    }
+    Float_t vertexX[N];
+    Float_t vertexY[N];
     Float_t dzp = fDz + point[2];
-    // vectorizes for scalar backend
     for (int i = 0; i < N; i++) {
       // calculate x-y positions of vertex i at this z-height
       vertexX[i] = fxa[i] + ftx1[i] * dzp;
       vertexY[i] = fya[i] + fty1[i] * dzp;
-    }
-    // Check if point is where it is supposed to be
-    Bool_t inside = (Abs(point.z()) < fDz + tolerance);
-    Float_t cross;
-    for (int i = 0; i < N; i++) {
-      if (fdegenerated[i])
-        continue;
-      int j = (i + 1) % 4;
-      Float_t DeltaX = vertexX[j] - vertexX[i];
-      Float_t DeltaY = vertexY[j] - vertexY[i];
-      cross = (point.x() - vertexX[i]) * DeltaY - (point.y() - vertexY[i]) * DeltaX;
-      inside &= (cross > -tolerance);
-    }
-    Bool_t wrong = in & (!inside);
-    wrong |= (!in) & inside;
-    if (IsFull(wrong)) {
-      safety = -kTolerance;
-      return safety;
     }
     Float_t umin = 0.0;
     for (int i = 0; i < N; i++) {
@@ -556,8 +573,9 @@ public:
     safety = Sqrt(safety);
     MaskedAssign(safplanar < safety, safplanar, &safety);
     MaskedAssign(wrong, -safety, &safety);
+    MaskedAssign(onsurf, 0., &safety);
     return safety;
-  } // end SafetyFace
+  } // end SafetyCurved
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE

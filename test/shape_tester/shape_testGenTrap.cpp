@@ -84,6 +84,7 @@ int main(int argc, char *argv[]) {
   int errCode = 0;
 
   ShapeTester tester;
+  // tester.SetSolidTolerance(1.e-7);
   //  tester.EnableDebugger(true);
 
   if (argc > 3) {
