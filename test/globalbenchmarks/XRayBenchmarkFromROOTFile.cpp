@@ -34,7 +34,7 @@
 #include "navigation/SimpleABBoxLevelLocator.h"
 #include "navigation/HybridNavigator2.h"
 
-#define CALLGRIND
+//#define CALLGRIND
 #ifdef CALLGRIND
 #include <valgrind/callgrind.h>
 #endif

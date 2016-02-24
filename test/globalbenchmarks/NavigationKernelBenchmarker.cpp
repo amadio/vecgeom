@@ -39,7 +39,7 @@
 #undef NDEBUG
 #include <cassert>
 
-#define CALLGRIND_ENABLED
+//#define CALLGRIND_ENABLED
 #ifdef CALLGRIND_ENABLED
 #include <valgrind/callgrind.h>
 #endif
