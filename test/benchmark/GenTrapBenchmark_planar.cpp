@@ -17,7 +17,7 @@
 using namespace vecgeom;
 
 int main() {
-  UnplacedBox worldUnplaced = UnplacedBox(10., 10., 10.);
+  UnplacedBox worldUnplaced(10., 10., 10.);
 
   // no twist
   Precision verticesx[8] = {-3, -3, 3, 3, -2, -2, 2, 2};
@@ -26,8 +26,8 @@ int main() {
   UnplacedGenTrap trapUnplaced(verticesx, verticesy, 10);
   trapUnplaced.Print();
 
-  LogicalVolume world = LogicalVolume("world", &worldUnplaced);
-  LogicalVolume trap = LogicalVolume("gentrap", &trapUnplaced);
+  LogicalVolume world("world", &worldUnplaced);
+  LogicalVolume trap("gentrap", &trapUnplaced);
 
   Transformation3D placement(5, 5, 5);
   world.PlaceDaughter("gentrap", &trap, &placement);
