@@ -86,6 +86,7 @@ private:
   UVector3 GetPointOnOrb(double r);
   UVector3 GetRandomDirection();
 
+  int TestBoundaryPrecision(int mode);
   int TestConsistencySolids();
   int TestInsidePoint();
   int TestOutsidePoint();

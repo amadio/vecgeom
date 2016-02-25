@@ -37,6 +37,7 @@
 #include "TColor.h"
 #include "TROOT.h"
 #include "TAttMarker.h"
+#include "TGraph.h"
 #include "TH1D.h"
 #include "TH2F.h"
 #include "TF1.h"
@@ -123,6 +124,108 @@ UVector3 ShapeTester::GetPointOnOrb(double r) {
 }
 
 // DONE: all set point Methods are performance equivalent
+
+int ShapeTester::TestBoundaryPrecision(int mode) {
+// Testing of boundary precision.
+// Supported modes: 
+//   0 - default mode computing a boundary tolerance standard deviation
+//       averaged on random directions and distances
+
+  int nsamples = 1000;
+  int errCode = 0;
+  int nError = 0;
+  int ndist = 10;
+  int nphi = 5;
+  double dtest;
+  double maxerr;
+  std::cout << "# Testing boundary precision\n";
+  double x[10], y[10];
+#ifdef VECGEOM_ROOT
+  TCanvas *cerrors = new TCanvas("cerrors", "Boundary precision", 1200,800);
+#endif
+  // Generate several "move away" distances
+    // Generate several normal.dot.direction ranges in (0, 1)
+  for (int iphi=0; iphi<nphi; ++iphi) {
+    double ndotvlimit = 1. - double(nphi-iphi) / nphi;
+    std::cout << "== testing (n.dot.v > " << ndotvlimit << ") for " << ndist << " move-away distances ...\n";
+    dtest = 1.e-6;
+    for (int idist=0; idist<ndist; ++idist) {
+      maxerr = 0.;
+      dtest *= 10.;
+      x[idist] = dtest;
+      for (int i = 0; i < fMaxPointsSurface + fMaxPointsEdge; ++i) {
+        // Initial point on surface.
+        UVector3 point = fPoints[fOffsetSurface + i];
+        // Make sure point is on surface
+        if (fVolumeUSolids->Inside(point) != vecgeom::EInside::kSurface) {
+          // Do not report the error here - it is tested in TestSurfacePoint
+          continue;
+        }
+        // Compute normal to surface in this point
+        UVector3 norm, v;
+        bool valid = fVolumeUSolids->Normal(point, norm);
+        if (!valid)
+          continue;
+        // Test boundary tolerance when coming from outside from distance = 1.
+        for (int isample =0; isample < nsamples; ++isample) {
+          // Generate a random direction outwards the solid, then
+          // move the point from boundary outwards with distance = 1, making sure
+          // that the new point lies outside.
+          UVector3 poutUnit;
+          int ntries = 0;
+          while (1) {
+            if (ntries == 10000) {
+               errCode = 1;  // do we have a rule coding the error number?
+               ReportError(&nError, point, norm, 1., "TBE: Cannot reach outside from surface when "
+                 "propagating with unit distance after 10000 tries.");
+               return errCode;  
+            }
+            ntries++;
+            // Random direction outwards in the cone selected by ndotvlimit
+            v = GetRandomDirection();
+            if (norm.Dot(v) < ndotvlimit) continue;
+              // Move the point from boundary outwards with distance = dtest.
+            poutUnit = point + dtest*v;
+            // Cross-check that the point is actually outside
+            if (fVolumeUSolids->Inside(poutUnit) == vecgeom::EInside::kOutside)
+              break;
+          }
+          // Compute distance back to boundary.
+          double dunit = fVolumeUSolids->DistanceToIn(poutUnit, -v);
+          // Compute rounded boundary error
+          double error = dunit - dtest;
+          // Ignore large errors which can be due to missing the shape or by
+          // shooting from inner boundaries
+          if (Abs(error) < 1.e-1 && Abs(error) > maxerr) maxerr = Abs(error);
+        }
+      }
+      y[idist] = maxerr;
+      std::cout << "==    error[dist = " << x[idist] << "] = " << maxerr << std::endl;
+    }
+#ifdef VECGEOM_ROOT
+    TGraph *grerrdist = new TGraph(10, x, y);
+    char title[100];
+    sprintf(title, "Propagation error dependence with distance (dir.normal>%g)", ndotvlimit);
+    grerrdist->SetTitle(title);
+    grerrdist->GetXaxis()->SetTitle("distance (internal unit)");
+    grerrdist->GetYaxis()->SetTitle("Max sampled propagation error");
+    grerrdist->GetYaxis()->SetRangeUser(1.e-12,1.);
+//    grerrdist->GetYaxis()->SetNdivisions(505);
+    grerrdist->SetMarkerColor(kBlue+5*iphi);
+    grerrdist->SetMarkerSize(1);
+    grerrdist->SetLineColor(kBlue+5*iphi);
+    grerrdist->SetLineWidth(1);
+    cerrors->SetGridy();
+    cerrors->SetLogx();
+    cerrors->SetLogy();
+    grerrdist->SetMarkerStyle(20);
+    if (iphi==0) grerrdist->Draw("AL*");
+    else grerrdist->Draw("L*");
+  }  
+  cerrors->SaveAs("errors.gif");
+#endif  
+  return errCode;
+}
 
 int ShapeTester::TestConsistencySolids() {
   int errCode = 0;
@@ -1847,6 +1950,8 @@ int ShapeTester::TestMethod(int (ShapeTester::*funcPtr)()) {
 int ShapeTester::TestMethodAll() {
   int errCode = 0;
 
+  fMethod = "BoundaryPrecision";
+  TestBoundaryPrecision(0);
   fMethod = "Consistency";
   errCode += TestMethod(&ShapeTester::TestConsistencySolids);
   if (fDefinedNormal)
