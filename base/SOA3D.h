@@ -11,6 +11,8 @@
 #include "backend/cuda/Interface.h"
 #endif
 
+#include <fstream>
+
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( template <typename Type> class SOA3D; )
@@ -152,6 +154,9 @@ public:
   DevicePtr< cuda::SOA3D<T> > CopyToGpu(DevicePtr<T> xGpu, DevicePtr<T> yGpu, DevicePtr<T> zGpu) const;
   DevicePtr< cuda::SOA3D<T> > CopyToGpu(DevicePtr<T> xGpu, DevicePtr<T> yGpu, DevicePtr<T> zGpu, size_t size) const;
 #endif // VECGEOM_CUDA
+
+  void ToFile(std::string /*filename*/) const;
+  void FromFile(std::string /*filename*/);
 
 private:
 
@@ -389,6 +394,33 @@ VECGEOM_CUDA_HEADER_BOTH
 void SOA3D<T>::push_back(Vector3D<T> const &vec) {
   push_back(vec[0], vec[1], vec[2]);
 }
+
+template <typename T>
+void SOA3D<T>::ToFile(std::string filename) const {
+  std::ofstream outfile(filename, std::ios::binary);
+  outfile.write(reinterpret_cast<const char *>(&fSize), sizeof(fSize));
+  outfile.write(reinterpret_cast<const char *>(&fCapacity), sizeof(fCapacity));
+  outfile.write(reinterpret_cast<char *>(fX), fCapacity * sizeof(T));
+  outfile.write(reinterpret_cast<char *>(fY), fCapacity * sizeof(T));
+  outfile.write(reinterpret_cast<char *>(fZ), fCapacity * sizeof(T));
+}
+
+template <typename T>
+void SOA3D<T>::FromFile(std::string filename) {
+  // should be called on an already allocated object
+  decltype(fSize) s;
+  decltype(fCapacity) cap;
+  std::ifstream fin(filename, std::ios::binary);
+  fin.read(reinterpret_cast<char *>(&s), sizeof(s));
+  fin.read(reinterpret_cast<char *>(&cap), sizeof(cap));
+//  if (cap != fCapacity || s != fSize)
+//    std::cerr << " warning: reading from SOA3D with different size\n";
+
+  fin.read(reinterpret_cast<char *>(fX), fCapacity * sizeof(T));
+  fin.read(reinterpret_cast<char *>(fY), fCapacity * sizeof(T));
+  fin.read(reinterpret_cast<char *>(fZ), fCapacity * sizeof(T));
+}
+
 
 #ifdef VECGEOM_CUDA_INTERFACE
 

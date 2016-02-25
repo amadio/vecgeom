@@ -25,6 +25,18 @@ void PlacedRootVolume::PrintType() const {
   printf("PlacedRootVolume");
 }
 
+void PlacedRootVolume::PrintType(std::ostream &os) const {
+  os << "PlacedRootVolume";
+}
+
+void PlacedRootVolume::PrintImplementationType(std::ostream &os) const {
+  os << "RootVolumeImplementation(does not exist)";
+}
+
+void PlacedRootVolume::PrintUnplacedType(std::ostream &os) const {
+  os << "UnplacedRootVolume(does not exist)";
+}
+
 void PlacedRootVolume::Contains(SOA3D<Precision> const &points,
                                 bool *const output) const {
   for (size_t i = 0, iMax = points.size(); i < iMax; ++i) {

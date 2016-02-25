@@ -30,8 +30,8 @@ int main(int argc, char * argv[]) {
   UnplacedBox worldUnplaced = UnplacedBox(100., 100., 100.);
   UnplacedCone coneUnplaced = UnplacedCone(rmin1, rmax1, rmin2, rmax2, dz, sphi, dphi );
 
-  LogicalVolume world = LogicalVolume("world", &worldUnplaced);
-  LogicalVolume cone  = LogicalVolume("cone", &coneUnplaced);
+  LogicalVolume world ("world", &worldUnplaced);
+  LogicalVolume cone  ("cone", &coneUnplaced);
 
   Transformation3D placement(5, 0, 0);
   world.PlaceDaughter("cone", &cone, &placement);

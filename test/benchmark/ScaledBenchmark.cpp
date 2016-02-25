@@ -31,8 +31,8 @@ int main(int argc, char* argv[]) {
   UnplacedTube tubeUnplaced = UnplacedTube(rmin, rmax, dz, sphi, dphi);
   UnplacedScaledShape scaledUnplaced(&tubeUnplaced, sx, sy, sz);
   
-  LogicalVolume world = LogicalVolume("world", &worldUnplaced);
-  LogicalVolume scaled = LogicalVolume("scaledTube", &scaledUnplaced);
+  LogicalVolume world ("world", &worldUnplaced);
+  LogicalVolume scaled ("scaledTube", &scaledUnplaced);
   world.PlaceDaughter("pScaledTube", &scaled, &placement);
 //  world.PlaceDaughter("pScaledTube", &scaled, &Transformation3D::kIdentity);
 
