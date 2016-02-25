@@ -709,7 +709,7 @@ set(TEST_EXECUTABLES_CORE
   ${CMAKE_SOURCE_DIR}/test/core/TestConvexity.cpp
   ${CMAKE_SOURCE_DIR}/test/core/BooleanConvexityTest.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestVecGeomPolycone.cpp
-  ${CMAKE_SOURCE_DIR}/services/NavigationSpecializerTest.cpp
+
 
 #  ${CMAKE_SOURCE_DIR}/services/CompNavStatePools.cpp
 )
@@ -735,7 +735,7 @@ if(NOT USolids)
     ${TEST_EXECUTABLES_CORE}
     ${CMAKE_SOURCE_DIR}/test/core/BitSetTest.cpp
   )
-  # higher level benchmarks
+  # higher level benchmarks or executables
   set(TEST_EXECUTABLES_ROOT
     ${TEST_EXECUTABLES_ROOT}
     ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/LocatePointsBenchmark.cpp
@@ -744,6 +744,7 @@ if(NOT USolids)
     ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/NavigationBenchmark.cpp
     ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/TraceTrack.cpp
     ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/XRayBenchmarkFromROOTFile.cpp
+    ${CMAKE_SOURCE_DIR}/services/NavigationSpecializerTest.cpp
   )
 endif()
 
