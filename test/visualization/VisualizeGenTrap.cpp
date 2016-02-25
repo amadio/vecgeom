@@ -21,7 +21,7 @@ int main() {
     Vector3D<Precision> sample;
     sample = trap.GetPointOnSurface();
     inside = trap.Inside(sample);
-    if (inside != kSurface)
+    if (inside != EnumInside::kSurface)
       nerrors++;
     /*
        bool contains;

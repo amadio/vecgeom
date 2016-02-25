@@ -45,7 +45,7 @@ TGeoShape const *PlacedGenTrap::ConvertToRoot() const {
 }
 #endif
 
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
 //______________________________________________________________________________
 ::VUSolid const *PlacedGenTrap::ConvertToUSolids() const {
   std::vector<UVector2> vertices;
