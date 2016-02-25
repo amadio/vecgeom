@@ -10,8 +10,8 @@ void benchmark(double rmin, double rmax, double dz, double sphi, double dphi, in
   UnplacedBox worldUnplaced = UnplacedBox(rmax*4, rmax*4, dz*4);
   UnplacedTube tubeUnplaced = UnplacedTube(rmin, rmax, dz, sphi, dphi);
 
-  LogicalVolume world = LogicalVolume("world", &worldUnplaced);
-  LogicalVolume tube = LogicalVolume("tube", &tubeUnplaced);
+  LogicalVolume world ("world", &worldUnplaced);
+  LogicalVolume tube ("tube", &tubeUnplaced);
 
   Transformation3D placement(5, 5, 5);
   world.PlaceDaughter("tube", &tube, &placement);

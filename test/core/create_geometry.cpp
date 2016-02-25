@@ -20,10 +20,10 @@ int main() {
   UnplacedBox largebox_params = UnplacedBox(1.5, 1.5, 1.5);
   UnplacedBox smallbox_params = UnplacedBox(0.5, 0.5, 0.5);
 
-  LogicalVolume worldl = LogicalVolume(&world_params);
+  LogicalVolume worldl (&world_params);
 
-  LogicalVolume largebox = LogicalVolume("Large box", &largebox_params);
-  LogicalVolume smallbox = LogicalVolume("Small box", &smallbox_params);
+  LogicalVolume largebox ("Large box", &largebox_params);
+  LogicalVolume smallbox ("Small box", &smallbox_params);
 
   Transformation3D origin = Transformation3D();
   Transformation3D placement1 = Transformation3D( 2,  2,  2);

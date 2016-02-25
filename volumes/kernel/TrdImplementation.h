@@ -227,6 +227,20 @@ struct TrdImplementation {
      printf("SpecializedTrd<%i, %i, %s>", transCodeT, rotCodeT, trdTypeT::toString());
   }
 
+  VECGEOM_CUDA_HEADER_BOTH
+  template <typename Stream>
+  static void PrintType( Stream & s ) {
+      s << "SpecializedTrd<" << transCodeT << "," << rotCodeT << "," << trdTypeT::toString() << ">";
+  }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  template <typename Stream> static void PrintImplementationType(Stream &s) {
+       s << "TrdImplemenation<" << transCodeT << "," << rotCodeT << "," << trdTypeT::toString() << ">";
+  }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  template <typename Stream> static void PrintUnplacedType(Stream &s) { s << "UnplacedTrd"; }
+
   template <typename Backend>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE

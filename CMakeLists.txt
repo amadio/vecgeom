@@ -541,6 +541,7 @@ set(SRC_CPP_RELATIVE
   source/PlacedBooleanVolume.cpp
   source/Wedge.cpp
   source/ABBoxManager.cpp
+  source/HybridManager2.cpp
   source/ABBoxNavigator.cpp
 
   source/USolidsInterfaceHelper.cpp
@@ -550,6 +551,8 @@ set(SRC_CPP_RELATIVE
   source/Nucleus.cpp
   source/MessageLogger.cpp
   source/Particle.cpp
+
+  services/NavigationSpecializer.cpp
 )
 
 # avoid "file has no symbols" warnings
@@ -691,6 +694,7 @@ endif()
 # Define executables
 
 set(TEST_EXECUTABLES_CORE
+  ${CMAKE_SOURCE_DIR}/test/core/SafetyEstimatorTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/ContainerTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/create_geometry.cpp
   ${CMAKE_SOURCE_DIR}/test/core/testVectorSafety.cpp
@@ -705,6 +709,9 @@ set(TEST_EXECUTABLES_CORE
   ${CMAKE_SOURCE_DIR}/test/core/TestConvexity.cpp
   ${CMAKE_SOURCE_DIR}/test/core/BooleanConvexityTest.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestVecGeomPolycone.cpp
+
+
+#  ${CMAKE_SOURCE_DIR}/services/CompNavStatePools.cpp
 )
 
 
@@ -728,13 +735,16 @@ if(NOT USolids)
     ${TEST_EXECUTABLES_CORE}
     ${CMAKE_SOURCE_DIR}/test/core/BitSetTest.cpp
   )
-  # higher level benchmarks
+  # higher level benchmarks or executables
   set(TEST_EXECUTABLES_ROOT
     ${TEST_EXECUTABLES_ROOT}
     ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/LocatePointsBenchmark.cpp
+    ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/SafetyKernelBenchmarker.cpp
+    ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/NavigationKernelBenchmarker.cpp
     ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/NavigationBenchmark.cpp
     ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/TraceTrack.cpp
     ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/XRayBenchmarkFromROOTFile.cpp
+    ${CMAKE_SOURCE_DIR}/services/NavigationSpecializerTest.cpp
   )
 endif()
 

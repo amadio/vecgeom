@@ -216,6 +216,11 @@ VcPrecision Floor( VcPrecision const &val ){
   return Vc::floor( val );
 }
 
+VECGEOM_INLINE
+VcBool IsInf( VcPrecision x ) {
+  return Vc::isinf(x);
+}
+
 } // End inline namespace
 
 } // End global namespace

@@ -20,8 +20,8 @@ int main(int argc, char* argv[]) {
   UnplacedBox worldUnplaced = UnplacedBox(dx*4, dy*4, dz*4);
   UnplacedBox boxUnplaced = UnplacedBox(dx, dy, dz);
 
-  LogicalVolume world = LogicalVolume("world", &worldUnplaced);
-  LogicalVolume box = LogicalVolume("box", &boxUnplaced);
+  LogicalVolume world ("world", &worldUnplaced);
+  LogicalVolume box ("box", &boxUnplaced);
 
   Transformation3D placement(0.1, 0, 0);
   world.PlaceDaughter("box", &box, &placement);

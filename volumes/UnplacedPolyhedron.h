@@ -28,12 +28,29 @@ enum struct EInnerRadii {
    kTrue = 1
 };
 
+template<typename Stream>
+Stream& operator<<( Stream &s, EInnerRadii a ){
+    if(a == EInnerRadii::kFalse) s << "EInnerRadii::kFalse";
+    if(a == EInnerRadii::kGeneric) s << "EInnerRadii::kGeneric";
+    if(a == EInnerRadii::kTrue) s << "EInnerRadii::kTrue";
+    return s;
+}
+
 enum struct EPhiCutout {
    kFalse = -1,
    kGeneric = 0,
    kTrue = 1,
    kLarge = 2
 };
+
+template<typename Stream>
+Stream& operator<<( Stream &s, EPhiCutout a ){
+    if(a == EPhiCutout::kFalse) s << "EPhiCutout::kFalse";
+    if(a == EPhiCutout::kGeneric) s << "EPhiCutout::kGeneric";
+    if(a == EPhiCutout::kTrue) s << "EPhiCutout::kTrue";
+    if(a == EPhiCutout::kLarge) s << "EPhiCutout::kLarge";
+    return s;
+}
 
 namespace vecgeom {
 

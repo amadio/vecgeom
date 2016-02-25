@@ -35,6 +35,21 @@ struct ParallelepipedImplementation {
      printf("SpecializedParallelepiped<%i, %i>", transCodeT, rotCodeT);
   }
 
+  VECGEOM_CUDA_HEADER_BOTH
+  template <typename Stream> static void PrintType(Stream &s) {
+    s << "SpecializedParallelepiped<" << transCodeT << "," << rotCodeT << ">";
+  }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  template <typename Stream> static void PrintImplementationType(Stream &s) {
+    s << "ParallelepipedImplementation<" << transCodeT << "," << rotCodeT << ">";
+  }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  template <typename Stream> static void PrintUnplacedType(Stream &s) {
+    s << "UnplacedParallelepiped";
+  }
+
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
