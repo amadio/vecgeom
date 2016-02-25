@@ -34,7 +34,7 @@ typedef TSpecializedBooleanMinusVolume<OriginBox_t, TranslatedHollowTube_t,
 int main()
 {
     UnplacedBox worldUnplaced(10.,10.,10.);
-    LogicalVolume world ("world", &worldUnplaced);
+    LogicalVolume world = LogicalVolume("world", &worldUnplaced);
 
     // components for boolean solid
     UnplacedBox motherbox(5.,5.,5.);

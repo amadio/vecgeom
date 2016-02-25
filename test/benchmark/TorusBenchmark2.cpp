@@ -21,8 +21,8 @@ int main(int argc, char* argv[]) {
   UnplacedBox worldUnplaced = UnplacedBox((drtor+drmax)*2, (drtor+drmax)*2 , (drtor+drmax)*2);
   UnplacedTorus2 torusUnplaced = UnplacedTorus2(drmin, drmax, drtor, dsphi, ddphi);
 
-  LogicalVolume world ("world", &worldUnplaced);
-  LogicalVolume torus ("torus", &torusUnplaced);
+  LogicalVolume world = LogicalVolume("world", &worldUnplaced);
+  LogicalVolume torus = LogicalVolume("torus", &torusUnplaced);
 
   //Transformation3D placement(5, 5, 5);
   Transformation3D placement(0, 0, 0);

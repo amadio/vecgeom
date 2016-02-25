@@ -27,13 +27,6 @@
 #include <vector>
 #include <sstream>
 
-#include "navigation/VNavigator.h"
-#include "navigation/GlobalLocator.h"
-#include "navigation/NewSimpleNavigator.h"
-#include "navigation/SimpleABBoxNavigator.h"
-#include "navigation/SimpleABBoxLevelLocator.h"
-#include "navigation/HybridNavigator2.h"
-
 //#define CALLGRIND
 #ifdef CALLGRIND
 #include <valgrind/callgrind.h>
@@ -113,90 +106,6 @@ bool voxelize = true;
 int make_bmp_header( );
 int make_bmp(int const * image_result, char const *, int data_size_x, int data_size_y, bool linear = true);
 int make_diff_bmp(int const * image1, int const * image2, char const *, int sizex, int sizey);
-
-typedef Vector3D<Precision> Vec3_t;
-typedef std::pair<Vec3_t, Vec3_t> PointAndDir_t;
-typedef std::pair<PointAndDir_t, NavigationState *> TrackAndState_t;
-typedef std::map<LogicalVolume const*, std::vector<TrackAndState_t> *> VolumeTracksMap_t;
-VolumeTracksMap_t gVolumeTrackMap;
-VolumeTracksMap_t gVolumeTrackForLevelLocate;
-
-//#define LOGDATA
-
-void AddTrack( LogicalVolume const *lvol, Vec3_t p, Vec3_t d, NavigationState const * state ){
-  NavigationState * newstate = NavigationState::MakeCopy( *state );
-  if(gVolumeTrackMap.find(lvol)==gVolumeTrackMap.end()){
-    std::vector<TrackAndState_t> *v=new std::vector<TrackAndState_t>();
-    gVolumeTrackMap[lvol] = v;
-    v->push_back( TrackAndState_t( PointAndDir_t(p, d ), newstate) );
-  }
-  else {
-    auto & v = gVolumeTrackMap[lvol];
-    v->push_back( TrackAndState_t(PointAndDir_t(p, d ), newstate) );
-  }
-}
-
-void PrintTracks(){
-  for( auto &key : gVolumeTrackMap ){
-    std::cerr << key.first->GetName() << " " << key.second->size() << "\n";
-  }
-}
-
-
-void BenchNavigationUsingLoggedTracks( LogicalVolume const* lvol, std::vector<VNavigator const *> const & navs, std::vector<TrackAndState_t> const & tracks ) {
-  NavigationState * newstate = NavigationState::MakeInstance( GeoManager::Instance().getMaxDepth() );
-  std::cerr << "lvol " << lvol->GetName() << " CURRENT NAV " << lvol->GetNavigator()->GetName() << "\n";
-  int i=1000;
-  int j=0;  
-    double bestT=kInfinity;
-
- for( auto & nav : navs ){
-    double step=0;
-    Stopwatch timer;
-    timer.Start();
-    for( size_t rep=0; rep < 3; rep++ ){
-      for( auto & t : tracks ){
-	step += nav->ComputeStepAndPropagatedState( t.first.first, t.first.second, vecgeom::kInfinity, *t.second, *newstate );
-      }
-    }
-    timer.Stop();
-    double T = timer.Elapsed();
-    if( T < bestT) { 
-      bestT=T; 
-      i = j;
-    }
-    std::cerr << "lvol " << lvol->GetName() << " NAV " << nav->GetName() << " " << T << " " << i << "\n";
-    j++;
-  }
-  std::cerr << "SETTING lvol " << lvol->GetName() << " to NAV " << navs[i]->GetName() << "\n";
-  const_cast<LogicalVolume*>(lvol)->SetNavigator(navs[i]);
-}
-
-void BenchTracks(){
- 
-  for( auto &key : gVolumeTrackMap ){
-    std::vector<VNavigator const *> navs = {NewSimpleNavigator<>::Instance(), SimpleABBoxNavigator<>::Instance()  };    
-    navs.push_back( key.first->GetNavigator() );
-//  std::cerr << key.first->GetName() << " " << key.second->size() << "\n";
-    BenchNavigationUsingLoggedTracks( key.first, navs, *key.second );
-  }
-}
-
-void InitNavigators(){
-    for( auto & lvol : GeoManager::Instance().GetLogicalVolumesMap() ){
-        if( lvol.second->GetDaughtersp()->size() < 4 ){
-            lvol.second->SetNavigator(NewSimpleNavigator<>::Instance());
-        }
-        if( lvol.second->GetDaughtersp()->size() >= 5 ){
-            lvol.second->SetNavigator(SimpleABBoxNavigator<>::Instance());
-        }
-	if( lvol.second->GetDaughtersp()->size() >= 10 ){
-	    lvol.second->SetNavigator(HybridNavigator<>::Instance());
-	    HybridManager2::Instance().InitStructure((lvol.second));
-	}
-	lvol.second->SetLevelLocator(SimpleABBoxLevelLocator::GetInstance());
-    }
-}
 
 
 __attribute__((noinline))
@@ -435,133 +344,6 @@ if(VERBOSE){
 
 //                std::cout << p << "\n";
 
-                newnavstate->CopyTo(curnavstate);
-
-                // Increase passed_volume
-                // TODO: correct counting of travel in "world" bounding box
-                if(step>0) crossedvolumecount++;
-
-              //  if(crossedvolumecount > 1000){
-                    //std::cerr << "OOPS: Problem for pixel " << pixel_count_1 << " " << pixel_count_2 << " \n";
-                    //break;}
-             } // end while
-
-             ///////////////////////////////////
-             // Store the number of passed volume at 'volume_result'
-             *(image+pixel_count_2*data_size_x+pixel_count_1) = crossedvolumecount;
-
-      } // end inner loop
-    } // end outer loop
-
-    NavigationState::ReleaseInstance( curnavstate );
-    NavigationState::ReleaseInstance( newnavstate );
-
-} // end XRayWithVecGeom
-
-
-void XRayWithVecGeom_PolymorphicNavigationFramework(int axis,
-                  Vector3D<Precision> origin,
-                  Vector3D<Precision> bbox,
-                  Vector3D<Precision> dir,
-                  double axis1_start, double axis1_end,
-                  double axis2_start, double axis2_end,
-                  int data_size_x,
-                  int data_size_y,
-                  double pixel_axis,
-                  int * image) {
-
-if(VERBOSE){
-    std::cout << "from [" << axis1_start << ";" << axis2_start
-              << "] to [" << axis1_end   << ";" << axis2_end << "]\n";
-    std::cout << "Xpixels " << data_size_x << " YPixels " << data_size_y << "\n";
-
-    std::cout << pixel_axis << "\n";
-}
-    double pixel_width_1 = (axis1_end-axis1_start)/data_size_x;
-    double pixel_width_2 = (axis2_end-axis2_start)/data_size_y;
-
-    if(VERBOSE){
-        std::cout << pixel_width_1 << "\n";
-        std::cout << pixel_width_2 << "\n";
-    }
-
-    NavigationState * newnavstate = NavigationState::MakeInstance( GeoManager::Instance().getMaxDepth() );
-    NavigationState * curnavstate = NavigationState::MakeInstance( GeoManager::Instance().getMaxDepth() );
-
-    for( int pixel_count_2 = 0; pixel_count_2 < data_size_y; ++pixel_count_2 ){
-        for( int pixel_count_1 = 0; pixel_count_1 < data_size_x; ++pixel_count_1 )
-        {
-            double axis1_count = axis1_start + pixel_count_1 * pixel_width_1 + 1E-6;
-            double axis2_count = axis2_start + pixel_count_2 * pixel_width_2 + 1E-6;
-
-            if(VERBOSE) {
-                std::cout << "\n OutputPoint("<< axis1_count<< ", "<< axis2_count<< ")\n";
-            }
-         //   std::cout << pixel_count_1 << " " << pixel_count_2 << "\n";
-
-            // set start point of XRay
-            Vector3D<Precision> p;
-            if( axis== 1 )
-              p.Set( origin[0]-bbox[0], axis1_count, axis2_count);
-            else if( axis== 2)
-              p.Set( axis1_count, origin[1]-bbox[1], axis2_count);
-            else if( axis== 3)
-              p.Set( axis1_count, axis2_count, origin[2]-bbox[2]);
-
-            curnavstate->Clear();
-            GlobalLocator::LocateGlobalPoint( GeoManager::Instance().GetWorld(), p, *curnavstate, true );
-
-#ifdef VECGEOM_DISTANCE_DEBUG
-            gGeoManager->GetCurrentNavigator()->FindNode( p.x(), p.y(), p.z() );
-#endif
-            double distancetravelled=0.;
-            int crossedvolumecount=0;
-
-            if(VERBOSE) {
-              std::cout << " StartPoint(" << p[0] << ", " << p[1] << ", " << p[2] << ")";
-              std::cout << " Direction <" << dir[0] << ", " << dir[1] << ", " << dir[2] << ">"<< std::endl;
-            }
-
-            while( ! curnavstate->IsOutside() ) {
-#ifdef LOGDATA
-	      AddTrack( curnavstate->Top()->GetLogicalVolume(), p, dir, curnavstate );
-#endif
-                double step = 0;
-                newnavstate->Clear();
-                VNavigator const* navigator = curnavstate->Top()->GetLogicalVolume()->GetNavigator();
-		//	if(navigator==HybridNavigator<>::Instance()) std::cerr << "navigating with " << navigator->GetName() << "\n";
-                step = navigator->ComputeStepAndPropagatedState( p, dir, vecgeom::kInfinity, *curnavstate, *newnavstate );
-
-                //std::cout << "step " << step << "\n";
-                distancetravelled+=step;
-//
-//              std::cout << "GOING FROM "
-//                       << curnavstate->Top()->GetLabel() << "(";
-//                        curnavstate->Top()->PrintType();
-//                     std::cout << ") to ";
-//
-//                if( newnavstate->Top() ){
-//                    std::cout << newnavstate->Top()->GetLabel() << "(";
-//                    newnavstate->Top()->PrintType();
-//                    std::cout << ")";
-//                }
-//                else
-//                    std::cout << "outside ";
-//
-//                if ( curnavstate->Top() == newnavstate->Top() ) {
-//                    std::cout << " CROSSING PROBLEM \n";
-//                    curnavstate->Print();
-//                    newnavstate->Print();
-//                }
-//
-//                std::cout << "# step " << step << " crossed "<< crossedvolumecount << "\n";
-
-                // here we have to propagate particle ourselves and adjust navigation state
-                p = p + dir*(step + 1E-6);
-
-//                std::cout << p << "\n";
-
-                // pointer swap should do
                 newnavstate->CopyTo(curnavstate);
 
                 // Increase passed_volume
@@ -1158,8 +940,6 @@ int *volume_result= (int*) new int[data_size_y * data_size_x*3];
     std::cout << std::endl;
     std::cout << " ROOT Elapsed time : "<< timer.Elapsed() << std::endl;
 
- 
-
     // Make bitmap file; generate filename
     std::stringstream imagenamebase;
     imagenamebase << "volumeImage_" << testvolume;
@@ -1170,10 +950,10 @@ int *volume_result= (int*) new int[data_size_y * data_size_x*3];
     std::stringstream ROOTimage;
     ROOTimage << imagenamebase.str();
     ROOTimage << "_ROOT.bmp";
+
     make_bmp(volume_result, ROOTimage.str().c_str(), data_size_x, data_size_y);
-
-
 #ifdef VECGEOM_GEANT4
+
     G4VPhysicalVolume * world = SetupGeant4Geometry( testvolume, Vector3D<Precision>( std::abs(origin[0]) + dx,
             std::abs(origin[1]) + dy,
             std::abs(origin[2]) + dz ), cutlevel, cutatlevel );
@@ -1209,9 +989,6 @@ int *volume_result= (int*) new int[data_size_y * data_size_x*3];
     std::cout << "Detector loaded " << "\n";
     ABBoxManager::Instance().InitABBoxesForCompleteGeometry();
     std::cout << "voxelized " << "\n";
-
-    InitNavigators();
-
     timer.Start();
 #ifdef CALLGRIND
     CALLGRIND_START_INSTRUMENTATION;
@@ -1230,7 +1007,7 @@ int *volume_result= (int*) new int[data_size_y * data_size_x*3];
     CALLGRIND_DUMP_STATS;
 #endif
     timer.Stop();
-    std::cout << " VG Elapsed time : "<< timer.Elapsed() << std::endl;
+
     std::stringstream VecGeomimage;
     VecGeomimage << imagenamebase.str();
     VecGeomimage << "_VecGeom.bmp";
@@ -1247,42 +1024,8 @@ int *volume_result= (int*) new int[data_size_y * data_size_x*3];
     make_diff_bmp(volume_result_Geant4, volume_result_VecGeom, VGG4diffimage.str().c_str(), data_size_x, data_size_y);
 #endif
 
-    timer.Start();
-  #ifdef CALLGRIND
-      CALLGRIND_START_INSTRUMENTATION;
-  #endif
-      XRayWithVecGeom_PolymorphicNavigationFramework( axis,
-                 Vector3D<Precision>(origin[0],origin[1],origin[2]),
-                 Vector3D<Precision>(dx,dy,dz),
-                 dir,
-                 axis1_start, axis1_end,
-                 axis2_start, axis2_end,
-                 data_size_x, data_size_y,
-                 pixel_axis,
-                 volume_result_VecGeom );
-  #ifdef CALLGRIND
-      CALLGRIND_START_INSTRUMENTATION;
-      CALLGRIND_DUMP_STATS;
-  #endif
-      timer.Stop();
-      std::cout << " VG (NEW) Elapsed time : "<< timer.Elapsed() << std::endl;
-      //      PrintTracks();
-      BenchTracks();
-
-      VecGeomimage << imagenamebase.str();
-      VecGeomimage << "_VecGeomNEW.bmp";
-      make_bmp(volume_result_VecGeom, VecGeomimage.str().c_str(), data_size_x, data_size_y);
-
-      // std::stringstream VGRdiffimage;
-      VGRdiffimage << imagenamebase.str();
-      VGRdiffimage << "_diffROOTVGNEW.bmp";
-      make_diff_bmp(volume_result, volume_result_VecGeom, VGRdiffimage.str().c_str(), data_size_x, data_size_y);
-#ifdef VECGEOM_GEANT4
-      // std::stringstream VGG4diffimage;
-      VGG4diffimage << imagenamebase.str();
-      VGG4diffimage << "_diffG4VGNEW.bmp";
-      make_diff_bmp(volume_result_Geant4, volume_result_VecGeom, VGG4diffimage.str().c_str(), data_size_x, data_size_y);
-#endif
+    std::cout << std::endl;
+    std::cout << " VecGeom Elapsed time : "<< timer.Elapsed() << std::endl;
 
     timer.Start();
 #ifdef CALLGRIND
@@ -1310,6 +1053,7 @@ int *volume_result= (int*) new int[data_size_y * data_size_x*3];
 
     make_diff_bmp(volume_result_VecGeom, volume_result_VecGeomABB, "diffVecGeomSimplevsABB.bmp", data_size_x, data_size_y);
     make_diff_bmp(volume_result, volume_result_VecGeomABB, "diffROOTVecGeomABB.bmp", data_size_x, data_size_y);
+
 
     std::cout << std::endl;
     std::cout << " VecGeom ABB Elapsed time : "<< timer.Elapsed() << std::endl;

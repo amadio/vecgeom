@@ -20,7 +20,7 @@ int main(int argc, char * argv[])
     // OPTION_INT(nrep,1024);
 
     UnplacedBox worldUnplaced(10.,10.,10.);
-    LogicalVolume world ("world", &worldUnplaced);
+    LogicalVolume world = LogicalVolume("world", &worldUnplaced);
 
     // components for boolean solid
     UnplacedBox motherbox(5.,5.,5.);

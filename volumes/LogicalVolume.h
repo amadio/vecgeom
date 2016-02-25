@@ -21,15 +21,9 @@ namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class LogicalVolume; )
 VECGEOM_DEVICE_FORWARD_DECLARE( class VPlacedVolume; )
-VECGEOM_DEVICE_FORWARD_DECLARE( class VLevelLocator; )
-VECGEOM_DEVICE_FORWARD_DECLARE( class VSafetyEstimator; )
-VECGEOM_DEVICE_FORWARD_DECLARE( class VNavigator; )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class VLevelLocator;
-class VSafetyEstimator;
-class VNavigator;
 typedef VPlacedVolume const* Daughter;
 class GeoManager;
 /**
@@ -58,10 +52,6 @@ private:
   void * fTrackingMediumPtr;
   void * fBasketManagerPtr;
 
-  VLevelLocator const *fLevelLocator; // a locator class for this logical volume
-  VSafetyEstimator const *fSafetyEstimator; // a safety estimator class for this logical volume
-  VNavigator const *fNavigator; // the attached navigator
-
   // the container of daughter (placed) volumes which are placed inside this logical
   // Volume
   Vector<Daughter> *fDaughters;
@@ -86,8 +76,8 @@ public:
   //
   // copy operator since we have pointer data members
   //
-  LogicalVolume(LogicalVolume const &other) = delete;
-  LogicalVolume *operator=(LogicalVolume const &other) = delete;
+  LogicalVolume(LogicalVolume const &other);
+  LogicalVolume *operator=(LogicalVolume const &other);
 
 #else
   __device__
@@ -136,31 +126,6 @@ public:
   void *GetTrackingMediumPtr() const { return fTrackingMediumPtr; }
   VECGEOM_INLINE
   void *GetBasketManagerPtr() const { return fBasketManagerPtr; }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  VLevelLocator const *GetLevelLocator() const { return fLevelLocator; }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  void SetLevelLocator(VLevelLocator const *locator) { fLevelLocator=locator; }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  VSafetyEstimator const *GetSafetyEstimator() const { return fSafetyEstimator; }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  void SetSafetyEstimator(VSafetyEstimator const *est) { fSafetyEstimator=est; }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  VNavigator const *GetNavigator() const { return fNavigator; }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  void SetNavigator(VNavigator const *n) { fNavigator=n; }
-
 
   int id() const { return fId; }
 

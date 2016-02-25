@@ -35,21 +35,6 @@ struct BoxImplementation {
      printf("SpecializedBox<%i, %i>", transCodeT, rotCodeT);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
-  template <typename Stream> static void PrintType(Stream &s) {
-    s << "SpecializedBox<" << transCodeT << "," << rotCodeT << ">";
-  }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  template <typename Stream> static void PrintImplementationType(Stream &s) {
-    s << "BoxImplementation<" << transCodeT << "," << rotCodeT << ">";
-  }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  template <typename Stream> static void PrintUnplacedType(Stream &s) {
-    s << "UnplacedBox";
-  }
-
   template<typename Backend>
   VECGEOM_INLINE
   VECGEOM_CUDA_HEADER_BOTH

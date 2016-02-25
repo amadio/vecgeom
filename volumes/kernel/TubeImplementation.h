@@ -311,19 +311,6 @@ struct TubeImplementation {
      printf("SpecializedTube<%i, %i, %s>", transCodeT, rotCodeT, tubeTypeT::toString());
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
-  template <typename Stream>
-  static void PrintType( Stream & s ) {
-       s << "SpecializedTube<" << transCodeT << "," << rotCodeT << ",TubeTypes::" << tubeTypeT::toString() << ">";
-    }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  template <typename Stream> static void PrintImplementationType(Stream &s) {
-    s << "TubeImplementation<" << transCodeT << "," << rotCodeT << ",TubeTypes::" << tubeTypeT::toString() << ">";
-  }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  template <typename Stream> static void PrintUnplacedType(Stream &s) { s << "UnplacedTube"; }
 
   /////GenericKernel Contains/Inside implementation
     template <typename Backend, bool ForInside>

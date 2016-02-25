@@ -230,16 +230,15 @@ public:
    void Clear();
 
 
-   size_t GetPlacedVolumesCount() const {return fPlacedVolumesMap.size();}
+   int GetPlacedVolumesCount() const {return fPlacedVolumesMap.size();}
 
    // returns the number of volumes registered in the GeoManager (map)
    // includes both tracking logical volumes and virtual volumes (which are part of composites for example)
    // in order to get the number of logical volumes which are seen from the perspective of a user,
-   // the user should call getAllLogicalVolumes(...) and then determine the size from the resulting container
-   size_t GetRegisteredVolumesCount() const {return fLogicalVolumesMap.size();}
+   // the user should call getAllLogicalVolumes(...) and the determine the size from the resulting container
+   int GetRegisteredVolumesCount() const {return fLogicalVolumesMap.size();}
 
-   decltype(fLogicalVolumesMap) const & GetLogicalVolumesMap() const { return fLogicalVolumesMap; }
-   size_t GetTotalNodeCount() const {return fTotalNodeCount;}
+   int GetTotalNodeCount() const {return fTotalNodeCount;}
 
 protected:
 

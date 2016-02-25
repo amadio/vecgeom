@@ -22,8 +22,8 @@ int main(int argc, char* argv[]) {
     UnplacedBox worldUnplaced = UnplacedBox(rhi*4, rhi*4, dz * 4);
     UnplacedParaboloid paraboloidUnplaced = UnplacedParaboloid(rlo, rhi, dz); //rlo=3. - rhi=5. dz=7
     std::cout<<"Paraboloid created\n";
-    LogicalVolume world ("MBworld", &worldUnplaced);
-    LogicalVolume paraboloid ("paraboloid", &paraboloidUnplaced);
+    LogicalVolume world = LogicalVolume("MBworld", &worldUnplaced);
+    LogicalVolume paraboloid = LogicalVolume("paraboloid", &paraboloidUnplaced);
     world.PlaceDaughter(&paraboloid, &Transformation3D::kIdentity);
     VPlacedVolume *worldPlaced = world.Place();
     GeoManager::Instance().SetWorld(worldPlaced);

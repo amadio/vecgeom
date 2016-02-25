@@ -24,7 +24,6 @@
 // GPU pointer at startup
 
 #include <iostream>
-#include <fstream>
 
 namespace vecgeom {
 
@@ -41,13 +40,13 @@ public:
         fDepth( depth ),
         fBuffer( new char[NavigationState::SizeOf( depth )*size ] ),
         fGPUPointer( NULL )
-   {
+    {
 
 #if !defined(VECGEOM_NVCC) && defined(VECGEOM_CUDA)
         vecgeom::CudaMalloc( &fGPUPointer, NavigationState::SizeOf(depth)*size );
 #endif
         // now create the states
-        for(int i=0;i<(int)fCapacity;++i){
+        for(int i=0;i<fCapacity;++i){
             NavigationState::MakeInstanceAt( depth, fBuffer + NavigationState::SizeOf(depth)*i );
         }
     }
@@ -60,81 +59,24 @@ public:
     void CopyFromGpu();
 #endif
 
-    // quick and dirty serialization and deserialization
-    void ToFile(std::string filename) const {
-#ifdef VECGEOM_USE_INDEXEDNAVSTATES
-      std::ofstream outfile(filename, std::ios::binary);
-      outfile.write(reinterpret_cast<const char *>(&fCapacity), sizeof(fCapacity));
-      outfile.write(reinterpret_cast<const char *>(&fDepth), sizeof(fDepth));
-      outfile.write(reinterpret_cast<char *>(fBuffer), fCapacity * NavigationState::SizeOf(fDepth));
-#else
-      std::cerr << "serializing pointer based navstates not supported \n";
-#endif
-    }
-
-    void ReadDepthAndCapacityFromFile(std::string filename, int &cap, int &dep) {
-      std::ifstream fin(filename, std::ios::binary);
-      fin.read(reinterpret_cast<char *>(&cap), sizeof(cap));
-      fin.read(reinterpret_cast<char *>(&dep), sizeof(dep));
-    }
-
-    void FromFile(std::string filename) {
-#ifdef VECGEOM_USE_INDEXEDNAVSTATES
-        // assumes existing NavStatePool object
-      decltype(fCapacity) cap;
-      decltype(fDepth) dep;
-      std::ifstream fin(filename, std::ios::binary);
-      fin.read(reinterpret_cast<char *>(&cap), sizeof(cap));
-      fin.read(reinterpret_cast<char *>(&dep), sizeof(dep));
-      if (cap != fCapacity || dep != fDepth)
-        std::cerr << " warning: reading from navstate with different size\n";
-      fin.read(reinterpret_cast<char *>(fBuffer), fCapacity * NavigationState::SizeOf(fDepth));
-#else
-      std::cerr << "serializing pointer based navstates not supported \n";
-#endif
-    }
-
     VECGEOM_CUDA_HEADER_BOTH
     NavigationState * operator[]( int i ){
-      return reinterpret_cast<NavigationState *>(fBuffer + NavigationState::SizeOf(fDepth) * i);
+        return reinterpret_cast<NavigationState*> ( fBuffer + NavigationState::SizeOf(fDepth)*i );
     }
 
     VECGEOM_CUDA_HEADER_BOTH
-    NavigationState const* operator[]( int i ) const {
-      return reinterpret_cast<NavigationState const *>(fBuffer + NavigationState::SizeOf(fDepth) * i);
-    }
-
-    // convert/init this to a plain NavigationState** array
-    // so that array[0] points to the first state in the NavStatePool, etc
-    // this method also allocates memory; array should be a nullptr initially
-    // this is a convenience function
-    VECGEOM_CUDA_HEADER_BOTH
-    void ToPlainPointerArray(NavigationState const **&array) const {
-      array = new NavigationState const *[fCapacity];
-      for (int i = 0; i < fCapacity; ++i) {
-        array[i] = (*this)[i];
-      }
-    }
-
-    // dito for the non-const version
-    VECGEOM_CUDA_HEADER_BOTH
-    void ToPlainPointerArray(NavigationState **&array) {
-      array = new NavigationState *[fCapacity];
-      for (int i = 0; i < fCapacity; ++i) {
-        array[i] = (*this)[i];
-      }
+    NavigationState const* operator[]( int i ) const{
+        return reinterpret_cast<NavigationState const *> ( fBuffer + NavigationState::SizeOf(fDepth)*i );
     }
 
     void Print() const {
-      for(int i=0;i<fCapacity;++i)
+        for(int i=0;i<fCapacity;++i)
             (*this)[i]->Print();
     }
 
     void* GetGPUPointer() const {
        return fGPUPointer;
     }
-
-    int capacity() const { return fCapacity; }
 
 private: // protected methods
 #ifdef VECGEOM_CUDA
@@ -192,8 +134,8 @@ void NavStatePool::CopyFromGpu() {
     // this does not work
     // modify content temporarily to convert CPU pointers to GPU pointers
 
-    //std::cerr << "Starting to COPY" << std::endl;
-    //std::cerr << "GPU pointer " << fGPUPointer << std::endl;
+    std::cerr << "Starting to COPY" << std::endl;
+    std::cerr << "GPU pointer " << fGPUPointer << std::endl;
     vecgeom::CopyFromGpu(fGPUPointer, (void*) fBuffer, fCapacity*NavigationState::SizeOf(fDepth));
 
     NavigationState * state;

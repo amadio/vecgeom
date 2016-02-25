@@ -20,8 +20,8 @@ int main(int argc, char* argv[]) {
   UnplacedBox worldUnplaced = UnplacedBox(dx*4, dy*4, dz*4);
   UnplacedParallelepiped paraUnplaced(dx, dy, dz, alpha, theta, phi);
   // UnplacedParallelepiped paraUnplaced(3., 3., 3., 14.9, 39, 3.22);
-  LogicalVolume world ("w0rld", &worldUnplaced);
-  LogicalVolume para ("p4r4", &paraUnplaced);
+  LogicalVolume world = LogicalVolume("w0rld", &worldUnplaced);
+  LogicalVolume para = LogicalVolume("p4r4", &paraUnplaced);
   Transformation3D placement = Transformation3D(5, 5, 5);
   world.PlaceDaughter(&para, &placement);
 

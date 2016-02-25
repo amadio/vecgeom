@@ -51,21 +51,6 @@ struct BooleanImplementation<kSubtraction, transCodeT, rotCodeT> {
      printf("SpecializedBooleanVolume<%i, %i, %i>", kSubtraction, transCodeT, rotCodeT);
    }
 
-   VECGEOM_CUDA_HEADER_BOTH
-   template <typename Stream> static void PrintType(Stream &s) {
-     s << "SpecializedBooleanVolume<kSubtraction" << "," << transCodeT << "," << rotCodeT << ">";
-   }
-
-   VECGEOM_CUDA_HEADER_BOTH
-   template <typename Stream> static void PrintImplementationType(Stream &s) {
-        s << "BooleanImplementation<kSubtraction" << "," << transCodeT << "," << rotCodeT << ">";
-   }
-
-   VECGEOM_CUDA_HEADER_BOTH
-   template <typename Stream> static void PrintUnplacedType(Stream &s) {
-         s << "UnplacedBooleanVolume";
-   }
-
   //
   template<typename Backend>
   VECGEOM_INLINE

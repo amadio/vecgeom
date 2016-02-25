@@ -30,13 +30,13 @@ Precision b2dx=dx, b2dy=dy, b2dz=dz;
 
 SimpleBox boxSimple1("SimpleBox",b1dx,b1dy,b1dz);
 SimpleBox boxSimple2("SimpleBox",b2dx,b2dy,b2dz);
-//LogicalVolume world ("world", &worldUnplaced);
+//LogicalVolume world = LogicalVolume("world", &worldUnplaced);
 UnplacedBox boxUnplaced = UnplacedBox(b2dx, b2dy, b2dz);
-LogicalVolume box2 ("box", &boxUnplaced);
+LogicalVolume box2 = LogicalVolume("box", &boxUnplaced);
 
 
 UnplacedBox box1Unplaced = UnplacedBox(b1dx, b1dy, b1dz);
-LogicalVolume box1 ("box1", &box1Unplaced);
+LogicalVolume box1 = LogicalVolume("box1", &box1Unplaced);
 
 //Transformation3D placement(0.1, 0, 0);
 //world.PlaceDaughter("box", &box2, &placement);

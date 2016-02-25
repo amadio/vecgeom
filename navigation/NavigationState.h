@@ -111,16 +111,9 @@ private:
    VECGEOM_CUDA_HEADER_BOTH
    const VariableData_t &GetVariableData() const { return fPath; }
 
-   unsigned char fCurrentLevel; // value indicating the next free slot in the fPath array ( ergo the current geometry depth )
-   // we choose unsigned char in order to save memory, thus supporting geometry depths up to 255 which seems large enough
-
+   int fCurrentLevel;
+   // add other navigation state here, stuff like:
    bool fOnBoundary; // flag indicating whether track is on boundary of the "Top()" placed volume
-
-   // a member to cache some state information across state usages
-   // one particular example could be a calculated index for this state
-   // if fCache == -1 it means the we have to recalculate it; otherwise we don't
-   short fCache;
-
 
    // pointer data follows; has to be last
    veccore::VariableSizeObj<Value_t> fPath;
@@ -133,7 +126,7 @@ private:
 
    VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
-   NavigationState(size_t new_size, NavigationState &other )  : fCurrentLevel(other.fCurrentLevel), fOnBoundary(other.fOnBoundary), fCache(-1), fPath(new_size, other.fPath)  {
+   NavigationState(size_t new_size, NavigationState &other )  : fCurrentLevel(other.fCurrentLevel), fOnBoundary(other.fOnBoundary), fPath(new_size, other.fPath)  {
        // Raw memcpy of the content to another existing state.
        //
        // in case NavigationState was a virtual class: change to
@@ -280,24 +273,17 @@ public:
 
    VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
-   unsigned char GetMaxLevel() const { return fPath.fN-1; }
+   int GetMaxLevel() const { return fPath.fN-1; }
 
    VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
-   unsigned char GetCurrentLevel() const { return fCurrentLevel; }
+   int GetCurrentLevel() const {return fCurrentLevel;}
 
    // better to use pop and push
    VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
    void
    Push(VPlacedVolume const *);
-
-
-   // a push version operating on IndexTypes
-   VECGEOM_INLINE
-   VECGEOM_CUDA_HEADER_BOTH
-   void
-   PushIndexType(NavStateIndex_t);
 
    VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
@@ -312,26 +298,8 @@ public:
 
    VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
-   Value_t
-   ValueAt(int level) const {return fPath[level];}
-
-   // direct write access to the path
-   // (no one should ever call this function unless you know what you are doing)
-   // TODO: consider making this private + friend or so
-   VECGEOM_INLINE
-   VECGEOM_CUDA_HEADER_BOTH
-   void SetValueAt(int level, Value_t v) { fPath[level] = v; }
-
-   VECGEOM_INLINE
-   VECGEOM_CUDA_HEADER_BOTH
    void
    TopMatrix( Transformation3D & ) const;
-
-   // returning a "delta" transformation that can transform
-   // coordinates given in reference frame of this->Top() to the reference frame of other->Top()
-   // simply with otherlocalcoordinate = delta.Transform( thislocalcoordinate )
-   VECGEOM_CUDA_HEADER_BOTH
-   void DeltaTransformation(NavigationState const &other, Transformation3D & /* delta */) const;
 
    VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
@@ -353,27 +321,14 @@ public:
    VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
    int Distance( NavigationState const & ) const;
-
-   // returns a string representation of a (relative) sequence of operations/moves
-   // that transforms this navigation state into the other navigation state
-   // example:
-   // state1 = /0/1/1/
-   // state2 = /0/2/2/3
-   // results in string
-   // "/up/horiz/1/down/2/down/3" with 4 operations "up", "horiz", "down", "down"
-   // the sequence of moves is the following
-   // up: /0/1/1 --> /0/1/
-   // horiz/1 : 0/1 --> /0/2 ( == /0/(1+1) )   "we are hopping from daughter 1 to 2 (which corresponds to a step of 1)"
-   // down/2 : /0/2 --> /0/2/2   "going further down 2nd daughter"
-   // down/3 : /0/2/2/3 --> /0/2/2/3  "going further down 2nd daughter"
-   VECGEOM_CUDA_HEADER_BOTH
-   std::string RelativePath(NavigationState const & /*other*/) const;
+//   int Distance(NavigationState const &) const;
 
    // clear all information
    VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
    void Clear();
 
+   VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
    void Print() const;
 
@@ -392,8 +347,6 @@ public:
         return true;
    }
 
-   void printValueSequence(std::ostream & = std::cerr) const;
-
 #ifdef VECGEOM_ROOT
    VECGEOM_INLINE
    void printVolumePath(std::ostream & = std::cerr) const;
@@ -403,7 +356,7 @@ public:
     * state.GetNode( state.GetLevel() ) == state.Top()
     */
    VECGEOM_INLINE
-   unsigned char GetLevel() const { return fCurrentLevel - 1; }
+   int GetLevel() const {return fCurrentLevel-1;}
 
    TGeoNode const * GetNode(int level) const {return
            RootGeoManager::Instance().tgeonode( ToPlacedVolume( fPath[level] ) );}
@@ -416,6 +369,7 @@ public:
    VECGEOM_CUDA_HEADER_BOTH
    bool IsOutside() const { return !(fCurrentLevel>0); }
 
+
    VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
    bool IsOnBoundary() const { return fOnBoundary; }
@@ -423,14 +377,6 @@ public:
    VECGEOM_INLINE
    VECGEOM_CUDA_HEADER_BOTH
    void SetBoundaryState( bool b ) { fOnBoundary = b; }
-
-   VECGEOM_INLINE
-   VECGEOM_CUDA_HEADER_BOTH
-   short GetCacheValue() const { return fCache; }
-
-   VECGEOM_INLINE
-   VECGEOM_CUDA_HEADER_BOTH
-   void SetCacheValue(short v) { fCache = v; }
 
 #ifdef VECGEOM_ROOT
    /**
@@ -454,7 +400,7 @@ NavigationState & NavigationState::operator=( NavigationState const & rhs )
    if (this != &rhs) {
       fCurrentLevel=rhs.fCurrentLevel;
       fOnBoundary = rhs.fOnBoundary;
-      fCache = rhs.fCache;
+      // what about the matrix????
 
       // Use memcpy.  Potential truncation if this is smaller than rhs.
       fPath = rhs.fPath;
@@ -478,7 +424,6 @@ NavigationState::NavigationState( NavigationState const & rhs ) :
 NavigationState::NavigationState( size_t nvalues ) :
          fCurrentLevel(0),
          fOnBoundary(false),
-         fCache(-1),
          fPath(nvalues)
 {
    // clear the buffer
@@ -505,7 +450,6 @@ NavigationState::Clear()
 {
    fCurrentLevel=0;
    fOnBoundary=false;
-   fCache=-1;
 }
 
 void
@@ -513,19 +457,8 @@ NavigationState::Push( VPlacedVolume const * v )
 {
 #ifdef DEBUG
    assert( fCurrentLevel < GetMaxLevel() );
-   assert( fCurrentLevel < 2<<sizeof(char) - 1;
 #endif
    fPath[fCurrentLevel++] = ToIndex( v );
-}
-
-void
-NavigationState::PushIndexType( NavStateIndex_t v )
-{
-#ifdef DEBUG
-   assert( fCurrentLevel < GetMaxLevel() );
-   assert( fCurrentLevel < 2<<sizeof(char) - 1;
-#endif
-   fPath[fCurrentLevel++] = v;
 }
 
 VPlacedVolume const *
@@ -570,15 +503,23 @@ void NavigationState::Dump() const
 #pragma GCC diagnostic pop
 }
 
-/**
- * encodes the geometry path as a concatenated string of ( Value_t ) present in fPath
- */
-inline
-void NavigationState::printValueSequence(std::ostream &stream) const {
-  for (int i = 0; i < fCurrentLevel; ++i) {
-    stream << "/" << fPath[i];
-  }
+VECGEOM_INLINE
+VECGEOM_CUDA_HEADER_BOTH
+void NavigationState::Print() const
+{
+   // printf("VariableSizeObj: fPath=%p (%l bytes)\n", fPath, sizeof(fPath));
+#ifndef VECGEOM_NVCC
+   printf("NavState: Level(cur/max)=%i/%i,  onBoundary=%s, topVol=<%s>, this=%p\n",
+          fCurrentLevel, GetMaxLevel(), (fOnBoundary?"true":"false"),
+          (Top()? Top()->GetLabel().c_str():"NULL"), (const void*)this );
+#else
+   printf("NavState: Level(cur/max)=%i/%i,  onBoundary=%s, topVol=<%p>, this=%p\n",
+          fCurrentLevel, GetMaxLevel(), (fOnBoundary?"true":"false"),
+          Top(), (const void*)this );
+#endif
+
 }
+
 
 #ifdef VECGEOM_ROOT
 VECGEOM_INLINE
@@ -603,19 +544,21 @@ VECGEOM_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 int NavigationState::Distance( NavigationState const & other ) const
 {
-  int lastcommonlevel = -1;
-  int maxlevel = Min(GetCurrentLevel(), other.GetCurrentLevel());
+   int lastcommonlevel=0;
+   int maxlevel = Max( GetCurrentLevel() , other.GetCurrentLevel() );
 
-  //  algorithm: start on top and go down until paths split
-  for (int i = 0; i < maxlevel; i++) {
-    if (this->At(i) == other.At(i)) {
-      lastcommonlevel = i;
-    } else {
-      break;
-    }
-  }
-
-  return (GetCurrentLevel() - lastcommonlevel) + (other.GetCurrentLevel() - lastcommonlevel) - 2;
+   //  algorithm: start on top and go down until paths split
+   for(int i=0; i < maxlevel; i++) {
+      if( this->At(i) == other.At(i) )
+      {
+         lastcommonlevel = i;
+      }
+      else
+      {
+         break;
+      }
+   }
+   return (GetCurrentLevel()-lastcommonlevel) + ( other.GetCurrentLevel() - lastcommonlevel ) - 2;
 }
 
 inline

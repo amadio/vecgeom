@@ -64,12 +64,6 @@ Transformation3D::Transformation3D(const Vector3D<Precision> &axis, bool inverse
     SetProperties();
 }
 
-void Transformation3D::Print(std::ostream &s) const {
-  s << "Transformation3D {{" << fTranslation[0] << "," << fTranslation[1] << "," << fTranslation[2] << "}";
-  s << "{" << fRotation[0] << "," << fRotation[1] << "," << fRotation[2] << "," << fRotation[3] << "," << fRotation[4] << ","
-         << fRotation[5] << "," << fRotation[6] << "," << fRotation[7] << "," << fRotation[8] << "}}\n";
-}
-
 VECGEOM_CUDA_HEADER_BOTH
 void Transformation3D::Print() const {
   printf("Transformation3D {{%.2f, %.2f, %.2f}, ",

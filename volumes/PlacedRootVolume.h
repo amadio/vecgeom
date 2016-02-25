@@ -49,9 +49,6 @@ public:
   virtual int memory_size() const { return sizeof(*this); }
 
   virtual void PrintType() const;
-  virtual void PrintType(std::ostream &) const;
-  virtual void PrintImplementationType(std::ostream &) const;
-  virtual void PrintUnplacedType(std::ostream &) const;
 
   VECGEOM_INLINE
   virtual bool Contains(Vector3D<Precision> const &point) const;

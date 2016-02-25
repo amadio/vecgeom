@@ -17,8 +17,8 @@ int main(int argc, char* argv[]) {
 
   UnplacedBox worldUnplaced = UnplacedBox(r*4, r*4, r*4);
   UnplacedOrb orbUnplaced = UnplacedOrb(r);
-  LogicalVolume world ("w0rld", &worldUnplaced);
-  LogicalVolume orb ("p4r4", &orbUnplaced);
+  LogicalVolume world = LogicalVolume("w0rld", &worldUnplaced);
+  LogicalVolume orb = LogicalVolume("p4r4", &orbUnplaced);
   Transformation3D placement = Transformation3D(5, 5, 5);
   world.PlaceDaughter(&orb, &placement);
   //world.PlaceDaughter(&orb, &Transformation3D::kIdentity);

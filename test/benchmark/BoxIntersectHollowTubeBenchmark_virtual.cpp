@@ -18,7 +18,7 @@ int main(int argc, char * argv[])
     OPTION_INT(nrep,1024);
 
     UnplacedBox worldUnplaced(2.,2.,2.);
-    LogicalVolume world ("world", &worldUnplaced);
+    LogicalVolume world = LogicalVolume("world", &worldUnplaced);
 
     // components for boolean solid
     UnplacedBox  box(0.9, 0.9 , 0.9);

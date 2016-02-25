@@ -105,8 +105,8 @@ private:
  */
 
 template <typename T, typename U, typename V>
-Material::Material(const char *name, const T a[], const U z[], const V w[], int nelements, double dens, double /*radlen*/,
-                   double /*intlen*/)
+Material::Material(const char *name, const T a[], const U z[], const V w[], int nelements, double dens, double radlen,
+                   double intlen)
     : fName(name), fDensity(dens), fZ(0), fA(0), fNelem(abs(nelements)) {
   Element elem;
   double totw = 0;
