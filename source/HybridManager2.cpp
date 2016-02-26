@@ -100,7 +100,8 @@ void HybridManager2::BuildStructure(LogicalVolume const * vol) {
  * build bvh bruteforce AND vectorized
  */
 void HybridManager2::BuildStructure_v(LogicalVolume const * vol) {
-    if (vol->GetDaughters().size() == 0) return;
+#ifndef VECGEOM_SCALAR
+	if (vol->GetDaughters().size() == 0) return;
     size_t numberOfFirstLevelNodes    = vol->GetDaughters().size() / Real_vSize + (vol->GetDaughters().size() % Real_vSize == 0 ? 0 : 1);
     size_t numberOfNodes = numberOfFirstLevelNodes  + vol->GetDaughters().size();
     size_t vectorsize = numberOfFirstLevelNodes / Real_vSize + (numberOfFirstLevelNodes % Real_vSize == 0 ? 0 : 1) + numberOfFirstLevelNodes;
@@ -190,8 +191,9 @@ void HybridManager2::BuildStructure_v(LogicalVolume const * vol) {
     }
 
     fVolumeToABBoxes_v[vol->id()] = boxes_v;
-
-
+#else
+#pragma message("Implementation for scalar backend missing")
+#endif
 }
 
 

@@ -17,7 +17,9 @@
 #include "volumes/PlacedVolume.h"
 #include "volumes/LogicalVolume.h"
 #include "navigation/VSafetyEstimator.h"
+#ifdef VECGEOM_VC
 #include <Vc/Vc>
+#endif
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -386,6 +388,7 @@ public :
     }
 #endif
 
+#ifdef VECGEOM_VC
     // this kernel is a generic implementation to navigate with chunks of data
     // can be used also for the scalar imple
     template <typename T, unsigned int ChunkSize>
@@ -553,6 +556,7 @@ public :
       }
     }
 
+
     // generic implementation for the vector interface
        // this implementation tries to process everything in vector CHUNKS
        // at the very least this enables at least the DistanceToOut call to be vectorized
@@ -585,22 +589,40 @@ public :
                                                                     *in_states[i], *out_states[i], calcsafeties[i], out_safeties[i]);
          }
        }
-
+#else
 
     // another generic implementation for the vector interface
     // this implementation just loops over the scalar interface
-//    virtual void ComputeStepsAndPropagatedStates(SOA3D<Precision> const &__restrict__ globalpoints,
-//                                                 SOA3D<Precision> const &__restrict__ globaldirs,
-//                                                 Precision const *__restrict__ step_limit,
-//                                                 NavigationState const ** __restrict__ in_states,
-//                                                 NavigationState ** __restrict__ out_states,
-//                                                 Precision *__restrict__ out_steps) const override {
-//      for (unsigned int i = 0; i < globalpoints.size(); ++i) {
-//        out_steps[i] = ((Impl *)this)
-//                           ->Impl::ComputeStepAndPropagatedState(globalpoints[i], globaldirs[i], step_limit[i],
-//                                                                 *in_states[i], *out_states[i]);
-//      }
-//    }
+    virtual void ComputeStepsAndPropagatedStates(SOA3D<Precision> const &__restrict__ globalpoints,
+                                                 SOA3D<Precision> const &__restrict__ globaldirs,
+                                                 Precision const *__restrict__ step_limit,
+                                                 NavigationState const ** __restrict__ in_states,
+                                                 NavigationState ** __restrict__ out_states,
+                                                 Precision *__restrict__ out_steps) const override {
+      for (unsigned int i = 0; i < globalpoints.size(); ++i) {
+        out_steps[i] = ((Impl *)this)
+                           ->Impl::ComputeStepAndPropagatedState(globalpoints[i], globaldirs[i], step_limit[i],
+                                                                 *in_states[i], *out_states[i]);
+      }
+    }
+
+    virtual void ComputeStepsAndSafetiesAndPropagatedStates(SOA3D<Precision> const &__restrict__ globalpoints,
+                                                                SOA3D<Precision> const &__restrict__ globaldirs,
+                                                                Precision const *__restrict__ step_limit,
+                                                                NavigationState const ** __restrict__ in_states,
+                                                                NavigationState ** __restrict__ out_states,
+                                                                Precision *__restrict__ out_steps,
+                                                                bool const *__restrict__ calcsafeties,
+                                                                Precision *__restrict__ out_safeties
+        ) const override {
+
+    	for (unsigned int i = 0; i < globalpoints.size(); ++i) {
+    	        out_steps[i] = ((Impl *)this)
+    	                           ->Impl::ComputeStepAndSafetyAndPropagatedState(globalpoints[i], globaldirs[i], step_limit[i],
+    	                                                                 *in_states[i], *out_states[i], calcsafeties[i], out_safeties[i]);
+    	      }
+        }
+#endif
 
     // a similar interface also returning the safety
     // TODO: reduce this evident code duplication with ComputeStepAndPropagatedState

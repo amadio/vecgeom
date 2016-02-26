@@ -13,6 +13,10 @@
 #include "volumes/PlacedVolume.h"
 #include "management/ABBoxManager.h"
 #include "volumes/kernel/BoxImplementation.h"
+#ifdef VECGEOM_SCALAR
+#include "backend/scalarfloat/Backend.h"
+#endif
+
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -28,7 +32,7 @@ private:
 public:
   virtual bool LevelLocate(LogicalVolume const *lvol, Vector3D<Precision> const &localpoint, VPlacedVolume const *&pvol,
                            Vector3D<Precision> &daughterlocalpoint) const override {
-
+#ifdef VECGEOM_VC
     int size;
     ABBoxManager::ABBoxContainer_v alignedbboxes =
         fAccelerationStructure.GetABBoxes_v(lvol, size);
@@ -56,12 +60,15 @@ public:
       }
     }
     return false;
+#else
+#pragma message ("generic Vc-independent implementation not yet available (can be done once we have VecCore) ")
+#endif
   } // end function
 
   virtual bool LevelLocateExclVol(LogicalVolume const *lvol, VPlacedVolume const *exclvol,
                                   Vector3D<Precision> const &localpoint, VPlacedVolume const *&pvol,
                                   Vector3D<Precision> &daughterlocalpoint) const override {
-
+#ifdef VECGEOM_VC
     int size;
     ABBoxManager::ABBoxContainer_v alignedbboxes = fAccelerationStructure.GetABBoxes_v(lvol, size);
 
@@ -90,6 +97,9 @@ public:
       }
     }
     return false;
+#else
+#pragma message ("generic Vc-independent implementation not yet available (can be done once we have VecCore) ")
+#endif
   } // end function
 
   static std::string GetClassName() { return "SimpleABBoxLevelLocator"; }

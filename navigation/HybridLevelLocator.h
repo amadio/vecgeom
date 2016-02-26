@@ -32,7 +32,8 @@ public:
   LevelLocate(LogicalVolume const * lvol,
               Vector3D<Precision> const & localpoint, VPlacedVolume const *&pvol,
               Vector3D<Precision> & transformedPoint) const override {
-      int halfvectorsize, numberOfNodes;
+#ifdef VECGEOM_VC
+	  int halfvectorsize, numberOfNodes;
       auto boxes_v = fAccelerationStructure.GetABBoxes_v(lvol, halfvectorsize, numberOfNodes);
       std::vector<int> * nodeToDaughters = fAccelerationStructure.GetNodeToDaughters(lvol);
       auto simdsize = kVcFloat::precision_v::Size;
@@ -61,13 +62,17 @@ public:
           }
         }
       }
+#else
+#pragma message ("generic Vc-independent implementation not yet available (can be done once we have VecCore)")
+#endif
       return false;
   }
 
   virtual bool LevelLocateExclVol(LogicalVolume const *lvol, VPlacedVolume const *exclvol,
                                   Vector3D<Precision> const &localpoint, VPlacedVolume const *&pvol,
                                   Vector3D<Precision> &transformedPoint) const override {
-    int halfvectorsize, numberOfNodes;
+#ifdef VECGEOM_VC
+	  int halfvectorsize, numberOfNodes;
     auto boxes_v = fAccelerationStructure.GetABBoxes_v(lvol, halfvectorsize, numberOfNodes);
     std::vector<int> *nodeToDaughters = fAccelerationStructure.GetNodeToDaughters(lvol);
     auto simdsize = kVcFloat::precision_v::Size;
@@ -99,6 +104,9 @@ public:
       }
     }
     return false;
+#else
+#pragma message ("generic Vc-independent implementation not yet available (can be done once we have VecCore)")
+#endif
   }
 
   static std::string GetClassName() { return "HybridLevelLocator"; }

@@ -68,8 +68,8 @@ private:
    */
   size_t GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Precision> const &point, Vector3D<Precision> const &dir,
                             HybridManager2::BoxIdDistancePair_t *hitlist) const {
-
     size_t count = 0;
+#ifdef VECGEOM_VC
     Vector3D<Precision> invdir(1. / dir.x(), 1. / dir.y(), 1. / dir.z());
     Vector3D<int> sign;
     sign[0] = invdir.x() < 0;
@@ -104,6 +104,9 @@ private:
         }
       }
     }
+#else
+#pragma message ("generic Vc-independent implementation not yet available (can be done once we have VecCore)")
+#endif
     return count;
   }
 

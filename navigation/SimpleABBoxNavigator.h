@@ -11,6 +11,9 @@
 #include "VNavigator.h"
 #include "SimpleABBoxSafetyEstimator.h"
 #include "management/ABBoxManager.h"
+#ifdef VECGEOM_SCALAR
+#include "backend/scalarfloat/Backend.h"
+#endif
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

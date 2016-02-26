@@ -37,7 +37,7 @@ private:
   size_t GetSafetyCandidates_v(LogicalVolume const *lvol, Vector3D<Precision> const &point,
                                HybridManager2::BoxIdDistancePair_t *boxsafetypairs, Precision upper_squared_limit) const {
     size_t count = 0;
-//#ifdef VECGEOM_VC
+#ifdef VECGEOM_VC
     Vector3D<float> pointfloat((float)point.x(), (float)point.y(), (float)point.z());
     int halfvectorsize, numberOfNodes;
     auto boxes_v = fAccelerationStructureManager.GetABBoxes_v(lvol, halfvectorsize, numberOfNodes);
@@ -66,9 +66,9 @@ private:
         }
       }
     }
-//#else
-//#pragma message("implementation for GetSafetyCandidates for scalar backend is missing")
-//#endif
+#else
+#pragma message ("generic Vc-independent implementation not yet available (can be done once we have VecCore) ")
+#endif
     return count;
   }
 
