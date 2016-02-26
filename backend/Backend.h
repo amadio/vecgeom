@@ -19,4 +19,24 @@
 #include "backend/scalar/Backend.h"
 #endif
 
+namespace vecgeom {
+
+inline namespace VECGEOM_IMPL_NAMESPACE {
+
+template <typename T>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+T NonZeroAbs(T const& x) {
+  return Abs(x) + Tiny<T>::kValue;
+}
+
+template <typename T>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+T NonZero(T const& x) {
+  return x + CopySign( Tiny<T>::kValue, x);
+}
+
+} }; // end of vecgeom namespace
+
 #endif // VECGEOM_BACKEND_BACKEND_H_

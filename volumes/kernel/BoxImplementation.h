@@ -717,7 +717,7 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   Boolean_t hit;
 
   // x
-  next = safety[0] / Abs(direction[0]);
+  next = safety[0] / NonZeroAbs( direction[0] );
   coord1 = point[1] + next * direction[1];
   coord2 = point[2] + next * direction[2];
   hit = safety[0] >= -kHalfTolerance &&
@@ -729,7 +729,7 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   if ( Backend::early_returns && IsFull(done) ) return;
 
   // y
-  next = safety[1] / Abs(direction[1]);
+  next = safety[1] / NonZeroAbs( direction[1] );
   coord1 = point[0] + next * direction[0];
   coord2 = point[2] + next * direction[2];
   hit = safety[1] >= -kHalfTolerance &&
@@ -741,7 +741,7 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   if ( Backend::early_returns && IsFull(done) ) return;
 
   // z
-  next = safety[2] / Abs(direction[2]);
+  next = safety[2] / NonZeroAbs( direction[2] );
   coord1 = point[0] + next * direction[0];
   coord2 = point[1] + next * direction[1];
   hit = safety[2] >= -kHalfTolerance &&
@@ -772,10 +772,11 @@ void BoxImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
     done       |= Abs(point[2]) > dimensions[2]+kHalfTolerance;
     if(Backend::early_returns && IsFull(done)) return;
 
-    // Each component used to have a kMinimum added, to avoid divisions by zero.
-    // This is not needed anymore, since VecGeom properly handles infinities caused by divisions by zero.
-    // Only 0/0 --> Nan are a real problem
-    Vector3D<Floating_t> inverseDirection { 1./direction[0], 1./direction[1], 1./direction[2] };
+    // add a very small amount to avoid division by zero, but large enough to stay away from underflow/overflow
+    Vector3D<Floating_t> inverseDirection(
+      1./NonZero(direction[0]),
+      1./NonZero(direction[1]),
+      1./NonZero(direction[2]) );
 
     Vector3D<Floating_t> distances {
       (dimensions[0] - point[0]) * inverseDirection[0],

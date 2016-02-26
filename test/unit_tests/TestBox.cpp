@@ -14,6 +14,7 @@
 #include "UVector3.hh"
 #endif
 #include <cmath>
+#include <fenv.h>
 
 bool testvecgeom=false;
 
@@ -364,6 +365,12 @@ int main(int argc, char *argv[]) {
       std::cerr << "need to give argument :--usolids or --vecgeom\n";     
       return 1;
     }
+
+   // enabling FPE exception
+#if defined(__GNUC__)
+   feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
+#endif
+
     
     if( ! strcmp(argv[1], "--usolids") ) { 
 
