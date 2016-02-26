@@ -108,7 +108,7 @@ public:
       safety.store(safeties + i);
     }
 #else
-#pragma message("implementation for ComputeVectorSafety missing");
+#pragma message("non Vc-implementation for ComputeVectorSafety missing")
 #endif
   }
 
