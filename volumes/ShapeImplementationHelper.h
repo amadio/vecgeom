@@ -96,18 +96,18 @@ public:
 
 #endif
 
-  virtual int memory_size() const { return sizeof(*this); }
+  virtual int memory_size() const override { return sizeof(*this); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void PrintType() const { Specialization::PrintType(); }
+  virtual void PrintType() const override { Specialization::PrintType(); }
 
-  virtual void PrintType(std::ostream &os) const { Specialization::PrintType(os); }
-  virtual void PrintImplementationType(std::ostream &os) const { Specialization::PrintImplementationType(os); }
-  virtual void PrintUnplacedType(std::ostream &os) const { Specialization::PrintUnplacedType(os); }
+  virtual void PrintType(std::ostream &os) const override { Specialization::PrintType(os); }
+  virtual void PrintImplementationType(std::ostream &os) const override { Specialization::PrintImplementationType(os); }
+  virtual void PrintUnplacedType(std::ostream &os) const override { Specialization::PrintUnplacedType(os); }
 
   #ifdef VECGEOM_CUDA_INTERFACE
 
-  virtual size_t DeviceSizeOf() const { return DevicePtr<CudaType_t<Helper_t> >::SizeOf(); }
+  virtual size_t DeviceSizeOf() const override { return DevicePtr<CudaType_t<Helper_t> >::SizeOf(); }
 
   DevicePtr<cuda::VPlacedVolume> CopyToGpu(
     DevicePtr<cuda::LogicalVolume> const logical_volume,
@@ -136,7 +136,7 @@ public:
 #endif // VECGEOM_CUDA_INTERFACE
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual EnumInside Inside(Vector3D<Precision> const &point) const {
+  virtual EnumInside Inside(Vector3D<Precision> const &point) const override {
     Inside_t output = EInside::kOutside;
     Specialization::template Inside<kScalar>(
       *this->GetUnplacedVolume(),
@@ -150,7 +150,7 @@ public:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual bool Contains(Vector3D<Precision> const &point) const {
+  virtual bool Contains(Vector3D<Precision> const &point) const override {
     bool output = false;
     Vector3D<Precision> localPoint;
     Specialization::template Contains<kScalar>(
@@ -165,7 +165,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual bool Contains(Vector3D<Precision> const &point,
-                        Vector3D<Precision> &localPoint) const {
+                        Vector3D<Precision> &localPoint) const override {
     bool output = false;
     Specialization::template Contains<kScalar>(
       *this->GetUnplacedVolume(),
@@ -184,7 +184,7 @@ public:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual bool UnplacedContains(Vector3D<Precision> const &point) const {
+  virtual bool UnplacedContains(Vector3D<Precision> const &point) const override {
     bool output = false;
     Specialization::template UnplacedContains<kScalar>(
       *this->GetUnplacedVolume(),
@@ -202,7 +202,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToIn(Vector3D<Precision> const &point,
                                  Vector3D<Precision> const &direction,
-                                 const Precision stepMax = kInfinity) const {
+                                 const Precision stepMax = kInfinity) const override {
 #ifndef VECGEOM_NVCC
       assert( direction.IsNormalized() && " direction not normalized in call to  DistanceToIn " );
 #endif
@@ -250,7 +250,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToOut(Vector3D<Precision> const &point,
                                   Vector3D<Precision> const &direction,
-                                  const Precision stepMax = kInfinity) const {
+                                  const Precision stepMax = kInfinity) const override {
 //#ifndef VECGEOM_NVCC
 //      assert( direction.IsNormalized() && " direction not normalized in call to  DistanceToOut " );
 //#endif
@@ -309,7 +309,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision PlacedDistanceToOut(Vector3D<Precision> const &point,
                                         Vector3D<Precision> const &direction,
-                                        const Precision stepMax = kInfinity) const {
+                                        const Precision stepMax = kInfinity) const override {
 #ifndef VECGEOM_NVCC
       assert( direction.IsNormalized() && " direction not normalized in call to  PlacedDistanceToOut " );
 #endif
@@ -345,7 +345,7 @@ public:
   virtual Precision DistanceToOut(Vector3D<Precision> const &point,
                                   Vector3D<Precision> const &direction,
                                   Vector3D<Precision> &normal,
-                                  bool &convex, Precision step = kInfinity ) const {
+                                  bool &convex, Precision step = kInfinity ) const override {
     double d = DistanceToOut(point, direction, step);
     Vector3D<double> hitpoint = point + d * direction;
     PlacedShape_t::Normal(hitpoint, normal);
@@ -358,7 +358,7 @@ public:
 #endif
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual Precision SafetyToIn(Vector3D<Precision> const &point) const {
+  virtual Precision SafetyToIn(Vector3D<Precision> const &point) const override {
     Precision output = kInfinity;
     Specialization::template SafetyToIn<kScalar>(
       *this->GetUnplacedVolume(),
@@ -374,7 +374,7 @@ public:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual Precision SafetyToOut(Vector3D<Precision> const &point) const {
+  virtual Precision SafetyToOut(Vector3D<Precision> const &point) const override {
     Precision output = kInfinity;
     Specialization::template SafetyToOut<kScalar>(
       *this->GetUnplacedVolume(),
@@ -390,7 +390,7 @@ public:
 
 #ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
   VECGEOM_INLINE
-  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const {
+  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override {
     VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
     Specialization::template SafetyToIn<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), *this->GetTransformation(), position, output);
 
@@ -401,7 +401,7 @@ public:
   }
 
   VECGEOM_INLINE
-  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOut(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const {
+  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOut(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override {
     VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
     Specialization::template SafetyToOut<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), position, output);
 
@@ -413,7 +413,7 @@ public:
 #endif
 
   virtual void Contains(SOA3D<Precision> const &points,
-                        bool *const output) const {
+                        bool *const output) const override {
     for (int i = 0, i_max = points.size(); i < i_max; i += kVectorSize) {
       Vector3D<VECGEOM_BACKEND_TYPE::precision_v> point(
         VECGEOM_BACKEND_PRECISION_FROM_PTR(points.x()+i),
@@ -439,7 +439,7 @@ public:
   // }
 
   virtual void Inside(SOA3D<Precision> const &points,
-                      Inside_t *const output) const {
+                      Inside_t *const output) const override {
     for (int i = 0, i_max = points.size(); i < i_max; i += kVectorSize) {
       Vector3D<VECGEOM_BACKEND_TYPE::precision_v> point(
         VECGEOM_BACKEND_PRECISION_FROM_PTR(points.x()+i),
@@ -475,7 +475,7 @@ public:
   virtual void DistanceToIn(SOA3D<Precision> const &points,
                             SOA3D<Precision> const &directions,
                             Precision const *const stepMax,
-                            Precision *const output) const {
+                            Precision *const output) const override {
     for (int i = 0, i_max = points.size(); i < i_max; i += kVectorSize) {
       Vector3D<VECGEOM_BACKEND_TYPE::precision_v> point(
         VECGEOM_BACKEND_PRECISION_FROM_PTR(points.x()+i),
@@ -510,7 +510,7 @@ public:
                                     SOA3D<Precision> const &directions,
                                     int daughterId,
                                     Precision *const currentDistance,
-                                    int *const nextDaughterIdList) const {
+                                    int *const nextDaughterIdList) const override {
     unsigned safesize = points.size() - points.size() % kVectorSize;
     for (unsigned int i = 0; i < safesize; i += kVectorSize) {
       Vector3D<VECGEOM_BACKEND_TYPE::precision_v> point(
@@ -581,7 +581,7 @@ public:
   virtual void DistanceToOut(SOA3D<Precision> const &points,
                              SOA3D<Precision> const &directions,
                              Precision const *const stepMax,
-                             Precision *const output) const {
+                             Precision *const output) const override {
     for (unsigned int i = 0, i_max = points.size(); i < i_max; i += kVectorSize) {
       Vector3D<VECGEOM_BACKEND_TYPE::precision_v> point(
         VECGEOM_BACKEND_PRECISION_FROM_PTR(points.x()+i),
@@ -610,7 +610,7 @@ public:
                              SOA3D<Precision> const &directions,
                              Precision const *const stepMax,
                              Precision *const output,
-                             int *const nextNodeIndex) const {
+                             int *const nextNodeIndex) const override {
     unsigned safesize = points.size() - points.size() % kVectorSize;
     for (unsigned int i = 0; i < safesize; i += kVectorSize) {
       Vector3D<VECGEOM_BACKEND_TYPE::precision_v> point(
@@ -654,7 +654,7 @@ public:
   }
 
   virtual void SafetyToIn(SOA3D<Precision> const &points,
-                          Precision *const output) const {
+                          Precision *const output) const override {
     for (int i = 0, i_max = points.size(); i < i_max; i += kVectorSize) {
       Vector3D<VECGEOM_BACKEND_TYPE::precision_v> point(
         VECGEOM_BACKEND_PRECISION_FROM_PTR(points.x()+i),
@@ -682,7 +682,7 @@ public:
   // }
 
   virtual void SafetyToInMinimize(SOA3D<Precision> const &points,
-                                  Precision *const safeties) const {
+                                  Precision *const safeties) const override {
     unsigned safesize = points.size() - points.size() % kVectorSize;
     for (unsigned int i = 0; i < safesize; i += kVectorSize) {
       Vector3D<VECGEOM_BACKEND_TYPE::precision_v> point(
@@ -711,7 +711,7 @@ public:
   }
 
   virtual void SafetyToOut(SOA3D<Precision> const &points,
-                          Precision *const output) const {
+                          Precision *const output) const override {
     unsigned safesize = points.size() - points.size() % kVectorSize;
     for (unsigned int i = 0; i < safesize; i += kVectorSize) {
       Vector3D<VECGEOM_BACKEND_TYPE::precision_v> point(
@@ -743,7 +743,7 @@ public:
   // }
 
   virtual void SafetyToOutMinimize(SOA3D<Precision> const &points,
-                                   Precision *const safeties) const {
+                                   Precision *const safeties) const override {
     for (int i = 0, iMax = points.size(); i < iMax; i += kVectorSize) {
       Vector3D<VECGEOM_BACKEND_TYPE::precision_v> point(
         VECGEOM_BACKEND_PRECISION_FROM_PTR(points.x()+i),
