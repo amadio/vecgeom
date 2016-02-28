@@ -260,7 +260,7 @@ public:
    template <size_t N>
    void CopyToFixedSize(NavigationState *other) const {
      bool alloc = other->fPath.fSelfAlloc;
-     for(int i=0;i<N;++i){
+     for(size_t i=0;i<N;++i){
        ((char *)other)[i]=((char*)this)[i];
      }
      other->fPath.fSelfAlloc = alloc;

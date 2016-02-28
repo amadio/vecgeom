@@ -67,13 +67,13 @@ void benchSafety( SOA3D<Precision> const & points, NavStatePool &pool ){
     Stopwatch timer;
     VSafetyEstimator *se = T::Instance();
     timer.Start();
-    for(int i=0; i<points.size(); ++i){
+    for(size_t i=0; i<points.size(); ++i){
        safety[i]=se->ComputeSafety(points[i], *(pool[i]));
     }
     timer.Stop();
     std::cerr << timer.Elapsed() << "\n";
     double accum(0.);
-      for (int i=0;i<points.size();++i) {
+      for (size_t i=0;i<points.size();++i) {
         accum+=safety[i];
       }
     delete[] safety;
@@ -94,7 +94,7 @@ void benchVectorSafety( SOA3D<Precision> const & points, NavStatePool &pool ){
     timer.Stop();
     std::cerr << timer.Elapsed() << "\n";
     double accum(0.);
-      for (int i=0;i<points.size();++i) {
+      for (size_t i=0;i<points.size();++i) {
         accum+=safety[i];
       }
     _mm_free(safety);
@@ -113,7 +113,7 @@ __attribute__((noinline)) void benchVectorSafetyNoWorkspace(SOA3D<Precision> con
     timer.Stop();
     std::cerr << timer.Elapsed() << "\n";
     double accum(0.);
-      for (int i=0;i<points.size();++i) {
+      for (size_t i=0;i<points.size();++i) {
         accum+=safety[i];
       }
     _mm_free(safety);
@@ -214,7 +214,7 @@ int main( int argc, char * argv[] )
       GeoManager::Instance().FindLogicalVolume(volname.c_str()), localpoints, points, npoints);
   std::cerr << "points filled\n";
   SimpleNavigator nav;
-  for (unsigned int i = 0; i < points.size(); ++i) {
+  for (size_t i = 0; i < points.size(); ++i) {
     GlobalLocator::LocateGlobalPoint(GeoManager::Instance().GetWorld(), points[i], *(statepool[i]), true);
     if (statepool[i]->Top()->GetLogicalVolume() != GeoManager::Instance().FindLogicalVolume(volname.c_str())) {
       //
