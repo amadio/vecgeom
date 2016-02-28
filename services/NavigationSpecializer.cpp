@@ -466,7 +466,7 @@ void NavigationSpecializer::DumpIncludeFiles(std::ostream &outstream)
   outstream << "#include \"navigation/NavigationState.h\"\n";
   outstream << "#include \"base/Transformation3D.h\"\n";
   outstream << "#include \"management/GeoManager.h\"\n";
-  outstream << "#include <Vc/Vc>\n";
+  // outstream << "#include <Vc/Vc>\n";
   outstream << "#include \"backend/Backend.h\"\n";
   outstream << "// more relevant includes to be figures out ... \n";
   // for the moment I am putting some hard coded lists
@@ -479,6 +479,8 @@ void NavigationSpecializer::DumpIncludeFiles(std::ostream &outstream)
   outstream << "#include \"volumes/Trd.h\"\n";
   outstream << "#include \"volumes/Cone.h\"\n";
   outstream << "#include \"volumes/BooleanVolume.h\"\n";
+
+  outstream << "#include \"navigation/SimpleSafetyEstimator.h\"\n";
 }
 
 void NavigationSpecializer::DumpNamespaceOpening(std::ostream &outstream)
@@ -617,8 +619,8 @@ void NavigationSpecializer::ProduceSpecializedNavigator(LogicalVolume const *lvo
 
   // dump C++ code
   fLogicalVolumeName = lvol->GetLabel();
-  // fClassName = fLogicalVolumeName + "Navigator";
-  fClassName = "GeneratedNavigator";
+  fClassName         = fLogicalVolumeName + "Navigator";
+  // fClassName = "GeneratedNavigator";
 
   AnalyseLogicalVolume();
 
@@ -1053,7 +1055,7 @@ void NavigationSpecializer::AnalyseTargetPaths(NavStatePool const &inpool, NavSt
     auto *navstate = outpool[j];
     navstate->printValueSequence(pathstringstream2);
     pset.insert(navstate->Top());
-    lset.insert(navstate->Top()->GetLogicalVolume());
+    if (navstate->Top() != nullptr) lset.insert(navstate->Top()->GetLogicalVolume());
     pathset.insert(pathstringstream2.str());
 
     std::stringstream pathstringstream1;
@@ -1161,7 +1163,7 @@ void NavigationSpecializer::AnalyseTargetPaths(NavStatePool const &inpool, NavSt
     if (i < fNumberOfPossiblePaths - 1) fStaticArraysInitStream << ",";
   }
   fStaticArraysInitStream << "};\n";
-  fStaticArraysDefinitions << "constexpr short GeneratedNavigator::deltamatrixmapping[" << fNumberOfPossiblePaths
+  fStaticArraysDefinitions << "constexpr short " << fClassName << "::deltamatrixmapping[" << fNumberOfPossiblePaths
                            << "][" << fTransitionStrings.size() << "];\n";
   //
 
