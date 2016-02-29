@@ -43,6 +43,7 @@ public:
   inline void SetSaveAllData(const bool safe) { fIfSaveAllData = safe; }
   inline void SetRunAllTests(const bool safe) { fIfMoreTests = safe; }
   inline void SetSolidTolerance(double value) {fSolidTolerance = value;}
+  inline void SetTestBoundaryErrors(bool flag) {fTestBoundaryErrors = flag;}
   void SetFolder(const std::string &newFolder);
   void SetVerbose(int verbose) { fVerbose = verbose; }
   inline int GetMaxPoints() const { return fMaxPoints; }
@@ -230,6 +231,7 @@ private:
   double fMinDifference; // save data, when difference is bigger that min
   bool fDefinedNormal; // bool variable to skip normal calculation if it does not exist in the shape
   bool fIfException; // data memeber to abort ShapeTester if any error found
+  bool fTestBoundaryErrors; // Enable testing boundary errors
 
   //Added data member required for convention checker
   std::vector<std::string> fConventionMessage; //STL vector for convention error messages.

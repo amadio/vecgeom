@@ -38,6 +38,7 @@
 #include "TROOT.h"
 #include "TAttMarker.h"
 #include "TGraph.h"
+#include "TLegend.h"
 #include "TH1D.h"
 #include "TH2F.h"
 #include "TF1.h"
@@ -94,6 +95,7 @@ void ShapeTester::SetDefaults() {
   fVisualize = false;
   fSolidTolerance = vecgeom::kTolerance;
   fStat = false;
+  fTestBoundaryErrors = false;
   fDebug = false;
 }
 
@@ -140,14 +142,19 @@ int ShapeTester::TestBoundaryPrecision(int mode) {
   double maxerr;
   std::cout << "# Testing boundary precision\n";
   double x[10], y[10];
+  int markers[5] = {2,3,4,5,25};
+  int colors[5] = {1,2,3,4,6};
 #ifdef VECGEOM_ROOT
   TCanvas *cerrors = new TCanvas("cerrors", "Boundary precision", 1200,800);
+  TLegend *legend = new TLegend(0.69,0.75,0.89,0.88);
+  legend->SetLineColor(0);
 #endif
   // Generate several "move away" distances
     // Generate several normal.dot.direction ranges in (0, 1)
   for (int iphi=0; iphi<nphi; ++iphi) {
-    double ndotvlimit = 1. - double(nphi-iphi) / nphi;
-    std::cout << "== testing (n.dot.v > " << ndotvlimit << ") for " << ndist << " move-away distances ...\n";
+    double ndotvmin = 1. - double(nphi-iphi) / nphi;
+    double ndotvmax = 1. - double(nphi-iphi-1) / nphi;
+    std::cout << "== testing (" << ndotvmin <<" < n.dot.v < " << ndotvmax << ") for " << ndist << " distances ...\n";
     dtest = 1.e-6;
     for (int idist=0; idist<ndist; ++idist) {
       maxerr = 0.;
@@ -181,9 +188,9 @@ int ShapeTester::TestBoundaryPrecision(int mode) {
                return errCode;  
             }
             ntries++;
-            // Random direction outwards in the cone selected by ndotvlimit
+            // Random direction outwards in the cone selected by ndotvmin, ndotvmax
             v = GetRandomDirection();
-            if (norm.Dot(v) < ndotvlimit) continue;
+            if (norm.Dot(v) < ndotvmin || norm.Dot(v) > ndotvmax) continue;
               // Move the point from boundary outwards with distance = dtest.
             poutUnit = point + dtest*v;
             // Cross-check that the point is actually outside
@@ -205,24 +212,27 @@ int ShapeTester::TestBoundaryPrecision(int mode) {
 #ifdef VECGEOM_ROOT
     TGraph *grerrdist = new TGraph(10, x, y);
     char title[100];
-    sprintf(title, "Propagation error dependence with distance (dir.normal>%g)", ndotvlimit);
-    grerrdist->SetTitle(title);
+    sprintf(title, "(%g < v.dot.n < %g)", ndotvmin, ndotvmax);
+    grerrdist->SetTitle("DistanceToIn error dependence on distance/angle");
     grerrdist->GetXaxis()->SetTitle("distance (internal unit)");
     grerrdist->GetYaxis()->SetTitle("Max sampled propagation error");
     grerrdist->GetYaxis()->SetRangeUser(1.e-12,1.);
 //    grerrdist->GetYaxis()->SetNdivisions(505);
-    grerrdist->SetMarkerColor(kBlue+5*iphi);
-    grerrdist->SetMarkerSize(1);
-    grerrdist->SetLineColor(kBlue+5*iphi);
-    grerrdist->SetLineWidth(1);
     cerrors->SetGridy();
     cerrors->SetLogx();
     cerrors->SetLogy();
-    grerrdist->SetMarkerStyle(20);
     if (iphi==0) grerrdist->Draw("AL*");
     else grerrdist->Draw("L*");
-  }  
+    grerrdist->SetMarkerColor(colors[iphi]);
+    grerrdist->SetMarkerSize(1);
+    grerrdist->SetMarkerStyle(markers[iphi]);
+    grerrdist->SetLineColor(colors[iphi]);
+    grerrdist->SetLineWidth(1);
+    legend->AddEntry(grerrdist, title, "lpe");
+  }
+  legend->Draw();
   cerrors->SaveAs("errors.gif");
+  cerrors->SaveAs("cerrors.root");
 #endif  
   return errCode;
 }
@@ -1949,9 +1959,10 @@ int ShapeTester::TestMethod(int (ShapeTester::*funcPtr)()) {
 // will run all tests. in this case, one file stream will be used
 int ShapeTester::TestMethodAll() {
   int errCode = 0;
-
-  fMethod = "BoundaryPrecision";
-  TestBoundaryPrecision(0);
+  if (fTestBoundaryErrors) {
+    fMethod = "BoundaryPrecision";
+    TestBoundaryPrecision(0);
+  }  
   fMethod = "Consistency";
   errCode += TestMethod(&ShapeTester::TestConsistencySolids);
   if (fDefinedNormal)
