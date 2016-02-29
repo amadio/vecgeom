@@ -42,6 +42,8 @@ public:
   inline void SetNewSaveValue(const double tolerance) { fMinDifference = tolerance; }
   inline void SetSaveAllData(const bool safe) { fIfSaveAllData = safe; }
   inline void SetRunAllTests(const bool safe) { fIfMoreTests = safe; }
+  inline void SetSolidTolerance(double value) {fSolidTolerance = value;}
+  inline void SetTestBoundaryErrors(bool flag) {fTestBoundaryErrors = flag;}
   void SetFolder(const std::string &newFolder);
   void SetVerbose(int verbose) { fVerbose = verbose; }
   inline int GetMaxPoints() const { return fMaxPoints; }
@@ -85,6 +87,7 @@ private:
   UVector3 GetPointOnOrb(double r);
   UVector3 GetRandomDirection();
 
+  int TestBoundaryPrecision(int mode);
   int TestConsistencySolids();
   int TestInsidePoint();
   int TestOutsidePoint();
@@ -228,6 +231,7 @@ private:
   double fMinDifference; // save data, when difference is bigger that min
   bool fDefinedNormal; // bool variable to skip normal calculation if it does not exist in the shape
   bool fIfException; // data memeber to abort ShapeTester if any error found
+  bool fTestBoundaryErrors; // Enable testing boundary errors
 
   //Added data member required for convention checker
   std::vector<std::string> fConventionMessage; //STL vector for convention error messages.
@@ -235,6 +239,7 @@ private:
   int fNumDisp; // number of points to be displayed in case a shape is not following conventions.
   bool fVisualize;  //Flag to be set or unset by EnableDebugger() function that user will
                     //call with true parameter if want to see visualization in case of some mismatch
+  double fSolidTolerance; // Tolerance on boundary declared by solid (default kTolerance)
 #ifdef VECGEOM_ROOT
   vecgeom::Visualizer fVisualizer; //Visualizer object to visualize the geometry if fVisualize is set.
 #endif
