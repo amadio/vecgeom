@@ -11,12 +11,10 @@ namespace vecgeom {
 #ifdef VECGEOM_NVCC
 	    template <typename Type> using vector = Vector<Type>;
 #endif
-/*
 
 //________________________________________________________________________________
  VECGEOM_CUDA_HEADER_BOTH
 static void CreateParticle0000() {
-
    // Creating Alpha_bar
    new Particle("Alpha_bar", -1000020040, 0, "ion", 100, -2, 3.7284, 1.6916e-33, 100, 100, 0, 100, 1);
 
@@ -7448,25 +7446,25 @@ static void CreateParticle0055() {
    // Creating Alpha
    new Particle("Alpha", 1000020040, 1, "ion", 100, 2, 3.7284, 1.6916e-33, -100, 0, -100, -1, -1);
 }
-*/
 #ifdef VECGEOM_NVCC
 VECGEOM_CUDA_HEADER_DEVICE bool initDDone=false;
 bool initDone=false;
+#else
+static bool initDone=false;
 #endif
- VECGEOM_CUDA_HEADER_BOTH
 void Particle::CreateParticles() {
-#ifndef VECGEOM_NVCC
-   static bool initDone=false;
-#endif
-
 #ifdef VECGEOM_NVCC_DEVICE
-   if(initDDone) return;
+   if(initDDone) {
+    return;
+   }
    initDDone = true;
-#else 
-   if(initDone) return;
-   initDone = true;
+#else
+   if(initDone) {
+    return;
+   }
+   initDone =true;
 #endif
-/*  CreateParticle0000();
+  CreateParticle0000();
   CreateParticle0001();
   CreateParticle0002();
   CreateParticle0003();
@@ -7522,8 +7520,8 @@ void Particle::CreateParticles() {
   CreateParticle0053();
   CreateParticle0054();
   CreateParticle0055();
-*/
 }
+
  } // End of inline namespace
  } // End of vecgeom namespace
 #if defined(__clang__) && !defined(__APPLE__)

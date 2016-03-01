@@ -46,7 +46,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   Vector(Vector const &other): fSize(other.fSize),fMemorySize(other.fMemorySize),fAllocated(true){
-      fData = new Type[fMemorySize];
+      fData = new Type[fMemorySize]; 
       for (size_t i = 0; i < fSize; ++i) fData[i] = other.fData[i];
   } 
 
@@ -54,6 +54,7 @@ public:
   Vector(std::initializer_list<Type> entries) {
     fSize = entries.size();
     fData = new Type[fSize];
+    fMemorySize = entries.size()*sizeof(Type); 
     for  (auto itm : entries) this->push_back(itm); 
    }
 

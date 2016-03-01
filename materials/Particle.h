@@ -3,7 +3,6 @@
 
 #include "base/Global.h"
 
-#include <string.h>
 #ifdef VECGEOM_NVCC
 #include "base/Map.h"
 #include "base/Vector.h"
@@ -53,32 +52,46 @@ public:
   // VECGEOM_CUDA_HEADER_BOTH
    //Particle(const Particle & other):fName(other.fName), fPDG(other.fPDG), fMatter(other.fMatter), fClass(other.fClass), fPcode(other.fPcode), fCharge(other.fCharge), fMass(other.fMass),fWidth(other.fWidth),fIsospin(other.fIsospin),fStrange(other.fStrange),fFlavor(other.fFlavor),fTrack(other.fTrack),fCode(other.fCode){}
 
-   VECGEOM_CUDA_HEADER_BOTH
-   static void CreateParticles();
 #ifdef VECGEOM_NVCC
    VECGEOM_CUDA_HEADER_BOTH
    Particle operator=(const Particle &part) {
      return part;
    }
-#endif
 
+#endif
+   VECGEOM_CUDA_HEADER_BOTH
+   static void CreateParticles();
    VECGEOM_CUDA_HEADER_BOTH
    const char* Name() const {return fName;}
+   VECGEOM_CUDA_HEADER_BOTH
    int PDG() const {return fPDG;}
+   VECGEOM_CUDA_HEADER_BOTH
    bool Matter() const {return fMatter;}
+   VECGEOM_CUDA_HEADER_BOTH
    double Mass() const {return fMass;}
    const char* Class() const {return fClass;}
+   VECGEOM_CUDA_HEADER_BOTH
    int Pcode() const {return fPcode;}
+   VECGEOM_CUDA_HEADER_BOTH
    double Charge() const {return fCharge;}
+   VECGEOM_CUDA_HEADER_BOTH
    double Width() const {return fWidth;}
+   VECGEOM_CUDA_HEADER_BOTH
    int Isospin() const {return fIsospin;}
+   VECGEOM_CUDA_HEADER_BOTH
    int Iso3() const {return fIso3;}
+   VECGEOM_CUDA_HEADER_BOTH
    int Strange() const {return fStrange;}
+   VECGEOM_CUDA_HEADER_BOTH
    int Flavor() const {return fFlavor;}
+   VECGEOM_CUDA_HEADER_BOTH
    int Track() const {return fTrack;}
+   VECGEOM_CUDA_HEADER_BOTH
    int Ndecay() const {return fNdecay;}
+   VECGEOM_CUDA_HEADER_BOTH
    int Code() const  {return fCode;}
 
+VECGEOM_CUDA_HEADER_BOTH
    void SetCode(int code) {fCode = code;}
    
 #ifndef VECGEOM_NVCC
@@ -108,9 +121,9 @@ VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_CUDA_HEADER_DEVICE
    static const Particle& GetParticleDev(int pdg) {
       if(fParticlesDev->find(pdg)!=fParticlesDev->end()) return (*fParticlesDev)[pdg];
-      Particle p;
+      //Particle p;
       printf(" pdg %d does not exist\n",pdg);
-      return p;
+      return (*fParticlesDev)[1];
  }
 #endif
 
