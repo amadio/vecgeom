@@ -38,7 +38,7 @@
 #include "TROOT.h"
 #include "TAttMarker.h"
 #include "TGraph.h"
-//#include "TLegend.h"
+#include "TLegend.h"
 #include "TH1D.h"
 #include "TH2F.h"
 #include "TF1.h"
@@ -144,8 +144,8 @@ int ShapeTester::TestBoundaryPrecision(int mode) {
   double x[ndist], y[ndist];
 #ifdef VECGEOM_ROOT
   TCanvas *cerrors = new TCanvas("cerrors", "Boundary precision", 1200,800);
-//  TLegend *legend = new TLegend(0.12,0.75,0.32,0.87);
-//  legend->SetLineColor(0);
+  TLegend *legend = new TLegend(0.12,0.75,0.32,0.87);
+  legend->SetLineColor(0);
 #endif
   // Generate several "move away" distances
   dtest = 1.e-3;
@@ -217,8 +217,8 @@ int ShapeTester::TestBoundaryPrecision(int mode) {
   grerrdist->SetLineColor(kRed);
   grerrdist->SetLineWidth(2);
 //  grerrdist->GetYaxis()->SetRangeUser(1.e-16,1.e-1);
-//  legend->AddEntry(grerrdist, title, "lpe");
-//  legend->Draw();
+  legend->AddEntry(grerrdist, fVolumeUSolids->GetEntityType().c_str(), "lpe");
+  legend->Draw();
   char name[100];
   sprintf(name, "%s_errors.gif", fVolumeUSolids->GetEntityType().c_str());
   cerrors->SaveAs(name);
