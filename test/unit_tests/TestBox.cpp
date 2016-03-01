@@ -14,10 +14,12 @@
 #include "UVector3.hh"
 #endif
 #include <cmath>
+
+#if defined(__GNUCC__) && !defined(__CLANG__)
 #include <fenv.h>
+#endif
 
 bool testvecgeom=false;
-
 
 template <class Box_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
 bool TestBox() {
@@ -367,7 +369,7 @@ int main(int argc, char *argv[]) {
     }
 
    // enabling FPE exception
-#if defined(__GNUC__)
+#if defined(__GNUCC__) && !defined(__CLANG__)
    feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
 #endif
 
