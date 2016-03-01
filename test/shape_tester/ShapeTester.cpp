@@ -38,7 +38,7 @@
 #include "TROOT.h"
 #include "TAttMarker.h"
 #include "TGraph.h"
-#include "TLegend.h"
+//#include "TLegend.h"
 #include "TH1D.h"
 #include "TH2F.h"
 #include "TF1.h"
@@ -95,7 +95,7 @@ void ShapeTester::SetDefaults() {
   fVisualize = false;
   fSolidTolerance = vecgeom::kTolerance;
   fStat = false;
-  fTestBoundaryErrors = false;
+  fTestBoundaryErrors = true;
   fDebug = false;
 }
 
@@ -136,103 +136,94 @@ int ShapeTester::TestBoundaryPrecision(int mode) {
   int nsamples = 1000;
   int errCode = 0;
   int nError = 0;
-  int ndist = 10;
-  int nphi = 5;
+  constexpr int ndist = 8;
   double dtest;
   double maxerr;
+  double ndotvmin = 0.2; // avoid directions parallel to surface
   std::cout << "# Testing boundary precision\n";
-  double x[10], y[10];
-  int markers[5] = {2,3,4,5,25};
-  int colors[5] = {1,2,3,4,6};
+  double x[ndist], y[ndist];
 #ifdef VECGEOM_ROOT
   TCanvas *cerrors = new TCanvas("cerrors", "Boundary precision", 1200,800);
-  TLegend *legend = new TLegend(0.69,0.75,0.89,0.88);
-  legend->SetLineColor(0);
+//  TLegend *legend = new TLegend(0.12,0.75,0.32,0.87);
+//  legend->SetLineColor(0);
 #endif
   // Generate several "move away" distances
-    // Generate several normal.dot.direction ranges in (0, 1)
-  for (int iphi=0; iphi<nphi; ++iphi) {
-    double ndotvmin = 1. - double(nphi-iphi) / nphi;
-    double ndotvmax = 1. - double(nphi-iphi-1) / nphi;
-    std::cout << "== testing (" << ndotvmin <<" < n.dot.v < " << ndotvmax << ") for " << ndist << " distances ...\n";
-    dtest = 1.e-6;
-    for (int idist=0; idist<ndist; ++idist) {
-      maxerr = 0.;
-      dtest *= 10.;
-      x[idist] = dtest;
-      for (int i = 0; i < fMaxPointsSurface + fMaxPointsEdge; ++i) {
-        // Initial point on surface.
-        UVector3 point = fPoints[fOffsetSurface + i];
-        // Make sure point is on surface
-        if (fVolumeUSolids->Inside(point) != vecgeom::EInside::kSurface) {
-          // Do not report the error here - it is tested in TestSurfacePoint
-          continue;
-        }
-        // Compute normal to surface in this point
-        UVector3 norm, v;
-        bool valid = fVolumeUSolids->Normal(point, norm);
-        if (!valid)
-          continue;
-        // Test boundary tolerance when coming from outside from distance = 1.
-        for (int isample =0; isample < nsamples; ++isample) {
-          // Generate a random direction outwards the solid, then
-          // move the point from boundary outwards with distance = 1, making sure
-          // that the new point lies outside.
-          UVector3 poutUnit;
-          int ntries = 0;
-          while (1) {
-            if (ntries == 10000) {
-               errCode = 1;  // do we have a rule coding the error number?
-               ReportError(&nError, point, norm, 1., "TBE: Cannot reach outside from surface when "
-                 "propagating with unit distance after 10000 tries.");
-               return errCode;  
-            }
-            ntries++;
-            // Random direction outwards in the cone selected by ndotvmin, ndotvmax
-            v = GetRandomDirection();
-            if (norm.Dot(v) < ndotvmin || norm.Dot(v) > ndotvmax) continue;
-              // Move the point from boundary outwards with distance = dtest.
-            poutUnit = point + dtest*v;
-            // Cross-check that the point is actually outside
-            if (fVolumeUSolids->Inside(poutUnit) == vecgeom::EInside::kOutside)
-              break;
-          }
-          // Compute distance back to boundary.
-          double dunit = fVolumeUSolids->DistanceToIn(poutUnit, -v);
-          // Compute rounded boundary error
-          double error = dunit - dtest;
-          // Ignore large errors which can be due to missing the shape or by
-          // shooting from inner boundaries
-          if (Abs(error) < 1.e-1 && Abs(error) > maxerr) maxerr = Abs(error);
-        }
+  dtest = 1.e-3;
+  for (int idist=0; idist<ndist; ++idist) {
+    maxerr = 0.;
+    dtest *= 10.;
+    x[idist] = dtest;
+    for (int i = 0; i < fMaxPointsSurface + fMaxPointsEdge; ++i) {
+      // Initial point on surface.
+      UVector3 point = fPoints[fOffsetSurface + i];
+      // Make sure point is on surface
+      if (fVolumeUSolids->Inside(point) != vecgeom::EInside::kSurface) {
+        // Do not report the error here - it is tested in TestSurfacePoint
+        continue;
       }
-      y[idist] = maxerr;
-      std::cout << "==    error[dist = " << x[idist] << "] = " << maxerr << std::endl;
+      // Compute normal to surface in this point
+      UVector3 norm, v;
+      bool valid = fVolumeUSolids->Normal(point, norm);
+      if (!valid)
+        continue;
+      // Test boundary tolerance when coming from outside from distance = 1.
+      for (int isample =0; isample < nsamples; ++isample) {
+        // Generate a random direction outwards the solid, then
+        // move the point from boundary outwards with distance = 1, making sure
+        // that the new point lies outside.
+        UVector3 pout;
+        int ntries = 0;
+        while (1) {
+          if (ntries == 1000) {
+            errCode = 1;  // do we have a rule coding the error number?
+            ReportError(&nError, point, norm, 1., "TBE: Cannot reach outside from surface when "
+              "propagating with unit distance after 1000 tries.");
+            return errCode;  
+          }
+          ntries++;
+          // Random direction outwards
+          v = GetRandomDirection();
+          if (norm.Dot(v) < ndotvmin) continue;
+          // Move the point from boundary outwards with distance = dtest.
+          pout = point + dtest*v;
+          // Cross-check that the point is actually outside
+          if (fVolumeUSolids->Inside(pout) == vecgeom::EInside::kOutside)
+            break;
+        }
+        // Compute distance back to boundary.
+        double dunit = fVolumeUSolids->DistanceToIn(pout, -v);
+        // Compute rounded boundary error (along normal)
+        double error = (dunit - dtest)*norm.Dot(v);
+        // Ignore large errors which can be due to missing the shape or by
+        // shooting from inner boundaries
+        if (Abs(error) < 1.e-1 && Abs(error) > maxerr) maxerr = Abs(error);
+      }
     }
+    y[idist] = maxerr;
+    std::cout << "==    error[dist = " << x[idist] << "] = " << maxerr << std::endl;
+  }  
 #ifdef VECGEOM_ROOT
-    TGraph *grerrdist = new TGraph(10, x, y);
-    char title[100];
-    sprintf(title, "(%g < v.dot.n < %g)", ndotvmin, ndotvmax);
-    grerrdist->SetTitle("DistanceToIn error dependence on distance/angle");
-    grerrdist->GetXaxis()->SetTitle("distance (internal unit)");
-    grerrdist->GetYaxis()->SetTitle("Max sampled propagation error");
-    grerrdist->GetYaxis()->SetRangeUser(1.e-12,1.);
-//    grerrdist->GetYaxis()->SetNdivisions(505);
-    cerrors->SetGridy();
-    cerrors->SetLogx();
-    cerrors->SetLogy();
-    if (iphi==0) grerrdist->Draw("AL*");
-    else grerrdist->Draw("L*");
-    grerrdist->SetMarkerColor(colors[iphi]);
-    grerrdist->SetMarkerSize(1);
-    grerrdist->SetMarkerStyle(markers[iphi]);
-    grerrdist->SetLineColor(colors[iphi]);
-    grerrdist->SetLineWidth(1);
-    legend->AddEntry(grerrdist, title, "lpe");
-  }
-  legend->Draw();
-  cerrors->SaveAs("errors.gif");
-  cerrors->SaveAs("cerrors.root");
+  TGraph *grerrdist = new TGraph(ndist, x, y);
+  grerrdist->SetTitle("DistanceToIn error on boundary propagation");
+  grerrdist->GetXaxis()->SetTitle("distance (internal unit)");
+  grerrdist->GetYaxis()->SetTitle("Max sampled propagation error");
+  cerrors->SetGridy();
+  cerrors->SetLogx();
+  cerrors->SetLogy();
+  grerrdist->Draw("AL*");
+  grerrdist->SetMarkerColor(kRed);
+  grerrdist->SetMarkerSize(2);
+  grerrdist->SetMarkerStyle(20);
+  grerrdist->SetLineColor(kRed);
+  grerrdist->SetLineWidth(2);
+//  grerrdist->GetYaxis()->SetRangeUser(1.e-16,1.e-1);
+//  legend->AddEntry(grerrdist, title, "lpe");
+//  legend->Draw();
+  char name[100];
+  sprintf(name, "%s_errors.gif", fVolumeUSolids->GetEntityType().c_str());
+  cerrors->SaveAs(name);
+  sprintf(name, "%s_errors.root", fVolumeUSolids->GetEntityType().c_str());
+  cerrors->SaveAs(name);
 #endif  
   return errCode;
 }
