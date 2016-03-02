@@ -39,6 +39,6 @@ T NonZero(T const& x) {
   return x + CopySign( (T)Tiny<T>::kValue, x);
 }
 
-} }; // end of vecgeom namespace
+} } // end of vecgeom namespace
 
 #endif // VECGEOM_BACKEND_BACKEND_H_
