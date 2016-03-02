@@ -49,16 +49,13 @@ public:
    Particle(const char* name, int pdg, bool matter, const char* pclass, int pcode, double charge, double mass,
 	    double width, int isospin, int iso3, int strange, int flavor, int track, int code=-1);
 
-  // VECGEOM_CUDA_HEADER_BOTH
-   //Particle(const Particle & other):fName(other.fName), fPDG(other.fPDG), fMatter(other.fMatter), fClass(other.fClass), fPcode(other.fPcode), fCharge(other.fCharge), fMass(other.fMass),fWidth(other.fWidth),fIsospin(other.fIsospin),fStrange(other.fStrange),fFlavor(other.fFlavor),fTrack(other.fTrack),fCode(other.fCode){}
+  VECGEOM_CUDA_HEADER_BOTH
+   Particle(const Particle & other);
 
-#ifdef VECGEOM_NVCC
    VECGEOM_CUDA_HEADER_BOTH
-   Particle operator=(const Particle &part) {
-     return part;
-   }
+   Particle &operator=(const Particle &part);
 
-#endif
+
    VECGEOM_CUDA_HEADER_BOTH
    static void CreateParticles();
    VECGEOM_CUDA_HEADER_BOTH

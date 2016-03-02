@@ -30,13 +30,14 @@ char *strncpy(char *dest, const char *src, size_t n)
 {
     char *ret = dest;
     do {
-        if (!n--)
-            return ret;
+	if (!n--)
+	    return ret;
     } while (*dest++ = *src++);
     while (n--)
-        *dest++ = 0;
+	*dest++ = 0;
     return ret;
 }
+
 #endif
  
 #ifndef VECGEOM_NVCC
@@ -93,7 +94,7 @@ Particle::Particle(const char* name, int pdg, bool matter, const char* pclass, i
    (*fParticlesHost)[fPDG] = *this;
 
    #else
-   if(fParticlesDev == nullptr) fParticlesDev=new map<int,Particle>;
+   if(!fParticlesDev) fParticlesDev=new map<int,Particle>;
    if(fParticlesDev->count(fPDG) != 0) {
       printf("Particle %d already there\n", fPDG); 
       return;
@@ -106,6 +107,41 @@ Particle::Particle(const char* name, int pdg, bool matter, const char* pclass, i
   #endif
 
 }
+   VECGEOM_CUDA_HEADER_BOTH
+   Particle::Particle(const Particle & other):fPDG(other.fPDG), fMatter(other.fMatter), fPcode(other.fPcode), fCharge(other.fCharge), fMass(other.fMass), fWidth(other.fWidth), fIsospin(other.fIsospin), fStrange(other.fStrange), fFlavor(other.fFlavor), fTrack(other.fTrack), fCode(other.fCode){ 
+
+       strncpy ( fName, other.fName, 255 );
+       fName[255]='\0';
+       strncpy ( fClass, other.fClass, 255 );
+       fClass[255]='\0';
+
+
+ }
+   VECGEOM_CUDA_HEADER_BOTH
+   Particle &Particle::operator=(const Particle &part) {
+    if ( &part != this) {
+        strncpy ( fName, part.fName, 255 );
+        fName[255]='\0';
+        strncpy ( fClass, part.fClass, 255 );
+        fClass[255]='\0';
+        fPDG=part.fPDG;
+        fMatter=part.fMatter;
+        fPcode = part.fPcode;
+        fCharge = part.fCharge;
+        fMass = part.fMass;
+        fWidth = part.fWidth;
+        fIsospin = part.fIsospin;
+        fStrange = part.fStrange;
+        fFlavor = part.fFlavor;
+        fTrack = part.fTrack;
+        fCode = part.fCode;       
+        for(unsigned int i=0;i<part.fDecayList.size();++i) 
+           fDecayList[i] = part.fDecayList[i];
+   }       
+    return *this;
+   }
+
+
 
 //________________________________________________________________________________________________
 #ifndef VECGEOM_NVCC
