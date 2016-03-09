@@ -1125,6 +1125,7 @@ else ()
 endif ()
 if (CUDA)
   install(TARGETS vecgeomcuda DESTINATION ${INSTALL_LIB_DIR})
+  install(FILES ${PROJECT_BINARY_DIR}/librawvecgeomcuda.a DESTINATION ${INSTALL_LIB_DIR})
 endif()
 
 
