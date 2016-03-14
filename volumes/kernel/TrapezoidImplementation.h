@@ -335,6 +335,15 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToIn(
   Bool_t hitplanarshell = (disttoplanes > smin) && (disttoplanes < smax);
   MaskedAssign( !done && hitplanarshell, disttoplanes, &distance);
 
+  // finally check whether entry point is globally valid --> if not, return infinity
+  Vector3D<Float_t> entry = point + distance*dir;
+  Bool_t complIn, complOut;
+  GenericKernelForContainsAndInside<Backend,true>( unplaced, entry, complIn, complOut );
+  MaskedAssign( complOut, kInfinity, &distance );
+#ifdef TOINDEBUG
+  std::cout<<" trap D2I(): pt6: entry="<< entry <<", complIn="<< complIn <<", complOut="<< complOut <<" --> distance="<< distance <<"\n";
+#endif
+
 #else
   //   If dist is such that smin < dist < smax, then adjust either smin or smax.
 
