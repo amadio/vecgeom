@@ -46,34 +46,34 @@ public:
 
   TGeoShape const* GetRootShape() const { return fRootShape; }
 
-  virtual int memory_size() const { return sizeof(*this); }
+  virtual int memory_size() const override { return sizeof(*this); }
 
-  virtual void PrintType() const;
-  virtual void PrintType(std::ostream &) const;
-  virtual void PrintImplementationType(std::ostream &) const;
-  virtual void PrintUnplacedType(std::ostream &) const;
+  virtual void PrintType() const override;
+  virtual void PrintType(std::ostream &) const override;
+  virtual void PrintImplementationType(std::ostream &) const override;
+  virtual void PrintUnplacedType(std::ostream &) const override;
 
   VECGEOM_INLINE
-  virtual bool Contains(Vector3D<Precision> const &point) const;
+  virtual bool Contains(Vector3D<Precision> const &point) const override;
 
   VECGEOM_INLINE
   virtual bool Contains(Vector3D<Precision> const &point,
-                        Vector3D<Precision> &localPoint) const;
+                        Vector3D<Precision> &localPoint) const override;
 
   virtual void Contains(SOA3D<Precision> const &points,
-                        bool *const output) const;
+                        bool *const output) const override;
 
   virtual void Contains(AOS3D<Precision> const &points,
                         bool *const output) const;
 
   VECGEOM_INLINE
-  virtual bool UnplacedContains(Vector3D<Precision> const &point) const;
+  virtual bool UnplacedContains(Vector3D<Precision> const &point) const override;
 
   VECGEOM_INLINE
-  virtual EnumInside Inside(Vector3D<Precision> const &point) const;
+  virtual EnumInside Inside(Vector3D<Precision> const &point) const override;
 
   virtual void Inside(SOA3D<Precision> const &points,
-                      Inside_t *const output) const;
+                      Inside_t *const output) const override;
 
   virtual void Inside(AOS3D<Precision> const &points,
                       Inside_t *const output) const;
@@ -81,12 +81,12 @@ public:
   VECGEOM_INLINE
   virtual Precision DistanceToIn(Vector3D<Precision> const &position,
                                  Vector3D<Precision> const &direction,
-                                 const Precision step_max) const;
+                                 const Precision step_max) const override;
 
   virtual void DistanceToIn(SOA3D<Precision> const &position,
                             SOA3D<Precision> const &direction,
                             Precision const *const stepMax,
-                            Precision *const output) const;
+                            Precision *const output) const override;
 
 
   virtual void DistanceToInMinimize(SOA3D<Precision> const &position,
@@ -94,7 +94,7 @@ public:
                                     int daughterindex,
                                     Precision *const output,
                                     int *const nextnodeids
-                                   ) const;
+                                   ) const override;
 
   virtual void DistanceToIn(AOS3D<Precision> const &position,
                             AOS3D<Precision> const &direction,
@@ -104,24 +104,24 @@ public:
   VECGEOM_INLINE
   virtual Precision DistanceToOut(Vector3D<Precision> const &position,
                                   Vector3D<Precision> const &direction,
-                                  Precision const stepMax) const;
+                                  Precision const stepMax) const override;
 
 
   virtual Precision PlacedDistanceToOut(Vector3D<Precision> const &position,
                                     Vector3D<Precision> const &direction,
-                                    Precision const stepMax) const;
+                                    Precision const stepMax) const override;
 
 
   virtual void DistanceToOut(SOA3D<Precision> const &position,
                              SOA3D<Precision> const &direction,
                              Precision const *const step_max,
-                             Precision *const output) const;
+                             Precision *const output) const override;
 
   virtual void DistanceToOut(SOA3D<Precision> const &position,
                              SOA3D<Precision> const &direction,
                              Precision const *const step_max,
                              Precision *const output,
-                             int *const nextnodeindex) const;
+                             int *const nextnodeindex) const override;
 
   virtual void DistanceToOut(AOS3D<Precision> const &position,
                              AOS3D<Precision> const &direction,
@@ -129,28 +129,28 @@ public:
                              Precision *const output) const;
 
   VECGEOM_INLINE
-  virtual Precision SafetyToOut(Vector3D<Precision> const &position) const;
+  virtual Precision SafetyToOut(Vector3D<Precision> const &position) const override;
 
   virtual void SafetyToOut(SOA3D<Precision> const &position,
-                           Precision *const safeties) const;
+                           Precision *const safeties) const override;
 
   virtual void SafetyToOut(AOS3D<Precision> const &position,
                            Precision *const safeties) const;
 
   virtual void SafetyToOutMinimize(SOA3D<Precision> const &position,
-                                   Precision *const safeties) const;
+                                   Precision *const safeties) const override;
 
   VECGEOM_INLINE
-  virtual Precision SafetyToIn(Vector3D<Precision> const &position) const;
+  virtual Precision SafetyToIn(Vector3D<Precision> const &position) const override;
 
   virtual void SafetyToIn(SOA3D<Precision> const &position,
-                          Precision *const safeties) const;
+                          Precision *const safeties) const override;
 
   virtual void SafetyToIn(AOS3D<Precision> const &position,
                           Precision *const safeties) const;
 
   virtual void SafetyToInMinimize(SOA3D<Precision> const &position,
-                                  Precision *const safeties) const;
+                                  Precision *const safeties) const override;
 
   // the SIMD vector interfaces (not implemented)
 #ifndef VECGEOM_SCALAR
@@ -178,12 +178,12 @@ public:
 #endif
 
 
-  virtual VPlacedVolume const* ConvertToUnspecialized() const;
+  virtual VPlacedVolume const* ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
-  virtual TGeoShape const* ConvertToRoot() const;
+  virtual TGeoShape const* ConvertToRoot() const override;
 #endif
 #ifdef VECGEOM_USOLIDS
-  virtual ::VUSolid const* ConvertToUSolids() const;
+  virtual ::VUSolid const* ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const* ConvertToGeant4() const;
