@@ -26,7 +26,7 @@
 #include <cassert>
 
 namespace vecgeom {
-inline namespace cxx {
+inline namespace VECGEOM_IMPL_NAMESPACE {
 
 void HybridManager2::InitStructure(LogicalVolume const *lvol) {
   if (fVolumeToABBoxes.size() != GeoManager::Instance().GetRegisteredVolumesCount()) {

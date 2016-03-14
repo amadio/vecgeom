@@ -18,7 +18,7 @@
 #include "base/Global.h"
 
 namespace vecgeom {
-inline namespace cxx {
+inline namespace VECGEOM_IMPL_NAMESPACE {
 class LogicalVolume;
 class NavStatePool;
 
