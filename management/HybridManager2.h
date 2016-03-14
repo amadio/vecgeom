@@ -131,7 +131,7 @@ private:
 
   template <typename Container_t>
   void EqualizeClusters(Container_t &clusters, SOA3D<Precision> &centers, SOA3D<Precision> const &allvolumecenters,
-                        int const maxNodeSize);
+                        size_t const maxNodeSize);
   template <typename Container_t>
   void InitClustersWithKMeans(LogicalVolume const *, Container_t &, SOA3D<Precision> &, SOA3D<Precision> &,
                               int const numberOfInterations = 50);

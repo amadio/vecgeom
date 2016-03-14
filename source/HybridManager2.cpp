@@ -266,7 +266,7 @@ void HybridManager2::InitClustersWithKMeans(LogicalVolume const * lvol, Containe
     }
     meanCenter /= numberOfDaughters;
 
-    int clustersize = (numberOfDaughters + numberOfClusters - 1) / numberOfClusters;
+    size_t clustersize = (numberOfDaughters + numberOfClusters - 1) / numberOfClusters;
     for (int clusterindex = 0; clusterindex < numberOfClusters && !daughterSet.empty(); ++clusterindex) {
         Vector3D<Precision> clusterMean(0);
 
@@ -331,16 +331,16 @@ void HybridManager2::InitClustersWithKMeans(LogicalVolume const * lvol, Containe
 }*/
 
 template<typename Container_t>
-void HybridManager2::EqualizeClusters(Container_t & clusters, SOA3D<Precision> & centers, SOA3D<Precision> const & allvolumecenters, int const maxNodeSize) {
+void HybridManager2::EqualizeClusters(Container_t & clusters, SOA3D<Precision> & centers, SOA3D<Precision> const & allvolumecenters, size_t const maxNodeSize) {
 //clusters need to be sorted
-    int numberOfClusters = clusters.size();
+    size_t numberOfClusters = clusters.size();
     sort(clusters, IsBiggerCluster);
-    for (int c = 0; c < numberOfClusters; ++c) {
-        int clustersize = clusters[c].size();
+    for (size_t c = 0; c < numberOfClusters; ++c) {
+        size_t clustersize = clusters[c].size();
         if ( clustersize > maxNodeSize) {
             RecalculateCentres(centers, allvolumecenters, clusters);
             distanceQueue clusterelemToCenterMap; // pairs of index of elem in cluster and distance to cluster center
-            for (int clusterElem = 0; clusterElem < clustersize; ++clusterElem) {
+            for (size_t clusterElem = 0; clusterElem < clustersize; ++clusterElem) {
                 Precision distance2 = (centers[c] - allvolumecenters[clusters[c][clusterElem]]).Length2();
                 clusterelemToCenterMap.push(std::make_pair(clusters[c][clusterElem], distance2));
             }
@@ -350,7 +350,7 @@ void HybridManager2::EqualizeClusters(Container_t & clusters, SOA3D<Precision> &
                 int daughterIndex = clusterelemToCenterMap.top().first;
                 clusterelemToCenterMap.pop();
                 distanceQueue clusterToCenterMap2;
-                for (int nextclusterIndex = c + 1; nextclusterIndex < numberOfClusters; nextclusterIndex++) {
+                for (size_t nextclusterIndex = c + 1; nextclusterIndex < numberOfClusters; nextclusterIndex++) {
                     if (clusters[nextclusterIndex].size() < maxNodeSize) {
                         Precision distanceToOtherCenters = (centers[nextclusterIndex] - allvolumecenters[daughterIndex]).Length2();
                         clusterToCenterMap2.push(std::make_pair(nextclusterIndex, - distanceToOtherCenters));
