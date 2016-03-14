@@ -580,6 +580,7 @@ endforeach()
 set(NOT_FOR_CUDA
    ABBoxManager
    ABBoxNavigator
+   HybridManager2
    CreateParticles
    Particle
    Medium
