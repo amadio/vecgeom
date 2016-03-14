@@ -75,18 +75,21 @@ struct PolyconeImplementation {
                           *sec.fSolid, secLocalp, secFullyInside, secFullyOutside );
   }
 
+  template <typename Stream>
   VECGEOM_CUDA_HEADER_BOTH
-  template <typename Stream> static void PrintType(Stream &s) {
+  static void PrintType(Stream &s) {
     s << "SpecializedPolycone<" << transCodeT << "," << rotCodeT << ">";
   }
 
+  template <typename Stream>
   VECGEOM_CUDA_HEADER_BOTH
-  template <typename Stream> static void PrintImplementationType(Stream &s) {
+  static void PrintImplementationType(Stream &s) {
       s << "PolyconeImplementation<" << transCodeT << "," << rotCodeT << ">";
   }
 
+  template <typename Stream>
   VECGEOM_CUDA_HEADER_BOTH
-  template <typename Stream> static void PrintUnplacedType(Stream &s) {
+  static void PrintUnplacedType(Stream &s) {
     s << "UnplacedPolycone";
   }
 

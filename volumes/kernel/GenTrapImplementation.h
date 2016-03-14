@@ -38,18 +38,21 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     VECGEOM_CUDA_HEADER_BOTH
     static void PrintType() { printf("SpecializedGenTrap<%i, %i>", transCodeT, rotCodeT); }
 
+  template <typename Stream>
   VECGEOM_CUDA_HEADER_BOTH
-  template <typename Stream> static void PrintType(Stream &s) {
+  static void PrintType(Stream &s) {
     s << "SpecializedGenTrap<" << transCodeT << "," << rotCodeT << ">";
   }
 
+  template <typename Stream>
   VECGEOM_CUDA_HEADER_BOTH
-  template <typename Stream> static void PrintImplementationType(Stream &s) {
+  static void PrintImplementationType(Stream &s) {
     s << "GenTrapImplementation<" << transCodeT << "," << rotCodeT << ">";
   }
 
+  template <typename Stream>
   VECGEOM_CUDA_HEADER_BOTH
-  template <typename Stream> static void PrintUnplacedType(Stream &s) {
+  static void PrintUnplacedType(Stream &s) {
     s << "UnplacedGenTrap";
   }
 

@@ -39,13 +39,15 @@ struct ScaledShapeImplementation {
      << ">";
  }
 
+ template <typename Stream>
  VECGEOM_CUDA_HEADER_BOTH
- template <typename Stream> static void PrintImplementationType(Stream &s) {
+ static void PrintImplementationType(Stream &s) {
    s << "SpecializedScaledShape<" << transCodeT << "," << rotCodeT << ">";
  }
 
+ template <typename Stream>
  VECGEOM_CUDA_HEADER_BOTH
- template <typename Stream> static void PrintUnplacedType(Stream &s) {
+ static void PrintUnplacedType(Stream &s) {
    s << "UnplacedScaledShape";
  }
 
