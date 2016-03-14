@@ -256,20 +256,19 @@ public:
       vdist[i] = -pdist[i] / proj[i];
     }
 
-    if(Backend::early_returns) {
-      // early return if point is outside of plane
-      for(int i=0; i<N; ++i) {
-	done |= ( pdist[i] > kHalfTolerance );
-      }
-      MaskedAssign( done, -1.0, &distOut );
-      if ( IsFull(done) ) {
-	return distOut;
-      }
+    // early return if point is outside of plane
+    for(int i=0; i<N; ++i) {
+      done |= ( pdist[i] > kHalfTolerance );
+    }
+    MaskedAssign( done, -1.0, &distOut );
+
+    if(Backend::early_returns && IsFull(done) ) {
+      return distOut;
     }
 
     // add = in vdist[i]>=0  and "proj[i]>0" in order to pass unit tests, but this will slow down DistToOut()!!! check effect!
     for(int i=0; i<N; ++i ) {
-      Bool_t test = ( vdist[i] >= 0. && proj[i]>0 && vdist[i] < distOut );
+      Bool_t test = ( vdist[i] >= -kHalfTolerance && proj[i]>0 && vdist[i] < distOut );
       MaskedAssign( test, vdist[i], &distOut);
     }
 
