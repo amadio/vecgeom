@@ -1139,7 +1139,7 @@ int ShapeTester::TestOutsidePoint() {
       double dist = fVolumeUSolids->DistanceToIn(point, v);
 
       if (dist <= 0) {
-        ReportError(&nError, point, v, safeDistance, "TO3: DistanceToIn(p,v) <= 0");
+        ReportError(&nError, point, v, dist, "TO3: DistanceToIn(p,v) <= 0");
         continue;
       }
       if (dist >= UUtils::kInfinity) {
@@ -1154,11 +1154,11 @@ int ShapeTester::TestOutsidePoint() {
 
       VUSolid::EnumInside insideOrNot = fVolumeUSolids->Inside(p);
       if (insideOrNot == vecgeom::EInside::kOutside) {
-        ReportError(&nError, point, v, safeDistance, "TO3: DistanceToIn(p,v) undershoots");
+        ReportError(&nError, point, v, dist, "TO3: DistanceToIn(p,v) undershoots");
         continue;
       }
       if (insideOrNot == vecgeom::EInside::kInside) {
-        ReportError(&nError, point, v, safeDistance, "TO3: DistanceToIn(p,v) overshoots");
+        ReportError(&nError, point, v, dist, "TO3: DistanceToIn(p,v) overshoots");
         continue;
       }
     } // Loop over outside fPoints
