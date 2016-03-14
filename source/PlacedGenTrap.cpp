@@ -26,6 +26,8 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 VECGEOM_CUDA_HEADER_BOTH
 void PlacedGenTrap::PrintType() const { printf("PlacedGenTrap"); }
 
+void PlacedGenTrap::PrintType(std::ostream &os) const { os << "PlacedGenTrap"; }
+
 #ifndef VECGEOM_NVCC
 
 //______________________________________________________________________________

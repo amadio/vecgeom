@@ -107,7 +107,10 @@ public:
 
   /** @brief Print type name */
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void PrintType() const override;
+  void PrintType() const override;
+
+  /** @brief Print type name */
+  void PrintType(std::ostream &os) const override;
 
   // CUDA specific
 
