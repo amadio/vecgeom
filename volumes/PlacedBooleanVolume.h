@@ -89,7 +89,9 @@ public:
 //#endif
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void PrintType() const override { };
+  void PrintType() const override { };
+
+  void PrintType(std::ostream &) const override { };
 
   // CUDA specific
   virtual int memory_size() const override { return sizeof(*this); }

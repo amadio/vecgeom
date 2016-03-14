@@ -26,6 +26,10 @@ void PlacedBox::PrintType() const {
   printf("PlacedBox");
 }
 
+void PlacedBox::PrintType(std::ostream &s) const {
+  s << "PlacedBox";
+}
+
 #ifndef VECGEOM_NVCC
 
 VPlacedVolume const* PlacedBox::ConvertToUnspecialized() const {
