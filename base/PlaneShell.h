@@ -208,11 +208,14 @@ public:
       Bool_t posPoint = pdist[i] > MakeMinusTolerant<true>(0.0);
       Bool_t posDir = proj[i] > 0;
       done |= (posPoint && posDir);
-      if ( Backend::early_returns && IsFull(done) ) return distIn;
 
       // check if trajectory will intercept plane within current range (smin,smax)
       Bool_t interceptFromInside  = (!posPoint && posDir);
+      done |= ( interceptFromInside  && vdist[i]<smin );
+
       Bool_t interceptFromOutside = (posPoint && !posDir);
+      done |= ( interceptFromOutside && vdist[i]>smax );
+      if ( Backend::early_returns && IsFull(done) ) return distIn;
 
       // update smin,smax
       Bool_t validVdist = (smin<vdist[i] && vdist[i]<smax);
