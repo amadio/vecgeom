@@ -36,19 +36,16 @@ struct BooleanImplementation<kUnion, transCodeT, rotCodeT> {
   }
 
   template <typename Stream>
-  VECGEOM_CUDA_HEADER_BOTH
   static void PrintType(Stream &s) {
     s << "SpecializedBooleanVolume<kUnion" << "," << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
-  VECGEOM_CUDA_HEADER_BOTH
   static void PrintImplementationType(Stream &s) {
     s << "BooleanImplementation<kUnion" << "," << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
-  VECGEOM_CUDA_HEADER_BOTH
   static void PrintUnplacedType(Stream &s) { s << "UnplacedBooleanVolume"; }
 
   //

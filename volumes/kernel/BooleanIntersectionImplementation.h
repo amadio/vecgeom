@@ -31,19 +31,16 @@ struct BooleanImplementation<kIntersection, transCodeT, rotCodeT> {
   }
 
   template <typename Stream>
-  VECGEOM_CUDA_HEADER_BOTH
   static void PrintType(Stream &s) {
     s << "SpecializedBooleanVolume<kIntersection" << "," << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
-  VECGEOM_CUDA_HEADER_BOTH
   static void PrintImplementationType(Stream &s) {
     s << "BooleanImplementation<kIntersection" << "," << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
-  VECGEOM_CUDA_HEADER_BOTH
   static void PrintUnplacedType(Stream &s) {
     s << "UnplacedBooleanVolume";
   }

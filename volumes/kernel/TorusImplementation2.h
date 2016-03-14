@@ -187,19 +187,16 @@ struct TorusImplementation2 {
   }
 
   template <typename Stream>
-  VECGEOM_CUDA_HEADER_BOTH
   static void PrintType(Stream &s) {
     s << "SpecializedTorus2<" << transCodeT << "," << rotCodeT << "," << ">";
   }
 
   template <typename Stream>
-  VECGEOM_CUDA_HEADER_BOTH
   static void PrintImplementationType(Stream &s) {
     s << "TorusImplemenation2<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
-  VECGEOM_CUDA_HEADER_BOTH
   static void PrintUnplacedType(Stream &s) { s << "UnplacedTorus2"; }
 
   /////GenericKernel Contains/Inside implementation
