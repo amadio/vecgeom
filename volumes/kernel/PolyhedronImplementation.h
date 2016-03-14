@@ -52,19 +52,16 @@ struct PolyhedronImplementation {
   }
 
   template <typename Stream>
-  VECGEOM_CUDA_HEADER_BOTH
   static void PrintType(Stream &s) {
     s << "SpecializedPolyhedron<" << transC << "," << rotC << "," << innerRadiiT << "," << phiCutoutT << ">";
   }
 
   template <typename Stream>
-  VECGEOM_CUDA_HEADER_BOTH
   static void PrintImplementationType(Stream &s) {
     s << "PolyhedronImplementation<" << transC << "," << rotC << "," << innerRadiiT << "," << phiCutoutT << ">";
   }
 
   template <typename Stream>
-  VECGEOM_CUDA_HEADER_BOTH
   static void PrintUnplacedType(Stream &s) { s << "UnplacedPolyhedron"; }
 
   /// \param pointZ Z-coordinate of a point.

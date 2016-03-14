@@ -78,19 +78,16 @@ struct ConeImplementation {
   }
 
   template <typename Stream>
-  VECGEOM_CUDA_HEADER_BOTH
   static void PrintType(Stream &s) {
     s << "SpecializedCone<" << transCodeT << "," << rotCodeT << ",ConeTypes::" << ConeType::toString() << ">";
   }
 
   template <typename Stream>
-  VECGEOM_CUDA_HEADER_BOTH
   static void PrintImplementationType(Stream &s) {
     s << "ConeImplemenation<" << transCodeT << "," << rotCodeT << ",ConeTypes::" << ConeType::toString() << ">";
   }
 
   template <typename Stream>
-  VECGEOM_CUDA_HEADER_BOTH
   static void PrintUnplacedType(Stream &s) { s << "UnplacedCone"; }
 
   /////GenericKernel Contains/Inside implementation
