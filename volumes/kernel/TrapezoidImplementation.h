@@ -315,11 +315,17 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToIn(
   // If disttoplanes is such that smin < dist < smax, then distance=disttoplanes
   Float_t disttoplanes = unplaced.GetPlanes()->DistanceToIn<Backend>(point, smin, dir);
 
-  // save any misses from plane shell
-  done |= (disttoplanes==kInfinity);
+  //=== special cases
+  // 1) point is inside (wrong-side) --> return -1
+  Bool_t inside = (smin<-kHalfTolerance && disttoplanes<-kHalfTolerance);
+  MaskedAssign( !done && inside, -1.0, &distance );  // wrong-side point
+  done |= inside;
 
-  // reconciliate side planes w/ z-planes
-  done |= (disttoplanes > smax);
+  // 2) point is outside plane-shell and moving away --> return infinity
+  done |= disttoplanes == kInfinity;
+
+  // 3) track misses the trapezoid: smin<0 && disttoplanes>smax
+  done |= (smin < 0 && disttoplanes > smax);
   if (Backend::early_returns && IsFull(done)) return;
 
   // at this point we know there is a valid distance - start with the z-plane based one
@@ -327,10 +333,8 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToIn(
 
   // and then take the one from the planar shell, if valid
   Bool_t hitplanarshell = (disttoplanes > smin) && (disttoplanes < smax);
-  MaskedAssign( hitplanarshell, disttoplanes, &distance);
+  MaskedAssign( !done && hitplanarshell, disttoplanes, &distance);
 
-  // at last... negative distance means we're inside the volume -- set distance to zero
-  MaskedAssign( distance<0, 0.0, &distance );
 #else
   //   If dist is such that smin < dist < smax, then adjust either smin or smax.
 
