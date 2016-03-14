@@ -257,10 +257,8 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToIn(
   typedef typename Backend::precision_v Float_t;
   typedef typename Backend::bool_v Bool_t;
 
-  Vector3D<Float_t> point =
-      transformation.Transform<transCodeT, rotCodeT>(masterPoint);
-  Vector3D<Float_t> dir =
-      transformation.TransformDirection<rotCodeT>(masterDir);
+  Vector3D<Float_t> point = transformation.Transform<transCodeT, rotCodeT>(masterPoint);
+  Vector3D<Float_t> dir   = transformation.TransformDirection<rotCodeT>(masterDir);
 
   distance = kInfinity;    // set to early returned value
   Bool_t done = Backend::kFalse;
@@ -304,9 +302,8 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToIn(
   done |= ( test && !zrange );
   if (Backend::early_returns && IsFull(done)) return;
 
-  // ... or within z-range, then smin=0, smax=infinity for now
-  // GL note: in my environment, smin=-inf and smax=inf before these lines
-  MaskedAssign( test && zrange,       0.0, &smin );
+  // ... or within z-range, then smin=-1, smax=infinity for now
+  MaskedAssign( test && zrange,      -1.0, &smin );
   MaskedAssign( test && zrange, kInfinity, &smax );
 
 

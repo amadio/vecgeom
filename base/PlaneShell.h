@@ -158,8 +158,10 @@ public:
 
   /// \return the distance to the planar shell when the point is located outside.
   /// The type returned is the type corresponding to the backend given.
-  /// The value returned is +inf if (1) point+dir is outside & moving AWAY from any plane,
-  ///     OR (2) when point+dir crosses out a plane BEFORE crossing in ALL other planes.
+  /// For some special cases, the value returned is:
+  ///     (1) +inf, if point+dir is outside & moving AWAY FROM OR PARALLEL TO any plane,
+  ///     (2) -1, if point+dir crosses out a plane BEFORE crossing in ALL other planes (wrong-side)
+  ///
   /// Note: smin0 parameter is needed here, otherwise smax can become smaller than smin0,
   ///   which means condition (2) happens and +inf must be returned.  Without smin0, this
   ///   condition is sometimes missed.
@@ -191,21 +193,26 @@ public:
       vdist[i]= -pdist[i]/proj[i];
     }
 
+    // wrong-side check: if (inside && smin<0) return -1
+    Bool_t inside( smin < MakeMinusTolerant<true>(0.0) );
+    for(int i=0; i<N; ++i) {
+      inside &= pdist[i] < MakeMinusTolerant<true>(0.0);
+    }
+    MaskedAssign( inside, -1.0, &distIn );
+    done |= inside;
+    if(Backend::early_returns && IsFull(done)) return distIn;
+
     // analysis loop
     for(int i=0; i<N; ++i) {
-      Bool_t posPoint = pdist[i] >= -kHalfTolerance;
+      // if outside and moving away, return infinity
+      Bool_t posPoint = pdist[i] > MakeMinusTolerant<true>(0.0);
       Bool_t posDir = proj[i] > 0;
-
       done |= (posPoint && posDir);
+      if ( Backend::early_returns && IsFull(done) ) return distIn;
 
       // check if trajectory will intercept plane within current range (smin,smax)
-
       Bool_t interceptFromInside  = (!posPoint && posDir);
-      done |= ( interceptFromInside  && vdist[i]<smin );
-
       Bool_t interceptFromOutside = (posPoint && !posDir);
-      done |= ( interceptFromOutside && vdist[i]>smax );
-      if ( Backend::early_returns && IsFull(done) ) return distIn;
 
       // update smin,smax
       Bool_t validVdist = (smin<vdist[i] && vdist[i]<smax);
