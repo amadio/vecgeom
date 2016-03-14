@@ -665,19 +665,22 @@ struct TorusImplementation {
      printf("SpecializedTorus<%i, %i>", transCodeT, rotCodeT);
   }
 
+  template <typename Stream>
   VECGEOM_CUDA_HEADER_BOTH
-  template <typename Stream> static void PrintType(Stream &s) {
+  static void PrintType(Stream &s) {
     s << "SpecializedTorus<" << transCodeT << "," << rotCodeT << ","
       << ">";
   }
 
+  template <typename Stream>
   VECGEOM_CUDA_HEADER_BOTH
-  template <typename Stream> static void PrintImplementationType(Stream &s) {
+  static void PrintImplementationType(Stream &s) {
     s << "TorusImplemenation<" << transCodeT << "," << rotCodeT << ">";
   }
 
+  template <typename Stream>
   VECGEOM_CUDA_HEADER_BOTH
-  template <typename Stream> static void PrintUnplacedType(Stream &s) {
+  static void PrintUnplacedType(Stream &s) {
     s << "UnplacedTorus";
   }
 
