@@ -420,74 +420,74 @@ bool TestTrap() {
     Dist = trap1.SafetyFromOutside(testp);
     assert(ApproxEqual(Dist,testValue));
     Dist = trap1.SafetyFromInside(testp);
-    assert(Dist>=0);
+    if(Dist>0) std::cout<<"trap1.S2O(): Line "<< __LINE__ <<", p="<< testp <<", saf2out="<< Dist <<"\n";
+    assert(Dist<=0);
 
     testp = ponxside - testValue*vx;
     Dist=trap1.SafetyFromOutside(testp);
-    std::cout <<"trap1.S2I(): Line "<< __LINE__ <<", p="<< testp <<", saf2in=" << Dist <<"\n";
+    if(Dist>0) std::cout <<"trap1.S2I(): Line "<< __LINE__ <<", p="<< testp <<", saf2in=" << Dist <<"\n";
+    assert(Dist<=0);
     Dist=trap1.SafetyFromInside(testp);
-    assert(Dist>=0);
+    assert(ApproxEqual(Dist,testValue));
 
-    testp = ponmxside + 0.11*vx;
+    testp = ponmxside + testValue*vx;
     Dist=trap1.SafetyFromOutside(testp);
-    std::cout <<"trap1.S2I(): Line "<< __LINE__ <<", p="<< testp <<", saf2in=" << Dist <<"\n";
+    if(Dist>0) std::cout <<"trap1.S2I(): Line "<< __LINE__ <<", p="<< testp <<", saf2in=" << Dist <<"\n";
     Dist=trap1.SafetyFromInside(testp);
     assert(Dist>=0);
 
-    testp = ponmxside - 0.11*vx;
+    testp = ponmxside - testValue*vx;
     Dist=trap1.SafetyFromOutside(testp);
     assert(ApproxEqual(Dist,testValue));
     Dist=trap1.SafetyFromInside(testp);
-    assert(Dist>=0);
+    assert(Dist<=0);
 
-    testp = ponyside + 0.11*vy;
+    testp = ponyside + testValue*vy;
     Dist=trap1.SafetyFromOutside(testp);
     assert(ApproxEqual(Dist,testValue));
     Dist=trap1.SafetyFromInside(testp);
-    assert(Dist>=0);
+    assert(Dist<=0);
 
-    testp = ponyside - 0.11*vy;
+    testp = ponyside - testValue*vy;
     Dist=trap1.SafetyFromOutside(testp);
-    std::cout <<"trap1.S2I(): Line "<< __LINE__ <<", p="<< testp <<", saf2in=" << Dist <<"\n";
     Dist=trap1.SafetyFromInside(testp);
-    assert(Dist>=0);
+    assert(ApproxEqual(Dist,testValue));
 
-    testp = ponmyside + 0.11*vy;
+    testp = ponmyside + testValue*vy;
     Dist=trap1.SafetyFromOutside(testp);
-    std::cout <<"trap1.S2I(): Line "<< __LINE__ <<", p="<< testp <<", saf2in=" << Dist <<"\n";
     Dist=trap1.SafetyFromInside(testp);
-    assert(Dist>=0);
+    assert(ApproxEqual(Dist,testValue));
 
-    testp = ponmyside - 0.11*vy;
+    testp = ponmyside - testValue*vy;
     Dist=trap1.SafetyFromOutside(testp);
     assert(ApproxEqual(Dist,testValue));
     Dist=trap1.SafetyFromInside(testp);
-    assert(Dist>=0);
+    assert(Dist<=0);
 
-    testp = ponzside + 0.11*vz;
+    testp = ponzside + testValue*vz;
     Dist=trap1.SafetyFromOutside(testp);
     assert(ApproxEqual(Dist,testValue));
     Dist=trap1.SafetyFromInside(testp);
-    assert(Dist>=0);
+    assert(Dist<=0);
 
-    testp = ponzside - 0.11*vz;
+    testp = ponzside - testValue*vz;
     Dist=trap1.SafetyFromOutside(testp);
-    std::cout <<"trap1.S2I(): Line "<< __LINE__ <<", p="<< testp <<", saf2in=" << Dist <<"\n";
+    assert(Dist<=0);
     Dist=trap1.SafetyFromInside(testp);
-    assert(Dist>=0);
+    assert(ApproxEqual(Dist,testValue));
 
-    testp = ponmzside + 0.11*vz;
+    testp = ponmzside + testValue*vz;
     Dist=trap1.SafetyFromOutside(testp);
-    std::cout <<"trap1.S2I(): Line "<< __LINE__ <<", p="<< testp <<", saf2in=" << Dist <<"\n";
+    //std::cout <<"trap1.S2I(): Line "<< __LINE__ <<", p="<< testp <<", saf2in=" << Dist <<"\n";
+    assert(Dist<=0.);
     Dist=trap1.SafetyFromInside(testp);
-    assert(Dist>=0);
+    assert(ApproxEqual(Dist,testValue));
 
-    testp = ponmzside - 0.11*vz;
+    testp = ponmzside - testValue*vz;
     Dist=trap1.SafetyFromOutside(testp);
     assert(ApproxEqual(Dist,testValue));
     Dist=trap1.SafetyFromInside(testp);
-    assert(Dist>=0);
-
+    assert(Dist<=0);
 
 // DistanceToIn(P,V)
 

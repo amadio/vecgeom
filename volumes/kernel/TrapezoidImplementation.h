@@ -527,10 +527,10 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::SafetyToOut(
 
   Bool_t done(false);
 
-  // If point is outside, set safety to zero
   safety = unplaced.GetDz() - Abs(point.z());
-  MaskedAssign( safety<0.0, 0.0, &safety );
-  done |= safety==0.0;
+
+  // Wrong-side points --> return a negative value
+  done |= (safety < kHalfTolerance);
 
   // If all test points are outside, we're done
   if ( Backend::early_returns && IsFull(done) ) return;
