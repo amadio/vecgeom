@@ -239,6 +239,8 @@ public:
 
   /// \return the distance to the planar shell when the point is located within the shell itself.
   /// The type returned is the type corresponding to the backend given.
+  /// For some special cases, the value returned is:
+  ///     (1) -1, if point is outside (wrong-side)
   template<typename Backend>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -254,23 +256,29 @@ public:
     // hope for a vectorization of this part for Backend==scalar !!
     // the idea is to put vectorizable things into this loop
     // and separate the analysis into a separate loop if need be
-//  Bool_t done(Backend::kFalse);
+    Bool_t done(Backend::kFalse);
+    Float_t pdist[N];
     Float_t proj[N];
     Float_t vdist[N];
     for(int i=0; i<N; ++i) {
-      Float_t pdist = this->fA[i]*point.x() + this->fB[i]*point.y() + this->fC[i]*point.z() + this->fD[i];
-
-      // early return if point is outside of plane
-      //done |= (pdist>0.);
-      //if ( IsFull(done) ) return kInfinity;
-
+      pdist[i] = this->fA[i]*point.x() + this->fB[i]*point.y() + this->fC[i]*point.z() + this->fD[i];
       proj[i] = this->fA[i]*dir.x() + this->fB[i]*dir.y() + this->fC[i]*dir.z();
-      vdist[i] = -pdist / proj[i];
+      vdist[i] = -pdist[i] / proj[i];
+    }
+
+    if(Backend::early_returns) {
+      // early return if point is outside of plane
+      for(int i=0; i<N; ++i) {
+	done |= ( pdist[i] > kHalfTolerance );
+      }
+      MaskedAssign( done, -1.0, &distOut );
+      if ( IsFull(done) ) {
+	return distOut;
+      }
     }
 
     // add = in vdist[i]>=0  and "proj[i]>0" in order to pass unit tests, but this will slow down DistToOut()!!! check effect!
-    for(int i=0; i<N; ++i )
-    {
+    for(int i=0; i<N; ++i ) {
       Bool_t test = ( vdist[i] >= 0. && proj[i]>0 && vdist[i] < distOut );
       MaskedAssign( test, vdist[i], &distOut);
     }
