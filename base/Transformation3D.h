@@ -186,7 +186,6 @@ public:
   void Print() const;
 
   // print to a stream
-  VECGEOM_CUDA_HEADER_BOTH
   void Print(std::ostream &) const;
 
   // Mutators
