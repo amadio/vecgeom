@@ -132,7 +132,7 @@ static void DaughterIntersectionsLooper(VNavigator const * /*nav*/, LogicalVolum
                                           unsigned int from_index, Precision *out_steps,
                                           VPlacedVolume const *hitcandidates[ChunkSize]) {
     // dispatch to vector implementation
-    //   iterate over all daughters
+    // iterate over all daughters
     // using Real_v = typename Backend::Real_v;
     // using Bool_v = Real_v::Mask;
     T step(out_steps + from_index);
@@ -156,19 +156,21 @@ static void DaughterIntersectionsLooper(VNavigator const * /*nav*/, LogicalVolum
 
       // serial treatment of hit candidate until I find a better way
       // we might do this using a cast to a double vector with subsequent masked assignment
-      for (unsigned int i = valid.firstOne(); i < ChunkSize; ++i) {
-        hitcandidates[i] = valid[i] ? daughter : hitcandidates[i];
-      }
+      if (Any(valid)) {
+        for (unsigned int i = valid.firstOne(); i < ChunkSize; ++i) {
+          hitcandidates[i] = valid[i] ? daughter : hitcandidates[i];
+        }
 
-      step(valid) = ddistance; // or maskedAssign
-                               //  #ifdef CHECKCONTAINS
-                               //        } else {
-                               //          std::cerr << " INDA ";
-                               //          step = -1.;
-                               //          hitcandidate = daughter;
-                               //          break;
-                               //        }
-                               //  #endif
+        step(valid) = ddistance; // or maskedAssign
+                                 //  #ifdef CHECKCONTAINS
+                                 //        } else {
+                                 //          std::cerr << " INDA ";
+                                 //          step = -1.;
+                                 //          hitcandidate = daughter;
+                                 //          break;
+                                 //        }
+                                 //  #endif
+      }
     }
     step.store(out_steps + from_index);
   }
