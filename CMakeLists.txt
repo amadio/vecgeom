@@ -587,6 +587,7 @@ set(NOT_FOR_CUDA
    Nucleus
    CreateNuclei
    Material
+   NavigationSpecializer
 )
 
 
