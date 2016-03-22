@@ -144,7 +144,7 @@ void FaceTrajectoryIntersection(UnplacedTrd const &trd,
       Float_t hitk = posK + dist*dirK;
       Float_t dK = halfKplus - fK * hitz; // calculate the width of the varying dimension at hitz
       ok &= Abs(hitk) <= dK;
-      MaskedAssign(ok & (Abs(dist) < kTolerance), 0., &dist);
+      MaskedAssign(ok & (Abs(dist) < kHalfTolerance), 0., &dist);
     }
 }
 
@@ -339,7 +339,9 @@ struct TrdImplementation {
     transformation.TransformDirection<rotCodeT>(direction, dir_local);
     
     // hit Z faces?
+    Bool_t inz = Abs(pos_local.z()) < MakeMinusTolerant<true>(trd.dz());
     Bool_t okz = pos_local.z() * dir_local.z() < 0;
+    okz &= !inz;
     if(okz != Backend::kFalse) {
       Float_t distz = (Abs(pos_local.z()) - trd.dz()) / Abs(dir_local.z());
       // exclude case in which particle is going away
@@ -347,44 +349,56 @@ struct TrdImplementation {
       hity = Abs(pos_local.y() + distz*dir_local.y());
 
       // hitting top face?
-      Bool_t okzt = pos_local.z() > (trd.dz() - kTolerance) && hitx <= trd.dx2() && hity <= trd.dy2();
+      Bool_t okzt = pos_local.z() > (trd.dz() - kHalfTolerance) && hitx <= trd.dx2() && hity <= trd.dy2();
       // hitting bottom face?
-      Bool_t okzb = pos_local.z() < (-trd.dz() + kTolerance) && hitx <= trd.dx1() && hity <= trd.dy1();
+      Bool_t okzb = pos_local.z() < (-trd.dz() + kHalfTolerance) && hitx <= trd.dx1() && hity <= trd.dy1();
 
       okz &= (okzt | okzb);
       MaskedAssign(okz, distz, &distance);
     }
 
     // hitting X faces?
-    Float_t distx;
+    Float_t distx = trd.halfx1plusx2()-trd.fx()*pos_local.z();
     Bool_t okx;
+    Bool_t inx = (distx-Abs(pos_local.x()))*trd.calfx() > MakePlusTolerant<true>(0.);
+    if (!IsFull(inx)) {
 
-    FaceTrajectoryIntersection<Backend, false, false, true>(trd, pos_local, dir_local, distx, okx);
-    MaskedAssign(okx && distx < distance, distx, &distance);
+      FaceTrajectoryIntersection<Backend, false, false, true>(trd, pos_local, dir_local, distx, okx);
+      MaskedAssign(okx && distx < distance, distx, &distance);
       
-    FaceTrajectoryIntersection<Backend, false, true, true>(trd, pos_local, dir_local, distx, okx);
-    MaskedAssign(okx && distx < distance, distx, &distance);
-      
+      FaceTrajectoryIntersection<Backend, false, true, true>(trd, pos_local, dir_local, distx, okx);
+      MaskedAssign(okx && distx < distance, distx, &distance);
+    }  
     // hitting Y faces?
     Float_t disty;
     Bool_t oky;
+    Bool_t iny;
 
     if(checkVaryingY<trdTypeT>(trd)) {
-      FaceTrajectoryIntersection<Backend, true, false, true>(trd, pos_local, dir_local, disty, oky);
-      MaskedAssign(oky && disty < distance, disty, &distance);
+      disty = trd.halfy1plusy2()-trd.fy()*pos_local.z();
+      iny = (disty-Abs(pos_local.y()))*trd.calfy() > MakePlusTolerant<true>(0.);
+      if (!IsFull(iny)) {
+        FaceTrajectoryIntersection<Backend, true, false, true>(trd, pos_local, dir_local, disty, oky);
+        MaskedAssign(oky && disty < distance, disty, &distance);
 
-      FaceTrajectoryIntersection<Backend, true, true, true>(trd, pos_local, dir_local, disty, oky);
-      MaskedAssign(oky && disty < distance, disty, &distance);
+        FaceTrajectoryIntersection<Backend, true, true, true>(trd, pos_local, dir_local, disty, oky);
+        MaskedAssign(oky && disty < distance, disty, &distance);
+      }  
     }
     else {
-      disty = (Abs(pos_local.y()) - trd.dy1()) / Abs(dir_local.y());
-      Float_t zhit = pos_local.z() + disty*dir_local.z();
-      Float_t xhit = pos_local.x() + disty*dir_local.x();
-      Float_t dx = trd.halfx1plusx2() - trd.fx()*zhit;
-      oky = pos_local.y()*dir_local.y() < 0 && disty > -kTolerance && Abs(xhit) < dx && Abs(zhit) < trd.dz();
-      MaskedAssign(oky && disty < distance, disty, &distance);
+      disty = Abs(pos_local.y()) - trd.dy1();
+      iny = disty < MakeMinusTolerant<true>(0.);
+      if (!IsFull(iny)) {
+        disty /= Abs(dir_local.y());
+        Float_t zhit = pos_local.z() + disty*dir_local.z();
+        Float_t xhit = pos_local.x() + disty*dir_local.x();
+        Float_t dx = trd.halfx1plusx2() - trd.fx()*zhit;
+        oky = pos_local.y()*dir_local.y() < 0 && disty > -kHalfTolerance && Abs(xhit) < dx && Abs(zhit) < trd.dz();
+        MaskedAssign(oky && disty < distance, disty, &distance);
+      }  
     }
-    MaskedAssign(Abs(distance) < kTolerance, 0., &distance);
+    MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
+    MaskedAssign(inx & iny & inz, -1., &distance);
   }
 
   template <class Backend>
@@ -409,6 +423,22 @@ struct TrdImplementation {
 
     // hit top Z face?
     Float_t invdir = 1./Abs(dir.z()+kTiny);
+    Float_t safz = trd.dz() - Abs(point.z());
+    Bool_t out = safz < MakeMinusTolerant<true>(0.);
+    Float_t distx = trd.halfx1plusx2()-trd.fx()*point.z();
+    out |= (distx-Abs(point.x()))*trd.calfx() < MakeMinusTolerant<true>(0.);
+    Float_t disty;
+    if(checkVaryingY<trdTypeT>(trd)) {
+      disty = trd.halfy1plusy2()-trd.fy()*point.z();
+      out |= (disty-Abs(point.y()))*trd.calfy() < MakeMinusTolerant<true>(0.);
+    } else {
+      disty = trd.dy1() - Abs(point.y());
+      out |= disty < MakeMinusTolerant<true>(0.);    
+    }
+    if (/*Backend::early_returns && */IsFull(out)) {
+      distance = -1.;
+      return;
+    }
     if((dir.z()>0.) != Backend::kFalse) {
       Float_t distz = (trd.dz() - point.z()) * invdir;
       hitx = Abs(point.x() + distz*dir.x());
@@ -431,7 +461,6 @@ struct TrdImplementation {
     }
 
     // hitting X faces?
-    Float_t distx;
     Bool_t okx;
 
     FaceTrajectoryIntersection<Backend, false, false, false>(trd, point, dir, distx, okx);
@@ -444,7 +473,6 @@ struct TrdImplementation {
     if(Backend::early_returns && okx == Backend::kTrue) return;
 
     // hitting Y faces?
-    Float_t disty;
     Bool_t oky;
 
     if(checkVaryingY<trdTypeT>(trd)) {
@@ -454,8 +482,7 @@ struct TrdImplementation {
       
       FaceTrajectoryIntersection<Backend, true, true, false>(trd, point, dir, disty, oky);
       MaskedAssign(oky, disty, &distance);
-    }
-    else {
+    } else {
       Float_t plane = trd.dy1();
       MaskedAssign(dir.y() < 0, -trd.dy1(), &plane);
       disty = (plane - point.y()) / dir.y();
@@ -465,6 +492,8 @@ struct TrdImplementation {
       oky = Abs(xhit) < dx && Abs(zhit) < trd.dz();
       MaskedAssign(oky, disty, &distance);
     }
+    MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
+    MaskedAssign(out, -1., &distance);
   }
 
   template <class Backend>

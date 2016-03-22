@@ -117,7 +117,8 @@ public:
   */
 
 #if defined(VECGEOM_USOLIDS)
-//  VECGEOM_CUDA_HEADER_BOTH
+  virtual std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType() ;}
+#//  VECGEOM_CUDA_HEADER_BOTH
   std::ostream& StreamInfo(std::ostream &os) const override {
     return GetUnplacedVolume()->StreamInfo(os);
   }
