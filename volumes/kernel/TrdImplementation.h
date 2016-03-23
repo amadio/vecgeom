@@ -81,7 +81,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(TrdImplementation, TranslationCode, t
                              typename Backend::bool_v &ok) {
     typedef typename Backend::precision_v Float_t;
     // typedef typename Backend::bool_v Bool_t;
-    Float_t alongV, posV, dirV, posK, dirK, fK, halfKplus, v1, ndotv;
+    Float_t alongV, posV, dirV, posK, dirK, fV, fK, halfKplus, v1, ndotv;
     //    fNormals[0].Set(-fCalfX, 0., fFx*fCalfX);
     //    fNormals[1].Set(fCalfX, 0., fFx*fCalfX);
     //    fNormals[2].Set(0., -fCalfY, fFy*fCalfY);
@@ -94,9 +94,8 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(TrdImplementation, TranslationCode, t
       dirV = dir.y();
       dirK = dir.x();
       fK = trd.fx();
+      fV = trd.fy();
       halfKplus = trd.halfx1plusx2();
-      ndotv = dir.y() + trd.fy() * dir.z();
-      // ok = pos.y() * dir.y() <= 0;
     } else {
       alongV = trd.x2minusx1();
       v1 = trd.dx1();
@@ -105,16 +104,15 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(TrdImplementation, TranslationCode, t
       dirV = dir.x();
       dirK = dir.y();
       fK = trd.fy();
+      fV = trd.fx();
       halfKplus = trd.halfy1plusy2();
-      ndotv = dir.x() + trd.fx() * dir.z();
-      // ok = pos.x() * dir.x() <= 0;
     }
     if (mirroredPoint) {
       posV *= -1.;
       dirV *= -1.;
     }
 
-    ndotv = dirV + fK * dir.z();
+    ndotv = dirV + fV * dir.z();
     if (toInside)
       ok = ndotv < 0.;
     else
@@ -305,9 +303,23 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(TrdImplementation, TranslationCode, t
 
       // hit Z faces?
       Bool_t inz = Abs(pos_local.z()) < MakeMinusTolerant<true>(trd.dz());
+      Float_t distx = trd.halfx1plusx2() - trd.fx() * pos_local.z();
+      Bool_t inx = (distx - Abs(pos_local.x())) * trd.calfx() > MakePlusTolerant<true>(0.);
+      Float_t disty;
+      Bool_t iny;
+      if (checkVaryingY<trdTypeT>(trd)) {
+        disty = trd.halfy1plusy2() - trd.fy() * pos_local.z();
+        iny = (disty - Abs(pos_local.y())) * trd.calfy() > MakePlusTolerant<true>(0.);
+      } else {
+        disty = Abs(pos_local.y()) - trd.dy1();
+        iny = disty < MakeMinusTolerant<true>(0.);
+      }
+      Bool_t inside = inx & iny & inz;
+      MaskedAssign(inside, -1., &distance);      
+      Bool_t done = inside;
       Bool_t okz = pos_local.z() * dir_local.z() < 0;
       okz &= !inz;
-      if (okz != Backend::kFalse) {
+      if (!IsEmpty(okz)) {
         Float_t distz = (Abs(pos_local.z()) - trd.dz()) / Abs(dir_local.z());
         // exclude case in which particle is going away
         hitx = Abs(pos_local.x() + distz * dir_local.x());
@@ -321,48 +333,49 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(TrdImplementation, TranslationCode, t
         okz &= (okzt | okzb);
         MaskedAssign(okz, distz, &distance);
       }
+      done |= okz;
+      if (IsFull(done)) {
+        MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
+        return;
+      }
 
       // hitting X faces?
-      Float_t distx = trd.halfx1plusx2() - trd.fx() * pos_local.z();
-      Bool_t okx;
-      Bool_t inx = (distx - Abs(pos_local.x())) * trd.calfx() > MakePlusTolerant<true>(0.);
+      Bool_t okx = Backend::kFalse;
       if (!IsFull(inx)) {
 
         FaceTrajectoryIntersection<Backend, false, false, true>(trd, pos_local, dir_local, distx, okx);
-        MaskedAssign(okx && distx < distance, distx, &distance);
+        MaskedAssign(okx, distx, &distance);
 
         FaceTrajectoryIntersection<Backend, false, true, true>(trd, pos_local, dir_local, distx, okx);
-        MaskedAssign(okx && distx < distance, distx, &distance);
+        MaskedAssign(okx, distx, &distance);
       }
+      done |= okx;
+      if (IsFull(done)) {
+        MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
+        return;
+      }
+      
       // hitting Y faces?
-      Float_t disty;
       Bool_t oky;
-      Bool_t iny;
-
       if (checkVaryingY<trdTypeT>(trd)) {
-        disty = trd.halfy1plusy2() - trd.fy() * pos_local.z();
-        iny = (disty - Abs(pos_local.y())) * trd.calfy() > MakePlusTolerant<true>(0.);
         if (!IsFull(iny)) {
           FaceTrajectoryIntersection<Backend, true, false, true>(trd, pos_local, dir_local, disty, oky);
-          MaskedAssign(oky && disty < distance, disty, &distance);
+          MaskedAssign(oky, disty, &distance);
 
           FaceTrajectoryIntersection<Backend, true, true, true>(trd, pos_local, dir_local, disty, oky);
-          MaskedAssign(oky && disty < distance, disty, &distance);
+          MaskedAssign(oky, disty, &distance);
         }
       } else {
-        disty = Abs(pos_local.y()) - trd.dy1();
-        iny = disty < MakeMinusTolerant<true>(0.);
         if (!IsFull(iny)) {
           disty /= Abs(dir_local.y());
           Float_t zhit = pos_local.z() + disty * dir_local.z();
           Float_t xhit = pos_local.x() + disty * dir_local.x();
           Float_t dx = trd.halfx1plusx2() - trd.fx() * zhit;
           oky = pos_local.y() * dir_local.y() < 0 && disty > -kHalfTolerance && Abs(xhit) < dx && Abs(zhit) < trd.dz();
-          MaskedAssign(oky && disty < distance, disty, &distance);
+          MaskedAssign(oky, disty, &distance);
         }
       }
       MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
-      MaskedAssign(inx & iny & inz, -1., &distance);
     }
 
     template <class Backend>
@@ -399,27 +412,31 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(TrdImplementation, TranslationCode, t
         distance = -1.;
         return;
       }
-      if ((dir.z() > 0.) != Backend::kFalse) {
+      Bool_t okzt = dir.z() > 0;
+      if (!IsEmpty(okzt)) {
         Float_t distz = (trd.dz() - point.z()) * invdir;
         hitx = Abs(point.x() + distz * dir.x());
         hity = Abs(point.y() + distz * dir.y());
-        Bool_t okzt = dir.z() > 0;
         okzt &= hitx <= trd.dx2() && hity <= trd.dy2();
         MaskedAssign(okzt, distz, &distance);
-        if (Backend::early_returns && okzt == Backend::kTrue)
+        if (Backend::early_returns && okzt == Backend::kTrue) {
+          MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
           return;
+        }  
       }
 
       // hit bottom Z face?
-      if ((dir.z() < 0.) != Backend::kFalse) {
-        Float_t distz = (point.z() - (-trd.dz())) * invdir;
+      Bool_t okzb = dir.z() < 0;
+      if (!IsEmpty(okzb)) {
+        Float_t distz = (point.z() + trd.dz()) * invdir;
         hitx = Abs(point.x() + distz * dir.x());
         hity = Abs(point.y() + distz * dir.y());
-        Bool_t okzb = dir.z() < 0;
         okzb &= hitx <= trd.dx1() && hity <= trd.dy1();
         MaskedAssign(okzb, distz, &distance);
-        if (Backend::early_returns && okzb == Backend::kTrue)
+        if (Backend::early_returns && okzb == Backend::kTrue) {
+          MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
           return;
+        }  
       }
 
       // hitting X faces?
@@ -428,13 +445,17 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(TrdImplementation, TranslationCode, t
       FaceTrajectoryIntersection<Backend, false, false, false>(trd, point, dir, distx, okx);
 
       MaskedAssign(okx, distx, &distance);
-      if (Backend::early_returns && okx == Backend::kTrue)
+      if (Backend::early_returns && okx == Backend::kTrue) {
+        MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
         return;
+      }  
 
       FaceTrajectoryIntersection<Backend, false, true, false>(trd, point, dir, distx, okx);
       MaskedAssign(okx, distx, &distance);
-      if (Backend::early_returns && okx == Backend::kTrue)
+      if (Backend::early_returns && okx == Backend::kTrue) {
+        MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
         return;
+      }  
 
       // hitting Y faces?
       Bool_t oky;
@@ -442,8 +463,10 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(TrdImplementation, TranslationCode, t
       if (checkVaryingY<trdTypeT>(trd)) {
         FaceTrajectoryIntersection<Backend, true, false, false>(trd, point, dir, disty, oky);
         MaskedAssign(oky, disty, &distance);
-        if (Backend::early_returns && oky == Backend::kTrue)
+        if (Backend::early_returns && oky == Backend::kTrue) {
+          MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
           return;
+        }  
 
         FaceTrajectoryIntersection<Backend, true, true, false>(trd, point, dir, disty, oky);
         MaskedAssign(oky, disty, &distance);
