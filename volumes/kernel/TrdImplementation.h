@@ -315,7 +315,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(TrdImplementation, TranslationCode, t
         iny = disty < MakeMinusTolerant<true>(0.);
       }
       Bool_t inside = inx & iny & inz;
-      MaskedAssign(inside, -1., &distance);      
+      MaskedAssign(inside, -1., &distance);
       Bool_t done = inside;
       Bool_t okz = pos_local.z() * dir_local.z() < 0;
       okz &= !inz;
@@ -354,7 +354,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(TrdImplementation, TranslationCode, t
         MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
         return;
       }
-      
+
       // hitting Y faces?
       Bool_t oky;
       if (checkVaryingY<trdTypeT>(trd)) {
@@ -422,7 +422,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(TrdImplementation, TranslationCode, t
         if (Backend::early_returns && okzt == Backend::kTrue) {
           MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
           return;
-        }  
+        }
       }
 
       // hit bottom Z face?
@@ -436,7 +436,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(TrdImplementation, TranslationCode, t
         if (Backend::early_returns && okzb == Backend::kTrue) {
           MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
           return;
-        }  
+        }
       }
 
       // hitting X faces?
@@ -448,14 +448,14 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(TrdImplementation, TranslationCode, t
       if (Backend::early_returns && okx == Backend::kTrue) {
         MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
         return;
-      }  
+      }
 
       FaceTrajectoryIntersection<Backend, false, true, false>(trd, point, dir, distx, okx);
       MaskedAssign(okx, distx, &distance);
       if (Backend::early_returns && okx == Backend::kTrue) {
         MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
         return;
-      }  
+      }
 
       // hitting Y faces?
       Bool_t oky;
@@ -466,7 +466,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(TrdImplementation, TranslationCode, t
         if (Backend::early_returns && oky == Backend::kTrue) {
           MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
           return;
-        }  
+        }
 
         FaceTrajectoryIntersection<Backend, true, true, false>(trd, point, dir, disty, oky);
         MaskedAssign(oky, disty, &distance);
