@@ -1,3 +1,5 @@
+
+#undef NDEBUG
 #include "volumes/Box.h"
 //#include "volumes/Parallelepiped.h"
 //#include "volumes/UTubs.h"
