@@ -244,7 +244,7 @@ public:
 
   template <typename Backend>
   VECGEOM_CUDA_HEADER_BOTH
-  typename Backend::bool_v ContainsWithBoundary(Vector3D<typename Backend::precision_v> const &point) const {}
+    typename Backend::bool_v ContainsWithBoundary(Vector3D<typename Backend::precision_v> const &/*point*/) const {}
 
   template <typename Backend>
   VECGEOM_CUDA_HEADER_BOTH

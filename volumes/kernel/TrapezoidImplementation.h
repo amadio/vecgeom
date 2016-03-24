@@ -431,7 +431,7 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToOut(
 
   // convenience variables for direction pointing to +z or -z.
   // Note that both posZdir and NegZdir may be false, if dir.z() is zero!
-  Bool_t posZdir = dir.z() > 0.0;
+  //Bool_t posZdir = dir.z() > 0.0;
   Bool_t negZdir = dir.z() <= -0.0;  // -0.0 is needed, see JIRA-150
 
   // TODO: consider use of copysign or some other standard function

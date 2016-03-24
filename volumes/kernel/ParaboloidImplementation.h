@@ -52,6 +52,8 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
     
     namespace ParaboloidUtilities
     {
+#if 0  // removed, as it was causing warnings on clang-3.6
+       // is it really needed?  'make test' passes at 100%
         template <class Backend>
         VECGEOM_INLINE
         VECGEOM_CUDA_HEADER_BOTH
@@ -62,6 +64,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
                                  typename Backend::precision_v &distance/*,
                                  typename Backend::bool_v in*/) {
                                  }
+#endif
     }
 
 class PlacedParaboloid;

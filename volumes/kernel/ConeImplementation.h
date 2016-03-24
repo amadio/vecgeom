@@ -200,8 +200,8 @@ struct ConeImplementation {
   }
 
 
-
-  // TODO: do we need both interfaces
+#if 0   // removed, as it was producing warnings in clang-3.6 -- passes 'make test' at 100%
+  // TODO: do we need both interfaces?
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -213,7 +213,7 @@ struct ConeImplementation {
  //   localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
  //   UnplacedInside<Backend>(unplaced, localPoint, inside);
   }
-
+#endif
 
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH

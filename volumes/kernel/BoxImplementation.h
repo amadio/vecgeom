@@ -199,8 +199,9 @@ struct BoxImplementation {
   static bool Intersect( Vector3D<Precision> const * corners,
           Vector3D<Precision> const &point,
           Vector3D<Precision> const &ray,
-          Precision t0,
-          Precision t1){
+          Precision /*t0*/,
+          Precision /*t1*/)
+  {
     // intersection algorithm 1 ( Amy Williams )
 
     Precision tmin, tmax, tymin, tymax, tzmin, tzmax;
