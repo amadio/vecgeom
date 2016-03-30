@@ -49,7 +49,6 @@ static void PrintImplementationType(Stream &s) {
 }
 
 template <typename Stream>
-VECGEOM_CUDA_HEADER_BOTH
 static void PrintUnplacedType(Stream &s) {
   s << "UnplacedSphere";
 }
