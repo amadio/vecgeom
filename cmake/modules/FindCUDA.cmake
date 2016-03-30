@@ -1732,8 +1732,8 @@ endif()
       add_custom_command(
         OUTPUT ${output_file}
         DEPENDS ${object_files}
-        COMMAND ${CUDA_NVCC_EXECUTABLE} ${nvcc_flags} ${nvcc_host_compiler_flags} -dlink ${object_files} -o ${output_file}
-        ${flags}
+        #NOTE: Added $<TARGET_PROPERTY:${cuda_target},CUDA_LIBRARY_DEPEND>
+        COMMAND ${CUDA_NVCC_EXECUTABLE} ${nvcc_flags} ${nvcc_host_compiler_flags} -dlink ${object_files} -o ${output_file} ${flags} $<TARGET_PROPERTY:${cuda_target},CUDA_LIBRARY_DEPEND>
         COMMENT "Building NVCC intermediate link file ${output_file_relative_path}"
         ${_verbatim}
         )
@@ -1750,6 +1750,37 @@ endif()
     endif()
  endif()
 endfunction()
+
+###############################################################################
+###############################################################################
+# ADD LIBRARY CUDA SPECIFIC DEPENDENCY
+###############################################################################
+###############################################################################
+#NOTE: This entire macro is added.
+macro(CUDA_ADD_LIBRARY_DEPEND cuda_target cuda_depend)
+
+   set(_lib_dependencies "")
+   foreach(arg ${cuda_depend})
+      # Using:
+      #   get_property(target_location TARGET ${arg} PROPERTY LOCATION)
+      # leads to:
+      #   LOCATION property may not be read from target "vecgeomcuda".  Use the
+      #   target name directly with add_custom_command, or use the generator
+      #   expression $<TARGET_FILE>, as appropriate.
+      # and using
+      #   $<TARGET_FILE:${arg}>
+      # leads to '$<' being expanded to the intermeidary target instead ...
+      if (TARGET ${arg})
+         message(FATAL_ERROR "In CUDA_ADD_LIBRARY_DEPEND specifying a target name is not yet supported (The target is: '${arg}')")
+         #set(_lib_dependencies ${_lib_dependencies} $<TARGET_FILE:${arg}> )
+      else()
+         set(_lib_dependencies ${_lib_dependencies} ${arg} )
+      endif()
+   endforeach()
+   set_property(TARGET ${cuda_target}
+                PROPERTY CUDA_LIBRARY_DEPEND ${_lib_dependencies})
+
+endmacro()
 
 ###############################################################################
 ###############################################################################
@@ -1772,12 +1803,25 @@ macro(CUDA_ADD_LIBRARY cuda_target)
   # compilation.
   CUDA_COMPUTE_SEPARABLE_COMPILATION_OBJECT_FILE_NAME(link_file ${cuda_target} "${${cuda_target}_SEPARABLE_COMPILATION_OBJECTS}")
 
-  # Add the library.
+  # Add the library for intermediary use
   add_library(${cuda_target} ${_cmake_options}
+    ${_generated_files}
+    ${_sources}
+    #NOTE: this is commented out from the original
+    # ${link_file}
+  )
+
+  # NOTE: this is a new statement
+  # Add the library for final use (link into executable or shared library)
+  add_library(${cuda_target}_final ${_cmake_options}
     ${_generated_files}
     ${_sources}
     ${link_file}
     )
+
+  # NOTE: these are two new statements
+  SET_TARGET_PROPERTIES(${cuda_target}_final PROPERTIES LINKER_LANGUAGE CXX)
+  target_link_libraries(${cuda_target}_final ${cuda_target})
 
   # Add a link phase for the separable compilation if it has been enabled.  If
   # it has been enabled then the ${cuda_target}_SEPARABLE_COMPILATION_OBJECTS
