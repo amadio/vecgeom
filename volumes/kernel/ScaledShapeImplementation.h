@@ -34,20 +34,20 @@ struct ScaledShapeImplementation {
      printf("SpecializedScaledShape<%i, %i>", transCodeT, rotCodeT);
   }
 
- template <typename Stream> static void PrintType(Stream &s) {
-   s << "SpecializedScaledShape<" << transCodeT << "," << rotCodeT << ","
-     << ">";
- }
+  template <typename Stream> static void PrintType(Stream &s) {
+    s << "SpecializedScaledShape<" << transCodeT << "," << rotCodeT << ","
+      << ">";
+  }
 
- template <typename Stream>
- static void PrintImplementationType(Stream &s) {
-   s << "SpecializedScaledShape<" << transCodeT << "," << rotCodeT << ">";
- }
+  template <typename Stream>
+  static void PrintImplementationType(Stream &s) {
+    s << "SpecializedScaledShape<" << transCodeT << "," << rotCodeT << ">";
+  }
 
- template <typename Stream>
- static void PrintUnplacedType(Stream &s) {
-   s << "UnplacedScaledShape";
- }
+  template <typename Stream>
+  static void PrintUnplacedType(Stream &s) {
+    s << "UnplacedScaledShape";
+  }
 
   template<typename Backend>
   VECGEOM_INLINE
