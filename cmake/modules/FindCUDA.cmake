@@ -1731,12 +1731,16 @@ endif()
    if (do_obj_build_rule)
       add_custom_command(
         OUTPUT ${output_file}
-        DEPENDS ${object_files}
+          # NOTE: adeed ${cuda_target}. the depedency is correct as ${output_file} is link against ${cuda_target}
+          # and then included in ${cuda_target}_final
+          # ADD_DEPENDENCIES(${output_file} )
+        DEPENDS ${object_files} ${cuda_target}  $<TARGET_PROPERTY:${cuda_target},CUDA_LIBRARY_DEPEND_TARGET>
         #NOTE: Added $<TARGET_PROPERTY:${cuda_target},CUDA_LIBRARY_DEPEND>
         COMMAND ${CUDA_NVCC_EXECUTABLE} ${nvcc_flags} ${nvcc_host_compiler_flags} -dlink ${object_files} -o ${output_file} ${flags} $<TARGET_PROPERTY:${cuda_target},CUDA_LIBRARY_DEPEND>
         COMMENT "Building NVCC intermediate link file ${output_file_relative_path}"
         ${_verbatim}
         )
+
     else()
       get_filename_component(output_file_dir "${output_file}" DIRECTORY)
       add_custom_command(
@@ -1757,10 +1761,11 @@ endfunction()
 ###############################################################################
 ###############################################################################
 #NOTE: This entire macro is added.
-macro(CUDA_ADD_LIBRARY_DEPEND cuda_target cuda_depend)
+macro(CUDA_ADD_LIBRARY_DEPEND cuda_target) # cuda_depend)
 
    set(_lib_dependencies "")
-   foreach(arg ${cuda_depend})
+   set(_lib_target_dependencies "")
+   foreach(arg ${ARGN})
       # Using:
       #   get_property(target_location TARGET ${arg} PROPERTY LOCATION)
       # leads to:
@@ -1770,15 +1775,19 @@ macro(CUDA_ADD_LIBRARY_DEPEND cuda_target cuda_depend)
       # and using
       #   $<TARGET_FILE:${arg}>
       # leads to '$<' being expanded to the intermeidary target instead ...
+      # So for now the user is forced to repeat :(
       if (TARGET ${arg})
-         message(FATAL_ERROR "In CUDA_ADD_LIBRARY_DEPEND specifying a target name is not yet supported (The target is: '${arg}')")
-         #set(_lib_dependencies ${_lib_dependencies} $<TARGET_FILE:${arg}> )
+         #message( "In CUDA_ADD_LIBRARY_DEPEND specifying a target name is not yet supported (The target is: '${arg}')")
+         set(_lib_target_dependencies ${_lib_target_dependencies} ${arg} )
       else()
+         #message( "In CUDA_ADD_LIBRARY_DEPEND specifying a NON target name is not yet supported (The target is: '${arg}')")
          set(_lib_dependencies ${_lib_dependencies} ${arg} )
       endif()
    endforeach()
    set_property(TARGET ${cuda_target}
                 PROPERTY CUDA_LIBRARY_DEPEND ${_lib_dependencies})
+   set_property(TARGET ${cuda_target}
+                PROPERTY CUDA_LIBRARY_TARGET_DEPEND ${_lib_target_dependencies})
 
 endmacro()
 
