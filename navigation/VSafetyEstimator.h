@@ -64,7 +64,7 @@ public:
   // interfaces to treat vectors/collections of points (uses the approach without intermediate storage; requires access
   // to new SIMD interface)
   virtual void ComputeVectorSafety(SOA3D<Precision> const & /*globalpoints*/, NavStatePool & /*states*/,
-                                   Precision * /*safeties*/) const {};
+                                   Precision * /*safeties*/) const = 0;
 
   virtual void ComputeSafetyForLocalPoints(SOA3D<Precision> const & /*localpoints*/, VPlacedVolume const * /*pvol*/,
                                            Precision * /*safeties*/) const = 0;
@@ -89,6 +89,13 @@ public:
     // std::cerr << "##### " << localpoint << "\n";
     // "suck in" algorithm from Impl
     return ((Impl *)this)->Impl::ComputeSafetyForLocalPoint(localpoint, state.Top());
+  }
+
+  // interfaces to treat vectors/collections of points (uses the approach without intermediate storage; requires access
+  // to new SIMD interface)
+  virtual void ComputeVectorSafety(SOA3D<Precision> const & /*globalpoints*/, NavStatePool & /*states*/,
+                                   Precision * /*safeties*/) const {
+     assert( 0 && "not implemented yet, requires access to new SIM interface" );
   }
 
   virtual void ComputeVectorSafety(SOA3D<Precision> const &globalpoints, NavStatePool &states,
