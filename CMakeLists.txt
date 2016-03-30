@@ -688,8 +688,9 @@ if (CUDA)
     ${SRC_USER_CUDA_CPP}
     OPTIONS ${CUDA_ARCH}
   )
+  cuda_add_library_depend(cudauserlib libvecgeomcuda.a)
   target_link_libraries(cudauserlib ${VECGEOM_LIBRARIES} ${VECGEOM_LIBRARIES_EXTERNAL})
-  set(USERKERNELLIB cudauserlib)
+  set(USERKERNELLIB cudauserlib_final)
 endif()
 ################################################################################
 
