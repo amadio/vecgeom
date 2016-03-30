@@ -404,7 +404,7 @@ if (CUDA)
   set(SRC_CUDA ${SRC_CUDA}
       source/CudaManager.cu)
 
-  set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${VECGEOM_NVCC_COMPILATION_FLAGS} --relocatable-device-code=true)
+  set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${VECGEOM_NVCC_COMPILATION_FLAGS})
 endif()
 
 ### CXXFLAGS needs to be set early, so that VECGEOM_GEANT4, VECGEOM_ROOT,
@@ -673,20 +673,14 @@ if (CUDA)
   cuda_add_library(
     vecgeomcuda
     ${SRC_CUDA}
-    OPTIONS ${CUDA_ARCH} -O0 -g -G -lineinfo
+    OPTIONS ${CUDA_ARCH}
+    # For debug information we might need
+    #    -O0 -g -G -lineinfo
     ${VECGEOM_NVCC_CONFIGS}
   )
   target_link_libraries(vecgeomcuda ${VECGEOM_LIBRARIES}
                         ${VECGEOM_LIBRARIES_EXTERNAL})
   set(VECGEOM_LIBRARIES ${VECGEOM_LIBRARIES} vecgeomcuda)
-
-  ADD_CUSTOM_TARGET(rawvecgeomcuda ALL DEPENDS  vecgeomcuda)
-  add_custom_command(TARGET rawvecgeomcuda
-  PRE_BUILD
-  COMMAND ${CMAKE_COMMAND} -E  echo ${vecgeomcuda_SEPARABLE_COMPILATION_OBJECTS}
-  COMMAND ${CMAKE_AR} cr librawvecgeomcuda.a ${vecgeomcuda_SEPARABLE_COMPILATION_OBJECTS}
-  COMMAND ${CMAKE_RANLIB} librawvecgeomcuda.a
-  )
 
 endif()
 
@@ -1089,7 +1083,6 @@ set(CONF_LIBRARIES ${VECGEOM_LIBRARIES_EXTERNAL}
     "${CONF_LIBRARY_DIR}/libvecgeom.a")
 if (CUDA)
    set(CONF_LIBRARIES "${CONF_LIBRARY_DIR}/libvecgeomcuda.a" ${CONF_LIBRARIES}  "${CONF_LIBRARY_DIR}/libvecgeomcuda.a")
-   set(CONF_LIBRARIES "${CONF_LIBRARY_DIR}/librawvecgeomcuda.a" ${CONF_LIBRARIES}  "${CONF_LIBRARY_DIR}/librawvecgeomcuda.a")
 endif()
 if (USolids)
   set(CONF_LIBRARIES ${CONF_LIBRARIES} "${CONF_LIBRARY_DIR}/libusolids.a")
@@ -1125,7 +1118,6 @@ else ()
 endif ()
 if (CUDA)
   install(TARGETS vecgeomcuda DESTINATION ${INSTALL_LIB_DIR})
-  install(FILES ${PROJECT_BINARY_DIR}/librawvecgeomcuda.a DESTINATION ${INSTALL_LIB_DIR})
 endif()
 
 
