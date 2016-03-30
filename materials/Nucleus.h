@@ -10,11 +10,6 @@
 #include <sstream>
 #include <math.h>
 
-using std::string;
-using std::vector;
-using std::map;
-using std::ostream;
-
 namespace vecgeom {
   
   VECGEOM_DEVICE_FORWARD_DECLARE( class Nucleus; )
@@ -24,7 +19,7 @@ namespace vecgeom {
 class Nucleus {
 public:
    class Decay;
-   Nucleus(string name, int n, int z, int iso, double a, double dm, double life, 
+   Nucleus(std::string name, int n, int z, int iso, double a, double dm, double life, 
            double natab, double toxa, double toxb, int ind1, int ind2);
 
    double A() const {return fA;}
@@ -39,25 +34,25 @@ public:
 
    static void CreateNuclei();
 
-   const vector<Decay> & DecayList() const {return fDecayList;}
+   const std::vector<Decay> & DecayList() const {return fDecayList;}
    
-   string Name() const {
+   std::string Name() const {
       std::stringstream ss;
       ss << fZ<<"-"<<fName<<"-"<<fN<<"-"<<fIso;
       return ss.str();
    }
 
-   static void ReadFile(string infilename, string outfilename="");
+   static void ReadFile(std::string infilename, std::string outfilename="");
 
    void NormDecay();
 
-   friend ostream& operator<<(ostream& os, const Nucleus& nuc);
+   friend std::ostream& operator<<(std::ostream& os, const Nucleus& nuc);
 
    void AddDecay(int da, int dz, int diso, double qval, double br);
 
-   static const map<int,Nucleus*> & Nuclei() {return fNuclei;}
-   static const map<int,vector<Nucleus*> > & IsoList() {return fIsoList;}
-   static const map<int,vector<Nucleus*> > & NatIsoList() {return fNatIsoList;}
+   static const std::map<int,Nucleus*> & Nuclei() {return fNuclei;}
+   static const std::map<int,std::vector<Nucleus*> > & IsoList() {return fIsoList;}
+   static const std::map<int,std::vector<Nucleus*> > & NatIsoList() {return fNatIsoList;}
    
    class Decay {
    public:
@@ -76,7 +71,7 @@ public:
       double Qval() const {return fQval;}
       double Br() const {return fBr;}
       void Br(double br) {fBr = br;}
-      const string Name() const;
+      const std::string Name() const;
 
    private:
       int fDa;
@@ -87,11 +82,11 @@ public:
    };
 
 private:
-  static void Getmat(string line, int &n, int &z, int &iso, string &name, double &a, double &dm, double &life, int &da,
+   static void Getmat(std::string line, int &n, int &z, int &iso, std::string &name, double &a, double &dm, double &life, int &da,
                      int &dz, int &diso, double &br, double &qval, double &natab, double &toxa, double &toxb, int &ind1,
                      int &ind2);
 
-   string fName;  // Name
+   std::string fName;  // Name
    int fN;        // Nucleon number
    int fZ;        // Atomic number
    int fIso;      // Isomer level
@@ -103,11 +98,11 @@ private:
    double fToxb;  // Radiotoxicity
    int fInd1;     // Misterious index 1
    int fInd2;     // Misterious index 2
-   vector<Decay>  fDecayList; // Decay channels
+   std::vector<Decay>  fDecayList; // Decay channels
 
-   static map<int,Nucleus*> fNuclei;              // Nuclei list indexed by 10,000*z + 10*n + iso
-   static map<int,vector<Nucleus*> > fIsoList;    // List of isotopes for a given z
-   static map<int,vector<Nucleus*> > fNatIsoList; // List of stable isotopes for a given z
+   static std::map<int,Nucleus*> fNuclei;              // Nuclei list indexed by 10,000*z + 10*n + iso
+   static std::map<int,std::vector<Nucleus*> > fIsoList;    // List of isotopes for a given z
+   static std::map<int,std::vector<Nucleus*> > fNatIsoList; // List of stable isotopes for a given z
 
 };
 

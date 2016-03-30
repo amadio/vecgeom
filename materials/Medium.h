@@ -19,11 +19,6 @@
 #include <iostream>
 #include <vector>
 
-using std::string;
-using std::vector;
-using std::cout;
-using std::endl;
-
 #include "base/Global.h"
 
 namespace vecgeom {
@@ -43,20 +38,20 @@ public:
  
    // Getters and setters
    Material* GetMaterial() const {return fMat;}
-   string Name() const {return fName;}
+   std::string Name() const {return fName;}
    bool IsUsed() const {return fUsed;}
    void Used(bool used=true) {fUsed=used;}
    const char* GetName() const {return fName.c_str();}
-   void Dump() const {cout << "To be implemented" << endl;}
-   static vector<Medium*>& GetMedia() {return fMedDB;}
+   void Dump() const {std::cout << "To be implemented" << std::endl;}
+   static std::vector<Medium*>& GetMedia() {return fMedDB;}
 
 private:
    Medium(const Medium&);      // Not implemented
    Medium& operator=(const Medium&);      // Not implemented
 
-   static vector<Medium*> fMedDB;
+   static std::vector<Medium*> fMedDB;
 
-   string fName; // name of the material
+   std::string fName; // name of the material
    bool fUsed; // whether the material is used or not
    Material *fMat; //Material
    double fParams[20]; // Parameters

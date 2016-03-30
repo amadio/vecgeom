@@ -103,7 +103,7 @@ void FlattenAssemblies(TGeoNode *node, std::list<TGeoNode *> &nodeaccumulator, T
       TGeoNodeMatrix *newnode = new TGeoNodeMatrix(node->GetVolume(), newmatrix);
 
       // need a new name for the flattened node
-      std::string *newname = new ::string(node->GetName());
+      std::string *newname = new std::string(node->GetName());
       *newname += "_assemblyinternalcount_" + std::to_string(count);
       newnode->SetName(newname->c_str());
       nodeaccumulator.push_back(newnode);
@@ -224,10 +224,10 @@ LogicalVolume *RootGeoManager::Convert(TGeoVolume const *const volume) {
 
 Medium *RootGeoManager::Convert(TGeoMedium const *const medium) {
   // Check whether medium is already there
-  vector<Medium *> media = Medium::GetMedia();
-  for (vector<Medium *>::iterator m = media.begin(); m != media.end(); ++m) {
+  std::vector<Medium *> media = Medium::GetMedia();
+  for (auto m = media.begin(); m != media.end(); ++m) {
     //      std::cout << "Name " << (*m)->Name() << " " << medium->GetName() << std::endl;
-    if ((*m)->Name() == string(medium->GetName()))
+    if ((*m)->Name() == std::string(medium->GetName()))
       return (*m);
   }
 
@@ -244,9 +244,9 @@ Medium *RootGeoManager::Convert(TGeoMedium const *const medium) {
 }
 
 Material *RootGeoManager::Convert(TGeoMaterial const *const material) {
-  vector<Material *> materials = Material::GetMaterials();
-  for (vector<Material *>::iterator m = materials.begin(); m != materials.end(); ++m)
-    if ((*m)->GetName() == string(material->GetName()))
+  auto materials = Material::GetMaterials();
+  for (auto m = materials.begin(); m != materials.end(); ++m)
+    if ((*m)->GetName() == std::string(material->GetName()))
       return (*m);
   Material *vmat = 0;
   int nelem = material->GetNelements();

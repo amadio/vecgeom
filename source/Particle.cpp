@@ -41,7 +41,7 @@ char *strncpy(char *dest, const char *src, size_t n)
 #endif
  
 #ifndef VECGEOM_NVCC
-ostream& operator<<(ostream& os, const Particle& part)
+std::ostream& operator<<(std::ostream& os, const Particle& part)
 {
    os << part.fName << "(" << part.fPDG << ") Class:" << part.fClass << " Q:" << part.fCharge << " m:" << part.fMass
       << " lt:" << part.fLife << " I:" << (int) part.fIsospin << " I3:" << (int) part.fIso3 << " S:" << (int) part.fStrange 
@@ -145,13 +145,13 @@ Particle::Particle(const char* name, int pdg, bool matter, const char* pclass, i
 
 //________________________________________________________________________________________________
 #ifndef VECGEOM_NVCC
-void Particle::ReadFile(string infilename, string outfilename) {
+void Particle::ReadFile(std::string infilename, std::string outfilename) {
    int count;
-   string name;
+   std::string name;
    int pdg;
    bool matter;
    int pcode;
-   string pclass;
+   std::string pclass;
    int charge;
    double mass, width;
    int isospin, iso3, strange, flavor, track, ndecay;
@@ -161,10 +161,10 @@ void Particle::ReadFile(string infilename, string outfilename) {
    int kfunc=0;
    
    bool output=!outfilename.empty();
-   ofstream outfile;
+   std::ofstream outfile;
    if(output) outfile.open(outfilename);
    ifstream infile(infilename);
-   string line;
+   std::string line;
 
    int np=0;
    while(getline(infile,line)) {
@@ -275,10 +275,10 @@ void Particle::ReadFile(string infilename, string outfilename) {
 	 }
 	 ++kcount;
 	 const Particle &part = p->second;
-	 string name(part.Name());
+	 std::string name(part.Name());
 	 outfile << endl << "   // Creating " << name << endl;
 	 size_t quote = name.find_first_of("\\\"");
-	 if(quote != string::npos) 
+	 if(quote != std::string::npos) 
 	    name = name.substr(0,quote) + "\\\"" + name.substr(quote+1,name.size()-quote);
 	 outfile << "   new Particle(" 
 	      << "\"" << name << "\", "
@@ -331,13 +331,13 @@ void Particle::ReadFile(string infilename, string outfilename) {
    }
 }
 //________________________________________________________________________________________________
-void Particle::GetDecay(const string &line, int &dcount, Decay &decay) {
+void Particle::GetDecay(const std::string &line, int &dcount, Decay &decay) {
    int dtype;
    double br;
    int ndec;
    int daughter;
 
-   stringstream ss(line);
+   std::stringstream ss(line);
    decay.Clear();
    ss >> dcount;
    ss >> dtype;
@@ -376,8 +376,8 @@ void Particle::NormDecay() {
 }
 
 //________________________________________________________________________________________________
-void Particle::GetPart(const string &line, int &count, string &name, int &pdg, bool &matter, int &pcode, 
-		       string &pclass, int &charge, double &mass, double &width, int &isospin, int &iso3, 
+void Particle::GetPart(const std::string &line, int &count, std::string &name, int &pdg, bool &matter, int &pcode, 
+		       std::string &pclass, int &charge, double &mass, double &width, int &isospin, int &iso3, 
 		       int &strange, int &flavor, int &track, int &ndecay, int &ipart, int &acode)
 {
    
@@ -428,7 +428,7 @@ void Particle::GetPart(const string &line, int &count, string &name, int &pdg, b
       ss >> ndecay;
    }
 }
-ostream& operator<<(ostream& os, const Particle::Decay& dec)
+std::ostream& operator<<(std::ostream& os, const Particle::Decay& dec)
 {
    os << "Type " << static_cast<int>(dec.fType) << " br " << dec.fBr << " products: ";
    for(unsigned int i=0; i<dec.fDaughters.size(); ++i)

@@ -17,11 +17,11 @@ using std::setfill;
 namespace vecgeom {
   inline namespace VECGEOM_IMPL_NAMESPACE {
   
-map<int,Nucleus*> Nucleus::fNuclei;
-map<int,vector<Nucleus*> > Nucleus::fIsoList;
-map<int,vector<Nucleus*> > Nucleus::fNatIsoList;
+std::map<int,Nucleus*> Nucleus::fNuclei;
+std::map<int,std::vector<Nucleus*> > Nucleus::fIsoList;
+std::map<int,std::vector<Nucleus*> > Nucleus::fNatIsoList;
 
-ostream& operator<<(ostream& os, const Nucleus& nuc)
+std::ostream& operator<<(std::ostream& os, const Nucleus& nuc)
 {
    os << nuc.Name() << ": A=" << nuc.fA;
    if(nuc.fNatab > 0) os << " Ab=" << nuc.fNatab;
@@ -31,7 +31,7 @@ ostream& operator<<(ostream& os, const Nucleus& nuc)
 }
 
 //________________________________________________________________________________________________
-Nucleus::Nucleus(string name, int n, int z, int iso, double a, double dm, double life, 
+Nucleus::Nucleus(std::string name, int n, int z, int iso, double a, double dm, double life, 
 		 double natab, double toxa, double toxb, int ind1, int ind2): 
    fName(name), fN(n), fZ(z), fIso(iso), fA(a), fIsolevel(dm), fLife(life),
    fNatab(natab), fToxa(toxa), fToxb(toxb), fInd1(ind1), fInd2(ind2) {
@@ -49,8 +49,8 @@ Nucleus::Nucleus(string name, int n, int z, int iso, double a, double dm, double
 }
 
 //________________________________________________________________________________________________
-void Nucleus::ReadFile(string infilename, string outfilename) {
-   string name;
+void Nucleus::ReadFile(std::string infilename, std::string outfilename) {
+   std::string name;
    int n,z,iso;
    double a, dm, life;
    int da, dz, diso;
@@ -61,10 +61,10 @@ void Nucleus::ReadFile(string infilename, string outfilename) {
    int kfunc=0;
    
    bool output=!outfilename.empty();
-   ofstream outfile;
+  std:: ofstream outfile;
    if(output) outfile.open(outfilename);
-   ifstream infile(infilename);
-   string line;
+   std::ifstream infile(infilename);
+   std::string line;
    getline(infile,line);  // Get title
    Nucleus *nuc=0;
    if(output) {
@@ -106,7 +106,7 @@ void Nucleus::ReadFile(string infilename, string outfilename) {
       }
    }
    
-   for(map<int,Nucleus*>::const_iterator inuc=Nucleus::Nuclei().begin(); inuc != Nucleus::Nuclei().end(); ++inuc) 
+   for(auto inuc=Nucleus::Nuclei().begin(); inuc != Nucleus::Nuclei().end(); ++inuc) 
       inuc->second->NormDecay();
    
    if(output) {
@@ -134,10 +134,10 @@ void Nucleus::ReadFile(string infilename, string outfilename) {
 //________________________________________________________________________________________________
 void Nucleus::NormDecay() {
    double brt=0;
-   for(vector<Decay>::iterator idec=fDecayList.begin(); idec!=fDecayList.end(); ++idec) 
+   for(auto idec=fDecayList.begin(); idec!=fDecayList.end(); ++idec) 
       brt += idec->Br();
    brt = 1/brt;
-   for(vector<Decay>::iterator idec=fDecayList.begin(); idec!=fDecayList.end(); ++idec) 
+   for(auto idec=fDecayList.begin(); idec!=fDecayList.end(); ++idec) 
       idec->Br(100*idec->Br()*brt);
 }
 
@@ -153,7 +153,7 @@ void Nucleus::AddDecay(int da, int dz, int diso, double qval, double br) {
    if(!found) fDecayList.push_back(dec);
 }
 
-void Nucleus::Getmat(string line, int &n, int &z, int &iso, string &name, double &a, double &dm, double &life, int &da,
+void Nucleus::Getmat(std::string line, int &n, int &z, int &iso, std::string &name, double &a, double &dm, double &life, int &da,
                      int &dz, int &diso, double &br, double &qval, double &natab, double &toxa, double &toxb, int &ind1,
                      int &ind2) {
    int beg=5;
@@ -232,8 +232,8 @@ void Nucleus::Getmat(string line, int &n, int &z, int &iso, string &name, double
 }
 
 //________________________________________________________________________________________________
-const string Nucleus::Decay::Name() const {
-   stringstream name;
+const std::string Nucleus::Decay::Name() const {
+   std::stringstream name;
    name << "(" <<fBr<<"%) ";
    if(fDz == -2 && fDa == -4) {
       name<< "Alpha";

@@ -22,10 +22,8 @@ using vecgeom::map;
 using vecgeom::Vector;
 #else
 using std::map;
-using std::string;
 using std::vector;
 #endif
-using std::ostream;
 
 namespace vecgeom {
   
@@ -97,7 +95,7 @@ VECGEOM_CUDA_HEADER_BOTH
    const Vector<Decay> & DecayList() const {return fDecayList;}
 #endif
 #ifndef VECGEOM_NVCC
-   static void ReadFile(string infilename, string outfilename="");
+   static void ReadFile(std::string infilename, std::string outfilename="");
 #endif
 VECGEOM_CUDA_HEADER_BOTH
   static void CreateParticle();
@@ -127,7 +125,7 @@ VECGEOM_CUDA_HEADER_DEVICE
 #ifndef VECGEOM_NVCC
    void NormDecay();
 
-   friend ostream& operator<<(ostream& os, const Particle& part);
+   friend std::ostream& operator<<(std::ostream& os, const Particle& part);
    
 #endif
 VECGEOM_CUDA_HEADER_BOTH
@@ -183,7 +181,7 @@ VECGEOM_CUDA_HEADER_BOTH
       void AddDaughter(int daughter) {fDaughters.push_back(daughter);}
 
 #ifndef VECGEOM_NVCC
-      friend ostream& operator<<(ostream& os, const Decay& dec);
+   friend std::ostream& operator<<(std::ostream& os, const Decay& dec);
 #else
    VECGEOM_CUDA_HEADER_BOTH
       Decay operator=(const Decay &dec) {
@@ -203,11 +201,11 @@ VECGEOM_CUDA_HEADER_BOTH
 private:
 
 #ifndef VECGEOM_NVCC  
-   static void GetPart(const string &line, int &count, string &name, int &pdg, bool &matter, int &pcode, 
-		       string &pclass, int &charge, double &mass, double &width, int &isospin, int &iso3, 
+   static void GetPart(const std::string &line, int &count, std::string &name, int &pdg, bool &matter, int &pcode, 
+		       std::string &pclass, int &charge, double &mass, double &width, int &isospin, int &iso3, 
 		       int &strange, int &flavor, int &track, int &ndecay, int &ipart, int &acode);
 
-   static void GetDecay(const string &line, int &dcount, Decay &decay);
+   static void GetDecay(const std::string &line, int &dcount, Decay &decay);
 #endif
    char fName[256];  // Name
    int fPDG;      // PDG code

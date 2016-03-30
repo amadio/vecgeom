@@ -13956,7 +13956,7 @@ void Nucleus::CreateNuclei() {
   CreateNuclei0061();
   CreateNuclei0062();
 
-   for(map<int,Nucleus*>::const_iterator inuc=Nucleus::Nuclei().begin(); inuc != Nucleus::Nuclei().end(); ++inuc)
+   for(auto inuc=Nucleus::Nuclei().begin(); inuc != Nucleus::Nuclei().end(); ++inuc)
       inuc->second->NormDecay();
 }
  } // End of inline namespace

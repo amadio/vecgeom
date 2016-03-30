@@ -17,8 +17,6 @@
 #include <string>
 #include <iostream>
 
-using std::vector;
-
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( template <typename T> class LorentzVector; )
