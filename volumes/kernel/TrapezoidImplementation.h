@@ -40,19 +40,16 @@ struct TrapezoidImplementation {
   }
 
   template <typename Stream>
-  VECGEOM_CUDA_HEADER_BOTH
   static void PrintType( Stream & s ) {
     s << "SpecializedTrapezoid<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
-  VECGEOM_CUDA_HEADER_BOTH
   static void PrintImplementationType(Stream &s) {
     s << "TrapezoidImplemenation<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
-  VECGEOM_CUDA_HEADER_BOTH
   static void PrintUnplacedType(Stream &s) { s << "UnplacedTrapezoid"; }
 
   template <class Backend>

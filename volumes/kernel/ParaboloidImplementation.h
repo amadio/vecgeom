@@ -81,19 +81,16 @@ struct ParaboloidImplementation {
     }
 
     template <typename Stream>
-    VECGEOM_CUDA_HEADER_BOTH
     static void PrintType(Stream &s) {
       s << "SpecializedParaboloid<" << transCodeT << "," << rotCodeT << ">";
     }
 
     template <typename Stream>
-    VECGEOM_CUDA_HEADER_BOTH
     static void PrintImplementationType(Stream &s) {
       s << "ParaboloidImplemenation<" << transCodeT << "," << rotCodeT << ">";
     }
 
     template <typename Stream>
-    VECGEOM_CUDA_HEADER_BOTH
     static void PrintUnplacedType(Stream &s) { s << "UnplacedParaboloid"; }
 
     /// \brief Inside method that takes account of the surface for an Unplaced Paraboloid
