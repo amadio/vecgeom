@@ -38,6 +38,8 @@ char *strncpy(char *dest, const char *src, size_t n)
     return ret;
 }
 
+#else
+std::map<int,Particle>* Particle::fParticles;
 #endif
 
 #ifndef VECGEOM_NVCC
