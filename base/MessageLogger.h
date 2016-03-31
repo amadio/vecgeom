@@ -51,11 +51,14 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
         mtx.lock();
         os << sevname[sev] << "=>" << classname << "::" << methodname << ": " << line;
         os.flush();
-        gMessageCount[sev][std::string(classname) + "::" + methodname][line] += 1;
+#ifndef VECGEOM_NVCC
+       gMessageCount[sev][std::string(classname) + "::" + methodname][line] += 1;
+#endif
         mtx.unlock();
         return os;
       }
 
+#ifndef VECGEOM_NVCC
       void summary(std::ostream &os, const std::string opt) const {
         if (opt.find("a") != std::string::npos) {
           os << std::string("\n================================== Detailed summary of messages "
@@ -71,6 +74,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
         os << std::string("================================================================================================="
                      "======\n");
       }
+#endif
 
     private:
       const char *const sevname[5] = {"Information", "Warning    ", "Error      ", "Fatal      ", "Debug      "};
@@ -78,8 +82,9 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
       MessageLogger(const MessageLogger&); // not implemented
       MessageLogger& operator=(const MessageLogger&); // not implemented
       static MessageLogger* gMessageLogger;
-      static map<logging_severity,map<std::string,map<std::string,int> > > gMessageCount;
-
+#ifndef VECGEOM_NVCC
+      static Map_t gMessageCount;
+#endif
    };
 
 }
