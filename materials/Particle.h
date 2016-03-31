@@ -17,16 +17,10 @@
 
 #include <iostream>
 
-#ifdef VECGEOM_NVCC
-using vecgeom::map;
-using vecgeom::Vector;
-#else
-using std::map;
-using std::vector;
-#endif
 
 namespace vecgeom {
-  
+
+
   VECGEOM_DEVICE_FORWARD_DECLARE( class Material; )
   VECGEOM_DEVICE_FORWARD_DECLARE( class Particle; )
   
@@ -34,13 +28,25 @@ namespace vecgeom {
  
 #ifdef VECGEOM_NVCC
 class Particle; 
-extern VECGEOM_CUDA_HEADER_DEVICE map<int,Particle> *fParticlesDev;              // Particle list indexed by PDG code
-extern  map<int,Particle> *fParticlesHost;              // Particle list indexed by PDG code
+extern VECGEOM_CUDA_HEADER_DEVICE vecgeom::map<int,Particle> *fParticlesDev;              // Particle list indexed by PDG code
+extern vecgeom::map<int,Particle> *fParticlesHost;              // Particle list indexed by PDG code
 #endif
 
 class Particle {
 public:
+
    class Decay;
+#ifdef VECGEOM_NVCC
+   using Map_t = vecgeom::map<int,Particle>;
+   using VectorDecay_t = vecgeom::Vector<Decay>;
+   using VectorInt_t = vecgeom::Vector<int>;
+#else
+   using Map_t = std::map<int,Particle>;
+   using VectorDecay_t = std::vector<Decay>;
+   using VectorInt_t = std::vector<int>;
+#endif
+
+
    VECGEOM_CUDA_HEADER_BOTH
    Particle();
    VECGEOM_CUDA_HEADER_BOTH
@@ -89,11 +95,7 @@ public:
 VECGEOM_CUDA_HEADER_BOTH
    void SetCode(int code) {fCode = code;}
    
-#ifndef VECGEOM_NVCC
-   const vector<Decay> & DecayList() const {return fDecayList;}
-#else
-   const Vector<Decay> & DecayList() const {return fDecayList;}
-#endif
+   const VectorDecay_t & DecayList() const {return fDecayList;}
 #ifndef VECGEOM_NVCC
    static void ReadFile(std::string infilename, std::string outfilename="");
 #endif
@@ -131,14 +133,14 @@ VECGEOM_CUDA_HEADER_DEVICE
 VECGEOM_CUDA_HEADER_BOTH
    void AddDecay(const Decay &decay) {fDecayList.push_back(decay); fNdecay = fDecayList.size();}
 VECGEOM_CUDA_HEADER_BOTH
-   static const map<int,Particle> & Particles() {
+   static const Map_t& Particles() {
    #ifndef VECGEOM_NVCC
-   return *fParticles;
+     return *fParticles;
    #else
    #ifndef VECGEOM_NVCC_DEVICE
-   return *fParticlesHost;
+     return *fParticlesHost;
    #else
-   return *fParticlesDev;
+     return *fParticlesDev;
    #endif
    #endif
    }
@@ -149,12 +151,8 @@ VECGEOM_CUDA_HEADER_BOTH
       Decay(): fType(0), fBr(0) {}
 VECGEOM_CUDA_HEADER_BOTH
       Decay(const Decay & other): fType(other.fType), fBr(other.fBr), fDaughters(other.fDaughters) {}
-#ifndef VECGEOM_NVCC
-      Decay(int type, double br, const vector<int>& daughters): fType(type), fBr(br), fDaughters(daughters) {}
-#else
 VECGEOM_CUDA_HEADER_BOTH
-      Decay(int type, double br, const Vector<int>& daughters): fType(type), fBr(br), fDaughters(daughters) {}
-#endif
+      Decay(int type, double br, const VectorInt_t& daughters): fType(type), fBr(br), fDaughters(daughters) {}
 VECGEOM_CUDA_HEADER_BOTH
       void Clear() {fType = 0; fBr = 0; fDaughters.clear();}
 
@@ -162,12 +160,8 @@ VECGEOM_CUDA_HEADER_BOTH
       int Type() const {return fType;}
 VECGEOM_CUDA_HEADER_BOTH
       double Br() const {return fBr;}
-#ifndef VECGEOM_NVCC
-      const vector<int> &Daughters() const {return fDaughters;}
-#else
 VECGEOM_CUDA_HEADER_BOTH
-      const Vector<int> &Daughters() const {return fDaughters;}
-#endif
+      const VectorInt_t &Daughters() const {return fDaughters;}
 VECGEOM_CUDA_HEADER_BOTH
       int NDaughters() const {return fDaughters.size();}
 VECGEOM_CUDA_HEADER_BOTH
@@ -191,11 +185,7 @@ VECGEOM_CUDA_HEADER_BOTH
    private:
       char fType;
       float fBr;
-#ifndef VECGEOM_NVCC
-      vector<int> fDaughters;
-#else
-      Vector<int> fDaughters;
-#endif
+      VectorInt_t fDaughters;
    };
 
 private:
@@ -223,13 +213,9 @@ private:
    char  fTrack;   // Track code (?)
    unsigned char fNdecay;  // Number of decay channels
    short fCode;    // Particle code for a given MC
+   VectorDecay_t  fDecayList; // Decay channels
 #ifndef VECGEOM_NVCC
-   vector<Decay>  fDecayList; // Decay channels
-#else
-   Vector<Decay>  fDecayList; // Decay channels
-#endif
-#ifndef VECGEOM_NVCC
-   static map<int,Particle> *fParticles;              // Particle list indexed by PDG code
+   static Map_t *fParticles;              // Particle list indexed by PDG code
 #endif
 
 };

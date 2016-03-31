@@ -4,7 +4,12 @@
 #include "materials/Particle.h"
 #ifdef VECGEOM_NVCC
 #include "base/Vector.h"
+template <typename T>
+using vector = vecgeom::Vector<T>;
+#else
+using std::vector;
 #endif
+
 namespace vecgeom {
    inline namespace VECGEOM_IMPL_NAMESPACE {
 

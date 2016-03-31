@@ -71,40 +71,40 @@ Particle::Particle(const char* name, int pdg, bool matter, const char* pclass, i
    strncpy ( fClass, pclass, 255 );
    fClass[255]='\0';
 
-   #ifndef VECGEOM_NVCC
-   if(!fParticles) fParticles=new map<int,Particle>;
-   if(fParticles->count(fPDG) != 0) {
+#ifndef VECGEOM_NVCC
+   if (!fParticles) fParticles = new Map_t;
+   if (fParticles->count(fPDG) != 0) {
       printf("Particle %d already there\n", fPDG); 
       return;
    }
 
-   if(fWidth > 0) fLife = kPlankBar/fWidth;
+   if (fWidth > 0) fLife = kPlankBar/fWidth;
    else fLife = 0;
    (*fParticles)[fPDG] = *this;
-  #else
-   #ifndef VECGEOM_NVCC_DEVICE
-   if(!fParticlesHost) fParticlesHost=new map<int,Particle>;
-   if(fParticlesHost->count(fPDG) != 0) {
+#else
+ #ifndef VECGEOM_NVCC_DEVICE
+   if (!fParticlesHost) fParticlesHost = new Map_t;
+   if (fParticlesHost->count(fPDG) != 0) {
       printf("Particle %d already there\n", fPDG); 
       return;
    }
 
-   if(fWidth > 0) fLife = kPlankBar/fWidth;
+   if (fWidth > 0) fLife = kPlankBar/fWidth;
    else fLife = 0;
    (*fParticlesHost)[fPDG] = *this;
 
-   #else
-   if(!fParticlesDev) fParticlesDev=new map<int,Particle>;
-   if(fParticlesDev->count(fPDG) != 0) {
+ #else
+   if (!fParticlesDev) fParticlesDev = new Map_t;
+   if (fParticlesDev->count(fPDG) != 0) {
       printf("Particle %d already there\n", fPDG); 
       return;
    }
 
-   if(fWidth > 0) fLife = kPlankBar/fWidth;
+   if (fWidth > 0) fLife = kPlankBar/fWidth;
    else fLife = 0;
    (*fParticlesDev)[fPDG] = *this;
-   #endif
-  #endif
+ #endif
+#endif
 
 }
    VECGEOM_CUDA_HEADER_BOTH
@@ -208,7 +208,7 @@ void Particle::ReadFile(std::string infilename, std::string outfilename) {
 		  exit(1);
 	       }
 	    }
-	    vector<Decay> decaylist;
+	    VectorDecay_t decaylist;
 	    decaylist.clear();
 	    for(int i=0; i< ndecay; ++i) {
 	       getline(infile,line);
@@ -241,7 +241,7 @@ void Particle::ReadFile(std::string infilename, std::string outfilename) {
 		      p.Strange()==0?0:-p.Strange(), p.Flavor()==0?0:-p.Flavor(), p.Track());
 	 Particle &part = fParticles->at(pdg);
 	 Decay decay;
-	 vector<Particle::Decay>  dl = p.DecayList();
+	 auto  dl = p.DecayList();
 	 for(int i=0; i<p.Ndecay(); ++i) {
 	    decay.Clear();
 	    decay.SetType(dl.at(i).Type());
@@ -263,7 +263,7 @@ void Particle::ReadFile(std::string infilename, std::string outfilename) {
       outfile << "   inline namespace VECGEOM_IMPL_NAMESPACE {" << endl << endl;
 
       bool partdef = false;
-      for(map<int,Particle>::const_iterator p=Particle::Particles().begin(); p != Particle::Particles().end(); ++p) {
+      for(auto p=Particle::Particles().begin(); p != Particle::Particles().end(); ++p) {
 	 if(kcount%ksplit ==0) {
 	    if(kcount > 0) {
 	       outfile << "}" << endl << endl;
@@ -301,7 +301,7 @@ void Particle::ReadFile(std::string infilename, std::string outfilename) {
 	       partdef = true;
 	    }
 	    outfile << "   part = const_cast<Particle*>(&Particle::Particles().at(" << part.PDG() << "));" << endl;
-	    for(vector<Decay>::const_iterator d=part.DecayList().begin(); d!=part.DecayList().end(); ++d) {
+	    for(VectorDecay_t::const_iterator d=part.DecayList().begin(); d!=part.DecayList().end(); ++d) {
 	       outfile << "   part->AddDecay(Particle::Decay(" << d->Type() << ", " << d->Br() << ", "
 		       << " vector<int>{";
 	       for(int i=0; i<d->NDaughters(); ++i) {
@@ -357,11 +357,11 @@ void Particle::NormDecay() {
 
    int ndec = fDecayList.size();
    if(ndec) {
-      for(vector<Decay>::iterator idec=fDecayList.begin(); idec!=fDecayList.end(); ++idec) 
+      for(VectorDecay_t::iterator idec=fDecayList.begin(); idec!=fDecayList.end(); ++idec)
 	 brt += idec->Br();
       if(brt) {
 	 brt = 1/brt;
-	 for(vector<Decay>::iterator idec=fDecayList.begin(); idec!=fDecayList.end(); ++idec) 
+	 for(VectorDecay_t::iterator idec=fDecayList.begin(); idec!=fDecayList.end(); ++idec)
 	    idec->SetBr(idec->Br()*brt);
 	 for(unsigned int i=0; i<fDecayList.size()-1; ++i)
 	    for(unsigned int j=i+1; j<fDecayList.size(); ++j)

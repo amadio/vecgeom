@@ -10,10 +10,8 @@
 #include <iostream>
 #ifndef VECGEOM_NVCC
 #include <map>
-using std::map;
 #else
 #include "base/Map.h"
-using vecgeom::map;
 #endif
 
 namespace vecgeom {
@@ -24,8 +22,14 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
    */
    class MessageLogger {
    public:
-      
+
       typedef enum {kInfo=0, kWarning, kError, kFatal, kDebug} logging_severity;
+#ifndef VECGEOM_NVCC
+      using Map_t = std::map<logging_severity,std::map<std::string,std::map<std::string,int> > >;
+#else
+      // Also need to use an alternative to std::string ...
+      using Map_t = vecgeom::map<logging_severity,vecgeom::map<std::string,map<std::string,int> > >;
+#endif
       
       static MessageLogger* I() {
         static std::mutex mtx;
