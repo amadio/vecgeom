@@ -53,14 +53,14 @@ template void DevicePtr<cuda::map<double,MyClass> >::Construct() const;
 } // End cxx namespace
 }
 
-void launchTestNew(vecgeom::cxx::DevicePtr<vecgeom::cuda::map<double,MyClass> > &devMap, 
+void launchTestNew(vecgeom::cxx::DevicePtr<vecgeom::cuda::map<double,MyClass> > &devMap,
                    vecgeom::cxx::DevicePtr<double> key, int N, int nBlocks, int nThreads) {
    int threadsPerBlock = nThreads;
    int blocksPerGrid   = nBlocks;
    testNew<<< blocksPerGrid, threadsPerBlock >>>(devMap,key, N);
 }
 
-void launchRebuildMap(vecgeom::cxx::DevicePtr<vecgeom::cuda::map<double,MyClass> > &devMap, 
+void launchRebuildMap(vecgeom::cxx::DevicePtr<vecgeom::cuda::map<double,MyClass> > &devMap,
                       vecgeom::cxx::DevicePtr<double> key, vecgeom::cxx::DevicePtr<MyClass> value, int N, int nBlocks, int nThreads) {
    int threadsPerBlock = nThreads;
    int blocksPerGrid   = nBlocks;

@@ -23,11 +23,11 @@ namespace vecgeom {
 
   VECGEOM_DEVICE_FORWARD_DECLARE( class Material; )
   VECGEOM_DEVICE_FORWARD_DECLARE( class Particle; )
-  
+
     inline  namespace VECGEOM_IMPL_NAMESPACE {
- 
+
 #ifdef VECGEOM_NVCC
-class Particle; 
+class Particle;
 extern VECGEOM_CUDA_HEADER_DEVICE vecgeom::map<int,Particle> *fParticlesDev;              // Particle list indexed by PDG code
 extern vecgeom::map<int,Particle> *fParticlesHost;              // Particle list indexed by PDG code
 #endif
@@ -94,7 +94,7 @@ public:
 
 VECGEOM_CUDA_HEADER_BOTH
    void SetCode(int code) {fCode = code;}
-   
+
    const VectorDecay_t & DecayList() const {return fDecayList;}
 #ifndef VECGEOM_NVCC
    static void ReadFile(std::string infilename, std::string outfilename="");
@@ -128,7 +128,7 @@ VECGEOM_CUDA_HEADER_DEVICE
    void NormDecay();
 
    friend std::ostream& operator<<(std::ostream& os, const Particle& part);
-   
+
 #endif
 VECGEOM_CUDA_HEADER_BOTH
    void AddDecay(const Decay &decay) {fDecayList.push_back(decay); fNdecay = fDecayList.size();}
@@ -166,7 +166,7 @@ VECGEOM_CUDA_HEADER_BOTH
       int NDaughters() const {return fDaughters.size();}
 VECGEOM_CUDA_HEADER_BOTH
       int Daughter(int i) const {return fDaughters[i];}
-      
+
 VECGEOM_CUDA_HEADER_BOTH
       void SetType(int type) {fType = type;}
 VECGEOM_CUDA_HEADER_BOTH
@@ -190,9 +190,9 @@ VECGEOM_CUDA_HEADER_BOTH
 
 private:
 
-#ifndef VECGEOM_NVCC  
-   static void GetPart(const std::string &line, int &count, std::string &name, int &pdg, bool &matter, int &pcode, 
-		       std::string &pclass, int &charge, double &mass, double &width, int &isospin, int &iso3, 
+#ifndef VECGEOM_NVCC
+   static void GetPart(const std::string &line, int &count, std::string &name, int &pdg, bool &matter, int &pcode,
+		       std::string &pclass, int &charge, double &mass, double &width, int &isospin, int &iso3,
 		       int &strange, int &flavor, int &track, int &ndecay, int &ipart, int &acode);
 
    static void GetDecay(const std::string &line, int &dcount, Decay &decay);

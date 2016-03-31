@@ -7,7 +7,7 @@ using vecgeom::RNG;
 #include "backend/cuda/Interface.h"
 
 class MyClass {
- private: 
+ private:
   float fData;
  public:
  VECGEOM_CUDA_HEADER_BOTH
@@ -43,7 +43,7 @@ void testStd(int size, double* keys,MyClass* values) {
 
    for (int i=0; i < size; ++i)
       printf("From std map= %f and with find %f\n",stdMap[keys[i]],stdMap.find(keys[i])->second);
-   
+
 }
 */
 
@@ -51,7 +51,7 @@ int main() {
    const int kSize = 50;
    double* mapKeys = new double[kSize];
    MyClass* mapValues =new MyClass[kSize]   ;
-   
+
    for (int i=0; i < kSize; ++i) {
       mapValues[i] = MyClass(getRandom());
       mapKeys[i] = getRandom();
@@ -88,7 +88,7 @@ int main() {
    if(cudaSuccess!=cudaGetLastError()) {
       printf("ERROR MEMCPY values\n");
    }
-   
+
    printf(" rebuild map\n");
    launchRebuildMap(devMap, mapKeysDev,mapValuesDev,kSize,1,1);
    launchTestNew(devMap, mapKeysDev,kSize,1,1);

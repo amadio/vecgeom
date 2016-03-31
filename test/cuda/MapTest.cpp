@@ -24,7 +24,7 @@ void testStd(int size, double* keys,double* values) {
 
    for (int i=0; i < size; ++i)
       printf("From std map= %f and with find %f\n",stdMap[keys[i]],stdMap.find(keys[i])->second);
-   
+
 }
 
 
@@ -32,7 +32,7 @@ int main() {
    const int kSize = 50;
    double* mapKeys = new double[kSize];
    double* mapValues =new double[kSize]   ;
-   
+
    for (int i=0; i < kSize; ++i) {
       mapValues[i] = getRandom();
       mapKeys[i] = getRandom();
@@ -69,7 +69,7 @@ int main() {
    if(cudaSuccess!=cudaGetLastError()) {
       printf("ERROR MEMCPY values\n");
    }
-   
+
    printf(" rebuild map\n");
    launchRebuildMap(devMap, mapKeysDev,mapValuesDev,kSize,1,1);
    launchTestNew(devMap, mapKeysDev,kSize,1,1);

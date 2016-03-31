@@ -11,15 +11,15 @@
 #include <math.h>
 
 namespace vecgeom {
-  
+
   VECGEOM_DEVICE_FORWARD_DECLARE( class Nucleus; )
-  
+
     inline namespace VECGEOM_IMPL_NAMESPACE {
-  
+
 class Nucleus {
 public:
    class Decay;
-   Nucleus(std::string name, int n, int z, int iso, double a, double dm, double life, 
+   Nucleus(std::string name, int n, int z, int iso, double a, double dm, double life,
            double natab, double toxa, double toxb, int ind1, int ind2);
 
    double A() const {return fA;}
@@ -35,7 +35,7 @@ public:
    static void CreateNuclei();
 
    const std::vector<Decay> & DecayList() const {return fDecayList;}
-   
+
    std::string Name() const {
       std::stringstream ss;
       ss << fZ<<"-"<<fName<<"-"<<fN<<"-"<<fIso;
@@ -53,7 +53,7 @@ public:
    static const std::map<int,Nucleus*> & Nuclei() {return fNuclei;}
    static const std::map<int,std::vector<Nucleus*> > & IsoList() {return fIsoList;}
    static const std::map<int,std::vector<Nucleus*> > & NatIsoList() {return fNatIsoList;}
-   
+
    class Decay {
    public:
       Decay(int da, int dz, int diso, double qval, double br): fDa(da), fDz(dz), fDiso(diso),

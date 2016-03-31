@@ -125,8 +125,8 @@ public:
     _M_t = __x._M_t;
     return *this; 
   }
- 
- //key/value compare funtions
+
+  //key/value compare funtions
   VECGEOM_CUDA_HEADER_BOTH
   key_compare key_comp() const { return _M_t.key_comp(); }
   VECGEOM_CUDA_HEADER_BOTH

@@ -46,19 +46,19 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   Vector(Vector const &other): fSize(other.fSize),fMemorySize(other.fMemorySize),fAllocated(true){
-      fData = new Type[fMemorySize]; 
+      fData = new Type[fMemorySize];
       for (size_t i = 0; i < fSize; ++i) fData[i] = other.fData[i];
-  } 
+  }
 
   VECGEOM_CUDA_HEADER_BOTH
   Vector(std::initializer_list<Type> entries) {
     fSize = entries.size();
     fData = new Type[fSize];
-    fMemorySize = entries.size()*sizeof(Type); 
-    for  (auto itm : entries) this->push_back(itm); 
+    fMemorySize = entries.size()*sizeof(Type);
+    for  (auto itm : entries) this->push_back(itm);
    }
 
- 
+
   VECGEOM_CUDA_HEADER_BOTH
   ~Vector() {
     if (fAllocated) delete[] fData;
@@ -129,28 +129,28 @@ public:
   void resize (int newsize, Type value) {
       Type *temp = new Type[newsize];
       if (newsize <= fSize) {
-         for (int i=0;i<newsize; ++i) 
+         for (int i=0;i<newsize; ++i)
              temp[i]=fData[i];
          delete fData;
          fData = new Type[newsize];
          fSize = newsize;
-         for (int i=0;i<newsize; ++i) 
+         for (int i=0;i<newsize; ++i)
             fData[i]=temp[i];
       } else {
-         for (int i=0;i<fSize; ++i) 
+         for (int i=0;i<fSize; ++i)
             temp[i]=fData[i];
          delete fData;
          fData = new Type[newsize];
          for (int i =0; i<fSize; ++i ) fData[i] = temp[i];
          for (int i =fSize; i<newsize; ++i ) fData[i] = value;
-     }     
+     }
      fSize = newsize;
      delete temp;
   }
 #ifdef VECGEOM_CUDA_INTERFACE
   DevicePtr<cuda::Vector<CudaType_t<Type> > > CopyToGpu(
      DevicePtr<CudaType_t<Type> > const gpu_ptr_arr,
-     DevicePtr<cuda::Vector<CudaType_t<Type> > > const gpu_ptr) const 
+     DevicePtr<cuda::Vector<CudaType_t<Type> > > const gpu_ptr) const
   {
      gpu_ptr.Construct(gpu_ptr_arr, size());
      return gpu_ptr;
