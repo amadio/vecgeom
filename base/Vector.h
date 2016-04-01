@@ -131,7 +131,7 @@ public:
       if (newsize <= fSize) {
          for (int i=0;i<newsize; ++i)
              temp[i]=fData[i];
-         delete fData;
+         delete[] fData;
          fData = new Type[newsize];
          fSize = newsize;
          for (int i=0;i<newsize; ++i)
@@ -139,13 +139,13 @@ public:
       } else {
          for (int i=0;i<fSize; ++i)
             temp[i]=fData[i];
-         delete fData;
+         delete[] fData;
          fData = new Type[newsize];
          for (int i =0; i<fSize; ++i ) fData[i] = temp[i];
          for (int i =fSize; i<newsize; ++i ) fData[i] = value;
      }
      fSize = newsize;
-     delete temp;
+     delete[] temp;
   }
 #ifdef VECGEOM_CUDA_INTERFACE
   DevicePtr<cuda::Vector<CudaType_t<Type> > > CopyToGpu(
