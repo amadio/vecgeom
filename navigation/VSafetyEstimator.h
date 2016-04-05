@@ -17,7 +17,6 @@
 #include "volumes/PlacedVolume.h"
 #include "volumes/LogicalVolume.h"
 
-
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -46,10 +45,10 @@ public:
   virtual Precision ComputeSafetyForLocalPoint(Vector3D<Precision> const & /*localpoint*/,
                                                VPlacedVolume const * /*pvol*/) const = 0;
 
-  // in addition useful to offer an explicit SIMD interface
-  // which could be used from other clients (such as VNavigator when it treats basket data)
-  // the mask is supposed to indicate which lane needs a safety result since often the track is
-  // on a boundary where the safety is zero anyway
+// in addition useful to offer an explicit SIMD interface
+// which could be used from other clients (such as VNavigator when it treats basket data)
+// the mask is supposed to indicate which lane needs a safety result since often the track is
+// on a boundary where the safety is zero anyway
 #ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
   virtual VECGEOM_BACKEND_PRECISION_TYPE
   ComputeSafetyForLocalPoint(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const & /*localpoint*/,
@@ -77,8 +76,7 @@ public:
 
 //! template class providing a standard implementation for
 //! some interfaces in VSafetyEstimator (using the CRT pattern)
-template <typename Impl>
-class VSafetyEstimatorHelper : public VSafetyEstimator {
+template <typename Impl> class VSafetyEstimatorHelper : public VSafetyEstimator {
 
 public:
   virtual Precision ComputeSafety(Vector3D<Precision> const &globalpoint, NavigationState const &state) const override {
@@ -94,15 +92,15 @@ public:
   // interfaces to treat vectors/collections of points (uses the approach without intermediate storage; requires access
   // to new SIMD interface)
   virtual void ComputeVectorSafety(SOA3D<Precision> const & /*globalpoints*/, NavStatePool & /*states*/,
-                                   Precision * /*safeties*/) const {
-     assert( 0 && "not implemented yet, requires access to new SIM interface" );
+                                   Precision * /*safeties*/) const override {
+    assert(0 && "not implemented yet, requires access to new SIM interface");
   }
 
   virtual void ComputeVectorSafety(SOA3D<Precision> const &globalpoints, NavStatePool &states,
                                    SOA3D<Precision> &localpointworkspace, Precision *safeties) const override {
     // calculate local point from global point
     auto np = globalpoints.size();
-    for (auto i=decltype(np){0}; i < np; ++i) {
+    for (auto i = decltype(np){0}; i < np; ++i) {
       Transformation3D m;
       states[i]->TopMatrix(m);
       localpointworkspace.set(i, m.Transform(globalpoints[i]));
@@ -115,6 +113,7 @@ public:
 
   virtual const char *GetName() const override { return GetClassName(); }
 }; // end class VSafetyEstimatorHelper
-}} // end namespaces
+}
+} // end namespaces
 
 #endif /* NAVIGATION_VSAFETYESTIMATOR_H_ */
