@@ -219,12 +219,13 @@ public:
 
       // update smin,smax
       Bool_t validVdist = (smin<vdist[i] && vdist[i]<smax);
-      MaskedAssign( interceptFromOutside && validVdist, vdist[i], &smin );
-      MaskedAssign( interceptFromInside  && validVdist, vdist[i], &smax );
+      MaskedAssign( !done && interceptFromOutside && validVdist, vdist[i], &smin );
+      MaskedAssign( !done && interceptFromInside  && validVdist, vdist[i], &smax );
     }
 
-    // Return smin, which is the maximum distance in an interceptFromOutside situation
-    return smin;
+    // Survivors will return smin, which is the maximum distance in an interceptFromOutside situation
+    MaskedAssign( !done, smin, &distIn);
+    return distIn;
   }
 
   /// \return the distance to the planar shell when the point is located within the shell itself.
