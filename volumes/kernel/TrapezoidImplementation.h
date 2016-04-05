@@ -303,7 +303,6 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToIn(
   MaskedAssign( test && zrange,      -1.0, &smin );
   MaskedAssign( test && zrange, kInfinity, &smax );
 
-
   //
   // Step 2: find distances for intersections with side planes.
   //
@@ -332,25 +331,23 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToIn(
   Bool_t hitplanarshell = (disttoplanes > smin) && (disttoplanes < smax);
   MaskedAssign( !done && hitplanarshell, disttoplanes, &distance);
 
-  // finally check whether entry point is globally valid --> if not, return infinity
+  // finally check whether entry point candidate is globally valid
+  // --> if it is, entry point should be on the surface.
+  //     if entry point candidate is completely outside, track misses the solid --> return infinity
   Vector3D<Float_t> entry = point + distance*dir;
   Bool_t complIn, complOut;
   GenericKernelForContainsAndInside<Backend,true>( unplaced, entry, complIn, complOut );
-  MaskedAssign( complOut, kInfinity, &distance );
-#ifdef TOINDEBUG
-  std::cout<<" trap D2I(): pt6: entry="<< entry <<", complIn="<< complIn <<", complOut="<< complOut <<" --> distance="<< distance <<"\n";
-#endif
+  MaskedAssign( !done && complOut, kInfinity, &distance );
 
 #else
-  //   If dist is such that smin < dist < smax, then adjust either smin or smax.
-
+  // here for VECGEOM_PLANESHELL_DISABLE
   TrapSidePlane const* fPlanes = unplaced.GetPlanes();
 
   // loop over side planes - find pdist,Comp for each side plane
   Float_t pdist[4], comp[4], vdist[4];
   // auto-vectorizable part of loop
   for (unsigned int i = 0; i < 4; ++i) {
-      // Note: normal vector is pointing outside the volume (convention), therefore
+    // Note: normal vector is pointing outside the volume (convention), therefore
     // pdist>0 if point is outside  and  pdist<0 means inside
     pdist[i] = fPlanes[i].fA * point.x() + fPlanes[i].fB * point.y()
       + fPlanes[i].fC * point.z() + fPlanes[i].fD;
@@ -359,12 +356,24 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToIn(
     // Comp > 0 if pointing ~same direction as normal and Comp<0 if ~opposite to normal
     comp[i] = fPlanes[i].fA * dir.x() + fPlanes[i].fB * dir.y() + fPlanes[i].fC * dir.z();
 
-    vdist[i] = -pdist[i]/comp[i];
+    vdist[i] = -pdist[i] / comp[i];
   }
+
+  // wrong-side check: if (inside && smin<0) return -1
+  Bool_t inside = smin < MakeMinusTolerant<true>(0.0)
+               && smax > MakePlusTolerant<true>(0.0);
+
+  for(int i=0; i<4; ++i) {
+    inside &= pdist[i] < MakeMinusTolerant<true>(0.0);
+  }
+  MaskedAssign( inside, -1.0, &distance );
+  done |= inside;
+  if(Backend::early_returns && IsFull(done)) return;
 
   // this part does not auto-vectorize
   for(unsigned int i=0; i<4; ++i) {
-    Bool_t posPoint = pdist[i] >= MakeMinusTolerant<true>(0.);
+    // if outside and moving away, return infinity
+    Bool_t posPoint = pdist[i] > MakeMinusTolerant<true>(0.);
     Bool_t posDir = comp[i] > 0;
 
     // discard the ones moving away from this plane
@@ -379,27 +388,15 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToIn(
     done |= ( interceptFromOutside && vdist[i]>smax );
     if ( Backend::early_returns && IsFull(done) ) return;
 
-    // update smin,smax
+    //   If dist is such that smin < dist < smax, then adjust either smin or smax.
     Bool_t validVdist = (vdist[i]>smin && vdist[i]<smax);
-    MaskedAssign( interceptFromInside  && validVdist, vdist[i], &smax );
-    MaskedAssign( interceptFromOutside && validVdist, vdist[i], &smin );
-  }
-
-  // check that entry point found is valid -- cannot be outside (may happen when track is parallel to a face)
-  Vector3D<typename Backend::precision_v> entry = point + dir*smin;
-  Bool_t valid = Backend::kTrue;
-  for(unsigned int i=0; i<4; ++i) {
-    Float_t dist = fPlanes[i].fA * entry.x() + fPlanes[i].fB * entry.y()
-      + fPlanes[i].fC * entry.z() + fPlanes[i].fD;
-
-    // valid here means if it is not outside plane, or pdist[i]<=0.
-    valid &= (dist <= MakePlusTolerant<true>(0.));
+    MaskedAssign( !done && interceptFromInside  && validVdist, vdist[i], &smax );
+    MaskedAssign( !done && interceptFromOutside && validVdist, vdist[i], &smin );
   }
 
   // Checks in non z plane intersections ensure smin<smax
-  MaskedAssign(!done && valid && smin>=0, smin, &distance);
-  MaskedAssign(!done && smin<0,   0.0, &distance);
-#endif
+  MaskedAssign( !done , smin, &distance );
+#endif // end of #ifdef PLANESHELL
 }
 
 
@@ -462,7 +459,9 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToOut(
 
   // reconcile sides with endcaps
   MaskedAssign( disttoplanes<distance, disttoplanes, &distance );
+
 #else
+  //=== Here for VECGEOM_PLANESHELL_DISABLE
   TrapSidePlane const* fPlanes = unplaced.GetPlanes();
 
   // loop over side planes - find pdist,Comp for each side plane
@@ -480,18 +479,17 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToOut(
     vdist[i] = -pdist[i] / comp[i];
   }
 
+  // early return if point is outside of plane
+  for (unsigned int i=0; i<4; ++i) {
+    done |= ( pdist[i] > MakePlusTolerant<true>(0.));
+  }
+  MaskedAssign( done, -1.0, &distance );
+  if (Backend::early_returns && IsFull(done)) return;
+
   for (unsigned int i = 0; i < 4; ++i) {
-    Bool_t inside = (pdist[i] < MakeMinusTolerant<true>(0.));
-    Bool_t posComp = comp[i] > 0;
-
-    Bool_t test = (!inside && posComp);
-    MaskedAssign( !done && test, 0.0, &distance );
-    done |= ( distance == 0.0 );
-    if ( IsFull(done) ) return;
-
     // if point is inside, pointing towards plane and vdist<distance, then distance=vdist
-    test = inside && posComp;
-    MaskedAssign(!done && test && vdist[i]<distance, vdist[i], &distance);
+    Bool_t test = (vdist[i] >= MakeMinusTolerant<true>(0.)) && comp[i]>0.0 && vdist[i]<distance;
+    MaskedAssign(!done && test, vdist[i], &distance);
   }
 #endif
 }
@@ -544,9 +542,8 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::SafetyToOut(
 
   Bool_t done(false);
 
+  // If point is outside (wrong-side) --> safety to negative value
   safety = unplaced.GetDz() - Abs(point.z());
-
-  // Wrong-side points --> return a negative value
   done |= (safety < kHalfTolerance);
 
   // If all test points are outside, we're done
@@ -574,6 +571,7 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::SafetyToOut(
 #endif
 }
 
-} } // End global namespace
+} // End of inline VECGEOM_IMPL_NAMESPACE namespace
+} // End global namespace
 
 #endif // VECGEOM_VOLUMES_KERNEL_TRAPEZOIDIMPLEMENTATION_H_
