@@ -525,8 +525,6 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::SafetyToIn(
   for (int i = 0; i < 4; ++i) {
     MaskedAssign( Dist[i]>safety, Dist[i], &safety );
   }
-
-  MaskedAssign( safety < 0, 0.0, &safety );
 #endif
 }
 
