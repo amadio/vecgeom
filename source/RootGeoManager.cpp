@@ -466,8 +466,8 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape) {
     const double *vertices = p->GetVertices();
     Precision verticesx[8], verticesy[8];
     for (auto ivert = 0; ivert < 8; ++ivert) {
-      verticesx[ivert] = vertices[8 * ivert];
-      verticesy[ivert] = vertices[8 * ivert + 1];
+      verticesx[ivert] = vertices[2 * ivert];
+      verticesy[ivert] = vertices[2 * ivert + 1];
     }
     unplaced_volume = new UnplacedGenTrap(verticesx, verticesy, p->GetDz());
   }
