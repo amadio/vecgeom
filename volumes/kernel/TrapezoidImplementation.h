@@ -555,18 +555,17 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::SafetyToOut(
 #else
   // Loop over side planes
   TrapSidePlane const* fPlanes = unplaced.GetPlanes();
-  typedef typename Backend::precision_v Float_t;
 
   // auto-vectorizable loop
-  Float_t Dist[4];
+  typename Backend::precision_v Dist[4];
   for (int i = 0; i < 4; ++i) {
     Dist[i] = -(fPlanes[i].fA * point.x() + fPlanes[i].fB * point.y()
-             + fPlanes[i].fC * point.z() + fPlanes[i].fD);
+		+ fPlanes[i].fC * point.z() + fPlanes[i].fD);
   }
 
   // unvectorizable loop
   for (int i = 0; i < 4; ++i) {
-    MaskedAssign( !done && Dist[i]>0.0 && Dist[i] < safety, Dist[i], &safety );
+    MaskedAssign( !done && Dist[i] < safety, Dist[i], &safety );
   }
 #endif
 }
