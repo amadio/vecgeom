@@ -106,7 +106,7 @@ bool TestSphere() {
     Dist=b4.SafetyFromOutside(pbigx);
     assert(ApproxEqual(Dist,100-8));
     
-    //SafetyFromInside return 0 if point is outside 
+    //SafetyFromInside return -1 if point is outside 
     Dist=b4.SafetyFromInside(pzero);
     assert(Dist < 0.);
         
