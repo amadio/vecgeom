@@ -23,7 +23,6 @@
 #include "TGeoMatrix.h"
 #include "TGeoManager.h"
 #endif
-#include <cassert>
 
 #ifdef VECGEOM_GEANT4
 #include "management/G4GeoManager.h"

@@ -3,6 +3,8 @@
 // TestSphere
 //             Ensure asserts are compiled in
 
+// ensure asserts are compiled in
+#undef NDEBUG
 
 #include "base/Global.h"
 #include "base/Vector3D.h"
@@ -16,10 +18,6 @@
 #endif
 #include <cmath>
 #include <iomanip> 
-
-
-#undef NDEBUG
-#include <cassert>
 
 #define PI 3.14159265358979323846
 #define deg PI/180.
@@ -405,12 +403,12 @@ bool TestSphere() {
 
     Sphere_t s6("John example",300,500,0,5.76,0,PI) ; 
     Sphere_t s7("sphere7",1400.,1550.,0.022321428571428572,0.014642857142857141,
-	                  1.5631177553663251,0.014642857142857141    );
+                      1.5631177553663251,0.014642857142857141    );
     Sphere_t s8("sphere",278.746, 280.0, 0.0*deg, 360.0*deg,
-	                               0.0*deg, 90.0*deg);
+                                   0.0*deg, 90.0*deg);
     Sphere_t b216("b216", 1400.0, 1550.0, 
                   0.022321428571428572, 
-		  0.014642857142857141,
+          0.014642857142857141,
                   1.578117755366325,
                   0.014642857142867141);
 
@@ -432,12 +430,12 @@ bool TestSphere() {
               v216(-0.61254821852534425,-0.51164551429243466,-0.60249775741147549);
 
     Vec_t s9p(384.8213314370455,
-	       134.264386151667,
-	       -44.56026800002064);
+           134.264386151667,
+           -44.56026800002064);
 
     Vec_t s9v(-0.6542770611918751,
-		   -0.0695116921641141,
-		   -0.7530535517814154);
+           -0.0695116921641141,
+           -0.7530535517814154);
 
     Sphere_t s10("s10",0,0.018,0*deg,360*deg,0*deg,180*deg);
 
@@ -514,7 +512,7 @@ bool TestSphere() {
     //       <<inside<<std::endl ;
 
     inside = s8.Inside(Vec_t(-249.5020724528353,
-					       26.81253142743162,
+                           26.81253142743162,
                                               114.8988524453591  )  ) ;
     // std::cout<<"s8.Inside(Vec_t(-249.5020 ... = "<<inside<<std::endl ;
     inside = b216.Inside(p216);
@@ -950,7 +948,7 @@ bool TestSphere() {
     assert(ApproxEqual(Dist,58.452994616207498));
 
     Dist=b1046.DistanceToIn(Vec_t(0.,0.,4800*1e6),vmz);
-	assert(ApproxEqual(Dist,0.));
+    assert(ApproxEqual(Dist,0.));
     //std::cout<<"b1046.DistanceToIn(Vec_t(0.,0.,4800*km),vmz... = "<<Dist<<std::endl;
     //if( Dist >= UUtils::kInfinity ) Dist = UUtils::Infinity(); 
     //assert(ApproxEqual(Dist,UUtils::Infinity()));
@@ -973,11 +971,11 @@ bool TestSphere() {
        if(sntest.Inside(in1) != vecgeom::EInside::kOutside)
        {std::cout<<std::setprecision(25);
        
-	 Dist=sntest.DistanceToOut(in1,dir12,norm,convex);
-	
-	double diff=Dist-length;
+     Dist=sntest.DistanceToOut(in1,dir12,norm,convex);
 
-	if(diff > 1e-6)
+    double diff=Dist-length;
+
+    if(diff > 1e-6)
     {
         std::cout<<" i="<<i<<" Dout="<<Dist<<" dif="<< Dist-length<<std::endl;
         std::cout<<"In-1 : "<<in1<<"  :: Dir : "<<dir12<<std::endl;
@@ -1092,16 +1090,16 @@ std::cout<<"--------------------------------------------------------------------
 
     assert(sntest.Inside(northPolePoint) == vecgeom::EInside::kSurface);
     
-	assert(sntest.Inside(southPolePoint) == vecgeom::EInside::kOutside);
-	
-	assert(sntest.Inside(px) == vecgeom::EInside::kInside);
-	assert(sntest.Inside(py) == vecgeom::EInside::kInside);
-	//std::cout<<"Location of Px : "<<sntest.Inside(px)<<std::endl;
+    assert(sntest.Inside(southPolePoint) == vecgeom::EInside::kOutside);
 
-	assert(sntest.Inside(pz) == vecgeom::EInside::kInside);
-	assert(sntest.Inside(-pz) == vecgeom::EInside::kOutside);
-	assert(sntestB.Inside(pz) == vecgeom::EInside::kOutside);
-	assert(sntestB.Inside(-pz) == vecgeom::EInside::kInside);
+    assert(sntest.Inside(px) == vecgeom::EInside::kInside);
+    assert(sntest.Inside(py) == vecgeom::EInside::kInside);
+    //std::cout<<"Location of Px : "<<sntest.Inside(px)<<std::endl;
+
+    assert(sntest.Inside(pz) == vecgeom::EInside::kInside);
+    assert(sntest.Inside(-pz) == vecgeom::EInside::kOutside);
+    assert(sntestB.Inside(pz) == vecgeom::EInside::kOutside);
+    assert(sntestB.Inside(-pz) == vecgeom::EInside::kInside);
     return true;
 
 }

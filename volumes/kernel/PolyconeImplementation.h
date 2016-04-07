@@ -13,7 +13,6 @@
 #include "base/Transformation3D.h"
 #include "volumes/UnplacedPolycone.h"
 #include "volumes/kernel/ConeImplementation.h"
-#include <cassert>
 #include <cstdio>
 
 //#define POLYCONEDEBUG 1
@@ -74,6 +73,21 @@ struct PolyconeImplementation {
     ConeImplementation< translation::kIdentity, rotation::kIdentity,
                         ConeTypes::UniversalCone>::GenericKernelForContainsAndInside<Backend,ForInside>(
                           *sec.fSolid, secLocalp, secFullyInside, secFullyOutside );
+  }
+
+  template <typename Stream>
+  static void PrintType(Stream &s) {
+    s << "SpecializedPolycone<" << transCodeT << "," << rotCodeT << ">";
+  }
+
+  template <typename Stream>
+  static void PrintImplementationType(Stream &s) {
+      s << "PolyconeImplementation<" << transCodeT << "," << rotCodeT << ">";
+  }
+
+  template <typename Stream>
+  static void PrintUnplacedType(Stream &s) {
+    s << "UnplacedPolycone";
   }
 
   /////GenericKernel Contains/Inside implementation

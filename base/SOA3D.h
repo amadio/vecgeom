@@ -11,6 +11,8 @@
 #include "backend/cuda/Interface.h"
 #endif
 
+#include <fstream>
+
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( template <typename Type> class SOA3D; )
@@ -153,6 +155,9 @@ public:
   DevicePtr< cuda::SOA3D<T> > CopyToGpu(DevicePtr<T> xGpu, DevicePtr<T> yGpu, DevicePtr<T> zGpu, size_t size) const;
 #endif // VECGEOM_CUDA
 
+  void ToFile(std::string /*filename*/) const;
+  void FromFile(std::string /*filename*/);
+
 private:
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -250,7 +255,7 @@ size_t SOA3D<T>::capacity() const { return fCapacity; }
 
 template <typename T>
 void SOA3D<T>::resize(size_t newSize) {
-  Assert(newSize <= fCapacity);
+  assert(newSize <= fCapacity);
   fSize = newSize;
 }
 
@@ -359,7 +364,7 @@ T const* SOA3D<T>::z() const { return fZ; }
 template <typename T>
 VECGEOM_CUDA_HEADER_BOTH
 void SOA3D<T>::set(size_t index, T xval, T yval, T zval) {
-  Assert(index < fCapacity, "Invalid index beyond fCapacity");
+  assert(index < fCapacity);
   fX[index] = xval;
   fY[index] = yval;
   fZ[index] = zval;
@@ -369,7 +374,7 @@ void SOA3D<T>::set(size_t index, T xval, T yval, T zval) {
 template <typename T>
 VECGEOM_CUDA_HEADER_BOTH
 void SOA3D<T>::set(size_t index, Vector3D<T> const &vec) {
-  Assert(index < fCapacity, "Invalid index beyond fCapacity");
+  assert(index < fCapacity);
   fX[index] = vec[0];
   fY[index] = vec[1];
   fZ[index] = vec[2];
@@ -389,6 +394,33 @@ VECGEOM_CUDA_HEADER_BOTH
 void SOA3D<T>::push_back(Vector3D<T> const &vec) {
   push_back(vec[0], vec[1], vec[2]);
 }
+
+template <typename T>
+void SOA3D<T>::ToFile(std::string filename) const {
+  std::ofstream outfile(filename, std::ios::binary);
+  outfile.write(reinterpret_cast<const char *>(&fSize), sizeof(fSize));
+  outfile.write(reinterpret_cast<const char *>(&fCapacity), sizeof(fCapacity));
+  outfile.write(reinterpret_cast<char *>(fX), fCapacity * sizeof(T));
+  outfile.write(reinterpret_cast<char *>(fY), fCapacity * sizeof(T));
+  outfile.write(reinterpret_cast<char *>(fZ), fCapacity * sizeof(T));
+}
+
+template <typename T>
+void SOA3D<T>::FromFile(std::string filename) {
+  // should be called on an already allocated object
+  decltype(fSize) s;
+  decltype(fCapacity) cap;
+  std::ifstream fin(filename, std::ios::binary);
+  fin.read(reinterpret_cast<char *>(&s), sizeof(s));
+  fin.read(reinterpret_cast<char *>(&cap), sizeof(cap));
+//  if (cap != fCapacity || s != fSize)
+//    std::cerr << " warning: reading from SOA3D with different size\n";
+
+  fin.read(reinterpret_cast<char *>(fX), fCapacity * sizeof(T));
+  fin.read(reinterpret_cast<char *>(fY), fCapacity * sizeof(T));
+  fin.read(reinterpret_cast<char *>(fZ), fCapacity * sizeof(T));
+}
+
 
 #ifdef VECGEOM_CUDA_INTERFACE
 

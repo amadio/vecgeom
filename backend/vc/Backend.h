@@ -210,10 +210,19 @@ VcInt Max(VcInt const &val1, VcInt const &val2) {
   return Vc::max(val1, val2);
 }
 
+VECGEOM_INLINE
+VcPrecision CopySign(VcPrecision const& x, VcPrecision const& y) {
+  return Vc::copysign(x,y);
+}
 
 VECGEOM_INLINE
 VcPrecision Floor( VcPrecision const &val ){
   return Vc::floor( val );
+}
+
+VECGEOM_INLINE
+VcBool IsInf( VcPrecision x ) {
+  return Vc::isinf(x);
 }
 
 } // End inline namespace

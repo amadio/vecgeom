@@ -183,8 +183,21 @@ struct TorusImplementation2 {
 
   VECGEOM_CUDA_HEADER_BOTH
   static void PrintType() {
-     printf("SpecializedTorus<%i, %i>", transCodeT, rotCodeT);
+     printf("SpecializedTorus2<%i, %i>", transCodeT, rotCodeT);
   }
+
+  template <typename Stream>
+  static void PrintType(Stream &s) {
+    s << "SpecializedTorus2<" << transCodeT << "," << rotCodeT << "," << ">";
+  }
+
+  template <typename Stream>
+  static void PrintImplementationType(Stream &s) {
+    s << "TorusImplemenation2<" << transCodeT << "," << rotCodeT << ">";
+  }
+
+  template <typename Stream>
+  static void PrintUnplacedType(Stream &s) { s << "UnplacedTorus2"; }
 
   /////GenericKernel Contains/Inside implementation
   template <typename Backend, bool ForInside, bool notForDisk>
@@ -338,7 +351,7 @@ T CheckZero(T b, T c, T d, T e, T x){
 
 template <class T>
 VECGEOM_CUDA_HEADER_BOTH
-static T NewtonIter(T b, T c, T d, T e, T x, T fold) {
+static T NewtonIter(T b, T c, T d, T /*e*/, T x, T fold) {
   T x2 = x * x;
   T fprime = 4 * x2 * x + 3 * b * x2 + 2 * c * x + d;
   return x - fold / fprime;
@@ -657,6 +670,8 @@ static T DistSqrToTorusR(UnplacedTorus2 const &torus, Vector3D<T> const &point, 
       din = ToBoundary<Backend,true>(torus,point,dir,torus.rmin(),true);
     }
     distance = Min(dout,din);
+    if (distance >= kInfinity)
+      distance = -1.;
 
     if( hasphi )
     {

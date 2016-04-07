@@ -31,6 +31,8 @@ private:
   Precision fHalfY1plusY2;
   Precision fCalfX, fCalfY;
   Precision fSecxz, fSecyz;
+  Precision fToleranceX;    // Corrected tolerance for Inside checks on X
+  Precision fToleranceY;    // Corrected tolerance for Inside checks on Y
 
   Precision fFx, fFy;
 
@@ -48,6 +50,8 @@ private:
 
     fCalfX = 1./Sqrt(1.0+fFx*fFx);
     fCalfY = 1./Sqrt(1.0+fFy*fFy);
+    fToleranceX = kTolerance * Sqrt(fX2minusX1*fX2minusX1 + 4*fDZ*fDZ);
+    fToleranceY = kTolerance * Sqrt(fX2minusX1*fX2minusX1 + 4*fDZ*fDZ);
   }
 
 public:
@@ -163,6 +167,14 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision calfy() const { return fCalfY; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision ToleranceX() const { return fToleranceX; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision ToleranceY() const { return fToleranceY; }
 
   virtual int memory_size() const final { return sizeof(*this); }
 

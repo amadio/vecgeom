@@ -22,6 +22,9 @@ void PlacedScaledShape::PrintType() const {
   printf("PlacedScaledShape");
 }
 
+void PlacedScaledShape::PrintType(std::ostream &os) const { os << "PlacedScaledShape"; }
+
+
 #ifndef VECGEOM_NVCC
 
 VPlacedVolume const* PlacedScaledShape::ConvertToUnspecialized() const {

@@ -5,6 +5,9 @@
  *      Author: swenzel
  */
 
+// Forced asserts() to be defined, even for Release mode
+#undef NDEBUG
+
 #include "volumes/utilities/VolumeUtilities.h"
 #include "volumes/Box.h"
 #include "base/Transformation3D.h"
@@ -13,8 +16,6 @@
 #include "navigation/SimpleNavigator.h"
 #include "management/GeoManager.h"
 #include "base/Global.h"
-#undef NDEBUG
-#include <cassert>
 
 using namespace vecgeom;
 
@@ -119,17 +120,15 @@ void testVectorNavigator( VPlacedVolume* world ){
        Precision s=0;
        NavigationState * cmp = NavigationState::MakeInstance( GeoManager::Instance().getMaxDepth() );
        cmp->Clear();
-       nav.FindNextBoundaryAndStep( points[i], dirs[i], *states[i],
-               *cmp, pSteps[i], s );
-       vecgeom::Assert( steps[i] == s ,
-               " Problem in VectorNavigation (steps) (in SimpleNavigator)" );
-       vecgeom::Assert( cmp->Top() == newstates[i]->Top() ,
-                      " Problem in VectorNavigation (states) (in SimpleNavigator)" );
-       vecgeom::Assert( cmp->IsOnBoundary() == newstates[i]->IsOnBoundary(),
-                      " Problem in VectorNavigation (boundary) (in SimpleNavigator)" );
+       nav.FindNextBoundaryAndStep(points[i], dirs[i], *states[i], *cmp, pSteps[i], s);
 
-       vecgeom::Assert( safeties[i] == nav.GetSafety( points[i], *states[i] ),
-               " Problem with safety " );
+       // check for consistency of navigator
+
+       assert(steps[i] == s);
+       assert(cmp->Top() == newstates[i]->Top());
+       assert(cmp->IsOnBoundary() == newstates[i]->IsOnBoundary());
+       assert(safeties[i] == nav.GetSafety(points[i], *states[i]));
+
        delete cmp;
    }
 

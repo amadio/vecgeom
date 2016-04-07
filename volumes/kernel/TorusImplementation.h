@@ -665,6 +665,22 @@ struct TorusImplementation {
      printf("SpecializedTorus<%i, %i>", transCodeT, rotCodeT);
   }
 
+  template <typename Stream>
+  static void PrintType(Stream &s) {
+    s << "SpecializedTorus<" << transCodeT << "," << rotCodeT << ","
+      << ">";
+  }
+
+  template <typename Stream>
+  static void PrintImplementationType(Stream &s) {
+    s << "TorusImplemenation<" << transCodeT << "," << rotCodeT << ">";
+  }
+
+  template <typename Stream>
+  static void PrintUnplacedType(Stream &s) {
+    s << "UnplacedTorus";
+  }
+
   /////GenericKernel Contains/Inside implementation
   template <typename Backend, bool ForInside, bool notForDisk>
   VECGEOM_INLINE

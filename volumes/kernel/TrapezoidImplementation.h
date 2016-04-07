@@ -39,6 +39,19 @@ struct TrapezoidImplementation {
      printf("SpecializedTrapezoid<%i, %i>", transCodeT, rotCodeT);
   }
 
+  template <typename Stream>
+  static void PrintType( Stream & s ) {
+    s << "SpecializedTrapezoid<" << transCodeT << "," << rotCodeT << ">";
+  }
+
+  template <typename Stream>
+  static void PrintImplementationType(Stream &s) {
+    s << "TrapezoidImplemenation<" << transCodeT << "," << rotCodeT << ">";
+  }
+
+  template <typename Stream>
+  static void PrintUnplacedType(Stream &s) { s << "UnplacedTrapezoid"; }
+
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -241,10 +254,8 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToIn(
   typedef typename Backend::precision_v Float_t;
   typedef typename Backend::bool_v Bool_t;
 
-  Vector3D<Float_t> point =
-      transformation.Transform<transCodeT, rotCodeT>(masterPoint);
-  Vector3D<Float_t> dir =
-      transformation.TransformDirection<rotCodeT>(masterDir);
+  Vector3D<Float_t> point = transformation.Transform<transCodeT, rotCodeT>(masterPoint);
+  Vector3D<Float_t> dir   = transformation.TransformDirection<rotCodeT>(masterDir);
 
   distance = kInfinity;    // set to early returned value
   Bool_t done = Backend::kFalse;
@@ -288,9 +299,8 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToIn(
   done |= ( test && !zrange );
   if (Backend::early_returns && IsFull(done)) return;
 
-  // ... or within z-range, then smin=0, smax=infinity for now
-  // GL note: in my environment, smin=-inf and smax=inf before these lines
-  MaskedAssign( test && zrange,       0.0, &smin );
+  // ... or within z-range, then smin=-1, smax=infinity for now
+  MaskedAssign( test && zrange,      -1.0, &smin );
   MaskedAssign( test && zrange, kInfinity, &smax );
 
 
@@ -302,11 +312,17 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToIn(
   // If disttoplanes is such that smin < dist < smax, then distance=disttoplanes
   Float_t disttoplanes = unplaced.GetPlanes()->DistanceToIn<Backend>(point, smin, dir);
 
-  // save any misses from plane shell
-  done |= (disttoplanes==kInfinity);
+  //=== special cases
+  // 1) point is inside (wrong-side) --> return -1
+  Bool_t inside = (smin<-kHalfTolerance && disttoplanes<-kHalfTolerance);
+  MaskedAssign( !done && inside, -1.0, &distance );  // wrong-side point
+  done |= inside;
 
-  // reconciliate side planes w/ z-planes
-  done |= (disttoplanes > smax);
+  // 2) point is outside plane-shell and moving away --> return infinity
+  done |= disttoplanes == kInfinity;
+
+  // 3) track misses the trapezoid: smin<0 && disttoplanes>smax
+  done |= (smin < 0 && disttoplanes > smax);
   if (Backend::early_returns && IsFull(done)) return;
 
   // at this point we know there is a valid distance - start with the z-plane based one
@@ -314,10 +330,17 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToIn(
 
   // and then take the one from the planar shell, if valid
   Bool_t hitplanarshell = (disttoplanes > smin) && (disttoplanes < smax);
-  MaskedAssign( hitplanarshell, disttoplanes, &distance);
+  MaskedAssign( !done && hitplanarshell, disttoplanes, &distance);
 
-  // at last... negative distance means we're inside the volume -- set distance to zero
-  MaskedAssign( distance<0, 0.0, &distance );
+  // finally check whether entry point is globally valid --> if not, return infinity
+  Vector3D<Float_t> entry = point + distance*dir;
+  Bool_t complIn, complOut;
+  GenericKernelForContainsAndInside<Backend,true>( unplaced, entry, complIn, complOut );
+  MaskedAssign( complOut, kInfinity, &distance );
+#ifdef TOINDEBUG
+  std::cout<<" trap D2I(): pt6: entry="<< entry <<", complIn="<< complIn <<", complOut="<< complOut <<" --> distance="<< distance <<"\n";
+#endif
+
 #else
   //   If dist is such that smin < dist < smax, then adjust either smin or smax.
 
@@ -396,13 +419,19 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToOut(
   distance = kInfinity;  // default initialization
   Bool_t done(Backend::kFalse);
 
+  // step 0: if point is outside any plane --> return -1
+  Bool_t outside = Abs(point.z()) > MakePlusTolerant<true>(unplaced.GetDz());
+  MaskedAssign( outside, -1.0, &distance );
+  done |= outside;
+  if(Backend::early_returns && IsFull(done)) return;
+ 
   //
   // Step 1: find range of distances along dir between Z-planes (smin, smax)
   //
 
   // convenience variables for direction pointing to +z or -z.
   // Note that both posZdir and NegZdir may be false, if dir.z() is zero!
-  Bool_t posZdir = dir.z() > 0.0;
+  //Bool_t posZdir = dir.z() > 0.0;
   Bool_t negZdir = dir.z() <= -0.0;  // -0.0 is needed, see JIRA-150
 
   // TODO: consider use of copysign or some other standard function
@@ -411,15 +440,15 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToOut(
 
   Float_t max = zdirSign*unplaced.GetDz() - point.z();  // z-dist to farthest z-plane
 
-  // do we need this ????
-  // check if moving away towards +z
-  done |= (posZdir && max <= MakePlusTolerant<true>(0.));
-  // check if moving away towards -z
-  done |= (negZdir && max >= MakeMinusTolerant<true>(0.));
+  // // do we need this ????
+  // // check if moving away towards +z
+  // done |= (posZdir && max <= MakePlusTolerant<true>(0.));
+  // // check if moving away towards -z
+  // done |= (negZdir && max >= MakeMinusTolerant<true>(0.));
 
-  // if all particles moving away, we're done
-  MaskedAssign( done, Float_t(0.0), &distance );
-  if ( IsFull(done) ) return;
+  // // if all particles moving away, we're done
+  // MaskedAssign( done, Float_t(0.0), &distance );
+  // if ( IsFull(done) ) return;
 
   // Step 1.b) general case: assign distance to z plane
   distance = max/( dir.z() + zdirSign * vecgeom::kEpsilon );
@@ -430,8 +459,9 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToOut(
 
 #ifndef VECGEOM_PLANESHELL_DISABLE
   Float_t disttoplanes = unplaced.GetPlanes()->DistanceToOut<Backend>(point, dir);
-  Bool_t hitplanarshell = (disttoplanes < distance);
-  MaskedAssign( hitplanarshell, disttoplanes, &distance );
+
+  // reconcile sides with endcaps
+  MaskedAssign( disttoplanes<distance, disttoplanes, &distance );
 #else
   TrapSidePlane const* fPlanes = unplaced.GetPlanes();
 
@@ -514,10 +544,10 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::SafetyToOut(
 
   Bool_t done(false);
 
-  // If point is outside, set safety to zero
   safety = unplaced.GetDz() - Abs(point.z());
-  MaskedAssign( safety<0.0, 0.0, &safety );
-  done |= safety==0.0;
+
+  // Wrong-side points --> return a negative value
+  done |= (safety < kHalfTolerance);
 
   // If all test points are outside, we're done
   if ( Backend::early_returns && IsFull(done) ) return;

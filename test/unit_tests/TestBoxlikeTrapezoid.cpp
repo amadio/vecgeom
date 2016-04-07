@@ -5,8 +5,7 @@
 //     where both VecGeom's and USolids' trapezoids pass the tests.
 //     The USolids trapezoid fails more detailed tests in TestTrap.cpp
 
-
-
+#undef NDEBUG
 #include "base/Vector3D.h"
 #include "volumes/Trapezoid.h"
 #include "ApproxEqual.h"
@@ -15,9 +14,6 @@
 #include "UVector3.hh"
 #endif
 #include <cmath>
-
-#undef NDEBUG
-#include <cassert>
 
 
 template <class Trapezoid_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >

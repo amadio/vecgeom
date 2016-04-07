@@ -96,14 +96,18 @@ public:
       : PlacedShape_t(logical_volume, transformation, details::UseIfSameType<PlacedShape_t,PlacedBox>::Get(this), id) {}
 #endif
 
-  virtual int memory_size() const { return sizeof(*this); }
+  virtual int memory_size() const override { return sizeof(*this); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void PrintType() const { Specialization::PrintType(); }
+  virtual void PrintType() const override { Specialization::PrintType(); }
+
+  virtual void PrintType(std::ostream &os) const override { Specialization::PrintType(os); }
+  virtual void PrintImplementationType(std::ostream &os) const override { Specialization::PrintImplementationType(os); }
+  virtual void PrintUnplacedType(std::ostream &os) const override { Specialization::PrintUnplacedType(os); }
 
 #ifdef VECGEOM_CUDA_INTERFACE
 
-  virtual size_t DeviceSizeOf() const { return DevicePtr<CudaType_t<Helper_t> >::SizeOf(); }
+  virtual size_t DeviceSizeOf() const override { return DevicePtr<CudaType_t<Helper_t> >::SizeOf(); }
 
   DevicePtr<cuda::VPlacedVolume> CopyToGpu(
     DevicePtr<cuda::LogicalVolume> const logical_volume,
@@ -132,7 +136,7 @@ public:
 #endif // VECGEOM_CUDA_INTERFACE
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual EnumInside Inside(Vector3D<Precision> const &point) const {
+  virtual EnumInside Inside(Vector3D<Precision> const &point) const override {
     Inside_t output = EInside::kOutside;
     Specialization::template Inside<kScalar>(
       *this->GetUnplacedVolume(),
@@ -144,7 +148,7 @@ public:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual bool Contains(Vector3D<Precision> const &point) const {
+  virtual bool Contains(Vector3D<Precision> const &point) const override {
     bool output = false;
     Vector3D<Precision> localPoint;
     Specialization::template Contains<kScalar>(
@@ -159,7 +163,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual bool Contains(Vector3D<Precision> const &point,
-                        Vector3D<Precision> &localPoint) const {
+                        Vector3D<Precision> &localPoint) const override {
     bool output = false;
     Specialization::template Contains<kScalar>(
       *this->GetUnplacedVolume(),
@@ -177,7 +181,7 @@ public:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual bool UnplacedContains(Vector3D<Precision> const &point) const {
+  virtual bool UnplacedContains(Vector3D<Precision> const &point) const override {
     bool output = false;
     Specialization::template UnplacedContains<kScalar>(
       *this->GetUnplacedVolume(),
@@ -196,7 +200,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToIn(Vector3D<Precision> const &point,
                                  Vector3D<Precision> const &direction,
-                                 const Precision stepMax = kInfinity) const {
+                                 const Precision stepMax = kInfinity) const override {
     Precision output = kInfinity;
     Specialization::template DistanceToIn<kScalar>(
       *this->GetUnplacedVolume(),
@@ -207,10 +211,8 @@ public:
       output
     );
 
-// #ifdef VECGEOM_REPLACE_USOLIDS
-    // avoid distance values within kTolerance
-    MaskedAssign(Abs(output)<kTolerance, 0., &output);
-// #endif
+    // avoid distance values within tolerance
+    MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
 
 #ifdef VECGEOM_DISTANCE_DEBUG
     DistanceComparator::CompareDistanceToIn( this, output, point, direction, stepMax );
@@ -221,7 +223,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToOut(Vector3D<Precision> const &point,
                                   Vector3D<Precision> const &direction,
-                                  const Precision stepMax = kInfinity) const {
+                                  const Precision stepMax = kInfinity) const override {
     Precision output = kInfinity;
     Specialization::template DistanceToOut<kScalar>(
       *this->GetUnplacedVolume(),
@@ -231,10 +233,8 @@ public:
       output
     );
 
-// #ifdef VECGEOM_REPLACE_USOLIDS
-    // avoid distance values within kTolerance
-    MaskedAssign(Abs(output)<kTolerance, 0., &output);
-// #endif
+    // avoid distance values within tolerance
+    MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
 
     // detect -inf responses which are often an indication for a real bug
 #ifndef VECGEOM_NVCC
@@ -248,7 +248,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision PlacedDistanceToOut(Vector3D<Precision> const &point,
                                         Vector3D<Precision> const &direction,
-                                        const Precision stepMax = kInfinity) const {
+                                        const Precision stepMax = kInfinity) const override {
      Transformation3D const* t = this->GetTransformation();
 
      Precision output = kInfinity;
@@ -276,7 +276,7 @@ public:
   virtual Precision DistanceToOut(Vector3D<Precision> const &point,
                                   Vector3D<Precision> const &direction,
                                   Vector3D<Precision> &normal,
-                                  bool &convex, Precision step = kInfinity ) const {
+                                  bool &convex, Precision step = kInfinity ) const override {
     Precision d = DistanceToOut(point, direction, step );
     Vector3D<Precision> hitpoint = point + d*direction;
     PlacedShape_t::Normal( hitpoint, normal );
@@ -292,7 +292,7 @@ public:
 #endif
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual Precision SafetyToIn(Vector3D<Precision> const &point) const {
+  virtual Precision SafetyToIn(Vector3D<Precision> const &point) const override {
     Precision output = kInfinity;
     Specialization::template SafetyToIn<kScalar>(
       *this->GetUnplacedVolume(),
@@ -300,23 +300,25 @@ public:
       point,
       output
     );
-#ifdef VECGEOM_REPLACE_USOLIDS
-    if(output < 0.0 && output > -kTolerance) output = 0.0;
-#endif
+
+    // avoid distance values within tolerance
+    MaskedAssign( Abs(output)<kHalfTolerance, 0.0, &output);
+
     return output;
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual Precision SafetyToOut(Vector3D<Precision> const &point) const {
+  virtual Precision SafetyToOut(Vector3D<Precision> const &point) const override {
     Precision output = kInfinity;
     Specialization::template SafetyToOut<kScalar>(
       *this->GetUnplacedVolume(),
       point,
       output
     );
-#ifdef VECGEOM_REPLACE_USOLIDS
-    if(output < 0.0 && output > -kTolerance) output = 0.0;
-#endif
+
+    // avoid distance values within tolerance
+    MaskedAssign( Abs(output)<kHalfTolerance, 0.0, &output);
+
     return output;
   }
 
@@ -435,9 +437,9 @@ public:
         points[i],
         output[i]
       );
-      if(output[i]<0.0 && output[i]>-kTolerance) {
-        output[i] = 0.0;
-      }
+      // if(Abs(output[i]) < kHalfTolerance) {
+      //   output[i] = 0.0;
+      // }
     }
   }
 
@@ -465,9 +467,9 @@ public:
         points[i],
         output[i]
       );
-      if(output[i]<0.0 && output[i]>-kTolerance) {
-        output[i] = 0.0;
-      }
+      // if( Abs(output[i])<kHalfTolerance ) {
+      //   output[i] = 0.0;
+      // }
     }
   }
 
@@ -491,7 +493,7 @@ public:
   // }
 
   virtual void Contains(SOA3D<Precision> const &points,
-                        bool *const output) const {
+                        bool *const output) const override {
     ContainsTemplate(points, output);
   }
 
@@ -501,7 +503,7 @@ public:
   // }
 
   virtual void Inside(SOA3D<Precision> const &points,
-                      Inside_t *const output) const {
+                      Inside_t *const output) const override {
     InsideTemplate(points, output);
   }
 
@@ -515,7 +517,7 @@ public:
   virtual void DistanceToIn(SOA3D<Precision> const &points,
                             SOA3D<Precision> const &directions,
                             Precision const *const stepMax,
-                            Precision *const output) const {
+                            Precision *const output) const override {
     DistanceToInTemplate(points, directions, stepMax, output);
   }
 
@@ -524,7 +526,7 @@ public:
                                     SOA3D<Precision> const &directions,
                                     int daughterindex,
                                     Precision *const output,
-                                    int *const nextnodeids) const {
+                                    int *const nextnodeids) const override {
       DistanceToInMinimizeTemplate(points, directions, daughterindex, output, nextnodeids);
   }
 
@@ -538,7 +540,7 @@ public:
   virtual void DistanceToOut(SOA3D<Precision> const &points,
                              SOA3D<Precision> const &directions,
                              Precision const *const stepMax,
-                             Precision *const output) const {
+                             Precision *const output) const override {
     DistanceToOutTemplate(points, directions, stepMax, output);
   }
 
@@ -546,19 +548,19 @@ public:
                              SOA3D<Precision> const &directions,
                              Precision const *const stepMax,
                              Precision *const output,
-                             int *const nextNodeIndex) const {
+                             int *const nextNodeIndex) const override {
     DistanceToOutTemplate(points, directions, stepMax, output, nextNodeIndex);
   }
 
   virtual void SafetyToIn(SOA3D<Precision> const &points,
-                          Precision *const output) const {
+                          Precision *const output) const override {
     SafetyToInTemplate(points, output);
   }
 
 #ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
   // scalar fallback: dispatch a SIMD interface to a scalar kernel
   VECGEOM_INLINE
-  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const {
+  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override {
     VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
     for (auto i = decltype(VECGEOM_BACKEND_PRECISION_TYPE::Size){0}; i < VECGEOM_BACKEND_PRECISION_TYPE::Size; ++i) {
       Precision tmp;
@@ -570,7 +572,7 @@ public:
   }
 
   VECGEOM_INLINE
-  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOut(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const {
+  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOut(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override {
     VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
     for (auto i = decltype(VECGEOM_BACKEND_PRECISION_TYPE::Size){0}; i < VECGEOM_BACKEND_PRECISION_TYPE::Size; ++i) {
       Precision tmp;
@@ -594,7 +596,7 @@ public:
       Vector3D<Precision> dir(direction.x()[i], direction.y()[i], direction.z()[i]);
       Specialization::template DistanceToIn<kScalar>(*this->GetUnplacedVolume(), *this->GetTransformation(), pos, dir,
                                                      stepMax[i], tmp);
-      MaskedAssign(Abs(tmp)<kTolerance, 0., &tmp);
+      MaskedAssign(Abs(tmp)<kHalfTolerance, 0., &tmp);
       output[i] = tmp;
     }
     return output;
@@ -613,7 +615,7 @@ public:
       Vector3D<Precision> dir(direction.x()[i], direction.y()[i], direction.z()[i]);
       Specialization::template DistanceToOut<kScalar>(*this->GetUnplacedVolume(), pos, dir,
                                                       stepMax[i], tmp);
-      MaskedAssign(Abs(tmp)<kTolerance, 0., &tmp);
+      MaskedAssign(Abs(tmp)<kHalfTolerance, 0., &tmp);
       output[i] = tmp;
     }
     return output;
@@ -625,12 +627,12 @@ public:
   // }
 
   virtual void SafetyToInMinimize(SOA3D<Precision> const &points,
-                                  Precision *const safeties) const {
+                                  Precision *const safeties) const override {
     SafetyToInMinimizeTemplate(points, safeties);
   }
 
   virtual void SafetyToOut(SOA3D<Precision> const &points,
-                          Precision *const output) const {
+                          Precision *const output) const override {
     SafetyToOutTemplate(points, output);
   }
 
@@ -640,7 +642,7 @@ public:
   // }
 
   virtual void SafetyToOutMinimize(SOA3D<Precision> const &points,
-                                   Precision *const safeties) const {
+                                   Precision *const safeties) const override {
     SafetyToOutMinimizeTemplate(points, safeties);
   }
 

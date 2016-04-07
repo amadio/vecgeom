@@ -3,7 +3,6 @@
  
 #include "backend/cuda/Interface.h"
 
-#include <cassert>
 #include <stdio.h>
 
 #include <cuda.h>

@@ -5,7 +5,7 @@
 namespace vecgeom {
   inline namespace VECGEOM_IMPL_NAMESPACE {
     
-vector<Medium*> Medium::fMedDB;
+std::vector<Medium*> Medium::fMedDB;
 
 //ClassImp(Medium)
 

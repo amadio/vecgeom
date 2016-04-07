@@ -158,8 +158,10 @@ public:
 
   /// \return the distance to the planar shell when the point is located outside.
   /// The type returned is the type corresponding to the backend given.
-  /// The value returned is +inf if (1) point+dir is outside & moving AWAY from any plane,
-  ///     OR (2) when point+dir crosses out a plane BEFORE crossing in ALL other planes.
+  /// For some special cases, the value returned is:
+  ///     (1) +inf, if point+dir is outside & moving AWAY FROM OR PARALLEL TO any plane,
+  ///     (2) -1, if point+dir crosses out a plane BEFORE crossing in ALL other planes (wrong-side)
+  ///
   /// Note: smin0 parameter is needed here, otherwise smax can become smaller than smin0,
   ///   which means condition (2) happens and +inf must be returned.  Without smin0, this
   ///   condition is sometimes missed.
@@ -191,15 +193,23 @@ public:
       vdist[i]= -pdist[i]/proj[i];
     }
 
+    // wrong-side check: if (inside && smin<0) return -1
+    Bool_t inside( smin < MakeMinusTolerant<true>(0.0) );
+    for(int i=0; i<N; ++i) {
+      inside &= pdist[i] < MakeMinusTolerant<true>(0.0);
+    }
+    MaskedAssign( inside, -1.0, &distIn );
+    done |= inside;
+    if(Backend::early_returns && IsFull(done)) return distIn;
+
     // analysis loop
     for(int i=0; i<N; ++i) {
-      Bool_t posPoint = pdist[i] >= -kHalfTolerance;
+      // if outside and moving away, return infinity
+      Bool_t posPoint = pdist[i] > MakeMinusTolerant<true>(0.0);
       Bool_t posDir = proj[i] > 0;
-
       done |= (posPoint && posDir);
 
       // check if trajectory will intercept plane within current range (smin,smax)
-
       Bool_t interceptFromInside  = (!posPoint && posDir);
       done |= ( interceptFromInside  && vdist[i]<smin );
 
@@ -213,25 +223,14 @@ public:
       MaskedAssign( interceptFromInside  && validVdist, vdist[i], &smax );
     }
 
-    // check that entry point found is valid -- cannot be outside (may happen when track is parallel to a face)
-    Vector3D<typename Backend::precision_v> entry = point + dir*smin;
-    Bool_t valid = Backend::kTrue;
-    for(unsigned int i=0; i<N; ++i) {
-      Float_t dist = this->fA[i]*entry.x() + this->fB[i]*entry.y() + this->fC[i]*entry.z() + this->fD[i];
-
-      // valid here means if it is not outside plane, or pdist[i]<=0.
-      valid &= (dist <= MakePlusTolerant<true>(0.));
-
-    }
-
     // Return smin, which is the maximum distance in an interceptFromOutside situation
-    MaskedAssign( !done && valid, smin, &distIn );
-
-    return distIn;
+    return smin;
   }
 
   /// \return the distance to the planar shell when the point is located within the shell itself.
   /// The type returned is the type corresponding to the backend given.
+  /// For some special cases, the value returned is:
+  ///     (1) -1, if point is outside (wrong-side)
   template<typename Backend>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -247,24 +246,29 @@ public:
     // hope for a vectorization of this part for Backend==scalar !!
     // the idea is to put vectorizable things into this loop
     // and separate the analysis into a separate loop if need be
-//  Bool_t done(Backend::kFalse);
+    Bool_t done(Backend::kFalse);
+    Float_t pdist[N];
     Float_t proj[N];
     Float_t vdist[N];
     for(int i=0; i<N; ++i) {
-      Float_t pdist = this->fA[i]*point.x() + this->fB[i]*point.y() + this->fC[i]*point.z() + this->fD[i];
-
-      // early return if point is outside of plane
-      //done |= (pdist>0.);
-      //if ( IsFull(done) ) return kInfinity;
-
+      pdist[i] = this->fA[i]*point.x() + this->fB[i]*point.y() + this->fC[i]*point.z() + this->fD[i];
       proj[i] = this->fA[i]*dir.x() + this->fB[i]*dir.y() + this->fC[i]*dir.z();
-      vdist[i] = -pdist / proj[i];
+      vdist[i] = -pdist[i] / proj[i];
+    }
+
+    // early return if point is outside of plane
+    for(int i=0; i<N; ++i) {
+      done |= ( pdist[i] > kHalfTolerance );
+    }
+    MaskedAssign( done, -1.0, &distOut );
+
+    if(Backend::early_returns && IsFull(done) ) {
+      return distOut;
     }
 
     // add = in vdist[i]>=0  and "proj[i]>0" in order to pass unit tests, but this will slow down DistToOut()!!! check effect!
-    for(int i=0; i<N; ++i )
-    {
-      Bool_t test = ( vdist[i] >= 0. && proj[i]>0 && vdist[i] < distOut );
+    for(int i=0; i<N; ++i ) {
+      Bool_t test = ( vdist[i] >= -kHalfTolerance && proj[i]>0 && vdist[i] < distOut );
       MaskedAssign( test, vdist[i], &distOut);
     }
 
@@ -314,8 +318,7 @@ public:
 
     // non-vectorizable part
     for(int i=0; i<N; ++i) {
-      MaskedAssign( dist[i]<0, 0.0, &safety );
-      MaskedAssign( dist[i]>=0 && dist[i]<safety, dist[i], &safety );
+      MaskedAssign( dist[i]<safety, dist[i], &safety );
     }
 
     return;

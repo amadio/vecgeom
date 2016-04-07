@@ -3,6 +3,9 @@
 // Purpose: Unit tests for the polycone
 //
 
+//.. ensure asserts are compiled in
+#undef NDEBUG
+
 #include "base/Vector3D.h"
 #include "volumes/Polycone.h"
 #include "volumes/Tube.h"
@@ -17,10 +20,6 @@
 #endif
 #include <cmath>
 #include <fenv.h>
-
-//.. ensure asserts are compiled in
-#undef NDEBUG
-#include <cassert>
 
 using namespace vecgeom;
 

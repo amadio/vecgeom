@@ -2,6 +2,9 @@
 // File: TestCons.cpp
 // Purpose: Unit tests for cones and cone sections
 
+//  Ensure asserts are compiled in
+#undef NDEBUG
+
 #include "base/Vector3D.h"
 #include "ApproxEqual.h"
 #include "volumes/Cone.h"
@@ -11,10 +14,6 @@
   #include "UVector3.hh"
 #endif
 #include <cmath>
-
-//  Ensure asserts are compiled in
-#undef NDEBUG
-#include <cassert>
 
 #define DELTA 0.0001
 

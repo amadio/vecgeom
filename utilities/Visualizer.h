@@ -16,6 +16,8 @@
 #include <memory>
 #include <utility>
 
+class TApplication;
+class TGeoManager;
 class TGeoMatrix;
 class TGeoShape;
 class TGeoVolume;
@@ -42,12 +44,16 @@ private:
                        std::unique_ptr<TGeoVolume> > > fVolumes;
   std::list<std::unique_ptr<TPolyMarker3D> > fMarkers;
   std::list<std::unique_ptr<TPolyLine3D> > fLines;
+  TApplication *fApp;      // ROOT application used for visualization
+  TGeoManager *fGeoManager; // ROOT geometry manager
 
 public:
 
   Visualizer();
 
   ~Visualizer();
+
+  TApplication* GetTApp(){return fApp;}
 
   void AddVolume(VPlacedVolume const &volume);
 

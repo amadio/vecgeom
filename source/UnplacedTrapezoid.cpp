@@ -41,9 +41,6 @@ UnplacedTrapezoid::UnplacedTrapezoid(Precision pDz, Precision pTheta, Precision 
       printf("\t X=%f, %f, %f, %f", pDx1, pDx2, pDx3, pDx4);
       printf("\t Y=%f, %f", pDy1, pDy2);
       printf("\t Z=%f\n", pDz);
-
-      // force a crash in a CPU/GPU portable way -- any better (graceful) way to do this?
-      Assert(true);
     }
 
     fTthetaSphi = tan(pTheta)*sin(pPhi);
@@ -61,9 +58,6 @@ UnplacedTrapezoid::UnplacedTrapezoid(Precision pDz, Precision pTheta, Precision 
   if( xbox <= 0 || ybox <= 0 || zbox <= 0 ) {
       printf("UnplacedTrapezoid(xbox,...) - GeomSolids0002, Fatal Exception: Invalid input length parameters for Solid: UnplacedTrapezoid\n");
       printf("\t X=%f, Y=%f, Z=%f", xbox, ybox, zbox);
-
-      // force a crash in a CPU/GPU portable way -- any better (graceful) way to do this?
-      Assert(true);
     }
 
     MakePlanes();
@@ -74,7 +68,10 @@ UnplacedTrapezoid::UnplacedTrapezoid(double dx, double dy, double dz, double)
   : UnplacedTrapezoid(dx,dy,dz)
 
 {
-  Assert(false, "*** ERROR: STEP-based trapezoid constructor called, NOT PROPERLY IMPLEMENTED in VecGeom: please contact GeantV developers and file a bug report.\n");
+#ifndef VECGEOM_NVCC
+  fprintf(stderr, "*** ERROR: STEP-based trapezoid constructor called, but not implemented ***");
+#endif
+  assert(false);
  }
 
 // constructor for a Trd
@@ -252,7 +249,6 @@ bool UnplacedTrapezoid::MakePlanes(TrapCorners_t const pt) {
   good = MakePlane(pt[0],pt[1],pt[5],pt[4],fPlanes[0]);
 #endif
   if(!good) printf("***** GeomSolids0002 - Face at ~-Y not planar for Solid: UnplacedTrapezoid\n");
-  //  Assert( good );
 
   // Top side with normal approx. +Y
 #ifndef VECGEOM_PLANESHELL_DISABLE
@@ -261,7 +257,6 @@ bool UnplacedTrapezoid::MakePlanes(TrapCorners_t const pt) {
   good = MakePlane(pt[2],pt[6],pt[7],pt[3],fPlanes[1]);
 #endif
   if(!good) printf("***** GeomSolids0002 - Face at ~+Y not planar for Solid: UnplacedTrapezoid\n");
-  // Assert( good );
 
   // Front side with normal approx. -X
 #ifndef VECGEOM_PLANESHELL_DISABLE
@@ -270,7 +265,6 @@ bool UnplacedTrapezoid::MakePlanes(TrapCorners_t const pt) {
   good = MakePlane(pt[0],pt[4],pt[6],pt[2],fPlanes[2]);
 #endif
   if(!good) printf("***** GeomSolids0002 - Face at ~-X not planar for Solid: UnplacedTrapezoid\n");
-  // Assert( good );
 
   // Back side with normal approx. +X
 #ifndef VECGEOM_PLANESHELL_DISABLE
@@ -279,7 +273,6 @@ bool UnplacedTrapezoid::MakePlanes(TrapCorners_t const pt) {
   good = MakePlane(pt[1],pt[3],pt[7],pt[5],fPlanes[3]);
 #endif
   if(!good) printf("***** GeomSolids0002 - Face at ~+X not planar for Solid: UnplacedTrapezoid\n");
-  // Assert( good );
 
   // include areas for -Z,+Z surfaces
   sideAreas[4] = 2*(fDx1+fDx2)*fDy1;
@@ -327,7 +320,6 @@ bool UnplacedTrapezoid::MakePlane(
     printf("\tcorner 3: (%f; %f; %f)\n", p3.x(), p3.y(), p3.z());
     printf("\tcorner 4: (%f; %f; %f)\n", p4.x(), p4.y(), p4.z());
     good = false;
-    //Assert( good );
   }
 
   // cms.gdml does contain some bad trap corners... go ahead and try to build them anyway

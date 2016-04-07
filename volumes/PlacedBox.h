@@ -147,7 +147,9 @@ public:
 #endif
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void PrintType() const override;
+  void PrintType() const override;
+
+  void PrintType(std::ostream &s) const override;
 
   // CUDA specific
 

@@ -28,7 +28,7 @@ void LoadVecGeomGeometry(bool printcontent = false)
     std::vector<vecgeom::LogicalVolume *> v1;
     vecgeom::GeoManager::Instance().GetAllLogicalVolumes( v1 );
     printf("Have logical volumes %ld\n", v1.size() );
-    printf("Have registered volumes (including virtual) %d\n", vecgeom::GeoManager::Instance().GetRegisteredVolumesCount() );
+    printf("Have registered volumes (including virtual) %ld\n", vecgeom::GeoManager::Instance().GetRegisteredVolumesCount() );
     std::vector<vecgeom::VPlacedVolume *> v2;
     vecgeom::GeoManager::Instance().getAllPlacedVolumes( v2 );
     printf("Have placed volumes %ld\n", v2.size() );

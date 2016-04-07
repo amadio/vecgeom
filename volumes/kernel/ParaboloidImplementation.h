@@ -52,6 +52,8 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
     
     namespace ParaboloidUtilities
     {
+#if 0  // removed, as it was causing warnings on clang-3.6
+       // is it really needed?  'make test' passes at 100%
         template <class Backend>
         VECGEOM_INLINE
         VECGEOM_CUDA_HEADER_BOTH
@@ -62,6 +64,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
                                  typename Backend::precision_v &distance/*,
                                  typename Backend::bool_v in*/) {
                                  }
+#endif
     }
 
 class PlacedParaboloid;
@@ -79,6 +82,19 @@ struct ParaboloidImplementation {
     static void PrintType() {
        printf("SpecializedParaboloid<%i, %i>", transCodeT, rotCodeT);
     }
+
+    template <typename Stream>
+    static void PrintType(Stream &s) {
+      s << "SpecializedParaboloid<" << transCodeT << "," << rotCodeT << ">";
+    }
+
+    template <typename Stream>
+    static void PrintImplementationType(Stream &s) {
+      s << "ParaboloidImplemenation<" << transCodeT << "," << rotCodeT << ">";
+    }
+
+    template <typename Stream>
+    static void PrintUnplacedType(Stream &s) { s << "UnplacedParaboloid"; }
 
     /// \brief Inside method that takes account of the surface for an Unplaced Paraboloid
     template <class Backend>

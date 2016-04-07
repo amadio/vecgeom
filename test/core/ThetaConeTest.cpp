@@ -16,7 +16,6 @@
 #include "UVector3.hh"
 #endif
 
-#include <cassert>
 #include <cmath>
 
 #define PI 3.14159265358979323846

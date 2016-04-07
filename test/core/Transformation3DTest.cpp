@@ -17,8 +17,7 @@ int main() {
   Transformation3D t2(t1);
   assert(t1 == t2);
   assert(t2.Transform(point) == Vector3D<Precision>(1, 3, 4));
-  Assert(t2.Transform<translation::kIdentity, rotation::kIdentity>(point)
-         == point);
+  assert((t2.Transform<translation::kIdentity, rotation::kIdentity>(point) == point));
   Transformation3D t3(2, 2, 2);
   assert(t3.Transform(t1.Transform(point)) == point);
   Transformation3D t4(0, 0, 0, 90, 0, 0);

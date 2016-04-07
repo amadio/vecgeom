@@ -7,9 +7,8 @@
 #include "base/Global.h"
 #include "backend/Backend.h"
 #ifndef VECGEOM_NVCC
-    #include "base/RNG.h"
-    #include <cassert>
-    #include <cmath>
+#include "base/RNG.h"
+#include <cmath>
 #endif
 #include "volumes/PlacedVolume.h"
 #include "volumes/UnplacedVolume.h"
@@ -17,8 +16,8 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedTrd; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedTrd )
+VECGEOM_DEVICE_FORWARD_DECLARE(class PlacedTrd;)
+VECGEOM_DEVICE_DECLARE_CONV(PlacedTrd)
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -29,22 +28,17 @@ public:
 
 #ifndef VECGEOM_NVCC
 
-  PlacedTrd(char const *const label,
-                       LogicalVolume const *const logical_volume,
-                       Transformation3D const *const transformation,
-                       PlacedBox const *const boundingBox)
+  PlacedTrd(char const *const label, LogicalVolume const *const logical_volume,
+            Transformation3D const *const transformation, PlacedBox const *const boundingBox)
       : VPlacedVolume(label, logical_volume, transformation, boundingBox) {}
 
-  PlacedTrd(LogicalVolume const *const logical_volume,
-                       Transformation3D const *const transformation,
-                       PlacedBox const *const boundingBox)
+  PlacedTrd(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
+            PlacedBox const *const boundingBox)
       : PlacedTrd("", logical_volume, transformation, boundingBox) {}
 
 #else
 
-  __device__
-  PlacedTrd(LogicalVolume const *const logical_volume,
-                       Transformation3D const *const transformation,
+  __device__ PlacedTrd(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
                        PlacedBox const *const boundingBox, const int id)
       : VPlacedVolume(logical_volume, transformation, boundingBox, id) {}
 
@@ -53,9 +47,8 @@ public:
   virtual ~PlacedTrd() {}
 
   VECGEOM_CUDA_HEADER_BOTH
-  UnplacedTrd const* GetUnplacedVolume() const {
-    return static_cast<UnplacedTrd const *>(
-        GetLogicalVolume()->GetUnplacedVolume());
+  UnplacedTrd const *GetUnplacedVolume() const {
+    return static_cast<UnplacedTrd const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -82,65 +75,59 @@ public:
   Precision GetXHalfLength2() const { return GetUnplacedVolume()->dx2(); }
   Precision GetYHalfLength1() const { return GetUnplacedVolume()->dy1(); }
   Precision GetYHalfLength2() const { return GetUnplacedVolume()->dy2(); }
-  Precision GetZHalfLength() const  { return GetUnplacedVolume()->dz(); }
-  void SetXHalfLength1(Precision arg) { const_cast<UnplacedTrd*>(GetUnplacedVolume())->SetXHalfLength1(arg);}
-  void SetXHalfLength2(Precision arg) { const_cast<UnplacedTrd*>(GetUnplacedVolume())->SetXHalfLength2(arg);}
-  void SetYHalfLength1(Precision arg) { const_cast<UnplacedTrd*>(GetUnplacedVolume())->SetYHalfLength1(arg);}
-  void SetYHalfLength2(Precision arg) { const_cast<UnplacedTrd*>(GetUnplacedVolume())->SetYHalfLength2(arg);}
-  void SetZHalfLength(Precision arg)  { const_cast<UnplacedTrd*>(GetUnplacedVolume())->SetZHalfLength(arg);}
-  void SetAllParameters(Precision x1, Precision x2, Precision y1, Precision y2, Precision z)  {
-    const_cast<UnplacedTrd*>(GetUnplacedVolume())->SetAllParameters(x1,x2,y1,y2,z);
+  Precision GetZHalfLength() const { return GetUnplacedVolume()->dz(); }
+  void SetXHalfLength1(Precision arg) { const_cast<UnplacedTrd *>(GetUnplacedVolume())->SetXHalfLength1(arg); }
+  void SetXHalfLength2(Precision arg) { const_cast<UnplacedTrd *>(GetUnplacedVolume())->SetXHalfLength2(arg); }
+  void SetYHalfLength1(Precision arg) { const_cast<UnplacedTrd *>(GetUnplacedVolume())->SetYHalfLength1(arg); }
+  void SetYHalfLength2(Precision arg) { const_cast<UnplacedTrd *>(GetUnplacedVolume())->SetYHalfLength2(arg); }
+  void SetZHalfLength(Precision arg) { const_cast<UnplacedTrd *>(GetUnplacedVolume())->SetZHalfLength(arg); }
+  void SetAllParameters(Precision x1, Precision x2, Precision y1, Precision y2, Precision z) {
+    const_cast<UnplacedTrd *>(GetUnplacedVolume())->SetAllParameters(x1, x2, y1, y2, z);
   }
 
-  void Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const override {
-      GetUnplacedVolume()->Extent(aMin, aMax);
-    }
+  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override {
+    GetUnplacedVolume()->Extent(aMin, aMax);
+  }
 
 #ifndef VECGEOM_NVCC
-  virtual
-  Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
+  virtual Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
 
-  virtual
-  Precision SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea();}
+  virtual Precision SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
 
-  virtual Vector3D<Precision> GetPointOnSurface() const override {
-     return GetUnplacedVolume()->GetPointOnSurface();
+  virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface(); }
+
+  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override {
+    return GetUnplacedVolume()->Normal(point, normal);
   }
 
-  bool Normal(Vector3D<Precision>const& point, Vector3D<Precision>& normal) const override {
-     return GetUnplacedVolume()->Normal(point, normal);
-  }
-
-   /*
-  void Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const override {
-      GetUnplacedVolume()->Extent(aMin, aMax);
-  }
-  */
+/*
+void Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const override {
+   GetUnplacedVolume()->Extent(aMin, aMax);
+}
+*/
 
 #if defined(VECGEOM_USOLIDS)
-//  VECGEOM_CUDA_HEADER_BOTH
-  std::ostream& StreamInfo(std::ostream &os) const override {
-    return GetUnplacedVolume()->StreamInfo(os);
-  }
+  virtual std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType(); }
+#//  VECGEOM_CUDA_HEADER_BOTH
+  std::ostream &StreamInfo(std::ostream &os) const override { return GetUnplacedVolume()->StreamInfo(os); }
 #endif
 
-  virtual VPlacedVolume const* ConvertToUnspecialized() const override;
+  virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 
 #ifdef VECGEOM_ROOT
-  virtual TGeoShape const* ConvertToRoot() const override;
+  virtual TGeoShape const *ConvertToRoot() const override;
 #endif
 
 #if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-  virtual ::VUSolid const* ConvertToUSolids() const override;
+  virtual ::VUSolid const *ConvertToUSolids() const override;
 #endif
 
 #ifdef VECGEOM_GEANT4
-  G4VSolid const* ConvertToGeant4() const override;
+  G4VSolid const *ConvertToGeant4() const override;
 #endif
 #endif // VECGEOM_NVCC
-
 };
-
-} } // End global namespace
+}
+} // End global namespace
 
 #endif // VECGEOM_VOLUMES_PLACEDTUBE_H_

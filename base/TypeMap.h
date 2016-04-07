@@ -6,7 +6,6 @@
 
 #include "base/Global.h"
 
-#include <cassert>
 #include <map>
 
 namespace vecgeom {

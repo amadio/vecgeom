@@ -16,7 +16,6 @@
 #include "backend/scalarfloat/Backend.h"
 #endif
 
-#include <cassert>
 
 namespace vecgeom {
 inline namespace cxx {
@@ -403,6 +402,33 @@ ABBoxNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoint
    // now we have the candidates
    // try
    currentstate.CopyTo(&newstate);
+
+   // if this is the case we are in the wrong volume;
+   // assuming that DistanceToIn return negative number when point is inside
+   // do nothing (step=0) and retry one level higher
+   if( step == kInfinity && pstep > 0. )
+   {
+     //      std::cout << "WARNING: STEP INFINITY; should never happen unless outside\n";
+      //InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );
+      // set step to zero and retry one level higher
+      // if( nexthitvolume!=-1 ) std::cout << "catastrophee\n";
+#if defined(VECGEOM_ROOT)
+      //      currentstate.printVolumePath(std::cout); std::cout << "\n";
+#endif
+      //      newstate.Clear();
+      //      VPlacedVolume const *world = GeoManager::Instance().GetWorld();
+      //      LocatePoint(world, globalpoint + vecgeom::kTolerance*globaldir, newstate, true);
+      step = vecgeom::kTolerance;
+#if defined(VECGEOM_ROOT)
+     // InspectEnvironmentForPointAndDirection( globalpoint, localpoint, currentstate );
+      //      newstate.printVolumePath(std::cout); std::cout << "\n";
+      //      InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );
+      //      std::cout << " counter is " << counter << "\n";
+#endif
+      newstate.SetBoundaryState(true);
+      newstate.Pop();
+      return;
+   }
 
    // is geometry further away than physics step?
    // not necessarily true
