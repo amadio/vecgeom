@@ -232,7 +232,7 @@ void ParallelepipedImplementation<transCodeT, rotCodeT>::DistanceToOut(
   MaskedAssign(goingAway, 0., &distance);
   MaskedAssign(inPoint && inDirection, max/direction[2], &distance);
   done |= goingAway;
-  if (done == Backend::kTrue) return;
+  if (IsFull(done)) return;
 
   inDirection = direction[2] < 0;
   max = -unplaced.GetZ() - point[2];
@@ -241,7 +241,7 @@ void ParallelepipedImplementation<transCodeT, rotCodeT>::DistanceToOut(
   MaskedAssign(goingAway, 0., &distance);
   MaskedAssign(inPoint && inDirection, max/direction[2], &distance);
   done |= goingAway;
-  if (done == Backend::kTrue) return;
+  if (IsFull(done)) return;
     
   // Y plane intersection
 
@@ -258,7 +258,7 @@ void ParallelepipedImplementation<transCodeT, rotCodeT>::DistanceToOut(
   MaskedAssign(goingAway, 0., &distance);
   MaskedAssign(inPoint && inDirection && max < distance, max, &distance);
   done |= goingAway;
-  if (done == Backend::kTrue) return;
+  if (IsFull(done)) return;
 
   inDirection = localDirectionY < 0;
   max = -unplaced.GetY() - localPointY;
@@ -268,7 +268,7 @@ void ParallelepipedImplementation<transCodeT, rotCodeT>::DistanceToOut(
   MaskedAssign(goingAway, 0., &distance);
   MaskedAssign(inPoint && inDirection && max < distance, max, &distance);
   done |= goingAway;
-  if (done == Backend::kTrue) return;
+  if (IsFull(done)) return;
 
   // X plane intersection
 
@@ -287,7 +287,7 @@ void ParallelepipedImplementation<transCodeT, rotCodeT>::DistanceToOut(
   MaskedAssign(goingAway, 0., &distance);
   MaskedAssign(inPoint && inDirection && max < distance, max, &distance);
   done |= goingAway;
-  if (done == Backend::kTrue) return;
+  if (IsFull(done)) return;
 
   inDirection = localDirectionX < 0;
   max = -unplaced.GetX() - localPointX;

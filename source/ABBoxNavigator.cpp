@@ -108,6 +108,8 @@ size_t ABBoxNavigator::GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Pr
     }
   }
   return hitcount;
+#elif defined(VECGEOM_UMESIMD)
+#pragma message("Generalized vectorized version not present!")
 #else
   Vector3D<float> invdirfloat(1.f / (float)dir.x(), 1.f / (float)dir.y(), 1.f / (float)dir.z());
   Vector3D<float> pfloat((float)point.x(), (float)point.y(), (float)point.z());
@@ -152,6 +154,8 @@ int candidatecount=0;
            }
          }
     }
+#elif defined(VECGEOM_UMESIMD) 
+#pragma message("Generalized vectorized version not present")
 #else
     for( size_t box = 0; box < vecsize; ++box ){
          ABBoxManager::Real_v safetytoboxsqr =  ABBoxImplementation::ABBoxSafetySqr<kScalarFloat, float>(

@@ -41,6 +41,21 @@ double_v Vccbrt( double_v x )
   return Vc::copysign(tmp, xorig);
 }
 #endif
+#if defined(VECGEOM_UMESIMD)
+inline
+UmesimdPrecision_v Umecbrt( UmesimdPrecision_v x )
+{
+  UmesimdPrecision_v xorig=x;
+  x= Abs(x);
+  UmesimdPrecision_v t0 = x.log() * 0.33333333333333333333;
+  UmesimdPrecision_v t1=  t0.exp();
+  UmesimdPrecision_v t2 = t1.abs();
+  UmesimdPrecision_v t3(-1.0);
+  t3.assign(xorig > 0.0, 1.0);
+  UmesimdPrecision_v t4 = t2.abs() * t3;
+  return t4;
+}
+#endif
 #endif
 
 
@@ -286,6 +301,22 @@ Complex<VCT> csqrtrealargument( const VCT & x )
   return Complex<VCT>( realpart , impart );
 }
 #endif
+#if defined (VECGEOM_UMESIMD)
+typedef UmeSimdPrecisionVector UCT;
+typedef UmeSimdMask UMT;
+template <>
+inline
+Complex<UCT> csqrtrealargument( const UCT & x )
+{
+  UMT real = (x>=0.);
+  UCT l = (x.abs() ).sqrt();
+  UCT realpart(0.0);
+  UCT impart(0.0);
+  realpart(real) = l;
+  impart(!real) = l;
+  return Complex<UCT>( realpart , impart );
+}
+#endif
 #endif
  
 // we need standalone function for cubic root
@@ -358,6 +389,40 @@ Complex<Vc::double_v> cbrt( const Complex<Vc::double_v>& x )
   // use cubic root function defined above
   Vc::double_v rcbrt = Vccbrt( r );
   return Complex<Vc::double_v>(  rcbrt*cosnewangle, rcbrt*sinnewangle );
+}
+#endif
+#if defined(VECGEOM_UMESIMD)
+
+// template specialization for Vc
+// we need standalone function for cubic root
+template <>
+inline
+Complex<UCT> cbrt( const Complex<UCT>& x )
+{
+  // use the sin/cosine formula??
+  UCT r;
+  UCT sinnewangle, cosnewangle;
+  UMT imaginary = x.imag() != 0.0;
+  if( IsEmpty(imaginary) )
+    {
+      r = x.cabs();
+      UCT angle = x.carg();
+      angle( ! imaginary ) = 0.;
+      UCT signs(-1.0);
+      signs(x.real() > 0.0) = 1.0f;
+      r( ! imaginary ) = Abs(r) * signs;
+      UCT newangle = 0.33333333333333333*angle;
+      newangle.sincos(sinnewangle, cosnewangle);
+    }
+  else
+    {
+      r = x.real();
+      sinnewangle=UCT(0.);
+      cosnewangle=UCT(1.);
+    }
+  // use cubic root function defined above
+  UCT rcbrt = Umecbrt( r );
+  return Complex<UCT>(  rcbrt*cosnewangle, rcbrt*sinnewangle );
 }
 #endif
 #endif
@@ -645,6 +710,82 @@ void solveQuartic2(MicPrecision a, MicPrecision b, MicPrecision c,
     Complex<MicPrecision> r(real[i], imag[i]);
     root[i] = r;
   }
+}
+#endif
+#ifdef VECGEOM_UMESIMD
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+void solveQuartic2(UmeSimdPrecisionVector const & a, UmeSimdPrecisionVector const & b,
+                   UmeSimdPrecisionVector const & c, UmeSimdPrecisionVector const & d,
+                   UmeSimdPrecisionVector const & e, Complex<UmeSimdPrecisionVector> *roots) {
+
+  //  VCT inva=1./a;
+  //  VCT invaa = inva*inva;
+  //  VCT invaaa=invaa*inva;
+  UmeSimdPrecisionVector bb=b*b;
+  UmeSimdPrecisionVector bbb=bb*b;
+  UmeSimdPrecisionVector alpha = -3.0*0.125*bb + c, alpha2 = alpha * alpha;
+  UmeSimdPrecisionVector beta  = 0.125*bbb - 0.5*b*c+ d;
+  UmeSimdPrecisionVector gamma = -3.0*bbb*b*inv256 + c*bb*inv16 - 0.25*b*d + e;
+#ifdef VERBOSE
+// cross check accuracy
+UmeSimdPrecisionVector gamma1= -VCT(3.0)*bbb*b*inv256;
+double crosscheckgamma1 = -3.*bbb[0]*b[0]*inv256;
+if( std::abs(gamma1[0] - crosscheckgamma1) > 1E-8 ){
+printf("\nScalar/vector Accuracy issue %lg b %lf \n", std::abs(gamma1[0] - crosscheckgamma1), b[0] );
+}
+
+UmeSimdPrecisionVector gamma2 =  c*bb*inv16;
+UmeSimdPrecisionVector gamma3 = - 0.25*b*d + e;
+UmeSimdPrecisionVector gammasum = gamma1+gamma2+gamma3;
+
+std::cout<<"g1="<<gamma1<<" g2="<<gamma2<<" g3="<<gamma3<<" g="<<gammasum<<" inv256="<<inv256<<" bbb*b="<<bbb*b<<" ***"<<-3.0*bbb*b*inv256<<std::endl;
+#endif
+
+  UmeSimdPrecisionVector P = -alpha2*inv12 - gamma;
+  UmeSimdPrecisionVector Q = -alpha2*alpha*inv108 + alpha*gamma*inv3 - 0.125*beta*beta;
+  //   std::cerr << "P " << P << "\n"; 
+  //   std::cerr << "Q " << Q << "\n"; 
+
+
+  UmeSimdPrecisionVector tmp = 0.25*Q*Q + P*P*P*inv27;
+  Complex<UmeSimdPrecisionVector> R = Q*0.5 + csqrtrealargument(tmp);
+  Complex<UmeSimdPrecisionVector> U = cbrt(R);
+#ifdef VERBOSE
+      std::cout <<"a="<< alpha2 << "\n"; 
+   std::cout <<"b="<< beta << "\n"; 
+   std::cout <<" g=" <<gamma << "\n";
+      std::cout << "R " << R << "\n";
+      std::cout << "U " << U << "\n";
+      std::cout << "U*U*U " << U*U*U << "\n";
+#endif
+      //std::cerr << "R " << R << "\n";
+      //std::cerr << "U " << U << "\n";
+      //std::cerr << "U*U*U " << U*U*U << "\n";
+  Complex<UmeSimdPrecisionVector> y = -5.0*alpha*inv6 - U;
+  y = y + P/(3.*U );
+//      std::cout << "y " << y << "\n";
+  y.FixZeroes();
+  Complex<UmeSimdPrecisionVector> W = csqrt((alpha + y) + y);
+//      std::cout << "W " << W << "\n";
+
+  Complex<UmeSimdPrecisionVector> aRoot;
+
+  UmeSimdPrecisionVector firstPart = -0.25*b;
+  Complex<UmeSimdPrecisionVector> secondPart = -3.0*alpha - 2.0*y;
+  Complex<UmeSimdPrecisionVector> thirdPart = (2.0*beta)/(W);
+
+  aRoot = firstPart + 0.5 * (-W - csqrt(secondPart + thirdPart));
+  roots[0] = aRoot;
+
+  aRoot = firstPart + 0.5 * (-W + csqrt(secondPart + thirdPart));
+  roots[1] = aRoot;
+
+  aRoot = firstPart + 0.5 * (W - csqrt(secondPart - thirdPart));
+  roots[2] = aRoot;
+
+  aRoot = firstPart + 0.5 * (W + csqrt(secondPart - thirdPart));
+  roots[3] = aRoot;
 }
 #endif
 #endif
