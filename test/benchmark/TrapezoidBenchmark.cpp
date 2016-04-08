@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
   Benchmarker tester(GeoManager::Instance().GetWorld());
   tester.SetPointCount(ntracks);
   tester.SetRepetitions(nrep);
-  tester.SetTolerance(2.e-12);
+  tester.SetTolerance(1.e-9);
   tester.SetPoolMultiplier(1);
 
   //=== Here is for the validation + one perf data point displayed on screen
