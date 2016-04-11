@@ -198,12 +198,7 @@ bool TestHype() {
   Dist = b1.DistanceToOut(pbigz, vmz, norm, convex);
   assert(ApproxEqual(Dist, -1.));
 
-  // Raman------------------
-
   // Check Inside
-
-  // Raman------------
-
   assert(b1.Inside(pzero) == vecgeom::EInside::kOutside);
   assert(b1.Inside(pbigx) == vecgeom::EInside::kOutside);
   assert(b1.Inside(pbigy) == vecgeom::EInside::kOutside);
@@ -219,38 +214,6 @@ bool TestHype() {
   assert(b1.Inside(ponxsideI) == vecgeom::EInside::kSurface);
   assert(b1.Inside(ponysideI) == vecgeom::EInside::kSurface);
 
-  // Raman-------------
-  // assert(b1.Inside(ponzsideO)==vecgeom::EInside::kSurface);
-  // assert(b1.Inside(ponzsideI)==vecgeom::EInside::kSurface);
-
-  /*
-  // SafetyFromInside(P)
-  Dist=b1.SafetyFromInside(pzero);
-  assert(ApproxEqual(Dist,fR));
-  Dist=b1.SafetyFromInside(vx);
-  assert(ApproxEqual(Dist,fR-1));
-  Dist=b1.SafetyFromInside(vy);
-  assert(ApproxEqual(Dist,fR-1));
-  Dist=b1.SafetyFromInside(vz);
-  assert(ApproxEqual(Dist,fR-1));
-
-  //SafetyFromOutside(P)
-  Dist=b1.SafetyFromOutside(pbigx);
-  assert(ApproxEqual(Dist,100-fR));
-  Dist=b1.SafetyFromOutside(pbigmx);
-  assert(ApproxEqual(Dist,100-fR));
-  Dist=b1.SafetyFromOutside(pbigy);
-  assert(ApproxEqual(Dist,100-fR));
-  Dist=b1.SafetyFromOutside(pbigmy);
-  assert(ApproxEqual(Dist,100-fR));
-  Dist=b1.SafetyFromOutside(pbigz);
-  assert(ApproxEqual(Dist,100-fR));
-  Dist=b1.SafetyFromOutside(pbigmz);
-  assert(ApproxEqual(Dist,100-fR));
-  */
-  // DistanceToIn(P,V)
-
-  // Raman------------
 
   Dist = b1.DistanceToIn(pbigx, vmx);
   assert(ApproxEqual(Dist, 100 - fRmax));
@@ -261,10 +224,15 @@ bool TestHype() {
   Dist = b1.DistanceToIn(pbigmy, vy);
   assert(ApproxEqual(Dist, 100 - fRmax));
 
+
   Dist = b1.DistanceToIn(pbigz, vmz);
-  assert(ApproxEqual(Dist, 100 - fR));
+  if (Dist >= UUtils::kInfinity)
+      Dist = UUtils::Infinity();
+  assert(ApproxEqual(Dist, UUtils::Infinity()));
   Dist = b1.DistanceToIn(pbigmz, vz);
-  assert(ApproxEqual(Dist, 100 - fR));
+  if (Dist >= UUtils::kInfinity)
+      Dist = UUtils::Infinity();
+  assert(ApproxEqual(Dist, UUtils::Infinity()));
 
   Dist = b1.DistanceToIn(pbigx, vxy);
   if (Dist >= UUtils::kInfinity)
