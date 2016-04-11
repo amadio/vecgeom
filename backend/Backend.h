@@ -15,6 +15,8 @@
 #include "backend/cilk/Backend.h"
 #elif defined(VECGEOM_MICVEC)
 #include "backend/micvec/Backend.h"
+#elif defined(VECGEOM_UMESIMD)
+#include "backend/umesimd/Backend.h"
 #else
 #include "backend/scalar/Backend.h"
 #endif

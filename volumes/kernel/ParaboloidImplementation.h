@@ -102,7 +102,7 @@ struct ParaboloidImplementation {
     VECGEOM_CUDA_HEADER_BOTH
     static void UnplacedInside(UnplacedParaboloid const &unplaced,
                                Vector3D<typename Backend::precision_v> point,
-                               typename Backend::int_v &inside) {
+                               typename Backend::inside_v &inside) {
         
         typedef typename Backend::precision_v Double_t;
         typedef typename Backend::bool_v      Bool_t;
@@ -178,7 +178,7 @@ struct ParaboloidImplementation {
                        Transformation3D const &transformation,
                        Vector3D<typename Backend::precision_v> const &point,
                        Vector3D<typename Backend::precision_v> &localPoint,
-                       typename Backend::int_v &inside) {
+                       typename Backend::inside_v &inside) {
         localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
         UnplacedInside<Backend>(unplaced, localPoint, inside);
     }
@@ -189,7 +189,7 @@ struct ParaboloidImplementation {
     static void Inside(UnplacedParaboloid const &unplaced,
                        Transformation3D const &transformation,
                        Vector3D<typename Backend::precision_v> const &point,
-                       typename Backend::int_v &inside) {
+                       typename Backend::inside_v &inside) {
         
       Vector3D<typename Backend::precision_v> localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
       UnplacedInside<Backend>(unplaced, localPoint, inside);

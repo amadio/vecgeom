@@ -40,6 +40,10 @@ public:
   typedef Vc::float_v Real_v;
   typedef Vc::float_m Bool_v;
   constexpr static unsigned int Real_vSize = Real_v::Size;
+#elif defined(VECGEOM_UMESIMD)
+  typedef kUmeSimd::precision_v Real_v;
+  typedef kUmeSimd::bool_v      Bool_v;
+  constexpr static unsigned int Real_vSize = kVectorSize;
 #else
   typedef float Real_v;
   typedef bool Bool_v;
