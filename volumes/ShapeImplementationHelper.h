@@ -217,7 +217,11 @@ public:
     );
 
     // avoid distance values within tolerance
+#ifdef VECGEOM_USOLIDS
+    MaskedAssign(output<kHalfTolerance, 0., &output);
+#else
     MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
+#endif
 
 #ifdef VECGEOM_DISTANCE_DEBUG
     DistanceComparator::CompareDistanceToIn( this, output, point, direction, stepMax );
@@ -264,7 +268,11 @@ public:
     );
 
     // avoid distance values within tolerance
+#ifdef VECGEOM_USOLIDS
+    MaskedAssign(output<kHalfTolerance, 0., &output);
+#else
     MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
+#endif
 
 #ifdef VECGEOM_DISTANCE_DEBUG
     DistanceComparator::CompareDistanceToOut( this, output, point, direction, stepMax );
@@ -368,7 +376,11 @@ public:
     );
 
     // avoid distance values within tolerance
+#ifdef VECGEOM_USOLIDS
+    MaskedAssign(output<kHalfTolerance, 0., &output);
+#else
     MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
+#endif
 
     return output;
   }
@@ -383,7 +395,11 @@ public:
     );
 
     // avoid distance values within tolerance
+#ifdef VECGEOM_USOLIDS
+    MaskedAssign(output<kHalfTolerance, 0., &output);
+#else
     MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
+#endif
 
     return output;
   }
