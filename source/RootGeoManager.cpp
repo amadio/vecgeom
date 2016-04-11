@@ -213,9 +213,10 @@ LogicalVolume *RootGeoManager::Convert(TGeoVolume const *const volume) {
   if (fLogicalVolumeMap.Contains(volume))
     return const_cast<LogicalVolume *>(fLogicalVolumeMap[volume]);
 
-  VUnplacedVolume const *const unplaced = Convert(volume->GetShape());
+  VUnplacedVolume const *unplaced = Convert(volume->GetShape());
   LogicalVolume *const logical_volume = new LogicalVolume(volume->GetName(), unplaced);
   Medium const *const medium = Convert(volume->GetMedium());
+  if (!unplaced) unplaced = new UnplacedRootVolume(volume->GetShape());
   const_cast<LogicalVolume *>(logical_volume)->SetTrackingMediumPtr((void *)medium);
 
   fLogicalVolumeMap.Set(volume, logical_volume);
@@ -405,7 +406,9 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape) {
     Transformation3D const *righttrans = Convert(boolnode->GetRightMatrix());
     // unplaced shapes
     VUnplacedVolume const *leftunplaced = Convert(boolnode->GetLeftShape());
+    if (!leftunplaced) leftunplaced = new UnplacedRootVolume(boolnode->GetLeftShape());
     VUnplacedVolume const *rightunplaced = Convert(boolnode->GetRightShape());
+    if (!rightunplaced) rightunplaced = new UnplacedRootVolume(boolnode->GetRightShape());
 
     assert(leftunplaced != nullptr);
     assert(rightunplaced != nullptr);
@@ -445,6 +448,7 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape) {
     TGeoScaledShape const *const p = static_cast<TGeoScaledShape const *>(shape);
     // First convert the referenced shape
     VUnplacedVolume *referenced_shape = Convert(p->GetShape());
+    if (!referenced_shape) referenced_shape = new UnplacedRootVolume(p->GetShape());
     const double *scale_root = p->GetScale()->GetScale();
     unplaced_volume = new UnplacedScaledShape(referenced_shape, scale_root[0], scale_root[1], scale_root[2]);
   }
@@ -479,7 +483,8 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape) {
              "Using ROOT implementation.\n",
              shape->GetName(), shape->ClassName());
     }
-    unplaced_volume = new UnplacedRootVolume(shape);
+//    unplaced_volume = new UnplacedRootVolume(shape);
+    return nullptr;
   }
 
   fUnplacedVolumeMap.Set(shape, unplaced_volume);
