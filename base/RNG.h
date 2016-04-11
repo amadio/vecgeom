@@ -104,6 +104,11 @@ public:
   }
 #endif
 
+#ifndef VECGEOM_NVCC
+  void seed(unsigned long seed_val){
+     rng.seed(seed_val);
+  }
+#endif
   /**
    * Access singleton instance.
    */

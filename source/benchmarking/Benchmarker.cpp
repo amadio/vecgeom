@@ -27,7 +27,6 @@
 #ifdef VECGEOM_GEANT4
 #endif
 
-#include <cassert>
 #include <random>
 #include <sstream>
 #include <utility>
@@ -386,7 +385,7 @@ int Benchmarker::CompareSafeties(
 }
 
 int Benchmarker::RunBenchmark() {
-  Assert(fWorld, "No world specified to benchmark.\n");
+  assert(fWorld != nullptr);
   int errorcode=0;
   errorcode+=RunInsideBenchmark();
   errorcode+=RunToInBenchmark();

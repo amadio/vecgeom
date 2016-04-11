@@ -37,7 +37,6 @@
 #endif
 
 #undef NDEBUG
-#include <cassert>
 
 #include <ctime>
 #include <fstream>
@@ -159,7 +158,7 @@ bool ShapeTester::ShapeConventionSurfacePoint() {
         // assert(Dist > 0.);
         if (!(Dist > 0.)) {
           ReportError(&nError, point, direction, Dist,
-                      "DistanceToIn for Surface Point exiting into the Shape should be > 0.");
+                      "DistanceToIn for Surface Point exiting the Shape should be > 0.");
           fScore |= (1 << indx);
           surfPointConventionPassed &= false;
         }

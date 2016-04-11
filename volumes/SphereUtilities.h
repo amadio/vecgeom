@@ -5,7 +5,6 @@
 
 #ifndef VECGEOM_NVCC
 #include "base/RNG.h"
-#include <cassert>
 //#include <iostream>
 //#include <fstream>
 //#include <limits>

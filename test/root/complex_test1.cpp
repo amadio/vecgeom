@@ -7,6 +7,9 @@
 // b) creation of a VecGeom geometry
 // c) navigation in VecGeom geometry
 
+// Forced asserts() to be defined, even for Release mode
+#undef NDEBUG
+
 #include <iostream>
 
 #include "base/SOA3D.h"
@@ -30,11 +33,6 @@
 
 #include <vector>
 #include <set>
-
-#ifdef NDEBUG
-#undef NDEBUG
-#endif
-#include <cassert>
 
 using namespace VECGEOM_NAMESPACE;
 
@@ -534,7 +532,7 @@ void test_alignedboundingboxcalculation(){
 
     double dx = 4,dy=2,dz=3;
     UnplacedBox box1 = UnplacedBox(dx, dy, dz);
-    LogicalVolume lbox = LogicalVolume("test box", &box1);
+    LogicalVolume lbox("test box", &box1);
 
     double tx = 4,ty=10,tz=3;
     Transformation3D placement1 = Transformation3D( tx, ty, tz );

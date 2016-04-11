@@ -78,7 +78,7 @@ void SimpleNavigator::InspectEnvironmentForPointAndDirection
    Vector<Daughter> const * daughters = currentvolume->GetLogicalVolume()->GetDaughtersp();
 
    outstream << "ITERATING OVER " << daughters->size() << " DAUGHTER VOLUMES " << "\n";
-   for(unsigned int d = 0; d<daughters->size(); ++d)
+   for(size_t d = 0; d<daughters->size(); ++d)
    {
       VPlacedVolume const * daughter = daughters->operator [](d);
       //    previous distance becomes step estimate, distance to daughter returned in workspace

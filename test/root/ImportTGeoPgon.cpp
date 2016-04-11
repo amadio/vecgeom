@@ -1,12 +1,13 @@
+
+// Forced asserts() to be defined, even for Release mode
+#undef NDEBUG
+
 #include "management/RootGeoManager.h"
 #include "volumes/Polyhedron.h"
 #include "volumes/utilities/VolumeUtilities.h"
 
 #include "TGeoPgon.h"
 #include <memory>
-
-#undef NDEBUG
-#include <cassert>
 
 using namespace vecgeom;
 

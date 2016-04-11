@@ -41,19 +41,19 @@ private:
 
   VECGEOM_CUDA_HEADER_BOTH
   void calculateCached() {
-    fTolIz = fZ - kTolerance;
-    fTolOz = fZ + kTolerance;
+    fTolIz = fZ - kHalfTolerance;
+    fTolOz = fZ + kHalfTolerance;
 
     fRmin2 = fRmin * fRmin;
     fRmax2 = fRmax * fRmax;
 
-    fTolOrmin = (fRmin - kTolerance);
-    fTolIrmin = (fRmin + kTolerance);
+    fTolOrmin = (fRmin - kHalfTolerance);
+    fTolIrmin = (fRmin + kHalfTolerance);
     fTolOrmin2 = fTolOrmin * fTolOrmin;
     fTolIrmin2 = fTolIrmin * fTolIrmin;
 
-    fTolOrmax = (fRmax + kTolerance);
-    fTolIrmax = (fRmax - kTolerance);
+    fTolOrmax = (fRmax + kHalfTolerance);
+    fTolIrmax = (fRmax - kHalfTolerance);
     fTolOrmax2 = fTolOrmax * fTolOrmax;
     fTolIrmax2 = fTolIrmax * fTolIrmax;
 

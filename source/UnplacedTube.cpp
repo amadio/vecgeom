@@ -6,7 +6,6 @@
 #include "backend/Backend.h"
 #ifndef VECGEOM_NVCC
 #include "base/RNG.h"
-#include <cassert>
 #include <cmath>
 #include <iostream>
 #endif

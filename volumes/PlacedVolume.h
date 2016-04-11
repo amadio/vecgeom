@@ -10,6 +10,10 @@
 #include "backend/Backend.h"
 #include <string>
 
+#ifdef VECGEOM_VC
+#include <Vc/Vc>
+#endif
+
 class G4VSolid;
 
 namespace vecgeom {
@@ -155,13 +159,21 @@ public:
 
   friend std::ostream& operator<<(std::ostream& os, VPlacedVolume const &vol);
 
-  virtual int memory_size() const =0;
+  virtual int memory_size() const = 0;
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual void Print(const int indent = 0) const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void PrintType() const =0;
+  virtual void PrintType() const = 0;
+
+  // some functions allowing for some very basic "introspection"
+  // print the volume type to an outstream
+  virtual void PrintType(std::ostream &os) const = 0;
+  // print the implemtation struct of this volume to an outstream
+  virtual void PrintImplementationType(std::ostream &os) const = 0;
+  // print the unplaced type to an outstream
+  virtual void PrintUnplacedType(std::ostream &os) const = 0;
 
   /// Recursively prints contained volumes to standard output.
   VECGEOM_CUDA_HEADER_BOTH

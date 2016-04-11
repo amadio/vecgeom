@@ -16,7 +16,6 @@
 #include "volumes/Quadrilaterals.h"
 #include "volumes/UnplacedPolyhedron.h"
 #include <cstdio>
-#include <cassert>
 
 namespace vecgeom {
 
@@ -40,18 +39,30 @@ template <TranslationCode transCodeT, RotationCode rotCodeT,
 struct PolyhedronImplementation {
 
     // there is currently no specialization
-    static const int transC = transCodeT;
-    static const int rotC = rotCodeT;
+  static const int transC = transCodeT;
+  static const int rotC = rotCodeT;
 
-   using PlacedShape_t = PlacedPolyhedron;
-   using UnplacedShape_t = UnplacedPolyhedron;
+  using PlacedShape_t = PlacedPolyhedron;
+  using UnplacedShape_t = UnplacedPolyhedron;
 
-   VECGEOM_CUDA_HEADER_BOTH
-   static void PrintType() {
-     printf("SpecializedPolyhedron<trans = %i, rot = %i, innerR = %i, phicut = %i>", transC, rotC,
-            (int)innerRadiiT, (int)phiCutoutT);
-   }
+  VECGEOM_CUDA_HEADER_BOTH
+  static void PrintType() {
+    printf("SpecializedPolyhedron<trans = %i, rot = %i, innerR = %i, phicut = %i>", transC, rotC, (int)innerRadiiT,
+           (int)phiCutoutT);
+  }
 
+  template <typename Stream>
+  static void PrintType(Stream &s) {
+    s << "SpecializedPolyhedron<" << transC << "," << rotC << "," << innerRadiiT << "," << phiCutoutT << ">";
+  }
+
+  template <typename Stream>
+  static void PrintImplementationType(Stream &s) {
+    s << "PolyhedronImplementation<" << transC << "," << rotC << "," << innerRadiiT << "," << phiCutoutT << ">";
+  }
+
+  template <typename Stream>
+  static void PrintUnplacedType(Stream &s) { s << "UnplacedPolyhedron"; }
 
   /// \param pointZ Z-coordinate of a point.
   /// \return Index of the Z-segment in which the passed point is located. If
@@ -988,10 +999,14 @@ PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::ScalarDi
     Vector3D<Precision> const &point,
     Vector3D<Precision> const &direction,
     const Precision /*stepMax*/) {
+  // Fast exclusion if out of Z range
+  const int zMax = unplaced.GetZSegmentCount();
+  if ((point[2] < unplaced.GetZPlanes()[0]-kTolerance) ||
+      (point[2] > unplaced.GetZPlanes()[zMax]+kTolerance))
+    return -1.;
 
   int zIndex = FindZSegment<kScalar>(unplaced, point[2]);
   // Don't go out of bounds
-  const int zMax = unplaced.GetZSegmentCount();
   zIndex = zIndex < 0 ? 0 : (zIndex >= zMax ? zMax-1 : zIndex);
 
   // Traverse Z-segments left or right depending on sign of direction
@@ -1023,6 +1038,9 @@ PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::ScalarDi
   // disabling stepMax until convention revised and clear
   // there is a problem when distance = infinity due to some error condition but stepMax finite
   // return distance < stepMax ? distance : stepMax;
+  // signal error with returning negative number
+  if(distance>=kInfinity)
+    distance = -1.;
   return distance;
 }
 
@@ -1051,7 +1069,6 @@ void PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::Con
     Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> &localPoint,
     typename Backend::bool_v &inside) {
- // Assert(0, "Generic Contains not implemented.\n");
 
  // we should assert if Backend != scalar
     localPoint = transformation.Transform<transC,rotC>(point);
@@ -1085,7 +1102,6 @@ void PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::Dis
     Vector3D<typename Backend::precision_v> const &direction,
     typename Backend::precision_v const &stepMax,
     typename Backend::precision_v &distance) {
- // Assert(0, "Generic DistanceToIn not implemented.\n");
     distance = ScalarDistanceToInKernel( unplaced, transformation,
            point, direction, stepMax) ;
 }

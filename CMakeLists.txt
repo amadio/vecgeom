@@ -1,10 +1,11 @@
-
-cmake_minimum_required(VERSION 2.8.8)
+cmake_minimum_required(VERSION 3.1.0)
 project(VecGeom)
 
-enable_language(CXX)
-
 set(VECGEOM ON)
+
+enable_language(CXX)
+set(CMAKE_CXX_STANDARD 11 CACHE STRING "C++ ISO Standard")
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 ################################################################################
 if (NOT CMAKE_BUILD_TYPE)
@@ -15,7 +16,7 @@ string(TOUPPER ${CMAKE_BUILD_TYPE} _build_type)
 
 # Setting the C++ compiler to use
 set("${CMAKE_CXX_COMPILER_ID}" TRUE CACHE STRING "C++ Compiler")
-if (NOT GNU AND NOT Clang AND NOT Intel)
+if (NOT GNU AND NOT Clang AND NOT AppleClang AND NOT Intel)
   message(WARNING "Unsupported compiler. Build will likely fail.")
 endif()
 
@@ -71,7 +72,7 @@ enum_option(VECGEOM_VECTOR
       CASE_INSENSITIVE
     )
 
-set(VECGEOM_BACKEND default Scalar Vc Cilk MicVec)
+set(VECGEOM_BACKEND default Scalar Vc Cilk MicVec umesimd)
 
 enum_option(BACKEND
             DOC "Backend infrastructure to be used"
@@ -129,19 +130,22 @@ if (_backend_up MATCHES VC)
   message(STATUS "Configuring with \"Vc\" vector backend")
 elseif (_backend_up MATCHES SCALAR)
   set(Scalar ON)
- message(STATUS "Configuring with \"Scalar\" backend")
+  message(STATUS "Configuring with \"Scalar\" backend.")
 elseif (_backend_up MATCHES CILK)
   if (NOT Intel)
     message(FATAL_ERROR "Must use Intel C++ compiler (icpc) for Cilk+ backend.")
   endif()
   set(Cilk ON)
-  message(STATUS "Configuring with \"Cilk+\" vector backend")
+  message(STATUS "Configuring with \"Cilk+\" vector backend.")
 elseif (_backend_up MATCHES MICVEC)
   if (NOT Intel)
     message(FATAL_ERROR "Must use Intel C++ compiler (icpc) with MIC SIMD for MICVEC backend.")
   endif()
   set(MICVEC ON)
-  message(STATUS "Configuring with \"Micvec\" vector backend")
+  message(STATUS "Configuring with \"Micvec\" vector backend.")
+elseif (_backend_up MATCHES UMESIMD)
+  set(UMESIMD ON)
+  message(STATUS "Configuring with \"UME::SIMD\" vector backend.")
 elseif (_backend_up MATCHES DEFAULT)
   set(Vc ON)
   message(WARNING "Backend not specified. Defaulting to Vc.")
@@ -165,6 +169,14 @@ if (GNU)
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -fabi-version=6")
   endif()
 elseif(Intel)
+  # CMake fails to add -std option for icc, so add it manually
+  if(CMAKE_CXX_STANDARD STREQUAL 11)
+    list(APPEND CMAKE_CXX_FLAGS -std=c++11)
+  elseif(CMAKE_CXX_STANDARD STREQUAL 14)
+    list(APPEND CMAKE_CXX_FLAGS -std=c++14)
+  else()
+    message(FATAL_ERROR "Unsupported C++ standard requested")
+  endif()
   set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -fPIC -diag-disable 3438")
   if (CMAKE_BUILD_TYPE MATCHES Debug)
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -g -O0")
@@ -247,6 +259,9 @@ if (Cilk)
 endif()
 if (MICVEC)
   set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_MICVEC")
+endif()
+if (UMESIMD)
+  set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -DVECGEOM_UMESIMD")
 endif()
 
 if (CUDA)
@@ -383,6 +398,10 @@ if (MICVEC)
   set(SRC_EXTERNAL ${SRC_EXTERNAL} source/backend/micvec/Backend.cpp)
 endif()
 
+if (UMESIMD)
+  set(SRC_EXTERNAL ${SRC_EXTERNAL} source/backend/umesimd/Backend.cpp)
+endif()
+
 if (CUDA)
 
   find_package(CUDA REQUIRED)
@@ -430,8 +449,8 @@ if (ROOT)
       source/PlacedRootVolume.cpp
       source/RootGeoManager.cpp
       source/UnplacedRootVolume.cpp
+      source/ShapeDebugger.cpp
       source/Visualizer.cpp)
-
 endif()
 
 if (USolids)
@@ -496,6 +515,7 @@ set(SRC_CPP_RELATIVE
   source/PlacedTorus.cpp
   source/PlacedTorus2.cpp
   source/PlacedTrd.cpp
+  source/PlacedGenTrap.cpp
   source/PlacedParallelepiped.cpp
   source/PlacedParaboloid.cpp
   source/PlacedScaledShape.cpp
@@ -518,6 +538,7 @@ set(SRC_CPP_RELATIVE
   source/UnplacedParallelepiped.cpp
   source/UnplacedScaledShape.cpp
   source/UnplacedTrapezoid.cpp
+  source/UnplacedGenTrap.cpp
   source/UnplacedVolume.cpp
   source/Vector.cpp
   source/NavigationState.cpp
@@ -531,6 +552,7 @@ set(SRC_CPP_RELATIVE
   source/PlacedBooleanVolume.cpp
   source/Wedge.cpp
   source/ABBoxManager.cpp
+  source/HybridManager2.cpp
   source/ABBoxNavigator.cpp
 
   source/USolidsInterfaceHelper.cpp
@@ -540,6 +562,8 @@ set(SRC_CPP_RELATIVE
   source/Nucleus.cpp
   source/MessageLogger.cpp
   source/Particle.cpp
+
+  services/NavigationSpecializer.cpp
 )
 
 # avoid "file has no symbols" warnings
@@ -567,12 +591,14 @@ endforeach()
 set(NOT_FOR_CUDA
    ABBoxManager
    ABBoxNavigator
-   CreateParticles
-   Particle
+   HybridManager2
+  # CreateParticles
+  # Particle
    Medium
    Nucleus
    CreateNuclei
    Material
+   NavigationSpecializer
 )
 
 
@@ -626,21 +652,20 @@ if (BENCHMARK)
 endif()
 set(SRC_CPP ${SRC_CPP} ${SRC_EXTERNAL}
   source/GeoManager.cpp
-  source/ShapeDebugger.cpp
   source/CppExporter.cpp
   source/benchmarking/NavigationBenchmarker.cpp
 )
 
-# some CUDA kernel code in "userspace"
+# some CUDA kernel code in "userspace" and test
 if (CUDA)
-    set(SRC_USER_CUDA_CPP
-        userexamples/src/TestNavigationStatePool.cu
-    )
-endif()
-
-
-# Compile cpp-files for C++11
-set_source_files_properties(${SRC_CPP} PROPERTIES COMPILE_FLAGS -std=c++11)
+   set(SRC_USER_CUDA_CPP
+       userexamples/src/TestNavigationStatePool.cu
+   )
+  set(SRC_CUDA ${SRC_CUDA}
+        test/cuda/MapTest.cu
+        test/cuda/MapTestClass.cu
+   )
+ endif()
 
 ################################################################################
 
@@ -654,22 +679,20 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} rt)
 endif()
 
-set_source_files_properties(
-  ${SRC_EXECUTABLES}
-  PROPERTIES COMPILE_FLAGS -std=c++11
-)
-
 # build the CUDA version of the library
 if (CUDA)
   cuda_add_library(
     vecgeomcuda
     ${SRC_CUDA}
     OPTIONS ${CUDA_ARCH}
+    # For debug information we might need
+    #    -O0 -g -G -lineinfo
     ${VECGEOM_NVCC_CONFIGS}
   )
   target_link_libraries(vecgeomcuda ${VECGEOM_LIBRARIES}
                         ${VECGEOM_LIBRARIES_EXTERNAL})
   set(VECGEOM_LIBRARIES ${VECGEOM_LIBRARIES} vecgeomcuda)
+
 endif()
 
 
@@ -680,14 +703,19 @@ if (CUDA)
     ${SRC_USER_CUDA_CPP}
     OPTIONS ${CUDA_ARCH}
   )
+  # Note: the repeat below is due the author  cuda_add_library_depend
+  # not knowing about to automatically go from the target to the real
+  # file in add_custom_command
+  cuda_add_library_depend(cudauserlib vecgeomcuda libvecgeomcuda.a)
   target_link_libraries(cudauserlib ${VECGEOM_LIBRARIES} ${VECGEOM_LIBRARIES_EXTERNAL})
-  set(USERKERNELLIB cudauserlib)
+  set(USERKERNELLIB cudauserlib_final)
 endif()
 ################################################################################
 
 # Define executables
 
 set(TEST_EXECUTABLES_CORE
+  ${CMAKE_SOURCE_DIR}/test/core/SafetyEstimatorTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/ContainerTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/create_geometry.cpp
   ${CMAKE_SOURCE_DIR}/test/core/testVectorSafety.cpp
@@ -702,6 +730,9 @@ set(TEST_EXECUTABLES_CORE
   ${CMAKE_SOURCE_DIR}/test/core/TestConvexity.cpp
   ${CMAKE_SOURCE_DIR}/test/core/BooleanConvexityTest.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestVecGeomPolycone.cpp
+
+
+#  ${CMAKE_SOURCE_DIR}/services/CompNavStatePools.cpp
 )
 
 
@@ -725,13 +756,16 @@ if(NOT USolids)
     ${TEST_EXECUTABLES_CORE}
     ${CMAKE_SOURCE_DIR}/test/core/BitSetTest.cpp
   )
-  # higher level benchmarks
+  # higher level benchmarks or executables
   set(TEST_EXECUTABLES_ROOT
     ${TEST_EXECUTABLES_ROOT}
     ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/LocatePointsBenchmark.cpp
+    ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/SafetyKernelBenchmarker.cpp
+    ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/NavigationKernelBenchmarker.cpp
     ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/NavigationBenchmark.cpp
     ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/TraceTrack.cpp
     ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/XRayBenchmarkFromROOTFile.cpp
+    ${CMAKE_SOURCE_DIR}/services/NavigationSpecializerTest.cpp
   )
 endif()
 
@@ -750,6 +784,7 @@ if(BENCHMARK)
   ${CMAKE_SOURCE_DIR}/test/root/BenchmarkShapeFromROOTFile.cpp
   ${CMAKE_SOURCE_DIR}/test/root/BenchmarkShapeFromROOTFile_WithVisualization.cpp
   ${CMAKE_SOURCE_DIR}/test/root/CompareDistances.cpp
+  ${CMAKE_SOURCE_DIR}/test/shape_tester/shapeDebug.cpp
 )
 endif()
 
@@ -765,12 +800,14 @@ set(TEST_EXECUTABLES_VISUALIZATION
   ${CMAKE_SOURCE_DIR}/test/visualization/DebugTube.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/DebugPolyhedron.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeSphere.cpp
+  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeGenTrap.cpp
 )
 
 set(TEST_EXECUTABLES_USOLIDS
   ${CMAKE_SOURCE_DIR}/test/usolids/CompatibilityTest.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBox.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestCons.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestGenTrap.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTube.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestHype.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTrd.cpp
@@ -812,9 +849,13 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${CMAKE_SOURCE_DIR}/test/benchmark/PolyconeBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ScaledBenchmark.cpp
    ${CMAKE_SOURCE_DIR}/test/benchmark/BoxScaledBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/GenTrapBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/GenTrapBenchmark_planar.cpp
 )
 set(TEST_EXECUTABLES_CUDA
   # Files go here
+  ${CMAKE_SOURCE_DIR}/test/cuda/MapTest.cpp
+  ${CMAKE_SOURCE_DIR}/test/cuda/MapTestClass.cpp
 )
 set(TEST_EXECUTABLES_SHAPETESTER
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testBox.cpp
@@ -827,6 +868,8 @@ set(TEST_EXECUTABLES_SHAPETESTER
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTrapezoid.cpp
   # ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testParaboloid.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testPolycone.cpp 
+  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testGenTrap.cpp
+  ${CMAKE_SOURCE_DIR}/test/shape_tester/convention_testTube.cpp
 )
 
 if(ROOT) # add shape testers that depend on ROOT
@@ -843,11 +886,6 @@ set(TEST_EXECUTABLES
   ${TEST_EXECUTABLES_BENCHMARK}
   ${TEST_EXECUTABLES_CUDA}
   ${TEST_EXECUTABLES_SHAPETESTER}
-)
-
-set_source_files_properties(
-  ${TEST_EXECUTABLES}
-  PROPERTIES COMPILE_FLAGS -std=c++11
 )
 
 # Build executables
@@ -1059,6 +1097,7 @@ set(CONF_LIBRARIES ${VECGEOM_LIBRARIES_EXTERNAL}
     "${CONF_LIBRARY_DIR}/libvecgeom.a")
 if (CUDA)
    set(CONF_LIBRARIES "${CONF_LIBRARY_DIR}/libvecgeomcuda.a" ${CONF_LIBRARIES}  "${CONF_LIBRARY_DIR}/libvecgeomcuda.a")
+   set(CONF_LIBRARIES "${CONF_LIBRARY_DIR}/libvecgeomcuda_final.a" ${CONF_LIBRARIES}  "${CONF_LIBRARY_DIR}/libvecgeomcuda_final.a")
 endif()
 if (USolids)
   set(CONF_LIBRARIES ${CONF_LIBRARIES} "${CONF_LIBRARY_DIR}/libusolids.a")
@@ -1094,6 +1133,7 @@ else ()
 endif ()
 if (CUDA)
   install(TARGETS vecgeomcuda DESTINATION ${INSTALL_LIB_DIR})
+  install(TARGETS vecgeomcuda_final DESTINATION ${INSTALL_LIB_DIR})
 endif()
 
 

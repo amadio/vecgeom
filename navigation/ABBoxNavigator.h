@@ -22,7 +22,6 @@
 #endif
 
 #include <vector>
-#include <cassert>
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

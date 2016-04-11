@@ -9,6 +9,7 @@
 #define VECGEOM_VOLUMES_KERNEL_SHAPETYPES_TUBETYPES_H_
 
 #include <string>
+#include "volumes/UnplacedTube.h"
 
 namespace vecgeom {
 

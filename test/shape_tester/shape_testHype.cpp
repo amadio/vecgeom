@@ -23,7 +23,7 @@ int main(int argc,char *argv[]) {
     hype = new Hype_t("test_VecGeomHype", 5., 20, PI / 6, PI / 3, 50);
  }
   ShapeTester tester;
-
+  tester.SetSolidTolerance(1e-7);
   if(argc>2)
   {
     if(strcmp(argv[2],"vis")==0)

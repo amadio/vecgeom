@@ -5,7 +5,7 @@
 #define VECGEOM_BASE_VECTOR_H_
 
 #include "base/Global.h"
-
+#include <initializer_list>
 #ifdef VECGEOM_CUDA
 #include "backend/cuda/Interface.h"
 #endif
@@ -15,6 +15,7 @@ namespace vecgeom {
 VECGEOM_DEVICE_FORWARD_DECLARE( template <typename Type> class Vector; )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
+
 
 template <typename Type>
 class Vector {
@@ -44,8 +45,32 @@ public:
      : fData(vec), fSize(sz), fMemorySize(maxsize), fAllocated(false) {}
 
   VECGEOM_CUDA_HEADER_BOTH
+  Vector(Vector const &other): fSize(other.fSize),fMemorySize(other.fMemorySize),fAllocated(true){
+      fData = new Type[fMemorySize];
+      for (size_t i = 0; i < fSize; ++i) fData[i] = other.fData[i];
+  }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  Vector(std::initializer_list<Type> entries) {
+    fSize = entries.size();
+    fData = new Type[fSize];
+    fMemorySize = entries.size()*sizeof(Type);
+    for  (auto itm : entries) this->push_back(itm);
+   }
+
+
+  VECGEOM_CUDA_HEADER_BOTH
   ~Vector() {
     if (fAllocated) delete[] fData;
+  }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  void clear() {
+    if (fAllocated) {
+      delete[] fData;
+      fData = new Type[fMemorySize];
+    }
+    fSize=0;
   }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -99,10 +124,33 @@ public:
     return fSize;
   }
 
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  void resize (int newsize, Type value) {
+      Type *temp = new Type[newsize];
+      if (newsize <= fSize) {
+         for (int i=0;i<newsize; ++i)
+             temp[i]=fData[i];
+         delete[] fData;
+         fData = new Type[newsize];
+         fSize = newsize;
+         for (int i=0;i<newsize; ++i)
+            fData[i]=temp[i];
+      } else {
+         for (int i=0;i<fSize; ++i)
+            temp[i]=fData[i];
+         delete[] fData;
+         fData = new Type[newsize];
+         for (int i =0; i<fSize; ++i ) fData[i] = temp[i];
+         for (int i =fSize; i<newsize; ++i ) fData[i] = value;
+     }
+     fSize = newsize;
+     delete[] temp;
+  }
 #ifdef VECGEOM_CUDA_INTERFACE
   DevicePtr<cuda::Vector<CudaType_t<Type> > > CopyToGpu(
      DevicePtr<CudaType_t<Type> > const gpu_ptr_arr,
-     DevicePtr<cuda::Vector<CudaType_t<Type> > > const gpu_ptr) const 
+     DevicePtr<cuda::Vector<CudaType_t<Type> > > const gpu_ptr) const
   {
      gpu_ptr.Construct(gpu_ptr_arr, size());
      return gpu_ptr;
@@ -112,7 +160,6 @@ public:
 private:
 
   // Not implemented
-  Vector(Vector const &other);
   Vector * operator=(Vector const & other);
 
 };

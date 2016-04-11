@@ -12,7 +12,6 @@
 #include "VUSolid.hh"
 #include "volumes/USolidsInterfaceHelper.h"
 #undef NDEBUG
-#include <cassert>
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

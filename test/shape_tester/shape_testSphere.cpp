@@ -20,12 +20,15 @@ typedef vecgeom::SimpleSphere Sphere_t;
 int main(  int argc,char *argv[]) {
 
 //  VUSolid* sphere=new USphere("test_sphere",15. , 20. , 0 ,2*PI/3, 2*PI/3 ,PI/6);
-VUSolid* sphere=new Sphere_t("test_sphere",15. , 20. ,PI/6, 4.265389, PI/3 ,0.235869);
+//VUSolid* sphere=new Sphere_t("test_sphere",15. , 20. ,PI/6, 4.265389, PI/3 ,0.235869);
+  VUSolid* sphere=new Sphere_t("test_sphere",10. , 20. ,0.,  2*PI/3., 0., PI);
+
    // VUSolid* sphere=new USphere("test_USphere",3.);
   ShapeTester tester;
-
+  tester.EnableDebugger(true);
   if(argc>1)
-  {
+  { 
+   /*
     if(strcmp(argv[1],"vis")==0)
     {
      #ifdef VECGEOM_ROOT
@@ -34,6 +37,8 @@ VUSolid* sphere=new Sphere_t("test_sphere",15. , 20. ,PI/6, 4.265389, PI/3 ,0.23
      theApp.Run();
      #endif
     }
+*/
+ tester.Run(sphere,argv[1]);
   }
   else
   {

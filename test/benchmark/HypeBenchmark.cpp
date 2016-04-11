@@ -24,8 +24,10 @@ int main(int argc, char* argv[]) {
 
   UnplacedBox worldUnplaced = UnplacedBox(rmax*4, rmax*4, dz*4);
   UnplacedHype hypeUnplaced = UnplacedHype(rmin,rmax,sin,sout,dz);
-  LogicalVolume world = LogicalVolume("w0rld", &worldUnplaced);
-  LogicalVolume hype = LogicalVolume("p4r4", &hypeUnplaced);
+  //LogicalVolume world = LogicalVolume("w0rld", &worldUnplaced);
+  LogicalVolume world("w0rld", &worldUnplaced);
+  //LogicalVolume hype = LogicalVolume("p4r4", &hypeUnplaced);
+  LogicalVolume hype("p4r4", &hypeUnplaced);
   Transformation3D placement = Transformation3D(5, 5, 5);
   //world.PlaceDaughter(&hype, &placement);
   world.PlaceDaughter(&hype, &Transformation3D::kIdentity);

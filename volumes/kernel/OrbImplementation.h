@@ -40,6 +40,21 @@ static void PrintType() {
    printf("SpecializedOrb<%i, %i>", transCodeT, rotCodeT);
 }
 
+template <typename Stream>
+static void PrintType(Stream &s) {
+  s << "SpecializedOrb<" << transCodeT << "," << rotCodeT << ">";
+}
+
+template <typename Stream>
+static void PrintImplementationType(Stream &s) {
+  s << "OrbImplementation<" << transCodeT << "," << rotCodeT << ">";
+}
+
+template <typename Stream>
+static void PrintUnplacedType(Stream &s) {
+  s << "UnplacedOrb";
+}
+
 template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE

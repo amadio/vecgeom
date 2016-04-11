@@ -35,6 +35,19 @@ struct BooleanImplementation<kUnion, transCodeT, rotCodeT> {
      printf("SpecializedBooleanVolume<%i, %i, %i>", kUnion, transCodeT, rotCodeT);
   }
 
+  template <typename Stream>
+  static void PrintType(Stream &s) {
+    s << "SpecializedBooleanVolume<kUnion" << "," << transCodeT << "," << rotCodeT << ">";
+  }
+
+  template <typename Stream>
+  static void PrintImplementationType(Stream &s) {
+    s << "BooleanImplementation<kUnion" << "," << transCodeT << "," << rotCodeT << ">";
+  }
+
+  template <typename Stream>
+  static void PrintUnplacedType(Stream &s) { s << "UnplacedBooleanVolume"; }
+
   //
   template<typename Backend>
   VECGEOM_INLINE
@@ -370,6 +383,7 @@ void BooleanImplementation<kUnion, transCodeT, rotCodeT>::DistanceToOutKernel(
     VPlacedVolume const *const fPtrSolidB = unplaced.fRightVolume;
 
     Float_t dist = 0., disTmp = 0.;
+    Float_t pushdist(1E-6);
     int push=0;
     // std::cout << "##VECGEOMSTART\n";
     typename Backend::Bool_t positionA = fPtrSolidA->Contains(p);
@@ -384,7 +398,7 @@ void BooleanImplementation<kUnion, transCodeT, rotCodeT>::DistanceToOutKernel(
 	    //   std::cout << "VecdistTmp1 " << disTmp << "\n";
          dist += ( disTmp >= 0. && disTmp < kInfinity )? disTmp : 0;
 	    // give a push
-	    dist += kTolerance;
+	    dist += pushdist;//kTolerance;
 	 push++;
 
          if( fPtrSolidB->Contains(p+dist*v) )
@@ -408,7 +422,7 @@ void BooleanImplementation<kUnion, transCodeT, rotCodeT>::DistanceToOutKernel(
     	//  std::cout << "VecdistTmp3 " << disTmp << "\n";
         //dist += disTmp ;
         dist += (disTmp>=0. && disTmp<kInfinity)? disTmp : 0.;
-	    dist += kTolerance;
+	    dist += pushdist; //kTolerance;
 	    push++;
         if( fPtrSolidA->Contains(p+dist*v) )
         {

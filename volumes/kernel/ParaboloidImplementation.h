@@ -52,6 +52,8 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
     
     namespace ParaboloidUtilities
     {
+#if 0  // removed, as it was causing warnings on clang-3.6
+       // is it really needed?  'make test' passes at 100%
         template <class Backend>
         VECGEOM_INLINE
         VECGEOM_CUDA_HEADER_BOTH
@@ -62,6 +64,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
                                  typename Backend::precision_v &distance/*,
                                  typename Backend::bool_v in*/) {
                                  }
+#endif
     }
 
 class PlacedParaboloid;
@@ -80,13 +83,26 @@ struct ParaboloidImplementation {
        printf("SpecializedParaboloid<%i, %i>", transCodeT, rotCodeT);
     }
 
+    template <typename Stream>
+    static void PrintType(Stream &s) {
+      s << "SpecializedParaboloid<" << transCodeT << "," << rotCodeT << ">";
+    }
+
+    template <typename Stream>
+    static void PrintImplementationType(Stream &s) {
+      s << "ParaboloidImplemenation<" << transCodeT << "," << rotCodeT << ">";
+    }
+
+    template <typename Stream>
+    static void PrintUnplacedType(Stream &s) { s << "UnplacedParaboloid"; }
+
     /// \brief Inside method that takes account of the surface for an Unplaced Paraboloid
     template <class Backend>
     VECGEOM_INLINE
     VECGEOM_CUDA_HEADER_BOTH
     static void UnplacedInside(UnplacedParaboloid const &unplaced,
                                Vector3D<typename Backend::precision_v> point,
-                               typename Backend::int_v &inside) {
+                               typename Backend::inside_v &inside) {
         
         typedef typename Backend::precision_v Double_t;
         typedef typename Backend::bool_v      Bool_t;
@@ -162,7 +178,7 @@ struct ParaboloidImplementation {
                        Transformation3D const &transformation,
                        Vector3D<typename Backend::precision_v> const &point,
                        Vector3D<typename Backend::precision_v> &localPoint,
-                       typename Backend::int_v &inside) {
+                       typename Backend::inside_v &inside) {
         localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
         UnplacedInside<Backend>(unplaced, localPoint, inside);
     }
@@ -173,7 +189,7 @@ struct ParaboloidImplementation {
     static void Inside(UnplacedParaboloid const &unplaced,
                        Transformation3D const &transformation,
                        Vector3D<typename Backend::precision_v> const &point,
-                       typename Backend::int_v &inside) {
+                       typename Backend::inside_v &inside) {
         
       Vector3D<typename Backend::precision_v> localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
       UnplacedInside<Backend>(unplaced, localPoint, inside);

@@ -20,9 +20,10 @@ int main(  int argc,char *argv[]) {
   VUSolid* orb=new Orb_t("test_orb",35);
    // VUSolid* orb=new UOrb("test_UOrb",3.);
   ShapeTester tester;
-
+  //tester.EnableDebugger(true);
   if(argc>1)
   {
+    /*
     if(strcmp(argv[1],"vis")==0)
     {
      #ifdef VECGEOM_ROOT
@@ -31,6 +32,8 @@ int main(  int argc,char *argv[]) {
      theApp.Run();
      #endif
     }
+   */
+  tester.Run(orb,argv[1]);
   }
   else
   {

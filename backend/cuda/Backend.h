@@ -9,7 +9,6 @@
 #include "backend/scalar/Backend.h"
 #include "backend/cuda/Interface.h"
 
-#include <cassert>
 
 namespace vecgeom {
 #ifdef VECGEOM_NVCC

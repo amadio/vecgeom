@@ -3,6 +3,9 @@
 // Purpose: Unit tests for the box
 //
 
+//-- ensure asserts are compiled in
+#undef NDEBUG
+
 #include "base/Vector3D.h"
 #include "volumes/Box.h"
 #include "ApproxEqual.h"
@@ -12,12 +15,11 @@
 #endif
 #include <cmath>
 
-//-- ensure asserts are compiled in
-#undef NDEBUG
-#include <cassert>
+#if defined(__GNUCC__) && !defined(__CLANG__)
+#include <fenv.h>
+#endif
 
 bool testvecgeom=false;
-
 
 template <class Box_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
 bool TestBox() {
@@ -365,6 +367,12 @@ int main(int argc, char *argv[]) {
       std::cerr << "need to give argument :--usolids or --vecgeom\n";     
       return 1;
     }
+
+   // enabling FPE exception
+#if defined(__GNUCC__) && !defined(__CLANG__)
+   feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
+#endif
+
     
     if( ! strcmp(argv[1], "--usolids") ) { 
 

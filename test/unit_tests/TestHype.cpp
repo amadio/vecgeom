@@ -277,7 +277,7 @@ bool TestHype() {
   assert(ApproxEqual(Dist, UUtils::Infinity()));
 
   std::cout << "------------------------------------------------" << std::endl;
-  Vec_t pointOTol(20 + vecgeom::cxx::kSTolerance, 0., 0.);
+  Vec_t pointOTol(20 + vecgeom::cxx::kTolerance, 0., 0.);
   Dist = b1.DistanceToIn(pointOTol, vx);
   std::cout << "DistToIn : " << Dist << std::endl;
   if (Dist >= UUtils::kInfinity)
@@ -299,7 +299,7 @@ bool TestHype() {
 
   // Point outside inner tolerance of outer hyperboloid and directing out
   std::cout << "------------------------------------------------" << std::endl;
-  Vec_t pointOTolI(20 - vecgeom::cxx::kSTolerance, 0., 0.);
+  Vec_t pointOTolI(20 - vecgeom::cxx::kTolerance, 0., 0.);
   Dist = b1.DistanceToIn(pointOTolI, vx);
   std::cout << "DistToIn : " << Dist << std::endl;
   if (Dist >= UUtils::kInfinity)
@@ -321,7 +321,7 @@ bool TestHype() {
   assert(ApproxEqual(Dist, 10.));
 
   std::cout << "------------------------------------------------" << std::endl;
-  Vec_t pointOTol_IH(10 + vecgeom::cxx::kSTolerance, 0., 0.);
+  Vec_t pointOTol_IH(10 + vecgeom::cxx::kTolerance, 0., 0.);
   Dist = b1.DistanceToIn(pointOTol_IH, vx);
   std::cout << "DistToIn : " << Dist << std::endl;
 
@@ -340,7 +340,7 @@ bool TestHype() {
   assert(ApproxEqual(Dist, 0.));
 
   std::cout << "------------------------------------------------" << std::endl;
-  Vec_t pointOTol_IHm(10 - vecgeom::cxx::kSTolerance, 0., 0.);
+  Vec_t pointOTol_IHm(10 - vecgeom::cxx::kTolerance, 0., 0.);
   Dist = b1.DistanceToIn(pointOTol_IHm, vx);
   std::cout << "DistToIn : " << Dist << std::endl;
   assert(ApproxEqual(Dist, 0.));
@@ -357,7 +357,7 @@ bool TestHype() {
   assert(ApproxEqual(Dist, 0.));
 
   std::cout << "------------------------------------------------" << std::endl;
-  Vec_t pointOTol_Z(60, 0., 50. + vecgeom::cxx::kSTolerance);
+  Vec_t pointOTol_Z(60, 0., 50. + vecgeom::cxx::kTolerance);
 
   Dist = b1.DistanceToIn(pointOTol_Z, vz);
   if (Dist >= UUtils::kInfinity)
@@ -379,7 +379,7 @@ bool TestHype() {
 
   std::cout << "------------------------------------------------" << std::endl;
 
-  Vec_t pointOTol_ZNeg(60, 0., -50. - vecgeom::cxx::kSTolerance);
+  Vec_t pointOTol_ZNeg(60, 0., -50. - vecgeom::cxx::kTolerance);
 
   Dist = b1.DistanceToIn(pointOTol_ZNeg, vmz);
   if (Dist >= UUtils::kInfinity)

@@ -20,14 +20,16 @@ using namespace vecgeom;
 //   option : [--usolids(default)|--vecgeom] [--vis]
 // logicalvolumename should not contain trailing pointer information
 
-bool usolids= true;
+bool usolids= false;  // test VecGeom by default
 bool vis= false;
 
 int main(  int argc,char *argv[]) {
 
   if( argc < 3 )
   {
-    std::cerr << "need to give root geometry file and logical volume name";
+    std::cerr << "***** Error: need to give root geometry file and logical volume name\n";
+    std::cerr << "Ex: ./shape_testFromROOTFile ExN03.root World\n";
+    exit(1);
   }
 
   TGeoManager::Import( argv[1] );
@@ -35,12 +37,21 @@ int main(  int argc,char *argv[]) {
 
   for(auto i= 3; i< argc; i++)
   {
-    if( ! strcmp(argv[i], "--usolids") )
+    if( ! strcmp(argv[i], "--usolids") ) {
+#ifndef VECGEOM_REPLACE_USOLIDS
       usolids= true;
-    if( ! strcmp(argv[i], "--vecgeom") )
+#else
+      std::cerr<<"\n*** --usolids choice in a USolids --> VecGeom mode.  Testing VecGeom shapes instead!\n";
+      std::cerr<<"Press <Enter> to continue...";
+      std::cin.ignore();
+      std::cerr<<"\n";
+      usolids=false;
+#endif
+    }
+    else if( ! strcmp(argv[i], "--vecgeom") ) {
       usolids= false;
-    if( ! strcmp(argv[i], "--vis") )
-      vis= true;
+    }
+    if( ! strcmp(argv[i], "--vis") )  vis= true;
   }
 
   int errCode= 0;
@@ -59,67 +70,59 @@ int main(  int argc,char *argv[]) {
       foundvolume = vol;
       
       std::cerr << "found matching volume " << fullname 
-		<< " of type " << vol->GetShape()->ClassName() << "\n";
+        << " of type " << vol->GetShape()->ClassName() << "\n";
     }
   }
 
   std::cerr << "volume found " << found << " times \n";
   foundvolume->GetShape()->InspectShape();
-  std::cerr << "volume capacity " 
-	    << foundvolume->GetShape()->Capacity() << "\n";
+  std::cerr << "volume capacity " << foundvolume->GetShape()->Capacity() << "\n";
 
-
-  // now get the VecGeom shape and benchmark it
-  if( foundvolume )
-  {
+  // now get the shape and benchmark it
+  if( foundvolume ) {
     LogicalVolume * converted = RootGeoManager::Instance().Convert( foundvolume );
 
-    if(usolids){
+    if(usolids) {
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
       VUSolid* shape= converted->Place()->ConvertToUSolids()->Clone();
       std::cerr << "\n==============Shape StreamInfo ========= \n";
       shape->StreamInfo(std::cerr);
 
       std::cerr << "\n=========Using USolids=========\n\n";
       ShapeTester tester;
-      if( vis )
-      {
-        #ifdef VECGEOM_ROOT
-	TApplication theApp("App",0,0);
-	errCode= tester.Run(shape);
-	theApp.Run();
-        #endif
+      if( vis ) {
+#ifdef VECGEOM_ROOT
+        TApplication theApp("App",0,0);
+        errCode= tester.Run(shape);
+        theApp.Run();
+#endif
       }
-      else
-      {
-	errCode= tester.Run(shape);
+      else {
+        errCode= tester.Run(shape);
       }
+#endif
     }
-
-    else
-    {
+    else { // !usolids
       VPlacedVolume* shape= converted->Place();
       std::cerr << "\n=========Using VecGeom=========\n\n";
 
       ShapeTester tester;
-      if( vis )
-      {
-        #ifdef VECGEOM_ROOT
-	TApplication theApp("App",0,0);
-	errCode= tester.Run(shape);
-	theApp.Run();
-        #endif
+      if( vis ) {
+#ifdef VECGEOM_ROOT
+        TApplication theApp("App",0,0);
+        errCode= tester.Run(shape);
+        theApp.Run();
+#endif
       }
-      else
-      {
-	errCode= tester.Run(shape);
+      else {
+        errCode= tester.Run(shape);
       }
     }
     return errCode;
   }
   else
   {
-    std::cerr << " NO SUCH VOLUME [" 
-	      <<  testvolume << "] FOUND ... EXITING \n";
+    std::cerr << " NO SUCH VOLUME [" <<  testvolume << "] FOUND ... EXITING \n";
 
     errCode= 2048; // errCode: 1000 0000 0000
     return errCode;

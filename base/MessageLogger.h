@@ -5,15 +5,14 @@
 #include "base/Global.h"
 #include <stdio.h>
 #include <stdarg.h>
-#include <map>
 #include <string>
 #include <mutex>
 #include <iostream>
-
-using std::map;
-using std::string;
-using std::mutex;
-using std::endl;
+#ifndef VECGEOM_NVCC
+#include <map>
+#else
+#include "base/Map.h"
+#endif
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -23,11 +22,17 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
    */
    class MessageLogger {
    public:
-      
+
       typedef enum {kInfo=0, kWarning, kError, kFatal, kDebug} logging_severity;
+#ifndef VECGEOM_NVCC
+      using Map_t = std::map<logging_severity,std::map<std::string,std::map<std::string,int> > >;
+#else
+      // Also need to use an alternative to std::string ...
+      using Map_t = vecgeom::map<logging_severity,vecgeom::map<std::string,map<std::string,int> > >;
+#endif
       
       static MessageLogger* I() {
-        static mutex mtx;
+        static std::mutex mtx;
         mtx.lock();
         if (!gMessageLogger)
           gMessageLogger = new MessageLogger();
@@ -36,7 +41,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
       }
       std::ostream &message(std::ostream &os, const char *classname, const char *methodname, logging_severity sev,
                             const char *const fmt, ...) {
-        static mutex mtx;
+        static std::mutex mtx;
         va_list ap;
 	va_start(ap, fmt);
         char line[1024];
@@ -46,26 +51,30 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
         mtx.lock();
         os << sevname[sev] << "=>" << classname << "::" << methodname << ": " << line;
         os.flush();
-        gMessageCount[sev][string(classname) + "::" + methodname][line] += 1;
+#ifndef VECGEOM_NVCC
+       gMessageCount[sev][std::string(classname) + "::" + methodname][line] += 1;
+#endif
         mtx.unlock();
         return os;
       }
 
-      void summary(std::ostream &os, const string opt) {
-        if (opt.find("a") != string::npos) {
-          os << string("\n================================== Detailed summary of messages "
+#ifndef VECGEOM_NVCC
+      void summary(std::ostream &os, const std::string opt) const {
+        if (opt.find("a") != std::string::npos) {
+          os << std::string("\n================================== Detailed summary of messages "
                        "=======================================\n");
-          for (map<logging_severity, map<string, map<string, int>>>::iterator it = gMessageCount.begin();
+          for (auto it = gMessageCount.begin();
                it != gMessageCount.end(); ++it)
-            for (map<string, map<string, int>>::iterator jt = it->second.begin(); jt != it->second.end(); ++jt)
-              for (map<string, int>::iterator kt = jt->second.begin(); kt != jt->second.end(); ++kt) {
+            for (auto jt = it->second.begin(); jt != it->second.end(); ++jt)
+              for (auto kt = jt->second.begin(); kt != jt->second.end(); ++kt) {
                 os << sevname[it->first] << "=>" << jt->first << ":" << kt->first << " # ";
-                os << kt->second << endl;
+                os << kt->second << std::endl;
               }
         }
-        os << string("================================================================================================="
+        os << std::string("================================================================================================="
                      "======\n");
       }
+#endif
 
     private:
       const char *const sevname[5] = {"Information", "Warning    ", "Error      ", "Fatal      ", "Debug      "};
@@ -73,8 +82,9 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
       MessageLogger(const MessageLogger&); // not implemented
       MessageLogger& operator=(const MessageLogger&); // not implemented
       static MessageLogger* gMessageLogger;
-      static map<logging_severity,map<string,map<string,int> > > gMessageCount;
-
+#ifndef VECGEOM_NVCC
+      static Map_t gMessageCount;
+#endif
    };
 
 }

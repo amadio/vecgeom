@@ -1,7 +1,6 @@
 #include "base/SOA3D.h"
 #include "base/AOS3D.h"
 
-#include <cassert>
 
 using namespace vecgeom;
 

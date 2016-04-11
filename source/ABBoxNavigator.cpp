@@ -16,7 +16,6 @@
 #include "backend/scalarfloat/Backend.h"
 #endif
 
-#include <cassert>
 
 namespace vecgeom {
 inline namespace cxx {
@@ -109,6 +108,8 @@ size_t ABBoxNavigator::GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Pr
     }
   }
   return hitcount;
+#elif defined(VECGEOM_UMESIMD)
+#pragma message("Generalized vectorized version not present!")
 #else
   Vector3D<float> invdirfloat(1.f / (float)dir.x(), 1.f / (float)dir.y(), 1.f / (float)dir.z());
   Vector3D<float> pfloat((float)point.x(), (float)point.y(), (float)point.z());
@@ -153,6 +154,8 @@ int candidatecount=0;
            }
          }
     }
+#elif defined(VECGEOM_UMESIMD) 
+#pragma message("Generalized vectorized version not present")
 #else
     for( size_t box = 0; box < vecsize; ++box ){
          ABBoxManager::Real_v safetytoboxsqr =  ABBoxImplementation::ABBoxSafetySqr<kScalarFloat, float>(
@@ -403,6 +406,33 @@ ABBoxNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoint
    // now we have the candidates
    // try
    currentstate.CopyTo(&newstate);
+
+   // if this is the case we are in the wrong volume;
+   // assuming that DistanceToIn return negative number when point is inside
+   // do nothing (step=0) and retry one level higher
+   if( step == kInfinity && pstep > 0. )
+   {
+     //      std::cout << "WARNING: STEP INFINITY; should never happen unless outside\n";
+      //InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );
+      // set step to zero and retry one level higher
+      // if( nexthitvolume!=-1 ) std::cout << "catastrophee\n";
+#if defined(VECGEOM_ROOT)
+      //      currentstate.printVolumePath(std::cout); std::cout << "\n";
+#endif
+      //      newstate.Clear();
+      //      VPlacedVolume const *world = GeoManager::Instance().GetWorld();
+      //      LocatePoint(world, globalpoint + vecgeom::kTolerance*globaldir, newstate, true);
+      step = vecgeom::kTolerance;
+#if defined(VECGEOM_ROOT)
+     // InspectEnvironmentForPointAndDirection( globalpoint, localpoint, currentstate );
+      //      newstate.printVolumePath(std::cout); std::cout << "\n";
+      //      InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );
+      //      std::cout << " counter is " << counter << "\n";
+#endif
+      newstate.SetBoundaryState(true);
+      newstate.Pop();
+      return;
+   }
 
    // is geometry further away than physics step?
    // not necessarily true

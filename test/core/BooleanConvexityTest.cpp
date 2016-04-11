@@ -10,7 +10,6 @@
 
 //.. ensure asserts are compiled in
 #undef NDEBUG
-#include <cassert>
 
 using namespace vecgeom;
 
@@ -21,7 +20,7 @@ int main(int argc, char * argv[])
     // OPTION_INT(nrep,1024);
 
     UnplacedBox worldUnplaced(10.,10.,10.);
-    LogicalVolume world = LogicalVolume("world", &worldUnplaced);
+    LogicalVolume world ("world", &worldUnplaced);
 
     // components for boolean solid
     UnplacedBox motherbox(5.,5.,5.);
