@@ -212,7 +212,11 @@ public:
     );
 
     // avoid distance values within tolerance
+#ifdef VECGEOM_USOLIDS
+    MaskedAssign(output<kHalfTolerance, 0., &output);
+#else
     MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
+#endif
 
 #ifdef VECGEOM_DISTANCE_DEBUG
     DistanceComparator::CompareDistanceToIn( this, output, point, direction, stepMax );
@@ -234,7 +238,11 @@ public:
     );
 
     // avoid distance values within tolerance
+#ifdef VECGEOM_USOLIDS
+    MaskedAssign(output<kHalfTolerance, 0., &output);
+#else
     MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
+#endif
 
     // detect -inf responses which are often an indication for a real bug
 #ifndef VECGEOM_NVCC
@@ -302,7 +310,11 @@ public:
     );
 
     // avoid distance values within tolerance
-    MaskedAssign( Abs(output)<kHalfTolerance, 0.0, &output);
+#ifdef VECGEOM_USOLIDS
+    MaskedAssign(output<kHalfTolerance, 0., &output);
+#else
+    MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
+#endif
 
     return output;
   }
@@ -317,7 +329,11 @@ public:
     );
 
     // avoid distance values within tolerance
-    MaskedAssign( Abs(output)<kHalfTolerance, 0.0, &output);
+#ifdef VECGEOM_USOLIDS
+    MaskedAssign(output<kHalfTolerance, 0., &output);
+#else
+    MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
+#endif
 
     return output;
   }
