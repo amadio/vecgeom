@@ -53,18 +53,6 @@ static void PrintUnplacedType(Stream &s) {
   s << "UnplacedSphere";
 }
 
-template <class Backend>
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
-static typename Backend::precision_v fabs(typename Backend::precision_v &v)
-  {
-      typedef typename Backend::precision_v Float_t;
-      Float_t mone(-1.);
-      Float_t ret(0);
-      MaskedAssign( (v<0), mone*v , &ret );
-      return ret;
-  }
-
 // Some New Helper functions
 template <class Backend>
 VECGEOM_CUDA_HEADER_BOTH
