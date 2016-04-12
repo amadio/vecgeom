@@ -151,35 +151,6 @@ static void GenericKernelForContainsAndInside(
     Vector3D<typename Backend::precision_v> const &localPoint,
     typename Backend::bool_v &completelyinside,
     typename Backend::bool_v &completelyoutside);
-    
-template <typename Backend, bool ForInside>
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
-static void InsideOrOutside(
-    UnplacedSphere const &unplaced,
-    Vector3D<typename Backend::precision_v> const &localPoint,
-    typename Backend::bool_v &completelyinside,
-    typename Backend::bool_v &completelyoutside);
-   
-template <typename Backend, bool ForInside, bool ForInnerRadius>
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
-static void CheckOnSurface(
-    UnplacedSphere const &unplaced,
-    Vector3D<typename Backend::precision_v> const &localPoint,
-    typename Backend::bool_v &completelyinside,
-    typename Backend::bool_v &completelyoutside,
-    typename Backend::bool_v &movingIn);
-
-template <typename Backend, bool ForInside, bool ForInnerRadius>
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
-static void CheckOnRadialSurface(
-    UnplacedSphere const &unplaced,
-    Vector3D<typename Backend::precision_v> const &localPoint,
-    typename Backend::bool_v &completelyinside,
-    typename Backend::bool_v &completelyoutside,
-    typename Backend::bool_v &movingIn);
 
 template <class Backend>
 VECGEOM_CUDA_HEADER_BOTH
@@ -254,16 +225,6 @@ static void DistanceToInKernel(
     Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> const &direction,
     typename Backend::precision_v const &stepMax,
-    typename Backend::precision_v &distance);
-
-template <class Backend, bool DistToIn>
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
-static void GetDistPhiMin(
-    UnplacedSphere const &unplaced,
-    Vector3D<typename Backend::precision_v> const &localPoint,
-    Vector3D<typename Backend::precision_v> const &localDir,
-    typename Backend::bool_v &done,
     typename Backend::precision_v &distance);
 
 template <class Backend, bool DistToIn>
@@ -624,124 +585,6 @@ void SphereImplementation<transCodeT, rotCodeT>::ContainsKernel(
     localPoint, unused, outside);
   inside=!outside;
 }
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend, bool ForInside, bool ForInnerRadius>
-VECGEOM_CUDA_HEADER_BOTH
-void SphereImplementation<transCodeT, rotCodeT>::CheckOnRadialSurface(
-UnplacedSphere const &unplaced,
-    Vector3D<typename Backend::precision_v> const &localPoint,
-    typename Backend::bool_v &completelyinside,
-    typename Backend::bool_v &completelyoutside,
-    typename Backend::bool_v &/*movingIn*/) {
-
-
-    typedef typename Backend::precision_v Float_t;
-    
-    Precision fRmin = unplaced.GetInnerRadius();
-    Precision fRminTolerance = unplaced.GetFRminTolerance();
-    Precision fRmax = unplaced.GetOuterRadius();
-
-    Float_t rad2 = localPoint.Mag2();
-
-    Float_t tolRMin(0.);
-    Float_t tolRMax(0.);
-    if(ForInnerRadius)
-    {
-    tolRMin = fRmin + ( fRminTolerance  );
-    completelyinside = (rad2 > tolRMin*tolRMin) ;
-    tolRMin = fRmin - ( fRminTolerance  );
-    completelyoutside = (rad2 < tolRMin*tolRMin) ;
-    }
-    else
-    {
-    tolRMax = fRmax - ( unplaced.GetMKTolerance() );
-    completelyinside = (rad2 < tolRMax*tolRMax);
-    tolRMax = fRmax + ( unplaced.GetMKTolerance() );
-    completelyoutside = (rad2 > tolRMax*tolRMax);
-    }
- return;
-
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend, bool ForInside, bool ForInnerRadius>
-VECGEOM_CUDA_HEADER_BOTH
-void SphereImplementation<transCodeT, rotCodeT>::CheckOnSurface(
-    UnplacedSphere const &unplaced,
-    Vector3D<typename Backend::precision_v> const &localPoint,
-    typename Backend::bool_v &completelyinside,
-    typename Backend::bool_v &completelyoutside,
-    typename Backend::bool_v & /*movingIn*/) {
-
-  typedef typename Backend::precision_v Float_t;
-  typedef typename Backend::bool_v Bool_t;
-
-  Float_t isfuPhiSph(unplaced.IsFullPhiSphere());
-
-  Precision fRmin = unplaced.GetInnerRadius();
-  Precision fRminTolerance = unplaced.GetFRminTolerance();
-  Precision fRmax = unplaced.GetOuterRadius();
-
-  Float_t rad2 = localPoint.Mag2();
-
-  Float_t tolRMin(0.);
-  Float_t tolRMax(0.);
-  if (ForInnerRadius) {
-    tolRMin = fRmin + (fRminTolerance);
-    completelyinside = (rad2 > tolRMin * tolRMin);
-    tolRMin = fRmin - (fRminTolerance);
-    completelyoutside = (rad2 < tolRMin * tolRMin);
-  } else {
-    tolRMax = fRmax - (unplaced.GetMKTolerance());
-    completelyinside = (rad2 < tolRMax * tolRMax);
-    tolRMax = fRmax + (unplaced.GetMKTolerance());
-    completelyoutside = (rad2 > tolRMax * tolRMax);
-  }
-
-  // Phi boundaries  : Do not check if it has no phi boundary!
-  if (!unplaced.IsFullPhiSphere()) {
-
-    Bool_t completelyoutsidephi;
-    Bool_t completelyinsidephi;
-    unplaced.GetWedge().GenericKernelForContainsAndInside<Backend, ForInside>(localPoint, completelyinsidephi,
-                                                                              completelyoutsidephi);
-    completelyoutside |= completelyoutsidephi;
-
-    if (ForInside)
-      completelyinside &= completelyinsidephi;
-  }
-  // Phi Check for GenericKernel Over
-
-  // Theta bondaries
-  if (!unplaced.IsFullThetaSphere()) {
-
-    Bool_t completelyoutsidetheta;
-    Bool_t completelyinsidetheta;
-    unplaced.GetThetaCone().GenericKernelForContainsAndInside<Backend, ForInside>(localPoint, completelyinsidetheta,
-                                                                                  completelyoutsidetheta);
-    completelyoutside |= completelyoutsidetheta;
-
-    if (ForInside)
-      completelyinside &= completelyinsidetheta;
-  }
-  return;
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend, bool ForInside>
-VECGEOM_CUDA_HEADER_BOTH
-void SphereImplementation<transCodeT, rotCodeT>::InsideOrOutside(
-UnplacedSphere const &unplaced,
-    Vector3D<typename Backend::precision_v> const &localPoint,
-    typename Backend::bool_v &completelyinside,
-    typename Backend::bool_v &completelyoutside){
-    
-    
-    GenericKernelForContainsAndInside<Backend,true>(
-      unplaced, localPoint, completelyinside, completelyoutside);
-      
-    }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend, bool ForInside>
@@ -1122,7 +965,6 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
                Min(distance, newDist), &distance);
 }
 
-//This is fast alternative of GetDistPhiMin below
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend, bool DistToIn>
 VECGEOM_CUDA_HEADER_BOTH
