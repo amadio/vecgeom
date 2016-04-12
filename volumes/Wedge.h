@@ -210,7 +210,7 @@ class Wedge{
     VECGEOM_INLINE
     Vector3D<Precision> Wedge::GetNormal() const {
       if(ForStartPhi)
-        return fNormalVector1; 
+        return fNormalVector1;
       else
         return fNormalVector2;
     }

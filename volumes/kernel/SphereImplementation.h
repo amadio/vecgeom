@@ -193,56 +193,52 @@ static void CheckOnRadialSurface(
     typename Backend::bool_v &completelyoutside,
     typename Backend::bool_v &movingIn);
 
-  template <class Backend>
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  static void DistanceToIn(
-      UnplacedSphere const &unplaced,
-      Transformation3D const &transformation,
-      Vector3D<typename Backend::precision_v> const &point,
-      Vector3D<typename Backend::precision_v> const &direction,
-      typename Backend::precision_v const &stepMax,
-      typename Backend::precision_v &distance);
+template <class Backend>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+static void DistanceToIn(
+    UnplacedSphere const &unplaced,
+    Transformation3D const &transformation,
+    Vector3D<typename Backend::precision_v> const &point,
+    Vector3D<typename Backend::precision_v> const &direction,
+    typename Backend::precision_v const &stepMax,
+    typename Backend::precision_v &distance);
 
-  template <class Backend>
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  static void DistanceToOut(
-      UnplacedSphere const &unplaced,
-      Vector3D<typename Backend::precision_v> const &point,
-      Vector3D<typename Backend::precision_v> const &direction,
-      typename Backend::precision_v const &stepMax,
-      typename Backend::precision_v &distance);
+template <class Backend>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+static void DistanceToOut(
+    UnplacedSphere const &unplaced,
+    Vector3D<typename Backend::precision_v> const &point,
+    Vector3D<typename Backend::precision_v> const &direction,
+    typename Backend::precision_v const &stepMax,
+    typename Backend::precision_v &distance);
 
-  template <class Backend>
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  static void DistanceToOutKernel(
-      UnplacedSphere const &unplaced,
-      Vector3D<typename Backend::precision_v> const &point,
-      Vector3D<typename Backend::precision_v> const &direction,
-      typename Backend::precision_v const &stepMax,
-      typename Backend::precision_v &distance);
+template <class Backend>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+static void DistanceToOutKernel(
+    UnplacedSphere const &unplaced,
+    Vector3D<typename Backend::precision_v> const &point,
+    Vector3D<typename Backend::precision_v> const &direction,
+    typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance);
 
+template <class Backend>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+static void SafetyToIn(
+    UnplacedSphere const &unplaced,
+    Transformation3D const &transformation,
+    Vector3D<typename Backend::precision_v> const &point,
+    typename Backend::precision_v &safety);
 
-
-  template <class Backend>
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  static void SafetyToIn(
-      UnplacedSphere const &unplaced,
-      Transformation3D const &transformation,
-      Vector3D<typename Backend::precision_v> const &point,
-      typename Backend::precision_v &safety);
-
-  template <class Backend>
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  static void SafetyToOut(
-      UnplacedSphere const &unplaced,
-      Vector3D<typename Backend::precision_v> const &point,
-      typename Backend::precision_v &safety);
-
+template <class Backend>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+static void SafetyToOut(
+    UnplacedSphere const &unplaced,
+    Vector3D<typename Backend::precision_v> const &point,
+    typename Backend::precision_v &safety);
 
 template <typename Backend>
 VECGEOM_CUDA_HEADER_BOTH
