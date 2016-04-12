@@ -221,7 +221,8 @@ static void DistanceToOutKernel(
     UnplacedSphere const &unplaced,
     Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> const &direction,
-    typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance);
+    typename Backend::precision_v const &stepMax,
+    typename Backend::precision_v &distance);
 
 template <class Backend>
 VECGEOM_CUDA_HEADER_BOTH
@@ -283,7 +284,8 @@ VECGEOM_INLINE
 static void GetMinDistFromPhi(
     UnplacedSphere const &unplaced,
     Vector3D<typename Backend::precision_v> const &localPoint,
-    Vector3D<typename Backend::precision_v> const &localDir, typename Backend::bool_v &done,
+    Vector3D<typename Backend::precision_v> const &localDir,
+    typename Backend::bool_v &done,
     typename Backend::precision_v &distance);
 
 template <class Backend>
@@ -496,8 +498,10 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
 VECGEOM_CUDA_HEADER_BOTH
 void SphereImplementation<transCodeT, rotCodeT>::NormalKernel(
-    UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-    Vector3D<typename Backend::precision_v> &normal, typename Backend::bool_v &valid) {
+    UnplacedSphere const &unplaced,
+    Vector3D<typename Backend::precision_v> const &point,
+    Vector3D<typename Backend::precision_v> &normal,
+    typename Backend::bool_v &valid) {
 
   normal.Set(0.);
   typedef typename Backend::precision_v Float_t;
@@ -545,23 +549,22 @@ void SphereImplementation<transCodeT, rotCodeT>::NormalKernel(
   MaskedAssign(isPointInside || isPointOutside, ApproxSurfaceNormalKernel<Backend>(unplaced, point), &normal);
 
   valid = Bool_t(false);
-  Vector3D<Float_t> localPoint = point;
 
   Float_t noSurfaces(0.);
-  Bool_t isPointOnOuterRadius = IsPointOnOuterRadius<Backend>(unplaced, localPoint);
+  Bool_t isPointOnOuterRadius = IsPointOnOuterRadius<Backend>(unplaced, point);
 
   MaskedAssign(isPointOnOuterRadius, noSurfaces + 1, &noSurfaces);
-  MaskedAssign(!isPointOutside && isPointOnOuterRadius, normal + (localPoint.Unit()), &normal);
+  MaskedAssign(!isPointOutside && isPointOnOuterRadius, normal + (point.Unit()), &normal);
 
   if (unplaced.GetInnerRadius()) {
-    Bool_t isPointOnInnerRadius = IsPointOnInnerRadius<Backend>(unplaced, localPoint);
+    Bool_t isPointOnInnerRadius = IsPointOnInnerRadius<Backend>(unplaced, point);
     MaskedAssign(isPointOnInnerRadius, noSurfaces + 1, &noSurfaces);
-    MaskedAssign(!isPointOutside && isPointOnInnerRadius, normal - localPoint.Unit(), &normal);
+    MaskedAssign(!isPointOutside && isPointOnInnerRadius, normal - point.Unit(), &normal);
   }
 
   if (!unplaced.IsFullPhiSphere()) {
-    Bool_t isPointOnStartPhi = IsPointOnStartPhi<Backend>(unplaced, localPoint);
-    Bool_t isPointOnEndPhi = IsPointOnEndPhi<Backend>(unplaced, localPoint);
+    Bool_t isPointOnStartPhi = IsPointOnStartPhi<Backend>(unplaced, point);
+    Bool_t isPointOnEndPhi = IsPointOnEndPhi<Backend>(unplaced, point);
     MaskedAssign(isPointOnStartPhi, noSurfaces + 1, &noSurfaces);
     MaskedAssign(!isPointOutside && isPointOnStartPhi, normal - unplaced.GetWedge().GetNormal1(), &normal);
     MaskedAssign(isPointOnEndPhi, noSurfaces + 1, &noSurfaces);
@@ -569,8 +572,8 @@ void SphereImplementation<transCodeT, rotCodeT>::NormalKernel(
   }
 
   if (!unplaced.IsFullThetaSphere()) {
-    Bool_t isPointOnStartTheta = IsPointOnStartTheta<Backend>(unplaced, localPoint);
-    Bool_t isPointOnEndTheta = IsPointOnEndTheta<Backend>(unplaced, localPoint);
+    Bool_t isPointOnStartTheta = IsPointOnStartTheta<Backend>(unplaced, point);
+    Bool_t isPointOnEndTheta = IsPointOnEndTheta<Backend>(unplaced, point);
 
     MaskedAssign(isPointOnStartTheta, noSurfaces + 1, &noSurfaces);
     MaskedAssign(!isPointOutside && isPointOnStartTheta, normal + unplaced.GetThetaCone().GetNormal1<Backend>(point),
@@ -621,7 +624,8 @@ void SphereImplementation<transCodeT, rotCodeT>::UnplacedContains(
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
 VECGEOM_CUDA_HEADER_BOTH
-void SphereImplementation<transCodeT, rotCodeT>::ContainsKernel(UnplacedSphere const &unplaced,
+void SphereImplementation<transCodeT, rotCodeT>::ContainsKernel(
+    UnplacedSphere const &unplaced,
     Vector3D<typename Backend::precision_v> const &localPoint,
     typename Backend::bool_v &inside) {
 
@@ -755,7 +759,7 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend, bool ForInside>
 VECGEOM_CUDA_HEADER_BOTH
 void SphereImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndInside(
-UnplacedSphere const &unplaced,
+    UnplacedSphere const &unplaced,
     Vector3D<typename Backend::precision_v> const &localPoint,
     typename Backend::bool_v &completelyinside,
     typename Backend::bool_v &completelyoutside) {
@@ -872,10 +876,9 @@ void SphereImplementation<transCodeT, rotCodeT>::SafetyToInKernel(
   typedef typename Backend::bool_v Bool_t;
 
   Bool_t done(false);
-  Vector3D<Float_t> localPoint = point;
 
   // General Precalcs
-  Float_t rad2 = localPoint.Mag2();
+  Float_t rad2 = point.Mag2();
   Float_t rad = Sqrt(rad2);
 
   // Distance to r shells
@@ -911,13 +914,13 @@ void SphereImplementation<transCodeT, rotCodeT>::SafetyToInKernel(
 
   // Distance to phi extent
   if (!unplaced.IsFullPhiSphere()) {
-    Float_t safetyPhi = unplaced.GetWedge().SafetyToIn<Backend>(localPoint);
+    Float_t safetyPhi = unplaced.GetWedge().SafetyToIn<Backend>(point);
     MaskedAssign(!done, Max(safetyPhi, safety), &safety);
   }
 
   // Distance to Theta extent
   if (!unplaced.IsFullThetaSphere()) {
-    Float_t safetyTheta = unplaced.GetThetaCone().SafetyToIn<Backend>(localPoint);
+    Float_t safetyTheta = unplaced.GetThetaCone().SafetyToIn<Backend>(point);
     MaskedAssign(!done, Max(safetyTheta, safety), &safety);
   }
 }
@@ -944,8 +947,7 @@ void SphereImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(
   typedef typename Backend::precision_v Float_t;
   typedef typename Backend::bool_v Bool_t;
 
-  Vector3D<Float_t> localPoint = point;
-  Float_t rad = localPoint.Mag();
+  Float_t rad = point.Mag();
 
   Bool_t done(false);
 
@@ -979,14 +981,14 @@ void SphereImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(
 
   // Distance to phi extent
   if (!unplaced.IsFullPhiSphere()) {
-    Float_t safetyPhi = unplaced.GetWedge().SafetyToOut<Backend>(localPoint);
+    Float_t safetyPhi = unplaced.GetWedge().SafetyToOut<Backend>(point);
     MaskedAssign(!done, Min(safetyPhi, safety), &safety);
   }
 
   // Distance to Theta extent
   Float_t safeTheta(0.);
   if (!unplaced.IsFullThetaSphere()) {
-    safeTheta = unplaced.GetThetaCone().SafetyToOut<Backend>(localPoint);
+    safeTheta = unplaced.GetThetaCone().SafetyToOut<Backend>(point);
     MaskedAssign(!done, Min(safeTheta, safety), &safety);
   }
 }
@@ -994,34 +996,30 @@ void SphereImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend>
 VECGEOM_CUDA_HEADER_BOTH
-void SphereImplementation<transCodeT, rotCodeT>::DistanceToIn(UnplacedSphere const &unplaced,
-      Transformation3D const &transformation,
-      Vector3D<typename Backend::precision_v> const &point,
-      Vector3D<typename Backend::precision_v> const &direction,
-      typename Backend::precision_v const &stepMax,
-      typename Backend::precision_v &distance){
+void SphereImplementation<transCodeT, rotCodeT>::DistanceToIn(
+    UnplacedSphere const &unplaced,
+    Transformation3D const &transformation,
+    Vector3D<typename Backend::precision_v> const &point,
+    Vector3D<typename Backend::precision_v> const &direction,
+    typename Backend::precision_v const &stepMax,
+    typename Backend::precision_v &distance) {
 
-    DistanceToInKernel<Backend>(
-            unplaced,
-            transformation.Transform<transCodeT, rotCodeT>(point),
-            transformation.TransformDirection<rotCodeT>(direction),
-            stepMax,
-            distance);
+  DistanceToInKernel<Backend>(unplaced, transformation.Transform<transCodeT, rotCodeT>(point),
+                              transformation.TransformDirection<rotCodeT>(direction), stepMax, distance);
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend>
 VECGEOM_CUDA_HEADER_BOTH
 void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
-    UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-    Vector3D<typename Backend::precision_v> const &direction, typename Backend::precision_v const & /*stepMax*/,
+    UnplacedSphere const &unplaced,
+    Vector3D<typename Backend::precision_v> const &point,
+    Vector3D<typename Backend::precision_v> const &direction,
+    typename Backend::precision_v const & /*stepMax*/,
     typename Backend::precision_v &distance) {
 
   typedef typename Backend::precision_v Float_t;
   typedef typename Backend::bool_v Bool_t;
-
-  Vector3D<Float_t> localPoint = point;
-  Vector3D<Float_t> localDir = direction;
 
   distance = kInfinity;
 
@@ -1035,12 +1033,12 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
 
   Vector3D<Float_t> tmpPt;
   // General Precalcs
-  Float_t rad2 = localPoint.Mag2();
-  Float_t pDotV3d = localPoint.Dot(localDir);
+  Float_t rad2 = point.Mag2();
+  Float_t pDotV3d = point.Dot(direction);
 
   Float_t c = rad2 - fRmax * fRmax;
 
-  Bool_t cond = IsCompletelyInside<Backend>(unplaced, localPoint);
+  Bool_t cond = IsCompletelyInside<Backend>(unplaced, point);
   MaskedAssign(cond, -1., &distance);
   done |= cond;
   if (IsFull(done))
@@ -1068,7 +1066,7 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   if (unplaced.IsFullSphere()) {
     MaskedAssign(!done && (sd1 >= 0.), sd1, &outerDist);
   } else {
-    tmpPt = localPoint + sd1 * localDir;
+    tmpPt = point + sd1 * direction;
     MaskedAssign(!done && unplaced.GetWedge().Contains<Backend>(tmpPt) &&
                      unplaced.GetThetaCone().Contains<Backend>(tmpPt) && (sd1 >= 0.),
                  sd1, &outerDist);
@@ -1082,7 +1080,7 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
     if (unplaced.IsFullSphere()) {
       MaskedAssign(!done && (sd2 >= 0.), sd2, &innerDist);
     } else {
-      tmpPt = localPoint + sd2 * localDir;
+      tmpPt = point + sd2 * direction;
       MaskedAssign(!done && (sd2 >= 0.) && unplaced.GetWedge().Contains<Backend>(tmpPt) &&
                        unplaced.GetThetaCone().Contains<Backend>(tmpPt),
                    sd2, &innerDist);
@@ -1092,7 +1090,7 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   distance = Min(outerDist, innerDist);
 
   if (!fullPhiSphere) {
-    GetMinDistFromPhi<Backend, true>(unplaced, localPoint, localDir, done, distance);
+    GetMinDistFromPhi<Backend, true>(unplaced, point, direction, done, distance);
   }
 
   Float_t distThetaMin(kInfinity);
@@ -1103,12 +1101,12 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
     Float_t distTheta1(kInfinity);
     Float_t distTheta2(kInfinity);
 
-    unplaced.GetThetaCone().DistanceToIn<Backend>(localPoint, localDir, distTheta1, distTheta2, intsect1,
+    unplaced.GetThetaCone().DistanceToIn<Backend>(point, direction, distTheta1, distTheta2, intsect1,
                                                   intsect2); //,cone1IntSecPt, cone2IntSecPt);
-    Vector3D<Float_t> coneIntSecPt1 = localPoint + distTheta1 * localDir;
+    Vector3D<Float_t> coneIntSecPt1 = point + distTheta1 * direction;
     Float_t distCone1 = coneIntSecPt1.Mag2();
 
-    Vector3D<Float_t> coneIntSecPt2 = localPoint + distTheta2 * localDir;
+    Vector3D<Float_t> coneIntSecPt2 = point + distTheta2 * direction;
     Float_t distCone2 = coneIntSecPt2.Mag2();
 
     Bool_t isValidCone1 = (distCone1 >= fRmin * fRmin && distCone1 <= fRmax * fRmax) && intsect1;
@@ -1141,8 +1139,10 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend, bool DistToIn>
 VECGEOM_CUDA_HEADER_BOTH
 void SphereImplementation<transCodeT, rotCodeT>::GetMinDistFromPhi(
-    UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &localPoint,
-    Vector3D<typename Backend::precision_v> const &localDir, typename Backend::bool_v &done,
+    UnplacedSphere const &unplaced,
+    Vector3D<typename Backend::precision_v> const &localPoint,
+    Vector3D<typename Backend::precision_v> const &localDir,
+    typename Backend::bool_v &done,
     typename Backend::precision_v &distance) {
 
   typedef typename Backend::precision_v Float_t;
@@ -1215,10 +1215,6 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
   typedef typename Backend::precision_v Float_t;
   typedef typename Backend::bool_v Bool_t;
 
-  Vector3D<Float_t> localPoint = point;
-
-  Vector3D<Float_t> localDir = direction;
-
   distance = kInfinity;
 
   Bool_t done(false);
@@ -1231,15 +1227,15 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
   Vector3D<Float_t> intSecPt;
   Float_t d2(0.);
 
-  Float_t pDotV3d = localPoint.Dot(localDir);
+  Float_t pDotV3d = point.Dot(direction);
 
-  Float_t rad2 = localPoint.Mag2();
+  Float_t rad2 = point.Mag2();
   Float_t c = rad2 - fRmax * fRmax;
 
   Float_t sd1(kInfinity);
   Float_t sd2(kInfinity);
 
-  Bool_t cond = IsCompletelyOutside<Backend>(unplaced, localPoint);
+  Bool_t cond = IsCompletelyOutside<Backend>(unplaced, point);
   MaskedAssign(cond, -1., &distance);
 
   done |= cond;
@@ -1270,7 +1266,7 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
     Bool_t intsect2(false);
     Float_t distTheta1(0.);
     Float_t distTheta2(0.);
-    unplaced.GetThetaCone().DistanceToOut<Backend>(localPoint, localDir, distTheta1, distTheta2, intsect1, intsect2);
+    unplaced.GetThetaCone().DistanceToOut<Backend>(point, direction, distTheta1, distTheta2, intsect1, intsect2);
     MaskedAssign((intsect2 && !intsect1), distTheta2, &distThetaMin);
     MaskedAssign((!intsect2 && intsect1), distTheta1, &distThetaMin);
     MaskedAssign((intsect2 && intsect1) /*|| (!intsect2 && !intsect1)*/, Min(distTheta1, distTheta2), &distThetaMin);
@@ -1282,11 +1278,11 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
     if (unplaced.GetDeltaPhiAngle() <= kPi) {
       Float_t distPhi1;
       Float_t distPhi2;
-      unplaced.GetWedge().DistanceToOut<Backend>(localPoint, localDir, distPhi1, distPhi2);
+      unplaced.GetWedge().DistanceToOut<Backend>(point, direction, distPhi1, distPhi2);
       distPhiMin = Min(distPhi1, distPhi2);
       distance = Min(distPhiMin, distance);
     } else {
-      GetMinDistFromPhi<Backend, false>(unplaced, localPoint, localDir, done, distance);
+      GetMinDistFromPhi<Backend, false>(unplaced, point, direction, done, distance);
     }
   }
 }
