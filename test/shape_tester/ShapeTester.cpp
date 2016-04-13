@@ -845,12 +845,17 @@ int ShapeTester::TestInsidePoint() {
 
       return errCode;
     }
-    // Safety from wrong side should be negative
+    // Safety from wrong side should be negative (VecGeom) or zero (USolids-compatible)
     double safeDistanceFromOut = fVolumeUSolids->SafetyFromOutside(point);
+#ifdef VECGEOM_REPLACE_USOLIDS
+    if (safeDistanceFromOut != 0.0) {
+      std::string message("TI: SafetyFromOutside(p) should be Zero for Points Inside");
+#else
     if (safeDistanceFromOut >= 0.0) {
+      std::string message("TI: SafetyFromOutside(p) should be Negative value (-1.) for Points Inside");
+#endif
       UVector3 zero(0);
-      ReportError(&nError, point, zero, safeDistanceFromOut,
-                  "TI: SafetyFromOutside(p) should be Negative value (-1.) for Point Inside");
+      ReportError(&nError, point, zero, safeDistanceFromOut, message.c_str() );
       continue;
     }
 
@@ -902,12 +907,16 @@ int ShapeTester::TestInsidePoint() {
           continue;
         }
       }
-      // DistanceToIn from point on wrong side has to be negative
+      // DistanceToIn from point on wrong side has to be negative (VecGeom) or zero (USolids-compatible)
       double distIn = fVolumeUSolids->DistanceToIn(point, v);
+#ifdef VECGEOM_REPLACE_USOLIDS
+      if (distIn != 0.) {
+	std::string message("TI: DistanceToIn(p,v) has to be Zero for Inside points (USolids convention).");
+#else
       if (distIn >= 0.) {
-        ReportError(&nError, point, v, distIn,
-                    "TI: DistanceToIn(p,v) has to be Negative value (-1.) for Inside point.");
-        // std::cout<<"distIn="<<distIn<<std::endl;
+	std::string message("TI: DistanceToIn(p,v) has to be Negative value (-1.) for Inside points (VecGeom convention).");
+#endif
+        ReportError(&nError, point, v, distIn, message.c_str());
         continue;
       }
       // Move to the boundary and check
@@ -968,12 +977,16 @@ int ShapeTester::TestOutsidePoint() {
     }
 
     double safeDistanceFromInside = fVolumeUSolids->SafetyFromInside(point);
-    // Safety from wrong side point has to be negative
+    // Safety from wrong side point has to be negative (VecGeom) or zero (USolids-compatible)
+#ifdef VECGEOM_REPLACE_USOLIDS
+    if (safeDistanceFromInside != 0.0) {
+      std::string msg("TO: SafetyFromInside(p) should be Zero for points Outside (USolids convention)");
+#else
     if (safeDistanceFromInside >= 0.0) {
+      std::string msg("TO: SafetyFromInside(p) should be Negative value (-1.) for points Outside (VecGeom conv)");
+#endif
       UVector3 zero(0);
-      ReportError(&nError, point, zero, safeDistanceFromInside,
-                  "TO: SafetyFromInside(p) should be Negative value (-1.) for point Outside");
-      // continue;
+      ReportError(&nError, point, zero, safeDistanceFromInside, msg.c_str());
     }
 
     for (i = 0; i < n; i++) {

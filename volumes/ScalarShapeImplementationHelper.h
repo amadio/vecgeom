@@ -211,7 +211,7 @@ public:
       output
     );
 
-#ifdef VECGEOM_USOLIDS
+#ifdef VECGEOM_REPLACE_USOLIDS
     // apply USolids convention: convert negative values to zero
     MaskedAssign(output<kHalfTolerance, 0., &output);
 #else
@@ -238,7 +238,7 @@ public:
       output
     );
 
-#ifdef VECGEOM_USOLIDS
+#ifdef VECGEOM_REPLACE_USOLIDS
     // apply USolids convention: convert negative values to zero
     MaskedAssign(output<kHalfTolerance, 0., &output);
 #else
@@ -311,7 +311,7 @@ public:
       output
     );
 
-#ifdef VECGEOM_USOLIDS
+#ifdef VECGEOM_REPLACE_USOLIDS
     // apply USolids convention: convert negative values to zero
     MaskedAssign(output<kHalfTolerance, 0., &output);
 #else
@@ -331,7 +331,7 @@ public:
       output
     );
 
-#ifdef VECGEOM_USOLIDS
+#ifdef VECGEOM_REPLACE_USOLIDS
     // apply USolids convention: convert negative values to zero
     MaskedAssign(output<kHalfTolerance, 0., &output);
 #else
