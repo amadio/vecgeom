@@ -7,12 +7,10 @@
 #include "benchmarking/Benchmarker.h"
 #include "management/GeoManager.h"
 #include "ArgParser.h"
-#include <iomanip>
 #define PI 3.141592653589793
 using namespace vecgeom;
 
 int main(int argc, char* argv[]) {
-    std::cout<<std::setprecision(15);
   OPTION_INT(npoints,1024);
   OPTION_INT(nrep,10);
   OPTION_DOUBLE(rmin,10.);
@@ -24,32 +22,20 @@ int main(int argc, char* argv[]) {
 
   UnplacedBox worldUnplaced = UnplacedBox(rmax*4, rmax*4, dz*4);
   UnplacedHype hypeUnplaced = UnplacedHype(rmin,rmax,sin,sout,dz);
-  //LogicalVolume world = LogicalVolume("w0rld", &worldUnplaced);
   LogicalVolume world("w0rld", &worldUnplaced);
-  //LogicalVolume hype = LogicalVolume("p4r4", &hypeUnplaced);
   LogicalVolume hype("p4r4", &hypeUnplaced);
   Transformation3D placement = Transformation3D(5, 5, 5);
   //world.PlaceDaughter(&hype, &placement);
   world.PlaceDaughter(&hype, &Transformation3D::kIdentity);
 
   VPlacedVolume *worldPlaced = world.Place();
-
   GeoManager::Instance().SetWorld(worldPlaced);
-
   Benchmarker tester(GeoManager::Instance().GetWorld());
-
   //tester.SetTolerance(1e-5);
   tester.SetVerbosity(3);
-  //if(strcmp(argv[1],"show")==0)
   tester.SetPoolMultiplier(1);
   tester.SetPointCount(npoints);
   tester.SetRepetitions(nrep);
-
-  //tester.RunInsideBenchmark();
-  //tester.RunToOutBenchmark();
-  //tester.RunToInBenchmark();
   tester.RunBenchmark();
-
-
   return 0;
 }

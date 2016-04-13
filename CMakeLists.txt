@@ -801,6 +801,7 @@ set(TEST_EXECUTABLES_VISUALIZATION
   ${CMAKE_SOURCE_DIR}/test/visualization/DebugPolyhedron.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeSphere.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeGenTrap.cpp
+  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeHype.cpp
 )
 
 set(TEST_EXECUTABLES_USOLIDS

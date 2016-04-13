@@ -343,22 +343,6 @@ static typename Backend::bool_v IsPointMovingOutsideInnerSurface(
     Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> const &direction);
 
-template <class Backend>
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
-static typename Backend::bool_v IsPointMovingInsideFromZPlane(
-    UnplacedHype const &unplaced,
-    Vector3D<typename Backend::precision_v> const &point,
-    Vector3D<typename Backend::precision_v> const &direction);
-
-template <class Backend>
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
-static typename Backend::bool_v IsPointMovingOutsideFromZPlane(
-    UnplacedHype const &unplaced,
-    Vector3D<typename Backend::precision_v> const &point,
-    Vector3D<typename Backend::precision_v> const &direction);
-
 }; // End struct HypeImplementation
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -491,28 +475,6 @@ typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::IsPointMoving
   MaskedAssign(vz < 0., -vz, &vz);
   Vector3D<Float_t> normHere(-point.x(), -point.y(), point.z() * unplaced.GetTIn2());
   return (normHere.Dot(direction) > 0.);
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
-typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::IsPointMovingInsideFromZPlane(
-    UnplacedHype const &unplaced,
-    Vector3D<typename Backend::precision_v> const &point,
-    Vector3D<typename Backend::precision_v> const &direction) {
-
-  return (point.z() * direction.z() < 0.);
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
-typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::IsPointMovingOutsideFromZPlane(
-    UnplacedHype const &unplaced,
-    Vector3D<typename Backend::precision_v> const &point,
-    Vector3D<typename Backend::precision_v> const &direction) {
-
-  return (point.z() * direction.z() > 0.);
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -868,7 +830,12 @@ typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::IsCompletelyO
   Float_t r2 = point.Perp2();
   Float_t oRad2 = (unplaced.GetRmax2() + unplaced.GetTOut2() * point.z() * point.z());
 
-  Bool_t completelyoutside = (Abs(point.z()) > (fDz + zToleranceLevel)) || (r2 > oRad2 + outerRadToleranceLevel);
+  Bool_t completelyoutside = (Abs(point.z()) > (fDz + zToleranceLevel));
+  if(IsFull(completelyoutside))
+    return completelyoutside;
+  completelyoutside |= (r2 > oRad2 + outerRadToleranceLevel);
+  if(IsFull(completelyoutside))
+    return completelyoutside;
 
   if (unplaced.InnerSurfaceExists()) {
     Float_t iRad2 = (unplaced.GetRmin2() + unplaced.GetTIn2() * point.z() * point.z());
@@ -1095,7 +1062,6 @@ typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::GetPointOfInt
   return (Abs(newPtZ) <= unplaced.GetDz());
 }
 
-// New Definition
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend>
 VECGEOM_CUDA_HEADER_BOTH

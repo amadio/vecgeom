@@ -1,6 +1,6 @@
 //
 //
-// TestBox
+// TestHype
 //             Ensure asserts are compiled in
 
 #undef NDEBUG
@@ -14,13 +14,14 @@
 //#include "UHype.hh"
 #include "UVector3.hh"
 #endif
-#include<iomanip>
+#include <iomanip>
 #include <cassert>
 #include <cmath>
+#include <string>
 
 #define PI 3.14159265358979323846
 
-template <class Hype_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
+template <class Hype_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
 bool TestHype() {
 
   std::cout << std::setprecision(15);
@@ -37,8 +38,8 @@ bool TestHype() {
   Vec_t ponz(0., 0., fR);   // point on surface on Z axis
   Vec_t ponmz(0., 0., -fR); // point on surface on minus Z axis
 
-  Vec_t ponxsideO(fRmax, 0, 0), ponysideO(0, fRmax, 0);//, ponzsideO(fRmax,0,halfZ);
-  Vec_t ponxsideI(fRmin, 0, 0), ponysideI(0, fRmin, 0);//, ponzsideI(fRmin,0,halfZ);;
+  Vec_t ponxsideO(fRmax, 0, 0), ponysideO(0, fRmax, 0); //, ponzsideO(fRmax,0,halfZ);
+  Vec_t ponxsideI(fRmin, 0, 0), ponysideI(0, fRmin, 0); //, ponzsideI(fRmin,0,halfZ);;
 
   Vec_t ponmxside(-fR, 0, 0), ponmyside(0, -fR, 0), ponmzside(0, 0, -fR);
 
@@ -54,36 +55,19 @@ bool TestHype() {
   Hype_t b2("Solid VecGeomHype #2", 10, 20, PI / 4, PI / 4, 50);
 
   // Check name
+  std::cout << "Name : " << b1.GetName() << std::endl;
   // assert(b1.GetName()=="Solid VecGeomHype #1");
-  // assert(b2.GetName()=="Solid VecGeomHype #2");
-
-  // COMMENTING CAPACITY AND SURFACE AREA FOR THE TIME BEING
-
-  // Check cubic volume
-  // assert(b1.Capacity() == ((4 * PI / 3) * fR * fR * fR));
-  // assert(b2.Capacity() == ((4 * PI / 3) * 6 * 6 * 6));
-
-  // Check Surface area
-  // assert(b1.SurfaceArea() == ((4 * PI) * fR * fR));
-  // assert(b2.SurfaceArea() == ((4 * PI) * 6 * 6));
+  assert(!strcmp(b1.GetName(), "Solid VecGeomHype #1"));
+  assert(!strcmp(b2.GetName(), "Solid VecGeomHype #2"));
 
   Vec_t minExtent, maxExtent;
   b1.Extent(minExtent, maxExtent);
   double tSTout = std::tan(stOut);
-  // double tSTout2 = tSTout*tSTout;
   double tSTin = std::tan(stIn);
-  // double tSTin2 = tSTin*tSTin;
-  // double endOuterRadius = std::sqrt(fRmax*fRmax + tSTout2*halfZ*halfZ);
 
   double xy = std::sqrt(fRmax * fRmax + tSTout * tSTout * halfZ * halfZ);
   assert(ApproxEqual(minExtent, Vec_t(-xy, -xy, -halfZ)));
   assert(ApproxEqual(maxExtent, Vec_t(xy, xy, halfZ)));
-
-  /*
-  b2.Extent(minExtent,maxExtent);
-  assert(ApproxEqual(minExtent,Vec_t(-6,-6,-6)));
-  assert(ApproxEqual(maxExtent,Vec_t( 6, 6, 6)));
-  */
 
   // Check Surface Normal
   Vec_t normal;
@@ -115,15 +99,13 @@ bool TestHype() {
   valid = b1.Normal(pbigmz, normal);
   assert(ApproxEqual(normal, Vec_t(0, 0, -1)));
 
-  // Raman-----------------
-
   // valid = b1.Normal(pony,normal);
   // assert(ApproxEqual(normal,Vec_t(0,1,0)));
 
   valid = b1.Normal(ponz, normal);
   assert(ApproxEqual(normal, Vec_t(0, 0, 1)));
 
-   valid = b1.Normal(ponmx,normal);
+  valid = b1.Normal(ponmx, normal);
   // assert(ApproxEqual(normal,Vec_t(-1,0,0)));
 
   // valid = b1.Normal(ponmy,normal);
@@ -133,8 +115,6 @@ bool TestHype() {
   assert(ApproxEqual(normal, Vec_t(0, 0, -1)));
 
   // DistanceToOut(P,V) with asserts for norm and convex
-
-  // Raman----------
 
   Vec_t pmidx(fRmin + ((fRmax - fRmin) / 2), 0, 0);
   Vec_t pmidy(0, fRmin + ((fRmax - fRmin) / 2), 0);
@@ -214,7 +194,6 @@ bool TestHype() {
   assert(b1.Inside(ponxsideI) == vecgeom::EInside::kSurface);
   assert(b1.Inside(ponysideI) == vecgeom::EInside::kSurface);
 
-
   Dist = b1.DistanceToIn(pbigx, vmx);
   assert(ApproxEqual(Dist, 100 - fRmax));
   Dist = b1.DistanceToIn(pbigmx, vx);
@@ -224,14 +203,13 @@ bool TestHype() {
   Dist = b1.DistanceToIn(pbigmy, vy);
   assert(ApproxEqual(Dist, 100 - fRmax));
 
-
   Dist = b1.DistanceToIn(pbigz, vmz);
   if (Dist >= UUtils::kInfinity)
-      Dist = UUtils::Infinity();
+    Dist = UUtils::Infinity();
   assert(ApproxEqual(Dist, UUtils::Infinity()));
   Dist = b1.DistanceToIn(pbigmz, vz);
   if (Dist >= UUtils::kInfinity)
-      Dist = UUtils::Infinity();
+    Dist = UUtils::Infinity();
   assert(ApproxEqual(Dist, UUtils::Infinity()));
 
   Dist = b1.DistanceToIn(pbigx, vxy);
@@ -299,12 +277,10 @@ bool TestHype() {
 
   Dist = b1.DistanceToIn(pointOTol_IH, vmx); // May fail
   std::cout << "DistToIn : " << Dist << std::endl;
-  // std::cout<<"DDDDD : "<<Dist<<std::endl;
   assert(ApproxEqual(Dist, 20.));
 
   Dist = b1.DistanceToOut(pointOTol_IH, vmx, norm, convex); // This case fails
   std::cout << "DistToOut : " << Dist << std::endl;
-  // std::cout<<"SSSS : "<<Dist<<std::endl;
   assert(ApproxEqual(Dist, 0.));
 
   std::cout << "------------------------------------------------" << std::endl;
@@ -318,7 +294,7 @@ bool TestHype() {
   assert(ApproxEqual(Dist, 10.));
   Dist = b1.DistanceToIn(pointOTol_IHm, vmx); // May fail
   std::cout << "DistToIn : " << Dist << std::endl;
-  assert(ApproxEqual(Dist,20.));
+  assert(ApproxEqual(Dist, 20.));
 
   Dist = b1.DistanceToOut(pointOTol_IH, vmx, norm, convex); // This case fails
   std::cout << "DistToOut : " << Dist << std::endl;
@@ -343,7 +319,7 @@ bool TestHype() {
 
   double Dist3 = b1.DistanceToOut(pointOTol_Z, vmz, norm, convex); // This case fails
   std::cout << "DistToOut : " << Dist3 << std::endl;
-  assert(ApproxEqual(Dist,0.));
+  assert(ApproxEqual(Dist, 0.));
 
   std::cout << "------------------------------------------------" << std::endl;
 
@@ -367,7 +343,7 @@ bool TestHype() {
   std::cout << "DistToOut : " << Dist4 << std::endl;
   assert(ApproxEqual(Dist3, Dist4));
 
-  //UNIT TESTS FOR WRONG SIDE POINTS
+  // UNIT TESTS FOR WRONG SIDE POINTS
 
   // Testing DistanceToOut for outside points
   Dist = b1.DistanceToOut(pbigx, vmx, norm, convex);
@@ -383,29 +359,28 @@ bool TestHype() {
   Dist = b1.DistanceToOut(pbigmz, vmz, norm, convex);
   assert(ApproxEqual(Dist, -1.));
 
-
   // Testing SafetFromInside for outside points
   Dist = b1.SafetyFromInside(pbigx);
-  assert(ApproxEqual(Dist,-1));
+  assert(ApproxEqual(Dist, -1));
   Dist = b1.SafetyFromInside(pbigy);
-  assert(ApproxEqual(Dist,-1));
+  assert(ApproxEqual(Dist, -1));
   Dist = b1.SafetyFromInside(pbigz);
-  assert(ApproxEqual(Dist,-1));
+  assert(ApproxEqual(Dist, -1));
   Dist = b1.SafetyFromInside(pbigmx);
-  assert(ApproxEqual(Dist,-1));
+  assert(ApproxEqual(Dist, -1));
   Dist = b1.SafetyFromInside(pbigmy);
-  assert(ApproxEqual(Dist,-1));
+  assert(ApproxEqual(Dist, -1));
   Dist = b1.SafetyFromInside(pbigmz);
-  assert(ApproxEqual(Dist,-1));
+  assert(ApproxEqual(Dist, -1));
 
   // Testing DistanceToIn for inside points
   Dist = b1.DistanceToIn(Vec_t(15., 0., 0.), vx);
   assert(ApproxEqual(Dist, -1.));
-  Dist = b1.DistanceToIn(Vec_t(0.,15., 0.), vy);
+  Dist = b1.DistanceToIn(Vec_t(0., 15., 0.), vy);
   assert(ApproxEqual(Dist, -1.));
   Dist = b1.DistanceToIn(Vec_t(-15., 0., 0.), vmx);
   assert(ApproxEqual(Dist, -1.));
-  Dist = b1.DistanceToIn(Vec_t(0.,-15., 0.), vmy);
+  Dist = b1.DistanceToIn(Vec_t(0., -15., 0.), vmy);
   assert(ApproxEqual(Dist, -1.));
 
   // Testing SafetyFromOut for inside points
@@ -417,40 +392,32 @@ bool TestHype() {
   assert(ApproxEqual(Dist, -1.));
   Dist = b1.SafetyFromOutside(Vec_t(0., -15., 0.));
   assert(ApproxEqual(Dist, -1.));
-
-
+  std::cout<<valid<<std::endl;
   return true;
 }
 
- int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
 
-    if( argc < 2)
-     {
-       std::cerr << "need to give argument :--usolids or --vecgeom\n";
-       return 1;
-     }
+  if (argc < 2) {
+    std::cerr << "need to give argument :--usolids or --vecgeom\n";
+    return 1;
+  }
 
-     if( ! strcmp(argv[1], "--usolids") )
-     {
- #ifdef VECGEOM_USOLIDS
-  // assert(TestHype<UHype>());
-   std::cout << "UHype passed\n";
-       #else
-       std::cerr << "VECGEOM_USOLIDS was not defined\n";
-       return 2;
- #endif
-     }
-     else if( ! strcmp(argv[1], "--vecgeom") )
-     {
-   assert(TestHype<vecgeom::SimpleHype>());
-   std::cout << "VecGeomHype passed\n";
-     }
-     else
-     {
-       std::cerr << "need to give argument :--usolids or --vecgeom\n";
-       return 1;
-     }
+  if (!strcmp(argv[1], "--usolids")) {
+#ifdef VECGEOM_USOLIDS
+    // assert(TestHype<UHype>());
+    std::cout << "UHype passed\n";
+#else
+    std::cerr << "VECGEOM_USOLIDS was not defined\n";
+    return 2;
+#endif
+  } else if (!strcmp(argv[1], "--vecgeom")) {
+    assert(TestHype<vecgeom::SimpleHype>());
+    std::cout << "VecGeomHype passed\n";
+  } else {
+    std::cerr << "need to give argument :--usolids or --vecgeom\n";
+    return 1;
+  }
 
-
-   return 0;
- }
+  return 0;
+}

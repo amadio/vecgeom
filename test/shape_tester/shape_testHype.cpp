@@ -17,35 +17,17 @@ typedef vecgeom::SimpleHype Hype_t;
 
 int main(int argc,char *argv[]) {
 
-  int errCode= 0;
-  VUSolid* hype;
-  if(argc>=1){
-    hype = new Hype_t("test_VecGeomHype", 5., 20, PI / 6, PI / 3, 50);
- }
+  int errCode = 0;
+  VUSolid *hype = new Hype_t("test_VecGeomHype", 5., 20, PI / 6, PI / 3, 50);
   ShapeTester tester;
   tester.SetSolidTolerance(1e-7);
-  if(argc>2)
-  {
-    if(strcmp(argv[2],"vis")==0)
-    {
-     #ifdef VECGEOM_ROOT
-     TApplication theApp("App",0,0);
-     errCode = tester.Run(hype);
-     theApp.Run();
-     #endif
-    }
+  if (argc > 1) {
+    tester.Run(hype, argv[1]);
+  } else {
+    tester.Run(hype);
   }
-  else
-  {
-    errCode = tester.Run(hype);
-  }
-   std::cout<<"Final Error count for Shape *** "<<hype->GetName()<<"*** = "<<errCode<<std::endl;
-  std::cout<<"========================================================="<<std::endl;
+
+  std::cout << "Final Error count for Shape *** " << hype->GetName() << "*** = " << errCode << std::endl;
+  std::cout << "=========================================================" << std::endl;
   return 0;
-
-
-
 }
-
-
-
