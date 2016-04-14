@@ -117,7 +117,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(TrdImplementation, TranslationCode, t
       ok = ndotv < 0.;
     else
       ok = ndotv > 0.;
-    if (Any(ok))
+    if (IsEmpty(ok))
       return;
     Float_t alongZ = Float_t(2.0) * trd.dz();
 
