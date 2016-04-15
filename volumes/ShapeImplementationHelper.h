@@ -216,10 +216,11 @@ public:
       output
     );
 
-    // avoid distance values within tolerance
 #ifdef VECGEOM_USOLIDS
+    // apply USolids convention: convert negative values to zero
     MaskedAssign(output<kHalfTolerance, 0., &output);
 #else
+    // avoid distance values within tolerance
     MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
 #endif
 
@@ -267,10 +268,11 @@ public:
       output
     );
 
-    // avoid distance values within tolerance
 #ifdef VECGEOM_USOLIDS
+    // apply USolids convention: convert negative values to zero
     MaskedAssign(output<kHalfTolerance, 0., &output);
 #else
+    // avoid distance values within tolerance
     MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
 #endif
 
@@ -375,10 +377,11 @@ public:
       output
     );
 
-    // avoid distance values within tolerance
 #ifdef VECGEOM_USOLIDS
+    // apply USolids convention: convert negative values to zero
     MaskedAssign(output<kHalfTolerance, 0., &output);
 #else
+    // avoid distance values within tolerance
     MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
 #endif
 
@@ -394,10 +397,11 @@ public:
       output
     );
 
-    // avoid distance values within tolerance
 #ifdef VECGEOM_USOLIDS
+    // apply USolids convention: convert negative values to zero
     MaskedAssign(output<kHalfTolerance, 0., &output);
 #else
+    // avoid distance values within tolerance
     MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
 #endif
 
@@ -685,8 +689,13 @@ public:
         result
       );
 
+#ifdef VECGEOM_USOLIDS
+      // apply USolids convention: convert negative values to zero
+      MaskedAssign(result<kHalfTolerance, 0., &result);
+#else
       // avoid distance values within tolerance
       MaskedAssign(Abs(result)<kHalfTolerance, 0., &result);
+#endif
 
       StoreTo(result, output+i);
     }
