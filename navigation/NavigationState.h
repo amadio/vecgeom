@@ -61,7 +61,7 @@ VECGEOM_INLINE
 static VPlacedVolume const *ToPlacedVolume( T index ){
      // solution based on direct indexing into the buffer of placed volumes
      // TODO: on the GPU this is a different static buffer !!
-#ifndef VECGEOM_CUDA
+#ifndef VECGEOM_NVCC
     return &GeoManager::gCompactPlacedVolBuffer[index];
 #else
     (void)index; // avoid unused parameter warning.
