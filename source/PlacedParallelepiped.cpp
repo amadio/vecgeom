@@ -17,29 +17,23 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 #ifndef VECGEOM_NVCC
 
-VPlacedVolume const* PlacedParallelepiped::ConvertToUnspecialized() const {
-  return new SimpleParallelepiped(GetLabel().c_str(), GetLogicalVolume(),
-                                  GetTransformation());
+VPlacedVolume const *PlacedParallelepiped::ConvertToUnspecialized() const {
+  return new SimpleParallelepiped(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
 }
 
 #ifdef VECGEOM_ROOT
-TGeoShape const* PlacedParallelepiped::ConvertToRoot() const {
-  return new TGeoPara(GetLabel().c_str(), GetX(), GetY(), GetZ(), GetAlpha(),
-                      GetTheta(), GetPhi());
+TGeoShape const *PlacedParallelepiped::ConvertToRoot() const {
+  return new TGeoPara(GetLabel().c_str(), GetX(), GetY(), GetZ(), GetAlpha(), GetTheta(), GetPhi());
 }
 #endif
 
 #if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const* PlacedParallelepiped::ConvertToUSolids() const {
-  assert(0 && "Parallelepiped unsupported for USolids.");
-  return NULL;
-}
+::VUSolid const *PlacedParallelepiped::ConvertToUSolids() const { return NULL; }
 #endif
 
 #ifdef VECGEOM_GEANT4
-G4VSolid const* PlacedParallelepiped::ConvertToGeant4() const {
-  return new G4Para(GetLabel(), GetX(), GetY(), GetZ(), GetAlpha(), GetTheta(),
-                    GetPhi());
+G4VSolid const *PlacedParallelepiped::ConvertToGeant4() const {
+  return new G4Para(GetLabel(), GetX(), GetY(), GetZ(), GetAlpha(), GetTheta(), GetPhi());
 }
 #endif
 
@@ -49,7 +43,7 @@ G4VSolid const* PlacedParallelepiped::ConvertToGeant4() const {
 
 #ifdef VECGEOM_NVCC
 
-VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC( SpecializedParallelepiped )
+VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(SpecializedParallelepiped)
 
 #endif // VECGEOM_NVCC
 

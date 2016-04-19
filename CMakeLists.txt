@@ -807,6 +807,7 @@ set(TEST_EXECUTABLES_VISUALIZATION
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeSphere.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeGenTrap.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeHype.cpp
+  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeParallelepiped.cpp
 )
 
 set(TEST_EXECUTABLES_USOLIDS
@@ -875,6 +876,7 @@ set(TEST_EXECUTABLES_SHAPETESTER
   # ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testParaboloid.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testPolycone.cpp 
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testGenTrap.cpp
+  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testParallelepiped.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/convention_testTube.cpp
 )
 

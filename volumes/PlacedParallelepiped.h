@@ -7,39 +7,35 @@
 #include "base/Global.h"
 #include "volumes/PlacedVolume.h"
 #include "volumes/UnplacedParallelepiped.h"
+#include "volumes/kernel/ParallelepipedImplementation.h"
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedParallelepiped; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedParallelepiped )
+VECGEOM_DEVICE_FORWARD_DECLARE(class PlacedParallelepiped;)
+VECGEOM_DEVICE_DECLARE_CONV(PlacedParallelepiped)
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class PlacedParallelepiped : public VPlacedVolume {
 
 public:
-
   typedef UnplacedParallelepiped UnplacedShape_t;
 
 #ifndef VECGEOM_NVCC
 
-  PlacedParallelepiped(char const *const label,
-                       LogicalVolume const *const logical_volume,
-                       Transformation3D const *const transformation,
-                       PlacedBox const *const boundingBox)
+  PlacedParallelepiped(char const *const label, LogicalVolume const *const logical_volume,
+                       Transformation3D const *const transformation, PlacedBox const *const boundingBox)
       : VPlacedVolume(label, logical_volume, transformation, boundingBox) {}
 
-  PlacedParallelepiped(LogicalVolume const *const logical_volume,
-                       Transformation3D const *const transformation,
+  PlacedParallelepiped(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
                        PlacedBox const *const boundingBox)
       : PlacedParallelepiped("", logical_volume, transformation, boundingBox) {}
 
 #else
 
-  __device__
-  PlacedParallelepiped(LogicalVolume const *const logical_volume,
-                       Transformation3D const *const transformation,
-                       PlacedBox const *const boundingBox, const int id)
+  __device__ PlacedParallelepiped(LogicalVolume const *const logical_volume,
+                                  Transformation3D const *const transformation, PlacedBox const *const boundingBox,
+                                  const int id)
       : VPlacedVolume(logical_volume, transformation, boundingBox, id) {}
 
 #endif
@@ -47,15 +43,12 @@ public:
   virtual ~PlacedParallelepiped() {}
 
   VECGEOM_CUDA_HEADER_BOTH
-  UnplacedParallelepiped const* GetUnplacedVolume() const {
-    return static_cast<UnplacedParallelepiped const *>(
-        GetLogicalVolume()->GetUnplacedVolume());
+  UnplacedParallelepiped const *GetUnplacedVolume() const {
+    return static_cast<UnplacedParallelepiped const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  Vector3D<Precision> const& GetDimensions() const {
-    return GetUnplacedVolume()->GetDimensions();
-  }
+  Vector3D<Precision> const &GetDimensions() const { return GetUnplacedVolume()->GetDimensions(); }
 
   VECGEOM_CUDA_HEADER_BOTH
   Precision GetX() const { return GetUnplacedVolume()->GetX(); }
@@ -79,36 +72,42 @@ public:
   Precision GetTanAlpha() const { return GetUnplacedVolume()->GetTanAlpha(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetTanThetaSinPhi() const {
-    return GetUnplacedVolume()->GetTanThetaSinPhi();
-  }
+  Precision GetTanThetaSinPhi() const { return GetUnplacedVolume()->GetTanThetaSinPhi(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetTanThetaCosPhi() const {
-    return GetUnplacedVolume()->GetTanThetaCosPhi();
-  }
-  
-  virtual
-  void Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & aMax) const override
-  {
+  Precision GetTanThetaCosPhi() const { return GetUnplacedVolume()->GetTanThetaCosPhi(); }
+
+  virtual Precision Capacity() override { return GetUnplacedVolume()->volume(); }
+
+  virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override {
     GetUnplacedVolume()->Extent(aMin, aMax);
   }
 
+  virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override {
+    bool valid;
+    ParallelepipedImplementation<translation::kIdentity, rotation::kIdentity>::NormalKernel<kScalar>(
+        *GetUnplacedVolume(), point, normal, valid);
+    return valid;
+  }
+
+  virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface(); }
+
+  virtual double SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
+
 #ifndef VECGEOM_NVCC
-  virtual VPlacedVolume const* ConvertToUnspecialized() const override;
+  virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
-  virtual TGeoShape const* ConvertToRoot() const override;
+  virtual TGeoShape const *ConvertToRoot() const override;
 #endif
 #if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-  virtual ::VUSolid const* ConvertToUSolids() const override;
+  virtual ::VUSolid const *ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4
-  virtual G4VSolid const* ConvertToGeant4() const override;
+  virtual G4VSolid const *ConvertToGeant4() const override;
 #endif
 #endif // VECGEOM_NVCC
-
 };
-
-} } // End global namespace
+}
+} // End global namespace
 
 #endif // VECGEOM_VOLUMES_PLACEDPARALLELEPIPED_H_
