@@ -69,7 +69,6 @@ typedef int Inside_t;
 #else
   VECGEOM_GLOBAL int kAlignmentBoundary = 32;
 #endif
-
 namespace EInside {
 VECGEOM_GLOBAL vecgeom::Inside_t kInside = 0;
 VECGEOM_GLOBAL vecgeom::Inside_t kSurface = 1;

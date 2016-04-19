@@ -9,16 +9,18 @@
 using namespace vecgeom;
 
 int main(int argc, char* argv[]) {
-  OPTION_INT(ntracks, 32768);
+  OPTION_INT(npoints, 32768);
   OPTION_INT(nrep, 4);
   OPTION_INT(nstats, 1);
 
+#if 0
   // temporary alert to deprecated use of npoints
   OPTION_INT(npoints, 0);
   if(npoints) {
-    printf("\n***** ERROR: -npoints is now deprecated.  Please use -ntracks instead.\n");
+    printf("\n***** ERROR: -npoints is now deprecated.  Please use -npoints instead.\n");
     std::exit(-1);
   }
+#endif
 
   //===== Build a geometry with trapezoid(s)
 
@@ -62,9 +64,9 @@ int main(int argc, char* argv[]) {
   GeoManager::Instance().SetWorld(worldPlaced);
 
   Benchmarker tester(GeoManager::Instance().GetWorld());
-  tester.SetPointCount(ntracks);
+  tester.SetPointCount(npoints);
   tester.SetRepetitions(nrep);
-  tester.SetTolerance(2.e-12);
+  tester.SetTolerance(1.e-9);
   tester.SetPoolMultiplier(1);
 
   //=== Here is for the validation + one perf data point displayed on screen
@@ -77,18 +79,18 @@ int main(int argc, char* argv[]) {
 
   // Now run to collect statistics for performance plots - written to the .csv output file only
   if(nstats>1) {
-    // Idea is to start at ntracks=2, and then increase it by x2 at a time until maxNtracks is reached
+    // Idea is to start at npoints=2, and then increase it by x2 at a time until maxNpoints is reached
     tester.SetVerbosity(0);
     tester.SetMeasurementCount(nstats);
-    ntracks = 2;
-    int maxNtracks = 2048;
+    npoints = 2;
+    int maxNpoints = 2048;
 #ifdef VECGEOM_CUDA
-    maxNtracks = 1048576;
+    maxNpoints = 1048576;
 #endif
-    while(ntracks<=maxNtracks) {
-      tester.SetPointCount(ntracks);
+    while(npoints<=maxNpoints) {
+      tester.SetPointCount(npoints);
       tester.RunBenchmark();
-      ntracks *= 2;
+      npoints *= 2;
     }
 
     // Save statistics data to a text file

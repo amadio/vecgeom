@@ -1,6 +1,9 @@
 #ifndef VECCORE_BACKEND_H
 #define VECCORE_BACKEND_H
 
+#include <type_traits>
+#include <cassert>
+
 namespace vecCore {
 
 template <typename T> struct TypeTraits;
@@ -38,6 +41,78 @@ void MaskedAssign(T& dest, bool mask, const T &src);
 
 template <class T, class Mask>
 T Blend(const Mask mask, const T& tval, const T& fval);
+
+// construct a type from a pointer - generic impl for vector types
+// may be template specialized in backends
+template <typename T>
+VECCORE_FORCE_INLINE
+VECCORE_CUDA_HOST_DEVICE
+typename std::enable_if<!std::is_scalar<T>::value, T>::type FromPtr(typename TypeTraits<T>::ScalarType const *x) {
+  return T(x);
+}
+
+
+// construct a type from a pointer - generic impl for scalar types
+template <typename T>
+VECCORE_FORCE_INLINE
+VECCORE_CUDA_HOST_DEVICE
+typename std::enable_if<std::is_scalar<T>::value, T>::type FromPtr(typename TypeTraits<T>::ScalarType const *x) {
+  return T(*x);
+}
+
+// store type to an address destination (pointer to scalar type)- generic impl for vector types
+// may be template specialized in backends
+template <typename T>
+VECCORE_FORCE_INLINE
+VECCORE_CUDA_HOST_DEVICE
+void Store(T x, typename std::enable_if<!std::is_scalar<T>::value, typename TypeTraits<T>::ScalarType>::type *dest) {
+  x.store(dest);
+}
+
+// store to an address destination - generic impl for scalar types
+template <typename T>
+VECCORE_FORCE_INLINE
+VECCORE_CUDA_HOST_DEVICE
+void Store(T x, typename std::enable_if<std::is_scalar<T>::value, typename TypeTraits<T>::ScalarType>::type *dest) {
+  *dest = x;
+}
+
+// indexed *read* lane accesses for vector and mask types
+
+// lane access to scalar types - trivial implementation
+template <typename T>
+VECCORE_FORCE_INLINE
+VECCORE_CUDA_HOST_DEVICE
+typename std::enable_if<std::is_scalar<T>::value, typename TypeTraits<T>::ScalarType>::type LaneAt(T x, size_t index) {
+  assert(index == 0);
+  return x;
+}
+
+// lane access to vector types - generic implementation
+template <typename T>
+VECCORE_FORCE_INLINE
+VECCORE_CUDA_HOST_DEVICE
+typename std::enable_if<!std::is_scalar<T>::value, typename TypeTraits<T>::ScalarType>::type LaneAt(T x, size_t index) {
+  assert(index < VectorSize<T>());
+  return x[index];
+}
+
+// lane access to masks of vector types - generic implementation
+template <typename Mask>
+VECCORE_FORCE_INLINE
+VECCORE_CUDA_HOST_DEVICE
+bool MaskLaneAt(Mask x, size_t index) {
+  return x[index];
+}
+
+// for scalar mask case, a simple template specialization is good
+template <>
+VECCORE_FORCE_INLINE
+VECCORE_CUDA_HOST_DEVICE
+bool MaskLaneAt<bool>(bool x, size_t index) {
+  assert(index == 0);
+  return x;
+}
 
 // extra functions
 

@@ -12,6 +12,7 @@
 #include "backend/Backend.h"
 #include <iostream>
 #include <iomanip>
+#define kHalfPi 0.5*kPi
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -55,12 +56,6 @@ private:
   Precision tanSTheta2;
   Precision tanETheta2;
 
-
-  // Precision cosTheta1, sinTheta1;
-  // Precision cosTheta2, sinTheta2;
-
-  // Precision cone1Radius,cone2Radius;
-
 public:
   VECGEOM_CUDA_HEADER_BOTH
   ThetaCone(Precision sTheta, Precision dTheta) : fSTheta(sTheta), fDTheta(dTheta), kAngTolerance(kTolerance) {
@@ -85,7 +80,6 @@ public:
       tanBisector = tan(tempfSTheta - (fDTheta / 2));
     slope1 = tan(kPi / 2 - fSTheta);
     slope2 = tan(kPi / 2 - fETheta);
-
   }
 
   VECGEOM_CUDA_HEADER_BOTH

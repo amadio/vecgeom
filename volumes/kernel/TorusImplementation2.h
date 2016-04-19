@@ -544,84 +544,55 @@ static T DistSqrToTorusR(UnplacedTorus2 const &torus, Vector3D<T> const &point, 
 #endif // VECGEOM_NO_SPECIALIZATION
       done = (!inBounds && tubeDistance == kInfinity);
 
-       if (Backend::early_returns) {
-           if ( IsFull(done) ) {
-            return;
-       }
-       }
+      if (Backend::early_returns) {
+        if ( IsFull(done) ) {
+          return;
+        }
+      }
 
+      Bool_t hasphi = (torus.dphi() < vecgeom::kTwoPi);
+      if (hasphi) {
+        Float_t d1, d2;
 
-       // Bool_t hasphi = (torus.dphi() < vecgeom::kTwoPi);
+        auto wedge = torus.GetWedge();
+        // checking distance to phi wedges
+        // NOTE: if the tube told me its hitting surface, this would be unnessecary
+        wedge.DistanceToIn<Backend>(localPoint, localDirection, d1, d2);
 
-       // Check if bounding tube intersection is due to phi in which case we are done
-       Precision daxis = DistSqrToTorusR(torus, localPoint, localDirection, tubeDistance);
-       if (daxis >= torus.rmin2() && daxis < torus.rmax2()){
-            distance=tubeDistance;
-             return ;
-       }
-       // Not a phi crossing -> propagate until we cross the ring.
-      // pt = localPoint + tubeDistance * localDirection;
+        // check phi intersections if bounding tube intersection is due to phi in which case we are done
+        if (d1 != kInfinity) {
+          Precision daxis = DistSqrToTorusR(torus, localPoint, localDirection, d1);
+          if (daxis >= torus.rmin2() && daxis < torus.rmax2()) {
+            distance = d1;
+            // check if tube intersections is due to phi in which case we are done
+            if (distance == tubeDistance) {
+              return;
+            }
+          }
+        }
 
+        if (d2 != kInfinity) {
+          Precision daxis = DistSqrToTorusR(torus, localPoint, localDirection, d2);
+          if (daxis >= torus.rmin2() && daxis < torus.rmax2()) {
+            distance = Min(d2, distance);
+            // check if tube intersections is due to phi in which case we are done
+            if (distance == tubeDistance) {
+              return;
+            }
+          }
+        }
+      }
 
-       // Point pt is inside the bounding ring, no phi crossing so far.
-       // Check if we are in the hole.
-// we comment out treatment of RMIN for now
-       //       if (daxis < 0)
-//         daxis = Daxis(pt, dir, 0);
-//       if (daxis < fRmin + 1.E-8) {
-//         // We are in the hole. Check if we came from outside.
-//         if (snext > 0) {
-//           // we can cross either the inner torus or exit the other hole.
-//           snext += 0.1 * eps;
-//           for (i = 0; i < 3; i++)
-//             pt[i] += 0.1 * eps * dir[i];
-//         }
-//         // We are in the hole from the beginning.
-//         // find first crossing with inner torus
-//         dd = ToBoundary(pt, dir, fRmin, kFALSE);
-//         // find exit distance from inner bounding ring
-//         if (hasphi)
-//           dring = TGeoTubeSeg::DistFromInsideS(pt, dir, fR - fRmin, fR + fRmin, fRmin, c1, s1, c2, s2, cm, sm, cdfi);
-//         else
-//           dring = TGeoTube::DistFromInsideS(pt, dir, fR - fRmin, fR + fRmin, fRmin);
-//         if (dd < dring)
-//           return (snext + dd);
-//         // we were exiting a hole inside phi hole
-//         snext += dring + eps;
-//         for (i = 0; i < 3; i++)
-//           pt[i] = point[i] + snext * dir[i];
-//         snext += DistFromOutside(pt, dir, 3);
-//         return snext;
-//       } // end inside inner tube
+      Float_t dd = ToBoundary<Backend, false>(torus, localPoint, localDirection, torus.rmax(), false);
 
-       // We are inside the outer ring, having daxis>fRmax
-       // Compute distance to exit the bounding ring (again)
-       //if (snext > 0) {
-         // we can cross either the inner torus or exit the other hole.
-        // snext += 0.1 * eps;
-        // for (i = 0; i < 3; i++)
-        //   pt[i] += 0.1 * eps * dir[i];
-      // }
-       // Check intersection with outer torus
-       //Float_t dd = ToBoundary<Backend,false>(torus,point,dir,torus.rmax(),true);
-       Float_t dd = ToBoundary<Backend, false>(torus, localPoint, localDirection, torus.rmax(), false);
-//       if (hasphi)
-//         dring = TGeoTubeSeg::DistFromInsideS(pt, dir, TMath::Max(0., fR - fRmax - eps), fR + fRmax + eps, fRmax + eps,
-//                                              c1, s1, c2, s2, cm, sm, cdfi);
-//       else
-//         dring = TGeoTube::DistFromInsideS(pt, dir, TMath::Max(0., fR - fRmax - eps), fR + fRmax + eps, fRmax + eps);
-//       if (dd < dring) {
-//         snext += dd;
-//         return snext;
-//       }
-//       // We are exiting the bounding ring before crossing the torus -> propagate
-//       snext += dring + eps;
-//       for (i = 0; i < 3; i++)
-//         pt[i] = point[i] + snext * dir[i];
-//       snext += DistFromOutside(pt, dir, 3);
-       distance = dd;
-       return;
-  }
+      // in case of a phi opening we also need to check the Rmin surface
+      if (torus.rmin() > 0.) {
+        Float_t ddrmin = ToBoundary<Backend, true>(torus, localPoint, localDirection, torus.rmin(), false);
+        dd = Min(dd, ddrmin);
+      }
+      distance = Min(distance, dd);
+      return;
+    }
 
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH
@@ -637,84 +608,52 @@ static T DistSqrToTorusR(UnplacedTorus2 const &torus, Vector3D<T> const &point, 
     typedef typename Backend::bool_v Bool_t;
     distance = kInfinity;
    
-//#ifndef VECGEOM_NO_SPECIALIZATION
-//      // call the tube functionality -- first of all we check whether we are inside
-//      // bounding volume
-//      TubeImplementation<translation::kIdentity,
-//        rotation::kIdentity, TubeTypes::HollowTube>::UnplacedContains<Backend>(
-//            torus.GetBoundingTube(), point, inBounds);
-//#else
-//      // call the tube functionality -- first of all we check whether we are inside
-//      // bounding volume
-//      TubeImplementation<translation::kIdentity,
-//        rotation::kIdentity, TubeTypes::UniversalTube>::UnplacedContains<Backend>(
-//            torus.GetBoundingTube(), point, inBounds);
-//
-//#endif // VECGEOM_NO_SPECIALIZATION
-//
-//       done = (!inBounds );
-//       if (Backend::early_returns) {
-//       if ( IsFull(done) ) {
-//             distance = 0;
-//            return ;
-//       }
-//       }
-
     bool hasphi = (torus.dphi()<kTwoPi);
     bool hasrmin = (torus.rmin()>0);
 
-    Float_t dout = ToBoundary<Backend,false>(torus,point,dir,torus.rmax(),true);
+    Float_t dout = ToBoundary<Backend, false>(torus, point, dir, torus.rmax(), true);
     Float_t din(kInfinity);
-    if( hasrmin )
-    {
-      din = ToBoundary<Backend,true>(torus,point,dir,torus.rmin(),true);
+    if (hasrmin) {
+      din = ToBoundary<Backend, true>(torus, point, dir, torus.rmin(), true);
     }
-    distance = Min(dout,din);
-    if (distance >= kInfinity)
-      distance = -1.;
+    distance = Min(dout, din);
 
-    if( hasphi )
-    {
-    // TODO
+    if (hasphi) {
       Float_t distPhi1;
       Float_t distPhi2;
-      torus.GetWedge().DistanceToOut<Backend>(point,dir,distPhi1,distPhi2);
+      torus.GetWedge().DistanceToOut<Backend>(point, dir, distPhi1, distPhi2);
       Bool_t smallerphi = distPhi1 < distance;
-      if(! IsEmpty(smallerphi) )
-    {
-          Vector3D<Float_t> intersectionPoint = point + dir*distPhi1;
-          Bool_t insideDisk ;
-          UnplacedContainsDisk<Backend>(torus,intersectionPoint,insideDisk);
-          
-          if( ! IsEmpty(insideDisk))//Inside Disk
-          {
-            Float_t diri=intersectionPoint.x()*torus.GetWedge().GetAlong1().x()+
-                     intersectionPoint.y()*torus.GetWedge().GetAlong1().y();
-            Bool_t rightside = (diri >=0);
+      if (!IsEmpty(smallerphi)) {
+        Vector3D<Float_t> intersectionPoint = point + dir * distPhi1;
+        Bool_t insideDisk;
+        UnplacedContainsDisk<Backend>(torus, intersectionPoint, insideDisk);
 
-        MaskedAssign( rightside && smallerphi && insideDisk, distPhi1, &distance);
+        if (!IsEmpty(insideDisk)) // Inside Disk
+        {
+          Float_t diri = intersectionPoint.x() * torus.GetWedge().GetAlong1().x() +
+                         intersectionPoint.y() * torus.GetWedge().GetAlong1().y();
+          Bool_t rightside = (diri >= 0);
 
-      }
-         
+          MaskedAssign(rightside && smallerphi && insideDisk, distPhi1, &distance);
         }
-      smallerphi = distPhi2 < distance;
-      if(! IsEmpty(smallerphi) )
-    {
-        
-      Vector3D<Float_t> intersectionPoint = point + dir*distPhi2;
-          Bool_t insideDisk;
-          UnplacedContainsDisk<Backend>(torus,intersectionPoint,insideDisk);
-          if( ! IsEmpty(insideDisk))//Inside Disk
-          {
-            Float_t diri2=intersectionPoint.x()*torus.GetWedge().GetAlong2().x()+
-            intersectionPoint.y()*torus.GetWedge().GetAlong2().y();
-            Bool_t rightside = (diri2 >=0);
-        MaskedAssign( rightside && (distPhi2 < distance) &&smallerphi && insideDisk, distPhi2, &distance);
-
       }
-         }
+      smallerphi = distPhi2 < distance;
+      if (!IsEmpty(smallerphi)) {
+
+        Vector3D<Float_t> intersectionPoint = point + dir * distPhi2;
+        Bool_t insideDisk;
+        UnplacedContainsDisk<Backend>(torus, intersectionPoint, insideDisk);
+        if (!IsEmpty(insideDisk)) // Inside Disk
+        {
+          Float_t diri2 = intersectionPoint.x() * torus.GetWedge().GetAlong2().x() +
+                          intersectionPoint.y() * torus.GetWedge().GetAlong2().y();
+          Bool_t rightside = (diri2 >= 0);
+          MaskedAssign(rightside && (distPhi2 < distance) && smallerphi && insideDisk, distPhi2, &distance);
+        }
+      }
     }
-  
+    if (distance >= kInfinity)
+      distance = -1.;
   }
 
   template <class Backend>

@@ -143,7 +143,7 @@ void BenchNavigationUsingLoggedTracks(LogicalVolume const *lvol, std::vector<VNa
   std::cerr << "lvol " << lvol->GetName() << " CURRENT NAV " << lvol->GetNavigator()->GetName() << "\n";
   int i = 1000;
   int j = 0;
-  double bestT = kInfinity;
+  double bestT = vecgeom::kInfinity;
 
   for (auto &nav : navs) {
     double step = 0;

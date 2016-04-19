@@ -16,23 +16,19 @@ typedef vecgeom::SimpleTube Tube_t;
 int main(int argc,char *argv[]) {
   int errCode= 0;
   VUSolid* tube;
-  if(argc>1){
-    if(strcmp(argv[1],"vec")==0)
-    {
-     tube=new Tube_t("test_VecGeomTube",3.,6.,2,0,vecgeom::kTwoPi*0.6);
-     tube->StreamInfo(std::cout);
+  if (argc>1) {
+    if (strcmp(argv[1],"vec")==0) {
+      tube=new Tube_t("test_VecGeomTube",3.,6.,2,0,vecgeom::kTwoPi*0.6);
     }
-    else
-    { 
-     tube=new UTubs("test_USolidsTube",1.,6.,2,0,vecgeom::kTwoPi*0.6);
-     tube->StreamInfo(std::cout);
+    else {
+      tube=new UTubs("test_USolidsTube",1.,6.,2,0,vecgeom::kTwoPi*0.6);
     }
   }
-  else
-    {
-     tube=new Tube_t("test_VecGeomTube",3.,6.,2,0,vecgeom::kTwoPi*0.6);
-     tube->StreamInfo(std::cout);
-    }
+  else {
+    tube=new Tube_t("test_VecGeomTube",3.,6.,2,0,vecgeom::kTwoPi*0.6);
+    tube->StreamInfo(std::cout);
+  }
+  tube->StreamInfo(std::cout);
   
   ShapeTester tester;
   tester.EnableDebugger(true);

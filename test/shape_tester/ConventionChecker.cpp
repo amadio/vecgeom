@@ -247,9 +247,14 @@ bool ShapeTester::ShapeConventionInsidePoint() {
     Dist = fVolumeUSolids->DistanceToIn(point, direction);
     if (Dist >= UUtils::kInfinity)
       Dist = UUtils::Infinity();
-    // assert((Dist < 0.) && "DistanceToIn for Inside Point can never >= 0. (Wrong Side Point)");
-    if (!(Dist < 0.)) {
-      ReportError(&nError, point, direction, Dist, "DistanceToIn for Inside Point should be Negative (-1.) (Wrong side point)");
+#ifdef VECGEOM_REPLACE_USOLIDS
+    if (Dist != 0.) {
+      std::string message("DistanceToIn for Inside Point should be Zero (Wrong side, USolids convention)");
+#else
+    if (Dist >= 0.) {
+      std::string message("DistanceToIn for Inside Point should be Negative (-1.) (Wrong side, VecGeom conv)");
+#endif
+      ReportError(&nError, point, direction, Dist, message.c_str());
 
       fScore |= (1 << indx);
       insidePointConventionPassed &= false;
@@ -275,10 +280,14 @@ bool ShapeTester::ShapeConventionInsidePoint() {
     Dist = fVolumeUSolids->SafetyFromOutside(point);
     if (Dist >= UUtils::kInfinity)
       Dist = UUtils::Infinity();
-    // assert((Dist < 0.) && "SafetyFromOutside can never be >= 0. for Inside Point (Wrong side point).");
-    if (!(Dist < 0.)) {
-      ReportError(&nError, point, direction, Dist,
-                  "SafetyFromOutside for Inside Point should be Negative (-1.) (Wrong side point)");
+#ifdef VECGEOM_REPLACE_USOLIDS
+    if (Dist != 0.) {
+      std::string message("SafetyFromOutside for Inside Point should be Zero (Wrong side, USolids convention)");
+#else
+    if (Dist >= 0.) {
+      std::string message("SafetyFromOutside for Inside Point should be Negative (-1.) (Wrong side, VecGeom conv)");
+#endif
+      ReportError(&nError, point, direction, Dist, message.c_str());
       fScore |= (1 << indx);
       insidePointConventionPassed &= false;
     }
@@ -334,9 +343,14 @@ bool ShapeTester::ShapeConventionOutsidePoint() {
     Dist = fVolumeUSolids->DistanceToOut(point, direction, norm, convex);
     if (Dist >= UUtils::kInfinity)
       Dist = UUtils::Infinity();
-    // assert((Dist < 0.) && "DistanceToOut for Outside Point can never >= 0. (Wrong Side Point)");
-    if (!(Dist < 0.)) {
-      ReportError(&nError, point, direction, Dist, "DistanceToOut for Outside Point should be Negative (-1.) (Wrong side point)");
+#ifdef VECGEOM_REPLACE_USOLIDS
+    if (Dist != 0.) {
+      std::string msg("DistanceToOut for Outside Point should be Zero (Wrong side, USolids convention).");
+#else
+    if (Dist >= 0.) {
+      std::string msg("DistanceToOut for Outside Point should be Negative (-1.) (Wrong side, VecGeom convention).");
+#endif
+      ReportError(&nError, point, direction, Dist, msg.c_str());
       fScore |= (1 << indx);
       outsidePointConventionPassed &= false;
     }
@@ -361,9 +375,14 @@ bool ShapeTester::ShapeConventionOutsidePoint() {
       Dist = UUtils::Infinity();
     if (Dist >= UUtils::kInfinity)
       Dist = UUtils::Infinity();
-    // assert((Dist < 0.) && "SafetyFromInside for Outside point can never be >= 0.(Wrong Side Point).");
-    if (!(Dist < 0.)) {
-      ReportError(&nError, point, direction, Dist, "SafetyFromInside for Outside Point should be Negative (-1) (Wrong side point).");
+#ifdef VECGEOM_REPLACE_USOLIDS
+    if (Dist != 0.) {
+      std::string message("SafetyFromInside should be zero for Outside Point (Wrong side, USolids convention)");
+#else
+    if (Dist >= 0.) {
+      std::string message("SafetyFromInside should be Negative (-1) for Outside Point (Wrong side, VecGeom conv)");
+#endif
+      ReportError(&nError, point, direction, Dist, message.c_str());
       fScore |= (1 << indx);
       outsidePointConventionPassed &= false;
     }
