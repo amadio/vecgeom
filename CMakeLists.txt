@@ -83,6 +83,11 @@ enum_option(BACKEND
 
 option(VTUNE "Enable the use of profiler Vtune" OFF)
 
+option(ENABLE_VECCORE "Build VecCore library" ON)
+
+if (ENABLE_VECCORE)
+  add_subdirectory(VecCore)
+endif()
 
 set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries.")
 set(INSTALL_INCLUDE_DIR include CACHE PATH
@@ -1136,7 +1141,3 @@ if (CUDA)
   install(TARGETS vecgeomcuda DESTINATION ${INSTALL_LIB_DIR})
   install(TARGETS vecgeomcuda_final DESTINATION ${INSTALL_LIB_DIR})
 endif()
-
-
-# Not yet a proper project.
-#add_subdirectory (VecCore)
