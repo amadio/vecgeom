@@ -1,4 +1,3 @@
-
 ####################################################################
 # Before run should be exported next variables:
 # $CTEST_BUILD_OPTIONS // CMake flags for VecGeom build
@@ -49,7 +48,6 @@ IF(NOT DEFINED CTEST_SITE)
 ENDIF(NOT DEFINED CTEST_SITE)
 
 #######################################################
-set(WITH_MEMCHECK FALSE)
 set(WITH_COVERAGE FALSE)
 set(CTEST_CUSTOM_MAXIMUM_PASSED_TEST_OUTPUT_SIZE "5000")
 set(CTEST_CUSTOM_MAXIMUM_FAILED_TEST_OUTPUT_SIZE "5000")
@@ -61,6 +59,19 @@ set(CTEST_CUSTOM_MAXIMUM_FAILED_TEST_OUTPUT_SIZE "5000")
 #set(ENV{CTEST_USE_LAUNCHERS_DEFAULT} ${CTEST_USE_LAUNCHERS})
 
 ######################################################
+
+if(MODEL STREQUAL NightlyMemoryCheck)
+  set(WITH_MEMCHECK TRUE)
+#  find_package(Valgrind)
+#  find_package(ROOT REQUIRED)
+  if(ROOT)
+    set(MEMORYCHECK_SUPPRESSIONS_FILE "$ROOTSYS/etc/valgrind-root.supp")
+  endif()
+  set(CTEST_MEMORYCHECK_COMMAND ${VALGRIND_PROGRAM})
+else()
+  set(WITH_MEMCHECK FALSE)
+endif()
+
 # CTest/CMake settings
 
 set(CTEST_TEST_TIMEOUT 900)
@@ -135,6 +146,8 @@ if(${CTEST_MODE} MATCHES nightly)
   SET(MODEL Nightly)
 elseif(${CTEST_MODE} MATCHES continuous)
   SET(MODEL Continuous)
+elseif(${CTEST_MODE} MATCHES memory)
+  SET(MODEL NightlyMemoryCheck)
 else()
   SET(MODEL Experimental)
 endif()
@@ -158,6 +171,10 @@ ctest_submit(PARTS Update Configure Notes)
 ctest_build(BUILD "${CTEST_BINARY_DIRECTORY}" APPEND)
 message("Built.")
 ctest_submit(PARTS Build)
+
+if(${MODEL} MATCHES NightlyMemoryCheck)
+  ctest_submit(PARTS MemCheck)
+endif()
 
 message(" -- Install ${MODEL} - ${CTEST_BUILD_NAME} --")
 execute_process(COMMAND make install  WORKING_DIRECTORY ${CTEST_BINARY_DIRECTORY}  RESULT_VARIABLE ExitCode)
