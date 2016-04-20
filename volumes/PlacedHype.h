@@ -146,7 +146,7 @@ public:
             (pointRad2 < (hypeR2 + GetOuterRadToleranceLevel())));
   }
 
-  bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const {
+  bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const override {
 
     bool valid = true;
 
@@ -179,14 +179,14 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  std::string GetEntityType() const { return GetUnplacedVolume()->GetEntityType() ;}
+  std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType() ;}
 
 
   void Extent( Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override { return GetUnplacedVolume()->Extent(aMin,aMax);}
 
-  void GetParametersList(int aNumber, double *aArray) const { return GetUnplacedVolume()->GetParametersList(aNumber, aArray);}
+  void GetParametersList(int aNumber, double *aArray) const override { return GetUnplacedVolume()->GetParametersList(aNumber, aArray);}
 
-  Vector3D<Precision>  GetPointOnSurface() const { return GetUnplacedVolume()->GetPointOnSurface();}
+  Vector3D<Precision>  GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface();}
 
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -195,7 +195,7 @@ public:
 
 
 #ifndef VECGEOM_NVCC
-  virtual VPlacedVolume const* ConvertToUnspecialized() const;
+  virtual VPlacedVolume const* ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const* ConvertToRoot() const;
 #endif
