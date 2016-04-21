@@ -592,7 +592,7 @@ set(NOT_FOR_CUDA
    ABBoxManager
    ABBoxNavigator
    HybridManager2
-  # CreateParticles
+   CreateParticles
   # Particle
    Medium
    Nucleus

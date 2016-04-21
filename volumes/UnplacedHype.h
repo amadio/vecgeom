@@ -232,29 +232,69 @@ public:
 
   virtual void Print(std::ostream &os) const;
 
-  template <TranslationCode transCodeT, RotationCode rotCodeT>
-  VECGEOM_CUDA_HEADER_DEVICE static VPlacedVolume *Create(LogicalVolume const *const logical_volume,
-                                                          Transformation3D const *const transformation,
-#ifdef VECGEOM_NVCC
-                                                          const int id,
+#ifndef VECGEOM_NVCC
+  template <TranslationCode trans_code, RotationCode rot_code>
+  static VPlacedVolume *Create(
+      LogicalVolume const *const logical_volume,
+      Transformation3D const *const transformation,
+      VPlacedVolume *const placement = NULL);
+
+  static VPlacedVolume *CreateSpecializedVolume(
+      LogicalVolume const *const volume,
+      Transformation3D const *const transformation,
+      const TranslationCode trans_code,
+      const RotationCode rot_code,
+      VPlacedVolume *const placement = NULL);
+
+#else
+
+  template <TranslationCode trans_code, RotationCode rot_code>
+  __device__ static VPlacedVolume *Create(
+      LogicalVolume const *const logical_volume,
+      Transformation3D const *const transformation,
+      const int id,
+      VPlacedVolume *const placement = NULL);
+
+  __device__ static VPlacedVolume *CreateSpecializedVolume(
+      LogicalVolume const *const volume,
+      Transformation3D const *const transformation,
+      const TranslationCode trans_code,
+      const RotationCode rot_code,
+      const int id,
+      VPlacedVolume *const placement = NULL);
+
 #endif
-                                                          VPlacedVolume *const placement = NULL);
 
 #ifdef VECGEOM_CUDA_INTERFACE
-  virtual VUnplacedVolume *CopyToGpu() const;
-  virtual VUnplacedVolume *CopyToGpu(VUnplacedVolume *const gpu_ptr) const;
+  virtual size_t DeviceSizeOf() const { return DevicePtr<cuda::UnplacedHype>::SizeOf(); }
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const;
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
 #endif
 
 private:
-  // Specialized Volume
-  VECGEOM_CUDA_HEADER_DEVICE
-  virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
-                                           Transformation3D const *const transformation,
-                                           const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
-                                           const int id,
+#ifndef VECGEOM_NVCC
+  VPlacedVolume *SpecializedVolume(
+      LogicalVolume const *const lvolume,
+      Transformation3D const *const transformation,
+      const TranslationCode trans_code,
+      const RotationCode rot_code,
+      VPlacedVolume *const placement = NULL) const override {
+    return CreateSpecializedVolume(lvolume, transformation, trans_code, rot_code, placement);
+  }
+
+#else
+  __device__
+  VPlacedVolume *SpecializedVolume(
+      LogicalVolume const *const volume,
+      Transformation3D const *const transformation,
+      const TranslationCode trans_code,
+      const RotationCode rot_code,
+      const int id,
+      VPlacedVolume *const placement = NULL) const override {
+    return CreateSpecializedVolume(volume, transformation, trans_code, rot_code, id, placement);
+  }
+
 #endif
-                                           VPlacedVolume *const placement = NULL) const;
 };
 }
 } // End global namespace
