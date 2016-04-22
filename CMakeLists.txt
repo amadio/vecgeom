@@ -85,10 +85,6 @@ option(VTUNE "Enable the use of profiler Vtune" OFF)
 
 option(ENABLE_VECCORE "Build VecCore library" ON)
 
-if (ENABLE_VECCORE)
-  add_subdirectory(VecCore)
-endif()
-
 set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries.")
 set(INSTALL_INCLUDE_DIR include CACHE PATH
     "Installation directory for header files.")
@@ -129,6 +125,15 @@ endif()
 # Determine backend
 
 string(TOUPPER ${BACKEND} _backend_up)
+
+if (ENABLE_VECCORE)
+  if (_backend_up MATCHES VC)
+    set(SIMD CACHE BOOL ON)
+  else()
+    set(SIMD CACHE BOOL OFF)
+  endif()
+  add_subdirectory(VecCore)
+endif()
 
 if (_backend_up MATCHES VC)
   set(Vc ON)
