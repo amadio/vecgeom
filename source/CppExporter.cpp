@@ -20,6 +20,7 @@
 #include "volumes/UnplacedTorus2.h"
 #include "volumes/UnplacedPolycone.h"
 #include "volumes/UnplacedPolyhedron.h"
+#include "volumes/UnplacedParallelepiped.h"
 #include "volumes/UnplacedTrd.h"
 #include "volumes/UnplacedBooleanVolume.h"
 #include "volumes/ScaledShape.h"
@@ -51,8 +52,9 @@ bool ContainerContains(IterableContainer const &c, ElementType const &e) {
 // should come in that list before A
 // a list of transformations
 void GeomCppExporter::ScanGeometry(VPlacedVolume const *const volume, std::list<LogicalVolume const *> &lvlist,
-				   std::list<LogicalVolume const *> &boollvlist, std::list<Transformation3D const *> &tlist,
-				   std::list<Medium const *> &mediumlist, std::list<Material const *> &materiallist) {
+                                   std::list<LogicalVolume const *> &boollvlist,
+                                   std::list<Transformation3D const *> &tlist, std::list<Medium const *> &mediumlist,
+                                   std::list<Material const *> &materiallist) {
   // if not yet treated
   if (std::find(lvlist.cbegin(), lvlist.cend(), volume->GetLogicalVolume()) == lvlist.cend() &&
       std::find(boollvlist.cbegin(), boollvlist.cend(), volume->GetLogicalVolume()) == boollvlist.cend()) {
@@ -67,7 +69,7 @@ void GeomCppExporter::ScanGeometry(VPlacedVolume const *const volume, std::list<
           materiallist.push_back(ma);
       }
     } else {
-       log_information(std::cerr,"Logical Volume %s has no tracking medium\n",volume->GetLogicalVolume()->GetName());
+      log_information(std::cerr, "Logical Volume %s has no tracking medium\n", volume->GetLogicalVolume()->GetName());
     }
 
     if (dynamic_cast<PlacedBooleanVolume const *>(volume)) {
@@ -79,7 +81,7 @@ void GeomCppExporter::ScanGeometry(VPlacedVolume const *const volume, std::list<
       boollvlist.push_front(volume->GetLogicalVolume());
       PlacedScaledShape const *v = dynamic_cast<PlacedScaledShape const *>(volume);
       ScanGeometry(v->GetUnplacedVolume()->fPlaced, lvlist, boollvlist, tlist, mediumlist, materiallist);
-    } else {      
+    } else {
       // ordinary logical volume
       lvlist.push_back(volume->GetLogicalVolume());
     }
@@ -93,17 +95,13 @@ void GeomCppExporter::ScanGeometry(VPlacedVolume const *const volume, std::list<
   }
 }
 
-void static PushAndReset(std::stringstream &stream,
-                         std::vector<std::string> &output)
-{
-   output.push_back(stream.str());
-   stream.str(""); // Remove accumulated information
-   stream.clear(); // reset the ios (error) flags.
+void static PushAndReset(std::stringstream &stream, std::vector<std::string> &output) {
+  output.push_back(stream.str());
+  stream.str(""); // Remove accumulated information
+  stream.clear(); // reset the ios (error) flags.
 }
 
-
-void GeomCppExporter::DumpTransformations(std::vector<std::string> &trafoconstrlist,
-                                          std::stringstream &trafoexterndecl,
+void GeomCppExporter::DumpTransformations(std::vector<std::string> &trafoconstrlist, std::stringstream &trafoexterndecl,
                                           std::vector<std::string> &trafodecllist,
                                           std::list<Transformation3D const *> const &tvlist) {
 
@@ -153,8 +151,8 @@ void GeomCppExporter::DumpTransformations(std::vector<std::string> &trafoconstrl
       trafoconstr << "}\n";
 
       // create a new stream
-      PushAndReset( trafoconstr, trafoconstrlist );
-      PushAndReset( trafodecl, trafodecllist );
+      PushAndReset(trafoconstr, trafoconstrlist);
+      PushAndReset(trafodecl, trafodecllist);
 
       // init new function
       trafoconstr << "void GenerateTransformations_part" << group << "(){\n";
@@ -186,8 +184,8 @@ void GeomCppExporter::DumpTransformations(std::vector<std::string> &trafoconstrl
   }
   trafoconstr << "}\n";
 
-  PushAndReset( trafoconstr, trafoconstrlist );
-  PushAndReset( trafodecl, trafodecllist );
+  PushAndReset(trafoconstr, trafoconstrlist);
+  PushAndReset(trafodecl, trafodecllist);
 }
 
 void GeomCppExporter::DumpMaterials(std::vector<std::string> &materials, std::stringstream &materialexterndecl,
@@ -227,8 +225,8 @@ void GeomCppExporter::DumpMaterials(std::vector<std::string> &materials, std::st
       materialconstr << "}\n";
 
       // create a new stream
-      PushAndReset( materialconstr, materials );
-      PushAndReset( materialdeclline, materialdecl );
+      PushAndReset(materialconstr, materials);
+      PushAndReset(materialdeclline, materialdecl);
 
       // init new function
       materialconstr << "void GenerateMaterials_part" << group << "(){\n";
@@ -252,7 +250,7 @@ void GeomCppExporter::DumpMaterials(std::vector<std::string> &materials, std::st
            << ma.first->GetDensity() << ");\n";
     } else {
       if (nel > 100) {
-        log_fatal(std::cerr,"Cannot handle more than 100 elements in a material\n");
+        log_fatal(std::cerr, "Cannot handle more than 100 elements in a material\n");
         exit(1);
       }
       double mata[100];
@@ -279,13 +277,12 @@ void GeomCppExporter::DumpMaterials(std::vector<std::string> &materials, std::st
   }
   materialconstr << "}\n";
 
-  PushAndReset( materialconstr, materials );
-  PushAndReset( materialdeclline, materialdecl );
+  PushAndReset(materialconstr, materials);
+  PushAndReset(materialdeclline, materialdecl);
 }
 
 void GeomCppExporter::DumpMedia(std::vector<std::string> &media, std::stringstream &mediumexterndecl,
-                                std::vector<std::string> &mediumdecl,
-                                std::list<Medium const *> const &mediumlist) {
+                                std::vector<std::string> &mediumdecl, std::list<Medium const *> const &mediumlist) {
 
   // loop over all media
   unsigned int counter = 0;
@@ -320,8 +317,8 @@ void GeomCppExporter::DumpMedia(std::vector<std::string> &media, std::stringstre
       mediumconstr << "}\n";
 
       // create a new stream
-      PushAndReset( mediumconstr, media );
-      PushAndReset( mediumdeclline, mediumdecl );
+      PushAndReset(mediumconstr, media);
+      PushAndReset(mediumdeclline, mediumdecl);
 
       // init new function
       mediumconstr << "void GenerateMedia_part" << group << "(){\n";
@@ -339,7 +336,7 @@ void GeomCppExporter::DumpMedia(std::vector<std::string> &media, std::stringstre
     line << std::setprecision(15);
     Material *mm = ma.first->GetMaterial();
     if (fMaterialToStringMap.find(mm) == fMaterialToStringMap.end()) {
-       log_fatal(std::cerr,"Could not find material %s\n",mm->GetName());
+      log_fatal(std::cerr, "Could not find material %s\n", mm->GetName());
       exit(1);
     }
     line << ma.second << " = new Medium(";
@@ -348,8 +345,8 @@ void GeomCppExporter::DumpMedia(std::vector<std::string> &media, std::stringstre
   }
   mediumconstr << "}\n";
 
-  PushAndReset( mediumconstr, media );
-  PushAndReset( mediumdeclline, mediumdecl );
+  PushAndReset(mediumconstr, media);
+  PushAndReset(mediumdeclline, mediumdecl);
 }
 
 template <typename VectorContainer> void DumpVector(VectorContainer const &v, std::ostream &dumps) {
@@ -387,7 +384,7 @@ void GeomCppExporter::DumpLogicalVolumes(std::ostream &dumps, std::ostream &exte
       line << std::setprecision(15);
       line << "std::vector<Vector3D<Precision> > ";
       line << fLVolumeToStringMap[l] << "_arr;\n";
-      for (auto ivert=0; ivert<8; ++ivert) {
+      for (auto ivert = 0; ivert < 8; ++ivert) {
         Vector3D<Precision> vert = shape->GetVertex(ivert);
         line << fLVolumeToStringMap[l] << "_arr.push_back(Vector3D<Precision>(";
         line << vert.x() << ", " << vert.y() << ", 0.) );\n";
@@ -494,10 +491,26 @@ void GeomCppExporter::DumpLogicalVolumes(std::ostream &dumps, std::ostream &exte
       fNeededHeaderFiles.insert("volumes/UnplacedTorus2.h");
     }
 
+    // ******* TREAT THE PARALLELEPIPED **********
+    else if (dynamic_cast<UnplacedParallelepiped const *>(l->GetUnplacedVolume())) {
+      UnplacedParallelepiped const *shape = dynamic_cast<UnplacedParallelepiped const *>(l->GetUnplacedVolume());
+
+      line << " new UnplacedParallelepiped( ";
+      line << shape->GetX() << " , ";
+      line << shape->GetY() << " , ";
+      line << shape->GetZ() << " , ";
+      line << shape->GetAlpha() << " , ";
+      line << shape->GetTheta() << " , ";
+      line << shape->GetPhi();
+      line << " )";
+
+      fNeededHeaderFiles.insert("volumes/UnplacedParallelepiped.h");
+    }
+
     // ******* TREAT THE GENERAL TRAP **********
     else if (dynamic_cast<UnplacedGenTrap const *>(l->GetUnplacedVolume())) {
       UnplacedGenTrap const *shape = dynamic_cast<UnplacedGenTrap const *>(l->GetUnplacedVolume());
-     
+
       line << " new UnplacedGenTrap( &" << fLVolumeToStringMap[l] << "_arr[0],";
       line << shape->GetDZ();
       line << " )";
@@ -645,7 +658,7 @@ void GeomCppExporter::DumpLogicalVolumes(std::ostream &dumps, std::ostream &exte
     Medium *m = static_cast<Medium *>(l->GetTrackingMediumPtr());
     if (m) {
       if (fMediumToStringMap.find(m) == fMediumToStringMap.cend()) {
-	log_fatal(std::cerr,"Could not find medium %s\n",m->GetName());
+        log_fatal(std::cerr, "Could not find medium %s\n", m->GetName());
         exit(1);
       }
       line << fLVolumeToStringMap[l] << "->SetTrackingMediumPtr(static_cast<void*>(" << fMediumToStringMap[m]
@@ -690,7 +703,7 @@ void GeomCppExporter::DumpGeomHierarchy(std::vector<std::string> &dumps,
       if (groupcounter++ > 5000) {
         output << "}";
         // new output
-        PushAndReset( output, dumps );
+        PushAndReset(output, dumps);
         group++;
         output << " void GeneratePlacedVolumes_part" << group << "(){\n";
         groupcounter = 0;
@@ -708,7 +721,7 @@ void GeomCppExporter::DumpGeomHierarchy(std::vector<std::string> &dumps,
   // close the last output
   output << "}\n";
   // no need to reset here.
-  dumps.push_back( output.str() );
+  dumps.push_back(output.str());
 }
 
 void GeomCppExporter::DumpHeader(std::ostream &dumps) {

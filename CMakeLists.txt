@@ -819,6 +819,7 @@ set(TEST_EXECUTABLES_USOLIDS
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestHype.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTrd.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTrap.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestParallelepiped.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestPolycone.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestPolyhedra.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTet.cpp

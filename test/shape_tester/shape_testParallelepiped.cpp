@@ -1,3 +1,5 @@
+/// \file shape_testParallelepiped.h
+/// \author: Mihaela Gheata (mihaela.gheata@cern.ch)
 #include "ShapeTester.h"
 #include "VUSolid.hh"
 
@@ -48,8 +50,8 @@ int main(int argc, char *argv[]) {
   int errCode = 0;
 
   ShapeTester tester;
-  tester.SetSolidTolerance(1.e-9);
-  tester.SetTestBoundaryErrors(false);
+  tester.SetSolidTolerance(1.e-7);
+  tester.SetTestBoundaryErrors(true);
   //  tester.EnableDebugger(true);
 
   if (argc > 3) {

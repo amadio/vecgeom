@@ -1,3 +1,5 @@
+/// \file VisualizeParallelepiped.h
+/// \author: Mihaela Gheata (mihaela.gheata@cern.ch)
 #include "utilities/Visualizer.h"
 #include "volumes/utilities/VolumeUtilities.h"
 #include "TPolyMarker3D.h"

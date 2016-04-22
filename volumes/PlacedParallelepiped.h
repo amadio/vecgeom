@@ -1,5 +1,6 @@
 /// \file PlacedParallelepiped.h
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
+///  Modified and completed: mihaela.gheata@cern.ch
 
 #ifndef VECGEOM_VOLUMES_PLACEDPARALLELEPIPED_H_
 #define VECGEOM_VOLUMES_PLACEDPARALLELEPIPED_H_
@@ -77,22 +78,25 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   Precision GetTanThetaCosPhi() const { return GetUnplacedVolume()->GetTanThetaCosPhi(); }
 
+#ifndef VECGEOM_NVCC
   virtual Precision Capacity() override { return GetUnplacedVolume()->volume(); }
+
+  virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface(); }
+
+  virtual double SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
+#endif
 
   virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override {
     GetUnplacedVolume()->Extent(aMin, aMax);
   }
 
+#if defined(VECGEOM_USOLIDS)
+  virtual std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType(); }
+#endif
+
   virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override {
-    bool valid;
-    ParallelepipedImplementation<translation::kIdentity, rotation::kIdentity>::NormalKernel<kScalar>(
-        *GetUnplacedVolume(), point, normal, valid);
-    return valid;
+    return GetUnplacedVolume()->Normal(point, normal);
   }
-
-  virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface(); }
-
-  virtual double SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
 
 #ifndef VECGEOM_NVCC
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;

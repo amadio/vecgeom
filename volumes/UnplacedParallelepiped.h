@@ -1,3 +1,6 @@
+/// \file UnplacedParallelepiped.h
+/// \author: Johannes de Fine Licht (johannes.definelicht@cern.ch)
+///  Modified and completed: mihaela.gheata@cern.ch
 #ifndef VECGEOM_VOLUMES_UNPLACEDPARALLELEPIPED_H_
 #define VECGEOM_VOLUMES_UNPLACEDPARALLELEPIPED_H_
 
@@ -128,6 +131,14 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual bool IsConvex() const override;
 
+  /** @brief Computes the extent on X/Y/Z of the parallelepiped */
+  VECGEOM_CUDA_HEADER_BOTH
+  void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const;
+
+#ifndef VECGEOM_NVCC
+  /** @brief Generates randomly a point on the surface of the parallelepiped */
+  Vector3D<Precision> GetPointOnSurface() const;
+
   /** @brief Implementation of capacity computation */
   VECGEOM_INLINE
   Precision volume() const { return 8.0 * fDimensions[0] * fDimensions[1] * fDimensions[2]; }
@@ -144,13 +155,11 @@ public:
                   fDimensions[1] * fDimensions[2] * sqrt(ctinv * ctinv - fTanThetaSinPhi * fTanThetaSinPhi) +
                   fDimensions[2] * fDimensions[0] * sqrt(ctinv * ctinv - fTanThetaCosPhi * fTanThetaCosPhi));
   }
+#endif
 
-  /** @brief Computes the extent on X/Y/Z of the parallelepiped */
+  /** @brief Compute normal vector to surface */
   VECGEOM_CUDA_HEADER_BOTH
-  void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const;
-
-  /** @brief Generates randomly a point on the surface of the parallelepiped */
-  Vector3D<Precision> GetPointOnSurface() const;
+  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;
 
   /** @brief Get type name */
   std::string GetEntityType() const { return "parallelepiped"; }

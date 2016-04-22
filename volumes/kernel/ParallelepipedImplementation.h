@@ -1,5 +1,6 @@
 /// @file ParallelepipedImplementation.h
 /// @author Johannes de Fine Licht (johannes.definelicht@cern.ch)
+///  Modified and completed: mihaela.gheata@cern.ch
 
 #ifndef VECGEOM_VOLUMES_KERNEL_PARALLELEPIPEDIMPLEMENTATION_H_
 #define VECGEOM_VOLUMES_KERNEL_PARALLELEPIPEDIMPLEMENTATION_H_
@@ -172,13 +173,16 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(ParallelepipedImplementation, Translatio
     distance = kInfinity;
 
     // Z intersection
-
+    // Outside Z range
+    Bool_t outside = (Abs(point[2]) - unplaced.GetZ()) > kHalfTolerance;
+    done |= outside;
+    MaskedAssign(outside, -1., &distance);
     inDirection = direction[2] > 0;
     max = unplaced.GetZ() - point[2];
     inPoint = max > kHalfTolerance;
     goingAway = inDirection && !inPoint;
-    MaskedAssign(goingAway, 0., &distance);
-    MaskedAssign(inPoint && inDirection, max / direction[2], &distance);
+    MaskedAssign(!done && goingAway, 0., &distance);
+    MaskedAssign(!done && inPoint && inDirection, max / direction[2], &distance);
     done |= goingAway;
     if (IsFull(done))
       return;
@@ -187,8 +191,8 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(ParallelepipedImplementation, Translatio
     max = -unplaced.GetZ() - point[2];
     inPoint = max < -kHalfTolerance;
     goingAway = inDirection && !inPoint;
-    MaskedAssign(goingAway, 0., &distance);
-    MaskedAssign(inPoint && inDirection, max / direction[2], &distance);
+    MaskedAssign(!done && goingAway, 0., &distance);
+    MaskedAssign(!done && inPoint && inDirection, max / direction[2], &distance);
     done |= goingAway;
     if (IsFull(done))
       return;
@@ -200,13 +204,17 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(ParallelepipedImplementation, Translatio
     localPointY = point[1] - unplaced.GetTanThetaSinPhi() * point[2];
     localDirectionY = direction[1] - unplaced.GetTanThetaSinPhi() * direction[2];
 
+    // Outside Y range
+    outside = (Abs(localPointY) - unplaced.GetY()) > kHalfTolerance;
+    done |= outside;
+    MaskedAssign(outside, -1., &distance);
     inDirection = localDirectionY > 0;
     max = unplaced.GetY() - localPointY;
     inPoint = max > kHalfTolerance;
     goingAway = inDirection && !inPoint;
     max /= localDirectionY;
-    MaskedAssign(goingAway, 0., &distance);
-    MaskedAssign(inPoint && inDirection && max < distance, max, &distance);
+    MaskedAssign(!done && goingAway, 0., &distance);
+    MaskedAssign(!done && inPoint && inDirection && max < distance, max, &distance);
     done |= goingAway;
     if (IsFull(done))
       return;
@@ -216,8 +224,8 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(ParallelepipedImplementation, Translatio
     inPoint = max < -kHalfTolerance;
     goingAway = inDirection && !inPoint;
     max /= localDirectionY;
-    MaskedAssign(goingAway, 0., &distance);
-    MaskedAssign(inPoint && inDirection && max < distance, max, &distance);
+    MaskedAssign(!done && goingAway, 0., &distance);
+    MaskedAssign(!done && inPoint && inDirection && max < distance, max, &distance);
     done |= goingAway;
     if (IsFull(done))
       return;
@@ -230,13 +238,17 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(ParallelepipedImplementation, Translatio
     localDirectionX =
         direction[0] - unplaced.GetTanThetaCosPhi() * direction[2] - unplaced.GetTanAlpha() * localDirectionY;
 
+    // Outside X range
+    outside = (Abs(localPointX) - unplaced.GetX()) > kHalfTolerance;
+    done |= outside;
+    MaskedAssign(outside, -1., &distance);
     inDirection = localDirectionX > 0;
     max = unplaced.GetX() - localPointX;
     inPoint = max > kHalfTolerance;
     goingAway = inDirection && !inPoint;
     max /= localDirectionX;
-    MaskedAssign(goingAway, 0., &distance);
-    MaskedAssign(inPoint && inDirection && max < distance, max, &distance);
+    MaskedAssign(!done && goingAway, 0., &distance);
+    MaskedAssign(!done && inPoint && inDirection && max < distance, max, &distance);
     done |= goingAway;
     if (IsFull(done))
       return;
@@ -246,8 +258,8 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(ParallelepipedImplementation, Translatio
     inPoint = max < -kHalfTolerance;
     goingAway = inDirection && !inPoint;
     max /= localDirectionX;
-    MaskedAssign(goingAway, 0., &distance);
-    MaskedAssign(inPoint && inDirection && max < distance, max, &distance);
+    MaskedAssign(!done && goingAway, 0., &distance);
+    MaskedAssign(!done && inPoint && inDirection && max < distance, max, &distance);
   }
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -258,7 +270,6 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(ParallelepipedImplementation, Translatio
 
     typedef typename Backend::precision_v Float_t;
 
-    Float_t cty, ctx;
     Vector3D<Float_t> safetyVector;
 
     Vector3D<Float_t> localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
@@ -268,17 +279,13 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(ParallelepipedImplementation, Translatio
     safetyVector[1] = Abs(localPoint[1]) - unplaced.GetY();
     safetyVector[2] = Abs(localPoint[2]) - unplaced.GetZ();
 
-    ctx = 1.0 / Sqrt(1. + unplaced.GetTanAlpha() * unplaced.GetTanAlpha() +
-                     unplaced.GetTanThetaCosPhi() * unplaced.GetTanThetaCosPhi());
-
-    cty = 1.0 / Sqrt(1. + unplaced.GetTanThetaSinPhi() * unplaced.GetTanThetaSinPhi());
-
-    safetyVector[0] *= ctx;
-    safetyVector[1] *= cty;
+    safetyVector[0] *= unplaced.GetCtx();
+    safetyVector[1] *= unplaced.GetCty();
 
     safety = safetyVector[0];
     MaskedAssign(safetyVector[1] > safety, safetyVector[1], &safety);
     MaskedAssign(safetyVector[2] > safety, safetyVector[2], &safety);
+    MaskedAssign(Abs(safety) < kTolerance, 0., &safety);
   }
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -289,7 +296,6 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(ParallelepipedImplementation, Translatio
 
     typedef typename Backend::precision_v Float_t;
 
-    Float_t cty, ctx;
     Vector3D<Float_t> safetyVector;
     Vector3D<Float_t> localPoint = point;
     Transform<Backend>(unplaced, localPoint);
@@ -298,26 +304,13 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(ParallelepipedImplementation, Translatio
     safetyVector[1] = unplaced.GetY() - Abs(localPoint[1]);
     safetyVector[2] = unplaced.GetZ() - Abs(localPoint[2]);
 
-    ctx = 1.0 / Sqrt(1. + unplaced.GetTanAlpha() * unplaced.GetTanAlpha() +
-                     unplaced.GetTanThetaCosPhi() * unplaced.GetTanThetaCosPhi());
-
-    cty = 1.0 / Sqrt(1. + unplaced.GetTanThetaSinPhi() * unplaced.GetTanThetaSinPhi());
-
-    safetyVector[0] *= ctx;
-    safetyVector[1] *= cty;
+    safetyVector[0] *= unplaced.GetCtx();
+    safetyVector[1] *= unplaced.GetCty();
 
     safety = safetyVector[0];
     MaskedAssign(safetyVector[1] < safety, safetyVector[1], &safety);
     MaskedAssign(safetyVector[2] < safety, safetyVector[2], &safety);
-  }
-
-  template <TranslationCode transCodeT, RotationCode rotCodeT>
-  template <class Backend>
-  VECGEOM_CUDA_HEADER_BOTH void ParallelepipedImplementation<transCodeT, rotCodeT>::NormalKernel(
-      UnplacedParallelepiped const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-      Vector3D<typename Backend::precision_v> &normal, typename Backend::bool_v &valid) {
-    typedef typename Backend::precision_v Floating_t;
-    typedef typename Backend::bool_v Boolean_t;
+    MaskedAssign(Abs(safety) < kTolerance, 0., &safety);
   }
 }
 } // End global namespace

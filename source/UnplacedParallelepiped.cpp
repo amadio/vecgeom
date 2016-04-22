@@ -1,5 +1,6 @@
 /// \file UnplacedParallelepiped.cpp
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
+///  Modified and completed: mihaela.gheata@cern.ch
 
 #include "volumes/UnplacedParallelepiped.h"
 
@@ -18,8 +19,8 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 VECGEOM_CUDA_HEADER_BOTH
 UnplacedParallelepiped::UnplacedParallelepiped(Vector3D<Precision> const &dimensions, const Precision alpha,
                                                const Precision theta, const Precision phi)
-    : fDimensions(dimensions), fAlpha(0), fTheta(0), fPhi(0), fTanAlpha(0), fTanThetaSinPhi(0), fTanThetaCosPhi(0),
-      fCtx(0), fCty(0) {
+    : fDimensions(dimensions), fAlpha(0), fTheta(0), fPhi(0), fCtx(0), fCty(0), fTanAlpha(0), fTanThetaSinPhi(0),
+      fTanThetaCosPhi(0) {
   SetAlpha(alpha);
   SetThetaAndPhi(theta, phi);
 }
@@ -28,8 +29,8 @@ UnplacedParallelepiped::UnplacedParallelepiped(Vector3D<Precision> const &dimens
 VECGEOM_CUDA_HEADER_BOTH
 UnplacedParallelepiped::UnplacedParallelepiped(const Precision x, const Precision y, const Precision z,
                                                const Precision alpha, const Precision theta, const Precision phi)
-    : fDimensions(x, y, z), fAlpha(0), fTheta(0), fPhi(0), fTanAlpha(0), fTanThetaSinPhi(0), fTanThetaCosPhi(0),
-      fCtx(0), fCty(0) {
+    : fDimensions(x, y, z), fAlpha(0), fTheta(0), fPhi(0), fCtx(0), fCty(0), fTanAlpha(0), fTanThetaSinPhi(0),
+      fTanThetaCosPhi(0) {
   SetAlpha(alpha);
   SetThetaAndPhi(theta, phi);
 }
@@ -72,9 +73,8 @@ void UnplacedParallelepiped::ComputeNormals() {
   fNormals[1] = v.Cross(vx);
   fNormals[1].Normalize();
   fNormals[2].Set(0., 0., 1.);
-  fCtx = sqrt(1. + fTanAlpha * fTanAlpha + fTanThetaCosPhi * fTanThetaCosPhi);
-  fCty = sqrt(1. + fTanThetaSinPhi * fTanThetaSinPhi);
-  std::cout << "norm[0] = " << fNormals[0] << " norm[1] = " << fNormals[1] << "\n";
+  fCtx = 1.0 / sqrt(1. + fTanAlpha * fTanAlpha + fTanThetaCosPhi * fTanThetaCosPhi);
+  fCty = 1.0 / sqrt(1. + fTanThetaSinPhi * fTanThetaSinPhi);
 }
 
 //______________________________________________________________________________
@@ -100,6 +100,7 @@ void UnplacedParallelepiped::Extent(Vector3D<Precision> &aMin, Vector3D<Precisio
   aMax.Set(dx, dy, dz);
 }
 
+#ifndef VECGEOM_NVCC
 //______________________________________________________________________________
 Vector3D<Precision> UnplacedParallelepiped::GetPointOnSurface() const {
   // Generate randomly a point on one of the surfaces
@@ -134,11 +135,40 @@ Vector3D<Precision> UnplacedParallelepiped::GetPointOnSurface() const {
   point[2] = dz;
   return (point);
 }
+#endif
 
 //______________________________________________________________________________
 VECGEOM_CUDA_HEADER_BOTH
 bool UnplacedParallelepiped::IsConvex() const {
   // A parallelepiped is convex shape
+  return true;
+}
+
+//______________________________________________________________________________
+VECGEOM_CUDA_HEADER_BOTH
+bool UnplacedParallelepiped::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const {
+  // Compute safety
+  Vector3D<Precision> safetyVector;
+
+  Vector3D<Precision> local;
+  local[2] = point[2];
+  local[1] = point[1] - fTanThetaSinPhi * point[2];
+  local[0] = point[0] - fTanThetaCosPhi * point[2] - fTanAlpha * local[1];
+  safetyVector[0] = fCtx * Abs(GetX() - Abs(local[0]));
+  safetyVector[1] = fCty * Abs(GetY() - Abs(local[1]));
+  safetyVector[2] = Abs(GetZ() - Abs(point[2]));
+
+  int isurf = 0;
+  Precision safety = safetyVector[0];
+  if (safetyVector[1] < safety) {
+    safety = safetyVector[1];
+    isurf = 1;
+  }
+  if (safetyVector[2] < safety)
+    isurf = 2;
+  normal = fNormals[isurf];
+  if (local[isurf] < 0)
+    normal *= -1;
   return true;
 }
 
