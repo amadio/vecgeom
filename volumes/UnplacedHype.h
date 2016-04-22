@@ -225,12 +225,12 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   bool InnerSurfaceExists() const;
 
-  virtual int memory_size() const { return sizeof(*this); }
+  virtual int memory_size() const override { return sizeof(*this); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void Print() const;
+  virtual void Print() const override;
 
-  virtual void Print(std::ostream &os) const;
+  virtual void Print(std::ostream &os) const override;
 
 #ifndef VECGEOM_NVCC
   template <TranslationCode trans_code, RotationCode rot_code>
