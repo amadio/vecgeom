@@ -94,13 +94,14 @@ Precision UnplacedHype::Area(bool outer) {
     ar = 4 * kPi * fR * fDz;
   else {
     Precision p = fT * std::sqrt(fT * fT);
-    Precision q = p * fDz * std::sqrt(fR * fR + (std::pow(fT, 2) + std::pow(fT, 4)) * std::pow(fDz, 2));
+    Precision q = p * fDz * std::sqrt(fR * fR + (std::pow(fT, 2.) + std::pow(fT, 4.)) * std::pow(fDz, 2.));
     Precision r = fR * fR * std::asinh(p * fDz / fR);
     ar = ((q + r) / (2 * p)) * 4 * kPi;
   }
   return ar;
 }
 
+VECGEOM_CUDA_HEADER_BOTH
 Precision UnplacedHype::AreaEndCaps() { return 2 * kPi * (GetEndOuterRadius2() - GetEndInnerRadius2()); }
 
 #ifndef VECGEOM_NVCC

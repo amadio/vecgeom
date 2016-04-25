@@ -172,23 +172,18 @@ public:
                      const Precision dz);
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
   Precision Volume(bool outer);
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
   Precision Area(bool outer);
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
   Precision AreaEndCaps();
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
   void CalcCapacity();
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
   void CalcSurfaceArea();
 
   VECGEOM_CUDA_HEADER_BOTH
