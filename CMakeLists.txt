@@ -421,7 +421,7 @@ if (CUDA)
 
   set(SRC_EXTERNAL ${SRC_EXTERNAL} source/CudaManager.cpp source/backend/cuda/Interface.cpp)
   set(SRC_CUDA ${SRC_CUDA}
-      source/CudaManager.cu)
+      source/CudaManager.cu source/CudaGlobalSymbols.cu)
 
   set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${VECGEOM_NVCC_COMPILATION_FLAGS})
 endif()

@@ -10,6 +10,15 @@
 namespace vecgeom {
 inline namespace cuda {
 
+__global__ void InitDeviceCompactPlacedVolBufferPtrCudaKernel(void *gpu_ptr) {
+  // gpu_ptr is some pointer on the device that was allocated by some other means
+  globaldevicegeomdata::gCompactPlacedVolBuffer = (vecgeom::cuda::VPlacedVolume *)gpu_ptr;
+}
+
+void InitDeviceCompactPlacedVolBufferPtr(void *gpu_ptr) {
+  InitDeviceCompactPlacedVolBufferPtrCudaKernel<<<1, 1>>>(gpu_ptr);
+}
+
 __global__
 void CudaManagerPrintGeometryKernel(
     vecgeom::cuda::VPlacedVolume const *const world) {

@@ -1,5 +1,5 @@
 /// \file CudaManager.h
-/// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
+/// \author Johannes de Fine Licht (johannes.definelicht@cern.ch); Sandro Wenzel(sandro.wenzel@cern.ch)
 
 #ifndef VECGEOM_MANAGEMENT_CUDAMANAGER_H_
 #define VECGEOM_MANAGEMENT_CUDAMANAGER_H_
@@ -22,7 +22,13 @@ namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class VPlacedVolume; )
 VECGEOM_DEVICE_FORWARD_DECLARE( void CudaManagerPrintGeometry(vecgeom::cuda::VPlacedVolume const *const world); )
+VECGEOM_DEVICE_FORWARD_DECLARE( void InitDeviceCompactPlacedVolBufferPtr(void*); )
 
+// we put some global data into a separate namespace
+// this is done since CUDA does not support static const members in class definitions
+namespace globaldevicegeomdata {
+extern __device__ VPlacedVolume *gCompactPlacedVolBuffer;
+}
 
 #ifndef VECGEOM_NVCC
 inline
@@ -65,6 +71,9 @@ private:
 
   VPlacedVolume const *world_;
   DevicePtr<vecgeom::cuda::VPlacedVolume> world_gpu_;
+  DevicePtr<vecgeom::cuda::VPlacedVolume> fPlacedVolumeBufferOnDevice;
+
+private:
 
   /**
    * Contains a mapping between objects stored in host memory and pointers to
@@ -192,6 +201,11 @@ private:
   template <typename Coll>
   bool AllocateCollectionOnCoproc(const char *verbose_title,
                                   const Coll &data, bool isplaced=false);
+
+  /**
+   * Helper routine allocate GPU memory for placed volume objects
+   */
+  bool AllocatePlacedVolumesOnCoproc();
 
   // template <typename TrackContainer>
   // void LocatePointsTemplate(TrackContainer const &container, const int n,

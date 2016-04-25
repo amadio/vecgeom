@@ -59,13 +59,19 @@ struct Index2PVolumeConverter {
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
 static VPlacedVolume const *ToPlacedVolume( T index ){
-     // solution based on direct indexing into the buffer of placed volumes
-     // TODO: on the GPU this is a different static buffer !!
+#ifdef VECGEOM_NVCC_DEVICE
+  // checking here for NVCC_DEVICE since the global variable globaldevicegeomgata::gCompact...
+  // is marked __device__ and can only be compiled within device compiler passes
+  return &vecgeom::globaldevicegeomdata::gCompactPlacedVolBuffer[index];
+#endif
 #ifndef VECGEOM_NVCC
-    return &GeoManager::gCompactPlacedVolBuffer[index];
+  return &vecgeom::GeoManager::gCompactPlacedVolBuffer[index];
 #else
-    (void)index; // avoid unused parameter warning.
-    return nullptr;
+  // this is the case when we compile with nvcc for host side
+  // (failed preveously due to undefined symbol vecgeom::cuda::GeoManager::gCompactPlacedVolBuffer)
+  assert(false && "reached unimplement code");
+  (void)index; // avoid unused parameter warning.
+  return nullptr;
 #endif
 }
 

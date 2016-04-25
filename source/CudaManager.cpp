@@ -17,6 +17,12 @@
 #include <iostream>
 
 namespace vecgeom {
+
+inline namespace cuda {
+// forward declare a global function
+extern __global__  void InitDeviceCompactPlacedVolBufferPtr(void * gpu_ptr);
+}
+
 inline namespace cxx {
 
   CudaManager::CudaManager() : world_gpu_(), fGPUtoCPUmapForPlacedVolumes() {
@@ -94,6 +100,9 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
 
 
   if (verbose_ > 2) std::cout << "Copying placed volumes...";
+  // TODO: eventually we want to copy the placed volumes in one go (since they live now in contiguous buffers on both sides
+  // (the catch is that we will need to fix the virtual table pointers on the device side manually )
+
   timer.Start();
   for (std::set<VPlacedVolume const*>::const_iterator i =
        placed_volumes_.begin(); i != placed_volumes_.end(); ++i) {
@@ -104,6 +113,14 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
       LookupPlaced(*i)
     );
 
+    // check (assert) that everything is ok concerning the order of placed volume objects
+    // also asserts that sizeof(vecgeom::cxx::VPlacedVolume) == sizeof(vecgeom::cuda::VPlacedVolume)
+    assert((size_t)(*i) ==
+           (size_t)(&GeoManager::gCompactPlacedVolBuffer[0]) + sizeof(vecgeom::cxx::VPlacedVolume) * (*i)->id());
+#ifdef VECGEOM_CUDA
+    assert((size_t)(LookupPlaced(*i).GetPtr()) ==
+           (size_t)(fPlacedVolumeBufferOnDevice.GetPtr()) + sizeof(vecgeom::cxx::VPlacedVolume) * (*i)->id());
+#endif
   }
   timer.Stop();
   if (verbose_ > 2) std::cout << " OK; TIME NEEDED " << timer.Elapsed() << "s \n";
@@ -162,6 +179,8 @@ void CudaManager::LoadGeometry(VPlacedVolume const *const volume) {
   world_ = volume;
   ScanGeometry(volume);
 
+  std::cerr << "ScanGeometry found pvolumes" << placed_volumes_.size() << "\n";
+
   // Already set by CleanGpu(), but keep it here for good measure
   synchronized = false;
 
@@ -192,17 +211,16 @@ void CudaManager::CleanGpu() {
 
 }
 
+// allocates space to transfer a collection/container to the GPU
+// a typical collection is a set/vector of placed volume pointers etc.
 template <typename Coll>
-bool CudaManager::AllocateCollectionOnCoproc(const char *verbose_title,
-                                             const Coll &data,
-					     bool isforplacedvol
-                                             )
-{
+bool CudaManager::AllocateCollectionOnCoproc(const char *verbose_title, const Coll &data, bool isforplacedvol) {
    // NOTE: Code need to be enhanced to propage the error correctly.
 
    if (verbose_ > 2) std::cout << "Allocating " << verbose_title << "...";
 
    size_t totalSize = 0;
+   // calculate total size of buffer on GPU to hold the GPU copies of the collection
    for (auto i : data) {
       totalSize += i->DeviceSizeOf();
    }
@@ -211,16 +229,58 @@ bool CudaManager::AllocateCollectionOnCoproc(const char *verbose_title,
    gpu_address.Allocate(totalSize);
    allocated_memory_.push_back(gpu_address);
 
+   // record a GPU memory location for each object in the collection to be copied
    for (auto i : data) {
       memory_map[ToCpuAddress(i)] = gpu_address;
-      if(isforplacedvol)
-	  fGPUtoCPUmapForPlacedVolumes[ gpu_address ] = i;
+      if (isforplacedvol)
+        fGPUtoCPUmapForPlacedVolumes[gpu_address] = i;
       gpu_address += i->DeviceSizeOf();
    }
 
    if (verbose_ > 2) std::cout << " OK\n";
 
    return true;
+}
+
+// a special treatment for placed volumes to ensure same order of placed volumes in compact buffer
+// as on CPU
+bool CudaManager::AllocatePlacedVolumesOnCoproc() {
+  // we start from the compact buffer on the CPU
+  unsigned int size = placed_volumes_.size();
+
+  //   if (verbose_ > 2) std::cout << "Allocating placed volume ";
+  std::cerr << "Allocating placed volume ";
+  size_t totalSize = 0;
+  // calculate total size of buffer on GPU to hold the GPU copies of the collection
+  for (unsigned int i = 0; i < size; ++i) {
+    assert(&GeoManager::gCompactPlacedVolBuffer[i] != nullptr);
+    totalSize += (&GeoManager::gCompactPlacedVolBuffer[i])->DeviceSizeOf();
+  }
+
+  GpuAddress gpu_address;
+  gpu_address.Allocate(totalSize);
+
+  // store this address for later access (on the host)
+  fPlacedVolumeBufferOnDevice = DevicePtr<vecgeom::cuda::VPlacedVolume>(gpu_address);
+  // this address has to be made known globally to the device side
+  vecgeom::cuda::InitDeviceCompactPlacedVolBufferPtr(gpu_address.GetPtr());
+
+  allocated_memory_.push_back(gpu_address);
+
+  // record a GPU memory location for each object in the collection to be copied
+  // since the pointers in GeoManager::gCompactPlacedVolBuffer are sorted by the volume id, we are
+  // getting the same order on the GPU/device automatically
+  for (unsigned int i = 0; i < size; ++i) {
+    VPlacedVolume const *ptr = &GeoManager::gCompactPlacedVolBuffer[i];
+    memory_map[ToCpuAddress(ptr)] = gpu_address;
+    fGPUtoCPUmapForPlacedVolumes[gpu_address] = ptr;
+    gpu_address += ptr->DeviceSizeOf();
+  }
+
+  if (verbose_ > 2)
+    std::cout << " OK\n";
+
+  return true;
 }
 
 void CudaManager::AllocateGeometry() {
@@ -248,8 +308,10 @@ void CudaManager::AllocateGeometry() {
 
   AllocateCollectionOnCoproc("unplaced volumes", unplaced_volumes_);
 
-  AllocateCollectionOnCoproc("placed volumes", placed_volumes_, true);
+  // the allocation for placed volumes is a bit different (due to compact buffer treatment), so we call a specialized function
+  AllocatePlacedVolumesOnCoproc(); // for placed volumes
 
+  // this we should only do if not using inplace transformations
   AllocateCollectionOnCoproc("transformations", transformations_);
 
   {
