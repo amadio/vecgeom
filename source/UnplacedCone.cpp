@@ -28,21 +28,17 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
     }
 
     VECGEOM_CUDA_HEADER_BOTH
-    bool UnplacedCone::IsConvex() const{
+    void UnplacedCone::DetectConvexity() {
 
-      //Default safe convexity value
-      bool convexity = false;
+      // Default safe convexity value
+      fGlobalConvexity = false;
 
-      //Logic to calculate the convexity
-      if(fRmin1==0. && fRmin2==0.) //Implies Solid cone
-              {
-                if( fDPhi<=kPi || fDPhi==kTwoPi)
-                  convexity = true;
-              }
-      return convexity;
-
+      // Logic to calculate the convexity
+      if (fRmin1 == 0. && fRmin2 == 0.) { // Implies Solid cone
+        if (fDPhi <= kPi || fDPhi == kTwoPi)
+          fGlobalConvexity = true;
       }
-
+    }
 
 #if !defined(VECGEOM_NVCC)
     bool UnplacedCone::Normal(Vector3D<Precision> const& p, Vector3D<Precision>& norm) const {

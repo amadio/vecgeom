@@ -73,6 +73,7 @@ public:
     , fFy(0)
   {
     calculateCached();
+    fGlobalConvexity = true;
   }
 
   // general case
@@ -93,6 +94,7 @@ public:
     , fFy(0)
   {
     calculateCached();
+    fGlobalConvexity = true;
   }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -177,10 +179,6 @@ public:
   Precision ToleranceY() const { return fToleranceY; }
 
   virtual int memory_size() const final { return sizeof(*this); }
-
-  //Function to check the convexity
-  VECGEOM_CUDA_HEADER_BOTH
-  virtual bool IsConvex() const override;
 
   VECGEOM_CUDA_HEADER_BOTH
   void Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & aMax ) const {

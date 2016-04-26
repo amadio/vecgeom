@@ -38,6 +38,7 @@ fDx(0),
 fDy(0)
     {
         //dummy constructor
+        fGlobalConvexity = true;
     }
 //__________________________________________________________________
     
@@ -64,6 +65,7 @@ fDx(0),
 fDy(0)
     {
         SetRloAndRhiAndDz(rlo, rhi, dz);
+        fGlobalConvexity = true;
     }
 //__________________________________________________________________
 
@@ -126,13 +128,6 @@ fDy(0)
         
         ComputeBoundingBox();
     }
-
-    VECGEOM_CUDA_HEADER_BOTH
-	bool UnplacedParaboloid::IsConvex() const{
-    	      //Since paraboloid has nothing like inner radius, or phi or theta cut
-    	      //So it should always return true as its convexity value
-              return true;
-          }
 
 //__________________________________________________________________
 

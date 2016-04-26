@@ -48,7 +48,7 @@ public:
           VPlacedVolume const* left,
           VPlacedVolume const* right ) :
             fLeftVolume(left),
-            fRightVolume(right), fOp(op) {}
+            fRightVolume(right), fOp(op) {fGlobalConvexity = false;}
 
   virtual int memory_size() const { return sizeof(*this); }
 

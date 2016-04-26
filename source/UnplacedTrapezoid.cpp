@@ -45,6 +45,7 @@ UnplacedTrapezoid::UnplacedTrapezoid(Precision pDz, Precision pTheta, Precision 
 
     fTthetaSphi = tan(pTheta)*sin(pPhi);
     fTthetaCphi = tan(pTheta)*cos(pPhi);
+    fGlobalConvexity = true;
     MakePlanes();
 }
 
@@ -61,6 +62,7 @@ UnplacedTrapezoid::UnplacedTrapezoid(Precision pDz, Precision pTheta, Precision 
     }
 
     MakePlanes();
+    fGlobalConvexity = true;
 }
 
 // needed for Geant4 STEP interface
@@ -77,18 +79,19 @@ UnplacedTrapezoid::UnplacedTrapezoid(double dx, double dy, double dz, double)
 // constructor for a Trd
 UnplacedTrapezoid::UnplacedTrapezoid(double dx1, double dx2, double dy1, double dy2, double dz)
   : UnplacedTrapezoid(dz,0.,0.,dy1,dx1,dx2,0.,dy2,dx1,dx2,0.)
-{ }
+{ fGlobalConvexity = true; }
 
 // constructor for a Parallelepiped-like trapezoid
 UnplacedTrapezoid::UnplacedTrapezoid(double dx, double dy, double dz, double alpha, double theta, double phi)
-  : UnplacedTrapezoid(dz,theta,phi,dy,dx,dx,0.,dy,dx,dx,0.)
+  :  UnplacedTrapezoid(dz,theta,phi,dy,dx,dx,0.,dy,dx,dx,0.)
 {
+  fGlobalConvexity = true;
   fTanAlpha1 = std::tan(alpha);
   fTanAlpha2 = fTanAlpha1;
 }
 
 UnplacedTrapezoid::UnplacedTrapezoid(Precision const* params )
-  : fDz( params[0] )
+  :fDz( params[0] )
   , fTheta( params[1] )
   , fPhi( params[2] )
   , fDy1( params[3] )
@@ -108,6 +111,7 @@ UnplacedTrapezoid::UnplacedTrapezoid(Precision const* params )
   fTthetaSphi = tan(theta)*sin(phi);
   fTthetaCphi = tan(theta)*cos(phi);
   MakePlanes();
+  fGlobalConvexity = true;
 }
 
 UnplacedTrapezoid::UnplacedTrapezoid( TrapCorners_t const corners )
@@ -116,6 +120,7 @@ UnplacedTrapezoid::UnplacedTrapezoid( TrapCorners_t const corners )
   , fDy2(0.f), fDx3(0.f), fDx4(0.f), fTanAlpha2(0.f)
   , fTthetaCphi(0.f), fTthetaSphi(0.f), fPlanes()
 {
+  fGlobalConvexity = true;
   // check planarity of all four sides
   bool good = MakePlanes(corners);
   if(!good) printf("***** ERROR: corners provided fail coplanarity tests.");
@@ -140,11 +145,13 @@ UnplacedTrapezoid::UnplacedTrapezoid( UnplacedTrapezoid const& other )
   , fTthetaSphi(other.fTthetaSphi)
   , fPlanes()
 {
+  fGlobalConvexity = other.fGlobalConvexity;
   MakePlanes();
 }
 
 UnplacedTrapezoid& UnplacedTrapezoid::operator=( UnplacedTrapezoid const& other ) {
 
+  fGlobalConvexity = other.fGlobalConvexity;
   fDz =other.fDz;
   fTheta = other.fTheta;
   fPhi = other.fPhi;
@@ -172,12 +179,6 @@ void UnplacedTrapezoid::Print() const {
          GetTanThetaSinPhi(), GetTanThetaCosPhi() );
 }
 
-
-VECGEOM_CUDA_HEADER_BOTH
-bool UnplacedTrapezoid::IsConvex() const{
-		  //A Trapezoid is convex shape
-          return true;
-      }
 
 void UnplacedTrapezoid::Print(std::ostream &os) const {
   os << "UnplacedTrapezoid {"

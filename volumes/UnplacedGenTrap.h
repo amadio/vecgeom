@@ -113,11 +113,6 @@ public:
   /** @brief Getter for the global convexity of the trapezoid */
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  bool IsConvex() const final { return (!fIsTwisted); }
-
-  /** @brief Getter for the global convexity of the trapezoid */
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
   bool IsDegenerated(int i) const { return (fDegenerated[i]); }
 
   /** @brief Computes if opposite segments are crossing, making a malformed shape */

@@ -185,6 +185,7 @@ public:
 
        GetAlongVectorToPhiSector(fSPhi, fAlongPhi1x, fAlongPhi1y);
        GetAlongVectorToPhiSector(fSPhi + fDPhi, fAlongPhi2x, fAlongPhi2y);
+       DetectConvexity();
        // calculate caches
        // the possible caches are one major difference between tube and cone
 
@@ -220,10 +221,8 @@ public:
 //        };
     }
 
-    // public interfaces
-    //Function to check the convexity
     VECGEOM_CUDA_HEADER_BOTH
-    virtual bool IsConvex() const override;
+    void DetectConvexity() ;
 
     VECGEOM_CUDA_HEADER_BOTH
     Precision GetRmin1() const {return fRmin1;}

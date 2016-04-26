@@ -127,10 +127,6 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual void Print() const final;
 
-  /** Function to check the convexity */
-  VECGEOM_CUDA_HEADER_BOTH
-  virtual bool IsConvex() const override;
-
   /** @brief Computes the extent on X/Y/Z of the parallelepiped */
   VECGEOM_CUDA_HEADER_BOTH
   void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const;

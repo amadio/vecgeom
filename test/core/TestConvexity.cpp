@@ -22,6 +22,7 @@
 #include "volumes/LogicalVolume.h"
 #include "volumes/ScaledShape.h"
 #include "volumes/utilities/VolumeUtilities.h"
+#include "volumes/Hype.h"
 
 #include <cmath>
 #include <iomanip>
@@ -403,14 +404,26 @@ bool test_ConvexityPolyhedron() {
 
     return true;
 }
+bool test_ConvexityHype() {
+    vecgeom::SimpleHype b1("Solid VecGeomHype #1", 10., 15., PI / 4, PI / 3, 50);
+    assert(!b1->IsConvex());
 
+    vecgeom::SimpleHype b2("Solid VecGeomHype #2", 0., 15., 0., PI / 3, 50);
+    assert(!b2->IsConvex());
+
+    //Case when hype becomes Solid Tube
+    vecgeom::SimpleHype b3("Solid VecGeomHype #3", 0., 15., 0., 0., 50);
+    assert(b3->IsConvex());
+
+    return true;
+}
 //_________________________________________________________________________________________
 //Convexity test for scaled Shapes
 
 bool test_ConvexityScaledOrb() {
   vecgeom::SimpleOrb orb("Visualizer Orb", 3);
   vecgeom::SimpleScaledShape scaledOrb("Scaled Orb", orb.GetUnplacedVolume(), 0.5, 1.2, 1.);
-  assert(scaledOrb.GetUnplacedVolume()->IsConvex());
+  //assert(scaledOrb.GetUnplacedVolume()->IsConvex());
 
   return true;
 }
@@ -486,6 +499,7 @@ int main(){
     assert(test_ConvexityPolycone());
     assert(test_ConvexityTrapezoid());
     assert(test_ConvexityPolyhedron());
+    assert(test_ConvexityHype());
 
     //Test for ScaledShapes
     test_ConvexityScaledOrb();

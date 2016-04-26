@@ -29,6 +29,9 @@ private:
 
   friend class CudaManager;
 
+protected:
+  bool fGlobalConvexity;
+
 public:
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -52,7 +55,7 @@ public:
    *  Default safe value for all the shapes is set to false.
    */
   VECGEOM_CUDA_HEADER_BOTH
-  virtual bool IsConvex() const { return false; }
+  bool IsConvex() const { return fGlobalConvexity; }
 
   /**
    * Constructs the deriving class on the GPU and returns a pointer to GPU

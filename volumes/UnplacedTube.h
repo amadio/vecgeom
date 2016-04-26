@@ -82,6 +82,7 @@ fTolOz(0),
 fPhiWedge(_dphi,_sphi)
 {
     calculateCached();
+    DetectConvexity();
 }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -99,11 +100,10 @@ fTolOrmax2(other.fTolOrmax2),
 fTolIz(other.fTolIz),
 fTolOz(other.fTolOz),
 fPhiWedge(other.fDphi,other.fSphi)
-{  }
+{ fGlobalConvexity = other.fGlobalConvexity; }
 
-  //Function to check the convexity
   VECGEOM_CUDA_HEADER_BOTH
-  virtual bool IsConvex() const override;
+  void DetectConvexity();
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE

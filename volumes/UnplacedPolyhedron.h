@@ -398,9 +398,8 @@ public:
     }
 
 
-  //Function to check the convexity
   VECGEOM_CUDA_HEADER_BOTH
-  virtual bool IsConvex() const override;
+  void DetectConvexity(); 
 
 
   VECGEOM_CUDA_HEADER_BOTH

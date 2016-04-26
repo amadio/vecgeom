@@ -122,10 +122,9 @@ public:
                      Precision const* r,   // r coordinate of these corners
                      Precision const* z);  // z coordinate of these corners
 
-    //Function to check the convexity
     VECGEOM_CUDA_HEADER_BOTH
-    virtual bool IsConvex() const override;
-
+    void DetectConvexity();
+      
     VECGEOM_CUDA_HEADER_BOTH
     unsigned int GetNz() const { return fNz; }
     VECGEOM_CUDA_HEADER_BOTH

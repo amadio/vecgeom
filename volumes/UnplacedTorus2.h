@@ -66,12 +66,11 @@ public:
     fBoundingTube = UnplacedTube(fRtor-fRmax - kTolerance,
     fRtor+fRmax + kTolerance, fRmax,
      sphiVal, dphiVal);
+    DetectConvexity();
   }
 
-  //Function to check the convexity
   VECGEOM_CUDA_HEADER_BOTH
-  virtual bool IsConvex() const override;
-
+  void DetectConvexity();
 //  VECGEOM_CUDA_HEADER_BOTH
 //  UnplacedTorus2(UnplacedTorus2 const &other) :
 //  fRmin(other.fRmin), fRmax(other.fRmax), fRtor(other.fRtor), fSphi(other.fSphi), fDphi(other.fDphi),fBoundingTube(other.fBoundingTube) {

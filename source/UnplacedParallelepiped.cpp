@@ -23,6 +23,7 @@ UnplacedParallelepiped::UnplacedParallelepiped(Vector3D<Precision> const &dimens
       fTanThetaCosPhi(0) {
   SetAlpha(alpha);
   SetThetaAndPhi(theta, phi);
+  fGlobalConvexity = true;
 }
 
 //______________________________________________________________________________
@@ -33,6 +34,7 @@ UnplacedParallelepiped::UnplacedParallelepiped(const Precision x, const Precisio
       fTanThetaCosPhi(0) {
   SetAlpha(alpha);
   SetThetaAndPhi(theta, phi);
+  fGlobalConvexity = true;
 }
 
 //______________________________________________________________________________
@@ -136,13 +138,6 @@ Vector3D<Precision> UnplacedParallelepiped::GetPointOnSurface() const {
   return (point);
 }
 #endif
-
-//______________________________________________________________________________
-VECGEOM_CUDA_HEADER_BOTH
-bool UnplacedParallelepiped::IsConvex() const {
-  // A parallelepiped is convex shape
-  return true;
-}
 
 //______________________________________________________________________________
 VECGEOM_CUDA_HEADER_BOTH

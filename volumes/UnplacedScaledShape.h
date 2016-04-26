@@ -29,12 +29,14 @@ public:
 public:
 /// Dummy ctor
   VECGEOM_CUDA_HEADER_BOTH
-  UnplacedScaledShape() : fPlaced(nullptr), fScale() { }
+  UnplacedScaledShape() : fPlaced(nullptr), fScale() {fGlobalConvexity = fPlaced->GetUnplacedVolume()->IsConvex(); }
   
 /// Constructor based on placed volume
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedScaledShape(VPlacedVolume const* placed, Precision sx, Precision sy, Precision sz) : 
-     fPlaced(placed), fScale(sx,sy,sz) {/* assert(placed->GetTransformation()->IsIdentity());*/ }
+     fPlaced(placed), fScale(sx,sy,sz) {/* assert(placed->GetTransformation()->IsIdentity());*/
+     fGlobalConvexity = fPlaced->GetUnplacedVolume()->IsConvex();
+  }
 
 /// Constructor based on unplaced volume
 #if !defined(VECGEOM_NVCC) 
@@ -43,12 +45,15 @@ public:
     // Hopefully we don't need to create a logical volume 
     LogicalVolume *lvol = new LogicalVolume("", shape);
     fPlaced = lvol->Place();    
+    fGlobalConvexity = fPlaced->GetUnplacedVolume()->IsConvex();
   }
 #endif  
 
 /// Copy constructor 
 //  VECGEOM_CUDA_HEADER_BOTH
-  UnplacedScaledShape(UnplacedScaledShape const &other) : fPlaced(other.fPlaced->GetLogicalVolume()->Place()), fScale(other.fScale) { }
+  UnplacedScaledShape(UnplacedScaledShape const &other) : fPlaced(other.fPlaced->GetLogicalVolume()->Place()), fScale(other.fScale) {
+    fGlobalConvexity = other.fGlobalConvexity;
+  }
 
 /// Assignment operator 
 //  VECGEOM_CUDA_HEADER_BOTH
@@ -56,6 +61,7 @@ public:
     if (&other != this) {
       fPlaced = other.fPlaced->GetLogicalVolume()->Place();
       fScale = other.fScale;
+      fGlobalConvexity = other.fGlobalConvexity;
     }
     return *this;
   }    
@@ -102,9 +108,6 @@ public:
     return area;	
   }
 #endif // !VECGEOM_NVCC
-
-  VECGEOM_CUDA_HEADER_BOTH
-  virtual bool IsConvex() const override {return fPlaced->GetUnplacedVolume()->IsConvex();}
 
   void Extent( Vector3D<Precision> &min, Vector3D<Precision> &max) const;
     	

@@ -187,6 +187,9 @@ public:
   void CalcSurfaceArea();
 
   VECGEOM_CUDA_HEADER_BOTH
+  void DetectConvexity();
+
+  VECGEOM_CUDA_HEADER_BOTH
   void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const;
 
   VECGEOM_CUDA_HEADER_BOTH

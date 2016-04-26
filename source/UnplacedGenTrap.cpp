@@ -110,6 +110,7 @@ UnplacedGenTrap::UnplacedGenTrap(const Precision verticesx[], const Precision ve
 
   fIsTwisted = ComputeIsTwisted();
   ComputeBoundingBox();
+  fGlobalConvexity = !fIsTwisted;
 }
 
 //______________________________________________________________________________

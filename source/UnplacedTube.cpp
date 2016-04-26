@@ -239,21 +239,18 @@ bool UnplacedTube::Normal(Vector3D<Precision> const& point, Vector3D<Precision>&
   */
 #endif
 
-VECGEOM_CUDA_HEADER_BOTH
-bool UnplacedTube::IsConvex() const{
+  VECGEOM_CUDA_HEADER_BOTH
+  void UnplacedTube::DetectConvexity() {
 
-      //Default safe convexity value
-      bool convexity = false;
+    // Default safe convexity value
+    fGlobalConvexity = false;
 
-      //Logic to calculate the convexity
-      if(fRmin==0.)
-              {
-                if( fDphi<=kPi || fDphi==kTwoPi)
-                  convexity = true;
-              }
-      return convexity;
-
-      }
+    // Logic to calculate the convexity
+    if (fRmin == 0.) {
+      if (fDphi <= kPi || fDphi == kTwoPi)
+        fGlobalConvexity = true;
+    }
+  }
 
   void UnplacedTube::Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const {
     // most general case

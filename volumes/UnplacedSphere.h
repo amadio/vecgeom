@@ -46,7 +46,7 @@ private:
     
     // Flags for identification of section, shell or full sphere
     bool fFullPhiSphere, fFullThetaSphere, fFullSphere;
-    
+
     // Precomputed values computed from parameters
     Precision fCubicVolume, fSurfaceArea;
     
@@ -535,10 +535,8 @@ void CalcCapacity();
 VECGEOM_CUDA_HEADER_BOTH
   void CalcSurfaceArea();
 
-
-//Function to check the convexity
 VECGEOM_CUDA_HEADER_BOTH
-virtual bool IsConvex() const override;
+void DetectConvexity();
 
 #if !defined(VECGEOM_NVCC)
   void Extent( Vector3D<Precision> &, Vector3D<Precision> &) const;

@@ -58,7 +58,18 @@ UnplacedHype::UnplacedHype(const Precision rMin, const Precision rMax,
   outerRadToleranceLevel = kTolerance * GetEndOuterRadius();
   CalcCapacity();
   CalcSurfaceArea();
+  DetectConvexity();
 }
+
+VECGEOM_CUDA_HEADER_BOTH
+void UnplacedHype::DetectConvexity(){
+  //Default Convexity set to false
+  fGlobalConvexity = false;
+  //Logic to calculate the convexity
+  if( (fRmin == 0.) && (fStIn == 0.) && (fStOut == 0.) ) //Hype becomes Solid Tube.
+    fGlobalConvexity = true;
+}
+
 
 VECGEOM_CUDA_HEADER_BOTH
 bool UnplacedHype::InnerSurfaceExists() const { return (fRmin > 0.) || (fStIn != 0.); }

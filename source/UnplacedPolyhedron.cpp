@@ -23,7 +23,7 @@ UnplacedPolyhedron::UnplacedPolyhedron(
     Precision const zPlanes[],
     Precision const rMin[],
     Precision const rMax[])
-    : UnplacedPolyhedron(0, 360, sideCount, zPlaneCount, zPlanes, rMin, rMax) {}
+    : UnplacedPolyhedron(0, 360, sideCount, zPlaneCount, zPlanes, rMin, rMax){}
 
 
 VECGEOM_CUDA_HEADER_BOTH
@@ -57,10 +57,11 @@ UnplacedPolyhedron::UnplacedPolyhedron(
       fZSegments(zPlaneCount-1), fZPlanes(zPlaneCount), fRMin(zPlaneCount),
       fRMax(zPlaneCount), fPhiSections(sideCount+1),
         fBoundingTube(0, 1, 1, 0, kTwoPi),fSurfaceArea(0.),
-        fCapacity(0.),fContinuousInSlope(true),fConvexityPossible(true),fEqualRmax(true) {
+        fCapacity(0.), fContinuousInSlope(true),fConvexityPossible(true),fEqualRmax(true) {
 
   // initialize polyhedron internals
   Initialize(phiStart, phiDelta, sideCount, zPlaneCount, zPlanes, rMin, rMax);
+  DetectConvexity();
 }
 
 VECGEOM_CUDA_HEADER_BOTH
@@ -1010,26 +1011,23 @@ void UnplacedPolyhedron::Print(std::ostream &os) const {
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-bool UnplacedPolyhedron::IsConvex() const{
-    //Default safe convexity value
-      bool convexity = false;
+void UnplacedPolyhedron::DetectConvexity() {
+  // Default safe convexity value
+  fGlobalConvexity = false;
 
-        if(fConvexityPossible)
-        {
-          if(fEqualRmax && (fPhiDelta<=180 || fPhiDelta==360))  //In this case, Polycone become solid Cylinder, No need to check anything else, 100% convex
-            convexity = true;
-          else
-          {
-             if( fPhiDelta<=180 || fPhiDelta==360)
-             {
-                 convexity = fContinuousInSlope;
-             }
-          }
-        }
-
-        return convexity;
-
+  if (fConvexityPossible) {
+    if (fEqualRmax &&
+        (fPhiDelta <= 180 ||
+         fPhiDelta == 360)) // In this case, Polycone become solid Cylinder, No need to check anything else, 100% convex
+      fGlobalConvexity = true;
+    else {
+      if (fPhiDelta <= 180 || fPhiDelta == 360) {
+        fGlobalConvexity = fContinuousInSlope;
       }
+    }
+  }
+
+}
 
 #ifdef VECGEOM_CUDA_INTERFACE
 

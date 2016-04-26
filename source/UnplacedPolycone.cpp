@@ -140,6 +140,7 @@ void UnplacedPolycone::Init(double phiStart,
     prevRmin = rMin;
     prevRmax = rMax;
   }
+  DetectConvexity();
 }
 
     // Alternative constructor, required for integration with Geant4.
@@ -920,21 +921,22 @@ bool UnplacedPolycone::CheckContinuityInSlope(const Vector<Precision> &rOuter, c
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-bool UnplacedPolycone::IsConvex() const {
+void UnplacedPolycone::DetectConvexity()  {
   // Default safe convexity value
-  bool convexity = false;
+  fGlobalConvexity = false;
+
   if (fConvexityPossible) {
     if (fEqualRmax && (fDeltaPhi <= kPi || fDeltaPhi == kTwoPi))
       // In this case, Polycone become solid Cylinder, No need to check anything else, 100% convex
-      convexity = true;
+      fGlobalConvexity = true;
     else {
       if (fDeltaPhi <= kPi || fDeltaPhi == kTwoPi) {
-        convexity = fContinuityOverAll;
+        fGlobalConvexity = fContinuityOverAll;
       }
     }
   }
 
-  return convexity;
+  //return convexity;
 }
 } // End impl namespace
 

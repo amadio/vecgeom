@@ -24,14 +24,14 @@ private:
 
 public:
 
-  UnplacedBox(Vector3D<Precision> const &dim) : dimensions_(dim) { }
+  UnplacedBox(Vector3D<Precision> const &dim) : dimensions_(dim) {fGlobalConvexity = true; }
 
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedBox(const Precision dx, const Precision dy, const Precision dz)
-      : dimensions_(dx, dy, dz) {}
+      : dimensions_(dx, dy, dz){ fGlobalConvexity = true; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  UnplacedBox(UnplacedBox const &other) : dimensions_(other.dimensions_) {}
+  UnplacedBox(UnplacedBox const &other) : dimensions_(other.dimensions_) {fGlobalConvexity = other.fGlobalConvexity;}
 
   int memory_size() const override { return sizeof(*this); }
 
@@ -56,9 +56,6 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Precision z() const { return dimensions_[2]; }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  bool IsConvex() const override;
 
 #if !defined(VECGEOM_NVCC)
   VECGEOM_INLINE

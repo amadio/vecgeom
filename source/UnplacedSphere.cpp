@@ -84,29 +84,27 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
   CheckPhiAngles(pSPhi, pDPhi);
   CheckThetaAngles(pSTheta, pDTheta);
-
+  DetectConvexity();
 #ifndef VECGEOM_NVCC
   CalcCapacity();
   CalcSurfaceArea();
 #endif
 }
 
-  VECGEOM_CUDA_HEADER_BOTH
-  bool UnplacedSphere::IsConvex() const {
-  	//Default safe convexity value
-  	bool convexity = false;
+ VECGEOM_CUDA_HEADER_BOTH
+ void UnplacedSphere::DetectConvexity() {
+   // Default Convexity set to false
+   fGlobalConvexity = false;
+   // Logic to calculate the convexity
+   if (fRmin == 0.) {
+     if (((fDPhi == kTwoPi) && (fSTheta == 0.) && (eTheta == kPi)) ||
+         ((fDPhi <= kPi) && (fSTheta == 0) && (eTheta == kPi)) ||
+         ((fDPhi == kTwoPi) && (fSTheta == 0) && (eTheta <= kPi / 2)) ||
+         ((fDPhi == kTwoPi) && (fSTheta >= kPi / 2) && (eTheta == kPi)))
+       fGlobalConvexity = true;
+   }
+ }
 
-    //Logic to calculate the convexity
-  	if(fRmin==0.){
-  		if( ((fDPhi==kTwoPi) && (fSTheta==0.) && (eTheta==kPi)) ||
-  						((fDPhi<=kPi) && (fSTheta==0) && (eTheta==kPi)) ||
-  						((fDPhi==kTwoPi) && (fSTheta==0) && (eTheta<=kPi/2)) ||
-  						((fDPhi==kTwoPi) && (fSTheta>=kPi/2) && (eTheta==kPi)))
-  			convexity = true;
-  	    }
-  		return convexity;
-  }
-  
 #ifndef VECGEOM_NVCC
   void UnplacedSphere::CalcCapacity()
   {
