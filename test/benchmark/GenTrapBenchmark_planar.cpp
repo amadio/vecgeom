@@ -34,7 +34,7 @@ int main() {
 
   VPlacedVolume *worldPlaced = world.Place();
 
-  GeoManager::Instance().SetWorld(worldPlaced);
+  GeoManager::Instance().SetWorldAndClose(worldPlaced);
 
   Benchmarker tester(GeoManager::Instance().GetWorld());
   tester.SetVerbosity(2);

@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
   world.PlaceDaughter(&hype, &Transformation3D::kIdentity);
 
   VPlacedVolume *worldPlaced = world.Place();
-  GeoManager::Instance().SetWorld(worldPlaced);
+  GeoManager::Instance().SetWorldAndClose(worldPlaced);
   Benchmarker tester(GeoManager::Instance().GetWorld());
   //tester.SetTolerance(1e-5);
   tester.SetVerbosity(3);

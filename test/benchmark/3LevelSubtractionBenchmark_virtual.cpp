@@ -27,7 +27,7 @@ int main()
     Transformation3D translation2( 4, 4, 4);
 
     VPlacedVolume *worldPlaced = world.Place();
-    GeoManager::Instance().SetWorld(worldPlaced);
+    GeoManager::Instance().SetWorldAndClose(worldPlaced);
 
 
     VPlacedVolume * placedsubtractedtube

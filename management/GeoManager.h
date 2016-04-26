@@ -141,6 +141,11 @@ public:
    */
   void CloseGeometry();
 
+  /**
+   * See if geometry is closed
+   */
+  bool IsClosed() const { return fIsClosed; }
+
   // compactify memory space
   // an internal method which should be called by ClosedGeometry
   // it analyses the geometry and puts objects in contiguous buffers
@@ -148,6 +153,12 @@ public:
   void CompactifyMemory();
 
   void SetWorld(VPlacedVolume const *const w) { fWorld = w; }
+
+  // set the world volume and close geometry
+  void SetWorldAndClose(VPlacedVolume const *const w) {
+    fWorld = w;
+    CloseGeometry();
+  }
 
   VPlacedVolume const* GetWorld() const { return fWorld; }
 

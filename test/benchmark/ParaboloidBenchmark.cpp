@@ -20,7 +20,7 @@ int main() {
     LogicalVolume paraboloid ("paraboloid", &paraboloidUnplaced);
     world.PlaceDaughter(&paraboloid, &Transformation3D::kIdentity);
     VPlacedVolume *worldPlaced = world.Place();
-    GeoManager::Instance().SetWorld(worldPlaced);
+    GeoManager::Instance().SetWorldAndClose(worldPlaced);
     std::cout<<"World set\n";
     
     

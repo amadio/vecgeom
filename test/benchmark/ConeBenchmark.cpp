@@ -38,7 +38,7 @@ int main(int argc, char * argv[]) {
 
   // now the cone is placed; how do we get it back?
   VPlacedVolume *worldPlaced = world.Place();
-  GeoManager::Instance().SetWorld(worldPlaced);
+  GeoManager::Instance().SetWorldAndClose(worldPlaced);
 
   Benchmarker tester(GeoManager::Instance().GetWorld());
   tester.SetVerbosity(3);

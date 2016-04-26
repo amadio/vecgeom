@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
 
   VPlacedVolume *worldPlaced = world.Place();
 
-  GeoManager::Instance().SetWorld(worldPlaced);
+  GeoManager::Instance().SetWorldAndClose(worldPlaced);
   GeomCppExporter::Instance().DumpGeometry( std::cout );
 
   Benchmarker tester(GeoManager::Instance().GetWorld());

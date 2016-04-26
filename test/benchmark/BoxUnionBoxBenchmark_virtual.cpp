@@ -27,7 +27,7 @@ int main(int argc, char * argv[])
     Transformation3D translation(-2.5,0,3.5);
 
     VPlacedVolume *worldPlaced = world.Place();
-    GeoManager::Instance().SetWorld(worldPlaced);
+    GeoManager::Instance().SetWorldAndClose(worldPlaced);
 
 
     VPlacedVolume * placedbox2

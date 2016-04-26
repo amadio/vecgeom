@@ -245,6 +245,11 @@ bool CudaManager::AllocateCollectionOnCoproc(const char *verbose_title, const Co
 // a special treatment for placed volumes to ensure same order of placed volumes in compact buffer
 // as on CPU
 bool CudaManager::AllocatePlacedVolumesOnCoproc() {
+  // check if geometry is closed
+  if(!GeoManager::Instance().IsClosed()){
+      std::cerr << "Warning: Geometry on host side MUST be closed before copying to DEVICE\n";
+  }
+
   // we start from the compact buffer on the CPU
   unsigned int size = placed_volumes_.size();
 

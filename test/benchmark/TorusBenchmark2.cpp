@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
 
 //  RootGeoManager::Instance().ExportToROOTGeometry( worldPlaced, "testtorus.root");
 
-  GeoManager::Instance().SetWorld(worldPlaced);
+  GeoManager::Instance().SetWorldAndClose(worldPlaced);
 
   Benchmarker tester(GeoManager::Instance().GetWorld());
   tester.SetVerbosity(3);
