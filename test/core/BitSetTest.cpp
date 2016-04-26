@@ -1,5 +1,9 @@
 #include "base/BitSet.h"
 
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
+#include <cassert>
 
 using namespace veccore;
 
