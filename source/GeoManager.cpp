@@ -129,7 +129,7 @@ void GeoManager::CompactifyMemory() {
    // fix pointers to placed volumes referenced in all logical volumes
     for( auto v : fLogicalVolumesMap ){
         LogicalVolume * lvol = v.second;
-	auto ndaughter = lvol->GetDaughtersp()->size();
+        auto ndaughter = lvol->GetDaughtersp()->size();
         for( decltype(ndaughter) i = 0; i < ndaughter; ++i){
             lvol->GetDaughtersp()->operator[](i) = ConvertOldToNew( lvol->GetDaughtersp()->operator[](i) );
         }
@@ -141,7 +141,7 @@ void GeoManager::CompactifyMemory() {
             bvol->SetLeft( ConvertOldToNew( bvol->GetLeft() ) );
             bvol->SetRight( ConvertOldToNew( bvol->GetRight() ));
         }
-	     // same for scaled shape volume
+        // same for scaled shape volume
         UnplacedScaledShape *svol;
         if( (svol = const_cast<UnplacedScaledShape *>(dynamic_cast<UnplacedScaledShape const *>( v.second->GetUnplacedVolume())))){
             svol->SetPlaced( ConvertOldToNew( svol->GetPlaced() ) );
