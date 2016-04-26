@@ -406,14 +406,14 @@ bool test_ConvexityPolyhedron() {
 }
 bool test_ConvexityHype() {
     vecgeom::SimpleHype b1("Solid VecGeomHype #1", 10., 15., PI / 4, PI / 3, 50);
-    assert(!b1->IsConvex());
+    assert(!b1.GetUnplacedVolume()->IsConvex());
 
     vecgeom::SimpleHype b2("Solid VecGeomHype #2", 0., 15., 0., PI / 3, 50);
-    assert(!b2->IsConvex());
+    assert(!b2.GetUnplacedVolume()->IsConvex());
 
     //Case when hype becomes Solid Tube
     vecgeom::SimpleHype b3("Solid VecGeomHype #3", 0., 15., 0., 0., 50);
-    assert(b3->IsConvex());
+    assert(b3.GetUnplacedVolume()->IsConvex());
 
     return true;
 }
