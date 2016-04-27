@@ -84,8 +84,7 @@ int main( int argc, char *argv[] ) {
             /*VPlacedVolume const *  vol =*/
             world.PlaceDaughter("testshape", converted, &placement);
 
-            VPlacedVolume *worldPlaced = world.Place();
-            GeoManager::Instance().SetWorld(worldPlaced);
+            GeoManager::Instance().SetWorldAndClose(world.Place());
 
             Benchmarker tester(GeoManager::Instance().GetWorld());
             tester.SetTolerance(1E-4);

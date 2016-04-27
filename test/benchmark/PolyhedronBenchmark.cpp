@@ -49,13 +49,15 @@ int main(int nArgs, char **args) {
   auto RunBenchmark = [&worldUnplaced] (
       UnplacedPolyhedron shape,
       char const *label) {
-    LogicalVolume logical(&shape);
-    VPlacedVolume *placed = logical.Place();
+    LogicalVolume logical("pgon",&shape);
+    // VPlacedVolume *placed = logical.Place();
     LogicalVolume worldLogical(&worldUnplaced);
-    worldLogical.PlaceDaughter(placed);
+    //   worldLogical.PlaceDaughter(placed);
     Transformation3D transformation(5, 5, 5);
-    VPlacedVolume *world = worldLogical.Place(&transformation);
-    Benchmarker benchmarker(world);
+    worldLogical.PlaceDaughter("pgonplaced", &logical, &transformation);
+    GeoManager::Instance().SetWorldAndClose(worldLogical.Place());
+
+    Benchmarker benchmarker(GeoManager::Instance().GetWorld());
     benchmarker.SetVerbosity(3);
     benchmarker.SetPoolMultiplier(1);
     benchmarker.SetRepetitions(4);

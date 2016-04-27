@@ -18,8 +18,8 @@ int main(int argc, char* argv[]) {
   OPTION_DOUBLE(dsphi,0.);
   OPTION_DOUBLE(ddphi,kTwoPi);
 
-  UnplacedBox worldUnplaced = UnplacedBox((drtor+drmax)*2, (drtor+drmax)*2 , (drtor+drmax)*2);
-  UnplacedTorus2 torusUnplaced = UnplacedTorus2(drmin, drmax, drtor, dsphi, ddphi);
+  UnplacedBox worldUnplaced((drtor+drmax)*2, (drtor+drmax)*2 , (drtor+drmax)*2);
+  UnplacedTorus2 torusUnplaced(drmin, drmax, drtor, dsphi, ddphi);
 
   LogicalVolume world ("world", &worldUnplaced);
   LogicalVolume torus ("torus", &torusUnplaced);
@@ -27,9 +27,6 @@ int main(int argc, char* argv[]) {
   //Transformation3D placement(5, 5, 5);
   Transformation3D placement(0, 0, 0);
   world.PlaceDaughter("torus", &torus, &placement);
-
-  torus.Place(&placement);
-
   VPlacedVolume *worldPlaced = world.Place();
 
 //  RootGeoManager::Instance().ExportToROOTGeometry( worldPlaced, "testtorus.root");

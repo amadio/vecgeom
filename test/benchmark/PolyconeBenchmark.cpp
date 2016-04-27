@@ -37,9 +37,7 @@ int main(int argc, char* argv[]) {
 #if defined(VECGEOM_ROOT) and defined(VISUALIZER)
   VPlacedVolume const * vol =
 #endif
-    world.PlaceDaughter("pcon", &pcon, &placement);
-
-  pcon.Place(&placement);
+  world.PlaceDaughter("pcon", &pcon, &placement);
 
   VPlacedVolume *worldPlaced = world.Place();
 

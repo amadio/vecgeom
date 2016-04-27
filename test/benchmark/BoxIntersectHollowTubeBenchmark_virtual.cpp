@@ -27,10 +27,6 @@ int main(int argc, char * argv[])
     // translation for boolean solid right shape ( it should now stick outside )
     Transformation3D translation( 0.5, 0, 0 );
 
-    VPlacedVolume *worldPlaced = world.Place();
-    GeoManager::Instance().SetWorldAndClose(worldPlaced);
-
-
     VPlacedVolume * placedtube
         = (new LogicalVolume("",&hollowtube))->Place(&translation);
     VPlacedVolume * placedmotherbox = (new LogicalVolume("",&box))->Place();
@@ -46,6 +42,7 @@ int main(int argc, char * argv[])
 
     // add this boolean solid to the world
     world.PlaceDaughter( &booleanlogical, &placement );
+    GeoManager::Instance().SetWorldAndClose(world.Place());
 
     Benchmarker tester(GeoManager::Instance().GetWorld());
     tester.SetVerbosity(3);
