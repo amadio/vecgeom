@@ -39,16 +39,16 @@ public:
     NavStatePool( int size, int depth ) :
         fCapacity( size ),
         fDepth( depth ),
-        fBuffer( new char[NavigationState::SizeOf( depth )*size ] ),
+        fBuffer( new char[NavigationState::SizeOfInstanceAlignAware( depth )*size ] ),
         fGPUPointer( NULL )
    {
 
 #if !defined(VECGEOM_NVCC) && defined(VECGEOM_CUDA)
-        vecgeom::CudaMalloc( &fGPUPointer, NavigationState::SizeOf(depth)*size );
+        vecgeom::CudaMalloc( &fGPUPointer, NavigationState::SizeOfInstanceAlignAware(depth)*size );
 #endif
         // now create the states
         for(int i=0;i<(int)fCapacity;++i){
-            NavigationState::MakeInstanceAt( depth, fBuffer + NavigationState::SizeOf(depth)*i );
+            NavigationState::MakeInstanceAt( depth, fBuffer + NavigationState::SizeOfInstanceAlignAware(depth)*i );
         }
     }
 
@@ -66,7 +66,7 @@ public:
       std::ofstream outfile(filename, std::ios::binary);
       outfile.write(reinterpret_cast<const char *>(&fCapacity), sizeof(fCapacity));
       outfile.write(reinterpret_cast<const char *>(&fDepth), sizeof(fDepth));
-      outfile.write(reinterpret_cast<char *>(fBuffer), fCapacity * NavigationState::SizeOf(fDepth));
+      outfile.write(reinterpret_cast<char *>(fBuffer), fCapacity * NavigationState::SizeOfInstanceAlignAware(fDepth));
 #else
       std::cerr << "serializing pointer based navstates not supported \n";
 #endif
@@ -88,7 +88,7 @@ public:
       fin.read(reinterpret_cast<char *>(&dep), sizeof(dep));
       if (cap != fCapacity || dep != fDepth)
         std::cerr << " warning: reading from navstate with different size\n";
-      fin.read(reinterpret_cast<char *>(fBuffer), fCapacity * NavigationState::SizeOf(fDepth));
+      fin.read(reinterpret_cast<char *>(fBuffer), fCapacity * NavigationState::SizeOfInstanceAlignAware(fDepth));
 #else
       std::cerr << "serializing pointer based navstates not supported \n";
 #endif
@@ -96,12 +96,12 @@ public:
 
     VECGEOM_CUDA_HEADER_BOTH
     NavigationState * operator[]( int i ){
-      return reinterpret_cast<NavigationState *>(fBuffer + NavigationState::SizeOf(fDepth) * i);
+      return reinterpret_cast<NavigationState *>(fBuffer + NavigationState::SizeOfInstanceAlignAware(fDepth) * i);
     }
 
     VECGEOM_CUDA_HEADER_BOTH
     NavigationState const* operator[]( int i ) const {
-      return reinterpret_cast<NavigationState const *>(fBuffer + NavigationState::SizeOf(fDepth) * i);
+      return reinterpret_cast<NavigationState const *>(fBuffer + NavigationState::SizeOfInstanceAlignAware(fDepth) * i);
     }
 
     // convert/init this to a plain NavigationState** array

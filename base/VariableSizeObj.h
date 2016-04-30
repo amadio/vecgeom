@@ -9,6 +9,7 @@
 
 // For memset and memcpy
 #include <string.h>
+#include <cassert>
 
 class TRootIOCtor;
 
@@ -90,6 +91,7 @@ namespace veccore{
          size_t needed = SizeOf(nvalues);
          char *ptr = new char[ needed ];
          if (!ptr) return 0;
+         assert((((unsigned long long)ptr) % alignof(Cont)) == 0 && "alignment error");
          Cont *obj = new (ptr) Cont(nvalues, params...);
          obj->GetVariableData().fSelfAlloc = true;
          return obj;
@@ -104,6 +106,7 @@ namespace veccore{
          if (!addr) {
             return MakeInstance(nvalues, params...);
          } else {
+            assert((((unsigned long long)addr) % alignof(Cont)) == 0 && "addr does not satisfy alignment");
             Cont *obj = new (addr) Cont(nvalues, params...);
             obj->GetVariableData().fSelfAlloc = false;
             return obj;
@@ -158,11 +161,24 @@ namespace veccore{
          if (obj->GetVariableData().fSelfAlloc) delete [] (char*)obj;
       }
 
-      // Equivalent of sizeof function
+      // Equivalent of sizeof function (not taking into account padding for alignment)
       VECGEOM_CUDA_HEADER_BOTH
       static constexpr size_t SizeOf(size_t nvalues)
       { return (sizeof(Cont)+sizeof(V)*(nvalues-1)); }
 
+      // equivalent of sizeof function taking into account padding for alignment
+      // this function should be used when making arrays of VariableSizeObjects
+      VECGEOM_CUDA_HEADER_BOTH
+      static constexpr size_t SizeOfAlignAware(size_t nvalues) { return SizeOf(nvalues) + RealFillUp(nvalues); }
+
+private:
+      VECGEOM_CUDA_HEADER_BOTH
+      static constexpr size_t FillUp(size_t nvalues) { return alignof(Cont) - SizeOf(nvalues) % alignof(Cont); }
+
+      VECGEOM_CUDA_HEADER_BOTH
+      static constexpr size_t RealFillUp(size_t nvalues) {
+        return (FillUp(nvalues) == alignof(Cont)) ? 0 : FillUp(nvalues);
+      }
    };
 
 }

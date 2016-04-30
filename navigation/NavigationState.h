@@ -21,6 +21,7 @@
 
 #include <iostream>
 #include <string>
+#include <cassert>
 
 class TGeoBranchArray;
 
@@ -62,6 +63,7 @@ static VPlacedVolume const *ToPlacedVolume( T index ){
 #ifdef VECGEOM_NVCC_DEVICE
   // checking here for NVCC_DEVICE since the global variable globaldevicegeomgata::gCompact...
   // is marked __device__ and can only be compiled within device compiler passes
+  assert(vecgeom::globaldevicegeomdata::gCompactPlacedVolBuffer!=nullptr);
   return &vecgeom::globaldevicegeomdata::gCompactPlacedVolBuffer[index];
 #endif
 #ifndef VECGEOM_NVCC
@@ -187,6 +189,7 @@ public:
    using Base_t::MakeCopyAt;
    using Base_t::ReleaseInstance;
    using Base_t::SizeOf;
+   using Base_t::SizeOfAlignAware;
 
    // Enumerate functions from converter which we want to use
    // ( without retyping of the struct name )
@@ -220,6 +223,15 @@ public:
    static size_t SizeOfInstance(int maxlevel) {
       // MaxLevel is 'zero' based (i.e. maxlevel==0 requires one value)
       return VariableSizeObjectInterface::SizeOf( maxlevel + 1 );
+   }
+
+   // returns the size in bytes of a NavigationState object with internal
+   // path depth maxlevel -- including space needed for padding to next aligned object
+   // of same kind
+   VECGEOM_CUDA_HEADER_BOTH
+   static size_t SizeOfInstanceAlignAware(int maxlevel) {
+      // MaxLevel is 'zero' based (i.e. maxlevel==0 requires one value)
+      return VariableSizeObjectInterface::SizeOfAlignAware( maxlevel + 1 );
    }
 
    VECGEOM_CUDA_HEADER_BOTH
