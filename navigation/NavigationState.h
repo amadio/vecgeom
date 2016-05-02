@@ -65,7 +65,7 @@ static VPlacedVolume const *ToPlacedVolume( T index ){
   // is marked __device__ and can only be compiled within device compiler passes
   assert(vecgeom::globaldevicegeomdata::GetCompactPlacedVolBuffer()!=nullptr);
   return &vecgeom::globaldevicegeomdata::GetCompactPlacedVolBuffer()[index];
-#endif
+#else
 #ifndef VECGEOM_NVCC
   return &vecgeom::GeoManager::gCompactPlacedVolBuffer[index];
 #else
@@ -74,6 +74,7 @@ static VPlacedVolume const *ToPlacedVolume( T index ){
   assert(false && "reached unimplement code");
   (void)index; // avoid unused parameter warning.
   return nullptr;
+#endif
 #endif
 }
 
