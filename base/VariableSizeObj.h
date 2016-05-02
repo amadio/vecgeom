@@ -9,7 +9,7 @@
 
 // For memset and memcpy
 #include <string.h>
-#include <cassert>
+#include "Assert.h"
 
 class TRootIOCtor;
 

@@ -4,6 +4,7 @@
 #ifndef VECGEOM_BASE_SOA3D_H_
 #define VECGEOM_BASE_SOA3D_H_
 
+#include "Assert.h"
 #include "base/Global.h"
 
 #include "base/Container3D.h"
