@@ -12,7 +12,7 @@ inline namespace cuda {
 
 __global__ void InitDeviceCompactPlacedVolBufferPtrCudaKernel(void *gpu_ptr) {
   // gpu_ptr is some pointer on the device that was allocated by some other means
-  globaldevicegeomdata::gCompactPlacedVolBuffer = (vecgeom::cuda::VPlacedVolume *)gpu_ptr;
+  globaldevicegeomdata::GetCompactPlacedVolBuffer() = (vecgeom::cuda::VPlacedVolume *)gpu_ptr;
 }
 
 void InitDeviceCompactPlacedVolBufferPtr(void *gpu_ptr) {

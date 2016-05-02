@@ -63,8 +63,8 @@ static VPlacedVolume const *ToPlacedVolume( T index ){
 #ifdef VECGEOM_NVCC_DEVICE
   // checking here for NVCC_DEVICE since the global variable globaldevicegeomgata::gCompact...
   // is marked __device__ and can only be compiled within device compiler passes
-  assert(vecgeom::globaldevicegeomdata::gCompactPlacedVolBuffer!=nullptr);
-  return &vecgeom::globaldevicegeomdata::gCompactPlacedVolBuffer[index];
+  assert(vecgeom::globaldevicegeomdata::GetCompactPlacedVolBuffer()!=nullptr);
+  return &vecgeom::globaldevicegeomdata::GetCompactPlacedVolBuffer()[index];
 #endif
 #ifndef VECGEOM_NVCC
   return &vecgeom::GeoManager::gCompactPlacedVolBuffer[index];
