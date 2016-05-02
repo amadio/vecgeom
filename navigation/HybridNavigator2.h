@@ -9,6 +9,7 @@
 #define VECGEOM_HYBRIDNAVIGATOR
 
 #include "base/Global.h"
+#include "base/Assert.h"
 
 #include "volumes/PlacedVolume.h"
 #include "base/SOA3D.h"
@@ -27,7 +28,6 @@
 #endif
 
 #include <vector>
-#include <cassert>
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

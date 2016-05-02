@@ -11,7 +11,7 @@
 #include "base/Vector3D.h"
 #include "volumes/LogicalVolume.h"
 #include "navigation/VLevelLocator.h"
-#include <cassert>
+#include "base/Assert.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

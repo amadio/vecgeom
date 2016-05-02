@@ -15,7 +15,6 @@
 #include "volumes/PlacedVolume.h"
 #include "navigation/SimpleSafetyEstimator.h"
 #include "navigation/NewSimpleNavigator.h"
-#include <cassert>
 #include <climits>
 #include <stdio.h>
 

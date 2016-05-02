@@ -23,8 +23,6 @@
 #include "backend/scalarfloat/Backend.h"
 #endif
 
-#include <cassert>
-
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

@@ -12,7 +12,6 @@
 #ifdef VECGEOM_ROOT
 #include "TGeoHype.h"
 #endif
-#include <cassert>
 
 #ifdef VECGEOM_USOLIDS
 #include "UBox.hh"
