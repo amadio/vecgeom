@@ -70,7 +70,7 @@ struct kUmeSimd {
 class UmeSimdMask : public UME::SIMD::SIMDVecMask<kVectorSize> {
 public:
     UmeSimdMask() : UME::SIMD::SIMDVecMask<kVectorSize> () {}
-    UmeSimdMask(int mm) : UME::SIMD::SIMDVecMask<kVectorSize>() {}
+    UmeSimdMask(int mm) : UME::SIMD::SIMDVecMask<kVectorSize>(bool(mm)) {}
     UmeSimdMask(UME::SIMD::SIMDVecMask<kVectorSize> const & m) : UME::SIMD::SIMDVecMask<kVectorSize>(m) {}
     
     const static int Size = kVectorSize;
@@ -114,7 +114,7 @@ public:
 class UmeSimdMask : public UME::SIMD::SIMDVecMask<kVectorSize> {
 public:
     UmeSimdMask() : UME::SIMD::SIMDVecMask<kVectorSize> () {}
-    UmeSimdMask(int mm) : UME::SIMD::SIMDVecMask<kVectorSize>() {}
+    UmeSimdMask(int mm) : UME::SIMD::SIMDVecMask<kVectorSize>(bool(mm)) {}
     UmeSimdMask(UME::SIMD::SIMDVecMask<kVectorSize> const & m) : UME::SIMD::SIMDVecMask<kVectorSize>(m) {}
     
     const static int Size = kVectorSize;
