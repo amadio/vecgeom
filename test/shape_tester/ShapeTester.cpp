@@ -141,8 +141,9 @@ int ShapeTester::TestBoundaryPrecision(int mode) {
   double maxerr;
   double ndotvmin = 0.2; // avoid directions parallel to surface
   std::cout << "# Testing boundary precision\n";
-  double x[ndist], y[ndist];
+  double x[ndist];
 #ifdef VECGEOM_ROOT
+  double y[ndist];
   TCanvas *cerrors = new TCanvas("cerrors", "Boundary precision", 1200,800);
   TLegend *legend = new TLegend(0.12,0.75,0.32,0.87);
   legend->SetLineColor(0);
@@ -199,7 +200,9 @@ int ShapeTester::TestBoundaryPrecision(int mode) {
         if (Abs(error) < 1.e-1 && Abs(error) > maxerr) maxerr = Abs(error);
       }
     }
+#ifdef VECGEOM_ROOT
     y[idist] = maxerr;
+#endif
     std::cout << "==    error[dist = " << x[idist] << "] = " << maxerr << std::endl;
   }  
 #ifdef VECGEOM_ROOT

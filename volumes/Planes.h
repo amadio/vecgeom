@@ -158,12 +158,12 @@ template <class Backend>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
 void AcceleratedContains(
-    int &i,
-    const int n,
-    SOA3D<Precision> const &normals,
-    Array<Precision> const &distances,
-    Vector3D<typename Backend::precision_v> const &point,
-    typename Backend::bool_v &result) {
+    int &/*i*/,
+    const int /*n*/,
+    SOA3D<Precision> const &/*normals*/,
+    Array<Precision> const &/*distances*/,
+    Vector3D<typename Backend::precision_v> const &/*point*/,
+    typename Backend::bool_v &/*result*/) {
   return;
 }
 
@@ -219,12 +219,12 @@ template <class Backend>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
 void AcceleratedInside(
-    int &i,
-    const int n,
-    SOA3D<Precision> const &normals,
-    Array<Precision> const &distances,
-    Vector3D<typename Backend::precision_v> const &point,
-    typename Backend::inside_v &result) {
+    int &/*i*/,
+    const int /*n*/,
+    SOA3D<Precision> const &/*normals*/,
+    Array<Precision> const &/*distances*/,
+    Vector3D<typename Backend::precision_v> const &/*point*/,
+    typename Backend::inside_v &/*result*/) {
   return;
 }
 
