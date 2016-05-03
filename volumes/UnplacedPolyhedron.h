@@ -29,11 +29,11 @@ enum struct EInnerRadii {
 };
 
 template<typename Stream>
-Stream& operator<<( Stream &s, EInnerRadii a ){
-    if(a == EInnerRadii::kFalse) s << "EInnerRadii::kFalse";
-    if(a == EInnerRadii::kGeneric) s << "EInnerRadii::kGeneric";
-    if(a == EInnerRadii::kTrue) s << "EInnerRadii::kTrue";
-    return s;
+Stream& operator<<( Stream &st, EInnerRadii a ){
+    if(a == EInnerRadii::kFalse) st << "EInnerRadii::kFalse";
+    if(a == EInnerRadii::kGeneric) st << "EInnerRadii::kGeneric";
+    if(a == EInnerRadii::kTrue) st << "EInnerRadii::kTrue";
+    return st;
 }
 
 enum struct EPhiCutout {
@@ -44,12 +44,12 @@ enum struct EPhiCutout {
 };
 
 template<typename Stream>
-Stream& operator<<( Stream &s, EPhiCutout a ){
-    if(a == EPhiCutout::kFalse) s << "EPhiCutout::kFalse";
-    if(a == EPhiCutout::kGeneric) s << "EPhiCutout::kGeneric";
-    if(a == EPhiCutout::kTrue) s << "EPhiCutout::kTrue";
-    if(a == EPhiCutout::kLarge) s << "EPhiCutout::kLarge";
-    return s;
+Stream& operator<<( Stream &st, EPhiCutout a ){
+    if(a == EPhiCutout::kFalse) st << "EPhiCutout::kFalse";
+    if(a == EPhiCutout::kGeneric) st << "EPhiCutout::kGeneric";
+    if(a == EPhiCutout::kTrue) st << "EPhiCutout::kTrue";
+    if(a == EPhiCutout::kLarge) st << "EPhiCutout::kLarge";
+    return st;
 }
 
 namespace vecgeom {

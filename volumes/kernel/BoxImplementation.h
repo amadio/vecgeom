@@ -36,18 +36,18 @@ struct BoxImplementation {
   }
 
   template <typename Stream>
-  static void PrintType(Stream &s) {
-    s << "SpecializedBox<" << transCodeT << "," << rotCodeT << ">";
+  static void PrintType(Stream &st) {
+    st << "SpecializedBox<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
-  static void PrintImplementationType(Stream &s) {
-    s << "BoxImplementation<" << transCodeT << "," << rotCodeT << ">";
+  static void PrintImplementationType(Stream &st) {
+    st << "BoxImplementation<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
-  static void PrintUnplacedType(Stream &s) {
-    s << "UnplacedBox";
+  static void PrintUnplacedType(Stream &st) {
+    st << "UnplacedBox";
   }
 
   template<typename Backend>

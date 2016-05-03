@@ -638,7 +638,7 @@ public:
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
     //Float_t pi(kPi), zero(0.);
-    Float_t rad = Sqrt(localPoint.Mag2() - (localPoint.z() * localPoint.z()));
+    Float_t rho = Sqrt(localPoint.Mag2() - (localPoint.z() * localPoint.z()));
     Float_t cone1Radius = Abs(localPoint.z() * tanSTheta);
     Float_t cone2Radius = Abs(localPoint.z() * tanETheta);
     Bool_t isPointOnZAxis = localPoint.z() != 0. && localPoint.x() == 0. && localPoint.y() == 0.;
@@ -665,8 +665,8 @@ public:
           
             completelyinside |=
                 (!completelyinside &&
-                 (((rad <= tolAngMax) && (rad >= tolAngMin) && (localPoint.z() > 0.) && Bool_t(fSTheta != 0.)) ||
-                  ((rad <= tolAngMax) && Bool_t(fSTheta == 0.) && (localPoint.z() > 0.))));
+                 (((rho <= tolAngMax) && (rho >= tolAngMin) && (localPoint.z() > 0.) && Bool_t(fSTheta != 0.)) ||
+                  ((rho <= tolAngMax) && Bool_t(fSTheta == 0.) && (localPoint.z() > 0.))));
           }
       }
 
@@ -675,8 +675,8 @@ public:
           Float_t tolAngMin = cone1Radius + 2 * kAngTolerance * 10.;
           Float_t tolAngMax = cone2Radius + 2 * kAngTolerance * 10.;
           
-            completelyinside |= (!completelyinside && (((rad >= tolAngMin) && (localPoint.z() > 0.)) ||
-                                                       ((rad >= tolAngMax) && (localPoint.z() < 0.))));
+            completelyinside |= (!completelyinside && (((rho >= tolAngMin) && (localPoint.z() > 0.)) ||
+                                                       ((rho >= tolAngMax) && (localPoint.z() < 0.))));
           }
       }
 
@@ -701,8 +701,8 @@ public:
           
             completelyinside |=
                 (!completelyinside &&
-                 (((rad <= tolAngMin) && (rad >= tolAngMax) && (localPoint.z() < 0.) && Bool_t(fETheta != kPi)) ||
-                  ((rad <= tolAngMin) && (localPoint.z() < 0.) && Bool_t(fETheta == kPi))));
+                 (((rho <= tolAngMin) && (rho >= tolAngMax) && (localPoint.z() < 0.) && Bool_t(fETheta != kPi)) ||
+                  ((rho <= tolAngMin) && (localPoint.z() < 0.) && Bool_t(fETheta == kPi))));
           
         }
       }
@@ -718,7 +718,7 @@ public:
 typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
     //Float_t pi(kPi), zero(0.);
-    Float_t rad = Sqrt(localPoint.Mag2() - (localPoint.z() * localPoint.z()));
+    Float_t rho = Sqrt(localPoint.Mag2() - (localPoint.z() * localPoint.z()));
     Float_t cone1Radius = Abs(localPoint.z() * tanSTheta);
     Float_t cone2Radius = Abs(localPoint.z() * tanETheta);
     Bool_t isPointOnZAxis = localPoint.z() != 0. && localPoint.x() == 0. && localPoint.y() == 0.;
@@ -748,7 +748,7 @@ typedef typename Backend::precision_v Float_t;
           Float_t tolAngMax2 = cone2Radius + 2 * kAngTolerance * 10.;
 
           completelyoutside |=
-              (!completelyoutside && ((rad < tolAngMin2) || (rad > tolAngMax2) || (localPoint.z() < 0.)));
+              (!completelyoutside && ((rho < tolAngMin2) || (rho > tolAngMax2) || (localPoint.z() < 0.)));
         }
       }
 
@@ -756,8 +756,8 @@ typedef typename Backend::precision_v Float_t;
         if (fSTheta < fETheta) {
                    Float_t tolAngMin2 = cone1Radius - 2 * kAngTolerance * 10.;
           Float_t tolAngMax2 = cone2Radius - 2 * kAngTolerance * 10.;
-          completelyoutside |= (!completelyoutside && (((rad < tolAngMin2) && (localPoint.z() > 0.)) ||
-                                                       ((rad < tolAngMax2) && (localPoint.z() < 0.))));
+          completelyoutside |= (!completelyoutside && (((rho < tolAngMin2) && (localPoint.z() > 0.)) ||
+                                                       ((rho < tolAngMax2) && (localPoint.z() < 0.))));
         }
       }
 
@@ -782,7 +782,7 @@ typedef typename Backend::precision_v Float_t;
           Float_t tolAngMin2 = cone1Radius + 2 * kAngTolerance * 10.;
           Float_t tolAngMax2 = cone2Radius - 2 * kAngTolerance * 10.;
           completelyoutside |=
-              (!completelyoutside && ((rad < tolAngMax2) || (rad > tolAngMin2) || (localPoint.z() > 0.)));
+              (!completelyoutside && ((rho < tolAngMax2) || (rho > tolAngMin2) || (localPoint.z() > 0.)));
         }
       }
     }

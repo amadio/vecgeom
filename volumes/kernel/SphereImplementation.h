@@ -405,9 +405,9 @@ Vector3D<typename Backend::precision_v> SphereImplementation<transCodeT, rotCode
   typedef typename Backend::precision_v Float_t;
 
   Vector3D<Float_t> norm(0., 0., 0.);
-  Float_t rad = point.Mag();
-  Float_t distRMax = Abs(rad - unplaced.GetOuterRadius());
-  Float_t distRMin = Abs(unplaced.GetInnerRadius() - rad);
+  Float_t radius = point.Mag();
+  Float_t distRMax = Abs(radius - unplaced.GetOuterRadius());
+  Float_t distRMin = Abs(unplaced.GetInnerRadius() - radius);
   MaskedAssign(distRMax < 0., kInfinity, &distRMax);
   MaskedAssign(distRMin < 0., kInfinity, &distRMin);
   Float_t distMin = Min(distRMin, distRMax);

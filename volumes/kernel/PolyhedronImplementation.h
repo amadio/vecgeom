@@ -52,17 +52,17 @@ struct PolyhedronImplementation {
   }
 
   template <typename Stream>
-  static void PrintType(Stream &s) {
-    s << "SpecializedPolyhedron<" << transC << "," << rotC << "," << innerRadiiT << "," << phiCutoutT << ">";
+  static void PrintType(Stream &st) {
+    st << "SpecializedPolyhedron<" << transC << "," << rotC << "," << innerRadiiT << "," << phiCutoutT << ">";
   }
 
   template <typename Stream>
-  static void PrintImplementationType(Stream &s) {
-    s << "PolyhedronImplementation<" << transC << "," << rotC << "," << innerRadiiT << "," << phiCutoutT << ">";
+  static void PrintImplementationType(Stream &st) {
+    st << "PolyhedronImplementation<" << transC << "," << rotC << "," << innerRadiiT << "," << phiCutoutT << ">";
   }
 
   template <typename Stream>
-  static void PrintUnplacedType(Stream &s) { s << "UnplacedPolyhedron"; }
+  static void PrintUnplacedType(Stream &st) { st << "UnplacedPolyhedron"; }
 
   /// \param pointZ Z-coordinate of a point.
   /// \return Index of the Z-segment in which the passed point is located. If
