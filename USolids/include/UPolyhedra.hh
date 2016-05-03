@@ -57,7 +57,6 @@ class UPolyhedraHistorical
     std::vector<double> Rmax;
 };
 
-/*
 #ifdef VECGEOM_REPLACE_USOLIDS
 
 //============== here for VecGeom-based implementation
@@ -105,7 +104,6 @@ public:
 //============== end of VecGeom-based implementation
 
 #else
-*/
 
 //============== here for USolids-based implementation
 #include "UVCSGfaceted.hh"
@@ -245,5 +243,5 @@ class UPolyhedra : public UVCSGfaceted
 #include "UPolyhedra.icc"
 //============== end of USolids-based implementation
 
-// #endif  // VECGEOM_REPLACE_USOLIDS
+#endif  // VECGEOM_REPLACE_USOLIDS
 #endif  // UPolyhedra_hh
