@@ -711,8 +711,8 @@ if (CUDA)
     ${SRC_USER_CUDA_CPP}
     OPTIONS ${CUDA_ARCH}
   )
-  # Note: the repeat below is due the author  cuda_add_library_depend
-  # not knowing about to automatically go from the target to the real
+  # Note: the repeat below is due the author of  cuda_add_library_depend
+  # not knowing how to automatically go from the target to the real
   # file in add_custom_command
   cuda_add_library_depend(cudauserlib vecgeomcuda libvecgeomcuda.a)
   target_link_libraries(cudauserlib ${VECGEOM_LIBRARIES} ${VECGEOM_LIBRARIES_EXTERNAL})
