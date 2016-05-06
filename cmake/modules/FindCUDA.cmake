@@ -1731,7 +1731,7 @@ endif()
    if (do_obj_build_rule)
       add_custom_command(
         OUTPUT ${output_file}
-          # NOTE: adeed ${cuda_target}. the depedency is correct as ${output_file} is link against ${cuda_target}
+          # NOTE: added ${cuda_target}. the dependency is correct as ${output_file} is linked against ${cuda_target}
           # and then included in ${cuda_target}_final
           # ADD_DEPENDENCIES(${output_file} )
         DEPENDS ${object_files} ${cuda_target}  $<TARGET_PROPERTY:${cuda_target},CUDA_LIBRARY_DEPEND_TARGET>
