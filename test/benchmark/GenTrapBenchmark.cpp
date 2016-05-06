@@ -9,11 +9,15 @@
 #include "volumes/GenTrap.h"
 #include "benchmarking/Benchmarker.h"
 #include "management/GeoManager.h"
+#include "ArgParser.h"
 #include "base/Global.h"
 
 using namespace vecgeom;
 
-int main() {
+int main(int argc, char* argv[]) {
+  OPTION_INT(npoints, 32768);
+  OPTION_INT(nrep, 4);
+
   UnplacedBox worldUnplaced(10., 10., 20.);
 
   // twisted
@@ -35,9 +39,9 @@ int main() {
 
   Benchmarker tester(GeoManager::Instance().GetWorld());
   tester.SetVerbosity(2);
-  tester.SetRepetitions(1);
+  tester.SetRepetitions(nrep);
   tester.SetPoolMultiplier(1); // set this if we want to compare results
-  tester.SetPointCount(1000000);
+  tester.SetPointCount(npoints);
   tester.SetToInBias(0.8);
   tester.RunBenchmark();
 }
