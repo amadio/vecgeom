@@ -1734,7 +1734,7 @@ endif()
           # NOTE: added ${cuda_target}. the dependency is correct as ${output_file} is linked against ${cuda_target}
           # and then included in ${cuda_target}_final
           # ADD_DEPENDENCIES(${output_file} )
-        DEPENDS ${object_files} ${cuda_target}  $<TARGET_PROPERTY:${cuda_target},CUDA_LIBRARY_DEPEND_TARGET>
+        DEPENDS ${object_files} ${cuda_target} $<TARGET_PROPERTY:${cuda_target},CUDA_LIBRARY_DEPEND_TARGET>
         #NOTE: Added $<TARGET_PROPERTY:${cuda_target},CUDA_LIBRARY_DEPEND>
         COMMAND ${CUDA_NVCC_EXECUTABLE} ${nvcc_flags} ${nvcc_host_compiler_flags} -dlink ${object_files} -o ${output_file} ${flags} $<TARGET_PROPERTY:${cuda_target},CUDA_LIBRARY_DEPEND>
         COMMENT "Building NVCC intermediate link file ${output_file_relative_path}"
@@ -1787,7 +1787,7 @@ macro(CUDA_ADD_LIBRARY_DEPEND cuda_target) # cuda_depend)
    set_property(TARGET ${cuda_target}
                 PROPERTY CUDA_LIBRARY_DEPEND ${_lib_dependencies})
    set_property(TARGET ${cuda_target}
-                PROPERTY CUDA_LIBRARY_TARGET_DEPEND ${_lib_target_dependencies})
+                PROPERTY CUDA_LIBRARY_DEPEND_TARGET ${_lib_target_dependencies})
 
 endmacro()
 
