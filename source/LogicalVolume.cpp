@@ -21,6 +21,30 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+// NOTE: This is in the wrong place (but SimpleSafetyEstimator does not yet have a source file).
+#ifdef VECGEOM_NVCC
+__device__ SimpleSafetyEstimator *gSimpleSafetyEstimator = nullptr;
+
+VECGEOM_CUDA_HEADER_DEVICE
+VSafetyEstimator *SimpleSafetyEstimator::Instance() {
+  if (gSimpleSafetyEstimator == nullptr)
+    gSimpleSafetyEstimator = new SimpleSafetyEstimator();
+  return gSimpleSafetyEstimator;
+}
+#endif
+
+#ifdef VECGEOM_NVCC
+__device__ VNavigator *gSimpleNavigator = nullptr;
+
+template <>
+VECGEOM_CUDA_HEADER_DEVICE
+VNavigator *NewSimpleNavigator<false>::Instance() {
+  if (gSimpleNavigator == nullptr)
+    gSimpleNavigator = new NewSimpleNavigator();
+  return gSimpleNavigator;
+}
+#endif
+
 int LogicalVolume::gIdCount = 0;
 
 #ifndef VECGEOM_NVCC
@@ -36,18 +60,20 @@ LogicalVolume::LogicalVolume(char const *const label,
   fDaughters = new Vector<Daughter>();
   }
 
-//LogicalVolume::LogicalVolume(LogicalVolume const & other)
-//   : fUnplacedVolume(), fId(0), fLabel(nullptr), fUserExtensionPtr(nullptr),
-//     fTrackingMediumPtr(nullptr), fBasketManagerPtr(nullptr),
-//     fDaughters()
-//{
-//  printf("COPY CONSTRUCTOR FOR LogicalVolumes NOT IMPLEMENTED");
-//}
-//
-//LogicalVolume *LogicalVolume::operator=(LogicalVolume const &other) {
-//  printf("COPY CONSTRUCTOR FOR LogicalVolumes NOT IMPLEMENTED");
-//  return nullptr;
-//}
+#else
+VECGEOM_CUDA_HEADER_DEVICE
+LogicalVolume::LogicalVolume(VUnplacedVolume const *const unplaced_vol, Vector<Daughter> *GetDaughter)
+      // Id for logical volumes is not needed on the device for CUDA
+      : fUnplacedVolume(unplaced_vol),
+        fId(-1),
+        fLabel(nullptr),
+        fUserExtensionPtr(nullptr),
+        fTrackingMediumPtr(nullptr),
+        fBasketManagerPtr(nullptr),
+        fDaughters(GetDaughter),
+        fLevelLocator(nullptr),
+        fSafetyEstimator(SimpleSafetyEstimator::Instance()),
+        fNavigator(NewSimpleNavigator<>::Instance()) {}
 
 #endif
 

@@ -29,10 +29,7 @@ VECGEOM_DEVICE_FORWARD_DECLARE( void InitDeviceCompactPlacedVolBufferPtr(void*);
 namespace globaldevicegeomdata {
    // extern __device__ VPlacedVolume *gCompactPlacedVolBuffer;
    VECGEOM_CUDA_HEADER_DEVICE
-   inline VPlacedVolume *&GetCompactPlacedVolBuffer() {
-      static __shared__ VPlacedVolume *bufferAddr;
-      return bufferAddr;
-   }
+   VPlacedVolume *&GetCompactPlacedVolBuffer();
 }
 
 #ifndef VECGEOM_NVCC

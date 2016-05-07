@@ -220,10 +220,16 @@ static void DaughterIntersectionsLooper(VNavigator const * /*nav*/, LogicalVolum
 //    return false;
 //  }
 
+#ifndef VECGEOM_NVCC
   static VNavigator *Instance() {
     static NewSimpleNavigator instance;
     return &instance;
   }
+#else
+  VECGEOM_CUDA_HEADER_DEVICE
+  static VNavigator *Instance();
+#endif
+
 
   static constexpr const char *gClassNameString = "NewSimpleNavigator";
   typedef SimpleSafetyEstimator SafetyEstimator_t;

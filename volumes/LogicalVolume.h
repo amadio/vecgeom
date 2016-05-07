@@ -90,16 +90,8 @@ public:
   LogicalVolume *operator=(LogicalVolume const &other) = delete;
 
 #else
-  __device__
-  LogicalVolume(VUnplacedVolume const *const unplaced_vol, Vector<Daughter> *GetDaughter)
-      // Id for logical volumes is not needed on the device for CUDA
-      : fUnplacedVolume(unplaced_vol),
-        fId(-1),
-        fLabel(nullptr),
-        fUserExtensionPtr(nullptr),
-        fTrackingMediumPtr(nullptr),
-        fBasketManagerPtr(nullptr),
-        fDaughters(GetDaughter) {}
+  VECGEOM_CUDA_HEADER_DEVICE
+  LogicalVolume(VUnplacedVolume const *const unplaced_vol, Vector<Daughter> *GetDaughter);
 #endif
 
   ~LogicalVolume();

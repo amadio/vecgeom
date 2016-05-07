@@ -8,6 +8,19 @@
 #include "backend/cuda/Backend.h"
 
 namespace vecgeom {
+
+// we put some global data into a separate namespace
+// this is done since CUDA does not support static const members in class definitions
+namespace globaldevicegeomdata {
+  static __device__ VPlacedVolume *gCompactPlacedVolBuffer = nullptr;
+
+  VECGEOM_CUDA_HEADER_DEVICE
+  VPlacedVolume *&GetCompactPlacedVolBuffer() {
+    return gCompactPlacedVolBuffer;
+  }
+
+}
+
 inline namespace cuda {
 
 __global__ void InitDeviceCompactPlacedVolBufferPtrCudaKernel(void *gpu_ptr) {

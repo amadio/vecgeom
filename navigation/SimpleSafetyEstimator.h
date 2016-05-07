@@ -112,10 +112,15 @@ public:
 #endif
   }
 
+#ifndef VECGEOM_NVCC
   static VSafetyEstimator *Instance() {
     static SimpleSafetyEstimator instance;
     return &instance;
   }
+#else
+  VECGEOM_CUDA_HEADER_DEVICE
+  static VSafetyEstimator *Instance();
+#endif
 
 }; // end class
 
