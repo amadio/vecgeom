@@ -19,8 +19,10 @@ template <bool MotherIsConvex=false>
 class NewSimpleNavigator : public VNavigatorHelper<class NewSimpleNavigator<MotherIsConvex>, MotherIsConvex> {
 
 private:
+  VECGEOM_CUDA_HEADER_DEVICE
   NewSimpleNavigator()
       : VNavigatorHelper<class NewSimpleNavigator<MotherIsConvex>, MotherIsConvex>(SimpleSafetyEstimator::Instance()) {}
+  VECGEOM_CUDA_HEADER_DEVICE
   virtual ~NewSimpleNavigator() {}
 
 public:
@@ -85,6 +87,7 @@ public:
   }
 
   VECGEOM_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
   virtual bool
   CheckDaughterIntersections(LogicalVolume const *lvol, Vector3D<Precision> const & localpoint, Vector3D<Precision> const & localdir,
                              NavigationState const & /*in_state*/, NavigationState & /*out_state*/, Precision & step, VPlacedVolume const *&hitcandidate) const override {

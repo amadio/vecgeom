@@ -23,6 +23,7 @@ public:
   static constexpr const char *gClassNameString = "SimpleSafetyEstimator";
 
   VECGEOM_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
   virtual Precision ComputeSafetyForLocalPoint(Vector3D<Precision> const &localpoint,
                                                VPlacedVolume const *pvol) const override {
     // safety to mother
@@ -41,7 +42,7 @@ public:
 
 #ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
   VECGEOM_INLINE
-   virtual VECGEOM_BACKEND_PRECISION_TYPE ComputeSafetyForLocalPoint(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &localpoint,
+  virtual VECGEOM_BACKEND_PRECISION_TYPE ComputeSafetyForLocalPoint(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &localpoint,
                                                 VPlacedVolume const *pvol, VECGEOM_BACKEND_PRECISION_TYPE::Mask m) const override {
      // safety to mother
      VECGEOM_BACKEND_PRECISION_TYPE safety(0.);

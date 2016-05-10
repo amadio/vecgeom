@@ -42,6 +42,7 @@ public:
   virtual Precision ComputeSafety(Vector3D<Precision> const & /*globalpoint*/,
                                   NavigationState const & /*state*/) const = 0;
 
+  VECGEOM_CUDA_HEADER_BOTH
   virtual Precision ComputeSafetyForLocalPoint(Vector3D<Precision> const & /*localpoint*/,
                                                VPlacedVolume const * /*pvol*/) const = 0;
 
@@ -68,6 +69,7 @@ public:
   virtual void ComputeSafetyForLocalPoints(SOA3D<Precision> const & /*localpoints*/, VPlacedVolume const * /*pvol*/,
                                            Precision * /*safeties*/) const = 0;
 
+  VECGEOM_CUDA_HEADER_BOTH
   virtual ~VSafetyEstimator() {}
 
   // get name of implementing class

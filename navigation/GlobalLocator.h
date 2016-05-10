@@ -29,6 +29,7 @@ namespace  GlobalLocator {
     // this function is a generic variant which can pick from each volume
     // the best (or default) LevelLocator
     VECGEOM_INLINE
+    VECGEOM_CUDA_HEADER_BOTH
     VPlacedVolume const *
     LocateGlobalPoint( VPlacedVolume const * vol, Vector3D<Precision> const & point,
                        NavigationState & path, bool top ){
@@ -130,6 +131,7 @@ namespace  GlobalLocator {
     }
 
     VECGEOM_INLINE
+    VECGEOM_CUDA_HEADER_BOTH
     static VPlacedVolume const *
     RelocatePointFromPath( Vector3D<Precision> const & localpoint,
                            NavigationState & path ) {

@@ -66,6 +66,7 @@ public:
 
   // a similar interface also returning the local coordinates as a result
   // might be reused by other calculations such as Safety
+  VECGEOM_CUDA_HEADER_BOTH
   virtual Precision ComputeStepAndSafetyAndPropagatedState(Vector3D<Precision> const & /*globalpoint*/,
                                                  Vector3D<Precision> const & /*globaldir*/,
                                                  Precision /*(physics) step limit */,
@@ -87,6 +88,7 @@ public:
 
   // the bool return type indicates if out_state was already modified; this may happen in assemblies;
   // in this case we don't need to copy the in_state to the out state later on
+  VECGEOM_CUDA_HEADER_BOTH
   virtual bool CheckDaughterIntersections(LogicalVolume const * /*lvol*/, Vector3D<Precision> const & /*localpoint*/, Vector3D<Precision> const & /*localdir*/,
                                           NavigationState const & /*in_state*/, NavigationState & /*out_state*/, Precision & /*step*/, VPlacedVolume const *& /*hitcandidate*/) const {return false;}
 
@@ -102,6 +104,7 @@ public:
   // for vector navigation
   //! this methods transforms the global coordinates into local ones usually calls more specialized methods
   //! like the hit detection on local coordinates
+  VECGEOM_CUDA_HEADER_BOTH
   virtual void ComputeStepsAndSafetiesAndPropagatedStates(SOA3D<Precision> const & /*globalpoints*/,
                                                           SOA3D<Precision> const & /*globaldirs*/,
                                                           Precision const * /*(physics) step limits */,
@@ -112,12 +115,14 @@ public:
 
 protected:
   // a common relocate method ( to calculate propagated states after the boundary )
+  VECGEOM_CUDA_HEADER_BOTH
   virtual void Relocate( Vector3D<Precision> const &/*localpoint*/, NavigationState const & __restrict__ /*in_state*/,
                          NavigationState & __restrict__ /*out_state*/ ) const = 0;
 
   // a common function to be used by all navigators to ensure consistency in transporting points
   // after a boundary
   VECGEOM_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
   static Vector3D<Precision> MovePointAfterBoundary( Vector3D<Precision> const &localpoint, Vector3D<Precision> const &dir, Precision step ) {
       const Precision extra=1E-6; //TODO: to be revisited (potentially going for a more relative approach)
       return localpoint + (step+extra)*dir;
@@ -126,6 +131,7 @@ protected:
 
 
 public:
+  VECGEOM_CUDA_HEADER_DEVICE
   virtual ~VNavigator() {};
 
   // get name of implementing class
@@ -134,11 +140,13 @@ public:
   typedef VSafetyEstimator SafetyEstimator_t;
 
 protected:
+  VECGEOM_CUDA_HEADER_BOTH
   VNavigator(VSafetyEstimator *s) : fSafetyEstimator(s) {}
   VSafetyEstimator *fSafetyEstimator; // a pointer to the safetyEstimator which can be used by the Navigator
 
   // some common code to prepare the outstate
   VECGEOM_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
   static Precision PrepareOutState(NavigationState const & __restrict__ in_state, NavigationState & __restrict__ out_state, Precision geom_step,
                                    Precision step_limit, VPlacedVolume const *hitcandidate, bool &doneafterthisstep){
     // now we have the candidates and we prepare the out_state
@@ -195,6 +203,7 @@ protected:
 
   // kernel to be used with both scalar and vector types
   template <typename T>
+  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE static T TreatDistanceToMother(VPlacedVolume const *pvol, Vector3D<T> const &localpoint,
                                                 Vector3D<T> const &localdir, T step_limit) {
     T step;
@@ -212,9 +221,10 @@ protected:
   // TODO: think about how we can have scalar + SIMD version
   // note: the last argument is a trick to pass information across function calls ( only exploited in specialized navigators )
   template <typename T>
+  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE static void DoGlobalToLocalTransformation(NavigationState const &in_state,
                                                            Vector3D<T> const &globalpoint, Vector3D<T> const &globaldir,
-                                                           Vector3D<T> &localpoint, Vector3D<T> &localdir, NavigationState *internalptr = nullptr) {
+                                                           Vector3D<T> &localpoint, Vector3D<T> &localdir, NavigationState * /* internalptr */ = nullptr) {
     // calculate local point/dir from global point/dir
     Transformation3D m;
     in_state.TopMatrix(m);
@@ -225,10 +235,11 @@ protected:
   // version used for SIMD processing
   // should be specialized in Impl for faster treatment
   template <typename T, unsigned int ChunkSize>
+  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE static void DoGlobalToLocalTransformations(NavigationState const ** in_states,
                                                             SOA3D<Precision> const &globalpoints,
                                                             SOA3D<Precision> const &globaldirs, unsigned int from_index,
-                                                            Vector3D<T> &localpoint, Vector3D<T> &localdir, NavigationState **internalptr = nullptr) {
+                                                            Vector3D<T> &localpoint, Vector3D<T> &localdir, NavigationState ** /* internalptr */ = nullptr) {
     for (unsigned int i = 0; i < ChunkSize; ++i) {
       unsigned int trackid = from_index + i;
       Transformation3D m;
@@ -606,6 +617,7 @@ public :
       }
     }
 
+    VECGEOM_CUDA_HEADER_BOTH
     virtual void ComputeStepsAndSafetiesAndPropagatedStates(SOA3D<Precision> const &__restrict__ globalpoints,
                                                                 SOA3D<Precision> const &__restrict__ globaldirs,
                                                                 Precision const *__restrict__ step_limit,
@@ -626,6 +638,7 @@ public :
 
     // a similar interface also returning the safety
     // TODO: reduce this evident code duplication with ComputeStepAndPropagatedState
+    VECGEOM_CUDA_HEADER_BOTH
     virtual Precision ComputeStepAndSafetyAndPropagatedState(Vector3D<Precision> const &globalpoint,
                                                              Vector3D<Precision> const &globaldir, Precision step_limit,
                                                              NavigationState const & __restrict__ in_state,
@@ -685,6 +698,7 @@ public :
 protected:
   // a common relocate method ( to calculate propagated states after the boundary )
   VECGEOM_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
   virtual void Relocate(Vector3D<Precision> const &pointafterboundary, NavigationState const &__restrict__ in_state,
                         NavigationState &__restrict__ out_state) const override {
     // this means that we are leaving the mother
