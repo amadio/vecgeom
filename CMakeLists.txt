@@ -416,6 +416,7 @@ if (CUDA)
   include(FindCUDA)
 
   set(CUDA_SEPARABLE_COMPILATION ON)
+  set(CUDA_USE_STATIC_CUDA_RUNTIME OFF)
 
   set(SRC_EXTERNAL ${SRC_EXTERNAL} source/CudaManager.cpp source/backend/cuda/Interface.cpp)
   set(SRC_CUDA ${SRC_CUDA}
@@ -692,6 +693,7 @@ if (CUDA)
   cuda_add_library(
     vecgeomcuda
     ${SRC_CUDA}
+    SHARED
     OPTIONS ${CUDA_ARCH}
     # For debug information we might need
     #    -O0 -g -G -lineinfo
@@ -709,14 +711,15 @@ if (CUDA)
   cuda_add_library(
     cudauserlib
     ${SRC_USER_CUDA_CPP}
+    SHARED
     OPTIONS ${CUDA_ARCH}
   )
   # Note: the repeat below is due the author of  cuda_add_library_depend
   # not knowing how to automatically go from the target to the real
   # file in add_custom_command
-  cuda_add_library_depend(cudauserlib vecgeomcuda libvecgeomcuda.a)
+  cuda_add_library_depend(cudauserlib vecgeomcuda_static libvecgeomcuda_static.a)
   target_link_libraries(cudauserlib ${VECGEOM_LIBRARIES} ${VECGEOM_LIBRARIES_EXTERNAL})
-  set(USERKERNELLIB cudauserlib_final)
+  set(USERKERNELLIB cudauserlib)
 endif()
 ################################################################################
 
@@ -1099,6 +1102,9 @@ if (USolids)
   set(CONF_LIBRARIES ${CONF_LIBRARIES}
       "${CONF_LIBRARY_DIR}/USolids/libusolids.a")
 endif()
+if (CUDA)
+   set(CONF_LIBRARIES ${CONF_LIBRARIES}  "${CONF_LIBRARY_DIR}/libvecgeomcuda.so")
+endif()
 configure_file(VecGeomConfig.cmake.in
                "${PROJECT_BINARY_DIR}/VecGeomConfig.cmake" @ONLY)
 # Installation
@@ -1108,8 +1114,7 @@ set(CONF_LIBRARY_DIR "\${THIS_DIR}/${INSTALL_LIB_DIR_RELATIVE}")
 set(CONF_LIBRARIES ${VECGEOM_LIBRARIES_EXTERNAL}
     "${CONF_LIBRARY_DIR}/libvecgeom.a")
 if (CUDA)
-   set(CONF_LIBRARIES "${CONF_LIBRARY_DIR}/libvecgeomcuda.a" ${CONF_LIBRARIES}  "${CONF_LIBRARY_DIR}/libvecgeomcuda.a")
-   set(CONF_LIBRARIES "${CONF_LIBRARY_DIR}/libvecgeomcuda_final.a" ${CONF_LIBRARIES}  "${CONF_LIBRARY_DIR}/libvecgeomcuda_final.a")
+   set(CONF_LIBRARIES ${CONF_LIBRARIES}  "${CONF_LIBRARY_DIR}/libvecgeomcuda.so")
 endif()
 if (USolids)
   set(CONF_LIBRARIES ${CONF_LIBRARIES} "${CONF_LIBRARY_DIR}/libusolids.a")
@@ -1145,5 +1150,5 @@ else ()
 endif ()
 if (CUDA)
   install(TARGETS vecgeomcuda DESTINATION ${INSTALL_LIB_DIR})
-  install(TARGETS vecgeomcuda_final DESTINATION ${INSTALL_LIB_DIR})
+  install(TARGETS vecgeomcuda_static DESTINATION ${INSTALL_LIB_DIR})
 endif()
