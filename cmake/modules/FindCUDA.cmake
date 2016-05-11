@@ -1629,13 +1629,21 @@ endif()
 # NOTE: END
 
    if (do_obj_build_rule)
+      # Note: added this setting.
+      if(_cuda_build_shared_libs)
+         # The link file is for ${cuda_target} and ${cuda_target}_static is the 'raw' library
+         set(_cuda_target_dep ${cuda_target}_static)
+      else()
+         # The link file is for ${cuda_target}_final and ${cuda_target} is the 'raw' library
+         set(_cuda_target_dep ${cuda_target})
+      endif()
       add_custom_command(
         OUTPUT ${output_file}
-          # NOTE: added ${cuda_target}. the dependency is correct as ${output_file} is linked against ${cuda_target}
-          # and then included in ${cuda_target}_final
+          # NOTE: added ${_cuda_target_dep}. the dependency is correct as ${output_file} is linked against ${cuda_target}
+          # and then included in ${cuda_target}_final (or ${cuda_target}_static and ${cuda_target}.so resp.)
           # ADD_DEPENDENCIES(${output_file} )
-        DEPENDS ${object_files} ${cuda_target} $<TARGET_PROPERTY:${cuda_target},CUDA_LIBRARY_DEPEND_TARGET>
-        #NOTE: Added $<TARGET_PROPERTY:${cuda_target},CUDA_LIBRARY_DEPEND>
+        DEPENDS ${object_files} ${_cuda_target_dep} $<TARGET_PROPERTY:${cuda_target},CUDA_LIBRARY_DEPEND_TARGET>
+        # NOTE: Added $<TARGET_PROPERTY:${cuda_target},CUDA_LIBRARY_DEPEND>
         COMMAND ${CUDA_NVCC_EXECUTABLE} ${nvcc_flags} ${nvcc_host_compiler_flags} -dlink ${object_files} -o ${output_file} ${flags} $<TARGET_PROPERTY:${cuda_target},CUDA_LIBRARY_DEPEND>
         COMMENT "Building NVCC intermediate link file ${output_file_relative_path}"
         )
@@ -1675,7 +1683,7 @@ macro(CUDA_ADD_LIBRARY_DEPEND cuda_target) # cuda_depend)
       # leads to '$<' being expanded to the intermeidary target instead ...
       # So for now the user is forced to repeat :(
       if (TARGET ${arg})
-         #message( "In CUDA_ADD_LIBRARY_DEPEND specifying a target name is not yet supported (The target is: '${arg}')")
+         #message( "In CUDA_ADD_LIBRARY_DEPEND for ${cuda_target} specifying a target name is not yet supported (The target is: '${arg}')")
          set(_lib_target_dependencies ${_lib_target_dependencies} ${arg} )
       else()
          #message( "In CUDA_ADD_LIBRARY_DEPEND specifying a NON target name is not yet supported (The target is: '${arg}')")
@@ -1710,25 +1718,65 @@ macro(CUDA_ADD_LIBRARY cuda_target)
   # compilation.
   CUDA_COMPUTE_SEPARABLE_COMPILATION_OBJECT_FILE_NAME(link_file ${cuda_target} "${${cuda_target}_SEPARABLE_COMPILATION_OBJECTS}")
 
-  # Add the library for intermediary use
-  add_library(${cuda_target} ${_cmake_options}
-    ${_generated_files}
-    ${_sources}
-    #NOTE: this is commented out from the original
-    # ${link_file}
-  )
+  # Figure out if we are building a shared library.
+  set(_cuda_build_shared_libs FALSE)
+  # SHARED, MODULE
+  list(FIND _cmake_options SHARED _cuda_found_SHARED)
+  list(FIND _cmake_options MODULE _cuda_found_MODULE)
+  if(_cuda_found_SHARED GREATER -1 OR _cuda_found_MODULE GREATER -1)
+    set(_cuda_build_shared_libs TRUE)
+  endif()
+  # STATIC
+  list(FIND _cmake_options STATIC _cuda_found_STATIC)
+  if(_cuda_found_STATIC GREATER -1)
+    set(_cuda_build_shared_libs FALSE)
+  endif()
+
+  # Note: Added the construction a _static.a library when generating a
+  # shared library.
+  if (_cuda_build_shared_libs)
+    string(REPLACE SHARED STATIC _static_cmake_options ${_cmake_options})
+    # Add the library for intermediary use
+    add_library(${cuda_target}_static ${_static_cmake_options}
+      ${_generated_files}
+      ${_sources}
+      #NOTE: this is commented out from the original
+      # ${link_file}
+    )
+    SET_TARGET_PROPERTIES(${cuda_target}_static PROPERTIES LINKER_LANGUAGE CXX)
+
+    set(cuda_target_static ${cuda_target}_static)
+    set(cuda_target_final ${cuda_target})
+  else()
+
+    # Add the library for intermediary use
+    add_library(${cuda_target} ${_cmake_options}
+      ${_generated_files}
+      ${_sources}
+      #NOTE: this is commented out from the original
+      # ${link_file}
+    )
+
+    set(cuda_target_static ${cuda_target})
+    set(cuda_target_final ${cuda_target}_final)
+
+  endif()
 
   # NOTE: this is a new statement
   # Add the library for final use (link into executable or shared library)
-  add_library(${cuda_target}_final ${_cmake_options}
+  add_library(${cuda_target_final} ${_cmake_options}
     ${_generated_files}
     ${_sources}
     ${link_file}
-    )
+  )
 
   # NOTE: these are two new statements
-  SET_TARGET_PROPERTIES(${cuda_target}_final PROPERTIES LINKER_LANGUAGE CXX)
-  target_link_libraries(${cuda_target}_final ${cuda_target})
+  if (_cuda_build_shared_libs)
+    add_dependencies(${cuda_target} ${cuda_target}_static)
+  else()
+    SET_TARGET_PROPERTIES(${cuda_target}_final PROPERTIES LINKER_LANGUAGE ${CUDA_C_OR_CXX})
+    target_link_libraries(${cuda_target}_final ${cuda_target})
+  endif()
 
   # Add a link phase for the separable compilation if it has been enabled.  If
   # it has been enabled then the ${cuda_target}_SEPARABLE_COMPILATION_OBJECTS
@@ -1737,7 +1785,7 @@ macro(CUDA_ADD_LIBRARY cuda_target)
 
   target_link_libraries(${cuda_target}
     ${CUDA_LIBRARIES}
-    )
+  )
 
   # We need to set the linker language based on what the expected generated file
   # would be. CUDA_C_OR_CXX is computed based on CUDA_HOST_COMPILATION_CPP.
