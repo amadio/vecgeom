@@ -69,7 +69,10 @@ if nval>0:
   sum2 -= xhigh*xhigh
   nval -= 1
   mean = sum/nval
-  sigma = math.sqrt(nval*sum2-sum*sum)/(nval-1)
+  aux = nval*sum2 - sum*sum
+  if aux<0.0:
+    aux=0.0
+  sigma = math.sqrt(aux)/(nval-1)
 
 if mean>0:
   quality = sigma/mean*100
