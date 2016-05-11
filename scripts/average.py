@@ -45,6 +45,7 @@ datafile = open(options.filename)
 #for line in open(options.filename).read().split('\n'):
 for line in datafile.read().split('\n'):
   if line=='': continue
+  if line=='-.------': continue
   x = float(line)
   sum += x
   sum2 += x*x
@@ -77,7 +78,7 @@ if nval>0:
 if mean>0:
   quality = sigma/mean*100
 
-if options.debug:
+if options.debug is True:
   print "\n Improved average: %f +/- %f (%i points, sigma/mean=%3.1f)\n" % (mean, sigma, nval, quality)
 else:
   print "%f %f %i %3.1f" % (mean, sigma, nval, quality)
@@ -88,6 +89,7 @@ if options.plots and xlow<xhigh:
   hist = TH1F("hist","hist",100,0.9*xlow,1.1*xhigh)
   for line in datafile.read().split('\n'):
     if line=='': continue
+    if line=='-.------': continue
     x = float(line)
     hist.Fill(x)
 
