@@ -111,37 +111,41 @@ struct PolyconeImplementation {
       typedef typename Backend::bool_v Bool_t;
       Bool_t done = Bool_t(false);
 
+      Bool_t complOutsideLeft(false);
+      Bool_t complOutsideRight(false);
+      Bool_t complInsideLeft(false);
+      Bool_t complInsideRight(false);
+
       // z-region
       int Nz = unplaced.fZs.size();
       completelyInside = Bool_t(false);
-      completelyOutside = localPoint[2] < MakeMinusTolerant<ForInside>( unplaced.GetZAtPlane(0) );
-      completelyOutside |= localPoint[2] > MakePlusTolerant<ForInside>( unplaced.GetZAtPlane(Nz-1) );
+      complOutsideLeft =  localPoint[2] < MakeMinusTolerant<ForInside>(unplaced.GetZAtPlane(0));
+      complOutsideRight = localPoint[2] > MakePlusTolerant<ForInside>(unplaced.GetZAtPlane(Nz - 1));
+      completelyOutside = complOutsideLeft | complOutsideRight;
       done |= completelyOutside;
-
-#ifdef POLYCONEDEBUG
-      std::cout<<" spot 2: checked z-region -"
-               <<" zAtPlane[0]="<< unplaced.GetZAtPlane(0)
-               <<", zAtPlane[Nz-1]="<< unplaced.GetZAtPlane(Nz-1)
-               <<", compOut="<< completelyOutside;
-#endif
-
-      if(ForInside) {
-        // z-check only so far
-        completelyInside = ( localPoint[2] > MakePlusTolerant<ForInside>( unplaced.GetZAtPlane(0) ) &&
-                             localPoint[2] < MakeMinusTolerant<ForInside>( unplaced.GetZAtPlane(Nz-1) ) );
-#ifdef POLYCONEDEBUG
-        std::cout<<", compIn="<< completelyInside;
-      }
-      std::cout<<", done="<< done <<"\n";
-#else
-      }
-#endif
 
       if ( Backend::early_returns && IsFull(completelyOutside) ) return;
 
-      // test if point is inside this section (note that surface may be very tricky!)
-      // find section
-      int isec = unplaced.GetSectionIndex( localPoint.z() );
+      if (ForInside) {
+        // z-check only so far
+        complInsideLeft =  localPoint[2] > MakePlusTolerant<ForInside>(unplaced.GetZAtPlane(0));
+        complInsideRight = localPoint[2] < MakeMinusTolerant<ForInside>(unplaced.GetZAtPlane(Nz - 1));
+        completelyInside = complInsideLeft && complInsideRight;
+      }
+
+      int isec;
+      if (!completelyInside && !completelyOutside) {
+        // we are on one of the z surfaces
+        if(!complInsideLeft && !complOutsideLeft)
+            isec = 0;
+        else
+            isec = unplaced.GetNSections()-1;
+      }
+      else {
+        // test if point is inside this section (note that surface may be very tricky!)
+        // find section
+        isec = unplaced.GetSectionIndex( localPoint.z() );
+      }
 
       // is it inside of isec?
 #ifdef POLYCONEDEBUG
