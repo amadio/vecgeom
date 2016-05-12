@@ -605,7 +605,7 @@ set(NOT_FOR_CUDA
    Medium
    Nucleus
    CreateNuclei
-   Material
+ # Material
    NavigationSpecializer
 )
 
