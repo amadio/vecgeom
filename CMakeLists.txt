@@ -122,6 +122,13 @@ endif()
 
 ################################################################################
 
+# VecCore will initialize the CUDA support so we must have those over-ride placed here as they
+# need to be done before loading FindCUDA.cmake
+if (CUDA)
+  set(CUDA_SEPARABLE_COMPILATION ON CACHE BOOL "Compile CUDA objects with separable compilation enabled.")
+  set(CUDA_USE_STATIC_CUDA_RUNTIME OFF CACHE BOOL "Use the static version of the CUDA runtime library if available")
+endif()
+
 # Determine backend
 
 string(TOUPPER ${BACKEND} _backend_up)
@@ -411,12 +418,17 @@ if (UMESIMD)
 endif()
 
 if (CUDA)
+  # See the setting of CUDA_SEPARABLE_COMPILATION and CUDA_USE_STATIC_CUDA_RUNTIME
+  # ealier.
+
+  # Even-though VecCore (if enabled) has already enabled CUDA, if we do not do it a second time,
+  # the compilation flags are incorrectly set.  The symptoms is that cuda_add_library for vecgeomcuda
+  # misinterpret the ${VECGEOM_NVCC_CONFIGS} flag and rather than splitting in configurations, pass it as is
+  # to the NVCC command line ...
 
   find_package(CUDA REQUIRED)
-  include(FindCUDA)
-
-  set(CUDA_SEPARABLE_COMPILATION ON)
-  set(CUDA_USE_STATIC_CUDA_RUNTIME OFF)
+  # This include is apparently redundant (i.e. implicitly done in find_package)
+  # include(FindCUDA)
 
   set(SRC_EXTERNAL ${SRC_EXTERNAL} source/CudaManager.cpp source/backend/cuda/Interface.cpp)
   set(SRC_CUDA ${SRC_CUDA}
