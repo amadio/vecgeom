@@ -114,4 +114,4 @@ for shname in shapes:
 
     c1.SetTitle("Speed-ups")
     c1.Update()
-    c1.SaveAs(shname+".png")
+    c1.SaveAs("speedups-"+shname+".png")

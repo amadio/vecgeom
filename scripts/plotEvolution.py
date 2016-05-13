@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# File: plotNormalizedEvolution.py
+# File: plotEvolution.py
 #
 from ROOT import TCanvas, gROOT, TGraphErrors, TPaveText, TLatex, TFile, gStyle
 from PerfHistoryTools import readPerformanceData
@@ -39,23 +39,22 @@ c1.Divide(3,2)
 for shname in shapes:
     shoffset = len(shname)
 
-    ### normGraphs will contain the normalized datasets
-    normGraphs = []
-    for i in range(6): normGraphs.append([])  # 6 empty lists for each shape, one list per algo
+    ### perfGraphs will contain the proc.times per dataset
+    perfGraphs = []
+    for i in range(6): perfGraphs.append([])  # 6 empty lists for each shape, one list per algo
 
     #.. loop over perf data loaded into datasets
     for key,dset in datasets.iteritems() :
         if dset._shape != shname: continue
-        #algo = dset._algo
-        #impl = dset._impl
-        #print "shname=%s - Dataset %s %s %s: %d elements between %s and %s" % (shname, dset._shape, algo, impl, len(dset._data), dset._minkey, dset._maxkey )
+        #print "shname=%s - Dataset %s %s %s: %d elements between %s and %s" \
+        #   % (shname, dset._shape, dset._algo, dset._impl, len(dset._data), dset._minkey, dset._maxkey )
 
         #.. search perf data for each algorithm requested
         for ialgo in range(6):
             ilen = shoffset + len(algoNames[ialgo])
             if key[shoffset:ilen] == algoNames[ialgo]:
-                #.. convert dataset into normalized y-values (processing times) with errors
-                tmpGraph = dset.tgraphNormError()
+                #.. convert dataset into root TGraphs with errors
+                tmpGraph = dset.tgraph()
 
                 #.. search perf data for each implementation requested
                 for iimpl in range(6):
@@ -64,22 +63,22 @@ for shname in shapes:
                     #ilen2 = len(implNames[iimpl])
                     if key[ilen:] == implNames[iimpl]:
                         #.. here for a shape/algo/implementation combination
-                        #print "found:",impl, implNames[iimpl] #,normGraphs[ialgo].GetNumberOfElements()
+                        #print "found:",impl, implNames[iimpl] #,perfGraphs[ialgo].GetNumberOfElements()
                         tmpGraph.SetLineColor(icolor)
                         tmpGraph.SetMarkerStyle(20+iimpl)
                         tmpGraph.SetMarkerColor(icolor)
                         break
-                normGraphs[ialgo].append( tmpGraph )
+                perfGraphs[ialgo].append( tmpGraph )
 
     #.. now plot the 6 separate groups of datasets
-    for ialgo in range(len(normGraphs)):
+    for ialgo in range(len(perfGraphs)):
         ipad = ialgo + 1
 
         #.. scan data for ymin,ymax scale adjustment
-        ymin = 1.1
-        ymax = 0.9
-        for igraph in range(len(normGraphs[ialgo])):
-            tmp = normGraphs[ialgo][igraph]
+        ymin = 999999.
+        ymax = -ymin
+        for igraph in range(len(perfGraphs[ialgo])):
+            tmp = perfGraphs[ialgo][igraph]
             npts = tmp.GetN()
             x = tmp.GetX()
             y = tmp.GetY()
@@ -94,12 +93,12 @@ for shname in shapes:
         frame1 = gPad.DrawFrame(0, 0.95*ymin, 1+len(commits), 1.05*ymax)
         frame1.SetTitle(algoNames[ialgo])
         frame1.GetXaxis().SetTitle("Version")
-        frame1.GetYaxis().SetTitle("Normalized time")
+        frame1.GetYaxis().SetTitle("CPU time [s]")
 
-        for igra in range(len(normGraphs[ialgo])):
-            tmp = normGraphs[ialgo][igra]
+        for igra in range(len(perfGraphs[ialgo])):
+            tmp = perfGraphs[ialgo][igra]
             #tmp.SetLineColor(ialgo+1)
             if(tmp.GetN()>0): tmp.Draw("ELP")
 
     c1.Update()
-    c1.SaveAs("normTimes-"+shname+".png")
+    c1.SaveAs("perf-"+shname+".png")

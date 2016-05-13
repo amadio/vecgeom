@@ -43,7 +43,7 @@ class Dataset:
             y = k._y
             #if y < self._minvalue : self._minvalue = y
             #if y > self._maxvalue : self._maxvalue = y
-            print "raw %s: i=%d vers=%d value=%f minVal=%f maxVal=%f" % (self._name, i, k, v, self._minvalue, self._maxvalue)
+            #print "raw %s %s %s: i=%d value=%f minVal=%f maxVal=%f" % (self._shape, self._algo, self._impl, i, k, self._minvalue, self._maxvalue)
             result.SetPoint( i, x, y )
             result.SetPointError( i, 0, k._dy )
             i = i + 1;
