@@ -160,7 +160,7 @@ public:
 private:
 
   // Not implemented
-  Vector * operator=(Vector const & other);
+  Vector * operator=(Vector const & other) = delete;
 
 };
 
