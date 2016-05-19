@@ -126,23 +126,23 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void resize (int newsize, Type value) {
+  void resize (size_t newsize, Type value) {
       Type *temp = new Type[newsize];
       if (newsize <= fSize) {
-         for (int i=0;i<newsize; ++i)
+         for (size_t i=0;i<newsize; ++i)
              temp[i]=fData[i];
          delete[] fData;
          fData = new Type[newsize];
          fSize = newsize;
-         for (int i=0;i<newsize; ++i)
+         for (size_t i=0;i<newsize; ++i)
             fData[i]=temp[i];
       } else {
-         for (int i=0;i<fSize; ++i)
+         for (size_t i=0;i<fSize; ++i)
             temp[i]=fData[i];
          delete[] fData;
          fData = new Type[newsize];
-         for (int i =0; i<fSize; ++i ) fData[i] = temp[i];
-         for (int i =fSize; i<newsize; ++i ) fData[i] = value;
+         for (size_t i =0; i<fSize; ++i ) fData[i] = temp[i];
+         for (size_t i =fSize; i<newsize; ++i ) fData[i] = value;
      }
      fSize = newsize;
      delete[] temp;
