@@ -502,7 +502,7 @@ struct TubeImplementation {
     //=== Next step: check if z-plane is the right entry point (both r,phi should be valid at z-plane crossing)
     MaskedAssign( !done, kInfinity, &distance );
 
-    distz /= Abs(dir.z());
+    distz /= NonZeroAbs(dir.z());
 
     Float_t hitx = point.x() + distz*dir.x();
     Float_t hity = point.y() + distz*dir.y();
@@ -527,7 +527,7 @@ struct TubeImplementation {
     //=== Next step: intersection of the trajectories with the two circles
 
     // Here for values used in both rmin and rmax calculations
-    Float_t invnsq = 1.0 / ( 1.0 - dir.z()*dir.z() );
+    Float_t invnsq = 1.0 / NonZero( 1.0 - dir.z()*dir.z() );
     Float_t b = invnsq * rdotn;
 
     /*
@@ -644,7 +644,7 @@ struct TubeImplementation {
     // OK, since we're here, then distance must be non-negative, and the smallest of possible intersections
     MaskedAssign( !done, kInfinity, &distance );
 
-    Float_t invdirz = 1./dir.z();
+    Float_t invdirz = 1. / NonZero(dir.z());
     distz = (tube.z() - point.z()) * invdirz;
     MaskedAssign(dir.z() < 0, (-tube.z() - point.z()) * invdirz, &distz);
     MaskedAssign( !done && distz<distance, distz, &distance );
@@ -655,7 +655,7 @@ struct TubeImplementation {
      * Here I compute values used in both rmin and rmax calculations.
      */
 
-    Float_t invnsq = 1 / ( dir.x()*dir.x() + dir.y()*dir.y() );
+    Float_t invnsq = 1 / NonZero( dir.x()*dir.x() + dir.y()*dir.y() );
     Float_t b = invnsq * rdotn;
 
     /*
