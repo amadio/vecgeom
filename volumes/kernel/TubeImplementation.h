@@ -535,10 +535,10 @@ struct TubeImplementation {
      * If the particle were to hit rmax, it would hit the closest point of the two
      * --> only consider the smallest solution of the quadratic equation
      */
-    Float_t crmax = invnsq * (rsq - tube.rmax2());
+    Float_t crmax2 = invnsq * (rsq - tube.rmax2());
     Float_t dist_rmax;
     Bool_t ok_rmax = Backend::kFalse;
-    CircleTrajectoryIntersection<Backend, tubeTypeT, false, true>(b, crmax, tube, point, dir, dist_rmax, ok_rmax);
+    CircleTrajectoryIntersection<Backend, tubeTypeT, false, true>(b, crmax2, tube, point, dir, dist_rmax, ok_rmax);
     ok_rmax &= dist_rmax<distance;
     MaskedAssign( !done && ok_rmax, dist_rmax, &distance);
     done |= ok_rmax;
@@ -557,8 +557,8 @@ struct TubeImplementation {
        * This can only happen when particle is outside of the hollow space and will certainly hit rmax, not rmin
        * So rmax solution always takes priority over rmin, and will overwrite it in case both are valid
        */
-      Float_t crmin = invnsq * (rsq - tube.rmin2());
-      CircleTrajectoryIntersection<Backend, tubeTypeT, true, true>(b, crmin, tube, point, dir, dist_rmin, ok_rmin);
+      Float_t crmin2 = invnsq * (rsq - tube.rmin2());
+      CircleTrajectoryIntersection<Backend, tubeTypeT, true, true>(b, crmin2, tube, point, dir, dist_rmin, ok_rmin);
       ok_rmin &= dist_rmin<distance;
       MaskedAssign(!done && ok_rmin, dist_rmin, &distance);
       // done |= ok_rmin; // can't be done here, it's wrong in case phi-treatment is needed!
@@ -625,17 +625,17 @@ struct TubeImplementation {
 
     Float_t rsq = point.x()*point.x() + point.y()*point.y();
     Float_t rdotn = dir.x()*point.x() + dir.y()*point.y();
-    Float_t crmax = rsq - tube.rmax2();  // avoid a division for now
-    Float_t crmin = rsq;
+    Float_t crmax2 = rsq - tube.rmax2();  // avoid a division for now
+    Float_t crmin2 = rsq;
 
     // if outside of Rmax, return -1
-    done |= crmax > kTolerance*tube.rmax();
+    done |= crmax2 > kTolerance*tube.rmax();
     if( Backend::early_returns && IsFull(done) ) return;
 
     if(checkRminTreatment<tubeTypeT>(tube)) {
       // if point is within inner-hole of a hollow tube, it is outside of the tube --> return -1
-      crmin -= tube.rmin2();  // avoid a division for now
-      done |=  crmin < -kTolerance*tube.rmin();
+      crmin2 -= tube.rmin2();  // avoid a division for now
+      done |=  crmin2 < -kTolerance*tube.rmin();
       if( Backend::early_returns && IsFull(done) ) return;
     }
 
@@ -665,8 +665,8 @@ struct TubeImplementation {
     if(checkRminTreatment<tubeTypeT>(tube)) {
       Float_t dist_rmin = kInfinity;
       Bool_t ok_rmin = Backend::kFalse;
-      crmin *= invnsq;
-      CircleTrajectoryIntersection<Backend, tubeTypeT, false, false>(b, crmin, tube, point, dir, dist_rmin, ok_rmin);
+      crmin2 *= invnsq;
+      CircleTrajectoryIntersection<Backend, tubeTypeT, false, false>(b, crmin2, tube, point, dir, dist_rmin, ok_rmin);
       MaskedAssign(ok_rmin && dist_rmin < distance, dist_rmin, &distance);
     }
 
@@ -676,8 +676,8 @@ struct TubeImplementation {
 
     Float_t dist_rmax = kInfinity;
     Bool_t ok_rmax = Backend::kFalse;
-    crmax *= invnsq;
-    CircleTrajectoryIntersection<Backend, tubeTypeT, true, false>(b, crmax, tube, point, dir, dist_rmax, ok_rmax);
+    crmax2 *= invnsq;
+    CircleTrajectoryIntersection<Backend, tubeTypeT, true, false>(b, crmax2, tube, point, dir, dist_rmax, ok_rmax);
     MaskedAssign(ok_rmax && dist_rmax < distance, dist_rmax, &distance);
 
 
