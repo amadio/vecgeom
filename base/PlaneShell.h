@@ -190,7 +190,7 @@ public:
       proj[i] = this->fA[i]*dir.x() + this->fB[i]*dir.y() + this->fC[i]*dir.z();
 
       // note(SW): on my machine it was better to keep vdist[N] instead of a local variable vdist below
-      vdist[i]= -pdist[i]/proj[i];
+      vdist[i]= -pdist[i] / NonZero(proj[i]);
     }
 
     // wrong-side check: if (inside && smin<0) return -1
@@ -254,7 +254,7 @@ public:
     for(int i=0; i<N; ++i) {
       pdist[i] = this->fA[i]*point.x() + this->fB[i]*point.y() + this->fC[i]*point.z() + this->fD[i];
       proj[i] = this->fA[i]*dir.x() + this->fB[i]*dir.y() + this->fC[i]*dir.z();
-      vdist[i] = -pdist[i] / proj[i];
+      vdist[i] = -pdist[i] / NonZero( proj[i] );
     }
 
     // early return if point is outside of plane

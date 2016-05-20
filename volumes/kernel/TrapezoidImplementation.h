@@ -287,7 +287,7 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToIn(
   // Step 1.b) General case:
   //   smax,smin are range of distances within z-range, taking direction into account.
   //   smin<smax - smax is positive, but smin may be either positive or negative
-  Float_t dirFactor = Backend::kOne / dir.z();     // convert distances from z to dir
+  Float_t dirFactor = Backend::kOne / NonZero(dir.z());     // convert distances from z to dir
   Float_t smax = max * dirFactor;
   Float_t smin = (-zdirSign*unplaced.GetDz() - point.z())*dirFactor;
 
@@ -356,7 +356,7 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToIn(
     // Comp > 0 if pointing ~same direction as normal and Comp<0 if ~opposite to normal
     comp[i] = fPlanes[i].fA * dir.x() + fPlanes[i].fB * dir.y() + fPlanes[i].fC * dir.z();
 
-    vdist[i] = -pdist[i] / comp[i];
+    vdist[i] = -pdist[i] / NonZero(comp[i]);
   }
 
   // wrong-side check: if (inside && smin<0) return -1
@@ -437,18 +437,12 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToOut(
 
   Float_t max = zdirSign*unplaced.GetDz() - point.z();  // z-dist to farthest z-plane
 
-  // // do we need this ????
-  // // check if moving away towards +z
-  // done |= (posZdir && max <= MakePlusTolerant<true>(0.));
-  // // check if moving away towards -z
-  // done |= (negZdir && max >= MakeMinusTolerant<true>(0.));
-
   // // if all particles moving away, we're done
   // MaskedAssign( done, Float_t(0.0), &distance );
   // if ( IsFull(done) ) return;
 
   // Step 1.b) general case: assign distance to z plane
-  distance = max/( dir.z() + zdirSign * vecgeom::kEpsilon );
+  distance = max/NonZero( dir.z() );
 
   //
   // Step 2: find distances for intersections with side planes.
@@ -476,7 +470,7 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToOut(
     // Comp > 0 if pointing ~same direction as normal and Comp<0 if pointing ~opposite to normal
     comp[i] = fPlanes[i].fA * dir.x() + fPlanes[i].fB * dir.y() + fPlanes[i].fC * dir.z();
 
-    vdist[i] = -pdist[i] / comp[i];
+    vdist[i] = -pdist[i] / NonZero(comp[i]);
   }
 
   // early return if point is outside of plane
