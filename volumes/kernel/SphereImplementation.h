@@ -709,8 +709,7 @@ void SphereImplementation<transCodeT, rotCodeT>::SafetyToInKernel(
   Bool_t done(false);
 
   // General Precalcs
-  Float_t rad2 = point.Mag2();
-  Float_t rad = Sqrt(rad2);
+  Float_t rad = point.Mag();
 
   // Distance to r shells
   Precision fRmin = unplaced.GetInnerRadius();
@@ -884,12 +883,13 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   Float_t sd1(kInfinity);
   Float_t sd2(kInfinity);
   Float_t d2 = (pDotV3d * pDotV3d - c);
-  cond = (d2 < 0. || ((Sqrt(rad2) > fRmax) && (pDotV3d > 0)));
+  cond = (d2 < 0. || ((c > 0.0) && (pDotV3d > 0.0)));
   done |= cond;
   if (IsFull(done))
     return; // Returning in case of no intersection with outer shell
 
-  sd1 = (-pDotV3d - Sqrt(d2));
+  // Note: Abs(d2) was introduced to avoid Sqrt(negative) in other lanes than the ones satisfying d2>=0.
+  MaskedAssign( d2 >= 0., (-pDotV3d - Sqrt(Abs(d2))), &sd1);
 
   Float_t outerDist(kInfinity);
   Float_t innerDist(kInfinity);
@@ -906,7 +906,8 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   if (unplaced.GetInnerRadius()) {
     c = rad2 - fRmin * fRmin;
     d2 = pDotV3d * pDotV3d - c;
-    sd2 = (-pDotV3d + Sqrt(d2));
+    // Note: Abs(d2) was introduced to avoid Sqrt(negative) in other lanes than the ones satisfying d2>=0.
+    MaskedAssign( d2 >= 0., (-pDotV3d + Sqrt(Abs(d2))), &sd2);
 
     if (unplaced.IsFullSphere()) {
       MaskedAssign(!done && (sd2 >= 0.), sd2, &innerDist);
@@ -1078,13 +1079,14 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
   if (IsFull(done))
     return;
 
+  // Note: Abs(d2) was introduced to avoid Sqrt(negative) in other lanes than the ones satisfying d2>=0.
   d2 = (pDotV3d * pDotV3d - c);
-  MaskedAssign((!done && (d2 >= 0.)), (-pDotV3d + Sqrt(d2)), &sd1);
+  MaskedAssign((!done && (d2 >= 0.)), (-pDotV3d + Sqrt(Abs(d2))), &sd1);
 
   if (unplaced.GetInnerRadius()) {
     c = rad2 - fRmin * fRmin;
     d2 = (pDotV3d * pDotV3d - c);
-    MaskedAssign((!done && (d2 >= 0.) && (pDotV3d < 0.)), (-pDotV3d - Sqrt(d2)), &sd2);
+    MaskedAssign((!done && (d2 >= 0.) && (pDotV3d < 0.)), (-pDotV3d - Sqrt(Abs(d2))), &sd2);
   }
 
   snxt = Min(sd1, sd2);
