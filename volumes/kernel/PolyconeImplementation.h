@@ -134,7 +134,7 @@ struct PolyconeImplementation {
       }
 
       int isec;
-      if (!completelyInside && !completelyOutside) {
+      if (ForInside && !completelyInside && !completelyOutside) {
         // we are on one of the z surfaces
         if(!complInsideLeft && !complOutsideLeft)
             isec = 0;
@@ -449,22 +449,24 @@ struct PolyconeImplementation {
     int indexLow = polycone.GetSectionIndex(point.z()-kTolerance);
     int indexHigh = polycone.GetSectionIndex(point.z()+kTolerance);
     int index = 0;
- 
-    if ( indexLow != indexHigh && (indexLow >= 0 )) {
-      //we are close to Surface, section has to be identified
+
+    // section index is -1 when out of left-end
+    // section index is -2 when beyond right-end
+
+    if( indexLow < 0 && indexHigh < 0 ){ distance = -1; return; }
+    else if( indexLow < 0 && indexHigh >= 0 ) index = indexHigh;
+    else if( indexLow != indexHigh && (indexLow >= 0 )) {
+      //we are close to an intermediate Surface, section has to be identified
       const PolyconeSection& section = polycone.GetSection(indexLow);
       
-      bool inside;
-      Vector3D<Precision> localp;
-      ConeImplementation< translation::kIdentity, rotation::kIdentity, ConeTypes::UniversalCone>::Contains<Backend>(
+      typename Backend::int_v inside;
+      ConeImplementation< translation::kIdentity, rotation::kIdentity, ConeTypes::UniversalCone>::Inside<Backend>(
                 *section.fSolid,
                 Transformation3D(),
                 point - Vector3D<Precision>(0,0,section.fShift),
-                localp,
                 inside);
-      if(!inside){index=indexHigh;}
+      if(inside == EInside::kOutside){index=indexHigh;}
       else{index=indexLow;}
-    
     }
     else{
         index=indexLow;
