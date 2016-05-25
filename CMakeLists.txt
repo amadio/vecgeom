@@ -298,6 +298,10 @@ if (CUDA)
       -std=c++11
       -Xcudafe "--diag_suppress=code_is_unreachable"
       -Xcudafe "--diag_suppress=initialization_not_reachable")
+  if (NOT NO_SPECIALIZATION)
+     set(VECGEOM_NVCC_COMPILATION_FLAGS ${VECGEOM_NVCC_COMPILATION_FLAGS}
+        -Xptxas --disable-optimizer-constants )
+  endif()
   set(VECGEOM_NVCC_CONFIGS
         DEBUG -g -G
         RELEASE  -O3 -use_fast_math
