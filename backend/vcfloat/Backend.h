@@ -79,7 +79,7 @@ VECGEOM_INLINE
 void MaskedAssign(VcBoolFloat const &cond,
                   const Inside_t thenval,
                   VcInside *const output) {
-  (*output)(VcInside::Mask(cond)) = thenval;
+   (*output)(Vc::simd_cast<VcInside::Mask,int>(VcInside::Mask(cond))) = thenval;
 }
 
 
