@@ -214,9 +214,9 @@ LogicalVolume *RootGeoManager::Convert(TGeoVolume const *const volume) {
     return const_cast<LogicalVolume *>(fLogicalVolumeMap[volume]);
 
   VUnplacedVolume const *unplaced = Convert(volume->GetShape());
+  if (!unplaced) unplaced = new UnplacedRootVolume(volume->GetShape());
   LogicalVolume *const logical_volume = new LogicalVolume(volume->GetName(), unplaced);
   Medium const *const medium = Convert(volume->GetMedium());
-  if (!unplaced) unplaced = new UnplacedRootVolume(volume->GetShape());
   const_cast<LogicalVolume *>(logical_volume)->SetTrackingMediumPtr((void *)medium);
 
   fLogicalVolumeMap.Set(volume, logical_volume);
