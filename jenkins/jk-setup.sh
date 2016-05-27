@@ -52,7 +52,7 @@ if [[ $COMPILER == *gcc* ]]; then
 #  export BACKEND=Vc
 #  export CTEST_BUILD_OPTIONS="-DROOT=ON -DVc=ON -DCTEST=ON -DBENCHMARK=ON -DUSOLIDS=OFF ${ExtraCMakeOptions}"
 elif [[ $COMPILER == *native* && $PLATFORM == *mac* ]]; then
-  export LIBRARY_PATH=/usr/local/gfortran/lib
+  export LD_LIBRARY_PATH=/usr/local/gfortran/lib
   export PATH=${PATH}:/usr/local/bin:/opt/X11/bin
   export CC=`which clang`
   export CXX=`which clang++`
@@ -91,7 +91,7 @@ elif [[ $COMPILER == *clang* ]]; then
   clang35version=3.5
   clang36version=3.6
   clang37version=3.7
-  clang38version=3.8 
+  clang38version=3.8
   COMPILERversion=${COMPILER}version
   clang34gcc=48
   clang35gcc=49
