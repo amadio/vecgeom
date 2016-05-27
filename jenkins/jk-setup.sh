@@ -59,7 +59,7 @@ then
 #  export CTEST_BUILD_OPTIONS="-DROOT=ON -DVc=ON -DCTEST=ON -DBENCHMARK=ON -DUSOLIDS=OFF ${ExtraCMakeOptions}"
 fi
 
-if[[ $COMPILER == native]]; then
+if[[ $COMPILER == native ]]; then
   export CC=`which cc`
   export CXX=`which c++`
   export FC=`which gfortran`
