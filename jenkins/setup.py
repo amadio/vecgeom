@@ -240,7 +240,7 @@ if __name__ == "__main__":
 
    main(sys.argv[1:])
 
-   if not compiler:
+   if not compiler or compiler == 'native':
       compiler = default_compiler()
 
    if not build_type:
