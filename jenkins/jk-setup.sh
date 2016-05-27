@@ -60,9 +60,9 @@ then
 fi
 
 if [[ $COMPILER == native ]]; then
-  export CC=`which cc`
-  export CXX=`which c++`
-  export FC=`which gfortran`
+#  export CC=`which cc`
+#  export CXX=`which c++`
+   export FC=`which gfortran`
 fi
 
 if [[ $COMPILER == *icc* ]]; then
