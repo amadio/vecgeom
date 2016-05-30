@@ -103,9 +103,7 @@ VPlacedVolume* LogicalVolume::Place(
 }
 
 VPlacedVolume* LogicalVolume::Place(char const *const label) const {
-  return GetUnplacedVolume()->PlaceVolume(
-           label, this, &Transformation3D::kIdentity
-         );
+  return Place(label, &Transformation3D::kIdentity);
 }
 
 VPlacedVolume* LogicalVolume::Place() const {
