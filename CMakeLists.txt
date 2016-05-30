@@ -7,6 +7,10 @@ enable_language(CXX)
 set(CMAKE_CXX_STANDARD 11 CACHE STRING "C++ ISO Standard")
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+############### REMOVE WARNINGS FROM NEWER CMAKES ##############################
+cmake_policy(SET CMP0054 OLD)
+
+
 ################################################################################
 if (NOT CMAKE_BUILD_TYPE)
   message(STATUS "No build type selected, default to Release")
