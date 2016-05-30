@@ -120,23 +120,23 @@ VPlacedVolume *RootGeoManager::Convert(TGeoNode const *const node) {
   LogicalVolume *const logical_volume = Convert(node->GetVolume());
   VPlacedVolume *const placed_volume = logical_volume->Place(node->GetName(), transformation);
 
-  unsigned int remaining_daughters = 0;
+  int remaining_daughters = 0;
   {
     // All or no daughters should have been placed already
     remaining_daughters = node->GetNdaughters() - logical_volume->GetDaughters().size();
-    assert(remaining_daughters == 0 || remaining_daughters == (unsigned int)node->GetNdaughters());
+    assert(remaining_daughters <= 0 || remaining_daughters == (int)node->GetNdaughters());
   }
 
   // we have to convert here assemblies to list of normal nodes
   std::list<TGeoNode *> flattenenednodelist;
   int assemblydepth = 0;
   int flatteningcount = 0;
-  for (unsigned int i = 0; i < remaining_daughters; ++i) {
+  for (int i = 0; i < remaining_daughters; ++i) {
     TGeoHMatrix trans = *node->GetDaughter(i)->GetMatrix();
     FlattenAssemblies(node->GetDaughter(i), flattenenednodelist, &trans, 0, flatteningcount, assemblydepth);
   }
 
-  if (flattenenednodelist.size() > remaining_daughters) {
+  if ((int)flattenenednodelist.size() > remaining_daughters) {
     std::cerr << "INFO: flattening of assemblies (depth " << assemblydepth << ") resulted in "
               << flattenenednodelist.size() << " daughters vs " << remaining_daughters << "\n";
   }
@@ -214,7 +214,6 @@ LogicalVolume *RootGeoManager::Convert(TGeoVolume const *const volume) {
     return const_cast<LogicalVolume *>(fLogicalVolumeMap[volume]);
 
   VUnplacedVolume const *unplaced = Convert(volume->GetShape());
-  if (!unplaced) unplaced = new UnplacedRootVolume(volume->GetShape());
   LogicalVolume *const logical_volume = new LogicalVolume(volume->GetName(), unplaced);
   Medium const *const medium = Convert(volume->GetMedium());
   const_cast<LogicalVolume *>(logical_volume)->SetTrackingMediumPtr((void *)medium);
@@ -406,9 +405,7 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape) {
     Transformation3D const *righttrans = Convert(boolnode->GetRightMatrix());
     // unplaced shapes
     VUnplacedVolume const *leftunplaced = Convert(boolnode->GetLeftShape());
-    if (!leftunplaced) leftunplaced = new UnplacedRootVolume(boolnode->GetLeftShape());
     VUnplacedVolume const *rightunplaced = Convert(boolnode->GetRightShape());
-    if (!rightunplaced) rightunplaced = new UnplacedRootVolume(boolnode->GetRightShape());
 
     assert(leftunplaced != nullptr);
     assert(rightunplaced != nullptr);
@@ -448,7 +445,6 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape) {
     TGeoScaledShape const *const p = static_cast<TGeoScaledShape const *>(shape);
     // First convert the referenced shape
     VUnplacedVolume *referenced_shape = Convert(p->GetShape());
-    if (!referenced_shape) referenced_shape = new UnplacedRootVolume(p->GetShape());
     const double *scale_root = p->GetScale()->GetScale();
     unplaced_volume = new UnplacedScaledShape(referenced_shape, scale_root[0], scale_root[1], scale_root[2]);
   }
@@ -483,8 +479,7 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape) {
              "Using ROOT implementation.\n",
              shape->GetName(), shape->ClassName());
     }
-//    unplaced_volume = new UnplacedRootVolume(shape);
-    return nullptr;
+    unplaced_volume = new UnplacedRootVolume(shape);
   }
 
   fUnplacedVolumeMap.Set(shape, unplaced_volume);
