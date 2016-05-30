@@ -112,7 +112,7 @@ public:
   DevicePtr<cuda::VPlacedVolume> CopyToGpu(
     DevicePtr<cuda::LogicalVolume> const logical_volume,
     DevicePtr<cuda::Transformation3D> const transform,
-    DevicePtr<cuda::VPlacedVolume> const in_gpu_ptr) const
+    DevicePtr<cuda::VPlacedVolume> const in_gpu_ptr) const override
  {
      DevicePtr<CudaType_t<Helper_t> > gpu_ptr(in_gpu_ptr);
      gpu_ptr.Construct(logical_volume, transform, DevicePtr<cuda::PlacedBox>(), this->id());
@@ -125,7 +125,7 @@ public:
 
  DevicePtr<cuda::VPlacedVolume> CopyToGpu(
     DevicePtr<cuda::LogicalVolume> const logical_volume,
-    DevicePtr<cuda::Transformation3D> const transform) const
+    DevicePtr<cuda::Transformation3D> const transform) const override
  {
      DevicePtr<CudaType_t<Helper_t> > gpu_ptr;
      gpu_ptr.Allocate();
