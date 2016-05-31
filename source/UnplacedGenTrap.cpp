@@ -161,15 +161,20 @@ bool UnplacedGenTrap::SegmentsCrossing(Vertex_t p, Vertex_t p1, Vertex_t q, Vert
   Vector r = p1 - p; // p1 = p+r
   Vector s = q1 - q; // q1 = q+s
   Vector r_cross_s = Vector::Cross(r, s);
-  if (r_cross_s.Mag2() < kTolerance) // parallel or colinear - ignore crossing
+  if (r_cross_s.Mag2() < kTolerance) // parallel, colinear or degenerated - ignore crossing
     return false;
-  Precision t = Vector::Cross(q - p, s) / r_cross_s;
-  if (t < 0 || t > 1)
-    return true;
-  Precision u = Vector::Cross(q - p, r) / r_cross_s;
-  if (u < 0 || u > 1)
-    return true;
-  return false;
+  // The segments are crossing if the vector equations:
+  //   t * (r x s) = (q-p) x s
+  //   u * (r x s) = (q-p) x r
+  // give t and u values in the range (0,1).
+  // We allow crossing within kTolerance, so the interval becomes (kTolerance, 1-kTolerance)
+  Precision t = Vector::Cross(q - p, s).z() / r_cross_s.z();
+  if (t < kTolerance || t > 1. - kTolerance)
+    return false;
+  Precision u = Vector::Cross(q - p, r).z() / r_cross_s.z();
+  if (u < kTolerance || u > 1. - kTolerance)
+    return false;
+  return true;
 }
 
 //______________________________________________________________________________
