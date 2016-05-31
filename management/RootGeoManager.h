@@ -12,6 +12,8 @@
 #include "TGeoNode.h"
 class TGeoVolume;
 class TGeoMatrix;
+class TGeoTrap;
+class TGeoArb8;
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -22,6 +24,8 @@ class UnplacedBox;
 class VUnplacedVolume;
 class Medium;
 class Material;
+class UnplacedGenTrap;
+
 
 /// \brief Manager to handle interaction with ROOT geometry.
 /// \details Allows integration with ROOT geometries for compatability reasons.
@@ -134,6 +138,9 @@ private:
   RootGeoManager(RootGeoManager const&);
   RootGeoManager& operator=(RootGeoManager const&);
 
+  // helper function to check TGeo trap for consistency / trap conversion
+  bool TGeoTrapIsDegenerate(TGeoTrap const *);
+  UnplacedGenTrap *ToUnplacedGenTrap(TGeoArb8 const *);
 };
 
 } } // End global namespace

@@ -378,9 +378,16 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape) {
   // TRAPEZOID
   if (shape->IsA() == TGeoTrap::Class()) {
     TGeoTrap const *const p = static_cast<TGeoTrap const *>(shape);
-    unplaced_volume = new UnplacedTrapezoid(p->GetDz(), p->GetTheta() * kDegToRad, p->GetPhi() * kDegToRad, p->GetH1(),
-                                            p->GetBl1(), p->GetTl1(), std::tan(p->GetAlpha1() * kDegToRad), p->GetH2(),
-                                            p->GetBl2(), p->GetTl2(), std::tan(p->GetAlpha2() * kDegToRad));
+    if (!TGeoTrapIsDegenerate(p)) {
+      unplaced_volume =
+          new UnplacedTrapezoid(p->GetDz(), p->GetTheta() * kDegToRad, p->GetPhi() * kDegToRad, p->GetH1(), p->GetBl1(),
+                                p->GetTl1(), std::tan(p->GetAlpha1() * kDegToRad), p->GetH2(), p->GetBl2(), p->GetTl2(),
+                                std::tan(p->GetAlpha2() * kDegToRad));
+    }
+    else {
+      std::cerr << "Warning: this trap is degenerate -- will convert it to a generic trap!!\n";
+      unplaced_volume = ToUnplacedGenTrap((TGeoArb8 const *)p);
+    }
   }
 
   // THE SPHERE | ORB
@@ -461,15 +468,7 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape) {
   // THE ARB8
   if (shape->IsA() == TGeoArb8::Class() || shape->IsA() == TGeoGtra::Class()) {
     TGeoArb8 *p = (TGeoArb8 *)(shape);
-    // Create the corresponding GenTrap
-    std::vector<Vector3D<Precision>> vertexlist;
-    const double *vertices = p->GetVertices();
-    Precision verticesx[8], verticesy[8];
-    for (auto ivert = 0; ivert < 8; ++ivert) {
-      verticesx[ivert] = vertices[2 * ivert];
-      verticesy[ivert] = vertices[2 * ivert + 1];
-    }
-    unplaced_volume = new UnplacedGenTrap(verticesx, verticesy, p->GetDz());
+    unplaced_volume = ToUnplacedGenTrap(p);
   }
 
   // New volumes should be implemented here...
@@ -515,6 +514,45 @@ void RootGeoManager::Clear() {
   if (GeoManager::Instance().GetWorld() == fWorld) {
     GeoManager::Instance().SetWorld(nullptr);
   }
+}
+
+bool RootGeoManager::TGeoTrapIsDegenerate(TGeoTrap const *trap)
+{
+  bool degeneracy = false;
+  // const_cast because ROOT is lacking a const GetVertices() function
+  auto const vertices = const_cast<TGeoTrap *>(trap)->GetVertices();
+  // check degeneracy within the layers (as vertices do not contains z information)
+  for (int layer = 0; layer < 2; ++layer) {
+    auto lowerindex = layer * 4;
+    auto upperindex = (layer + 1) * 4;
+    for (int i = lowerindex; i < upperindex; ++i) {
+      auto currentx = vertices[2 * i];
+      auto currenty = vertices[2 * i + 1];
+      for (int j = lowerindex; j < upperindex; ++j) {
+        if (j == i) {
+          continue;
+        }
+        auto otherx = vertices[2 * j];
+        auto othery = vertices[2 * j + 1];
+        if (otherx == currentx && othery == currenty) {
+          degeneracy = true;
+        }
+      }
+    }
+  }
+  return degeneracy;
+}
+
+UnplacedGenTrap *RootGeoManager::ToUnplacedGenTrap(TGeoArb8 const *p)
+{
+  // Create the corresponding GenTrap
+  const double *vertices = const_cast<TGeoArb8 *>(p)->GetVertices();
+  Precision verticesx[8], verticesy[8];
+  for (auto ivert = 0; ivert < 8; ++ivert) {
+    verticesx[ivert] = vertices[2 * ivert];
+    verticesy[ivert] = vertices[2 * ivert + 1];
+  }
+  return new UnplacedGenTrap(verticesx, verticesy, p->GetDz());
 }
 
 } // End global namespace
