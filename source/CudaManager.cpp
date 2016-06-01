@@ -18,7 +18,7 @@
 
 namespace vecgeom {
 
-inline namespace cuda {
+namespace cuda {
 // forward declare a global function
 extern __global__  void InitDeviceCompactPlacedVolBufferPtr(void * gpu_ptr);
 }
