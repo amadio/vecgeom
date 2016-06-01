@@ -442,7 +442,8 @@ void TrapezoidImplementation<transCodeT, rotCodeT>::DistanceToOut(
   // if ( IsFull(done) ) return;
 
   // Step 1.b) general case: assign distance to z plane
-  distance = max/NonZero( dir.z() );
+  Float_t distz = max / NonZero( dir.z() );
+  MaskedAssign( !done && dir.z()!=Float_t(0.), distz, &distance );
 
   //
   // Step 2: find distances for intersections with side planes.
