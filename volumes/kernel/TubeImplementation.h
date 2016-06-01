@@ -606,8 +606,8 @@ struct TubeImplementation {
       Vector3D<typename Backend::precision_v> const &point,
       Vector3D<typename Backend::precision_v> const &dir,
       typename Backend::precision_v const &/*stepMax*/,
-      typename Backend::precision_v &distance) {
-
+      typename Backend::precision_v &distance)
+  {
     using namespace TubeTypes;
     using namespace TubeUtilities;
     typedef typename Backend::precision_v Float_t;
@@ -623,15 +623,13 @@ struct TubeImplementation {
     done |= distz<-kHalfTolerance;  // distance is already set to -1
 //  if(Backend::early_returns && IsFull(done)) return;
 
-    Float_t rsq = point.x()*point.x() + point.y()*point.y();
-    Float_t rdotn = dir.x()*point.x() + dir.y()*point.y();
-    Float_t crmax2 = rsq - tube.rmax2();  // avoid a division for now
-    Float_t crmin2 = rsq;
-
     // if outside of Rmax, return -1
+    Float_t rsq = point.x()*point.x() + point.y()*point.y();
+    Float_t crmax2 = rsq - tube.rmax2();  // avoid a division for now
     done |= crmax2 > kTolerance*tube.rmax();
     if( Backend::early_returns && IsFull(done) ) return;
 
+    Float_t crmin2 = rsq;
     if(checkRminTreatment<tubeTypeT>(tube)) {
       // if point is within inner-hole of a hollow tube, it is outside of the tube --> return -1
       crmin2 -= tube.rmin2();  // avoid a division for now
@@ -644,19 +642,19 @@ struct TubeImplementation {
     // OK, since we're here, then distance must be non-negative, and the smallest of possible intersections
     MaskedAssign( !done, kInfinity, &distance );
 
-    Float_t invdirz = 1. / NonZero(dir.z());
+    Float_t invdirz = Float_t(1.0) / NonZero(dir.z());
     distz = (tube.z() - point.z()) * invdirz;
     MaskedAssign(dir.z() < 0, (-tube.z() - point.z()) * invdirz, &distz);
-    MaskedAssign( !done && distz<distance, distz, &distance );
-
+    MaskedAssign( !done && distz<distance && Abs(dir.z())>0., distz, &distance );
 
     /*
      * Find the intersection of the trajectories with the two circles.
      * Here I compute values used in both rmin and rmax calculations.
      */
 
+    Float_t rdotv = dir.x()*point.x() + dir.y()*point.y();
     Float_t invnsq = 1 / NonZero( dir.x()*dir.x() + dir.y()*dir.y() );
-    Float_t b = invnsq * rdotn;
+    Float_t b = invnsq * rdotv;
 
     /*
      * rmin
