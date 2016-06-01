@@ -247,6 +247,8 @@ public:
     // Check every surface
     Bool_t outside = (Abs(point.z()) > MakePlusTolerant<true>(fDz)); // If point is outside, we need to know
     for (int i = 0; i < N && (!IsFull(outside)); ++i) {
+      if (fdegenerated[i])
+        continue;
       // Point A is the current vertex on lower Z. P is the point we come from.
       pa.Set(fxa[i], fya[i], -fDz);
       Vector3D<Float_t> vecAP = point - pa;
@@ -292,6 +294,8 @@ public:
     // Check every surface
     Bool_t inside = (Abs(point.z()) < MakeMinusTolerant<true>(fDz)); // If point is inside, we need to know
     for (int i = 0; i < N; ++i) {
+      if (fdegenerated[i])
+        continue;
       // Point A is the current vertex on lower Z. P is the point we come from.
       pa.Set(fxa[i], fya[i], -fDz);
       Vector3D<Float_t> vecAP = point - pa;
@@ -428,6 +432,8 @@ public:
     Vector3D<Float_t> pa; // same vertex converted to backend type
     if (fisplanar) {
       for (int i = 0; i < N; ++i) {
+        if (fdegenerated[i])
+          continue;
         va.Set(fxa[i], fya[i], -fDz);
         pa = va;
         safetyface = (pa - point).Dot(fNormals[i]);
@@ -473,6 +479,8 @@ public:
     Vector3D<Float_t> pa; // same vertex converted to backend type
     if (fisplanar) {
       for (int i = 0; i < N; ++i) {
+        if (fdegenerated[i])
+          continue;
         va.Set(fxa[i], fya[i], -fDz);
         pa = va;
         safetyface = (point - pa).Dot(fNormals[i]);

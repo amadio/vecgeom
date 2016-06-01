@@ -22,7 +22,8 @@ int main(int argc, char *argv[]) {
                  "       2 - one face triangle\n"
                  "       3 - one face line\n"
                  "       4 - one face point\n"
-                 "       5 - one face line, other triangle\n";
+                 "       5 - one face line, other triangle\n"
+                 "       6 - degenerated planar\n";
   }
   OPTION_INT(test, 0);
   using namespace vecgeom;
@@ -44,7 +45,9 @@ int main(int argc, char *argv[]) {
   // 2 vertex bottom, 3 vertices top
   Precision verticesx5[8] = {-3, -3, 2.5, 2.5, -2, -2, 2, 2};
   Precision verticesy5[8] = {-2.5, -2.5, -3, -3, -2, -2, 2, -2};
-
+  //
+  Precision verticesx6[8] = {-0.507492, -0.507508, 1.522492, -0.507492, -0.507492, -0.507508, 1.522492,-0.507492};
+  Precision verticesy6[8] = {-3.634000, 3.63400, 3.634000, -3.634000, -3.634000, 3.634000,  3.634000, -3.634000};
   GenTrap_t *solid = 0;
   switch (test) {
   case 0:
@@ -77,6 +80,11 @@ int main(int argc, char *argv[]) {
     std::cout << "Testing trapezoid with line on one face and triangle on other\n";
     solid = new GenTrap_t("test_VecGeomGenTrap", verticesx5, verticesy5, 5);
     break;
+  case 6:
+    // 3 vertexes top, 3 vertexes bottom
+    std::cout << "Testing degenerated planar trapezoid\n";
+    solid = new GenTrap_t("test_VecGeomGenTrap", verticesx6, verticesy6, 5);
+    break; 
   default:
     std::cout << "Unknown test case.\n";
   }
