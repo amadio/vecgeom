@@ -187,13 +187,13 @@ public:
 #endif
 
 #ifdef VECGEOM_CUDA_INTERFACE
-  virtual size_t DeviceSizeOf() const { return 0; /* return DevicePtr<cuda::PlacedRootVolume>::SizeOf(); */ }
+  virtual size_t DeviceSizeOf() const override { return 0; /* return DevicePtr<cuda::PlacedRootVolume>::SizeOf(); */ }
   virtual DevicePtr<cuda::VPlacedVolume> CopyToGpu(DevicePtr<cuda::LogicalVolume> const logical_volume,
                                              DevicePtr<cuda::Transformation3D> const transform,
-                                             DevicePtr<cuda::VPlacedVolume> const gpu_ptr) const;
+                                             DevicePtr<cuda::VPlacedVolume> const gpu_ptr) const override;
   virtual DevicePtr<cuda::VPlacedVolume> CopyToGpu(
       DevicePtr<cuda::LogicalVolume> const logical_volume,
-      DevicePtr<cuda::Transformation3D> const transform) const;
+      DevicePtr<cuda::Transformation3D> const transform) const override;
 #endif
 
 };
