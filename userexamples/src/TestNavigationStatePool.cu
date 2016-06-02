@@ -17,7 +17,7 @@ void ProcessNavStates( void* gpu_ptr /* a pointer to buffer of navigation states
   if( i >= n ) return;
 
   if(i==0){
-    printf("*** Size of NavigationState on the GPU: %d bytes (SizeOf=%d) at gpu_ptr=%p\n", sizeof(vecgeom::cuda::NavigationState), NavigationState::SizeOf(depth), gpu_ptr);
+    printf("*** Size of NavigationState on the GPU: %ld bytes (SizeOf=%ld) at gpu_ptr=%p\n", sizeof(vecgeom::cuda::NavigationState), NavigationState::SizeOf(depth), gpu_ptr);
     // dump memory from GPU side
     NavigationState* dumper = reinterpret_cast<NavigationState*>(gpu_ptr);
     dumper->Dump();
