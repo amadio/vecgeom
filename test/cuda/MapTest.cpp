@@ -74,8 +74,8 @@ int main() {
    launchRebuildMap(devMap, mapKeysDev,mapValuesDev,kSize,1,1);
    launchTestNew(devMap, mapKeysDev,kSize,1,1);
 
-   delete mapKeys;
-   delete mapValues;
+   delete [] mapKeys;
+   delete [] mapValues;
    mapKeysDev.Deallocate();
    mapValuesDev.Deallocate();
    return 0;
