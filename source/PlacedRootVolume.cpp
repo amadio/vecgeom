@@ -185,7 +185,7 @@ TGeoShape const* PlacedRootVolume::ConvertToRoot() const {
   return NULL;
 }
 #endif
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
 ::VUSolid const* PlacedRootVolume::ConvertToUSolids() const {
   assert(0 && "Attempted to perform conversion on unsupported ROOT volume.");
   return NULL;
