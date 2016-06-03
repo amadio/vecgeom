@@ -23,6 +23,9 @@
 #include "backend/scalarfloat/Backend.h"
 #endif
 
+#include <exception>
+#include <stdexcept>
+
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -190,7 +193,7 @@ void HybridManager2::BuildStructure_v(LogicalVolume const * vol) {
 
     fVolumeToABBoxes_v[vol->id()] = boxes_v;
 #else
-#pragma message("Implementation for scalar backend missing")
+	throw std::runtime_error("unimplemented function called: HybridManager2::BuildStructure_v()");
 #endif
 }
 

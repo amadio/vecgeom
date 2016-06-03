@@ -11,6 +11,9 @@
 #include "navigation/VSafetyEstimator.h"
 #include "management/ABBoxManager.h"
 
+#include <exception>
+#include <stdexcept>
+
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -55,7 +58,7 @@ private:
       }
     }
 #else
-#pragma message("implementation for GetSafetyCandidates for scalar backend is missing")
+	throw std::runtime_error("unimplemented function called: SimpleABBoxSafetyEstimator::GetSafetyCandidates_v()");
 #endif
     return count;
   }

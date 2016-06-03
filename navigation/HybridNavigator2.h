@@ -27,6 +27,8 @@
 #include "backend/vc/Backend.h"
 #endif
 
+#include <exception>
+#include <stdexcept>
 #include <vector>
 
 namespace vecgeom {
@@ -105,7 +107,7 @@ private:
       }
     }
 #else
-#pragma message ("generic Vc-independent implementation not yet available (can be done once we have VecCore)")
+	throw std::runtime_error("unimplemented function called: HybridNavigator::GetHitCandidates_v()");
 #endif
     return count;
   }

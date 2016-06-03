@@ -16,6 +16,8 @@
 #include "backend/scalarfloat/Backend.h"
 #endif
 
+#include <exception>
+#include <stdexcept>
 
 namespace vecgeom {
 inline namespace cxx {
@@ -107,9 +109,8 @@ size_t ABBoxNavigator::GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Pr
 	}}
     }
   }
-  return hitcount;
 #elif defined(VECGEOM_UMESIMD)
-#pragma message("Generalized vectorized version not present!")
+  throw std::runtime_error("unimplemented function called: ABBoxNavigator::GetHitCandidates_v() (UME::SIMD backend)");
 #else
   Vector3D<float> invdirfloat(1.f / (float)dir.x(), 1.f / (float)dir.y(), 1.f / (float)dir.z());
   Vector3D<float> pfloat((float)point.x(), (float)point.y(), (float)point.z());
@@ -131,8 +132,8 @@ size_t ABBoxNavigator::GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Pr
       hitcount++;
     }
   }
-  return hitcount;
 #endif
+  return hitcount;
 }
 
 size_t ABBoxNavigator::GetSafetyCandidates_v(Vector3D<Precision> const &point, ABBoxManager::ABBoxContainer_v const &corners, size_t size,
@@ -154,8 +155,8 @@ int candidatecount=0;
            }
          }
     }
-#elif defined(VECGEOM_UMESIMD) 
-#pragma message("Generalized vectorized version not present")
+#elif defined(VECGEOM_UMESIMD)
+  throw std::runtime_error("unimplemented function called: ABBoxNavigator::GetHitCandidates_v() (UME::SIMD backend)");
 #else
     for( size_t box = 0; box < vecsize; ++box ){
          ABBoxManager::Real_v safetytoboxsqr =  ABBoxImplementation::ABBoxSafetySqr<kScalarFloat, float>(

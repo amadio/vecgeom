@@ -512,7 +512,6 @@ SimpleNavigator::FindNextBoundaryAndStep( Vector3D<Precision> const & globalpoin
       // put this at the moment since not all shapes respond yet with a negative distance if
       // the point is actually inside the daughter
 #ifdef CHECKCONTAINS
-#pragma message "CHECKCONTAINS"
       bool contains = daughter->Contains( localpoint );
       if( !contains ){
 #endif

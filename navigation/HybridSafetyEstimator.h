@@ -13,6 +13,9 @@
 #include "navigation/VSafetyEstimator.h"
 #include "management/HybridManager2.h"
 
+#include <exception>
+#include <stdexcept>
+
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -66,10 +69,10 @@ private:
         }
       }
     }
-#else
-#pragma message ("generic Vc-independent implementation not yet available (can be done once we have VecCore) ")
-#endif
     return count;
+#else
+	throw std::runtime_error("unimplemented function called: HybridSafetyEstimator::GetSafetyCandidates_v()");
+#endif
   }
 
 public:

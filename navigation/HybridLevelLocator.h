@@ -14,6 +14,9 @@
 #include "management/HybridManager2.h"
 #include "volumes/kernel/BoxImplementation.h"
 
+#include <exception>
+#include <stdexcept>
+
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -62,10 +65,10 @@ public:
           }
         }
       }
-#else
-#pragma message ("generic Vc-independent implementation not yet available (can be done once we have VecCore)")
-#endif
       return false;
+#else
+    throw std::runtime_error("unimplemented function called: HybridLevelLocator::LevelLocate()");
+#endif
   }
 
   virtual bool LevelLocateExclVol(LogicalVolume const *lvol, VPlacedVolume const *exclvol,
@@ -105,7 +108,7 @@ public:
     }
     return false;
 #else
-#pragma message ("generic Vc-independent implementation not yet available (can be done once we have VecCore)")
+    throw std::runtime_error("unimplemented function called: HybridLevelLocator::LevelLocateExclVol()");
 #endif
   }
 

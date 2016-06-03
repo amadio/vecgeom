@@ -17,6 +17,8 @@
 #include "backend/scalarfloat/Backend.h"
 #endif
 
+#include <exception>
+#include <stdexcept>
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -59,10 +61,10 @@ public:
         }
       }
     }
-    return false;
 #else
-#pragma message ("generic Vc-independent implementation not yet available (can be done once we have VecCore) ")
+	throw std::runtime_error("unimplemented function called: SimpleABBoxLevelLocator::LevelLocate()");
 #endif
+    return false;
   } // end function
 
   virtual bool LevelLocateExclVol(LogicalVolume const *lvol, VPlacedVolume const *exclvol,
@@ -96,10 +98,10 @@ public:
         }
       }
     }
-    return false;
 #else
-#pragma message ("generic Vc-independent implementation not yet available (can be done once we have VecCore) ")
+	throw std::runtime_error("unimplemented function called: SimpleABBoxLevelLocator::LevelLocateExclVol()");
 #endif
+    return false;
   } // end function
 
   static std::string GetClassName() { return "SimpleABBoxLevelLocator"; }

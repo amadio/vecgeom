@@ -13,6 +13,9 @@
 #include <Vc/Vc>
 #endif
 
+#include <exception>
+#include <stdexcept>
+
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -109,7 +112,7 @@ public:
       safety.store(safeties + i);
     }
 #else
-#pragma message("non Vc-implementation for ComputeVectorSafety missing")
+    throw std::runtime_error("non Vc-implementation for ComputeVectorSafety missing");
 #endif
   }
 
