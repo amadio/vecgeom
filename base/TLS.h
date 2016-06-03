@@ -66,15 +66,12 @@
 // on at the same time and we want to use 'best' option available.
 #ifdef R__HAS_THREAD_LOCAL
 #  define THREAD_TLS(type) thread_local type
-#  pragma message("TLS using thread_local")
 
 #elif defined(R__HAS___THREAD)
 #  define THREAD_TLS(type)  static __thread type
-#  pragma message("TLS using static __thread")
 
 #elif defined(R__HAS_DECLSPEC_THREAD)
 #  define THREAD_TLS(type) static __declspec(thread) type
-#  pragma message("TLS using static __declspec(thread)")
 
 #elif defined(R__HAS_PTHREAD)
 
@@ -130,7 +127,6 @@ public:
 };
 
 #  define THREAD_TLS(type) static TThreadTLSWrapper<type>
-#  pragma message("TLS using pthread wrapper")
 
 #else
 
@@ -163,10 +159,10 @@ inline namespace BaseTLS {
     BaseTLS::gLock.clear(std::memory_order_release);
     return ttid;
   }
-  
+
   inline void ClearThreadId() {
     BaseTLS::gNumThreads = 0;
-  }  
+  }
 };
 
 #endif // BASE_TLS
