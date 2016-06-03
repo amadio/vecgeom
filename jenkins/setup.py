@@ -97,7 +97,7 @@ def default_os():
 
 def default_compiler():
 
-   if os.getenv('COMPILER'):
+   if os.getenv('COMPILER') and os.getenv('COMPILER') not in ['native'] and not os.getenv("CC"):
       compiler_orig = os.getenv('COMPILER')
    else:
       if os.getenv('CC'):
@@ -108,28 +108,28 @@ def default_compiler():
          ccommand = 'clang'
       else:
          ccommand = 'gcc'
-         if ccommand == 'cl':
-            versioninfo = os.popen(ccommand).read()
-            patt = re.compile('.*Version ([0-9]+)[.].*')
-            mobj = patt.match(versioninfo)
-            compiler_orig = 'vc' + str(int(mobj.group(1))-6)
-         elif ccommand == 'gcc':
-            versioninfo = os.popen(ccommand + ' -dumpversion').read()
-            patt = re.compile('([0-9]+)\\.([0-9]+)')
-            mobj = patt.match(versioninfo)
-            compiler_orig = 'gcc' + mobj.group(1) + mobj.group(2)
-         elif ccommand == 'clang':
-            versioninfo = os.popen4(ccommand + ' -v')[1].read()
-            patt = re.compile('.*version ([0-9]+)[.]([0-9]+)')
-            mobj = patt.match(versioninfo)
-            compiler_orig = 'clang' + mobj.group(1) + mobj.group(2)
-         elif ccommand == 'icc':
-            versioninfo = os.popen(ccommand + ' -dumpversion').read()
-            patt = re.compile('([0-9]+)')
-            mobj = patt.match(versioninfo)
-            compiler_orig = 'icc' + mobj.group(1) + mobj.group(2)
-         else:
-            compiler_orig = 'unk-cmp'
+      if ccommand == 'cl':
+         versioninfo = os.popen(ccommand).read()
+         patt = re.compile('.*Version ([0-9]+)[.].*')
+         mobj = patt.match(versioninfo)
+         compiler_orig = 'vc' + str(int(mobj.group(1))-6)
+      elif ccommand == 'gcc':
+         versioninfo = os.popen(ccommand + ' -dumpversion').read()
+         patt = re.compile('([0-9]+)\\.([0-9]+)')
+         mobj = patt.match(versioninfo)
+         compiler_orig = 'gcc' + mobj.group(1) + mobj.group(2)
+      elif ccommand == 'clang':
+         versioninfo = os.popen4(ccommand + ' -v')[1].read()
+         patt = re.compile('.*version ([0-9]+)[.]([0-9]+)')
+         mobj = patt.match(versioninfo)
+         compiler_orig = 'clang' + mobj.group(1) + mobj.group(2)
+      elif ccommand == 'icc':
+         versioninfo = os.popen(ccommand + ' -dumpversion').read()
+         patt = re.compile('([0-9]+)')
+         mobj = patt.match(versioninfo)
+         compiler_orig = 'icc' + mobj.group(1) + mobj.group(2)
+      else:
+         compiler_orig = 'unk-cmp'
    return compiler_orig;
 
 # --------------------- Setting default built type
@@ -250,10 +250,14 @@ if __name__ == "__main__":
       op_sys = default_os()
 
    os.environ["CMAKE_PREFIX_PATH_ALL"] = directory_names()[0]
-   os.environ["PATH_ALL"] = directory_names()[1]+":"+os.environ["PATH"]
+   
+   if not 'PATH' in os.environ:
+       os.environ['PATH'] = "/usr/bin:/usr/local/bin"
+       
+   os.environ["PATH_ALL"] = directory_names()[1]+":"+os.environ["PATH"]+":/usr/local/bin"
 
-   #if not os.environ("LD_LIBRARY_PATH"):
-   #   os.environ["LD_LIBRARY_PATH"] = "";
+   if not 'LD_LIBRARY_PATH' in os.environ:
+      os.environ['LD_LIBRARY_PATH'] = "/usr/local/gfortran/lib"
 
    os.environ["LD_LIBRARY_PATH_ALL"] = directory_names()[2]+":"+os.environ["LD_LIBRARY_PATH"]
 

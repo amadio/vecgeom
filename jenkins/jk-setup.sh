@@ -43,17 +43,9 @@ if [[ $COMPILER == *gcc* ]]; then
   export FC=gfortran
   export CXX=`which g++`
   export CC=`which gcc`
-  export CMAKE_SOURCE_DIR=$WORKSPACE/VecGeom
-  export CMAKE_BINARY_DIR=$WORKSPACE/VecGeom/builds
-  export CMAKE_BUILD_TYPE=$BUILDTYPE
-  export CMAKE_INSTALL_PREFIX=$WORKSPACE/VecGeom/installation
-  export BACKEND=$BACKEND
-  export CTEST_BUILD_OPTIONS="-DROOT=ON -DCTEST=ON -DBENCHMARK=ON ${ExtraCMakeOptions}"
-#  export BACKEND=Vc
-#  export CTEST_BUILD_OPTIONS="-DROOT=ON -DVc=ON -DCTEST=ON -DBENCHMARK=ON -DUSOLIDS=OFF ${ExtraCMakeOptions}"
 elif [[ $COMPILER == *native* && $PLATFORM == *mac* ]]; then
   export LD_LIBRARY_PATH=/usr/local/gfortran/lib
-  export PATH=${PATH}:/usr/local/bin:/opt/X11/bin
+  export PATH=/usr/bin:/usr/local/bin:/opt/X11/bin
   export CC=`which clang`
   export CXX=`which clang++`
   export FC=`which gfortran`
@@ -80,12 +72,6 @@ elif [[ $COMPILER == *icc* ]]; then
   export CC=icc
   export CXX=icc
   export FC=ifort
-  export CMAKE_SOURCE_DIR=$WORKSPACE/VecGeom
-  export CMAKE_BINARY_DIR=$WORKSPACE/VecGeom/builds
-  export CMAKE_BUILD_TYPE=$BUILDTYPE
-  export CMAKE_INSTALL_PREFIX=$WORKSPACE/VecGeom/installation
-  export BACKEND=$BACKEND
-  export CTEST_BUILD_OPTIONS="-DROOT=ON -DCTEST=ON -DBENCHMARK=ON ${ExtraCMakeOptions}"
 elif [[ $COMPILER == *clang* ]]; then
   clang34version=3.4
   clang35version=3.5
@@ -105,7 +91,12 @@ elif [[ $COMPILER == *clang* ]]; then
   export FC=`which gfortran`
 fi
 
-
+export CMAKE_SOURCE_DIR=$WORKSPACE/VecGeom
+export CMAKE_BINARY_DIR=$WORKSPACE/VecGeom/builds
+export CMAKE_BUILD_TYPE=$BUILDTYPE
+export CMAKE_INSTALL_PREFIX=$WORKSPACE/VecGeom/installation
+export BACKEND=$BACKEND
+export CTEST_BUILD_OPTIONS="-DROOT=ON -DCTEST=ON -DBENCHMARK=ON ${ExtraCMakeOptions}"
 
 echo ${THIS}/setup.py -o ${LABEL} -c ${COMPILER} -b ${BUILDTYPE} -v ${EXTERNALS}
 eval `${THIS}/setup.py -o ${LABEL} -c ${COMPILER} -b ${BUILDTYPE} -v ${EXTERNALS}`
