@@ -62,7 +62,6 @@ public:
 // put this at the moment since not all shapes respond yet with a negative distance if
 // the point is actually inside the daughter
 #ifdef CHECKCONTAINS
-#pragma message "CHECKCONTAINS"
       bool contains = daughter->Contains(localpoint);
       if (!contains) {
 #endif
@@ -102,7 +101,6 @@ public:
 // put this at the moment since not all shapes respond yet with a negative distance if
 // the point is actually inside the daughter
 #ifdef CHECKCONTAINS
-#pragma message "CHECKCONTAINS"
       bool contains = daughter->Contains(localpoint);
       if (!contains) {
 #endif
@@ -147,7 +145,6 @@ static void DaughterIntersectionsLooper(VNavigator const * /*nav*/, LogicalVolum
       // put this at the moment since not all shapes respond yet with a negative distance if
       // the point is actually inside the daughter
       //  #ifdef CHECKCONTAINS
-      // #pragma message "CHECKCONTAINS"
       //        Bool_v contains = daughter->Contains(localpoint);
       //        if (!contains) {
       //  #endif
@@ -197,7 +194,6 @@ static void DaughterIntersectionsLooper(VNavigator const * /*nav*/, LogicalVolum
 //      // put this at the moment since not all shapes respond yet with a negative distance if
 //      // the point is actually inside the daughter
 //      //  #ifdef CHECKCONTAINS
-//      // #pragma message "CHECKCONTAINS"
 //      //        Bool_v contains = daughter->Contains(localpoint);
 //      //        if (!contains) {
 //      //  #endif
