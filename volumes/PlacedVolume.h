@@ -215,11 +215,16 @@ public:
 
 
   // if we have any SIMD backend, we offer a SIMD interface
-#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
-  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToIn(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
+  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToInVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
                                                  Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
                                                  const VECGEOM_BACKEND_PRECISION_TYPE step_max = kInfinity) const = 0;
-#endif
+
+  template <typename T>
+  VECGEOM_INLINE T DistanceToIn(Vector3D<T> const &position, Vector3D<T> const &direction,
+                                const T step_max = T(kInfinity)) const
+  {
+    return DistanceToInVec(position, direction, step_max);
+  }
 
   virtual void DistanceToIn(SOA3D<Precision> const &position,
                             SOA3D<Precision> const &direction,
@@ -249,12 +254,18 @@ public:
       Precision const step_max = kInfinity) const =0;
 #endif
   // define this interface in case we don't have the Scalar interface
-#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
-  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToOut(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
+
+  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToOutVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
                                                   Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
                                                   VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfinity) const = 0;
-#endif
 
+
+  template <typename T>
+  VECGEOM_INLINE T DistanceToOut(Vector3D<T> const &position, Vector3D<T> const &direction,
+                                 const T step_max = T(kInfinity)) const
+  {
+    return DistanceToOutVec(position, direction, step_max);
+  }
 
   // a "placed" version of the distancetoout function; here
   // the point and direction are first of all transformed into the reference frame of the
@@ -284,9 +295,10 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision SafetyToIn(Vector3D<Precision> const &position) const =0;
 
-#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
-  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const = 0;
-#endif
+  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToInVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const = 0;
+
+  template<typename T> VECGEOM_INLINE
+  T SafetyToIn(Vector3D<T> const &p) const { return SafetyToInVec(p); }
 
   virtual void SafetyToIn(SOA3D<Precision> const &position,
                           Precision *const safeties) const =0;
@@ -301,12 +313,13 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision SafetyToOut(Vector3D<Precision> const &position) const =0;
 
-#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
-  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOut(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const = 0;
-#endif
+  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOutVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const = 0;
 
   virtual void SafetyToOut(SOA3D<Precision> const &position,
                            Precision *const safeties) const =0;
+
+  template<typename T> VECGEOM_INLINE
+  T SafetyToOut(Vector3D<T> const &p) const { return SafetyToOutVec(p); }
 
   // virtual void SafetyToOut(AOS3D<Precision> const &position,
   //                          Precision *const safeties) const =0;

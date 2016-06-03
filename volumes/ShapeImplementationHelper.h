@@ -95,6 +95,10 @@ public:
       : PlacedShape_t(logical_volume, transformation, details::UseIfSameType<PlacedShape_t,PlacedBox>::Get(this), id) {}
 
 #endif
+  using PlacedShape_t::SafetyToIn;
+  using PlacedShape_t::SafetyToOut;
+  using PlacedShape_t::DistanceToIn;
+  using PlacedShape_t::DistanceToOut;
 
   virtual int memory_size() const override { return sizeof(*this); }
 
@@ -231,8 +235,7 @@ public:
     return output;
   }
 
-#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
-  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToIn(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &point,
+  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToInVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &point,
                                                  Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
                                                  const VECGEOM_BACKEND_PRECISION_TYPE stepMax) const override {
 //#ifndef VECGEOM_NVCC
@@ -250,7 +253,6 @@ public:
 
     return output;
   }
-#endif
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToOut(Vector3D<Precision> const &point,
@@ -288,8 +290,8 @@ public:
     return output;
   }
 
-#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
-  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToOut(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &point,
+
+  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToOutVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &point,
                                                   Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
                                                   const VECGEOM_BACKEND_PRECISION_TYPE stepMax) const override {
 //#ifndef VECGEOM_NVCC
@@ -313,7 +315,6 @@ public:
 
     return output;
   }
-#endif
 
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -408,9 +409,9 @@ public:
     return output;
   }
 
-#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
+
   VECGEOM_INLINE
-  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToIn(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override {
+  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToInVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override {
     VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
     Specialization::template SafetyToIn<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), *this->GetTransformation(), position, output);
 
@@ -421,7 +422,7 @@ public:
   }
 
   VECGEOM_INLINE
-  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOut(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override {
+  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOutVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override {
     VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
     Specialization::template SafetyToOut<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), position, output);
 
@@ -430,7 +431,6 @@ public:
 
     return output;
   }
-#endif
 
   virtual void Contains(SOA3D<Precision> const &points,
                         bool *const output) const override {

@@ -163,6 +163,7 @@ typedef kUmeSimd::inside_v          UmesimdInside_v;
 
 #define VECGEOM_BACKEND_TYPE                  kUmeSimd
 #define VECGEOM_BACKEND_PRECISION_TYPE        UmesimdPrecision_v
+#define VECGEOM_BACKEND_PRECISION_TYPE_SIZE   UmesimdPrecision_v::Size
 #define VECGEOM_BACKEND_PRECISION_FROM_PTR(P) vecgeom::UmesimdPrecision_v(P)
 #define VECGEOM_BACKEND_BOOL                  UmesimdBool_v
 #define VECGEOM_BACKEND_INSIDE                UmesimdInside_v

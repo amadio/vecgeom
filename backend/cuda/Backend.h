@@ -42,6 +42,7 @@ constexpr size_t kVectorSize = 1;
 #define VECGEOM_BACKEND_TYPE         vecgeom::kScalar
 #define VECGEOM_BACKEND_PRECISION_FROM_PTR(P) (*(P))
 #define VECGEOM_BACKEND_PRECISION_TYPE Precision
+#define VECGEOM_BACKEND_PRECISION_TYPE_SIZE 1
 //#define VECGEOM_BACKEND_PRECISION_NOT_SCALAR
 #define VECGEOM_BACKEND_BOOL         vecgeom::ScalarBool
 #define VECGEOM_BACKEND_INSIDE       vecgeom::kScalar::inside_v
