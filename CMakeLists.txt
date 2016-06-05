@@ -197,6 +197,9 @@ if (ENABLE_VECCORE)
     set(SIMD ON CACHE BOOL "" FORCE)
   endif()
   add_subdirectory(VecCore)
+  include_directories("VecCore/include/")
+  # tmp fix for the generated Config.h file
+  include_directories("${PROJECT_BINARY_DIR}/VecCore/include/")
 endif()
 
 if (_backend_up MATCHES VC)
