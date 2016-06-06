@@ -759,7 +759,7 @@ add_library(vecgeom ${SRC_CPP})
 target_link_libraries(vecgeom ${VECGEOM_LIBRARIES}
                       ${VECGEOM_LIBRARIES_EXTERNAL})
 set(VECGEOM_LIBRARIES ${VECGEOM_LIBRARIES} vecgeom)
-if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if (NOT APPLE)
   set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} rt)
 endif()
 
