@@ -128,7 +128,8 @@ struct PolyhedronImplementation {
       UnplacedPolyhedron const &polyhedron,
       int segmentIndex,
       int phiIndex,
-      Vector3D<Precision> const &point);
+      Vector3D<Precision> const &point,
+      int &iSurf);
 
   /// \param goingRight Whether the point is travelling along the Z-axis (true)
   ///        or opposite of the Z-axis (false).
@@ -153,7 +154,8 @@ struct PolyhedronImplementation {
   static void ScalarSafetyToEndcapsSquared(
       UnplacedPolyhedron const &polyhedron,
       Vector3D<Precision> const &point,
-      Precision &distance);
+      Precision &distance,
+      int &iz);
 
   /// \param largePhiCutout Whether the phi cutout angle is larger than pi.
   /// \return Whether a point is within the infinite phi wedge formed from
@@ -207,6 +209,11 @@ struct PolyhedronImplementation {
   static Precision ScalarSafetyKernel(
       UnplacedPolyhedron const &unplaced,
       Vector3D<Precision> const &point);
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  static bool ScalarNormalKernel(UnplacedPolyhedron const &unplaced, Vector3D<Precision> const &point,
+                                   Vector3D<Precision> &normal);
 
   /// Not implemented. Scalar version is called from SpecializedPolyhedron.
   template <class Backend>
@@ -558,21 +565,32 @@ PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT,
     UnplacedPolyhedron const &polyhedron,
     int segmentIndex,
     int phiIndex,
-    Vector3D<Precision> const &point) {
+    Vector3D<Precision> const &point,
+    int &iSurf) {
 
   ZSegment const &segment = polyhedron.GetZSegment(segmentIndex);
 
-  if (TreatPhi<phiCutoutT>(polyhedron.HasPhiCutout()) &&
-      segment.phi.size() == 2 &&
-      InPhiCutoutWedge<kScalar>(segment, polyhedron.HasLargePhiCutout(),
-                                point)) {
+  Precision safetySquared = kInfinity;
+  if (TreatPhi<phiCutoutT>(polyhedron.HasPhiCutout()) && segment.phi.size() == 2) {
+    iSurf = 0;
+    // Phi treatment was wrong since safety for phi was called only when the point was
+    // in the cutout wedge. We have to call it also when the point is in the phi regions
+    // adjacent to the cutout wedge.
+    if (phiIndex < 1) 
+      safetySquared = segment.phi.ScalarDistanceSquared(0, point);
+    Precision saf = kInfinity;
+    if (phiIndex < 0 || phiIndex == polyhedron.GetSideCount()-1)
+      saf = segment.phi.ScalarDistanceSquared(1, point);
+    if (saf < safetySquared) {
+      safetySquared = saf;
+      iSurf = 1;
+    }
     // If the point is within the phi cutout wedge, the two phi cutout sides are
     // guaranteed to be the closest quadrilaterals to the point.
-    return Min(segment.phi.ScalarDistanceSquared(0, point),
-               segment.phi.ScalarDistanceSquared(1, point));
+    if (phiIndex < 0 || safetySquared < kTolerance) return safetySquared;
   }
 
-  if(phiIndex < 0) return kInfinity;
+  
 
   // Otherwise check the outer shell
   // TODO: we need to check segment.outer.size() > 0
@@ -586,8 +604,15 @@ PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT,
       if( segment.inner.size() > 0 )
     safetySquaredInner = segment.inner.ScalarDistanceSquared(phiIndex, point);
   }
-
-  return Min(safetySquaredInner, safetySquaredOuter);
+  if (safetySquaredInner < safetySquared) {
+    iSurf = 2;
+    safetySquared = safetySquaredInner;
+  }
+  if (safetySquaredOuter < safetySquared) {
+    iSurf = 3;
+    safetySquared = safetySquaredOuter;
+  }
+  return safetySquared;
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT,
@@ -681,7 +706,8 @@ void
 PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::ScalarSafetyToEndcapsSquared(
     UnplacedPolyhedron const &polyhedron,
     Vector3D<Precision> const &point,
-    Precision &distanceSquared) {
+    Precision &distanceSquared,
+    int &iz) {
 
   // Compute both distances (simple subtractions) to determine which is closer
   Precision firstDistance = polyhedron.GetZPlane(0) - point[2];
@@ -690,6 +716,7 @@ PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::ScalarSa
 
   // Only treat the closest endcap
   bool isFirst = Abs(firstDistance) < Abs(lastDistance);
+  iz = 0;
   ZSegment const &segment =
       isFirst ? polyhedron.GetZSegment(0)
               : polyhedron.GetZSegment(polyhedron.GetZSegmentCount()-1);
@@ -712,6 +739,7 @@ PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::ScalarSa
     }
   }
 
+  iz = (isFirst) ? -1 : 1;
   distanceSquared = distanceTestSquared;
 }
 
@@ -963,7 +991,8 @@ Precision PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>
     Vector3D<Precision> const &point) {
 
   Precision safety = kInfinity;
-
+  Precision dz;
+  int iSurf, iz;
   const int zMax = unplaced.GetZSegmentCount();
   int zIndex = FindZSegment<kScalar>(unplaced, point[2]);
   zIndex = zIndex < 0 ? 0 : (zIndex >= zMax ? zMax-1 : zIndex);
@@ -972,21 +1001,95 @@ Precision PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>
   // Right
   for (int z = zIndex; z < zMax;) {
     safety = Min(safety, ScalarSafetyToZSegmentSquared(unplaced, z, phiIndex,
-                                                       point));
+                                                       point, iSurf));
     ++z;
-    if (unplaced.GetZPlanes()[z] - point[2] > safety) break;
+    dz = unplaced.GetZPlanes()[z] - point[2];
+    // Fixed bug: dz was compared directly to safety to stop the search, while safety is a squared
+    if (dz*dz > safety) break;
   }
   // Left
   for (int z = zIndex-1; z >= 0; --z) {
     safety = Min(safety, ScalarSafetyToZSegmentSquared(unplaced, z, phiIndex,
-                                                       point));
-    if (point[2] - unplaced.GetZPlanes()[z] > safety) break;
+                                                       point, iSurf));
+    dz = point[2] - unplaced.GetZPlanes()[z];
+    if (dz*dz > safety) break;
   }
 
   // Endcap
-  ScalarSafetyToEndcapsSquared(unplaced, point, safety);
+  ScalarSafetyToEndcapsSquared(unplaced, point, safety, iz);
 
   return sqrt(safety);
+}
+
+template <TranslationCode transCodeT, RotationCode rotCodeT, Polyhedron::EInnerRadii innerRadiiT,
+          Polyhedron::EPhiCutout phiCutoutT>
+VECGEOM_CUDA_HEADER_BOTH bool
+PolyhedronImplementation<transCodeT, rotCodeT, innerRadiiT, phiCutoutT>::ScalarNormalKernel(
+    UnplacedPolyhedron const &unplaced, Vector3D<Precision> const &point, Vector3D<Precision> &normal) {
+
+  Precision safety = kInfinity;
+  const int zMax = unplaced.GetZSegmentCount();
+  int zIndex = FindZSegment<kScalar>(unplaced, point[2]);
+  if (zIndex < 0) {
+    normal = Vector3D<Precision>(0, 0, -1);
+    return true;
+  }
+
+  if (zIndex >= zMax) {
+    normal = Vector3D<Precision>(0, 0, 1);
+    return true;
+  }
+
+  int iSeg = zIndex;
+  Precision dz;
+  int iSurf = -1;
+  int iz = 0;
+  int phiIndex = FindPhiSegment<kScalar>(unplaced, point);
+
+  // Right
+  for (int z = zIndex; z < zMax;) {
+    int iSurfCrt = -1;
+    Precision safetySeg = ScalarSafetyToZSegmentSquared(unplaced, z, phiIndex, point, iSurfCrt);
+    if (safetySeg < safety) {
+      safety = safetySeg;
+      iSeg = z;
+      iSurf = iSurfCrt;
+    }
+    ++z;
+    dz = unplaced.GetZPlanes()[z] - point[2];
+    if (dz*dz > safety) break;
+  }
+  // Left
+  for (int z = zIndex - 1; z >= 0; --z) {
+    int iSurfCrt = -1;
+    Precision safetySeg = ScalarSafetyToZSegmentSquared(unplaced, z, phiIndex, point, iSurfCrt);
+    if (safetySeg < safety) {
+      safety = safetySeg;
+      iSeg = z;
+      iSurf = iSurfCrt;
+    }
+    dz = point[2] - unplaced.GetZPlanes()[z];
+    if (dz*dz > safety) break;
+  }
+
+  // Endcap
+  ScalarSafetyToEndcapsSquared(unplaced, point, safety, iz);
+  if (iz != 0) {
+    normal = Vector3D<Precision>(0, 0, iz);
+    return true;
+  }
+
+  // Retrieve the segment the point is closest to.
+  ZSegment const &segment = unplaced.GetZSegment(iSeg);
+  if (iSurf >= 0 && iSurf < 2) {
+    normal = segment.phi.GetNormal(iSurf);
+  } else {
+    if (iSurf == 2)
+      normal = -1. * segment.inner.GetNormal(phiIndex);
+    else
+      normal = segment.outer.GetNormal(phiIndex);
+  }
+  return true;
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT,

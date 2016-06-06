@@ -924,56 +924,11 @@ Precision UnplacedPolyhedron::Capacity() const {
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-bool UnplacedPolyhedron::Normal(Vector3D<Precision>const& point, Vector3D<Precision>& normal) const{
-
-  int  j;
-  bool valid = true; 
-
-
-// Find correct segment by checking Z-bounds
-  int zIndex = -1;
-  for( j = 0; j < GetZSegmentCount(); j++)
-  { if(point[2]< GetZPlane(j))break;
-    zIndex++;
-  }
-  if(zIndex > (GetZSegmentCount()-1))
-  {
-    normal = Vector3D<Precision>(0,0,1);
-    return valid = false; 
-  }
-  if(zIndex < 0)
-  {
-    normal = Vector3D<Precision>(0,0,-1);
-    return valid = false;
-  }
-
-  ZSegment const &segment = GetZSegment(zIndex);
-
-// Check that the point is in the outer shell
-
-
-    Inside_t insideOuter = segment.outer.Inside<kScalar>(point);
-    if (insideOuter == EInside::kSurface) return true;
-  
-// Check that the point is not in the inner shell
-  if (segment.hasInnerRadius) {
-    Inside_t insideInner = segment.inner.Inside<kScalar>(point);
-    
-    if (insideInner == EInside::kSurface) return true;
-  
-  }
-  // Check that the point is not in the phi cutout wedge
-  if (HasPhiCutout()) 
-    // if (InPhiCutoutWedge<kScalar>(segment, polyhedron.HasLargePhiCutout(),
-    //                              localPoint)) {
-      // TODO: check for surface case when in phi wedge. This can be done by
-      //       checking the distance to planes of the phi cutout sides.
-      return true;
- 
-  return valid;   
-
+bool UnplacedPolyhedron::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const {
+  // Compute normal vector to closest surface
+  return (PolyhedronImplementation<translation::kGeneric, rotation::kGeneric, Polyhedron::EInnerRadii::kGeneric,
+                                   Polyhedron::EPhiCutout::kGeneric>::ScalarNormalKernel(*this, point, normal));
 }
-
 
 #endif // !VECGEOM_NVCC
 
