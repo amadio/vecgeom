@@ -1,11 +1,12 @@
 #include "utilities/Visualizer.h"
 #include "volumes/Polyhedron.h"
 #include "volumes/utilities/VolumeUtilities.h"
+#include "TPolyMarker3D.h"
 
 using namespace vecgeom;
 
 int main() {
-  constexpr int nSamples = 512;
+  constexpr int nSamples = 10000;
 //  Precision rmin[4]={15.,8.,15.,15.};
   //Precision rmin[5]={10.,10.,0.,0.,0.};
   //Precision rmax[4]={20.,15.,15.,20.};
@@ -44,18 +45,19 @@ int main() {
   	double rOuter[nPlanes] = {1, 2, 2, 1};
   
   SimplePolyhedron polyhedron("Visualizer Polyhedron", phiStart, deltaPhi, sides, nPlanes, zPlanes, rInner, rOuter);
-  AOS3D<Precision> points(nSamples);
+  TPolyMarker3D pm(nSamples);
+  pm.SetMarkerColor(kRed);
+  pm.SetMarkerStyle(6);
   for (int i = 0; i < nSamples; ++i) {
     Vector3D<Precision> sample;
     do {
       sample = volumeUtilities::SamplePoint(Vector3D<Precision>(20, 20, 20));
     } while (!polyhedron.Contains(sample));
-    points.set(i, sample);
+    pm.SetNextPoint(sample[0], sample[1], sample[2]);
   }
-  points.resize(nSamples);
   Visualizer visualizer;
   visualizer.AddVolume(polyhedron);
-  //visualizer.AddPoints(points);
+  visualizer.AddPoints(pm);
   visualizer.Show();
   return 0;
 }

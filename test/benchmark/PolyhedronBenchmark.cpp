@@ -61,7 +61,7 @@ int main(int nArgs, char **args) {
     benchmarker.SetVerbosity(3);
     benchmarker.SetPoolMultiplier(1);
     benchmarker.SetRepetitions(4);
-    benchmarker.SetPointCount(1024);
+    benchmarker.SetPointCount(102400);
     benchmarker.RunInsideBenchmark();
     benchmarker.RunToInBenchmark();
     benchmarker.RunToOutBenchmark();
@@ -75,10 +75,10 @@ int main(int nArgs, char **args) {
     outStream.close();
   };
 
-  RunBenchmark(NoInnerRadii(), "polyhedron_no-inner-radii.csv");
+  // RunBenchmark(NoInnerRadii(), "polyhedron_no-inner-radii.csv");
   // RunBenchmark(WithInnerRadii(), "polyhedron_with-inner-radii.csv");
   // RunBenchmark(ManySegments(), "polyhedron_many-segments.csv");
-  // RunBenchmark(WithPhiSection(), "polyhedron_phi-section.csv");
+  RunBenchmark(WithPhiSection(), "polyhedron_phi-section.csv");
 
   return 0;
 }
