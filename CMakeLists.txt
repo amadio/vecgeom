@@ -162,6 +162,10 @@ if (USOLIDS)
   set(USolids ON)
 endif()
 
+if (APPLE) 
+   set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
+endif()
+
 
 if (GEANT4)
 #  if (BENCHMARK)
