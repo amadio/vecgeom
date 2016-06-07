@@ -345,11 +345,11 @@ struct AcceleratedDistanceToIn<kScalar> {
       VcPrecision distanceTest = plane.Dot(point) + dPlane;
 
       // Check if the point is in front of/behind the plane according to the template parameter
-      VcBool valid = Flip<behindPlanesT>::FlipSign(distanceTest) >= 0;
+      VcBool valid = Flip<behindPlanesT>::FlipSign(distanceTest) >= -kTolerance;
       if (IsEmpty(valid)) continue;
 
       VcPrecision directionProjection = plane.Dot(direction);
-      valid &= Flip<!behindPlanesT>::FlipSign(directionProjection) >= 0;
+      valid &= Flip<!behindPlanesT>::FlipSign(directionProjection) >= -kTolerance;
       if (IsEmpty(valid)) continue;
       VcPrecision tiny = Vc::copysign(VcPrecision(1E-20), directionProjection);
       distanceTest /= -(directionProjection + tiny);
@@ -361,14 +361,14 @@ struct AcceleratedDistanceToIn<kScalar> {
             VcPrecision(sideVectors[j].GetNormals().y()+i),
             VcPrecision(sideVectors[j].GetNormals().z()+i));
         VcPrecision dSide(&sideVectors[j].GetDistances()[i]);
-        valid &= sideVector.Dot(intersection) + dSide >= 0;
+        valid &= sideVector.Dot(intersection) + dSide >= -kTolerance;
         // Where is your god now
         if (IsEmpty(valid)) goto distanceToInVcContinueOuter;
       }
       // If a hit is found, the algorithm can return, since only one side can
       // be hit for a convex set of quadrilaterals
       distanceTest(!valid) = kInfinity;
-      distance = distanceTest.min();
+      distance = Max(distanceTest.min(), 0.);
       i = n;
       return;
       // Continue label of outer loop
@@ -415,7 +415,7 @@ typename Backend::precision_v Quadrilaterals::DistanceToIn(
     Float_t distance = point.Dot(normal) + fPlanes.GetDistance(i);
     // Check if the point is in front of/behind the plane according to the
     // template parameter
-    Bool_t valid = Flip<behindPlanesT>::FlipSign(distance) >= 0;
+    Bool_t valid = Flip<behindPlanesT>::FlipSign(distance) > -kTolerance;
     if (IsEmpty(valid)) continue;
     Float_t directionProjection = direction.Dot(normal);
     valid &= Flip<!behindPlanesT>::FlipSign(directionProjection) >= 0;
@@ -433,7 +433,7 @@ typename Backend::precision_v Quadrilaterals::DistanceToIn(
     if (IsFull(bestDistance < kInfinity)) break;
   }
 
-  return bestDistance;
+  return Max(0., bestDistance);
 }
 
 namespace {
@@ -479,12 +479,12 @@ void AcceleratedDistanceToOut<kScalar>(
     VcPrecision dPlane(&planes.GetDistances()[0]+i);
     VcPrecision distanceTest = plane.Dot(point) + dPlane;
     // Check if the point is behind the plane
-    VcBool valid = distanceTest < 0;
+    VcBool valid = distanceTest < kTolerance;
     if (IsEmpty(valid)) continue;
     VcPrecision directionProjection = plane.Dot(direction);
     // Because the point is behind the plane, the direction must be along the
     // normal
-    valid &= directionProjection >= 0;
+    valid &= directionProjection > -kTolerance;
     if (IsEmpty(valid)) continue;
     distanceTest /= -directionProjection;
     valid &= distanceTest < distance;
@@ -515,6 +515,7 @@ distanceToOutVcContinueOuter:
     distanceTest(!valid) = kInfinity;
     distance = distanceTest.min();
   }
+  distance = Max(0., distance);
   return;
 }
 #endif
@@ -550,7 +551,7 @@ typename Backend::precision_v Quadrilaterals::DistanceToOut(
     Vector3D<Precision> normal = fPlanes.GetNormal(i);
     Float_t distanceTest = point.Dot(normal) + fPlanes.GetDistance(i);
     // Check if the point is behind the plane
-    Bool_t valid = distanceTest < 0;
+    Bool_t valid = distanceTest < kTolerance;
     if (IsEmpty(valid)) continue;
     Float_t directionProjection = direction.Dot(normal);
     // Because the point is behind the plane, the direction must be along the
@@ -580,6 +581,7 @@ typename Backend::precision_v Quadrilaterals::DistanceToOut(
     MaskedAssign(valid, distanceTest, &bestDistance);
   }
 
+  if (bestDistance > -kTolerance) bestDistance = Max(bestDistance, 0.);
   return bestDistance;
 }
 

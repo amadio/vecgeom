@@ -567,8 +567,8 @@ PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::Distance
   // result is found
   if (TreatPhi<phiCutoutT>(polyhedron.HasPhiCutout())) {
     Float_t distphi = segment.phi.DistanceToIn<Backend, true>(point, direction);
-    MaskedAssign(!done && distance>=0., distphi, &distance);
-    done = distance>=0. && distance < kInfinity;
+    MaskedAssign(!done && distance > -kTolerance, distphi, &distance);
+    done = distance > -kTolerance && distance < kInfinity;
     if (IsFull(done)) return distance;
   }
 
@@ -703,7 +703,7 @@ void PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::Sca
 
   Precision distanceTest = (zPlane - point[2]) / direction[2];
   // If the distance is not better there's no reason to check for validity
-  if (distanceTest < 0 || distanceTest >= distance) return;
+  if (distanceTest < -kTolerance || distanceTest >= distance) return;
 
   Vector3D<Precision> intersection = point + distanceTest*direction;
   // Intersection point must be inside outer shell and outside inner shell
