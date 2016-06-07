@@ -157,17 +157,20 @@ void UnplacedPolyhedron::Initialize(
   outerRadius/=cosHalfDeltaPhi;
 
   // Create bounding tube with biggest outer radius and smallest inner radius
-  Precision boundingTubeZ = zPlanes[zPlaneCount-1] - zPlanes[0] + 2.*kTolerance;
-  Precision boundsPhiStart = !fHasPhiCutout ? 0 : phiStart;
-  Precision boundsPhiDelta = !fHasPhiCutout ? kTwoPi : phiDelta;
+  Precision boundingTubeZ = 0.5 * (zPlanes[zPlaneCount - 1] - zPlanes[0] + kTolerance);
+  // Make bounding tube phi range a bit larger to contain all points on phi boundaries
+  Precision boundsPhiStart = !fHasPhiCutout ? 0 : phiStart - 100*kTolerance;
+  Precision boundsPhiDelta = !fHasPhiCutout ? kTwoPi : phiDelta + 200*kTolerance;
   // correct inner and outer Radius with conversion factor
   //innerRadius /= cosHalfDeltaPhi;
   //outerRadius /= cosHalfDeltaPhi;
 
-  fBoundingTube = UnplacedTube( innerRadius - kTolerance,
-                                outerRadius + kTolerance, 0.5*boundingTubeZ,
-                               boundsPhiStart, boundsPhiDelta);
-  fBoundingTubeOffset = zPlanes[0] + 0.5*boundingTubeZ;
+  fBoundingTube = UnplacedTube(innerRadius - kHalfTolerance, 
+                                outerRadius + kHalfTolerance, boundingTubeZ, 
+                                boundsPhiStart,
+                                boundsPhiDelta);
+  // The offset has to match the middle of the polyhedron
+  fBoundingTubeOffset = 0.5 * (zPlanes[0] + zPlanes[zPlaneCount - 1]);
 
   // Ease indexing into twodimensional vertix array
   auto VertixIndex = [&sideCount] (int plane, int corner) {

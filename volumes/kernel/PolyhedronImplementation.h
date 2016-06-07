@@ -377,6 +377,12 @@ typename Backend::int_v FindZSegmentKernel(
     Precision const *end,
     typename Backend::precision_v const &pointZ);
 
+template <class Backend>
+VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE
+typename Backend::int_v FindZSegmentKernel1(Precision const *begin,
+    int n, 
+    typename Backend::precision_v const &pointZ);
+
 template <>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
@@ -388,11 +394,30 @@ int FindZSegmentKernel<kScalar>(
   //       implementation. Inspiration can be found at:
   //       http://schani.wordpress.com/2010/04/30/linear-vs-binary-search/
   int index = -1;
-  while (begin < end && pointZ > *begin) {
+  // Modified algorithm to select the first section the position is close to
+  // within boundary tolerance. This is important for degenerated Z polyhedra
+  while (begin < end && pointZ - kTolerance > *begin) {
     ++index;
     ++begin;
   }
+  if (pointZ + kTolerance > *begin) return (index + 1);
   return index;
+}
+
+template <>
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+int FindZSegmentKernel1<kScalar>(Precision const *begin,
+     int n,
+     Precision const &pointZ) {
+  // This algorithm has the same complexity as std::lower_bound (logarithmic).
+  // In addition, for points near degenerated Z planes, it needs to return the segment with lowest index.
+  // This forces the first checked section to be the degenerated one, otherwise intersections can be missed.
+  const Precision *pind = std::lower_bound(begin, begin+n, pointZ - kTolerance);
+  if ( (pind != begin + n) && (Abs(*pind - pointZ) < kTolerance) )
+    return (pind - begin);
+  else
+    return (pind - begin -1);
 }
 
 #ifdef VECGEOM_NVCC
@@ -841,59 +866,72 @@ bool PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::Sca
   return true;
 }
 
-// TODO: check this code -- maybe unify with previous function
-template <TranslationCode transCodeT, RotationCode rotCodeT,
-Polyhedron::EInnerRadii innerRadiiT,
-          Polyhedron::EPhiCutout phiCutoutT>
-VECGEOM_CUDA_HEADER_BOTH
-Inside_t PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::ScalarInsideKernel(
-    UnplacedPolyhedron const &polyhedron,
-    Vector3D<Precision> const &localPoint) {
+  // TODO: check this code -- maybe unify with previous function
+  template <TranslationCode transCodeT, RotationCode rotCodeT, Polyhedron::EInnerRadii innerRadiiT,
+            Polyhedron::EPhiCutout phiCutoutT>
+  VECGEOM_CUDA_HEADER_BOTH Inside_t
+  PolyhedronImplementation<transCodeT, rotCodeT, innerRadiiT, phiCutoutT>::ScalarInsideKernel(
+      UnplacedPolyhedron const &polyhedron, Vector3D<Precision> const &localPoint) {
 
-  // First check if in bounding tube
-  {
-    bool inBounds;
-    // Correct tube algorithm obtained from trait class
-    HasInnerRadiiTraits<innerRadiiT>::TubeKernels::template
-        UnplacedContains<kScalar>(
-            polyhedron.GetBoundingTube(),
-            Vector3D<Precision>(localPoint[0], localPoint[1], localPoint[2]
-                                - polyhedron.GetBoundingTubeOffset()),
-            inBounds);
-    if (!inBounds) return EInside::kOutside;
-  }
-
-  // Find correct segment by checking Z-bounds
-  int zIndex = FindZSegment<kScalar>(polyhedron, localPoint[2]);
-  if(zIndex > (polyhedron.GetZSegmentCount()-1)) zIndex=polyhedron.GetZSegmentCount()-1;
-  if(zIndex < 0) zIndex=0;
-  ZSegment const &segment = polyhedron.GetZSegment(zIndex);
-
-  // Check that the point is in the outer shell
-  {
-    Inside_t insideOuter = segment.outer.Inside<kScalar>(localPoint);
-    if (insideOuter != EInside::kInside) return insideOuter;
-  }
-
-  // Check that the point is not in the inner shell
-  if (TreatInner<innerRadiiT>(segment.hasInnerRadius)) {
-    Inside_t insideInner = segment.inner.Inside<kScalar>(localPoint);
-    if (insideInner == EInside::kInside)  return EInside::kOutside;
-    if (insideInner == EInside::kSurface) return EInside::kSurface;
-  }
-
-  // Check that the point is not in the phi cutout wedge
-  if (TreatPhi<phiCutoutT>(polyhedron.HasPhiCutout())) {
-    if (InPhiCutoutWedge<kScalar>(segment, polyhedron.HasLargePhiCutout(),
-                                  localPoint)) {
-      // TODO: check for surface case when in phi wedge. This can be done by
-      //       checking the distance to planes of the phi cutout sides.
-      return EInside::kOutside;
+    // First check if in bounding tube
+    {
+      bool inBounds;
+      // Correct tube algorithm obtained from trait class
+      // FIX: the bounding tube was wrong. Since the fast UnplacedContains is
+      // used for early return, the bounding tube has to be larger than the 
+      // ideal bounding tube to account for the tolerance (offset was wrong)
+      HasInnerRadiiTraits<innerRadiiT>::TubeKernels::template UnplacedContains<kScalar>(
+          polyhedron.GetBoundingTube(),
+          Vector3D<Precision>(localPoint[0], localPoint[1], localPoint[2] - polyhedron.GetBoundingTubeOffset()),
+          inBounds);
+      if (!inBounds)
+        return EInside::kOutside;
     }
-  }
 
-  return EInside::kInside;
-}
+    // Find correct segment by checking Z-bounds
+    // The FindZSegment was fixed for the degenerated Z case when 2 planes
+    // have identical Z. In this case, if the point is close within tolerance
+    // to such section, the returned index has to be the first of the 2, so that
+    // all navigation functions start by checking the degenerated segment.
+    int zIndex = FindZSegment<kScalar>(polyhedron, localPoint[2]);
+    if (zIndex > (polyhedron.GetZSegmentCount() - 1))
+      zIndex = polyhedron.GetZSegmentCount() - 1;
+    if (zIndex < 0)
+      zIndex = 0;
+
+    ZSegment const &segment = polyhedron.GetZSegment(zIndex);
+
+    // Check that the point is in the outer shell
+    {
+      Inside_t insideOuter = segment.outer.Inside<kScalar>(localPoint);
+      if (insideOuter != EInside::kInside)
+        return insideOuter;
+    }
+
+    // Check that the point is not in the inner shell
+    if (TreatInner<innerRadiiT>(segment.hasInnerRadius)) {
+      Inside_t insideInner = segment.inner.Inside<kScalar>(localPoint);
+      if (insideInner == EInside::kInside)
+        return EInside::kOutside;
+      if (insideInner == EInside::kSurface)
+        return EInside::kSurface;
+    }
+
+    // Check that the point is not in the phi cutout wedge
+    if (TreatPhi<phiCutoutT>(polyhedron.HasPhiCutout())) {
+      // The phi treatment was wrong, it called a fast contains on the
+      // cutout wedge, which gave no kSurface on boundaries
+      Inside_t insidePhi = segment.phi.Inside<kScalar>(localPoint);
+      if (insidePhi != EInside::kInside)
+        return insidePhi;
+    }
+
+    // FIX: Still need to check if not on one of the Z boundaries.
+    Precision dz = Abs(Abs(localPoint[2] - polyhedron.GetBoundingTubeOffset()) - 
+                       0.5*(polyhedron.GetZPlanes()[polyhedron.GetZSegmentCount()] - polyhedron.GetZPlanes()[0]));
+    if (dz < kHalfTolerance) return EInside::kSurface;
+    return EInside::kInside;
+  }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT,
 Polyhedron::EInnerRadii innerRadiiT,
