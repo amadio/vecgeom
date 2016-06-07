@@ -948,10 +948,11 @@ PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::ScalarDi
   // Transformation is done here so the transformation can be used as a dummy
   // argument to the bounding tube's distance function.
   const Vector3D<Precision> localPoint = transformation.Transform(point);
+  auto inside = ScalarInsideKernel(unplaced, localPoint);
+  if (inside == kInside) return -1.;
+  
   const Vector3D<Precision> localDirection =
       transformation.TransformDirection(direction);
-
-
 
     // Check if the point is within the bounding tube
     bool inBounds;
@@ -983,13 +984,6 @@ PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::ScalarDi
   // Don't go out of bounds here, as the first/last segment should be checked
   // even if the point is outside of Z-bounds
   zIndex = zIndex < 0 ? 0 : (zIndex >= zMax ? zMax-1 : zIndex);
-
-  // SW: Add a check if actually inside ( required by navigation )
-  // TODO: check if this is optimal way
-  if( inBounds && ScalarSegmentContainsKernel( unplaced,localPoint, zIndex ) ) {
-      // return -1.;  // -1 returned causes trouble in Geant4 jobs
-    return kInfinity;
-  }
 
   // Traverse Z-segments left or right depending on sign of direction
   bool goingRight = localDirection[2] >= 0;
@@ -1146,6 +1140,9 @@ PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::ScalarDi
       (point[2] > unplaced.GetZPlanes()[zMax]+kTolerance))
     return -1.;
 
+  auto inside = ScalarInsideKernel(unplaced, point);
+  if (inside == kOutside) return -1.;
+
   int zIndex = FindZSegment<kScalar>(unplaced, point[2]);
   // Don't go out of bounds
   zIndex = zIndex < 0 ? 0 : (zIndex >= zMax ? zMax-1 : zIndex);
@@ -1273,7 +1270,16 @@ void PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::Saf
     Vector3D<typename Backend::precision_v> const &point,
     typename Backend::precision_v &safety) {
 
-     safety = ScalarSafetyKernel(
+    auto inside = ScalarInsideKernel(unplaced, transformation.Transform<transC, rotC>(point));
+    if (inside == kInside) {
+      safety = -1.;
+      return;
+    }
+    if (inside == kSurface) {
+      safety = 0.;
+      return;
+    }
+    safety = ScalarSafetyKernel(
            unplaced, transformation.Transform<transC,rotC>(point) );
 }
 
@@ -1288,6 +1294,15 @@ void PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::Saf
     Vector3D<typename Backend::precision_v> const &point,
     typename Backend::precision_v &safety) {
 
+    auto inside = ScalarInsideKernel(unplaced, point);
+    if (inside == kOutside) {
+      safety = -1.;
+      return;
+    }
+    if (inside == kSurface) {
+      safety = 0.;
+      return;
+    }
     safety = ScalarSafetyKernel(unplaced, point);
 }
 
