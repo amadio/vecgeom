@@ -97,7 +97,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Vector3D<Precision> GetPointOnTriangle(int index, int iCorner1, int iCorner2) const;
+  Vector3D<Precision> GetPointOnTriangle(int index, int iCorner0, int iCorner1, int iCorner2) const;
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -240,30 +240,50 @@ Precision Quadrilaterals::GetQuadrilateralArea(int index) const {
 
 VECGEOM_CUDA_HEADER_BOTH
 Vector3D<Precision> Quadrilaterals::GetPointOnTriangle(int index, 
-                           int iCorner1, int iCorner2) const{
+                           int iCorner0, int iCorner1, int iCorner2) const{
 
    Precision alpha = RNG::Instance().uniform(0.0, 1.0);
    Precision beta = RNG::Instance().uniform(0.0, 1.0);
    Precision lambda1 = alpha * beta;
    Precision lambda0 = alpha - lambda1;
-   Vector3D<Precision> vec1 = fCorners[iCorner1][index]-fCorners[0][index];
-   Vector3D<Precision> vec2 = fCorners[iCorner2][index]-fCorners[0][index];
-   return fCorners[0][index] + lambda0 * vec1 + lambda1 * vec2;
- 
+   Vector3D<Precision> vec1 = fCorners[iCorner1][index]-fCorners[iCorner0][index];
+   Vector3D<Precision> vec2 = fCorners[iCorner2][index]-fCorners[iCorner0][index];
+   return fCorners[iCorner0][index] + lambda0 * vec1 + lambda1 * vec2;
+/* A documented (slower) alternative that generates points uniformly
+  // http://www.cs.princeton.edu/~funk/tog02.pdf (section 4.2, formula 1)
+  Precision sqr_r1 = sqrt(RNG::Instance().uniform(0.0, 1.0));
+  Precision r2 = RNG::Instance().uniform(0.0, 1.0);
+  Vector3D<Precision> const &v1 = fCorners[iCorner0][index];
+  Vector3D<Precision> const &v2 = fCorners[iCorner1][index];
+  Vector3D<Precision> const &v3 = fCorners[iCorner2][index];
+  return ( (1.-sqr_r1)*v1 + sqr_r1*(1.-r2)*v2 + sqr_r1*r2*v3 ); 
+*/ 
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-Vector3D<Precision> Quadrilaterals::GetPointOnFace(int index) const{
+Vector3D<Precision> Quadrilaterals::GetPointOnFace(int index) const {
 
-   Precision choice = RNG::Instance().uniform(0, 1.0);
-   if (choice < 0.5) {
-       return GetPointOnTriangle(index,1,2);
-   }
-   else {
-       return GetPointOnTriangle(index,2,3);
-   }
+  // Avoid degenerated surfaces
+  int nvert = 0;
+  int iCorners[4];
+  for (int i = 0; i < 4; ++i) {
+    if ((fCorners[(i + 1) % 4][index] - fCorners[i % 4][index]).Mag2() > 1.e-6) {
+      iCorners[nvert++] = i;
+    }
+  }
+  if (nvert == 1)
+    return fCorners[0][index];
+  if (nvert == 2)
+    return GetPointOnTriangle(index, iCorners[0], iCorners[0], iCorners[1]);
+  if (nvert == 3)
+    return GetPointOnTriangle(index, iCorners[0], iCorners[1], iCorners[2]);
+  Precision choice = RNG::Instance().uniform(0, 1.0);
+  if (choice < 0.5) {
+    return GetPointOnTriangle(index, 0, 1, 2);
+  } else {
+    return GetPointOnTriangle(index, 0, 2, 3);
+  }
 }
-
 
 template <class Backend>
 VECGEOM_CUDA_HEADER_BOTH
