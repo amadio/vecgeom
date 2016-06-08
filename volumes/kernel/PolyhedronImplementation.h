@@ -608,21 +608,20 @@ PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT,
     // Phi treatment was wrong since safety for phi was called only when the point was
     // in the cutout wedge. We have to call it also when the point is in the phi regions
     // adjacent to the cutout wedge.
-    if (phiIndex < 1) 
-      safetySquared = segment.phi.ScalarDistanceSquared(0, point);
-    Precision saf = kInfinity;
-    if (phiIndex < 0 || phiIndex == polyhedron.GetSideCount()-1)
-      saf = segment.phi.ScalarDistanceSquared(1, point);
+    safetySquared = segment.phi.ScalarDistanceSquared(0, point);
+    Precision saf = segment.phi.ScalarDistanceSquared(1, point);
     if (saf < safetySquared) {
       safetySquared = saf;
       iSurf = 1;
     }
     // If the point is within the phi cutout wedge, the two phi cutout sides are
     // guaranteed to be the closest quadrilaterals to the point.
-    if (phiIndex < 0 || safetySquared < kTolerance) return safetySquared;
+    if (InPhiCutoutWedge<kScalar>(segment, polyhedron.HasLargePhiCutout(), point)) 
+      return safetySquared;
   }
-
   
+  if (phiIndex < 0)
+    return safetySquared; 
 
   // Otherwise check the outer shell
   // TODO: we need to check segment.outer.size() > 0
