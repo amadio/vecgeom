@@ -149,6 +149,27 @@ public:
      return k;
   }
 
+  // interface for ROOT compatibility
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision Gaus(Precision ave = 0.0, Precision sig = 1.0) { return Gauss(ave, sig); }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Precision Gauss(Precision ave = 0.0, Precision sig = 1.0)
+  {
+    Precision x1, x2, w;
+
+    do {
+      x1 = 2.0 * GetUniform() - 1.0;
+      x2 = 2.0 * GetUniform() - 1.0;
+      w = x1 * x1 + x2 * x2;
+    } while (w >= 1.0);
+
+    w = std::sqrt((-2.0 * std::log(w)) / w);
+    return ave + (x1 * w * sig);
+  }
+
   /**
    * Uniformly distributed array of floating point number between 0 and 1 unless
    *         range arguments are passed.
