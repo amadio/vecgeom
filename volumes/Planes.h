@@ -104,6 +104,11 @@ public:
 
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH
+  typename Backend::inside_v Inside(
+      Vector3D<typename Backend::precision_v> const &point, int i) const;
+
+  template <class Backend>
+  VECGEOM_CUDA_HEADER_BOTH
   typename Backend::precision_v Distance(
       Vector3D<typename Backend::precision_v> const &point,
       Vector3D<typename Backend::precision_v> const &direction) const;
@@ -282,6 +287,21 @@ typename Backend::inside_v Planes::Inside(
 
   return result;
 }
+
+template <class Backend>
+VECGEOM_CUDA_HEADER_BOTH
+typename Backend::inside_v Planes::Inside(
+    Vector3D<typename Backend::precision_v> const &point, int i) const {
+
+  typename Backend::inside_v result(EInside::kInside);
+  typename Backend::precision_v distanceResult =
+      fNormals.x(i)*point[0] + fNormals.y(i)*point[1] +
+      fNormals.z(i)*point[2] + fDistances[i];
+  MaskedAssign(distanceResult > kTolerance, EInside::kOutside, &result);
+  MaskedAssign(result == EInside::kInside && distanceResult > -kTolerance, EInside::kSurface, &result);
+
+  return result;
+}  
 
 template <class Backend>
 VECGEOM_CUDA_HEADER_BOTH

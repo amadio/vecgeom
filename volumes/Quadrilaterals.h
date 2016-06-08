@@ -146,6 +146,12 @@ public:
   typename Backend::inside_v Inside(
       Vector3D<typename Backend::precision_v> const &point) const;
 
+  template <class Backend>
+  VECGEOM_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
+  typename Backend::inside_v Inside(
+      Vector3D<typename Backend::precision_v> const &point, int i) const;
+
   template <class Backend, bool behindPlanesT>
   VECGEOM_INLINE
   VECGEOM_CUDA_HEADER_BOTH
@@ -297,6 +303,13 @@ VECGEOM_CUDA_HEADER_BOTH
 typename Backend::inside_v Quadrilaterals::Inside(
     Vector3D<typename Backend::precision_v> const &point) const {
   return fPlanes.Inside<Backend>(point);
+}
+
+template <class Backend>
+VECGEOM_CUDA_HEADER_BOTH
+typename Backend::inside_v Quadrilaterals::Inside(
+    Vector3D<typename Backend::precision_v> const &point, int i) const {
+  return fPlanes.Inside<Backend>(point, i);
 }
 
 namespace {

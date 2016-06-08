@@ -187,6 +187,13 @@ struct PolyhedronImplementation {
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
+  static Inside_t ScalarInsideSegPhi(
+      UnplacedPolyhedron const &polyhedron,
+      Vector3D<Precision> const &localPoint,
+      int zIndex, int phiIndex);
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
   static Precision ScalarDistanceToInKernel(
       UnplacedPolyhedron const &unplaced,
       // Transformation is passed in order to pass it along as a dummy to the
@@ -208,7 +215,7 @@ struct PolyhedronImplementation {
   VECGEOM_INLINE
   static Precision ScalarSafetyKernel(
       UnplacedPolyhedron const &unplaced,
-      Vector3D<Precision> const &point);
+      Vector3D<Precision> const &point, bool pt_inside);
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -933,6 +940,49 @@ bool PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::Sca
     return EInside::kInside;
   }
 
+  template <TranslationCode transCodeT, RotationCode rotCodeT, Polyhedron::EInnerRadii innerRadiiT,
+             Polyhedron::EPhiCutout phiCutoutT>
+  VECGEOM_CUDA_HEADER_BOTH Inside_t
+  PolyhedronImplementation<transCodeT, rotCodeT, innerRadiiT, phiCutoutT>::ScalarInsideSegPhi(
+      UnplacedPolyhedron const &polyhedron, Vector3D<Precision> const &localPoint, int zIndex, int phiIndex) {
+    // Check inside for a specified z segment and phi edge
+
+    // Z range
+    Precision dz = Abs(localPoint[2] - polyhedron.GetBoundingTubeOffset()) - 
+                       0.5*(polyhedron.GetZPlanes()[polyhedron.GetZSegmentCount()] - polyhedron.GetZPlanes()[0]);
+    if (Abs(dz) < kHalfTolerance) return EInside::kSurface;
+    if (dz > 0.) return EInside::kOutside;
+
+    ZSegment const &segment = polyhedron.GetZSegment(zIndex);
+
+    Inside_t inside;
+    // Phi
+    if (TreatPhi<phiCutoutT>(polyhedron.HasPhiCutout())) {
+      // In the phi cutout wedge
+      inside = segment.phi.Inside<kScalar>(localPoint);
+      // Boundary?
+      if (inside != EInside::kInside) return inside;
+    }
+    
+    // Outer
+    {
+      inside = segment.outer.Inside<kScalar>(localPoint, phiIndex);
+      if (inside != EInside::kInside)
+        return inside;
+    }
+
+    // Inner
+    if (TreatInner<innerRadiiT>(segment.hasInnerRadius)) {
+      inside = segment.inner.Inside<kScalar>(localPoint, phiIndex);
+      if (inside == EInside::kInside)
+        return EInside::kOutside;
+      if (inside == EInside::kSurface)
+        return EInside::kSurface;
+    }
+
+    return EInside::kInside;
+  }
+
 template <TranslationCode transCodeT, RotationCode rotCodeT,
 Polyhedron::EInnerRadii innerRadiiT,
           Polyhedron::EPhiCutout phiCutoutT>
@@ -1020,15 +1070,23 @@ Polyhedron::EInnerRadii innerRadiiT,
 VECGEOM_CUDA_HEADER_BOTH
 Precision PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::ScalarSafetyKernel(
     UnplacedPolyhedron const &unplaced,
-    Vector3D<Precision> const &point) {
+    Vector3D<Precision> const &point, bool pt_inside) {
 
   Precision safety = kInfinity;
   Precision dz;
   int iSurf, iz;
+  
   const int zMax = unplaced.GetZSegmentCount();
   int zIndex = FindZSegment<kScalar>(unplaced, point[2]);
   zIndex = zIndex < 0 ? 0 : (zIndex >= zMax ? zMax-1 : zIndex);
+
   int phiIndex = FindPhiSegment<kScalar>(unplaced, point);
+
+  // Check if point is on the 'pt_inside' side
+  Inside_t inside = ScalarInsideSegPhi(unplaced, point, zIndex, phiIndex);
+  if (inside == EInside::kSurface) return 0.;
+  bool contains = (inside == EInside::kInside);
+  if (contains ^ pt_inside) return -1.;
 
   // Right
   for (int z = zIndex; z < zMax;) {
@@ -1050,7 +1108,9 @@ Precision PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>
   // Endcap
   ScalarSafetyToEndcapsSquared(unplaced, point, safety, iz);
 
-  return sqrt(safety);
+  safety = sqrt(safety);
+  if (safety < kTolerance) safety = 0.;
+  return safety;
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT, Polyhedron::EInnerRadii innerRadiiT,
@@ -1270,17 +1330,8 @@ void PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::Saf
     Vector3D<typename Backend::precision_v> const &point,
     typename Backend::precision_v &safety) {
 
-    auto inside = ScalarInsideKernel(unplaced, transformation.Transform<transC, rotC>(point));
-    if (inside == kInside) {
-      safety = -1.;
-      return;
-    }
-    if (inside == kSurface) {
-      safety = 0.;
-      return;
-    }
     safety = ScalarSafetyKernel(
-           unplaced, transformation.Transform<transC,rotC>(point) );
+           unplaced, transformation.Transform<transC,rotC>(point), false );
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT,
@@ -1294,16 +1345,7 @@ void PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::Saf
     Vector3D<typename Backend::precision_v> const &point,
     typename Backend::precision_v &safety) {
 
-    auto inside = ScalarInsideKernel(unplaced, point);
-    if (inside == kOutside) {
-      safety = -1.;
-      return;
-    }
-    if (inside == kSurface) {
-      safety = 0.;
-      return;
-    }
-    safety = ScalarSafetyKernel(unplaced, point);
+    safety = ScalarSafetyKernel(unplaced, point, true);
 }
 
 } // End inline namespace
