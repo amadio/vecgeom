@@ -11,6 +11,7 @@
 #include "base/Assert.h"
 #include "base/Cuda.h"
 #include "base/Math.h"
+#include <VecCore/VecCore>
 
 #define VECGEOM
 
@@ -88,6 +89,16 @@ namespace details {
 
 // some static MACROS
 #define VECGEOM_MAXDAUGHTERS 100 // macro mainly used to allocated static (stack) arrays/workspaces
+
+// choosing the Vector and Scalar backends
+// trying to set some sort of default scalar and vector backend
+#if defined(VECCORE_ENABLE_VC) && !defined(VECGEOM_NVCC)
+using VectorBackend = vecCore::backend::VcVector;
+#else
+using VectorBackend = vecCore::backend::Scalar;
+#endif
+using ScalarBackend = vecCore::backend::Scalar;
+
 
 } } // End global namespace
 
