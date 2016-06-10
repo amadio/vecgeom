@@ -85,7 +85,8 @@ public:
 
   virtual double SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
 #endif
-
+  
+  VECGEOM_CUDA_HEADER_BOTH
   virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override {
     GetUnplacedVolume()->Extent(aMin, aMax);
   }

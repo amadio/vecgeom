@@ -84,7 +84,8 @@ public:
   void SetAllParameters(Precision x1, Precision x2, Precision y1, Precision y2, Precision z) {
     const_cast<UnplacedTrd *>(GetUnplacedVolume())->SetAllParameters(x1, x2, y1, y2, z);
   }
-
+  
+  VECGEOM_CUDA_HEADER_BOTH
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override {
     GetUnplacedVolume()->Extent(aMin, aMax);
   }

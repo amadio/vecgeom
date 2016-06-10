@@ -91,7 +91,13 @@ VPlacedVolume* UnplacedBooleanVolume::SpecializedVolume(
 #endif
 }
 
+  VECGEOM_CUDA_HEADER_BOTH
   void TransformedExtent( VPlacedVolume const *pvol, Vector3D<Precision> &aMin, Vector3D<Precision> &aMax ){
+    // CUDA does not have min and max in std:: namespace
+#ifndef VECGEOM_NVCC
+    using std::min;
+    using std::max;
+#endif
       Vector3D<Precision> lower,upper;
       pvol->Extent(lower, upper);
       Vector3D<Precision> delta = upper-lower;
@@ -112,12 +118,12 @@ VPlacedVolume* UnplacedBooleanVolume::SpecializedVolume(
                     corner.z() = lower.z() + z*delta.z();
                     Vector3D<Precision> transformedcorner =
                       transf->InverseTransform( corner );
-                    minx = std::min(minx, transformedcorner.x());
-                    miny = std::min(miny, transformedcorner.y());
-                    minz = std::min(minz, transformedcorner.z());
-                    maxx = std::max(maxx, transformedcorner.x());
-                    maxy = std::max(maxy, transformedcorner.y());
-                    maxz = std::max(maxz, transformedcorner.z());
+                    minx = min(minx, transformedcorner.x());
+                    miny = min(miny, transformedcorner.y());
+                    minz = min(minz, transformedcorner.z());
+                    maxx = max(maxx, transformedcorner.x());
+                    maxy = max(maxy, transformedcorner.y());
+                    maxz = max(maxz, transformedcorner.z());
               }
       aMin.x()=minx;aMin.y()=miny;aMin.z()=minz;
       aMax.x()=maxx;aMax.y()=maxy;aMax.z()=maxz;

@@ -208,6 +208,7 @@ public:
   }
 #endif
 
+  VECGEOM_CUDA_HEADER_BOTH
   void Extent( Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override { return GetUnplacedVolume()->Extent(aMin,aMax);}
 
   Vector3D<Precision>  GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface();}

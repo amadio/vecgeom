@@ -115,7 +115,7 @@ Precision UnplacedHype::Area(bool outer) {
 VECGEOM_CUDA_HEADER_BOTH
 Precision UnplacedHype::AreaEndCaps() { return 2 * kPi * (GetEndOuterRadius2() - GetEndInnerRadius2()); }
 
-#ifndef VECGEOM_NVCC
+VECGEOM_CUDA_HEADER_BOTH
 void UnplacedHype::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const {
   // Returns the full 3D cartesian extent of the solid.
   Precision rMax = GetEndOuterRadius();
@@ -123,10 +123,10 @@ void UnplacedHype::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) 
   aMax.Set(rMax, rMax, fDz);
 }
 
-
+#ifndef VECGEOM_NVCC
 VECGEOM_CUDA_HEADER_BOTH
 std::string UnplacedHype::GetEntityType() const { return "Hyperboloid\n"; }
-
+#endif
 
 Vector3D<Precision> UnplacedHype::GetPointOnSurface() const {
 
@@ -211,7 +211,6 @@ Vector3D<Precision> UnplacedHype::GetPointOnSurface() const {
     return Vector3D<Precision>(xRand, yRand, zRand);
   }
 }
-#endif
 
 #if defined(VECGEOM_USOLIDS)
 VECGEOM_CUDA_HEADER_BOTH

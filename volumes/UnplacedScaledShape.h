@@ -109,6 +109,7 @@ public:
   }
 #endif // !VECGEOM_NVCC
 
+  VECGEOM_CUDA_HEADER_BOTH
   void Extent( Vector3D<Precision> &min, Vector3D<Precision> &max) const;
     	
   Vector3D<Precision> GetPointOnSurface() const;

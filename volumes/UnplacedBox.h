@@ -72,9 +72,9 @@ public:
              dimensions_[1]*dimensions_[2] + dimensions_[2]*dimensions_[0]);
   }
 
-  void Extent( Vector3D<Precision> &, Vector3D<Precision> &) const;
+  void Extent( Vector3D<Precision> &, Vector3D<Precision> &) const override;
 
-  Vector3D<Precision> GetPointOnSurface() const;
+  Vector3D<Precision> GetPointOnSurface() const override;
 
 
 

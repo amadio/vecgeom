@@ -156,12 +156,13 @@ public:
     
 #if !defined(VECGEOM_NVCC)
 //__________________________________________________________________
-    
+    using VUnplacedVolume::Normal;
+    // TODO: convert this interface to be conforming with VUnplacedVolume
     void Normal(const Precision *point, const Precision *dir, Precision *norm) const;
 
 //__________________________________________________________________
     
-    void Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const;
+    void Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const override;
 
 //__________________________________________________________________
 
@@ -172,7 +173,7 @@ public:
     Precision SurfaceArea() const;
 //__________________________________________________________________
 
-    virtual Vector3D<Precision> GetPointOnSurface() const;
+    virtual Vector3D<Precision> GetPointOnSurface() const override;
 //__________________________________________________________________
     
     std::string GetEntityType() const{ return "Paraboloid";}

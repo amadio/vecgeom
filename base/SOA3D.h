@@ -4,7 +4,6 @@
 #ifndef VECGEOM_BASE_SOA3D_H_
 #define VECGEOM_BASE_SOA3D_H_
 
-#include "base/Assert.h"
 #include "base/Global.h"
 
 #include "base/Container3D.h"
@@ -364,8 +363,13 @@ T const* SOA3D<T>::z() const { return fZ; }
 
 template <typename T>
 VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
 void SOA3D<T>::set(size_t index, T xval, T yval, T zval) {
+  // not asserting in case of NVCC -- still getting annoying
+  // errors on CUDA < 8.0
+#ifndef VECGEOM_NVCC
   assert(index < fCapacity);
+#endif
   fX[index] = xval;
   fY[index] = yval;
   fZ[index] = zval;
@@ -374,8 +378,13 @@ void SOA3D<T>::set(size_t index, T xval, T yval, T zval) {
 
 template <typename T>
 VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
 void SOA3D<T>::set(size_t index, Vector3D<T> const &vec) {
+  // not asserting in case of NVCC -- still getting annoying
+  // errors on CUDA < 8.0
+#ifndef VECGEOM_NVCC
   assert(index < fCapacity);
+#endif
   fX[index] = vec[0];
   fY[index] = vec[1];
   fZ[index] = vec[2];

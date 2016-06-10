@@ -336,6 +336,7 @@ public:
       return 0;
   }
 
+  VECGEOM_CUDA_HEADER_BOTH
   virtual void Extent(Vector3D<Precision> & /* min */,
                       Vector3D<Precision> & /* max */) const {
     assert(0 && "Extent() not implemented for this shape type.");

@@ -1,15 +1,9 @@
-/**
- * @file unplaced_volume.h
- * @author Johannes de Fine Licht (johannes.definelicht@cern.ch)
- */
-
 #ifndef VECGEOM_VOLUMES_UNPLACEDVOLUME_H_
 #define VECGEOM_VOLUMES_UNPLACEDVOLUME_H_
 
 #include "base/Global.h"
-
 #include "base/Transformation3D.h"
-
+#include "base/SOA3D.h"
 #include <string>
 #include <ostream>
 
@@ -23,6 +17,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class LogicalVolume;
 class VPlacedVolume;
 
+// The abstract interface class for unplaced volumes
 class VUnplacedVolume {
 
 private:
@@ -33,9 +28,118 @@ protected:
   bool fGlobalConvexity;
 
 public:
+  // alias for the globally selected VectorType
+  using Real_v = vecgeom::VectorBackend::Real_v;
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual ~VUnplacedVolume() {}
+
+  // ---------------- Contains --------------------------------------------------------------------
+
+  VECGEOM_CUDA_HEADER_BOTH
+  virtual bool Contains(Vector3D<Precision> const &p) const /* = 0 */;
+
+  VECGEOM_CUDA_HEADER_BOTH
+  virtual EnumInside Inside(Vector3D<Precision> const &p) const /* = 0 */;
+
+
+  // ---------------- DistanceToOut functions -----------------------------------------------------
+
+  VECGEOM_CUDA_HEADER_BOTH
+  virtual Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
+                                  Precision const &step_max = kInfinity) const /* = 0 */;
+
+  // the USolid/GEANT4-like interface for DistanceToOut (returning also exiting normal)
+  VECGEOM_CUDA_HEADER_BOTH
+  virtual Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
+                                  Vector3D<Precision> &normal, bool &convex, Precision const &step_max = kInfinity) const /* = 0 */;
+
+  // an explicit SIMD interface
+  VECGEOM_CUDA_HEADER_BOTH
+  virtual Real_v DistanceToOutVec(Vector3D<Real_v> const &p, Vector3D<Real_v> const &d, Real_v const &step_max) const /* = 0 */;
+
+  // a helper tramponline to dispatch to SafetyToInVec if type is not scalar
+  template <typename T> VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE T DistanceToOut(Vector3D<T> const &p, Vector3D<T> const &d,
+                                                                                T const &step_max) const {
+    return DistanceToOutVec(p,d,step_max);
+  }
+
+  // the container/basket interface (possibly to be deprecated)
+  virtual void DistanceToOut(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
+                             Precision const *const step_max, Precision *const output) const /* = 0 */;
+
+  // ---------------- SafetyToOut functions -----------------------------------------------------
+
+  VECGEOM_CUDA_HEADER_BOTH
+  virtual Precision SafetyToOut(Vector3D<Precision> const &p) const /* = 0 */;
+
+  // an explicit SIMD interface
+  virtual Real_v SafetyToOutVec(Vector3D<Real_v> const &p) const /* = 0 */;
+
+  // the tramponline to dispatch to SafetyToOutVec if type is not scalar
+  template <typename T> VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE T SafetyToOut(Vector3D<T> const &p) const {
+    return SafetyToOutVec(p);
+  }
+
+  // the container/basket interface (possibly to be deprecated)
+  virtual void SafetyToOut(SOA3D<Precision> const &points, Precision *const output) const /* = 0*/;
+
+  // ---------------- DistanceToIn functions -----------------------------------------------------
+
+  VECGEOM_CUDA_HEADER_BOTH
+  virtual Precision DistanceToIn(Vector3D<Precision> const &position,
+                                 Vector3D<Precision> const &direction,
+                                 const Precision &step_max = kInfinity) const /* = 0 */;
+
+  VECGEOM_CUDA_HEADER_BOTH
+  virtual Real_v DistanceToInVec(Vector3D<Real_v> const &position,
+                                 Vector3D<Real_v> const &direction,
+                                 const Real_v &step_max = Real_v(kInfinity)) const /* = 0 */;
+
+  // the tramponline to dispatch to SafetyToInVec if type is not scalar
+  // the T = Precision this template will not instantiate as the compiler finds another matching function
+  template <typename T>
+  VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE T DistanceToIn(Vector3D<T> const &p, Vector3D<T> const &d, T const &step_max)
+  {
+    return DistanceToInVec(p, d, step_max);
+  }
+
+  // ---------------- SafetyToIn functions -------------------------------------------------------
+
+  VECGEOM_CUDA_HEADER_BOTH
+  virtual Precision SafetyToIn(Vector3D<Precision> const &position) const /* = 0 */;
+
+  // explicit SIMD interface
+  virtual Real_v SafetyToInVec(Vector3D<Real_v> const &p) const /* = 0 */;
+
+  // the tramponline to dispatch to SafetyToInVec if type is not scalar
+  template <typename T> VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE T SafetyToIn(Vector3D<T> const &p) const {
+    return SafetyToInVec(p);
+  }
+
+
+  // ---------------- Normal ---------------------------------------------------------------------
+
+  VECGEOM_CUDA_HEADER_BOTH
+  virtual bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal ) const /* = 0 */;
+
+
+  // ---------------- GetPointOnSurface ----------------------------------------------------------
+  virtual Vector3D<Precision> GetPointOnSurface() const /* = 0 */;
+
+
+  // ----------------- Extent --------------------------------------------------------------------
+  VECGEOM_CUDA_HEADER_BOTH
+  virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const /* = 0 */;
+
+  /** Function to detect whether a volume is globally convex or not.
+   *  Return a boolean, true if volume is convex, otherwise false.
+   *
+   *  Default safe value for all the shapes is set to false.
+   */
+  VECGEOM_CUDA_HEADER_BOTH
+  bool IsConvex() const { return fGlobalConvexity; }
+
 
   /**
    * Uses the virtual print method.
@@ -47,15 +151,8 @@ public:
    * Should return the size of bytes of the deriving class. Necessary for
    * copying to the GPU.
    */
-  virtual int memory_size() const =0;
+  virtual int memory_size() const = 0;
 
-  /** Function to detect whether a volume is globally convex or not.
-   *  Return a boolean, true if volume is convex, otherwise false.
-   *
-   *  Default safe value for all the shapes is set to false.
-   */
-  VECGEOM_CUDA_HEADER_BOTH
-  bool IsConvex() const { return fGlobalConvexity; }
 
   /**
    * Constructs the deriving class on the GPU and returns a pointer to GPU

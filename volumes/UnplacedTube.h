@@ -312,6 +312,7 @@ fPhiWedge(other.fDphi,other.fSphi)
   }
 
 //#if !defined(VECGEOM_NVCC)
+  VECGEOM_CUDA_HEADER_BOTH
   void Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const;
 
 #ifndef VECGEOM_NVCC

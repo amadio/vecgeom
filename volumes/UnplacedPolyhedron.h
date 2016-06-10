@@ -291,8 +291,10 @@ public:
   VECGEOM_INLINE
   Precision GetBoundingTubeOffset() const { return fBoundingTubeOffset; }
 
+#ifndef VECGEOM_NVCC
   VECGEOM_CUDA_HEADER_BOTH
   bool Normal(Vector3D<Precision>const& point, Vector3D<Precision>& normal) const;
+#endif
 
 #ifndef VECGEOM_NVCC
   Precision DistanceSquarePointToSegment(Vector3D<Precision>& v1,Vector3D<Precision>&v2, const Vector3D<Precision>&p) const;
