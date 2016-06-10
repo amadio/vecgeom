@@ -39,8 +39,8 @@ private:
   // helper structure to find the candidate set for safety calculations
   size_t GetSafetyCandidates_v(LogicalVolume const *lvol, Vector3D<Precision> const &point,
                                HybridManager2::BoxIdDistancePair_t *boxsafetypairs, Precision upper_squared_limit) const {
-    size_t count = 0;
 #ifdef VECGEOM_VC
+    size_t count = 0;
     Vector3D<float> pointfloat((float)point.x(), (float)point.y(), (float)point.z());
     int halfvectorsize, numberOfNodes;
     auto boxes_v = fAccelerationStructureManager.GetABBoxes_v(lvol, halfvectorsize, numberOfNodes);
