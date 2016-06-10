@@ -2,7 +2,6 @@
 #include "volumes/Torus2.h"
 #include "benchmarking/Benchmarker.h"
 #include "management/GeoManager.h"
-#include "management/RootGeoManager.h"
 #include "ArgParser.h"
 #include "base/Vector3D.h"
 #include "base/Global.h"
@@ -24,12 +23,9 @@ int main(int argc, char* argv[]) {
   LogicalVolume world ("world", &worldUnplaced);
   LogicalVolume torus ("torus", &torusUnplaced);
 
-  //Transformation3D placement(5, 5, 5);
   Transformation3D placement(0, 0, 0);
   world.PlaceDaughter("torus", &torus, &placement);
   VPlacedVolume *worldPlaced = world.Place();
-
-//  RootGeoManager::Instance().ExportToROOTGeometry( worldPlaced, "testtorus.root");
 
   GeoManager::Instance().SetWorldAndClose(worldPlaced);
 
