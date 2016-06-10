@@ -142,8 +142,6 @@ enum_option(BACKEND
 
 option(VTUNE "Enable the use of profiler Vtune" OFF)
 
-option(ENABLE_VECCORE "Build VecCore library" ON)
-
 set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries.")
 set(INSTALL_INCLUDE_DIR include CACHE PATH
     "Installation directory for header files.")
@@ -196,22 +194,9 @@ endif()
 
 string(TOUPPER ${BACKEND} _backend_up)
 
-if (ENABLE_VECCORE)
-  if (_backend_up MATCHES VC)
-    set(SIMD ON CACHE BOOL "" FORCE)
-  endif()
-  if (_backend_up MATCHES DEFAULT)
-    #set(BACKEND VC CACHE STRING "Set by default to VC" FORCE)
-    set(SIMD ON CACHE BOOL "" FORCE)
-  endif()
-  add_subdirectory(VecCore)
-  include_directories("VecCore/include/")
-  # tmp fix for the generated Config.h file
-  include_directories("${PROJECT_BINARY_DIR}/VecCore/include/")
-endif()
-
 if (_backend_up MATCHES VC)
   set(Vc ON)
+  set(VC ON CACHE BOOL "" FORCE) # enable Vc in VecCore
   message(STATUS "Configuring with \"Vc\" vector backend")
 elseif (_backend_up MATCHES SCALAR)
   set(Scalar ON)
@@ -241,6 +226,11 @@ elseif (_backend_up MATCHES DEFAULT)
 else()
   message(FATAL_ERROR "Value '${BACKEND}' for variable BACKEND is not allowed. ")
 endif()
+
+add_subdirectory(VecCore)
+# CMake does not propagate these up, must be added by hand
+include_directories(${PROJECT_SOURCE_DIR}/VecCore/include)
+include_directories(${PROJECT_BINARY_DIR}/VecCore/include)
 
 ################################################################################
 
@@ -530,11 +520,6 @@ message(STATUS "Compiling with C++ flags: ${CMAKE_CXX_FLAGS}")
 if (CUDA)
   message(STATUS "Compiling with NVCC flags: ${CUDA_NVCC_FLAGS}")
 endif()
-
-# until VecCore is separated from VecGeom (then it become something
-# ${VecCore_DIR}/include
-# include_directories(${CMAKE_SOURCE_DIR}/VecCore/inc )
-# include_directories(${CMAKE_INSTALL_PREFIX}/VecCore)
 
 if (ROOT)
 
