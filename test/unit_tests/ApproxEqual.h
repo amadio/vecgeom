@@ -6,6 +6,8 @@
 #ifndef APPROXEQUAL_HH
 #define APPROXEQUAL_HH
 
+#include <cmath>
+
 const double kApproxEqualTolerance = 1E-6;
 
 // Return true if the double x is approximately equal to y
