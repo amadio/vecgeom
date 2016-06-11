@@ -15,6 +15,8 @@
 #include <algorithm>
 #include <stdio.h>
 #include <iostream>
+#include <vector>
+#include <set>
 
 namespace vecgeom {
 
