@@ -129,6 +129,7 @@ struct PolyhedronImplementation {
       int segmentIndex,
       int phiIndex,
       Vector3D<Precision> const &point,
+      bool pt_inside,
       int &iSurf);
 
   /// \param goingRight Whether the point is travelling along the Z-axis (true)
@@ -598,26 +599,30 @@ PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT,
     int segmentIndex,
     int phiIndex,
     Vector3D<Precision> const &point,
+    bool pt_inside,
     int &iSurf) {
 
   ZSegment const &segment = polyhedron.GetZSegment(segmentIndex);
 
   Precision safetySquared = kInfinity;
   if (TreatPhi<phiCutoutT>(polyhedron.HasPhiCutout()) && segment.phi.size() == 2) {
-    iSurf = 0;
     // Phi treatment was wrong since safety for phi was called only when the point was
     // in the cutout wedge. We have to call it also when the point is in the phi regions
     // adjacent to the cutout wedge.
-    safetySquared = segment.phi.ScalarDistanceSquared(0, point);
-    Precision saf = segment.phi.ScalarDistanceSquared(1, point);
-    if (saf < safetySquared) {
-      safetySquared = saf;
-      iSurf = 1;
+    bool in_cutout = InPhiCutoutWedge<kScalar>(segment, polyhedron.HasLargePhiCutout(), point);
+    if (pt_inside || in_cutout) {
+      // Need to check both phi planes
+      iSurf = 0;
+      safetySquared = segment.phi.ScalarDistanceSquared(0, point);
+      Precision saf = segment.phi.ScalarDistanceSquared(1, point);
+      if (saf < safetySquared) {
+        safetySquared = saf;
+        iSurf = 1;
+      }
+      // If the point is within the phi cutout wedge, the two phi cutout sides are
+      // guaranteed to be the closest quadrilaterals to the point.
+      if (in_cutout) return safetySquared;
     }
-    // If the point is within the phi cutout wedge, the two phi cutout sides are
-    // guaranteed to be the closest quadrilaterals to the point.
-    if (InPhiCutoutWedge<kScalar>(segment, polyhedron.HasLargePhiCutout(), point)) 
-      return safetySquared;
   }
   
   if (phiIndex < 0)
@@ -1090,7 +1095,7 @@ Precision PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>
   // Right
   for (int z = zIndex; z < zMax;) {
     safety = Min(safety, ScalarSafetyToZSegmentSquared(unplaced, z, phiIndex,
-                                                       point, iSurf));
+                                                       point, pt_inside, iSurf));
     ++z;
     dz = unplaced.GetZPlanes()[z] - point[2];
     // Fixed bug: dz was compared directly to safety to stop the search, while safety is a squared
@@ -1099,7 +1104,7 @@ Precision PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>
   // Left
   for (int z = zIndex-1; z >= 0; --z) {
     safety = Min(safety, ScalarSafetyToZSegmentSquared(unplaced, z, phiIndex,
-                                                       point, iSurf));
+                                                       point, pt_inside, iSurf));
     dz = point[2] - unplaced.GetZPlanes()[z];
     if (dz*dz > safety) break;
   }
@@ -1140,7 +1145,7 @@ PolyhedronImplementation<transCodeT, rotCodeT, innerRadiiT, phiCutoutT>::ScalarN
   // Right
   for (int z = zIndex; z < zMax;) {
     int iSurfCrt = -1;
-    Precision safetySeg = ScalarSafetyToZSegmentSquared(unplaced, z, phiIndex, point, iSurfCrt);
+    Precision safetySeg = ScalarSafetyToZSegmentSquared(unplaced, z, phiIndex, point, true, iSurfCrt);
     if (safetySeg < safety) {
       safety = safetySeg;
       iSeg = z;
@@ -1153,7 +1158,7 @@ PolyhedronImplementation<transCodeT, rotCodeT, innerRadiiT, phiCutoutT>::ScalarN
   // Left
   for (int z = zIndex - 1; z >= 0; --z) {
     int iSurfCrt = -1;
-    Precision safetySeg = ScalarSafetyToZSegmentSquared(unplaced, z, phiIndex, point, iSurfCrt);
+    Precision safetySeg = ScalarSafetyToZSegmentSquared(unplaced, z, phiIndex, point, true, iSurfCrt);
     if (safetySeg < safety) {
       safety = safetySeg;
       iSeg = z;
