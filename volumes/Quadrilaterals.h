@@ -620,7 +620,7 @@ Precision Quadrilaterals::ScalarDistanceSquared(
 
   Vector3D<Precision> planeNormal = fPlanes.GetNormal(i);
   Precision distance = point.Dot(planeNormal) + fPlanes.GetDistance(i);
-  Vector3D<Precision> intersection = point + distance*planeNormal;
+  Vector3D<Precision> intersection = point - distance*planeNormal;
 
   bool withinBound[4];
   for (int j = 0; j < 4; ++j) {
@@ -647,28 +647,33 @@ Precision Quadrilaterals::ScalarDistanceSquared(
   //         |_______|
   //   corner2       corner1
   //           below
-
-  Vector3D<Precision> corner0, corner1;
-
-  if (!withinBound[0]) {
-    // To the right of right side
-    corner0 = fCorners[0][i];
-    corner1 = fCorners[1][i];
-  } else if (!withinBound[2]) {
-    // To the left of left side
-    corner0 = fCorners[2][i];
-    corner1 = fCorners[3][i];
-  } else if (!withinBound[1]) {
-    // Below in the middle
-    corner0 = fCorners[1][i];
-    corner1 = fCorners[2][i];
-  } else {
-    // Above in the middle
-    corner0 = fCorners[3][i];
-    corner1 = fCorners[0][i];
+  //
+  // The assumption above that only one side has to be checked is not always
+  // true. If withinBound is false for 2 connected segments making an angle > 90
+  // and if the point projection on each of these segments is outside bounds,
+  // it can happen that the closest point is not the same depending on the 
+  // checked segment. Something like below:
+  //
+  //    Point  x
+  //
+  //     corner3 ___corner0
+  //            |   \
+  //            |     \
+  //            |_______\ corner1
+  //
+  // If the "above" segment is checked, corner3 will be selected closest, which
+  // is correct, but if the "right" segment gets checked, corner0 will be
+  // wrongly selected.
+  
+  Precision distancesq = kInfinity;
+  for (int j = 0; j < 4; ++j) {
+    if (!withinBound[j]) {
+      distance = DistanceToLineSegmentSquared<kScalar>(fCorners[j][i],
+                   fCorners[(j+1)%4][i], point);
+      if (distance < distancesq) distancesq = distance;
+    }
   }
-
-  return DistanceToLineSegmentSquared<kScalar>(corner0, corner1, point);
+  return distancesq;
 }
 
 std::ostream& operator<<(std::ostream &os, Quadrilaterals const &quads);
