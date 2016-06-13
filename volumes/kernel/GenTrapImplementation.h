@@ -248,9 +248,9 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
     typedef typename Backend::bool_v Bool_t;
     constexpr Precision tolerancesq = 10000. * kTolerance * kTolerance;
     // Local point has to be translated in the bbox local frame.
-    BoxImplementation<translation::kIdentity, rotation::kIdentity>::GenericKernelForContainsAndInside<Backend,
-                                                                                                      ForInside>(
-        unplaced.fBBdimensions, localPoint - unplaced.fBBorigin, completelyinside, completelyoutside);
+    BoxImplementation::GenericKernelForContainsAndInside<Float_t, Bool_t, ForInside>(
+        unplaced.fBBdimensions, localPoint - unplaced.fBBorigin, completelyinside,
+        completelyoutside);
     //  if (Backend::early_returns) {
     if (IsFull(completelyoutside)) {
       return;
@@ -427,11 +427,11 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
 #ifdef GENTRAP_USENEWBB
     typename Backend::int_v planeid(-1);
     Vector3D<Float_t> hitpoint;
-    BoxImplementation<translation::kIdentity, rotation::kIdentity>::DistanceToInKernel2<Backend>(
+    BoxImplementation::DistanceToInKernel2<Backend>(
         unplaced.fBBdimensions, point - unplaced.fBBorigin, direction, stepMax, bbdistance, &planeid, &hitpoint);
 #else
-    BoxImplementation<translation::kIdentity, rotation::kIdentity>::DistanceToInKernel<Backend>(
-        unplaced.fBBdimensions, point - unplaced.fBBorigin, direction, stepMax, bbdistance);
+    BoxImplementation::DistanceToIn(
+        BoxStruct<Precision>(unplaced.fBBdimensions), point - unplaced.fBBorigin, direction, stepMax, bbdistance);
 #endif
 
 #ifdef GENTRAPDEB
@@ -534,13 +534,13 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, 
 
     Boolean_t inside;
     // Check if all points are outside bounding box
-    BoxImplementation<translation::kIdentity, rotation::kIdentity>::ContainsKernel<Backend>(
-        unplaced.fBBdimensions, point - unplaced.fBBorigin, inside);
+    BoxImplementation::Contains(
+        BoxStruct<Precision>(unplaced.fBBdimensions), point - unplaced.fBBorigin, inside);
     if (IsEmpty(inside)) {
       // All points outside, so compute safety using the bounding box
       // This is not optimal if top and bottom faces are not on top of each other
-      BoxImplementation<translation::kIdentity, rotation::kIdentity>::SafetyToInKernel<Backend>(
-          unplaced.fBBdimensions, point - unplaced.fBBorigin, safety);
+      BoxImplementation::SafetyToIn(
+        BoxStruct<Precision>(unplaced.fBBdimensions), point - unplaced.fBBorigin, safety);
       return;
     }
 

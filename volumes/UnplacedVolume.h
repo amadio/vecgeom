@@ -217,16 +217,15 @@ private:
       LogicalVolume const *const volume,
       Transformation3D const *const transformation,
       const TranslationCode trans_code, const RotationCode rot_code,
-      VPlacedVolume *const placement = NULL) const =0;
+      VPlacedVolume *const placement = NULL) const = 0;
 
 #else
-
   __device__
   virtual VPlacedVolume* SpecializedVolume(
       LogicalVolume const *const volume,
       Transformation3D const *const transformation,
       const TranslationCode trans_code, const RotationCode rot_code,
-      const int id, VPlacedVolume *const placement = NULL) const =0;
+      const int id, VPlacedVolume *const placement = NULL) const = 0;
 
 #endif
 

@@ -39,7 +39,7 @@ void locatetest()
     std::cerr << box->x() << "\n";
     std::cerr << box->y() << "\n";
     std::cerr << box->z() << "\n";
-    std::cerr << box->volume() << "\n"; // not OK
+    std::cerr << box->Capacity() << "\n"; // not OK
     box->Print(); // OK
 
     nav.LocatePoint( GeoManager::Instance().GetWorld(),

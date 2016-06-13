@@ -83,16 +83,16 @@ private:
     for (size_t index = 0, nodeindex = 0; index < size_t(size) * 2;
          index += 2 * (HybridManager2::Real_vSize + 1), nodeindex += HybridManager2::Real_vSize) {
       HybridManager2::Real_v distance =
-          BoxImplementation<translation::kIdentity, rotation::kIdentity>::IntersectCachedKernel2<
-              kVcFloat, HybridManager2::Real_t>(&boxes_v[index], point, invdir, sign.x(), sign.y(), sign.z(), 0,
-                                                static_cast<HybridManager2::Real_t>(vecgeom::kInfinity));
+          BoxImplementation::IntersectCachedKernel2<HybridManager2::Real_v, HybridManager2::Real_t>(
+              &boxes_v[index], point, invdir, sign.x(), sign.y(), sign.z(), 0,
+              static_cast<HybridManager2::Real_t>(vecgeom::kInfinity));
       HybridManager2::Bool_v hit = distance < static_cast<HybridManager2::Real_t>(vecgeom::kInfinity);
       if (Any(hit)) {
         for (size_t i = hit.firstOne(); i < kVcFloat::precision_v::Size; ++i) {
           if (hit[i]) {
-            distance = BoxImplementation<translation::kIdentity, rotation::kIdentity>::IntersectCachedKernel2<
-                kVcFloat, HybridManager2::Real_t>(&boxes_v[index + 2 * (i + 1)], point, invdir, sign.x(), sign.y(),
-                                                  sign.z(), 0, static_cast<HybridManager2::Real_t>(vecgeom::kInfinity));
+            distance = BoxImplementation::IntersectCachedKernel2<HybridManager2::Real_v, HybridManager2::Real_t>(
+                &boxes_v[index + 2 * (i + 1)], point, invdir, sign.x(), sign.y(), sign.z(), 0,
+                static_cast<HybridManager2::Real_t>(vecgeom::kInfinity));
             HybridManager2::Bool_v hit = distance < static_cast<HybridManager2::Real_t>(vecgeom::kInfinity);
             if (Any(hit)) {
               for (size_t j = hit.firstOne(); j < kVcFloat::precision_v::Size; ++j) { // leaf node

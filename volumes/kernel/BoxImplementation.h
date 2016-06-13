@@ -1,195 +1,296 @@
-/// @file BoxImplementation.h
-/// @author Johannes de Fine Licht (johannes.definelicht@cern.ch)
+/// @file BoxImplementation_Evolution.h
+/// @author Johannes de Fine Licht (johannes.definelicht@cern.ch), Sandro Wenzel (sandro.wenzel@cern.ch)
+
+/// History notes:
+/// 2013 - 2014: original development (abstracted kernels); Johannes and Sandro
+/// Oct 2015: revision + moving to new backend structure (Sandro Wenzel)
 
 #ifndef VECGEOM_VOLUMES_KERNEL_BOXIMPLEMENTATION_H_
 #define VECGEOM_VOLUMES_KERNEL_BOXIMPLEMENTATION_H_
 
-#include "backend/Backend.h"
 #include "base/Vector3D.h"
-#include "volumes/UnplacedBox.h"
+#include "volumes/BoxStruct.h"
 #include "volumes/kernel/GenericKernels.h"
+#include <VecCore/VecCore>
 
 #include <cstdio>
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(BoxImplementation, TranslationCode, translation::kGeneric, RotationCode, rotation::kGeneric)
-
+VECGEOM_DEVICE_FORWARD_DECLARE(struct BoxImplementation;);
+VECGEOM_DEVICE_DECLARE_CONV(BoxImplementation);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class PlacedBox;
+template <typename T> struct BoxStruct;
 class UnplacedBox;
 
-template <TranslationCode transCodeT, RotationCode rotCodeT>
 struct BoxImplementation {
 
-  static const int transC = transCodeT;
-  static const int rotC   = rotCodeT;
-
   using PlacedShape_t = PlacedBox;
-  using UnplacedShape_t = UnplacedBox;
+  using UnplacedStruct_t = BoxStruct<double>;
+  using UnplacedVolume_t = UnplacedBox;
 
   VECGEOM_CUDA_HEADER_BOTH
   static void PrintType() {
-     printf("SpecializedBox<%i, %i>", transCodeT, rotCodeT);
+   //  printf("SpecializedBox<%i, %i>", transCodeT, rotCodeT);
   }
 
   template <typename Stream>
   static void PrintType(Stream &st) {
-    st << "SpecializedBox<" << transCodeT << "," << rotCodeT << ">";
+    //st << "SpecializedBox<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
   static void PrintImplementationType(Stream &st) {
-    st << "BoxImplementation<" << transCodeT << "," << rotCodeT << ">";
+    //st << "BoxImplementation<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
   static void PrintUnplacedType(Stream &st) {
-    st << "UnplacedBox";
+    //TODO: this is wrong
+    //st << "UnplacedBox";
   }
 
-  template<typename Backend>
+
+  template<typename Real_v, typename Bool_v>
   VECGEOM_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void UnplacedContains(
-      UnplacedBox const &box,
-      Vector3D<typename Backend::precision_v> const &localPoint,
-      typename Backend::bool_v &inside);
+  static void Contains(UnplacedStruct_t const &box, Vector3D<Real_v> const &point, Bool_v &inside) {
+    Bool_v unused, outside;
+    GenericKernelForContainsAndInside<Real_v, Bool_v, false>(box.fDimensions, point, unused, outside);
+    inside=!outside;
+  }
 
-  template <typename Backend>
-  VECGEOM_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
-  static void Contains(
-      UnplacedBox const &unplaced,
-      Transformation3D const &transformation,
-      Vector3D<typename Backend::precision_v> const &point,
-      Vector3D<typename Backend::precision_v> &localPoint,
-      typename Backend::bool_v &inside);
+  // BIG QUESTION: DO WE WANT TO GIVE ALL 3 TEMPLATE PARAMETERS
+  // -- OR -- DO WE WANT TO DEDUCE Bool_v, Index_t from Real_v???
+  template <typename Real_v, typename Inside_t>
+  VECGEOM_INLINE VECGEOM_CUDA_HEADER_BOTH
+  static void Inside(UnplacedStruct_t const &box, Vector3D<Real_v> const &point,
+                                                             Inside_t &inside) {
+    using Bool_v = vecCore::Mask_v<Real_v>;
+    using InsideBool_v = vecCore::Mask_v<Inside_t>;
+    Bool_v completelyinside, completelyoutside;
+    GenericKernelForContainsAndInside<Real_v, Bool_v, true>(box.fDimensions, point, completelyinside,
+                                                            completelyoutside);
+    inside = Inside_t(EInside::kSurface);
+    vecCore::MaskedAssign(inside, (InsideBool_v)completelyoutside, Inside_t(EInside::kOutside));
+    vecCore::MaskedAssign(inside, (InsideBool_v)completelyinside, Inside_t(EInside::kInside));
+  }
 
-  template <typename Backend>
-  VECGEOM_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
-  static void Inside(
-      UnplacedBox const &unplaced,
-      Transformation3D const &transformation,
-      Vector3D<typename Backend::precision_v> const &point,
-      typename Backend::inside_v &inside);
+  template <typename Real_v, typename Bool_v, bool ForInside>
+  VECGEOM_INLINE VECGEOM_CUDA_HEADER_BOTH static void
+  GenericKernelForContainsAndInside(Vector3D<Precision> const &dimensions, Vector3D<Real_v> const &localPoint,
+                                    Bool_v &completelyinside, Bool_v &completelyoutside) {
+    // here we are explicitely unrolling the loop since  a for statement will likely be a penality
+    // check if second call to Abs is compiled away
+    // and it can anyway not be vectorized
+    /* x */
+    completelyoutside = vecCore::math::Abs(localPoint[0]) > MakePlusTolerant<ForInside>(dimensions[0]);
+    if (ForInside) {
+      completelyinside = vecCore::math::Abs(localPoint[0]) < MakeMinusTolerant<ForInside>(dimensions[0]);
+    }
+    if (/*Backend::early_returns*/true) {
+      if (vecCore::MaskFull(completelyoutside)) {
+        return;
+      }
+    }
+    /* y */
+    completelyoutside |= vecCore::math::Abs(localPoint[1]) > MakePlusTolerant<ForInside>(dimensions[1]);
+    if (ForInside) {
+      completelyinside &= vecCore::math::Abs(localPoint[1]) < MakeMinusTolerant<ForInside>(dimensions[1]);
+    }
+    if (/*Backend::early_returns*/true) {
+      if (vecCore::MaskFull(completelyoutside)) {
+        return;
+      }
+    }
+    /* z */
+    completelyoutside |= vecCore::math::Abs(localPoint[2]) > MakePlusTolerant<ForInside>(dimensions[2]);
+    if (ForInside) {
+      completelyinside &= vecCore::math::Abs(localPoint[2]) < MakeMinusTolerant<ForInside>(dimensions[2]);
+    }
+    return;
+  }
 
-  template <typename Backend, bool ForInside>
-  VECGEOM_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
-  static void GenericKernelForContainsAndInside(Vector3D<Precision> const &,
-          Vector3D<typename Backend::precision_v> const &,
-          typename Backend::bool_v &,
-          typename Backend::bool_v &);
-
-  template <class Backend>
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  static void DistanceToIn(
-      UnplacedBox const &unplaced,
-      Transformation3D const &transformation,
-      Vector3D<typename Backend::precision_v> const &point,
-      Vector3D<typename Backend::precision_v> const &direction,
-      typename Backend::precision_v const &stepMax,
-      typename Backend::precision_v &distance);
-
-  template <class Backend>
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  static void DistanceToOut(
-      UnplacedBox const &unplaced,
-      Vector3D<typename Backend::precision_v> const &point,
-      Vector3D<typename Backend::precision_v> const &direction,
-      typename Backend::precision_v const &stepMax,
-      typename Backend::precision_v &distance);
-
-  template <class Backend>
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  static void SafetyToIn(UnplacedBox const &unplaced,
-                         Transformation3D const &transformation,
-                         Vector3D<typename Backend::precision_v> const &point,
-                         typename Backend::precision_v &safety);
-
-  template <class Backend>
+  template<typename Real_v>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  static void SafetyToOut(UnplacedBox const &unplaced,
-                          Vector3D<typename Backend::precision_v> const &point,
-                          typename Backend::precision_v &safety);
+  static void DistanceToIn(UnplacedStruct_t const &box, Vector3D<Real_v> const &point,
+                           Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance) {
 
-  template <class Backend>
+    Vector3D<Real_v> safety;
+    using Bool_v = vecCore::Mask_v<Real_v>;
+    Bool_v done(false);
+
+    safety[0] = vecCore::math::Abs(point[0]) - box.fDimensions[0];
+    safety[1] = vecCore::math::Abs(point[1]) - box.fDimensions[1];
+    safety[2] = vecCore::math::Abs(point[2]) - box.fDimensions[2];
+
+    done |= (safety[0] >= stepMax || safety[1] >= stepMax || safety[2] >= stepMax);
+    if (vecCore::MaskFull(done))
+      return;
+
+    Bool_v inside(false);
+    inside = safety[0] < -kHalfTolerance && safety[1] < -kHalfTolerance && safety[2] < -kHalfTolerance;
+    vecCore::MaskedAssign(distance, !done && inside, Real_v(-1.));
+
+    done |= inside;
+    if (vecCore::MaskFull(done))
+      return;
+
+    Real_v next, coord1, coord2;
+    Bool_v hit;
+
+    // x
+    next = safety[0] / NonZeroAbs(direction[0]);
+    coord1 = point[1] + next * direction[1];
+    coord2 = point[2] + next * direction[2];
+    hit = safety[0] >= -kHalfTolerance && point[0] * direction[0] < 0. &&
+          vecCore::math::Abs(coord1) <= box.fDimensions[1] && vecCore::math::Abs(coord2) <= box.fDimensions[2];
+    vecCore::MaskedAssign(distance, !done && hit, next);
+    done |= hit;
+    if (vecCore::MaskFull(done))
+      return;
+
+    // y
+    next = safety[1] / vecCore::math::Abs(direction[1] + kMinimum);
+    coord1 = point[0] + next * direction[0];
+    coord2 = point[2] + next * direction[2];
+    hit = safety[1] >= -kHalfTolerance && point[1] * direction[1] < 0 &&
+          vecCore::math::Abs(coord1) <= box.fDimensions[0] && vecCore::math::Abs(coord2) <= box.fDimensions[2];
+    vecCore::MaskedAssign(distance, !done && hit, next);
+    done |= hit;
+    if (vecCore::MaskFull(done))
+      return;
+
+    // z
+    next = safety[2] / vecCore::math::Abs(direction[2] + kMinimum);
+    coord1 = point[0] + next * direction[0];
+    coord2 = point[1] + next * direction[1];
+    hit = safety[2] >= -kHalfTolerance && point[2] * direction[2] < 0 &&
+          vecCore::math::Abs(coord1) <= box.fDimensions[0] && vecCore::math::Abs(coord2) <= box.fDimensions[1];
+    vecCore::MaskedAssign(distance, !done && hit, next);
+}
+
+  template<typename Real_v>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  static void ContainsKernel(
-      Vector3D<Precision> const &boxDimensions,
-      Vector3D<typename Backend::precision_v> const &point,
-      typename Backend::bool_v &inside);
+  static void DistanceToOut(UnplacedStruct_t const &box, Vector3D<Real_v> const &point,
+                              Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance) {
+    distance=Real_v(-1.);
 
+    using Bool_v = vecCore::Mask_v<Real_v>;
+    // treatment to find out if on wrong side
+    Bool_v done = vecCore::math::Abs(point[0]) >  box.fDimensions[0] + kHalfTolerance;
+    done       |= vecCore::math::Abs(point[1]) >  box.fDimensions[1] + kHalfTolerance;
+    done       |= vecCore::math::Abs(point[2]) >  box.fDimensions[2] + kHalfTolerance;
+    if(vecCore::MaskFull(done)) return;
 
+    const Vector3D<Real_v> inverseDirection(1. / NonZero(direction[0]), 1. / NonZero(direction[1]),
+                                            1. / NonZero(direction[2]));
+    Vector3D<Real_v> distances((box.fDimensions[0] - point[0]) * inverseDirection[0],
+                               (box.fDimensions[1] - point[1]) * inverseDirection[1],
+                               (box.fDimensions[2] - point[2]) * inverseDirection[2]);
 
-  template <class Backend>
+    using vecCore::MaskedAssign;
+    MaskedAssign(distances[0], direction[0] < 0., (-box.fDimensions[0] - point[0]) * inverseDirection[0]);
+    MaskedAssign(distances[1], direction[1] < 0., (-box.fDimensions[1] - point[1]) * inverseDirection[1]);
+    MaskedAssign(distances[2], direction[2] < 0., (-box.fDimensions[2] - point[2]) * inverseDirection[2]);
+ 
+    MaskedAssign(distance, !done, distances[0]);
+    distance = vecCore::math::Min(distances[1], distance);
+    distance = vecCore::math::Min(distances[2], distance);
+    return;
+  }
+
+  template<typename Real_v>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  static void InsideKernel(
-      Vector3D<Precision> const &boxDimensions,
-      Vector3D<typename Backend::precision_v> const &point,
-      typename Backend::inside_v &inside);
+  static void SafetyToIn(UnplacedStruct_t const &box,
+                         Vector3D<Real_v> const &point,
+                         Real_v &safety) {
+    safety = -box.fDimensions[0] + vecCore::math::Abs(point[0]);
+    const Real_v safetyY = -box.fDimensions[1] + vecCore::math::Abs(point[1]);
+    const Real_v safetyZ = -box.fDimensions[2] + vecCore::math::Abs(point[2]);
+    safety = vecCore::math::Max(safetyY, safety);
+    safety = vecCore::math::Max(safetyZ, safety);
+  }
 
-  template <class Backend>
+  template<typename Real_v>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  static void DistanceToInKernel(
-      Vector3D<Precision> const &dimensions,
-      Vector3D<typename Backend::precision_v> const &point,
-      Vector3D<typename Backend::precision_v> const &direction,
-      typename Backend::precision_v const &stepMax,
-      typename Backend::precision_v &distance);
+  static void SafetyToOut(UnplacedStruct_t const &box, Vector3D<Real_v> const &point, Real_v &safety) {
+    safety = box.fDimensions[0] - vecCore::math::Abs(point[0]);
+    const Real_v safetyY = box.fDimensions[1] - vecCore::math::Abs(point[1]);
+    const Real_v safetyZ = box.fDimensions[2] - vecCore::math::Abs(point[2]);
+    safety = vecCore::math::Min(safetyY, safety);
+    safety = vecCore::math::Min(safetyZ, safety);
+  }
 
-  template <class Backend>
+  template<typename Real_v>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  static void DistanceToOutKernel(
-    Vector3D<Precision> const &dimensions,
-    Vector3D<typename Backend::precision_v> const &point,
-    Vector3D<typename Backend::precision_v> const &direction,
-    typename Backend::precision_v const &stepMax,
-    typename Backend::precision_v &distance);
+  static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &box, Vector3D<Real_v> const &point, typename
+                                       vecCore::Mask_v<Real_v> &valid) {
+    // Computes the normal on a surface and returns it as a unit vector
+    //   In case a point is further than tolerance_normal from a surface, set validNormal=false
+    //   Must return a valid vector. (even if the point is not on the surface.)
+    //
+    //   On an edge or corner, provide an average normal of all facets within tolerance
+    // NOTE: the tolerance value used in here is not yet the global surface
+    //     tolerance - we will have to revise this value - TODO
+    // this version does not yet consider the case when we are not on the surface
 
-  template <class Backend>
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  static void SafetyToInKernel(
-      Vector3D<Precision> const &dimensions,
-      Vector3D<typename Backend::precision_v> const &point,
-      typename Backend::precision_v & safety);
+    using Bool_v = vecCore::Mask_v<Real_v>;
+    using vecCore::MaskedAssign;
 
-  template <class Backend>
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  static void SafetyToOutKernel(
-      Vector3D<Precision> const &dimensions,
-      Vector3D<typename Backend::precision_v> const &point,
-      typename Backend::precision_v &safety);
+    Vector3D<Precision> dimensions = box.fDimensions;
 
- // template <class Backend>
- // static void Normal( Vector3D<Precision> const &dimensions,
- //         Vector3D<typename Backend::precision_v> const &point,
- //        Vector3D<typename Backend::precision_v> &normal,
- //         Vector3D<typename Backend::precision_v> &valid )
+    constexpr double delta = 100. * kTolerance;
+    constexpr double kInvSqrt2 = 0.7071067811865475; // = 1. / Sqrt(2.);
+    constexpr double kInvSqrt3 = 0.5773502691896258; // = 1. / Sqrt(3.);
+    Vector3D<Real_v> normal;
+    normal.Set(0.);
+    Real_v nsurf(0.);
+    Real_v safmin(kInfinity);
 
-  template <class Backend>
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  static void NormalKernel(
-       UnplacedBox const &,
-       Vector3D<typename Backend::precision_v> const &point,
-       Vector3D<typename Backend::precision_v> &normal,
-       typename Backend::bool_v &valid );
+    // loop here over dimensions
+    for (int dim = 0; dim < 3; ++dim) {
+      Real_v currentsafe = vecCore::math::Abs(vecCore::math::Abs(point[dim]) - dimensions[dim]);
+      safmin = vecCore::math::Min(currentsafe, safmin);
 
+      // close to this surface
+      Bool_v closetoplane = currentsafe < delta;
+      if (!vecCore::MaskEmpty(closetoplane)) {
+        Real_v nsurftmp = nsurf + 1.;
+
+        Real_v sign(1.);
+        // better to use copysign instead of masked assigment?
+        MaskedAssign( sign, point[dim]<0, -Real_v(1.));
+        Real_v tmpnormalcomponent = normal[dim] + sign;
+
+        // masked assignment
+        MaskedAssign(nsurf, closetoplane, nsurftmp);
+        MaskedAssign(normal[dim], closetoplane, tmpnormalcomponent );
+      }
+    }
+
+    valid=Bool_v(true);
+    valid &= nsurf > 0;
+    // masked normalization ( a bit ugly since we don't have a masked operator on Vector3D
+    MaskedAssign(normal[0], nsurf == 3., normal[0]*kInvSqrt3);
+    MaskedAssign(normal[1], nsurf == 3., normal[1]*kInvSqrt3);
+    MaskedAssign(normal[2], nsurf == 3., normal[2]*kInvSqrt3);
+    MaskedAssign(normal[0], nsurf == 2., normal[0]*kInvSqrt2);
+    MaskedAssign(normal[1], nsurf == 2., normal[1]*kInvSqrt2);
+    MaskedAssign(normal[2], nsurf == 2., normal[2]*kInvSqrt2);
+
+    // TODO: return normal in case of nonvalid case;
+    // need to keep track of minimum safety direction
+    return normal;
+  }
 
   // an algorithm to test for intersection ( could be faster than DistanceToIn )
   // actually this also calculated the distance at the same time ( in tmin )
@@ -199,15 +300,12 @@ struct BoxImplementation {
   static bool Intersect( Vector3D<Precision> const * corners,
           Vector3D<Precision> const &point,
           Vector3D<Precision> const &ray,
-          Precision /*t0*/,
-          Precision /*t1*/)
-  {
+          Precision t0,
+          Precision t1){
     // intersection algorithm 1 ( Amy Williams )
-
     Precision tmin, tmax, tymin, tymax, tzmin, tzmax;
 
     // IF THERE IS A STEPMAX; COULD ALSO CHECK SAFETIES
-
     double inverserayx = 1./ray[0];
     double inverserayy = 1./ray[1];
 
@@ -215,7 +313,6 @@ struct BoxImplementation {
     int sign[3];
     sign[0] = inverserayx < 0;
     sign[1] = inverserayy < 0;
-
 
     tmin =  (corners[sign[0]].x()   -point.x())*inverserayx;
     tmax =  (corners[1-sign[0]].x() -point.x())*inverserayx;
@@ -296,109 +393,100 @@ struct BoxImplementation {
     }
 
     // an algorithm to test for intersection ( could be faster than DistanceToIn )
-        // actually this also calculated the distance at the same time ( in tmin )
-        template <typename Backend, int signx, int signy, int signz>
-        VECGEOM_CUDA_HEADER_BOTH
-        VECGEOM_INLINE
-        static typename Backend::precision_v IntersectCachedKernel(
-                Vector3D<typename Backend::precision_v > const * corners,
-                Vector3D<Precision> const &point,
-                Vector3D<Precision> const &inverseray,
-                Precision t0,
-                Precision t1 ){
+    // actually this also calculated the distance at the same time ( in tmin )
+    template <typename Real_v, int signx, int signy, int signz>
+    VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE static Real_v
+    IntersectCachedKernel(Vector3D<Real_v> const *corners, Vector3D<Precision> const &point,
+                          Vector3D<Precision> const &inverseray, Precision t0, Precision t1) {
 
-          typedef typename Backend::precision_v Float_t;
-          typedef typename Backend::bool_v Bool_t;
+      using Bool_v = vecCore::Mask_v<Real_v>;
 
-          Float_t tmin  = (corners[signx].x()   - point.x())*inverseray.x();
-          Float_t tmax  = (corners[1-signx].x() - point.x())*inverseray.x();
-          Float_t tymin = (corners[signy].y()   - point.y())*inverseray.y();
-          Float_t tymax = (corners[1-signy].y() - point.y())*inverseray.y();
+      Real_v tmin = (corners[signx].x() - point.x()) * inverseray.x();
+      Real_v tmax = (corners[1 - signx].x() - point.x()) * inverseray.x();
+      Real_v tymin = (corners[signy].y() - point.y()) * inverseray.y();
+      Real_v tymax = (corners[1 - signy].y() - point.y()) * inverseray.y();
 
-          // do we need this condition ?
-          Bool_t done = (tmin > tymax) || (tymin > tmax);
-          if( IsFull(done) ) return vecgeom::kInfinity;
-          // if((tmin > tymax) || (tymin > tmax))
-          //     return vecgeom::kInfinity;
+      // do we need this condition ?
+      Bool_v done = (tmin > tymax) || (tymin > tmax);
+      if (vecCore::MaskFull(done))
+        return vecgeom::kInfinity;
+      // if((tmin > tymax) || (tymin > tmax))
+      //     return vecgeom::kInfinity;
 
-          // Not sure if this has to be maskedassignments
-          tmin = Max(tmin, tymin);
-          tmax = Min(tmax, tymax);
+      // Not sure if this has to be maskedassignments
+      tmin = Max(tmin, tymin);
+      tmax = Min(tmax, tymax);
 
-          Float_t tzmin = (corners[signz].z()   - point.z())*inverseray.z();
-          Float_t tzmax = (corners[1-signz].z() - point.z())*inverseray.z();
+      Real_v tzmin = (corners[signz].z() - point.z()) * inverseray.z();
+      Real_v tzmax = (corners[1 - signz].z() - point.z()) * inverseray.z();
 
-          done |= (tmin > tzmax) || (tzmin > tmax);
-         // if((tmin > tzmax) || (tzmin > tmax))
-         //     return vecgeom::kInfinity; // false
-          if( IsFull(done) ) return vecgeom::kInfinity;
+      done |= (tmin > tzmax) || (tzmin > tmax);
+      // if((tmin > tzmax) || (tzmin > tmax))
+      //     return vecgeom::kInfinity; // false
+      if (vecCore::MaskFull(done))
+        return vecgeom::kInfinity;
 
-          // not sure if this has to be maskedassignments
-          tmin = Max(tmin, tzmin);
-          tmax = Min(tmax, tzmax);
+      // not sure if this has to be maskedassignments
+      tmin = Max(tmin, tzmin);
+      tmax = Min(tmax, tzmax);
 
-          done |= ! ((tmin < t1) && (tmax > t0));
-         // if( ! ((tmin < t1) && (tmax > t0)) )
-         //     return vecgeom::kInfinity;
-          MaskedAssign(done, vecgeom::kInfinity, &tmin);
-          return tmin;
-        }
+      done |= !((tmin < t1) && (tmax > t0));
+      // if( ! ((tmin < t1) && (tmax > t0)) )
+      //     return vecgeom::kInfinity;
+      vecCore::MaskedAssign(tmin, done, Real_v(vecgeom::kInfinity));
+      return tmin;
+    }
 
-
-        // an algorithm to test for intersection ( could be faster than DistanceToIn )
-        // actually this also calculated the distance at the same time ( in tmin )
-  template <typename Backend, typename basep = Precision>
+  // an algorithm to test for intersection ( could be faster than DistanceToIn )
+  // actually this also calculated the distance at the same time ( in tmin )
+  template <typename Real_v, typename basep>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  static typename Backend::precision_v IntersectCachedKernel2(
-          Vector3D<typename Backend::precision_v > const * corners,
+  static Real_v IntersectCachedKernel2(
+          Vector3D<Real_v > const * corners,
           Vector3D<basep> const &point,
           Vector3D<basep> const &inverseray,
           int signx, int signy, int signz,
           basep t0,
           basep t1 ){
 
-    typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
+    using Bool_v = vecCore::Mask_v<Real_v>;
 
-    Float_t tmin  = (corners[signx].x()   - point.x())*inverseray.x();
-    Float_t tymax = (corners[1-signy].y() - point.y())*inverseray.y();
-    Bool_t done = tmin > tymax;
-    if( IsFull(done) ) return (basep) vecgeom::kInfinity;
+    Real_v tmin  = (corners[signx].x()   - Real_v(point.x()))*inverseray.x();
+    Real_v tymax = (corners[1-signy].y() - Real_v(point.y()))*inverseray.y();
+    Bool_v done = tmin > tymax;
+    if( vecCore::MaskFull(done) ) return Real_v((basep) vecgeom::kInfinity);
 
-    Float_t tmax  = (corners[1-signx].x() - point.x())*inverseray.x();
-    Float_t tymin = (corners[signy].y()   - point.y())*inverseray.y();
+    Real_v tmax  = (corners[1-signx].x() - Real_v(point.x()))*inverseray.x();
+    Real_v tymin = (corners[signy].y()   - Real_v(point.y()))*inverseray.y();
 
     // do we need this condition ?
     done |= (tymin > tmax);
-    if( IsFull(done) ) return (basep) vecgeom::kInfinity;
+    if( vecCore::MaskFull(done) ) return Real_v((basep) vecgeom::kInfinity);
 
     // if((tmin > tymax) || (tymin > tmax))
     //     return vecgeom::kInfinity;
 
     // Not sure if this has to be maskedassignments
-    tmin = Max(tmin, tymin);
-    tmax = Min(tmax, tymax);
+    tmin = vecCore::math::Max(tmin, tymin);
+    tmax = vecCore::math::Min(tmax, tymax);
 
-    Float_t tzmin = (corners[signz].z()   - point.z())*inverseray.z();
-    Float_t tzmax = (corners[1-signz].z() - point.z())*inverseray.z();
+    Real_v tzmin = (corners[signz].z()   - point.z())*inverseray.z();
+    Real_v tzmax = (corners[1-signz].z() - point.z())*inverseray.z();
 
-    done |= (tmin > tzmax) || (tzmin > tmax);
+    done |= (Real_v(tmin) > Real_v(tzmax)) || (Real_v(tzmin) > Real_v(tmax));
    // if((tmin > tzmax) || (tzmin > tmax))
    //     return vecgeom::kInfinity; // false
-   if( IsFull(done) ) return (basep) vecgeom::kInfinity;
+   if( vecCore::MaskFull(done) ) return Real_v((basep) vecgeom::kInfinity);
 
-    tmin = Max(tmin, tzmin);
-    tmax = Min(tmax, tzmax);
+    // not sure if this has to be maskedassignments
+    tmin = vecCore::math::Max(tmin, tzmin);
+    tmax = vecCore::math::Min(tmax, tzmax);
 
-    Float_t t1p(1.*t1); // this is madness just to make the compiler not crash here ( gcc 5.2 had internal error when doing t1p(t1)
-    Float_t t0p(1.*t0);
-    Bool_t c1 = tmin < t1p;//Float_t(t1);
-    Bool_t c2 = tmax > t0p;//Float_t(t0);
-    done |= !( c1 && c2 );
+    done |= ! ((tmin < Real_v(t1)) && (tmax > Real_v(t0)));
    // if( ! ((tmin < t1) && (tmax > t0)) )
    //     return vecgeom::kInfinity;
-    MaskedAssign(done, Float_t((basep) vecgeom::kInfinity), &tmin);
+    vecCore::MaskedAssign(tmin, done, Real_v((basep) vecgeom::kInfinity));
     return tmin;
   }
 
@@ -409,19 +497,19 @@ struct BoxImplementation {
     // because also the sign[] variables and hence the branches are predefined
 
     // one could do: template <class Backend, int sign0, int sign1, int sign2>
-    template <class Backend>
+    template<typename Real_v>
     VECGEOM_CUDA_HEADER_BOTH
     VECGEOM_INLINE
     static Precision IntersectMultiple(
-            Vector3D<typename Backend::precision_v> const lowercorners,
-            Vector3D<typename Backend::precision_v> const uppercorners,
+            Vector3D<Real_v> const lowercorners,
+            Vector3D<Real_v> const uppercorners,
             Vector3D<Precision> const &point,
             Vector3D<Precision> const &inverseray,
             Precision t0,
             Precision t1 ){
       // intersection algorithm 1 ( Amy Williams )
 
-      typedef typename Backend::precision_v Float_t;
+      typedef Real_v Float_t;
 
       Float_t tmin, tmax, tymin, tymax, tzmin, tzmax;
       // IF THERE IS A STEPMAX; COULD ALSO CHECK SAFETIES
@@ -493,412 +581,7 @@ struct BoxImplementation {
     }
 }; // End struct BoxImplementation
 
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
-void BoxImplementation<transCodeT, rotCodeT>::UnplacedContains(
-    UnplacedBox const &box,
-    Vector3D<typename Backend::precision_v> const &localPoint,
-    typename Backend::bool_v &inside) {
-
-  ContainsKernel<Backend>(box.dimensions(), localPoint, inside);
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
-void BoxImplementation<transCodeT, rotCodeT>::Contains(
-    UnplacedBox const &unplaced,
-    Transformation3D const &transformation,
-    Vector3D<typename Backend::precision_v> const &point,
-    Vector3D<typename Backend::precision_v> &localPoint,
-    typename Backend::bool_v &inside) {
-
-  localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
-  UnplacedContains<Backend>(unplaced, localPoint, inside);
-
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
-void BoxImplementation<transCodeT, rotCodeT>::Inside(
-    UnplacedBox const &unplaced,
-    Transformation3D const &transformation,
-    Vector3D<typename Backend::precision_v> const &point,
-    typename Backend::inside_v &inside) {
-
-  InsideKernel<Backend>(unplaced.dimensions(),
-                        transformation.Transform<transCodeT, rotCodeT>(point),
-                        inside);
-
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
-VECGEOM_CUDA_HEADER_BOTH
-void BoxImplementation<transCodeT, rotCodeT>::DistanceToIn(
-    UnplacedBox const &unplaced,
-    Transformation3D const &transformation,
-    Vector3D<typename Backend::precision_v> const &point,
-    Vector3D<typename Backend::precision_v> const &direction,
-    typename Backend::precision_v const &stepMax,
-    typename Backend::precision_v &distance) {
-
-  DistanceToInKernel<Backend>(
-    unplaced.dimensions(),
-    transformation.Transform<transCodeT, rotCodeT>(point),
-    transformation.TransformDirection<rotCodeT>(direction),
-    stepMax,
-    distance
-  );
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
-VECGEOM_CUDA_HEADER_BOTH
-void BoxImplementation<transCodeT, rotCodeT>::DistanceToOut(
-    UnplacedBox const &unplaced,
-    Vector3D<typename Backend::precision_v> const &point,
-    Vector3D<typename Backend::precision_v> const &direction,
-    typename Backend::precision_v const &stepMax,
-    typename Backend::precision_v &distance) {
-
-  DistanceToOutKernel<Backend>(
-    unplaced.dimensions(),
-    point,
-    direction,
-    stepMax,
-    distance
-  );
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
-void BoxImplementation<transCodeT, rotCodeT>::SafetyToIn(
-    UnplacedBox const &unplaced,
-    Transformation3D const &transformation,
-    Vector3D<typename Backend::precision_v> const &point,
-    typename Backend::precision_v &safety) {
-
-  SafetyToInKernel<Backend>(
-    unplaced.dimensions(),
-    transformation.Transform<transCodeT, rotCodeT>(point),
-    safety
-  );
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
-void BoxImplementation<transCodeT, rotCodeT>::SafetyToOut(
-    UnplacedBox const &unplaced,
-    Vector3D<typename Backend::precision_v> const &point,
-    typename Backend::precision_v &safety) {
-
-  SafetyToOutKernel<Backend>(
-    unplaced.dimensions(),
-    point,
-    safety
-  );
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
-void BoxImplementation<transCodeT, rotCodeT>::ContainsKernel(
-    Vector3D<Precision> const &dimensions,
-    Vector3D<typename Backend::precision_v> const &localPoint,
-    typename Backend::bool_v &inside) {
-
-  typedef typename Backend::bool_v Boolean_t;
-  Boolean_t unused;
-  Boolean_t outside;
-  GenericKernelForContainsAndInside<Backend, false>(dimensions,
-    localPoint, unused, outside);
-  inside=!outside;
-}
-
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend, bool ForInside>
-VECGEOM_CUDA_HEADER_BOTH
-void BoxImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndInside(
-    Vector3D<Precision> const &dimensions,
-    Vector3D<typename Backend::precision_v> const &localPoint,
-    typename Backend::bool_v &completelyinside,
-    typename Backend::bool_v &completelyoutside) {
-
-//    using vecgeom::GenericKernels;
-// here we are explicitely unrolling the loop since  a for statement will likely be a penalty
-// check if second call to Abs is compiled away
-    // and it can anyway not be vectorized
-    /* x */
-    completelyoutside = Abs(localPoint[0]) > MakePlusTolerant<ForInside>( dimensions[0] );
-    if (ForInside) {
-      if (Backend::early_returns && IsFull(completelyoutside) ) {
-          completelyinside = Backend::kFalse;
-          return;
-      }
-      completelyinside = Abs(localPoint[0]) < MakeMinusTolerant<ForInside>( dimensions[0] );
-    }
-
-/* y */
-    completelyoutside |= Abs(localPoint[1]) > MakePlusTolerant<ForInside>( dimensions[1] );
-    if (ForInside) {
-      if (Backend::early_returns && IsFull(completelyoutside) ) {
-          completelyinside = Backend::kFalse;
-          return;
-      }
-      completelyinside &= Abs(localPoint[1]) < MakeMinusTolerant<ForInside>( dimensions[1] );
-    }
-
-/* z */
-    completelyoutside |= Abs(localPoint[2]) > MakePlusTolerant<ForInside>( dimensions[2] );
-    if (ForInside) {
-      completelyinside &= Abs(localPoint[2]) < MakeMinusTolerant<ForInside>( dimensions[2] );
-    }
-
-    return;
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
-VECGEOM_CUDA_HEADER_BOTH
-void BoxImplementation<transCodeT, rotCodeT>::InsideKernel(
-    Vector3D<Precision> const &boxDimensions,
-    Vector3D<typename Backend::precision_v> const &point,
-    typename Backend::inside_v &inside) {
-
-  typedef typename Backend::bool_v      Boolean_t;
-  Boolean_t completelyinside, completelyoutside;
-  GenericKernelForContainsAndInside<Backend,true>(
-      boxDimensions, point, completelyinside, completelyoutside);
-  inside=EInside::kSurface;
-  MaskedAssign(completelyoutside, EInside::kOutside, &inside);
-  MaskedAssign(completelyinside, EInside::kInside, &inside);
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
-VECGEOM_CUDA_HEADER_BOTH
-void BoxImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
-    Vector3D<Precision> const &dimensions,
-    Vector3D<typename Backend::precision_v> const &point,
-    Vector3D<typename Backend::precision_v> const &direction,
-    typename Backend::precision_v const &stepMax,
-    typename Backend::precision_v &distance) {
-
-  typedef typename Backend::precision_v Floating_t;
-  typedef typename Backend::bool_v      Boolean_t;
-
-  Vector3D<Floating_t> safety;
-  Boolean_t done = Backend::kFalse;
-
-  distance = kInfinity;
-  safety[0] = Abs(point[0]) - dimensions[0];
-  safety[1] = Abs(point[1]) - dimensions[1];
-  safety[2] = Abs(point[2]) - dimensions[2];
-
-  done |= (safety[0] >= stepMax ||
-           safety[1] >= stepMax ||
-           safety[2] >= stepMax);
-  if ( Backend::early_returns && IsFull(done) ) return;
-
-  Boolean_t inside = safety[0] < -kHalfTolerance && safety[1] < -kHalfTolerance && safety[2] < -kHalfTolerance;
-  MaskedAssign(!done && inside, -1., &distance);
-  done |= inside;
-  if ( Backend::early_returns && IsFull(done) ) return;
-
-  // Next step: from outside
-  Floating_t next, coord1, coord2;
-  Boolean_t hit;
-
-  // x
-  next = safety[0] / NonZeroAbs( direction[0] );
-  coord1 = point[1] + next * direction[1];
-  coord2 = point[2] + next * direction[2];
-  hit = safety[0] >= -kHalfTolerance &&
-        point[0] * direction[0] < 0 &&
-        Abs(coord1) <= dimensions[1]-kHalfTolerance &&
-        Abs(coord2) <= dimensions[2]-kHalfTolerance;
-  MaskedAssign(!done && hit, next, &distance);
-  done |= hit;
-  if ( Backend::early_returns && IsFull(done) ) return;
-
-  // y
-  next = safety[1] / NonZeroAbs( direction[1] );
-  coord1 = point[0] + next * direction[0];
-  coord2 = point[2] + next * direction[2];
-  hit = safety[1] >= -kHalfTolerance &&
-        point[1] * direction[1] < 0 &&
-        Abs(coord1) <= dimensions[0]-kHalfTolerance &&
-        Abs(coord2) <= dimensions[2]-kHalfTolerance;
-  MaskedAssign(!done && hit, next, &distance);
-  done |= hit;
-  if ( Backend::early_returns && IsFull(done) ) return;
-
-  // z
-  next = safety[2] / NonZeroAbs( direction[2] );
-  coord1 = point[0] + next * direction[0];
-  coord2 = point[1] + next * direction[1];
-  hit = safety[2] >= -kHalfTolerance &&
-        point[2] * direction[2] < 0 &&
-        Abs(coord1) <= dimensions[0]-kHalfTolerance &&
-        Abs(coord2) <= dimensions[1]-kHalfTolerance;
-  MaskedAssign(!done && hit, next, &distance);
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
-VECGEOM_CUDA_HEADER_BOTH
-void BoxImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
-    Vector3D<Precision> const &dimensions,
-    Vector3D<typename Backend::precision_v> const &point,
-    Vector3D<typename Backend::precision_v> const &direction,
-    typename Backend::precision_v const &/*stepMax*/,
-    typename Backend::precision_v &distance) {
-
-    typedef typename Backend::precision_v Floating_t;
-    typedef typename Backend::bool_v Bool_t;
-
-    distance = -1;
-
-    // tag the ones on the wrong side
-    Bool_t done = Abs(point[0]) > dimensions[0]+kHalfTolerance;
-    done       |= Abs(point[1]) > dimensions[1]+kHalfTolerance;
-    done       |= Abs(point[2]) > dimensions[2]+kHalfTolerance;
-    if(Backend::early_returns && IsFull(done)) return;
-
-    // add a very small amount to avoid division by zero, but large enough to stay away from underflow/overflow
-    Vector3D<Floating_t> inverseDirection(
-      1./NonZero(direction[0]),
-      1./NonZero(direction[1]),
-      1./NonZero(direction[2]) );
-
-    Vector3D<Floating_t> distances {
-      (dimensions[0] - point[0]) * inverseDirection[0],
-      (dimensions[1] - point[1]) * inverseDirection[1],
-      (dimensions[2] - point[2]) * inverseDirection[2]
-    };
-
-    MaskedAssign(direction[0] < 0,
-                 (-dimensions[0] - point[0]) * inverseDirection[0],
-                 &distances[0]);
-    MaskedAssign(direction[1] < 0,
-                 (-dimensions[1] - point[1]) * inverseDirection[1],
-                 &distances[1]);
-    MaskedAssign(direction[2] < 0,
-                 (-dimensions[2] - point[2]) * inverseDirection[2],
-                 &distances[2]);
-
-    MaskedAssign(!done, distances[0], &distance);
-    // if(done), distance is -1, no need to ask for !done again
-    MaskedAssign(distances[1] < distance, distances[1], &distance);
-    MaskedAssign(distances[2] < distance, distances[2], &distance);
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
-VECGEOM_CUDA_HEADER_BOTH
-void BoxImplementation<transCodeT, rotCodeT>::SafetyToInKernel(
-    Vector3D<Precision> const &dimensions,
-    Vector3D<typename Backend::precision_v> const &point,
-    typename Backend::precision_v &safety) {
-
-  typedef typename Backend::precision_v Floating_t;
-
-  safety = Abs(point[0]) - dimensions[0];
-  const Floating_t safetyY = Abs(point[1]) - dimensions[1];
-  const Floating_t safetyZ = Abs(point[2]) - dimensions[2];
-
-  MaskedAssign( safetyY > safety, safetyY, &safety);
-  MaskedAssign( safetyZ > safety, safetyZ, &safety);
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
-VECGEOM_CUDA_HEADER_BOTH
-void BoxImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(
-    Vector3D<Precision> const &dimensions,
-    Vector3D<typename Backend::precision_v> const &point,
-    typename Backend::precision_v &safety) {
-
-   typedef typename Backend::precision_v Floating_t;
-
-   safety = dimensions[0] - Abs(point[0]);
-   const Floating_t safetyY = dimensions[1] - Abs(point[1]);
-   const Floating_t safetyZ = dimensions[2] - Abs(point[2]);
-
-   MaskedAssign(safetyY < safety, safetyY, &safety);
-   MaskedAssign(safetyZ < safety, safetyZ, &safety);
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
-VECGEOM_CUDA_HEADER_BOTH
-void BoxImplementation<transCodeT, rotCodeT>::NormalKernel(
-     UnplacedBox const &box,
-     Vector3D<typename Backend::precision_v> const &point,
-     Vector3D<typename Backend::precision_v> &normal,
-     typename Backend::bool_v &valid
-    ) {
-
-        typedef typename Backend::precision_v Floating_t;
-        typedef typename Backend::bool_v Boolean_t;
-
-         // Computes the normal on a surface and returns it as a unit vector
-         //   In case a point is further than tolerance_normal from a surface, set validNormal=false
-         //   Must return a valid vector. (even if the point is not on the surface.)
-         //
-         //   On an edge or corner, provide an average normal of all facets within tolerance
-         // NOTE: the tolerance value used in here is not yet the global surface
-         //     tolerance - we will have to revise this value - TODO
-         // this version does not yet consider the case when we are not on the surface
-
-         Vector3D<Precision> dimensions { box.dimensions() };
-
-         constexpr double delta = 100.*kTolerance;
-         constexpr double kInvSqrt2 = 0.7071067811865475; // = 1. / Sqrt(2.);
-         constexpr double kInvSqrt3 = 0.5773502691896258; // = 1. / Sqrt(3.);
-         normal.Set(0.);
-         Floating_t nsurf = 0;
-         Floating_t safmin(kInfinity);
-
-         // do a loop here over dimensions
-         for( int dim = 0; dim < 3; ++dim )
-         {
-             Floating_t currentsafe = Abs(Abs(point[dim]) - dimensions[dim]);
-             MaskedAssign( currentsafe < safmin, currentsafe, &safmin );
-
-             // close to this surface
-             Boolean_t closetoplane = currentsafe < delta;
-             if( ! IsEmpty( closetoplane ) )
-             {
-                Floating_t nsurftmp = nsurf + 1.;
-
-                Floating_t sign(1.);
-                MaskedAssign( point[dim] < 0, -1., &sign);
-                Floating_t tmpnormalcomponent = normal[dim] + sign;
-
-                MaskedAssign( closetoplane, nsurftmp, &nsurf );
-                MaskedAssign( closetoplane, tmpnormalcomponent, &normal[dim] );
-             }
-         }
-
-         valid = Backend::kTrue;
-         valid &= nsurf>0;
-         MaskedAssign( nsurf == 3., normal*kInvSqrt3, &normal );
-         MaskedAssign( nsurf == 2., normal*kInvSqrt2, &normal );
-
-        // TODO: return normal in case of nonvalid case;
-        // need to keep track of minimum safety direction
-    }
-
-  struct ABBoxImplementation {
+struct ABBoxImplementation {
 
   // a contains kernel to be used with aligned bounding boxes
   // scalar and vector modes (aka backend) for boxes but only single points
@@ -993,6 +676,7 @@ void BoxImplementation<transCodeT, rotCodeT>::NormalKernel(
 
 
   }; // end aligned bounding box struct
+
 
 } } // End global namespace
 

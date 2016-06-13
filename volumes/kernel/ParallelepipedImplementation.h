@@ -111,8 +111,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(ParallelepipedImplementation, Translatio
     Transform<Backend>(unplaced, localPoint);
 
     // Run unplaced box kernel
-    BoxImplementation<transCodeT, rotCodeT>::template ContainsKernel<Backend>(unplaced.GetDimensions(), localPoint,
-                                                                              inside);
+    BoxImplementation::Contains(BoxStruct<Precision>(unplaced.GetDimensions()), localPoint, inside);
   }
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -133,8 +132,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(ParallelepipedImplementation, Translatio
 
     Vector3D<typename Backend::precision_v> localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
     Transform<Backend>(unplaced, localPoint);
-    BoxImplementation<transCodeT, rotCodeT>::template InsideKernel<Backend>(unplaced.GetDimensions(), localPoint,
-                                                                            inside);
+    BoxImplementation::Inside(BoxStruct<Precision>(unplaced.GetDimensions()), localPoint, inside);
   }
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -153,8 +151,8 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(ParallelepipedImplementation, Translatio
     Transform<Backend>(unplaced, localDirection);
 
     // Run unplaced box kernel
-    BoxImplementation<transCodeT, rotCodeT>::template DistanceToInKernel<Backend>(unplaced.GetDimensions(), localPoint,
-                                                                                  localDirection, stepMax, distance);
+    BoxImplementation::DistanceToIn(BoxStruct<Precision>(unplaced.GetDimensions()), localPoint, localDirection, stepMax,
+                                    distance);
   }
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>

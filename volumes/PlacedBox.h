@@ -1,5 +1,5 @@
-/// \file PlacedBox.h
-/// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
+/// 2014: initial version (J. De Fine Licht + S. Wenzel)
+/// Okt 2015: cleanup; move to PlacedVolImplHelper (Sandro Wenzel)
 
 #ifndef VECGEOM_VOLUMES_PLACEDBOX_H_
 #define VECGEOM_VOLUMES_PLACEDBOX_H_
@@ -10,6 +10,15 @@
 #include "volumes/PlacedVolume.h"
 #include "volumes/UnplacedVolume.h"
 #include "volumes/kernel/BoxImplementation.h"
+#include "volumes/PlacedVolImplHelper.h"
+#include "volumes/UnplacedBox.h"
+
+//#ifdef VECGEOM_ROOT
+//#include "TGeoBBox.h"
+//#endif
+//#ifdef VECGEOM_USOLIDS
+//#include "UBox.hh"
+//#endif
 
 namespace vecgeom {
 
@@ -18,46 +27,35 @@ VECGEOM_DEVICE_DECLARE_CONV( PlacedBox )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class PlacedBox : public VPlacedVolume {
-
+class PlacedBox : public PlacedVolumeImplHelper<UnplacedBox, VPlacedVolume> {
+using Base = PlacedVolumeImplHelper<UnplacedBox, VPlacedVolume>;
 public:
 
 #ifndef VECGEOM_NVCC
-
+    // constructor inheritance;
+  using Base::Base;
   PlacedBox(char const *const label,
             LogicalVolume const *const logicalVolume,
             Transformation3D const *const transformation,
-            PlacedBox const *const boundingBox)
-      : VPlacedVolume(label, logicalVolume, transformation, boundingBox) {}
+            vecgeom::PlacedBox const *const boundingBox)
+      : Base(label, logicalVolume, transformation, boundingBox) {}
 
   PlacedBox(LogicalVolume const *const logicalVolume,
             Transformation3D const *const transformation,
-            PlacedBox const *const boundingBox)
+            vecgeom::PlacedBox const *const boundingBox)
       : PlacedBox("", logicalVolume, transformation, boundingBox) {}
-
 #else
-
   __device__
   PlacedBox(LogicalVolume const *const logicalVolume,
             Transformation3D const *const transformation,
             PlacedBox const *const boundingBox,
             const int id)
-      : VPlacedVolume(logicalVolume, transformation, boundingBox, id) {}
-
+      : Base(logicalVolume, transformation, boundingBox, id) {}
 #endif
   VECGEOM_CUDA_HEADER_BOTH
   virtual ~PlacedBox() {}
 
-  // Accessors
-
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  UnplacedBox const* GetUnplacedVolume() const {
-    return static_cast<UnplacedBox const *>(
-        GetLogicalVolume()->GetUnplacedVolume());
-  }
-
-
+  // Accessors -- not sure we need this ever (to be deprecated)
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Vector3D<Precision> const& dimensions() const {
@@ -77,93 +75,10 @@ public:
   Precision z() const { return GetUnplacedVolume()->z(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  Precision GetXHalfLength() const { return x(); }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  Precision GetYHalfLength() const { return y(); }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  Precision GetZHalfLength() const { return z(); }
-
-#if !defined(VECGEOM_NVCC)
-  VECGEOM_INLINE
-  void SetXHalfLength(double dx) { const_cast<UnplacedBox*>(GetUnplacedVolume())->SetX(dx); }
-
-  VECGEOM_INLINE
-  void SetYHalfLength(double dy) { const_cast<UnplacedBox*>(GetUnplacedVolume())->SetY(dy); }
-
-  VECGEOM_INLINE
-  void SetZHalfLength(double dz) { const_cast<UnplacedBox*>(GetUnplacedVolume())->SetZ(dz); }
-
-  VECGEOM_INLINE
-  void Set(Precision xx, Precision yy, Precision zz,
-           vecgeom::Transformation3D const*const transformation = &Transformation3D::kIdentity) {
-    if(logical_volume_) delete logical_volume_;
-    logical_volume_ = new LogicalVolume(new UnplacedBox(xx,yy,zz));
-#ifdef VECGEOM_INPLACE_TRANSFORMATIONS
-    fTransformation = *transformation;
-#else
-    if(fTransformation) delete fTransformation;
-    fTransformation = new Transformation3D(*transformation);
-#endif
-  }
-
-  virtual Precision Capacity() override {
-      return GetUnplacedVolume()->volume();
-  }
-
-  virtual
-  void Extent(Vector3D<Precision> & aMin, Vector3D<Precision> & aMax) const override
-  {
-    GetUnplacedVolume()->Extent(aMin, aMax);
-  }
-
-  virtual
-  bool Normal(Vector3D<Precision> const & point, Vector3D<Precision> & normal ) const override
-  {
-      bool valid;
-      BoxImplementation<translation::kIdentity, rotation::kIdentity>::NormalKernel<kScalar>(
-              *GetUnplacedVolume(),
-              point,
-              normal, valid);
-      return valid;
-  }
-
-  virtual
-  Vector3D<Precision> GetPointOnSurface() const override {
-    return GetUnplacedVolume()->GetPointOnSurface();
-  }
-
-  virtual double SurfaceArea() override {
-     return GetUnplacedVolume()->SurfaceArea();
-  }
-
-#if defined(VECGEOM_USOLIDS)
-  virtual std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType() ;}
-#endif
-#endif
-
-  VECGEOM_CUDA_HEADER_BOTH
-  void PrintType() const override;
-
-  void PrintType(std::ostream &s) const override;
-
-  // CUDA specific
-
-  VECGEOM_INLINE
-  virtual int memory_size() const override { return sizeof(*this); }
+  virtual void PrintType() const override;
+  virtual void PrintType(std::ostream &os) const override;
 
   // Comparison specific
-
-#if defined(VECGEOM_USOLIDS)
-  std::ostream& StreamInfo(std::ostream &os) const override {
-    return GetUnplacedVolume()->StreamInfo(os);
-  }
-#endif
-
 #ifndef VECGEOM_NVCC
   virtual VPlacedVolume const* ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
@@ -179,6 +94,7 @@ public:
 
 };
 
-} } // End global namespace
+} // end inline namespace
+} // End global namespace
 
-#endif // VECGEOM_VOLUMES_PLACEDBOX_H_
+#endif

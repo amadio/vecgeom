@@ -38,7 +38,7 @@ size_t ABBoxNavigator::GetHitCandidates(LogicalVolume const *lvol, Vector3D<Prec
   // int code = 2 << size[0] + 2 << size[1] + 2 << size[2];
   for (size_t box = 0; box < vecsize; ++box) {
     double distance =
-        BoxImplementation<translation::kIdentity, rotation::kIdentity>::IntersectCachedKernel2<kScalar, double>(
+        BoxImplementation::IntersectCachedKernel2<double, double>(
             &corners[2 * box], point, invdir, sign[0], sign[1], sign[2], 0, vecgeom::kInfinity);
     if (distance < vecgeom::kInfinity) {
       hitlist[hitcount]=ABBoxManager::BoxIdDistancePair_t(box, distance);
@@ -93,11 +93,8 @@ size_t ABBoxNavigator::GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Pr
   sign[1] = invdirfloat.y() < 0;
   sign[2] = invdirfloat.z() < 0;
   for (size_t box = 0; box < vecsize; ++box) {
-    ABBoxManager::Real_v distance =
-        BoxImplementation<translation::kIdentity, rotation::kIdentity>::IntersectCachedKernel2<kVcFloat,
-                                                                                               ABBoxManager::Real_t>(
-            &corners[2 * box], pfloat, invdirfloat, sign[0], sign[1], sign[2], 0,
-            static_cast<float>(vecgeom::kInfinity));
+    ABBoxManager::Real_v distance = BoxImplementation::IntersectCachedKernel2(
+        &corners[2 * box], pfloat, invdirfloat, sign[0], sign[1], sign[2], 0.f, static_cast<float>(vecgeom::kInfinity));
     ABBoxManager::Bool_v hit = distance < static_cast<float>(vecgeom::kInfinity);
     // this is Vc specific
     // a little tricky: need to iterate over the mask -- this does not easily work with scalar types
@@ -124,7 +121,7 @@ size_t ABBoxNavigator::GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Pr
   sign[2] = invdirfloat.z() < 0;
   for (size_t box = 0; box < vecsize; ++box) {
     float distance =
-        BoxImplementation<translation::kIdentity, rotation::kIdentity>::IntersectCachedKernel2<kScalarFloat, float>(
+        BoxImplementation::IntersectCachedKernel2<float, float>(
             &corners[2 * box], pfloat, invdirfloat, sign[0], sign[1], sign[2], 0,
             static_cast<float>(vecgeom::kInfinity));
     bool hit = distance < static_cast<float>(vecgeom::kInfinity);

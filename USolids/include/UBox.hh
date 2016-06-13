@@ -33,6 +33,71 @@
 #include "volumes/UnplacedBox.h"
 #include "base/Transformation3D.h"
 
+#ifndef VECGEOM_MASTER
+#include "volumes/UnplacedBox.h"
+#include "volumes/USolidsAdapter.h"
+
+class UBox: public vecgeom::USolidsAdapter<vecgeom::UnplacedBox> {
+
+  // just forwards UBox to vecgeom box
+  using Shape_t = vecgeom::UnplacedBox;
+  using Base_t = vecgeom::USolidsAdapter<vecgeom::UnplacedBox>;
+
+  // inherit all constructors
+  using Base_t::Base_t;
+public:
+  // add default constructor for tests
+  UBox() : Base_t("", 0.,0.,0) {}
+  virtual ~UBox() {}
+
+  inline double GetXHalfLength() const { return x(); }
+
+  inline double GetYHalfLength() const { return y(); }
+
+  inline double GetZHalfLength() const { return z(); }
+
+  inline void SetXHalfLength(double dx) { SetX(dx); }
+  inline void SetYHalfLength(double dy) { SetY(dy); }
+
+  inline void SetZHalfLength(double dz) { SetZ(dz); }
+
+  inline void Set(double xx, double yy, double zz) {
+    SetX(xx);
+    SetY(yy);
+    SetZ(zz);
+  }
+
+  // o provide a new object which is a clone of the solid
+  VUSolid* Clone() const override { return new UBox(*this); }
+
+  void ComputeBBox(UBBox* /*aBox*/, bool /*aStore = false*/) override {}
+
+  UGeometryType GetEntityType() const override { return "UBox"; }
+
+  // Visualisation
+  void GetParametersList(int, double* aArray) const override
+  {
+    aArray[0] = GetXHalfLength();
+    aArray[1] = GetYHalfLength();
+    aArray[2] = GetZHalfLength();
+  }
+
+  std::ostream& StreamInfo(std::ostream &os) const override {
+    int oldprc = os.precision(16);
+    os << "-----------------------------------------------------------\n"
+       << "     *** Dump for solid - " << GetEntityType() << " ***\n"
+       << "     ===================================================\n"
+       << " Solid type: Box\n"
+       << " Parameters: \n"
+       << "     half-dimensions in mm: x,y,z: " << dimensions() <<"\n"
+       << "-----------------------------------------------------------\n";
+    os.precision(oldprc);
+    return os;
+  }
+};
+
+#else
+
 class UBox: public vecgeom::SpecializedBox<vecgeom::translation::kIdentity, vecgeom::rotation::kIdentity> {
   // just forwards UBox to vecgeom box
   typedef typename vecgeom::SpecializedBox<vecgeom::translation::kIdentity, vecgeom::rotation::kIdentity> Shape_t;
@@ -45,6 +110,7 @@ public:
                    &vecgeom::Transformation3D::kIdentity,
                    this) {}
 };
+#endif
 //============== end of VecGeom-based implementation
 
 #else

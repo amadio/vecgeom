@@ -9,7 +9,7 @@
 #ifdef VECGEOM_ROOT
 #include "TGeoBBox.h"
 #endif
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) and !defined(VECGEOM_REPLACE_USOLIDS)
 #include "UBox.hh"
 #endif
 #ifdef VECGEOM_GEANT4
