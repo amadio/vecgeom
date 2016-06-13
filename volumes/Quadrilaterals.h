@@ -273,7 +273,7 @@ Vector3D<Precision> Quadrilaterals::GetPointOnFace(int index) const {
   int nvert = 0;
   int iCorners[4];
   for (int i = 0; i < 4; ++i) {
-    if ((fCorners[(i + 1) % 4][index] - fCorners[i % 4][index]).Mag2() > 1.e-6) {
+    if ((fCorners[(i + 1) % 4][index] - fCorners[i % 4][index]).Mag2() > kTolerance) {
       iCorners[nvert++] = i;
     }
   }
@@ -620,6 +620,9 @@ Precision Quadrilaterals::ScalarDistanceSquared(
 
   Vector3D<Precision> planeNormal = fPlanes.GetNormal(i);
   Precision distance = point.Dot(planeNormal) + fPlanes.GetDistance(i);
+  // Find the projection of the point on the quadrilateral "i". There was
+  // a bug below by adding a distance along the plane normal, while the
+  // correct version should subtract.
   Vector3D<Precision> intersection = point - distance*planeNormal;
 
   bool withinBound[4];

@@ -385,12 +385,6 @@ typename Backend::int_v FindZSegmentKernel(
     Precision const *end,
     typename Backend::precision_v const &pointZ);
 
-template <class Backend>
-VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE
-typename Backend::int_v FindZSegmentKernel1(Precision const *begin,
-    int n, 
-    typename Backend::precision_v const &pointZ);
-
 template <>
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
@@ -410,22 +404,6 @@ int FindZSegmentKernel<kScalar>(
   }
   if (pointZ + kTolerance > *begin) return (index + 1);
   return index;
-}
-
-template <>
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
-int FindZSegmentKernel1<kScalar>(Precision const *begin,
-     int n,
-     Precision const &pointZ) {
-  // This algorithm has the same complexity as std::lower_bound (logarithmic).
-  // In addition, for points near degenerated Z planes, it needs to return the segment with lowest index.
-  // This forces the first checked section to be the degenerated one, otherwise intersections can be missed.
-  const Precision *pind = std::lower_bound(begin, begin+n, pointZ - kTolerance);
-  if ( (pind != begin + n) && (Abs(*pind - pointZ) < kTolerance) )
-    return (pind - begin);
-  else
-    return (pind - begin -1);
 }
 
 #ifdef VECGEOM_NVCC
@@ -1002,6 +980,9 @@ PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::ScalarDi
   // Transformation is done here so the transformation can be used as a dummy
   // argument to the bounding tube's distance function.
   const Vector3D<Precision> localPoint = transformation.Transform(point);
+  
+  // Perform explicit Inside check to detect wrong side points. This impacts
+  // DistanceToIn performance by about 5% for all topologies
   auto inside = ScalarInsideKernel(unplaced, localPoint);
   if (inside == kInside) return -1.;
   
@@ -1087,6 +1068,8 @@ Precision PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>
   int phiIndex = FindPhiSegment<kScalar>(unplaced, point);
 
   // Check if point is on the 'pt_inside' side
+  // Perform explicit Inside check to detect wrong side points. This impacts
+  // Safety performance by 5-10% for all topologies
   Inside_t inside = ScalarInsideSegPhi(unplaced, point, zIndex, phiIndex);
   if (inside == EInside::kSurface) return 0.;
   bool contains = (inside == EInside::kInside);
@@ -1113,7 +1096,6 @@ Precision PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>
   ScalarSafetyToEndcapsSquared(unplaced, point, safety, iz);
 
   safety = sqrt(safety);
-  if (safety < kTolerance) safety = 0.;
   return safety;
 }
 
@@ -1204,6 +1186,8 @@ PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT, phiCutoutT>::ScalarDi
       (point[2] > unplaced.GetZPlanes()[zMax]+kTolerance))
     return -1.;
 
+  // Perform explicit Inside check to detect wrong side points. This impacts
+  // DistanceToOut performance by about 20% for all topologies
   auto inside = ScalarInsideKernel(unplaced, point);
   if (inside == kOutside) return -1.;
 

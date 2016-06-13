@@ -159,8 +159,12 @@ void UnplacedPolyhedron::Initialize(
   // Create bounding tube with biggest outer radius and smallest inner radius
   Precision boundingTubeZ = 0.5 * (zPlanes[zPlaneCount - 1] - zPlanes[0] + kTolerance);
   // Make bounding tube phi range a bit larger to contain all points on phi boundaries
-  Precision boundsPhiStart = !fHasPhiCutout ? 0 : phiStart - 100*kTolerance;
-  Precision boundsPhiDelta = !fHasPhiCutout ? kTwoPi : phiDelta + 200*kTolerance;
+  const Precision phiTolerance = 100*kTolerance;
+  // The increase in the angle has to be large enough to contain most of
+  // kSurface points. There will be some points close to the Z axis which will
+  // not be contained. The value is empirical to satisfy ShapeTester
+  Precision boundsPhiStart = !fHasPhiCutout ? 0 : phiStart - phiTolerance;
+  Precision boundsPhiDelta = !fHasPhiCutout ? kTwoPi : phiDelta + 2*phiTolerance;
   // correct inner and outer Radius with conversion factor
   //innerRadius /= cosHalfDeltaPhi;
   //outerRadius /= cosHalfDeltaPhi;
@@ -731,7 +735,7 @@ Vector3D<Precision> UnplacedPolyhedron::GetPointOnSurface() const {
       if (GetZSegment(GetZSegmentCount() - 1).hasInnerRadius) {
         point3 = GetZSegment(GetZSegmentCount() - 1).inner.GetCorners()[2][Flag];
         point4 = GetZSegment(GetZSegmentCount() - 1).inner.GetCorners()[3][Flag];
-        if ((point4 - point3).Mag2() < 1.e-6 || RNG::Instance().uniform(0.0, 1.0) < 0.5)
+        if ((point4 - point3).Mag2() < kTolerance || RNG::Instance().uniform(0.0, 1.0) < 0.5)
           pReturn = GetPointOnTriangle(point3, point1, point2);
         else
           pReturn = GetPointOnTriangle(point4, point3, point2);
@@ -748,7 +752,7 @@ Vector3D<Precision> UnplacedPolyhedron::GetPointOnSurface() const {
         point3 = GetZSegment(0).inner.GetCorners()[0][Flag];
         point4 = GetZSegment(0).inner.GetCorners()[1][Flag];
         // Avoid generating points on degenerated triangles
-        if ((point4 - point3).Mag2() < 1.e-6 || RNG::Instance().uniform(0.0, 1.0) < 0.5)
+        if ((point4 - point3).Mag2() < kTolerance || RNG::Instance().uniform(0.0, 1.0) < 0.5)
           pReturn = GetPointOnTriangle(point3, point1, point2);
         else
           pReturn = GetPointOnTriangle(point4, point3, point2);
@@ -796,63 +800,6 @@ Vector3D<Precision> UnplacedPolyhedron::GetPointOnSurface() const {
 
   return Vector3D<Precision>(0, 0, 0); // error
 }
-
-// <<<<<<< HEAD
-//  Precision UnplacedPolyhedron::Capacity() const{
-//  if(fCapacity == 0.)
-//  {
-//   int j;
-//   Precision  totVolume = 0., volume,volume1, aTop, aBottom;
-  
-//   //Formula for section : V=h(f+F+sqrt(f*F))/3;
-//   //Fand f-areas of surfaces on +/-dz
-//   //h-heigh
-  
-//       AOS3D<Precision> const * innercorners;
-//       AOS3D<Precision> const * outercorners;
-
-
-//      for(j=0; j < GetZSegmentCount(); ++j)
-//      {
-//        outercorners = GetZSegment(j).outer.GetCorners();
-//        Vector3D<Precision> a = outercorners[0][0];
-//        Vector3D<Precision> b = outercorners[1][0];
-//        Vector3D<Precision> c = outercorners[2][0];
-//        Vector3D<Precision> d = outercorners[3][0];
-       
-//        Precision dz= std::fabs(a.z()-c.z());
-//        Vector3D<Precision> a1,b1,c1,d1,temp;
-//        temp = Vector3D<Precision>(0,0,a.z());
-//        aBottom=GetTriangleArea(a,b,temp);
-//        temp=Vector3D<Precision>(0,0,c.z());
-//        aTop=GetTriangleArea(c,d,temp);
-
-//        if(GetZSegment(j).hasInnerRadius )
-//        {
-//          innercorners  = GetZSegment(j).inner.GetCorners();
-//          a1 = innercorners[0][0];
-//          b1 = innercorners[1][0];
-//          c1 = innercorners[2][0];
-//          d1 = innercorners[3][0];
-            
-//          volume = dz*(aTop+aBottom+ std::sqrt(aTop*aBottom));//outer volume
-//          temp = Vector3D<Precision>(0,0,a.z());
-//          aBottom = GetTriangleArea(a1,b1,temp);
-//          temp = Vector3D<Precision>(0,0,c.z());
-//          aTop= GetTriangleArea(c1,d1,temp);
-//          volume1 = dz*(aTop+aBottom+ std::sqrt(aTop*aBottom));//inner volume
-//          volume -= volume1;//outer piramide -inner piramide
-//        }
-//        else
-//        {
-
-//         volume = dz*(aTop+aBottom+ std::sqrt(aTop*aBottom));
-          
-//        }
-
-//        totVolume+=volume;
-// =======
-// >>>>>>> devel
 
 // TODO: this functions seems to be neglecting the phi cut !!
 Precision UnplacedPolyhedron::Capacity() const {
