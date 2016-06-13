@@ -657,9 +657,9 @@ Precision Quadrilaterals::ScalarDistanceSquared(
   //    Point  x
   //
   //     corner3 ___corner0
-  //            |   \
-  //            |     \
-  //            |_______\ corner1
+  //            |   -
+  //            |     -
+  //            |_______- corner1
   //
   // If the "above" segment is checked, corner3 will be selected closest, which
   // is correct, but if the "right" segment gets checked, corner0 will be
