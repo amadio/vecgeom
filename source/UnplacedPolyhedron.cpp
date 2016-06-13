@@ -159,12 +159,12 @@ void UnplacedPolyhedron::Initialize(
   // Create bounding tube with biggest outer radius and smallest inner radius
   Precision boundingTubeZ = 0.5 * (zPlanes[zPlaneCount - 1] - zPlanes[0] + kTolerance);
   // Make bounding tube phi range a bit larger to contain all points on phi boundaries
-  const Precision phiTolerance = 100*kTolerance;
+  const Precision kPhiTolerance = 100*kTolerance;
   // The increase in the angle has to be large enough to contain most of
   // kSurface points. There will be some points close to the Z axis which will
   // not be contained. The value is empirical to satisfy ShapeTester
-  Precision boundsPhiStart = !fHasPhiCutout ? 0 : phiStart - phiTolerance;
-  Precision boundsPhiDelta = !fHasPhiCutout ? kTwoPi : phiDelta + 2*phiTolerance;
+  Precision boundsPhiStart = !fHasPhiCutout ? 0 : phiStart - kPhiTolerance;
+  Precision boundsPhiDelta = !fHasPhiCutout ? kTwoPi : phiDelta + 2*kPhiTolerance;
   // correct inner and outer Radius with conversion factor
   //innerRadius /= cosHalfDeltaPhi;
   //outerRadius /= cosHalfDeltaPhi;

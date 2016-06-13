@@ -584,12 +584,10 @@ PolyhedronImplementation<transCodeT, rotCodeT,innerRadiiT,
 
   Precision safetySquared = kInfinity;
   if (TreatPhi<phiCutoutT>(polyhedron.HasPhiCutout()) && segment.phi.size() == 2) {
-    // Phi treatment was wrong since safety for phi was called only when the point was
-    // in the cutout wedge. We have to call it also when the point is in the phi regions
-    // adjacent to the cutout wedge.
+    //  Check if points is in the cutout wedge first.
     bool in_cutout = InPhiCutoutWedge<kScalar>(segment, polyhedron.HasLargePhiCutout(), point);
     if (pt_inside || in_cutout) {
-      // Need to check both phi planes
+      // If point is in the cutout or if the call comes from SafetyToOut we need to check both phi planes
       iSurf = 0;
       safetySquared = segment.phi.ScalarDistanceSquared(0, point);
       Precision saf = segment.phi.ScalarDistanceSquared(1, point);
