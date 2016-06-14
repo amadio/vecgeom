@@ -1,4 +1,4 @@
-//===-- volumes/UnplacedParaboloid.h - Instruction class definition -------*- C++ -*-===//
+//===-- volumes/UnplacedParaboloid.h - Instruction class definition -------*- C++ -*-===// 
 ///
 /// \file volumes/UnplacedParaboloid.h
 /// \author Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
@@ -228,9 +228,9 @@ public:
                                VPlacedVolume *const placement = NULL);
 
 #ifdef VECGEOM_CUDA_INTERFACE
-  virtual size_t DeviceSizeOf() const { return DevicePtr<cuda::UnplacedParaboloid>::SizeOf(); }
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const;
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
+  virtual size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedParaboloid>::SizeOf(); }
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
 #endif
 
 private:
