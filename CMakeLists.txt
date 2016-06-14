@@ -162,7 +162,7 @@ if (USOLIDS)
   set(USolids ON)
 endif()
 
-if (APPLE) 
+if (APPLE)
    set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
 endif()
 
@@ -226,6 +226,10 @@ elseif (_backend_up MATCHES MICVEC)
   message(STATUS "Configuring with \"Micvec\" vector backend.")
 elseif (_backend_up MATCHES UMESIMD)
   set(UMESIMD ON)
+  find_package(UMESIMD)
+  if(UMESIMD_FOUND)
+    include_directories(${UMESIMD_INCLUDE_DIR})
+  endif()
   message(STATUS "Configuring with \"UME::SIMD\" vector backend.")
 elseif (_backend_up MATCHES DEFAULT)
   set(Vc ON)
@@ -356,7 +360,7 @@ if (CUDA)
     set(VECGEOM_DEFINITIONS
         "${VECGEOM_DEFINITIONS} -DVECGEOM_CUDA_NO_VOLUME_SPECIALIZATION")
   endif()
-  set(VECGEOM_NVCC_COMPILATION_FLAGS ${VECGEOM_NVCC_COMPILATION_FLAGS} 
+  set(VECGEOM_NVCC_COMPILATION_FLAGS ${VECGEOM_NVCC_COMPILATION_FLAGS}
       -std=c++11
       -Xcudafe "--diag_suppress=code_is_unreachable"
       -Xcudafe "--diag_suppress=initialization_not_reachable")
@@ -840,7 +844,7 @@ set(TEST_EXECUTABLES_ROOT
   ${CMAKE_SOURCE_DIR}/test/root/ExitingOrEntering.cpp
   ${CMAKE_SOURCE_DIR}/test/core/BoxBoxIntersectionTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/SplittedABBox.cpp
- 
+
 )
 
 # Tests below fail to build when both ROOT and USolids are enabled
@@ -963,7 +967,7 @@ set(TEST_EXECUTABLES_SHAPETESTER
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTrd.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTrapezoid.cpp
   # ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testParaboloid.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testPolycone.cpp 
+  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testPolycone.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testGenTrap.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testParallelepiped.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/convention_testTube.cpp
@@ -1093,10 +1097,10 @@ if(DATA_DOWNLOAD)
   message(STATUS "Downloading data files")
 
   # define a function downloading from a URL into a local file LOCALFILE
-  function(FILE_DOWNLOAD FILE_URL LOCALFILE ) 
+  function(FILE_DOWNLOAD FILE_URL LOCALFILE )
    if(APPLE)
        execute_process(COMMAND curl -o ${LOCALFILE} ${FILE_URL})
-   else()  
+   else()
       execute_process(COMMAND wget -q ${FILE_URL} -O ${LOCALFILE})
    endif()
   endfunction(FILE_DOWNLOAD)
@@ -1133,7 +1137,7 @@ if(DATA_DOWNLOAD)
         message(STATUS "found existing file ${LOCALFILE}")
         CHECKMD5( ${FOUNDFILE} ${MD5HASH} MD5CORRECT )
         if( ${MD5CORRECT} STREQUAL "1" )
-            # do not set download flag   
+            # do not set download flag
             set( NEEDTODOWNLOAD 0 )
         else( )
             # set need download
@@ -1141,7 +1145,7 @@ if(DATA_DOWNLOAD)
             set( NEEDTODOWNLOAD 1 )
         endif( )
     endif()
-  
+
     if( ${NEEDTODOWNLOAD} STREQUAL 1 )
         message(STATUS " downloading ... ")
         set(DOWNLOADLOCATION "${TARGETPATH}/${LOCALFILE}")
@@ -1151,17 +1155,17 @@ if(DATA_DOWNLOAD)
     endif()
     # in principle have to check now if download succeeded and has right MD5
     # TOBEDONE
-    
+
     # this is annoying but we have to clear FOUNDFILE SINCE THIS IS TREATED LIKE A STATIC VARIABLE
     unset(FOUNDFILE CACHE)
   endfunction(DOWNLOAD_IF_NOT_INSTALLED)
-  
-  DOWNLOAD_IF_NOT_INSTALLED( "http://mnovak.web.cern.ch/mnovak/data/cms2015.root" "cms2015.root" 
+
+  DOWNLOAD_IF_NOT_INSTALLED( "http://mnovak.web.cern.ch/mnovak/data/cms2015.root" "cms2015.root"
                              "${CMAKE_SOURCE_DIR}/test/cmstestdata/" "fb3ede867532b372c5e6f7138d00c07e" )
   DOWNLOAD_IF_NOT_INSTALLED( "http://mnovak.web.cern.ch/mnovak/data/ExN03.root" "ExN03.root"
                              "${CMAKE_BINARY_DIR}"                   "b6b0cfdd5035117171bfe1b7f1f40c3f" )
   # add more data to download here
-  #  
+  #
 endif()
 
 
