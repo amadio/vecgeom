@@ -85,6 +85,29 @@ set(CTEST_CONFIGURE_COMMAND "\"${CMAKE_COMMAND}\" \"-G${CTEST_CMAKE_GENERATOR}\"
 
 #ctest_empty_binary_directory(${CTEST_BINARY_DIRECTORY})
 
+#######################################################
+# Build dashboard model setup
+
+if("$ENV{MODE}" STREQUAL "")
+  set(CTEST_MODE Experimental)
+else()
+  set(CTEST_MODE "$ENV{MODE}")
+endif()
+
+if(${CTEST_MODE} MATCHES nightly)
+  SET(MODEL Nightly)
+elseif(${CTEST_MODE} MATCHES continuous)
+  SET(MODEL Continuous)
+elseif(${CTEST_MODE} MATCHES memory)
+  SET(MODEL NightlyMemoryCheck)
+else()
+  SET(MODEL Experimental)
+endif()
+
+find_program(CTEST_COMMAND_BIN NAMES ctest)
+SET (CTEST_COMMAND
+    "$CTEST_COMMAND_BIN -D ${MODEL}")
+
 #########################################################
 # git command configuration
 
@@ -92,11 +115,14 @@ find_program(CTEST_GIT_COMMAND NAMES git)
 if(NOT EXISTS "${CTEST_SOURCE_DIRECTORY}")
   set(CTEST_CHECKOUT_COMMAND "${CTEST_GIT_COMMAND} clone https://gitlab.cern.ch/VecGeom/VecGeom.git ${CTEST_SOURCE_DIRECTORY}")
 endif()
+
 set(CTEST_GIT_UPDATE_COMMAND "${CTEST_GIT_COMMAND}")
 
-if(NOT "$ENV{GIT_COMMIT}" STREQUAL "")
-   set(CTEST_CHECKOUT_COMMAND "cmake -E chdir ${CTEST_SOURCE_DIRECTORY} ${CTEST_GIT_COMMAND} checkout -f $ENV{GIT_PREVIOUS_COMMIT}")
-   set(CTEST_GIT_UPDATE_CUSTOM  ${CTEST_GIT_COMMAND} checkout -f $ENV{GIT_COMMIT})
+if(${MODEL} MATCHES Nightly OR Experimental)
+    if(NOT "$ENV{GIT_COMMIT}" STREQUAL "")
+        set(CTEST_CHECKOUT_COMMAND "cmake -E chdir ${CTEST_SOURCE_DIRECTORY} ${CTEST_GIT_COMMAND} checkout -f $ENV{GIT_PREVIOUS_COMMIT}")
+        set(CTEST_GIT_UPDATE_CUSTOM  ${CTEST_GIT_COMMAND} checkout -f $ENV{GIT_COMMIT})
+    endif()
 endif()
 
 #########################################################
@@ -133,29 +159,6 @@ foreach(v
   set(vars "${vars}  ${v}=[${${v}}]\n")
 endforeach(v)
 message("Dashboard script configuration (check if everything is declared correctly):\n${vars}\n")
-
-#######################################################
-# Build dashboard model setup
-
-if("$ENV{MODE}" STREQUAL "")
-  set(CTEST_MODE Experimental)
-else()
-  set(CTEST_MODE "$ENV{MODE}")
-endif()
-
-if(${CTEST_MODE} MATCHES nightly)
-  SET(MODEL Nightly)
-elseif(${CTEST_MODE} MATCHES continuous)
-  SET(MODEL Continuous)
-elseif(${CTEST_MODE} MATCHES memory)
-  SET(MODEL NightlyMemoryCheck)
-else()
-  SET(MODEL Experimental)
-endif()
-
-find_program(CTEST_COMMAND_BIN NAMES ctest)
-SET (CTEST_COMMAND
-    "$CTEST_COMMAND_BIN -D ${MODEL}")
 
 #######################################################
 # Test custom update with a dashboard script.
