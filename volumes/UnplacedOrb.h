@@ -16,7 +16,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class UnplacedOrb; )
-VECGEOM_DEVICE_DECLARE_CONV( UnplacedOrb )
+VECGEOM_DEVICE_DECLARE_CONV( class, UnplacedOrb )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

@@ -15,7 +15,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class UnplacedScaledShape; )
-VECGEOM_DEVICE_DECLARE_CONV( UnplacedScaledShape )
+VECGEOM_DEVICE_DECLARE_CONV( class, UnplacedScaledShape )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

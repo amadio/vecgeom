@@ -8,7 +8,7 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(CommonUnplacedVolumeImplHelper, class, Arg1, class, Arg2);
+  VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2t(class, CommonUnplacedVolumeImplHelper, typename, typename);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

@@ -31,7 +31,7 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(HypeImplementation, TranslationCode, translation::kGeneric, RotationCode, rotation::kGeneric)
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(struct, HypeImplementation, TranslationCode, translation::kGeneric, RotationCode, rotation::kGeneric)
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

@@ -19,14 +19,10 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedPolycone;)
-VECGEOM_DEVICE_DECLARE_CONV(UnplacedPolycone)
+VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedPolycone)
 
 VECGEOM_DEVICE_FORWARD_DECLARE(struct PolyconeSection;)
-#if !defined(VECGEOM_NVCC)
-VECGEOM_DEVICE_DECLARESTRUCT_CONV(PolyconeSection)
-#else
-VECGEOM_DEVICE_DECLARE_CONV(PolyconeSection)
-#endif
+VECGEOM_DEVICE_DECLARE_CONV(struct, PolyconeSection)
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

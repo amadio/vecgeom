@@ -15,7 +15,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedTrapezoid; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedTrapezoid )
+VECGEOM_DEVICE_DECLARE_CONV( class, PlacedTrapezoid )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

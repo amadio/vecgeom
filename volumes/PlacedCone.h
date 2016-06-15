@@ -15,7 +15,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedCone; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedCone )
+VECGEOM_DEVICE_DECLARE_CONV( class, PlacedCone )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

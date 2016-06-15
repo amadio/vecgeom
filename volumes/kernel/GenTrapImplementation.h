@@ -19,7 +19,7 @@
 #include <iostream>
 
 namespace vecgeom {
-VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(GenTrapImplementation, TranslationCode, translation::kGeneric, RotationCode,
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(struct, GenTrapImplementation, TranslationCode, translation::kGeneric, RotationCode,
                                         rotation::kGeneric)
 
     inline namespace VECGEOM_IMPL_NAMESPACE {

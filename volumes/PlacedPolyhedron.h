@@ -18,7 +18,7 @@ struct PolyhedraSideRZ { // Avoid clash in class name UPolyhedraSideRZ
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedPolyhedron; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedPolyhedron )
+VECGEOM_DEVICE_DECLARE_CONV( class, PlacedPolyhedron )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

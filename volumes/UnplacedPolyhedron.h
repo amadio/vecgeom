@@ -56,12 +56,8 @@ namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedPolyhedron;)
 VECGEOM_DEVICE_FORWARD_DECLARE(struct ZSegment;)
-VECGEOM_DEVICE_DECLARE_CONV(UnplacedPolyhedron)
-#if !defined(VECGEOM_NVCC)
-VECGEOM_DEVICE_DECLARESTRUCT_CONV(ZSegment)
-#else
-VECGEOM_DEVICE_DECLARE_CONV(ZSegment)
-#endif
+VECGEOM_DEVICE_DECLARE_CONV(class,UnplacedPolyhedron)
+VECGEOM_DEVICE_DECLARE_CONV(struct,ZSegment)
 
 // Declare types shared by cxx and cuda.
 namespace Polyhedron {

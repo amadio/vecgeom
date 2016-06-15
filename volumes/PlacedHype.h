@@ -14,7 +14,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedHype; )
-VECGEOM_DEVICE_DECLARE_CONV( PlacedHype );
+VECGEOM_DEVICE_DECLARE_CONV( class, PlacedHype );
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class PlacedHype : public VPlacedVolume {

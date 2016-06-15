@@ -16,7 +16,7 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(ParallelepipedImplementation, TranslationCode, translation::kGeneric,
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(struct, ParallelepipedImplementation, TranslationCode, translation::kGeneric,
                                         RotationCode, rotation::kGeneric)
 
     inline namespace VECGEOM_IMPL_NAMESPACE {

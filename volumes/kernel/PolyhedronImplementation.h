@@ -23,7 +23,7 @@ namespace vecgeom {
 // TODO: this is unclear
 // we should declare it in a way such that we can use the specialization on the GPU
 //
-VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_4v(PolyhedronImplementation, TranslationCode, translation::kGeneric,
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_4v(struct, PolyhedronImplementation, TranslationCode, translation::kGeneric,
                                           RotationCode, rotation::kGeneric, Polyhedron::EInnerRadii,
                                           Polyhedron::EInnerRadii::kGeneric, Polyhedron::EPhiCutout,
                                           Polyhedron::EPhiCutout::kGeneric)

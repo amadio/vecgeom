@@ -13,15 +13,14 @@
 namespace vecgeom {
 
 // putting a forward declaration by hand
-VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_3v(CommonSpecializedVolImplHelper,class,Arg1,int,Arg2,int,Arg3)
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1t_2v(class, CommonSpecializedVolImplHelper,typename,TranslationCode, translation::kGeneric, RotationCode, rotation::kGeneric)
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1t_2v(class, SIMDSpecializedVolImplHelper,class,TranslationCode, translation::kGeneric, RotationCode, rotation::kGeneric)
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-template <class Specialization, int transC, int rotC>
-struct CommonSpecializedVolImplHelper : public Specialization::PlacedShape_t {
+template <class Specialization, TranslationCode transC, RotationCode rotC>
+class CommonSpecializedVolImplHelper : public Specialization::PlacedShape_t {
 
-  // this is ugly
-  using Helper_t = CommonSpecializedVolImplHelper<Specialization, transC, rotC>;
   using PlacedShape_t = typename Specialization::PlacedShape_t;
   using UnplacedVolume_t = typename Specialization::UnplacedVolume_t;
 
@@ -92,29 +91,6 @@ public:
   virtual void PrintType(std::ostream &os) const override { Specialization::PrintType(os); }
   virtual void PrintImplementationType(std::ostream &os) const override { Specialization::PrintImplementationType(os); }
   virtual void PrintUnplacedType(std::ostream &os) const override { Specialization::PrintUnplacedType(os); }
-
-#ifdef VECGEOM_CUDA_INTERFACE
-  virtual size_t DeviceSizeOf() const override { return DevicePtr<CudaType_t<Helper_t>>::SizeOf(); }
-
-  DevicePtr<cuda::VPlacedVolume> CopyToGpu(DevicePtr<cuda::LogicalVolume> const logical_volume,
-                                           DevicePtr<cuda::Transformation3D> const transform,
-                                           DevicePtr<cuda::VPlacedVolume> const in_gpu_ptr) const override {
-    DevicePtr<CudaType_t<Helper_t>> gpu_ptr(in_gpu_ptr);
-    gpu_ptr.Construct(logical_volume, transform, DevicePtr<cuda::PlacedBox>(), this->id());
-    CudaAssertError();
-    // Need to go via the void* because the regular c++ compilation
-    // does not actually see the declaration for the cuda version
-    // (and thus can not determine the inheritance).
-    return DevicePtr<cuda::VPlacedVolume>((void *)gpu_ptr);
-  }
-
-  DevicePtr<cuda::VPlacedVolume> CopyToGpu(DevicePtr<cuda::LogicalVolume> const logical_volume,
-                                           DevicePtr<cuda::Transformation3D> const transform) const override {
-    DevicePtr<CudaType_t<Helper_t>> gpu_ptr;
-    gpu_ptr.Allocate();
-    return CopyToGpu(logical_volume, transform, DevicePtr<cuda::VPlacedVolume>((void *)gpu_ptr));
-  }
-#endif // VECGEOM_CUDA_INTERFACE
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual EnumInside Inside(Vector3D<Precision> const &point) const override {
@@ -390,6 +366,32 @@ static void SafetyToInLoopKernel(
       InsideLoopKernel<Specialization, ScalarBackend::Real_v, transC, rotC>(*shape, *transf, offset, points.size(),
                                                                                      points, output);
     }
+
+#ifdef VECGEOM_CUDA_INTERFACE
+    using ThisClass_t = SIMDSpecializedVolImplHelper<Specialization, transC, rotC>;
+
+    virtual size_t DeviceSizeOf() const override { return DevicePtr<CudaType_t<ThisClass_t>>::SizeOf(); }
+
+    DevicePtr<cuda::VPlacedVolume> CopyToGpu(DevicePtr<cuda::LogicalVolume> const logical_volume,
+                                             DevicePtr<cuda::Transformation3D> const transform,
+                                             DevicePtr<cuda::VPlacedVolume> const in_gpu_ptr) const override {
+      DevicePtr<CudaType_t<ThisClass_t>> gpu_ptr(in_gpu_ptr);
+      gpu_ptr.Construct(logical_volume, transform, DevicePtr<cuda::PlacedBox>(), this->id());
+      CudaAssertError();
+      // Need to go via the void* because the regular c++ compilation
+      // does not actually see the declaration for the cuda version
+      // (and thus can not determine the inheritance).
+      return DevicePtr<cuda::VPlacedVolume>((void *)gpu_ptr);
+    }
+
+    DevicePtr<cuda::VPlacedVolume> CopyToGpu(DevicePtr<cuda::LogicalVolume> const logical_volume,
+                                             DevicePtr<cuda::Transformation3D> const transform) const override {
+    DevicePtr<CudaType_t<ThisClass_t>> gpu_ptr;
+    gpu_ptr.Allocate();
+    return CopyToGpu(logical_volume, transform, DevicePtr<cuda::VPlacedVolume>((void *)gpu_ptr));
+  }
+#endif // VECGEOM_CUDA_INTERFACE
+
   }; // end SIMD Helper
 
   template <class Specialization, int transC, int rotC>

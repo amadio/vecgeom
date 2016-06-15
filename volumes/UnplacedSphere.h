@@ -20,7 +20,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class UnplacedSphere; )
-VECGEOM_DEVICE_DECLARE_CONV( UnplacedSphere )
+VECGEOM_DEVICE_DECLARE_CONV( class, UnplacedSphere )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

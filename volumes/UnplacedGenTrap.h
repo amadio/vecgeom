@@ -13,7 +13,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedGenTrap;)
-VECGEOM_DEVICE_DECLARE_CONV(UnplacedGenTrap)
+VECGEOM_DEVICE_DECLARE_CONV(class,UnplacedGenTrap)
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

@@ -41,7 +41,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE( class UnplacedParaboloid; )
-VECGEOM_DEVICE_DECLARE_CONV( UnplacedParaboloid )
+VECGEOM_DEVICE_DECLARE_CONV( class, UnplacedParaboloid )
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

@@ -18,7 +18,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(struct BoxImplementation;);
-VECGEOM_DEVICE_DECLARE_CONV(BoxImplementation);
+VECGEOM_DEVICE_DECLARE_CONV(struct, BoxImplementation);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
