@@ -16,9 +16,6 @@
 #include "TGeoManager.h"
 #endif
 
-#ifdef VECGEOM_USOLIDS
-#include "UBox.hh"
-#endif
 #ifdef VECGEOM_GEANT4
 #include "G4SubtractionSolid.hh"
 #include "G4UnionSolid.hh"
