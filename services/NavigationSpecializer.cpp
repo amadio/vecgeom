@@ -898,7 +898,7 @@ void NavigationSpecializer::AnalysePaths(std::list<NavigationState *> const &pat
         size_t index = PathToIndex(path);
         if (index >= paths.size())
           std::cerr << "SCHEISSE " << index << " \n";
-        assert(index >= 0 && index < paths.size());
+        assert(index < paths.size());
         values[index] = m.Translation(i);
         fGlobalTransData.SetTransCoef(i, index, m.Translation(i));
       }
