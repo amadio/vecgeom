@@ -7,23 +7,13 @@
 #include "volumes/PlacedVolume.h"
 #include "volumes/UnplacedVolume.h"
 #include "volumes/UnplacedBooleanVolume.h"
+
 #ifdef VECGEOM_ROOT
-#include "TGeoShape.h"
-#include "TGeoVolume.h"
-#include "TGeoCompositeShape.h"
-#include "TGeoBoolNode.h"
-#include "TGeoMatrix.h"
-#include "TGeoManager.h"
+  class TGeoShape;
 #endif
-
 #ifdef VECGEOM_GEANT4
-#include "G4SubtractionSolid.hh"
-#include "G4UnionSolid.hh"
-#include "G4IntersectionSolid.hh"
-#include "G4ThreeVector.hh"
-#include "G4RotationMatrix.hh"
+  class G4VSolid;
 #endif
-
 
 namespace vecgeom {
 
@@ -101,38 +91,7 @@ public:
    return this;
   }
 #ifdef VECGEOM_ROOT
- virtual TGeoShape const* ConvertToRoot() const override {
-      // printf("Converting to ROOT\n");
-      // what do we need?
-      VPlacedVolume const * left = GetUnplacedVolume()->fLeftVolume;
-      VPlacedVolume const * right = GetUnplacedVolume()->fRightVolume;
-      Transformation3D const * leftm = left->GetTransformation();
-      Transformation3D const * rightm = right->GetTransformation();
-
-      TGeoShape *shape = NULL;
-      if( GetUnplacedVolume()->GetOp() == kSubtraction ){
-        TGeoSubtraction * node = new TGeoSubtraction(
-              const_cast<TGeoShape*>(left->ConvertToRoot()),
-              const_cast<TGeoShape*>(right->ConvertToRoot()),
-              leftm->ConvertToTGeoMatrix(), rightm->ConvertToTGeoMatrix());
-        shape = new TGeoCompositeShape("RootComposite",node);
-      }
-      if( GetUnplacedVolume()->GetOp() == kUnion ){
-        TGeoUnion * node = new TGeoUnion(
-              const_cast<TGeoShape*>(left->ConvertToRoot()),
-              const_cast<TGeoShape*>(right->ConvertToRoot()),
-              leftm->ConvertToTGeoMatrix(), rightm->ConvertToTGeoMatrix());
-        shape = new TGeoCompositeShape("RootComposite",node);
-      }
-      if( GetUnplacedVolume()->GetOp() == kIntersection ){
-        TGeoIntersection * node = new TGeoIntersection(
-              const_cast<TGeoShape*>(left->ConvertToRoot()),
-              const_cast<TGeoShape*>(right->ConvertToRoot()),
-              leftm->ConvertToTGeoMatrix(), rightm->ConvertToTGeoMatrix());
-        shape = new TGeoCompositeShape("RootComposite",node);
-      }
-      return shape;
-  }
+ virtual TGeoShape const* ConvertToRoot() const override;
 #endif
 #if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
   virtual ::VUSolid const* ConvertToUSolids() const override {
@@ -141,36 +100,8 @@ public:
   }
 #endif
 #ifdef VECGEOM_GEANT4
-  virtual G4VSolid const* ConvertToGeant4() const override {
-      VPlacedVolume const * left = GetUnplacedVolume()->fLeftVolume;
-      VPlacedVolume const * right = GetUnplacedVolume()->fRightVolume;
-      Transformation3D const * rightm = right->GetTransformation();
-      G4RotationMatrix * g4rot = new G4RotationMatrix();
-      g4rot->set( CLHEP::HepRep3x3( rightm->Rotation() ) );
-      if( GetUnplacedVolume()->GetOp() == kSubtraction ){
-            return new G4SubtractionSolid( GetLabel(),
-                 const_cast<G4VSolid*>(left->ConvertToGeant4()),
-                 const_cast<G4VSolid*>(right->ConvertToGeant4()),
-                 g4rot,
-                 G4ThreeVector(rightm->Translation(0),  rightm->Translation(1),  rightm->Translation(2)));
-      }
-      if( GetUnplacedVolume()->GetOp() == kUnion ){
-             return new G4UnionSolid( GetLabel(),
-                 const_cast<G4VSolid*>(left->ConvertToGeant4()),
-                 const_cast<G4VSolid*>(right->ConvertToGeant4()),
-                 g4rot,
-                 G4ThreeVector(rightm->Translation(0),  rightm->Translation(1),  rightm->Translation(2)));
-      }
-      if( GetUnplacedVolume()->GetOp() == kIntersection ){
-              return new G4IntersectionSolid( GetLabel(),
-                 const_cast<G4VSolid*>(left->ConvertToGeant4()),
-                 const_cast<G4VSolid*>(right->ConvertToGeant4()),
-                 g4rot,
-                 G4ThreeVector(rightm->Translation(0),  rightm->Translation(1),  rightm->Translation(2)));
-       }
-      return NULL;
-  }
-  #endif
+  virtual G4VSolid const* ConvertToGeant4() const override;
+#endif
 #endif // VECGEOM_BENCHMARK
 
 }; // end class declaration
