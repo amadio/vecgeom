@@ -23,6 +23,11 @@ class USolidsAdapter : public VUSolid, protected UnplacedVolume_t {
   // the choice of protected vs private is due to the fact that we want to propagate
   // functions further down in the inheritance hierarchy
 
+protected:
+  //using
+  using UnplacedVolume_t::DistanceToOut;
+  using UnplacedVolume_t::DistanceToIn;
+
 public:
   // bring in some members from base (to avoid name hiding)
 
@@ -41,7 +46,7 @@ public:
 
   double DistanceToOut(Vector3D<double> const &position,
                        Vector3D<double> const &direction,
-                       Precision const &stepMax = kInfinity) const override {
+                       Precision stepMax = kInfinity) const override {
 
     double output = UnplacedVolume_t::DistanceToOut(position, direction, stepMax);
     // apply USolids convention: convert negative values to zero

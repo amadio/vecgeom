@@ -32,7 +32,7 @@ EnumInside VUnplacedVolume::Inside(Vector3D<Precision> const &p) const
 
 VECGEOM_CUDA_HEADER_BOTH
 Precision VUnplacedVolume::DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
-                                Precision const &step_max ) const
+                                Precision step_max ) const
 {
 #ifndef VECGEOM_NVCC
   throw std::runtime_error("unimplemented function called");
@@ -43,7 +43,7 @@ Precision VUnplacedVolume::DistanceToOut(Vector3D<Precision> const &p, Vector3D<
 // the USolid/GEANT4-like interface for DistanceToOut (returning also exiting normal)
 VECGEOM_CUDA_HEADER_BOTH
 Precision VUnplacedVolume::DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d, Vector3D<Precision> &normal,
-                                bool &convex, Precision const &step_max) const
+                                bool &convex, Precision step_max) const
 {
 #ifndef VECGEOM_NVCC
   throw std::runtime_error("unimplemented function called");
@@ -102,7 +102,7 @@ void VUnplacedVolume::SafetyToOut(SOA3D<Precision> const &points, Precision *con
 
 VECGEOM_CUDA_HEADER_BOTH
 Precision VUnplacedVolume::DistanceToIn(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
-                               const Precision &step_max ) const
+                               const Precision step_max ) const
 {
 #ifndef VECGEOM_NVCC
   throw std::runtime_error("unimplemented function called");

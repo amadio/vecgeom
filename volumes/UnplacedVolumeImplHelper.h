@@ -64,7 +64,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   virtual Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
-                                  Precision const &step_max = kInfinity) const override {
+                                  Precision step_max = kInfinity) const override {
 #ifndef VECGEOM_NVCC
     assert(d.IsNormalized() && " direction not normalized in call to  DistanceToOut ");
 #endif
@@ -88,7 +88,7 @@ public:
   VECGEOM_INLINE
   virtual Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
                                   Vector3D<Precision> &normal, bool &convex,
-                                  Precision const &step_max = kInfinity) const override { assert(false); return 0.; }
+                                  Precision step_max = kInfinity) const override { assert(false); return 0.; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -111,7 +111,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToIn(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
-                                 const Precision &step_max = kInfinity) const override {
+                                 const Precision step_max = kInfinity) const override {
 #ifndef VECGEOM_NVCC
     assert(d.IsNormalized() && " direction not normalized in call to  DistanceToOut ");
 #endif
