@@ -261,7 +261,7 @@ bool TestOrb() {
     
     Dist = b1.DistanceToOut(pointO,dirO,norm,convex);
     if(verbose)std::cout<<"DistanceToOut is : "<<Dist<<std::endl;
-    assert(Dist<0.);
+    assert(Dist<=0.);
     
     
     if(verbose)std::cout<<" Now testing point out directing in "<<std::endl;
@@ -271,7 +271,7 @@ bool TestOrb() {
     if(verbose)std::cout<<"DistanceToIn PODI is : "<<Dist<<std::endl;
     
     Dist = b1.DistanceToOut(pointO,dirO,norm,convex);
-    assert(Dist<0.);
+    assert(Dist<=0.);
     if(verbose)std::cout<<"DistanceToOut PODI is : "<<Dist<<std::endl;
     
     //Point inside outer tolerance and directing out
@@ -299,9 +299,10 @@ bool TestOrb() {
     Dist = b1.DistanceToIn(pointI,dirIO);
     if( Dist >= UUtils::kInfinity ) Dist = UUtils::Infinity(); 
     //assert(ApproxEqual(Dist,UUtils::Infinity()));
-    assert(Dist < 0.);
-    if(verbose)std::cout<<"DistanceToIn for point inside and directing OUT: "<<Dist<<std::endl;
-    
+    if(testvecgeom){
+      assert(Dist <=0.);
+      if(verbose)std::cout<<"DistanceToIn for point inside and directing OUT: "<<Dist<<std::endl;
+    }
     Dist = b1.DistanceToOut(pointI,dirIO,norm,convex);
     assert(ApproxEqual(Dist,1));
     if(verbose)std::cout<<"DistanceToOut for point inside and directing OUT: "<<Dist<<std::endl;
@@ -313,8 +314,9 @@ bool TestOrb() {
     Dist = b1.DistanceToIn(pointI,dirII);
     if( Dist >= UUtils::kInfinity ) Dist = UUtils::Infinity(); 
     //assert(ApproxEqual(Dist,UUtils::Infinity()));
-    assert(Dist < 0.);
-     
+    if(testvecgeom){
+      assert(Dist < 0.);
+    }
     Dist = b1.DistanceToOut(pointI,dirII,norm,convex);
     assert(ApproxEqual(Dist,17));
      
