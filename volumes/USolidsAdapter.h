@@ -9,6 +9,10 @@
 #include "base/Vector3D.h"
 #include "UVector3.hh"
 
+// hack to get rid of "hidden" symbol warning (which cannot be solved with "using" statements)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Woverloaded-virtual"
+
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -132,5 +136,7 @@ public:
 
 } // inline namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom
+
+#pragma clang diagnostic pop
 
 #endif // VECGEOM_VOLUMES_USOLIDSADAPTER_H
