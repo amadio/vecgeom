@@ -213,9 +213,9 @@ public:
 
   Vector3D<Precision>  GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface();}
 
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  void ComputeBBox() const { return GetUnplacedVolume()->ComputeBBox();}
+//  VECGEOM_CUDA_HEADER_BOTH
+//  VECGEOM_INLINE
+//  void ComputeBBox() const { return GetUnplacedVolume()->ComputeBBox();}
 
   VECGEOM_INLINE
   virtual int memory_size() const override { return sizeof(*this); }
