@@ -28,7 +28,6 @@ int main( int argc,char *argv[] )
   else {
      box=new Box_t("test_VecGeomBox",5.,5.,5.);
     }
-  box->StreamInfo(std::cout);
 
   ShapeTester tester;
 

@@ -220,12 +220,12 @@ int ShapeTester::TestBoundaryPrecision(int mode) {
   grerrdist->SetLineColor(kRed);
   grerrdist->SetLineWidth(2);
 //  grerrdist->GetYaxis()->SetRangeUser(1.e-16,1.e-1);
-  legend->AddEntry(grerrdist, fVolumeUSolids->GetEntityType().c_str(), "lpe");
+  //legend->AddEntry(grerrdist, fVolumeUSolids->GetEntityType().c_str(), "lpe");
   legend->Draw();
   char name[100];
-  sprintf(name, "%s_errors.gif", fVolumeUSolids->GetEntityType().c_str());
+  //sprintf(name, "%s_errors.gif", fVolumeUSolids->GetEntityType().c_str());
   cerrors->SaveAs(name);
-  sprintf(name, "%s_errors.root", fVolumeUSolids->GetEntityType().c_str());
+  //sprintf(name, "%s_errors.root", fVolumeUSolids->GetEntityType().c_str());
   cerrors->SaveAs(name);
 #endif  
   return errCode;
