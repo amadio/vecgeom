@@ -529,19 +529,28 @@ endif()
 
 if (ROOT)
 
-  find_package(ROOT REQUIRED)
+# You need to tell CMake where to find the ROOT installation. This can be done in a number of ways:
+#   - ROOT built with classic configure/make use the provided $ROOTSYS/etc/cmake/FindROOT.cmake
+#   - ROOT built with CMake. Add in CMAKE_PREFIX_PATH the installation prefix for ROOT
+  list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 
-  include_directories(AFTER SYSTEM ${ROOT_INCLUDE_DIR})
+#---Locate the ROOT package and defines a number of variables (e.g. ROOT_INCLUDE_DIRS)
+  find_package(ROOT REQUIRED COMPONENTS Geom)
+
+  set(CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}/lib)
+#---setup ROOT include + lib dirs
+  include_directories(AFTER SYSTEM ${ROOT_INCLUDE_DIRS})
   link_directories(${ROOT_LIBRARY_DIR})
-  set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL}
-      ${ROOT_LIBRARIES} Geom)
+  set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${ROOT_LIBRARIES})
+
   set(SRC_EXTERNAL ${SRC_EXTERNAL}
       source/PlacedRootVolume.cpp
       source/RootGeoManager.cpp
       source/UnplacedRootVolume.cpp
       source/ShapeDebugger.cpp
       source/Visualizer.cpp)
-endif()
+
+endif(ROOT)
 
 if (USolids)
 

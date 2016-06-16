@@ -15,7 +15,18 @@ find_package(Geant4 REQUIRED)
 
 set( CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}../../ ${CMAKE_MODULE_PATH})
 
-find_package (ROOT REQUIRED Core RIO Matrix GenVector MathCore Geom Net Thread Graf Graf3d Hist Gpad)
+# You need to tell CMake where to find the ROOT installation. This can be done in a number of ways:
+#   - ROOT built with classic configure/make use the provided $ROOTSYS/etc/cmake/FindROOT.cmake
+#   - ROOT built with CMake. Add in CMAKE_PREFIX_PATH the installation prefix for ROOT
+list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
+
+#---Locate the ROOT package and defines a number of variables (e.g. ROOT_INCLUDE_DIRS)
+find_package(ROOT REQUIRED COMPONENTS Core RIO Matrix GenVector MathCore Geom Net Thread Graf Graf3d Hist Gpad)
+
+#---Define useful ROOT functions and macros (e.g. ROOT_GENERATE_DICTIONARY)
+include(${ROOT_USE_FILE})
+set(CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}/lib)
+
 
 
 #----------------------------------------------------------------------------
