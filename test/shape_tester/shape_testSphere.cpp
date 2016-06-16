@@ -1,10 +1,8 @@
 #include "ShapeTester.h"
 #include "VUSolid.hh"
-#include "UBox.hh"
 #include "USphere.hh"
 
 #include "base/Vector3D.h"
-#include "volumes/Box.h"
 #include "volumes/Sphere.h"
 
 #ifdef VECGEOM_ROOT

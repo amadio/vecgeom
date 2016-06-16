@@ -8,13 +8,10 @@
 
 #include "base/Global.h"
 #include "base/Vector3D.h"
-#include "volumes/Box.h"
 #include "volumes/Orb.h"
 #include "ApproxEqual.h"
 #ifdef VECGEOM_USOLIDS
-#include "UBox.hh"
 #include "UOrb.hh"
-#include "UVector3.hh"
 #endif
 #include <cmath>
 

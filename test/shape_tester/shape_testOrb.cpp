@@ -1,10 +1,8 @@
 #include "ShapeTester.h"
 #include "VUSolid.hh"
-#include "UBox.hh"
 #include "UOrb.hh"
 
 #include "base/Vector3D.h"
-#include "volumes/Box.h"
 #include "volumes/Orb.h"
 
 #ifdef VECGEOM_ROOT
@@ -12,7 +10,6 @@
 #endif
 #include "stdlib.h"
 
-//typedef UBox Box_t;
 typedef vecgeom::SimpleOrb Orb_t;
 
 int main(  int argc,char *argv[]) {

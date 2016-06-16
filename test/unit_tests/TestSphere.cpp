@@ -8,13 +8,10 @@
 
 #include "base/Global.h"
 #include "base/Vector3D.h"
-#include "volumes/Box.h"
 #include "volumes/Sphere.h"
 #include "ApproxEqual.h"
 #ifdef VECGEOM_USOLIDS
-#include "UBox.hh"
 #include "USphere.hh"
-#include "UVector3.hh"
 #endif
 #include <cmath>
 #include <iomanip> 
@@ -1137,16 +1134,3 @@ int main(int argc, char *argv[]) {
    return 0;
  }
 
-/*
-int main() {
-    
-#ifdef VECGEOM_USOLIDS
-  assert(TestSphere<USphere>());
-  std::cout << "USphere passed\n";
-#endif
-  std::cout<<"-------------------------------------------------------------------------------------------------"<<std::endl;
-  assert(TestSphere<vecgeom::SimpleSphere>());
-  std::cout << "VecGeomSphere passed\n";
-  return 0;
-}
-*/

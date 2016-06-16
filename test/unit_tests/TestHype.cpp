@@ -9,11 +9,6 @@
 #include "volumes/Box.h"
 #include "volumes/Hype.h"
 #include "ApproxEqual.h"
-#ifdef VECGEOM_USOLIDS
-#include "UBox.hh"
-//#include "UHype.hh"
-#include "UVector3.hh"
-#endif
 #include <iomanip>
 #include <cassert>
 #include <cmath>

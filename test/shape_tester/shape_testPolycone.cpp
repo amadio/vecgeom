@@ -1,21 +1,15 @@
 #include "ShapeTester.h"
 #include "VUSolid.hh"
-#include "UBox.hh"
-#include "UOrb.hh"
 #include "UPolycone.hh"
 #include "volumes/Polycone.h"
 
 #include "base/Vector3D.h"
-#include "volumes/Box.h"
-#include "volumes/Orb.h"
 
 #ifdef VECGEOM_ROOT
 #include "TApplication.h"
 #endif
 #include "stdlib.h"
 
-//typedef UBox Box_t;
-typedef vecgeom::SimpleOrb Orb_t;
 typedef vecgeom::SimplePolycone Poly_t;
 
 int main(  int argc,char *argv[]) {
@@ -93,7 +87,6 @@ int main(  int argc,char *argv[]) {
                              rmax,
                              z);
 
-  // VUSolid* orb=new UOrb("test_UOrb",3.);
   ShapeTester tester;
 
   if(argc>1)
