@@ -32,8 +32,6 @@ template <class Parallelepiped_t> bool TestParallelepiped() {
       ponzside(dz * para.GetTanThetaCosPhi(), dz * para.GetTanThetaSinPhi(), dz);
   Vec_t ponmxside(-dx, 0, 0), ponmyside(0, -dy, 0),
       ponmzside(-dz * para.GetTanThetaCosPhi(), -dz * para.GetTanThetaSinPhi(), -dz);
-  Vec_t ponzsidey = ponzside + ponyside;
-  Vec_t ponmzsidey = ponmzside + ponyside;
 
   Vec_t pbigx(100, 0, 0), pbigy(0, 100, 0), pbigz(0, 0, 100);
   Vec_t pbigmx(-100, 0, 0), pbigmy(0, -100, 0), pbigmz(0, 0, -100);
