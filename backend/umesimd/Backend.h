@@ -424,4 +424,16 @@ UmeSimdPrecisionVector NonZero(UmeSimdPrecisionVector const & x) {
 
 } // End inline namespace
 } // End global namespace
+
+// setting up type traits to be able to interact
+// with the VecCore API
+namespace vecCore {
+template <>
+struct TypeTraits<vecgeom::cxx::UmeSimdPrecisionVector> {
+  using ScalarType = double;
+  using MaskType   = typename vecgeom::cxx::UmeSimdMask;
+  using IndexType  = typename vecgeom::cxx::UmeSimdIntegerVector;
+};
+}
+
 #endif // VECGEOM_BACKEND_VCBACKEND_H_
