@@ -862,7 +862,6 @@ set(TEST_UNITTESTEXECUTABLES_ROOT
   ${CMAKE_SOURCE_DIR}/test/root/E03Test.cpp
   ${CMAKE_SOURCE_DIR}/test/root/TestExportToROOT.cpp
   ${CMAKE_SOURCE_DIR}/test/root/ImportTGeoPgon.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/TestNavigationStatePool.cpp
 )
 
 if(BENCHMARK)
