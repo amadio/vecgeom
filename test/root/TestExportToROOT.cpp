@@ -24,7 +24,7 @@
 #include "base/SOA3D.h"
 #include "navigation/NavigationState.h"
 #include "navigation/SimpleNavigator.h"
-#include "volumes/UnplacedTorus.h"
+#include "volumes/UnplacedTorus2.h"
 #include "volumes/UnplacedTrapezoid.h"
 #include "management/RootGeoManager.h"
 #include "management/GeoManager.h"
@@ -87,7 +87,7 @@ VPlacedVolume* SetupGeometry() {
   UnplacedParaboloid *paraUnplaced = new UnplacedParaboloid( 0.1, 0.2, 0.1 );
   UnplacedParallelepiped *epipedUnplaced =  new UnplacedParallelepiped( 0.1, 0.05, 0.05, 0.2, 0.4, 0.1 );
 
-  UnplacedTorus *torusUnplaced = new UnplacedTorus(0.1,2.1, 10,0,kTwoPi);
+  UnplacedTorus2 *torusUnplaced = new UnplacedTorus2(0.1,2.1, 10,0,kTwoPi);
 
   Transformation3D *placement1 = new Transformation3D( 5,  5,  5,  0,  0,  0);
   Transformation3D *placement2 = new Transformation3D(-5,  5,  5, 45,  0,  0);

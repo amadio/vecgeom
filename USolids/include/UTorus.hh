@@ -29,7 +29,6 @@
 
 #include "volumes/SpecializedTorus2.h"
 #include "volumes/LogicalVolume.h"
-#include "volumes/UnplacedTorus.h"
 #include "base/Transformation3D.h"
 
 class UTorus: public vecgeom::SimpleTorus2 {

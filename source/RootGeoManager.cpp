@@ -18,7 +18,6 @@
 #include "volumes/UnplacedOrb.h"
 #include "volumes/UnplacedSphere.h"
 #include "volumes/UnplacedBooleanVolume.h"
-//#include "volumes/UnplacedTorus.h"
 #include "volumes/UnplacedTorus2.h"
 #include "volumes/UnplacedTrapezoid.h"
 #include "volumes/UnplacedPolycone.h"
