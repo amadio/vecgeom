@@ -599,7 +599,6 @@ set(SRC_CPP_RELATIVE
   source/PlacedBox.cpp
   source/PlacedHype.cpp
   source/PlacedTube.cpp
-  source/PlacedTorus.cpp
   source/PlacedTorus2.cpp
   source/PlacedTrd.cpp
   source/PlacedGenTrap.cpp
@@ -618,7 +617,6 @@ set(SRC_CPP_RELATIVE
   source/UnplacedBox.cpp
   source/UnplacedTube.cpp
   source/UnplacedHype.cpp
-  source/UnplacedTorus.cpp
   source/UnplacedTorus2.cpp
   source/UnplacedTrd.cpp
   source/UnplacedParaboloid.cpp
@@ -883,7 +881,7 @@ set(TEST_EXECUTABLES_VISUALIZATION
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizePolyhedron.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeParboloid.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeCone.cpp
-  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeTorus.cpp
+ # ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeTorus.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeTube.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeScaled.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/DebugTube.cpp
@@ -910,7 +908,6 @@ set(TEST_EXECUTABLES_USOLIDS
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestOrb.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBoxlikeTrapezoid.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTorus.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTorus2.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/usolidTest.cpp
 )
@@ -929,7 +926,7 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${CMAKE_SOURCE_DIR}/test/benchmark/BoxIntersectHollowTubeBenchmark_virtual.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/BoxUnionBoxBenchmark_virtual.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/3LevelSubtractionBenchmark_virtual.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/TorusBenchmark.cpp
+ # ${CMAKE_SOURCE_DIR}/test/benchmark/TorusBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TorusBenchmark2.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrapezoidBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrapezoidBenchmarkScript.cpp
