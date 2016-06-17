@@ -1,7 +1,7 @@
 /*Unit test to test the Convexity function for various shapes
  *
  */
-
+#undef NDEBUG
 #include "base/Global.h"
 #include "base/Vector3D.h"
 #include "volumes/Box.h"
@@ -27,7 +27,7 @@
 #include <cmath>
 #include <iomanip>
 
-#undef NDEBUG
+
 
 #define PI 3.14159265358979323846
 #define deg PI/180.
@@ -61,6 +61,10 @@ bool test_ConvexitySphere() {
     vecgeom::SimpleSphere b8("Solide VecGeomSphere #8", rmin, rmax, PI/3. , 7*PI/6, stheta, dtheta);
     assert(!b8.GetUnplacedVolume()->IsConvex());
 
+
+    // THESE TESTS ARE TESTING WEDGE BEHAVIOUR --> MOVE THEM INTO A WEDGE TEST
+
+    /*
     //checking proper dphi calculation if specified dphi>2PI
     //Should be accepted by Wedge
     //Convention used for dPhi is if(dPhi>2PI) dPhi=2PI //needs a relook
@@ -72,12 +76,12 @@ bool test_ConvexitySphere() {
     assert(b10.GetUnplacedVolume()->IsConvex());
     //std::cerr<<"Newly Calcuated DPHi of b10 : "<<b10.GetDPhi()<<std::endl;
 
-    //vecgeom::SimpleSphere b2("Solide VecGeomSphere #1", 3, rmax, sphi, dphi, stheta, dtheta);
 
     //This case should be discussed
     vecgeom::SimpleSphere b11("Solide VecGeomSphere #11", rmin, rmax, PI/3. , ((2*PI) + (7*PI/6)), stheta, dtheta);
     assert(b11.GetUnplacedVolume()->IsConvex());
     //std::cerr<<"Newly Calcuated DPHi of b11 : "<<b10.GetDPhi()<<std::endl;
+    */
 
     vecgeom::SimpleSphere b12("Solide VecGeomSphere #12", rmin, rmax, 0. , 2*PI, stheta, PI/2);
     assert(b12.GetUnplacedVolume()->IsConvex());
@@ -140,14 +144,6 @@ bool test_ConvexityCone() {
     vecgeom::SimpleCone b7("VecGeomCone7",rmin1,rmax1,rmin2,rmax2,dz,sphi,4*PI/3);
     assert(!b7.GetUnplacedVolume()->IsConvex());
 
-    vecgeom::SimpleCone b8("VecGeomCone8",rmin1,rmax1,rmin2,rmax2,dz,sphi,4*PI);
-    //std::cout<<"DPhi : "<<b8.GetDPhi()<<std::endl;
-
-    //should work after correction in the vecgeom cone so that
-    //DPhi=2Pi in case where Dphi>2Pi
-    //assert(b8.GetUnplacedVolume()->IsConvex());
-
-
     return true;
 }
 
@@ -166,12 +162,6 @@ bool test_ConvexityTorus() {
     assert(b5.GetUnplacedVolume()->IsConvex());
     vecgeom::SimpleTorus2 b6("VecGeomTorus6",rmin,rmax,rtor,sphi,4*PI/3);
     assert(!b6.GetUnplacedVolume()->IsConvex());
-    vecgeom::SimpleTorus2 b7("VecGeomTorus7",rmin,rmax,rtor,sphi,3*PI);
-
-    //if dPhi>2PI then dPhi=? //below assertion depends on this
-    //may be we have to set to 2Phi as it is for Sphere and should be for Cone
-    //assert(b7.GetUnplacedVolume()->IsConvex());
-
 
     return true;
 }
@@ -189,11 +179,6 @@ bool test_ConvexityTube() {
     assert(b4.GetUnplacedVolume()->IsConvex());
     vecgeom::SimpleTube b5("VecgeomTube5",rmin,rmax,dz,sphi,4*PI/3);
     assert(!b5.GetUnplacedVolume()->IsConvex());
-    vecgeom::SimpleTube b6("VecgeomTube6",rmin,rmax,dz,sphi,3*PI);
-
-    //if dPhi>2PI then dPhi=? //below assertion depends on this
-    //may be we have to set to 2Phi as it is for Sphere and should be for Cone and Torus
-    //assert(b6.GetUnplacedVolume()->IsConvex());
 
     return true;
 }
@@ -423,66 +408,12 @@ bool test_ConvexityHype() {
 bool test_ConvexityScaledOrb() {
   vecgeom::SimpleOrb orb("Visualizer Orb", 3);
   vecgeom::SimpleScaledShape scaledOrb("Scaled Orb", orb.GetUnplacedVolume(), 0.5, 1.2, 1.);
-  //assert(scaledOrb.GetUnplacedVolume()->IsConvex());
+  assert(scaledOrb.GetUnplacedVolume()->IsConvex());
 
   return true;
 }
 
 
-//_________________________________________________________________________________________
-//Temporary tests used for debugging, may be removed later on
-//_________________________________________________________________________________________
-template <class Sphere_t>
-bool test_Sphere(){
-
-    double rmin=0., rmax=5., /*sphi=0., dphi=2*PI,*/ stheta=0., dtheta=PI;
-    Sphere_t b9("Solide VecGeomSphere #9", rmin, rmax, PI/3. , 4*PI, stheta, dtheta);
-    std::cout<<"New Calculate value of DPHI - B9  : "<<b9.GetDPhi()<<std::endl;
-    Sphere_t b10("Solide VecGeomSphere #10", rmin, rmax, PI/3. , 5*PI, stheta, dtheta);
-    std::cout<<"New Calculate value of DPHI - B10 : "<<b10.GetDPhi()<<std::endl;
-    Sphere_t b11("Solide VecGeomSphere #11", rmin, rmax, 0. , 3*PI, stheta, dtheta);
-    std::cout<<"New Calculate value of DPHI - B11 : "<<b11.GetDPhi()<<std::endl;
-    Sphere_t b12("Solide VecGeomSphere #12", rmin, rmax, 0. , 4*PI, stheta, dtheta);
-    std::cout<<"New Calculate value of DPHI - B12 : "<<b12.GetDPhi()<<std::endl;
-
-    return true;
-}
-
-template <class Torus_t>
-bool test_Torus(){
-    double rmin=0., rmax=5., rtor=0., sphi=0., dphi=1.5*PI;
-    Torus_t b1("VecGeomTorus1",rmin,rmax,rtor,sphi,dphi);
-    std::cout<<b1.dphi()<<std::endl;
-    return true;
-}
-
-template <class Tube_t>
-bool test_Tube(){
-    double rmin=0., rmax=5., dz=10., sphi=0., dphi=3*PI;
-    Tube_t b1("VecGeomTube1",rmin,rmax,dz,sphi,dphi);
-    std::cout<<b1.GetDPhi()<<std::endl;
-    return true;
-}
-
-template <class Cone_t>
-bool test_Cone(){
-    double rmin1=0., rmax1=5., rmin2=0., rmax2=7., dz=10., sphi=0., dphi=1.5*PI;
-    Cone_t b8("VecGeomCone8",rmin1,rmax1,rmin2,rmax2,dz,sphi,dphi);
-    std::cout<<b8.GetDPhi()<<std::endl;
-
-    return true;
-}
-
-
-void test_phiCheck(){
-    std::cout<<"VecGeom Cone ";
-    test_Cone<vecgeom::SimpleCone>();
-    std::cout<<"VecGeom Torus : ";
-    test_Torus<vecgeom::SimpleTorus2>();
-    std::cout<<"VecGeom Tube : ";
-    test_Tube<vecgeom::SimpleTube>();
-
-}
 //_________________________________________________________________________________________
 
 int main(){
@@ -507,7 +438,6 @@ int main(){
     std::cout<<"------------------------------"<<std::endl;
     std::cout<<"--- Convexity Tests Passed ---"<<std::endl;
     std::cout<<"------------------------------"<<std::endl;
-    test_phiCheck();
 
     return 0;
 }
