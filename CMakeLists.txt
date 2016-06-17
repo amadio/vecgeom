@@ -217,6 +217,7 @@ elseif (_backend_up MATCHES UMESIMD)
   set(UMESIMD ON)
   find_package(UMESIMD)
   if(UMESIMD_FOUND)
+    set(UMESIMD ON CACHE BOOL "" FORCE) # enable UMESIMD in VecCore
     include_directories(${UMESIMD_INCLUDE_DIR})
   endif()
   message(STATUS "Configuring with \"UME::SIMD\" vector backend.")
