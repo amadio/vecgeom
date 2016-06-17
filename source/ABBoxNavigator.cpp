@@ -110,6 +110,7 @@ size_t ABBoxNavigator::GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Pr
     }
   }
 #elif defined(VECGEOM_UMESIMD)
+  size_t hitcount;
   throw std::runtime_error("unimplemented function called: ABBoxNavigator::GetHitCandidates_v() (UME::SIMD backend)");
 #else
   Vector3D<float> invdirfloat(1.f / (float)dir.x(), 1.f / (float)dir.y(), 1.f / (float)dir.z());

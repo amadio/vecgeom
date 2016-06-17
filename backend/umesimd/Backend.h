@@ -124,7 +124,7 @@ class UmeSimdIntegerVector : public UME::SIMD::SIMDVec_i<int64_t, kVectorSize> {
 public:
     UmeSimdIntegerVector() : UME::SIMD::SIMDVec_i<int64_t, kVectorSize>() {}
     UmeSimdIntegerVector(const long int i) : UME::SIMD::SIMDVec_i<int64_t, kVectorSize>(i) {}
-    UmeSimdIntegerVector(const long int i[kVectorSize]) : UME::SIMD::SIMDVec_i<int64_t, kVectorSize>(&i[0]) {}
+   //Cop UmeSimdIntegerVector(const long int i[kVectorSize]) : UME::SIMD::SIMDVec_i<int64_t, kVectorSize>(&i[0]) {}
     UmeSimdIntegerVector(UME::SIMD::SIMDVec_i<int64_t, kVectorSize> const & mm) : UME::SIMD::SIMDVec_i<int64_t, kVectorSize>(mm) {}
 
     const static int Size = kVectorSize;
@@ -401,26 +401,7 @@ UmeSimdPrecisionVector ATan2( UmeSimdPrecisionVector const & val1, UmeSimdPrecis
   return val1.atan2(val2);
 }
 
-VECGEOM_INLINE
-UmeSimdPrecisionVector NonZeroAbs(UmeSimdPrecisionVector const & x) {
-#ifdef VECGEOM_FLOAT_PRECISION
-  return (x.abs()).add(std::numeric_limits<float>::lowest());
-#else
-  return (x.abs()).add(std::numeric_limits<double>::lowest());
-#endif
-}
 
-VECGEOM_INLINE
-UmeSimdPrecisionVector NonZero(UmeSimdPrecisionVector const & x) {
-#ifdef VECGEOM_FLOAT_PRECISION
-  UmeSimdPrecisionVector t0(std::numeric_limits<float>::lowest());
-  UmeSimdMask mask = x < 0.0f;
-#else
-  UmeSimdPrecisionVector t0(std::numeric_limits<double>::lowest());
-  UmeSimdMask mask = x < 0.0;
-#endif
-  return x.add(t0.neg(mask));
-}
 
 } // End inline namespace
 } // End global namespace
