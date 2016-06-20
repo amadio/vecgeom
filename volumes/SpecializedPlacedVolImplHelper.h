@@ -157,6 +157,9 @@ return output;
 #ifndef VECGEOM_NVCC
       assert( direction.IsNormalized() && " direction not normalized in call to  PlacedDistanceToOut " );
 #endif
+      (void)point;
+      (void)direction;
+      (void)stepMax;
     // Transformation3D const *tr = this->GetTransformation();
      /*  Real_v output = Specialization<VecCore::VecGeomBackend::Scalar<double>>::DistanceToOut(
         *this->GetUnplacedStruct(),
@@ -194,20 +197,28 @@ return output;
   DistanceToInVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
                Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
                const VECGEOM_BACKEND_PRECISION_TYPE step_max = kInfinity) const override {
+    (void)position;
+    (void)direction;
+    (void)step_max;
     return -1.;
   }
   virtual VECGEOM_BACKEND_PRECISION_TYPE
   DistanceToOutVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
                 Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
                 VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfinity) const override {
+    (void)position;
+    (void)direction;
+    (void)step_max;
     return -1.;
   }
   virtual VECGEOM_BACKEND_PRECISION_TYPE
   SafetyToInVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override {
+    (void)position;
     return -1.;
   }
   virtual VECGEOM_BACKEND_PRECISION_TYPE
   SafetyToOutVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override {
+    (void)position;
     return -1.;
   }
 
@@ -315,7 +326,7 @@ static void SafetyToInLoopKernel(
                                                                                    points.size(), points, output);
     }
 
-    virtual void SafetyToInMinimize(SOA3D<Precision> const &points, Precision *const safeties) const override {
+    virtual void SafetyToInMinimize(SOA3D<Precision> const &/* points */, Precision *const /* safeties */) const override {
       // we do no longer need this (probably)
       // SafetyToInMinimizeTemplate(points, safeties);
     }
@@ -333,9 +344,9 @@ static void SafetyToInLoopKernel(
           *shape, *transf, offset, points.size(), points, directions, stepMax, output);
     }
 
-    virtual void DistanceToInMinimize(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
-                                      int daughterindex, Precision *const output,
-                                      int *const nextnodeids) const override {
+    virtual void DistanceToInMinimize(SOA3D<Precision> const &/* points */, SOA3D<Precision> const &/* directions */,
+                                      int /* daughterindex */, Precision *const /* output */,
+                                      int *const /* nextnodeids */) const override {
       // we do no longer need this (probably)
       // DistanceToInMinimizeTemplate(points, directions, daughterindex, output, nextnodeids);
     }
@@ -400,29 +411,46 @@ static void SafetyToInLoopKernel(
 
   public:
     virtual void SafetyToIn(SOA3D<Precision> const &points, Precision *const output) const override {
+      (void)points;
+      (void)output;
       // SafetyToInTemplate(points, output);
     }
 
     virtual void SafetyToInMinimize(SOA3D<Precision> const &points, Precision *const safeties) const override {
+      (void)points;
+      (void)safeties;
       // SafetyToInMinimizeTemplate(points, safeties);
     }
 
     virtual void Contains(SOA3D<Precision> const &points, bool *const output) const override {
+      (void)points;
+      (void)output;
       // ContainsTemplate(points, output);
     }
 
     virtual void Inside(SOA3D<Precision> const &points, Inside_t *const output) const override {
+      (void)points;
+      (void)output;
       // InsideTemplate(points, output);
     }
 
     virtual void DistanceToIn(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
                               Precision const *const stepMax, Precision *const output) const override {
+      (void)points;
+      (void)directions;
+      (void)stepMax;
+      (void)output;
       // DistanceToInTemplate(points, directions, stepMax, output);
     }
 
     virtual void DistanceToInMinimize(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
                                       int daughterindex, Precision *const output,
                                       int *const nextnodeids) const override {
+      (void)points;
+      (void)directions;
+      (void)daughterindex;
+      (void)output;
+      (void)nextnodeids;
       // DistanceToInMinimizeTemplate(points, directions, daughterindex, output, nextnodeids);
     }
   };  // end Loop Helper

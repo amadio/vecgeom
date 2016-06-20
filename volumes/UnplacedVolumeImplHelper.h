@@ -88,7 +88,15 @@ public:
   VECGEOM_INLINE
   virtual Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
                                   Vector3D<Precision> &normal, bool &convex,
-                                  Precision step_max = kInfinity) const override { assert(false); return 0.; }
+                                  Precision step_max = kInfinity) const override {
+    (void)p;
+    (void)d;
+    (void)normal;
+    (void)convex;
+    (void)step_max;
+    assert(false);
+    return 0.;
+  }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE

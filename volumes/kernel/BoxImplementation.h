@@ -39,16 +39,19 @@ struct BoxImplementation {
 
   template <typename Stream>
   static void PrintType(Stream &st) {
+    (void)st;
     //st << "SpecializedBox<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
   static void PrintImplementationType(Stream &st) {
+    (void)st;
     //st << "BoxImplementation<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
   static void PrintUnplacedType(Stream &st) {
+    (void)st;
     //TODO: this is wrong
     //st << "UnplacedBox";
   }
@@ -178,7 +181,7 @@ struct BoxImplementation {
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   static void DistanceToOut(UnplacedStruct_t const &box, Vector3D<Real_v> const &point,
-                              Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance) {
+                              Vector3D<Real_v> const &direction, Real_v const &/* stepMax */, Real_v &distance) {
     distance=Real_v(-1.);
 
     using Bool_v = vecCore::Mask_v<Real_v>;
@@ -300,8 +303,8 @@ struct BoxImplementation {
   static bool Intersect( Vector3D<Precision> const * corners,
           Vector3D<Precision> const &point,
           Vector3D<Precision> const &ray,
-          Precision t0,
-          Precision t1){
+          Precision /* t0 */,
+          Precision /* t1 */){
     // intersection algorithm 1 ( Amy Williams )
     Precision tmin, tmax, tymin, tymax, tzmin, tzmax;
 

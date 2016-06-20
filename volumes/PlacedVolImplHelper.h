@@ -115,9 +115,9 @@ public:
     GetUnplacedVolume()->UnplacedShape_t::DistanceToOut(points, directions, stepMax, output);
   }
 
-  virtual void DistanceToOut(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
-                             Precision const *const step_max, Precision *const output,
-                             int *const nextnodeindex) const override {
+  virtual void DistanceToOut(SOA3D<Precision> const &/* position */, SOA3D<Precision> const &/* direction */,
+                             Precision const *const /* step_max */, Precision *const /* output */,
+                             int *const /* nextnodeindex */) const override {
     // interface not implemented (depcrecated)
   }
 
@@ -125,7 +125,7 @@ public:
     GetUnplacedVolume()->UnplacedShape_t::SafetyToOut(points, output);
   }
 
-  virtual void SafetyToOutMinimize(SOA3D<Precision> const &points, Precision *const safeties) const override {
+  virtual void SafetyToOutMinimize(SOA3D<Precision> const &/* points */, Precision *const /* safeties */) const override {
     // interface not implemented (deprecated)
   }
 
