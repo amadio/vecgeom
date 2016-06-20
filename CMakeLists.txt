@@ -225,7 +225,6 @@ elseif (_backend_up MATCHES DEFAULT)
   set(Vc ON)
   set(VC ON CACHE BOOL "" FORCE) # enable Vc in VecCore
   set(BACKEND VC CACHE STRING "Set by default to VC" FORCE)
-  set(SIMD ON CACHE BOOL "" FORCE)
   message(STATUS "Backend not specified. Defaulting to Vc.")
 else()
   message(FATAL_ERROR "Value '${BACKEND}' for variable BACKEND is not allowed. ")
