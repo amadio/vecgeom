@@ -39,7 +39,7 @@ TGeoShape const *PlacedHype::ConvertToRoot() const {
 }
 #endif
 
-#ifdef VECGEOM_USOLIDS
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
 ::VUSolid const *PlacedHype::ConvertToUSolids() const {
   // assert(0 && "Hype unsupported for USolids.");
   // return NULL;
