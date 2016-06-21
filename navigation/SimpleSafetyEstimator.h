@@ -50,7 +50,7 @@ public:
      // safety to mother
      VECGEOM_BACKEND_PRECISION_TYPE safety(0.);
      if (Any(m)) {
-       auto safety = pvol->SafetyToOut(localpoint);
+       safety = pvol->SafetyToOut(localpoint);
 
        // safety to daughters
        auto daughters = pvol->GetLogicalVolume()->GetDaughtersp();
