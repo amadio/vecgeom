@@ -12,10 +12,8 @@ macros=(
 	VECGEOM_INLINE
 )
 
-for file in $@; do
-	clang-format -i "${file}"
+clang-format -i "$@"
 for macro in ${macros[@]}; do
 	sed -i h -E -e 's/^([[:space:]]*)(.*)('${macro}')[[:space:]]+/\1\2\3\
-\1/g;' "${file}"
-done
+\1/g;' "$@"
 done
