@@ -502,7 +502,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(struct, GenTrapImplementation, Translati
   template <class Backend, bool treatNormal>
   VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
       UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-      Vector3D<typename Backend::precision_v> const &direction, typename Backend::precision_v const &stepMax,
+      Vector3D<typename Backend::precision_v> const &direction, typename Backend::precision_v const & /* stepMax */,
       typename Backend::precision_v &distance) {
 
     typedef typename Backend::precision_v Float_t;

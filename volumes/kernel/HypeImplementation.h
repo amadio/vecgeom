@@ -639,7 +639,7 @@ void HypeImplementation<transCodeT, rotCodeT>::NormalKernel(
     UnplacedHype const &unplaced,
     Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> &normal,
-    typename Backend::bool_v &valid) {
+    typename Backend::bool_v & /*valid*/) {
 
   typedef typename Backend::precision_v Float_t;
   typedef typename Backend::bool_v Bool_t;
@@ -882,7 +882,7 @@ VECGEOM_CUDA_HEADER_BOTH void HypeImplementation<transCodeT, rotCodeT>::Distance
     UnplacedHype const &unplaced,
     Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> const &direction,
-    typename Backend::precision_v const &stepMax,
+    typename Backend::precision_v const & /* stepMax */,
     typename Backend::precision_v &distance) {
   typedef typename Backend::precision_v Float_t;
   typedef typename Backend::bool_v Bool_t;
@@ -1069,7 +1069,7 @@ void HypeImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
     UnplacedHype const &unplaced,
     Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> const &direction,
-    typename Backend::precision_v const &stepMax,
+    typename Backend::precision_v const & /* stepMax */,
     typename Backend::precision_v &distance) {
 
   typedef typename Backend::precision_v Float_t;

@@ -426,7 +426,7 @@ void ScaledShapeImplementation<transCodeT, rotCodeT>::NormalKernel(
      UnplacedScaledShape const &unplaced,
      Vector3D<typename Backend::precision_v> const &point,
      Vector3D<typename Backend::precision_v> &normal,
-     typename Backend::bool_v &valid) {
+     typename Backend::bool_v & /* valid */) {
 
   // Transform point to unscaled shape frame
   Vector3D<typename Backend::precision_v> ulocalPoint;
