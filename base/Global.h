@@ -94,6 +94,8 @@ namespace details {
 // trying to set some sort of default scalar and vector backend
 #if defined(VECCORE_ENABLE_VC) && !defined(VECGEOM_NVCC)
 using VectorBackend = vecCore::backend::VcVector;
+#elif defined(VECCORE_ENABLE_UMESIMD) && !defined(VECGEOM_NVCC)
+using VectorBackend = vecCore::backend::UMESimd;
 #else
 using VectorBackend = vecCore::backend::Scalar;
 #endif
