@@ -292,21 +292,11 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type Min() const
-  {
-    Type min = (vec[1] < vec[0]) ? vec[1] : vec[0];
-    min      = (vec[2] < min) ? vec[2] : min;
-    return min;
-  }
+  Type Min() const { return vecCore::math::Min(vec[0], vec[1], vec[2]); }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Type Max() const
-  {
-    Type max = (vec[1] > vec[0]) ? vec[1] : vec[0];
-    max      = (vec[2] > max) ? vec[2] : max;
-    return max;
-  }
+  Type Max() const { return vecCore::math::Max(vec[0], vec[1], vec[2]); }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
