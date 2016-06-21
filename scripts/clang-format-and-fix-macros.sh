@@ -15,6 +15,7 @@ macros=(
 for file in $@; do
 	clang-format -i "${file}"
 for macro in ${macros[@]}; do
-	sed -i -e "/${macro}/ s/^\(\s*\)\(.*\)\(${macro}\)\s\+/\1\2\3\n\1/g;" "${file}"
+	sed -i h -E -e 's/^([[:space:]]*)(.*)('${macro}')[[:space:]]+/\1\2\3\
+\1/g;' "${file}"
 done
 done
