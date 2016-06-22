@@ -14,6 +14,6 @@ macros=(
 
 clang-format -i "$@"
 for macro in ${macros[@]}; do
-	sed -i h -E -e 's/^([[:space:]]*)(.*)('${macro}')[[:space:]]+/\1\2\3\
+	sed -i h -E -e '/^([[:space:]]*)[^/#$]/ s/^([[:space:]]*)(.*)('${macro}')[[:space:]]+/\1\2\3\
 \1/g;' "$@"
 done
