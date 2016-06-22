@@ -8,14 +8,6 @@
 #include "management/ABBoxManager.h"
 #include "volumes/UnplacedBox.h"
 
-#ifdef VECGEOM_VC
-//#include "backend/vc/Backend.h"
-#include "backend/vcfloat/Backend.h"
-#else
-#include "backend/scalarfloat/Backend.h"
-#endif
-
-
 namespace vecgeom {
 inline namespace cxx {
 
@@ -34,8 +26,8 @@ inline namespace cxx {
  *  				  calculated "numOfSlices" num of Aligned Bounding boxes
  *
  */
-void ABBoxManager::ComputeSplittedABBox(VPlacedVolume const *pvol, std::vector<ABBox_t> &lowerc,
-                                        std::vector<ABBox_t> &upperc, int numOfSlices) {
+void ABBoxManager::ComputeSplittedABBox(VPlacedVolume const *pvol, std::vector<ABBox_s> &lowerc,
+                                        std::vector<ABBox_s> &upperc, int numOfSlices) {
 
   // idea: Split the Placed Bounding Box of volume into the numOfSlices.
   //		  Then pass each placed slice to the ComputABBox function,
@@ -113,7 +105,7 @@ void ABBoxManager::ComputeSplittedABBox(VPlacedVolume const *pvol, std::vector<A
   }
 }
 
-void ABBoxManager::ComputeABBox(VPlacedVolume const *pvol, ABBox_t *lowerc, ABBox_t *upperc) {
+void ABBoxManager::ComputeABBox(VPlacedVolume const *pvol, ABBox_s *lowerc, ABBox_s *upperc) {
   // idea: take the 8 corners of the bounding box in the reference frame of pvol
   // transform those corners and keep track of minimum and maximum extent
   // TODO: could make this code shorter with a more complex Vector3D class
@@ -180,12 +172,12 @@ void ABBoxManager::InitABBoxes(LogicalVolume const *lvol) {
     RemoveABBoxes(lvol);
   }
   uint ndaughters = lvol->GetDaughtersp()->size();
-  ABBox_t *boxes = new ABBox_t[2 * ndaughters];
+  ABBox_s *boxes = new ABBox_s[2 * ndaughters];
   fVolToABBoxesMap[lvol->id()] = boxes;
 
   // same for the vector part
-  int extra = (ndaughters % Real_vSize > 0) ? 1 : 0;
-  int size = 2 * (ndaughters / Real_vSize + extra);
+  int extra = (ndaughters % vecCore::VectorSize<Float_v>() > 0) ? 1 : 0;
+  int size = 2 * (ndaughters / vecCore::VectorSize<Float_v>() + extra);
   ABBox_v *vectorboxes = new ABBox_v[size];
   fVolToABBoxesMap_v[lvol->id()] = vectorboxes;
 
@@ -217,12 +209,12 @@ void ABBoxManager::InitABBoxes(LogicalVolume const *lvol) {
   // initialize vector version of Container
   int index = 0;
   unsigned int assignedscalarvectors = 0;
-  for (uint i = 0; i < ndaughters; i += Real_vSize) {
-    Vector3D<Real_v> lower;
-    Vector3D<Real_v> upper;
+  for (uint i = 0; i < ndaughters; i += vecCore::VectorSize<Float_v>()) {
+    Vector3D<Float_v> lower;
+    Vector3D<Float_v> upper;
 // assign by components ( this will be much more generic with new VecCore )
 #ifdef VECGEOM_VC
-    for (uint k = 0; k < Real_vSize; ++k) {
+    for (uint k = 0; k < vecCore::VectorSize<Float_v>(); ++k) {
       if (2 * (i + k) < 2 * ndaughters) {
         lower.x()[k] = boxes[2 * (i + k)].x();
         lower.y()[k] = boxes[2 * (i + k)].y();

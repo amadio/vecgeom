@@ -13,9 +13,6 @@
 #include "navigation/VSafetyEstimator.h"
 #include "management/HybridManager2.h"
 
-#include <exception>
-#include <stdexcept>
-
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -39,28 +36,28 @@ private:
   // helper structure to find the candidate set for safety calculations
   size_t GetSafetyCandidates_v(LogicalVolume const *lvol, Vector3D<Precision> const &point,
                                HybridManager2::BoxIdDistancePair_t *boxsafetypairs, Precision upper_squared_limit) const {
-#ifdef VECGEOM_VC
     size_t count = 0;
     Vector3D<float> pointfloat((float)point.x(), (float)point.y(), (float)point.z());
     int halfvectorsize, numberOfNodes;
     auto boxes_v = fAccelerationStructureManager.GetABBoxes_v(lvol, halfvectorsize, numberOfNodes);
     std::vector<int> *nodeToDaughters = fAccelerationStructureManager.GetNodeToDaughters(lvol);
-    size_t simdsize = kVcFloat::precision_v::Size;
+    constexpr auto kVS = vecCore::VectorSize<HybridManager2::Float_v>();
 
-    for (int index = 0, nodeindex = 0; index < halfvectorsize * 2; index += 2 * (simdsize + 1), nodeindex += simdsize) {
-      HybridManager2::Real_v safetytoboxsqr = ABBoxImplementation::ABBoxSafetySqr<kVcFloat, HybridManager2::Real_t>(
+    for (int index = 0, nodeindex = 0; index < halfvectorsize * 2; index += 2 * (kVS + 1), nodeindex += kVS) {
+      HybridManager2::Float_v safetytoboxsqr = ABBoxImplementation::ABBoxSafetySqr(
           boxes_v[index], boxes_v[index + 1], pointfloat);
-      HybridManager2::Bool_v closer = safetytoboxsqr < HybridManager2::Real_v(upper_squared_limit);
-      if (Any(closer)) {
-        for (size_t i = closer.firstOne(); i < simdsize; ++i) {
-          if (closer[i]) {
-            safetytoboxsqr = ABBoxImplementation::ABBoxSafetySqr<kVcFloat, HybridManager2::Real_t>(
+      auto closer = safetytoboxsqr < HybridManager2::Float_v(upper_squared_limit);
+      if (! vecCore::MaskEmpty(closer)) {
+        for (size_t i = 0 /*closer.firstOne()*/; i < kVS; ++i) {
+          if (vecCore::MaskLaneAt(closer, i)) {
+            safetytoboxsqr = ABBoxImplementation::ABBoxSafetySqr(
                 boxes_v[index + 2 * i + 2], boxes_v[index + 2 * i + 3], pointfloat);
-            HybridManager2::Bool_v closer = safetytoboxsqr < HybridManager2::Real_v(upper_squared_limit);
-            if (Any(closer)) {
-              for (size_t j = closer.firstOne(); j < simdsize; ++j) { // leaf node
-                if (closer[j]) {
-                  boxsafetypairs[count]=HybridManager2::BoxIdDistancePair_t(nodeToDaughters[nodeindex + i][j], safetytoboxsqr[j]);
+            auto closer = safetytoboxsqr < HybridManager2::Float_v(upper_squared_limit);
+            if (! vecCore::MaskEmpty(closer)) {
+              for (size_t j = 0 /*closer.firstOne()*/; j < kVS; ++j) { // leaf node
+                if (vecCore::MaskLaneAt(closer,j)) {
+                  boxsafetypairs[count]=HybridManager2::BoxIdDistancePair_t(nodeToDaughters[nodeindex + i][j],
+                          vecCore::LaneAt(safetytoboxsqr,j));
                   count++;
                 }
               }
@@ -70,36 +67,33 @@ private:
       }
     }
     return count;
-#else
-	throw std::runtime_error("unimplemented function called: HybridSafetyEstimator::GetSafetyCandidates_v()");
-#endif
   }
 
 public:
   static constexpr const char *gClassNameString = "HybridSafetyEstimator";
 
-#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
   VECGEOM_INLINE
-   virtual VECGEOM_BACKEND_PRECISION_TYPE ComputeSafetyForLocalPoint(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &localpoint,
-                                                VPlacedVolume const *pvol, VECGEOM_BACKEND_PRECISION_TYPE::Mask m) const override {
-     VECGEOM_BACKEND_PRECISION_TYPE safety(0.);
-     if (Any(m)) {
+   virtual Real_v ComputeSafetyForLocalPoint(Vector3D<Real_v> const &localpoint,
+                                                VPlacedVolume const *pvol, Bool_v m) const override {
+     using vecCore::LaneAt;
+     using vecCore::AssignLane;
+     Real_v safety(0.);
+     if (! vecCore::MaskEmpty(m)) {
        // SIMD safety to mother
        auto safety = pvol->SafetyToOut(localpoint);
 
        // now loop over the voxelized treatment of safety to in
-       for (unsigned int i = 0; i < VECGEOM_BACKEND_PRECISION_TYPE::Size; ++i) {
-         if (m[i]) {
-           safety[i] = TreatSafetyToIn(Vector3D<Precision>(localpoint.x()[i], localpoint.y()[i], localpoint.z()[i]),
-                                       pvol, safety[i]);
+       for (unsigned int i = 0; i < VECGEOM_BACKEND_PRECISION_TYPE_SIZE; ++i) {
+         if (vecCore::MaskLaneAt(m,i)) {
+           AssignLane(safety, i, TreatSafetyToIn(Vector3D<Precision>(LaneAt(localpoint.x(),i), LaneAt(localpoint.y(),i), LaneAt(localpoint.z(),i)),
+                                       pvol, LaneAt(safety,i)));
          } else {
-           safety[i] = 0;
+           AssignLane(safety, i, 0.);
          }
        }
      }
      return safety;
   }
-#endif
 
   VECGEOM_INLINE
   Precision TreatSafetyToIn(Vector3D<Precision> const &localpoint, VPlacedVolume const *pvol,

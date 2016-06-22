@@ -17,10 +17,6 @@
 #include "volumes/kernel/BoxImplementation.h"
 #include "navigation/SimpleNavigator.h"
 
-#ifdef VECGEOM_VC
-#include "backend/vc/Backend.h"
-#endif
-
 #include <vector>
 
 namespace vecgeom {

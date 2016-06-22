@@ -413,8 +413,85 @@ template <>
 struct TypeTraits<vecgeom::cxx::UmeSimdPrecisionVector> {
   using ScalarType = double;
   using MaskType   = typename vecgeom::cxx::UmeSimdMask;
-  using IndexType  = typename vecgeom::cxx::UmeSimdIntegerVector;
+  using IndexType  = typename vecgeom::cxx::UmeSimdInsideVector;
 };
+
+template <>
+struct TypeTraits<vecgeom::cxx::UmeSimdInsideVector> {
+  using ScalarType = int;
+  using MaskType   = typename vecgeom::cxx::UmeSimdMask;
+  using IndexType  = int;
+};
+
+
 }
+
+// some other TEMPORARY additions until we've made the full transition
+// to VecCore
+// Will be deleted together with this file
+namespace vecCore {
+namespace math {
+
+template<>
+VECGEOM_INLINE
+vecgeom::UmeSimdPrecisionVector Abs(vecgeom::UmeSimdPrecisionVector const &x){
+    return x.abs();
+}
+
+} // end namespace math
+
+template <>
+VECGEOM_INLINE
+bool MaskFull(const vecgeom::UmeSimdMask &cond)
+{
+  return cond.hland();
+}
+
+template <>
+VECGEOM_INLINE
+bool MaskEmpty(const vecgeom::UmeSimdMask &cond)
+{
+  return !cond.hlor();
+}
+
+template <>
+VECCORE_FORCE_INLINE
+void MaskedAssign(vecgeom::UmeSimdPrecisionVector &dest,
+                  const vecgeom::UmeSimdMask &mask,
+                  const vecgeom::UmeSimdPrecisionVector &src)
+{
+  dest.assign(mask, src);
+}
+
+template <>
+VECCORE_FORCE_INLINE
+void MaskedAssign(vecgeom::UmeSimdInsideVector &dest,
+                  const vecgeom::UmeSimdMask &mask,
+                  const vecgeom::UmeSimdInsideVector &src)
+{
+  dest.assign(mask, src);
+}
+
+template <>
+VECCORE_FORCE_INLINE
+void MaskedAssign(vecgeom::UmeSimdPrecisionVector &dest,
+                  const UME::SIMD::SIMDVecMask<4u> &mask,
+                  const vecgeom::UmeSimdPrecisionVector &src)
+{
+  dest.assign(mask, src);
+}
+
+template <>
+VECCORE_FORCE_INLINE
+vecgeom::UmeSimdPrecisionVector
+Blend(const UME::SIMD::SIMDVecMask<4u> &mask,
+      const vecgeom::UmeSimdPrecisionVector &tval,
+      const vecgeom::UmeSimdPrecisionVector &fval)
+{
+  return tval.blend(mask, fval);
+}
+
+} // end namespace VecCore
+
 
 #endif // VECGEOM_BACKEND_VCBACKEND_H_

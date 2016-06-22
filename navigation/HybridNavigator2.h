@@ -23,12 +23,6 @@
 #include "navigation/HybridSafetyEstimator.h"
 #include "navigation/SimpleABBoxNavigator.h"
 
-#ifdef VECGEOM_VC
-#include "backend/vc/Backend.h"
-#endif
-
-#include <exception>
-#include <stdexcept>
 #include <vector>
 
 namespace vecgeom {
@@ -71,7 +65,6 @@ private:
   size_t GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Precision> const &point, Vector3D<Precision> const &dir,
                             HybridManager2::BoxIdDistancePair_t *hitlist) const {
     size_t count = 0;
-#ifdef VECGEOM_VC
     Vector3D<Precision> invdir(1. / dir.x(), 1. / dir.y(), 1. / dir.z());
     Vector3D<int> sign;
     sign[0] = invdir.x() < 0;
@@ -79,25 +72,27 @@ private:
     sign[2] = invdir.z() < 0;
     int numberOfNodes, size;
     auto boxes_v = fAccelerationManager.GetABBoxes_v(lvol, size, numberOfNodes);
+    constexpr auto kVS = vecCore::VectorSize<HybridManager2::Float_v>();
     std::vector<int> *nodeToDaughters = fAccelerationManager.GetNodeToDaughters(lvol);
     for (size_t index = 0, nodeindex = 0; index < size_t(size) * 2;
-         index += 2 * (HybridManager2::Real_vSize + 1), nodeindex += HybridManager2::Real_vSize) {
-      HybridManager2::Real_v distance =
-          BoxImplementation::IntersectCachedKernel2<HybridManager2::Real_v, HybridManager2::Real_t>(
+         index += 2 * (kVS + 1), nodeindex += kVS) {
+      HybridManager2::Float_v distance =
+          BoxImplementation::IntersectCachedKernel2<HybridManager2::Float_v,float>(
               &boxes_v[index], point, invdir, sign.x(), sign.y(), sign.z(), 0,
-              static_cast<HybridManager2::Real_t>(vecgeom::kInfinity));
-      HybridManager2::Bool_v hit = distance < static_cast<HybridManager2::Real_t>(vecgeom::kInfinity);
-      if (Any(hit)) {
-        for (size_t i = hit.firstOne(); i < kVcFloat::precision_v::Size; ++i) {
-          if (hit[i]) {
-            distance = BoxImplementation::IntersectCachedKernel2<HybridManager2::Real_v, HybridManager2::Real_t>(
+              static_cast<float>(vecgeom::kInfinity));
+      auto hit = distance < static_cast<float>(vecgeom::kInfinity);
+      if (! vecCore::MaskEmpty(hit)) {
+        for (size_t i = 0 /*hit.firstOne()*/; i < kVS; ++i) {
+          if (vecCore::MaskLaneAt(hit,i)) {
+            distance = BoxImplementation::IntersectCachedKernel2<HybridManager2::Float_v,float>(
                 &boxes_v[index + 2 * (i + 1)], point, invdir, sign.x(), sign.y(), sign.z(), 0,
-                static_cast<HybridManager2::Real_t>(vecgeom::kInfinity));
-            HybridManager2::Bool_v hit = distance < static_cast<HybridManager2::Real_t>(vecgeom::kInfinity);
-            if (Any(hit)) {
-              for (size_t j = hit.firstOne(); j < kVcFloat::precision_v::Size; ++j) { // leaf node
-                if (hit[j]) {
-                  hitlist[count] = HybridManager2::BoxIdDistancePair_t(nodeToDaughters[nodeindex + i][j], distance[j]);
+                static_cast<float>(vecgeom::kInfinity));
+            auto hit = distance < static_cast<float>(vecgeom::kInfinity);
+            if (! vecCore::MaskEmpty(hit)) {
+              for (size_t j = 0 /*hit.firstOne()*/; j < kVS; ++j) { // leaf node
+                if (vecCore::MaskLaneAt(hit, j)) {
+                  hitlist[count] = HybridManager2::BoxIdDistancePair_t(nodeToDaughters[nodeindex + i][j],
+                          vecCore::LaneAt(distance,j));
                   count++;
                 }
               }
@@ -106,9 +101,6 @@ private:
         }
       }
     }
-#else
-	throw std::runtime_error("unimplemented function called: HybridNavigator::GetHitCandidates_v()");
-#endif
     return count;
   }
 

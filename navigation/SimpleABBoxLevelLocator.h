@@ -13,9 +13,6 @@
 #include "volumes/PlacedVolume.h"
 #include "management/ABBoxManager.h"
 #include "volumes/kernel/BoxImplementation.h"
-#ifdef VECGEOM_SCALAR
-#include "backend/scalarfloat/Backend.h"
-#endif
 
 #include <exception>
 #include <stdexcept>
@@ -34,7 +31,6 @@ private:
 public:
   virtual bool LevelLocate(LogicalVolume const *lvol, Vector3D<Precision> const &localpoint, VPlacedVolume const *&pvol,
                            Vector3D<Precision> &daughterlocalpoint) const override {
-#ifdef VECGEOM_VC
     int size;
     ABBoxManager::ABBoxContainer_v alignedbboxes =
         fAccelerationStructure.GetABBoxes_v(lvol, size);
@@ -43,14 +39,16 @@ public:
     // here the loop is over groups of bounding boxes
     // it is basically linear but vectorizable search
     for (int boxgroupid = 0; boxgroupid < size; ++boxgroupid) {
-      typename kVcFloat::bool_v inBox;
-      ABBoxImplementation::ABBoxContainsKernel<kVcFloat>(alignedbboxes[2 * boxgroupid],
-                                                         alignedbboxes[2 * boxgroupid + 1], localpoint, inBox);
-      if (Any(inBox)) {
+      using Bool_v = vecCore::Mask_v<ABBoxManager::Float_v>;
+      Bool_v inBox;
+      ABBoxImplementation::ABBoxContainsKernel(alignedbboxes[2 * boxgroupid],
+                                               alignedbboxes[2 * boxgroupid + 1], localpoint, inBox);
+      if (! vecCore::MaskEmpty(inBox)) {
+        constexpr auto kVS = vecCore::VectorSize<ABBoxManager::Float_v>();
         // TODO: could start directly at first 1 in inBox
-        for (size_t ii = 0; ii < kVcFloat::precision_v::Size; ++ii) {
-          auto daughterid = boxgroupid * kVcFloat::precision_v::Size + ii;
-          if (daughterid < daughters->size() && inBox[ii]) {
+        for (size_t ii = 0; ii < kVS; ++ii) {
+          auto daughterid = boxgroupid * kVS + ii;
+          if (daughterid < daughters->size() && vecCore::MaskLaneAt(inBox, ii)) {
             VPlacedVolume const *daughter = (*daughters)[daughterid];
             if (daughter->Contains(localpoint, daughterlocalpoint)) {
               pvol = daughter;
@@ -61,16 +59,12 @@ public:
         }
       }
     }
-#else
-	throw std::runtime_error("unimplemented function called: SimpleABBoxLevelLocator::LevelLocate()");
-#endif
     return false;
   } // end function
 
   virtual bool LevelLocateExclVol(LogicalVolume const *lvol, VPlacedVolume const *exclvol,
                                   Vector3D<Precision> const &localpoint, VPlacedVolume const *&pvol,
                                   Vector3D<Precision> &daughterlocalpoint) const override {
-#ifdef VECGEOM_VC
     int size;
     ABBoxManager::ABBoxContainer_v alignedbboxes = fAccelerationStructure.GetABBoxes_v(lvol, size);
 
@@ -78,14 +72,16 @@ public:
     // here the loop is over groups of bounding boxes
     // it is basically linear but vectorizable search
     for (int boxgroupid = 0; boxgroupid < size; ++boxgroupid) {
-      typename kVcFloat::bool_v inBox;
-      ABBoxImplementation::ABBoxContainsKernel<kVcFloat>(alignedbboxes[2 * boxgroupid],
-                                                         alignedbboxes[2 * boxgroupid + 1], localpoint, inBox);
-      if (Any(inBox)) {
+      using Bool_v = vecCore::Mask_v<ABBoxManager::Float_v>;
+      Bool_v inBox;
+      ABBoxImplementation::ABBoxContainsKernel(alignedbboxes[2 * boxgroupid],
+                                               alignedbboxes[2 * boxgroupid + 1], localpoint, inBox);
+      if (! vecCore::MaskEmpty(inBox)) {
+        constexpr auto kVS = vecCore::VectorSize<ABBoxManager::Float_v>();
         // TODO: could start directly at first 1 in inBox
-        for (size_t ii = 0; ii < kVcFloat::precision_v::Size; ++ii) {
-          auto daughterid = boxgroupid * kVcFloat::precision_v::Size + ii;
-          if (daughterid < daughters->size() && inBox[ii]) {
+        for (size_t ii = 0; ii < kVS; ++ii) {
+          auto daughterid = boxgroupid * kVS + ii;
+          if (daughterid < daughters->size() && vecCore::MaskLaneAt(inBox,ii)) {
             VPlacedVolume const *daughter = (*daughters)[daughterid];
             if (daughter == exclvol)
               continue;
@@ -98,9 +94,6 @@ public:
         }
       }
     }
-#else
-	throw std::runtime_error("unimplemented function called: SimpleABBoxLevelLocator::LevelLocateExclVol()");
-#endif
     return false;
   } // end function
 

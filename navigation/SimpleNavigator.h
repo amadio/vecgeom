@@ -266,17 +266,19 @@ VPlacedVolume const *SimpleNavigator::LocatePoint(VPlacedVolume const *vol, Vect
       int boxcrosscheckid=-1;
 #endif
       for (int boxgroupid = 0; boxgroupid < size; ++boxgroupid) {
-        typename kVcFloat::bool_v inBox;
-        ABBoxImplementation::ABBoxContainsKernel<kVcFloat>(alignedbboxes[2 * boxgroupid],
-                                                           alignedbboxes[2 * boxgroupid + 1], tmp, inBox);
-        if (Any(inBox)) {
+        using Bool_v = vecCore::Mask_v<ABBoxManager::Float_v>;
+        Bool_v inBox;
+        ABBoxImplementation::ABBoxContainsKernel(alignedbboxes[2 * boxgroupid],
+                                                 alignedbboxes[2 * boxgroupid + 1], tmp, inBox);
+        if (! vecCore::MaskEmpty(inBox)) {
+          constexpr auto kVS = vecCore::VectorSize<ABBoxManager::Float_v>();
           // TODO: could start directly at first 1 in inBox
-        for (size_t ii = 0; ii < kVcFloat::precision_v::Size; ++ii) {
-            auto daughterid = boxgroupid * kVcFloat::precision_v::Size + ii;
+        for (size_t ii = 0; ii < kVS; ++ii) {
+            auto daughterid = boxgroupid * kVS + ii;
             if(daughterid < daughters->size()){
             VPlacedVolume const *daughter = candvolume->GetDaughters()[daughterid];
             Vector3D<Precision> transformedpoint;
-            if (daughterid < daughters->size() && inBox[ii] && daughter->Contains(tmp, transformedpoint)) {
+            if (daughterid < daughters->size() && vecCore::MaskLaneAt(inBox, ii) && daughter->Contains(tmp, transformedpoint)) {
               path.Push(daughter);
 #ifdef CROSSCHECKLOCAL
               boxcrosscheckid = daughterid;
@@ -372,16 +374,18 @@ VPlacedVolume const *SimpleNavigator::LocatePointExclVolume(VPlacedVolume const 
       // here the loop is over groups of bounding boxes
       // it is basically linear but vectorizable search
       for (int boxgroupid = 0; boxgroupid < size; ++boxgroupid) {
-        typename kVcFloat::bool_v inBox;
-        ABBoxImplementation::ABBoxContainsKernel<kVcFloat>(alignedbboxes[2 * boxgroupid],
-                                                           alignedbboxes[2 * boxgroupid + 1], tmp, inBox);
-        if (Any(inBox)) {
-           for (size_t ii = inBox.firstOne(); ii < kVcFloat::precision_v::Size; ++ii) {
-            auto daughterid = boxgroupid * kVcFloat::precision_v::Size + ii;
+        using Bool_v = vecCore::Mask_v<ABBoxManager::Float_v>;
+        Bool_v inBox;
+        ABBoxImplementation::ABBoxContainsKernel(alignedbboxes[2 * boxgroupid],
+                                                 alignedbboxes[2 * boxgroupid + 1], tmp, inBox);
+        if (! vecCore::MaskEmpty(inBox)) {
+           constexpr auto kVS = vecCore::VectorSize<ABBoxManager::Float_v>();
+           for (size_t ii = inBox.firstOne(); ii < kVS; ++ii) {
+            auto daughterid = boxgroupid * kVS + ii;
             if(daughterid < daughters->size()){
              VPlacedVolume const *daughter = candvolume->GetDaughters()[daughterid];
             Vector3D<Precision> transformedpoint;
-            if (inBox[ii] && daughter != excludedvolume &&
+            if (vecCore::MaskLaneAt(inBox,ii) && daughter != excludedvolume &&
                 daughter->Contains(tmp, transformedpoint)) {
               path.Push(daughter);
               tmp = transformedpoint;
@@ -731,7 +735,7 @@ Precision SimpleNavigator::GetSafety(Vector3D<Precision> const & globalpoint,
    {
       VPlacedVolume const * daughter = daughters->operator [](d);
       double tmp = daughter->SafetyToIn( localpoint );
-      safety = Min(safety, tmp);
+      safety = vecCore::math::Min(safety, tmp);
    }
    return safety;
 }

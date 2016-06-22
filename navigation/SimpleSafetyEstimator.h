@@ -9,12 +9,6 @@
 #define NAVIGATION_SIMPLESAFETYESTIMATOR_H_
 
 #include "navigation/VSafetyEstimator.h"
-#ifdef VECGEOM_VC
-#include <Vc/Vc>
-#endif
-
-#include <exception>
-#include <stdexcept>
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -38,18 +32,18 @@ public:
     for (decltype(numberdaughters) d = 0; d < numberdaughters; ++d) {
       VPlacedVolume const *daughter = daughters->operator[](d);
       double tmp = daughter->SafetyToIn(localpoint);
-      safety = Min(safety, tmp);
+      safety = vecCore::math::Min(safety, tmp);
     }
     return safety;
   }
 
-#ifdef VECGEOM_BACKEND_PRECISION_NOT_SCALAR
+
   VECGEOM_INLINE
-  virtual VECGEOM_BACKEND_PRECISION_TYPE ComputeSafetyForLocalPoint(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &localpoint,
-                                                VPlacedVolume const *pvol, VECGEOM_BACKEND_PRECISION_TYPE::Mask m) const override {
+  virtual Real_v ComputeSafetyForLocalPoint(Vector3D<Real_v> const &localpoint,
+                                                VPlacedVolume const *pvol, Bool_v m) const override {
      // safety to mother
-     VECGEOM_BACKEND_PRECISION_TYPE safety(0.);
-     if (Any(m)) {
+    Real_v safety(0.);
+    if (! vecCore::MaskEmpty(m)) {
        safety = pvol->SafetyToOut(localpoint);
 
        // safety to daughters
@@ -58,12 +52,11 @@ public:
        for (decltype(numberdaughters) d = 0; d < numberdaughters; ++d) {
          VPlacedVolume const *daughter = daughters->operator[](d);
          auto tmp = daughter->SafetyToIn(localpoint);
-         safety = Min(safety, tmp);
+         safety = vecCore::math::Min(safety, tmp);
        }
      }
      return safety;
    }
-#endif
 
   VECGEOM_INLINE
   virtual void ComputeSafetyForLocalPoints(SOA3D<Precision> const &localpoints, VPlacedVolume const *pvol,
@@ -86,34 +79,34 @@ public:
   // implementation (using VC that does not need a workspace) by doing the whole algorithm in little vector chunks
   virtual void ComputeVectorSafety(SOA3D<Precision> const &globalpoints, NavStatePool &states,
                                    Precision *safeties) const override {
-// this is a temporary implementation until we have the new generalized backends
-#ifdef VECGEOM_VC
     VPlacedVolume const *pvol = states[0]->Top();
     auto npoints = globalpoints.size();
-    for (decltype(npoints) i = 0; i < npoints; i += Vc::double_v::Size) {
+
+    using Real_v = vecgeom::VectorBackend::Real_v;
+    constexpr auto kVS = vecCore::VectorSize<Real_v>();
+    for (decltype(npoints) i = 0; i < npoints; i += kVS) {
       // do the transformation to local
-      Vector3D<Vc::double_v> local;
-      for (size_t j = 0; j < Vc::double_v::Size; ++j) {
+      Vector3D<Real_v> local;
+      for (size_t j = 0; j < kVS; ++j) {
         Transformation3D m;
         states[i + j]->TopMatrix(m);
         auto v = m.Transform(globalpoints[i + j]);
-        local.x()[j] = v.x();
-        local.y()[j] = v.y();
-        local.z()[j] = v.z();
+
+        using vecCore::AssignLane;
+        AssignLane(local.x(), j, v.x());
+        AssignLane(local.y(), j, v.y());
+        AssignLane(local.z(), j, v.z());
       }
 
-      Vc::double_v safety = pvol->SafetyToOut(local);
+      auto safety = pvol->SafetyToOut(local);
       auto daughters = pvol->GetLogicalVolume()->GetDaughtersp();
       auto numberdaughters = daughters->size();
       for (decltype(numberdaughters) d = 0; d < numberdaughters; ++d) {
         VPlacedVolume const *daughter = daughters->operator[](d);
-        safety = Min(safety, daughter->SafetyToIn(local));
+        safety = vecCore::math::Min(safety, daughter->SafetyToIn(local));
       }
-      safety.store(safeties + i);
+      vecCore::Store(safety, safeties + i);
     }
-#else
-    throw std::runtime_error("non Vc-implementation for ComputeVectorSafety missing");
-#endif
   }
 
 #ifndef VECGEOM_NVCC

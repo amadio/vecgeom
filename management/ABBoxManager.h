@@ -16,10 +16,6 @@
 #include "base/Transformation3D.h"
 #include "volumes/kernel/BoxImplementation.h"
 
-#ifdef VECGEOM_VC
-#include "backend/vc/Backend.h"
-#endif
-
 #include <map>
 #include <vector>
 
@@ -31,32 +27,20 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 // the alternative would be to include such a thing into logical volumes
 class ABBoxManager {
 public:
-  // scalar or vector vectors
-  typedef Vector3D<Precision> ABBox_t;
-#ifdef VECGEOM_VC // just temporary typedef ---> will be removed with new backend structure
-  typedef Vc::float_v Real_v;
-  typedef Vc::float_m Bool_v;
-  constexpr static unsigned int Real_vSize = Real_v::Size;
-#elif defined(VECGEOM_UMESIMD)
-  typedef kUmeSimd::precision_v Real_v;
-  typedef kUmeSimd::bool_v      Bool_v;
-  constexpr static unsigned int Real_vSize = kVectorSize;
-#else
-  typedef float Real_v;
-  typedef bool Bool_v;
-  constexpr static unsigned int Real_vSize = 1;
-#endif
 
   typedef float Real_t;
-  typedef Vector3D<Real_v> ABBox_v;
+  using Float_v = vecgeom::VectorBackend::Float_v;
+
+  typedef Vector3D<Float_v> ABBox_v;
+  // scalar
+  typedef Vector3D<Precision> ABBox_s;
 
   // use old style arrays here as std::vector has some problems
   // with Vector3D<kVc::Double_t>
-  typedef ABBox_t *ABBoxContainer_t;
+  typedef ABBox_s *ABBoxContainer_t;
   typedef ABBox_v *ABBoxContainer_v;
 
   typedef std::pair<unsigned int, double> BoxIdDistancePair_t;
-  //typedef std::vector<BoxIdDistancePair_t> HitContainer_t;
 
   // build an abstraction of sort to sort vectors and lists portably
   template <typename C, typename Compare> static void sort(C &v, Compare cmp) { std::sort(v.begin(), v.end(), cmp); }
@@ -73,15 +57,11 @@ private:
   std::vector<ABBoxContainer_t> fVolToABBoxesMap;
   std::vector<ABBoxContainer_v> fVolToABBoxesMap_v;
 
-  // we have to make this thread safe
-  //HitContainer_t fAllocatedHitContainer;
-
-
 public:
 
   // computes the aligned bounding box for a certain placed volume
-  static void ComputeABBox(VPlacedVolume const *pvol, ABBox_t *lower, ABBox_t *upper);
-  static void ComputeSplittedABBox(VPlacedVolume const *pvol, std::vector<ABBox_t> &lower, std::vector<ABBox_t> &upper, int numOfSlices);
+  static void ComputeABBox(VPlacedVolume const *pvol, ABBox_s *lower, ABBox_s *upper);
+  static void ComputeSplittedABBox(VPlacedVolume const *pvol, std::vector<ABBox_s> &lower, std::vector<ABBox_s> &upper, int numOfSlices);
 
   static ABBoxManager &Instance() {
     static ABBoxManager instance;
@@ -123,12 +103,11 @@ public:
   // it does not exist
   ABBoxContainer_v GetABBoxes_v(LogicalVolume const *lvol, int &size) {
     int ndaughters = lvol->GetDaughtersp()->size();
-    int extra = (ndaughters % Real_vSize > 0) ? 1 : 0;
-    size = ndaughters / Real_vSize + extra;
+    int extra = (ndaughters % vecCore::VectorSize<Float_v>() > 0) ? 1 : 0;
+    size = ndaughters / vecCore::VectorSize<Float_v>() + extra;
     return fVolToABBoxesMap_v[lvol->id()];
   }
 
-  //HitContainer_t &GetAllocatedHitContainer() { return fAllocatedHitContainer; }
 };
 
 // output for hitboxes

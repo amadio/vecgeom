@@ -136,7 +136,7 @@ static void DaughterIntersectionsLooper(VNavigator const * /*nav*/, LogicalVolum
     // iterate over all daughters
     // using Real_v = typename Backend::Real_v;
     // using Bool_v = Real_v::Mask;
-    T step(out_steps + from_index);
+    T step(vecCore::FromPtr<T>(out_steps + from_index));
     const auto *daughters = lvol->GetDaughtersp();
     auto ndaughters = daughters->size();
     for (decltype(ndaughters) d = 0; d < ndaughters; ++d) {
@@ -152,16 +152,16 @@ static void DaughterIntersectionsLooper(VNavigator const * /*nav*/, LogicalVolum
 
       // if distance is negative; we are inside that daughter and should relocate
       // unless distance is minus infinity
-      typename T::Mask valid = (ddistance < step && !IsInf(ddistance));
+      auto valid = (ddistance < step && !IsInf(ddistance));
 
       // serial treatment of hit candidate until I find a better way
       // we might do this using a cast to a double vector with subsequent masked assignment
-      if (Any(valid)) {
-        for (unsigned int i = valid.firstOne(); i < ChunkSize; ++i) {
-          hitcandidates[i] = valid[i] ? daughter : hitcandidates[i];
+      if (! vecCore::MaskEmpty(valid)) {
+        for (unsigned int i = 0 /*valid.firstOne()*/; i < ChunkSize; ++i) {
+          hitcandidates[i] = vecCore::MaskLaneAt(valid,i) ? daughter : hitcandidates[i];
         }
 
-        step(valid) = ddistance; // or maskedAssign
+        vecCore::MaskedAssign(step, valid, ddistance);
                                  //  #ifdef CHECKCONTAINS
                                  //        } else {
                                  //          std::cerr << " INDA ";
@@ -172,7 +172,7 @@ static void DaughterIntersectionsLooper(VNavigator const * /*nav*/, LogicalVolum
                                  //  #endif
       }
     }
-    step.store(out_steps + from_index);
+    vecCore::Store(step, out_steps + from_index);
   }
 
 //  template <typename Backend>

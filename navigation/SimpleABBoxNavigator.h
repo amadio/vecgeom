@@ -11,14 +11,11 @@
 #include "VNavigator.h"
 #include "SimpleABBoxSafetyEstimator.h"
 #include "management/ABBoxManager.h"
-#ifdef VECGEOM_SCALAR
-#include "backend/scalarfloat/Backend.h"
-#endif
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-// A basic implementation of a navigator which is SIMD accelerated by using an flat aligned bounding box list
+// A basic implementation of a navigator which is SIMD accelerated by using a flat aligned bounding box list
 template <bool MotherIsConvex=false>
 class SimpleABBoxNavigator : public VNavigatorHelper<SimpleABBoxNavigator<MotherIsConvex>, MotherIsConvex> {
 
@@ -49,55 +46,37 @@ private:
 
   // vector version
 size_t GetHitCandidates_v(LogicalVolume const * /*lvol*/, Vector3D<Precision> const &point,
-                            Vector3D<Precision> const &dir, ABBoxManager::ABBoxContainer_v const &corners,
-                            size_t size, ABBoxManager::BoxIdDistancePair_t *hitlist) const {
+                          Vector3D<Precision> const &dir, ABBoxManager::ABBoxContainer_v const &corners,
+                          size_t size, ABBoxManager::BoxIdDistancePair_t *hitlist) const {
     size_t vecsize = size;
     size_t hitcount = 0;
-#ifdef VECGEOM_VC
     Vector3D<float> invdirfloat(1.f / (float)dir.x(), 1.f / (float)dir.y(), 1.f / (float)dir.z());
     Vector3D<float> pfloat((float)point.x(), (float)point.y(), (float)point.z());
     int sign[3];
     sign[0] = invdirfloat.x() < 0;
     sign[1] = invdirfloat.y() < 0;
     sign[2] = invdirfloat.z() < 0;
+    using Float_v = ABBoxManager::Float_v;
+    using Bool_v  = vecCore::Mask_v<Float_v>;
     for (size_t box = 0; box < vecsize; ++box) {
-      ABBoxManager::Real_v distance = BoxImplementation::IntersectCachedKernel2<ABBoxManager::Real_v, ABBoxManager::Real_t>(
+      Float_v distance = BoxImplementation::IntersectCachedKernel2<Float_v, float>(
           &corners[2 * box], pfloat, invdirfloat, sign[0], sign[1], sign[2], 0, static_cast<float>(vecgeom::kInfinity));
-      ABBoxManager::Bool_v hit = distance < static_cast<float>(vecgeom::kInfinity);
-      // this is Vc specific
-      // a little tricky: need to iterate over the mask -- this does not easily work with scalar types
-      if (Any(hit)) {
-        for (size_t i = hit.firstOne(); i < kVcFloat::precision_v::Size; ++i) {
-          if (hit[i]){
-            hitlist[hitcount]=(ABBoxManager::BoxIdDistancePair_t(box * kVcFloat::precision_v::Size + i, distance[i]));
+      Bool_v hit = distance < static_cast<float>(vecgeom::kInfinity);
+      if (!vecCore::MaskEmpty(hit)) {
+        constexpr auto kVS = vecCore::VectorSize<Float_v>();
+
+        // VecCore does not have firstOne() function; iterating from zero
+        // consider putting a firstOne into vecCore or in VecGeom
+        for (size_t i = 0; i < kVS; ++i) {
+          if (vecCore::MaskLaneAt(hit, i)){
+            hitlist[hitcount]=(ABBoxManager::BoxIdDistancePair_t(box * kVS + i, vecCore::LaneAt(distance, i)));
             hitcount++;
-      }}
+          }
+        }
       }
     }
     return hitcount;
-  #else
-    Vector3D<float> invdirfloat(1.f / (float)dir.x(), 1.f / (float)dir.y(), 1.f / (float)dir.z());
-    Vector3D<float> pfloat((float)point.x(), (float)point.y(), (float)point.z());
-
-    int sign[3];
-    sign[0] = invdirfloat.x() < 0;
-    sign[1] = invdirfloat.y() < 0;
-    sign[2] = invdirfloat.z() < 0;
-    for (size_t box = 0; box < vecsize; ++box) {
-      float distance =
-          BoxImplementation::IntersectCachedKernel2<float, float>(
-              &corners[2 * box], pfloat, invdirfloat, sign[0], sign[1], sign[2], 0,
-              static_cast<float>(vecgeom::kInfinity));
-      bool hit = distance < static_cast<float>(vecgeom::kInfinity);
-      if (hit){
-        hitlist[hitcount]=(ABBoxManager::BoxIdDistancePair_t(box, distance));
-        hitcount++;
-      }
-    }
-    return hitcount;
-  #endif
   }
-
 
 public:
   // we provide hit detection on the local level and reuse the generic implementations from

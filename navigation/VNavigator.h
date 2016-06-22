@@ -17,9 +17,6 @@
 #include "volumes/PlacedVolume.h"
 #include "volumes/LogicalVolume.h"
 #include "navigation/VSafetyEstimator.h"
-#ifdef VECGEOM_VC
-#include <Vc/Vc>
-#endif
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -104,7 +101,6 @@ public:
   // for vector navigation
   //! this methods transforms the global coordinates into local ones usually calls more specialized methods
   //! like the hit detection on local coordinates
-  VECGEOM_CUDA_HEADER_BOTH
   virtual void ComputeStepsAndSafetiesAndPropagatedStates(SOA3D<Precision> const & /*globalpoints*/,
                                                           SOA3D<Precision> const & /*globaldirs*/,
                                                           Precision const * /*(physics) step limits */,
@@ -211,7 +207,7 @@ protected:
     step = pvol->DistanceToOut(localpoint, localdir, step_limit);
     // NOTE: IF STEP IS NEGATIVE HERE, SOMETHING IS TERRIBLY WRONG. SET TO INFINITY SO THAT WE CAN BETTER HANDLE IT
     // LATER ON
-    MaskedAssign(step < T(0.), kInfinity, &step);
+    vecCore::MaskedAssign(step, step < T(0.), T(kInfinity));
     return step;
   }
 
@@ -247,13 +243,15 @@ protected:
     //         "not all states in same logical volume"); // the logical volume of all the states should be the same
       in_states[trackid]->TopMatrix(m);                // could benefit from interal vec
       auto tmp = m.Transform(globalpoints[trackid]);   // could benefit from internal vec
-      localpoint.x()[i] = tmp.x();
-      localpoint.y()[i] = tmp.y();
-      localpoint.z()[i] = tmp.z();
+
+      using vecCore::AssignLane;
+      AssignLane(localpoint.x(),i, tmp.x());
+      AssignLane(localpoint.y(),i, tmp.y());
+      AssignLane(localpoint.z(),i, tmp.z());
       tmp = m.TransformDirection(globaldirs[trackid]); // could benefit from internal vec
-      localdir.x()[i] = tmp.x();
-      localdir.y()[i] = tmp.y();
-      localdir.z()[i] = tmp.z();
+      AssignLane(localdir.x(),i, tmp.x());
+      AssignLane(localdir.y(),i, tmp.y());
+      AssignLane(localdir.z(),i, tmp.z());
     }
   }
 };
@@ -277,12 +275,15 @@ public:
                                           unsigned int from_index, Precision *out_steps,
                                           VPlacedVolume const *hitcandidates[ChunkSize]) {
     // dispatch to ordinary implementation ( which itself might be vectorized )
+    using vecCore::LaneAt;
     for (unsigned int i = 0; i < ChunkSize; ++i) {
       unsigned int trackid = from_index + i;
       ((Impl *)nav)
           ->Impl::CheckDaughterIntersections(
-              lvol, Vector3D<Precision>(localpoint.x()[i], localpoint.y()[i], localpoint.z()[i]),
-              Vector3D<Precision>(localdir.x()[i], localdir.y()[i], localdir.z()[i]), *in_states[trackid],
+              lvol,
+              Vector3D<Precision>(LaneAt(localpoint.x(),i), LaneAt(localpoint.y(),i), LaneAt(localpoint.z(),i)),
+              Vector3D<Precision>(LaneAt(localdir.x(),i), LaneAt(localdir.y(),i), LaneAt(localdir.z(),i)),
+              *in_states[trackid],
               *out_states[trackid], out_steps[trackid], hitcandidates[i]);
     }
   }
@@ -294,15 +295,17 @@ public:
     // dispatch to ordinary implementation ( which itself might be vectorized )
     // TODO: check calcsafeties if we need to do this at all
     using SafetyE_t = typename Impl::SafetyEstimator_t;
-    typename T::Mask m;
+    using Bool_v = vecCore::Mask_v<T>;
+    Bool_v m;
     for(unsigned int i=0;i<ChunkSize;++i){
-        m[i]=calcsafeties[from_index+i];
+      vecCore::AssignMaskLane(m, i, calcsafeties[from_index+1]);
     }
-    T safety(0);
-    if(Any(m)){
-       safety = ((SafetyE_t*) nav->GetSafetyEstimator())->ComputeSafetyForLocalPoint(localpoint, pvol,m);
+
+    T safety(0.);
+    if(! vecCore::MaskEmpty(m)){
+      safety = ((SafetyE_t*) nav->GetSafetyEstimator())->ComputeSafetyForLocalPoint(localpoint, pvol,m);
     }
-    safety.store(&out_safeties[from_index]);
+    vecCore::Store(safety, &out_safeties[from_index]);
   }
 
 //  template <>
@@ -399,7 +402,6 @@ public :
     }
 #endif
 
-#ifdef VECGEOM_VC
     // this kernel is a generic implementation to navigate with chunks of data
     // can be used also for the scalar imple
     template <typename T, unsigned int ChunkSize>
@@ -415,23 +417,24 @@ public :
       Vector3D<T> localpoint, localdir;
       Impl::template DoGlobalToLocalTransformations<T,ChunkSize>(in_states, globalpoints, globaldirs, from_index, localpoint, localdir, out_states);
 
-      T slimit(step_limits + from_index); // will only work with new ScalarWrapper
+      T slimit(vecCore::FromPtr<T>(step_limits + from_index));
       if (MotherIsConvex) {
-
+        vecCore::Store(slimit, out_steps + from_index);
         Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, out_states,
                                                                  from_index, out_steps, hitcandidates);
         // parse the hitcandidates pointer as double to apply a mask
-        T step(out_steps + from_index);
-        T hitcandidates_as_doubles((double *)hitcandidates);
-        auto cond = hitcandidates_as_doubles == 0.;
-        if (Any(cond)){
-          step(cond) = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
-          step.store(out_steps + from_index);
+        T step(vecCore::FromPtr<T>(out_steps + from_index));
+        auto nothitdaughter = step == T(kInfinity);
+        if (! vecCore::MaskEmpty(nothitdaughter)){
+          auto dout = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
+          vecCore::MaskedAssign(step, nothitdaughter, dout);
+          vecCore::Store(step, out_steps + from_index);
         }
+
       } else {
         // need to calc DistanceToOut first
         T step = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
-        step.store(out_steps + from_index);
+        vecCore::Store(step, out_steps + from_index);
 
         // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
         Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, out_states,
@@ -443,7 +446,8 @@ public :
         unsigned int trackid = from_index + i;
         bool done;
         out_steps[trackid] =
-            Impl::PrepareOutState(*in_states[trackid], *out_states[trackid], out_steps[trackid], slimit[i], hitcandidates[i], done);
+            Impl::PrepareOutState(*in_states[trackid], *out_states[trackid], out_steps[trackid],
+                                  vecCore::LaneAt(slimit,i), hitcandidates[i], done);
         if (done)
           continue;
         // step was physics limited
@@ -451,10 +455,11 @@ public :
           continue;
         // otherwise if necessary do a relocation
         // try relocation to refine out_state to correct location after the boundary
+        using vecCore::LaneAt;
         ((Impl *)nav)
             ->Impl::Relocate(
-                MovePointAfterBoundary(Vector3D<Precision>(localpoint.x()[i], localpoint.y()[i], localpoint.z()[i]),
-                                       Vector3D<Precision>(localdir.x()[i], localdir.y()[i], localdir.z()[i]),
+                MovePointAfterBoundary(Vector3D<Precision>(LaneAt(localpoint.x(),i), LaneAt(localpoint.y(),i), LaneAt(localpoint.z(),i)),
+                                       Vector3D<Precision>(LaneAt(localdir.x(),i), LaneAt(localdir.y(),i), LaneAt(localdir.z(),i)),
                                        out_steps[trackid]),
                 *in_states[trackid], *out_states[trackid]);
       }
@@ -484,35 +489,36 @@ public :
       // safety part
       Impl::template SafetyLooper<T, ChunkSize>(nav, pvol, localpoint, from_index, calcsafeties, out_safeties);
 
-      T slimit(step_limits + from_index); // will only work with new ScalarWrapper
+      T slimit(vecCore::FromPtr<T>(step_limits + from_index)); // will only work with new ScalarWrapper
       if (MotherIsConvex) {
-
+        vecCore::Store(slimit, out_steps + from_index);
         Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, out_states,
                                                                  from_index, out_steps, hitcandidates);
         // parse the hitcandidates pointer as double to apply a mask
-        T step(out_steps + from_index);
-        T hitcandidates_as_doubles((double *)hitcandidates);
-        auto cond = hitcandidates_as_doubles == 0.;
-        if (Any(cond)) {
-          step(cond) = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
-          step.store(out_steps + from_index);
+        T step(vecCore::FromPtr<T>(out_steps + from_index));
+        auto nothitdaughter = step == T(kInfinity);
+        if (! vecCore::MaskEmpty(nothitdaughter)) {
+          vecCore::MaskedAssign(step, nothitdaughter, Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit));
+          vecCore::Store(step, out_steps + from_index);
         }
       } else {
         // need to calc DistanceToOut first
         T step = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
-        step.store(out_steps + from_index);
+        vecCore::Store(step, out_steps + from_index);
 
         // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
         Impl::template DaughterIntersectionsLooper<T, ChunkSize>(nav, lvol, localpoint, localdir, in_states, out_states,
                                                                  from_index, out_steps, hitcandidates);
       }
 
+      using vecCore::LaneAt;
+
       // fix state ( seems to be serial so we iterate over indices )
       for (unsigned int i = 0; i < ChunkSize; ++i) {
         unsigned int trackid = from_index + i;
         bool done;
         out_steps[trackid] = Impl::PrepareOutState(*in_states[trackid], *out_states[trackid], out_steps[trackid],
-                                                   slimit[i], hitcandidates[i], done);
+                                                   LaneAt(slimit,i), hitcandidates[i], done);
         if (done)
           continue;
         // step was physics limited
@@ -522,8 +528,8 @@ public :
         // try relocation to refine out_state to correct location after the boundary
         ((Impl *)nav)
             ->Impl::Relocate(
-                MovePointAfterBoundary(Vector3D<Precision>(localpoint.x()[i], localpoint.y()[i], localpoint.z()[i]),
-                                       Vector3D<Precision>(localdir.x()[i], localdir.y()[i], localdir.z()[i]),
+                MovePointAfterBoundary(Vector3D<Precision>(LaneAt(localpoint.x(),i), LaneAt(localpoint.y(),i), LaneAt(localpoint.z(),i)),
+                                       Vector3D<Precision>(LaneAt(localdir.x(),i), LaneAt(localdir.y(),i), LaneAt(localdir.z(),i)),
                                        out_steps[trackid]),
                 *in_states[trackid], *out_states[trackid]);
       }
@@ -541,14 +547,15 @@ public :
 
       // process SIMD part and TAIL part
       // something like
-      using Real_v = Vc::double_v;
+      using Real_v = vecgeom::VectorBackend::Real_v;
       const auto size = globalpoints.size();
       auto pvol = in_states[0]->Top();
       auto lvol = pvol->GetLogicalVolume();
       // loop over all tracks in chunks
       int i = 0;
-      for (; i < (int)size - (int)(Real_v::Size - 1); i += Real_v::Size) {
-        NavigateAChunk<Real_v, Real_v::Size>(this, pvol, lvol, globalpoints, globaldirs, step_limit, in_states,
+      constexpr auto kVS = vecCore::VectorSize<Real_v>();
+      for (; i < (int)size - (int)(kVS - 1); i += kVS) {
+        NavigateAChunk<Real_v, kVS>(this, pvol, lvol, globalpoints, globaldirs, step_limit, in_states,
                                              out_states, out_steps, i);
       }
 
@@ -583,14 +590,15 @@ public :
 
          // process SIMD part and TAIL part
          // something like
-         using Real_v = Vc::double_v;
+         using Real_v = vecgeom::VectorBackend::Real_v;
          const auto size = globalpoints.size();
          auto pvol = in_states[0]->Top();
          auto lvol = pvol->GetLogicalVolume();
          // loop over all tracks in chunks
          int i = 0;
-         for (; i < (int)size - (int)(Real_v::Size - 1); i += Real_v::Size) {
-           NavigateAChunk<Real_v, Real_v::Size>(this, pvol, lvol, globalpoints, globaldirs, step_limit, in_states,
+         constexpr auto kVS = vecCore::VectorSize<Real_v>();
+         for (; i < (int)size - (int)(kVS - 1); i += kVS) {
+           NavigateAChunk<Real_v, kVS>(this, pvol, lvol, globalpoints, globaldirs, step_limit, in_states,
                                                 out_states, out_steps, calcsafeties, out_safeties, i);
          }
          // fall back to scalar interface for tail treatment
@@ -600,8 +608,9 @@ public :
                                                                     *in_states[i], *out_states[i], calcsafeties[i], out_safeties[i]);
          }
        }
-#else
 
+
+#ifdef TRIVIAL
     // another generic implementation for the vector interface
     // this implementation just loops over the scalar interface
     virtual void ComputeStepsAndPropagatedStates(SOA3D<Precision> const &__restrict__ globalpoints,

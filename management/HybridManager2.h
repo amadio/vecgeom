@@ -19,10 +19,6 @@
 #include "volumes/kernel/BoxImplementation.h"
 #include "base/AlignmentAllocator.h"
 
-#ifdef VECGEOM_VC
-#include "backend/vc/Backend.h"
-#endif
-
 #include <queue>
 #include <map>
 #include <vector>
@@ -36,28 +32,16 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class HybridManager2 {
 
 public:
-#ifdef VECGEOM_VC // just temporary typedef ---> will be removed with new backend structure
-  typedef Vc::float_v Real_v;
-  typedef Vc::float_m Bool_v;
-  constexpr static unsigned int Real_vSize = Real_v::Size;
-#elif defined(VECGEOM_UMESIMD)
-  typedef kUmeSimd::precision_v Real_v;
-  typedef kUmeSimd::bool_v      Bool_v;
-  constexpr static unsigned int Real_vSize = kVectorSize;
-#else
-  typedef float Real_v;
-  typedef bool Bool_v;
-  constexpr static unsigned int Real_vSize = 1;
-#endif
 
+  using Float_v = vecgeom::VectorBackend::Float_v;
   typedef float Real_t;
-  typedef Vector3D<Real_v> ABBox_v;
+  typedef Vector3D<Float_v> ABBox_v;
 
   // scalar or vector vectors
-  typedef Vector3D<Precision> ABBox_t;
+  typedef Vector3D<Precision> ABBox_s;
   // use old style arrays here as std::vector has some problems
   // with Vector3D<kVc::Double_t>
-  typedef ABBox_t *ABBoxContainer_t;
+  typedef ABBox_s *ABBoxContainer_t;
   typedef ABBox_v *ABBoxContainer_v;
 
   // first index is # daughter index, second is step
@@ -110,8 +94,9 @@ public:
 
   // returns half the number of nodes in vector, e.g. half the size of fVolumeToABBoxes[lvol->id()]
   ABBoxContainer_t GetABBoxes(LogicalVolume const *lvol, int &numberOfNodes) const {
+    constexpr auto kVS = vecCore::VectorSize<Float_v>();
     int numberOfFirstLevelNodes =
-        lvol->GetDaughters().size() / Real_vSize + (lvol->GetDaughters().size() % Real_vSize == 0 ? 0 : 1);
+        lvol->GetDaughters().size() / kVS + (lvol->GetDaughters().size() % kVS == 0 ? 0 : 1);
     numberOfNodes = numberOfFirstLevelNodes + lvol->GetDaughters().size();
     assert(fVolumeToABBoxes[lvol->id()]!=nullptr);
     return fVolumeToABBoxes[lvol->id()];
@@ -119,10 +104,11 @@ public:
 
   // returns half the number of vector registers to store all the nodes
   ABBoxContainer_v GetABBoxes_v(LogicalVolume const *lvol, int &size, int &numberOfNodes) const {
+    constexpr auto kVS = vecCore::VectorSize<Float_v>();
     int numberOfFirstLevelNodes =
-        lvol->GetDaughters().size() / Real_vSize + (lvol->GetDaughters().size() % Real_vSize == 0 ? 0 : 1);
+        lvol->GetDaughters().size() / kVS + (lvol->GetDaughters().size() % kVS == 0 ? 0 : 1);
     numberOfNodes = numberOfFirstLevelNodes + lvol->GetDaughters().size();
-    size = numberOfFirstLevelNodes / Real_vSize + (numberOfFirstLevelNodes % Real_vSize == 0 ? 0 : 1) +
+    size = numberOfFirstLevelNodes / kVS + (numberOfFirstLevelNodes % kVS == 0 ? 0 : 1) +
            numberOfFirstLevelNodes;
     assert(fVolumeToABBoxes[lvol->id()]!=nullptr);
     return fVolumeToABBoxes_v[lvol->id()];

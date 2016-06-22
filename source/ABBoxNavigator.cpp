@@ -9,13 +9,6 @@
 #include "navigation/ABBoxNavigator.h"
 #include "volumes/UnplacedBox.h"
 
-#ifdef VECGEOM_VC
-//#include "backend/vc/Backend.h"
-#include "backend/vcfloat/Backend.h"
-#else
-#include "backend/scalarfloat/Backend.h"
-#endif
-
 #include <exception>
 #include <stdexcept>
 
@@ -82,7 +75,6 @@ size_t ABBoxNavigator::GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Pr
                                        Vector3D<Precision> const &dir, ABBoxManager::ABBoxContainer_v const &corners,
                                        size_t size, ABBoxManager::BoxIdDistancePair_t *hitlist) const {
 
-#ifdef VECGEOM_VC
   Vector3D<float> invdirfloat(1.f / (float)dir.x(), 1.f / (float)dir.y(), 1.f / (float)dir.z());
   Vector3D<float> pfloat((float)point.x(), (float)point.y(), (float)point.z());
 
@@ -93,80 +85,49 @@ size_t ABBoxNavigator::GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Pr
   sign[1] = invdirfloat.y() < 0;
   sign[2] = invdirfloat.z() < 0;
   for (size_t box = 0; box < vecsize; ++box) {
-    ABBoxManager::Real_v distance = BoxImplementation::IntersectCachedKernel2(
+    ABBoxManager::Float_v distance = BoxImplementation::IntersectCachedKernel2(
         &corners[2 * box], pfloat, invdirfloat, sign[0], sign[1], sign[2], 0.f, static_cast<float>(vecgeom::kInfinity));
-    ABBoxManager::Bool_v hit = distance < static_cast<float>(vecgeom::kInfinity);
+    auto hit = distance < static_cast<float>(vecgeom::kInfinity);
     // this is Vc specific
     // a little tricky: need to iterate over the mask -- this does not easily work with scalar types
-    if (Any(hit)) {
-      for (size_t i = hit.firstOne(); i < kVcFloat::precision_v::Size; ++i) {
-        if (hit[i]){
-          hitlist[hitcount]=(ABBoxManager::BoxIdDistancePair_t(box * kVcFloat::precision_v::Size + i, distance[i]));
+    constexpr auto kVS = vecCore::VectorSize<ABBoxManager::Float_v>();
+    if (!vecCore::MaskEmpty(hit)) {
+      for (size_t i = 0 /*hit.firstOne()*/; i < kVS; ++i) {
+        if (vecCore::MaskLaneAt(hit,i)){
+          hitlist[hitcount]=(ABBoxManager::BoxIdDistancePair_t(box * kVS + i, vecCore::LaneAt(distance, i)));
           hitcount++;
-	}}
+        }
+      }
     }
   }
-#elif defined(VECGEOM_UMESIMD)
-  size_t hitcount;
-  throw std::runtime_error("unimplemented function called: ABBoxNavigator::GetHitCandidates_v() (UME::SIMD backend)");
-#else
-  Vector3D<float> invdirfloat(1.f / (float)dir.x(), 1.f / (float)dir.y(), 1.f / (float)dir.z());
-  Vector3D<float> pfloat((float)point.x(), (float)point.y(), (float)point.z());
-
-  size_t vecsize = size;
-  size_t hitcount = 0;
-  int sign[3];
-  sign[0] = invdirfloat.x() < 0;
-  sign[1] = invdirfloat.y() < 0;
-  sign[2] = invdirfloat.z() < 0;
-  for (size_t box = 0; box < vecsize; ++box) {
-    float distance =
-        BoxImplementation::IntersectCachedKernel2<float, float>(
-            &corners[2 * box], pfloat, invdirfloat, sign[0], sign[1], sign[2], 0,
-            static_cast<float>(vecgeom::kInfinity));
-    bool hit = distance < static_cast<float>(vecgeom::kInfinity);
-    if (hit){
-      hitlist[hitcount]=(ABBoxManager::BoxIdDistancePair_t(box, distance));
-      hitcount++;
-    }
-  }
-#endif
   return hitcount;
 }
 
 size_t ABBoxNavigator::GetSafetyCandidates_v(Vector3D<Precision> const &point, ABBoxManager::ABBoxContainer_v const &corners, size_t size,
                                          ABBoxManager::BoxIdDistancePair_t *boxsafetypairs, Precision upper_squared_limit) const {
     Vector3D<float> pointfloat((float)point.x(), (float)point.y(), (float)point.z());
-int candidatecount=0;
+    int candidatecount=0;
     size_t vecsize = size;
-#ifdef VECGEOM_VC
-    for( size_t box = 0; box < vecsize; ++box ){
-         ABBoxManager::Real_v safetytoboxsqr =  ABBoxImplementation::ABBoxSafetySqr<kVcFloat, ABBoxManager::Real_t>(
-                        corners[2*box], corners[2*box+1], pointfloat );
 
-         ABBoxManager::Bool_v hit = safetytoboxsqr < ABBoxManager::Real_t(upper_squared_limit);
-         if (Any(hit)) {
-           for (size_t i = 0; i < kVcFloat::precision_v::Size; ++i) {
-             if (hit[i]){
-               boxsafetypairs[candidatecount]=(ABBoxManager::BoxIdDistancePair_t(box * kVcFloat::precision_v::Size + i, safetytoboxsqr[i]));
-             candidatecount++;}
+    using vecCore::MaskLaneAt;
+    using vecCore::LaneAt;
+    for( size_t box = 0; box < vecsize; ++box ){
+         ABBoxManager::Float_v safetytoboxsqr = ABBoxImplementation::ABBoxSafetySqr(
+                        corners[2*box], corners[2*box+1], pointfloat);
+
+         auto hit = safetytoboxsqr < ABBoxManager::Real_t(upper_squared_limit);
+         if (!vecCore::MaskEmpty(hit)) {
+           constexpr auto kVS = vecCore::VectorSize<ABBoxManager::Float_v>();
+           for (size_t i = 0; i < kVS; ++i) {
+             if (MaskLaneAt(hit,i))
+             {
+               boxsafetypairs[candidatecount]=(ABBoxManager::BoxIdDistancePair_t(box * kVS + i, LaneAt(safetytoboxsqr, i)));
+               candidatecount++;
+             }
            }
          }
     }
-#elif defined(VECGEOM_UMESIMD)
-  throw std::runtime_error("unimplemented function called: ABBoxNavigator::GetHitCandidates_v() (UME::SIMD backend)");
-#else
-    for( size_t box = 0; box < vecsize; ++box ){
-         ABBoxManager::Real_v safetytoboxsqr =  ABBoxImplementation::ABBoxSafetySqr<kScalarFloat, float>(
-                        corners[2*box], corners[2*box+1], pointfloat );
-
-         bool hit = safetytoboxsqr < ABBoxManager::Real_t(upper_squared_limit);
-         if ( hit ){
-               boxsafetypairs[candidatecount]=(ABBoxManager::BoxIdDistancePair_t(box, safetytoboxsqr));
-        candidatecount++;}
-    }
-#endif
-  return candidatecount;
+    return candidatecount;
 }
 
 //#define VERBOSE

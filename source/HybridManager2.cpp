@@ -17,14 +17,6 @@
 #include <sstream>
 #include <queue>
 #include <set>
-#ifdef VECGEOM_VC
-#include "backend/vcfloat/Backend.h"
-#else
-#include "backend/scalarfloat/Backend.h"
-#endif
-
-#include <exception>
-#include <stdexcept>
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -51,14 +43,14 @@ void HybridManager2::InitStructure(LogicalVolume const *lvol) {
 }
 
 void HybridManager2::BuildStructure(LogicalVolume const * vol) {
-    int numberOfFirstLevelNodes    = vol->GetDaughters().size() / Real_vSize + (vol->GetDaughters().size() % Real_vSize == 0 ? 0 : 1);
+    int numberOfFirstLevelNodes    = vol->GetDaughters().size() / vecCore::VectorSize<Float_v>() + (vol->GetDaughters().size() % vecCore::VectorSize<Float_v>() == 0 ? 0 : 1);
     int numberOfNodes = numberOfFirstLevelNodes + vol->GetDaughters().size();
     std::vector<std::vector<int> > clusters(numberOfFirstLevelNodes);
     SOA3D<Precision> centers(numberOfFirstLevelNodes);
     SOA3D<Precision> allvolumecenters(vol->GetDaughters().size());
     InitClustersWithKMeans(vol, clusters, centers, allvolumecenters);
 
-    EqualizeClusters(clusters, centers, allvolumecenters,  Real_vSize);
+    EqualizeClusters(clusters, centers, allvolumecenters,  vecCore::VectorSize<Float_v>());
 
 
     fNodeToDaughters[vol->id()] = new std::vector<int>[numberOfFirstLevelNodes];
@@ -66,7 +58,7 @@ void HybridManager2::BuildStructure(LogicalVolume const * vol) {
     int nDaughters;
     ABBoxManager::ABBoxContainer_t daughterboxes = ABBoxManager::Instance().GetABBoxes(vol, nDaughters);
 
-    ABBoxContainer_t boxes = new ABBox_t[numberOfNodes * 2];
+    ABBoxContainer_t boxes = new ABBox_s[numberOfNodes * 2];
 
     // init internal nodes for unvectorized
 
@@ -87,12 +79,11 @@ void HybridManager2::BuildStructure(LogicalVolume const * vol) {
 
             fNodeToDaughters[vol->id()][i].push_back(daughterIndex);
         }
-        boxes[2 * i * (Real_vSize + 1)] = lowerCornerFirstLevelNode;
-        boxes[2 * i * (Real_vSize + 1) + 1] = upperCornerFirstLevelNode;
+        boxes[2 * i * (vecCore::VectorSize<Float_v>() + 1)] = lowerCornerFirstLevelNode;
+        boxes[2 * i * (vecCore::VectorSize<Float_v>() + 1) + 1] = upperCornerFirstLevelNode;
 
     }
     fVolumeToABBoxes[vol->id()] = boxes;
-
 }
 
 
@@ -101,11 +92,11 @@ void HybridManager2::BuildStructure(LogicalVolume const * vol) {
  * build bvh bruteforce AND vectorized
  */
 void HybridManager2::BuildStructure_v(LogicalVolume const * vol) {
-#ifndef VECGEOM_SCALAR
 	if (vol->GetDaughters().size() == 0) return;
-    size_t numberOfFirstLevelNodes    = vol->GetDaughters().size() / Real_vSize + (vol->GetDaughters().size() % Real_vSize == 0 ? 0 : 1);
+    constexpr auto kVS = vecCore::VectorSize<HybridManager2::Float_v>();
+    size_t numberOfFirstLevelNodes    = vol->GetDaughters().size() / kVS + (vol->GetDaughters().size() % kVS == 0 ? 0 : 1);
     size_t numberOfNodes = numberOfFirstLevelNodes  + vol->GetDaughters().size();
-    size_t vectorsize = numberOfFirstLevelNodes / Real_vSize + (numberOfFirstLevelNodes % Real_vSize == 0 ? 0 : 1) + numberOfFirstLevelNodes;
+    size_t vectorsize = numberOfFirstLevelNodes / kVS + (numberOfFirstLevelNodes % kVS == 0 ? 0 : 1) + numberOfFirstLevelNodes;
 
     std::vector<std::vector<int> > clusters(numberOfFirstLevelNodes);
     SOA3D<Precision> centers(numberOfFirstLevelNodes);
@@ -113,7 +104,7 @@ void HybridManager2::BuildStructure_v(LogicalVolume const * vol) {
 
     InitClustersWithKMeans(vol, clusters, centers, allvolumecenters);
 
-    //EqualizeClusters(clusters, centers, allvolumecenters, HybridManager2::Real_vSize);
+    //EqualizeClusters(clusters, centers, allvolumecenters, HybridManager2::vecCore::VectorSize<Float_v>());
 
     fNodeToDaughters[vol->id()] = new std::vector<int>[numberOfFirstLevelNodes];
     fNodeToDaughters_v[vol->id()] = new std::vector<int>[numberOfFirstLevelNodes];
@@ -122,7 +113,7 @@ void HybridManager2::BuildStructure_v(LogicalVolume const * vol) {
     // we are using the existing aligned bounding box list
     HybridManager2::ABBoxContainer_t daughterboxes= ABBoxManager::Instance().GetABBoxes(vol, nDaughters);
 
-    ABBoxContainer_t boxes = new ABBox_t[numberOfNodes * 2];
+    ABBoxContainer_t boxes = new ABBox_s[numberOfNodes * 2];
     ABBoxContainer_v boxes_v = new ABBox_v[vectorsize * 2];
 
     // init internal nodes for unvectorized
@@ -145,20 +136,20 @@ void HybridManager2::BuildStructure_v(LogicalVolume const * vol) {
             fNodeToDaughters[vol->id()][i].push_back(daughterIndex);
             fNodeToDaughters_v[vol->id()][i].push_back(daughterIndex);
         }
-        boxes[2 * i * (Real_vSize + 1)] = lowerCornerFirstLevelNode;
-        boxes[2 * i * (Real_vSize + 1) + 1] = upperCornerFirstLevelNode;
+        boxes[2 * i * (kVS + 1)] = lowerCornerFirstLevelNode;
+        boxes[2 * i * (kVS + 1) + 1] = upperCornerFirstLevelNode;
 
     }
     fVolumeToABBoxes[vol->id()] = boxes;
 
     // init boxes_v to -inf
     for (size_t i = 0; i < vectorsize * 2; i++ ) {
-        boxes_v[i] = HybridManager2::Real_v(-vecgeom::kInfinity);
+        boxes_v[i] = HybridManager2::Float_v(-vecgeom::kInfinity);
     }
 
     //init internal nodes for vectorized
     for (size_t i = 0; i < numberOfFirstLevelNodes; ++i) {
-        if (i % Real_vSize == 0) {
+        if (i % kVS == 0) {
             vectorindex_v += 2;
         }
         Vector3D<Precision> lowerCornerFirstLevelNode(kInfinity), upperCornerFirstLevelNode(-kInfinity);
@@ -166,12 +157,15 @@ void HybridManager2::BuildStructure_v(LogicalVolume const * vol) {
             int daughterIndex = clusters[i][d];
             Vector3D<Precision> lowerCorner = daughterboxes[2 * daughterIndex];
             Vector3D<Precision> upperCorner = daughterboxes[2 * daughterIndex + 1];
-            boxes_v[vectorindex_v].x()[d] = lowerCorner.x();
-            boxes_v[vectorindex_v].y()[d] = lowerCorner.y();
-            boxes_v[vectorindex_v].z()[d] = lowerCorner.z();
-            boxes_v[vectorindex_v + 1].x()[d] = upperCorner.x();
-            boxes_v[vectorindex_v + 1].y()[d] = upperCorner.y();
-            boxes_v[vectorindex_v + 1].z()[d] = upperCorner.z();
+
+            using vecCore::AssignLane;
+
+            AssignLane(boxes_v[vectorindex_v].x(), d, lowerCorner.x());
+            AssignLane(boxes_v[vectorindex_v].y(), d, lowerCorner.y());
+            AssignLane(boxes_v[vectorindex_v].z(), d, lowerCorner.z());
+            AssignLane(boxes_v[vectorindex_v + 1].x(), d, upperCorner.x());
+            AssignLane(boxes_v[vectorindex_v + 1].y(), d, upperCorner.y());
+            AssignLane(boxes_v[vectorindex_v + 1].z(), d, upperCorner.z());
             for (int axis = 0; axis < 3; axis++) {
                 lowerCornerFirstLevelNode[axis] = std::min(lowerCornerFirstLevelNode[axis], lowerCorner[axis]);
                 upperCornerFirstLevelNode[axis] = std::max(upperCornerFirstLevelNode[axis], upperCorner[axis]);
@@ -179,22 +173,19 @@ void HybridManager2::BuildStructure_v(LogicalVolume const * vol) {
         }
         vectorindex_v += 2;
         // insert internal node ABBOX in boxes_v
-        int indexForInternalNode = i / Real_vSize;
-        indexForInternalNode = 2 * (Real_vSize + 1) * indexForInternalNode;
-        int offsetForInternalNode = i % Real_vSize;
-        boxes_v[indexForInternalNode].x()[offsetForInternalNode] = lowerCornerFirstLevelNode.x();
-        boxes_v[indexForInternalNode].y()[offsetForInternalNode] = lowerCornerFirstLevelNode.y();
-        boxes_v[indexForInternalNode].z()[offsetForInternalNode] = lowerCornerFirstLevelNode.z();
-        boxes_v[indexForInternalNode + 1].x()[offsetForInternalNode] = upperCornerFirstLevelNode.x();
-        boxes_v[indexForInternalNode + 1].y()[offsetForInternalNode] = upperCornerFirstLevelNode.y();
-        boxes_v[indexForInternalNode + 1].z()[offsetForInternalNode] = upperCornerFirstLevelNode.z();
-
+        int indexForInternalNode = i / kVS;
+        indexForInternalNode = 2 * (kVS + 1) * indexForInternalNode;
+        int offsetForInternalNode = i % kVS;
+        using vecCore::AssignLane;
+        AssignLane(boxes_v[indexForInternalNode].x(), offsetForInternalNode, lowerCornerFirstLevelNode.x());
+        AssignLane(boxes_v[indexForInternalNode].y(), offsetForInternalNode, lowerCornerFirstLevelNode.y());
+        AssignLane(boxes_v[indexForInternalNode].z(), offsetForInternalNode, lowerCornerFirstLevelNode.z());
+        AssignLane(boxes_v[indexForInternalNode + 1].x(), offsetForInternalNode, upperCornerFirstLevelNode.x());
+        AssignLane(boxes_v[indexForInternalNode + 1].y(), offsetForInternalNode, upperCornerFirstLevelNode.y());
+        AssignLane(boxes_v[indexForInternalNode + 1].z(), offsetForInternalNode, upperCornerFirstLevelNode.z());
     }
 
     fVolumeToABBoxes_v[vol->id()] = boxes_v;
-#else
-	throw std::runtime_error("unimplemented function called: HybridManager2::BuildStructure_v()");
-#endif
 }
 
 

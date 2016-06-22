@@ -14,9 +14,6 @@
 #include "management/HybridManager2.h"
 #include "volumes/kernel/BoxImplementation.h"
 
-#include <exception>
-#include <stdexcept>
-
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -35,26 +32,26 @@ public:
   LevelLocate(LogicalVolume const * lvol,
               Vector3D<Precision> const & localpoint, VPlacedVolume const *&pvol,
               Vector3D<Precision> & transformedPoint) const override {
-#ifdef VECGEOM_VC
-	  int halfvectorsize, numberOfNodes;
+      int halfvectorsize, numberOfNodes;
       auto boxes_v = fAccelerationStructure.GetABBoxes_v(lvol, halfvectorsize, numberOfNodes);
       std::vector<int> * nodeToDaughters = fAccelerationStructure.GetNodeToDaughters(lvol);
-      auto simdsize = kVcFloat::precision_v::Size;
+      constexpr auto kVS = vecCore::VectorSize<HybridManager2::Float_v>();
 
       for (int index = 0, nodeindex = 0; index < halfvectorsize * 2;
-           index += 2 * (simdsize + 1), nodeindex += simdsize) {
-        HybridManager2::Bool_v inChildNodes;
-        ABBoxImplementation::ABBoxContainsKernel<kVcFloat>(boxes_v[index], boxes_v[index + 1], localpoint,
-                                                           inChildNodes);
-        if (Any(inChildNodes)) {
-          for (size_t i = inChildNodes.firstOne(); i < simdsize; ++i) {
-            if (inChildNodes[i]) {
-              HybridManager2::Bool_v inDaughterBox;
-              ABBoxImplementation::ABBoxContainsKernel<kVcFloat>(
+           index += 2 * (kVS + 1), nodeindex += kVS) {
+        using Bool_v = vecCore::Mask_v<HybridManager2::Float_v>;
+        Bool_v inChildNodes;
+        ABBoxImplementation::ABBoxContainsKernel(boxes_v[index], boxes_v[index + 1], localpoint,
+                                                 inChildNodes);
+        if (! vecCore::MaskEmpty(inChildNodes)) {
+          for (size_t i = 0 /*inChildNodes.firstOne()*/; i < kVS; ++i) {
+            if (vecCore::MaskLaneAt(inChildNodes, i)) {
+              Bool_v inDaughterBox;
+              ABBoxImplementation::ABBoxContainsKernel(
                   boxes_v[index + 2 * i + 2], boxes_v[index + 2 * i + 3], localpoint, inDaughterBox);
-              if (Any(inDaughterBox)) {
-                for (size_t j = inDaughterBox.firstOne(); j < simdsize; ++j) { // leaf node
-                  if (inDaughterBox[j] &&
+              if (! vecCore::MaskEmpty(inDaughterBox)) {
+                for (size_t j = 0 /*inDaughterBox.firstOne()*/; j < kVS; ++j) { // leaf node
+                  if (vecCore::MaskLaneAt(inDaughterBox, j) &&
                       lvol->GetDaughters()[nodeToDaughters[nodeindex + i][j]]->Contains(localpoint, transformedPoint)) {
                     pvol = lvol->GetDaughters()[nodeToDaughters[nodeindex + i][j]];
                     return true;
@@ -66,32 +63,30 @@ public:
         }
       }
       return false;
-#else
-    throw std::runtime_error("unimplemented function called: HybridLevelLocator::LevelLocate()");
-#endif
   }
 
   virtual bool LevelLocateExclVol(LogicalVolume const *lvol, VPlacedVolume const *exclvol,
                                   Vector3D<Precision> const &localpoint, VPlacedVolume const *&pvol,
                                   Vector3D<Precision> &transformedPoint) const override {
-#ifdef VECGEOM_VC
-	  int halfvectorsize, numberOfNodes;
+    int halfvectorsize, numberOfNodes;
     auto boxes_v = fAccelerationStructure.GetABBoxes_v(lvol, halfvectorsize, numberOfNodes);
     std::vector<int> *nodeToDaughters = fAccelerationStructure.GetNodeToDaughters(lvol);
-    auto simdsize = kVcFloat::precision_v::Size;
+    constexpr auto kVS = vecCore::VectorSize<HybridManager2::Float_v>();
 
-    for (int index = 0, nodeindex = 0; index < halfvectorsize * 2; index += 2 * (simdsize + 1), nodeindex += simdsize) {
-      HybridManager2::Bool_v inChildNodes;
-      ABBoxImplementation::ABBoxContainsKernel<kVcFloat>(boxes_v[index], boxes_v[index + 1], localpoint, inChildNodes);
-      if (Any(inChildNodes)) {
-        for (size_t i = inChildNodes.firstOne(); i < simdsize; ++i) {
-          if (inChildNodes[i]) {
-            HybridManager2::Bool_v inDaughterBox;
-            ABBoxImplementation::ABBoxContainsKernel<kVcFloat>(boxes_v[index + 2 * i + 2], boxes_v[index + 2 * i + 3],
-                                                               localpoint, inDaughterBox);
-            if (Any(inDaughterBox)) {
-              for (size_t j = inDaughterBox.firstOne(); j < simdsize; ++j) { // leaf node
-                if (inDaughterBox[j]) {
+    for (int index = 0, nodeindex = 0; index < halfvectorsize * 2; index += 2 * (kVS + 1), nodeindex += kVS) {
+      using Bool_v = vecCore::Mask_v<HybridManager2::Float_v>;
+      Bool_v inChildNodes;
+
+      ABBoxImplementation::ABBoxContainsKernel(boxes_v[index], boxes_v[index + 1], localpoint, inChildNodes);
+      if (! vecCore::MaskEmpty(inChildNodes)) {
+        for (size_t i = 0 /*inChildNodes.firstOne()*/; i < kVS; ++i) {
+          if (vecCore::MaskLaneAt(inChildNodes, i)) {
+            Bool_v inDaughterBox;
+            ABBoxImplementation::ABBoxContainsKernel(boxes_v[index + 2 * i + 2], boxes_v[index + 2 * i + 3],
+                                                     localpoint, inDaughterBox);
+            if (! vecCore::MaskEmpty(inDaughterBox)) {
+              for (size_t j = 0 /*inDaughterBox.firstOne()*/; j < kVS; ++j) { // leaf node
+                if (vecCore::MaskLaneAt(inDaughterBox, j)) {
                   auto daughter = lvol->GetDaughters()[nodeToDaughters[nodeindex + i][j]];
                   if (daughter == exclvol)
                     continue;
@@ -107,9 +102,6 @@ public:
       }
     }
     return false;
-#else
-    throw std::runtime_error("unimplemented function called: HybridLevelLocator::LevelLocateExclVol()");
-#endif
   }
 
   static std::string GetClassName() { return "HybridLevelLocator"; }

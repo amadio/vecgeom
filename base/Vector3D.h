@@ -295,9 +295,9 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Vector3D<Type> Abs() const {
-    return Vector3D<Type>(vecgeom::Abs(vec[0]),
-                          vecgeom::Abs(vec[1]),
-                          vecgeom::Abs(vec[2]));
+    return Vector3D<Type>(vecCore::math::Abs(vec[0]),
+                          vecCore::math::Abs(vec[1]),
+                          vecCore::math::Abs(vec[2]));
   }
 
   template <typename BoolType>
@@ -345,7 +345,7 @@ public:
   VECGEOM_INLINE
   VecType& FixZeroes() {
     for (int i = 0; i < 3; ++i) {
-      vecgeom::MaskedAssign(vecgeom::Abs(vec[i]) < kTolerance, 0., &vec[i]);
+      vecgeom::MaskedAssign(vecCore::math::Abs(vec[i]) < kTolerance, 0., &vec[i]);
     }
     return *this;
   }
@@ -404,9 +404,9 @@ VECGEOM_INLINE \
 VECGEOM_CUDA_HEADER_BOTH \
 Vector3D<Type> operator OPERATOR(const Vector3D<Type> &lhs, \
                                  const Vector3D<OtherType> &rhs) { \
-  Vector3D<Type> result(lhs); \
-  result INPLACE rhs; \
-  return result; \
+              Vector3D<Type> result(lhs); \
+              result INPLACE rhs; \
+              return result; \
 } \
 template <typename Type, typename ScalarType> \
 VECGEOM_INLINE \
@@ -431,6 +431,8 @@ VECTOR3D_BINARY_OP(-, -=)
 VECTOR3D_BINARY_OP(*, *=)
 VECTOR3D_BINARY_OP(/, /=)
 #undef VECTOR3D_BINARY_OP
+
+
 
 VECGEOM_INLINE
 VECGEOM_CUDA_HEADER_BOTH

@@ -590,24 +590,22 @@ struct ABBoxImplementation {
   // scalar and vector modes (aka backend) for boxes but only single points
   // should be useful to test one point against many bounding boxes
   // TODO: check if this can be unified with the normal generic box kernel
-  // this might be possible with 2 backend template parameters
-  template <class Backend>
+  template <typename Real_v, typename Bool_v = typename vecCore::Mask_v<Real_v>>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   static void ABBoxContainsKernel(
-        Vector3D<typename Backend::precision_v> const &lowercorner,
-        Vector3D<typename Backend::precision_v> const &uppercorner,
+        Vector3D<Real_v> const &lowercorner,
+        Vector3D<Real_v> const &uppercorner,
         Vector3D<Precision> const &point,
-        typename Backend::bool_v &inside) {
+        Bool_v &inside) {
 
-        typedef typename Backend::precision_v Real_v;
         inside =  lowercorner.x() < Real_v(point.x());
         inside &= uppercorner.x() > Real_v(point.x());
-        if( IsEmpty(inside) ) return;
+        if( vecCore::MaskEmpty(inside) ) return;
 
         inside &= lowercorner.y() < Real_v(point.y());
         inside &= uppercorner.y() > Real_v(point.y());
-        if( IsEmpty(inside) ) return;
+        if( vecCore::MaskEmpty(inside) ) return;
 
         inside &= lowercorner.z() < Real_v(point.z());
         inside &= uppercorner.z() > Real_v(point.z());
@@ -618,29 +616,28 @@ struct ABBoxImplementation {
     // generic kernel treating one track and one or multiple boxes
     // in case a point is inside a box a squared value
     // is returned but given an overall negative sign
-    // NOTE: Real_t is the basic floating point pod used in Backend --> in future this is encoded in the Backend itself
-    template <class Backend, typename Real_t>
+    template <typename Real_v, typename Real_s = typename vecCore::TypeTraits<Real_v>::ScalarType>
     VECGEOM_CUDA_HEADER_BOTH
     VECGEOM_INLINE
-    static typename Backend::precision_v ABBoxSafetySqr(
-          Vector3D<typename Backend::precision_v> const &lowercorner,
-          Vector3D<typename Backend::precision_v> const &uppercorner,
-          Vector3D<Real_t> const &point) {
+    static Real_v ABBoxSafetySqr(
+          Vector3D<Real_v> const &lowercorner,
+          Vector3D<Real_v> const &uppercorner,
+          Vector3D<Real_s> const &point) {
 
-      typedef Vector3D<typename Backend::precision_v> Vector3D_v;
-      typedef typename Backend::bool_v Bool_v;
-      typedef typename Backend::precision_v Real_v;
+      using Vector3D_v = Vector3D<Real_v>;
+      using Bool_v = vecCore::Mask_v<Real_v>;
 
-      Vector3D_v origin = (uppercorner + lowercorner)*Real_t(0.5);
-      Vector3D_v delta = (uppercorner - lowercorner)*Real_t(0.5);
+      const Vector3D_v kHalf(Real_v(static_cast<Real_s>(0.5)));
+      const Vector3D_v origin((uppercorner + lowercorner)*kHalf);
+      const Vector3D_v delta((uppercorner - lowercorner)*kHalf);
       // promote scalar point to vector point
       Vector3D_v promotedpoint( Real_v(point.x()), Real_v(point.y()), Real_v(point.z()) );
 
       // it would be nicer to have a standalone Abs function taking Vector3D as input
       Vector3D_v safety = ((promotedpoint - origin).Abs()) - delta;
-      Bool_v outsidex = safety.x() > Real_t(0.);
-      Bool_v outsidey = safety.y() > Real_t(0.);
-      Bool_v outsidez = safety.z() > Real_t(0.);
+      Bool_v outsidex = safety.x() > Real_s(0.);
+      Bool_v outsidey = safety.y() > Real_s(0.);
+      Bool_v outsidez = safety.z() > Real_s(0.);
 
       Real_v runningsafetysqr(0.); // safety squared from outside
       Real_v runningmax(-vecgeom::kInfinity); // relevant for safety when we are inside
@@ -650,33 +647,32 @@ struct ABBoxImplementation {
       {
         // this will be much simplified with operator notation
         Real_v tmp(0.);
-        MaskedAssign(outsidex, safety.x() * safety.x(), &tmp);
+        vecCore::MaskedAssign(tmp, outsidex, safety.x() * safety.x());
         runningsafetysqr += tmp;
-        runningmax = Max(runningmax, safety.x());
+        runningmax = vecCore::math::Max(runningmax, safety.x());
       }
 
       // treat y dim
       {
         Real_v tmp(0.);
-        MaskedAssign(outsidey, safety.y() * safety.y(), &tmp);
+        vecCore::MaskedAssign(tmp, outsidey, safety.y() * safety.y());
         runningsafetysqr += tmp;
-        runningmax = Max(runningmax, safety.y());
+        runningmax = vecCore::math::Max(runningmax, safety.y());
       }
 
       // treat z dim
       {
         Real_v tmp(0.);
-        MaskedAssign(outsidez, safety.z() * safety.z(), &tmp);
+        vecCore::MaskedAssign(tmp, outsidez, safety.z() * safety.z());
         runningsafetysqr += tmp;
-        runningmax = Max(runningmax, safety.z());
+        runningmax = vecCore::math::Max(runningmax, safety.z());
       }
 
       Bool_v inside = !(outsidex || outsidey || outsidez);
-      if (Any(inside))
-        MaskedAssign(inside, -runningmax * runningmax, &runningsafetysqr);
+      if (! vecCore::MaskEmpty(inside))
+        vecCore::MaskedAssign(runningsafetysqr, inside, -runningmax * runningmax);
       return runningsafetysqr;
     }
-
 
   }; // end aligned bounding box struct
 
