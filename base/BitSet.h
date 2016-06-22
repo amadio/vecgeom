@@ -564,6 +564,8 @@ namespace veccore{
       {
          // Return number of bits set to 1 starting at bit startBit
 
+         // Keep array initiation hand-formatted
+         // clang-format off
          static const unsigned char nbits[256] = {
             0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4,
             1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,
@@ -581,6 +583,7 @@ namespace veccore{
             3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,
             3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,
             4,5,5,6,5,6,6,7,5,6,6,7,6,7,7,8};
+         // clang-format on
 
          size_t i,count = 0;
          if (startBit == 0) {
@@ -608,6 +611,8 @@ namespace veccore{
       {
          // Return position of first null bit (starting from position 0 and up)
 
+         // Keep array initiation hand-formatted
+         // clang-format off
          static const unsigned char fbits[256] = {
              0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,
              0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,
@@ -625,6 +630,7 @@ namespace veccore{
              0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,
              0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,
              0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,8};
+         // clang-format on
 
          size_t i;
          if (startBit == 0) {
@@ -653,8 +659,10 @@ namespace veccore{
       {
          // Return position of first non null bit (starting from position 0 and up)
 
+         // Keep array initiation hand-formatted
+         // clang-format off
          #ifdef VECGEOM_NVCC_DEVICE
-                const char fbits[256] =
+         const char fbits[256] =
          #else
          static const char fbits[256] =
          #endif
@@ -675,6 +683,7 @@ namespace veccore{
              4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
              5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
              4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0};
+         // clang-format on
 
          size_t i;
          if (startBit == 0) {
@@ -702,6 +711,8 @@ namespace veccore{
       {
          // Return position of first null bit (starting from position startBit and down)
 
+         // Keep array initiation hand-formatted
+         // clang-format off
          static const unsigned char fbits[256] = {
             7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
             7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
@@ -719,6 +730,7 @@ namespace veccore{
             5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
             4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
             3,3,3,3,3,3,3,3,2,2,2,2,1,1,0,8};
+         // clang-format on
 
          size_t i;
          if (startBit>=fNbits) startBit = fNbits-1;
@@ -740,6 +752,8 @@ namespace veccore{
       {
          // Return position of first non null bit (starting from position fNbits and down)
 
+         // Keep array initiation hand-formatted
+         // clang-format off
          static const char fbits[256] = {
              8,0,1,1,2,2,2,2,3,3,3,3,3,3,3,3,
              4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
@@ -757,6 +771,7 @@ namespace veccore{
              7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
              7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
              7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7};
+         // clang-format on
 
          size_t i;
          if (startBit>=fNbits) startBit = fNbits-1;
