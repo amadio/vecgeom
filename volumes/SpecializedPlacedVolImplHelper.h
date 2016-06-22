@@ -191,35 +191,10 @@ return output;
     return output;
   }
 
-
-
-  virtual VECGEOM_BACKEND_PRECISION_TYPE
-  DistanceToInVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
-               Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
-               const VECGEOM_BACKEND_PRECISION_TYPE step_max = kInfinity) const override {
-    (void)position;
-    (void)direction;
-    (void)step_max;
-    return -1.;
-  }
-  virtual VECGEOM_BACKEND_PRECISION_TYPE
-  DistanceToOutVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
-                Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
-                VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfinity) const override {
-    (void)position;
-    (void)direction;
-    (void)step_max;
-    return -1.;
-  }
   virtual VECGEOM_BACKEND_PRECISION_TYPE
   SafetyToInVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override {
-    (void)position;
-    return -1.;
-  }
-  virtual VECGEOM_BACKEND_PRECISION_TYPE
-  SafetyToOutVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override {
-    (void)position;
-    return -1.;
+    Transformation3D const *tr = this->GetTransformation();
+    return this->GetUnplacedVolume()->UnplacedVolume_t::SafetyToInVec(tr->Transform<transC,rotC>(position));
   }
 
 }; // End class CommonSpecializedVolImplHelper
@@ -308,6 +283,7 @@ static void SafetyToInLoopKernel(
     using CommonHelper_t::Inside;
     using CommonHelper_t::CommonHelper_t;
 
+
     VECGEOM_CUDA_HEADER_BOTH
     virtual ~SIMDSpecializedVolImplHelper() {}
 
@@ -342,6 +318,21 @@ static void SafetyToInLoopKernel(
       // tail treatment
       DistanceToInLoopKernel<Specialization, ScalarBackend::Real_v, transC, rotC>(
           *shape, *transf, offset, points.size(), points, directions, stepMax, output);
+    }
+
+    using UnplacedVolume_t = typename Specialization::UnplacedVolume_t;
+
+    // the explicit SIMD interface
+    virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToInVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &p,
+                                                           Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &d,
+                                   VECGEOM_BACKEND_PRECISION_TYPE const step_max) const override {
+      VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
+      Transformation3D const *tr = this->GetTransformation();
+      auto unplacedstruct = this->GetUnplacedStruct();
+      Specialization::template DistanceToIn<VECGEOM_BACKEND_PRECISION_TYPE>(*unplacedstruct,
+                                                    tr->Transform<transC,rotC>(p), tr->TransformDirection<rotC>(d),
+                                                    step_max, output);
+      return output;
     }
 
     virtual void DistanceToInMinimize(SOA3D<Precision> const &/* points */, SOA3D<Precision> const &/* directions */,

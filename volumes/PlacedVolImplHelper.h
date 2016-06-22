@@ -86,6 +86,13 @@ public:
     return GetUnplacedVolume()->UnplacedShape_t::DistanceToOut(point, direction, stepMax);
   }
 
+  virtual VECGEOM_BACKEND_PRECISION_TYPE
+  DistanceToOutVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
+                   Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
+                   VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfinity) const override {
+    return GetUnplacedVolume()->UnplacedShape_t::DistanceToOutVec(position, direction, step_max);
+  }
+
 #ifdef VECGEOM_USOLIDS
   /*
    * WARNING: Trivial implementation for standard USolids interface
@@ -108,6 +115,11 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision SafetyToOut(Vector3D<Precision> const &point) const override {
     return GetUnplacedVolume()->UnplacedShape_t::SafetyToOut(point);
+  }
+
+  virtual VECGEOM_BACKEND_PRECISION_TYPE
+  SafetyToOutVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override {
+    return GetUnplacedVolume()->UnplacedShape_t::SafetyToOutVec(position);
   }
 
   virtual void DistanceToOut(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
