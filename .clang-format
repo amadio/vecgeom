@@ -4,7 +4,9 @@ Language:        Cpp
 AccessModifierOffset: -2
 AlignAfterOpenBracket: true
 AlignConsecutiveAssignments: true
-AlignEscapedNewlinesLeft: false
+# This would be nice to have but seems to also (mis)align function parameters
+AlignConsecutiveDeclarations: false
+AlignEscapedNewlinesLeft: true
 AlignOperands:   true
 AlignTrailingComments: true
 AllowAllParametersOfDeclarationOnNextLine: true
