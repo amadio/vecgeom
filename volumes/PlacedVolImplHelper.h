@@ -2,7 +2,6 @@
 
 #include "base/Global.h"
 #include "base/SOA3D.h"
-#include "volumes/PlacedBox.h"
 #include "volumes/PlacedVolume.h"
 
 #include <algorithm>
