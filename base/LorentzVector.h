@@ -198,9 +198,9 @@ public:
     return Sqrt(Perp2());
   }
 
-  template <typename U>
-  ///The dot product of two LorentzVector<T> objects
+  /// The dot product of two LorentzVector<T> objects
   /// \return T (where T is float, double, or various SIMD vector types)
+  template <typename U>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   static
@@ -208,9 +208,9 @@ public:
      return - left[0]*right[0] - left[1]*right[1] - left[2]*right[2] + left[3]*right[3];
   }
 
-  template <typename U>
   /// The dot product of two LorentzVector<T> objects
   /// \return T (where T is float, double, or various SIMD vector types)
+  template <typename U>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   T Dot(LorentzVector<U> const &right) const {

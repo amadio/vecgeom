@@ -165,9 +165,9 @@ public:
     return Sqrt(Perp2());
   }
 
-  template <typename Type2>
-  ///The dot product of two Vector3D<T> objects
+  /// The dot product of two Vector3D<T> objects
   /// \return T (where T is float, double, or various SIMD vector types)
+  template <typename Type2>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   static
@@ -175,9 +175,9 @@ public:
     return left[0]*right[0] + left[1]*right[1] + left[2]*right[2];
   }
 
-  template <typename Type2>
   /// The dot product of two Vector3D<T> objects
   /// \return T (where T is float, double, or various SIMD vector types)
+  template <typename Type2>
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   Type Dot(Vector3D<Type2> const &right) const {
