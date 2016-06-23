@@ -88,20 +88,23 @@ private:
   void DumpEntryFunction();
 
   void ScanGeometry(VPlacedVolume const *const volume, std::list<LogicalVolume const *> &,
-		    std::list<LogicalVolume const *> &boollvlist, std::list<Transformation3D const *> &,
-		    std::list<Medium const *> &, std::list<Material const *> &);
+                    std::list<LogicalVolume const *> &boollvlist, std::list<Transformation3D const *> &,
+                    std::list<Medium const *> &, std::list<Material const *> &);
 
   // private Constructor
   GeomCppExporter()
       : fTrafoToStringMap(), fLVolumeToStringMap(), fNeededHeaderFiles(), fListofTreatedLogicalVolumes(),
-        fListofDeferredLogicalVolumes() {}
+        fListofDeferredLogicalVolumes()
+  {
+  }
 
 public:
-  static GeomCppExporter &Instance() {
+  static GeomCppExporter &Instance()
+  {
     static GeomCppExporter instance;
     return instance;
   }
-  const char* ClassName() const {return "GeomCppExporter";}
+  const char *ClassName() const { return "GeomCppExporter"; }
 
   void DumpGeometry(std::ostream &);
 };

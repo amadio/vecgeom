@@ -13,7 +13,8 @@
 #define PI 3.14159265358979323846
 typedef vecgeom::SimpleSphere Sphere_t;
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 
   // VUSolid* sphere=new USphere("test_sphere",15. , 20. , 0 ,2*PI/3, 2*PI/3 ,PI/6);
   // VUSolid* sphere=new Sphere_t("test_sphere",15. , 20. ,PI/6, 4.265389, PI/3 ,0.235869);

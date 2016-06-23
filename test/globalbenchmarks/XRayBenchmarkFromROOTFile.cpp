@@ -62,7 +62,7 @@
 
 #undef NDEBUG
 
-#define VERBOSE false // true or false
+#define VERBOSE false                     // true or false
 #define WRITE_FILE_NAME "volumeImage.bmp" // output image name
 
 using namespace vecgeom;
@@ -119,11 +119,12 @@ VolumeTracksMap_t gVolumeTrackForLevelLocate;
 
 //#define LOGDATA
 
-void AddTrack(LogicalVolume const *lvol, Vec3_t p, Vec3_t d, NavigationState const *state) {
+void AddTrack(LogicalVolume const *lvol, Vec3_t p, Vec3_t d, NavigationState const *state)
+{
   NavigationState *newstate = NavigationState::MakeCopy(*state);
   if (gVolumeTrackMap.find(lvol) == gVolumeTrackMap.end()) {
     std::vector<TrackAndState_t> *v = new std::vector<TrackAndState_t>();
-    gVolumeTrackMap[lvol] = v;
+    gVolumeTrackMap[lvol]           = v;
     v->push_back(TrackAndState_t(PointAndDir_t(p, d), newstate));
   } else {
     auto &v = gVolumeTrackMap[lvol];
@@ -131,18 +132,20 @@ void AddTrack(LogicalVolume const *lvol, Vec3_t p, Vec3_t d, NavigationState con
   }
 }
 
-void PrintTracks() {
+void PrintTracks()
+{
   for (auto &key : gVolumeTrackMap) {
     std::cerr << key.first->GetName() << " " << key.second->size() << "\n";
   }
 }
 
 void BenchNavigationUsingLoggedTracks(LogicalVolume const *lvol, std::vector<VNavigator const *> const &navs,
-                                      std::vector<TrackAndState_t> const &tracks) {
+                                      std::vector<TrackAndState_t> const &tracks)
+{
   NavigationState *newstate = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
   std::cerr << "lvol " << lvol->GetName() << " CURRENT NAV " << lvol->GetNavigator()->GetName() << "\n";
-  int i = 1000;
-  int j = 0;
+  int i        = 1000;
+  int j        = 0;
   double bestT = vecgeom::kInfinity;
 
   for (auto &nav : navs) {
@@ -159,7 +162,7 @@ void BenchNavigationUsingLoggedTracks(LogicalVolume const *lvol, std::vector<VNa
     double T = timer.Elapsed();
     if (T < bestT) {
       bestT = T;
-      i = j;
+      i     = j;
     }
     std::cerr << "lvol " << lvol->GetName() << " NAV " << nav->GetName() << " " << T << " " << i << "\n";
     j++;
@@ -168,7 +171,8 @@ void BenchNavigationUsingLoggedTracks(LogicalVolume const *lvol, std::vector<VNa
   const_cast<LogicalVolume *>(lvol)->SetNavigator(navs[i]);
 }
 
-void BenchTracks() {
+void BenchTracks()
+{
 
   for (auto &key : gVolumeTrackMap) {
     std::vector<VNavigator const *> navs = {NewSimpleNavigator<>::Instance(), SimpleABBoxNavigator<>::Instance()};
@@ -178,7 +182,8 @@ void BenchTracks() {
   }
 }
 
-void InitNavigators() {
+void InitNavigators()
+{
   for (auto &lvol : GeoManager::Instance().GetLogicalVolumesMap()) {
     if (lvol.second->GetDaughtersp()->size() < 4) {
       lvol.second->SetNavigator(NewSimpleNavigator<>::Instance());
@@ -194,9 +199,10 @@ void InitNavigators() {
   }
 }
 
-__attribute__((noinline)) void DeleteROOTVoxels() {
+__attribute__((noinline)) void DeleteROOTVoxels()
+{
   std::cout << " IN DELETE VOXEL METHOD \n";
-  int counter = 0;
+  int counter       = 0;
   TObjArray *volist = gGeoManager->GetListOfVolumes();
 
   std::cout << " entries " << volist->GetEntries() << "\n";
@@ -214,7 +220,8 @@ __attribute__((noinline)) void DeleteROOTVoxels() {
 
 void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox, Vector3D<Precision> dir,
                   double axis1_start, double axis1_end, double axis2_start, double axis2_end, int data_size_x,
-                  int data_size_y, double pixel_axis, int *image) {
+                  int data_size_y, double pixel_axis, int *image)
+{
 
   if (VERBOSE) {
     std::cout << "from [" << axis1_start << ";" << axis2_start << "] to [" << axis1_end << ";" << axis2_end << "]\n";
@@ -253,8 +260,8 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
       nav->SetCurrentPoint(p.x(), p.y(), p.z());
       nav->SetCurrentDirection(dir.x(), dir.y(), dir.z());
 
-      double distancetravelled = 0.;
-      int crossedvolumecount = 0;
+      double distancetravelled  = 0.;
+      int crossedvolumecount    = 0;
       double accumulateddensity = 0.;
 
       if (VERBOSE) {
@@ -263,7 +270,7 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
       }
 
       // propagate until we leave detector
-      TGeoNode const *node = nav->FindNode();
+      TGeoNode const *node       = nav->FindNode();
       TGeoMaterial const *curmat = node->GetVolume()->GetMaterial();
 
       //  std::cout << pixel_count_1 << " " << pixel_count_2 << " " << dir << "\t" << p << "\t";
@@ -282,13 +289,12 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
 
           std::cout << " step[" << nav->GetStep() << "]" << std::endl;
           double const *pROOT = nav->GetCurrentPoint();
-          p = Vector3D<Precision>(pROOT[0], pROOT[1], pROOT[2]);
+          p                   = Vector3D<Precision>(pROOT[0], pROOT[1], pROOT[2]);
           std::cout << " point(" << p[0] << ", " << p[1] << ", " << p[2] << ")";
         }
         // Increase passed_volume
         // TODO: correct counting of travel in "world" bounding box
-        if (nav->GetStep() > 0.)
-          crossedvolumecount++;
+        if (nav->GetStep() > 0.) crossedvolumecount++;
         curmat = (node != 0) ? node->GetVolume()->GetMaterial() : 0;
       } // end while
       // std::cout << crossedvolumecount << "\n";
@@ -312,7 +318,8 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
 template <typename Nav_t = SimpleNavigator>
 void XRayWithVecGeom(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox, Vector3D<Precision> dir,
                      double axis1_start, double axis1_end, double axis2_start, double axis2_end, int data_size_x,
-                     int data_size_y, double pixel_axis, int *image) {
+                     int data_size_y, double pixel_axis, int *image)
+{
 
   if (VERBOSE) {
     std::cout << "from [" << axis1_start << ";" << axis2_start << "] to [" << axis1_end << ";" << axis2_end << "]\n";
@@ -361,7 +368,7 @@ void XRayWithVecGeom(int axis, Vector3D<Precision> origin, Vector3D<Precision> b
       //          curnavstate->Print();
 
       double distancetravelled = 0.;
-      int crossedvolumecount = 0;
+      int crossedvolumecount   = 0;
 
       if (VERBOSE) {
         std::cout << " StartPoint(" << p[0] << ", " << p[1] << ", " << p[2] << ")";
@@ -407,8 +414,7 @@ void XRayWithVecGeom(int axis, Vector3D<Precision> origin, Vector3D<Precision> b
 
         // Increase passed_volume
         // TODO: correct counting of travel in "world" bounding box
-        if (step > 0)
-          crossedvolumecount++;
+        if (step > 0) crossedvolumecount++;
 
         //  if(crossedvolumecount > 1000){
         // std::cerr << "OOPS: Problem for pixel " << pixel_count_1 << " " << pixel_count_2 << " \n";
@@ -430,7 +436,8 @@ void XRayWithVecGeom(int axis, Vector3D<Precision> origin, Vector3D<Precision> b
 void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox,
                                                     Vector3D<Precision> dir, double axis1_start, double axis1_end,
                                                     double axis2_start, double axis2_end, int data_size_x,
-                                                    int data_size_y, double pixel_axis, int *image) {
+                                                    int data_size_y, double pixel_axis, int *image)
+{
 
   if (VERBOSE) {
     std::cout << "from [" << axis1_start << ";" << axis2_start << "] to [" << axis1_end << ";" << axis2_end << "]\n";
@@ -475,7 +482,7 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
       gGeoManager->GetCurrentNavigator()->FindNode(p.x(), p.y(), p.z());
 #endif
       double distancetravelled = 0.;
-      int crossedvolumecount = 0;
+      int crossedvolumecount   = 0;
 
       if (VERBOSE) {
         std::cout << " StartPoint(" << p[0] << ", " << p[1] << ", " << p[2] << ")";
@@ -527,8 +534,7 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
 
         // Increase passed_volume
         // TODO: correct counting of travel in "world" bounding box
-        if (step > 0)
-          crossedvolumecount++;
+        if (step > 0) crossedvolumecount++;
 
         //  if(crossedvolumecount > 1000){
         // std::cerr << "OOPS: Problem for pixel " << pixel_count_1 << " " << pixel_count_2 << " \n";
@@ -550,7 +556,8 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
 // stressing the vector interface of navigator
 void XRayWithVecGeom_VecNav(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox, Vector3D<Precision> dir,
                             double axis1_start, double axis1_end, double axis2_start, double axis2_end, int data_size_x,
-                            int data_size_y, double pixel_axis, int *image) {
+                            int data_size_y, double pixel_axis, int *image)
+{
 
   if (VERBOSE) {
     std::cout << "from [" << axis1_start << ";" << axis2_start << "] to [" << axis1_end << ";" << axis2_end << "]\n";
@@ -567,7 +574,7 @@ void XRayWithVecGeom_VecNav(int axis, Vector3D<Precision> origin, Vector3D<Preci
   }
 
   // we need N navstates ( where N should be a multiple of the SIMD width )
-  unsigned int N = 8;
+  unsigned int N                 = 8;
   NavigationState **newnavstates = new NavigationState *[N];
   NavigationState **curnavstates = new NavigationState *[N];
   for (unsigned int j = 0; j < N; ++j) {
@@ -584,13 +591,13 @@ void XRayWithVecGeom_VecNav(int axis, Vector3D<Precision> origin, Vector3D<Preci
   for (unsigned int j = 0; j < N; ++j)
     dirs.set(j, dir.x(), dir.y(), dir.z());
 
-  double *steps = new double[N];
-  double *psteps = new double[N];
-  double *safeties = new double[N];
+  double *steps          = new double[N];
+  double *psteps         = new double[N];
+  double *safeties       = new double[N];
   int *nextnodeworkspace = new int[N]; // some workspace for the navigator; not important here
   // initialize physical steps to infinity
   for (unsigned int j = 0; j < N; ++j)
-    psteps[j] = vecgeom::kInfinity;
+    psteps[j]         = vecgeom::kInfinity;
 
   for (int pixel_count_2 = 0; pixel_count_2 < data_size_y; ++pixel_count_2) {
     for (int pixel_count_1 = 0; pixel_count_1 < data_size_x; ++pixel_count_1) {
@@ -618,7 +625,7 @@ void XRayWithVecGeom_VecNav(int axis, Vector3D<Precision> origin, Vector3D<Preci
         nav.LocatePoint(GeoManager::Instance().GetWorld(), points[j], *curnavstates[j], true);
       }
       double distancetravelled = 0.;
-      int crossedvolumecount = 0;
+      int crossedvolumecount   = 0;
       if (VERBOSE) {
         std::cout << " StartPoint(" << points[0].x() << ", " << points[1].y() << ", " << points[2].z() << ")";
         std::cout << " Direction <" << dirs[0].x() << ", " << dirs[1].y() << ", " << dirs[2].z() << ">" << std::endl;
@@ -666,8 +673,7 @@ void XRayWithVecGeom_VecNav(int axis, Vector3D<Precision> origin, Vector3D<Preci
 
         // Increase passed_volume
         // TODO: correct counting of travel in "world" bounding box
-        if (steps[0] > 0)
-          crossedvolumecount++;
+        if (steps[0] > 0) crossedvolumecount++;
       } // end while
 
       ///////////////////////////////////
@@ -691,7 +697,8 @@ void XRayWithVecGeom_VecNav(int axis, Vector3D<Precision> origin, Vector3D<Preci
 
 #ifdef VECGEOM_GEANT4
 // a function allowing to clip geometry branches deeper than a certain level from the given volume
-void DeleteAllG4VolumesDeeperThan(G4LogicalVolume *vol, unsigned int level) {
+void DeleteAllG4VolumesDeeperThan(G4LogicalVolume *vol, unsigned int level)
+{
   if (level == 0) {
     // deletes daughters of this volume
     // vol->ClearDaughters() has a bug !!
@@ -716,7 +723,8 @@ void DeleteAllG4VolumesDeeperThan(G4LogicalVolume *vol, unsigned int level) {
 }
 
 G4VPhysicalVolume *SetupGeant4Geometry(std::string volumename, Vector3D<Precision> worldbbox, bool cutgeometry,
-                                       unsigned int cutlevel) {
+                                       unsigned int cutlevel)
+{
 
   // ATTENTION: THERE IS A (OR MIGHT BE) UNIT MISSMATCH HERE BETWEEN ROOT AND GEANT
   // ROOT = cm and GEANT4 = mm; basically a factor of 10 in all dimensions
@@ -728,7 +736,7 @@ G4VPhysicalVolume *SetupGeant4Geometry(std::string volumename, Vector3D<Precisio
 
   G4LogicalVolumeStore *store = G4LogicalVolumeStore::GetInstance();
   //
-  int found = 0;
+  int found                    = 0;
   G4LogicalVolume *foundvolume = NULL;
   for (auto v : *store) {
     std::size_t founds = volumename.compare(v->GetName());
@@ -740,15 +748,14 @@ G4VPhysicalVolume *SetupGeant4Geometry(std::string volumename, Vector3D<Precisio
   std::cerr << " found logical volume " << volumename << " " << found << " times "
             << "\n";
 
-  if (cutgeometry)
-    DeleteAllG4VolumesDeeperThan(foundvolume, cutlevel);
+  if (cutgeometry) DeleteAllG4VolumesDeeperThan(foundvolume, cutlevel);
 
   // embed logical volume in a Box
   // create box first
   G4Box *worldb =
       new G4Box("BoundingBox", UNITCONV * worldbbox.x(), UNITCONV * worldbbox.y(), UNITCONV * worldbbox.z());
   G4LogicalVolume *worldlv = new G4LogicalVolume(worldb, 0, "world", 0, 0, 0);
-  G4PVPlacement *worldpv = new G4PVPlacement(0, G4ThreeVector(0, 0, 0), "BoundingBox", worldlv, 0, false, 0, 0);
+  G4PVPlacement *worldpv   = new G4PVPlacement(0, G4ThreeVector(0, 0, 0), "BoundingBox", worldlv, 0, false, 0, 0);
 
   // embed found logical volume "foundvolume" into world bounding box
   new G4PVPlacement(NULL,                   /* rotation */
@@ -768,13 +775,14 @@ G4VPhysicalVolume *SetupGeant4Geometry(std::string volumename, Vector3D<Precisio
 int XRayWithGeant4(G4VPhysicalVolume *world /* the detector to scan */, int axis, Vector3D<Precision> origin,
                    Vector3D<Precision> bboxscreen, Vector3D<Precision> dir, double axis1_start, double axis1_end,
                    double axis2_start, double axis2_end, int data_size_x, int data_size_y, double pixel_axis,
-                   int *image) {
+                   int *image)
+{
 
   // ATTENTION: THERE IS A (OR MIGHT BE) UNIT MISSMATCH HERE BETWEEN ROOT AND GEANT
   // ROOT = cm and GEANT4 = mm; basically a factor of 10 in all dimensions
 
   const double UNITCONV = 10.;
-  G4Navigator *nav = new G4Navigator();
+  G4Navigator *nav      = new G4Navigator();
 
   // now start XRay procedure
   nav->SetWorldVolume(world);
@@ -813,8 +821,7 @@ int XRayWithGeant4(G4VPhysicalVolume *world /* the detector to scan */, int axis
         // also calculates safety
 
         double step = nav->ComputeStep(p, d, vecgeom::kInfinity, safety);
-        if (step > 0.)
-          crossedvolumecount++;
+        if (step > 0.) crossedvolumecount++;
         //                       std::cerr << " STEP " << step << " ENTERING " << nav->EnteredDaughterVolume() << "\n";
 
         // calculate next point ( do transportation ) and volume ( should go across boundary )
@@ -822,7 +829,7 @@ int XRayWithGeant4(G4VPhysicalVolume *world /* the detector to scan */, int axis
 
         nav->SetGeometricallyLimitedStep();
         vol = nav->LocateGlobalPointAndSetup(next, &d, true);
-        p = next;
+        p   = next;
       }
       //                ///////////////////////////////////
       //                // Store the number of passed volume at 'volume_result'
@@ -834,7 +841,8 @@ int XRayWithGeant4(G4VPhysicalVolume *world /* the detector to scan */, int axis
 #endif
 
 // a function allowing to clip geometry branches deeper than a certain level from the given volume
-void DeleteAllNodesDeeperThan(TGeoVolume *vol, unsigned int level) {
+void DeleteAllNodesDeeperThan(TGeoVolume *vol, unsigned int level)
+{
   if (level == 0) {
     std::cerr << " deleting daughters " << vol->GetNdaughters() << "\n";
     // deletes daughters of this volume
@@ -853,17 +861,18 @@ void DeleteAllNodesDeeperThan(TGeoVolume *vol, unsigned int level) {
 
 //////////////////////////////////
 // main function
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
   int axis = 0;
 
   double axis1_start = 0.;
-  double axis1_end = 0.;
+  double axis1_end   = 0.;
 
   double axis2_start = 0.;
-  double axis2_end = 0.;
+  double axis2_end   = 0.;
 
   double pixel_width = 0;
-  double pixel_axis = 1.;
+  double pixel_axis  = 1.;
 
   if (argc < 5) {
     std::cerr << std::endl;
@@ -887,30 +896,26 @@ int main(int argc, char *argv[]) {
   else if (strcmp(argv[3], "z") == 0)
     axis = 3;
   else {
-    std::cerr << "Incorrect axis" << std::endl
-              << std::endl;
+    std::cerr << "Incorrect axis" << std::endl << std::endl;
     return 1;
   }
 
   pixel_width = atof(argv[4]);
 
   unsigned int cutatlevel = 1000;
-  bool cutlevel = false;
+  bool cutlevel           = false;
   for (auto i = 5; i < argc; i++) {
-    if (!strcmp(argv[i], "--usolids"))
-      usolids = true;
-    if (!strcmp(argv[i], "--vecgeom"))
-      usolids = false;
-    if (!strcmp(argv[i], "--novoxel"))
-      voxelize = false;
+    if (!strcmp(argv[i], "--usolids")) usolids  = true;
+    if (!strcmp(argv[i], "--vecgeom")) usolids  = false;
+    if (!strcmp(argv[i], "--novoxel")) voxelize = false;
     if (!strcmp(argv[i], "--tolevel")) {
-      cutlevel = true;
+      cutlevel   = true;
       cutatlevel = atoi(argv[i + 1]);
       std::cout << "Cutting geometry at level " << cutatlevel << "\n";
     }
   }
 
-  int found = 0;
+  int found               = 0;
   TGeoVolume *foundvolume = NULL;
   // now try to find shape with logical volume name given on the command line
   TObjArray *vlist = gGeoManager->GetListOfVolumes();
@@ -941,9 +946,9 @@ int main(int argc, char *argv[]) {
     std::cerr << "volume capacity " << foundvolume->GetShape()->Capacity() << "\n";
 
     // get bounding box to generate x-ray start positions
-    double dx = ((TGeoBBox *)foundvolume->GetShape())->GetDX() * 1.05;
-    double dy = ((TGeoBBox *)foundvolume->GetShape())->GetDY() * 1.05;
-    double dz = ((TGeoBBox *)foundvolume->GetShape())->GetDZ() * 1.05;
+    double dx        = ((TGeoBBox *)foundvolume->GetShape())->GetDX() * 1.05;
+    double dy        = ((TGeoBBox *)foundvolume->GetShape())->GetDY() * 1.05;
+    double dz        = ((TGeoBBox *)foundvolume->GetShape())->GetDZ() * 1.05;
     double origin[3] = {
         0.,
     };
@@ -952,7 +957,7 @@ int main(int argc, char *argv[]) {
     origin[2] = ((TGeoBBox *)foundvolume->GetShape())->GetOrigin()[2];
 
     TGeoMaterial *matVacuum = new TGeoMaterial("Vacuum", 0, 0, 0);
-    TGeoMedium *vac = new TGeoMedium("Vacuum", 1, matVacuum);
+    TGeoMedium *vac         = new TGeoMedium("Vacuum", 1, matVacuum);
 
     TGeoVolume *boundingbox = gGeoManager->MakeBox("BoundingBox", vac, std::abs(origin[0]) + dx,
                                                    std::abs(origin[1]) + dy, std::abs(origin[2]) + dz);
@@ -960,8 +965,7 @@ int main(int argc, char *argv[]) {
     // TGeoManager * geom = boundingbox->GetGeoManager();
     std::cout << gGeoManager->CountNodes() << "\n";
 
-    if (!voxelize)
-      DeleteROOTVoxels();
+    if (!voxelize) DeleteROOTVoxels();
 
     gGeoManager = 0;
 
@@ -995,8 +999,7 @@ int main(int argc, char *argv[]) {
     std::cout << std::endl;
     std::cout << "BoundingBoxOriginX: " << origin[0] << std::endl;
     std::cout << "BoundingBoxOriginY: " << origin[1] << std::endl;
-    std::cout << "BoundingBoxOriginZ: " << origin[2] << std::endl
-              << std::endl;
+    std::cout << "BoundingBoxOriginZ: " << origin[2] << std::endl << std::endl;
 
     Vector3D<Precision> p;
     Vector3D<Precision> dir;
@@ -1011,28 +1014,28 @@ int main(int argc, char *argv[]) {
         // dir = trans.TransformDirection( Vector3D<Precision> (1,0,0));
 
         axis1_start = origin[1] - dy;
-        axis1_end = origin[1] + dy;
+        axis1_end   = origin[1] + dy;
         axis2_start = origin[2] - dz;
-        axis2_end = origin[2] + dz;
-        pixel_axis = (dy * 2) / pixel_width;
+        axis2_end   = origin[2] + dz;
+        pixel_axis  = (dy * 2) / pixel_width;
       } else if (axis == 2) {
         dir.Set(0., 1., 0.);
         // vecgeom::Transformation3D trans( 0, 0, 0, 5, 5, 5);
         // dir = trans.TransformDirection(dir);
         axis1_start = origin[0] - dx;
-        axis1_end = origin[0] + dx;
+        axis1_end   = origin[0] + dx;
         axis2_start = origin[2] - dz;
-        axis2_end = origin[2] + dz;
-        pixel_axis = (dx * 2) / pixel_width;
+        axis2_end   = origin[2] + dz;
+        pixel_axis  = (dx * 2) / pixel_width;
       } else if (axis == 3) {
         dir.Set(0., 0., 1.);
         // vecgeom::Transformation3D trans( 0, 0, 0, 5, 5, 5);
         // dir = trans.TransformDirection(dir);
         axis1_start = origin[0] - dx;
-        axis1_end = origin[0] + dx;
+        axis1_end   = origin[0] + dx;
         axis2_start = origin[1] - dy;
-        axis2_end = origin[1] + dy;
-        pixel_axis = (dx * 2) / pixel_width;
+        axis2_end   = origin[1] + dy;
+        pixel_axis  = (dx * 2) / pixel_width;
       }
 
       // init data for image
@@ -1041,10 +1044,10 @@ int main(int argc, char *argv[]) {
 
       if (data_size_x * data_size_y > 1E7L) {
         pixel_width /= 2;
-        std::cerr << data_size_x *data_size_y << "\n";
+        std::cerr << data_size_x * data_size_y << "\n";
         std::cerr << "warning: image to big " << pixel_width << " " << pixel_axis << "\n";
       } else {
-        std::cerr << "size ok " << data_size_x *data_size_y << "\n";
+        std::cerr << "size ok " << data_size_x * data_size_y << "\n";
       }
     } while (data_size_x * data_size_y > 1E7L);
     std::cerr << "allocating image"
@@ -1054,7 +1057,7 @@ int main(int argc, char *argv[]) {
 #ifdef VECGEOM_GEANT4
     int *volume_result_Geant4 = (int *)new int[data_size_y * data_size_x * 3];
 #endif
-    int *volume_result_VecGeom = (int *)new int[data_size_y * data_size_x * 3];
+    int *volume_result_VecGeom    = (int *)new int[data_size_y * data_size_x * 3];
     int *volume_result_VecGeomABB = (int *)new int[data_size_y * data_size_x * 3];
 
     Stopwatch timer;
@@ -1076,14 +1079,10 @@ int main(int argc, char *argv[]) {
     // Make bitmap file; generate filename
     std::stringstream imagenamebase;
     imagenamebase << "volumeImage_" << testvolume;
-    if (axis == 1)
-      imagenamebase << "x";
-    if (axis == 2)
-      imagenamebase << "y";
-    if (axis == 3)
-      imagenamebase << "z";
-    if (voxelize)
-      imagenamebase << "_VOXELIZED_";
+    if (axis == 1) imagenamebase << "x";
+    if (axis == 2) imagenamebase << "y";
+    if (axis == 3) imagenamebase << "z";
+    if (voxelize) imagenamebase << "_VOXELIZED_";
     std::stringstream ROOTimage;
     ROOTimage << imagenamebase.str();
     ROOTimage << "_ROOT.bmp";
@@ -1230,16 +1229,17 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-void make_bmp_header(MY_BITMAP *pBitmap, unsigned char *bmpBuf, int sizex, int sizey) {
-  int width_4 = (sizex + 3) & ~3;
+void make_bmp_header(MY_BITMAP *pBitmap, unsigned char *bmpBuf, int sizex, int sizey)
+{
+  int width_4      = (sizex + 3) & ~3;
   unsigned int len = 0;
 
   // bitmap file header
-  pBitmap->bmpFileHeader.bfType = 0x4d42;
-  pBitmap->bmpFileHeader.bfSize = sizey * width_4 * 3 + 54;
+  pBitmap->bmpFileHeader.bfType      = 0x4d42;
+  pBitmap->bmpFileHeader.bfSize      = sizey * width_4 * 3 + 54;
   pBitmap->bmpFileHeader.bfReserved1 = 0;
   pBitmap->bmpFileHeader.bfReserved2 = 0;
-  pBitmap->bmpFileHeader.bfOffBits = 54;
+  pBitmap->bmpFileHeader.bfOffBits   = 54;
 
   memcpy(bmpBuf + len, &pBitmap->bmpFileHeader.bfType, 2);
   len += 2;
@@ -1253,17 +1253,17 @@ void make_bmp_header(MY_BITMAP *pBitmap, unsigned char *bmpBuf, int sizex, int s
   len += 4;
 
   // bitmap information header
-  pBitmap->bmpInfoHeader.biSize = 40;
-  pBitmap->bmpInfoHeader.biWidth = width_4;
-  pBitmap->bmpInfoHeader.biHeight = sizey;
-  pBitmap->bmpInfoHeader.biPlanes = 1;
-  pBitmap->bmpInfoHeader.biBitCount = 24;
-  pBitmap->bmpInfoHeader.biCompression = 0;
-  pBitmap->bmpInfoHeader.biSizeImage = sizey * width_4 * 3;
+  pBitmap->bmpInfoHeader.biSize          = 40;
+  pBitmap->bmpInfoHeader.biWidth         = width_4;
+  pBitmap->bmpInfoHeader.biHeight        = sizey;
+  pBitmap->bmpInfoHeader.biPlanes        = 1;
+  pBitmap->bmpInfoHeader.biBitCount      = 24;
+  pBitmap->bmpInfoHeader.biCompression   = 0;
+  pBitmap->bmpInfoHeader.biSizeImage     = sizey * width_4 * 3;
   pBitmap->bmpInfoHeader.biXPelsPerMeter = 0;
   pBitmap->bmpInfoHeader.biYPelsPerMeter = 0;
-  pBitmap->bmpInfoHeader.biClrUsed = 0;
-  pBitmap->bmpInfoHeader.biClrImportant = 0;
+  pBitmap->bmpInfoHeader.biClrUsed       = 0;
+  pBitmap->bmpInfoHeader.biClrImportant  = 0;
 
   memcpy(bmpBuf + len, &pBitmap->bmpInfoHeader.biSize, 4);
   len += 4;
@@ -1289,7 +1289,8 @@ void make_bmp_header(MY_BITMAP *pBitmap, unsigned char *bmpBuf, int sizex, int s
   len += 4;
 }
 
-int make_bmp(int const *volume_result, char const *name, int data_size_x, int data_size_y, bool linear) {
+int make_bmp(int const *volume_result, char const *name, int data_size_x, int data_size_y, bool linear)
+{
 
   MY_BITMAP *pBitmap = new MY_BITMAP;
   FILE *pBitmapFile;
@@ -1302,11 +1303,11 @@ int make_bmp(int const *volume_result, char const *name, int data_size_x, int da
   unsigned int len = 0;
 
   // bitmap file header
-  pBitmap->bmpFileHeader.bfType = 0x4d42;
-  pBitmap->bmpFileHeader.bfSize = data_size_y * width_4 * 3 + 54;
+  pBitmap->bmpFileHeader.bfType      = 0x4d42;
+  pBitmap->bmpFileHeader.bfSize      = data_size_y * width_4 * 3 + 54;
   pBitmap->bmpFileHeader.bfReserved1 = 0;
   pBitmap->bmpFileHeader.bfReserved2 = 0;
-  pBitmap->bmpFileHeader.bfOffBits = 54;
+  pBitmap->bmpFileHeader.bfOffBits   = 54;
 
   memcpy(bmpBuf + len, &pBitmap->bmpFileHeader.bfType, 2);
   len += 2;
@@ -1320,17 +1321,17 @@ int make_bmp(int const *volume_result, char const *name, int data_size_x, int da
   len += 4;
 
   // bitmap information header
-  pBitmap->bmpInfoHeader.biSize = 40;
-  pBitmap->bmpInfoHeader.biWidth = width_4;
-  pBitmap->bmpInfoHeader.biHeight = data_size_y;
-  pBitmap->bmpInfoHeader.biPlanes = 1;
-  pBitmap->bmpInfoHeader.biBitCount = 24;
-  pBitmap->bmpInfoHeader.biCompression = 0;
-  pBitmap->bmpInfoHeader.biSizeImage = data_size_y * width_4 * 3;
+  pBitmap->bmpInfoHeader.biSize          = 40;
+  pBitmap->bmpInfoHeader.biWidth         = width_4;
+  pBitmap->bmpInfoHeader.biHeight        = data_size_y;
+  pBitmap->bmpInfoHeader.biPlanes        = 1;
+  pBitmap->bmpInfoHeader.biBitCount      = 24;
+  pBitmap->bmpInfoHeader.biCompression   = 0;
+  pBitmap->bmpInfoHeader.biSizeImage     = data_size_y * width_4 * 3;
   pBitmap->bmpInfoHeader.biXPelsPerMeter = 0;
   pBitmap->bmpInfoHeader.biYPelsPerMeter = 0;
-  pBitmap->bmpInfoHeader.biClrUsed = 0;
-  pBitmap->bmpInfoHeader.biClrImportant = 0;
+  pBitmap->bmpInfoHeader.biClrUsed       = 0;
+  pBitmap->bmpInfoHeader.biClrImportant  = 0;
 
   memcpy(bmpBuf + len, &pBitmap->bmpInfoHeader.biSize, 4);
   len += 4;
@@ -1361,23 +1362,23 @@ int make_bmp(int const *volume_result, char const *name, int data_size_x, int da
   while (y < data_size_y) {
     while (origin_x < data_size_x) {
       int value = *(volume_result + y * data_size_x + origin_x);
-      maxcount = (value > maxcount) ? value : maxcount;
+      maxcount  = (value > maxcount) ? value : maxcount;
 
       x++;
       origin_x++;
     }
     y++;
-    x = 0;
+    x        = 0;
     origin_x = 0;
   }
   //  maxcount = std::log(maxcount + 1);
 
-  x = 0;
-  y = 0;
+  x        = 0;
+  y        = 0;
   origin_x = 0;
 
-  int padding = width_4 - data_size_x;
-  int padding_idx = padding;
+  int padding            = width_4 - data_size_x;
+  int padding_idx        = padding;
   unsigned char *imgdata = (unsigned char *)new unsigned char[data_size_y * width_4 * 3];
 
   int totalcount = 0;
@@ -1417,7 +1418,7 @@ int make_bmp(int const *volume_result, char const *name, int data_size_x, int da
       padding_idx = padding;
     }
     y++;
-    x = 0;
+    x        = 0;
     origin_x = 0;
   }
 
@@ -1437,11 +1438,12 @@ int make_bmp(int const *volume_result, char const *name, int data_size_x, int da
   return 0;
 }
 
-int make_diff_bmp(int const *image1, int const *image2, char const *name, int data_size_x, int data_size_y) {
+int make_diff_bmp(int const *image1, int const *image2, char const *name, int data_size_x, int data_size_y)
+{
 
   MY_BITMAP *pBitmap = new MY_BITMAP;
   FILE *pBitmapFile;
-  int width_4 = (data_size_x + 3) & ~3;
+  int width_4           = (data_size_x + 3) & ~3;
   unsigned char *bmpBuf = (unsigned char *)new unsigned char[data_size_y * width_4 * 3 + 54];
 
   // init buffer and write header
@@ -1456,22 +1458,22 @@ int make_diff_bmp(int const *image1, int const *image2, char const *name, int da
   while (y < data_size_y) {
     while (origin_x < data_size_x) {
       int value = *(image1 + y * data_size_x + origin_x) - *(image2 + y * data_size_x + origin_x);
-      maxdiff = (value > maxdiff) ? value : maxdiff;
-      mindiff = (value < mindiff) ? value : mindiff;
+      maxdiff   = (value > maxdiff) ? value : maxdiff;
+      mindiff   = (value < mindiff) ? value : mindiff;
       x++;
       origin_x++;
     }
     y++;
-    x = 0;
+    x        = 0;
     origin_x = 0;
   }
 
-  x = 0;
-  y = 0;
+  x        = 0;
+  y        = 0;
   origin_x = 0;
 
-  int padding = width_4 - data_size_x;
-  int padding_idx = padding;
+  int padding            = width_4 - data_size_x;
+  int padding_idx        = padding;
   unsigned char *imgdata = (unsigned char *)new unsigned char[data_size_y * width_4 * 3];
 
   while (y < data_size_y) {
@@ -1501,7 +1503,7 @@ int make_diff_bmp(int const *image1, int const *image2, char const *name, int da
       padding_idx = padding;
     }
     y++;
-    x = 0;
+    x        = 0;
     origin_x = 0;
   }
 

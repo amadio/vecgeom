@@ -14,7 +14,8 @@
 
 typedef vecgeom::SimpleGenTrap GenTrap_t;
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
   if (argc == 1) {
     std::cout << "Usage: shape_testGenTrap -test <#>:\n"
                  "       0 - twisted\n"
@@ -46,9 +47,9 @@ int main(int argc, char *argv[]) {
   Precision verticesx5[8] = {-3, -3, 2.5, 2.5, -2, -2, 2, 2};
   Precision verticesy5[8] = {-2.5, -2.5, -3, -3, -2, -2, 2, -2};
   //
-  Precision verticesx6[8] = {-0.507492, -0.507508, 1.522492, -0.507492, -0.507492, -0.507508, 1.522492,-0.507492};
-  Precision verticesy6[8] = {-3.634000, 3.63400, 3.634000, -3.634000, -3.634000, 3.634000,  3.634000, -3.634000};
-  GenTrap_t *solid = 0;
+  Precision verticesx6[8] = {-0.507492, -0.507508, 1.522492, -0.507492, -0.507492, -0.507508, 1.522492, -0.507492};
+  Precision verticesy6[8] = {-3.634000, 3.63400, 3.634000, -3.634000, -3.634000, 3.634000, 3.634000, -3.634000};
+  GenTrap_t *solid        = 0;
   switch (test) {
   case 0:
     // 4 different vertices, twisted
@@ -84,7 +85,7 @@ int main(int argc, char *argv[]) {
     // 3 vertexes top, 3 vertexes bottom
     std::cout << "Testing degenerated planar trapezoid\n";
     solid = new GenTrap_t("test_VecGeomGenTrap", verticesx6, verticesy6, 5);
-    break; 
+    break;
   default:
     std::cout << "Unknown test case.\n";
   }

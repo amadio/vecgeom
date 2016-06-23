@@ -14,30 +14,31 @@ using namespace vecgeom;
 
 // #define VISUALIZER
 
-int main(int argc, char* argv[]) {
-  OPTION_INT(npoints,1024);
-  OPTION_INT(nrep,4);
-  OPTION_DOUBLE(phistart,0.);
-  OPTION_DOUBLE(phidelta,kTwoPi);
+int main(int argc, char *argv[])
+{
+  OPTION_INT(npoints, 1024);
+  OPTION_INT(nrep, 4);
+  OPTION_DOUBLE(phistart, 0.);
+  OPTION_DOUBLE(phidelta, kTwoPi);
 
-  int Nz = 4;
-  double rmin[] = { 0.1, 0., 0. , 0.2 };
-  double rmax[] = { 1., 2., 2. , 1.5 };
-  double z[] = { -1, -0.5, 0.5, 10 };
+  int Nz        = 4;
+  double rmin[] = {0.1, 0., 0., 0.2};
+  double rmax[] = {1., 2., 2., 1.5};
+  double z[]    = {-1, -0.5, 0.5, 10};
 
-  UnplacedBox worldUnplaced( 5, 5, 15 );
+  UnplacedBox worldUnplaced(5, 5, 15);
   UnplacedPolycone pconUnplaced(phistart, phidelta, Nz, z, rmin, rmax);
 
   pconUnplaced.Print();
 
   LogicalVolume world("world", &worldUnplaced);
-  LogicalVolume pcon ("pcon", &pconUnplaced);
+  LogicalVolume pcon("pcon", &pconUnplaced);
 
   Transformation3D placement(0, 0, 0);
 #if defined(VECGEOM_ROOT) and defined(VISUALIZER)
-  VPlacedVolume const * vol =
+  VPlacedVolume const *vol =
 #endif
-  world.PlaceDaughter("pcon", &pcon, &placement);
+      world.PlaceDaughter("pcon", &pcon, &placement);
 
   VPlacedVolume *worldPlaced = world.Place();
 
@@ -49,24 +50,22 @@ int main(int argc, char* argv[]) {
   tester.SetPoolMultiplier(1);
   tester.SetRepetitions(nrep);
   tester.SetPointCount(npoints);
-  tester.SetInsideBias( 0.5 );
+  tester.SetInsideBias(0.5);
 
   tester.RunBenchmark();
 
-
 #ifdef VISUALIZER
   Visualizer visualizer;
-  visualizer.AddVolume( *vol );
-  if( tester.GetProblematicContainPoints().size() > 0 ) {
-      for(auto v : tester.GetProblematicContainPoints())
-      {
-        visualizer.AddPoint(v);
+  visualizer.AddVolume(*vol);
+  if (tester.GetProblematicContainPoints().size() > 0) {
+    for (auto v : tester.GetProblematicContainPoints()) {
+      visualizer.AddPoint(v);
 
-        // for debugging purpose
-        std::cerr << " " << vol->Contains(v) << "\n";
-        std::cout << v<<"\n";
-      }
-      visualizer.Show();
+      // for debugging purpose
+      std::cerr << " " << vol->Contains(v) << "\n";
+      std::cout << v << "\n";
+    }
+    visualizer.Show();
   }
 #endif
 

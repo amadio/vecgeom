@@ -18,28 +18,29 @@
 #include <memory>
 
 namespace vecgeom {
-   inline namespace cxx {
+inline namespace cxx {
 
 ShapeDebugger::ShapeDebugger(VPlacedVolume const *volume)
-  : fVolume(volume), fMaxMismatches(8), fShowCorrectResults(false)
-  {
-    (void) fVolume; /* avoid unused field compiler warning */
-  }
-
-void ShapeDebugger::SetMaxMismatches(int max) {
-  if (max < 0) max = 0;
-  fMaxMismatches = max;
+    : fVolume(volume), fMaxMismatches(8), fShowCorrectResults(false)
+{
+  (void)fVolume; /* avoid unused field compiler warning */
 }
 
-void ShapeDebugger::ShowCorrectResults(bool show) {
+void ShapeDebugger::SetMaxMismatches(int max)
+{
+  if (max < 0) max = 0;
+  fMaxMismatches   = max;
+}
+
+void ShapeDebugger::ShowCorrectResults(bool show)
+{
   fShowCorrectResults = show;
 }
 
 #ifdef VECGEOM_ROOT
 
-void ShapeDebugger::CompareContainsToROOT(
-    Vector3D<Precision> const &bounds,
-    int nSamples) const {
+void ShapeDebugger::CompareContainsToROOT(Vector3D<Precision> const &bounds, int nSamples) const
+{
 
   TGeoManager geoManager;
 
@@ -60,15 +61,14 @@ void ShapeDebugger::CompareContainsToROOT(
   bothOutside.SetMarkerStyle(4);
   bothOutside.SetMarkerColor(kRed);
 
-  std::vector<Vector3D<Precision> > mismatchPoints;
-  std::vector<std::pair<Precision, double> > mismatchResults;
+  std::vector<Vector3D<Precision>> mismatchPoints;
+  std::vector<std::pair<Precision, double>> mismatchResults;
   int vecgeomCount = 0, rootCount = 0, mismatches = 0;
   for (int i = 0; i < nSamples; ++i) {
-    Vector3D<Precision> sample = volumeUtilities::SamplePoint(bounds);
-    bool vecgeomResult = fVolume->Contains(sample);
-    Vector3D<Precision> localPoint =
-        fVolume->GetTransformation()->Transform(sample);
-    bool rootResult = rootShape->Contains(&localPoint[0]);
+    Vector3D<Precision> sample     = volumeUtilities::SamplePoint(bounds);
+    bool vecgeomResult             = fVolume->Contains(sample);
+    Vector3D<Precision> localPoint = fVolume->GetTransformation()->Transform(sample);
+    bool rootResult                = rootShape->Contains(&localPoint[0]);
     vecgeomCount += vecgeomResult;
     rootCount += rootResult;
     if (vecgeomResult != rootResult) {
@@ -86,19 +86,15 @@ void ShapeDebugger::CompareContainsToROOT(
       bothOutside.SetNextPoint(sample[0], sample[1], sample[2]);
     }
   }
-  std::cout << "  VecGeom: " << vecgeomCount << " / " << nSamples
-            << " contained.\n"
-            << "  ROOT:    " << rootCount << " / " << nSamples
-            << " contained.\n"
-            << "  Mismatches detected: " << mismatches << " / " << nSamples
-            << "\n";
+  std::cout << "  VecGeom: " << vecgeomCount << " / " << nSamples << " contained.\n"
+            << "  ROOT:    " << rootCount << " / " << nSamples << " contained.\n"
+            << "  Mismatches detected: " << mismatches << " / " << nSamples << "\n";
   if (fMaxMismatches > 0 && mismatches > 0) {
     std::cout << "\nMismatching points [<Point>: <VecGeom> / <ROOT>]:\n";
     int i = 0, iMax = mismatchPoints.size();
     while (i < fMaxMismatches && i < iMax) {
-      std::cout << std::setprecision(std::numeric_limits<Precision>::digits10)
-                << mismatchPoints[i] << ": " << mismatchResults[i].first
-                << " / " << mismatchResults[i].second << "\n";
+      std::cout << std::setprecision(std::numeric_limits<Precision>::digits10) << mismatchPoints[i] << ": "
+                << mismatchResults[i].first << " / " << mismatchResults[i].second << "\n";
       ++i;
     }
   }
@@ -115,9 +111,8 @@ void ShapeDebugger::CompareContainsToROOT(
   visualizer.Show();
 }
 
-void ShapeDebugger::CompareDistanceToInToROOT(
-    Vector3D<Precision> const &bounds,
-    int nSamples) const {
+void ShapeDebugger::CompareDistanceToInToROOT(Vector3D<Precision> const &bounds, int nSamples) const
+{
 
   TGeoManager geoManager;
 
@@ -141,29 +136,25 @@ void ShapeDebugger::CompareDistanceToInToROOT(
   differentResultRoot.SetLineColor(kMagenta);
   differentResultRoot.SetLineStyle(2);
 
-  std::vector<TPolyLine3D*> rays;
-  std::vector<TPolyLine3D*> helperRays;
-  std::vector<Vector3D<Precision> > mismatchPoints;
-  std::vector<Vector3D<Precision> > mismatchDirections;
-  std::vector<std::pair<Precision, double> > mismatchResults;
+  std::vector<TPolyLine3D *> rays;
+  std::vector<TPolyLine3D *> helperRays;
+  std::vector<Vector3D<Precision>> mismatchPoints;
+  std::vector<Vector3D<Precision>> mismatchDirections;
+  std::vector<std::pair<Precision, double>> mismatchResults;
   int vecgeomCount = 0, rootCount = 0, mismatches = 0;
   for (int i = 0; i < nSamples; ++i) {
     Vector3D<Precision> point, direction;
     do {
       point = volumeUtilities::SamplePoint(bounds);
     } while (rootShape->Contains(&point[0]));
-    direction = volumeUtilities::SampleDirection();
-    Precision vecgeomResult = fVolume->DistanceToIn(point, direction);
-    Vector3D<Precision> localPoint =
-        fVolume->GetTransformation()->Transform(point);
-    Vector3D<Precision> localDirection =
-        fVolume->GetTransformation()->TransformDirection(direction);
-    double rootResult =
-        rootShape->DistFromOutside(&localPoint[0], &localDirection[0]);
-    bool vecgeomMiss = vecgeomResult == kInfinity;
-    bool rootMiss = rootResult == 1e30;
-    bool same = (vecgeomMiss && rootMiss) ||
-                Abs(rootResult - vecgeomResult) < kTolerance;
+    direction                          = volumeUtilities::SampleDirection();
+    Precision vecgeomResult            = fVolume->DistanceToIn(point, direction);
+    Vector3D<Precision> localPoint     = fVolume->GetTransformation()->Transform(point);
+    Vector3D<Precision> localDirection = fVolume->GetTransformation()->TransformDirection(direction);
+    double rootResult                  = rootShape->DistFromOutside(&localPoint[0], &localDirection[0]);
+    bool vecgeomMiss                   = vecgeomResult == kInfinity;
+    bool rootMiss                      = rootResult == 1e30;
+    bool same                          = (vecgeomMiss && rootMiss) || Abs(rootResult - vecgeomResult) < kTolerance;
     vecgeomCount += !vecgeomMiss;
     rootCount += !rootMiss;
     if (!same) {
@@ -175,44 +166,38 @@ void ShapeDebugger::CompareDistanceToInToROOT(
     if (same && vecgeomMiss) {
       bothMiss.SetNextPoint(point[0], point[1], point[2]);
     } else {
-      auto AddLine = [&point] (
-          TPolyLine3D const &line,
-          Vector3D<Precision> const &intersection,
-          std::vector<TPolyLine3D*> &rayVector) {
+      auto AddLine = [&point](TPolyLine3D const &line, Vector3D<Precision> const &intersection,
+                              std::vector<TPolyLine3D *> &rayVector) {
         TPolyLine3D *ray = new TPolyLine3D(line);
         ray->SetPoint(0, point[0], point[1], point[2]);
         ray->SetPoint(1, intersection[0], intersection[1], intersection[2]);
         rayVector.push_back(ray);
       };
       if (!vecgeomMiss && rootMiss) {
-        AddLine(vecgeomHits, point + vecgeomResult*direction, rays);
+        AddLine(vecgeomHits, point + vecgeomResult * direction, rays);
       } else if (vecgeomMiss && !rootMiss) {
-        AddLine(rootHits, point + rootResult*direction, rays);
+        AddLine(rootHits, point + rootResult * direction, rays);
       } else if (same) {
         if (fShowCorrectResults) {
-          AddLine(sameResult, point + vecgeomResult*direction, rays);
+          AddLine(sameResult, point + vecgeomResult * direction, rays);
         }
       } else {
-        AddLine(differentResultVecgeom, point + vecgeomResult*direction, rays);
-        AddLine(differentResultRoot, point + rootResult*direction, helperRays);
+        AddLine(differentResultVecgeom, point + vecgeomResult * direction, rays);
+        AddLine(differentResultRoot, point + rootResult * direction, helperRays);
       }
     }
   }
-  std::cout << "  VecGeom: " << vecgeomCount << " / " << nSamples
-            << " hit the volume.\n"
-            << "  ROOT:    " << rootCount << " / " << nSamples
-            << " hit the volume.\n"
-            << "  Mismatches detected: " << mismatches << " / " << nSamples
-            << "\n";
+  std::cout << "  VecGeom: " << vecgeomCount << " / " << nSamples << " hit the volume.\n"
+            << "  ROOT:    " << rootCount << " / " << nSamples << " hit the volume.\n"
+            << "  Mismatches detected: " << mismatches << " / " << nSamples << "\n";
   if (fMaxMismatches > 0 && mismatches > 0) {
     std::cout << "\nMismatching rays [<Point> -> <Direction>: "
                  "<VecGeom> / <ROOT>]:\n";
     int i = 0, iMax = mismatchPoints.size();
     while (i < fMaxMismatches && i < iMax) {
-      std::cout << std::setprecision(std::numeric_limits<Precision>::digits10)
-                << mismatchPoints[i] << " -> " << mismatchDirections[i]
-                << ": " << mismatchResults[i].first << " / "
-                << mismatchResults[i].second << "\n";
+      std::cout << std::setprecision(std::numeric_limits<Precision>::digits10) << mismatchPoints[i] << " -> "
+                << mismatchDirections[i] << ": " << mismatchResults[i].first << " / " << mismatchResults[i].second
+                << "\n";
       ++i;
     }
   }
@@ -235,12 +220,12 @@ void ShapeDebugger::CompareDistanceToInToROOT(
   }
   visualizer.Show();
 
-  for (auto ray : rays) delete ray;
+  for (auto ray : rays)
+    delete ray;
 }
 
-void ShapeDebugger::CompareDistanceToOutToROOT(
-    Vector3D<Precision> const &bounds,
-    int nSamples) const {
+void ShapeDebugger::CompareDistanceToOutToROOT(Vector3D<Precision> const &bounds, int nSamples) const
+{
 
   TGeoManager geoManager;
 
@@ -259,65 +244,59 @@ void ShapeDebugger::CompareDistanceToOutToROOT(
   rootHits.SetLineColor(kRed);
   rootHits.SetLineStyle(2);
 
-  std::vector<TPolyLine3D*> rays;
-  std::vector<TPolyLine3D*> helperRays;
-  std::vector<Vector3D<Precision> > mismatchPoints;
-  std::vector<Vector3D<Precision> > mismatchDirections;
-  std::vector<std::pair<Precision, double> > mismatchResults;
+  std::vector<TPolyLine3D *> rays;
+  std::vector<TPolyLine3D *> helperRays;
+  std::vector<Vector3D<Precision>> mismatchPoints;
+  std::vector<Vector3D<Precision>> mismatchDirections;
+  std::vector<std::pair<Precision, double>> mismatchResults;
   int hits = 0, mismatches = 0;
   for (int i = 0; i < nSamples; ++i) {
     Vector3D<Precision> point, direction;
     do {
       point = volumeUtilities::SamplePoint(bounds);
     } while (!rootShape->Contains(&point[0]));
-    direction = volumeUtilities::SampleDirection();
+    direction               = volumeUtilities::SampleDirection();
     Precision vecgeomResult = fVolume->DistanceToOut(point, direction);
-    double rootResult =
-        rootShape->DistFromInside(&point[0], &direction[0]);
-    bool vecgeomMiss = vecgeomResult == kInfinity;
-    bool same = !vecgeomMiss && Abs(rootResult - vecgeomResult) < kTolerance;
+    double rootResult       = rootShape->DistFromInside(&point[0], &direction[0]);
+    bool vecgeomMiss        = vecgeomResult == kInfinity;
+    bool same               = !vecgeomMiss && Abs(rootResult - vecgeomResult) < kTolerance;
     if (!same) {
       ++mismatches;
       mismatchPoints.push_back(point);
       mismatchDirections.push_back(direction);
       mismatchResults.push_back(std::make_pair(vecgeomResult, rootResult));
     }
-    auto AddLine = [&point] (
-        TPolyLine3D const &line,
-        Vector3D<Precision> const &intersection,
-        std::vector<TPolyLine3D*> &rayVector) {
+    auto AddLine = [&point](TPolyLine3D const &line, Vector3D<Precision> const &intersection,
+                            std::vector<TPolyLine3D *> &rayVector) {
       TPolyLine3D *ray = new TPolyLine3D(line);
       ray->SetPoint(0, point[0], point[1], point[2]);
       ray->SetPoint(1, intersection[0], intersection[1], intersection[2]);
       rayVector.push_back(ray);
     };
     if (vecgeomMiss) {
-      AddLine(rootHits, point + rootResult*direction, rays);
+      AddLine(rootHits, point + rootResult * direction, rays);
     } else {
       ++hits;
       if (same) {
         if (fShowCorrectResults) {
-          AddLine(sameResult, point + vecgeomResult*direction, rays);
+          AddLine(sameResult, point + vecgeomResult * direction, rays);
         }
       } else {
-        AddLine(differentResultVecgeom, point + vecgeomResult*direction, rays);
-        AddLine(differentResultRoot, point + rootResult*direction, helperRays);
+        AddLine(differentResultVecgeom, point + vecgeomResult * direction, rays);
+        AddLine(differentResultRoot, point + rootResult * direction, helperRays);
       }
     }
   }
-  std::cout << "  VecGeom: " << hits << " / " << nSamples
-            << " hit the boundary.\n"
-            << "  Mismatches detected: " << mismatches << " / " << nSamples
-            << "\n";
+  std::cout << "  VecGeom: " << hits << " / " << nSamples << " hit the boundary.\n"
+            << "  Mismatches detected: " << mismatches << " / " << nSamples << "\n";
   if (fMaxMismatches > 0 && mismatches > 0) {
     std::cout << "\nMismatching rays [<Point> -> <Direction>: "
                  "<VecGeom> / <ROOT>]:\n";
     int i = 0, iMax = mismatchPoints.size();
     while (i < fMaxMismatches && i < iMax) {
-      std::cout << std::setprecision(std::numeric_limits<Precision>::digits10)
-                << mismatchPoints[i] << " -> " << mismatchDirections[i]
-                << ": " << mismatchResults[i].first << " / "
-                << mismatchResults[i].second << "\n";
+      std::cout << std::setprecision(std::numeric_limits<Precision>::digits10) << mismatchPoints[i] << " -> "
+                << mismatchDirections[i] << ": " << mismatchResults[i].first << " / " << mismatchResults[i].second
+                << "\n";
       ++i;
     }
   }
@@ -337,25 +316,23 @@ void ShapeDebugger::CompareDistanceToOutToROOT(
   }
   visualizer.Show();
 
-  for (auto ray : rays) delete ray;
+  for (auto ray : rays)
+    delete ray;
 }
 
-void ShapeDebugger::CompareSafetyToInToROOT(
-    Vector3D<Precision> const &bounds,
-    int nSamples) const {
+void ShapeDebugger::CompareSafetyToInToROOT(Vector3D<Precision> const &bounds, int nSamples) const
+{
   CompareSafetyToROOT<false>(bounds, nSamples);
 }
 
-void ShapeDebugger::CompareSafetyToOutToROOT(
-    Vector3D<Precision> const &bounds,
-    int nSamples) const {
+void ShapeDebugger::CompareSafetyToOutToROOT(Vector3D<Precision> const &bounds, int nSamples) const
+{
   CompareSafetyToROOT<true>(bounds, nSamples);
 }
 
 template <bool pointInsideT>
-void ShapeDebugger::CompareSafetyToROOT(
-    Vector3D<Precision> const &bounds,
-    int nSamples) const {
+void ShapeDebugger::CompareSafetyToROOT(Vector3D<Precision> const &bounds, int nSamples) const
+{
 
   if (pointInsideT) {
     std::cout << "Comparing SafetyToOut to ROOT\n";
@@ -367,11 +344,8 @@ void ShapeDebugger::CompareSafetyToROOT(
 
   std::shared_ptr<const TGeoShape> rootShape(fVolume->ConvertToRoot());
 
-  std::vector<std::tuple<std::shared_ptr<const TGeoShape>,
-                         Transformation3D,
-                         bool> > spheres;
-  std::vector<std::tuple<Vector3D<Precision>, Precision, double> >
-     mismatchResults;
+  std::vector<std::tuple<std::shared_ptr<const TGeoShape>, Transformation3D, bool>> spheres;
+  std::vector<std::tuple<Vector3D<Precision>, Precision, double>> mismatchResults;
   int mismatches = 0;
   for (int i = 0; i < nSamples; ++i) {
     Vector3D<Precision> point;
@@ -380,10 +354,10 @@ void ShapeDebugger::CompareSafetyToROOT(
     } while (pointInsideT != rootShape->Contains(&point[0]));
     Precision safety, rootSafety;
     if (pointInsideT) {
-      safety = fVolume->SafetyToOut(point);
+      safety     = fVolume->SafetyToOut(point);
       rootSafety = rootShape->Safety(&point[0], true);
     } else {
-      safety = fVolume->SafetyToIn(point);
+      safety     = fVolume->SafetyToIn(point);
       rootSafety = rootShape->Safety(&point[0], false);
     }
     bool mismatch = Abs(safety - rootSafety) > kTolerance;
@@ -391,21 +365,16 @@ void ShapeDebugger::CompareSafetyToROOT(
       ++mismatches;
       mismatchResults.emplace_back(point, safety, rootSafety);
     }
-    spheres.emplace_back(
-        std::shared_ptr<const TGeoShape>(new TGeoSphere(0, safety)),
-        Transformation3D(point[0], point[1], point[2]),
-        Abs(safety - rootSafety) < kTolerance);
+    spheres.emplace_back(std::shared_ptr<const TGeoShape>(new TGeoSphere(0, safety)),
+                         Transformation3D(point[0], point[1], point[2]), Abs(safety - rootSafety) < kTolerance);
   }
-  std::cout << "Mismatches detected: " << mismatches << " / " << nSamples
-            << "\n";
+  std::cout << "Mismatches detected: " << mismatches << " / " << nSamples << "\n";
   if (fMaxMismatches > 0 && mismatches > 0) {
     std::cout << "\nMismatching points [<Point>: <VecGeom> / <ROOT>]:\n";
     int i = 0, iMax = mismatchResults.size();
     while (i < fMaxMismatches && i < iMax) {
-      std::cout << std::setprecision(std::numeric_limits<Precision>::digits10)
-                << std::get<0>(mismatchResults[i]) << ": "
-                << std::get<1>(mismatchResults[i]) << " / "
-                << std::get<2>(mismatchResults[i]) << "\n";
+      std::cout << std::setprecision(std::numeric_limits<Precision>::digits10) << std::get<0>(mismatchResults[i])
+                << ": " << std::get<1>(mismatchResults[i]) << " / " << std::get<2>(mismatchResults[i]) << "\n";
       ++i;
     }
   }
@@ -414,8 +383,7 @@ void ShapeDebugger::CompareSafetyToROOT(
   visualizer.AddVolume(rootShape);
   int added = 0;
   for (auto &sphere : spheres) {
-    if (!fShowCorrectResults &&
-        (added >= fMaxMismatches || std::get<2>(sphere))) {
+    if (!fShowCorrectResults && (added >= fMaxMismatches || std::get<2>(sphere))) {
       continue;
     }
     visualizer.AddVolume(std::get<0>(sphere), std::get<1>(sphere));
@@ -425,5 +393,5 @@ void ShapeDebugger::CompareSafetyToROOT(
 }
 
 #endif
-
-} } // End namespace vecgeom
+}
+} // End namespace vecgeom

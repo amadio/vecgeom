@@ -22,14 +22,14 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class LogicalVolume;
 class NavStatePool;
 
-
 // A class providing convenient access to tabulated coordinate transformation data
 // could make it a private subclass if we don't want to expose it
 class TabulatedTransData {
 public:
   TabulatedTransData(std::string name, bool soa = true)
       : fName(name), fTransCoefficients(3), fRotCoefficients(9), fSOA(soa), fTransVariableName(3), fRotVariableName(9),
-        fVecTransVariableName(3), fVecRotVariableName(9) {
+        fVecTransVariableName(3), fVecRotVariableName(9)
+  {
     for (size_t i = 0; i < 9; ++i)
       fRotCoefficients[i].resize(0);
     for (size_t i = 0; i < 3; ++i)
@@ -38,11 +38,13 @@ public:
   void Analyse();
   void SetRotCoef(size_t i, size_t index, double x) { fRotCoefficients[i][index] = x; }
   void SetTransCoef(size_t i, size_t index, double x) { fTransCoefficients[i][index] = x; }
-  void ReserveRot(size_t index, size_t size) {
+  void ReserveRot(size_t index, size_t size)
+  {
     fRotCoefficients[index].reserve(size);
     fRotCoefficients[index].resize(size, 0.);
   }
-  void ReserveTrans(size_t index, size_t size) {
+  void ReserveTrans(size_t index, size_t size)
+  {
     fTransCoefficients[index].reserve(size);
     fTransCoefficients[index].resize(size, 0.);
   }
@@ -56,7 +58,7 @@ public:
 
   void EmitVectorGlobalTransformationCode(std::ostream &) const;
 
-//  void IsSOA() const {return fSOA;}
+  //  void IsSOA() const {return fSOA;}
 
   void PrintStaticSOADefinition() const;
   void PrintStaticAOSDefinition(/*might need a name*/) const;
@@ -72,20 +74,20 @@ private:
   std::string fName; // a name addressing this transformation ( example: gGlobalTransf )
   std::vector<std::vector<double>> fTransCoefficients; // the raw numbers for transformations
   std::vector<std::vector<double>> fRotCoefficients;   // the raw number for rotations
-  bool fSOA = false; // emit SOA tables ( or AOS )
+  bool fSOA = false;                                   // emit SOA tables ( or AOS )
 
   // the following variables are initialized to true because its easier to convert them to false
   // during the analysis
   // they make only sense after a call to Analyse()
-  bool fRotalwayszero[9] = {true, true, true, true, true, true, true, true, true};
-  bool fRotalwaysone[9] = {true, true, true, true, true, true, true, true, true};
-  bool fRotalwaysminusone[9] = {true, true, true, true, true, true, true, true, true};
+  bool fRotalwayszero[9]          = {true, true, true, true, true, true, true, true, true};
+  bool fRotalwaysone[9]           = {true, true, true, true, true, true, true, true, true};
+  bool fRotalwaysminusone[9]      = {true, true, true, true, true, true, true, true, true};
   bool fRotalwaysminusoneorone[9] = {true, true, true, true, true, true, true, true, true};
-  bool fTransalwayszero[3] = {true, true, true};
-  bool fTransIsConstant[3] = {true, true, true}; // indicates if this component is a constant for all entries
-  bool fRotIsConstant[9] = {true, true, true, true, true,
+  bool fTransalwayszero[3]        = {true, true, true};
+  bool fTransIsConstant[3]        = {true, true, true}; // indicates if this component is a constant for all entries
+  bool fRotIsConstant[9]          = {true, true, true, true, true,
                             true, true, true, true}; // indicates if this component is a constant for all entries
-  std::vector<std::string> fTransVariableName; // variable names which are set according to SOA/AOS choices etc
+  std::vector<std::string> fTransVariableName;       // variable names which are set according to SOA/AOS choices etc
   std::vector<std::string> fRotVariableName;
   std::vector<std::string> fVecTransVariableName; // variable names which are set according to SOA/AOS choices etc
   std::vector<std::string> fVecRotVariableName;
@@ -117,7 +119,7 @@ private:
 class NavigationSpecializer {
 
 public:
-    // is this class a singleton ??
+  // is this class a singleton ??
   NavigationSpecializer()
       : fLogicalVolumeName(), fClassName(), fLogicalVolume(nullptr), fGeometryDepth(0), fIndexMap(),
         fStaticArraysInitStream(), fStaticArraysDefinitions(), fTransformationCode(), fVectorTransformVariables(),
@@ -126,122 +128,124 @@ public:
         fUnrollLoops(false),         // whether to manually unroll all loops
         fUseBaseNavigator(false),    // whether to use the DaughterDetection from another navigator ( makes sense when
                                      // combined with voxel techniques )
-        fBaseNavigator(),
-        fGlobalTransData("globalTrans", true) // init 12 vectors : 3 for translation, 9 for rotation
+        fBaseNavigator(), fGlobalTransData("globalTrans", true) // init 12 vectors : 3 for translation, 9 for rotation
         {};
 
-    // produce a specialized SafetyEstimator class for a given logical volume
-    // currently this is only done using the SimpleEstimator base algorithm
-    // TODO: we could template here on some base algorithm in general and we could
-    // specialize voxel algorithms and the like
-    void ProduceSpecializedNavigator( LogicalVolume const *, std::ostream & );
+  // produce a specialized SafetyEstimator class for a given logical volume
+  // currently this is only done using the SimpleEstimator base algorithm
+  // TODO: we could template here on some base algorithm in general and we could
+  // specialize voxel algorithms and the like
+  void ProduceSpecializedNavigator(LogicalVolume const *, std::ostream &);
 
+private:
+  typedef std::map<size_t, std::map<size_t, size_t>> PathLevelIndexMap_t;
 
-private :
-    typedef std::map< size_t, std::map< size_t, size_t >> PathLevelIndexMap_t;
+  // analysis functions
+  void AnalyseLogicalVolume();
+  void AnalysePaths(std::list<NavigationState *> const & /* inpaths */);
+  void AnalyseTargetPaths(NavStatePool const &, NavStatePool const &);
+  // void GeneratePathClassifierCode(std::list<std::pair<int, std::set<NavigationState::Value_t>>> const
+  // &pathclassification,
+  //                                 PathLevelIndexMap_t &map);
 
-    // analysis functions
-    void AnalyseLogicalVolume();
-    void AnalysePaths( std::list<NavigationState *> const & /* inpaths */ );
-    void AnalyseTargetPaths( NavStatePool const &, NavStatePool const &);
-   // void GeneratePathClassifierCode(std::list<std::pair<int, std::set<NavigationState::Value_t>>> const &pathclassification,
-   //                                 PathLevelIndexMap_t &map);
+  void AddToIndexMap(size_t, size_t);
+  size_t PathToIndex(NavigationState const *);
+  void AnalyseIndexCorrelations(std::list<NavigationState *> const &);
 
+  // writer functions
+  void DumpDisclaimer(std::ostream &);
+  void DumpIncludeFiles(std::ostream &);
+  void DumpNamespaceOpening(std::ostream &);
+  void DumpNamespaceClosing(std::ostream &);
+  void DumpStaticConstExprData(std::ostream &);
+  void DumpStaticConstExprVariableDefinitions(std::ostream &);
+  void DumpStaticInstanceFunction(std::ostream &);
+  void DumpConstructor(std::ostream &) const;
+  void DumpClassOpening(std::ostream &);
+  void DumpClassDefinitions(std::ostream &);
+  void DumpClassDeclarations(std::ostream &);
+  void DumpClassClosing(std::ostream &);
+  void DumpPathToIndexFunction(std::ostream &);
+  void DumpVectorTransformationFunction(std::ostream &);
+  void DumpLocalSafetyFunction(std::ostream &);
+  void DumpPrivateClassDefinitions(std::ostream &);
+  void DumpPublicClassDefinitions(std::ostream &);
+  void DumpLocalSafetyFunctionDeclaration(std::ostream &);
 
-    void AddToIndexMap( size_t, size_t );
-    size_t PathToIndex( NavigationState const * );
-    void AnalyseIndexCorrelations( std::list<NavigationState *> const & );
+  void DumpRelocateMethod(std::ostream &) const;
 
-    // writer functions
-    void DumpDisclaimer(std::ostream &);
-    void DumpIncludeFiles( std::ostream & );
-    void DumpNamespaceOpening( std::ostream & );
-    void DumpNamespaceClosing( std::ostream & );
-    void DumpStaticConstExprData( std::ostream & );
-    void DumpStaticConstExprVariableDefinitions( std::ostream & );
-    void DumpStaticInstanceFunction( std::ostream & );
-    void DumpConstructor( std::ostream & ) const;
-    void DumpClassOpening( std::ostream & );
-    void DumpClassDefinitions( std::ostream & );
-    void DumpClassDeclarations( std::ostream & );
-    void DumpClassClosing( std::ostream & );
-    void DumpPathToIndexFunction( std::ostream & );
-    void DumpVectorTransformationFunction( std::ostream & );
-    void DumpLocalSafetyFunction( std::ostream & );
-    void DumpPrivateClassDefinitions( std::ostream & );
-    void DumpPublicClassDefinitions( std::ostream & );
-    void DumpLocalSafetyFunctionDeclaration( std::ostream & );
+  void DumpLocalVectorSafetyFunctionDeclaration(std::ostream &);
 
-    void DumpRelocateMethod(std::ostream &) const;
+  void DumpLocalVectorSafetyFunctionDeclarationPerSIMDVector(std::ostream &);
 
-    void DumpLocalVectorSafetyFunctionDeclaration( std::ostream & );
+  void DumpSafetyFunctionDeclaration(std::ostream &);
+  void DumpVectorSafetyFunctionDeclaration(std::ostream &);
+  void DumpTransformationAsserts(std::ostream &);
 
-    void DumpLocalVectorSafetyFunctionDeclarationPerSIMDVector( std::ostream & );
+  void DumpLocalHitDetectionFunction(std::ostream &) const;
 
-    void DumpSafetyFunctionDeclaration( std::ostream & );
-    void DumpVectorSafetyFunctionDeclaration( std::ostream & );
-    void DumpTransformationAsserts( std::ostream & );
+  // they produce static component functions which are plugged into the generic implementation of VNavigatorHelper
+  void DumpFoo(std::ostream &) const;
+  void DumpStaticTreatGlobalToLocalTransformationFunction(std::ostream &) const;
+  // the vector version of for the coordinate transformation
+  void DumpStaticTreatGlobalToLocalTransformationsFunction(std::ostream &) const;
 
-    void DumpLocalHitDetectionFunction(std::ostream &) const;
-
-    // they produce static component functions which are plugged into the generic implementation of VNavigatorHelper
-    void DumpFoo(std::ostream &) const;
-    void DumpStaticTreatGlobalToLocalTransformationFunction( std::ostream & ) const;
-    // the vector version of for the coordinate transformation
-    void DumpStaticTreatGlobalToLocalTransformationsFunction( std::ostream & ) const;
-
-    void DumpStaticTreatDistanceToMotherFunction( std::ostream & ) const;
-    void DumpStaticPrepareOutstateFunction( std::ostream & ) const;
-
+  void DumpStaticTreatDistanceToMotherFunction(std::ostream &) const;
+  void DumpStaticPrepareOutstateFunction(std::ostream &) const;
 
 public:
   void EnableLoopUnrolling() { fUnrollLoops = true; }
   void DisableLoopUnrolling() { fUnrollLoops = false; }
 
-  void SetBaseNavigator(std::string const & nav) {
+  void SetBaseNavigator(std::string const &nav)
+  {
     fUseBaseNavigator = true;
-    fBaseNavigator = nav;
+    fBaseNavigator    = nav;
   }
 
   typedef std::pair<int, std::string> FinalDepthShapeType_t;
+
 private:
-    // private state
-    std::string fLogicalVolumeName;
-    std::string fClassName;
-    LogicalVolume const * fLogicalVolume;
-    unsigned int fGeometryDepth; // the depth of instances of fLogicalVolumes in the geometry hierarchy ( must be unique )
-    unsigned int fNumberOfPossiblePaths;
-    PathLevelIndexMap_t fIndexMap; // in memory structure; used to map a NavigationState object to an index
-    std::stringstream fStaticArraysInitStream;    // stream to collect code for the static arrays
-    std::stringstream fStaticArraysDefinitions;   // stream to collect code for constexpr static array definitions
-    std::stringstream fTransformationCode;        // to collect the specialized transformation statements for points
-    std::stringstream fTransformationCodeDir;     // to collect the specialized transformation statements for dirs
-    std::stringstream fVectorTransformVariables;  // to collect relevant vector variables for transformation
-    std::stringstream fVectorTransformationCode;  // to collect the many-path/SIMD transformation statements
-    std::vector<std::string> fTransformVariables; // stores the list of relevant transformation variables
-    bool fUnrollLoops; // whether to manually unroll all loops
-    bool fUseBaseNavigator; // whether to use the DaughterDetection from another navigator ( makes sense when combined with voxel techniques )
-    std::string fBaseNavigator;
+  // private state
+  std::string fLogicalVolumeName;
+  std::string fClassName;
+  LogicalVolume const *fLogicalVolume;
+  unsigned int fGeometryDepth; // the depth of instances of fLogicalVolumes in the geometry hierarchy ( must be unique )
+  unsigned int fNumberOfPossiblePaths;
+  PathLevelIndexMap_t fIndexMap;                // in memory structure; used to map a NavigationState object to an index
+  std::stringstream fStaticArraysInitStream;    // stream to collect code for the static arrays
+  std::stringstream fStaticArraysDefinitions;   // stream to collect code for constexpr static array definitions
+  std::stringstream fTransformationCode;        // to collect the specialized transformation statements for points
+  std::stringstream fTransformationCodeDir;     // to collect the specialized transformation statements for dirs
+  std::stringstream fVectorTransformVariables;  // to collect relevant vector variables for transformation
+  std::stringstream fVectorTransformationCode;  // to collect the many-path/SIMD transformation statements
+  std::vector<std::string> fTransformVariables; // stores the list of relevant transformation variables
+  bool fUnrollLoops;                            // whether to manually unroll all loops
+  bool fUseBaseNavigator; // whether to use the DaughterDetection from another navigator ( makes sense when combined
+                          // with voxel techniques )
+  std::string fBaseNavigator;
 
-    std::stringstream fDeltaTransformationCode;
-    std::vector<std::string> fTransitionTransformVariables; // stores the vector of relevant variables for the relocation transformations
+  std::stringstream fDeltaTransformationCode;
+  std::vector<std::string>
+      fTransitionTransformVariables; // stores the vector of relevant variables for the relocation transformations
 
-    //
-    std::vector<std::string> fTransitionStrings;
-    std::vector<FinalDepthShapeType_t> fTransitionTargetTypes; // the vector of possible relocation target types
-    std::vector<size_t> fTransitionOrder; // the vector keeping the order of indices of relocation transitions (
-                                                 // as stored in fTransitionTargetsTypes )
-    std::vector<NavigationState::Value_t> fTargetVolIds; // the ids of the target volumes ( to quickly fetch a representative volume pointer )
+  //
+  std::vector<std::string> fTransitionStrings;
+  std::vector<FinalDepthShapeType_t> fTransitionTargetTypes; // the vector of possible relocation target types
+  std::vector<size_t> fTransitionOrder; // the vector keeping the order of indices of relocation transitions (
+                                        // as stored in fTransitionTargetsTypes )
+  std::vector<NavigationState::Value_t>
+      fTargetVolIds; // the ids of the target volumes ( to quickly fetch a representative volume pointer )
 
-    std::vector<std::vector<int>> fPathxTargetToMatrixTable; // an in - memory table to fetch the correct transition matrix index
-    std::stringstream fPathxTargetToMatrixTableStringStream; // string represenation of the above
+  std::vector<std::vector<int>>
+      fPathxTargetToMatrixTable; // an in - memory table to fetch the correct transition matrix index
+  std::stringstream fPathxTargetToMatrixTableStringStream; // string represenation of the above
 
-    // caching the transformation numbers --> to build a SOA/AOS form
-    TabulatedTransData fGlobalTransData;
+  // caching the transformation numbers --> to build a SOA/AOS form
+  TabulatedTransData fGlobalTransData;
 
 }; // end class
-
-
-}} // end namespace
+}
+} // end namespace
 
 #endif /* VECGEOM_SERVICES_NAVIGATIONSPECIALIZER_H_ */

@@ -25,26 +25,29 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 #ifndef VECGEOM_NVCC
 
-VPlacedVolume const* PlacedTrd::ConvertToUnspecialized() const {
+VPlacedVolume const *PlacedTrd::ConvertToUnspecialized() const
+{
   return new SimpleTrd(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
 }
 
 #ifdef VECGEOM_ROOT
-TGeoShape const* PlacedTrd::ConvertToRoot() const {
-  if(dy1() == dy2())
-    return new TGeoTrd1(GetLabel().c_str(), dx1(), dx2(), dy1(), dz());
+TGeoShape const *PlacedTrd::ConvertToRoot() const
+{
+  if (dy1() == dy2()) return new TGeoTrd1(GetLabel().c_str(), dx1(), dx2(), dy1(), dz());
   return new TGeoTrd2(GetLabel().c_str(), dx1(), dx2(), dy1(), dy2(), dz());
 }
 #endif
 
 #if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const* PlacedTrd::ConvertToUSolids() const {
+::VUSolid const *PlacedTrd::ConvertToUSolids() const
+{
   return new UTrd("", dx1(), dx2(), dy1(), dy2(), dz());
 }
 #endif
 
 #ifdef VECGEOM_GEANT4
-G4VSolid const* PlacedTrd::ConvertToGeant4() const {
+G4VSolid const *PlacedTrd::ConvertToGeant4() const
+{
   return new G4Trd(GetLabel(), dx1(), dx2(), dy1(), dy2(), dz());
 }
 #endif
@@ -55,14 +58,13 @@ G4VSolid const* PlacedTrd::ConvertToGeant4() const {
 
 #ifdef VECGEOM_NVCC
 
-VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_3( SpecializedTrd, TrdTypes::UniversalTrd )
+VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_3(SpecializedTrd, TrdTypes::UniversalTrd)
 
 #ifndef VECGEOM_NO_SPECIALIZATION
-VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_3( SpecializedTrd, TrdTypes::Trd1 )
-VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_3( SpecializedTrd, TrdTypes::Trd2 )
+VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_3(SpecializedTrd, TrdTypes::Trd1)
+VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_3(SpecializedTrd, TrdTypes::Trd2)
 #endif
 
 #endif
 
 } // End global namespace
-

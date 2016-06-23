@@ -15,18 +15,17 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 // we do something crazy : a plain struct without member functions to encapsulate just the parameters
 // of a box
-template <typename T=double> struct BoxStruct {
+template <typename T = double>
+struct BoxStruct {
   Vector3D<T> fDimensions; //<the HALF lengths of the box
 
   VECGEOM_CUDA_HEADER_BOTH
-  BoxStruct(Vector3D<T> const &dim) : fDimensions(dim) { }
+  BoxStruct(Vector3D<T> const &dim) : fDimensions(dim) {}
 
   VECGEOM_CUDA_HEADER_BOTH
-  BoxStruct(const T dx, const T dy, const T dz)
-        : fDimensions(dx, dy, dz) {}
-
+  BoxStruct(const T dx, const T dy, const T dz) : fDimensions(dx, dy, dz) {}
 };
-
-}} // end
+}
+} // end
 
 #endif

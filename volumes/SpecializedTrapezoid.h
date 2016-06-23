@@ -19,11 +19,10 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedTrapezoid = ShapeImplementationHelper<TrapezoidImplementation<transCodeT, rotCodeT> >;
+using SpecializedTrapezoid = ShapeImplementationHelper<TrapezoidImplementation<transCodeT, rotCodeT>>;
 
 using SimpleTrapezoid = SpecializedTrapezoid<translation::kGeneric, rotation::kGeneric>;
-
-
-} } // End global namespace
+}
+} // End global namespace
 
 #endif // VECGEOM_VOLUMES_SPECIALIZEDTRAPEZOID_H_

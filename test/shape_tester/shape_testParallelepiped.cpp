@@ -15,7 +15,8 @@
 
 typedef vecgeom::SimpleParallelepiped Para_t;
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
   if (argc == 1) {
     std::cout << "Usage: shape_testParallelepiped -test <#>:\n"
                  "       0 - alpha, theta, phi\n"
@@ -24,13 +25,13 @@ int main(int argc, char *argv[]) {
   OPTION_INT(test, 0);
   using namespace vecgeom;
 
-  Para_t *solid = 0;
-  Precision dx = 10.;
-  Precision dy = 7;
-  Precision dz = 15;
+  Para_t *solid   = 0;
+  Precision dx    = 10.;
+  Precision dy    = 7;
+  Precision dz    = 15;
   Precision alpha = 30.;
   Precision theta = 30.;
-  Precision phi = 45.;
+  Precision phi   = 45.;
 
   switch (test) {
   case 0:

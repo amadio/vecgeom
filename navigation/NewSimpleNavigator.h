@@ -15,29 +15,29 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 // A very basic implementation of a navigator ( brute force which scales linearly with the number of daughters )
-template <bool MotherIsConvex=false>
+template <bool MotherIsConvex = false>
 class NewSimpleNavigator : public VNavigatorHelper<class NewSimpleNavigator<MotherIsConvex>, MotherIsConvex> {
 
 private:
   VECGEOM_CUDA_HEADER_DEVICE
   NewSimpleNavigator()
-      : VNavigatorHelper<class NewSimpleNavigator<MotherIsConvex>, MotherIsConvex>(SimpleSafetyEstimator::Instance()) {}
-  VECGEOM_CUDA_HEADER_DEVICE
-  virtual ~NewSimpleNavigator() {}
+      : VNavigatorHelper<class NewSimpleNavigator<MotherIsConvex>, MotherIsConvex>(SimpleSafetyEstimator::Instance()) {
+  } VECGEOM_CUDA_HEADER_DEVICE virtual ~NewSimpleNavigator() {}
 
 public:
   VECGEOM_INLINE
   virtual Precision ComputeStepAndHittingBoundaryForLocalPoint(Vector3D<Precision> const &localpoint,
                                                                Vector3D<Precision> const &localdir,
                                                                Precision step_limit, NavigationState const &in_state,
-                                                               NavigationState &out_state) const override {
+                                                               NavigationState &out_state) const override
+  {
 
     auto currentvolume = in_state.Top();
 #if defined(VERBOSE) && !defined(VECGEOM_NVCC)
-    __thread static size_t counter=0;
+    __thread static size_t counter = 0;
     if (counter % 1 == 0) {
-      std::cerr << GetClassName() << " navigating in " << currentvolume->GetLabel() << " stepnumber " << counter << "step_limit" << step_limit
-                << "localpoint " << localpoint << "localdir" << globaldir;
+      std::cerr << GetClassName() << " navigating in " << currentvolume->GetLabel() << " stepnumber " << counter
+                << "step_limit" << step_limit << "localpoint " << localpoint << "localdir" << globaldir;
     }
     counter++;
 #endif
@@ -52,9 +52,9 @@ public:
     }
 
     // iterate over all daughters
-    auto *daughters = currentvolume->GetLogicalVolume()->GetDaughtersp();
-    decltype(currentvolume) nexthitvolume=nullptr;
-    auto ndaughters = daughters->size();
+    auto *daughters                       = currentvolume->GetLogicalVolume()->GetDaughtersp();
+    decltype(currentvolume) nexthitvolume = nullptr;
+    auto ndaughters                       = daughters->size();
     for (decltype(ndaughters) d = 0; d < ndaughters; ++d) {
       auto daughter = daughters->operator[](d);
 //    previous distance becomes step estimate, distance to daughter returned in workspace
@@ -69,13 +69,13 @@ public:
 
         // if distance is negative; we are inside that daughter and should relocate
         // unless distance is minus infinity
-        bool valid = (ddistance < step && !IsInf(ddistance));
+        bool valid    = (ddistance < step && !IsInf(ddistance));
         nexthitvolume = valid ? daughter : nexthitvolume;
-        step = valid ? ddistance : step;
+        step          = valid ? ddistance : step;
 #ifdef CHECKCONTAINS
       } else {
         std::cerr << " INDA ";
-        step = -1.;
+        step          = -1.;
         nexthitvolume = daughter;
         break;
       }
@@ -87,9 +87,11 @@ public:
 
   VECGEOM_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  virtual bool
-  CheckDaughterIntersections(LogicalVolume const *lvol, Vector3D<Precision> const & localpoint, Vector3D<Precision> const & localdir,
-                             NavigationState const & /*in_state*/, NavigationState & /*out_state*/, Precision & step, VPlacedVolume const *&hitcandidate) const override {
+  virtual bool CheckDaughterIntersections(LogicalVolume const *lvol, Vector3D<Precision> const &localpoint,
+                                          Vector3D<Precision> const &localdir, NavigationState const & /*in_state*/,
+                                          NavigationState & /*out_state*/, Precision &step,
+                                          VPlacedVolume const *&hitcandidate) const override
+  {
 
     // iterate over all daughters
     auto *daughters = lvol->GetDaughtersp();
@@ -108,13 +110,13 @@ public:
 
         // if distance is negative; we are inside that daughter and should relocate
         // unless distance is minus infinity
-        bool valid = (ddistance < step && !IsInf(ddistance));
+        bool valid   = (ddistance < step && !IsInf(ddistance));
         hitcandidate = valid ? daughter : hitcandidate;
-        step = valid ? ddistance : step;
+        step         = valid ? ddistance : step;
 #ifdef CHECKCONTAINS
       } else {
         std::cerr << " INDA ";
-        step = -1.;
+        step         = -1.;
         hitcandidate = daughter;
         break;
       }
@@ -126,19 +128,19 @@ public:
   // Vector specialization for NewSimpleNavigator
   // TODO: unify with scalar use case
   template <typename T, unsigned int ChunkSize> // we may go to Backend as template parameter in future
-static void DaughterIntersectionsLooper(VNavigator const * /*nav*/, LogicalVolume const *lvol,
-                                          Vector3D<T> const &localpoint, Vector3D<T> const &localdir,
-//                                          NavStatePool const &in_states, NavStatePool &out_states,
-					NavigationState const ** /*in_states*/, NavigationState ** /*out_states*/,
-                                          unsigned int from_index, Precision *out_steps,
-                                          VPlacedVolume const *hitcandidates[ChunkSize]) {
+  static void DaughterIntersectionsLooper(
+      VNavigator const * /*nav*/, LogicalVolume const *lvol, Vector3D<T> const &localpoint, Vector3D<T> const &localdir,
+      //                                          NavStatePool const &in_states, NavStatePool &out_states,
+      NavigationState const ** /*in_states*/, NavigationState ** /*out_states*/, unsigned int from_index,
+      Precision *out_steps, VPlacedVolume const *hitcandidates[ChunkSize])
+  {
     // dispatch to vector implementation
     // iterate over all daughters
     // using Real_v = typename Backend::Real_v;
     // using Bool_v = Real_v::Mask;
     T step(vecCore::FromPtr<T>(out_steps + from_index));
     const auto *daughters = lvol->GetDaughtersp();
-    auto ndaughters = daughters->size();
+    auto ndaughters       = daughters->size();
     for (decltype(ndaughters) d = 0; d < ndaughters; ++d) {
       auto daughter = daughters->operator[](d);
       // SW: this makes the navigation more robust and it appears that I have to
@@ -156,20 +158,20 @@ static void DaughterIntersectionsLooper(VNavigator const * /*nav*/, LogicalVolum
 
       // serial treatment of hit candidate until I find a better way
       // we might do this using a cast to a double vector with subsequent masked assignment
-      if (! vecCore::MaskEmpty(valid)) {
+      if (!vecCore::MaskEmpty(valid)) {
         for (unsigned int i = 0 /*valid.firstOne()*/; i < ChunkSize; ++i) {
-          hitcandidates[i] = vecCore::MaskLaneAt(valid,i) ? daughter : hitcandidates[i];
+          hitcandidates[i] = vecCore::MaskLaneAt(valid, i) ? daughter : hitcandidates[i];
         }
 
         vecCore::MaskedAssign(step, valid, ddistance);
-                                 //  #ifdef CHECKCONTAINS
-                                 //        } else {
-                                 //          std::cerr << " INDA ";
-                                 //          step = -1.;
-                                 //          hitcandidate = daughter;
-                                 //          break;
-                                 //        }
-                                 //  #endif
+        //  #ifdef CHECKCONTAINS
+        //        } else {
+        //          std::cerr << " INDA ";
+        //          step = -1.;
+        //          hitcandidate = daughter;
+        //          break;
+        //        }
+        //  #endif
       }
     }
     vecCore::Store(step, out_steps + from_index);
@@ -220,7 +222,8 @@ static void DaughterIntersectionsLooper(VNavigator const * /*nav*/, LogicalVolum
 //  }
 
 #ifndef VECGEOM_NVCC
-  static VNavigator *Instance() {
+  static VNavigator *Instance()
+  {
     static NewSimpleNavigator instance;
     return &instance;
   }
@@ -229,14 +232,10 @@ static void DaughterIntersectionsLooper(VNavigator const * /*nav*/, LogicalVolum
   static VNavigator *Instance();
 #endif
 
-
   static constexpr const char *gClassNameString = "NewSimpleNavigator";
   typedef SimpleSafetyEstimator SafetyEstimator_t;
 }; // end of class
-
 }
 } // end namespace
-
-
 
 #endif /* NAVIGATION_NEWSIMPLENAVIGATOR_H_ */

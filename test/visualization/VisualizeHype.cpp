@@ -4,7 +4,8 @@
 
 using namespace vecgeom;
 
-int main() {
+int main()
+{
   constexpr int nSamples = 512;
   SimpleHype hype("Visualizer Hype", 10, 15, kPi / 4, kPi / 4, 50);
   AOS3D<Precision> points(nSamples);

@@ -4,9 +4,10 @@
 
 using namespace vecgeom;
 
-int main() {
+int main()
+{
   constexpr int nSamples = 512;
-  SimpleTube tube("Visualizer Tube", 0, 5, 10, 0., 4*kPi/3);
+  SimpleTube tube("Visualizer Tube", 0, 5, 10, 0., 4 * kPi / 3);
   AOS3D<Precision> points(nSamples);
   for (int i = 0; i < nSamples; ++i) {
     Vector3D<Precision> sample;
@@ -18,7 +19,7 @@ int main() {
   points.resize(nSamples);
   Visualizer visualizer;
   visualizer.AddVolume(tube);
-  //visualizer.AddPoints(points);
+  // visualizer.AddPoints(points);
   visualizer.Show();
   return 0;
 }

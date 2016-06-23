@@ -28,48 +28,46 @@ namespace vecgeom {
 
 inline namespace cxx {
 
-template <typename T> class AOS3D;
-template <typename T> class SOA3D;
+template <typename T>
+class AOS3D;
+template <typename T>
+class SOA3D;
 class Transformation3D;
-template <typename T> class Vector3D;
+template <typename T>
+class Vector3D;
 
 /// \brief Visualize volumes through ROOT.
 class Visualizer {
 
 private:
-
   int fVerbosity;
-  std::list<std::tuple<std::shared_ptr<const TGeoShape>,
-                       std::unique_ptr<TGeoMatrix>,
-                       std::unique_ptr<TGeoVolume> > > fVolumes;
-  std::list<std::unique_ptr<TPolyMarker3D> > fMarkers;
-  std::list<std::unique_ptr<TPolyLine3D> > fLines;
-  TApplication *fApp;      // ROOT application used for visualization
+  std::list<std::tuple<std::shared_ptr<const TGeoShape>, std::unique_ptr<TGeoMatrix>, std::unique_ptr<TGeoVolume>>>
+      fVolumes;
+  std::list<std::unique_ptr<TPolyMarker3D>> fMarkers;
+  std::list<std::unique_ptr<TPolyLine3D>> fLines;
+  TApplication *fApp;       // ROOT application used for visualization
   TGeoManager *fGeoManager; // ROOT geometry manager
 
 public:
-
   Visualizer();
 
   ~Visualizer();
 
-  TApplication* GetTApp(){return fApp;}
+  TApplication *GetTApp() { return fApp; }
 
   void AddVolume(VPlacedVolume const &volume);
 
-  void AddVolume(VPlacedVolume const &volume,
-                 Transformation3D const &transformation);
+  void AddVolume(VPlacedVolume const &volume, Transformation3D const &transformation);
 
   void AddVolume(std::shared_ptr<const TGeoShape> rootVolume);
 
-  void AddVolume(std::shared_ptr<const TGeoShape> rootVolume,
-                 Transformation3D const &position);
+  void AddVolume(std::shared_ptr<const TGeoShape> rootVolume, Transformation3D const &position);
 
-  void AddPoint( Vector3D<Precision> const & point, int color=kRed );
+  void AddPoint(Vector3D<Precision> const &point, int color = kRed);
 
-  void AddPoints(AOS3D<Precision> const &points, int color=kRed);
+  void AddPoints(AOS3D<Precision> const &points, int color = kRed);
 
-  void AddPoints(SOA3D<Precision> const &points, int color=kRed);
+  void AddPoints(SOA3D<Precision> const &points, int color = kRed);
 
   void AddPoints(TPolyMarker3D const &marker);
 
@@ -87,12 +85,10 @@ public:
   void SetVerbosity(int level);
 
 private:
-
   template <class ContainerType>
-  void AddPointsTemplate(ContainerType const &points, int color=kRed);
-
+  void AddPointsTemplate(ContainerType const &points, int color = kRed);
 };
-
-} } // End namespace vecgeom
+}
+} // End namespace vecgeom
 
 #endif // VECGEOM_MANAGEMENT_VISUALIZER_H_

@@ -20,26 +20,26 @@
 
 namespace vecgeom {
 
-
 // returns number of different values of a list of NavigationStates at a particular  level
-template<typename SetContainer>
-int PathsAreDifferentAtGivenLevel(std::list<NavigationState *> const &paths, size_t level, SetContainer &values){
-    auto cmpvalue = paths.front()->ValueAt(level);
-    values.insert(cmpvalue);
-    for(auto path : paths){
-      if( path->ValueAt(level) != cmpvalue ){
-        values.insert(path->ValueAt(level));
-      }
+template <typename SetContainer>
+int PathsAreDifferentAtGivenLevel(std::list<NavigationState *> const &paths, size_t level, SetContainer &values)
+{
+  auto cmpvalue = paths.front()->ValueAt(level);
+  values.insert(cmpvalue);
+  for (auto path : paths) {
+    if (path->ValueAt(level) != cmpvalue) {
+      values.insert(path->ValueAt(level));
     }
-    return values.size() >= 2 ? values.size() : 0;
+  }
+  return values.size() >= 2 ? values.size() : 0;
 }
 
 // generic function to check if a collection contains just one element
-template<typename Container, typename T >
-bool CollectionIsConstant(Container const &c, T oneelementinc){
-  for(auto element : c){
-      if(element != oneelementinc)
-          return false;
+template <typename Container, typename T>
+bool CollectionIsConstant(Container const &c, T oneelementinc)
+{
+  for (auto element : c) {
+    if (element != oneelementinc) return false;
   }
   return true;
 }
@@ -48,11 +48,10 @@ bool CollectionIsConstant(Container const &c, T oneelementinc){
 auto printlambda = [](std::string name, std::vector<double> const &v, std::ostream &outstream) {
   outstream << "static constexpr double " << name << "[" << v.size() << "] = {";
   size_t numberofelements = v.size();
-  size_t counter = 0;
+  size_t counter          = 0;
   for (auto e : v) {
     outstream << std::setprecision(35) << e;
-    if (counter < numberofelements - 1)
-      outstream << ", ";
+    if (counter < numberofelements - 1) outstream << ", ";
     counter++;
   }
   outstream << "};\n";
@@ -65,7 +64,8 @@ auto printlambdasingle = [](std::string name, double e, std::ostream &outstream)
   outstream << ";\n";
 };
 
-void TabulatedTransData::Analyse() {
+void TabulatedTransData::Analyse()
+{
   for (int i = 0; i < 9; ++i) {
     // rotation
     auto const &coeffs = fRotCoefficients[i];
@@ -107,7 +107,8 @@ void TabulatedTransData::Analyse() {
   } // end translation analysis
 }
 
-void TabulatedTransData::Print() const {
+void TabulatedTransData::Print() const
+{
   std::cerr << " --- output of analysis ---- \n";
   for (size_t i = 0; i < 9; ++i) {
     std::cerr << "rot[" << i << "] exists: " << (fRotCoefficients[i].size() > 0) << "\n";
@@ -124,8 +125,8 @@ void TabulatedTransData::Print() const {
   }
 }
 
-
-void TabulatedTransData::EmitTableDeclaration(std::ostream & outstream) {
+void TabulatedTransData::EmitTableDeclaration(std::ostream &outstream)
+{
   // emit in SOA form
   outstream << "// ------- generated tables ------\n";
   if (fSOA) {
@@ -133,33 +134,36 @@ void TabulatedTransData::EmitTableDeclaration(std::ostream & outstream) {
       if (fTransCoefficients[i].size() > 0) {
         std::stringstream ss;
         ss << fName << "trans" << i;
-        std::stringstream ss2; ss2 << ss.str();
+        std::stringstream ss2;
+        ss2 << ss.str();
         if (!fTransIsConstant[i]) {
-            ss2 << "[index]";
+          ss2 << "[index]";
           printlambda(ss.str(), fTransCoefficients[i], outstream);
         } else {
           printlambdasingle(ss.str(), fTransCoefficients[i][0], outstream);
         }
-        fTransVariableName[i]=ss2.str();
+        fTransVariableName[i] = ss2.str();
         ss << "_v";
-        fVecTransVariableName[i]=ss.str();
+        fVecTransVariableName[i] = ss.str();
       }
     }
     for (size_t i = 0; i < 9; ++i) {
       if (fRotCoefficients[i].size() > 0) {
         std::stringstream ss;
         ss << fName << "rot" << i;
-        std::stringstream ssv; ssv << ss.str();
-        std::stringstream ss2; ss2 << ss.str();
+        std::stringstream ssv;
+        ssv << ss.str();
+        std::stringstream ss2;
+        ss2 << ss.str();
         if (!fRotIsConstant[i]) {
           ss2 << "[index]";
           printlambda(ss.str(), fRotCoefficients[i], outstream);
         } else {
           printlambdasingle(ss.str(), fRotCoefficients[i][0], outstream);
         }
-        fRotVariableName[i]=ss2.str();
+        fRotVariableName[i] = ss2.str();
         ss << "_v";
-        fVecRotVariableName[i]=ss.str();
+        fVecRotVariableName[i] = ss.str();
       }
     }
   } else { // emit in AOS form
@@ -173,11 +177,12 @@ void TabulatedTransData::EmitTableDeclaration(std::ostream & outstream) {
         outstream << "double trans" << i << ";\n";
         std::stringstream stringbuilder;
         std::stringstream vecstringbuilder;
-        stringbuilder << fName << "[index]." << "trans" << i;
+        stringbuilder << fName << "[index]."
+                      << "trans" << i;
         vecstringbuilder << "trans" << i << "_v";
-        fTransVariableName[i]=stringbuilder.str();
+        fTransVariableName[i] = stringbuilder.str();
         data.push_back(&fTransCoefficients[i]);
-        fVecTransVariableName[i]=vecstringbuilder.str();
+        fVecTransVariableName[i] = vecstringbuilder.str();
       }
     }
     for (size_t i = 0; i < 9; ++i) {
@@ -185,11 +190,12 @@ void TabulatedTransData::EmitTableDeclaration(std::ostream & outstream) {
         outstream << "double rot" << i << ";\n";
         std::stringstream stringbuilder;
         std::stringstream vecstringbuilder;
-        stringbuilder << fName << "[index]." << "rot" << i;
+        stringbuilder << fName << "[index]."
+                      << "rot" << i;
         vecstringbuilder << "rot" << i << "_v";
-        fRotVariableName[i]=stringbuilder.str();
+        fRotVariableName[i] = stringbuilder.str();
         data.push_back(&fRotCoefficients[i]);
-        fVecRotVariableName[i]=vecstringbuilder.str();
+        fVecRotVariableName[i] = vecstringbuilder.str();
       }
     }
     outstream << "};\n";
@@ -199,7 +205,7 @@ void TabulatedTransData::EmitTableDeclaration(std::ostream & outstream) {
       if (fTransCoefficients[i].size() > 0 && fTransIsConstant[i]) {
         std::stringstream ss;
         ss << fName << "trans" << i;
-        fTransVariableName[i]=ss.str();
+        fTransVariableName[i] = ss.str();
         printlambdasingle(ss.str(), fTransCoefficients[i][0], outstream);
       }
     }
@@ -207,7 +213,7 @@ void TabulatedTransData::EmitTableDeclaration(std::ostream & outstream) {
       if (fRotCoefficients[i].size() > 0 && fRotIsConstant[i]) {
         std::stringstream ss;
         ss << fName << "rot" << i;
-        fRotVariableName[i]=ss.str();
+        fRotVariableName[i] = ss.str();
         printlambdasingle(ss.str(), fRotCoefficients[i][0], outstream);
       }
     }
@@ -218,18 +224,17 @@ void TabulatedTransData::EmitTableDeclaration(std::ostream & outstream) {
       outstream << "{";
       for (size_t j = 0; j < data.size(); ++j) {
         outstream << (*data[j])[i];
-        if (j < data.size() - 1)
-          outstream << ",";
+        if (j < data.size() - 1) outstream << ",";
       }
       outstream << "}";
-      if (i < data[0]->size() - 1)
-        outstream << ",";
+      if (i < data[0]->size() - 1) outstream << ",";
     }
     outstream << "};\n";
   }
 }
 
-void TabulatedTransData::EmitTableDefinition(std::string classname, std::ostream &outstream) const {
+void TabulatedTransData::EmitTableDefinition(std::string classname, std::ostream &outstream) const
+{
   if (!fSOA) {
     outstream << "constexpr " << classname << "::" << fName << "Struct " << classname << "::" << fName << "[];\n";
   } else {
@@ -257,9 +262,8 @@ void TabulatedTransData::EmitTableDefinition(std::string classname, std::ostream
   }
 }
 
-
-
-void TabulatedTransData::EmitScalarGlobalTransformationCode(std::ostream &outstream) const {
+void TabulatedTransData::EmitScalarGlobalTransformationCode(std::ostream &outstream) const
+{
   std::stringstream pointtransf;
   std::stringstream dirtrans;
   pointtransf << "Vector3D<Precision> tmp( globalpoint[0]";
@@ -276,7 +280,7 @@ void TabulatedTransData::EmitScalarGlobalTransformationCode(std::ostream &outstr
   }
   pointtransf << ");\n";
 
-  int rotindex = 0;
+  int rotindex      = 0;
   bool indexseen[3] = {false, false, false};
   // tmp loop
   for (int tmpindex = 0; tmpindex < 3; ++tmpindex) {
@@ -311,8 +315,8 @@ void TabulatedTransData::EmitScalarGlobalTransformationCode(std::ostream &outstr
   outstream << dirtrans.str();
 }
 
-
-void TabulatedTransData::EmitVectorGlobalTransformationCode(std::ostream &outstream) const {
+void TabulatedTransData::EmitVectorGlobalTransformationCode(std::ostream &outstream) const
+{
   std::stringstream pointtransf;
   std::stringstream dirtrans;
 
@@ -336,21 +340,24 @@ void TabulatedTransData::EmitVectorGlobalTransformationCode(std::ostream &outstr
   outstream << "// caching this index in internal navigationstate for later reuse\n";
   outstream << "// we know that is safe to do this because of static analysis (never do this in user code)\n";
   outstream << "internal[trackindex]->SetCacheValue(index);\n";
-  for(size_t i=0;i<3;++i){
-    if(fTransCoefficients[i].size() > 0 && !(fTransIsConstant[i])){
-        outstream << fVecTransVariableName[i] << "[i] = " << fTransVariableName[i] << ";\n";
+  for (size_t i = 0; i < 3; ++i) {
+    if (fTransCoefficients[i].size() > 0 && !(fTransIsConstant[i])) {
+      outstream << fVecTransVariableName[i] << "[i] = " << fTransVariableName[i] << ";\n";
     }
   }
-  for(size_t i=0;i<9;++i){
+  for (size_t i = 0; i < 9; ++i) {
     if (fRotCoefficients[i].size() > 0 && !(fRotIsConstant[i])) {
-        outstream << fVecRotVariableName[i] << "[i] = " << fRotVariableName[i] << ";\n";
+      outstream << fVecRotVariableName[i] << "[i] = " << fRotVariableName[i] << ";\n";
     }
   }
   outstream << "}\n";
 
   // create gpoint_v and gdir_v
-  outstream << "Vector3D<T> gpoint_v(T(globalpoints.x()+from_index),T(globalpoints.y()+from_index),T(globalpoints.z()+from_index));\n";
-  outstream << "Vector3D<T> gdir_v(T(globaldirs.x()+from_index),T(globaldirs.y()+from_index),T(globaldirs.z()+from_index));\n";
+  outstream << "Vector3D<T> "
+               "gpoint_v(T(globalpoints.x()+from_index),T(globalpoints.y()+from_index),T(globalpoints.z()+from_index));"
+               "\n";
+  outstream << "Vector3D<T> "
+               "gdir_v(T(globaldirs.x()+from_index),T(globaldirs.y()+from_index),T(globaldirs.z()+from_index));\n";
 
   // emit vector code
 
@@ -368,7 +375,7 @@ void TabulatedTransData::EmitVectorGlobalTransformationCode(std::ostream &outstr
   }
   pointtransf << ");\n";
 
-  int rotindex = 0;
+  int rotindex      = 0;
   bool indexseen[3] = {false, false, false};
   // tmp loop
   for (int tmpindex = 0; tmpindex < 3; ++tmpindex) {
@@ -403,11 +410,11 @@ void TabulatedTransData::EmitVectorGlobalTransformationCode(std::ostream &outstr
   outstream << dirtrans.str();
 }
 
-
 // function that generates a classification table in form of nested switch statements
 // the table will be used to map a geometry path object to a unique integer which indexes
 // into an array to fetch a cashed global matrix
-//void NavigationSpecializer::GeneratePathClassifierCode(std::list<std::pair<int, std::set<NavigationState::Value_t>>> const &pathclassification,
+// void NavigationSpecializer::GeneratePathClassifierCode(std::list<std::pair<int, std::set<NavigationState::Value_t>>>
+// const &pathclassification,
 //                                PathLevelIndexMap_t &map)
 //{
 //   // declare return variable
@@ -420,7 +427,8 @@ void TabulatedTransData::EmitVectorGlobalTransformationCode(std::ostream &outstr
 //   std::cout << "return finalindex;\n";
 //}
 
-void NavigationSpecializer::DumpDisclaimer(std::ostream &outstream) {
+void NavigationSpecializer::DumpDisclaimer(std::ostream &outstream)
+{
   outstream << "// The following code is an autogenerated and specialized Navigator \n";
   outstream << "// obtained from the NavigationSpecializerService ( which is part of VecGeom )\n";
   outstream << "// ADD INFORMATION ABOUT INPUT FILES, DATE, MD5 HASH OF INPUTFILES\n";
@@ -429,12 +437,14 @@ void NavigationSpecializer::DumpDisclaimer(std::ostream &outstream) {
   outstream << "\n";
 }
 
-void NavigationSpecializer::DumpClassOpening(std::ostream &outstream) {
+void NavigationSpecializer::DumpClassOpening(std::ostream &outstream)
+{
   outstream << "class " << fClassName << " : public VNavigatorHelper<" << fClassName << ","
             << fLogicalVolume->GetUnplacedVolume()->IsConvex() << "> {\n";
 }
 
-void NavigationSpecializer::DumpConstructor(std::ostream &outstream) const {
+void NavigationSpecializer::DumpConstructor(std::ostream &outstream) const
+{
   // need a constructor only in case we rely on a basic navigator
   if (fUseBaseNavigator) {
     // declaration of base navigator
@@ -445,9 +455,13 @@ void NavigationSpecializer::DumpConstructor(std::ostream &outstream) const {
   }
 }
 
-void NavigationSpecializer::DumpClassClosing(std::ostream &outstream) { outstream << "}; // end class\n"; }
+void NavigationSpecializer::DumpClassClosing(std::ostream &outstream)
+{
+  outstream << "}; // end class\n";
+}
 
-void NavigationSpecializer::DumpIncludeFiles(std::ostream &outstream) {
+void NavigationSpecializer::DumpIncludeFiles(std::ostream &outstream)
+{
   outstream << "#include \"navigation/VNavigator.h\"\n";
   outstream << "#include \"navigation/NavigationState.h\"\n";
   outstream << "#include \"base/Transformation3D.h\"\n";
@@ -467,22 +481,28 @@ void NavigationSpecializer::DumpIncludeFiles(std::ostream &outstream) {
   outstream << "#include \"volumes/BooleanVolume.h\"\n";
 }
 
-void NavigationSpecializer::DumpNamespaceOpening(std::ostream &outstream) {
+void NavigationSpecializer::DumpNamespaceOpening(std::ostream &outstream)
+{
   outstream << "\n\n";
   outstream << "namespace vecgeom {\n";
   outstream << "inline namespace VECGEOM_IMPL_NAMESPACE {\n";
 }
 
-void NavigationSpecializer::DumpNamespaceClosing(std::ostream &outstream) { outstream << "}} // end namespace\n"; }
+void NavigationSpecializer::DumpNamespaceClosing(std::ostream &outstream)
+{
+  outstream << "}} // end namespace\n";
+}
 
-void NavigationSpecializer::DumpPrivateClassDefinitions(std::ostream &outstream) {
+void NavigationSpecializer::DumpPrivateClassDefinitions(std::ostream &outstream)
+{
   outstream << "private:\n";
   DumpPathToIndexFunction(outstream);
   DumpStaticConstExprData(outstream);
   DumpConstructor(outstream);
 }
 
-void NavigationSpecializer::DumpStaticInstanceFunction(std::ostream &outstream) {
+void NavigationSpecializer::DumpStaticInstanceFunction(std::ostream &outstream)
+{
   outstream << "\n";
   outstream << "static VNavigator *Instance(){\n"
             << "static " << fClassName << " instance;\n"
@@ -493,7 +513,8 @@ void NavigationSpecializer::DumpStaticInstanceFunction(std::ostream &outstream) 
 typedef std::map<size_t, std::map<size_t, size_t>> PathLevelIndexMap_t;
 template <typename Stream>
 void WriteSwitchStatement(std::pair<int, std::set<NavigationState::Value_t>> const &onelevelclassification,
-                          int &sizeaccum, Stream &stream, PathLevelIndexMap_t &map) {
+                          int &sizeaccum, Stream &stream, PathLevelIndexMap_t &map)
+{
   stream << "{\n"; // anonymous scope;
   stream << "size_t levelindex;\n";
   stream << "switch (path->At( " << onelevelclassification.first << " )){\n";
@@ -518,7 +539,8 @@ void WriteSwitchStatement(std::pair<int, std::set<NavigationState::Value_t>> con
   sizeaccum *= onelevelclassification.second.size();
 }
 
-void NavigationSpecializer::DumpPathToIndexFunction(std::ostream &outstream) {
+void NavigationSpecializer::DumpPathToIndexFunction(std::ostream &outstream)
+{
   outstream << "\n";
   outstream << "// automatically generated function to transform a path for " << fLogicalVolumeName
             << " into an array index\n";
@@ -546,10 +568,12 @@ void NavigationSpecializer::DumpPathToIndexFunction(std::ostream &outstream) {
   outstream << "\n";
 }
 
-void NavigationSpecializer::DumpPublicClassDefinitions(std::ostream &outstream) {
+void NavigationSpecializer::DumpPublicClassDefinitions(std::ostream &outstream)
+{
   outstream << "public:\n";
   outstream << "static constexpr const char *gClassNameString=\"" << fClassName << "\";\n";
-  outstream << "typedef SimpleSafetyEstimator SafetyEstimator_t;\n";//static constexpr const char *gClassNameString=\"" << fClassName << "\";\n";
+  outstream << "typedef SimpleSafetyEstimator SafetyEstimator_t;\n"; // static constexpr const char
+                                                                     // *gClassNameString=\"" << fClassName << "\";\n";
   DumpStaticInstanceFunction(outstream);
   DumpStaticTreatGlobalToLocalTransformationFunction(outstream);
   DumpStaticTreatGlobalToLocalTransformationsFunction(outstream);
@@ -559,37 +583,41 @@ void NavigationSpecializer::DumpPublicClassDefinitions(std::ostream &outstream) 
   DumpRelocateMethod(outstream);
 
   //  DumpSafetyFunctionDeclaration(outstream);
-//  DumpLocalSafetyFunctionDeclaration(outstream);
+  //  DumpLocalSafetyFunctionDeclaration(outstream);
 
-//  DumpVectorSafetyFunctionDeclaration(outstream);
-//  DumpLocalVectorSafetyFunctionDeclaration(outstream);
-//  DumpLocalVectorSafetyFunctionDeclarationPerSIMDVector(outstream);
+  //  DumpVectorSafetyFunctionDeclaration(outstream);
+  //  DumpLocalVectorSafetyFunctionDeclaration(outstream);
+  //  DumpLocalVectorSafetyFunctionDeclarationPerSIMDVector(outstream);
 }
 
-void NavigationSpecializer::DumpClassDefinitions(std::ostream &outstream) {
+void NavigationSpecializer::DumpClassDefinitions(std::ostream &outstream)
+{
   DumpPrivateClassDefinitions(outstream);
   DumpPublicClassDefinitions(outstream);
 }
 
-void NavigationSpecializer::DumpStaticConstExprData(std::ostream &outstream) {
+void NavigationSpecializer::DumpStaticConstExprData(std::ostream &outstream)
+{
   outstream << "\n";
   outstream << fStaticArraysInitStream.str();
   outstream << "\n";
 }
 
-void NavigationSpecializer::DumpStaticConstExprVariableDefinitions(std::ostream &outstream) {
+void NavigationSpecializer::DumpStaticConstExprVariableDefinitions(std::ostream &outstream)
+{
   outstream << "\n";
   outstream << fStaticArraysDefinitions.str();
   outstream << "\n";
 }
 
-void NavigationSpecializer::ProduceSpecializedNavigator(LogicalVolume const *lvol, std::ostream &outstream) {
+void NavigationSpecializer::ProduceSpecializedNavigator(LogicalVolume const *lvol, std::ostream &outstream)
+{
   // start with the analysis
   fLogicalVolume = lvol;
 
   // dump C++ code
   fLogicalVolumeName = lvol->GetLabel();
-  //fClassName = fLogicalVolumeName + "Navigator";
+  // fClassName = fLogicalVolumeName + "Navigator";
   fClassName = "GeneratedNavigator";
 
   AnalyseLogicalVolume();
@@ -604,7 +632,8 @@ void NavigationSpecializer::ProduceSpecializedNavigator(LogicalVolume const *lvo
   DumpNamespaceClosing(outstream);
 }
 
-void NavigationSpecializer::AnalyseLogicalVolume() {
+void NavigationSpecializer::AnalyseLogicalVolume()
+{
   // generate all possible geometry paths for this volume
   std::list<NavigationState *> allpaths;
   GeoManager::Instance().getAllPathForLogicalVolume(fLogicalVolume, allpaths);
@@ -622,7 +651,8 @@ void NavigationSpecializer::AnalyseLogicalVolume() {
   AnalyseTargetPaths(inpool, outpool);
 }
 
-void NavigationSpecializer::AddToIndexMap(size_t level, size_t keyvalue) {
+void NavigationSpecializer::AddToIndexMap(size_t level, size_t keyvalue)
+{
   if (fIndexMap.find(level) == fIndexMap.end()) {
     // level does not exist; so create it
     fIndexMap.insert(std::pair<size_t, std::map<size_t, size_t>>(level, std::map<size_t, size_t>()));
@@ -636,7 +666,8 @@ void NavigationSpecializer::AddToIndexMap(size_t level, size_t keyvalue) {
   }
 }
 
-void NavigationSpecializer::AnalyseIndexCorrelations(std::list<NavigationState *> const &paths) {
+void NavigationSpecializer::AnalyseIndexCorrelations(std::list<NavigationState *> const &paths)
+{
   std::list<size_t> removalcandidates;
   // count real combinations versus assumed combinations
 
@@ -678,18 +709,19 @@ void NavigationSpecializer::AnalyseIndexCorrelations(std::list<NavigationState *
 }
 
 // calculates an index from a states using a prefilled PathLevelIndexMap
-size_t NavigationSpecializer::PathToIndex(NavigationState const *state) {
+size_t NavigationSpecializer::PathToIndex(NavigationState const *state)
+{
   std::list<std::pair<size_t, size_t>> indexlist;
   auto cl = state->GetCurrentLevel();
   for (auto level = decltype(cl){0}; level < cl; ++level) {
     if (fIndexMap.find(level) != fIndexMap.end()) { // this level is a distinctive feature
-      auto &m = fIndexMap[level];
+      auto &m           = fIndexMap[level];
       size_t levelindex = m[state->ValueAt(level)];
       indexlist.push_back(std::pair<size_t, size_t>(levelindex, fIndexMap[level].size()));
     }
   }
   int finalindex = 0;
-  int size = 1;
+  int size       = 1;
   for (auto &pair : indexlist) {
     finalindex += pair.first * size;
     size *= pair.second;
@@ -697,10 +729,11 @@ size_t NavigationSpecializer::PathToIndex(NavigationState const *state) {
   return finalindex;
 }
 
-void NavigationSpecializer::AnalysePaths(std::list<NavigationState *> const &paths) {
+void NavigationSpecializer::AnalysePaths(std::list<NavigationState *> const &paths)
+{
 
   // analyse level
-  auto level = paths.front()->GetCurrentLevel();
+  auto level     = paths.front()->GetCurrentLevel();
   fGeometryDepth = level;
   bool samelevel(true);
   for (auto path : paths) {
@@ -766,11 +799,11 @@ void NavigationSpecializer::AnalysePaths(std::list<NavigationState *> const &pat
   }
 
   // analyse global matrix and generate static data with right index
-  bool rotalwayszero[9] = {true, true, true, true, true, true, true, true, true};
-  bool rotalwaysone[9] = {true, true, true, true, true, true, true, true, true};
-  bool rotalwaysminusone[9] = {true, true, true, true, true, true, true, true, true};
+  bool rotalwayszero[9]          = {true, true, true, true, true, true, true, true, true};
+  bool rotalwaysone[9]           = {true, true, true, true, true, true, true, true, true};
+  bool rotalwaysminusone[9]      = {true, true, true, true, true, true, true, true, true};
   bool rotalwaysminusoneorone[9] = {true, true, true, true, true, true, true, true, true};
-  bool transalwayszero[3] = {true, true, true};
+  bool transalwayszero[3]        = {true, true, true};
   for (auto path : paths) {
     Transformation3D m;
     path->TopMatrix(m);
@@ -804,14 +837,11 @@ void NavigationSpecializer::AnalysePaths(std::list<NavigationState *> const &pat
 
   // prepare specialized transformation routine
   fTransformationCode << "Vector3D<Precision> tmp( globalpoint[0]";
-  if (!transalwayszero[0])
-    fTransformationCode << "- gTrans0[index]";
+  if (!transalwayszero[0]) fTransformationCode << "- gTrans0[index]";
   fTransformationCode << ", globalpoint[1]";
-  if (!transalwayszero[1])
-    fTransformationCode << "- gTrans1[index]";
+  if (!transalwayszero[1]) fTransformationCode << "- gTrans1[index]";
   fTransformationCode << ", globalpoint[2]";
-  if (!transalwayszero[2])
-    fTransformationCode << "- gTrans2[index]";
+  if (!transalwayszero[2]) fTransformationCode << "- gTrans2[index]";
   fTransformationCode << ");\n";
 
   // for vectorized version this is a bit different ( we need a SIMD global point first of all )
@@ -820,26 +850,23 @@ void NavigationSpecializer::AnalysePaths(std::list<NavigationState *> const &pat
                             << "Vc::double_v(globalpoints.y()+i),"
                             << "Vc::double_v(globalpoints.z()+i));\n";
   fVectorTransformationCode << "Vector3D<Vc::double_v> tmp( gpoint_v.x()";
-  if (!transalwayszero[0])
-    fVectorTransformationCode << "- gTrans0_v";
+  if (!transalwayszero[0]) fVectorTransformationCode << "- gTrans0_v";
   fVectorTransformationCode << ", gpoint_v.y()";
-  if (!transalwayszero[1])
-    fVectorTransformationCode << "- gTrans1_v";
+  if (!transalwayszero[1]) fVectorTransformationCode << "- gTrans1_v";
   fVectorTransformationCode << ", gpoint_v.z()";
-  if (!transalwayszero[2])
-    fVectorTransformationCode << "- gTrans2_v";
+  if (!transalwayszero[2]) fVectorTransformationCode << "- gTrans2_v";
   fVectorTransformationCode << ");\n";
 
-  int rotindex = 0;
-  bool indexseen[3] = {false,false,false};
+  int rotindex      = 0;
+  bool indexseen[3] = {false, false, false};
   // tmp loop
   for (int tmpindex = 0; tmpindex < 3; ++tmpindex) {
-     // local loop
+    // local loop
     for (int localindex = 0; localindex < 3; ++localindex) {
-        std::string op = indexseen[localindex] ? "+=" : "=";
-        if (!rotalwayszero[rotindex]) {
-         indexseen[localindex] = true;
-          // new line
+      std::string op = indexseen[localindex] ? "+=" : "=";
+      if (!rotalwayszero[rotindex]) {
+        indexseen[localindex] = true;
+        // new line
         fTransformationCode << "localpoint[" << localindex << "]" << op;
         fTransformationCodeDir << "localdir[" << localindex << "]" << op;
         fVectorTransformationCode << "localpoint[" << localindex << "]" << op;
@@ -896,8 +923,7 @@ void NavigationSpecializer::AnalysePaths(std::list<NavigationState *> const &pat
         Transformation3D m;
         path->TopMatrix(m);
         size_t index = PathToIndex(path);
-        if (index >= paths.size())
-          std::cerr << "SCHEISSE " << index << " \n";
+        if (index >= paths.size()) std::cerr << "SCHEISSE " << index << " \n";
         assert(index < paths.size());
         values[index] = m.Translation(i);
         fGlobalTransData.SetTransCoef(i, index, m.Translation(i));
@@ -907,8 +933,8 @@ void NavigationSpecializer::AnalysePaths(std::list<NavigationState *> const &pat
         fStaticArraysInitStream << "// **** HEY: THESE VALUES ARE ALL THE SAME ---> can safe memory\n";
       }
       printlambda(variable, values, fStaticArraysInitStream);
-    //  fStaticArraysDefinitions << "constexpr double " << fClassName << "::" << variable << "[" << values.size()
-     //                          << "];\n";
+      //  fStaticArraysDefinitions << "constexpr double " << fClassName << "::" << variable << "[" << values.size()
+      //                          << "];\n";
       fTransformVariables.push_back(variable);
     }
   }
@@ -923,7 +949,7 @@ void NavigationSpecializer::AnalysePaths(std::list<NavigationState *> const &pat
       for (auto &path : paths) {
         Transformation3D m;
         path->TopMatrix(m);
-        auto index = PathToIndex(path);
+        auto index    = PathToIndex(path);
         values[index] = m.Rotation(i);
         fGlobalTransData.SetRotCoef(i, index, m.Rotation(i));
       }
@@ -932,8 +958,8 @@ void NavigationSpecializer::AnalysePaths(std::list<NavigationState *> const &pat
         fStaticArraysInitStream << "// **** HEY: THESE VALUES ARE ALL THE SAME ---> can safe memory\n";
       }
       printlambda(variable, values, fStaticArraysInitStream);
-   //   fStaticArraysDefinitions << "constexpr double " << fClassName << "::" << variable << "[" << values.size()
-    //                           << "];\n";
+      //   fStaticArraysDefinitions << "constexpr double " << fClassName << "::" << variable << "[" << values.size()
+      //                           << "];\n";
       fTransformVariables.push_back(variable);
     }
   }
@@ -941,19 +967,20 @@ void NavigationSpecializer::AnalysePaths(std::list<NavigationState *> const &pat
   fGlobalTransData.Analyse();
   fGlobalTransData.Print();
   fGlobalTransData.EmitTableDeclaration(fStaticArraysInitStream);
-  fGlobalTransData.EmitTableDefinition(fClassName,fStaticArraysDefinitions);
+  fGlobalTransData.EmitTableDefinition(fClassName, fStaticArraysDefinitions);
   std::stringstream ss;
   fGlobalTransData.EmitScalarGlobalTransformationCode(ss);
   std::cout << ss.str() << "\n";
 }
 
-
-template <typename T> std::vector<size_t> sort_indexes(const std::vector<T> &v) {
+template <typename T>
+std::vector<size_t> sort_indexes(const std::vector<T> &v)
+{
 
   // initialize original index locations
   std::vector<size_t> idx(v.size());
   for (size_t i = 0; i != idx.size(); ++i)
-    idx[i] = i;
+    idx[i]      = i;
 
   // sort indexes based on comparing values in v
   std::sort(idx.begin(), idx.end(), [&v](size_t i1, size_t i2) { return v[i1].first > v[i2].first; });
@@ -961,31 +988,39 @@ template <typename T> std::vector<size_t> sort_indexes(const std::vector<T> &v) 
   return idx;
 }
 
-template <typename T> std::vector<size_t> sort_indexes(const std::vector<T> &v, const std::vector<size_t> &v2) {
+template <typename T>
+std::vector<size_t> sort_indexes(const std::vector<T> &v, const std::vector<size_t> &v2)
+{
 
   // initialize original index locations
   std::vector<size_t> idx(v.size());
   for (size_t i = 0; i != idx.size(); ++i)
-    idx[i] = i;
+    idx[i]      = i;
 
   // sort indexes based on comparing values in v then in v2
-  std::sort(idx.begin(), idx.end(), [&v,&v2](size_t i1, size_t i2) { if(v[i1].first == v[i2].first){ return v2[i1] > v2[i2]; }
-  else { return v[i1].first > v[i2].first; }});
+  std::sort(idx.begin(), idx.end(), [&v, &v2](size_t i1, size_t i2) {
+    if (v[i1].first == v[i2].first) {
+      return v2[i1] > v2[i2];
+    } else {
+      return v[i1].first > v[i2].first;
+    }
+  });
   return idx;
 }
 
-void NavigationSpecializer::AnalyseTargetPaths(NavStatePool const &inpool, NavStatePool const &outpool) {
+void NavigationSpecializer::AnalyseTargetPaths(NavStatePool const &inpool, NavStatePool const &outpool)
+{
   // the purpose of this function is to generate a list of possible target states
   // including their corresponding matrix transformations
   // the information produced here shall accelerate the relocation step of navigation
   std::cerr << " --- ANALYSIS OF PATH TRANSITIONS ---- \n";
 
   // analyse global matrix and generate static data with right index
-  bool rotalwayszero[9] = {true, true, true, true, true, true, true, true, true};
-  bool rotalwaysone[9] = {true, true, true, true, true, true, true, true, true};
-  bool rotalwaysminusone[9] = {true, true, true, true, true, true, true, true, true};
+  bool rotalwayszero[9]          = {true, true, true, true, true, true, true, true, true};
+  bool rotalwaysone[9]           = {true, true, true, true, true, true, true, true, true};
+  bool rotalwaysminusone[9]      = {true, true, true, true, true, true, true, true, true};
   bool rotalwaysminusoneorone[9] = {true, true, true, true, true, true, true, true, true};
-  bool transalwayszero[3] = {true, true, true};
+  bool transalwayszero[3]        = {true, true, true};
 
   std::set<VPlacedVolume const *> pset;
   std::set<LogicalVolume const *> lset;
@@ -1075,7 +1110,7 @@ void NavigationSpecializer::AnalyseTargetPaths(NavStatePool const &inpool, NavSt
     }
     // update the map of instances x transitions -> global matrices
     // std::stringstream mappingstream;
-    auto transition = std::make_tuple(PathToIndex(instate), transitionindex, matrixindex);
+    auto transition        = std::make_tuple(PathToIndex(instate), transitionindex, matrixindex);
     auto transition_exists = std::find(mapping.begin(), mapping.end(), transition);
     if (transition_exists == mapping.end()) {
       mapping.push_back(transition);
@@ -1096,8 +1131,7 @@ void NavigationSpecializer::AnalyseTargetPaths(NavStatePool const &inpool, NavSt
   for (auto i = decltype(fNumberOfPossiblePaths){0}; i < fNumberOfPossiblePaths; ++i) {
     for (auto j = decltype(fTransitionStrings.size()){0}; j < fTransitionStrings.size(); ++j) {
       for (auto &t : mapping) {
-        if (i == std::get<0>(t) && j == std::get<1>(t))
-          deltamatrixmapping[i][j] = std::get<2>(t);
+        if (i == std::get<0>(t) && j == std::get<1>(t)) deltamatrixmapping[i][j] = std::get<2>(t);
       }
     }
   }
@@ -1108,12 +1142,10 @@ void NavigationSpecializer::AnalyseTargetPaths(NavStatePool const &inpool, NavSt
     fStaticArraysInitStream << "{";
     for (auto j = decltype(fTransitionStrings.size()){0}; j < fTransitionStrings.size(); ++j) {
       fStaticArraysInitStream << deltamatrixmapping[i][j];
-      if (j < fTransitionStrings.size() - 1)
-        fStaticArraysInitStream << ",";
+      if (j < fTransitionStrings.size() - 1) fStaticArraysInitStream << ",";
     }
     fStaticArraysInitStream << "}";
-    if (i < fNumberOfPossiblePaths - 1)
-      fStaticArraysInitStream << ",";
+    if (i < fNumberOfPossiblePaths - 1) fStaticArraysInitStream << ",";
   }
   fStaticArraysInitStream << "};\n";
   fStaticArraysDefinitions << "constexpr short GeneratedNavigator::deltamatrixmapping[" << fNumberOfPossiblePaths
@@ -1148,7 +1180,7 @@ void NavigationSpecializer::AnalyseTargetPaths(NavStatePool const &inpool, NavSt
     std::cerr << s << "\n";
   }
 
-  size_t index=0;
+  size_t index = 0;
   for (auto &s : fTransitionStrings) {
     std::cerr << s << "\t" << transitioncounter[index] << "\n";
     index++;
@@ -1163,7 +1195,7 @@ void NavigationSpecializer::AnalyseTargetPaths(NavStatePool const &inpool, NavSt
   // sort the possible transitions from most specific ( deepest depth ) to least specific
   // we are not sorting the vector itself but create an "index" vector
 
-  //fTransitionOrder = sort_indexes(fTransitionTargetTypes);
+  // fTransitionOrder = sort_indexes(fTransitionTargetTypes);
   fTransitionOrder = sort_indexes(fTransitionTargetTypes, transitioncounter);
 
   // std::sort(fTransitionTargetTypes.begin(), fTransitionTargetTypes.end());
@@ -1221,14 +1253,11 @@ void NavigationSpecializer::AnalyseTargetPaths(NavStatePool const &inpool, NavSt
   // generate the transformation code
   // prepare specialized transformation routine
   fDeltaTransformationCode << "Vector3D<Precision> tmp( pointafterboundary[0]";
-  if (!transalwayszero[0])
-    fDeltaTransformationCode << "- gDeltaTrans0[index]";
+  if (!transalwayszero[0]) fDeltaTransformationCode << "- gDeltaTrans0[index]";
   fDeltaTransformationCode << ", pointafterboundary[1]";
-  if (!transalwayszero[1])
-    fDeltaTransformationCode << "- gDeltaTrans1[index]";
+  if (!transalwayszero[1]) fDeltaTransformationCode << "- gDeltaTrans1[index]";
   fDeltaTransformationCode << ", pointafterboundary[2]";
-  if (!transalwayszero[2])
-    fDeltaTransformationCode << "- gDeltaTrans2[index]";
+  if (!transalwayszero[2]) fDeltaTransformationCode << "- gDeltaTrans2[index]";
   fDeltaTransformationCode << ");\n";
   fDeltaTransformationCode << "Vector3D<Precision> localpoint;\n";
 
@@ -1249,15 +1278,15 @@ void NavigationSpecializer::AnalyseTargetPaths(NavStatePool const &inpool, NavSt
   //   fVectorTransformationCode << ");\n";
   //   fVectorTransformationCode << "Vector3D<Vc::double_v> local(0.);\n";
 
-  int rotindex = 0;
-  bool indexseen[3] = {false,false,false};
+  int rotindex      = 0;
+  bool indexseen[3] = {false, false, false};
   // tmp loop
   for (int tmpindex = 0; tmpindex < 3; ++tmpindex) {
     // local loop
     for (int localindex = 0; localindex < 3; ++localindex) {
       std::string op = indexseen[localindex] ? "+=" : "=";
-       if (!rotalwayszero[rotindex]) {
-          indexseen[localindex]=true;
+      if (!rotalwayszero[rotindex]) {
+        indexseen[localindex] = true;
         // new line
         fDeltaTransformationCode << "localpoint[" << localindex << "]" << op;
         //            fVectorTransformationCode << "localpoint[" << localindex << "]" << op;
@@ -1284,7 +1313,8 @@ void NavigationSpecializer::AnalyseTargetPaths(NavStatePool const &inpool, NavSt
   }
 }
 
-void NavigationSpecializer::DumpSafetyFunctionDeclaration(std::ostream &outstream) {
+void NavigationSpecializer::DumpSafetyFunctionDeclaration(std::ostream &outstream)
+{
   outstream << "\n";
   outstream << "virtual\n"
             << "Precision\n"
@@ -1304,7 +1334,8 @@ void NavigationSpecializer::DumpSafetyFunctionDeclaration(std::ostream &outstrea
   outstream << "\n";
 }
 
-void NavigationSpecializer::DumpVectorSafetyFunctionDeclaration(std::ostream &outstream) {
+void NavigationSpecializer::DumpVectorSafetyFunctionDeclaration(std::ostream &outstream)
+{
   outstream << "\n";
   outstream << "virtual\n"
             << "void\n"
@@ -1342,7 +1373,8 @@ void NavigationSpecializer::DumpVectorSafetyFunctionDeclaration(std::ostream &ou
   outstream << "\n";
 }
 
-void NavigationSpecializer::DumpLocalSafetyFunctionDeclaration(std::ostream &outstream) {
+void NavigationSpecializer::DumpLocalSafetyFunctionDeclaration(std::ostream &outstream)
+{
   outstream << "VECGEOM_INLINE\n"
             << "virtual\n"
             << "Precision\n"
@@ -1367,7 +1399,7 @@ void NavigationSpecializer::DumpLocalSafetyFunctionDeclaration(std::ostream &out
   // a) vectorization of similar daughter shapes
   // b) constant extraction and propagation ( detect of shapes use same rotation and pull them out ... )
   // c) put actual numeric values of shapes which may simplify the algorithms ... ( extreme shape specialization )
-  auto daughters = fLogicalVolume->GetDaughtersp();
+  auto daughters  = fLogicalVolume->GetDaughtersp();
   auto ndaughters = daughters->size();
   if (ndaughters > 0) {
     outstream << "auto daughters = pvol->GetLogicalVolume()->GetDaughtersp();\n";
@@ -1377,7 +1409,7 @@ void NavigationSpecializer::DumpLocalSafetyFunctionDeclaration(std::ostream &out
     std::list<std::pair<std::string, size_t>> looplist; // list for loop splitting
     shapetypestream.str("");
     (*daughters)[0]->PrintType(shapetypestream);
-    currenttype = shapetypestream.str();
+    currenttype  = shapetypestream.str();
     size_t count = 1;
     for (auto i = decltype(ndaughters){1}; i < ndaughters; ++i) {
       auto daughter = (*daughters)[i];
@@ -1388,7 +1420,7 @@ void NavigationSpecializer::DumpLocalSafetyFunctionDeclaration(std::ostream &out
         count++;
       else {
         looplist.push_back(std::pair<std::string, size_t>(currenttype, count));
-        count = 1;
+        count       = 1;
         currenttype = thistype; /*somehow next type*/
       }
     }
@@ -1429,7 +1461,8 @@ void NavigationSpecializer::DumpLocalSafetyFunctionDeclaration(std::ostream &out
   outstream << "}\n";
 }
 
-void NavigationSpecializer::DumpLocalVectorSafetyFunctionDeclaration(std::ostream &outstream) {
+void NavigationSpecializer::DumpLocalVectorSafetyFunctionDeclaration(std::ostream &outstream)
+{
   outstream << "VECGEOM_INLINE\n"
             << "virtual\n"
             << "void\n"
@@ -1447,7 +1480,8 @@ void NavigationSpecializer::DumpLocalVectorSafetyFunctionDeclaration(std::ostrea
   outstream << "}\n";
 }
 
-void NavigationSpecializer::DumpLocalVectorSafetyFunctionDeclarationPerSIMDVector(std::ostream &outstream) {
+void NavigationSpecializer::DumpLocalVectorSafetyFunctionDeclarationPerSIMDVector(std::ostream &outstream)
+{
   // creating a helper function that processes SIMD chunks
   outstream << "VECGEOM_INLINE\n"
             << "Vc::double_v\n"
@@ -1474,7 +1508,7 @@ void NavigationSpecializer::DumpLocalVectorSafetyFunctionDeclarationPerSIMDVecto
   // a) vectorization of similar daughter shapes
   // b) constant extraction and propagation ( detect if shapes use same rotation and pull them out ... )
   // c) put actual numeric values of shapes which may simplify the algorithms ... ( extreme shape specialization )
-  auto daughters = fLogicalVolume->GetDaughtersp();
+  auto daughters  = fLogicalVolume->GetDaughtersp();
   auto ndaughters = daughters->size();
   if (ndaughters > 0) {
     outstream << "auto daughters = pvol->GetLogicalVolume()->GetDaughtersp();\n";
@@ -1503,7 +1537,7 @@ void NavigationSpecializer::DumpLocalVectorSafetyFunctionDeclarationPerSIMDVecto
       std::list<std::pair<std::string, size_t>> looplist; // list for loop splitting
       implementationstream.str("");
       (*daughters)[0]->PrintImplementationType(implementationstream);
-      currenttype = implementationstream.str();
+      currenttype  = implementationstream.str();
       size_t count = 1;
       for (auto i = decltype(ndaughters){1}; i < ndaughters; ++i) {
         auto daughter = (*daughters)[i];
@@ -1514,7 +1548,7 @@ void NavigationSpecializer::DumpLocalVectorSafetyFunctionDeclarationPerSIMDVecto
           count++;
         else {
           looplist.push_back(std::pair<std::string, size_t>(currenttype, count));
-          count = 1;
+          count       = 1;
           currenttype = thistype; /*somehow next type*/
         }
       }
@@ -1556,11 +1590,13 @@ void NavigationSpecializer::DumpLocalVectorSafetyFunctionDeclarationPerSIMDVecto
   outstream << "}\n";
 }
 
-void NavigationSpecializer::DumpStaticTreatGlobalToLocalTransformationFunction(std::ostream &outstream) const {
+void NavigationSpecializer::DumpStaticTreatGlobalToLocalTransformationFunction(std::ostream &outstream) const
+{
 
-  outstream << "template <typename T>\n VECGEOM_INLINE\n static void DoGlobalToLocalTransformation(NavigationState const &in_state,"
-               << "Vector3D<T> const &globalpoint, Vector3D<T> const &globaldir,"
-               << "Vector3D<T> &localpoint, Vector3D<T> &localdir, NavigationState * internal)  {\n";
+  outstream << "template <typename T>\n VECGEOM_INLINE\n static void DoGlobalToLocalTransformation(NavigationState "
+               "const &in_state,"
+            << "Vector3D<T> const &globalpoint, Vector3D<T> const &globaldir,"
+            << "Vector3D<T> &localpoint, Vector3D<T> &localdir, NavigationState * internal)  {\n";
 
   outstream << "auto index = PathToIndex( &in_state );\n";
   // TODO: check if we have to do anything at all ( check for unity )
@@ -1568,24 +1604,26 @@ void NavigationSpecializer::DumpStaticTreatGlobalToLocalTransformationFunction(s
   outstream << "// we know that is safe to do this because of static analysis (never do this in user code)\n";
   outstream << "internal->SetCacheValue(index);\n";
   fGlobalTransData.EmitScalarGlobalTransformationCode(outstream);
-  outstream <<  "}\n";
+  outstream << "}\n";
 }
 
-void NavigationSpecializer::DumpStaticTreatGlobalToLocalTransformationsFunction(std::ostream &outstream) const {
+void NavigationSpecializer::DumpStaticTreatGlobalToLocalTransformationsFunction(std::ostream &outstream) const
+{
   outstream << "template <typename T, unsigned int ChunkSize>\n"
- <<     "VECGEOM_INLINE\n static void DoGlobalToLocalTransformations(NavigationState const ** in_states,"
- <<                                                               "SOA3D<Precision> const &globalpoints,"
- <<                                                               "SOA3D<Precision> const &globaldirs, unsigned int from_index,"
- <<                                                               "Vector3D<T> &localpoint, Vector3D<T> &localdir, NavigationState ** internal) {\n";
+            << "VECGEOM_INLINE\n static void DoGlobalToLocalTransformations(NavigationState const ** in_states,"
+            << "SOA3D<Precision> const &globalpoints,"
+            << "SOA3D<Precision> const &globaldirs, unsigned int from_index,"
+            << "Vector3D<T> &localpoint, Vector3D<T> &localdir, NavigationState ** internal) {\n";
 
   // TODO: check if we have to do anything at all ( check for unity )
 
   fGlobalTransData.EmitVectorGlobalTransformationCode(outstream);
 
-  outstream <<  "}\n";
+  outstream << "}\n";
 }
 
-void NavigationSpecializer::DumpStaticTreatDistanceToMotherFunction(std::ostream &outstream) const {
+void NavigationSpecializer::DumpStaticTreatDistanceToMotherFunction(std::ostream &outstream) const
+{
   // this is stupid but no other way at the moment
   VPlacedVolume *pvol = fLogicalVolume->Place();
   std::stringstream shapetypestream;
@@ -1593,7 +1631,8 @@ void NavigationSpecializer::DumpStaticTreatDistanceToMotherFunction(std::ostream
   delete pvol;
   std::string shapetype = shapetypestream.str();
 
-  outstream << "template <typename T> VECGEOM_INLINE static T TreatDistanceToMother(VPlacedVolume const *pvol, Vector3D<T> const "
+  outstream << "template <typename T> VECGEOM_INLINE static T TreatDistanceToMother(VPlacedVolume const *pvol, "
+               "Vector3D<T> const "
                "&localpoint, Vector3D<T> const &localdir, T step_limit) {\n";
   outstream << "T step;\n";
   outstream << "assert(pvol != nullptr && \"currentvolume is null in navigation\");\n";
@@ -1604,10 +1643,12 @@ void NavigationSpecializer::DumpStaticTreatDistanceToMotherFunction(std::ostream
   outstream << "}\n";
 }
 
-void NavigationSpecializer::DumpStaticPrepareOutstateFunction(std::ostream &outstream) const {
+void NavigationSpecializer::DumpStaticPrepareOutstateFunction(std::ostream &outstream) const
+{
 
-  outstream << "VECGEOM_INLINE static Precision PrepareOutState(NavigationState const &in_state, NavigationState "
-               "&out_state, Precision geom_step, Precision step_limit, VPlacedVolume const *hitcandidate, bool &done){\n";
+  outstream
+      << "VECGEOM_INLINE static Precision PrepareOutState(NavigationState const &in_state, NavigationState "
+         "&out_state, Precision geom_step, Precision step_limit, VPlacedVolume const *hitcandidate, bool &done){\n";
   // now we have the candidates and we prepare the out_state
 
   outstream
@@ -1638,9 +1679,9 @@ void NavigationSpecializer::DumpStaticPrepareOutstateFunction(std::ostream &outs
   // otherwise it is a geometry step
   outstream << "out_state.SetBoundaryState(true);\n";
 
-  if(fLogicalVolume->GetDaughtersp()->size()>0){
-       outstream << "if (hitcandidate)"
-                    "out_state.Push(hitcandidate);\n";
+  if (fLogicalVolume->GetDaughtersp()->size() > 0) {
+    outstream << "if (hitcandidate)"
+                 "out_state.Push(hitcandidate);\n";
   }
   outstream << "if (geom_step < 0.) {"
                "// InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );\n"
@@ -1650,7 +1691,8 @@ void NavigationSpecializer::DumpStaticPrepareOutstateFunction(std::ostream &outs
                "}\n";
 }
 
-void NavigationSpecializer::DumpTransformationAsserts(std::ostream &outstream) {
+void NavigationSpecializer::DumpTransformationAsserts(std::ostream &outstream)
+{
   outstream << "\n";
   outstream << "// piece of code which can be activated to check correctness of table lookup plus transformation\n";
   outstream << "#ifdef " << fClassName << "_CHECK_TRANSFORMATION\n";
@@ -1664,8 +1706,8 @@ void NavigationSpecializer::DumpTransformationAsserts(std::ostream &outstream) {
   outstream << "\n";
 }
 
-
-void NavigationSpecializer::DumpFoo(std::ostream &outstream) const {
+void NavigationSpecializer::DumpFoo(std::ostream &outstream) const
+{
 
   // get the stream --> very cumbersome
   VPlacedVolume *pvol = fLogicalVolume->Place();
@@ -1683,7 +1725,7 @@ void NavigationSpecializer::DumpFoo(std::ostream &outstream) const {
   // a) vectorization of similar daughter shapes
   // b) constant extraction and propagation ( detect of shapes use same rotation and pull them out ... )
   // c) put actual numeric values of shapes which may simplify the algorithms ... ( extreme shape specialization )
-  auto daughters = fLogicalVolume->GetDaughtersp();
+  auto daughters  = fLogicalVolume->GetDaughtersp();
   auto ndaughters = daughters->size();
   if (ndaughters > 0) {
     outstream << "auto daughters = lvol->GetDaughtersp();\n";
@@ -1693,7 +1735,7 @@ void NavigationSpecializer::DumpFoo(std::ostream &outstream) const {
     std::list<std::pair<std::string, size_t>> looplist; // list for loop splitting
     shapetypestream.str("");
     (*daughters)[0]->PrintType(shapetypestream);
-    currenttype = shapetypestream.str();
+    currenttype  = shapetypestream.str();
     size_t count = 1;
     for (auto i = decltype(ndaughters){1}; i < ndaughters; ++i) {
       auto daughter = (*daughters)[i];
@@ -1704,7 +1746,7 @@ void NavigationSpecializer::DumpFoo(std::ostream &outstream) const {
         count++;
       else {
         looplist.push_back(std::pair<std::string, size_t>(currenttype, count));
-        count = 1;
+        count       = 1;
         currenttype = thistype; /*somehow next type*/
       }
     }
@@ -1751,7 +1793,8 @@ void NavigationSpecializer::DumpFoo(std::ostream &outstream) const {
   outstream << "return false;\n";
 }
 
-void NavigationSpecializer::DumpRelocateMethod(std::ostream &outstream) const {
+void NavigationSpecializer::DumpRelocateMethod(std::ostream &outstream) const
+{
   // function header
   outstream << "VECGEOM_INLINE\n";
   outstream << "virtual void Relocate(Vector3D<Precision> const &pointafterboundary, NavigationState const "
@@ -1764,30 +1807,27 @@ void NavigationSpecializer::DumpRelocateMethod(std::ostream &outstream) const {
     outstream << "if( out_state.Top() == in_state.Top() ){\n";
   }
   outstream << "// this was probably calculated before \n";
-   outstream << "auto pathindex = out_state.GetCacheValue();\n";
+  outstream << "auto pathindex = out_state.GetCacheValue();\n";
   outstream << "if(pathindex < 0){ pathindex = PathToIndex(&in_state);\n }";
 
   for (size_t i = 0; i < fTransitionOrder.size(); ++i) {
-    size_t transitionid = fTransitionOrder[i];
+    size_t transitionid    = fTransitionOrder[i];
     auto &transitionstring = fTransitionStrings[transitionid];
     // tokenize the string with getline
 
     std::istringstream ss(transitionstring);
     std::string token;
     bool horizstate = false;
-    bool downstate = false;
+    bool downstate  = false;
 
     // count number of ops first of all
-    unsigned int downcount = 0;
-    unsigned int upcount = 0;
+    unsigned int downcount  = 0;
+    unsigned int upcount    = 0;
     unsigned int horizcount = 0;
     while (std::getline(ss, token, '/')) {
-      if (token.compare("down") == 0)
-        downcount++;
-      if (token.compare("up") == 0)
-        upcount++;
-      if (token.compare("horiz") == 0)
-        horizcount++;
+      if (token.compare("down") == 0) downcount++;
+      if (token.compare("up") == 0) upcount++;
+      if (token.compare("horiz") == 0) horizcount++;
     }
     if ((downcount > 0) && !(upcount || horizcount)) {
       // filter out pure down states
@@ -1855,7 +1895,7 @@ void NavigationSpecializer::DumpRelocateMethod(std::ostream &outstream) const {
     // TODO: put into place a more generic but optimized treatment like for leaving the mother
     bool alldowntransitionsaretrivial = true;
     for (size_t i = 0; i < fTransitionOrder.size(); ++i) {
-      size_t transitionid = fTransitionOrder[i];
+      size_t transitionid    = fTransitionOrder[i];
       auto &transitionstring = fTransitionStrings[transitionid];
       // tokenize the string with getline
 
@@ -1863,21 +1903,17 @@ void NavigationSpecializer::DumpRelocateMethod(std::ostream &outstream) const {
       std::string token;
 
       // count number of ops first of all
-      unsigned int downcount = 0;
-      unsigned int upcount = 0;
+      unsigned int downcount  = 0;
+      unsigned int upcount    = 0;
       unsigned int horizcount = 0;
       while (std::getline(ss, token, '/')) {
-        if (token.compare("down") == 0)
-          downcount++;
-        if (token.compare("up") == 0)
-          upcount++;
-        if (token.compare("horiz") == 0)
-          horizcount++;
+        if (token.compare("down") == 0) downcount++;
+        if (token.compare("up") == 0) upcount++;
+        if (token.compare("horiz") == 0) horizcount++;
       }
       if (downcount && !(upcount || horizcount)) {
         // this is a down transition
-        if (downcount > 1)
-          alldowntransitionsaretrivial = false;
+        if (downcount > 1) alldowntransitionsaretrivial = false;
       }
     }
     if (alldowntransitionsaretrivial) {
@@ -1899,7 +1935,8 @@ void NavigationSpecializer::DumpRelocateMethod(std::ostream &outstream) const {
   outstream << "}\n";
 }
 
-void NavigationSpecializer::DumpLocalHitDetectionFunction(std::ostream &outstream) const {
+void NavigationSpecializer::DumpLocalHitDetectionFunction(std::ostream &outstream) const
+{
   // if user specified base navigator we are using this here
 
   bool needdaughtertreatment = fLogicalVolume->GetDaughtersp()->size() > 0;
@@ -1910,7 +1947,8 @@ void NavigationSpecializer::DumpLocalHitDetectionFunction(std::ostream &outstrea
                "NavigationState & out_state) const override {\n";
 
   if (fUseBaseNavigator) {
-    outstream << "return fBaseNavigator." << fBaseNavigator << "<>::ComputeStepAndHittingBoundaryForLocalPoint(localpoint, localdir, pstep, "
+    outstream << "return fBaseNavigator." << fBaseNavigator
+              << "<>::ComputeStepAndHittingBoundaryForLocalPoint(localpoint, localdir, pstep, "
                  "in_state, out_state);\n";
   } else {
     // put specialized local hit detection ( probably only useful for small number of daughters )
@@ -1923,7 +1961,7 @@ void NavigationSpecializer::DumpLocalHitDetectionFunction(std::ostream &outstrea
 
   // function 2
   // the bool return type indicates if out_state was already modified; this may happen in assemblies;
-   // in this case we don't need to copy the in_state to the out state later on
+  // in this case we don't need to copy the in_state to the out state later on
   outstream << "virtual bool CheckDaughterIntersections(LogicalVolume const *lvol, Vector3D<Precision> const & "
                "localpoint, Vector3D<Precision> const & localdir,                                           "
                "NavigationState const & in_state, NavigationState & out_state, Precision &step, VPlacedVolume const *& "
@@ -1932,19 +1970,20 @@ void NavigationSpecializer::DumpLocalHitDetectionFunction(std::ostream &outstrea
     // empty function; do nothing
     outstream << "return false;\n";
   } else {
-      outstream << "// we need daughter treatment\n";
-  if (fUseBaseNavigator) {
+    outstream << "// we need daughter treatment\n";
+    if (fUseBaseNavigator) {
       outstream << "// we fall back daughter treatment of existing navigator \n";
-      outstream << "return fBaseNavigator." << fBaseNavigator << "<>::CheckDaughterIntersections(lvol, localpoint, localdir, in_state, out_state, "
-                 "step, hitcandidate);\n";
-  } else {
+      outstream << "return fBaseNavigator." << fBaseNavigator
+                << "<>::CheckDaughterIntersections(lvol, localpoint, localdir, in_state, out_state, "
+                   "step, hitcandidate);\n";
+    } else {
       outstream << "// we emit specialized daughter treatment\n";
       // put specialized local hit detection ( probably only useful for small number of daughters )
-    DumpFoo(outstream);
-  }}
+      DumpFoo(outstream);
+    }
+  }
 
   outstream << "}\n";
 }
-
 
 } // end namespace

@@ -15,7 +15,8 @@
 
 bool testvecgeom = false;
 
-bool TestGenTrap() {
+bool TestGenTrap()
+{
   using Vec_t = vecgeom::Vector3D<vecgeom::Precision>;
   using namespace vecgeom;
   // Planar
@@ -44,7 +45,7 @@ bool TestGenTrap() {
   // std::cout << "volume1= " << vol << "   volCheck= " << volCheck1 << std::endl;
   assert(ApproxEqual(vol, volCheck1) && "vol != volCheck1");
 
-  vol = trap2.Capacity();
+  vol       = trap2.Capacity();
   volCheck2 = (1. / 3) * (6 * 6 + 3.9 * 6 + 3.9 * 3.9) * 10;
   // std::cout << "volume2= " << vol << "   should be in range: ( " << volCheck1 << ", " << volCheck2 << ")" <<
   // std::endl;
@@ -52,7 +53,7 @@ bool TestGenTrap() {
 
   // Check surface area
 
-  surf = trap1.SurfaceArea();
+  surf      = trap1.SurfaceArea();
   surfCheck = 6 * 6 + 4 * 4 + 4 * 0.5 * (6 + 4) * std::sqrt(10 * 10 + 1 * 1);
   // std::cout << "surface1= " << surf << "   surfCheck= " << surfCheck << std::endl;
   assert(ApproxEqual(surf, surfCheck) && "surf != surfcheck");
@@ -141,80 +142,80 @@ bool TestGenTrap() {
   // X
   valid = trap1.Normal(ponxp, normal);
   testp = ponxp + testValue * normal;
-  Dist = trap1.SafetyToIn(testp);
+  Dist  = trap1.SafetyToIn(testp);
   assert(Dist <= testValue);
 
   testp = ponxp - testValue * normal;
-  Dist = trap1.SafetyToIn(testp);
+  Dist  = trap1.SafetyToIn(testp);
   assert(Dist < 0);
 
   valid = trap1.Normal(ponxm, normal);
   testp = ponxm + testValue * normal;
-  Dist = trap1.SafetyToIn(testp);
+  Dist  = trap1.SafetyToIn(testp);
   assert(Dist <= testValue);
 
   testp = ponxm - testValue * normal;
-  Dist = trap1.SafetyToIn(testp);
+  Dist  = trap1.SafetyToIn(testp);
   assert(Dist < 0);
 
   // Y
   valid = trap1.Normal(ponyp, normal);
   testp = ponyp + testValue * normal;
-  Dist = trap1.SafetyToIn(testp);
+  Dist  = trap1.SafetyToIn(testp);
   assert(Dist <= testValue);
 
   testp = ponyp - testValue * normal;
-  Dist = trap1.SafetyToIn(testp);
+  Dist  = trap1.SafetyToIn(testp);
   assert(Dist < 0);
 
   valid = trap1.Normal(ponym, normal);
   testp = ponym + testValue * normal;
-  Dist = trap1.SafetyToIn(testp);
+  Dist  = trap1.SafetyToIn(testp);
   assert(Dist <= testValue);
 
   testp = ponym - testValue * normal;
-  Dist = trap1.SafetyToIn(testp);
+  Dist  = trap1.SafetyToIn(testp);
   assert(Dist < 0);
   // Z
   valid = trap2.Normal(ponzp, normal);
   testp = ponzp + testValue * normal;
-  Dist = trap2.SafetyToIn(testp);
+  Dist  = trap2.SafetyToIn(testp);
   assert(ApproxEqual(Dist, testValue));
 
   testp = ponzp - testValue * normal;
-  Dist = trap2.SafetyToIn(testp);
+  Dist  = trap2.SafetyToIn(testp);
   assert(Dist < 0);
 
   valid = trap2.Normal(ponzm, normal);
   testp = ponzm + testValue * normal;
-  Dist = trap2.SafetyToIn(testp);
+  Dist  = trap2.SafetyToIn(testp);
   assert(ApproxEqual(Dist, testValue));
 
   testp = ponzm - testValue * normal;
-  Dist = trap2.SafetyToIn(testp);
+  Dist  = trap2.SafetyToIn(testp);
   assert(Dist < 0);
 
   // DistanceToIn(P,V)
   Vec_t dir;
-  dir = ponxm - pbigmx;
+  dir       = ponxm - pbigmx;
   testValue = dir.Mag();
   dir.Normalize();
   Dist = trap1.DistanceToIn(pbigmx, dir);
   assert(ApproxEqual(Dist, testValue));
 
-  dir = ponxp - pbigx;
+  dir       = ponxp - pbigx;
   testValue = dir.Mag();
   dir.Normalize();
   Dist = trap1.DistanceToIn(pbigx, dir);
   assert(ApproxEqual(Dist, testValue));
 
-  dir = ponym - pbigmy;
+  dir       = ponym - pbigmy;
   testValue = dir.Mag();
   dir.Normalize();
   Dist = trap1.DistanceToIn(pbigmy, dir);
   assert(ApproxEqual(Dist, testValue));
 
-  dir = ponyp - pbigy;
+  dir       = ponyp - pbigy;
   testValue = dir.Mag();
   dir.Normalize();
   Dist = trap1.DistanceToIn(pbigy, dir);
@@ -225,8 +226,8 @@ bool TestGenTrap() {
   for (int i = 0; i < 100; i++) {
     Vec_t psurf = trap2.GetPointOnSurface();
     Vec_t start = 100. * psurf;
-    dir = psurf - start;
-    testValue = dir.Mag();
+    dir         = psurf - start;
+    testValue   = dir.Mag();
     dir.Normalize();
     Dist = trap2.DistanceToIn(start, dir);
     //      std::cout << "point: " << start << " dir: " << dir << " Dist=" << Dist << "  testValue=" << testValue <<
@@ -245,7 +246,8 @@ bool TestGenTrap() {
   return true;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
   TestGenTrap();
   std::cout << "VecGeom GenTrap passed\n";
   return 0;

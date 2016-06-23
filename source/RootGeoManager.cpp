@@ -53,7 +53,8 @@
 
 namespace vecgeom {
 
-void RootGeoManager::LoadRootGeometry() {
+void RootGeoManager::LoadRootGeometry()
+{
   Clear();
   GeoManager::Instance().Clear();
   TGeoNode const *const world_root = ::gGeoManager->GetTopNode();
@@ -66,14 +67,15 @@ void RootGeoManager::LoadRootGeometry() {
   fWorld = GeoManager::Instance().GetWorld();
 }
 
-void RootGeoManager::LoadRootGeometry(std::string filename) {
-  if (::gGeoManager != NULL)
-    delete ::gGeoManager;
+void RootGeoManager::LoadRootGeometry(std::string filename)
+{
+  if (::gGeoManager != NULL) delete ::gGeoManager;
   TGeoManager::Import(filename.c_str());
   LoadRootGeometry();
 }
 
-void RootGeoManager::ExportToROOTGeometry(VPlacedVolume const *topvolume, std::string filename) {
+void RootGeoManager::ExportToROOTGeometry(VPlacedVolume const *topvolume, std::string filename)
+{
   TGeoNode *world = Convert(topvolume);
   ::gGeoManager->SetTopVolume(world->GetVolume());
   ::gGeoManager->CloseGeometry();
@@ -84,7 +86,8 @@ void RootGeoManager::ExportToROOTGeometry(VPlacedVolume const *topvolume, std::s
 // a helper function to convert ROOT assembly constructs into a flat list of nodes
 // allows parsing of more complex ROOT geometries ( until VecGeom supports assemblies natively )
 void FlattenAssemblies(TGeoNode *node, std::list<TGeoNode *> &nodeaccumulator, TGeoHMatrix const *globalmatrix,
-                       int currentdepth, int &count /* keeps track of number of flattenened nodes */, int &maxdepth) {
+                       int currentdepth, int &count /* keeps track of number of flattenened nodes */, int &maxdepth)
+{
   maxdepth = currentdepth;
   if (dynamic_cast<TGeoVolumeAssembly *>(node->GetVolume())) {
     // it is an assembly --> so modify the matrix
@@ -98,7 +101,7 @@ void FlattenAssemblies(TGeoNode *node, std::list<TGeoNode *> &nodeaccumulator, T
     if (currentdepth == 0) // can keep original node ( it was not an assembly )
       nodeaccumulator.push_back(node);
     else { // need a new flattened node with a different transformation
-      TGeoMatrix *newmatrix = new TGeoHMatrix(*globalmatrix);
+      TGeoMatrix *newmatrix   = new TGeoHMatrix(*globalmatrix);
       TGeoNodeMatrix *newnode = new TGeoNodeMatrix(node->GetVolume(), newmatrix);
 
       // need a new name for the flattened node
@@ -111,13 +114,13 @@ void FlattenAssemblies(TGeoNode *node, std::list<TGeoNode *> &nodeaccumulator, T
   }
 }
 
-VPlacedVolume *RootGeoManager::Convert(TGeoNode const *const node) {
-  if (fPlacedVolumeMap.Contains(node))
-    return const_cast<VPlacedVolume *>(GetPlacedVolume(node));
+VPlacedVolume *RootGeoManager::Convert(TGeoNode const *const node)
+{
+  if (fPlacedVolumeMap.Contains(node)) return const_cast<VPlacedVolume *>(GetPlacedVolume(node));
 
   Transformation3D const *const transformation = Convert(node->GetMatrix());
-  LogicalVolume *const logical_volume = Convert(node->GetVolume());
-  VPlacedVolume *const placed_volume = logical_volume->Place(node->GetName(), transformation);
+  LogicalVolume *const logical_volume          = Convert(node->GetVolume());
+  VPlacedVolume *const placed_volume           = logical_volume->Place(node->GetName(), transformation);
 
   int remaining_daughters = 0;
   {
@@ -128,7 +131,7 @@ VPlacedVolume *RootGeoManager::Convert(TGeoNode const *const node) {
 
   // we have to convert here assemblies to list of normal nodes
   std::list<TGeoNode *> flattenenednodelist;
-  int assemblydepth = 0;
+  int assemblydepth   = 0;
   int flatteningcount = 0;
   for (int i = 0; i < remaining_daughters; ++i) {
     TGeoHMatrix trans = *node->GetDaughter(i)->GetMatrix();
@@ -149,12 +152,13 @@ VPlacedVolume *RootGeoManager::Convert(TGeoNode const *const node) {
   return placed_volume;
 }
 
-TGeoNode *RootGeoManager::Convert(VPlacedVolume const *const placed_volume) {
+TGeoNode *RootGeoManager::Convert(VPlacedVolume const *const placed_volume)
+{
   if (fPlacedVolumeMap.Contains(placed_volume->id()))
     return const_cast<TGeoNode *>(fPlacedVolumeMap[placed_volume->id()]);
 
   TGeoVolume *geovolume = Convert(placed_volume, placed_volume->GetLogicalVolume());
-  TGeoNode *node = new TGeoNodeMatrix(geovolume, NULL);
+  TGeoNode *node        = new TGeoNodeMatrix(geovolume, NULL);
   fPlacedVolumeMap.Set(node, placed_volume->id());
 
   // only need to do daughterloop once for every logical volume.
@@ -183,9 +187,9 @@ TGeoNode *RootGeoManager::Convert(VPlacedVolume const *const placed_volume) {
   return node;
 }
 
-Transformation3D *RootGeoManager::Convert(TGeoMatrix const *const geomatrix) {
-  if (fTransformationMap.Contains(geomatrix))
-    return const_cast<Transformation3D *>(fTransformationMap[geomatrix]);
+Transformation3D *RootGeoManager::Convert(TGeoMatrix const *const geomatrix)
+{
+  if (fTransformationMap.Contains(geomatrix)) return const_cast<Transformation3D *>(fTransformationMap[geomatrix]);
 
   Double_t const *const t = geomatrix->GetTranslation();
   Double_t const *const r = geomatrix->GetRotationMatrix();
@@ -198,9 +202,9 @@ Transformation3D *RootGeoManager::Convert(TGeoMatrix const *const geomatrix) {
   return transformation;
 }
 
-TGeoMatrix *RootGeoManager::Convert(Transformation3D const *const trans) {
-  if (fTransformationMap.Contains(trans))
-    return const_cast<TGeoMatrix *>(fTransformationMap[trans]);
+TGeoMatrix *RootGeoManager::Convert(Transformation3D const *const trans)
+{
+  if (fTransformationMap.Contains(trans)) return const_cast<TGeoMatrix *>(fTransformationMap[trans]);
 
   TGeoMatrix *const geomatrix = trans->ConvertToTGeoMatrix();
 
@@ -208,26 +212,26 @@ TGeoMatrix *RootGeoManager::Convert(Transformation3D const *const trans) {
   return geomatrix;
 }
 
-LogicalVolume *RootGeoManager::Convert(TGeoVolume const *const volume) {
-  if (fLogicalVolumeMap.Contains(volume))
-    return const_cast<LogicalVolume *>(fLogicalVolumeMap[volume]);
+LogicalVolume *RootGeoManager::Convert(TGeoVolume const *const volume)
+{
+  if (fLogicalVolumeMap.Contains(volume)) return const_cast<LogicalVolume *>(fLogicalVolumeMap[volume]);
 
-  VUnplacedVolume const *unplaced = Convert(volume->GetShape());
+  VUnplacedVolume const *unplaced     = Convert(volume->GetShape());
   LogicalVolume *const logical_volume = new LogicalVolume(volume->GetName(), unplaced);
-  Medium const *const medium = Convert(volume->GetMedium());
+  Medium const *const medium          = Convert(volume->GetMedium());
   const_cast<LogicalVolume *>(logical_volume)->SetTrackingMediumPtr((void *)medium);
 
   fLogicalVolumeMap.Set(volume, logical_volume);
   return logical_volume;
 }
 
-Medium *RootGeoManager::Convert(TGeoMedium const *const medium) {
+Medium *RootGeoManager::Convert(TGeoMedium const *const medium)
+{
   // Check whether medium is already there
   std::vector<Medium *> media = Medium::GetMedia();
   for (auto m = media.begin(); m != media.end(); ++m) {
     //      std::cout << "Name " << (*m)->Name() << " " << medium->GetName() << std::endl;
-    if ((*m)->Name() == std::string(medium->GetName()))
-      return (*m);
+    if ((*m)->Name() == std::string(medium->GetName())) return (*m);
   }
 
   //   std::cout << "Adding Medium #" << media.size() << " " << medium->GetName() << std::endl;
@@ -236,19 +240,19 @@ Medium *RootGeoManager::Convert(TGeoMedium const *const medium) {
   Material *vmat = Convert(medium->GetMaterial());
 
   double pars[20];
-  for (int i = 0; i < 20; ++i)
-    pars[i] = medium->GetParam(i);
+  for (int i   = 0; i < 20; ++i)
+    pars[i]    = medium->GetParam(i);
   Medium *vmed = new Medium(medium->GetName(), vmat, pars);
   return vmed;
 }
 
-Material *RootGeoManager::Convert(TGeoMaterial const *const material) {
+Material *RootGeoManager::Convert(TGeoMaterial const *const material)
+{
   auto materials = Material::GetMaterials();
   for (auto m = materials.begin(); m != materials.end(); ++m)
-    if ((*m)->GetName() == std::string(material->GetName()))
-      return (*m);
+    if ((*m)->GetName() == std::string(material->GetName())) return (*m);
   Material *vmat = 0;
-  int nelem = material->GetNelements();
+  int nelem      = material->GetNelements();
 
   //   std::cout << "Adding Material #" << materials.size() << " "<< material->GetName() << std::endl;
   if (nelem < 2) {
@@ -280,12 +284,11 @@ Material *RootGeoManager::Convert(TGeoMaterial const *const material) {
 
 // the inverse: here we need both the placed volume and logical volume as input
 // they should match
-TGeoVolume *RootGeoManager::Convert(VPlacedVolume const *const placed_volume,
-                                    LogicalVolume const *const logical_volume) {
+TGeoVolume *RootGeoManager::Convert(VPlacedVolume const *const placed_volume, LogicalVolume const *const logical_volume)
+{
   assert(placed_volume->GetLogicalVolume() == logical_volume);
 
-  if (fLogicalVolumeMap.Contains(logical_volume))
-    return const_cast<TGeoVolume *>(fLogicalVolumeMap[logical_volume]);
+  if (fLogicalVolumeMap.Contains(logical_volume)) return const_cast<TGeoVolume *>(fLogicalVolumeMap[logical_volume]);
 
   TGeoVolume *geovolume = new TGeoVolume(logical_volume->GetLabel().c_str(), /* the name */
                                          placed_volume->ConvertToRoot(), 0   /* NO MATERIAL FOR THE MOMENT */
@@ -295,23 +298,23 @@ TGeoVolume *RootGeoManager::Convert(VPlacedVolume const *const placed_volume,
   return geovolume;
 }
 
-VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape) {
+VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
+{
 
-  if (fUnplacedVolumeMap.Contains(shape))
-    return const_cast<VUnplacedVolume *>(fUnplacedVolumeMap[shape]);
+  if (fUnplacedVolumeMap.Contains(shape)) return const_cast<VUnplacedVolume *>(fUnplacedVolumeMap[shape]);
 
   VUnplacedVolume *unplaced_volume = NULL;
 
   // THE BOX
   if (shape->IsA() == TGeoBBox::Class()) {
     TGeoBBox const *const box = static_cast<TGeoBBox const *>(shape);
-    unplaced_volume = new UnplacedBox(box->GetDX(), box->GetDY(), box->GetDZ());
+    unplaced_volume           = new UnplacedBox(box->GetDX(), box->GetDY(), box->GetDZ());
   }
 
   // THE TUBE
   if (shape->IsA() == TGeoTube::Class()) {
     TGeoTube const *const tube = static_cast<TGeoTube const *>(shape);
-    unplaced_volume = new UnplacedTube(tube->GetRmin(), tube->GetRmax(), tube->GetDz(), 0., kTwoPi);
+    unplaced_volume            = new UnplacedTube(tube->GetRmin(), tube->GetRmax(), tube->GetDz(), 0., kTwoPi);
   }
 
   // THE TUBESEG
@@ -339,7 +342,7 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape) {
   // THE PARABOLOID
   if (shape->IsA() == TGeoParaboloid::Class()) {
     TGeoParaboloid const *const p = static_cast<TGeoParaboloid const *>(shape);
-    unplaced_volume = new UnplacedParaboloid(p->GetRlo(), p->GetRhi(), p->GetDz());
+    unplaced_volume               = new UnplacedParaboloid(p->GetRlo(), p->GetRhi(), p->GetDz());
   }
 
   // THE PARALLELEPIPED
@@ -352,26 +355,26 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape) {
   // Polyhedron/TGeoPgon
   if (shape->IsA() == TGeoPgon::Class()) {
     TGeoPgon const *pgon = static_cast<TGeoPgon const *>(shape);
-    unplaced_volume = new UnplacedPolyhedron(pgon->GetPhi1(),   // phiStart
-                                             pgon->GetDphi(),   // phiEnd
-                                             pgon->GetNedges(), // sideCount
-                                             pgon->GetNz(),     // zPlaneCount
-                                             pgon->GetZ(),      // zPlanes
-                                             pgon->GetRmin(),   // rMin
-                                             pgon->GetRmax()    // rMax
+    unplaced_volume      = new UnplacedPolyhedron(pgon->GetPhi1(), // phiStart
+                                             pgon->GetDphi(),      // phiEnd
+                                             pgon->GetNedges(),    // sideCount
+                                             pgon->GetNz(),        // zPlaneCount
+                                             pgon->GetZ(),         // zPlanes
+                                             pgon->GetRmin(),      // rMin
+                                             pgon->GetRmax()       // rMax
                                              );
   }
 
   // TRD2
   if (shape->IsA() == TGeoTrd2::Class()) {
     TGeoTrd2 const *const p = static_cast<TGeoTrd2 const *>(shape);
-    unplaced_volume = new UnplacedTrd(p->GetDx1(), p->GetDx2(), p->GetDy1(), p->GetDy2(), p->GetDz());
+    unplaced_volume         = new UnplacedTrd(p->GetDx1(), p->GetDx2(), p->GetDy1(), p->GetDy2(), p->GetDz());
   }
 
   // TRD1
   if (shape->IsA() == TGeoTrd1::Class()) {
     TGeoTrd1 const *const p = static_cast<TGeoTrd1 const *>(shape);
-    unplaced_volume = new UnplacedTrd(p->GetDx1(), p->GetDx2(), p->GetDy(), p->GetDz());
+    unplaced_volume         = new UnplacedTrd(p->GetDx1(), p->GetDx2(), p->GetDy(), p->GetDz());
   }
 
   // TRAPEZOID
@@ -382,8 +385,7 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape) {
           new UnplacedTrapezoid(p->GetDz(), p->GetTheta() * kDegToRad, p->GetPhi() * kDegToRad, p->GetH1(), p->GetBl1(),
                                 p->GetTl1(), std::tan(p->GetAlpha1() * kDegToRad), p->GetH2(), p->GetBl2(), p->GetTl2(),
                                 std::tan(p->GetAlpha2() * kDegToRad));
-    }
-    else {
+    } else {
       std::cerr << "Warning: this trap is degenerate -- will convert it to a generic trap!!\n";
       unplaced_volume = ToUnplacedGenTrap((TGeoArb8 const *)p);
     }
@@ -404,13 +406,13 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape) {
 
   if (shape->IsA() == TGeoCompositeShape::Class()) {
     TGeoCompositeShape const *const compshape = static_cast<TGeoCompositeShape const *>(shape);
-    TGeoBoolNode const *const boolnode = compshape->GetBoolNode();
+    TGeoBoolNode const *const boolnode        = compshape->GetBoolNode();
 
     // need the matrix;
-    Transformation3D const *lefttrans = Convert(boolnode->GetLeftMatrix());
+    Transformation3D const *lefttrans  = Convert(boolnode->GetLeftMatrix());
     Transformation3D const *righttrans = Convert(boolnode->GetRightMatrix());
     // unplaced shapes
-    VUnplacedVolume const *leftunplaced = Convert(boolnode->GetLeftShape());
+    VUnplacedVolume const *leftunplaced  = Convert(boolnode->GetLeftShape());
     VUnplacedVolume const *rightunplaced = Convert(boolnode->GetRightShape());
 
     assert(leftunplaced != nullptr);
@@ -451,7 +453,7 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape) {
     TGeoScaledShape const *const p = static_cast<TGeoScaledShape const *>(shape);
     // First convert the referenced shape
     VUnplacedVolume *referenced_shape = Convert(p->GetShape());
-    const double *scale_root = p->GetScale()->GetScale();
+    const double *scale_root          = p->GetScale()->GetScale();
     unplaced_volume = new UnplacedScaledShape(referenced_shape, scale_root[0], scale_root[1], scale_root[2]);
   }
 
@@ -461,12 +463,12 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape) {
     // Create the corresponding unplaced tube, with:
     //   rmin=0, rmax=A, dz=dz, which is scaled with (1., A/B, 1.)
     UnplacedTube *tubeUnplaced = new UnplacedTube(0, p->GetA(), p->GetDZ(), 0, kTwoPi);
-    unplaced_volume = new UnplacedScaledShape(tubeUnplaced, 1., p->GetB() / p->GetA(), 1.);
+    unplaced_volume            = new UnplacedScaledShape(tubeUnplaced, 1., p->GetB() / p->GetA(), 1.);
   }
 
   // THE ARB8
   if (shape->IsA() == TGeoArb8::Class() || shape->IsA() == TGeoGtra::Class()) {
-    TGeoArb8 *p = (TGeoArb8 *)(shape);
+    TGeoArb8 *p     = (TGeoArb8 *)(shape);
     unplaced_volume = ToUnplacedGenTrap(p);
   }
 
@@ -484,7 +486,8 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape) {
   return unplaced_volume;
 }
 
-void RootGeoManager::PrintNodeTable() const {
+void RootGeoManager::PrintNodeTable() const
+{
   for (auto iter : fPlacedVolumeMap) {
     std::cerr << iter.first << " " << iter.second << "\n";
     TGeoNode const *n = iter.second;
@@ -492,7 +495,8 @@ void RootGeoManager::PrintNodeTable() const {
   }
 }
 
-void RootGeoManager::Clear() {
+void RootGeoManager::Clear()
+{
   fPlacedVolumeMap.Clear();
   fUnplacedVolumeMap.Clear();
   fLogicalVolumeMap.Clear();

@@ -16,7 +16,8 @@
 
 using namespace VECGEOM_NAMESPACE;
 
-int main() {
+int main()
+{
 
   TGeoVolume *world_root = gGeoManager->MakeBox("world", NULL, 5., 5., 10.);
   TGeoVolume *tube_root  = gGeoManager->MakeTube("tube", NULL, 1., 5., 10.);
@@ -31,14 +32,13 @@ int main() {
   RootGeoManager::Instance().world()->PrintContent();
 
   VPlacedVolume const *const world = GeoManager::Instance().GetWorld();
-  VPlacedVolume const *const tube = *world->GetDaughters().begin();
+  VPlacedVolume const *const tube  = *world->GetDaughters().begin();
 
   SimpleNavigator navigator;
 
-  auto CheckPoint = [&] (const Precision x, const Precision y,
-                         const Precision z, VPlacedVolume const *const volume) {
+  auto CheckPoint = [&](const Precision x, const Precision y, const Precision z, VPlacedVolume const *const volume) {
     Vector3D<Precision> const point = Vector3D<Precision>(x, y, z);
-    NavigationState * path = NavigationState::MakeInstance(2);
+    NavigationState *path           = NavigationState::MakeInstance(2);
     assert(navigator.LocatePoint(world, point, *path, true) == volume);
   };
 

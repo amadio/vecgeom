@@ -13,7 +13,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(class PlacedParallelepiped;)
-VECGEOM_DEVICE_DECLARE_CONV(class,PlacedParallelepiped)
+VECGEOM_DEVICE_DECLARE_CONV(class, PlacedParallelepiped)
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -26,25 +26,32 @@ public:
 
   PlacedParallelepiped(char const *const label, LogicalVolume const *const logical_volume,
                        Transformation3D const *const transformation, PlacedBox const *const boundingBox)
-      : VPlacedVolume(label, logical_volume, transformation, boundingBox) {}
+      : VPlacedVolume(label, logical_volume, transformation, boundingBox)
+  {
+  }
 
   PlacedParallelepiped(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
                        PlacedBox const *const boundingBox)
-      : PlacedParallelepiped("", logical_volume, transformation, boundingBox) {}
+      : PlacedParallelepiped("", logical_volume, transformation, boundingBox)
+  {
+  }
 
 #else
 
   __device__ PlacedParallelepiped(LogicalVolume const *const logical_volume,
                                   Transformation3D const *const transformation, PlacedBox const *const boundingBox,
                                   const int id)
-      : VPlacedVolume(logical_volume, transformation, boundingBox, id) {}
+      : VPlacedVolume(logical_volume, transformation, boundingBox, id)
+  {
+  }
 
 #endif
   VECGEOM_CUDA_HEADER_BOTH
   virtual ~PlacedParallelepiped() {}
 
   VECGEOM_CUDA_HEADER_BOTH
-  UnplacedParallelepiped const *GetUnplacedVolume() const {
+  UnplacedParallelepiped const *GetUnplacedVolume() const
+  {
     return static_cast<UnplacedParallelepiped const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
@@ -85,9 +92,10 @@ public:
 
   virtual double SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
 #endif
-  
+
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override {
+  virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
+  {
     GetUnplacedVolume()->Extent(aMin, aMax);
   }
 
@@ -95,7 +103,8 @@ public:
   virtual std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType(); }
 #endif
 
-  virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override {
+  virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
+  {
     return GetUnplacedVolume()->Normal(point, normal);
   }
 

@@ -15,10 +15,11 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, TranslationCode, translation::kGeneric, RotationCode,
-                                           rotation::kGeneric, typename)
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, TranslationCode, translation::kGeneric,
+                                           RotationCode, rotation::kGeneric, typename)
 
-    inline namespace VECGEOM_IMPL_NAMESPACE {
+    inline namespace VECGEOM_IMPL_NAMESPACE
+{
 
   namespace TrdUtilities {
 
@@ -37,9 +38,11 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, Translatio
    */
 
   template <typename Backend>
-  VECGEOM_INLINE VECGEOM_CUDA_HEADER_BOTH void
-  PointLineOrientation(typename Backend::precision_v const &px, typename Backend::precision_v const &py,
-                       Precision const &vx, Precision const &vy, typename Backend::precision_v &crossProduct) {
+  VECGEOM_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
+  void PointLineOrientation(typename Backend::precision_v const &px, typename Backend::precision_v const &py,
+                            Precision const &vx, Precision const &vy, typename Backend::precision_v &crossProduct)
+  {
     crossProduct = vx * py - vy * px;
   }
   /*
@@ -60,25 +63,30 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, Translatio
    */
 
   template <typename Backend>
-  VECGEOM_INLINE VECGEOM_CUDA_HEADER_BOTH void
-  PlaneTrajectoryIntersection(typename Backend::precision_v const &alongX, typename Backend::precision_v const &alongY,
-                              typename Backend::precision_v const &ylimit, typename Backend::precision_v const &posx,
-                              typename Backend::precision_v const &posy, typename Backend::precision_v const &dirx,
-                              typename Backend::precision_v const &diry, typename Backend::precision_v &dist,
-                              typename Backend::bool_v &ok) {
+  VECGEOM_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
+  void PlaneTrajectoryIntersection(typename Backend::precision_v const &alongX,
+                                   typename Backend::precision_v const &alongY,
+                                   typename Backend::precision_v const &ylimit,
+                                   typename Backend::precision_v const &posx, typename Backend::precision_v const &posy,
+                                   typename Backend::precision_v const &dirx, typename Backend::precision_v const &diry,
+                                   typename Backend::precision_v &dist, typename Backend::bool_v &ok)
+  {
     typedef typename Backend::precision_v Float_t;
 
     dist = (alongY * posx - alongX * posy) / (diry * alongX - dirx * alongY);
 
     Float_t hity = posy + dist * diry;
-    ok = Abs(hity) <= ylimit && dist > 0;
+    ok           = Abs(hity) <= ylimit && dist > 0;
   }
 
   template <typename Backend, bool forY, bool mirroredPoint, bool toInside>
-  VECGEOM_INLINE VECGEOM_CUDA_HEADER_BOTH void
-  FaceTrajectoryIntersection(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> const &pos,
-                             Vector3D<typename Backend::precision_v> const &dir, typename Backend::precision_v &dist,
-                             typename Backend::bool_v &ok) {
+  VECGEOM_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
+  void FaceTrajectoryIntersection(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> const &pos,
+                                  Vector3D<typename Backend::precision_v> const &dir,
+                                  typename Backend::precision_v &dist, typename Backend::bool_v &ok)
+  {
     typedef typename Backend::precision_v Float_t;
     // typedef typename Backend::bool_v Bool_t;
     Float_t alongV, posV, dirV, posK, dirK, fV, fK, halfKplus, v1, ndotv;
@@ -87,24 +95,24 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, Translatio
     //    fNormals[2].Set(0., -fCalfY, fFy*fCalfY);
     //    fNormals[3].Set(0., fCalfY, fFy*fCalfY);
     if (forY) {
-      alongV = trd.y2minusy1();
-      v1 = trd.dy1();
-      posV = pos.y();
-      posK = pos.x();
-      dirV = dir.y();
-      dirK = dir.x();
-      fK = trd.fx();
-      fV = trd.fy();
+      alongV    = trd.y2minusy1();
+      v1        = trd.dy1();
+      posV      = pos.y();
+      posK      = pos.x();
+      dirV      = dir.y();
+      dirK      = dir.x();
+      fK        = trd.fx();
+      fV        = trd.fy();
       halfKplus = trd.halfx1plusx2();
     } else {
-      alongV = trd.x2minusx1();
-      v1 = trd.dx1();
-      posV = pos.x();
-      posK = pos.y();
-      dirV = dir.x();
-      dirK = dir.y();
-      fK = trd.fy();
-      fV = trd.fx();
+      alongV    = trd.x2minusx1();
+      v1        = trd.dx1();
+      posV      = pos.x();
+      posK      = pos.y();
+      dirV      = dir.x();
+      dirK      = dir.y();
+      fK        = trd.fy();
+      fV        = trd.fx();
       halfKplus = trd.halfy1plusy2();
     }
     if (mirroredPoint) {
@@ -117,8 +125,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, Translatio
       ok = ndotv < 0.;
     else
       ok = ndotv > 0.;
-    if (IsEmpty(ok))
-      return;
+    if (IsEmpty(ok)) return;
     Float_t alongZ = Float_t(2.0) * trd.dz();
 
     // distance from trajectory to face
@@ -130,16 +137,18 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, Translatio
       ok &= Abs(hitz) <= trd.dz();
       // need to make sure hit on varying dimension falls within bounds
       Float_t hitk = posK + dist * dirK;
-      Float_t dK = halfKplus - fK * hitz; // calculate the width of the varying dimension at hitz
+      Float_t dK   = halfKplus - fK * hitz; // calculate the width of the varying dimension at hitz
       ok &= Abs(hitk) <= dK;
       MaskedAssign(ok & (Abs(dist) < kHalfTolerance), 0., &dist);
     }
   }
 
   template <typename Backend, typename trdTypeT, bool inside>
-  VECGEOM_INLINE VECGEOM_CUDA_HEADER_BOTH void Safety(UnplacedTrd const &trd,
-                                                      Vector3D<typename Backend::precision_v> const &pos,
-                                                      typename Backend::precision_v &dist) {
+  VECGEOM_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
+  void Safety(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> const &pos,
+              typename Backend::precision_v &dist)
+  {
     using namespace TrdTypes;
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
@@ -149,28 +158,29 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, Translatio
     dist = safz;
 
     Float_t distx = trd.halfx1plusx2() - trd.fx() * pos.z();
-    Bool_t okx = distx >= 0;
-    Float_t safx = (distx - Abs(pos.x())) * trd.calfx();
+    Bool_t okx    = distx >= 0;
+    Float_t safx  = (distx - Abs(pos.x())) * trd.calfx();
     MaskedAssign(okx && safx < dist, safx, &dist);
     // std::cout << "safx: " << safx << std::endl;
 
     if (checkVaryingY<trdTypeT>(trd)) {
       Float_t disty = trd.halfy1plusy2() - trd.fy() * pos.z();
-      Bool_t oky = disty >= 0;
-      Float_t safy = (disty - Abs(pos.y())) * trd.calfy();
+      Bool_t oky    = disty >= 0;
+      Float_t safy  = (disty - Abs(pos.y())) * trd.calfy();
       MaskedAssign(oky && safy < dist, safy, &dist);
     } else {
       Float_t safy = trd.dy1() - Abs(pos.y());
       MaskedAssign(safy < dist, safy, &dist);
     }
-    if (!inside)
-      dist = -dist;
+    if (!inside) dist = -dist;
   }
 
   template <typename Backend, typename trdTypeT, bool surfaceT>
-  VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE static void
-  UnplacedInside(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> const &point,
-                 typename Backend::bool_v &completelyinside, typename Backend::bool_v &completelyoutside) {
+  VECGEOM_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
+  static void UnplacedInside(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> const &point,
+                             typename Backend::bool_v &completelyinside, typename Backend::bool_v &completelyoutside)
+  {
 
     using namespace TrdUtilities;
     using namespace TrdTypes;
@@ -180,9 +190,8 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, Translatio
     Float_t pzPlusDz = point.z() + trd.dz();
 
     // inside Z?
-    completelyoutside = Abs(point.z()) > MakePlusTolerant<surfaceT>(trd.dz());
-    if (surfaceT)
-      completelyinside = Abs(point.z()) < MakeMinusTolerant<surfaceT>(trd.dz());
+    completelyoutside              = Abs(point.z()) > MakePlusTolerant<surfaceT>(trd.dz());
+    if (surfaceT) completelyinside = Abs(point.z()) < MakeMinusTolerant<surfaceT>(trd.dz());
 
     // inside X?
     Float_t cross;
@@ -208,8 +217,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, Translatio
       }
     } else {
       completelyoutside |= Abs(point.y()) > MakePlusTolerant<surfaceT>(trd.dy1());
-      if (surfaceT)
-        completelyinside &= Abs(point.y()) < MakeMinusTolerant<surfaceT>(trd.dy1());
+      if (surfaceT) completelyinside &= Abs(point.y()) < MakeMinusTolerant<surfaceT>(trd.dy1());
     }
   }
 
@@ -217,36 +225,42 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, Translatio
 
   class PlacedTrd;
 
-  template <TranslationCode transCodeT, RotationCode rotCodeT, typename trdTypeT> struct TrdImplementation {
+  template <TranslationCode transCodeT, RotationCode rotCodeT, typename trdTypeT>
+  struct TrdImplementation {
 
     static const int transC = transCodeT;
-    static const int rotC = rotCodeT;
+    static const int rotC   = rotCodeT;
 
-    using PlacedShape_t = PlacedTrd;
+    using PlacedShape_t   = PlacedTrd;
     using UnplacedShape_t = UnplacedTrd;
 
     VECGEOM_CUDA_HEADER_BOTH
-    static void PrintType() {
-      printf("SpecializedTrd<%i, %i, %s>", transCodeT, rotCodeT, trdTypeT::toString());
-    }
+    static void PrintType() { printf("SpecializedTrd<%i, %i, %s>", transCodeT, rotCodeT, trdTypeT::toString()); }
 
     template <typename Stream>
-    static void PrintType( Stream & s ) {
+    static void PrintType(Stream &s)
+    {
       s << "SpecializedTrd<" << transCodeT << "," << rotCodeT << "," << trdTypeT::toString() << ">";
     }
 
     template <typename Stream>
-    static void PrintImplementationType(Stream &s) {
+    static void PrintImplementationType(Stream &s)
+    {
       s << "TrdImplemenation<" << transCodeT << "," << rotCodeT << "," << trdTypeT::toString() << ">";
     }
 
     template <typename Stream>
-    static void PrintUnplacedType(Stream &s) { s << "UnplacedTrd"; }
+    static void PrintUnplacedType(Stream &s)
+    {
+      s << "UnplacedTrd";
+    }
 
     template <typename Backend>
-    VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE static void
-    UnplacedContains(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> const &point,
-                     typename Backend::bool_v &inside) {
+    VECGEOM_INLINE
+    VECGEOM_CUDA_HEADER_BOTH
+    static void UnplacedContains(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> const &point,
+                                 typename Backend::bool_v &inside)
+    {
 
       typename Backend::bool_v unused;
       TrdUtilities::UnplacedInside<Backend, trdTypeT, false>(trd, point, unused, inside);
@@ -254,10 +268,12 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, Translatio
     }
 
     template <class Backend>
-    VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE static void
-    Contains(UnplacedTrd const &trd, Transformation3D const &transformation,
-             Vector3D<typename Backend::precision_v> const &point, Vector3D<typename Backend::precision_v> &localPoint,
-             typename Backend::bool_v &inside) {
+    VECGEOM_INLINE
+    VECGEOM_CUDA_HEADER_BOTH
+    static void Contains(UnplacedTrd const &trd, Transformation3D const &transformation,
+                         Vector3D<typename Backend::precision_v> const &point,
+                         Vector3D<typename Backend::precision_v> &localPoint, typename Backend::bool_v &inside)
+    {
 
       typename Backend::bool_v unused;
       localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
@@ -266,13 +282,15 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, Translatio
     }
 
     template <class Backend>
-    VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE static void
-    Inside(UnplacedTrd const &trd, Transformation3D const &transformation,
-           Vector3D<typename Backend::precision_v> const &point, typename Backend::inside_v &inside) {
+    VECGEOM_INLINE
+    VECGEOM_CUDA_HEADER_BOTH
+    static void Inside(UnplacedTrd const &trd, Transformation3D const &transformation,
+                       Vector3D<typename Backend::precision_v> const &point, typename Backend::inside_v &inside)
+    {
       typedef typename Backend::bool_v Bool_t;
       Vector3D<typename Backend::precision_v> localpoint;
       localpoint = transformation.Transform<transCodeT, rotCodeT>(point);
-      inside = EInside::kOutside;
+      inside     = EInside::kOutside;
 
       Bool_t completelyoutside, completelyinside;
       TrdUtilities::UnplacedInside<Backend, trdTypeT, true>(trd, localpoint, completelyinside, completelyoutside);
@@ -282,11 +300,13 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, Translatio
     }
 
     template <class Backend>
-    VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE static void
-    DistanceToIn(UnplacedTrd const &trd, Transformation3D const &transformation,
-                 Vector3D<typename Backend::precision_v> const &point,
-                 Vector3D<typename Backend::precision_v> const &direction,
-                 typename Backend::precision_v const & /*stepMax*/, typename Backend::precision_v &distance) {
+    VECGEOM_INLINE
+    VECGEOM_CUDA_HEADER_BOTH
+    static void DistanceToIn(UnplacedTrd const &trd, Transformation3D const &transformation,
+                             Vector3D<typename Backend::precision_v> const &point,
+                             Vector3D<typename Backend::precision_v> const &direction,
+                             typename Backend::precision_v const & /*stepMax*/, typename Backend::precision_v &distance)
+    {
 
       using namespace TrdUtilities;
       using namespace TrdTypes;
@@ -304,22 +324,22 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, Translatio
       transformation.TransformDirection<rotCodeT>(direction, dir_local);
 
       // hit Z faces?
-      Bool_t inz = Abs(pos_local.z()) < MakeMinusTolerant<true>(trd.dz());
+      Bool_t inz    = Abs(pos_local.z()) < MakeMinusTolerant<true>(trd.dz());
       Float_t distx = trd.halfx1plusx2() - trd.fx() * pos_local.z();
-      Bool_t inx = (distx - Abs(pos_local.x())) * trd.calfx() > MakePlusTolerant<true>(0.);
+      Bool_t inx    = (distx - Abs(pos_local.x())) * trd.calfx() > MakePlusTolerant<true>(0.);
       Float_t disty;
       Bool_t iny;
       if (checkVaryingY<trdTypeT>(trd)) {
         disty = trd.halfy1plusy2() - trd.fy() * pos_local.z();
-        iny = (disty - Abs(pos_local.y())) * trd.calfy() > MakePlusTolerant<true>(0.);
+        iny   = (disty - Abs(pos_local.y())) * trd.calfy() > MakePlusTolerant<true>(0.);
       } else {
         disty = Abs(pos_local.y()) - trd.dy1();
-        iny = disty < MakeMinusTolerant<true>(0.);
+        iny   = disty < MakeMinusTolerant<true>(0.);
       }
       Bool_t inside = inx & iny & inz;
       MaskedAssign(inside, -1., &distance);
       Bool_t done = inside;
-      Bool_t okz = pos_local.z() * dir_local.z() < 0;
+      Bool_t okz  = pos_local.z() * dir_local.z() < 0;
       okz &= !inz;
       if (!IsEmpty(okz)) {
         Float_t distz = (Abs(pos_local.z()) - trd.dz()) / Abs(dir_local.z());
@@ -372,7 +392,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, Translatio
           disty /= Abs(dir_local.y());
           Float_t zhit = pos_local.z() + disty * dir_local.z();
           Float_t xhit = pos_local.x() + disty * dir_local.x();
-          Float_t dx = trd.halfx1plusx2() - trd.fx() * zhit;
+          Float_t dx   = trd.halfx1plusx2() - trd.fx() * zhit;
           oky = pos_local.y() * dir_local.y() < 0 && disty > -kHalfTolerance && Abs(xhit) < dx && Abs(zhit) < trd.dz();
           MaskedAssign(oky, disty, &distance);
         }
@@ -381,10 +401,13 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, Translatio
     }
 
     template <class Backend>
-    VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE static void
-    DistanceToOut(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> const &point,
-                  Vector3D<typename Backend::precision_v> const &dir, typename Backend::precision_v const & /*stepMax*/,
-                  typename Backend::precision_v &distance) {
+    VECGEOM_INLINE
+    VECGEOM_CUDA_HEADER_BOTH
+    static void DistanceToOut(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> const &point,
+                              Vector3D<typename Backend::precision_v> const &dir,
+                              typename Backend::precision_v const & /*stepMax*/,
+                              typename Backend::precision_v &distance)
+    {
 
       using namespace TrdUtilities;
       using namespace TrdTypes;
@@ -398,9 +421,9 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, Translatio
 
       // hit top Z face?
       Float_t invdir = 1. / Abs(dir.z() + kTiny);
-      Float_t safz = trd.dz() - Abs(point.z());
-      Bool_t out = safz < MakeMinusTolerant<true>(0.);
-      Float_t distx = trd.halfx1plusx2() - trd.fx() * point.z();
+      Float_t safz   = trd.dz() - Abs(point.z());
+      Bool_t out     = safz < MakeMinusTolerant<true>(0.);
+      Float_t distx  = trd.halfx1plusx2() - trd.fx() * point.z();
       out |= (distx - Abs(point.x())) * trd.calfx() < MakeMinusTolerant<true>(0.);
       Float_t disty;
       if (checkVaryingY<trdTypeT>(trd)) {
@@ -417,8 +440,8 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, Translatio
       Bool_t okzt = dir.z() > 0;
       if (!IsEmpty(okzt)) {
         Float_t distz = (trd.dz() - point.z()) * invdir;
-        hitx = Abs(point.x() + distz * dir.x());
-        hity = Abs(point.y() + distz * dir.y());
+        hitx          = Abs(point.x() + distz * dir.x());
+        hity          = Abs(point.y() + distz * dir.y());
         okzt &= hitx <= trd.dx2() && hity <= trd.dy2();
         MaskedAssign(okzt, distz, &distance);
         if (Backend::early_returns && IsFull(okzt)) {
@@ -431,8 +454,8 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, Translatio
       Bool_t okzb = dir.z() < 0;
       if (!IsEmpty(okzb)) {
         Float_t distz = (point.z() + trd.dz()) * invdir;
-        hitx = Abs(point.x() + distz * dir.x());
-        hity = Abs(point.y() + distz * dir.y());
+        hitx          = Abs(point.x() + distz * dir.x());
+        hity          = Abs(point.y() + distz * dir.y());
         okzb &= hitx <= trd.dx1() && hity <= trd.dy1();
         MaskedAssign(okzb, distz, &distance);
         if (Backend::early_returns && IsFull(okzb)) {
@@ -475,11 +498,11 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, Translatio
       } else {
         Float_t plane = trd.dy1();
         MaskedAssign(dir.y() < 0, -trd.dy1(), &plane);
-        disty = (plane - point.y()) / dir.y();
+        disty        = (plane - point.y()) / dir.y();
         Float_t zhit = point.z() + disty * dir.z();
         Float_t xhit = point.x() + disty * dir.x();
-        Float_t dx = trd.halfx1plusx2() - trd.fx() * zhit;
-        oky = Abs(xhit) < dx && Abs(zhit) < trd.dz();
+        Float_t dx   = trd.halfx1plusx2() - trd.fx() * zhit;
+        oky          = Abs(xhit) < dx && Abs(zhit) < trd.dz();
         MaskedAssign(oky, disty, &distance);
       }
       MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
@@ -487,9 +510,11 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, Translatio
     }
 
     template <class Backend>
-    VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE static void
-    SafetyToIn(UnplacedTrd const &trd, Transformation3D const &transformation,
-               Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety) {
+    VECGEOM_INLINE
+    VECGEOM_CUDA_HEADER_BOTH
+    static void SafetyToIn(UnplacedTrd const &trd, Transformation3D const &transformation,
+                           Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety)
+    {
       using namespace TrdUtilities;
       typedef typename Backend::precision_v Float_t;
       Vector3D<Float_t> pos_local;
@@ -498,9 +523,11 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, Translatio
     }
 
     template <class Backend>
-    VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE static void
-    SafetyToOut(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> const &point,
-                typename Backend::precision_v &safety) {
+    VECGEOM_INLINE
+    VECGEOM_CUDA_HEADER_BOTH
+    static void SafetyToOut(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> const &point,
+                            typename Backend::precision_v &safety)
+    {
       using namespace TrdUtilities;
       Safety<Backend, trdTypeT, true>(trd, point, safety);
     }

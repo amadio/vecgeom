@@ -1,6 +1,6 @@
 /// \file Interface.cu
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
- 
+
 #include "backend/cuda/Interface.h"
 
 #include <stdio.h>
@@ -17,39 +17,46 @@
 namespace vecgeom {
 inline namespace cxx {
 
-cudaError_t CudaCheckError(const cudaError_t err) {
+cudaError_t CudaCheckError(const cudaError_t err)
+{
   if (err != cudaSuccess) {
-    printf("CUDA reported error with message: \"%s\"\n",
-           cudaGetErrorString(err));
+    printf("CUDA reported error with message: \"%s\"\n", cudaGetErrorString(err));
   }
   return err;
 }
 
-cudaError_t CudaCheckError() {
+cudaError_t CudaCheckError()
+{
   return CudaCheckError(cudaGetLastError());
 }
 
-void CudaAssertError(const cudaError_t err) {
+void CudaAssertError(const cudaError_t err)
+{
   assert(CudaCheckError(err) == cudaSuccess);
 }
 
-void CudaAssertError() {
+void CudaAssertError()
+{
   CudaAssertError(cudaGetLastError());
 }
 
-cudaError_t CudaMalloc(void** ptr, unsigned size) {
+cudaError_t CudaMalloc(void **ptr, unsigned size)
+{
   return cudaMalloc(ptr, size);
 }
 
-cudaError_t CudaCopyToDevice(void* tgt, void const* src, unsigned size) {
+cudaError_t CudaCopyToDevice(void *tgt, void const *src, unsigned size)
+{
   return cudaMemcpy(tgt, src, size, cudaMemcpyHostToDevice);
 }
 
-cudaError_t CudaCopyFromDevice(void* tgt, void const* src, unsigned size) {
+cudaError_t CudaCopyFromDevice(void *tgt, void const *src, unsigned size)
+{
   return cudaMemcpy(tgt, src, size, cudaMemcpyDeviceToHost);
 }
 
-cudaError_t CudaFree(void* ptr) {
+cudaError_t CudaFree(void *ptr)
+{
   return cudaFree(ptr);
 }
 

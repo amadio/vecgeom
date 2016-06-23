@@ -16,10 +16,10 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedOrb = ShapeImplementationHelper<OrbImplementation<transCodeT, rotCodeT> >;
+using SpecializedOrb = ShapeImplementationHelper<OrbImplementation<transCodeT, rotCodeT>>;
 
 using SimpleOrb = SpecializedOrb<translation::kGeneric, rotation::kGeneric>;
-
-} } // End global namespace
+}
+} // End global namespace
 
 #endif // VECGEOM_VOLUMES_SPECIALIZEDORB_H_

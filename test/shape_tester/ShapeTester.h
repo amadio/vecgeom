@@ -16,20 +16,20 @@
 const double kApproxEqualTolerance = 1E-6;
 
 struct ShapeTesterErrorList {
-    std::string fMessage;
-    int fNUsed;
-    struct ShapeTesterErrorList *fNext;
-  } ;
+  std::string fMessage;
+  int fNUsed;
+  struct ShapeTesterErrorList *fNext;
+};
 
 class ShapeTester {
 
-//ALL MEMBER FUNCTIONS FIRST
+  // ALL MEMBER FUNCTIONS FIRST
 public:
   ShapeTester();
   ~ShapeTester();
 
   int Run(VUSolid *testVolume);
-  void Run(VUSolid *testVolume,char *type);
+  void Run(VUSolid *testVolume, char *type);
   int RunMethod(VUSolid *testVolume, std::string fMethod1);
   inline void SetFilename(const std::string &newFilename) { fFilename = newFilename; }
   inline void SetMaxPoints(const int newMaxPoints) { fMaxPoints = newMaxPoints; }
@@ -42,8 +42,8 @@ public:
   inline void SetNewSaveValue(const double tolerance) { fMinDifference = tolerance; }
   inline void SetSaveAllData(const bool safe) { fIfSaveAllData = safe; }
   inline void SetRunAllTests(const bool safe) { fIfMoreTests = safe; }
-  inline void SetSolidTolerance(double value) {fSolidTolerance = value;}
-  inline void SetTestBoundaryErrors(bool flag) {fTestBoundaryErrors = flag;}
+  inline void SetSolidTolerance(double value) { fSolidTolerance = value; }
+  inline void SetTestBoundaryErrors(bool flag) { fTestBoundaryErrors = flag; }
   void SetFolder(const std::string &newFolder);
   void SetVerbose(int verbose) { fVerbose = verbose; }
   inline int GetMaxPoints() const { return fMaxPoints; }
@@ -54,7 +54,7 @@ public:
    * to do the Convention Check
    */
   bool RunConventionChecker(VUSolid *testVolume);
-  void EnableDebugger(bool val); //function to enable or disable visualization for debugging
+  void EnableDebugger(bool val); // function to enable or disable visualization for debugging
 
 private:
   void SetDefaults();
@@ -128,43 +128,46 @@ private:
   int TestMethod(int (ShapeTester::*funcPtr)());
   int TestMethodAll();
 
-  inline double RandomRange(double min, double max) {
+  inline double RandomRange(double min, double max)
+  {
     double rand = min + (max - min) * UUtils::Random();
     return rand;
   }
-  inline void GetVectorUSolids(UVector3 &point, const std::vector<UVector3> &afPoints, int index) {
+  inline void GetVectorUSolids(UVector3 &point, const std::vector<UVector3> &afPoints, int index)
+  {
     const UVector3 &p = afPoints[index];
     point.Set(p.x(), p.y(), p.z());
   }
 
-  inline void SetVectorUSolids(const UVector3 &point, std::vector<UVector3> &afPoints, int index) {
+  inline void SetVectorUSolids(const UVector3 &point, std::vector<UVector3> &afPoints, int index)
+  {
     UVector3 &p = afPoints[index];
     p.Set(point.x(), point.y(), point.z());
   }
 
-  inline double RandomIncrease() {
+  inline double RandomIncrease()
+  {
     double tolerance = VUSolid::Tolerance();
-    double rand = -1 + 2 * UUtils::Random();
-    double dif = tolerance * 0.1 * rand;
+    double rand      = -1 + 2 * UUtils::Random();
+    double dif       = tolerance * 0.1 * rand;
     return dif;
   }
 
   /* Private functions for Convention Checker, These functions never need
    * to be called from Outside the class
    */
-  void PrintConventionMessages(); //Function to print convention messages
-  void GenerateConventionReport(); //Function to generate Convention Report
-  void SetupConventionMessages();  //Function to setup convention messages
-  bool ShapeConventionChecker();   //Function that call other core convention checking function
-  bool ShapeConventionSurfacePoint(); //Function to check conventions for Surface Points
-  bool ShapeConventionInsidePoint();  //Function to check conventions for Inside Points
-  bool ShapeConventionOutsidePoint(); //Function to check conventions for Outside Points
-  void SetNumDisp(int); //Function to set num. of points to be displayed during convention failure
-  bool ApproxEqual(const double x, const double y); //Helper function to check approximate equality
-  //Return true if the 3vector check is approximately equal to target
+  void PrintConventionMessages();     // Function to print convention messages
+  void GenerateConventionReport();    // Function to generate Convention Report
+  void SetupConventionMessages();     // Function to setup convention messages
+  bool ShapeConventionChecker();      // Function that call other core convention checking function
+  bool ShapeConventionSurfacePoint(); // Function to check conventions for Surface Points
+  bool ShapeConventionInsidePoint();  // Function to check conventions for Inside Points
+  bool ShapeConventionOutsidePoint(); // Function to check conventions for Outside Points
+  void SetNumDisp(int);               // Function to set num. of points to be displayed during convention failure
+  bool ApproxEqual(const double x, const double y); // Helper function to check approximate equality
+  // Return true if the 3vector check is approximately equal to target
   template <class Vec_t>
   bool ApproxEqual(const Vec_t &check, const Vec_t &target);
-
 
 protected:
   UVector3 GetRandomPoint() const;
@@ -174,77 +177,76 @@ protected:
   void ClearErrors();
   int CountErrors() const;
 
-
-//ALL DATA MEMBERS
+  // ALL DATA MEMBERS
 protected:
-  int fMaxPoints; //Maximum num. of points to be generated for ShapeTester Tests.
-  int fVerbose; // Variable to set verbose
-  double fInsidePercent; // Percentage of inside points
-  double fOutsidePercent; // Percentage of outside points
-  double fEdgePercent; // Percentage of edge points
-  double fOutsideMaxRadiusMultiple; // Range of outside points
+  int fMaxPoints;                        // Maximum num. of points to be generated for ShapeTester Tests.
+  int fVerbose;                          // Variable to set verbose
+  double fInsidePercent;                 // Percentage of inside points
+  double fOutsidePercent;                // Percentage of outside points
+  double fEdgePercent;                   // Percentage of edge points
+  double fOutsideMaxRadiusMultiple;      // Range of outside points
   double fOutsideRandomDirectionPercent; // Percentage of outside random direction
 
   // XRay profile statistics
-  int fGNumberOfScans;  // data member to store the number of different scan angle used for XRay profile
-  double fGCapacitySampled; // data member to store calculated capacity
+  int fGNumberOfScans;         // data member to store the number of different scan angle used for XRay profile
+  double fGCapacitySampled;    // data member to store calculated capacity
   double fGCapacityAnalytical; // data member to store analytical capacity
-  double fGCapacityError; // data member to store error between above two.
+  double fGCapacityError;      // data member to store error between above two.
 
   std::string fMethod; // data member to store the name of method to be executed
 
   ShapeTesterErrorList *fErrorList; // data member to store the list of errors
 
 private:
-  std::vector<UVector3> fPoints; //STL vector to store the points generated for various tests of ShapeTester
-  std::vector<UVector3> fDirections; //STL vector to store the directions generated for corresponding points.
+  std::vector<UVector3> fPoints;     // STL vector to store the points generated for various tests of ShapeTester
+  std::vector<UVector3> fDirections; // STL vector to store the directions generated for corresponding points.
 
-  VUSolid *fVolumeUSolids; // Pointer that owns shape object.
+  VUSolid *fVolumeUSolids;   // Pointer that owns shape object.
   std::string fVolumeString; // data member to store the name of volume;
 
-  std::vector<UVector3> fResultVectorUSolids; // stl vector for storing the vector results
+  std::vector<UVector3> fResultVectorUSolids;    // stl vector for storing the vector results
   std::vector<UVector3> fResultVectorDifference; // stl vector for storing the vector difference
-  std::vector<double> fResultDoubleUSolids; // stl vector for storing the double results
-  std::vector<double> fResultDoubleDifference; // stl vector for storing the double difference
-  std::vector<bool> fResultBoolUSolids;  // stl vector for storing the bool results.
-  std::vector<bool> fResultBoolDifference; // stl vector for storing the bool difference.
+  std::vector<double> fResultDoubleUSolids;      // stl vector for storing the double results
+  std::vector<double> fResultDoubleDifference;   // stl vector for storing the double difference
+  std::vector<bool> fResultBoolUSolids;          // stl vector for storing the bool results.
+  std::vector<bool> fResultBoolDifference;       // stl vector for storing the bool difference.
 
-  int fOffsetSurface; // offset of surface points
-  int fOffsetInside; // offset of inside points
-  int fOffsetOutside; // offset of outside points
-  int fOffsetEdge; // offset of edge points
-  int fMaxPointsInside; // Number of inside points
+  int fOffsetSurface;    // offset of surface points
+  int fOffsetInside;     // offset of inside points
+  int fOffsetOutside;    // offset of outside points
+  int fOffsetEdge;       // offset of edge points
+  int fMaxPointsInside;  // Number of inside points
   int fMaxPointsOutside; // Number of outside points
   int fMaxPointsSurface; // Number of surface points
-  int fMaxPointsEdge; // Number of edge points
+  int fMaxPointsEdge;    // Number of edge points
 
-  std::ostream *fLog; //Pointer to the directory storing all the log file for different tests
+  std::ostream *fLog; // Pointer to the directory storing all the log file for different tests
 
-  std::string fFolder; // Name of the log folder
+  std::string fFolder;   // Name of the log folder
   std::string fFilename; // name of the file name depending on the method under test
 
   // Save only differences
   bool fIfSaveAllData; // save alldata, big files
-  bool fIfMoreTests; // do all additional tests,
+  bool fIfMoreTests;   // do all additional tests,
   // take more time, but not affect performance measures
-  bool fIfDifUSolids; // save differences of Geant4 with Usolids or with ROOT
-  double fMinDifference; // save data, when difference is bigger that min
-  bool fDefinedNormal; // bool variable to skip normal calculation if it does not exist in the shape
-  bool fIfException; // data memeber to abort ShapeTester if any error found
+  bool fIfDifUSolids;       // save differences of Geant4 with Usolids or with ROOT
+  double fMinDifference;    // save data, when difference is bigger that min
+  bool fDefinedNormal;      // bool variable to skip normal calculation if it does not exist in the shape
+  bool fIfException;        // data memeber to abort ShapeTester if any error found
   bool fTestBoundaryErrors; // Enable testing boundary errors
 
-  //Added data member required for convention checker
-  std::vector<std::string> fConventionMessage; //STL vector for convention error messages.
-  int fScore; // an error code generate if conventions not followed, 0 mean convenetion followed.
-  int fNumDisp; // number of points to be displayed in case a shape is not following conventions.
-  bool fVisualize;  //Flag to be set or unset by EnableDebugger() function that user will
-                    //call with true parameter if want to see visualization in case of some mismatch
+  // Added data member required for convention checker
+  std::vector<std::string> fConventionMessage; // STL vector for convention error messages.
+  int fScore;      // an error code generate if conventions not followed, 0 mean convenetion followed.
+  int fNumDisp;    // number of points to be displayed in case a shape is not following conventions.
+  bool fVisualize; // Flag to be set or unset by EnableDebugger() function that user will
+  // call with true parameter if want to see visualization in case of some mismatch
   double fSolidTolerance; // Tolerance on boundary declared by solid (default kTolerance)
 #ifdef VECGEOM_ROOT
-  vecgeom::Visualizer fVisualizer; //Visualizer object to visualize the geometry if fVisualize is set.
+  vecgeom::Visualizer fVisualizer; // Visualizer object to visualize the geometry if fVisualize is set.
 #endif
-  bool fStat; // data member to show the statistic visualtion if set to true
-  bool fDebug;// data member to visualized the shape and first mismatched point with direction
+  bool fStat;  // data member to show the statistic visualtion if set to true
+  bool fDebug; // data member to visualized the shape and first mismatched point with direction
 };
 
 #endif

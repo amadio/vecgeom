@@ -9,15 +9,14 @@
 
 #include <string>
 
-namespace vecgeom { namespace HypeTypes {
+namespace vecgeom {
+namespace HypeTypes {
 
-#define DEFINE_HYPE_TYPE(name) \
-    struct name { \
-      VECGEOM_CUDA_HEADER_BOTH \
-      static char const* toString() { \
-        return #name; \
-      } \
-    } \
+#define DEFINE_HYPE_TYPE(name)                      \
+  struct name {                                     \
+    VECGEOM_CUDA_HEADER_BOTH                        \
+    static char const *toString() { return #name; } \
+  }
 
 // A Hype that encompasses all cases - not specialized and
 // will do extra checks at runtime
@@ -32,47 +31,34 @@ DEFINE_HYPE_TYPE(HollowHype);
 #undef DEFINE_HYPE_TYPE
 
 // Mapping of Hype types to certain characteristics
-enum ETreatmentType {
-  kYes = 0,
-  kNo,
-  kUnknown
-};
-
+enum ETreatmentType { kYes = 0, kNo, kUnknown };
 
 // asking for rmin treatment
 template <typename T>
-struct NeedsRminTreatment
-{
-  static const ETreatmentType value=kYes;
+struct NeedsRminTreatment {
+  static const ETreatmentType value = kYes;
 };
 template <>
-struct NeedsRminTreatment<NonHollowHype>
-{
-  static const ETreatmentType value=kNo;
+struct NeedsRminTreatment<NonHollowHype> {
+  static const ETreatmentType value = kNo;
 };
 
 template <>
-struct NeedsRminTreatment<UniversalHype>
-{
-  static const ETreatmentType value=kUnknown;
+struct NeedsRminTreatment<UniversalHype> {
+  static const ETreatmentType value = kUnknown;
 };
 
-
-template<typename T>
-VECGEOM_CUDA_HEADER_BOTH
+template <typename T>
 VECGEOM_INLINE
-bool checkRminTreatment(const UnplacedHype& hype) {
-  if(NeedsRminTreatment<T>::value != kUnknown)
+VECGEOM_CUDA_HEADER_BOTH
+bool checkRminTreatment(const UnplacedHype &hype)
+{
+  if (NeedsRminTreatment<T>::value != kUnknown)
     return NeedsRminTreatment<T>::value == kYes;
   else
     return hype.GetRmin() > 0;
 }
-
-
-
-
-} }
-
-
+}
+}
 
 #endif // VECGEOM_VOLUMES_KERNEL_SHAPETYPES_HYPETYPES_H_

@@ -20,33 +20,35 @@
 #include "backend/scalar/Backend.h"
 #endif
 
-
 namespace vecgeom {
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-T NonZeroAbs(T const& x) {
+VECGEOM_CUDA_HEADER_BOTH
+T NonZeroAbs(T const &x)
+{
   // additional casting to (T) prevents link error with clang
   // NOTE: why do we need Tiny<T> to be a template? We could just use T(literalconstant) directly?
   return Abs(x) + T(kTiny);
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-T NonZero(T const& x) {
-  return x + CopySign( T(kTiny), x);
+VECGEOM_CUDA_HEADER_BOTH
+T NonZero(T const &x)
+{
+  return x + CopySign(T(kTiny), x);
 }
 
 // template specialize these functions for UMESIMD (which does not have CopySign)
 #if defined(VECGEOM_UMESIMD)
 
-template<>
+template <>
 VECGEOM_INLINE
-UmeSimdPrecisionVector NonZeroAbs(UmeSimdPrecisionVector const & x) {
+UmeSimdPrecisionVector NonZeroAbs(UmeSimdPrecisionVector const &x)
+{
 #ifdef VECGEOM_FLOAT_PRECISION
   return (x.abs()).add(std::numeric_limits<float>::lowest());
 #else
@@ -54,9 +56,10 @@ UmeSimdPrecisionVector NonZeroAbs(UmeSimdPrecisionVector const & x) {
 #endif
 }
 
-template<>
+template <>
 VECGEOM_INLINE
-UmeSimdPrecisionVector NonZero(UmeSimdPrecisionVector const & x) {
+UmeSimdPrecisionVector NonZero(UmeSimdPrecisionVector const &x)
+{
 #ifdef VECGEOM_FLOAT_PRECISION
   UmeSimdPrecisionVector t0(std::numeric_limits<float>::lowest());
   UmeSimdMask mask = x < 0.0f;
@@ -67,9 +70,10 @@ UmeSimdPrecisionVector NonZero(UmeSimdPrecisionVector const & x) {
   return x.add(t0.neg(mask));
 }
 
-template<>
+template <>
 VECGEOM_INLINE
-UME::SIMD::SIMDVec_f<Precision, kVectorSize> NonZeroAbs(UME::SIMD::SIMDVec_f<Precision, kVectorSize> const & x) {
+UME::SIMD::SIMDVec_f<Precision, kVectorSize> NonZeroAbs(UME::SIMD::SIMDVec_f<Precision, kVectorSize> const &x)
+{
 #ifdef VECGEOM_FLOAT_PRECISION
   return (x.abs()).add(std::numeric_limits<float>::lowest());
 #else
@@ -77,9 +81,10 @@ UME::SIMD::SIMDVec_f<Precision, kVectorSize> NonZeroAbs(UME::SIMD::SIMDVec_f<Pre
 #endif
 }
 
-template<>
+template <>
 VECGEOM_INLINE
-UME::SIMD::SIMDVec_f<Precision, kVectorSize> NonZero(UME::SIMD::SIMDVec_f<Precision, kVectorSize> const & x) {
+UME::SIMD::SIMDVec_f<Precision, kVectorSize> NonZero(UME::SIMD::SIMDVec_f<Precision, kVectorSize> const &x)
+{
 #ifdef VECGEOM_FLOAT_PRECISION
   UmeSimdPrecisionVector t0(std::numeric_limits<float>::lowest());
   UmeSimdMask mask = x < 0.0f;
@@ -91,9 +96,7 @@ UME::SIMD::SIMDVec_f<Precision, kVectorSize> NonZero(UME::SIMD::SIMDVec_f<Precis
 }
 
 #endif
-
 }
 }
-
 
 #endif // VECGEOM_BACKEND_BACKEND_H_

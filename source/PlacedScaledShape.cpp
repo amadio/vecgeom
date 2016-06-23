@@ -18,38 +18,45 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 VECGEOM_CUDA_HEADER_BOTH
-void PlacedScaledShape::PrintType() const {
+void PlacedScaledShape::PrintType() const
+{
   printf("PlacedScaledShape");
 }
 
-void PlacedScaledShape::PrintType(std::ostream &os) const { os << "PlacedScaledShape"; }
-
+void PlacedScaledShape::PrintType(std::ostream &os) const
+{
+  os << "PlacedScaledShape";
+}
 
 #ifndef VECGEOM_NVCC
 
-VPlacedVolume const* PlacedScaledShape::ConvertToUnspecialized() const {
+VPlacedVolume const *PlacedScaledShape::ConvertToUnspecialized() const
+{
   return new SimpleScaledShape(GetLabel().c_str(), logical_volume_, GetTransformation());
 }
 
 #ifdef VECGEOM_ROOT
-TGeoShape const* PlacedScaledShape::ConvertToRoot() const {
-  UnplacedScaledShape const *unplaced = const_cast<UnplacedScaledShape*>(GetUnplacedVolume());
-  return new TGeoScaledShape(GetLabel().c_str(),
-                 (TGeoShape*)unplaced->fPlaced->ConvertToRoot(), 
-                 new TGeoScale(unplaced->fScale.Scale()[0], unplaced->fScale.Scale()[1], unplaced->fScale.Scale()[2]));
+TGeoShape const *PlacedScaledShape::ConvertToRoot() const
+{
+  UnplacedScaledShape const *unplaced = const_cast<UnplacedScaledShape *>(GetUnplacedVolume());
+  return new TGeoScaledShape(
+      GetLabel().c_str(), (TGeoShape *)unplaced->fPlaced->ConvertToRoot(),
+      new TGeoScale(unplaced->fScale.Scale()[0], unplaced->fScale.Scale()[1], unplaced->fScale.Scale()[2]));
 }
 #endif
 
 #if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const* PlacedScaledShape::ConvertToUSolids() const {
+::VUSolid const *PlacedScaledShape::ConvertToUSolids() const
+{
   // No implementation in USolids
   return 0;
 }
 #endif
 
 #ifdef VECGEOM_GEANT4
-G4VSolid const* PlacedScaledShape::ConvertToGeant4() const {
-// No implementation in Geant4
+G4VSolid const *PlacedScaledShape::ConvertToGeant4() const
+{
+  // No implementation in Geant4
   return 0;
 }
 #endif
@@ -60,7 +67,7 @@ G4VSolid const* PlacedScaledShape::ConvertToGeant4() const {
 
 #ifdef VECGEOM_NVCC
 
-VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC( SpecializedScaledShape )
+VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(SpecializedScaledShape)
 
 #endif // VECGEOM_NVCC
 

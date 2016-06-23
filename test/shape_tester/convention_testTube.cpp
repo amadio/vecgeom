@@ -8,8 +8,9 @@ class VUSolid;
 
 typedef vecgeom::SimpleTube Tube_t;
 
-int main(  int argc,char *argv[]) {
-  VUSolid* tube = new Tube_t("testTube",30.,50.,50.,0.,1.67*PI);
+int main(int argc, char *argv[])
+{
+  VUSolid *tube = new Tube_t("testTube", 30., 50., 50., 0., 1.67 * PI);
   ShapeTester tester;
   tester.RunConventionChecker(tube);
   return 0;

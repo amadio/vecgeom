@@ -45,21 +45,22 @@
 #include <sstream>
 #include <vector>
 
-
-//Function to set the number of Points to be displayed in case of convention not followed
-void ShapeTester::SetNumDisp(int num) {
+// Function to set the number of Points to be displayed in case of convention not followed
+void ShapeTester::SetNumDisp(int num)
+{
   fNumDisp = num;
 }
 
 // Helper function taken from ApproxEqual.h
-bool ShapeTester::ApproxEqual(const double x, const double y) {
+bool ShapeTester::ApproxEqual(const double x, const double y)
+{
   if (x == y) {
     return true;
   } else if (x * y == 0.0) {
     double diff = std::fabs(x - y);
     return diff < kApproxEqualTolerance;
   } else {
-    double diff = std::fabs(x - y);
+    double diff  = std::fabs(x - y);
     double abs_x = std::fabs(x), abs_y = std::fabs(y);
     return diff / (abs_x + abs_y) < kApproxEqualTolerance;
   }
@@ -67,7 +68,8 @@ bool ShapeTester::ApproxEqual(const double x, const double y) {
 
 // Return true if the 3vector check is approximately equal to target
 template <class Vec_t>
-bool ShapeTester::ApproxEqual(const Vec_t &check, const Vec_t &target) {
+bool ShapeTester::ApproxEqual(const Vec_t &check, const Vec_t &target)
+{
   return (ApproxEqual(check.x(), target.x()) && ApproxEqual(check.y(), target.y()) &&
           ApproxEqual(check.z(), target.z()))
              ? true
@@ -78,9 +80,10 @@ bool ShapeTester::ApproxEqual(const Vec_t &check, const Vec_t &target) {
  * With this interface it will be easy, if we want to put
  * some more conventions in future
  */
-void ShapeTester::SetupConventionMessages() {
-    // For Surface Points
-  fScore = 0;                                                                                  // index
+void ShapeTester::SetupConventionMessages()
+{
+  // For Surface Points
+  fScore = 0;                                                                                    // index
   fConventionMessage.push_back("DistanceToIn()  : For Point On Surface and Entering the Shape"); // 0
   fConventionMessage.push_back("DistanceToIn()  : For Point On Surface and Exiting the Shape");  // 1
   fConventionMessage.push_back("DistanceToOut() : For Point On Surface and Exiting the Shape");  // 2
@@ -103,17 +106,17 @@ void ShapeTester::SetupConventionMessages() {
   fNumDisp = 1;
 }
 
-//Funtion to check conventions for Surface Points
-bool ShapeTester::ShapeConventionSurfacePoint() {
-  int nError=0;
+// Funtion to check conventions for Surface Points
+bool ShapeTester::ShapeConventionSurfacePoint()
+{
+  int nError                     = 0;
   bool surfPointConventionPassed = true;
   for (int i = 0; i < fMaxPointsSurface + fMaxPointsEdge; i++) { // test GetPointOnSurface()
-    UVector3 point = fPoints[fOffsetSurface + i];
+    UVector3 point     = fPoints[fOffsetSurface + i];
     UVector3 direction = fDirections[fOffsetSurface + i];
     if (fVolumeUSolids->Inside(point) != vecgeom::EInside::kSurface) {
-      //Using ReportError() function instead of assert to return error message, incase inside is not working properly
+      // Using ReportError() function instead of assert to return error message, incase inside is not working properly
       ReportError(&nError, point, direction, 0., "For Surface point, Inside says that the Point is not on the Surface");
-
     }
 
     // Point on Surface and moving inside
@@ -122,17 +125,17 @@ bool ShapeTester::ShapeConventionSurfacePoint() {
     fVolumeUSolids->Normal(point, normal);
 
     double Dist = fVolumeUSolids->DistanceToIn(point, direction);
-    int indx = 0;
+    int indx    = 0;
 
     // Conventions Check for DistanceToIn
-    if (Dist >= UUtils::kInfinity)
-      Dist = UUtils::Infinity();
+    if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
 
     if (direction.Dot(normal) < 0.) // particle is entering into the shape
     {
       // assert(Dist == 0.);
       if (Dist != 0.) {
-        ReportError(&nError, point, direction, Dist, "DistanceToIn for Surface Point entering into the Shape should be 0.");
+        ReportError(&nError, point, direction, Dist,
+                    "DistanceToIn for Surface Point entering into the Shape should be 0.");
         fScore |= (1 << indx);
         surfPointConventionPassed &= false;
       }
@@ -168,16 +171,14 @@ bool ShapeTester::ShapeConventionSurfacePoint() {
     // Conventions check for DistanceToOut
     indx = 2;
     UVector3 norm(0., 0., 0.);
-    bool convex = false;
-    Dist = fVolumeUSolids->DistanceToOut(point, direction, norm, convex);
-    if (Dist >= UUtils::kInfinity)
-      Dist = UUtils::Infinity();
+    bool convex                         = false;
+    Dist                                = fVolumeUSolids->DistanceToOut(point, direction, norm, convex);
+    if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
     if (direction.Dot(normal) > 0.) // particle is exiting from the shape
     {
       // assert((Dist == 0.) && "DistanceToOut for surface point moving outside should be equal to 0.");
       if (!(Dist == 0.)) {
-        ReportError(&nError, point, direction, Dist,
-                    "DistanceToOut for Surface Point exiting the Shape should be 0.");
+        ReportError(&nError, point, direction, Dist, "DistanceToOut for Surface Point exiting the Shape should be 0.");
 
         fScore |= (1 << indx);
         surfPointConventionPassed &= false;
@@ -199,22 +200,19 @@ bool ShapeTester::ShapeConventionSurfacePoint() {
 
     indx = 4;
     // Conventions check for SafetyFromOutside
-    Dist = fVolumeUSolids->SafetyFromOutside(point);
-    if (Dist >= UUtils::kInfinity)
-      Dist = UUtils::Infinity();
+    Dist                                = fVolumeUSolids->SafetyFromOutside(point);
+    if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
     // assert(Dist == 0.);
     if (!(Dist == 0.)) {
-      ReportError(&nError, point, direction, Dist,
-                  "SafetyFromOutside for Surface Point should be 0.");
+      ReportError(&nError, point, direction, Dist, "SafetyFromOutside for Surface Point should be 0.");
       fScore |= (1 << indx);
       surfPointConventionPassed &= false;
     }
 
     indx = 5;
     // Conventions check for SafetyFromInside
-    Dist = fVolumeUSolids->SafetyFromInside(point);
-    if (Dist >= UUtils::kInfinity)
-      Dist = UUtils::Infinity();
+    Dist                                = fVolumeUSolids->SafetyFromInside(point);
+    if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
     // assert(Dist == 0.);
     if (!(Dist == 0.)) {
       ReportError(&nError, point, direction, Dist, "SafetyFromInside for Surface Point should be 0.");
@@ -227,26 +225,26 @@ bool ShapeTester::ShapeConventionSurfacePoint() {
   return surfPointConventionPassed;
 }
 
-//Function to check conventions for Inside points
-bool ShapeTester::ShapeConventionInsidePoint() {
+// Function to check conventions for Inside points
+bool ShapeTester::ShapeConventionInsidePoint()
+{
 
-  int nError=0;
+  int nError = 0;
   double Dist;
 
   bool insidePointConventionPassed = true;
 
   for (int i = 0; i < fMaxPointsInside; i++) { // test GetPointOnSurface()
-    UVector3 point = fPoints[fOffsetInside + i];
+    UVector3 point     = fPoints[fOffsetInside + i];
     UVector3 direction = fDirections[fOffsetInside + i];
     if (fVolumeUSolids->Inside(point) != vecgeom::EInside::kInside) {
       ReportError(&nError, point, direction, 0., "For Inside point, Inside function says that the Point is not inside");
     }
 
     // Convention Check for DistanceToIn
-    int indx = 6;
-    Dist = fVolumeUSolids->DistanceToIn(point, direction);
-    if (Dist >= UUtils::kInfinity)
-      Dist = UUtils::Infinity();
+    int indx                            = 6;
+    Dist                                = fVolumeUSolids->DistanceToIn(point, direction);
+    if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
 #ifdef VECGEOM_REPLACE_USOLIDS
     if (Dist != 0.) {
       std::string message("DistanceToIn for Inside Point should be Zero (Wrong side, USolids convention)");
@@ -263,23 +261,20 @@ bool ShapeTester::ShapeConventionInsidePoint() {
     indx = 7;
     // Convention Check for DistanceToOut
     UVector3 norm(0., 0., 0.);
-    bool convex = false;
-    Dist = fVolumeUSolids->DistanceToOut(point, direction, norm, convex);
-    if (Dist >= UUtils::kInfinity)
-      Dist = UUtils::Infinity();
+    bool convex                         = false;
+    Dist                                = fVolumeUSolids->DistanceToOut(point, direction, norm, convex);
+    if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
     // assert(Dist != UUtils::Infinity() && "DistanceToOut can never be Infinity for Inside Point.");
     if (!(Dist != UUtils::Infinity())) {
-      ReportError(&nError, point, direction, Dist,
-                  "DistanceToOut for Inside Point can never be Infinity");
+      ReportError(&nError, point, direction, Dist, "DistanceToOut for Inside Point can never be Infinity");
       fScore |= (1 << indx);
       insidePointConventionPassed &= false;
     }
 
     indx = 8;
     // Conventions Check for SafetyFromOutside
-    Dist = fVolumeUSolids->SafetyFromOutside(point);
-    if (Dist >= UUtils::kInfinity)
-      Dist = UUtils::Infinity();
+    Dist                                = fVolumeUSolids->SafetyFromOutside(point);
+    if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
 #ifdef VECGEOM_REPLACE_USOLIDS
     if (Dist != 0.) {
       std::string message("SafetyFromOutside for Inside Point should be Zero (Wrong side, USolids convention)");
@@ -294,13 +289,11 @@ bool ShapeTester::ShapeConventionInsidePoint() {
 
     indx = 9;
     // Conventions Check for SafetyFromInside
-    Dist = fVolumeUSolids->SafetyFromInside(point);
-    if (Dist >= UUtils::kInfinity)
-      Dist = UUtils::Infinity();
+    Dist                                = fVolumeUSolids->SafetyFromInside(point);
+    if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
     // assert((Dist > 0.) && "SafetyFromInside can never be <= 0. for Inside Point.");
     if (!(Dist > 0.)) {
-      ReportError(&nError, point, direction, Dist,
-                  "SafetyFromInside for Inside Point should be > 0.");
+      ReportError(&nError, point, direction, Dist, "SafetyFromInside for Inside Point should be > 0.");
 
       fScore |= (1 << indx);
       insidePointConventionPassed &= false;
@@ -310,25 +303,26 @@ bool ShapeTester::ShapeConventionInsidePoint() {
   return insidePointConventionPassed;
 }
 
-//Function to check conventions for outside points
-bool ShapeTester::ShapeConventionOutsidePoint() {
-  int nError=0;
+// Function to check conventions for outside points
+bool ShapeTester::ShapeConventionOutsidePoint()
+{
+  int nError = 0;
   double Dist;
 
   bool outsidePointConventionPassed = true;
 
   for (int i = 0; i < fMaxPointsOutside; i++) { // test GetPointOnSurface()
-    UVector3 point = fPoints[fOffsetOutside + i];
+    UVector3 point     = fPoints[fOffsetOutside + i];
     UVector3 direction = fDirections[fOffsetOutside + i];
     if (fVolumeUSolids->Inside(point) != vecgeom::EInside::kOutside) {
-      ReportError(&nError, point, direction, 0., "For Outside point, Inside function says that the Point is not Outside");
+      ReportError(&nError, point, direction, 0.,
+                  "For Outside point, Inside function says that the Point is not Outside");
     }
 
     int indx = 10;
     // Convention Check for DistanceToIn
-    Dist = fVolumeUSolids->DistanceToIn(point, direction);
-    if (Dist >= UUtils::kInfinity)
-      Dist = UUtils::Infinity();
+    Dist                                = fVolumeUSolids->DistanceToIn(point, direction);
+    if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
     // assert((Dist > 0.) && "DistanceToIn for Outside point can never be <= 0.");
     if (!(Dist > 0.)) {
       ReportError(&nError, point, direction, Dist, "DistanceToIn for Outside Point should be > 0.");
@@ -339,10 +333,9 @@ bool ShapeTester::ShapeConventionOutsidePoint() {
     indx = 11;
     // Convention Check for DistanceToOut
     UVector3 norm(0., 0., 0.);
-    bool convex = false;
-    Dist = fVolumeUSolids->DistanceToOut(point, direction, norm, convex);
-    if (Dist >= UUtils::kInfinity)
-      Dist = UUtils::Infinity();
+    bool convex                         = false;
+    Dist                                = fVolumeUSolids->DistanceToOut(point, direction, norm, convex);
+    if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
 #ifdef VECGEOM_REPLACE_USOLIDS
     if (Dist != 0.) {
       std::string msg("DistanceToOut for Outside Point should be Zero (Wrong side, USolids convention).");
@@ -357,24 +350,20 @@ bool ShapeTester::ShapeConventionOutsidePoint() {
 
     indx = 12;
     // Conventions Check for SafetyFromOutside
-    Dist = fVolumeUSolids->SafetyFromOutside(point);
-    if (Dist >= UUtils::kInfinity)
-      Dist = UUtils::Infinity();
+    Dist                                = fVolumeUSolids->SafetyFromOutside(point);
+    if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
     // assert((Dist > 0.) && "SafetyFromOutside can never be <= 0. for Outside Point.");
     if (!(Dist > 0.)) {
-    	ReportError(&nError, point, direction, Dist,
-    	                  "SafetyFromOutside for Outside Point should be > 0.");
+      ReportError(&nError, point, direction, Dist, "SafetyFromOutside for Outside Point should be > 0.");
       fScore |= (1 << indx);
       outsidePointConventionPassed &= false;
     }
 
     indx = 13;
     // Conventions Check for SafetyFromInside
-    Dist = fVolumeUSolids->SafetyFromInside(point);
-    if (Dist >= UUtils::kInfinity)
-      Dist = UUtils::Infinity();
-    if (Dist >= UUtils::kInfinity)
-      Dist = UUtils::Infinity();
+    Dist                                = fVolumeUSolids->SafetyFromInside(point);
+    if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
+    if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
 #ifdef VECGEOM_REPLACE_USOLIDS
     if (Dist != 0.) {
       std::string message("SafetyFromInside should be zero for Outside Point (Wrong side, USolids convention)");
@@ -391,8 +380,9 @@ bool ShapeTester::ShapeConventionOutsidePoint() {
   return outsidePointConventionPassed;
 }
 
-//Function that will call the above three functions to do the convention check
-bool ShapeTester::ShapeConventionChecker() {
+// Function that will call the above three functions to do the convention check
+bool ShapeTester::ShapeConventionChecker()
+{
 
   // Setting up Convention sMessages
   SetupConventionMessages();
@@ -408,8 +398,8 @@ bool ShapeTester::ShapeConventionChecker() {
   std::cout << "Generated Score : " << fScore << std::endl;
   std::cout << "-------------------------------------------------" << std::endl;
 
-  //assert(surfacePointConventionResult && insidePointnConventionResult && outsidePointConventionResult &&
-    //     "Shape Conventions NOT passed");
+  // assert(surfacePointConventionResult && insidePointnConventionResult && outsidePointConventionResult &&
+  //     "Shape Conventions NOT passed");
 
   if (surfacePointConventionResult && insidePointnConventionResult && outsidePointConventionResult) {
     std::cout << "-------------------------------------------------" << std::endl;
@@ -419,36 +409,35 @@ bool ShapeTester::ShapeConventionChecker() {
 
   GenerateConventionReport();
 
-
   return true;
 }
 
-//Function to print all the conventions messages
-void ShapeTester::PrintConventionMessages() {
+// Function to print all the conventions messages
+void ShapeTester::PrintConventionMessages()
+{
 
   for (auto i : fConventionMessage)
     std::cout << i << std::endl;
-
 }
 
-//Functions to generate Convention Report at the end
-void ShapeTester::GenerateConventionReport() {
+// Functions to generate Convention Report at the end
+void ShapeTester::GenerateConventionReport()
+{
 
-  int n = fScore;
+  int n     = fScore;
   int index = -1;
   if (fScore) {
-	std::cout<<"\033[1;39m";
+    std::cout << "\033[1;39m";
     std::cout << "---------------------------------------------------------------" << std::endl;
     std::cout << "--------- Following ShapeConventions are Not Followed ---------" << std::endl;
     std::cout << "---------------------------------------------------------------" << std::endl;
-    std::cout<<"\033[0m";
+    std::cout << "\033[0m";
     while (n > 0) {
       index++;
       if (n % 2) {
         // std::cout << index << "  ";
 
         std::cout << "\033[1;31m " << fConventionMessage[index] << "\033[0m" << std::endl;
-
       }
       n /= 2;
     }
@@ -462,10 +451,11 @@ void ShapeTester::GenerateConventionReport() {
 }
 
 /* Public interface to run convention checker.
- * This interface is intentionally left public, so as to allow, if one want to call 
+ * This interface is intentionally left public, so as to allow, if one want to call
  * just the convention checker without the ShapeTester's tests.
  */
-bool ShapeTester::RunConventionChecker(VUSolid *testVolume) {
+bool ShapeTester::RunConventionChecker(VUSolid *testVolume)
+{
   fVolumeUSolids = testVolume;
   ShapeConventionChecker();
 

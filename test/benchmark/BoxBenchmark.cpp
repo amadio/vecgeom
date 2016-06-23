@@ -10,18 +10,19 @@
 
 using namespace vecgeom;
 
-int main(int argc, char* argv[]) {
-  OPTION_INT(npoints,1024);
-  OPTION_INT(nrep,4);
-  OPTION_DOUBLE(dx,1.);
-  OPTION_DOUBLE(dy,2.);
-  OPTION_DOUBLE(dz,3.);
+int main(int argc, char *argv[])
+{
+  OPTION_INT(npoints, 1024);
+  OPTION_INT(nrep, 4);
+  OPTION_DOUBLE(dx, 1.);
+  OPTION_DOUBLE(dy, 2.);
+  OPTION_DOUBLE(dz, 3.);
 
-  UnplacedBox worldUnplaced = UnplacedBox(dx*4, dy*4, dz*4);
-  UnplacedBox boxUnplaced = UnplacedBox(dx, dy, dz);
+  UnplacedBox worldUnplaced = UnplacedBox(dx * 4, dy * 4, dz * 4);
+  UnplacedBox boxUnplaced   = UnplacedBox(dx, dy, dz);
 
-  LogicalVolume world ("world", &worldUnplaced);
-  LogicalVolume box ("box", &boxUnplaced);
+  LogicalVolume world("world", &worldUnplaced);
+  LogicalVolume box("box", &boxUnplaced);
 
   Transformation3D placement(0.1, 0, 0);
   world.PlaceDaughter("box", &box, &placement);

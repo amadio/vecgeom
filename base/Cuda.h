@@ -159,36 +159,39 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 #ifndef VECGEOM_NVCC
-   using std::unique_ptr;
+using std::unique_ptr;
 #else
-   template <typename T>
-   class unique_ptr {
-      T *fValue;
-   public:
-     VECGEOM_CUDA_HEADER_BOTH
-     unique_ptr(T *in) : fValue(in) {}
+template <typename T>
+class unique_ptr {
+  T *fValue;
 
-     VECGEOM_CUDA_HEADER_BOTH
-     ~unique_ptr() { delete fValue; }
+public:
+  VECGEOM_CUDA_HEADER_BOTH
+  unique_ptr(T *in) : fValue(in) {}
 
-     VECGEOM_CUDA_HEADER_BOTH
-     T* operator->() { return fValue; }
-   };
+  VECGEOM_CUDA_HEADER_BOTH
+  ~unique_ptr() { delete fValue; }
 
-   template <typename T>
-   class unique_ptr<T[]> {
-      T *fValue;
-   public:
-     VECGEOM_CUDA_HEADER_BOTH
-     unique_ptr(T *in) : fValue(in) {}
+  VECGEOM_CUDA_HEADER_BOTH
+  T *operator->() { return fValue; }
+};
 
-     VECGEOM_CUDA_HEADER_BOTH
-     ~unique_ptr() { delete [] fValue; }
+template <typename T>
+class unique_ptr<T[]> {
+  T *fValue;
 
-     VECGEOM_CUDA_HEADER_BOTH
-     T &operator[](size_t idx) { return fValue[idx]; }
-   };
+public:
+  VECGEOM_CUDA_HEADER_BOTH
+  unique_ptr(T *in) : fValue(in) {}
+
+  VECGEOM_CUDA_HEADER_BOTH
+  ~unique_ptr() { delete[] fValue; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  T &operator[](size_t idx) { return fValue[idx]; }
+};
 #endif
-} }
+}
+}
 
 #endif

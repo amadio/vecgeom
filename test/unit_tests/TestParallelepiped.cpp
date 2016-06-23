@@ -13,16 +13,18 @@
 #include "ApproxEqual.h"
 #include <cmath>
 
-template <class Parallelepiped_t> bool TestParallelepiped() {
+template <class Parallelepiped_t>
+bool TestParallelepiped()
+{
   using namespace vecgeom::VECGEOM_IMPL_NAMESPACE;
   using Vec_t = vecgeom::Vector3D<vecgeom::Precision>;
   EnumInside inside;
-  const Precision dx = 20;
-  const Precision dy = 30;
-  const Precision dz = 40;
+  const Precision dx    = 20;
+  const Precision dy    = 30;
+  const Precision dz    = 40;
   const Precision alpha = 30;
   const Precision theta = 30;
-  const Precision phi = 45;
+  const Precision phi   = 45;
 
   Parallelepiped_t para("Test Parallelepiped", dx, dy, dz, alpha, theta, phi);
 
@@ -49,13 +51,13 @@ template <class Parallelepiped_t> bool TestParallelepiped() {
 
   // check Cubic volume
 
-  double vol = para.Capacity();
+  double vol      = para.Capacity();
   double volCheck = 8 * dx * dy * dz;
   assert(ApproxEqual(vol, volCheck));
 
   // Check Surface area
 
-  double surf = para.SurfaceArea();
+  double surf      = para.SurfaceArea();
   double surfCheck = 8.0 * (dx * dy + dy * dz * sqrt(1. / 0.75 - 1. / 6.) + dx * dz * sqrt(1. / 0.75 - 1. / 6.));
   assert(ApproxEqual(surf, surfCheck));
 
@@ -205,7 +207,8 @@ template <class Parallelepiped_t> bool TestParallelepiped() {
   return true;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 
   TestParallelepiped<vecgeom::SimpleParallelepiped>();
   std::cout << "VecGeom Parallelepiped passed\n";

@@ -13,7 +13,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedGenTrap;)
-VECGEOM_DEVICE_DECLARE_CONV(class,UnplacedGenTrap)
+VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedGenTrap)
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -164,12 +164,12 @@ public:
 
   /** @brief Templated factory for creating a placed volume */
   template <TranslationCode transCodeT, RotationCode rotCodeT>
-  VECGEOM_CUDA_HEADER_DEVICE static VPlacedVolume *Create(LogicalVolume const *const logical_volume,
-                                                          Transformation3D const *const transformation,
+  VECGEOM_CUDA_HEADER_DEVICE
+  static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
-                                                          const int id,
+                               const int id,
 #endif
-                                                          VPlacedVolume *const placement = NULL);
+                               VPlacedVolume *const placement = NULL);
 
 /*
   // Is this still needed?

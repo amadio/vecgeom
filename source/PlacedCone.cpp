@@ -21,37 +21,37 @@
 #include "G4Cons.hh"
 #endif
 
-
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 #ifndef VECGEOM_NVCC
-VPlacedVolume const* PlacedCone::ConvertToUnspecialized() const {
-    return new SimpleCone(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
+VPlacedVolume const *PlacedCone::ConvertToUnspecialized() const
+{
+  return new SimpleCone(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
 }
 
 #ifdef VECGEOM_ROOT
-TGeoShape const* PlacedCone::ConvertToRoot() const {
-    if( GetDPhi() == 2.*M_PI )
-    {
-       return new TGeoCone("RootCone",GetDz(),GetRmin1(),GetRmax1(), GetRmin2(), GetRmax2());
-    }
-    else
-    {
-       return new TGeoConeSeg("RootCone", GetDz(),GetRmin1(),GetRmax1(), GetRmin2(), GetRmax2(),
-               GetSPhi()*kRadToDeg, (GetSPhi() + GetDPhi())*kRadToDeg );
-    }
+TGeoShape const *PlacedCone::ConvertToRoot() const
+{
+  if (GetDPhi() == 2. * M_PI) {
+    return new TGeoCone("RootCone", GetDz(), GetRmin1(), GetRmax1(), GetRmin2(), GetRmax2());
+  } else {
+    return new TGeoConeSeg("RootCone", GetDz(), GetRmin1(), GetRmax1(), GetRmin2(), GetRmax2(), GetSPhi() * kRadToDeg,
+                           (GetSPhi() + GetDPhi()) * kRadToDeg);
+  }
 }
 #endif
 
 #if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const* PlacedCone::ConvertToUSolids() const {
+::VUSolid const *PlacedCone::ConvertToUSolids() const
+{
   return new UCons("USolidCone", GetRmin1(), GetRmax1(), GetRmin2(), GetRmax2(), GetDz(), GetSPhi(), GetDPhi());
 }
 #endif
 
 #ifdef VECGEOM_GEANT4
-G4VSolid const * PlacedCone::ConvertToGeant4() const {
+G4VSolid const *PlacedCone::ConvertToGeant4() const
+{
   return new G4Cons("Geant4Cone", GetRmin1(), GetRmax1(), GetRmin2(), GetRmax2(), GetDz(), GetSPhi(), GetDPhi());
 }
 #endif
@@ -62,7 +62,7 @@ G4VSolid const * PlacedCone::ConvertToGeant4() const {
 
 #ifdef VECGEOM_NVCC
 
-VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_3( SpecializedCone, ConeTypes::UniversalCone )
+VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_3(SpecializedCone, ConeTypes::UniversalCone)
 
 #endif // VECGEOM_NVCC
 

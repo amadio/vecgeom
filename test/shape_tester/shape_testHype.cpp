@@ -15,9 +15,10 @@
 
 typedef vecgeom::SimpleHype Hype_t;
 
-int main(int argc,char *argv[]) {
+int main(int argc, char *argv[])
+{
 
-  int errCode = 0;
+  int errCode   = 0;
   VUSolid *hype = new Hype_t("test_VecGeomHype", 5., 20, PI / 6, PI / 3, 50);
   ShapeTester tester;
   tester.SetSolidTolerance(1e-7);

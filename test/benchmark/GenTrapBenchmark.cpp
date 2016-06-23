@@ -14,7 +14,8 @@
 
 using namespace vecgeom;
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[])
+{
   OPTION_INT(npoints, 32768);
   OPTION_INT(nrep, 4);
 

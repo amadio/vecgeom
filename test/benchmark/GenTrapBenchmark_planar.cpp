@@ -16,7 +16,8 @@
 
 using namespace vecgeom;
 
-int main() {
+int main()
+{
   UnplacedBox worldUnplaced(10., 10., 10.);
 
   // no twist

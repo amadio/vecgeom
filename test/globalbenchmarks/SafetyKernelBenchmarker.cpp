@@ -28,7 +28,6 @@
 //#include "navigation/CAHLSafetyEstimator.h"
 //#define SPECIALESTIMATOR CAHLSafetyEstimator
 
-
 #ifdef VECGEOM_ROOT
 #include "TGeoNavigator.h"
 #include "TGeoNode.h"
@@ -44,97 +43,95 @@
 #include <valgrind/callgrind.h>
 #endif
 
-
 #ifdef CALLGRIND_ENABLED
-#define RUNBENCH(NAME) \
-    CALLGRIND_START_INSTRUMENTATION; \
-    NAME; \
-    CALLGRIND_STOP_INSTRUMENTATION; \
-    CALLGRIND_DUMP_STATS
+#define RUNBENCH(NAME)             \
+  CALLGRIND_START_INSTRUMENTATION; \
+  NAME;                            \
+  CALLGRIND_STOP_INSTRUMENTATION;  \
+  CALLGRIND_DUMP_STATS
 #else
-   #define RUNBENCH(NAME) \
-    NAME
+#define RUNBENCH(NAME) NAME
 #endif
 
 using namespace vecgeom;
 
-
 template <typename T>
-__attribute__((noinline))
-void benchSafety( SOA3D<Precision> const & points, NavStatePool &pool ){
-    // bench safety
-    Precision *safety = new Precision[points.size()];
-    Stopwatch timer;
-    VSafetyEstimator *se = T::Instance();
-    timer.Start();
-    for(size_t i=0; i<points.size(); ++i){
-       safety[i]=se->ComputeSafety(points[i], *(pool[i]));
-    }
-    timer.Stop();
-    std::cerr << timer.Elapsed() << "\n";
-    double accum(0.);
-      for (size_t i=0;i<points.size();++i) {
-        accum+=safety[i];
-      }
-    delete[] safety;
-    std::cerr << "accum  " << T::GetClassName() << " " << accum << "\n";
+__attribute__((noinline)) void benchSafety(SOA3D<Precision> const &points, NavStatePool &pool)
+{
+  // bench safety
+  Precision *safety = new Precision[points.size()];
+  Stopwatch timer;
+  VSafetyEstimator *se = T::Instance();
+  timer.Start();
+  for (size_t i = 0; i < points.size(); ++i) {
+    safety[i] = se->ComputeSafety(points[i], *(pool[i]));
+  }
+  timer.Stop();
+  std::cerr << timer.Elapsed() << "\n";
+  double accum(0.);
+  for (size_t i = 0; i < points.size(); ++i) {
+    accum += safety[i];
+  }
+  delete[] safety;
+  std::cerr << "accum  " << T::GetClassName() << " " << accum << "\n";
 }
 
 // benchmarks the old vector interface (needing temporary workspace)
 template <typename T>
-__attribute__((noinline))
-void benchVectorSafety( SOA3D<Precision> const & points, NavStatePool &pool ){
-    // bench safety
-    SOA3D<Precision> workspace(points.size());
-    Precision *safety = (double *) _mm_malloc( sizeof(double)*points.size(), 64 );
-    Stopwatch timer;
-    VSafetyEstimator *se = T::Instance();
-    timer.Start();
-    se->ComputeVectorSafety(points, pool, workspace, safety);
-    timer.Stop();
-    std::cerr << timer.Elapsed() << "\n";
-    double accum(0.);
-      for (size_t i=0;i<points.size();++i) {
-        accum+=safety[i];
-      }
-    _mm_free(safety);
-    std::cerr << "VECTOR accum  " << T::GetClassName() << " " << accum << "\n";
+__attribute__((noinline)) void benchVectorSafety(SOA3D<Precision> const &points, NavStatePool &pool)
+{
+  // bench safety
+  SOA3D<Precision> workspace(points.size());
+  Precision *safety = (double *)_mm_malloc(sizeof(double) * points.size(), 64);
+  Stopwatch timer;
+  VSafetyEstimator *se = T::Instance();
+  timer.Start();
+  se->ComputeVectorSafety(points, pool, workspace, safety);
+  timer.Stop();
+  std::cerr << timer.Elapsed() << "\n";
+  double accum(0.);
+  for (size_t i = 0; i < points.size(); ++i) {
+    accum += safety[i];
+  }
+  _mm_free(safety);
+  std::cerr << "VECTOR accum  " << T::GetClassName() << " " << accum << "\n";
 }
 
 // benchmarks the new safety vector interface (which does not need temporary workspace)
 template <typename T>
-__attribute__((noinline)) void benchVectorSafetyNoWorkspace(SOA3D<Precision> const &points, NavStatePool &pool) {
-    // bench safety
-    Precision *safety = (double *) _mm_malloc( sizeof(double)*points.size(), 64 );
-    Stopwatch timer;
-    VSafetyEstimator *se = T::Instance();
-    timer.Start();
-    se->ComputeVectorSafety(points, pool, safety);
-    timer.Stop();
-    std::cerr << timer.Elapsed() << "\n";
-    double accum(0.);
-      for (size_t i=0;i<points.size();++i) {
-        accum+=safety[i];
-      }
-    _mm_free(safety);
-    std::cerr << "VECTOR (NO WORKSP) accum  " << T::GetClassName() << " " << accum << "\n";
+__attribute__((noinline)) void benchVectorSafetyNoWorkspace(SOA3D<Precision> const &points, NavStatePool &pool)
+{
+  // bench safety
+  Precision *safety = (double *)_mm_malloc(sizeof(double) * points.size(), 64);
+  Stopwatch timer;
+  VSafetyEstimator *se = T::Instance();
+  timer.Start();
+  se->ComputeVectorSafety(points, pool, safety);
+  timer.Stop();
+  std::cerr << timer.Elapsed() << "\n";
+  double accum(0.);
+  for (size_t i = 0; i < points.size(); ++i) {
+    accum += safety[i];
+  }
+  _mm_free(safety);
+  std::cerr << "VECTOR (NO WORKSP) accum  " << T::GetClassName() << " " << accum << "\n";
 }
 
 // benchmarks the ROOT safety interface
 #ifdef VECGEOM_ROOT
-__attribute__((noinline))
-void benchmarkROOTSafety( int nPoints, SOA3D<Precision> const& points, int i ) {
+__attribute__((noinline)) void benchmarkROOTSafety(int nPoints, SOA3D<Precision> const &points, int i)
+{
 
-  TGeoNavigator * rootnav = ::gGeoManager->GetCurrentNavigator();
-  TGeoBranchArray * brancharrays[nPoints];
+  TGeoNavigator *rootnav = ::gGeoManager->GetCurrentNavigator();
+  TGeoBranchArray *brancharrays[nPoints];
   Precision *safety = new Precision[nPoints];
 
-  for (int i=0;i<nPoints;++i) {
-    Vector3D<Precision> const& pos = points[i];
+  for (int i = 0; i < nPoints; ++i) {
+    Vector3D<Precision> const &pos = points[i];
     rootnav->ResetState();
-    rootnav->FindNode( pos.x(), pos.y(), pos.z() );
+    rootnav->FindNode(pos.x(), pos.y(), pos.z());
     brancharrays[i] = TGeoBranchArray::MakeInstance(GeoManager::Instance().getMaxDepth());
-    brancharrays[i]->InitFromNavigator( rootnav );
+    brancharrays[i]->InitFromNavigator(rootnav);
   }
 
 #ifdef CALLGRIND_ENABLED
@@ -142,12 +139,12 @@ void benchmarkROOTSafety( int nPoints, SOA3D<Precision> const& points, int i ) {
 #endif
   Stopwatch timer;
   timer.Start();
-  for (int i=0;i<nPoints;++i) {
-      Vector3D<Precision> const& pos = points[i];
-      brancharrays[i]->UpdateNavigator(rootnav);
-      rootnav->SetCurrentPoint( pos.x(), pos.y(), pos.z() );
-      safety[i] = rootnav->Safety();
-    }
+  for (int i = 0; i < nPoints; ++i) {
+    Vector3D<Precision> const &pos = points[i];
+    brancharrays[i]->UpdateNavigator(rootnav);
+    rootnav->SetCurrentPoint(pos.x(), pos.y(), pos.z());
+    safety[i] = rootnav->Safety();
+  }
   timer.Stop();
   std::cerr << "ROOT time" << timer.Elapsed() << "\n";
 #ifdef CALLGRIND_ENABLED
@@ -155,8 +152,8 @@ void benchmarkROOTSafety( int nPoints, SOA3D<Precision> const& points, int i ) {
   CALLGRIND_DUMP_STATS;
 #endif
   double accum(0.);
-  for (int i=0;i<nPoints;++i) {
-    accum+=safety[i];
+  for (int i = 0; i < nPoints; ++i) {
+    accum += safety[i];
   }
   std::cerr << "ROOT s " << accum << "\n";
   return;
@@ -164,30 +161,31 @@ void benchmarkROOTSafety( int nPoints, SOA3D<Precision> const& points, int i ) {
 #endif
 
 // main routine starting up the individual benchmarks
-void benchDifferentSafeties(SOA3D<Precision> const &points, NavStatePool &pool){
+void benchDifferentSafeties(SOA3D<Precision> const &points, NavStatePool &pool)
+{
   std::cerr << "##\n";
   std::cerr << "##\n";
-  RUNBENCH( benchSafety<SimpleSafetyEstimator>(points, pool) );
+  RUNBENCH(benchSafety<SimpleSafetyEstimator>(points, pool));
   std::cerr << "##\n";
-  RUNBENCH( benchSafety<SimpleABBoxSafetyEstimator>(points, pool) );
+  RUNBENCH(benchSafety<SimpleABBoxSafetyEstimator>(points, pool));
   std::cerr << "##\n";
-  RUNBENCH( benchSafety<HybridSafetyEstimator>(points, pool) );
+  RUNBENCH(benchSafety<HybridSafetyEstimator>(points, pool));
 
-  //std::cerr << "##\n";
-  //benchVectorSafety<SPECIALESTIMATOR>(points, pool);
+  // std::cerr << "##\n";
+  // benchVectorSafety<SPECIALESTIMATOR>(points, pool);
 
   std::cerr << "##\n";
-  RUNBENCH( benchVectorSafety<SimpleSafetyEstimator>(points, pool) );
+  RUNBENCH(benchVectorSafety<SimpleSafetyEstimator>(points, pool));
   std::cerr << "##\n";
-  RUNBENCH( benchVectorSafetyNoWorkspace<SimpleSafetyEstimator>(points, pool) );
+  RUNBENCH(benchVectorSafetyNoWorkspace<SimpleSafetyEstimator>(points, pool));
   std::cerr << "##\n";
-  RUNBENCH( benchVectorSafety<SimpleABBoxSafetyEstimator>(points, pool) );
+  RUNBENCH(benchVectorSafety<SimpleABBoxSafetyEstimator>(points, pool));
   std::cerr << "##\n";
-  RUNBENCH( benchmarkROOTSafety(points.size(), points, 10) );
+  RUNBENCH(benchmarkROOTSafety(points.size(), points, 10));
 }
 
 // main program
-int main( int argc, char * argv[] )
+int main(int argc, char *argv[])
 {
   // read in detector passed as argument
   if (argc > 1) {
@@ -224,7 +222,7 @@ int main( int argc, char * argv[] )
     }
   }
 
-  HybridManager2::Instance().InitStructure( GeoManager::Instance().FindLogicalVolume(volname.c_str()) );
+  HybridManager2::Instance().InitStructure(GeoManager::Instance().FindLogicalVolume(volname.c_str()));
 
   std::cerr << "located ...\n";
   benchDifferentSafeties(points, statepool);

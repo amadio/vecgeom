@@ -22,7 +22,6 @@ class VPlacedVolume;
 class VolumePointers {
 
 private:
-
   VPlacedVolume const *fSpecialized;
   VPlacedVolume const *fUnspecialized;
 #ifdef VECGEOM_ROOT
@@ -38,7 +37,6 @@ private:
   EBenchmarkedLibrary fInitial;
 
 public:
-
   VolumePointers(VPlacedVolume const *const volume);
 
   /**
@@ -48,34 +46,32 @@ public:
 
   ~VolumePointers();
 
-  VolumePointers& operator=(VolumePointers const &other);
+  VolumePointers &operator=(VolumePointers const &other);
 
-  VPlacedVolume const* Specialized() const { return fSpecialized; }
+  VPlacedVolume const *Specialized() const { return fSpecialized; }
 
-  VPlacedVolume const* Unspecialized() const { return fUnspecialized; }
+  VPlacedVolume const *Unspecialized() const { return fUnspecialized; }
 
 #ifdef VECGEOM_ROOT
-  TGeoShape const* ROOT() const { return fRoot; }
+  TGeoShape const *ROOT() const { return fRoot; }
 #endif
 
 #ifdef VECGEOM_USOLIDS
-  ::VUSolid const* USolids() const { return fUSolids; }
+  ::VUSolid const *USolids() const { return fUSolids; }
 #endif
 
 #ifdef VECGEOM_GEANT4
-  G4VSolid const* Geant4() const { return fGeant4; }
+  G4VSolid const *Geant4() const { return fGeant4; }
 #endif
 
 private:
-
   /**
    * Converts the currently stored specialized volume to each other
    * representation not yet instantiated.
    */
   void ConvertVolume();
-  
-  void Deallocate();
 
+  void Deallocate();
 };
 
 } // End impl namespace

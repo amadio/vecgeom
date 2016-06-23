@@ -2,7 +2,8 @@
 
 using namespace vecgeom;
 
-int main() {
+int main()
+{
   Vector3D<Precision> point(-1, 1, 2);
   Transformation3D t0;
   assert(t0 == Transformation3D::kIdentity);

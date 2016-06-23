@@ -15,20 +15,18 @@ namespace vecgeom {
 class UnplacedRootVolume : public VUnplacedVolume {
 
 private:
-   UnplacedRootVolume(const UnplacedRootVolume&); // Not implemented
-   UnplacedRootVolume& operator=(const UnplacedRootVolume&); // Not implemented
+  UnplacedRootVolume(const UnplacedRootVolume &);            // Not implemented
+  UnplacedRootVolume &operator=(const UnplacedRootVolume &); // Not implemented
 
   TGeoShape const *fRootShape;
 
 public:
-
-  UnplacedRootVolume(TGeoShape const *const rootShape)
-      : fRootShape(rootShape) {}
+  UnplacedRootVolume(TGeoShape const *const rootShape) : fRootShape(rootShape) {}
 
   virtual ~UnplacedRootVolume() {}
 
   VECGEOM_INLINE
-  TGeoShape const* GetRootShape() const { return fRootShape; }
+  TGeoShape const *GetRootShape() const { return fRootShape; }
 
   VECGEOM_INLINE
   virtual int memory_size() const { return sizeof(*this); }
@@ -44,13 +42,10 @@ public:
 #endif
 
 private:
-
-  virtual VPlacedVolume* SpecializedVolume(
-      LogicalVolume const *const volume,
-      Transformation3D const *const transformation,
-      const TranslationCode trans_code, const RotationCode rot_code,
-      VPlacedVolume *const placement = NULL) const;
-
+  virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
+                                           Transformation3D const *const transformation,
+                                           const TranslationCode trans_code, const RotationCode rot_code,
+                                           VPlacedVolume *const placement = NULL) const;
 };
 
 } // End namespace vecgeom

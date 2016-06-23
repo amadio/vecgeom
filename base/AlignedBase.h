@@ -11,77 +11,64 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE( class AlignedBase; )
-VECGEOM_DEVICE_DECLARE_CONV( class, AlignedBase )
+VECGEOM_DEVICE_FORWARD_DECLARE(class AlignedBase;)
+VECGEOM_DEVICE_DECLARE_CONV(class, AlignedBase)
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 #ifdef VECGEOM_VC
-  // unfortunately the version macros have changed in Vc over time
-  // so I am checking which one exist
+// unfortunately the version macros have changed in Vc over time
+// so I am checking which one exist
 #ifdef Vc_VERSION_NUMBER
-#if Vc_VERSION_NUMBER >= Vc_VERSION_CHECK(0,99,71) & Vc_VERSION_NUMBER < Vc_VERSION_CHECK(1,0,0)
-    class AlignedBase : public Vc::VectorAlignedBase<Vc::Vector<double> > {
+#if Vc_VERSION_NUMBER >= Vc_VERSION_CHECK(0, 99, 71) & Vc_VERSION_NUMBER < Vc_VERSION_CHECK(1, 0, 0)
+class AlignedBase : public Vc::VectorAlignedBase<Vc::Vector<double>> {
 #else
-    class AlignedBase : public Vc::VectorAlignedBase {
+class AlignedBase : public Vc::VectorAlignedBase {
 #endif
 #endif
 #ifdef VC_VERSION_NUMBER
-#if VC_VERSION_NUMBER >= VC_VERSION_CHECK(0,99,72)
-    class AlignedBase : public Vc::VectorAlignedBase<Vc::Vector<double> > {
+#if VC_VERSION_NUMBER >= VC_VERSION_CHECK(0, 99, 72)
+  class AlignedBase : public Vc::VectorAlignedBase<Vc::Vector<double>> {
 #else
-    class AlignedBase : public Vc::VectorAlignedBase {
+  class AlignedBase : public Vc::VectorAlignedBase {
 #endif
 #endif
-    public:
-      virtual ~AlignedBase() {}
-};
+  public:
+    virtual ~AlignedBase() {}
+  };
 #elif !defined(VECGEOM_NVCC)
 class AlignedBase {
 
 public:
+  VECGEOM_INLINE
+  void *operator new(size_t size) { return _mm_malloc(size, kAlignmentBoundary); }
 
   VECGEOM_INLINE
-  void *operator new(size_t size) {
-    return _mm_malloc(size, kAlignmentBoundary);
-  }
+  void *operator new(size_t, void *p) { return p; }
 
   VECGEOM_INLINE
-  void *operator new(size_t, void *p) {
-    return p;
-  }
+  void *operator new[](size_t size) { return _mm_malloc(size, kAlignmentBoundary); }
 
   VECGEOM_INLINE
-  void *operator new[](size_t size) {
-    return _mm_malloc(size, kAlignmentBoundary);
-  }
+  void *operator new[](size_t, void *p) { return p; }
 
   VECGEOM_INLINE
-  void *operator new[](size_t , void *p) {
-    return p;
-  }
-  
-  VECGEOM_INLINE
-  void operator delete(void *ptr, size_t) {
-    _mm_free(ptr);
-  }
+  void operator delete(void *ptr, size_t) { _mm_free(ptr); }
 
   VECGEOM_INLINE
   void operator delete(void *, void *) {}
 
   VECGEOM_INLINE
-  void operator delete[](void *ptr, size_t) {
-    _mm_free(ptr);
-  }
+  void operator delete[](void *ptr, size_t) { _mm_free(ptr); }
 
   VECGEOM_INLINE
   void operator delete[](void *, void *) {}
-
 };
 #else
-class AlignedBase {};
+class AlignedBase {
+};
 #endif
-
-} } // End global namespace
+}
+} // End global namespace
 
 #endif // VECGEOM_BASE_ALIGNEDBASE_H_

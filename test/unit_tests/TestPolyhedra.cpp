@@ -7,8 +7,8 @@
 #include "volumes/Polyhedron.h"
 #include "ApproxEqual.h"
 #ifdef VECGEOM_USOLIDS
-  #include "UPolyhedra.hh"
-  #include "UVector3.hh"
+#include "UPolyhedra.hh"
+#include "UVector3.hh"
 #endif
 
 #include <cmath>
@@ -17,10 +17,10 @@
 #undef NDEBUG
 #include <cassert>
 
-bool testvecgeom = false;
-const double degToRad = UUtils::kPi/180.0;
+bool testvecgeom      = false;
+const double degToRad = UUtils::kPi / 180.0;
 
-template <class Polyhedra_t,class Vec_t = vecgeom::Vector3D<vecgeom::Precision> >
+template <class Polyhedra_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
 
 bool TestPolyhedra()
 {
@@ -28,12 +28,12 @@ bool TestPolyhedra()
   double RMINVec[8];
   RMINVec[0] = 30;
   RMINVec[1] = 30;
-  RMINVec[2] =  0;
-  RMINVec[3] =  0;
-  RMINVec[4] =  0;  
-  RMINVec[5] =  0;
+  RMINVec[2] = 0;
+  RMINVec[3] = 0;
+  RMINVec[4] = 0;
+  RMINVec[5] = 0;
   RMINVec[6] = 40;
-  RMINVec[7] = 40;  
+  RMINVec[7] = 40;
 
   double RMAXVec[8];
   RMAXVec[0] = 70;
@@ -43,26 +43,25 @@ bool TestPolyhedra()
   RMAXVec[4] = 40;
   RMAXVec[5] = 80;
   RMAXVec[6] = 80;
-  RMAXVec[7] = 60; 
+  RMAXVec[7] = 60;
 
   double Z_Values[8];
-  Z_Values[0] =-30;
-  Z_Values[1] =-20;
-  Z_Values[2] =-10;
-  Z_Values[3] =  0;
+  Z_Values[0] = -30;
+  Z_Values[1] = -20;
+  Z_Values[2] = -10;
+  Z_Values[3] = 0;
   Z_Values[4] = 10;
   Z_Values[5] = 20;
   Z_Values[6] = 30;
   Z_Values[7] = 40;
 
-
   double sphi = 0.0;
   double dphi = 45.0;
-  if(!testvecgeom) {
+  if (!testvecgeom) {
     dphi *= degToRad;
     sphi *= degToRad;
   }
-  Polyhedra_t *MyPGon = new Polyhedra_t ("MyPGon", sphi, dphi, 5, 8, Z_Values, RMINVec, RMAXVec );
+  Polyhedra_t *MyPGon = new Polyhedra_t("MyPGon", sphi, dphi, 5, 8, Z_Values, RMINVec, RMAXVec);
 
   double RMINVec0[2];
   RMINVec0[0] = 1;
@@ -73,388 +72,351 @@ bool TestPolyhedra()
   RMAXVec0[1] = 2;
 
   double Z_Values0[2];
-  Z_Values0[0] =-1;
+  Z_Values0[0] = -1;
   Z_Values0[1] = 1;
-  
+
   double sphi0 = 0.0;
   double dphi0 = 180.0;
-  if(!testvecgeom) {
+  if (!testvecgeom) {
     sphi0 *= degToRad;
     dphi0 *= degToRad;
   }
 
-  Polyhedra_t *MyPGon0 = new Polyhedra_t ("MyPGon0", sphi0, dphi0, 2, 2, Z_Values0, RMINVec0, RMAXVec0 );
+  Polyhedra_t *MyPGon0 = new Polyhedra_t("MyPGon0", sphi0, dphi0, 2, 2, Z_Values0, RMINVec0, RMAXVec0);
 
   double RMINVec1[3];
   RMINVec1[0] = 0;
   RMINVec1[1] = 0;
   RMINVec1[2] = 0;
-  
 
   double RMAXVec1[3];
   RMAXVec1[0] = 2;
   RMAXVec1[1] = 1;
   RMAXVec1[2] = 2;
- 
 
   double Z_Values1[3];
-  Z_Values1[0] =-1;
+  Z_Values1[0] = -1;
   Z_Values1[1] = 0;
   Z_Values1[2] = 1;
 
   double sphi1 = 0.;
   double dphi1 = 360.;
-  if(!testvecgeom) {
+  if (!testvecgeom) {
     sphi1 *= degToRad;
     dphi1 *= degToRad;
   }
 
-  Polyhedra_t *MyPGon1 = new Polyhedra_t ("MyPGon1", sphi1, dphi1, 4, 3, Z_Values1, RMINVec1, RMAXVec1 );
+  Polyhedra_t *MyPGon1 = new Polyhedra_t("MyPGon1", sphi1, dphi1, 4, 3, Z_Values1, RMINVec1, RMAXVec1);
 
+  // Check names
+  // assert(MyPGon->GetName()=="MyPGon");
 
-// Check names
-  //assert(MyPGon->GetName()=="MyPGon");
-
-// show units and bounding tube
-  std::cout<<"=== Polyhedron: \n";
+  // show units and bounding tube
+  std::cout << "=== Polyhedron: \n";
   MyPGon->StreamInfo(std::cout);
 
-// Check Cubic volume
-    //double vol;
-    //vol = MyPGon->Capacity();
-    std::cout.precision(20);
-    std::cout<<"Complex Polyhedron Capacity ="<<MyPGon->Capacity()<<std::endl;
-    //assert(ApproxEqual(vol,155138.6874225));
+  // Check Cubic volume
+  // double vol;
+  // vol = MyPGon->Capacity();
+  std::cout.precision(20);
+  std::cout << "Complex Polyhedron Capacity =" << MyPGon->Capacity() << std::endl;
+  // assert(ApproxEqual(vol,155138.6874225));
 
-// Check Surface area
-    //vol=MyPGon->SurfaceArea();
-    //assert(ApproxEqual(vol,1284298.5697));    
-    std::cout<<"Complex Polyhedron SurfaceArea ="<<MyPGon->SurfaceArea()<<std::endl;
+  // Check Surface area
+  // vol=MyPGon->SurfaceArea();
+  // assert(ApproxEqual(vol,1284298.5697));
+  std::cout << "Complex Polyhedron SurfaceArea =" << MyPGon->SurfaceArea() << std::endl;
 
-// Check Cubic volume
-    
-    //vol = MyPGon0->Capacity();
-    std::cout.precision(20);
-    std::cout<<"Simple Polyhedron(HalfBox) Capacity ="<<MyPGon0->Capacity()<<" has to be 12"<<std::endl;
-    std::cout<<"Less Simple Polyhedron(2 cutted piramides) Capacity ="<<MyPGon1->Capacity()<<" has to be 18, ..."<<std::endl;
-    //assert(ApproxEqual(vol,155138.6874225));
+  // Check Cubic volume
 
-// Check Surface area
-    //vol=MyPGon0->SurfaceArea();
-    //assert(ApproxEqual(vol,1284298.5697));    
-    std::cout<<"Simple Polyhedron(Half) SurfaceArea ="<<MyPGon0->SurfaceArea()<<" has to be 41.6585425"<<std::endl;
-    std::cout<<"Less Simple Polyhedron(2 cutted piramides) SurfaceArea ="<<MyPGon1->SurfaceArea()<<" has to be 65.941..."<<std::endl;
-// Asserts
- Vec_t p1,p2,p3,p4,p5,p6,dirx,diry,dirz;
- p1=Vec_t(0,0,-5); 
- p2=Vec_t(50,0,40);
- p3=Vec_t(5,1,20 ); 
- p4=Vec_t(45,5,30);
- p5=Vec_t(0,0,30); 
- p6=Vec_t(41,0,10);
+  // vol = MyPGon0->Capacity();
+  std::cout.precision(20);
+  std::cout << "Simple Polyhedron(HalfBox) Capacity =" << MyPGon0->Capacity() << " has to be 12" << std::endl;
+  std::cout << "Less Simple Polyhedron(2 cutted piramides) Capacity =" << MyPGon1->Capacity() << " has to be 18, ..."
+            << std::endl;
+  // assert(ApproxEqual(vol,155138.6874225));
 
- dirx=Vec_t(1,0,0);
- diry=Vec_t(0,1,0);
- dirz=Vec_t(0,0,1);
+  // Check Surface area
+  // vol=MyPGon0->SurfaceArea();
+  // assert(ApproxEqual(vol,1284298.5697));
+  std::cout << "Simple Polyhedron(Half) SurfaceArea =" << MyPGon0->SurfaceArea() << " has to be 41.6585425"
+            << std::endl;
+  std::cout << "Less Simple Polyhedron(2 cutted piramides) SurfaceArea =" << MyPGon1->SurfaceArea()
+            << " has to be 65.941..." << std::endl;
+  // Asserts
+  Vec_t p1, p2, p3, p4, p5, p6, dirx, diry, dirz;
+  p1 = Vec_t(0, 0, -5);
+  p2 = Vec_t(50, 0, 40);
+  p3 = Vec_t(5, 1, 20);
+  p4 = Vec_t(45, 5, 30);
+  p5 = Vec_t(0, 0, 30);
+  p6 = Vec_t(41, 0, 10);
 
-// CalculateExtent
-    Vec_t minExtent,maxExtent;
-    MyPGon->Extent(minExtent,maxExtent);
-    std::cout<<"polyhedra Extent():  min="<<minExtent<<" max="<<maxExtent<<std::endl;
-    assert(ApproxEqual(minExtent,Vec_t(-80.247375,-80.247375,-30)));
-    assert(ApproxEqual(maxExtent,Vec_t( 80.247375, 80.247375, 40)));
+  dirx = Vec_t(1, 0, 0);
+  diry = Vec_t(0, 1, 0);
+  dirz = Vec_t(0, 0, 1);
 
- //Check Inside
- std::cout<<" EInside values:  kInside="<< vecgeom::EInside::kInside
-          <<", kSurface="<< vecgeom::EInside::kSurface
-          <<", kOutside="<< vecgeom::EInside::kOutside <<"\n";
- std::cout<<" MyPGon->Inside("<< p1 <<") = "<< MyPGon->Inside(p1) <<"\n";
- std::cout<<" MyPGon->Inside("<< p2 <<") = "<< MyPGon->Inside(p2) <<"\n";
- std::cout<<" MyPGon->Inside("<< p3 <<") = "<< MyPGon->Inside(p3) <<"\n";
- std::cout<<" MyPGon->Inside("<< p4 <<") = "<< MyPGon->Inside(p4) <<"\n";
- std::cout<<" MyPGon->Inside("<< p5 <<") = "<< MyPGon->Inside(p5) <<"\n";
- std::cout<<" MyPGon->Inside("<< p6 <<") = "<< MyPGon->Inside(p6) <<"\n";
+  // CalculateExtent
+  Vec_t minExtent, maxExtent;
+  MyPGon->Extent(minExtent, maxExtent);
+  std::cout << "polyhedra Extent():  min=" << minExtent << " max=" << maxExtent << std::endl;
+  assert(ApproxEqual(minExtent, Vec_t(-80.247375, -80.247375, -30)));
+  assert(ApproxEqual(maxExtent, Vec_t(80.247375, 80.247375, 40)));
 
-  assert(MyPGon->Inside(p1) ==  vecgeom::EInside::kInside);
-  assert(MyPGon->Inside(p2) ==  vecgeom::EInside::kSurface);
-  assert(MyPGon->Inside(p3) ==  vecgeom::EInside::kInside);
-  assert(MyPGon->Inside(p4) ==  vecgeom::EInside::kInside);
-  assert(MyPGon->Inside(p5) ==  vecgeom::EInside::kOutside);
-  assert(MyPGon->Inside(p6) ==  vecgeom::EInside::kOutside);
+  // Check Inside
+  std::cout << " EInside values:  kInside=" << vecgeom::EInside::kInside << ", kSurface=" << vecgeom::EInside::kSurface
+            << ", kOutside=" << vecgeom::EInside::kOutside << "\n";
+  std::cout << " MyPGon->Inside(" << p1 << ") = " << MyPGon->Inside(p1) << "\n";
+  std::cout << " MyPGon->Inside(" << p2 << ") = " << MyPGon->Inside(p2) << "\n";
+  std::cout << " MyPGon->Inside(" << p3 << ") = " << MyPGon->Inside(p3) << "\n";
+  std::cout << " MyPGon->Inside(" << p4 << ") = " << MyPGon->Inside(p4) << "\n";
+  std::cout << " MyPGon->Inside(" << p5 << ") = " << MyPGon->Inside(p5) << "\n";
+  std::cout << " MyPGon->Inside(" << p6 << ") = " << MyPGon->Inside(p6) << "\n";
 
- //Check DistanceToIn
+  assert(MyPGon->Inside(p1) == vecgeom::EInside::kInside);
+  assert(MyPGon->Inside(p2) == vecgeom::EInside::kSurface);
+  assert(MyPGon->Inside(p3) == vecgeom::EInside::kInside);
+  assert(MyPGon->Inside(p4) == vecgeom::EInside::kInside);
+  assert(MyPGon->Inside(p5) == vecgeom::EInside::kOutside);
+  assert(MyPGon->Inside(p6) == vecgeom::EInside::kOutside);
+
+  // Check DistanceToIn
   double tolerance = 1e-9;
-  assert(std::fabs((MyPGon->DistanceToIn(p1,dirx))) < tolerance);
-  assert(std::fabs((MyPGon->DistanceToIn(p1,-diry)))< tolerance);
-  assert(std::fabs((MyPGon->DistanceToIn(p2,diry))) < tolerance);
-  assert(std::fabs((MyPGon->DistanceToIn(p5,dirx)  -40.12368793931)) < tolerance);
-  assert(std::fabs((MyPGon->DistanceToIn(p6,-dirx)  -0.87631206069)) < tolerance);
-  assert(std::fabs((MyPGon->DistanceToIn(p6,dirz)   -0.218402670765))< tolerance);
- //Check DistanceToOut
+  assert(std::fabs((MyPGon->DistanceToIn(p1, dirx))) < tolerance);
+  assert(std::fabs((MyPGon->DistanceToIn(p1, -diry))) < tolerance);
+  assert(std::fabs((MyPGon->DistanceToIn(p2, diry))) < tolerance);
+  assert(std::fabs((MyPGon->DistanceToIn(p5, dirx) - 40.12368793931)) < tolerance);
+  assert(std::fabs((MyPGon->DistanceToIn(p6, -dirx) - 0.87631206069)) < tolerance);
+  assert(std::fabs((MyPGon->DistanceToIn(p6, dirz) - 0.218402670765)) < tolerance);
+  // Check DistanceToOut
   Vec_t normal;
   bool convex;
-  assert(std::fabs((MyPGon->DistanceToOut (p1,-dirx,normal,convex)))               < tolerance);
-  assert(std::fabs((MyPGon->DistanceToOut (p3,-diry,normal,convex) -1.) )          < tolerance);
-  assert(std::fabs((MyPGon->DistanceToOut (p3,dirz,normal,convex)  -1.27382374146))< tolerance);
-  assert(std::fabs((MyPGon->DistanceToOut(p4,dirz,normal,convex)  -10.))           < tolerance);
-  assert(std::fabs((MyPGon->DistanceToOut(p4,dirx,normal,convex)  -34.8538673445)) < tolerance);
-  assert(std::fabs((MyPGon->DistanceToOut(p4,diry,normal,convex)  -40.))           < tolerance);
+  assert(std::fabs((MyPGon->DistanceToOut(p1, -dirx, normal, convex))) < tolerance);
+  assert(std::fabs((MyPGon->DistanceToOut(p3, -diry, normal, convex) - 1.)) < tolerance);
+  assert(std::fabs((MyPGon->DistanceToOut(p3, dirz, normal, convex) - 1.27382374146)) < tolerance);
+  assert(std::fabs((MyPGon->DistanceToOut(p4, dirz, normal, convex) - 10.)) < tolerance);
+  assert(std::fabs((MyPGon->DistanceToOut(p4, dirx, normal, convex) - 34.8538673445)) < tolerance);
+  assert(std::fabs((MyPGon->DistanceToOut(p4, diry, normal, convex) - 40.)) < tolerance);
 
-
- #ifdef SCAN_SOLID 
+#ifdef SCAN_SOLID
   std::cout << "\n=======     Polyhedra SCAN test      ========";
-  std::cout << "\n\nPCone created ! "<<std::endl;
+  std::cout << "\n\nPCone created ! " << std::endl;
   // -> Check methods :
   //  - Inside
   //  - DistanceToIn
   //  - DistanceToOut
 
-  
   VUSolid::EnumInside in;
-  
-  std::cout<<"\n\n==================================================";
+
+  std::cout << "\n\n==================================================";
   Vec_t pt(0, -100, 24);
   int y;
-  for (y = -100; y<=100; y+=10)
-  {
-    //pt.setY(y);
-    pt.Set(0,y,24);
+  for (y = -100; y <= 100; y += 10) {
+    // pt.setY(y);
+    pt.Set(0, y, 24);
     in = MyPGon->Inside(pt);
-    
+
     std::cout << "\nx=" << pt.x() << "  y=" << pt.y() << "  z=" << pt.z();
-    
-    if( in == vecgeom::EInside::kInside )
-      std::cout <<" is inside";
+
+    if (in == vecgeom::EInside::kInside)
+      std::cout << " is inside";
+    else if (in == vecgeom::EInside::kOutside)
+      std::cout << " is outside";
     else
-      if( in == vecgeom::EInside::kOutside )
-    std::cout <<" is outside";
-      else
-    std::cout <<" is on the surface";
+      std::cout << " is on the surface";
   }
 
-  std::cout<<"\n\n==================================================";
-  Vec_t start( 0, 0, -30);
-  Vec_t dir(1./std::sqrt(2.), 1./std::sqrt(2.), 0),normal;
-  double   d;
+  std::cout << "\n\n==================================================";
+  Vec_t start(0, 0, -30);
+  Vec_t dir(1. / std::sqrt(2.), 1. / std::sqrt(2.), 0), normal;
+  double d;
   int z;
   bool convex;
-  
-  std::cout<<"\nPdep is (0, 0, z)";
-  std::cout<<"\nDir is (1, 1, 0)\n";
 
-  for(z=-30; z<=50; z+=5)
-  {
-    //start.setZ(z);
-    start.Set(0,0,z);
+  std::cout << "\nPdep is (0, 0, z)";
+  std::cout << "\nDir is (1, 1, 0)\n";
+
+  for (z = -30; z <= 50; z += 5) {
+    // start.setZ(z);
+    start.Set(0, 0, z);
 
     in = MyPGon->Inside(start);
-    std::cout<< "x=" << start.x() << "  y=" << start.y() << "  z=" << start.z();
-    
-    if( in == vecgeom::EInside::kInside )
-    {
-      std::cout <<" is inside";
+    std::cout << "x=" << start.x() << "  y=" << start.y() << "  z=" << start.z();
 
-      d = MyPGon->DistanceToOut(start, dir,normal,convex);
-      std::cout<<"  distance to out="<<d;
+    if (in == vecgeom::EInside::kInside) {
+      std::cout << " is inside";
+
+      d = MyPGon->DistanceToOut(start, dir, normal, convex);
+      std::cout << "  distance to out=" << d;
       d = MyPGon->SafetyFromInside(start);
-      std::cout<<"  closest distance to out="<<d<<std::endl;
-    }
-    else if( in == vecgeom::EInside::kOutside ) 
-    {
-      std::cout <<" is outside";
+      std::cout << "  closest distance to out=" << d << std::endl;
+    } else if (in == vecgeom::EInside::kOutside) {
+      std::cout << " is outside";
 
       d = MyPGon->DistanceToIn(start, dir);
-      std::cout<<"  distance to in="<<d;
+      std::cout << "  distance to in=" << d;
       d = MyPGon->SafetyFromOutside(start);
-      std::cout<<"  closest distance to in="<<d<<std::endl;
-    }
-    else
-      std::cout <<" is on the surface"<<std::endl;
-
+      std::cout << "  closest distance to in=" << d << std::endl;
+    } else
+      std::cout << " is on the surface" << std::endl;
   }
 
-  std::cout<<"\n\n==================================================";
-  Vec_t start2( 0, -100, -30);
+  std::cout << "\n\n==================================================";
+  Vec_t start2(0, -100, -30);
   Vec_t dir2(0, 1, 0);
-  double   d2;
+  double d2;
 
-  std::cout<<"\nPdep is (0, -100, z)";
-  std::cout<<"\nDir is (0, 1, 0)\n";
+  std::cout << "\nPdep is (0, -100, z)";
+  std::cout << "\nDir is (0, 1, 0)\n";
 
-  for(z=-30; z<=50; z+=5)
-  {
-    std::cout<<"  z="<<z;
-    //start2.setZ(z);
-    start2.Set(0,-100,z);
+  for (z = -30; z <= 50; z += 5) {
+    std::cout << "  z=" << z;
+    // start2.setZ(z);
+    start2.Set(0, -100, z);
     d2 = MyPGon->DistanceToIn(start2, dir2);
-    std::cout<<"  distance to in="<<d2;
+    std::cout << "  distance to in=" << d2;
     d2 = MyPGon->SafetyFromOutside(start2);
-    std::cout<<"  distance to in="<<d2<<std::endl;
+    std::cout << "  distance to in=" << d2 << std::endl;
   }
 
-  std::cout<<"\n\n==================================================";
-  Vec_t start3( 0, 0, -50);
+  std::cout << "\n\n==================================================";
+  Vec_t start3(0, 0, -50);
   Vec_t dir3(0, 0, 1);
-  double   d3;
+  double d3;
 
-  std::cout<<"\nPdep is (0, y, -50)";
-  std::cout<<"\nDir is (0, 0, 1)\n";
+  std::cout << "\nPdep is (0, y, -50)";
+  std::cout << "\nDir is (0, 0, 1)\n";
 
-  for(y=-0; y<=90; y+=5)
-  {
-    std::cout<<"  y="<<y;
-    //start3.setY(y);
-    start3.Set(0,y,-50);
+  for (y = -0; y <= 90; y += 5) {
+    std::cout << "  y=" << y;
+    // start3.setY(y);
+    start3.Set(0, y, -50);
     d3 = MyPGon->DistanceToIn(start3, dir3);
-    std::cout<<"  distance to in="<<d3<<std::endl;
+    std::cout << "  distance to in=" << d3 << std::endl;
   }
   //
   // Add checks in Phi direction
   // Point move in Phi direction for differents Z
   //
-   std::cout<<"\n\n==================================================";
-   Vec_t start4; 
- for(z=-10; z<=50; z+=5)
-   {
-     std::cout<<"\n\n===================Z="<<z<<"==============================";
-     //Vec_t start4( 0, 0, z-0.00001);
-     //Vec_t start4( 0, 0, z);
-     start4.Set(0,0,z);
-  //G4double phi=pi/180.*rad;
-  //  G4double phi=0.0000000001*pi/180.*rad;
-   double phi=-UUtils::kPi/180.*UUtils::kPi/180.;
-  Vec_t dir4(std::cos(phi), std::sin(phi), 0);
-  double   d4;
+  std::cout << "\n\n==================================================";
+  Vec_t start4;
+  for (z = -10; z <= 50; z += 5) {
+    std::cout << "\n\n===================Z=" << z << "==============================";
+    // Vec_t start4( 0, 0, z-0.00001);
+    // Vec_t start4( 0, 0, z);
+    start4.Set(0, 0, z);
+    // G4double phi=pi/180.*rad;
+    //  G4double phi=0.0000000001*pi/180.*rad;
+    double phi = -UUtils::kPi / 180. * UUtils::kPi / 180.;
+    Vec_t dir4(std::cos(phi), std::sin(phi), 0);
+    double d4;
 
-  std::cout<<"\nPdep is (0<<R<<50, phi, z)";
-  std::cout<<"\nDir is (std::cos(phi), std::sin(phi), 0)\n";
-  std::cout<<"Ndirection is="<<dir4 <<std::endl;
+    std::cout << "\nPdep is (0<<R<<50, phi, z)";
+    std::cout << "\nDir is (std::cos(phi), std::sin(phi), 0)\n";
+    std::cout << "Ndirection is=" << dir4 << std::endl;
 
-  for(y=-0; y<=50; y+=5)
-  {
-    
-    //start4.setX(y*std::cos(phi));
-    //start4.setY(y*std::sin(phi));
-    start4.Set(y*std::cos(phi),y*std::sin(phi),z);
-    std::cout<<"  R="<<y<<" with Start"<<start4;
-    in = MyPGon->Inside(start4);
-    if( in == vecgeom::EInside::kInside )
-      {
-       std::cout <<" is inside";
-       d4 = MyPGon->DistanceToOut(start4, dir4,normal,convex);
-         std::cout<<"  distance to out="<<d4;
-         d4 = MyPGon->SafetyFromInside(start4);
-         std::cout<<" closest distance to out="<<d4<<std::endl;
-    }
-    else
-      if( in == vecgeom::EInside::kOutside )
-    {
-         std::cout <<" is outside";
-          d4 = MyPGon->DistanceToIn(start4, dir4);
-         std::cout<<"  distance to in="<<d4;
-         d4 = MyPGon->SafetyFromOutside(start4);
-         std::cout<<" closest distance to in="<<d4<<std::endl;
-    }
-      else
-    {std::cout <<" is on the surface";
-         d4 = MyPGon->DistanceToIn(start4, dir4);
-         std::cout<<"  distance to in="<<d4;
-         d4 = MyPGon->SafetyFromOutside(start4);
-         std::cout<<" closest distance to in="<<d4<<std::endl;
-    }
-    
-  }
-   }
- //
- // Add checks in Phi direction
- // Point move in X direction for differents Z
- // and 'schoot' on rhi edge
-   std::cout<<"\n\n==================================================";
-   Vec_t start5;
- for(z=-10; z<=50; z+=5)
-   {
-     std::cout<<"\n\n===================Z="<<z<<"==============================";
-     // Vec_t start5( 0., 0.000000000001, z);
-     // Vec_t start5( 0., 1, z);
-     start5.Set(0,1,z);
-  Vec_t dir5(0,-1, 0);
-  double   d5;
+    for (y = -0; y <= 50; y += 5) {
 
-  std::cout<<"\nPdep is (0<<X<<50, 1, z)";
-  std::cout<<"\nDir is (0, -1, 0)\n";
-  std::cout<<"Ndirection is="<<dir5 <<std::endl;
-
-  for(y=-0; y<=50; y+=5)
-  {
-    
-    //start5.setX(y);
-    start5.Set(0,y,z);
-    std::cout<<" Start"<<start5;
-    in = MyPGon->Inside(start5);
-    if( in ==  vecgeom::EInside::kInside )
-      {
-       std::cout <<" is inside";
-       d5 = MyPGon->DistanceToOut(start5, dir5,normal,convex);
-       std::cout<<"  distance to out="<<d5;
-       d5 = MyPGon->SafetyFromInside(start5);
-       std::cout<<" closest distance to out="<<d5<<std::endl;
+      // start4.setX(y*std::cos(phi));
+      // start4.setY(y*std::sin(phi));
+      start4.Set(y * std::cos(phi), y * std::sin(phi), z);
+      std::cout << "  R=" << y << " with Start" << start4;
+      in = MyPGon->Inside(start4);
+      if (in == vecgeom::EInside::kInside) {
+        std::cout << " is inside";
+        d4 = MyPGon->DistanceToOut(start4, dir4, normal, convex);
+        std::cout << "  distance to out=" << d4;
+        d4 = MyPGon->SafetyFromInside(start4);
+        std::cout << " closest distance to out=" << d4 << std::endl;
+      } else if (in == vecgeom::EInside::kOutside) {
+        std::cout << " is outside";
+        d4 = MyPGon->DistanceToIn(start4, dir4);
+        std::cout << "  distance to in=" << d4;
+        d4 = MyPGon->SafetyFromOutside(start4);
+        std::cout << " closest distance to in=" << d4 << std::endl;
+      } else {
+        std::cout << " is on the surface";
+        d4 = MyPGon->DistanceToIn(start4, dir4);
+        std::cout << "  distance to in=" << d4;
+        d4 = MyPGon->SafetyFromOutside(start4);
+        std::cout << " closest distance to in=" << d4 << std::endl;
       }
-    else
-      if( in ==  vecgeom::EInside::kOutside )
-        {
-     std::cout <<" is outside";
-         d5 = MyPGon->DistanceToIn(start5, dir5);
-         std::cout<<"  distance to in="<<d5;
-         d5 = MyPGon->SafetyFromOutside(start5);
-         std::cout<<" closest distance to in="<<d5<<std::endl;
-        }
-      else
-        {
-     std::cout <<" is on the surface";
-         d5 = MyPGon->DistanceToIn(start5, dir5);
-         std::cout<<"  distance to in="<<d5;
-         d5 = MyPGon->SafetyFromOutside(start5);
-         std::cout<<" closest distance to in="<<d5<<std::endl;
-        }
-    
+    }
   }
-   }
+  //
+  // Add checks in Phi direction
+  // Point move in X direction for differents Z
+  // and 'schoot' on rhi edge
+  std::cout << "\n\n==================================================";
+  Vec_t start5;
+  for (z = -10; z <= 50; z += 5) {
+    std::cout << "\n\n===================Z=" << z << "==============================";
+    // Vec_t start5( 0., 0.000000000001, z);
+    // Vec_t start5( 0., 1, z);
+    start5.Set(0, 1, z);
+    Vec_t dir5(0, -1, 0);
+    double d5;
+
+    std::cout << "\nPdep is (0<<X<<50, 1, z)";
+    std::cout << "\nDir is (0, -1, 0)\n";
+    std::cout << "Ndirection is=" << dir5 << std::endl;
+
+    for (y = -0; y <= 50; y += 5) {
+
+      // start5.setX(y);
+      start5.Set(0, y, z);
+      std::cout << " Start" << start5;
+      in = MyPGon->Inside(start5);
+      if (in == vecgeom::EInside::kInside) {
+        std::cout << " is inside";
+        d5 = MyPGon->DistanceToOut(start5, dir5, normal, convex);
+        std::cout << "  distance to out=" << d5;
+        d5 = MyPGon->SafetyFromInside(start5);
+        std::cout << " closest distance to out=" << d5 << std::endl;
+      } else if (in == vecgeom::EInside::kOutside) {
+        std::cout << " is outside";
+        d5 = MyPGon->DistanceToIn(start5, dir5);
+        std::cout << "  distance to in=" << d5;
+        d5 = MyPGon->SafetyFromOutside(start5);
+        std::cout << " closest distance to in=" << d5 << std::endl;
+      } else {
+        std::cout << " is on the surface";
+        d5 = MyPGon->DistanceToIn(start5, dir5);
+        std::cout << "  distance to in=" << d5;
+        d5 = MyPGon->SafetyFromOutside(start5);
+        std::cout << " closest distance to in=" << d5 << std::endl;
+      }
+    }
+  }
 #endif
 
-    
-    return true;
+  return true;
 }
 
-int main(int argc, char *argv[]) {
- 
-   if( argc < 2)
-    {
-      std::cerr << "need to give argument :--usolids or --vecgeom\n";     
-      return 1;
-    }
-    
-    if( ! strcmp(argv[1], "--usolids") )
-    { 
-      #ifdef VECGEOM_USOLIDS
-       assert(TestPolyhedra<UPolyhedra>());
-       std::cout << "UPolyhedra passed\n";
-      #else
-       std::cerr << "VECGEOM_USOLIDS was not defined\n";
-       return 2;
-      #endif
-    }
-    else if( ! strcmp(argv[1], "--vecgeom") )
-    {
-       testvecgeom = true;
-       assert(TestPolyhedra<vecgeom::SimplePolyhedron>());
-       std::cout << "VecGeom Polyhedron passed\n";
-    }
-    else
-    {
-      std::cerr << "need to give argument :--usolids or --vecgeom\n";     
-      return 1;
-    }
+int main(int argc, char *argv[])
+{
+
+  if (argc < 2) {
+    std::cerr << "need to give argument :--usolids or --vecgeom\n";
+    return 1;
+  }
+
+  if (!strcmp(argv[1], "--usolids")) {
+#ifdef VECGEOM_USOLIDS
+    assert(TestPolyhedra<UPolyhedra>());
+    std::cout << "UPolyhedra passed\n";
+#else
+    std::cerr << "VECGEOM_USOLIDS was not defined\n";
+    return 2;
+#endif
+  } else if (!strcmp(argv[1], "--vecgeom")) {
+    testvecgeom = true;
+    assert(TestPolyhedra<vecgeom::SimplePolyhedron>());
+    std::cout << "VecGeom Polyhedron passed\n";
+  } else {
+    std::cerr << "need to give argument :--usolids or --vecgeom\n";
+    return 1;
+  }
 
   return 0;
-
 }

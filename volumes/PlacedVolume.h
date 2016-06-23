@@ -18,29 +18,32 @@ class G4VSolid;
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE( class VPlacedVolume; )
-VECGEOM_DEVICE_DECLARE_CONV( class, VPlacedVolume )
+VECGEOM_DEVICE_FORWARD_DECLARE(class VPlacedVolume;)
+VECGEOM_DEVICE_DECLARE_CONV(class, VPlacedVolume)
 #ifndef VECGEOM_NVCC
-template <> struct kCudaType<const cxx::VPlacedVolume*> { using type_t = const cuda::VPlacedVolume*; };
+template <>
+struct kCudaType<const cxx::VPlacedVolume *> {
+  using type_t = const cuda::VPlacedVolume *;
+};
 #endif
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class PlacedBox;
 class GeoManager;
-template <typename T> class SOA3D;
+template <typename T>
+class SOA3D;
 
 class VPlacedVolume : public USolidsInterfaceHelper {
-friend class GeoManager;
-private:
+  friend class GeoManager;
 
+private:
   unsigned int id_;
   // Use a pointer so the string won't be constructed on the GPU
   std::string *label_;
   static unsigned int g_id_count;
 
 protected:
-
   LogicalVolume const *logical_volume_;
 #ifdef VECGEOM_INPLACE_TRANSFORMATIONS
   Transformation3D fTransformation;
@@ -51,32 +54,30 @@ protected:
 
 #ifndef VECGEOM_NVCC
 
-  VPlacedVolume(char const *const label,
-                LogicalVolume const *const logical_vol,
-                Transformation3D const *const transform,
-                PlacedBox const *const boundingbox);
+  VPlacedVolume(char const *const label, LogicalVolume const *const logical_vol,
+                Transformation3D const *const transform, PlacedBox const *const boundingbox);
 
-  VPlacedVolume(LogicalVolume const *const logical_vol,
-                Transformation3D const *const transform,
+  VPlacedVolume(LogicalVolume const *const logical_vol, Transformation3D const *const transform,
                 PlacedBox const *const boundingbox)
-      :  VPlacedVolume("", logical_vol, transform, boundingbox) {}
+      : VPlacedVolume("", logical_vol, transform, boundingbox)
+  {
+  }
 
 #else
 
-  __device__
-  VPlacedVolume(LogicalVolume const *const logical_vol,
-                Transformation3D const *const transformation,
-                PlacedBox const *const boundingbox,
-                unsigned int id)
+  __device__ VPlacedVolume(LogicalVolume const *const logical_vol, Transformation3D const *const transformation,
+                           PlacedBox const *const boundingbox, unsigned int id)
 #ifdef VECGEOM_INPLACE_TRANSFORMATIONS
-  : logical_volume_(logical_vol), fTransformation(*transformation),
-        bounding_box_(boundingbox), id_(id), label_(NULL) {}
+      : logical_volume_(logical_vol), fTransformation(*transformation), bounding_box_(boundingbox), id_(id),
+        label_(NULL)
+  {
+  }
 #else
-  : logical_volume_(logical_vol), fTransformation(transformation),
-         bounding_box_(boundingbox), id_(id), label_(NULL) {}
+      : logical_volume_(logical_vol), fTransformation(transformation), bounding_box_(boundingbox), id_(id), label_(NULL)
+  {
+  }
 #endif
 #endif
-
 
 public:
   VECGEOM_CUDA_HEADER_BOTH
@@ -91,73 +92,65 @@ public:
   VECGEOM_INLINE
   unsigned int id() const { return id_; }
 
-  std::string const& GetLabel() const { return *label_; }
+  std::string const &GetLabel() const { return *label_; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  PlacedBox const* bounding_box() const { return bounding_box_; }
-
-
-  VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
-  LogicalVolume const* GetLogicalVolume() const {
-    return logical_volume_;
-  }
+  PlacedBox const *bounding_box() const { return bounding_box_; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Vector<Daughter> const& GetDaughters() const {
-    return logical_volume_->GetDaughters();
-  }
+  LogicalVolume const *GetLogicalVolume() const { return logical_volume_; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  const char* GetName() const {
-     return (*label_).c_str();
-  }
+  Vector<Daughter> const &GetDaughters() const { return logical_volume_->GetDaughters(); }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  VUnplacedVolume const* GetUnplacedVolume() const {
-    return logical_volume_->GetUnplacedVolume();
-  }
+  const char *GetName() const { return (*label_).c_str(); }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Transformation3D const* GetTransformation() const {
+  VUnplacedVolume const *GetUnplacedVolume() const { return logical_volume_->GetUnplacedVolume(); }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_INLINE
+  Transformation3D const *GetTransformation() const
+  {
 #ifdef VECGEOM_INPLACE_TRANSFORMATIONS
-      return &fTransformation;
+    return &fTransformation;
 #else
-      return fTransformation;
+    return fTransformation;
 #endif
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  void SetLogicalVolume(LogicalVolume const *const logical_vol) {
-    logical_volume_ = logical_vol;
-  }
+  void SetLogicalVolume(LogicalVolume const *const logical_vol) { logical_volume_ = logical_vol; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  void SetTransformation(Transformation3D const *const transform) {
+  void SetTransformation(Transformation3D const *const transform)
+  {
 #ifdef VECGEOM_INPLACE_TRANSFORMATIONS
-      fTransformation = *transform;
+    fTransformation = *transform;
 #else
-      fTransformation = transform;
+    fTransformation = transform;
 #endif
   }
 
-  void set_label(char const * label) {
-    //if(label != NULL){
-        //std::cerr << label << std::endl;
-        //std::cerr << *label_ << std::endl;
-        //label_->assign(label);}
-    //else{
-    if(label_) delete label_;
+  void set_label(char const *label)
+  {
+    // if(label != NULL){
+    // std::cerr << label << std::endl;
+    // std::cerr << *label_ << std::endl;
+    // label_->assign(label);}
+    // else{
+    if (label_) delete label_;
     label_ = new std::string(label);
     //}
   }
 
-  friend std::ostream& operator<<(std::ostream& os, VPlacedVolume const &vol);
+  friend std::ostream &operator<<(std::ostream &os, VPlacedVolume const &vol);
 
   virtual int memory_size() const = 0;
 
@@ -182,87 +175,75 @@ public:
   // Geometry functionality
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual bool Contains(Vector3D<Precision> const &point) const =0;
+  virtual bool Contains(Vector3D<Precision> const &point) const = 0;
 
-  virtual void Contains(SOA3D<Precision> const &point,
-                        bool *const output) const =0;
+  virtual void Contains(SOA3D<Precision> const &point, bool *const output) const = 0;
 
   // virtual void Contains(AOS3D<Precision> const &point,
   //                       bool *const output) const =0;
 
   /// \return The input point transformed to the local reference frame.
   VECGEOM_CUDA_HEADER_BOTH
-  virtual bool Contains(Vector3D<Precision> const &point,
-                        Vector3D<Precision> &localPoint) const =0;
+  virtual bool Contains(Vector3D<Precision> const &point, Vector3D<Precision> &localPoint) const = 0;
 
   /// \param localPoint Point in the local reference frame of the volume.
   VECGEOM_CUDA_HEADER_BOTH
-  virtual bool UnplacedContains(Vector3D<Precision> const &localPoint) const =0;
+  virtual bool UnplacedContains(Vector3D<Precision> const &localPoint) const = 0;
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual EnumInside Inside(Vector3D<Precision> const &point) const =0;
+  virtual EnumInside Inside(Vector3D<Precision> const &point) const = 0;
 
-  virtual void Inside(SOA3D<Precision> const &point,
-                      Inside_t *const output) const =0;
+  virtual void Inside(SOA3D<Precision> const &point, Inside_t *const output) const = 0;
 
   // virtual void Inside(AOS3D<Precision> const &point,
   //                     Inside_t *const output) const =0;
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual Precision DistanceToIn(Vector3D<Precision> const &position,
-                                 Vector3D<Precision> const &direction,
-                                 const Precision step_max = kInfinity) const =0;
-
+  virtual Precision DistanceToIn(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
+                                 const Precision step_max = kInfinity) const = 0;
 
   // if we have any SIMD backend, we offer a SIMD interface
-  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToInVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
-                                                 Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
-                                                 const VECGEOM_BACKEND_PRECISION_TYPE step_max = kInfinity) const = 0;
+  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToInVec(
+      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
+      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
+      const VECGEOM_BACKEND_PRECISION_TYPE step_max = kInfinity) const = 0;
 
   template <typename T>
-  VECGEOM_INLINE T DistanceToIn(Vector3D<T> const &position, Vector3D<T> const &direction,
-                                const T step_max = T(kInfinity)) const
+  VECGEOM_INLINE
+  T DistanceToIn(Vector3D<T> const &position, Vector3D<T> const &direction, const T step_max = T(kInfinity)) const
   {
     return DistanceToInVec(position, direction, step_max);
   }
 
-  virtual void DistanceToIn(SOA3D<Precision> const &position,
-                            SOA3D<Precision> const &direction,
-                            Precision const *const step_max,
-                            Precision *const output) const =0;
+  virtual void DistanceToIn(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
+                            Precision const *const step_max, Precision *const output) const = 0;
 
   // to be deprecated
-  virtual void DistanceToInMinimize(SOA3D<Precision> const &position,
-                                    SOA3D<Precision> const &direction,
-                                    int daughterindex,
-                                    Precision *const output,
-                                    int *const nextnodeids
-                                    ) const =0;
+  virtual void DistanceToInMinimize(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
+                                    int daughterindex, Precision *const output, int *const nextnodeids) const = 0;
 
-  // virtual void DistanceToIn(AOS3D<Precision> const &position,
-  //                           AOS3D<Precision> const &direction,
-  //                           Precision const *const step_max,
-  //                           Precision *const output) const =0;
+// virtual void DistanceToIn(AOS3D<Precision> const &position,
+//                           AOS3D<Precision> const &direction,
+//                           Precision const *const step_max,
+//                           Precision *const output) const =0;
 
 #ifdef VECGEOM_USOLIDS
-    using USolidsInterfaceHelper::DistanceToOut;
+  using USolidsInterfaceHelper::DistanceToOut;
 #else
   VECGEOM_CUDA_HEADER_BOTH
-  virtual Precision DistanceToOut(
-      Vector3D<Precision> const &position,
-      Vector3D<Precision> const &direction,
-      Precision const step_max = kInfinity) const =0;
+  virtual Precision DistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
+                                  Precision const step_max = kInfinity) const = 0;
 #endif
   // define this interface in case we don't have the Scalar interface
 
-  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToOutVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
-                                                  Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
-                                                  VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfinity) const = 0;
-
+  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToOutVec(
+      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
+      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
+      VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfinity) const = 0;
 
   template <typename T>
-  VECGEOM_INLINE T DistanceToOut(Vector3D<T> const &position, Vector3D<T> const &direction,
-                                 const T step_max = T(kInfinity)) const
+  VECGEOM_INLINE
+  T DistanceToOut(Vector3D<T> const &position, Vector3D<T> const &direction, const T step_max = T(kInfinity)) const
   {
     return DistanceToOutVec(position, direction, step_max);
   }
@@ -271,21 +252,15 @@ public:
   // the point and direction are first of all transformed into the reference frame of the
   // callee. The normal DistanceToOut method does not do this
   VECGEOM_CUDA_HEADER_BOTH
-  virtual Precision PlacedDistanceToOut(
-      Vector3D<Precision> const &position,
-      Vector3D<Precision> const &direction,
-      Precision const step_max = kInfinity) const = 0;
+  virtual Precision PlacedDistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
+                                        Precision const step_max = kInfinity) const = 0;
 
-  virtual void DistanceToOut(SOA3D<Precision> const &position,
-                             SOA3D<Precision> const &direction,
-                             Precision const *const step_max,
-                             Precision *const output) const =0;
+  virtual void DistanceToOut(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
+                             Precision const *const step_max, Precision *const output) const = 0;
 
-  virtual void DistanceToOut(SOA3D<Precision> const &position,
-                             SOA3D<Precision> const &direction,
-                             Precision const *const step_max,
-                             Precision *const output,
-                             int *const nextnodeindex) const =0;
+  virtual void DistanceToOut(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
+                             Precision const *const step_max, Precision *const output,
+                             int *const nextnodeindex) const = 0;
 
   // virtual void DistanceToOut(AOS3D<Precision> const &position,
   //                            AOS3D<Precision> const &direction,
@@ -293,352 +268,342 @@ public:
   //                            Precision *const output) const =0;
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual Precision SafetyToIn(Vector3D<Precision> const &position) const =0;
+  virtual Precision SafetyToIn(Vector3D<Precision> const &position) const = 0;
 
-  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToInVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const = 0;
+  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToInVec(
+      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const = 0;
 
-  template<typename T> VECGEOM_INLINE
-  T SafetyToIn(Vector3D<T> const &p) const { return SafetyToInVec(p); }
+  template <typename T>
+  VECGEOM_INLINE
+  T SafetyToIn(Vector3D<T> const &p) const
+  {
+    return SafetyToInVec(p);
+  }
 
-  virtual void SafetyToIn(SOA3D<Precision> const &position,
-                          Precision *const safeties) const =0;
+  virtual void SafetyToIn(SOA3D<Precision> const &position, Precision *const safeties) const = 0;
 
   // virtual void SafetyToIn(AOS3D<Precision> const &position,
   //                         Precision *const safeties) const =0;
 
   // to be deprecated
-  virtual void SafetyToInMinimize(SOA3D<Precision> const &points,
-                                  Precision *const safeties) const =0;
+  virtual void SafetyToInMinimize(SOA3D<Precision> const &points, Precision *const safeties) const = 0;
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual Precision SafetyToOut(Vector3D<Precision> const &position) const =0;
+  virtual Precision SafetyToOut(Vector3D<Precision> const &position) const = 0;
 
-  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOutVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const = 0;
+  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOutVec(
+      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const = 0;
 
-  virtual void SafetyToOut(SOA3D<Precision> const &position,
-                           Precision *const safeties) const =0;
+  virtual void SafetyToOut(SOA3D<Precision> const &position, Precision *const safeties) const = 0;
 
-  template<typename T> VECGEOM_INLINE
-  T SafetyToOut(Vector3D<T> const &p) const { return SafetyToOutVec(p); }
+  template <typename T>
+  VECGEOM_INLINE
+  T SafetyToOut(Vector3D<T> const &p) const
+  {
+    return SafetyToOutVec(p);
+  }
 
   // virtual void SafetyToOut(AOS3D<Precision> const &position,
   //                          Precision *const safeties) const =0;
 
   // to be deprecated
-  virtual void SafetyToOutMinimize(SOA3D<Precision> const &points,
-                                   Precision *const safeties) const =0;
+  virtual void SafetyToOutMinimize(SOA3D<Precision> const &points, Precision *const safeties) const = 0;
 
   // returning the cubic volume of the shape satisfying the USolids interface
   // it is currently not a const function since some shapes might cache this value
   // if it is expensive to calculate
-  virtual Precision Capacity() {
-      assert(0 && "Capacity not implemented");
-      return 0;
+  virtual Precision Capacity()
+  {
+    assert(0 && "Capacity not implemented");
+    return 0;
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void Extent(Vector3D<Precision> & /* min */,
-                      Vector3D<Precision> & /* max */) const {
+  virtual void Extent(Vector3D<Precision> & /* min */, Vector3D<Precision> & /* max */) const
+  {
     assert(0 && "Extent() not implemented for this shape type.");
   }
 
-
-  virtual bool Normal(Vector3D<Precision> const &/*point*/,
-                      Vector3D<Precision> &/*normal*/) const {
+  virtual bool Normal(Vector3D<Precision> const & /*point*/, Vector3D<Precision> & /*normal*/) const
+  {
 
     assert(0 && "Normal() not implemented for this shape type.\n");
     return false;
   }
 
-
   virtual Precision SurfaceArea(); // {
-   // assert(0 && "SurfaceArea not implemented for this shape type.");
-   // return 0.0;
- // }
+                                   // assert(0 && "SurfaceArea not implemented for this shape type.");
+                                   // return 0.0;
+                                   // }
   virtual Vector3D<Precision> GetPointOnSurface() const;
 
-
 public:
-
 #ifdef VECGEOM_CUDA_INTERFACE
   virtual size_t DeviceSizeOf() const = 0;
   virtual DevicePtr<cuda::VPlacedVolume> CopyToGpu(DevicePtr<cuda::LogicalVolume> const logical_volume,
                                                    DevicePtr<cuda::Transformation3D> const transform,
-                                                   DevicePtr<cuda::VPlacedVolume> const gpu_ptr) const =0;
-  virtual DevicePtr<cuda::VPlacedVolume> CopyToGpu(
-      DevicePtr<cuda::LogicalVolume> const logical_volume,
-      DevicePtr<cuda::Transformation3D> const transform) const =0;
+                                                   DevicePtr<cuda::VPlacedVolume> const gpu_ptr) const = 0;
+  virtual DevicePtr<cuda::VPlacedVolume> CopyToGpu(DevicePtr<cuda::LogicalVolume> const logical_volume,
+                                                   DevicePtr<cuda::Transformation3D> const transform) const = 0;
 
   template <typename Derived>
   DevicePtr<cuda::VPlacedVolume> CopyToGpuImpl(DevicePtr<cuda::LogicalVolume> const logical_volume,
                                                DevicePtr<cuda::Transformation3D> const transform,
                                                DevicePtr<cuda::VPlacedVolume> const in_gpu_ptr) const
   {
-     DevicePtr<CudaType_t<Derived> > gpu_ptr(in_gpu_ptr);
-     gpu_ptr.Construct(logical_volume, transform, nullptr, this->id());
-     CudaAssertError();
-     // Need to go via the void* because the regular c++ compilation
-     // does not actually see the declaration for the cuda version
-     // (and thus can not determine the inheritance).
-     return DevicePtr<cuda::VPlacedVolume>((void*)gpu_ptr);
+    DevicePtr<CudaType_t<Derived>> gpu_ptr(in_gpu_ptr);
+    gpu_ptr.Construct(logical_volume, transform, nullptr, this->id());
+    CudaAssertError();
+    // Need to go via the void* because the regular c++ compilation
+    // does not actually see the declaration for the cuda version
+    // (and thus can not determine the inheritance).
+    return DevicePtr<cuda::VPlacedVolume>((void *)gpu_ptr);
   }
   template <typename Derived>
-  DevicePtr<cuda::VPlacedVolume> CopyToGpuImpl(
-      DevicePtr<cuda::LogicalVolume> const logical_volume,
-      DevicePtr<cuda::Transformation3D> const transform) const
+  DevicePtr<cuda::VPlacedVolume> CopyToGpuImpl(DevicePtr<cuda::LogicalVolume> const logical_volume,
+                                               DevicePtr<cuda::Transformation3D> const transform) const
   {
-     DevicePtr<CudaType_t<Derived> > gpu_ptr;
-     gpu_ptr.Allocate();
-     return this->CopyToGpuImpl<Derived>(logical_volume,transform,
-                                         DevicePtr<cuda::VPlacedVolume>((void*)gpu_ptr));
+    DevicePtr<CudaType_t<Derived>> gpu_ptr;
+    gpu_ptr.Allocate();
+    return this->CopyToGpuImpl<Derived>(logical_volume, transform, DevicePtr<cuda::VPlacedVolume>((void *)gpu_ptr));
   }
 
 #endif
 
 #ifndef VECGEOM_NVCC
-  virtual VPlacedVolume const* ConvertToUnspecialized() const =0;
+  virtual VPlacedVolume const *ConvertToUnspecialized() const = 0;
 #ifdef VECGEOM_ROOT
-  virtual TGeoShape const* ConvertToRoot() const =0;
+  virtual TGeoShape const *ConvertToRoot() const = 0;
 #endif
 #if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-  virtual ::VUSolid const* ConvertToUSolids() const =0;
+  virtual ::VUSolid const *ConvertToUSolids() const = 0;
 #endif
 #ifdef VECGEOM_GEANT4
-  virtual G4VSolid const* ConvertToGeant4() const =0;
+  virtual G4VSolid const *ConvertToGeant4() const = 0;
 #endif
 #endif // VECGEOM_NVCC
-
 };
-
-} } // End global namespace
+}
+} // End global namespace
 
 #ifdef VECGEOM_NVCC
 
-#define VECGEOM_DEVICE_INST_PLACED_VOLUME( PlacedVol ) \
-   namespace cxx { \
-      template size_t DevicePtr<cuda::PlacedVol>::SizeOf(); \
-      template void DevicePtr<cuda::PlacedVol>::Construct( \
-         DevicePtr<cuda::LogicalVolume> const logical_volume, \
-         DevicePtr<cuda::Transformation3D> const transform, \
-         DevicePtr<cuda::PlacedBox> const boundingBox, \
-         const unsigned int id) const; \
-    }
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME(PlacedVol)                                                       \
+  namespace cxx {                                                                                          \
+  template size_t DevicePtr<cuda::PlacedVol>::SizeOf();                                                    \
+  template void DevicePtr<cuda::PlacedVol>::Construct(DevicePtr<cuda::LogicalVolume> const logical_volume, \
+                                                      DevicePtr<cuda::Transformation3D> const transform,   \
+                                                      DevicePtr<cuda::PlacedBox> const boundingBox,        \
+                                                      const unsigned int id) const;                        \
+  }
 
-#define VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol, Extra )    \
-   namespace cxx { \
-      template size_t DevicePtr<cuda::PlacedVol, Extra>::SizeOf(); \
-      template void DevicePtr<cuda::PlacedVol, Extra>::Construct( \
-         DevicePtr<cuda::LogicalVolume> const logical_volume, \
-         DevicePtr<cuda::Transformation3D> const transform, \
-         DevicePtr<cuda::PlacedBox> const boundingBox, \
-         const unsigned int id) const; \
-    }
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol, Extra)                                                  \
+  namespace cxx {                                                                                                 \
+  template size_t DevicePtr<cuda::PlacedVol, Extra>::SizeOf();                                                    \
+  template void DevicePtr<cuda::PlacedVol, Extra>::Construct(DevicePtr<cuda::LogicalVolume> const logical_volume, \
+                                                             DevicePtr<cuda::Transformation3D> const transform,   \
+                                                             DevicePtr<cuda::PlacedBox> const boundingBox,        \
+                                                             const unsigned int id) const;                        \
+  }
 
 #if defined(VECGEOM_NO_SPECIALIZATION) || !defined(VECGEOM_CUDA_VOLUME_SPECIALIZATION)
 
-#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT( PlacedVol, trans )   \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<trans, rotation::kGeneric> )
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT(PlacedVol, trans) \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol<trans, rotation::kGeneric>)
 
-#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC( PlacedVol ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT(PlacedVol, translation::kGeneric)
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(PlacedVol) \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT(PlacedVol, translation::kGeneric)
 
 #else // VECGEOM_NO_SPECIALIZATION
 
-#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT( PlacedVol, trans )   \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<trans, rotation::kGeneric> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<trans, rotation::kDiagonal> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<trans, rotation::kIdentity> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<trans, 0x046> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<trans, 0x054> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<trans, 0x062> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<trans, 0x076> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<trans, 0x0a1> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<trans, 0x0ad> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<trans, 0x0dc> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<trans, 0x0e3> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<trans, 0x10a> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<trans, 0x11b> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<trans, 0x155> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<trans, 0x16a> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<trans, 0x18e> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<trans, 0x1b1> )
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT(PlacedVol, trans)             \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol<trans, rotation::kGeneric>)  \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol<trans, rotation::kDiagonal>) \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol<trans, rotation::kIdentity>) \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol<trans, 0x046>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol<trans, 0x054>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol<trans, 0x062>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol<trans, 0x076>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol<trans, 0x0a1>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol<trans, 0x0ad>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol<trans, 0x0dc>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol<trans, 0x0e3>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol<trans, 0x10a>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol<trans, 0x11b>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol<trans, 0x155>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol<trans, 0x16a>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol<trans, 0x18e>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol<trans, 0x1b1>)
 
-#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC( PlacedVol ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT(PlacedVol, translation::kGeneric) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT(PlacedVol, translation::kIdentity)
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(PlacedVol)                  \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT(PlacedVol, translation::kGeneric) \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT(PlacedVol, translation::kIdentity)
 
 #endif // VECGEOM_NO_SPECIALIZATION
 
 #if defined(VECGEOM_NO_SPECIALIZATION) || !defined(VECGEOM_CUDA_VOLUME_SPECIALIZATION)
 
-#define VECGEOM_DEVICE_INST_PLACED_POLYHEDRON_ALL_CUTOUT( PlacedVol, radii )   \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<radii, Polyhedron::EPhiCutout::kGeneric> )
+#define VECGEOM_DEVICE_INST_PLACED_POLYHEDRON_ALL_CUTOUT(PlacedVol, radii) \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol<radii, Polyhedron::EPhiCutout::kGeneric>)
 
-#define VECGEOM_DEVICE_INST_PLACED_POLYHEDRON_ALLSPEC( PlacedVol ) \
-   VECGEOM_DEVICE_INST_PLACED_POLYHEDRON_ALL_CUTOUT(PlacedVol, Polyhedron::EInnerRadii::kGeneric)
-
-#else // VECGEOM_NO_SPECIALIZATION
-
-#define VECGEOM_DEVICE_INST_PLACED_POLYHEDRON_ALL_CUTOUT( PlacedVol, radii )   \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<radii, Polyhedron::EPhiCutout::kGeneric> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<radii, Polyhedron::EPhiCutout::kFalse> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<radii, Polyhedron::EPhiCutout::kTrue> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL( PlacedVol<radii, Polyhedron::EPhiCutout::kLarge> ) \
-
-#define VECGEOM_DEVICE_INST_PLACED_POLYHEDRON_ALLSPEC( PlacedVol ) \
-   VECGEOM_DEVICE_INST_PLACED_POLYHEDRON_ALL_CUTOUT(PlacedVol, Polyhedron::EInnerRadii::kGeneric) \
-   VECGEOM_DEVICE_INST_PLACED_POLYHEDRON_ALL_CUTOUT(PlacedVol, Polyhedron::EInnerRadii::kFalse) \
-   VECGEOM_DEVICE_INST_PLACED_POLYHEDRON_ALL_CUTOUT(PlacedVol, Polyhedron::EInnerRadii::kTrue)
-
-#endif // VECGEOM_NO_SPECIALIZATION
-
-#define VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3( PlacedVol, Extra, Type ) \
-   namespace cxx { \
-      template size_t DevicePtr<cuda::PlacedVol, Extra, cuda::Type>::SizeOf(); \
-      template void DevicePtr<cuda::PlacedVol, Extra, cuda::Type>::Construct( \
-         DevicePtr<cuda::LogicalVolume> const logical_volume, \
-         DevicePtr<cuda::Transformation3D> const transform, \
-         DevicePtr<cuda::PlacedBox> const boundingBox, \
-         const unsigned int id) const; \
-    }
-
-#if defined(VECGEOM_NO_SPECIALIZATION) || !defined(VECGEOM_CUDA_VOLUME_SPECIALIZATION)
-
-#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_3( PlacedVol, trans, Type ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3( PlacedVol<trans, rotation::kGeneric, Type> )
-#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_3( PlacedVol, Type )       \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_3(PlacedVol, translation::kGeneric, Type)
+#define VECGEOM_DEVICE_INST_PLACED_POLYHEDRON_ALLSPEC(PlacedVol) \
+  VECGEOM_DEVICE_INST_PLACED_POLYHEDRON_ALL_CUTOUT(PlacedVol, Polyhedron::EInnerRadii::kGeneric)
 
 #else // VECGEOM_NO_SPECIALIZATION
 
-#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_3( PlacedVol, trans, Type ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3( PlacedVol<trans, rotation::kGeneric, Type> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3( PlacedVol<trans, rotation::kDiagonal, Type> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3( PlacedVol<trans, rotation::kIdentity, Type> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3( PlacedVol<trans, 0x046, Type> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3( PlacedVol<trans, 0x054, Type> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3( PlacedVol<trans, 0x062, Type> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3( PlacedVol<trans, 0x076, Type> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3( PlacedVol<trans, 0x0a1, Type> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3( PlacedVol<trans, 0x0ad, Type> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3( PlacedVol<trans, 0x0dc, Type> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3( PlacedVol<trans, 0x0e3, Type> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3( PlacedVol<trans, 0x10a, Type> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3( PlacedVol<trans, 0x11b, Type> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3( PlacedVol<trans, 0x155, Type> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3( PlacedVol<trans, 0x16a, Type> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3( PlacedVol<trans, 0x18e, Type> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3( PlacedVol<trans, 0x1b1, Type> )
+#define VECGEOM_DEVICE_INST_PLACED_POLYHEDRON_ALL_CUTOUT(PlacedVol, radii)                   \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol<radii, Polyhedron::EPhiCutout::kGeneric>) \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol<radii, Polyhedron::EPhiCutout::kFalse>)   \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol<radii, Polyhedron::EPhiCutout::kTrue>)    \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL(PlacedVol<radii, Polyhedron::EPhiCutout::kLarge>)
 
-#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_3( PlacedVol, Type )       \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_3(PlacedVol, translation::kGeneric, Type) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_3(PlacedVol, translation::kIdentity, Type)
+#define VECGEOM_DEVICE_INST_PLACED_POLYHEDRON_ALLSPEC(PlacedVol)                                 \
+  VECGEOM_DEVICE_INST_PLACED_POLYHEDRON_ALL_CUTOUT(PlacedVol, Polyhedron::EInnerRadii::kGeneric) \
+  VECGEOM_DEVICE_INST_PLACED_POLYHEDRON_ALL_CUTOUT(PlacedVol, Polyhedron::EInnerRadii::kFalse)   \
+  VECGEOM_DEVICE_INST_PLACED_POLYHEDRON_ALL_CUTOUT(PlacedVol, Polyhedron::EInnerRadii::kTrue)
 
 #endif // VECGEOM_NO_SPECIALIZATION
 
-
-#define VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol, trans, radii, phi )    \
-   namespace cxx { \
-      template size_t DevicePtr<cuda::PlacedVol, trans, radii, phi>::SizeOf(); \
-      template void DevicePtr<cuda::PlacedVol, trans, radii, phi>::Construct( \
-         DevicePtr<cuda::LogicalVolume> const logical_volume, \
-         DevicePtr<cuda::Transformation3D> const transform, \
-         DevicePtr<cuda::PlacedBox> const boundingBox, \
-         const unsigned int id) const; \
-    }
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3(PlacedVol, Extra, Type)                                      \
+  namespace cxx {                                                                                             \
+  template size_t DevicePtr<cuda::PlacedVol, Extra, cuda::Type>::SizeOf();                                    \
+  template void DevicePtr<cuda::PlacedVol, Extra, cuda::Type>::Construct(                                     \
+      DevicePtr<cuda::LogicalVolume> const logical_volume, DevicePtr<cuda::Transformation3D> const transform, \
+      DevicePtr<cuda::PlacedBox> const boundingBox, const unsigned int id) const;                             \
+  }
 
 #if defined(VECGEOM_NO_SPECIALIZATION) || !defined(VECGEOM_CUDA_VOLUME_SPECIALIZATION)
 
-#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_4( PlacedVol, trans, radii, phi ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, rotation::kGeneric, radii, phi> )
-#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_4( PlacedVol ) \
-	VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_4(PlacedVol, translation::kGeneric, Polyhedron::EInnerRadii::kGeneric, Polyhedron::EPhiCutout::kGeneric)
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_3(PlacedVol, trans, Type) \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3(PlacedVol<trans, rotation::kGeneric, Type>)
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_3(PlacedVol, Type) \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_3(PlacedVol, translation::kGeneric, Type)
+
+#else // VECGEOM_NO_SPECIALIZATION
+
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_3(PlacedVol, trans, Type)             \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3(PlacedVol<trans, rotation::kGeneric, Type>)  \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3(PlacedVol<trans, rotation::kDiagonal, Type>) \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3(PlacedVol<trans, rotation::kIdentity, Type>) \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3(PlacedVol<trans, 0x046, Type>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3(PlacedVol<trans, 0x054, Type>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3(PlacedVol<trans, 0x062, Type>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3(PlacedVol<trans, 0x076, Type>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3(PlacedVol<trans, 0x0a1, Type>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3(PlacedVol<trans, 0x0ad, Type>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3(PlacedVol<trans, 0x0dc, Type>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3(PlacedVol<trans, 0x0e3, Type>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3(PlacedVol<trans, 0x10a, Type>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3(PlacedVol<trans, 0x11b, Type>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3(PlacedVol<trans, 0x155, Type>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3(PlacedVol<trans, 0x16a, Type>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3(PlacedVol<trans, 0x18e, Type>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_3(PlacedVol<trans, 0x1b1, Type>)
+
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_3(PlacedVol, Type)                  \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_3(PlacedVol, translation::kGeneric, Type) \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_3(PlacedVol, translation::kIdentity, Type)
+
+#endif // VECGEOM_NO_SPECIALIZATION
+
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4(PlacedVol, trans, radii, phi)                                \
+  namespace cxx {                                                                                             \
+  template size_t DevicePtr<cuda::PlacedVol, trans, radii, phi>::SizeOf();                                    \
+  template void DevicePtr<cuda::PlacedVol, trans, radii, phi>::Construct(                                     \
+      DevicePtr<cuda::LogicalVolume> const logical_volume, DevicePtr<cuda::Transformation3D> const transform, \
+      DevicePtr<cuda::PlacedBox> const boundingBox, const unsigned int id) const;                             \
+  }
+
+#if defined(VECGEOM_NO_SPECIALIZATION) || !defined(VECGEOM_CUDA_VOLUME_SPECIALIZATION)
+
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_4(PlacedVol, trans, radii, phi) \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4(PlacedVol<trans, rotation::kGeneric, radii, phi>)
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_4(PlacedVol)                                                     \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_4(PlacedVol, translation::kGeneric, Polyhedron::EInnerRadii::kGeneric, \
+                                              Polyhedron::EPhiCutout::kGeneric)
 
 #else
 
 // Really we should be enumerating the option
-#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_4( PlacedVol, trans, radii, phi ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, rotation::kGeneric, radii, phi> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, rotation::kDiagonal, radii, phi> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, rotation::kIdentity, radii, phi> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x046, radii, phi> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x054, radii, phi> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x062, radii, phi> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x076, radii, phi> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x0a1, radii, phi> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x0ad, radii, phi> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x0dc, radii, phi> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x0e3, radii, phi> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x10a, radii, phi> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x11b, radii, phi> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x155, radii, phi> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x16a, radii, phi> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x18e, radii, phi> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4( PlacedVol<trans, 0x1b1, radii, phi> )
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_4(PlacedVol, trans, radii, phi)             \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4(PlacedVol<trans, rotation::kGeneric, radii, phi>)  \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4(PlacedVol<trans, rotation::kDiagonal, radii, phi>) \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4(PlacedVol<trans, rotation::kIdentity, radii, phi>) \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4(PlacedVol<trans, 0x046, radii, phi>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4(PlacedVol<trans, 0x054, radii, phi>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4(PlacedVol<trans, 0x062, radii, phi>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4(PlacedVol<trans, 0x076, radii, phi>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4(PlacedVol<trans, 0x0a1, radii, phi>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4(PlacedVol<trans, 0x0ad, radii, phi>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4(PlacedVol<trans, 0x0dc, radii, phi>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4(PlacedVol<trans, 0x0e3, radii, phi>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4(PlacedVol<trans, 0x10a, radii, phi>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4(PlacedVol<trans, 0x11b, radii, phi>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4(PlacedVol<trans, 0x155, radii, phi>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4(PlacedVol<trans, 0x16a, radii, phi>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4(PlacedVol<trans, 0x18e, radii, phi>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_4(PlacedVol<trans, 0x1b1, radii, phi>)
 
-#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_TRANS_4( PlacedVol, radii, phi ) \
-	VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_4(PlacedVol, translation::kGeneric, radii, phi) \
-	VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_4(PlacedVol, translation::kIdentity, radii, phi)
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_TRANS_4(PlacedVol, radii, phi)                \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_4(PlacedVol, translation::kGeneric, radii, phi) \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_4(PlacedVol, translation::kIdentity, radii, phi)
 
-#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_RADII_4( PlacedVol, phi ) \
-	VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_TRANS_4(PlacedVol, Polyhedron::EInnerRadii::kFalse, phi) \
-	VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_TRANS_4(PlacedVol, Polyhedron::EInnerRadii::kGeneric, phi) \
-	VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_TRANS_4(PlacedVol, Polyhedron::EInnerRadii::kTrue, phi)
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_RADII_4(PlacedVol, phi)                              \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_TRANS_4(PlacedVol, Polyhedron::EInnerRadii::kFalse, phi)   \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_TRANS_4(PlacedVol, Polyhedron::EInnerRadii::kGeneric, phi) \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_TRANS_4(PlacedVol, Polyhedron::EInnerRadii::kTrue, phi)
 
-
-#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_4( PlacedVol ) \
-	VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_RADII_4(PlacedVol, Polyhedron::EPhiCutout::kFalse) \
-	VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_RADII_4(PlacedVol, Polyhedron::EPhiCutout::kGeneric) \
-	VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_RADII_4(PlacedVol, Polyhedron::EPhiCutout::kTrue) \
-	VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_RADII_4(PlacedVol, Polyhedron::EPhiCutout::kLarge)
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_4(PlacedVol)                               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_RADII_4(PlacedVol, Polyhedron::EPhiCutout::kFalse)   \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_RADII_4(PlacedVol, Polyhedron::EPhiCutout::kGeneric) \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_RADII_4(PlacedVol, Polyhedron::EPhiCutout::kTrue)    \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_RADII_4(PlacedVol, Polyhedron::EPhiCutout::kLarge)
 
 #endif
 
-#define VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol, trans, rot ) \
-   namespace cxx { \
-      template size_t DevicePtr<cuda::PlacedVol, trans, rot>::SizeOf(); \
-      template void DevicePtr<cuda::PlacedVol, trans, rot>::Construct( \
-         DevicePtr<cuda::LogicalVolume> const logical_volume, \
-         DevicePtr<cuda::Transformation3D> const transform, \
-         DevicePtr<cuda::PlacedBox> const boundingBox, \
-         const unsigned int id) const; \
-    }
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN(PlacedVol, trans, rot)                                          \
+  namespace cxx {                                                                                                      \
+  template size_t DevicePtr<cuda::PlacedVol, trans, rot>::SizeOf();                                                    \
+  template void DevicePtr<cuda::PlacedVol, trans, rot>::Construct(DevicePtr<cuda::LogicalVolume> const logical_volume, \
+                                                                  DevicePtr<cuda::Transformation3D> const transform,   \
+                                                                  DevicePtr<cuda::PlacedBox> const boundingBox,        \
+                                                                  const unsigned int id) const;                        \
+  }
 
 #if defined(VECGEOM_NO_SPECIALIZATION) || !defined(VECGEOM_CUDA_VOLUME_SPECIALIZATION)
 
-#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_BOOLEAN( PlacedVol, Op, trans) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol<Op, trans, rotation::kGeneric> )
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_BOOLEAN(PlacedVol, Op, trans) \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN(PlacedVol<Op, trans, rotation::kGeneric>)
 
-#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_BOOLEAN( PlacedVol, Op )       \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_BOOLEAN(PlacedVol, Op, translation::kGeneric)
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_BOOLEAN(PlacedVol, Op) \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_BOOLEAN(PlacedVol, Op, translation::kGeneric)
 
 #else // VECGEOM_NO_SPECIALIZATION
 
-#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_BOOLEAN( PlacedVol, Op, trans) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol<Op, trans, rotation::kGeneric> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol<Op, trans, rotation::kDiagonal> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol<Op, trans, rotation::kIdentity> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol<Op, trans, 0x046> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol<Op, trans, 0x054> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol<Op, trans, 0x062> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol<Op, trans, 0x076> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol<Op, trans, 0x0a1> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol<Op, trans, 0x0ad> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol<Op, trans, 0x0dc> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol<Op, trans, 0x0e3> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol<Op, trans, 0x10a> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol<Op, trans, 0x11b> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol<Op, trans, 0x155> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol<Op, trans, 0x16a> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol<Op, trans, 0x18e> ) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN( PlacedVol<Op, trans, 0x1b1> )
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_BOOLEAN(PlacedVol, Op, trans)             \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN(PlacedVol<Op, trans, rotation::kGeneric>)  \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN(PlacedVol<Op, trans, rotation::kDiagonal>) \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN(PlacedVol<Op, trans, rotation::kIdentity>) \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN(PlacedVol<Op, trans, 0x046>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN(PlacedVol<Op, trans, 0x054>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN(PlacedVol<Op, trans, 0x062>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN(PlacedVol<Op, trans, 0x076>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN(PlacedVol<Op, trans, 0x0a1>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN(PlacedVol<Op, trans, 0x0ad>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN(PlacedVol<Op, trans, 0x0dc>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN(PlacedVol<Op, trans, 0x0e3>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN(PlacedVol<Op, trans, 0x10a>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN(PlacedVol<Op, trans, 0x11b>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN(PlacedVol<Op, trans, 0x155>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN(PlacedVol<Op, trans, 0x16a>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN(PlacedVol<Op, trans, 0x18e>)               \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_IMPL_BOOLEAN(PlacedVol<Op, trans, 0x1b1>)
 
-#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_BOOLEAN( PlacedVol, Op )       \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_BOOLEAN(PlacedVol, Op, translation::kGeneric) \
-   VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_BOOLEAN(PlacedVol, Op, translation::kIdentity)
+#define VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_BOOLEAN(PlacedVol, Op)                  \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_BOOLEAN(PlacedVol, Op, translation::kGeneric) \
+  VECGEOM_DEVICE_INST_PLACED_VOLUME_ALL_ROT_BOOLEAN(PlacedVol, Op, translation::kIdentity)
 
 #endif // VECGEOM_NO_SPECIALIZATION
-
 
 #endif
 

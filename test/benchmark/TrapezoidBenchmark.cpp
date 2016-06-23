@@ -8,7 +8,8 @@
 
 using namespace vecgeom;
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[])
+{
   OPTION_INT(npoints, 32768);
   OPTION_INT(nrep, 4);
   OPTION_INT(nstats, 1);
@@ -25,8 +26,8 @@ int main(int argc, char* argv[]) {
   //===== Build a geometry with trapezoid(s)
 
   // world volume is a box, or a box-like trapezoid
-  //UnplacedBox worldUnplaced = UnplacedBox(20., 20., 20.);
-  UnplacedTrapezoid worldUnplaced = UnplacedTrapezoid(20., 0.,0., 20.,20.,20.,0.,  20.,20.,20.,0.);
+  // UnplacedBox worldUnplaced = UnplacedBox(20., 20., 20.);
+  UnplacedTrapezoid worldUnplaced = UnplacedTrapezoid(20., 0., 0., 20., 20., 20., 0., 20., 20., 20., 0.);
 
   //-- and here is for an internal trapezoid
 
@@ -37,14 +38,14 @@ int main(int argc, char* argv[]) {
 
   // define corner points
   // convention: p0(---); p1(+--); p2(-+-); p3(++-); p4(--+); p5(+-+); p6(-++); p7(+++)
-  xyz[0] = Vector3D<Precision>( -2+xoffset, -5+yoffset, -15 );
-  xyz[1] = Vector3D<Precision>(  2+xoffset, -5+yoffset, -15 );
-  xyz[2] = Vector3D<Precision>( -3+xoffset,  5+yoffset, -15 );
-  xyz[3] = Vector3D<Precision>(  3+xoffset,  5+yoffset, -15 );
-  xyz[4] = Vector3D<Precision>( -4-xoffset,-10-yoffset,  15 );
-  xyz[5] = Vector3D<Precision>(  4-xoffset,-10-yoffset,  15 );
-  xyz[6] = Vector3D<Precision>( -6-xoffset, 10-yoffset,  15 );
-  xyz[7] = Vector3D<Precision>(  6-xoffset, 10-yoffset,  15 );
+  xyz[0] = Vector3D<Precision>(-2 + xoffset, -5 + yoffset, -15);
+  xyz[1] = Vector3D<Precision>(2 + xoffset, -5 + yoffset, -15);
+  xyz[2] = Vector3D<Precision>(-3 + xoffset, 5 + yoffset, -15);
+  xyz[3] = Vector3D<Precision>(3 + xoffset, 5 + yoffset, -15);
+  xyz[4] = Vector3D<Precision>(-4 - xoffset, -10 - yoffset, 15);
+  xyz[5] = Vector3D<Precision>(4 - xoffset, -10 - yoffset, 15);
+  xyz[6] = Vector3D<Precision>(-6 - xoffset, 10 - yoffset, 15);
+  xyz[7] = Vector3D<Precision>(6 - xoffset, 10 - yoffset, 15);
 
   // create trapezoid
   UnplacedTrapezoid trapUnplaced(xyz);
@@ -55,9 +56,9 @@ int main(int argc, char* argv[]) {
   LogicalVolume world("world", &worldUnplaced);
   LogicalVolume trap("trap", &trapUnplaced);
 
-  Transformation3D *transf = new Transformation3D(5,2,3, 15,30,45);
+  Transformation3D *transf = new Transformation3D(5, 2, 3, 15, 30, 45);
   world.PlaceDaughter(&trap, transf);
-  //world.PlaceDaughter(&trap, &Transformation3D::kIdentity);
+  // world.PlaceDaughter(&trap, &Transformation3D::kIdentity);
 
   VPlacedVolume *worldPlaced = world.Place();
 
@@ -78,16 +79,16 @@ int main(int argc, char* argv[]) {
   tester.ClearResults();
 
   // Now run to collect statistics for performance plots - written to the .csv output file only
-  if(nstats>1) {
+  if (nstats > 1) {
     // Idea is to start at npoints=2, and then increase it by x2 at a time until maxNpoints is reached
     tester.SetVerbosity(0);
     tester.SetMeasurementCount(nstats);
-    npoints = 2;
+    npoints        = 2;
     int maxNpoints = 2048;
 #ifdef VECGEOM_CUDA
     maxNpoints = 1048576;
 #endif
-    while(npoints<=maxNpoints) {
+    while (npoints <= maxNpoints) {
       tester.SetPointCount(npoints);
       tester.RunBenchmark();
       npoints *= 2;

@@ -11,18 +11,15 @@
 #include <string>
 #include <csignal>
 
-
 namespace vecgeom {
-inline namespace VECGEOM_IMPL_NAMESPACE { 
+inline namespace VECGEOM_IMPL_NAMESPACE {
 
 namespace TubeTraits {
 
-#define DEFINE_TRAIT_TYPE(name) \
-    struct name { \
-      static std::string toString() { \
-        return #name; \
-      } \
-    } \
+#define DEFINE_TRAIT_TYPE(name)                     \
+  struct name {                                     \
+    static std::string toString() { return #name; } \
+  }
 
 // A tube that encompasses all cases - not specialized and
 // will do extra checks at runtime
@@ -49,136 +46,115 @@ DEFINE_TRAIT_TYPE(HollowTubeWithPiSector);
 #undef DEFINE_TRAIT_TYPE
 
 // Mapping of tube types to certain characteristics
-enum TreatmentType {
-  YES = 0,
-  NO,
-  UNKNOWN
-};
-
+enum TreatmentType { YES = 0, NO, UNKNOWN };
 
 // asking for phi treatment
 template <typename T>
 struct NeedsPhiTreatment {
-  static const TreatmentType value=YES;
+  static const TreatmentType value = YES;
 };
 template <>
 struct NeedsPhiTreatment<NonHollowTube> {
-  static const TreatmentType value=NO;
+  static const TreatmentType value = NO;
 };
 template <>
 struct NeedsPhiTreatment<HollowTube> {
-  static const TreatmentType value=NO;
+  static const TreatmentType value = NO;
 };
 template <>
 struct NeedsPhiTreatment<UniversalTube> {
-  static const TreatmentType value=UNKNOWN;
+  static const TreatmentType value = UNKNOWN;
 };
 
-
-template<typename T>
+template <typename T>
 VECGEOM_INLINE
-bool checkPhiTreatment(const UnplacedTube& tube) {
-  if(NeedsPhiTreatment<T>::value != UNKNOWN)
+bool checkPhiTreatment(const UnplacedTube &tube)
+{
+  if (NeedsPhiTreatment<T>::value != UNKNOWN)
     return NeedsPhiTreatment<T>::value == YES;
   else
-    return tube.dphi() < 2*M_PI;
+    return tube.dphi() < 2 * M_PI;
 }
 
 // asking for rmin treatment
 template <typename T>
-struct NeedsRminTreatment
-{
-  static const TreatmentType value=YES;
+struct NeedsRminTreatment {
+  static const TreatmentType value = YES;
 };
 template <>
-struct NeedsRminTreatment<NonHollowTube>
-{
-  static const TreatmentType value=NO;
+struct NeedsRminTreatment<NonHollowTube> {
+  static const TreatmentType value = NO;
 };
 template <>
-struct NeedsRminTreatment<NonHollowTubeWithSmallerThanPiSector>
-{
-  static const TreatmentType value=NO;
+struct NeedsRminTreatment<NonHollowTubeWithSmallerThanPiSector> {
+  static const TreatmentType value = NO;
 };
 template <>
-struct NeedsRminTreatment<NonHollowTubeWithBiggerThanPiSector>
-{
-  static const TreatmentType value=NO;
+struct NeedsRminTreatment<NonHollowTubeWithBiggerThanPiSector> {
+  static const TreatmentType value = NO;
 };
 template <>
-struct NeedsRminTreatment<NonHollowTubeWithPiSector>
-{
-  static const TreatmentType value=NO;
+struct NeedsRminTreatment<NonHollowTubeWithPiSector> {
+  static const TreatmentType value = NO;
 };
 template <>
-struct NeedsRminTreatment<UniversalTube>
-{
-  static const TreatmentType value=UNKNOWN;
+struct NeedsRminTreatment<UniversalTube> {
+  static const TreatmentType value = UNKNOWN;
 };
 
-
-template<typename T>
+template <typename T>
 VECGEOM_INLINE
-bool checkRminTreatment(const UnplacedTube& tube) {
-  if(NeedsRminTreatment<T>::value != UNKNOWN)
+bool checkRminTreatment(const UnplacedTube &tube)
+{
+  if (NeedsRminTreatment<T>::value != UNKNOWN)
     return NeedsRminTreatment<T>::value == YES;
   else
     return tube.rmin() > 0;
 }
 
-
 // sector size
-enum AngleType
-{
-  NOANGLE = 0,
-  SMALLER_THAN_PI,
-  ONE_PI,
-  BIGGER_THAN_PI,
-  UNKNOWN_AT_COMPILE_TIME
-};
+enum AngleType { NOANGLE = 0, SMALLER_THAN_PI, ONE_PI, BIGGER_THAN_PI, UNKNOWN_AT_COMPILE_TIME };
 
-template<typename T>
+template <typename T>
 struct SectorType {
-  static const AngleType value=NOANGLE;
+  static const AngleType value = NOANGLE;
 };
 
-template<>
+template <>
 struct SectorType<UniversalTube> {
-  static const AngleType value=UNKNOWN_AT_COMPILE_TIME;
+  static const AngleType value = UNKNOWN_AT_COMPILE_TIME;
 };
 
-template<>
+template <>
 struct SectorType<NonHollowTubeWithSmallerThanPiSector> {
-  static const AngleType value=SMALLER_THAN_PI;
+  static const AngleType value = SMALLER_THAN_PI;
 };
 
-template<>
+template <>
 struct SectorType<NonHollowTubeWithPiSector> {
-  static const AngleType value=ONE_PI;
+  static const AngleType value = ONE_PI;
 };
 
-template<>
+template <>
 struct SectorType<NonHollowTubeWithBiggerThanPiSector> {
-  static const AngleType value=BIGGER_THAN_PI;
+  static const AngleType value = BIGGER_THAN_PI;
 };
-template<>
+template <>
 struct SectorType<HollowTubeWithSmallerThanPiSector> {
-  static const AngleType value=SMALLER_THAN_PI;
+  static const AngleType value = SMALLER_THAN_PI;
 };
 
-template<>
+template <>
 struct SectorType<HollowTubeWithPiSector> {
-  static const AngleType value=ONE_PI;
+  static const AngleType value = ONE_PI;
 };
 
-template<>
+template <>
 struct SectorType<HollowTubeWithBiggerThanPiSector> {
-  static const AngleType value=BIGGER_THAN_PI;
+  static const AngleType value = BIGGER_THAN_PI;
 };
-
 }
 
 } // End global namespace
 
 #endif
-

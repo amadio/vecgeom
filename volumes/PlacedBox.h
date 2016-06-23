@@ -6,7 +6,7 @@
 
 #include "base/Global.h"
 #include "backend/Backend.h"
- 
+
 #include "volumes/PlacedVolume.h"
 #include "volumes/UnplacedVolume.h"
 #include "volumes/kernel/BoxImplementation.h"
@@ -22,35 +22,35 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedBox; )
-VECGEOM_DEVICE_DECLARE_CONV( class, PlacedBox )
+VECGEOM_DEVICE_FORWARD_DECLARE(class PlacedBox;)
+VECGEOM_DEVICE_DECLARE_CONV(class, PlacedBox)
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class PlacedBox : public PlacedVolumeImplHelper<UnplacedBox, VPlacedVolume> {
-using Base = PlacedVolumeImplHelper<UnplacedBox, VPlacedVolume>;
+  using Base = PlacedVolumeImplHelper<UnplacedBox, VPlacedVolume>;
+
 public:
-
 #ifndef VECGEOM_NVCC
-    // constructor inheritance;
+  // constructor inheritance;
   using Base::Base;
-  PlacedBox(char const *const label,
-            LogicalVolume const *const logicalVolume,
-            Transformation3D const *const transformation,
-            vecgeom::PlacedBox const *const boundingBox)
-      : Base(label, logicalVolume, transformation, boundingBox) {}
+  PlacedBox(char const *const label, LogicalVolume const *const logicalVolume,
+            Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
+      : Base(label, logicalVolume, transformation, boundingBox)
+  {
+  }
 
-  PlacedBox(LogicalVolume const *const logicalVolume,
-            Transformation3D const *const transformation,
+  PlacedBox(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
             vecgeom::PlacedBox const *const boundingBox)
-      : PlacedBox("", logicalVolume, transformation, boundingBox) {}
+      : PlacedBox("", logicalVolume, transformation, boundingBox)
+  {
+  }
 #else
-  __device__
-  PlacedBox(LogicalVolume const *const logicalVolume,
-            Transformation3D const *const transformation,
-            PlacedBox const *const boundingBox,
-            const int id)
-      : Base(logicalVolume, transformation, boundingBox, id) {}
+  __device__ PlacedBox(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
+                       PlacedBox const *const boundingBox, const int id)
+      : Base(logicalVolume, transformation, boundingBox, id)
+  {
+  }
 #endif
   VECGEOM_CUDA_HEADER_BOTH
   virtual ~PlacedBox() {}
@@ -58,9 +58,7 @@ public:
   // Accessors -- not sure we need this ever (to be deprecated)
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Vector3D<Precision> const& dimensions() const {
-    return GetUnplacedVolume()->dimensions();
-  }
+  Vector3D<Precision> const &dimensions() const { return GetUnplacedVolume()->dimensions(); }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -78,20 +76,19 @@ public:
   virtual void PrintType() const override;
   virtual void PrintType(std::ostream &os) const override;
 
-  // Comparison specific
+// Comparison specific
 #ifndef VECGEOM_NVCC
-  virtual VPlacedVolume const* ConvertToUnspecialized() const override;
+  virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
-  virtual TGeoShape const* ConvertToRoot() const override;
+  virtual TGeoShape const *ConvertToRoot() const override;
 #endif
 #if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-  virtual ::VUSolid const* ConvertToUSolids() const override;
+  virtual ::VUSolid const *ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4
-  virtual G4VSolid const* ConvertToGeant4() const override;
+  virtual G4VSolid const *ConvertToGeant4() const override;
 #endif
 #endif // VECGEOM_NVCC
-
 };
 
 } // end inline namespace

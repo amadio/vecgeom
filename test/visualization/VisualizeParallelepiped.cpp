@@ -8,7 +8,8 @@
 
 using namespace vecgeom;
 
-int main() {
+int main()
+{
   constexpr int nSamples = 10000;
 
   SimpleParallelepiped para("parallelepiped", 10, 7, 20, 30, 30, 45);
@@ -21,8 +22,7 @@ int main() {
     Vector3D<Precision> sample;
     sample = para.GetPointOnSurface();
     inside = para.Inside(sample);
-    if (inside != EnumInside::kSurface)
-      nerrors++;
+    if (inside != EnumInside::kSurface) nerrors++;
     /*
        bool contains;
        do {

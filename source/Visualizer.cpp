@@ -19,85 +19,86 @@
 
 namespace vecgeom {
 
-Visualizer::Visualizer() : fVerbosity(0), fVolumes(), fMarkers(), fLines(), fApp(0), fGeoManager(0) {
+Visualizer::Visualizer() : fVerbosity(0), fVolumes(), fMarkers(), fLines(), fApp(0), fGeoManager(0)
+{
   fApp = new TApplication("VecGeom Visualizer", NULL, NULL);
 }
 
-Visualizer::~Visualizer() {
+Visualizer::~Visualizer()
+{
   delete fApp;
 }
 
-void Visualizer::AddVolume(VPlacedVolume const &volume) {
+void Visualizer::AddVolume(VPlacedVolume const &volume)
+{
   if (fGeoManager) delete fGeoManager;
-  fGeoManager = new TGeoManager("visualizer","");
+  fGeoManager                = new TGeoManager("visualizer", "");
   TGeoShape const *rootShape = volume.ConvertToRoot();
-  fVolumes.push_back(std::make_tuple(
-    std::shared_ptr<const TGeoShape>(rootShape),
-    std::unique_ptr<TGeoMatrix>(new TGeoIdentity()),
-    std::unique_ptr<TGeoVolume>(new TGeoVolume("", rootShape, nullptr))));
+  fVolumes.push_back(std::make_tuple(std::shared_ptr<const TGeoShape>(rootShape),
+                                     std::unique_ptr<TGeoMatrix>(new TGeoIdentity()),
+                                     std::unique_ptr<TGeoVolume>(new TGeoVolume("", rootShape, nullptr))));
   if (fVerbosity > 0) {
     std::cout << "Added volume " << volume << " to Visualizer.\n";
   }
 }
 
-void Visualizer::AddVolume(VPlacedVolume const &volume,
-                           Transformation3D const &transformation) {
+void Visualizer::AddVolume(VPlacedVolume const &volume, Transformation3D const &transformation)
+{
   // Cannot store const pointer because Draw() is not const
   TGeoShape const *rootShape = volume.ConvertToRoot();
-  fVolumes.push_back(std::make_tuple(
-      std::shared_ptr<const TGeoShape>(rootShape),
-      std::unique_ptr<TGeoMatrix>(transformation.ConvertToTGeoMatrix()),
-      std::unique_ptr<TGeoVolume>(new TGeoVolume("", rootShape, nullptr))));
+  fVolumes.push_back(std::make_tuple(std::shared_ptr<const TGeoShape>(rootShape),
+                                     std::unique_ptr<TGeoMatrix>(transformation.ConvertToTGeoMatrix()),
+                                     std::unique_ptr<TGeoVolume>(new TGeoVolume("", rootShape, nullptr))));
   if (fVerbosity > 0) {
     std::cout << "Added volume " << volume << " to Visualizer.\n";
   }
 }
 
-void Visualizer::AddVolume(std::shared_ptr<const TGeoShape> volume) {
-  fVolumes.push_back(std::make_tuple(
-      volume,
-      std::unique_ptr<TGeoMatrix>(new TGeoIdentity),
-      std::unique_ptr<TGeoVolume>(new TGeoVolume("", volume.get(), nullptr))));
+void Visualizer::AddVolume(std::shared_ptr<const TGeoShape> volume)
+{
+  fVolumes.push_back(std::make_tuple(volume, std::unique_ptr<TGeoMatrix>(new TGeoIdentity),
+                                     std::unique_ptr<TGeoVolume>(new TGeoVolume("", volume.get(), nullptr))));
   if (fVerbosity > 0) {
     std::cout << "Added ROOT volume to Visualizer.\n";
   }
 }
 
-void Visualizer::AddVolume(std::shared_ptr<const TGeoShape> volume,
-                           Transformation3D const &transformation) {
-  fVolumes.push_back(std::make_tuple(
-      volume,
-      std::unique_ptr<TGeoMatrix>(transformation.ConvertToTGeoMatrix()),
-      std::unique_ptr<TGeoVolume>(new TGeoVolume("", volume.get(), nullptr))));
+void Visualizer::AddVolume(std::shared_ptr<const TGeoShape> volume, Transformation3D const &transformation)
+{
+  fVolumes.push_back(std::make_tuple(volume, std::unique_ptr<TGeoMatrix>(transformation.ConvertToTGeoMatrix()),
+                                     std::unique_ptr<TGeoVolume>(new TGeoVolume("", volume.get(), nullptr))));
   if (fVerbosity > 0) {
     std::cout << "Added ROOT volume to Visualizer.\n";
   }
 }
 
-void Visualizer::AddPoints(AOS3D<Precision> const &points, int color) {
+void Visualizer::AddPoints(AOS3D<Precision> const &points, int color)
+{
   AddPointsTemplate(points, color);
 }
 
-void Visualizer::AddPoints(SOA3D<Precision> const &points, int color) {
+void Visualizer::AddPoints(SOA3D<Precision> const &points, int color)
+{
   AddPointsTemplate(points, color);
 }
 
-void Visualizer::AddPoint(Vector3D<Precision> const & point, int color ){
-    SOA3D<Precision> c(1);
-    c.push_back( point );
-    AddPoints(c, color);
+void Visualizer::AddPoint(Vector3D<Precision> const &point, int color)
+{
+  SOA3D<Precision> c(1);
+  c.push_back(point);
+  AddPoints(c, color);
 }
 
-void Visualizer::AddPoints(TPolyMarker3D const &marker) {
+void Visualizer::AddPoints(TPolyMarker3D const &marker)
+{
   fMarkers.emplace_back(new TPolyMarker3D(marker));
   if (fVerbosity > 0) {
     std::cout << "Added " << marker.GetN() << " points to Visualizer.\n";
   }
 }
 
-void Visualizer::AddLine(
-    Vector3D<Precision> const &p0,
-    Vector3D<Precision> const &p1) {
+void Visualizer::AddLine(Vector3D<Precision> const &p0, Vector3D<Precision> const &p1)
+{
 
   TPolyLine3D *line = new TPolyLine3D(2);
   line->SetPoint(0, p0[0], p0[1], p0[2]);
@@ -109,34 +110,33 @@ void Visualizer::AddLine(
   }
 }
 
-void Visualizer::AddLine(TPolyLine3D const &line) {
+void Visualizer::AddLine(TPolyLine3D const &line)
+{
   fLines.emplace_back(new TPolyLine3D(line));
-  auto GetPoint = [&line] (int index) {
+  auto GetPoint = [&line](int index) {
     float *pointArray = line.GetP();
-    int offset = 3*index;
-    return Vector3D<Precision>(
-        pointArray[offset], pointArray[offset+1], pointArray[offset+2]);;
+    int offset        = 3 * index;
+    return Vector3D<Precision>(pointArray[offset], pointArray[offset + 1], pointArray[offset + 2]);
+    ;
   };
   if (line.GetN() == 2) {
     if (fVerbosity > 0) {
-      std::cout << "Added line " << GetPoint(0) << "--" << GetPoint(1)
-                << " to Visualizer.\n";
+      std::cout << "Added line " << GetPoint(0) << "--" << GetPoint(1) << " to Visualizer.\n";
     }
   } else {
     if (fVerbosity > 0) {
-      std::cout << "Added line with " << line.GetN()
-                << " points to Visualizer.\n";
+      std::cout << "Added line with " << line.GetN() << " points to Visualizer.\n";
     }
   }
 }
 
-void Visualizer::Show() const {
- TAxis3D axes;
- TGeoVolume *top = fGeoManager->MakeBox("Top", NULL,kInfinity, kInfinity, kInfinity); 
- fGeoManager->SetTopVolume(top);
- for (auto &volume : fVolumes) {
-    top->AddNode(std::get<2>(volume).get(), top->GetNdaughters(),
-                 std::get<1>(volume).get());
+void Visualizer::Show() const
+{
+  TAxis3D axes;
+  TGeoVolume *top = fGeoManager->MakeBox("Top", NULL, kInfinity, kInfinity, kInfinity);
+  fGeoManager->SetTopVolume(top);
+  for (auto &volume : fVolumes) {
+    top->AddNode(std::get<2>(volume).get(), top->GetNdaughters(), std::get<1>(volume).get());
   }
   top->Draw();
   for (auto &marker : fMarkers) {
@@ -150,7 +150,8 @@ void Visualizer::Show() const {
   fApp->Run();
 }
 
-void Visualizer::Clear() {
+void Visualizer::Clear()
+{
   fVolumes.clear();
   fMarkers.clear();
   fLines.clear();
@@ -159,13 +160,15 @@ void Visualizer::Clear() {
   }
 }
 
-void Visualizer::SetVerbosity(int level) {
+void Visualizer::SetVerbosity(int level)
+{
   fVerbosity = level;
 }
 
 template <class ContainerType>
-void Visualizer::AddPointsTemplate(ContainerType const &points, int color) {
-  const int size = points.size();
+void Visualizer::AddPointsTemplate(ContainerType const &points, int color)
+{
+  const int size        = points.size();
   TPolyMarker3D *marker = new TPolyMarker3D(size);
   marker->SetMarkerColor(color);
   marker->SetMarkerSize(1);

@@ -8,20 +8,21 @@
 
 using namespace vecgeom;
 
-int main(int argc, char* argv[]) {
-  OPTION_INT(npoints,1024);
-  OPTION_INT(nrep,4);
-  OPTION_DOUBLE(drmin,1.2);
-  OPTION_DOUBLE(drmax,3.1);
-  OPTION_DOUBLE(drtor,5.);
-  OPTION_DOUBLE(dsphi,0.);
-  OPTION_DOUBLE(ddphi,kTwoPi);
+int main(int argc, char *argv[])
+{
+  OPTION_INT(npoints, 1024);
+  OPTION_INT(nrep, 4);
+  OPTION_DOUBLE(drmin, 1.2);
+  OPTION_DOUBLE(drmax, 3.1);
+  OPTION_DOUBLE(drtor, 5.);
+  OPTION_DOUBLE(dsphi, 0.);
+  OPTION_DOUBLE(ddphi, kTwoPi);
 
-  UnplacedBox worldUnplaced((drtor+drmax)*2, (drtor+drmax)*2 , (drtor+drmax)*2);
+  UnplacedBox worldUnplaced((drtor + drmax) * 2, (drtor + drmax) * 2, (drtor + drmax) * 2);
   UnplacedTorus2 torusUnplaced(drmin, drmax, drtor, dsphi, ddphi);
 
-  LogicalVolume world ("world", &worldUnplaced);
-  LogicalVolume torus ("torus", &torusUnplaced);
+  LogicalVolume world("world", &worldUnplaced);
+  LogicalVolume torus("torus", &torusUnplaced);
 
   Transformation3D placement(0, 0, 0);
   world.PlaceDaughter("torus", &torus, &placement);

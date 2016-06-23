@@ -8,6 +8,4 @@ namespace globaldevicegeomdata {
 __device__ VPlacedVolume *gCompactPlacedVolBuffer;
 //#endif
 }
-
 }
-

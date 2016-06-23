@@ -12,7 +12,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedParallelepiped;)
-VECGEOM_DEVICE_DECLARE_CONV(class,UnplacedParallelepiped)
+VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedParallelepiped)
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -144,7 +144,8 @@ public:
 
   /** @brief Implementation of surface area computation */
   VECGEOM_INLINE
-  Precision SurfaceArea() const {
+  Precision SurfaceArea() const
+  {
     // factor 8 because dimensions_ are half-lengths
     Precision ctinv = 1. / cos(kDegToRad * fTheta);
     return 8.0 * (fDimensions[0] * fDimensions[1] +
@@ -162,12 +163,12 @@ public:
 
   /** @brief Templated factory for creating a placed volume */
   template <TranslationCode transCodeT, RotationCode rotCodeT>
-  VECGEOM_CUDA_HEADER_DEVICE static VPlacedVolume *Create(LogicalVolume const *const logical_volume,
-                                                          Transformation3D const *const transformation,
+  VECGEOM_CUDA_HEADER_DEVICE
+  static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
-                                                          const int id,
+                               const int id,
 #endif
-                                                          VPlacedVolume *const placement = NULL);
+                               VPlacedVolume *const placement = NULL);
 
 #ifdef VECGEOM_CUDA_INTERFACE
   virtual size_t DeviceSizeOf() const { return DevicePtr<cuda::UnplacedParallelepiped>::SizeOf(); }

@@ -27,12 +27,12 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 // a singleton class which manages a particular helper structure for voxelized navigation
-// the helper structure is a hybrid between a flat list of aligned bounding boxed and a pure boundary volume hierarchy (BVH)
+// the helper structure is a hybrid between a flat list of aligned bounding boxed and a pure boundary volume hierarchy
+// (BVH)
 // and is hence called "HybridManager": TODO: come up with a more appropriate name
 class HybridManager2 {
 
 public:
-
   using Float_v = vecgeom::VectorBackend::Float_v;
   typedef float Real_t;
   typedef Vector3D<Float_v> ABBox_v;
@@ -61,25 +61,28 @@ private:
   std::vector<ABBoxContainer_v> fVolumeToABBoxes_v; // at lvol->id() stores continuous bounding box array
 
   std::vector<std::vector<int> *> fNodeToDaughters; // access by internal node index, returns vector of daughterindices
-  std::vector<std::vector<int> *> fNodeToDaughters_v; //access by internal node index, returns vector of daughterindices
+  std::vector<std::vector<int> *> fNodeToDaughters_v; // access by internal node index, returns vector of
+                                                      // daughterindices
 
 public:
   // initialized the helper structure for a given logical volume
   void InitStructure(LogicalVolume const *lvol);
 
   // initialized the helper structure for the complete geometry
-  void InitVoxelStructureForCompleteGeometry() {
+  void InitVoxelStructureForCompleteGeometry()
+  {
     std::vector<LogicalVolume const *> logicalvolumes;
     GeoManager::Instance().GetAllLogicalVolumes(logicalvolumes);
     // size containers
     fVolumeToABBoxes.resize(GeoManager::Instance().GetRegisteredVolumesCount(), nullptr);
     fVolumeToABBoxes_v.resize(GeoManager::Instance().GetRegisteredVolumesCount(), nullptr);
     for (auto lvol : logicalvolumes) {
-          InitStructure(lvol);
-        }
+      InitStructure(lvol);
+    }
   }
 
-  static HybridManager2 &Instance() {
+  static HybridManager2 &Instance()
+  {
     static HybridManager2 manager;
     return manager;
   }
@@ -87,30 +90,33 @@ public:
   // removed/deletes the helper structure for a given logical volume
   void RemoveStructure(LogicalVolume const *lvol);
 
-  template <typename C, typename Compare> static void sort(C &v, Compare cmp) { std::sort(v.begin(), v.end(), cmp); }
+  template <typename C, typename Compare>
+  static void sort(C &v, Compare cmp)
+  {
+    std::sort(v.begin(), v.end(), cmp);
+  }
 
   // verbose output of helper structure
   VPlacedVolume const *PrintHybrid(LogicalVolume const *) const;
 
   // returns half the number of nodes in vector, e.g. half the size of fVolumeToABBoxes[lvol->id()]
-  ABBoxContainer_t GetABBoxes(LogicalVolume const *lvol, int &numberOfNodes) const {
-    constexpr auto kVS = vecCore::VectorSize<Float_v>();
-    int numberOfFirstLevelNodes =
-        lvol->GetDaughters().size() / kVS + (lvol->GetDaughters().size() % kVS == 0 ? 0 : 1);
-    numberOfNodes = numberOfFirstLevelNodes + lvol->GetDaughters().size();
-    assert(fVolumeToABBoxes[lvol->id()]!=nullptr);
+  ABBoxContainer_t GetABBoxes(LogicalVolume const *lvol, int &numberOfNodes) const
+  {
+    constexpr auto kVS          = vecCore::VectorSize<Float_v>();
+    int numberOfFirstLevelNodes = lvol->GetDaughters().size() / kVS + (lvol->GetDaughters().size() % kVS == 0 ? 0 : 1);
+    numberOfNodes               = numberOfFirstLevelNodes + lvol->GetDaughters().size();
+    assert(fVolumeToABBoxes[lvol->id()] != nullptr);
     return fVolumeToABBoxes[lvol->id()];
   }
 
   // returns half the number of vector registers to store all the nodes
-  ABBoxContainer_v GetABBoxes_v(LogicalVolume const *lvol, int &size, int &numberOfNodes) const {
-    constexpr auto kVS = vecCore::VectorSize<Float_v>();
-    int numberOfFirstLevelNodes =
-        lvol->GetDaughters().size() / kVS + (lvol->GetDaughters().size() % kVS == 0 ? 0 : 1);
-    numberOfNodes = numberOfFirstLevelNodes + lvol->GetDaughters().size();
-    size = numberOfFirstLevelNodes / kVS + (numberOfFirstLevelNodes % kVS == 0 ? 0 : 1) +
-           numberOfFirstLevelNodes;
-    assert(fVolumeToABBoxes[lvol->id()]!=nullptr);
+  ABBoxContainer_v GetABBoxes_v(LogicalVolume const *lvol, int &size, int &numberOfNodes) const
+  {
+    constexpr auto kVS          = vecCore::VectorSize<Float_v>();
+    int numberOfFirstLevelNodes = lvol->GetDaughters().size() / kVS + (lvol->GetDaughters().size() % kVS == 0 ? 0 : 1);
+    numberOfNodes               = numberOfFirstLevelNodes + lvol->GetDaughters().size();
+    size = numberOfFirstLevelNodes / kVS + (numberOfFirstLevelNodes % kVS == 0 ? 0 : 1) + numberOfFirstLevelNodes;
+    assert(fVolumeToABBoxes[lvol->id()] != nullptr);
     return fVolumeToABBoxes_v[lvol->id()];
   }
 
@@ -129,7 +135,8 @@ private:
   void RecalculateCentres(SOA3D<Precision> &centers, SOA3D<Precision> const &allvolumecenters,
                           std::vector<std::vector<int>> const &clusters);
   struct OrderByDistance {
-    bool operator()(std::pair<int, Precision> const &a, std::pair<int, Precision> const &b) {
+    bool operator()(std::pair<int, Precision> const &a, std::pair<int, Precision> const &b)
+    {
       return a.second < b.second;
     }
   };
@@ -139,12 +146,13 @@ private:
                                SOA3D<Precision> const &allvolumecenters);
   void BuildStructure(LogicalVolume const *vol);
   void BuildStructure_v(LogicalVolume const *vol);
-  static bool IsBiggerCluster(std::vector<int> const &first, std::vector<int> const &second) {
+  static bool IsBiggerCluster(std::vector<int> const &first, std::vector<int> const &second)
+  {
     return first.size() > second.size();
   }
 
 }; // end class
-
-}} // end namespace
+}
+} // end namespace
 
 #endif

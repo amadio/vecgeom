@@ -11,14 +11,13 @@
 
 using namespace vecgeom;
 
-int main(){
-    // used to test compilation
-    VSafetyEstimator * estimator = SimpleSafetyEstimator::Instance();
-    std::cerr <<  estimator->GetName() << "\n";
+int main()
+{
+  // used to test compilation
+  VSafetyEstimator *estimator = SimpleSafetyEstimator::Instance();
+  std::cerr << estimator->GetName() << "\n";
 
-    estimator = SimpleABBoxSafetyEstimator::Instance();
-    std::cerr <<  estimator->GetName() << "\n";
-    return 0;
+  estimator = SimpleABBoxSafetyEstimator::Instance();
+  std::cerr << estimator->GetName() << "\n";
+  return 0;
 }
-
-

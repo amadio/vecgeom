@@ -34,11 +34,10 @@
 #define __itt_start()
 #endif
 
-
 namespace vecgeom {
 
-VECGEOM_HOST_FORWARD_DECLARE( class VPlacedVolume; );
-VECGEOM_DEVICE_FORWARD_DECLARE( class VolumePointers; );
+VECGEOM_HOST_FORWARD_DECLARE(class VPlacedVolume;);
+VECGEOM_DEVICE_FORWARD_DECLARE(class VolumePointers;);
 
 /// \brief Benchmarks geometry methods of arbitrary volumes for different
 ///        backends and compares to any included external libraries.
@@ -55,7 +54,7 @@ VECGEOM_DEVICE_FORWARD_DECLARE( class VolumePointers; );
 class Benchmarker {
 
 public:
-    typedef typename std::vector< std::pair< Vector3D<Precision>, Vector3D<Precision> > > RayContainer;
+  typedef typename std::vector<std::pair<Vector3D<Precision>, Vector3D<Precision>>> RayContainer;
 
 private:
   using VPlacedVolume_t = cxx::VPlacedVolume const *;
@@ -78,15 +77,15 @@ private:
 
   // containers to store problematic points
   // this can be filled during evaluation
-  std::vector< Vector3D<Precision> > fProblematicContainPoints;
+  std::vector<Vector3D<Precision>> fProblematicContainPoints;
 
   // a container storing rays : startpoint (Vector3D) plus direction (Vector3D)
   RayContainer fProblematicRays;
 
-  // flags indicating whether it is ok to run ROOT/USOLIDS/G4
-  // because in some cases a conversion might not exist
-  // the Benchmarker class will check this at initialization and
-  // set these flags accordingly
+// flags indicating whether it is ok to run ROOT/USOLIDS/G4
+// because in some cases a conversion might not exist
+// the Benchmarker class will check this at initialization and
+// set these flags accordingly
 #ifdef VECGEOM_USOLIDS
   bool fOkToRunUSOLIDS;
 #endif
@@ -98,25 +97,24 @@ private:
 #endif
 
 #if defined(VECGEOM_VTUNE)
-  __itt_domain* __itt_RunInsideBenchmark = __itt_domain_create("RunInsideBenchmark");
-  __itt_domain* __itt_RunToInBenchmark = __itt_domain_create("RunToInBenchmark");
-  __itt_domain* __itt_RunToOutBenchmark = __itt_domain_create("RunToOutBenchmark");
+  __itt_domain *__itt_RunInsideBenchmark = __itt_domain_create("RunInsideBenchmark");
+  __itt_domain *__itt_RunToInBenchmark   = __itt_domain_create("RunToInBenchmark");
+  __itt_domain *__itt_RunToOutBenchmark  = __itt_domain_create("RunToOutBenchmark");
 
-  __itt_string_handle* __itt_RunInsideSpecialized = __itt_string_handle_create("RunInsideSpecialized");
-  __itt_string_handle* __itt_RunInsideVectorized = __itt_string_handle_create("RunInsideVectorized");
-  __itt_string_handle* __itt_RunInsideUnspecialized = __itt_string_handle_create("RunInsideUnspecialized");
+  __itt_string_handle *__itt_RunInsideSpecialized   = __itt_string_handle_create("RunInsideSpecialized");
+  __itt_string_handle *__itt_RunInsideVectorized    = __itt_string_handle_create("RunInsideVectorized");
+  __itt_string_handle *__itt_RunInsideUnspecialized = __itt_string_handle_create("RunInsideUnspecialized");
 
-  __itt_string_handle* __itt_RunToInSpecialized = __itt_string_handle_create("RunToInSpecialized");
-  __itt_string_handle* __itt_RunToInVectorized = __itt_string_handle_create("RunToInVectorized");
-  __itt_string_handle* __itt_RunToInUnspecialized = __itt_string_handle_create("RunToInUnspecialized");
+  __itt_string_handle *__itt_RunToInSpecialized   = __itt_string_handle_create("RunToInSpecialized");
+  __itt_string_handle *__itt_RunToInVectorized    = __itt_string_handle_create("RunToInVectorized");
+  __itt_string_handle *__itt_RunToInUnspecialized = __itt_string_handle_create("RunToInUnspecialized");
 
-  __itt_string_handle* __itt_RunToOutSpecialized = __itt_string_handle_create("RunToOutSpecialized");
-  __itt_string_handle* __itt_RunToOutVectorized = __itt_string_handle_create("RunToOutVectorized");
-  __itt_string_handle* __itt_RunToOutUnspecialized = __itt_string_handle_create("RunToOutUnspecialized");
+  __itt_string_handle *__itt_RunToOutSpecialized   = __itt_string_handle_create("RunToOutSpecialized");
+  __itt_string_handle *__itt_RunToOutVectorized    = __itt_string_handle_create("RunToOutVectorized");
+  __itt_string_handle *__itt_RunToOutUnspecialized = __itt_string_handle_create("RunToOutUnspecialized");
 #endif
 
 public:
-
   Benchmarker();
 
   /// \param world Mother volume containing daughters that will be benchmarked.
@@ -129,20 +127,14 @@ public:
   /// \brief set tolerance for comparisons
   void SetTolerance(Precision tol) { fTolerance = tol; }
 
-
   /// \brief get pointer to PointPool (in order to make data available to external users);
-  SOA3D<Precision> const * GetPointPool() const {
-      return fPointPool;
-  }
+  SOA3D<Precision> const *GetPointPool() const { return fPointPool; }
 
-  SOA3D<Precision> const * GetDirectionPool() const {
-      return fDirectionPool;
-  }
+  SOA3D<Precision> const *GetDirectionPool() const { return fDirectionPool; }
 
   /// \brief Runs all geometry benchmarks.
   /// return 0 if no error found; returns 1 if error found
   int RunBenchmark();
-
 
   /// \brief Runs some meta information functions (such as surface arrea, volume and so on) on registered shapes
   /// checks if this information agrees across different implementations (VecGeom, ROOT, Geant4, ...)
@@ -209,7 +201,7 @@ public:
   /// \param Multiplier for the pool of sampled points and directions.
   ///
   /// Can be increased to simulate more random access of memory, but will
-  /// disable comparison of output.     
+  /// disable comparison of output.
   void SetPoolMultiplier(const unsigned poolMultiplier);
 
   /// \param verbosity Regulates the amount of information printed to standard
@@ -222,20 +214,16 @@ public:
   void SetVerbosity(const int verbosity) { fVerbosity = verbosity; }
 
   /// \param Amount of iterations to run the benchmarks.
-  void SetRepetitions(const unsigned repetitions) {
-    fRepetitions = repetitions;
-  }
+  void SetRepetitions(const unsigned repetitions) { fRepetitions = repetitions; }
 
   /// \param Number of time measurements taken, for same set of input data (random tracks)
-  void SetMeasurementCount(const unsigned nmeas) {
-    fMeasurementCount = nmeas;
-  }
+  void SetMeasurementCount(const unsigned nmeas) { fMeasurementCount = nmeas; }
 
   /// \param World volume containing daughters to be benchmarked.
   void SetWorld(VPlacedVolume_t const world);
 
   /// \return List of results of previously performed benchmarks.
-  std::list<BenchmarkResult> const& GetResults() const { return fResults; }
+  std::list<BenchmarkResult> const &GetResults() const { return fResults; }
 
   /// \return List of results of previously performed benchmarks. Clears the internal history.
   std::list<BenchmarkResult> PopResults();
@@ -243,38 +231,26 @@ public:
   /// Clear the internal list of results, e.g. to start a new set of results for output
   void ClearResults() { fResults.clear(); }
 
-  std::vector<Vector3D<Precision> > const & GetProblematicContainPoints() const {
-      return fProblematicContainPoints;
-  }
+  std::vector<Vector3D<Precision>> const &GetProblematicContainPoints() const { return fProblematicContainPoints; }
 
-  RayContainer const & GetProblematicRays() const {
-        return fProblematicRays;
-  }
+  RayContainer const &GetProblematicRays() const { return fProblematicRays; }
 
 private:
-    
   void GenerateVolumePointers(VPlacedVolume_t const vol);
 
-  BenchmarkResult GenerateBenchmarkResult(const double elapsed,
-                                          const EBenchmarkedMethod method,
-                                          const EBenchmarkedLibrary library,
-                                          const double bias) const;
+  BenchmarkResult GenerateBenchmarkResult(const double elapsed, const EBenchmarkedMethod method,
+                                          const EBenchmarkedLibrary library, const double bias) const;
   void RunInsideSpecialized(bool *contains, Inside_t *inside);
-  void RunToInSpecialized(Precision *distances,
-                          Precision *safeties);
-  void RunToOutSpecialized(Precision *distances,
-                           Precision *safeties);
+  void RunToInSpecialized(Precision *distances, Precision *safeties);
+  void RunToOutSpecialized(Precision *distances, Precision *safeties);
 
   void RunInsideVectorized(bool *contains, Inside_t *inside);
   void RunToInVectorized(Precision *distances, Precision *safeties);
-  void RunToOutVectorized(Precision *distances,
-                          Precision *safeties);
+  void RunToOutVectorized(Precision *distances, Precision *safeties);
 
   void RunInsideUnspecialized(bool *contains, Inside_t *inside);
-  void RunToInUnspecialized(Precision *distances,
-                            Precision *safeties);
-  void RunToOutUnspecialized(Precision *distances,
-                             Precision *safeties);
+  void RunToInUnspecialized(Precision *distances, Precision *safeties);
+  void RunToOutUnspecialized(Precision *distances, Precision *safeties);
 
 #ifdef VECGEOM_USOLIDS
   void RunInsideUSolids(::VUSolid::EnumInside *inside);
@@ -292,69 +268,52 @@ private:
   void RunToOutGeant4(double *distances, Precision *safeties);
 #endif
 #ifdef VECGEOM_CUDA
-  void RunInsideCuda(
-    Precision *posX, Precision *posY,
-    Precision *posZ, bool *contains, Inside_t *inside);
-  void RunToInCuda(
-    Precision *posX, Precision *posY,
-    Precision *posZ, Precision *dirX,
-    Precision *dirY, Precision *dirZ,
-    Precision *distances, Precision *safeties);
-  void RunToOutCuda(
-    Precision *posX, Precision *posY,
-    Precision *posZ, Precision *dirX,
-    Precision *dirY, Precision *dirZ,
-    Precision *distances, Precision *safeties);
-  void GetVolumePointers( std::list<cxx::DevicePtr<cuda::VPlacedVolume> > &volumesGpu );
+  void RunInsideCuda(Precision *posX, Precision *posY, Precision *posZ, bool *contains, Inside_t *inside);
+  void RunToInCuda(Precision *posX, Precision *posY, Precision *posZ, Precision *dirX, Precision *dirY, Precision *dirZ,
+                   Precision *distances, Precision *safeties);
+  void RunToOutCuda(Precision *posX, Precision *posY, Precision *posZ, Precision *dirX, Precision *dirY,
+                    Precision *dirZ, Precision *distances, Precision *safeties);
+  void GetVolumePointers(std::list<cxx::DevicePtr<cuda::VPlacedVolume>> &volumesGpu);
 #endif
 
   template <typename Type>
-  Type* AllocateAligned() const;
+  Type *AllocateAligned() const;
 
   template <typename Type>
   static void FreeAligned(Type *const distance);
 
   // internal method to crosscheck results; fills a container with problematic cases
-  int CompareDistances(
-    SOA3D<Precision> *points,
-    SOA3D<Precision> *directions,
-    Precision const *const specialized,
-    Precision const *const vectorized,
-    Precision const *const unspecialized,
+  int CompareDistances(SOA3D<Precision> *points, SOA3D<Precision> *directions, Precision const *const specialized,
+                       Precision const *const vectorized, Precision const *const unspecialized,
 #ifdef VECGEOM_ROOT
-    Precision const *const root,
+                       Precision const *const root,
 #endif
 #ifdef VECGEOM_USOLIDS
-    Precision const *const usolids,
+                       Precision const *const usolids,
 #endif
 #ifdef VECGEOM_GEANT4
-    Precision const *const geant4,
+                       Precision const *const geant4,
 #endif
 #ifdef VECGEOM_CUDA
-    Precision const *const cuda,
+                       Precision const *const cuda,
 #endif
-    char const *const method);
+                       char const *const method);
 
-  int CompareSafeties(
-    SOA3D<Precision> *points,
-    SOA3D<Precision> *directions,
-    Precision const *const specialized,
-    Precision const *const vectorized,
-    Precision const *const unspecialized,
+  int CompareSafeties(SOA3D<Precision> *points, SOA3D<Precision> *directions, Precision const *const specialized,
+                      Precision const *const vectorized, Precision const *const unspecialized,
 #ifdef VECGEOM_ROOT
-    Precision const *const root,
+                      Precision const *const root,
 #endif
 #ifdef VECGEOM_USOLIDS
-    Precision const *const usolids,
+                      Precision const *const usolids,
 #endif
 #ifdef VECGEOM_GEANT4
-    Precision const *const geant4,
+                      Precision const *const geant4,
 #endif
 #ifdef VECGEOM_CUDA
-    Precision const *const cuda,
+                      Precision const *const cuda,
 #endif
-    char const *const method) const;
-  
+                      char const *const method) const;
 };
 
 } // End namespace vecgeom

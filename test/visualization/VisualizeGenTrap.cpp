@@ -6,7 +6,8 @@
 
 using namespace vecgeom;
 
-int main() {
+int main()
+{
   constexpr int nSamples = 10000;
   Precision verticesx[8] = {-3, -2.5, 3, 2.5, -2, -2, 2, 2};
   Precision verticesy[8] = {-2.5, 3, 2.5, -3, -2, 2, 2, -2};
@@ -21,8 +22,7 @@ int main() {
     Vector3D<Precision> sample;
     sample = trap.GetPointOnSurface();
     inside = trap.Inside(sample);
-    if (inside != EnumInside::kSurface)
-      nerrors++;
+    if (inside != EnumInside::kSurface) nerrors++;
     /*
        bool contains;
        do {

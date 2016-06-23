@@ -15,7 +15,8 @@
 // typedef UCons Cone_t;
 typedef vecgeom::SimpleTrd Trd_t;
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
   if (argc == 1) {
     std::cout << "Usage: shape_testTrd -test <#>:\n"
                  "       0 - Constant dx/dy (box)\n"
@@ -26,7 +27,7 @@ int main(int argc, char *argv[]) {
                  "       5 - USolids\n";
   }
   OPTION_INT(test, 0);
-  int errCode = 0;
+  int errCode    = 0;
   VUSolid *solid = 0;
 
   switch (test) {

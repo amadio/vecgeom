@@ -4,7 +4,8 @@
 
 using namespace vecgeom;
 
-int main() {
+int main()
+{
   constexpr int nSamples = 512;
   SimpleParaboloid parabolid("Visualizer Paraboloid", 2., 5., 8.);
   AOS3D<Precision> points(nSamples);
@@ -18,7 +19,7 @@ int main() {
   points.resize(nSamples);
   Visualizer visualizer;
   visualizer.AddVolume(parabolid);
-  //visualizer.AddPoints(points);
+  // visualizer.AddPoints(points);
   visualizer.Show();
   return 0;
 }

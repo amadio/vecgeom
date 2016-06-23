@@ -13,25 +13,28 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 struct kScalar {
-  typedef int       int_v;
+  typedef int int_v;
   typedef Precision precision_v;
-  typedef bool      bool_v;
-  typedef Inside_t  inside_v;
+  typedef bool bool_v;
+  typedef Inside_t inside_v;
   const static bool early_returns = true;
   // alternative typedefs ( might supercede above typedefs )
-  typedef int                   Int_t;
-  typedef Precision       Double_t;
+  typedef int Int_t;
+  typedef Precision Double_t;
   typedef bool Bool_t;
-  typedef int  Index_t; // the type of indices
+  typedef int Index_t; // the type of indices
 
-  constexpr static precision_v kOne = 1.0;
+  constexpr static precision_v kOne  = 1.0;
   constexpr static precision_v kZero = 0.0;
-  const static bool_v kTrue = true;
-  const static bool_v kFalse = false;
+  const static bool_v kTrue          = true;
+  const static bool_v kFalse         = false;
 
   template <class Backend>
   VECGEOM_CUDA_HEADER_BOTH
-  static VECGEOM_CONSTEXPR_RETURN bool IsEqual() { return false; }
+  static VECGEOM_CONSTEXPR_RETURN bool IsEqual()
+  {
+    return false;
+  }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -40,64 +43,69 @@ struct kScalar {
 
 template <>
 VECGEOM_CUDA_HEADER_BOTH
-inline VECGEOM_CONSTEXPR_RETURN bool kScalar::IsEqual<kScalar>() {
+inline VECGEOM_CONSTEXPR_RETURN bool kScalar::IsEqual<kScalar>()
+{
   return true;
 }
 
-typedef kScalar::int_v    ScalarInt;
+typedef kScalar::int_v ScalarInt;
 typedef kScalar::precision_v ScalarDouble;
-typedef kScalar::bool_v   ScalarBool;
+typedef kScalar::bool_v ScalarBool;
 
 #ifdef VECGEOM_SCALAR
 constexpr size_t kVectorSize = 1;
-#define VECGEOM_BACKEND_TYPE         vecgeom::kScalar
+#define VECGEOM_BACKEND_TYPE vecgeom::kScalar
 #define VECGEOM_BACKEND_PRECISION_FROM_PTR(P) (*(P))
-#define VECGEOM_BACKEND_PRECISION_TYPE        vecgeom::Precision
-#define VECGEOM_BACKEND_PRECISION_TYPE_SIZE   1
+#define VECGEOM_BACKEND_PRECISION_TYPE vecgeom::Precision
+#define VECGEOM_BACKEND_PRECISION_TYPE_SIZE 1
 //#define VECGEOM_BACKEND_PRECISION_NOT_SCALAR
-#define VECGEOM_BACKEND_BOOL         vecgeom::ScalarBool
-#define VECGEOM_BACKEND_INSIDE       vecgeom::kScalar::inside_v
+#define VECGEOM_BACKEND_BOOL vecgeom::ScalarBool
+#define VECGEOM_BACKEND_INSIDE vecgeom::kScalar::inside_v
 #endif
 
 template <typename Type>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-void CondAssign(const bool cond,
-                Type const &thenval, Type const &elseval, Type *const output) {
+VECGEOM_CUDA_HEADER_BOTH
+void CondAssign(const bool cond, Type const &thenval, Type const &elseval, Type *const output)
+{
   *output = (cond) ? thenval : elseval;
 }
 
 template <typename Type>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-void MaskedAssign(const bool cond,
-                  Type const &thenval, Type *const output) {
+VECGEOM_CUDA_HEADER_BOTH
+void MaskedAssign(const bool cond, Type const &thenval, Type *const output)
+{
   *output = (cond) ? thenval : *output;
 }
 
 template <typename Type>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-void StoreTo(Type const &what, Type *toAddr) {
+VECGEOM_CUDA_HEADER_BOTH
+void StoreTo(Type const &what, Type *toAddr)
+{
   *toAddr = what;
 }
 
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-bool IsFull(bool const &cond){
-    return cond;
-}
-
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
-bool Any(bool const &cond) {
+bool IsFull(bool const &cond)
+{
   return cond;
 }
 
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-bool IsEmpty(bool const &cond){
-    return !cond;
+bool Any(bool const &cond)
+{
+  return cond;
+}
+
+VECGEOM_CUDA_HEADER_BOTH
+VECGEOM_INLINE
+bool IsEmpty(bool const &cond)
+{
+  return !cond;
 }
 
 /* template <typename Type> */
@@ -108,76 +116,85 @@ bool IsEmpty(bool const &cond){
 /* } */
 
 template <typename Type>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-Type Pow(Type const &x, int arg) {
-   return pow(x,arg);
+VECGEOM_CUDA_HEADER_BOTH
+Type Pow(Type const &x, int arg)
+{
+  return pow(x, arg);
 }
 
 template <typename Type>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-Type Abs(const Type val) {
+VECGEOM_CUDA_HEADER_BOTH
+Type Abs(const Type val)
+{
   return fabs(val);
 }
 
 template <typename Type>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-Type Sqrt(const Type val) {
+VECGEOM_CUDA_HEADER_BOTH
+Type Sqrt(const Type val)
+{
   return std::sqrt(val);
 }
 
 template <typename Type>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-Type Log(const Type val) {
+VECGEOM_CUDA_HEADER_BOTH
+Type Log(const Type val)
+{
   return std::log(val);
 }
 
 template <typename Type>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-Type ACos(const Type val) {
+VECGEOM_CUDA_HEADER_BOTH
+Type ACos(const Type val)
+{
   return std::acos(val);
 }
 
 template <typename Type>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-Type Tan(const Type val) {
+VECGEOM_CUDA_HEADER_BOTH
+Type Tan(const Type val)
+{
   return std::tan(val);
 }
 
 template <typename Type>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-Type Pow(const Type val1, const Type val2) {
+VECGEOM_CUDA_HEADER_BOTH
+Type Pow(const Type val1, const Type val2)
+{
   return std::pow(val1, val2);
 }
 
 template <typename Type>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-Type Cbrt(const Type val1) {
+VECGEOM_CUDA_HEADER_BOTH
+Type Cbrt(const Type val1)
+{
   return cbrt(val1);
 }
 
-
 template <typename Type>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-Type ATan2(const Type y, const Type x) {
-  if (x != 0) return  std::atan2(y, x);
-  if (y >  0) return  kPi / 2;
-  if (y <  0) return -kPi / 2;
-  return  0;
+VECGEOM_CUDA_HEADER_BOTH
+Type ATan2(const Type y, const Type x)
+{
+  if (x != 0) return std::atan2(y, x);
+  if (y > 0) return kPi / 2;
+  if (y < 0) return -kPi / 2;
+  return 0;
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-T Min(T const &val1, T const &val2) {
+VECGEOM_CUDA_HEADER_BOTH
+T Min(T const &val1, T const &val2)
+{
 #ifndef VECGEOM_NVCC_DEVICE
   return std::min(val1, val2);
 #else
@@ -186,9 +203,10 @@ T Min(T const &val1, T const &val2) {
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-T Max(T const &val1, T const &val2) {
+VECGEOM_CUDA_HEADER_BOTH
+T Max(T const &val1, T const &val2)
+{
 #ifndef VECGEOM_NVCC_DEVICE
   return std::max(val1, val2);
 #else
@@ -198,38 +216,44 @@ T Max(T const &val1, T const &val2) {
 
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-Precision sin(const Precision radians) {
+Precision sin(const Precision radians)
+{
   return std::sin(radians);
 }
 
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-Precision cos(const Precision radians) {
+Precision cos(const Precision radians)
+{
   return std::cos(radians);
 }
 
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-Precision tan(const Precision radians) {
+Precision tan(const Precision radians)
+{
   return std::tan(radians);
 }
 
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-Precision Floor( Precision val ){
-    return std::floor(val);
+Precision Floor(Precision val)
+{
+  return std::floor(val);
 }
 
 VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-double CopySign(double x, double y){
-    return copysign(x,y);
+double CopySign(double x, double y)
+{
+  return copysign(x, y);
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-bool IsInf( T x ){
+VECGEOM_CUDA_HEADER_BOTH
+bool IsInf(T x)
+{
 #ifndef VECGEOM_NVCC_DEVICE
   return std::isinf(x);
 #else
@@ -239,62 +263,69 @@ bool IsInf( T x ){
 
 #ifndef VECGEOM_USOLIDS
 template <typename Type>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-void swap(Type &a, Type &b) {
+VECGEOM_CUDA_HEADER_BOTH
+void swap(Type &a, Type &b)
+{
   std::swap(a, b);
 }
 #endif
 
 template <typename Type>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-void copy(Type const *begin, Type const *const end, Type *const target) {
+VECGEOM_CUDA_HEADER_BOTH
+void copy(Type const *begin, Type const *const end, Type *const target)
+{
 #ifndef VECGEOM_NVCC_DEVICE
   std::copy(begin, end, target);
 #else
-  std::memcpy(target, begin, sizeof(Type)*(end-begin));
+  std::memcpy(target, begin, sizeof(Type) * (end - begin));
 #endif
 }
 
 template <typename Type>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-void reverse_copy(Type const *const begin, Type const *end,
-                  Type *const target) {
+VECGEOM_CUDA_HEADER_BOTH
+void reverse_copy(Type const *const begin, Type const *end, Type *const target)
+{
 #ifndef VECGEOM_NVCC_DEVICE
   std::reverse_copy(begin, end, target);
 #else
-  while (--end >= begin) *target++ = *end;
+  while (--end >= begin)
+    *target++ = *end;
 #endif
 }
 
 template <typename Type>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-void reverse(Type *begin, Type *end) {
+VECGEOM_CUDA_HEADER_BOTH
+void reverse(Type *begin, Type *end)
+{
 #ifndef VECGEOM_NVCC_DEVICE
   std::reverse(begin, end);
 #else
-  while (begin++ < end--) swap(begin, end);
+  while (begin++ < end--)
+    swap(begin, end);
 #endif
 }
 
 template <typename Type>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-Type* AlignedAllocate(size_t size) {
+VECGEOM_CUDA_HEADER_BOTH
+Type *AlignedAllocate(size_t size)
+{
 #ifndef VECGEOM_NVCC
-  return static_cast<Type*>(_mm_malloc(sizeof(Type)*size, kAlignmentBoundary));
+  return static_cast<Type *>(_mm_malloc(sizeof(Type) * size, kAlignmentBoundary));
 #else
   return new Type[size];
 #endif
 }
 
 template <typename Type>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-void AlignedFree(Type *allocated) {
+VECGEOM_CUDA_HEADER_BOTH
+void AlignedFree(Type *allocated)
+{
 #ifndef VECGEOM_NVCC
   _mm_free(allocated);
 #else
@@ -303,23 +334,26 @@ void AlignedFree(Type *allocated) {
 }
 
 template <typename IteratorType>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-IteratorType min_element(IteratorType first, IteratorType last) {
+VECGEOM_CUDA_HEADER_BOTH
+IteratorType min_element(IteratorType first, IteratorType last)
+{
   return std::min_element(first, last);
 }
 
 template <typename IteratorType>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-bool all_of(IteratorType first, IteratorType last) {
-  return std::all_of(first, last, [](bool b){return b;});
+VECGEOM_CUDA_HEADER_BOTH
+bool all_of(IteratorType first, IteratorType last)
+{
+  return std::all_of(first, last, [](bool b) { return b; });
 }
 
 template <typename InputIterator1, typename InputIterator2>
-VECGEOM_CUDA_HEADER_BOTH
 VECGEOM_INLINE
-bool equal(InputIterator1 first, InputIterator1 last, InputIterator2 target) {
+VECGEOM_CUDA_HEADER_BOTH
+bool equal(InputIterator1 first, InputIterator1 last, InputIterator2 target)
+{
 #ifndef VECGEOM_NVCC_DEVICE
   return std::equal(first, last, target);
 #else
@@ -329,7 +363,7 @@ bool equal(InputIterator1 first, InputIterator1 last, InputIterator2 target) {
   return true;
 #endif
 }
-
-} } // End global namespace
+}
+} // End global namespace
 
 #endif // VECGEOM_BACKEND_SCALARBACKEND_H_

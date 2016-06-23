@@ -9,63 +9,52 @@
 
 using namespace vecgeom;
 
-
 int main()
 {
-    UnplacedBox worldUnplaced(10.,10.,10.);
-    LogicalVolume world ("world", &worldUnplaced);
+  UnplacedBox worldUnplaced(10., 10., 10.);
+  LogicalVolume world("world", &worldUnplaced);
 
-    // components for boolean solid
-    UnplacedBox motherbox(5.,5.,5.);
-    UnplacedTube subtractedtube(0.5,2.,2.,0,2.*M_PI);
+  // components for boolean solid
+  UnplacedBox motherbox(5., 5., 5.);
+  UnplacedTube subtractedtube(0.5, 2., 2., 0, 2. * M_PI);
 
-    // translation for boolean solid right shape
-    Transformation3D translation(-2.5,0,0);
+  // translation for boolean solid right shape
+  Transformation3D translation(-2.5, 0, 0);
 
-    // we will also subtract another small box
-    UnplacedBox subtractedbox(1, 1, 1);
-    Transformation3D translation2( 4, 4, 4);
+  // we will also subtract another small box
+  UnplacedBox subtractedbox(1, 1, 1);
+  Transformation3D translation2(4, 4, 4);
 
+  VPlacedVolume *placedsubtractedtube = (new LogicalVolume("", &subtractedtube))->Place(&translation);
+  VPlacedVolume *placedmotherbox      = (new LogicalVolume("", &motherbox))->Place();
 
+  VPlacedVolume *placedsubtractedbox = (new LogicalVolume("", &subtractedbox))->Place(&translation2);
 
-    VPlacedVolume * placedsubtractedtube
-        = (new LogicalVolume("",&subtractedtube))->Place(&translation);
-    VPlacedVolume * placedmotherbox = (new LogicalVolume("",&motherbox))->Place();
+  // now make the unplaced boolean solid
+  UnplacedBooleanVolume booleansolid(kSubtraction, placedmotherbox, placedsubtractedtube);
+  LogicalVolume booleanlogical("booleanL", &booleansolid);
 
-    VPlacedVolume * placedsubtractedbox
-        = ( new LogicalVolume("",&subtractedbox))->Place(&translation2);
+  UnplacedBooleanVolume booleansolid2(kSubtraction, booleanlogical.Place(), placedsubtractedbox);
 
-    // now make the unplaced boolean solid
-    UnplacedBooleanVolume booleansolid(kSubtraction, placedmotherbox, placedsubtractedtube);
-    LogicalVolume booleanlogical("booleanL",&booleansolid);
+  LogicalVolume booleanlogical2("booleanL2", &booleansolid2);
 
+  // place the boolean volume into the world
 
-    UnplacedBooleanVolume booleansolid2(kSubtraction,
-            booleanlogical.Place(),
-            placedsubtractedbox);
+  // placement of boolean solid
+  Transformation3D placement(5, 5, 5);
 
+  // add this boolean solid to the world
+  world.PlaceDaughter(&booleanlogical2, &placement);
 
-    LogicalVolume booleanlogical2("booleanL2", &booleansolid2);
+  GeoManager::Instance().SetWorldAndClose(world.Place());
 
-    // place the boolean volume into the world
+  Benchmarker tester(GeoManager::Instance().GetWorld());
+  tester.SetVerbosity(3);
+  tester.SetPoolMultiplier(1);
+  tester.SetRepetitions(1024);
+  tester.SetPointCount(1 << 10);
+  tester.RunInsideBenchmark();
+  tester.RunToOutBenchmark();
 
-
-    // placement of boolean solid
-    Transformation3D placement(5, 5, 5);
-
-    // add this boolean solid to the world
-    world.PlaceDaughter( &booleanlogical2, &placement );
-
-    GeoManager::Instance().SetWorldAndClose(world.Place());
-
-    Benchmarker tester(GeoManager::Instance().GetWorld());
-    tester.SetVerbosity(3);
-    tester.SetPoolMultiplier(1);
-    tester.SetRepetitions(1024);
-    tester.SetPointCount(1<<10);
-    tester.RunInsideBenchmark();
-    tester.RunToOutBenchmark();
-
-    return 0;
+  return 0;
 }
-

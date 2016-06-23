@@ -13,28 +13,26 @@
 // to test compilation and functionality of the cone
 using namespace vecgeom;
 
-struct SomeCone
-{
+struct SomeCone {
 };
 
 void testInstantiation()
 {
-    UnplacedCone acone(10,20,15,25,100, 0, 2.*M_PI);
+  UnplacedCone acone(10, 20, 15, 25, 100, 0, 2. * M_PI);
 
-    // some basic tests here to test the interface
-    acone.Print();
-    double volume = acone.Capacity();
-    printf("have volume %lf\n",volume);
+  // some basic tests here to test the interface
+  acone.Print();
+  double volume = acone.Capacity();
+  printf("have volume %lf\n", volume);
 
-    Transformation3D * t = new Transformation3D();
-    // test instanteation of a concrete placed specialized shape
-    SpecializedCone<translation::kIdentity, rotation::kIdentity, SomeCone> scone(
-            new LogicalVolume(&acone), t );
+  Transformation3D *t = new Transformation3D();
+  // test instanteation of a concrete placed specialized shape
+  SpecializedCone<translation::kIdentity, rotation::kIdentity, SomeCone> scone(new LogicalVolume(&acone), t);
 
-    printf("have volume %lf\n",scone.Capacity());
+  printf("have volume %lf\n", scone.Capacity());
 }
 
 int main()
 {
-    testInstantiation();
+  testInstantiation();
 }

@@ -1,11 +1,11 @@
 #include "base/SOA3D.h"
 #include "base/AOS3D.h"
 
-
 using namespace vecgeom;
 
 template <typename T, template <typename> class ContainerType>
-void SizeTest() {
+void SizeTest()
+{
   ContainerType<T> container(0);
   assert(container.size() == 0);
   assert(container.capacity() == 0);
@@ -23,7 +23,8 @@ void SizeTest() {
   assert(container.x(2) == 3);
 }
 
-int main() {
+int main()
+{
   SizeTest<Precision, AOS3D>();
   SizeTest<Precision, SOA3D>();
   return 0;

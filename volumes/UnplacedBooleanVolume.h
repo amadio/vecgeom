@@ -7,16 +7,12 @@
 #include "volumes/UnplacedVolume.h"
 #include "volumes/PlacedVolume.h"
 
-enum BooleanOperation {
-    kUnion,
-    kIntersection,
-    kSubtraction
-};
+enum BooleanOperation { kUnion, kIntersection, kSubtraction };
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE( class UnplacedBooleanVolume; )
-VECGEOM_DEVICE_DECLARE_CONV( class, UnplacedBooleanVolume )
+VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedBooleanVolume;)
+VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedBooleanVolume)
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -36,96 +32,92 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class UnplacedBooleanVolume : public VUnplacedVolume, public AlignedBase {
 
 public:
-    VPlacedVolume const* fLeftVolume;
-    VPlacedVolume const* fRightVolume;
-    BooleanOperation const fOp;
+  VPlacedVolume const *fLeftVolume;
+  VPlacedVolume const *fRightVolume;
+  BooleanOperation const fOp;
 
 public:
   // need a constructor
-    VECGEOM_CUDA_HEADER_BOTH
-    UnplacedBooleanVolume(
-          BooleanOperation op,
-          VPlacedVolume const* left,
-          VPlacedVolume const* right ) :
-            fLeftVolume(left),
-            fRightVolume(right), fOp(op) {fGlobalConvexity = false;}
+  VECGEOM_CUDA_HEADER_BOTH
+  UnplacedBooleanVolume(BooleanOperation op, VPlacedVolume const *left, VPlacedVolume const *right)
+      : fLeftVolume(left), fRightVolume(right), fOp(op)
+  {
+    fGlobalConvexity = false;
+  }
 
   virtual int memory_size() const { return sizeof(*this); }
 
-  #ifdef VECGEOM_CUDA_INTERFACE
+#ifdef VECGEOM_CUDA_INTERFACE
   virtual size_t DeviceSizeOf() const { return DevicePtr<cuda::UnplacedBooleanVolume>::SizeOf(); }
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const;
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
-  #endif
+#endif
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  BooleanOperation GetOp() const {return fOp;}
+  BooleanOperation GetOp() const { return fOp; }
 
 #if !defined(VECGEOM_NVCC)
   VECGEOM_INLINE
-  Precision Capacity() const {
+  Precision Capacity() const
+  {
     // TBDONE -- need some sampling
     return 0.;
   }
 
   VECGEOM_INLINE
-  Precision SurfaceArea() const {
+  Precision SurfaceArea() const
+  {
     // TBDONE -- need some sampling
     return 0.;
   }
 #endif // !VECGEOM_NVCC
 
   VECGEOM_CUDA_HEADER_BOTH
-  void Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const;
+  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const;
 
-  Vector3D<Precision> GetPointOnSurface() const {
+  Vector3D<Precision> GetPointOnSurface() const
+  {
     // TBDONE
-      return Vector3D<Precision>() ;
+    return Vector3D<Precision>();
   }
 
   std::string GetEntityType() const { return "BooleanVolume"; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void Print() const {} ;
+  virtual void Print() const {};
 
   virtual void Print(std::ostream & /*os*/) const {};
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
-   VECGEOM_CUDA_HEADER_DEVICE
-   static VPlacedVolume* Create(LogicalVolume const *const logical_volume,
-                                Transformation3D const *const transformation,
- #ifdef VECGEOM_NVCC
-                                const int id,
- #endif
-                                VPlacedVolume *const placement = NULL);
+  VECGEOM_CUDA_HEADER_DEVICE
+  static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
+#ifdef VECGEOM_NVCC
+                               const int id,
+#endif
+                               VPlacedVolume *const placement = NULL);
 
   VPlacedVolume const *GetLeft() const { return fLeftVolume; }
   VPlacedVolume const *GetRight() const { return fRightVolume; }
 
 private:
+  VECGEOM_CUDA_HEADER_DEVICE
+  virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
+                                           Transformation3D const *const transformation,
+                                           const TranslationCode trans_code, const RotationCode rot_code,
+#ifdef VECGEOM_NVCC
+                                           const int id,
+#endif
+                                           VPlacedVolume *const placement = NULL) const;
 
-   VECGEOM_CUDA_HEADER_DEVICE
-   virtual VPlacedVolume* SpecializedVolume(
-       LogicalVolume const *const volume,
-       Transformation3D const *const transformation,
-       const TranslationCode trans_code, const RotationCode rot_code,
- #ifdef VECGEOM_NVCC
-       const int id,
- #endif
-       VPlacedVolume *const placement = NULL) const;
+  void SetLeft(VPlacedVolume const *pvol) { fLeftVolume = pvol; }
+  void SetRight(VPlacedVolume const *pvol) { fRightVolume = pvol; }
 
-   void SetLeft(VPlacedVolume const *pvol){ fLeftVolume = pvol; }
-   void SetRight(VPlacedVolume const *pvol){ fRightVolume = pvol; }
-
-
-   friend class GeoManager;
+  friend class GeoManager;
 }; // End class
 
 } // End impl namespace
 
 } // End global namespace
-
-
 
 #endif /* UNPLACEDBOOLEANVOLUME_H_ */

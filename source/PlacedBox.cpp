@@ -22,34 +22,40 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 VECGEOM_CUDA_HEADER_BOTH
-void PlacedBox::PrintType() const {
+void PlacedBox::PrintType() const
+{
   printf("PlacedBox");
 }
 
-void PlacedBox::PrintType(std::ostream &s) const {
+void PlacedBox::PrintType(std::ostream &s) const
+{
   s << "PlacedBox";
 }
 
 #ifndef VECGEOM_NVCC
 
-VPlacedVolume const* PlacedBox::ConvertToUnspecialized() const {
+VPlacedVolume const *PlacedBox::ConvertToUnspecialized() const
+{
   return new SimpleBox(GetLabel().c_str(), logical_volume_, GetTransformation());
 }
 
 #ifdef VECGEOM_ROOT
-TGeoShape const* PlacedBox::ConvertToRoot() const {
+TGeoShape const *PlacedBox::ConvertToRoot() const
+{
   return new TGeoBBox(GetLabel().c_str(), x(), y(), z());
 }
 #endif
 
 #if defined(VECGEOM_USOLIDS) and !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const* PlacedBox::ConvertToUSolids() const {
+::VUSolid const *PlacedBox::ConvertToUSolids() const
+{
   return new UBox(GetLabel(), x(), y(), z());
 }
 #endif
 
 #ifdef VECGEOM_GEANT4
-G4VSolid const* PlacedBox::ConvertToGeant4() const {
+G4VSolid const *PlacedBox::ConvertToGeant4() const
+{
   return new G4Box("", x(), y(), z());
 }
 #endif
@@ -60,7 +66,7 @@ G4VSolid const* PlacedBox::ConvertToGeant4() const {
 
 #ifdef VECGEOM_NVCC
 
-VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC( SpecializedBox )
+VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(SpecializedBox)
 
 #endif // VECGEOM_NVCC
 

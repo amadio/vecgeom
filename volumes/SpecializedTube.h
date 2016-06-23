@@ -16,10 +16,10 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT, typename tubeTypeT>
-using SpecializedTube = ShapeImplementationHelper<TubeImplementation<transCodeT, rotCodeT, tubeTypeT> >;
+using SpecializedTube = ShapeImplementationHelper<TubeImplementation<transCodeT, rotCodeT, tubeTypeT>>;
 
 using SimpleTube = SpecializedTube<translation::kGeneric, rotation::kGeneric, TubeTypes::UniversalTube>;
-
-} } // End global namespace
+}
+} // End global namespace
 
 #endif // VECGEOM_VOLUMES_SPECIALIZEDPARALLELEPIPED_H_

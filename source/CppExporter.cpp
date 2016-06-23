@@ -40,7 +40,8 @@ namespace vecgeom {
 inline namespace cxx {
 
 template <typename IterableContainer, typename ElementType>
-bool ContainerContains(IterableContainer const &c, ElementType const &e) {
+bool ContainerContains(IterableContainer const &c, ElementType const &e)
+{
   return std::find(c.cbegin(), c.cend(), e) != c.cend();
 }
 
@@ -53,7 +54,8 @@ bool ContainerContains(IterableContainer const &c, ElementType const &e) {
 void GeomCppExporter::ScanGeometry(VPlacedVolume const *const volume, std::list<LogicalVolume const *> &lvlist,
                                    std::list<LogicalVolume const *> &boollvlist,
                                    std::list<Transformation3D const *> &tlist, std::list<Medium const *> &mediumlist,
-                                   std::list<Material const *> &materiallist) {
+                                   std::list<Material const *> &materiallist)
+{
   // if not yet treated
   if (std::find(lvlist.cbegin(), lvlist.cend(), volume->GetLogicalVolume()) == lvlist.cend() &&
       std::find(boollvlist.cbegin(), boollvlist.cend(), volume->GetLogicalVolume()) == boollvlist.cend()) {
@@ -94,7 +96,8 @@ void GeomCppExporter::ScanGeometry(VPlacedVolume const *const volume, std::list<
   }
 }
 
-void static PushAndReset(std::stringstream &stream, std::vector<std::string> &output) {
+void static PushAndReset(std::stringstream &stream, std::vector<std::string> &output)
+{
   output.push_back(stream.str());
   stream.str(""); // Remove accumulated information
   stream.clear(); // reset the ios (error) flags.
@@ -102,7 +105,8 @@ void static PushAndReset(std::stringstream &stream, std::vector<std::string> &ou
 
 void GeomCppExporter::DumpTransformations(std::vector<std::string> &trafoconstrlist, std::stringstream &trafoexterndecl,
                                           std::vector<std::string> &trafodecllist,
-                                          std::list<Transformation3D const *> const &tvlist) {
+                                          std::list<Transformation3D const *> const &tvlist)
+{
 
   // loop over all transformations
   unsigned int counter = 0;
@@ -137,10 +141,8 @@ void GeomCppExporter::DumpTransformations(std::vector<std::string> &trafoconstrl
   bool iddone = false;
   for (auto t : fTrafoToStringMap) {
     Transformation3D const *tp = t.first;
-    if (tp->IsIdentity() && iddone)
-      continue;
-    if (tp->IsIdentity())
-      iddone = true;
+    if (tp->IsIdentity() && iddone) continue;
+    if (tp->IsIdentity()) iddone = true;
 
     // we take a limit if 5000 transformations per translation unit
     // which compiles reasonably fast
@@ -189,7 +191,8 @@ void GeomCppExporter::DumpTransformations(std::vector<std::string> &trafoconstrl
 
 void GeomCppExporter::DumpMaterials(std::vector<std::string> &materials, std::stringstream &materialexterndecl,
                                     std::vector<std::string> &materialdecl,
-                                    std::list<Material const *> const &materiallist) {
+                                    std::list<Material const *> const &materiallist)
+{
 
   // loop over all materials
   unsigned int counter = 0;
@@ -281,7 +284,8 @@ void GeomCppExporter::DumpMaterials(std::vector<std::string> &materials, std::st
 }
 
 void GeomCppExporter::DumpMedia(std::vector<std::string> &media, std::stringstream &mediumexterndecl,
-                                std::vector<std::string> &mediumdecl, std::list<Medium const *> const &mediumlist) {
+                                std::vector<std::string> &mediumdecl, std::list<Medium const *> const &mediumlist)
+{
 
   // loop over all media
   unsigned int counter = 0;
@@ -348,7 +352,9 @@ void GeomCppExporter::DumpMedia(std::vector<std::string> &media, std::stringstre
   PushAndReset(mediumdeclline, mediumdecl);
 }
 
-template <typename VectorContainer> void DumpVector(VectorContainer const &v, std::ostream &dumps) {
+template <typename VectorContainer>
+void DumpVector(VectorContainer const &v, std::ostream &dumps)
+{
   dumps << "&std::vector<double>{";
   for (int j = 0, n = v.size() - 1; j < n; ++j)
     dumps << v[j] << " , ";
@@ -357,8 +363,8 @@ template <typename VectorContainer> void DumpVector(VectorContainer const &v, st
 
 // function which dumps the logical volumes
 void GeomCppExporter::DumpLogicalVolumes(std::ostream &dumps, std::ostream &externdeclarations,
-                                         std::ostream &lvoldefinitions,
-                                         std::list<LogicalVolume const *> const &lvlist) {
+                                         std::ostream &lvoldefinitions, std::list<LogicalVolume const *> const &lvlist)
+{
 
   static unsigned int counter = 0;
   for (auto l : lvlist) {
@@ -560,7 +566,7 @@ void GeomCppExporter::DumpLogicalVolumes(std::ostream &dumps, std::ostream &exte
       //                    std::cerr << "problem with dimensions\n";
       //                    std::cerr << l->GetLabel() << "\n";
       //                }
-      auto z = shape->GetZPlanes();
+      auto z    = shape->GetZPlanes();
       auto rmin = shape->GetRMin();
       auto rmax = shape->GetRMax();
 
@@ -584,7 +590,7 @@ void GeomCppExporter::DumpLogicalVolumes(std::ostream &dumps, std::ostream &exte
     else if (dynamic_cast<UnplacedBooleanVolume const *>(l->GetUnplacedVolume())) {
       UnplacedBooleanVolume const *shape = dynamic_cast<UnplacedBooleanVolume const *>(l->GetUnplacedVolume());
 
-      VPlacedVolume const *left = shape->fLeftVolume;
+      VPlacedVolume const *left  = shape->fLeftVolume;
       VPlacedVolume const *right = shape->fRightVolume;
 
       // CHECK IF THIS BOOLEAN VOLUME DEPENDS ON OTHER BOOLEAN VOLUMES NOT YET DUMPED
@@ -661,8 +667,8 @@ void GeomCppExporter::DumpLogicalVolumes(std::ostream &dumps, std::ostream &exte
 
 // now recreate geometry hierarchy
 // the mappings fLogicalVolToStringMap and fTrafoToStringMap need to be initialized
-void GeomCppExporter::DumpGeomHierarchy(std::vector<std::string> &dumps,
-                                        std::list<LogicalVolume const *> const &lvlist) {
+void GeomCppExporter::DumpGeomHierarchy(std::vector<std::string> &dumps, std::list<LogicalVolume const *> const &lvlist)
+{
   static unsigned int group = -1;
   group++;
   unsigned int groupcounter = 0;
@@ -677,7 +683,7 @@ void GeomCppExporter::DumpGeomHierarchy(std::vector<std::string> &dumps,
       VPlacedVolume const *daughter = l->GetDaughters()[d];
 
       // get transformation and logical volume for this daughter
-      Transformation3D const *t = daughter->GetTransformation();
+      Transformation3D const *t       = daughter->GetTransformation();
       LogicalVolume const *daughterlv = daughter->GetLogicalVolume();
 
       std::string tvariable = fTrafoToStringMap[t];
@@ -708,7 +714,8 @@ void GeomCppExporter::DumpGeomHierarchy(std::vector<std::string> &dumps,
   dumps.push_back(output.str());
 }
 
-void GeomCppExporter::DumpHeader(std::ostream &dumps) {
+void GeomCppExporter::DumpHeader(std::ostream &dumps)
+{
   // put some disclaimer ( to be extended )
   dumps << "// THIS IS AN AUTOMATICALLY GENERATED FILE -- DO NOT MODIFY\n";
   dumps << "// FILE SHOULD BE COMPILED INTO A SHARED LIBRARY FOR REUSE\n";
@@ -726,7 +733,8 @@ void GeomCppExporter::DumpHeader(std::ostream &dumps) {
   }
 }
 
-void GeomCppExporter::DumpGeometry(std::ostream &s) {
+void GeomCppExporter::DumpGeometry(std::ostream &s)
+{
   // stringstreams to assemble code in parts
   std::vector<std::string> transformations;
   std::stringstream transexterndecl;
@@ -880,7 +888,7 @@ void GeomCppExporter::DumpGeometry(std::ostream &s) {
     outfile << "#include \"base/Stopwatch.h\"\n";
     outfile << "#include <iostream>\n";
     outfile << "using namespace vecgeom;";
-    VPlacedVolume const *world = GeoManager::Instance().GetWorld();
+    VPlacedVolume const *world   = GeoManager::Instance().GetWorld();
     LogicalVolume const *worldlv = world->GetLogicalVolume();
     // extern declarations
     for (unsigned int i = 0; i < transdecl.size(); ++i) {

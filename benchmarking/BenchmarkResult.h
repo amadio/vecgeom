@@ -11,23 +11,23 @@
 namespace vecgeom {
 
 enum EBenchmarkedLibrary {
-  kBenchmarkSpecialized = 0,
-  kBenchmarkVectorized = 1,
+  kBenchmarkSpecialized   = 0,
+  kBenchmarkVectorized    = 1,
   kBenchmarkUnspecialized = 2,
-  kBenchmarkCuda = 3,
-  kBenchmarkUSolids = 4,
-  kBenchmarkRoot = 5,
-  kBenchmarkCudaMemory = 6,
-  kBenchmarkGeant4 = 7
+  kBenchmarkCuda          = 3,
+  kBenchmarkUSolids       = 4,
+  kBenchmarkRoot          = 5,
+  kBenchmarkCudaMemory    = 6,
+  kBenchmarkGeant4        = 7
 };
 
 enum EBenchmarkedMethod {
-  kBenchmarkContains = 0,
-  kBenchmarkInside = 1,
-  kBenchmarkDistanceToIn = 2,
-  kBenchmarkSafetyToIn = 3,
+  kBenchmarkContains      = 0,
+  kBenchmarkInside        = 1,
+  kBenchmarkDistanceToIn  = 2,
+  kBenchmarkSafetyToIn    = 3,
   kBenchmarkDistanceToOut = 4,
-  kBenchmarkSafetyToOut = 5
+  kBenchmarkSafetyToOut   = 5
 };
 
 struct BenchmarkResult {
@@ -45,7 +45,7 @@ public:
   static void WriteCsvHeader(std::ostream &os);
 };
 
-std::ostream& operator<<(std::ostream &os, BenchmarkResult const &benchmark);
+std::ostream &operator<<(std::ostream &os, BenchmarkResult const &benchmark);
 
 } // End namespace vecgeom
 

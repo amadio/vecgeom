@@ -16,10 +16,10 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedParallelepiped = ShapeImplementationHelper<ParallelepipedImplementation<transCodeT, rotCodeT> >;
+using SpecializedParallelepiped = ShapeImplementationHelper<ParallelepipedImplementation<transCodeT, rotCodeT>>;
 
 using SimpleParallelepiped = SpecializedParallelepiped<translation::kGeneric, rotation::kGeneric>;
-
-} } // End global namespace
+}
+} // End global namespace
 
 #endif // VECGEOM_VOLUMES_SPECIALIZEDPARALLELEPIPED_H_

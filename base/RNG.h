@@ -17,13 +17,13 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 #ifdef VECGEOM_NVCC
-   class RNG;
+class RNG;
 
-   // Emulating static class member ..
-   namespace RNGvar {
-      extern VECGEOM_CUDA_HEADER_DEVICE unsigned long gMaxInstance;
-      extern VECGEOM_CUDA_HEADER_DEVICE RNG **gInstances;
-   }
+// Emulating static class member ..
+namespace RNGvar {
+extern VECGEOM_CUDA_HEADER_DEVICE unsigned long gMaxInstance;
+extern VECGEOM_CUDA_HEADER_DEVICE RNG **gInstances;
+}
 #endif
 
 /**
@@ -32,22 +32,22 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class RNG {
 
 private:
-
 #ifdef VECGEOM_NVCC
 
 #ifdef __CUDA_ARCH__
   curandState fState;
 #else
-  // Using rand in C++03
+// Using rand in C++03
 #endif
-  
+
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Precision GetUniform() {
+  Precision GetUniform()
+  {
 #ifdef __CUDA_ARCH__
-     return curand_uniform(&fState);
+    return curand_uniform(&fState);
 #else
-     return (Precision) rand() / RAND_MAX;
+    return (Precision)rand() / RAND_MAX;
 #endif
   }
 
@@ -57,22 +57,20 @@ private:
   std::uniform_real_distribution<> uniform_dist;
 
   VECGEOM_INLINE
-  Precision GetUniform() {
-     return uniform_dist(rng);
-  }
+  Precision GetUniform() { return uniform_dist(rng); }
 
 #endif
 
 protected:
-
 #ifdef VECGEOM_NVCC
-// The state should really be 'thread' specific
+  // The state should really be 'thread' specific
   VECGEOM_CUDA_HEADER_BOTH
-  RNG() {
+  RNG()
+  {
 #ifdef __CUDA_ARCH__
-     curand_init(0 /*seed */, 0 /* subsequence */, 0 /* offset */ , &fState);
+    curand_init(0 /*seed */, 0 /* subsequence */, 0 /* offset */, &fState);
 #else
-     // using rand in C++03
+// using rand in C++03
 #endif
   }
 #else
@@ -80,49 +78,45 @@ protected:
 #endif
 
 public:
-
-  /**
-   * Init thread specific singleton instance.
-   */
+/**
+ * Init thread specific singleton instance.
+ */
 #ifdef __CUDA_ARCH__
   VECGEOM_CUDA_HEADER_DEVICE
-  static void InitInstances(unsigned long nthreads) {
-     unsigned int tid = (threadIdx.x + blockIdx.x * blockDim.x);
+  static void InitInstances(unsigned long nthreads)
+  {
+    unsigned int tid = (threadIdx.x + blockIdx.x * blockDim.x);
 
-     if (tid == 0) {
-        RNGvar::gMaxInstance = nthreads;
-        RNGvar::gInstances = new RNG*[nthreads];
-     }
-     __syncthreads();
+    if (tid == 0) {
+      RNGvar::gMaxInstance = nthreads;
+      RNGvar::gInstances   = new RNG *[nthreads];
+    }
+    __syncthreads();
 
-     for (int i = tid;
-         i < nthreads;
-         i += blockDim.x * gridDim.x)
-      {
-         RNGvar::gInstances[i] = new RNG;
-      }
+    for (int i = tid; i < nthreads; i += blockDim.x * gridDim.x) {
+      RNGvar::gInstances[i] = new RNG;
+    }
   }
 #endif
 
 #ifndef VECGEOM_NVCC
-  void seed(unsigned long seed_val){
-     rng.seed(seed_val);
-  }
+  void seed(unsigned long seed_val) { rng.seed(seed_val); }
 #endif
   /**
    * Access singleton instance.
    */
   VECGEOM_CUDA_HEADER_BOTH
-  static RNG& Instance() {
+  static RNG &Instance()
+  {
 #ifdef __CUDA_ARCH__
-     unsigned int tid = (threadIdx.x + blockIdx.x * blockDim.x);
-     if (tid < RNGvar::gMaxInstance)
-        return *(RNGvar::gInstances[tid]);
-     else
-        return *(new RNG);
+    unsigned int tid = (threadIdx.x + blockIdx.x * blockDim.x);
+    if (tid < RNGvar::gMaxInstance)
+      return *(RNGvar::gInstances[tid]);
+    else
+      return *(new RNG);
 #else
-     static RNG instance;
-     return instance;
+    static RNG instance;
+    return instance;
 #endif
   }
 
@@ -132,21 +126,20 @@ public:
    */
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Precision uniform(const Precision min = 0., const Precision max = 1.) {
-    return min + (max - min) * GetUniform();
-  }
+  Precision uniform(const Precision min = 0., const Precision max = 1.) { return min + (max - min) * GetUniform(); }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  int Poisson(const Precision lambda) {
-     int k=0;
-     const Precision target = exp(-lambda);
-     Precision p=GetUniform();
-     while(p<target) {
-	p*=GetUniform();
-	++k;
-     }
-     return k;
+  int Poisson(const Precision lambda)
+  {
+    int k                  = 0;
+    const Precision target = exp(-lambda);
+    Precision p            = GetUniform();
+    while (p < target) {
+      p *= GetUniform();
+      ++k;
+    }
+    return k;
   }
 
   // interface for ROOT compatibility
@@ -163,7 +156,7 @@ public:
     do {
       x1 = 2.0 * GetUniform() - 1.0;
       x2 = 2.0 * GetUniform() - 1.0;
-      w = x1 * x1 + x2 * x2;
+      w  = x1 * x1 + x2 * x2;
     } while (w >= 1.0);
 
     w = std::sqrt((-2.0 * std::log(w)) / w);
@@ -176,19 +169,18 @@ public:
    */
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void uniform_array(size_t n, Precision *array, const Precision min = 0., const Precision max = 1.) {
-     for(size_t i = 0; i<n; ++i) {
-        array[i] = min + (max - min) * GetUniform();
-     }
+  void uniform_array(size_t n, Precision *array, const Precision min = 0., const Precision max = 1.)
+  {
+    for (size_t i = 0; i < n; ++i) {
+      array[i] = min + (max - min) * GetUniform();
+    }
   }
 
 private:
-
-  RNG(RNG const&);
-  RNG& operator=(RNG const&);
-
+  RNG(RNG const &);
+  RNG &operator=(RNG const &);
 };
-
-} } // End global namespace
+}
+} // End global namespace
 
 #endif // VECGEOM_BASE_RNG_H_

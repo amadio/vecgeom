@@ -6,7 +6,8 @@
 
 using namespace vecgeom;
 
-int main() {
+int main()
+{
   constexpr int nSamples = 10000;
   SimpleOrb orb("Visualizer Orb", 3);
   SimpleScaledShape scaled("Scaled Orb", orb.GetUnplacedVolume(), 0.5, 1.2, 1.);

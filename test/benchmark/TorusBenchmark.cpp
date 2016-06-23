@@ -8,22 +8,23 @@
 
 using namespace vecgeom;
 
-int main(int argc, char* argv[]) {
-  OPTION_INT(npoints,1024);
-  OPTION_INT(nrep,4);
-  OPTION_DOUBLE(drmin,1.2);
-  OPTION_DOUBLE(drmax,3.1);
-  OPTION_DOUBLE(drtor,5.);
-  OPTION_DOUBLE(dsphi,0.);
-  OPTION_DOUBLE(ddphi,kTwoPi);
+int main(int argc, char *argv[])
+{
+  OPTION_INT(npoints, 1024);
+  OPTION_INT(nrep, 4);
+  OPTION_DOUBLE(drmin, 1.2);
+  OPTION_DOUBLE(drmax, 3.1);
+  OPTION_DOUBLE(drtor, 5.);
+  OPTION_DOUBLE(dsphi, 0.);
+  OPTION_DOUBLE(ddphi, kTwoPi);
 
-  UnplacedBox worldUnplaced = UnplacedBox((drtor+drmax)*2, (drtor+drmax)*2 , (drtor+drmax)*2);
+  UnplacedBox worldUnplaced   = UnplacedBox((drtor + drmax) * 2, (drtor + drmax) * 2, (drtor + drmax) * 2);
   UnplacedTorus torusUnplaced = UnplacedTorus(drmin, drmax, drtor, dsphi, ddphi);
 
-  LogicalVolume world ("world", &worldUnplaced);
-  LogicalVolume torus ("torus", &torusUnplaced);
+  LogicalVolume world("world", &worldUnplaced);
+  LogicalVolume torus("torus", &torusUnplaced);
 
-  //Transformation3D placement(5, 5, 5);
+  // Transformation3D placement(5, 5, 5);
   Transformation3D placement(0, 0, 0);
   world.PlaceDaughter("torus", &torus, &placement);
 
@@ -54,14 +55,14 @@ int main(int argc, char* argv[]) {
 
   //   double steps[2]={vecgeom::kInfinity, vecgeom::kInfinity};
   //   double distances[2];
-  //   pt->DistanceToOut( pos, dirs, steps, distances ); 
+  //   pt->DistanceToOut( pos, dirs, steps, distances );
 
-  //   pt->DistanceToOut( Vector3D<Precision>(-10.612969, 2.979640, -1.546988), Vector3D<Precision>(0.523476, -0.326030, 0.787196), vecgeom::kInfinity );
+  //   pt->DistanceToOut( Vector3D<Precision>(-10.612969, 2.979640, -1.546988), Vector3D<Precision>(0.523476, -0.326030,
+  //   0.787196), vecgeom::kInfinity );
 
   // }
 
   // return 1;
-
 
   VPlacedVolume *worldPlaced = world.Place();
 

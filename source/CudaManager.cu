@@ -12,40 +12,42 @@ namespace vecgeom {
 // we put some global data into a separate namespace
 // this is done since CUDA does not support static const members in class definitions
 namespace globaldevicegeomdata {
-  static __device__ VPlacedVolume *gCompactPlacedVolBuffer = nullptr;
+static __device__ VPlacedVolume *gCompactPlacedVolBuffer = nullptr;
 
-  VECGEOM_CUDA_HEADER_DEVICE
-  VPlacedVolume *&GetCompactPlacedVolBuffer() {
-    return gCompactPlacedVolBuffer;
-  }
-
+VECGEOM_CUDA_HEADER_DEVICE
+VPlacedVolume *&GetCompactPlacedVolBuffer()
+{
+  return gCompactPlacedVolBuffer;
+}
 }
 
 inline namespace cuda {
 
-__global__ void InitDeviceCompactPlacedVolBufferPtrCudaKernel(void *gpu_ptr) {
+__global__ void InitDeviceCompactPlacedVolBufferPtrCudaKernel(void *gpu_ptr)
+{
   // gpu_ptr is some pointer on the device that was allocated by some other means
   globaldevicegeomdata::GetCompactPlacedVolBuffer() = (vecgeom::cuda::VPlacedVolume *)gpu_ptr;
 }
 
-void InitDeviceCompactPlacedVolBufferPtr(void *gpu_ptr) {
+void InitDeviceCompactPlacedVolBufferPtr(void *gpu_ptr)
+{
   InitDeviceCompactPlacedVolBufferPtrCudaKernel<<<1, 1>>>(gpu_ptr);
 }
 
-__global__
-void CudaManagerPrintGeometryKernel(
-    vecgeom::cuda::VPlacedVolume const *const world) {
+__global__ void CudaManagerPrintGeometryKernel(vecgeom::cuda::VPlacedVolume const *const world)
+{
   printf("Geometry loaded on GPU:\n");
   world->PrintContent();
 }
 
-void CudaManagerPrintGeometry(vecgeom::cuda::VPlacedVolume const *const world) {
+void CudaManagerPrintGeometry(vecgeom::cuda::VPlacedVolume const *const world)
+{
   CudaManagerPrintGeometryKernel<<<1, 1>>>(world);
   cxx::CudaAssertError();
   cudaDeviceSynchronize();
 }
-
-} } // End namespace vecgeom
+}
+} // End namespace vecgeom
 
 #ifdef VECGEOM_NVCC_SINGLE_OBJ // Cuda single compilation
 
@@ -82,7 +84,6 @@ void CudaManagerPrintGeometry(vecgeom::cuda::VPlacedVolume const *const world) {
 
 #include "source/PlacedTrapezoid.cpp"
 #include "source/UnplacedTrapezoid.cpp"
-
 
 #include "source/NavigationState.cpp"
 #include "source/SimpleNavigator.cpp"

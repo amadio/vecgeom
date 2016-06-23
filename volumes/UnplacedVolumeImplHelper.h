@@ -8,16 +8,17 @@
 
 namespace vecgeom {
 
-  VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2t(class, CommonUnplacedVolumeImplHelper, typename, typename);
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2t(class, CommonUnplacedVolumeImplHelper, typename, typename);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 // kernels
 template <class Implementation, typename Real_v>
-VECGEOM_INLINE static void DistanceToOutLoop(typename Implementation::UnplacedStruct_t const *shapestruct,
-                                             const size_t offset, const size_t size, SOA3D<Precision> const &points,
-                                             SOA3D<Precision> const &directions, double const *step_max,
-                                             double *output) {
+VECGEOM_INLINE
+static void DistanceToOutLoop(typename Implementation::UnplacedStruct_t const *shapestruct, const size_t offset,
+                              const size_t size, SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
+                              double const *step_max, double *output)
+{
   using vecCore::FromPtr;
   for (decltype(points.size()) i(offset); i < size; i += vecCore::VectorSize<Real_v>()) {
     Vector3D<Real_v> point(FromPtr<Real_v>(points.x() + i), FromPtr<Real_v>(points.y() + i),
@@ -32,9 +33,10 @@ VECGEOM_INLINE static void DistanceToOutLoop(typename Implementation::UnplacedSt
 }
 
 template <class Implementation, typename Real_v>
-VECGEOM_INLINE static void SafetyToOutLoop(typename Implementation::UnplacedStruct_t const *shapestruct,
-                                           const size_t offset, const size_t size, SOA3D<Precision> const &points,
-                                           double *output) {
+VECGEOM_INLINE
+static void SafetyToOutLoop(typename Implementation::UnplacedStruct_t const *shapestruct, const size_t offset,
+                            const size_t size, SOA3D<Precision> const &points, double *output)
+{
   using vecCore::FromPtr;
   const decltype(points.size()) len(size);
   for (decltype(points.size()) i(offset); i < len; i += vecCore::VectorSize<Real_v>()) {
@@ -64,13 +66,14 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
   virtual Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
-                                  Precision step_max = kInfinity) const override {
+                                  Precision step_max = kInfinity) const override
+  {
 #ifndef VECGEOM_NVCC
     assert(d.IsNormalized() && " direction not normalized in call to  DistanceToOut ");
 #endif
     Precision output;
-    Implementation::template DistanceToOut(
-        ((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p, d, step_max, output);
+    Implementation::template DistanceToOut(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p, d, step_max,
+                                           output);
 
 //#ifdef VECGEOM_DISTANCE_DEBUG
 //    DistanceComparator::CompareDistanceToOut( this, output, point, direction, stepMax );
@@ -88,7 +91,8 @@ public:
   VECGEOM_INLINE
   virtual Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
                                   Vector3D<Precision> &normal, bool &convex,
-                                  Precision step_max = kInfinity) const override {
+                                  Precision step_max = kInfinity) const override
+  {
     (void)p;
     (void)d;
     (void)normal;
@@ -100,63 +104,61 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  virtual bool Contains(Vector3D<Precision> const &p) const override {
+  virtual bool Contains(Vector3D<Precision> const &p) const override
+  {
     bool output(false);
-    Implementation::Contains(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p,
-                                                       output);
+    Implementation::Contains(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p, output);
     return output;
   }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  virtual EnumInside Inside(Vector3D<Precision> const &p) const override {
+  virtual EnumInside Inside(Vector3D<Precision> const &p) const override
+  {
     using Inside_t = vecCore::Int32_s;
     Inside_t output(0);
-    Implementation::Inside(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p,
-                                                       output);
+    Implementation::Inside(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p, output);
     return (EnumInside)output;
   }
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToIn(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
-                                 const Precision step_max = kInfinity) const override {
+                                 const Precision step_max = kInfinity) const override
+  {
 #ifndef VECGEOM_NVCC
     assert(d.IsNormalized() && " direction not normalized in call to  DistanceToOut ");
 #endif
     Precision output(kInfinity);
-    Implementation::DistanceToIn(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p,
-                                                           d, step_max, output);
+    Implementation::DistanceToIn(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p, d, step_max, output);
     return output;
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual Precision SafetyToOut(Vector3D<Precision> const &p) const override {
+  virtual Precision SafetyToOut(Vector3D<Precision> const &p) const override
+  {
     Precision output(kInfinity);
-    Implementation::SafetyToOut(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p,
-                                                            output);
+    Implementation::SafetyToOut(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p, output);
     return output;
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual Precision SafetyToIn(Vector3D<Precision> const &p) const override {
+  virtual Precision SafetyToIn(Vector3D<Precision> const &p) const override
+  {
     Precision output(kInfinity);
-    Implementation::SafetyToIn(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p,
-                                                           output);
+    Implementation::SafetyToIn(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p, output);
     return output;
   }
 
   virtual int memory_size() const override { return sizeof(*this); }
-
 };
 
 // helper that dispatches the vector interface to a loop over the SIMD interface
 template <class Implementation, class BaseUnplVol = VUnplacedVolume>
-class SIMDUnplacedVolumeImplHelper
-    : public CommonUnplacedVolumeImplHelper<Implementation, BaseUnplVol> {
+class SIMDUnplacedVolumeImplHelper : public CommonUnplacedVolumeImplHelper<Implementation, BaseUnplVol> {
 public:
-  using Real_v = vecgeom::VectorBackend::Real_v;
+  using Real_v           = vecgeom::VectorBackend::Real_v;
   using UnplacedVolume_t = typename Implementation::UnplacedVolume_t;
-  using Common_t = CommonUnplacedVolumeImplHelper<Implementation, BaseUnplVol>;
+  using Common_t         = CommonUnplacedVolumeImplHelper<Implementation, BaseUnplVol>;
 
   // bring in constructor
   using Common_t::Common_t;
@@ -167,15 +169,16 @@ public:
                                   Real_v const &step_max) const override
   {
     Real_v output;
-    Implementation::template DistanceToOut<Real_v>(
-        ((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p, d, step_max, output);
+    Implementation::template DistanceToOut<Real_v>(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p, d,
+                                                   step_max, output);
     return output;
   }
 
   // the explicit SIMD interface
   VECGEOM_CUDA_HEADER_BOTH
   virtual Real_v DistanceToInVec(Vector3D<Real_v> const &p, Vector3D<Real_v> const &d,
-                                 Real_v const &step_max) const override {
+                                 Real_v const &step_max) const override
+  {
     Real_v output(kInfinity);
     Implementation::template DistanceToIn<Real_v>(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p, d,
                                                   step_max, output);
@@ -183,14 +186,16 @@ public:
   }
 
   // the explicit SIMD interface
-  virtual Real_v SafetyToOutVec(Vector3D<Real_v> const &p) const override {
+  virtual Real_v SafetyToOutVec(Vector3D<Real_v> const &p) const override
+  {
     Real_v output(kInfinity);
     Implementation::template SafetyToOut<Real_v>(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p, output);
     return output;
   }
 
   // the explicit SIMD interface
-  virtual Real_v SafetyToInVec(Vector3D<Real_v> const &p) const override {
+  virtual Real_v SafetyToInVec(Vector3D<Real_v> const &p) const override
+  {
     Real_v output(kInfinity);
     Implementation::template SafetyToIn<Real_v>(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p, output);
     return output;
@@ -201,9 +206,10 @@ public:
   using Common_t::SafetyToOut;
 
   virtual void DistanceToOut(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
-                             Precision const *const step_max, Precision *const output) const override {
+                             Precision const *const step_max, Precision *const output) const override
+  {
     auto offset = points.size() - points.size() % vecCore::VectorSize<VectorBackend::Real_v>();
-    auto shape = ((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct();
+    auto shape  = ((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct();
     // vector loop treatment
     DistanceToOutLoop<Implementation, VectorBackend::Real_v>(&shape, 0, offset, points, directions, step_max, output);
     // tail treatment
@@ -211,26 +217,25 @@ public:
                                                              step_max, output);
   }
 
-  virtual void SafetyToOut(SOA3D<Precision> const &points, Precision *const output) const override {
+  virtual void SafetyToOut(SOA3D<Precision> const &points, Precision *const output) const override
+  {
     auto offset = points.size() - points.size() % vecCore::VectorSize<VectorBackend::Real_v>();
-    auto shape = ((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct();
+    auto shape  = ((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct();
     // vector loop treatment
     SafetyToOutLoop<Implementation, VectorBackend::Real_v>(&shape, 0, offset, points, output);
     // tail treatment
     SafetyToOutLoop<Implementation, ScalarBackend::Real_v>(&shape, offset, points.size(), points, output);
   }
-
 };
 
 // helper that dispatches the vector interface to a loop over the scalar interface
 template <class Implementation, class BaseUnplVol = VUnplacedVolume>
-class LoopUnplacedVolumeImplHelper
-    : public CommonUnplacedVolumeImplHelper<Implementation, BaseUnplVol> {
+class LoopUnplacedVolumeImplHelper : public CommonUnplacedVolumeImplHelper<Implementation, BaseUnplVol> {
 public:
-  using Real_v = vecgeom::VectorBackend::Real_v;
-  using Real_s = vecgeom::ScalarBackend::Real_v;
+  using Real_v           = vecgeom::VectorBackend::Real_v;
+  using Real_s           = vecgeom::ScalarBackend::Real_v;
   using UnplacedVolume_t = typename Implementation::UnplacedVolume_t;
-  using Common_t = CommonUnplacedVolumeImplHelper<Implementation, BaseUnplVol>;
+  using Common_t         = CommonUnplacedVolumeImplHelper<Implementation, BaseUnplVol>;
 
   // constructors
   using Common_t::Common_t;
@@ -242,15 +247,17 @@ public:
   // the explicit SIMD interface
   VECGEOM_CUDA_HEADER_BOTH
   virtual Real_v DistanceToOutVec(Vector3D<Real_v> const &p, Vector3D<Real_v> const &d,
-                                   Real_v const &step_max) const override {
+                                  Real_v const &step_max) const override
+  {
     // implementation of a vector interface in terms of a scalar interface
     Real_v output(kInfinity);
     using vecCore::LaneAt;
     for (size_t i = 0; i < vecCore::VectorSize<Real_v>(); ++i) {
       Vector3D<Real_s> ps(LaneAt(p.x(), i), LaneAt(p.y(), i), LaneAt(p.z(), i)); // scalar vector
       Vector3D<Real_s> ds(LaneAt(d.x(), i), LaneAt(d.y(), i), LaneAt(d.z(), i)); // scalar direction;
-      vecCore::AssignLane(output, i, Implementation::template DistanceToOut<Real_s>(
-                  ((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), ps, ds, LaneAt(step_max,i)));
+      vecCore::AssignLane(output, i,
+                          Implementation::template DistanceToOut<Real_s>(
+                              ((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), ps, ds, LaneAt(step_max, i)));
     }
     return output;
   }
@@ -258,7 +265,8 @@ public:
   // the explicit SIMD interface
   VECGEOM_CUDA_HEADER_BOTH
   virtual Real_v DistanceToInVec(Vector3D<Real_v> const &p, Vector3D<Real_v> const &d,
-                                 Real_v const &step_max) const override {
+                                 Real_v const &step_max) const override
+  {
     // implementation of a vector interface in terms of a scalar interface
     Real_v output(kInfinity);
     using vecCore::LaneAt;
@@ -266,60 +274,58 @@ public:
       Vector3D<Real_s> ps(LaneAt(p.x(), i), LaneAt(p.y(), i), LaneAt(p.z(), i)); // scalar vector
       Vector3D<Real_s> ds(LaneAt(d.x(), i), LaneAt(d.y(), i), LaneAt(d.z(), i)); // scalar direction;
       Real_s tmp;
-      Implementation::template DistanceToIn<Real_s>(
-                  ((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), ps, ds, LaneAt(step_max,i), tmp);
+      Implementation::template DistanceToIn<Real_s>(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), ps, ds,
+                                                    LaneAt(step_max, i), tmp);
       vecCore::AssignLane(output, i, tmp);
     }
     return output;
   }
 
   // the explicit SIMD interface
-   VECGEOM_CUDA_HEADER_BOTH
-   virtual Real_v SafetyToOutVec(Vector3D<Real_v> const &p) const override {
-   // implementation of a vector interface in terms of a scalar interface
-      Real_v output(-1.);
-      using vecCore::LaneAt;
-      for (size_t i = 0; i < vecCore::VectorSize<Real_v>(); ++i) {
-       Vector3D<Real_s> ps(LaneAt(p.x(), i), LaneAt(p.y(), i), LaneAt(p.z(), i)); // scalar vector
-       Real_s tmp(kInfinity);
-       Implementation::template SafetyToOut<Real_s>(
-                  ((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), ps, tmp);
-       vecCore::AssignLane(output, i, tmp);
-     }
-     return output;
+  VECGEOM_CUDA_HEADER_BOTH
+  virtual Real_v SafetyToOutVec(Vector3D<Real_v> const &p) const override
+  {
+    // implementation of a vector interface in terms of a scalar interface
+    Real_v output(-1.);
+    using vecCore::LaneAt;
+    for (size_t i = 0; i < vecCore::VectorSize<Real_v>(); ++i) {
+      Vector3D<Real_s> ps(LaneAt(p.x(), i), LaneAt(p.y(), i), LaneAt(p.z(), i)); // scalar vector
+      Real_s tmp(kInfinity);
+      Implementation::template SafetyToOut<Real_s>(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), ps, tmp);
+      vecCore::AssignLane(output, i, tmp);
+    }
+    return output;
   }
 
   // the explicit SIMD interface
   VECGEOM_CUDA_HEADER_BOTH
-  virtual Real_v SafetyToInVec(Vector3D<Real_v> const &p) const override {
+  virtual Real_v SafetyToInVec(Vector3D<Real_v> const &p) const override
+  {
     // implementation of a vector interface in terms of a scalar interface
     Real_v output(kInfinity);
     using vecCore::LaneAt;
     for (size_t i = 0; i < vecCore::VectorSize<Real_v>(); ++i) {
       Vector3D<Real_s> ps(LaneAt(p.x(), i), LaneAt(p.y(), i), LaneAt(p.z(), i)); // scalar vector
       Real_s tmp;
-      Implementation::template SafetyToIn<Real_s>(
-                  ((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), ps, tmp);
+      Implementation::template SafetyToIn<Real_s>(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), ps, tmp);
       vecCore::AssignLane(output, i, tmp);
     }
     return output;
   }
 
-
   using UnplacedStruct_t = typename Implementation::UnplacedStruct_t;
 
-
   virtual void DistanceToOut(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
-                             Precision const *const step_max, Precision *const output) const override {
+                             Precision const *const step_max, Precision *const output) const override
+  {
     auto shape = ((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct();
-    DistanceToOutLoop<Implementation, Precision>(&shape, 0, points.size(), points,
-                                                                                  directions, step_max, output);
+    DistanceToOutLoop<Implementation, Precision>(&shape, 0, points.size(), points, directions, step_max, output);
   }
 
-  virtual void SafetyToOut(SOA3D<Precision> const &points, Precision *const output) const override {
+  virtual void SafetyToOut(SOA3D<Precision> const &points, Precision *const output) const override
+  {
     auto shape = ((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct();
-    SafetyToOutLoop<Implementation, Precision>(&shape, 0, points.size(), points,
-                                                                                output);
+    SafetyToOutLoop<Implementation, Precision>(&shape, 0, points.size(), points, output);
   }
 };
 }

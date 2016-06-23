@@ -7,19 +7,19 @@
 
 #include <stdio.h>
 
-__global__
-void ProcessNavStates( void* gpu_ptr /* a pointer to buffer of navigation states */, int depth, int n )
+__global__ void ProcessNavStates(void *gpu_ptr /* a pointer to buffer of navigation states */, int depth, int n)
 {
   using vecgeom::cuda::NavigationState;
   using vecgeom::cuda::NavStatePool;
 
   const int i = vecgeom::cuda::ThreadIndex();
-  if( i >= n ) return;
+  if (i >= n) return;
 
-  if(i==0){
-    printf("*** Size of NavigationState on the GPU: %ld bytes (SizeOf=%ld) at gpu_ptr=%p\n", sizeof(vecgeom::cuda::NavigationState), NavigationState::SizeOf(depth), gpu_ptr);
+  if (i == 0) {
+    printf("*** Size of NavigationState on the GPU: %ld bytes (SizeOf=%ld) at gpu_ptr=%p\n",
+           sizeof(vecgeom::cuda::NavigationState), NavigationState::SizeOf(depth), gpu_ptr);
     // dump memory from GPU side
-    NavigationState* dumper = reinterpret_cast<NavigationState*>(gpu_ptr);
+    NavigationState *dumper = reinterpret_cast<NavigationState *>(gpu_ptr);
     dumper->Dump();
   }
 
@@ -32,24 +32,24 @@ void ProcessNavStates( void* gpu_ptr /* a pointer to buffer of navigation states
 
   // get the navigationstate for this thread/lane
   // Warning: arithmetic on pointer to void or function type.
-  vecgeom::cuda::NavigationState * state = reinterpret_cast<vecgeom::cuda::NavigationState*>( (char*)gpu_ptr +
-        vecgeom::cuda::NavigationState::SizeOf(depth)*i ); 
+  vecgeom::cuda::NavigationState *state = reinterpret_cast<vecgeom::cuda::NavigationState *>(
+      (char *)gpu_ptr + vecgeom::cuda::NavigationState::SizeOf(depth) * i);
 
   // actually do something to the states; here just popping off the top volume
-  printf("From GPU: "); state->Print();
+  printf("From GPU: ");
+  state->Print();
 
   // state->Pop();
   // state->SetPathPointer( oldpathpointer );
 }
 
-void LaunchNavigationKernel( void* gpu_ptr, int depth, int n )
+void LaunchNavigationKernel(void *gpu_ptr, int depth, int n)
 {
-  vecgeom::cuda::LaunchParameters launch =
-      vecgeom::cuda::LaunchParameters(n);
+  vecgeom::cuda::LaunchParameters launch = vecgeom::cuda::LaunchParameters(n);
 
   int gsize = launch.grid_size.x;
   int bsize = launch.block_size.x;
   printf("Launching GPU kernels: ProcessNavStates<<<%i,%i>>>...\n", gsize, bsize);
-  ProcessNavStates<<< launch.grid_size , launch.block_size >>>( gpu_ptr, depth, n );
+  ProcessNavStates<<<launch.grid_size, launch.block_size>>>(gpu_ptr, depth, n);
   printf("Returning from LaunchNavigationKernel now.\n");
 }

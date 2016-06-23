@@ -1,5 +1,5 @@
 /// \file PlacedGenTrap.h
-/// \author: swenzel 
+/// \author: swenzel
 /// Created on: Aug 3, 2014
 ///  Modified and completed: mihaela.gheata@cern.ch
 
@@ -14,7 +14,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(class PlacedGenTrap;)
-VECGEOM_DEVICE_DECLARE_CONV(class,PlacedGenTrap)
+VECGEOM_DEVICE_DECLARE_CONV(class, PlacedGenTrap)
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -34,7 +34,9 @@ public:
   */
   PlacedGenTrap(char const *const label, LogicalVolume const *const logicalVolume,
                 Transformation3D const *const transformation, PlacedBox const *const boundingBox)
-      : VPlacedVolume(label, logicalVolume, transformation, boundingBox) {}
+      : VPlacedVolume(label, logicalVolume, transformation, boundingBox)
+  {
+  }
 
   /** @brief PlacedGenTrap constructor
   * @param logicalVolume Logical volume
@@ -44,7 +46,9 @@ public:
   */
   PlacedGenTrap(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
                 PlacedBox const *const boundingBox)
-      : PlacedGenTrap("", logicalVolume, transformation, boundingBox) {}
+      : PlacedGenTrap("", logicalVolume, transformation, boundingBox)
+  {
+  }
 
 #else
 
@@ -56,7 +60,9 @@ public:
   */
   __device__ PlacedGenTrap(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
                            PlacedBox const *const boundingBox, const int id)
-      : VPlacedVolume(logicalVolume, transformation, boundingBox, id) {}
+      : VPlacedVolume(logicalVolume, transformation, boundingBox, id)
+  {
+  }
 
 #endif
   /** @brief PlacedGenTrap destructor */
@@ -65,7 +71,8 @@ public:
 
   /** @brief Getter for unplaced volume */
   VECGEOM_CUDA_HEADER_BOTH
-  UnplacedGenTrap const *GetUnplacedVolume() const {
+  UnplacedGenTrap const *GetUnplacedVolume() const
+  {
     return static_cast<UnplacedGenTrap const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
@@ -82,14 +89,17 @@ public:
   virtual Precision Capacity() override { return GetUnplacedVolume()->volume(); }
 
   /** @brief Computes the extent on X/Y/Z of the trapezoid */
-  virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override {
+  virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
+  {
     GetUnplacedVolume()->Extent(aMin, aMax);
   }
 
   /** @brief Shortcut for computing the normal */
-  virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override {
+  virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
+  {
     bool valid;
-    GenTrapImplementation<translation::kIdentity, rotation::kIdentity>::NormalKernel<kScalar>(*GetUnplacedVolume(),                                                                                              point, normal, valid);
+    GenTrapImplementation<translation::kIdentity, rotation::kIdentity>::NormalKernel<kScalar>(*GetUnplacedVolume(),
+                                                                                              point, normal, valid);
     return valid;
   }
 

@@ -10,7 +10,8 @@
 
 using namespace vecgeom;
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[])
+{
   OPTION_INT(npoints, 1024);
   OPTION_INT(nrep, 10);
   OPTION_DOUBLE(rmin, 15.);
@@ -20,7 +21,7 @@ int main(int argc, char* argv[]) {
   OPTION_DOUBLE(stheta, kPi / 4.);
   OPTION_DOUBLE(dtheta, kPi / 6.);
 
-  UnplacedBox worldUnplaced = UnplacedBox(rmax * 4, rmax * 4, rmax * 4);
+  UnplacedBox worldUnplaced     = UnplacedBox(rmax * 4, rmax * 4, rmax * 4);
   UnplacedSphere sphereUnplaced = UnplacedSphere(rmin, rmax, sphi, dphi, stheta, dtheta);
   LogicalVolume world("w0rld", &worldUnplaced);
   LogicalVolume sphere("p4r4", &sphereUnplaced);

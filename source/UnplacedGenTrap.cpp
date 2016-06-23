@@ -20,7 +20,8 @@ VECGEOM_CUDA_HEADER_BOTH
 UnplacedGenTrap::UnplacedGenTrap(const Precision verticesx[], const Precision verticesy[], Precision halfzheight)
     : fBBdimensions(0., 0., 0.), fBBorigin(0., 0., 0.), fVertices(), fVerticesX(), fVerticesY(), fDz(halfzheight),
       fInverseDz(1. / halfzheight), fHalfInverseDz(0.5 / halfzheight), fIsTwisted(false), fConnectingComponentsX(),
-      fConnectingComponentsY(), fDeltaX(), fDeltaY(), fSurfaceShell(verticesx, verticesy, halfzheight) {
+      fConnectingComponentsY(), fDeltaX(), fDeltaY(), fSurfaceShell(verticesx, verticesy, halfzheight)
+{
   // Constructor
 
   // Set vertices in Vector3D form
@@ -36,7 +37,7 @@ UnplacedGenTrap::UnplacedGenTrap(const Precision verticesx[], const Precision ve
   }
 
   for (int i = 0; i < 4; ++i) {
-    int j = (i + 1) % 4;
+    int j           = (i + 1) % 4;
     fDegenerated[i] = (Abs(verticesx[i] - verticesx[j]) < kTolerance) &&
                       (Abs(verticesy[i] - verticesy[j]) < kTolerance) &&
                       (Abs(verticesx[i + 4] - verticesx[j + 4]) < kTolerance) &&
@@ -64,10 +65,10 @@ UnplacedGenTrap::UnplacedGenTrap(const Precision verticesx[], const Precision ve
     printf("INFO: Reverting to clockwise vertices of GenTrap shape:\n");
     Print();
     Vertex_t vtemp;
-    vtemp = fVertices[1];
+    vtemp        = fVertices[1];
     fVertices[1] = fVertices[3];
     fVertices[3] = vtemp;
-    vtemp = fVertices[5];
+    vtemp        = fVertices[5];
     fVertices[5] = fVertices[7];
     fVertices[7] = vtemp;
   }
@@ -76,18 +77,18 @@ UnplacedGenTrap::UnplacedGenTrap(const Precision verticesx[], const Precision ve
   for (int i = 0; i < 4; ++i) {
     fConnectingComponentsX[i] = (fVertices[i] - fVertices[i + 4]).x();
     fConnectingComponentsY[i] = (fVertices[i] - fVertices[i + 4]).y();
-    fVerticesX[i] = fVertices[i].x();
-    fVerticesX[i + 4] = fVertices[i + 4].x();
-    fVerticesY[i] = fVertices[i].y();
-    fVerticesY[i + 4] = fVertices[i + 4].y();
+    fVerticesX[i]             = fVertices[i].x();
+    fVerticesX[i + 4]         = fVertices[i + 4].x();
+    fVerticesY[i]             = fVertices[i].y();
+    fVerticesY[i + 4]         = fVertices[i + 4].y();
   }
 
   // Initialize components of horizontal connecting vectors
   for (int i = 0; i < 4; ++i) {
-    int j = (i + 1) % 4;
-    fDeltaX[i] = fVerticesX[j] - fVerticesX[i];
+    int j          = (i + 1) % 4;
+    fDeltaX[i]     = fVerticesX[j] - fVerticesX[i];
     fDeltaX[i + 4] = fVerticesX[j + 4] - fVerticesX[i + 4];
-    fDeltaY[i] = fVerticesY[j] - fVerticesY[i];
+    fDeltaY[i]     = fVerticesY[j] - fVerticesY[i];
     fDeltaY[i + 4] = fVerticesY[j + 4] - fVerticesY[i + 4];
   }
 
@@ -115,51 +116,46 @@ UnplacedGenTrap::UnplacedGenTrap(const Precision verticesx[], const Precision ve
 
 //______________________________________________________________________________
 VECGEOM_CUDA_HEADER_BOTH
-void UnplacedGenTrap::ComputeBoundingBox() {
+void UnplacedGenTrap::ComputeBoundingBox()
+{
   // Computes bounding box parameters
   Vertex_t aMin, aMax;
   Extent(aMin, aMax);
-  fBBorigin = 0.5 * (aMin + aMax);
+  fBBorigin     = 0.5 * (aMin + aMax);
   fBBdimensions = 0.5 * (aMax - aMin);
 }
 
 //______________________________________________________________________________
 VECGEOM_CUDA_HEADER_BOTH
-void UnplacedGenTrap::Extent(Vertex_t &aMin, Vertex_t &aMax) const {
+void UnplacedGenTrap::Extent(Vertex_t &aMin, Vertex_t &aMax) const
+{
   // Returns the full 3D cartesian extent of the solid.
   aMin = aMax = fVertices[0];
-  aMin[2] = -fDz;
-  aMax[2] = fDz;
+  aMin[2]     = -fDz;
+  aMax[2]     = fDz;
   for (int i = 0; i < 4; ++i) {
     // lower -fDz vertices
-    if (aMin[0] > fVertices[i].x())
-      aMin[0] = fVertices[i].x();
-    if (aMax[0] < fVertices[i].x())
-      aMax[0] = fVertices[i].x();
-    if (aMin[1] > fVertices[i].y())
-      aMin[1] = fVertices[i].y();
-    if (aMax[1] < fVertices[i].y())
-      aMax[1] = fVertices[i].y();
+    if (aMin[0] > fVertices[i].x()) aMin[0] = fVertices[i].x();
+    if (aMax[0] < fVertices[i].x()) aMax[0] = fVertices[i].x();
+    if (aMin[1] > fVertices[i].y()) aMin[1] = fVertices[i].y();
+    if (aMax[1] < fVertices[i].y()) aMax[1] = fVertices[i].y();
     // upper fDz vertices
-    if (aMin[0] > fVertices[i + 4].x())
-      aMin[0] = fVertices[i + 4].x();
-    if (aMax[0] < fVertices[i + 4].x())
-      aMax[0] = fVertices[i + 4].x();
-    if (aMin[1] > fVertices[i + 4].y())
-      aMin[1] = fVertices[i + 4].y();
-    if (aMax[1] < fVertices[i + 4].y())
-      aMax[1] = fVertices[i + 4].y();
+    if (aMin[0] > fVertices[i + 4].x()) aMin[0] = fVertices[i + 4].x();
+    if (aMax[0] < fVertices[i + 4].x()) aMax[0] = fVertices[i + 4].x();
+    if (aMin[1] > fVertices[i + 4].y()) aMin[1] = fVertices[i + 4].y();
+    if (aMax[1] < fVertices[i + 4].y()) aMax[1] = fVertices[i + 4].y();
   }
 }
 
 //______________________________________________________________________________
 VECGEOM_CUDA_HEADER_BOTH
-bool UnplacedGenTrap::SegmentsCrossing(Vertex_t p, Vertex_t p1, Vertex_t q, Vertex_t q1) const {
+bool UnplacedGenTrap::SegmentsCrossing(Vertex_t p, Vertex_t p1, Vertex_t q, Vertex_t q1) const
+{
   // Check if 2 segments defined by (p,p1) and (q,q1) are crossing.
   // See: http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
-  using Vector = Vertex_t;
-  Vector r = p1 - p; // p1 = p+r
-  Vector s = q1 - q; // q1 = q+s
+  using Vector     = Vertex_t;
+  Vector r         = p1 - p; // p1 = p+r
+  Vector s         = q1 - q; // q1 = q+s
   Vector r_cross_s = Vector::Cross(r, s);
   if (r_cross_s.Mag2() < kTolerance) // parallel, colinear or degenerated - ignore crossing
     return false;
@@ -169,18 +165,17 @@ bool UnplacedGenTrap::SegmentsCrossing(Vertex_t p, Vertex_t p1, Vertex_t q, Vert
   // give t and u values in the range (0,1).
   // We allow crossing within kTolerance, so the interval becomes (kTolerance, 1-kTolerance)
   Precision t = Vector::Cross(q - p, s).z() / r_cross_s.z();
-  if (t < kTolerance || t > 1. - kTolerance)
-    return false;
+  if (t < kTolerance || t > 1. - kTolerance) return false;
   Precision u = Vector::Cross(q - p, r).z() / r_cross_s.z();
-  if (u < kTolerance || u > 1. - kTolerance)
-    return false;
+  if (u < kTolerance || u > 1. - kTolerance) return false;
   return true;
 }
 
 //______________________________________________________________________________
 // computes if this gentrap is twisted
 VECGEOM_CUDA_HEADER_BOTH
-bool UnplacedGenTrap::ComputeIsTwisted() {
+bool UnplacedGenTrap::ComputeIsTwisted()
+{
   // Check if the trapezoid is twisted. A lateral face is twisted if the top and
   // bottom segments are not parallel (cross product not null)
 
@@ -213,7 +208,8 @@ bool UnplacedGenTrap::ComputeIsTwisted() {
 
 //______________________________________________________________________________
 VECGEOM_CUDA_HEADER_BOTH
-bool UnplacedGenTrap::ComputeIsConvexQuadrilaterals() {
+bool UnplacedGenTrap::ComputeIsConvexQuadrilaterals()
+{
   // Computes if this gentrap top and bottom quadrilaterals are convex. The vertices
   // have to be pre-ordered clockwise in the XY plane.
 
@@ -223,18 +219,17 @@ bool UnplacedGenTrap::ComputeIsConvexQuadrilaterals() {
     int j = (i + 1) % 4;
     // Bottom face
     Precision crossij = fDeltaX[i] * fDeltaY[j] - fDeltaY[i] * fDeltaX[j];
-    if (crossij > kTolerance)
-      return false;
+    if (crossij > kTolerance) return false;
     // Top face
     crossij = fDeltaX[i + 4] * fDeltaY[j + 4] - fDeltaY[i + 4] * fDeltaX[j + 4];
-    if (crossij > kTolerance)
-      return false;
+    if (crossij > kTolerance) return false;
   }
   return true;
 }
 
 //______________________________________________________________________________
-Vector3D<Precision> UnplacedGenTrap::GetPointOnSurface() const {
+Vector3D<Precision> UnplacedGenTrap::GetPointOnSurface() const
+{
   // Generate randomly a point on one of the surfaces
   // Select randomly a surface
   Vertex_t point;
@@ -242,22 +237,18 @@ Vector3D<Precision> UnplacedGenTrap::GetPointOnSurface() const {
   // Avoid using the bounding box due to possible point-like top/bottom
   // which would be impossible to sample
   bool degenerate[6] = {false};
-  int nvertices = 4; // by default 4 vertices on top/bottom faces
+  int nvertices      = 4; // by default 4 vertices on top/bottom faces
   // bottom
   for (int j = 0; j < 4; ++j) {
-    if ((Abs(fDeltaX[j]) < kTolerance) && (Abs(fDeltaY[j]) < kTolerance))
-      nvertices--;
+    if ((Abs(fDeltaX[j]) < kTolerance) && (Abs(fDeltaY[j]) < kTolerance)) nvertices--;
   }
-  if (nvertices < 3)
-    degenerate[4] = true;
-  nvertices = 4;
+  if (nvertices < 3) degenerate[4] = true;
+  nvertices                        = 4;
   // top
   for (int j = 0; j < 4; ++j) {
-    if ((Abs(fDeltaX[j + 4]) < kTolerance) && (Abs(fDeltaY[j + 4]) < kTolerance))
-      nvertices--;
+    if ((Abs(fDeltaX[j + 4]) < kTolerance) && (Abs(fDeltaY[j + 4]) < kTolerance)) nvertices--;
   }
-  if (nvertices < 3)
-    degenerate[5] = true;
+  if (nvertices < 3) degenerate[5] = true;
   for (int j = 0; j < 4; ++j) {
     if ((Abs(fDeltaX[j]) < kTolerance) && (Abs(fDeltaY[j]) < kTolerance) && (Abs(fDeltaX[j + 4]) < kTolerance) &&
         (Abs(fDeltaY[j + 4]) < kTolerance))
@@ -267,8 +258,7 @@ Vector3D<Precision> UnplacedGenTrap::GetPointOnSurface() const {
   int i = 0;
   while (1) {
     i = int(RNG::Instance().uniform(0., 6.));
-    if (!degenerate[i])
-      break;
+    if (!degenerate[i]) break;
   }
   // Generate point on lateral surface
   if (i < 4) {
@@ -280,7 +270,7 @@ Vector3D<Precision> UnplacedGenTrap::GetPointOnSurface() const {
     Precision fz = RNG::Instance().uniform(0., 1.);
     // Random fraction along the horizontal hi at selected z
     Precision f = RNG::Instance().uniform(0., 1.);
-    point = fVertices[i] + fz * vi + f * h0 + f * fz * (vj - vi);
+    point       = fVertices[i] + fz * vi + f * h0 + f * fz * (vj - vi);
     return point;
   }
   i -= 4; // now 0 (bottom surface) or 1 (top surface)
@@ -317,14 +307,10 @@ Vector3D<Precision> UnplacedGenTrap::GetPointOnSurface() const {
   Precision ymin = fVertices[i].y();
   Precision ymax = ymin;
   for (int j = i + 1; j < i + 4; ++j) {
-    if (fVertices[j].x() < xmin)
-      xmin = fVertices[j].x();
-    if (fVertices[j].x() > xmax)
-      xmax = fVertices[j].x();
-    if (fVertices[j].y() < ymin)
-      ymin = fVertices[j].y();
-    if (fVertices[j].y() > ymax)
-      ymax = fVertices[j].y();
+    if (fVertices[j].x() < xmin) xmin = fVertices[j].x();
+    if (fVertices[j].x() > xmax) xmax = fVertices[j].x();
+    if (fVertices[j].y() < ymin) ymin = fVertices[j].y();
+    if (fVertices[j].y() > ymax) ymax = fVertices[j].y();
   }
   bool inside = false;
   while (!inside) {
@@ -335,10 +321,10 @@ Vector3D<Precision> UnplacedGenTrap::GetPointOnSurface() const {
     // Now make sure the point (x,y) is on the selected surface. Use same
     // algorithm as for Contains
     for (int j = i; j < i + 4; ++j) {
-      int k = i + (j + 1) % 4;
+      int k        = i + (j + 1) % 4;
       Precision dx = fVertices[k].x() - fVertices[j].x();
       Precision dy = fVertices[k].y() - fVertices[j].y();
-      cross = (x - fVertices[j].x()) * dy - (y - fVertices[j].y()) * dx;
+      cross        = (x - fVertices[j].x()) * dy - (y - fVertices[j].y()) * dx;
       if (cross < -kTolerance) {
         inside = false;
         break;
@@ -352,7 +338,8 @@ Vector3D<Precision> UnplacedGenTrap::GetPointOnSurface() const {
 }
 
 //______________________________________________________________________________
-Precision UnplacedGenTrap::SurfaceArea() const {
+Precision UnplacedGenTrap::SurfaceArea() const
+{
   // Computes analytically the surface area of the trapezoid. The formula is
   // computed by integrating along Z axis the sum of areas for infinitezimal
   // trapezoids of each lateral surface. Since this can be twisted, the area
@@ -361,8 +348,8 @@ Precision UnplacedGenTrap::SurfaceArea() const {
   //    vi, vj = vectors bottom->top for each lateral surface // j=(i+1)%4
   //    hi0 = vector connecting consecutive bottom vertices
   Vertex_t vi, vj, hi0, vres;
-  Precision surfTop = 0.;
-  Precision surfBottom = 0.;
+  Precision surfTop     = 0.;
+  Precision surfBottom  = 0.;
   Precision surfLateral = 0;
   for (int i = 0; i < 4; ++i) {
     int j = (i + 1) % 4;
@@ -378,7 +365,8 @@ Precision UnplacedGenTrap::SurfaceArea() const {
 }
 
 //______________________________________________________________________________
-Precision UnplacedGenTrap::volume() const {
+Precision UnplacedGenTrap::volume() const
+{
   // Computes analytically the capacity of the trapezoid
   int i, j;
   Precision capacity = 0;
@@ -394,7 +382,8 @@ Precision UnplacedGenTrap::volume() const {
 
 //______________________________________________________________________________
 VECGEOM_CUDA_HEADER_BOTH
-void UnplacedGenTrap::Print() const {
+void UnplacedGenTrap::Print() const
+{
   printf("--------------------------------------------------------\n");
   printf("    =================================================== \n");
   printf(" Solid type: UnplacedGenTrap \n");
@@ -410,7 +399,8 @@ void UnplacedGenTrap::Print() const {
 }
 
 //______________________________________________________________________________
-void UnplacedGenTrap::Print(std::ostream &os) const {
+void UnplacedGenTrap::Print(std::ostream &os) const
+{
   int oldprc = os.precision(16);
   os << "--------------------------------------------------------\n"
      //     << "    *** Dump for solid - " << GetName() << " *** \n"
@@ -430,7 +420,8 @@ void UnplacedGenTrap::Print(std::ostream &os) const {
 #if defined(VECGEOM_USOLIDS)
 //______________________________________________________________________________
 VECGEOM_CUDA_HEADER_BOTH
-std::ostream &UnplacedGenTrap::StreamInfo(std::ostream &os) const {
+std::ostream &UnplacedGenTrap::StreamInfo(std::ostream &os) const
+{
   int oldprc = os.precision(16);
   os << "--------------------------------------------------------\n"
      //     << "    *** Dump for solid - " << GetName() << " *** \n"
@@ -457,7 +448,8 @@ VPlacedVolume *UnplacedGenTrap::SpecializedVolume(LogicalVolume const *const vol
 #ifdef VECGEOM_NVCC
                                                   const int id,
 #endif
-                                                  VPlacedVolume *const placement) const {
+                                                  VPlacedVolume *const placement) const
+{
   return VolumeFactory::CreateByTransformation<UnplacedGenTrap>(volume, transformation, trans_code, rot_code,
 #ifdef VECGEOM_NVCC
                                                                 id,
@@ -467,12 +459,14 @@ VPlacedVolume *UnplacedGenTrap::SpecializedVolume(LogicalVolume const *const vol
 
 //______________________________________________________________________________
 template <TranslationCode trans_code, RotationCode rot_code>
-VECGEOM_CUDA_HEADER_DEVICE VPlacedVolume *UnplacedGenTrap::Create(LogicalVolume const *const logical_volume,
-                                                                  Transformation3D const *const transformation,
+VECGEOM_CUDA_HEADER_DEVICE
+VPlacedVolume *UnplacedGenTrap::Create(LogicalVolume const *const logical_volume,
+                                       Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
-                                                                  const int id,
+                                       const int id,
 #endif
-                                                                  VPlacedVolume *const placement) {
+                                       VPlacedVolume *const placement)
+{
   if (placement) {
     new (placement) SpecializedGenTrap<trans_code, rot_code>(logical_volume, transformation
 #ifdef VECGEOM_NVCC
@@ -510,7 +504,8 @@ VPlacedVolume *UnplacedGenTrap::CreateSpecializedVolume(LogicalVolume const *con
 #ifdef VECGEOM_CUDA_INTERFACE
 
 //______________________________________________________________________________
-DevicePtr<cuda::VUnplacedVolume> UnplacedGenTrap::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const {
+DevicePtr<cuda::VUnplacedVolume> UnplacedGenTrap::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
+{
   // Copy vertices on GPU, then create the object
   Precision *xv_gpu_ptr = AllocateOnGpu<Precision>(8 * sizeof(Precision));
   Precision *yv_gpu_ptr = AllocateOnGpu<Precision>(8 * sizeof(Precision));
@@ -526,7 +521,10 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedGenTrap::CopyToGpu(DevicePtr<cuda::VUnp
 }
 
 //______________________________________________________________________________
-DevicePtr<cuda::VUnplacedVolume> UnplacedGenTrap::CopyToGpu() const { return CopyToGpuImpl<UnplacedGenTrap>(); }
+DevicePtr<cuda::VUnplacedVolume> UnplacedGenTrap::CopyToGpu() const
+{
+  return CopyToGpuImpl<UnplacedGenTrap>();
+}
 
 #endif // VECGEOM_CUDA_INTERFACE
 

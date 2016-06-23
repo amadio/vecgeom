@@ -15,12 +15,10 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT, typename trdTypeT>
-using SpecializedTrd = ShapeImplementationHelper<TrdImplementation<transCodeT, rotCodeT, trdTypeT> >;
+using SpecializedTrd = ShapeImplementationHelper<TrdImplementation<transCodeT, rotCodeT, trdTypeT>>;
 
 using SimpleTrd = SpecializedTrd<translation::kGeneric, rotation::kGeneric, TrdTypes::UniversalTrd>;
-
-} } // End global namespace
-
-
+}
+} // End global namespace
 
 #endif // VECGEOM_VOLUMES_SPECIALIZEDTRD_H_

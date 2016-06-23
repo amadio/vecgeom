@@ -14,16 +14,14 @@
 #include "volumes/PlacedPolycone.h"
 #include "volumes/ScalarShapeImplementationHelper.h"
 
-
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedPolycone = ScalarShapeImplementationHelper<PolyconeImplementation<transCodeT, rotCodeT> >;
+using SpecializedPolycone = ScalarShapeImplementationHelper<PolyconeImplementation<transCodeT, rotCodeT>>;
 
 using SimplePolycone = SpecializedPolycone<translation::kGeneric, rotation::kGeneric>;
-
-} } // End global namespace
-
+}
+} // End global namespace
 
 #endif /* VECGEOM_VOLUMES_SPECIALIZEDPOLYCONE_H_ */

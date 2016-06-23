@@ -15,10 +15,10 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedParaboloid = ShapeImplementationHelper<ParaboloidImplementation<transCodeT, rotCodeT> >;
+using SpecializedParaboloid = ShapeImplementationHelper<ParaboloidImplementation<transCodeT, rotCodeT>>;
 
 using SimpleParaboloid = SpecializedParaboloid<translation::kGeneric, rotation::kGeneric>;
-
-} } // End global namespace
+}
+} // End global namespace
 
 #endif // VECGEOM_VOLUMES_SPECIALIZEDPARABOLOID_H_

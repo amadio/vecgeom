@@ -19,25 +19,26 @@ class VUSolid;
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE( class LogicalVolume; )
-VECGEOM_DEVICE_FORWARD_DECLARE( class VPlacedVolume; )
-VECGEOM_DEVICE_FORWARD_DECLARE( class VLevelLocator; )
-VECGEOM_DEVICE_FORWARD_DECLARE( class VSafetyEstimator; )
-VECGEOM_DEVICE_FORWARD_DECLARE( class VNavigator; )
+VECGEOM_DEVICE_FORWARD_DECLARE(class LogicalVolume;)
+VECGEOM_DEVICE_FORWARD_DECLARE(class VPlacedVolume;)
+VECGEOM_DEVICE_FORWARD_DECLARE(class VLevelLocator;)
+VECGEOM_DEVICE_FORWARD_DECLARE(class VSafetyEstimator;)
+VECGEOM_DEVICE_FORWARD_DECLARE(class VNavigator;)
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class VLevelLocator;
 class VSafetyEstimator;
 class VNavigator;
-typedef VPlacedVolume const* Daughter;
+typedef VPlacedVolume const *Daughter;
 class GeoManager;
 /**
  * @brief Class responsible for storing the unplaced volume, material and
  *        daughter volumes of a mother volume.
  */
 class LogicalVolume {
-friend class GeoManager;
+  friend class GeoManager;
+
 private:
   // pointer to concrete unplaced volume/shape
   VUnplacedVolume const *fUnplacedVolume;
@@ -51,16 +52,16 @@ private:
   /** a pointer member to register arbitrary objects with logical volume;
         included for the moment to model UserExtension like in TGeoVolume
   */
-  void * fUserExtensionPtr;
+  void *fUserExtensionPtr;
   /** some specific pointers used by Geant-V
    *
    */
-  void * fTrackingMediumPtr;
-  void * fBasketManagerPtr;
+  void *fTrackingMediumPtr;
+  void *fBasketManagerPtr;
 
-  VLevelLocator const *fLevelLocator; // a locator class for this logical volume
+  VLevelLocator const *fLevelLocator;       // a locator class for this logical volume
   VSafetyEstimator const *fSafetyEstimator; // a safety estimator class for this logical volume
-  VNavigator const *fNavigator; // the attached navigator
+  VNavigator const *fNavigator;             // the attached navigator
 
   // the container of daughter (placed) volumes which are placed inside this logical
   // Volume
@@ -68,13 +69,12 @@ private:
 
   using CudaDaughter_t = cuda::VPlacedVolume const *;
   friend class CudaManager;
-//  friend class GeoManager;
+  //  friend class GeoManager;
 
   // possibility to change pointer of daughter volumes ( can be used by GeoManager )
-//  void SetDaughter(unsigned int i, VPlacedVolume const *pvol);
+  //  void SetDaughter(unsigned int i, VPlacedVolume const *pvol);
 
 public:
-
 #ifndef VECGEOM_NVCC
   // Standard constructor when constructing geometries. Will initiate an empty
   // daughter list which can be populated by placing daughters.
@@ -114,13 +114,13 @@ public:
   VECGEOM_INLINE
   Vector<Daughter> *GetDaughtersp() { return fDaughters; }
 
-//  VECGEOM_CUDA_HEADER_BOTH
-//  VECGEOM_INLINE
-//  VPlacedVolume const* GetDaughter(unsigned int i) const { return daughters_->operator[](i); }
-//
-//  VECGEOM_CUDA_HEADER_BOTH
-//  VECGEOM_INLINE
-//  unsigned int GetNDaughters() const { return daughters_->size(); }
+  //  VECGEOM_CUDA_HEADER_BOTH
+  //  VECGEOM_INLINE
+  //  VPlacedVolume const* GetDaughter(unsigned int i) const { return daughters_->operator[](i); }
+  //
+  //  VECGEOM_CUDA_HEADER_BOTH
+  //  VECGEOM_INLINE
+  //  unsigned int GetNDaughters() const { return daughters_->size(); }
 
   VECGEOM_INLINE
   void *GetUserExtensionPtr() const { return fUserExtensionPtr; }
@@ -135,7 +135,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void SetLevelLocator(VLevelLocator const *locator) { fLevelLocator=locator; }
+  void SetLevelLocator(VLevelLocator const *locator) { fLevelLocator = locator; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -143,7 +143,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void SetSafetyEstimator(VSafetyEstimator const *est) { fSafetyEstimator=est; }
+  void SetSafetyEstimator(VSafetyEstimator const *est) { fSafetyEstimator = est; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -151,16 +151,16 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void SetNavigator(VNavigator const *n) { fNavigator=n; }
-
+  void SetNavigator(VNavigator const *n) { fNavigator = n; }
 
   int id() const { return fId; }
 
   const char *GetName() const { return fLabel->c_str(); }
   std::string GetLabel() const { return *fLabel; }
 
-  void SetLabel(char const *const label) {
-    if(fLabel) delete fLabel;
+  void SetLabel(char const *const label)
+  {
+    if (fLabel) delete fLabel;
     fLabel = new std::string(label);
   }
 
@@ -190,8 +190,7 @@ public:
   VPlacedVolume const *PlaceDaughter(char const *const label, LogicalVolume const *const volume,
                                      Transformation3D const *const transformation);
 
-  VPlacedVolume const *PlaceDaughter(LogicalVolume const *const volume,
-                                     Transformation3D const *const transformation);
+  VPlacedVolume const *PlaceDaughter(LogicalVolume const *const volume, Transformation3D const *const transformation);
 
   void PlaceDaughter(VPlacedVolume const *const placed);
 

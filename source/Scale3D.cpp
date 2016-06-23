@@ -8,11 +8,10 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-const Scale3D Scale3D::kIdentity =
-    Scale3D();
+const Scale3D Scale3D::kIdentity = Scale3D();
 
-std::ostream& operator<<(std::ostream& os,
-                         Scale3D const &scale) {
+std::ostream &operator<<(std::ostream &os, Scale3D const &scale)
+{
   os << "Scale " << scale.Scale();
   return os;
 }

@@ -10,40 +10,46 @@
 
 namespace VECGEOM_NAMESPACE {
 
-template <typename LeftUnplacedVolume_t, typename RightPlacedVolume_t, TranslationCode transCodeT, RotationCode rotCodeT>
+template <typename LeftUnplacedVolume_t, typename RightPlacedVolume_t, TranslationCode transCodeT,
+          RotationCode rotCodeT>
 class TSpecializedBooleanMinusVolume
-    : public ShapeImplementationHelper<TPlacedBooleanMinusVolume,
-                                       TBooleanMinusImplementation<LeftUnplacedVolume_t, RightPlacedVolume_t, transCodeT, rotCodeT> >
-{
+    : public ShapeImplementationHelper<
+          TPlacedBooleanMinusVolume,
+          TBooleanMinusImplementation<LeftUnplacedVolume_t, RightPlacedVolume_t, transCodeT, rotCodeT>> {
 
-  typedef ShapeImplementationHelper<TPlacedBooleanMinusVolume,
-                                    TBooleanMinusImplementation< LeftUnplacedVolume_t, RightPlacedVolume_t, transCodeT, rotCodeT> > Helper;
+  typedef ShapeImplementationHelper<
+      TPlacedBooleanMinusVolume,
+      TBooleanMinusImplementation<LeftUnplacedVolume_t, RightPlacedVolume_t, transCodeT, rotCodeT>>
+      Helper;
 
- // typedef TUnplacedBooleanMinusVolume<LeftUnplacedVolume_t, RightPlacedVolume_t> UnplacedVol_t;
- typedef TUnplacedBooleanMinusVolume UnplacedVol_t;
+  // typedef TUnplacedBooleanMinusVolume<LeftUnplacedVolume_t, RightPlacedVolume_t> UnplacedVol_t;
+  typedef TUnplacedBooleanMinusVolume UnplacedVol_t;
 
 public:
-
 #ifndef VECGEOM_NVCC
 
-  TSpecializedBooleanMinusVolume(char const *const label,
-                            LogicalVolume const *const logical_volume,
-                            Transformation3D const *const transformation)
-      : Helper(label, logical_volume, transformation, NULL) {}
+  TSpecializedBooleanMinusVolume(char const *const label, LogicalVolume const *const logical_volume,
+                                 Transformation3D const *const transformation)
+      : Helper(label, logical_volume, transformation, NULL)
+  {
+  }
 
   TSpecializedBooleanMinusVolume(LogicalVolume const *const logical_volume,
-                            Transformation3D const *const transformation)
-      : TSpecializedBooleanMinusVolume("", logical_volume, transformation) {}
+                                 Transformation3D const *const transformation)
+      : TSpecializedBooleanMinusVolume("", logical_volume, transformation)
+  {
+  }
 
   virtual ~TSpecializedBooleanMinusVolume() {}
 
 #else
 
-  __device__
-  TSpecializedBooleanMinusVolume(LogicalVolume const *const logical_volume,
-                            Transformation3D const *const transformation,
-                            PlacedBox const *const boundingBox, const int id)
-      : Helper(logical_volume, transformation, boundingBox, id) {}
+  __device__ TSpecializedBooleanMinusVolume(LogicalVolume const *const logical_volume,
+                                            Transformation3D const *const transformation,
+                                            PlacedBox const *const boundingBox, const int id)
+      : Helper(logical_volume, transformation, boundingBox, id)
+  {
+  }
 
 #endif
 
@@ -51,11 +57,9 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual void PrintType() const { printf("NOT IMPLEMENTED"); };
-  
 
 }; // endofclassdefinition
 
-
 } // End global namespace
 
-#endif // VECGEOM_VOLUMES_TSPECIALIZEDBOOLEANMINUS_H 
+#endif // VECGEOM_VOLUMES_TSPECIALIZEDBOOLEANMINUS_H

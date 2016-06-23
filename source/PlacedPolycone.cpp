@@ -24,66 +24,64 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 #ifndef VECGEOM_NVCC
-  VPlacedVolume const* PlacedPolycone::ConvertToUnspecialized() const
-  {
-      return new SimplePolycone(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
-  }
+VPlacedVolume const *PlacedPolycone::ConvertToUnspecialized() const
+{
+  return new SimplePolycone(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
+}
 
 #ifdef VECGEOM_ROOT
-  TGeoShape const* PlacedPolycone::ConvertToRoot() const
-  {
-      UnplacedPolycone const *unplaced = GetUnplacedVolume();
+TGeoShape const *PlacedPolycone::ConvertToRoot() const
+{
+  UnplacedPolycone const *unplaced = GetUnplacedVolume();
 
-      std::vector<double> rmin;
-      std::vector<double> rmax;
-      std::vector<double> z;
-      unplaced->ReconstructSectionArrays(z,rmin,rmax);
+  std::vector<double> rmin;
+  std::vector<double> rmax;
+  std::vector<double> z;
+  unplaced->ReconstructSectionArrays(z, rmin, rmax);
 
-      TGeoPcon* rootshape = new TGeoPcon(unplaced->fStartPhi*kRadToDeg,
-                                         unplaced->fDeltaPhi*kRadToDeg, z.size());
+  TGeoPcon *rootshape = new TGeoPcon(unplaced->fStartPhi * kRadToDeg, unplaced->fDeltaPhi * kRadToDeg, z.size());
 
-      if(unplaced->fNz != z.size())
-          std::cout << "WARNING: Inconsistency in number of polycone sections\n";
+  if (unplaced->fNz != z.size()) std::cout << "WARNING: Inconsistency in number of polycone sections\n";
 
-      for(unsigned int i = 0; i < unplaced->fNz; ++i)
-          rootshape->DefineSection(i, z[i], rmin[i], rmax[i]);
+  for (unsigned int i = 0; i < unplaced->fNz; ++i)
+    rootshape->DefineSection(i, z[i], rmin[i], rmax[i]);
 
-      return rootshape;
-  }
+  return rootshape;
+}
 #endif
 
 #if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-  ::VUSolid const* PlacedPolycone::ConvertToUSolids() const
-  {
-    UnplacedPolycone const * unplaced = GetUnplacedVolume();
+::VUSolid const *PlacedPolycone::ConvertToUSolids() const
+{
+  UnplacedPolycone const *unplaced = GetUnplacedVolume();
 
-    std::vector<double> rmin;
-    std::vector<double> rmax;
-    std::vector<double> z;
-    unplaced->ReconstructSectionArrays(z, rmin, rmax);
+  std::vector<double> rmin;
+  std::vector<double> rmax;
+  std::vector<double> z;
+  unplaced->ReconstructSectionArrays(z, rmin, rmax);
 
-    UPolycone * usolidshape = new UPolycone("", unplaced->fStartPhi,
-        unplaced->fDeltaPhi, unplaced->fNz, &z[0], &rmin[0], &rmax[0]);
+  UPolycone *usolidshape =
+      new UPolycone("", unplaced->fStartPhi, unplaced->fDeltaPhi, unplaced->fNz, &z[0], &rmin[0], &rmax[0]);
 
-    return usolidshape;
-  }
+  return usolidshape;
+}
 #endif
 
 #ifdef VECGEOM_GEANT4
-  G4VSolid const* PlacedPolycone::ConvertToGeant4() const
-  {
-    UnplacedPolycone const * unplaced = GetUnplacedVolume();
+G4VSolid const *PlacedPolycone::ConvertToGeant4() const
+{
+  UnplacedPolycone const *unplaced = GetUnplacedVolume();
 
-    std::vector<double> rmin;
-    std::vector<double> rmax;
-    std::vector<double> z;
-    unplaced->ReconstructSectionArrays(z, rmin, rmax);
+  std::vector<double> rmin;
+  std::vector<double> rmax;
+  std::vector<double> z;
+  unplaced->ReconstructSectionArrays(z, rmin, rmax);
 
-    G4Polycone * g4shape = new G4Polycone("",unplaced->fStartPhi,
-        unplaced->fDeltaPhi, unplaced->fNz, &z[0], &rmin[0], &rmax[0]);
+  G4Polycone *g4shape =
+      new G4Polycone("", unplaced->fStartPhi, unplaced->fDeltaPhi, unplaced->fNz, &z[0], &rmin[0], &rmax[0]);
 
-    return g4shape;
-  }
+  return g4shape;
+}
 #endif
 #endif // ! VECGEOM_NVCC
 }

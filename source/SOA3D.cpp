@@ -12,10 +12,9 @@ namespace vecgeom {
 
 namespace cxx {
 
-template size_t DevicePtr< cuda::SOA3D<Precision> >::SizeOf();
-template void DevicePtr< cuda::SOA3D<Precision> >::Construct(
-   DevicePtr<Precision> x, DevicePtr<Precision> y,DevicePtr< Precision> z,
-   size_t size) const;
+template size_t DevicePtr<cuda::SOA3D<Precision>>::SizeOf();
+template void DevicePtr<cuda::SOA3D<Precision>>::Construct(DevicePtr<Precision> x, DevicePtr<Precision> y,
+                                                           DevicePtr<Precision> z, size_t size) const;
 
 } // End cxx namespace
 

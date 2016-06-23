@@ -15,7 +15,8 @@
 
 typedef vecgeom::SimplePolyhedron Polyhedron_t;
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
   if (argc == 1) {
     std::cout << "Usage: shape_testPolyhedron -test <#>:\n"
                  "       0 - case 0\n"
@@ -26,11 +27,11 @@ int main(int argc, char *argv[]) {
 
   Polyhedron_t *solid = 0;
   Precision phiStart = 0., deltaPhi = 120.;
-  int sides = 4;
-  constexpr int nPlanes = 5;
+  int sides               = 4;
+  constexpr int nPlanes   = 5;
   double zPlanes[nPlanes] = {-2, -1, 1, 1, 2};
-  double rInner[nPlanes] = {0, 1, 0.5, 1, 0};
-  double rOuter[nPlanes] = {1, 2, 2, 2.5, 1};
+  double rInner[nPlanes]  = {0, 1, 0.5, 1, 0};
+  double rOuter[nPlanes]  = {1, 2, 2, 2.5, 1};
 
   switch (test) {
   case 0:

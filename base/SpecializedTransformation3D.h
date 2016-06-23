@@ -19,7 +19,6 @@ template <TranslationCode trans_code, RotationCode rot_code>
 class SpecializedTransformation3D : public Transformation3D {
 
 public:
-
   virtual int memory_size() const { return sizeof(*this); }
 
   /**
@@ -27,10 +26,10 @@ public:
    *                                 Vector3D<InputType> *const)
    */
   template <typename InputType>
-  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void Transform(Vector3D<InputType> const &master,
-                 Vector3D<InputType> *const local) const {
+  VECGEOM_CUDA_HEADER_BOTH
+  void Transform(Vector3D<InputType> const &master, Vector3D<InputType> *const local) const
+  {
     this->Transform<trans_code, rot_code, InputType>(master, local);
   }
 
@@ -38,9 +37,10 @@ public:
    * \sa Transformation3D::Transform(Vector3D<InputType> const &)
    */
   template <TranslationCode, RotationCode code, typename InputType>
-  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Vector3D<InputType> Transform(Vector3D<InputType> const &master) const {
+  VECGEOM_CUDA_HEADER_BOTH
+  Vector3D<InputType> Transform(Vector3D<InputType> const &master) const
+  {
     return this->Transform<trans_code, rot_code, InputType>(master);
   }
 
@@ -49,10 +49,10 @@ public:
    *                                             Vector3D<InputType> *const)
    */
   template <RotationCode code, typename InputType>
-  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  void TransformDirection(Vector3D<InputType> const &master,
-                          Vector3D<InputType> *const local) const {
+  VECGEOM_CUDA_HEADER_BOTH
+  void TransformDirection(Vector3D<InputType> const &master, Vector3D<InputType> *const local) const
+  {
     this->TransformDirection<code, InputType>(master, local);
   }
 
@@ -60,15 +60,14 @@ public:
    * \sa Transformation3D::TransformDirection(Vector3D<InputType> const &)
    */
   template <RotationCode code, typename InputType>
-  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Vector3D<InputType> TransformDirection(
-      Vector3D<InputType> const &master) const {
+  VECGEOM_CUDA_HEADER_BOTH
+  Vector3D<InputType> TransformDirection(Vector3D<InputType> const &master) const
+  {
     return this->TransformDirection<code, InputType>(master);
   }
-
 };
-
-} } // End global namespace
+}
+} // End global namespace
 
 #endif // VECGEOM_BASE_SPECIALIZEDTRANSFORMATION3D_H_

@@ -46,8 +46,8 @@ public:
      * @param  daughterlocalpoint is the local point in the next pvol (result of the computation)
      * @return true of point is in a daughter; false otherwise
      */
-  virtual bool LevelLocateExclVol(LogicalVolume const * /*lvol*/, VPlacedVolume const * /*pvol excl*/, Vector3D<Precision> const & /*localpoint*/,
-                                  VPlacedVolume const *& /*pvol*/,
+  virtual bool LevelLocateExclVol(LogicalVolume const * /*lvol*/, VPlacedVolume const * /*pvol excl*/,
+                                  Vector3D<Precision> const & /*localpoint*/, VPlacedVolume const *& /*pvol*/,
                                   Vector3D<Precision> & /*daughterlocalpoint*/) const = 0;
 
   virtual std::string GetName() const = 0;
@@ -55,5 +55,5 @@ public:
   virtual ~VLevelLocator() {}
 
 }; // end class declaration
-
-}} // end namespaces
+}
+} // end namespaces

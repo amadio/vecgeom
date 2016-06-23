@@ -13,36 +13,36 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE( class PlacedHype; )
-VECGEOM_DEVICE_DECLARE_CONV( class, PlacedHype );
+VECGEOM_DEVICE_FORWARD_DECLARE(class PlacedHype;)
+VECGEOM_DEVICE_DECLARE_CONV(class, PlacedHype);
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class PlacedHype : public VPlacedVolume {
 
 public:
-
   typedef UnplacedHype UnplacedShape_t;
 
 #ifndef VECGEOM_NVCC
 
-  PlacedHype(char const *const label,
-                       LogicalVolume const *const logical_volume,
-                       Transformation3D const *const transformation,
-                       PlacedBox const *const boundingBox)
-      : VPlacedVolume(label, logical_volume, transformation, boundingBox) {}
+  PlacedHype(char const *const label, LogicalVolume const *const logical_volume,
+             Transformation3D const *const transformation, PlacedBox const *const boundingBox)
+      : VPlacedVolume(label, logical_volume, transformation, boundingBox)
+  {
+  }
 
-  PlacedHype(LogicalVolume const *const logical_volume,
-                       Transformation3D const *const transformation,
-                       PlacedBox const *const boundingBox)
-      : PlacedHype("", logical_volume, transformation, boundingBox) {}
+  PlacedHype(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
+             PlacedBox const *const boundingBox)
+      : PlacedHype("", logical_volume, transformation, boundingBox)
+  {
+  }
 
 #else
 
-  __device__
-  PlacedHype(LogicalVolume const *const logical_volume,
-                       Transformation3D const *const transformation,
-                       PlacedBox const *const boundingBox, const int id)
-      : VPlacedVolume(logical_volume, transformation, boundingBox, id) {}
+  __device__ PlacedHype(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
+                        PlacedBox const *const boundingBox, const int id)
+      : VPlacedVolume(logical_volume, transformation, boundingBox, id)
+  {
+  }
 
 #endif
 
@@ -51,9 +51,9 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  UnplacedHype const* GetUnplacedVolume() const {
-    return static_cast<UnplacedHype const *>(
-        GetLogicalVolume()->GetUnplacedVolume());
+  UnplacedHype const *GetUnplacedVolume() const
+  {
+    return static_cast<UnplacedHype const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -145,8 +145,10 @@ public:
   Precision GetOuterRadToleranceLevel() const { return GetUnplacedVolume()->GetOuterRadToleranceLevel(); }
 
   template <bool ForInnerSurface>
-  VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE
-  Precision GetHypeRadius2(Precision dz) const {
+  VECGEOM_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetHypeRadius2(Precision dz) const
+  {
     if (ForInnerSurface)
       return GetRmin2() + GetTIn2() * dz * dz;
     else
@@ -155,20 +157,25 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  bool PointOnZSurface(Vector3D<Precision> const &p) const {
+  bool PointOnZSurface(Vector3D<Precision> const &p) const
+  {
     return (p.z() > (GetDz() - GetZToleranceLevel())) && (p.z() < (GetDz() + GetZToleranceLevel()));
   }
 
   template <bool ForInnerSurface>
-  VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE bool PointOnHyperbolicSurface(Vector3D<Precision> const &p) const {
-    Precision hypeR2 = 0.;
-    hypeR2 = GetHypeRadius2<ForInnerSurface>(p.z());
+  VECGEOM_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
+  bool PointOnHyperbolicSurface(Vector3D<Precision> const &p) const
+  {
+    Precision hypeR2    = 0.;
+    hypeR2              = GetHypeRadius2<ForInnerSurface>(p.z());
     Precision pointRad2 = p.Perp2();
     return ((pointRad2 > (hypeR2 - GetOuterRadToleranceLevel())) &&
             (pointRad2 < (hypeR2 + GetOuterRadToleranceLevel())));
   }
 
-  bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const override {
+  bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const override
+  {
 
     bool valid = true;
 
@@ -197,50 +204,51 @@ public:
 
   Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
 
-  Precision SurfaceArea() override  { return GetUnplacedVolume()->SurfaceArea(); }
+  Precision SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
 
   VECGEOM_INLINE
 #if defined(VECGEOM_USOLIDS)
   std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType(); }
 
-  void GetParametersList(int aNumber, double *aArray) const override {
+  void GetParametersList(int aNumber, double *aArray) const override
+  {
     return GetUnplacedVolume()->GetParametersList(aNumber, aArray);
   }
 #endif
 
   VECGEOM_CUDA_HEADER_BOTH
-  void Extent( Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override { return GetUnplacedVolume()->Extent(aMin,aMax);}
+  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
+  {
+    return GetUnplacedVolume()->Extent(aMin, aMax);
+  }
 
-  Vector3D<Precision>  GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface();}
+  Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface(); }
 
-//  VECGEOM_CUDA_HEADER_BOTH
-//  VECGEOM_INLINE
-//  void ComputeBBox() const { return GetUnplacedVolume()->ComputeBBox();}
+  //  VECGEOM_CUDA_HEADER_BOTH
+  //  VECGEOM_INLINE
+  //  void ComputeBBox() const { return GetUnplacedVolume()->ComputeBBox();}
 
   VECGEOM_INLINE
   virtual int memory_size() const override { return sizeof(*this); }
 
 #if defined(VECGEOM_USOLIDS)
-  std::ostream& StreamInfo(std::ostream &os) const override {
-    return GetUnplacedVolume()->StreamInfo(os);
-  }
+  std::ostream &StreamInfo(std::ostream &os) const override { return GetUnplacedVolume()->StreamInfo(os); }
 #endif
 
 #ifndef VECGEOM_NVCC
-  virtual VPlacedVolume const* ConvertToUnspecialized() const override;
+  virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
-  virtual TGeoShape const* ConvertToRoot() const override;
+  virtual TGeoShape const *ConvertToRoot() const override;
 #endif
 #if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-  virtual ::VUSolid const* ConvertToUSolids() const override;
+  virtual ::VUSolid const *ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4
-  virtual G4VSolid const* ConvertToGeant4() const override;
+  virtual G4VSolid const *ConvertToGeant4() const override;
 #endif
 #endif // VECGEOM_NVCC
-
 };
-
-} } // End global namespace
+}
+} // End global namespace
 
 #endif // VECGEOM_VOLUMES_PLACEDHYPE_H_

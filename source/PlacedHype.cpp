@@ -21,26 +21,28 @@
 #include "G4Hype.hh"
 #endif
 
-
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 #ifndef VECGEOM_NVCC
 
-VPlacedVolume const *PlacedHype::ConvertToUnspecialized() const {
+VPlacedVolume const *PlacedHype::ConvertToUnspecialized() const
+{
   std::cout << "Convert VEC*********\n";
   return new SimpleHype(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
 }
 
 #ifdef VECGEOM_ROOT
-TGeoShape const *PlacedHype::ConvertToRoot() const {
+TGeoShape const *PlacedHype::ConvertToRoot() const
+{
   std::cout << "Convert ROOT*********\n";
   return new TGeoHype(GetLabel().c_str(), GetRmin(), GetStIn() * kRadToDeg, GetRmax(), GetStOut() * kRadToDeg, GetDz());
 }
 #endif
 
 #if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const *PlacedHype::ConvertToUSolids() const {
+::VUSolid const *PlacedHype::ConvertToUSolids() const
+{
   // assert(0 && "Hype unsupported for USolids.");
   // return NULL;
   // std::cerr << "**************************************************************\n";
@@ -52,7 +54,8 @@ TGeoShape const *PlacedHype::ConvertToRoot() const {
 #endif
 
 #ifdef VECGEOM_GEANT4
-G4VSolid const *PlacedHype::ConvertToGeant4() const {
+G4VSolid const *PlacedHype::ConvertToGeant4() const
+{
   return new G4Hype(GetLabel().c_str(), GetRmin(), GetRmax(), GetStIn(), GetStOut(), GetDz());
 }
 #endif
@@ -63,7 +66,7 @@ G4VSolid const *PlacedHype::ConvertToGeant4() const {
 
 #ifdef VECGEOM_NVCC
 
-VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC( SpecializedHype )
+VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(SpecializedHype)
 
 #endif // VECGEOM_NVCC
 } // End namespace vecgeom

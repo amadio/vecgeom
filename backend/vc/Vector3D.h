@@ -12,10 +12,9 @@
 namespace VECGEOM_NAMESPACE {
 
 template <typename T1, typename T2>
-void MaskedAssign(
-    typename Vc::Vector<T1>::Mask const &condition,
-    Vector3D<T2> const &value,
-    Vector3D<Vc::Vector<T1> > *output) {
+void MaskedAssign(typename Vc::Vector<T1>::Mask const &condition, Vector3D<T2> const &value,
+                  Vector3D<Vc::Vector<T1>> *output)
+{
   ((*output)[0])(condition) = value[0];
   ((*output)[1])(condition) = value[1];
   ((*output)[2])(condition) = value[2];

@@ -12,14 +12,14 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-  // NOTE: we may want to specialize the torus like we do for the tube
-  // at the moment this is not done
+// NOTE: we may want to specialize the torus like we do for the tube
+// at the moment this is not done
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedTorus2 = ScalarShapeImplementationHelper<TorusImplementation2<transCodeT, rotCodeT> >;
+using SpecializedTorus2 = ScalarShapeImplementationHelper<TorusImplementation2<transCodeT, rotCodeT>>;
 
 using SimpleTorus2 = SpecializedTorus2<translation::kGeneric, rotation::kGeneric>;
-
-} } // End global namespace
+}
+} // End global namespace
 
 #endif // VECGEOM_VOLUMES_SPECIALIZEDTORUS_H_

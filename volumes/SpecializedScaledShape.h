@@ -15,10 +15,10 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedScaledShape = ScalarShapeImplementationHelper<ScaledShapeImplementation<transCodeT, rotCodeT> >;
+using SpecializedScaledShape = ScalarShapeImplementationHelper<ScaledShapeImplementation<transCodeT, rotCodeT>>;
 
 using SimpleScaledShape = SpecializedScaledShape<translation::kGeneric, rotation::kGeneric>;
-
-} } // End global namespace
+}
+} // End global namespace
 
 #endif // VECGEOM_VOLUMES_SPECIALIZEDSCALEDSHAPE_H_

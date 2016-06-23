@@ -7,7 +7,7 @@
 #include "base/Global.h"
 #include "volumes/kernel/GenericKernels.h"
 
-//namespace vecgeom::cuda { template <typename Backend, int N> class PlaneShell; }
+// namespace vecgeom::cuda { template <typename Backend, int N> class PlaneShell; }
 #include "backend/Backend.h"
 
 namespace vecgeom {
@@ -27,7 +27,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
  *        when possible.
  */
 
-//template <int N, typename Type>
+// template <int N, typename Type>
 template <int N, typename Type>
 struct PlaneShell {
 
@@ -38,19 +38,17 @@ struct PlaneShell {
   Precision fD[N];
 
 public:
-
   /**
    * Initializes the SOA with existing data arrays, performing no allocation.
    */
   VECGEOM_CUDA_HEADER_BOTH
   PlaneShell(Precision *const a, Precision *const b, Precision *const c, Precision *const d)
   {
-    memcpy( &(this->fA), a, N*sizeof(Type) );
-    memcpy( &(this->fB), b, N*sizeof(Type) );
-    memcpy( &(this->fC), c, N*sizeof(Type) );
-    memcpy( &(this->fD), d, N*sizeof(Type) );
+    memcpy(&(this->fA), a, N * sizeof(Type));
+    memcpy(&(this->fB), b, N * sizeof(Type));
+    memcpy(&(this->fC), c, N * sizeof(Type));
+    memcpy(&(this->fD), d, N * sizeof(Type));
   }
-
 
   /**
    * Initializes the SOA with a fixed size, allocating an aligned array for each
@@ -59,39 +57,40 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   PlaneShell()
   {
-    memset( &(this->fA), 0, N*sizeof(Type) );
-    memset( &(this->fB), 0, N*sizeof(Type) );
-    memset( &(this->fC), 0, N*sizeof(Type) );
-    memset( &(this->fD), 0, N*sizeof(Type) );
+    memset(&(this->fA), 0, N * sizeof(Type));
+    memset(&(this->fB), 0, N * sizeof(Type));
+    memset(&(this->fC), 0, N * sizeof(Type));
+    memset(&(this->fD), 0, N * sizeof(Type));
   }
-
 
   /**
    * Copy constructor
    */
   VECGEOM_CUDA_HEADER_BOTH
-  PlaneShell(PlaneShell const &other) {
-    memcpy( &(this->fA), &(other->fA), N*sizeof(Type) );
-    memcpy( &(this->fB), &(other->fB), N*sizeof(Type) );
-    memcpy( &(this->fC), &(other->fC), N*sizeof(Type) );
-    memcpy( &(this->fD), &(other->fD), N*sizeof(Type) );
+  PlaneShell(PlaneShell const &other)
+  {
+    memcpy(&(this->fA), &(other->fA), N * sizeof(Type));
+    memcpy(&(this->fB), &(other->fB), N * sizeof(Type));
+    memcpy(&(this->fC), &(other->fC), N * sizeof(Type));
+    memcpy(&(this->fD), &(other->fD), N * sizeof(Type));
   }
-
 
   /**
    * assignment operator
    */
   VECGEOM_CUDA_HEADER_BOTH
-    PlaneShell& operator=(PlaneShell const &other) {
-      memcpy( this->fA, other.fA, N*sizeof(Type) );
-      memcpy( this->fB, other.fB, N*sizeof(Type) );
-      memcpy( this->fC, other.fC, N*sizeof(Type) );
-      memcpy( this->fD, other.fD, N*sizeof(Type) );
-      return *this;
+  PlaneShell &operator=(PlaneShell const &other)
+  {
+    memcpy(this->fA, other.fA, N * sizeof(Type));
+    memcpy(this->fB, other.fB, N * sizeof(Type));
+    memcpy(this->fC, other.fC, N * sizeof(Type));
+    memcpy(this->fD, other.fD, N * sizeof(Type));
+    return *this;
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-    void Set(int i, Precision a, Precision b, Precision c, Precision d) {
+  void Set(int i, Precision a, Precision b, Precision c, Precision d)
+  {
     fA[i] = a;
     fB[i] = b;
     fC[i] = c;
@@ -99,62 +98,59 @@ public:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  unsigned int size() {
-    return N;
-  }
+  unsigned int size() { return N; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  ~PlaneShell() { }
+  ~PlaneShell() {}
 
   /// \return the distance from point to each plane.  The type returned is float, double, or various SIMD vector types.
   /// Distances are negative (positive) for points in same (opposite) side from plane as the normal vector.
-  template<typename Type2>
-  VECGEOM_CUDA_HEADER_BOTH
+  template <typename Type2>
   VECGEOM_INLINE
-  void DistanceToPoint(Vector3D<Type2> const& point, Type2* distances) const {
-    for(int i=0; i<N; ++i) {
-      distances[i] = this->fA[i]*point.x() + this->fB[i]*point.y() + this->fC[i]*point.z() + this->fD[i];
+  VECGEOM_CUDA_HEADER_BOTH
+  void DistanceToPoint(Vector3D<Type2> const &point, Type2 *distances) const
+  {
+    for (int i = 0; i < N; ++i) {
+      distances[i] = this->fA[i] * point.x() + this->fB[i] * point.y() + this->fC[i] * point.z() + this->fD[i];
     }
   }
 
   /// \return the projection of a (Vector3D) direction into each plane's normal vector.
   /// The type returned is float, double, or various SIMD vector types.
-  template<typename Type2>
-  VECGEOM_CUDA_HEADER_BOTH
+  template <typename Type2>
   VECGEOM_INLINE
-  void ProjectionToNormal(Vector3D<Type2> const& dir, Type2* projection) const {
-    for(int i=0; i<N; ++i) {
-      projection[i] = this->fA[i]*dir.x() + this->fB[i]*dir.y() + this->fC[i]*dir.z();
+  VECGEOM_CUDA_HEADER_BOTH
+  void ProjectionToNormal(Vector3D<Type2> const &dir, Type2 *projection) const
+  {
+    for (int i = 0; i < N; ++i) {
+      projection[i] = this->fA[i] * dir.x() + this->fB[i] * dir.y() + this->fC[i] * dir.z();
     }
   }
 
-
   template <typename Backend, bool ForInside>
   VECGEOM_CUDA_HEADER_BOTH
-  void GenericKernelForContainsAndInside(
-      Vector3D<typename Backend::precision_v> const &point,
-      typename Backend::bool_v &completelyInside,
-      typename Backend::bool_v &completelyOutside ) const {
+  void GenericKernelForContainsAndInside(Vector3D<typename Backend::precision_v> const &point,
+                                         typename Backend::bool_v &completelyInside,
+                                         typename Backend::bool_v &completelyOutside) const
+  {
 
     // auto-vectorizable loop for Backend==scalar
     typedef typename Backend::precision_v Float_t;
     Float_t dist[N];
-    for(unsigned int i=0; i<N; ++i) {
-      dist[i] = this->fA[i]*point.x() + this->fB[i]*point.y()
-              + this->fC[i]*point.z() + this->fD[i];
+    for (unsigned int i = 0; i < N; ++i) {
+      dist[i] = this->fA[i] * point.x() + this->fB[i] * point.y() + this->fC[i] * point.z() + this->fD[i];
     }
 
     // analysis loop - not auto-vectorizable
-    for(unsigned int i=0; i<N; ++i) {
+    for (unsigned int i = 0; i < N; ++i) {
       // is it outside of this side plane?
       completelyOutside |= dist[i] > MakePlusTolerant<ForInside>(0.);
-      if ( IsFull(completelyOutside) )  return;
-      if ( ForInside ) {
+      if (IsFull(completelyOutside)) return;
+      if (ForInside) {
         completelyInside &= dist[i] < MakeMinusTolerant<ForInside>(0.);
       }
     }
   }
-
 
   /// \return the distance to the planar shell when the point is located outside.
   /// The type returned is the type corresponding to the backend given.
@@ -165,17 +161,18 @@ public:
   /// Note: smin0 parameter is needed here, otherwise smax can become smaller than smin0,
   ///   which means condition (2) happens and +inf must be returned.  Without smin0, this
   ///   condition is sometimes missed.
-  template<typename Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  template <typename Backend>
   VECGEOM_INLINE
-  typename Backend::precision_v DistanceToIn(Vector3D<typename Backend::precision_v> const& point,
-                                             typename Backend::precision_v const& smin0,
-                                             Vector3D<typename Backend::precision_v> const &dir) const {
+  VECGEOM_CUDA_HEADER_BOTH
+  typename Backend::precision_v DistanceToIn(Vector3D<typename Backend::precision_v> const &point,
+                                             typename Backend::precision_v const &smin0,
+                                             Vector3D<typename Backend::precision_v> const &dir) const
+  {
 
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
 
-    Float_t distIn(kInfinity);  // set for earlier returns
+    Float_t distIn(kInfinity); // set for earlier returns
     Float_t smax(kInfinity);
     Float_t smin(smin0);
 
@@ -185,46 +182,46 @@ public:
     Float_t proj[N];
     Float_t vdist[N];
     // vectorizable part
-    for(int i=0; i<N; ++i) {
-      pdist[i] = this->fA[i]*point.x() + this->fB[i]*point.y() + this->fC[i]*point.z() + this->fD[i];
-      proj[i] = this->fA[i]*dir.x() + this->fB[i]*dir.y() + this->fC[i]*dir.z();
+    for (int i = 0; i < N; ++i) {
+      pdist[i] = this->fA[i] * point.x() + this->fB[i] * point.y() + this->fC[i] * point.z() + this->fD[i];
+      proj[i]  = this->fA[i] * dir.x() + this->fB[i] * dir.y() + this->fC[i] * dir.z();
 
       // note(SW): on my machine it was better to keep vdist[N] instead of a local variable vdist below
-      vdist[i]= -pdist[i] / NonZero(proj[i]);
+      vdist[i] = -pdist[i] / NonZero(proj[i]);
     }
 
     // wrong-side check: if (inside && smin<0) return -1
-    Bool_t inside( smin < MakeMinusTolerant<true>(0.0) );
-    for(int i=0; i<N; ++i) {
+    Bool_t inside(smin < MakeMinusTolerant<true>(0.0));
+    for (int i = 0; i < N; ++i) {
       inside &= pdist[i] < MakeMinusTolerant<true>(0.0);
     }
-    MaskedAssign( inside, -1.0, &distIn );
+    MaskedAssign(inside, -1.0, &distIn);
     done |= inside;
-    if(Backend::early_returns && IsFull(done)) return distIn;
+    if (Backend::early_returns && IsFull(done)) return distIn;
 
     // analysis loop
-    for(int i=0; i<N; ++i) {
+    for (int i = 0; i < N; ++i) {
       // if outside and moving away, return infinity
       Bool_t posPoint = pdist[i] > MakeMinusTolerant<true>(0.0);
-      Bool_t posDir = proj[i] > 0;
+      Bool_t posDir   = proj[i] > 0;
       done |= (posPoint && posDir);
 
       // check if trajectory will intercept plane within current range (smin,smax)
-      Bool_t interceptFromInside  = (!posPoint && posDir);
-      done |= ( interceptFromInside  && vdist[i]<smin );
+      Bool_t interceptFromInside = (!posPoint && posDir);
+      done |= (interceptFromInside && vdist[i] < smin);
 
       Bool_t interceptFromOutside = (posPoint && !posDir);
-      done |= ( interceptFromOutside && vdist[i]>smax );
-      if ( Backend::early_returns && IsFull(done) ) return distIn;
+      done |= (interceptFromOutside && vdist[i] > smax);
+      if (Backend::early_returns && IsFull(done)) return distIn;
 
       // update smin,smax
-      Bool_t validVdist = (smin<vdist[i] && vdist[i]<smax);
-      MaskedAssign( !done && interceptFromOutside && validVdist, vdist[i], &smin );
-      MaskedAssign( !done && interceptFromInside  && validVdist, vdist[i], &smax );
+      Bool_t validVdist = (smin < vdist[i] && vdist[i] < smax);
+      MaskedAssign(!done && interceptFromOutside && validVdist, vdist[i], &smin);
+      MaskedAssign(!done && interceptFromInside && validVdist, vdist[i], &smax);
     }
 
     // Survivors will return smin, which is the maximum distance in an interceptFromOutside situation
-    MaskedAssign( !done, smin, &distIn);
+    MaskedAssign(!done, smin, &distIn);
     return distIn;
   }
 
@@ -232,12 +229,12 @@ public:
   /// The type returned is the type corresponding to the backend given.
   /// For some special cases, the value returned is:
   ///     (1) -1, if point is outside (wrong-side)
-  template<typename Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  template <typename Backend>
   VECGEOM_INLINE
-  typename Backend::precision_v DistanceToOut(
-      Vector3D<typename Backend::precision_v> const &point,
-      Vector3D<typename Backend::precision_v> const &dir) const {
+  VECGEOM_CUDA_HEADER_BOTH
+  typename Backend::precision_v DistanceToOut(Vector3D<typename Backend::precision_v> const &point,
+                                              Vector3D<typename Backend::precision_v> const &dir) const
+  {
 
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
@@ -251,26 +248,27 @@ public:
     Float_t pdist[N];
     Float_t proj[N];
     Float_t vdist[N];
-    for(int i=0; i<N; ++i) {
-      pdist[i] = this->fA[i]*point.x() + this->fB[i]*point.y() + this->fC[i]*point.z() + this->fD[i];
-      proj[i] = this->fA[i]*dir.x() + this->fB[i]*dir.y() + this->fC[i]*dir.z();
-      vdist[i] = -pdist[i] / NonZero( proj[i] );
+    for (int i = 0; i < N; ++i) {
+      pdist[i] = this->fA[i] * point.x() + this->fB[i] * point.y() + this->fC[i] * point.z() + this->fD[i];
+      proj[i]  = this->fA[i] * dir.x() + this->fB[i] * dir.y() + this->fC[i] * dir.z();
+      vdist[i] = -pdist[i] / NonZero(proj[i]);
     }
 
     // early return if point is outside of plane
-    for(int i=0; i<N; ++i) {
-      done |= ( pdist[i] > kHalfTolerance );
+    for (int i = 0; i < N; ++i) {
+      done |= (pdist[i] > kHalfTolerance);
     }
-    MaskedAssign( done, -1.0, &distOut );
+    MaskedAssign(done, -1.0, &distOut);
 
-    if(Backend::early_returns && IsFull(done) ) {
+    if (Backend::early_returns && IsFull(done)) {
       return distOut;
     }
 
-    // add = in vdist[i]>=0  and "proj[i]>0" in order to pass unit tests, but this will slow down DistToOut()!!! check effect!
-    for(int i=0; i<N; ++i ) {
-      Bool_t test = ( vdist[i] >= -kHalfTolerance && proj[i]>0 && vdist[i] < distOut );
-      MaskedAssign( test, vdist[i], &distOut);
+    // add = in vdist[i]>=0  and "proj[i]>0" in order to pass unit tests, but this will slow down DistToOut()!!! check
+    // effect!
+    for (int i = 0; i < N; ++i) {
+      Bool_t test = (vdist[i] >= -kHalfTolerance && proj[i] > 0 && vdist[i] < distOut);
+      MaskedAssign(test, vdist[i], &distOut);
     }
 
     return distOut;
@@ -278,55 +276,53 @@ public:
 
   /// \return the safety distance to the planar shell when the point is located within the shell itself.
   /// The type returned is the type corresponding to the backend given.
-  template<typename Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  template <typename Backend>
   VECGEOM_INLINE
-  void SafetyToIn(Vector3D<typename Backend::precision_v> const& point,
-                  typename Backend::precision_v &safety ) const {
+  VECGEOM_CUDA_HEADER_BOTH
+  void SafetyToIn(Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety) const
+  {
 
     typedef typename Backend::precision_v Float_t;
 
     // vectorizable loop
     Float_t dist[N];
-    for(int i=0; i<N; ++i) {
-      dist[i] = this->fA[i]*point.x() + this->fB[i]*point.y() + this->fC[i]*point.z() + this->fD[i];
+    for (int i = 0; i < N; ++i) {
+      dist[i] = this->fA[i] * point.x() + this->fB[i] * point.y() + this->fC[i] * point.z() + this->fD[i];
     }
 
     // non-vectorizable part
-    for(int i=0; i<N; ++i) {
-      MaskedAssign( dist[i]>safety, dist[i], &safety );
+    for (int i = 0; i < N; ++i) {
+      MaskedAssign(dist[i] > safety, dist[i], &safety);
     }
     // not necessary: negative answer is fine
-    //MaskedAssign(safety<0, 0.0, &safety);
+    // MaskedAssign(safety<0, 0.0, &safety);
   }
-
 
   /// \return the distance to the planar shell when the point is located within the shell itself.
   /// The type returned is the type corresponding to the backend given.
-  template<typename Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  template <typename Backend>
   VECGEOM_INLINE
-  void SafetyToOut(Vector3D<typename Backend::precision_v> const& point,
-                   typename Backend::precision_v &safety ) const {
+  VECGEOM_CUDA_HEADER_BOTH
+  void SafetyToOut(Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety) const
+  {
 
     typedef typename Backend::precision_v Float_t;
 
     // vectorizable loop
     Float_t dist[N];
-    for(int i=0; i<N; ++i) {
-      dist[i] = -(this->fA[i]*point.x() + this->fB[i]*point.y() + this->fC[i]*point.z() + this->fD[i]);
+    for (int i = 0; i < N; ++i) {
+      dist[i] = -(this->fA[i] * point.x() + this->fB[i] * point.y() + this->fC[i] * point.z() + this->fD[i]);
     }
 
     // non-vectorizable part
-    for(int i=0; i<N; ++i) {
-      MaskedAssign( dist[i]<safety, dist[i], &safety );
+    for (int i = 0; i < N; ++i) {
+      MaskedAssign(dist[i] < safety, dist[i], &safety);
     }
 
     return;
   }
-
 };
-
-} } // End global namespace
+}
+} // End global namespace
 
 #endif // VECGEOM_BASE_SIDEPLANES_H_

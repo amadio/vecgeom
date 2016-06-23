@@ -15,23 +15,23 @@
 
 using namespace vecgeom;
 
-int main(int argc, char * argv[]) {
-  OPTION_INT(npoints,1024);
-  OPTION_INT(nrep,1024);
-  OPTION_DOUBLE(rmin1,5);
-  OPTION_DOUBLE(rmax1,10);
-  OPTION_DOUBLE(rmin2,7);
-  OPTION_DOUBLE(rmax2,15);
-  OPTION_DOUBLE(dz,10);
-  OPTION_DOUBLE(sphi,0);
-  OPTION_DOUBLE(dphi,kTwoPi);
-
+int main(int argc, char *argv[])
+{
+  OPTION_INT(npoints, 1024);
+  OPTION_INT(nrep, 1024);
+  OPTION_DOUBLE(rmin1, 5);
+  OPTION_DOUBLE(rmax1, 10);
+  OPTION_DOUBLE(rmin2, 7);
+  OPTION_DOUBLE(rmax2, 15);
+  OPTION_DOUBLE(dz, 10);
+  OPTION_DOUBLE(sphi, 0);
+  OPTION_DOUBLE(dphi, kTwoPi);
 
   UnplacedBox worldUnplaced = UnplacedBox(100., 100., 100.);
-  UnplacedCone coneUnplaced = UnplacedCone(rmin1, rmax1, rmin2, rmax2, dz, sphi, dphi );
+  UnplacedCone coneUnplaced = UnplacedCone(rmin1, rmax1, rmin2, rmax2, dz, sphi, dphi);
 
-  LogicalVolume world ("world", &worldUnplaced);
-  LogicalVolume cone  ("cone", &coneUnplaced);
+  LogicalVolume world("world", &worldUnplaced);
+  LogicalVolume cone("cone", &coneUnplaced);
 
   Transformation3D placement(5, 0, 0);
   world.PlaceDaughter("cone", &cone, &placement);
@@ -46,6 +46,4 @@ int main(int argc, char * argv[]) {
   tester.SetRepetitions(nrep);
   tester.SetPointCount(npoints);
   tester.RunBenchmark();
-
 }
-

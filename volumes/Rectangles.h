@@ -11,12 +11,10 @@
 #include "base/Vector3D.h"
 #include "volumes/Planes.h"
 
-
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE( class Rectangles; )
-VECGEOM_DEVICE_DECLARE_CONV( class, Rectangles )
-
+VECGEOM_DEVICE_FORWARD_DECLARE(class Rectangles;)
+VECGEOM_DEVICE_DECLARE_CONV(class, Rectangles)
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -43,13 +41,11 @@ class Rectangles : public AlignedBase {
   //                          fCorners[1]
 
 private:
-
   Planes fPlanes;
   SOA3D<Precision> fSides;
   SOA3D<Precision> fCorners[2];
 
 public:
-
   typedef SOA3D<Precision> Corners_t[2];
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -68,7 +64,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  SOA3D<Precision> const& GetNormals() const;
+  SOA3D<Precision> const &GetNormals() const;
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
@@ -76,7 +72,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Array<Precision> const& GetDistances() const;
+  Array<Precision> const &GetDistances() const;
 
   VECGEOM_CUDA_HEADER_BOTH
   inline Vector3D<Precision> GetCenter(int i) const;
@@ -86,84 +82,86 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  Corners_t const& GetCorners() const;
+  Corners_t const &GetCorners() const;
 
   VECGEOM_CUDA_HEADER_BOTH
   inline Vector3D<Precision> GetSide(int i) const;
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  SOA3D<Precision> const& GetSides() const;
+  SOA3D<Precision> const &GetSides() const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  void Set(
-      int index,
-      Vector3D<Precision> const &p0,
-      Vector3D<Precision> const &p1,
-      Vector3D<Precision> const &p2);
+  void Set(int index, Vector3D<Precision> const &p0, Vector3D<Precision> const &p1, Vector3D<Precision> const &p2);
 
   VECGEOM_CUDA_HEADER_BOTH
-  inline Precision Distance(
-      Vector3D<Precision> const &point,
-      Vector3D<Precision> const &direction) const;
-
+  inline Precision Distance(Vector3D<Precision> const &point, Vector3D<Precision> const &direction) const;
 };
 
 VECGEOM_CUDA_HEADER_BOTH
-int Rectangles::size() const { return fPlanes.size(); }
+int Rectangles::size() const
+{
+  return fPlanes.size();
+}
 
 VECGEOM_CUDA_HEADER_BOTH
-Vector3D<Precision> Rectangles::GetNormal(int i) const {
+Vector3D<Precision> Rectangles::GetNormal(int i) const
+{
   return fPlanes.GetNormal(i);
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-SOA3D<Precision> const& Rectangles::GetNormals() const {
+SOA3D<Precision> const &Rectangles::GetNormals() const
+{
   return fPlanes.GetNormals();
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-Precision Rectangles::GetDistance(int i) const {
+Precision Rectangles::GetDistance(int i) const
+{
   return fPlanes.GetDistance(i);
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-Array<Precision> const& Rectangles::GetDistances() const {
+Array<Precision> const &Rectangles::GetDistances() const
+{
   return fPlanes.GetDistances();
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-Vector3D<Precision> Rectangles::GetCenter(int i) const {
-  return -GetDistance(i)*GetNormal(i);
+Vector3D<Precision> Rectangles::GetCenter(int i) const
+{
+  return -GetDistance(i) * GetNormal(i);
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-Vector3D<Precision> Rectangles::GetCorner(int i, int j) const {
-  return Vector3D<Precision>(fCorners[i][0][j], fCorners[i][1][j],
-                             fCorners[i][2][j]);
+Vector3D<Precision> Rectangles::GetCorner(int i, int j) const
+{
+  return Vector3D<Precision>(fCorners[i][0][j], fCorners[i][1][j], fCorners[i][2][j]);
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-Rectangles::Corners_t const& Rectangles::GetCorners() const {
+Rectangles::Corners_t const &Rectangles::GetCorners() const
+{
   return fCorners;
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-Vector3D<Precision> Rectangles::GetSide(int i) const {
+Vector3D<Precision> Rectangles::GetSide(int i) const
+{
   return Vector3D<Precision>(fSides[0][i], fSides[1][i], fSides[2][i]);
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-SOA3D<Precision> const& Rectangles::GetSides() const {
+SOA3D<Precision> const &Rectangles::GetSides() const
+{
   return fSides;
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-void Rectangles::Set(
-    int index,
-    Vector3D<Precision> const &p0,
-    Vector3D<Precision> const &p1,
-    Vector3D<Precision> const &p2) {
+void Rectangles::Set(int index, Vector3D<Precision> const &p0, Vector3D<Precision> const &p1,
+                     Vector3D<Precision> const &p2)
+{
 
   // Store corners and sides
   fCorners[0].set(index, p0);
@@ -175,12 +173,11 @@ void Rectangles::Set(
   // Compute plane equation to retrieve normal and distance to origin
   // ax + by + cz + d = 0
   Precision a, b, c, d;
-  a = p0[1]*(p1[2] - p2[2]) + p1[1]*(p2[2] - p0[2]) + p2[1]*(p0[2] - p1[2]);
-  b = p0[2]*(p1[0] - p2[0]) + p1[2]*(p2[0] - p0[0]) + p2[2]*(p0[0] - p1[0]);
-  c = p0[0]*(p1[1] - p2[1]) + p1[0]*(p2[1] - p0[1]) + p2[0]*(p0[1] - p1[1]);
-  d = - p0[0]*(p1[1]*p2[2] - p2[1]*p1[2])
-      - p1[0]*(p2[1]*p0[2] - p0[1]*p2[2])
-      - p2[0]*(p0[1]*p1[2] - p1[1]*p0[2]);
+  a = p0[1] * (p1[2] - p2[2]) + p1[1] * (p2[2] - p0[2]) + p2[1] * (p0[2] - p1[2]);
+  b = p0[2] * (p1[0] - p2[0]) + p1[2] * (p2[0] - p0[0]) + p2[2] * (p0[0] - p1[0]);
+  c = p0[0] * (p1[1] - p2[1]) + p1[0] * (p2[1] - p0[1]) + p2[0] * (p0[1] - p1[1]);
+  d = -p0[0] * (p1[1] * p2[2] - p2[1] * p1[2]) - p1[0] * (p2[1] * p0[2] - p0[1] * p2[2]) -
+      p2[0] * (p0[1] * p1[2] - p1[1] * p0[2]);
   Vector3D<Precision> normal(a, b, c);
   // Normalize the plane equation
   // (ax + by + cz + d) / sqrt(a^2 + b^2 + c^2) = 0 =>
@@ -191,33 +188,31 @@ void Rectangles::Set(
   if (d >= 0) {
     // Ensure normal is pointing away from origin
     normal = -normal;
-    d = -d;
+    d      = -d;
   }
 
   fPlanes.Set(index, normal, d);
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-Precision Rectangles::Distance(
-    Vector3D<Precision> const &point,
-    Vector3D<Precision> const &direction) const {
+Precision Rectangles::Distance(Vector3D<Precision> const &point, Vector3D<Precision> const &direction) const
+{
   Precision bestDistance = kInfinity;
   for (int i = 0, iMax = size(); i < iMax; ++i) {
-    Vector3D<Precision> normal = GetNormal(i);
-    Vector3D<Precision> side = GetSide(i);
-    Precision t = -(normal.Dot(point) + GetDistance(i)) / normal.Dot(direction);
-    Vector3D<Precision> intersection = point + t*direction;
-    Vector3D<Precision> fromP0 = intersection - fCorners[0][i];
-    Vector3D<Precision> fromP2 = intersection - fCorners[1][i];
-    if (t >= 0 && t < bestDistance && side.Dot(fromP0) >= 0 &&
-        (-side).Dot(fromP2) >= 0) {
+    Vector3D<Precision> normal       = GetNormal(i);
+    Vector3D<Precision> side         = GetSide(i);
+    Precision t                      = -(normal.Dot(point) + GetDistance(i)) / normal.Dot(direction);
+    Vector3D<Precision> intersection = point + t * direction;
+    Vector3D<Precision> fromP0       = intersection - fCorners[0][i];
+    Vector3D<Precision> fromP2       = intersection - fCorners[1][i];
+    if (t >= 0 && t < bestDistance && side.Dot(fromP0) >= 0 && (-side).Dot(fromP2) >= 0) {
       bestDistance = t;
     }
   }
   return bestDistance;
 }
 
-std::ostream& operator<<(std::ostream &os, Rectangles const &rhs);
+std::ostream &operator<<(std::ostream &os, Rectangles const &rhs);
 
 } // End inline impl namespace
 

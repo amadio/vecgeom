@@ -11,22 +11,21 @@
 
 using namespace vecgeom;
 
-int main() {
+int main()
+{
 
   // Create some vecgeom polyhedron
-  constexpr int nPlanes = 4;
+  constexpr int nPlanes      = 4;
   Precision zPlanes[nPlanes] = {-2, -1, 1, 2};
-  Precision rInner[nPlanes] = {1, 0.5, 0.5, 1};
-  Precision rOuter[nPlanes] = {2, 1, 1, 2};
-  SimplePolyhedron vecgeom("Vecgeom", 45, 180, 5, nPlanes, zPlanes, rInner,
-                           rOuter);
+  Precision rInner[nPlanes]  = {1, 0.5, 0.5, 1};
+  Precision rOuter[nPlanes]  = {2, 1, 1, 2};
+  SimplePolyhedron vecgeom("Vecgeom", 45, 180, 5, nPlanes, zPlanes, rInner, rOuter);
 
   // Convert to ROOT using the PlacedVolume interface
   std::unique_ptr<const TGeoShape> rootPolyhedron(vecgeom.ConvertToRoot());
 
   // Convert it back through the RootGeoManager
-  std::unique_ptr<VUnplacedVolume> reconvertedUnplaced(
-      RootGeoManager::Instance().Convert(rootPolyhedron.get()));
+  std::unique_ptr<VUnplacedVolume> reconvertedUnplaced(RootGeoManager::Instance().Convert(rootPolyhedron.get()));
   LogicalVolume reconvertedLogical(reconvertedUnplaced.get());
   std::unique_ptr<VPlacedVolume> reconverted(reconvertedLogical.Place());
 

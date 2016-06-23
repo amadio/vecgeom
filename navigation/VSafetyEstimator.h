@@ -21,7 +21,8 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 // some forward declarations
-template <typename T> class Vector3D;
+template <typename T>
+class Vector3D;
 class NavigationState;
 class LogicalVolume;
 class Transformation3D;
@@ -46,8 +47,6 @@ public:
   virtual Precision ComputeSafetyForLocalPoint(Vector3D<Precision> const & /*localpoint*/,
                                                VPlacedVolume const * /*pvol*/) const = 0;
 
-
-
   // in addition useful to offer an explicit SIMD interface
   // which could be used from other clients (such as VNavigator when it treats basket data)
   // the mask is supposed to indicate which lane needs a safety result since often the track is
@@ -56,9 +55,8 @@ public:
   using Real_v = vecgeom::VectorBackend::Real_v;
   using Bool_v = vecCore::Mask_v<Real_v>;
 
-  virtual Real_v
-  ComputeSafetyForLocalPoint(Vector3D<Real_v> const & /*localpoint*/,
-                             VPlacedVolume const * /*pvol*/, Bool_v /*m*/) const = 0;
+  virtual Real_v ComputeSafetyForLocalPoint(Vector3D<Real_v> const & /*localpoint*/, VPlacedVolume const * /*pvol*/,
+                                            Bool_v /*m*/) const = 0;
 
   // interfaces to treat vectors/collections of points (uses the approach with intermediate storage and passing down the
   // loops to shapes)
@@ -82,10 +80,12 @@ public:
 
 //! template class providing a standard implementation for
 //! some interfaces in VSafetyEstimator (using the CRT pattern)
-template <typename Impl> class VSafetyEstimatorHelper : public VSafetyEstimator {
+template <typename Impl>
+class VSafetyEstimatorHelper : public VSafetyEstimator {
 
 public:
-  virtual Precision ComputeSafety(Vector3D<Precision> const &globalpoint, NavigationState const &state) const override {
+  virtual Precision ComputeSafety(Vector3D<Precision> const &globalpoint, NavigationState const &state) const override
+  {
     // calculate local point from global point
     Transformation3D m;
     state.TopMatrix(m);
@@ -98,12 +98,14 @@ public:
   // interfaces to treat vectors/collections of points (uses the approach without intermediate storage; requires access
   // to new SIMD interface)
   virtual void ComputeVectorSafety(SOA3D<Precision> const & /*globalpoints*/, NavStatePool & /*states*/,
-                                   Precision * /*safeties*/) const override {
+                                   Precision * /*safeties*/) const override
+  {
     assert(0 && "not implemented yet, requires access to new SIM interface");
   }
 
   virtual void ComputeVectorSafety(SOA3D<Precision> const &globalpoints, NavStatePool &states,
-                                   SOA3D<Precision> &localpointworkspace, Precision *safeties) const override {
+                                   SOA3D<Precision> &localpointworkspace, Precision *safeties) const override
+  {
     // calculate local point from global point
     auto np = globalpoints.size();
     for (auto i = decltype(np){0}; i < np; ++i) {

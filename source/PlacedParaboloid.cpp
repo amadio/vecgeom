@@ -21,35 +21,37 @@
 
 #endif // VECGEOM_NVCC
 
-
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 #ifndef VECGEOM_NVCC
 
-VPlacedVolume const* PlacedParaboloid::ConvertToUnspecialized() const {
-    return new SimpleParaboloid(GetLabel().c_str(), GetLogicalVolume(),GetTransformation());
+VPlacedVolume const *PlacedParaboloid::ConvertToUnspecialized() const
+{
+  return new SimpleParaboloid(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
 }
 
 #ifdef VECGEOM_ROOT
-TGeoShape const* PlacedParaboloid::ConvertToRoot() const {
-    return new TGeoParaboloid(GetLabel().c_str(), GetRlo(), GetRhi(), GetDz());
-    
+TGeoShape const *PlacedParaboloid::ConvertToRoot() const
+{
+  return new TGeoParaboloid(GetLabel().c_str(), GetRlo(), GetRhi(), GetDz());
 }
 #endif
 
 #if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const* PlacedParaboloid::ConvertToUSolids() const {
-    std::cerr << "**************************************************************\n";
-    std::cerr << "WARNING: Paraboloid unsupported for USolids.; returning NULL\n";
-    std::cerr << "**************************************************************\n";
-    return nullptr;
+::VUSolid const *PlacedParaboloid::ConvertToUSolids() const
+{
+  std::cerr << "**************************************************************\n";
+  std::cerr << "WARNING: Paraboloid unsupported for USolids.; returning NULL\n";
+  std::cerr << "**************************************************************\n";
+  return nullptr;
 }
 #endif
 
 #ifdef VECGEOM_GEANT4
-G4VSolid const* PlacedParaboloid::ConvertToGeant4() const {
-    return new G4Paraboloid(GetLabel(), GetDz(), GetRlo(), GetRhi());
+G4VSolid const *PlacedParaboloid::ConvertToGeant4() const
+{
+  return new G4Paraboloid(GetLabel(), GetDz(), GetRlo(), GetRhi());
 }
 #endif
 
@@ -59,7 +61,7 @@ G4VSolid const* PlacedParaboloid::ConvertToGeant4() const {
 
 #ifdef VECGEOM_NVCC
 
-VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC( SpecializedParaboloid )
+VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(SpecializedParaboloid)
 
 #endif // VECGEOM_NVCC
 

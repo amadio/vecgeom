@@ -17,7 +17,8 @@
 #define PI 3.14159265358979323846
 
 template <class Hype_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
-bool TestHype() {
+bool TestHype()
+{
 
   std::cout << std::setprecision(15);
   // int verbose=0;
@@ -58,7 +59,7 @@ bool TestHype() {
   Vec_t minExtent, maxExtent;
   b1.Extent(minExtent, maxExtent);
   double tSTout = std::tan(stOut);
-  double tSTin = std::tan(stIn);
+  double tSTin  = std::tan(stIn);
 
   double xy = std::sqrt(fRmax * fRmax + tSTout * tSTout * halfZ * halfZ);
   assert(ApproxEqual(minExtent, Vec_t(-xy, -xy, -halfZ)));
@@ -198,31 +199,26 @@ bool TestHype() {
   Dist = b1.DistanceToIn(pbigmy, vy);
   assert(ApproxEqual(Dist, 100 - fRmax));
 
-  Dist = b1.DistanceToIn(pbigz, vmz);
-  if (Dist >= UUtils::kInfinity)
-    Dist = UUtils::Infinity();
+  Dist                                = b1.DistanceToIn(pbigz, vmz);
+  if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
   assert(ApproxEqual(Dist, UUtils::Infinity()));
-  Dist = b1.DistanceToIn(pbigmz, vz);
-  if (Dist >= UUtils::kInfinity)
-    Dist = UUtils::Infinity();
+  Dist                                = b1.DistanceToIn(pbigmz, vz);
+  if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
   assert(ApproxEqual(Dist, UUtils::Infinity()));
 
-  Dist = b1.DistanceToIn(pbigx, vxy);
-  if (Dist >= UUtils::kInfinity)
-    Dist = UUtils::Infinity();
+  Dist                                = b1.DistanceToIn(pbigx, vxy);
+  if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
   assert(ApproxEqual(Dist, UUtils::Infinity()));
 
-  Dist = b1.DistanceToIn(pbigmx, vxy);
-  if (Dist >= UUtils::kInfinity)
-    Dist = UUtils::Infinity();
+  Dist                                = b1.DistanceToIn(pbigmx, vxy);
+  if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
   assert(ApproxEqual(Dist, UUtils::Infinity()));
 
   std::cout << "------------------------------------------------" << std::endl;
   Vec_t pointOTol(20 + vecgeom::cxx::kTolerance, 0., 0.);
   Dist = b1.DistanceToIn(pointOTol, vx);
   std::cout << "DistToIn : " << Dist << std::endl;
-  if (Dist >= UUtils::kInfinity)
-    Dist = UUtils::Infinity();
+  if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
   assert(ApproxEqual(Dist, UUtils::Infinity()));
 
   Dist = b1.DistanceToOut(pointOTol, vx, norm, convex); // This case fails
@@ -243,8 +239,7 @@ bool TestHype() {
   Vec_t pointOTolI(20 - vecgeom::cxx::kTolerance, 0., 0.);
   Dist = b1.DistanceToIn(pointOTolI, vx);
   std::cout << "DistToIn : " << Dist << std::endl;
-  if (Dist >= UUtils::kInfinity)
-    Dist = UUtils::Infinity();
+  if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
   assert(ApproxEqual(Dist, UUtils::Infinity()));
 
   Dist = b1.DistanceToOut(pointOTolI, vx, norm, convex); // This case fails
@@ -298,9 +293,8 @@ bool TestHype() {
   std::cout << "------------------------------------------------" << std::endl;
   Vec_t pointOTol_Z(60, 0., 50. + vecgeom::cxx::kTolerance);
 
-  Dist = b1.DistanceToIn(pointOTol_Z, vz);
-  if (Dist >= UUtils::kInfinity)
-    Dist = UUtils::Infinity();
+  Dist                                = b1.DistanceToIn(pointOTol_Z, vz);
+  if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
   std::cout << "DistToIn : " << Dist << std::endl;
   assert(ApproxEqual(Dist, UUtils::Infinity()));
 
@@ -320,9 +314,8 @@ bool TestHype() {
 
   Vec_t pointOTol_ZNeg(60, 0., -50. - vecgeom::cxx::kTolerance);
 
-  Dist = b1.DistanceToIn(pointOTol_ZNeg, vmz);
-  if (Dist >= UUtils::kInfinity)
-    Dist = UUtils::Infinity();
+  Dist                                = b1.DistanceToIn(pointOTol_ZNeg, vmz);
+  if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
   std::cout << "DistToIn : " << Dist << std::endl;
   assert(ApproxEqual(Dist, UUtils::Infinity()));
 
@@ -387,11 +380,12 @@ bool TestHype() {
   assert(ApproxEqual(Dist, -1.));
   Dist = b1.SafetyFromOutside(Vec_t(0., -15., 0.));
   assert(ApproxEqual(Dist, -1.));
-  std::cout<<valid<<std::endl;
+  std::cout << valid << std::endl;
   return true;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 
   if (argc < 2) {
     std::cerr << "need to give argument :--usolids or --vecgeom\n";

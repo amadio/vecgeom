@@ -8,7 +8,6 @@
 #ifndef VECGEOM_VOLUMES_SPECIALIZEDGENTRAP_H_
 #define VECGEOM_VOLUMES_SPECIALIZEDGENTRAP_H_
 
-
 #include "base/Global.h"
 #include "volumes/kernel/GenTrapImplementation.h"
 #include "volumes/PlacedGenTrap.h"
@@ -21,11 +20,11 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedGenTrap = ShapeImplementationHelper<GenTrapImplementation<transCodeT, rotCodeT> >;
+using SpecializedGenTrap = ShapeImplementationHelper<GenTrapImplementation<transCodeT, rotCodeT>>;
 
 using SimpleGenTrap = SpecializedGenTrap<translation::kGeneric, rotation::kGeneric>;
-
-} } // End global namespace
+}
+} // End global namespace
 
 /*
 class SpecializedGenTrap

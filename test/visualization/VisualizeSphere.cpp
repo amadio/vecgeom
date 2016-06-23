@@ -9,9 +9,10 @@ using namespace vecgeom;
 
 typedef Vector3D<Precision> Vec_t;
 
-int main() {
+int main()
+{
   constexpr int nSamples = 512;
-  SimpleSphere sphere("Visualizer Sphere", 15. , 20. ,0.,  2*PI/3., PI/4. ,PI/6.);
+  SimpleSphere sphere("Visualizer Sphere", 15., 20., 0., 2 * PI / 3., PI / 4., PI / 6.);
   AOS3D<Precision> points(nSamples);
 
   for (int i = 0; i < nSamples; ++i) {

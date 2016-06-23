@@ -20,23 +20,21 @@
 #else
 
 #ifndef __CUDA_ARCH__
-#define assert(x)                                                              \
-  do {                                                                         \
-    if (!(x)) {                                                                \
-      fprintf(stderr, "%s:%d: Assertion failed: '%s'\n",                       \
-        __FILE__, __LINE__, #x);                                               \
-      abort();                                                                 \
-    }                                                                          \
+#define assert(x)                                                                 \
+  do {                                                                            \
+    if (!(x)) {                                                                   \
+      fprintf(stderr, "%s:%d: Assertion failed: '%s'\n", __FILE__, __LINE__, #x); \
+      abort();                                                                    \
+    }                                                                             \
   } while (0)
 #else
-#define assert(x)                                                              \
-  do {                                                                         \
-    if (!(x)) {                                                                \
-      printf("%s:%d:\n%s: Assertion failed: '%s'\n",                           \
-        __FILE__, __LINE__, __PRETTY_FUNCTION__, #x);                          \
-      __syncthreads();                                                         \
-      asm("trap;");                                                            \
-    }                                                                          \
+#define assert(x)                                                                                  \
+  do {                                                                                             \
+    if (!(x)) {                                                                                    \
+      printf("%s:%d:\n%s: Assertion failed: '%s'\n", __FILE__, __LINE__, __PRETTY_FUNCTION__, #x); \
+      __syncthreads();                                                                             \
+      asm("trap;");                                                                                \
+    }                                                                                              \
   } while (0)
 #endif // ifndef __CUDA_ARCH__
 

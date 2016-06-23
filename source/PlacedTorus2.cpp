@@ -17,26 +17,29 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 #ifndef VECGEOM_NVCC
 
-VPlacedVolume const* PlacedTorus2::ConvertToUnspecialized() const {
+VPlacedVolume const *PlacedTorus2::ConvertToUnspecialized() const
+{
   return new SimpleTorus2(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
 }
 
 #ifdef VECGEOM_ROOT
-TGeoShape const* PlacedTorus2::ConvertToRoot() const {
-  return new TGeoTorus(GetLabel().c_str(), rtor(), rmin(), rmax(),
-          sphi()*kRadToDeg, dphi()*kRadToDeg);
+TGeoShape const *PlacedTorus2::ConvertToRoot() const
+{
+  return new TGeoTorus(GetLabel().c_str(), rtor(), rmin(), rmax(), sphi() * kRadToDeg, dphi() * kRadToDeg);
 }
 #endif
 
 #if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const* PlacedTorus2::ConvertToUSolids() const {
-    return NULL;
-    //  return new UTubs(GetLabel().c_str(), rmin(), rmax(), z(), sphi(), dphi());
+::VUSolid const *PlacedTorus2::ConvertToUSolids() const
+{
+  return NULL;
+  //  return new UTubs(GetLabel().c_str(), rmin(), rmax(), z(), sphi(), dphi());
 }
 #endif
 
 #ifdef VECGEOM_GEANT4
-G4VSolid const* PlacedTorus2::ConvertToGeant4() const {
+G4VSolid const *PlacedTorus2::ConvertToGeant4() const
+{
   return new G4Torus(GetLabel().c_str(), rmin(), rmax(), rtor(), sphi(), dphi());
 }
 #endif
@@ -47,9 +50,8 @@ G4VSolid const* PlacedTorus2::ConvertToGeant4() const {
 
 #ifdef VECGEOM_NVCC
 
-VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC( SpecializedTorus2 )
+VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(SpecializedTorus2)
 
 #endif
 
 } // End global namespace
-

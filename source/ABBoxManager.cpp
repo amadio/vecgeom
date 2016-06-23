@@ -27,7 +27,8 @@ inline namespace cxx {
  *
  */
 void ABBoxManager::ComputeSplittedABBox(VPlacedVolume const *pvol, std::vector<ABBox_s> &lowerc,
-                                        std::vector<ABBox_s> &upperc, int numOfSlices) {
+                                        std::vector<ABBox_s> &upperc, int numOfSlices)
+{
 
   // idea: Split the Placed Bounding Box of volume into the numOfSlices.
   //		  Then pass each placed slice to the ComputABBox function,
@@ -55,15 +56,15 @@ void ABBoxManager::ComputeSplittedABBox(VPlacedVolume const *pvol, std::vector<A
 
   if (dim == 0) {
     splitDx = delta.x() / numOfSlices;
-    val = -delta.x() / 2 + splitDx / 2;
+    val     = -delta.x() / 2 + splitDx / 2;
   }
   if (dim == 1) {
     splitDy = delta.y() / numOfSlices;
-    val = -delta.y() / 2 + splitDy / 2;
+    val     = -delta.y() / 2 + splitDy / 2;
   }
   if (dim == 2) {
     splitDz = delta.z() / numOfSlices;
-    val = -delta.z() / 2 + splitDz / 2;
+    val     = -delta.z() / 2 + splitDz / 2;
   }
 
   // Precision minx, miny, minz, maxx, maxy, maxz;
@@ -105,7 +106,8 @@ void ABBoxManager::ComputeSplittedABBox(VPlacedVolume const *pvol, std::vector<A
   }
 }
 
-void ABBoxManager::ComputeABBox(VPlacedVolume const *pvol, ABBox_s *lowerc, ABBox_s *upperc) {
+void ABBoxManager::ComputeABBox(VPlacedVolume const *pvol, ABBox_s *lowerc, ABBox_s *upperc)
+{
   // idea: take the 8 corners of the bounding box in the reference frame of pvol
   // transform those corners and keep track of minimum and maximum extent
   // TODO: could make this code shorter with a more complex Vector3D class
@@ -113,35 +115,35 @@ void ABBoxManager::ComputeABBox(VPlacedVolume const *pvol, ABBox_s *lowerc, ABBo
   pvol->Extent(lower, upper);
   Vector3D<Precision> delta = upper - lower;
   Precision minx, miny, minz, maxx, maxy, maxz;
-  minx = kInfinity;
-  miny = kInfinity;
-  minz = kInfinity;
-  maxx = -kInfinity;
-  maxy = -kInfinity;
-  maxz = -kInfinity;
+  minx                           = kInfinity;
+  miny                           = kInfinity;
+  minz                           = kInfinity;
+  maxx                           = -kInfinity;
+  maxy                           = -kInfinity;
+  maxz                           = -kInfinity;
   Transformation3D const *transf = pvol->GetTransformation();
   for (int x = 0; x <= 1; ++x)
     for (int y = 0; y <= 1; ++y)
       for (int z = 0; z <= 1; ++z) {
         Vector3D<Precision> corner;
-        corner.x() = lower.x() + x * delta.x();
-        corner.y() = lower.y() + y * delta.y();
-        corner.z() = lower.z() + z * delta.z();
+        corner.x()                            = lower.x() + x * delta.x();
+        corner.y()                            = lower.y() + y * delta.y();
+        corner.z()                            = lower.z() + z * delta.z();
         Vector3D<Precision> transformedcorner = transf->InverseTransform(corner);
-        minx = std::min(minx, transformedcorner.x());
-        miny = std::min(miny, transformedcorner.y());
-        minz = std::min(minz, transformedcorner.z());
-        maxx = std::max(maxx, transformedcorner.x());
-        maxy = std::max(maxy, transformedcorner.y());
-        maxz = std::max(maxz, transformedcorner.z());
+        minx                                  = std::min(minx, transformedcorner.x());
+        miny                                  = std::min(miny, transformedcorner.y());
+        minz                                  = std::min(minz, transformedcorner.z());
+        maxx                                  = std::max(maxx, transformedcorner.x());
+        maxy                                  = std::max(maxy, transformedcorner.y());
+        maxz                                  = std::max(maxz, transformedcorner.z());
       }
-// put some margin around these boxes
+  // put some margin around these boxes
   *lowerc = Vector3D<Precision>(minx - 1E-3, miny - 1E-3, minz - 1E-3);
   *upperc = Vector3D<Precision>(maxx + 1E-3, maxy + 1E-3, maxz + 1E-3);
 
 #ifdef CHECK
   // do some tests on this stuff
-  delta = (*upperc - *lowerc) / 2.;
+  delta                              = (*upperc - *lowerc) / 2.;
   Vector3D<Precision> boxtranslation = (*lowerc + *upperc) / 2.;
   UnplacedBox box(delta);
   Transformation3D tr(boxtranslation.x(), boxtranslation.y(), boxtranslation.z());
@@ -153,8 +155,7 @@ void ABBoxManager::ComputeABBox(VPlacedVolume const *pvol, ABBox_s *lowerc, ABBo
   for (int i = 0; i < 10000; ++i) {
     Vector3D<Precision> p = box.GetPointOnSurface() + boxtranslation;
     std::cerr << *lowerc << " " << *upperc << " " << p << "\n";
-    if (pvol->Contains(p))
-      contains++;
+    if (pvol->Contains(p)) contains++;
   }
   if (contains > 10) {
     Visualizer visualizer;
@@ -166,19 +167,20 @@ void ABBoxManager::ComputeABBox(VPlacedVolume const *pvol, ABBox_s *lowerc, ABBo
 #endif
 }
 
-void ABBoxManager::InitABBoxes(LogicalVolume const *lvol) {
+void ABBoxManager::InitABBoxes(LogicalVolume const *lvol)
+{
   if (fVolToABBoxesMap[lvol->id()] != nullptr) {
     // remove old boxes first
     RemoveABBoxes(lvol);
   }
-  uint ndaughters = lvol->GetDaughtersp()->size();
-  ABBox_s *boxes = new ABBox_s[2 * ndaughters];
+  uint ndaughters              = lvol->GetDaughtersp()->size();
+  ABBox_s *boxes               = new ABBox_s[2 * ndaughters];
   fVolToABBoxesMap[lvol->id()] = boxes;
 
   // same for the vector part
-  int extra = (ndaughters % vecCore::VectorSize<Float_v>() > 0) ? 1 : 0;
-  int size = 2 * (ndaughters / vecCore::VectorSize<Float_v>() + extra);
-  ABBox_v *vectorboxes = new ABBox_v[size];
+  int extra                      = (ndaughters % vecCore::VectorSize<Float_v>() > 0) ? 1 : 0;
+  int size                       = 2 * (ndaughters / vecCore::VectorSize<Float_v>() + extra);
+  ABBox_v *vectorboxes           = new ABBox_v[size];
   fVolToABBoxesMap_v[lvol->id()] = vectorboxes;
 
   // calculate boxes by iterating over daughters
@@ -190,7 +192,7 @@ void ABBoxManager::InitABBoxes(LogicalVolume const *lvol) {
     Vector3D<Precision> lower = boxes[2 * d];
     Vector3D<Precision> upper = boxes[2 * d + 1];
 
-    Vector3D<Precision> delta = (upper - lower) / 2.;
+    Vector3D<Precision> delta          = (upper - lower) / 2.;
     Vector3D<Precision> boxtranslation = (lower + upper) / 2.;
     UnplacedBox box(delta);
     Transformation3D tr(boxtranslation.x(), boxtranslation.y(), boxtranslation.z());
@@ -207,7 +209,7 @@ void ABBoxManager::InitABBoxes(LogicalVolume const *lvol) {
   }
 
   // initialize vector version of Container
-  int index = 0;
+  int index                          = 0;
   unsigned int assignedscalarvectors = 0;
   for (uint i = 0; i < ndaughters; i += vecCore::VectorSize<Float_v>()) {
     Vector3D<Float_v> lower;
@@ -254,8 +256,9 @@ void ABBoxManager::InitABBoxes(LogicalVolume const *lvol) {
   assert(assignedscalarvectors == 2 * ndaughters);
 }
 
-void ABBoxManager::RemoveABBoxes(LogicalVolume const *lvol) {
-  if( fVolToABBoxesMap[lvol->id()]!=nullptr ) delete[] fVolToABBoxesMap[lvol->id()];
+void ABBoxManager::RemoveABBoxes(LogicalVolume const *lvol)
+{
+  if (fVolToABBoxesMap[lvol->id()] != nullptr) delete[] fVolToABBoxesMap[lvol->id()];
 }
-
-}}
+}
+}

@@ -45,20 +45,19 @@
 #endif
 
 #ifdef CALLGRIND_ENABLED
-#define RUNBENCH(NAME) \
-    CALLGRIND_START_INSTRUMENTATION; \
-    NAME; \
-    CALLGRIND_STOP_INSTRUMENTATION; \
-    CALLGRIND_DUMP_STATS
+#define RUNBENCH(NAME)             \
+  CALLGRIND_START_INSTRUMENTATION; \
+  NAME;                            \
+  CALLGRIND_STOP_INSTRUMENTATION;  \
+  CALLGRIND_DUMP_STATS
 #else
-   #define RUNBENCH(NAME) \
-    NAME
+#define RUNBENCH(NAME) NAME
 #endif
-
 
 using namespace vecgeom;
 
-void NavStateUnitTest() {
+void NavStateUnitTest()
+{
   NavigationState *state1 = NavigationState::MakeInstance(10);
   NavigationState *state2 = NavigationState::MakeInstance(10);
   // test - 0 ( one empty path )
@@ -97,7 +96,6 @@ void NavStateUnitTest() {
   std::cerr << state1->Distance(*state2) << "\n";
   assert(state1->RelativePath(*state2).compare("/down/2/down/4") == 0);
   assert(state1->Distance(*state2) == 2);
-
 
   // test - 4
   state1->Clear();
@@ -145,72 +143,72 @@ void NavStateUnitTest() {
   assert(state1->Distance(*state2) == 6);
 }
 
-void analyseOutStates( NavStatePool & inpool, NavStatePool const & outpool ){
-    std::set<VPlacedVolume const *> pset;
-    std::set<LogicalVolume const *> lset;
-    std::set<std::string > pathset;
-    std::set<std::string > crossset;
-    std::set<std::string > diffset;
-    std::set<std::string > matrices;
-    for (auto j = decltype(outpool.capacity()){0}; j < outpool.capacity(); ++j) {
-      std::stringstream pathstringstream2;
-      auto *navstate = outpool[j];
-      navstate->printValueSequence(pathstringstream2);
-      pset.insert(navstate->Top());
-      lset.insert(navstate->Top()->GetLogicalVolume());
-      pathset.insert(pathstringstream2.str());
+void analyseOutStates(NavStatePool &inpool, NavStatePool const &outpool)
+{
+  std::set<VPlacedVolume const *> pset;
+  std::set<LogicalVolume const *> lset;
+  std::set<std::string> pathset;
+  std::set<std::string> crossset;
+  std::set<std::string> diffset;
+  std::set<std::string> matrices;
+  for (auto j = decltype(outpool.capacity()){0}; j < outpool.capacity(); ++j) {
+    std::stringstream pathstringstream2;
+    auto *navstate = outpool[j];
+    navstate->printValueSequence(pathstringstream2);
+    pset.insert(navstate->Top());
+    lset.insert(navstate->Top()->GetLogicalVolume());
+    pathset.insert(pathstringstream2.str());
 
-      std::stringstream pathstringstream1;
-      auto *instate = inpool[j];
-      instate->printValueSequence(pathstringstream1);
-      crossset.insert(pathstringstream1.str() + " -- " + pathstringstream2.str() );
-      diffset.insert( instate->RelativePath(*navstate) );
+    std::stringstream pathstringstream1;
+    auto *instate = inpool[j];
+    instate->printValueSequence(pathstringstream1);
+    crossset.insert(pathstringstream1.str() + " -- " + pathstringstream2.str());
+    diffset.insert(instate->RelativePath(*navstate));
 
-      Transformation3D g;
-      Transformation3D g2;
-      Transformation3D invg2;
+    Transformation3D g;
+    Transformation3D g2;
+    Transformation3D invg2;
 
-      instate->TopMatrix(g);
-      navstate->TopMatrix(g2);
-      g.SetProperties();
-      g2.SetProperties();
-      g2.Inverse(invg2);
-      invg2.MultiplyFromRight(g);
-      invg2.FixZeroes();
-      std::stringstream matrixstream;
-      invg2.Print(matrixstream);
-      matrices.insert(matrixstream.str());
-    }
+    instate->TopMatrix(g);
+    navstate->TopMatrix(g2);
+    g.SetProperties();
+    g2.SetProperties();
+    g2.Inverse(invg2);
+    invg2.MultiplyFromRight(g);
+    invg2.FixZeroes();
+    std::stringstream matrixstream;
+    invg2.Print(matrixstream);
+    matrices.insert(matrixstream.str());
+  }
 
-    std::cerr << " size of diffset " << diffset.size() << "\n";
-    std::cerr << " size of matrixset " << matrices.size() << "\n";
-    std::cerr << " size of target pset " << pset.size() << "\n";
-    std::cerr << " size of target lset " << lset.size() << "\n";
-    std::cerr << " size of target state set " << pathset.size() << "\n";
-    std::cerr << " total combinations " << crossset.size() << "\n";
-    std::cerr << " normalized per input state " << crossset.size()/(1.*pathset.size()) << "\n";
+  std::cerr << " size of diffset " << diffset.size() << "\n";
+  std::cerr << " size of matrixset " << matrices.size() << "\n";
+  std::cerr << " size of target pset " << pset.size() << "\n";
+  std::cerr << " size of target lset " << lset.size() << "\n";
+  std::cerr << " size of target state set " << pathset.size() << "\n";
+  std::cerr << " total combinations " << crossset.size() << "\n";
+  std::cerr << " normalized per input state " << crossset.size() / (1. * pathset.size()) << "\n";
 
-    for(auto & s : crossset ){
-      std::cerr << s << "\n";
-    }
-    for(auto & s : diffset ){
-      std::cerr << s << "\n";
-    }
-    for(auto & s : matrices ){
-         std::cerr << s << "\n";
-       }
+  for (auto &s : crossset) {
+    std::cerr << s << "\n";
+  }
+  for (auto &s : diffset) {
+    std::cerr << s << "\n";
+  }
+  for (auto &s : matrices) {
+    std::cerr << s << "\n";
+  }
 }
 
 template <typename T>
-__attribute__((noinline))
-void benchNavigator(SOA3D<Precision> const & points,
-                    SOA3D<Precision> const & dirs,
-                    NavStatePool const &inpool, NavStatePool & outpool) {
+__attribute__((noinline)) void benchNavigator(SOA3D<Precision> const &points, SOA3D<Precision> const &dirs,
+                                              NavStatePool const &inpool, NavStatePool &outpool)
+{
   Precision *steps = new Precision[points.size()];
- // NavigationState *newstate = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
+  // NavigationState *newstate = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
   Stopwatch timer;
-  VNavigator *se = T::Instance();
-  size_t hittargetchecksum=0L;
+  VNavigator *se           = T::Instance();
+  size_t hittargetchecksum = 0L;
   timer.Start();
   for (decltype(points.size()) i = 0; i < points.size(); ++i) {
     steps[i] = se->ComputeStepAndPropagatedState(points[i], dirs[i], vecgeom::kInfinity, *inpool[i], *outpool[i]);
@@ -225,22 +223,23 @@ void benchNavigator(SOA3D<Precision> const & points,
   }
   delete[] steps;
   std::cerr << "accum  " << T::GetClassName() << " " << accum << " target checksum " << hittargetchecksum << "\n";
- // NavigationState::ReleaseInstance(newstate);
+  // NavigationState::ReleaseInstance(newstate);
 }
 
 template <typename T>
-__attribute__((noinline))
-void benchVectorNavigator(SOA3D<Precision> const & __restrict__ points,
-                          SOA3D<Precision> const & __restrict__ dirs,
-                          NavStatePool const & __restrict__ inpool, NavStatePool & __restrict__ outpool) {
+__attribute__((noinline)) void benchVectorNavigator(SOA3D<Precision> const &__restrict__ points,
+                                                    SOA3D<Precision> const &__restrict__ dirs,
+                                                    NavStatePool const &__restrict__ inpool,
+                                                    NavStatePool &__restrict__ outpool)
+{
   Precision *step_max = (double *)_mm_malloc(sizeof(double) * points.size(), 32);
   for (decltype(points.size()) i = 0; i < points.size(); ++i)
-    step_max[i] = vecgeom::kInfinity;
-  Precision *steps = (double *)_mm_malloc(sizeof(double) * points.size(), 32);
+    step_max[i]                  = vecgeom::kInfinity;
+  Precision *steps               = (double *)_mm_malloc(sizeof(double) * points.size(), 32);
   Stopwatch timer;
   VNavigator *se = T::Instance();
-  NavigationState const ** inpoolarray;
-  NavigationState ** outpoolarray;
+  NavigationState const **inpoolarray;
+  NavigationState **outpoolarray;
   inpool.ToPlainPointerArray(inpoolarray);
   outpool.ToPlainPointerArray(outpoolarray);
   timer.Start();
@@ -248,33 +247,32 @@ void benchVectorNavigator(SOA3D<Precision> const & __restrict__ points,
   timer.Stop();
   std::cerr << timer.Elapsed() << "\n";
   double accum(0.);
-  size_t hittargetchecksum=0L;
+  size_t hittargetchecksum = 0L;
   for (decltype(points.size()) i = 0; i < points.size(); ++i) {
     // std::cerr << "---- " << steps[i] << "\n";
     accum += steps[i];
-    hittargetchecksum+=(size_t) outpool[i]->Top();
+    hittargetchecksum += (size_t)outpool[i]->Top();
   }
-  std::cerr << "VECTOR accum  " << T::GetClassName() << " " << accum << " target checksum " << hittargetchecksum << "\n";
+  std::cerr << "VECTOR accum  " << T::GetClassName() << " " << accum << " target checksum " << hittargetchecksum
+            << "\n";
   _mm_free(steps);
   _mm_free(step_max);
   delete[] inpoolarray;
   delete[] outpoolarray;
 }
 
-
-void benchmarkOldNavigator(SOA3D<Precision> const & points,
-                           SOA3D<Precision> const & dirs,
-                           NavStatePool &inpool ){
-  Precision *steps = new Precision[points.size()];
+void benchmarkOldNavigator(SOA3D<Precision> const &points, SOA3D<Precision> const &dirs, NavStatePool &inpool)
+{
+  Precision *steps          = new Precision[points.size()];
   NavigationState *newstate = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
   Stopwatch timer;
   SimpleNavigator nav;
-  size_t hittargetchecksum=0L;
+  size_t hittargetchecksum = 0L;
   timer.Start();
   for (decltype(points.size()) i = 0; i < points.size(); ++i) {
     nav.FindNextBoundaryAndStep(points[i], dirs[i], *inpool[i], *newstate, vecgeom::kInfinity, steps[i]);
     //    std::cerr << "** " << newstate->Top()->GetLabel() << "\n";
-    hittargetchecksum+=(size_t) newstate->Top();
+    hittargetchecksum += (size_t)newstate->Top();
   }
   timer.Stop();
   std::cerr << timer.Elapsed() << "\n";
@@ -287,17 +285,16 @@ void benchmarkOldNavigator(SOA3D<Precision> const & points,
   NavigationState::ReleaseInstance(newstate);
 }
 
-
-void benchDifferentNavigators(SOA3D<Precision> const &points,
-                              SOA3D<Precision> const &dirs,
-                              NavStatePool &pool, NavStatePool &outpool){
+void benchDifferentNavigators(SOA3D<Precision> const &points, SOA3D<Precision> const &dirs, NavStatePool &pool,
+                              NavStatePool &outpool)
+{
   std::cerr << "##\n";
   //    RUNBENCH( benchNavigator<ZDCEMAbsorberNavigator>(points, dirs, pool) );
   std::cerr << "##\n";
   RUNBENCH(benchNavigator<NewSimpleNavigator<false>>(points, dirs, pool, outpool));
   outpool.ToFile("simplenavoutpool.bin");
   std::cerr << "##\n";
-  RUNBENCH(benchNavigator<NewSimpleNavigator<true>>(points, dirs, pool,outpool));
+  RUNBENCH(benchNavigator<NewSimpleNavigator<true>>(points, dirs, pool, outpool));
   std::cerr << "##\n";
 #ifdef BENCH_GENERATED_NAVIGATOR
   RUNBENCH(benchNavigator<GeneratedNavigator>(points, dirs, pool, outpool));
@@ -330,9 +327,9 @@ void benchDifferentNavigators(SOA3D<Precision> const &points,
   analyseOutStates(pool, outpool);
 }
 
-int main( int argc, char * argv[] )
+int main(int argc, char *argv[])
 {
-    NavStateUnitTest();
+  NavStateUnitTest();
   // read in detector passed as argument
   if (argc > 1) {
     RootGeoManager::Instance().set_verbose(3);
@@ -357,17 +354,17 @@ int main( int argc, char * argv[] )
   for (auto &element : GeoManager::Instance().GetLogicalVolumesMap()) {
     LogicalVolume *lvol = element.second;
     if (lvol->GetDaughtersp()->size() > 8) {
-        //HybridManager2::Instance().InitStructure(lvol);
-        lvol->SetLevelLocator(SimpleABBoxLevelLocator::GetInstance());
-        //lvol->SetLevelLocator(HybridLevelLocator::GetInstance());
+      // HybridManager2::Instance().InitStructure(lvol);
+      lvol->SetLevelLocator(SimpleABBoxLevelLocator::GetInstance());
+      // lvol->SetLevelLocator(HybridLevelLocator::GetInstance());
     }
   }
 
   std::string volname(argv[2]);
   HybridManager2::Instance().InitStructure(GeoManager::Instance().FindLogicalVolume(volname.c_str()));
 
-  bool usecached=false;
-  if( argc >= 4 && strcmp(argv[3], "--usecache") == 0 ) usecached=true;
+  bool usecached = false;
+  if (argc >= 4 && strcmp(argv[3], "--usecache") == 0) usecached = true;
 
   if (!usecached) {
     volumeUtilities::FillGlobalPointsAndDirectionsForLogicalVolume<SOA3D<Precision>>(
