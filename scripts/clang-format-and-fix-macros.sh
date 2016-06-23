@@ -14,64 +14,89 @@ macros=(
 	VECGEOM_INLINE
 )
 
+macroShorts=(
+    "VECGEOM_INLINE[[:space:]]*VECGEOM_CUDA_HEADER_BOTH @GIGB \1VECGEOM_INLINE\1VECGEOM_CUDA_HEADER_BOTH\1"
+    "VECGEOM_CUDA_HEADER_BOTH[[:space:]]*VECGEOM_INLINE @GIGB \1VECGEOM_INLINE\1VECGEOM_CUDA_HEADER_BOTH\1"
+    "VECGEOM_CUDA_HEADER_BOTH @GB \1VECGEOM_CUDA_HEADER_BOTH\1"
+    "VECGEOM_INLINE[[:space:]]*VECGEOM_CUDA_HEADER_DEVICE @GIGD \1VECGEOM_INLINE\1VECGEOM_CUDA_HEADER_DEVICE\1"
+    "VECGEOM_CUDA_HEADER_DEVICE[[:space:]]*VECGEOM_INLINE @GIGD \1VECGEOM_INLINE\1VECGEOM_CUDA_HEADER_DEVICE\1"
+    "VECGEOM_CUDA_HEADER_DEVICE @GD \1VECGEOM_CUDA_HEADER_DEVICE\1"
+    "VECGEOM_INLINE[[:space:]]*VECGEOM_CUDA_HEADER_HOST @GIGH \1VECGEOM_INLINE VECGEOM_CUDA_HEADER_HOST\1"
+    "VECGEOM_CUDA_HEADER_HOST[[:space:]]*VECGEOM_INLINE @GIGH \1VECGEOM_INLINE VECGEOM_CUDA_HEADER_HOST\1"
+    "VECGEOM_CUDA_HEADER_HOST @GH \1VECGEOM_CUDA_HEADER_HOST\1"
+    "VECGEOM_INLINE @GI \1VECGEOM_INLINE\1"
+    "VECCORE_FORCE_INLINE[[:space:]]*VECCORE_CUDA_HOST_DEVICE @CICB \1VECCORE_FORCE_INLINE\1VECCORE_CUDA_HOST_DEVICE\1"
+    "VECCORE_CUDA_HOST_DEVICE[[:space:]]*VECCORE_FORCE_INLINE @CICB \1VECCORE_FORCE_INLINE\1VECCORE_CUDA_HOST_DEVICE\1"
+    "VECCORE_CUDA_HOST_DEVICE @CB \1VECCORE_CUDA_HOST_DEVICE\1"
+    "VECCORE_FORCE_INLINE[[:space:]]*VECCORE_CUDA_DEVICE @CICD \1VECCORE_FORCE_INLINE\1VECCORE_CUDA_DEVICE\1"
+    "VECCORE_CUDA_DEVICE[[:space:]]*VECCORE_FORCE_INLINE @CICD \1VECCORE_FORCE_INLINE\1VECCORE_CUDA_DEVICE\1"
+    "VECCORE_CUDA_DEVICE @CD \1VECCORE_CUDA_DEVICE\1"
+    "VECCORE_FORCE_INLINE[[:space:]]*VECCORE_CUDA_HOST @CICH \1VECCORE_FORCE_INLINE\1VECCORE_CUDA_HOST\1"
+    "VECCORE_CUDA_HOST[[:space:]]*VECCORE_FORCE_INLINE @CICH \1VECCORE_FORCE_INLINE\1VECCORE_CUDA_HOST\1"
+    "VECCORE_CUDA_HOST @CH \1VECCORE_CUDA_HOST\1"
+    "VECCORE_FORCE_INLINE @CI \1VECCORE_FORCE_INLINE\1"
+    "VECCORE_FORCE_NOINLINE @CNI \1VECCORE_FORCE_NOINLINE\1"
+    "__host__ @H \1__host__\1"
+    "__device__ @D \1__device__\1"
+    "__host__ __device__ @B \1__host__\1__device__\1"
+    "__device__ __host__ @B \1__host__\1__device__\1"
+)
 
-# Shorten the macro we will move so that there effect on line length calculation is reduced.
-sed -i "" -E \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/VECGEOM_INLINE VECGEOM_CUDA_HEADER_BOTH/@GIGB@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/VECGEOM_CUDA_HEADER_BOTH VECGEOM_INLINE/@GIGB@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/VECGEOM_CUDA_HEADER_BOTH/@GB@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/VECGEOM_INLINE VECGEOM_CUDA_HEADER_DEVICE/@GIGD@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/VECGEOM_CUDA_HEADER_DEVICE VECGEOM_INLINE/@GIGD@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/VECGEOM_CUDA_HEADER_DEVICE/@GD@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/VECGEOM_INLINE VECGEOM_CUDA_HEADER_HOST/@GIGH@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/VECGEOM_CUDA_HEADER_HOST VECGEOM_INLINE/@GIGH@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/VECGEOM_CUDA_HEADER_HOST/@GH@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/VECGEOM_INLINE/@GI@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/VECCORE_FORCE_INLINE VECCORE_CUDA_HOST_DEVICE/@CICB@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/VECCORE_CUDA_HOST_DEVICE VECCORE_FORCE_INLINE/@CICB@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/VECCORE_CUDA_HOST_DEVICE/@CB@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/VECCORE_FORCE_INLINE VECCORE_CUDA_DEVICE/@CICD@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/VECCORE_CUDA_DEVICE VECCORE_FORCE_INLINE/@CICD@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/VECCORE_CUDA_DEVICE/@CD@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/VECCORE_FORCE_INLINE VECCORE_CUDA_HOST/@CICH@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/VECCORE_CUDA_HOST VECCORE_FORCE_INLINE/@CICH@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/VECCORE_CUDA_HOST/@CH@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/VECCORE_FORCE_INLINE/@CI@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/VECCORE_FORCE_NOINLINE/@CNI@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/__host__/@H@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/__device__/@D@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/__host__ __device__/@B@/g' \
-    -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/__device__ __host__/@B@/g' \
-    "$@"
+patternFrom=""
+patternTo=""
 
+for macroInfo in "${macroShorts[@]}" ; do
+    macro=${macroInfo%% *}
+    values=${macroInfo#* }
+    short=${values%% *}
+    newPattern=${values#* }
+#    printf "%s switch to %s then %s\n" "$values" "$short" "$newPattern"
+
+    patternFrom="${patternFrom}
+s/\(\n[[:blank:]]*template[^;{(]*\)>[[:space:]]*${macro}/\1${short}>/g"
+
+    patternTo="${patternTo}
+s/ *${short}>\([[:space:]\n]*\)/>${newPattern}/g"
+done
+
+# Shorten the macro and move them out of the way so that they have
+# no effect on line length calculation.
+for file in $@; do
+  sed  -i "" -n "
+    # if the first line copy the pattern to the hold buffer
+    1h
+    # if not the first line then append the pattern to the hold buffer
+    1!H
+    # if the last line then ...
+    $ {
+      # copy from the hold to the pattern buffer
+      g
+      # do the search and replace
+      ${patternFrom}
+      # print
+      p
+    }" "${file}"
+done
+
+clang-format -i "$@"
+# Run clang-format a 2nd time, this stability some of the comment positioning.
 clang-format -i "$@"
 
 # Put back the macros.
-
-sed -i "" -E \
-    -e 's/@GIGB@/VECGEOM_INLINE VECGEOM_CUDA_HEADER_BOTH/g' \
-    -e 's/@GIGD@/VECGEOM_INLINE VECGEOM_CUDA_HEADER_DEVICE/g' \
-    -e 's/@GIGH@/VECGEOM_INLINE VECGEOM_CUDA_HEADER_HOST/g' \
-    -e 's/@GB@/VECGEOM_CUDA_HEADER_BOTH/g' \
-    -e 's/@GD@/VECGEOM_CUDA_HEADER_DEVICE/g' \
-    -e 's/@GH@/VECGEOM_CUDA_HEADER_HOST/g' \
-    -e 's/@GI@/VECGEOM_INLINE/g' \
-    -e 's/@CICB@/VECCORE_FORCE_INLINE VECCORE_CUDA_HOST_DEVICE/g' \
-    -e 's/@CICD@/VECCORE_FORCE_INLINE VECCORE_CUDA_DEVICE/g' \
-    -e 's/@CICH@/VECCORE_FORCE_INLINE VECCORE_CUDA_HOST/g' \
-    -e 's/@CB@/VECCORE_CUDA_HOST_DEVICE/g' \
-    -e 's/@CD@/VECCORE_CUDA_DEVICE/g' \
-    -e 's/@CH@/VECCORE_CUDA_HOST/g' \
-    -e 's/@CI@/VECCORE_FORCE_INLINE/g' \
-    -e 's/@CNI@/VECCORE_FORCE_NOINLINE/g' \
-    -e 's/@B@/__host__ __device__/g' \
-    -e 's/@D@/__device__/g' \
-    -e 's/@H@/__host__/g' \
-    "$@"
-
-# Put the macro on their own line ...
-
-for macro in ${macros[@]}; do
-   sed -i "" -E -e '/^([[:space:]]*)[^/#[:space:]].*[^\]$/ s/^([[:space:]]*)(.*)('${macro}')[[:space:]]+/\1\2\3\
-\1/g;' "$@"
+for file in $@; do
+  sed  -i "" -n "
+    # if the first line copy the pattern to the hold buffer
+    1h
+    # if not the first line then append the pattern to the hold buffer
+    1!H
+    # if the last line then ...
+    $ {
+      # copy from the hold to the pattern buffer
+      g
+      # do the search and replace
+      ${patternTo}
+      # print
+      p
+    }" "${file}"
 done
+
