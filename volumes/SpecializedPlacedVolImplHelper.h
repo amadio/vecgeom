@@ -419,50 +419,74 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1t_2v(class, CommonSpecializedVolImplHelper
 
   template <class Specialization, int transC, int rotC>
   class LoopSpecializedVolImplHelper : public CommonSpecializedVolImplHelper<Specialization, transC, rotC> {
-    using Helper_t = LoopSpecializedVolImplHelper<Specialization, transC, rotC>;
-
+    //using Helper_t = LoopSpecializedVolImplHelper<Specialization, transC, rotC>;
+    using CommonHelper_t = CommonSpecializedVolImplHelper<Specialization, transC, rotC>;
   public:
+    using CommonHelper_t::SafetyToOut;
+    using CommonHelper_t::DistanceToOut;
+    using CommonHelper_t::UnplacedContains;
+    using CommonHelper_t::Contains;
+    using CommonHelper_t::SafetyToIn;
+    using CommonHelper_t::DistanceToIn;
+    using CommonHelper_t::Inside;
+    using CommonHelper_t::CommonHelper_t;
+
     virtual void SafetyToIn(SOA3D<Precision> const &points, Precision *const output) const override
     {
-      (void)points;
-      (void)output;
-      // SafetyToInTemplate(points, output);
+      auto shape  = this->GetUnplacedStruct();
+      auto transf = this->GetTransformation();
+      SafetyToInLoopKernel<Specialization, vecgeom::ScalarBackend::Real_v, transC, rotC>(*shape, *transf, 0,
+                                                                                         points.size(), points, output);
     }
 
     virtual void SafetyToInMinimize(SOA3D<Precision> const &points, Precision *const safeties) const override
     {
+      throw std::runtime_error("SafetyToInMinimize unimplemented");
       (void)points;
       (void)safeties;
-      // SafetyToInMinimizeTemplate(points, safeties);
     }
 
     virtual void Contains(SOA3D<Precision> const &points, bool *const output) const override
     {
-      (void)points;
-      (void)output;
-      // ContainsTemplate(points, output);
+      auto unplacedv = this->GetUnplacedStruct();
+      auto transf    = this->GetTransformation();
+      // vector loop treatment
+      ContainsLoopKernel<Specialization, vecgeom::ScalarBackend::Real_v, transC, rotC>(*unplacedv, *transf, 0,
+                                                                                       points.size(), points, output);
     }
 
     virtual void Inside(SOA3D<Precision> const &points, Inside_t *const output) const override
     {
-      (void)points;
-      (void)output;
+      // I would be in favor of getting rid of this interface (unless someone asks for it)
+      // Inside is only provided for Geant4 which currently does not have a basket interface
       // InsideTemplate(points, output);
+      auto shape  = this->GetUnplacedStruct();
+      auto transf = this->GetTransformation();
+      InsideLoopKernel<Specialization, vecgeom::ScalarBackend::Real_v, transC, rotC>(*shape, *transf, 0, points.size(),
+                                                                                     points, output);
     }
 
     virtual void DistanceToIn(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
                               Precision const *const stepMax, Precision *const output) const override
     {
-      (void)points;
-      (void)directions;
-      (void)stepMax;
-      (void)output;
-      // DistanceToInTemplate(points, directions, stepMax, output);
+      auto shape  = this->GetUnplacedStruct();
+      auto transf = this->GetTransformation();
+      DistanceToInLoopKernel<Specialization, vecgeom::ScalarBackend::Real_v, transC, rotC>(
+          *shape, *transf, 0, points.size(), points, directions, stepMax, output);
+    }
+
+    // the explicit SIMD interface
+    virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToInVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &p,
+                                                           Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &d,
+                                                           VECGEOM_BACKEND_PRECISION_TYPE const step_max) const override
+    {
+      throw std::runtime_error("DistanceToInVec unimplemented");
     }
 
     virtual void DistanceToInMinimize(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
                                       int daughterindex, Precision *const output, int *const nextnodeids) const override
     {
+      throw std::runtime_error("DistanceToInMinimize unimplemented");
       (void)points;
       (void)directions;
       (void)daughterindex;
