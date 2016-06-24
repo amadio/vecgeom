@@ -1,5 +1,17 @@
 #!/bin/bash
 
+sed_i="-i .bak"
+testername=/tmp/sed_tester.$$.tmp
+touch $testername
+rm -f $testername.bak
+sed ${sed_i} -e '' $testername > /dev/null 2>&1
+result=$?
+if [ -e $testername.bak ] ; then
+  sed_i='-i ""'
+else
+  sed_i='-i '
+fi
+
 macros=(
 	__host__
 	__device__
@@ -62,7 +74,7 @@ done
 # Shorten the macro and move them out of the way so that they have
 # no effect on line length calculation.
 for file in $@; do
-  sed  -i "" -n "
+  sed  ${sed_i} -n -e "
     # if the first line copy the pattern to the hold buffer
     1h
     # if not the first line then append the pattern to the hold buffer
@@ -84,7 +96,7 @@ clang-format -i "$@"
 
 # Put back the macros.
 for file in $@; do
-  sed  -i "" -n "
+  sed   ${sed_i} -n -e "
     # if the first line copy the pattern to the hold buffer
     1h
     # if not the first line then append the pattern to the hold buffer
