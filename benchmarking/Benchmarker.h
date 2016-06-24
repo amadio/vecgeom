@@ -160,6 +160,22 @@ public:
   /// return 0 if no error found; returns 1 if error found
   int RunToOutBenchmark();
 
+  /// \brief Runs a benchmark of the DistanceToOut and SafetyToOut methods.
+  /// points start from the surface of the shape
+  /// return 0 if no error found; returns 1 if error found
+  int RunToOutFromBoundaryBenchmark();
+
+  /// \brief Runs a benchmark of the DistanceToOut and SafetyToOut methods.
+  /// points start from the surface of the shape
+  /// return 0 if no error found; returns 1 if error found
+  int RunToOutFromBoundaryExitingBenchmark();
+
+
+  /// \brief Runs a benchmark of the DistanceToIn and SafetyToIn methods.
+  /// points start from the surface of the shape and directions point inward
+  /// return 0 if no error found; returns 1 if error found
+  int RunToInFromBoundaryBenchmark();
+
   /// \return Amount of points and directions sampled for each benchmark
   ///         iteration.
   unsigned GetPointCount() const { return fPointCount; }
