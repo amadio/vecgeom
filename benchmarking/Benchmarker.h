@@ -170,7 +170,6 @@ public:
   /// return 0 if no error found; returns 1 if error found
   int RunToOutFromBoundaryExitingBenchmark();
 
-
   /// \brief Runs a benchmark of the DistanceToIn and SafetyToIn methods.
   /// points start from the surface of the shape and directions point inward
   /// return 0 if no error found; returns 1 if error found

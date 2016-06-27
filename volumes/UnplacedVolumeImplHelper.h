@@ -209,7 +209,7 @@ public:
                              Precision const *const step_max, Precision *const output) const override
   {
     auto offset = points.size() - points.size() % vecCore::VectorSize<VectorBackend::Real_v>();
-    auto &shape  = ((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct();
+    auto &shape = ((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct();
     // vector loop treatment
     DistanceToOutLoop<Implementation, VectorBackend::Real_v>(&shape, 0, offset, points, directions, step_max, output);
     // tail treatment
@@ -220,7 +220,7 @@ public:
   virtual void SafetyToOut(SOA3D<Precision> const &points, Precision *const output) const override
   {
     auto offset = points.size() - points.size() % vecCore::VectorSize<VectorBackend::Real_v>();
-    auto &shape  = ((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct();
+    auto &shape = ((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct();
     // vector loop treatment
     SafetyToOutLoop<Implementation, VectorBackend::Real_v>(&shape, 0, offset, points, output);
     // tail treatment
@@ -256,8 +256,8 @@ public:
       Vector3D<Real_s> ps(LaneAt(p.x(), i), LaneAt(p.y(), i), LaneAt(p.z(), i)); // scalar vector
       Vector3D<Real_s> ds(LaneAt(d.x(), i), LaneAt(d.y(), i), LaneAt(d.z(), i)); // scalar direction;
       Real_s result;
-      Implementation::template DistanceToOut<Real_s>(
-          ((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), ps, ds, LaneAt(step_max, i), result);
+      Implementation::template DistanceToOut<Real_s>(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), ps, ds,
+                                                     LaneAt(step_max, i), result);
       vecCore::AssignLane(output, i, result);
     }
     return output;
