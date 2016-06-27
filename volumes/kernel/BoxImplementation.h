@@ -1,4 +1,4 @@
-/// @file BoxImplementation_Evolution.h
+/// @file BoxImplementation.h
 /// @author Johannes de Fine Licht (johannes.definelicht@cern.ch), Sandro Wenzel (sandro.wenzel@cern.ch)
 
 /// History notes:
