@@ -22,8 +22,8 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE(class PlacedBox;)
-VECGEOM_DEVICE_DECLARE_CONV(class, PlacedBox)
+VECGEOM_DEVICE_FORWARD_DECLARE(class PlacedBox;);
+VECGEOM_DEVICE_DECLARE_CONV(class, PlacedBox);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

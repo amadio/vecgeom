@@ -17,7 +17,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, ConeImplementation, TranslationCode, translation::kGeneric,
-                                           RotationCode, rotation::kGeneric, typename)
+                                           RotationCode, rotation::kGeneric, typename);
 
     inline namespace VECGEOM_IMPL_NAMESPACE
 {

@@ -13,19 +13,19 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_DECLARE_NS_CONV(ConeTypes, struct, UniversalCone, UniversalCone)
+VECGEOM_DEVICE_DECLARE_NS_CONV(ConeTypes, struct, UniversalCone, UniversalCone);
 
 #ifndef VECGEOM_NO_SPECIALIZATION
 
-VECGEOM_DEVICE_DECLARE_NS_CONV(ConeTypes, struct, NonHollowCone, UniversalCone)
-VECGEOM_DEVICE_DECLARE_NS_CONV(ConeTypes, struct, NonHollowConeWithSmallerThanPiSector, UniversalCone)
-VECGEOM_DEVICE_DECLARE_NS_CONV(ConeTypes, struct, NonHollowConeWithBiggerThanPiSector, UniversalCone)
-VECGEOM_DEVICE_DECLARE_NS_CONV(ConeTypes, struct, NonHollowConeWithPiSector, UniversalCone)
+VECGEOM_DEVICE_DECLARE_NS_CONV(ConeTypes, struct, NonHollowCone, UniversalCone);
+VECGEOM_DEVICE_DECLARE_NS_CONV(ConeTypes, struct, NonHollowConeWithSmallerThanPiSector, UniversalCone);
+VECGEOM_DEVICE_DECLARE_NS_CONV(ConeTypes, struct, NonHollowConeWithBiggerThanPiSector, UniversalCone);
+VECGEOM_DEVICE_DECLARE_NS_CONV(ConeTypes, struct, NonHollowConeWithPiSector, UniversalCone);
 
-VECGEOM_DEVICE_DECLARE_NS_CONV(ConeTypes, struct, HollowCone, UniversalCone)
-VECGEOM_DEVICE_DECLARE_NS_CONV(ConeTypes, struct, HollowConeWithSmallerThanPiSector, UniversalCone)
-VECGEOM_DEVICE_DECLARE_NS_CONV(ConeTypes, struct, HollowConeWithBiggerThanPiSector, UniversalCone)
-VECGEOM_DEVICE_DECLARE_NS_CONV(ConeTypes, struct, HollowConeWithPiSector, UniversalCone)
+VECGEOM_DEVICE_DECLARE_NS_CONV(ConeTypes, struct, HollowCone, UniversalCone);
+VECGEOM_DEVICE_DECLARE_NS_CONV(ConeTypes, struct, HollowConeWithSmallerThanPiSector, UniversalCone);
+VECGEOM_DEVICE_DECLARE_NS_CONV(ConeTypes, struct, HollowConeWithBiggerThanPiSector, UniversalCone);
+VECGEOM_DEVICE_DECLARE_NS_CONV(ConeTypes, struct, HollowConeWithPiSector, UniversalCone);
 
 #endif // VECGEOM_NO_SPECIALIZATION
 

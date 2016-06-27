@@ -37,7 +37,7 @@ enum TranslationId { kGeneric = -1, kIdentity = 0 };
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE(class Transformation3D;)
+VECGEOM_DEVICE_FORWARD_DECLARE(class Transformation3D;);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

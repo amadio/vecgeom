@@ -16,7 +16,7 @@ namespace vecgeom {
  * Templated class providing a (SOA) encapsulation of
  * second order curved surfaces used in generic trap
  */
-VECGEOM_DEVICE_FORWARD_DECLARE(class SecondOrderSurfaceShell;)
+VECGEOM_DEVICE_FORWARD_DECLARE(class SecondOrderSurfaceShell;);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

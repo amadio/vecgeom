@@ -14,9 +14,9 @@ namespace vecgeom {
 
 // putting a forward declaration by hand
 VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1t_2v(class, CommonSpecializedVolImplHelper, typename, TranslationCode,
-                                           translation::kGeneric, RotationCode, rotation::kGeneric)
-    VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1t_2v(class, SIMDSpecializedVolImplHelper, class, TranslationCode,
-                                               translation::kGeneric, RotationCode, rotation::kGeneric)
+                                           translation::kGeneric, RotationCode, rotation::kGeneric);
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1t_2v(class, SIMDSpecializedVolImplHelper, class, TranslationCode,
+                                           translation::kGeneric, RotationCode, rotation::kGeneric);
 
         inline namespace VECGEOM_IMPL_NAMESPACE
 {

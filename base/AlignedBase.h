@@ -11,8 +11,8 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE(class AlignedBase;)
-VECGEOM_DEVICE_DECLARE_CONV(class, AlignedBase)
+VECGEOM_DEVICE_FORWARD_DECLARE(class AlignedBase;);
+VECGEOM_DEVICE_DECLARE_CONV(class, AlignedBase);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

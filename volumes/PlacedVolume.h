@@ -18,8 +18,8 @@ class G4VSolid;
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE(class VPlacedVolume;)
-VECGEOM_DEVICE_DECLARE_CONV(class, VPlacedVolume)
+VECGEOM_DEVICE_FORWARD_DECLARE(class VPlacedVolume;);
+VECGEOM_DEVICE_DECLARE_CONV(class, VPlacedVolume);
 #ifndef VECGEOM_NVCC
 template <>
 struct kCudaType<const cxx::VPlacedVolume *> {

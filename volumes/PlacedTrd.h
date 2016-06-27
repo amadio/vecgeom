@@ -16,8 +16,8 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE(class PlacedTrd;)
-VECGEOM_DEVICE_DECLARE_CONV(class, PlacedTrd)
+VECGEOM_DEVICE_FORWARD_DECLARE(class PlacedTrd;);
+VECGEOM_DEVICE_DECLARE_CONV(class, PlacedTrd);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

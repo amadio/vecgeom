@@ -12,7 +12,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_3v(struct, BooleanImplementation, BooleanOperation, Arg1, TranslationCode,
-                                        translation::kGeneric, RotationCode, rotation::kGeneric)
+                                        translation::kGeneric, RotationCode, rotation::kGeneric);
 
     inline namespace VECGEOM_IMPL_NAMESPACE
 {

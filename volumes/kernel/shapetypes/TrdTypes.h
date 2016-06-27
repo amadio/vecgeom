@@ -6,12 +6,12 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_DECLARE_NS_CONV(TrdTypes, struct, UniversalTrd, UniversalTrd)
+VECGEOM_DEVICE_DECLARE_NS_CONV(TrdTypes, struct, UniversalTrd, UniversalTrd);
 
 #ifndef VECGEOM_NO_SPECIALIZATION
 
-VECGEOM_DEVICE_DECLARE_NS_CONV(TrdTypes, struct, Trd1, UniversalTrd)
-VECGEOM_DEVICE_DECLARE_NS_CONV(TrdTypes, struct, Trd2, UniversalTrd)
+VECGEOM_DEVICE_DECLARE_NS_CONV(TrdTypes, struct, Trd1, UniversalTrd);
+VECGEOM_DEVICE_DECLARE_NS_CONV(TrdTypes, struct, Trd2, UniversalTrd);
 
 #endif // VECGEOM_NO_SPECIALIZATION
 

@@ -22,10 +22,10 @@
 namespace vecgeom {
 
 // VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(PolyconeImplementation,
-//     TranslationCode,transCodeT, RotationCode,rotCodeT)
+//     TranslationCode,transCodeT, RotationCode,rotCodeT);
 
 VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(struct, PolyconeImplementation, TranslationCode, translation::kGeneric,
-                                        RotationCode, rotation::kGeneric)
+                                        RotationCode, rotation::kGeneric);
 
     inline namespace VECGEOM_IMPL_NAMESPACE
 {

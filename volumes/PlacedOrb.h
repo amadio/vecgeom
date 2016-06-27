@@ -13,8 +13,8 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE(class PlacedOrb;)
-VECGEOM_DEVICE_DECLARE_CONV(class, PlacedOrb)
+VECGEOM_DEVICE_FORWARD_DECLARE(class PlacedOrb;);
+VECGEOM_DEVICE_DECLARE_CONV(class, PlacedOrb);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

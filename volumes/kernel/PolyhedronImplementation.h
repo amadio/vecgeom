@@ -26,7 +26,7 @@ namespace vecgeom {
 VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_4v(struct, PolyhedronImplementation, TranslationCode, translation::kGeneric,
                                         RotationCode, rotation::kGeneric, Polyhedron::EInnerRadii,
                                         Polyhedron::EInnerRadii::kGeneric, Polyhedron::EPhiCutout,
-                                        Polyhedron::EPhiCutout::kGeneric)
+                                        Polyhedron::EPhiCutout::kGeneric);
 
     inline namespace VECGEOM_IMPL_NAMESPACE
 {

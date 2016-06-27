@@ -34,7 +34,7 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedHype;)
+VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedHype;);
 VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedHype);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {

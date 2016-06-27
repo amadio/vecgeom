@@ -24,7 +24,7 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE(class Material;)
+VECGEOM_DEVICE_FORWARD_DECLARE(class Material;);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

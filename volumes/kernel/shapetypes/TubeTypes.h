@@ -13,19 +13,19 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_DECLARE_NS_CONV(TubeTypes, struct, UniversalTube, UniversalTube)
+VECGEOM_DEVICE_DECLARE_NS_CONV(TubeTypes, struct, UniversalTube, UniversalTube);
 
 #ifndef VECGEOM_NO_SPECIALIZATION
 
-VECGEOM_DEVICE_DECLARE_NS_CONV(TubeTypes, struct, NonHollowTube, UniversalTube)
-VECGEOM_DEVICE_DECLARE_NS_CONV(TubeTypes, struct, NonHollowTubeWithSmallerThanPiSector, UniversalTube)
-VECGEOM_DEVICE_DECLARE_NS_CONV(TubeTypes, struct, NonHollowTubeWithBiggerThanPiSector, UniversalTube)
-VECGEOM_DEVICE_DECLARE_NS_CONV(TubeTypes, struct, NonHollowTubeWithPiSector, UniversalTube)
+VECGEOM_DEVICE_DECLARE_NS_CONV(TubeTypes, struct, NonHollowTube, UniversalTube);
+VECGEOM_DEVICE_DECLARE_NS_CONV(TubeTypes, struct, NonHollowTubeWithSmallerThanPiSector, UniversalTube);
+VECGEOM_DEVICE_DECLARE_NS_CONV(TubeTypes, struct, NonHollowTubeWithBiggerThanPiSector, UniversalTube);
+VECGEOM_DEVICE_DECLARE_NS_CONV(TubeTypes, struct, NonHollowTubeWithPiSector, UniversalTube);
 
-VECGEOM_DEVICE_DECLARE_NS_CONV(TubeTypes, struct, HollowTube, UniversalTube)
-VECGEOM_DEVICE_DECLARE_NS_CONV(TubeTypes, struct, HollowTubeWithSmallerThanPiSector, UniversalTube)
-VECGEOM_DEVICE_DECLARE_NS_CONV(TubeTypes, struct, HollowTubeWithBiggerThanPiSector, UniversalTube)
-VECGEOM_DEVICE_DECLARE_NS_CONV(TubeTypes, struct, HollowTubeWithPiSector, UniversalTube)
+VECGEOM_DEVICE_DECLARE_NS_CONV(TubeTypes, struct, HollowTube, UniversalTube);
+VECGEOM_DEVICE_DECLARE_NS_CONV(TubeTypes, struct, HollowTubeWithSmallerThanPiSector, UniversalTube);
+VECGEOM_DEVICE_DECLARE_NS_CONV(TubeTypes, struct, HollowTubeWithBiggerThanPiSector, UniversalTube);
+VECGEOM_DEVICE_DECLARE_NS_CONV(TubeTypes, struct, HollowTubeWithPiSector, UniversalTube);
 
 #endif // VECGEOM_NO_SPECIALIZATION
 

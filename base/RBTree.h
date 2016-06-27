@@ -12,7 +12,7 @@
 #include "base/Global.h"
 
 namespace vecgeom {
-VECGEOM_DEVICE_FORWARD_DECLARE(template <typename Type> class _Rb_tree;)
+VECGEOM_DEVICE_FORWARD_DECLARE(template <typename Type> class _Rb_tree;);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 template <class T>

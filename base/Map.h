@@ -12,7 +12,7 @@
 #include "RBTree.h"
 namespace vecgeom {
 // This fails because of the commas, we would need to use another (new) macro
-// VECGEOM_DEVICE_FORWARD_DECLARE(template <class _Key, class _Tp, class _Compare>  class map; )
+// VECGEOM_DEVICE_FORWARD_DECLARE(template <class _Key, class _Tp, class _Compare>  class map; );
 #ifndef VECGEOM_NVCC
 namespace cuda {
 template <class _key>

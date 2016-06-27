@@ -17,8 +17,8 @@ class G4VSolid;
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE(class PlacedBooleanVolume;)
-VECGEOM_DEVICE_DECLARE_CONV(class, PlacedBooleanVolume)
+VECGEOM_DEVICE_FORWARD_DECLARE(class PlacedBooleanVolume;);
+VECGEOM_DEVICE_DECLARE_CONV(class, PlacedBooleanVolume);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

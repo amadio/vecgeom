@@ -20,7 +20,7 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE(class Scale3D;)
+VECGEOM_DEVICE_FORWARD_DECLARE(class Scale3D;);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

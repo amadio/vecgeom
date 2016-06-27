@@ -16,8 +16,8 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedTube;)
-VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedTube)
+VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedTube;);
+VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedTube);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

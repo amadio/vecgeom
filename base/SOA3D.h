@@ -15,7 +15,7 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE(template <typename Type> class SOA3D;)
+VECGEOM_DEVICE_FORWARD_DECLARE(template <typename Type> class SOA3D;);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

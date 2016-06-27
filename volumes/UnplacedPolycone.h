@@ -17,11 +17,11 @@
 #include <vector>
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedPolycone;)
-VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedPolycone)
+VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedPolycone;);
+VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedPolycone);
 
-VECGEOM_DEVICE_FORWARD_DECLARE(struct PolyconeSection;)
-VECGEOM_DEVICE_DECLARE_CONV(struct, PolyconeSection)
+VECGEOM_DEVICE_FORWARD_DECLARE(struct PolyconeSection;);
+VECGEOM_DEVICE_DECLARE_CONV(struct, PolyconeSection);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

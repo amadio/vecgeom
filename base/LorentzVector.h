@@ -19,7 +19,7 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE(template <typename T> class LorentzVector;)
+VECGEOM_DEVICE_FORWARD_DECLARE(template <typename T> class LorentzVector;);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

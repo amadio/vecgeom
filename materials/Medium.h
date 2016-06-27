@@ -22,7 +22,7 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE(class Medium;)
+VECGEOM_DEVICE_FORWARD_DECLARE(class Medium;);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

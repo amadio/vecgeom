@@ -12,7 +12,7 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE(class Nucleus;)
+VECGEOM_DEVICE_FORWARD_DECLARE(class Nucleus;);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

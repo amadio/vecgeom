@@ -12,7 +12,7 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE(template <typename Type> class Vector;)
+VECGEOM_DEVICE_FORWARD_DECLARE(template <typename Type> class Vector;);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
