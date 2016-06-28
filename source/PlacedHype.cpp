@@ -4,9 +4,6 @@
 #include "volumes/PlacedHype.h"
 #include "volumes/Hype.h"
 #include "base/Global.h"
-#include "base/AOS3D.h"
-#include "base/SOA3D.h"
-#include "backend/Backend.h"
 
 //#if defined(VECGEOM_BENCHMARK) && defined(VECGEOM_ROOT)
 #ifdef VECGEOM_ROOT

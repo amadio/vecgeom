@@ -9,7 +9,6 @@
 #include "backend/scalar/Backend.h"
 #include "backend/Backend.h"
 #include "base/SOA3D.h"
-#include "base/AOS3D.h"
 #include "volumes/PlacedBox.h"
 
 #include <algorithm>
@@ -402,11 +401,6 @@ public:
     }
   }
 
-  // virtual void Inside(AOS3D<Precision> const &points,
-  //                     Inside_t *const output) const {
-  //   InsideTemplate(points, output);
-  // }
-
   virtual void Inside(SOA3D<Precision> const &points, Inside_t *const output) const override
   {
     for (int i = 0, i_max = points.size(); i < i_max; i += kVectorSize) {
@@ -427,13 +421,6 @@ public:
 #endif
     }
   }
-
-  // virtual void DistanceToIn(AOS3D<Precision> const &points,
-  //                           AOS3D<Precision> const &directions,
-  //                           Precision const *const stepMax,
-  //                           Precision *const output) const {
-  //   DistanceToInTemplate(points, directions, stepMax, output);
-  // }
 
   virtual void DistanceToIn(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
                             Precision const *const stepMax, Precision *const output) const override
@@ -510,13 +497,6 @@ public:
 #pragma GCC pop_options
 #endif
 
-  // virtual void DistanceToOut(AOS3D<Precision> const &points,
-  //                            AOS3D<Precision> const &directions,
-  //                            Precision const *const stepMax,
-  //                            Precision *const output) const {
-  //   DistanceToOutTemplate(points, directions, stepMax, output);
-  // }
-
   virtual void DistanceToOut(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
                              Precision const *const stepMax, Precision *const output) const override
   {
@@ -589,11 +569,6 @@ public:
     }
   }
 
-  // virtual void SafetyToIn(AOS3D<Precision> const &points,
-  //                         Precision *const output) const {
-  //   SafetyToInTemplate(points, output);
-  // }
-
   virtual void SafetyToInMinimize(SOA3D<Precision> const &points, Precision *const safeties) const override
   {
     unsigned safesize = points.size() - points.size() % kVectorSize;
@@ -638,11 +613,6 @@ public:
       output[track] = result;
     }
   }
-
-  // virtual void SafetyToOut(AOS3D<Precision> const &points,
-  //                         Precision *const output) const {
-  //   SafetyToOutTemplate(points, output);
-  // }
 
   virtual void SafetyToOutMinimize(SOA3D<Precision> const &points, Precision *const safeties) const override
   {

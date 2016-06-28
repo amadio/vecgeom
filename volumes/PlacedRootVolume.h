@@ -19,8 +19,6 @@ VECGEOM_DEVICE_DECLARE_CONV(class, PlacedRootVolume);
 inline namespace cxx {
 
 template <typename T>
-class AOS3D;
-template <typename T>
 class SOA3D;
 
 class PlacedRootVolume : public VPlacedVolume {
@@ -55,8 +53,6 @@ public:
 
   virtual void Contains(SOA3D<Precision> const &points, bool *const output) const override;
 
-  virtual void Contains(AOS3D<Precision> const &points, bool *const output) const;
-
   VECGEOM_INLINE
   virtual bool UnplacedContains(Vector3D<Precision> const &point) const override;
 
@@ -64,8 +60,6 @@ public:
   virtual EnumInside Inside(Vector3D<Precision> const &point) const override;
 
   virtual void Inside(SOA3D<Precision> const &points, Inside_t *const output) const override;
-
-  virtual void Inside(AOS3D<Precision> const &points, Inside_t *const output) const;
 
   VECGEOM_INLINE
   virtual Precision DistanceToIn(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
@@ -76,9 +70,6 @@ public:
 
   virtual void DistanceToInMinimize(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
                                     int daughterindex, Precision *const output, int *const nextnodeids) const override;
-
-  virtual void DistanceToIn(AOS3D<Precision> const &position, AOS3D<Precision> const &direction,
-                            Precision const *const stepMax, Precision *const output) const;
 
   VECGEOM_INLINE
   virtual Precision DistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
@@ -94,15 +85,10 @@ public:
                              Precision const *const step_max, Precision *const output,
                              int *const nextnodeindex) const override;
 
-  virtual void DistanceToOut(AOS3D<Precision> const &position, AOS3D<Precision> const &direction,
-                             Precision const *const stepMax, Precision *const output) const;
-
   VECGEOM_INLINE
   virtual Precision SafetyToOut(Vector3D<Precision> const &position) const override;
 
   virtual void SafetyToOut(SOA3D<Precision> const &position, Precision *const safeties) const override;
-
-  virtual void SafetyToOut(AOS3D<Precision> const &position, Precision *const safeties) const;
 
   virtual void SafetyToOutMinimize(SOA3D<Precision> const &position, Precision *const safeties) const override;
 
@@ -110,8 +96,6 @@ public:
   virtual Precision SafetyToIn(Vector3D<Precision> const &position) const override;
 
   virtual void SafetyToIn(SOA3D<Precision> const &position, Precision *const safeties) const override;
-
-  virtual void SafetyToIn(AOS3D<Precision> const &position, Precision *const safeties) const;
 
   virtual void SafetyToInMinimize(SOA3D<Precision> const &position, Precision *const safeties) const override;
 

@@ -5,7 +5,6 @@
 
 #include "base/Global.h"
 #include "base/SOA3D.h"
-#include "base/AOS3D.h"
 #include "volumes/PlacedBox.h"
 
 #include <algorithm>
@@ -421,32 +420,15 @@ public:
     }
   }
 
-  // virtual void Contains(AOS3D<Precision> const &points,
-  //                       bool *const output) const {
-  //   ContainsTemplate(points, output);
-  // }
-
   virtual void Contains(SOA3D<Precision> const &points, bool *const output) const override
   {
     ContainsTemplate(points, output);
   }
 
-  // virtual void Inside(AOS3D<Precision> const &points,
-  //                     Inside_t *const output) const {
-  //   InsideTemplate(points, output);
-  // }
-
   virtual void Inside(SOA3D<Precision> const &points, Inside_t *const output) const override
   {
     InsideTemplate(points, output);
   }
-
-  // virtual void DistanceToIn(AOS3D<Precision> const &points,
-  //                           AOS3D<Precision> const &directions,
-  //                           Precision const *const stepMax,
-  //                           Precision *const output) const {
-  //   DistanceToInTemplate(points, directions, stepMax, output);
-  // }
 
   virtual void DistanceToIn(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
                             Precision const *const stepMax, Precision *const output) const override
@@ -459,13 +441,6 @@ public:
   {
     DistanceToInMinimizeTemplate(points, directions, daughterindex, output, nextnodeids);
   }
-
-  // virtual void DistanceToOut(AOS3D<Precision> const &points,
-  //                            AOS3D<Precision> const &directions,
-  //                            Precision const *const stepMax,
-  //                            Precision *const output) const {
-  //   DistanceToOutTemplate(points, directions, stepMax, output);
-  // }
 
   virtual void DistanceToOut(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
                              Precision const *const stepMax, Precision *const output) const override
@@ -555,11 +530,6 @@ public:
     return output;
   }
 
-  // virtual void SafetyToIn(AOS3D<Precision> const &points,
-  //                         Precision *const output) const {
-  //   SafetyToInTemplate(points, output);
-  // }
-
   virtual void SafetyToInMinimize(SOA3D<Precision> const &points, Precision *const safeties) const override
   {
     SafetyToInMinimizeTemplate(points, safeties);
@@ -569,11 +539,6 @@ public:
   {
     SafetyToOutTemplate(points, output);
   }
-
-  // virtual void SafetyToOut(AOS3D<Precision> const &points,
-  //                         Precision *const output) const {
-  //   SafetyToOutTemplate(points, output);
-  // }
 
   virtual void SafetyToOutMinimize(SOA3D<Precision> const &points, Precision *const safeties) const override
   {

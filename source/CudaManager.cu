@@ -51,7 +51,6 @@ void CudaManagerPrintGeometry(vecgeom::cuda::VPlacedVolume const *const world)
 
 #ifdef VECGEOM_NVCC_SINGLE_OBJ // Cuda single compilation
 
-#include "source/AOS3D.cpp"
 #include "source/Vector.cpp"
 #include "source/SOA3D.cpp"
 #include "source/Transformation3D.cpp"

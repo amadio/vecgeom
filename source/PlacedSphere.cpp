@@ -3,10 +3,6 @@
 
 #include "volumes/PlacedSphere.h"
 #include "volumes/Sphere.h"
-#include "base/Global.h"
-#include "base/AOS3D.h"
-#include "base/SOA3D.h"
-#include "backend/Backend.h"
 
 #ifdef VECGEOM_USOLIDS
 #include "USphere.hh"

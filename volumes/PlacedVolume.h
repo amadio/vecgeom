@@ -179,9 +179,6 @@ public:
 
   virtual void Contains(SOA3D<Precision> const &point, bool *const output) const = 0;
 
-  // virtual void Contains(AOS3D<Precision> const &point,
-  //                       bool *const output) const =0;
-
   /// \return The input point transformed to the local reference frame.
   VECGEOM_CUDA_HEADER_BOTH
   virtual bool Contains(Vector3D<Precision> const &point, Vector3D<Precision> &localPoint) const = 0;
@@ -194,9 +191,6 @@ public:
   virtual EnumInside Inside(Vector3D<Precision> const &point) const = 0;
 
   virtual void Inside(SOA3D<Precision> const &point, Inside_t *const output) const = 0;
-
-  // virtual void Inside(AOS3D<Precision> const &point,
-  //                     Inside_t *const output) const =0;
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToIn(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
@@ -221,11 +215,6 @@ public:
   // to be deprecated
   virtual void DistanceToInMinimize(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
                                     int daughterindex, Precision *const output, int *const nextnodeids) const = 0;
-
-// virtual void DistanceToIn(AOS3D<Precision> const &position,
-//                           AOS3D<Precision> const &direction,
-//                           Precision const *const step_max,
-//                           Precision *const output) const =0;
 
 #ifdef VECGEOM_USOLIDS
   using USolidsInterfaceHelper::DistanceToOut;
@@ -262,11 +251,6 @@ public:
                              Precision const *const step_max, Precision *const output,
                              int *const nextnodeindex) const = 0;
 
-  // virtual void DistanceToOut(AOS3D<Precision> const &position,
-  //                            AOS3D<Precision> const &direction,
-  //                            Precision const *const step_max,
-  //                            Precision *const output) const =0;
-
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision SafetyToIn(Vector3D<Precision> const &position) const = 0;
 
@@ -281,9 +265,6 @@ public:
   }
 
   virtual void SafetyToIn(SOA3D<Precision> const &position, Precision *const safeties) const = 0;
-
-  // virtual void SafetyToIn(AOS3D<Precision> const &position,
-  //                         Precision *const safeties) const =0;
 
   // to be deprecated
   virtual void SafetyToInMinimize(SOA3D<Precision> const &points, Precision *const safeties) const = 0;
@@ -302,9 +283,6 @@ public:
   {
     return SafetyToOutVec(p);
   }
-
-  // virtual void SafetyToOut(AOS3D<Precision> const &position,
-  //                          Precision *const safeties) const =0;
 
   // to be deprecated
   virtual void SafetyToOutMinimize(SOA3D<Precision> const &points, Precision *const safeties) const = 0;

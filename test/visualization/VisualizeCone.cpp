@@ -1,6 +1,7 @@
 #include "utilities/Visualizer.h"
 #include "volumes/Cone.h"
 #include "volumes/utilities/VolumeUtilities.h"
+#include "base/AOS3D.h"
 
 using namespace vecgeom;
 

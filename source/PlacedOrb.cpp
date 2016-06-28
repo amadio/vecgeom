@@ -3,8 +3,6 @@
 
 #include "volumes/PlacedOrb.h"
 #include "volumes/Orb.h"
-#include "base/AOS3D.h"
-#include "base/SOA3D.h"
 
 #ifdef VECGEOM_USOLIDS
 #include "UOrb.hh"

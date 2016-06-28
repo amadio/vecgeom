@@ -452,17 +452,5 @@ void CudaManager::PrintGeometry() const
 //   CudaFree(z_gpu);
 //   CudaFree(soa3d_gpu);
 // }
-
-// void CudaManager::LocatePoints(AOS3D<Precision> const &container,
-//                                const int depth, int *const output) const {
-//   Vector3D<Precision> *const data =
-//       AllocateOnGpu<Vector3D<Precision> >(
-//         container.size()*sizeof(Vector3D<Precision>)
-//       );
-//   AOS3D<Precision> *const aos3d_gpu = container.CopyToGpu(data);
-//   LocatePointsTemplate(aos3d_gpu, container.size(), depth, output);
-//   CudaFree(data);
-//   CudaFree(aos3d_gpu);
-// }
 }
 } // End namespace vecgeom

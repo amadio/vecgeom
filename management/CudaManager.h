@@ -138,12 +138,6 @@ public:
   // void LocatePoints(SOA3D<Precision> const &container, const int depth,
   //                   int *const output) const;
 
-  // /**
-  //  * Launch a CUDA kernel that will locate points in the geometry
-  //  */
-  // void LocatePoints(AOS3D<Precision> const &container, const int depth,
-  //                   int *const output) const;
-
   void set_verbose(const int verbose) { verbose_ = verbose; }
 
   template <typename Type>
@@ -210,10 +204,6 @@ private:
 
 // void CudaManagerLocatePoints(VPlacedVolume const *const world,
 //                              SOA3D<Precision> const *const points,
-//                              const int n, const int depth, int *const output);
-
-// void CudaManagerLocatePoints(VPlacedVolume const *const world,
-//                              AOS3D<Precision> const *const points,
 //                              const int n, const int depth, int *const output);
 
 inline VPlacedVolume const *CudaManager::LookupPlacedCPUPtr(const void *address)

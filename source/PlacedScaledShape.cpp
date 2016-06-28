@@ -2,9 +2,6 @@
 /// \author Mihaela Gheata (mihaela.gheata@cern.ch)
 
 #include "volumes/PlacedScaledShape.h"
-
-#include "base/AOS3D.h"
-#include "base/SOA3D.h"
 #include "volumes/SpecializedScaledShape.h"
 
 #include <stdio.h>
