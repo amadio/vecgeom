@@ -77,6 +77,7 @@ public:
   virtual Precision SafetyToOut(Vector3D<Precision> const &p) const /* = 0 */;
 
   // an explicit SIMD interface
+  VECGEOM_CUDA_HEADER_BOTH
   virtual Real_v SafetyToOutVec(Vector3D<Real_v> const &p) const /* = 0 */;
 
   // the tramponline to dispatch to SafetyToOutVec if type is not scalar
@@ -117,6 +118,7 @@ public:
   virtual Precision SafetyToIn(Vector3D<Precision> const &position) const /* = 0 */;
 
   // explicit SIMD interface
+  VECGEOM_CUDA_HEADER_BOTH
   virtual Real_v SafetyToInVec(Vector3D<Real_v> const &p) const /* = 0 */;
 
   // the tramponline to dispatch to SafetyToInVec if type is not scalar

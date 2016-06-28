@@ -186,6 +186,7 @@ public:
   }
 
   // the explicit SIMD interface
+  VECGEOM_CUDA_HEADER_BOTH
   virtual Real_v SafetyToOutVec(Vector3D<Real_v> const &p) const override
   {
     Real_v output(kInfinity);
@@ -194,6 +195,7 @@ public:
   }
 
   // the explicit SIMD interface
+  VECGEOM_CUDA_HEADER_BOTH
   virtual Real_v SafetyToInVec(Vector3D<Real_v> const &p) const override
   {
     Real_v output(kInfinity);
