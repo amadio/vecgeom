@@ -609,6 +609,7 @@ set(SRC_CPP_RELATIVE
   source/LogicalVolume.cpp
   source/PlacedCone.cpp
   source/PlacedBox.cpp
+  source/PlacedSExtru.cpp
   source/PlacedHype.cpp
   source/PlacedTube.cpp
   source/PlacedTorus2.cpp
@@ -627,6 +628,7 @@ set(SRC_CPP_RELATIVE
   source/Transformation3D.cpp
   source/UnplacedCone.cpp
   source/UnplacedBox.cpp
+  source/UnplacedSExtruVolume.cpp
   source/UnplacedTube.cpp
   source/UnplacedHype.cpp
   source/UnplacedTorus2.cpp
@@ -829,7 +831,7 @@ set(TEST_EXECUTABLES_CORE
   ${CMAKE_SOURCE_DIR}/test/core/TestConvexity.cpp
   ${CMAKE_SOURCE_DIR}/test/core/BooleanConvexityTest.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestVecGeomPolycone.cpp
-
+  ${CMAKE_SOURCE_DIR}/test/core/TestSExtru.cpp
 
 #  ${CMAKE_SOURCE_DIR}/services/CompNavStatePools.cpp
 )
@@ -925,6 +927,7 @@ set(TEST_EXECUTABLES_USOLIDS
 
 set(TEST_EXECUTABLES_BENCHMARK
   ${CMAKE_SOURCE_DIR}/test/benchmark/BoxBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/SExtruBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ParaboloidBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ParaboloidScriptBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ParallelepipedBenchmark.cpp
@@ -959,6 +962,7 @@ set(TEST_EXECUTABLES_CUDA
 )
 set(TEST_EXECUTABLES_SHAPETESTER
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testBox.cpp
+  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testSExtru.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testOrb.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testSphere.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testCone.cpp

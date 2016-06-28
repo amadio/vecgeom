@@ -1,6 +1,3 @@
-/// \file RootGeoManager.cpp
-/// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
-
 #include "base/Transformation3D.h"
 #include "management/GeoManager.h"
 #include "management/RootGeoManager.h"
@@ -23,6 +20,7 @@
 #include "volumes/UnplacedPolycone.h"
 #include "volumes/UnplacedScaledShape.h"
 #include "volumes/UnplacedGenTrap.h"
+#include "volumes/UnplacedSExtruVolume.h"
 #include "materials/Medium.h"
 #include "materials/Material.h"
 
@@ -44,6 +42,7 @@
 #include "TGeoTorus.h"
 #include "TGeoArb8.h"
 #include "TGeoPcon.h"
+#include "TGeoXtru.h"
 #include "TGeoShapeAssembly.h"
 #include "TGeoScaledShape.h"
 #include "TGeoEltu.h"
@@ -470,6 +469,22 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
   if (shape->IsA() == TGeoArb8::Class() || shape->IsA() == TGeoGtra::Class()) {
     TGeoArb8 *p     = (TGeoArb8 *)(shape);
     unplaced_volume = ToUnplacedGenTrap(p);
+  }
+
+  // THE SIMPLE XTRU
+  if (shape->IsA() == TGeoXtru::Class()) {
+    TGeoXtru *p = (TGeoXtru *)(shape);
+    // analyse convertability
+    if (p->GetNz() == 2) {
+      // add check on scaling and distortions
+      double *x = new double[p->GetNvert()];
+      double *y = new double[p->GetNvert()];
+      for (size_t i = 0; i < (size_t)p->GetNvert(); ++i) {
+        x[i] = p->GetX(i);
+        y[i] = p->GetY(i);
+      }
+      unplaced_volume = new UnplacedSExtruVolume(p->GetNvert(), x, y, p->GetZ()[0], p->GetZ()[1]);
+    }
   }
 
   // New volumes should be implemented here...

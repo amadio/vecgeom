@@ -585,6 +585,26 @@ struct ABBoxImplementation {
     inside &= uppercorner.z() > Real_v(point.z());
   }
 
+  // playing with a kernel that can do multi-box - single particle; multi-box -- multi-particle, single-box --
+  // multi-particle
+  template <typename T1, typename T2, typename Bool_v>
+  VECGEOM_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
+  static void ABBoxContainsKernelGeneric(Vector3D<T1> const &lowercorner, Vector3D<T1> const &uppercorner,
+                                         Vector3D<T2> const &point, Bool_v &inside)
+  {
+    inside = lowercorner.x() < T1(point.x());
+    inside &= uppercorner.x() > T1(point.x());
+    if (vecCore::MaskEmpty(inside)) return;
+
+    inside &= lowercorner.y() < T1(point.y());
+    inside &= uppercorner.y() > T1(point.y());
+    if (vecCore::MaskEmpty(inside)) return;
+
+    inside &= lowercorner.z() < T1(point.z());
+    inside &= uppercorner.z() > T1(point.z());
+  }
+
   // safety square for Bounding boxes
   // generic kernel treating one track and one or multiple boxes
   // in case a point is inside a box a squared value
