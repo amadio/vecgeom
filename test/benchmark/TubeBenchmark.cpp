@@ -9,7 +9,7 @@ using namespace vecgeom;
 void benchmark(double rmin, double rmax, double dz, double sphi, double dphi, int npoints, int nrep)
 {
   UnplacedBox worldUnplaced = UnplacedBox(rmax * 4, rmax * 4, dz * 4);
-  UnplacedTube tubeUnplaced = UnplacedTube(rmin, rmax, dz, sphi, dphi);
+  GenericUnplacedTube tubeUnplaced(rmin, rmax, dz, sphi, dphi);
 
   LogicalVolume world("world", &worldUnplaced);
   LogicalVolume tube("tube", &tubeUnplaced);

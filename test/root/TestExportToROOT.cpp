@@ -39,7 +39,7 @@ LogicalVolume const *make3LevelBooleanSubtraction()
 {
   // components for boolean solid
   UnplacedBox const *motherbox       = new UnplacedBox(5., 5., 5.);
-  UnplacedTube const *subtractedtube = new UnplacedTube(0.5, 2., 2., 0, kTwoPi);
+  UnplacedTube const *subtractedtube = new GenericUnplacedTube(0.5, 2., 2., 0, kTwoPi);
 
   // translation for boolean solid right shape
   Transformation3D const *translation = new Transformation3D(-2.5, 0, 0);
@@ -70,8 +70,8 @@ VPlacedVolume *SetupGeometry()
   UnplacedBox *worldUnplaced = new UnplacedBox(40, 10, 10);
   UnplacedBox *boxUnplaced   = new UnplacedBox(2.5, 2.5, 2.5);
 
-  UnplacedTube *tube1Unplaced = new UnplacedTube(0.5, 1., 0.5, 0., kTwoPi);
-  UnplacedTube *tube2Unplaced = new UnplacedTube(0.5, 1., 0.5, 0., kPi);
+  UnplacedTube *tube1Unplaced = new GenericUnplacedTube(0.5, 1., 0.5, 0., kTwoPi);
+  UnplacedTube *tube2Unplaced = new GenericUnplacedTube(0.5, 1., 0.5, 0., kPi);
   UnplacedCone *cone1Unplaced = new UnplacedCone(0.5, 1., 0.6, 1.2, 0.5, 0., kTwoPi);
   UnplacedCone *cone2Unplaced = new UnplacedCone(0.5, 1., 0.6, 1.2, 0.5, kPi / 4., kPi);
 

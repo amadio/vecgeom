@@ -7,40 +7,40 @@
 
 using namespace vecgeom;
 
-UnplacedPolyhedron NoInnerRadii()
+UnplacedPolyhedron *NoInnerRadii()
 {
   constexpr int nPlanes      = 5;
   Precision zPlanes[nPlanes] = {-4, -2, 0, 2, 4};
   Precision rInner[nPlanes]  = {0, 0, 0, 0, 0};
   Precision rOuter[nPlanes]  = {2, 3, 2, 3, 2};
-  return UnplacedPolyhedron(5, nPlanes, zPlanes, rInner, rOuter);
+  return new UnplacedPolyhedron(5, nPlanes, zPlanes, rInner, rOuter);
 }
 
-UnplacedPolyhedron WithInnerRadii()
+UnplacedPolyhedron *WithInnerRadii()
 {
   constexpr int nPlanes      = 5;
   Precision zPlanes[nPlanes] = {-4, -1, 0, 1, 4};
   Precision rInner[nPlanes]  = {1, 0.75, 0.5, 0.75, 1};
   Precision rOuter[nPlanes]  = {1.5, 1.5, 1.5, 1.5, 1.5};
-  return UnplacedPolyhedron(5, nPlanes, zPlanes, rInner, rOuter);
+  return new UnplacedPolyhedron(5, nPlanes, zPlanes, rInner, rOuter);
 }
 
-UnplacedPolyhedron WithPhiSection()
+UnplacedPolyhedron *WithPhiSection()
 {
   constexpr int nPlanes      = 5;
   Precision zPlanes[nPlanes] = {-4, -1, 0, 1, 4};
   Precision rInner[nPlanes]  = {1, 0.75, 0.5, 0.75, 1};
   Precision rOuter[nPlanes]  = {1.5, 1.5, 1.5, 1.5, 1.5};
-  return UnplacedPolyhedron(15, 45, 5, nPlanes, zPlanes, rInner, rOuter);
+  return new UnplacedPolyhedron(15, 45, 5, nPlanes, zPlanes, rInner, rOuter);
 }
 
-UnplacedPolyhedron ManySegments()
+UnplacedPolyhedron *ManySegments()
 {
   constexpr int nPlanes      = 17;
   Precision zPlanes[nPlanes] = {-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8};
   Precision rInner[nPlanes]  = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
   Precision rOuter[nPlanes]  = {2, 2, 3, 3, 2, 2, 3, 3, 2, 2, 3, 3, 2, 2, 3, 3, 2};
-  return UnplacedPolyhedron(6, nPlanes, zPlanes, rInner, rOuter);
+  return new UnplacedPolyhedron(6, nPlanes, zPlanes, rInner, rOuter);
 }
 
 int main(int nArgs, char **args)
@@ -48,8 +48,8 @@ int main(int nArgs, char **args)
 
   UnplacedBox worldUnplaced = UnplacedBox(10, 10, 10);
 
-  auto RunBenchmark = [&worldUnplaced](UnplacedPolyhedron shape, char const *label) {
-    LogicalVolume logical("pgon", &shape);
+  auto RunBenchmark = [&worldUnplaced](UnplacedPolyhedron const *shape, char const *label) {
+    LogicalVolume logical("pgon", shape);
     // VPlacedVolume *placed = logical.Place();
     LogicalVolume worldLogical(&worldUnplaced);
     //   worldLogical.PlaceDaughter(placed);

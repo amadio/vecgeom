@@ -151,8 +151,8 @@ void UnplacedPolyhedron::Initialize(Precision phiStart, Precision phiDelta, cons
   // innerRadius /= cosHalfDeltaPhi;
   // outerRadius /= cosHalfDeltaPhi;
 
-  fBoundingTube = UnplacedTube(innerRadius - kHalfTolerance, outerRadius + kHalfTolerance, boundingTubeZ,
-                               boundsPhiStart, boundsPhiDelta);
+  fBoundingTube = GenericUnplacedTube(innerRadius - kHalfTolerance, outerRadius + kHalfTolerance, boundingTubeZ,
+                                      boundsPhiStart, boundsPhiDelta);
   // The offset has to match the middle of the polyhedron
   fBoundingTubeOffset = 0.5 * (zPlanes[0] + zPlanes[zPlaneCount - 1]);
 
@@ -599,7 +599,6 @@ Precision UnplacedPolyhedron::SurfaceArea() const
   return fSurfaceArea;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
 Vector3D<Precision> UnplacedPolyhedron::GetPointOnSurface() const
 {
   int j, numPlanes = GetZSegmentCount() + 1, Flag = 0;

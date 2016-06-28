@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 
   Transformation3D placement = Transformation3D(1, 1, 1);
   UnplacedBox worldUnplaced  = UnplacedBox(10, 10, 10);
-  UnplacedTube tubeUnplaced  = UnplacedTube(rmin, rmax, dz, sphi, dphi);
+  GenericUnplacedTube tubeUnplaced(rmin, rmax, dz, sphi, dphi);
   UnplacedScaledShape scaledUnplaced(&tubeUnplaced, sx, sy, sz);
 
   LogicalVolume world("world", &worldUnplaced);

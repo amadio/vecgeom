@@ -83,13 +83,13 @@ public:
 #else // Compiling for CUDA
   __device__ CommonSpecializedVolImplHelper(LogicalVolume const *const logical_volume,
                                             Transformation3D const *const transformation,
-                                            PlacedBox const *const boundingBox, const int id)
+                                            PlacedBox const *const boundingBox, const unsigned int id)
       : PlacedShape_t(logical_volume, transformation, boundingBox, id)
   {
   }
 
   __device__ CommonSpecializedVolImplHelper(LogicalVolume const *const logical_volume,
-                                            Transformation3D const *const transformation, const int id)
+                                            Transformation3D const *const transformation, const unsigned int id)
       : PlacedShape_t(logical_volume, transformation, details::UseIfSameType<PlacedShape_t, PlacedBox>::Get(this), id)
   {
   }

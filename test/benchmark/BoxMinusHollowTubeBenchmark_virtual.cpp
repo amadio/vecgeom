@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 
   // components for boolean solid
   UnplacedBox motherbox(5., 5., 5.);
-  UnplacedTube subtractedtube(0.5, 2., 2., 0, 2. * M_PI);
+  SUnplacedTube<> subtractedtube(0.5, 2., 2., 0, 2. * M_PI);
   // translation for boolean solid right shape
   Transformation3D translation(-2.5, 0, 0);
 

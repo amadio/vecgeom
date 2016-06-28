@@ -31,7 +31,7 @@ private:
   Precision fRmin2, fRmax2, fRtor2, fAlongPhi1x, fAlongPhi1y, fAlongPhi2x, fAlongPhi2y;
   Precision fTolIrmin2, fTolOrmin2, fTolIrmax2, fTolOrmax2;
   // bounding tube
-  UnplacedTube fBoundingTube;
+  GenericUnplacedTube fBoundingTube;
 
   VECGEOM_CUDA_HEADER_BOTH
   static void GetAlongVectorToPhiSector(Precision phi, Precision &x, Precision &y)
@@ -66,7 +66,8 @@ public:
   {
     calculateCached();
 
-    fBoundingTube = UnplacedTube(fRtor - fRmax - kTolerance, fRtor + fRmax + kTolerance, fRmax, sphiVal, dphiVal);
+    fBoundingTube =
+        GenericUnplacedTube(fRtor - fRmax - kTolerance, fRtor + fRmax + kTolerance, fRmax, sphiVal, dphiVal);
     DetectConvexity();
   }
 
@@ -199,7 +200,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  UnplacedTube const &GetBoundingTube() const { return fBoundingTube; }
+  GenericUnplacedTube const &GetBoundingTube() const { return fBoundingTube; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE

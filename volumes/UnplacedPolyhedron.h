@@ -126,20 +126,20 @@ private:
   Array<Precision> fZPlanes;  ///< Z-coordinate of each plane separating segments
   // TODO: find a way to re-compute R_min and R_max when converting to another
   //       library's representation to avoid having to store them here.
-  Array<Precision> fRMin;         ///< Inner radii as specified in constructor.
-  Array<Precision> fRMax;         ///< Outer radii as specified in constructor.
-  SOA3D<Precision> fPhiSections;  ///< Unit vectors marking the bounds between
-                                  ///  phi segments, represented by planes
-                                  ///  through the origin with the normal
-                                  ///  point along the positive phi direction.
-  UnplacedTube fBoundingTube;     ///< Tube enclosing the outer bounds of the
-                                  ///  polyhedron. Used in Contains, Inside and
-                                  ///  DistanceToIn.
-  Precision fBoundingTubeOffset;  ///< Offset in Z of the center of the bounding
-                                  ///  tube. Used as a quick substitution for
-                                  ///  running a full transformation.
-  mutable Precision fSurfaceArea; ///< Stored SurfaceArea
-  mutable Precision fCapacity;    ///< Stored Capacity
+  Array<Precision> fRMin;            ///< Inner radii as specified in constructor.
+  Array<Precision> fRMax;            ///< Outer radii as specified in constructor.
+  SOA3D<Precision> fPhiSections;     ///< Unit vectors marking the bounds between
+                                     ///  phi segments, represented by planes
+                                     ///  through the origin with the normal
+                                     ///  point along the positive phi direction.
+  GenericUnplacedTube fBoundingTube; ///< Tube enclosing the outer bounds of the
+                                     ///  polyhedron. Used in Contains, Inside and
+                                     ///  DistanceToIn.
+  Precision fBoundingTubeOffset;     ///< Offset in Z of the center of the bounding
+                                     ///  tube. Used as a quick substitution for
+                                     ///  running a full transformation.
+  mutable Precision fSurfaceArea;    ///< Stored SurfaceArea
+  mutable Precision fCapacity;       ///< Stored Capacity
 
   // These private data member and member functions are added for convexity detection
 private:
@@ -256,7 +256,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE
-  UnplacedTube const &GetBoundingTube() const { return fBoundingTube; }
+  GenericUnplacedTube const &GetBoundingTube() const { return fBoundingTube; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_INLINE

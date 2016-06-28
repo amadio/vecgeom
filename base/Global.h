@@ -13,6 +13,8 @@
 #include "base/Math.h"
 #include <VecCore/VecCore>
 
+using uint = unsigned int;
+
 #define VECGEOM
 
 #ifdef __INTEL_COMPILER

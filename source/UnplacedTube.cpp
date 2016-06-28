@@ -3,7 +3,6 @@
 
 #include "volumes/UnplacedTube.h"
 #include "volumes/SpecializedTube.h"
-#include "backend/Backend.h"
 #ifndef VECGEOM_NVCC
 #include "base/RNG.h"
 #include <cmath>
@@ -26,69 +25,69 @@ void UnplacedTube::Print(std::ostream &os) const
   os << "UnplacedTube {" << rmin() << ", " << rmax() << ", " << z() << ", " << sphi() << ", " << dphi() << "}";
 }
 
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-VECGEOM_CUDA_HEADER_DEVICE
-VPlacedVolume *UnplacedTube::Create(LogicalVolume const *const logical_volume,
-                                    Transformation3D const *const transformation,
-#ifdef VECGEOM_NVCC
-                                    const int id,
-#endif
-                                    VPlacedVolume *const placement)
-{
+// template <TranslationCode transCodeT, RotationCode rotCodeT>
+// VECGEOM_CUDA_HEADER_DEVICE
+// VPlacedVolume *UnplacedTube::Create(LogicalVolume const *const logical_volume,
+//                                    Transformation3D const *const transformation,
+//#ifdef VECGEOM_NVCC
+//                                    const int id,
+//#endif
+//                                    VPlacedVolume *const placement)
+//{
 
-  using namespace TubeTypes;
-  __attribute__((unused)) const UnplacedTube &tube =
-      static_cast<const UnplacedTube &>(*(logical_volume->GetUnplacedVolume()));
+//  using namespace TubeTypes;
+//  __attribute__((unused)) const UnplacedTube &tube =
+//      static_cast<const UnplacedTube &>(*(logical_volume->GetUnplacedVolume()));
 
-#ifdef VECGEOM_NVCC
-#define RETURN_SPECIALIZATION(tubeTypeT)                                                   \
-  return CreateSpecializedWithPlacement<SpecializedTube<transCodeT, rotCodeT, tubeTypeT>>( \
-      logical_volume, transformation, id, placement)
-#else
-#define RETURN_SPECIALIZATION(tubeTypeT)                                                                  \
-  return CreateSpecializedWithPlacement<SpecializedTube<transCodeT, rotCodeT, tubeTypeT>>(logical_volume, \
-                                                                                          transformation, placement)
-#endif
+////#ifdef VECGEOM_NVCC
+////#define RETURN_SPECIALIZATION(tubeTypeT)				"\"
+////  return CreateSpecializedWithPlacement<SpecializedTube<transCodeT, rotCodeT, tubeTypeT>>( "\"
+//      logical_volume, transformation, id, placement)
+//#else
+////#define RETURN_SPECIALIZATION(tubeTypeT)				"\"
+////  return CreateSpecializedWithPlacement<SpecializedTube<transCodeT, rotCodeT, tubeTypeT>>(logical_volume, "\"
+//                                                                                          transformation, placement)
+//#endif
 
-#ifdef GENERATE_TUBE_SPECIALIZATIONS
-  if (tube.rmin() <= 0) {
-    if (tube.dphi() >= 2 * M_PI) RETURN_SPECIALIZATION(NonHollowTube);
-    if (tube.dphi() == M_PI) RETURN_SPECIALIZATION(NonHollowTubeWithPiSector); // == M_PI ???
+//#ifdef GENERATE_TUBE_SPECIALIZATIONS
+//  if (tube.rmin() <= 0) {
+//    if (tube.dphi() >= 2 * M_PI) RETURN_SPECIALIZATION(NonHollowTube);
+//    if (tube.dphi() == M_PI) RETURN_SPECIALIZATION(NonHollowTubeWithPiSector); // == M_PI ???
 
-    if (tube.dphi() < M_PI) RETURN_SPECIALIZATION(NonHollowTubeWithSmallerThanPiSector);
-    if (tube.dphi() > M_PI) RETURN_SPECIALIZATION(NonHollowTubeWithBiggerThanPiSector);
-  } else if (tube.rmin() > 0) {
-    if (tube.dphi() >= 2 * M_PI) RETURN_SPECIALIZATION(HollowTube);
-    if (tube.dphi() == M_PI) RETURN_SPECIALIZATION(HollowTubeWithPiSector); // == M_PI ???
+//    if (tube.dphi() < M_PI) RETURN_SPECIALIZATION(NonHollowTubeWithSmallerThanPiSector);
+//    if (tube.dphi() > M_PI) RETURN_SPECIALIZATION(NonHollowTubeWithBiggerThanPiSector);
+//  } else if (tube.rmin() > 0) {
+//    if (tube.dphi() >= 2 * M_PI) RETURN_SPECIALIZATION(HollowTube);
+//    if (tube.dphi() == M_PI) RETURN_SPECIALIZATION(HollowTubeWithPiSector); // == M_PI ???
 
-    if (tube.dphi() < M_PI) RETURN_SPECIALIZATION(HollowTubeWithSmallerThanPiSector);
-    if (tube.dphi() > M_PI) RETURN_SPECIALIZATION(HollowTubeWithBiggerThanPiSector);
-  }
-#endif
+//    if (tube.dphi() < M_PI) RETURN_SPECIALIZATION(HollowTubeWithSmallerThanPiSector);
+//    if (tube.dphi() > M_PI) RETURN_SPECIALIZATION(HollowTubeWithBiggerThanPiSector);
+//  }
+//#endif
 
-  RETURN_SPECIALIZATION(UniversalTube);
+//  RETURN_SPECIALIZATION(UniversalTube);
 
-#undef RETURN_SPECIALIZATION
-}
+//#undef RETURN_SPECIALIZATION
+//}
 
-VECGEOM_CUDA_HEADER_DEVICE
+#ifndef VECGEOM_NVCC
 VPlacedVolume *UnplacedTube::SpecializedVolume(LogicalVolume const *const volume,
                                                Transformation3D const *const transformation,
                                                const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
-                                               const int id,
-#endif
                                                VPlacedVolume *const placement) const
 {
-
-  return VolumeFactory::CreateByTransformation<UnplacedTube>(volume, transformation, trans_code, rot_code,
-#ifdef VECGEOM_NVCC
-                                                             id,
-#endif
+  return VolumeFactory::CreateByTransformation<UnplacedTube>(volume, transformation, trans_code, rot_code, placement);
+}
+#else
+__device__ VPlacedVolume *UnplacedTube::SpecializedVolume(LogicalVolume const *const volume,
+                                                          Transformation3D const *const transformation,
+                                                          const TranslationCode trans_code, const RotationCode rot_code,
+                                                          const int id, VPlacedVolume *const placement) const
+{
+  return VolumeFactory::CreateByTransformation<UnplacedTube>(volume, transformation, trans_code, rot_code, id,
                                                              placement);
 }
-
-#ifndef VECGEOM_NVCC
+#endif
 
 int UnplacedTube::ChooseSurface() const
 {
@@ -153,29 +152,29 @@ bool UnplacedTube::Normal(Vector3D<Precision> const &point, Vector3D<Precision> 
   int nosurface = 0; // idea from trapezoid;; change nomenclature as confusing
 
   Precision x2y2 = Sqrt(point.x() * point.x() + point.y() * point.y());
-  bool inZ       = ((point.z() < fZ + kTolerance) && (point.z() > -fZ - kTolerance)); // in right z range
-  bool inR       = ((x2y2 >= fRmin) && (x2y2 <= fRmax));                              // in right r range
+  bool inZ       = ((point.z() < z() + kTolerance) && (point.z() > -z() - kTolerance)); // in right z range
+  bool inR       = ((x2y2 >= rmin()) && (x2y2 <= rmax()));                              // in right r range
   // bool inPhi = fWedge.Contains(point);
 
   // is the point on the surface?
   // Do WE REALLY NEED TO CHECK THIS?? THE CALLEE CAN CHECK IT IF HE LIKES TO...
   // The contract should be that the input to this function is on the surfaces
   // hence:: assert( IsOnSurface ... might be appropriate )
-  // onSurf =  ((Abs(x2y2 - fRmin) <= kTolerance) && inZ);  // inner
-  // onSurf |= ((Abs(x2y2 - fRmax) <= kTolerance) && inZ); // outer
+  // onSurf =  ((Abs(x2y2 - rmin()) <= kTolerance) && inZ);  // inner
+  // onSurf |= ((Abs(x2y2 - rmax()) <= kTolerance) && inZ); // outer
   // onSurf |= (annul && (Abs(point.z() - fZ) <= kTolerance)); // top
   // onSurf |= (annul && (Abs(point.z() + fZ) <= kTolerance)); // bottom
   // onSurf |= (annul && (Abs(fiVal - fi1) <= kTolerance));  // left i.e. sphi()
   // onSurf |= (annul && (Abs(fiVal - fi2) <= kTolerance));  // right i.e. sphi() + dphi()
 
   // can we combine these two into one??
-  if (inR && (Abs(point.z() - fZ) <= kTolerance)) { // top lid, normal along +Z
+  if (inR && (Abs(point.z() - z()) <= kTolerance)) { // top lid, normal along +Z
     norm[0] = 0.;
     norm[1] = 0.;
     norm[2] = 1.;
     nosurface++;
   }
-  if (inR && (Abs(point.z() + fZ) <= kTolerance)) { // bottom base, normal along -Z
+  if (inR && (Abs(point.z() + z()) <= kTolerance)) { // bottom base, normal along -Z
     if (nosurface > 0) {
       // norm exists already; just add to it
       norm[2] += -1;
@@ -186,8 +185,8 @@ bool UnplacedTube::Normal(Vector3D<Precision> const &point, Vector3D<Precision> 
     }
     nosurface++;
   }
-  if (fRmin > 0.) {
-    if (inZ && (Abs(x2y2 - fRmin) <= kTolerance)) { // inner tube wall, normal  towards center
+  if (rmin() > 0.) {
+    if (inZ && (Abs(x2y2 - rmin()) <= kTolerance)) { // inner tube wall, normal  towards center
       Precision invx2y2 = 1. / x2y2;
       if (nosurface == 0) {
         norm[0] = -point[0] * invx2y2;
@@ -200,7 +199,7 @@ bool UnplacedTube::Normal(Vector3D<Precision> const &point, Vector3D<Precision> 
       nosurface++;
     }
   }
-  if (inZ && (Abs(x2y2 - fRmax) <= kTolerance)) { // outer tube wall, normal outwards
+  if (inZ && (Abs(x2y2 - rmax()) <= kTolerance)) { // outer tube wall, normal outwards
     Precision invx2y2 = 1. / x2y2;
     if (nosurface > 0) {
       norm[0] += point[0] * invx2y2;
@@ -214,38 +213,37 @@ bool UnplacedTube::Normal(Vector3D<Precision> const &point, Vector3D<Precision> 
   }
 
   // otherwise we get a normal from the wedge
-  if (fDphi < vecgeom::kTwoPi) {
-    if (inR && fPhiWedge.IsOnSurface1(point)) {
+  if (dphi() < vecgeom::kTwoPi) {
+    if (inR && GetWedge().IsOnSurface1(point)) {
       if (nosurface == 0)
-        norm = -fPhiWedge.GetNormal1();
+        norm = -GetWedge().GetNormal1();
       else
-        norm += -fPhiWedge.GetNormal1();
+        norm += -GetWedge().GetNormal1();
       nosurface++;
     }
-    if (inR && fPhiWedge.IsOnSurface2(point)) {
+    if (inR && GetWedge().IsOnSurface2(point)) {
       if (nosurface == 0)
-        norm = -fPhiWedge.GetNormal2();
+        norm = -GetWedge().GetNormal2();
       else
-        norm += -fPhiWedge.GetNormal2();
+        norm += -GetWedge().GetNormal2();
       nosurface++;
     }
   }
-  if (nosurface > 1) norm = norm / std::sqrt(nosurface);
+  if (nosurface > 1) norm = norm / std::sqrt(1. * nosurface);
   return nosurface != 0; // this is for testing only
 }
 
 /*
   VECGEOM_CUDA_HEADER_BOTH
   Precision UnplacedTube::SurfaceArea () const {
-    Precision area = fDphi * (fRmin + fRmax) * (2 * fZ + fRmax - fRmin);
+    Precision area = fDphi * (rmin() + rmax()) * (2 * fZ + rmax() - rmin());
     if (fDphi<kTwoPi) {
-      area += 4 * fZ * (fRmax - fRmin);
+      area += 4 * fZ * (rmax() - rmin());
     }
     return area;
   }
 
   */
-#endif
 
 VECGEOM_CUDA_HEADER_BOTH
 void UnplacedTube::DetectConvexity()
@@ -255,25 +253,25 @@ void UnplacedTube::DetectConvexity()
   fGlobalConvexity = false;
 
   // Logic to calculate the convexity
-  if (fRmin == 0.) {
-    if (fDphi <= kPi || fDphi == kTwoPi) fGlobalConvexity = true;
+  if (rmin() == 0.) {
+    if (dphi() <= kPi || dphi() == kTwoPi) fGlobalConvexity = true;
   }
 }
 
 void UnplacedTube::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
   // most general case
-  aMin = Vector3D<Precision>(-fRmax, -fRmax, -fZ);
-  aMax = Vector3D<Precision>(fRmax, fRmax, fZ);
+  aMin = Vector3D<Precision>(-rmax(), -rmax(), -z());
+  aMax = Vector3D<Precision>(rmax(), rmax(), z());
 
-  if (fDphi == kTwoPi) return;
+  if (dphi() == kTwoPi) return;
 
   // check how many of phi=90, 180, 270, 360deg are outside this tube
-  auto Rin       = 0.5 * (fRmax + fRmin);
-  bool phi0out   = !GetWedge().Contains<kScalar>(Vector3D<Precision>(Rin, 0, 0));
-  bool phi90out  = !GetWedge().Contains<kScalar>(Vector3D<Precision>(0, Rin, 0));
-  bool phi180out = !GetWedge().Contains<kScalar>(Vector3D<Precision>(-Rin, 0, 0));
-  bool phi270out = !GetWedge().Contains<kScalar>(Vector3D<Precision>(0, -Rin, 0));
+  auto Rin       = 0.5 * (rmax() + rmin());
+  bool phi0out   = !GetWedge().Contains(Vector3D<Precision>(Rin, 0, 0));
+  bool phi90out  = !GetWedge().Contains(Vector3D<Precision>(0, Rin, 0));
+  bool phi180out = !GetWedge().Contains(Vector3D<Precision>(-Rin, 0, 0));
+  bool phi270out = !GetWedge().Contains(Vector3D<Precision>(0, -Rin, 0));
 
   // if none of those 4 phis is outside, largest box still required
   if (!(phi0out || phi90out || phi180out || phi270out)) return;
@@ -281,10 +279,10 @@ void UnplacedTube::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) 
   // some extent(s) of box will be reduced
   // --> think of 4 points A,B,C,D such that A,B are at Rmin, C,D at Rmax
   //     and A,C at startPhi (fSphi), B,D at endPhi (fSphi+fDphi)
-  auto Cx = fRmax * cos(fSphi);
-  auto Dx = fRmax * cos(fSphi + fDphi);
-  auto Cy = fRmax * sin(fSphi);
-  auto Dy = fRmax * sin(fSphi + fDphi);
+  auto Cx = rmax() * cos(sphi());
+  auto Dx = rmax() * cos(sphi() + dphi());
+  auto Cy = rmax() * sin(sphi());
+  auto Dy = rmax() * sin(sphi() + dphi());
 
   // then rewrite box sides whenever each one of those phis are not contained in the tube section
   if (phi0out) aMax.x()   = Max(Cx, Dx);
@@ -292,12 +290,12 @@ void UnplacedTube::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) 
   if (phi180out) aMin.x() = Min(Cx, Dx);
   if (phi270out) aMin.y() = Min(Cy, Dy);
 
-  if (fDphi >= kPi) return;
+  if (dphi() >= kPi) return;
 
-  auto Ax = fRmin * cos(fSphi);
-  auto Bx = fRmin * cos(fSphi + fDphi);
-  auto Ay = fRmin * sin(fSphi);
-  auto By = fRmin * sin(fSphi + fDphi);
+  auto Ax = rmin() * cos(sphi());
+  auto Bx = rmin() * cos(sphi() + dphi());
+  auto Ay = rmin() * sin(sphi());
+  auto By = rmin() * sin(sphi() + dphi());
 
   Precision temp;
   temp     = Max(Ax, Bx);
@@ -325,11 +323,11 @@ std::ostream &UnplacedTube::StreamInfo(std::ostream &os) const
      << "     ===================================================\n"
      << " Solid type: " << GetEntityType() << "\n"
      << " Parameters: \n"
-     << "     Tube Radii Rmin, Rmax: " << fRmin << "mm, " << fRmax << "mm \n"
-     << "     Half-length Z = " << fZ << "mm\n";
-  if (fDphi < kTwoPi) {
-    os << "     Wedge starting angles: fSPhi=" << fSphi * kRadToDeg << "deg, "
-       << ", fDphi=" << fDphi * kRadToDeg << "deg\n";
+     << "     Tube Radii Rmin, Rmax: " << rmin() << "mm, " << rmax() << "mm \n"
+     << "     Half-length Z = " << z() << "mm\n";
+  if (dphi() < kTwoPi) {
+    os << "     Wedge starting angles: fSPhi=" << sphi() * kRadToDeg << "deg, "
+       << ", fDphi=" << dphi() * kRadToDeg << "deg\n";
   }
   os << "-----------------------------------------------------------\n";
   os.precision(oldprc);
@@ -341,12 +339,12 @@ std::ostream &UnplacedTube::StreamInfo(std::ostream &os) const
 
 DevicePtr<cuda::VUnplacedVolume> UnplacedTube::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
 {
-  return CopyToGpuImpl<UnplacedTube>(in_gpu_ptr, rmin(), rmax(), z(), sphi(), dphi());
+  return CopyToGpuImpl<SUnplacedTube<TubeTypes::UniversalTube>>(in_gpu_ptr, rmin(), rmax(), z(), sphi(), dphi());
 }
 
 DevicePtr<cuda::VUnplacedVolume> UnplacedTube::CopyToGpu() const
 {
-  return CopyToGpuImpl<UnplacedTube>();
+  return CopyToGpuImpl<SUnplacedTube<TubeTypes::UniversalTube>>();
 }
 
 #endif // VECGEOM_CUDA_INTERFACE
@@ -357,9 +355,9 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedTube::CopyToGpu() const
 
 namespace cxx {
 
-template size_t DevicePtr<cuda::UnplacedTube>::SizeOf();
-template void DevicePtr<cuda::UnplacedTube>::Construct(const Precision rmin, const Precision rmax, const Precision z,
-                                                       const Precision sphi, const Precision dphi) const;
+template size_t DevicePtr<cuda::SUnplacedTube<cuda::TubeTypes::UniversalTube>>::SizeOf();
+template void DevicePtr<cuda::SUnplacedTube<cuda::TubeTypes::UniversalTube>>::Construct(
+    const Precision rmin, const Precision rmax, const Precision z, const Precision sphi, const Precision dphi) const;
 
 } // End cxx namespace
 

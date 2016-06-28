@@ -262,13 +262,13 @@ namespace {
 template <Polyhedron::EInnerRadii innerRadiiT>
 struct HasInnerRadiiTraits {
   /// If polyhedron has inner radii, use a hollow tube
-  typedef TubeImplementation<translation::kIdentity, rotation::kIdentity, TubeTypes::UniversalTube> TubeKernels;
+  typedef TubeImplementation<TubeTypes::UniversalTube> TubeKernels;
 };
 
 template <>
 struct HasInnerRadiiTraits<Polyhedron::EInnerRadii::kFalse> {
   /// If polyhedron has no inner radii, use a non-hollow tube
-  typedef TubeImplementation<translation::kIdentity, rotation::kIdentity, TubeTypes::UniversalTube> TubeKernels;
+  typedef TubeImplementation<TubeTypes::UniversalTube> TubeKernels;
 };
 
 template <Polyhedron::EInnerRadii innerRadiiT>
@@ -722,8 +722,8 @@ bool PolyhedronImplementation<transCodeT, rotCodeT, innerRadiiT, phiCutoutT>::Sc
   {
     bool inBounds;
     // Correct tube algorithm obtained from trait class
-    HasInnerRadiiTraits<innerRadiiT>::TubeKernels::template UnplacedContains<kScalar>(
-        polyhedron.GetBoundingTube(),
+    HasInnerRadiiTraits<innerRadiiT>::TubeKernels::template Contains(
+        polyhedron.GetBoundingTube().GetStruct(),
         Vector3D<Precision>(localPoint[0], localPoint[1], localPoint[2] - polyhedron.GetBoundingTubeOffset()),
         inBounds);
     if (!inBounds) return false;
@@ -769,8 +769,8 @@ Inside_t PolyhedronImplementation<transCodeT, rotCodeT, innerRadiiT, phiCutoutT>
     // FIX: the bounding tube was wrong. Since the fast UnplacedContains is
     // used for early return, the bounding tube has to be larger than the
     // ideal bounding tube to account for the tolerance (offset was wrong)
-    HasInnerRadiiTraits<innerRadiiT>::TubeKernels::template UnplacedContains<kScalar>(
-        polyhedron.GetBoundingTube(),
+    HasInnerRadiiTraits<innerRadiiT>::TubeKernels::template Contains(
+        polyhedron.GetBoundingTube().GetStruct(),
         Vector3D<Precision>(localPoint[0], localPoint[1], localPoint[2] - polyhedron.GetBoundingTubeOffset()),
         inBounds);
     if (!inBounds) return EInside::kOutside;
@@ -880,8 +880,8 @@ Precision PolyhedronImplementation<transCodeT, rotCodeT, innerRadiiT, phiCutoutT
   Precision tubeDistance = 0.;
   {
     Vector3D<Precision> boundsPoint(localPoint[0], localPoint[1], localPoint[2] - unplaced.GetBoundingTubeOffset());
-    HasInnerRadiiTraits<innerRadiiT>::TubeKernels::template UnplacedContains<kScalar>(unplaced.GetBoundingTube(),
-                                                                                      boundsPoint, inBounds);
+    HasInnerRadiiTraits<innerRadiiT>::TubeKernels::template Contains(unplaced.GetBoundingTube().GetStruct(),
+                                                                     boundsPoint, inBounds);
     // If the point is inside the bounding tube, the result of DistanceToIn is
     // unreliable and cannot be used to reject rays.
     // TODO: adjust tube DistanceToIn function to correctly return a negative
@@ -890,8 +890,8 @@ Precision PolyhedronImplementation<transCodeT, rotCodeT, innerRadiiT, phiCutoutT
     if (!inBounds) {
       // If the point is outside the bounding tube, check if the ray misses
       // the bounds
-      HasInnerRadiiTraits<innerRadiiT>::TubeKernels::template DistanceToIn<kScalar>(
-          unplaced.GetBoundingTube(), transformation, boundsPoint, localDirection, stepMax, tubeDistance);
+      HasInnerRadiiTraits<innerRadiiT>::TubeKernels::template DistanceToIn(
+          unplaced.GetBoundingTube().GetStruct(), boundsPoint, localDirection, stepMax, tubeDistance);
       if (tubeDistance == kInfinity) {
         return kInfinity;
       }

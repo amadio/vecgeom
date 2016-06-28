@@ -9,7 +9,6 @@
 #define VECGEOM_VOLUMES_KERNEL_SHAPETYPES_TUBETYPES_H_
 
 #include <string>
-#include "volumes/UnplacedTube.h"
 
 namespace vecgeom {
 
@@ -93,7 +92,7 @@ struct NeedsPhiTreatment<UniversalTube> {
   static const ETreatmentType value = kUnknown;
 };
 
-template <typename T>
+template <typename T, typename UnplacedTube>
 VECGEOM_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 bool checkPhiTreatment(const UnplacedTube &tube)
@@ -101,7 +100,7 @@ bool checkPhiTreatment(const UnplacedTube &tube)
   if (NeedsPhiTreatment<T>::value != kUnknown)
     return NeedsPhiTreatment<T>::value == kYes;
   else
-    return tube.dphi() < 2 * M_PI;
+    return tube.fDphi < 2 * M_PI;
 }
 
 // asking for rmin treatment
@@ -136,7 +135,7 @@ struct NeedsRminTreatment<UniversalTube> {
   static const ETreatmentType value = kUnknown;
 };
 
-template <typename T>
+template <typename T, typename UnplacedTube>
 VECGEOM_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 bool checkRminTreatment(const UnplacedTube &tube)

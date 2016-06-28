@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 
   // components for boolean solid
   UnplacedBox box(0.9, 0.9, 0.9);
-  UnplacedTube hollowtube(0.8, 1.2, 1.5, 0, kTwoPi);
+  GenericUnplacedTube hollowtube(0.8, 1.2, 1.5, 0, kTwoPi);
 
   // translation for boolean solid right shape ( it should now stick outside )
   Transformation3D translation(0.5, 0, 0);

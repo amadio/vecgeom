@@ -491,23 +491,20 @@ struct TorusImplementation2 {
 #ifndef VECGEOM_NO_SPECIALIZATION
     // call the tube functionality -- first of all we check whether we are inside
     // bounding volume
-    TubeImplementation<translation::kIdentity, rotation::kIdentity, TubeTypes::HollowTube>::UnplacedContains<Backend>(
-        torus.GetBoundingTube(), localPoint, inBounds);
+    TubeImplementation<TubeTypes::HollowTube>::Contains(torus.GetBoundingTube(), localPoint, inBounds);
 
     // only need to do this check if all particles (in vector) are outside ( otherwise useless )
-    TubeImplementation<translation::kIdentity, rotation::kIdentity, TubeTypes::HollowTube>::DistanceToIn<Backend>(
-        torus.GetBoundingTube(), transformation, localPoint, localDirection, stepMax, tubeDistance);
+    TubeImplementation<TubeTypes::HollowTube>::DistanceToIn<Backend>(torus.GetBoundingTube(), localPoint,
+                                                                     localDirection, stepMax, tubeDistance);
 #else
     // call the tube functionality -- first of all we check whether we are inside
     // bounding volume
-    TubeImplementation<translation::kIdentity, rotation::kIdentity,
-                       TubeTypes::UniversalTube>::UnplacedContains<Backend>(torus.GetBoundingTube(), localPoint,
-                                                                            inBounds);
+    TubeImplementation<TubeTypes::UniversalTube>::Contains(torus.GetBoundingTube().GetStruct(), localPoint, inBounds);
 
     // only need to do this check if all particles (in vector) are outside ( otherwise useless )
     if (!inBounds)
-      TubeImplementation<translation::kIdentity, rotation::kIdentity, TubeTypes::UniversalTube>::DistanceToIn<Backend>(
-          torus.GetBoundingTube(), transformation, localPoint, localDirection, stepMax, tubeDistance);
+      TubeImplementation<TubeTypes::UniversalTube>::DistanceToIn(torus.GetBoundingTube().GetStruct(), localPoint,
+                                                                 localDirection, stepMax, tubeDistance);
     else
       tubeDistance = 0.;
 #endif // VECGEOM_NO_SPECIALIZATION

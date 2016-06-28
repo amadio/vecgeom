@@ -1,6 +1,3 @@
-/// \file SpecializedTube.h
-/// \author Georgios Bitzes (georgios.bitzes@cern.ch)
-
 #ifndef VECGEOM_VOLUMES_SPECIALIZEDTUBE_H_
 #define VECGEOM_VOLUMES_SPECIALIZEDTUBE_H_
 
@@ -8,18 +5,33 @@
 
 #include "volumes/kernel/TubeImplementation.h"
 #include "volumes/PlacedTube.h"
-#include "volumes/ShapeImplementationHelper.h"
-
-#include <stdio.h>
+#include "volumes/SpecializedPlacedVolImplHelper.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT, typename tubeTypeT>
-using SpecializedTube = ShapeImplementationHelper<TubeImplementation<transCodeT, rotCodeT, tubeTypeT>>;
+using SpecializedTube = SIMDSpecializedVolImplHelper<TubeImplementation<tubeTypeT>, transCodeT, rotCodeT>;
 
 using SimpleTube = SpecializedTube<translation::kGeneric, rotation::kGeneric, TubeTypes::UniversalTube>;
+
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+VECGEOM_CUDA_HEADER_DEVICE
+VPlacedVolume *UnplacedTube::Create(LogicalVolume const *const logical_volume,
+                                    Transformation3D const *const transformation,
+#ifdef VECGEOM_NVCC
+                                    const int id,
+#endif
+                                    VPlacedVolume *const placement)
+{
+  return new SimpleTube(logical_volume, transformation
+#ifdef VECGEOM_NVCC
+                        ,
+                        id
+#endif
+                        );
+}
 }
 } // End global namespace
 
-#endif // VECGEOM_VOLUMES_SPECIALIZEDPARALLELEPIPED_H_
+#endif

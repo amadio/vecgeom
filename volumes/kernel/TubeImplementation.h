@@ -4,12 +4,10 @@
 #ifndef VECGEOM_VOLUMES_KERNEL_TUBEIMPLEMENTATION_H_
 #define VECGEOM_VOLUMES_KERNEL_TUBEIMPLEMENTATION_H_
 
-#include "base/Global.h"
-#include "base/Transformation3D.h"
 #include "base/Vector3D.h"
 #include "volumes/kernel/GenericKernels.h"
 #include "volumes/kernel/shapetypes/TubeTypes.h"
-#include "volumes/UnplacedTube.h"
+#include "volumes/TubeStruct.h"
 #include "volumes/Wedge.h"
 #include <cstdio>
 
@@ -17,8 +15,7 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TubeImplementation, TranslationCode, translation::kGeneric,
-                                           RotationCode, rotation::kGeneric, typename);
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE(struct, TubeImplementation, typename);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -56,37 +53,35 @@ namespace TubeUtilities {
  * to use either at compile time (if it has enough information, saving an if statement) or at runtime.
 **/
 
-template <typename Backend, typename ShapeType, typename UnplacedVolumeType, bool onSurfaceT,
+template <typename Real_v, typename ShapeType, typename UnplacedVolumeType, bool onSurfaceT,
           bool includeSurface = true>
 VECGEOM_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-void PointInCyclicalSector(UnplacedVolumeType const &volume, typename Backend::precision_v const &x,
-                           typename Backend::precision_v const &y, typename Backend::bool_v &ret)
+void PointInCyclicalSector(UnplacedVolumeType const &volume, Real_v const &x, Real_v const &y,
+                           typename vecCore::Mask_v<Real_v> &ret)
 {
-  using namespace TubeTypes;
+  using namespace ::vecgeom::TubeTypes;
   // assert(SectorType<ShapeType>::value != kNoAngle && "ShapeType without a sector passed to PointInCyclicalSector");
 
-  typedef typename Backend::precision_v Float_t;
+  Real_v startx(volume.fAlongPhi1x);
+  Real_v starty(volume.fAlongPhi1y);
 
-  Float_t startx = volume.alongPhi1x();
-  Float_t starty = volume.alongPhi1y();
-
-  Float_t endx = volume.alongPhi2x();
-  Float_t endy = volume.alongPhi2y();
+  Real_v endx(volume.fAlongPhi2x);
+  Real_v endy(volume.fAlongPhi2y);
 
   bool smallerthanpi;
 
   if (SectorType<ShapeType>::value == kUnknownAngle)
-    smallerthanpi = volume.dphi() <= M_PI;
+    smallerthanpi = volume.fDphi <= M_PI;
   else
     smallerthanpi = SectorType<ShapeType>::value == kOnePi || SectorType<ShapeType>::value == kSmallerThanPi;
 
-  Float_t startCheck = (-x * starty + y * startx);
-  Float_t endCheck   = (-endx * y + endy * x);
+  Real_v startCheck = (-x * starty + y * startx);
+  Real_v endCheck   = (-endx * y + endy * x);
 
   if (onSurfaceT) {
     // in this case, includeSurface is irrelevant
-    ret = (Abs(startCheck) <= kHalfTolerance) | (Abs(endCheck) <= kHalfTolerance);
+    ret = (vecCore::math::Abs(startCheck) <= kHalfTolerance) | (vecCore::math::Abs(endCheck) <= kHalfTolerance);
   } else {
     if (smallerthanpi) {
       if (includeSurface)
@@ -102,42 +97,40 @@ void PointInCyclicalSector(UnplacedVolumeType const &volume, typename Backend::p
   }
 }
 
-template <typename Backend, typename TubeType, bool LargestSolution, bool insectorCheck>
+template <typename Real_v, typename UnplacedStruct_t, typename TubeType, bool LargestSolution, bool insectorCheck>
 VECGEOM_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-void CircleTrajectoryIntersection(typename Backend::precision_v const &b, typename Backend::precision_v const &c,
-                                  UnplacedTube const &tube, Vector3D<typename Backend::precision_v> const &pos,
-                                  Vector3D<typename Backend::precision_v> const &dir,
-                                  typename Backend::precision_v &dist, typename Backend::bool_v &ok)
+void CircleTrajectoryIntersection(Real_v const &b, Real_v const &c, UnplacedStruct_t const &tube,
+                                  Vector3D<Real_v> const &pos, Vector3D<Real_v> const &dir, Real_v &dist,
+                                  typename vecCore::Mask_v<Real_v> &ok)
 {
-  using namespace TubeTypes;
-  typedef typename Backend::precision_v Float_t;
-  typedef typename Backend::bool_v Bool_t;
+  using namespace ::vecgeom::TubeTypes;
 
-  Float_t delta = b * b - c;
-  ok            = delta > 0.0;
+  using Bool_v = vecCore::Mask_v<Real_v>;
+
+  Real_v delta = b * b - c;
+  ok           = delta > 0.0;
   if (LargestSolution) ok |= delta == 0.; // this takes care of scratching conventions
 
-  MaskedAssign(!ok, 0., &delta);
-  delta                       = Sqrt(delta);
+  vecCore::MaskedAssign(delta, !ok, Real_v(0.));
+  delta                       = vecCore::math::Sqrt(delta);
   if (!LargestSolution) delta = -delta;
 
   dist = -b + delta;
   ok &= dist >= -kHalfTolerance;
-  if (Backend::early_returns && IsEmpty(ok)) return;
+  if (vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(ok)) return;
 
   if (insectorCheck) {
-    Float_t hitz = pos.z() + dist * dir.z();
-    ok &= (Abs(hitz) <= tube.z());
-    if (Backend::early_returns && IsEmpty(ok)) return;
+    Real_v hitz = pos.z() + dist * dir.z();
+    ok &= (vecCore::math::Abs(hitz) <= tube.fZ);
+    if (vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(ok)) return;
 
     if (checkPhiTreatment<TubeType>(tube)) {
-      Bool_t insector = Backend::kFalse;
-      Float_t hitx    = pos.x() + dist * dir.x();
-      Float_t hity    = pos.y() + dist * dir.y();
-      PointInCyclicalSector<Backend, TubeType, UnplacedTube, false, true>(tube, hitx, hity, insector);
-      // insector = tube.GetWedge().ContainsWithBoundary<Backend>( Vector3D<typename Backend::precision_v>(hitx, hity,
-      // hitz) );
+      Bool_v insector(false);
+      Real_v hitx = pos.x() + dist * dir.x();
+      Real_v hity = pos.y() + dist * dir.y();
+      PointInCyclicalSector<Real_v, TubeType, UnplacedStruct_t, false, true>(tube, hitx, hity, insector);
+      // insector = tube.GetWedge().ContainsWithBoundary<Real_v>( Vector3D<Real_v>(hitx, hity, hitz) );
       ok &= insector;
     }
   }
@@ -174,57 +167,55 @@ void CircleTrajectoryIntersection(typename Backend::precision_v const &b, typena
  *
  */
 
-template <typename Backend>
+template <typename Real_v>
 VECGEOM_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-void PerpendicularDistance2D(typename Backend::precision_v const &px, typename Backend::precision_v const &py,
-                             typename Backend::precision_v const &vx, typename Backend::precision_v const &vy,
-                             typename Backend::precision_v &dist)
+Real_v PerpDist2D(Real_v const &px, Real_v const &py, Real_v const &vx, Real_v const &vy)
 {
-  dist = px * vy - py * vx;
+  return px * vy - py * vx;
 }
 
 /*
  * Find safety distance from a point to the phi plane
  */
-
-template <typename Backend, typename TubeType, bool inside>
+template <typename Real_v, typename UnplacedStruct_t, typename TubeType, bool inside>
 VECGEOM_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-void PhiPlaneSafety(UnplacedTube const &tube, Vector3D<typename Backend::precision_v> const &pos,
-                    typename Backend::precision_v &safety)
+void PhiPlaneSafety(UnplacedStruct_t const &tube, Vector3D<Real_v> const &pos, Real_v &safety)
 {
-  using namespace TubeTypes;
-  typedef typename Backend::precision_v Float_t;
+  using namespace ::vecgeom::TubeTypes;
 
   safety = kInfinity;
   if (SectorType<TubeType>::value == kUnknownAngle) {
     // for phi-sections w/dphi>PI, the right result could be distance to origin
-    MaskedAssign(tube.dphi() > M_PI, Sqrt(pos.x() * pos.x() + pos.y() * pos.y()), &safety);
+    // MaskedAssign( tube.fDphi > M_PI, vecCore::math::Sqrt(pos.x()*pos.x() + pos.y()*pos.y()), &safety);
+    vecCore::MaskedAssign(safety, tube.fDphi > M_PI, vecCore::math::Sqrt(pos.x() * pos.x() + pos.y() * pos.y()));
   } else if (SectorType<TubeType>::value == kBiggerThanPi) {
-    safety = Sqrt(pos.x() * pos.x() + pos.y() * pos.y());
+    safety = vecCore::math::Sqrt(pos.x() * pos.x() + pos.y() * pos.y());
   }
 
-  Float_t phi1;
-  PerpendicularDistance2D<Backend>(pos.x(), pos.y(), tube.alongPhi1x(), tube.alongPhi1y(), phi1);
+  Real_v phi1 = PerpDist2D<Real_v>(pos.x(), pos.y(), Real_v(tube.fAlongPhi2x), Real_v(tube.fAlongPhi2y));
   if (inside) phi1 *= -1;
 
   if (SectorType<TubeType>::value == kOnePi) {
-    MaskedAssign(Abs(phi1) > kHalfTolerance, Abs(phi1), &safety);
+    //  MaskedAssign( vecCore::math::Abs(phi1)>kHalfTolerance, vecCore::math::Abs(phi1), &safety );
+    auto absphi1 = vecCore::math::Abs(phi1);
+    vecCore::MaskedAssign(safety, absphi1 > kHalfTolerance, absphi1);
     return;
   }
 
   // make sure point falls on positive part of projection
-  MaskedAssign(phi1 > -kHalfTolerance && pos.x() * tube.alongPhi1x() + pos.y() * tube.alongPhi1y() > 0 && phi1 < safety,
-               phi1, &safety);
+  vecCore::MaskedAssign(safety, phi1 > -kHalfTolerance &&
+                                    pos.x() * tube.fAlongPhi1x + pos.y() * tube.fAlongPhi1y > 0. && phi1 < safety,
+                        phi1);
 
-  Float_t phi2;
-  PerpendicularDistance2D<Backend>(pos.x(), pos.y(), tube.alongPhi2x(), tube.alongPhi2y(), phi2);
+  Real_v phi2 = PerpDist2D<Real_v>(pos.x(), pos.y(), Real_v(tube.fAlongPhi2x), Real_v(tube.fAlongPhi2y));
   if (!inside) phi2 *= -1;
 
   // make sure point falls on positive part of projection
-  MaskedAssign(phi2 > -kHalfTolerance && pos.x() * tube.alongPhi2x() + pos.y() * tube.alongPhi2y() > 0 && phi2 < safety,
-               phi2, &safety);
+  vecCore::MaskedAssign(safety, phi2 > -kHalfTolerance &&
+                                    pos.x() * tube.fAlongPhi2x + pos.y() * tube.fAlongPhi2y > 0. && phi2 < safety,
+                        phi2);
 }
 
 /*
@@ -242,16 +233,15 @@ void PhiPlaneSafety(UnplacedTube const &tube, Vector3D<typename Backend::precisi
  * along vector and hit-point is positive <=> hitx*alongX + hity*alongY > 0
  */
 
-template <typename Backend, typename TubeType, bool PositiveDirectionOfPhiVector, bool insectorCheck>
+template <typename Real_v, typename UnplacedStruct_t, typename TubeType, bool PositiveDirectionOfPhiVector,
+          bool insectorCheck>
 VECGEOM_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, Precision normalX, Precision normalY,
-                                    UnplacedTube const &tube, Vector3D<typename Backend::precision_v> const &pos,
-                                    Vector3D<typename Backend::precision_v> const &dir,
-                                    typename Backend::precision_v &dist, typename Backend::bool_v &ok)
+                                    UnplacedStruct_t const &tube, Vector3D<Real_v> const &pos,
+                                    Vector3D<Real_v> const &dir, Real_v &dist, typename vecCore::Mask_v<Real_v> &ok)
 {
 
-  typedef typename Backend::precision_v Float_t;
   dist = kInfinity;
 
   // approaching phi plane from the right side?
@@ -262,19 +252,19 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, Precisio
   else
     ok = (dir.x() * normalX + dir.y() * normalY < 0.); // DistToOut -- require tracks leaving volume
 
-  // if( Backend::early_returns && IsEmpty(ok) ) return;
+  // if( vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(ok) ) return;
 
-  Float_t dirDotXY = (dir.y() * alongX - dir.x() * alongY);
-  MaskedAssign(dirDotXY != 0, (alongY * pos.x() - alongX * pos.y()) / dirDotXY, &dist);
+  Real_v dirDotXY = (dir.y() * alongX - dir.x() * alongY);
+  vecCore::MaskedAssign(dist, dirDotXY != 0, (alongY * pos.x() - alongX * pos.y()) / dirDotXY);
   ok &= dist > -kHalfTolerance;
-  // if( Backend::early_returns && IsEmpty(ok) ) return;
+  // if( vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(ok) ) return;
 
   if (insectorCheck) {
-    Float_t hitx = pos.x() + dist * dir.x();
-    Float_t hity = pos.y() + dist * dir.y();
-    Float_t hitz = pos.z() + dist * dir.z();
-    Float_t r2   = hitx * hitx + hity * hity;
-    ok &= Abs(hitz) <= tube.tolIz() && (r2 >= tube.tolIrmin2()) && (r2 <= tube.tolIrmax2());
+    Real_v hitx = pos.x() + dist * dir.x();
+    Real_v hity = pos.y() + dist * dir.y();
+    Real_v hitz = pos.z() + dist * dir.z();
+    Real_v r2   = hitx * hitx + hity * hity;
+    ok &= vecCore::math::Abs(hitz) <= tube.fTolIz && (r2 >= tube.fTolIrmin2) && (r2 <= tube.fTolIrmax2);
 
     // GL: tested with this if(PosDirPhiVec) around if(insector), so if(insector){} requires PosDirPhiVec==true to run
     //  --> shapeTester still finishes OK (no mismatches) (some cycles saved...)
@@ -283,38 +273,45 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, Precisio
     }
   } else {
     if (PositiveDirectionOfPhiVector) {
-      Float_t hitx = pos.x() + dist * dir.x();
-      Float_t hity = pos.y() + dist * dir.y();
-      ok           = ok && (hitx * alongX + hity * alongY) >= 0.;
+      Real_v hitx = pos.x() + dist * dir.x();
+      Real_v hity = pos.y() + dist * dir.y();
+      ok          = ok && (hitx * alongX + hity * alongY) >= 0.;
     }
   }
 }
 
 } // End of NS TubeUtilities
 
-class PlacedTube;
-
-template <TranslationCode transCodeT, RotationCode rotCodeT, typename tubeTypeT>
+template <typename T>
+class SPlacedTube;
+template <typename T>
+class SUnplacedTube;
+template <typename tubeTypeT>
 struct TubeImplementation {
 
-  static const int transC = transCodeT;
-  static const int rotC   = rotCodeT;
-  using PlacedShape_t     = PlacedTube;
-  using UnplacedShape_t   = UnplacedTube;
+  using UnplacedStruct_t = ::vecgeom::TubeStruct<double>;
+  using UnplacedVolume_t = SUnplacedTube<tubeTypeT>;
+  using PlacedShape_t    = SPlacedTube<UnplacedVolume_t>;
 
   VECGEOM_CUDA_HEADER_BOTH
-  static void PrintType() { printf("SpecializedTube<%i, %i, %s>", transCodeT, rotCodeT, tubeTypeT::toString()); }
+  static void PrintType()
+  {
+    // have to implement this somewhere else
+    // printf("SpecializedTube<%i, %i, %s>", transCodeT, rotCodeT, tubeTypeT::toString());
+  }
 
   template <typename Stream>
   static void PrintType(Stream &s)
   {
-    s << "SpecializedTube<" << transCodeT << "," << rotCodeT << ",TubeTypes::" << tubeTypeT::toString() << ">";
+    // have to implement this somewhere else
+    //  s << "SpecializedTube<" << transCodeT << "," << rotCodeT << ",TubeTypes::" << tubeTypeT::toString() << ">";
   }
 
   template <typename Stream>
   static void PrintImplementationType(Stream &s)
   {
-    s << "TubeImplementation<" << transCodeT << "," << rotCodeT << ",TubeTypes::" << tubeTypeT::toString() << ">";
+    // have to implement this somewhere else
+    //  s << "TubeImplementation<" << transCodeT << "," << rotCodeT << ",TubeTypes::" << tubeTypeT::toString() << ">";
   }
 
   template <typename Stream>
@@ -324,229 +321,205 @@ struct TubeImplementation {
   }
 
   /////GenericKernel Contains/Inside implementation
-  template <typename Backend, bool ForInside>
+  template <typename Real_v, bool ForInside>
   VECGEOM_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void GenericKernelForContainsAndInside(UnplacedTube const &tube,
-                                                Vector3D<typename Backend::precision_v> const &point,
-                                                typename Backend::bool_v &completelyinside,
-                                                typename Backend::bool_v &completelyoutside)
+  static void GenericKernelForContainsAndInside(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point,
+                                                typename vecCore::Mask_v<Real_v> &completelyinside,
+                                                typename vecCore::Mask_v<Real_v> &completelyoutside)
   {
-
-    typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
+    using namespace ::vecgeom::TubeTypes;
+    using Bool_v = vecCore::Mask_v<Real_v>;
 
     // very fast check on z-height
-    Float_t absz      = Abs(point[2]);
-    completelyoutside = absz > MakePlusTolerant<ForInside>(tube.z());
+    Real_v absz       = vecCore::math::Abs(point[2]);
+    completelyoutside = absz > MakePlusTolerant<ForInside>(tube.fZ);
     if (ForInside) {
-      completelyinside = absz < MakeMinusTolerant<ForInside>(tube.z());
+      completelyinside = absz < MakeMinusTolerant<ForInside>(tube.fZ);
     }
-    if (Backend::early_returns) {
-      if (IsFull(completelyoutside)) {
+    if (vecCore::EarlyReturnAllowed()) {
+      if (vecCore::MaskFull(completelyoutside)) {
         return;
       }
     }
 
     // check on RMAX
-    Float_t r2 = point.x() * point.x() + point.y() * point.y();
+    Real_v r2 = point.x() * point.x() + point.y() * point.y();
     // calculate cone radius at the z-height of position
 
-    completelyoutside |= r2 > MakePlusTolerantSquare<ForInside>(tube.rmax(), tube.rmax2());
+    completelyoutside |= r2 > MakePlusTolerantSquare<ForInside>(tube.fRmax, tube.fRmax2);
     if (ForInside) {
-      completelyinside &= r2 < MakeMinusTolerantSquare<ForInside>(tube.rmax(), tube.rmax2());
+      completelyinside &= r2 < MakeMinusTolerantSquare<ForInside>(tube.fRmax, tube.fRmax2);
     }
-    if (Backend::early_returns) {
-      if (IsFull(completelyoutside)) {
+    if (vecCore::EarlyReturnAllowed()) {
+      if (vecCore::MaskFull(completelyoutside)) {
         return;
       }
     }
 
     // check on RMIN
-    if (TubeTypes::checkRminTreatment<tubeTypeT>(tube)) {
-      completelyoutside |= r2 <= MakeMinusTolerantSquare<ForInside>(tube.rmin(), tube.rmin2());
+    if (checkRminTreatment<tubeTypeT>(tube)) {
+      completelyoutside |= r2 <= MakeMinusTolerantSquare<ForInside>(tube.fRmin, tube.fRmin2);
       if (ForInside) {
-        completelyinside &= r2 > MakePlusTolerantSquare<ForInside>(tube.rmin(), tube.rmin2());
+        completelyinside &= r2 > MakePlusTolerantSquare<ForInside>(tube.fRmin, tube.fRmin2);
       }
-      if (Backend::early_returns) {
-        if (IsFull(completelyoutside)) {
+      if (vecCore::EarlyReturnAllowed()) {
+        if (vecCore::MaskFull(completelyoutside)) {
           return;
         }
       }
     }
 
-    if (TubeTypes::checkPhiTreatment<tubeTypeT>(tube)) {
-      Bool_t completelyoutsidephi;
-      Bool_t completelyinsidephi;
-      tube.GetWedge().GenericKernelForContainsAndInside<Backend, ForInside>(point, completelyinsidephi,
-                                                                            completelyoutsidephi);
+    if (checkPhiTreatment<tubeTypeT>(tube)) {
+      Bool_v completelyoutsidephi;
+      Bool_v completelyinsidephi;
+      tube.fPhiWedge.GenericKernelForContainsAndInside<Real_v, ForInside>(point, completelyinsidephi,
+                                                                          completelyoutsidephi);
 
       completelyoutside |= completelyoutsidephi;
       if (ForInside) completelyinside &= completelyinsidephi;
     }
   }
 
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void UnplacedContains(UnplacedTube const &tube, Vector3D<typename Backend::precision_v> const &point,
-                               typename Backend::bool_v &contains)
+  static void Contains(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point,
+                       typename vecCore::Mask_v<Real_v> &contains)
   {
-
-    typedef typename Backend::bool_v Bool_t;
-    Bool_t unused;
-    Bool_t outside;
-    GenericKernelForContainsAndInside<Backend, false>(tube, point, unused, outside);
+    using Bool_v = vecCore::Mask_v<Real_v>;
+    Bool_v unused, outside;
+    GenericKernelForContainsAndInside<Real_v, false>(tube, point, unused, outside);
     contains = !outside;
   }
 
-  template <class Backend>
+  template <typename Real_v, typename Inside_t>
   VECGEOM_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void Contains(UnplacedTube const &tube, Transformation3D const &transformation,
-                       Vector3D<typename Backend::precision_v> const &point,
-                       Vector3D<typename Backend::precision_v> &localPoint, typename Backend::bool_v &inside)
+  static void Inside(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Inside_t &inside)
   {
-
-    localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
-    UnplacedContains<Backend>(tube, localPoint, inside);
-  }
-
-  template <class Backend>
-  VECGEOM_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
-  static void Inside(UnplacedTube const &tube, Transformation3D const &transformation,
-                     Vector3D<typename Backend::precision_v> const &point, typename Backend::inside_v &inside)
-  {
-
-    Vector3D<typename Backend::precision_v> localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
-
-    typedef typename Backend::bool_v Bool_t;
-    Bool_t completelyinside, completelyoutside;
-    GenericKernelForContainsAndInside<Backend, true>(tube, localPoint, completelyinside, completelyoutside);
+    using Bool_v       = vecCore::Mask_v<Real_v>;
+    using InsideBool_v = vecCore::Mask_v<Inside_t>;
+    Bool_v completelyinside, completelyoutside;
+    GenericKernelForContainsAndInside<Real_v, true>(tube, point, completelyinside, completelyoutside);
     inside = EInside::kSurface;
-    MaskedAssign(completelyoutside, EInside::kOutside, &inside);
-    MaskedAssign(completelyinside, EInside::kInside, &inside);
+    vecCore::MaskedAssign(inside, (InsideBool_v)completelyoutside, Inside_t(EInside::kOutside));
+    vecCore::MaskedAssign(inside, (InsideBool_v)completelyinside, Inside_t(EInside::kInside));
   }
 
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void DistanceToIn(UnplacedTube const &tube, Transformation3D const &transformation,
-                           Vector3D<typename Backend::precision_v> const &masterPoint,
-                           Vector3D<typename Backend::precision_v> const &masterDirection,
-                           typename Backend::precision_v const & /*stepMax*/, typename Backend::precision_v &distance)
+  static void DistanceToIn(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir,
+                           Real_v const & /*stepMax*/, Real_v &distance)
   {
     using namespace TubeUtilities;
-    using namespace TubeTypes;
-    typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
+    using namespace ::vecgeom::TubeTypes;
 
-    Vector3D<Float_t> point;
-    Vector3D<Float_t> dir;
-    transformation.Transform<transCodeT, rotCodeT>(masterPoint, point);
-    transformation.TransformDirection<rotCodeT>(masterDirection, dir);
+    using Bool_v = vecCore::Mask_v<Real_v>;
 
-    Bool_t done = Backend::kFalse;
+    Bool_v done(false);
 
     //=== First, for points outside and moving away --> return infinity
     distance = kInfinity;
 
     // outside of Z range and going away?
-    Float_t distz = Abs(point.z()) - tube.z(); // avoid a division for now
+    Real_v distz = vecCore::math::Abs(point.z()) - tube.fZ; // avoid a division for now
     done |= distz > kHalfTolerance && point.z() * dir.z() >= 0;
 
     // // outside of tube and going away?
-    // done |= Abs(point.x()) > tube.rmax()+kHalfTolerance && point.x()*dir.x() >= 0;
-    // done |= Abs(point.y()) > tube.rmax()+kHalfTolerance && point.y()*dir.y() >= 0;
-    // if(Backend::early_returns && IsFull(done)) return;
+    // done |= vecCore::math::Abs(point.x()) > tube.rmax()+kHalfTolerance && point.x()*dir.x() >= 0;
+    // done |= vecCore::math::Abs(point.y()) > tube.rmax()+kHalfTolerance && point.y()*dir.y() >= 0;
+    // if(vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
 
     // outside of outer tube and going away?
-    Float_t rsq   = point.x() * point.x() + point.y() * point.y();
-    Float_t rdotn = point.x() * dir.x() + point.y() * dir.y();
-    done |= rsq > tube.tolIrmax2() && rdotn >= 0;
-    if (Backend::early_returns && IsFull(done)) return;
+    Real_v rsq   = point.x() * point.x() + point.y() * point.y();
+    Real_v rdotn = point.x() * dir.x() + point.y() * dir.y();
+    done |= rsq > tube.fTolIrmax2 && rdotn >= 0;
+    if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
 
     //=== Next, check all dimensions of the tube, whether points are inside --> return -1
-    MaskedAssign(!done, -1.0, &distance);
+    vecCore::MaskedAssign(distance, !done, Real_v(-1.0));
 
     // For points inside z-range, return -1
-    Bool_t inside = distz < -kHalfTolerance;
+    Bool_v inside = distz < -kHalfTolerance;
 
-    inside &= rsq < tube.tolIrmax2();
+    inside &= rsq < tube.fTolIrmax2;
     if (checkRminTreatment<tubeTypeT>(tube)) {
-      inside &= rsq > tube.tolIrmin2();
+      inside &= rsq > tube.fTolIrmin2;
     }
-    if (checkPhiTreatment<tubeTypeT>(tube) && !IsEmpty(inside)) {
-      Bool_t insector;
-      PointInCyclicalSector<Backend, tubeTypeT, UnplacedTube, false, false>(tube, point.x(), point.y(), insector);
+    if (checkPhiTreatment<tubeTypeT>(tube) && !vecCore::MaskEmpty(inside)) {
+      Bool_v insector;
+      PointInCyclicalSector<Real_v, tubeTypeT, UnplacedStruct_t, false, false>(tube, point.x(), point.y(), insector);
       inside &= insector;
-      // inside &= tube.GetWedge().ContainsWithoutBoundary<Backend>( point );  // slower than PointInCyclicalSector()
+      // inside &= tube.GetWedge().ContainsWithoutBoundary<Real_v>( point );  // slower than PointInCyclicalSector()
     }
     done |= inside;
-    if (Backend::early_returns && IsFull(done)) return;
+    if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
 
     //=== Next step: check if z-plane is the right entry point (both r,phi should be valid at z-plane crossing)
-    MaskedAssign(!done, kInfinity, &distance);
+    vecCore::MaskedAssign(distance, !done, Real_v(kInfinity));
 
-    distz /= NonZeroAbs(dir.z());
+    distz /= vecCore::math::Abs(dir.z());
 
-    Float_t hitx = point.x() + distz * dir.x();
-    Float_t hity = point.y() + distz * dir.y();
-    Float_t r2   = hitx * hitx + hity * hity; // radius of intersection with z-plane
-    Bool_t okz   = distz > -kHalfTolerance && (point.z() * dir.z() < 0);
+    Real_v hitx = point.x() + distz * dir.x();
+    Real_v hity = point.y() + distz * dir.y();
+    Real_v r2   = hitx * hitx + hity * hity; // radius of intersection with z-plane
+    Bool_v okz  = distz > -kHalfTolerance && (point.z() * dir.z() < 0);
 
-    okz &= (r2 <= tube.rmax2());
+    okz &= (r2 <= tube.fRmax2);
     if (checkRminTreatment<tubeTypeT>(tube)) {
-      okz &= (tube.rmin2() <= r2);
+      okz &= (tube.fRmin2 <= r2);
     }
-    if (checkPhiTreatment<tubeTypeT>(tube) && !IsEmpty(okz)) {
-      Bool_t insector;
-      PointInCyclicalSector<Backend, tubeTypeT, UnplacedTube, false>(tube, hitx, hity, insector);
+    if (checkPhiTreatment<tubeTypeT>(tube) && !vecCore::MaskEmpty(okz)) {
+      Bool_v insector;
+      PointInCyclicalSector<Real_v, tubeTypeT, UnplacedStruct_t, false>(tube, hitx, hity, insector);
       okz &= insector;
-      // okz &= tube.GetWedge().ContainsWithBoundary<Backend>(  Vector3D<Float_t>(hitx, hity, 0.0) );
+      // okz &= tube.GetWedge().ContainsWithBoundary<Real_v>(  Vector3D<Real_v>(hitx, hity, 0.0) );
     }
-    MaskedAssign(!done && okz, distz, &distance);
+    vecCore::MaskedAssign(distance, !done && okz, distz);
     done |= okz;
-    // if(Backend::early_returns && IsFull(done) ) return;
+    // if(vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done) ) return;
 
     //=== Next step: intersection of the trajectories with the two circles
 
     // Here for values used in both rmin and rmax calculations
-    Float_t invnsq = 1.0 / NonZero(1.0 - dir.z() * dir.z());
-    Float_t b      = invnsq * rdotn;
+    Real_v invnsq = 1.0 / (1.0 - dir.z() * dir.z());
+    Real_v b      = invnsq * rdotn;
 
     /*
      * rmax
      * If the particle were to hit rmax, it would hit the closest point of the two
      * --> only consider the smallest solution of the quadratic equation
      */
-    Float_t crmax2 = invnsq * (rsq - tube.rmax2());
-    Float_t dist_rmax;
-    Bool_t ok_rmax = Backend::kFalse;
-    CircleTrajectoryIntersection<Backend, tubeTypeT, false, true>(b, crmax2, tube, point, dir, dist_rmax, ok_rmax);
+    Real_v crmax = invnsq * (rsq - tube.fRmax2);
+    Real_v dist_rmax;
+    Bool_v ok_rmax(false);
+    CircleTrajectoryIntersection<Real_v, UnplacedStruct_t, tubeTypeT, false, true>(b, crmax, tube, point, dir,
+                                                                                   dist_rmax, ok_rmax);
     ok_rmax &= dist_rmax < distance;
-    MaskedAssign(!done && ok_rmax, dist_rmax, &distance);
+    vecCore::MaskedAssign(distance, !done && ok_rmax, dist_rmax);
     done |= ok_rmax;
-    if (Backend::early_returns && IsFull(done)) return;
+    if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
 
     /*
      * rmin
      * If the particle were to hit rmin, it would hit the farthest point of the two
      * --> only consider the largest solution to the quadratic equation
      */
-    Float_t dist_rmin = -kInfinity;
-    Bool_t ok_rmin    = Backend::kFalse;
+    Real_v dist_rmin(-kInfinity);
+    Bool_v ok_rmin(false);
     if (checkRminTreatment<tubeTypeT>(tube)) {
       /*
        * What happens if both intersections are valid for the same particle?
        * This can only happen when particle is outside of the hollow space and will certainly hit rmax, not rmin
        * So rmax solution always takes priority over rmin, and will overwrite it in case both are valid
        */
-      Float_t crmin2 = invnsq * (rsq - tube.rmin2());
-      CircleTrajectoryIntersection<Backend, tubeTypeT, true, true>(b, crmin2, tube, point, dir, dist_rmin, ok_rmin);
+      Real_v crmin = invnsq * (rsq - tube.fRmin2);
+      CircleTrajectoryIntersection<Real_v, UnplacedStruct_t, tubeTypeT, true, true>(b, crmin, tube, point, dir,
+                                                                                    dist_rmin, ok_rmin);
       ok_rmin &= dist_rmin < distance;
-      MaskedAssign(!done && ok_rmin, dist_rmin, &distance);
+      vecCore::MaskedAssign(distance, !done && ok_rmin, dist_rmin);
       // done |= ok_rmin; // can't be done here, it's wrong in case phi-treatment is needed!
     }
 
@@ -555,16 +528,16 @@ struct TubeImplementation {
      */
     if (checkPhiTreatment<tubeTypeT>(tube)) {
 
-      Float_t dist_phi;
-      Bool_t ok_phi;
-      Wedge const &w = tube.GetWedge();
-      PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, SectorType<tubeTypeT>::value != kOnePi, true>(
-          tube.alongPhi1x(), tube.alongPhi1y(), w.GetNormal1().x(), w.GetNormal1().y(), tube, point, dir, dist_phi,
+      Real_v dist_phi;
+      Bool_v ok_phi;
+      auto const &w = tube.fPhiWedge;
+      PhiPlaneTrajectoryIntersection<Real_v, UnplacedStruct_t, tubeTypeT, SectorType<tubeTypeT>::value != kOnePi, true>(
+          tube.fAlongPhi1x, tube.fAlongPhi1y, w.GetNormal1().x(), w.GetNormal1().y(), tube, point, dir, dist_phi,
           ok_phi);
       ok_phi &= dist_phi < distance;
-      MaskedAssign(!done && ok_phi, dist_phi, &distance);
+      vecCore::MaskedAssign(distance, !done && ok_phi, dist_phi);
       done |= ok_phi;
-      //      if(Backend::early_returns && IsFull(done)) return;
+      //      if(vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
 
       /*
        * If the tube is pi degrees, there's just one phi plane,
@@ -572,90 +545,93 @@ struct TubeImplementation {
        */
 
       if (SectorType<tubeTypeT>::value != kOnePi) {
-        PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, true, true>(tube.alongPhi2x(), tube.alongPhi2y(),
-                                                                       w.GetNormal2().x(), w.GetNormal2().y(), tube,
-                                                                       point, dir, dist_phi, ok_phi);
-        MaskedAssign(ok_phi && dist_phi < distance, dist_phi, &distance);
+        PhiPlaneTrajectoryIntersection<Real_v, UnplacedStruct_t, tubeTypeT, true, true>(
+            tube.fAlongPhi2x, tube.fAlongPhi2y, w.GetNormal2().x(), w.GetNormal2().y(), tube, point, dir, dist_phi,
+            ok_phi);
+        vecCore::MaskedAssign(distance, ok_phi && dist_phi < distance, dist_phi);
       }
     }
   } // end of DistanceToIn()
 
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void DistanceToOut(UnplacedTube const &tube, Vector3D<typename Backend::precision_v> const &point,
-                            Vector3D<typename Backend::precision_v> const &dir,
-                            typename Backend::precision_v const & /*stepMax*/, typename Backend::precision_v &distance)
+  static void DistanceToOut(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir,
+                            Real_v const & /*stepMax*/, Real_v &distance)
   {
-    using namespace TubeTypes;
-    using namespace TubeUtilities;
-    typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
 
-    distance    = -1;
-    Bool_t done = Backend::kFalse;
+    using namespace ::vecgeom::TubeTypes;
+    using namespace TubeUtilities;
+
+    using Bool_v = vecCore::Mask_v<Real_v>;
+
+    distance = Real_v(-1.);
+    Bool_v done(false);
 
     //=== First we check all dimensions of the tube, whether points are outside --> return -1
 
     // For points outside z-range, return -1
-    Float_t distz = tube.z() - Abs(point.z()); // avoid a division for now
-    done |= distz < -kHalfTolerance;           // distance is already set to -1
-                                               //  if(Backend::early_returns && IsFull(done)) return;
+    Real_v distz = tube.fZ - vecCore::math::Abs(point.z()); // avoid a division for now
+    done |= distz < -kHalfTolerance;                        // distance is already set to -1
+    //  if(vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
+
+    Real_v rsq   = point.x() * point.x() + point.y() * point.y();
+    Real_v rdotn = dir.x() * point.x() + dir.y() * point.y();
+    Real_v crmax = rsq - tube.fRmax2; // avoid a division for now
+    Real_v crmin = rsq;
 
     // if outside of Rmax, return -1
-    Float_t rsq    = point.x() * point.x() + point.y() * point.y();
-    Float_t crmax2 = rsq - tube.rmax2(); // avoid a division for now
-    done |= crmax2 > kTolerance * tube.rmax();
-    if (Backend::early_returns && IsFull(done)) return;
+    done |= crmax > kTolerance * tube.fRmax;
+    if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
 
-    Float_t crmin2 = rsq;
     if (checkRminTreatment<tubeTypeT>(tube)) {
       // if point is within inner-hole of a hollow tube, it is outside of the tube --> return -1
-      crmin2 -= tube.rmin2(); // avoid a division for now
-      done |= crmin2 < -kTolerance * tube.rmin();
-      if (Backend::early_returns && IsFull(done)) return;
+      crmin -= tube.fRmin2; // avoid a division for now
+      done |= crmin < -kTolerance * tube.fRmin;
+      if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
     }
 
     // TODO: add outside check for phi-sections here
 
     // OK, since we're here, then distance must be non-negative, and the smallest of possible intersections
-    MaskedAssign(!done, kInfinity, &distance);
+    vecCore::MaskedAssign(distance, !done, Real_v(kInfinity));
 
-    Float_t invdirz = Float_t(1.0) / NonZero(dir.z());
-    distz           = (tube.z() - point.z()) * invdirz;
-    MaskedAssign(dir.z() < 0, (-tube.z() - point.z()) * invdirz, &distz);
-    MaskedAssign(!done && distz < distance && Abs(dir.z()) > 0., distz, &distance);
+    Real_v invdirz = 1. / dir.z();
+    distz          = (tube.fZ - point.z()) * invdirz;
+    vecCore::MaskedAssign(distz, dir.z() < 0, (-tube.fZ - point.z()) * invdirz);
+    vecCore::MaskedAssign(distance, !done && distz < distance, distz);
 
     /*
      * Find the intersection of the trajectories with the two circles.
      * Here I compute values used in both rmin and rmax calculations.
      */
 
-    Float_t rdotv  = dir.x() * point.x() + dir.y() * point.y();
-    Float_t invnsq = 1 / NonZero(dir.x() * dir.x() + dir.y() * dir.y());
-    Float_t b      = invnsq * rdotv;
+    Real_v invnsq = 1 / (dir.x() * dir.x() + dir.y() * dir.y());
+    Real_v b      = invnsq * rdotn;
 
     /*
      * rmin
      */
 
     if (checkRminTreatment<tubeTypeT>(tube)) {
-      Float_t dist_rmin = kInfinity;
-      Bool_t ok_rmin    = Backend::kFalse;
-      crmin2 *= invnsq;
-      CircleTrajectoryIntersection<Backend, tubeTypeT, false, false>(b, crmin2, tube, point, dir, dist_rmin, ok_rmin);
-      MaskedAssign(ok_rmin && dist_rmin < distance, dist_rmin, &distance);
+      Real_v dist_rmin(kInfinity);
+      Bool_v ok_rmin(false);
+      crmin *= invnsq;
+      CircleTrajectoryIntersection<Real_v, UnplacedStruct_t, tubeTypeT, false, false>(b, crmin, tube, point, dir,
+                                                                                      dist_rmin, ok_rmin);
+      vecCore::MaskedAssign(distance, ok_rmin && dist_rmin < distance, dist_rmin);
     }
 
     /*
      * rmax
      */
 
-    Float_t dist_rmax = kInfinity;
-    Bool_t ok_rmax    = Backend::kFalse;
-    crmax2 *= invnsq;
-    CircleTrajectoryIntersection<Backend, tubeTypeT, true, false>(b, crmax2, tube, point, dir, dist_rmax, ok_rmax);
-    MaskedAssign(ok_rmax && dist_rmax < distance, dist_rmax, &distance);
+    Real_v dist_rmax(kInfinity);
+    Bool_v ok_rmax(false);
+    crmax *= invnsq;
+    CircleTrajectoryIntersection<Real_v, UnplacedStruct_t, tubeTypeT, true, false>(b, crmax, tube, point, dir,
+                                                                                   dist_rmax, ok_rmax);
+    vecCore::MaskedAssign(distance, ok_rmax && dist_rmax < distance, dist_rmax);
 
     /* Phi planes
      *
@@ -669,109 +645,102 @@ struct TubeImplementation {
      */
 
     if (checkPhiTreatment<tubeTypeT>(tube)) {
-      Float_t dist_phi = kInfinity;
-      Bool_t ok_phi    = Backend::kFalse;
+      Real_v dist_phi(kInfinity);
+      Bool_v ok_phi(false);
 
-      Wedge const &w = tube.GetWedge();
+      auto const &w = tube.fPhiWedge;
       if (SectorType<tubeTypeT>::value == kSmallerThanPi) {
 
         Precision normal1X = w.GetNormal1().x();
         Precision normal1Y = w.GetNormal1().y();
-        PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, false, false>(tube.alongPhi1x(), tube.alongPhi1y(), normal1X,
-                                                                         normal1Y, tube, point, dir, dist_phi, ok_phi);
-        MaskedAssign(ok_phi && dist_phi < distance, dist_phi, &distance);
+        PhiPlaneTrajectoryIntersection<Real_v, UnplacedStruct_t, tubeTypeT, false, false>(
+            tube.fAlongPhi1x, tube.fAlongPhi1y, normal1X, normal1Y, tube, point, dir, dist_phi, ok_phi);
+        vecCore::MaskedAssign(distance, ok_phi && dist_phi < distance, dist_phi);
 
-        PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, false, false>(tube.alongPhi2x(), tube.alongPhi2y(),
-                                                                         w.GetNormal2().x(), w.GetNormal2().y(), tube,
-                                                                         point, dir, dist_phi, ok_phi);
-        MaskedAssign(ok_phi && dist_phi < distance, dist_phi, &distance);
+        PhiPlaneTrajectoryIntersection<Real_v, UnplacedStruct_t, tubeTypeT, false, false>(
+            tube.fAlongPhi2x, tube.fAlongPhi2y, w.GetNormal2().x(), w.GetNormal2().y(), tube, point, dir, dist_phi,
+            ok_phi);
+        vecCore::MaskedAssign(distance, ok_phi && dist_phi < distance, dist_phi);
       } else if (SectorType<tubeTypeT>::value == kOnePi) {
-        PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, false, false>(tube.alongPhi2x(), tube.alongPhi2y(),
-                                                                         w.GetNormal2().x(), w.GetNormal2().x(), tube,
-                                                                         point, dir, dist_phi, ok_phi);
-        MaskedAssign(ok_phi && dist_phi < distance, dist_phi, &distance);
+        PhiPlaneTrajectoryIntersection<Real_v, UnplacedStruct_t, tubeTypeT, false, false>(
+            tube.fAlongPhi2x, tube.fAlongPhi2y, w.GetNormal2().x(), w.GetNormal2().x(), tube, point, dir, dist_phi,
+            ok_phi);
+        vecCore::MaskedAssign(distance, ok_phi && dist_phi < distance, dist_phi);
       } else {
         // angle bigger than pi or unknown
         // need to check that point falls on positive direction of phi-vectors
-        PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, true, false>(tube.alongPhi1x(), tube.alongPhi1y(),
-                                                                        w.GetNormal1().x(), w.GetNormal1().y(), tube,
-                                                                        point, dir, dist_phi, ok_phi);
-        MaskedAssign(ok_phi && dist_phi < distance, dist_phi, &distance);
+        PhiPlaneTrajectoryIntersection<Real_v, UnplacedStruct_t, tubeTypeT, true, false>(
+            tube.fAlongPhi1x, tube.fAlongPhi1y, w.GetNormal1().x(), w.GetNormal1().y(), tube, point, dir, dist_phi,
+            ok_phi);
+        vecCore::MaskedAssign(distance, ok_phi && dist_phi < distance, dist_phi);
 
-        PhiPlaneTrajectoryIntersection<Backend, tubeTypeT, true, false>(tube.alongPhi2x(), tube.alongPhi2y(),
-                                                                        w.GetNormal2().x(), w.GetNormal2().y(), tube,
-                                                                        point, dir, dist_phi, ok_phi);
-        MaskedAssign(ok_phi && dist_phi < distance, dist_phi, &distance);
+        PhiPlaneTrajectoryIntersection<Real_v, UnplacedStruct_t, tubeTypeT, true, false>(
+            tube.fAlongPhi2x, tube.fAlongPhi2y, w.GetNormal2().x(), w.GetNormal2().y(), tube, point, dir, dist_phi,
+            ok_phi);
+        vecCore::MaskedAssign(distance, ok_phi && dist_phi < distance, dist_phi);
       }
     }
+    return;
   }
 
   /// This function keeps track of both positive (outside) and negative (inside) distances separately
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void SafetyAssign(typename Backend::precision_v safety, typename Backend::precision_v &positiveSafety,
-                           typename Backend::precision_v &negativeSafety)
+  static void SafetyAssign(Real_v safety, Real_v &positiveSafety, Real_v &negativeSafety)
   {
-    MaskedAssign(safety >= 0 && safety < positiveSafety, safety, &positiveSafety);
-    MaskedAssign(safety <= 0 && safety > negativeSafety, safety, &negativeSafety);
+    vecCore::MaskedAssign(positiveSafety, safety >= 0. && safety < positiveSafety, safety);
+    vecCore::MaskedAssign(negativeSafety, safety <= 0. && safety > negativeSafety, safety);
   }
 
   /** SafetyKernel finds distances from point to each face of the tube, returning
       largest negative distance (w.r.t. faces which point is inside of ) and
       smallest positive distance (w.r.t. faces which point is outside of)
    */
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void SafetyKernel(UnplacedTube const &tube, Vector3D<typename Backend::precision_v> const &point,
-                           typename Backend::precision_v &safePos, typename Backend::precision_v &safeNeg)
+  static void SafetyKernel(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Real_v &safePos,
+                           Real_v &safeNeg)
   {
 
     // TODO: implement caching if input point is not changed
-    using namespace TubeTypes;
+    using namespace ::vecgeom::TubeTypes;
     using namespace TubeUtilities;
-    typedef typename Backend::precision_v Float_t;
-    // typedef typename Backend::bool_v Bool_t;
 
     safePos = kInfinity;
     safeNeg = -safePos; // reuse to avoid casting overhead
 
-    Float_t safez = Abs(point.z()) - tube.z();
-    SafetyAssign<Backend>(safez, safePos, safeNeg);
+    Real_v safez = vecCore::math::Abs(point.z()) - tube.fZ;
+    SafetyAssign(safez, safePos, safeNeg);
 
-    Float_t r        = Sqrt(point.x() * point.x() + point.y() * point.y());
-    Float_t safermax = r - tube.rmax();
-    SafetyAssign<Backend>(safermax, safePos, safeNeg);
+    Real_v r        = vecCore::math::Sqrt(point.x() * point.x() + point.y() * point.y());
+    Real_v safermax = r - tube.fRmax;
+    SafetyAssign(safermax, safePos, safeNeg);
 
     if (checkRminTreatment<tubeTypeT>(tube)) {
-      Float_t safermin = tube.rmin() - r;
-      SafetyAssign<Backend>(safermin, safePos, safeNeg);
+      Real_v safermin = tube.fRmin - r;
+      SafetyAssign(safermin, safePos, safeNeg);
     }
 
     if (checkPhiTreatment<tubeTypeT>(tube)) {
-      Float_t safephi;
-      PhiPlaneSafety<Backend, tubeTypeT, false>(tube, point, safephi);
-      SafetyAssign<Backend>(safephi, safePos, safeNeg);
+      Real_v safephi;
+      PhiPlaneSafety<Real_v, UnplacedStruct_t, tubeTypeT, false>(tube, point, safephi);
+      SafetyAssign(safephi, safePos, safeNeg);
     }
   }
 
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void SafetyToIn(UnplacedTube const &tube, Transformation3D const &transformation,
-                         Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety)
+  static void SafetyToIn(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Real_v &safety)
   {
 
 #ifdef TUBE_SAFETY_OLD
-    SafetyToInOld<Backend>(tube, transformation, point, safety);
+    SafetyToInOld(tube, point, safety);
 #else
-    typedef typename Backend::precision_v Float_t;
-
-    Vector3D<Float_t> local_point = transformation.Transform<transCodeT, rotCodeT>(point);
-
-    Float_t safetyInsidePoint, safetyOutsidePoint;
-    SafetyKernel<Backend>(tube, local_point, safetyOutsidePoint, safetyInsidePoint);
+    Real_v safetyInsidePoint, safetyOutsidePoint;
+    SafetyKernel(tube, point, safetyOutsidePoint, safetyInsidePoint);
 
     // Mostly called for points outside --> safetyOutside is finite --> return safetyOutside
     // If safetyOutside == infinity --> return safetyInside
@@ -779,20 +748,16 @@ struct TubeImplementation {
 #endif
   }
 
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void SafetyToOut(UnplacedTube const &tube, Vector3D<typename Backend::precision_v> const &point,
-                          typename Backend::precision_v &safety)
+  static void SafetyToOut(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Real_v &safety)
   {
-
 #ifdef TUBE_SAFETY_OLD
-    SafetyToOutOld<Backend>(tube, point, safety);
+    SafetyToOutOld(tube, point, safety);
 #else
-    typedef typename Backend::precision_v Float_t;
-
-    Float_t safetyInsidePoint, safetyOutsidePoint;
-    SafetyKernel<Backend>(tube, point, safetyOutsidePoint, safetyInsidePoint);
+    Real_v safetyInsidePoint, safetyOutsidePoint;
+    SafetyKernel<Real_v>(tube, point, safetyOutsidePoint, safetyInsidePoint);
 
     // Mostly called for points inside --> safetyOutside==infinity, return |safetyInside| (flip sign)
     // If called for points outside -- return -safetyOutside
@@ -800,66 +765,60 @@ struct TubeImplementation {
 #endif
   }
 
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void SafetyToInOld(UnplacedTube const &tube, Transformation3D const &transformation,
-                            Vector3D<typename Backend::precision_v> const &motherPoint,
-                            typename Backend::precision_v &safety)
+  static void SafetyToInOld(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Real_v &safety)
   {
-    using namespace TubeTypes;
+    using namespace ::vecgeom::TubeTypes;
     using namespace TubeUtilities;
-    typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
 
-    Vector3D<Float_t> point = transformation.Transform<transCodeT, rotCodeT>(motherPoint);
+    using Bool_v = vecCore::Mask_v<Real_v>;
 
-    safety = Abs(point.z()) - tube.z();
+    safety = vecCore::math::Abs(point.z()) - tube.fZ;
 
-    Float_t r        = Sqrt(point.x() * point.x() + point.y() * point.y());
-    Float_t safermax = r - tube.rmax();
-    MaskedAssign(safermax > safety, safermax, &safety);
+    Real_v r        = vecCore::math::Sqrt(point.x() * point.x() + point.y() * point.y());
+    Real_v safermax = r - tube.fRmax;
+    vecCore::MaskedAssign(safety, safermax > safety, safermax);
 
     if (checkRminTreatment<tubeTypeT>(tube)) {
-      Float_t safermin = tube.rmin() - r;
-      MaskedAssign(safermin > safety, safermin, &safety);
+      Real_v safermin = tube.fRmin - r;
+      vecCore::MaskedAssign(safety, safermin > safety, safermin);
     }
 
     if (checkPhiTreatment<tubeTypeT>(tube)) {
-      Bool_t insector;
-      PointInCyclicalSector<Backend, tubeTypeT, UnplacedTube, false, false>(tube, point.x(), point.y(), insector);
-      if (Backend::early_returns && IsFull(insector)) return;
+      Bool_v insector;
+      PointInCyclicalSector<Real_v, tubeTypeT, UnplacedStruct_t, false, false>(tube, point.x(), point.y(), insector);
+      if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(insector)) return;
 
-      Float_t safephi;
-      PhiPlaneSafety<Backend, tubeTypeT, false>(tube, point, safephi);
-      MaskedAssign(!insector && safephi < kInfinity && safephi > safety, safephi, &safety);
+      Real_v safephi;
+      PhiPlaneSafety<Real_v, UnplacedStruct_t, tubeTypeT, false>(tube, point, safephi);
+      vecCore::MaskedAssign(safety, !insector && safephi < kInfinity && safephi > safety, safephi);
     }
   }
 
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void SafetyToOutOld(UnplacedTube const &tube, Vector3D<typename Backend::precision_v> const &point,
-                             typename Backend::precision_v &safety)
+  static void SafetyToOutOld(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Real_v &safety)
   {
-    using namespace TubeTypes;
+    using namespace ::vecgeom::TubeTypes;
     using namespace TubeUtilities;
-    typedef typename Backend::precision_v Float_t;
 
-    safety           = tube.z() - Abs(point.z());
-    Float_t r        = Sqrt(point.x() * point.x() + point.y() * point.y());
-    Float_t safermax = tube.rmax() - r;
-    MaskedAssign(safermax < safety, safermax, &safety);
+    safety          = tube.fZ - vecCore::math::Abs(point.z());
+    Real_v r        = vecCore::math::Sqrt(point.x() * point.x() + point.y() * point.y());
+    Real_v safermax = tube.fRmax - r;
+    vecCore::MaskedAssign(safety, safermax < safety, safermax);
 
     if (checkRminTreatment<tubeTypeT>(tube)) {
-      Float_t safermin = r - tube.rmin();
-      MaskedAssign(safermin < safety, safermin, &safety);
+      Real_v safermin = r - tube.fRmin;
+      vecCore::MaskedAssign(safety, safermin < safety, safermin);
     }
 
     if (checkPhiTreatment<tubeTypeT>(tube)) {
-      Float_t safephi;
-      PhiPlaneSafety<Backend, tubeTypeT, true>(tube, point, safephi);
-      MaskedAssign(safephi < safety, safephi, &safety);
+      Real_v safephi;
+      PhiPlaneSafety<Real_v, UnplacedStruct_t, tubeTypeT, true>(tube, point, safephi);
+      vecCore::MaskedAssign(safety, safephi < safety, safephi);
     }
   }
 
@@ -867,4 +826,4 @@ struct TubeImplementation {
 } // end of inline NS
 } // End global namespace
 
-#endif // VECGEOM_VOLUMES_KERNEL_TUBEIMPLEMENTATION_H_
+#endif
