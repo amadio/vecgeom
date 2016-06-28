@@ -512,6 +512,30 @@ void FillRandomPoints(Vector3D<Precision> const &lowercorner, Vector3D<Precision
 }
 
 /**
+ * @brief Fills a container structure (SOA3D or AOS3D) with random
+ *    points contained inside a box defined by the two input corners.
+ * @param lowercorner, uppercorner define the sampling box
+ * @param points is the output container, provided by the caller.
+ */
+template <typename TrackContainer, typename ExcludedVol, bool exlu = true>
+VECGEOM_INLINE
+void FillRandomPoints(Vector3D<Precision> const &lowercorner, Vector3D<Precision> const &uppercorner,
+                      ExcludedVol const &vol, TrackContainer &points)
+{
+  const int size = points.capacity();
+  points.resize(points.capacity());
+  Vector3D<Precision> dim    = (uppercorner - lowercorner) / 2.;
+  Vector3D<Precision> offset = (uppercorner + lowercorner) / 2.;
+  for (int i = 0; i < size; ++i) {
+    Vector3D<Precision> p;
+    do {
+      p = offset + SamplePoint(dim);
+    } while (!(exlu ^ vol.Contains(p))); // XNOR
+    points.set(i, p);
+  }
+}
+
+/**
  * @brief Fills a (SOA3D or AOS3D) container with random points inside
  *    a box at the origin
  * @param dim is a Vector3D with w,y,z half-lengths defining the sampling box
