@@ -55,8 +55,9 @@ bool TestPolyhedra()
   Z_Values[6] = 30;
   Z_Values[7] = 40;
 
-  double sphi = 0.0;
-  double dphi = 45.0;
+  double sphi     = 0.0;
+  double dphi     = 45.0;
+  double halfdphi = 0.5 * dphi * degToRad / 5.;
   if (!testvecgeom) {
     dphi *= degToRad;
     sphi *= degToRad;
@@ -160,8 +161,15 @@ bool TestPolyhedra()
   Vec_t minExtent, maxExtent;
   MyPGon->Extent(minExtent, maxExtent);
   std::cout << "polyhedra Extent():  min=" << minExtent << " max=" << maxExtent << std::endl;
-  assert(ApproxEqual(minExtent, Vec_t(-80.247375, -80.247375, -30)));
-  assert(ApproxEqual(maxExtent, Vec_t(80.247375, 80.247375, 40)));
+  if (!testvecgeom) {
+    // In USolids the extent is given by the bounding cylinder
+    assert(ApproxEqual(minExtent, Vec_t(-80. / cos(halfdphi), -80. / cos(halfdphi), -30)));
+    assert(ApproxEqual(maxExtent, Vec_t(80. / cos(halfdphi), 80. / cos(halfdphi), 40)));
+  } else {
+    // In VecGeom the extent is minimal
+    assert(ApproxEqual(minExtent, Vec_t(0, 0, -30)));
+    assert(ApproxEqual(maxExtent, Vec_t(80. / cos(halfdphi), 40. * sqrt(2.) / cos(halfdphi), 40)));
+  }
 
   // Check Inside
   std::cout << " EInside values:  kInside=" << vecgeom::EInside::kInside << ", kSurface=" << vecgeom::EInside::kSurface
@@ -173,7 +181,7 @@ bool TestPolyhedra()
   std::cout << " MyPGon->Inside(" << p5 << ") = " << MyPGon->Inside(p5) << "\n";
   std::cout << " MyPGon->Inside(" << p6 << ") = " << MyPGon->Inside(p6) << "\n";
 
-  assert(MyPGon->Inside(p1) == vecgeom::EInside::kInside);
+  assert(MyPGon->Inside(p1) == vecgeom::EInside::kSurface);
   assert(MyPGon->Inside(p2) == vecgeom::EInside::kSurface);
   assert(MyPGon->Inside(p3) == vecgeom::EInside::kInside);
   assert(MyPGon->Inside(p4) == vecgeom::EInside::kInside);
@@ -228,10 +236,9 @@ bool TestPolyhedra()
 
   std::cout << "\n\n==================================================";
   Vec_t start(0, 0, -30);
-  Vec_t dir(1. / std::sqrt(2.), 1. / std::sqrt(2.), 0), normal;
+  Vec_t dir(1. / std::sqrt(2.), 1. / std::sqrt(2.), 0);
   double d;
   int z;
-  bool convex;
 
   std::cout << "\nPdep is (0, 0, z)";
   std::cout << "\nDir is (1, 1, 0)\n";

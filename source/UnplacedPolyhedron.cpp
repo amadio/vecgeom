@@ -433,10 +433,36 @@ VPlacedVolume *UnplacedPolyhedron::SpecializedVolume(LogicalVolume const *const 
 #ifndef VECGEOM_NVCC
 void UnplacedPolyhedron::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
-  const UnplacedTube &bTube = GetBoundingTube();
-  bTube.Extent(aMin, aMax);
-  aMin.z() += fBoundingTubeOffset;
-  aMax.z() += fBoundingTubeOffset;
+  aMin                            = kInfinity;
+  aMax                            = -kInfinity;
+  Precision phiStart              = NormalizeAngle<kScalar>(kDegToRad * fPhiStart);
+  Precision phiDelta              = kDegToRad * fPhiDelta;
+  if (phiDelta > kTwoPi) phiDelta = kTwoPi;
+  Precision sidePhi               = phiDelta / fSideCount;
+  // Specified radii are to the sides, not to the corners. Change these values,
+  // as corners and not sides are used to compute the extent
+  Precision conv = 1. / cos(0.5 * sidePhi);
+  Vector3D<Precision> crt;
+  // Loop all vertices and update min/max
+  for (int iphi = 0; iphi <= fSideCount; ++iphi) {
+    Precision phi  = phiStart + iphi * sidePhi;
+    Precision corx = conv * cos(phi);
+    Precision cory = conv * sin(phi);
+    for (int zPlaneCount = 0; zPlaneCount < fZPlanes.size(); ++zPlaneCount) {
+      // Do Rmin
+      crt.Set(fRMin[zPlaneCount] * corx, fRMin[zPlaneCount] * cory, fZPlanes[zPlaneCount]);
+      for (int i = 0; i < 3; ++i) {
+        aMin[i] = Min(aMin[i], crt[i]);
+        aMax[i] = Max(aMax[i], crt[i]);
+      }
+      // Do Rmax
+      crt.Set(fRMax[zPlaneCount] * corx, fRMax[zPlaneCount] * cory, fZPlanes[zPlaneCount]);
+      for (int i = 0; i < 3; ++i) {
+        aMin[i] = Min(aMin[i], crt[i]);
+        aMax[i] = Max(aMax[i], crt[i]);
+      }
+    }
+  }
 }
 
 VECGEOM_CUDA_HEADER_BOTH
