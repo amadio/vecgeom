@@ -1082,6 +1082,8 @@ if (USolids)
   add_test(NAME VecGeomTrd COMMAND TestTrd --vecgeom)
   add_test(NAME USolidsOrb COMMAND TestOrb --usolids)
   add_test(NAME VecGeomOrb COMMAND TestOrb --vecgeom)
+  add_test(NAME VecGeomPolyhedra COMMAND TestPolyhedra --vecgeom)
+  add_test(NAME USolidsPolyhedra COMMAND TestPolyhedra --usolids)
 endif()
 
 if (CUDA)
