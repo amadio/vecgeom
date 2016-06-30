@@ -1590,6 +1590,12 @@ function(_cuda_get_important_host_flags important_flags flag_string)
 endfunction()
 
 ###############################################################################
+## Work around cmake deficiency ...
+
+get_filename_component(__CURRENT_DIR ${CMAKE_CURRENT_LIST_FILE} DIRECTORY)
+include( ${__CURRENT_DIR}/expand_command.cmake)
+
+###############################################################################
 ###############################################################################
 # Separable Compilation Link
 ###############################################################################
@@ -1737,14 +1743,20 @@ endif()
          # The link file is for ${cuda_target}_final and ${cuda_target} is the 'raw' library
          set(_cuda_target_dep ${cuda_target})
       endif()
+
+      expandable_command(cmdline ${CUDA_NVCC_EXECUTABLE} ${nvcc_flags} ${nvcc_host_compiler_flags} -dlink ${object_files} -o ${output_file} ${flags} $<TARGET_PROPERTY:${cuda_target},CUDA_LIBRARY_DEPEND>)
+
       add_custom_command(
         OUTPUT ${output_file}
           # NOTE: added ${_cuda_target_dep}. the dependency is correct as ${output_file} is linked against ${cuda_target}
           # and then included in ${cuda_target}_final (or ${cuda_target}_static and ${cuda_target}.so resp.)
           # ADD_DEPENDENCIES(${output_file} )
         DEPENDS ${object_files} ${_cuda_target_dep} $<TARGET_PROPERTY:${cuda_target},CUDA_LIBRARY_DEPEND_TARGET>
-        # NOTE: Added $<TARGET_PROPERTY:${cuda_target},CUDA_LIBRARY_DEPEND>
-        COMMAND ${CUDA_NVCC_EXECUTABLE} ${nvcc_flags} ${nvcc_host_compiler_flags} -dlink ${object_files} -o ${output_file} ${flags} $<TARGET_PROPERTY:${cuda_target},CUDA_LIBRARY_DEPEND>
+          # NOTE: Added $<TARGET_PROPERTY:${cuda_target},CUDA_LIBRARY_DEPEND>
+          # Replaced with a trampoline function (to be used VERBATIM) so that we can properly substitute the
+          # content of the CUDA_LIBRARY_DEPEND property even it contains more than one value.
+        COMMAND ${cmdline}
+        VERBATIM
         COMMENT "Building NVCC intermediate link file ${output_file_relative_path}"
         ${_verbatim}
         )
@@ -1792,6 +1804,7 @@ macro(CUDA_ADD_LIBRARY_DEPEND cuda_target) # cuda_depend)
          set(_lib_dependencies ${_lib_dependencies} ${arg} )
       endif()
    endforeach()
+   message("In CUDA_ADD_LIBRARY_DEPEND we have:  ${_lib_dependencies}")
    set_property(TARGET ${cuda_target}
                 PROPERTY CUDA_LIBRARY_DEPEND ${_lib_dependencies})
    set_property(TARGET ${cuda_target}
