@@ -535,7 +535,7 @@ if (ROOT)
   list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 
 #---Locate the ROOT package and defines a number of variables (e.g. ROOT_INCLUDE_DIRS)
-  find_package(ROOT REQUIRED COMPONENTS Geom)
+  find_package(ROOT REQUIRED COMPONENTS Geom Graf3d)
 
   set(CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}/lib)
 #---setup ROOT include + lib dirs
