@@ -1,5 +1,6 @@
 # - Config file for the VecGeom package
 # Defines the following variables
+#   VECGEOM_FOUND        - Found the VECGEOM library
 #   VECGEOM_INCLUDE_DIR  - include directories for VecGeom
 #   VECGEOM_LIBRARIES    - libraries to link against
 #   USOLIDS_INCLUDE_DIRS - include directories for USolids
@@ -8,9 +9,10 @@
 #                               in projects using VecGeom 
 #   VECGEOM_INSTALL_DIR     - the top level installation path
 
-
-message(STATUS
-  "Using VecGeom @CONF_TYPE@ configuration at ${CMAKE_CURRENT_LIST_FILE}.")
+if(NOT VecGeom_FIND_QUIETLY)
+  message(STATUS
+    "Using VecGeom @CONF_TYPE@ configuration at ${CMAKE_CURRENT_LIST_FILE}.")
+endif()
 
 get_filename_component(THIS_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 set(USOLIDS_INCLUDE_DIRS "@CONF_INCLUDE_DIR@")
@@ -28,7 +30,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} @VECGEOM_COMPILATION_FLAGS@")
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} @VECGEOM_COMPILATION_FLAGS_GNU@")
 endif()
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
+if (${CMAKE_CXX_COMPILER_ID} STREQUAL AppleClang)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} @VECGEOM_COMPILATION_FLAGS_CLANG@")
 endif()
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL Intel)
@@ -36,3 +38,5 @@ if (${CMAKE_CXX_COMPILER_ID} STREQUAL Intel)
 endif()
 set(VECGEOM_GEANT4 @Geant4@)
 set(VECGEOM_CUDA_ARCH "@CUDA_ARCH@")
+set(VECGEOM_FOUND TRUE)
+
