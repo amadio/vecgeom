@@ -1702,12 +1702,11 @@ macro(CUDA_ADD_LIBRARY_DEPEND cuda_target) # cuda_depend)
          set(_lib_dependencies ${_lib_dependencies} ${arg} )
       endif()
    endforeach()
-   message("In CUDA_ADD_LIBRARY_DEPEND we have:  ${_lib_dependencies}")
+   message("In CUDA_ADD_LIBRARY_DEPEND@target:${cuda_target} we have:  ${_lib_dependencies}")
    set_property(TARGET ${cuda_target}
                 PROPERTY CUDA_LIBRARY_DEPEND ${_lib_dependencies})
    set_property(TARGET ${cuda_target}
                 PROPERTY CUDA_LIBRARY_DEPEND_TARGET ${_lib_target_dependencies})
-
 endmacro()
 
 ###############################################################################
