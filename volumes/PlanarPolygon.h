@@ -322,13 +322,6 @@ private:
       counter += (p1[0] * p2[1] - p1[1] * p2[0]) < 0 ? -1 : 1;
     }
     fIsConvex = (size_t)std::abs(counter) == kS;
-
-    // for the moment only the convex case is supported; hence issue a runtime_error
-    if (!fIsConvex) {
-#ifndef VECGEOM_NVCC
-      std::runtime_error("Non convex polygons are not yet supported --> ask for an implementation");
-#endif
-    }
   }
 };
 
