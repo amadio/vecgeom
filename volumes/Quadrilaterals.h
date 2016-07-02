@@ -107,7 +107,8 @@ public:
   {
     bool valid = true;
     for (int j = 0; j < 4; ++j) {
-      valid &= intersection.Dot(fSideVectors[j].GetNormal(index)) + fSideVectors[j].GetDistances()[index] >= 0;
+      valid &=
+          intersection.Dot(fSideVectors[j].GetNormal(index)) + fSideVectors[j].GetDistances()[index] >= -kTolerance;
       if (IsEmpty(valid)) break;
     }
     return valid;
@@ -420,7 +421,7 @@ typename Backend::precision_v Quadrilaterals::DistanceToIn(
     distance /= -(directionProjection + CopySign(1E-20, directionProjection));
     Vector3D<Float_t> intersection = point + direction * distance;
     for (int j = 0; j < 4; ++j) {
-      valid &= intersection.Dot(fSideVectors[j].GetNormal(i)) + fSideVectors[j].GetDistances()[i] >= 0;
+      valid &= intersection.Dot(fSideVectors[j].GetNormal(i)) + fSideVectors[j].GetDistances()[i] >= -kTolerance;
       if (IsEmpty(valid)) break;
     }
     MaskedAssign(valid, distance, &bestDistance);
@@ -482,7 +483,7 @@ void AcceleratedDistanceToOut<kScalar>(int &i, const int n, Planes const &planes
                                          VcPrecision(sideVectors[j].GetNormals().y() + i),
                                          VcPrecision(sideVectors[j].GetNormals().z() + i));
         VcPrecision dSide(&sideVectors[j].GetDistances()[i]);
-        valid &= sideVector.Dot(intersection) + dSide >= 0;
+        valid &= sideVector.Dot(intersection) + dSide >= -kTolerance;
         // Where is your god now
         if (IsEmpty(valid)) goto distanceToOutVcContinueOuter;
       }
@@ -551,7 +552,7 @@ typename Backend::precision_v Quadrilaterals::DistanceToOut(Vector3D<typename Ba
 
     } else {
       Float_t zProjection = point[2] + distanceTest * direction[2];
-      valid &= zProjection >= zMin && zProjection < zMax;
+      valid &= (zProjection >= zMin - kTolerance) && (zProjection < zMax + kTolerance);
     }
     if (IsEmpty(valid)) continue;
     MaskedAssign(valid, distanceTest, &bestDistance);
