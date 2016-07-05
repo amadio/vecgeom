@@ -93,7 +93,7 @@ struct NeedsPhiTreatment<UniversalTube> {
 };
 
 template <typename T, typename UnplacedTube>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 bool checkPhiTreatment(const UnplacedTube &tube)
 {
@@ -136,7 +136,7 @@ struct NeedsRminTreatment<UniversalTube> {
 };
 
 template <typename T, typename UnplacedTube>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 bool checkRminTreatment(const UnplacedTube &tube)
 {

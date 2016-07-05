@@ -61,7 +61,7 @@ unsigned int SolveCubic(T a, T b, T c, T *x)
 }
 
 template <typename T, unsigned int i, unsigned int j>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void CmpAndSwap(T *array)
 {
@@ -76,7 +76,7 @@ void CmpAndSwap(T *array)
 // sorting is done inplace and in increasing order
 // implementation comes from a sorting network
 template <typename T>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void Sort4(T *array)
 {
@@ -205,7 +205,7 @@ struct TorusImplementation2 {
 
   /////GenericKernel Contains/Inside implementation
   template <typename Backend, bool ForInside, bool notForDisk>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void GenericKernelForContainsAndInside(UnplacedTorus2 const &torus,
                                                 Vector3D<typename Backend::precision_v> const &point,
@@ -267,7 +267,7 @@ struct TorusImplementation2 {
   }
 
   template <class Backend, bool notForDisk>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void ContainsKernel(UnplacedTorus2 const &torus, Vector3D<typename Backend::precision_v> const &point,
                              typename Backend::bool_v &inside)
@@ -295,7 +295,7 @@ struct TorusImplementation2 {
   }
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void UnplacedContains(UnplacedTorus2 const &torus, Vector3D<typename Backend::precision_v> const &point,
                                typename Backend::bool_v &inside)
@@ -303,7 +303,7 @@ struct TorusImplementation2 {
     ContainsKernel<Backend, true>(torus, point, inside);
   }
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void UnplacedContainsDisk(UnplacedTorus2 const &torus, Vector3D<typename Backend::precision_v> const &point,
                                    typename Backend::bool_v &inside)
@@ -311,7 +311,7 @@ struct TorusImplementation2 {
     ContainsKernel<Backend, false>(torus, point, inside);
   }
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Contains(UnplacedTorus2 const &unplaced, Transformation3D const &transformation,
                        Vector3D<typename Backend::precision_v> const &point,
@@ -321,7 +321,7 @@ struct TorusImplementation2 {
     UnplacedContains<Backend>(unplaced, localPoint, inside);
   }
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Inside(UnplacedTorus2 const &torus, Transformation3D const &transformation,
                      Vector3D<typename Backend::precision_v> const &point, typename Backend::inside_v &inside)
@@ -360,7 +360,7 @@ struct TorusImplementation2 {
   }
 
   template <class Backend, bool ForRmin>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static typename Backend::precision_v ToBoundary(UnplacedTorus2 const &torus,
                                                   Vector3D<typename Backend::precision_v> const &pt,
@@ -466,7 +466,7 @@ struct TorusImplementation2 {
   }
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToIn(UnplacedTorus2 const &torus, Transformation3D const &transformation,
                            Vector3D<typename Backend::precision_v> const &point,
@@ -561,7 +561,7 @@ struct TorusImplementation2 {
   }
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToOut(UnplacedTorus2 const &torus, Vector3D<typename Backend::precision_v> const &point,
                             Vector3D<typename Backend::precision_v> const &dir,
@@ -620,7 +620,7 @@ struct TorusImplementation2 {
   }
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToIn(UnplacedTorus2 const &torus, Transformation3D const &transformation,
                          Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety)
@@ -645,7 +645,7 @@ struct TorusImplementation2 {
   }
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToOut(UnplacedTorus2 const &torus, Vector3D<typename Backend::precision_v> const &point,
                           typename Backend::precision_v &safety)

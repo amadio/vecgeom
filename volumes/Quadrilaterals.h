@@ -54,55 +54,55 @@ public:
 
   // returns the number of quadrilaterals ( planes ) stored in this container
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   int size() const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Planes const &GetPlanes() const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   SOA3D<Precision> const &GetNormals() const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Vector3D<Precision> GetNormal(int i) const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Array<Precision> const &GetDistances() const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetDistance(int i) const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Sides_t const &GetSideVectors() const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Corners_t const &GetCorners() const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetTriangleArea(int index, int iCorner1, int iCorner2) const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetQuadrilateralArea(int index) const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Vector3D<Precision> GetPointOnTriangle(int index, int iCorner0, int iCorner1, int iCorner2) const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Vector3D<Precision> GetPointOnFace(int index) const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   bool RayHitsQuadrilateral(int index, Vector3D<Precision> const &intersection) const
   {
     bool valid = true;
@@ -128,41 +128,41 @@ public:
   void FlipSign(int index);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   typename Backend::bool_v Contains(Vector3D<typename Backend::precision_v> const &point) const;
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   typename Backend::inside_v Inside(Vector3D<typename Backend::precision_v> const &point) const;
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   typename Backend::inside_v Inside(Vector3D<typename Backend::precision_v> const &point, int i) const;
 
   template <class Backend, bool behindPlanesT>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   typename Backend::precision_v DistanceToIn(Vector3D<typename Backend::precision_v> const &point,
                                              Vector3D<typename Backend::precision_v> const &direction) const;
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   typename Backend::precision_v DistanceToOut(Vector3D<typename Backend::precision_v> const &point,
                                               Vector3D<typename Backend::precision_v> const &direction, Precision zMin,
                                               Precision zMax) const;
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   typename Backend::precision_v DistanceToOut(Vector3D<typename Backend::precision_v> const &point,
                                               Vector3D<typename Backend::precision_v> const &direction) const;
 
   /// \param index Quadrilateral to compute distance to.
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   Precision ScalarDistanceSquared(int index, Vector3D<Precision> const &point) const;
 
@@ -172,14 +172,14 @@ public:
 }; // end of class declaration
 
 VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 int Quadrilaterals::size() const
 {
   return fPlanes.size();
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 Planes const &Quadrilaterals::GetPlanes() const
 {
   return fPlanes;
@@ -312,7 +312,7 @@ namespace {
 template <class Backend>
 struct AcceleratedDistanceToIn {
   template <bool behindPlanesT>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void VectorLoop(int & /*i*/, const int /*n*/, Planes const & /*planes*/, Planes const (&/*sideVectors*/)[4],
                          Vector3D<typename Backend::precision_v> const & /*point*/,
@@ -329,7 +329,7 @@ template <>
 struct AcceleratedDistanceToIn<kScalar> {
 
   template <bool behindPlanesT>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void VectorLoop(int &i, const int n, Planes const &planes, Planes const (&sideVectors)[4],
                          Vector3D<Precision> const &point, Vector3D<Precision> const &direction, Precision &distance)
@@ -436,7 +436,7 @@ typename Backend::precision_v Quadrilaterals::DistanceToIn(
 namespace {
 
 template <class Backend>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void AcceleratedDistanceToOut(int & /*i*/, const int /*n*/, Planes const & /*planes*/,
                               Planes const (&/*sideVectors*/)[4], const Precision /*zMin*/, const Precision /*zMax*/,
@@ -450,7 +450,7 @@ void AcceleratedDistanceToOut(int & /*i*/, const int /*n*/, Planes const & /*pla
 
 #if defined(VECGEOM_VC) && defined(VECGEOM_QUADRILATERALS_VC)
 template <>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void AcceleratedDistanceToOut<kScalar>(int &i, const int n, Planes const &planes, Planes const (&sideVectors)[4],
                                        const Precision zMin, const Precision zMax, Vector3D<Precision> const &point,

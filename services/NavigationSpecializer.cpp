@@ -1375,7 +1375,7 @@ void NavigationSpecializer::DumpVectorSafetyFunctionDeclaration(std::ostream &ou
 
 void NavigationSpecializer::DumpLocalSafetyFunctionDeclaration(std::ostream &outstream)
 {
-  outstream << "VECGEOM_INLINE\n"
+  outstream << "VECGEOM_FORCE_INLINE\n"
             << "virtual\n"
             << "Precision\n"
             << "ComputeSafetyForLocalPoint(Vector3D<Precision> const& localpoint, VPlacedVolume const *pvol) const "
@@ -1463,7 +1463,7 @@ void NavigationSpecializer::DumpLocalSafetyFunctionDeclaration(std::ostream &out
 
 void NavigationSpecializer::DumpLocalVectorSafetyFunctionDeclaration(std::ostream &outstream)
 {
-  outstream << "VECGEOM_INLINE\n"
+  outstream << "VECGEOM_FORCE_INLINE\n"
             << "virtual\n"
             << "void\n"
             << "ComputeSafetyForLocalPoints(SOA3D<Precision> const& localpoints, VPlacedVolume const *pvol, Precision "
@@ -1483,7 +1483,7 @@ void NavigationSpecializer::DumpLocalVectorSafetyFunctionDeclaration(std::ostrea
 void NavigationSpecializer::DumpLocalVectorSafetyFunctionDeclarationPerSIMDVector(std::ostream &outstream)
 {
   // creating a helper function that processes SIMD chunks
-  outstream << "VECGEOM_INLINE\n"
+  outstream << "VECGEOM_FORCE_INLINE\n"
             << "Vc::double_v\n"
             << "ComputeSafetyForLocalSIMDPoint(Vector3D<Vc::double_v> const& localpoints, VPlacedVolume const *pvol) "
                "const {\n";
@@ -1593,10 +1593,11 @@ void NavigationSpecializer::DumpLocalVectorSafetyFunctionDeclarationPerSIMDVecto
 void NavigationSpecializer::DumpStaticTreatGlobalToLocalTransformationFunction(std::ostream &outstream) const
 {
 
-  outstream << "template <typename T>\n VECGEOM_INLINE\n static void DoGlobalToLocalTransformation(NavigationState "
-               "const &in_state,"
-            << "Vector3D<T> const &globalpoint, Vector3D<T> const &globaldir,"
-            << "Vector3D<T> &localpoint, Vector3D<T> &localdir, NavigationState * internal)  {\n";
+  outstream
+      << "template <typename T>\n VECGEOM_FORCE_INLINE\n static void DoGlobalToLocalTransformation(NavigationState "
+         "const &in_state,"
+      << "Vector3D<T> const &globalpoint, Vector3D<T> const &globaldir,"
+      << "Vector3D<T> &localpoint, Vector3D<T> &localdir, NavigationState * internal)  {\n";
 
   outstream << "auto index = PathToIndex( &in_state );\n";
   // TODO: check if we have to do anything at all ( check for unity )
@@ -1610,7 +1611,7 @@ void NavigationSpecializer::DumpStaticTreatGlobalToLocalTransformationFunction(s
 void NavigationSpecializer::DumpStaticTreatGlobalToLocalTransformationsFunction(std::ostream &outstream) const
 {
   outstream << "template <typename T, unsigned int ChunkSize>\n"
-            << "VECGEOM_INLINE\n static void DoGlobalToLocalTransformations(NavigationState const ** in_states,"
+            << "VECGEOM_FORCE_INLINE\n static void DoGlobalToLocalTransformations(NavigationState const ** in_states,"
             << "SOA3D<Precision> const &globalpoints,"
             << "SOA3D<Precision> const &globaldirs, unsigned int from_index,"
             << "Vector3D<T> &localpoint, Vector3D<T> &localdir, NavigationState ** internal) {\n";
@@ -1631,7 +1632,7 @@ void NavigationSpecializer::DumpStaticTreatDistanceToMotherFunction(std::ostream
   delete pvol;
   std::string shapetype = shapetypestream.str();
 
-  outstream << "template <typename T> VECGEOM_INLINE static T TreatDistanceToMother(VPlacedVolume const *pvol, "
+  outstream << "template <typename T> VECGEOM_FORCE_INLINE static T TreatDistanceToMother(VPlacedVolume const *pvol, "
                "Vector3D<T> const "
                "&localpoint, Vector3D<T> const &localdir, T step_limit) {\n";
   outstream << "T step;\n";
@@ -1647,7 +1648,7 @@ void NavigationSpecializer::DumpStaticPrepareOutstateFunction(std::ostream &outs
 {
 
   outstream
-      << "VECGEOM_INLINE static Precision PrepareOutState(NavigationState const &in_state, NavigationState "
+      << "VECGEOM_FORCE_INLINE static Precision PrepareOutState(NavigationState const &in_state, NavigationState "
          "&out_state, Precision geom_step, Precision step_limit, VPlacedVolume const *hitcandidate, bool &done){\n";
   // now we have the candidates and we prepare the out_state
 
@@ -1796,7 +1797,7 @@ void NavigationSpecializer::DumpFoo(std::ostream &outstream) const
 void NavigationSpecializer::DumpRelocateMethod(std::ostream &outstream) const
 {
   // function header
-  outstream << "VECGEOM_INLINE\n";
+  outstream << "VECGEOM_FORCE_INLINE\n";
   outstream << "virtual void Relocate(Vector3D<Precision> const &pointafterboundary, NavigationState const "
                "&__restrict__ in_state,"
                "NavigationState &__restrict__ out_state) const override {\n";

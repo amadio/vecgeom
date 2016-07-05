@@ -36,35 +36,35 @@ public:
   VecType operator=(VecType const &other);
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Type &operator[](const int index);
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Type operator[](const int index) const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Type &x();
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Type x() const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Type &y();
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Type y() const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void Set(const Type x, const Type y);
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Type Cross(VecType const &other) const { return vec[0] * other.vec[1] - vec[1] * other.vec[0]; }
 
   template <typename StreamType>
@@ -72,7 +72,7 @@ public:
 
 #define VECTOR2D_TEMPLATE_INPLACE_BINARY_OP(OPERATOR) \
   VECGEOM_CUDA_HEADER_BOTH                            \
-  VECGEOM_INLINE                                      \
+  VECGEOM_FORCE_INLINE                                \
   VecType &operator OPERATOR(const VecType &other)    \
   {                                                   \
     vec[0] OPERATOR other.vec[0];                     \
@@ -80,7 +80,7 @@ public:
     return *this;                                     \
   }                                                   \
   VECGEOM_CUDA_HEADER_BOTH                            \
-  VECGEOM_INLINE                                      \
+  VECGEOM_FORCE_INLINE                                \
   VecType &operator OPERATOR(const Type &scalar)      \
   {                                                   \
     vec[0] OPERATOR scalar;                           \
@@ -184,30 +184,30 @@ std::ostream &operator<<(std::ostream &os, Vector2D<Type> const &v)
   return os;
 }
 
-#define VECTOR2D_BINARY_OP(OPERATOR, INPLACE)                                                         \
-  template <typename Type>                                                                            \
-  VECGEOM_INLINE VECGEOM_CUDA_HEADER_BOTH Vector2D<Type> operator OPERATOR(const Vector2D<Type> &lhs, \
-                                                                           const Vector2D<Type> &rhs) \
-  {                                                                                                   \
-    Vector2D<Type> result(lhs);                                                                       \
-    result INPLACE rhs;                                                                               \
-    return result;                                                                                    \
-  }                                                                                                   \
-  template <typename Type, typename ScalarType>                                                       \
-  VECGEOM_INLINE VECGEOM_CUDA_HEADER_BOTH Vector2D<Type> operator OPERATOR(Vector2D<Type> const &lhs, \
-                                                                           const ScalarType rhs)      \
-  {                                                                                                   \
-    Vector2D<Type> result(lhs);                                                                       \
-    result INPLACE rhs;                                                                               \
-    return result;                                                                                    \
-  }                                                                                                   \
-  template <typename Type, typename ScalarType>                                                       \
-  VECGEOM_INLINE VECGEOM_CUDA_HEADER_BOTH Vector2D<Type> operator OPERATOR(const ScalarType rhs,      \
-                                                                           Vector2D<Type> const &lhs) \
-  {                                                                                                   \
-    Vector2D<Type> result(rhs);                                                                       \
-    result INPLACE lhs;                                                                               \
-    return result;                                                                                    \
+#define VECTOR2D_BINARY_OP(OPERATOR, INPLACE)                                                               \
+  template <typename Type>                                                                                  \
+  VECGEOM_FORCE_INLINE VECGEOM_CUDA_HEADER_BOTH Vector2D<Type> operator OPERATOR(const Vector2D<Type> &lhs, \
+                                                                                 const Vector2D<Type> &rhs) \
+  {                                                                                                         \
+    Vector2D<Type> result(lhs);                                                                             \
+    result INPLACE rhs;                                                                                     \
+    return result;                                                                                          \
+  }                                                                                                         \
+  template <typename Type, typename ScalarType>                                                             \
+  VECGEOM_FORCE_INLINE VECGEOM_CUDA_HEADER_BOTH Vector2D<Type> operator OPERATOR(Vector2D<Type> const &lhs, \
+                                                                                 const ScalarType rhs)      \
+  {                                                                                                         \
+    Vector2D<Type> result(lhs);                                                                             \
+    result INPLACE rhs;                                                                                     \
+    return result;                                                                                          \
+  }                                                                                                         \
+  template <typename Type, typename ScalarType>                                                             \
+  VECGEOM_FORCE_INLINE VECGEOM_CUDA_HEADER_BOTH Vector2D<Type> operator OPERATOR(const ScalarType rhs,      \
+                                                                                 Vector2D<Type> const &lhs) \
+  {                                                                                                         \
+    Vector2D<Type> result(rhs);                                                                             \
+    result INPLACE lhs;                                                                                     \
+    return result;                                                                                          \
   }
 VECTOR2D_BINARY_OP(+, +=)
 VECTOR2D_BINARY_OP(-, -=)

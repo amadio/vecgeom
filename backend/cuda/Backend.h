@@ -50,28 +50,28 @@ constexpr size_t kVectorSize = 1;
 static const unsigned kThreadsPerBlock = 256;
 
 VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 double Pow(double const &x, double arg)
 {
   return pow(x, arg);
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 float Pow(float const &x, float arg)
 {
   return powf(x, arg);
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 double Pow(double const &x, int arg)
 {
   return pow(x, (double)arg);
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 float Pow(float const &x, int arg)
 {
   return powf(x, (float)arg);
@@ -81,14 +81,14 @@ float Pow(float const &x, int arg)
 #ifdef VECGEOM_NVCC
 
 VECGEOM_CUDA_HEADER_DEVICE
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 int ThreadIndex()
 {
   return blockDim.x * blockIdx.x + threadIdx.x;
 }
 
 VECGEOM_CUDA_HEADER_DEVICE
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 int ThreadOffset()
 {
   return blockDim.x * gridDim.x;

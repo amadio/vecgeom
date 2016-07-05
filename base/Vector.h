@@ -75,11 +75,11 @@ public:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Type &operator[](const int index) { return fData[index]; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Type const &operator[](const int index) const { return fData[index]; }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -102,27 +102,27 @@ public:
   typedef Type const *const_iterator;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   iterator begin() const { return &fData[0]; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   iterator end() const { return &fData[fSize]; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   const_iterator cbegin() const { return &fData[0]; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   const_iterator cend() const { return &fData[fSize]; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   size_t size() const { return fSize; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void resize(size_t newsize, Type value)
   {
     Type *temp = new Type[newsize];

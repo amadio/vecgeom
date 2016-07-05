@@ -28,7 +28,7 @@ private:
   SOAData<T, rows, columns> fData;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
 #ifndef VECGEOM_NVCC
   static constexpr int ColumnSize();
 #else
@@ -41,11 +41,11 @@ public:
   SOA() {}
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Column_t &operator[](int index);
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Column_t const &operator[](int index) const;
 };
 

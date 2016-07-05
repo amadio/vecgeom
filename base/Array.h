@@ -22,45 +22,45 @@ private:
 
 public:
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Array();
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Array(const unsigned size);
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Array(Array<Type> const &other);
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Array(Type *data, int size);
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   ~Array();
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Array &operator=(Array<Type> const &other);
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Type &operator[](const int index) { return fData[index]; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Type const &operator[](const int index) const { return fData[index]; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   int size() const { return fSize; }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void Allocate(const unsigned size);
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void Deallocate();
 
@@ -68,19 +68,19 @@ public:
   typedef Type const *const_iterator;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Type *begin() { return &fData[0]; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Type *end() { return &fData[fSize]; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Type const *cbegin() const { return &fData[0]; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Type const *cend() const { return &fData[fSize]; }
 };
 
@@ -105,7 +105,7 @@ Array<Type>::Array(Array<Type> const &other) : fData(NULL), fAllocated(true)
 }
 
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 Array<Type>::Array(Type *data, int initSize) : fData(data), fSize(initSize), fAllocated(false)
 {
@@ -148,7 +148,7 @@ void Array<Type>::Deallocate()
 }
 
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 Array<Type> &Array<Type>::operator=(Array<Type> const &other)
 {

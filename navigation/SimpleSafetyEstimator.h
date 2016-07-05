@@ -19,7 +19,7 @@ class SimpleSafetyEstimator : public VSafetyEstimatorHelper<SimpleSafetyEstimato
 public:
   static constexpr const char *gClassNameString = "SimpleSafetyEstimator";
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision ComputeSafetyForLocalPoint(Vector3D<Precision> const &localpoint,
                                                VPlacedVolume const *pvol) const override
@@ -38,7 +38,7 @@ public:
     return safety;
   }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual Real_v ComputeSafetyForLocalPoint(Vector3D<Real_v> const &localpoint, VPlacedVolume const *pvol,
                                             Bool_v m) const override
   {
@@ -59,7 +59,7 @@ public:
     return safety;
   }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual void ComputeSafetyForLocalPoints(SOA3D<Precision> const &localpoints, VPlacedVolume const *pvol,
                                            Precision *safeties) const override
   {

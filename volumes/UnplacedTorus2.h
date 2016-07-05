@@ -82,75 +82,75 @@ public:
   //  }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision rmin() const { return fRmin; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision rmax() const { return fRmax; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision rtor() const { return fRtor; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision sphi() const { return fSphi; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision dphi() const { return fDphi; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision rmin2() const { return fRmin2; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision rmax2() const { return fRmax2; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision rtor2() const { return fRtor2; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Wedge const &GetWedge() const { return fPhiWedge; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision alongPhi1x() const { return fAlongPhi1x; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision alongPhi1y() const { return fAlongPhi1y; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision alongPhi2x() const { return fAlongPhi2x; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision alongPhi2y() const { return fAlongPhi2y; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision tolOrmin2() const { return fTolOrmin2; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision tolIrmin2() const { return fTolIrmin2; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision tolOrmax2() const { return fTolOrmax2; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision tolIrmax2() const { return fTolIrmax2; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision volume() const { return fDphi * kPi * fRtor * (fRmax * fRmax - fRmin * fRmin); }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -185,7 +185,7 @@ public:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision SurfaceArea() const
   {
     Precision surfaceArea = fDphi * kTwoPi * fRtor * (fRmax + fRmin);
@@ -199,11 +199,11 @@ public:
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &norm) const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   GenericUnplacedTube const &GetBoundingTube() const { return fBoundingTube; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void Extent(Vector3D<Precision> &min, Vector3D<Precision> &max) const { GetBoundingTube().Extent(min, max); }
 
   Vector3D<Precision> GetPointOnSurface() const;

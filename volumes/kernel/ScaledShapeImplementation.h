@@ -52,27 +52,27 @@ struct ScaledShapeImplementation {
   }
 
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void UnplacedContains(UnplacedScaledShape const &unplaced,
                                Vector3D<typename Backend::precision_v> const &localPoint,
                                typename Backend::bool_v &inside);
 
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Contains(UnplacedScaledShape const &unplaced, Transformation3D const &transformation,
                        Vector3D<typename Backend::precision_v> const &point,
                        Vector3D<typename Backend::precision_v> &localPoint, typename Backend::bool_v &inside);
 
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Inside(UnplacedScaledShape const &unplaced, Transformation3D const &transformation,
                      Vector3D<typename Backend::precision_v> const &point, typename Backend::inside_v &inside);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToIn(UnplacedScaledShape const &unplaced, Transformation3D const &transformation,
                            Vector3D<typename Backend::precision_v> const &point,
@@ -80,38 +80,38 @@ struct ScaledShapeImplementation {
                            typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToOut(UnplacedScaledShape const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                             Vector3D<typename Backend::precision_v> const &direction,
                             typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToIn(UnplacedScaledShape const &unplaced, Transformation3D const &transformation,
                          Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToOut(UnplacedScaledShape const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                           typename Backend::precision_v &safety);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void ContainsKernel(UnplacedScaledShape const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                              typename Backend::bool_v &inside);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void InsideKernel(UnplacedScaledShape const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                            typename Backend::inside_v &inside);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToInKernel(UnplacedScaledShape const &unplaced,
                                  Vector3D<typename Backend::precision_v> const &point,
@@ -119,7 +119,7 @@ struct ScaledShapeImplementation {
                                  typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToOutKernel(UnplacedScaledShape const &unplaced,
                                   Vector3D<typename Backend::precision_v> const &point,
@@ -128,14 +128,14 @@ struct ScaledShapeImplementation {
                                   typename Backend::precision_v &distance);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToInKernel(UnplacedScaledShape const &unplaced,
                                Vector3D<typename Backend::precision_v> const &point,
                                typename Backend::precision_v &safety);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToOutKernel(UnplacedScaledShape const &unplaced,
                                 Vector3D<typename Backend::precision_v> const &point,
@@ -148,7 +148,7 @@ struct ScaledShapeImplementation {
   //         Vector3D<typename Backend::precision_v> &valid )
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void NormalKernel(UnplacedScaledShape const &, Vector3D<typename Backend::precision_v> const &point,
                            Vector3D<typename Backend::precision_v> &normal, typename Backend::bool_v &valid);
@@ -219,7 +219,7 @@ void ScaledShapeImplementation<transCodeT, rotCodeT>::DistanceToOut(
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void ScaledShapeImplementation<transCodeT, rotCodeT>::SafetyToIn(UnplacedScaledShape const &unplaced,
                                                                  Transformation3D const &transformation,
@@ -232,7 +232,7 @@ void ScaledShapeImplementation<transCodeT, rotCodeT>::SafetyToIn(UnplacedScaledS
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void ScaledShapeImplementation<transCodeT, rotCodeT>::SafetyToOut(UnplacedScaledShape const &unplaced,
                                                                   Vector3D<typename Backend::precision_v> const &point,

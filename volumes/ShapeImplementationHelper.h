@@ -360,7 +360,7 @@ public:
     return output;
   }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToInVec(
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override
   {
@@ -374,7 +374,7 @@ public:
     return output;
   }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOutVec(
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override
   {

@@ -58,27 +58,27 @@ struct GenTrapImplementation {
   }
 
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Contains(UnplacedGenTrap const &unplaced, Transformation3D const &transformation,
                        Vector3D<typename Backend::precision_v> const &point,
                        Vector3D<typename Backend::precision_v> &localPoint, typename Backend::bool_v &inside);
 
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Inside(UnplacedGenTrap const &unplaced, Transformation3D const &transformation,
                      Vector3D<typename Backend::precision_v> const &point, typename Backend::inside_v &inside);
 
   template <typename Backend, bool ForInside>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void GenericKernelForContainsAndInside(UnplacedGenTrap const &,
                                                 Vector3D<typename Backend::precision_v> const &,
                                                 typename Backend::bool_v &, typename Backend::bool_v &);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToIn(UnplacedGenTrap const &unplaced, Transformation3D const &transformation,
                            Vector3D<typename Backend::precision_v> const &point,
@@ -86,51 +86,51 @@ struct GenTrapImplementation {
                            typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToOut(UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                             Vector3D<typename Backend::precision_v> const &direction,
                             typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToIn(UnplacedGenTrap const &unplaced, Transformation3D const &transformation,
                          Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToOut(UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                           typename Backend::precision_v &safety);
 
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void UnplacedContains(UnplacedGenTrap const &box, Vector3D<typename Backend::precision_v> const &localPoint,
                                typename Backend::bool_v &inside);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void ContainsKernel(UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                              typename Backend::bool_v &inside);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void InsideKernel(UnplacedGenTrap const &boxDimensions, Vector3D<typename Backend::precision_v> const &point,
                            typename Backend::inside_v &inside);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToInKernel(UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                                  Vector3D<typename Backend::precision_v> const &direction,
                                  typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance);
 
   template <class Backend, bool treatNormal>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToOutKernel(UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                                   Vector3D<typename Backend::precision_v> const &direction,
@@ -138,19 +138,19 @@ struct GenTrapImplementation {
                                   typename Backend::precision_v &distance);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToInKernel(UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                                typename Backend::precision_v &safety);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToOutKernel(UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                                 typename Backend::precision_v &safety);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void NormalKernel(UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                            Vector3D<typename Backend::precision_v> &normal, typename Backend::bool_v &valid);
@@ -239,7 +239,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToOut(
 //______________________________________________________________________________
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void GenTrapImplementation<transCodeT, rotCodeT>::SafetyToIn(UnplacedGenTrap const &unplaced,
                                                              Transformation3D const &transformation,
@@ -253,7 +253,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::SafetyToIn(UnplacedGenTrap con
 //______________________________________________________________________________
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void GenTrapImplementation<transCodeT, rotCodeT>::SafetyToOut(UnplacedGenTrap const &unplaced,
                                                               Vector3D<typename Backend::precision_v> const &point,
@@ -266,7 +266,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::SafetyToOut(UnplacedGenTrap co
 //______________________________________________________________________________
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void GenTrapImplementation<transCodeT, rotCodeT>::ContainsKernel(
     UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &localPoint,
@@ -283,7 +283,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::ContainsKernel(
 //______________________________________________________________________________
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend, bool ForInside>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void GenTrapImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndInside(
     UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &localPoint,
@@ -349,7 +349,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndIns
 //______________________________________________________________________________
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void GenTrapImplementation<transCodeT, rotCodeT>::InsideKernel(UnplacedGenTrap const &unplaced,
                                                                Vector3D<typename Backend::precision_v> const &point,
@@ -369,7 +369,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::InsideKernel(UnplacedGenTrap c
 template <bool IsSIMD, class Backend>
 struct FillPlaneDataHelper {
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   static void FillPlaneData(UnplacedGenTrap const &unplaced, typename Backend::precision_v &cornerx,
                             typename Backend::precision_v &cornery, typename Backend::precision_v &deltax,
                             typename Backend::precision_v &deltay, typename Backend::bool_v const &top, int edgeindex)
@@ -408,7 +408,7 @@ struct FillPlaneDataHelper<false, Backend> {
 
 //______________________________________________________________________________
 template <class Backend>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 // optimized "inside" check for top or bottom z-surfaces
 // this is a bit tricky if different tracks check different planes
@@ -457,7 +457,7 @@ typename Backend::bool_v IsInTopOrBottomPolygon(UnplacedGenTrap const &unplaced,
 //______________________________________________________________________________
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
     UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &point,
@@ -553,7 +553,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
 //______________________________________________________________________________
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend, bool treatNormal>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
     UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &point,
@@ -582,7 +582,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
 //______________________________________________________________________________
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void GenTrapImplementation<transCodeT, rotCodeT>::SafetyToInKernel(UnplacedGenTrap const &unplaced,
                                                                    Vector3D<typename Backend::precision_v> const &point,

@@ -25,7 +25,7 @@ private:
   } VECGEOM_CUDA_HEADER_DEVICE virtual ~NewSimpleNavigator() {}
 
 public:
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual Precision ComputeStepAndHittingBoundaryForLocalPoint(Vector3D<Precision> const &localpoint,
                                                                Vector3D<Precision> const &localdir,
                                                                Precision step_limit, NavigationState const &in_state,
@@ -85,7 +85,7 @@ public:
     return VNavigator::PrepareOutState(in_state, out_state, step, step_limit, nexthitvolume, done);
   }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   virtual bool CheckDaughterIntersections(LogicalVolume const *lvol, Vector3D<Precision> const &localpoint,
                                           Vector3D<Precision> const &localdir, NavigationState const & /*in_state*/,
@@ -178,7 +178,7 @@ public:
   }
 
 //  template <typename Backend>
-//  VECGEOM_INLINE
+//  VECGEOM_FORCE_INLINE
 //  virtual Bool_v
 //  CheckDaughterIntersectionsT(LogicalVolume const *lvol, Vector3D<typename Backend::Real_v> const &localpoint,
 //                              Vector3D<typename Backend::Real_v> const &localdir, NavStatePool const &in_state,

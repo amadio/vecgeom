@@ -99,7 +99,7 @@ public:
    * functions, but this implementation will be used by "IsPointOnSurfaceAndMovingOut()" function
    */
   template <bool ForStartPhi>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   Vector3D<Precision> GetNormal() const;
 
@@ -138,7 +138,7 @@ public:
    * this implementation will be used by "IsPointOnSurfaceAndMovingOut()" function.
    */
   template <typename Real_v, bool ForStartPhi>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   typename vecCore::Mask_v<Real_v> IsOnSurfaceGeneric(Vector3D<Real_v> const &point) const;
 
@@ -161,7 +161,7 @@ public:
    * Very useful for DistanceToIn and DistanceToOut.
    */
   template <typename Real_v, bool ForStartPhi, bool MovingOut>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   typename vecCore::Mask_v<Real_v> IsPointOnSurfaceAndMovingOut(Vector3D<Real_v> const &point,
                                                                 Vector3D<Real_v> const &dir) const;
@@ -219,7 +219,7 @@ public:
 }; // end of class Wedge
 
 template <bool ForStartPhi>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 Vector3D<Precision> Wedge::GetNormal() const
 {
@@ -230,7 +230,7 @@ Vector3D<Precision> Wedge::GetNormal() const
 }
 
 template <typename Real_v, bool ForStartPhi, bool MovingOut>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 typename vecCore::Mask_v<Real_v> Wedge::IsPointOnSurfaceAndMovingOut(Vector3D<Real_v> const &point,
                                                                      Vector3D<Real_v> const &dir) const
@@ -245,7 +245,7 @@ typename vecCore::Mask_v<Real_v> Wedge::IsPointOnSurfaceAndMovingOut(Vector3D<Re
 }
 
 template <typename Real_v, bool ForStartPhi>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 typename vecCore::Mask_v<Real_v> Wedge::IsOnSurfaceGeneric(Vector3D<Real_v> const &point) const
 {

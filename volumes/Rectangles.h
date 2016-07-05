@@ -55,23 +55,23 @@ public:
   ~Rectangles();
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   int size() const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Vector3D<Precision> GetNormal(int i) const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   SOA3D<Precision> const &GetNormals() const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetDistance(int i) const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Array<Precision> const &GetDistances() const;
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -81,14 +81,14 @@ public:
   inline Vector3D<Precision> GetCorner(int i, int j) const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Corners_t const &GetCorners() const;
 
   VECGEOM_CUDA_HEADER_BOTH
   inline Vector3D<Precision> GetSide(int i) const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   SOA3D<Precision> const &GetSides() const;
 
   VECGEOM_CUDA_HEADER_BOTH

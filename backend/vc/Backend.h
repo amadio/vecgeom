@@ -47,7 +47,7 @@ typedef kVc::bool_v VcBool;
 typedef kVc::inside_v VcInside;
 
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void CondAssign(typename Vc::Vector<Type>::Mask const &cond, Vc::Vector<Type> const &thenval,
                 Vc::Vector<Type> const &elseval, Vc::Vector<Type> *const output)
 {
@@ -56,7 +56,7 @@ void CondAssign(typename Vc::Vector<Type>::Mask const &cond, Vc::Vector<Type> co
 }
 
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void CondAssign(typename Vc::Vector<Type>::Mask const &cond, Type const &thenval, Type const &elseval,
                 Vc::Vector<Type> *const output)
 {
@@ -64,7 +64,7 @@ void CondAssign(typename Vc::Vector<Type>::Mask const &cond, Type const &thenval
   (*output)(!cond) = elseval;
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void CondAssign(typename Vc::Vector<double>::Mask const &cond, int const &thenval, int const &elseval,
                 int *const output)
 {
@@ -74,7 +74,7 @@ void CondAssign(typename Vc::Vector<double>::Mask const &cond, int const &thenva
 }
 
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void MaskedAssign(typename Vc::Vector<Type>::Mask const &cond, Vc::Vector<Type> const &thenval,
                   Vc::Vector<Type> *const output)
 {
@@ -82,27 +82,27 @@ void MaskedAssign(typename Vc::Vector<Type>::Mask const &cond, Vc::Vector<Type> 
 }
 
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void MaskedAssign(typename Vc::Vector<Type>::Mask const &cond, Type const &thenval, Vc::Vector<Type> *const output)
 {
   (*output)(cond) = thenval;
 }
 
-// VECGEOM_INLINE
+// VECGEOM_FORCE_INLINE
 // void MaskedAssign(VcBool const &cond,
 //                   const kScalar::int_v thenval,
 //                   VcInt *const output) {
 //   (*output)(VcInt::Mask(cond)) = thenval;
 // }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void MaskedAssign(VcBool const &cond, const int thenval, int *const output)
 {
   Vc::Vector<int> out(output);
   out(Vc::simd_cast<VcInside::Mask>(cond)) = thenval;
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void MaskedAssign(VcBool const &cond, const Inside_t thenval, VcInside *const output)
 {
   (*output)(Vc::simd_cast<VcInside::Mask>(cond)) = thenval;
@@ -112,73 +112,73 @@ void MaskedAssign(VcBool const &cond, const Inside_t thenval, VcInside *const ou
 // toaddr has to be properly aligned
 // this function is an abstraction for the Vc API "store"
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void StoreTo(typename Vc::Vector<Type> const &what, Type *toaddr)
 {
   what.store(toaddr);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void StoreTo(VcBool const &what, bool *toaddr)
 {
   what.store(toaddr);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 bool IsFull(VcBool const &cond)
 {
   return cond.isFull();
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 bool Any(VcBool const &cond)
 {
   return !cond.isEmpty();
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 bool IsEmpty(VcBool const &cond)
 {
   return cond.isEmpty();
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VcPrecision Abs(VcPrecision const &val)
 {
   return Vc::abs(val);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VcPrecision Sqrt(VcPrecision const &val)
 {
   return Vc::sqrt(val);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VcPrecision Log(VcPrecision const &val)
 {
   return Vc::log(val);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VcPrecision ATan2(VcPrecision const &y, VcPrecision const &x)
 {
   return Vc::atan2(y, x);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VcPrecision sin(VcPrecision const &x)
 {
   return Vc::sin(x);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VcPrecision cos(VcPrecision const &x)
 {
   return Vc::cos(x);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VcPrecision tan(VcPrecision const &radians)
 {
   // apparently Vc does not have a tan function
@@ -189,49 +189,49 @@ VcPrecision tan(VcPrecision const &radians)
   return s / c;
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 Precision Pow(Precision const &x, Precision arg)
 {
   return std::pow(x, arg);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VcPrecision Min(VcPrecision const &val1, VcPrecision const &val2)
 {
   return Vc::min(val1, val2);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VcPrecision Max(VcPrecision const &val1, VcPrecision const &val2)
 {
   return Vc::max(val1, val2);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VcInt Min(VcInt const &val1, VcInt const &val2)
 {
   return Vc::min(val1, val2);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VcInt Max(VcInt const &val1, VcInt const &val2)
 {
   return Vc::max(val1, val2);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VcPrecision CopySign(VcPrecision const &x, VcPrecision const &y)
 {
   return Vc::copysign(x, y);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VcPrecision Floor(VcPrecision const &val)
 {
   return Vc::floor(val);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VcBool IsInf(VcPrecision x)
 {
   return Vc::isinf(x);

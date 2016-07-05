@@ -57,19 +57,19 @@ public:
 
   // Accessors -- not sure we need this ever (to be deprecated)
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Vector3D<Precision> const &dimensions() const { return GetUnplacedVolume()->dimensions(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision x() const { return GetUnplacedVolume()->x(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision y() const { return GetUnplacedVolume()->y(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision z() const { return GetUnplacedVolume()->z(); }
 
   VECGEOM_CUDA_HEADER_BOTH

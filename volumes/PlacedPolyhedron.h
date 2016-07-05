@@ -63,59 +63,59 @@ public:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   int GetSideCount() const { return GetUnplacedVolume()->GetSideCount(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   int GetZSegmentCount() const { return GetUnplacedVolume()->GetZSegmentCount(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   bool HasInnerRadii() const { return GetUnplacedVolume()->HasInnerRadii(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   bool HasPhiCutout() const { return GetUnplacedVolume()->HasPhiCutout(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   ZSegment const &GetZSegment(int index) const { return GetUnplacedVolume()->GetZSegment(index); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Array<ZSegment> const &GetZSegments() const { return GetUnplacedVolume()->GetZSegments(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Array<Precision> const &GetZPlanes() const { return GetUnplacedVolume()->GetZPlanes(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Array<Precision> const &GetRMin() const { return GetUnplacedVolume()->GetRMin(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Array<Precision> const &GetRMax() const { return GetUnplacedVolume()->GetRMax(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Vector3D<Precision> GetPhiSection(int i) const { return GetUnplacedVolume()->GetPhiSection(i); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   SOA3D<Precision> const &GetPhiSections() const { return GetUnplacedVolume()->GetPhiSections(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetPhiStart() const { return GetUnplacedVolume()->GetPhiStart(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetPhiEnd() const { return GetUnplacedVolume()->GetPhiEnd(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetPhiDelta() const { return GetUnplacedVolume()->GetPhiDelta(); }
 
 #ifndef VECGEOM_NVCC

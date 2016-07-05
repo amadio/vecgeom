@@ -130,7 +130,7 @@ protected:
 
   // a common function to be used by all navigators to ensure consistency in transporting points
   // after a boundary
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static Vector3D<Precision> MovePointAfterBoundary(Vector3D<Precision> const &localpoint,
                                                     Vector3D<Precision> const &dir, Precision step)
@@ -154,7 +154,7 @@ protected:
   VSafetyEstimator *fSafetyEstimator; // a pointer to the safetyEstimator which can be used by the Navigator
 
   // some common code to prepare the outstate
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static Precision PrepareOutState(NavigationState const &__restrict__ in_state,
                                    NavigationState &__restrict__ out_state, Precision geom_step, Precision step_limit,
@@ -198,7 +198,7 @@ protected:
     return geom_step;
   }
 
-  //  VECGEOM_INLINE
+  //  VECGEOM_FORCE_INLINE
   //  static Precision TreatDistanceToMother( VPlacedVolume const *pvol, Vector3D<Precision> const &localpoint ,
   //  Vector3D<Precision> const &localdir, Precision step_limit ){
   // Precision step;
@@ -214,7 +214,7 @@ protected:
 
   // kernel to be used with both scalar and vector types
   template <typename T>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static T TreatDistanceToMother(VPlacedVolume const *pvol, Vector3D<T> const &localpoint, Vector3D<T> const &localdir,
                                  T step_limit)
@@ -236,7 +236,7 @@ protected:
   // note: the last argument is a trick to pass information across function calls ( only exploited in specialized
   // navigators )
   template <typename T>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DoGlobalToLocalTransformation(NavigationState const &in_state, Vector3D<T> const &globalpoint,
                                             Vector3D<T> const &globaldir, Vector3D<T> &localpoint,
@@ -252,7 +252,7 @@ protected:
   // version used for SIMD processing
   // should be specialized in Impl for faster treatment
   template <typename T, unsigned int ChunkSize>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DoGlobalToLocalTransformations(NavigationState const **in_states, SOA3D<Precision> const &globalpoints,
                                              SOA3D<Precision> const &globaldirs, unsigned int from_index,
@@ -722,7 +722,7 @@ public:
 
 protected:
   // a common relocate method ( to calculate propagated states after the boundary )
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   virtual void Relocate(Vector3D<Precision> const &pointafterboundary, NavigationState const &__restrict__ in_state,
                         NavigationState &__restrict__ out_state) const override

@@ -47,7 +47,7 @@ public:
    * scope: function to be used on both CPU and GPU
    */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VPlacedVolume const *LocatePoint(VPlacedVolume const * /* volume */, Vector3D<Precision> const & /* globalpoint */,
                                    NavigationState & /* state (volume path) to be returned */, bool /*top*/) const;
 
@@ -55,14 +55,14 @@ public:
    *  ( useful when we know that a particle must have traversed a boundary )
    */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VPlacedVolume const *LocatePointExclVolume(VPlacedVolume const * /* volume */, VPlacedVolume const * /* exclude */,
                                              Vector3D<Precision> const & /* globalpoint */,
                                              NavigationState & /* state (volume path) to be returned */,
                                              bool /*top*/) const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   SimpleNavigator() {}
 
   /**
@@ -74,7 +74,7 @@ public:
    * scope: function to be used on both CPU and GPU
    */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VPlacedVolume const *RelocatePointFromPath(Vector3D<Precision> const & /* localpoint */,
                                              NavigationState & /* state to be modified */
                                              ) const;
@@ -90,7 +90,7 @@ public:
    * scope: function to be used on both CPU and GPU
    */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   bool HasSamePath(Vector3D<Precision> const & /* globalpoint */, NavigationState const & /* currentstate */,
                    NavigationState & /* newstate */
                    ) const;
@@ -110,7 +110,7 @@ public:
    * point
    */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetSafety(Vector3D<Precision> const & /*global_point*/, NavigationState const & /* currentstate */
                       ) const;
 
@@ -287,7 +287,7 @@ VPlacedVolume const *SimpleNavigator::LocatePoint(VPlacedVolume const *vol, Vect
  *  ( useful when we know that a particle must have traversed a boundary )
  */
 VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VPlacedVolume const *SimpleNavigator::LocatePointExclVolume(VPlacedVolume const *vol,
                                                             VPlacedVolume const *excludedvolume,
                                                             Vector3D<Precision> const &point, NavigationState &path,
@@ -418,7 +418,7 @@ VPlacedVolume const *SimpleNavigator::RelocatePointFromPath(Vector3D<Precision> 
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 bool SimpleNavigator::HasSamePath(Vector3D<Precision> const &globalpoint, NavigationState const &currentstate,
                                   NavigationState &newstate) const
 {

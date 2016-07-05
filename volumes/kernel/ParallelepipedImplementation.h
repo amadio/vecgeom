@@ -54,31 +54,31 @@ struct ParallelepipedImplementation {
   }
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Transform(UnplacedParallelepiped const &unplaced, Vector3D<typename Backend::precision_v> &point);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void UnplacedContains(UnplacedParallelepiped const &unplaced,
                                Vector3D<typename Backend::precision_v> const &point, typename Backend::bool_v &inside);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Contains(UnplacedParallelepiped const &unplaced, Transformation3D const &transformation,
                        Vector3D<typename Backend::precision_v> const &point,
                        Vector3D<typename Backend::precision_v> &localPoint, typename Backend::bool_v &inside);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Inside(UnplacedParallelepiped const &unplaced, Transformation3D const &transformation,
                      Vector3D<typename Backend::precision_v> const &point, typename Backend::inside_v &inside);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToIn(UnplacedParallelepiped const &unplaced, Transformation3D const &transformation,
                            Vector3D<typename Backend::precision_v> const &point,
@@ -86,7 +86,7 @@ struct ParallelepipedImplementation {
                            typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToOut(UnplacedParallelepiped const &unplaced,
                             Vector3D<typename Backend::precision_v> const &point,
@@ -94,19 +94,19 @@ struct ParallelepipedImplementation {
                             typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToIn(UnplacedParallelepiped const &unplaced, Transformation3D const &transformation,
                          Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToOut(UnplacedParallelepiped const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                           typename Backend::precision_v &safety);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void NormalKernel(UnplacedParallelepiped const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                            Vector3D<typename Backend::precision_v> &normal, typename Backend::bool_v &valid);

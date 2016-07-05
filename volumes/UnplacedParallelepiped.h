@@ -136,14 +136,14 @@ public:
   Vector3D<Precision> GetPointOnSurface() const;
 
   /** @brief Implementation of capacity computation */
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision volume() const { return 8.0 * fDimensions[0] * fDimensions[1] * fDimensions[2]; }
 
   /** @brief Interface method for computing capacity */
   Precision Capacity() { return volume(); }
 
   /** @brief Implementation of surface area computation */
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision SurfaceArea() const
   {
     // factor 8 because dimensions_ are half-lengths

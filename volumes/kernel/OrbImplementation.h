@@ -56,26 +56,26 @@ struct OrbImplementation {
   }
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void UnplacedContains(UnplacedOrb const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                                typename Backend::bool_v &inside);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Contains(UnplacedOrb const &unplaced, Transformation3D const &transformation,
                        Vector3D<typename Backend::precision_v> const &point,
                        Vector3D<typename Backend::precision_v> &localPoint, typename Backend::bool_v &inside);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Inside(UnplacedOrb const &unplaced, Transformation3D const &transformation,
                      Vector3D<typename Backend::precision_v> const &point, typename Backend::inside_v &inside);
 
   template <typename Backend, bool ForInside>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void GenericKernelForContainsAndInside(UnplacedOrb const &unplaced,
                                                 Vector3D<typename Backend::precision_v> const &localPoint,
@@ -83,7 +83,7 @@ struct OrbImplementation {
                                                 typename Backend::bool_v &completelyoutside);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToIn(UnplacedOrb const &unplaced, Transformation3D const &transformation,
                            Vector3D<typename Backend::precision_v> const &point,
@@ -91,52 +91,52 @@ struct OrbImplementation {
                            typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToOut(UnplacedOrb const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                             Vector3D<typename Backend::precision_v> const &direction,
                             typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToIn(UnplacedOrb const &unplaced, Transformation3D const &transformation,
                          Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToOut(UnplacedOrb const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                           typename Backend::precision_v &safety);
 
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void ContainsKernel(UnplacedOrb const &unplaced, Vector3D<typename Backend::precision_v> const &localPoint,
                              typename Backend::bool_v &inside);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void InsideKernel(UnplacedOrb const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                            typename Backend::inside_v &inside);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToInKernel(UnplacedOrb const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                                  Vector3D<typename Backend::precision_v> const &direction,
                                  typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance);
 
   template <class Backend, bool ForDistanceToIn>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static typename Backend::bool_v DetectIntersectionAndCalculateDistance(
       UnplacedOrb const &unplaced, Vector3D<typename Backend::precision_v> const &point,
       Vector3D<typename Backend::precision_v> const &direction, typename Backend::precision_v &distance);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToOutKernel(UnplacedOrb const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                                   Vector3D<typename Backend::precision_v> const &direction,
@@ -144,25 +144,25 @@ struct OrbImplementation {
                                   typename Backend::precision_v &distance);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToInKernel(UnplacedOrb const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                                typename Backend::precision_v &safety);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToOutKernel(UnplacedOrb const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                                 typename Backend::precision_v &safety);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Normal(UnplacedOrb const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                      Vector3D<typename Backend::precision_v> &normal, typename Backend::bool_v &valid);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void NormalKernel(UnplacedOrb const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                            Vector3D<typename Backend::precision_v> &normal, typename Backend::bool_v &valid);
@@ -267,7 +267,7 @@ void OrbImplementation<transCodeT, rotCodeT>::DistanceToOut(UnplacedOrb const &u
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void OrbImplementation<transCodeT, rotCodeT>::SafetyToIn(UnplacedOrb const &unplaced,
                                                          Transformation3D const &transformation,
@@ -280,7 +280,7 @@ void OrbImplementation<transCodeT, rotCodeT>::SafetyToIn(UnplacedOrb const &unpl
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void OrbImplementation<transCodeT, rotCodeT>::SafetyToOut(UnplacedOrb const &unplaced,
                                                           Vector3D<typename Backend::precision_v> const &point,

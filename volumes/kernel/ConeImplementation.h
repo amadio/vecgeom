@@ -95,7 +95,7 @@ struct ConeImplementation {
 
   /////GenericKernel Contains/Inside implementation
   template <typename Backend, bool ForInside>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void GenericKernelForContainsAndInside(UnplacedCone const &cone,
                                                 Vector3D<typename Backend::precision_v> const &point,
@@ -165,7 +165,7 @@ struct ConeImplementation {
   }
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void UnplacedContains(UnplacedCone const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                                typename Backend::bool_v &contains)
@@ -179,7 +179,7 @@ struct ConeImplementation {
   }
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Contains(UnplacedCone const &unplaced, Transformation3D const &transformation,
                        Vector3D<typename Backend::precision_v> const &point,
@@ -193,7 +193,7 @@ struct ConeImplementation {
 #if 0 // removed, as it was producing warnings in clang-3.6 -- passes 'make test' at 100%
   // TODO: do we need both interfaces?
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Inside(UnplacedCone const &unplaced,
                      Transformation3D const &transformation,
@@ -206,7 +206,7 @@ struct ConeImplementation {
 #endif
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Inside(UnplacedCone const &unplaced, Transformation3D const &transformation,
                      Vector3D<typename Backend::precision_v> const &point, typename Backend::int_v &inside)
@@ -232,7 +232,7 @@ struct ConeImplementation {
   // this really only makes sense for Scalar and CUDA backend and is copied here until
   //  a generic and fully optimized VecGeom version is available
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static typename Backend::precision_v DistanceToInUSolids(UnplacedCone const &unplaced,
                                                            Transformation3D const &transformation,
@@ -898,7 +898,7 @@ struct ConeImplementation {
   }
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToIn(UnplacedCone const &unplaced, Transformation3D const &transformation,
                            Vector3D<typename Backend::precision_v> const &point,
@@ -1061,7 +1061,7 @@ struct ConeImplementation {
   }
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static Precision DistanceToOutUSOLIDS(UnplacedCone const &unplaced, Vector3D<typename Backend::precision_v> p,
                                         Vector3D<typename Backend::precision_v> v,
@@ -1534,7 +1534,7 @@ struct ConeImplementation {
   }
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToOut(UnplacedCone const &unplaced, Vector3D<typename Backend::precision_v> point,
                             Vector3D<typename Backend::precision_v> direction,
@@ -1644,7 +1644,7 @@ struct ConeImplementation {
   }
 
   template <class Backend, bool ForPolycone>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static Precision SafetyToOutUSOLIDS(UnplacedCone const &unplaced, Vector3D<typename Backend::precision_v> p)
   {

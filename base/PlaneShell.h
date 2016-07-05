@@ -106,7 +106,7 @@ public:
   /// \return the distance from point to each plane.  The type returned is float, double, or various SIMD vector types.
   /// Distances are negative (positive) for points in same (opposite) side from plane as the normal vector.
   template <typename Type2>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void DistanceToPoint(Vector3D<Type2> const &point, Type2 *distances) const
   {
@@ -118,7 +118,7 @@ public:
   /// \return the projection of a (Vector3D) direction into each plane's normal vector.
   /// The type returned is float, double, or various SIMD vector types.
   template <typename Type2>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void ProjectionToNormal(Vector3D<Type2> const &dir, Type2 *projection) const
   {
@@ -162,7 +162,7 @@ public:
   ///   which means condition (2) happens and +inf must be returned.  Without smin0, this
   ///   condition is sometimes missed.
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   typename Backend::precision_v DistanceToIn(Vector3D<typename Backend::precision_v> const &point,
                                              typename Backend::precision_v const &smin0,
@@ -230,7 +230,7 @@ public:
   /// For some special cases, the value returned is:
   ///     (1) -1, if point is outside (wrong-side)
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   typename Backend::precision_v DistanceToOut(Vector3D<typename Backend::precision_v> const &point,
                                               Vector3D<typename Backend::precision_v> const &dir) const
@@ -277,7 +277,7 @@ public:
   /// \return the safety distance to the planar shell when the point is located within the shell itself.
   /// The type returned is the type corresponding to the backend given.
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void SafetyToIn(Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety) const
   {
@@ -301,7 +301,7 @@ public:
   /// \return the distance to the planar shell when the point is located within the shell itself.
   /// The type returned is the type corresponding to the backend given.
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void SafetyToOut(Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety) const
   {

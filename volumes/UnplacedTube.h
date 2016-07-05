@@ -44,46 +44,46 @@ public:
   void DetectConvexity();
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision rmin() const { return fTube.fRmin; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision rmax() const { return fTube.fRmax; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision z() const { return fTube.fZ; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision sphi() const { return fTube.fSphi; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision dphi() const { return fTube.fDphi; }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void SetRMin(Precision const &_rmin) { fTube.SetRMin(_rmin); }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void SetRMax(Precision const &_rmax) { fTube.SetRMax(_rmax); }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void SetDz(Precision const &_z) { fTube.SetDz(_z); }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void SetSPhi(Precision const &_sphi) { fTube.SetAndCheckSPhiAngle(_sphi); /*weird name*/ }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void SetDPhi(Precision const &_dphi) { fTube.SetAndCheckDPhiAngle(_dphi); /*weird name*/ }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   evolution::Wedge const &GetWedge() const { return fTube.fPhiWedge; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision volume() const { return fTube.fZ * (fTube.fRmax2 - fTube.fRmin2) * fTube.fDphi; }
 
   VECGEOM_CUDA_HEADER_BOTH

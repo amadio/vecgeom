@@ -45,15 +45,15 @@ public:
   Planes &operator=(Planes const &rhs);
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision const *operator[](int index) const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   int size() const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void reserve(size_t newsize)
   {
     fNormals.reserve(newsize);
@@ -61,19 +61,19 @@ public:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   SOA3D<Precision> const &GetNormals() const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Vector3D<Precision> GetNormal(int i) const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Array<Precision> const &GetDistances() const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetDistance(int i) const;
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -153,7 +153,7 @@ Precision Planes::GetDistance(int i) const
 namespace {
 
 template <class Backend>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void AcceleratedContains(int & /*i*/, const int /*n*/, SOA3D<Precision> const & /*normals*/,
                          Array<Precision> const & /*distances*/,
@@ -165,7 +165,7 @@ void AcceleratedContains(int & /*i*/, const int /*n*/, SOA3D<Precision> const & 
 
 #if defined(VECGEOM_VC) && defined(VECGEOM_QUADRILATERALS_VC)
 template <>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void AcceleratedContains<kScalar>(int &i, const int n, SOA3D<Precision> const &normals,
                                   Array<Precision> const &distances, Vector3D<Precision> const &point, bool &result)
@@ -205,7 +205,7 @@ typename Backend::bool_v Planes::Contains(Vector3D<typename Backend::precision_v
 namespace {
 
 template <class Backend>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void AcceleratedInside(int & /*i*/, const int /*n*/, SOA3D<Precision> const & /*normals*/,
                        Array<Precision> const & /*distances*/,
@@ -217,7 +217,7 @@ void AcceleratedInside(int & /*i*/, const int /*n*/, SOA3D<Precision> const & /*
 
 #if defined(VECGEOM_VC) and defined(VECGEOM_QUADRILATERALS_VC)
 template <>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void AcceleratedInside<kScalar>(int &i, const int n, SOA3D<Precision> const &normals, Array<Precision> const &distances,
                                 Vector3D<Precision> const &point, Inside_t &result)

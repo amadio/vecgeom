@@ -31,7 +31,7 @@ class ABBoxNavigator {
 
 public:
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   ABBoxNavigator() {}
 
   size_t GetHitCandidates(LogicalVolume const *lvol, Vector3D<Precision> const &point, Vector3D<Precision> const &dir,

@@ -338,7 +338,7 @@ public:
     }
   }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void DistanceToInMinimizeTemplate(SOA3D<Precision> const &points, SOA3D<Precision> const &directions, int daughterId,
                                     Precision *const currentDistance, int *const nextDaughterIdList) const
   {
@@ -364,7 +364,7 @@ public:
     }
   }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void DistanceToOutTemplate(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
                              Precision const *const stepMax, Precision *const output, int *const nodeIndex) const
   {
@@ -461,7 +461,7 @@ public:
   }
 
   // scalar fallback: dispatch a SIMD interface to a scalar kernel
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToInVec(
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override
   {
@@ -477,7 +477,7 @@ public:
     return output;
   }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOutVec(
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override
   {

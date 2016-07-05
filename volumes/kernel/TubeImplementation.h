@@ -55,7 +55,7 @@ namespace TubeUtilities {
 
 template <typename Real_v, typename ShapeType, typename UnplacedVolumeType, bool onSurfaceT,
           bool includeSurface = true>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void PointInCyclicalSector(UnplacedVolumeType const &volume, Real_v const &x, Real_v const &y,
                            typename vecCore::Mask_v<Real_v> &ret)
@@ -98,7 +98,7 @@ void PointInCyclicalSector(UnplacedVolumeType const &volume, Real_v const &x, Re
 }
 
 template <typename Real_v, typename UnplacedStruct_t, typename TubeType, bool LargestSolution, bool insectorCheck>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void CircleTrajectoryIntersection(Real_v const &b, Real_v const &c, UnplacedStruct_t const &tube,
                                   Vector3D<Real_v> const &pos, Vector3D<Real_v> const &dir, Real_v &dist,
@@ -168,7 +168,7 @@ void CircleTrajectoryIntersection(Real_v const &b, Real_v const &c, UnplacedStru
  */
 
 template <typename Real_v>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 Real_v PerpDist2D(Real_v const &px, Real_v const &py, Real_v const &vx, Real_v const &vy)
 {
@@ -179,7 +179,7 @@ Real_v PerpDist2D(Real_v const &px, Real_v const &py, Real_v const &vx, Real_v c
  * Find safety distance from a point to the phi plane
  */
 template <typename Real_v, typename UnplacedStruct_t, typename TubeType, bool inside>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void PhiPlaneSafety(UnplacedStruct_t const &tube, Vector3D<Real_v> const &pos, Real_v &safety)
 {
@@ -235,7 +235,7 @@ void PhiPlaneSafety(UnplacedStruct_t const &tube, Vector3D<Real_v> const &pos, R
 
 template <typename Real_v, typename UnplacedStruct_t, typename TubeType, bool PositiveDirectionOfPhiVector,
           bool insectorCheck>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, Precision normalX, Precision normalY,
                                     UnplacedStruct_t const &tube, Vector3D<Real_v> const &pos,
@@ -322,7 +322,7 @@ struct TubeImplementation {
 
   /////GenericKernel Contains/Inside implementation
   template <typename Real_v, bool ForInside>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void GenericKernelForContainsAndInside(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point,
                                                 typename vecCore::Mask_v<Real_v> &completelyinside,
@@ -382,7 +382,7 @@ struct TubeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Contains(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point,
                        typename vecCore::Mask_v<Real_v> &contains)
@@ -394,7 +394,7 @@ struct TubeImplementation {
   }
 
   template <typename Real_v, typename Inside_t>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Inside(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Inside_t &inside)
   {
@@ -408,7 +408,7 @@ struct TubeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToIn(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir,
                            Real_v const & /*stepMax*/, Real_v &distance)
@@ -554,7 +554,7 @@ struct TubeImplementation {
   } // end of DistanceToIn()
 
   template <typename Real_v>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToOut(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir,
                             Real_v const & /*stepMax*/, Real_v &distance)
@@ -685,7 +685,7 @@ struct TubeImplementation {
 
   /// This function keeps track of both positive (outside) and negative (inside) distances separately
   template <typename Real_v>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyAssign(Real_v safety, Real_v &positiveSafety, Real_v &negativeSafety)
   {
@@ -698,7 +698,7 @@ struct TubeImplementation {
       smallest positive distance (w.r.t. faces which point is outside of)
    */
   template <typename Real_v>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyKernel(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Real_v &safePos,
                            Real_v &safeNeg)
@@ -731,7 +731,7 @@ struct TubeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToIn(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Real_v &safety)
   {
@@ -749,7 +749,7 @@ struct TubeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToOut(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Real_v &safety)
   {
@@ -766,7 +766,7 @@ struct TubeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToInOld(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Real_v &safety)
   {
@@ -798,7 +798,7 @@ struct TubeImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToOutOld(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Real_v &safety)
   {

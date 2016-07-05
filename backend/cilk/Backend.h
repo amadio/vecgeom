@@ -78,16 +78,16 @@ public:
 
   CilkVector(CilkVector const &other) { vec[:] = other.vec[:]; }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   static constexpr int size() { return vec_size; }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void store(Type *destination) const { destination [0:vec_size] = vec[:]; }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void Map(Type (*f)(const Type &)) { vec[:] = f(vec[:]); }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void Map(Type (*f)(const Type)) { vec[:] = f(vec[:]); }
 
   explicit operator bool() { return __sec_reduce_all_nonzero(vec[:]); }
@@ -105,7 +105,7 @@ public:
     return os;
   }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VecType operator!() const
   {
     VecType result;
@@ -116,13 +116,13 @@ public:
 // Inplace binary operators
 
 #define INPLACE_BINARY_OP(OPERATOR)                \
-  VECGEOM_INLINE                                   \
+  VECGEOM_FORCE_INLINE                             \
   VecType &operator OPERATOR(const VecType &other) \
   {                                                \
     this->vec[:] OPERATOR other.vec[:];            \
     return *this;                                  \
   }                                                \
-  VECGEOM_INLINE                                   \
+  VECGEOM_FORCE_INLINE                             \
   VecType &operator OPERATOR(const Type &scalar)   \
   {                                                \
     this->vec[:] OPERATOR scalar;                  \
@@ -140,21 +140,21 @@ public:
 // Binary operators
 
 #define BINARY_OP(OPERATOR, INPLACE)                                         \
-  VECGEOM_INLINE                                                             \
+  VECGEOM_FORCE_INLINE                                                       \
   VecType operator OPERATOR(const VecType &other) const                      \
   {                                                                          \
     VecType result(*this);                                                   \
     result INPLACE other;                                                    \
     return result;                                                           \
   }                                                                          \
-  VECGEOM_INLINE                                                             \
+  VECGEOM_FORCE_INLINE                                                       \
   VecType operator OPERATOR(const Type &scalar) const                        \
   {                                                                          \
     VecType result(*this);                                                   \
     result INPLACE scalar;                                                   \
     return result;                                                           \
   }                                                                          \
-  VECGEOM_INLINE                                                             \
+  VECGEOM_FORCE_INLINE                                                       \
   friend VecType operator OPERATOR(const Type &scalar, VecType const &other) \
   {                                                                          \
     VecType result(scalar);                                                  \
@@ -170,14 +170,14 @@ public:
 // Boolean operators
 
 #define BOOLEAN_OP(OPERATOR)                            \
-  VECGEOM_INLINE                                        \
+  VECGEOM_FORCE_INLINE                                  \
   VecBool operator OPERATOR(const VecType &other) const \
   {                                                     \
     VecBool result;                                     \
     result.vec[:] = this->vec[:] OPERATOR other.vec[:]; \
     return result;                                      \
   }                                                     \
-  VECGEOM_INLINE                                        \
+  VECGEOM_FORCE_INLINE                                  \
   VecBool operator OPERATOR(const Type &scalar) const   \
   {                                                     \
     VecBool result;                                     \
@@ -200,7 +200,7 @@ public:
  * Should probably support scalar assignments as well.
  */
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void CondAssign(CilkBool const &cond, Type const &thenval, Type const &elseval, Type *const output)
 {
   if (cond.vec[:]) {
@@ -215,7 +215,7 @@ void CondAssign(CilkBool const &cond, Type const &thenval, Type const &elseval, 
  * Should probably support scalar assignments as well.
  */
 template <typename Type1, typename Type2>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void MaskedAssign(CilkBool const &cond, Type1 const &thenval, Type2 *const output)
 {
   if (cond.vec[:]) {
@@ -223,7 +223,7 @@ void MaskedAssign(CilkBool const &cond, Type1 const &thenval, Type2 *const outpu
   }
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 CilkPrecision Abs(CilkPrecision const &val)
 {
   CilkPrecision result;
@@ -231,7 +231,7 @@ CilkPrecision Abs(CilkPrecision const &val)
   return result;
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 CilkPrecision Sqrt(CilkPrecision const &val)
 {
   CilkPrecision result;
@@ -239,7 +239,7 @@ CilkPrecision Sqrt(CilkPrecision const &val)
   return result;
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 CilkPrecision Min(CilkPrecision const &val1, CilkPrecision const &val2)
 {
   CilkPrecision result;
@@ -247,7 +247,7 @@ CilkPrecision Min(CilkPrecision const &val1, CilkPrecision const &val2)
   return result;
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 CilkPrecision Max(CilkPrecision const &val1, CilkPrecision const &val2)
 {
   CilkPrecision result;
@@ -255,7 +255,7 @@ CilkPrecision Max(CilkPrecision const &val1, CilkPrecision const &val2)
   return result;
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 CilkInt Min(CilkInt const &val1, CilkInt const &val2)
 {
   CilkInt result;
@@ -263,7 +263,7 @@ CilkInt Min(CilkInt const &val1, CilkInt const &val2)
   return result;
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 CilkInt Max(CilkInt const &val1, CilkInt const &val2)
 {
   CilkInt result;

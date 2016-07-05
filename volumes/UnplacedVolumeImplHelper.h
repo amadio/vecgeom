@@ -14,7 +14,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 // kernels
 template <class Implementation, typename Real_v>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 static void DistanceToOutLoop(typename Implementation::UnplacedStruct_t const *shapestruct, const size_t offset,
                               const size_t size, SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
                               double const *step_max, double *output)
@@ -33,7 +33,7 @@ static void DistanceToOutLoop(typename Implementation::UnplacedStruct_t const *s
 }
 
 template <class Implementation, typename Real_v>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 static void SafetyToOutLoop(typename Implementation::UnplacedStruct_t const *shapestruct, const size_t offset,
                             const size_t size, SOA3D<Precision> const &points, double *output)
 {
@@ -64,7 +64,7 @@ public:
   using BaseUnplVol::DistanceToIn;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
                                   Precision step_max = kInfinity) const override
   {
@@ -88,7 +88,7 @@ public:
 
   // the extended DistanceToOut interface
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
                                   Vector3D<Precision> &normal, bool &convex,
                                   Precision step_max = kInfinity) const override
@@ -103,7 +103,7 @@ public:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual bool Contains(Vector3D<Precision> const &p) const override
   {
     bool output(false);
@@ -112,7 +112,7 @@ public:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual EnumInside Inside(Vector3D<Precision> const &p) const override
   {
     using Inside_t = vecCore::Int32_s;

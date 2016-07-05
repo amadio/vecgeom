@@ -38,7 +38,7 @@ namespace volumeUtilities {
  * @param volume is the shape under test
  * @return true/false whether the trajectory hits the volume
  */
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 bool IsHittingVolume(Vector3D<Precision> const &point, Vector3D<Precision> const &dir, VPlacedVolume const &volume)
 {
   assert(!volume.Contains(point));
@@ -72,7 +72,7 @@ inline bool IsHittingAnyDaughter(Vector3D<Precision> const &point, Vector3D<Prec
  * @param scale an optional scale factor (default is 1)
  * @return a random output point
  */
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 Vector3D<Precision> SamplePoint(Vector3D<Precision> const &size, const Precision scale = 1)
 {
   const Vector3D<Precision> ret(scale * (1. - 2. * RNG::Instance().uniform()) * size[0],
@@ -86,7 +86,7 @@ Vector3D<Precision> SamplePoint(Vector3D<Precision> const &size, const Precision
  *  @details Mostly used for benchmarks, when a direction is needed.
  *  @return a random, normalized direction vector
  */
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 Vector3D<Precision> SampleDirection()
 {
 
@@ -104,7 +104,7 @@ Vector3D<Precision> SampleDirection()
  *  @param dirs is the output container, provided by the caller
  */
 template <typename TrackContainer>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void FillRandomDirections(TrackContainer &dirs)
 {
   dirs.resize(dirs.capacity());
@@ -128,7 +128,7 @@ void FillRandomDirections(TrackContainer &dirs)
  *    caller.
  */
 template <typename TrackContainer>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void FillBiasedDirections(VPlacedVolume const &volume, TrackContainer const &points, Precision bias,
                           TrackContainer &dirs)
 {
@@ -249,7 +249,7 @@ void FillBiasedDirections(VPlacedVolume const &volume, TrackContainer const &poi
  * @detail Delegates the filling to the other function (@see FillBiasedDirections).
  */
 template <typename TrackContainer>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void FillBiasedDirections(LogicalVolume const &volume, TrackContainer const &points, const Precision bias,
                           TrackContainer &dirs)
 {
@@ -258,7 +258,7 @@ void FillBiasedDirections(LogicalVolume const &volume, TrackContainer const &poi
   delete placed;
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 Precision UncontainedCapacity(VPlacedVolume const &volume)
 {
   Precision momCapacity = const_cast<VPlacedVolume &>(volume).Capacity();
@@ -280,7 +280,7 @@ Precision UncontainedCapacity(VPlacedVolume const &volume)
  * @param points is the output container, provided by the caller.
  */
 template <typename TrackContainer>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void FillUncontainedPoints(VPlacedVolume const &volume, TrackContainer &points)
 {
   static double lastUncontCap = 0.0;
@@ -335,7 +335,7 @@ void FillUncontainedPoints(VPlacedVolume const &volume, TrackContainer &points)
 }
 
 template <typename TrackContainer>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void FillUncontainedPoints(LogicalVolume const &volume, TrackContainer &points)
 {
   VPlacedVolume const *const placed = volume.Place();
@@ -351,7 +351,7 @@ void FillUncontainedPoints(LogicalVolume const &volume, TrackContainer &points)
  * @param points is the output container, provided by the caller.
  */
 template <typename TrackContainer>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void FillContainedPoints(VPlacedVolume const &volume, const double bias, TrackContainer &points,
                          const bool placed = true)
 {
@@ -441,7 +441,7 @@ void FillContainedPoints(VPlacedVolume const &volume, const double bias, TrackCo
 }
 
 template <typename TrackContainer>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void FillContainedPoints(VPlacedVolume const &volume, TrackContainer &points, const bool placed = true)
 {
   FillContainedPoints<TrackContainer>(volume, 1, points, placed);
@@ -457,7 +457,7 @@ void FillContainedPoints(VPlacedVolume const &volume, TrackContainer &points, co
  * returns if successful or not
  */
 template <typename TrackContainer>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 bool FillRandomPoints(VPlacedVolume const &volume, TrackContainer &points)
 {
   const int size = points.capacity();
@@ -498,7 +498,7 @@ bool FillRandomPoints(VPlacedVolume const &volume, TrackContainer &points)
  * @param points is the output container, provided by the caller.
  */
 template <typename TrackContainer>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void FillRandomPoints(Vector3D<Precision> const &lowercorner, Vector3D<Precision> const &uppercorner,
                       TrackContainer &points)
 {
@@ -518,7 +518,7 @@ void FillRandomPoints(Vector3D<Precision> const &lowercorner, Vector3D<Precision
  * @param points is the output container, provided by the caller.
  */
 template <typename TrackContainer, typename ExcludedVol, bool exlu = true>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void FillRandomPoints(Vector3D<Precision> const &lowercorner, Vector3D<Precision> const &uppercorner,
                       ExcludedVol const &vol, TrackContainer &points)
 {
@@ -542,7 +542,7 @@ void FillRandomPoints(Vector3D<Precision> const &lowercorner, Vector3D<Precision
  * @param points is the output container, provided by the caller.
  */
 template <typename TrackContainer>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void FillRandomPoints(Vector3D<Precision> const &dim, TrackContainer &points)
 {
   FillRandomPoints(Vector3D<Precision>(-dim.x(), -dim.y(), -dim.z()), Vector3D<Precision>(dim.x(), dim.y(), dim.z()),
@@ -762,7 +762,7 @@ inline Precision GetRadiusInRing(Precision rmin, Precision rmax)
  *  output :  Return a boolean, true if intersection exists, otherwise false.
  *
  */
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 bool IntersectionExist(Vector3D<Precision> const lowercornerFirstBox, Vector3D<Precision> const uppercornerFirstBox,
                        Vector3D<Precision> const lowercornerSecondBox, Vector3D<Precision> const uppercornerSecondBox)
 {
@@ -807,7 +807,7 @@ bool IntersectionExist(Vector3D<Precision> const lowercornerFirstBox, Vector3D<P
  *
  *  output :  Return a boolean, true if intersection exists, otherwise false.
  */
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 bool IntersectionExist(Vector3D<Precision> const lowercornerFirstBox, Vector3D<Precision> const uppercornerFirstBox,
                        Vector3D<Precision> const lowercornerSecondBox, Vector3D<Precision> const uppercornerSecondBox,
                        Transformation3D const *transformFirstBox, Transformation3D const *transformSecondBox, bool aux)

@@ -203,63 +203,63 @@ public:
   virtual ~UnplacedPolyhedron() {}
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   int GetSideCount() const { return fSideCount; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   int GetZSegmentCount() const { return fZSegments.size(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   bool HasInnerRadii() const { return fHasInnerRadii; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   bool HasPhiCutout() const { return fHasPhiCutout; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   bool HasLargePhiCutout() const { return fHasLargePhiCutout; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   ZSegment const &GetZSegment(int i) const { return fZSegments[i]; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Array<ZSegment> const &GetZSegments() const { return fZSegments; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetZPlane(int i) const { return fZPlanes[i]; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Array<Precision> const &GetZPlanes() const { return fZPlanes; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Array<Precision> const &GetRMin() const { return fRMin; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Array<Precision> const &GetRMax() const { return fRMax; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Vector3D<Precision> GetPhiSection(int i) const { return fPhiSections[i]; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   SOA3D<Precision> const &GetPhiSections() const { return fPhiSections; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   GenericUnplacedTube const &GetBoundingTube() const { return fBoundingTube; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetBoundingTubeOffset() const { return fBoundingTubeOffset; }
 
 #ifndef VECGEOM_NVCC
@@ -413,7 +413,7 @@ public:
   #endif
         VPlacedVolume *const placement) const final;
   */
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual int memory_size() const final { return sizeof(*this); }
 
 #ifdef VECGEOM_CUDA_INTERFACE

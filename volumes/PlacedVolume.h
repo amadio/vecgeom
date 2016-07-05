@@ -89,33 +89,33 @@ public:
   virtual ~VPlacedVolume();
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   unsigned int id() const { return id_; }
 
   std::string const &GetLabel() const { return *label_; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   PlacedBox const *bounding_box() const { return bounding_box_; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   LogicalVolume const *GetLogicalVolume() const { return logical_volume_; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Vector<Daughter> const &GetDaughters() const { return logical_volume_->GetDaughters(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   const char *GetName() const { return (*label_).c_str(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VUnplacedVolume const *GetUnplacedVolume() const { return logical_volume_->GetUnplacedVolume(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Transformation3D const *GetTransformation() const
   {
 #ifdef VECGEOM_INPLACE_TRANSFORMATIONS
@@ -203,7 +203,7 @@ public:
       const VECGEOM_BACKEND_PRECISION_TYPE step_max = kInfinity) const = 0;
 
   template <typename T>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   T DistanceToIn(Vector3D<T> const &position, Vector3D<T> const &direction, const T step_max = T(kInfinity)) const
   {
     return DistanceToInVec(position, direction, step_max);
@@ -231,7 +231,7 @@ public:
       VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfinity) const = 0;
 
   template <typename T>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   T DistanceToOut(Vector3D<T> const &position, Vector3D<T> const &direction, const T step_max = T(kInfinity)) const
   {
     return DistanceToOutVec(position, direction, step_max);
@@ -258,7 +258,7 @@ public:
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const = 0;
 
   template <typename T>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   T SafetyToIn(Vector3D<T> const &p) const
   {
     return SafetyToInVec(p);
@@ -278,7 +278,7 @@ public:
   virtual void SafetyToOut(SOA3D<Precision> const &position, Precision *const safeties) const = 0;
 
   template <typename T>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   T SafetyToOut(Vector3D<T> const &p) const
   {
     return SafetyToOutVec(p);

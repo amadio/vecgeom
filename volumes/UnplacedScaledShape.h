@@ -83,17 +83,17 @@ public:
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
 #endif
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   const VUnplacedVolume *UnscaledShape() const { return fPlaced->GetLogicalVolume()->GetUnplacedVolume(); }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VPlacedVolume const *GetPlaced() const { return fPlaced; }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Scale3D const &GetScale() const { return fScale; }
 
 #ifndef VECGEOM_NVCC
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision Volume() const
   {
     Precision capacity             = ((VPlacedVolume *)fPlaced)->Capacity();
@@ -102,10 +102,10 @@ public:
     return capacity;
   }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision Capacity() { return Volume(); }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision SurfaceArea() const
   {
     /// To do - not so easy as for the capacity...

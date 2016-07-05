@@ -93,7 +93,7 @@ struct NeedsPhiTreatment<UniversalCone> {
 };
 
 template <typename T>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 bool checkPhiTreatment(const UnplacedCone &cone)
 {
@@ -137,7 +137,7 @@ struct NeedsRminTreatment<UniversalCone> {
 };
 
 template <typename T>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 bool checkRminTreatment(const UnplacedCone &cone)
 {

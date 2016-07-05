@@ -103,13 +103,13 @@ public:
   void SetStartPhiAngle(Precision xin, bool) { const_cast<UnplacedCone *>(GetUnplacedVolume())->SetSPhi(xin); }
   void SetDeltaPhiAngle(Precision xin) { const_cast<UnplacedCone *>(GetUnplacedVolume())->SetDPhi(xin); }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   double SafetyFromInsideR(const Vector3D<Precision> &p, const double rho, bool precise = false) const
   {
     return GetUnplacedVolume()->SafetyFromInsideR(p, rho, precise);
   }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   double SafetyFromOutsideR(const Vector3D<Precision> &p, const double rho, bool precise = false) const
   {
     return GetUnplacedVolume()->SafetyFromOutsideR(p, rho, precise);

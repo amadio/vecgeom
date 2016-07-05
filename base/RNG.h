@@ -41,7 +41,7 @@ private:
 #endif
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetUniform()
   {
 #ifdef __CUDA_ARCH__
@@ -56,7 +56,7 @@ private:
   std::mt19937 rng;
   std::uniform_real_distribution<> uniform_dist;
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetUniform() { return uniform_dist(rng); }
 
 #endif
@@ -125,11 +125,11 @@ public:
    *         range arguments are passed.
    */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision uniform(const Precision min = 0., const Precision max = 1.) { return min + (max - min) * GetUniform(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   int Poisson(const Precision lambda)
   {
     int k                  = 0;
@@ -144,11 +144,11 @@ public:
 
   // interface for ROOT compatibility
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision Gaus(Precision ave = 0.0, Precision sig = 1.0) { return Gauss(ave, sig); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision Gauss(Precision ave = 0.0, Precision sig = 1.0)
   {
     Precision x1, x2, w;
@@ -168,7 +168,7 @@ public:
    *         range arguments are passed.
    */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void uniform_array(size_t n, Precision *array, const Precision min = 0., const Precision max = 1.)
   {
     for (size_t i = 0; i < n; ++i) {

@@ -56,23 +56,23 @@ public:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision rmin() const { return GetUnplacedVolume()->rmin(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision rmax() const { return GetUnplacedVolume()->rmax(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision rtor() const { return GetUnplacedVolume()->rtor(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision sphi() const { return GetUnplacedVolume()->sphi(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision dphi() const { return GetUnplacedVolume()->dphi(); }
 
   VECGEOM_CUDA_HEADER_BOTH

@@ -20,7 +20,7 @@ using uint = unsigned int;
 #ifdef __INTEL_COMPILER
 // Compiling with icc
 #define VECGEOM_INTEL
-#define VECGEOM_INLINE inline
+#define VECGEOM_FORCE_INLINE inline
 #ifndef VECGEOM_NVCC
 #define VECGEOM_ALIGNED __attribute__((aligned(64)))
 #endif
@@ -29,13 +29,13 @@ using uint = unsigned int;
 #include <mm_malloc.h>
 #if (defined(__GNUC__) || defined(__GNUG__)) && !defined(__clang__) && !defined(__NO_INLINE__) && \
     !defined(VECGEOM_NOINLINE)
-#define VECGEOM_INLINE inline __attribute__((always_inline))
+#define VECGEOM_FORCE_INLINE inline __attribute__((always_inline))
 #ifndef VECGEOM_NVCC
 #define VECGEOM_ALIGNED __attribute__((aligned(64)))
 #endif
 #else
 // Clang or forced inlining is disabled ( by falling back to compiler decision )
-#define VECGEOM_INLINE inline
+#define VECGEOM_FORCE_INLINE inline
 #ifndef VECGEOM_NVCC
 #define VECGEOM_ALIGNED
 #endif

@@ -50,102 +50,102 @@ public:
   virtual ~PlacedHype() {}
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   UnplacedHype const *GetUnplacedVolume() const
   {
     return static_cast<UnplacedHype const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetRmin() const { return GetUnplacedVolume()->GetRmin(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetRmax() const { return GetUnplacedVolume()->GetRmax(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetRmin2() const { return GetUnplacedVolume()->GetRmin2(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetRmax2() const { return GetUnplacedVolume()->GetRmax2(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetStIn() const { return GetUnplacedVolume()->GetStIn(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetStOut() const { return GetUnplacedVolume()->GetStOut(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetTIn() const { return GetUnplacedVolume()->GetTIn(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetTOut() const { return GetUnplacedVolume()->GetTOut(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetTIn2() const { return GetUnplacedVolume()->GetTIn2(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetTOut2() const { return GetUnplacedVolume()->GetTOut2(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetTIn2Inv() const { return GetUnplacedVolume()->GetTIn2Inv(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetTOut2Inv() const { return GetUnplacedVolume()->GetTOut2Inv(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetDz() const { return GetUnplacedVolume()->GetDz(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetDz2() const { return GetUnplacedVolume()->GetDz2(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetEndInnerRadius() const { return GetUnplacedVolume()->GetEndInnerRadius(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetEndInnerRadius2() const { return GetUnplacedVolume()->GetEndInnerRadius2(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetEndOuterRadius() const { return GetUnplacedVolume()->GetEndOuterRadius(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetEndOuterRadius2() const { return GetUnplacedVolume()->GetEndOuterRadius2(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetInSqSide() const { return GetUnplacedVolume()->GetInSqSide(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetZToleranceLevel() const { return GetUnplacedVolume()->GetZToleranceLevel(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetInnerRadToleranceLevel() const { return GetUnplacedVolume()->GetInnerRadToleranceLevel(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetOuterRadToleranceLevel() const { return GetUnplacedVolume()->GetOuterRadToleranceLevel(); }
 
   template <bool ForInnerSurface>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   Precision GetHypeRadius2(Precision dz) const
   {
@@ -156,14 +156,14 @@ public:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   bool PointOnZSurface(Vector3D<Precision> const &p) const
   {
     return (p.z() > (GetDz() - GetZToleranceLevel())) && (p.z() < (GetDz() + GetZToleranceLevel()));
   }
 
   template <bool ForInnerSurface>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   bool PointOnHyperbolicSurface(Vector3D<Precision> const &p) const
   {
@@ -206,7 +206,7 @@ public:
 
   Precision SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
 #if defined(VECGEOM_USOLIDS)
   std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType(); }
 
@@ -225,10 +225,10 @@ public:
   Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface(); }
 
   //  VECGEOM_CUDA_HEADER_BOTH
-  //  VECGEOM_INLINE
+  //  VECGEOM_FORCE_INLINE
   //  void ComputeBBox() const { return GetUnplacedVolume()->ComputeBBox();}
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual int memory_size() const override { return sizeof(*this); }
 
 #if defined(VECGEOM_USOLIDS)

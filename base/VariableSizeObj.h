@@ -34,31 +34,31 @@ public:
 
   VariableSizeObj(TRootIOCtor *) : fSelfAlloc(false), fN(0) {}
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   VariableSizeObj(unsigned int nvalues) : fSelfAlloc(false), fN(nvalues) {}
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   VariableSizeObj(const VariableSizeObj &other) : fSelfAlloc(false), fN(other.fN)
   {
     if (other.fN) memcpy(GetValues(), other.GetValues(), (other.fN) * sizeof(V));
   }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   VariableSizeObj(size_t new_size, const VariableSizeObj &other) : fSelfAlloc(false), fN(new_size)
   {
     if (other.fN) memcpy(GetValues(), other.GetValues(), (other.fN) * sizeof(V));
   }
 
-  VECGEOM_INLINE VECGEOM_CUDA_HEADER_BOTH V *GetValues() { return &fRealArray[0]; }
-  VECGEOM_INLINE VECGEOM_CUDA_HEADER_BOTH const V *GetValues() const { return &fRealArray[0]; }
+  VECGEOM_FORCE_INLINE VECGEOM_CUDA_HEADER_BOTH V *GetValues() { return &fRealArray[0]; }
+  VECGEOM_FORCE_INLINE VECGEOM_CUDA_HEADER_BOTH const V *GetValues() const { return &fRealArray[0]; }
 
-  VECGEOM_INLINE VECGEOM_CUDA_HEADER_BOTH V &operator[](Index_t index) { return GetValues()[index]; };
-  VECGEOM_INLINE VECGEOM_CUDA_HEADER_BOTH const V &operator[](Index_t index) const { return GetValues()[index]; };
+  VECGEOM_FORCE_INLINE VECGEOM_CUDA_HEADER_BOTH V &operator[](Index_t index) { return GetValues()[index]; };
+  VECGEOM_FORCE_INLINE VECGEOM_CUDA_HEADER_BOTH const V &operator[](Index_t index) const { return GetValues()[index]; };
 
-  VECGEOM_INLINE VECGEOM_CUDA_HEADER_BOTH VariableSizeObj &operator=(const VariableSizeObj &rhs)
+  VECGEOM_FORCE_INLINE VECGEOM_CUDA_HEADER_BOTH VariableSizeObj &operator=(const VariableSizeObj &rhs)
   {
     // Copy data content using memcpy, limited by the respective size
     // of the the object.  If this is smaller there is data truncation,

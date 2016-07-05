@@ -49,7 +49,7 @@ struct NeedsRminTreatment<UniversalHype> {
 };
 
 template <typename T>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 bool checkRminTreatment(const UnplacedHype &hype)
 {

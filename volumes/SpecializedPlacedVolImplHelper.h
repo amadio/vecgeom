@@ -211,7 +211,7 @@ public:
 
 // needs to be in the specializations
 template <class Specialization, typename Real_v, int transC, int rotC>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 static void ContainsLoopKernel(typename Specialization::UnplacedStruct_t const &shapestruct,
                                Transformation3D const &trans, const size_t offset, const size_t size,
                                SOA3D<Precision> const &points, bool *const output)
@@ -228,7 +228,7 @@ static void ContainsLoopKernel(typename Specialization::UnplacedStruct_t const &
 }
 
 template <class Specialization, typename Real_v, int transC, int rotC>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 static void InsideLoopKernel(typename Specialization::UnplacedStruct_t const &shapestruct,
                              Transformation3D const &trans, const size_t offset, const size_t size,
                              SOA3D<Precision> const &points, Inside_t *const output)
@@ -246,7 +246,7 @@ static void InsideLoopKernel(typename Specialization::UnplacedStruct_t const &sh
 }
 
 template <class Specialization, typename Real_v, int transC, int rotC>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 static void SafetyToInLoopKernel(typename Specialization::UnplacedStruct_t const &shapestruct,
                                  Transformation3D const &trans, const size_t offset, const size_t size,
                                  SOA3D<Precision> const &points, double *const output)
@@ -262,7 +262,7 @@ static void SafetyToInLoopKernel(typename Specialization::UnplacedStruct_t const
 }
 
 template <class Specialization, typename Real_v, int transC, int rotC>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 static void DistanceToInLoopKernel(typename Specialization::UnplacedStruct_t const &shapestruct,
                                    Transformation3D const &trans, const size_t offset, const size_t size,
                                    SOA3D<Precision> const &points, SOA3D<Precision> const &directions,

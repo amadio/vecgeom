@@ -111,15 +111,15 @@ public:
   Transformation3D(const Vector3D<Precision> &axis, bool inverse = true);
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Transformation3D(Transformation3D const &other);
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Transformation3D &operator=(Transformation3D const &rhs);
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   bool operator==(Transformation3D const &rhs) const;
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -139,7 +139,7 @@ public:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Vector3D<Precision> Translation() const
   {
     return Vector3D<Precision>(fTranslation[0], fTranslation[1], fTranslation[2]);
@@ -150,11 +150,11 @@ public:
    * @param index Index of translation entry in the range [0-2].
    */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision Translation(const int index) const { return fTranslation[index]; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision const *Rotation() const { return fRotation; }
 
   /**
@@ -162,19 +162,19 @@ public:
    * \param index Index of rotation entry in the range [0-8].
    */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision Rotation(const int index) const { return fRotation[index]; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   bool IsIdentity() const { return fIdentity; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   bool HasRotation() const { return fHasRotation; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   bool HasTranslation() const { return fHasTranslation; }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -218,23 +218,23 @@ private:
   // optimized versions.
 
   template <RotationCode code, typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void DoRotation(Vector3D<InputType> const &master, Vector3D<InputType> &local) const;
 
   template <RotationCode code, typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void DoRotation_new(Vector3D<InputType> const &master, Vector3D<InputType> &local) const;
 
 private:
   template <typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void DoTranslation(Vector3D<InputType> const &master, Vector3D<InputType> &local) const;
 
   template <bool vectortransform, typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void InverseTransformKernel(Vector3D<InputType> const &local, Vector3D<InputType> &master) const;
 
@@ -242,42 +242,42 @@ public:
   // Transformation interface
 
   template <TranslationCode trans_code, RotationCode rot_code, typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void Transform(Vector3D<InputType> const &master, Vector3D<InputType> &local) const;
 
   template <TranslationCode trans_code, RotationCode rot_code, typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   Vector3D<InputType> Transform(Vector3D<InputType> const &master) const;
 
   template <typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void Transform(Vector3D<InputType> const &master, Vector3D<InputType> &local) const;
 
   template <typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   Vector3D<InputType> Transform(Vector3D<InputType> const &master) const;
 
   template <RotationCode code, typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void TransformDirection(Vector3D<InputType> const &master, Vector3D<InputType> &local) const;
 
   template <RotationCode code, typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   Vector3D<InputType> TransformDirection(Vector3D<InputType> const &master) const;
 
   template <typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void TransformDirection(Vector3D<InputType> const &master, Vector3D<InputType> &local) const;
 
   template <typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   Vector3D<InputType> TransformDirection(Vector3D<InputType> const &master) const;
 
@@ -285,34 +285,34 @@ public:
    *  this does not need to currently template on placement since such a transformation is much less used
    */
   template <typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void InverseTransform(Vector3D<InputType> const &local, Vector3D<InputType> &master) const;
 
   template <typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   Vector3D<InputType> InverseTransform(Vector3D<InputType> const &local) const;
 
   /** The inverse transformation of an object transforming like a vector */
   template <typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void InverseTransformDirection(Vector3D<InputType> const &master, Vector3D<InputType> &local) const;
 
   template <typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   Vector3D<InputType> InverseTransformDirection(Vector3D<InputType> const &master) const;
 
   /** compose transformations - multiply transformations */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void MultiplyFromRight(Transformation3D const &rhs);
 
   /** compose transformations - multiply transformations */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void CopyFrom(Transformation3D const &rhs)
   {
     // not sure this compiles under CUDA
@@ -422,7 +422,7 @@ bool Transformation3D::operator==(Transformation3D const &rhs) const
  * \param local Output vector rotated to the new frame of reference.
  */
 template <RotationCode code, typename InputType>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void Transformation3D::DoRotation(Vector3D<InputType> const &master, Vector3D<InputType> &local) const
 {
@@ -547,7 +547,7 @@ void Transformation3D::DoRotation(Vector3D<InputType> const &master, Vector3D<In
  * \param local Output vector rotated to the new frame of reference.
  */
 template <RotationCode code, typename InputType>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void Transformation3D::DoRotation_new(Vector3D<InputType> const &master, Vector3D<InputType> &local) const
 {
@@ -590,7 +590,7 @@ void Transformation3D::DoRotation_new(Vector3D<InputType> const &master, Vector3
 }
 
 template <typename InputType>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void Transformation3D::DoTranslation(Vector3D<InputType> const &master, Vector3D<InputType> &local) const
 {
@@ -607,7 +607,7 @@ void Transformation3D::DoTranslation(Vector3D<InputType> const &master, Vector3D
  *              vector!
  */
 template <TranslationCode trans_code, RotationCode rot_code, typename InputType>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void Transformation3D::Transform(Vector3D<InputType> const &master, Vector3D<InputType> &local) const
 {
@@ -643,7 +643,7 @@ void Transformation3D::Transform(Vector3D<InputType> const &master, Vector3D<Inp
  * \return Newly constructed Vector3D with the transformed coordinates.
  */
 template <TranslationCode trans_code, RotationCode rot_code, typename InputType>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 Vector3D<InputType> Transformation3D::Transform(Vector3D<InputType> const &master) const
 {
@@ -654,14 +654,14 @@ Vector3D<InputType> Transformation3D::Transform(Vector3D<InputType> const &maste
 }
 
 template <typename InputType>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void Transformation3D::Transform(Vector3D<InputType> const &master, Vector3D<InputType> &local) const
 {
   Transform<translation::kGeneric, rotation::kGeneric>(master, local);
 }
 template <typename InputType>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 Vector3D<InputType> Transformation3D::Transform(Vector3D<InputType> const &master) const
 {
@@ -669,7 +669,7 @@ Vector3D<InputType> Transformation3D::Transform(Vector3D<InputType> const &maste
 }
 
 template <bool transform_direction, typename InputType>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void Transformation3D::InverseTransformKernel(Vector3D<InputType> const &local, Vector3D<InputType> &master) const
 {
@@ -704,7 +704,7 @@ void Transformation3D::InverseTransformKernel(Vector3D<InputType> const &local, 
 }
 
 template <typename InputType>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void Transformation3D::InverseTransform(Vector3D<InputType> const &local, Vector3D<InputType> &master) const
 {
@@ -712,7 +712,7 @@ void Transformation3D::InverseTransform(Vector3D<InputType> const &local, Vector
 }
 
 template <typename InputType>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 Vector3D<InputType> Transformation3D::InverseTransform(Vector3D<InputType> const &local) const
 {
@@ -722,7 +722,7 @@ Vector3D<InputType> Transformation3D::InverseTransform(Vector3D<InputType> const
 }
 
 template <typename InputType>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void Transformation3D::InverseTransformDirection(Vector3D<InputType> const &local, Vector3D<InputType> &master) const
 {
@@ -730,7 +730,7 @@ void Transformation3D::InverseTransformDirection(Vector3D<InputType> const &loca
 }
 
 template <typename InputType>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 Vector3D<InputType> Transformation3D::InverseTransformDirection(Vector3D<InputType> const &local) const
 {
@@ -740,7 +740,7 @@ Vector3D<InputType> Transformation3D::InverseTransformDirection(Vector3D<InputTy
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void Transformation3D::MultiplyFromRight(Transformation3D const &rhs)
 {
   // TODO: this code should directly operator on Vector3D and Matrix3D
@@ -817,7 +817,7 @@ void Transformation3D::MultiplyFromRight(Transformation3D const &rhs)
  * \param local Output destination of transformation.
  */
 template <RotationCode code, typename InputType>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void Transformation3D::TransformDirection(Vector3D<InputType> const &master, Vector3D<InputType> &local) const
 {
@@ -839,7 +839,7 @@ void Transformation3D::TransformDirection(Vector3D<InputType> const &master, Vec
  * \return Newly constructed Vector3D with the transformed coordinates.
  */
 template <RotationCode code, typename InputType>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 Vector3D<InputType> Transformation3D::TransformDirection(Vector3D<InputType> const &master) const
 {
@@ -850,7 +850,7 @@ Vector3D<InputType> Transformation3D::TransformDirection(Vector3D<InputType> con
 }
 
 template <typename InputType>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void Transformation3D::TransformDirection(Vector3D<InputType> const &master, Vector3D<InputType> &local) const
 {
@@ -858,7 +858,7 @@ void Transformation3D::TransformDirection(Vector3D<InputType> const &master, Vec
 }
 
 template <typename InputType>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 Vector3D<InputType> Transformation3D::TransformDirection(Vector3D<InputType> const &master) const
 {

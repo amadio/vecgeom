@@ -111,7 +111,7 @@ public:
 
   //______________________________________________________________________________
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   /** @brief Stripped down version of Inside method used for boundary and wrong side detection
    * @param point Starting point in the local frame
@@ -170,7 +170,7 @@ public:
 
   //______________________________________________________________________________
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   /** @brief Compute distance to a set of curved/planar surfaces
    * @param point Starting point in the local frame
@@ -231,7 +231,7 @@ public:
    * @param dir Direction in the local frame
    */
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   typename Backend::precision_v DistanceToOutPlanar(Vector3D<typename Backend::precision_v> const &point,
                                                     Vector3D<typename Backend::precision_v> const &dir) const
@@ -278,7 +278,7 @@ public:
    * @param dir Direction in the local frame
    */
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   typename Backend::precision_v DistanceToInPlanar(Vector3D<typename Backend::precision_v> const &point,
                                                    Vector3D<typename Backend::precision_v> const &dir,
@@ -325,7 +325,7 @@ public:
 
   //______________________________________________________________________________
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   /**
   * A generic function calculation the distance to a set of curved/planar surfaces
@@ -412,7 +412,7 @@ public:
    * @param safmax current safety value
    */
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   typename Backend::precision_v SafetyToOut(Vector3D<typename Backend::precision_v> const &point,
                                             typename Backend::precision_v const &safmax) const
@@ -460,7 +460,7 @@ public:
    * @param safmax current safety value
    */
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   typename Backend::precision_v SafetyToIn(Vector3D<typename Backend::precision_v> const &point,
                                            typename Backend::precision_v const &safmax) const
@@ -508,7 +508,7 @@ public:
    * @param in Inside value for starting point
    */
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   typename Backend::precision_v SafetyCurved(Vector3D<typename Backend::precision_v> const &point,
                                              typename Backend::bool_v in) const
@@ -589,7 +589,7 @@ public:
   } // end SafetyCurved
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Vertex_t const *GetNormals() const { return fNormals; }
 
   //______________________________________________________________________________
@@ -599,7 +599,7 @@ public:
    * @param isurf Surface index
    */
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   typename Backend::bool_v InSurfLimits(Vector3D<typename Backend::precision_v> const &point, int isurf) const
   {
@@ -625,7 +625,7 @@ public:
   //______________________________________________________________________________
   /** @brief Computes un-normalized normal to surface isurf, on the input point */
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void UNormal(Vector3D<typename Backend::precision_v> const &point, int isurf,
                Vector3D<typename Backend::precision_v> &unorm, typename Backend::precision_v &rz,
@@ -661,7 +661,7 @@ public:
   //______________________________________________________________________________
   /** @brief Solver for the second degree equation for curved surface crossing */
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   /**
    * Function to compute smin and smax crossings with the N lateral surfaces.

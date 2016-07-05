@@ -321,7 +321,7 @@ public:
 #endif // !VECGEOM_NVCC
 };
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 Precision UnplacedCone::SafetyToPhi(Vector3D<Precision> const &p, Precision rho, bool &outside) const
 {
 
@@ -342,7 +342,7 @@ Precision UnplacedCone::SafetyToPhi(Vector3D<Precision> const &p, Precision rho,
   return safePhi;
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 double UnplacedCone::SafetyFromInsideR(Vector3D<Precision> const &p, double rho, bool /*precise = false*/) const
 {
 
@@ -369,7 +369,7 @@ double UnplacedCone::SafetyFromInsideR(Vector3D<Precision> const &p, double rho,
   return safe;
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 double UnplacedCone::SafetyFromOutsideR(Vector3D<Precision> const &p, double rho, bool /*precise = false*/) const
 {
 

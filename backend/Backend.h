@@ -25,7 +25,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <typename T>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 T NonZeroAbs(T const &x)
 {
@@ -35,7 +35,7 @@ T NonZeroAbs(T const &x)
 }
 
 template <typename T>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 T NonZero(T const &x)
 {
@@ -46,7 +46,7 @@ T NonZero(T const &x)
 #if defined(VECGEOM_UMESIMD)
 
 template <>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 UmeSimdPrecisionVector NonZeroAbs(UmeSimdPrecisionVector const &x)
 {
 #ifdef VECGEOM_FLOAT_PRECISION
@@ -57,7 +57,7 @@ UmeSimdPrecisionVector NonZeroAbs(UmeSimdPrecisionVector const &x)
 }
 
 template <>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 UmeSimdPrecisionVector NonZero(UmeSimdPrecisionVector const &x)
 {
 #ifdef VECGEOM_FLOAT_PRECISION
@@ -71,7 +71,7 @@ UmeSimdPrecisionVector NonZero(UmeSimdPrecisionVector const &x)
 }
 
 template <>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 UME::SIMD::SIMDVec_f<Precision, kVectorSize> NonZeroAbs(UME::SIMD::SIMDVec_f<Precision, kVectorSize> const &x)
 {
 #ifdef VECGEOM_FLOAT_PRECISION
@@ -82,7 +82,7 @@ UME::SIMD::SIMDVec_f<Precision, kVectorSize> NonZeroAbs(UME::SIMD::SIMDVec_f<Pre
 }
 
 template <>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 UME::SIMD::SIMDVec_f<Precision, kVectorSize> NonZero(UME::SIMD::SIMDVec_f<Precision, kVectorSize> const &x)
 {
 #ifdef VECGEOM_FLOAT_PRECISION

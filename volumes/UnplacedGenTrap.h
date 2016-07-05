@@ -69,32 +69,32 @@ public:
 
   /** @brief Getter for the surface shell */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   SecondOrderSurfaceShell<4> const &GetShell() const { return (fSurfaceShell); }
 
   /** @brief Getter for the half-height */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetDZ() const { return (fDz); }
 
   /** @brief Getter for one of the 8 vertices in Vector3D<Precision> form */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Vertex_t const &GetVertex(int i) const { return fVertices[i]; }
 
   /** @brief Getter for the array of X coordinates of vertices */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   const Precision *GetVerticesX() const { return fVerticesX; }
 
   /** @brief Getter for the array of Y coordinates of vertices */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   const Precision *GetVerticesY() const { return fVerticesY; }
 
   /** @brief Getter for the list of vertices */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   const Vertex_t *GetVertices() const { return fVertices; }
 
   /** @brief Computes if this gentrap is twisted */
@@ -107,12 +107,12 @@ public:
 
   /** @brief Getter for the planarity of lateral surfaces */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   bool IsPlanar() const { return (!fIsTwisted); }
 
   /** @brief Getter for the global convexity of the trapezoid */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   bool IsDegenerated(int i) const { return (fDegenerated[i]); }
 
   /** @brief Computes if opposite segments are crossing, making a malformed shape */

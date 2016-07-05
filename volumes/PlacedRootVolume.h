@@ -45,23 +45,23 @@ public:
   virtual void PrintImplementationType(std::ostream &) const override;
   virtual void PrintUnplacedType(std::ostream &) const override;
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual bool Contains(Vector3D<Precision> const &point) const override;
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual bool Contains(Vector3D<Precision> const &point, Vector3D<Precision> &localPoint) const override;
 
   virtual void Contains(SOA3D<Precision> const &points, bool *const output) const override;
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual bool UnplacedContains(Vector3D<Precision> const &point) const override;
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual EnumInside Inside(Vector3D<Precision> const &point) const override;
 
   virtual void Inside(SOA3D<Precision> const &points, Inside_t *const output) const override;
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual Precision DistanceToIn(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                  const Precision step_max) const override;
 
@@ -71,7 +71,7 @@ public:
   virtual void DistanceToInMinimize(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
                                     int daughterindex, Precision *const output, int *const nextnodeids) const override;
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual Precision DistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                   Precision const stepMax) const override;
 
@@ -85,14 +85,14 @@ public:
                              Precision const *const step_max, Precision *const output,
                              int *const nextnodeindex) const override;
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual Precision SafetyToOut(Vector3D<Precision> const &position) const override;
 
   virtual void SafetyToOut(SOA3D<Precision> const &position, Precision *const safeties) const override;
 
   virtual void SafetyToOutMinimize(SOA3D<Precision> const &position, Precision *const safeties) const override;
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual Precision SafetyToIn(Vector3D<Precision> const &position) const override;
 
   virtual void SafetyToIn(SOA3D<Precision> const &position, Precision *const safeties) const override;
@@ -187,7 +187,7 @@ Precision PlacedRootVolume::DistanceToIn(Vector3D<Precision> const &position, Ve
                                          (stepMax == kInfinity) ? TGeoShape::Big() : stepMax);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 Precision PlacedRootVolume::DistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                           const Precision stepMax) const
 {
@@ -195,7 +195,7 @@ Precision PlacedRootVolume::DistanceToOut(Vector3D<Precision> const &position, V
                                         (stepMax == kInfinity) ? TGeoShape::Big() : stepMax);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 Precision PlacedRootVolume::PlacedDistanceToOut(Vector3D<Precision> const &position,
                                                 Vector3D<Precision> const &direction, const Precision stepMax) const
 {
@@ -205,14 +205,14 @@ Precision PlacedRootVolume::PlacedDistanceToOut(Vector3D<Precision> const &posit
                                         (stepMax == kInfinity) ? TGeoShape::Big() : stepMax);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 Precision PlacedRootVolume::SafetyToOut(Vector3D<Precision> const &position) const
 {
   Vector3D<Precision> position_local = GetTransformation()->Transform(position);
   return GetRootShape()->Safety(&position_local[0], true);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 Precision PlacedRootVolume::SafetyToIn(Vector3D<Precision> const &position) const
 {
   Vector3D<Precision> position_local = GetTransformation()->Transform(position);

@@ -125,7 +125,7 @@ public:
   // CUDA specific
 
   /** @brief Memory size in bytes */
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual int memory_size() const override { return sizeof(*this); }
 
 // Comparison specific

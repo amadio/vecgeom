@@ -25,10 +25,10 @@ public:
 
   virtual ~UnplacedRootVolume() {}
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   TGeoShape const *GetRootShape() const { return fRootShape; }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual int memory_size() const { return sizeof(*this); }
 
   virtual void Print() const;

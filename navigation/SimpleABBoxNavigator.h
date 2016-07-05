@@ -89,7 +89,7 @@ public:
   // we provide hit detection on the local level and reuse the generic implementations from
   // VNavigatorHelper<SimpleABBoxNavigator>
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual Precision ComputeStepAndHittingBoundaryForLocalPoint(Vector3D<Precision> const &localpoint,
                                                                Vector3D<Precision> const &localdir,
                                                                Precision step_limit, NavigationState const &in_state,
@@ -157,7 +157,7 @@ public:
     return VNavigator::PrepareOutState(in_state, out_state, step, step_limit, nexthitvolume, done);
   }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual bool CheckDaughterIntersections(LogicalVolume const *lvol, Vector3D<Precision> const &localpoint,
                                           Vector3D<Precision> const &localdir, NavigationState const & /*in_state*/,
                                           NavigationState & /*out_state*/, Precision &step,

@@ -42,19 +42,19 @@ public:
   BoxStruct<double> const &GetStruct() const { return fBox; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Vector3D<Precision> const &dimensions() const { return fBox.fDimensions; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision x() const { return dimensions().x(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision y() const { return dimensions().y(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision z() const { return dimensions().z(); }
 
   void SetX(double xx) { fBox.fDimensions[0] = xx; }

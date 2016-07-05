@@ -60,7 +60,7 @@ public:
 
   // a helper tramponline to dispatch to SafetyToInVec if type is not scalar
   template <typename T>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   T DistanceToOut(Vector3D<T> const &p, Vector3D<T> const &d, T const &step_max) const
   {
@@ -82,7 +82,7 @@ public:
 
   // the tramponline to dispatch to SafetyToOutVec if type is not scalar
   template <typename T>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   T SafetyToOut(Vector3D<T> const &p) const
   {
@@ -105,7 +105,7 @@ public:
   // the tramponline to dispatch to SafetyToInVec if type is not scalar
   // the T = Precision this template will not instantiate as the compiler finds another matching function
   template <typename T>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   T DistanceToIn(Vector3D<T> const &p, Vector3D<T> const &d, T const &step_max)
   {
@@ -123,7 +123,7 @@ public:
 
   // the tramponline to dispatch to SafetyToInVec if type is not scalar
   template <typename T>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   T SafetyToIn(Vector3D<T> const &p) const
   {

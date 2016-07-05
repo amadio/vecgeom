@@ -50,29 +50,29 @@ public:
   virtual ~PlacedOrb() {}
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   UnplacedOrb const *GetUnplacedVolume() const
   {
     return static_cast<UnplacedOrb const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetRadius() const { return GetUnplacedVolume()->GetRadius(); }
 
   VECGEOM_CUDA_HEADER_BOTH
   void SetRadius(Precision arg) { const_cast<UnplacedOrb *>(GetUnplacedVolume())->SetRadius(arg); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetfRTolO() const { return GetUnplacedVolume()->GetfRTolO(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetfRTolI() const { return GetUnplacedVolume()->GetfRTolI(); }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetfRTolerance() const { return GetUnplacedVolume()->GetfRTolerance(); }
 
   VECGEOM_CUDA_HEADER_BOTH

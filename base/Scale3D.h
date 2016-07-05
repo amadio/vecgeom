@@ -94,7 +94,7 @@ public:
    * on the values of the scale. Needed whenever the scale has changed value.
    */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void Update()
   {
     assert(((fScale[0] > 0) && (fScale[1] > 0) && (fScale[2] > 0)));
@@ -109,21 +109,21 @@ public:
    * Get reference to the scale vector.
    */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   const Vector3D<Precision> &Scale() const { return fScale; }
 
   /**
    * Get reference to the inverse scale vector.
    */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   const Vector3D<Precision> &InvScale() const { return fInvScale; }
 
   /**
    * Set scale based on vector.
    */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void SetScale(Vector3D<Precision> const &scale)
   {
     fScale = scale;
@@ -134,7 +134,7 @@ public:
    * Set scale based on values.
    */
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void SetScale(Precision sx, Precision sy, Precision sz)
   {
     fScale.Set(sx, sy, sz);
@@ -145,7 +145,7 @@ public:
    * Transform point from master to local frame
    */
   template <typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void Transform(Vector3D<InputType> const &master, Vector3D<InputType> &local) const
   {
@@ -153,7 +153,7 @@ public:
   }
 
   template <typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   Vector3D<InputType> Transform(Vector3D<InputType> const &master) const
   {
@@ -165,7 +165,7 @@ public:
    * Transform point from local to master frame
    */
   template <typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void InverseTransform(Vector3D<InputType> const &local, Vector3D<InputType> &master) const
   {
@@ -173,7 +173,7 @@ public:
   }
 
   template <typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   Vector3D<InputType> InverseTransform(Vector3D<InputType> const &local) const
   {
@@ -185,7 +185,7 @@ public:
    * Transform distance along given direction from master to local frame
    */
   template <typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   InputType TransformDistance(InputType const &dist, Vector3D<InputType> const &dir) const
   {
@@ -198,7 +198,7 @@ public:
    * Transform safe distance from master to local frame (conservative)
    */
   template <typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   InputType TransformSafety(InputType safety) const
   {
@@ -209,7 +209,7 @@ public:
    * Transform distance along given direction from local to master frame
    */
   template <typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   InputType InverseTransformDistance(InputType const &dist, Vector3D<InputType> const &dir) const
   {
@@ -222,7 +222,7 @@ public:
    * Transform safe distance from local to master frame (conservative)
    */
   template <typename InputType>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   InputType InverseTransformSafety(InputType safety) const
   {

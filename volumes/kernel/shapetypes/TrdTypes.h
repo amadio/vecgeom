@@ -59,7 +59,7 @@ struct HasVaryingY<Trd2> {
 #endif // VECGEOM_NO_SPECIALIZATION
 
 template <typename T>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 bool checkVaryingY(const UnplacedTrd &trd)
 {

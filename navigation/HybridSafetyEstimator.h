@@ -77,7 +77,7 @@ private:
 public:
   static constexpr const char *gClassNameString = "HybridSafetyEstimator";
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual Real_v ComputeSafetyForLocalPoint(Vector3D<Real_v> const &localpoint, VPlacedVolume const *pvol,
                                             Bool_v m) const override
   {
@@ -103,7 +103,7 @@ public:
     return safety;
   }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision TreatSafetyToIn(Vector3D<Precision> const &localpoint, VPlacedVolume const *pvol, Precision outsafety) const
   {
     // a stack based workspace array
@@ -139,7 +139,7 @@ public:
   }
 
   // this is (almost) the same code as in SimpleABBoxSafetyEstimator --> avoid this
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual Precision ComputeSafetyForLocalPoint(Vector3D<Precision> const &localpoint,
                                                VPlacedVolume const *pvol) const override
   {
@@ -149,7 +149,7 @@ public:
   }
 
   // vector interface
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   virtual void ComputeSafetyForLocalPoints(SOA3D<Precision> const & /*localpoints*/, VPlacedVolume const * /*pvol*/,
                                            Precision * /*safeties*/) const override
   {

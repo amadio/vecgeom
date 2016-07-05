@@ -58,7 +58,7 @@ typedef VPlacedVolume const *NavStateIndex_t;
 template <typename T>
 struct Index2PVolumeConverter {
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   static VPlacedVolume const *ToPlacedVolume(T index)
   {
 #ifdef VECGEOM_NVCC_DEVICE
@@ -80,7 +80,7 @@ struct Index2PVolumeConverter {
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   static T ToIndex(VPlacedVolume const *pvol) { return pvol->id(); }
 };
 
@@ -88,10 +88,10 @@ struct Index2PVolumeConverter {
 template <>
 struct Index2PVolumeConverter<VPlacedVolume const *> {
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   static VPlacedVolume const *ToPlacedVolume(VPlacedVolume const *pvol) { return pvol; }
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   static VPlacedVolume const *ToIndex(VPlacedVolume const *pvol) { return pvol; }
 };
 
@@ -132,11 +132,11 @@ private:
 
   // constructors and assignment operators are private
   // states have to be constructed using MakeInstance() function
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   NavigationState(size_t nvalues);
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   NavigationState(size_t new_size, NavigationState &other)
       : fCurrentLevel(other.fCurrentLevel), fOnBoundary(other.fOnBoundary), fCache(-1), fPath(new_size, other.fPath)
@@ -152,7 +152,7 @@ private:
   }
 
   // some private management methods
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void InitInternalStorage();
 
@@ -239,7 +239,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   int SizeOf() const { return NavigationState::SizeOfInstance(GetMaxLevel()); }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   NavigationState &operator=(NavigationState const &rhs);
 
@@ -285,50 +285,50 @@ public:
   NavigationState &operator=(TGeoBranchArray const &rhs);
 #endif
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   ~NavigationState();
 
   // what else: operator new etc...
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   unsigned char GetMaxLevel() const { return fPath.fN - 1; }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   unsigned char GetCurrentLevel() const { return fCurrentLevel; }
 
   // better to use pop and push
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void Push(VPlacedVolume const *);
 
   // a push version operating on IndexTypes
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void PushIndexType(NavStateIndex_t);
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   VPlacedVolume const *Top() const;
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   VPlacedVolume const *At(int level) const { return ToPlacedVolume(fPath[level]); }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   Value_t ValueAt(int level) const { return fPath[level]; }
 
   // direct write access to the path
   // (no one should ever call this function unless you know what you are doing)
   // TODO: consider making this private + friend or so
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void SetValueAt(int level, Value_t v) { fPath[level] = v; }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void TopMatrix(Transformation3D &) const;
 
@@ -338,7 +338,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   void DeltaTransformation(NavigationState const &other, Transformation3D & /* delta */) const;
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   Vector3D<Precision> GlobalToLocal(Vector3D<Precision> const &) const;
 
@@ -348,11 +348,11 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   void TopMatrix(int tolevel, Transformation3D &) const;
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void Pop();
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   int Distance(NavigationState const &) const;
 
@@ -372,18 +372,18 @@ public:
   std::string RelativePath(NavigationState const & /*other*/) const;
 
   // clear all information
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void Clear();
 
   VECGEOM_CUDA_HEADER_BOTH
   void Print() const;
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void Dump() const;
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   bool HasSamePathAsOther(NavigationState const &other) const
   {
@@ -397,14 +397,14 @@ public:
   void printValueSequence(std::ostream & = std::cerr) const;
 
 #ifdef VECGEOM_ROOT
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void printVolumePath(std::ostream & = std::cerr) const;
 
   /**
    * returns the number of FILLED LEVELS such that
    * state.GetNode( state.GetLevel() ) == state.Top()
    */
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   unsigned char GetLevel() const { return fCurrentLevel - 1; }
 
   TGeoNode const *GetNode(int level) const { return RootGeoManager::Instance().tgeonode(ToPlacedVolume(fPath[level])); }
@@ -413,23 +413,23 @@ public:
   /**
     function returning whether the point (current navigation state) is outside the detector setup
   */
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   bool IsOutside() const { return !(fCurrentLevel > 0); }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   bool IsOnBoundary() const { return fOnBoundary; }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void SetBoundaryState(bool b) { fOnBoundary = b; }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   short GetCacheValue() const { return fCache; }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   void SetCacheValue(short v) { fCache = v; }
 
@@ -438,7 +438,7 @@ public:
    * function return the ROOT TGeoNode object which is equivalent to calling Top()
    * function included for convenience; to make porting Geant-V easier; we should eventually get rid of this function
    */
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   TGeoNode const *GetCurrentNode() const { return RootGeoManager::Instance().tgeonode(this->Top()); }
 #endif
 
@@ -523,7 +523,7 @@ VPlacedVolume const *NavigationState::Top() const
 // calculates the global matrix to transform from global coordinates
 // to the frame of the top volume in the state
 // input: a reference to a transformation object ( which should be initialized to identity )
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void NavigationState::TopMatrix(Transformation3D &global_matrix) const
 {
@@ -533,7 +533,7 @@ void NavigationState::TopMatrix(Transformation3D &global_matrix) const
   }
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void NavigationState::Dump() const
 {
@@ -564,7 +564,7 @@ inline void NavigationState::printValueSequence(std::ostream &stream) const
 }
 
 #ifdef VECGEOM_ROOT
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 /**
  * prints the path of the track as a verbose string ( like TGeoBranchArray in ROOT )
  * (uses internal root representation for the moment)
@@ -581,7 +581,7 @@ void NavigationState::printVolumePath(std::ostream &stream) const
  * calculates if other navigation state takes a different branch in geometry path or is on same branch
  * ( two states are on same branch if one can connect the states just by going upwards or downwards ( or do nothing ))
  */
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 int NavigationState::Distance(NavigationState const &other) const
 {

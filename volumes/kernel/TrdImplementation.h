@@ -37,7 +37,7 @@ namespace TrdUtilities {
  */
 
 template <typename Backend>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void PointLineOrientation(typename Backend::precision_v const &px, typename Backend::precision_v const &py,
                           Precision const &vx, Precision const &vy, typename Backend::precision_v &crossProduct)
@@ -62,7 +62,7 @@ void PointLineOrientation(typename Backend::precision_v const &px, typename Back
  */
 
 template <typename Backend>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void PlaneTrajectoryIntersection(typename Backend::precision_v const &alongX,
                                  typename Backend::precision_v const &alongY,
@@ -80,7 +80,7 @@ void PlaneTrajectoryIntersection(typename Backend::precision_v const &alongX,
 }
 
 template <typename Backend, bool forY, bool mirroredPoint, bool toInside>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void FaceTrajectoryIntersection(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> const &pos,
                                 Vector3D<typename Backend::precision_v> const &dir, typename Backend::precision_v &dist,
@@ -143,7 +143,7 @@ void FaceTrajectoryIntersection(UnplacedTrd const &trd, Vector3D<typename Backen
 }
 
 template <typename Backend, typename trdTypeT, bool inside>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void Safety(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> const &pos,
             typename Backend::precision_v &dist)
@@ -175,7 +175,7 @@ void Safety(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> cons
 }
 
 template <typename Backend, typename trdTypeT, bool surfaceT>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 static void UnplacedInside(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> const &point,
                            typename Backend::bool_v &completelyinside, typename Backend::bool_v &completelyoutside)
@@ -255,7 +255,7 @@ struct TrdImplementation {
   }
 
   template <typename Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void UnplacedContains(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> const &point,
                                typename Backend::bool_v &inside)
@@ -267,7 +267,7 @@ struct TrdImplementation {
   }
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Contains(UnplacedTrd const &trd, Transformation3D const &transformation,
                        Vector3D<typename Backend::precision_v> const &point,
@@ -281,7 +281,7 @@ struct TrdImplementation {
   }
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Inside(UnplacedTrd const &trd, Transformation3D const &transformation,
                      Vector3D<typename Backend::precision_v> const &point, typename Backend::inside_v &inside)
@@ -299,7 +299,7 @@ struct TrdImplementation {
   }
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToIn(UnplacedTrd const &trd, Transformation3D const &transformation,
                            Vector3D<typename Backend::precision_v> const &point,
@@ -400,7 +400,7 @@ struct TrdImplementation {
   }
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToOut(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> const &point,
                             Vector3D<typename Backend::precision_v> const &dir,
@@ -508,7 +508,7 @@ struct TrdImplementation {
   }
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToIn(UnplacedTrd const &trd, Transformation3D const &transformation,
                          Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety)
@@ -521,7 +521,7 @@ struct TrdImplementation {
   }
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToOut(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> const &point,
                           typename Backend::precision_v &safety)

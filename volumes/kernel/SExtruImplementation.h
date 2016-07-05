@@ -51,7 +51,7 @@ struct SExtruImplementation {
   }
 
   template <typename Real_v, typename Bool_v>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Contains(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &p, Bool_v &inside)
   {
@@ -63,7 +63,7 @@ struct SExtruImplementation {
   }
 
   template <typename Real_v, typename Inside_t>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Inside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Inside_t &inside)
   {
@@ -110,7 +110,7 @@ struct SExtruImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToIn(UnplacedStruct_t const &polyshell, Vector3D<Real_v> const &p, Vector3D<Real_v> const &dir,
                            Real_v const &stepMax, Real_v &distance)
@@ -142,7 +142,7 @@ struct SExtruImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToOut(UnplacedStruct_t const &polyshell, Vector3D<Real_v> const &p, Vector3D<Real_v> const &dir,
                             Real_v const & /* stepMax */, Real_v &distance)
@@ -161,7 +161,7 @@ struct SExtruImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToIn(UnplacedStruct_t const &polyshell, Vector3D<Real_v> const &point, Real_v &safety)
   {
@@ -195,7 +195,7 @@ struct SExtruImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToOut(UnplacedStruct_t const &polyshell, Vector3D<Real_v> const &point, Real_v &safety)
   {
@@ -206,7 +206,7 @@ struct SExtruImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                                        typename vecCore::Mask_v<Real_v> &valid)

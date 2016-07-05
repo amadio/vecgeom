@@ -28,7 +28,7 @@ namespace GlobalLocator {
 
 // this function is a generic variant which can pick from each volume
 // the best (or default) LevelLocator
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 VPlacedVolume const *LocateGlobalPoint(VPlacedVolume const *vol, Vector3D<Precision> const &point,
                                        NavigationState &path, bool top)
@@ -79,7 +79,7 @@ VPlacedVolume const *LocateGlobalPoint(VPlacedVolume const *vol, Vector3D<Precis
 
 // special version of locate point function that excludes searching a given volume
 // (useful when we know that a particle must have traversed a boundary)
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VPlacedVolume const *LocateGlobalPointExclVolume(VPlacedVolume const *vol, VPlacedVolume const *excludedvolume,
                                                  Vector3D<Precision> const &point, NavigationState &path, bool top)
 {
@@ -129,7 +129,7 @@ VPlacedVolume const *LocateGlobalPointExclVolume(VPlacedVolume const *vol, VPlac
   return candvolume;
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 static VPlacedVolume const *RelocatePointFromPath(Vector3D<Precision> const &localpoint, NavigationState &path)
 {

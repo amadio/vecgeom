@@ -40,28 +40,28 @@ class AlignedBase : public Vc::VectorAlignedBase {
 class AlignedBase {
 
 public:
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void *operator new(size_t size) { return _mm_malloc(size, kAlignmentBoundary); }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void *operator new(size_t, void *p) { return p; }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void *operator new[](size_t size) { return _mm_malloc(size, kAlignmentBoundary); }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void *operator new[](size_t, void *p) { return p; }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void operator delete(void *ptr, size_t) { _mm_free(ptr); }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void operator delete(void *, void *) {}
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void operator delete[](void *ptr, size_t) { _mm_free(ptr); }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void operator delete[](void *, void *) {}
 };
 #else

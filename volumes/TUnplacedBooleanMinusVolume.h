@@ -62,7 +62,7 @@ public:
 #endif
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision Capacity() const
   {
     // TBDONE -- need some sampling
@@ -70,7 +70,7 @@ public:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision SurfaceArea() const
   {
     // TBDONE -- need some sampling

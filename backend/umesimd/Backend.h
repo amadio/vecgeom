@@ -186,64 +186,64 @@ typedef kUmeSimd::inside_v UmesimdInside_v;
 #define VECGEOM_BACKEND_BOOL UmesimdBool_v
 #define VECGEOM_BACKEND_INSIDE UmesimdInside_v
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 bool IsFull(UmesimdBool_v const &cond)
 {
   return cond.hland();
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 bool Any(UmesimdBool_v const &cond)
 {
   return cond.hlor();
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 bool IsEmpty(UmesimdBool_v const &cond)
 {
   return !cond.hlor();
 }
 
 #ifdef VECGEOM_FLOAT_PRECISION
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void StoreTo(UmeSimdPrecisionVector const &what, float *toAddr)
 {
   what.store(toAddr);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void StoreTo(UmeSimdIntegerVector const &what, int *toAddr)
 {
   what.store((int32_t *)toAddr);
 }
 
 #else
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void StoreTo(UmeSimdPrecisionVector const &what, double *toAddr)
 {
   what.store(toAddr);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void StoreTo(UmeSimdIntegerVector const &what, int64_t *toAddr)
 {
   what.store((int64_t *)toAddr);
 }
 #endif
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void StoreTo(UmeSimdMask const &what, bool *toAddr)
 {
   what.store(toAddr);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void StoreTo(UmeSimdInsideVector const &what, Inside_t *toAddr)
 {
   what.store((int32_t *)toAddr);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void CondAssign(UmeSimdMask const &cond, UmeSimdPrecisionVector const &thenval, UmeSimdPrecisionVector const &elseval,
                 UmeSimdPrecisionVector *const output)
 {
@@ -251,7 +251,7 @@ void CondAssign(UmeSimdMask const &cond, UmeSimdPrecisionVector const &thenval, 
   output->assign(cond, thenval);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void CondAssign(UmeSimdMask const &cond, UmeSimdIntegerVector const &thenval, UmeSimdIntegerVector const &elseval,
                 UmeSimdIntegerVector *const output)
 {
@@ -260,7 +260,7 @@ void CondAssign(UmeSimdMask const &cond, UmeSimdIntegerVector const &thenval, Um
 }
 
 #ifdef VECGEOM_FLOAT_PRECISION
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void CondAssign(UmeSimdMask const &cond, int const thenval, int const elseval, int *output)
 {
   UmesimdInteger_v t0(thenval);
@@ -270,7 +270,7 @@ void CondAssign(UmeSimdMask const &cond, int const thenval, int const elseval, i
 }
 
 #else
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void CondAssign(UmeSimdMask const &cond, int const thenval, int const elseval, int *output)
 {
   UmesimdInteger_v t0(thenval);
@@ -281,45 +281,45 @@ void CondAssign(UmeSimdMask const &cond, int const thenval, int const elseval, i
 
 #endif
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void MaskedAssign(UmesimdBool_v const &cond, UmesimdInside_v const &thenval, UmesimdInside_v *const output)
 {
   output->assign(cond, thenval);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void MaskedAssign(UmesimdBool_v const &cond, Inside_t const &thenval, UmesimdInside_v *const output)
 {
   output->assign(cond, thenval);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void MaskedAssign(UmesimdBool_v const &cond, UmesimdBool_v const &thenval, UmesimdBool_v *const output)
 {
   output->assign(cond, thenval);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void MaskedAssign(UmesimdBool_v const &cond, UmesimdPrecision_v const &thenval, UmesimdPrecision_v *const output)
 {
   output->assign(cond, thenval);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void MaskedAssign(UmesimdBool_v const &cond, UmesimdPrecision_v const &thenval, double *const output)
 {
   thenval.store(cond, output);
 }
 
 #ifdef VECGEOM_FLOAT_PRECISION
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void MaskedAssign(UmesimdBool_v const &cond, Inside_t thenval, Inside_t *const output)
 {
   UmesimdInteger_v t0(thenval);
   t0.store(cond, (int32_t *)output);
 }
 #else
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 void MaskedAssign(UmesimdBool_v const &cond, Inside_t thenval, Inside_t *const output)
 {
   UmesimdInteger_v t0(thenval);
@@ -327,30 +327,30 @@ void MaskedAssign(UmesimdBool_v const &cond, Inside_t thenval, Inside_t *const o
 }
 #endif
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 UmeSimdPrecisionVector operator-(UmeSimdPrecisionVector const &val1, Precision const &val2)
 {
   return val1.sub(val2);
 }
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 UmeSimdPrecisionVector operator-(Precision const &val1, UmeSimdPrecisionVector const &val2)
 {
   return val2.subfrom(val1);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 UmeSimdPrecisionVector operator+(UmeSimdPrecisionVector const &val1, Precision const &val2)
 {
   return val1.add(val2);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 UmeSimdPrecisionVector operator+(Precision const &val1, UmeSimdPrecisionVector const &val2)
 {
   return val2.add(val1);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 UmeSimdPrecisionVector operator*(Precision const &val1, UmeSimdPrecisionVector const &val2)
 {
   return val2.mul(val1);
@@ -360,71 +360,71 @@ UmeSimdPrecisionVector operator *(UmeSimdPrecisionVector const & val1, Precision
   return val1.mul(val2);
 }*/
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 UmeSimdPrecisionVector operator/(Precision const &val1, UmeSimdPrecisionVector const &val2)
 {
   return val2.rcp(val1);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 UmeSimdPrecisionVector operator/(UmeSimdPrecisionVector const &val1, Precision const &val2)
 {
   return val1.div(val2);
 }
 
 #ifdef VECGEOM_FLOAT_PRECISION
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 UmeSimdPrecisionVector Abs(UME::SIMD::SIMDVec_f<float, kVectorSize> const &what)
 {
   return what.abs();
 }
 #else
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 UmeSimdPrecisionVector Abs(UME::SIMD::SIMDVec_f<double, kVectorSize> const &what)
 {
   return what.abs();
 }
 #endif
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 UmeSimdPrecisionVector Abs(UmeSimdPrecisionVector const &what)
 {
   return what.abs();
 }
 
 #ifdef VECGEOM_FLOAT_PRECISION
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 UmeSimdPrecisionVector Sqrt(UME::SIMD::SIMDVec_f<float, kVectorSize> &what)
 {
   return what.sqrt();
 }
 #else
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 UmeSimdPrecisionVector Sqrt(UME::SIMD::SIMDVec_f<double, kVectorSize> const &what)
 {
   return what.sqrt();
 }
 #endif
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 UmeSimdPrecisionVector Sqrt(UmeSimdPrecisionVector const &val)
 {
   return val.sqrt();
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 UmeSimdPrecisionVector Max(UmeSimdPrecisionVector const &val1, UmeSimdPrecisionVector const &val2)
 {
   return val1.max(val2);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 UmeSimdPrecisionVector Min(UmeSimdPrecisionVector const &val1, UmeSimdPrecisionVector const &val2)
 {
   return val1.min(val2);
 }
 
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 UmeSimdPrecisionVector ATan2(UmeSimdPrecisionVector const &val1, UmeSimdPrecisionVector const &val2)
 {
   return val1.atan2(val2);
@@ -458,7 +458,7 @@ namespace vecCore {
 namespace math {
 
 template <>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 vecgeom::UmeSimdPrecisionVector Abs(vecgeom::UmeSimdPrecisionVector const &x)
 {
   return x.abs();
@@ -467,14 +467,14 @@ vecgeom::UmeSimdPrecisionVector Abs(vecgeom::UmeSimdPrecisionVector const &x)
 } // end namespace math
 
 template <>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 bool MaskFull(const vecgeom::UmeSimdMask &cond)
 {
   return cond.hland();
 }
 
 template <>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 bool MaskEmpty(const vecgeom::UmeSimdMask &cond)
 {
   return !cond.hlor();

@@ -55,7 +55,7 @@ namespace ParaboloidUtilities {
 #if 0 // removed, as it was causing warnings on clang-3.6
        // is it really needed?  'make test' passes at 100%
         template <class Backend>
-        VECGEOM_INLINE
+        VECGEOM_FORCE_INLINE
         VECGEOM_CUDA_HEADER_BOTH
         void DistToParaboloidSurface(
                                  UnplacedParaboloid const &unplaced,
@@ -101,7 +101,7 @@ struct ParaboloidImplementation {
 
   /// \brief Inside method that takes account of the surface for an Unplaced Paraboloid
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void UnplacedInside(UnplacedParaboloid const &unplaced, Vector3D<typename Backend::precision_v> point,
                              typename Backend::inside_v &inside)
@@ -146,7 +146,7 @@ struct ParaboloidImplementation {
   /// \brief UnplacedContains (ROOT STYLE): Inside method that does NOT take account of the surface for an Unplaced
   /// Paraboloid
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void UnplacedContains(UnplacedParaboloid const &unplaced, Vector3D<typename Backend::precision_v> point,
                                typename Backend::bool_v &inside)
@@ -173,7 +173,7 @@ struct ParaboloidImplementation {
 
   /// \brief Inside method that takes account of the surface for a Placed Paraboloid
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Inside(UnplacedParaboloid const &unplaced, Transformation3D const &transformation,
                      Vector3D<typename Backend::precision_v> const &point,
@@ -184,7 +184,7 @@ struct ParaboloidImplementation {
   }
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Inside(UnplacedParaboloid const &unplaced, Transformation3D const &transformation,
                      Vector3D<typename Backend::precision_v> const &point, typename Backend::inside_v &inside)
@@ -196,7 +196,7 @@ struct ParaboloidImplementation {
 
   /// \brief Contains: Inside method that does NOT take account of the surface for a Placed Paraboloid
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Contains(UnplacedParaboloid const &unplaced, Transformation3D const &transformation,
                        Vector3D<typename Backend::precision_v> const &point,
@@ -208,14 +208,14 @@ struct ParaboloidImplementation {
   }
 
   template <typename Backend, bool ForInside>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void GenericKernelForContainsAndInside(Vector3D<Precision> const &,
                                                 Vector3D<typename Backend::precision_v> const &,
                                                 typename Backend::bool_v &, typename Backend::bool_v &);
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToIn(UnplacedParaboloid const &unplaced, Transformation3D const &transformation,
                            Vector3D<typename Backend::precision_v> const &point,
@@ -322,7 +322,7 @@ struct ParaboloidImplementation {
   }
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToOut(UnplacedParaboloid const &unplaced, Vector3D<typename Backend::precision_v> point,
                             Vector3D<typename Backend::precision_v> direction,
@@ -375,7 +375,7 @@ struct ParaboloidImplementation {
   }
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToIn(UnplacedParaboloid const &unplaced, Transformation3D const &transformation,
                          Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety)
@@ -515,7 +515,7 @@ struct ParaboloidImplementation {
   }
 
   template <class Backend>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToOut(UnplacedParaboloid const &unplaced, Vector3D<typename Backend::precision_v> point,
                           typename Backend::precision_v &safety)

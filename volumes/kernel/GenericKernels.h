@@ -21,7 +21,7 @@ struct GenericKernels {
 }; // End struct GenericKernels
 
 template <bool tolerant, typename T>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 T MakePlusTolerant(T const &x)
 {
@@ -29,7 +29,7 @@ T MakePlusTolerant(T const &x)
 }
 
 template <bool tolerant, typename T>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 T MakeMinusTolerant(T const &x)
 {
@@ -37,7 +37,7 @@ T MakeMinusTolerant(T const &x)
 }
 
 template <bool tolerant, typename T>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 T MakePlusTolerantSquare(T const &x, T const &xsq)
 {
@@ -45,7 +45,7 @@ T MakePlusTolerantSquare(T const &x, T const &xsq)
 }
 
 template <bool tolerant, typename T>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 T MakeMinusTolerantSquare(T const &x, T const &xsq)
 {
@@ -75,14 +75,14 @@ struct Flip;
 template <>
 struct Flip<true> {
   template <class T>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static T FlipSign(T const &value)
   {
     return -value;
   }
   template <class T>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static T FlipLogical(T const &value)
   {
@@ -93,14 +93,14 @@ struct Flip<true> {
 template <>
 struct Flip<false> {
   template <class T>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static T FlipSign(T const &value)
   {
     return value;
   }
   template <class T>
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static T FlipLogical(T const &value)
   {
@@ -109,7 +109,7 @@ struct Flip<false> {
 };
 
 template <class Backend>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 typename Backend::precision_v NormalizeAngle(typename Backend::precision_v a)
 {
@@ -121,7 +121,7 @@ typename Backend::precision_v NormalizeAngle(typename Backend::precision_v a)
 // \return Shortest distance from the point to the three dimensional line
 //         segment represented by the two input points.
 template <class Backend>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 typename Backend::precision_v DistanceToLineSegmentSquared(Vector3D<Precision> corner0, Vector3D<Precision> corner1,
                                                            Vector3D<typename Backend::precision_v> const &point)

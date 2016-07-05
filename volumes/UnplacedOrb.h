@@ -42,27 +42,27 @@ public:
   UnplacedOrb(const Precision r);
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision MyMax(Precision a, Precision b);
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetRadius() const { return fR; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetfRTolO() const { return fRTolO; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetfRTolI() const { return fRTolI; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision GetfRTolerance() const { return fRTolerance; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  // VECGEOM_INLINE
+  // VECGEOM_FORCE_INLINE
   void SetRadius(Precision r);
 
 //_____________________________________________________________________________
@@ -71,11 +71,11 @@ public:
   void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision Capacity() const { return fCubicVolume; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Precision SurfaceArea() const { return fSurfaceArea; }
 
   virtual Vector3D<Precision> GetPointOnSurface() const;

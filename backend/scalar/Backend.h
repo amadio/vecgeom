@@ -37,7 +37,7 @@ struct kScalar {
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   static Precision Convert(Precision const &input) { return input; }
 };
 
@@ -64,7 +64,7 @@ constexpr size_t kVectorSize = 1;
 #endif
 
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void CondAssign(const bool cond, Type const &thenval, Type const &elseval, Type *const output)
 {
@@ -72,7 +72,7 @@ void CondAssign(const bool cond, Type const &thenval, Type const &elseval, Type 
 }
 
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void MaskedAssign(const bool cond, Type const &thenval, Type *const output)
 {
@@ -80,7 +80,7 @@ void MaskedAssign(const bool cond, Type const &thenval, Type *const output)
 }
 
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void StoreTo(Type const &what, Type *toAddr)
 {
@@ -88,21 +88,21 @@ void StoreTo(Type const &what, Type *toAddr)
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 bool IsFull(bool const &cond)
 {
   return cond;
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 bool Any(bool const &cond)
 {
   return cond;
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 bool IsEmpty(bool const &cond)
 {
   return !cond;
@@ -110,13 +110,13 @@ bool IsEmpty(bool const &cond)
 
 /* template <typename Type> */
 /* VECGEOM_CUDA_HEADER_BOTH */
-/* VECGEOM_INLINE */
+/* VECGEOM_FORCE_INLINE */
 /* Type Pow(Type const &x, Type arg) { */
 /*    return pow(x,arg); */
 /* } */
 
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 Type Pow(Type const &x, int arg)
 {
@@ -124,7 +124,7 @@ Type Pow(Type const &x, int arg)
 }
 
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 Type Abs(const Type val)
 {
@@ -132,7 +132,7 @@ Type Abs(const Type val)
 }
 
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 Type Sqrt(const Type val)
 {
@@ -140,7 +140,7 @@ Type Sqrt(const Type val)
 }
 
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 Type Log(const Type val)
 {
@@ -148,7 +148,7 @@ Type Log(const Type val)
 }
 
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 Type ACos(const Type val)
 {
@@ -156,7 +156,7 @@ Type ACos(const Type val)
 }
 
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 Type Tan(const Type val)
 {
@@ -164,7 +164,7 @@ Type Tan(const Type val)
 }
 
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 Type Pow(const Type val1, const Type val2)
 {
@@ -172,7 +172,7 @@ Type Pow(const Type val1, const Type val2)
 }
 
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 Type Cbrt(const Type val1)
 {
@@ -180,7 +180,7 @@ Type Cbrt(const Type val1)
 }
 
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 Type ATan2(const Type y, const Type x)
 {
@@ -191,7 +191,7 @@ Type ATan2(const Type y, const Type x)
 }
 
 template <typename T>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 T Min(T const &val1, T const &val2)
 {
@@ -203,7 +203,7 @@ T Min(T const &val1, T const &val2)
 }
 
 template <typename T>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 T Max(T const &val1, T const &val2)
 {
@@ -215,42 +215,42 @@ T Max(T const &val1, T const &val2)
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 Precision sin(const Precision radians)
 {
   return std::sin(radians);
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 Precision cos(const Precision radians)
 {
   return std::cos(radians);
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 Precision tan(const Precision radians)
 {
   return std::tan(radians);
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 Precision Floor(Precision val)
 {
   return std::floor(val);
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 double CopySign(double x, double y)
 {
   return copysign(x, y);
 }
 
 template <typename T>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 bool IsInf(T x)
 {
@@ -263,7 +263,7 @@ bool IsInf(T x)
 
 #ifndef VECGEOM_USOLIDS
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void swap(Type &a, Type &b)
 {
@@ -272,7 +272,7 @@ void swap(Type &a, Type &b)
 #endif
 
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void copy(Type const *begin, Type const *const end, Type *const target)
 {
@@ -284,7 +284,7 @@ void copy(Type const *begin, Type const *const end, Type *const target)
 }
 
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void reverse_copy(Type const *const begin, Type const *end, Type *const target)
 {
@@ -297,7 +297,7 @@ void reverse_copy(Type const *const begin, Type const *end, Type *const target)
 }
 
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void reverse(Type *begin, Type *end)
 {
@@ -310,7 +310,7 @@ void reverse(Type *begin, Type *end)
 }
 
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 Type *AlignedAllocate(size_t size)
 {
@@ -322,7 +322,7 @@ Type *AlignedAllocate(size_t size)
 }
 
 template <typename Type>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void AlignedFree(Type *allocated)
 {
@@ -334,7 +334,7 @@ void AlignedFree(Type *allocated)
 }
 
 template <typename IteratorType>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 IteratorType min_element(IteratorType first, IteratorType last)
 {
@@ -342,7 +342,7 @@ IteratorType min_element(IteratorType first, IteratorType last)
 }
 
 template <typename IteratorType>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 bool all_of(IteratorType first, IteratorType last)
 {
@@ -350,7 +350,7 @@ bool all_of(IteratorType first, IteratorType last)
 }
 
 template <typename InputIterator1, typename InputIterator2>
-VECGEOM_INLINE
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 bool equal(InputIterator1 first, InputIterator1 last, InputIterator2 target)
 {

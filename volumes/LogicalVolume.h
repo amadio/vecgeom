@@ -97,60 +97,60 @@ public:
   ~LogicalVolume();
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VUnplacedVolume const *GetUnplacedVolume() const { return fUnplacedVolume; }
 
   // will be deprecated in favour of better encapsulation of internal storage
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Vector<Daughter> const &GetDaughters() const { return *fDaughters; }
 
   // will be deprecated in favour of better encapsulation of internal storage
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Vector<Daughter> const *GetDaughtersp() const { return fDaughters; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   Vector<Daughter> *GetDaughtersp() { return fDaughters; }
 
   //  VECGEOM_CUDA_HEADER_BOTH
-  //  VECGEOM_INLINE
+  //  VECGEOM_FORCE_INLINE
   //  VPlacedVolume const* GetDaughter(unsigned int i) const { return daughters_->operator[](i); }
   //
   //  VECGEOM_CUDA_HEADER_BOTH
-  //  VECGEOM_INLINE
+  //  VECGEOM_FORCE_INLINE
   //  unsigned int GetNDaughters() const { return daughters_->size(); }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void *GetUserExtensionPtr() const { return fUserExtensionPtr; }
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void *GetTrackingMediumPtr() const { return fTrackingMediumPtr; }
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void *GetBasketManagerPtr() const { return fBasketManagerPtr; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VLevelLocator const *GetLevelLocator() const { return fLevelLocator; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void SetLevelLocator(VLevelLocator const *locator) { fLevelLocator = locator; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VSafetyEstimator const *GetSafetyEstimator() const { return fSafetyEstimator; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void SetSafetyEstimator(VSafetyEstimator const *est) { fSafetyEstimator = est; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   VNavigator const *GetNavigator() const { return fNavigator; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void SetNavigator(VNavigator const *n) { fNavigator = n; }
 
   int id() const { return fId; }
@@ -164,13 +164,13 @@ public:
     fLabel = new std::string(label);
   }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void SetUserExtensionPtr(void *userpointer) { fUserExtensionPtr = userpointer; }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void SetTrackingMediumPtr(void *tmediumpointer) { fTrackingMediumPtr = tmediumpointer; }
 
-  VECGEOM_INLINE
+  VECGEOM_FORCE_INLINE
   void SetBasketManagerPtr(void *basketpointer) { fBasketManagerPtr = basketpointer; }
 
   VECGEOM_CUDA_HEADER_BOTH
