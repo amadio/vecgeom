@@ -167,28 +167,18 @@ public:
                                         const Precision stepMax = kInfinity) const override
   {
 #ifndef VECGEOM_NVCC
-    assert(direction.IsNormalized() && " direction not normalized in call to  PlacedDistanceToOut ");
+    assert(direction.IsNormalized() && " direction not normalized in call to PlacedDistanceToOut ");
 #endif
-    (void)point;
-    (void)direction;
-    (void)stepMax;
-    // Transformation3D const *tr = this->GetTransformation();
-    /*  Real_v output = Specialization<VecCore::VecGeomBackend::Scalar<double>>::DistanceToOut(
-       *this->GetUnplacedStruct(),
-       tr->Transform<transC, rotC>(point),
-       tr->TransformDirection<rotC>(direction),
-       stepMax);
+    Transformation3D const *tr = this->GetTransformation();
+    Precision output(-1.);
+    Specialization::template DistanceToOut(*this->GetUnplacedStruct(), tr->Transform<transC, rotC>(point),
+                                           tr->TransformDirection<rotC>(direction), stepMax, output);
 
- #ifdef VECGEOM_DISTANCE_DEBUG
-     DistanceComparator::CompareDistanceToOut(
-             this,
-             output,
-             this->GetTransformation()->Transform(point),
-             this->GetTransformation()->TransformDirection(direction),
-             stepMax );
- #endif
- return output; */
-    return 0.;
+#ifdef VECGEOM_DISTANCE_DEBUG
+    DistanceComparator::CompareDistanceToOut(this, output, this->GetTransformation()->Transform(point),
+                                             this->GetTransformation()->TransformDirection(direction), stepMax);
+#endif
+    return output;
   }
 
   VECGEOM_CUDA_HEADER_BOTH
