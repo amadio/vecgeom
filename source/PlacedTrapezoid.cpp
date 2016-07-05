@@ -72,9 +72,15 @@ VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(SpecializedTrapezoid)
 
 #endif // VECGEOM_NVCC
 
+// function provided for compatibility with USolids
 void PlacedTrapezoid::SetAllParameters(double dz, double theta, double phi, double dy1, double dx1, double dx2,
                                        double alp1, double dy2, double dx3, double dx4, double alp2)
 {
+  // mark unused
+  (void)theta;
+  (void)phi;
+  (void)alp1;
+  (void)alp2;
 
   UnplacedTrapezoid &utrap = *const_cast<UnplacedTrapezoid *>(GetUnplacedVolume());
   double mm                = 0.1; // to cm
