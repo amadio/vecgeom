@@ -374,35 +374,35 @@ UmeSimdPrecisionVector operator/(UmeSimdPrecisionVector const &val1, Precision c
 
 #ifdef VECGEOM_FLOAT_PRECISION
 VECGEOM_FORCE_INLINE
-UmeSimdPrecisionVector Abs(UME::SIMD::SIMDVec_f<float, kVectorSize> const &what)
+UmeSimdPrecisionVector Abs(UME::SIMD::SIMDVec_f<float, kVectorSize> const &val)
 {
-  return what.abs();
+  return val.abs();
 }
 #else
 VECGEOM_FORCE_INLINE
-UmeSimdPrecisionVector Abs(UME::SIMD::SIMDVec_f<double, kVectorSize> const &what)
+UmeSimdPrecisionVector Abs(UME::SIMD::SIMDVec_f<double, kVectorSize> const &val)
 {
-  return what.abs();
+  return val.abs();
 }
 #endif
 
 VECGEOM_FORCE_INLINE
-UmeSimdPrecisionVector Abs(UmeSimdPrecisionVector const &what)
+UmeSimdPrecisionVector Abs(UmeSimdPrecisionVector const &val)
 {
-  return what.abs();
+  return val.abs();
 }
 
 #ifdef VECGEOM_FLOAT_PRECISION
 VECGEOM_FORCE_INLINE
-UmeSimdPrecisionVector Sqrt(UME::SIMD::SIMDVec_f<float, kVectorSize> &what)
+UmeSimdPrecisionVector Sqrt(UME::SIMD::SIMDVec_f<float, kVectorSize> &val)
 {
-  return what.sqrt();
+  return val.sqrt();
 }
 #else
 VECGEOM_FORCE_INLINE
-UmeSimdPrecisionVector Sqrt(UME::SIMD::SIMDVec_f<double, kVectorSize> const &what)
+UmeSimdPrecisionVector Sqrt(UME::SIMD::SIMDVec_f<double, kVectorSize> const &val)
 {
-  return what.sqrt();
+  return val.sqrt();
 }
 #endif
 
@@ -414,15 +414,15 @@ UmeSimdPrecisionVector Sqrt(UmeSimdPrecisionVector const &val)
 
 #ifdef VECGEOM_FLOAT_PRECISION
 VECGEOM_FORCE_INLINE
-UmeSimdMask IsInf(UME::SIMD::SIMDVec_f<float, kVectorSize> &what)
+UmeSimdMask IsInf(UME::SIMD::SIMDVec_f<float, kVectorSize> &val)
 {
-  return what.isinf();
+  return val.isinf();
 }
 #else
 VECGEOM_FORCE_INLINE
-UmeSimdMask IsInf(UME::SIMD::SIMDVec_f<double, kVectorSize> const &what)
+UmeSimdMask IsInf(UME::SIMD::SIMDVec_f<double, kVectorSize> const &val)
 {
-  return what.isinf();
+  return val.isinf();
 }
 #endif
 
@@ -477,12 +477,25 @@ struct TypeTraits<vecgeom::cxx::UmeSimdInsideVector> {
 namespace vecCore {
 namespace math {
 
-template <>
-VECGEOM_FORCE_INLINE
-vecgeom::UmeSimdPrecisionVector Abs(vecgeom::UmeSimdPrecisionVector const &x)
-{
-  return x.abs();
-}
+#define UMESIMD_REAL_FUNC(f, name)                                                                 \
+  VECCORE_FORCE_INLINE vecgeom::UmeSimdPrecisionVector f(const vecgeom::UmeSimdPrecisionVector &x) \
+  {                                                                                                \
+    return x.name();                                                                               \
+  }
+
+UMESIMD_REAL_FUNC(Abs, abs)
+UMESIMD_REAL_FUNC(Exp, exp)
+UMESIMD_REAL_FUNC(Log, log)
+UMESIMD_REAL_FUNC(Sin, sin)
+UMESIMD_REAL_FUNC(Cos, cos)
+UMESIMD_REAL_FUNC(Tan, tan)
+UMESIMD_REAL_FUNC(Atan, atan)
+UMESIMD_REAL_FUNC(Sqrt, sqrt)
+UMESIMD_REAL_FUNC(Round, round)
+UMESIMD_REAL_FUNC(Floor, floor)
+UMESIMD_REAL_FUNC(Ceil, ceil)
+
+#undef UMESIMD_REAL_FUNC
 
 } // end namespace math
 
