@@ -491,11 +491,11 @@ struct TorusImplementation2 {
 #ifndef VECGEOM_NO_SPECIALIZATION
     // call the tube functionality -- first of all we check whether we are inside
     // bounding volume
-    TubeImplementation<TubeTypes::HollowTube>::Contains(torus.GetBoundingTube(), localPoint, inBounds);
+    TubeImplementation<TubeTypes::HollowTube>::Contains(torus.GetBoundingTube().GetStruct(), localPoint, inBounds);
 
     // only need to do this check if all particles (in vector) are outside ( otherwise useless )
-    TubeImplementation<TubeTypes::HollowTube>::DistanceToIn<Backend>(torus.GetBoundingTube(), localPoint,
-                                                                     localDirection, stepMax, tubeDistance);
+    TubeImplementation<TubeTypes::HollowTube>::DistanceToIn(torus.GetBoundingTube().GetStruct(), localPoint,
+                                                            localDirection, stepMax, tubeDistance);
 #else
     // call the tube functionality -- first of all we check whether we are inside
     // bounding volume
