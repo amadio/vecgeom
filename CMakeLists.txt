@@ -819,7 +819,7 @@ set(TEST_EXECUTABLES_CORE
   ${CMAKE_SOURCE_DIR}/test/core/SafetyEstimatorTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/ContainerTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/create_geometry.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/testVectorSafety.cpp
+#  ${CMAKE_SOURCE_DIR}/test/core/testVectorSafety.cpp
   ${CMAKE_SOURCE_DIR}/test/core/PlanesTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/QuadrilateralTest.cpp
 #  ${CMAKE_SOURCE_DIR}/test/core/SOATest.cpp
@@ -1084,7 +1084,7 @@ if (USolids)
   add_test(NAME USolidsOrb COMMAND TestOrb --usolids)
   add_test(NAME VecGeomOrb COMMAND TestOrb --vecgeom)
   add_test(NAME VecGeomPolyhedra COMMAND TestPolyhedra --vecgeom)
-  add_test(NAME USolidsPolyhedra COMMAND TestPolyhedra --usolids)
+#  add_test(NAME USolidsPolyhedra COMMAND TestPolyhedra --usolids)
 endif()
 
 if (CUDA)
