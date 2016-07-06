@@ -459,14 +459,14 @@ namespace vecCore {
 template <>
 struct TypeTraits<vecgeom::cxx::UmeSimdPrecisionVector> {
   using ScalarType = double;
-  using MaskType   = typename vecgeom::cxx::UmeSimdMask;
-  using IndexType  = typename vecgeom::cxx::UmeSimdInsideVector;
+  using MaskType   = vecgeom::cxx::UmeSimdMask;
+  using IndexType  = vecgeom::cxx::UmeSimdInsideVector;
 };
 
 template <>
 struct TypeTraits<vecgeom::cxx::UmeSimdInsideVector> {
   using ScalarType = int;
-  using MaskType   = typename vecgeom::cxx::UmeSimdMask;
+  using MaskType   = vecgeom::cxx::UmeSimdMask;
   using IndexType  = int;
 };
 }
