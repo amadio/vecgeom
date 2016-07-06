@@ -159,6 +159,27 @@ void UnplacedBooleanVolume::Extent(Vector3D<Precision> &aMin, Vector3D<Precision
   }
 }
 
+VECGEOM_CUDA_HEADER_BOTH
+bool UnplacedBooleanVolume::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
+{
+  // Compute normal vector to closest surface
+  bool valid = false;
+  switch (fOp) {
+  case kSubtraction:
+    BooleanImplementation<kSubtraction, translation::kGeneric, rotation::kGeneric>::NormalKernel<kScalar>(
+        *this, point, normal, valid);
+    break;
+  case kUnion:
+    BooleanImplementation<kUnion, translation::kGeneric, rotation::kGeneric>::NormalKernel<kScalar>(*this, point,
+                                                                                                    normal, valid);
+    break;
+  case kIntersection:
+    BooleanImplementation<kIntersection, translation::kGeneric, rotation::kGeneric>::NormalKernel<kScalar>(
+        *this, point, normal, valid);
+  }
+  return valid;
+}
+
 #ifdef VECGEOM_CUDA_INTERFACE
 
 // functions to copy data structures to GPU

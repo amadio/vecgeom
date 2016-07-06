@@ -57,6 +57,9 @@ public:
   VECGEOM_FORCE_INLINE
   BooleanOperation GetOp() const { return fOp; }
 
+  VECGEOM_CUDA_HEADER_BOTH
+  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;
+
 #if !defined(VECGEOM_NVCC)
   VECGEOM_FORCE_INLINE
   Precision Capacity() const

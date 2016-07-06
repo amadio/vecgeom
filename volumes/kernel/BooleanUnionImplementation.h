@@ -512,7 +512,50 @@ void BooleanImplementation<kUnion, transCodeT, rotCodeT>::NormalKernel(
     UnplacedBooleanVolume const &unplaced, Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> &normal, typename Backend::bool_v &valid)
 {
-  // TBDONE
+  typedef typename Backend::precision_v Float_t;
+  typedef typename Backend::bool_v Bool_t;
+  Vector3D<Float_t> localNorm;
+  Vector3D<Float_t> localPoint;
+  valid = Backend::kFalse;
+
+  VPlacedVolume const *const fPtrSolidA = unplaced.fLeftVolume;
+  VPlacedVolume const *const fPtrSolidB = unplaced.fRightVolume;
+
+  // If point is inside A, then it must be on a surface of A (points on the
+  // intersection between A and B cannot be on surface, or if they are they
+  // are on a common surface and the normal can be computer for A or B)
+  if (fPtrSolidA->Contains(point)) {
+    fPtrSolidA->GetTransformation()->Transform(point, localPoint);
+    valid = fPtrSolidA->Normal(localPoint, localNorm);
+    fPtrSolidA->GetTransformation()->InverseTransformDirection(localNorm, normal);
+    return;
+  }
+  // Same for points inside B
+  if (fPtrSolidB->Contains(point)) {
+    fPtrSolidB->GetTransformation()->Transform(point, localPoint);
+    valid = fPtrSolidB->Normal(localPoint, localNorm);
+    fPtrSolidB->GetTransformation()->InverseTransformDirection(localNorm, normal);
+    return;
+  }
+  // Points outside both A and B can be on any surface. We use the safety.
+  Float_t safetyA = fPtrSolidA->SafetyToIn(point);
+  Float_t safetyB = fPtrSolidB->SafetyToIn(point);
+  Bool_t onA      = safetyA < safetyB;
+  if (IsFull(onA)) {
+    fPtrSolidA->GetTransformation()->Transform(point, localPoint);
+    valid = fPtrSolidA->Normal(localPoint, localNorm);
+    fPtrSolidA->GetTransformation()->InverseTransformDirection(localNorm, normal);
+    return;
+  } else {
+    //  if (IsEmpty(onA)) {  // to use real mask operation when supporting vectors
+    fPtrSolidB->GetTransformation()->Transform(point, localPoint);
+    valid = fPtrSolidB->Normal(localPoint, localNorm);
+    fPtrSolidB->GetTransformation()->InverseTransformDirection(localNorm, normal);
+    return;
+  }
+  // Some particles are on A, some on B. We never arrive here in the scalar case
+  // If the interface to Normal will support the vector case, we have to write code here.
+  return;
 }
 
 } // End impl namespace
