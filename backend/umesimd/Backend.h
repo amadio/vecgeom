@@ -412,6 +412,26 @@ UmeSimdPrecisionVector Sqrt(UmeSimdPrecisionVector const &val)
   return val.sqrt();
 }
 
+#ifdef VECGEOM_FLOAT_PRECISION
+VECGEOM_FORCE_INLINE
+UmeSimdMask IsInf(UME::SIMD::SIMDVec_f<float, kVectorSize> &what)
+{
+  return what.isinf();
+}
+#else
+VECGEOM_FORCE_INLINE
+UmeSimdMask IsInf(UME::SIMD::SIMDVec_f<double, kVectorSize> const &what)
+{
+  return what.isinf();
+}
+#endif
+
+VECGEOM_FORCE_INLINE
+UmeSimdMask IsInf(UmeSimdPrecisionVector const &val)
+{
+  return val.isinf();
+}
+
 VECGEOM_FORCE_INLINE
 UmeSimdPrecisionVector Max(UmeSimdPrecisionVector const &val1, UmeSimdPrecisionVector const &val2)
 {
