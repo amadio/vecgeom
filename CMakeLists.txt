@@ -1034,6 +1034,7 @@ endfunction()
 
 build_executables("${TEST_EXECUTABLES_CORE}")
 add_to_ctest("${TEST_EXECUTABLES_CORE}")
+set_tests_properties(TestSExtru PROPERTIES TIMEOUT 30)
 if (BENCHMARK)
   build_executables("${TEST_EXECUTABLES_BENCHMARK}")
 endif()
