@@ -578,6 +578,8 @@ endif()
 if (Geant4)
 
   find_package(Geant4 REQUIRED)
+  # need to define G4MULTITHREADED for Geant4-MT
+  add_definitions(${Geant4_DEFINITIONS})
   include_directories(AFTER SYSTEM ${Geant4_INCLUDE_DIRS})
   set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL}
       ${Geant4_LIBRARIES})
