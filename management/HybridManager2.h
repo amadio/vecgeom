@@ -10,7 +10,6 @@
 #define VECGEOM_HYBRIDMANAGER_H
 
 #include "base/Global.h"
-#include "base/Assert.h"
 
 #include "volumes/PlacedVolume.h"
 #include "base/Vector3D.h"

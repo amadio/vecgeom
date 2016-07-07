@@ -9,7 +9,6 @@
 #define VECGEOM_HYBRIDNAVIGATOR
 
 #include "base/Global.h"
-#include "base/Assert.h"
 
 #include "volumes/PlacedVolume.h"
 #include "base/SOA3D.h"

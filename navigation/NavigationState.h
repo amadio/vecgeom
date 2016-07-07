@@ -14,7 +14,6 @@
 #include "management/CudaManager.h"
 #endif
 #include "base/Global.h"
-#include "base/Assert.h"
 
 #ifdef VECGEOM_ROOT
 #include "management/RootGeoManager.h"

@@ -8,10 +8,10 @@
 #ifndef NAVIGATION_GLOBALLOCATOR_H_
 #define NAVIGATION_GLOBALLOCATOR_H_
 
+#include "base/Global.h"
 #include "base/Vector3D.h"
 #include "volumes/LogicalVolume.h"
 #include "navigation/VLevelLocator.h"
-#include "base/Assert.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
