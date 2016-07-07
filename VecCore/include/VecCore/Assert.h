@@ -1,5 +1,5 @@
-#ifndef VECGEOM_ASSERT_H
-#define VECGEOM_ASSERT_H
+#ifndef VECCORE_ASSERT_H
+#define VECCORE_ASSERT_H
 
 #if !defined(__NVCC__)
 #include <cassert>
