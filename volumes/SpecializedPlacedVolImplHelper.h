@@ -213,7 +213,10 @@ static void ContainsLoopKernel(typename Specialization::UnplacedStruct_t const &
                            vecCore::FromPtr<Real_v>(points.z() + i));
     Bool_v result(false);
     Specialization::template Contains<Real_v>(shapestruct, trans.Transform<transC, rotC>(point), result);
-    vecCore::StoreMask(result, output);
+    // vecCore::StoreMask(result, output);
+    // StoreMask has problem -> see VECCORE-21
+    for (size_t j   = 0; j < vecCore::VectorSize<Real_v>(); ++j)
+      output[i + j] = vecCore::MaskLaneAt(result, j);
   }
 }
 

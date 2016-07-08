@@ -36,14 +36,14 @@ set(TEST_EXECUTABLES_BENCHMARK
 
 set(THISCTESTS
 # TESTS MARKED # FAIL AND NEED ATTENTION
-# ${CMAKE_SOURCE_DIR}/test/benchmark/BoxBenchmark.cpp
-# ${CMAKE_SOURCE_DIR}/test/benchmark/SExtruBenchmark.cpp
-# ${CMAKE_SOURCE_DIR}/test/benchmark/ConcaveSExtruBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/BoxBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/SExtruBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/ConcaveSExtruBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ParaboloidBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ParaboloidScriptBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ParallelepipedBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/PolyhedronBenchmark.cpp
-# ${CMAKE_SOURCE_DIR}/test/benchmark/TubeBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/TubeBenchmark.cpp
 # ${CMAKE_SOURCE_DIR}/test/benchmark/BoxMinusHollowTubeBenchmark_virtual.cpp
 # ${CMAKE_SOURCE_DIR}/test/benchmark/BoxUnionHollowTubeBenchmark_virtual.cpp
 # ${CMAKE_SOURCE_DIR}/test/benchmark/BoxIntersectHollowTubeBenchmark_virtual.cpp
