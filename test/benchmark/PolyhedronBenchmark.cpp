@@ -48,7 +48,7 @@ int main(int nArgs, char **args)
 
   UnplacedBox worldUnplaced = UnplacedBox(10, 10, 10);
 
-  auto RunBenchmark = [&worldUnplaced](UnplacedPolyhedron const *shape, char const *label) {
+  auto RunBenchmark = [&worldUnplaced](UnplacedPolyhedron const *shape, char const *label) -> int {
     LogicalVolume logical("pgon", shape);
     // VPlacedVolume *placed = logical.Place();
     LogicalVolume worldLogical(&worldUnplaced);
@@ -62,9 +62,7 @@ int main(int nArgs, char **args)
     benchmarker.SetPoolMultiplier(1);
     benchmarker.SetRepetitions(4);
     benchmarker.SetPointCount(102400);
-    benchmarker.RunInsideBenchmark();
-    benchmarker.RunToInBenchmark();
-    benchmarker.RunToOutBenchmark();
+    auto errcode                       = benchmarker.RunBenchmark();
     std::list<BenchmarkResult> results = benchmarker.PopResults();
     std::ofstream outStream;
     outStream.open(label, std::fstream::app);
@@ -73,12 +71,11 @@ int main(int nArgs, char **args)
       i->WriteToCsv(outStream);
     }
     outStream.close();
+    return errcode;
   };
 
   // RunBenchmark(NoInnerRadii(), "polyhedron_no-inner-radii.csv");
   // RunBenchmark(WithInnerRadii(), "polyhedron_with-inner-radii.csv");
   // RunBenchmark(ManySegments(), "polyhedron_many-segments.csv");
-  RunBenchmark(WithPhiSection(), "polyhedron_phi-section.csv");
-
-  return 0;
+  return RunBenchmark(WithPhiSection(), "polyhedron_phi-section.csv");
 }

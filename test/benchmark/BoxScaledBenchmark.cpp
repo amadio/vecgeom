@@ -43,9 +43,5 @@ int main(int argc, char *argv[])
   tester.SetPoolMultiplier(1);
   tester.SetPointCount(npoints);
   tester.SetRepetitions(nrep);
-  //  tester.RunInsideBenchmark();
-  //  tester.RunToOutBenchmark();
-  tester.RunBenchmark();
-
-  return 0;
+  return tester.RunBenchmark();
 }

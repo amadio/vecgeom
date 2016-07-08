@@ -6,7 +6,7 @@
 
 using namespace vecgeom;
 
-void benchmark(double rmin, double rmax, double dz, double sphi, double dphi, int npoints, int nrep)
+int benchmark(double rmin, double rmax, double dz, double sphi, double dphi, int npoints, int nrep)
 {
   UnplacedBox worldUnplaced = UnplacedBox(rmax * 4, rmax * 4, dz * 4);
   GenericUnplacedTube tubeUnplaced(rmin, rmax, dz, sphi, dphi);
@@ -26,7 +26,7 @@ void benchmark(double rmin, double rmax, double dz, double sphi, double dphi, in
   tester.SetPoolMultiplier(1);
   tester.SetRepetitions(nrep);
   tester.SetPointCount(npoints);
-  tester.RunBenchmark();
+  return tester.RunBenchmark();
 }
 
 int main(int argc, char *argv[])
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
   OPTION_DOUBLE(sphi, 0);
   OPTION_DOUBLE(dphi, kTwoPi);
 
-  benchmark(rmin, rmax, dz, sphi, dphi, npoints, nrep);
+  return benchmark(rmin, rmax, dz, sphi, dphi, npoints, nrep);
 
   // for(int hasrmin = 0; hasrmin < 2; hasrmin++) {
   //   double rmin = 10;

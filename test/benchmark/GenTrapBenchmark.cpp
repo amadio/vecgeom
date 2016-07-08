@@ -44,5 +44,5 @@ int main(int argc, char *argv[])
   tester.SetPoolMultiplier(1); // set this if we want to compare results
   tester.SetPointCount(npoints);
   tester.SetToInBias(0.8);
-  tester.RunBenchmark();
+  return tester.RunBenchmark();
 }

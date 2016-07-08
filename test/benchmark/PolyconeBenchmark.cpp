@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
   tester.SetPointCount(npoints);
   tester.SetInsideBias(0.5);
 
-  tester.RunBenchmark();
+  auto errcode = tester.RunBenchmark();
 
 #ifdef VISUALIZER
   Visualizer visualizer;
@@ -69,5 +69,5 @@ int main(int argc, char *argv[])
   }
 #endif
 
-  return 0;
+  return errcode;
 }

@@ -53,8 +53,5 @@ int main()
   tester.SetPoolMultiplier(1);
   tester.SetRepetitions(1024);
   tester.SetPointCount(1 << 10);
-  tester.RunInsideBenchmark();
-  tester.RunToOutBenchmark();
-
-  return 0;
+  return tester.RunBenchmark();
 }

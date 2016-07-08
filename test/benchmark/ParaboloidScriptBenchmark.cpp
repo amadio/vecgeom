@@ -17,12 +17,8 @@ int main(int argc, char *argv[])
   OPTION_DOUBLE(rhi, 5.);
   OPTION_DOUBLE(dz, 7.);
 
-  std::cout << "Paraboloid Benchmark\n";
-  // UnplacedBox worldUnplaced = UnplacedBox(10., 10., 10.);
-  // UnplacedParaboloid paraboloidUnplaced = UnplacedParaboloid(3., 5., 7.); //rlo=3. - rhi=5. dz=7
   UnplacedBox worldUnplaced             = UnplacedBox(rhi * 4, rhi * 4, dz * 4);
   UnplacedParaboloid paraboloidUnplaced = UnplacedParaboloid(rlo, rhi, dz); // rlo=3. - rhi=5. dz=7
-  std::cout << "Paraboloid created\n";
   LogicalVolume world("MBworld", &worldUnplaced);
   LogicalVolume paraboloid("paraboloid", &paraboloidUnplaced);
   world.PlaceDaughter(&paraboloid, &Transformation3D::kIdentity);
@@ -34,8 +30,5 @@ int main(int argc, char *argv[])
   tester.SetVerbosity(3);
   tester.SetPointCount(npoints);
   tester.SetRepetitions(nrep);
-  std::cout << "Prepared to run benchmarker\n";
-  tester.RunBenchmark();
-
-  return 0;
+  return tester.RunBenchmark();
 }

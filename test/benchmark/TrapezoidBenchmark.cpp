@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
   //=== Here is for the validation + one perf data point displayed on screen
   tester.SetVerbosity(3);
   tester.SetMeasurementCount(1);
-  tester.RunBenchmark();
+  auto errcode = tester.RunBenchmark();
 
   // clear benchmark results, so previous measurements won't be written out into the output .csv file
   tester.ClearResults();
@@ -107,5 +107,5 @@ int main(int argc, char *argv[])
 
   // cleanup
   delete transf;
-  return 0;
+  return errcode;
 }

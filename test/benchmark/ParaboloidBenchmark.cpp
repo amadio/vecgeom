@@ -28,8 +28,5 @@ int main()
   tester.SetVerbosity(3);
   tester.SetPointCount(1 << 10);
   tester.SetRepetitions(4);
-  std::cout << "Prepared to run benchmarker\n";
-  tester.RunBenchmark();
-
-  return 0;
+  return tester.RunBenchmark();
 }

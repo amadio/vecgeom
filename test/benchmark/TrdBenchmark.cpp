@@ -39,5 +39,5 @@ int main(int argc, char *argv[])
   tester.SetRepetitions(nrep);
   tester.SetPointCount(npoints);
   tester.SetPoolMultiplier(1);
-  tester.RunBenchmark();
+  return tester.RunBenchmark();
 }
