@@ -750,6 +750,7 @@ if (BENCHMARK)
     source/benchmarking/Benchmarker.cu
     source/benchmarking/NavigationBenchmarker.cu
   )
+  add_subdirectory(test/benchmark)
 endif()
 set(SRC_CPP ${SRC_CPP} ${SRC_EXTERNAL}
   source/GeoManager.cpp
@@ -927,37 +928,6 @@ set(TEST_EXECUTABLES_USOLIDS
   ${CMAKE_SOURCE_DIR}/test/unit_tests/usolidTest.cpp
 )
 
-set(TEST_EXECUTABLES_BENCHMARK
-  ${CMAKE_SOURCE_DIR}/test/benchmark/BoxBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/SExtruBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/ConcaveSExtruBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/ParaboloidBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/ParaboloidScriptBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/ParallelepipedBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/PolyhedronBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/TubeBenchmark.cpp
- # ${CMAKE_SOURCE_DIR}/test/benchmark/BoxMinusHollowTubeBenchmark.cpp
- # ${CMAKE_SOURCE_DIR}/test/benchmark/BoxMinusTubeSegBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/BoxMinusHollowTubeBenchmark_virtual.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/BoxUnionHollowTubeBenchmark_virtual.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/BoxIntersectHollowTubeBenchmark_virtual.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/BoxUnionBoxBenchmark_virtual.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/3LevelSubtractionBenchmark_virtual.cpp
- # ${CMAKE_SOURCE_DIR}/test/benchmark/TorusBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/TorusBenchmark2.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/TrapezoidBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/TrapezoidBenchmarkScript.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/OrbBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/SphereBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/HypeBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/TrdBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/ConeBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/PolyconeBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/ScaledBenchmark.cpp
-   ${CMAKE_SOURCE_DIR}/test/benchmark/BoxScaledBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/GenTrapBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/GenTrapBenchmark_planar.cpp
-)
 set(TEST_EXECUTABLES_CUDA
   # Files go here
   ${CMAKE_SOURCE_DIR}/test/cuda/MapTest.cpp
@@ -987,15 +957,6 @@ if(ROOT) # add shape testers that depend on ROOT
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testFromROOTFile.cpp )
 endif()
 
-set(TEST_EXECUTABLES
-  ${TEST_EXECUTABLES_CORE}
-  ${TEST_EXECUTABLES_ROOT}
-  ${TEST_EXECUTABLES_VISUALIZATION}
-  ${TEST_EXECUTABLES_USOLIDS}
-  ${TEST_EXECUTABLES_BENCHMARK}
-  ${TEST_EXECUTABLES_CUDA}
-  ${TEST_EXECUTABLES_SHAPETESTER}
-)
 
 # Build executables
 
@@ -1037,8 +998,10 @@ endfunction()
 build_executables("${TEST_EXECUTABLES_CORE}")
 add_to_ctest("${TEST_EXECUTABLES_CORE}")
 set_tests_properties(TestSExtru PROPERTIES TIMEOUT 30)
+
 if (BENCHMARK)
   build_executables("${TEST_EXECUTABLES_BENCHMARK}")
+  add_to_ctest("${CTESTS_BENCHMARK}")
 endif()
 
 if (ROOT)
