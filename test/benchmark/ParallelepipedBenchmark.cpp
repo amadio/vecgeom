@@ -10,7 +10,7 @@ using namespace vecgeom;
 int main(int argc, char *argv[])
 {
   OPTION_INT(npoints, 16384);
-  OPTION_INT(nrep, 1024);
+  OPTION_INT(nrep, 1);
   OPTION_DOUBLE(dx, 20.);
   OPTION_DOUBLE(dy, 30.);
   OPTION_DOUBLE(dz, 40.);

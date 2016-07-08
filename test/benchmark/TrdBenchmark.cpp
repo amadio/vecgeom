@@ -15,7 +15,7 @@ double dmax(double d1, double d2)
 int main(int argc, char *argv[])
 {
   OPTION_INT(npoints, 50000);
-  OPTION_INT(nrep, 1024);
+  OPTION_INT(nrep, 1);
   OPTION_DOUBLE(dx1, 3.);
   OPTION_DOUBLE(dx2, 4.);
   OPTION_DOUBLE(dy1, 5.);

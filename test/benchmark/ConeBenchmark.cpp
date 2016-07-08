@@ -17,8 +17,8 @@ using namespace vecgeom;
 
 int main(int argc, char *argv[])
 {
-  OPTION_INT(npoints, 1024);
-  OPTION_INT(nrep, 1024);
+  OPTION_INT(npoints, 10240);
+  OPTION_INT(nrep, 1);
   OPTION_DOUBLE(rmin1, 5);
   OPTION_DOUBLE(rmax1, 10);
   OPTION_DOUBLE(rmin2, 7);
