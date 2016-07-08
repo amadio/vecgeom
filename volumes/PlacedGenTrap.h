@@ -95,6 +95,7 @@ public:
   }
 
   /** @brief Shortcut for computing the normal */
+  VECGEOM_CUDA_HEADER_BOTH
   virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
     bool valid;

@@ -281,6 +281,7 @@ public:
     return GetUnplacedVolume()->Extent(aMin, aMax);
   }
 
+  VECGEOM_CUDA_HEADER_BOTH
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
     bool valid;

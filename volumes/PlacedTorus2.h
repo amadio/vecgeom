@@ -102,6 +102,7 @@ public:
 
 #ifndef VECGEOM_NVCC
   virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface(); }
+  VECGEOM_CUDA_HEADER_BOTH
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
     return GetUnplacedVolume()->Normal(point, normal);

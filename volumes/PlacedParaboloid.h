@@ -117,6 +117,7 @@ public:
   Precision GetTolOrhi2() const { return GetUnplacedVolume()->GetTolOrhi2(); }
 
 #if !defined(VECGEOM_NVCC)
+  VECGEOM_CUDA_HEADER_BOTH
   virtual bool Normal(Vector3D<Precision> const &, Vector3D<double> & /*normal*/) const override
   {
     assert(false); // normal with point only not implemented for Paraboloid

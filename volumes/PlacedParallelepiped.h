@@ -103,6 +103,7 @@ public:
   virtual std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType(); }
 #endif
 
+  VECGEOM_CUDA_HEADER_BOTH
   virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
     return GetUnplacedVolume()->Normal(point, normal);

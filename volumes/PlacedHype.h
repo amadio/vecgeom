@@ -174,6 +174,7 @@ public:
             (pointRad2 < (hypeR2 + GetOuterRadToleranceLevel())));
   }
 
+  VECGEOM_CUDA_HEADER_BOTH
   bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const override
   {
 

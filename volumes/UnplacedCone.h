@@ -313,6 +313,7 @@ public:
     aMax       = Vector3D<Precision>(max, max, fDz);
   }
 
+  VECGEOM_CUDA_HEADER_BOTH
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;
   Vector3D<Precision> GetPointOnSurface() const;
 

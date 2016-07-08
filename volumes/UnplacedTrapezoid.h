@@ -201,6 +201,7 @@ public:
 
   Precision SurfaceArea() const;
 
+  VECGEOM_CUDA_HEADER_BOTH
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;
 
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const;
