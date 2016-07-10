@@ -3,65 +3,48 @@
 
 #include "volumes/UnplacedOrb.h"
 #include "backend/Backend.h"
-
-#ifndef VECGEOM_NVCC
-#include "base/RNG.h"
-#include <cmath>
-#endif
-
 #include "management/VolumeFactory.h"
 #include "volumes/SpecializedOrb.h"
-#include "volumes/utilities/GenerationUtilities.h"
-
+#include "base/RNG.h"
 #include <stdio.h>
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 VECGEOM_CUDA_HEADER_BOTH
-UnplacedOrb::UnplacedOrb()
-    : fR(0), fRTolerance(Max(frTolerance, fepsilon * fR)), fRTolI(fR - fRTolerance), fRTolO(fR + fRTolerance),
-      fCubicVolume(0), fSurfaceArea(0),
-      //  epsilon(2e-11),
-      frTolerance(1e-9)
+UnplacedOrb::UnplacedOrb() : fCubicVolume(0), fSurfaceArea(0)
 {
   // default constructor
   fGlobalConvexity = true;
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-UnplacedOrb::UnplacedOrb(const Precision r)
-    : fR(r), fRTolerance(Max(frTolerance, fepsilon * fR)), fRTolI(fR - fRTolerance), fRTolO(fR + fRTolerance),
-      fCubicVolume((4 * kPi / 3) * fR * fR * fR), fSurfaceArea((4 * kPi) * fR * fR),
-      //  epsilon(2e-11),
-      frTolerance(1e-9)
+UnplacedOrb::UnplacedOrb(const Precision r) : fOrb(r)
 {
+  fCubicVolume     = (4 * kPi / 3) * fOrb.fR * fOrb.fR * fOrb.fR;
+  fSurfaceArea     = (4 * kPi) * fOrb.fR * fOrb.fR;
   fGlobalConvexity = true;
 }
 
 VECGEOM_CUDA_HEADER_BOTH
 void UnplacedOrb::SetRadius(Precision r)
 {
-  fR           = r;
-  fRTolerance  = Max(frTolerance, fepsilon * r);
-  fCubicVolume = (4 * kPi / 3) * fR * fR * fR;
-  fSurfaceArea = (4 * kPi) * fR * fR;
-  fRTolI       = fR - fRTolerance;
-  fRTolO       = fR + fRTolerance;
+  fOrb.fR      = r;
+  fCubicVolume = (4 * kPi / 3) * fOrb.fR * fOrb.fR * fOrb.fR;
+  fSurfaceArea = (4 * kPi) * fOrb.fR * fOrb.fR;
 }
 
-#ifndef VECGEOM_NVCC
+VECGEOM_CUDA_HEADER_BOTH
 void UnplacedOrb::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
   // Returns the full 3D cartesian extent of the solid.
-  aMin.Set(-fR);
-  aMax.Set(fR);
+  aMin.Set(-fOrb.fR);
+  aMax.Set(fOrb.fR);
 }
 
 Vector3D<Precision> UnplacedOrb::GetPointOnSurface() const
 {
   //  generate a random number from zero to 2UUtils::kPi...
-
   Precision phi    = RNG::Instance().uniform(0., 2. * kPi);
   Precision cosphi = std::cos(phi);
   Precision sinphi = std::sin(phi);
@@ -70,14 +53,13 @@ Vector3D<Precision> UnplacedOrb::GetPointOnSurface() const
   Precision costheta = RNG::Instance().uniform(-1., 1.);
   Precision sintheta = std::sqrt(1. - (costheta * costheta));
 
-  return Vector3D<Precision>(fR * sintheta * cosphi, fR * sintheta * sinphi, fR * costheta);
+  return Vector3D<Precision>(fOrb.fR * sintheta * cosphi, fOrb.fR * sintheta * sinphi, fOrb.fR * costheta);
 }
 
 std::string UnplacedOrb::GetEntityType() const
 {
   return "Orb\n";
 }
-#endif
 
 #if defined(VECGEOM_USOLIDS)
 VECGEOM_CUDA_HEADER_BOTH
@@ -89,7 +71,7 @@ void UnplacedOrb::GetParametersList(int, double *aArray) const
 VECGEOM_CUDA_HEADER_BOTH
 UnplacedOrb *UnplacedOrb::Clone() const
 {
-  return new UnplacedOrb(fR);
+  return new UnplacedOrb(fOrb.fR);
 }
 
 // VECGEOM_CUDA_HEADER_BOTH
@@ -104,7 +86,7 @@ std::ostream &UnplacedOrb::StreamInfo(std::ostream &os) const
      << " Solid type: UOrb\n"
      << " Parameters: \n"
 
-     << "       outer radius: " << fR << " mm \n"
+     << "       outer radius: " << fOrb.fR << " mm \n"
      << "-----------------------------------------------------------\n";
   os.precision(oldprc);
 
@@ -123,7 +105,6 @@ void UnplacedOrb::Print(std::ostream &os) const
 }
 
 #ifndef VECGEOM_NVCC
-
 template <TranslationCode trans_code, RotationCode rot_code>
 VPlacedVolume *UnplacedOrb::Create(LogicalVolume const *const logical_volume,
                                    Transformation3D const *const transformation, VPlacedVolume *const placement)
@@ -135,14 +116,13 @@ VPlacedVolume *UnplacedOrb::Create(LogicalVolume const *const logical_volume,
   return new SpecializedOrb<trans_code, rot_code>(logical_volume, transformation);
 }
 
-VPlacedVolume *UnplacedOrb::CreateSpecializedVolume(LogicalVolume const *const volume,
-                                                    Transformation3D const *const transformation,
-                                                    const TranslationCode trans_code, const RotationCode rot_code,
-                                                    VPlacedVolume *const placement)
+VPlacedVolume *UnplacedOrb::SpecializedVolume(LogicalVolume const *const volume,
+                                              Transformation3D const *const transformation,
+                                              const TranslationCode trans_code, const RotationCode rot_code,
+                                              VPlacedVolume *const placement) const
 {
   return VolumeFactory::CreateByTransformation<UnplacedOrb>(volume, transformation, trans_code, rot_code, placement);
 }
-
 #else
 
 template <TranslationCode trans_code, RotationCode rot_code>
@@ -152,17 +132,16 @@ VPlacedVolume *UnplacedOrb::Create(LogicalVolume const *const logical_volume,
                                    VPlacedVolume *const placement)
 {
   if (placement) {
-    new (placement) SpecializedOrb<trans_code, rot_code>(logical_volume, transformation, NULL, id);
+    new (placement) SpecializedOrb<trans_code, rot_code>(logical_volume, transformation, id);
     return placement;
   }
-  return new SpecializedOrb<trans_code, rot_code>(logical_volume, transformation, NULL, id);
+  return new SpecializedOrb<trans_code, rot_code>(logical_volume, transformation, id);
 }
 
-__device__ VPlacedVolume *UnplacedOrb::CreateSpecializedVolume(LogicalVolume const *const volume,
-                                                               Transformation3D const *const transformation,
-                                                               const TranslationCode trans_code,
-                                                               const RotationCode rot_code, const int id,
-                                                               VPlacedVolume *const placement)
+__device__ VPlacedVolume *UnplacedOrb::SpecializedVolume(LogicalVolume const *const volume,
+                                                         Transformation3D const *const transformation,
+                                                         const TranslationCode trans_code, const RotationCode rot_code,
+                                                         const int id, VPlacedVolume *const placement) const
 {
   return VolumeFactory::CreateByTransformation<UnplacedOrb>(volume, transformation, trans_code, rot_code, id,
                                                             placement);
@@ -196,5 +175,4 @@ template void DevicePtr<cuda::UnplacedOrb>::Construct(const Precision r) const;
 } // End cxx namespace
 
 #endif
-
 } // End global namespace

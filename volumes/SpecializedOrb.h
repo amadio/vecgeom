@@ -8,7 +8,8 @@
 
 #include "volumes/kernel/OrbImplementation.h"
 #include "volumes/PlacedOrb.h"
-#include "volumes/ShapeImplementationHelper.h"
+#include "volumes/SpecializedPlacedVolImplHelper.h"
+#include "volumes/UnplacedOrb.h"
 
 #include <stdio.h>
 
@@ -16,7 +17,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedOrb = ShapeImplementationHelper<OrbImplementation<transCodeT, rotCodeT>>;
+using SpecializedOrb = SIMDSpecializedVolImplHelper<OrbImplementation, transCodeT, rotCodeT>;
 
 using SimpleOrb = SpecializedOrb<translation::kGeneric, rotation::kGeneric>;
 }
