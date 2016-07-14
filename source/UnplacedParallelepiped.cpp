@@ -150,7 +150,7 @@ VPlacedVolume *UnplacedParallelepiped::SpecializedVolume(LogicalVolume const *co
 DevicePtr<cuda::VUnplacedVolume> UnplacedParallelepiped::CopyToGpu(
     DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
 {
-  return CopyToGpuImpl<UnplacedParallelepiped>(in_gpu_ptr, GetX(), GetY(), GetZ(), fAlpha, fTheta, fPhi);
+  return CopyToGpuImpl<UnplacedParallelepiped>(in_gpu_ptr, GetX(), GetY(), GetZ(), GetAlpha(), GetTheta(), GetPhi());
 }
 
 //______________________________________________________________________________
