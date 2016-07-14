@@ -7,8 +7,10 @@
 
 #include "base/Global.h"
 #include "volumes/PlacedVolume.h"
+#include "volumes/UnplacedVolume.h"
+//#include "volumes/kernel/ParallelepipedImplementation.h"
+#include "volumes/PlacedVolImplHelper.h"
 #include "volumes/UnplacedParallelepiped.h"
-#include "volumes/kernel/ParallelepipedImplementation.h"
 
 namespace vecgeom {
 
@@ -17,21 +19,21 @@ VECGEOM_DEVICE_DECLARE_CONV(class, PlacedParallelepiped);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class PlacedParallelepiped : public VPlacedVolume {
+class PlacedParallelepiped : public PlacedVolumeImplHelper<UnplacedParallelepiped, VPlacedVolume> {
+  using Base = PlacedVolumeImplHelper<UnplacedParallelepiped, VPlacedVolume>;
 
 public:
-  typedef UnplacedParallelepiped UnplacedShape_t;
-
 #ifndef VECGEOM_NVCC
-
+  // constructor inheritance;
+  using Base::Base;
   PlacedParallelepiped(char const *const label, LogicalVolume const *const logical_volume,
-                       Transformation3D const *const transformation, PlacedBox const *const boundingBox)
-      : VPlacedVolume(label, logical_volume, transformation, boundingBox)
+                       Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
+      : Base(label, logical_volume, transformation, boundingBox)
   {
   }
 
   PlacedParallelepiped(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-                       PlacedBox const *const boundingBox)
+                       vecgeom::PlacedBox const *const boundingBox)
       : PlacedParallelepiped("", logical_volume, transformation, boundingBox)
   {
   }
@@ -41,7 +43,7 @@ public:
   __device__ PlacedParallelepiped(LogicalVolume const *const logical_volume,
                                   Transformation3D const *const transformation, PlacedBox const *const boundingBox,
                                   const int id)
-      : VPlacedVolume(logical_volume, transformation, boundingBox, id)
+      : Base(logical_volume, transformation, boundingBox, id)
   {
   }
 

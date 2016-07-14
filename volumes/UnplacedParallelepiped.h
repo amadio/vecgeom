@@ -4,10 +4,12 @@
 #ifndef VECGEOM_VOLUMES_UNPLACEDPARALLELEPIPED_H_
 #define VECGEOM_VOLUMES_UNPLACEDPARALLELEPIPED_H_
 
-#include "base/Global.h"
-
 #include "base/AlignedBase.h"
+#include "base/Vector3D.h"
 #include "volumes/UnplacedVolume.h"
+#include "ParallelepipedStruct.h"
+#include "volumes/kernel/ParallelepipedImplementation.h"
+#include "volumes/UnplacedVolumeImplHelper.h"
 
 namespace vecgeom {
 
@@ -16,110 +18,109 @@ VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedParallelepiped);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class UnplacedParallelepiped : public VUnplacedVolume, public AlignedBase {
+class UnplacedParallelepiped : public SIMDUnplacedVolumeImplHelper<ParallelepipedImplementation>, public AlignedBase {
 
 private:
-  Vector3D<Precision> fDimensions; /** Dimensions dx, dy, dx */
-  Precision fAlpha;                /** Angle dx versus dy (degrees)*/
-  Precision fTheta;                /** Theta angle of parallelepiped axis*/
-  Precision fPhi;                  /** Phi angle of parallelepiped axis*/
-  Precision fCtx;                  /** Cosine of xz angle */
-  Precision fCty;                  /** Cosine of yz angle */
-  Vector3D<Precision> fNormals[3]; /** Precomputed normals */
-
-  // Precomputed values computed from parameters
-  Precision fTanAlpha, fTanThetaSinPhi, fTanThetaCosPhi;
-
-  /** @brief Compute normals */
-  VECGEOM_CUDA_HEADER_BOTH
-  void ComputeNormals();
+  ParallelepipedStruct<double> fPara; /** The parallelepiped structure */
 
 public:
   /** @brief Constructor */
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedParallelepiped(Vector3D<Precision> const &dimensions, const Precision alpha, const Precision theta,
-                         const Precision phi);
+                         const Precision phi)
+      : fPara(dimensions, alpha, theta, phi)
+  {
+    fGlobalConvexity = true;
+  }
 
   /** @brief Constructor */
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedParallelepiped(const Precision x, const Precision y, const Precision z, const Precision alpha,
-                         const Precision theta, const Precision phi);
+                         const Precision theta, const Precision phi)
+      : fPara(x, y, z, alpha, theta, phi)
+  {
+    fGlobalConvexity = true;
+  }
+
+  /** @brief Interface getter for parallelepiped struct */
+  VECGEOM_CUDA_HEADER_BOTH
+  ParallelepipedStruct<double> const &GetStruct() const { return fPara; }
 
   /** @brief Getter for parallelepiped dimensions */
   VECGEOM_CUDA_HEADER_BOTH
-  Vector3D<Precision> const &GetDimensions() const { return fDimensions; }
+  Vector3D<Precision> const &GetDimensions() const { return fPara.fDimensions; }
 
   /** @brief Getter for parallelepiped normals */
   VECGEOM_CUDA_HEADER_BOTH
-  Vector3D<Precision> const &GetNormal(int i) const { return fNormals[i]; }
+  Vector3D<Precision> const &GetNormal(int i) const { return fPara.fNormals[i]; }
 
   /** @brief Getter for dX */
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetX() const { return fDimensions[0]; }
+  Precision GetX() const { return fPara.fDimensions[0]; }
 
   /** @brief Getter for dY */
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetY() const { return fDimensions[1]; }
+  Precision GetY() const { return fPara.fDimensions[1]; }
 
   /** @brief Getter for dZ */
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetZ() const { return fDimensions[2]; }
+  Precision GetZ() const { return fPara.fDimensions[2]; }
 
   /** @brief Getter for alpha */
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetAlpha() const { return fAlpha; }
+  Precision GetAlpha() const { return fPara.fAlpha; }
 
   /** @brief Getter for theta */
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetTheta() const { return fTheta; }
+  Precision GetTheta() const { return fPara.fTheta; }
 
   /** @brief Getter for phi */
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetPhi() const { return fPhi; }
+  Precision GetPhi() const { return fPara.fPhi; }
 
   /** @brief Getter for tan(alpha) */
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetTanAlpha() const { return fTanAlpha; }
+  Precision GetTanAlpha() const { return fPara.fTanAlpha; }
 
   /** @brief Getter for tan(th)*sin(phi) */
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetTanThetaSinPhi() const { return fTanThetaSinPhi; }
+  Precision GetTanThetaSinPhi() const { return fPara.fTanThetaSinPhi; }
 
   /** @brief Getter for tan(th)*cos(phi) */
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetTanThetaCosPhi() const { return fTanThetaCosPhi; }
+  Precision GetTanThetaCosPhi() const { return fPara.fTanThetaCosPhi; }
 
   /** @brief Getter for fCtx */
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetCtx() const { return fCtx; }
+  Precision GetCtx() const { return fPara.fCtx; }
 
   /** @brief Getter for fCty */
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetCty() const { return fCty; }
+  Precision GetCty() const { return fPara.fCty; }
 
   /** @brief Setter for dimensions on x,y,z */
   VECGEOM_CUDA_HEADER_BOTH
-  void SetDimensions(Vector3D<Precision> const &dimensions) { fDimensions = dimensions; }
+  void SetDimensions(Vector3D<Precision> const &dimensions) { fPara.fDimensions = dimensions; }
 
   /** @brief Setter for dimensions on x,y,z */
   VECGEOM_CUDA_HEADER_BOTH
-  void SetDimensions(const Precision x, const Precision y, const Precision z) { fDimensions.Set(x, y, z); }
+  void SetDimensions(const Precision x, const Precision y, const Precision z) { fPara.fDimensions.Set(x, y, z); }
 
   /** @brief Setter for alpha */
   VECGEOM_CUDA_HEADER_BOTH
-  void SetAlpha(const Precision alpha);
+  void SetAlpha(const Precision alpha) { fPara.SetAlpha(alpha); }
 
   /** @brief Setter for theta */
   VECGEOM_CUDA_HEADER_BOTH
-  void SetTheta(const Precision theta);
+  void SetTheta(const Precision theta) { fPara.SetTheta(theta); }
 
   /** @brief Setter for phi */
   VECGEOM_CUDA_HEADER_BOTH
-  void SetPhi(const Precision phi);
+  void SetPhi(const Precision phi) { fPara.SetPhi(phi); }
 
   /** @brief Setter for theta and phi */
   VECGEOM_CUDA_HEADER_BOTH
-  void SetThetaAndPhi(const Precision theta, const Precision phi);
+  void SetThetaAndPhi(const Precision theta, const Precision phi) { fPara.SetThetaAndPhi(theta, phi); }
 
   virtual int memory_size() const final { return sizeof(*this); }
 
@@ -137,7 +138,7 @@ public:
 
   /** @brief Implementation of capacity computation */
   VECGEOM_FORCE_INLINE
-  Precision volume() const { return 8.0 * fDimensions[0] * fDimensions[1] * fDimensions[2]; }
+  Precision volume() const { return 8.0 * fPara.fDimensions[0] * fPara.fDimensions[1] * fPara.fDimensions[2]; }
 
   /** @brief Interface method for computing capacity */
   Precision Capacity() { return volume(); }
@@ -147,10 +148,12 @@ public:
   Precision SurfaceArea() const
   {
     // factor 8 because dimensions_ are half-lengths
-    Precision ctinv = 1. / cos(kDegToRad * fTheta);
-    return 8.0 * (fDimensions[0] * fDimensions[1] +
-                  fDimensions[1] * fDimensions[2] * sqrt(ctinv * ctinv - fTanThetaSinPhi * fTanThetaSinPhi) +
-                  fDimensions[2] * fDimensions[0] * sqrt(ctinv * ctinv - fTanThetaCosPhi * fTanThetaCosPhi));
+    Precision ctinv = 1. / cos(kDegToRad * fPara.fTheta);
+    return 8.0 * (fPara.fDimensions[0] * fPara.fDimensions[1] +
+                  fPara.fDimensions[1] * fPara.fDimensions[2] *
+                      sqrt(ctinv * ctinv - fPara.fTanThetaSinPhi * fPara.fTanThetaSinPhi) +
+                  fPara.fDimensions[2] * fPara.fDimensions[0] *
+                      sqrt(ctinv * ctinv - fPara.fTanThetaCosPhi * fPara.fTanThetaCosPhi));
   }
 #endif
 
@@ -163,12 +166,15 @@ public:
 
   /** @brief Templated factory for creating a placed volume */
   template <TranslationCode transCodeT, RotationCode rotCodeT>
-  VECGEOM_CUDA_HEADER_DEVICE
-  static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
-                               const int id,
+  VECGEOM_CUDA_HEADER_DEVICE
 #endif
-                               VPlacedVolume *const placement = NULL);
+      static VPlacedVolume *
+      Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
+#ifdef VECGEOM_NVCC
+             const int id,
+#endif
+             VPlacedVolume *const placement = NULL);
 
 #ifdef VECGEOM_CUDA_INTERFACE
   virtual size_t DeviceSizeOf() const { return DevicePtr<cuda::UnplacedParallelepiped>::SizeOf(); }
@@ -179,7 +185,9 @@ public:
 private:
   virtual void Print(std::ostream &os) const final;
 
+#ifdef VECGEOM_NVCC
   VECGEOM_CUDA_HEADER_DEVICE
+#endif
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code,

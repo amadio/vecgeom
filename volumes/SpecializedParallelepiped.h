@@ -8,7 +8,8 @@
 
 #include "volumes/kernel/ParallelepipedImplementation.h"
 #include "volumes/PlacedParallelepiped.h"
-#include "volumes/ShapeImplementationHelper.h"
+#include "volumes/SpecializedPlacedVolImplHelper.h"
+#include "volumes/UnplacedParallelepiped.h"
 
 #include <stdio.h>
 
@@ -16,7 +17,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedParallelepiped = ShapeImplementationHelper<ParallelepipedImplementation<transCodeT, rotCodeT>>;
+using SpecializedParallelepiped = SIMDSpecializedVolImplHelper<ParallelepipedImplementation, transCodeT, rotCodeT>;
 
 using SimpleParallelepiped = SpecializedParallelepiped<translation::kGeneric, rotation::kGeneric>;
 }

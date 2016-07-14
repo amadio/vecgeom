@@ -16,80 +16,6 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-VECGEOM_CUDA_HEADER_BOTH
-UnplacedParallelepiped::UnplacedParallelepiped(Vector3D<Precision> const &dimensions, const Precision alpha,
-                                               const Precision theta, const Precision phi)
-    : fDimensions(dimensions), fAlpha(0), fTheta(0), fPhi(0), fCtx(0), fCty(0), fTanAlpha(0), fTanThetaSinPhi(0),
-      fTanThetaCosPhi(0)
-{
-  SetAlpha(alpha);
-  SetThetaAndPhi(theta, phi);
-  fGlobalConvexity = true;
-}
-
-//______________________________________________________________________________
-VECGEOM_CUDA_HEADER_BOTH
-UnplacedParallelepiped::UnplacedParallelepiped(const Precision x, const Precision y, const Precision z,
-                                               const Precision alpha, const Precision theta, const Precision phi)
-    : fDimensions(x, y, z), fAlpha(0), fTheta(0), fPhi(0), fCtx(0), fCty(0), fTanAlpha(0), fTanThetaSinPhi(0),
-      fTanThetaCosPhi(0)
-{
-  SetAlpha(alpha);
-  SetThetaAndPhi(theta, phi);
-  fGlobalConvexity = true;
-}
-
-//______________________________________________________________________________
-VECGEOM_CUDA_HEADER_BOTH
-void UnplacedParallelepiped::SetAlpha(const Precision alpha)
-{
-  fAlpha    = alpha;
-  fTanAlpha = tan(kDegToRad * alpha);
-  ComputeNormals();
-}
-
-//______________________________________________________________________________
-VECGEOM_CUDA_HEADER_BOTH
-void UnplacedParallelepiped::SetTheta(const Precision theta)
-{
-  SetThetaAndPhi(theta, fPhi);
-}
-
-//______________________________________________________________________________
-VECGEOM_CUDA_HEADER_BOTH
-void UnplacedParallelepiped::SetPhi(const Precision phi)
-{
-  SetThetaAndPhi(fTheta, phi);
-}
-
-//______________________________________________________________________________
-VECGEOM_CUDA_HEADER_BOTH
-void UnplacedParallelepiped::SetThetaAndPhi(const Precision theta, const Precision phi)
-{
-  fTheta          = theta;
-  fPhi            = phi;
-  fTanThetaCosPhi = tan(kDegToRad * fTheta) * cos(kDegToRad * fPhi);
-  fTanThetaSinPhi = tan(kDegToRad * fTheta) * sin(kDegToRad * fPhi);
-  ComputeNormals();
-}
-
-//______________________________________________________________________________
-VECGEOM_CUDA_HEADER_BOTH
-void UnplacedParallelepiped::ComputeNormals()
-{
-  Vector3D<Precision> v(sin(kDegToRad * fTheta) * cos(kDegToRad * fPhi),
-                        sin(kDegToRad * fTheta) * sin(kDegToRad * fPhi), cos(kDegToRad * fTheta));
-  Vector3D<Precision> vx(1., 0., 0.);
-  Vector3D<Precision> vy(-sin(kDegToRad * fAlpha), -cos(kDegToRad * fAlpha), 0.);
-  fNormals[0] = v.Cross(vy);
-  fNormals[0].Normalize();
-  fNormals[1] = v.Cross(vx);
-  fNormals[1].Normalize();
-  fNormals[2].Set(0., 0., 1.);
-  fCtx = 1.0 / sqrt(1. + fTanAlpha * fTanAlpha + fTanThetaCosPhi * fTanThetaCosPhi);
-  fCty = 1.0 / sqrt(1. + fTanThetaSinPhi * fTanThetaSinPhi);
-}
-
 //______________________________________________________________________________
 void UnplacedParallelepiped::Print() const
 {
@@ -109,9 +35,10 @@ VECGEOM_CUDA_HEADER_BOTH
 void UnplacedParallelepiped::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
   // Returns the full 3D cartesian extent of the solid.
-  Precision dx = fDimensions[0] + fDimensions[1] * Abs(fTanAlpha) + fDimensions[2] * Abs(fTanThetaCosPhi);
-  Precision dy = fDimensions[1] + fDimensions[2] * Abs(fTanThetaSinPhi);
-  Precision dz = fDimensions[2];
+  Precision dx = fPara.fDimensions[0] + fPara.fDimensions[1] * Abs(fPara.fTanAlpha) +
+                 fPara.fDimensions[2] * Abs(fPara.fTanThetaCosPhi);
+  Precision dy = fPara.fDimensions[1] + fPara.fDimensions[2] * Abs(fPara.fTanThetaSinPhi);
+  Precision dz = fPara.fDimensions[2];
   aMin.Set(-dx, -dy, -dz);
   aMax.Set(dx, dy, dz);
 }
@@ -129,26 +56,26 @@ Vector3D<Precision> UnplacedParallelepiped::GetPointOnSurface() const
   case 0:
   case 1:
     // top/bottom
-    dx = RNG::Instance().uniform(-fDimensions[0], fDimensions[0]);
-    dy = RNG::Instance().uniform(-fDimensions[1], fDimensions[1]);
-    dz = (2 * isurf - 1) * fDimensions[2];
+    dx = RNG::Instance().uniform(-fPara.fDimensions[0], fPara.fDimensions[0]);
+    dy = RNG::Instance().uniform(-fPara.fDimensions[1], fPara.fDimensions[1]);
+    dz = (2 * isurf - 1) * fPara.fDimensions[2];
     break;
   case 2:
   case 3:
     // front/behind
-    dx = RNG::Instance().uniform(-fDimensions[0], fDimensions[0]);
-    dy = (2 * (isurf - 2) - 1) * fDimensions[1];
-    dz = RNG::Instance().uniform(-fDimensions[2], fDimensions[2]);
+    dx = RNG::Instance().uniform(-fPara.fDimensions[0], fPara.fDimensions[0]);
+    dy = (2 * (isurf - 2) - 1) * fPara.fDimensions[1];
+    dz = RNG::Instance().uniform(-fPara.fDimensions[2], fPara.fDimensions[2]);
     break;
   case 4:
   case 5:
     // left/right
-    dx = (2 * (isurf - 4) - 1) * fDimensions[0];
-    dy = RNG::Instance().uniform(-fDimensions[1], fDimensions[1]);
-    dz = RNG::Instance().uniform(-fDimensions[2], fDimensions[2]);
+    dx = (2 * (isurf - 4) - 1) * fPara.fDimensions[0];
+    dy = RNG::Instance().uniform(-fPara.fDimensions[1], fPara.fDimensions[1]);
+    dz = RNG::Instance().uniform(-fPara.fDimensions[2], fPara.fDimensions[2]);
   }
-  point[0] = dx + dy * fTanAlpha + dz * fTanThetaCosPhi;
-  point[1] = dy + dz * fTanThetaSinPhi;
+  point[0] = dx + dy * fPara.fTanAlpha + dz * fPara.fTanThetaCosPhi;
+  point[1] = dy + dz * fPara.fTanThetaSinPhi;
   point[2] = dz;
   return (point);
 }
@@ -163,10 +90,10 @@ bool UnplacedParallelepiped::Normal(Vector3D<Precision> const &point, Vector3D<P
 
   Vector3D<Precision> local;
   local[2]        = point[2];
-  local[1]        = point[1] - fTanThetaSinPhi * point[2];
-  local[0]        = point[0] - fTanThetaCosPhi * point[2] - fTanAlpha * local[1];
-  safetyVector[0] = fCtx * Abs(GetX() - Abs(local[0]));
-  safetyVector[1] = fCty * Abs(GetY() - Abs(local[1]));
+  local[1]        = point[1] - fPara.fTanThetaSinPhi * point[2];
+  local[0]        = point[0] - fPara.fTanThetaCosPhi * point[2] - fPara.fTanAlpha * local[1];
+  safetyVector[0] = fPara.fCtx * Abs(GetX() - Abs(local[0]));
+  safetyVector[1] = fPara.fCty * Abs(GetY() - Abs(local[1]));
   safetyVector[2] = Abs(GetZ() - Abs(point[2]));
 
   int isurf        = 0;
@@ -176,7 +103,7 @@ bool UnplacedParallelepiped::Normal(Vector3D<Precision> const &point, Vector3D<P
     isurf  = 1;
   }
   if (safetyVector[2] < safety) isurf = 2;
-  normal                              = fNormals[isurf];
+  normal                              = fPara.fNormals[isurf];
   if (local[isurf] < 0) normal *= -1;
   return true;
 }
