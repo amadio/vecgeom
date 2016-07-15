@@ -1,4 +1,4 @@
-//===-- volumes/UnplacedParaboloid.h - Instruction class definition -------*- C++ -*-===//
+///===-- volumes/UnplacedParaboloid.h - Instruction class definition -------*- C++ -*-===//
 ///
 /// \file volumes/UnplacedParaboloid.h
 /// \author Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
@@ -29,14 +29,19 @@
 /// a=1/k1
 /// b=-k2/k1
 //===----------------------------------------------------------------------===//
+///
+/// revision + moving to new backend structure : Raman Sehgal (raman.sehgal@cern.ch)
 
 #ifndef VECGEOM_VOLUMES_UNPLACEDPARABOLOID_H_
 #define VECGEOM_VOLUMES_UNPLACEDPARABOLOID_H_
 
 #include "base/Global.h"
-
 #include "base/AlignedBase.h"
+#include "base/Vector3D.h"
 #include "volumes/UnplacedVolume.h"
+#include "volumes/ParaboloidStruct.h" // the pure Paraboloid struct
+#include "volumes/kernel/ParaboloidImplementation.h"
+#include "volumes/UnplacedVolumeImplHelper.h"
 
 namespace vecgeom {
 
@@ -45,173 +50,123 @@ VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedParaboloid);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class UnplacedParaboloid : public VUnplacedVolume, public AlignedBase {
+class UnplacedParaboloid : public SIMDUnplacedVolumeImplHelper<ParaboloidImplementation>, public AlignedBase {
 
 private:
-  Precision fRlo, fRhi, fDz;
-  // Precomputed values computed from parameters
-  Precision fA, fB,
+  ParaboloidStruct<double> fParaboloid;
 
-      // useful parameters in order to improve performance
-      fAinv, fBinv, fA2, fB2, fRlo2, fRhi2,
-      // Inside tolerance for plane at dZ
-      fTolIz,
-      // Outside tolerance for plane at -dZ
-      fTolOz,
-      // Inside tolerance for Rlo, squared
-      fTolIrlo2,
-      // Outside tolerance for Rlo, squared
-      fTolOrlo2,
-      // Inside tolerance for Rhi, squared
-      fTolIrhi2,
-      // Outside tolerance for Rhi, squared
-      fTolOrhi2;
-
-  Precision fDx, fDy;
+  // Varibale to store Cached values of Volume and SurfaceArea
+  Precision fCubicVolume, fSurfaceArea;
 
 public:
-  // constructor
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedParaboloid();
 
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedParaboloid(const Precision rlo, const Precision rhi, const Precision dz);
 
-  // get and set
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetRlo() const { return fRlo; }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  Precision GetRhi() const { return fRhi; }
+  ParaboloidStruct<double> const &GetStruct() const { return fParaboloid; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetDz() const { return fDz; }
+  VECGEOM_FORCE_INLINE
+  Precision GetRlo() const { return fParaboloid.fRlo; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetA() const { return fA; }
+  VECGEOM_FORCE_INLINE
+  Precision GetRhi() const { return fParaboloid.fRhi; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetB() const { return fB; }
+  VECGEOM_FORCE_INLINE
+  Precision GetDz() const { return fParaboloid.fDz; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetAinv() const { return fAinv; }
+  VECGEOM_FORCE_INLINE
+  Precision GetA() const { return fParaboloid.fA; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetBinv() const { return fBinv; }
+  VECGEOM_FORCE_INLINE
+  Precision GetB() const { return fParaboloid.fB; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetA2() const { return fA2; }
+  // VECGEOM_FORCE_INLINE
+  void SetRlo(Precision val)
+  {
+    fParaboloid.SetRlo(val);
+    CalcCapacity();
+    CalcSurfaceArea();
+  }
 
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetB2() const { return fB2; }
+  void SetRhi(Precision val)
+  {
+    fParaboloid.SetRhi(val);
+    CalcCapacity();
+    CalcSurfaceArea();
+  }
 
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetRlo2() const { return fRlo2; }
+  void SetDz(Precision val)
+  {
+    fParaboloid.SetDz(val);
+    CalcCapacity();
+    CalcSurfaceArea();
+  }
 
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetRhi2() const { return fRhi2; }
+  void SetRloAndRhiAndDz(Precision rlo, Precision rhi, Precision dz)
+  {
+    fParaboloid.SetRloAndRhiAndDz(rlo, rhi, dz);
+    CalcCapacity();
+    CalcSurfaceArea();
+  }
 
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetTolIz() const { return fTolIz; }
+  void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetTolOz() const { return fTolOz; }
+  void CalcCapacity();
 
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetTolIrlo2() const { return fTolIrlo2; }
+  void CalcSurfaceArea();
 
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetTolOrlo2() const { return fTolOrlo2; }
+  VECGEOM_FORCE_INLINE
+  Precision Capacity() const { return fCubicVolume; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetTolIrhi2() const { return fTolIrhi2; }
+  VECGEOM_FORCE_INLINE
+  Precision SurfaceArea() const { return fSurfaceArea; }
+
+  virtual Vector3D<Precision> GetPointOnSurface() const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetTolOrhi2() const { return fTolOrhi2; }
+  virtual bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const override
+  {
+    bool valid = false;
+    normal     = ParaboloidImplementation::NormalKernel(fParaboloid, p, valid);
+    return valid;
+  }
 
-  VECGEOM_CUDA_HEADER_BOTH
-  void SetRloAndRhiAndDz(const Precision rlo, const Precision rhi, const Precision dz);
-
-  VECGEOM_CUDA_HEADER_BOTH
-  void SetRlo(const Precision rlo);
-
-  VECGEOM_CUDA_HEADER_BOTH
-  void SetRhi(const Precision rhi);
-
-  VECGEOM_CUDA_HEADER_BOTH
-  void SetDx(const Precision dx);
-
-  VECGEOM_CUDA_HEADER_BOTH
-  void SetDy(const Precision dy);
-
-  VECGEOM_CUDA_HEADER_BOTH
-  void SetDz(const Precision dz);
-
-#if !defined(VECGEOM_NVCC)
-  //__________________________________________________________________
-  using VUnplacedVolume::Normal;
-  // TODO: convert this interface to be conforming with VUnplacedVolume
-  void Normal(const Precision *point, const Precision *dir, Precision *norm) const;
-
-  //__________________________________________________________________
-
-  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override;
-
-  //__________________________________________________________________
-
-  // Computes capacity of the shape in [length^3]
-  Precision Capacity() const { return kPi * fDz * (fRlo * fRlo + fRhi * fRhi); }
-  //__________________________________________________________________
-
-  Precision SurfaceArea() const;
-  //__________________________________________________________________
-
-  virtual Vector3D<Precision> GetPointOnSurface() const override;
-  //__________________________________________________________________
-
-  std::string GetEntityType() const { return "Paraboloid"; }
-#endif // !VECGEOM_NVCC
-
-  VECGEOM_CUDA_HEADER_BOTH
-  void ComputeBoundingBox();
-  //__________________________________________________________________
-
-  VECGEOM_CUDA_HEADER_BOTH
-  void GetParameterList() const { ; }
-
-  //__________________________________________________________________
-
-  VECGEOM_CUDA_HEADER_BOTH
-  UnplacedParaboloid *Clone() const { return new UnplacedParaboloid(fRlo, fRhi, fDz); }
-
-//__________________________________________________________________
+  std::string GetEntityType() const;
 
 #if defined(VECGEOM_USOLIDS)
   VECGEOM_CUDA_HEADER_BOTH
+  void GetParametersList(int aNumber, double *aArray) const;
+
+  VECGEOM_CUDA_HEADER_BOTH
+  UnplacedParaboloid *Clone() const;
+
   std::ostream &StreamInfo(std::ostream &os) const;
 #endif
 
-  //__________________________________________________________________
-
+public:
   virtual int memory_size() const final { return sizeof(*this); }
 
-  //__________________________________________________________________
-
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void Print() const final;
-  //__________________________________________________________________
+  virtual void Print() const override;
 
-  virtual void Print(std::ostream &os) const final;
-
-  //__________________________________________________________________
-
-  template <TranslationCode transCodeT, RotationCode rotCodeT>
-  VECGEOM_CUDA_HEADER_DEVICE
-  static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-#ifdef VECGEOM_NVCC
-                               const int id,
-#endif
-                               VPlacedVolume *const placement = NULL);
+  virtual void Print(std::ostream &os) const override;
 
 #ifdef VECGEOM_CUDA_INTERFACE
   virtual size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedParaboloid>::SizeOf(); }
@@ -219,18 +174,29 @@ public:
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
 #endif
 
-private:
-  // Specialized Volume
-  VECGEOM_CUDA_HEADER_DEVICE
-  virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
-                                           Transformation3D const *const transformation,
-                                           const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
-                                           const int id,
+#ifndef VECGEOM_NVCC
+  // this is the function called from the VolumeFactory
+  // this may be specific to the shape
+  template <TranslationCode trans_code, RotationCode rot_code>
+  static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
+                               VPlacedVolume *const placement = NULL);
+
+  VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume, Transformation3D const *const transformation,
+                                   const TranslationCode trans_code, const RotationCode rot_code,
+                                   VPlacedVolume *const placement) const override;
+#else
+  template <TranslationCode trans_code, RotationCode rot_code>
+  __device__
+  static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
+                               const int id, VPlacedVolume *const placement = NULL);
+  __device__ VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
+                                              Transformation3D const *const transformation,
+                                              const TranslationCode trans_code, const RotationCode rot_code,
+                                              const int id, VPlacedVolume *const placement) const override;
+
 #endif
-                                           VPlacedVolume *const placement = NULL) const final;
 };
 }
 } // End global namespace
 
-#endif // VECGEOM_VOLUMES_UNPLACEDPARABOLOID_H_
+#endif

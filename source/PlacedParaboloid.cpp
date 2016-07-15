@@ -2,33 +2,38 @@
 /// \author Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
 
 #include "volumes/PlacedParaboloid.h"
-
-#include "volumes/Paraboloid.h"
-
-#ifndef VECGEOM_NVCC
-
+#include "volumes/SpecializedParaboloid.h"
 #ifdef VECGEOM_ROOT
 #include "TGeoParaboloid.h"
 #endif
-
+#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
+#include "UBox.hh"
+#endif
 #ifdef VECGEOM_GEANT4
 #include "G4Paraboloid.hh"
 #endif
 
-#ifdef VECGEOM_USOLIDS
-#include "UBox.hh"
-#endif
-
-#endif // VECGEOM_NVCC
+#include <stdio.h>
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
+
+VECGEOM_CUDA_HEADER_BOTH
+void PlacedParaboloid::PrintType() const
+{
+  printf("PlacedParaboloid");
+}
+
+void PlacedParaboloid::PrintType(std::ostream &s) const
+{
+  s << "PlacedParaboloid";
+}
 
 #ifndef VECGEOM_NVCC
 
 VPlacedVolume const *PlacedParaboloid::ConvertToUnspecialized() const
 {
-  return new SimpleParaboloid(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
+  return new SimpleParaboloid(GetLabel().c_str(), logical_volume_, GetTransformation());
 }
 
 #ifdef VECGEOM_ROOT
@@ -65,4 +70,4 @@ VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(SpecializedParaboloid)
 
 #endif // VECGEOM_NVCC
 
-} // End global namespace
+} // End namespace vecgeom

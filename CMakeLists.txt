@@ -924,6 +924,7 @@ set(TEST_EXECUTABLES_USOLIDS
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBoxlikeTrapezoid.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTorus2.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/usolidTest.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestParaboloid.cpp
 )
 
 set(TEST_EXECUTABLES_CUDA
@@ -941,7 +942,7 @@ set(TEST_EXECUTABLES_SHAPETESTER
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testHype.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTrd.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTrapezoid.cpp
-  # ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testParaboloid.cpp
+  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testParaboloid.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testPolycone.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testGenTrap.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testParallelepiped.cpp

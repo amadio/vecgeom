@@ -25,6 +25,7 @@ int main()
   std::cout << "World set\n";
 
   Benchmarker tester(GeoManager::Instance().GetWorld());
+  tester.SetPoolMultiplier(1);
   tester.SetVerbosity(3);
   tester.SetPointCount(1 << 10);
   tester.SetRepetitions(4);

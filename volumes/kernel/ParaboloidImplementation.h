@@ -32,541 +32,463 @@
 /// b=-k2/k1
 ///
 //===----------------------------------------------------------------------===//
+///
+/// revision + moving to new backend structure : Raman Sehgal (raman.sehgal@cern.ch)
 
 #ifndef VECGEOM_VOLUMES_KERNEL_PARABOLOIDIMPLEMENTATION_H_
 #define VECGEOM_VOLUMES_KERNEL_PARABOLOIDIMPLEMENTATION_H_
 
-#include "base/Global.h"
-
-#include "base/Transformation3D.h"
+#include "base/Vector3D.h"
+#include "volumes/ParaboloidStruct.h"
 #include "volumes/kernel/GenericKernels.h"
-#include "volumes/UnplacedParaboloid.h"
+#include <VecCore/VecCore>
 
 #include <cstdio>
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(struct, ParaboloidImplementation, TranslationCode, translation::kGeneric,
-                                        RotationCode, rotation::kGeneric);
+VECGEOM_DEVICE_FORWARD_DECLARE(struct ParaboloidImplementation;);
+VECGEOM_DEVICE_DECLARE_CONV(struct, ParaboloidImplementation);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-namespace ParaboloidUtilities {
-#if 0 // removed, as it was causing warnings on clang-3.6
-       // is it really needed?  'make test' passes at 100%
-        template <class Backend>
-        VECGEOM_FORCE_INLINE
-        VECGEOM_CUDA_HEADER_BOTH
-        void DistToParaboloidSurface(
-                                 UnplacedParaboloid const &unplaced,
-                                 Vector3D<typename Backend::precision_v> const &point,
-                                 Vector3D<typename Backend::precision_v> const &direction,
-                                 typename Backend::precision_v &distance/*,
-                                 typename Backend::bool_v in*/) {
-                                 }
-#endif
-}
-
 class PlacedParaboloid;
+template <typename T>
+struct ParaboloidStruct;
+class UnplacedParaboloid;
 
-template <TranslationCode transCodeT, RotationCode rotCodeT>
 struct ParaboloidImplementation {
 
-  static const int transC = transCodeT;
-  static const int rotC   = rotCodeT;
-
-  using PlacedShape_t   = PlacedParaboloid;
-  using UnplacedShape_t = UnplacedParaboloid;
+  using PlacedShape_t    = PlacedParaboloid;
+  using UnplacedStruct_t = ParaboloidStruct<double>;
+  using UnplacedVolume_t = UnplacedParaboloid;
 
   VECGEOM_CUDA_HEADER_BOTH
-  static void PrintType() { printf("SpecializedParaboloid<%i, %i>", transCodeT, rotCodeT); }
-
-  template <typename Stream>
-  static void PrintType(Stream &s)
+  static void PrintType()
   {
-    s << "SpecializedParaboloid<" << transCodeT << "," << rotCodeT << ">";
+    //  printf("SpecializedParaboloid<%i, %i>", transCodeT, rotCodeT);
   }
 
   template <typename Stream>
-  static void PrintImplementationType(Stream &s)
+  static void PrintType(Stream &st)
   {
-    s << "ParaboloidImplemenation<" << transCodeT << "," << rotCodeT << ">";
+    (void)st;
+    // st << "SpecializedParaboloid<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
-  static void PrintUnplacedType(Stream &s)
+  static void PrintImplementationType(Stream &st)
   {
-    s << "UnplacedParaboloid";
+    (void)st;
+    // st << "ParaboloidImplementation<" << transCodeT << "," << rotCodeT << ">";
   }
 
-  /// \brief Inside method that takes account of the surface for an Unplaced Paraboloid
-  template <class Backend>
+  template <typename Stream>
+  static void PrintUnplacedType(Stream &st)
+  {
+    (void)st;
+    // TODO: this is wrong
+    // st << "UnplacedParaboloid";
+  }
+
+  template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void UnplacedInside(UnplacedParaboloid const &unplaced, Vector3D<typename Backend::precision_v> point,
-                             typename Backend::inside_v &inside)
+  static void Contains(UnplacedStruct_t const &paraboloid, Vector3D<Real_v> const &point, Bool_v &inside)
+  {
+    Bool_v unused, outside;
+    GenericKernelForContainsAndInside<Real_v, Bool_v, false>(paraboloid, point, unused, outside);
+    inside = !outside;
+  }
+
+  // BIG QUESTION: DO WE WANT TO GIVE ALL 3 TEMPLATE PARAMETERS
+  // -- OR -- DO WE WANT TO DEDUCE Bool_v, Index_t from Real_v???
+  template <typename Real_v, typename Inside_t>
+  VECGEOM_FORCE_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
+  static void Inside(UnplacedStruct_t const &paraboloid, Vector3D<Real_v> const &point, Inside_t &inside)
   {
 
-    typedef typename Backend::precision_v Double_t;
-    typedef typename Backend::bool_v Bool_t;
+    using Bool_v       = vecCore::Mask_v<Real_v>;
+    using InsideBool_v = vecCore::Mask_v<Inside_t>;
+    Bool_v completelyinside, completelyoutside;
+    GenericKernelForContainsAndInside<Real_v, Bool_v, true>(paraboloid, point, completelyinside, completelyoutside);
+    inside = EInside::kSurface;
+    vecCore::MaskedAssign(inside, (InsideBool_v)completelyoutside, Inside_t(EInside::kOutside));
+    vecCore::MaskedAssign(inside, (InsideBool_v)completelyinside, Inside_t(EInside::kInside));
+  }
 
-    Double_t rho2 = point.x() * point.x() + point.y() * point.y();
+  template <typename Real_v, typename Bool_v, bool ForInside>
+  VECGEOM_FORCE_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
+  static void GenericKernelForContainsAndInside(UnplacedStruct_t const &paraboloid, Vector3D<Real_v> const &point,
+                                                Bool_v &completelyinside, Bool_v &completelyoutside)
+  {
+    // using Bool_v = vecCore::Mask_v<Real_v>;
+    completelyinside  = Bool_v(false);
+    completelyoutside = Bool_v(false);
 
-    // Check if points are above or below the solid or outside the parabolic surface
-    Double_t absZ                            = Abs(point.z());
-    Bool_t outsideAboveOrBelowOuterTolerance = (absZ > unplaced.GetTolOz());
-    Bool_t isOutside                         = outsideAboveOrBelowOuterTolerance;
-    Bool_t done(isOutside);
+    Real_v rho2       = point.Perp2();
+    Real_v paraRho2   = paraboloid.fK1 * point.z() + paraboloid.fK2;
+    Real_v diff       = rho2 - paraRho2;
+    Real_v absZ       = vecCore::math::Abs(point.z());
+    completelyoutside = (absZ > Real_v(paraboloid.fDz + kTolerance)) || (diff > kTolerance);
+    if (vecCore::MaskFull(completelyoutside)) return;
+    if (ForInside) completelyinside = (absZ < Real_v(paraboloid.fDz - kTolerance)) && (diff < -kTolerance);
+  }
 
-    if (Backend::early_returns && IsFull(done)) {
-      inside = EInside::kOutside;
-      return;
+  template <typename Real_v, bool ForTopZPlane>
+  VECGEOM_CUDA_HEADER_BOTH
+  static vecCore::Mask_v<Real_v> IsOnZPlane(UnplacedStruct_t const &paraboloid, Vector3D<Real_v> const &point)
+  {
+    Real_v rho2 = point.Perp2();
+    if (ForTopZPlane) {
+      return vecCore::math::Abs(point.z() - paraboloid.fDz) < kTolerance && rho2 < (paraboloid.fRhi2 + kHalfTolerance);
+    } else {
+      return vecCore::math::Abs(point.z() + paraboloid.fDz) < kTolerance && rho2 < (paraboloid.fRlo2 + kHalfTolerance);
     }
-
-    Double_t value                               = unplaced.GetA() * rho2 + unplaced.GetB() - point.z();
-    Bool_t outsideParabolicSurfaceOuterTolerance = (value > kHalfTolerance);
-    done |= outsideParabolicSurfaceOuterTolerance;
-    if (Backend::early_returns && IsFull(done)) {
-      inside = EInside::kOutside;
-      return;
-    }
-
-    // Check if points are inside the inner tolerance of the solid
-    Bool_t insideAboveOrBelowInnerTolerance      = (absZ < unplaced.GetTolOz()),
-           insideParaboloidSurfaceInnerTolerance = (value < -kHalfTolerance);
-
-    Bool_t isInside = insideAboveOrBelowInnerTolerance && insideParaboloidSurfaceInnerTolerance;
-    MaskedAssign(isInside, EInside::kInside, &inside);
-    done |= isInside;
-    if (Backend::early_returns && IsFull(done)) return;
-
-    MaskedAssign(!done, EInside::kSurface, &inside);
   }
 
-  /// \brief UnplacedContains (ROOT STYLE): Inside method that does NOT take account of the surface for an Unplaced
-  /// Paraboloid
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
+  template <typename Real_v>
   VECGEOM_CUDA_HEADER_BOTH
-  static void UnplacedContains(UnplacedParaboloid const &unplaced, Vector3D<typename Backend::precision_v> point,
-                               typename Backend::bool_v &inside)
+  static vecCore::Mask_v<Real_v> IsOnParabolicSurface(UnplacedStruct_t const &paraboloid, Vector3D<Real_v> const &point)
   {
 
-    typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
+    using Bool_v = vecCore::Mask_v<Real_v>;
 
-    // //Check if points are above or below the solid
-    Bool_t isAboveOrBelowSolid = (Abs(point.z()) > unplaced.GetDz());
-    Bool_t done(isAboveOrBelowSolid);
-
-    if (Backend::early_returns && IsFull(done)) return;
-
-    // //Check if points are outside the parabolic surface
-    Float_t aa   = unplaced.GetA() * (point.z() - unplaced.GetB());
-    Float_t rho2 = point.x() * point.x() + point.y() * point.y();
-
-    Bool_t isOutsideParabolicSurface = aa < 0 || aa < unplaced.GetA2() * rho2;
-    done |= isOutsideParabolicSurface;
-
-    inside = !done;
+    Real_v value              = paraboloid.fA * point.Perp2() + paraboloid.fB - point.z();
+    Bool_v onParabolicSurface = value > -kTolerance && value < kTolerance;
+    return onParabolicSurface;
   }
 
-  /// \brief Inside method that takes account of the surface for a Placed Paraboloid
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void Inside(UnplacedParaboloid const &unplaced, Transformation3D const &transformation,
-                     Vector3D<typename Backend::precision_v> const &point,
-                     Vector3D<typename Backend::precision_v> &localPoint, typename Backend::inside_v &inside)
-  {
-    localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
-    UnplacedInside<Backend>(unplaced, localPoint, inside);
-  }
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
-  static void Inside(UnplacedParaboloid const &unplaced, Transformation3D const &transformation,
-                     Vector3D<typename Backend::precision_v> const &point, typename Backend::inside_v &inside)
+  static void DistanceToIn(UnplacedStruct_t const &paraboloid, Vector3D<Real_v> const &point,
+                           Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
   {
 
-    Vector3D<typename Backend::precision_v> localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
-    UnplacedInside<Backend>(unplaced, localPoint, inside);
-  }
+    using Bool_v = vecCore::Mask_v<Real_v>;
 
-  /// \brief Contains: Inside method that does NOT take account of the surface for a Placed Paraboloid
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
-  static void Contains(UnplacedParaboloid const &unplaced, Transformation3D const &transformation,
-                       Vector3D<typename Backend::precision_v> const &point,
-                       Vector3D<typename Backend::precision_v> &localPoint, typename Backend::bool_v &inside)
-  {
-
-    localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
-    UnplacedContains<Backend>(unplaced, localPoint, inside);
-  }
-
-  template <typename Backend, bool ForInside>
-  VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
-  static void GenericKernelForContainsAndInside(Vector3D<Precision> const &,
-                                                Vector3D<typename Backend::precision_v> const &,
-                                                typename Backend::bool_v &, typename Backend::bool_v &);
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
-  static void DistanceToIn(UnplacedParaboloid const &unplaced, Transformation3D const &transformation,
-                           Vector3D<typename Backend::precision_v> const &point,
-                           Vector3D<typename Backend::precision_v> const &direction,
-                           typename Backend::precision_v const & /*stepMax*/, typename Backend::precision_v &distance)
-  {
-
-    using namespace ParaboloidUtilities;
-    typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
-
-    Vector3D<Float_t> localPoint     = transformation.Transform<transCodeT, rotCodeT>(point);
-    Vector3D<Float_t> localDirection = transformation.TransformDirection<rotCodeT>(direction);
-
-    Bool_t done(false);
+    Bool_v done(false);
     distance = kInfinity;
 
-    Float_t absZ                  = Abs(localPoint.z());
-    Float_t absDirZ               = Abs(localDirection.z());
-    Float_t rho2                  = localPoint.x() * localPoint.x() + localPoint.y() * localPoint.y();
-    Float_t point_dot_direction_x = localPoint.x() * localDirection.x();
-    Float_t point_dot_direction_y = localPoint.y() * localDirection.y();
-
-    Bool_t checkZ = localPoint.z() * localDirection.z() > 0;
+    Real_v absZ   = vecCore::math::Abs(point.z());
+    Real_v rho2   = point.Perp2(); // point.x()*point.x()+point.y()*point.y();
+    Bool_v checkZ = point.z() * direction.z() >= 0;
 
     // check if the point is distancing in Z
-    Bool_t isDistancingInZ = (absZ > unplaced.GetDz() && checkZ);
+    Bool_v isDistancingInZ = (absZ > paraboloid.fDz && checkZ);
     done |= isDistancingInZ;
-    if (Backend::early_returns && IsFull(done)) return;
+    if (vecCore::MaskFull(done)) return;
 
-    // check if the point is distancing in XY
-    Bool_t isDistancingInXY = ((rho2 > unplaced.GetRhi2()) && (point_dot_direction_x > 0 && point_dot_direction_y > 0));
-    done |= isDistancingInXY;
-    if (Backend::early_returns && IsFull(done)) return;
+    Real_v paraRho2 = paraboloid.fK1 * point.z() + paraboloid.fK2;
+    Real_v diff     = rho2 - paraRho2;
 
-    // check if the point is distancing in X
-    Bool_t isDistancingInX = ((Abs(localPoint.x()) > unplaced.GetRhi()) && (point_dot_direction_x > 0));
-    done |= isDistancingInX;
-    if (Backend::early_returns && IsFull(done)) return;
+    vecCore::MaskedAssign(distance, !done, Real_v(-1.));
+    Bool_v insideZ                              = absZ < Real_v(paraboloid.fDz - kTolerance);
+    Bool_v insideParabolicSurfaceOuterTolerance = (diff < -kTolerance);
+    done |= !done && (insideZ && insideParabolicSurfaceOuterTolerance);
+    if (vecCore::MaskFull(done)) return;
 
-    // check if the point is distancing in Y
-    Bool_t isDistancingInY = ((Abs(localPoint.y()) > unplaced.GetRhi()) && (point_dot_direction_y > 0));
-    done |= isDistancingInY;
-    if (Backend::early_returns && IsFull(done)) return;
+    Bool_v isOnZPlaneAndMovingInside = (IsOnZPlane<Real_v, true>(paraboloid, point) && direction.z() < 0.) ||
+                                       (IsOnZPlane<Real_v, false>(paraboloid, point) && direction.z() > 0.);
+    vecCore::MaskedAssign(distance, !done && isOnZPlaneAndMovingInside, Real_v(0.));
+    done |= isOnZPlaneAndMovingInside;
+    if (vecCore::MaskFull(done)) return;
 
-    // is hitting from dz or -dz planes
-    Float_t distZ   = (absZ - unplaced.GetDz()) / absDirZ;
-    Float_t xHit    = localPoint.x() + distZ * localDirection.x();
-    Float_t yHit    = localPoint.y() + distZ * localDirection.y();
-    Float_t rhoHit2 = xHit * xHit + yHit * yHit;
+    Vector3D<Real_v> normal(point.x(), point.y(), -paraboloid.fK1 * 0.5);
+    Bool_v isOnParabolicSurfaceAndMovingInside = diff > -kTolerance && diff < kTolerance && direction.Dot(normal) < 0.;
+    vecCore::MaskedAssign(distance, !done && isOnParabolicSurfaceAndMovingInside, Real_v(0.));
+    done |= isOnParabolicSurfaceAndMovingInside;
+    if (vecCore::MaskFull(done)) return;
 
-    Float_t ray2 = unplaced.GetRhi2();
-    MaskedAssign(localPoint.z() < -unplaced.GetDz() && localDirection.z() > 0, unplaced.GetRlo2(), &ray2); // verificare
+    vecCore::MaskedAssign(distance, !done, Real_v(kInfinity));
 
-    Bool_t isCrossingAtDz = (absZ > unplaced.GetDz()) && (!checkZ) && (rhoHit2 <= ray2);
-    MaskedAssign(isCrossingAtDz, distZ, &distance);
-    done |= isCrossingAtDz;
-    if (Backend::early_returns && IsFull(done)) return;
+    /* Intersection tests with Z planes are not required if the point is within Z Range
+     * In this case it will either intsect with parabolic surface or not intersect at all.
+     */
+    if (!vecCore::MaskFull(absZ < paraboloid.fDz)) {
+      Real_v distZ(kInfinity);                                               // = (absZ - paraboloid.fDz) / absDirZ;
+      Bool_v bottomPlane = point.z() < -paraboloid.fDz && direction.z() > 0; //(true);
+      Bool_v topPlane    = point.z() > paraboloid.fDz && direction.z() < 0;
+      vecCore::MaskedAssign(distZ, topPlane, (paraboloid.fDz - point.z()) / direction.z());
+      vecCore::MaskedAssign(distZ, bottomPlane, (-paraboloid.fDz - point.z()) / direction.z());
+      Real_v xHit    = point.x() + distZ * direction.x();
+      Real_v yHit    = point.y() + distZ * direction.y();
+      Real_v rhoHit2 = xHit * xHit + yHit * yHit;
 
-    // is hitting from the paraboloid surface
-    // DistToParaboloidSurface<Backend>(unplaced,localPoint,localDirection, distParab);
-    Float_t distParab = kInfinity;
-    Float_t dirRho2   = localDirection.x() * localDirection.x() + localDirection.y() * localDirection.y();
-    Float_t a         = unplaced.GetA() * dirRho2;
-    Float_t b         = 2. * unplaced.GetA() * (point_dot_direction_x + point_dot_direction_y) - localDirection.z();
-    Float_t c         = unplaced.GetA() * rho2 + unplaced.GetB() - localPoint.z();
+      vecCore::MaskedAssign(distance, !done && topPlane && rhoHit2 <= paraboloid.fRhi2, distZ);
+      done |= topPlane && rhoHit2 < paraboloid.fRhi2;
+      if (vecCore::MaskFull(done)) return;
 
-    /*avoiding division per 0
-    Bool_t aVerySmall=(Abs(a)<kTiny),
-           bVerySmall=(Abs(b)<kTiny);
+      vecCore::MaskedAssign(distance, !done && bottomPlane && rhoHit2 <= paraboloid.fRlo2, distZ);
+      done |= (bottomPlane && rhoHit2 <= paraboloid.fRlo2); // || (topPlane && rhoHit2 <= paraboloid.fRhi2);
+      if (vecCore::MaskFull(done)) return;
+    }
 
-    done|= aVerySmall && bVerySmall;
-    if (IsFull(done)) return; //big
+    /* Intersection tests with Parabolic surface are not required if the point is above
+     * top Z plane Radius of point is less the Rhi. In this case depending upon the
+     * direction it will either intersect with top Z plane or not intersect at all
+     */
+    if (!vecCore::MaskFull(point.z() > paraboloid.fDz && rho2 < paraboloid.fRhi2)) {
+      // Quadratic Solver for Parabolic surface
+      Real_v dirRho2 = direction.Perp2();
+      Real_v pDotV2D = point.x() * direction.x() + point.y() * direction.y();
+      Real_v a       = paraboloid.fA * dirRho2;
+      Real_v b       = 0.5 * direction.z() - paraboloid.fA * pDotV2D;
+      Real_v c       = (paraboloid.fB + paraboloid.fA * point.Perp2() - point.z());
+      Real_v d2      = b * b - a * c;
+      done |= d2 < 0.;
+      if (vecCore::MaskFull(done)) return;
 
-
-    Double_t COverB=-c/b;
-    Bool_t COverBNeg=(COverB<0);
-    done|=COverBNeg && aVerySmall ; //se neg ritorno big
-    if (IsFull(done)) return;
-
-    Bool_t check1=aVerySmall && !bVerySmall && !COverBNeg;
-    MaskedAssign(!done && check1 , COverB, &distParab ); //to store
-    */
-
-    Float_t ainv  = 1. / a;
-    Float_t t     = b * 0.5;
-    Float_t prod  = c * a;
-    Float_t delta = t * t - prod;
-
-    Bool_t deltaNeg = delta < 0;
-    done |= deltaNeg;
-    if (Backend::early_returns && IsFull(done)) return;
-
-    // to avoid square root operation on negative elements
-    MaskedAssign(deltaNeg, 0., &delta);
-    delta = Sqrt(delta);
-
-    // I take only the biggest solution among all
-    distParab = ainv * (-t - delta);
-
-    Float_t zHit                      = localPoint.z() + distParab * localDirection.z();
-    Bool_t isHittingParaboloidSurface = ((distParab > 1E20) || (Abs(zHit) <= unplaced.GetDz())); // why: dist > 1E20?
-    MaskedAssign(!done && isHittingParaboloidSurface && !deltaNeg && distParab > 0, distParab, &distance);
+      Real_v distParab = kInfinity;
+      vecCore::MaskedAssign(distParab, !done && (b > 0.), (b - Sqrt(d2)) / a);
+      vecCore::MaskedAssign(distParab, !done && (b <= 0.), (c / (b + Sqrt(d2))));
+      Real_v zHit = point.z() + distParab * direction.z();
+      vecCore::MaskedAssign(distance, vecCore::math::Abs(zHit) <= paraboloid.fDz && distParab > 0., distParab);
+    }
   }
 
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void DistanceToOut(UnplacedParaboloid const &unplaced, Vector3D<typename Backend::precision_v> point,
-                            Vector3D<typename Backend::precision_v> direction,
-                            typename Backend::precision_v const & /*stepMax*/, typename Backend::precision_v &distance)
+  static void DistanceToOut(UnplacedStruct_t const &paraboloid, Vector3D<Real_v> const &point,
+                            Vector3D<Real_v> const &direction, Real_v const & /* stepMax */, Real_v &distance)
   {
 
-    typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
+    using Bool_v = vecCore::Mask_v<Real_v>;
 
-    Float_t distZ   = kInfinity;
-    Float_t dirZinv = 1 / direction.z();
+    // setting distance to -1. for wrong side points
+    distance = -1.;
+    Bool_v done(false);
 
-    Bool_t dir_mask = direction.z() < 0;
-    MaskedAssign(dir_mask, -(unplaced.GetDz() + point.z()) * dirZinv, &distZ);
-    MaskedAssign(!dir_mask, (unplaced.GetDz() - point.z()) * dirZinv, &distZ);
+    // Outside Z range
+    Bool_v outsideZ = vecCore::math::Abs(point.z()) > paraboloid.fDz + kTolerance;
+    done |= outsideZ;
+    if (vecCore::MaskFull(done)) return;
 
-    Float_t distParab = kInfinity;
-    Float_t rho2      = point.x() * point.x() + point.y() * point.y();
-    Float_t dirRho2   = direction.x() * direction.x() + direction.y() * direction.y();
-    Float_t a         = unplaced.GetA() * dirRho2;
-    Float_t b         = 2. * unplaced.GetA() * (point.x() * direction.x() + point.y() * direction.y()) - direction.z();
-    Float_t c         = unplaced.GetA() * rho2 + unplaced.GetB() - point.z();
+    // Outside Parabolic surface
+    Real_v rho2                                  = point.Perp2();
+    Real_v paraRho2                              = paraboloid.fK1 * point.z() + paraboloid.fK2;
+    Real_v value                                 = rho2 - paraRho2;
+    Bool_v outsideParabolicSurfaceOuterTolerance = (value > kHalfTolerance);
+    done |= outsideParabolicSurfaceOuterTolerance;
+    if (vecCore::MaskFull(done)) return;
 
-    Float_t ainv  = 1. / a;
-    Float_t t     = b * 0.5;
-    Float_t prod  = c * a;
-    Float_t delta = t * t - prod;
+    // On Z Plane and moving outside;
+    Bool_v isOnZPlaneAndMovingOutside = (IsOnZPlane<Real_v, true>(paraboloid, point) && direction.z() > 0.) ||
+                                        (IsOnZPlane<Real_v, false>(paraboloid, point) && direction.z() < 0.);
+    vecCore::MaskedAssign(distance, !done && isOnZPlaneAndMovingOutside, Real_v(0.));
+    done |= isOnZPlaneAndMovingOutside;
+    if (vecCore::MaskFull(done)) return;
 
-    // to avoid square root operation on negative element
-    // MaskedAssign(deltaNeg, 0. , &delta);
-    // But if the point is inside the solid, delta cannot be negative
-    delta = Sqrt(delta);
+    // On Parabolic Surface and moving outside
+    Vector3D<Real_v> normal(point.x(), point.y(), -paraboloid.fK1 * 0.5);
+    Bool_v isOnParabolicSurfaceAndMovingInside =
+        value > -kTolerance && value < kTolerance && direction.Dot(normal) > 0.;
+    vecCore::MaskedAssign(distance, !done && isOnParabolicSurfaceAndMovingInside, Real_v(0.));
+    done |= isOnParabolicSurfaceAndMovingInside;
+    if (vecCore::MaskFull(done)) return;
 
-    Bool_t mask_sign = (ainv < 0);
-    Float_t sign     = 1.;
-    MaskedAssign(mask_sign, -1., &sign);
+    vecCore::MaskedAssign(distance, !done, Real_v(kInfinity));
 
-    Float_t d1 = ainv * (-t - sign * delta);
-    Float_t d2 = ainv * (-t + sign * delta);
+    Real_v distZ   = kInfinity;
+    Real_v dirZinv = 1 / direction.z();
 
-    // MaskedAssign(!deltaNeg && d1>0 , d1, &distParab);
-    // MaskedAssign(!deltaNeg && d1<0 && d2>0 , d2, &distParab);
-    // MaskedAssign(deltaNeg || (d1<0 && d2<0), kInfinity, &distParab);
+    Bool_v dir_mask = direction.z() < 0;
+    vecCore::MaskedAssign(distZ, dir_mask, -(paraboloid.fDz + point.z()) * dirZinv);
+    vecCore::MaskedAssign(distZ, !dir_mask, (paraboloid.fDz - point.z()) * dirZinv);
 
-    MaskedAssign(d1 > 0, d1, &distParab);
-    MaskedAssign(d1 < 0 && d2 > 0, d2, &distParab);
-    MaskedAssign(d1 < 0 && d2 < 0, kInfinity, &distParab);
+    Real_v dirRho2 = direction.Perp2();
+    Real_v pDotV2D = point.x() * direction.x() + point.y() * direction.y();
+    Real_v a       = paraboloid.fA * dirRho2;
+    Real_v b       = 0.5 * direction.z() - paraboloid.fA * pDotV2D;
+    Real_v c       = paraboloid.fB + paraboloid.fA * point.Perp2() - point.z();
+    Real_v d2      = b * b - a * c;
 
-    distance = Min(distParab, distZ);
+    Real_v distParab = kInfinity;
+    vecCore::MaskedAssign(distParab, d2 >= 0. && (b > 0.), (b + Sqrt(d2)) * (1. / a));
+    vecCore::MaskedAssign(distParab, d2 >= 0. && (b <= 0.), (c / (b - Sqrt(d2))));
+    distance = vecCore::math::Min(distParab, distZ);
   }
 
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void SafetyToIn(UnplacedParaboloid const &unplaced, Transformation3D const &transformation,
-                         Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety)
+  static void SafetyToIn(UnplacedStruct_t const &paraboloid, Vector3D<Real_v> const &point, Real_v &safety)
   {
 
-    typedef typename Backend::precision_v Float_t;
+    using Bool_v = vecCore::Mask_v<Real_v>;
+    Real_v absZ  = vecCore::math::Abs(point.z());
+    Real_v safeZ = absZ - paraboloid.fDz;
 
-    Vector3D<Float_t> localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
+    safety = -1.;
+    Bool_v done(false);
+    Bool_v insideZ = absZ < paraboloid.fDz - kTolerance;
 
-    safety = 0.;
-    Float_t safety_t;
-    Float_t absZ  = Abs(localPoint.z());
-    Float_t safeZ = absZ - unplaced.GetDz();
+    Real_v rho2                                 = point.Perp2();
+    Real_v value                                = paraboloid.fA * rho2 + paraboloid.fB - point.z();
+    Bool_v insideParabolicSurfaceOuterTolerance = (value < -kHalfTolerance);
+    done |= (insideZ && insideParabolicSurfaceOuterTolerance);
+    if (vecCore::MaskFull(done)) return;
 
-#ifdef FAST1
+    Bool_v onZPlane =
+        vecCore::math::Abs(vecCore::math::Abs(point.z()) - paraboloid.fDz) < kTolerance &&
+        (rho2 < Real_v(paraboloid.fRhi2 + kHalfTolerance) || rho2 < Real_v(paraboloid.fRlo2 + kHalfTolerance));
+    vecCore::MaskedAssign(safety, onZPlane, Real_v(0.));
+    done |= onZPlane;
+    if (vecCore::MaskFull(done)) return;
 
-    // FAST implementation starts here -- > v.1.
-    // this version give 0 if the points is between the bounding box and the solid
+    Bool_v onParabolicSurface = value > -kTolerance && value < kTolerance;
+    vecCore::MaskedAssign(safety, !done && onParabolicSurface, Real_v(0.));
+    done |= onParabolicSurface;
+    if (vecCore::MaskFull(done)) return;
 
-    Float_t absX  = Abs(localPoint.x());
-    Float_t absY  = Abs(localPoint.y());
-    Float_t safeX = absX - unplaced.GetRhi();
-    Float_t safeY = absY - unplaced.GetRhi();
+    vecCore::MaskedAssign(safety, !done, Real_v(kInfinity));
 
-    safety_t = Max(safeX, safeY);
-    safety_t = Max(safety_t, safeZ);
-    MaskedAssign(safety_t > 0, safety_t, &safety);
-// FAST implementation v.1 ends here
+    Real_v r0sq = (point.z() - paraboloid.fB) * paraboloid.fInvA;
 
-#endif
-
-#ifdef FAST2
-    // FAST implementation starts here -- > v.2
-    // this version give 0 if the points is between the bounding cylinder and the solid
-
-    Float_t r       = Sqrt(localPoint.x() * localPoint.x() + localPoint.y() * localPoint.y());
-    Float_t safeRhi = r - unplaced.GetRhi();
-
-    safety_t = Max(safeZ, safeRhi);
-    MaskedAssign(safety_t > 0, safety_t, &safety);
-// FAST implementation v.2 ends here
-
-#endif
-
-#ifdef ACCURATE1
-    // ACCURATE bounding box implementation starts here -- > v.1
-    // if the point is outside the bounding box-> FAST, otherwise calculate tangent
-
-    typedef typename Backend::bool_v Bool_t;
-
-    Float_t absX  = Abs(localPoint.x());
-    Float_t absY  = Abs(localPoint.y());
-    Float_t safeX = absX - unplaced.GetRhi();
-    Float_t safeY = absY - unplaced.GetRhi();
-
-    Bool_t mask_bb = (safeX > 0) || (safeY > 0) || (safeZ > 0);
-
-    safety_t = Max(safeX, safeY);
-    safety_t = Max(safeZ, safety_t);
-
-    MaskedAssign(mask_bb, safety_t, &safety);
-    if (Backend::early_returns && IsFull(mask_bb)) return;
-
-    // then go for the tangent
-    Float_t r0sq = (localPoint.z() - unplaced.GetB()) * unplaced.GetAinv();
-    Float_t r    = Sqrt(localPoint.x() * localPoint.x() + localPoint.y() * localPoint.y());
-    Float_t dr   = r - Sqrt(r0sq);
-    Float_t talf = -2. * unplaced.GetA() * Sqrt(r0sq);
-    Float_t salf = talf / Sqrt(1. + talf * talf);
-    Float_t safR = Abs(dr * salf);
-
-    Float_t max_safety = Max(safR, safeZ);
-    MaskedAssign(!mask_bb, max_safety, &safety);
-// ACCURATE implementation v.1 ends here
-
-#endif
-
-    //#ifdef  DEFAULT
-    // ACCURATE bounding cylinder implementation starts here -- > v.2
-
-    // if the point is outside the bounding cylinder --> FAST, otherwise calculate tangent
-
-    typedef typename Backend::bool_v Bool_t;
-
-    Float_t r       = Sqrt(localPoint.x() * localPoint.x() + localPoint.y() * localPoint.y());
-    Float_t safeRhi = r - unplaced.GetRhi();
-
-    Bool_t mask_bc = (safeZ > 0) || (safeRhi > 0);
-    safety_t       = Max(safeZ, safeRhi);
-
-    MaskedAssign(mask_bc, safety_t, &safety);
-    if (Backend::early_returns && IsFull(mask_bc)) return;
-
-    // then go for the tangent
-    Float_t r0sq = (localPoint.z() - unplaced.GetB()) * unplaced.GetAinv();
-    Float_t dr   = r - Sqrt(r0sq);
-    Float_t talf = -2. * unplaced.GetA() * Sqrt(r0sq);
-    Float_t salf = talf / Sqrt(1. + talf * talf);
-    Float_t safR = Abs(dr * salf);
-
-    Float_t max_safety = Max(safR, safeZ);
-    MaskedAssign(!mask_bc, max_safety, &safety);
-// ACCURATE implementation v.2 ends here
-//#endif
-
-#ifdef ACCURATEROOTLIKE
-    // ACCURATE "root-like" implementation starts here
-    Float_t safZ = (Abs(localPoint.z()) - unplaced.GetDz());
-
-    Float_t r0sq = (localPoint.z() - unplaced.GetB()) * unplaced.GetAinv();
-
-    Bool_t done(false);
     safety = safeZ;
 
-    Bool_t underParaboloid = (r0sq < 0);
+    Bool_v underParaboloid = (r0sq < 0);
     done |= underParaboloid;
-    if (Backend::early_returns && IsFull(done)) return;
+    if (vecCore::MaskFull(done)) return;
 
-    Float_t safR = kInfinity;
-    Float_t ro2  = localPoint.x() * localPoint.x() + localPoint.y() * localPoint.y();
-    Float_t z0   = unplaced.GetA() * ro2 + unplaced.GetB();
-    Float_t dr   = Sqrt(ro2) - Sqrt(r0sq);
+    Real_v safeR = kInfinity;
+    Real_v ro2   = point.x() * point.x() + point.y() * point.y();
+    Real_v dr    = vecCore::math::Sqrt(ro2) - vecCore::math::Sqrt(r0sq);
 
-    Bool_t drCloseToZero = (dr < 1.E-8);
+    Bool_v drCloseToZero = (dr < 1.E-8);
     done |= drCloseToZero;
-    if (Backend::early_returns && IsFull(done)) return;
+    if (vecCore::MaskFull(done)) return;
 
     // then go for the tangent
-    Float_t talf = -2. * unplaced.GetA() * Sqrt(r0sq);
-    Float_t salf = talf / Sqrt(1. + talf * talf);
-    safeR        = Abs(dr * salf);
+    Real_v talf = -2. * paraboloid.fA * vecCore::math::Sqrt(r0sq);
+    Real_v salf = talf / vecCore::math::Sqrt(1. + talf * talf);
+    safeR       = vecCore::math::Abs(dr * salf);
 
-    Float_t max_safety = Max(safeR, safeZ);
-    MaskedAssign(!done, max_safety, &safety);
-// ACCURATE "root-like" implementation ends here
-#endif
+    Real_v max_safety = vecCore::math::Max(safeR, safeZ);
+    vecCore::MaskedAssign(safety, !done, max_safety);
   }
 
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void SafetyToOut(UnplacedParaboloid const &unplaced, Vector3D<typename Backend::precision_v> point,
-                          typename Backend::precision_v &safety)
+  static void SafetyToOut(UnplacedStruct_t const &paraboloid, Vector3D<Real_v> const &point, Real_v &safety)
   {
 
-    typedef typename Backend::precision_v Float_t;
+    using Bool_v = vecCore::Mask_v<Real_v>;
 
-    Float_t absZ = Abs(point.z());
-    Float_t safZ = (unplaced.GetDz() - absZ);
+    Real_v absZ = vecCore::math::Abs(point.z());
+    Real_v safZ = (paraboloid.fDz - absZ);
 
-    // FAST implementation starts here
+    safety = -1.;
+    Bool_v done(false);
+    Bool_v outsideZ = absZ > Real_v(paraboloid.fDz + kTolerance);
+    done |= outsideZ;
+    if (vecCore::MaskFull(done)) return;
+
+    Real_v rho2                                  = point.Perp2();
+    Real_v value                                 = paraboloid.fA * rho2 + paraboloid.fB - point.z();
+    Bool_v outsideParabolicSurfaceOuterTolerance = (value > kHalfTolerance);
+    done |= outsideParabolicSurfaceOuterTolerance;
+    if (vecCore::MaskFull(done)) return;
+
+    Bool_v onZPlane =
+        vecCore::math::Abs(vecCore::math::Abs(point.z()) - paraboloid.fDz) < kTolerance &&
+        (rho2 < Real_v(paraboloid.fRhi2 + kHalfTolerance) || rho2 < Real_v(paraboloid.fRlo2 + kHalfTolerance));
+    vecCore::MaskedAssign(safety, onZPlane, Real_v(0.));
+    done |= onZPlane;
+    if (vecCore::MaskFull(done)) return;
+
+    Bool_v onSurface = value > -kTolerance && value < kTolerance;
+    vecCore::MaskedAssign(safety, !done && onSurface, Real_v(0.));
+    done |= onSurface;
+    if (vecCore::MaskFull(done)) return;
+    Real_v r0sq = (point.z() - paraboloid.fB) * paraboloid.fInvA;
+
     safety = 0.;
-    Float_t safety_t;
-    Float_t r      = Sqrt(point.x() * point.x() + point.y() * point.y());
-    Float_t safRlo = unplaced.GetRlo() - r;
-    safety_t       = Min(safZ, safRlo);
-    MaskedAssign(safety_t > 0, safety_t, &safety);
 
-// FAST implementation ends here
+    Bool_v closeToParaboloid = (r0sq < 0);
+    done |= closeToParaboloid;
+    if (vecCore::MaskFull(done)) return;
 
-#if 0
-        //ACCURATE implementation starts here
-        typedef typename Backend::bool_v      Bool_t;
-        Float_t r0sq = (point.z() - unplaced.GetB())*unplaced.GetAinv();
-        
-        Bool_t done(false);
-        safety=0.;
-        
-        Bool_t closeToParaboloid = (r0sq<0);
-        done|= closeToParaboloid;
-        if (Backend::early_returns && IsFull(done)) return;
-        
-        Float_t safR=kInfinity;
-        Float_t ro2=point.x()*point.x()+point.y()*point.y();
-        Float_t z0= unplaced.GetA()*ro2+unplaced.GetB();
-        Float_t dr=Sqrt(ro2)-Sqrt(r0sq); //avoid square root of a negative number
-        
-        Bool_t drCloseToZero= (dr>-1.E-8);
-        done|=drCloseToZero;
-        if (Backend::early_returns && IsFull(done)) return;
-        
-        Float_t dz = Abs(point.z()-z0);
-        safR = -dr*dz/Sqrt(dr*dr+dz*dz);
-        
-        Float_t min_safety=Min(safR, safZ);
-        MaskedAssign(!done, min_safety, &safety);
-        //ACCURATE implementation ends here
-#endif
+    Real_v safR = kInfinity;
+    Real_v ro2  = point.x() * point.x() + point.y() * point.y();
+    Real_v z0   = paraboloid.fA * ro2 + paraboloid.fB;
+    Real_v dr   = vecCore::math::Sqrt(ro2) - vecCore::math::Sqrt(r0sq); // avoid square root of a negative number
+
+    Bool_v drCloseToZero = (dr > -1.E-8);
+    done |= drCloseToZero;
+    if (vecCore::MaskFull(done)) return;
+
+    Real_v dz = vecCore::math::Abs(point.z() - z0);
+    safR      = -dr * dz / vecCore::math::Sqrt(dr * dr + dz * dz);
+
+    Real_v min_safety = vecCore::math::Min(safR, safZ);
+    vecCore::MaskedAssign(safety, !done, min_safety);
+  }
+
+  template <typename Real_v>
+  VECGEOM_FORCE_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
+  static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &paraboloid, Vector3D<Real_v> const &point,
+                                       typename vecCore::Mask_v<Real_v> &valid)
+  {
+    using Bool_v = vecCore::Mask_v<Real_v>;
+
+    // used to store the normal that needs to be returned
+    Vector3D<Real_v> normal(0., 0., 0.);
+    Real_v nsurf(0.); // used to store the number of surfaces on which the point lie.
+    // in case of paraboloid it can maximum go upto 2
+
+    Real_v r    = point.Perp();
+    Real_v talf = -2 * paraboloid.fA * r;
+    Real_v calf = 1. / vecCore::math::Sqrt(1. + talf * talf);
+    Real_v salf = talf * calf;
+    Vector3D<Real_v> normParabolic((salf * point.x() / point.Perp()), (salf * point.y() / point.Perp()), calf);
+    normParabolic.Normalize();
+
+    // Logic for Valid Normal i.e. when point is on the surface
+    Bool_v isOnZPlane = IsOnZPlane<Real_v, true>(paraboloid, point) || IsOnZPlane<Real_v, false>(paraboloid, point);
+    Bool_v isOnParabolicSurface = IsOnParabolicSurface<Real_v>(paraboloid, point);
+
+    vecCore::MaskedAssign(nsurf, isOnZPlane, nsurf + 1);
+    vecCore::MaskedAssign(normal[2], IsOnZPlane<Real_v, true>(paraboloid, point), Real_v(1.));
+    vecCore::MaskedAssign(normal[2], IsOnZPlane<Real_v, false>(paraboloid, point), Real_v(-1.));
+
+    vecCore::MaskedAssign(nsurf, isOnParabolicSurface, nsurf + 1);
+    vecCore::MaskedAssign(normal[0], isOnParabolicSurface, normal[0] - normParabolic[0]);
+    vecCore::MaskedAssign(normal[1], isOnParabolicSurface, normal[1] - normParabolic[1]);
+    vecCore::MaskedAssign(normal[2], isOnParabolicSurface, normal[2] - normParabolic[2]);
+
+    valid = Bool_v(true);
+    valid &= (nsurf > 0);
+
+    if (vecCore::MaskFull(valid)) return normal.Normalized();
+
+    // This block is used to calculate the Approximate normal
+    Vector3D<Real_v> norm(0., 0., 0.); // used to store approximate normal
+    vecCore::MaskedAssign(norm[2], point.z() > 0., Real_v(1.));
+    vecCore::MaskedAssign(norm[2], point.z() < 0, Real_v(-1.));
+
+    Real_v safz = paraboloid.fDz - vecCore::math::Abs(point.z());
+    Real_v safr = vecCore::math::Abs(r - vecCore::math::Sqrt((point.z() - paraboloid.fB) * paraboloid.fInvA));
+    vecCore::MaskedAssign(norm[0], safz >= 0. && safr < safz, normParabolic.x());
+    vecCore::MaskedAssign(norm[1], safz >= 0. && safr < safz, normParabolic.y());
+    vecCore::MaskedAssign(norm[2], safz >= 0. && safr < safz, normParabolic.z());
+
+    // If Valid is not set, that means the point is NOT on the surface,
+    // So in that case we have to rely on Approximate normal
+    vecCore::MaskedAssign(normal[0], !valid, norm.x());
+    vecCore::MaskedAssign(normal[1], !valid, norm.y());
+    vecCore::MaskedAssign(normal[2], !valid, norm.z());
+
+    return normal.Normalized();
   }
 };
 }
 } // End global namespace
 
-#endif // VECGEOM_VOLUMES_KERNEL_PARABOLOIDIMPLEMENTATION_H_
+#endif // VECGEOM_VOLUMES_KERNEL_ORBIMPLEMENTATION_H_
