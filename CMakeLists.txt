@@ -602,7 +602,6 @@ include_directories(BEFORE ${CMAKE_SOURCE_DIR})
 set(SRC_CPP_RELATIVE
   #.. moved up for faster compilation
   source/CreateNuclei.cpp
-  source/CreateParticles.cpp
   source/UnplacedPolycone.cpp
   source/UnplacedPolyhedron.cpp
   source/PlacedPolycone.cpp
@@ -664,7 +663,6 @@ set(SRC_CPP_RELATIVE
   source/Medium.cpp
   source/Nucleus.cpp
   source/MessageLogger.cpp
-  source/Particle.cpp
 
   services/NavigationSpecializer.cpp
 )
@@ -695,8 +693,6 @@ set(NOT_FOR_CUDA
    ABBoxManager
    ABBoxNavigator
    HybridManager2
- # CreateParticles
- # Particle
    Medium
    Nucleus
    CreateNuclei
