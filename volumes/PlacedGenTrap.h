@@ -10,6 +10,7 @@
 #include "volumes/PlacedVolume.h"
 #include "volumes/UnplacedGenTrap.h"
 #include "volumes/kernel/GenTrapImplementation.h"
+#include "volumes/PlacedVolImplHelper.h"
 
 namespace vecgeom {
 
@@ -20,7 +21,8 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class Transformation3D;
 
-class PlacedGenTrap : public VPlacedVolume {
+class PlacedGenTrap : public PlacedVolumeImplHelper<UnplacedGenTrap, VPlacedVolume> {
+  using Base = PlacedVolumeImplHelper<UnplacedGenTrap, VPlacedVolume>;
 
 public:
 #ifndef VECGEOM_NVCC
@@ -32,9 +34,11 @@ public:
   * @param halfzheight The half-height of the GenTrap
   * @param boundingBox Bounding box
   */
+  // constructor inheritance;
+  using Base::Base;
   PlacedGenTrap(char const *const label, LogicalVolume const *const logicalVolume,
-                Transformation3D const *const transformation, PlacedBox const *const boundingBox)
-      : VPlacedVolume(label, logicalVolume, transformation, boundingBox)
+                Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
+      : Base(label, logicalVolume, transformation, boundingBox)
   {
   }
 
@@ -45,7 +49,7 @@ public:
   * @param boundingBox Bounding box
   */
   PlacedGenTrap(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-                PlacedBox const *const boundingBox)
+                vecgeom::PlacedBox const *const boundingBox)
       : PlacedGenTrap("", logicalVolume, transformation, boundingBox)
   {
   }
@@ -60,7 +64,7 @@ public:
   */
   __device__ PlacedGenTrap(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
                            PlacedBox const *const boundingBox, const int id)
-      : VPlacedVolume(logicalVolume, transformation, boundingBox, id)
+      : Base(logicalVolume, transformation, boundingBox, id)
   {
   }
 
@@ -98,10 +102,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
-    bool valid;
-    GenTrapImplementation<translation::kIdentity, rotation::kIdentity>::NormalKernel<kScalar>(*GetUnplacedVolume(),
-                                                                                              point, normal, valid);
-    return valid;
+    return GetUnplacedVolume()->Normal(point, normal);
   }
 
   /** @brief Generates randomly a point on the surface of the trapezoid */

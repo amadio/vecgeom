@@ -71,10 +71,11 @@ public:
       fxc[i] = verticesx[j];
       fyc[i] = verticesy[j];
       vd.Set(verticesx[j + N], verticesy[j + N], dz);
-      fxd[i]          = verticesx[N + j];
-      fyd[i]          = verticesy[N + j];
-      fdegenerated[i] = (Abs(fxa[i] - fxc[i]) < kTolerance) && (Abs(fya[i] - fyc[i]) < kTolerance) &&
-                        (Abs(fxb[i] - fxd[i]) < kTolerance) && (Abs(fyb[i] - fyd[i]) < kTolerance);
+      fxd[i] = verticesx[N + j];
+      fyd[i] = verticesy[N + j];
+      fdegenerated[i] =
+          (vecCore::math::Abs(fxa[i] - fxc[i]) < kTolerance) && (vecCore::math::Abs(fya[i] - fyc[i]) < kTolerance) &&
+          (vecCore::math::Abs(fxb[i] - fxd[i]) < kTolerance) && (vecCore::math::Abs(fyb[i] - fyd[i]) < kTolerance);
       ftx1[i] = fDz2 * (fxb[i] - fxa[i]);
       fty1[i] = fDz2 * (fyb[i] - fya[i]);
       ftx2[i] = fDz2 * (fxd[i] - fxc[i]);
@@ -100,17 +101,19 @@ public:
     // Analyze planarity and precompute normals
     fisplanar = true;
     for (int i = 0; i < N; ++i) {
-      fiscurved[i] = (((Abs(fxc[i] - fxa[i]) < kTolerance) && (Abs(fyc[i] - fya[i]) < kTolerance)) ||
-                      ((Abs(fxd[i] - fxb[i]) < kTolerance) && (Abs(fyd[i] - fyb[i]) < kTolerance)) ||
-                      (Abs((fxc[i] - fxa[i]) * (fyd[i] - fyb[i]) - (fxd[i] - fxb[i]) * (fyc[i] - fya[i])) < kTolerance))
-                         ? 0
-                         : 1;
+      fiscurved[i] =
+          (((vecCore::math::Abs(fxc[i] - fxa[i]) < kTolerance) && (vecCore::math::Abs(fyc[i] - fya[i]) < kTolerance)) ||
+           ((vecCore::math::Abs(fxd[i] - fxb[i]) < kTolerance) && (vecCore::math::Abs(fyd[i] - fyb[i]) < kTolerance)) ||
+           (vecCore::math::Abs((fxc[i] - fxa[i]) * (fyd[i] - fyb[i]) - (fxd[i] - fxb[i]) * (fyc[i] - fya[i])) <
+            kTolerance))
+              ? 0
+              : 1;
       if (fiscurved[i]) fisplanar = false;
     }
   }
 
   //______________________________________________________________________________
-  template <typename Backend>
+  template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   /** @brief Stripped down version of Inside method used for boundary and wrong side detection
@@ -119,41 +122,39 @@ public:
    * @param completelyoutside Onside flag
    * @param onsurf On boundary flag
    */
-  void CheckInside(Vector3D<typename Backend::precision_v> const &point, typename Backend::bool_v &completelyinside,
-                   typename Backend::bool_v &completelyoutside, typename Backend::bool_v &onsurf) const
+  void CheckInside(Vector3D<Real_v> const &point, Bool_v &completelyinside, Bool_v &completelyoutside,
+                   Bool_v &onsurf) const
   {
 
-    typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
     constexpr Precision tolerancesq = 10000. * kTolerance * kTolerance;
 
-    onsurf            = Backend::kFalse;
-    completelyinside  = (Abs(point.z()) < MakeMinusTolerant<true>(fDz));
-    completelyoutside = (Abs(point.z()) > MakePlusTolerant<true>(fDz));
+    onsurf            = Bool_v(false);
+    completelyinside  = (vecCore::math::Abs(point.z()) < MakeMinusTolerant<true>(fDz));
+    completelyoutside = (vecCore::math::Abs(point.z()) > MakePlusTolerant<true>(fDz));
     //  if (Backend::early_returns) {
-    if (IsFull(completelyoutside)) return;
+    if (vecCore::MaskFull(completelyoutside)) return;
     //  }
 
-    Float_t cross;
-    Float_t vertexX[N];
-    Float_t vertexY[N];
-    Float_t dzp = fDz + point[2];
+    Real_v cross;
+    Real_v vertexX[N];
+    Real_v vertexY[N];
+    Real_v dzp = fDz + point[2];
     // vectorizes for scalar backend
     for (int i = 0; i < N; i++) {
       // calculate x-y positions of vertex i at this z-height
       vertexX[i] = fxa[i] + ftx1[i] * dzp;
       vertexY[i] = fya[i] + fty1[i] * dzp;
     }
-    Bool_t degenerated = Backend::kTrue; // Can only happen if |zpoint| = fDz
+    Bool_v degenerated = Bool_v(true); // Can only happen if |zpoint| = fDz
     for (int i = 0; i < N; i++) {
       //      if (fdegenerated[i])
       //        continue;
-      int j           = (i + 1) % 4;
-      Float_t DeltaX  = vertexX[j] - vertexX[i];
-      Float_t DeltaY  = vertexY[j] - vertexY[i];
-      Float_t deltasq = DeltaX * DeltaX + DeltaY * DeltaY;
+      int j          = (i + 1) % 4;
+      Real_v DeltaX  = vertexX[j] - vertexX[i];
+      Real_v DeltaY  = vertexY[j] - vertexY[i];
+      Real_v deltasq = DeltaX * DeltaX + DeltaY * DeltaY;
       // If the current vertex is degenerated, ignore the check
-      Bool_t samevertex = deltasq < MakePlusTolerant<true>(0.);
+      Bool_v samevertex = deltasq < MakePlusTolerant<true>(0.);
       degenerated &= samevertex;
       // Cross product to check if point is right side or left side
       // If vertices are same, this will be 0
@@ -169,59 +170,63 @@ public:
   }
 
   //______________________________________________________________________________
-  template <typename Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   /** @brief Compute distance to a set of curved/planar surfaces
    * @param point Starting point in the local frame
    * @param dir Direction in the local frame
    */
-  typename Backend::precision_v DistanceToOut(Vector3D<typename Backend::precision_v> const &point,
-                                              Vector3D<typename Backend::precision_v> const &dir) const
+  Real_v DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir) const
   {
 
-    typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
+    using Bool_v = vecCore::Mask_v<Real_v>;
 
     // Planar case
-    if (fisplanar) return DistanceToOutPlanar<Backend>(point, dir);
+    if (fisplanar) return DistanceToOutPlanar<Real_v>(point, dir);
 
     // The algorithmic tolerance in distance
-    const Float_t tolerance = 100. * kTolerance;
+    const Real_v tolerance = 100. * kTolerance;
 
-    Float_t dist(kInfinity);
-    Float_t smin[N], smax[N];
-    Vector3D<Float_t> unorm;
-    Float_t r = -1.;
-    Float_t rz;
-    Bool_t completelyinside, completelyoutside, onsurf;
-    CheckInside<Backend>(point, completelyinside, completelyoutside, onsurf);
+    Real_v dist(kInfinity);
+    Real_v smin[N], smax[N];
+    Vector3D<Real_v> unorm;
+    Real_v r = Real_v(-1.);
+    Real_v rz;
+    Bool_v completelyinside, completelyoutside, onsurf;
+    CheckInside<Real_v, Bool_v>(point, completelyinside, completelyoutside, onsurf);
 
     // If on the wrong side, return -1.
-    Float_t wrongsidedist = -1.;
-    MaskedAssign(completelyoutside, wrongsidedist, &dist);
-    if (IsFull(completelyoutside)) return dist;
+    Real_v wrongsidedist = Real_v(-1.);
+    vecCore::MaskedAssign(dist, completelyoutside, wrongsidedist);
+    if (vecCore::MaskFull(completelyoutside)) return dist;
 
     // Solve the second order equation and return distance solutions for each surface
-    ComputeSminSmax<Backend>(point, dir, smin, smax);
+    ComputeSminSmax<Real_v>(point, dir, smin, smax);
     for (int i = 0; i < N; ++i) {
       // Check if point(s) is(are) on boundary, and in this case compute normal
-      Bool_t crtbound = (Abs(smin[i]) < tolerance || Abs(smax[i]) < tolerance);
-      if (!IsEmpty(crtbound)) {
+      Bool_v crtbound = (vecCore::math::Abs(smin[i]) < tolerance || vecCore::math::Abs(smax[i]) < tolerance);
+      if (!vecCore::MaskEmpty(crtbound)) {
         if (fiscurved[i])
-          UNormal<Backend>(point, i, unorm, rz, r);
+          UNormal<Real_v>(point, i, unorm, rz, r);
         else
           unorm = fNormals[i];
       }
       // Starting point may be propagated close to boundary
       // === MaskedMultipleAssign needed
-      MaskedAssign(!completelyoutside && Abs(smin[i]) < tolerance && dir.Dot(unorm) < 0, kInfinity, &smin[i]);
-      MaskedAssign(!completelyoutside && Abs(smax[i]) < tolerance && dir.Dot(unorm) < 0, kInfinity, &smax[i]);
+      vecCore::MaskedAssign(smin[i],
+                            !completelyoutside && vecCore::math::Abs(smin[i]) < tolerance && dir.Dot(unorm) < 0,
+                            Real_v(kInfinity));
+      vecCore::MaskedAssign(smax[i],
+                            !completelyoutside && vecCore::math::Abs(smax[i]) < tolerance && dir.Dot(unorm) < 0,
+                            Real_v(kInfinity));
 
-      MaskedAssign(!completelyoutside && (smin[i] > -tolerance) && (smin[i] < dist), Max(smin[i], 0.), &dist);
-      MaskedAssign(!completelyoutside && (smax[i] > -tolerance) && (smax[i] < dist), Max(smax[i], 0.), &dist);
+      vecCore::MaskedAssign(dist, !completelyoutside && (smin[i] > -tolerance) && (smin[i] < dist),
+                            vecCore::math::Max(smin[i], Real_v(0.)));
+      vecCore::MaskedAssign(dist, !completelyoutside && (smax[i] > -tolerance) && (smax[i] < dist),
+                            vecCore::math::Max(smax[i], Real_v(0.)));
     }
-    MaskedAssign(dist < tolerance && onsurf, 0., &dist);
+    vecCore::MaskedAssign(dist, dist < tolerance && onsurf, Real_v(0.));
     return (dist);
   } // end of function
 
@@ -230,45 +235,44 @@ public:
    * @param point Starting point in the local frame
    * @param dir Direction in the local frame
    */
-  template <typename Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  typename Backend::precision_v DistanceToOutPlanar(Vector3D<typename Backend::precision_v> const &point,
-                                                    Vector3D<typename Backend::precision_v> const &dir) const
+  Real_v DistanceToOutPlanar(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir) const
   {
 
-    typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
-    //    const Float_t tolerance = 100. * kTolerance;
+    using Bool_v = vecCore::Mask_v<Real_v>;
+    //    const Real_v tolerance = 100. * kTolerance;
 
-    Vertex_t va;          // vertex i of lower base
-    Vector3D<Float_t> pa; // same vertex converted to backend type
-    Float_t distance = kInfinity;
+    Vertex_t va;         // vertex i of lower base
+    Vector3D<Real_v> pa; // same vertex converted to backend type
+    Real_v distance = Real_v(kInfinity);
 
     // Check every surface
-    Bool_t outside = (Abs(point.z()) > MakePlusTolerant<true>(fDz)); // If point is outside, we need to know
-    for (int i = 0; i < N && (!IsFull(outside)); ++i) {
+    Bool_v outside =
+        (vecCore::math::Abs(point.z()) > MakePlusTolerant<true>(fDz)); // If point is outside, we need to know
+    for (int i = 0; i < N && (!vecCore::MaskFull(outside)); ++i) {
       if (fdegenerated[i]) continue;
       // Point A is the current vertex on lower Z. P is the point we come from.
       pa.Set(fxa[i], fya[i], -fDz);
-      Vector3D<Float_t> vecAP = point - pa;
+      Vector3D<Real_v> vecAP = point - pa;
       // Dot product between AP vector and normal to surface has to be negative
-      Float_t dotAPNorm = vecAP.Dot(fNormals[i]);
-      Bool_t otherside  = (dotAPNorm > 10. * kTolerance);
+      Real_v dotAPNorm = vecAP.Dot(fNormals[i]);
+      Bool_v otherside = (dotAPNorm > 10. * kTolerance);
       // Dot product between direction and normal to surface has to be positive
-      Float_t dotDirNorm = dir.Dot(fNormals[i]);
-      Bool_t outgoing    = (dotDirNorm > 0.);
+      Real_v dotDirNorm = dir.Dot(fNormals[i]);
+      Bool_v outgoing   = (dotDirNorm > 0.);
       dotDirNorm += kTiny; // Avoid division by 0 without changing result
       // Update globally outside flag
       outside |= otherside;
-      Bool_t valid = outgoing & (!otherside);
-      if (IsEmpty(valid)) continue;
-      Float_t snext = -dotAPNorm / dotDirNorm;
-      MaskedAssign(valid && snext < distance, Max(snext, 0.), &distance);
+      Bool_v valid = outgoing & (!otherside);
+      if (vecCore::MaskEmpty(valid)) continue;
+      Real_v snext = -dotAPNorm / dotDirNorm;
+      vecCore::MaskedAssign(distance, valid && snext < distance, vecCore::math::Max(snext, Real_v(0.)));
     }
     // Return -1 for points actually outside
-    MaskedAssign(distance < kTolerance, 0., &distance);
-    MaskedAssign(outside, -1., &distance);
+    vecCore::MaskedAssign(distance, distance < kTolerance, Real_v(0.));
+    vecCore::MaskedAssign(distance, outside, Real_v(-1.));
     return distance;
   }
 
@@ -277,54 +281,50 @@ public:
    * @param point Starting point in the local frame
    * @param dir Direction in the local frame
    */
-  template <typename Backend>
+  template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  typename Backend::precision_v DistanceToInPlanar(Vector3D<typename Backend::precision_v> const &point,
-                                                   Vector3D<typename Backend::precision_v> const &dir,
-                                                   typename Backend::bool_v &done) const
+  Real_v DistanceToInPlanar(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir, Bool_v &done) const
   {
+    //    const Real_v tolerance = 100. * kTolerance;
 
-    typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
-    //    const Float_t tolerance = 100. * kTolerance;
-
-    Vertex_t va;          // vertex i of lower base
-    Vector3D<Float_t> pa; // same vertex converted to backend type
-    Float_t distance = kInfinity;
+    Vertex_t va;         // vertex i of lower base
+    Vector3D<Real_v> pa; // same vertex converted to backend type
+    Real_v distance = Real_v(kInfinity);
 
     // Check every surface
-    Bool_t inside = (Abs(point.z()) < MakeMinusTolerant<true>(fDz)); // If point is inside, we need to know
+    Bool_v inside =
+        (vecCore::math::Abs(point.z()) < MakeMinusTolerant<true>(fDz)); // If point is inside, we need to know
     for (int i = 0; i < N; ++i) {
       if (fdegenerated[i]) continue;
       // Point A is the current vertex on lower Z. P is the point we come from.
       pa.Set(fxa[i], fya[i], -fDz);
-      Vector3D<Float_t> vecAP = point - pa;
+      Vector3D<Real_v> vecAP = point - pa;
       // Dot product between AP vector and normal to surface has to be positive
-      Float_t dotAPNorm = vecAP.Dot(fNormals[i]);
-      Bool_t otherside  = (dotAPNorm < -10. * kTolerance);
+      Real_v dotAPNorm = vecAP.Dot(fNormals[i]);
+      Bool_v otherside = (dotAPNorm < -10. * kTolerance);
       // Dot product between direction and normal to surface has to be negative
-      Float_t dotDirNorm = dir.Dot(fNormals[i]);
-      Bool_t ingoing     = (dotDirNorm < 0.);
+      Real_v dotDirNorm = dir.Dot(fNormals[i]);
+      Bool_v ingoing    = (dotDirNorm < 0.);
       dotDirNorm += kTiny; // Avoid division by 0 without changing result
       // Update globally outside flag
       inside &= otherside;
-      Bool_t valid = ingoing & (!otherside);
-      if (IsEmpty(valid)) continue;
-      Float_t snext = -dotAPNorm / dotDirNorm;
+      Bool_v valid = ingoing & (!otherside);
+      if (vecCore::MaskEmpty(valid)) continue;
+      Real_v snext = -dotAPNorm / dotDirNorm;
       // Now propagate the point to surface and check if in range
-      Vector3D<Float_t> psurf = point + snext * dir;
-      valid &= InSurfLimits<Backend>(psurf, i);
-      MaskedAssign((!done) && valid && snext < distance, Max(snext, 0.), &distance);
+      Vector3D<Real_v> psurf = point + snext * dir;
+      valid &= InSurfLimits<Real_v, Bool_v>(psurf, i);
+      vecCore::MaskedAssign(distance, (!done) && valid && snext < distance, vecCore::math::Max(snext, Real_v(0.)));
     }
     // Return -1 for points actually inside
-    MaskedAssign((!done) && (distance < kTolerance), 0., &distance);
-    MaskedAssign((!done) && inside, -1., &distance);
+    vecCore::MaskedAssign(distance, (!done) && (distance < kTolerance), Real_v(0.));
+    vecCore::MaskedAssign(distance, (!done) && inside, Real_v(-1.));
     return distance;
   }
 
   //______________________________________________________________________________
-  template <typename Backend>
+  template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   /**
@@ -335,35 +335,27 @@ public:
   * another possibility relies on the following idea:
   * we always have an even number of planar/curved surfaces. We could organize them in separate substructures...
   */
-  typename Backend::precision_v DistanceToIn(Vector3D<typename Backend::precision_v> const &point,
-                                             Vector3D<typename Backend::precision_v> const &dir,
-                                             typename Backend::bool_v &done) const
+  Real_v DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir, Bool_v &done) const
   {
-
-    typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
-
     // Planar case
-    if (fisplanar) return DistanceToInPlanar<Backend>(point, dir, done);
-    Float_t crtdist;
-    Vector3D<Float_t> hit;
-    Float_t distance(kInfinity);
-    Float_t tolerance = 100. * kTolerance;
-    Vector3D<Float_t> unorm;
-    Float_t r = -1.;
-    Float_t rz;
-    Bool_t completelyinside, completelyoutside, onsurf;
-    CheckInside<Backend>(point, completelyinside, completelyoutside, onsurf);
-
+    if (fisplanar) return DistanceToInPlanar<Real_v, Bool_v>(point, dir, done);
+    Real_v crtdist;
+    Vector3D<Real_v> hit;
+    Real_v distance  = Real_v(kInfinity);
+    Real_v tolerance = 100. * kTolerance;
+    Vector3D<Real_v> unorm;
+    Real_v r = Real_v(-1.);
+    Real_v rz;
+    Bool_v completelyinside, completelyoutside, onsurf;
+    CheckInside<Real_v, Bool_v>(point, completelyinside, completelyoutside, onsurf);
     // If on the wrong side, return -1.
-    Float_t wrongsidedist = -1.;
-    MaskedAssign(completelyinside & (!done), wrongsidedist, &distance);
-    Bool_t checked = completelyinside | done;
-    if (IsFull(checked)) return (distance);
-
+    Real_v wrongsidedist = Real_v(-1.);
+    vecCore::MaskedAssign(distance, Bool_v(completelyinside & (!done)), wrongsidedist);
+    Bool_v checked = completelyinside | done;
+    if (vecCore::MaskFull(checked)) return (distance);
     // Now solve the second degree equation to find crossings
-    Float_t smin[N], smax[N];
-    ComputeSminSmax<Backend>(point, dir, smin, smax);
+    Real_v smin[N], smax[N];
+    ComputeSminSmax<Real_v>(point, dir, smin, smax);
 
     // now we need to analyse which of those distances is good
     // does not vectorize
@@ -371,35 +363,37 @@ public:
       crtdist = smin[i];
       // Extrapolate with hit distance candidate
       hit             = point + crtdist * dir;
-      Bool_t crossing = (crtdist > -tolerance) & (Abs(hit.z()) < fDz + kTolerance);
+      Bool_v crossing = (crtdist > -tolerance) & (vecCore::math::Abs(hit.z()) < fDz + kTolerance);
       // Early skip surface if not in Z range
-      if (!IsEmpty(crossing & (!checked))) {
+      if (!vecCore::MaskEmpty(Bool_v(crossing & (!checked)))) {
         // Compute local un-normalized outwards normal direction and hit ratio factors
-        UNormal<Backend>(hit, i, unorm, rz, r);
+        UNormal<Real_v>(hit, i, unorm, rz, r);
         // Distance have to be positive within tolerance, and crossing must be inwards
         crossing &= dir.Dot(unorm) < 0.;
         // Propagated hitpoint must be on surface (rz in [0,1] checked already)
         crossing &= (r >= 0.) & (r <= 1.);
-        MaskedAssign(crossing && (!checked) && crtdist < distance, Max(crtdist, 0.), &distance);
+        vecCore::MaskedAssign(distance, crossing && (!checked) && crtdist < distance,
+                              vecCore::math::Max(crtdist, Real_v(0.)));
       }
       // For the particle(s) not crossing at smin, try smax
-      if (!IsFull(crossing | checked)) {
+      if (!vecCore::MaskFull(Bool_v(crossing | checked))) {
         // Treat only particles not crossing at smin
         crossing = !crossing;
         crtdist  = smax[i];
         hit      = point + crtdist * dir;
-        crossing &= (crtdist > -tolerance) & (Abs(hit.z()) < fDz + kTolerance);
-        if (IsEmpty(crossing)) continue;
+        crossing &= (crtdist > -tolerance) & (vecCore::math::Abs(hit.z()) < fDz + kTolerance);
+        if (vecCore::MaskEmpty(crossing)) continue;
         if (fiscurved[i])
-          UNormal<Backend>(hit, i, unorm, rz, r);
+          UNormal<Real_v>(hit, i, unorm, rz, r);
         else
           unorm = fNormals[i];
         crossing &= dir.Dot(unorm) < 0.;
         crossing &= (r >= 0.) & (r <= 1.);
-        MaskedAssign(crossing && (!checked) && crtdist < distance, Max(crtdist, 0.), &distance);
+        vecCore::MaskedAssign(distance, crossing && (!checked) && crtdist < distance,
+                              vecCore::math::Max(crtdist, Real_v(0.)));
       }
     }
-    MaskedAssign(distance < tolerance && onsurf, 0., &distance);
+    vecCore::MaskedAssign(distance, distance < tolerance && onsurf, Real_v(0.));
     return (distance);
 
   } // end distanceToIn function
@@ -411,43 +405,42 @@ public:
    * @param point Starting point inside, in the local frame
    * @param safmax current safety value
    */
-  template <typename Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  typename Backend::precision_v SafetyToOut(Vector3D<typename Backend::precision_v> const &point,
-                                            typename Backend::precision_v const &safmax) const
+  Real_v SafetyToOut(Vector3D<Real_v> const &point, Real_v const &safmax) const
   {
 
-    typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
+    using Bool_v            = vecCore::Mask_v<Real_v>;
     constexpr Precision eps = 100. * kTolerance;
 
-    Float_t safety = safmax;
-    Bool_t done    = (Abs(safety) < eps);
-    if (IsFull(done)) return (safety);
-    Float_t safetyface = kInfinity;
+    Real_v safety = safmax;
+    Bool_v done   = (vecCore::math::Abs(safety) < eps);
+    if (vecCore::MaskFull(done)) return (safety);
+    Real_v safetyface = Real_v(kInfinity);
 
     // loop lateral surfaces
     // We can use the surface normals to get safety for non-curved surfaces
-    Vertex_t va;          // vertex i of lower base
-    Vector3D<Float_t> pa; // same vertex converted to backend type
+    Vertex_t va;         // vertex i of lower base
+    Vector3D<Real_v> pa; // same vertex converted to backend type
     if (fisplanar) {
       for (int i = 0; i < N; ++i) {
         if (fdegenerated[i]) continue;
         va.Set(fxa[i], fya[i], -fDz);
         pa         = va;
         safetyface = (pa - point).Dot(fNormals[i]);
-        MaskedAssign((safetyface < safety) && (!done), safetyface, &safety);
+        vecCore::MaskedAssign(safety, (safetyface < safety) && (!done), safetyface);
       }
+      vecCore::MaskedAssign(safety, vecCore::math::Abs(safety) < eps, Real_v(0.));
       return safety;
     }
 
     // Not fully planar - use mixed case
-    safetyface = SafetyCurved<Backend>(point, Backend::kTrue);
+    safetyface = SafetyCurved<Real_v, Bool_v>(point, Bool_v(true));
     //  std::cout << "safetycurved = " << safetyface << std::endl;
-    MaskedAssign((safetyface < safety) && (!done), safetyface, &safety);
+    vecCore::MaskedAssign(safety, (safetyface < safety) && (!done), safetyface);
     //  std::cout << "safety = " << safety << std::endl;
-    MaskedAssign(safety > 0. && safety < eps, 0., &safety);
+    vecCore::MaskedAssign(safety, safety > 0. && safety < eps, Real_v(0.));
     return safety;
 
   } // end SafetyToOut
@@ -459,43 +452,42 @@ public:
    * @param point Starting point outside, in the local frame
    * @param safmax current safety value
    */
-  template <typename Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  typename Backend::precision_v SafetyToIn(Vector3D<typename Backend::precision_v> const &point,
-                                           typename Backend::precision_v const &safmax) const
+  Real_v SafetyToIn(Vector3D<Real_v> const &point, Real_v const &safmax) const
   {
 
-    typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
+    using Bool_v            = vecCore::Mask_v<Real_v>;
     constexpr Precision eps = 100. * kTolerance;
 
-    Float_t safety = safmax;
-    Bool_t done    = (Abs(safety) < eps);
-    if (IsFull(done)) return (safety);
-    Float_t safetyface = kInfinity;
+    Real_v safety = safmax;
+    Bool_v done   = (vecCore::math::Abs(safety) < eps);
+    if (vecCore::MaskFull(done)) return (safety);
+    Real_v safetyface = Real_v(kInfinity);
 
     // loop lateral surfaces
     // We can use the surface normals to get safety for non-curved surfaces
-    Vertex_t va;          // vertex i of lower base
-    Vector3D<Float_t> pa; // same vertex converted to backend type
+    Vertex_t va;         // vertex i of lower base
+    Vector3D<Real_v> pa; // same vertex converted to backend type
     if (fisplanar) {
       for (int i = 0; i < N; ++i) {
         if (fdegenerated[i]) continue;
         va.Set(fxa[i], fya[i], -fDz);
         pa         = va;
         safetyface = (point - pa).Dot(fNormals[i]);
-        MaskedAssign((safetyface > safety) && (!done), safetyface, &safety);
+        vecCore::MaskedAssign(safety, (safetyface > safety) && (!done), safetyface);
       }
+      vecCore::MaskedAssign(safety, vecCore::math::Abs(safety) < eps, Real_v(0.));
       return safety;
     }
 
     // Not fully planar - use mixed case
-    safetyface = SafetyCurved<Backend>(point, Backend::kFalse);
+    safetyface = SafetyCurved<Real_v, Bool_v>(point, Bool_v(false));
     //  std::cout << "safetycurved = " << safetyface << std::endl;
-    MaskedAssign((safetyface > safety) && (!done), safetyface, &safety);
+    vecCore::MaskedAssign(safety, (safetyface > safety) && (!done), safetyface);
     //  std::cout << "safety = " << safety << std::endl;
-    MaskedAssign(safety > 0. && safety < eps, 0., &safety);
+    vecCore::MaskedAssign(safety, safety > 0. && safety < eps, Real_v(0.));
     return (safety);
 
   } // end SafetyToIn
@@ -507,55 +499,50 @@ public:
    * @param point Starting point
    * @param in Inside value for starting point
    */
-  template <typename Backend>
+  template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  typename Backend::precision_v SafetyCurved(Vector3D<typename Backend::precision_v> const &point,
-                                             typename Backend::bool_v in) const
+  Real_v SafetyCurved(Vector3D<Real_v> const &point, Bool_v in) const
   {
-
-    typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
-
-    Float_t safety    = kInfinity;
-    Float_t safplanar = kInfinity;
-    Float_t tolerance = 100 * kTolerance;
-    MaskedAssign(!in, -tolerance, &tolerance);
+    Real_v safety    = Real_v(kInfinity);
+    Real_v safplanar = Real_v(kInfinity);
+    Real_v tolerance = Real_v(100 * kTolerance);
+    vecCore::MaskedAssign(tolerance, !in, -tolerance);
 
     //  loop over edges connecting points i with i+4
-    Float_t dx, dy, dpx, dpy, lsq, u;
-    Float_t dx1 = 0.0;
-    Float_t dx2 = 0.0;
-    Float_t dy1 = 0.0;
-    Float_t dy2 = 0.0;
+    Real_v dx, dy, dpx, dpy, lsq, u;
+    Real_v dx1 = Real_v(0.);
+    Real_v dx2 = Real_v(0.);
+    Real_v dy1 = Real_v(0.);
+    Real_v dy2 = Real_v(0.);
 
-    Bool_t completelyinside, completelyoutside, onsurf;
-    CheckInside<Backend>(point, completelyinside, completelyoutside, onsurf);
-    if (IsFull(onsurf)) return (0.);
+    Bool_v completelyinside, completelyoutside, onsurf;
+    CheckInside<Real_v, Bool_v>(point, completelyinside, completelyoutside, onsurf);
+    if (vecCore::MaskFull(onsurf)) return (Real_v(0.));
 
-    Bool_t wrong = in & (completelyoutside);
+    Bool_v wrong = in & (completelyoutside);
     wrong |= (!in) & completelyinside;
-    if (IsFull(wrong)) {
-      return (-1.);
+    if (vecCore::MaskFull(wrong)) {
+      return (Real_v(-1.));
     }
-    Float_t vertexX[N];
-    Float_t vertexY[N];
-    Float_t dzp = fDz + point[2];
+    Real_v vertexX[N];
+    Real_v vertexY[N];
+    Real_v dzp = fDz + point[2];
     for (int i = 0; i < N; i++) {
       // calculate x-y positions of vertex i at this z-height
       vertexX[i] = fxa[i] + ftx1[i] * dzp;
       vertexY[i] = fya[i] + fty1[i] * dzp;
     }
-    Float_t umin = 0.0;
+    Real_v umin = Real_v(0.);
     for (int i = 0; i < N; i++) {
       if (fiscurved[i] == 0) {
         // We can use the surface normals to get safety for non-curved surfaces
-        Vertex_t va;          // vertex i of lower base
-        Vector3D<Float_t> pa; // same vertex converted to backend type
+        Vertex_t va;         // vertex i of lower base
+        Vector3D<Real_v> pa; // same vertex converted to backend type
         va.Set(fxa[i], fya[i], -fDz);
-        pa            = va;
-        Float_t sface = Abs((point - pa).Dot(fNormals[i]));
-        MaskedAssign(sface < safplanar, sface, &safplanar);
+        pa           = va;
+        Real_v sface = vecCore::math::Abs((point - pa).Dot(fNormals[i]));
+        vecCore::MaskedAssign(safplanar, sface < safplanar, sface);
         continue;
       }
       int j = (i + 1) % N;
@@ -565,26 +552,26 @@ public:
       dpy   = point[1] - vertexY[i];
       lsq   = dx * dx + dy * dy;
       u     = (dpx * dx + dpy * dy) / (lsq + kTiny);
-      MaskedAssign(u > 1, point[0] - vertexX[j], &dpx);
-      MaskedAssign(u > 1, point[1] - vertexY[j], &dpy);
-      MaskedAssign(u >= 0 && u <= 1, dpx - u * dx, &dpx);
-      MaskedAssign(u >= 0 && u <= 1, dpy - u * dy, &dpy);
-      Float_t ssq = dpx * dpx + dpy * dpy; // safety squared
-      MaskedAssign(ssq < safety, fxc[i] - fxa[i], &dx1);
-      MaskedAssign(ssq < safety, fxd[i] - fxb[i], &dx2);
-      MaskedAssign(ssq < safety, fyc[i] - fya[i], &dy1);
-      MaskedAssign(ssq < safety, fyd[i] - fyb[i], &dy2);
-      MaskedAssign(ssq < safety, u, &umin);
-      MaskedAssign(ssq < safety, ssq, &safety);
+      vecCore::MaskedAssign(dpx, u > 1, point[0] - vertexX[j]);
+      vecCore::MaskedAssign(dpy, u > 1, point[1] - vertexY[j]);
+      vecCore::MaskedAssign(dpx, u >= 0 && u <= 1, dpx - u * dx);
+      vecCore::MaskedAssign(dpy, u >= 0 && u <= 1, dpy - u * dy);
+      Real_v ssq = dpx * dpx + dpy * dpy; // safety squared
+      vecCore::MaskedAssign(dx1, ssq < safety, Real_v(fxc[i] - fxa[i]));
+      vecCore::MaskedAssign(dx2, ssq < safety, Real_v(fxd[i] - fxb[i]));
+      vecCore::MaskedAssign(dy1, ssq < safety, Real_v(fyc[i] - fya[i]));
+      vecCore::MaskedAssign(dy2, ssq < safety, Real_v(fyd[i] - fyb[i]));
+      vecCore::MaskedAssign(umin, ssq < safety, u);
+      vecCore::MaskedAssign(safety, ssq < safety, ssq);
     }
-    MaskedAssign(umin < 0 || umin > 1, 0.0, &umin);
+    vecCore::MaskedAssign(umin, umin < 0 || umin > 1, Real_v(0.));
     dx = dx1 + umin * (dx2 - dx1);
     dy = dy1 + umin * (dy2 - dy1);
     safety *= 1. - 4. * fDz * fDz / (dx * dx + dy * dy + 4. * fDz * fDz);
-    safety = Sqrt(safety);
-    MaskedAssign(safplanar < safety, safplanar, &safety);
-    MaskedAssign(wrong, -safety, &safety);
-    MaskedAssign(onsurf, 0., &safety);
+    safety = vecCore::math::Sqrt(safety);
+    vecCore::MaskedAssign(safety, safplanar < safety, safplanar);
+    vecCore::MaskedAssign(safety, wrong, -safety);
+    vecCore::MaskedAssign(safety, onsurf, Real_v(0.));
     return safety;
   } // end SafetyCurved
 
@@ -598,38 +585,34 @@ public:
    * @param point Starting point
    * @param isurf Surface index
    */
-  template <typename Backend>
+  template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  typename Backend::bool_v InSurfLimits(Vector3D<typename Backend::precision_v> const &point, int isurf) const
+  Bool_v InSurfLimits(Vector3D<Real_v> const &point, int isurf) const
   {
 
-    typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
     // Check first if Z is in range
-    Float_t rz    = fDz2 * (point.z() + fDz);
-    Bool_t insurf = (rz > MakeMinusTolerant<true>(0.)) & (rz < MakePlusTolerant<true>(1.));
-    if (IsEmpty(insurf)) return insurf;
+    Real_v rz     = fDz2 * (point.z() + fDz);
+    Bool_v insurf = (rz > MakeMinusTolerant<true>(0.)) & (rz < MakePlusTolerant<true>(1.));
+    if (vecCore::MaskEmpty(insurf)) return insurf;
 
-    Float_t r     = kInfinity;
-    Float_t num   = (point.x() - fxa[isurf]) - rz * (fxb[isurf] - fxa[isurf]);
-    Float_t denom = (fxc[isurf] - fxa[isurf]) + rz * (fxd[isurf] - fxc[isurf] - fxb[isurf] + fxa[isurf]);
-    MaskedAssign((Abs(denom) > 1.e-6), num / denom, &r);
+    Real_v r     = Real_v(kInfinity);
+    Real_v num   = (point.x() - fxa[isurf]) - rz * (fxb[isurf] - fxa[isurf]);
+    Real_v denom = (fxc[isurf] - fxa[isurf]) + rz * (fxd[isurf] - fxc[isurf] - fxb[isurf] + fxa[isurf]);
+    vecCore::MaskedAssign(r, (vecCore::math::Abs(denom) > 1.e-6), num / denom);
     num   = (point.y() - fya[isurf]) - rz * (fyb[isurf] - fya[isurf]);
     denom = (fyc[isurf] - fya[isurf]) + rz * (fyd[isurf] - fyc[isurf] - fyb[isurf] + fya[isurf]);
-    MaskedAssign((Abs(denom) > 1.e-6), num / denom, &r);
+    vecCore::MaskedAssign(r, (vecCore::math::Abs(denom) > 1.e-6), num / denom);
     insurf &= (r > MakeMinusTolerant<true>(0.)) & (r < MakePlusTolerant<true>(1.));
     return insurf;
   }
 
   //______________________________________________________________________________
   /** @brief Computes un-normalized normal to surface isurf, on the input point */
-  template <typename Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  void UNormal(Vector3D<typename Backend::precision_v> const &point, int isurf,
-               Vector3D<typename Backend::precision_v> &unorm, typename Backend::precision_v &rz,
-               typename Backend::precision_v &r) const
+  void UNormal(Vector3D<Real_v> const &point, int isurf, Vector3D<Real_v> &unorm, Real_v &rz, Real_v &r) const
   {
 
     // unorm = (vi X hi0) + rz*(vi X vj) + r*(hi1 X hi0)
@@ -639,56 +622,52 @@ public:
     //           r = ((AP)-rz*vi) / (hi0+rz(vj-vi)) is the horizontal ratio
     // Any point within the surface range should reurn r and rz in the range [0,1]
     // These can be used as surface crossing criteria
-    typedef typename Backend::precision_v Float_t;
     rz = fDz2 * (point.z() + fDz);
     /*
-      Vector3D<Float_t> a(fxa[isurf], fya[isurf], -fDz);
-      Vector3D<Float_t> vi(fxb[isurf]-fxa[isurf], fyb[isurf]-fya[isurf], 2*fDz);
-      Vector3D<Float_t> vj(fxd[isurf]-fxc[isurf], fyd[isurf]-fyc[isurf], 2*fDz);
-      Vector3D<Float_t> hi0(fxc[isurf]-fxa[isurf], fyc[isurf]-fya[isurf], 0.);
+      Vector3D<Real_v> a(fxa[isurf], fya[isurf], -fDz);
+      Vector3D<Real_v> vi(fxb[isurf]-fxa[isurf], fyb[isurf]-fya[isurf], 2*fDz);
+      Vector3D<Real_v> vj(fxd[isurf]-fxc[isurf], fyd[isurf]-fyc[isurf], 2*fDz);
+      Vector3D<Real_v> hi0(fxc[isurf]-fxa[isurf], fyc[isurf]-fya[isurf], 0.);
     */
-    Float_t num   = (point.x() - fxa[isurf]) - rz * (fxb[isurf] - fxa[isurf]);
-    Float_t denom = (fxc[isurf] - fxa[isurf]) + rz * (fxd[isurf] - fxc[isurf] - fxb[isurf] + fxa[isurf]);
-    MaskedAssign(Abs(denom) > 1.e-6, num / denom, &r);
+    Real_v num   = (point.x() - fxa[isurf]) - rz * (fxb[isurf] - fxa[isurf]);
+    Real_v denom = (fxc[isurf] - fxa[isurf]) + rz * (fxd[isurf] - fxc[isurf] - fxb[isurf] + fxa[isurf]);
+    vecCore::MaskedAssign(r, vecCore::math::Abs(denom) > 1.e-6, num / denom);
     num   = (point.y() - fya[isurf]) - rz * (fyb[isurf] - fya[isurf]);
     denom = (fyc[isurf] - fya[isurf]) + rz * (fyd[isurf] - fyc[isurf] - fyb[isurf] + fya[isurf]);
-    MaskedAssign(Abs(denom) > 1.e-6, num / denom, &r);
+    vecCore::MaskedAssign(r, vecCore::math::Abs(denom) > 1.e-6, num / denom);
 
-    unorm = (Vector3D<Float_t>)fViCrossHi0[isurf] + rz * (Vector3D<Float_t>)fViCrossVj[isurf] +
-            r * (Vector3D<Float_t>)fHi1CrossHi0[isurf];
+    unorm = (Vector3D<Real_v>)fViCrossHi0[isurf] + rz * (Vector3D<Real_v>)fViCrossVj[isurf] +
+            r * (Vector3D<Real_v>)fHi1CrossHi0[isurf];
   } // end UNormal
 
   //______________________________________________________________________________
   /** @brief Solver for the second degree equation for curved surface crossing */
-  template <typename Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   /**
    * Function to compute smin and smax crossings with the N lateral surfaces.
    */
-  void ComputeSminSmax(Vector3D<typename Backend::precision_v> const &point,
-                       Vector3D<typename Backend::precision_v> const &dir, typename Backend::precision_v smin[N],
-                       typename Backend::precision_v smax[N]) const
+  void ComputeSminSmax(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir, Real_v smin[N], Real_v smax[N]) const
   {
 
-    typedef typename Backend::precision_v Float_t;
-    const Float_t big = kInfinity;
+    const Real_v big = Real_v(kInfinity);
 
-    Float_t dzp = fDz + point[2];
+    Real_v dzp = fDz + point[2];
     // calculate everything needed to solve the second order equation
-    Float_t a[N], b[N], c[N], d[N];
-    Float_t signa[N], inva[N];
+    Real_v a[N], b[N], c[N], d[N];
+    Real_v signa[N], inva[N];
 
     // vectorizes
     for (int i = 0; i < N; ++i) {
-      Float_t xs1 = fxa[i] + ftx1[i] * dzp;
-      Float_t ys1 = fya[i] + fty1[i] * dzp;
-      Float_t xs2 = fxc[i] + ftx2[i] * dzp;
-      Float_t ys2 = fyc[i] + fty2[i] * dzp;
-      Float_t dxs = xs2 - xs1;
-      Float_t dys = ys2 - ys1;
-      a[i]        = (fDeltatx[i] * dir[1] - fDeltaty[i] * dir[0] + ft1crosst2[i] * dir[2]) * dir[2];
-      b[i]        = dxs * dir[1] - dys * dir[0] +
+      Real_v xs1 = fxa[i] + ftx1[i] * dzp;
+      Real_v ys1 = fya[i] + fty1[i] * dzp;
+      Real_v xs2 = fxc[i] + ftx2[i] * dzp;
+      Real_v ys2 = fyc[i] + fty2[i] * dzp;
+      Real_v dxs = xs2 - xs1;
+      Real_v dys = ys2 - ys1;
+      a[i]       = (fDeltatx[i] * dir[1] - fDeltaty[i] * dir[0] + ft1crosst2[i] * dir[2]) * dir[2];
+      b[i]       = dxs * dir[1] - dys * dir[0] +
              (fDeltatx[i] * point[1] - fDeltaty[i] * point[0] + fty2[i] * xs1 - fty1[i] * xs2 + ftx1[i] * ys2 -
               ftx2[i] * ys1) *
                  dir[2];
@@ -699,19 +678,19 @@ public:
     // does not vectorize
     for (int i = 0; i < N; ++i) {
       // zero or one to start with
-      signa[i] = 0.;
-      MaskedAssign(a[i] < -kTolerance, (Float_t)(-Backend::kOne), &signa[i]);
-      MaskedAssign(a[i] > kTolerance, (Float_t)Backend::kOne, &signa[i]);
+      signa[i] = Real_v(0.);
+      vecCore::MaskedAssign(signa[i], a[i] < -kTolerance, Real_v(-1.));
+      vecCore::MaskedAssign(signa[i], a[i] > kTolerance, Real_v(1.));
       inva[i] = c[i] / (b[i] * b[i] + kTiny);
-      MaskedAssign(Abs(a[i]) > kTolerance, 1. / (2. * a[i]), &inva[i]);
+      vecCore::MaskedAssign(inva[i], vecCore::math::Abs(a[i]) > kTolerance, 1. / (2. * a[i]));
     }
 
     // vectorizes
     for (int i = 0; i < N; ++i) {
       // treatment for curved surfaces. Invalid solutions will be excluded.
 
-      Float_t sqrtd = signa[i] * Sqrt(Abs(d[i]));
-      MaskedAssign(d[i] < 0., big, &sqrtd);
+      Real_v sqrtd = signa[i] * vecCore::math::Sqrt(vecCore::math::Abs(d[i]));
+      vecCore::MaskedAssign(sqrtd, d[i] < 0., big);
       // what is the meaning of this??
       smin[i] = (-b[i] - sqrtd) * inva[i];
       smax[i] = (-b[i] + sqrtd) * inva[i];
@@ -720,18 +699,18 @@ public:
     // just the normal. This does not vectorize
     for (int i = 0; i < N; ++i) {
       if (fiscurved[i]) continue;
-      Vertex_t va;          // vertex i of lower base
-      Vector3D<Float_t> pa; // same vertex converted to backend type
+      Vertex_t va;         // vertex i of lower base
+      Vector3D<Real_v> pa; // same vertex converted to backend type
       // Point A is the current vertex on lower Z. P is the point we come from.
       pa.Set(fxa[i], fya[i], -fDz);
-      Vector3D<Float_t> vecAP = point - pa;
+      Vector3D<Real_v> vecAP = point - pa;
       // Dot product between AP vector and normal to surface has to be negative
-      Float_t dotAPNorm = vecAP.Dot(fNormals[i]);
+      Real_v dotAPNorm = vecAP.Dot(fNormals[i]);
       // Dot product between direction and normal to surface has to be positive
-      Float_t dotDirNorm = dir.Dot(fNormals[i]);
+      Real_v dotDirNorm = dir.Dot(fNormals[i]);
       dotDirNorm += kTiny; // Avoid division by 0 without changing result
       smin[i] = -dotAPNorm / dotDirNorm;
-      smax[i] = kInfinity; // not to be checked
+      smax[i] = Real_v(kInfinity); // not to be checked
     }
   } // end ComputeSminSmax
 

@@ -11,156 +11,111 @@
 #define VECGEOM_VOLUMES_KERNEL_GENTRAPIMPLEMENTATION_H_
 
 #include "base/Global.h"
-#include "base/Transformation3D.h"
+
 #include "volumes/kernel/GenericKernels.h"
 #include "volumes/kernel/BoxImplementation.h"
 #include "volumes/UnplacedGenTrap.h"
-#include "backend/Backend.h"
+
 #include <iostream>
 
 namespace vecgeom {
-VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(struct, GenTrapImplementation, TranslationCode, translation::kGeneric,
-                                        RotationCode, rotation::kGeneric);
+
+VECGEOM_DEVICE_FORWARD_DECLARE(struct GenTrapImplementation;);
+VECGEOM_DEVICE_DECLARE_CONV(struct, GenTrapImplementation);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class PlacedGenTrap;
+class UnplacedGenTrap;
 
-template <TranslationCode transCodeT, RotationCode rotCodeT>
+template <typename T>
+struct GenTrapStruct;
+
 struct GenTrapImplementation {
 
-  static const int transC = transCodeT;
-  static const int rotC   = rotCodeT;
-
-  using Vertex_t        = Vector3D<Precision>;
-  using PlacedShape_t   = PlacedGenTrap;
-  using UnplacedShape_t = UnplacedGenTrap;
+  using Vertex_t         = Vector3D<Precision>;
+  using PlacedShape_t    = PlacedGenTrap;
+  using UnplacedStruct_t = GenTrapStruct<double>;
+  using UnplacedVolume_t = UnplacedGenTrap;
 
   VECGEOM_CUDA_HEADER_BOTH
-  static void PrintType() { printf("SpecializedGenTrap<%i, %i>", transCodeT, rotCodeT); }
-
-  template <typename Stream>
-  static void PrintType(Stream &s)
+  static void PrintType()
   {
-    s << "SpecializedGenTrap<" << transCodeT << "," << rotCodeT << ">";
+    // printf("SpecializedGenTrap<%i, %i>", transCodeT, rotCodeT);
   }
 
   template <typename Stream>
-  static void PrintImplementationType(Stream &s)
+  static void PrintType(Stream & /*s*/)
   {
-    s << "GenTrapImplementation<" << transCodeT << "," << rotCodeT << ">";
+    // s << "SpecializedGenTrap<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
-  static void PrintUnplacedType(Stream &s)
+  static void PrintImplementationType(Stream & /*s*/)
   {
-    s << "UnplacedGenTrap";
+    // s << "GenTrapImplementation<" << transCodeT << "," << rotCodeT << ">";
   }
 
-  template <typename Backend>
+  template <typename Stream>
+  static void PrintUnplacedType(Stream & /*s*/)
+  {
+    // s << "UnplacedGenTrap";
+  }
+
+  template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void Contains(UnplacedGenTrap const &unplaced, Transformation3D const &transformation,
-                       Vector3D<typename Backend::precision_v> const &point,
-                       Vector3D<typename Backend::precision_v> &localPoint, typename Backend::bool_v &inside);
+  static void Contains(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Bool_v &inside);
 
-  template <typename Backend>
+  template <typename Real_v, typename Inside_t>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void Inside(UnplacedGenTrap const &unplaced, Transformation3D const &transformation,
-                     Vector3D<typename Backend::precision_v> const &point, typename Backend::inside_v &inside);
+  static void Inside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Inside_t &inside);
 
-  template <typename Backend, bool ForInside>
+  template <typename Real_v, typename Bool_v, bool ForInside>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void GenericKernelForContainsAndInside(UnplacedGenTrap const &,
-                                                Vector3D<typename Backend::precision_v> const &,
-                                                typename Backend::bool_v &, typename Backend::bool_v &);
+  static void GenericKernelForContainsAndInside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
+                                                Bool_v &completelyinside, Bool_v &completelyoutside);
 
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void DistanceToIn(UnplacedGenTrap const &unplaced, Transformation3D const &transformation,
-                           Vector3D<typename Backend::precision_v> const &point,
-                           Vector3D<typename Backend::precision_v> const &direction,
-                           typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance);
+  static void DistanceToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
+                           Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance);
 
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void DistanceToOut(UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-                            Vector3D<typename Backend::precision_v> const &direction,
-                            typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance);
+  static void DistanceToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
+                            Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance);
 
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void SafetyToIn(UnplacedGenTrap const &unplaced, Transformation3D const &transformation,
-                         Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety);
+  static void SafetyToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety);
 
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void SafetyToOut(UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-                          typename Backend::precision_v &safety);
+  static void SafetyToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety);
 
-  template <typename Backend>
+  template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void UnplacedContains(UnplacedGenTrap const &box, Vector3D<typename Backend::precision_v> const &localPoint,
-                               typename Backend::bool_v &inside);
+  static void NormalKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Vector3D<Real_v> &normal,
+                           Bool_v &valid);
 
-  template <class Backend>
+  template <class Real_v>
+  VECGEOM_CUDA_HEADER_BOTH
+  static void GetClosestEdge(Vector3D<Real_v> const &point, Real_v vertexX[4], Real_v vertexY[4], Real_v &iseg,
+                             Real_v &fraction);
+
+  template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void ContainsKernel(UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-                             typename Backend::bool_v &inside);
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
-  static void InsideKernel(UnplacedGenTrap const &boxDimensions, Vector3D<typename Backend::precision_v> const &point,
-                           typename Backend::inside_v &inside);
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
-  static void DistanceToInKernel(UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-                                 Vector3D<typename Backend::precision_v> const &direction,
-                                 typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance);
-
-  template <class Backend, bool treatNormal>
-  VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
-  static void DistanceToOutKernel(UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-                                  Vector3D<typename Backend::precision_v> const &direction,
-                                  typename Backend::precision_v const &stepMax,
-                                  typename Backend::precision_v &distance);
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
-  static void SafetyToInKernel(UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-                               typename Backend::precision_v &safety);
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
-  static void SafetyToOutKernel(UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-                                typename Backend::precision_v &safety);
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
-  static void NormalKernel(UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-                           Vector3D<typename Backend::precision_v> &normal, typename Backend::bool_v &valid);
-
-  template <class Backend>
-  VECGEOM_CUDA_HEADER_BOTH
-  static void GetClosestEdge(Vector3D<typename Backend::precision_v> const &point,
-                             typename Backend::precision_v vertexX[4], typename Backend::precision_v vertexY[4],
-                             typename Backend::precision_v &iseg, typename Backend::precision_v &fraction);
-
+  static Bool_v IsInTopOrBottomPolygon(UnplacedStruct_t const &unplaced, Real_v const &pointx, Real_v const &pointy,
+                                       Bool_v top);
 }; // End struct GenTrapImplementation
 
 //********************************
@@ -168,147 +123,42 @@ struct GenTrapImplementation {
 //********************************/
 
 //______________________________________________________________________________
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend>
+template <typename Real_v, typename Bool_v>
 VECGEOM_CUDA_HEADER_BOTH
-void GenTrapImplementation<transCodeT, rotCodeT>::Contains(UnplacedGenTrap const &unplaced,
-                                                           Transformation3D const &transformation,
-                                                           Vector3D<typename Backend::precision_v> const &point,
-                                                           Vector3D<typename Backend::precision_v> &localPoint,
-                                                           typename Backend::bool_v &inside)
+void GenTrapImplementation::Contains(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Bool_v &inside)
 {
-
-  localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
-  ContainsKernel<Backend>(unplaced, localPoint, inside);
-}
-
-//______________________________________________________________________________
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
-void GenTrapImplementation<transCodeT, rotCodeT>::UnplacedContains(
-    UnplacedGenTrap const &box, Vector3D<typename Backend::precision_v> const &localPoint,
-    typename Backend::bool_v &inside)
-{
-
-  ContainsKernel<Backend>(box, localPoint, inside);
-}
-
-//______________________________________________________________________________
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
-void GenTrapImplementation<transCodeT, rotCodeT>::Inside(UnplacedGenTrap const &unplaced,
-                                                         Transformation3D const &transformation,
-                                                         Vector3D<typename Backend::precision_v> const &point,
-                                                         typename Backend::inside_v &inside)
-{
-
-  InsideKernel<Backend>(unplaced, transformation.Transform<transCodeT, rotCodeT>(point), inside);
-}
-
-//______________________________________________________________________________
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
-VECGEOM_CUDA_HEADER_BOTH
-void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToIn(UnplacedGenTrap const &unplaced,
-                                                               Transformation3D const &transformation,
-                                                               Vector3D<typename Backend::precision_v> const &point,
-                                                               Vector3D<typename Backend::precision_v> const &direction,
-                                                               typename Backend::precision_v const &stepMax,
-                                                               typename Backend::precision_v &distance)
-{
-
-  DistanceToInKernel<Backend>(unplaced, transformation.Transform<transCodeT, rotCodeT>(point),
-                              transformation.TransformDirection<rotCodeT>(direction), stepMax, distance);
-}
-
-//______________________________________________________________________________
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
-VECGEOM_CUDA_HEADER_BOTH
-void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToOut(
-    UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-    Vector3D<typename Backend::precision_v> const &direction, typename Backend::precision_v const &stepMax,
-    typename Backend::precision_v &distance)
-{
-
-  DistanceToOutKernel<Backend, false>(unplaced, point, direction, stepMax, distance);
-}
-
-//______________________________________________________________________________
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
-VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
-void GenTrapImplementation<transCodeT, rotCodeT>::SafetyToIn(UnplacedGenTrap const &unplaced,
-                                                             Transformation3D const &transformation,
-                                                             Vector3D<typename Backend::precision_v> const &point,
-                                                             typename Backend::precision_v &safety)
-{
-
-  SafetyToInKernel<Backend>(unplaced, transformation.Transform<transCodeT, rotCodeT>(point), safety);
-}
-
-//______________________________________________________________________________
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
-VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
-void GenTrapImplementation<transCodeT, rotCodeT>::SafetyToOut(UnplacedGenTrap const &unplaced,
-                                                              Vector3D<typename Backend::precision_v> const &point,
-                                                              typename Backend::precision_v &safety)
-{
-
-  SafetyToOutKernel<Backend>(unplaced, point, safety);
-}
-
-//______________________________________________________________________________
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend>
-VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
-void GenTrapImplementation<transCodeT, rotCodeT>::ContainsKernel(
-    UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &localPoint,
-    typename Backend::bool_v &inside)
-{
-
-  typedef typename Backend::bool_v Bool_t;
-  Bool_t unused;
-  Bool_t outside;
-  GenericKernelForContainsAndInside<Backend, false>(unplaced, localPoint, unused, outside);
+  Bool_v unused;
+  Bool_v outside;
+  GenericKernelForContainsAndInside<Real_v, Bool_v, false>(unplaced, point, unused, outside);
   inside = !outside;
 }
 
 //______________________________________________________________________________
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend, bool ForInside>
+template <typename Real_v, typename Bool_v, bool ForInside>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-void GenTrapImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndInside(
-    UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &localPoint,
-    typename Backend::bool_v &completelyinside, typename Backend::bool_v &completelyoutside)
+void GenTrapImplementation::GenericKernelForContainsAndInside(UnplacedStruct_t const &unplaced,
+                                                              Vector3D<Real_v> const &point, Bool_v &completelyinside,
+                                                              Bool_v &completelyoutside)
 {
 
-  typedef typename Backend::precision_v Float_t;
-  typedef typename Backend::bool_v Bool_t;
   constexpr Precision tolerancesq = 10000. * kTolerance * kTolerance;
   // Local point has to be translated in the bbox local frame.
-  BoxImplementation::GenericKernelForContainsAndInside<Float_t, Bool_t, ForInside>(
-      unplaced.fBBdimensions, localPoint - unplaced.fBBorigin, completelyinside, completelyoutside);
+  BoxImplementation::GenericKernelForContainsAndInside<Real_v, Bool_v, ForInside>(
+      unplaced.fBBdimensions, point - unplaced.fBBorigin, completelyinside, completelyoutside);
   //  if (Backend::early_returns) {
-  if (IsFull(completelyoutside)) {
+  if (vecCore::MaskFull(completelyoutside)) {
     return;
   }
   //  }
 
   // analyse z
-  Float_t cf = unplaced.fHalfInverseDz * (unplaced.fDz - localPoint.z());
-  // analyse if x-y coordinates of localPoint are within polygon at z-height
+  Real_v cf = unplaced.fHalfInverseDz * (unplaced.fDz - point.z());
+  // analyse if x-y coordinates of point are within polygon at z-height
 
   //  loop over edges connecting points i with i+4
-  Float_t vertexX[4];
-  Float_t vertexY[4];
+  Real_v vertexX[4];
+  Real_v vertexY[4];
   // vectorizes for scalar backend
   for (int i = 0; i < 4; i++) {
     // calculate x-y positions of vertex i at this z-height
@@ -321,17 +171,17 @@ void GenTrapImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndIns
     // we decided for each edge whether the point is above or below the
     // 2d line defined by that edge
     // In fact, this calculation is part of the calculation of the distance
-    // of localPoint to that line which is a cross product. In this case it is
+    // of point to that line which is a cross product. In this case it is
     // an embedded cross product of 2D vectors in 3D. The resulting vector always points
     // in z-direction whose z-magnitude is directly related to the distance.
     // see, e.g.,  http://geomalgorithms.com/a02-_lines.html
-    if (unplaced.IsDegenerated(i)) continue;
-    int j          = (i + 1) % 4;
-    Float_t DeltaX = vertexX[j] - vertexX[i];
-    Float_t DeltaY = vertexY[j] - vertexY[i];
-    Float_t cross  = (localPoint.x() - vertexX[i]) * DeltaY - (localPoint.y() - vertexY[i]) * DeltaX;
+    if (unplaced.fDegenerated[i]) continue;
+    int j         = (i + 1) % 4;
+    Real_v DeltaX = vertexX[j] - vertexX[i];
+    Real_v DeltaY = vertexY[j] - vertexY[i];
+    Real_v cross  = (point.x() - vertexX[i]) * DeltaY - (point.y() - vertexY[i]) * DeltaX;
     if (ForInside) {
-      Bool_t onsurf = (cross * cross < tolerancesq * (DeltaX * DeltaX + DeltaY * DeltaY));
+      Bool_v onsurf = (cross * cross < tolerancesq * (DeltaX * DeltaX + DeltaY * DeltaY));
       completelyoutside |= ((cross < MakeMinusTolerant<ForInside>(0.)) && (!onsurf));
       completelyinside &= ((cross > MakePlusTolerant<ForInside>(0.)) && (!onsurf));
     } else {
@@ -339,7 +189,7 @@ void GenTrapImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndIns
     }
 
     //    if (Backend::early_returns) {
-    if (IsFull(completelyoutside)) {
+    if (vecCore::MaskFull(completelyoutside)) {
       return;
     }
     //    }
@@ -347,39 +197,36 @@ void GenTrapImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndIns
 }
 
 //______________________________________________________________________________
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
+template <typename Real_v, typename Inside_t>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-void GenTrapImplementation<transCodeT, rotCodeT>::InsideKernel(UnplacedGenTrap const &unplaced,
-                                                               Vector3D<typename Backend::precision_v> const &point,
-                                                               typename Backend::inside_v &inside)
+void GenTrapImplementation::Inside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Inside_t &inside)
 {
 
-  typedef typename Backend::bool_v Bool_t;
-  Bool_t completelyinside;
-  Bool_t completelyoutside;
-  GenericKernelForContainsAndInside<Backend, true>(unplaced, point, completelyinside, completelyoutside);
-  inside = EInside::kSurface;
-  MaskedAssign(completelyoutside, EInside::kOutside, &inside);
-  MaskedAssign(completelyinside, EInside::kInside, &inside);
+  using Bool_v       = vecCore::Mask_v<Real_v>;
+  using InsideBool_v = vecCore::Mask_v<Inside_t>;
+  Bool_v completelyinside;
+  Bool_v completelyoutside;
+  GenericKernelForContainsAndInside<Real_v, Bool_v, true>(unplaced, point, completelyinside, completelyoutside);
+
+  inside = Inside_t(EInside::kSurface);
+  vecCore::MaskedAssign(inside, (InsideBool_v)completelyoutside, Inside_t(EInside::kOutside));
+  vecCore::MaskedAssign(inside, (InsideBool_v)completelyinside, Inside_t(EInside::kInside));
 }
 
 //______________________________________________________________________________
-template <bool IsSIMD, class Backend>
+template <typename Real_v, typename Bool_v>
 struct FillPlaneDataHelper {
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  static void FillPlaneData(UnplacedGenTrap const &unplaced, typename Backend::precision_v &cornerx,
-                            typename Backend::precision_v &cornery, typename Backend::precision_v &deltax,
-                            typename Backend::precision_v &deltay, typename Backend::bool_v const &top, int edgeindex)
+  static void FillPlaneData(GenTrapStruct<double> const &unplaced, Real_v &cornerx, Real_v &cornery, Real_v &deltax,
+                            Real_v &deltay, Bool_v const &top, int edgeindex)
   {
 
     // no vectorized data lookup for SIMD
     // need to fill the SIMD types individually
 
-    // now we only need to get the number 2 from somewhere
-    for (int i = 0; i < kVectorSize; ++i) {
+    for (size_t i = 0; i < vecCore::VectorSize<Real_v>(); ++i) {
       int index  = edgeindex + top[i] * 4;
       deltax[i]  = unplaced.fDeltaX[index];
       deltay[i]  = unplaced.fDeltaY[index];
@@ -391,12 +238,12 @@ struct FillPlaneDataHelper {
 
 //______________________________________________________________________________
 /** @brief A partial template specialization for nonSIMD cases (scalar, cuda, ... ) */
-template <class Backend>
-struct FillPlaneDataHelper<false, Backend> {
+template <>
+struct FillPlaneDataHelper<double, bool> {
   VECGEOM_CUDA_HEADER_BOTH
-  static void FillPlaneData(UnplacedGenTrap const &unplaced, typename Backend::precision_v &cornerx,
-                            typename Backend::precision_v &cornery, typename Backend::precision_v &deltax,
-                            typename Backend::precision_v &deltay, typename Backend::bool_v const &top, int edgeindex)
+  VECGEOM_FORCE_INLINE
+  static void FillPlaneData(GenTrapStruct<double> const &unplaced, double &cornerx, double &cornery, double &deltax,
+                            double &deltay, bool const &top, int edgeindex)
   {
     int index = edgeindex + top * 4;
     deltax    = unplaced.fDeltaX[index];
@@ -407,46 +254,42 @@ struct FillPlaneDataHelper<false, Backend> {
 };
 
 //______________________________________________________________________________
-template <class Backend>
+template <typename Real_v, typename Bool_v>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-// optimized "inside" check for top or bottom z-surfaces
-// this is a bit tricky if different tracks check different planes
-// ( for example in case of Backend = Vc when top is mixed )
-// ( this is because vector data lookup is tricky )
-typename Backend::bool_v IsInTopOrBottomPolygon(UnplacedGenTrap const &unplaced,
-                                                typename Backend::precision_v const &pointx,
-                                                typename Backend::precision_v const &pointy,
-                                                typename Backend::bool_v top)
+Bool_v GenTrapImplementation::IsInTopOrBottomPolygon(UnplacedStruct_t const &unplaced, Real_v const &pointx,
+                                                     Real_v const &pointy, Bool_v top)
 {
+  // optimized "inside" check for top or bottom z-surfaces
+  // this is a bit tricky if different tracks check different planes
+  // ( for example in case of Backend = Vc when top is mixed )
+  // ( this is because vector data lookup is tricky )
+
   // stripped down version of the Contains kernel ( not yet shared with that kernel )
-  typedef typename Backend::bool_v Bool_t;
-  typedef typename Backend::precision_v Float_t;
   // std::cerr << "IsInTopOrBottom: pointx: " << pointx << "  pointy: " << pointy << "  top: " << top << "\n";
 
-  Bool_t completelyoutside(Backend::kFalse);
-  Bool_t degenerate(Backend::kTrue);
+  Bool_v completelyoutside = Bool_v(false);
+  Bool_v degenerate        = Bool_v(true);
   for (int i = 0; i < 4; ++i) {
-    Float_t deltaX;
-    Float_t deltaY;
-    Float_t cornerX;
-    Float_t cornerY;
+    Real_v deltaX;
+    Real_v deltaY;
+    Real_v cornerX;
+    Real_v cornerY;
 
     // thats the only place where scalar and vector code diverge
     // IsSIMD misses...replaced with early_returns
-    FillPlaneDataHelper<!Backend::early_returns, Backend>::FillPlaneData(unplaced, cornerX, cornerY, deltaX, deltaY,
-                                                                         top, i);
+    FillPlaneDataHelper<Real_v, Bool_v>::FillPlaneData(unplaced, cornerX, cornerY, deltaX, deltaY, top, i);
 
     // std::cerr << i << " CORNERS " << cornerX << " " << cornerY << " " << deltaX << " " << deltaY << "\n";
 
-    Float_t cross = (pointx - cornerX) * deltaY;
+    Real_v cross = (pointx - cornerX) * deltaY;
     cross -= (pointy - cornerY) * deltaX;
     degenerate &= deltaX < MakePlusTolerant<true>(0.);
     degenerate &= deltaY < MakePlusTolerant<true>(0.);
     completelyoutside |= cross < MakeMinusTolerant<true>(0.);
     // if (Backend::early_returns) {
-    if (IsFull(completelyoutside)) {
-      return Backend::kFalse;
+    if (vecCore::MaskFull(completelyoutside)) {
+      return Bool_v(false);
     }
     // }
   }
@@ -455,18 +298,14 @@ typename Backend::bool_v IsInTopOrBottomPolygon(UnplacedGenTrap const &unplaced,
 }
 
 //______________________________________________________________________________
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
+template <typename Real_v>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
-    UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-    Vector3D<typename Backend::precision_v> const &direction, typename Backend::precision_v const &stepMax,
-    typename Backend::precision_v &distance)
+void GenTrapImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
+                                         Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
 {
 
-  typedef typename Backend::precision_v Float_t;
-  typedef typename Backend::bool_v Bool_t;
+  using Bool_v = vecCore::Mask_v<Real_v>;
 
 //#define GENTRAPDEB = 1
 #ifdef GENTRAPDEB
@@ -478,28 +317,21 @@ void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   // actually this could also give us some indication which face is likely to be hit
 
   // let me see if we can temporarily force the box function to be a function call
-  Float_t bbdistance = 0.;
-#ifdef GENTRAP_USENEWBB
-  typename Backend::int_v planeid(-1);
-  Vector3D<Float_t> hitpoint;
-  BoxImplementation::DistanceToInKernel2<Backend>(unplaced.fBBdimensions, point - unplaced.fBBorigin, direction,
-                                                  stepMax, bbdistance, &planeid, &hitpoint);
-#else
+  Real_v bbdistance = Real_v(0.);
   BoxImplementation::DistanceToIn(BoxStruct<Precision>(unplaced.fBBdimensions), point - unplaced.fBBorigin, direction,
                                   stepMax, bbdistance);
-#endif
 
 #ifdef GENTRAPDEB
   std::cerr << "BB gave " << bbdistance << "\n";
 #endif
-  distance = kInfinity;
+  distance = Real_v(kInfinity);
 
   // do a check on bbdistance
   // if none of the tracks can hit even the bounding box; just return
-  Bool_t done = bbdistance >= kInfinity;
-  if (IsFull(done)) return;
+  Bool_v done = bbdistance >= kInfinity;
+  if (vecCore::MaskFull(done)) return;
 #ifdef GENTRAPDEB
-  Float_t x, y, z;
+  Real_v x, y, z;
   x = point.x() + bbdistance * direction.x();
   y = point.y() + bbdistance * direction.y();
   z = point.z() + bbdistance * direction.z();
@@ -507,192 +339,173 @@ void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
 #endif
 
   // some particle could hit z
-  Float_t zsafety = Abs(point.z()) - unplaced.fDz;
-  Bool_t canhitz  = zsafety > MakeMinusTolerant<true>(0.);
+  Real_v zsafety = vecCore::math::Abs(point.z()) - unplaced.fDz;
+  Bool_v canhitz = zsafety > MakeMinusTolerant<true>(0.);
   canhitz &= point.z() * direction.z() < 0; // coming towards the origin
   canhitz &= !done;
 #ifdef GENTRAPDEB
   std::cerr << " canhitz " << canhitz << " \n";
 #endif
 
-  if (!IsEmpty(canhitz)) {
+  if (!vecCore::MaskEmpty(canhitz)) {
     //   std::cerr << "can potentially hit\n";
     // calculate distance to z-plane ( see Box algorithm )
     // check if hit point is inside top or bottom polygon
-    Float_t next = zsafety / Abs(direction.z() + kTiny);
+    Real_v next = zsafety / vecCore::math::Abs(direction.z() + kTiny);
 #ifdef GENTRAPDEB
     std::cerr << " zdist " << next << "\n";
 #endif
     // transport to z-height of planes
-    Float_t coord1 = point.x() + next * direction.x();
-    Float_t coord2 = point.y() + next * direction.y();
-    Bool_t top     = direction.z() < 0;
-    // Bool_t hits = IsInTopOrBottomPolygon<Backend>(unplaced, hitpoint.x(), hitpoint.y(), top );
-    Bool_t hits = IsInTopOrBottomPolygon<Backend>(unplaced, coord1, coord2, top);
+    Real_v coord1 = point.x() + next * direction.x();
+    Real_v coord2 = point.y() + next * direction.y();
+    Bool_v top    = direction.z() < 0;
+    Bool_v hits   = IsInTopOrBottomPolygon<Real_v>(unplaced, coord1, coord2, top);
     hits &= canhitz;
-    MaskedAssign(hits, bbdistance, &distance);
+    vecCore::MaskedAssign(distance, hits, bbdistance);
     done |= hits;
 #ifdef GENTRAPDEB
     std::cerr << " hit result " << hits << " bbdistance " << distance << "\n";
 #endif
-    if (IsFull(done)) return;
+    if (vecCore::MaskFull(done)) return;
   }
 
   // now treat lateral surfaces
-  Float_t disttoplanes = unplaced.GetShell().DistanceToIn<Backend>(point, direction, done);
+  Real_v disttoplanes = unplaced.fSurfaceShell.DistanceToIn<Real_v, Bool_v>(point, direction, done);
 #ifdef GENTRAPDEB
   std::cerr << "disttoplanes " << disttoplanes << "\n";
 #endif
 
-  MaskedAssign(!done, Min(disttoplanes, distance), &distance);
+  vecCore::MaskedAssign(distance, !done, vecCore::math::Min(disttoplanes, distance));
 #ifdef GENTRAPDEB
   std::cerr << distance << "\n";
 #endif
 }
 
 //______________________________________________________________________________
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend, bool treatNormal>
+template <typename Real_v>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-void GenTrapImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
-    UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-    Vector3D<typename Backend::precision_v> const &direction, typename Backend::precision_v const & /* stepMax */,
-    typename Backend::precision_v &distance)
+void GenTrapImplementation::DistanceToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
+                                          Vector3D<Real_v> const &direction, Real_v const & /* stepMax */,
+                                          Real_v &distance)
 {
 
-  typedef typename Backend::precision_v Float_t;
-  typedef typename Backend::bool_v Bool_t;
+  using Bool_v = vecCore::Mask_v<Real_v>;
 
   // we should check here the compilation condition
   // that treatNormal=true can only happen when Backend=kScalar
   // TODO: do this with some nice template features
 
-  Bool_t negDirMask = direction.z() < 0;
-  Float_t sign      = 1.;
-  MaskedAssign(negDirMask, -1., &sign);
-  //    Float_t invDirZ = 1./direction.z();
+  Bool_v negDirMask = direction.z() < 0;
+  Real_v sign       = 1.;
+  vecCore::MaskedAssign(sign, negDirMask, Real_v(-1.));
+  //    Real_v invDirZ = 1./direction.z();
   // this construct costs one multiplication more
-  Float_t distmin = (sign * unplaced.fDz - point.z()) / direction.z();
+  Real_v distmin = (sign * unplaced.fDz - point.z()) / direction.z();
 
-  Float_t distplane = unplaced.GetShell().DistanceToOut<Backend>(point, direction);
-  distance          = Min(distmin, distplane);
+  Real_v distplane = unplaced.fSurfaceShell.DistanceToOut<Real_v>(point, direction);
+  distance         = vecCore::math::Min(distmin, distplane);
 }
 
 //______________________________________________________________________________
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
+template <typename Real_v>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-void GenTrapImplementation<transCodeT, rotCodeT>::SafetyToInKernel(UnplacedGenTrap const &unplaced,
-                                                                   Vector3D<typename Backend::precision_v> const &point,
-                                                                   typename Backend::precision_v &safety)
+void GenTrapImplementation::SafetyToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety)
 {
 
-  typedef typename Backend::bool_v Boolean_t;
+  using Bool_v = vecCore::Mask_v<Real_v>;
 
-  Boolean_t inside;
+  Bool_v inside;
   // Check if all points are outside bounding box
-  BoxImplementation::Contains(BoxStruct<Precision>(unplaced.fBBdimensions), point - unplaced.fBBorigin, inside);
-  if (IsEmpty(inside)) {
+  BoxImplementation::Contains(BoxStruct<double>(unplaced.fBBdimensions), point - unplaced.fBBorigin, inside);
+  if (vecCore::MaskEmpty(inside)) {
     // All points outside, so compute safety using the bounding box
     // This is not optimal if top and bottom faces are not on top of each other
-    BoxImplementation::SafetyToIn(BoxStruct<Precision>(unplaced.fBBdimensions), point - unplaced.fBBorigin, safety);
+    BoxImplementation::SafetyToIn(BoxStruct<double>(unplaced.fBBdimensions), point - unplaced.fBBorigin, safety);
     return;
   }
 
   // Do Z
-  safety = Abs(point[2]) - unplaced.GetDZ();
-  safety = unplaced.GetShell().SafetyToIn<Backend>(point, safety);
+  safety = vecCore::math::Abs(point[2]) - unplaced.fDz;
+  safety = unplaced.fSurfaceShell.SafetyToIn<Real_v>(point, safety);
 }
 
 //______________________________________________________________________________
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
+template <typename Real_v>
 VECGEOM_CUDA_HEADER_BOTH
-void GenTrapImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(
-    UnplacedGenTrap const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-    typename Backend::precision_v &safety)
+void GenTrapImplementation::SafetyToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety)
 {
 
   // Do Z
-  safety = unplaced.GetDZ() - Abs(point[2]);
-  safety = unplaced.GetShell().SafetyToOut<Backend>(point, safety);
+  safety = unplaced.fDz - vecCore::math::Abs(point[2]);
+  safety = unplaced.fSurfaceShell.SafetyToOut<Real_v>(point, safety);
 }
 
 //______________________________________________________________________________
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
+template <typename Real_v, typename Bool_v>
 VECGEOM_CUDA_HEADER_BOTH
-void GenTrapImplementation<transCodeT, rotCodeT>::NormalKernel(UnplacedGenTrap const &unplaced,
-                                                               Vector3D<typename Backend::precision_v> const &point,
-                                                               Vector3D<typename Backend::precision_v> &normal,
-                                                               typename Backend::bool_v &valid)
+void GenTrapImplementation::NormalKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
+                                         Vector3D<Real_v> &normal, Bool_v &valid)
 {
 
   // Computes the normal on a surface and returns it as a unit vector
   //   In case a point is further than tolerance_normal from a surface, set validNormal=false
   //   Must return a valid vector. (even if the point is not on the surface.)
-  //
-  //   On an edge or corner, provide an average normal of all facets within tolerance
-  // NOTE: the tolerance value used in here is not yet the global surface
-  //     tolerance - we will have to revise this value - TODO
-  // this version does not yet consider the case when we are not on the surface
 
-  typedef typename Backend::precision_v Float_t;
-  typedef typename Backend::int_v Int_t;
-  typedef typename Backend::bool_v Bool_t;
-  valid = Backend::kTrue;
+  using Index_v = vecCore::Index_v<Real_v>;
+
+  valid = Bool_v(true);
   normal.Set(0., 0., 0.);
   // Do bottom and top faces
-  Float_t safz = Abs(unplaced.GetDZ() - Abs(point.z()));
-  Bool_t onZ   = (safz < 10. * kTolerance);
-  MaskedAssign(onZ && (point.z() > 0), 1., &normal[2]);
-  MaskedAssign(onZ && (point.z() < 0), -1., &normal[2]);
+  Real_v safz = vecCore::math::Abs(unplaced.fDz - vecCore::math::Abs(point.z()));
+  Bool_v onZ  = (safz < 10. * kTolerance);
+  vecCore::MaskedAssign(normal[2], onZ && (point.z() > 0), 1.);
+  vecCore::MaskedAssign(normal[2], onZ && (point.z() < 0), -1.);
 
   //    if (Backend::early_returns) {
-  if (IsFull(onZ)) {
+  if (vecCore::MaskFull(onZ)) {
     return;
   }
   //    }
-  //  Float_t done = onZ;
+  //  Real_v done = onZ;
   // Get the closest edge (point should be on this edge within tolerance)
-  Float_t cf = unplaced.fHalfInverseDz * (unplaced.fDz - point.z());
-  Float_t vertexX[4];
-  Float_t vertexY[4];
+  Real_v cf = unplaced.fHalfInverseDz * (unplaced.fDz - point.z());
+  Real_v vertexX[4];
+  Real_v vertexY[4];
   for (int i = 0; i < 4; i++) {
     // calculate x-y positions of vertex i at this z-height
     vertexX[i] = unplaced.fVerticesX[i + 4] + cf * unplaced.fConnectingComponentsX[i];
     vertexY[i] = unplaced.fVerticesY[i + 4] + cf * unplaced.fConnectingComponentsY[i];
   }
-  Float_t seg;
-  Float_t frac;
-  GetClosestEdge<Backend>(point, vertexX, vertexY, seg, frac);
-  MaskedAssign(frac < 0., 0., &frac);
-  Int_t iseg = seg;
+  Real_v seg;
+  Real_v frac;
+  GetClosestEdge<Real_v>(point, vertexX, vertexY, seg, frac);
+  vecCore::MaskedAssign(frac, frac < 0., Real_v(0.));
+  Index_v iseg = (Index_v)seg;
   if (unplaced.IsPlanar()) {
     // Normals for the planar case are pre-computed
-    Vertex_t const *normals = unplaced.GetShell().GetNormals();
+    Vertex_t const *normals = unplaced.fSurfaceShell.GetNormals();
     normal                  = normals[iseg];
     return;
   }
-  Int_t jseg = (iseg + 1) % 4;
-  Float_t x0 = vertexX[iseg];
-  Float_t y0 = vertexY[iseg];
-  Float_t x2 = vertexX[jseg];
-  Float_t y2 = vertexY[jseg];
+  Index_v jseg = (iseg + 1) % 4;
+  Real_v x0    = vertexX[iseg];
+  Real_v y0    = vertexY[iseg];
+  Real_v x2    = vertexX[jseg];
+  Real_v y2    = vertexY[jseg];
   x0 += frac * (x2 - x0);
   y0 += frac * (y2 - y0);
-  Float_t x1 = unplaced.fVerticesX[iseg + 4];
-  Float_t y1 = unplaced.fVerticesY[iseg + 4];
+  Real_v x1 = unplaced.fVerticesX[iseg + 4];
+  Real_v y1 = unplaced.fVerticesY[iseg + 4];
   x1 += frac * (unplaced.fVerticesX[jseg + 4] - x1);
   y1 += frac * (unplaced.fVerticesY[jseg + 4] - y1);
-  Float_t ax = x1 - x0;
-  Float_t ay = y1 - y0;
-  Float_t az = unplaced.GetDZ() - point.z();
-  Float_t bx = x2 - x0;
-  Float_t by = y2 - y0;
-  Float_t bz = 0.;
+  Real_v ax = x1 - x0;
+  Real_v ay = y1 - y0;
+  Real_v az = unplaced.fDz - point.z();
+  Real_v bx = x2 - x0;
+  Real_v by = y2 - y0;
+  Real_v bz = 0.;
   // Cross product of the vector given by the section segment (that contains the
   // point) at z=point[2] and the vector connecting the point projection to its
   // correspondent on the top edge.
@@ -701,27 +514,23 @@ void GenTrapImplementation<transCodeT, rotCodeT>::NormalKernel(UnplacedGenTrap c
 }
 
 //______________________________________________________________________________
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
+template <typename Real_v>
 VECGEOM_CUDA_HEADER_BOTH
-void GenTrapImplementation<transCodeT, rotCodeT>::GetClosestEdge(Vector3D<typename Backend::precision_v> const &point,
-                                                                 typename Backend::precision_v vertexX[4],
-                                                                 typename Backend::precision_v vertexY[4],
-                                                                 typename Backend::precision_v &iseg,
-                                                                 typename Backend::precision_v &fraction)
+void GenTrapImplementation::GetClosestEdge(Vector3D<Real_v> const &point, Real_v vertexX[4], Real_v vertexY[4],
+                                           Real_v &iseg, Real_v &fraction)
 {
   /// Get index of the edge of the quadrilater represented by vert closest to point.
   /// If [P1,P2] is the closest segment and P is the point, the function returns the fraction of the
   /// projection of (P1P) over (P1P2). If projection of P is not in range [P1,P2] return -1.
-  typedef typename Backend::precision_v Float_t;
-  //  typedef typename Backend::int_v Int_t;
-  typedef typename Backend::bool_v Bool_t;
-  iseg = 0.;
-  //  Float_t p1X, p1Y, p2X, p2Y;
-  Float_t lsq, dx, dy, dpx, dpy, u;
-  fraction     = -1.;
-  Float_t safe = kInfinity;
-  Float_t ssq  = kInfinity;
+
+  using Bool_v = vecCore::Mask_v<Real_v>;
+
+  iseg = Real_v(0.);
+  //  Real_v p1X, p1Y, p2X, p2Y;
+  Real_v lsq, dx, dy, dpx, dpy, u;
+  fraction    = Real_v(-1.);
+  Real_v safe = vecgeom::kInfinity;
+  Real_v ssq  = vecgeom::kInfinity;
   for (int i = 0; i < 4; ++i) {
     int j = (i + 1) % 4;
     dx    = vertexX[j] - vertexX[i];
@@ -730,26 +539,26 @@ void GenTrapImplementation<transCodeT, rotCodeT>::GetClosestEdge(Vector3D<typena
     dpy   = point.y() - vertexY[i];
     lsq   = dx * dx + dy * dy;
     // Current segment collapsed to a point
-    Bool_t collapsed = lsq < kTolerance;
-    if (!IsEmpty(collapsed)) {
-      MaskedAssign(lsq < kTolerance, dpx * dpx + dpy * dpy, &ssq);
+    Bool_v collapsed = lsq < kTolerance;
+    if (!vecCore::MaskEmpty(collapsed)) {
+      vecCore::MaskedAssign(ssq, lsq < kTolerance, dpx * dpx + dpy * dpy);
       // Missing a masked assign allowing to perform multiple assignments...
-      MaskedAssign(ssq < safe, (Precision)i, &iseg);
-      MaskedAssign(ssq < safe, -1., &fraction);
-      MaskedAssign(ssq < safe, ssq, &safe);
-      if (IsFull(collapsed)) continue;
+      vecCore::MaskedAssign(iseg, ssq < safe, (Precision)i);
+      vecCore::MaskedAssign(fraction, ssq < safe, Real_v(-1.));
+      vecCore::MaskedAssign(safe, ssq < safe, ssq);
+      if (vecCore::MaskFull(collapsed)) continue;
     }
     // Projection fraction
     u = (dpx * dx + dpy * dy) / (lsq + kTiny);
-    MaskedAssign(u > 1 && !collapsed, point.x() - vertexX[j], &dpx);
-    MaskedAssign(u > 1 && !collapsed, point.y() - vertexY[j], &dpy);
-    MaskedAssign(u >= 0 && u <= 1 && !collapsed, dpx - u * dx, &dpx);
-    MaskedAssign(u >= 0 && u <= 1 && !collapsed, dpy - u * dy, &dpy);
-    MaskedAssign((u > 1 || u < 0) && !collapsed, -1., &u);
+    vecCore::MaskedAssign(dpx, u > 1 && !collapsed, point.x() - vertexX[j]);
+    vecCore::MaskedAssign(dpy, u > 1 && !collapsed, point.y() - vertexY[j]);
+    vecCore::MaskedAssign(dpx, u >= 0 && u <= 1 && !collapsed, dpx - u * dx);
+    vecCore::MaskedAssign(dpy, u >= 0 && u <= 1 && !collapsed, dpy - u * dy);
+    vecCore::MaskedAssign(u, (u > 1 || u < 0) && !collapsed, Real_v(-1.));
     ssq = dpx * dpx + dpy * dpy;
-    MaskedAssign(ssq < safe, (Precision)i, &iseg);
-    MaskedAssign(ssq < safe, u, &fraction);
-    MaskedAssign(ssq < safe, ssq, &safe);
+    vecCore::MaskedAssign(iseg, ssq < safe, (Precision)i);
+    vecCore::MaskedAssign(fraction, ssq < safe, u);
+    vecCore::MaskedAssign(safe, ssq < safe, ssq);
   }
 }
 

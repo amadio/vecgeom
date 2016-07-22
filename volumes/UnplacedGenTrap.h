@@ -7,8 +7,11 @@
 
 #include "base/Global.h"
 #include "base/AlignedBase.h"
+#include "volumes/GenTrapStruct.h"
 #include "volumes/UnplacedVolume.h"
 #include "volumes/SecondOrderSurfaceShell.h"
+#include "volumes/kernel/GenTrapImplementation.h"
+#include "volumes/UnplacedVolumeImplHelper.h"
 
 namespace vecgeom {
 
@@ -21,38 +24,12 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
  * A generic trap:
  * see TGeoArb8 or UGenericTrap
  */
-class UnplacedGenTrap : public VUnplacedVolume, public AlignedBase {
+class UnplacedGenTrap : public SIMDUnplacedVolumeImplHelper<GenTrapImplementation>, public AlignedBase {
 
 public:
   using Vertex_t = Vector3D<Precision>;
 
-  Vertex_t fBBdimensions; /** Bounding box dimensions */
-  Vertex_t fBBorigin;     /** Bounding box origin */
-  Vertex_t fVertices[8];  /** The eight points that define the Arb8 */
-
-  // we also store this in SOA form
-  Precision fVerticesX[8]; /** Backed-up X positions of vertices */
-  Precision fVerticesY[8]; /** Backed-up Y positions of vertices */
-
-  Precision fDz;            /** The half-height of the GenTrap */
-  Precision fInverseDz;     /** Pre-computed 1/fDz */
-  Precision fHalfInverseDz; /** Pre-computed 0.5/fDz */
-  bool fIsTwisted;          /** Twisted flag */
-
-  // we store the connecting vectors in SOA Form
-  // these vectors are used to calculate the polygon at a certain z-height
-  // moreover: they can be precomputed !!
-  // Compute intersection between Z plane containing point and the shape
-  //
-  Precision fConnectingComponentsX[4]; /** X components of connecting bottom-top vectors vi */
-  Precision fConnectingComponentsY[4]; /** Y components of connecting bottom-top vectors vi */
-
-  Precision fDeltaX[8]; /** X components of connecting horizontal vectors hij */
-  Precision fDeltaY[8]; /** Y components of connecting horizontal vectors hij */
-
-  bool fDegenerated[4]; /** Flags for each top-bottom edge marking that this is degenerated */
-
-  SecondOrderSurfaceShell<4> fSurfaceShell; /** Utility class for twisted surface algorithms */
+  GenTrapStruct<double> fGenTrap; /** The generic trapezoid structure */
 
 public:
   /** @brief UnplacedGenTrap constructor
@@ -61,75 +38,86 @@ public:
   * @param halfzheight The half-height of the GenTrap
   */
   VECGEOM_CUDA_HEADER_BOTH
-  UnplacedGenTrap(const Precision verticesx[], const Precision verticesy[], Precision halfzheight);
+  UnplacedGenTrap(const Precision verticesx[], const Precision verticesy[], Precision halfzheight)
+      : fGenTrap(verticesx, verticesy, halfzheight)
+  {
+    fGlobalConvexity = !fGenTrap.fIsTwisted;
+  }
 
   /** @brief UnplacedGenTrap destructor */
   VECGEOM_CUDA_HEADER_BOTH
   virtual ~UnplacedGenTrap() = default;
 
+  /** @brief Getter for the generic trapezoid structure */
+  VECGEOM_CUDA_HEADER_BOTH
+  GenTrapStruct<double> const &GetStruct() const { return fGenTrap; }
+
   /** @brief Getter for the surface shell */
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  SecondOrderSurfaceShell<4> const &GetShell() const { return (fSurfaceShell); }
+  SecondOrderSurfaceShell<4> const &GetShell() const { return (fGenTrap.fSurfaceShell); }
 
   /** @brief Getter for the half-height */
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Precision GetDZ() const { return (fDz); }
+  Precision GetDZ() const { return (fGenTrap.fDz); }
 
   /** @brief Getter for one of the 8 vertices in Vector3D<Precision> form */
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Vertex_t const &GetVertex(int i) const { return fVertices[i]; }
+  Vertex_t const &GetVertex(int i) const { return fGenTrap.fVertices[i]; }
 
   /** @brief Getter for the array of X coordinates of vertices */
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  const Precision *GetVerticesX() const { return fVerticesX; }
+  const Precision *GetVerticesX() const { return fGenTrap.fVerticesX; }
 
   /** @brief Getter for the array of Y coordinates of vertices */
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  const Precision *GetVerticesY() const { return fVerticesY; }
+  const Precision *GetVerticesY() const { return fGenTrap.fVerticesY; }
 
   /** @brief Getter for the list of vertices */
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  const Vertex_t *GetVertices() const { return fVertices; }
+  const Vertex_t *GetVertices() const { return fGenTrap.fVertices; }
 
   /** @brief Computes if this gentrap is twisted */
   VECGEOM_CUDA_HEADER_BOTH
-  bool ComputeIsTwisted();
+  bool ComputeIsTwisted() { return fGenTrap.ComputeIsTwisted(); }
 
   /** @brief Computes if the top and bottom quadrilaterals are convex (mandatory) */
   VECGEOM_CUDA_HEADER_BOTH
-  bool ComputeIsConvexQuadrilaterals();
+  bool ComputeIsConvexQuadrilaterals() { return fGenTrap.ComputeIsConvexQuadrilaterals(); }
 
   /** @brief Getter for the planarity of lateral surfaces */
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  bool IsPlanar() const { return (!fIsTwisted); }
+  bool IsPlanar() const { return (!fGenTrap.fIsTwisted); }
 
   /** @brief Getter for the global convexity of the trapezoid */
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  bool IsDegenerated(int i) const { return (fDegenerated[i]); }
+  bool IsDegenerated(int i) const { return (fGenTrap.fDegenerated[i]); }
 
   /** @brief Computes if opposite segments are crossing, making a malformed shape */
   // This can become a general utility
   VECGEOM_CUDA_HEADER_BOTH
-  bool SegmentsCrossing(Vertex_t pa, Vertex_t pb, Vertex_t pc, Vertex_t pd) const;
+  bool SegmentsCrossing(Vertex_t pa, Vertex_t pb, Vertex_t pc, Vertex_t pd) const
+  {
+    return fGenTrap.SegmentsCrossing(pa, pb, pc, pd);
+  }
 
   /** @brief Computes and sets the bounding box dimensions/origin */
   VECGEOM_CUDA_HEADER_BOTH
-  void ComputeBoundingBox();
+  void ComputeBoundingBox() { fGenTrap.ComputeBoundingBox(); }
 
   /** @brief Memory size in bytes */
   virtual int memory_size() const final { return sizeof(*this); }
 
   /** @brief Print parameters of the trapezoid */
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void Print() const final;
+  virtual void Print() const final { fGenTrap.Print(); }
 
   /** @brief Print parameters of the trapezoid to stream */
   virtual void Print(std::ostream &os) const final;
@@ -152,9 +140,13 @@ public:
   /** @brief Implementation of surface area computation */
   Precision SurfaceArea() const;
 
+  /** @brief Compute normal vector to surface */
+  VECGEOM_CUDA_HEADER_BOTH
+  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;
+
   /** @brief Computes the extent on X/Y/Z of the trapezoid */
   VECGEOM_CUDA_HEADER_BOTH
-  void Extent(Vertex_t &, Vertex_t &) const;
+  void Extent(Vertex_t &amin, Vertex_t &amax) const { return fGenTrap.Extent(amin, amax); }
 
   /** @brief Generates randomly a point on the surface of the trapezoid */
   Vertex_t GetPointOnSurface() const;
