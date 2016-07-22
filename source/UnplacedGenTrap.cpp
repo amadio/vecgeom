@@ -28,18 +28,24 @@ Vector3D<Precision> UnplacedGenTrap::GetPointOnSurface() const
   int nvertices      = 4; // by default 4 vertices on top/bottom faces
   // bottom
   for (int j = 0; j < 4; ++j) {
-    if ((vecCore::math::Abs(fGenTrap.fDeltaX[j]) < kTolerance) && (vecCore::math::Abs(fGenTrap.fDeltaY[j]) < kTolerance)) nvertices--;
+    if ((vecCore::math::Abs(fGenTrap.fDeltaX[j]) < kTolerance) &&
+        (vecCore::math::Abs(fGenTrap.fDeltaY[j]) < kTolerance))
+      nvertices--;
   }
   if (nvertices < 3) degenerate[4] = true;
   nvertices                        = 4;
   // top
   for (int j = 0; j < 4; ++j) {
-    if ((vecCore::math::Abs(fGenTrap.fDeltaX[j + 4]) < kTolerance) && (vecCore::math::Abs(fGenTrap.fDeltaY[j + 4]) < kTolerance)) nvertices--;
+    if ((vecCore::math::Abs(fGenTrap.fDeltaX[j + 4]) < kTolerance) &&
+        (vecCore::math::Abs(fGenTrap.fDeltaY[j + 4]) < kTolerance))
+      nvertices--;
   }
   if (nvertices < 3) degenerate[5] = true;
   for (int j = 0; j < 4; ++j) {
-    if ((vecCore::math::Abs(fGenTrap.fDeltaX[j]) < kTolerance) && (vecCore::math::Abs(fGenTrap.fDeltaY[j]) < kTolerance) &&
-        (vecCore::math::Abs(fGenTrap.fDeltaX[j + 4]) < kTolerance) && (vecCore::math::Abs(fGenTrap.fDeltaY[j + 4]) < kTolerance))
+    if ((vecCore::math::Abs(fGenTrap.fDeltaX[j]) < kTolerance) &&
+        (vecCore::math::Abs(fGenTrap.fDeltaY[j]) < kTolerance) &&
+        (vecCore::math::Abs(fGenTrap.fDeltaX[j + 4]) < kTolerance) &&
+        (vecCore::math::Abs(fGenTrap.fDeltaY[j + 4]) < kTolerance))
       degenerate[j] = true;
   }
   // Shoot on non-degenerate surface
