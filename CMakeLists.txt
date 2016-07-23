@@ -599,9 +599,10 @@ endif()
 
 include_directories(BEFORE ${CMAKE_SOURCE_DIR})
 
+file(GLOB _createnuclei RELATIVE ${CMAKE_SOURCE_DIR} source/generated/CreateNuclei*.cpp)
 set(SRC_CPP_RELATIVE
   #.. moved up for faster compilation
-  source/CreateNuclei.cpp
+  ${_createnuclei}
   source/UnplacedPolycone.cpp
   source/UnplacedPolyhedron.cpp
   source/PlacedPolycone.cpp
@@ -694,8 +695,8 @@ set(NOT_FOR_CUDA
    ABBoxNavigator
    HybridManager2
    Medium
-   Nucleus
-   CreateNuclei
+#   Nucleus
+#   CreateNuclei
  # Material
    NavigationSpecializer
 )
