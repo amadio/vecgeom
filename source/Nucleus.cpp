@@ -36,6 +36,7 @@ VECGEOM_CUDA_HEADER_BOTH
 #endif
 #else
 using std::find;
+#include <string.h>
 #endif
 
 namespace vecgeom {
