@@ -49,6 +49,28 @@ public:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
+  Vector &operator=(Vector const &other)
+  {
+    if(&other != this) {
+      fSize = other.fSize;
+      fMemorySize = other.fMemorySize;
+      fAllocated = other.fAllocated;
+      if(fAllocated) {
+        if(fMemorySize>0) {
+          delete [] fData;
+          fData = new Type[fMemorySize];
+          for (size_t i = 0; i < fSize; ++i)
+	    fData[i]    = other.fData[i];
+        } else {
+          fData = nullptr;
+	}
+      } else
+	 fData = other.fData;
+    }
+    return *this;
+  }
+
+  VECGEOM_CUDA_HEADER_BOTH
   Vector(std::initializer_list<Type> entries)
   {
     fSize       = entries.size();
@@ -157,8 +179,6 @@ public:
 #endif
 
 private:
-  // Not implemented
-  Vector *operator=(Vector const &other) = delete;
 };
 }
 } // End global namespace
