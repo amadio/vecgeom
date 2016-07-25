@@ -170,6 +170,26 @@ TGeoBranchArray *NavigationState::ToTGeoBranchArray() const
   return tmp;
 }
 
+NavigationState &NavigationState::operator=(TGeoBranchArray const &other)
+{
+  // attention: the counting of levels is different: fLevel=0 means that
+  // this is a branch which is filled at level zero
+  this->fCurrentLevel = other.GetLevel() + 1;
+  assert(fCurrentLevel <= GetMaxLevel());
+
+  RootGeoManager &mg = RootGeoManager::Instance();
+
+  for (int i = 0; i < fCurrentLevel; ++i)
+    fPath[i] = ToIndex(mg.GetPlacedVolume(other.GetNode(i)));
+
+  // other things like onboundary I don't care
+  fOnBoundary = false;
+
+  return *this;
+}
+
+#endif
+
 std::string NavigationState::RelativePath(NavigationState const &other) const
 {
   int lastcommonlevel = -1;
@@ -231,24 +251,5 @@ std::string NavigationState::RelativePath(NavigationState const &other) const
   return str.str();
 }
 
-NavigationState &NavigationState::operator=(TGeoBranchArray const &other)
-{
-  // attention: the counting of levels is different: fLevel=0 means that
-  // this is a branch which is filled at level zero
-  this->fCurrentLevel = other.GetLevel() + 1;
-  assert(fCurrentLevel <= GetMaxLevel());
-
-  RootGeoManager &mg = RootGeoManager::Instance();
-
-  for (int i = 0; i < fCurrentLevel; ++i)
-    fPath[i] = ToIndex(mg.GetPlacedVolume(other.GetNode(i)));
-
-  // other things like onboundary I don't care
-  fOnBoundary = false;
-
-  return *this;
-}
-
-#endif
 }
 } // End global namespace
