@@ -122,7 +122,7 @@ public:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const;
+  void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const override;
 
   VECGEOM_CUDA_HEADER_BOTH
   void CalcCapacity();
@@ -138,7 +138,7 @@ public:
   VECGEOM_FORCE_INLINE
   Precision SurfaceArea() const { return fSurfaceArea; }
 
-  virtual Vector3D<Precision> GetPointOnSurface() const;
+  virtual Vector3D<Precision> GetPointOnSurface() const override;
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const override
