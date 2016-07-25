@@ -10,4534 +10,4777 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 //________________________________________________________________________________
 VECGEOM_CUDA_HEADER_BOTH
 void CreateNuclei0001() {
-   Nucleus *nuc = 0;
-
-   // Adding 49-IN-111-1
-   nuc = new Nucleus("IN",111,49,1,110.906,0.537,462,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.537,100);
-
-   // Adding 50-SN-111-0
-   nuc = new Nucleus("SN",111,50,0,110.908,0,2118,0,2.3e-11,2.2e-11,0,0);
-   nuc->AddDecay(0,-1,0,2.44489,100);
-
-   // Adding 51-SB-111-0
-   nuc = new Nucleus("SB",111,51,0,110.913,0,75,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.09987,100);
-
-   // Adding 52-TE-111-0
-   nuc = new Nucleus("TE",111,52,0,110.921,0,19.3,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.36833,100);
-   nuc->AddDecay(-1,-2,0,5.06985,0);
-
-   // Adding 53-I-111-0
-   nuc = new Nucleus("I",111,53,0,110.93,0,2.5,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,8.52357,99.9);
-   nuc->AddDecay(-4,-2,0,3.2781,0.1);
-
-   // Adding 54-XE-111-0
-   nuc = new Nucleus("XE",111,54,0,110.942,0,0.74,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,10.57,99);
-   nuc->AddDecay(-4,-2,0,3.71309,1);
-
-   // Adding 43-TC-112-0
-   nuc = new Nucleus("TC",112,43,0,111.929,0,0.28,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,9.9575,100);
-
-   // Adding 44-RU-112-0
-   nuc = new Nucleus("RU",112,44,0,111.919,0,1.75,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,3.66999,100);
-
-   // Adding 45-RH-112-0
-   nuc = new Nucleus("RH",112,45,0,111.915,0,3.8,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,6.79932,100);
-
-   // Adding 45-RH-112-1
-   nuc = new Nucleus("RH",112,45,1,111.915,0,6.8,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,6.79932,100);
-
-   // Adding 46-PD-112-0
-   nuc = new Nucleus("PD",112,46,0,111.907,0,75708,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,0.287903,100);
-
-   // Adding 47-AG-112-0
-   nuc = new Nucleus("AG",112,47,0,111.907,0,11268,0,4.3e-10,2.6e-10,0,0);
-   nuc->AddDecay(0,1,0,3.95591,100);
-
-   // Adding 48-CD-112-0
-   nuc = new Nucleus("CD",112,48,0,111.903,0,0,24.13,0,0,0,0);
-
-   // Adding 49-IN-112-0
-   nuc = new Nucleus("IN",112,49,0,111.906,0,898.2,0,1e-11,1.3e-11,0,0);
-   nuc->AddDecay(0,-1,0,2.58617,56);
-   nuc->AddDecay(0,1,0,0.66349,44);
-
-   // Adding 49-IN-112-1
-   nuc = new Nucleus("IN",112,49,1,111.906,0.157,1233.6,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.157,100);
-
-   // Adding 50-SN-112-0
-   nuc = new Nucleus("SN",112,50,0,111.905,0,0,0.97,0,0,0,0);
-
-   // Adding 51-SB-112-0
-   nuc = new Nucleus("SB",112,51,0,111.912,0,51.4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.05502,100);
-
-   // Adding 52-TE-112-0
-   nuc = new Nucleus("TE",112,52,0,111.917,0,120,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.3438,100);
-
-   // Adding 53-I-112-0
-   nuc = new Nucleus("I",112,53,0,111.928,0,3.42,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,2.98609,0.0012);
-   nuc->AddDecay(-1,-2,0,6.45799,0);
-   nuc->AddDecay(-4,-3,0,12.4921,0);
-   nuc->AddDecay(0,-1,0,10.1629,100);
-
-   // Adding 54-XE-112-0
-   nuc = new Nucleus("XE",112,54,0,111.936,0,2.7,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.1525,99.16);
-   nuc->AddDecay(-4,-2,0,3.3171,0.84);
-
-   // Adding 43-TC-113-0
-   nuc = new Nucleus("TC",113,43,0,112.931,0,0.13,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,8.18791,100);
-
-   // Adding 44-RU-113-0
-   nuc = new Nucleus("RU",113,44,0,112.923,0,0.8,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,6.6319,100);
-
-   // Adding 45-RH-113-0
-   nuc = new Nucleus("RH",113,45,0,112.915,0,2.72,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.9036,100);
-
-   // Adding 46-PD-113-0
-   nuc = new Nucleus("PD",113,46,0,112.91,0,93,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,3.34312,81.5);
-   nuc->AddDecay(0,1,1,3.30012,18.5);
-
-   // Adding 46-PD-113-1
-   nuc = new Nucleus("PD",113,46,1,112.91,0.04,0,0,0,0,0,-2);
-   nuc->AddDecay(0,0,-1,0,0);
-
-   // Adding 46-PD-113-2
-   nuc = new Nucleus("PD",113,46,2,112.91,0.08,0.4,0,0,0,0,0);
-   nuc->AddDecay(0,0,-2,0.08,100);
-
-   // Adding 47-AG-113-0
-   nuc = new Nucleus("AG",113,47,0,112.907,0,19332,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,2.01641,98.3);
-   nuc->AddDecay(0,1,1,1.75241,1.7);
-
-   // Adding 47-AG-113-1
-   nuc = new Nucleus("AG",113,47,1,112.907,0.043,68.7,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.043,64);
-   nuc->AddDecay(0,1,-1,2.05941,36);
-
-   // Adding 48-CD-113-0
-   nuc = new Nucleus("CD",113,48,0,112.904,0,2.93285e+23,12.22,2.5e-08,1.4e-07,0,0);
-   nuc->AddDecay(0,1,0,0.315903,100);
-
-   // Adding 48-CD-113-1
-   nuc = new Nucleus("CD",113,48,1,112.905,0.264,4.44658e+08,0,2.3e-08,1.3e-07,0,0);
-   nuc->AddDecay(0,0,-1,0.264,0.14);
-   nuc->AddDecay(0,1,-1,0.579903,99.86);
-
-   // Adding 49-IN-113-0
-   nuc = new Nucleus("IN",113,49,0,112.904,0,0,4.3,0,0,0,0);
-
-   // Adding 49-IN-113-1
-   nuc = new Nucleus("IN",113,49,1,112.904,0.392,5969.52,0,2.8e-11,3.2e-11,0,0);
-   nuc->AddDecay(0,0,-1,0.392,100);
-
-   // Adding 50-SN-113-0
-   nuc = new Nucleus("SN",113,50,0,112.905,0,9.94378e+06,0,7.4e-10,2.5e-09,0,0);
-   nuc->AddDecay(0,-1,0,1.0359,4e-06);
-   nuc->AddDecay(0,-1,1,0.643898,100);
-
-   // Adding 50-SN-113-1
-   nuc = new Nucleus("SN",113,50,1,112.905,0.077,1284,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.077,91.1);
-   nuc->AddDecay(0,-1,-1,1.1129,8.9);
-
-   // Adding 51-SB-113-0
-   nuc = new Nucleus("SB",113,51,0,112.909,0,400.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.90551,100);
-
-   // Adding 52-TE-113-0
-   nuc = new Nucleus("TE",113,52,0,112.916,0,102,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.09982,100);
-
-   // Adding 53-I-113-0
-   nuc = new Nucleus("I",113,53,0,112.924,0,6.6,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.20015,100);
-   nuc->AddDecay(-4,-2,0,2.70587,3.3e-07);
-
-   // Adding 54-XE-113-0
-   nuc = new Nucleus("XE",113,54,0,112.933,0,2.74,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,9.06257,95.77);
-   nuc->AddDecay(-4,-2,0,3.09608,0.04);
-   nuc->AddDecay(-1,-2,0,7.90864,4.2);
-
-   // Adding 55-CS-113-0
-   nuc = new Nucleus("CS",113,55,0,112.945,0,3.3e-05,0,0,0,0,0);
-   nuc->AddDecay(-1,-1,0,0.977499,100);
-
-   // Adding 44-RU-114-0
-   nuc = new Nucleus("RU",114,44,0,113.924,0,0.57,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.79994,100);
-
-   // Adding 45-RH-114-0
-   nuc = new Nucleus("RH",114,45,0,113.919,0,1.85,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,7.89953,100);
-
-   // Adding 45-RH-114-1
-   nuc = new Nucleus("RH",114,45,1,113.919,0,1.85,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,7.89953,100);
-
-   // Adding 46-PD-114-0
-   nuc = new Nucleus("PD",114,46,0,113.91,0,145.2,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,1.4507,100);
-
-   // Adding 47-AG-114-0
-   nuc = new Nucleus("AG",114,47,0,113.909,0,4.6,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,5.0764,100);
-
-   // Adding 48-CD-114-0
-   nuc = new Nucleus("CD",114,48,0,113.903,0,0,28.73,0,0,0,0);
-
-   // Adding 49-IN-114-0
-   nuc = new Nucleus("IN",114,49,0,113.905,0,71.9,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,1.98869,99.5);
-   nuc->AddDecay(0,-1,0,1.45249,0.5);
-
-   // Adding 49-IN-114-1
-   nuc = new Nucleus("IN",114,49,1,113.905,0.19,4.27766e+06,0,4.1e-09,1.1e-08,0,0);
-   nuc->AddDecay(0,0,-1,0.19,95.6);
-   nuc->AddDecay(0,-1,-1,1.64249,4.4);
-
-   // Adding 49-IN-114-2
-   nuc = new Nucleus("IN",114,49,2,113.905,0.502,0.0431,0,0,0,0,0);
-   nuc->AddDecay(0,0,-2,0.502,100);
-
-   // Adding 50-SN-114-0
-   nuc = new Nucleus("SN",114,50,0,113.903,0,0,0.65,0,0,0,0);
-
-   // Adding 51-SB-114-0
-   nuc = new Nucleus("SB",114,51,0,113.909,0,209.4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.88151,100);
-
-   // Adding 52-TE-114-0
-   nuc = new Nucleus("TE",114,52,0,113.912,0,912,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,2.74242,100);
-
-   // Adding 53-I-114-0
-   nuc = new Nucleus("I",114,53,0,113.922,0,2.1,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,9.13691,100);
-   nuc->AddDecay(-1,-2,0,4.33873,0);
-
-   // Adding 54-XE-114-0
-   nuc = new Nucleus("XE",114,54,0,113.928,0,10,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.86109,100);
-
-   // Adding 55-CS-114-0
-   nuc = new Nucleus("CS",114,55,0,113.941,0,0.57,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,12.3699,92.82);
-   nuc->AddDecay(-4,-2,0,3.35711,0.02);
-   nuc->AddDecay(-1,-2,0,9.26975,7);
-   nuc->AddDecay(-4,-3,0,15.2898,0.16);
-
-   // Adding 44-RU-115-0
-   nuc = new Nucleus("RU",115,44,0,114.928,0,0.4,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,7.62335,100);
-   nuc->AddDecay(-1,1,0,0.743299,0);
-
-   // Adding 45-RH-115-0
-   nuc = new Nucleus("RH",115,45,0,114.92,0,0.99,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,6.00056,100);
-
-   // Adding 46-PD-115-0
-   nuc = new Nucleus("PD",115,46,0,114.914,0,25,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.58343,73);
-   nuc->AddDecay(0,1,1,4.54243,27);
-
-   // Adding 46-PD-115-1
-   nuc = new Nucleus("PD",115,46,1,114.914,0.089,50,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,4.67242,92);
-   nuc->AddDecay(0,0,-1,0.089,8);
-
-   // Adding 47-AG-115-0
-   nuc = new Nucleus("AG",115,47,0,114.909,0,1200,0,6e-11,4.4e-11,0,0);
-   nuc->AddDecay(0,1,0,3.10349,94.3);
-   nuc->AddDecay(0,1,1,2.92249,5.7);
-
-   // Adding 47-AG-115-1
-   nuc = new Nucleus("AG",115,47,1,114.909,0.041,18,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.041,21);
-   nuc->AddDecay(0,1,-1,3.14449,79);
-
-   // Adding 48-CD-115-0
-   nuc = new Nucleus("CD",115,48,0,114.905,0,192456,0,1.4e-09,1.3e-09,0,0);
-   nuc->AddDecay(0,1,0,1.44561,7e-05);
-   nuc->AddDecay(0,1,1,1.10961,99.9999);
-
-   // Adding 48-CD-115-1
-   nuc = new Nucleus("CD",115,48,1,114.906,0.181,3.85344e+06,0,3.3e-09,7.3e-09,0,0);
-   nuc->AddDecay(0,1,-1,1.62661,99.989);
-   nuc->AddDecay(0,1,0,1.29061,0.011);
-
-   // Adding 49-IN-115-0
-   nuc = new Nucleus("IN",115,49,0,114.904,0,1.39074e+22,95.7,3.2e-08,4.5e-07,0,0);
-   nuc->AddDecay(0,1,0,0.495293,100);
-
-   // Adding 49-IN-115-1
-   nuc = new Nucleus("IN",115,49,1,114.904,0.336,16149.6,0,8.6e-11,8.7e-11,0,0);
-   nuc->AddDecay(0,0,-1,0.336,95);
-   nuc->AddDecay(0,1,-1,0.831291,5);
-
-   // Adding 50-SN-115-0
-   nuc = new Nucleus("SN",115,50,0,114.903,0,0,0.36,0,0,0,0);
-
-   // Adding 51-SB-115-0
-   nuc = new Nucleus("SB",115,51,0,114.907,0,1926,0,2.4e-11,2.4e-11,0,0);
-   nuc->AddDecay(0,-1,0,3.03001,100);
-
-   // Adding 52-TE-115-0
-   nuc = new Nucleus("TE",115,52,0,114.912,0,348,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.63871,100);
-
-   // Adding 52-TE-115-1
-   nuc = new Nucleus("TE",115,52,1,114.912,0.02,402,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,4.65871,100);
-   nuc->AddDecay(0,0,-1,0.02,0);
-
-   // Adding 53-I-115-0
-   nuc = new Nucleus("I",115,53,0,114.918,0,78,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.95921,100);
-
-   // Adding 54-XE-115-0
-   nuc = new Nucleus("XE",115,54,0,114.927,0,18,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.95926,100);
-   nuc->AddDecay(-1,-2,0,6.19997,0);
-
-   // Adding 55-CS-115-0
-   nuc = new Nucleus("CS",115,55,0,114.936,0,1.4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,8.76681,99.93);
-   nuc->AddDecay(-1,-2,0,5.82987,0.07);
-
-   // Adding 45-RH-116-0
-   nuc = new Nucleus("RH",116,45,0,115.924,0,0.68,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,8.89915,100);
-
-   // Adding 45-RH-116-1
-   nuc = new Nucleus("RH",116,45,1,115.924,0,0.9,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,8.89915,100);
-
-   // Adding 46-PD-116-0
-   nuc = new Nucleus("PD",116,46,0,115.914,0,11.8,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,2.60699,100);
-
-   // Adding 47-AG-116-0
-   nuc = new Nucleus("AG",116,47,0,115.911,0,160.8,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,6.15978,100);
-
-   // Adding 47-AG-116-1
-   nuc = new Nucleus("AG",116,47,1,115.911,0.082,8.6,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,6.24178,94);
-   nuc->AddDecay(0,0,-1,0.082,6);
-
-   // Adding 48-CD-116-0
-   nuc = new Nucleus("CD",116,48,0,115.905,0,0,7.49,0,0,0,0);
-
-   // Adding 49-IN-116-0
-   nuc = new Nucleus("IN",116,49,0,115.905,0,14.1,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,0.470284,0.06);
-   nuc->AddDecay(0,1,0,3.27438,99.94);
-
-   // Adding 49-IN-116-1
-   nuc = new Nucleus("IN",116,49,1,115.905,0.127,3264.6,0,6.4e-11,8e-11,0,0);
-   nuc->AddDecay(0,1,-1,3.40138,100);
-
-   // Adding 49-IN-116-2
-   nuc = new Nucleus("IN",116,49,2,115.906,0.29,2.18,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.29,100);
-
-   // Adding 50-SN-116-0
-   nuc = new Nucleus("SN",116,50,0,115.902,0,0,14.53,0,0,0,0);
-
-   // Adding 51-SB-116-0
-   nuc = new Nucleus("SB",116,51,0,115.907,0,948,0,2.6e-11,2.3e-11,0,0);
-   nuc->AddDecay(0,-1,0,4.70737,100);
-
-   // Adding 51-SB-116-1
-   nuc = new Nucleus("SB",116,51,1,115.907,0.383,3618,0,6.7e-11,8.5e-11,0,0);
-   nuc->AddDecay(0,-1,-1,5.09037,100);
-
-   // Adding 52-TE-116-0
-   nuc = new Nucleus("TE",116,52,0,115.908,0,8964,0,1.7e-10,1.7e-10,0,0);
-   nuc->AddDecay(0,-1,0,1.49987,100);
-
-   // Adding 53-I-116-0
-   nuc = new Nucleus("I",116,53,0,115.917,0,2.91,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.74528,100);
-
-   // Adding 53-I-116-1
-   nuc = new Nucleus("I",116,53,1,115.917,0,3.27e-06,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0,100);
-
-   // Adding 54-XE-116-0
-   nuc = new Nucleus("XE",116,54,0,115.922,0,56,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.65977,100);
-
-   // Adding 55-CS-116-0
-   nuc = new Nucleus("CS",116,55,0,115.933,0,0.7,0,0,0,1,0);
-   nuc->AddDecay(-4,-3,0,12.4,0);
-   nuc->AddDecay(-1,-2,0,6.68023,0);
-   nuc->AddDecay(0,-1,0,10.477,100);
-
-   // Adding 55-CS-116-1
-   nuc = new Nucleus("CS",116,55,1,115.933,0,3.84,0,0,0,1,0);
-   nuc->AddDecay(-4,-3,-1,12.4,0);
-   nuc->AddDecay(-1,-2,-1,6.68023,0);
-   nuc->AddDecay(0,-1,-1,10.477,100);
-
-   // Adding 45-RH-117-0
-   nuc = new Nucleus("RH",117,45,0,116.925,0,0.44,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,6.9956,100);
-
-   // Adding 46-PD-117-0
-   nuc = new Nucleus("PD",117,46,0,116.918,0,4.3,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,5.71105,50);
-   nuc->AddDecay(0,1,1,5.68205,50);
-
-   // Adding 46-PD-117-1
-   nuc = new Nucleus("PD",117,46,1,116.918,0.203,0.0191,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.203,100);
-
-   // Adding 47-AG-117-0
-   nuc = new Nucleus("AG",117,47,0,116.912,0,72.8,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.18198,86);
-   nuc->AddDecay(0,1,1,4.04598,14);
-
-   // Adding 47-AG-117-1
-   nuc = new Nucleus("AG",117,47,1,116.912,0.029,5.34,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,4.21098,20.21);
-   nuc->AddDecay(0,0,-1,0.029,6);
-   nuc->AddDecay(0,1,0,4.07498,73.79);
-
-   // Adding 48-CD-117-0
-   nuc = new Nucleus("CD",117,48,0,116.907,0,8964,0,2.8e-10,2.5e-10,0,0);
-   nuc->AddDecay(0,1,0,2.51612,8.4);
-   nuc->AddDecay(0,1,1,2.20112,91.6);
-
-   // Adding 48-CD-117-1
-   nuc = new Nucleus("CD",117,48,1,116.907,0.136,12096,0,2.8e-10,3.2e-10,0,0);
-   nuc->AddDecay(0,1,-1,2.65212,98.6);
-   nuc->AddDecay(0,1,0,2.33712,1.4);
-
-   // Adding 49-IN-117-0
-   nuc = new Nucleus("IN",117,49,0,116.905,0,2592,0,3.1e-11,4.8e-11,0,0);
-   nuc->AddDecay(0,1,0,1.45528,99.68);
-   nuc->AddDecay(0,1,1,1.14027,0.32);
-
-   // Adding 49-IN-117-1
-   nuc = new Nucleus("IN",117,49,1,116.905,0.315,6972,0,1.2e-10,1.1e-10,0,0);
-   nuc->AddDecay(0,1,-1,1.77028,52.9);
-   nuc->AddDecay(0,0,-1,0.315,47.1);
-
-   // Adding 50-SN-117-0
-   nuc = new Nucleus("SN",117,50,0,116.903,0,0,7.68,0,0,0,0);
-
-   // Adding 50-SN-117-1
-   nuc = new Nucleus("SN",117,50,1,116.903,0.315,1.17504e+06,0,7.1e-10,2.3e-09,0,0);
-   nuc->AddDecay(0,0,-1,0.315,100);
-
-   // Adding 51-SB-117-0
-   nuc = new Nucleus("SB",117,51,0,116.905,0,10080,0,1.8e-11,2.7e-11,0,0);
-   nuc->AddDecay(0,-1,0,1.75653,100);
-
-   // Adding 52-TE-117-0
-   nuc = new Nucleus("TE",117,52,0,116.909,0,3720,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.53488,100);
-
-   // Adding 52-TE-117-1
-   nuc = new Nucleus("TE",117,52,1,116.909,0.296,0.103,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.296,100);
-
-   // Adding 53-I-117-0
-   nuc = new Nucleus("I",117,53,0,116.914,0,133.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.65365,100);
-
-   // Adding 54-XE-117-0
-   nuc = new Nucleus("XE",117,54,0,116.921,0,61,0,0,0,0,0);
-   nuc->AddDecay(-1,-2,0,4.02178,0.0029);
-   nuc->AddDecay(0,-1,0,6.44615,99.9971);
-
-   // Adding 55-CS-117-0
-   nuc = new Nucleus("CS",117,55,0,116.929,0,8.4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.52362,100);
-
-   // Adding 55-CS-117-1
-   nuc = new Nucleus("CS",117,55,1,116.929,0,6.5,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,7.52362,100);
-
-   // Adding 56-BA-117-0
-   nuc = new Nucleus("BA",117,56,0,116.939,0,1.75,0,0,0,0,0);
-   nuc->AddDecay(-1,-2,0,8.6596,0);
-   nuc->AddDecay(0,-1,0,9.51925,100);
-   nuc->AddDecay(-4,-3,0,11.7365,0);
-
-   // Adding 46-PD-118-0
-   nuc = new Nucleus("PD",118,46,0,117.919,0,2.4,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.09999,50);
-   nuc->AddDecay(0,1,1,3.97199,50);
-
-   // Adding 47-AG-118-0
-   nuc = new Nucleus("AG",118,47,0,117.914,0,3.76,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,7.06461,100);
-
-   // Adding 47-AG-118-1
-   nuc = new Nucleus("AG",118,47,1,117.915,0.128,2,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.128,41);
-   nuc->AddDecay(0,1,-1,7.1926,59);
-
-   // Adding 48-CD-118-0
-   nuc = new Nucleus("CD",118,48,0,117.907,0,3018,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,0.519958,100);
-
-   // Adding 49-IN-118-0
-   nuc = new Nucleus("IN",118,49,0,117.906,0,5,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.42325,100);
-
-   // Adding 49-IN-118-1
-   nuc = new Nucleus("IN",118,49,1,117.906,0.06,267,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,4.48325,100);
-
-   // Adding 49-IN-118-2
-   nuc = new Nucleus("IN",118,49,2,117.907,0.2,8.5,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.2,98.6);
-   nuc->AddDecay(0,1,-2,4.62325,1.4);
-
-   // Adding 50-SN-118-0
-   nuc = new Nucleus("SN",118,50,0,117.902,0,0,24.22,0,0,0,0);
-
-   // Adding 51-SB-118-0
-   nuc = new Nucleus("SB",118,51,0,117.906,0,216,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.65668,100);
-
-   // Adding 51-SB-118-1
-   nuc = new Nucleus("SB",118,51,1,117.906,0.212,18000,0,2.1e-10,2.3e-10,0,0);
-   nuc->AddDecay(0,-1,-1,3.86868,100);
-
-   // Adding 52-TE-118-0
-   nuc = new Nucleus("TE",118,52,0,117.906,0,518400,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,0.277725,100);
-
-   // Adding 53-I-118-0
-   nuc = new Nucleus("I",118,53,0,117.913,0,822,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.04443,100);
-
-   // Adding 53-I-118-1
-   nuc = new Nucleus("I",118,53,1,117.913,0,510,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,7.04443,100);
-
-   // Adding 54-XE-118-0
-   nuc = new Nucleus("XE",118,54,0,117.917,0,228,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,2.94477,100);
-
-   // Adding 55-CS-118-0
-   nuc = new Nucleus("CS",118,55,0,117.927,0,14,0,0,0,1,0);
-   nuc->AddDecay(-4,-3,0,11.0802,0);
-   nuc->AddDecay(0,-1,0,9.29999,100);
-   nuc->AddDecay(-1,-2,0,4.73454,0);
-
-   // Adding 55-CS-118-1
-   nuc = new Nucleus("CS",118,55,1,117.927,0,17,0,0,0,1,0);
-   nuc->AddDecay(-4,-3,-1,11.0802,0);
-   nuc->AddDecay(0,-1,-1,9.29999,100);
-   nuc->AddDecay(-1,-2,-1,4.73454,0);
-
-   // Adding 56-BA-118-0
-   nuc = new Nucleus("BA",118,56,0,117.933,0,5.5,0,0,0,0,-8);
-   nuc->AddDecay(0,-1,0,6.42762,100);
-
-   // Adding 46-PD-119-0
-   nuc = new Nucleus("PD",119,46,0,118.923,0,0.92,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,6.53177,100);
-
-   // Adding 47-AG-119-0
-   nuc = new Nucleus("AG",119,47,0,118.916,0,6,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,5.34999,79);
-   nuc->AddDecay(0,1,1,5.20299,21);
-
-   // Adding 47-AG-119-1
-   nuc = new Nucleus("AG",119,47,1,118.916,0,2.1,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,5.34999,100);
-
-   // Adding 48-CD-119-0
-   nuc = new Nucleus("CD",119,48,0,118.91,0,161.4,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,3.79662,6.8);
-   nuc->AddDecay(0,1,1,3.48562,93.2);
-
-   // Adding 48-CD-119-1
-   nuc = new Nucleus("CD",119,48,1,118.91,0.147,132,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,3.94362,98.6);
-   nuc->AddDecay(0,1,0,3.63262,1.4);
-
-   // Adding 49-IN-119-0
-   nuc = new Nucleus("IN",119,49,0,118.906,0,144,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,2.36395,99.07);
-   nuc->AddDecay(0,1,1,2.27396,0.93);
-
-   // Adding 49-IN-119-1
-   nuc = new Nucleus("IN",119,49,1,118.906,0.311,1080,0,4.7e-11,2.9e-11,0,0);
-   nuc->AddDecay(0,1,-1,2.67495,94.4);
-   nuc->AddDecay(0,0,-1,0.311,5.6);
-
-   // Adding 50-SN-119-0
-   nuc = new Nucleus("SN",119,50,0,118.903,0,0,8.58,0,0,0,0);
-
-   // Adding 50-SN-119-1
-   nuc = new Nucleus("SN",119,50,1,118.903,0.09,2.53238e+07,0,3.4e-10,2e-09,0,0);
-   nuc->AddDecay(0,0,-1,0.09,100);
-
-   // Adding 51-SB-119-0
-   nuc = new Nucleus("SB",119,51,0,118.904,0,137484,0,8.1e-11,5.9e-11,0,0);
-   nuc->AddDecay(0,-1,0,0.593742,100);
-
-   // Adding 52-TE-119-0
-   nuc = new Nucleus("TE",119,52,0,118.906,0,57708,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,2.293,100);
-
-   // Adding 52-TE-119-1
-   nuc = new Nucleus("TE",119,52,1,118.907,0.261,406080,0,8.3e-10,6.3e-10,0,0);
-   nuc->AddDecay(0,-1,-1,2.554,100);
-   nuc->AddDecay(0,0,-1,0.261,0.008);
-
-   // Adding 53-I-119-0
-   nuc = new Nucleus("I",119,53,0,118.91,0,1146,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.51363,100);
-
-   // Adding 54-XE-119-0
-   nuc = new Nucleus("XE",119,54,0,118.916,0,348,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.00165,100);
-
-   // Adding 55-CS-119-0
-   nuc = new Nucleus("CS",119,55,0,118.922,0,43,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.32789,100);
-
-   // Adding 55-CS-119-1
-   nuc = new Nucleus("CS",119,55,1,118.922,0,30.4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,6.32789,100);
-
-   // Adding 56-BA-119-0
-   nuc = new Nucleus("BA",119,56,0,118.931,0,5.4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,8.09661,100);
-   nuc->AddDecay(-1,-2,0,6.2,0);
-
-   // Adding 46-PD-120-0
-   nuc = new Nucleus("PD",120,46,0,119.924,0,0.5,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,5.00301,100);
-
-   // Adding 47-AG-120-0
-   nuc = new Nucleus("AG",120,47,0,119.919,0,1.23,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,8.20001,100);
-
-   // Adding 47-AG-120-1
-   nuc = new Nucleus("AG",120,47,1,119.919,0.203,0.32,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.203,37);
-   nuc->AddDecay(0,1,-1,8.40302,63);
-
-   // Adding 48-CD-120-0
-   nuc = new Nucleus("CD",120,48,0,119.91,0,50.8,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,1.75851,100);
-
-   // Adding 49-IN-120-0
-   nuc = new Nucleus("IN",120,49,0,119.908,0,3.08,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,5.36999,100);
-
-   // Adding 49-IN-120-1
-   nuc = new Nucleus("IN",120,49,1,119.908,0,46.2,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,5.36999,100);
-
-   // Adding 49-IN-120-2
-   nuc = new Nucleus("IN",120,49,2,119.908,0,47.3,0,0,0,0,0);
-   nuc->AddDecay(0,1,-2,5.36999,100);
-
-   // Adding 50-SN-120-0
-   nuc = new Nucleus("SN",120,50,0,119.902,0,0,32.59,0,0,0,0);
-
-   // Adding 51-SB-120-0
-   nuc = new Nucleus("SB",120,51,0,119.905,0,953.4,0,1.4e-11,1.2e-11,0,0);
-   nuc->AddDecay(0,-1,0,2.68055,100);
-
-   // Adding 51-SB-120-1
-   nuc = new Nucleus("SB",120,51,1,119.905,0,497664,0,1.2e-09,1.3e-09,0,0);
-   nuc->AddDecay(0,-1,-1,2.68055,100);
-
-   // Adding 52-TE-120-0
-   nuc = new Nucleus("TE",120,52,0,119.904,0,0,0.096,0,0,0,0);
-
-   // Adding 53-I-120-0
-   nuc = new Nucleus("I",120,53,0,119.91,0,4860,0,3.4e-10,3e-10,0,0);
-   nuc->AddDecay(0,-1,0,5.61499,100);
-
-   // Adding 53-I-120-1
-   nuc = new Nucleus("I",120,53,1,119.91,0,3180,0,2.2e-10,1.8e-10,0,0);
-   nuc->AddDecay(0,-1,-1,5.61499,100);
-
-   // Adding 54-XE-120-0
-   nuc = new Nucleus("XE",120,54,0,119.912,0,2400,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,1.95998,100);
-
-   // Adding 55-CS-120-0
-   nuc = new Nucleus("CS",120,55,0,119.921,0,64,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.92192,100);
-
-   // Adding 55-CS-120-1
-   nuc = new Nucleus("CS",120,55,1,119.921,0,57,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,7.92192,100);
-   nuc->AddDecay(-1,-2,-1,2.47424,1e-05);
-
-   // Adding 56-BA-120-0
-   nuc = new Nucleus("BA",120,56,0,119.926,0,32,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.99999,100);
-
-   // Adding 57-LA-120-0
-   nuc = new Nucleus("LA",120,57,0,119.938,0,2.8,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,11.2142,0);
-   nuc->AddDecay(-1,-2,0,7.35892,100);
-
-   // Adding 47-AG-121-0
-   nuc = new Nucleus("AG",121,47,0,120.92,0,0.78,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,6.39999,99.92);
-   nuc->AddDecay(-1,1,0,1.35441,0.08);
-
-   // Adding 48-CD-121-0
-   nuc = new Nucleus("CD",121,48,0,120.913,0,13.5,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.89001,34);
-   nuc->AddDecay(0,1,1,4.57601,66);
-
-   // Adding 48-CD-121-1
-   nuc = new Nucleus("CD",121,48,1,120.913,0.215,8.3,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,5.10501,100);
-
-   // Adding 49-IN-121-0
-   nuc = new Nucleus("IN",121,49,0,120.908,0,23.1,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,3.3636,88);
-   nuc->AddDecay(0,1,1,3.3576,12);
-
-   // Adding 49-IN-121-1
-   nuc = new Nucleus("IN",121,49,1,120.908,0.314,232.8,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,3.6776,98.8);
-   nuc->AddDecay(0,0,-1,0.314,1.2);
-
-   // Adding 50-SN-121-0
-   nuc = new Nucleus("SN",121,50,0,120.904,0,97416,0,2.3e-10,2.8e-10,0,0);
-   nuc->AddDecay(0,1,0,0.3881,100);
-
-   // Adding 50-SN-121-1
-   nuc = new Nucleus("SN",121,50,1,120.904,0.006,1.73448e+09,0,3.8e-10,4.2e-09,0,0);
-   nuc->AddDecay(0,0,-1,0.006,77.6);
-   nuc->AddDecay(0,1,-1,0.394096,22.4);
-
-   // Adding 51-SB-121-0
-   nuc = new Nucleus("SB",121,51,0,120.904,0,0,57.3,0,0,0,0);
-
-   // Adding 52-TE-121-0
-   nuc = new Nucleus("TE",121,52,0,120.905,0,1.44979e+06,0,4.3e-10,4.4e-10,0,0);
-   nuc->AddDecay(0,-1,0,1.0363,100);
-
-   // Adding 52-TE-121-1
-   nuc = new Nucleus("TE",121,52,1,120.905,0.294,1.33056e+07,0,2.3e-09,4.3e-09,0,0);
-   nuc->AddDecay(0,0,-1,0.294,88.6);
-   nuc->AddDecay(0,-1,-1,1.3303,11.4);
-
-   // Adding 53-I-121-0
-   nuc = new Nucleus("I",121,53,0,120.907,0,7632,0,8.2e-11,8.6e-11,0,0);
-   nuc->AddDecay(0,-1,0,2.27081,100);
-
-   // Adding 54-XE-121-0
-   nuc = new Nucleus("XE",121,54,0,120.911,0,2406,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.73229,100);
-
-   // Adding 55-CS-121-0
-   nuc = new Nucleus("CS",121,55,0,120.917,0,155,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.40001,100);
-
-   // Adding 55-CS-121-1
-   nuc = new Nucleus("CS",121,55,1,120.917,0.068,122,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.068,17);
-   nuc->AddDecay(0,-1,-1,5.46801,83);
-
-   // Adding 56-BA-121-0
-   nuc = new Nucleus("BA",121,56,0,120.924,0,29.7,0,0,0,0,0);
-   nuc->AddDecay(-1,-2,0,4.20001,0.02);
-   nuc->AddDecay(0,-1,0,6.81468,99.98);
-
-   // Adding 57-LA-121-0
-   nuc = new Nucleus("LA",121,57,0,120.933,0,5.3,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.93323,100);
-
-   // Adding 58-CE-121-0
-   nuc = new Nucleus("CE",121,58,0,120.944,0,0,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,9.9317,100);
-
-   // Adding 59-PR-121-0
-   nuc = new Nucleus("PR",121,59,0,120.954,0,1.4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,9.6231,100);
-
-   // Adding 47-AG-122-0
-   nuc = new Nucleus("AG",122,47,0,121.923,0,0.56,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,9.147,99.814);
-   nuc->AddDecay(-1,1,0,1.4488,0.186);
-
-   // Adding 47-AG-122-1
-   nuc = new Nucleus("AG",122,47,1,121.923,0,1.5,0,0,0,0,0);
-   nuc->AddDecay(-1,1,-1,1.4488,0);
-   nuc->AddDecay(0,1,-1,9.147,100);
-
-   // Adding 48-CD-122-0
-   nuc = new Nucleus("CD",122,48,0,121.913,0,5.3,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,3.00124,100);
-
-   // Adding 49-IN-122-0
-   nuc = new Nucleus("IN",122,49,0,121.91,0,1.501,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,6.36858,100);
-
-   // Adding 49-IN-122-1
-   nuc = new Nucleus("IN",122,49,1,121.91,0.11,10.3,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,6.47858,100);
-
-   // Adding 49-IN-122-2
-   nuc = new Nucleus("IN",122,49,2,121.911,0.22,10.8,0,0,0,0,0);
-   nuc->AddDecay(0,1,-2,6.58858,100);
-
-   // Adding 50-SN-122-0
-   nuc = new Nucleus("SN",122,50,0,121.903,0,0,4.63,0,0,0,0);
-
-   // Adding 51-SB-122-0
-   nuc = new Nucleus("SB",122,51,0,121.905,0,233280,0,1.7e-09,1.2e-09,0,0);
-   nuc->AddDecay(0,1,0,1.9786,97.6);
-   nuc->AddDecay(0,-1,0,1.61971,2.4);
-
-   // Adding 51-SB-122-1
-   nuc = new Nucleus("SB",122,51,1,121.905,0.164,252.6,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.164,100);
-
-   // Adding 52-TE-122-0
-   nuc = new Nucleus("TE",122,52,0,121.903,0,0,2.6,0,0,0,0);
-
-   // Adding 53-I-122-0
-   nuc = new Nucleus("I",122,53,0,121.908,0,217.8,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.23397,100);
-
-   // Adding 54-XE-122-0
-   nuc = new Nucleus("XE",122,54,0,121.909,0,72360,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,0.89447,100);
-
-   // Adding 55-CS-122-0
-   nuc = new Nucleus("CS",122,55,0,121.916,0,21,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.05477,100);
-
-   // Adding 55-CS-122-1
-   nuc = new Nucleus("CS",122,55,1,121.916,0,270,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,7.05477,100);
-
-   // Adding 55-CS-122-2
-   nuc = new Nucleus("CS",122,55,2,121.916,0,0.36,0,0,0,0,0);
-   nuc->AddDecay(0,0,-2,0,100);
-
-   // Adding 56-BA-122-0
-   nuc = new Nucleus("BA",122,56,0,121.92,0,117,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.84241,100);
-
-   // Adding 57-LA-122-0
-   nuc = new Nucleus("LA",122,57,0,121.931,0,8.7,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,9.7337,100);
-   nuc->AddDecay(-1,-2,0,5.31702,0);
-
-   // Adding 58-CE-122-0
-   nuc = new Nucleus("CE",122,58,0,121.938,0,8.701,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.80359,100);
-
-   // Adding 47-AG-123-0
-   nuc = new Nucleus("AG",123,47,0,122.925,0,0.309,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,7.35734,99.45);
-   nuc->AddDecay(-1,1,0,2.5476,0.55);
-
-   // Adding 48-CD-123-0
-   nuc = new Nucleus("CD",123,48,0,122.917,0,2.1,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,6.11498,77);
-   nuc->AddDecay(0,1,1,5.78798,23);
-
-   // Adding 48-CD-123-1
-   nuc = new Nucleus("CD",123,48,1,122.917,0.317,1.82,0,0,0,0,-8);
-   nuc->AddDecay(0,1,-1,6.43198,50);
-   nuc->AddDecay(0,0,-1,0.317,50);
-
-   // Adding 49-IN-123-0
-   nuc = new Nucleus("IN",123,49,0,122.91,0,5.98,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.39101,3.5);
-   nuc->AddDecay(0,1,1,4.366,96.5);
-
-   // Adding 49-IN-123-1
-   nuc = new Nucleus("IN",123,49,1,122.911,0.327,47.8,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.69301,100);
-
-   // Adding 50-SN-123-0
-   nuc = new Nucleus("SN",123,50,0,122.906,0,1.11629e+07,0,2.1e-09,7.7e-09,0,0);
-   nuc->AddDecay(0,1,0,1.40359,100);
-
-   // Adding 50-SN-123-1
-   nuc = new Nucleus("SN",123,50,1,122.906,0.025,2403.6,0,3.8e-11,4.4e-11,0,0);
-   nuc->AddDecay(0,1,-1,1.4286,100);
-
-   // Adding 51-SB-123-0
-   nuc = new Nucleus("SB",123,51,0,122.904,0,0,42.7,0,0,0,0);
-
-   // Adding 52-TE-123-0
-   nuc = new Nucleus("TE",123,52,0,122.904,0,3.1536e+20,0.908,4.4e-09,5e-09,0,-5);
-   nuc->AddDecay(0,-1,0,0.0513,100);
-
-   // Adding 52-TE-123-1
-   nuc = new Nucleus("TE",123,52,1,122.905,0.248,1.03421e+07,0,1.4e-09,3.9e-09,0,0);
-   nuc->AddDecay(0,0,-1,0.248,100);
-
-   // Adding 53-I-123-0
-   nuc = new Nucleus("I",123,53,0,122.906,0,47772,0,2.2e-10,2.1e-10,0,0);
-   nuc->AddDecay(0,-1,0,1.24208,100);
-
-   // Adding 54-XE-123-0
-   nuc = new Nucleus("XE",123,54,0,122.908,0,7488,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,2.67603,100);
-
-   // Adding 55-CS-123-0
-   nuc = new Nucleus("CS",123,55,0,122.913,0,356.4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.2003,100);
-
-   // Adding 55-CS-123-1
-   nuc = new Nucleus("CS",123,55,1,122.913,0.157,1.64,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.157,100);
-
-   // Adding 56-BA-123-0
-   nuc = new Nucleus("BA",123,56,0,122.919,0,162,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.46121,100);
-
-   // Adding 57-LA-123-0
-   nuc = new Nucleus("LA",123,57,0,122.926,0,17,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.8838,100);
-
-   // Adding 58-CE-123-0
-   nuc = new Nucleus("CE",123,58,0,122.936,0,3.8,0,0,0,0,0);
-   nuc->AddDecay(-1,-2,0,6.9155,0);
-   nuc->AddDecay(0,-1,0,8.6347,100);
-
-   // Adding 47-AG-124-0
-   nuc = new Nucleus("AG",124,47,0,123.929,0,0.22,0,0,0,0,0);
-   nuc->AddDecay(-1,1,0,2.66694,0.1);
-   nuc->AddDecay(0,1,0,10.1359,99.9);
-
-   // Adding 48-CD-124-0
-   nuc = new Nucleus("CD",124,48,0,123.918,0,1.24,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.16599,100);
-
-   // Adding 49-IN-124-0
-   nuc = new Nucleus("IN",124,49,0,123.913,0,3.17,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,7.35996,100);
-
-   // Adding 49-IN-124-1
-   nuc = new Nucleus("IN",124,49,1,123.913,0.19,3.4,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,7.54996,100);
-
-   // Adding 50-SN-124-0
-   nuc = new Nucleus("SN",124,50,0,123.905,0,0,5.79,0,0,0,0);
-
-   // Adding 51-SB-124-0
-   nuc = new Nucleus("SB",124,51,0,123.906,0,5.20128e+06,0,2.5e-09,6.1e-09,0,0);
-   nuc->AddDecay(0,1,0,2.90529,100);
-
-   // Adding 51-SB-124-1
-   nuc = new Nucleus("SB",124,51,1,123.906,0.011,93,0,8e-12,8.3e-12,0,0);
-   nuc->AddDecay(0,0,-1,0.011,75);
-   nuc->AddDecay(0,1,-1,2.91629,25);
-
-   // Adding 51-SB-124-2
-   nuc = new Nucleus("SB",124,51,2,123.906,0.037,1212,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.037,100);
-
-   // Adding 52-TE-124-0
-   nuc = new Nucleus("TE",124,52,0,123.903,0,0,4.816,0,0,0,0);
-
-   // Adding 53-I-124-0
-   nuc = new Nucleus("I",124,53,0,123.906,0,361152,0,1.3e-08,1.2e-08,0,0);
-   nuc->AddDecay(0,-1,0,3.15948,100);
-
-   // Adding 54-XE-124-0
-   nuc = new Nucleus("XE",124,54,0,123.906,0,0,0.1,0,0,0,0);
-
-   // Adding 55-CS-124-0
-   nuc = new Nucleus("CS",124,55,0,123.912,0,30.8,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.91701,100);
-
-   // Adding 55-CS-124-1
-   nuc = new Nucleus("CS",124,55,1,123.913,0.463,6.3,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.463,100);
-
-   // Adding 56-BA-124-0
-   nuc = new Nucleus("BA",124,56,0,123.915,0,714,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,2.6465,100);
-
-   // Adding 57-LA-124-0
-   nuc = new Nucleus("LA",124,57,0,123.925,0,29,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,8.79391,100);
-
-   // Adding 58-CE-124-0
-   nuc = new Nucleus("CE",124,58,0,123.931,0,6,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.5797,100);
-
-   // Adding 59-PR-124-0
-   nuc = new Nucleus("PR",124,59,0,123.943,0,1.2,0,0,0,0,0);
-   nuc->AddDecay(-1,-2,0,8.3966,0);
-   nuc->AddDecay(0,-1,0,11.6988,100);
-
-   // Adding 48-CD-125-0
-   nuc = new Nucleus("CD",125,48,0,124.921,0,0.65,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,7.15897,70);
-   nuc->AddDecay(0,1,1,6.79897,30);
-
-   // Adding 48-CD-125-1
-   nuc = new Nucleus("CD",125,48,1,124.921,0.049,0.57,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,7.20798,100);
-
-   // Adding 49-IN-125-0
-   nuc = new Nucleus("IN",125,49,0,124.914,0,2.36,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,5.41799,88);
-   nuc->AddDecay(0,1,1,5.38999,12);
-
-   // Adding 49-IN-125-1
-   nuc = new Nucleus("IN",125,49,1,124.914,0.36,12.2,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,5.74999,100);
-
-   // Adding 50-SN-125-0
-   nuc = new Nucleus("SN",125,50,0,124.908,0,832896,0,3.1e-09,3e-09,0,0);
-   nuc->AddDecay(0,1,0,2.36381,100);
-
-   // Adding 50-SN-125-1
-   nuc = new Nucleus("SN",125,50,1,124.908,0.028,571.2,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,2.39181,100);
-
-   // Adding 51-SB-125-0
-   nuc = new Nucleus("SB",125,51,0,124.905,0,8.69826e+07,0,1.1e-09,4.5e-09,0,0);
-   nuc->AddDecay(0,1,0,0.766693,77);
-   nuc->AddDecay(0,1,1,0.621696,23);
-
-   // Adding 52-TE-125-0
-   nuc = new Nucleus("TE",125,52,0,124.904,0,0,7.14,0,0,0,0);
-
-   // Adding 52-TE-125-1
-   nuc = new Nucleus("TE",125,52,1,124.905,0.145,4.95936e+06,0,8.7e-10,3.3e-09,0,0);
-   nuc->AddDecay(0,0,-1,0.145,100);
-
-   // Adding 53-I-125-0
-   nuc = new Nucleus("I",125,53,0,124.905,0,5.13285e+06,0,1.5e-08,1.4e-08,0,0);
-   nuc->AddDecay(0,-1,0,0.186203,100);
-
-   // Adding 54-XE-125-0
-   nuc = new Nucleus("XE",125,54,0,124.906,0,60840,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,1.6524,100);
-
-   // Adding 54-XE-125-1
-   nuc = new Nucleus("XE",125,54,1,124.907,0.253,57,0,0,0,0,-8);
-   nuc->AddDecay(0,0,-1,0.253,100);
-
-   // Adding 55-CS-125-0
-   nuc = new Nucleus("CS",125,55,0,124.91,0,2700,0,3.5e-11,2.3e-11,0,0);
-   nuc->AddDecay(0,-1,0,3.09213,100);
-
-   // Adding 56-BA-125-0
-   nuc = new Nucleus("BA",125,56,0,124.915,0,210,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.55996,100);
-
-   // Adding 57-LA-125-0
-   nuc = new Nucleus("LA",125,57,0,124.921,0,76,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.64243,100);
-
-   // Adding 58-CE-125-0
-   nuc = new Nucleus("CE",125,58,0,124.929,0,9,0,0,0,0,0);
-   nuc->AddDecay(-1,-2,0,5.23972,0);
-   nuc->AddDecay(0,-1,0,7.3297,100);
-
-   // Adding 48-CD-126-0
-   nuc = new Nucleus("CD",126,48,0,125.922,0,0.506,0,0,0,0,0);
-   nuc->AddDecay(0,1,1,5.38399,100);
-
-   // Adding 49-IN-126-0
-   nuc = new Nucleus("IN",126,49,0,125.916,0,1.6,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,8.20697,100);
-
-   // Adding 49-IN-126-1
-   nuc = new Nucleus("IN",126,49,1,125.917,0.102,1.64,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,8.30897,100);
-
-   // Adding 50-SN-126-0
-   nuc = new Nucleus("SN",126,50,0,125.908,0,3.1536e+12,0,4.8e-09,2.7e-08,0,0);
-   nuc->AddDecay(0,1,1,0.360023,33.5);
-   nuc->AddDecay(0,1,2,0.33802,66.5);
-
-   // Adding 51-SB-126-0
-   nuc = new Nucleus("SB",126,51,0,125.907,0,1.07654e+06,0,2.4e-09,3.2e-09,0,0);
-   nuc->AddDecay(0,1,0,3.67298,100);
-
-   // Adding 51-SB-126-1
-   nuc = new Nucleus("SB",126,51,1,125.907,0.018,1149,0,3.6e-11,3.3e-11,0,0);
-   nuc->AddDecay(0,1,-1,3.69098,86);
-   nuc->AddDecay(0,0,-1,0.018,14);
-
-   // Adding 51-SB-126-2
-   nuc = new Nucleus("SB",126,51,2,125.907,0.04,11,0,0,0,0,-8);
-   nuc->AddDecay(0,0,-1,0.04,100);
-
-   // Adding 52-TE-126-0
-   nuc = new Nucleus("TE",126,52,0,125.903,0,0,18.95,0,0,0,0);
-
-   // Adding 53-I-126-0
-   nuc = new Nucleus("I",126,53,0,125.906,0,1.1327e+06,0,2.9e-08,2.6e-08,0,0);
-   nuc->AddDecay(0,-1,0,2.15527,56.3);
-   nuc->AddDecay(0,1,0,1.25802,43.7);
-
-   // Adding 54-XE-126-0
-   nuc = new Nucleus("XE",126,54,0,125.904,0,0,0.09,0,0,0,0);
-
-   // Adding 55-CS-126-0
-   nuc = new Nucleus("CS",126,55,0,125.909,0,98.4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.82555,100);
-
-   // Adding 56-BA-126-0
-   nuc = new Nucleus("BA",126,56,0,125.911,0,6000,0,2.6e-10,1.2e-10,0,0);
-   nuc->AddDecay(0,-1,0,1.67279,100);
-
-   // Adding 57-LA-126-0
-   nuc = new Nucleus("LA",126,57,0,125.919,0,54,0,0,0,0,-8);
-   nuc->AddDecay(0,-1,0,7.56902,100);
-
-   // Adding 58-CE-126-0
-   nuc = new Nucleus("CE",126,58,0,125.924,0,50,0,0,0,0,-8);
-   nuc->AddDecay(0,-1,0,4.4058,100);
-
-   // Adding 59-PR-126-0
-   nuc = new Nucleus("PR",126,59,0,125.935,0,3.1,0,0,0,0,-8);
-   nuc->AddDecay(-1,-2,0,6.3476,50);
-   nuc->AddDecay(0,-1,0,10.4418,50);
-
-   // Adding 48-CD-127-0
-   nuc = new Nucleus("CD",127,48,0,126.926,0,0.4,0,0,0,0,-8);
-   nuc->AddDecay(0,1,0,8.46796,66.6667);
-   nuc->AddDecay(0,1,1,8.30796,33.3333);
-
-   // Adding 49-IN-127-0
-   nuc = new Nucleus("IN",127,49,0,126.917,0,1.15,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,6.51398,15.4078);
-   nuc->AddDecay(0,1,1,6.50899,84.5922);
-
-   // Adding 49-IN-127-1
-   nuc = new Nucleus("IN",127,49,1,126.918,0.16,3.76,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,6.66899,50.1556);
-   nuc->AddDecay(-1,1,-1,1.11448,0);
-   nuc->AddDecay(0,1,-1,6.67399,49.8444);
-
-   // Adding 50-SN-127-0
-   nuc = new Nucleus("SN",127,50,0,126.91,0,7560,0,2e-10,2e-10,0,0);
-   nuc->AddDecay(0,1,0,3.20103,100);
-
-   // Adding 50-SN-127-1
-   nuc = new Nucleus("SN",127,50,1,126.91,0.005,247.8,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,3.20603,100);
-
-   // Adding 51-SB-127-0
-   nuc = new Nucleus("SB",127,51,0,126.907,0,332640,0,1.7e-09,1.7e-09,0,0);
-   nuc->AddDecay(0,1,0,1.58097,82.5);
-   nuc->AddDecay(0,1,1,1.49297,17.5);
-
-   // Adding 52-TE-127-0
-   nuc = new Nucleus("TE",127,52,0,126.905,0,33660,0,1.7e-10,1.8e-10,0,0);
-   nuc->AddDecay(0,1,0,0.697609,100);
-
-   // Adding 52-TE-127-1
-   nuc = new Nucleus("TE",127,52,1,126.905,0.088,9.4176e+06,0,2.3e-09,7.2e-09,0,0);
-   nuc->AddDecay(0,0,-1,0.088,97.6);
-   nuc->AddDecay(0,1,-1,0.785606,2.4);
-
-   // Adding 53-I-127-0
-   nuc = new Nucleus("I",127,53,0,126.904,0,0,100,0,0,0,0);
-
-   // Adding 54-XE-127-0
-   nuc = new Nucleus("XE",127,54,0,126.905,0,3.14496e+06,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,0.6623,100);
-
-   // Adding 54-XE-127-1
-   nuc = new Nucleus("XE",127,54,1,126.905,0.297,69.2,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.297,100);
-
-   // Adding 55-CS-127-0
-   nuc = new Nucleus("CS",127,55,0,126.907,0,22500,0,2.4e-11,4e-11,0,0);
-   nuc->AddDecay(0,-1,0,2.08066,100);
-
-   // Adding 56-BA-127-0
-   nuc = new Nucleus("BA",127,56,0,126.911,0,762,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.45007,100);
-
-   // Adding 57-LA-127-0
-   nuc = new Nucleus("LA",127,57,0,126.916,0,228,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.69849,100);
-
-   // Adding 57-LA-127-1
-   nuc = new Nucleus("LA",127,57,1,126.916,0,300,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0,100);
-
-   // Adding 58-CE-127-0
-   nuc = new Nucleus("CE",127,58,0,126.923,0,32,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.13782,100);
-
-   // Adding 59-PR-127-0
-   nuc = new Nucleus("PR",127,59,0,126.931,0,0,0,0,0,0,-6);
-
-   // Adding 60-ND-127-0
-   nuc = new Nucleus("ND",127,60,0,126.94,0,1.8,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,9.0051,100);
-   nuc->AddDecay(-1,-2,0,7.9866,0);
-
-   // Adding 48-CD-128-0
-   nuc = new Nucleus("CD",128,48,0,127.928,0,0.28,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,7.07002,100);
-
-   // Adding 49-IN-128-0
-   nuc = new Nucleus("IN",128,49,0,127.92,0,0.8,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,8.97558,99.962);
-   nuc->AddDecay(-1,1,0,1.07638,0.038);
-
-   // Adding 49-IN-128-1
-   nuc = new Nucleus("IN",128,49,1,127.92,0.08,0.7,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,9.05558,0);
-   nuc->AddDecay(-1,1,-1,1.15638,100);
-   nuc->AddDecay(0,1,0,6.96458,0);
-
-   // Adding 50-SN-128-0
-   nuc = new Nucleus("SN",128,50,0,127.911,0,3546,0,1.5e-10,1.5e-10,0,0);
-   nuc->AddDecay(0,1,1,1.254,100);
-
-   // Adding 50-SN-128-1
-   nuc = new Nucleus("SN",128,50,1,127.913,2.091,6.5,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,2.091,100);
-
-   // Adding 51-SB-128-0
-   nuc = new Nucleus("SB",128,51,0,127.909,0,32436,0,7.6e-10,6.7e-10,0,0);
-   nuc->AddDecay(0,1,0,4.38349,100);
-
-   // Adding 51-SB-128-1
-   nuc = new Nucleus("SB",128,51,1,127.909,0.02,624,0,3.3e-11,2.6e-11,0,0);
-   nuc->AddDecay(0,1,-1,4.40349,96.4);
-   nuc->AddDecay(0,0,-1,0.02,3.6);
-
-   // Adding 52-TE-128-0
-   nuc = new Nucleus("TE",128,52,0,127.904,0,0,31.69,0,0,0,0);
-
-   // Adding 53-I-128-0
-   nuc = new Nucleus("I",128,53,0,127.906,0,1499.4,0,4.6e-11,6.5e-11,0,0);
-   nuc->AddDecay(0,-1,0,1.25098,6.9);
-   nuc->AddDecay(0,1,0,2.11818,93.1);
-
-   // Adding 54-XE-128-0
-   nuc = new Nucleus("XE",128,54,0,127.904,0,0,1.91,0,0,0,0);
-
-   // Adding 55-CS-128-0
-   nuc = new Nucleus("CS",128,55,0,127.908,0,217.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.93006,100);
-
-   // Adding 56-BA-128-0
-   nuc = new Nucleus("BA",128,56,0,127.908,0,209952,0,2.7e-09,1.3e-09,0,0);
-   nuc->AddDecay(0,-1,0,0.521248,100);
-
-   // Adding 57-LA-128-0
-   nuc = new Nucleus("LA",128,57,0,127.915,0,300,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.64997,100);
-
-   // Adding 58-CE-128-0
-   nuc = new Nucleus("CE",128,58,0,127.919,0,360,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.18714,100);
-
-   // Adding 59-PR-128-0
-   nuc = new Nucleus("PR",128,59,0,127.929,0,3.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,9.24979,100);
-   nuc->AddDecay(-1,-2,0,4.48472,0);
-
-   // Adding 60-ND-128-0
-   nuc = new Nucleus("ND",128,60,0,127.935,0,4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.1377,100);
-   nuc->AddDecay(-1,-2,0,4.48461,0);
-
-   // Adding 48-CD-129-0
-   nuc = new Nucleus("CD",129,48,0,129,0,0.27,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,0,100);
-
-   // Adding 49-IN-129-0
-   nuc = new Nucleus("IN",129,49,0,128.922,0,0.63,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,7.655,89.17);
-   nuc->AddDecay(-1,1,0,2.28981,0.23);
-   nuc->AddDecay(0,1,1,7.62,10.6);
-
-   // Adding 49-IN-129-1
-   nuc = new Nucleus("IN",129,49,1,128.922,0.2,1.23,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,7.855,96.4);
-   nuc->AddDecay(-1,1,-1,2.48981,3.6);
-
-   // Adding 50-SN-129-0
-   nuc = new Nucleus("SN",129,50,0,128.913,0,144,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,3.99601,100);
-
-   // Adding 50-SN-129-1
-   nuc = new Nucleus("SN",129,50,1,128.913,0.035,414,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,4.03101,100);
-   nuc->AddDecay(0,0,-1,0.035,0.0002);
-
-   // Adding 51-SB-129-0
-   nuc = new Nucleus("SB",129,51,0,128.909,0,15840,0,4.2e-10,3.5e-10,0,0);
-   nuc->AddDecay(0,1,0,2.37951,82);
-   nuc->AddDecay(0,1,1,2.27451,18);
-
-   // Adding 51-SB-129-1
-   nuc = new Nucleus("SB",129,51,1,128.909,0,1062,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,2.37951,100);
-
-   // Adding 52-TE-129-0
-   nuc = new Nucleus("TE",129,52,0,128.907,0,4176,0,6.3e-11,5.7e-11,0,0);
-   nuc->AddDecay(0,1,0,1.4979,100);
-
-   // Adding 52-TE-129-1
-   nuc = new Nucleus("TE",129,52,1,128.907,0.105,2.90304e+06,0,3e-09,6.3e-09,0,0);
-   nuc->AddDecay(0,1,-1,1.60291,36);
-   nuc->AddDecay(0,0,-1,0.105,64);
-
-   // Adding 53-I-129-0
-   nuc = new Nucleus("I",129,53,0,128.905,0,4.95115e+14,0,1.1e-07,9.6e-08,0,0);
-   nuc->AddDecay(0,1,0,0.193748,100);
-
-   // Adding 54-XE-129-0
-   nuc = new Nucleus("XE",129,54,0,128.905,0,0,26.4,0,0,0,0);
-
-   // Adding 54-XE-129-1
-   nuc = new Nucleus("XE",129,54,1,128.905,0.236,768096,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.236,100);
-
-   // Adding 55-CS-129-0
-   nuc = new Nucleus("CS",129,55,0,128.906,0,115416,0,6e-11,8.1e-11,0,0);
-   nuc->AddDecay(0,-1,0,1.19553,100);
-
-   // Adding 56-BA-129-0
-   nuc = new Nucleus("BA",129,56,0,128.909,0,8028,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,2.43333,100);
-
-   // Adding 56-BA-129-1
-   nuc = new Nucleus("BA",129,56,1,128.909,0.008,7812,0,0,0,0,-8);
-   nuc->AddDecay(0,-1,-1,2.44134,100);
-
-   // Adding 57-LA-129-0
-   nuc = new Nucleus("LA",129,57,0,128.913,0,696,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.71996,100);
-
-   // Adding 57-LA-129-1
-   nuc = new Nucleus("LA",129,57,1,128.913,0.172,0.56,0,0,0,0,-8);
-   nuc->AddDecay(0,0,-1,0.172,100);
-
-   // Adding 58-CE-129-0
-   nuc = new Nucleus("CE",129,58,0,128.918,0,210,0,0,0,0,-8);
-   nuc->AddDecay(0,-1,0,5.05005,100);
-
-   // Adding 59-PR-129-0
-   nuc = new Nucleus("PR",129,59,0,128.925,0,24,0,0,0,0,-8);
-   nuc->AddDecay(0,-1,0,6.3058,100);
-
-   // Adding 60-ND-129-0
-   nuc = new Nucleus("ND",129,60,0,128.933,0,4.9,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.8236,100);
-   nuc->AddDecay(-1,-2,0,6.1145,0);
-
-   // Adding 48-CD-130-0
-   nuc = new Nucleus("CD",130,48,0,129.931,0,0.2,0,0,0,0,0);
-   nuc->AddDecay(-1,1,0,0.544515,4);
-   nuc->AddDecay(0,1,0,5.63435,96);
-
-   // Adding 49-IN-130-0
-   nuc = new Nucleus("IN",130,49,0,129.925,0,0.32,0,0,0,0,0);
-   nuc->AddDecay(-1,1,0,2.56517,0.9);
-   nuc->AddDecay(0,1,0,10.249,70.0678);
-   nuc->AddDecay(0,1,1,8.30199,29.0322);
-
-   // Adding 49-IN-130-1
-   nuc = new Nucleus("IN",130,49,1,129.925,0.05,0.55,0,0,0,0,0);
-   nuc->AddDecay(-1,1,-1,2.61517,1.67);
-   nuc->AddDecay(0,1,0,8.35199,98.33);
-
-   // Adding 49-IN-130-2
-   nuc = new Nucleus("IN",130,49,2,129.925,0.4,0.55,0,0,0,0,0);
-   nuc->AddDecay(0,1,-2,10.649,82.5972);
-   nuc->AddDecay(-1,1,-2,2.96517,1.67);
-   nuc->AddDecay(0,1,-1,8.70199,15.7328);
-
-   // Adding 50-SN-130-0
-   nuc = new Nucleus("SN",130,50,0,129.914,0,223.2,0,0,0,0,0);
-   nuc->AddDecay(0,1,1,2.15039,100);
-
-   // Adding 50-SN-130-1
-   nuc = new Nucleus("SN",130,50,1,129.916,1.947,102,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,4.09739,100);
-
-   // Adding 51-SB-130-0
-   nuc = new Nucleus("SB",130,51,0,129.912,0,2370,0,9.1e-11,9.1e-11,0,0);
-   nuc->AddDecay(0,1,0,4.96,100);
-
-   // Adding 51-SB-130-1
-   nuc = new Nucleus("SB",130,51,1,129.912,0,378,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,4.96,100);
-
-   // Adding 52-TE-130-0
-   nuc = new Nucleus("TE",130,52,0,129.906,0,3.942e+28,33.8,0,0,0,-4);
-   nuc->AddDecay(0,1,0,-0.420486,100);
-
-   // Adding 53-I-130-0
-   nuc = new Nucleus("I",130,53,0,129.907,0,44496,0,2e-09,1.9e-09,0,0);
-   nuc->AddDecay(0,1,0,2.94858,100);
-
-   // Adding 53-I-130-1
-   nuc = new Nucleus("I",130,53,1,129.907,0.04,540,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,2.98858,16);
-   nuc->AddDecay(0,0,-1,0.04,84);
-
-   // Adding 54-XE-130-0
-   nuc = new Nucleus("XE",130,54,0,129.904,0,0,4.1,0,0,0,0);
-
-   // Adding 55-CS-130-0
-   nuc = new Nucleus("CS",130,55,0,129.907,0,1752.6,0,2.8e-11,1.5e-11,0,0);
-   nuc->AddDecay(0,1,0,0.37278,1.6);
-   nuc->AddDecay(0,-1,0,2.98283,98.4);
-
-   // Adding 55-CS-130-1
-   nuc = new Nucleus("CS",130,55,1,129.907,0.163,207.6,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.163,99.84);
-   nuc->AddDecay(0,-1,-1,3.14583,0.16);
-
-   // Adding 56-BA-130-0
-   nuc = new Nucleus("BA",130,56,0,129.906,0,0,0.106,0,0,0,0);
-
-   // Adding 56-BA-130-1
-   nuc = new Nucleus("BA",130,56,1,129.909,2.475,0.011,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,2.475,100);
-
-   // Adding 57-LA-130-0
-   nuc = new Nucleus("LA",130,57,0,129.912,0,522,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.59766,100);
-
-   // Adding 58-CE-130-0
-   nuc = new Nucleus("CE",130,58,0,129.915,0,1500,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,2.207,100);
-
-   // Adding 59-PR-130-0
-   nuc = new Nucleus("PR",130,59,0,129.923,0,40,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,8.0949,100);
-
-   // Adding 60-ND-130-0
-   nuc = new Nucleus("ND",130,60,0,129.929,0,28,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.0296,100);
-
-   // Adding 61-PM-130-0
-   nuc = new Nucleus("PM",130,61,0,129.94,0,2.2,0,0,0,0,0);
-   nuc->AddDecay(-1,-2,0,7.2326,0);
-   nuc->AddDecay(0,-1,0,10.8709,100);
-
-   // Adding 49-IN-131-0
-   nuc = new Nucleus("IN",131,49,0,130.927,0,0.27,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,9.18079,92.8919);
-   nuc->AddDecay(-1,1,0,3.97185,2.2);
-   nuc->AddDecay(0,1,1,8.9408,4.9081);
-
-   // Adding 49-IN-131-1
-   nuc = new Nucleus("IN",131,49,1,130.927,0,0.35,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,9.18079,99.982);
-
-   // Adding 49-IN-131-2
-   nuc = new Nucleus("IN",131,49,2,130.927,0,0.32,0,0,0,0,0);
-   nuc->AddDecay(0,1,-2,9.18079,99);
-
-   // Adding 50-SN-131-0
-   nuc = new Nucleus("SN",131,50,0,130.917,0,61,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.6411,100);
-
-   // Adding 50-SN-131-1
-   nuc = new Nucleus("SN",131,50,1,130.917,0.24,39,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,4.8811,100);
-
-   // Adding 51-SB-131-0
-   nuc = new Nucleus("SB",131,51,0,130.912,0,1380,0,1e-10,8.3e-11,0,0);
-   nuc->AddDecay(0,1,0,3.19005,93.2);
-   nuc->AddDecay(0,1,1,3.00805,6.8);
-
-   // Adding 52-TE-131-0
-   nuc = new Nucleus("TE",131,52,0,130.909,0,1500,0,8.7e-11,6.1e-11,0,0);
-   nuc->AddDecay(0,1,0,2.2327,100);
-
-   // Adding 52-TE-131-1
-   nuc = new Nucleus("TE",131,52,1,130.909,0.182,108000,0,1.9e-09,1.6e-09,0,0);
-   nuc->AddDecay(0,1,-1,2.4147,77.8);
-   nuc->AddDecay(0,0,-1,0.182,22.2);
-
-   // Adding 53-I-131-0
-   nuc = new Nucleus("I",131,53,0,130.906,0,694656,0,2.2e-08,2e-08,0,0);
-   nuc->AddDecay(0,1,0,0.970901,98.914);
-   nuc->AddDecay(0,1,1,0.8069,1.086);
-
-   // Adding 54-XE-131-0
-   nuc = new Nucleus("XE",131,54,0,130.905,0,0,21.2,0,0,0,0);
-
-   // Adding 54-XE-131-1
-   nuc = new Nucleus("XE",131,54,1,130.905,0.164,1.02816e+06,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.164,100);
-
-   // Adding 55-CS-131-0
-   nuc = new Nucleus("CS",131,55,0,130.905,0,837216,0,5.8e-11,4.6e-11,0,0);
-   nuc->AddDecay(0,-1,0,0.351662,100);
-
-   // Adding 56-BA-131-0
-   nuc = new Nucleus("BA",131,56,0,130.907,0,1.01952e+06,0,4.5e-10,3.5e-10,0,0);
-   nuc->AddDecay(0,-1,0,1.37009,100);
-
-   // Adding 56-BA-131-1
-   nuc = new Nucleus("BA",131,56,1,130.907,0.188,876,0,4.9e-12,6.4e-12,0,0);
-   nuc->AddDecay(0,0,-1,0.188,100);
-
-   // Adding 57-LA-131-0
-   nuc = new Nucleus("LA",131,57,0,130.91,0,3540,0,3.5e-11,3.6e-11,0,0);
-   nuc->AddDecay(0,-1,0,2.96006,100);
-
-   // Adding 58-CE-131-0
-   nuc = new Nucleus("CE",131,58,0,130.914,0,600,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.01997,100);
-
-   // Adding 58-CE-131-1
-   nuc = new Nucleus("CE",131,58,1,130.914,0,300,0,0,0,0,-8);
-   nuc->AddDecay(0,-1,-1,4.01997,100);
-
-   // Adding 59-PR-131-0
-   nuc = new Nucleus("PR",131,59,0,130.92,0,102,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.25,100);
-
-   // Adding 60-ND-131-0
-   nuc = new Nucleus("ND",131,60,0,130.927,0,24,0,0,0,0,0);
-   nuc->AddDecay(-1,-2,0,4.27416,0);
-   nuc->AddDecay(0,-1,0,6.56,100);
-
-   // Adding 61-PM-131-0
-   nuc = new Nucleus("PM",131,61,0,130.936,0,0,0,0,0,0,-6);
-
-   // Adding 62-SM-131-0
-   nuc = new Nucleus("SM",131,62,0,130.945,0,1.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,8.5174,100);
-   nuc->AddDecay(-1,-2,0,7.7701,0);
-
-   // Adding 49-IN-132-0
-   nuc = new Nucleus("IN",132,49,0,131.932,0,0.201,0,0,0,0,0);
-   nuc->AddDecay(-1,1,0,6.28833,6.2);
-   nuc->AddDecay(0,1,0,13.6,93.8);
-
-   // Adding 50-SN-132-0
-   nuc = new Nucleus("SN",132,50,0,131.918,0,39.7,0,0,0,0,0);
-   nuc->AddDecay(0,1,1,3.10303,100);
-
-   // Adding 51-SB-132-0
-   nuc = new Nucleus("SB",132,51,0,131.914,0,167.4,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,5.28596,100);
-
-   // Adding 51-SB-132-1
-   nuc = new Nucleus("SB",132,51,1,131.914,0.2,246,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,5.48595,100);
-
-   // Adding 52-TE-132-0
-   nuc = new Nucleus("TE",132,52,0,131.909,0,276826,0,3.7e-09,3e-09,0,0);
-   nuc->AddDecay(0,1,0,0.492996,100);
-
-   // Adding 53-I-132-0
-   nuc = new Nucleus("I",132,53,0,131.908,0,8262,0,2.9e-10,3.1e-10,0,0);
-   nuc->AddDecay(0,1,0,3.577,100);
-
-   // Adding 53-I-132-1
-   nuc = new Nucleus("I",132,53,1,131.908,0.12,4993.2,0,2.2e-10,2.7e-10,0,0);
-   nuc->AddDecay(0,1,-1,3.69701,14);
-   nuc->AddDecay(0,0,-1,0.12,86);
-
-   // Adding 54-XE-132-0
-   nuc = new Nucleus("XE",132,54,0,131.904,0,0,26.9,0,0,0,0);
-
-   // Adding 54-XE-132-1
-   nuc = new Nucleus("XE",132,54,1,131.907,2.752,0.00839,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,2.752,100);
-
-   // Adding 55-CS-132-0
-   nuc = new Nucleus("CS",132,55,0,131.906,0,559786,0,5e-10,3.8e-10,0,0);
-   nuc->AddDecay(0,-1,0,2.11948,98.13);
-   nuc->AddDecay(0,1,0,1.2794,1.87);
-
-   // Adding 56-BA-132-0
-   nuc = new Nucleus("BA",132,56,0,131.905,0,0,0.101,0,0,0,0);
-
-   // Adding 57-LA-132-0
-   nuc = new Nucleus("LA",132,57,0,131.91,0,17280,0,3.9e-10,2.8e-10,0,0);
-   nuc->AddDecay(0,-1,0,4.70798,100);
-
-   // Adding 57-LA-132-1
-   nuc = new Nucleus("LA",132,57,1,131.91,0.188,1458,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.188,76);
-   nuc->AddDecay(0,-1,-1,4.89599,24);
-
-   // Adding 58-CE-132-0
-   nuc = new Nucleus("CE",132,58,0,131.911,0,12636,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,1.28415,100);
-
-   // Adding 59-PR-132-0
-   nuc = new Nucleus("PR",132,59,0,131.919,0,96,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.10799,100);
-
-   // Adding 60-ND-132-0
-   nuc = new Nucleus("ND",132,60,0,131.923,0,105,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.7257,100);
-
-   // Adding 61-PM-132-0
-   nuc = new Nucleus("PM",132,61,0,131.934,0,6.3,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,9.9018,99.9999);
-   nuc->AddDecay(-1,-2,0,5.46234,5e-05);
-
-   // Adding 62-SM-132-0
-   nuc = new Nucleus("SM",132,62,0,131.94,0,4,0,0,0,0,0);
-   nuc->AddDecay(-1,-2,0,4.64095,0);
-   nuc->AddDecay(0,-1,0,5.7386,100);
-
-   // Adding 49-IN-133-0
-   nuc = new Nucleus("IN",133,49,0,132.935,0,0.18,0,0,0,0,0);
-   nuc->AddDecay(-1,1,0,8.22132,0);
-   nuc->AddDecay(0,1,0,10.7986,100);
-
-   // Adding 50-SN-133-0
-   nuc = new Nucleus("SN",133,50,0,132.924,0,1.44,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,7.83006,99.92);
-   nuc->AddDecay(-1,1,0,0.725743,0.08);
-
-   // Adding 51-SB-133-0
-   nuc = new Nucleus("SB",133,51,0,132.915,0,150,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.003,71);
-   nuc->AddDecay(0,1,1,3.669,29);
-
-   // Adding 52-TE-133-0
-   nuc = new Nucleus("TE",133,52,0,132.911,0,750,0,7.2e-11,4.4e-11,0,0);
-   nuc->AddDecay(0,1,0,2.91795,100);
-
-   // Adding 52-TE-133-1
-   nuc = new Nucleus("TE",133,52,1,132.911,0.334,3324,0,2.8e-10,1.9e-10,0,0);
-   nuc->AddDecay(0,1,-1,3.25195,72.3);
-   nuc->AddDecay(0,0,-1,0.334,17.5);
-   nuc->AddDecay(0,1,0,1.61795,10.2);
-
-   // Adding 53-I-133-0
-   nuc = new Nucleus("I",133,53,0,132.908,0,74880,0,4.3e-09,4e-09,0,0);
-   nuc->AddDecay(0,1,0,1.77061,97.12);
-   nuc->AddDecay(0,1,1,1.53761,2.88);
-
-   // Adding 53-I-133-1
-   nuc = new Nucleus("I",133,53,1,132.91,1.634,9,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,1.634,100);
-
-   // Adding 54-XE-133-0
-   nuc = new Nucleus("XE",133,54,0,132.906,0,452995,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,0.427391,100);
-
-   // Adding 54-XE-133-1
-   nuc = new Nucleus("XE",133,54,1,132.906,0.233,189216,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.233,100);
-
-   // Adding 55-CS-133-0
-   nuc = new Nucleus("CS",133,55,0,132.905,0,0,100,0,0,0,0);
-
-   // Adding 56-BA-133-0
-   nuc = new Nucleus("BA",133,56,0,132.906,0,3.31759e+08,0,1e-09,1.8e-09,0,0);
-   nuc->AddDecay(0,-1,0,0.517502,100);
-
-   // Adding 56-BA-133-1
-   nuc = new Nucleus("BA",133,56,1,132.906,0.288,140040,0,5.5e-10,2.8e-10,0,0);
-   nuc->AddDecay(0,-1,-1,0.805504,0.01);
-   nuc->AddDecay(0,0,-1,0.288,99.99);
-
-   // Adding 57-LA-133-0
-   nuc = new Nucleus("LA",133,57,0,132.908,0,14083.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,2.23001,100);
-
-   // Adding 58-CE-133-0
-   nuc = new Nucleus("CE",133,58,0,132.912,0,17640,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,2.93672,100);
-
-   // Adding 58-CE-133-1
-   nuc = new Nucleus("CE",133,58,1,132.912,0,5820,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,2.93672,100);
-
-   // Adding 59-PR-133-0
-   nuc = new Nucleus("PR",133,59,0,132.916,0,390,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.33199,100);
-
-   // Adding 60-ND-133-0
-   nuc = new Nucleus("ND",133,60,0,132.922,0,70,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.5978,100);
-
-   // Adding 60-ND-133-1
-   nuc = new Nucleus("ND",133,60,1,132.922,0,120,0,0,0,0,-4);
-   nuc->AddDecay(0,-1,-1,5.5978,100);
-
-   // Adding 61-PM-133-0
-   nuc = new Nucleus("PM",133,61,0,132.93,0,12,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.9958,100);
-
-   // Adding 62-SM-133-0
-   nuc = new Nucleus("SM",133,62,0,132.939,0,2.9,0,0,0,0,0);
-   nuc->AddDecay(-1,-2,0,7.2507,100);
-   nuc->AddDecay(0,-1,0,8.3918,0);
-
-   // Adding 50-SN-134-0
-   nuc = new Nucleus("SN",134,50,0,133.928,0,1.04,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,6.75372,83);
-   nuc->AddDecay(-1,1,0,3.65888,17);
-
-   // Adding 51-SB-134-0
-   nuc = new Nucleus("SB",134,51,0,133.921,0,0.85,0,0,0,0,-8);
-   nuc->AddDecay(0,1,0,8.41439,100);
-
-   // Adding 51-SB-134-1
-   nuc = new Nucleus("SB",134,51,1,133.921,0.06,10.43,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,8.47439,99.9);
-   nuc->AddDecay(-1,1,-1,0.968152,0.1);
-
-   // Adding 52-TE-134-0
-   nuc = new Nucleus("TE",134,52,0,133.912,0,2508,0,1.1e-10,1.1e-10,0,0);
-   nuc->AddDecay(0,1,0,1.56005,89.8);
-   nuc->AddDecay(0,1,1,1.24405,10.2);
-
-   // Adding 53-I-134-0
-   nuc = new Nucleus("I",134,53,0,133.91,0,3156,0,1.1e-10,1.5e-10,0,0);
-   nuc->AddDecay(0,1,0,4.17002,100);
-
-   // Adding 53-I-134-1
-   nuc = new Nucleus("I",134,53,1,133.91,0.316,221.4,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.316,97.7);
-   nuc->AddDecay(0,1,0,2.52702,2.3);
-
-   // Adding 54-XE-134-0
-   nuc = new Nucleus("XE",134,54,0,133.905,0,0,10.4,0,0,0,0);
-
-   // Adding 54-XE-134-1
-   nuc = new Nucleus("XE",134,54,1,133.908,1.959,0.29,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,1.959,100);
-
-   // Adding 55-CS-134-0
-   nuc = new Nucleus("CS",134,55,0,133.907,0,6.50272e+07,0,1.9e-08,9.6e-09,0,0);
-   nuc->AddDecay(0,1,0,2.0587,100);
-   nuc->AddDecay(0,-1,0,1.22885,0.0003);
-
-   // Adding 55-CS-134-1
-   nuc = new Nucleus("CS",134,55,1,133.907,0.139,10476,0,2e-11,2.6e-11,0,0);
-   nuc->AddDecay(0,0,-1,0.139,100);
-
-   // Adding 56-BA-134-0
-   nuc = new Nucleus("BA",134,56,0,133.905,0,0,2.417,0,0,0,0);
-
-   // Adding 57-LA-134-0
-   nuc = new Nucleus("LA",134,57,0,133.908,0,387,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.7132,100);
-
-   // Adding 58-CE-134-0
-   nuc = new Nucleus("CE",134,58,0,133.909,0,273240,0,2.5e-09,1.6e-09,0,0);
-   nuc->AddDecay(0,-1,0,0.500008,100);
-
-   // Adding 59-PR-134-0
-   nuc = new Nucleus("PR",134,59,0,133.916,0,1020,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.20692,100);
-
-   // Adding 59-PR-134-1
-   nuc = new Nucleus("PR",134,59,1,133.916,0,660,0,0,0,0,-8);
-   nuc->AddDecay(0,-1,-1,6.20692,100);
-
-   // Adding 60-ND-134-0
-   nuc = new Nucleus("ND",134,60,0,133.919,0,510,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,2.76995,100);
-
-   // Adding 61-PM-134-0
-   nuc = new Nucleus("PM",134,61,0,133.928,0,24,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,8.88274,100);
-
-   // Adding 62-SM-134-0
-   nuc = new Nucleus("SM",134,62,0,133.934,0,11,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.4208,100);
-
-   // Adding 63-EU-134-0
-   nuc = new Nucleus("EU",134,63,0,134,0,0.5,0,0,0,0,0);
-   nuc->AddDecay(-1,-2,0,0,100);
-   nuc->AddDecay(0,-1,0,0,0);
-
-   // Adding 51-SB-135-0
-   nuc = new Nucleus("SB",135,51,0,134.925,0,1.71,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,8.12009,83.6);
-   nuc->AddDecay(-1,1,0,4.6178,16.4);
-
-   // Adding 52-TE-135-0
-   nuc = new Nucleus("TE",135,52,0,134.916,0,19,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,5.96193,100);
-
-   // Adding 53-I-135-0
-   nuc = new Nucleus("I",135,53,0,134.91,0,23652,0,9.3e-10,9.2e-10,0,0);
-   nuc->AddDecay(0,1,0,2.64809,84.5);
-   nuc->AddDecay(0,1,1,2.12109,15.5);
-
-   // Adding 54-XE-135-0
-   nuc = new Nucleus("XE",135,54,0,134.907,0,32904,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,1.15092,100);
-
-   // Adding 54-XE-135-1
-   nuc = new Nucleus("XE",135,54,1,134.908,0.527,917.4,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.527,100);
-   nuc->AddDecay(0,1,-1,1.67793,0.004);
-
-   // Adding 55-CS-135-0
-   nuc = new Nucleus("CS",135,55,0,134.906,0,7.25328e+13,0,2e-09,9.9e-10,0,0);
-   nuc->AddDecay(0,1,0,0.2686,100);
-
-   // Adding 55-CS-135-1
-   nuc = new Nucleus("CS",135,55,1,134.908,1.633,3180,0,1.9e-11,2.4e-11,0,0);
-   nuc->AddDecay(0,0,-1,1.633,100);
-
-   // Adding 56-BA-135-0
-   nuc = new Nucleus("BA",135,56,0,134.906,0,0,6.592,0,0,0,0);
-
-   // Adding 56-BA-135-1
-   nuc = new Nucleus("BA",135,56,1,134.906,0.268,103320,0,4.5e-10,2.3e-10,0,0);
-   nuc->AddDecay(0,0,-1,0.268,100);
-
-   // Adding 57-LA-135-0
-   nuc = new Nucleus("LA",135,57,0,134.907,0,70200,0,3e-11,2.5e-11,0,0);
-   nuc->AddDecay(0,-1,0,1.20003,100);
-
-   // Adding 58-CE-135-0
-   nuc = new Nucleus("CE",135,58,0,134.909,0,63720,0,8e-10,7.6e-10,0,0);
-   nuc->AddDecay(0,-1,0,2.0256,100);
-
-   // Adding 58-CE-135-1
-   nuc = new Nucleus("CE",135,58,1,134.91,0.446,20,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.446,100);
-
-   // Adding 59-PR-135-0
-   nuc = new Nucleus("PR",135,59,0,134.913,0,1440,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.71989,100);
-
-   // Adding 60-ND-135-0
-   nuc = new Nucleus("ND",135,60,0,134.918,0,744,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.75021,100);
-
-   // Adding 60-ND-135-1
-   nuc = new Nucleus("ND",135,60,1,134.918,0,330,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,4.75021,100);
-
-   // Adding 61-PM-135-0
-   nuc = new Nucleus("PM",135,61,0,134.925,0,49,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.0178,100);
-
-   // Adding 62-SM-135-0
-   nuc = new Nucleus("SM",135,62,0,134.932,0,10,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.12481,0);
-   nuc->AddDecay(-1,-2,0,5.45865,100);
-
-   // Adding 63-EU-135-0
-   nuc = new Nucleus("EU",135,63,0,134.942,0,1.5,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,8.7288,100);
-
-   // Adding 51-SB-136-0
-   nuc = new Nucleus("SB",136,51,0,135.93,0,0.82,0,0,0,0,0);
-   nuc->AddDecay(-1,1,0,4.6708,24);
-   nuc->AddDecay(0,1,0,9.33985,76);
-
-   // Adding 52-TE-136-0
-   nuc = new Nucleus("TE",136,52,0,135.92,0,17.5,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,5.0748,98.9);
-   nuc->AddDecay(-1,1,0,1.29287,1.1);
-
-   // Adding 53-I-136-0
-   nuc = new Nucleus("I",136,53,0,135.915,0,83.4,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,6.92622,100);
-
-   // Adding 53-I-136-1
-   nuc = new Nucleus("I",136,53,1,135.915,0.64,46.9,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,7.56622,100);
-
-   // Adding 54-XE-136-0
-   nuc = new Nucleus("XE",136,54,0,135.907,0,0,8.9,0,0,0,0);
-
-   // Adding 55-CS-136-0
-   nuc = new Nucleus("CS",136,55,0,135.907,0,1.13702e+06,0,3.1e-09,1.9e-09,0,0);
-   nuc->AddDecay(0,1,0,2.54819,88.8);
-   nuc->AddDecay(0,1,1,0.517197,11.2);
-
-   // Adding 55-CS-136-1
-   nuc = new Nucleus("CS",136,55,1,135.907,0,19,0,0,0,0,-8);
-   nuc->AddDecay(0,1,-1,2.54819,50);
-   nuc->AddDecay(0,0,-1,0,50);
-
-   // Adding 56-BA-136-0
-   nuc = new Nucleus("BA",136,56,0,135.905,0,0,7.854,0,0,0,0);
-
-   // Adding 56-BA-136-1
-   nuc = new Nucleus("BA",136,56,1,135.907,2.031,0.3084,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,2.031,100);
-
-   // Adding 57-LA-136-0
-   nuc = new Nucleus("LA",136,57,0,135.908,0,592.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,2.86987,100);
-
-   // Adding 57-LA-136-1
-   nuc = new Nucleus("LA",136,57,1,135.908,0.23,0.114,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.23,100);
-
-   // Adding 58-CE-136-0
-   nuc = new Nucleus("CE",136,58,0,135.907,0,0,0.19,0,0,0,0);
-
-   // Adding 59-PR-136-0
-   nuc = new Nucleus("PR",136,59,0,135.913,0,786,0,3.3e-11,2.5e-11,0,0);
-   nuc->AddDecay(0,-1,0,5.1263,100);
-
-   // Adding 60-ND-136-0
-   nuc = new Nucleus("ND",136,60,0,135.915,0,3039,0,9.9e-11,8.9e-11,0,0);
-   nuc->AddDecay(0,-1,0,2.21099,100);
-
-   // Adding 61-PM-136-0
-   nuc = new Nucleus("PM",136,61,0,135.923,0,107,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.85004,100);
-
-   // Adding 61-PM-136-1
-   nuc = new Nucleus("PM",136,61,1,135.923,0,107,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,7.85004,100);
-
-   // Adding 62-SM-136-0
-   nuc = new Nucleus("SM",136,62,0,135.928,0,43,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.51871,100);
-
-   // Adding 63-EU-136-0
-   nuc = new Nucleus("EU",136,63,0,135.939,0,3.9,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,10.4328,99.91);
-   nuc->AddDecay(-1,-2,0,6.49671,0.09);
-
-   // Adding 63-EU-136-1
-   nuc = new Nucleus("EU",136,63,1,135.939,0,3.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,10.4328,99.91);
-   nuc->AddDecay(-1,-2,-1,6.4967,0.09);
-
-   // Adding 52-TE-137-0
-   nuc = new Nucleus("TE",137,52,0,136.925,0,2.49,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,6.94162,97.3);
-   nuc->AddDecay(-1,1,0,1.86744,2.7);
-
-   // Adding 53-I-137-0
-   nuc = new Nucleus("I",137,53,0,136.918,0,24.5,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,5.87744,92.9);
-   nuc->AddDecay(-1,1,0,1.85204,7.1);
-
-   // Adding 54-XE-137-0
-   nuc = new Nucleus("XE",137,54,0,136.912,0,229.08,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.17196,100);
-
-   // Adding 55-CS-137-0
-   nuc = new Nucleus("CS",137,55,0,136.907,0,9.49234e+08,0,1.3e-08,6.7e-09,0,0);
-   nuc->AddDecay(0,1,0,1.1756,5.4);
-   nuc->AddDecay(0,1,1,0.513596,94.6);
-
-   // Adding 56-BA-137-0
-   nuc = new Nucleus("BA",137,56,0,136.906,0,0,11.23,0,0,0,0);
-
-   // Adding 56-BA-137-1
-   nuc = new Nucleus("BA",137,56,1,136.907,0.662,153.12,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.662,100);
-
-   // Adding 57-LA-137-0
-   nuc = new Nucleus("LA",137,57,0,136.906,0,1.89216e+12,0,8.1e-11,1e-08,0,0);
-   nuc->AddDecay(0,-1,0,0.599785,100);
-
-   // Adding 58-CE-137-0
-   nuc = new Nucleus("CE",137,58,0,136.908,0,32400,0,2.5e-11,1.9e-11,0,0);
-   nuc->AddDecay(0,-1,0,1.2221,100);
-
-   // Adding 58-CE-137-1
-   nuc = new Nucleus("CE",137,58,1,136.908,0.254,123840,0,5.4e-10,5.9e-10,0,0);
-   nuc->AddDecay(0,0,-1,0.254,99.22);
-   nuc->AddDecay(0,-1,-1,1.4761,0.78);
-
-   // Adding 59-PR-137-0
-   nuc = new Nucleus("PR",137,59,0,136.911,0,4608,0,4e-11,3.5e-11,0,0);
-   nuc->AddDecay(0,-1,0,2.702,100);
-
-   // Adding 60-ND-137-0
-   nuc = new Nucleus("ND",137,60,0,136.915,0,2310,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.68998,100);
-
-   // Adding 60-ND-137-1
-   nuc = new Nucleus("ND",137,60,1,136.915,0.52,1.6,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.52,100);
-
-   // Adding 61-PM-137-0
-   nuc = new Nucleus("PM",137,61,0,136.921,0,144,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.5798,100);
-
-   // Adding 62-SM-137-0
-   nuc = new Nucleus("SM",137,62,0,136.927,0,45,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.05376,100);
-
-   // Adding 63-EU-137-0
-   nuc = new Nucleus("EU",137,63,0,136.935,0,11,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.52681,100);
-
-   // Adding 64-GD-137-0
-   nuc = new Nucleus("GD",137,64,0,136.945,0,7,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,8.7929,0);
-   nuc->AddDecay(-1,-2,0,7.9408,100);
-
-   // Adding 52-TE-138-0
-   nuc = new Nucleus("TE",138,52,0,137.929,0,1.4,0,0,0,0,0);
-   nuc->AddDecay(-1,1,0,2.49833,6.3);
-   nuc->AddDecay(0,1,0,6.36807,93.7);
-
-   // Adding 53-I-138-0
-   nuc = new Nucleus("I",138,53,0,137.922,0,6.49,0,0,0,0,0);
-   nuc->AddDecay(-1,1,0,2.0077,5.5);
-   nuc->AddDecay(0,1,0,7.81996,94.5);
-
-   // Adding 54-XE-138-0
-   nuc = new Nucleus("XE",138,54,0,137.914,0,844.8,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,2.77406,100);
-
-   // Adding 55-CS-138-0
-   nuc = new Nucleus("CS",138,55,0,137.911,0,2004.6,0,9.2e-11,4.6e-11,0,0);
-   nuc->AddDecay(0,1,0,5.37293,100);
-
-   // Adding 55-CS-138-1
-   nuc = new Nucleus("CS",138,55,1,137.911,0.08,174.6,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.08,81);
-   nuc->AddDecay(0,1,-1,5.45293,19);
-
-   // Adding 56-BA-138-0
-   nuc = new Nucleus("BA",138,56,0,137.905,0,0,71.7,0,0,0,0);
-
-   // Adding 57-LA-138-0
-   nuc = new Nucleus("LA",138,57,0,137.907,0,3.31128e+18,0.09,1.1e-09,1.8e-07,0,0);
-   nuc->AddDecay(0,-1,0,1.73749,66.4);
-   nuc->AddDecay(0,1,0,1.04447,33.6);
-
-   // Adding 58-CE-138-0
-   nuc = new Nucleus("CE",138,58,0,137.906,0,0,0.25,0,0,0,0);
-
-   // Adding 58-CE-138-1
-   nuc = new Nucleus("CE",138,58,1,137.908,2.129,0.00865,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,2.129,100);
-
-   // Adding 59-PR-138-0
-   nuc = new Nucleus("PR",138,59,0,137.911,0,87,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.437,100);
-
-   // Adding 59-PR-138-1
-   nuc = new Nucleus("PR",138,59,1,137.911,0.364,7632,0,1.3e-10,1.4e-10,0,0);
-   nuc->AddDecay(0,-1,-1,4.80099,100);
-
-   // Adding 60-ND-138-0
-   nuc = new Nucleus("ND",138,60,0,137.912,0,18144,0,6.4e-10,3.8e-10,0,0);
-   nuc->AddDecay(0,-1,0,1.10001,100);
-
-   // Adding 61-PM-138-0
-   nuc = new Nucleus("PM",138,61,0,137.919,0,194.4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.89976,100);
-
-   // Adding 61-PM-138-1
-   nuc = new Nucleus("PM",138,61,1,137.919,0,10,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,6.89976,100);
-
-   // Adding 61-PM-138-2
-   nuc = new Nucleus("PM",138,61,2,137.919,0,194.4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-2,6.89976,100);
-
-   // Adding 62-SM-138-0
-   nuc = new Nucleus("SM",138,62,0,137.924,0,186,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.91415,100);
-
-   // Adding 63-EU-138-0
-   nuc = new Nucleus("EU",138,63,0,137.933,0,12.1,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,9.23079,100);
-
-   // Adding 64-GD-138-0
-   nuc = new Nucleus("GD",138,64,0,137.94,0,0,0,0,0,0,-2);
-
-   // Adding 53-I-139-0
-   nuc = new Nucleus("I",139,53,0,138.926,0,2.29,0,0,0,0,0);
-   nuc->AddDecay(-1,1,0,3.20531,9.9);
-   nuc->AddDecay(0,1,0,6.80599,90.1);
-
-   // Adding 54-XE-139-0
-   nuc = new Nucleus("XE",139,54,0,138.919,0,39.68,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,5.05702,100);
-
-   // Adding 55-CS-139-0
-   nuc = new Nucleus("CS",139,55,0,138.913,0,556.2,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.21268,100);
-
-   // Adding 56-BA-139-0
-   nuc = new Nucleus("BA",139,56,0,138.909,0,4983.6,0,1.2e-10,5.5e-11,0,0);
-   nuc->AddDecay(0,1,0,2.31711,100);
-
-   // Adding 57-LA-139-0
-   nuc = new Nucleus("LA",139,57,0,138.906,0,0,99.91,0,0,0,0);
-
-   // Adding 58-CE-139-0
-   nuc = new Nucleus("CE",139,58,0,138.907,0,1.18921e+07,0,2.6e-10,1.8e-09,0,0);
-   nuc->AddDecay(0,-1,0,0.277962,100);
-
-   // Adding 58-CE-139-1
-   nuc = new Nucleus("CE",139,58,1,138.907,0.754,54.8,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.754,100);
-
-   // Adding 59-PR-139-0
-   nuc = new Nucleus("PR",139,59,0,138.909,0,15876,0,3.1e-11,3e-11,0,0);
-   nuc->AddDecay(0,-1,0,2.12899,100);
-
-   // Adding 60-ND-139-0
-   nuc = new Nucleus("ND",139,60,0,138.912,0,1782,0,2e-11,1.7e-11,0,0);
-   nuc->AddDecay(0,-1,0,2.78654,100);
-
-   // Adding 60-ND-139-1
-   nuc = new Nucleus("ND",139,60,1,138.912,0.231,19800,0,2.5e-10,2.5e-10,0,0);
-   nuc->AddDecay(0,0,-1,0.231,11.8);
-   nuc->AddDecay(0,-1,-1,3.01755,88.2);
-
-   // Adding 61-PM-139-0
-   nuc = new Nucleus("PM",139,61,0,138.917,0,249,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.52199,100);
-
-   // Adding 61-PM-139-1
-   nuc = new Nucleus("PM",139,61,1,138.917,0.189,0.18,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.189,99.94);
-   nuc->AddDecay(0,-1,-1,4.71099,0.06);
-
-   // Adding 62-SM-139-0
-   nuc = new Nucleus("SM",139,62,0,138.923,0,154.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.46004,100);
-
-   // Adding 62-SM-139-1
-   nuc = new Nucleus("SM",139,62,1,138.923,0.458,10.7,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.458,93.7);
-   nuc->AddDecay(0,-1,-1,5.91804,6.3);
-
-   // Adding 63-EU-139-0
-   nuc = new Nucleus("EU",139,63,0,138.93,0,17.9,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.67751,100);
-
-   // Adding 64-GD-139-0
-   nuc = new Nucleus("GD",139,64,0,138.938,0,4.9,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.7039,100);
-   nuc->AddDecay(-1,-2,0,6.2548,0);
-
-   // Adding 53-I-140-0
-   nuc = new Nucleus("I",140,53,0,139.931,0,0.86,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,8.76295,90.6);
-   nuc->AddDecay(-1,1,0,3.34111,9.4);
-
-   // Adding 54-XE-140-0
-   nuc = new Nucleus("XE",140,54,0,139.922,0,13.6,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.05995,100);
-
-   // Adding 55-CS-140-0
-   nuc = new Nucleus("CS",140,55,0,139.917,0,63.7,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,6.21877,100);
-
-   // Adding 56-BA-140-0
-   nuc = new Nucleus("BA",140,56,0,139.911,0,1.10177e+06,0,2.5e-09,1.6e-09,0,0);
-   nuc->AddDecay(0,1,0,1.04715,100);
-
-   // Adding 57-LA-140-0
-   nuc = new Nucleus("LA",140,57,0,139.909,0,144988,0,2e-09,1.5e-09,0,0);
-   nuc->AddDecay(0,1,0,3.76189,100);
-
-   // Adding 58-CE-140-0
-   nuc = new Nucleus("CE",140,58,0,139.905,0,0,88.48,0,0,0,0);
-
-   // Adding 59-PR-140-0
-   nuc = new Nucleus("PR",140,59,0,139.909,0,203.4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.38796,100);
-
-   // Adding 60-ND-140-0
-   nuc = new Nucleus("ND",140,60,0,139.909,0,291168,0,2.8e-09,2e-09,0,0);
-   nuc->AddDecay(0,-1,0,0.222145,100);
-
-   // Adding 61-PM-140-0
-   nuc = new Nucleus("PM",140,61,0,139.916,0,9.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.08868,100);
-
-   // Adding 61-PM-140-1
-   nuc = new Nucleus("PM",140,61,1,139.916,0,357,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,6.08868,100);
-
-   // Adding 62-SM-140-0
-   nuc = new Nucleus("SM",140,62,0,139.919,0,889.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.01994,100);
-
-   // Adding 63-EU-140-0
-   nuc = new Nucleus("EU",140,63,0,139.928,0,1.54,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,8.39975,100);
-
-   // Adding 63-EU-140-1
-   nuc = new Nucleus("EU",140,63,1,139.928,0,0.125,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,8.39975,100);
-
-   // Adding 64-GD-140-0
-   nuc = new Nucleus("GD",140,64,0,139.934,0,16,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.45985,100);
-
-   // Adding 65-TB-140-0
-   nuc = new Nucleus("TB",140,65,0,139.946,0,2.4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,10.8005,100);
-   nuc->AddDecay(-1,-2,0,7.3853,0);
-
-   // Adding 53-I-141-0
-   nuc = new Nucleus("I",141,53,0,140.935,0,0.43,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,7.83889,78.8);
-   nuc->AddDecay(-1,1,0,4.44556,21.2);
-
-   // Adding 54-XE-141-0
-   nuc = new Nucleus("XE",141,54,0,140.927,0,1.73,0,0,0,0,0);
-   nuc->AddDecay(-1,1,0,0.666623,0.04);
-   nuc->AddDecay(0,1,0,6.14993,99.96);
-
-   // Adding 55-CS-141-0
-   nuc = new Nucleus("CS",141,55,0,140.92,0,24.94,0,0,0,0,0);
-   nuc->AddDecay(-1,1,0,0.735471,0.03);
-   nuc->AddDecay(0,1,0,5.2551,99.97);
-
-   // Adding 56-BA-141-0
-   nuc = new Nucleus("BA",141,56,0,140.914,0,1096.2,0,7e-11,3.5e-11,0,0);
-   nuc->AddDecay(0,1,0,3.21604,100);
-
-   // Adding 57-LA-141-0
-   nuc = new Nucleus("LA",141,57,0,140.911,0,14112,0,3.6e-10,2.2e-10,0,0);
-   nuc->AddDecay(0,1,0,2.50198,100);
-
-   // Adding 58-CE-141-0
-   nuc = new Nucleus("CE",141,58,0,140.908,0,2.80809e+06,0,7.1e-10,3.6e-09,0,0);
-   nuc->AddDecay(0,1,0,0.580704,100);
-
-   // Adding 59-PR-141-0
-   nuc = new Nucleus("PR",141,59,0,140.908,0,0,100,0,0,0,0);
-
-   // Adding 60-ND-141-0
-   nuc = new Nucleus("ND",141,60,0,140.91,0,8964,0,8.3e-12,8.8e-12,0,0);
-   nuc->AddDecay(0,-1,0,1.82289,100);
-
-   // Adding 60-ND-141-1
-   nuc = new Nucleus("ND",141,60,1,140.91,0.757,62,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.757,99.95);
-   nuc->AddDecay(0,-1,-1,2.5799,0.05);
-
-   // Adding 61-PM-141-0
-   nuc = new Nucleus("PM",141,61,0,140.914,0,1254,0,3.6e-11,2.5e-11,0,0);
-   nuc->AddDecay(0,-1,0,3.71502,100);
-
-   // Adding 62-SM-141-0
-   nuc = new Nucleus("SM",141,62,0,140.918,0,612,0,3.9e-11,2.7e-11,0,0);
-   nuc->AddDecay(0,-1,0,4.54311,100);
-
-   // Adding 62-SM-141-1
-   nuc = new Nucleus("SM",141,62,1,140.919,0.176,1356,0,6.5e-11,5.6e-11,0,0);
-   nuc->AddDecay(0,-1,-1,4.71912,99.69);
-   nuc->AddDecay(0,0,-1,0.176,0.31);
-
-   // Adding 63-EU-141-0
-   nuc = new Nucleus("EU",141,63,0,140.924,0,40,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.55,100);
-
-   // Adding 63-EU-141-1
-   nuc = new Nucleus("EU",141,63,1,140.925,0.096,2.7,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.096,87);
-   nuc->AddDecay(0,-1,-1,5.646,13);
-
-   // Adding 64-GD-141-0
-   nuc = new Nucleus("GD",141,64,0,140.932,0,14,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.24762,99.97);
-   nuc->AddDecay(-1,-2,0,4.9329,0.03);
-
-   // Adding 64-GD-141-1
-   nuc = new Nucleus("GD",141,64,1,140.933,0.378,24.5,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,7.62561,89);
-   nuc->AddDecay(0,0,-1,0.378,11);
-
-   // Adding 65-TB-141-0
-   nuc = new Nucleus("TB",141,65,0,140.941,0,3.5,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,8.3367,100);
-
-   // Adding 65-TB-141-1
-   nuc = new Nucleus("TB",141,65,1,140.941,0,7.9,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,8.3367,100);
-
-   // Adding 66-DY-141-0
-   nuc = new Nucleus("DY",141,66,0,140.951,0,0.9,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,9.3429,100);
-   nuc->AddDecay(-1,-2,0,8.7529,0);
-
-   // Adding 53-I-142-0
-   nuc = new Nucleus("I",142,53,0,141.94,0,0.2,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,9.87831,45.5);
-   nuc->AddDecay(-1,1,0,4.64989,54.5);
-
-   // Adding 54-XE-142-0
-   nuc = new Nucleus("XE",142,54,0,141.93,0,1.22,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,5.04,100);
-
-   // Adding 55-CS-142-0
-   nuc = new Nucleus("CS",142,55,0,141.924,0,1.7,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,7.30647,99.72);
-   nuc->AddDecay(-1,1,0,1.1366,0.28);
-
-   // Adding 56-BA-142-0
-   nuc = new Nucleus("BA",142,56,0,141.916,0,636,0,3.5e-11,2.7e-11,0,0);
-   nuc->AddDecay(0,1,0,2.21209,100);
-
-   // Adding 57-LA-142-0
-   nuc = new Nucleus("LA",142,57,0,141.914,0,5466,0,1.8e-10,1.5e-10,0,0);
-   nuc->AddDecay(0,1,0,4.50507,100);
-
-   // Adding 58-CE-142-0
-   nuc = new Nucleus("CE",142,58,0,141.909,0,0,11.08,0,0,0,0);
-
-   // Adding 59-PR-142-0
-   nuc = new Nucleus("PR",142,59,0,141.91,0,68832,0,1.3e-09,7.4e-10,0,0);
-   nuc->AddDecay(0,1,0,2.1622,99.98);
-   nuc->AddDecay(0,-1,0,0.745209,0.02);
-
-   // Adding 59-PR-142-1
-   nuc = new Nucleus("PR",142,59,1,141.91,0.004,876,0,1.7e-11,9.4e-12,0,0);
-   nuc->AddDecay(0,0,-1,0.004,100);
-
-   // Adding 60-ND-142-0
-   nuc = new Nucleus("ND",142,60,0,141.908,0,0,27.13,0,0,0,0);
-
-   // Adding 61-PM-142-0
-   nuc = new Nucleus("PM",142,61,0,141.913,0,40.5,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.87359,100);
-
-   // Adding 62-SM-142-0
-   nuc = new Nucleus("SM",142,62,0,141.915,0,4349.4,0,1.9e-10,1.1e-10,0,0);
-   nuc->AddDecay(0,-1,0,2.09813,100);
-
-   // Adding 63-EU-142-0
-   nuc = new Nucleus("EU",142,63,0,141.923,0,2.4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.35992,100);
-
-   // Adding 63-EU-142-1
-   nuc = new Nucleus("EU",142,63,1,141.923,0,73.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,7.35992,100);
-
-   // Adding 64-GD-142-0
-   nuc = new Nucleus("GD",142,64,0,141.928,0,70.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.49998,100);
-
-   // Adding 65-TB-142-0
-   nuc = new Nucleus("TB",142,65,0,141.939,0,0.597,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,10.0595,100);
-   nuc->AddDecay(-1,-2,0,6.03715,3e-07);
-
-   // Adding 65-TB-142-1
-   nuc = new Nucleus("TB",142,65,1,141.939,0.28,0.303,0,0,0,0,-8);
-   nuc->AddDecay(0,0,-1,0.28,33.3333);
-   nuc->AddDecay(0,-1,-1,10.3395,33.3333);
-   nuc->AddDecay(-1,-2,-1,6.31714,33.3333);
-
-   // Adding 66-DY-142-0
-   nuc = new Nucleus("DY",142,66,0,141.946,0,2.3,0,0,0,0,0);
-   nuc->AddDecay(-1,-2,0,5.6895,8e-05);
-   nuc->AddDecay(0,-1,0,6.89997,99.9999);
-
-   // Adding 54-XE-143-0
-   nuc = new Nucleus("XE",143,54,0,142.935,0,0.3,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,7.30699,100);
-
-   // Adding 55-CS-143-0
-   nuc = new Nucleus("CS",143,55,0,142.927,0,1.78,0,0,0,0,0);
-   nuc->AddDecay(-1,1,0,2.04826,1.62);
-   nuc->AddDecay(0,1,0,6.2426,98.38);
-
-   // Adding 56-BA-143-0
-   nuc = new Nucleus("BA",143,56,0,142.921,0,14.33,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.2433,100);
-
-   // Adding 57-LA-143-0
-   nuc = new Nucleus("LA",143,57,0,142.916,0,852,0,5.6e-11,3.3e-11,0,0);
-   nuc->AddDecay(0,1,0,3.42452,100);
-
-   // Adding 58-CE-143-0
-   nuc = new Nucleus("CE",143,58,0,142.912,0,118940,0,1.1e-09,1e-09,0,0);
-   nuc->AddDecay(0,1,0,1.46159,100);
-
-   // Adding 59-PR-143-0
-   nuc = new Nucleus("PR",143,59,0,142.911,0,1.17245e+06,0,1.2e-09,2.3e-09,0,0);
-   nuc->AddDecay(0,1,0,0.933998,100);
-
-   // Adding 60-ND-143-0
-   nuc = new Nucleus("ND",143,60,0,142.91,0,0,12.18,0,0,0,0);
-
-   // Adding 61-PM-143-0
-   nuc = new Nucleus("PM",143,61,0,142.911,0,2.2896e+07,0,2.3e-10,1.4e-09,0,0);
-   nuc->AddDecay(0,-1,0,1.0414,100);
-
-   // Adding 62-SM-143-0
-   nuc = new Nucleus("SM",143,62,0,142.915,0,529.8,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.44299,100);
-
-   // Adding 62-SM-143-1
-   nuc = new Nucleus("SM",143,62,1,142.915,0.754,66,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.754,99.76);
-   nuc->AddDecay(0,-1,-1,4.19699,0.24);
-
-   // Adding 62-SM-143-2
-   nuc = new Nucleus("SM",143,62,2,142.918,2.795,0.03,0,0,0,0,0);
-   nuc->AddDecay(0,0,-2,2.795,100);
-
-   // Adding 63-EU-143-0
-   nuc = new Nucleus("EU",143,63,0,142.92,0,157.8,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.1684,100);
-
-   // Adding 64-GD-143-0
-   nuc = new Nucleus("GD",143,64,0,142.927,0,39,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.00742,100);
-
-   // Adding 64-GD-143-1
-   nuc = new Nucleus("GD",143,64,1,142.927,0.153,112,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,6.16042,100);
-
-   // Adding 65-TB-143-0
-   nuc = new Nucleus("TB",143,65,0,142.935,0,12,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.39362,100);
-
-   // Adding 65-TB-143-1
-   nuc = new Nucleus("TB",143,65,1,142.935,0,21,0,0,0,0,-3);
-   nuc->AddDecay(0,-1,-1,7.39362,100);
-
-   // Adding 66-DY-143-0
-   nuc = new Nucleus("DY",143,66,0,142.944,0,3.9,0,0,0,0,0);
-   nuc->AddDecay(-1,-2,0,7.64581,0);
-   nuc->AddDecay(0,-1,0,8.7649,100);
-
-   // Adding 54-XE-144-0
-   nuc = new Nucleus("XE",144,54,0,143.939,0,1.15,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,6.06531,100);
-
-   // Adding 55-CS-144-0
-   nuc = new Nucleus("CS",144,55,0,143.932,0,1.01,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,8.46459,96.83);
-   nuc->AddDecay(-1,1,0,2.56089,3.17);
-
-   // Adding 55-CS-144-1
-   nuc = new Nucleus("CS",144,55,1,143.932,0,1,0,0,0,0,-4);
-   nuc->AddDecay(0,1,-1,8.46459,100);
-
-   // Adding 56-BA-144-0
-   nuc = new Nucleus("BA",144,56,0,143.923,0,11.5,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,3.11935,96.4);
-   nuc->AddDecay(-1,1,0,-1.6604,3.6);
-
-   // Adding 57-LA-144-0
-   nuc = new Nucleus("LA",144,57,0,143.92,0,40.8,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,5.54118,100);
-
-   // Adding 58-CE-144-0
-   nuc = new Nucleus("CE",144,58,0,143.914,0,2.46148e+07,0,5.2e-09,4.9e-08,0,0);
-   nuc->AddDecay(0,1,0,0.318703,98.5);
-   nuc->AddDecay(0,1,1,0.259705,1.5);
-
-   // Adding 59-PR-144-0
-   nuc = new Nucleus("PR",144,59,0,143.913,0,1036.8,0,5.1e-11,3e-11,0,0);
-   nuc->AddDecay(0,1,0,2.99749,100);
-
-   // Adding 59-PR-144-1
-   nuc = new Nucleus("PR",144,59,1,143.913,0.059,432,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.059,99.93);
-   nuc->AddDecay(0,1,-1,3.05649,0.07);
-
-   // Adding 60-ND-144-0
-   nuc = new Nucleus("ND",144,60,0,143.91,0,7.22174e+22,23.8,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,1.9051,100);
-
-   // Adding 61-PM-144-0
-   nuc = new Nucleus("PM",144,61,0,143.913,0,3.13632e+07,0,9.7e-10,7.8e-09,0,0);
-   nuc->AddDecay(0,-1,0,2.33179,100);
-
-   // Adding 62-SM-144-0
-   nuc = new Nucleus("SM",144,62,0,143.912,0,0,3.1,0,0,0,0);
-
-   // Adding 63-EU-144-0
-   nuc = new Nucleus("EU",144,63,0,143.919,0,10.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.32881,100);
-
-   // Adding 64-GD-144-0
-   nuc = new Nucleus("GD",144,64,0,143.923,0,270,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.73932,100);
-
-   // Adding 65-TB-144-0
-   nuc = new Nucleus("TB",144,65,0,143.932,0,1,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,8.91891,100);
-
-   // Adding 65-TB-144-1
-   nuc = new Nucleus("TB",144,65,1,143.933,0.397,4.25,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.397,66);
-   nuc->AddDecay(0,-1,-1,9.31591,34);
-
-   // Adding 66-DY-144-0
-   nuc = new Nucleus("DY",144,66,0,143.939,0,9.1,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.2319,100);
-   nuc->AddDecay(-1,-2,0,4.30562,0);
-
-   // Adding 67-HO-144-0
-   nuc = new Nucleus("HO",144,67,0,143.952,0,0.7,0,0,0,0,-8);
-   nuc->AddDecay(0,-1,0,11.7558,50);
-   nuc->AddDecay(-1,-2,0,8.66781,50);
-
-   // Adding 54-XE-145-0
-   nuc = new Nucleus("XE",145,54,0,144.942,0,0.9,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,6.29984,97.62);
-   nuc->AddDecay(-1,1,0,1.38033,1.19);
-
-   // Adding 55-CS-145-0
-   nuc = new Nucleus("CS",145,55,0,144.935,0,0.594,0,0,0,0,0);
-   nuc->AddDecay(-1,1,0,3.54507,13.8);
-   nuc->AddDecay(0,1,0,7.88681,86.2);
-
-   // Adding 56-BA-145-0
-   nuc = new Nucleus("BA",145,56,0,144.927,0,4.31,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.93172,100);
-
-   // Adding 57-LA-145-0
-   nuc = new Nucleus("LA",145,57,0,144.922,0,24.8,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.11667,100);
-
-   // Adding 58-CE-145-0
-   nuc = new Nucleus("CE",145,58,0,144.917,0,180.6,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,2.53674,100);
-
-   // Adding 59-PR-145-0
-   nuc = new Nucleus("PR",145,59,0,144.915,0,21542.4,0,3.9e-10,2.6e-10,0,0);
-   nuc->AddDecay(0,1,0,1.80526,100);
-
-   // Adding 60-ND-145-0
-   nuc = new Nucleus("ND",145,60,0,144.913,0,0,8.3,0,0,0,0);
-
-   // Adding 61-PM-145-0
-   nuc = new Nucleus("PM",145,61,0,144.913,0,5.58187e+08,0,1.1e-10,3.4e-09,0,0);
-   nuc->AddDecay(0,-1,0,0.163193,100);
-   nuc->AddDecay(-4,-2,0,2.32219,3e-09);
-
-   // Adding 62-SM-145-0
-   nuc = new Nucleus("SM",145,62,0,144.913,0,2.9376e+07,0,2.1e-10,1.5e-09,0,0);
-   nuc->AddDecay(0,-1,0,0.616707,100);
-
-   // Adding 63-EU-145-0
-   nuc = new Nucleus("EU",145,63,0,144.916,0,512352,0,7.5e-10,7.4e-10,0,0);
-   nuc->AddDecay(0,-1,0,2.66019,100);
-
-   // Adding 64-GD-145-0
-   nuc = new Nucleus("GD",145,64,0,144.922,0,1380,0,4.4e-11,3.5e-11,0,0);
-   nuc->AddDecay(0,-1,0,5.05441,100);
-
-   // Adding 64-GD-145-1
-   nuc = new Nucleus("GD",145,64,1,144.922,0.749,85,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.749,94.3);
-   nuc->AddDecay(0,-1,-1,5.80341,5.7);
-
-   // Adding 65-TB-145-0
-   nuc = new Nucleus("TB",145,65,0,144.929,0,0,0,0,0,0,-2);
-
-   // Adding 65-TB-145-1
-   nuc = new Nucleus("TB",145,65,1,144.929,0,29.5,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,6.50802,100);
-
-   // Adding 66-DY-145-0
-   nuc = new Nucleus("DY",145,66,0,144.937,0,10,0,0,0,0,-8);
-   nuc->AddDecay(0,-1,0,7.72028,100);
-
-   // Adding 66-DY-145-1
-   nuc = new Nucleus("DY",145,66,1,144.937,0,13.6,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,7.72028,100);
-
-   // Adding 67-HO-145-0
-   nuc = new Nucleus("HO",145,67,0,144.947,0,2.4,0,0,0,0,-8);
-   nuc->AddDecay(0,-1,0,9.10664,100);
-
-   // Adding 68-ER-145-0
-   nuc = new Nucleus("ER",145,68,0,144.958,0,0.9,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,10.3516,100);
-
-   // Adding 54-XE-146-0
-   nuc = new Nucleus("XE",146,54,0,145.944,0,1.5e-07,0,0,0,0,-5);
-   nuc->AddDecay(0,1,0,3.64086,100);
-
-   // Adding 55-CS-146-0
-   nuc = new Nucleus("CS",146,55,0,145.94,0,0.343,0,0,0,0,0);
-   nuc->AddDecay(-1,1,0,4.31679,13.2);
-   nuc->AddDecay(0,1,0,9.37651,86.8);
-
-   // Adding 56-BA-146-0
-   nuc = new Nucleus("BA",146,56,0,145.93,0,2.22,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.118,100);
-
-   // Adding 57-LA-146-0
-   nuc = new Nucleus("LA",146,57,0,145.926,0,6.27,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,6.54669,100);
-
-   // Adding 57-LA-146-1
-   nuc = new Nucleus("LA",146,57,1,145.926,0,10,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,6.54669,100);
-
-   // Adding 58-CE-146-0
-   nuc = new Nucleus("CE",146,58,0,145.919,0,811.2,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,1.0351,100);
-
-   // Adding 59-PR-146-0
-   nuc = new Nucleus("PR",146,59,0,145.918,0,1449,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.19617,100);
-
-   // Adding 60-ND-146-0
-   nuc = new Nucleus("ND",146,60,0,145.913,0,0,17.19,0,0,0,0);
-
-   // Adding 61-PM-146-0
-   nuc = new Nucleus("PM",146,61,0,145.915,0,1.74394e+08,0,9e-10,1.9e-08,0,0);
-   nuc->AddDecay(0,1,0,1.5419,34);
-   nuc->AddDecay(0,-1,0,1.47153,66);
-
-   // Adding 62-SM-146-0
-   nuc = new Nucleus("SM",146,62,0,145.913,0,3.24821e+15,0,5.4e-08,9.9e-06,1,0);
-   nuc->AddDecay(-4,-2,0,2.52863,100);
-
-   // Adding 63-EU-146-0
-   nuc = new Nucleus("EU",146,63,0,145.917,0,396576,0,1.3e-09,1.2e-09,0,0);
-   nuc->AddDecay(0,-1,0,3.87813,100);
-
-   // Adding 64-GD-146-0
-   nuc = new Nucleus("GD",146,64,0,145.918,0,4.17053e+06,0,9.6e-10,6e-09,0,0);
-   nuc->AddDecay(0,-1,0,1.03022,100);
-
-   // Adding 65-TB-146-0
-   nuc = new Nucleus("TB",146,65,0,145.927,0,8,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,8.07504,100);
-
-   // Adding 65-TB-146-1
-   nuc = new Nucleus("TB",146,65,1,145.927,0,23,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,8.07504,100);
-
-   // Adding 66-DY-146-0
-   nuc = new Nucleus("DY",146,66,0,145.933,0,29,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.16,100);
-
-   // Adding 66-DY-146-1
-   nuc = new Nucleus("DY",146,66,1,145.933,0,0.15,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0,100);
-
-   // Adding 67-HO-146-0
-   nuc = new Nucleus("HO",146,67,0,145.944,0,3.6,0,0,0,0,0);
-   nuc->AddDecay(-1,-2,0,6.96701,100);
-   nuc->AddDecay(0,-1,0,10.6795,0);
-
-   // Adding 68-ER-146-0
-   nuc = new Nucleus("ER",146,68,0,145.952,0,1.7,0,0,0,0,-8);
-   nuc->AddDecay(0,-1,0,7.42391,100);
-
-   // Adding 55-CS-147-0
-   nuc = new Nucleus("CS",147,55,0,146.944,0,0.225,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,9.25328,57);
-   nuc->AddDecay(-1,1,0,4.73596,43);
-
-   // Adding 56-BA-147-0
-   nuc = new Nucleus("BA",147,56,0,146.934,0,0.893,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,5.74998,99.98);
-   nuc->AddDecay(-1,1,0,-0.399325,0.02);
-
-   // Adding 57-LA-147-0
-   nuc = new Nucleus("LA",147,57,0,146.928,0,4.015,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.94498,99.96);
-   nuc->AddDecay(-1,1,0,0.397382,0.04);
-
-   // Adding 58-CE-147-0
-   nuc = new Nucleus("CE",147,58,0,146.923,0,56.4,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,3.28999,100);
-
-   // Adding 59-PR-147-0
-   nuc = new Nucleus("PR",147,59,0,146.919,0,804,0,3.3e-11,3e-11,0,0);
-   nuc->AddDecay(0,1,0,2.68569,100);
-
-   // Adding 60-ND-147-0
-   nuc = new Nucleus("ND",147,60,0,146.916,0,948672,0,1.1e-09,2.3e-09,0,0);
-   nuc->AddDecay(0,1,0,0.896095,100);
-
-   // Adding 61-PM-147-0
-   nuc = new Nucleus("PM",147,61,0,146.915,0,8.27315e+07,0,2.6e-10,4.7e-09,0,0);
-   nuc->AddDecay(0,1,0,0.224106,100);
-
-   // Adding 62-SM-147-0
-   nuc = new Nucleus("SM",147,62,0,146.915,0,3.34282e+18,15,4.9e-08,9e-06,1,0);
-   nuc->AddDecay(-4,-2,0,2.3104,100);
-
-   // Adding 63-EU-147-0
-   nuc = new Nucleus("EU",147,63,0,146.917,0,2.08224e+06,0,4.4e-10,1e-09,0,0);
-   nuc->AddDecay(0,-1,0,1.7214,100);
-   nuc->AddDecay(-4,-2,0,2.9904,0.0022);
-
-   // Adding 64-GD-147-0
-   nuc = new Nucleus("GD",147,64,0,146.919,0,137016,0,6.1e-10,5.9e-10,0,0);
-   nuc->AddDecay(0,-1,0,2.1878,100);
-
-   // Adding 65-TB-147-0
-   nuc = new Nucleus("TB",147,65,0,146.924,0,6120,0,1.6e-10,1.2e-10,0,0);
-   nuc->AddDecay(0,-1,0,4.61143,100);
-
-   // Adding 65-TB-147-1
-   nuc = new Nucleus("TB",147,65,1,146.924,0.051,109.8,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,4.66243,100);
-
-   // Adding 66-DY-147-0
-   nuc = new Nucleus("DY",147,66,0,146.931,0,40,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.37256,100);
-   nuc->AddDecay(-1,-2,0,4.4253,0);
-
-   // Adding 66-DY-147-1
-   nuc = new Nucleus("DY",147,66,1,146.932,0.751,55,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,7.12356,65);
-   nuc->AddDecay(0,0,-1,0.751,35);
-
-   // Adding 67-HO-147-0
-   nuc = new Nucleus("HO",147,67,0,146.94,0,5.8,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,8.14835,100);
-   nuc->AddDecay(-1,-2,0,4.49861,0);
-
-   // Adding 68-ER-147-0
-   nuc = new Nucleus("ER",147,68,0,146.949,0,2.5,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,9.0999,100);
-   nuc->AddDecay(-1,-2,0,8.43851,0);
-
-   // Adding 68-ER-147-1
-   nuc = new Nucleus("ER",147,68,1,146.949,0,2.5,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,9.0999,100);
-   nuc->AddDecay(-1,-2,-1,8.43851,0);
-
-   // Adding 69-TM-147-0
-   nuc = new Nucleus("TM",147,69,0,146.961,0,0.56,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,10.7259,90);
-   nuc->AddDecay(-1,-1,0,1.061,10);
-
-   // Adding 55-CS-148-0
-   nuc = new Nucleus("CS",148,55,0,147.949,0,0.158,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,10.5249,100);
-
-   // Adding 56-BA-148-0
-   nuc = new Nucleus("BA",148,56,0,147.938,0,0.607,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,5.115,99.98);
-   nuc->AddDecay(-1,1,0,1.11576,0.02);
-
-   // Adding 57-LA-148-0
-   nuc = new Nucleus("LA",148,57,0,147.932,0,1.05,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,7.26229,99.89);
-   nuc->AddDecay(-1,1,0,0.945741,0.11);
-
-   // Adding 58-CE-148-0
-   nuc = new Nucleus("CE",148,58,0,147.924,0,56,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,2.06001,100);
-
-   // Adding 59-PR-148-0
-   nuc = new Nucleus("PR",148,59,0,147.922,0,136.2,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.93201,100);
-
-   // Adding 59-PR-148-1
-   nuc = new Nucleus("PR",148,59,1,147.922,0.09,120,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,5.02201,100);
-
-   // Adding 60-ND-148-0
-   nuc = new Nucleus("ND",148,60,0,147.917,0,0,5.76,0,0,0,0);
-
-   // Adding 61-PM-148-0
-   nuc = new Nucleus("PM",148,61,0,147.917,0,463968,0,2.7e-09,2.2e-09,0,0);
-   nuc->AddDecay(0,1,0,2.46826,100);
-
-   // Adding 61-PM-148-1
-   nuc = new Nucleus("PM",148,61,1,147.918,0.138,3.56746e+06,0,1.8e-09,5.4e-09,0,0);
-   nuc->AddDecay(0,1,-1,2.60626,95);
-   nuc->AddDecay(0,0,-1,0.138,5);
-
-   // Adding 62-SM-148-0
-   nuc = new Nucleus("SM",148,62,0,147.915,0,2.20752e+23,11.3,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,1.9858,100);
-
-   // Adding 63-EU-148-0
-   nuc = new Nucleus("EU",148,63,0,147.918,0,4.7088e+06,0,1.3e-09,2.7e-09,0,0);
-   nuc->AddDecay(0,-1,0,3.10741,100);
-   nuc->AddDecay(-4,-2,0,2.76142,9.4e-07);
-
-   // Adding 64-GD-148-0
-   nuc = new Nucleus("GD",148,64,0,147.918,0,2.35259e+09,0,5.5e-08,3e-05,1,0);
-   nuc->AddDecay(-4,-2,0,3.2712,100);
-
-   // Adding 65-TB-148-0
-   nuc = new Nucleus("TB",148,65,0,147.924,0,3600,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.69301,100);
-
-   // Adding 65-TB-148-1
-   nuc = new Nucleus("TB",148,65,1,147.924,0.09,132,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,5.783,100);
-
-   // Adding 66-DY-148-0
-   nuc = new Nucleus("DY",148,66,0,147.927,0,186,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,2.67809,100);
-
-   // Adding 67-HO-148-0
-   nuc = new Nucleus("HO",148,67,0,147.937,0,2.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,9.39986,100);
-
-   // Adding 67-HO-148-1
-   nuc = new Nucleus("HO",148,67,1,147.937,0,9.59,0,0,0,0,0);
-   nuc->AddDecay(-1,-2,-1,4.95804,0.08);
-   nuc->AddDecay(0,-1,-1,9.39986,99.92);
-
-   // Adding 68-ER-148-0
-   nuc = new Nucleus("ER",148,68,0,147.944,0,4.6,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.75387,100);
-
-   // Adding 69-TM-148-0
-   nuc = new Nucleus("TM",148,69,0,147.957,0,0.7,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,11.9977,100);
-
-   // Adding 56-BA-149-0
-   nuc = new Nucleus("BA",149,56,0,148.942,0,0.356,0,0,0,0,0);
-   nuc->AddDecay(-1,1,0,1.13031,0.43);
-   nuc->AddDecay(0,1,0,7.33089,99.57);
-
-   // Adding 57-LA-149-0
-   nuc = new Nucleus("LA",149,57,0,148.934,0,1.2,0,0,0,0,0);
-   nuc->AddDecay(-1,1,0,1.06171,1.4);
-   nuc->AddDecay(0,1,0,5.50558,98.6);
-
-   // Adding 58-CE-149-0
-   nuc = new Nucleus("CE",149,58,0,148.928,0,5.2,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.18993,100);
-
-   // Adding 59-PR-149-0
-   nuc = new Nucleus("PR",149,59,0,148.924,0,135.6,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,3.39693,100);
-
-   // Adding 60-ND-149-0
-   nuc = new Nucleus("ND",149,60,0,148.92,0,6192,0,1.3e-10,1.3e-10,0,0);
-   nuc->AddDecay(0,1,0,1.69071,100);
-
-   // Adding 61-PM-149-0
-   nuc = new Nucleus("PM",149,61,0,148.918,0,191088,0,9.9e-10,8.2e-10,0,0);
-   nuc->AddDecay(0,1,0,1.07108,100);
-
-   // Adding 62-SM-149-0
-   nuc = new Nucleus("SM",149,62,0,148.917,0,0,13.8,0,0,0,0);
-
-   // Adding 63-EU-149-0
-   nuc = new Nucleus("EU",149,63,0,148.918,0,8.04384e+06,0,1e-10,2.7e-10,0,0);
-   nuc->AddDecay(0,-1,0,0.692177,100);
-
-   // Adding 64-GD-149-0
-   nuc = new Nucleus("GD",149,64,0,148.919,0,812160,0,4.5e-10,7.9e-10,0,0);
-   nuc->AddDecay(0,-1,0,1.3195,99.9996);
-   nuc->AddDecay(-4,-2,0,3.10138,0.00043);
-
-   // Adding 65-TB-149-0
-   nuc = new Nucleus("TB",149,65,0,148.923,0,14868,0,2.5e-10,4.3e-09,1,0);
-   nuc->AddDecay(-4,-2,0,4.0773,15.8);
-   nuc->AddDecay(0,-1,0,3.6361,84.2);
-
-   // Adding 65-TB-149-1
-   nuc = new Nucleus("TB",149,65,1,148.923,0.036,249.6,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,3.6721,99.978);
-   nuc->AddDecay(-4,-2,-1,4.1133,0.022);
-
-   // Adding 66-DY-149-0
-   nuc = new Nucleus("DY",149,66,0,148.927,0,253.8,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.81203,100);
-
-   // Adding 67-HO-149-0
-   nuc = new Nucleus("HO",149,67,0,148.934,0,21.4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.01369,100);
-
-   // Adding 67-HO-149-1
-   nuc = new Nucleus("HO",149,67,1,148.934,0.049,58,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,6.06269,100);
-
-   // Adding 68-ER-149-0
-   nuc = new Nucleus("ER",149,68,0,148.942,0,10.7,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.73355,93);
-   nuc->AddDecay(-1,-2,0,6.67966,7);
-
-   // Adding 68-ER-149-1
-   nuc = new Nucleus("ER",149,68,1,148.943,0.742,10.8,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,8.47555,96.32);
-   nuc->AddDecay(-1,-2,-1,7.42166,0.18);
-   nuc->AddDecay(0,0,-1,0.742,3.5);
-
-   // Adding 69-TM-149-0
-   nuc = new Nucleus("TM",149,69,0,148.952,0,0.9,0,0,0,0,-8);
-   nuc->AddDecay(0,-1,0,9.57188,100);
-
-   // Adding 70-YB-149-0
-   nuc = new Nucleus("YB",149,70,0,148.964,0,0,0,0,0,0,-6);
-
-   // Adding 56-BA-150-0
-   nuc = new Nucleus("BA",150,56,0,149.946,0,0.3,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,6.4464,100);
-
-   // Adding 57-LA-150-0
-   nuc = new Nucleus("LA",150,57,0,149.939,0,0.4,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,7.83691,97.3);
-   nuc->AddDecay(-1,1,0,1.57018,2.7);
-
-   // Adding 58-CE-150-0
-   nuc = new Nucleus("CE",150,58,0,149.93,0,4,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,3.01007,100);
-
-   // Adding 59-PR-150-0
-   nuc = new Nucleus("PR",150,59,0,149.927,0,6.19,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,5.68996,100);
-
-   // Adding 60-ND-150-0
-   nuc = new Nucleus("ND",150,60,0,149.921,0,0,5.64,0,0,0,0);
-
-   // Adding 61-PM-150-0
-   nuc = new Nucleus("PM",150,61,0,149.921,0,9648,0,2.6e-10,2.1e-10,0,0);
-   nuc->AddDecay(0,1,0,3.45401,100);
-
-   // Adding 62-SM-150-0
-   nuc = new Nucleus("SM",150,62,0,149.917,0,0,7.4,0,0,0,0);
-
-   // Adding 63-EU-150-0
-   nuc = new Nucleus("EU",150,63,0,149.92,0,1.12899e+09,0,1.3e-09,5e-08,0,0);
-   nuc->AddDecay(0,-1,0,2.26066,100);
-
-   // Adding 63-EU-150-1
-   nuc = new Nucleus("EU",150,63,1,149.92,0.042,46080,0,3.8e-10,2.8e-10,0,0);
-   nuc->AddDecay(0,1,-1,1.0132,89);
-   nuc->AddDecay(0,-1,-1,2.30266,11);
-
-   // Adding 64-GD-150-0
-   nuc = new Nucleus("GD",150,64,0,149.919,0,5.64494e+13,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,2.80913,100);
-
-   // Adding 65-TB-150-0
-   nuc = new Nucleus("TB",150,65,0,149.924,0,12528,0,2.5e-10,1.8e-10,1,0);
-   nuc->AddDecay(-4,-2,0,3.58739,0.05);
-   nuc->AddDecay(0,-1,0,4.65639,99.95);
-
-   // Adding 65-TB-150-1
-   nuc = new Nucleus("TB",150,65,1,149.924,0,348,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,4.65639,100);
-
-   // Adding 66-DY-150-0
-   nuc = new Nucleus("DY",150,66,0,149.926,0,430.2,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,4.3511,36);
-   nuc->AddDecay(0,-1,0,1.79393,64);
-
-   // Adding 67-HO-150-0
-   nuc = new Nucleus("HO",150,67,0,149.933,0,72,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.23995,100);
-
-   // Adding 67-HO-150-1
-   nuc = new Nucleus("HO",150,67,1,149.933,0,26,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,7.23995,100);
-
-   // Adding 68-ER-150-0
-   nuc = new Nucleus("ER",150,68,0,149.938,0,18.5,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.108,100);
-
-   // Adding 69-TM-150-0
-   nuc = new Nucleus("TM",150,69,0,149.949,0,2.3,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,10.8296,100);
-
-   // Adding 70-YB-150-0
-   nuc = new Nucleus("YB",150,70,0,149.958,0,0,0,0,0,0,-6);
-
-   // Adding 71-LU-150-0
-   nuc = new Nucleus("LU",150,71,0,149.973,0,0.035,0,0,0,0,-8);
-   nuc->AddDecay(-1,-1,0,1.2663,80);
-   nuc->AddDecay(0,-1,0,13.8853,20);
-
-   // Adding 58-CE-151-0
-   nuc = new Nucleus("CE",151,58,0,150.934,0,1.02,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,5.32618,100);
-
-   // Adding 59-PR-151-0
-   nuc = new Nucleus("PR",151,59,0,150.928,0,18.9,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.16996,100);
-
-   // Adding 60-ND-151-0
-   nuc = new Nucleus("ND",151,60,0,150.924,0,746.4,0,3e-11,2.9e-11,0,0);
-   nuc->AddDecay(0,1,0,2.44242,100);
-
-   // Adding 61-PM-151-0
-   nuc = new Nucleus("PM",151,61,0,150.921,0,102240,0,7.3e-10,6.4e-10,0,0);
-   nuc->AddDecay(0,1,0,1.18707,100);
-
-   // Adding 62-SM-151-0
-   nuc = new Nucleus("SM",151,62,0,150.92,0,2.83824e+09,0,9.8e-11,3.7e-09,0,0);
-   nuc->AddDecay(0,1,0,0.0767975,100);
-
-   // Adding 63-EU-151-0
-   nuc = new Nucleus("EU",151,63,0,150.92,0,0,47.8,0,0,0,0);
-
-   // Adding 64-GD-151-0
-   nuc = new Nucleus("GD",151,64,0,150.92,0,1.07136e+07,0,2e-10,9.3e-10,0,0);
-   nuc->AddDecay(0,-1,0,0.464188,100);
-   nuc->AddDecay(-4,-2,0,2.65249,1e-06);
-
-   // Adding 65-TB-151-0
-   nuc = new Nucleus("TB",151,65,0,150.923,0,63392.4,0,3.4e-10,3.3e-10,1,0);
-   nuc->AddDecay(-4,-2,0,3.49649,0.0095);
-   nuc->AddDecay(0,-1,0,2.56539,100);
-
-   // Adding 65-TB-151-1
-   nuc = new Nucleus("TB",151,65,1,150.923,0.1,25,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,2.66539,6.2);
-   nuc->AddDecay(0,0,-1,0.1,93.8);
-
-   // Adding 66-DY-151-0
-   nuc = new Nucleus("DY",151,66,0,150.926,0,1074,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,4.17949,5.6);
-   nuc->AddDecay(0,-1,0,2.8708,94.4);
-
-   // Adding 67-HO-151-0
-   nuc = new Nucleus("HO",151,67,0,150.932,0,35.2,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,4.6958,22);
-   nuc->AddDecay(0,-1,0,5.12773,78);
-
-   // Adding 67-HO-151-1
-   nuc = new Nucleus("HO",151,67,1,150.932,0.041,47.2,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,-1,4.7368,100);
-
-   // Adding 68-ER-151-0
-   nuc = new Nucleus("ER",151,68,0,150.937,0,23.5,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.22031,100);
-
-   // Adding 68-ER-151-1
-   nuc = new Nucleus("ER",151,68,1,150.94,2.585,0.58,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,7.80531,4.7);
-   nuc->AddDecay(0,0,-1,2.585,95.3);
-
-   // Adding 69-TM-151-0
-   nuc = new Nucleus("TM",151,69,0,150.945,0,4.13,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.52994,100);
-
-   // Adding 69-TM-151-1
-   nuc = new Nucleus("TM",151,69,1,150.945,0,5.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,7.52994,100);
-
-   // Adding 70-YB-151-0
-   nuc = new Nucleus("YB",151,70,0,150.955,0,1.6,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,9.20004,100);
-   nuc->AddDecay(-1,-2,0,8.99978,0);
-
-   // Adding 70-YB-151-1
-   nuc = new Nucleus("YB",151,70,1,150.955,0,1.6,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,9.20004,100);
-   nuc->AddDecay(-1,-2,-1,8.99978,0);
-
-   // Adding 71-LU-151-0
-   nuc = new Nucleus("LU",151,71,0,150.967,0,0.085,0,0,0,0,0);
-   nuc->AddDecay(-1,-1,0,1.03739,70);
-
-   // Adding 58-CE-152-0
-   nuc = new Nucleus("CE",152,58,0,151.937,0,3.1,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.4159,100);
-
-   // Adding 59-PR-152-0
-   nuc = new Nucleus("PR",152,59,0,151.932,0,3.24,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,6.69413,100);
-
-   // Adding 60-ND-152-0
-   nuc = new Nucleus("ND",152,60,0,151.925,0,684,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,1.11024,100);
-
-   // Adding 61-PM-152-0
-   nuc = new Nucleus("PM",152,61,0,151.923,0,246,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,3.50456,100);
-
-   // Adding 61-PM-152-1
-   nuc = new Nucleus("PM",152,61,1,151.924,0.14,451.2,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,3.64456,100);
-
-   // Adding 61-PM-152-2
-   nuc = new Nucleus("PM",152,61,2,151.924,0.17,828,0,0,0,0,0);
-   nuc->AddDecay(0,1,-2,3.67456,100);
-   nuc->AddDecay(0,0,-2,0.17,0);
-
-   // Adding 62-SM-152-0
-   nuc = new Nucleus("SM",152,62,0,151.92,0,0,26.7,0,0,0,0);
-
-   // Adding 63-EU-152-0
-   nuc = new Nucleus("EU",152,63,0,151.922,0,4.27061e+08,0,1.4e-09,3.9e-08,0,0);
-   nuc->AddDecay(0,1,0,1.8181,27.92);
-   nuc->AddDecay(0,-1,0,1.8741,72.08);
-
-   // Adding 63-EU-152-1
-   nuc = new Nucleus("EU",152,63,1,151.922,0.046,33386.4,0,5e-10,3.2e-10,0,0);
-   nuc->AddDecay(0,1,-1,1.8641,72);
-   nuc->AddDecay(0,-1,-1,1.9201,28);
-
-   // Adding 63-EU-152-2
-   nuc = new Nucleus("EU",152,63,2,151.922,0.148,5760,0,0,0,0,0);
-   nuc->AddDecay(0,0,-2,0.148,100);
-
-   // Adding 64-GD-152-0
-   nuc = new Nucleus("GD",152,64,0,151.92,0,3.40589e+21,0.2,4.1e-08,2.2e-05,1,0);
-   nuc->AddDecay(-4,-2,0,2.2051,100);
-
-   // Adding 65-TB-152-0
-   nuc = new Nucleus("TB",152,65,0,151.924,0,63000,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.98999,100);
-   nuc->AddDecay(-4,-2,0,3.08767,7e-07);
-
-   // Adding 65-TB-152-1
-   nuc = new Nucleus("TB",152,65,1,151.925,0.502,252,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,4.49199,21.1);
-   nuc->AddDecay(0,0,-1,0.502,78.9);
-
-   // Adding 66-DY-152-0
-   nuc = new Nucleus("DY",152,66,0,151.925,0,8568,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,0.598686,99.9);
-   nuc->AddDecay(-4,-2,0,3.72678,0.1);
-
-   // Adding 67-HO-152-0
-   nuc = new Nucleus("HO",152,67,0,151.932,0,161.8,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.47372,88);
-   nuc->AddDecay(-4,-2,0,4.5075,12);
-
-   // Adding 67-HO-152-1
-   nuc = new Nucleus("HO",152,67,1,151.932,0.16,49.5,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,6.63372,89.2);
-   nuc->AddDecay(-4,-2,-1,4.6675,10.8);
-
-   // Adding 68-ER-152-0
-   nuc = new Nucleus("ER",152,68,0,151.935,0,10.3,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,4.9344,90);
-   nuc->AddDecay(0,-1,0,3.105,10);
-
-   // Adding 69-TM-152-0
-   nuc = new Nucleus("TM",152,69,0,151.944,0,8,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,8.66454,100);
-
-   // Adding 69-TM-152-1
-   nuc = new Nucleus("TM",152,69,1,151.944,0,5.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,8.66454,100);
-
-   // Adding 70-YB-152-0
-   nuc = new Nucleus("YB",152,70,0,151.95,0,3.1,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.46494,100);
-
-   // Adding 71-LU-152-0
-   nuc = new Nucleus("LU",152,71,0,151.963,0,0.7,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,12.3447,100);
-
-   // Adding 59-PR-153-0
-   nuc = new Nucleus("PR",153,59,0,152.934,0,4.3,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,5.52391,100);
-
-   // Adding 60-ND-153-0
-   nuc = new Nucleus("ND",153,60,0,152.928,0,28.9,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,3.60001,100);
-
-   // Adding 61-PM-153-0
-   nuc = new Nucleus("PM",153,61,0,152.924,0,324,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,1.90041,100);
-
-   // Adding 62-SM-153-0
-   nuc = new Nucleus("SM",153,62,0,152.922,0,166572,0,7.4e-10,6.8e-10,0,0);
-   nuc->AddDecay(0,1,0,0.80867,100);
-
-   // Adding 63-EU-153-0
-   nuc = new Nucleus("EU",153,63,0,152.921,0,0,52.2,0,0,0,0);
-
-   // Adding 64-GD-153-0
-   nuc = new Nucleus("GD",153,64,0,152.922,0,2.08742e+07,0,2.7e-10,2.5e-09,0,0);
-   nuc->AddDecay(0,-1,0,0.485069,100);
-
-   // Adding 65-TB-153-0
-   nuc = new Nucleus("TB",153,65,0,152.923,0,202176,0,2.5e-10,2.4e-10,0,0);
-   nuc->AddDecay(0,-1,0,1.57028,100);
-
-   // Adding 66-DY-153-0
-   nuc = new Nucleus("DY",153,66,0,152.926,0,23040,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,3.5585,0.0094);
-   nuc->AddDecay(0,-1,0,2.17049,99.99);
-
-   // Adding 67-HO-153-0
-   nuc = new Nucleus("HO",153,67,0,152.93,0,120,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.12868,99.95);
-   nuc->AddDecay(-4,-2,0,4.05107,0.05);
-
-   // Adding 67-HO-153-1
-   nuc = new Nucleus("HO",153,67,1,152.93,0.068,558,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,4.19668,99.82);
-   nuc->AddDecay(-4,-2,-1,4.11908,0.18);
-
-   // Adding 68-ER-153-0
-   nuc = new Nucleus("ER",153,68,0,152.935,0,37.1,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,4.8027,53);
-   nuc->AddDecay(0,-1,0,4.56366,47);
-
-   // Adding 69-TM-153-0
-   nuc = new Nucleus("TM",153,69,0,152.942,0,1.48,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.45909,9);
-   nuc->AddDecay(-4,-2,0,5.2481,91);
-
-   // Adding 69-TM-153-1
-   nuc = new Nucleus("TM",153,69,1,152.942,0.043,2.5,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,6.50209,5);
-   nuc->AddDecay(-4,-2,-1,5.2911,95);
-
-   // Adding 70-YB-153-0
-   nuc = new Nucleus("YB",153,70,0,152.949,0,4.2,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,4.20327,50);
-   nuc->AddDecay(0,-1,0,6.68872,50);
-
-   // Adding 71-LU-153-0
-   nuc = new Nucleus("LU",153,71,0,152.959,0,0,0,0,0,0,-2);
-
-   // Adding 59-PR-154-0
-   nuc = new Nucleus("PR",154,59,0,153.938,0,2.3,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,7.9169,100);
-
-   // Adding 60-ND-154-0
-   nuc = new Nucleus("ND",154,60,0,153.93,0,25.9,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,2.79652,100);
-
-   // Adding 61-PM-154-0
-   nuc = new Nucleus("PM",154,61,0,153.927,0,103.8,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.05402,100);
-
-   // Adding 61-PM-154-1
-   nuc = new Nucleus("PM",154,61,1,153.927,0,160.8,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,4.05402,100);
-
-   // Adding 62-SM-154-0
-   nuc = new Nucleus("SM",154,62,0,153.922,0,0,22.7,0,0,0,0);
-
-   // Adding 63-EU-154-0
-   nuc = new Nucleus("EU",154,63,0,153.923,0,2.70989e+08,0,2e-09,5e-08,0,0);
-   nuc->AddDecay(0,-1,0,0.717102,0.02);
-   nuc->AddDecay(0,1,0,1.96851,99.98);
-
-   // Adding 63-EU-154-1
-   nuc = new Nucleus("EU",154,63,1,153.923,0.145,2778,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.145,100);
-
-   // Adding 64-GD-154-0
-   nuc = new Nucleus("GD",154,64,0,153.921,0,0,2.18,0,0,0,0);
-
-   // Adding 65-TB-154-0
-   nuc = new Nucleus("TB",154,65,0,153.925,0,77400,0,6.5e-10,6e-10,0,0);
-   nuc->AddDecay(0,-1,0,3.56198,99.9);
-   nuc->AddDecay(0,1,0,0.245636,0.1);
-
-   // Adding 65-TB-154-1
-   nuc = new Nucleus("TB",154,65,1,153.925,0,33840,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,0.245636,0.1);
-   nuc->AddDecay(0,0,-1,0,21.7782);
-   nuc->AddDecay(0,-1,-1,3.56198,78.1218);
-
-   // Adding 65-TB-154-2
-   nuc = new Nucleus("TB",154,65,2,153.925,0,81720,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-2,3.56198,98.2);
-   nuc->AddDecay(0,0,-2,0,1.8);
-
-   // Adding 66-DY-154-0
-   nuc = new Nucleus("DY",154,66,0,153.924,0,9.4608e+13,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,2.94658,100);
-
-   // Adding 67-HO-154-0
-   nuc = new Nucleus("HO",154,67,0,153.931,0,705.6,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.7514,99.98);
-   nuc->AddDecay(-4,-2,0,4.04159,0.02);
-
-   // Adding 67-HO-154-1
-   nuc = new Nucleus("HO",154,67,1,153.931,0.32,186,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,-1,4.36159,0.001);
-   nuc->AddDecay(0,0,-1,0.32,0);
-   nuc->AddDecay(0,-1,-1,6.0714,100);
-
-   // Adding 68-ER-154-0
-   nuc = new Nucleus("ER",154,68,0,153.933,0,223.8,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,2.03193,99.53);
-   nuc->AddDecay(-4,-2,0,4.27959,0.47);
-
-   // Adding 69-TM-154-0
-   nuc = new Nucleus("TM",154,69,0,153.941,0,8.1,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,8.05345,56);
-   nuc->AddDecay(-4,-2,0,5.09309,44);
-
-   // Adding 69-TM-154-1
-   nuc = new Nucleus("TM",154,69,1,153.941,0,3.3,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,8.05345,10);
-   nuc->AddDecay(-4,-2,-1,5.09309,90);
-   nuc->AddDecay(0,0,-1,0,0);
-
-   // Adding 70-YB-154-0
-   nuc = new Nucleus("YB",154,70,0,153.946,0,0.404,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,5.4741,92.8);
-   nuc->AddDecay(0,-1,0,4.48901,7.2);
-
-   // Adding 71-LU-154-0
-   nuc = new Nucleus("LU",154,71,0,153.957,0,1.12,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,10.1126,100);
-
-   // Adding 72-HF-154-0
-   nuc = new Nucleus("HF",154,72,0,153.964,0,2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.6598,100);
-
-   // Adding 60-ND-155-0
-   nuc = new Nucleus("ND",155,60,0,154.933,0,8.9,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,5.0198,100);
-
-   // Adding 61-PM-155-0
-   nuc = new Nucleus("PM",155,61,0,154.928,0,48,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,3.17052,100);
-
-   // Adding 62-SM-155-0
-   nuc = new Nucleus("SM",155,62,0,154.925,0,1338,0,2.9e-11,2.8e-11,0,0);
-   nuc->AddDecay(0,1,0,1.6271,100);
-
-   // Adding 63-EU-155-0
-   nuc = new Nucleus("EU",155,63,0,154.923,0,1.47588e+08,0,3.2e-10,6.5e-09,0,0);
-   nuc->AddDecay(0,1,0,0.252472,100);
-
-   // Adding 64-GD-155-0
-   nuc = new Nucleus("GD",155,64,0,154.923,0,0,14.8,0,0,0,0);
-
-   // Adding 65-TB-155-0
-   nuc = new Nucleus("TB",155,65,0,154.924,0,459648,0,2.1e-10,2.5e-10,0,0);
-   nuc->AddDecay(0,-1,0,0.821487,100);
-
-   // Adding 66-DY-155-0
-   nuc = new Nucleus("DY",155,66,0,154.926,0,36000,0,1.3e-10,1.2e-10,0,0);
-   nuc->AddDecay(0,-1,0,2.0945,100);
-
-   // Adding 67-HO-155-0
-   nuc = new Nucleus("HO",155,67,0,154.929,0,2880,0,3.7e-11,3.2e-11,1,-8);
-   nuc->AddDecay(-4,-2,0,3.14592,50);
-   nuc->AddDecay(0,-1,0,3.10199,50);
-
-   // Adding 68-ER-155-0
-   nuc = new Nucleus("ER",155,68,0,154.933,0,318,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.84348,99.98);
-   nuc->AddDecay(-4,-2,0,4.1186,0.02);
-
-   // Adding 69-TM-155-0
-   nuc = new Nucleus("TM",155,69,0,154.939,0,32,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.57843,94);
-   nuc->AddDecay(-4,-2,0,4.5693,6);
-
-   // Adding 70-YB-155-0
-   nuc = new Nucleus("YB",155,70,0,154.946,0,1.72,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.98812,16);
-   nuc->AddDecay(-4,-2,0,5.3371,84);
-
-   // Adding 71-LU-155-0
-   nuc = new Nucleus("LU",155,71,0,154.954,0,0.07,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.96394,21);
-   nuc->AddDecay(-4,-2,0,5.7711,79);
-
-   // Adding 71-LU-155-1
-   nuc = new Nucleus("LU",155,71,1,154.956,1.798,0.0026,0,0,0,1,-8);
-   nuc->AddDecay(-4,-2,-1,7.5691,100);
-
-   // Adding 72-HF-155-0
-   nuc = new Nucleus("HF",155,72,0,154.963,0,0.89,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,4.56982,0);
-   nuc->AddDecay(0,-1,0,7.99877,100);
-
-   // Adding 60-ND-156-0
-   nuc = new Nucleus("ND",156,60,0,155.935,0,5.47,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.10723,100);
-
-   // Adding 61-PM-156-0
-   nuc = new Nucleus("PM",156,61,0,155.931,0,26.7,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,5.15506,100);
-
-   // Adding 62-SM-156-0
-   nuc = new Nucleus("SM",156,62,0,155.926,0,33840,0,2.5e-10,2.8e-10,0,0);
-   nuc->AddDecay(0,1,0,0.722267,100);
-
-   // Adding 63-EU-156-0
-   nuc = new Nucleus("EU",156,63,0,155.925,0,1.31242e+06,0,2.2e-09,3.3e-09,0,0);
-   nuc->AddDecay(0,1,0,2.45107,100);
-
-   // Adding 64-GD-156-0
-   nuc = new Nucleus("GD",156,64,0,155.922,0,0,20.47,0,0,0,0);
-
-   // Adding 65-TB-156-0
-   nuc = new Nucleus("TB",156,65,0,155.925,0,462240,0,1.2e-09,1.4e-09,0,0);
-   nuc->AddDecay(0,-1,0,2.44438,100);
-   nuc->AddDecay(0,1,0,0.433624,0);
-
-   // Adding 65-TB-156-1
-   nuc = new Nucleus("TB",156,65,1,155.925,0.05,87840,0,1.7e-10,2.3e-10,0,0);
-   nuc->AddDecay(0,0,-1,0.05,100);
-
-   // Adding 65-TB-156-2
-   nuc = new Nucleus("TB",156,65,2,155.925,0.088,19080,0,8.1e-11,1.3e-10,0,-8);
-   nuc->AddDecay(0,-1,-2,2.53238,50);
-   nuc->AddDecay(0,0,-2,0.088,50);
-
-   // Adding 66-DY-156-0
-   nuc = new Nucleus("DY",156,66,0,155.924,0,0,0.06,0,0,0,0);
-
-   // Adding 67-HO-156-0
-   nuc = new Nucleus("HO",156,67,0,155.93,0,3360,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.06017,100);
-
-   // Adding 68-ER-156-0
-   nuc = new Nucleus("ER",156,68,0,155.931,0,1170,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,1.36995,100);
-
-   // Adding 69-TM-156-0
-   nuc = new Nucleus("TM",156,69,0,155.939,0,83.8,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.21889,99.94);
-   nuc->AddDecay(-4,-2,0,4.34357,0.06);
-
-   // Adding 69-TM-156-1
-   nuc = new Nucleus("TM",156,69,1,155.939,0,19,0,0,0,1,-8);
-   nuc->AddDecay(-4,-2,-1,4.34357,100);
-
-   // Adding 70-YB-156-0
-   nuc = new Nucleus("YB",156,70,0,155.943,0,26.1,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.57293,90);
-   nuc->AddDecay(-4,-2,0,4.8115,10);
-
-   // Adding 71-LU-156-0
-   nuc = new Nucleus("LU",156,71,0,155.953,0,0.5,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,5.59309,75);
-   nuc->AddDecay(0,-1,0,9.44613,25);
-
-   // Adding 71-LU-156-1
-   nuc = new Nucleus("LU",156,71,1,155.953,0.32,0.18,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,-1,5.91309,95);
-   nuc->AddDecay(0,-1,-1,9.76613,5);
-
-   // Adding 72-HF-156-0
-   nuc = new Nucleus("HF",156,72,0,155.959,0,0.025,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,6.0331,100);
-
-   // Adding 73-TA-156-0
-   nuc = new Nucleus("TA",156,73,0,155.972,0,0.22,0,0,0,0,-8);
-   nuc->AddDecay(-1,-1,0,1.029,100);
-
-   // Adding 73-TA-156-1
-   nuc = new Nucleus("TA",156,73,1,155.972,0.0816,0.32,0,0,0,0,0);
-   nuc->AddDecay(-1,-1,-1,1.11059,100);
-
-   // Adding 61-PM-157-0
-   nuc = new Nucleus("PM",157,61,0,156.933,0,10.9,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.54692,100);
-
-   // Adding 62-SM-157-0
-   nuc = new Nucleus("SM",157,62,0,156.928,0,484.2,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,2.70004,100);
-
-   // Adding 63-EU-157-0
-   nuc = new Nucleus("EU",157,63,0,156.925,0,54648,0,6e-10,4.4e-10,0,0);
-   nuc->AddDecay(0,1,0,1.36257,100);
-
-   // Adding 64-GD-157-0
-   nuc = new Nucleus("GD",157,64,0,156.924,0,0,15.65,0,0,0,0);
-
-   // Adding 65-TB-157-0
-   nuc = new Nucleus("TB",157,65,0,156.924,0,3.12206e+09,0,3.4e-11,1.2e-09,0,0);
-   nuc->AddDecay(0,-1,0,0.0601044,100);
-
-   // Adding 66-DY-157-0
-   nuc = new Nucleus("DY",157,66,0,156.925,0,29304,0,6.1e-11,5.5e-11,0,0);
-   nuc->AddDecay(0,-1,0,1.34136,100);
-
-   // Adding 66-DY-157-1
-   nuc = new Nucleus("DY",157,66,1,156.926,0.199,0.0202,0,0,0,0,-8);
-   nuc->AddDecay(0,0,-1,0.199,100);
-
-   // Adding 67-HO-157-0
-   nuc = new Nucleus("HO",157,67,0,156.928,0,756,0,6.5e-12,7.6e-12,0,0);
-   nuc->AddDecay(0,-1,0,2.54002,100);
-
-   // Adding 68-ER-157-0
-   nuc = new Nucleus("ER",157,68,0,156.932,0,1119,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,3.30416,0);
-   nuc->AddDecay(0,-1,0,3.46996,100);
-
-   // Adding 69-TM-157-0
-   nuc = new Nucleus("TM",157,69,0,156.937,0,210,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.48008,100);
-
-   // Adding 70-YB-157-0
-   nuc = new Nucleus("YB",157,70,0,156.943,0,38.6,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.53036,99.5);
-   nuc->AddDecay(-4,-2,0,4.62226,0.5);
-
-   // Adding 71-LU-157-0
-   nuc = new Nucleus("LU",157,71,0,156.95,0,5.4,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,5.0959,6);
-   nuc->AddDecay(0,-1,0,6.93273,94);
-
-   // Adding 72-HF-157-0
-   nuc = new Nucleus("HF",157,72,0,156.958,0,0.11,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,5.8821,91);
-   nuc->AddDecay(0,-1,0,7.47492,9);
-
-   // Adding 73-TA-157-0
-   nuc = new Nucleus("TA",157,73,0,156.968,0,0.0053,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,6.3821,100);
-
-   // Adding 61-PM-158-0
-   nuc = new Nucleus("PM",158,61,0,157.937,0,4.8,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,6.2968,100);
-
-   // Adding 62-SM-158-0
-   nuc = new Nucleus("SM",158,62,0,157.93,0,330.6,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,1.94457,100);
-
-   // Adding 63-EU-158-0
-   nuc = new Nucleus("EU",158,63,0,157.928,0,2754,0,9.4e-11,7.5e-11,0,0);
-   nuc->AddDecay(0,1,0,3.48505,100);
-
-   // Adding 64-GD-158-0
-   nuc = new Nucleus("GD",158,64,0,157.924,0,0,24.84,0,0,0,0);
-
-   // Adding 65-TB-158-0
-   nuc = new Nucleus("TB",158,65,0,157.925,0,5.67648e+09,0,1.1e-09,4.4e-08,0,0);
-   nuc->AddDecay(0,1,0,0.936806,16.6);
-   nuc->AddDecay(0,-1,0,1.22,83.4);
-
-   // Adding 65-TB-158-1
-   nuc = new Nucleus("TB",158,65,1,157.926,0.11,10.5,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,1.04681,0.6);
-   nuc->AddDecay(0,-1,-1,1.33,0.01);
-   nuc->AddDecay(0,0,-1,0.11,99.39);
-
-   // Adding 66-DY-158-0
-   nuc = new Nucleus("DY",158,66,0,157.924,0,0,0.1,0,0,0,0);
-
-   // Adding 67-HO-158-0
-   nuc = new Nucleus("HO",158,67,0,157.929,0,678,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.23661,100);
-
-   // Adding 67-HO-158-1
-   nuc = new Nucleus("HO",158,67,1,157.929,0.067,1620,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.067,81);
-   nuc->AddDecay(0,-1,-1,4.30361,19);
-
-   // Adding 67-HO-158-2
-   nuc = new Nucleus("HO",158,67,2,157.929,0.18,1278,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-2,4.41661,100);
-
-   // Adding 68-ER-158-0
-   nuc = new Nucleus("ER",158,68,0,157.93,0,8064,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,0.899918,100);
-
-   // Adding 69-TM-158-0
-   nuc = new Nucleus("TM",158,69,0,157.937,0,241.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.52996,100);
-
-   // Adding 69-TM-158-1
-   nuc = new Nucleus("TM",158,69,1,157.937,0,20,0,0,0,0,-8);
-   nuc->AddDecay(0,0,-1,0,100);
-
-   // Adding 70-YB-158-0
-   nuc = new Nucleus("YB",158,70,0,157.94,0,94.2,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,4.17056,0.003);
-   nuc->AddDecay(0,-1,0,2.72905,100);
-
-   // Adding 71-LU-158-0
-   nuc = new Nucleus("LU",158,71,0,157.949,0,10.4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,8.67298,98.5);
-   nuc->AddDecay(-4,-2,0,4.79009,1.5);
-
-   // Adding 72-HF-158-0
-   nuc = new Nucleus("HF",158,72,0,157.955,0,2.9,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,5.4041,46);
-   nuc->AddDecay(0,-1,0,5.10302,54);
-
-   // Adding 73-TA-158-0
-   nuc = new Nucleus("TA",158,73,0,157.966,0,0.0368,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,6.2081,93);
-   nuc->AddDecay(0,-1,0,10.9166,7);
-
-   // Adding 74-W-158-0
-   nuc = new Nucleus("W",158,74,0,157.974,0,0.0014,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,6.6001,100);
-
-   // Adding 62-SM-159-0
-   nuc = new Nucleus("SM",159,62,0,158.933,0,11.2,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,3.83308,100);
-
-   // Adding 63-EU-159-0
-   nuc = new Nucleus("EU",159,63,0,158.929,0,1086,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,2.51435,100);
-
-   // Adding 64-GD-159-0
-   nuc = new Nucleus("GD",159,64,0,158.926,0,66816,0,5e-10,3.9e-10,0,0);
-   nuc->AddDecay(0,1,0,0.970596,100);
-
-   // Adding 65-TB-159-0
-   nuc = new Nucleus("TB",159,65,0,158.925,0,0,100,0,0,0,0);
-
-   // Adding 66-DY-159-0
-   nuc = new Nucleus("DY",159,66,0,158.926,0,1.24762e+07,0,1e-10,3.5e-10,0,0);
-   nuc->AddDecay(0,-1,0,0.365593,100);
-
-   // Adding 67-HO-159-0
-   nuc = new Nucleus("HO",159,67,0,158.928,0,1983,0,7.9e-12,1e-11,0,0);
-   nuc->AddDecay(0,-1,0,1.83759,100);
-
-   // Adding 67-HO-159-1
-   nuc = new Nucleus("HO",159,67,1,158.928,0.206,8.3,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.206,100);
-
-   // Adding 68-ER-159-0
-   nuc = new Nucleus("ER",159,68,0,158.931,0,2160,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,2.76849,100);
-
-   // Adding 69-TM-159-0
-   nuc = new Nucleus("TM",159,69,0,158.935,0,549,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.85004,100);
-
-   // Adding 70-YB-159-0
-   nuc = new Nucleus("YB",159,70,0,158.94,0,84,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.04999,100);
-
-   // Adding 71-LU-159-0
-   nuc = new Nucleus("LU",159,71,0,158.947,0,12.3,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.98787,99.96);
-   nuc->AddDecay(-4,-2,0,4.53276,0.04);
-
-   // Adding 72-HF-159-0
-   nuc = new Nucleus("HF",159,72,0,158.954,0,5.6,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.67845,88);
-   nuc->AddDecay(-4,-2,0,5.22309,12);
-
-   // Adding 73-TA-159-0
-   nuc = new Nucleus("TA",159,73,0,158.963,0,0.57,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,5.7461,80);
-   nuc->AddDecay(0,-1,0,8.48694,20);
-
-   // Adding 74-W-159-0
-   nuc = new Nucleus("W",159,74,0,158.972,0,0.0073,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,6.4431,100);
-
-   // Adding 62-SM-160-0
-   nuc = new Nucleus("SM",160,62,0,159.935,0,9.6,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,3.0858,100);
-
-   // Adding 63-EU-160-0
-   nuc = new Nucleus("EU",160,63,0,159.932,0,38,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.57963,100);
-
-   // Adding 64-GD-160-0
-   nuc = new Nucleus("GD",160,64,0,159.927,0,0,21.86,0,0,0,0);
-
-   // Adding 65-TB-160-0
-   nuc = new Nucleus("TB",160,65,0,159.927,0,6.24672e+06,0,1.6e-09,6.6e-09,0,0);
-   nuc->AddDecay(0,1,0,1.8353,100);
-
-   // Adding 66-DY-160-0
-   nuc = new Nucleus("DY",160,66,0,159.925,0,0,2.34,0,0,0,0);
-
-   // Adding 67-HO-160-0
-   nuc = new Nucleus("HO",160,67,0,159.929,0,1536,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.29143,100);
-
-   // Adding 67-HO-160-1
-   nuc = new Nucleus("HO",160,67,1,159.929,0.06,18072,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,3.35143,35);
-   nuc->AddDecay(0,0,-1,0.06,65);
-
-   // Adding 67-HO-160-2
-   nuc = new Nucleus("HO",160,67,2,159.929,0.169,3,0,0,0,0,-8);
-   nuc->AddDecay(0,0,-2,0.169,100);
-
-   // Adding 68-ER-160-0
-   nuc = new Nucleus("ER",160,68,0,159.929,0,102888,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,0.327652,100);
-
-   // Adding 69-TM-160-0
-   nuc = new Nucleus("TM",160,69,0,159.935,0,564,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.89004,100);
-
-   // Adding 69-TM-160-1
-   nuc = new Nucleus("TM",160,69,1,159.935,0.07,74.5,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.07,85);
-   nuc->AddDecay(0,-1,-1,5.96004,15);
-
-   // Adding 70-YB-160-0
-   nuc = new Nucleus("YB",160,70,0,159.938,0,288,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,2.01021,100);
-
-   // Adding 71-LU-160-0
-   nuc = new Nucleus("LU",160,71,0,159.946,0,36.1,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.87997,100);
-   nuc->AddDecay(-4,-2,0,4.17823,0.0001);
-
-   // Adding 71-LU-160-1
-   nuc = new Nucleus("LU",160,71,1,159.946,0,40,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,7.87997,100);
-   nuc->AddDecay(-4,-2,-1,4.17823,0);
-
-   // Adding 72-HF-160-0
-   nuc = new Nucleus("HF",160,72,0,159.951,0,13,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.2974,97.7);
-   nuc->AddDecay(-4,-2,0,4.9027,2.3);
-
-   // Adding 73-TA-160-0
-   nuc = new Nucleus("TA",160,73,0,159.961,0,1.5,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,5.5451,34);
-   nuc->AddDecay(0,-1,0,10.0885,66);
-
-   // Adding 74-W-160-0
-   nuc = new Nucleus("W",160,74,0,159.968,0,0.081,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,6.0721,100);
-
-   // Adding 75-RE-160-0
-   nuc = new Nucleus("RE",160,75,0,159.981,0,0.00079,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,6.6991,9);
-   nuc->AddDecay(-1,-1,0,1.285,91);
-
-   // Adding 63-EU-161-0
-   nuc = new Nucleus("EU",161,63,0,160.934,0,26,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,3.73863,100);
-
-   // Adding 64-GD-161-0
-   nuc = new Nucleus("GD",161,64,0,160.93,0,219.6,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,1.9556,100);
-
-   // Adding 65-TB-161-0
-   nuc = new Nucleus("TB",161,65,0,160.928,0,594432,0,7.2e-10,1.2e-09,0,0);
-   nuc->AddDecay(0,1,0,0.593094,100);
-
-   // Adding 66-DY-161-0
-   nuc = new Nucleus("DY",161,66,0,160.927,0,0,18.9,0,0,0,0);
-
-   // Adding 67-HO-161-0
-   nuc = new Nucleus("HO",161,67,0,160.928,0,8928,0,1.3e-11,1e-11,0,0);
-   nuc->AddDecay(0,-1,0,0.858795,100);
-
-   // Adding 67-HO-161-1
-   nuc = new Nucleus("HO",161,67,1,160.928,0.211,6.76,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.211,100);
-
-   // Adding 68-ER-161-0
-   nuc = new Nucleus("ER",161,68,0,160.93,0,11556,0,8e-11,8.5e-11,0,0);
-   nuc->AddDecay(0,-1,0,2.00264,100);
-
-   // Adding 69-TM-161-0
-   nuc = new Nucleus("TM",161,69,0,160.933,0,1980,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.16401,100);
-
-   // Adding 70-YB-161-0
-   nuc = new Nucleus("YB",161,70,0,160.938,0,252,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.14997,100);
-
-   // Adding 71-LU-161-0
-   nuc = new Nucleus("LU",161,71,0,160.944,0,72,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.29998,100);
-
-   // Adding 71-LU-161-1
-   nuc = new Nucleus("LU",161,71,1,160.944,0.136,0.0073,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.136,100);
-
-   // Adding 72-HF-161-0
-   nuc = new Nucleus("HF",161,72,0,160.95,0,17,0,0,0,1,-8);
-   nuc->AddDecay(-4,-2,0,4.72168,50);
-   nuc->AddDecay(0,-1,0,6.32387,50);
-
-   // Adding 73-TA-161-0
-   nuc = new Nucleus("TA",161,73,0,160.958,0,2.7,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.49092,95);
-   nuc->AddDecay(-4,-2,0,5.27987,5);
-
-   // Adding 74-W-161-0
-   nuc = new Nucleus("W",161,74,0,160.967,0,0.41,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,8.11815,18);
-   nuc->AddDecay(-4,-2,0,5.9231,82);
-
-   // Adding 75-RE-161-0
-   nuc = new Nucleus("RE",161,75,0,160.978,0,0.01,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,6.4391,100);
-
-   // Adding 63-EU-162-0
-   nuc = new Nucleus("EU",162,63,0,161.937,0,10.6,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,5.64315,100);
-
-   // Adding 64-GD-162-0
-   nuc = new Nucleus("GD",162,64,0,161.931,0,504,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,1.39388,100);
-
-   // Adding 65-TB-162-0
-   nuc = new Nucleus("TB",162,65,0,161.929,0,456,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,2.5058,100);
-
-   // Adding 66-DY-162-0
-   nuc = new Nucleus("DY",162,66,0,161.927,0,0,25.5,0,0,0,0);
-
-   // Adding 67-HO-162-0
-   nuc = new Nucleus("HO",162,67,0,161.929,0,900,0,3.3e-12,4.5e-12,0,0);
-   nuc->AddDecay(0,-1,0,2.14019,100);
-
-   // Adding 67-HO-162-1
-   nuc = new Nucleus("HO",162,67,1,161.929,0.106,4020,0,2.6e-11,3.3e-11,0,0);
-   nuc->AddDecay(0,0,-1,0.106,62);
-   nuc->AddDecay(0,-1,-1,2.24619,38);
-
-   // Adding 68-ER-162-0
-   nuc = new Nucleus("ER",162,68,0,161.929,0,0,0.14,0,0,0,0);
-
-   // Adding 69-TM-162-0
-   nuc = new Nucleus("TM",162,69,0,161.934,0,1302,0,2.9e-11,2.8e-11,0,0);
-   nuc->AddDecay(0,-1,0,4.8094,100);
-
-   // Adding 69-TM-162-1
-   nuc = new Nucleus("TM",162,69,1,161.934,0.067,24.3,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.067,82);
-   nuc->AddDecay(0,-1,-1,4.8764,18);
-
-   // Adding 70-YB-162-0
-   nuc = new Nucleus("YB",162,70,0,161.936,0,1132.2,0,2.3e-11,2.3e-11,0,0);
-   nuc->AddDecay(0,-1,0,1.68793,100);
-
-   // Adding 71-LU-162-0
-   nuc = new Nucleus("LU",162,71,0,161.943,0,82.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.21998,100);
-
-   // Adding 71-LU-162-1
-   nuc = new Nucleus("LU",162,71,1,161.943,0,90,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,7.21998,100);
-
-   // Adding 71-LU-162-2
-   nuc = new Nucleus("LU",162,71,2,161.943,0,114,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-2,7.21998,100);
-
-   // Adding 72-HF-162-0
-   nuc = new Nucleus("HF",162,72,0,161.947,0,37.6,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.44912,99.99);
-   nuc->AddDecay(-4,-2,0,4.41709,0.0087);
-
-   // Adding 73-TA-162-0
-   nuc = new Nucleus("TA",162,73,0,161.957,0,3.52,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,9.26298,99.93);
-   nuc->AddDecay(-4,-2,0,5.00709,0.07);
-
-   // Adding 74-W-162-0
-   nuc = new Nucleus("W",162,74,0,161.963,0,1.39,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.77003,53);
-   nuc->AddDecay(-4,-2,0,5.6741,47);
-
-   // Adding 75-RE-162-0
-   nuc = new Nucleus("RE",162,75,0,161.976,0,0.1,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,11.5166,97);
-   nuc->AddDecay(-4,-2,0,6.2741,3);
-
-   // Adding 76-OS-162-0
-   nuc = new Nucleus("OS",162,76,0,161.984,0,0.0019,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,6.7791,100);
-
-   // Adding 64-GD-163-0
-   nuc = new Nucleus("GD",163,64,0,162.934,0,68,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,3.11646,100);
-
-   // Adding 65-TB-163-0
-   nuc = new Nucleus("TB",163,65,0,162.931,0,1170,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,1.78508,100);
-
-   // Adding 66-DY-163-0
-   nuc = new Nucleus("DY",163,66,0,162.929,0,0,24.9,0,0,0,0);
-
-   // Adding 67-HO-163-0
-   nuc = new Nucleus("HO",163,67,0,162.929,0,1.4412e+11,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,0.00260162,100);
-
-   // Adding 67-HO-163-1
-   nuc = new Nucleus("HO",163,67,1,162.929,0.298,1.09,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.298,100);
-
-   // Adding 68-ER-163-0
-   nuc = new Nucleus("ER",163,68,0,162.93,0,4500,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,1.20998,100);
-
-   // Adding 69-TM-163-0
-   nuc = new Nucleus("TM",163,69,0,162.933,0,6516,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,2.43899,100);
-
-   // Adding 70-YB-163-0
-   nuc = new Nucleus("YB",163,70,0,162.936,0,663,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.37005,100);
-
-   // Adding 71-LU-163-0
-   nuc = new Nucleus("LU",163,71,0,162.941,0,238,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.59999,100);
-
-   // Adding 72-HF-163-0
-   nuc = new Nucleus("HF",163,72,0,162.947,0,40,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.44991,100);
-
-   // Adding 73-TA-163-0
-   nuc = new Nucleus("TA",163,73,0,162.954,0,11,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,4.74898,0.2);
-   nuc->AddDecay(0,-1,0,6.80944,99.8);
-
-   // Adding 74-W-163-0
-   nuc = new Nucleus("W",163,74,0,162.962,0,2.75,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,5.5201,41);
-   nuc->AddDecay(0,-1,0,7.44957,59);
-
-   // Adding 75-RE-163-0
-   nuc = new Nucleus("RE",163,75,0,162.972,0,0.26,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,6.06709,64);
-   nuc->AddDecay(0,-1,0,9.03394,36);
-
-   // Adding 76-OS-163-0
-   nuc = new Nucleus("OS",163,76,0,162.982,0,0.833,0,0,0,1,-8);
-   nuc->AddDecay(-4,-2,0,6.6741,50);
-   nuc->AddDecay(0,-1,0,9.30277,50);
-
-   // Adding 64-GD-164-0
-   nuc = new Nucleus("GD",164,64,0,163.936,0,45,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,2.34021,100);
-
-   // Adding 65-TB-164-0
-   nuc = new Nucleus("TB",164,65,0,163.933,0,180,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,3.89002,100);
-
-   // Adding 66-DY-164-0
-   nuc = new Nucleus("DY",164,66,0,163.929,0,0,28.2,0,0,0,0);
-
-   // Adding 67-HO-164-0
-   nuc = new Nucleus("HO",164,67,0,163.93,0,1740,0,9.5e-12,1.3e-11,0,0);
-   nuc->AddDecay(0,-1,0,0.986702,60);
-   nuc->AddDecay(0,1,0,0.962402,40);
-
-   // Adding 67-HO-164-1
-   nuc = new Nucleus("HO",164,67,1,163.93,0.14,2250,0,1.6e-11,1.6e-11,0,0);
-   nuc->AddDecay(0,0,-1,0.14,100);
-
-   // Adding 68-ER-164-0
-   nuc = new Nucleus("ER",164,68,0,163.929,0,0,1.61,0,0,0,0);
-
-   // Adding 69-TM-164-0
-   nuc = new Nucleus("TM",164,69,0,163.933,0,120,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.96201,100);
-
-   // Adding 69-TM-164-1
-   nuc = new Nucleus("TM",164,69,1,163.933,0,306,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0,80);
-   nuc->AddDecay(0,-1,-1,3.96201,20);
-
-   // Adding 70-YB-164-0
-   nuc = new Nucleus("YB",164,70,0,163.935,0,4548,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,0.99622,100);
-
-   // Adding 71-LU-164-0
-   nuc = new Nucleus("LU",164,71,0,163.941,0,188.4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.24997,100);
-
-   // Adding 72-HF-164-0
-   nuc = new Nucleus("HF",164,72,0,163.944,0,111,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,2.97394,100);
-
-   // Adding 73-TA-164-0
-   nuc = new Nucleus("TA",164,73,0,163.954,0,14.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,8.52079,100);
-
-   // Adding 74-W-164-0
-   nuc = new Nucleus("W",164,74,0,163.959,0,6.4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.96827,97.4);
-   nuc->AddDecay(-4,-2,0,5.2788,2.6);
-
-   // Adding 75-RE-164-0
-   nuc = new Nucleus("RE",164,75,0,163.97,0,0.88,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,5.9231,58);
-   nuc->AddDecay(0,-1,0,10.7328,42);
-
-   // Adding 76-OS-164-0
-   nuc = new Nucleus("OS",164,76,0,163.978,0,0.041,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,6.4781,98);
-   nuc->AddDecay(0,-1,0,6.98695,2);
-
-   // Adding 65-TB-165-0
-   nuc = new Nucleus("TB",165,65,0,164.935,0,126.6,0,0,0,0,0);
-   nuc->AddDecay(0,1,1,2.85383,86);
-   nuc->AddDecay(0,1,0,2.96183,14);
-
-   // Adding 66-DY-165-0
-   nuc = new Nucleus("DY",165,66,0,164.932,0,8402.4,0,1.1e-10,8.7e-11,0,0);
-   nuc->AddDecay(0,1,0,1.2862,100);
-
-   // Adding 66-DY-165-1
-   nuc = new Nucleus("DY",165,66,1,164.932,0.108,75.42,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.108,97.76);
-   nuc->AddDecay(0,1,-1,1.3942,2.24);
-
-   // Adding 67-HO-165-0
-   nuc = new Nucleus("HO",165,67,0,164.93,0,0,100,0,0,0,0);
-
-   // Adding 68-ER-165-0
-   nuc = new Nucleus("ER",165,68,0,164.931,0,37296,0,1.9e-11,1.4e-11,0,0);
-   nuc->AddDecay(0,-1,0,0.376297,100);
-
-   // Adding 69-TM-165-0
-   nuc = new Nucleus("TM",165,69,0,164.932,0,108216,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,1.5925,100);
-
-   // Adding 70-YB-165-0
-   nuc = new Nucleus("YB",165,70,0,164.935,0,594,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,2.76202,100);
-
-   // Adding 71-LU-165-0
-   nuc = new Nucleus("LU",165,71,0,164.94,0,644.4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.91994,100);
-
-   // Adding 71-LU-165-1
-   nuc = new Nucleus("LU",165,71,1,164.94,0,720,0,0,0,0,-8);
-   nuc->AddDecay(0,-1,-1,3.91994,100);
-
-   // Adding 72-HF-165-0
-   nuc = new Nucleus("HF",165,72,0,164.945,0,76,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.59521,100);
-
-   // Adding 73-TA-165-0
-   nuc = new Nucleus("TA",165,73,0,164.951,0,31,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.84815,100);
-
-   // Adding 74-W-165-0
-   nuc = new Nucleus("W",165,74,0,164.958,0,5.1,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,5.03178,0.2);
-   nuc->AddDecay(0,-1,0,7.00453,99.8);
-
-   // Adding 75-RE-165-0
-   nuc = new Nucleus("RE",165,75,0,164.967,0,2.4,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,5.65788,13);
-   nuc->AddDecay(0,-1,0,8.11702,87);
-
-   // Adding 76-OS-165-0
-   nuc = new Nucleus("OS",165,76,0,164.976,0,0.065,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,8.77736,40);
-   nuc->AddDecay(-4,-2,0,6.31709,60);
-
-   // Adding 66-DY-166-0
-   nuc = new Nucleus("DY",166,66,0,165.933,0,293760,0,1.6e-09,1.8e-09,0,0);
-   nuc->AddDecay(0,1,0,0.486301,100);
-
-   // Adding 67-HO-166-0
-   nuc = new Nucleus("HO",166,67,0,165.932,0,96588,0,1.4e-09,8.3e-10,0,0);
-   nuc->AddDecay(0,1,0,1.8545,100);
-
-   // Adding 67-HO-166-1
-   nuc = new Nucleus("HO",166,67,1,165.932,0.006,3.78432e+10,0,2e-09,1.1e-07,0,0);
-   nuc->AddDecay(0,1,-1,1.8605,100);
-
-   // Adding 68-ER-166-0
-   nuc = new Nucleus("ER",166,68,0,165.93,0,0,33.6,0,0,0,0);
-
-   // Adding 69-TM-166-0
-   nuc = new Nucleus("TM",166,69,0,165.934,0,27720,0,2.8e-10,2.9e-10,0,0);
-   nuc->AddDecay(0,-1,0,3.04002,100);
-
-   // Adding 70-YB-166-0
-   nuc = new Nucleus("YB",166,70,0,165.934,0,204120,0,9.5e-10,9.5e-10,0,0);
-   nuc->AddDecay(0,-1,0,0.303528,100);
-
-   // Adding 71-LU-166-0
-   nuc = new Nucleus("LU",166,71,0,165.94,0,159,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.48007,100);
-
-   // Adding 71-LU-166-1
-   nuc = new Nucleus("LU",166,71,1,165.94,0.034,84.6,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.034,42);
-   nuc->AddDecay(0,-1,-1,5.51407,58);
-
-   // Adding 71-LU-166-2
-   nuc = new Nucleus("LU",166,71,2,165.94,0.043,127.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-2,5.52307,80);
-   nuc->AddDecay(0,0,-2,0.043,20);
-
-   // Adding 72-HF-166-0
-   nuc = new Nucleus("HF",166,72,0,165.942,0,406.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,2.31622,100);
-
-   // Adding 73-TA-166-0
-   nuc = new Nucleus("TA",166,73,0,165.95,0,34.4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.657,100);
-
-   // Adding 74-W-166-0
-   nuc = new Nucleus("W",166,74,0,165.955,0,18.8,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.23959,99.97);
-   nuc->AddDecay(-4,-2,0,4.8565,0.04);
-
-   // Adding 75-RE-166-0
-   nuc = new Nucleus("RE",166,75,0,165.966,0,2.8,0,0,0,1,-8);
-   nuc->AddDecay(-4,-2,0,5.63709,100);
-
-   // Adding 76-OS-166-0
-   nuc = new Nucleus("OS",166,76,0,165.973,0,0.181,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,6.1301,72);
-   nuc->AddDecay(0,-1,0,6.26304,18);
-
-   // Adding 77-IR-166-0
-   nuc = new Nucleus("IR",166,77,0,165.986,0,0.005,0,0,0,1,-5);
-   nuc->AddDecay(-4,-2,0,6.7031,99);
-
-   // Adding 66-DY-167-0
-   nuc = new Nucleus("DY",167,66,0,166.936,0,372,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,2.35,100);
-
-   // Adding 67-HO-167-0
-   nuc = new Nucleus("HO",167,67,0,166.933,0,11160,0,8.3e-11,1e-10,0,0);
-   nuc->AddDecay(0,1,0,1.00667,88.5);
-   nuc->AddDecay(0,1,1,0.798668,11.5);
-
-   // Adding 68-ER-167-0
-   nuc = new Nucleus("ER",167,68,0,166.932,0,0,22.95,0,0,0,0);
-
-   // Adding 68-ER-167-1
-   nuc = new Nucleus("ER",167,68,1,166.932,0.208,2.269,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.208,100);
-
-   // Adding 69-TM-167-0
-   nuc = new Nucleus("TM",167,69,0,166.933,0,799200,0,5.6e-10,1.1e-09,0,0);
-   nuc->AddDecay(0,-1,0,0.748295,100);
-
-   // Adding 70-YB-167-0
-   nuc = new Nucleus("YB",167,70,0,166.935,0,1050,0,6.7e-12,9.5e-12,0,0);
-   nuc->AddDecay(0,-1,0,1.95428,100);
-
-   // Adding 71-LU-167-0
-   nuc = new Nucleus("LU",167,71,0,166.938,0,3090,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.13004,100);
-
-   // Adding 72-HF-167-0
-   nuc = new Nucleus("HF",167,72,0,166.943,0,123,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.9981,100);
-
-   // Adding 73-TA-167-0
-   nuc = new Nucleus("TA",167,73,0,166.948,0,84,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.00377,100);
-
-   // Adding 74-W-167-0
-   nuc = new Nucleus("W",167,74,0,166.955,0,19.9,0,0,0,0,-8);
-   nuc->AddDecay(0,-1,0,6.24012,50);
-   nuc->AddDecay(-4,-2,0,4.6691,50);
-
-   // Adding 75-RE-167-0
-   nuc = new Nucleus("RE",167,75,0,166.963,0,6.1,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,5.24284,0.7);
-   nuc->AddDecay(0,-1,0,7.38318,99.3);
-
-   // Adding 76-OS-167-0
-   nuc = new Nucleus("OS",167,76,0,166.971,0,0.83,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,5.9791,67);
-   nuc->AddDecay(0,-1,0,8.18582,33);
-
-   // Adding 77-IR-167-0
-   nuc = new Nucleus("IR",167,77,0,166.982,0,0.005,0,0,0,1,-5);
-   nuc->AddDecay(-4,-2,0,6.5431,100);
-
-   // Adding 66-DY-168-0
-   nuc = new Nucleus("DY",168,66,0,167.937,0,510,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,1.61413,100);
-
-   // Adding 67-HO-168-0
-   nuc = new Nucleus("HO",168,67,0,167.936,0,179.4,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,2.9143,100);
-
-   // Adding 68-ER-168-0
-   nuc = new Nucleus("ER",168,68,0,167.932,0,0,26.8,0,0,0,0);
-
-   // Adding 69-TM-168-0
-   nuc = new Nucleus("TM",168,69,0,167.934,0,8.04384e+06,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,0.257011,0.01);
-   nuc->AddDecay(0,-1,0,1.6791,99.99);
-
-   // Adding 70-YB-168-0
-   nuc = new Nucleus("YB",168,70,0,167.934,0,0,0.13,0,0,0,0);
-
-   // Adding 71-LU-168-0
-   nuc = new Nucleus("LU",168,71,0,167.939,0,330,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.47486,100);
-
-   // Adding 71-LU-168-1
-   nuc = new Nucleus("LU",168,71,1,167.939,0.22,402,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,4.69487,95);
-   nuc->AddDecay(0,0,-1,0.22,5);
-
-   // Adding 72-HF-168-0
-   nuc = new Nucleus("HF",168,72,0,167.941,0,1557,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,1.79868,100);
-
-   // Adding 73-TA-168-0
-   nuc = new Nucleus("TA",168,73,0,167.948,0,146.4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.66973,100);
-
-   // Adding 74-W-168-0
-   nuc = new Nucleus("W",168,74,0,167.952,0,53,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.79417,100);
-
-   // Adding 75-RE-168-0
-   nuc = new Nucleus("RE",168,75,0,167.962,0,6.9,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,5.0631,0.005);
-   nuc->AddDecay(0,-1,0,9.07779,99.995);
-
-   // Adding 75-RE-168-1
-   nuc = new Nucleus("RE",168,75,1,167.962,0,6.6,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,-1,5.0631,100);
-   nuc->AddDecay(0,-1,-1,9.07779,0);
-
-   // Adding 76-OS-168-0
-   nuc = new Nucleus("OS",168,76,0,167.968,0,2.2,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,5.8187,49);
-   nuc->AddDecay(0,-1,0,5.72387,51);
-
-   // Adding 77-IR-168-0
-   nuc = new Nucleus("IR",168,77,0,167.98,0,0.715,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,6.41109,100);
-
-   // Adding 78-PT-168-0
-   nuc = new Nucleus("PT",168,78,0,167.988,0,1.17,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,6.9901,100);
-
-   // Adding 66-DY-169-0
-   nuc = new Nucleus("DY",169,66,0,168.94,0,39,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,3.19999,100);
-
-   // Adding 67-HO-169-0
-   nuc = new Nucleus("HO",169,67,0,168.937,0,282,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,2.12401,100);
-
-   // Adding 68-ER-169-0
-   nuc = new Nucleus("ER",169,68,0,168.935,0,812160,0,3.7e-10,9.8e-10,0,0);
-   nuc->AddDecay(0,1,0,0.3512,100);
-
-   // Adding 69-TM-169-0
-   nuc = new Nucleus("TM",169,69,0,168.934,0,0,100,0,0,0,0);
-
-   // Adding 70-YB-169-0
-   nuc = new Nucleus("YB",169,70,0,168.935,0,2.76705e+06,0,7.1e-10,2.8e-09,0,0);
-   nuc->AddDecay(0,-1,0,0.909187,100);
-
-   // Adding 70-YB-169-1
-   nuc = new Nucleus("YB",169,70,1,168.935,0.024,46,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.024,100);
-
-   // Adding 71-LU-169-0
-   nuc = new Nucleus("LU",169,71,0,168.938,0,122616,0,4.6e-10,4.9e-10,0,0);
-   nuc->AddDecay(0,-1,0,2.29299,100);
-
-   // Adding 71-LU-169-1
-   nuc = new Nucleus("LU",169,71,1,168.938,0.029,160,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.029,100);
-
-   // Adding 72-HF-169-0
-   nuc = new Nucleus("HF",169,72,0,168.941,0,194.4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.26927,100);
-
-   // Adding 73-TA-169-0
-   nuc = new Nucleus("TA",169,73,0,168.946,0,294,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.43508,100);
-
-   // Adding 74-W-169-0
-   nuc = new Nucleus("W",169,74,0,168.952,0,76,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.43889,100);
-
-   // Adding 75-RE-169-0
-   nuc = new Nucleus("RE",169,75,0,168.959,0,8.1,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.58611,100);
-
-   // Adding 75-RE-169-1
-   nuc = new Nucleus("RE",169,75,1,168.959,0.15,16.3,0,0,0,0,0);
-   nuc->AddDecay(0,-1,-1,6.73611,100);
-
-   // Adding 76-OS-169-0
-   nuc = new Nucleus("OS",169,76,0,168.967,0,3.4,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.68419,89);
-   nuc->AddDecay(-4,-2,0,5.71778,11);
-
-   // Adding 77-IR-169-0
-   nuc = new Nucleus("IR",169,77,0,168.976,0,0.4,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,6.27578,100);
-   nuc->AddDecay(0,-1,0,8.67502,0);
-   nuc->AddDecay(-1,-1,0,0.757543,0);
-
-   // Adding 78-PT-169-0
-   nuc = new Nucleus("PT",169,78,0,168.986,0,0.0025,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,6.8401,100);
-
-   // Adding 67-HO-170-0
-   nuc = new Nucleus("HO",170,67,0,169.94,0,165.6,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,3.86998,100);
-
-   // Adding 67-HO-170-1
-   nuc = new Nucleus("HO",170,67,1,169.94,0.12,43,0,0,0,0,0);
-   nuc->AddDecay(0,1,-1,3.98998,100);
-
-   // Adding 68-ER-170-0
-   nuc = new Nucleus("ER",170,68,0,169.935,0,0,14.9,0,0,0,0);
-
-   // Adding 69-TM-170-0
-   nuc = new Nucleus("TM",170,69,0,169.936,0,1.1111e+07,0,1.3e-09,6.6e-09,0,0);
-   nuc->AddDecay(0,-1,0,0.3144,0.15);
-   nuc->AddDecay(0,1,0,0.968098,99.85);
-
-   // Adding 70-YB-170-0
-   nuc = new Nucleus("YB",170,70,0,169.935,0,0,3.05,0,0,0,0);
-
-   // Adding 71-LU-170-0
-   nuc = new Nucleus("LU",170,71,0,169.938,0,172800,0,9.9e-10,9.6e-10,0,0);
-   nuc->AddDecay(0,-1,0,3.45921,100);
-
-   // Adding 71-LU-170-1
-   nuc = new Nucleus("LU",170,71,1,169.939,0.093,0.67,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.093,100);
-
-   // Adding 72-HF-170-0
-   nuc = new Nucleus("HF",170,72,0,169.94,0,57636,0,4.8e-10,4.3e-10,0,0);
-   nuc->AddDecay(0,-1,0,1.09632,100);
-
-   // Adding 73-TA-170-0
-   nuc = new Nucleus("TA",170,73,0,169.946,0,405.6,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.999,100);
-
-   // Adding 74-W-170-0
-   nuc = new Nucleus("W",170,74,0,169.949,0,240,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,2.97873,100);
-
-   // Adding 75-RE-170-0
-   nuc = new Nucleus("RE",170,75,0,169.958,0,8,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,8.26706,100);
-
-   // Adding 76-OS-170-0
-   nuc = new Nucleus("OS",170,76,0,169.964,0,7.1,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.03909,88);
-   nuc->AddDecay(-4,-2,0,5.5405,12);
-
-   // Adding 77-IR-170-0
-   nuc = new Nucleus("IR",170,77,0,169.975,0,1.05,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,6.17309,75);
-   nuc->AddDecay(0,-1,0,10.6762,25);
-
-   // Adding 78-PT-170-0
-   nuc = new Nucleus("PT",170,78,0,169.982,0,0.006,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,6.7041,100);
-
-   // Adding 67-HO-171-0
-   nuc = new Nucleus("HO",171,67,0,170.941,0,53,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,3.19997,100);
-
-   // Adding 68-ER-171-0
-   nuc = new Nucleus("ER",171,68,0,170.938,0,27057.6,0,3.6e-10,3e-10,0,0);
-   nuc->AddDecay(0,1,0,1.4905,100);
-
-   // Adding 69-TM-171-0
-   nuc = new Nucleus("TM",171,69,0,170.936,0,6.05491e+07,0,1.1e-10,1.3e-09,0,0);
-   nuc->AddDecay(0,1,0,0.0963974,100);
-
-   // Adding 70-YB-171-0
-   nuc = new Nucleus("YB",171,70,0,170.936,0,0,14.3,0,0,0,0);
-
-   // Adding 71-LU-171-0
-   nuc = new Nucleus("LU",171,71,0,170.938,0,711936,0,6.7e-10,9.4e-10,0,0);
-   nuc->AddDecay(0,-1,0,1.4788,100);
-
-   // Adding 71-LU-171-1
-   nuc = new Nucleus("LU",171,71,1,170.938,0.071,79,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.071,100);
-
-   // Adding 72-HF-171-0
-   nuc = new Nucleus("HF",171,72,0,170.94,0,43560,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,2.40313,100);
-
-   // Adding 73-TA-171-0
-   nuc = new Nucleus("TA",171,73,0,170.944,0,1398,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.69799,100);
-
-   // Adding 74-W-171-0
-   nuc = new Nucleus("W",171,74,0,170.949,0,142.8,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.57293,100);
-
-   // Adding 75-RE-171-0
-   nuc = new Nucleus("RE",171,75,0,170.955,0,15.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,5.66993,100);
-
-   // Adding 76-OS-171-0
-   nuc = new Nucleus("OS",171,76,0,170.963,0,8,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,7.06303,98.3);
-   nuc->AddDecay(-4,-2,0,5.37011,1.7);
-
-   // Adding 77-IR-171-0
-   nuc = new Nucleus("IR",171,77,0,170.972,0,1.5,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,6.1591,100);
-   nuc->AddDecay(0,-1,0,8.17218,0);
-   nuc->AddDecay(-1,-1,0,0.386178,0);
-
-   // Adding 78-PT-171-0
-   nuc = new Nucleus("PT",171,78,0,170.981,0,0.025,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,8.63382,1);
-   nuc->AddDecay(-4,-2,0,6.6071,99);
-
-   // Adding 67-HO-172-0
-   nuc = new Nucleus("HO",172,67,0,171.945,0,25,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,4.79285,100);
-
-   // Adding 68-ER-172-0
-   nuc = new Nucleus("ER",172,68,0,171.939,0,177480,0,1e-09,1.2e-09,0,0);
-   nuc->AddDecay(0,1,0,0.890514,100);
-
-   // Adding 69-TM-172-0
-   nuc = new Nucleus("TM",172,69,0,171.938,0,228960,0,1.7e-09,1.4e-09,0,0);
-   nuc->AddDecay(0,1,0,1.88017,100);
-
-   // Adding 70-YB-172-0
-   nuc = new Nucleus("YB",172,70,0,171.936,0,0,21.9,0,0,0,0);
-
-   // Adding 71-LU-172-0
-   nuc = new Nucleus("LU",172,71,0,171.939,0,578880,0,1.3e-09,1.9e-09,0,0);
-   nuc->AddDecay(0,-1,0,2.5192,100);
-
-   // Adding 71-LU-172-1
-   nuc = new Nucleus("LU",172,71,1,171.939,0.042,222,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0.042,100);
-
-   // Adding 72-HF-172-0
-   nuc = new Nucleus("HF",172,72,0,171.939,0,5.89723e+07,0,1e-09,3.7e-08,0,0);
-   nuc->AddDecay(0,-1,0,0.349979,100);
-
-   // Adding 73-TA-172-0
-   nuc = new Nucleus("TA",172,73,0,171.945,0,2208,0,5.3e-11,5.8e-11,0,0);
-   nuc->AddDecay(0,-1,0,4.92003,100);
-
-   // Adding 74-W-172-0
-   nuc = new Nucleus("W",172,74,0,171.947,0,402,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,2.50005,100);
-
-   // Adding 75-RE-172-0
-   nuc = new Nucleus("RE",172,75,0,171.955,0,15,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,4.56016,0);
-   nuc->AddDecay(0,-1,0,7.32597,100);
-
-   // Adding 75-RE-172-1
-   nuc = new Nucleus("RE",172,75,1,171.955,0,55,0,0,0,0,0);
-   nuc->AddDecay(0,0,-1,0,0);
-   nuc->AddDecay(-4,-2,-1,4.56016,0);
-   nuc->AddDecay(0,-1,-1,7.32597,100);
-
-   // Adding 76-OS-172-0
-   nuc = new Nucleus("OS",172,76,0,171.96,0,19,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,5.2271,0.2);
-   nuc->AddDecay(0,-1,0,4.46111,99.8);
-
-   // Adding 77-IR-172-0
-   nuc = new Nucleus("IR",172,77,0,171.971,0,2.1,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,9.84079,97);
-   nuc->AddDecay(-4,-2,0,5.9901,3);
-
-   // Adding 78-PT-172-0
-   nuc = new Nucleus("PT",172,78,0,171.977,0,0.1,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.19837,2);
-   nuc->AddDecay(-4,-2,0,6.4646,98);
-
-   // Adding 79-AU-172-0
-   nuc = new Nucleus("AU",172,79,0,171.99,0,0.004,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,7.09741,98);
-   nuc->AddDecay(-1,-1,0,1.14431,2);
-
-   // Adding 68-ER-173-0
-   nuc = new Nucleus("ER",173,68,0,172.942,0,84,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,2.59856,100);
-
-   // Adding 69-TM-173-0
-   nuc = new Nucleus("TM",173,69,0,172.94,0,29664,0,3.1e-10,2.6e-10,0,0);
-   nuc->AddDecay(0,1,0,1.29808,100);
-
-   // Adding 70-YB-173-0
-   nuc = new Nucleus("YB",173,70,0,172.938,0,0,16.12,0,0,0,0);
-
-   // Adding 71-LU-173-0
-   nuc = new Nucleus("LU",173,71,0,172.939,0,4.32043e+07,0,2.6e-10,2.3e-09,0,0);
-   nuc->AddDecay(0,-1,0,0.670803,100);
-
-   // Adding 72-HF-173-0
-   nuc = new Nucleus("HF",173,72,0,172.941,0,84960,0,2.3e-10,2.2e-10,0,0);
-   nuc->AddDecay(0,-1,0,1.60492,100);
-
-   // Adding 73-TA-173-0
-   nuc = new Nucleus("TA",173,73,0,172.944,0,11304,0,1.9e-10,1.6e-10,0,0);
-   nuc->AddDecay(0,-1,0,2.78988,100);
-
-   // Adding 74-W-173-0
-   nuc = new Nucleus("W",173,74,0,172.948,0,478.2,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,3.99985,100);
-
-   // Adding 75-RE-173-0
-   nuc = new Nucleus("RE",173,75,0,172.953,0,118.8,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,4.77192,100);
-
-   // Adding 76-OS-173-0
-   nuc = new Nucleus("OS",173,76,0,172.96,0,16,0,0,0,0,0);
-   nuc->AddDecay(0,-1,0,6.26814,99.98);
-   nuc->AddDecay(-4,-2,0,5.0571,0.02);
-
-   // Adding 77-IR-173-0
-   nuc = new Nucleus("IR",173,77,0,172.968,0,3,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,5.84508,2.02);
-   nuc->AddDecay(0,-1,0,7.37408,97.98);
-
-   // Adding 78-PT-173-0
-   nuc = new Nucleus("PT",173,78,0,172.977,0,0.342,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,6.3529,84);
-   nuc->AddDecay(0,-1,0,8.19202,16);
-
-   // Adding 79-AU-173-0
-   nuc = new Nucleus("AU",173,79,0,172.986,0,0.059,0,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,6.89688,100);
-
-   // Adding 68-ER-174-0
-   nuc = new Nucleus("ER",174,68,0,173.944,0,198,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,1.75585,100);
-
-   // Adding 69-TM-174-0
-   nuc = new Nucleus("TM",174,69,0,173.942,0,324,0,0,0,0,0);
-   nuc->AddDecay(0,1,0,3.07998,100);
-
-   // Adding 70-YB-174-0
-   nuc = new Nucleus("YB",174,70,0,173.939,0,0,31.8,0,0,0,0);
-
-   // Adding 71-LU-174-0
-   nuc = new Nucleus("LU",174,71,0,173.94,0,1.04384e+08,0,2.7e-10,4e-09,0,0);
-   nuc->AddDecay(0,-1,0,1.3744,100);
-
-   // Adding 71-LU-174-1
-   nuc = new Nucleus("LU",174,71,1,173.941,0.171,1.22688e+07,0,5.3e-10,3.8e-09,0,0);
-   nuc->AddDecay(0,0,-1,0.171,99.38);
-   nuc->AddDecay(0,-1,-1,1.5454,0.62);
-
-   // Adding 72-HF-174-0
-   nuc = new Nucleus("HF",174,72,0,173.94,0,6.3072e+22,0.162,0,0,1,0);
-   nuc->AddDecay(-4,-2,0,2.4958,100);
+  Nucleus *nuc = 0;
+
+  // Adding 49-IN-111-1
+  nuc = new Nucleus("IN", 111, 49, 1, 110.906, 0.537, 462, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.537, 100);
+
+  // Adding 50-SN-111-0
+  nuc = new Nucleus("SN", 111, 50, 0, 110.908, 0, 2118, 0, 2.3e-11, 2.2e-11, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 2.44489, 100);
+
+  // Adding 51-SB-111-0
+  nuc = new Nucleus("SB", 111, 51, 0, 110.913, 0, 75, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.09987, 100);
+
+  // Adding 52-TE-111-0
+  nuc = new Nucleus("TE", 111, 52, 0, 110.921, 0, 19.3, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.36833, 100);
+  nuc->AddDecay(-1, -2, 0, 5.06985, 0);
+
+  // Adding 53-I-111-0
+  nuc = new Nucleus("I", 111, 53, 0, 110.93, 0, 2.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 8.52357, 99.9);
+  nuc->AddDecay(-4, -2, 0, 3.2781, 0.1);
+
+  // Adding 54-XE-111-0
+  nuc = new Nucleus("XE", 111, 54, 0, 110.942, 0, 0.74, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 10.57, 99);
+  nuc->AddDecay(-4, -2, 0, 3.71309, 1);
+
+  // Adding 43-TC-112-0
+  nuc = new Nucleus("TC", 112, 43, 0, 111.929, 0, 0.28, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 9.9575, 100);
+
+  // Adding 44-RU-112-0
+  nuc = new Nucleus("RU", 112, 44, 0, 111.919, 0, 1.75, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.66999, 100);
+
+  // Adding 45-RH-112-0
+  nuc = new Nucleus("RH", 112, 45, 0, 111.915, 0, 3.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 6.79932, 100);
+
+  // Adding 45-RH-112-1
+  nuc = new Nucleus("RH", 112, 45, 1, 111.915, 0, 6.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 6.79932, 100);
+
+  // Adding 46-PD-112-0
+  nuc = new Nucleus("PD", 112, 46, 0, 111.907, 0, 75708, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 0.287903, 100);
+
+  // Adding 47-AG-112-0
+  nuc = new Nucleus("AG", 112, 47, 0, 111.907, 0, 11268, 0, 4.3e-10, 2.6e-10, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 3.95591, 100);
+
+  // Adding 48-CD-112-0
+  nuc = new Nucleus("CD", 112, 48, 0, 111.903, 0, 0, 24.13, 0, 0, 0, 0);
+
+  // Adding 49-IN-112-0
+  nuc =
+      new Nucleus("IN", 112, 49, 0, 111.906, 0, 898.2, 0, 1e-11, 1.3e-11, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.58617, 56);
+  nuc->AddDecay(0, 1, 0, 0.66349, 44);
+
+  // Adding 49-IN-112-1
+  nuc = new Nucleus("IN", 112, 49, 1, 111.906, 0.157, 1233.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.157, 100);
+
+  // Adding 50-SN-112-0
+  nuc = new Nucleus("SN", 112, 50, 0, 111.905, 0, 0, 0.97, 0, 0, 0, 0);
+
+  // Adding 51-SB-112-0
+  nuc = new Nucleus("SB", 112, 51, 0, 111.912, 0, 51.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.05502, 100);
+
+  // Adding 52-TE-112-0
+  nuc = new Nucleus("TE", 112, 52, 0, 111.917, 0, 120, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.3438, 100);
+
+  // Adding 53-I-112-0
+  nuc = new Nucleus("I", 112, 53, 0, 111.928, 0, 3.42, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 2.98609, 0.0012);
+  nuc->AddDecay(-1, -2, 0, 6.45799, 0);
+  nuc->AddDecay(-4, -3, 0, 12.4921, 0);
+  nuc->AddDecay(0, -1, 0, 10.1629, 100);
+
+  // Adding 54-XE-112-0
+  nuc = new Nucleus("XE", 112, 54, 0, 111.936, 0, 2.7, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.1525, 99.16);
+  nuc->AddDecay(-4, -2, 0, 3.3171, 0.84);
+
+  // Adding 43-TC-113-0
+  nuc = new Nucleus("TC", 113, 43, 0, 112.931, 0, 0.13, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 8.18791, 100);
+
+  // Adding 44-RU-113-0
+  nuc = new Nucleus("RU", 113, 44, 0, 112.923, 0, 0.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 6.6319, 100);
+
+  // Adding 45-RH-113-0
+  nuc = new Nucleus("RH", 113, 45, 0, 112.915, 0, 2.72, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.9036, 100);
+
+  // Adding 46-PD-113-0
+  nuc = new Nucleus("PD", 113, 46, 0, 112.91, 0, 93, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.34312, 81.5);
+  nuc->AddDecay(0, 1, 1, 3.30012, 18.5);
+
+  // Adding 46-PD-113-1
+  nuc = new Nucleus("PD", 113, 46, 1, 112.91, 0.04, 0, 0, 0, 0, 0, -2);
+  nuc->AddDecay(0, 0, -1, 0, 0);
+
+  // Adding 46-PD-113-2
+  nuc = new Nucleus("PD", 113, 46, 2, 112.91, 0.08, 0.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -2, 0.08, 100);
+
+  // Adding 47-AG-113-0
+  nuc = new Nucleus("AG", 113, 47, 0, 112.907, 0, 19332, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.01641, 98.3);
+  nuc->AddDecay(0, 1, 1, 1.75241, 1.7);
+
+  // Adding 47-AG-113-1
+  nuc = new Nucleus("AG", 113, 47, 1, 112.907, 0.043, 68.7, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.043, 64);
+  nuc->AddDecay(0, 1, -1, 2.05941, 36);
+
+  // Adding 48-CD-113-0
+  nuc = new Nucleus("CD", 113, 48, 0, 112.904, 0, 2.93285e+23, 12.22, 2.5e-08,
+                    1.4e-07, 0, 0);
+  nuc->AddDecay(0, 1, 0, 0.315903, 100);
+
+  // Adding 48-CD-113-1
+  nuc = new Nucleus("CD", 113, 48, 1, 112.905, 0.264, 4.44658e+08, 0, 2.3e-08,
+                    1.3e-07, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.264, 0.14);
+  nuc->AddDecay(0, 1, -1, 0.579903, 99.86);
+
+  // Adding 49-IN-113-0
+  nuc = new Nucleus("IN", 113, 49, 0, 112.904, 0, 0, 4.3, 0, 0, 0, 0);
+
+  // Adding 49-IN-113-1
+  nuc = new Nucleus("IN", 113, 49, 1, 112.904, 0.392, 5969.52, 0, 2.8e-11,
+                    3.2e-11, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.392, 100);
+
+  // Adding 50-SN-113-0
+  nuc = new Nucleus("SN", 113, 50, 0, 112.905, 0, 9.94378e+06, 0, 7.4e-10,
+                    2.5e-09, 0, 0);
+  nuc->AddDecay(0, -1, 0, 1.0359, 4e-06);
+  nuc->AddDecay(0, -1, 1, 0.643898, 100);
+
+  // Adding 50-SN-113-1
+  nuc = new Nucleus("SN", 113, 50, 1, 112.905, 0.077, 1284, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.077, 91.1);
+  nuc->AddDecay(0, -1, -1, 1.1129, 8.9);
+
+  // Adding 51-SB-113-0
+  nuc = new Nucleus("SB", 113, 51, 0, 112.909, 0, 400.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.90551, 100);
+
+  // Adding 52-TE-113-0
+  nuc = new Nucleus("TE", 113, 52, 0, 112.916, 0, 102, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.09982, 100);
+
+  // Adding 53-I-113-0
+  nuc = new Nucleus("I", 113, 53, 0, 112.924, 0, 6.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.20015, 100);
+  nuc->AddDecay(-4, -2, 0, 2.70587, 3.3e-07);
+
+  // Adding 54-XE-113-0
+  nuc = new Nucleus("XE", 113, 54, 0, 112.933, 0, 2.74, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 9.06257, 95.77);
+  nuc->AddDecay(-4, -2, 0, 3.09608, 0.04);
+  nuc->AddDecay(-1, -2, 0, 7.90864, 4.2);
+
+  // Adding 55-CS-113-0
+  nuc = new Nucleus("CS", 113, 55, 0, 112.945, 0, 3.3e-05, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, -1, 0, 0.977499, 100);
+
+  // Adding 44-RU-114-0
+  nuc = new Nucleus("RU", 114, 44, 0, 113.924, 0, 0.57, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.79994, 100);
+
+  // Adding 45-RH-114-0
+  nuc = new Nucleus("RH", 114, 45, 0, 113.919, 0, 1.85, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 7.89953, 100);
+
+  // Adding 45-RH-114-1
+  nuc = new Nucleus("RH", 114, 45, 1, 113.919, 0, 1.85, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 7.89953, 100);
+
+  // Adding 46-PD-114-0
+  nuc = new Nucleus("PD", 114, 46, 0, 113.91, 0, 145.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 1.4507, 100);
+
+  // Adding 47-AG-114-0
+  nuc = new Nucleus("AG", 114, 47, 0, 113.909, 0, 4.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 5.0764, 100);
+
+  // Adding 48-CD-114-0
+  nuc = new Nucleus("CD", 114, 48, 0, 113.903, 0, 0, 28.73, 0, 0, 0, 0);
+
+  // Adding 49-IN-114-0
+  nuc = new Nucleus("IN", 114, 49, 0, 113.905, 0, 71.9, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 1.98869, 99.5);
+  nuc->AddDecay(0, -1, 0, 1.45249, 0.5);
+
+  // Adding 49-IN-114-1
+  nuc = new Nucleus("IN", 114, 49, 1, 113.905, 0.19, 4.27766e+06, 0, 4.1e-09,
+                    1.1e-08, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.19, 95.6);
+  nuc->AddDecay(0, -1, -1, 1.64249, 4.4);
+
+  // Adding 49-IN-114-2
+  nuc = new Nucleus("IN", 114, 49, 2, 113.905, 0.502, 0.0431, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -2, 0.502, 100);
+
+  // Adding 50-SN-114-0
+  nuc = new Nucleus("SN", 114, 50, 0, 113.903, 0, 0, 0.65, 0, 0, 0, 0);
+
+  // Adding 51-SB-114-0
+  nuc = new Nucleus("SB", 114, 51, 0, 113.909, 0, 209.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.88151, 100);
+
+  // Adding 52-TE-114-0
+  nuc = new Nucleus("TE", 114, 52, 0, 113.912, 0, 912, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.74242, 100);
+
+  // Adding 53-I-114-0
+  nuc = new Nucleus("I", 114, 53, 0, 113.922, 0, 2.1, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 9.13691, 100);
+  nuc->AddDecay(-1, -2, 0, 4.33873, 0);
+
+  // Adding 54-XE-114-0
+  nuc = new Nucleus("XE", 114, 54, 0, 113.928, 0, 10, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.86109, 100);
+
+  // Adding 55-CS-114-0
+  nuc = new Nucleus("CS", 114, 55, 0, 113.941, 0, 0.57, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 12.3699, 92.82);
+  nuc->AddDecay(-4, -2, 0, 3.35711, 0.02);
+  nuc->AddDecay(-1, -2, 0, 9.26975, 7);
+  nuc->AddDecay(-4, -3, 0, 15.2898, 0.16);
+
+  // Adding 44-RU-115-0
+  nuc = new Nucleus("RU", 115, 44, 0, 114.928, 0, 0.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 7.62335, 100);
+  nuc->AddDecay(-1, 1, 0, 0.743299, 0);
+
+  // Adding 45-RH-115-0
+  nuc = new Nucleus("RH", 115, 45, 0, 114.92, 0, 0.99, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 6.00056, 100);
+
+  // Adding 46-PD-115-0
+  nuc = new Nucleus("PD", 115, 46, 0, 114.914, 0, 25, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.58343, 73);
+  nuc->AddDecay(0, 1, 1, 4.54243, 27);
+
+  // Adding 46-PD-115-1
+  nuc = new Nucleus("PD", 115, 46, 1, 114.914, 0.089, 50, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 4.67242, 92);
+  nuc->AddDecay(0, 0, -1, 0.089, 8);
+
+  // Adding 47-AG-115-0
+  nuc =
+      new Nucleus("AG", 115, 47, 0, 114.909, 0, 1200, 0, 6e-11, 4.4e-11, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.10349, 94.3);
+  nuc->AddDecay(0, 1, 1, 2.92249, 5.7);
+
+  // Adding 47-AG-115-1
+  nuc = new Nucleus("AG", 115, 47, 1, 114.909, 0.041, 18, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.041, 21);
+  nuc->AddDecay(0, 1, -1, 3.14449, 79);
+
+  // Adding 48-CD-115-0
+  nuc = new Nucleus("CD", 115, 48, 0, 114.905, 0, 192456, 0, 1.4e-09, 1.3e-09,
+                    0, 0);
+  nuc->AddDecay(0, 1, 0, 1.44561, 7e-05);
+  nuc->AddDecay(0, 1, 1, 1.10961, 99.9999);
+
+  // Adding 48-CD-115-1
+  nuc = new Nucleus("CD", 115, 48, 1, 114.906, 0.181, 3.85344e+06, 0, 3.3e-09,
+                    7.3e-09, 0, 0);
+  nuc->AddDecay(0, 1, -1, 1.62661, 99.989);
+  nuc->AddDecay(0, 1, 0, 1.29061, 0.011);
+
+  // Adding 49-IN-115-0
+  nuc = new Nucleus("IN", 115, 49, 0, 114.904, 0, 1.39074e+22, 95.7, 3.2e-08,
+                    4.5e-07, 0, 0);
+  nuc->AddDecay(0, 1, 0, 0.495293, 100);
+
+  // Adding 49-IN-115-1
+  nuc = new Nucleus("IN", 115, 49, 1, 114.904, 0.336, 16149.6, 0, 8.6e-11,
+                    8.7e-11, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.336, 95);
+  nuc->AddDecay(0, 1, -1, 0.831291, 5);
+
+  // Adding 50-SN-115-0
+  nuc = new Nucleus("SN", 115, 50, 0, 114.903, 0, 0, 0.36, 0, 0, 0, 0);
+
+  // Adding 51-SB-115-0
+  nuc = new Nucleus("SB", 115, 51, 0, 114.907, 0, 1926, 0, 2.4e-11, 2.4e-11, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 3.03001, 100);
+
+  // Adding 52-TE-115-0
+  nuc = new Nucleus("TE", 115, 52, 0, 114.912, 0, 348, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.63871, 100);
+
+  // Adding 52-TE-115-1
+  nuc = new Nucleus("TE", 115, 52, 1, 114.912, 0.02, 402, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 4.65871, 100);
+  nuc->AddDecay(0, 0, -1, 0.02, 0);
+
+  // Adding 53-I-115-0
+  nuc = new Nucleus("I", 115, 53, 0, 114.918, 0, 78, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.95921, 100);
+
+  // Adding 54-XE-115-0
+  nuc = new Nucleus("XE", 115, 54, 0, 114.927, 0, 18, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.95926, 100);
+  nuc->AddDecay(-1, -2, 0, 6.19997, 0);
+
+  // Adding 55-CS-115-0
+  nuc = new Nucleus("CS", 115, 55, 0, 114.936, 0, 1.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 8.76681, 99.93);
+  nuc->AddDecay(-1, -2, 0, 5.82987, 0.07);
+
+  // Adding 45-RH-116-0
+  nuc = new Nucleus("RH", 116, 45, 0, 115.924, 0, 0.68, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 8.89915, 100);
+
+  // Adding 45-RH-116-1
+  nuc = new Nucleus("RH", 116, 45, 1, 115.924, 0, 0.9, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 8.89915, 100);
+
+  // Adding 46-PD-116-0
+  nuc = new Nucleus("PD", 116, 46, 0, 115.914, 0, 11.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.60699, 100);
+
+  // Adding 47-AG-116-0
+  nuc = new Nucleus("AG", 116, 47, 0, 115.911, 0, 160.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 6.15978, 100);
+
+  // Adding 47-AG-116-1
+  nuc = new Nucleus("AG", 116, 47, 1, 115.911, 0.082, 8.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 6.24178, 94);
+  nuc->AddDecay(0, 0, -1, 0.082, 6);
+
+  // Adding 48-CD-116-0
+  nuc = new Nucleus("CD", 116, 48, 0, 115.905, 0, 0, 7.49, 0, 0, 0, 0);
+
+  // Adding 49-IN-116-0
+  nuc = new Nucleus("IN", 116, 49, 0, 115.905, 0, 14.1, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.470284, 0.06);
+  nuc->AddDecay(0, 1, 0, 3.27438, 99.94);
+
+  // Adding 49-IN-116-1
+  nuc = new Nucleus("IN", 116, 49, 1, 115.905, 0.127, 3264.6, 0, 6.4e-11, 8e-11,
+                    0, 0);
+  nuc->AddDecay(0, 1, -1, 3.40138, 100);
+
+  // Adding 49-IN-116-2
+  nuc = new Nucleus("IN", 116, 49, 2, 115.906, 0.29, 2.18, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.29, 100);
+
+  // Adding 50-SN-116-0
+  nuc = new Nucleus("SN", 116, 50, 0, 115.902, 0, 0, 14.53, 0, 0, 0, 0);
+
+  // Adding 51-SB-116-0
+  nuc =
+      new Nucleus("SB", 116, 51, 0, 115.907, 0, 948, 0, 2.6e-11, 2.3e-11, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.70737, 100);
+
+  // Adding 51-SB-116-1
+  nuc = new Nucleus("SB", 116, 51, 1, 115.907, 0.383, 3618, 0, 6.7e-11, 8.5e-11,
+                    0, 0);
+  nuc->AddDecay(0, -1, -1, 5.09037, 100);
+
+  // Adding 52-TE-116-0
+  nuc = new Nucleus("TE", 116, 52, 0, 115.908, 0, 8964, 0, 1.7e-10, 1.7e-10, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 1.49987, 100);
+
+  // Adding 53-I-116-0
+  nuc = new Nucleus("I", 116, 53, 0, 115.917, 0, 2.91, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.74528, 100);
+
+  // Adding 53-I-116-1
+  nuc = new Nucleus("I", 116, 53, 1, 115.917, 0, 3.27e-06, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0, 100);
+
+  // Adding 54-XE-116-0
+  nuc = new Nucleus("XE", 116, 54, 0, 115.922, 0, 56, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.65977, 100);
+
+  // Adding 55-CS-116-0
+  nuc = new Nucleus("CS", 116, 55, 0, 115.933, 0, 0.7, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -3, 0, 12.4, 0);
+  nuc->AddDecay(-1, -2, 0, 6.68023, 0);
+  nuc->AddDecay(0, -1, 0, 10.477, 100);
+
+  // Adding 55-CS-116-1
+  nuc = new Nucleus("CS", 116, 55, 1, 115.933, 0, 3.84, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -3, -1, 12.4, 0);
+  nuc->AddDecay(-1, -2, -1, 6.68023, 0);
+  nuc->AddDecay(0, -1, -1, 10.477, 100);
+
+  // Adding 45-RH-117-0
+  nuc = new Nucleus("RH", 117, 45, 0, 116.925, 0, 0.44, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 6.9956, 100);
+
+  // Adding 46-PD-117-0
+  nuc = new Nucleus("PD", 117, 46, 0, 116.918, 0, 4.3, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 5.71105, 50);
+  nuc->AddDecay(0, 1, 1, 5.68205, 50);
+
+  // Adding 46-PD-117-1
+  nuc = new Nucleus("PD", 117, 46, 1, 116.918, 0.203, 0.0191, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.203, 100);
+
+  // Adding 47-AG-117-0
+  nuc = new Nucleus("AG", 117, 47, 0, 116.912, 0, 72.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.18198, 86);
+  nuc->AddDecay(0, 1, 1, 4.04598, 14);
+
+  // Adding 47-AG-117-1
+  nuc = new Nucleus("AG", 117, 47, 1, 116.912, 0.029, 5.34, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 4.21098, 20.21);
+  nuc->AddDecay(0, 0, -1, 0.029, 6);
+  nuc->AddDecay(0, 1, 0, 4.07498, 73.79);
+
+  // Adding 48-CD-117-0
+  nuc = new Nucleus("CD", 117, 48, 0, 116.907, 0, 8964, 0, 2.8e-10, 2.5e-10, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 2.51612, 8.4);
+  nuc->AddDecay(0, 1, 1, 2.20112, 91.6);
+
+  // Adding 48-CD-117-1
+  nuc = new Nucleus("CD", 117, 48, 1, 116.907, 0.136, 12096, 0, 2.8e-10,
+                    3.2e-10, 0, 0);
+  nuc->AddDecay(0, 1, -1, 2.65212, 98.6);
+  nuc->AddDecay(0, 1, 0, 2.33712, 1.4);
+
+  // Adding 49-IN-117-0
+  nuc = new Nucleus("IN", 117, 49, 0, 116.905, 0, 2592, 0, 3.1e-11, 4.8e-11, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 1.45528, 99.68);
+  nuc->AddDecay(0, 1, 1, 1.14027, 0.32);
+
+  // Adding 49-IN-117-1
+  nuc = new Nucleus("IN", 117, 49, 1, 116.905, 0.315, 6972, 0, 1.2e-10, 1.1e-10,
+                    0, 0);
+  nuc->AddDecay(0, 1, -1, 1.77028, 52.9);
+  nuc->AddDecay(0, 0, -1, 0.315, 47.1);
+
+  // Adding 50-SN-117-0
+  nuc = new Nucleus("SN", 117, 50, 0, 116.903, 0, 0, 7.68, 0, 0, 0, 0);
+
+  // Adding 50-SN-117-1
+  nuc = new Nucleus("SN", 117, 50, 1, 116.903, 0.315, 1.17504e+06, 0, 7.1e-10,
+                    2.3e-09, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.315, 100);
+
+  // Adding 51-SB-117-0
+  nuc = new Nucleus("SB", 117, 51, 0, 116.905, 0, 10080, 0, 1.8e-11, 2.7e-11, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 1.75653, 100);
+
+  // Adding 52-TE-117-0
+  nuc = new Nucleus("TE", 117, 52, 0, 116.909, 0, 3720, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.53488, 100);
+
+  // Adding 52-TE-117-1
+  nuc = new Nucleus("TE", 117, 52, 1, 116.909, 0.296, 0.103, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.296, 100);
+
+  // Adding 53-I-117-0
+  nuc = new Nucleus("I", 117, 53, 0, 116.914, 0, 133.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.65365, 100);
+
+  // Adding 54-XE-117-0
+  nuc = new Nucleus("XE", 117, 54, 0, 116.921, 0, 61, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, -2, 0, 4.02178, 0.0029);
+  nuc->AddDecay(0, -1, 0, 6.44615, 99.9971);
+
+  // Adding 55-CS-117-0
+  nuc = new Nucleus("CS", 117, 55, 0, 116.929, 0, 8.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.52362, 100);
+
+  // Adding 55-CS-117-1
+  nuc = new Nucleus("CS", 117, 55, 1, 116.929, 0, 6.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 7.52362, 100);
+
+  // Adding 56-BA-117-0
+  nuc = new Nucleus("BA", 117, 56, 0, 116.939, 0, 1.75, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, -2, 0, 8.6596, 0);
+  nuc->AddDecay(0, -1, 0, 9.51925, 100);
+  nuc->AddDecay(-4, -3, 0, 11.7365, 0);
+
+  // Adding 46-PD-118-0
+  nuc = new Nucleus("PD", 118, 46, 0, 117.919, 0, 2.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.09999, 50);
+  nuc->AddDecay(0, 1, 1, 3.97199, 50);
+
+  // Adding 47-AG-118-0
+  nuc = new Nucleus("AG", 118, 47, 0, 117.914, 0, 3.76, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 7.06461, 100);
+
+  // Adding 47-AG-118-1
+  nuc = new Nucleus("AG", 118, 47, 1, 117.915, 0.128, 2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.128, 41);
+  nuc->AddDecay(0, 1, -1, 7.1926, 59);
+
+  // Adding 48-CD-118-0
+  nuc = new Nucleus("CD", 118, 48, 0, 117.907, 0, 3018, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 0.519958, 100);
+
+  // Adding 49-IN-118-0
+  nuc = new Nucleus("IN", 118, 49, 0, 117.906, 0, 5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.42325, 100);
+
+  // Adding 49-IN-118-1
+  nuc = new Nucleus("IN", 118, 49, 1, 117.906, 0.06, 267, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 4.48325, 100);
+
+  // Adding 49-IN-118-2
+  nuc = new Nucleus("IN", 118, 49, 2, 117.907, 0.2, 8.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.2, 98.6);
+  nuc->AddDecay(0, 1, -2, 4.62325, 1.4);
+
+  // Adding 50-SN-118-0
+  nuc = new Nucleus("SN", 118, 50, 0, 117.902, 0, 0, 24.22, 0, 0, 0, 0);
+
+  // Adding 51-SB-118-0
+  nuc = new Nucleus("SB", 118, 51, 0, 117.906, 0, 216, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.65668, 100);
+
+  // Adding 51-SB-118-1
+  nuc = new Nucleus("SB", 118, 51, 1, 117.906, 0.212, 18000, 0, 2.1e-10,
+                    2.3e-10, 0, 0);
+  nuc->AddDecay(0, -1, -1, 3.86868, 100);
+
+  // Adding 52-TE-118-0
+  nuc = new Nucleus("TE", 118, 52, 0, 117.906, 0, 518400, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.277725, 100);
+
+  // Adding 53-I-118-0
+  nuc = new Nucleus("I", 118, 53, 0, 117.913, 0, 822, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.04443, 100);
+
+  // Adding 53-I-118-1
+  nuc = new Nucleus("I", 118, 53, 1, 117.913, 0, 510, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 7.04443, 100);
+
+  // Adding 54-XE-118-0
+  nuc = new Nucleus("XE", 118, 54, 0, 117.917, 0, 228, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.94477, 100);
+
+  // Adding 55-CS-118-0
+  nuc = new Nucleus("CS", 118, 55, 0, 117.927, 0, 14, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -3, 0, 11.0802, 0);
+  nuc->AddDecay(0, -1, 0, 9.29999, 100);
+  nuc->AddDecay(-1, -2, 0, 4.73454, 0);
+
+  // Adding 55-CS-118-1
+  nuc = new Nucleus("CS", 118, 55, 1, 117.927, 0, 17, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -3, -1, 11.0802, 0);
+  nuc->AddDecay(0, -1, -1, 9.29999, 100);
+  nuc->AddDecay(-1, -2, -1, 4.73454, 0);
+
+  // Adding 56-BA-118-0
+  nuc = new Nucleus("BA", 118, 56, 0, 117.933, 0, 5.5, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, -1, 0, 6.42762, 100);
+
+  // Adding 46-PD-119-0
+  nuc = new Nucleus("PD", 119, 46, 0, 118.923, 0, 0.92, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 6.53177, 100);
+
+  // Adding 47-AG-119-0
+  nuc = new Nucleus("AG", 119, 47, 0, 118.916, 0, 6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 5.34999, 79);
+  nuc->AddDecay(0, 1, 1, 5.20299, 21);
+
+  // Adding 47-AG-119-1
+  nuc = new Nucleus("AG", 119, 47, 1, 118.916, 0, 2.1, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 5.34999, 100);
+
+  // Adding 48-CD-119-0
+  nuc = new Nucleus("CD", 119, 48, 0, 118.91, 0, 161.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.79662, 6.8);
+  nuc->AddDecay(0, 1, 1, 3.48562, 93.2);
+
+  // Adding 48-CD-119-1
+  nuc = new Nucleus("CD", 119, 48, 1, 118.91, 0.147, 132, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 3.94362, 98.6);
+  nuc->AddDecay(0, 1, 0, 3.63262, 1.4);
+
+  // Adding 49-IN-119-0
+  nuc = new Nucleus("IN", 119, 49, 0, 118.906, 0, 144, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.36395, 99.07);
+  nuc->AddDecay(0, 1, 1, 2.27396, 0.93);
+
+  // Adding 49-IN-119-1
+  nuc = new Nucleus("IN", 119, 49, 1, 118.906, 0.311, 1080, 0, 4.7e-11, 2.9e-11,
+                    0, 0);
+  nuc->AddDecay(0, 1, -1, 2.67495, 94.4);
+  nuc->AddDecay(0, 0, -1, 0.311, 5.6);
+
+  // Adding 50-SN-119-0
+  nuc = new Nucleus("SN", 119, 50, 0, 118.903, 0, 0, 8.58, 0, 0, 0, 0);
+
+  // Adding 50-SN-119-1
+  nuc = new Nucleus("SN", 119, 50, 1, 118.903, 0.09, 2.53238e+07, 0, 3.4e-10,
+                    2e-09, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.09, 100);
+
+  // Adding 51-SB-119-0
+  nuc = new Nucleus("SB", 119, 51, 0, 118.904, 0, 137484, 0, 8.1e-11, 5.9e-11,
+                    0, 0);
+  nuc->AddDecay(0, -1, 0, 0.593742, 100);
+
+  // Adding 52-TE-119-0
+  nuc = new Nucleus("TE", 119, 52, 0, 118.906, 0, 57708, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.293, 100);
+
+  // Adding 52-TE-119-1
+  nuc = new Nucleus("TE", 119, 52, 1, 118.907, 0.261, 406080, 0, 8.3e-10,
+                    6.3e-10, 0, 0);
+  nuc->AddDecay(0, -1, -1, 2.554, 100);
+  nuc->AddDecay(0, 0, -1, 0.261, 0.008);
+
+  // Adding 53-I-119-0
+  nuc = new Nucleus("I", 119, 53, 0, 118.91, 0, 1146, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.51363, 100);
+
+  // Adding 54-XE-119-0
+  nuc = new Nucleus("XE", 119, 54, 0, 118.916, 0, 348, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.00165, 100);
+
+  // Adding 55-CS-119-0
+  nuc = new Nucleus("CS", 119, 55, 0, 118.922, 0, 43, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.32789, 100);
+
+  // Adding 55-CS-119-1
+  nuc = new Nucleus("CS", 119, 55, 1, 118.922, 0, 30.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 6.32789, 100);
+
+  // Adding 56-BA-119-0
+  nuc = new Nucleus("BA", 119, 56, 0, 118.931, 0, 5.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 8.09661, 100);
+  nuc->AddDecay(-1, -2, 0, 6.2, 0);
+
+  // Adding 46-PD-120-0
+  nuc = new Nucleus("PD", 120, 46, 0, 119.924, 0, 0.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 5.00301, 100);
+
+  // Adding 47-AG-120-0
+  nuc = new Nucleus("AG", 120, 47, 0, 119.919, 0, 1.23, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 8.20001, 100);
+
+  // Adding 47-AG-120-1
+  nuc = new Nucleus("AG", 120, 47, 1, 119.919, 0.203, 0.32, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.203, 37);
+  nuc->AddDecay(0, 1, -1, 8.40302, 63);
+
+  // Adding 48-CD-120-0
+  nuc = new Nucleus("CD", 120, 48, 0, 119.91, 0, 50.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 1.75851, 100);
+
+  // Adding 49-IN-120-0
+  nuc = new Nucleus("IN", 120, 49, 0, 119.908, 0, 3.08, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 5.36999, 100);
+
+  // Adding 49-IN-120-1
+  nuc = new Nucleus("IN", 120, 49, 1, 119.908, 0, 46.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 5.36999, 100);
+
+  // Adding 49-IN-120-2
+  nuc = new Nucleus("IN", 120, 49, 2, 119.908, 0, 47.3, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -2, 5.36999, 100);
+
+  // Adding 50-SN-120-0
+  nuc = new Nucleus("SN", 120, 50, 0, 119.902, 0, 0, 32.59, 0, 0, 0, 0);
+
+  // Adding 51-SB-120-0
+  nuc = new Nucleus("SB", 120, 51, 0, 119.905, 0, 953.4, 0, 1.4e-11, 1.2e-11, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 2.68055, 100);
+
+  // Adding 51-SB-120-1
+  nuc = new Nucleus("SB", 120, 51, 1, 119.905, 0, 497664, 0, 1.2e-09, 1.3e-09,
+                    0, 0);
+  nuc->AddDecay(0, -1, -1, 2.68055, 100);
+
+  // Adding 52-TE-120-0
+  nuc = new Nucleus("TE", 120, 52, 0, 119.904, 0, 0, 0.096, 0, 0, 0, 0);
+
+  // Adding 53-I-120-0
+  nuc = new Nucleus("I", 120, 53, 0, 119.91, 0, 4860, 0, 3.4e-10, 3e-10, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.61499, 100);
+
+  // Adding 53-I-120-1
+  nuc =
+      new Nucleus("I", 120, 53, 1, 119.91, 0, 3180, 0, 2.2e-10, 1.8e-10, 0, 0);
+  nuc->AddDecay(0, -1, -1, 5.61499, 100);
+
+  // Adding 54-XE-120-0
+  nuc = new Nucleus("XE", 120, 54, 0, 119.912, 0, 2400, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 1.95998, 100);
+
+  // Adding 55-CS-120-0
+  nuc = new Nucleus("CS", 120, 55, 0, 119.921, 0, 64, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.92192, 100);
+
+  // Adding 55-CS-120-1
+  nuc = new Nucleus("CS", 120, 55, 1, 119.921, 0, 57, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 7.92192, 100);
+  nuc->AddDecay(-1, -2, -1, 2.47424, 1e-05);
+
+  // Adding 56-BA-120-0
+  nuc = new Nucleus("BA", 120, 56, 0, 119.926, 0, 32, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.99999, 100);
+
+  // Adding 57-LA-120-0
+  nuc = new Nucleus("LA", 120, 57, 0, 119.938, 0, 2.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 11.2142, 0);
+  nuc->AddDecay(-1, -2, 0, 7.35892, 100);
+
+  // Adding 47-AG-121-0
+  nuc = new Nucleus("AG", 121, 47, 0, 120.92, 0, 0.78, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 6.39999, 99.92);
+  nuc->AddDecay(-1, 1, 0, 1.35441, 0.08);
+
+  // Adding 48-CD-121-0
+  nuc = new Nucleus("CD", 121, 48, 0, 120.913, 0, 13.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.89001, 34);
+  nuc->AddDecay(0, 1, 1, 4.57601, 66);
+
+  // Adding 48-CD-121-1
+  nuc = new Nucleus("CD", 121, 48, 1, 120.913, 0.215, 8.3, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 5.10501, 100);
+
+  // Adding 49-IN-121-0
+  nuc = new Nucleus("IN", 121, 49, 0, 120.908, 0, 23.1, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.3636, 88);
+  nuc->AddDecay(0, 1, 1, 3.3576, 12);
+
+  // Adding 49-IN-121-1
+  nuc = new Nucleus("IN", 121, 49, 1, 120.908, 0.314, 232.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 3.6776, 98.8);
+  nuc->AddDecay(0, 0, -1, 0.314, 1.2);
+
+  // Adding 50-SN-121-0
+  nuc = new Nucleus("SN", 121, 50, 0, 120.904, 0, 97416, 0, 2.3e-10, 2.8e-10, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 0.3881, 100);
+
+  // Adding 50-SN-121-1
+  nuc = new Nucleus("SN", 121, 50, 1, 120.904, 0.006, 1.73448e+09, 0, 3.8e-10,
+                    4.2e-09, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.006, 77.6);
+  nuc->AddDecay(0, 1, -1, 0.394096, 22.4);
+
+  // Adding 51-SB-121-0
+  nuc = new Nucleus("SB", 121, 51, 0, 120.904, 0, 0, 57.3, 0, 0, 0, 0);
+
+  // Adding 52-TE-121-0
+  nuc = new Nucleus("TE", 121, 52, 0, 120.905, 0, 1.44979e+06, 0, 4.3e-10,
+                    4.4e-10, 0, 0);
+  nuc->AddDecay(0, -1, 0, 1.0363, 100);
+
+  // Adding 52-TE-121-1
+  nuc = new Nucleus("TE", 121, 52, 1, 120.905, 0.294, 1.33056e+07, 0, 2.3e-09,
+                    4.3e-09, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.294, 88.6);
+  nuc->AddDecay(0, -1, -1, 1.3303, 11.4);
+
+  // Adding 53-I-121-0
+  nuc =
+      new Nucleus("I", 121, 53, 0, 120.907, 0, 7632, 0, 8.2e-11, 8.6e-11, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.27081, 100);
+
+  // Adding 54-XE-121-0
+  nuc = new Nucleus("XE", 121, 54, 0, 120.911, 0, 2406, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.73229, 100);
+
+  // Adding 55-CS-121-0
+  nuc = new Nucleus("CS", 121, 55, 0, 120.917, 0, 155, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.40001, 100);
+
+  // Adding 55-CS-121-1
+  nuc = new Nucleus("CS", 121, 55, 1, 120.917, 0.068, 122, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.068, 17);
+  nuc->AddDecay(0, -1, -1, 5.46801, 83);
+
+  // Adding 56-BA-121-0
+  nuc = new Nucleus("BA", 121, 56, 0, 120.924, 0, 29.7, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, -2, 0, 4.20001, 0.02);
+  nuc->AddDecay(0, -1, 0, 6.81468, 99.98);
+
+  // Adding 57-LA-121-0
+  nuc = new Nucleus("LA", 121, 57, 0, 120.933, 0, 5.3, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.93323, 100);
+
+  // Adding 58-CE-121-0
+  nuc = new Nucleus("CE", 121, 58, 0, 120.944, 0, 0, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 9.9317, 100);
+
+  // Adding 59-PR-121-0
+  nuc = new Nucleus("PR", 121, 59, 0, 120.954, 0, 1.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 9.6231, 100);
+
+  // Adding 47-AG-122-0
+  nuc = new Nucleus("AG", 122, 47, 0, 121.923, 0, 0.56, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 9.147, 99.814);
+  nuc->AddDecay(-1, 1, 0, 1.4488, 0.186);
+
+  // Adding 47-AG-122-1
+  nuc = new Nucleus("AG", 122, 47, 1, 121.923, 0, 1.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, 1, -1, 1.4488, 0);
+  nuc->AddDecay(0, 1, -1, 9.147, 100);
+
+  // Adding 48-CD-122-0
+  nuc = new Nucleus("CD", 122, 48, 0, 121.913, 0, 5.3, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.00124, 100);
+
+  // Adding 49-IN-122-0
+  nuc = new Nucleus("IN", 122, 49, 0, 121.91, 0, 1.501, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 6.36858, 100);
+
+  // Adding 49-IN-122-1
+  nuc = new Nucleus("IN", 122, 49, 1, 121.91, 0.11, 10.3, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 6.47858, 100);
+
+  // Adding 49-IN-122-2
+  nuc = new Nucleus("IN", 122, 49, 2, 121.911, 0.22, 10.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -2, 6.58858, 100);
+
+  // Adding 50-SN-122-0
+  nuc = new Nucleus("SN", 122, 50, 0, 121.903, 0, 0, 4.63, 0, 0, 0, 0);
+
+  // Adding 51-SB-122-0
+  nuc = new Nucleus("SB", 122, 51, 0, 121.905, 0, 233280, 0, 1.7e-09, 1.2e-09,
+                    0, 0);
+  nuc->AddDecay(0, 1, 0, 1.9786, 97.6);
+  nuc->AddDecay(0, -1, 0, 1.61971, 2.4);
+
+  // Adding 51-SB-122-1
+  nuc = new Nucleus("SB", 122, 51, 1, 121.905, 0.164, 252.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.164, 100);
+
+  // Adding 52-TE-122-0
+  nuc = new Nucleus("TE", 122, 52, 0, 121.903, 0, 0, 2.6, 0, 0, 0, 0);
+
+  // Adding 53-I-122-0
+  nuc = new Nucleus("I", 122, 53, 0, 121.908, 0, 217.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.23397, 100);
+
+  // Adding 54-XE-122-0
+  nuc = new Nucleus("XE", 122, 54, 0, 121.909, 0, 72360, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.89447, 100);
+
+  // Adding 55-CS-122-0
+  nuc = new Nucleus("CS", 122, 55, 0, 121.916, 0, 21, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.05477, 100);
+
+  // Adding 55-CS-122-1
+  nuc = new Nucleus("CS", 122, 55, 1, 121.916, 0, 270, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 7.05477, 100);
+
+  // Adding 55-CS-122-2
+  nuc = new Nucleus("CS", 122, 55, 2, 121.916, 0, 0.36, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -2, 0, 100);
+
+  // Adding 56-BA-122-0
+  nuc = new Nucleus("BA", 122, 56, 0, 121.92, 0, 117, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.84241, 100);
+
+  // Adding 57-LA-122-0
+  nuc = new Nucleus("LA", 122, 57, 0, 121.931, 0, 8.7, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 9.7337, 100);
+  nuc->AddDecay(-1, -2, 0, 5.31702, 0);
+
+  // Adding 58-CE-122-0
+  nuc = new Nucleus("CE", 122, 58, 0, 121.938, 0, 8.701, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.80359, 100);
+
+  // Adding 47-AG-123-0
+  nuc = new Nucleus("AG", 123, 47, 0, 122.925, 0, 0.309, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 7.35734, 99.45);
+  nuc->AddDecay(-1, 1, 0, 2.5476, 0.55);
+
+  // Adding 48-CD-123-0
+  nuc = new Nucleus("CD", 123, 48, 0, 122.917, 0, 2.1, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 6.11498, 77);
+  nuc->AddDecay(0, 1, 1, 5.78798, 23);
+
+  // Adding 48-CD-123-1
+  nuc = new Nucleus("CD", 123, 48, 1, 122.917, 0.317, 1.82, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, 1, -1, 6.43198, 50);
+  nuc->AddDecay(0, 0, -1, 0.317, 50);
+
+  // Adding 49-IN-123-0
+  nuc = new Nucleus("IN", 123, 49, 0, 122.91, 0, 5.98, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.39101, 3.5);
+  nuc->AddDecay(0, 1, 1, 4.366, 96.5);
+
+  // Adding 49-IN-123-1
+  nuc = new Nucleus("IN", 123, 49, 1, 122.911, 0.327, 47.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.69301, 100);
+
+  // Adding 50-SN-123-0
+  nuc = new Nucleus("SN", 123, 50, 0, 122.906, 0, 1.11629e+07, 0, 2.1e-09,
+                    7.7e-09, 0, 0);
+  nuc->AddDecay(0, 1, 0, 1.40359, 100);
+
+  // Adding 50-SN-123-1
+  nuc = new Nucleus("SN", 123, 50, 1, 122.906, 0.025, 2403.6, 0, 3.8e-11,
+                    4.4e-11, 0, 0);
+  nuc->AddDecay(0, 1, -1, 1.4286, 100);
+
+  // Adding 51-SB-123-0
+  nuc = new Nucleus("SB", 123, 51, 0, 122.904, 0, 0, 42.7, 0, 0, 0, 0);
+
+  // Adding 52-TE-123-0
+  nuc = new Nucleus("TE", 123, 52, 0, 122.904, 0, 3.1536e+20, 0.908, 4.4e-09,
+                    5e-09, 0, -5);
+  nuc->AddDecay(0, -1, 0, 0.0513, 100);
+
+  // Adding 52-TE-123-1
+  nuc = new Nucleus("TE", 123, 52, 1, 122.905, 0.248, 1.03421e+07, 0, 1.4e-09,
+                    3.9e-09, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.248, 100);
+
+  // Adding 53-I-123-0
+  nuc = new Nucleus("I", 123, 53, 0, 122.906, 0, 47772, 0, 2.2e-10, 2.1e-10, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 1.24208, 100);
+
+  // Adding 54-XE-123-0
+  nuc = new Nucleus("XE", 123, 54, 0, 122.908, 0, 7488, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.67603, 100);
+
+  // Adding 55-CS-123-0
+  nuc = new Nucleus("CS", 123, 55, 0, 122.913, 0, 356.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.2003, 100);
+
+  // Adding 55-CS-123-1
+  nuc = new Nucleus("CS", 123, 55, 1, 122.913, 0.157, 1.64, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.157, 100);
+
+  // Adding 56-BA-123-0
+  nuc = new Nucleus("BA", 123, 56, 0, 122.919, 0, 162, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.46121, 100);
+
+  // Adding 57-LA-123-0
+  nuc = new Nucleus("LA", 123, 57, 0, 122.926, 0, 17, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.8838, 100);
+
+  // Adding 58-CE-123-0
+  nuc = new Nucleus("CE", 123, 58, 0, 122.936, 0, 3.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, -2, 0, 6.9155, 0);
+  nuc->AddDecay(0, -1, 0, 8.6347, 100);
+
+  // Adding 47-AG-124-0
+  nuc = new Nucleus("AG", 124, 47, 0, 123.929, 0, 0.22, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, 1, 0, 2.66694, 0.1);
+  nuc->AddDecay(0, 1, 0, 10.1359, 99.9);
+
+  // Adding 48-CD-124-0
+  nuc = new Nucleus("CD", 124, 48, 0, 123.918, 0, 1.24, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.16599, 100);
+
+  // Adding 49-IN-124-0
+  nuc = new Nucleus("IN", 124, 49, 0, 123.913, 0, 3.17, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 7.35996, 100);
+
+  // Adding 49-IN-124-1
+  nuc = new Nucleus("IN", 124, 49, 1, 123.913, 0.19, 3.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 7.54996, 100);
+
+  // Adding 50-SN-124-0
+  nuc = new Nucleus("SN", 124, 50, 0, 123.905, 0, 0, 5.79, 0, 0, 0, 0);
+
+  // Adding 51-SB-124-0
+  nuc = new Nucleus("SB", 124, 51, 0, 123.906, 0, 5.20128e+06, 0, 2.5e-09,
+                    6.1e-09, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.90529, 100);
+
+  // Adding 51-SB-124-1
+  nuc = new Nucleus("SB", 124, 51, 1, 123.906, 0.011, 93, 0, 8e-12, 8.3e-12, 0,
+                    0);
+  nuc->AddDecay(0, 0, -1, 0.011, 75);
+  nuc->AddDecay(0, 1, -1, 2.91629, 25);
+
+  // Adding 51-SB-124-2
+  nuc = new Nucleus("SB", 124, 51, 2, 123.906, 0.037, 1212, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.037, 100);
+
+  // Adding 52-TE-124-0
+  nuc = new Nucleus("TE", 124, 52, 0, 123.903, 0, 0, 4.816, 0, 0, 0, 0);
+
+  // Adding 53-I-124-0
+  nuc = new Nucleus("I", 124, 53, 0, 123.906, 0, 361152, 0, 1.3e-08, 1.2e-08, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 3.15948, 100);
+
+  // Adding 54-XE-124-0
+  nuc = new Nucleus("XE", 124, 54, 0, 123.906, 0, 0, 0.1, 0, 0, 0, 0);
+
+  // Adding 55-CS-124-0
+  nuc = new Nucleus("CS", 124, 55, 0, 123.912, 0, 30.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.91701, 100);
+
+  // Adding 55-CS-124-1
+  nuc = new Nucleus("CS", 124, 55, 1, 123.913, 0.463, 6.3, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.463, 100);
+
+  // Adding 56-BA-124-0
+  nuc = new Nucleus("BA", 124, 56, 0, 123.915, 0, 714, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.6465, 100);
+
+  // Adding 57-LA-124-0
+  nuc = new Nucleus("LA", 124, 57, 0, 123.925, 0, 29, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 8.79391, 100);
+
+  // Adding 58-CE-124-0
+  nuc = new Nucleus("CE", 124, 58, 0, 123.931, 0, 6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.5797, 100);
+
+  // Adding 59-PR-124-0
+  nuc = new Nucleus("PR", 124, 59, 0, 123.943, 0, 1.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, -2, 0, 8.3966, 0);
+  nuc->AddDecay(0, -1, 0, 11.6988, 100);
+
+  // Adding 48-CD-125-0
+  nuc = new Nucleus("CD", 125, 48, 0, 124.921, 0, 0.65, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 7.15897, 70);
+  nuc->AddDecay(0, 1, 1, 6.79897, 30);
+
+  // Adding 48-CD-125-1
+  nuc = new Nucleus("CD", 125, 48, 1, 124.921, 0.049, 0.57, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 7.20798, 100);
+
+  // Adding 49-IN-125-0
+  nuc = new Nucleus("IN", 125, 49, 0, 124.914, 0, 2.36, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 5.41799, 88);
+  nuc->AddDecay(0, 1, 1, 5.38999, 12);
+
+  // Adding 49-IN-125-1
+  nuc = new Nucleus("IN", 125, 49, 1, 124.914, 0.36, 12.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 5.74999, 100);
+
+  // Adding 50-SN-125-0
+  nuc = new Nucleus("SN", 125, 50, 0, 124.908, 0, 832896, 0, 3.1e-09, 3e-09, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 2.36381, 100);
+
+  // Adding 50-SN-125-1
+  nuc = new Nucleus("SN", 125, 50, 1, 124.908, 0.028, 571.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 2.39181, 100);
+
+  // Adding 51-SB-125-0
+  nuc = new Nucleus("SB", 125, 51, 0, 124.905, 0, 8.69826e+07, 0, 1.1e-09,
+                    4.5e-09, 0, 0);
+  nuc->AddDecay(0, 1, 0, 0.766693, 77);
+  nuc->AddDecay(0, 1, 1, 0.621696, 23);
+
+  // Adding 52-TE-125-0
+  nuc = new Nucleus("TE", 125, 52, 0, 124.904, 0, 0, 7.14, 0, 0, 0, 0);
+
+  // Adding 52-TE-125-1
+  nuc = new Nucleus("TE", 125, 52, 1, 124.905, 0.145, 4.95936e+06, 0, 8.7e-10,
+                    3.3e-09, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.145, 100);
+
+  // Adding 53-I-125-0
+  nuc = new Nucleus("I", 125, 53, 0, 124.905, 0, 5.13285e+06, 0, 1.5e-08,
+                    1.4e-08, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.186203, 100);
+
+  // Adding 54-XE-125-0
+  nuc = new Nucleus("XE", 125, 54, 0, 124.906, 0, 60840, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 1.6524, 100);
+
+  // Adding 54-XE-125-1
+  nuc = new Nucleus("XE", 125, 54, 1, 124.907, 0.253, 57, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, 0, -1, 0.253, 100);
+
+  // Adding 55-CS-125-0
+  nuc =
+      new Nucleus("CS", 125, 55, 0, 124.91, 0, 2700, 0, 3.5e-11, 2.3e-11, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.09213, 100);
+
+  // Adding 56-BA-125-0
+  nuc = new Nucleus("BA", 125, 56, 0, 124.915, 0, 210, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.55996, 100);
+
+  // Adding 57-LA-125-0
+  nuc = new Nucleus("LA", 125, 57, 0, 124.921, 0, 76, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.64243, 100);
+
+  // Adding 58-CE-125-0
+  nuc = new Nucleus("CE", 125, 58, 0, 124.929, 0, 9, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, -2, 0, 5.23972, 0);
+  nuc->AddDecay(0, -1, 0, 7.3297, 100);
+
+  // Adding 48-CD-126-0
+  nuc = new Nucleus("CD", 126, 48, 0, 125.922, 0, 0.506, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 1, 5.38399, 100);
+
+  // Adding 49-IN-126-0
+  nuc = new Nucleus("IN", 126, 49, 0, 125.916, 0, 1.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 8.20697, 100);
+
+  // Adding 49-IN-126-1
+  nuc = new Nucleus("IN", 126, 49, 1, 125.917, 0.102, 1.64, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 8.30897, 100);
+
+  // Adding 50-SN-126-0
+  nuc = new Nucleus("SN", 126, 50, 0, 125.908, 0, 3.1536e+12, 0, 4.8e-09,
+                    2.7e-08, 0, 0);
+  nuc->AddDecay(0, 1, 1, 0.360023, 33.5);
+  nuc->AddDecay(0, 1, 2, 0.33802, 66.5);
+
+  // Adding 51-SB-126-0
+  nuc = new Nucleus("SB", 126, 51, 0, 125.907, 0, 1.07654e+06, 0, 2.4e-09,
+                    3.2e-09, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.67298, 100);
+
+  // Adding 51-SB-126-1
+  nuc = new Nucleus("SB", 126, 51, 1, 125.907, 0.018, 1149, 0, 3.6e-11, 3.3e-11,
+                    0, 0);
+  nuc->AddDecay(0, 1, -1, 3.69098, 86);
+  nuc->AddDecay(0, 0, -1, 0.018, 14);
+
+  // Adding 51-SB-126-2
+  nuc = new Nucleus("SB", 126, 51, 2, 125.907, 0.04, 11, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, 0, -1, 0.04, 100);
+
+  // Adding 52-TE-126-0
+  nuc = new Nucleus("TE", 126, 52, 0, 125.903, 0, 0, 18.95, 0, 0, 0, 0);
+
+  // Adding 53-I-126-0
+  nuc = new Nucleus("I", 126, 53, 0, 125.906, 0, 1.1327e+06, 0, 2.9e-08,
+                    2.6e-08, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.15527, 56.3);
+  nuc->AddDecay(0, 1, 0, 1.25802, 43.7);
+
+  // Adding 54-XE-126-0
+  nuc = new Nucleus("XE", 126, 54, 0, 125.904, 0, 0, 0.09, 0, 0, 0, 0);
+
+  // Adding 55-CS-126-0
+  nuc = new Nucleus("CS", 126, 55, 0, 125.909, 0, 98.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.82555, 100);
+
+  // Adding 56-BA-126-0
+  nuc = new Nucleus("BA", 126, 56, 0, 125.911, 0, 6000, 0, 2.6e-10, 1.2e-10, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 1.67279, 100);
+
+  // Adding 57-LA-126-0
+  nuc = new Nucleus("LA", 126, 57, 0, 125.919, 0, 54, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, -1, 0, 7.56902, 100);
+
+  // Adding 58-CE-126-0
+  nuc = new Nucleus("CE", 126, 58, 0, 125.924, 0, 50, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, -1, 0, 4.4058, 100);
+
+  // Adding 59-PR-126-0
+  nuc = new Nucleus("PR", 126, 59, 0, 125.935, 0, 3.1, 0, 0, 0, 0, -8);
+  nuc->AddDecay(-1, -2, 0, 6.3476, 50);
+  nuc->AddDecay(0, -1, 0, 10.4418, 50);
+
+  // Adding 48-CD-127-0
+  nuc = new Nucleus("CD", 127, 48, 0, 126.926, 0, 0.4, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, 1, 0, 8.46796, 66.6667);
+  nuc->AddDecay(0, 1, 1, 8.30796, 33.3333);
+
+  // Adding 49-IN-127-0
+  nuc = new Nucleus("IN", 127, 49, 0, 126.917, 0, 1.15, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 6.51398, 15.4078);
+  nuc->AddDecay(0, 1, 1, 6.50899, 84.5922);
+
+  // Adding 49-IN-127-1
+  nuc = new Nucleus("IN", 127, 49, 1, 126.918, 0.16, 3.76, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 6.66899, 50.1556);
+  nuc->AddDecay(-1, 1, -1, 1.11448, 0);
+  nuc->AddDecay(0, 1, -1, 6.67399, 49.8444);
+
+  // Adding 50-SN-127-0
+  nuc = new Nucleus("SN", 127, 50, 0, 126.91, 0, 7560, 0, 2e-10, 2e-10, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.20103, 100);
+
+  // Adding 50-SN-127-1
+  nuc = new Nucleus("SN", 127, 50, 1, 126.91, 0.005, 247.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 3.20603, 100);
+
+  // Adding 51-SB-127-0
+  nuc = new Nucleus("SB", 127, 51, 0, 126.907, 0, 332640, 0, 1.7e-09, 1.7e-09,
+                    0, 0);
+  nuc->AddDecay(0, 1, 0, 1.58097, 82.5);
+  nuc->AddDecay(0, 1, 1, 1.49297, 17.5);
+
+  // Adding 52-TE-127-0
+  nuc = new Nucleus("TE", 127, 52, 0, 126.905, 0, 33660, 0, 1.7e-10, 1.8e-10, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 0.697609, 100);
+
+  // Adding 52-TE-127-1
+  nuc = new Nucleus("TE", 127, 52, 1, 126.905, 0.088, 9.4176e+06, 0, 2.3e-09,
+                    7.2e-09, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.088, 97.6);
+  nuc->AddDecay(0, 1, -1, 0.785606, 2.4);
+
+  // Adding 53-I-127-0
+  nuc = new Nucleus("I", 127, 53, 0, 126.904, 0, 0, 100, 0, 0, 0, 0);
+
+  // Adding 54-XE-127-0
+  nuc = new Nucleus("XE", 127, 54, 0, 126.905, 0, 3.14496e+06, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.6623, 100);
+
+  // Adding 54-XE-127-1
+  nuc = new Nucleus("XE", 127, 54, 1, 126.905, 0.297, 69.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.297, 100);
+
+  // Adding 55-CS-127-0
+  nuc =
+      new Nucleus("CS", 127, 55, 0, 126.907, 0, 22500, 0, 2.4e-11, 4e-11, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.08066, 100);
+
+  // Adding 56-BA-127-0
+  nuc = new Nucleus("BA", 127, 56, 0, 126.911, 0, 762, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.45007, 100);
+
+  // Adding 57-LA-127-0
+  nuc = new Nucleus("LA", 127, 57, 0, 126.916, 0, 228, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.69849, 100);
+
+  // Adding 57-LA-127-1
+  nuc = new Nucleus("LA", 127, 57, 1, 126.916, 0, 300, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0, 100);
+
+  // Adding 58-CE-127-0
+  nuc = new Nucleus("CE", 127, 58, 0, 126.923, 0, 32, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.13782, 100);
+
+  // Adding 59-PR-127-0
+  nuc = new Nucleus("PR", 127, 59, 0, 126.931, 0, 0, 0, 0, 0, 0, -6);
+
+  // Adding 60-ND-127-0
+  nuc = new Nucleus("ND", 127, 60, 0, 126.94, 0, 1.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 9.0051, 100);
+  nuc->AddDecay(-1, -2, 0, 7.9866, 0);
+
+  // Adding 48-CD-128-0
+  nuc = new Nucleus("CD", 128, 48, 0, 127.928, 0, 0.28, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 7.07002, 100);
+
+  // Adding 49-IN-128-0
+  nuc = new Nucleus("IN", 128, 49, 0, 127.92, 0, 0.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 8.97558, 99.962);
+  nuc->AddDecay(-1, 1, 0, 1.07638, 0.038);
+
+  // Adding 49-IN-128-1
+  nuc = new Nucleus("IN", 128, 49, 1, 127.92, 0.08, 0.7, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 9.05558, 0);
+  nuc->AddDecay(-1, 1, -1, 1.15638, 100);
+  nuc->AddDecay(0, 1, 0, 6.96458, 0);
+
+  // Adding 50-SN-128-0
+  nuc = new Nucleus("SN", 128, 50, 0, 127.911, 0, 3546, 0, 1.5e-10, 1.5e-10, 0,
+                    0);
+  nuc->AddDecay(0, 1, 1, 1.254, 100);
+
+  // Adding 50-SN-128-1
+  nuc = new Nucleus("SN", 128, 50, 1, 127.913, 2.091, 6.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 2.091, 100);
+
+  // Adding 51-SB-128-0
+  nuc = new Nucleus("SB", 128, 51, 0, 127.909, 0, 32436, 0, 7.6e-10, 6.7e-10, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 4.38349, 100);
+
+  // Adding 51-SB-128-1
+  nuc = new Nucleus("SB", 128, 51, 1, 127.909, 0.02, 624, 0, 3.3e-11, 2.6e-11,
+                    0, 0);
+  nuc->AddDecay(0, 1, -1, 4.40349, 96.4);
+  nuc->AddDecay(0, 0, -1, 0.02, 3.6);
+
+  // Adding 52-TE-128-0
+  nuc = new Nucleus("TE", 128, 52, 0, 127.904, 0, 0, 31.69, 0, 0, 0, 0);
+
+  // Adding 53-I-128-0
+  nuc = new Nucleus("I", 128, 53, 0, 127.906, 0, 1499.4, 0, 4.6e-11, 6.5e-11, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 1.25098, 6.9);
+  nuc->AddDecay(0, 1, 0, 2.11818, 93.1);
+
+  // Adding 54-XE-128-0
+  nuc = new Nucleus("XE", 128, 54, 0, 127.904, 0, 0, 1.91, 0, 0, 0, 0);
+
+  // Adding 55-CS-128-0
+  nuc = new Nucleus("CS", 128, 55, 0, 127.908, 0, 217.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.93006, 100);
+
+  // Adding 56-BA-128-0
+  nuc = new Nucleus("BA", 128, 56, 0, 127.908, 0, 209952, 0, 2.7e-09, 1.3e-09,
+                    0, 0);
+  nuc->AddDecay(0, -1, 0, 0.521248, 100);
+
+  // Adding 57-LA-128-0
+  nuc = new Nucleus("LA", 128, 57, 0, 127.915, 0, 300, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.64997, 100);
+
+  // Adding 58-CE-128-0
+  nuc = new Nucleus("CE", 128, 58, 0, 127.919, 0, 360, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.18714, 100);
+
+  // Adding 59-PR-128-0
+  nuc = new Nucleus("PR", 128, 59, 0, 127.929, 0, 3.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 9.24979, 100);
+  nuc->AddDecay(-1, -2, 0, 4.48472, 0);
+
+  // Adding 60-ND-128-0
+  nuc = new Nucleus("ND", 128, 60, 0, 127.935, 0, 4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.1377, 100);
+  nuc->AddDecay(-1, -2, 0, 4.48461, 0);
+
+  // Adding 48-CD-129-0
+  nuc = new Nucleus("CD", 129, 48, 0, 129, 0, 0.27, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 0, 100);
+
+  // Adding 49-IN-129-0
+  nuc = new Nucleus("IN", 129, 49, 0, 128.922, 0, 0.63, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 7.655, 89.17);
+  nuc->AddDecay(-1, 1, 0, 2.28981, 0.23);
+  nuc->AddDecay(0, 1, 1, 7.62, 10.6);
+
+  // Adding 49-IN-129-1
+  nuc = new Nucleus("IN", 129, 49, 1, 128.922, 0.2, 1.23, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 7.855, 96.4);
+  nuc->AddDecay(-1, 1, -1, 2.48981, 3.6);
+
+  // Adding 50-SN-129-0
+  nuc = new Nucleus("SN", 129, 50, 0, 128.913, 0, 144, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.99601, 100);
+
+  // Adding 50-SN-129-1
+  nuc = new Nucleus("SN", 129, 50, 1, 128.913, 0.035, 414, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 4.03101, 100);
+  nuc->AddDecay(0, 0, -1, 0.035, 0.0002);
+
+  // Adding 51-SB-129-0
+  nuc = new Nucleus("SB", 129, 51, 0, 128.909, 0, 15840, 0, 4.2e-10, 3.5e-10, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 2.37951, 82);
+  nuc->AddDecay(0, 1, 1, 2.27451, 18);
+
+  // Adding 51-SB-129-1
+  nuc = new Nucleus("SB", 129, 51, 1, 128.909, 0, 1062, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 2.37951, 100);
+
+  // Adding 52-TE-129-0
+  nuc = new Nucleus("TE", 129, 52, 0, 128.907, 0, 4176, 0, 6.3e-11, 5.7e-11, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 1.4979, 100);
+
+  // Adding 52-TE-129-1
+  nuc = new Nucleus("TE", 129, 52, 1, 128.907, 0.105, 2.90304e+06, 0, 3e-09,
+                    6.3e-09, 0, 0);
+  nuc->AddDecay(0, 1, -1, 1.60291, 36);
+  nuc->AddDecay(0, 0, -1, 0.105, 64);
+
+  // Adding 53-I-129-0
+  nuc = new Nucleus("I", 129, 53, 0, 128.905, 0, 4.95115e+14, 0, 1.1e-07,
+                    9.6e-08, 0, 0);
+  nuc->AddDecay(0, 1, 0, 0.193748, 100);
+
+  // Adding 54-XE-129-0
+  nuc = new Nucleus("XE", 129, 54, 0, 128.905, 0, 0, 26.4, 0, 0, 0, 0);
+
+  // Adding 54-XE-129-1
+  nuc = new Nucleus("XE", 129, 54, 1, 128.905, 0.236, 768096, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.236, 100);
+
+  // Adding 55-CS-129-0
+  nuc = new Nucleus("CS", 129, 55, 0, 128.906, 0, 115416, 0, 6e-11, 8.1e-11, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 1.19553, 100);
+
+  // Adding 56-BA-129-0
+  nuc = new Nucleus("BA", 129, 56, 0, 128.909, 0, 8028, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.43333, 100);
+
+  // Adding 56-BA-129-1
+  nuc = new Nucleus("BA", 129, 56, 1, 128.909, 0.008, 7812, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, -1, -1, 2.44134, 100);
+
+  // Adding 57-LA-129-0
+  nuc = new Nucleus("LA", 129, 57, 0, 128.913, 0, 696, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.71996, 100);
+
+  // Adding 57-LA-129-1
+  nuc = new Nucleus("LA", 129, 57, 1, 128.913, 0.172, 0.56, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, 0, -1, 0.172, 100);
+
+  // Adding 58-CE-129-0
+  nuc = new Nucleus("CE", 129, 58, 0, 128.918, 0, 210, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, -1, 0, 5.05005, 100);
+
+  // Adding 59-PR-129-0
+  nuc = new Nucleus("PR", 129, 59, 0, 128.925, 0, 24, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, -1, 0, 6.3058, 100);
+
+  // Adding 60-ND-129-0
+  nuc = new Nucleus("ND", 129, 60, 0, 128.933, 0, 4.9, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.8236, 100);
+  nuc->AddDecay(-1, -2, 0, 6.1145, 0);
+
+  // Adding 48-CD-130-0
+  nuc = new Nucleus("CD", 130, 48, 0, 129.931, 0, 0.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, 1, 0, 0.544515, 4);
+  nuc->AddDecay(0, 1, 0, 5.63435, 96);
+
+  // Adding 49-IN-130-0
+  nuc = new Nucleus("IN", 130, 49, 0, 129.925, 0, 0.32, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, 1, 0, 2.56517, 0.9);
+  nuc->AddDecay(0, 1, 0, 10.249, 70.0678);
+  nuc->AddDecay(0, 1, 1, 8.30199, 29.0322);
+
+  // Adding 49-IN-130-1
+  nuc = new Nucleus("IN", 130, 49, 1, 129.925, 0.05, 0.55, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, 1, -1, 2.61517, 1.67);
+  nuc->AddDecay(0, 1, 0, 8.35199, 98.33);
+
+  // Adding 49-IN-130-2
+  nuc = new Nucleus("IN", 130, 49, 2, 129.925, 0.4, 0.55, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -2, 10.649, 82.5972);
+  nuc->AddDecay(-1, 1, -2, 2.96517, 1.67);
+  nuc->AddDecay(0, 1, -1, 8.70199, 15.7328);
+
+  // Adding 50-SN-130-0
+  nuc = new Nucleus("SN", 130, 50, 0, 129.914, 0, 223.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 1, 2.15039, 100);
+
+  // Adding 50-SN-130-1
+  nuc = new Nucleus("SN", 130, 50, 1, 129.916, 1.947, 102, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 4.09739, 100);
+
+  // Adding 51-SB-130-0
+  nuc = new Nucleus("SB", 130, 51, 0, 129.912, 0, 2370, 0, 9.1e-11, 9.1e-11, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 4.96, 100);
+
+  // Adding 51-SB-130-1
+  nuc = new Nucleus("SB", 130, 51, 1, 129.912, 0, 378, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 4.96, 100);
+
+  // Adding 52-TE-130-0
+  nuc = new Nucleus("TE", 130, 52, 0, 129.906, 0, 3.942e+28, 33.8, 0, 0, 0, -4);
+  nuc->AddDecay(0, 1, 0, -0.420486, 100);
+
+  // Adding 53-I-130-0
+  nuc =
+      new Nucleus("I", 130, 53, 0, 129.907, 0, 44496, 0, 2e-09, 1.9e-09, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.94858, 100);
+
+  // Adding 53-I-130-1
+  nuc = new Nucleus("I", 130, 53, 1, 129.907, 0.04, 540, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 2.98858, 16);
+  nuc->AddDecay(0, 0, -1, 0.04, 84);
+
+  // Adding 54-XE-130-0
+  nuc = new Nucleus("XE", 130, 54, 0, 129.904, 0, 0, 4.1, 0, 0, 0, 0);
+
+  // Adding 55-CS-130-0
+  nuc = new Nucleus("CS", 130, 55, 0, 129.907, 0, 1752.6, 0, 2.8e-11, 1.5e-11,
+                    0, 0);
+  nuc->AddDecay(0, 1, 0, 0.37278, 1.6);
+  nuc->AddDecay(0, -1, 0, 2.98283, 98.4);
+
+  // Adding 55-CS-130-1
+  nuc = new Nucleus("CS", 130, 55, 1, 129.907, 0.163, 207.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.163, 99.84);
+  nuc->AddDecay(0, -1, -1, 3.14583, 0.16);
+
+  // Adding 56-BA-130-0
+  nuc = new Nucleus("BA", 130, 56, 0, 129.906, 0, 0, 0.106, 0, 0, 0, 0);
+
+  // Adding 56-BA-130-1
+  nuc = new Nucleus("BA", 130, 56, 1, 129.909, 2.475, 0.011, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 2.475, 100);
+
+  // Adding 57-LA-130-0
+  nuc = new Nucleus("LA", 130, 57, 0, 129.912, 0, 522, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.59766, 100);
+
+  // Adding 58-CE-130-0
+  nuc = new Nucleus("CE", 130, 58, 0, 129.915, 0, 1500, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.207, 100);
+
+  // Adding 59-PR-130-0
+  nuc = new Nucleus("PR", 130, 59, 0, 129.923, 0, 40, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 8.0949, 100);
+
+  // Adding 60-ND-130-0
+  nuc = new Nucleus("ND", 130, 60, 0, 129.929, 0, 28, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.0296, 100);
+
+  // Adding 61-PM-130-0
+  nuc = new Nucleus("PM", 130, 61, 0, 129.94, 0, 2.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, -2, 0, 7.2326, 0);
+  nuc->AddDecay(0, -1, 0, 10.8709, 100);
+
+  // Adding 49-IN-131-0
+  nuc = new Nucleus("IN", 131, 49, 0, 130.927, 0, 0.27, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 9.18079, 92.8919);
+  nuc->AddDecay(-1, 1, 0, 3.97185, 2.2);
+  nuc->AddDecay(0, 1, 1, 8.9408, 4.9081);
+
+  // Adding 49-IN-131-1
+  nuc = new Nucleus("IN", 131, 49, 1, 130.927, 0, 0.35, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 9.18079, 99.982);
+
+  // Adding 49-IN-131-2
+  nuc = new Nucleus("IN", 131, 49, 2, 130.927, 0, 0.32, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -2, 9.18079, 99);
+
+  // Adding 50-SN-131-0
+  nuc = new Nucleus("SN", 131, 50, 0, 130.917, 0, 61, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.6411, 100);
+
+  // Adding 50-SN-131-1
+  nuc = new Nucleus("SN", 131, 50, 1, 130.917, 0.24, 39, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 4.8811, 100);
+
+  // Adding 51-SB-131-0
+  nuc =
+      new Nucleus("SB", 131, 51, 0, 130.912, 0, 1380, 0, 1e-10, 8.3e-11, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.19005, 93.2);
+  nuc->AddDecay(0, 1, 1, 3.00805, 6.8);
+
+  // Adding 52-TE-131-0
+  nuc = new Nucleus("TE", 131, 52, 0, 130.909, 0, 1500, 0, 8.7e-11, 6.1e-11, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 2.2327, 100);
+
+  // Adding 52-TE-131-1
+  nuc = new Nucleus("TE", 131, 52, 1, 130.909, 0.182, 108000, 0, 1.9e-09,
+                    1.6e-09, 0, 0);
+  nuc->AddDecay(0, 1, -1, 2.4147, 77.8);
+  nuc->AddDecay(0, 0, -1, 0.182, 22.2);
+
+  // Adding 53-I-131-0
+  nuc =
+      new Nucleus("I", 131, 53, 0, 130.906, 0, 694656, 0, 2.2e-08, 2e-08, 0, 0);
+  nuc->AddDecay(0, 1, 0, 0.970901, 98.914);
+  nuc->AddDecay(0, 1, 1, 0.8069, 1.086);
+
+  // Adding 54-XE-131-0
+  nuc = new Nucleus("XE", 131, 54, 0, 130.905, 0, 0, 21.2, 0, 0, 0, 0);
+
+  // Adding 54-XE-131-1
+  nuc =
+      new Nucleus("XE", 131, 54, 1, 130.905, 0.164, 1.02816e+06, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.164, 100);
+
+  // Adding 55-CS-131-0
+  nuc = new Nucleus("CS", 131, 55, 0, 130.905, 0, 837216, 0, 5.8e-11, 4.6e-11,
+                    0, 0);
+  nuc->AddDecay(0, -1, 0, 0.351662, 100);
+
+  // Adding 56-BA-131-0
+  nuc = new Nucleus("BA", 131, 56, 0, 130.907, 0, 1.01952e+06, 0, 4.5e-10,
+                    3.5e-10, 0, 0);
+  nuc->AddDecay(0, -1, 0, 1.37009, 100);
+
+  // Adding 56-BA-131-1
+  nuc = new Nucleus("BA", 131, 56, 1, 130.907, 0.188, 876, 0, 4.9e-12, 6.4e-12,
+                    0, 0);
+  nuc->AddDecay(0, 0, -1, 0.188, 100);
+
+  // Adding 57-LA-131-0
+  nuc =
+      new Nucleus("LA", 131, 57, 0, 130.91, 0, 3540, 0, 3.5e-11, 3.6e-11, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.96006, 100);
+
+  // Adding 58-CE-131-0
+  nuc = new Nucleus("CE", 131, 58, 0, 130.914, 0, 600, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.01997, 100);
+
+  // Adding 58-CE-131-1
+  nuc = new Nucleus("CE", 131, 58, 1, 130.914, 0, 300, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, -1, -1, 4.01997, 100);
+
+  // Adding 59-PR-131-0
+  nuc = new Nucleus("PR", 131, 59, 0, 130.92, 0, 102, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.25, 100);
+
+  // Adding 60-ND-131-0
+  nuc = new Nucleus("ND", 131, 60, 0, 130.927, 0, 24, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, -2, 0, 4.27416, 0);
+  nuc->AddDecay(0, -1, 0, 6.56, 100);
+
+  // Adding 61-PM-131-0
+  nuc = new Nucleus("PM", 131, 61, 0, 130.936, 0, 0, 0, 0, 0, 0, -6);
+
+  // Adding 62-SM-131-0
+  nuc = new Nucleus("SM", 131, 62, 0, 130.945, 0, 1.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 8.5174, 100);
+  nuc->AddDecay(-1, -2, 0, 7.7701, 0);
+
+  // Adding 49-IN-132-0
+  nuc = new Nucleus("IN", 132, 49, 0, 131.932, 0, 0.201, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, 1, 0, 6.28833, 6.2);
+  nuc->AddDecay(0, 1, 0, 13.6, 93.8);
+
+  // Adding 50-SN-132-0
+  nuc = new Nucleus("SN", 132, 50, 0, 131.918, 0, 39.7, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 1, 3.10303, 100);
+
+  // Adding 51-SB-132-0
+  nuc = new Nucleus("SB", 132, 51, 0, 131.914, 0, 167.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 5.28596, 100);
+
+  // Adding 51-SB-132-1
+  nuc = new Nucleus("SB", 132, 51, 1, 131.914, 0.2, 246, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 5.48595, 100);
+
+  // Adding 52-TE-132-0
+  nuc = new Nucleus("TE", 132, 52, 0, 131.909, 0, 276826, 0, 3.7e-09, 3e-09, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 0.492996, 100);
+
+  // Adding 53-I-132-0
+  nuc =
+      new Nucleus("I", 132, 53, 0, 131.908, 0, 8262, 0, 2.9e-10, 3.1e-10, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.577, 100);
+
+  // Adding 53-I-132-1
+  nuc = new Nucleus("I", 132, 53, 1, 131.908, 0.12, 4993.2, 0, 2.2e-10, 2.7e-10,
+                    0, 0);
+  nuc->AddDecay(0, 1, -1, 3.69701, 14);
+  nuc->AddDecay(0, 0, -1, 0.12, 86);
+
+  // Adding 54-XE-132-0
+  nuc = new Nucleus("XE", 132, 54, 0, 131.904, 0, 0, 26.9, 0, 0, 0, 0);
+
+  // Adding 54-XE-132-1
+  nuc = new Nucleus("XE", 132, 54, 1, 131.907, 2.752, 0.00839, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 2.752, 100);
+
+  // Adding 55-CS-132-0
+  nuc = new Nucleus("CS", 132, 55, 0, 131.906, 0, 559786, 0, 5e-10, 3.8e-10, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 2.11948, 98.13);
+  nuc->AddDecay(0, 1, 0, 1.2794, 1.87);
+
+  // Adding 56-BA-132-0
+  nuc = new Nucleus("BA", 132, 56, 0, 131.905, 0, 0, 0.101, 0, 0, 0, 0);
+
+  // Adding 57-LA-132-0
+  nuc = new Nucleus("LA", 132, 57, 0, 131.91, 0, 17280, 0, 3.9e-10, 2.8e-10, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 4.70798, 100);
+
+  // Adding 57-LA-132-1
+  nuc = new Nucleus("LA", 132, 57, 1, 131.91, 0.188, 1458, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.188, 76);
+  nuc->AddDecay(0, -1, -1, 4.89599, 24);
+
+  // Adding 58-CE-132-0
+  nuc = new Nucleus("CE", 132, 58, 0, 131.911, 0, 12636, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 1.28415, 100);
+
+  // Adding 59-PR-132-0
+  nuc = new Nucleus("PR", 132, 59, 0, 131.919, 0, 96, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.10799, 100);
+
+  // Adding 60-ND-132-0
+  nuc = new Nucleus("ND", 132, 60, 0, 131.923, 0, 105, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.7257, 100);
+
+  // Adding 61-PM-132-0
+  nuc = new Nucleus("PM", 132, 61, 0, 131.934, 0, 6.3, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 9.9018, 99.9999);
+  nuc->AddDecay(-1, -2, 0, 5.46234, 5e-05);
+
+  // Adding 62-SM-132-0
+  nuc = new Nucleus("SM", 132, 62, 0, 131.94, 0, 4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, -2, 0, 4.64095, 0);
+  nuc->AddDecay(0, -1, 0, 5.7386, 100);
+
+  // Adding 49-IN-133-0
+  nuc = new Nucleus("IN", 133, 49, 0, 132.935, 0, 0.18, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, 1, 0, 8.22132, 0);
+  nuc->AddDecay(0, 1, 0, 10.7986, 100);
+
+  // Adding 50-SN-133-0
+  nuc = new Nucleus("SN", 133, 50, 0, 132.924, 0, 1.44, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 7.83006, 99.92);
+  nuc->AddDecay(-1, 1, 0, 0.725743, 0.08);
+
+  // Adding 51-SB-133-0
+  nuc = new Nucleus("SB", 133, 51, 0, 132.915, 0, 150, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.003, 71);
+  nuc->AddDecay(0, 1, 1, 3.669, 29);
+
+  // Adding 52-TE-133-0
+  nuc =
+      new Nucleus("TE", 133, 52, 0, 132.911, 0, 750, 0, 7.2e-11, 4.4e-11, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.91795, 100);
+
+  // Adding 52-TE-133-1
+  nuc = new Nucleus("TE", 133, 52, 1, 132.911, 0.334, 3324, 0, 2.8e-10, 1.9e-10,
+                    0, 0);
+  nuc->AddDecay(0, 1, -1, 3.25195, 72.3);
+  nuc->AddDecay(0, 0, -1, 0.334, 17.5);
+  nuc->AddDecay(0, 1, 0, 1.61795, 10.2);
+
+  // Adding 53-I-133-0
+  nuc =
+      new Nucleus("I", 133, 53, 0, 132.908, 0, 74880, 0, 4.3e-09, 4e-09, 0, 0);
+  nuc->AddDecay(0, 1, 0, 1.77061, 97.12);
+  nuc->AddDecay(0, 1, 1, 1.53761, 2.88);
+
+  // Adding 53-I-133-1
+  nuc = new Nucleus("I", 133, 53, 1, 132.91, 1.634, 9, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 1.634, 100);
+
+  // Adding 54-XE-133-0
+  nuc = new Nucleus("XE", 133, 54, 0, 132.906, 0, 452995, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 0.427391, 100);
+
+  // Adding 54-XE-133-1
+  nuc = new Nucleus("XE", 133, 54, 1, 132.906, 0.233, 189216, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.233, 100);
+
+  // Adding 55-CS-133-0
+  nuc = new Nucleus("CS", 133, 55, 0, 132.905, 0, 0, 100, 0, 0, 0, 0);
+
+  // Adding 56-BA-133-0
+  nuc = new Nucleus("BA", 133, 56, 0, 132.906, 0, 3.31759e+08, 0, 1e-09,
+                    1.8e-09, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.517502, 100);
+
+  // Adding 56-BA-133-1
+  nuc = new Nucleus("BA", 133, 56, 1, 132.906, 0.288, 140040, 0, 5.5e-10,
+                    2.8e-10, 0, 0);
+  nuc->AddDecay(0, -1, -1, 0.805504, 0.01);
+  nuc->AddDecay(0, 0, -1, 0.288, 99.99);
+
+  // Adding 57-LA-133-0
+  nuc = new Nucleus("LA", 133, 57, 0, 132.908, 0, 14083.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.23001, 100);
+
+  // Adding 58-CE-133-0
+  nuc = new Nucleus("CE", 133, 58, 0, 132.912, 0, 17640, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.93672, 100);
+
+  // Adding 58-CE-133-1
+  nuc = new Nucleus("CE", 133, 58, 1, 132.912, 0, 5820, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 2.93672, 100);
+
+  // Adding 59-PR-133-0
+  nuc = new Nucleus("PR", 133, 59, 0, 132.916, 0, 390, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.33199, 100);
+
+  // Adding 60-ND-133-0
+  nuc = new Nucleus("ND", 133, 60, 0, 132.922, 0, 70, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.5978, 100);
+
+  // Adding 60-ND-133-1
+  nuc = new Nucleus("ND", 133, 60, 1, 132.922, 0, 120, 0, 0, 0, 0, -4);
+  nuc->AddDecay(0, -1, -1, 5.5978, 100);
+
+  // Adding 61-PM-133-0
+  nuc = new Nucleus("PM", 133, 61, 0, 132.93, 0, 12, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.9958, 100);
+
+  // Adding 62-SM-133-0
+  nuc = new Nucleus("SM", 133, 62, 0, 132.939, 0, 2.9, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, -2, 0, 7.2507, 100);
+  nuc->AddDecay(0, -1, 0, 8.3918, 0);
+
+  // Adding 50-SN-134-0
+  nuc = new Nucleus("SN", 134, 50, 0, 133.928, 0, 1.04, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 6.75372, 83);
+  nuc->AddDecay(-1, 1, 0, 3.65888, 17);
+
+  // Adding 51-SB-134-0
+  nuc = new Nucleus("SB", 134, 51, 0, 133.921, 0, 0.85, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, 1, 0, 8.41439, 100);
+
+  // Adding 51-SB-134-1
+  nuc = new Nucleus("SB", 134, 51, 1, 133.921, 0.06, 10.43, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 8.47439, 99.9);
+  nuc->AddDecay(-1, 1, -1, 0.968152, 0.1);
+
+  // Adding 52-TE-134-0
+  nuc = new Nucleus("TE", 134, 52, 0, 133.912, 0, 2508, 0, 1.1e-10, 1.1e-10, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 1.56005, 89.8);
+  nuc->AddDecay(0, 1, 1, 1.24405, 10.2);
+
+  // Adding 53-I-134-0
+  nuc =
+      new Nucleus("I", 134, 53, 0, 133.91, 0, 3156, 0, 1.1e-10, 1.5e-10, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.17002, 100);
+
+  // Adding 53-I-134-1
+  nuc = new Nucleus("I", 134, 53, 1, 133.91, 0.316, 221.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.316, 97.7);
+  nuc->AddDecay(0, 1, 0, 2.52702, 2.3);
+
+  // Adding 54-XE-134-0
+  nuc = new Nucleus("XE", 134, 54, 0, 133.905, 0, 0, 10.4, 0, 0, 0, 0);
+
+  // Adding 54-XE-134-1
+  nuc = new Nucleus("XE", 134, 54, 1, 133.908, 1.959, 0.29, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 1.959, 100);
+
+  // Adding 55-CS-134-0
+  nuc = new Nucleus("CS", 134, 55, 0, 133.907, 0, 6.50272e+07, 0, 1.9e-08,
+                    9.6e-09, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.0587, 100);
+  nuc->AddDecay(0, -1, 0, 1.22885, 0.0003);
+
+  // Adding 55-CS-134-1
+  nuc = new Nucleus("CS", 134, 55, 1, 133.907, 0.139, 10476, 0, 2e-11, 2.6e-11,
+                    0, 0);
+  nuc->AddDecay(0, 0, -1, 0.139, 100);
+
+  // Adding 56-BA-134-0
+  nuc = new Nucleus("BA", 134, 56, 0, 133.905, 0, 0, 2.417, 0, 0, 0, 0);
+
+  // Adding 57-LA-134-0
+  nuc = new Nucleus("LA", 134, 57, 0, 133.908, 0, 387, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.7132, 100);
+
+  // Adding 58-CE-134-0
+  nuc = new Nucleus("CE", 134, 58, 0, 133.909, 0, 273240, 0, 2.5e-09, 1.6e-09,
+                    0, 0);
+  nuc->AddDecay(0, -1, 0, 0.500008, 100);
+
+  // Adding 59-PR-134-0
+  nuc = new Nucleus("PR", 134, 59, 0, 133.916, 0, 1020, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.20692, 100);
+
+  // Adding 59-PR-134-1
+  nuc = new Nucleus("PR", 134, 59, 1, 133.916, 0, 660, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, -1, -1, 6.20692, 100);
+
+  // Adding 60-ND-134-0
+  nuc = new Nucleus("ND", 134, 60, 0, 133.919, 0, 510, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.76995, 100);
+
+  // Adding 61-PM-134-0
+  nuc = new Nucleus("PM", 134, 61, 0, 133.928, 0, 24, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 8.88274, 100);
+
+  // Adding 62-SM-134-0
+  nuc = new Nucleus("SM", 134, 62, 0, 133.934, 0, 11, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.4208, 100);
+
+  // Adding 63-EU-134-0
+  nuc = new Nucleus("EU", 134, 63, 0, 134, 0, 0.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, -2, 0, 0, 100);
+  nuc->AddDecay(0, -1, 0, 0, 0);
+
+  // Adding 51-SB-135-0
+  nuc = new Nucleus("SB", 135, 51, 0, 134.925, 0, 1.71, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 8.12009, 83.6);
+  nuc->AddDecay(-1, 1, 0, 4.6178, 16.4);
+
+  // Adding 52-TE-135-0
+  nuc = new Nucleus("TE", 135, 52, 0, 134.916, 0, 19, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 5.96193, 100);
+
+  // Adding 53-I-135-0
+  nuc =
+      new Nucleus("I", 135, 53, 0, 134.91, 0, 23652, 0, 9.3e-10, 9.2e-10, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.64809, 84.5);
+  nuc->AddDecay(0, 1, 1, 2.12109, 15.5);
+
+  // Adding 54-XE-135-0
+  nuc = new Nucleus("XE", 135, 54, 0, 134.907, 0, 32904, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 1.15092, 100);
+
+  // Adding 54-XE-135-1
+  nuc = new Nucleus("XE", 135, 54, 1, 134.908, 0.527, 917.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.527, 100);
+  nuc->AddDecay(0, 1, -1, 1.67793, 0.004);
+
+  // Adding 55-CS-135-0
+  nuc = new Nucleus("CS", 135, 55, 0, 134.906, 0, 7.25328e+13, 0, 2e-09,
+                    9.9e-10, 0, 0);
+  nuc->AddDecay(0, 1, 0, 0.2686, 100);
+
+  // Adding 55-CS-135-1
+  nuc = new Nucleus("CS", 135, 55, 1, 134.908, 1.633, 3180, 0, 1.9e-11, 2.4e-11,
+                    0, 0);
+  nuc->AddDecay(0, 0, -1, 1.633, 100);
+
+  // Adding 56-BA-135-0
+  nuc = new Nucleus("BA", 135, 56, 0, 134.906, 0, 0, 6.592, 0, 0, 0, 0);
+
+  // Adding 56-BA-135-1
+  nuc = new Nucleus("BA", 135, 56, 1, 134.906, 0.268, 103320, 0, 4.5e-10,
+                    2.3e-10, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.268, 100);
+
+  // Adding 57-LA-135-0
+  nuc =
+      new Nucleus("LA", 135, 57, 0, 134.907, 0, 70200, 0, 3e-11, 2.5e-11, 0, 0);
+  nuc->AddDecay(0, -1, 0, 1.20003, 100);
+
+  // Adding 58-CE-135-0
+  nuc =
+      new Nucleus("CE", 135, 58, 0, 134.909, 0, 63720, 0, 8e-10, 7.6e-10, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.0256, 100);
+
+  // Adding 58-CE-135-1
+  nuc = new Nucleus("CE", 135, 58, 1, 134.91, 0.446, 20, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.446, 100);
+
+  // Adding 59-PR-135-0
+  nuc = new Nucleus("PR", 135, 59, 0, 134.913, 0, 1440, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.71989, 100);
+
+  // Adding 60-ND-135-0
+  nuc = new Nucleus("ND", 135, 60, 0, 134.918, 0, 744, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.75021, 100);
+
+  // Adding 60-ND-135-1
+  nuc = new Nucleus("ND", 135, 60, 1, 134.918, 0, 330, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 4.75021, 100);
+
+  // Adding 61-PM-135-0
+  nuc = new Nucleus("PM", 135, 61, 0, 134.925, 0, 49, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.0178, 100);
+
+  // Adding 62-SM-135-0
+  nuc = new Nucleus("SM", 135, 62, 0, 134.932, 0, 10, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.12481, 0);
+  nuc->AddDecay(-1, -2, 0, 5.45865, 100);
+
+  // Adding 63-EU-135-0
+  nuc = new Nucleus("EU", 135, 63, 0, 134.942, 0, 1.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 8.7288, 100);
+
+  // Adding 51-SB-136-0
+  nuc = new Nucleus("SB", 136, 51, 0, 135.93, 0, 0.82, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, 1, 0, 4.6708, 24);
+  nuc->AddDecay(0, 1, 0, 9.33985, 76);
+
+  // Adding 52-TE-136-0
+  nuc = new Nucleus("TE", 136, 52, 0, 135.92, 0, 17.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 5.0748, 98.9);
+  nuc->AddDecay(-1, 1, 0, 1.29287, 1.1);
+
+  // Adding 53-I-136-0
+  nuc = new Nucleus("I", 136, 53, 0, 135.915, 0, 83.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 6.92622, 100);
+
+  // Adding 53-I-136-1
+  nuc = new Nucleus("I", 136, 53, 1, 135.915, 0.64, 46.9, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 7.56622, 100);
+
+  // Adding 54-XE-136-0
+  nuc = new Nucleus("XE", 136, 54, 0, 135.907, 0, 0, 8.9, 0, 0, 0, 0);
+
+  // Adding 55-CS-136-0
+  nuc = new Nucleus("CS", 136, 55, 0, 135.907, 0, 1.13702e+06, 0, 3.1e-09,
+                    1.9e-09, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.54819, 88.8);
+  nuc->AddDecay(0, 1, 1, 0.517197, 11.2);
+
+  // Adding 55-CS-136-1
+  nuc = new Nucleus("CS", 136, 55, 1, 135.907, 0, 19, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, 1, -1, 2.54819, 50);
+  nuc->AddDecay(0, 0, -1, 0, 50);
+
+  // Adding 56-BA-136-0
+  nuc = new Nucleus("BA", 136, 56, 0, 135.905, 0, 0, 7.854, 0, 0, 0, 0);
+
+  // Adding 56-BA-136-1
+  nuc = new Nucleus("BA", 136, 56, 1, 135.907, 2.031, 0.3084, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 2.031, 100);
+
+  // Adding 57-LA-136-0
+  nuc = new Nucleus("LA", 136, 57, 0, 135.908, 0, 592.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.86987, 100);
+
+  // Adding 57-LA-136-1
+  nuc = new Nucleus("LA", 136, 57, 1, 135.908, 0.23, 0.114, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.23, 100);
+
+  // Adding 58-CE-136-0
+  nuc = new Nucleus("CE", 136, 58, 0, 135.907, 0, 0, 0.19, 0, 0, 0, 0);
+
+  // Adding 59-PR-136-0
+  nuc =
+      new Nucleus("PR", 136, 59, 0, 135.913, 0, 786, 0, 3.3e-11, 2.5e-11, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.1263, 100);
+
+  // Adding 60-ND-136-0
+  nuc = new Nucleus("ND", 136, 60, 0, 135.915, 0, 3039, 0, 9.9e-11, 8.9e-11, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 2.21099, 100);
+
+  // Adding 61-PM-136-0
+  nuc = new Nucleus("PM", 136, 61, 0, 135.923, 0, 107, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.85004, 100);
+
+  // Adding 61-PM-136-1
+  nuc = new Nucleus("PM", 136, 61, 1, 135.923, 0, 107, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 7.85004, 100);
+
+  // Adding 62-SM-136-0
+  nuc = new Nucleus("SM", 136, 62, 0, 135.928, 0, 43, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.51871, 100);
+
+  // Adding 63-EU-136-0
+  nuc = new Nucleus("EU", 136, 63, 0, 135.939, 0, 3.9, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 10.4328, 99.91);
+  nuc->AddDecay(-1, -2, 0, 6.49671, 0.09);
+
+  // Adding 63-EU-136-1
+  nuc = new Nucleus("EU", 136, 63, 1, 135.939, 0, 3.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 10.4328, 99.91);
+  nuc->AddDecay(-1, -2, -1, 6.4967, 0.09);
+
+  // Adding 52-TE-137-0
+  nuc = new Nucleus("TE", 137, 52, 0, 136.925, 0, 2.49, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 6.94162, 97.3);
+  nuc->AddDecay(-1, 1, 0, 1.86744, 2.7);
+
+  // Adding 53-I-137-0
+  nuc = new Nucleus("I", 137, 53, 0, 136.918, 0, 24.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 5.87744, 92.9);
+  nuc->AddDecay(-1, 1, 0, 1.85204, 7.1);
+
+  // Adding 54-XE-137-0
+  nuc = new Nucleus("XE", 137, 54, 0, 136.912, 0, 229.08, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.17196, 100);
+
+  // Adding 55-CS-137-0
+  nuc = new Nucleus("CS", 137, 55, 0, 136.907, 0, 9.49234e+08, 0, 1.3e-08,
+                    6.7e-09, 0, 0);
+  nuc->AddDecay(0, 1, 0, 1.1756, 5.4);
+  nuc->AddDecay(0, 1, 1, 0.513596, 94.6);
+
+  // Adding 56-BA-137-0
+  nuc = new Nucleus("BA", 137, 56, 0, 136.906, 0, 0, 11.23, 0, 0, 0, 0);
+
+  // Adding 56-BA-137-1
+  nuc = new Nucleus("BA", 137, 56, 1, 136.907, 0.662, 153.12, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.662, 100);
+
+  // Adding 57-LA-137-0
+  nuc = new Nucleus("LA", 137, 57, 0, 136.906, 0, 1.89216e+12, 0, 8.1e-11,
+                    1e-08, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.599785, 100);
+
+  // Adding 58-CE-137-0
+  nuc = new Nucleus("CE", 137, 58, 0, 136.908, 0, 32400, 0, 2.5e-11, 1.9e-11, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 1.2221, 100);
+
+  // Adding 58-CE-137-1
+  nuc = new Nucleus("CE", 137, 58, 1, 136.908, 0.254, 123840, 0, 5.4e-10,
+                    5.9e-10, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.254, 99.22);
+  nuc->AddDecay(0, -1, -1, 1.4761, 0.78);
+
+  // Adding 59-PR-137-0
+  nuc =
+      new Nucleus("PR", 137, 59, 0, 136.911, 0, 4608, 0, 4e-11, 3.5e-11, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.702, 100);
+
+  // Adding 60-ND-137-0
+  nuc = new Nucleus("ND", 137, 60, 0, 136.915, 0, 2310, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.68998, 100);
+
+  // Adding 60-ND-137-1
+  nuc = new Nucleus("ND", 137, 60, 1, 136.915, 0.52, 1.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.52, 100);
+
+  // Adding 61-PM-137-0
+  nuc = new Nucleus("PM", 137, 61, 0, 136.921, 0, 144, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.5798, 100);
+
+  // Adding 62-SM-137-0
+  nuc = new Nucleus("SM", 137, 62, 0, 136.927, 0, 45, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.05376, 100);
+
+  // Adding 63-EU-137-0
+  nuc = new Nucleus("EU", 137, 63, 0, 136.935, 0, 11, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.52681, 100);
+
+  // Adding 64-GD-137-0
+  nuc = new Nucleus("GD", 137, 64, 0, 136.945, 0, 7, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 8.7929, 0);
+  nuc->AddDecay(-1, -2, 0, 7.9408, 100);
+
+  // Adding 52-TE-138-0
+  nuc = new Nucleus("TE", 138, 52, 0, 137.929, 0, 1.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, 1, 0, 2.49833, 6.3);
+  nuc->AddDecay(0, 1, 0, 6.36807, 93.7);
+
+  // Adding 53-I-138-0
+  nuc = new Nucleus("I", 138, 53, 0, 137.922, 0, 6.49, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, 1, 0, 2.0077, 5.5);
+  nuc->AddDecay(0, 1, 0, 7.81996, 94.5);
+
+  // Adding 54-XE-138-0
+  nuc = new Nucleus("XE", 138, 54, 0, 137.914, 0, 844.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.77406, 100);
+
+  // Adding 55-CS-138-0
+  nuc = new Nucleus("CS", 138, 55, 0, 137.911, 0, 2004.6, 0, 9.2e-11, 4.6e-11,
+                    0, 0);
+  nuc->AddDecay(0, 1, 0, 5.37293, 100);
+
+  // Adding 55-CS-138-1
+  nuc = new Nucleus("CS", 138, 55, 1, 137.911, 0.08, 174.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.08, 81);
+  nuc->AddDecay(0, 1, -1, 5.45293, 19);
+
+  // Adding 56-BA-138-0
+  nuc = new Nucleus("BA", 138, 56, 0, 137.905, 0, 0, 71.7, 0, 0, 0, 0);
+
+  // Adding 57-LA-138-0
+  nuc = new Nucleus("LA", 138, 57, 0, 137.907, 0, 3.31128e+18, 0.09, 1.1e-09,
+                    1.8e-07, 0, 0);
+  nuc->AddDecay(0, -1, 0, 1.73749, 66.4);
+  nuc->AddDecay(0, 1, 0, 1.04447, 33.6);
+
+  // Adding 58-CE-138-0
+  nuc = new Nucleus("CE", 138, 58, 0, 137.906, 0, 0, 0.25, 0, 0, 0, 0);
+
+  // Adding 58-CE-138-1
+  nuc = new Nucleus("CE", 138, 58, 1, 137.908, 2.129, 0.00865, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 2.129, 100);
+
+  // Adding 59-PR-138-0
+  nuc = new Nucleus("PR", 138, 59, 0, 137.911, 0, 87, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.437, 100);
+
+  // Adding 59-PR-138-1
+  nuc = new Nucleus("PR", 138, 59, 1, 137.911, 0.364, 7632, 0, 1.3e-10, 1.4e-10,
+                    0, 0);
+  nuc->AddDecay(0, -1, -1, 4.80099, 100);
+
+  // Adding 60-ND-138-0
+  nuc = new Nucleus("ND", 138, 60, 0, 137.912, 0, 18144, 0, 6.4e-10, 3.8e-10, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 1.10001, 100);
+
+  // Adding 61-PM-138-0
+  nuc = new Nucleus("PM", 138, 61, 0, 137.919, 0, 194.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.89976, 100);
+
+  // Adding 61-PM-138-1
+  nuc = new Nucleus("PM", 138, 61, 1, 137.919, 0, 10, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 6.89976, 100);
+
+  // Adding 61-PM-138-2
+  nuc = new Nucleus("PM", 138, 61, 2, 137.919, 0, 194.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -2, 6.89976, 100);
+
+  // Adding 62-SM-138-0
+  nuc = new Nucleus("SM", 138, 62, 0, 137.924, 0, 186, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.91415, 100);
+
+  // Adding 63-EU-138-0
+  nuc = new Nucleus("EU", 138, 63, 0, 137.933, 0, 12.1, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 9.23079, 100);
+
+  // Adding 64-GD-138-0
+  nuc = new Nucleus("GD", 138, 64, 0, 137.94, 0, 0, 0, 0, 0, 0, -2);
+
+  // Adding 53-I-139-0
+  nuc = new Nucleus("I", 139, 53, 0, 138.926, 0, 2.29, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, 1, 0, 3.20531, 9.9);
+  nuc->AddDecay(0, 1, 0, 6.80599, 90.1);
+
+  // Adding 54-XE-139-0
+  nuc = new Nucleus("XE", 139, 54, 0, 138.919, 0, 39.68, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 5.05702, 100);
+
+  // Adding 55-CS-139-0
+  nuc = new Nucleus("CS", 139, 55, 0, 138.913, 0, 556.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.21268, 100);
+
+  // Adding 56-BA-139-0
+  nuc = new Nucleus("BA", 139, 56, 0, 138.909, 0, 4983.6, 0, 1.2e-10, 5.5e-11,
+                    0, 0);
+  nuc->AddDecay(0, 1, 0, 2.31711, 100);
+
+  // Adding 57-LA-139-0
+  nuc = new Nucleus("LA", 139, 57, 0, 138.906, 0, 0, 99.91, 0, 0, 0, 0);
+
+  // Adding 58-CE-139-0
+  nuc = new Nucleus("CE", 139, 58, 0, 138.907, 0, 1.18921e+07, 0, 2.6e-10,
+                    1.8e-09, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.277962, 100);
+
+  // Adding 58-CE-139-1
+  nuc = new Nucleus("CE", 139, 58, 1, 138.907, 0.754, 54.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.754, 100);
+
+  // Adding 59-PR-139-0
+  nuc =
+      new Nucleus("PR", 139, 59, 0, 138.909, 0, 15876, 0, 3.1e-11, 3e-11, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.12899, 100);
+
+  // Adding 60-ND-139-0
+  nuc =
+      new Nucleus("ND", 139, 60, 0, 138.912, 0, 1782, 0, 2e-11, 1.7e-11, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.78654, 100);
+
+  // Adding 60-ND-139-1
+  nuc = new Nucleus("ND", 139, 60, 1, 138.912, 0.231, 19800, 0, 2.5e-10,
+                    2.5e-10, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.231, 11.8);
+  nuc->AddDecay(0, -1, -1, 3.01755, 88.2);
+
+  // Adding 61-PM-139-0
+  nuc = new Nucleus("PM", 139, 61, 0, 138.917, 0, 249, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.52199, 100);
+
+  // Adding 61-PM-139-1
+  nuc = new Nucleus("PM", 139, 61, 1, 138.917, 0.189, 0.18, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.189, 99.94);
+  nuc->AddDecay(0, -1, -1, 4.71099, 0.06);
+
+  // Adding 62-SM-139-0
+  nuc = new Nucleus("SM", 139, 62, 0, 138.923, 0, 154.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.46004, 100);
+
+  // Adding 62-SM-139-1
+  nuc = new Nucleus("SM", 139, 62, 1, 138.923, 0.458, 10.7, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.458, 93.7);
+  nuc->AddDecay(0, -1, -1, 5.91804, 6.3);
+
+  // Adding 63-EU-139-0
+  nuc = new Nucleus("EU", 139, 63, 0, 138.93, 0, 17.9, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.67751, 100);
+
+  // Adding 64-GD-139-0
+  nuc = new Nucleus("GD", 139, 64, 0, 138.938, 0, 4.9, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.7039, 100);
+  nuc->AddDecay(-1, -2, 0, 6.2548, 0);
+
+  // Adding 53-I-140-0
+  nuc = new Nucleus("I", 140, 53, 0, 139.931, 0, 0.86, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 8.76295, 90.6);
+  nuc->AddDecay(-1, 1, 0, 3.34111, 9.4);
+
+  // Adding 54-XE-140-0
+  nuc = new Nucleus("XE", 140, 54, 0, 139.922, 0, 13.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.05995, 100);
+
+  // Adding 55-CS-140-0
+  nuc = new Nucleus("CS", 140, 55, 0, 139.917, 0, 63.7, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 6.21877, 100);
+
+  // Adding 56-BA-140-0
+  nuc = new Nucleus("BA", 140, 56, 0, 139.911, 0, 1.10177e+06, 0, 2.5e-09,
+                    1.6e-09, 0, 0);
+  nuc->AddDecay(0, 1, 0, 1.04715, 100);
+
+  // Adding 57-LA-140-0
+  nuc = new Nucleus("LA", 140, 57, 0, 139.909, 0, 144988, 0, 2e-09, 1.5e-09, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 3.76189, 100);
+
+  // Adding 58-CE-140-0
+  nuc = new Nucleus("CE", 140, 58, 0, 139.905, 0, 0, 88.48, 0, 0, 0, 0);
+
+  // Adding 59-PR-140-0
+  nuc = new Nucleus("PR", 140, 59, 0, 139.909, 0, 203.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.38796, 100);
+
+  // Adding 60-ND-140-0
+  nuc = new Nucleus("ND", 140, 60, 0, 139.909, 0, 291168, 0, 2.8e-09, 2e-09, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 0.222145, 100);
+
+  // Adding 61-PM-140-0
+  nuc = new Nucleus("PM", 140, 61, 0, 139.916, 0, 9.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.08868, 100);
+
+  // Adding 61-PM-140-1
+  nuc = new Nucleus("PM", 140, 61, 1, 139.916, 0, 357, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 6.08868, 100);
+
+  // Adding 62-SM-140-0
+  nuc = new Nucleus("SM", 140, 62, 0, 139.919, 0, 889.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.01994, 100);
+
+  // Adding 63-EU-140-0
+  nuc = new Nucleus("EU", 140, 63, 0, 139.928, 0, 1.54, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 8.39975, 100);
+
+  // Adding 63-EU-140-1
+  nuc = new Nucleus("EU", 140, 63, 1, 139.928, 0, 0.125, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 8.39975, 100);
+
+  // Adding 64-GD-140-0
+  nuc = new Nucleus("GD", 140, 64, 0, 139.934, 0, 16, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.45985, 100);
+
+  // Adding 65-TB-140-0
+  nuc = new Nucleus("TB", 140, 65, 0, 139.946, 0, 2.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 10.8005, 100);
+  nuc->AddDecay(-1, -2, 0, 7.3853, 0);
+
+  // Adding 53-I-141-0
+  nuc = new Nucleus("I", 141, 53, 0, 140.935, 0, 0.43, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 7.83889, 78.8);
+  nuc->AddDecay(-1, 1, 0, 4.44556, 21.2);
+
+  // Adding 54-XE-141-0
+  nuc = new Nucleus("XE", 141, 54, 0, 140.927, 0, 1.73, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, 1, 0, 0.666623, 0.04);
+  nuc->AddDecay(0, 1, 0, 6.14993, 99.96);
+
+  // Adding 55-CS-141-0
+  nuc = new Nucleus("CS", 141, 55, 0, 140.92, 0, 24.94, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, 1, 0, 0.735471, 0.03);
+  nuc->AddDecay(0, 1, 0, 5.2551, 99.97);
+
+  // Adding 56-BA-141-0
+  nuc = new Nucleus("BA", 141, 56, 0, 140.914, 0, 1096.2, 0, 7e-11, 3.5e-11, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 3.21604, 100);
+
+  // Adding 57-LA-141-0
+  nuc = new Nucleus("LA", 141, 57, 0, 140.911, 0, 14112, 0, 3.6e-10, 2.2e-10, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 2.50198, 100);
+
+  // Adding 58-CE-141-0
+  nuc = new Nucleus("CE", 141, 58, 0, 140.908, 0, 2.80809e+06, 0, 7.1e-10,
+                    3.6e-09, 0, 0);
+  nuc->AddDecay(0, 1, 0, 0.580704, 100);
+
+  // Adding 59-PR-141-0
+  nuc = new Nucleus("PR", 141, 59, 0, 140.908, 0, 0, 100, 0, 0, 0, 0);
+
+  // Adding 60-ND-141-0
+  nuc =
+      new Nucleus("ND", 141, 60, 0, 140.91, 0, 8964, 0, 8.3e-12, 8.8e-12, 0, 0);
+  nuc->AddDecay(0, -1, 0, 1.82289, 100);
+
+  // Adding 60-ND-141-1
+  nuc = new Nucleus("ND", 141, 60, 1, 140.91, 0.757, 62, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.757, 99.95);
+  nuc->AddDecay(0, -1, -1, 2.5799, 0.05);
+
+  // Adding 61-PM-141-0
+  nuc = new Nucleus("PM", 141, 61, 0, 140.914, 0, 1254, 0, 3.6e-11, 2.5e-11, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 3.71502, 100);
+
+  // Adding 62-SM-141-0
+  nuc =
+      new Nucleus("SM", 141, 62, 0, 140.918, 0, 612, 0, 3.9e-11, 2.7e-11, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.54311, 100);
+
+  // Adding 62-SM-141-1
+  nuc = new Nucleus("SM", 141, 62, 1, 140.919, 0.176, 1356, 0, 6.5e-11, 5.6e-11,
+                    0, 0);
+  nuc->AddDecay(0, -1, -1, 4.71912, 99.69);
+  nuc->AddDecay(0, 0, -1, 0.176, 0.31);
+
+  // Adding 63-EU-141-0
+  nuc = new Nucleus("EU", 141, 63, 0, 140.924, 0, 40, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.55, 100);
+
+  // Adding 63-EU-141-1
+  nuc = new Nucleus("EU", 141, 63, 1, 140.925, 0.096, 2.7, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.096, 87);
+  nuc->AddDecay(0, -1, -1, 5.646, 13);
+
+  // Adding 64-GD-141-0
+  nuc = new Nucleus("GD", 141, 64, 0, 140.932, 0, 14, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.24762, 99.97);
+  nuc->AddDecay(-1, -2, 0, 4.9329, 0.03);
+
+  // Adding 64-GD-141-1
+  nuc = new Nucleus("GD", 141, 64, 1, 140.933, 0.378, 24.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 7.62561, 89);
+  nuc->AddDecay(0, 0, -1, 0.378, 11);
+
+  // Adding 65-TB-141-0
+  nuc = new Nucleus("TB", 141, 65, 0, 140.941, 0, 3.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 8.3367, 100);
+
+  // Adding 65-TB-141-1
+  nuc = new Nucleus("TB", 141, 65, 1, 140.941, 0, 7.9, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 8.3367, 100);
+
+  // Adding 66-DY-141-0
+  nuc = new Nucleus("DY", 141, 66, 0, 140.951, 0, 0.9, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 9.3429, 100);
+  nuc->AddDecay(-1, -2, 0, 8.7529, 0);
+
+  // Adding 53-I-142-0
+  nuc = new Nucleus("I", 142, 53, 0, 141.94, 0, 0.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 9.87831, 45.5);
+  nuc->AddDecay(-1, 1, 0, 4.64989, 54.5);
+
+  // Adding 54-XE-142-0
+  nuc = new Nucleus("XE", 142, 54, 0, 141.93, 0, 1.22, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 5.04, 100);
+
+  // Adding 55-CS-142-0
+  nuc = new Nucleus("CS", 142, 55, 0, 141.924, 0, 1.7, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 7.30647, 99.72);
+  nuc->AddDecay(-1, 1, 0, 1.1366, 0.28);
+
+  // Adding 56-BA-142-0
+  nuc =
+      new Nucleus("BA", 142, 56, 0, 141.916, 0, 636, 0, 3.5e-11, 2.7e-11, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.21209, 100);
+
+  // Adding 57-LA-142-0
+  nuc = new Nucleus("LA", 142, 57, 0, 141.914, 0, 5466, 0, 1.8e-10, 1.5e-10, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 4.50507, 100);
+
+  // Adding 58-CE-142-0
+  nuc = new Nucleus("CE", 142, 58, 0, 141.909, 0, 0, 11.08, 0, 0, 0, 0);
+
+  // Adding 59-PR-142-0
+  nuc = new Nucleus("PR", 142, 59, 0, 141.91, 0, 68832, 0, 1.3e-09, 7.4e-10, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 2.1622, 99.98);
+  nuc->AddDecay(0, -1, 0, 0.745209, 0.02);
+
+  // Adding 59-PR-142-1
+  nuc = new Nucleus("PR", 142, 59, 1, 141.91, 0.004, 876, 0, 1.7e-11, 9.4e-12,
+                    0, 0);
+  nuc->AddDecay(0, 0, -1, 0.004, 100);
+
+  // Adding 60-ND-142-0
+  nuc = new Nucleus("ND", 142, 60, 0, 141.908, 0, 0, 27.13, 0, 0, 0, 0);
+
+  // Adding 61-PM-142-0
+  nuc = new Nucleus("PM", 142, 61, 0, 141.913, 0, 40.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.87359, 100);
+
+  // Adding 62-SM-142-0
+  nuc = new Nucleus("SM", 142, 62, 0, 141.915, 0, 4349.4, 0, 1.9e-10, 1.1e-10,
+                    0, 0);
+  nuc->AddDecay(0, -1, 0, 2.09813, 100);
+
+  // Adding 63-EU-142-0
+  nuc = new Nucleus("EU", 142, 63, 0, 141.923, 0, 2.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.35992, 100);
+
+  // Adding 63-EU-142-1
+  nuc = new Nucleus("EU", 142, 63, 1, 141.923, 0, 73.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 7.35992, 100);
+
+  // Adding 64-GD-142-0
+  nuc = new Nucleus("GD", 142, 64, 0, 141.928, 0, 70.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.49998, 100);
+
+  // Adding 65-TB-142-0
+  nuc = new Nucleus("TB", 142, 65, 0, 141.939, 0, 0.597, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 10.0595, 100);
+  nuc->AddDecay(-1, -2, 0, 6.03715, 3e-07);
+
+  // Adding 65-TB-142-1
+  nuc = new Nucleus("TB", 142, 65, 1, 141.939, 0.28, 0.303, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, 0, -1, 0.28, 33.3333);
+  nuc->AddDecay(0, -1, -1, 10.3395, 33.3333);
+  nuc->AddDecay(-1, -2, -1, 6.31714, 33.3333);
+
+  // Adding 66-DY-142-0
+  nuc = new Nucleus("DY", 142, 66, 0, 141.946, 0, 2.3, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, -2, 0, 5.6895, 8e-05);
+  nuc->AddDecay(0, -1, 0, 6.89997, 99.9999);
+
+  // Adding 54-XE-143-0
+  nuc = new Nucleus("XE", 143, 54, 0, 142.935, 0, 0.3, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 7.30699, 100);
+
+  // Adding 55-CS-143-0
+  nuc = new Nucleus("CS", 143, 55, 0, 142.927, 0, 1.78, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, 1, 0, 2.04826, 1.62);
+  nuc->AddDecay(0, 1, 0, 6.2426, 98.38);
+
+  // Adding 56-BA-143-0
+  nuc = new Nucleus("BA", 143, 56, 0, 142.921, 0, 14.33, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.2433, 100);
+
+  // Adding 57-LA-143-0
+  nuc =
+      new Nucleus("LA", 143, 57, 0, 142.916, 0, 852, 0, 5.6e-11, 3.3e-11, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.42452, 100);
+
+  // Adding 58-CE-143-0
+  nuc = new Nucleus("CE", 143, 58, 0, 142.912, 0, 118940, 0, 1.1e-09, 1e-09, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 1.46159, 100);
+
+  // Adding 59-PR-143-0
+  nuc = new Nucleus("PR", 143, 59, 0, 142.911, 0, 1.17245e+06, 0, 1.2e-09,
+                    2.3e-09, 0, 0);
+  nuc->AddDecay(0, 1, 0, 0.933998, 100);
+
+  // Adding 60-ND-143-0
+  nuc = new Nucleus("ND", 143, 60, 0, 142.91, 0, 0, 12.18, 0, 0, 0, 0);
+
+  // Adding 61-PM-143-0
+  nuc = new Nucleus("PM", 143, 61, 0, 142.911, 0, 2.2896e+07, 0, 2.3e-10,
+                    1.4e-09, 0, 0);
+  nuc->AddDecay(0, -1, 0, 1.0414, 100);
+
+  // Adding 62-SM-143-0
+  nuc = new Nucleus("SM", 143, 62, 0, 142.915, 0, 529.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.44299, 100);
+
+  // Adding 62-SM-143-1
+  nuc = new Nucleus("SM", 143, 62, 1, 142.915, 0.754, 66, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.754, 99.76);
+  nuc->AddDecay(0, -1, -1, 4.19699, 0.24);
+
+  // Adding 62-SM-143-2
+  nuc = new Nucleus("SM", 143, 62, 2, 142.918, 2.795, 0.03, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -2, 2.795, 100);
+
+  // Adding 63-EU-143-0
+  nuc = new Nucleus("EU", 143, 63, 0, 142.92, 0, 157.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.1684, 100);
+
+  // Adding 64-GD-143-0
+  nuc = new Nucleus("GD", 143, 64, 0, 142.927, 0, 39, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.00742, 100);
+
+  // Adding 64-GD-143-1
+  nuc = new Nucleus("GD", 143, 64, 1, 142.927, 0.153, 112, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 6.16042, 100);
+
+  // Adding 65-TB-143-0
+  nuc = new Nucleus("TB", 143, 65, 0, 142.935, 0, 12, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.39362, 100);
+
+  // Adding 65-TB-143-1
+  nuc = new Nucleus("TB", 143, 65, 1, 142.935, 0, 21, 0, 0, 0, 0, -3);
+  nuc->AddDecay(0, -1, -1, 7.39362, 100);
+
+  // Adding 66-DY-143-0
+  nuc = new Nucleus("DY", 143, 66, 0, 142.944, 0, 3.9, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, -2, 0, 7.64581, 0);
+  nuc->AddDecay(0, -1, 0, 8.7649, 100);
+
+  // Adding 54-XE-144-0
+  nuc = new Nucleus("XE", 144, 54, 0, 143.939, 0, 1.15, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 6.06531, 100);
+
+  // Adding 55-CS-144-0
+  nuc = new Nucleus("CS", 144, 55, 0, 143.932, 0, 1.01, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 8.46459, 96.83);
+  nuc->AddDecay(-1, 1, 0, 2.56089, 3.17);
+
+  // Adding 55-CS-144-1
+  nuc = new Nucleus("CS", 144, 55, 1, 143.932, 0, 1, 0, 0, 0, 0, -4);
+  nuc->AddDecay(0, 1, -1, 8.46459, 100);
+
+  // Adding 56-BA-144-0
+  nuc = new Nucleus("BA", 144, 56, 0, 143.923, 0, 11.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.11935, 96.4);
+  nuc->AddDecay(-1, 1, 0, -1.6604, 3.6);
+
+  // Adding 57-LA-144-0
+  nuc = new Nucleus("LA", 144, 57, 0, 143.92, 0, 40.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 5.54118, 100);
+
+  // Adding 58-CE-144-0
+  nuc = new Nucleus("CE", 144, 58, 0, 143.914, 0, 2.46148e+07, 0, 5.2e-09,
+                    4.9e-08, 0, 0);
+  nuc->AddDecay(0, 1, 0, 0.318703, 98.5);
+  nuc->AddDecay(0, 1, 1, 0.259705, 1.5);
+
+  // Adding 59-PR-144-0
+  nuc = new Nucleus("PR", 144, 59, 0, 143.913, 0, 1036.8, 0, 5.1e-11, 3e-11, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 2.99749, 100);
+
+  // Adding 59-PR-144-1
+  nuc = new Nucleus("PR", 144, 59, 1, 143.913, 0.059, 432, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.059, 99.93);
+  nuc->AddDecay(0, 1, -1, 3.05649, 0.07);
+
+  // Adding 60-ND-144-0
+  nuc = new Nucleus("ND", 144, 60, 0, 143.91, 0, 7.22174e+22, 23.8, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 1.9051, 100);
+
+  // Adding 61-PM-144-0
+  nuc = new Nucleus("PM", 144, 61, 0, 143.913, 0, 3.13632e+07, 0, 9.7e-10,
+                    7.8e-09, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.33179, 100);
+
+  // Adding 62-SM-144-0
+  nuc = new Nucleus("SM", 144, 62, 0, 143.912, 0, 0, 3.1, 0, 0, 0, 0);
+
+  // Adding 63-EU-144-0
+  nuc = new Nucleus("EU", 144, 63, 0, 143.919, 0, 10.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.32881, 100);
+
+  // Adding 64-GD-144-0
+  nuc = new Nucleus("GD", 144, 64, 0, 143.923, 0, 270, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.73932, 100);
+
+  // Adding 65-TB-144-0
+  nuc = new Nucleus("TB", 144, 65, 0, 143.932, 0, 1, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 8.91891, 100);
+
+  // Adding 65-TB-144-1
+  nuc = new Nucleus("TB", 144, 65, 1, 143.933, 0.397, 4.25, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.397, 66);
+  nuc->AddDecay(0, -1, -1, 9.31591, 34);
+
+  // Adding 66-DY-144-0
+  nuc = new Nucleus("DY", 144, 66, 0, 143.939, 0, 9.1, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.2319, 100);
+  nuc->AddDecay(-1, -2, 0, 4.30562, 0);
+
+  // Adding 67-HO-144-0
+  nuc = new Nucleus("HO", 144, 67, 0, 143.952, 0, 0.7, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, -1, 0, 11.7558, 50);
+  nuc->AddDecay(-1, -2, 0, 8.66781, 50);
+
+  // Adding 54-XE-145-0
+  nuc = new Nucleus("XE", 145, 54, 0, 144.942, 0, 0.9, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 6.29984, 97.62);
+  nuc->AddDecay(-1, 1, 0, 1.38033, 1.19);
+
+  // Adding 55-CS-145-0
+  nuc = new Nucleus("CS", 145, 55, 0, 144.935, 0, 0.594, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, 1, 0, 3.54507, 13.8);
+  nuc->AddDecay(0, 1, 0, 7.88681, 86.2);
+
+  // Adding 56-BA-145-0
+  nuc = new Nucleus("BA", 145, 56, 0, 144.927, 0, 4.31, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.93172, 100);
+
+  // Adding 57-LA-145-0
+  nuc = new Nucleus("LA", 145, 57, 0, 144.922, 0, 24.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.11667, 100);
+
+  // Adding 58-CE-145-0
+  nuc = new Nucleus("CE", 145, 58, 0, 144.917, 0, 180.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.53674, 100);
+
+  // Adding 59-PR-145-0
+  nuc = new Nucleus("PR", 145, 59, 0, 144.915, 0, 21542.4, 0, 3.9e-10, 2.6e-10,
+                    0, 0);
+  nuc->AddDecay(0, 1, 0, 1.80526, 100);
+
+  // Adding 60-ND-145-0
+  nuc = new Nucleus("ND", 145, 60, 0, 144.913, 0, 0, 8.3, 0, 0, 0, 0);
+
+  // Adding 61-PM-145-0
+  nuc = new Nucleus("PM", 145, 61, 0, 144.913, 0, 5.58187e+08, 0, 1.1e-10,
+                    3.4e-09, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.163193, 100);
+  nuc->AddDecay(-4, -2, 0, 2.32219, 3e-09);
+
+  // Adding 62-SM-145-0
+  nuc = new Nucleus("SM", 145, 62, 0, 144.913, 0, 2.9376e+07, 0, 2.1e-10,
+                    1.5e-09, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.616707, 100);
+
+  // Adding 63-EU-145-0
+  nuc = new Nucleus("EU", 145, 63, 0, 144.916, 0, 512352, 0, 7.5e-10, 7.4e-10,
+                    0, 0);
+  nuc->AddDecay(0, -1, 0, 2.66019, 100);
+
+  // Adding 64-GD-145-0
+  nuc = new Nucleus("GD", 145, 64, 0, 144.922, 0, 1380, 0, 4.4e-11, 3.5e-11, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 5.05441, 100);
+
+  // Adding 64-GD-145-1
+  nuc = new Nucleus("GD", 145, 64, 1, 144.922, 0.749, 85, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.749, 94.3);
+  nuc->AddDecay(0, -1, -1, 5.80341, 5.7);
+
+  // Adding 65-TB-145-0
+  nuc = new Nucleus("TB", 145, 65, 0, 144.929, 0, 0, 0, 0, 0, 0, -2);
+
+  // Adding 65-TB-145-1
+  nuc = new Nucleus("TB", 145, 65, 1, 144.929, 0, 29.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 6.50802, 100);
+
+  // Adding 66-DY-145-0
+  nuc = new Nucleus("DY", 145, 66, 0, 144.937, 0, 10, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, -1, 0, 7.72028, 100);
+
+  // Adding 66-DY-145-1
+  nuc = new Nucleus("DY", 145, 66, 1, 144.937, 0, 13.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 7.72028, 100);
+
+  // Adding 67-HO-145-0
+  nuc = new Nucleus("HO", 145, 67, 0, 144.947, 0, 2.4, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, -1, 0, 9.10664, 100);
+
+  // Adding 68-ER-145-0
+  nuc = new Nucleus("ER", 145, 68, 0, 144.958, 0, 0.9, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 10.3516, 100);
+
+  // Adding 54-XE-146-0
+  nuc = new Nucleus("XE", 146, 54, 0, 145.944, 0, 1.5e-07, 0, 0, 0, 0, -5);
+  nuc->AddDecay(0, 1, 0, 3.64086, 100);
+
+  // Adding 55-CS-146-0
+  nuc = new Nucleus("CS", 146, 55, 0, 145.94, 0, 0.343, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, 1, 0, 4.31679, 13.2);
+  nuc->AddDecay(0, 1, 0, 9.37651, 86.8);
+
+  // Adding 56-BA-146-0
+  nuc = new Nucleus("BA", 146, 56, 0, 145.93, 0, 2.22, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.118, 100);
+
+  // Adding 57-LA-146-0
+  nuc = new Nucleus("LA", 146, 57, 0, 145.926, 0, 6.27, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 6.54669, 100);
+
+  // Adding 57-LA-146-1
+  nuc = new Nucleus("LA", 146, 57, 1, 145.926, 0, 10, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 6.54669, 100);
+
+  // Adding 58-CE-146-0
+  nuc = new Nucleus("CE", 146, 58, 0, 145.919, 0, 811.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 1.0351, 100);
+
+  // Adding 59-PR-146-0
+  nuc = new Nucleus("PR", 146, 59, 0, 145.918, 0, 1449, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.19617, 100);
+
+  // Adding 60-ND-146-0
+  nuc = new Nucleus("ND", 146, 60, 0, 145.913, 0, 0, 17.19, 0, 0, 0, 0);
+
+  // Adding 61-PM-146-0
+  nuc = new Nucleus("PM", 146, 61, 0, 145.915, 0, 1.74394e+08, 0, 9e-10,
+                    1.9e-08, 0, 0);
+  nuc->AddDecay(0, 1, 0, 1.5419, 34);
+  nuc->AddDecay(0, -1, 0, 1.47153, 66);
+
+  // Adding 62-SM-146-0
+  nuc = new Nucleus("SM", 146, 62, 0, 145.913, 0, 3.24821e+15, 0, 5.4e-08,
+                    9.9e-06, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 2.52863, 100);
+
+  // Adding 63-EU-146-0
+  nuc = new Nucleus("EU", 146, 63, 0, 145.917, 0, 396576, 0, 1.3e-09, 1.2e-09,
+                    0, 0);
+  nuc->AddDecay(0, -1, 0, 3.87813, 100);
+
+  // Adding 64-GD-146-0
+  nuc = new Nucleus("GD", 146, 64, 0, 145.918, 0, 4.17053e+06, 0, 9.6e-10,
+                    6e-09, 0, 0);
+  nuc->AddDecay(0, -1, 0, 1.03022, 100);
+
+  // Adding 65-TB-146-0
+  nuc = new Nucleus("TB", 146, 65, 0, 145.927, 0, 8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 8.07504, 100);
+
+  // Adding 65-TB-146-1
+  nuc = new Nucleus("TB", 146, 65, 1, 145.927, 0, 23, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 8.07504, 100);
+
+  // Adding 66-DY-146-0
+  nuc = new Nucleus("DY", 146, 66, 0, 145.933, 0, 29, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.16, 100);
+
+  // Adding 66-DY-146-1
+  nuc = new Nucleus("DY", 146, 66, 1, 145.933, 0, 0.15, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0, 100);
+
+  // Adding 67-HO-146-0
+  nuc = new Nucleus("HO", 146, 67, 0, 145.944, 0, 3.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, -2, 0, 6.96701, 100);
+  nuc->AddDecay(0, -1, 0, 10.6795, 0);
+
+  // Adding 68-ER-146-0
+  nuc = new Nucleus("ER", 146, 68, 0, 145.952, 0, 1.7, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, -1, 0, 7.42391, 100);
+
+  // Adding 55-CS-147-0
+  nuc = new Nucleus("CS", 147, 55, 0, 146.944, 0, 0.225, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 9.25328, 57);
+  nuc->AddDecay(-1, 1, 0, 4.73596, 43);
+
+  // Adding 56-BA-147-0
+  nuc = new Nucleus("BA", 147, 56, 0, 146.934, 0, 0.893, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 5.74998, 99.98);
+  nuc->AddDecay(-1, 1, 0, -0.399325, 0.02);
+
+  // Adding 57-LA-147-0
+  nuc = new Nucleus("LA", 147, 57, 0, 146.928, 0, 4.015, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.94498, 99.96);
+  nuc->AddDecay(-1, 1, 0, 0.397382, 0.04);
+
+  // Adding 58-CE-147-0
+  nuc = new Nucleus("CE", 147, 58, 0, 146.923, 0, 56.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.28999, 100);
+
+  // Adding 59-PR-147-0
+  nuc = new Nucleus("PR", 147, 59, 0, 146.919, 0, 804, 0, 3.3e-11, 3e-11, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.68569, 100);
+
+  // Adding 60-ND-147-0
+  nuc = new Nucleus("ND", 147, 60, 0, 146.916, 0, 948672, 0, 1.1e-09, 2.3e-09,
+                    0, 0);
+  nuc->AddDecay(0, 1, 0, 0.896095, 100);
+
+  // Adding 61-PM-147-0
+  nuc = new Nucleus("PM", 147, 61, 0, 146.915, 0, 8.27315e+07, 0, 2.6e-10,
+                    4.7e-09, 0, 0);
+  nuc->AddDecay(0, 1, 0, 0.224106, 100);
+
+  // Adding 62-SM-147-0
+  nuc = new Nucleus("SM", 147, 62, 0, 146.915, 0, 3.34282e+18, 15, 4.9e-08,
+                    9e-06, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 2.3104, 100);
+
+  // Adding 63-EU-147-0
+  nuc = new Nucleus("EU", 147, 63, 0, 146.917, 0, 2.08224e+06, 0, 4.4e-10,
+                    1e-09, 0, 0);
+  nuc->AddDecay(0, -1, 0, 1.7214, 100);
+  nuc->AddDecay(-4, -2, 0, 2.9904, 0.0022);
+
+  // Adding 64-GD-147-0
+  nuc = new Nucleus("GD", 147, 64, 0, 146.919, 0, 137016, 0, 6.1e-10, 5.9e-10,
+                    0, 0);
+  nuc->AddDecay(0, -1, 0, 2.1878, 100);
+
+  // Adding 65-TB-147-0
+  nuc = new Nucleus("TB", 147, 65, 0, 146.924, 0, 6120, 0, 1.6e-10, 1.2e-10, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 4.61143, 100);
+
+  // Adding 65-TB-147-1
+  nuc = new Nucleus("TB", 147, 65, 1, 146.924, 0.051, 109.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 4.66243, 100);
+
+  // Adding 66-DY-147-0
+  nuc = new Nucleus("DY", 147, 66, 0, 146.931, 0, 40, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.37256, 100);
+  nuc->AddDecay(-1, -2, 0, 4.4253, 0);
+
+  // Adding 66-DY-147-1
+  nuc = new Nucleus("DY", 147, 66, 1, 146.932, 0.751, 55, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 7.12356, 65);
+  nuc->AddDecay(0, 0, -1, 0.751, 35);
+
+  // Adding 67-HO-147-0
+  nuc = new Nucleus("HO", 147, 67, 0, 146.94, 0, 5.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 8.14835, 100);
+  nuc->AddDecay(-1, -2, 0, 4.49861, 0);
+
+  // Adding 68-ER-147-0
+  nuc = new Nucleus("ER", 147, 68, 0, 146.949, 0, 2.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 9.0999, 100);
+  nuc->AddDecay(-1, -2, 0, 8.43851, 0);
+
+  // Adding 68-ER-147-1
+  nuc = new Nucleus("ER", 147, 68, 1, 146.949, 0, 2.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 9.0999, 100);
+  nuc->AddDecay(-1, -2, -1, 8.43851, 0);
+
+  // Adding 69-TM-147-0
+  nuc = new Nucleus("TM", 147, 69, 0, 146.961, 0, 0.56, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 10.7259, 90);
+  nuc->AddDecay(-1, -1, 0, 1.061, 10);
+
+  // Adding 55-CS-148-0
+  nuc = new Nucleus("CS", 148, 55, 0, 147.949, 0, 0.158, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 10.5249, 100);
+
+  // Adding 56-BA-148-0
+  nuc = new Nucleus("BA", 148, 56, 0, 147.938, 0, 0.607, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 5.115, 99.98);
+  nuc->AddDecay(-1, 1, 0, 1.11576, 0.02);
+
+  // Adding 57-LA-148-0
+  nuc = new Nucleus("LA", 148, 57, 0, 147.932, 0, 1.05, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 7.26229, 99.89);
+  nuc->AddDecay(-1, 1, 0, 0.945741, 0.11);
+
+  // Adding 58-CE-148-0
+  nuc = new Nucleus("CE", 148, 58, 0, 147.924, 0, 56, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.06001, 100);
+
+  // Adding 59-PR-148-0
+  nuc = new Nucleus("PR", 148, 59, 0, 147.922, 0, 136.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.93201, 100);
+
+  // Adding 59-PR-148-1
+  nuc = new Nucleus("PR", 148, 59, 1, 147.922, 0.09, 120, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 5.02201, 100);
+
+  // Adding 60-ND-148-0
+  nuc = new Nucleus("ND", 148, 60, 0, 147.917, 0, 0, 5.76, 0, 0, 0, 0);
+
+  // Adding 61-PM-148-0
+  nuc = new Nucleus("PM", 148, 61, 0, 147.917, 0, 463968, 0, 2.7e-09, 2.2e-09,
+                    0, 0);
+  nuc->AddDecay(0, 1, 0, 2.46826, 100);
+
+  // Adding 61-PM-148-1
+  nuc = new Nucleus("PM", 148, 61, 1, 147.918, 0.138, 3.56746e+06, 0, 1.8e-09,
+                    5.4e-09, 0, 0);
+  nuc->AddDecay(0, 1, -1, 2.60626, 95);
+  nuc->AddDecay(0, 0, -1, 0.138, 5);
+
+  // Adding 62-SM-148-0
+  nuc =
+      new Nucleus("SM", 148, 62, 0, 147.915, 0, 2.20752e+23, 11.3, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 1.9858, 100);
+
+  // Adding 63-EU-148-0
+  nuc = new Nucleus("EU", 148, 63, 0, 147.918, 0, 4.7088e+06, 0, 1.3e-09,
+                    2.7e-09, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.10741, 100);
+  nuc->AddDecay(-4, -2, 0, 2.76142, 9.4e-07);
+
+  // Adding 64-GD-148-0
+  nuc = new Nucleus("GD", 148, 64, 0, 147.918, 0, 2.35259e+09, 0, 5.5e-08,
+                    3e-05, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 3.2712, 100);
+
+  // Adding 65-TB-148-0
+  nuc = new Nucleus("TB", 148, 65, 0, 147.924, 0, 3600, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.69301, 100);
+
+  // Adding 65-TB-148-1
+  nuc = new Nucleus("TB", 148, 65, 1, 147.924, 0.09, 132, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 5.783, 100);
+
+  // Adding 66-DY-148-0
+  nuc = new Nucleus("DY", 148, 66, 0, 147.927, 0, 186, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.67809, 100);
+
+  // Adding 67-HO-148-0
+  nuc = new Nucleus("HO", 148, 67, 0, 147.937, 0, 2.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 9.39986, 100);
+
+  // Adding 67-HO-148-1
+  nuc = new Nucleus("HO", 148, 67, 1, 147.937, 0, 9.59, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, -2, -1, 4.95804, 0.08);
+  nuc->AddDecay(0, -1, -1, 9.39986, 99.92);
+
+  // Adding 68-ER-148-0
+  nuc = new Nucleus("ER", 148, 68, 0, 147.944, 0, 4.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.75387, 100);
+
+  // Adding 69-TM-148-0
+  nuc = new Nucleus("TM", 148, 69, 0, 147.957, 0, 0.7, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 11.9977, 100);
+
+  // Adding 56-BA-149-0
+  nuc = new Nucleus("BA", 149, 56, 0, 148.942, 0, 0.356, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, 1, 0, 1.13031, 0.43);
+  nuc->AddDecay(0, 1, 0, 7.33089, 99.57);
+
+  // Adding 57-LA-149-0
+  nuc = new Nucleus("LA", 149, 57, 0, 148.934, 0, 1.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, 1, 0, 1.06171, 1.4);
+  nuc->AddDecay(0, 1, 0, 5.50558, 98.6);
+
+  // Adding 58-CE-149-0
+  nuc = new Nucleus("CE", 149, 58, 0, 148.928, 0, 5.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.18993, 100);
+
+  // Adding 59-PR-149-0
+  nuc = new Nucleus("PR", 149, 59, 0, 148.924, 0, 135.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.39693, 100);
+
+  // Adding 60-ND-149-0
+  nuc =
+      new Nucleus("ND", 149, 60, 0, 148.92, 0, 6192, 0, 1.3e-10, 1.3e-10, 0, 0);
+  nuc->AddDecay(0, 1, 0, 1.69071, 100);
+
+  // Adding 61-PM-149-0
+  nuc = new Nucleus("PM", 149, 61, 0, 148.918, 0, 191088, 0, 9.9e-10, 8.2e-10,
+                    0, 0);
+  nuc->AddDecay(0, 1, 0, 1.07108, 100);
+
+  // Adding 62-SM-149-0
+  nuc = new Nucleus("SM", 149, 62, 0, 148.917, 0, 0, 13.8, 0, 0, 0, 0);
+
+  // Adding 63-EU-149-0
+  nuc = new Nucleus("EU", 149, 63, 0, 148.918, 0, 8.04384e+06, 0, 1e-10,
+                    2.7e-10, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.692177, 100);
+
+  // Adding 64-GD-149-0
+  nuc = new Nucleus("GD", 149, 64, 0, 148.919, 0, 812160, 0, 4.5e-10, 7.9e-10,
+                    0, 0);
+  nuc->AddDecay(0, -1, 0, 1.3195, 99.9996);
+  nuc->AddDecay(-4, -2, 0, 3.10138, 0.00043);
+
+  // Adding 65-TB-149-0
+  nuc = new Nucleus("TB", 149, 65, 0, 148.923, 0, 14868, 0, 2.5e-10, 4.3e-09, 1,
+                    0);
+  nuc->AddDecay(-4, -2, 0, 4.0773, 15.8);
+  nuc->AddDecay(0, -1, 0, 3.6361, 84.2);
+
+  // Adding 65-TB-149-1
+  nuc = new Nucleus("TB", 149, 65, 1, 148.923, 0.036, 249.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 3.6721, 99.978);
+  nuc->AddDecay(-4, -2, -1, 4.1133, 0.022);
+
+  // Adding 66-DY-149-0
+  nuc = new Nucleus("DY", 149, 66, 0, 148.927, 0, 253.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.81203, 100);
+
+  // Adding 67-HO-149-0
+  nuc = new Nucleus("HO", 149, 67, 0, 148.934, 0, 21.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.01369, 100);
+
+  // Adding 67-HO-149-1
+  nuc = new Nucleus("HO", 149, 67, 1, 148.934, 0.049, 58, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 6.06269, 100);
+
+  // Adding 68-ER-149-0
+  nuc = new Nucleus("ER", 149, 68, 0, 148.942, 0, 10.7, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.73355, 93);
+  nuc->AddDecay(-1, -2, 0, 6.67966, 7);
+
+  // Adding 68-ER-149-1
+  nuc = new Nucleus("ER", 149, 68, 1, 148.943, 0.742, 10.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 8.47555, 96.32);
+  nuc->AddDecay(-1, -2, -1, 7.42166, 0.18);
+  nuc->AddDecay(0, 0, -1, 0.742, 3.5);
+
+  // Adding 69-TM-149-0
+  nuc = new Nucleus("TM", 149, 69, 0, 148.952, 0, 0.9, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, -1, 0, 9.57188, 100);
+
+  // Adding 70-YB-149-0
+  nuc = new Nucleus("YB", 149, 70, 0, 148.964, 0, 0, 0, 0, 0, 0, -6);
+
+  // Adding 56-BA-150-0
+  nuc = new Nucleus("BA", 150, 56, 0, 149.946, 0, 0.3, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 6.4464, 100);
+
+  // Adding 57-LA-150-0
+  nuc = new Nucleus("LA", 150, 57, 0, 149.939, 0, 0.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 7.83691, 97.3);
+  nuc->AddDecay(-1, 1, 0, 1.57018, 2.7);
+
+  // Adding 58-CE-150-0
+  nuc = new Nucleus("CE", 150, 58, 0, 149.93, 0, 4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.01007, 100);
+
+  // Adding 59-PR-150-0
+  nuc = new Nucleus("PR", 150, 59, 0, 149.927, 0, 6.19, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 5.68996, 100);
+
+  // Adding 60-ND-150-0
+  nuc = new Nucleus("ND", 150, 60, 0, 149.921, 0, 0, 5.64, 0, 0, 0, 0);
+
+  // Adding 61-PM-150-0
+  nuc = new Nucleus("PM", 150, 61, 0, 149.921, 0, 9648, 0, 2.6e-10, 2.1e-10, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 3.45401, 100);
+
+  // Adding 62-SM-150-0
+  nuc = new Nucleus("SM", 150, 62, 0, 149.917, 0, 0, 7.4, 0, 0, 0, 0);
+
+  // Adding 63-EU-150-0
+  nuc = new Nucleus("EU", 150, 63, 0, 149.92, 0, 1.12899e+09, 0, 1.3e-09, 5e-08,
+                    0, 0);
+  nuc->AddDecay(0, -1, 0, 2.26066, 100);
+
+  // Adding 63-EU-150-1
+  nuc = new Nucleus("EU", 150, 63, 1, 149.92, 0.042, 46080, 0, 3.8e-10, 2.8e-10,
+                    0, 0);
+  nuc->AddDecay(0, 1, -1, 1.0132, 89);
+  nuc->AddDecay(0, -1, -1, 2.30266, 11);
+
+  // Adding 64-GD-150-0
+  nuc = new Nucleus("GD", 150, 64, 0, 149.919, 0, 5.64494e+13, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 2.80913, 100);
+
+  // Adding 65-TB-150-0
+  nuc = new Nucleus("TB", 150, 65, 0, 149.924, 0, 12528, 0, 2.5e-10, 1.8e-10, 1,
+                    0);
+  nuc->AddDecay(-4, -2, 0, 3.58739, 0.05);
+  nuc->AddDecay(0, -1, 0, 4.65639, 99.95);
+
+  // Adding 65-TB-150-1
+  nuc = new Nucleus("TB", 150, 65, 1, 149.924, 0, 348, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 4.65639, 100);
+
+  // Adding 66-DY-150-0
+  nuc = new Nucleus("DY", 150, 66, 0, 149.926, 0, 430.2, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 4.3511, 36);
+  nuc->AddDecay(0, -1, 0, 1.79393, 64);
+
+  // Adding 67-HO-150-0
+  nuc = new Nucleus("HO", 150, 67, 0, 149.933, 0, 72, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.23995, 100);
+
+  // Adding 67-HO-150-1
+  nuc = new Nucleus("HO", 150, 67, 1, 149.933, 0, 26, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 7.23995, 100);
+
+  // Adding 68-ER-150-0
+  nuc = new Nucleus("ER", 150, 68, 0, 149.938, 0, 18.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.108, 100);
+
+  // Adding 69-TM-150-0
+  nuc = new Nucleus("TM", 150, 69, 0, 149.949, 0, 2.3, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 10.8296, 100);
+
+  // Adding 70-YB-150-0
+  nuc = new Nucleus("YB", 150, 70, 0, 149.958, 0, 0, 0, 0, 0, 0, -6);
+
+  // Adding 71-LU-150-0
+  nuc = new Nucleus("LU", 150, 71, 0, 149.973, 0, 0.035, 0, 0, 0, 0, -8);
+  nuc->AddDecay(-1, -1, 0, 1.2663, 80);
+  nuc->AddDecay(0, -1, 0, 13.8853, 20);
+
+  // Adding 58-CE-151-0
+  nuc = new Nucleus("CE", 151, 58, 0, 150.934, 0, 1.02, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 5.32618, 100);
+
+  // Adding 59-PR-151-0
+  nuc = new Nucleus("PR", 151, 59, 0, 150.928, 0, 18.9, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.16996, 100);
+
+  // Adding 60-ND-151-0
+  nuc =
+      new Nucleus("ND", 151, 60, 0, 150.924, 0, 746.4, 0, 3e-11, 2.9e-11, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.44242, 100);
+
+  // Adding 61-PM-151-0
+  nuc = new Nucleus("PM", 151, 61, 0, 150.921, 0, 102240, 0, 7.3e-10, 6.4e-10,
+                    0, 0);
+  nuc->AddDecay(0, 1, 0, 1.18707, 100);
+
+  // Adding 62-SM-151-0
+  nuc = new Nucleus("SM", 151, 62, 0, 150.92, 0, 2.83824e+09, 0, 9.8e-11,
+                    3.7e-09, 0, 0);
+  nuc->AddDecay(0, 1, 0, 0.0767975, 100);
+
+  // Adding 63-EU-151-0
+  nuc = new Nucleus("EU", 151, 63, 0, 150.92, 0, 0, 47.8, 0, 0, 0, 0);
+
+  // Adding 64-GD-151-0
+  nuc = new Nucleus("GD", 151, 64, 0, 150.92, 0, 1.07136e+07, 0, 2e-10, 9.3e-10,
+                    0, 0);
+  nuc->AddDecay(0, -1, 0, 0.464188, 100);
+  nuc->AddDecay(-4, -2, 0, 2.65249, 1e-06);
+
+  // Adding 65-TB-151-0
+  nuc = new Nucleus("TB", 151, 65, 0, 150.923, 0, 63392.4, 0, 3.4e-10, 3.3e-10,
+                    1, 0);
+  nuc->AddDecay(-4, -2, 0, 3.49649, 0.0095);
+  nuc->AddDecay(0, -1, 0, 2.56539, 100);
+
+  // Adding 65-TB-151-1
+  nuc = new Nucleus("TB", 151, 65, 1, 150.923, 0.1, 25, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 2.66539, 6.2);
+  nuc->AddDecay(0, 0, -1, 0.1, 93.8);
+
+  // Adding 66-DY-151-0
+  nuc = new Nucleus("DY", 151, 66, 0, 150.926, 0, 1074, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 4.17949, 5.6);
+  nuc->AddDecay(0, -1, 0, 2.8708, 94.4);
+
+  // Adding 67-HO-151-0
+  nuc = new Nucleus("HO", 151, 67, 0, 150.932, 0, 35.2, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 4.6958, 22);
+  nuc->AddDecay(0, -1, 0, 5.12773, 78);
+
+  // Adding 67-HO-151-1
+  nuc = new Nucleus("HO", 151, 67, 1, 150.932, 0.041, 47.2, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, -1, 4.7368, 100);
+
+  // Adding 68-ER-151-0
+  nuc = new Nucleus("ER", 151, 68, 0, 150.937, 0, 23.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.22031, 100);
+
+  // Adding 68-ER-151-1
+  nuc = new Nucleus("ER", 151, 68, 1, 150.94, 2.585, 0.58, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 7.80531, 4.7);
+  nuc->AddDecay(0, 0, -1, 2.585, 95.3);
+
+  // Adding 69-TM-151-0
+  nuc = new Nucleus("TM", 151, 69, 0, 150.945, 0, 4.13, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.52994, 100);
+
+  // Adding 69-TM-151-1
+  nuc = new Nucleus("TM", 151, 69, 1, 150.945, 0, 5.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 7.52994, 100);
+
+  // Adding 70-YB-151-0
+  nuc = new Nucleus("YB", 151, 70, 0, 150.955, 0, 1.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 9.20004, 100);
+  nuc->AddDecay(-1, -2, 0, 8.99978, 0);
+
+  // Adding 70-YB-151-1
+  nuc = new Nucleus("YB", 151, 70, 1, 150.955, 0, 1.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 9.20004, 100);
+  nuc->AddDecay(-1, -2, -1, 8.99978, 0);
+
+  // Adding 71-LU-151-0
+  nuc = new Nucleus("LU", 151, 71, 0, 150.967, 0, 0.085, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, -1, 0, 1.03739, 70);
+
+  // Adding 58-CE-152-0
+  nuc = new Nucleus("CE", 152, 58, 0, 151.937, 0, 3.1, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.4159, 100);
+
+  // Adding 59-PR-152-0
+  nuc = new Nucleus("PR", 152, 59, 0, 151.932, 0, 3.24, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 6.69413, 100);
+
+  // Adding 60-ND-152-0
+  nuc = new Nucleus("ND", 152, 60, 0, 151.925, 0, 684, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 1.11024, 100);
+
+  // Adding 61-PM-152-0
+  nuc = new Nucleus("PM", 152, 61, 0, 151.923, 0, 246, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.50456, 100);
+
+  // Adding 61-PM-152-1
+  nuc = new Nucleus("PM", 152, 61, 1, 151.924, 0.14, 451.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 3.64456, 100);
+
+  // Adding 61-PM-152-2
+  nuc = new Nucleus("PM", 152, 61, 2, 151.924, 0.17, 828, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -2, 3.67456, 100);
+  nuc->AddDecay(0, 0, -2, 0.17, 0);
+
+  // Adding 62-SM-152-0
+  nuc = new Nucleus("SM", 152, 62, 0, 151.92, 0, 0, 26.7, 0, 0, 0, 0);
+
+  // Adding 63-EU-152-0
+  nuc = new Nucleus("EU", 152, 63, 0, 151.922, 0, 4.27061e+08, 0, 1.4e-09,
+                    3.9e-08, 0, 0);
+  nuc->AddDecay(0, 1, 0, 1.8181, 27.92);
+  nuc->AddDecay(0, -1, 0, 1.8741, 72.08);
+
+  // Adding 63-EU-152-1
+  nuc = new Nucleus("EU", 152, 63, 1, 151.922, 0.046, 33386.4, 0, 5e-10,
+                    3.2e-10, 0, 0);
+  nuc->AddDecay(0, 1, -1, 1.8641, 72);
+  nuc->AddDecay(0, -1, -1, 1.9201, 28);
+
+  // Adding 63-EU-152-2
+  nuc = new Nucleus("EU", 152, 63, 2, 151.922, 0.148, 5760, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -2, 0.148, 100);
+
+  // Adding 64-GD-152-0
+  nuc = new Nucleus("GD", 152, 64, 0, 151.92, 0, 3.40589e+21, 0.2, 4.1e-08,
+                    2.2e-05, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 2.2051, 100);
+
+  // Adding 65-TB-152-0
+  nuc = new Nucleus("TB", 152, 65, 0, 151.924, 0, 63000, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.98999, 100);
+  nuc->AddDecay(-4, -2, 0, 3.08767, 7e-07);
+
+  // Adding 65-TB-152-1
+  nuc = new Nucleus("TB", 152, 65, 1, 151.925, 0.502, 252, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 4.49199, 21.1);
+  nuc->AddDecay(0, 0, -1, 0.502, 78.9);
+
+  // Adding 66-DY-152-0
+  nuc = new Nucleus("DY", 152, 66, 0, 151.925, 0, 8568, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.598686, 99.9);
+  nuc->AddDecay(-4, -2, 0, 3.72678, 0.1);
+
+  // Adding 67-HO-152-0
+  nuc = new Nucleus("HO", 152, 67, 0, 151.932, 0, 161.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.47372, 88);
+  nuc->AddDecay(-4, -2, 0, 4.5075, 12);
+
+  // Adding 67-HO-152-1
+  nuc = new Nucleus("HO", 152, 67, 1, 151.932, 0.16, 49.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 6.63372, 89.2);
+  nuc->AddDecay(-4, -2, -1, 4.6675, 10.8);
+
+  // Adding 68-ER-152-0
+  nuc = new Nucleus("ER", 152, 68, 0, 151.935, 0, 10.3, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 4.9344, 90);
+  nuc->AddDecay(0, -1, 0, 3.105, 10);
+
+  // Adding 69-TM-152-0
+  nuc = new Nucleus("TM", 152, 69, 0, 151.944, 0, 8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 8.66454, 100);
+
+  // Adding 69-TM-152-1
+  nuc = new Nucleus("TM", 152, 69, 1, 151.944, 0, 5.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 8.66454, 100);
+
+  // Adding 70-YB-152-0
+  nuc = new Nucleus("YB", 152, 70, 0, 151.95, 0, 3.1, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.46494, 100);
+
+  // Adding 71-LU-152-0
+  nuc = new Nucleus("LU", 152, 71, 0, 151.963, 0, 0.7, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 12.3447, 100);
+
+  // Adding 59-PR-153-0
+  nuc = new Nucleus("PR", 153, 59, 0, 152.934, 0, 4.3, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 5.52391, 100);
+
+  // Adding 60-ND-153-0
+  nuc = new Nucleus("ND", 153, 60, 0, 152.928, 0, 28.9, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.60001, 100);
+
+  // Adding 61-PM-153-0
+  nuc = new Nucleus("PM", 153, 61, 0, 152.924, 0, 324, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 1.90041, 100);
+
+  // Adding 62-SM-153-0
+  nuc = new Nucleus("SM", 153, 62, 0, 152.922, 0, 166572, 0, 7.4e-10, 6.8e-10,
+                    0, 0);
+  nuc->AddDecay(0, 1, 0, 0.80867, 100);
+
+  // Adding 63-EU-153-0
+  nuc = new Nucleus("EU", 153, 63, 0, 152.921, 0, 0, 52.2, 0, 0, 0, 0);
+
+  // Adding 64-GD-153-0
+  nuc = new Nucleus("GD", 153, 64, 0, 152.922, 0, 2.08742e+07, 0, 2.7e-10,
+                    2.5e-09, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.485069, 100);
+
+  // Adding 65-TB-153-0
+  nuc = new Nucleus("TB", 153, 65, 0, 152.923, 0, 202176, 0, 2.5e-10, 2.4e-10,
+                    0, 0);
+  nuc->AddDecay(0, -1, 0, 1.57028, 100);
+
+  // Adding 66-DY-153-0
+  nuc = new Nucleus("DY", 153, 66, 0, 152.926, 0, 23040, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 3.5585, 0.0094);
+  nuc->AddDecay(0, -1, 0, 2.17049, 99.99);
+
+  // Adding 67-HO-153-0
+  nuc = new Nucleus("HO", 153, 67, 0, 152.93, 0, 120, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.12868, 99.95);
+  nuc->AddDecay(-4, -2, 0, 4.05107, 0.05);
+
+  // Adding 67-HO-153-1
+  nuc = new Nucleus("HO", 153, 67, 1, 152.93, 0.068, 558, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 4.19668, 99.82);
+  nuc->AddDecay(-4, -2, -1, 4.11908, 0.18);
+
+  // Adding 68-ER-153-0
+  nuc = new Nucleus("ER", 153, 68, 0, 152.935, 0, 37.1, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 4.8027, 53);
+  nuc->AddDecay(0, -1, 0, 4.56366, 47);
+
+  // Adding 69-TM-153-0
+  nuc = new Nucleus("TM", 153, 69, 0, 152.942, 0, 1.48, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.45909, 9);
+  nuc->AddDecay(-4, -2, 0, 5.2481, 91);
+
+  // Adding 69-TM-153-1
+  nuc = new Nucleus("TM", 153, 69, 1, 152.942, 0.043, 2.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 6.50209, 5);
+  nuc->AddDecay(-4, -2, -1, 5.2911, 95);
+
+  // Adding 70-YB-153-0
+  nuc = new Nucleus("YB", 153, 70, 0, 152.949, 0, 4.2, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 4.20327, 50);
+  nuc->AddDecay(0, -1, 0, 6.68872, 50);
+
+  // Adding 71-LU-153-0
+  nuc = new Nucleus("LU", 153, 71, 0, 152.959, 0, 0, 0, 0, 0, 0, -2);
+
+  // Adding 59-PR-154-0
+  nuc = new Nucleus("PR", 154, 59, 0, 153.938, 0, 2.3, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 7.9169, 100);
+
+  // Adding 60-ND-154-0
+  nuc = new Nucleus("ND", 154, 60, 0, 153.93, 0, 25.9, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.79652, 100);
+
+  // Adding 61-PM-154-0
+  nuc = new Nucleus("PM", 154, 61, 0, 153.927, 0, 103.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.05402, 100);
+
+  // Adding 61-PM-154-1
+  nuc = new Nucleus("PM", 154, 61, 1, 153.927, 0, 160.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 4.05402, 100);
+
+  // Adding 62-SM-154-0
+  nuc = new Nucleus("SM", 154, 62, 0, 153.922, 0, 0, 22.7, 0, 0, 0, 0);
+
+  // Adding 63-EU-154-0
+  nuc = new Nucleus("EU", 154, 63, 0, 153.923, 0, 2.70989e+08, 0, 2e-09, 5e-08,
+                    0, 0);
+  nuc->AddDecay(0, -1, 0, 0.717102, 0.02);
+  nuc->AddDecay(0, 1, 0, 1.96851, 99.98);
+
+  // Adding 63-EU-154-1
+  nuc = new Nucleus("EU", 154, 63, 1, 153.923, 0.145, 2778, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.145, 100);
+
+  // Adding 64-GD-154-0
+  nuc = new Nucleus("GD", 154, 64, 0, 153.921, 0, 0, 2.18, 0, 0, 0, 0);
+
+  // Adding 65-TB-154-0
+  nuc =
+      new Nucleus("TB", 154, 65, 0, 153.925, 0, 77400, 0, 6.5e-10, 6e-10, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.56198, 99.9);
+  nuc->AddDecay(0, 1, 0, 0.245636, 0.1);
+
+  // Adding 65-TB-154-1
+  nuc = new Nucleus("TB", 154, 65, 1, 153.925, 0, 33840, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 0.245636, 0.1);
+  nuc->AddDecay(0, 0, -1, 0, 21.7782);
+  nuc->AddDecay(0, -1, -1, 3.56198, 78.1218);
+
+  // Adding 65-TB-154-2
+  nuc = new Nucleus("TB", 154, 65, 2, 153.925, 0, 81720, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -2, 3.56198, 98.2);
+  nuc->AddDecay(0, 0, -2, 0, 1.8);
+
+  // Adding 66-DY-154-0
+  nuc = new Nucleus("DY", 154, 66, 0, 153.924, 0, 9.4608e+13, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 2.94658, 100);
+
+  // Adding 67-HO-154-0
+  nuc = new Nucleus("HO", 154, 67, 0, 153.931, 0, 705.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.7514, 99.98);
+  nuc->AddDecay(-4, -2, 0, 4.04159, 0.02);
+
+  // Adding 67-HO-154-1
+  nuc = new Nucleus("HO", 154, 67, 1, 153.931, 0.32, 186, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, -1, 4.36159, 0.001);
+  nuc->AddDecay(0, 0, -1, 0.32, 0);
+  nuc->AddDecay(0, -1, -1, 6.0714, 100);
+
+  // Adding 68-ER-154-0
+  nuc = new Nucleus("ER", 154, 68, 0, 153.933, 0, 223.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.03193, 99.53);
+  nuc->AddDecay(-4, -2, 0, 4.27959, 0.47);
+
+  // Adding 69-TM-154-0
+  nuc = new Nucleus("TM", 154, 69, 0, 153.941, 0, 8.1, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 8.05345, 56);
+  nuc->AddDecay(-4, -2, 0, 5.09309, 44);
+
+  // Adding 69-TM-154-1
+  nuc = new Nucleus("TM", 154, 69, 1, 153.941, 0, 3.3, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 8.05345, 10);
+  nuc->AddDecay(-4, -2, -1, 5.09309, 90);
+  nuc->AddDecay(0, 0, -1, 0, 0);
+
+  // Adding 70-YB-154-0
+  nuc = new Nucleus("YB", 154, 70, 0, 153.946, 0, 0.404, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 5.4741, 92.8);
+  nuc->AddDecay(0, -1, 0, 4.48901, 7.2);
+
+  // Adding 71-LU-154-0
+  nuc = new Nucleus("LU", 154, 71, 0, 153.957, 0, 1.12, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 10.1126, 100);
+
+  // Adding 72-HF-154-0
+  nuc = new Nucleus("HF", 154, 72, 0, 153.964, 0, 2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.6598, 100);
+
+  // Adding 60-ND-155-0
+  nuc = new Nucleus("ND", 155, 60, 0, 154.933, 0, 8.9, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 5.0198, 100);
+
+  // Adding 61-PM-155-0
+  nuc = new Nucleus("PM", 155, 61, 0, 154.928, 0, 48, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.17052, 100);
+
+  // Adding 62-SM-155-0
+  nuc = new Nucleus("SM", 155, 62, 0, 154.925, 0, 1338, 0, 2.9e-11, 2.8e-11, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 1.6271, 100);
+
+  // Adding 63-EU-155-0
+  nuc = new Nucleus("EU", 155, 63, 0, 154.923, 0, 1.47588e+08, 0, 3.2e-10,
+                    6.5e-09, 0, 0);
+  nuc->AddDecay(0, 1, 0, 0.252472, 100);
+
+  // Adding 64-GD-155-0
+  nuc = new Nucleus("GD", 155, 64, 0, 154.923, 0, 0, 14.8, 0, 0, 0, 0);
+
+  // Adding 65-TB-155-0
+  nuc = new Nucleus("TB", 155, 65, 0, 154.924, 0, 459648, 0, 2.1e-10, 2.5e-10,
+                    0, 0);
+  nuc->AddDecay(0, -1, 0, 0.821487, 100);
+
+  // Adding 66-DY-155-0
+  nuc = new Nucleus("DY", 155, 66, 0, 154.926, 0, 36000, 0, 1.3e-10, 1.2e-10, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 2.0945, 100);
+
+  // Adding 67-HO-155-0
+  nuc = new Nucleus("HO", 155, 67, 0, 154.929, 0, 2880, 0, 3.7e-11, 3.2e-11, 1,
+                    -8);
+  nuc->AddDecay(-4, -2, 0, 3.14592, 50);
+  nuc->AddDecay(0, -1, 0, 3.10199, 50);
+
+  // Adding 68-ER-155-0
+  nuc = new Nucleus("ER", 155, 68, 0, 154.933, 0, 318, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.84348, 99.98);
+  nuc->AddDecay(-4, -2, 0, 4.1186, 0.02);
+
+  // Adding 69-TM-155-0
+  nuc = new Nucleus("TM", 155, 69, 0, 154.939, 0, 32, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.57843, 94);
+  nuc->AddDecay(-4, -2, 0, 4.5693, 6);
+
+  // Adding 70-YB-155-0
+  nuc = new Nucleus("YB", 155, 70, 0, 154.946, 0, 1.72, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.98812, 16);
+  nuc->AddDecay(-4, -2, 0, 5.3371, 84);
+
+  // Adding 71-LU-155-0
+  nuc = new Nucleus("LU", 155, 71, 0, 154.954, 0, 0.07, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.96394, 21);
+  nuc->AddDecay(-4, -2, 0, 5.7711, 79);
+
+  // Adding 71-LU-155-1
+  nuc = new Nucleus("LU", 155, 71, 1, 154.956, 1.798, 0.0026, 0, 0, 0, 1, -8);
+  nuc->AddDecay(-4, -2, -1, 7.5691, 100);
+
+  // Adding 72-HF-155-0
+  nuc = new Nucleus("HF", 155, 72, 0, 154.963, 0, 0.89, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 4.56982, 0);
+  nuc->AddDecay(0, -1, 0, 7.99877, 100);
+
+  // Adding 60-ND-156-0
+  nuc = new Nucleus("ND", 156, 60, 0, 155.935, 0, 5.47, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.10723, 100);
+
+  // Adding 61-PM-156-0
+  nuc = new Nucleus("PM", 156, 61, 0, 155.931, 0, 26.7, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 5.15506, 100);
+
+  // Adding 62-SM-156-0
+  nuc = new Nucleus("SM", 156, 62, 0, 155.926, 0, 33840, 0, 2.5e-10, 2.8e-10, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 0.722267, 100);
+
+  // Adding 63-EU-156-0
+  nuc = new Nucleus("EU", 156, 63, 0, 155.925, 0, 1.31242e+06, 0, 2.2e-09,
+                    3.3e-09, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.45107, 100);
+
+  // Adding 64-GD-156-0
+  nuc = new Nucleus("GD", 156, 64, 0, 155.922, 0, 0, 20.47, 0, 0, 0, 0);
+
+  // Adding 65-TB-156-0
+  nuc = new Nucleus("TB", 156, 65, 0, 155.925, 0, 462240, 0, 1.2e-09, 1.4e-09,
+                    0, 0);
+  nuc->AddDecay(0, -1, 0, 2.44438, 100);
+  nuc->AddDecay(0, 1, 0, 0.433624, 0);
+
+  // Adding 65-TB-156-1
+  nuc = new Nucleus("TB", 156, 65, 1, 155.925, 0.05, 87840, 0, 1.7e-10, 2.3e-10,
+                    0, 0);
+  nuc->AddDecay(0, 0, -1, 0.05, 100);
+
+  // Adding 65-TB-156-2
+  nuc = new Nucleus("TB", 156, 65, 2, 155.925, 0.088, 19080, 0, 8.1e-11,
+                    1.3e-10, 0, -8);
+  nuc->AddDecay(0, -1, -2, 2.53238, 50);
+  nuc->AddDecay(0, 0, -2, 0.088, 50);
+
+  // Adding 66-DY-156-0
+  nuc = new Nucleus("DY", 156, 66, 0, 155.924, 0, 0, 0.06, 0, 0, 0, 0);
+
+  // Adding 67-HO-156-0
+  nuc = new Nucleus("HO", 156, 67, 0, 155.93, 0, 3360, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.06017, 100);
+
+  // Adding 68-ER-156-0
+  nuc = new Nucleus("ER", 156, 68, 0, 155.931, 0, 1170, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 1.36995, 100);
+
+  // Adding 69-TM-156-0
+  nuc = new Nucleus("TM", 156, 69, 0, 155.939, 0, 83.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.21889, 99.94);
+  nuc->AddDecay(-4, -2, 0, 4.34357, 0.06);
+
+  // Adding 69-TM-156-1
+  nuc = new Nucleus("TM", 156, 69, 1, 155.939, 0, 19, 0, 0, 0, 1, -8);
+  nuc->AddDecay(-4, -2, -1, 4.34357, 100);
+
+  // Adding 70-YB-156-0
+  nuc = new Nucleus("YB", 156, 70, 0, 155.943, 0, 26.1, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.57293, 90);
+  nuc->AddDecay(-4, -2, 0, 4.8115, 10);
+
+  // Adding 71-LU-156-0
+  nuc = new Nucleus("LU", 156, 71, 0, 155.953, 0, 0.5, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 5.59309, 75);
+  nuc->AddDecay(0, -1, 0, 9.44613, 25);
+
+  // Adding 71-LU-156-1
+  nuc = new Nucleus("LU", 156, 71, 1, 155.953, 0.32, 0.18, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, -1, 5.91309, 95);
+  nuc->AddDecay(0, -1, -1, 9.76613, 5);
+
+  // Adding 72-HF-156-0
+  nuc = new Nucleus("HF", 156, 72, 0, 155.959, 0, 0.025, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 6.0331, 100);
+
+  // Adding 73-TA-156-0
+  nuc = new Nucleus("TA", 156, 73, 0, 155.972, 0, 0.22, 0, 0, 0, 0, -8);
+  nuc->AddDecay(-1, -1, 0, 1.029, 100);
+
+  // Adding 73-TA-156-1
+  nuc = new Nucleus("TA", 156, 73, 1, 155.972, 0.0816, 0.32, 0, 0, 0, 0, 0);
+  nuc->AddDecay(-1, -1, -1, 1.11059, 100);
+
+  // Adding 61-PM-157-0
+  nuc = new Nucleus("PM", 157, 61, 0, 156.933, 0, 10.9, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.54692, 100);
+
+  // Adding 62-SM-157-0
+  nuc = new Nucleus("SM", 157, 62, 0, 156.928, 0, 484.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.70004, 100);
+
+  // Adding 63-EU-157-0
+  nuc =
+      new Nucleus("EU", 157, 63, 0, 156.925, 0, 54648, 0, 6e-10, 4.4e-10, 0, 0);
+  nuc->AddDecay(0, 1, 0, 1.36257, 100);
+
+  // Adding 64-GD-157-0
+  nuc = new Nucleus("GD", 157, 64, 0, 156.924, 0, 0, 15.65, 0, 0, 0, 0);
+
+  // Adding 65-TB-157-0
+  nuc = new Nucleus("TB", 157, 65, 0, 156.924, 0, 3.12206e+09, 0, 3.4e-11,
+                    1.2e-09, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.0601044, 100);
+
+  // Adding 66-DY-157-0
+  nuc = new Nucleus("DY", 157, 66, 0, 156.925, 0, 29304, 0, 6.1e-11, 5.5e-11, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 1.34136, 100);
+
+  // Adding 66-DY-157-1
+  nuc = new Nucleus("DY", 157, 66, 1, 156.926, 0.199, 0.0202, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, 0, -1, 0.199, 100);
+
+  // Adding 67-HO-157-0
+  nuc =
+      new Nucleus("HO", 157, 67, 0, 156.928, 0, 756, 0, 6.5e-12, 7.6e-12, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.54002, 100);
+
+  // Adding 68-ER-157-0
+  nuc = new Nucleus("ER", 157, 68, 0, 156.932, 0, 1119, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 3.30416, 0);
+  nuc->AddDecay(0, -1, 0, 3.46996, 100);
+
+  // Adding 69-TM-157-0
+  nuc = new Nucleus("TM", 157, 69, 0, 156.937, 0, 210, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.48008, 100);
+
+  // Adding 70-YB-157-0
+  nuc = new Nucleus("YB", 157, 70, 0, 156.943, 0, 38.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.53036, 99.5);
+  nuc->AddDecay(-4, -2, 0, 4.62226, 0.5);
+
+  // Adding 71-LU-157-0
+  nuc = new Nucleus("LU", 157, 71, 0, 156.95, 0, 5.4, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 5.0959, 6);
+  nuc->AddDecay(0, -1, 0, 6.93273, 94);
+
+  // Adding 72-HF-157-0
+  nuc = new Nucleus("HF", 157, 72, 0, 156.958, 0, 0.11, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 5.8821, 91);
+  nuc->AddDecay(0, -1, 0, 7.47492, 9);
+
+  // Adding 73-TA-157-0
+  nuc = new Nucleus("TA", 157, 73, 0, 156.968, 0, 0.0053, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 6.3821, 100);
+
+  // Adding 61-PM-158-0
+  nuc = new Nucleus("PM", 158, 61, 0, 157.937, 0, 4.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 6.2968, 100);
+
+  // Adding 62-SM-158-0
+  nuc = new Nucleus("SM", 158, 62, 0, 157.93, 0, 330.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 1.94457, 100);
+
+  // Adding 63-EU-158-0
+  nuc = new Nucleus("EU", 158, 63, 0, 157.928, 0, 2754, 0, 9.4e-11, 7.5e-11, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 3.48505, 100);
+
+  // Adding 64-GD-158-0
+  nuc = new Nucleus("GD", 158, 64, 0, 157.924, 0, 0, 24.84, 0, 0, 0, 0);
+
+  // Adding 65-TB-158-0
+  nuc = new Nucleus("TB", 158, 65, 0, 157.925, 0, 5.67648e+09, 0, 1.1e-09,
+                    4.4e-08, 0, 0);
+  nuc->AddDecay(0, 1, 0, 0.936806, 16.6);
+  nuc->AddDecay(0, -1, 0, 1.22, 83.4);
+
+  // Adding 65-TB-158-1
+  nuc = new Nucleus("TB", 158, 65, 1, 157.926, 0.11, 10.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 1.04681, 0.6);
+  nuc->AddDecay(0, -1, -1, 1.33, 0.01);
+  nuc->AddDecay(0, 0, -1, 0.11, 99.39);
+
+  // Adding 66-DY-158-0
+  nuc = new Nucleus("DY", 158, 66, 0, 157.924, 0, 0, 0.1, 0, 0, 0, 0);
+
+  // Adding 67-HO-158-0
+  nuc = new Nucleus("HO", 158, 67, 0, 157.929, 0, 678, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.23661, 100);
+
+  // Adding 67-HO-158-1
+  nuc = new Nucleus("HO", 158, 67, 1, 157.929, 0.067, 1620, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.067, 81);
+  nuc->AddDecay(0, -1, -1, 4.30361, 19);
+
+  // Adding 67-HO-158-2
+  nuc = new Nucleus("HO", 158, 67, 2, 157.929, 0.18, 1278, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -2, 4.41661, 100);
+
+  // Adding 68-ER-158-0
+  nuc = new Nucleus("ER", 158, 68, 0, 157.93, 0, 8064, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.899918, 100);
+
+  // Adding 69-TM-158-0
+  nuc = new Nucleus("TM", 158, 69, 0, 157.937, 0, 241.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.52996, 100);
+
+  // Adding 69-TM-158-1
+  nuc = new Nucleus("TM", 158, 69, 1, 157.937, 0, 20, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, 0, -1, 0, 100);
+
+  // Adding 70-YB-158-0
+  nuc = new Nucleus("YB", 158, 70, 0, 157.94, 0, 94.2, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 4.17056, 0.003);
+  nuc->AddDecay(0, -1, 0, 2.72905, 100);
+
+  // Adding 71-LU-158-0
+  nuc = new Nucleus("LU", 158, 71, 0, 157.949, 0, 10.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 8.67298, 98.5);
+  nuc->AddDecay(-4, -2, 0, 4.79009, 1.5);
+
+  // Adding 72-HF-158-0
+  nuc = new Nucleus("HF", 158, 72, 0, 157.955, 0, 2.9, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 5.4041, 46);
+  nuc->AddDecay(0, -1, 0, 5.10302, 54);
+
+  // Adding 73-TA-158-0
+  nuc = new Nucleus("TA", 158, 73, 0, 157.966, 0, 0.0368, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 6.2081, 93);
+  nuc->AddDecay(0, -1, 0, 10.9166, 7);
+
+  // Adding 74-W-158-0
+  nuc = new Nucleus("W", 158, 74, 0, 157.974, 0, 0.0014, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 6.6001, 100);
+
+  // Adding 62-SM-159-0
+  nuc = new Nucleus("SM", 159, 62, 0, 158.933, 0, 11.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.83308, 100);
+
+  // Adding 63-EU-159-0
+  nuc = new Nucleus("EU", 159, 63, 0, 158.929, 0, 1086, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.51435, 100);
+
+  // Adding 64-GD-159-0
+  nuc =
+      new Nucleus("GD", 159, 64, 0, 158.926, 0, 66816, 0, 5e-10, 3.9e-10, 0, 0);
+  nuc->AddDecay(0, 1, 0, 0.970596, 100);
+
+  // Adding 65-TB-159-0
+  nuc = new Nucleus("TB", 159, 65, 0, 158.925, 0, 0, 100, 0, 0, 0, 0);
+
+  // Adding 66-DY-159-0
+  nuc = new Nucleus("DY", 159, 66, 0, 158.926, 0, 1.24762e+07, 0, 1e-10,
+                    3.5e-10, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.365593, 100);
+
+  // Adding 67-HO-159-0
+  nuc =
+      new Nucleus("HO", 159, 67, 0, 158.928, 0, 1983, 0, 7.9e-12, 1e-11, 0, 0);
+  nuc->AddDecay(0, -1, 0, 1.83759, 100);
+
+  // Adding 67-HO-159-1
+  nuc = new Nucleus("HO", 159, 67, 1, 158.928, 0.206, 8.3, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.206, 100);
+
+  // Adding 68-ER-159-0
+  nuc = new Nucleus("ER", 159, 68, 0, 158.931, 0, 2160, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.76849, 100);
+
+  // Adding 69-TM-159-0
+  nuc = new Nucleus("TM", 159, 69, 0, 158.935, 0, 549, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.85004, 100);
+
+  // Adding 70-YB-159-0
+  nuc = new Nucleus("YB", 159, 70, 0, 158.94, 0, 84, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.04999, 100);
+
+  // Adding 71-LU-159-0
+  nuc = new Nucleus("LU", 159, 71, 0, 158.947, 0, 12.3, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.98787, 99.96);
+  nuc->AddDecay(-4, -2, 0, 4.53276, 0.04);
+
+  // Adding 72-HF-159-0
+  nuc = new Nucleus("HF", 159, 72, 0, 158.954, 0, 5.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.67845, 88);
+  nuc->AddDecay(-4, -2, 0, 5.22309, 12);
+
+  // Adding 73-TA-159-0
+  nuc = new Nucleus("TA", 159, 73, 0, 158.963, 0, 0.57, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 5.7461, 80);
+  nuc->AddDecay(0, -1, 0, 8.48694, 20);
+
+  // Adding 74-W-159-0
+  nuc = new Nucleus("W", 159, 74, 0, 158.972, 0, 0.0073, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 6.4431, 100);
+
+  // Adding 62-SM-160-0
+  nuc = new Nucleus("SM", 160, 62, 0, 159.935, 0, 9.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.0858, 100);
+
+  // Adding 63-EU-160-0
+  nuc = new Nucleus("EU", 160, 63, 0, 159.932, 0, 38, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.57963, 100);
+
+  // Adding 64-GD-160-0
+  nuc = new Nucleus("GD", 160, 64, 0, 159.927, 0, 0, 21.86, 0, 0, 0, 0);
+
+  // Adding 65-TB-160-0
+  nuc = new Nucleus("TB", 160, 65, 0, 159.927, 0, 6.24672e+06, 0, 1.6e-09,
+                    6.6e-09, 0, 0);
+  nuc->AddDecay(0, 1, 0, 1.8353, 100);
+
+  // Adding 66-DY-160-0
+  nuc = new Nucleus("DY", 160, 66, 0, 159.925, 0, 0, 2.34, 0, 0, 0, 0);
+
+  // Adding 67-HO-160-0
+  nuc = new Nucleus("HO", 160, 67, 0, 159.929, 0, 1536, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.29143, 100);
+
+  // Adding 67-HO-160-1
+  nuc = new Nucleus("HO", 160, 67, 1, 159.929, 0.06, 18072, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 3.35143, 35);
+  nuc->AddDecay(0, 0, -1, 0.06, 65);
+
+  // Adding 67-HO-160-2
+  nuc = new Nucleus("HO", 160, 67, 2, 159.929, 0.169, 3, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, 0, -2, 0.169, 100);
+
+  // Adding 68-ER-160-0
+  nuc = new Nucleus("ER", 160, 68, 0, 159.929, 0, 102888, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.327652, 100);
+
+  // Adding 69-TM-160-0
+  nuc = new Nucleus("TM", 160, 69, 0, 159.935, 0, 564, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.89004, 100);
+
+  // Adding 69-TM-160-1
+  nuc = new Nucleus("TM", 160, 69, 1, 159.935, 0.07, 74.5, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.07, 85);
+  nuc->AddDecay(0, -1, -1, 5.96004, 15);
+
+  // Adding 70-YB-160-0
+  nuc = new Nucleus("YB", 160, 70, 0, 159.938, 0, 288, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.01021, 100);
+
+  // Adding 71-LU-160-0
+  nuc = new Nucleus("LU", 160, 71, 0, 159.946, 0, 36.1, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.87997, 100);
+  nuc->AddDecay(-4, -2, 0, 4.17823, 0.0001);
+
+  // Adding 71-LU-160-1
+  nuc = new Nucleus("LU", 160, 71, 1, 159.946, 0, 40, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 7.87997, 100);
+  nuc->AddDecay(-4, -2, -1, 4.17823, 0);
+
+  // Adding 72-HF-160-0
+  nuc = new Nucleus("HF", 160, 72, 0, 159.951, 0, 13, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.2974, 97.7);
+  nuc->AddDecay(-4, -2, 0, 4.9027, 2.3);
+
+  // Adding 73-TA-160-0
+  nuc = new Nucleus("TA", 160, 73, 0, 159.961, 0, 1.5, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 5.5451, 34);
+  nuc->AddDecay(0, -1, 0, 10.0885, 66);
+
+  // Adding 74-W-160-0
+  nuc = new Nucleus("W", 160, 74, 0, 159.968, 0, 0.081, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 6.0721, 100);
+
+  // Adding 75-RE-160-0
+  nuc = new Nucleus("RE", 160, 75, 0, 159.981, 0, 0.00079, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 6.6991, 9);
+  nuc->AddDecay(-1, -1, 0, 1.285, 91);
+
+  // Adding 63-EU-161-0
+  nuc = new Nucleus("EU", 161, 63, 0, 160.934, 0, 26, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.73863, 100);
+
+  // Adding 64-GD-161-0
+  nuc = new Nucleus("GD", 161, 64, 0, 160.93, 0, 219.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 1.9556, 100);
+
+  // Adding 65-TB-161-0
+  nuc = new Nucleus("TB", 161, 65, 0, 160.928, 0, 594432, 0, 7.2e-10, 1.2e-09,
+                    0, 0);
+  nuc->AddDecay(0, 1, 0, 0.593094, 100);
+
+  // Adding 66-DY-161-0
+  nuc = new Nucleus("DY", 161, 66, 0, 160.927, 0, 0, 18.9, 0, 0, 0, 0);
+
+  // Adding 67-HO-161-0
+  nuc =
+      new Nucleus("HO", 161, 67, 0, 160.928, 0, 8928, 0, 1.3e-11, 1e-11, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.858795, 100);
+
+  // Adding 67-HO-161-1
+  nuc = new Nucleus("HO", 161, 67, 1, 160.928, 0.211, 6.76, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.211, 100);
+
+  // Adding 68-ER-161-0
+  nuc =
+      new Nucleus("ER", 161, 68, 0, 160.93, 0, 11556, 0, 8e-11, 8.5e-11, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.00264, 100);
+
+  // Adding 69-TM-161-0
+  nuc = new Nucleus("TM", 161, 69, 0, 160.933, 0, 1980, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.16401, 100);
+
+  // Adding 70-YB-161-0
+  nuc = new Nucleus("YB", 161, 70, 0, 160.938, 0, 252, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.14997, 100);
+
+  // Adding 71-LU-161-0
+  nuc = new Nucleus("LU", 161, 71, 0, 160.944, 0, 72, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.29998, 100);
+
+  // Adding 71-LU-161-1
+  nuc = new Nucleus("LU", 161, 71, 1, 160.944, 0.136, 0.0073, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.136, 100);
+
+  // Adding 72-HF-161-0
+  nuc = new Nucleus("HF", 161, 72, 0, 160.95, 0, 17, 0, 0, 0, 1, -8);
+  nuc->AddDecay(-4, -2, 0, 4.72168, 50);
+  nuc->AddDecay(0, -1, 0, 6.32387, 50);
+
+  // Adding 73-TA-161-0
+  nuc = new Nucleus("TA", 161, 73, 0, 160.958, 0, 2.7, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.49092, 95);
+  nuc->AddDecay(-4, -2, 0, 5.27987, 5);
+
+  // Adding 74-W-161-0
+  nuc = new Nucleus("W", 161, 74, 0, 160.967, 0, 0.41, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 8.11815, 18);
+  nuc->AddDecay(-4, -2, 0, 5.9231, 82);
+
+  // Adding 75-RE-161-0
+  nuc = new Nucleus("RE", 161, 75, 0, 160.978, 0, 0.01, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 6.4391, 100);
+
+  // Adding 63-EU-162-0
+  nuc = new Nucleus("EU", 162, 63, 0, 161.937, 0, 10.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 5.64315, 100);
+
+  // Adding 64-GD-162-0
+  nuc = new Nucleus("GD", 162, 64, 0, 161.931, 0, 504, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 1.39388, 100);
+
+  // Adding 65-TB-162-0
+  nuc = new Nucleus("TB", 162, 65, 0, 161.929, 0, 456, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.5058, 100);
+
+  // Adding 66-DY-162-0
+  nuc = new Nucleus("DY", 162, 66, 0, 161.927, 0, 0, 25.5, 0, 0, 0, 0);
+
+  // Adding 67-HO-162-0
+  nuc =
+      new Nucleus("HO", 162, 67, 0, 161.929, 0, 900, 0, 3.3e-12, 4.5e-12, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.14019, 100);
+
+  // Adding 67-HO-162-1
+  nuc = new Nucleus("HO", 162, 67, 1, 161.929, 0.106, 4020, 0, 2.6e-11, 3.3e-11,
+                    0, 0);
+  nuc->AddDecay(0, 0, -1, 0.106, 62);
+  nuc->AddDecay(0, -1, -1, 2.24619, 38);
+
+  // Adding 68-ER-162-0
+  nuc = new Nucleus("ER", 162, 68, 0, 161.929, 0, 0, 0.14, 0, 0, 0, 0);
+
+  // Adding 69-TM-162-0
+  nuc = new Nucleus("TM", 162, 69, 0, 161.934, 0, 1302, 0, 2.9e-11, 2.8e-11, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 4.8094, 100);
+
+  // Adding 69-TM-162-1
+  nuc = new Nucleus("TM", 162, 69, 1, 161.934, 0.067, 24.3, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.067, 82);
+  nuc->AddDecay(0, -1, -1, 4.8764, 18);
+
+  // Adding 70-YB-162-0
+  nuc = new Nucleus("YB", 162, 70, 0, 161.936, 0, 1132.2, 0, 2.3e-11, 2.3e-11,
+                    0, 0);
+  nuc->AddDecay(0, -1, 0, 1.68793, 100);
+
+  // Adding 71-LU-162-0
+  nuc = new Nucleus("LU", 162, 71, 0, 161.943, 0, 82.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.21998, 100);
+
+  // Adding 71-LU-162-1
+  nuc = new Nucleus("LU", 162, 71, 1, 161.943, 0, 90, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 7.21998, 100);
+
+  // Adding 71-LU-162-2
+  nuc = new Nucleus("LU", 162, 71, 2, 161.943, 0, 114, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -2, 7.21998, 100);
+
+  // Adding 72-HF-162-0
+  nuc = new Nucleus("HF", 162, 72, 0, 161.947, 0, 37.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.44912, 99.99);
+  nuc->AddDecay(-4, -2, 0, 4.41709, 0.0087);
+
+  // Adding 73-TA-162-0
+  nuc = new Nucleus("TA", 162, 73, 0, 161.957, 0, 3.52, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 9.26298, 99.93);
+  nuc->AddDecay(-4, -2, 0, 5.00709, 0.07);
+
+  // Adding 74-W-162-0
+  nuc = new Nucleus("W", 162, 74, 0, 161.963, 0, 1.39, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.77003, 53);
+  nuc->AddDecay(-4, -2, 0, 5.6741, 47);
+
+  // Adding 75-RE-162-0
+  nuc = new Nucleus("RE", 162, 75, 0, 161.976, 0, 0.1, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 11.5166, 97);
+  nuc->AddDecay(-4, -2, 0, 6.2741, 3);
+
+  // Adding 76-OS-162-0
+  nuc = new Nucleus("OS", 162, 76, 0, 161.984, 0, 0.0019, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 6.7791, 100);
+
+  // Adding 64-GD-163-0
+  nuc = new Nucleus("GD", 163, 64, 0, 162.934, 0, 68, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.11646, 100);
+
+  // Adding 65-TB-163-0
+  nuc = new Nucleus("TB", 163, 65, 0, 162.931, 0, 1170, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 1.78508, 100);
+
+  // Adding 66-DY-163-0
+  nuc = new Nucleus("DY", 163, 66, 0, 162.929, 0, 0, 24.9, 0, 0, 0, 0);
+
+  // Adding 67-HO-163-0
+  nuc = new Nucleus("HO", 163, 67, 0, 162.929, 0, 1.4412e+11, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.00260162, 100);
+
+  // Adding 67-HO-163-1
+  nuc = new Nucleus("HO", 163, 67, 1, 162.929, 0.298, 1.09, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.298, 100);
+
+  // Adding 68-ER-163-0
+  nuc = new Nucleus("ER", 163, 68, 0, 162.93, 0, 4500, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 1.20998, 100);
+
+  // Adding 69-TM-163-0
+  nuc = new Nucleus("TM", 163, 69, 0, 162.933, 0, 6516, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.43899, 100);
+
+  // Adding 70-YB-163-0
+  nuc = new Nucleus("YB", 163, 70, 0, 162.936, 0, 663, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.37005, 100);
+
+  // Adding 71-LU-163-0
+  nuc = new Nucleus("LU", 163, 71, 0, 162.941, 0, 238, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.59999, 100);
+
+  // Adding 72-HF-163-0
+  nuc = new Nucleus("HF", 163, 72, 0, 162.947, 0, 40, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.44991, 100);
+
+  // Adding 73-TA-163-0
+  nuc = new Nucleus("TA", 163, 73, 0, 162.954, 0, 11, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 4.74898, 0.2);
+  nuc->AddDecay(0, -1, 0, 6.80944, 99.8);
+
+  // Adding 74-W-163-0
+  nuc = new Nucleus("W", 163, 74, 0, 162.962, 0, 2.75, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 5.5201, 41);
+  nuc->AddDecay(0, -1, 0, 7.44957, 59);
+
+  // Adding 75-RE-163-0
+  nuc = new Nucleus("RE", 163, 75, 0, 162.972, 0, 0.26, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 6.06709, 64);
+  nuc->AddDecay(0, -1, 0, 9.03394, 36);
+
+  // Adding 76-OS-163-0
+  nuc = new Nucleus("OS", 163, 76, 0, 162.982, 0, 0.833, 0, 0, 0, 1, -8);
+  nuc->AddDecay(-4, -2, 0, 6.6741, 50);
+  nuc->AddDecay(0, -1, 0, 9.30277, 50);
+
+  // Adding 64-GD-164-0
+  nuc = new Nucleus("GD", 164, 64, 0, 163.936, 0, 45, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.34021, 100);
+
+  // Adding 65-TB-164-0
+  nuc = new Nucleus("TB", 164, 65, 0, 163.933, 0, 180, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.89002, 100);
+
+  // Adding 66-DY-164-0
+  nuc = new Nucleus("DY", 164, 66, 0, 163.929, 0, 0, 28.2, 0, 0, 0, 0);
+
+  // Adding 67-HO-164-0
+  nuc =
+      new Nucleus("HO", 164, 67, 0, 163.93, 0, 1740, 0, 9.5e-12, 1.3e-11, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.986702, 60);
+  nuc->AddDecay(0, 1, 0, 0.962402, 40);
+
+  // Adding 67-HO-164-1
+  nuc = new Nucleus("HO", 164, 67, 1, 163.93, 0.14, 2250, 0, 1.6e-11, 1.6e-11,
+                    0, 0);
+  nuc->AddDecay(0, 0, -1, 0.14, 100);
+
+  // Adding 68-ER-164-0
+  nuc = new Nucleus("ER", 164, 68, 0, 163.929, 0, 0, 1.61, 0, 0, 0, 0);
+
+  // Adding 69-TM-164-0
+  nuc = new Nucleus("TM", 164, 69, 0, 163.933, 0, 120, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.96201, 100);
+
+  // Adding 69-TM-164-1
+  nuc = new Nucleus("TM", 164, 69, 1, 163.933, 0, 306, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0, 80);
+  nuc->AddDecay(0, -1, -1, 3.96201, 20);
+
+  // Adding 70-YB-164-0
+  nuc = new Nucleus("YB", 164, 70, 0, 163.935, 0, 4548, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.99622, 100);
+
+  // Adding 71-LU-164-0
+  nuc = new Nucleus("LU", 164, 71, 0, 163.941, 0, 188.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.24997, 100);
+
+  // Adding 72-HF-164-0
+  nuc = new Nucleus("HF", 164, 72, 0, 163.944, 0, 111, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.97394, 100);
+
+  // Adding 73-TA-164-0
+  nuc = new Nucleus("TA", 164, 73, 0, 163.954, 0, 14.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 8.52079, 100);
+
+  // Adding 74-W-164-0
+  nuc = new Nucleus("W", 164, 74, 0, 163.959, 0, 6.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.96827, 97.4);
+  nuc->AddDecay(-4, -2, 0, 5.2788, 2.6);
+
+  // Adding 75-RE-164-0
+  nuc = new Nucleus("RE", 164, 75, 0, 163.97, 0, 0.88, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 5.9231, 58);
+  nuc->AddDecay(0, -1, 0, 10.7328, 42);
+
+  // Adding 76-OS-164-0
+  nuc = new Nucleus("OS", 164, 76, 0, 163.978, 0, 0.041, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 6.4781, 98);
+  nuc->AddDecay(0, -1, 0, 6.98695, 2);
+
+  // Adding 65-TB-165-0
+  nuc = new Nucleus("TB", 165, 65, 0, 164.935, 0, 126.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 1, 2.85383, 86);
+  nuc->AddDecay(0, 1, 0, 2.96183, 14);
+
+  // Adding 66-DY-165-0
+  nuc = new Nucleus("DY", 165, 66, 0, 164.932, 0, 8402.4, 0, 1.1e-10, 8.7e-11,
+                    0, 0);
+  nuc->AddDecay(0, 1, 0, 1.2862, 100);
+
+  // Adding 66-DY-165-1
+  nuc = new Nucleus("DY", 165, 66, 1, 164.932, 0.108, 75.42, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.108, 97.76);
+  nuc->AddDecay(0, 1, -1, 1.3942, 2.24);
+
+  // Adding 67-HO-165-0
+  nuc = new Nucleus("HO", 165, 67, 0, 164.93, 0, 0, 100, 0, 0, 0, 0);
+
+  // Adding 68-ER-165-0
+  nuc = new Nucleus("ER", 165, 68, 0, 164.931, 0, 37296, 0, 1.9e-11, 1.4e-11, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 0.376297, 100);
+
+  // Adding 69-TM-165-0
+  nuc = new Nucleus("TM", 165, 69, 0, 164.932, 0, 108216, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 1.5925, 100);
+
+  // Adding 70-YB-165-0
+  nuc = new Nucleus("YB", 165, 70, 0, 164.935, 0, 594, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.76202, 100);
+
+  // Adding 71-LU-165-0
+  nuc = new Nucleus("LU", 165, 71, 0, 164.94, 0, 644.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.91994, 100);
+
+  // Adding 71-LU-165-1
+  nuc = new Nucleus("LU", 165, 71, 1, 164.94, 0, 720, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, -1, -1, 3.91994, 100);
+
+  // Adding 72-HF-165-0
+  nuc = new Nucleus("HF", 165, 72, 0, 164.945, 0, 76, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.59521, 100);
+
+  // Adding 73-TA-165-0
+  nuc = new Nucleus("TA", 165, 73, 0, 164.951, 0, 31, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.84815, 100);
+
+  // Adding 74-W-165-0
+  nuc = new Nucleus("W", 165, 74, 0, 164.958, 0, 5.1, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 5.03178, 0.2);
+  nuc->AddDecay(0, -1, 0, 7.00453, 99.8);
+
+  // Adding 75-RE-165-0
+  nuc = new Nucleus("RE", 165, 75, 0, 164.967, 0, 2.4, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 5.65788, 13);
+  nuc->AddDecay(0, -1, 0, 8.11702, 87);
+
+  // Adding 76-OS-165-0
+  nuc = new Nucleus("OS", 165, 76, 0, 164.976, 0, 0.065, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 8.77736, 40);
+  nuc->AddDecay(-4, -2, 0, 6.31709, 60);
+
+  // Adding 66-DY-166-0
+  nuc = new Nucleus("DY", 166, 66, 0, 165.933, 0, 293760, 0, 1.6e-09, 1.8e-09,
+                    0, 0);
+  nuc->AddDecay(0, 1, 0, 0.486301, 100);
+
+  // Adding 67-HO-166-0
+  nuc = new Nucleus("HO", 166, 67, 0, 165.932, 0, 96588, 0, 1.4e-09, 8.3e-10, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 1.8545, 100);
+
+  // Adding 67-HO-166-1
+  nuc = new Nucleus("HO", 166, 67, 1, 165.932, 0.006, 3.78432e+10, 0, 2e-09,
+                    1.1e-07, 0, 0);
+  nuc->AddDecay(0, 1, -1, 1.8605, 100);
+
+  // Adding 68-ER-166-0
+  nuc = new Nucleus("ER", 166, 68, 0, 165.93, 0, 0, 33.6, 0, 0, 0, 0);
+
+  // Adding 69-TM-166-0
+  nuc = new Nucleus("TM", 166, 69, 0, 165.934, 0, 27720, 0, 2.8e-10, 2.9e-10, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 3.04002, 100);
+
+  // Adding 70-YB-166-0
+  nuc = new Nucleus("YB", 166, 70, 0, 165.934, 0, 204120, 0, 9.5e-10, 9.5e-10,
+                    0, 0);
+  nuc->AddDecay(0, -1, 0, 0.303528, 100);
+
+  // Adding 71-LU-166-0
+  nuc = new Nucleus("LU", 166, 71, 0, 165.94, 0, 159, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.48007, 100);
+
+  // Adding 71-LU-166-1
+  nuc = new Nucleus("LU", 166, 71, 1, 165.94, 0.034, 84.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.034, 42);
+  nuc->AddDecay(0, -1, -1, 5.51407, 58);
+
+  // Adding 71-LU-166-2
+  nuc = new Nucleus("LU", 166, 71, 2, 165.94, 0.043, 127.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -2, 5.52307, 80);
+  nuc->AddDecay(0, 0, -2, 0.043, 20);
+
+  // Adding 72-HF-166-0
+  nuc = new Nucleus("HF", 166, 72, 0, 165.942, 0, 406.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.31622, 100);
+
+  // Adding 73-TA-166-0
+  nuc = new Nucleus("TA", 166, 73, 0, 165.95, 0, 34.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.657, 100);
+
+  // Adding 74-W-166-0
+  nuc = new Nucleus("W", 166, 74, 0, 165.955, 0, 18.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.23959, 99.97);
+  nuc->AddDecay(-4, -2, 0, 4.8565, 0.04);
+
+  // Adding 75-RE-166-0
+  nuc = new Nucleus("RE", 166, 75, 0, 165.966, 0, 2.8, 0, 0, 0, 1, -8);
+  nuc->AddDecay(-4, -2, 0, 5.63709, 100);
+
+  // Adding 76-OS-166-0
+  nuc = new Nucleus("OS", 166, 76, 0, 165.973, 0, 0.181, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 6.1301, 72);
+  nuc->AddDecay(0, -1, 0, 6.26304, 18);
+
+  // Adding 77-IR-166-0
+  nuc = new Nucleus("IR", 166, 77, 0, 165.986, 0, 0.005, 0, 0, 0, 1, -5);
+  nuc->AddDecay(-4, -2, 0, 6.7031, 99);
+
+  // Adding 66-DY-167-0
+  nuc = new Nucleus("DY", 167, 66, 0, 166.936, 0, 372, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.35, 100);
+
+  // Adding 67-HO-167-0
+  nuc =
+      new Nucleus("HO", 167, 67, 0, 166.933, 0, 11160, 0, 8.3e-11, 1e-10, 0, 0);
+  nuc->AddDecay(0, 1, 0, 1.00667, 88.5);
+  nuc->AddDecay(0, 1, 1, 0.798668, 11.5);
+
+  // Adding 68-ER-167-0
+  nuc = new Nucleus("ER", 167, 68, 0, 166.932, 0, 0, 22.95, 0, 0, 0, 0);
+
+  // Adding 68-ER-167-1
+  nuc = new Nucleus("ER", 167, 68, 1, 166.932, 0.208, 2.269, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.208, 100);
+
+  // Adding 69-TM-167-0
+  nuc = new Nucleus("TM", 167, 69, 0, 166.933, 0, 799200, 0, 5.6e-10, 1.1e-09,
+                    0, 0);
+  nuc->AddDecay(0, -1, 0, 0.748295, 100);
+
+  // Adding 70-YB-167-0
+  nuc = new Nucleus("YB", 167, 70, 0, 166.935, 0, 1050, 0, 6.7e-12, 9.5e-12, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 1.95428, 100);
+
+  // Adding 71-LU-167-0
+  nuc = new Nucleus("LU", 167, 71, 0, 166.938, 0, 3090, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.13004, 100);
+
+  // Adding 72-HF-167-0
+  nuc = new Nucleus("HF", 167, 72, 0, 166.943, 0, 123, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.9981, 100);
+
+  // Adding 73-TA-167-0
+  nuc = new Nucleus("TA", 167, 73, 0, 166.948, 0, 84, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.00377, 100);
+
+  // Adding 74-W-167-0
+  nuc = new Nucleus("W", 167, 74, 0, 166.955, 0, 19.9, 0, 0, 0, 0, -8);
+  nuc->AddDecay(0, -1, 0, 6.24012, 50);
+  nuc->AddDecay(-4, -2, 0, 4.6691, 50);
+
+  // Adding 75-RE-167-0
+  nuc = new Nucleus("RE", 167, 75, 0, 166.963, 0, 6.1, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 5.24284, 0.7);
+  nuc->AddDecay(0, -1, 0, 7.38318, 99.3);
+
+  // Adding 76-OS-167-0
+  nuc = new Nucleus("OS", 167, 76, 0, 166.971, 0, 0.83, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 5.9791, 67);
+  nuc->AddDecay(0, -1, 0, 8.18582, 33);
+
+  // Adding 77-IR-167-0
+  nuc = new Nucleus("IR", 167, 77, 0, 166.982, 0, 0.005, 0, 0, 0, 1, -5);
+  nuc->AddDecay(-4, -2, 0, 6.5431, 100);
+
+  // Adding 66-DY-168-0
+  nuc = new Nucleus("DY", 168, 66, 0, 167.937, 0, 510, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 1.61413, 100);
+
+  // Adding 67-HO-168-0
+  nuc = new Nucleus("HO", 168, 67, 0, 167.936, 0, 179.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.9143, 100);
+
+  // Adding 68-ER-168-0
+  nuc = new Nucleus("ER", 168, 68, 0, 167.932, 0, 0, 26.8, 0, 0, 0, 0);
+
+  // Adding 69-TM-168-0
+  nuc = new Nucleus("TM", 168, 69, 0, 167.934, 0, 8.04384e+06, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 0.257011, 0.01);
+  nuc->AddDecay(0, -1, 0, 1.6791, 99.99);
+
+  // Adding 70-YB-168-0
+  nuc = new Nucleus("YB", 168, 70, 0, 167.934, 0, 0, 0.13, 0, 0, 0, 0);
+
+  // Adding 71-LU-168-0
+  nuc = new Nucleus("LU", 168, 71, 0, 167.939, 0, 330, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.47486, 100);
+
+  // Adding 71-LU-168-1
+  nuc = new Nucleus("LU", 168, 71, 1, 167.939, 0.22, 402, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 4.69487, 95);
+  nuc->AddDecay(0, 0, -1, 0.22, 5);
+
+  // Adding 72-HF-168-0
+  nuc = new Nucleus("HF", 168, 72, 0, 167.941, 0, 1557, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 1.79868, 100);
+
+  // Adding 73-TA-168-0
+  nuc = new Nucleus("TA", 168, 73, 0, 167.948, 0, 146.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.66973, 100);
+
+  // Adding 74-W-168-0
+  nuc = new Nucleus("W", 168, 74, 0, 167.952, 0, 53, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.79417, 100);
+
+  // Adding 75-RE-168-0
+  nuc = new Nucleus("RE", 168, 75, 0, 167.962, 0, 6.9, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 5.0631, 0.005);
+  nuc->AddDecay(0, -1, 0, 9.07779, 99.995);
+
+  // Adding 75-RE-168-1
+  nuc = new Nucleus("RE", 168, 75, 1, 167.962, 0, 6.6, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, -1, 5.0631, 100);
+  nuc->AddDecay(0, -1, -1, 9.07779, 0);
+
+  // Adding 76-OS-168-0
+  nuc = new Nucleus("OS", 168, 76, 0, 167.968, 0, 2.2, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 5.8187, 49);
+  nuc->AddDecay(0, -1, 0, 5.72387, 51);
+
+  // Adding 77-IR-168-0
+  nuc = new Nucleus("IR", 168, 77, 0, 167.98, 0, 0.715, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 6.41109, 100);
+
+  // Adding 78-PT-168-0
+  nuc = new Nucleus("PT", 168, 78, 0, 167.988, 0, 1.17, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 6.9901, 100);
+
+  // Adding 66-DY-169-0
+  nuc = new Nucleus("DY", 169, 66, 0, 168.94, 0, 39, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.19999, 100);
+
+  // Adding 67-HO-169-0
+  nuc = new Nucleus("HO", 169, 67, 0, 168.937, 0, 282, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.12401, 100);
+
+  // Adding 68-ER-169-0
+  nuc = new Nucleus("ER", 169, 68, 0, 168.935, 0, 812160, 0, 3.7e-10, 9.8e-10,
+                    0, 0);
+  nuc->AddDecay(0, 1, 0, 0.3512, 100);
+
+  // Adding 69-TM-169-0
+  nuc = new Nucleus("TM", 169, 69, 0, 168.934, 0, 0, 100, 0, 0, 0, 0);
+
+  // Adding 70-YB-169-0
+  nuc = new Nucleus("YB", 169, 70, 0, 168.935, 0, 2.76705e+06, 0, 7.1e-10,
+                    2.8e-09, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.909187, 100);
+
+  // Adding 70-YB-169-1
+  nuc = new Nucleus("YB", 169, 70, 1, 168.935, 0.024, 46, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.024, 100);
+
+  // Adding 71-LU-169-0
+  nuc = new Nucleus("LU", 169, 71, 0, 168.938, 0, 122616, 0, 4.6e-10, 4.9e-10,
+                    0, 0);
+  nuc->AddDecay(0, -1, 0, 2.29299, 100);
+
+  // Adding 71-LU-169-1
+  nuc = new Nucleus("LU", 169, 71, 1, 168.938, 0.029, 160, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.029, 100);
+
+  // Adding 72-HF-169-0
+  nuc = new Nucleus("HF", 169, 72, 0, 168.941, 0, 194.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.26927, 100);
+
+  // Adding 73-TA-169-0
+  nuc = new Nucleus("TA", 169, 73, 0, 168.946, 0, 294, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.43508, 100);
+
+  // Adding 74-W-169-0
+  nuc = new Nucleus("W", 169, 74, 0, 168.952, 0, 76, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.43889, 100);
+
+  // Adding 75-RE-169-0
+  nuc = new Nucleus("RE", 169, 75, 0, 168.959, 0, 8.1, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.58611, 100);
+
+  // Adding 75-RE-169-1
+  nuc = new Nucleus("RE", 169, 75, 1, 168.959, 0.15, 16.3, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, -1, 6.73611, 100);
+
+  // Adding 76-OS-169-0
+  nuc = new Nucleus("OS", 169, 76, 0, 168.967, 0, 3.4, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.68419, 89);
+  nuc->AddDecay(-4, -2, 0, 5.71778, 11);
+
+  // Adding 77-IR-169-0
+  nuc = new Nucleus("IR", 169, 77, 0, 168.976, 0, 0.4, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 6.27578, 100);
+  nuc->AddDecay(0, -1, 0, 8.67502, 0);
+  nuc->AddDecay(-1, -1, 0, 0.757543, 0);
+
+  // Adding 78-PT-169-0
+  nuc = new Nucleus("PT", 169, 78, 0, 168.986, 0, 0.0025, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 6.8401, 100);
+
+  // Adding 67-HO-170-0
+  nuc = new Nucleus("HO", 170, 67, 0, 169.94, 0, 165.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.86998, 100);
+
+  // Adding 67-HO-170-1
+  nuc = new Nucleus("HO", 170, 67, 1, 169.94, 0.12, 43, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, -1, 3.98998, 100);
+
+  // Adding 68-ER-170-0
+  nuc = new Nucleus("ER", 170, 68, 0, 169.935, 0, 0, 14.9, 0, 0, 0, 0);
+
+  // Adding 69-TM-170-0
+  nuc = new Nucleus("TM", 170, 69, 0, 169.936, 0, 1.1111e+07, 0, 1.3e-09,
+                    6.6e-09, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.3144, 0.15);
+  nuc->AddDecay(0, 1, 0, 0.968098, 99.85);
+
+  // Adding 70-YB-170-0
+  nuc = new Nucleus("YB", 170, 70, 0, 169.935, 0, 0, 3.05, 0, 0, 0, 0);
+
+  // Adding 71-LU-170-0
+  nuc = new Nucleus("LU", 170, 71, 0, 169.938, 0, 172800, 0, 9.9e-10, 9.6e-10,
+                    0, 0);
+  nuc->AddDecay(0, -1, 0, 3.45921, 100);
+
+  // Adding 71-LU-170-1
+  nuc = new Nucleus("LU", 170, 71, 1, 169.939, 0.093, 0.67, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.093, 100);
+
+  // Adding 72-HF-170-0
+  nuc = new Nucleus("HF", 170, 72, 0, 169.94, 0, 57636, 0, 4.8e-10, 4.3e-10, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 1.09632, 100);
+
+  // Adding 73-TA-170-0
+  nuc = new Nucleus("TA", 170, 73, 0, 169.946, 0, 405.6, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.999, 100);
+
+  // Adding 74-W-170-0
+  nuc = new Nucleus("W", 170, 74, 0, 169.949, 0, 240, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.97873, 100);
+
+  // Adding 75-RE-170-0
+  nuc = new Nucleus("RE", 170, 75, 0, 169.958, 0, 8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 8.26706, 100);
+
+  // Adding 76-OS-170-0
+  nuc = new Nucleus("OS", 170, 76, 0, 169.964, 0, 7.1, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.03909, 88);
+  nuc->AddDecay(-4, -2, 0, 5.5405, 12);
+
+  // Adding 77-IR-170-0
+  nuc = new Nucleus("IR", 170, 77, 0, 169.975, 0, 1.05, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 6.17309, 75);
+  nuc->AddDecay(0, -1, 0, 10.6762, 25);
+
+  // Adding 78-PT-170-0
+  nuc = new Nucleus("PT", 170, 78, 0, 169.982, 0, 0.006, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 6.7041, 100);
+
+  // Adding 67-HO-171-0
+  nuc = new Nucleus("HO", 171, 67, 0, 170.941, 0, 53, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.19997, 100);
+
+  // Adding 68-ER-171-0
+  nuc = new Nucleus("ER", 171, 68, 0, 170.938, 0, 27057.6, 0, 3.6e-10, 3e-10, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 1.4905, 100);
+
+  // Adding 69-TM-171-0
+  nuc = new Nucleus("TM", 171, 69, 0, 170.936, 0, 6.05491e+07, 0, 1.1e-10,
+                    1.3e-09, 0, 0);
+  nuc->AddDecay(0, 1, 0, 0.0963974, 100);
+
+  // Adding 70-YB-171-0
+  nuc = new Nucleus("YB", 171, 70, 0, 170.936, 0, 0, 14.3, 0, 0, 0, 0);
+
+  // Adding 71-LU-171-0
+  nuc = new Nucleus("LU", 171, 71, 0, 170.938, 0, 711936, 0, 6.7e-10, 9.4e-10,
+                    0, 0);
+  nuc->AddDecay(0, -1, 0, 1.4788, 100);
+
+  // Adding 71-LU-171-1
+  nuc = new Nucleus("LU", 171, 71, 1, 170.938, 0.071, 79, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.071, 100);
+
+  // Adding 72-HF-171-0
+  nuc = new Nucleus("HF", 171, 72, 0, 170.94, 0, 43560, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.40313, 100);
+
+  // Adding 73-TA-171-0
+  nuc = new Nucleus("TA", 171, 73, 0, 170.944, 0, 1398, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.69799, 100);
+
+  // Adding 74-W-171-0
+  nuc = new Nucleus("W", 171, 74, 0, 170.949, 0, 142.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.57293, 100);
+
+  // Adding 75-RE-171-0
+  nuc = new Nucleus("RE", 171, 75, 0, 170.955, 0, 15.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 5.66993, 100);
+
+  // Adding 76-OS-171-0
+  nuc = new Nucleus("OS", 171, 76, 0, 170.963, 0, 8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 7.06303, 98.3);
+  nuc->AddDecay(-4, -2, 0, 5.37011, 1.7);
+
+  // Adding 77-IR-171-0
+  nuc = new Nucleus("IR", 171, 77, 0, 170.972, 0, 1.5, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 6.1591, 100);
+  nuc->AddDecay(0, -1, 0, 8.17218, 0);
+  nuc->AddDecay(-1, -1, 0, 0.386178, 0);
+
+  // Adding 78-PT-171-0
+  nuc = new Nucleus("PT", 171, 78, 0, 170.981, 0, 0.025, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 8.63382, 1);
+  nuc->AddDecay(-4, -2, 0, 6.6071, 99);
+
+  // Adding 67-HO-172-0
+  nuc = new Nucleus("HO", 172, 67, 0, 171.945, 0, 25, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 4.79285, 100);
+
+  // Adding 68-ER-172-0
+  nuc = new Nucleus("ER", 172, 68, 0, 171.939, 0, 177480, 0, 1e-09, 1.2e-09, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 0.890514, 100);
+
+  // Adding 69-TM-172-0
+  nuc = new Nucleus("TM", 172, 69, 0, 171.938, 0, 228960, 0, 1.7e-09, 1.4e-09,
+                    0, 0);
+  nuc->AddDecay(0, 1, 0, 1.88017, 100);
+
+  // Adding 70-YB-172-0
+  nuc = new Nucleus("YB", 172, 70, 0, 171.936, 0, 0, 21.9, 0, 0, 0, 0);
+
+  // Adding 71-LU-172-0
+  nuc = new Nucleus("LU", 172, 71, 0, 171.939, 0, 578880, 0, 1.3e-09, 1.9e-09,
+                    0, 0);
+  nuc->AddDecay(0, -1, 0, 2.5192, 100);
+
+  // Adding 71-LU-172-1
+  nuc = new Nucleus("LU", 172, 71, 1, 171.939, 0.042, 222, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.042, 100);
+
+  // Adding 72-HF-172-0
+  nuc = new Nucleus("HF", 172, 72, 0, 171.939, 0, 5.89723e+07, 0, 1e-09,
+                    3.7e-08, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.349979, 100);
+
+  // Adding 73-TA-172-0
+  nuc = new Nucleus("TA", 172, 73, 0, 171.945, 0, 2208, 0, 5.3e-11, 5.8e-11, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 4.92003, 100);
+
+  // Adding 74-W-172-0
+  nuc = new Nucleus("W", 172, 74, 0, 171.947, 0, 402, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 2.50005, 100);
+
+  // Adding 75-RE-172-0
+  nuc = new Nucleus("RE", 172, 75, 0, 171.955, 0, 15, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 4.56016, 0);
+  nuc->AddDecay(0, -1, 0, 7.32597, 100);
+
+  // Adding 75-RE-172-1
+  nuc = new Nucleus("RE", 172, 75, 1, 171.955, 0, 55, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0, 0);
+  nuc->AddDecay(-4, -2, -1, 4.56016, 0);
+  nuc->AddDecay(0, -1, -1, 7.32597, 100);
+
+  // Adding 76-OS-172-0
+  nuc = new Nucleus("OS", 172, 76, 0, 171.96, 0, 19, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 5.2271, 0.2);
+  nuc->AddDecay(0, -1, 0, 4.46111, 99.8);
+
+  // Adding 77-IR-172-0
+  nuc = new Nucleus("IR", 172, 77, 0, 171.971, 0, 2.1, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 9.84079, 97);
+  nuc->AddDecay(-4, -2, 0, 5.9901, 3);
+
+  // Adding 78-PT-172-0
+  nuc = new Nucleus("PT", 172, 78, 0, 171.977, 0, 0.1, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.19837, 2);
+  nuc->AddDecay(-4, -2, 0, 6.4646, 98);
+
+  // Adding 79-AU-172-0
+  nuc = new Nucleus("AU", 172, 79, 0, 171.99, 0, 0.004, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 7.09741, 98);
+  nuc->AddDecay(-1, -1, 0, 1.14431, 2);
+
+  // Adding 68-ER-173-0
+  nuc = new Nucleus("ER", 173, 68, 0, 172.942, 0, 84, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 2.59856, 100);
+
+  // Adding 69-TM-173-0
+  nuc = new Nucleus("TM", 173, 69, 0, 172.94, 0, 29664, 0, 3.1e-10, 2.6e-10, 0,
+                    0);
+  nuc->AddDecay(0, 1, 0, 1.29808, 100);
+
+  // Adding 70-YB-173-0
+  nuc = new Nucleus("YB", 173, 70, 0, 172.938, 0, 0, 16.12, 0, 0, 0, 0);
+
+  // Adding 71-LU-173-0
+  nuc = new Nucleus("LU", 173, 71, 0, 172.939, 0, 4.32043e+07, 0, 2.6e-10,
+                    2.3e-09, 0, 0);
+  nuc->AddDecay(0, -1, 0, 0.670803, 100);
+
+  // Adding 72-HF-173-0
+  nuc = new Nucleus("HF", 173, 72, 0, 172.941, 0, 84960, 0, 2.3e-10, 2.2e-10, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 1.60492, 100);
+
+  // Adding 73-TA-173-0
+  nuc = new Nucleus("TA", 173, 73, 0, 172.944, 0, 11304, 0, 1.9e-10, 1.6e-10, 0,
+                    0);
+  nuc->AddDecay(0, -1, 0, 2.78988, 100);
+
+  // Adding 74-W-173-0
+  nuc = new Nucleus("W", 173, 74, 0, 172.948, 0, 478.2, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 3.99985, 100);
+
+  // Adding 75-RE-173-0
+  nuc = new Nucleus("RE", 173, 75, 0, 172.953, 0, 118.8, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 4.77192, 100);
+
+  // Adding 76-OS-173-0
+  nuc = new Nucleus("OS", 173, 76, 0, 172.96, 0, 16, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, -1, 0, 6.26814, 99.98);
+  nuc->AddDecay(-4, -2, 0, 5.0571, 0.02);
+
+  // Adding 77-IR-173-0
+  nuc = new Nucleus("IR", 173, 77, 0, 172.968, 0, 3, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 5.84508, 2.02);
+  nuc->AddDecay(0, -1, 0, 7.37408, 97.98);
+
+  // Adding 78-PT-173-0
+  nuc = new Nucleus("PT", 173, 78, 0, 172.977, 0, 0.342, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 6.3529, 84);
+  nuc->AddDecay(0, -1, 0, 8.19202, 16);
+
+  // Adding 79-AU-173-0
+  nuc = new Nucleus("AU", 173, 79, 0, 172.986, 0, 0.059, 0, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 6.89688, 100);
+
+  // Adding 68-ER-174-0
+  nuc = new Nucleus("ER", 174, 68, 0, 173.944, 0, 198, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 1.75585, 100);
+
+  // Adding 69-TM-174-0
+  nuc = new Nucleus("TM", 174, 69, 0, 173.942, 0, 324, 0, 0, 0, 0, 0);
+  nuc->AddDecay(0, 1, 0, 3.07998, 100);
+
+  // Adding 70-YB-174-0
+  nuc = new Nucleus("YB", 174, 70, 0, 173.939, 0, 0, 31.8, 0, 0, 0, 0);
+
+  // Adding 71-LU-174-0
+  nuc = new Nucleus("LU", 174, 71, 0, 173.94, 0, 1.04384e+08, 0, 2.7e-10, 4e-09,
+                    0, 0);
+  nuc->AddDecay(0, -1, 0, 1.3744, 100);
+
+  // Adding 71-LU-174-1
+  nuc = new Nucleus("LU", 174, 71, 1, 173.941, 0.171, 1.22688e+07, 0, 5.3e-10,
+                    3.8e-09, 0, 0);
+  nuc->AddDecay(0, 0, -1, 0.171, 99.38);
+  nuc->AddDecay(0, -1, -1, 1.5454, 0.62);
+
+  // Adding 72-HF-174-0
+  nuc = new Nucleus("HF", 174, 72, 0, 173.94, 0, 6.3072e+22, 0.162, 0, 0, 1, 0);
+  nuc->AddDecay(-4, -2, 0, 2.4958, 100);
 }
 
 } // End of inline namespace

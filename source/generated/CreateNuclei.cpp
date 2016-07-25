@@ -5,11 +5,11 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 VECGEOM_CUDA_HEADER_BOTH
- void CreateNuclei0000();
+void CreateNuclei0000();
 VECGEOM_CUDA_HEADER_BOTH
- void CreateNuclei0001();
+void CreateNuclei0001();
 VECGEOM_CUDA_HEADER_BOTH
- void CreateNuclei0002();
+void CreateNuclei0002();
 
 #ifdef VECGEOM_NVCC
 VECGEOM_CUDA_HEADER_DEVICE bool fgCreateNucleiInitDoneDev = false;
@@ -23,7 +23,8 @@ void Nucleus::CreateNuclei() {
 #else
   bool &fgCreateNucleiInitDone(fgCreateNucleiInitDoneDev);
 #endif
-  if (fgCreateNucleiInitDone) return;
+  if (fgCreateNucleiInitDone)
+    return;
   fgCreateNucleiInitDone = true;
   CreateNuclei0000();
   CreateNuclei0001();
