@@ -250,6 +250,5 @@ std::string NavigationState::RelativePath(NavigationState const &other) const
   }
   return str.str();
 }
-
 }
 } // End global namespace
