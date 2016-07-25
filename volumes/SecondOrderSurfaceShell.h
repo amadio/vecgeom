@@ -113,7 +113,7 @@ public:
   }
 
   //______________________________________________________________________________
-  template <typename Real_v, typename Bool_v>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   /** @brief Stripped down version of Inside method used for boundary and wrong side detection
@@ -122,10 +122,11 @@ public:
    * @param completelyoutside Onside flag
    * @param onsurf On boundary flag
    */
-  void CheckInside(Vector3D<Real_v> const &point, Bool_v &completelyinside, Bool_v &completelyoutside,
-                   Bool_v &onsurf) const
+  void CheckInside(Vector3D<Real_v> const &point, vecCore::Mask_v<Real_v> &completelyinside,
+                   vecCore::Mask_v<Real_v> &completelyoutside, vecCore::Mask_v<Real_v> &onsurf) const
   {
 
+    using Bool_v                    = vecCore::Mask_v<Real_v>;
     constexpr Precision tolerancesq = 10000. * kTolerance * kTolerance;
 
     onsurf            = Bool_v(false);
@@ -155,18 +156,18 @@ public:
       Real_v deltasq = DeltaX * DeltaX + DeltaY * DeltaY;
       // If the current vertex is degenerated, ignore the check
       Bool_v samevertex = deltasq < MakePlusTolerant<true>(0.);
-      degenerated &= samevertex;
+      degenerated       = degenerated && samevertex;
       // Cross product to check if point is right side or left side
       // If vertices are same, this will be 0
       cross = (point.x() - vertexX[i]) * DeltaY - (point.y() - vertexY[i]) * DeltaX;
 
-      onsurf = (cross * cross < tolerancesq * deltasq) & (!samevertex);
-      completelyoutside |= ((cross < MakeMinusTolerant<true>(0.)) & (!onsurf));
-      completelyinside &= samevertex | ((cross > MakePlusTolerant<true>(0.)) & (!onsurf));
+      onsurf            = (cross * cross < tolerancesq * deltasq) && (!samevertex);
+      completelyoutside = completelyoutside || (((cross < MakeMinusTolerant<true>(0.)) && (!onsurf)));
+      completelyinside  = completelyinside && (samevertex || ((cross > MakePlusTolerant<true>(0.)) && (!onsurf)));
     }
-    onsurf = (!completelyoutside) & (!completelyinside);
+    onsurf = (!completelyoutside) && (!completelyinside);
     // In fully degenerated case consider the point outside always
-    completelyoutside |= degenerated;
+    completelyoutside = completelyoutside || degenerated;
   }
 
   //______________________________________________________________________________
@@ -188,13 +189,13 @@ public:
     // The algorithmic tolerance in distance
     const Real_v tolerance = 100. * kTolerance;
 
-    Real_v dist(kInfinity);
+    Real_v dist(vecCore::NumericLimits<Real_v>::Infinity());
     Real_v smin[N], smax[N];
     Vector3D<Real_v> unorm;
     Real_v r = Real_v(-1.);
     Real_v rz;
     Bool_v completelyinside, completelyoutside, onsurf;
-    CheckInside<Real_v, Bool_v>(point, completelyinside, completelyoutside, onsurf);
+    CheckInside<Real_v>(point, completelyinside, completelyoutside, onsurf);
 
     // If on the wrong side, return -1.
     Real_v wrongsidedist = Real_v(-1.);
@@ -216,10 +217,10 @@ public:
       // === MaskedMultipleAssign needed
       vecCore::MaskedAssign(smin[i],
                             !completelyoutside && vecCore::math::Abs(smin[i]) < tolerance && dir.Dot(unorm) < 0,
-                            Real_v(kInfinity));
+                            vecCore::NumericLimits<Real_v>::Infinity());
       vecCore::MaskedAssign(smax[i],
                             !completelyoutside && vecCore::math::Abs(smax[i]) < tolerance && dir.Dot(unorm) < 0,
-                            Real_v(kInfinity));
+                            vecCore::NumericLimits<Real_v>::Infinity());
 
       vecCore::MaskedAssign(dist, !completelyoutside && (smin[i] > -tolerance) && (smin[i] < dist),
                             vecCore::math::Max(smin[i], Real_v(0.)));
@@ -246,7 +247,7 @@ public:
 
     Vertex_t va;         // vertex i of lower base
     Vector3D<Real_v> pa; // same vertex converted to backend type
-    Real_v distance = Real_v(kInfinity);
+    Real_v distance = vecCore::NumericLimits<Real_v>::Infinity();
 
     // Check every surface
     Bool_v outside =
@@ -264,8 +265,8 @@ public:
       Bool_v outgoing   = (dotDirNorm > 0.);
       dotDirNorm += kTiny; // Avoid division by 0 without changing result
       // Update globally outside flag
-      outside |= otherside;
-      Bool_v valid = outgoing & (!otherside);
+      outside      = outside || otherside;
+      Bool_v valid = outgoing && (!otherside);
       if (vecCore::MaskEmpty(valid)) continue;
       Real_v snext = -dotAPNorm / dotDirNorm;
       vecCore::MaskedAssign(distance, valid && snext < distance, vecCore::math::Max(snext, Real_v(0.)));
@@ -281,16 +282,18 @@ public:
    * @param point Starting point in the local frame
    * @param dir Direction in the local frame
    */
-  template <typename Real_v, typename Bool_v>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  Real_v DistanceToInPlanar(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir, Bool_v &done) const
+  Real_v DistanceToInPlanar(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir,
+                            vecCore::Mask_v<Real_v> &done) const
   {
     //    const Real_v tolerance = 100. * kTolerance;
 
+    using Bool_v = vecCore::Mask_v<Real_v>;
     Vertex_t va;         // vertex i of lower base
     Vector3D<Real_v> pa; // same vertex converted to backend type
-    Real_v distance = Real_v(kInfinity);
+    Real_v distance = vecCore::NumericLimits<Real_v>::Infinity();
 
     // Check every surface
     Bool_v inside =
@@ -308,13 +311,13 @@ public:
       Bool_v ingoing    = (dotDirNorm < 0.);
       dotDirNorm += kTiny; // Avoid division by 0 without changing result
       // Update globally outside flag
-      inside &= otherside;
-      Bool_v valid = ingoing & (!otherside);
+      inside       = inside && otherside;
+      Bool_v valid = ingoing && (!otherside);
       if (vecCore::MaskEmpty(valid)) continue;
       Real_v snext = -dotAPNorm / dotDirNorm;
       // Now propagate the point to surface and check if in range
       Vector3D<Real_v> psurf = point + snext * dir;
-      valid &= InSurfLimits<Real_v, Bool_v>(psurf, i);
+      valid                  = valid && InSurfLimits<Real_v>(psurf, i);
       vecCore::MaskedAssign(distance, (!done) && valid && snext < distance, vecCore::math::Max(snext, Real_v(0.)));
     }
     // Return -1 for points actually inside
@@ -324,7 +327,7 @@ public:
   }
 
   //______________________________________________________________________________
-  template <typename Real_v, typename Bool_v>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   /**
@@ -335,23 +338,24 @@ public:
   * another possibility relies on the following idea:
   * we always have an even number of planar/curved surfaces. We could organize them in separate substructures...
   */
-  Real_v DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir, Bool_v &done) const
+  Real_v DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir, vecCore::Mask_v<Real_v> &done) const
   {
     // Planar case
-    if (fisplanar) return DistanceToInPlanar<Real_v, Bool_v>(point, dir, done);
+    using Bool_v = vecCore::Mask_v<Real_v>;
+    if (fisplanar) return DistanceToInPlanar<Real_v>(point, dir, done);
     Real_v crtdist;
     Vector3D<Real_v> hit;
-    Real_v distance  = Real_v(kInfinity);
+    Real_v distance  = vecCore::NumericLimits<Real_v>::Infinity();
     Real_v tolerance = 100. * kTolerance;
     Vector3D<Real_v> unorm;
     Real_v r = Real_v(-1.);
     Real_v rz;
     Bool_v completelyinside, completelyoutside, onsurf;
-    CheckInside<Real_v, Bool_v>(point, completelyinside, completelyoutside, onsurf);
+    CheckInside<Real_v>(point, completelyinside, completelyoutside, onsurf);
     // If on the wrong side, return -1.
     Real_v wrongsidedist = Real_v(-1.);
-    vecCore::MaskedAssign(distance, Bool_v(completelyinside & (!done)), wrongsidedist);
-    Bool_v checked = completelyinside | done;
+    vecCore::MaskedAssign(distance, Bool_v(completelyinside && (!done)), wrongsidedist);
+    Bool_v checked = completelyinside || done;
     if (vecCore::MaskFull(checked)) return (distance);
     // Now solve the second degree equation to find crossings
     Real_v smin[N], smax[N];
@@ -363,32 +367,32 @@ public:
       crtdist = smin[i];
       // Extrapolate with hit distance candidate
       hit             = point + crtdist * dir;
-      Bool_v crossing = (crtdist > -tolerance) & (vecCore::math::Abs(hit.z()) < fDz + kTolerance);
+      Bool_v crossing = (crtdist > -tolerance) && (vecCore::math::Abs(hit.z()) < fDz + kTolerance);
       // Early skip surface if not in Z range
-      if (!vecCore::MaskEmpty(Bool_v(crossing & (!checked)))) {
+      if (!vecCore::MaskEmpty(Bool_v(crossing && (!checked)))) {
         // Compute local un-normalized outwards normal direction and hit ratio factors
         UNormal<Real_v>(hit, i, unorm, rz, r);
         // Distance have to be positive within tolerance, and crossing must be inwards
-        crossing &= dir.Dot(unorm) < 0.;
+        crossing = crossing && dir.Dot(unorm) < 0.;
         // Propagated hitpoint must be on surface (rz in [0,1] checked already)
-        crossing &= (r >= 0.) & (r <= 1.);
+        crossing = crossing && (r >= 0.) && (r <= 1.);
         vecCore::MaskedAssign(distance, crossing && (!checked) && crtdist < distance,
                               vecCore::math::Max(crtdist, Real_v(0.)));
       }
       // For the particle(s) not crossing at smin, try smax
-      if (!vecCore::MaskFull(Bool_v(crossing | checked))) {
+      if (!vecCore::MaskFull(Bool_v(crossing || checked))) {
         // Treat only particles not crossing at smin
         crossing = !crossing;
         crtdist  = smax[i];
         hit      = point + crtdist * dir;
-        crossing &= (crtdist > -tolerance) & (vecCore::math::Abs(hit.z()) < fDz + kTolerance);
+        crossing = crossing && (crtdist > -tolerance) && (vecCore::math::Abs(hit.z()) < fDz + kTolerance);
         if (vecCore::MaskEmpty(crossing)) continue;
         if (fiscurved[i])
           UNormal<Real_v>(hit, i, unorm, rz, r);
         else
-          unorm = fNormals[i];
-        crossing &= dir.Dot(unorm) < 0.;
-        crossing &= (r >= 0.) & (r <= 1.);
+          unorm  = fNormals[i];
+        crossing = crossing && (dir.Dot(unorm) < 0.);
+        crossing = crossing && (r >= 0.) && (r <= 1.);
         vecCore::MaskedAssign(distance, crossing && (!checked) && crtdist < distance,
                               vecCore::math::Max(crtdist, Real_v(0.)));
       }
@@ -417,7 +421,7 @@ public:
     Real_v safety = safmax;
     Bool_v done   = (vecCore::math::Abs(safety) < eps);
     if (vecCore::MaskFull(done)) return (safety);
-    Real_v safetyface = Real_v(kInfinity);
+    Real_v safetyface = vecCore::NumericLimits<Real_v>::Infinity();
 
     // loop lateral surfaces
     // We can use the surface normals to get safety for non-curved surfaces
@@ -436,7 +440,7 @@ public:
     }
 
     // Not fully planar - use mixed case
-    safetyface = SafetyCurved<Real_v, Bool_v>(point, Bool_v(true));
+    safetyface = SafetyCurved<Real_v>(point, Bool_v(true));
     //  std::cout << "safetycurved = " << safetyface << std::endl;
     vecCore::MaskedAssign(safety, (safetyface < safety) && (!done), safetyface);
     //  std::cout << "safety = " << safety << std::endl;
@@ -464,7 +468,7 @@ public:
     Real_v safety = safmax;
     Bool_v done   = (vecCore::math::Abs(safety) < eps);
     if (vecCore::MaskFull(done)) return (safety);
-    Real_v safetyface = Real_v(kInfinity);
+    Real_v safetyface = vecCore::NumericLimits<Real_v>::Infinity();
 
     // loop lateral surfaces
     // We can use the surface normals to get safety for non-curved surfaces
@@ -483,7 +487,7 @@ public:
     }
 
     // Not fully planar - use mixed case
-    safetyface = SafetyCurved<Real_v, Bool_v>(point, Bool_v(false));
+    safetyface = SafetyCurved<Real_v>(point, Bool_v(false));
     //  std::cout << "safetycurved = " << safetyface << std::endl;
     vecCore::MaskedAssign(safety, (safetyface > safety) && (!done), safetyface);
     //  std::cout << "safety = " << safety << std::endl;
@@ -499,13 +503,14 @@ public:
    * @param point Starting point
    * @param in Inside value for starting point
    */
-  template <typename Real_v, typename Bool_v>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  Real_v SafetyCurved(Vector3D<Real_v> const &point, Bool_v in) const
+  Real_v SafetyCurved(Vector3D<Real_v> const &point, vecCore::Mask_v<Real_v> in) const
   {
-    Real_v safety    = Real_v(kInfinity);
-    Real_v safplanar = Real_v(kInfinity);
+    using Bool_v     = vecCore::Mask_v<Real_v>;
+    Real_v safety    = vecCore::NumericLimits<Real_v>::Infinity();
+    Real_v safplanar = vecCore::NumericLimits<Real_v>::Infinity();
     Real_v tolerance = Real_v(100 * kTolerance);
     vecCore::MaskedAssign(tolerance, !in, -tolerance);
 
@@ -517,11 +522,11 @@ public:
     Real_v dy2 = Real_v(0.);
 
     Bool_v completelyinside, completelyoutside, onsurf;
-    CheckInside<Real_v, Bool_v>(point, completelyinside, completelyoutside, onsurf);
+    CheckInside<Real_v>(point, completelyinside, completelyoutside, onsurf);
     if (vecCore::MaskFull(onsurf)) return (Real_v(0.));
 
-    Bool_v wrong = in & (completelyoutside);
-    wrong |= (!in) & completelyinside;
+    Bool_v wrong = in && (completelyoutside);
+    wrong        = wrong || ((!in) && completelyinside);
     if (vecCore::MaskFull(wrong)) {
       return (Real_v(-1.));
     }
@@ -537,10 +542,8 @@ public:
     for (int i = 0; i < N; i++) {
       if (fiscurved[i] == 0) {
         // We can use the surface normals to get safety for non-curved surfaces
-        Vertex_t va;         // vertex i of lower base
         Vector3D<Real_v> pa; // same vertex converted to backend type
-        va.Set(fxa[i], fya[i], -fDz);
-        pa           = va;
+        pa.Set(Real_v(fxa[i]), Real_v(fya[i]), Real_v(-fDz));
         Real_v sface = vecCore::math::Abs((point - pa).Dot(fNormals[i]));
         vecCore::MaskedAssign(safplanar, sface < safplanar, sface);
         continue;
@@ -585,25 +588,26 @@ public:
    * @param point Starting point
    * @param isurf Surface index
    */
-  template <typename Real_v, typename Bool_v>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  Bool_v InSurfLimits(Vector3D<Real_v> const &point, int isurf) const
+  vecCore::Mask_v<Real_v> InSurfLimits(Vector3D<Real_v> const &point, int isurf) const
   {
 
+    using Bool_v = vecCore::Mask_v<Real_v>;
     // Check first if Z is in range
     Real_v rz     = fDz2 * (point.z() + fDz);
-    Bool_v insurf = (rz > MakeMinusTolerant<true>(0.)) & (rz < MakePlusTolerant<true>(1.));
+    Bool_v insurf = (rz > MakeMinusTolerant<true>(0.)) && (rz < MakePlusTolerant<true>(1.));
     if (vecCore::MaskEmpty(insurf)) return insurf;
 
-    Real_v r     = Real_v(kInfinity);
+    Real_v r     = vecCore::NumericLimits<Real_v>::Infinity();
     Real_v num   = (point.x() - fxa[isurf]) - rz * (fxb[isurf] - fxa[isurf]);
     Real_v denom = (fxc[isurf] - fxa[isurf]) + rz * (fxd[isurf] - fxc[isurf] - fxb[isurf] + fxa[isurf]);
     vecCore::MaskedAssign(r, (vecCore::math::Abs(denom) > 1.e-6), num / denom);
     num   = (point.y() - fya[isurf]) - rz * (fyb[isurf] - fya[isurf]);
     denom = (fyc[isurf] - fya[isurf]) + rz * (fyd[isurf] - fyc[isurf] - fyb[isurf] + fya[isurf]);
     vecCore::MaskedAssign(r, (vecCore::math::Abs(denom) > 1.e-6), num / denom);
-    insurf &= (r > MakeMinusTolerant<true>(0.)) & (r < MakePlusTolerant<true>(1.));
+    insurf = insurf && (r > MakeMinusTolerant<true>(0.)) && (r < MakePlusTolerant<true>(1.));
     return insurf;
   }
 
@@ -651,7 +655,7 @@ public:
   void ComputeSminSmax(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir, Real_v smin[N], Real_v smax[N]) const
   {
 
-    const Real_v big = Real_v(kInfinity);
+    const Real_v big = vecCore::NumericLimits<Real_v>::Infinity();
 
     Real_v dzp = fDz + point[2];
     // calculate everything needed to solve the second order equation
@@ -710,7 +714,7 @@ public:
       Real_v dotDirNorm = dir.Dot(fNormals[i]);
       dotDirNorm += kTiny; // Avoid division by 0 without changing result
       smin[i] = -dotAPNorm / dotDirNorm;
-      smax[i] = Real_v(kInfinity); // not to be checked
+      smax[i] = vecCore::NumericLimits<Real_v>::Infinity(); // not to be checked
     }
   } // end ComputeSminSmax
 

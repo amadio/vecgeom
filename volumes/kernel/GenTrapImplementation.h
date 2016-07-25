@@ -72,11 +72,12 @@ struct GenTrapImplementation {
   VECGEOM_CUDA_HEADER_BOTH
   static void Inside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Inside_t &inside);
 
-  template <typename Real_v, typename Bool_v, bool ForInside>
+  template <typename Real_v, bool ForInside>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void GenericKernelForContainsAndInside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                                                Bool_v &completelyinside, Bool_v &completelyoutside);
+                                                vecCore::Mask_v<Real_v> &completelyinside,
+                                                vecCore::Mask_v<Real_v> &completelyoutside);
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
@@ -111,11 +112,11 @@ struct GenTrapImplementation {
   static void GetClosestEdge(Vector3D<Real_v> const &point, Real_v vertexX[4], Real_v vertexY[4], Real_v &iseg,
                              Real_v &fraction);
 
-  template <typename Real_v, typename Bool_v>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static Bool_v IsInTopOrBottomPolygon(UnplacedStruct_t const &unplaced, Real_v const &pointx, Real_v const &pointy,
-                                       Bool_v top);
+  static vecCore::Mask_v<Real_v> IsInTopOrBottomPolygon(UnplacedStruct_t const &unplaced, Real_v const &pointx,
+                                                        Real_v const &pointy, vecCore::Mask_v<Real_v> top);
 }; // End struct GenTrapImplementation
 
 //********************************
@@ -129,19 +130,21 @@ void GenTrapImplementation::Contains(UnplacedStruct_t const &unplaced, Vector3D<
 {
   Bool_v unused;
   Bool_v outside;
-  GenericKernelForContainsAndInside<Real_v, Bool_v, false>(unplaced, point, unused, outside);
+  GenericKernelForContainsAndInside<Real_v, false>(unplaced, point, unused, outside);
   inside = !outside;
 }
 
 //______________________________________________________________________________
-template <typename Real_v, typename Bool_v, bool ForInside>
+template <typename Real_v, bool ForInside>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void GenTrapImplementation::GenericKernelForContainsAndInside(UnplacedStruct_t const &unplaced,
-                                                              Vector3D<Real_v> const &point, Bool_v &completelyinside,
-                                                              Bool_v &completelyoutside)
+                                                              Vector3D<Real_v> const &point,
+                                                              vecCore::Mask_v<Real_v> &completelyinside,
+                                                              vecCore::Mask_v<Real_v> &completelyoutside)
 {
 
+  using Bool_v                    = vecCore::Mask_v<Real_v>;
   constexpr Precision tolerancesq = 10000. * kTolerance * kTolerance;
   // Local point has to be translated in the bbox local frame.
   BoxImplementation::GenericKernelForContainsAndInside<Real_v, Bool_v, ForInside>(
@@ -181,11 +184,11 @@ void GenTrapImplementation::GenericKernelForContainsAndInside(UnplacedStruct_t c
     Real_v DeltaY = vertexY[j] - vertexY[i];
     Real_v cross  = (point.x() - vertexX[i]) * DeltaY - (point.y() - vertexY[i]) * DeltaX;
     if (ForInside) {
-      Bool_v onsurf = (cross * cross < tolerancesq * (DeltaX * DeltaX + DeltaY * DeltaY));
-      completelyoutside |= ((cross < MakeMinusTolerant<ForInside>(0.)) && (!onsurf));
-      completelyinside &= ((cross > MakePlusTolerant<ForInside>(0.)) && (!onsurf));
+      Bool_v onsurf     = (cross * cross < tolerancesq * (DeltaX * DeltaX + DeltaY * DeltaY));
+      completelyoutside = completelyoutside || (((cross < MakeMinusTolerant<ForInside>(0.)) && (!onsurf)));
+      completelyinside  = completelyinside && (cross > MakePlusTolerant<ForInside>(0.)) && (!onsurf);
     } else {
-      completelyoutside |= (cross < MakeMinusTolerant<ForInside>(0.));
+      completelyoutside = completelyoutside || (cross < MakeMinusTolerant<ForInside>(0.));
     }
 
     //    if (Backend::early_returns) {
@@ -207,7 +210,7 @@ void GenTrapImplementation::Inside(UnplacedStruct_t const &unplaced, Vector3D<Re
   using InsideBool_v = vecCore::Mask_v<Inside_t>;
   Bool_v completelyinside;
   Bool_v completelyoutside;
-  GenericKernelForContainsAndInside<Real_v, Bool_v, true>(unplaced, point, completelyinside, completelyoutside);
+  GenericKernelForContainsAndInside<Real_v, true>(unplaced, point, completelyinside, completelyoutside);
 
   inside = Inside_t(EInside::kSurface);
   vecCore::MaskedAssign(inside, (InsideBool_v)completelyoutside, Inside_t(EInside::kOutside));
@@ -215,12 +218,12 @@ void GenTrapImplementation::Inside(UnplacedStruct_t const &unplaced, Vector3D<Re
 }
 
 //______________________________________________________________________________
-template <typename Real_v, typename Bool_v>
+template <typename Real_v>
 struct FillPlaneDataHelper {
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
   static void FillPlaneData(GenTrapStruct<double> const &unplaced, Real_v &cornerx, Real_v &cornery, Real_v &deltax,
-                            Real_v &deltay, Bool_v const &top, int edgeindex)
+                            Real_v &deltay, vecCore::Mask_v<Real_v> const &top, int edgeindex)
   {
 
     // no vectorized data lookup for SIMD
@@ -239,7 +242,7 @@ struct FillPlaneDataHelper {
 //______________________________________________________________________________
 /** @brief A partial template specialization for nonSIMD cases (scalar, cuda, ... ) */
 template <>
-struct FillPlaneDataHelper<double, bool> {
+struct FillPlaneDataHelper<double> {
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
   static void FillPlaneData(GenTrapStruct<double> const &unplaced, double &cornerx, double &cornery, double &deltax,
@@ -254,11 +257,12 @@ struct FillPlaneDataHelper<double, bool> {
 };
 
 //______________________________________________________________________________
-template <typename Real_v, typename Bool_v>
+template <typename Real_v>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-Bool_v GenTrapImplementation::IsInTopOrBottomPolygon(UnplacedStruct_t const &unplaced, Real_v const &pointx,
-                                                     Real_v const &pointy, Bool_v top)
+vecCore::Mask_v<Real_v> GenTrapImplementation::IsInTopOrBottomPolygon(UnplacedStruct_t const &unplaced,
+                                                                      Real_v const &pointx, Real_v const &pointy,
+                                                                      vecCore::Mask_v<Real_v> top)
 {
   // optimized "inside" check for top or bottom z-surfaces
   // this is a bit tricky if different tracks check different planes
@@ -268,6 +272,7 @@ Bool_v GenTrapImplementation::IsInTopOrBottomPolygon(UnplacedStruct_t const &unp
   // stripped down version of the Contains kernel ( not yet shared with that kernel )
   // std::cerr << "IsInTopOrBottom: pointx: " << pointx << "  pointy: " << pointy << "  top: " << top << "\n";
 
+  using Bool_v             = vecCore::Mask_v<Real_v>;
   Bool_v completelyoutside = Bool_v(false);
   Bool_v degenerate        = Bool_v(true);
   for (int i = 0; i < 4; ++i) {
@@ -278,23 +283,22 @@ Bool_v GenTrapImplementation::IsInTopOrBottomPolygon(UnplacedStruct_t const &unp
 
     // thats the only place where scalar and vector code diverge
     // IsSIMD misses...replaced with early_returns
-    FillPlaneDataHelper<Real_v, Bool_v>::FillPlaneData(unplaced, cornerX, cornerY, deltaX, deltaY, top, i);
+    FillPlaneDataHelper<Real_v>::FillPlaneData(unplaced, cornerX, cornerY, deltaX, deltaY, top, i);
 
     // std::cerr << i << " CORNERS " << cornerX << " " << cornerY << " " << deltaX << " " << deltaY << "\n";
 
     Real_v cross = (pointx - cornerX) * deltaY;
     cross -= (pointy - cornerY) * deltaX;
-    degenerate &= deltaX < MakePlusTolerant<true>(0.);
-    degenerate &= deltaY < MakePlusTolerant<true>(0.);
-    completelyoutside |= cross < MakeMinusTolerant<true>(0.);
+    degenerate        = degenerate && (deltaX < MakePlusTolerant<true>(0.)) && (deltaY < MakePlusTolerant<true>(0.));
+    completelyoutside = completelyoutside || (cross < MakeMinusTolerant<true>(0.));
     // if (Backend::early_returns) {
     if (vecCore::MaskFull(completelyoutside)) {
       return Bool_v(false);
     }
     // }
   }
-  completelyoutside |= degenerate;
-  return !completelyoutside;
+  completelyoutside = completelyoutside || degenerate;
+  return (!completelyoutside);
 }
 
 //______________________________________________________________________________
@@ -324,11 +328,11 @@ void GenTrapImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vecto
 #ifdef GENTRAPDEB
   std::cerr << "BB gave " << bbdistance << "\n";
 #endif
-  distance = Real_v(kInfinity);
+  distance = vecCore::NumericLimits<Real_v>::Infinity();
 
   // do a check on bbdistance
   // if none of the tracks can hit even the bounding box; just return
-  Bool_v done = bbdistance >= kInfinity;
+  Bool_v done = bbdistance >= vecCore::NumericLimits<Real_v>::Infinity();
   if (vecCore::MaskFull(done)) return;
 #ifdef GENTRAPDEB
   Real_v x, y, z;
@@ -341,8 +345,8 @@ void GenTrapImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vecto
   // some particle could hit z
   Real_v zsafety = vecCore::math::Abs(point.z()) - unplaced.fDz;
   Bool_v canhitz = zsafety > MakeMinusTolerant<true>(0.);
-  canhitz &= point.z() * direction.z() < 0; // coming towards the origin
-  canhitz &= !done;
+  canhitz        = canhitz && (point.z() * direction.z() < 0); // coming towards the origin
+  canhitz        = canhitz && (!done);
 #ifdef GENTRAPDEB
   std::cerr << " canhitz " << canhitz << " \n";
 #endif
@@ -360,9 +364,9 @@ void GenTrapImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vecto
     Real_v coord2 = point.y() + next * direction.y();
     Bool_v top    = direction.z() < 0;
     Bool_v hits   = IsInTopOrBottomPolygon<Real_v>(unplaced, coord1, coord2, top);
-    hits &= canhitz;
+    hits          = hits && canhitz;
     vecCore::MaskedAssign(distance, hits, bbdistance);
-    done |= hits;
+    done = done || hits;
 #ifdef GENTRAPDEB
     std::cerr << " hit result " << hits << " bbdistance " << distance << "\n";
 #endif
@@ -370,7 +374,7 @@ void GenTrapImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vecto
   }
 
   // now treat lateral surfaces
-  Real_v disttoplanes = unplaced.fSurfaceShell.DistanceToIn<Real_v, Bool_v>(point, direction, done);
+  Real_v disttoplanes = unplaced.fSurfaceShell.DistanceToIn<Real_v>(point, direction, done);
 #ifdef GENTRAPDEB
   std::cerr << "disttoplanes " << disttoplanes << "\n";
 #endif
@@ -529,8 +533,8 @@ void GenTrapImplementation::GetClosestEdge(Vector3D<Real_v> const &point, Real_v
   //  Real_v p1X, p1Y, p2X, p2Y;
   Real_v lsq, dx, dy, dpx, dpy, u;
   fraction    = Real_v(-1.);
-  Real_v safe = vecgeom::kInfinity;
-  Real_v ssq  = vecgeom::kInfinity;
+  Real_v safe = vecCore::NumericLimits<Real_v>::Infinity();
+  Real_v ssq  = vecCore::NumericLimits<Real_v>::Infinity();
   for (int i = 0; i < 4; ++i) {
     int j = (i + 1) % 4;
     dx    = vertexX[j] - vertexX[i];

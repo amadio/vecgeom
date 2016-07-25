@@ -18,31 +18,31 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 // of a generic trapezoid
 template <typename T = double>
 struct GenTrapStruct {
-  using Vertex_t = Vector3D<Precision>;
+  using Vertex_t = Vector3D<T>;
 
   Vertex_t fBBdimensions; /** Bounding box dimensions */
   Vertex_t fBBorigin;     /** Bounding box origin */
   Vertex_t fVertices[8];  /** The eight points that define the Arb8 */
 
   // we also store this in SOA form
-  Precision fVerticesX[8]; /** Backed-up X positions of vertices */
-  Precision fVerticesY[8]; /** Backed-up Y positions of vertices */
+  T fVerticesX[8]; /** Backed-up X positions of vertices */
+  T fVerticesY[8]; /** Backed-up Y positions of vertices */
 
-  Precision fDz;            /** The half-height of the GenTrap */
-  Precision fInverseDz;     /** Pre-computed 1/fDz */
-  Precision fHalfInverseDz; /** Pre-computed 0.5/fDz */
-  bool fIsTwisted;          /** Twisted flag */
+  T fDz;            /** The half-height of the GenTrap */
+  T fInverseDz;     /** Pre-computed 1/fDz */
+  T fHalfInverseDz; /** Pre-computed 0.5/fDz */
+  bool fIsTwisted;  /** Twisted flag */
 
   // we store the connecting vectors in SOA Form
   // these vectors are used to calculate the polygon at a certain z-height
   // moreover: they can be precomputed !!
   // Compute intersection between Z plane containing point and the shape
   //
-  Precision fConnectingComponentsX[4]; /** X components of connecting bottom-top vectors vi */
-  Precision fConnectingComponentsY[4]; /** Y components of connecting bottom-top vectors vi */
+  T fConnectingComponentsX[4]; /** X components of connecting bottom-top vectors vi */
+  T fConnectingComponentsY[4]; /** Y components of connecting bottom-top vectors vi */
 
-  Precision fDeltaX[8]; /** X components of connecting horizontal vectors hij */
-  Precision fDeltaY[8]; /** Y components of connecting horizontal vectors hij */
+  T fDeltaX[8]; /** X components of connecting horizontal vectors hij */
+  T fDeltaY[8]; /** Y components of connecting horizontal vectors hij */
 
   bool fDegenerated[4]; /** Flags for each top-bottom edge marking that this is degenerated */
 

@@ -142,7 +142,7 @@ public:
 
   /** @brief Compute normal vector to surface */
   VECGEOM_CUDA_HEADER_BOTH
-  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;
+  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override;
 
   /** @brief Computes the extent on X/Y/Z of the trapezoid */
   VECGEOM_CUDA_HEADER_BOTH
