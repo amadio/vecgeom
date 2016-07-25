@@ -695,8 +695,6 @@ set(NOT_FOR_CUDA
    ABBoxNavigator
    HybridManager2
    Medium
-#   Nucleus
-#   CreateNuclei
  # Material
    NavigationSpecializer
 )
