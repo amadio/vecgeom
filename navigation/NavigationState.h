@@ -367,7 +367,6 @@ public:
   // horiz/1 : 0/1 --> /0/2 ( == /0/(1+1) )   "we are hopping from daughter 1 to 2 (which corresponds to a step of 1)"
   // down/2 : /0/2 --> /0/2/2   "going further down 2nd daughter"
   // down/3 : /0/2/2/3 --> /0/2/2/3  "going further down 2nd daughter"
-  VECGEOM_CUDA_HEADER_BOTH
   std::string RelativePath(NavigationState const & /*other*/) const;
 
   // clear all information
