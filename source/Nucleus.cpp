@@ -114,7 +114,6 @@ char *strncpy(char *dest, const char *src, size_t n)
 #endif
 
 //________________________________________________________________________________________________
-
 #ifdef VECGEOM_NVCC
 class Nucleus;
 VECGEOM_CUDA_HEADER_DEVICE vecgeom::map<int, Nucleus*> *fNucleiDev = nullptr; 

@@ -7,7 +7,6 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-
 //________________________________________________________________________________
 VECGEOM_CUDA_HEADER_BOTH
 void CreateNuclei0000() {
