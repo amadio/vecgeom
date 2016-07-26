@@ -71,7 +71,6 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   const vector<Decay> &DecayList() const { return fDecayList; }
 
-  VECGEOM_CUDA_HEADER_BOTH
   std::string Name() const
   {
     char name[15];
@@ -87,9 +86,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   void NormDecay();
 
-#ifndef VECGEOM_NVCC
   friend std::ostream &operator<<(std::ostream &os, const Nucleus &nuc);
-#endif
 
   VECGEOM_CUDA_HEADER_BOTH
   void AddDecay(int da, int dz, int diso, double qval, double br);
