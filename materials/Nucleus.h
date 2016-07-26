@@ -7,8 +7,10 @@
 #include "base/Map.h"
 #include "base/Vector.h"
 #include <string.h>
-template <class T> using vector = vecgeom::Vector<T>;
-template <class T, class V> using map = vecgeom::map<T, V>;
+template <class T>
+using vector = vecgeom::Vector<T>;
+template <class T, class V>
+using map = vecgeom::map<T, V>;
 #else
 #include <map>
 #include <vector>
@@ -28,27 +30,22 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 #ifdef VECGEOM_NVCC
 class Nucleus;
-extern VECGEOM_CUDA_HEADER_DEVICE vecgeom::map<int, Nucleus *> *
-    fNucleiDev; // Nuclei list indexed by 10,000*z + 10*n + iso
-extern vecgeom::map<int, Nucleus *> *
-    fNucleiHost; // Nuclei list indexed by 10,000*z + 10*n + iso
-extern VECGEOM_CUDA_HEADER_DEVICE vecgeom::map<int, vector<Nucleus *>> *
-    fIsoListDev; // List of isotopes for a given z
-extern vecgeom::map<int, vector<Nucleus *>> *
-    fIsoListHost; // List of isotopes for a given z
-extern VECGEOM_CUDA_HEADER_DEVICE vecgeom::map<int, vector<Nucleus *>> *
-    fNatIsoListDev; // List of stable isotopes for a given z
-extern vecgeom::map<int, vector<Nucleus *>> *
-    fNatIsoListHost; // List of stable isotopes for a given z
+extern VECGEOM_CUDA_HEADER_DEVICE vecgeom::map<int, Nucleus *>
+    *fNucleiDev;                                  // Nuclei list indexed by 10,000*z + 10*n + iso
+extern vecgeom::map<int, Nucleus *> *fNucleiHost; // Nuclei list indexed by 10,000*z + 10*n + iso
+extern VECGEOM_CUDA_HEADER_DEVICE vecgeom::map<int, vector<Nucleus *>> *fIsoListDev; // List of isotopes for a given z
+extern vecgeom::map<int, vector<Nucleus *>> *fIsoListHost;                           // List of isotopes for a given z
+extern VECGEOM_CUDA_HEADER_DEVICE vecgeom::map<int, vector<Nucleus *>>
+    *fNatIsoListDev;                                          // List of stable isotopes for a given z
+extern vecgeom::map<int, vector<Nucleus *>> *fNatIsoListHost; // List of stable isotopes for a given z
 #endif
 
 class Nucleus {
 public:
   class Decay;
   VECGEOM_CUDA_HEADER_BOTH
-  Nucleus(const char *name, int n, int z, int iso, double a, double dm,
-          double life, double natab, double toxa, double toxb, int ind1,
-          int ind2);
+  Nucleus(const char *name, int n, int z, int iso, double a, double dm, double life, double natab, double toxa,
+          double toxb, int ind1, int ind2);
 
   VECGEOM_CUDA_HEADER_BOTH
   double A() const { return fA; }
@@ -75,7 +72,8 @@ public:
   const vector<Decay> &DecayList() const { return fDecayList; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  std::string Name() const {
+  std::string Name() const
+  {
     char name[15];
     snprintf(name, 14, "%d-%s-%d-%d", fZ, fName, fN, fIso);
     name[14] = '\0';
@@ -97,48 +95,44 @@ public:
   void AddDecay(int da, int dz, int diso, double qval, double br);
 
   VECGEOM_CUDA_HEADER_BOTH
-  static const map<int, Nucleus *> &Nuclei() {
+  static const map<int, Nucleus *> &Nuclei()
+  {
 #ifndef VECGEOM_NVCC
-    if (!fNuclei)
-      fNuclei = new map<int, Nucleus *>;
+    if (!fNuclei) fNuclei = new map<int, Nucleus *>;
     return *fNuclei;
 #else
 #ifndef VECGEOM_NVCC_DEVICE
-    if (!fNucleiHost)
-      fNucleiHost = new map<int, Nucleus *>;
+    if (!fNucleiHost) fNucleiHost = new map<int, Nucleus *>;
     return *fNucleiHost;
 #else
-    if (!fNucleiDev)
-      fNucleiDev = new map<int, Nucleus *>;
+    if (!fNucleiDev) fNucleiDev = new map<int, Nucleus *>;
     return *fNucleiDev;
 #endif
 #endif
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  static const map<int, vector<Nucleus *>> &IsoList() {
+  static const map<int, vector<Nucleus *>> &IsoList()
+  {
 #ifndef VECGEOM_NVCC
-    if (!fIsoList)
-      fIsoList = new map<int, vector<Nucleus *>>;
+    if (!fIsoList) fIsoList = new map<int, vector<Nucleus *>>;
     return *fIsoList;
 #else
 #ifndef VECGEOM_NVCC_DEVICE
-    if (!fIsoListHost)
-      fIsoListHost = new map<int, vector<Nucleus *>>;
+    if (!fIsoListHost) fIsoListHost = new map<int, vector<Nucleus *>>;
     return *fIsoListHost;
 #else
-    if (!fIsoListDev)
-      fIsoListDev = new map<int, vector<Nucleus *>>;
+    if (!fIsoListDev) fIsoListDev = new map<int, vector<Nucleus *>>;
     return *fIsoListDev;
 #endif
 #endif
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  static const map<int, vector<Nucleus *>> &NatIsoList() {
+  static const map<int, vector<Nucleus *>> &NatIsoList()
+  {
 #ifndef VECGEOM_NVCC
-    if (!fNatIsoList)
-      fNatIsoList = new map<int, vector<Nucleus *>>;
+    if (!fNatIsoList) fNatIsoList = new map<int, vector<Nucleus *>>;
     return *fNatIsoList;
 #else
 #ifndef VECGEOM_NVCC_DEVICE
@@ -155,17 +149,14 @@ public:
     Decay() : fDa(0), fDz(0), fDiso(0), fQval(0), fBr(0) {}
 
     VECGEOM_CUDA_HEADER_BOTH
-    Decay(int da, int dz, int diso, double qval, double br)
-        : fDa(da), fDz(dz), fDiso(diso), fQval(qval), fBr(br) {}
+    Decay(int da, int dz, int diso, double qval, double br) : fDa(da), fDz(dz), fDiso(diso), fQval(qval), fBr(br) {}
 
     VECGEOM_CUDA_HEADER_BOTH
-    bool operator==(const Decay &d1) const {
+    bool operator==(const Decay &d1) const
+    {
       return (fDa == d1.fDa) && (fDz == d1.fDz) && (fDiso == d1.fDiso) &&
-             (fabs(fQval - d1.fQval) / (fQval + d1.fQval) > 0
-                  ? (fQval + d1.fQval)
-                  : 1 > 5e-7) &&
-             (fabs(fBr - d1.fBr) / (fBr + d1.fBr) > 0 ? (fBr + d1.fBr)
-                                                      : 1 > 5e-7);
+             (fabs(fQval - d1.fQval) / (fQval + d1.fQval) > 0 ? (fQval + d1.fQval) : 1 > 5e-7) &&
+             (fabs(fBr - d1.fBr) / (fBr + d1.fBr) > 0 ? (fBr + d1.fBr) : 1 > 5e-7);
     }
 
     VECGEOM_CUDA_HEADER_BOTH
@@ -192,11 +183,9 @@ public:
 
 private:
 #ifndef VECGEOM_NVCC
-  static void Getmat(std::string line, int &n, int &z, int &iso,
-                     std::string &name, double &a, double &dm, double &life,
-                     int &da, int &dz, int &diso, double &br, double &qval,
-                     double &natab, double &toxa, double &toxb, int &ind1,
-                     int &ind2);
+  static void Getmat(std::string line, int &n, int &z, int &iso, std::string &name, double &a, double &dm, double &life,
+                     int &da, int &dz, int &diso, double &br, double &qval, double &natab, double &toxa, double &toxb,
+                     int &ind1, int &ind2);
 #endif
 
   char fName[50];           // Name
@@ -214,12 +203,9 @@ private:
   vector<Decay> fDecayList; // Decay channels
 
 #ifndef VECGEOM_NVCC
-  static std::map<int, Nucleus *> *
-      fNuclei; // Nuclei list indexed by 10,000*z + 10*n + iso
-  static std::map<int, vector<Nucleus *>> *
-      fIsoList; // List of isotopes for a given z
-  static std::map<int, vector<Nucleus *>> *
-      fNatIsoList; // List of stable isotopes for a given z
+  static std::map<int, Nucleus *> *fNuclei;             // Nuclei list indexed by 10,000*z + 10*n + iso
+  static std::map<int, vector<Nucleus *>> *fIsoList;    // List of isotopes for a given z
+  static std::map<int, vector<Nucleus *>> *fNatIsoList; // List of stable isotopes for a given z
 #endif
 };
 }

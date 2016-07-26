@@ -17,14 +17,14 @@ VECGEOM_CUDA_HEADER_DEVICE bool fgCreateNucleiInitDoneDev = false;
 
 //________________________________________________________________________________
 VECGEOM_CUDA_HEADER_BOTH
-void Nucleus::CreateNuclei() {
+void Nucleus::CreateNuclei()
+{
 #ifndef VECGEOM_NVCC
   static bool fgCreateNucleiInitDone = false;
 #else
   bool &fgCreateNucleiInitDone(fgCreateNucleiInitDoneDev);
 #endif
-  if (fgCreateNucleiInitDone)
-    return;
+  if (fgCreateNucleiInitDone) return;
   fgCreateNucleiInitDone = true;
   CreateNuclei0000();
   CreateNuclei0001();
