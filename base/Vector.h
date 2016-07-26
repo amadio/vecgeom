@@ -65,7 +65,7 @@ public:
           fData = nullptr;
 	}
       } else
-	 fData = other.fData;
+	fData = other.fData;
     }
     return *this;
   }
