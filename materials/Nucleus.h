@@ -77,8 +77,8 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   std::string Name() const {
     char name[15];
-    snprintf(name,14,"%d-%s-%d-%d",fZ,fName,fN,fIso);
-    name[14]='\0';
+    snprintf(name, 14, "%d-%s-%d-%d", fZ, fName, fN, fIso);
+    name[14] = '\0';
     return std::string(name);
   }
 
