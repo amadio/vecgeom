@@ -76,9 +76,10 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   std::string Name() const {
-    std::stringstream ss;
-    ss << fZ << "-" << fName << "-" << fN << "-" << fIso;
-    return ss.str();
+    char name[15];
+    snprintf(name,14,"%d-%s-%d-%d",fZ,fName,fN,fIso);
+    name[14]='\0';
+    return std::string(name);
   }
 
 #ifndef VECGEOM_NVCC

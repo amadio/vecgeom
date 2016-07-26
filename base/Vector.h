@@ -16,8 +16,7 @@ VECGEOM_DEVICE_FORWARD_DECLARE(template <typename Type> class Vector;);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-template <typename Type>
-class Vector {
+template <typename Type> class Vector {
 
 private:
   Type *fData;
@@ -29,66 +28,64 @@ public:
   Vector() : fData(new Type[1]), fSize(0), fMemorySize(1), fAllocated(true) {}
 
   VECGEOM_CUDA_HEADER_BOTH
-  Vector(const int maxsize) : fData(new Type[maxsize]), fSize(0), fMemorySize(maxsize), fAllocated(true) {}
+  Vector(const int maxsize)
+      : fData(new Type[maxsize]), fSize(0), fMemorySize(maxsize),
+        fAllocated(true) {}
 
   VECGEOM_CUDA_HEADER_BOTH
-  Vector(Type *const vec, const int sz) : fData(vec), fSize(sz), fMemorySize(sz), fAllocated(false) {}
+  Vector(Type *const vec, const int sz)
+      : fData(vec), fSize(sz), fMemorySize(sz), fAllocated(false) {}
 
   VECGEOM_CUDA_HEADER_BOTH
   Vector(Type *const vec, const int sz, const int maxsize)
-      : fData(vec), fSize(sz), fMemorySize(maxsize), fAllocated(false)
-  {
-  }
+      : fData(vec), fSize(sz), fMemorySize(maxsize), fAllocated(false) {}
 
   VECGEOM_CUDA_HEADER_BOTH
-  Vector(Vector const &other) : fSize(other.fSize), fMemorySize(other.fMemorySize), fAllocated(true)
-  {
+  Vector(Vector const &other)
+      : fSize(other.fSize), fMemorySize(other.fMemorySize), fAllocated(true) {
     fData = new Type[fMemorySize];
     for (size_t i = 0; i < fSize; ++i)
-      fData[i]    = other.fData[i];
+      fData[i] = other.fData[i];
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  Vector &operator=(Vector const &other)
-  {
-    if(&other != this) {
+  Vector &operator=(Vector const &other) {
+    if (&other != this) {
       fSize = other.fSize;
       fMemorySize = other.fMemorySize;
       fAllocated = other.fAllocated;
-      if(fAllocated) {
-        if(fMemorySize>0) {
-          delete [] fData;
+      if (fAllocated) {
+        if (fMemorySize > 0) {
+          delete[] fData;
           fData = new Type[fMemorySize];
           for (size_t i = 0; i < fSize; ++i)
-	    fData[i]    = other.fData[i];
+            fData[i] = other.fData[i];
         } else {
           fData = nullptr;
-	}
+        }
       } else
-	fData = other.fData;
+        fData = other.fData;
     }
     return *this;
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  Vector(std::initializer_list<Type> entries)
-  {
-    fSize       = entries.size();
-    fData       = new Type[fSize];
+  Vector(std::initializer_list<Type> entries) {
+    fSize = entries.size();
+    fData = new Type[fSize];
     fMemorySize = entries.size() * sizeof(Type);
     for (auto itm : entries)
       this->push_back(itm);
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  ~Vector()
-  {
-    if (fAllocated) delete[] fData;
+  ~Vector() {
+    if (fAllocated)
+      delete[] fData;
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  void clear()
-  {
+  void clear() {
     if (fAllocated) {
       delete[] fData;
       fData = new Type[fMemorySize];
@@ -105,11 +102,11 @@ public:
   Type const &operator[](const int index) const { return fData[index]; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  void push_back(const Type item)
-  {
+  void push_back(const Type item) {
     if (fSize == fMemorySize) {
-      assert(fAllocated && "Trying to push on a 'fixed' size vector (memory not allocated by Vector itself)");
-      fMemorySize    = fMemorySize << 1;
+      assert(fAllocated && "Trying to push on a 'fixed' size vector (memory "
+                           "not allocated by Vector itself)");
+      fMemorySize = fMemorySize << 1;
       Type *fDataNew = new Type[fMemorySize];
       for (size_t i = 0; i < fSize; ++i)
         fDataNew[i] = fData[i];
@@ -145,34 +142,33 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  void resize(size_t newsize, Type value)
-  {
+  void resize(size_t newsize, Type value) {
     Type *temp = new Type[newsize];
     if (newsize <= fSize) {
       for (size_t i = 0; i < newsize; ++i)
-        temp[i]     = fData[i];
+        temp[i] = fData[i];
       delete[] fData;
       fData = new Type[newsize];
       fSize = newsize;
       for (size_t i = 0; i < newsize; ++i)
-        fData[i]    = temp[i];
+        fData[i] = temp[i];
     } else {
       for (size_t i = 0; i < fSize; ++i)
-        temp[i]     = fData[i];
+        temp[i] = fData[i];
       delete[] fData;
       fData = new Type[newsize];
       for (size_t i = 0; i < fSize; ++i)
-        fData[i]    = temp[i];
+        fData[i] = temp[i];
       for (size_t i = fSize; i < newsize; ++i)
-        fData[i]    = value;
+        fData[i] = value;
     }
     fSize = newsize;
     delete[] temp;
   }
 #ifdef VECGEOM_CUDA_INTERFACE
-  DevicePtr<cuda::Vector<CudaType_t<Type>>> CopyToGpu(DevicePtr<CudaType_t<Type>> const gpu_ptr_arr,
-                                                      DevicePtr<cuda::Vector<CudaType_t<Type>>> const gpu_ptr) const
-  {
+  DevicePtr<cuda::Vector<CudaType_t<Type>>>
+  CopyToGpu(DevicePtr<CudaType_t<Type>> const gpu_ptr_arr,
+            DevicePtr<cuda::Vector<CudaType_t<Type>>> const gpu_ptr) const {
     gpu_ptr.Construct(gpu_ptr_arr, size());
     return gpu_ptr;
   }
