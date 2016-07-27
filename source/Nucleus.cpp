@@ -15,9 +15,9 @@ using std::setfill;
 
 #ifdef VECGEOM_NVCC
 #ifndef VECGEOM_NVCC_DEVICE
-#define fNuclei fNucleiHost
-#define fIsoList fIsoListHost
-#define fNatIsoList fNatIsoListHost
+#define fNuclei gNucleiHost
+#define fIsoList gIsoListHost
+#define fNatIsoList gNatIsoListHost
 using std::find;
 #else
 template <class InputIterator, class T>
@@ -30,9 +30,9 @@ InputIterator find(InputIterator first, InputIterator last, const T &val)
   }
   return last;
 }
-#define fNuclei fNucleiDev
-#define fIsoList fIsoListDev
-#define fNatIsoList fNatIsoListDev
+#define fNuclei gNucleiDev
+#define fIsoList gIsoListDev
+#define fNatIsoList gNatIsoListDev
 #endif
 #else
 using std::find;
@@ -120,16 +120,16 @@ char *strncpy(char *dest, const char *src, size_t n)
 //________________________________________________________________________________________________
 #ifdef VECGEOM_NVCC
 class Nucleus;
-VECGEOM_CUDA_HEADER_DEVICE vecgeom::map<int, Nucleus *> *fNucleiDev             = nullptr;
-vecgeom::map<int, Nucleus *> *fNucleiHost                                       = nullptr;
-VECGEOM_CUDA_HEADER_DEVICE vecgeom::map<int, vector<Nucleus *>> *fIsoListDev    = nullptr;
-vecgeom::map<int, vector<Nucleus *>> *fIsoListHost                              = nullptr;
-VECGEOM_CUDA_HEADER_DEVICE vecgeom::map<int, vector<Nucleus *>> *fNatIsoListDev = nullptr;
-vecgeom::map<int, vector<Nucleus *>> *fNatIsoListHost                           = nullptr;
+VECGEOM_CUDA_HEADER_DEVICE NucleusIndex_t *gNucleiDev   = nullptr;
+NucleusIndex_t *gNucleiHost                             = nullptr;
+VECGEOM_CUDA_HEADER_DEVICE NucleusMap_t *gIsoListDev    = nullptr;
+NucleusMap_t *gIsoListHost                              = nullptr;
+VECGEOM_CUDA_HEADER_DEVICE NucleusMap_t *gNatIsoListDev = nullptr;
+NucleusMap_t *gNatIsoListHost                           = nullptr;
 #else
-std::map<int, Nucleus *> *Nucleus::fNuclei                  = nullptr;
-std::map<int, std::vector<Nucleus *>> *Nucleus::fIsoList    = nullptr;
-std::map<int, std::vector<Nucleus *>> *Nucleus::fNatIsoList = nullptr;
+NucleusIndex_t *Nucleus::fNuclei   = nullptr;
+NucleusMap_t *Nucleus::fIsoList    = nullptr;
+NucleusMap_t *Nucleus::fNatIsoList = nullptr;
 
 std::ostream &operator<<(std::ostream &os, const Nucleus &nuc)
 {
@@ -154,7 +154,7 @@ Nucleus::Nucleus(const char *name, int n, int z, int iso, double a, double dm, d
 
   int zniso = 10000 * fZ + 10 * fN + fIso;
 
-  if (!fNuclei) fNuclei = new map<int, Nucleus *>;
+  if (!fNuclei) fNuclei = new NucleusIndex_t;
   if (fNuclei->count(zniso) != 0) {
     printf("Nucleus %d already there\n", zniso);
     return;
@@ -162,10 +162,10 @@ Nucleus::Nucleus(const char *name, int n, int z, int iso, double a, double dm, d
 
   (*fNuclei)[zniso] = this;
 
-  if (!fIsoList) fIsoList = new map<int, vector<Nucleus *>>;
+  if (!fIsoList) fIsoList = new NucleusMap_t;
   (*fIsoList)[fZ].push_back(this);
   if (natab > 0) {
-    if (!fNatIsoList) fNatIsoList = new map<int, vector<Nucleus *>>;
+    if (!fNatIsoList) fNatIsoList = new NucleusMap_t;
     (*fNatIsoList)[fZ].push_back(this);
   }
 }
