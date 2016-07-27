@@ -146,10 +146,10 @@ public:
 
   /** @brief Computes the extent on X/Y/Z of the trapezoid */
   VECGEOM_CUDA_HEADER_BOTH
-  void Extent(Vertex_t &amin, Vertex_t &amax) const { return fGenTrap.Extent(amin, amax); }
+  void Extent(Vertex_t &amin, Vertex_t &amax) const override { return fGenTrap.Extent(amin, amax); }
 
   /** @brief Generates randomly a point on the surface of the trapezoid */
-  Vertex_t GetPointOnSurface() const;
+  Vertex_t GetPointOnSurface() const override;
 
   /** @brief Get type name */
   virtual std::string GetEntityType() const { return "GenTrap"; }
