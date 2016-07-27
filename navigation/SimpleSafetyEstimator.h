@@ -85,7 +85,6 @@ public:
     VPlacedVolume const *pvol = states[0]->Top();
     auto npoints              = globalpoints.size();
 
-    using Real_v       = vecgeom::VectorBackend::Real_v;
     constexpr auto kVS = vecCore::VectorSize<Real_v>();
     for (decltype(npoints) i = 0; i < npoints; i += kVS) {
       // do the transformation to local
