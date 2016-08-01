@@ -31,11 +31,53 @@
 #include "volumes/LogicalVolume.h"
 #include "volumes/SpecializedOrb.h"
 #include "volumes/UnplacedOrb.h"
+#include "volumes/USolidsAdapter.h"
 
-class UOrb: public vecgeom::SimpleOrb {
-    // just forwards UOrb to vecgeom::SimpleOrb
-    using vecgeom::SimpleOrb::SimpleOrb;
+class UOrb : public vecgeom::USolidsAdapter<vecgeom::UnplacedOrb> {
+
+  // just forwards UOrb to vecgeom orb
+  using Shape_t = vecgeom::UnplacedOrb;
+  using Base_t  = vecgeom::USolidsAdapter<vecgeom::UnplacedOrb>;
+
+  // inherit all constructors
+  using Base_t::Base_t;
+
+public:
+  // add default constructor for tests
+  UOrb() : Base_t("", 0.) {}
+  virtual ~UOrb() {}
+
+  inline double GetRadius() const { return GetRadius(); }
+
+  inline double GetRadialTolerance() const { return GetRadialTolerance(); }
+
+  inline void SetRadius(double r) { SetRadius(r); }
+
+  // o provide a new object which is a clone of the solid
+  VUSolid *Clone() const override { return new UOrb(*this); }
+
+  void ComputeBBox(UBBox * /*aBox*/, bool /*aStore = false*/) override {}
+
+  UGeometryType GetEntityType() const override { return "UOrb"; }
+
+  // Visualisation
+  void GetParametersList(int, double *aArray) const override { aArray[0] = GetRadius(); }
+
+  std::ostream &StreamInfo(std::ostream &os) const override
+  {
+    int oldprc = os.precision(16);
+    os << "-----------------------------------------------------------\n"
+       << "     *** Dump for solid - " << GetEntityType() << " ***\n"
+       << "     ===================================================\n"
+       << " Solid type: Orb\n"
+       << " Parameters: \n"
+       << "     half-dimensions in mm: Radius : " << GetRadius() << "\n"
+       << "-----------------------------------------------------------\n";
+    os.precision(oldprc);
+    return os;
+  }
 };
+
 //============== end of VecGeom-based implementation
 
 #else
@@ -44,69 +86,57 @@ class UOrb: public vecgeom::SimpleOrb {
 #include "VUSolid.hh"
 #include "UUtils.hh"
 
-class UOrb : public VUSolid
-{
+class UOrb : public VUSolid {
 
-  public:
-    UOrb() : VUSolid(), fR(0), fRTolerance(0) {}
-    UOrb(const std::string& name, double pRmax);
-    ~UOrb() {}
+public:
+  UOrb() : VUSolid(), fR(0), fRTolerance(0) {}
+  UOrb(const std::string &name, double pRmax);
+  ~UOrb() {}
 
-    UOrb(const UOrb& rhs);
-    UOrb& operator=(const UOrb& rhs);
+  UOrb(const UOrb &rhs);
+  UOrb &operator=(const UOrb &rhs);
 
-    // Accessors
-    inline double GetRadius() const;
-    // Modifiers
-    inline void SetRadius(double newRmax);
+  // Accessors
+  inline double GetRadius() const;
+  // Modifiers
+  inline void SetRadius(double newRmax);
 
-    // Navigation methods
-    EnumInside     Inside(const UVector3& aPo6int) const;
+  // Navigation methods
+  EnumInside Inside(const UVector3 &aPo6int) const;
 
-    double  SafetyFromInside(const UVector3& aPoint,
-                             bool aAccurate = false) const;
-    double  SafetyFromOutside(const UVector3& aPoint,
-                              bool aAccurate = false) const;
-    double  DistanceToIn(const UVector3& aPoint,
-                         const UVector3& aDirection,
-                         double aPstep = UUtils::kInfinity) const;
+  double SafetyFromInside(const UVector3 &aPoint, bool aAccurate = false) const;
+  double SafetyFromOutside(const UVector3 &aPoint, bool aAccurate = false) const;
+  double DistanceToIn(const UVector3 &aPoint, const UVector3 &aDirection, double aPstep = UUtils::kInfinity) const;
 
-    double DistanceToOut(const UVector3& aPoint,
-                         const UVector3& aDirection,
-                         UVector3&       aNormalVector,
-                         bool&           aConvex,
-                         double aPstep = UUtils::kInfinity) const;
+  double DistanceToOut(const UVector3 &aPoint, const UVector3 &aDirection, UVector3 &aNormalVector, bool &aConvex,
+                       double aPstep = UUtils::kInfinity) const;
 
-    bool Normal(const UVector3& aPoint, UVector3& aNormal) const;
-    void Extent(UVector3& aMin, UVector3& aMax) const;
-    inline double Capacity();
-    inline double SurfaceArea();
-    UGeometryType GetEntityType() const;
-   
-    void ComputeBBox(UBBox* /*aBox*/, bool /*aStore = false*/) {}
+  bool Normal(const UVector3 &aPoint, UVector3 &aNormal) const;
+  void Extent(UVector3 &aMin, UVector3 &aMax) const;
+  inline double Capacity();
+  inline double SurfaceArea();
+  UGeometryType GetEntityType() const;
 
-    // Visualisation
-    void GetParametersList(int /*aNumber*/, double* /*aArray*/) const;
+  void ComputeBBox(UBBox * /*aBox*/, bool /*aStore = false*/) {}
 
-    VUSolid* Clone() const;
+  // Visualisation
+  void GetParametersList(int /*aNumber*/, double * /*aArray*/) const;
 
-    double GetRadialTolerance()
-    {
-      return fRTolerance;
-    }
+  VUSolid *Clone() const;
 
-    UVector3 GetPointOnSurface() const;
+  double GetRadialTolerance() { return fRTolerance; }
 
-    std::ostream& StreamInfo(std::ostream& os) const;
+  UVector3 GetPointOnSurface() const;
 
-  private:
-    double fR;
-    double fRTolerance;
-    double fCubicVolume;   // Cubic Volume
-    double fSurfaceArea;   // Surface Area
+  std::ostream &StreamInfo(std::ostream &os) const;
 
-    double DistanceToOutForOutsidePoints(const UVector3& p, const UVector3& v, UVector3& n) const;
+private:
+  double fR;
+  double fRTolerance;
+  double fCubicVolume; // Cubic Volume
+  double fSurfaceArea; // Surface Area
 
+  double DistanceToOutForOutsidePoints(const UVector3 &p, const UVector3 &v, UVector3 &n) const;
 };
 
 inline double UOrb::GetRadius() const
@@ -115,19 +145,16 @@ inline double UOrb::GetRadius() const
 }
 inline void UOrb::SetRadius(double newRmax)
 {
-  fR = newRmax;
+  fR           = newRmax;
   fCubicVolume = 0.;
   fSurfaceArea = 0.;
 }
 
 inline double UOrb::Capacity()
 {
-  if (fCubicVolume != 0.)
-  {
+  if (fCubicVolume != 0.) {
     ;
-  }
-  else
-  {
+  } else {
     fCubicVolume = (4 * UUtils::kPi / 3) * fR * fR * fR;
   }
   return fCubicVolume;
@@ -135,12 +162,9 @@ inline double UOrb::Capacity()
 
 inline double UOrb::SurfaceArea()
 {
-  if (fSurfaceArea != 0.)
-  {
+  if (fSurfaceArea != 0.) {
     ;
-  }
-  else
-  {
+  } else {
     fSurfaceArea = (4 * UUtils::kPi) * fR * fR;
   }
   return fSurfaceArea;
@@ -148,5 +172,5 @@ inline double UOrb::SurfaceArea()
 
 //============== end of USolids-based implementation
 
-#endif  // VECGEOM_REPLACE_USOLIDS
-#endif  // USOLIDS_UOrb
+#endif // VECGEOM_REPLACE_USOLIDS
+#endif // USOLIDS_UOrb

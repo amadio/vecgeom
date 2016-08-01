@@ -27,12 +27,20 @@ private:
   // Caching the Volume and SurfaceArea
   Precision fCubicVolume, fSurfaceArea;
 
+  Precision fEpsilon, fRTolerance;
+
 public:
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedOrb();
 
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedOrb(const Precision r);
+
+  VECGEOM_CUDA_HEADER_BOTH
+  void SetRadialTolerance();
+
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetRadialTolerance() const { return fRTolerance; }
 
   VECGEOM_CUDA_HEADER_BOTH
   OrbStruct<double> const &GetStruct() const { return fOrb; }

@@ -16,7 +16,7 @@
 #include <cmath>
 
 bool testvecgeom = false;
-
+bool usolidsconv = false;
 #define PI 3.14159265358979323846
 
 template <class Orb_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
@@ -294,7 +294,10 @@ bool TestOrb()
   if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
   // assert(ApproxEqual(Dist,UUtils::Infinity()));
   if (testvecgeom) {
-    assert(Dist <= 0.);
+    if (usolidsconv) {
+      assert(Dist == 0.);
+    } else
+      assert(Dist <= 0.);
     if (verbose) std::cout << "DistanceToIn for point inside and directing OUT: " << Dist << std::endl;
   }
   Dist = b1.DistanceToOut(pointI, dirIO, norm, convex);
@@ -308,7 +311,10 @@ bool TestOrb()
   if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
   // assert(ApproxEqual(Dist,UUtils::Infinity()));
   if (testvecgeom) {
-    assert(Dist < 0.);
+    if (usolidsconv) {
+      assert(Dist == 0.);
+    } else
+      assert(Dist < 0.);
   }
   Dist = b1.DistanceToOut(pointI, dirII, norm, convex);
   assert(ApproxEqual(Dist, 17));
@@ -380,6 +386,7 @@ int main(int argc, char *argv[])
     std::cout << "UOrb passed (but notice discrepancies above, where asserts have been disabled!)\n";
 #else
     testvecgeom = true; // needed to avoid testing convexity when vecgeom is used
+    usolidsconv = true;
     TestOrb<UOrb>();
     std::cout << "UOrb --> VecGeom orb passed\n";
 #endif

@@ -12,10 +12,11 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 VECGEOM_CUDA_HEADER_BOTH
-UnplacedOrb::UnplacedOrb() : fCubicVolume(0), fSurfaceArea(0)
+UnplacedOrb::UnplacedOrb() : fCubicVolume(0), fSurfaceArea(0), fEpsilon(2.e-11), fRTolerance(0.)
 {
   // default constructor
   fGlobalConvexity = true;
+  SetRadialTolerance();
 }
 
 VECGEOM_CUDA_HEADER_BOTH
@@ -24,6 +25,7 @@ UnplacedOrb::UnplacedOrb(const Precision r) : fOrb(r)
   fCubicVolume     = (4 * kPi / 3) * fOrb.fR * fOrb.fR * fOrb.fR;
   fSurfaceArea     = (4 * kPi) * fOrb.fR * fOrb.fR;
   fGlobalConvexity = true;
+  SetRadialTolerance();
 }
 
 VECGEOM_CUDA_HEADER_BOTH
@@ -32,6 +34,13 @@ void UnplacedOrb::SetRadius(Precision r)
   fOrb.fR      = r;
   fCubicVolume = (4 * kPi / 3) * fOrb.fR * fOrb.fR * fOrb.fR;
   fSurfaceArea = (4 * kPi) * fOrb.fR * fOrb.fR;
+  SetRadialTolerance();
+}
+
+VECGEOM_CUDA_HEADER_BOTH
+void UnplacedOrb::SetRadialTolerance()
+{
+  fRTolerance = Max(kTolerance, fEpsilon * fOrb.fR);
 }
 
 VECGEOM_CUDA_HEADER_BOTH

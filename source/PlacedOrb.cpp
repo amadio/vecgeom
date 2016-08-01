@@ -33,7 +33,7 @@ void PlacedOrb::PrintType(std::ostream &s) const
 
 VPlacedVolume const *PlacedOrb::ConvertToUnspecialized() const
 {
-  return new SimpleOrb(GetLabel().c_str(), logical_volume_, GetTransformation());
+  return new SimpleOrb(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
 }
 
 #ifdef VECGEOM_ROOT
