@@ -25,7 +25,7 @@ public:
                            Vector3D<Precision> &daughterlocalpoint) const override
   {
     auto daughters = lvol->GetDaughtersp();
-    for (int i = 0; i < daughters->size(); ++i) {
+    for (size_t i = 0; i < daughters->size(); ++i) {
       VPlacedVolume const *nextvolume = (*daughters)[i];
       if (nextvolume->Contains(localpoint, daughterlocalpoint)) {
         pvol = nextvolume;
@@ -41,7 +41,7 @@ public:
                                   Vector3D<Precision> &daughterlocalpoint) const override
   {
     auto daughters = lvol->GetDaughtersp();
-    for (int i = 0; i < daughters->size(); ++i) {
+    for (size_t i = 0; i < daughters->size(); ++i) {
       VPlacedVolume const *nextvolume = (*daughters)[i];
       if (exclvol == nextvolume) continue;
       if (nextvolume->Contains(localpoint, daughterlocalpoint)) {
