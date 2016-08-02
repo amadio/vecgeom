@@ -185,20 +185,17 @@ void PhiPlaneSafety(UnplacedStruct_t const &tube, Vector3D<Real_v> const &pos, R
 {
   using namespace ::vecgeom::TubeTypes;
 
-  safety = kInfinity;
-  if (SectorType<TubeType>::value == kUnknownAngle) {
-    // for phi-sections w/dphi>PI, the right result could be distance to origin
-    // MaskedAssign( tube.fDphi > M_PI, vecCore::math::Sqrt(pos.x()*pos.x() + pos.y()*pos.y()), &safety);
-    vecCore::MaskedAssign(safety, tube.fDphi > M_PI, vecCore::math::Sqrt(pos.x() * pos.x() + pos.y() * pos.y()));
-  } else if (SectorType<TubeType>::value == kBiggerThanPi) {
+  if ((SectorType<TubeType>::value == kUnknownAngle && tube.fDphi > M_PI) ||
+      (SectorType<TubeType>::value == kBiggerThanPi)) {
     safety = vecCore::math::Sqrt(pos.x() * pos.x() + pos.y() * pos.y());
+  } else {
+    safety = kInfinity;
   }
 
   Real_v phi1 = PerpDist2D<Real_v>(pos.x(), pos.y(), Real_v(tube.fAlongPhi2x), Real_v(tube.fAlongPhi2y));
   if (inside) phi1 *= -1;
 
   if (SectorType<TubeType>::value == kOnePi) {
-    //  MaskedAssign( vecCore::math::Abs(phi1)>kHalfTolerance, vecCore::math::Abs(phi1), &safety );
     auto absphi1 = vecCore::math::Abs(phi1);
     vecCore::MaskedAssign(safety, absphi1 > kHalfTolerance, absphi1);
     return;
