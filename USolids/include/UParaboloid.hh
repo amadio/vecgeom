@@ -35,11 +35,67 @@
 #include "volumes/LogicalVolume.h"
 #include "volumes/UnplacedParaboloid.h"
 #include "base/Transformation3D.h"
-
+#include "volumes/USolidsAdapter.h"
+/*
 class UParaboloid: public vecgeom::SimpleParaboloid {
   // just forwards UParaboloid to vecgeom::SimpleParaboloid
   using vecgeom::SimpleParaboloid::SimpleParaboloid;
 };
+*/
+
+class UParaboloid : public vecgeom::USolidsAdapter<vecgeom::UnplacedParaboloid> {
+
+  // just forwards UParaboloid to vecgeom Paraboloid
+  using Shape_t = vecgeom::UnplacedParaboloid;
+  using Base_t  = vecgeom::USolidsAdapter<vecgeom::UnplacedParaboloid>;
+
+  // inherit all constructors
+  using Base_t::Base_t;
+
+public:
+  // add default constructor for tests
+  UParaboloid() : Base_t("", 0., 0., 0.) {}
+  virtual ~UParaboloid() {}
+
+  inline double GetRlo() const { return GetRlo(); }
+  inline double GetRhi() const { return GetRhi(); }
+  inline double GetDz() const { return GetDz(); }
+
+  inline void SetRlo(double val) { SetRlo(val); }
+  inline void SetRhi(double val) { SetRhi(val); }
+  inline void SetDz(double val) { SetDz(val); }
+  inline void SetRloAndRhiAndDz(double rlo, double rhi, double dz) { SetRloAndRhiAndDz(rlo, rhi, dz); }
+
+  // o provide a new object which is a clone of the solid
+  VUSolid *Clone() const override { return new UParaboloid(*this); }
+
+  void ComputeBBox(UBBox * /*aBox*/, bool /*aStore = false*/) override {}
+
+  UGeometryType GetEntityType() const override { return "UParaboloid"; }
+
+  // Visualisation
+  void GetParametersList(int, double *aArray) const override
+  {
+    aArray[0] = GetRlo();
+    aArray[1] = GetRhi();
+    aArray[2] = GetDz();
+  }
+
+  std::ostream &StreamInfo(std::ostream &os) const override
+  {
+    int oldprc = os.precision(16);
+    os << "-----------------------------------------------------------\n"
+       << "     *** Dump for solid - " << GetEntityType() << " ***\n"
+       << "     ===================================================\n"
+       << " Solid type: Paraboloid\n"
+       << " Parameters: \n"
+       << "     half-dimensions in mm: rlo, rhi, dz : " << GetRlo() << ", " << GetRhi() << ", " << GetDz() << "\n"
+       << "-----------------------------------------------------------\n";
+    os.precision(oldprc);
+    return os;
+  }
+};
+
 //============== end of VecGeom-based implementation
 
 #else
@@ -53,26 +109,21 @@ class UParaboloid: public vecgeom::SimpleParaboloid {
 /// GL NOTE: this is not meant to be a COMPLETE implementation of UParaboloid!!!
 class UParaboloid : public VUSolid {
 public:
-  UParaboloid() : VUSolid(), fDz(0), fRhi(0), fRlo(0) { }
-  UParaboloid(const std::string& name, double val1, double val2, double val3)
-    : VUSolid(name)
-    , fDz(val1)
-    , fRhi(val2)
-    , fRlo(val3)
-    { }
+  UParaboloid() : VUSolid(), fDz(0), fRhi(0), fRlo(0) {}
+  UParaboloid(const std::string &name, double val1, double val2, double val3)
+      : VUSolid(name), fDz(val1), fRhi(val2), fRlo(val3)
+  {
+  }
 
   ~UParaboloid() {}
 
   // Copy constructor and assignment operator
 
-  UParaboloid(const UParaboloid& rhs)
-    : VUSolid(rhs.GetName() )
-    , fDz( rhs.GetDz() )
-    , fRhi( rhs.GetRhi() )
-    , fRlo( rhs.GetRlo() )
-    {  }
+  UParaboloid(const UParaboloid &rhs) : VUSolid(rhs.GetName()), fDz(rhs.GetDz()), fRhi(rhs.GetRhi()), fRlo(rhs.GetRlo())
+  {
+  }
 
-  UParaboloid& operator=(const UParaboloid& rhs) = delete;
+  UParaboloid &operator=(const UParaboloid &rhs) = delete;
 
   // Accessors and modifiers
 
@@ -85,70 +136,70 @@ public:
   void SetRlo(double arg);
 
   // Navigation methods
-  EnumInside     Inside(const UVector3& /*aPoint*/) const {
+  EnumInside Inside(const UVector3 & /*aPoint*/) const
+  {
     assert(false && "Not implemented.");
     return EnumInside::eInside;
   }
 
-  double  SafetyFromInside(const UVector3& /*aPoint*/,
-                           bool /*aAccurate*/ = false) const {
+  double SafetyFromInside(const UVector3 & /*aPoint*/, bool /*aAccurate*/ = false) const
+  {
     assert(false && "Not implemented.");
     return 0.;
   }
 
-  double  SafetyFromOutside(const UVector3& /*aPoint*/,
-                            bool /*aAccurate*/ = false) const {
+  double SafetyFromOutside(const UVector3 & /*aPoint*/, bool /*aAccurate*/ = false) const
+  {
     assert(false && "Not implemented.");
     return 0.;
   }
 
-  double  DistanceToIn(const UVector3& /*aPoint*/,
-                       const UVector3& /*aDirection*/,
-                       // UVector3       &aNormalVector,
-                       double /*aPstep*/ = UUtils::kInfinity) const {
+  double DistanceToIn(const UVector3 & /*aPoint*/, const UVector3 & /*aDirection*/,
+                      // UVector3       &aNormalVector,
+                      double /*aPstep*/ = UUtils::kInfinity) const
+  {
     assert(false && "Not implemented.");
     return 0.;
   }
 
-  double DistanceToOut(const UVector3& /*aPoint*/,
-                       const UVector3& /*aDirection*/,
-                       UVector3&       /*aNormalVector*/,
-                       bool&           /*aConvex*/,
-                       double /*aPstep*/ = UUtils::kInfinity) const {
+  double DistanceToOut(const UVector3 & /*aPoint*/, const UVector3 & /*aDirection*/, UVector3 & /*aNormalVector*/,
+                       bool & /*aConvex*/, double /*aPstep*/ = UUtils::kInfinity) const
+  {
     assert(false && "Not implemented.");
     return 0.;
   }
 
-  bool Normal(const UVector3& /*aPoint*/, UVector3& /*aNormal*/) const {
+  bool Normal(const UVector3 & /*aPoint*/, UVector3 & /*aNormal*/) const
+  {
     assert(false && "Not implemented.");
     return false;
   }
 
-  void Extent(UVector3& aMin, UVector3& aMax) const {
+  void Extent(UVector3 &aMin, UVector3 &aMax) const
+  {
     // Returns the full 3D cartesian extent of the solid.
     aMax.x() = fRhi;
     aMax.y() = fRhi;
     aMax.z() = fDz;
-    aMin = -aMax;
+    aMin     = -aMax;
   }
 
-    // Computes capacity of the shape in [length^3]
-  double Capacity() {
-    return UUtils::kPi*fDz*(fRlo*fRlo+fRhi*fRhi);
-  }
+  // Computes capacity of the shape in [length^3]
+  double Capacity() { return UUtils::kPi * fDz * (fRlo * fRlo + fRhi * fRhi); }
 
   inline double SurfaceArea();
 
-  VUSolid* Clone() const { return new UParaboloid(*this); }
+  VUSolid *Clone() const { return new UParaboloid(*this); }
 
   UGeometryType GetEntityType() const { return "Paraboloid"; }
 
-  std::ostream& StreamInfo( std::ostream& os ) const;
+  std::ostream &StreamInfo(std::ostream &os) const;
 
-  void    ComputeBBox(UBBox* /*aBox*/, bool /*aStore = false*/) {}
+  void ComputeBBox(UBBox * /*aBox*/, bool /*aStore = false*/) {}
 
   // Visualisation
-  void GetParametersList(int, double* aArray) const {
+  void GetParametersList(int, double *aArray) const
+  {
     aArray[0] = GetDz();
     aArray[1] = GetRhi();
     aArray[2] = GetRlo();
@@ -158,29 +209,41 @@ public:
   UVector3 GetPointOnEdge() const;
 
 private:
-  double fDz;   // Half-length
-  double fRhi;  // external radius
-  double fRlo;  // internal radius
+  double fDz;  // Half-length
+  double fRhi; // external radius
+  double fRlo; // internal radius
   double fA, fB;
 };
 
-inline double UParaboloid::GetDz() const {
+inline double UParaboloid::GetDz() const
+{
   return fDz;
 }
 
-inline double UParaboloid::GetRhi() const {
+inline double UParaboloid::GetRhi() const
+{
   return fRhi;
 }
 
-inline double UParaboloid::GetRlo() const {
+inline double UParaboloid::GetRlo() const
+{
   return fRlo;
 }
 
-inline void UParaboloid::SetDz(double val)  { fDz = val; }
-inline void UParaboloid::SetRhi(double val) { fRhi = val; }
-inline void UParaboloid::SetRlo(double val) { fRlo = val; }
+inline void UParaboloid::SetDz(double val)
+{
+  fDz = val;
+}
+inline void UParaboloid::SetRhi(double val)
+{
+  fRhi = val;
+}
+inline void UParaboloid::SetRlo(double val)
+{
+  fRlo = val;
+}
 
 //============== end of USolids-based implementation
 
-#endif  // VECGEOM_REPLACE_USOLIDS
-#endif  // USOLIDS_UParaboloid
+#endif // VECGEOM_REPLACE_USOLIDS
+#endif // USOLIDS_UParaboloid
