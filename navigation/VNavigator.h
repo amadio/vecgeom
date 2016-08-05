@@ -67,8 +67,7 @@ public:
                                                   safety);
   }
 
-  // a similar interface also returning the local coordinates as a result
-  // might be reused by other calculations such as Safety
+  // a similar interface, in addition also returning the safet as a result
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision ComputeStepAndSafetyAndPropagatedState(Vector3D<Precision> const & /*globalpoint*/,
                                                            Vector3D<Precision> const & /*globaldir*/,
@@ -76,20 +75,6 @@ public:
                                                            NavigationState const & /*in_state*/,
                                                            NavigationState & /*out_state*/, bool /*calcsafefty*/,
                                                            Precision & /*safety_out*/) const = 0;
-
-  virtual Precision ComputeStepAndHittingBoundaryForLocalPoint(Vector3D<Precision> const & /*localpoint*/,
-                                                               Vector3D<Precision> const & /*localdir*/,
-                                                               Precision /*(physics) step limit */,
-                                                               NavigationState const & /*in_state*/,
-                                                               NavigationState & /*out_state*/) const = 0;
-
-  // think about a method that operates only on logical volume level and that treats only the daughters
-  // (this would further modularize the navigators and reduce code); this is true since the DistanceToOut treatment is
-  // almost the same
-  // virtual Precision CollideDaughters(Vector3D<Precision> const & /*localpoint*/,
-  //                                    Vector3D<Precision> const & /*localdir*/,
-  //                                    LogicalVolume const *lvol,
-  //                                    Precision /*(physics) step limit*/) const = 0;
 
   // the bool return type indicates if out_state was already modified; this may happen in assemblies;
   // in this case we don't need to copy the in_state to the out state later on
@@ -102,9 +87,7 @@ public:
     return false;
   }
 
-  // for vector navigation
-  //! this methods transforms the global coordinates into local ones usually calls more specialized methods
-  //! like the hit detection on local coordinates
+  // interfaces for vector/basket navigation
   virtual void ComputeStepsAndPropagatedStates(SOA3D<Precision> const & /*globalpoints*/,
                                                SOA3D<Precision> const & /*globaldirs*/,
                                                Precision const * /*(physics) step limits */,
@@ -112,8 +95,6 @@ public:
                                                NavigationState ** /*out_states*/, Precision * /*out_steps*/) const = 0;
 
   // for vector navigation
-  //! this methods transforms the global coordinates into local ones usually calls more specialized methods
-  //! like the hit detection on local coordinates
   virtual void ComputeStepsAndSafetiesAndPropagatedStates(SOA3D<Precision> const & /*globalpoints*/,
                                                           SOA3D<Precision> const & /*globaldirs*/,
                                                           Precision const * /*(physics) step limits */,
@@ -198,20 +179,6 @@ protected:
     return geom_step;
   }
 
-  //  VECGEOM_FORCE_INLINE
-  //  static Precision TreatDistanceToMother( VPlacedVolume const *pvol, Vector3D<Precision> const &localpoint ,
-  //  Vector3D<Precision> const &localdir, Precision step_limit ){
-  // Precision step;
-  // assert(pvol != nullptr && "currentvolume is null in navigation");
-  // step = pvol->DistanceToOut(localpoint, localdir, step_limit);
-  // NOTE: IF STEP IS NEGATIVE HERE, SOMETHING IS TERRIBLY WRONG. SET TO INFINITY SO THAT WE CAN BETTER HANDLE IT
-  // LATER ON
-  // if (step < 0.) {
-  //      step = kInfinity;
-  //}
-  // return step;
-  //}
-
   // kernel to be used with both scalar and vector types
   template <typename T>
   VECGEOM_FORCE_INLINE
@@ -280,7 +247,7 @@ protected:
 };
 
 //! template class providing a standard implementation for
-//! some interfaces in VSafetyEstimator (using the CRT pattern)
+//! some interfaces in VNavigator (using the CRT pattern)
 template <typename Impl, bool MotherIsConvex = false>
 class VNavigatorHelper : public VNavigator {
 protected:
@@ -333,51 +300,7 @@ public:
     vecCore::Store(safety, &out_safeties[from_index]);
   }
 
-  //  template <>
-  //  static void DaughterIntersectionsLooper<Precision, 1>(VNavigator const *nav, LogicalVolume const *lvol,
-  //  Vector3D<Precision> const &localpoint,
-  //                                                        Vector3D<Precision> const &localdir,
-  //                                                        NavStatePool const &in_states, NavStatePool &out_states,
-  //                                                        unsigned int from_index, unsigned int to_index,
-  //                                                        Precision &out_step, VPlacedVolume const **&hitcandidates) {
-  //    // dispatch to ordinary implementation ( which itself might be vectorized )
-  //    unsigned int trackid = from_index;
-  //    ((Impl *)nav)
-  //        ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, in_states[trackid], out_states[trackid],
-  //                                           out_step, hitcandidates[0]);
-  //  }
-
 public:
-// a generic implementation
-// may be completely specialized in child-navigators
-//#define OLD
-#ifdef OLD
-  virtual Precision ComputeStepAndPropagatedState(Vector3D<Precision> const &globalpoint,
-                                                  Vector3D<Precision> const &globaldir, Precision step_limit,
-                                                  NavigationState const &in_state,
-                                                  NavigationState &out_state) const override
-  {
-    // calculate local point from global point
-    Transformation3D m;
-    in_state.TopMatrix(m);
-    auto localpoint = m.Transform(globalpoint);
-    auto localdir   = m.TransformDirection(globaldir);
-    // "suck in" algorithm from Impl and treat hit detection in local coordinates
-    Precision step =
-        ((Impl *)this)
-            ->Impl::ComputeStepAndHittingBoundaryForLocalPoint(localpoint, localdir, step_limit, in_state, out_state);
-
-    // step was physics limited
-    if (!out_state.IsOnBoundary()) return step;
-
-    // otherwise if necessary do a relocation
-
-    // try relocation to refine out_state to correct location after the boundary
-    ((Impl *)this)->Impl::Relocate(MovePointAfterBoundary(localpoint, localdir, step), in_state, out_state);
-    return step;
-  }
-#else
-  // a future, more modular and potentially faster implementation may look like this
   virtual Precision ComputeStepAndPropagatedState(Vector3D<Precision> const &globalpoint,
                                                   Vector3D<Precision> const &globaldir, Precision step_limit,
                                                   NavigationState const &in_state,
@@ -396,7 +319,6 @@ public:
     auto pvol                         = in_state.Top();
     auto lvol                         = pvol->GetLogicalVolume();
 
-    // think about calling template specializations instead of branching
     if (MotherIsConvex) {
       // if mother is convex we may not need to do treatment of mother
       // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
@@ -409,7 +331,6 @@ public:
       // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
       ((Impl *)this)
           ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, in_state, out_state, step, hitcandidate);
-      // if(hitcandidate==nullptr) counter++;
     }
 
     // fix state
@@ -425,7 +346,6 @@ public:
     ((Impl *)this)->Impl::Relocate(MovePointAfterBoundary(localpoint, localdir, step), in_state, out_state);
     return step;
   }
-#endif
 
   // this kernel is a generic implementation to navigate with chunks of data
   // can be used also for the scalar imple
@@ -582,13 +502,6 @@ public:
                                   out_steps, i);
     }
 
-    // tail treatment has to be cross-checked ( it does not compile yet due to backend problems )
-    //       for (unsigned int i = 0; i < tail; ++i) {
-    //              unsigned int trackid = corsize + i;
-    //       NavigateAChunk<Vc::Scalar::Vector<double>, 1>(this, pvol, lvol, globalpoints, globaldirs, step_limit,
-    //       in_states,
-    //       out_states, out_steps, corsize + i);
-    //      }
     // fall back to scalar interface for tail treatment
     for (; i < (int)size; ++i) {
       out_steps[i] = ((Impl *)this)
@@ -690,7 +603,6 @@ public:
     auto pvol                         = in_state.Top();
     auto lvol                         = pvol->GetLogicalVolume();
 
-    // think about calling template specializations instead of branching
     if (MotherIsConvex) {
       // if mother is convex we may not need to do treatment of mother
       // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
@@ -703,7 +615,6 @@ public:
       // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
       ((Impl *)this)
           ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, in_state, out_state, step, hitcandidate);
-      // if(hitcandidate==nullptr) counter++;
     }
 
     // fix state
