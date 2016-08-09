@@ -484,7 +484,7 @@ struct TubeImplementation {
     //=== Next step: intersection of the trajectories with the two circles
 
     // Here for values used in both rmin and rmax calculations
-    Real_v invnsq = 1.0 / (1.0 - dir.z() * dir.z());
+    Real_v invnsq = 1.0 / NonZero(1.0 - dir.z() * dir.z());
     Real_v b      = invnsq * rdotn;
 
     /*
@@ -596,7 +596,7 @@ struct TubeImplementation {
     // OK, since we're here, then distance must be non-negative, and the smallest of possible intersections
     vecCore::MaskedAssign(distance, !done, Real_v(kInfinity));
 
-    Real_v invdirz = 1. / dir.z();
+    Real_v invdirz = 1. / NonZero(dir.z());
     distz          = (tube.fZ - point.z()) * invdirz;
     vecCore::MaskedAssign(distz, dir.z() < 0, (-tube.fZ - point.z()) * invdirz);
     vecCore::MaskedAssign(distance, !done && distz < distance, distz);
