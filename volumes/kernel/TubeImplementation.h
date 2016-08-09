@@ -599,7 +599,7 @@ struct TubeImplementation {
     Real_v invdirz = 1. / NonZero(dir.z());
     distz          = (tube.fZ - point.z()) * invdirz;
     vecCore::MaskedAssign(distz, dir.z() < 0, (-tube.fZ - point.z()) * invdirz);
-    vecCore::MaskedAssign(distance, !done && distz < distance, distz);
+    vecCore::MaskedAssign(distance, !done && dir.z() != 0. && distz < distance, distz);
 
     /*
      * Find the intersection of the trajectories with the two circles.
