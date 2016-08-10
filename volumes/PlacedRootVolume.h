@@ -132,6 +132,8 @@ public:
     return VECGEOM_BACKEND_PRECISION_TYPE(-1.);
   }
 
+  virtual void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const override;
+
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const override;
@@ -183,16 +185,14 @@ Precision PlacedRootVolume::DistanceToIn(Vector3D<Precision> const &position, Ve
 {
   Vector3D<Precision> positionLocal  = GetTransformation()->Transform(position);
   Vector3D<Precision> directionLocal = GetTransformation()->TransformDirection(direction);
-  return GetRootShape()->DistFromOutside(&positionLocal[0], &directionLocal[0], 1,
-                                         (stepMax == kInfinity) ? TGeoShape::Big() : stepMax);
+  return GetRootShape()->DistFromOutside(&positionLocal[0], &directionLocal[0], 3);
 }
 
 VECGEOM_FORCE_INLINE
 Precision PlacedRootVolume::DistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                           const Precision stepMax) const
 {
-  return GetRootShape()->DistFromInside(&position[0], &direction[0], 1,
-                                        (stepMax == kInfinity) ? TGeoShape::Big() : stepMax);
+  return GetRootShape()->DistFromInside(&position[0], &direction[0], 3);
 }
 
 VECGEOM_FORCE_INLINE
@@ -201,8 +201,7 @@ Precision PlacedRootVolume::PlacedDistanceToOut(Vector3D<Precision> const &posit
 {
   Vector3D<Precision> positionLocal  = GetTransformation()->Transform(position);
   Vector3D<Precision> directionLocal = GetTransformation()->TransformDirection(direction);
-  return GetRootShape()->DistFromInside(&positionLocal[0], &directionLocal[0], 1,
-                                        (stepMax == kInfinity) ? TGeoShape::Big() : stepMax);
+  return GetRootShape()->DistFromInside(&positionLocal[0], &directionLocal[0], 3);
 }
 
 VECGEOM_FORCE_INLINE

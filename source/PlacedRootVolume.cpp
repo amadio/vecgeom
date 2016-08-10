@@ -2,7 +2,7 @@
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
 
 #include "volumes/PlacedRootVolume.h"
-
+#include "TGeoBBox.h"
 #include "base/SOA3D.h"
 
 namespace vecgeom {
@@ -119,6 +119,18 @@ void PlacedRootVolume::DistanceToOut(SOA3D<Precision> const &positions, SOA3D<Pr
     distance[i]      = PlacedRootVolume::DistanceToOut(positions[i], directions[i], stepMax[i]);
     nextNodeIndex[i] = (distance[i] < stepMax[i]) ? -1 : -2;
   }
+}
+
+void PlacedRootVolume::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
+{
+  TGeoBBox const *b = dynamic_cast<TGeoBBox const *>(GetRootShape());
+  assert(b != nullptr);
+  auto lx = b->GetDX();
+  auto ly = b->GetDY();
+  auto lz = b->GetDZ();
+  auto o  = b->GetOrigin();
+  aMin.Set(o[0] - lx, o[1] - ly, o[2] - lz);
+  aMax.Set(o[0] + lx, o[1] + ly, o[2] + lz);
 }
 
 VPlacedVolume const *PlacedRootVolume::ConvertToUnspecialized() const
