@@ -74,7 +74,7 @@ done
 # Shorten the macro and move them out of the way so that they have
 # no effect on line length calculation.
 for file in $@; do
-  sed  ${sed_i} -n -e "
+  eval sed  ${sed_i} -n -e '"
     # if the first line copy the pattern to the hold buffer
     1h
     # if not the first line then append the pattern to the hold buffer
@@ -87,7 +87,7 @@ for file in $@; do
       ${patternFrom}
       # print
       p
-    }" "${file}"
+    }"' '"${file}"'
 done
 
 clang-format -i "$@"
@@ -96,7 +96,7 @@ clang-format -i "$@"
 
 # Put back the macros.
 for file in $@; do
-  sed   ${sed_i} -n -e "
+  eval sed   ${sed_i} -n -e '"
     # if the first line copy the pattern to the hold buffer
     1h
     # if not the first line then append the pattern to the hold buffer
@@ -109,6 +109,6 @@ for file in $@; do
       ${patternTo}
       # print
       p
-    }" "${file}"
+    }"' '"${file}"'
 done
 
