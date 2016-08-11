@@ -224,9 +224,11 @@ void FillBiasedDirections(VPlacedVolume const &volume, TrackContainer const &poi
 
       // the brute force and simple sampling technique is the following
       // dirs.set(h, SampleDirection());
-      if (IsHittingAnyDaughter(points[track], dirs[track], *volume.GetLogicalVolume())) n_hits++;
-      hit[track] = true;
-      tries      = 0;
+      if (IsHittingAnyDaughter(points[track], dirs[track], *volume.GetLogicalVolume())) {
+        n_hits++;
+        hit[track] = true;
+        tries      = 0;
+      }
     }
   }
 
