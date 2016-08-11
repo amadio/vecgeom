@@ -21,6 +21,7 @@
 #include "volumes/UnplacedScaledShape.h"
 #include "volumes/UnplacedGenTrap.h"
 #include "volumes/UnplacedSExtruVolume.h"
+#include "volumes/PlanarPolygon.h"
 #include "materials/Medium.h"
 #include "materials/Material.h"
 
@@ -478,12 +479,22 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
     // analyse convertability
     if (p->GetNz() == 2) {
       // add check on scaling and distortions
-      double *x = new double[p->GetNvert()];
-      double *y = new double[p->GetNvert()];
-      for (size_t i = 0; i < (size_t)p->GetNvert(); ++i) {
+      size_t Nvert = (size_t)p->GetNvert();
+      double *x    = new double[Nvert];
+      double *y    = new double[Nvert];
+      for (size_t i = 0; i < Nvert; ++i) {
         x[i] = p->GetX(i);
         y[i] = p->GetY(i);
       }
+      // check in which orientation the polygon in given
+      if (PlanarPolygon::GetOrientation(x, y, Nvert) > 0.) {
+        std::cerr << "Points not given in clockwise order ... reordering \n";
+        for (size_t i = 0; i < Nvert; ++i) {
+          x[Nvert - 1 - i] = p->GetX(i);
+          y[Nvert - 1 - i] = p->GetY(i);
+        }
+      }
+
       unplaced_volume = new UnplacedSExtruVolume(p->GetNvert(), x, y, p->GetZ()[0], p->GetZ()[1]);
     }
   }

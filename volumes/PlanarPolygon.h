@@ -26,6 +26,7 @@ protected:
   // this is WIP
   SOA3D<Precision> fVertices; // a vector of vertices with links between
                               // note that the z component will hold the slopes between 2 links
+                              // We assume a clockwise order of points
   Vector<Precision> fShiftedXJ;
   Vector<Precision> fShiftedYJ;
   Vector<Precision> fLengthSqr;    // the lenghts of each segment
@@ -120,6 +121,13 @@ public:
 
     // set convexity
     CalcConvexity();
+
+// check orientation
+#ifndef VECGEOM_NVCC
+    if (Area() < 0.) {
+      throw std::runtime_error("Polygon not given in clockwise order");
+    }
+#endif
   }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -285,6 +293,21 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   bool IsConvex() const { return fIsConvex; }
+
+  // check clockwise/counterclockwise condition (returns positive for anti-clockwise)
+  // useful function to check orientation of points x,y
+  // before calling the PlanarPolygon constructor
+  static Precision GetOrientation(Precision *x, Precision *y, size_t N)
+  {
+    Precision area(0.);
+    for (size_t i = 0; i < N; ++i) {
+      const double p1[2] = {x[i], y[i]};
+      const size_t j     = (i + 1) % N;
+      const double p2[2] = {x[j], y[j]};
+      area += (p1[0] * p2[1] - p1[1] * p2[0]);
+    }
+    return area;
+  }
 
   /* returns area of polygon */
   VECGEOM_CUDA_HEADER_BOTH
