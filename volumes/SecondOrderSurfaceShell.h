@@ -345,8 +345,8 @@ public:
     if (fisplanar) return DistanceToInPlanar<Real_v>(point, dir, done);
     Real_v crtdist;
     Vector3D<Real_v> hit;
-    Real_v distance  = vecCore::NumericLimits<Real_v>::Infinity();
-    Real_v tolerance = 100. * kTolerance;
+    Real_v distance = vecCore::NumericLimits<Real_v>::Infinity();
+    Real_v tolerance(100. * kTolerance);
     Vector3D<Real_v> unorm;
     Real_v r = Real_v(-1.);
     Real_v rz;

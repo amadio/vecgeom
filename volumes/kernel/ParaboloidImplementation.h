@@ -171,7 +171,7 @@ struct ParaboloidImplementation {
     using Bool_v = vecCore::Mask_v<Real_v>;
 
     Bool_v done(false);
-    distance = kInfinity;
+    distance = vecCore::NumericLimits<Real_v>::Infinity();
 
     Real_v absZ   = vecCore::math::Abs(point.z());
     Real_v rho2   = point.Perp2(); // point.x()*point.x()+point.y()*point.y();
@@ -203,13 +203,13 @@ struct ParaboloidImplementation {
     done |= isOnParabolicSurfaceAndMovingInside;
     if (vecCore::MaskFull(done)) return;
 
-    vecCore::MaskedAssign(distance, !done, Real_v(kInfinity));
+    vecCore::MaskedAssign(distance, !done, vecCore::NumericLimits<Real_v>::Infinity());
 
     /* Intersection tests with Z planes are not required if the point is within Z Range
      * In this case it will either intsect with parabolic surface or not intersect at all.
      */
     if (!vecCore::MaskFull(absZ < paraboloid.fDz)) {
-      Real_v distZ(kInfinity);                                               // = (absZ - paraboloid.fDz) / absDirZ;
+      Real_v distZ(vecCore::NumericLimits<Real_v>::Infinity());              // = (absZ - paraboloid.fDz) / absDirZ;
       Bool_v bottomPlane = point.z() < -paraboloid.fDz && direction.z() > 0; //(true);
       Bool_v topPlane    = point.z() > paraboloid.fDz && direction.z() < 0;
       vecCore::MaskedAssign(distZ, topPlane, (paraboloid.fDz - point.z()) / direction.z());
@@ -242,7 +242,7 @@ struct ParaboloidImplementation {
       done |= d2 < 0.;
       if (vecCore::MaskFull(done)) return;
 
-      Real_v distParab = kInfinity;
+      Real_v distParab = vecCore::NumericLimits<Real_v>::Infinity();
       vecCore::MaskedAssign(distParab, !done && (b > 0.), (b - Sqrt(d2)) / a);
       vecCore::MaskedAssign(distParab, !done && (b <= 0.), (c / (b + Sqrt(d2))));
       Real_v zHit = point.z() + distParab * direction.z();
@@ -291,10 +291,10 @@ struct ParaboloidImplementation {
     done |= isOnParabolicSurfaceAndMovingInside;
     if (vecCore::MaskFull(done)) return;
 
-    vecCore::MaskedAssign(distance, !done, Real_v(kInfinity));
+    vecCore::MaskedAssign(distance, !done, vecCore::NumericLimits<Real_v>::Infinity());
 
-    Real_v distZ   = kInfinity;
-    Real_v dirZinv = 1 / direction.z();
+    Real_v distZ   = vecCore::NumericLimits<Real_v>::Infinity();
+    Real_v dirZinv = Real_v(1 / direction.z());
 
     Bool_v dir_mask = direction.z() < 0;
     vecCore::MaskedAssign(distZ, dir_mask, -(paraboloid.fDz + point.z()) * dirZinv);
@@ -307,7 +307,7 @@ struct ParaboloidImplementation {
     Real_v c       = paraboloid.fB + paraboloid.fA * point.Perp2() - point.z();
     Real_v d2      = b * b - a * c;
 
-    Real_v distParab = kInfinity;
+    Real_v distParab = vecCore::NumericLimits<Real_v>::Infinity();
     vecCore::MaskedAssign(distParab, d2 >= 0. && (b > 0.), (b + Sqrt(d2)) * (1. / a));
     vecCore::MaskedAssign(distParab, d2 >= 0. && (b <= 0.), (c / (b - Sqrt(d2))));
     distance = vecCore::math::Min(distParab, distZ);
@@ -345,7 +345,7 @@ struct ParaboloidImplementation {
     done |= onParabolicSurface;
     if (vecCore::MaskFull(done)) return;
 
-    vecCore::MaskedAssign(safety, !done, Real_v(kInfinity));
+    vecCore::MaskedAssign(safety, !done, vecCore::NumericLimits<Real_v>::Infinity());
 
     Real_v r0sq = (point.z() - paraboloid.fB) * paraboloid.fInvA;
 
@@ -355,7 +355,7 @@ struct ParaboloidImplementation {
     done |= underParaboloid;
     if (vecCore::MaskFull(done)) return;
 
-    Real_v safeR = kInfinity;
+    Real_v safeR = vecCore::NumericLimits<Real_v>::Infinity();
     Real_v ro2   = point.x() * point.x() + point.y() * point.y();
     Real_v dr    = vecCore::math::Sqrt(ro2) - vecCore::math::Sqrt(r0sq);
 
@@ -414,7 +414,7 @@ struct ParaboloidImplementation {
     done |= closeToParaboloid;
     if (vecCore::MaskFull(done)) return;
 
-    Real_v safR = kInfinity;
+    Real_v safR = vecCore::NumericLimits<Real_v>::Infinity();
     Real_v ro2  = point.x() * point.x() + point.y() * point.y();
     Real_v z0   = paraboloid.fA * ro2 + paraboloid.fB;
     Real_v dr   = vecCore::math::Sqrt(ro2) - vecCore::math::Sqrt(r0sq); // avoid square root of a negative number
