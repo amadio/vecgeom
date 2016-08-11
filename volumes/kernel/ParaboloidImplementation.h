@@ -197,7 +197,7 @@ struct ParaboloidImplementation {
     done |= isOnZPlaneAndMovingInside;
     if (vecCore::MaskFull(done)) return;
 
-    Vector3D<Real_v> normal(point.x(), point.y(), -paraboloid.fK1 * 0.5);
+    Vector3D<Real_v> normal(point.x(), point.y(), Real_v(-paraboloid.fK1 * 0.5));
     Bool_v isOnParabolicSurfaceAndMovingInside = diff > -kTolerance && diff < kTolerance && direction.Dot(normal) < 0.;
     vecCore::MaskedAssign(distance, !done && isOnParabolicSurfaceAndMovingInside, Real_v(0.));
     done |= isOnParabolicSurfaceAndMovingInside;
@@ -284,7 +284,7 @@ struct ParaboloidImplementation {
     if (vecCore::MaskFull(done)) return;
 
     // On Parabolic Surface and moving outside
-    Vector3D<Real_v> normal(point.x(), point.y(), -paraboloid.fK1 * 0.5);
+    Vector3D<Real_v> normal(point.x(), point.y(), Real_v(-paraboloid.fK1 * 0.5));
     Bool_v isOnParabolicSurfaceAndMovingInside =
         value > -kTolerance && value < kTolerance && direction.Dot(normal) > 0.;
     vecCore::MaskedAssign(distance, !done && isOnParabolicSurfaceAndMovingInside, Real_v(0.));
@@ -302,8 +302,8 @@ struct ParaboloidImplementation {
 
     Real_v dirRho2 = direction.Perp2();
     Real_v pDotV2D = point.x() * direction.x() + point.y() * direction.y();
-    Real_v a       = paraboloid.fA * dirRho2;
-    Real_v b       = 0.5 * direction.z() - paraboloid.fA * pDotV2D;
+    Real_v a       = Real_v(paraboloid.fA * dirRho2);
+    Real_v b       = Real_v(0.5 * direction.z() - paraboloid.fA * pDotV2D);
     Real_v c       = paraboloid.fB + paraboloid.fA * point.Perp2() - point.z();
     Real_v d2      = b * b - a * c;
 

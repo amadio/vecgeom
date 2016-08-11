@@ -400,7 +400,7 @@ void GenTrapImplementation::DistanceToOut(UnplacedStruct_t const &unplaced, Vect
   // TODO: do this with some nice template features
 
   Bool_v negDirMask = direction.z() < 0;
-  Real_v sign       = 1.;
+  Real_v sign(1.0);
   vecCore::MaskedAssign(sign, negDirMask, Real_v(-1.));
   //    Real_v invDirZ = 1./direction.z();
   // this construct costs one multiplication more

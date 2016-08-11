@@ -187,18 +187,18 @@ public:
     if (fisplanar) return DistanceToOutPlanar<Real_v>(point, dir);
 
     // The algorithmic tolerance in distance
-    const Real_v tolerance = 100. * kTolerance;
+    const Real_v tolerance(100. * kTolerance);
 
     Real_v dist(vecCore::NumericLimits<Real_v>::Infinity());
     Real_v smin[N], smax[N];
     Vector3D<Real_v> unorm;
-    Real_v r = Real_v(-1.);
+    Real_v r(-1.0);
     Real_v rz;
     Bool_v completelyinside, completelyoutside, onsurf;
     CheckInside<Real_v>(point, completelyinside, completelyoutside, onsurf);
 
     // If on the wrong side, return -1.
-    Real_v wrongsidedist = Real_v(-1.);
+    Real_v wrongsidedist(-1.0);
     vecCore::MaskedAssign(dist, completelyoutside, wrongsidedist);
     if (vecCore::MaskFull(completelyoutside)) return dist;
 
@@ -255,7 +255,7 @@ public:
     for (int i = 0; i < N && (!vecCore::MaskFull(outside)); ++i) {
       if (fdegenerated[i]) continue;
       // Point A is the current vertex on lower Z. P is the point we come from.
-      pa.Set(fxa[i], fya[i], -fDz);
+      pa.Set(Real_v(fxa[i]), Real_v(fya[i]), Real_v(-fDz));
       Vector3D<Real_v> vecAP = point - pa;
       // Dot product between AP vector and normal to surface has to be negative
       Real_v dotAPNorm = vecAP.Dot(fNormals[i]);
@@ -301,7 +301,7 @@ public:
     for (int i = 0; i < N; ++i) {
       if (fdegenerated[i]) continue;
       // Point A is the current vertex on lower Z. P is the point we come from.
-      pa.Set(fxa[i], fya[i], -fDz);
+      pa.Set(Real_v(fxa[i]), Real_v(fya[i]), Real_v(-fDz));
       Vector3D<Real_v> vecAP = point - pa;
       // Dot product between AP vector and normal to surface has to be positive
       Real_v dotAPNorm = vecAP.Dot(fNormals[i]);
@@ -348,12 +348,12 @@ public:
     Real_v distance = vecCore::NumericLimits<Real_v>::Infinity();
     Real_v tolerance(100. * kTolerance);
     Vector3D<Real_v> unorm;
-    Real_v r = Real_v(-1.);
+    Real_v r(-1.0);
     Real_v rz;
     Bool_v completelyinside, completelyoutside, onsurf;
     CheckInside<Real_v>(point, completelyinside, completelyoutside, onsurf);
     // If on the wrong side, return -1.
-    Real_v wrongsidedist = Real_v(-1.);
+    Real_v wrongsidedist(-1.0);
     vecCore::MaskedAssign(distance, Bool_v(completelyinside && (!done)), wrongsidedist);
     Bool_v checked = completelyinside || done;
     if (vecCore::MaskFull(checked)) return (distance);
@@ -706,7 +706,7 @@ public:
       Vertex_t va;         // vertex i of lower base
       Vector3D<Real_v> pa; // same vertex converted to backend type
       // Point A is the current vertex on lower Z. P is the point we come from.
-      pa.Set(fxa[i], fya[i], -fDz);
+      pa.Set(Real_v(fxa[i]), Real_v(fya[i]), Real_v(-fDz));
       Vector3D<Real_v> vecAP = point - pa;
       // Dot product between AP vector and normal to surface has to be negative
       Real_v dotAPNorm = vecAP.Dot(fNormals[i]);
