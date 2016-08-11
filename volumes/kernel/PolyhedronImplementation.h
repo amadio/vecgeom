@@ -356,7 +356,7 @@ int FindZSegmentKernel<kScalar>(Precision const *begin, Precision const *end, Pr
   int index = -1;
   // Modified algorithm to select the first section the position is close to
   // within boundary tolerance. This is important for degenerated Z polyhedra
-  while (begin < end && pointZ - kTolerance > *begin) {
+  while (begin < end - 1 && pointZ - kTolerance > *begin) {
     ++index;
     ++begin;
   }

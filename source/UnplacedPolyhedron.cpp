@@ -711,8 +711,8 @@ Vector3D<Precision> UnplacedPolyhedron::GetPointOnSurface() const
   } else // Point on Lateral segment or Phi segment
   {
 
-    for (j = 0; j < numPlanes - 1; j++) {
-      if (((chose >= Achose1) && (chose < Achose2)) || (j == numPlanes - 1)) {
+    for (j = 0; j < GetZSegmentCount(); j++) {
+      if (((chose >= Achose1) && (chose < Achose2)) || (j == GetZSegmentCount() - 1)) {
         Flag = j;
         break;
       }
