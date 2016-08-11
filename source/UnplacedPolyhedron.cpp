@@ -601,7 +601,7 @@ Precision UnplacedPolyhedron::SurfaceArea() const
 
 Vector3D<Precision> UnplacedPolyhedron::GetPointOnSurface() const
 {
-  int j, numPlanes = GetZSegmentCount() + 1, Flag = 0;
+  int j, Flag = 0;
   Precision chose, rnd, totArea = 0., Achose1, Achose2, area, aTop = 0., aBottom = 0.;
 
   Vector3D<Precision> p0, p1, p2, p3, pReturn;
