@@ -456,18 +456,25 @@ UmeSimdPrecisionVector ATan2(UmeSimdPrecisionVector const &val1, UmeSimdPrecisio
 // setting up type traits to be able to interact
 // with the VecCore API
 namespace vecCore {
+
+template <>
+struct TypeTraits<vecgeom::UmeSimdMask> {
+  using IndexType  = int;
+  using ScalarType = Bool_s;
+};
+
 template <>
 struct TypeTraits<vecgeom::cxx::UmeSimdPrecisionVector> {
   using ScalarType = double;
-  using MaskType   = vecgeom::cxx::UmeSimdMask;
-  using IndexType  = vecgeom::cxx::UmeSimdInsideVector;
+  using MaskType   = UME::SIMD::SIMDVecMask<vecgeom::kVectorSize>;
+  using IndexType  = vecgeom::cxx::UmeSimdIntegerVector;
 };
 
 template <>
 struct TypeTraits<vecgeom::cxx::UmeSimdInsideVector> {
   using ScalarType = int;
-  using MaskType   = vecgeom::cxx::UmeSimdMask;
-  using IndexType  = int;
+  using MaskType   = UME::SIMD::SIMDVecMask<vecgeom::kVectorSize>;
+  using IndexType  = vecgeom::cxx::UmeSimdIntegerVector;
 };
 }
 
@@ -477,11 +484,8 @@ struct TypeTraits<vecgeom::cxx::UmeSimdInsideVector> {
 namespace vecCore {
 namespace math {
 
-#define UMESIMD_REAL_FUNC(f, name)                                                                 \
-  VECCORE_FORCE_INLINE vecgeom::UmeSimdPrecisionVector f(const vecgeom::UmeSimdPrecisionVector &x) \
-  {                                                                                                \
-    return x.name();                                                                               \
-  }
+#define UMESIMD_REAL_FUNC(f, name) \
+  VECCORE_FORCE_INLINE vecgeom::UmeSimdPrecisionVector f(const vecgeom::UmeSimdPrecisionVector &x) { return x.name(); }
 
 UMESIMD_REAL_FUNC(Abs, abs)
 UMESIMD_REAL_FUNC(Exp, exp)
@@ -499,29 +503,20 @@ UMESIMD_REAL_FUNC(Ceil, ceil)
 
 } // end namespace math
 
-template <>
 VECGEOM_FORCE_INLINE
 bool MaskFull(const vecgeom::UmeSimdMask &cond)
 {
   return cond.hland();
 }
 
-template <>
 VECGEOM_FORCE_INLINE
 bool MaskEmpty(const vecgeom::UmeSimdMask &cond)
 {
   return !cond.hlor();
 }
 
-template <>
-VECCORE_FORCE_INLINE
-void MaskedAssign(vecgeom::UmeSimdPrecisionVector &dest, const vecgeom::UmeSimdMask &mask,
-                  const vecgeom::UmeSimdPrecisionVector &src)
-{
-  dest.assign(mask, src);
-}
+// overload VecCore backend interface functions for VecGeom UMESIMD types
 
-template <>
 VECCORE_FORCE_INLINE
 void MaskedAssign(vecgeom::UmeSimdInsideVector &dest, const vecgeom::UmeSimdMask &mask,
                   const vecgeom::UmeSimdInsideVector &src)
@@ -529,17 +524,36 @@ void MaskedAssign(vecgeom::UmeSimdInsideVector &dest, const vecgeom::UmeSimdMask
   dest.assign(mask, src);
 }
 
-template <>
 VECCORE_FORCE_INLINE
-void MaskedAssign(vecgeom::UmeSimdPrecisionVector &dest, const UME::SIMD::SIMDVecMask<4u> &mask,
+void MaskedAssign(vecgeom::UmeSimdIntegerVector &dest, const vecgeom::UmeSimdMask &mask,
+                  const vecgeom::UmeSimdIntegerVector &src)
+{
+  dest.assign(mask, src);
+}
+
+VECCORE_FORCE_INLINE
+void MaskedAssign(vecgeom::UmeSimdPrecisionVector &dest, const UME::SIMD::SIMDVecMask<vecgeom::kVectorSize> &mask,
                   const vecgeom::UmeSimdPrecisionVector &src)
 {
   dest.assign(mask, src);
 }
 
-template <>
 VECCORE_FORCE_INLINE
-vecgeom::UmeSimdPrecisionVector Blend(const UME::SIMD::SIMDVecMask<4u> &mask,
+vecgeom::UmeSimdInsideVector Blend(const vecgeom::UmeSimdMask &mask, const vecgeom::UmeSimdInsideVector &tval,
+                                   const vecgeom::UmeSimdInsideVector &fval)
+{
+  return tval.blend(mask, fval);
+}
+
+VECCORE_FORCE_INLINE
+vecgeom::UmeSimdIntegerVector Blend(const vecgeom::UmeSimdMask &mask, const vecgeom::UmeSimdIntegerVector &tval,
+                                    const vecgeom::UmeSimdIntegerVector &fval)
+{
+  return tval.blend(mask, fval);
+}
+
+VECCORE_FORCE_INLINE
+vecgeom::UmeSimdPrecisionVector Blend(const UME::SIMD::SIMDVecMask<vecgeom::kVectorSize> &mask,
                                       const vecgeom::UmeSimdPrecisionVector &tval,
                                       const vecgeom::UmeSimdPrecisionVector &fval)
 {
