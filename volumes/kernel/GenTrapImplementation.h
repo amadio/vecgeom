@@ -321,7 +321,7 @@ void GenTrapImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vecto
   // actually this could also give us some indication which face is likely to be hit
 
   // let me see if we can temporarily force the box function to be a function call
-  Real_v bbdistance = Real_v(0.);
+  Real_v bbdistance = Real_v(kInfinity);
   BoxImplementation::DistanceToIn(BoxStruct<Precision>(unplaced.fBBdimensions), point - unplaced.fBBorigin, direction,
                                   stepMax, bbdistance);
 

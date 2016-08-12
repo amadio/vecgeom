@@ -136,6 +136,7 @@ struct BoxImplementation {
     Vector3D<Real_v> safety;
     using Bool_v = vecCore::Mask_v<Real_v>;
     Bool_v done(false);
+    distance = vecCore::NumericLimits<Real_v>::Infinity();
 
     safety[0] = vecCore::math::Abs(point[0]) - box.fDimensions[0];
     safety[1] = vecCore::math::Abs(point[1]) - box.fDimensions[1];
