@@ -45,10 +45,10 @@ struct kUmeSimd {
 constexpr int kVectorSize = 16;
 #elif defined(__MIC__)
 constexpr int kVectorSize = 16;
-#elif defined(__AVX2__)
-constexpr int kVectorSize = 8;
 #elif defined(__AVX__)
 constexpr int kVectorSize = 8;
+#elif defined(__SSE__)
+constexpr int kVectorSize = 4;
 #else // Default fallback to scalar emulation
 constexpr int kVectorSize = 1;
 #endif
@@ -57,10 +57,10 @@ constexpr int kVectorSize = 1;
 constexpr int kVectorSize = 8;
 #elif defined(__MIC__)
 constexpr int kVectorSize = 8;
-#elif defined(__AVX2__)
-constexpr int kVectorSize = 4;
 #elif defined(__AVX__)
 constexpr int kVectorSize = 4;
+#elif defined(__SSE__)
+constexpr int kVectorSize = 2;
 #else // Default fallback to scalar emulation
 constexpr int kVectorSize = 1;
 #endif
