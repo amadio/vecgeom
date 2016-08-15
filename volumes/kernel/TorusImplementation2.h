@@ -478,7 +478,7 @@ struct TorusImplementation2 {
     typedef typename Backend::bool_v Bool_t;
 
     Vector3D<Float_t> localPoint     = transformation.Transform<transCodeT, rotCodeT>(point);
-    Vector3D<Float_t> localDirection = transformation.Transform<transCodeT, rotCodeT>(direction);
+    Vector3D<Float_t> localDirection = transformation.TransformDirection<rotCodeT>(direction);
 
     ////////First naive implementation
     distance = kInfinity;
