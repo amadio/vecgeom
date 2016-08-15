@@ -166,7 +166,7 @@ struct BoxImplementation {
     if (vecCore::MaskFull(done)) return;
 
     // y
-    next   = safety[1] / vecCore::math::Abs(direction[1] + kMinimum);
+    next   = safety[1] / NonZeroAbs(direction[1]);
     coord1 = point[0] + next * direction[0];
     coord2 = point[2] + next * direction[2];
     hit    = safety[1] >= -kHalfTolerance && point[1] * direction[1] < 0 &&
@@ -176,7 +176,7 @@ struct BoxImplementation {
     if (vecCore::MaskFull(done)) return;
 
     // z
-    next   = safety[2] / vecCore::math::Abs(direction[2] + kMinimum);
+    next   = safety[2] / NonZeroAbs(direction[2]);
     coord1 = point[0] + next * direction[0];
     coord2 = point[1] + next * direction[1];
     hit    = safety[2] >= -kHalfTolerance && point[2] * direction[2] < 0 &&
