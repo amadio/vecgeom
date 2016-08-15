@@ -2,6 +2,7 @@
 #include "volumes/Polyhedron.h"
 #include "benchmarking/Benchmarker.h"
 #include "management/GeoManager.h"
+#include "ArgParser.h"
 
 #include <fstream>
 
@@ -43,12 +44,22 @@ UnplacedPolyhedron *ManySegments()
   return new UnplacedPolyhedron(6, nPlanes, zPlanes, rInner, rOuter);
 }
 
-int main(int nArgs, char **args)
+int main(int argc, char *argv[])
 {
+
+  OPTION_INT(npoints, 1024);
+  OPTION_INT(nrep, 4);
+  // Polyhedron type:
+  //   0=NoInnerRadii
+  //   1=WithInnerRadii
+  //   2=WithPhiSection
+  //   3=ManySegments
+  OPTION_INT(type, 2);
 
   UnplacedBox worldUnplaced = UnplacedBox(10, 10, 10);
 
-  auto RunBenchmark = [&worldUnplaced](UnplacedPolyhedron const *shape, char const *label) -> int {
+  auto RunBenchmark = [&worldUnplaced](UnplacedPolyhedron const *shape, char const *label, int npoints,
+                                       int nrep) -> int {
     LogicalVolume logical("pgon", shape);
     // VPlacedVolume *placed = logical.Place();
     LogicalVolume worldLogical(&worldUnplaced);
@@ -60,8 +71,8 @@ int main(int nArgs, char **args)
     Benchmarker benchmarker(GeoManager::Instance().GetWorld());
     benchmarker.SetVerbosity(2);
     benchmarker.SetPoolMultiplier(1);
-    benchmarker.SetRepetitions(4);
-    benchmarker.SetPointCount(102400);
+    benchmarker.SetRepetitions(nrep);
+    benchmarker.SetPointCount(npoints);
     auto errcode                       = benchmarker.RunBenchmark();
     std::list<BenchmarkResult> results = benchmarker.PopResults();
     std::ofstream outStream;
@@ -74,8 +85,26 @@ int main(int nArgs, char **args)
     return errcode;
   };
 
-  // RunBenchmark(NoInnerRadii(), "polyhedron_no-inner-radii.csv");
-  // RunBenchmark(WithInnerRadii(), "polyhedron_with-inner-radii.csv");
-  // RunBenchmark(ManySegments(), "polyhedron_many-segments.csv");
-  return RunBenchmark(WithPhiSection(), "polyhedron_phi-section.csv");
+  std::cout << "________________________________________________________________________________\n";
+  switch (type) {
+  case 0:
+    std::cout << "Testing NoInnerRadii with npoints = " << npoints << " nrep = " << nrep << std::endl;
+    std::cout << "________________________________________________________________________________\n";
+    return RunBenchmark(NoInnerRadii(), "polyhedron_no-inner-radii.csv", npoints, nrep);
+  case 1:
+    std::cout << "Testing WithInnerRadii with npoints = " << npoints << " nrep = " << nrep << std::endl;
+    std::cout << "________________________________________________________________________________\n";
+    return RunBenchmark(WithInnerRadii(), "polyhedron_with-inner-radii.csv", npoints, nrep);
+  case 2:
+    std::cout << "Testing WithPhiSection with npoints = " << npoints << " nrep = " << nrep << std::endl;
+    std::cout << "________________________________________________________________________________\n";
+    return RunBenchmark(ManySegments(), "polyhedron_many-segments.csv", npoints, nrep);
+  case 3:
+    std::cout << "Testing ManySegments with npoints = " << npoints << " nrep = " << nrep << std::endl;
+    std::cout << "________________________________________________________________________________\n";
+    return RunBenchmark(WithPhiSection(), "polyhedron_phi-section.csv", npoints, nrep);
+  default:
+    std::cout << "Unknown polyhedron type." << std::endl;
+  }
+  return 1;
 }
