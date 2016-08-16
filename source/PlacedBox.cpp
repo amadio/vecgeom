@@ -33,7 +33,7 @@ void PlacedBox::PrintType(std::ostream &s) const
 
 VPlacedVolume const *PlacedBox::ConvertToUnspecialized() const
 {
-  return new SimpleBox(GetLabel().c_str(), logical_volume_, GetTransformation());
+  return new SimpleBox(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
 }
 
 #ifdef VECGEOM_ROOT

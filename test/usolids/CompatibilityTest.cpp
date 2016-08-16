@@ -35,6 +35,7 @@ void CompareBox(VUSolid const *first, VUSolid const *second)
   Vector3D<Precision> insidePoint(5, 5, 5);
   Vector3D<Precision> outsidePoint(-1, 7, 3);
   Vector3D<Precision> direction(0.01, -1.033, 0);
+  direction.Normalize();
   assert(first->Inside(insidePoint) == second->Inside(insidePoint));
   assert(std::abs(first->DistanceToIn(outsidePoint, direction) - second->DistanceToIn(outsidePoint, direction)) <
          kTolerance);
@@ -49,6 +50,7 @@ void CompareTube(VUSolid const *first, VUSolid const *second)
   Vector3D<Precision> insidePoint(1, -1, 1);
   Vector3D<Precision> outsidePoint(1, 1, -4);
   Vector3D<Precision> direction(0.01, -0.0033, 1);
+  direction.Normalize();
   assert(first->Inside(insidePoint) == second->Inside(insidePoint));
   assert(std::abs(first->DistanceToIn(outsidePoint, direction) - second->DistanceToIn(outsidePoint, direction)) <
          kTolerance);
@@ -63,6 +65,7 @@ void CompareTrap(VUSolid const *first, VUSolid const *second)
   Vector3D<Precision> insidePoint(1, -1, 0);
   Vector3D<Precision> outsidePoint(10, -10, -5);
   Vector3D<Precision> direction(-0.6, 0.6, 0.5291502622129182);
+  direction.Normalize();
   assert(first->Inside(insidePoint) == second->Inside(insidePoint));
   assert(std::abs(first->DistanceToIn(outsidePoint, direction) - second->DistanceToIn(outsidePoint, direction)) <
          10. * kTolerance);

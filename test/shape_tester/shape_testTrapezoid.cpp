@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     }
   } else {
     // validate construtor for input corner points -- add an xy-offset for non-zero theta,phi
-    vecgeom::TrapCorners_t xyz;
+    vecgeom::TrapCorners xyz;
     Precision xoffset = 9;
     Precision yoffset = -6;
 

@@ -1,8 +1,8 @@
-/// \file   SpecializedTrapezoid.h
-/// \author Guilherme Lima (lima 'at' fnal 'dot' gov)
-/*
- * 2014-05-01 - Created, based on the Parallelepiped draft
- */
+/// @file: SpecializedTrapezoid.h
+/// @author Guilherme Lima (lima@fnal.gov)
+//
+//  2016-07-22 Guilherme Lima  Created
+//
 
 #ifndef VECGEOM_VOLUMES_SPECIALIZEDTRAPEZOID_H_
 #define VECGEOM_VOLUMES_SPECIALIZEDTRAPEZOID_H_
@@ -11,18 +11,18 @@
 
 #include "volumes/kernel/TrapezoidImplementation.h"
 #include "volumes/PlacedTrapezoid.h"
-#include "volumes/ShapeImplementationHelper.h"
-
-#include <stdio.h>
+#include "volumes/SpecializedPlacedVolImplHelper.h"
+#include "volumes/UnplacedTrapezoid.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedTrapezoid = ShapeImplementationHelper<TrapezoidImplementation<transCodeT, rotCodeT>>;
+using SpecializedTrapezoid = SIMDSpecializedVolImplHelper<TrapezoidImplementation, transCodeT, rotCodeT>;
 
 using SimpleTrapezoid = SpecializedTrapezoid<translation::kGeneric, rotation::kGeneric>;
-}
-} // End global namespace
 
-#endif // VECGEOM_VOLUMES_SPECIALIZEDTRAPEZOID_H_
+} // inline NS
+} // vecgeom NS
+
+#endif

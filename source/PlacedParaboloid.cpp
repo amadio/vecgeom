@@ -33,7 +33,7 @@ void PlacedParaboloid::PrintType(std::ostream &s) const
 
 VPlacedVolume const *PlacedParaboloid::ConvertToUnspecialized() const
 {
-  return new SimpleParaboloid(GetLabel().c_str(), logical_volume_, GetTransformation());
+  return new SimpleParaboloid(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
 }
 
 #ifdef VECGEOM_ROOT

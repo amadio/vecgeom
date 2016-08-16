@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
   //-- and here is for an internal trapezoid
 
   // validate construtor for input corner points -- add an xy-offset for non-zero theta,phi
-  TrapCorners_t xyz;
+  TrapCorners xyz;
   Precision xoffset = 9;
   Precision yoffset = -6;
 
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
   UnplacedTrapezoid trapUnplaced(xyz);
 
   //.. and here is for a secon internal trapezoid
-  //  UnplacedTrapezoid trapUnplaced2(1,0,0, 1,1,1,0, 1,1,1,0);
+  // UnplacedTrapezoid trapUnplaced2(10, 0, 0, 10, 10, 10, 0, 10, 10, 10, 0);
 
   LogicalVolume world("world", &worldUnplaced);
   LogicalVolume trap("trap", &trapUnplaced);
@@ -106,6 +106,6 @@ int main(int argc, char *argv[])
   }
 
   // cleanup
-  delete transf;
+  if (transf) delete transf;
   return errcode;
 }

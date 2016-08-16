@@ -450,17 +450,17 @@ void GeomCppExporter::DumpLogicalVolumes(std::ostream &dumps, std::ostream &exte
       UnplacedTrapezoid const *shape = dynamic_cast<UnplacedTrapezoid const *>(l->GetUnplacedVolume());
       line << " new UnplacedTrapezoid( ";
 
-      line << shape->GetDz() << " , ";
-      line << shape->GetTheta() << " , ";
-      line << shape->GetPhi() << " , ";
-      line << shape->GetDy1() << " , ";
-      line << shape->GetDx1() << " , ";
-      line << shape->GetDx2() << " , ";
-      line << shape->GetTanAlpha1() << " , ";
-      line << shape->GetDy2() << " , ";
-      line << shape->GetDx3() << " , ";
-      line << shape->GetDx4() << " , ";
-      line << shape->GetTanAlpha2();
+      line << shape->dz() << " , ";
+      line << shape->theta() << " , ";
+      line << shape->phi() << " , ";
+      line << shape->dy1() << " , ";
+      line << shape->dx1() << " , ";
+      line << shape->dx2() << " , ";
+      line << shape->tanAlpha1() << " , ";
+      line << shape->dy2() << " , ";
+      line << shape->dx3() << " , ";
+      line << shape->dx4() << " , ";
+      line << shape->tanAlpha2();
       line << " )";
 
       fNeededHeaderFiles.insert("volumes/UnplacedTrapezoid.h");

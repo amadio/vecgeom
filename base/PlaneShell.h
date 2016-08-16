@@ -1,3 +1,4 @@
+//===-- base/PlaneShell.h ----------------------------*- C++ -*-===//
 /// \file PlaneShell.h
 /// \author Guilherme Lima (lima at fnal dot gov)
 
@@ -7,8 +8,8 @@
 #include "base/Global.h"
 #include "volumes/kernel/GenericKernels.h"
 
-// namespace vecgeom::cuda { template <typename Backend, int N> class PlaneShell; }
-#include "backend/Backend.h"
+// namespace vecgeom::cuda { template <typename Real_v, int N> class PlaneShell; }
+#include <VecCore/VecCore>
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -27,7 +28,6 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
  *        when possible.
  */
 
-// template <int N, typename Type>
 template <int N, typename Type>
 struct PlaneShell {
 
@@ -127,16 +127,14 @@ public:
     }
   }
 
-  template <typename Backend, bool ForInside>
+  template <typename Real_v, bool ForInside>
+  VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  void GenericKernelForContainsAndInside(Vector3D<typename Backend::precision_v> const &point,
-                                         typename Backend::bool_v &completelyInside,
-                                         typename Backend::bool_v &completelyOutside) const
+  void GenericKernelForContainsAndInside(Vector3D<Real_v> const &point, vecCore::Mask_v<Real_v> &completelyInside,
+                                         vecCore::Mask_v<Real_v> &completelyOutside) const
   {
-
     // auto-vectorizable loop for Backend==scalar
-    typedef typename Backend::precision_v Float_t;
-    Float_t dist[N];
+    Real_v dist[N];
     for (unsigned int i = 0; i < N; ++i) {
       dist[i] = this->fA[i] * point.x() + this->fB[i] * point.y() + this->fC[i] * point.z() + this->fD[i];
     }
@@ -144,11 +142,11 @@ public:
     // analysis loop - not auto-vectorizable
     for (unsigned int i = 0; i < N; ++i) {
       // is it outside of this side plane?
-      completelyOutside |= dist[i] > MakePlusTolerant<ForInside>(0.);
-      if (IsFull(completelyOutside)) return;
+      completelyOutside = completelyOutside || (dist[i] > MakePlusTolerant<ForInside>(0.));
       if (ForInside) {
-        completelyInside &= dist[i] < MakeMinusTolerant<ForInside>(0.);
+        completelyInside = completelyInside && (dist[i] < MakeMinusTolerant<ForInside>(0.));
       }
+      if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(completelyOutside)) return;
     }
   }
 
@@ -161,26 +159,22 @@ public:
   /// Note: smin0 parameter is needed here, otherwise smax can become smaller than smin0,
   ///   which means condition (2) happens and +inf must be returned.  Without smin0, this
   ///   condition is sometimes missed.
-  template <typename Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  typename Backend::precision_v DistanceToIn(Vector3D<typename Backend::precision_v> const &point,
-                                             typename Backend::precision_v const &smin0,
-                                             Vector3D<typename Backend::precision_v> const &dir) const
+  Real_v DistanceToIn(Vector3D<Real_v> const &point, Real_v const &smin0, Vector3D<Real_v> const &dir) const
   {
+    using Bool_v = vecCore::Mask_v<Real_v>;
+    Bool_v done(false);
 
-    typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
-
-    Float_t distIn(kInfinity); // set for earlier returns
-    Float_t smax(kInfinity);
-    Float_t smin(smin0);
+    Real_v distIn(kInfinity); // set for earlier returns
+    Real_v smax(kInfinity);
+    Real_v smin(smin0);
 
     // hope for a vectorization of this part for Backend==scalar!!
-    Bool_t done(Backend::kFalse);
-    Float_t pdist[N];
-    Float_t proj[N];
-    Float_t vdist[N];
+    Real_v pdist[N];
+    Real_v proj[N];
+    Real_v vdist[N];
     // vectorizable part
     for (int i = 0; i < N; ++i) {
       pdist[i] = this->fA[i] * point.x() + this->fB[i] * point.y() + this->fC[i] * point.z() + this->fD[i];
@@ -191,38 +185,38 @@ public:
     }
 
     // wrong-side check: if (inside && smin<0) return -1
-    Bool_t inside(smin < MakeMinusTolerant<true>(0.0));
+    Bool_v inside(smin < MakeMinusTolerant<true>(0.0));
     for (int i = 0; i < N; ++i) {
-      inside &= pdist[i] < MakeMinusTolerant<true>(0.0);
+      inside = inside && pdist[i] < MakeMinusTolerant<true>(0.0);
     }
-    MaskedAssign(inside, -1.0, &distIn);
-    done |= inside;
-    if (Backend::early_returns && IsFull(done)) return distIn;
+    vecCore::MaskedAssign(distIn, inside, Real_v(-1.0));
+    done = done || inside;
+    if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return distIn;
 
     // analysis loop
     for (int i = 0; i < N; ++i) {
       // if outside and moving away, return infinity
-      Bool_t posPoint = pdist[i] > MakeMinusTolerant<true>(0.0);
-      Bool_t posDir   = proj[i] > 0;
-      done |= (posPoint && posDir);
+      Bool_v posPoint = pdist[i] > MakeMinusTolerant<true>(0.0);
+      Bool_v posDir   = proj[i] > 0;
+      done            = done || (posPoint && posDir);
 
       // check if trajectory will intercept plane within current range (smin,smax)
-      Bool_t interceptFromInside = (!posPoint && posDir);
-      done |= (interceptFromInside && vdist[i] < smin);
+      Bool_v interceptFromInside = (!posPoint && posDir);
+      done                       = done || (interceptFromInside && vdist[i] < smin);
 
-      Bool_t interceptFromOutside = (posPoint && !posDir);
-      done |= (interceptFromOutside && vdist[i] > smax);
-      if (Backend::early_returns && IsFull(done)) return distIn;
+      Bool_v interceptFromOutside = (posPoint && !posDir);
+      done                        = done || (interceptFromOutside && vdist[i] > smax);
+      if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return distIn;
 
       // update smin,smax
-      Bool_t validVdist = (smin < vdist[i] && vdist[i] < smax);
-      MaskedAssign(!done && interceptFromOutside && validVdist, vdist[i], &smin);
-      MaskedAssign(!done && interceptFromInside && validVdist, vdist[i], &smax);
+      Bool_v validVdist = (smin < vdist[i] && vdist[i] < smax);
+      vecCore::MaskedAssign(smin, !done && interceptFromOutside && validVdist, vdist[i]);
+      vecCore::MaskedAssign(smax, !done && interceptFromInside && validVdist, vdist[i]);
     }
 
     // Survivors will return smin, which is the maximum distance in an interceptFromOutside situation
     // (SW: not sure this is true since smin is initialized from outside and can have any arbitrary value)
-    MaskedAssign(!done && smin >= -kTolerance, smin, &distIn);
+    vecCore::MaskedAssign(distIn, !done && smin >= -kTolerance, smin);
     return distIn;
   }
 
@@ -230,25 +224,21 @@ public:
   /// The type returned is the type corresponding to the backend given.
   /// For some special cases, the value returned is:
   ///     (1) -1, if point is outside (wrong-side)
-  template <typename Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  typename Backend::precision_v DistanceToOut(Vector3D<typename Backend::precision_v> const &point,
-                                              Vector3D<typename Backend::precision_v> const &dir) const
+  Real_v DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir) const
   {
-
-    typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
-
-    Float_t distOut(kInfinity);
+    using Bool_v = vecCore::Mask_v<Real_v>;
+    Bool_v done(false);
+    Real_v distOut(kInfinity);
 
     // hope for a vectorization of this part for Backend==scalar !!
     // the idea is to put vectorizable things into this loop
     // and separate the analysis into a separate loop if need be
-    Bool_t done(Backend::kFalse);
-    Float_t pdist[N];
-    Float_t proj[N];
-    Float_t vdist[N];
+    Real_v pdist[N];
+    Real_v proj[N];
+    Real_v vdist[N];
     for (int i = 0; i < N; ++i) {
       pdist[i] = this->fA[i] * point.x() + this->fB[i] * point.y() + this->fC[i] * point.z() + this->fD[i];
       proj[i]  = this->fA[i] * dir.x() + this->fB[i] * dir.y() + this->fC[i] * dir.z();
@@ -257,73 +247,96 @@ public:
 
     // early return if point is outside of plane
     for (int i = 0; i < N; ++i) {
-      done |= (pdist[i] > kHalfTolerance);
+      done = done || (pdist[i] > kHalfTolerance);
     }
-    MaskedAssign(done, -1.0, &distOut);
-
-    if (Backend::early_returns && IsFull(done)) {
-      return distOut;
-    }
+    vecCore::MaskedAssign(distOut, done, Real_v(-1.0));
+    if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return distOut;
 
     // add = in vdist[i]>=0  and "proj[i]>0" in order to pass unit tests, but this will slow down DistToOut()!!! check
     // effect!
     for (int i = 0; i < N; ++i) {
-      Bool_t test = (vdist[i] >= -kHalfTolerance && proj[i] > 0 && vdist[i] < distOut);
-      MaskedAssign(test, vdist[i], &distOut);
+      Bool_v test = (vdist[i] >= -kHalfTolerance && proj[i] > 0 && vdist[i] < distOut);
+      vecCore::MaskedAssign(distOut, test, vdist[i]);
     }
 
     return distOut;
   }
 
   /// \return the safety distance to the planar shell when the point is located within the shell itself.
-  /// The type returned is the type corresponding to the backend given.
-  template <typename Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  void SafetyToIn(Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety) const
+  void SafetyToIn(Vector3D<Real_v> const &point, Real_v &safety) const
   {
-
-    typedef typename Backend::precision_v Float_t;
-
     // vectorizable loop
-    Float_t dist[N];
+    Real_v dist[N];
     for (int i = 0; i < N; ++i) {
       dist[i] = this->fA[i] * point.x() + this->fB[i] * point.y() + this->fC[i] * point.z() + this->fD[i];
     }
 
     // non-vectorizable part
     for (int i = 0; i < N; ++i) {
-      MaskedAssign(dist[i] > safety, dist[i], &safety);
+      vecCore::MaskedAssign(safety, dist[i] > safety, dist[i]);
     }
-    // not necessary: negative answer is fine
-    // MaskedAssign(safety<0, 0.0, &safety);
   }
 
   /// \return the distance to the planar shell when the point is located within the shell itself.
-  /// The type returned is the type corresponding to the backend given.
-  template <typename Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  void SafetyToOut(Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety) const
+  void SafetyToOut(Vector3D<Real_v> const &point, Real_v &safety) const
   {
-
-    typedef typename Backend::precision_v Float_t;
-
     // vectorizable loop
-    Float_t dist[N];
+    Real_v dist[N];
     for (int i = 0; i < N; ++i) {
       dist[i] = -(this->fA[i] * point.x() + this->fB[i] * point.y() + this->fC[i] * point.z() + this->fD[i]);
     }
 
     // non-vectorizable part
     for (int i = 0; i < N; ++i) {
-      MaskedAssign(dist[i] < safety, dist[i], &safety);
+      vecCore::MaskedAssign(safety, dist[i] < safety, dist[i]);
     }
 
     return;
   }
+
+  /// \return a *non-normalized* vector normal to the plane containing (or really close) to point.
+  /// In most cases the resulting normal is either (0,0,0) when point is not close to any plane,
+  /// or the normal of that single plane really close to the point (in this case, it *is* normalized).
+  ///
+  /// Note: If the point is really close to more than one plane, those planes' normals are added,
+  /// and in this case the vector returned *is not* normalized.  This can be used as a flag, so that
+  /// the callee knows that nsurf==2 (the maximum value possible).
+  ///
+  template <typename Real_v>
+  VECGEOM_FORCE_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
+  Vector3D<Real_v> NormalKernel(Vector3D<Real_v> const &point, typename vecCore::Mask_v<Real_v> &valid) const
+  {
+    Vector3D<Real_v> normal(0., 0., 0.);
+
+    // vectorizable loop
+    Real_v dist[N];
+    for (int i = 0; i < N; ++i) {
+      dist[i] = -(this->fA[i] * point.x() + this->fB[i] * point.y() + this->fC[i] * point.z() + this->fD[i]);
+    }
+
+    // non-vectorizable part
+    constexpr double delta = 100. * kTolerance;
+    for (int i = 0; i < N; ++i) {
+      vecCore::MaskedAssign(normal[0], Abs(dist[i]) <= delta, normal[0] + this->fA[i]);
+      vecCore::MaskedAssign(normal[1], Abs(dist[i]) <= delta, normal[1] + this->fB[i]);
+      vecCore::MaskedAssign(normal[2], Abs(dist[i]) <= delta, normal[2] + this->fC[i]);
+      // valid becomes false if any point is outside by more than delta (dist<-delta)
+      valid = valid && dist[i] > -delta;
+    }
+
+    // Note: this could be (rarely) a non-normalized normal vector (when point is close to 2 planes)
+    return normal;
+  }
 };
-}
-} // End global namespace
+
+} // end inline namespace
+} // end global namespace
 
 #endif // VECGEOM_BASE_SIDEPLANES_H_

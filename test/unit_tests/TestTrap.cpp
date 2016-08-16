@@ -24,7 +24,7 @@ bool TestTrap()
   Vec_t pzero(0, 0, 0);
   Vec_t ponxside(20, 0, 0), ponyside(0, 30, 0), ponzside(0, 0, 40);
   Vec_t ponmxside(-20, 0, 0), ponmyside(0, -30, 0), ponmzside(0, 0, -40);
-  Vec_t ponzsidey(0, 25, 40), ponmzsidey(0, 25, -40);
+  Vec_t ponzsidey(0, 25, 40), ponmzsidey(0, 20, -40);
 
   Vec_t pbigx(100, 0, 0), pbigy(0, 100, 0), pbigz(0, 0, 100), pbig(100, 100, 100);
   Vec_t pbigmx(-100, 0, 0), pbigmy(0, -100, 0), pbigmz(0, 0, -100);
@@ -112,8 +112,15 @@ bool TestTrap()
   // std::cout<<"Trd Surface Area : " << trap5.SurfaceArea()<<std::endl;
   assert(trap5.SurfaceArea() == 20800);
 
-  // Check Inside
+  // vecgeom::cxx::SimpleTrapezoid const* ptrap1 = dynamic_cast<vecgeom::cxx::SimpleTrapezoid*>(&trap1);
+  // if(ptrap1 != NULL) {
+  // ptrap1->Print();
+  // // ptrap1->PrintType(std::cout);
+  // // ptrap1->PrintUnplacedType(std::cout);
+  // // ptrap1->PrintImplementationType(std::cout);
+  // }
 
+  // Check Inside
   assert(trap1.Inside(pzero) == vecgeom::EInside::kInside);
   assert(trap1.Inside(pbigz) == vecgeom::EInside::kOutside);
   assert(trap1.Inside(ponxside) == vecgeom::EInside::kSurface);
@@ -129,21 +136,21 @@ bool TestTrap()
   // Check Surface Normal
 
   valid = trap1.Normal(ponxside, normal);
-  assert(ApproxEqual(normal, Vec_t(1., 0., 0.)));
+  assert(valid && ApproxEqual(normal, Vec_t(1., 0., 0.)));
   valid = trap1.Normal(ponmxside, normal);
-  assert(ApproxEqual(normal, Vec_t(-1., 0., 0.)));
+  assert(valid && ApproxEqual(normal, Vec_t(-1., 0., 0.)));
   valid = trap1.Normal(ponyside, normal);
-  assert(ApproxEqual(normal, Vec_t(0., 1., 0.)));
+  assert(valid && ApproxEqual(normal, Vec_t(0., 1., 0.)));
   valid = trap1.Normal(ponmyside, normal);
-  assert(ApproxEqual(normal, Vec_t(0., -1., 0.)));
+  assert(valid && ApproxEqual(normal, Vec_t(0., -1., 0.)));
   valid = trap1.Normal(ponzside, normal);
-  assert(ApproxEqual(normal, Vec_t(0., 0., 1.)));
+  assert(valid && ApproxEqual(normal, Vec_t(0., 0., 1.)));
   valid = trap1.Normal(ponmzside, normal);
-  assert(ApproxEqual(normal, Vec_t(0., 0., -1.)));
+  assert(valid && ApproxEqual(normal, Vec_t(0., 0., -1.)));
   valid = trap1.Normal(ponzsidey, normal);
-  assert(ApproxEqual(normal, Vec_t(0., 0., 1.)));
+  assert(valid && ApproxEqual(normal, Vec_t(0., 0., 1.)));
   valid = trap1.Normal(ponmzsidey, normal);
-  assert(ApproxEqual(normal, Vec_t(0., 0., -1.)));
+  assert(valid && ApproxEqual(normal, Vec_t(0., 0., -1.)));
 
   // Normals on Edges
 
@@ -164,35 +171,32 @@ bool TestTrap()
   double invSqrt3 = 1.0 / std::sqrt(3.0);
 
   valid = trap1.Normal(edgeXY, normal);
-  assert(ApproxEqual(normal, Vec_t(invSqrt2, invSqrt2, 0.0)));
-
-  // std::cout << " Normal at " << edgeXY << " is " << normal
-  //    << " Expected is " << Vec_t( invSqrt2, invSqrt2, 0.0) << std::endl;
+  assert(valid && ApproxEqual(normal, Vec_t(invSqrt2, invSqrt2, 0.0)));
 
   valid = trap1.Normal(edgemXmY, normal);
-  assert(ApproxEqual(normal, Vec_t(-invSqrt2, -invSqrt2, 0.0)) && valid);
+  assert(valid && ApproxEqual(normal, Vec_t(-invSqrt2, -invSqrt2, 0.0)) && valid);
   valid = trap1.Normal(edgeXmY, normal);
-  assert(ApproxEqual(normal, Vec_t(invSqrt2, -invSqrt2, 0.0)));
+  assert(valid && ApproxEqual(normal, Vec_t(invSqrt2, -invSqrt2, 0.0)));
   valid = trap1.Normal(edgemXY, normal);
-  assert(ApproxEqual(normal, Vec_t(-invSqrt2, invSqrt2, 0.0)));
+  assert(valid && ApproxEqual(normal, Vec_t(-invSqrt2, invSqrt2, 0.0)));
 
   valid = trap1.Normal(edgeXZ, normal);
-  assert(ApproxEqual(normal, Vec_t(invSqrt2, 0.0, invSqrt2)));
+  assert(valid && ApproxEqual(normal, Vec_t(invSqrt2, 0.0, invSqrt2)));
   valid = trap1.Normal(edgemXmZ, normal);
-  assert(ApproxEqual(normal, Vec_t(-invSqrt2, 0.0, -invSqrt2)));
+  assert(valid && ApproxEqual(normal, Vec_t(-invSqrt2, 0.0, -invSqrt2)));
   valid = trap1.Normal(edgeXmZ, normal);
-  assert(ApproxEqual(normal, Vec_t(invSqrt2, 0.0, -invSqrt2)));
+  assert(valid && ApproxEqual(normal, Vec_t(invSqrt2, 0.0, -invSqrt2)));
   valid = trap1.Normal(edgemXZ, normal);
-  assert(ApproxEqual(normal, Vec_t(-invSqrt2, 0.0, invSqrt2)));
+  assert(valid && ApproxEqual(normal, Vec_t(-invSqrt2, 0.0, invSqrt2)));
 
   valid = trap1.Normal(edgeYZ, normal);
-  assert(ApproxEqual(normal, Vec_t(0.0, invSqrt2, invSqrt2)));
+  assert(valid && ApproxEqual(normal, Vec_t(0.0, invSqrt2, invSqrt2)));
   valid = trap1.Normal(edgemYmZ, normal);
-  assert(ApproxEqual(normal, Vec_t(0.0, -invSqrt2, -invSqrt2)));
+  assert(valid && ApproxEqual(normal, Vec_t(0.0, -invSqrt2, -invSqrt2)));
   valid = trap1.Normal(edgeYmZ, normal);
-  assert(ApproxEqual(normal, Vec_t(0.0, invSqrt2, -invSqrt2)));
+  assert(valid && ApproxEqual(normal, Vec_t(0.0, invSqrt2, -invSqrt2)));
   valid = trap1.Normal(edgemYZ, normal);
-  assert(ApproxEqual(normal, Vec_t(0.0, -invSqrt2, invSqrt2)));
+  assert(valid && ApproxEqual(normal, Vec_t(0.0, -invSqrt2, invSqrt2)));
 
   // Normals on corners
 
@@ -206,38 +210,40 @@ bool TestTrap()
   Vec_t cornermXmYmZ(-20.0, -30., -40.0);
 
   valid = trap1.Normal(cornerXYZ, normal);
-  assert(ApproxEqual(normal, Vec_t(invSqrt3, invSqrt3, invSqrt3)));
+  assert(valid && ApproxEqual(normal, Vec_t(invSqrt3, invSqrt3, invSqrt3)));
   valid = trap1.Normal(cornermXYZ, normal);
-  assert(ApproxEqual(normal, Vec_t(-invSqrt3, invSqrt3, invSqrt3)));
+  assert(valid && ApproxEqual(normal, Vec_t(-invSqrt3, invSqrt3, invSqrt3)));
   valid = trap1.Normal(cornerXmYZ, normal);
-  assert(ApproxEqual(normal, Vec_t(invSqrt3, -invSqrt3, invSqrt3)));
+  assert(valid && ApproxEqual(normal, Vec_t(invSqrt3, -invSqrt3, invSqrt3)));
   valid = trap1.Normal(cornermXmYZ, normal);
-  assert(ApproxEqual(normal, Vec_t(-invSqrt3, -invSqrt3, invSqrt3)));
+  assert(valid && ApproxEqual(normal, Vec_t(-invSqrt3, -invSqrt3, invSqrt3)));
   valid = trap1.Normal(cornerXYmZ, normal);
-  assert(ApproxEqual(normal, Vec_t(invSqrt3, invSqrt3, -invSqrt3)));
+  assert(valid && ApproxEqual(normal, Vec_t(invSqrt3, invSqrt3, -invSqrt3)));
   valid = trap1.Normal(cornermXYmZ, normal);
-  assert(ApproxEqual(normal, Vec_t(-invSqrt3, invSqrt3, -invSqrt3)));
+  assert(valid && ApproxEqual(normal, Vec_t(-invSqrt3, invSqrt3, -invSqrt3)));
   valid = trap1.Normal(cornerXmYmZ, normal);
-  assert(ApproxEqual(normal, Vec_t(invSqrt3, -invSqrt3, -invSqrt3)));
+  assert(valid && ApproxEqual(normal, Vec_t(invSqrt3, -invSqrt3, -invSqrt3)));
   valid = trap1.Normal(cornermXmYmZ, normal);
-  assert(ApproxEqual(normal, Vec_t(-invSqrt3, -invSqrt3, -invSqrt3)));
+  assert(valid && ApproxEqual(normal, Vec_t(-invSqrt3, -invSqrt3, -invSqrt3)));
 
   valid = trap2.Normal(ponxside, normal);
-  assert(ApproxEqual(normal, Vec_t(cosa, 0, -sina)));
+  assert(valid && ApproxEqual(normal, Vec_t(cosa, 0, -sina)));
   valid = trap2.Normal(ponmxside, normal);
-  assert(ApproxEqual(normal, Vec_t(-cosa, 0, -sina)));
+  assert(valid && ApproxEqual(normal, Vec_t(-cosa, 0, -sina)));
   valid = trap2.Normal(ponyside, normal);
-  assert(ApproxEqual(normal, Vec_t(0, cosa, -sina)));
+  assert(valid && ApproxEqual(normal, Vec_t(0, cosa, -sina)));
   valid = trap2.Normal(ponmyside, normal);
-  assert(ApproxEqual(normal, Vec_t(0, -cosa, -sina)));
+  assert(valid && ApproxEqual(normal, Vec_t(0, -cosa, -sina)));
   valid = trap2.Normal(ponzside, normal);
-  assert(ApproxEqual(normal, Vec_t(0, 0, 1)));
+  assert(valid && ApproxEqual(normal, Vec_t(0, 0, 1)));
   valid = trap2.Normal(ponmzside, normal);
-  assert(ApproxEqual(normal, Vec_t(0, 0, -1)));
+  assert(valid && ApproxEqual(normal, Vec_t(0, 0, -1)));
   valid = trap2.Normal(ponzsidey, normal);
-  assert(ApproxEqual(normal, Vec_t(0, 0, 1)));
+  assert(valid && ApproxEqual(normal, Vec_t(0, 0, 1)));
   valid = trap2.Normal(ponmzsidey, normal);
-  assert(ApproxEqual(normal, Vec_t(0, 0, -1))); // (0,cosa,-sina) ?
+  // std::cout << " Normal at " << ponmzsidey << " is " << normal
+  //    << " Expected is " << Vec_t( invSqrt2, invSqrt2, 0.0) << std::endl;
+  assert(valid && ApproxEqual(normal, Vec_t(0, 0.615412, -0.788205))); // (0,cosa,-sina) ?
 
   // SafetyFromInside(P)
 

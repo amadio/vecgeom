@@ -71,7 +71,6 @@
 #ifndef UTrap_HH
 #define UTrap_HH
 
-
 #ifdef VECGEOM_REPLACE_USOLIDS
 
 //============== here for VecGeom-based implementation
@@ -81,24 +80,85 @@
 #include "volumes/UnplacedTrapezoid.h"
 #include "base/Transformation3D.h"
 
-struct UTrapSidePlane
-{
-   double a, b, c, d; // Normal Unit vector (a,b,c) and offset (d)
-   // => ax + by + cz + d = 0
-  UTrapSidePlane(vecgeom::UnplacedTrapezoid::TrapSidePlane const& oth) {
-    this->a = oth.fA;
-    this->b = oth.fB;
-    this->c = oth.fC;
-    this->d = oth.fD;
+struct UTrapSidePlane {
+  double a, b, c, d; // Normal Unit vector (a,b,c) and offset (d)
+                     // => ax + by + cz + d = 0
+  // #ifdef VECGEOM_PLANESHELL_DISABLE
+  // UTrapSidePlane(const TrapezoidStruct<double>::TrapSidePlane &oth)
+  // {
+  //   this->a = oth.fA;
+  //   this->b = oth.fB;
+  //   this->c = oth.fC;
+  //   this->d = oth.fD;
+  // }
+  // #endif
+};
+
+#include "volumes/UnplacedTrapezoid.h"
+#include "volumes/USolidsAdapter.h"
+
+class UTrap : public vecgeom::USolidsAdapter<vecgeom::UnplacedTrapezoid> {
+
+  // just forwards UTrap to vecgeom trapezoid
+  using Shape_t = vecgeom::UnplacedTrapezoid;
+  using Base_t  = vecgeom::USolidsAdapter<vecgeom::UnplacedTrapezoid>;
+
+  // inherit all constructors
+  using Base_t::Base_t;
+
+public:
+  // add default constructor for tests
+  UTrap() : Base_t("", 0., 0., 0) {}
+  virtual ~UTrap() {}
+
+  // provide a new object which is a clone of the original solid
+  VUSolid *Clone() const override
+  {
+    return new UTrap(GetName().c_str(), dz(), theta(), phi(), dy1(), dx1(), dx2(), tanAlpha1(), dy2(), dx3(), dx4(),
+                     tanAlpha2());
+  }
+
+  void ComputeBBox(UBBox * /*aBox*/, bool /*aStore = false*/) override {}
+
+  UGeometryType GetEntityType() const override { return "UTrap"; }
+
+  // Visualisation
+  void GetParametersList(int, double *aArray) const override
+  {
+    aArray[0]  = dz();
+    aArray[1]  = theta();
+    aArray[2]  = phi();
+    aArray[3]  = dy1();
+    aArray[4]  = dx1();
+    aArray[5]  = dx2();
+    aArray[6]  = tanAlpha1();
+    aArray[7]  = dy2();
+    aArray[8]  = dx3();
+    aArray[9]  = dx4();
+    aArray[10] = tanAlpha2();
+  }
+
+  std::ostream &StreamInfo(std::ostream &os) const override
+  {
+    using vecgeom::cxx::kRadToDeg;
+    int oldprc = os.precision(16);
+    os << "-----------------------------------------------------------\n"
+       << "     *** Dump for solid - " << GetEntityType() << " ***\n"
+       << "     ===================================================\n"
+       << " Solid type: Trapezoid\n"
+       << " Parameters: \n"
+       << "     half lengths X1-X4: " << dx1() << "mm, " << dx2() << "mm, " << dx3() << "mm, " << dx4() << "mm\n"
+       << "     half lengths Y1,Y2: " << dy1() << "mm, " << dy2() << "mm\n"
+       << "     half length Z: " << dz() << "mm\n"
+       << "     Solid axis angles: Theta=" << theta() * kRadToDeg << "deg, "
+       << " Phi=" << phi() * kRadToDeg << "deg\n"
+       << "     Face axis angles: TanAlpha1=" << tanAlpha1() * kRadToDeg << "deg, "
+       << " TanAlpha2=" << tanAlpha2() * kRadToDeg << "deg\n";
+    os << "-----------------------------------------------------------\n";
+    os.precision(oldprc);
+    return os;
   }
 };
-
-class UTrap: public vecgeom::SpecializedTrapezoid<vecgeom::translation::kIdentity, vecgeom::rotation::kIdentity> {
-  // just forwards UTrap to vecgeom trapezoid
-  typedef typename vecgeom::SpecializedTrapezoid<vecgeom::translation::kIdentity, vecgeom::rotation::kIdentity> Shape_t;
-  using Shape_t::Shape_t;
-};
-
 //============== end of VecGeom-based implementation
 
 #else
@@ -108,189 +168,144 @@ class UTrap: public vecgeom::SpecializedTrapezoid<vecgeom::translation::kIdentit
 #include "VUSolid.hh"
 #endif
 
-struct UTrapSidePlane
-{
-   double a, b, c, d; // Normal Unit vector (a,b,c) and offset (d)
+struct UTrapSidePlane {
+  double a, b, c, d; // Normal Unit vector (a,b,c) and offset (d)
 };
 
-class UTrap : public VUSolid
-{
+class UTrap : public VUSolid {
 
-  public: // with description
+public: // with description
+  UTrap(const std::string &pName, double pDz, double pTheta, double pPhi, double pDy1, double pDx1, double pDx2,
+        double pAlp1, double pDy2, double pDx3, double pDx4, double pAlp2);
+  //
+  // The most general constructor for UTrap which prepares plane
+  // equations and corner coordinates from parameters
 
-    UTrap(const std::string& pName,
-          double pDz,
-          double pTheta, double pPhi,
-          double pDy1, double pDx1, double pDx2,
-          double pAlp1,
-          double pDy2, double pDx3, double pDx4,
-          double pAlp2);
-    //
-    // The most general constructor for UTrap which prepares plane
-    // equations and corner coordinates from parameters
+  UTrap(const std::string &pName, const UVector3 pt[8]);
+  //
+  // Prepares plane equations and parameters from corner coordinates
 
-    UTrap(const std::string& pName,
-          const UVector3 pt[8]) ;
-    //
-    // Prepares plane equations and parameters from corner coordinates
+  UTrap(const std::string &pName, double pZ, double pY, double pX, double pLTX);
+  //
+  // Constructor for Right Angular Wedge from STEP (assumes pLTX<=pX)
 
-    UTrap(const std::string& pName,
-          double pZ,
-          double pY,
-          double pX, double pLTX);
-    //
-    // Constructor for Right Angular Wedge from STEP (assumes pLTX<=pX)
+  UTrap(const std::string &pName, double pDx1, double pDx2, double pDy1, double pDy2, double pDz);
+  //
+  // Constructor for UTrd
 
-    UTrap(const std::string& pName,
-          double pDx1,  double pDx2,
-          double pDy1,  double pDy2,
-          double pDz);
-    //
-    // Constructor for UTrd
+  UTrap(const std::string &pName, double pDx, double pDy, double pDz, double pAlpha, double pTheta, double pPhi);
+  //
+  // Constructor for UPara
 
-    UTrap(const std::string& pName,
-          double pDx, double pDy, double pDz,
-          double pAlpha, double pTheta, double pPhi);
-    //
-    // Constructor for UPara
+  UTrap(const std::string &pName);
+  //
+  // Constructor for "nominal" UTrap whose parameters are to be Set
+  // by a UVPVParamaterisation later
 
-    UTrap(const std::string& pName);
-    //
-    // Constructor for "nominal" UTrap whose parameters are to be Set
-    // by a UVPVParamaterisation later
+  virtual ~UTrap();
+  //
+  // Destructor
 
-    virtual ~UTrap() ;
-    //
-    // Destructor
+  // Accessors
 
-    // Accessors
+  inline double GetZHalfLength() const;
+  inline double GetYHalfLength1() const;
+  inline double GetXHalfLength1() const;
+  inline double GetXHalfLength2() const;
+  inline double GetTanAlpha1() const;
+  inline double GetYHalfLength2() const;
+  inline double GetXHalfLength3() const;
+  inline double GetXHalfLength4() const;
+  inline double GetTanAlpha2() const;
+  //
+  // Returns coordinates of Unit vector along straight
+  // line joining centers of -/+fDz planes
 
-    inline double GetZHalfLength()  const;
-    inline double GetYHalfLength1() const;
-    inline double GetXHalfLength1() const;
-    inline double GetXHalfLength2() const;
-    inline double GetTanAlpha1()    const;
-    inline double GetYHalfLength2() const;
-    inline double GetXHalfLength3() const;
-    inline double GetXHalfLength4() const;
-    inline double GetTanAlpha2()    const;
-    //
-    // Returns coordinates of Unit vector along straight
-    // line joining centers of -/+fDz planes
+  inline UTrapSidePlane GetSidePlane(int n) const;
+  inline UVector3 GetSymAxis() const;
 
-    inline UTrapSidePlane GetSidePlane(int n) const;
-    inline UVector3 GetSymAxis() const;
+  // Modifiers
 
-    // Modifiers
+  void SetAllParameters(double pDz, double pTheta, double pPhi, double pDy1, double pDx1, double pDx2, double pAlp1,
+                        double pDy2, double pDx3, double pDx4, double pAlp2);
 
-    void SetAllParameters(double pDz,
-                          double pTheta,
-                          double pPhi,
-                          double pDy1,
-                          double pDx1,
-                          double pDx2,
-                          double pAlp1,
-                          double pDy2,
-                          double pDx3,
-                          double pDx4,
-                          double pAlp2);
+  void SetPlanes(const UVector3 pt[8]);
 
-    void SetPlanes(const UVector3 pt[8]);
+  // Methods for solid
 
-    // Methods for solid
+  inline double Capacity();
+  inline double SurfaceArea();
 
-    inline double Capacity();
-    inline double SurfaceArea();
+  VUSolid::EnumInside Inside(const UVector3 &p) const;
 
-    VUSolid::EnumInside Inside(const UVector3& p) const;
+  UVector3 SurfaceNormal(const UVector3 &p) const;
 
-    UVector3 SurfaceNormal(const UVector3& p) const;
+  bool Normal(const UVector3 &aPoint, UVector3 &aNormal) const;
 
-    bool Normal(const UVector3& aPoint, UVector3& aNormal) const;
+  double DistanceToIn(const UVector3 &p, const UVector3 &v, double aPstep = UUtils::kInfinity) const;
 
-    double DistanceToIn(const UVector3& p, const UVector3& v, 
-                        double aPstep = UUtils::kInfinity) const;
+  double SafetyFromOutside(const UVector3 &p, bool precise = false) const;
 
-    double SafetyFromOutside(const UVector3& p, bool precise = false) const;
+  double DistanceToOut(const UVector3 &p, const UVector3 &v, UVector3 &aNormalVector, bool &aConvex,
+                       double aPstep = UUtils::kInfinity) const;
 
-    double DistanceToOut(const UVector3& p,
-                         const UVector3&  v,
-                         UVector3&       aNormalVector,
-                         bool&           aConvex,
-                         double aPstep = UUtils::kInfinity) const;
+  double SafetyFromInside(const UVector3 &p, bool precise = false) const;
 
-    double SafetyFromInside(const UVector3& p, bool precise = false) const;
+  UGeometryType GetEntityType() const;
 
-    UGeometryType GetEntityType() const;
+  UVector3 GetPointOnSurface() const;
 
-    UVector3 GetPointOnSurface() const;
+  VUSolid *Clone() const;
 
-    VUSolid* Clone() const;
-  
-    virtual void Extent(UVector3& aMin, UVector3& aMax) const;
+  virtual void Extent(UVector3 &aMin, UVector3 &aMax) const;
 
-    std::ostream& StreamInfo(std::ostream& os) const;
+  std::ostream &StreamInfo(std::ostream &os) const;
 
-    // Visualisation functions
+  // Visualisation functions
 
-  public: // without description
+public: // without description
+  UTrap(const UTrap &rhs);
+  UTrap &operator=(const UTrap &rhs);
+  // Copy constructor and assignment operator.
 
-    UTrap(const UTrap& rhs);
-    UTrap& operator=(const UTrap& rhs);
-    // Copy constructor and assignment operator.
+  inline double GetThetaCphi() const;
+  inline double GetThetaSphi() const;
 
-    inline double GetThetaCphi() const;
-    inline double GetThetaSphi() const;
+protected: // with description
+  bool MakePlanes();
+  bool MakePlane(const UVector3 &p1, const UVector3 &p2, const UVector3 &p3, const UVector3 &p4, UTrapSidePlane &plane);
 
-  protected:  // with description
+private:
+  UVector3 ApproxSurfaceNormal(const UVector3 &p) const;
+  // Algorithm for SurfaceNormal() following the original
+  // specification for points not on the surface
 
-    bool MakePlanes();
-    bool MakePlane(const UVector3& p1,
-                   const UVector3& p2,
-                   const UVector3& p3,
-                   const UVector3& p4,
-                   UTrapSidePlane& plane) ;
+  inline double GetFaceArea(const UVector3 &p1, const UVector3 &p2, const UVector3 &p3, const UVector3 &p4);
+  //
+  // Provided four corners of plane in clockwise fashion,
+  // it returns the area of finite face
 
-  private:
+  UVector3 GetPointOnPlane(UVector3 p0, UVector3 p1, UVector3 p2, UVector3 p3, double &area) const;
+  //
+  // Returns a random point on the surface of one of the faces
 
-    UVector3 ApproxSurfaceNormal(const UVector3& p) const;
-    // Algorithm for SurfaceNormal() following the original
-    // specification for points not on the surface
+  void GetParametersList(int /*aNumber*/, double * /*aArray*/) const {}
 
-    inline double GetFaceArea(const UVector3& p1,
-                              const UVector3& p2,
-                              const UVector3& p3,
-                              const UVector3& p4);
-    //
-    // Provided four corners of plane in clockwise fashion,
-    // it returns the area of finite face
+  void ComputeBBox(UBBox * /*aBox*/, bool /*aStore = false*/) {}
 
-    UVector3 GetPointOnPlane(UVector3 p0, UVector3 p1,
-                             UVector3 p2, UVector3 p3,
-                             double& area) const;
-    //
-    // Returns a random point on the surface of one of the faces
+private:
+  double fDz, fTthetaCphi, fTthetaSphi;
+  double fDy1, fDx1, fDx2, fTalpha1;
+  double fDy2, fDx3, fDx4, fTalpha2;
+  UTrapSidePlane fPlanes[4];
 
-    void GetParametersList(int /*aNumber*/, double* /*aArray*/) const {}
-
-
-    void ComputeBBox(UBBox* /*aBox*/, bool /*aStore = false*/) {}
-
-  private:
-
-    double fDz, fTthetaCphi, fTthetaSphi;
-    double fDy1, fDx1, fDx2, fTalpha1;
-    double fDy2, fDx3, fDx4, fTalpha2;
-    UTrapSidePlane fPlanes[4];
-
-    double fCubicVolume;
-    double fSurfaceArea;
-
+  double fCubicVolume;
+  double fSurfaceArea;
 };
 
 #include "UTrap.icc"
 
 //============== end of USolids-based implementation
 
-#endif  // VECGEOM_REPLACE_USOLIDS
-#endif  // UTrap_HH
+#endif // VECGEOM_REPLACE_USOLIDS
+#endif // UTrap_HH

@@ -39,7 +39,7 @@ void PlacedGenTrap::PrintType(std::ostream &os) const
 //______________________________________________________________________________
 VPlacedVolume const *PlacedGenTrap::ConvertToUnspecialized() const
 {
-  return new SimpleGenTrap(GetLabel().c_str(), logical_volume_, GetTransformation());
+  return new SimpleGenTrap(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
 }
 
 #ifdef VECGEOM_ROOT
