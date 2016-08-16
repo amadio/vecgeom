@@ -58,11 +58,11 @@ using uint = unsigned int;
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 enum EnumInside {
-  eInside  = 0, /* for USOLID compatibility */
+  eInside  = 1, /* for USOLID compatibility */
   kInside  = eInside,
-  eSurface = 1,
+  eSurface = 2,
   kSurface = eSurface,
-  eOutside = 2,
+  eOutside = 3,
   kOutside = eOutside,
 };
 typedef int Inside_t;
@@ -73,9 +73,9 @@ VECGEOM_GLOBAL int kAlignmentBoundary = 64;
 VECGEOM_GLOBAL int kAlignmentBoundary = 32;
 #endif
 namespace EInside {
-VECGEOM_GLOBAL vecgeom::Inside_t kInside  = 0;
-VECGEOM_GLOBAL vecgeom::Inside_t kSurface = 1;
-VECGEOM_GLOBAL vecgeom::Inside_t kOutside = 2;
+VECGEOM_GLOBAL vecgeom::Inside_t kInside  = 1;
+VECGEOM_GLOBAL vecgeom::Inside_t kSurface = 2;
+VECGEOM_GLOBAL vecgeom::Inside_t kOutside = 3;
 }
 
 namespace details {
