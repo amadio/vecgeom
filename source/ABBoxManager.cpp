@@ -208,50 +208,37 @@ void ABBoxManager::InitABBoxes(LogicalVolume const *lvol)
 #endif
   }
 
+  using vecCore::AssignLane;
   // initialize vector version of Container
   int index                          = 0;
   unsigned int assignedscalarvectors = 0;
   for (uint i = 0; i < ndaughters; i += vecCore::VectorSize<Float_v>()) {
     Vector3D<Float_v> lower;
     Vector3D<Float_v> upper;
-// assign by components ( this will be much more generic with new VecCore )
-#ifdef VECGEOM_VC
+    // assign by components ( using generic VecCore API )
     for (uint k = 0; k < vecCore::VectorSize<Float_v>(); ++k) {
       if (2 * (i + k) < 2 * ndaughters) {
-        lower.x()[k] = boxes[2 * (i + k)].x();
-        lower.y()[k] = boxes[2 * (i + k)].y();
-        lower.z()[k] = boxes[2 * (i + k)].z();
-        upper.x()[k] = boxes[2 * (i + k) + 1].x();
-        upper.y()[k] = boxes[2 * (i + k) + 1].y();
-        upper.z()[k] = boxes[2 * (i + k) + 1].z();
+        AssignLane(lower.x(), k, boxes[2 * (i + k)].x());
+        AssignLane(lower.y(), k, boxes[2 * (i + k)].y());
+        AssignLane(lower.z(), k, boxes[2 * (i + k)].z());
+        AssignLane(upper.x(), k, boxes[2 * (i + k) + 1].x());
+        AssignLane(upper.y(), k, boxes[2 * (i + k) + 1].y());
+        AssignLane(upper.z(), k, boxes[2 * (i + k) + 1].z());
         assignedscalarvectors += 2;
       } else {
         // filling in bounding boxes of zero size
         // better to put some irrational number than 0?
-        lower.x()[k] = -vecgeom::kInfinity;
-        lower.y()[k] = -vecgeom::kInfinity;
-        lower.z()[k] = -vecgeom::kInfinity;
-        upper.x()[k] = -vecgeom::kInfinity;
-        upper.y()[k] = -vecgeom::kInfinity;
-        upper.z()[k] = -vecgeom::kInfinity;
+        AssignLane(lower.x(), k, -vecgeom::kInfinity);
+        AssignLane(lower.y(), k, -vecgeom::kInfinity);
+        AssignLane(lower.z(), k, -vecgeom::kInfinity);
+        AssignLane(upper.x(), k, -vecgeom::kInfinity);
+        AssignLane(upper.y(), k, -vecgeom::kInfinity);
+        AssignLane(upper.z(), k, -vecgeom::kInfinity);
       }
     }
     vectorboxes[index++] = lower;
     vectorboxes[index++] = upper;
   }
-#else
-    lower.x() = boxes[2 * i].x();
-    lower.y() = boxes[2 * i].y();
-    lower.z() = boxes[2 * i].z();
-    upper.x() = boxes[2 * i + 1].x();
-    upper.y() = boxes[2 * i + 1].y();
-    upper.z() = boxes[2 * i + 1].z();
-    assignedscalarvectors += 2;
-
-    vectorboxes[index++] = lower;
-    vectorboxes[index++] = upper;
-  }
-#endif
   assert(index == size);
   assert(assignedscalarvectors == 2 * ndaughters);
 }
