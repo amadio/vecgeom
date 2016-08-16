@@ -483,7 +483,7 @@ void BooleanImplementation<kSubtraction, transCodeT, rotCodeT>::DistanceToOutKer
 
   typedef typename Backend::precision_v Float_t;
 
-  distance         = unplaced.fLeftVolume->DistanceToOut(point, direction, stepMax);
+  distance         = unplaced.fLeftVolume->PlacedDistanceToOut(point, direction, stepMax);
   Float_t dinright = unplaced.fRightVolume->DistanceToIn(point, direction, stepMax);
   distance         = Min(distance, dinright);
   return;
