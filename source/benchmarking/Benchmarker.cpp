@@ -429,17 +429,17 @@ int Benchmarker::CompareSafeties(SOA3D<Precision> *points, SOA3D<Precision> *dir
           std::fabs(specialized[i] - vectorized[i]) > kTolerance) {
         mismatch = true;
       }
-      better &= specialized[i] >= vectorized[i];
+      better &= specialized[i] >= vectorized[i] - kTolerance;
       if (!(specialized[i] == kInfinity && unspecialized[i] == kInfinity) &&
           std::fabs(specialized[i] - unspecialized[i]) > kTolerance) {
         mismatch = true;
-        better &= specialized[i] >= unspecialized[i];
+        better &= specialized[i] >= unspecialized[i] - kTolerance;
       }
 #ifdef VECGEOM_ROOT
       if (fOkToRunROOT) {
         if (std::fabs(specialized[i] - root[i]) > kTolerance && !(specialized[i] == kInfinity && root[i] == 1e30)) {
           // mismatch = true;
-          better &= specialized[i] >= root[i];
+          better &= specialized[i] >= root[i] - kTolerance;
         }
         if (fVerbosity > 2) mismatchOutput << " / " << root[i];
       }
@@ -449,7 +449,7 @@ int Benchmarker::CompareSafeties(SOA3D<Precision> *points, SOA3D<Precision> *dir
         if (!(specialized[i] == kInfinity && usolids[i] == UUtils::kInfinity) &&
             std::fabs(specialized[i] - usolids[i]) > kTolerance) {
           // mismatch = true;
-          better &= specialized[i] >= usolids[i];
+          better &= specialized[i] >= usolids[i] - kTolerance;
         }
         if (fVerbosity > 2) mismatchOutput << " / " << usolids[i];
       }
@@ -460,7 +460,7 @@ int Benchmarker::CompareSafeties(SOA3D<Precision> *points, SOA3D<Precision> *dir
           if (std::fabs(specialized[i] - geant4[i]) > kTolerance &&
               !(specialized[i] == kInfinity && geant4[i] == ::kInfinity)) {
             //  mismatch = true;
-            better &= specialized[i] >= geant4[i];
+            better &= specialized[i] >= geant4[i] - kTolerance;
           }
           if (fVerbosity > 2) mismatchOutput << " / " << geant4[i];
         }
@@ -469,7 +469,7 @@ int Benchmarker::CompareSafeties(SOA3D<Precision> *points, SOA3D<Precision> *dir
 #ifdef VECGEOM_CUDA
       if (std::fabs(specialized[i] - cuda[i]) > kTolerance && !(specialized[i] == kInfinity && cuda[i] == kInfinity)) {
         mismatch = true;
-        better &= specialized[i] >= cuda[i];
+        better &= specialized[i] >= cuda[i] - kTolerance;
       }
       if (fVerbosity > 2) mismatchOutput << " / " << cuda[i];
 #endif
