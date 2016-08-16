@@ -16,6 +16,7 @@
 #include "volumes/LogicalVolume.h"
 #include "volumes/PlacedVolume.h"
 #include "base/Vector3D.h"
+#include "ApproxEqual.h"
 
 #ifdef VECGEOM_USOLIDS
 #include "UPolycone.hh"
@@ -52,7 +53,7 @@ int main()
                          z, rmin, /* r coordinate of these corners */
                          rmax);
 
-  poly1.Print();
+  // poly1.Print();
 
   // lets make external separate tubes and cones representing the sections
   UnplacedCone section0(rmin[0], rmax[0], rmin[1], rmax[1], (z[1] - z[0]) / 2., 0, kTwoPi);
@@ -86,13 +87,12 @@ int main()
   assert(placedpoly1->Contains(Vec3D_t(0., 0., 1.8)) == false);
 
   // test DistanceToIn
-  assert(placedpoly1->DistanceToIn(Vec3D_t(0., 0., -3.), Vec3D_t(0., 0., 1.)) == 2.5);
+  assert(ApproxEqual(placedpoly1->DistanceToIn(Vec3D_t(0., 0., -3.), Vec3D_t(0., 0., 1.)), 2.5));
   assert(placedpoly1->DistanceToIn(Vec3D_t(0., 0., -2.), Vec3D_t(0., 0., -1.)) == vecgeom::kInfinity);
-  assert(placedpoly1->DistanceToIn(Vec3D_t(0., 0., 3), Vec3D_t(0., 0., -1.)) == 2.5);
+  assert(ApproxEqual(placedpoly1->DistanceToIn(Vec3D_t(0., 0., 3), Vec3D_t(0., 0., -1.)), 2.5));
   assert(placedpoly1->DistanceToIn(Vec3D_t(0., 0., 3), Vec3D_t(0., 0., 1.)) == vecgeom::kInfinity);
-  assert(placedpoly1->DistanceToIn(Vec3D_t(3., 0., 0), Vec3D_t(-1., 0., 0.)) == 1);
-  assert(std::fabs(placedpoly1->DistanceToIn(Vec3D_t(0., 0., 1.999999999), Vec3D_t(1., 0., 0.)) - 0.4) <
-         1000. * kTolerance);
+  assert(ApproxEqual(placedpoly1->DistanceToIn(Vec3D_t(3., 0., 0), Vec3D_t(-1., 0., 0.)), 1.));
+  assert(ApproxEqual(placedpoly1->DistanceToIn(Vec3D_t(0., 0., 1.999999999), Vec3D_t(1., 0., 0.)), 0.4));
 
   // test SafetyToIn
   // assert( placedpoly1-> SafetyToIn( Vec3D_t(0.,0.,-3.)) == 2. );
@@ -100,9 +100,9 @@ int main()
   // assert( placedpoly1-> SafetyToIn( Vec3D_t(0.,0.,3) ) == 1 );
   // assert( placedpoly1-> SafetyToIn( Vec3D_t(2.,0.,0.1) ) == 0 );
   // assert( placedpoly1-> SafetyToIn( Vec3D_t(3.,0.,0) ) == 1. );
-  std::cout << "test SIN " << placedpoly1->SafetyToIn(Vec3D_t(8., 0., 0.)) << std::endl;
+  // std::cout << "test SIN " << placedpoly1->SafetyToIn(Vec3D_t(8., 0., 0.)) << std::endl;
   // test SafetyToOut
-  std::cout << "test SOUT " << placedpoly1->SafetyToOut(Vec3D_t(0., 0., 0.)) << std::endl;
+  // std::cout << "test SOUT " << placedpoly1->SafetyToOut(Vec3D_t(0., 0., 0.)) << std::endl;
   // assert( placedpoly1-> SafetyToOut( Vec3D_t(0.,0.,0.)) == 0.5 );
   //  assert( placedpoly1-> SafetyToOut( Vec3D_t(0.,0.,0.5)) == 0. );
   //  assert( placedpoly1-> SafetyToOut( Vec3D_t(1.9,0.,0) ) == 0.1 );
@@ -110,16 +110,13 @@ int main()
   //  assert( placedpoly1-> SafetyToOut( Vec3D_t(1.4,0.,2) ) == 0. );
 
   // test DistanceToOut
-  assert(placedpoly1->DistanceToOut(Vec3D_t(0., 0., 0.), Vec3D_t(0., 0., 1.)) == 0.5);
-  assert(placedpoly1->DistanceToOut(Vec3D_t(0., 0., 0.), Vec3D_t(0., 0., -1.)) == 0.5);
-  assert(placedpoly1->DistanceToOut(Vec3D_t(2., 0., 0.), Vec3D_t(1., 0., 0.)) == 0.);
-  // std::cout<<"test DOUT "<<placedpoly1-> DistanceToOut( Vec3D_t(1.999999999,0.,0.), Vec3D_t(-1.,0.,0.))<<std::endl;
-  assert(placedpoly1->DistanceToOut(Vec3D_t(2., 0., 0.), Vec3D_t(-1., 0., 0.)) == 4.);
+  assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(0., 0., 0.), Vec3D_t(0., 0., 1.)), 0.5));
+  assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(0., 0., 0.), Vec3D_t(0., 0., -1.)), 0.5));
+  assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(2., 0., 0.), Vec3D_t(1., 0., 0.)), 0.));
+  assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(2., 0., 0.), Vec3D_t(-1., 0., 0.)), 4.));
+  assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(1., 0., 2), Vec3D_t(0., 0., 1.)), 0.));
+  assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(0.5, 0., -1), Vec3D_t(0., 0., -1.)), 0.));
+  assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(0.5, 0., -1), Vec3D_t(0., 0., 1.)), 3.));
 
-  assert(placedpoly1->DistanceToOut(Vec3D_t(1., 0., 2), Vec3D_t(0., 0., 1.)) == 0.);
-  assert(placedpoly1->DistanceToOut(Vec3D_t(0.5, 0., -1), Vec3D_t(0., 0., -1.)) == 0.);
-
-  assert(placedpoly1->DistanceToOut(Vec3D_t(0.5, 0., -1), Vec3D_t(0., 0., 1.)) == 3.);
-
-  return 0.;
+  return 0;
 }
