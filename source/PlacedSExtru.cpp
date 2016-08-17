@@ -45,7 +45,7 @@ TGeoShape const *PlacedSExtru::ConvertToRoot() const
 
   // get vertices and make array to construct the ROOT volume
   auto &vertices = GetUnplacedStruct()->GetPolygon().GetVertices();
-  const auto N   = vertices.size();
+  const auto N   = GetUnplacedStruct()->GetPolygon().GetNVertices();
   s->DefinePolygon(N, vertices.x(), vertices.y());
   s->DefineSection(0, GetUnplacedStruct()->GetLowerZ(), 0., 0., 1.);
   s->DefineSection(1, GetUnplacedStruct()->GetUpperZ(), 0., 0., 1.);

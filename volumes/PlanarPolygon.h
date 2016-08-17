@@ -41,6 +41,7 @@ protected:
   Precision fMaxX;
   Precision fMaxY;
 
+  size_t fNVertices; // the actual number of vertices
   friend class PolygonalShell;
 
 public:
@@ -50,25 +51,45 @@ public:
   // constructor (not taking ownership of the pointers)
   VECGEOM_CUDA_HEADER_BOTH
   PlanarPolygon(int nvertices, double *x, double *y)
-      : fVertices(nvertices), fShiftedXJ(nvertices), fShiftedYJ(nvertices), fLengthSqr(nvertices),
-        fInvLengthSqr(nvertices), fA(nvertices), fB(nvertices), fD(nvertices), fIsConvex(false), fMinX(kInfinity),
-        fMinY(kInfinity), fMaxX(-kInfinity), fMaxY(-kInfinity)
+      : fVertices(), fShiftedXJ({}), fShiftedYJ({}), fLengthSqr({}), fInvLengthSqr({}), fA({}), fB({}), fD({}),
+        fIsConvex(false), fMinX(kInfinity), fMinY(kInfinity), fMaxX(-kInfinity), fMaxY(-kInfinity),
+        fNVertices(nvertices)
   {
-    for (size_t i = 0; i < (size_t)nvertices; ++i) {
-      fVertices.set(i, x[i], y[i], 0);
+    // allocating more space than nvertices, in order
+    // to accomodate an internally vectorized treatment without tails
+    // --> the size comes from this formula:
+    const size_t kVS                = vecCore::VectorSize<vecgeom::VectorBackend::Real_v>();
+    const auto numberOfVectorChunks = (nvertices / kVS + nvertices % kVS);
+    // actual buffersize
+    const auto bs = numberOfVectorChunks * kVS;
+    assert(bs > 0);
+    fVertices.reserve(bs);
+    fVertices.resize(nvertices);
+    fShiftedXJ.resize(bs, 0);
+    fShiftedYJ.resize(bs, 0);
+    fLengthSqr.resize(bs, 0);
+    fInvLengthSqr.resize(bs, 0);
+    fA.resize(bs, 0);
+    fB.resize(bs, 0);
+    fD.resize(bs, 0);
+
+    // init the vertices (wrapping around periodically)
+    for (size_t i = 0; i < (size_t)fNVertices; ++i) {
+      const size_t k = i % fNVertices;
+      fVertices.set(i, x[k], y[k], 0);
 #ifndef VECGEOM_NVCC
       using std::min;
       using std::max;
 #endif
-      fMinX = min(x[i], fMinX);
-      fMinY = min(y[i], fMinY);
-      fMaxX = max(x[i], fMaxX);
-      fMaxY = max(y[i], fMaxY);
+      fMinX = min(x[k], fMinX);
+      fMinY = min(y[k], fMinY);
+      fMaxX = max(x[k], fMaxX);
+      fMaxY = max(y[k], fMaxY);
     }
 
     // initialize and cache the slopes as a "hidden" component
     auto slopes  = fVertices.z();
-    const auto S = fVertices.size();
+    const auto S = fNVertices;
     size_t i, j;
     const auto vertx = fVertices.x();
     const auto verty = fVertices.y();
@@ -84,7 +105,7 @@ public:
       fShiftedXJ[i] = vertxJ;
     }
 
-    for (size_t i = 0; i < (size_t)nvertices; ++i) {
+    for (size_t i = 0; i < (size_t)S; ++i) {
       fLengthSqr[i] = (vertx[i] - fShiftedXJ[i]) * (vertx[i] - fShiftedXJ[i]) +
                       (verty[i] - fShiftedYJ[i]) * (verty[i] - fShiftedYJ[i]);
       fInvLengthSqr[i] = 1. / fLengthSqr[i];
@@ -93,7 +114,7 @@ public:
     // init normals
     // this is taken from UnplacedTrapezoid
     // we should make this a standalone function outside any volume class
-    for (size_t i = 0; i < (size_t)nvertices; ++i) {
+    for (size_t i = 0; i < (size_t)S; ++i) {
       const auto xi = fVertices.x();
       const auto yi = fVertices.y();
 
@@ -117,6 +138,19 @@ public:
       fA[i] = a;
       fB[i] = b;
       fD[i] = d;
+    }
+
+    // fill rest of data buffers periodically (for safe internal vectorized treatment)
+    for (size_t i = S; i < bs; ++i) {
+      const size_t k = i % fNVertices;
+      fVertices.set(i, fVertices.x()[k], fVertices.y()[k], fVertices.z()[k]);
+      fShiftedXJ[i]    = fShiftedXJ[k];
+      fShiftedYJ[i]    = fShiftedYJ[k];
+      fLengthSqr[i]    = fLengthSqr[k];
+      fInvLengthSqr[i] = fInvLengthSqr[k];
+      fA[i]            = fA[k];
+      fB[i]            = fB[k];
+      fD[i]            = fD[k];
     }
 
     // set convexity
@@ -144,6 +178,9 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   SOA3D<Precision> const &GetVertices() const { return fVertices; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  size_t GetNVertices() const { return fNVertices; }
 
   // checks if 2D coordinates (x,y) are on the line segment given by index i
   template <typename Real_v, typename InternalReal_v, typename Bool_v>
@@ -368,7 +405,10 @@ inline bool PlanarPolygon::Contains(Vector3D<Precision> const &point) const
   const auto slopes = fVertices.z();
   const Real_v px(point.x());
   const Real_v py(point.y());
-  for (size_t i = 0; i < S; i += kVectorS) {
+  const size_t SVector = S - S % kVectorS;
+  size_t i(0);
+  // treat vectorizable part of loop
+  for (; i < SVector; i += kVectorS) {
     const Real_v vertyI(FromPtr<Real_v>(&verty[i]));      // init vectors
     const Real_v vertyJ(FromPtr<Real_v>(&fShiftedYJ[i])); // init vectors
 
@@ -378,14 +418,26 @@ inline bool PlanarPolygon::Contains(Vector3D<Precision> const &point) const
     const Real_v slope(FromPtr<Real_v>(&slopes[i]));
     const auto condition2 = px < (slope * (py - vertyI) + vertxI);
 
-    result = result ^ (condition1 & condition2); // xor is the replacement of conditional negation
+    result = result ^ (condition1 & condition2);
+  }
+  // reduction over vector lanes
+  bool reduction(false);
+  for (size_t j = 0; j < kVectorS; ++j) {
+    if (vecCore::MaskLaneAt(result, j)) reduction = !reduction;
   }
 
-  // final reduction over vector lanes
-  bool reduction(false);
-  for (size_t j = 0; j < kVectorS; ++j)
-    if (vecCore::MaskLaneAt(result, j)) reduction = !reduction;
+  // treat tail
+  using Real_s = vecCore::Scalar<Real_v>;
+  for (; i < S; ++i) {
+    const Real_s vertyI(FromPtr<Real_s>(&verty[i]));                     // init vectors
+    const Real_s vertyJ(FromPtr<Real_s>(&fShiftedYJ[i]));                // init vectors
+    const bool condition1 = (vertyI > point.y()) ^ (vertyJ > point.y()); // xor
+    const Real_s vertxI(FromPtr<Real_s>(&vertx[i]));
+    const Real_s slope(FromPtr<Real_s>(&slopes[i]));
+    const bool condition2 = point.x() < (slope * (point.y() - vertyI) + vertxI);
 
+    reduction = reduction ^ (condition1 & condition2);
+  }
   return reduction;
 }
 
