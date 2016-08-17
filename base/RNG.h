@@ -61,7 +61,7 @@ private:
 
 #endif
 
-protected:
+public:
 #ifdef VECGEOM_NVCC
   // The state should really be 'thread' specific
   VECGEOM_CUDA_HEADER_BOTH
