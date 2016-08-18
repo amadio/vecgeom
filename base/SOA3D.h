@@ -66,6 +66,7 @@ public:
   VECGEOM_FORCE_INLINE
   size_t capacity() const;
 
+  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
   void resize(size_t newSize);
 
