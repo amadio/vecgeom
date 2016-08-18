@@ -501,6 +501,13 @@ UMESIMD_REAL_FUNC(Ceil, ceil)
 
 #undef UMESIMD_REAL_FUNC
 
+VECGEOM_FORCE_INLINE
+vecgeom::UmeSimdPrecisionVector CopySign(const vecgeom::UmeSimdPrecisionVector &x,
+                                         const vecgeom::UmeSimdPrecisionVector &y)
+{
+  return x.copysign(y);
+}
+
 } // end namespace math
 
 VECGEOM_FORCE_INLINE
