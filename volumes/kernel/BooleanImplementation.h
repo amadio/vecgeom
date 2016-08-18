@@ -424,7 +424,7 @@ void BooleanImplementation<kSubtraction, transCodeT, rotCodeT>::DistanceToInKern
   // check if inside '-'
   Bool_t insideRight = unplaced.fRightVolume->Contains(p);
   //  // epsilon is used to push across boundaries
-  Precision epsil(0.);
+  Precision epsil(1E-6);
   //
   //  // we should never subtract a volume such that B - A > 0
   //
@@ -433,17 +433,18 @@ void BooleanImplementation<kSubtraction, transCodeT, rotCodeT>::DistanceToInKern
     if (insideRight) {
       //    // propagate to outside of '- / RightShape'
       d1 = unplaced.fRightVolume->PlacedDistanceToOut(hitpoint, v, stepMax);
-      snxt += (d1 > 0. && d1 < kInfinity) ? d1 + epsil : 0.;
-      hitpoint += (d1 > 0. && d1 < kInfinity) ? (d1 + 1E-8) * v : 1E-8 * v;
+      snxt += (d1 >= 0. && d1 < kInfinity) ? (d1 + epsil) : 0.;
+      hitpoint += (d1 >= 0. && d1 < kInfinity) ? (d1 + epsil) * v : 0. * v;
 
-      //
-      epsil = 1.E-8;
       // now master outside 'B'; check if inside 'A'
       //    Bool_t insideLeft =
       if (unplaced.fLeftVolume->Contains(hitpoint)) {
-        distance = snxt;
-        //	std::cerr << "hitting  " << distance << "\n";
-        return;
+        auto check = unplaced.fLeftVolume->PlacedDistanceToOut(hitpoint, v);
+        if (check > epsil) {
+          distance = snxt;
+          //	std::cerr << "hitting  " << distance << "\n";
+          return;
+        }
       }
     }
 
@@ -451,6 +452,7 @@ void BooleanImplementation<kSubtraction, transCodeT, rotCodeT>::DistanceToInKern
     // master outside '-' and outside '+' ;  find distances to both
     //        fLeftMat->MasterToLocal(&master[0], &local[0]);
     d2 = unplaced.fLeftVolume->DistanceToIn(hitpoint, v, stepMax);
+    d2 = vecCore::math::Max(d2, 0.);
     if (d2 == kInfinity) {
       distance = kInfinity;
       // std::cerr << "missing A " << d2 << "\n";
@@ -466,8 +468,8 @@ void BooleanImplementation<kSubtraction, transCodeT, rotCodeT>::DistanceToInKern
     }
 
     //        // propagate to '-'
-    snxt += (d1 > 0. && d1 < kInfinity) ? d1 + epsil : 0.;
-    hitpoint += (d1 > 0. && d1 < kInfinity) ? (d1 + epsil) * v : epsil * v;
+    snxt += (d1 >= 0. && d1 < kInfinity) ? d1 + epsil : 0.;
+    hitpoint += (d1 >= 0. && d1 < kInfinity) ? (d1 + epsil) * v : epsil * v;
     insideRight = true;
   } // end while
 }
