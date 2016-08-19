@@ -115,7 +115,6 @@ public:
   VECGEOM_FORCE_INLINE
   virtual EnumInside Inside(Vector3D<Precision> const &p) const override
   {
-    using Inside_t = vecCore::Int32_s;
     Inside_t output(0);
     Implementation::Inside(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p, output);
     return (EnumInside)output;
