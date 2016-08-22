@@ -457,7 +457,7 @@ struct TubeImplementation {
     //=== Next step: check if z-plane is the right entry point (both r,phi should be valid at z-plane crossing)
     vecCore::MaskedAssign(distance, !done, Real_v(kInfinity));
 
-    distz /= vecCore::math::Abs(dir.z());
+    distz /= NonZeroAbs(dir.z());
 
     Real_v hitx = point.x() + distz * dir.x();
     Real_v hity = point.y() + distz * dir.y();
@@ -603,7 +603,7 @@ struct TubeImplementation {
      * Here I compute values used in both rmin and rmax calculations.
      */
 
-    Real_v invnsq = 1 / (dir.x() * dir.x() + dir.y() * dir.y());
+    Real_v invnsq = 1. / NonZero(1. - dir.z() * dir.z());
     Real_v b      = invnsq * rdotn;
 
     /*
