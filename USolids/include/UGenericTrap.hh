@@ -54,7 +54,6 @@
 #include "volumes/UnplacedGenTrap.h"
 #include "base/Transformation3D.h"
 
-#ifndef VECGEOM_MASTER
 #include "volumes/USolidsAdapter.h"
 
 class UGenericTrap : public vecgeom::USolidsAdapter<vecgeom::UnplacedGenTrap> {
@@ -103,16 +102,6 @@ public:
   }
 };
 
-#else
-
-class UGenericTrap : public vecgeom::SpecializedGenTrap<vecgeom::translation::kIdentity, vecgeom::rotation::kIdentity> {
-  // just forwards UBox to vecgeom box
-  typedef typename vecgeom::SpecializedGenTrap<vecgeom::translation::kIdentity, vecgeom::rotation::kIdentity> Shape_t;
-  // inherit all constructors
-  using Shape_t::Shape_t;
-};
-
-#endif
 //============== end of VecGeom-based implementation
 
 #else
