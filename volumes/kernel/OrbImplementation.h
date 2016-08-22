@@ -96,9 +96,9 @@ struct OrbImplementation {
   {
     Precision fR                    = orb.fR;
     Real_v rad2                     = localPoint.Mag2();
-    Real_v tolR                     = fR - kTolerance;
+    Real_v tolR                     = fR - Real_v(kTolerance);
     if (ForInside) completelyinside = (rad2 <= tolR * tolR);
-    tolR                            = fR + kTolerance;
+    tolR                            = fR + Real_v(kTolerance);
     completelyoutside               = (rad2 >= tolR * tolR);
     return;
   }
