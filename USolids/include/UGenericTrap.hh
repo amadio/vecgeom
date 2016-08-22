@@ -43,6 +43,81 @@
 #ifndef USOLIDS_UGenericTrap_HH
 #define USOLIDS_UGenericTrap_HH
 
+#include "UVector2.hh"
+
+#ifdef VECGEOM_REPLACE_USOLIDS
+
+//============== here for VecGeom-based implementation
+
+//#include "volumes/SpecializedGenTrap.h"
+#include "volumes/LogicalVolume.h"
+#include "volumes/UnplacedGenTrap.h"
+#include "base/Transformation3D.h"
+
+#ifndef VECGEOM_MASTER
+#include "volumes/USolidsAdapter.h"
+
+class UGenericTrap : public vecgeom::USolidsAdapter<vecgeom::UnplacedGenTrap> {
+
+  // just forwards UGenericTrap to vecgeom generic trapezoid
+  using Shape_t = vecgeom::UnplacedGenTrap;
+  using Base_t  = vecgeom::USolidsAdapter<vecgeom::UnplacedGenTrap>;
+
+  // inherit all constructors
+  using Base_t::Base_t;
+
+public:
+  // Accessors which are available in UnplacedGenTrap
+
+  inline double GetZHalfLength() const { return GetDZ(); }
+  inline int GetNofVertices() const { return 8; }
+  inline UVector2 GetVertex(int index) const { return (UVector2(GetVerticesX()[index], GetVerticesY()[index])); }
+  inline bool IsTwisted() const { return (!IsPlanar()); }
+
+  // o provide a new object which is a clone of the solid
+  VUSolid *Clone() const override
+  {
+    return new UGenericTrap(GetName().c_str(), GetVerticesX(), GetVerticesY(), GetDZ());
+  }
+
+  UGeometryType GetEntityType() const override { return "UGenTrap"; }
+  void ComputeBBox(UBBox * /*aBox*/, bool /*aStore = false*/) override {}
+  inline void GetParametersList(int /*aNumber*/, double * /*aArray*/) const override {}
+
+  std::ostream &StreamInfo(std::ostream &os) const override
+  {
+    int oldprc = os.precision(16);
+    os << "-----------------------------------------------------------\n"
+       << "    *** Dump for solid - " << GetEntityType() << " *** \n"
+       << "    =================================================== \n"
+       << " Solid geometry type: Generic trapezoid adapter\n"
+       << "   half length Z: " << GetDZ() << " mm \n"
+       << "   list of vertices:\n";
+
+    for (int i = 0; i < 8; ++i) {
+      os << std::setw(5) << "#" << i << "   vx = " << GetVerticesX()[i] << " mm"
+         << "   vy = " << GetVerticesY()[i] << " mm" << std::endl;
+    }
+    os.precision(oldprc);
+    return os;
+  }
+};
+
+#else
+
+class UGenericTrap : public vecgeom::SpecializedGenTrap<vecgeom::translation::kIdentity, vecgeom::rotation::kIdentity> {
+  // just forwards UBox to vecgeom box
+  typedef typename vecgeom::SpecializedGenTrap<vecgeom::translation::kIdentity, vecgeom::rotation::kIdentity> Shape_t;
+  // inherit all constructors
+  using Shape_t::Shape_t;
+};
+
+#endif
+//============== end of VecGeom-based implementation
+
+#else
+
+//============== here for USolids-based implementation
 #ifndef USOLIDS_VUSolid
 #include "VUSolid.hh"
 #endif
@@ -53,149 +128,122 @@
 
 #include <vector>
 
-#include "UVector2.hh"
-
 class VUFacet;
 class UTessellatedSolid;
 class UBox;
 
-class UGenericTrap : public VUSolid
-{
-  public:  // with description
+class UGenericTrap : public VUSolid {
+public: // with description
+  UGenericTrap(const std::string &name, double halfZ, const std::vector<UVector2> &vertices);
+  // Constructor
 
-    UGenericTrap(const std::string& name, double halfZ,
-                 const std::vector<UVector2>& vertices);
-    // Constructor
+  ~UGenericTrap();
+  // Destructor
 
-    ~UGenericTrap();
-    // Destructor
+  // Accessors
 
-    // Accessors
+  inline double GetZHalfLength() const;
+  inline void SetZHalfLength(double);
+  inline int GetNofVertices() const;
+  inline UVector2 GetVertex(int index) const;
+  inline const std::vector<UVector2> &GetVertices() const;
+  inline double GetTwistAngle(int index) const;
+  inline bool IsTwisted() const;
+  inline int GetVisSubdivisions() const;
+  inline void SetVisSubdivisions(int subdiv);
 
-    inline double    GetZHalfLength() const;
-    inline void      SetZHalfLength(double);
-    inline int       GetNofVertices() const;
-    inline UVector2  GetVertex(int index) const;
-    inline const std::vector<UVector2>& GetVertices() const;
-    inline double    GetTwistAngle(int index) const;
-    inline bool      IsTwisted() const;
-    inline int       GetVisSubdivisions() const;
-    inline void      SetVisSubdivisions(int subdiv);
+  // Solid methods
 
-    // Solid methods
+  EnumInside Inside(const UVector3 &aPoint) const;
+  bool Normal(const UVector3 &aPoint, UVector3 &aNormal) const;
+  double SafetyFromInside(const UVector3 &aPoint, bool aAccurate = false) const;
+  double SafetyFromOutside(const UVector3 &aPoint, bool aAccurate = false) const;
+  double DistanceToIn(const UVector3 &aPoint, const UVector3 &aDirection, double aPstep = UUtils::kInfinity) const;
 
-    EnumInside Inside(const UVector3& aPoint) const;
-    bool Normal(const UVector3& aPoint, UVector3& aNormal) const;
-    double  SafetyFromInside(const UVector3& aPoint,
-                             bool aAccurate = false) const;
-    double  SafetyFromOutside(const UVector3& aPoint,
-                              bool aAccurate = false) const;
-    double  DistanceToIn(const UVector3& aPoint,
-                         const UVector3& aDirection,
-                         double aPstep = UUtils::kInfinity) const;
+  double DistanceToOut(const UVector3 &aPoint, const UVector3 &aDirection, UVector3 &aNormalVector, bool &aConvex,
+                       double aPstep = UUtils::kInfinity) const;
+  void Extent(UVector3 &aMin, UVector3 &aMax) const;
+  double Capacity();
+  double SurfaceArea();
+  VUSolid *Clone() const;
 
-    double DistanceToOut(const UVector3& aPoint,
-                         const UVector3& aDirection,
-                         UVector3&       aNormalVector,
-                         bool&           aConvex,
-                         double aPstep = UUtils::kInfinity) const;
-    void Extent(UVector3& aMin, UVector3& aMax) const;
-    double Capacity() ;
-    double SurfaceArea() ;
-    VUSolid* Clone() const ;
+  inline UGeometryType GetEntityType() const { return "GenericTrap"; }
+  inline void ComputeBBox(UBBox * /*aBox*/, bool /*aStore = false*/) {}
+  inline void GetParametersList(int /*aNumber*/, double * /*aArray*/) const {}
 
-    inline UGeometryType GetEntityType() const { return "GenericTrap"; }
-    inline void ComputeBBox(UBBox* /*aBox*/, bool /*aStore = false*/) {}
-    inline void GetParametersList(int /*aNumber*/, double* /*aArray*/) const {}
+  UVector3 GetPointOnSurface() const;
 
-    UVector3 GetPointOnSurface() const;
+  std::ostream &StreamInfo(std::ostream &os) const;
 
-    std::ostream& StreamInfo(std::ostream& os) const;
+public:
+  UGenericTrap();
+  // Fake default constructor for usage restricted to direct object
+  // persistency for clients requiring preallocation of memory for
+  // persistifiable objects.
 
-  public:
+  UGenericTrap(const UGenericTrap &rhs);
+  UGenericTrap &operator=(const UGenericTrap &rhs);
+  // Copy constructor and assignment operator.
 
-    UGenericTrap();
-      // Fake default constructor for usage restricted to direct object
-      // persistency for clients requiring preallocation of memory for
-      // persistifiable objects.
+  void Initialise(const std::vector<UVector2> &vertices);
+  inline UVector3 GetMinimumBBox() const;
+  inline UVector3 GetMaximumBBox() const;
 
-    UGenericTrap(const UGenericTrap& rhs);
-    UGenericTrap& operator=(const UGenericTrap& rhs); 
-      // Copy constructor and assignment operator.
+private:
+  // Internal methods
 
-    void Initialise(const std::vector<UVector2>&  vertices);
-    inline UVector3 GetMinimumBBox() const;
-    inline UVector3 GetMaximumBBox() const;
+  inline void SetTwistAngle(int index, double twist);
+  bool ComputeIsTwisted();
+  bool CheckOrder(const std::vector<UVector2> &vertices) const;
+  bool IsSegCrossing(const UVector2 &a, const UVector2 &b, const UVector2 &c, const UVector2 &d) const;
+  bool IsSegCrossingZ(const UVector2 &a, const UVector2 &b, const UVector2 &c, const UVector2 &d) const;
+  bool IsSameLineSegment(const UVector2 &p, const UVector2 &l1, const UVector2 &l2) const;
+  bool IsSameLine(const UVector2 &p, const UVector2 &l1, const UVector2 &l2) const;
 
-  private:
+  void ReorderVertices(std::vector<UVector3> &vertices) const;
+  void ComputeBBox();
 
-    // Internal methods
+  VUFacet *MakeDownFacet(const std::vector<UVector3> &fromVertices, int ind1, int ind2, int ind3) const;
+  VUFacet *MakeUpFacet(const std::vector<UVector3> &fromVertices, int ind1, int ind2, int ind3) const;
+  VUFacet *MakeSideFacet(const UVector3 &downVertex0, const UVector3 &downVertex1, const UVector3 &upVertex1,
+                         const UVector3 &upVertex0) const;
+  UTessellatedSolid *CreateTessellatedSolid() const;
 
-    inline void SetTwistAngle(int index, double twist);
-    bool  ComputeIsTwisted() ;
-    bool  CheckOrder(const std::vector<UVector2>& vertices) const;
-    bool  IsSegCrossing(const UVector2& a, const UVector2& b,
-                        const UVector2& c, const UVector2& d) const;
-    bool  IsSegCrossingZ(const UVector2& a, const UVector2& b,
-                         const UVector2& c, const UVector2& d) const;
-    bool IsSameLineSegment(const UVector2& p,
-                           const UVector2& l1, const UVector2& l2) const;
-    bool IsSameLine(const UVector2& p,
-                    const UVector2& l1, const UVector2& l2) const;
+  EnumInside InsidePolygone(const UVector3 &p, const UVector2 *poly) const;
+  double DistToPlane(const UVector3 &p, const UVector3 &v, const int ipl) const;
+  double DistToTriangle(const UVector3 &p, const UVector3 &v, const int ipl) const;
+  UVector3 NormalToPlane(const UVector3 &p, const int ipl) const;
+  double SafetyToFace(const UVector3 &p, const int iseg) const;
+  double GetFaceSurfaceArea(const UVector3 &p0, const UVector3 &p1, const UVector3 &p2, const UVector3 &p3) const;
 
-    void ReorderVertices(std::vector<UVector3>& vertices) const;
-    void ComputeBBox();
+private:
+  // static data members
 
-    VUFacet* MakeDownFacet(const std::vector<UVector3>& fromVertices,
-                           int ind1, int ind2, int ind3) const;
-    VUFacet* MakeUpFacet(const std::vector<UVector3>& fromVertices,
-                         int ind1, int ind2, int ind3) const;
-    VUFacet* MakeSideFacet(const UVector3& downVertex0,
-                           const UVector3& downVertex1,
-                           const UVector3& upVertex1,
-                           const UVector3& upVertex0) const;
-    UTessellatedSolid* CreateTessellatedSolid() const;
+  static const int fgkNofVertices;
+  static const double fgkTolerance;
 
-    EnumInside InsidePolygone(const UVector3& p,
-                              const UVector2* poly)const;
-    double DistToPlane(const UVector3& p,
-                       const UVector3& v, const int ipl) const ;
-    double DistToTriangle(const UVector3& p,
-                          const UVector3& v, const int ipl) const;
-    UVector3 NormalToPlane(const UVector3& p,
-                           const int ipl) const;
-    double SafetyToFace(const UVector3& p, const int iseg) const;
-    double GetFaceSurfaceArea(const UVector3& p0,
-                              const UVector3& p1,
-                              const UVector3& p2,
-                              const UVector3& p3) const;
-  private:
+  // data members
 
-    // static data members
+  double fDz;
+  std::vector<UVector2> fVertices;
+  bool fIsTwisted;
+  double fTwist[4];
+  UTessellatedSolid *fTessellatedSolid;
+  UVector3 fMinBBoxVector;
+  UVector3 fMaxBBoxVector;
+  int fVisSubdivisions;
+  UBox *fBoundBox;
 
-    static const int       fgkNofVertices;
-    static const double    fgkTolerance;
+  enum ESide { kUndefined, kXY0, kXY1, kXY2, kXY3, kMZ, kPZ };
+  // Codes for faces (kXY[num]=num of lateral face,kMZ= minus z face etc)
 
-    // data members
-
-    double                 fDz;
-    std::vector<UVector2>  fVertices;
-    bool                   fIsTwisted;
-    double                 fTwist[4];
-    UTessellatedSolid*     fTessellatedSolid;
-    UVector3               fMinBBoxVector;
-    UVector3               fMaxBBoxVector;
-    int                    fVisSubdivisions;
-    UBox*                  fBoundBox;
-
-    enum ESide {kUndefined, kXY0, kXY1, kXY2, kXY3, kMZ, kPZ};
-    // Codes for faces (kXY[num]=num of lateral face,kMZ= minus z face etc)
-
-    double                 fSurfaceArea;
-    double                 fCubicVolume;
-    // Surface and Volume
+  double fSurfaceArea;
+  double fCubicVolume;
+  // Surface and Volume
 };
 
 #include "UGenericTrap.icc"
+//============== end of USolids-based implementation
 
-#endif
+#endif // VECGEOM_REPLACE_USOLIDS
+#endif // USOLIDS_UGenericTrap_HH
