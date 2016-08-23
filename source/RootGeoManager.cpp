@@ -114,13 +114,40 @@ void FlattenAssemblies(TGeoNode *node, std::list<TGeoNode *> &nodeaccumulator, T
   }
 }
 
+void RootGeoManager::PostAdjustTransformation(Transformation3D *tr, TGeoNode const *node) const
+{
+  // post-fixing the placement ...
+  // unfortunately, in ROOT there is a special case in which a placement transformation
+  // is hidden (or "misused") inside the Box shape via the origin property
+  //
+  // --> In this case we need to adjust the transformation for this placement
+  if (node->GetVolume()->GetShape()->IsA() == TGeoBBox::Class()) {
+    TGeoBBox const *const box = static_cast<TGeoBBox const *>(node->GetVolume()->GetShape());
+    auto o                    = box->GetOrigin();
+    if (o[0] != 0. || o[1] != 0. || o[2] != 0.) {
+      if (fVerbose) {
+        std::cerr << "Warning: **********************************************************\n";
+        std::cerr << "Warning: Found a box " << node->GetName() << " with non-zero origin\n";
+        std::cerr << "Warning: **********************************************************\n";
+      }
+      tr->MultiplyFromRight(Transformation3D(o[0], o[1], o[2]));
+      tr->SetProperties();
+    }
+  }
+
+  // other special cases may follow ...
+}
+
 VPlacedVolume *RootGeoManager::Convert(TGeoNode const *const node)
 {
   if (fPlacedVolumeMap.Contains(node)) return const_cast<VPlacedVolume *>(GetPlacedVolume(node));
-
+  // convert node transformation
   Transformation3D const *const transformation = Convert(node->GetMatrix());
-  LogicalVolume *const logical_volume          = Convert(node->GetVolume());
-  VPlacedVolume *const placed_volume           = logical_volume->Place(node->GetName(), transformation);
+  // possibly adjust transformation
+  PostAdjustTransformation(const_cast<Transformation3D *>(transformation), node);
+
+  LogicalVolume *const logical_volume = Convert(node->GetVolume());
+  VPlacedVolume *const placed_volume  = logical_volume->Place(node->GetName(), transformation);
 
   int remaining_daughters = 0;
   {

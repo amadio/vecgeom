@@ -139,6 +139,9 @@ private:
   // helper function to check TGeo trap for consistency / trap conversion
   bool TGeoTrapIsDegenerate(TGeoTrap const *);
   UnplacedGenTrap *ToUnplacedGenTrap(TGeoArb8 const *);
+
+  // helper function to post-adjust a converted transformation in certain cases
+  void PostAdjustTransformation(Transformation3D *, TGeoNode const *) const;
 };
 }
 } // End global namespace
