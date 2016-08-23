@@ -114,13 +114,15 @@ void FlattenAssemblies(TGeoNode *node, std::list<TGeoNode *> &nodeaccumulator, T
   }
 }
 
-void RootGeoManager::PostAdjustTransformation(Transformation3D *tr, TGeoNode const *node) const
+bool RootGeoManager::PostAdjustTransformation(Transformation3D *tr, TGeoNode const *node,
+                                              Transformation3D *adjustment) const
 {
   // post-fixing the placement ...
   // unfortunately, in ROOT there is a special case in which a placement transformation
   // is hidden (or "misused") inside the Box shape via the origin property
   //
   // --> In this case we need to adjust the transformation for this placement
+  bool adjust(false);
   if (node->GetVolume()->GetShape()->IsA() == TGeoBBox::Class()) {
     TGeoBBox const *const box = static_cast<TGeoBBox const *>(node->GetVolume()->GetShape());
     auto o                    = box->GetOrigin();
@@ -130,12 +132,17 @@ void RootGeoManager::PostAdjustTransformation(Transformation3D *tr, TGeoNode con
         std::cerr << "Warning: Found a box " << node->GetName() << " with non-zero origin\n";
         std::cerr << "Warning: **********************************************************\n";
       }
-      tr->MultiplyFromRight(Transformation3D(o[0], o[1], o[2]));
+      *adjustment = Transformation3D::kIdentity;
+      adjustment->SetTranslation(o[0], o[1], o[2]);
+      adjustment->SetProperties();
+      tr->MultiplyFromRight(*adjustment);
       tr->SetProperties();
+      adjust = true;
     }
   }
 
   // other special cases may follow ...
+  return adjust;
 }
 
 VPlacedVolume *RootGeoManager::Convert(TGeoNode const *const node)
@@ -144,7 +151,8 @@ VPlacedVolume *RootGeoManager::Convert(TGeoNode const *const node)
   // convert node transformation
   Transformation3D const *const transformation = Convert(node->GetMatrix());
   // possibly adjust transformation
-  PostAdjustTransformation(const_cast<Transformation3D *>(transformation), node);
+  Transformation3D adjustmentTr;
+  bool adjusted = PostAdjustTransformation(const_cast<Transformation3D *>(transformation), node, &adjustmentTr);
 
   LogicalVolume *const logical_volume = Convert(node->GetVolume());
   VPlacedVolume *const placed_volume  = logical_volume->Place(node->GetName(), transformation);
@@ -172,7 +180,18 @@ VPlacedVolume *RootGeoManager::Convert(TGeoNode const *const node)
 
   //
   for (auto &n : flattenenednodelist) {
-    logical_volume->PlaceDaughter(Convert(n));
+    auto placed = Convert(n);
+    logical_volume->PlaceDaughter(placed);
+
+    // fixup placements in case the mother was shifted
+    if (adjusted) {
+      Transformation3D inv;
+      adjustmentTr.Inverse(inv);
+      inv.SetProperties();
+      Transformation3D *placedtr = const_cast<Transformation3D *>(placed->GetTransformation());
+      placedtr->MultiplyFromRight(inv);
+      placedtr->SetProperties();
+    }
   }
 
   fPlacedVolumeMap.Set(node, placed_volume->id());

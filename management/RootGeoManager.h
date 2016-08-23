@@ -141,7 +141,7 @@ private:
   UnplacedGenTrap *ToUnplacedGenTrap(TGeoArb8 const *);
 
   // helper function to post-adjust a converted transformation in certain cases
-  void PostAdjustTransformation(Transformation3D *, TGeoNode const *) const;
+  bool PostAdjustTransformation(Transformation3D *, TGeoNode const *, Transformation3D *adjustment) const;
 };
 }
 } // End global namespace
