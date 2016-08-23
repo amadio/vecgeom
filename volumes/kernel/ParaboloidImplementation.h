@@ -165,7 +165,7 @@ struct ParaboloidImplementation {
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToIn(UnplacedStruct_t const &paraboloid, Vector3D<Real_v> const &point,
-                           Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
+                           Vector3D<Real_v> const &direction, Real_v const & /* stepMax */, Real_v &distance)
   {
 
     using Bool_v = vecCore::Mask_v<Real_v>;
