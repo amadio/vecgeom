@@ -368,7 +368,7 @@ void CudaManager::ScanGeometry(VPlacedVolume const *const volume)
 
   if (dynamic_cast<PlacedScaledShape const *>(volume)) {
     PlacedScaledShape const *v = dynamic_cast<PlacedScaledShape const *>(volume);
-    ScanGeometry(v->GetUnplacedVolume()->fPlaced);
+    ScanGeometry(v->GetUnplacedVolume()->fScaled.fPlaced);
   }
 
   for (Daughter_t *i = volume->GetDaughters().begin(); i != volume->GetDaughters().end(); ++i) {

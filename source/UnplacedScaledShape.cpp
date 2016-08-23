@@ -117,8 +117,8 @@ VPlacedVolume *UnplacedScaledShape::CreateSpecializedVolume(LogicalVolume const 
 //______________________________________________________________________________
 DevicePtr<cuda::VUnplacedVolume> UnplacedScaledShape::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
 {
-  DevicePtr<cuda::VPlacedVolume> gpuptr = CudaManager::Instance().LookupPlaced(fPlaced);
-  Vector3D<Precision> const &scl        = fScale.Scale();
+  DevicePtr<cuda::VPlacedVolume> gpuptr = CudaManager::Instance().LookupPlaced(fScaled.fPlaced);
+  Vector3D<Precision> const &scl        = fScaled.fScale.Scale();
   return CopyToGpuImpl<UnplacedScaledShape>(in_gpu_ptr, gpuptr, scl[0], scl[1], scl[2], fGlobalConvexity);
 }
 

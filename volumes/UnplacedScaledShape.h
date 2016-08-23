@@ -39,7 +39,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedScaledShape(VPlacedVolume const *placed, Precision sx, Precision sy, Precision sz)
       : fScaled(placed, sx, sy, sz)
-  { /* assert(placed->GetTransformation()->IsIdentity());*/
+  {
     fGlobalConvexity = fScaled.fPlaced->GetUnplacedVolume()->IsConvex();
   }
 
@@ -96,7 +96,7 @@ public:
 
   /// Destructor
   VECGEOM_CUDA_HEADER_BOTH
-  virtual ~UnplacedScaledShape() { delete fScaled.fPlaced; }
+  virtual ~UnplacedScaledShape() { /*delete fScaled.fPlaced;*/}
 
   /// Getter for the generic scaled shape structure
   VECGEOM_CUDA_HEADER_BOTH
