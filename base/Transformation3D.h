@@ -322,7 +322,7 @@ public:
   // stores the inverse of this matrix into inverse
   // taken from CLHEP implementation
   VECGEOM_CUDA_HEADER_BOTH
-  void Inverse(Transformation3D &inverse)
+  void Inverse(Transformation3D &inverse) const
   {
     double xx_ = fRotation[0];
     double zz_ = fRotation[8];
