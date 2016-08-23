@@ -96,7 +96,15 @@ public:
 
   /// Destructor
   VECGEOM_CUDA_HEADER_BOTH
-  virtual ~UnplacedScaledShape() { /*delete fScaled.fPlaced;*/}
+  virtual ~UnplacedScaledShape()
+  {
+    // The fPlaced was owned by the class, but now it gets deleted before
+    // the destructor by GeoManager. The class will be restructured to use
+    // the VUnplaceVolume new navigation interfaces after migration of all
+    // shapes to VecCore, so this data member will dissapear.
+
+    // delete fScaled.fPlaced;
+  }
 
   /// Getter for the generic scaled shape structure
   VECGEOM_CUDA_HEADER_BOTH
