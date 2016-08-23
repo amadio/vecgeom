@@ -81,7 +81,7 @@ void GeomCppExporter::ScanGeometry(VPlacedVolume const *const volume, std::list<
     } else if (dynamic_cast<PlacedScaledShape const *>(volume)) {
       boollvlist.push_front(volume->GetLogicalVolume());
       PlacedScaledShape const *v = dynamic_cast<PlacedScaledShape const *>(volume);
-      ScanGeometry(v->GetUnplacedVolume()->fPlaced, lvlist, boollvlist, tlist, mediumlist, materiallist);
+      ScanGeometry(v->GetUnplacedVolume()->fScaled.fPlaced, lvlist, boollvlist, tlist, mediumlist, materiallist);
     } else {
       // ordinary logical volume
       lvlist.push_back(volume->GetLogicalVolume());

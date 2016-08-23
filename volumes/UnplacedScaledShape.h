@@ -8,9 +8,12 @@
 #include "base/AlignedBase.h"
 #include "base/Vector3D.h"
 #include "base/Scale3D.h"
+#include "ScaledShapeStruct.h"
 #include "volumes/UnplacedVolume.h"
 #include "volumes/PlacedVolume.h"
 #include "volumes/LogicalVolume.h"
+#include "volumes/kernel/ScaledShapeImplementation.h"
+#include "volumes/UnplacedVolumeImplHelper.h"
 
 namespace vecgeom {
 
@@ -19,23 +22,25 @@ VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedScaledShape);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class UnplacedScaledShape : public VUnplacedVolume, public AlignedBase {
+/**
+ * The unplaced scaled shape class.
+ */
+class UnplacedScaledShape : public SIMDUnplacedVolumeImplHelper<ScaledShapeImplementation>, public AlignedBase {
 
 public:
-  VPlacedVolume const *fPlaced; /// Need a placed volue for the navigation interface
-  Scale3D fScale;               /// Scale object
+  ScaledShapeStruct<double> fScaled; /* The scaled shape structure */
 
 public:
   /// Dummy ctor
   VECGEOM_CUDA_HEADER_BOTH
-  UnplacedScaledShape() : fPlaced(nullptr), fScale() { fGlobalConvexity = fPlaced->GetUnplacedVolume()->IsConvex(); }
+  UnplacedScaledShape() : fScaled() { fGlobalConvexity = fScaled.fPlaced->GetUnplacedVolume()->IsConvex(); }
 
   /// Constructor based on placed volume
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedScaledShape(VPlacedVolume const *placed, Precision sx, Precision sy, Precision sz)
-      : fPlaced(placed), fScale(sx, sy, sz)
+      : fScaled(placed, sx, sy, sz)
   { /* assert(placed->GetTransformation()->IsIdentity());*/
-    fGlobalConvexity = fPlaced->GetUnplacedVolume()->IsConvex();
+    fGlobalConvexity = fScaled.fPlaced->GetUnplacedVolume()->IsConvex();
   }
 
 #if defined(VECGEOM_NVCC)
@@ -58,21 +63,22 @@ public:
 /// Constructor based on unplaced volume
 #if !defined(VECGEOM_NVCC)
   UnplacedScaledShape(VUnplacedVolume const *shape, Precision sx, Precision sy, Precision sz)
-      : fPlaced(0), fScale(sx, sy, sz)
+      : fScaled(nullptr, sx, sy, sz)
   {
     // We need to create a placement with identity transformation from the unplaced version
     // Hopefully we don't need to create a logical volume
     LogicalVolume *lvol = new LogicalVolume("", shape);
-    fPlaced             = lvol->Place();
-    fGlobalConvexity    = fPlaced->GetUnplacedVolume()->IsConvex();
+    fScaled.fPlaced     = lvol->Place();
+    fGlobalConvexity    = fScaled.fPlaced->GetUnplacedVolume()->IsConvex();
   }
 #endif
 
   /// Copy constructor
   //  VECGEOM_CUDA_HEADER_BOTH
-  UnplacedScaledShape(UnplacedScaledShape const &other)
-      : fPlaced(other.fPlaced->GetLogicalVolume()->Place()), fScale(other.fScale)
+  UnplacedScaledShape(UnplacedScaledShape const &other) : fScaled()
   {
+    fScaled.fPlaced  = other.fScaled.fPlaced->GetLogicalVolume()->Place();
+    fScaled.fScale   = other.fScaled.fScale;
     fGlobalConvexity = other.fGlobalConvexity;
   }
 
@@ -81,8 +87,8 @@ public:
   UnplacedScaledShape &operator=(UnplacedScaledShape const &other)
   {
     if (&other != this) {
-      fPlaced          = other.fPlaced->GetLogicalVolume()->Place();
-      fScale           = other.fScale;
+      fScaled.fPlaced  = other.fScaled.fPlaced->GetLogicalVolume()->Place();
+      fScaled.fScale   = other.fScaled.fScale;
       fGlobalConvexity = other.fGlobalConvexity;
     }
     return *this;
@@ -90,9 +96,13 @@ public:
 
   /// Destructor
   VECGEOM_CUDA_HEADER_BOTH
-  virtual ~UnplacedScaledShape() { delete fPlaced; }
+  virtual ~UnplacedScaledShape() { delete fScaled.fPlaced; }
 
-  virtual int memory_size() const final { return (sizeof(*this) + fPlaced->memory_size()); }
+  /// Getter for the generic scaled shape structure
+  VECGEOM_CUDA_HEADER_BOTH
+  ScaledShapeStruct<double> const &GetStruct() const { return fScaled; }
+
+  virtual int memory_size() const final { return (sizeof(*this) + fScaled.fPlaced->memory_size()); }
 
 #ifdef VECGEOM_CUDA_INTERFACE
   virtual size_t DeviceSizeOf() const { return DevicePtr<cuda::UnplacedScaledShape>::SizeOf(); }
@@ -101,20 +111,20 @@ public:
 #endif
 
   VECGEOM_FORCE_INLINE
-  const VUnplacedVolume *UnscaledShape() const { return fPlaced->GetLogicalVolume()->GetUnplacedVolume(); }
+  const VUnplacedVolume *UnscaledShape() const { return fScaled.fPlaced->GetLogicalVolume()->GetUnplacedVolume(); }
 
   VECGEOM_FORCE_INLINE
-  VPlacedVolume const *GetPlaced() const { return fPlaced; }
+  VPlacedVolume const *GetPlaced() const { return fScaled.fPlaced; }
 
   VECGEOM_FORCE_INLINE
-  Scale3D const &GetScale() const { return fScale; }
+  Scale3D const &GetScale() const { return fScaled.fScale; }
 
 #ifndef VECGEOM_NVCC
   VECGEOM_FORCE_INLINE
   Precision Volume() const
   {
-    Precision capacity             = ((VPlacedVolume *)fPlaced)->Capacity();
-    const Vector3D<Precision> &scl = fScale.Scale();
+    Precision capacity             = ((VPlacedVolume *)fScaled.fPlaced)->Capacity();
+    const Vector3D<Precision> &scl = fScaled.fScale.Scale();
     capacity *= scl[0] * scl[1] * scl[2];
     return capacity;
   }
@@ -126,15 +136,18 @@ public:
   Precision SurfaceArea() const
   {
     /// To do - not so easy as for the capacity...
-    Precision area = ((VPlacedVolume *)fPlaced)->SurfaceArea();
+    Precision area = ((VPlacedVolume *)fScaled.fPlaced)->SurfaceArea();
     return area;
   }
 #endif // !VECGEOM_NVCC
 
   VECGEOM_CUDA_HEADER_BOTH
-  void Extent(Vector3D<Precision> &min, Vector3D<Precision> &max) const;
+  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override;
 
-  Vector3D<Precision> GetPointOnSurface() const;
+  VECGEOM_CUDA_HEADER_BOTH
+  void Extent(Vector3D<Precision> &min, Vector3D<Precision> &max) const override;
+
+  Vector3D<Precision> GetPointOnSurface() const override;
 
   virtual std::string GetEntityType() const { return "ScaledShape"; }
 
@@ -176,8 +189,8 @@ private:
 #endif
                                    placement);
   }
-  void SetPlaced(VPlacedVolume const *pvol) { fPlaced = pvol; }
-  void SetScale(Scale3D const &scale) { fScale = scale; }
+  void SetPlaced(VPlacedVolume const *pvol) { fScaled.fPlaced = pvol; }
+  void SetScale(Scale3D const &scale) { fScaled.fScale = scale; }
 
   friend class GeoManager;
 };

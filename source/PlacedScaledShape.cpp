@@ -36,9 +36,9 @@ VPlacedVolume const *PlacedScaledShape::ConvertToUnspecialized() const
 TGeoShape const *PlacedScaledShape::ConvertToRoot() const
 {
   UnplacedScaledShape const *unplaced = const_cast<UnplacedScaledShape *>(GetUnplacedVolume());
-  return new TGeoScaledShape(
-      GetLabel().c_str(), (TGeoShape *)unplaced->fPlaced->ConvertToRoot(),
-      new TGeoScale(unplaced->fScale.Scale()[0], unplaced->fScale.Scale()[1], unplaced->fScale.Scale()[2]));
+  return new TGeoScaledShape(GetLabel().c_str(), (TGeoShape *)unplaced->fScaled.fPlaced->ConvertToRoot(),
+                             new TGeoScale(unplaced->fScaled.fScale.Scale()[0], unplaced->fScaled.fScale.Scale()[1],
+                                           unplaced->fScaled.fScale.Scale()[2]));
 }
 #endif
 

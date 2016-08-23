@@ -5,12 +5,10 @@
 #define VECGEOM_VOLUMES_PLACEDSCALEDSHAPE_H_
 
 #include "base/Global.h"
-#include "backend/Backend.h"
-
 #include "volumes/PlacedVolume.h"
 #include "volumes/UnplacedScaledShape.h"
-#include "volumes/UnplacedVolume.h"
 #include "volumes/kernel/ScaledShapeImplementation.h"
+#include "volumes/PlacedVolImplHelper.h"
 
 namespace vecgeom {
 
@@ -19,20 +17,22 @@ VECGEOM_DEVICE_DECLARE_CONV(class, PlacedScaledShape);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class PlacedScaledShape : public VPlacedVolume {
+class PlacedScaledShape : public PlacedVolumeImplHelper<UnplacedScaledShape, VPlacedVolume> {
+  using Base = PlacedVolumeImplHelper<UnplacedScaledShape, VPlacedVolume>;
 
 public:
 #ifndef VECGEOM_NVCC
 
+  using Base::Base;
   PlacedScaledShape(char const *const label, LogicalVolume const *const logicalVolume,
-                    Transformation3D const *const transformation, PlacedBox const *const boundingBox)
-      : VPlacedVolume(label, logicalVolume, transformation, boundingBox)
+                    Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
+      : Base(label, logicalVolume, transformation, boundingBox)
   {
   }
 
   PlacedScaledShape(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-                    PlacedBox const *const boundingBox)
-      : VPlacedVolume("", logicalVolume, transformation, boundingBox)
+                    vecgeom::PlacedBox const *const boundingBox)
+      : PlacedScaledShape("", logicalVolume, transformation, boundingBox)
   {
   }
 
@@ -40,7 +40,7 @@ public:
 
   __device__ PlacedScaledShape(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
                                PlacedBox const *const boundingBox, const int id)
-      : VPlacedVolume(logicalVolume, transformation, boundingBox, id)
+      : Base(logicalVolume, transformation, boundingBox, id)
   {
   }
 
@@ -67,10 +67,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
-    bool valid = false;
-    ScaledShapeImplementation<translation::kIdentity, rotation::kIdentity>::NormalKernel<kScalar>(*GetUnplacedVolume(),
-                                                                                                  point, normal, valid);
-    return valid;
+    return GetUnplacedVolume()->Normal(point, normal);
   }
 
   virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface(); }

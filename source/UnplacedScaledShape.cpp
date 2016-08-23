@@ -21,13 +21,23 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 VECGEOM_CUDA_HEADER_BOTH
 void UnplacedScaledShape::Print() const
 {
-  printf("UnplacedScaledShape: scale:{%g, %g, %g} shape: ", fScale.Scale()[0], fScale.Scale()[1], fScale.Scale()[2]);
+  printf("UnplacedScaledShape: scale:{%g, %g, %g} shape: ", fScaled.fScale.Scale()[0], fScaled.fScale.Scale()[1],
+         fScaled.fScale.Scale()[2]);
   //  UnscaledShape()->Print();
 }
 
 void UnplacedScaledShape::Print(std::ostream &os) const
 {
-  os << "UnplacedScaledShape: " << fScale.Scale() << *UnscaledShape();
+  os << "UnplacedScaledShape: " << fScaled.fScale.Scale() << *UnscaledShape();
+}
+
+//______________________________________________________________________________
+VECGEOM_CUDA_HEADER_BOTH
+bool UnplacedScaledShape::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
+{
+  bool valid = false;
+  ScaledShapeImplementation::NormalKernel<double>(fScaled, point, normal, valid);
+  return valid;
 }
 
 //______________________________________________________________________________
@@ -35,15 +45,15 @@ void UnplacedScaledShape::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> 
 {
   // Returns the full 3D cartesian extent of the solid.
   // First get the extent of the unscaled shape
-  fPlaced->Extent(aMin, aMax);
+  fScaled.fPlaced->Extent(aMin, aMax);
   // The center of the extent may not be in the origin
   Vector3D<Precision> pos;
   pos = 0.5 * (aMin + aMax);
   Vector3D<Precision> center, semilengths;
-  fScale.InverseTransform(pos, center);
+  fScaled.fScale.InverseTransform(pos, center);
   // The lenghts are also scaled
   pos = 0.5 * (aMax - aMin);
-  fScale.InverseTransform(pos, semilengths);
+  fScaled.fScale.InverseTransform(pos, semilengths);
   aMin = center - semilengths;
   aMax = center + semilengths;
 }
@@ -53,7 +63,7 @@ Vector3D<Precision> UnplacedScaledShape::GetPointOnSurface() const
 {
   // Sample the scaled shape
   Vector3D<Precision> sampled;
-  fScale.InverseTransform(fPlaced->GetPointOnSurface(), sampled);
+  fScaled.fScale.InverseTransform(fScaled.fPlaced->GetPointOnSurface(), sampled);
   return sampled;
 }
 
