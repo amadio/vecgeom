@@ -471,6 +471,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${_build_type}} ${VECG
 #set(VECGEOM_CXX_FLAGS ${CMAKE_CXX_FLAGS_${_build_type}})
 #unset(CMAKE_CXX_FLAGS_${_build_type} CACHE)
 
+# At this point, all changes to CXXFLAGS have been made.
+# The line below is necessary to allow passing extra options
+# via -DCMAKE_CXX_FLAGS or CXXFLAGS environment variable.
+string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+
 message(STATUS "Compiling with C++ flags: ${CMAKE_CXX_FLAGS}")
 if (CUDA)
   message(STATUS "Compiling with NVCC flags: ${CUDA_NVCC_FLAGS}")
