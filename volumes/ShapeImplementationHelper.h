@@ -538,7 +538,10 @@ public:
       StoreTo(result, output + i);
       // -1: physics step is longer than geometry
       // -2: particle may stay inside volume
-      CondAssign(result < stepMaxBackend, -1, -2, nextNodeIndex + i);
+      VECGEOM_BACKEND_TYPE::int_v vnegone(-1), vnegtwo(-2);
+      vecCore::Mask<VECGEOM_BACKEND_TYPE::int_v> mask(result < stepMaxBackend);
+      VECGEOM_BACKEND_TYPE::int_v vIndex = vecCore::Blend(mask, vnegone, vnegtwo);
+      vecCore::Store(vIndex, nextNodeIndex + i);
     }
     // treat the tail:
     unsigned tailsize = points.size() - safesize;
