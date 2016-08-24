@@ -65,7 +65,8 @@ enum EnumInside {
   eOutside = 3,
   kOutside = eOutside,
 };
-typedef int Inside_t;
+
+using Inside_t = int;
 
 #if defined(__MIC__)
 VECGEOM_GLOBAL int kAlignmentBoundary = 64;
