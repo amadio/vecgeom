@@ -338,11 +338,8 @@ typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::IsPointMoving
     UnplacedHype const &unplaced, Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> const &direction)
 {
-
-  typedef typename Backend::precision_v Float_t;
-
-  Float_t pz = point.z();
-  Float_t vz = direction.z();
+  typename Backend::precision_v pz = point.z();
+  typename Backend::precision_v vz = direction.z();
   MaskedAssign(pz < 0., -vz, &vz);
   MaskedAssign(pz < 0., -pz, &pz);
   Precision tanOuterStereo2 = unplaced.GetTOut2();
@@ -356,11 +353,8 @@ typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::IsPointMoving
     UnplacedHype const &unplaced, Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> const &direction)
 {
-
-  typedef typename Backend::precision_v Float_t;
-
-  Float_t pz = point.z();
-  Float_t vz = direction.z();
+  typename Backend::precision_v pz = point.z();
+  typename Backend::precision_v vz = direction.z();
 
   MaskedAssign(pz < 0., -vz, &vz);
   MaskedAssign(pz < 0., -pz, &pz);
