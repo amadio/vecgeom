@@ -7,14 +7,14 @@
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
-const UmeSimdMask kUmeSimd::kTrue  = UmeSimdMask(true);
-const UmeSimdMask kUmeSimd::kFalse = UmeSimdMask(false);
+const kUmeSimd::bool_v kUmeSimd::kTrue = true;
+const kUmeSimd::bool_v kUmeSimd::kFalse = false;
 #ifdef VECGEOM_FLOAT_PRECISION
-const UmeSimdPrecisionVector kUmeSimd::kOne  = UmeSimdPrecisionVector(1.0f);
-const UmeSimdPrecisionVector kUmeSimd::kZero = UmeSimdPrecisionVector(0.0f);
+const kUmeSimd::precision_v kUmeSimd::kOne = 1.0f;
+const kUmeSimd::precision_v kUmeSimd::kZero = 0.0f;
 #else
-const UmeSimdPrecisionVector kUmeSimd::kOne  = UmeSimdPrecisionVector(1.0);
-const UmeSimdPrecisionVector kUmeSimd::kZero = UmeSimdPrecisionVector(0.0);
+const kUmeSimd::precision_v kUmeSimd::kOne = 1.0;
+const kUmeSimd::precision_v kUmeSimd::kZero = 0.0;
 #endif
 }
 }
