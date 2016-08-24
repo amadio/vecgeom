@@ -465,7 +465,7 @@ public:
       // -1E20 used here as Vc does not have a check for minus infinity
       VECGEOM_BACKEND_BOOL valid = result < stepMaxBackend && result > -1E20;
       MaskedAssign(!valid, stepMaxBackend, &result);
-      StoreTo(result, currentDistance + i); // go back to previous result if we don't get better
+      vecCore::Store(result, currentDistance + i); // go back to previous result if we don't get better
 
       /*
        * Keeping the original comments:
@@ -477,7 +477,9 @@ public:
               nextDaughterIdList[i+j] = (valid[j]) ? daughterId : nextDaughterIdList[i+j];
             }
       */
-      MaskedAssign(valid, daughterId, nextDaughterIdList + i);
+      for (size_t j = 0; j < vecCore::VectorSize(result); j++)
+        if (vecCore::Get(valid, j))
+          nextDaughterIdList[i + j] = vecCore::Get(valid, j);
     }
     // treat the tail:
     unsigned tailsize = points.size() - safesize;
