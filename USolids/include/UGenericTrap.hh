@@ -53,6 +53,7 @@
 //#include "volumes/SpecializedGenTrap.h"
 #include "volumes/LogicalVolume.h"
 #include "volumes/UnplacedGenTrap.h"
+#include "base/Vector3D.h"
 #include "base/Transformation3D.h"
 
 #include "volumes/USolidsAdapter.h"
@@ -68,11 +69,35 @@ class UGenericTrap : public vecgeom::USolidsAdapter<vecgeom::UnplacedGenTrap> {
 
 public:
   // Accessors which are available in UnplacedGenTrap
+  UGenericTrap() : Base_t("", nullptr, nullptr, 0) {}
 
   inline double GetZHalfLength() const { return GetDZ(); }
+  inline void SetZHalfLength(double) {}
   inline int GetNofVertices() const { return 8; }
   inline UVector2 GetVertex(int index) const { return (UVector2(GetVerticesX()[index], GetVerticesY()[index])); }
+  inline const std::vector<UVector2> &GetVertices() const { return fVertices; }
+  inline double GetTwistAngle(int) const { return 0.; }
   inline bool IsTwisted() const { return (!IsPlanar()); }
+  inline int GetVisSubdivisions() const { return 0; }
+  inline void SetVisSubdivisions(int) {}
+  inline UVector3 GetMinimumBBox() const
+  {
+    vecgeom::Vector3D<double> amin, amax;
+    Extent(amin, amax);
+    return (UVector3(amin[0], amin[1], amin[2]));
+  }
+  inline UVector3 GetMaximumBBox() const
+  {
+    vecgeom::Vector3D<double> amin, amax;
+    Extent(amin, amax);
+    return (UVector3(amax[0], amax[1], amax[2]));
+  }
+  void Initialise(const std::vector<UVector2> &v)
+  {
+    // Initialize from data of UnplacedGenTrap
+    for (int i = 0; i < 8; ++i)
+      fVertices.push_back(v[i]);
+  }
 
   // o provide a new object which is a clone of the solid
   VUSolid *Clone() const override
@@ -101,6 +126,10 @@ public:
     os.precision(oldprc);
     return os;
   }
+
+private:
+  // Data members required to have USolids compatibility
+  std::vector<UVector2> fVertices;
 };
 
 //============== end of VecGeom-based implementation
