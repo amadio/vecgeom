@@ -44,6 +44,7 @@
 #define USOLIDS_UGenericTrap_HH
 
 #include "UVector2.hh"
+#include <iomanip>
 
 #ifdef VECGEOM_REPLACE_USOLIDS
 
