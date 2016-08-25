@@ -189,8 +189,9 @@ VPlacedVolume *RootGeoManager::Convert(TGeoNode const *const node)
       adjustmentTr.Inverse(inv);
       inv.SetProperties();
       Transformation3D *placedtr = const_cast<Transformation3D *>(placed->GetTransformation());
-      placedtr->MultiplyFromRight(inv);
-      placedtr->SetProperties();
+      inv.MultiplyFromRight(*placedtr);
+      inv.SetProperties();
+      placedtr->CopyFrom(inv);
     }
   }
 
