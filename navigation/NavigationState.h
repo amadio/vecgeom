@@ -499,18 +499,16 @@ void NavigationState::Push(VPlacedVolume const *v)
 {
 #ifdef DEBUG
   assert(fCurrentLevel < GetMaxLevel());
-   assert( fCurrentLevel < 2<<sizeof(char) - 1;
 #endif
-   fPath[fCurrentLevel++] = ToIndex( v );
+  fPath[fCurrentLevel++] = ToIndex(v);
 }
 
 void NavigationState::PushIndexType(NavStateIndex_t v)
 {
 #ifdef DEBUG
   assert(fCurrentLevel < GetMaxLevel());
-   assert( fCurrentLevel < 2<<sizeof(char) - 1;
 #endif
-   fPath[fCurrentLevel++] = v;
+  fPath[fCurrentLevel++] = v;
 }
 
 VPlacedVolume const *NavigationState::Top() const
