@@ -72,11 +72,20 @@ public:
   UGenericTrap() : Base_t("", nullptr, nullptr, 0) {}
 
   inline double GetZHalfLength() const { return GetDZ(); }
-  inline void SetZHalfLength(double) {}
+  inline void SetZHalfLength(double)
+  {
+    UUtils::Exception("UGenericTrap::SetZHalfLength()", "InvalidSetter", UWarning, 1,
+                      "Cannot call this setter for UnplacedGenTrap");
+  }
   inline int GetNofVertices() const { return 8; }
   inline UVector2 GetVertex(int index) const { return (UVector2(GetVerticesX()[index], GetVerticesY()[index])); }
   inline const std::vector<UVector2> &GetVertices() const { return fVertices; }
-  inline double GetTwistAngle(int) const { return 0.; }
+  inline double GetTwistAngle(int) const
+  {
+    UUtils::Exception("UGenericTrap::GetTwistAngle()", "InvalidSetter", UWarning, 1,
+                      "UnplacedGenTrap does not store twist angles.");
+    return 0.;
+  }
   inline bool IsTwisted() const { return (!IsPlanar()); }
   inline int GetVisSubdivisions() const { return 0; }
   inline void SetVisSubdivisions(int) {}
