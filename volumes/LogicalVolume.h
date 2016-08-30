@@ -122,6 +122,9 @@ public:
   //  VECGEOM_FORCE_INLINE
   //  unsigned int GetNDaughters() const { return daughters_->size(); }
 
+  // returns the total number of placed volume contained in this logical volume AND below
+  size_t GetNTotal() const;
+
   VECGEOM_FORCE_INLINE
   void *GetUserExtensionPtr() const { return fUserExtensionPtr; }
   VECGEOM_FORCE_INLINE

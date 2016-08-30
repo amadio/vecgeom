@@ -185,6 +185,15 @@ std::ostream &operator<<(std::ostream &os, LogicalVolume const &vol)
   return os;
 }
 
+size_t LogicalVolume::GetNTotal() const
+{
+  size_t accum(fDaughters->size());
+  for (size_t d = 0; d < fDaughters->size(); ++d) {
+    accum += fDaughters->operator[](d)->GetLogicalVolume()->GetNTotal();
+  }
+  return accum;
+}
+
 #ifdef VECGEOM_CUDA_INTERFACE
 
 DevicePtr<cuda::LogicalVolume> LogicalVolume::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const unplaced_vol,
