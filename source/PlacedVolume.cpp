@@ -190,6 +190,29 @@ Vector3D<Precision> VPlacedVolume::GetPointOnSurface() const
   return surfacepoint;
 }
 
+Precision VPlacedVolume::Capacity()
+{
+  throw std::runtime_error("Capacity not implemented");
+  return 0.;
+}
+
+VECGEOM_CUDA_HEADER_BOTH
+bool VPlacedVolume::Normal(Vector3D<Precision> const & /*point*/, Vector3D<Precision> & /*normal*/) const
+{
+#ifndef VECGEOM_NVCC
+  throw std::runtime_error("Normal not implemented for this volume.");
+#endif
+  return false;
+}
+
+VECGEOM_CUDA_HEADER_BOTH
+void VPlacedVolume::Extent(Vector3D<Precision> & /* min */, Vector3D<Precision> & /* max */) const
+{
+#ifndef VECGEOM_NVCC
+  throw std::runtime_error("Extent() not implemented for this shape type.");
+#endif
+}
+
 } // End impl namespace
 
 #ifdef VECGEOM_NVCC

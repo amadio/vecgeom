@@ -140,14 +140,8 @@ public:
 
   void set_label(char const *label)
   {
-    // if(label != NULL){
-    // std::cerr << label << std::endl;
-    // std::cerr << *label_ << std::endl;
-    // label_->assign(label);}
-    // else{
     if (label_) delete label_;
     label_ = new std::string(label);
-    //}
   }
 
   friend std::ostream &operator<<(std::ostream &os, VPlacedVolume const &vol);
@@ -290,30 +284,16 @@ public:
   // returning the cubic volume of the shape satisfying the USolids interface
   // it is currently not a const function since some shapes might cache this value
   // if it is expensive to calculate
-  virtual Precision Capacity()
-  {
-    assert(0 && "Capacity not implemented");
-    return 0;
-  }
+  virtual Precision Capacity();
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual void Extent(Vector3D<Precision> & /* min */, Vector3D<Precision> & /* max */) const
-  {
-    assert(0 && "Extent() not implemented for this shape type.");
-  }
+  virtual void Extent(Vector3D<Precision> & /* min */, Vector3D<Precision> & /* max */) const;
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual bool Normal(Vector3D<Precision> const & /*point*/, Vector3D<Precision> & /*normal*/) const
-  {
+  virtual bool Normal(Vector3D<Precision> const & /*point*/, Vector3D<Precision> & /*normal*/) const;
 
-    assert(0 && "Normal() not implemented for this shape type.\n");
-    return false;
-  }
+  virtual Precision SurfaceArea();
 
-  virtual Precision SurfaceArea(); // {
-                                   // assert(0 && "SurfaceArea not implemented for this shape type.");
-                                   // return 0.0;
-                                   // }
   virtual Vector3D<Precision> GetPointOnSurface() const;
 
 public:
