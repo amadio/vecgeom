@@ -199,16 +199,16 @@ struct BoxImplementation {
     done |= vecCore::math::Abs(point[2]) > box.fDimensions[2] + kHalfTolerance;
     if (vecCore::MaskFull(done)) return;
 
-    const Vector3D<Real_v> inverseDirection(1. / NonZero(direction[0]), 1. / NonZero(direction[1]),
-                                            1. / NonZero(direction[2]));
+    const Vector3D<Real_v> moddirection(NonZero(direction[0]), NonZero(direction[1]), NonZero(direction[2]));
+    const Vector3D<Real_v> inverseDirection(1. / moddirection[0], 1. / moddirection[1], 1. / moddirection[2]);
     Vector3D<Real_v> distances((box.fDimensions[0] - point[0]) * inverseDirection[0],
                                (box.fDimensions[1] - point[1]) * inverseDirection[1],
                                (box.fDimensions[2] - point[2]) * inverseDirection[2]);
 
     using vecCore::MaskedAssign;
-    MaskedAssign(distances[0], direction[0] < 0., (-box.fDimensions[0] - point[0]) * inverseDirection[0]);
-    MaskedAssign(distances[1], direction[1] < 0., (-box.fDimensions[1] - point[1]) * inverseDirection[1]);
-    MaskedAssign(distances[2], direction[2] < 0., (-box.fDimensions[2] - point[2]) * inverseDirection[2]);
+    MaskedAssign(distances[0], moddirection[0] < 0., (-box.fDimensions[0] - point[0]) * inverseDirection[0]);
+    MaskedAssign(distances[1], moddirection[1] < 0., (-box.fDimensions[1] - point[1]) * inverseDirection[1]);
+    MaskedAssign(distances[2], moddirection[2] < 0., (-box.fDimensions[2] - point[2]) * inverseDirection[2]);
 
     MaskedAssign(distance, !done, distances[0]);
     distance = vecCore::math::Min(distances[1], distance);
