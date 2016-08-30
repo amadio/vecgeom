@@ -373,15 +373,14 @@ private:
     const auto vertx = fVertices.x();
     const auto verty = fVertices.y();
 
-    const auto kS = fVertices.size();
+    const auto kS = fNVertices;
     int counter(0);
-    for (size_t i = 0; i < kS; ++i) {
-      const double p1[2] = {vertx[i], verty[i]};
-      const double p2[2] = {fShiftedXJ[i], fShiftedYJ[i]};
-
+    for (size_t i = 0; i < kS - 1; ++i) {
+      const double p1[2] = {vertx[i] - fShiftedXJ[i], verty[i] - fShiftedYJ[i]};
+      const double p2[2] = {vertx[(i + 1)] - vertx[i], verty[(i + 1)] - verty[i]};
       counter += (p1[0] * p2[1] - p1[1] * p2[0]) < 0 ? -1 : 1;
     }
-    fIsConvex = (size_t)std::abs(counter) == kS;
+    fIsConvex = (size_t)std::abs(counter) == kS - 1;
   }
 };
 
