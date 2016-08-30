@@ -25,6 +25,7 @@ private:
 
 protected:
   bool fGlobalConvexity;
+  bool fIsAssembly = false; // indicates if this volume is an assembly
 
 public:
   // alias for the globally selected VectorType
@@ -149,6 +150,9 @@ public:
    */
   VECGEOM_CUDA_HEADER_BOTH
   bool IsConvex() const { return fGlobalConvexity; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  bool IsAssembly() const { return fIsAssembly; }
 
   /**
    * Uses the virtual print method.

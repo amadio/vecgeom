@@ -114,6 +114,8 @@ public:
   VECGEOM_FORCE_INLINE
   VUnplacedVolume const *GetUnplacedVolume() const { return logical_volume_->GetUnplacedVolume(); }
 
+  bool IsAssembly() const { return GetUnplacedVolume()->IsAssembly(); }
+
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
   Transformation3D const *GetTransformation() const

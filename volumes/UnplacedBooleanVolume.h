@@ -43,6 +43,11 @@ public:
       : fLeftVolume(left), fRightVolume(right), fOp(op)
   {
     fGlobalConvexity = false;
+#ifndef VECGEOM_NVCC
+    if (fLeftVolume->IsAssembly() || fRightVolume->IsAssembly()) {
+      throw std::runtime_error("Trying to make boolean out of assembly which is not supported\n");
+    }
+#endif
   }
 
   virtual int memory_size() const { return sizeof(*this); }
