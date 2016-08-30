@@ -28,8 +28,8 @@ public:
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   virtual bool CheckDaughterIntersections(LogicalVolume const *lvol, Vector3D<Precision> const &localpoint,
-                                          Vector3D<Precision> const &localdir, NavigationState const & /*in_state*/,
-                                          NavigationState & /*out_state*/, Precision &step,
+                                          Vector3D<Precision> const &localdir, NavigationState const * /*in_state*/,
+                                          NavigationState * /*out_state*/, Precision &step,
                                           VPlacedVolume const *&hitcandidate) const override
   {
 

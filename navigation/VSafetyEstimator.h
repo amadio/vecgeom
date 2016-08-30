@@ -47,6 +47,11 @@ public:
   virtual Precision ComputeSafetyForLocalPoint(Vector3D<Precision> const & /*localpoint*/,
                                                VPlacedVolume const * /*pvol*/) const = 0;
 
+  // estimate just the safety to daughters for a local point with respect to a logical volume
+  VECGEOM_CUDA_HEADER_BOTH
+  virtual Precision ComputeSafetyToDaughtersForLocalPoint(Vector3D<Precision> const & /*localpoint*/,
+                                                          LogicalVolume const * /*lvol*/) const = 0;
+
   // in addition useful to offer an explicit SIMD interface
   // which could be used from other clients (such as VNavigator when it treats basket data)
   // the mask is supposed to indicate which lane needs a safety result since often the track is

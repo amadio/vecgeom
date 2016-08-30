@@ -44,6 +44,8 @@ private:
 
   int fVerbose;
 
+  bool fFlattenAssemblies; // flag deciding whether we flatten assemblies (like G4 does)
+
 public:
   /// Access singleton instance.
   static RootGeoManager &Instance()
@@ -60,6 +62,9 @@ public:
   VPlacedVolume const *world() const { return fWorld; }
 
   int GetVerboseLevel() const { return fVerbose; }
+
+  void SetFlattenAssemblies(bool b) { fFlattenAssemblies = b; }
+  bool GetFlattenAssemblies() const { return fFlattenAssemblies; }
 
   TGeoNode const *tgeonode(VPlacedVolume const *p) const
   {
@@ -112,6 +117,7 @@ public:
   VPlacedVolume *Convert(TGeoNode const *const node);
 
   VUnplacedVolume *Convert(TGeoShape const *const shape);
+  VUnplacedVolume *ConvertAssembly(TGeoVolume const *const shape);
 
   LogicalVolume *Convert(TGeoVolume const *const volume);
 
@@ -130,7 +136,8 @@ public:
 
 private:
   RootGeoManager()
-      : fWorld(NULL), fPlacedVolumeMap(), fUnplacedVolumeMap(), fLogicalVolumeMap(), fTransformationMap(), fVerbose(0)
+      : fWorld(NULL), fPlacedVolumeMap(), fUnplacedVolumeMap(), fLogicalVolumeMap(), fTransformationMap(), fVerbose(0),
+        fFlattenAssemblies(false)
   {
   }
   RootGeoManager(RootGeoManager const &);

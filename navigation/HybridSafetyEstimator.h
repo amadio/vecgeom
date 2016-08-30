@@ -88,13 +88,14 @@ public:
       // SIMD safety to mother
       auto safety = pvol->SafetyToOut(localpoint);
 
+      LogicalVolume const *lvol = pvol->GetLogicalVolume();
       // now loop over the voxelized treatment of safety to in
       for (unsigned int i = 0; i < VECGEOM_BACKEND_PRECISION_TYPE_SIZE; ++i) {
         if (vecCore::MaskLaneAt(m, i)) {
           AssignLane(safety, i,
                      TreatSafetyToIn(Vector3D<Precision>(LaneAt(localpoint.x(), i), LaneAt(localpoint.y(), i),
                                                          LaneAt(localpoint.z(), i)),
-                                     pvol, LaneAt(safety, i)));
+                                     lvol, LaneAt(safety, i)));
         } else {
           AssignLane(safety, i, 0.);
         }
@@ -104,7 +105,7 @@ public:
   }
 
   VECGEOM_FORCE_INLINE
-  Precision TreatSafetyToIn(Vector3D<Precision> const &localpoint, VPlacedVolume const *pvol, Precision outsafety) const
+  Precision TreatSafetyToIn(Vector3D<Precision> const &localpoint, LogicalVolume const *lvol, Precision outsafety) const
   {
     // a stack based workspace array
     static __thread HybridManager2::BoxIdDistancePair_t boxsafetylist[VECGEOM_MAXDAUGHTERS] = {};
@@ -113,7 +114,6 @@ public:
     double safetysqr = safety * safety;
 
     // safety to bounding boxes
-    LogicalVolume const *lvol = pvol->GetLogicalVolume();
     if (safety > 0. && lvol->GetDaughtersp()->size() > 0) {
       // calculate squared bounding box safeties in vectorized way
       auto ncandidates = GetSafetyCandidates_v(lvol, localpoint, boxsafetylist, safetysqr);
@@ -145,7 +145,14 @@ public:
   {
     // safety to mother
     double safety = pvol->SafetyToOut(localpoint);
-    return TreatSafetyToIn(localpoint, pvol, safety);
+    return TreatSafetyToIn(localpoint, pvol->GetLogicalVolume(), safety);
+  }
+
+  VECGEOM_FORCE_INLINE
+  virtual Precision ComputeSafetyToDaughtersForLocalPoint(Vector3D<Precision> const &localpoint,
+                                                          LogicalVolume const *lvol) const override
+  {
+    return TreatSafetyToIn(localpoint, lvol, kInfinity);
   }
 
   // vector interface

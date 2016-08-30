@@ -93,6 +93,7 @@ private:
             if (!vecCore::MaskEmpty(hit)) {
               for (size_t j = 0 /*hit.firstOne()*/; j < kVS; ++j) { // leaf node
                 if (vecCore::MaskLaneAt(hit, j)) {
+                  assert(count < VECGEOM_MAXDAUGHTERS);
                   hitlist[count] = HybridManager2::BoxIdDistancePair_t(nodeToDaughters[nodeindex + i][j],
                                                                        vecCore::LaneAt(distance, j));
                   count++;
@@ -112,11 +113,12 @@ public:
 
   VECGEOM_FORCE_INLINE
   virtual bool CheckDaughterIntersections(LogicalVolume const *lvol, Vector3D<Precision> const &localpoint,
-                                          Vector3D<Precision> const &localdir, NavigationState const & /*in_state*/,
-                                          NavigationState & /*out_state*/, Precision &step,
+                                          Vector3D<Precision> const &localdir, NavigationState const * /*in_state*/,
+                                          NavigationState * /*out_state*/, Precision &step,
                                           VPlacedVolume const *&hitcandidate) const override
   {
-    static __thread HybridManager2::BoxIdDistancePair_t hitlist[VECGEOM_MAXDAUGHTERS] = {};
+    // static __thread HybridManager2::BoxIdDistancePair_t hitlist[VECGEOM_MAXDAUGHTERS] = {};
+    HybridManager2::BoxIdDistancePair_t hitlist[VECGEOM_MAXDAUGHTERS];
     if (lvol->GetDaughtersp()->size() == 0) return false;
 
     auto ncandidates = GetHitCandidates_v(lvol, localpoint, localdir, hitlist);

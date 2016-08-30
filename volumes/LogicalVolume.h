@@ -197,6 +197,9 @@ public:
 
   void PlaceDaughter(VPlacedVolume const *const placed);
 
+  // returns true of at least one of the daughters is an assembly
+  bool ContainsAssembly() const;
+
   friend std::ostream &operator<<(std::ostream &os, LogicalVolume const &vol);
 
 #ifdef VECGEOM_CUDA_INTERFACE

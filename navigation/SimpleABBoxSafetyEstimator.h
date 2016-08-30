@@ -64,7 +64,7 @@ private:
 
 private:
   VECGEOM_FORCE_INLINE
-  Precision TreatSafetyToIn(Vector3D<Precision> const &localpoint, VPlacedVolume const *pvol, Precision outsafety) const
+  Precision TreatSafetyToIn(Vector3D<Precision> const &localpoint, LogicalVolume const *lvol, Precision outsafety) const
   {
     // a stack based workspace array
     static __thread ABBoxManager::BoxIdDistancePair_t boxsafetylist[VECGEOM_MAXDAUGHTERS] = {};
@@ -73,7 +73,6 @@ private:
     double safetysqr = safety * safety;
 
     // safety to bounding boxes
-    LogicalVolume const *lvol = pvol->GetLogicalVolume();
     if (safety > 0. && lvol->GetDaughtersp()->size() > 0) {
       int size;
 
@@ -111,7 +110,15 @@ public:
 
     // safety to mother
     double safety = pvol->SafetyToOut(localpoint);
-    return TreatSafetyToIn(localpoint, pvol, safety);
+    return TreatSafetyToIn(localpoint, pvol->GetLogicalVolume(), safety);
+  }
+
+  // estimate just the safety to daughters for a local point with respect to a logical volume
+  VECGEOM_CUDA_HEADER_BOTH
+  virtual Precision ComputeSafetyToDaughtersForLocalPoint(Vector3D<Precision> const &localpoint,
+                                                          LogicalVolume const *lvol) const override
+  {
+    return TreatSafetyToIn(localpoint, lvol, kInfinity);
   }
 
   VECGEOM_FORCE_INLINE
@@ -123,15 +130,15 @@ public:
     Real_v safety(0.);
     if (!vecCore::MaskEmpty(m)) {
       // SIMD safety to mother
-      auto safety = pvol->SafetyToOut(localpoint);
-
+      auto safety               = pvol->SafetyToOut(localpoint);
+      LogicalVolume const *lvol = pvol->GetLogicalVolume();
       // now loop over the voxelized treatment of safety to in
       for (unsigned int i = 0; i < VECGEOM_BACKEND_PRECISION_TYPE_SIZE; ++i) {
         if (vecCore::MaskLaneAt(m, i)) {
           vecCore::AssignLane(safety, i,
                               TreatSafetyToIn(Vector3D<Precision>(LaneAt(localpoint.x(), i), LaneAt(localpoint.y(), i),
                                                                   LaneAt(localpoint.z(), i)),
-                                              pvol, vecCore::LaneAt(safety, i)));
+                                              lvol, vecCore::LaneAt(safety, i)));
         } else {
           vecCore::AssignLane(safety, i, 0.);
         }

@@ -15,6 +15,8 @@
 #include "volumes/PlacedVolume.h"
 #include "navigation/SimpleSafetyEstimator.h"
 #include "navigation/NewSimpleNavigator.h"
+#include "navigation/SimpleLevelLocator.h"
+#include "volumes/UnplacedAssembly.h"
 #include <climits>
 #include <stdio.h>
 
@@ -50,13 +52,20 @@ int LogicalVolume::gIdCount = 0;
 #ifndef VECGEOM_NVCC
 LogicalVolume::LogicalVolume(char const *const label, VUnplacedVolume const *const unplaced_volume)
     : fUnplacedVolume(unplaced_volume), fId(0), fLabel(nullptr), fUserExtensionPtr(nullptr),
-      fTrackingMediumPtr(nullptr), fBasketManagerPtr(nullptr), fLevelLocator(nullptr),
+      fTrackingMediumPtr(nullptr), fBasketManagerPtr(nullptr), fLevelLocator(SimpleAssemblyLevelLocator::GetInstance()),
       fSafetyEstimator(SimpleSafetyEstimator::Instance()), fNavigator(NewSimpleNavigator<>::Instance()), fDaughters()
 {
   fId = gIdCount++;
   GeoManager::Instance().RegisterLogicalVolume(this);
   fLabel     = new std::string(label);
   fDaughters = new Vector<Daughter>();
+
+  // if the definint unplaced volume is an assembly, we need to make the back connection
+  // I have chosen this implicit method for user convenience (in disfavour of an explicit function call)
+  if (unplaced_volume->IsAssembly()) {
+    (const_cast<UnplacedAssembly *>(static_cast<UnplacedAssembly const *const>(unplaced_volume)))
+        ->SetLogicalVolume(this);
+  }
 }
 
 #else
@@ -117,7 +126,7 @@ VPlacedVolume const *LogicalVolume::PlaceDaughter(char const *const label, Logic
 {
   VPlacedVolume const *const placed = volume->Place(label, transformation);
   //  std::cerr << label <<" LogVol@"<< this <<" and placed@"<< placed << std::endl;
-  fDaughters->push_back(placed);
+  PlaceDaughter(placed);
   return placed;
 }
 
@@ -127,14 +136,20 @@ VPlacedVolume const *LogicalVolume::PlaceDaughter(LogicalVolume const *const vol
   return PlaceDaughter(volume->GetLabel().c_str(), volume, transformation);
 }
 
+#endif
+
 void LogicalVolume::PlaceDaughter(VPlacedVolume const *const placed)
 {
   fDaughters->push_back(placed);
+
+  // a good moment to update the bounding boxes
+  // in case this thing is an assembly
+  if (fUnplacedVolume->IsAssembly()) {
+    static_cast<UnplacedAssembly *>(const_cast<VUnplacedVolume *>((GetUnplacedVolume())))->UpdateExtent();
+  }
 }
 
 // void LogicalVolume::SetDaughter(unsigned int i, VPlacedVolume const *pvol) { daughters_->operator[](i) = pvol; }
-
-#endif
 
 VECGEOM_CUDA_HEADER_BOTH
 void LogicalVolume::Print(const int indent) const
@@ -172,6 +187,16 @@ void LogicalVolume::PrintContent(const int indent) const
       (*i)->PrintContent(indent + 2);
     }
   }
+}
+
+bool LogicalVolume::ContainsAssembly() const
+{
+  for (Daughter *i = GetDaughters().begin(); i != GetDaughters().end(); ++i) {
+    if ((*i)->GetUnplacedVolume()->IsAssembly()) {
+      return true;
+    }
+  }
+  return false;
 }
 
 std::ostream &operator<<(std::ostream &os, LogicalVolume const &vol)

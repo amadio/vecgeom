@@ -19,6 +19,24 @@ class SimpleSafetyEstimator : public VSafetyEstimatorHelper<SimpleSafetyEstimato
 public:
   static constexpr const char *gClassNameString = "SimpleSafetyEstimator";
 
+  // estimate just the safety to daughters for a local point with respect to a logical volume
+  // TODO: use this function in other interfaces to avoid code duplication
+  VECGEOM_CUDA_HEADER_BOTH
+  virtual Precision ComputeSafetyToDaughtersForLocalPoint(Vector3D<Precision> const &localpoint,
+                                                          LogicalVolume const *lvol) const override
+  {
+    // safety to daughters
+    double safety(kInfinity);
+    auto daughters       = lvol->GetDaughtersp();
+    auto numberdaughters = daughters->size();
+    for (decltype(numberdaughters) d = 0; d < numberdaughters; ++d) {
+      VPlacedVolume const *daughter = daughters->operator[](d);
+      double tmp                    = daughter->SafetyToIn(localpoint);
+      safety                        = vecCore::math::Min(safety, tmp);
+    }
+    return safety;
+  }
+
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision ComputeSafetyForLocalPoint(Vector3D<Precision> const &localpoint,

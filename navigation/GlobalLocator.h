@@ -26,6 +26,58 @@ class VPlacedVolume;
 //! its a namespace rather than a class since it offers only a static function
 namespace GlobalLocator {
 
+//// this function is a generic variant which can pick from each volume
+//// the best (or default) LevelLocator
+// VECGEOM_FORCE_INLINE
+// VECGEOM_CUDA_HEADER_BOTH
+// VPlacedVolume const *LocateGlobalPoint(VPlacedVolume const *vol, Vector3D<Precision> const &point,
+//                                       NavigationState &path, bool top)
+//{
+//  VPlacedVolume const *candvolume = vol;
+//  Vector3D<Precision> currentpoint(point);
+//  if (top) {
+//    assert(vol != nullptr);
+//    candvolume = (vol->UnplacedContains(point)) ? vol : nullptr;
+//  }
+//  if (candvolume) {
+//    path.Push(candvolume);
+//    LogicalVolume const *lvol         = candvolume->GetLogicalVolume();
+//    Vector<Daughter> const *daughters = lvol->GetDaughtersp();
+
+//    bool godeeper = true;
+//    while (daughters->size() > 0 && godeeper) {
+//      godeeper = false;
+//      // returns nextvolume; and transformedpoint; modified path
+//      VLevelLocator const *locator = lvol->GetLevelLocator();
+//      if (locator != nullptr) { // if specialized/optimized technique attached to logical volume
+//        Vector3D<Precision> transformedpoint;
+//        godeeper = locator->LevelLocate(lvol, currentpoint, candvolume, transformedpoint);
+//        if (godeeper) {
+//          lvol         = candvolume->GetLogicalVolume();
+//          daughters    = lvol->GetDaughtersp();
+//          currentpoint = transformedpoint;
+//          path.Push(candvolume);
+//        }
+//      } else { // otherwise do a default implementation
+//        for (size_t i = 0; i < daughters->size(); ++i) {
+//          VPlacedVolume const *nextvolume = (*daughters)[i];
+//          Vector3D<Precision> transformedpoint;
+//          if (nextvolume->Contains(currentpoint, transformedpoint)) {
+//            path.Push(nextvolume);
+//            currentpoint = transformedpoint;
+//            candvolume   = nextvolume;
+//            daughters    = candvolume->GetLogicalVolume()->GetDaughtersp();
+//            godeeper     = true;
+//            break;
+//          }
+//        }
+//      }
+//    }
+//  }
+//  return candvolume;
+//}
+
+// modified version using different LevelLocatorInterface
 // this function is a generic variant which can pick from each volume
 // the best (or default) LevelLocator
 VECGEOM_FORCE_INLINE
@@ -51,26 +103,16 @@ VPlacedVolume const *LocateGlobalPoint(VPlacedVolume const *vol, Vector3D<Precis
       VLevelLocator const *locator = lvol->GetLevelLocator();
       if (locator != nullptr) { // if specialized/optimized technique attached to logical volume
         Vector3D<Precision> transformedpoint;
-        godeeper = locator->LevelLocate(lvol, currentpoint, candvolume, transformedpoint);
+        godeeper = locator->LevelLocate(lvol, currentpoint, path, transformedpoint);
         if (godeeper) {
-          lvol         = candvolume->GetLogicalVolume();
+          lvol         = path.Top()->GetLogicalVolume();
           daughters    = lvol->GetDaughtersp();
           currentpoint = transformedpoint;
-          path.Push(candvolume);
         }
       } else { // otherwise do a default implementation
-        for (size_t i = 0; i < daughters->size(); ++i) {
-          VPlacedVolume const *nextvolume = (*daughters)[i];
-          Vector3D<Precision> transformedpoint;
-          if (nextvolume->Contains(currentpoint, transformedpoint)) {
-            path.Push(nextvolume);
-            currentpoint = transformedpoint;
-            candvolume   = nextvolume;
-            daughters    = candvolume->GetLogicalVolume()->GetDaughtersp();
-            godeeper     = true;
-            break;
-          }
-        }
+#ifndef VECGEOM_NVCC
+        throw std::runtime_error("impossible code in GlobalLocator reached");
+#endif
       }
     }
   }
@@ -141,11 +183,23 @@ static VPlacedVolume const *RelocatePointFromPath(Vector3D<Precision> const &loc
   if (currentmother != nullptr) {
     Vector3D<Precision> tmp = localpoint;
     // go up iteratively
-    while (currentmother && !currentmother->UnplacedContains(tmp)) {
-      path.Pop();
-      Vector3D<Precision> pointhigherup = currentmother->GetTransformation()->InverseTransform(tmp);
-      tmp                               = pointhigherup;
-      currentmother                     = path.Top();
+    //    while (currentmother && !currentmother->UnplacedContains(tmp)) {
+    //      path.Pop();
+    //      Vector3D<Precision> pointhigherup = currentmother->GetTransformation()->InverseTransform(tmp);
+    //      tmp                               = pointhigherup;
+    //      currentmother                     = path.Top();
+    //    }
+
+    while (currentmother) {
+      if (currentmother->GetLogicalVolume()->GetUnplacedVolume()->IsAssembly() ||
+          !currentmother->UnplacedContains(tmp)) {
+        path.Pop();
+        Vector3D<Precision> pointhigherup = currentmother->GetTransformation()->InverseTransform(tmp);
+        tmp                               = pointhigherup;
+        currentmother                     = path.Top();
+      } else {
+        break;
+      }
     }
 
     if (currentmother) {

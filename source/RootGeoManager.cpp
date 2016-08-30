@@ -22,6 +22,7 @@
 #include "volumes/UnplacedGenTrap.h"
 #include "volumes/UnplacedSExtruVolume.h"
 #include "volumes/PlanarPolygon.h"
+#include "volumes/UnplacedAssembly.h"
 #include "materials/Medium.h"
 #include "materials/Material.h"
 
@@ -89,7 +90,8 @@ void FlattenAssemblies(TGeoNode *node, std::list<TGeoNode *> &nodeaccumulator, T
                        int currentdepth, int &count /* keeps track of number of flattenened nodes */, int &maxdepth)
 {
   maxdepth = currentdepth;
-  if (dynamic_cast<TGeoVolumeAssembly *>(node->GetVolume())) {
+  if (RootGeoManager::Instance().GetFlattenAssemblies() &&
+      nullptr != dynamic_cast<TGeoVolumeAssembly *>(node->GetVolume())) {
     // it is an assembly --> so modify the matrix
     TGeoVolumeAssembly *assembly = dynamic_cast<TGeoVolumeAssembly *>(node->GetVolume());
     for (int i = 0, Nd = assembly->GetNdaughters(); i < Nd; ++i) {
@@ -236,7 +238,7 @@ TGeoNode *RootGeoManager::Convert(VPlacedVolume const *const placed_volume)
 
 Transformation3D *RootGeoManager::Convert(TGeoMatrix const *const geomatrix)
 {
-  if (fTransformationMap.Contains(geomatrix)) return const_cast<Transformation3D *>(fTransformationMap[geomatrix]);
+  // if (fTransformationMap.Contains(geomatrix)) return const_cast<Transformation3D *>(fTransformationMap[geomatrix]);
 
   Double_t const *const t = geomatrix->GetTranslation();
   Double_t const *const r = geomatrix->GetRotationMatrix();
@@ -263,7 +265,12 @@ LogicalVolume *RootGeoManager::Convert(TGeoVolume const *const volume)
 {
   if (fLogicalVolumeMap.Contains(volume)) return const_cast<LogicalVolume *>(fLogicalVolumeMap[volume]);
 
-  VUnplacedVolume const *unplaced     = Convert(volume->GetShape());
+  VUnplacedVolume const *unplaced;
+  if (!volume->IsAssembly()) {
+    unplaced = Convert(volume->GetShape());
+  } else {
+    unplaced = ConvertAssembly(volume);
+  }
   LogicalVolume *const logical_volume = new LogicalVolume(volume->GetName(), unplaced);
   Medium const *const medium          = Convert(volume->GetMedium());
   const_cast<LogicalVolume *>(logical_volume)->SetTrackingMediumPtr((void *)medium);
@@ -535,13 +542,12 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
       }
       // check in which orientation the polygon in given
       if (PlanarPolygon::GetOrientation(x, y, Nvert) > 0.) {
-        std::cerr << "Points not given in clockwise order ... reordering \n";
+        // std::cerr << "Points not given in clockwise order ... reordering \n";
         for (size_t i = 0; i < Nvert; ++i) {
           x[Nvert - 1 - i] = p->GetX(i);
           y[Nvert - 1 - i] = p->GetY(i);
         }
       }
-
       unplaced_volume = new UnplacedSExtruVolume(p->GetNvert(), x, y, p->GetZ()[0], p->GetZ()[1]);
     }
   }
@@ -558,6 +564,16 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
 
   fUnplacedVolumeMap.Set(shape, unplaced_volume);
   return unplaced_volume;
+}
+
+VUnplacedVolume *RootGeoManager::ConvertAssembly(TGeoVolume const *const v)
+{
+  if (TGeoVolumeAssembly const *va = dynamic_cast<TGeoVolumeAssembly const *>(v)) {
+    // std::cerr << "treating volume assembly " << va->GetName() << "\n";
+    (void)va;
+    return new UnplacedAssembly();
+  }
+  return nullptr;
 }
 
 void RootGeoManager::PrintNodeTable() const

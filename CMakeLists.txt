@@ -562,6 +562,7 @@ set(SRC_CPP_RELATIVE
   source/AOS3D.cpp
   source/LogicalVolume.cpp
   source/PlacedCone.cpp
+  source/PlacedAssembly.cpp
   source/PlacedBox.cpp
   source/PlacedSExtru.cpp
   source/PlacedHype.cpp
@@ -580,6 +581,7 @@ set(SRC_CPP_RELATIVE
   source/Scale3D.cpp
   source/SOA3D.cpp
   source/Transformation3D.cpp
+  source/UnplacedAssembly.cpp
   source/UnplacedCone.cpp
   source/UnplacedBox.cpp
   source/UnplacedSExtruVolume.cpp
@@ -784,6 +786,7 @@ set(TEST_EXECUTABLES_CORE
   ${CMAKE_SOURCE_DIR}/test/core/TestSExtru.cpp
 # to be enabled when running cleanly
 #  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBooleans.cpp
+  ${CMAKE_SOURCE_DIR}/test/core/AssemblyTest.cpp
 #  ${CMAKE_SOURCE_DIR}/services/CompNavStatePools.cpp
 )
 
@@ -799,7 +802,7 @@ set(TEST_EXECUTABLES_ROOT
   ${CMAKE_SOURCE_DIR}/test/root/ExitingOrEntering.cpp
   ${CMAKE_SOURCE_DIR}/test/core/BoxBoxIntersectionTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/SplittedABBox.cpp
-
+  ${CMAKE_SOURCE_DIR}/test/root/AssemblyExample.cpp
 )
 
 # Tests below fail to build when both ROOT and USolids are enabled

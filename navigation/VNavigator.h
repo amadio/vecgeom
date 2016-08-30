@@ -78,14 +78,12 @@ public:
 
   // the bool return type indicates if out_state was already modified; this may happen in assemblies;
   // in this case we don't need to copy the in_state to the out state later on
+  // NavigationState a pointer since we might want to pass nullptr
   VECGEOM_CUDA_HEADER_BOTH
   virtual bool CheckDaughterIntersections(LogicalVolume const * /*lvol*/, Vector3D<Precision> const & /*localpoint*/,
                                           Vector3D<Precision> const & /*localdir*/,
-                                          NavigationState const & /*in_state*/, NavigationState & /*out_state*/,
-                                          Precision & /*step*/, VPlacedVolume const *& /*hitcandidate*/) const
-  {
-    return false;
-  }
+                                          NavigationState const * /*in_state*/, NavigationState * /*out_state*/,
+                                          Precision & /*step*/, VPlacedVolume const *& /*hitcandidate*/) const = 0;
 
   // interfaces for vector/basket navigation
   virtual void ComputeStepsAndPropagatedStates(SOA3D<Precision> const & /*globalpoints*/,
@@ -153,7 +151,9 @@ protected:
     if (geom_step == kInfinity && step_limit > 0.) {
       geom_step = vecgeom::kTolerance;
       out_state.SetBoundaryState(true);
-      out_state.Pop();
+      do {
+        out_state.Pop();
+      } while (out_state.Top()->GetLogicalVolume()->GetUnplacedVolume()->IsAssembly());
       doneafterthisstep = true;
       return geom_step;
     }
@@ -275,7 +275,7 @@ public:
               lvol,
               Vector3D<Precision>(LaneAt(localpoint.x(), i), LaneAt(localpoint.y(), i), LaneAt(localpoint.z(), i)),
               Vector3D<Precision>(LaneAt(localdir.x(), i), LaneAt(localdir.y(), i), LaneAt(localdir.z(), i)),
-              *in_states[trackid], *out_states[trackid], out_steps[trackid], hitcandidates[i]);
+              in_states[trackid], out_states[trackid], out_steps[trackid], hitcandidates[i]);
     }
   }
 
@@ -323,27 +323,37 @@ public:
       // if mother is convex we may not need to do treatment of mother
       // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
       ((Impl *)this)
-          ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, in_state, out_state, step, hitcandidate);
+          ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, &in_state, &out_state, step, hitcandidate);
       if (hitcandidate == nullptr) step = Impl::TreatDistanceToMother(pvol, localpoint, localdir, step_limit);
     } else {
       // need to calc DistanceToOut first
       step = Impl::TreatDistanceToMother(pvol, localpoint, localdir, step_limit);
       // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
       ((Impl *)this)
-          ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, in_state, out_state, step, hitcandidate);
+          ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, &in_state, &out_state, step, hitcandidate);
     }
 
     // fix state
     bool done;
     step = Impl::PrepareOutState(in_state, out_state, step, step_limit, hitcandidate, done);
-    if (done) return step;
-
+    if (done) {
+      if (out_state.Top() != nullptr) {
+        assert(!out_state.Top()->GetLogicalVolume()->GetUnplacedVolume()->IsAssembly());
+      }
+      return step;
+    }
     // step was physics limited
     if (!out_state.IsOnBoundary()) return step;
 
     // otherwise if necessary do a relocation
     // try relocation to refine out_state to correct location after the boundary
     ((Impl *)this)->Impl::Relocate(MovePointAfterBoundary(localpoint, localdir, step), in_state, out_state);
+    if (out_state.Top() != nullptr) {
+      while (out_state.Top()->IsAssembly()) {
+        out_state.Pop();
+      }
+      assert(!out_state.Top()->GetLogicalVolume()->GetUnplacedVolume()->IsAssembly());
+    }
     return step;
   }
 
@@ -607,14 +617,14 @@ public:
       // if mother is convex we may not need to do treatment of mother
       // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
       ((Impl *)this)
-          ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, in_state, out_state, step, hitcandidate);
+          ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, &in_state, &out_state, step, hitcandidate);
       if (hitcandidate == nullptr) step = Impl::TreatDistanceToMother(pvol, localpoint, localdir, step_limit);
     } else {
       // need to calc DistanceToOut first
       step = Impl::TreatDistanceToMother(pvol, localpoint, localdir, step_limit);
       // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
       ((Impl *)this)
-          ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, in_state, out_state, step, hitcandidate);
+          ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, &in_state, &out_state, step, hitcandidate);
     }
 
     // fix state

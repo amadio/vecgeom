@@ -76,6 +76,7 @@ private:
         // consider putting a firstOne into vecCore or in VecGeom
         for (size_t i = 0; i < kVS; ++i) {
           if (vecCore::MaskLaneAt(hit, i)) {
+            assert(hitcount < VECGEOM_MAXDAUGHTERS);
             hitlist[hitcount] = (ABBoxManager::BoxIdDistancePair_t(box * kVS + i, vecCore::LaneAt(distance, i)));
             hitcount++;
           }
@@ -91,12 +92,14 @@ public:
 
   VECGEOM_FORCE_INLINE
   virtual bool CheckDaughterIntersections(LogicalVolume const *lvol, Vector3D<Precision> const &localpoint,
-                                          Vector3D<Precision> const &localdir, NavigationState const & /*in_state*/,
-                                          NavigationState & /*out_state*/, Precision &step,
+                                          Vector3D<Precision> const &localdir, NavigationState const * /*in_state*/,
+                                          NavigationState * /*out_state*/, Precision &step,
                                           VPlacedVolume const *&hitcandidate) const override
   {
-
-    static __thread ABBoxManager::BoxIdDistancePair_t hitlist[VECGEOM_MAXDAUGHTERS] = {};
+    static size_t counter = 0;
+    counter++;
+    // static __thread ABBoxManager::BoxIdDistancePair_t hitlist[VECGEOM_MAXDAUGHTERS] = {};
+    ABBoxManager::BoxIdDistancePair_t hitlist[VECGEOM_MAXDAUGHTERS];
     if (lvol->GetDaughtersp()->size() == 0) return false;
 
     int size;
@@ -107,7 +110,7 @@ public:
     insertionsort(hitlist, ncandidates);
 
     for (size_t index = 0; index < ncandidates; ++index) {
-      auto hitbox                    = hitlist[index];
+      auto &hitbox                   = hitlist[index];
       VPlacedVolume const *candidate = LookupDaughter(lvol, hitbox.first);
 
       // only consider those hitboxes which are within potential reach of this step
