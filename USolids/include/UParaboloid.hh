@@ -57,14 +57,14 @@ public:
   UParaboloid() : Base_t("", 0., 0., 0.) {}
   virtual ~UParaboloid() {}
 
-  inline double GetRlo() const { return GetRlo(); }
-  inline double GetRhi() const { return GetRhi(); }
-  inline double GetDz() const { return GetDz(); }
+  inline double GetRlo() const { return Shape_t::GetRlo(); }
+  inline double GetRhi() const { return Shape_t::GetRhi(); }
+  inline double GetDz() const { return Shape_t::GetDz(); }
 
-  inline void SetRlo(double val) { SetRlo(val); }
-  inline void SetRhi(double val) { SetRhi(val); }
-  inline void SetDz(double val) { SetDz(val); }
-  inline void SetRloAndRhiAndDz(double rlo, double rhi, double dz) { SetRloAndRhiAndDz(rlo, rhi, dz); }
+  inline void SetRlo(double val) { Shape_t::SetRlo(val); }
+  inline void SetRhi(double val) { Shape_t::SetRhi(val); }
+  inline void SetDz(double val) { Shape_t::SetDz(val); }
+  inline void SetRloAndRhiAndDz(double rlo, double rhi, double dz) { Shape_t::SetRloAndRhiAndDz(rlo, rhi, dz); }
 
   // o provide a new object which is a clone of the solid
   VUSolid *Clone() const override { return new UParaboloid(*this); }

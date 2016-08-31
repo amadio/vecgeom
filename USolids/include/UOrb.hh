@@ -47,11 +47,11 @@ public:
   UOrb() : Base_t("", 0.) {}
   virtual ~UOrb() {}
 
-  inline double GetRadius() const { return GetRadius(); }
+  inline double GetRadius() const { return Shape_t::GetRadius(); }
 
-  inline double GetRadialTolerance() const { return GetRadialTolerance(); }
+  inline double GetRadialTolerance() const { return Shape_t::GetRadialTolerance(); }
 
-  inline void SetRadius(double r) { SetRadius(r); }
+  inline void SetRadius(double r) { Shape_t::SetRadius(r); }
 
   // o provide a new object which is a clone of the solid
   VUSolid *Clone() const override { return new UOrb(*this); }
