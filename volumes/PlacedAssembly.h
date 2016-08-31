@@ -256,7 +256,10 @@ public:
   }
 #endif
 #ifdef VECGEOM_GEANT4
-  virtual G4VSolid const *ConvertToGeant4() const { throw std::runtime_error("unimplemented function called"); }
+  virtual G4VSolid const *ConvertToGeant4() const override
+  {
+    throw std::runtime_error("unimplemented function called");
+  }
 #endif
 #endif
 
