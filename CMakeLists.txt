@@ -3,6 +3,7 @@
 cmake_minimum_required(VERSION 3.1.0)
 
 include(cmake/modules/RecordCmdLine.cmake)
+include(ExternalProject)
 
 project(VecGeom)
 
@@ -537,7 +538,23 @@ if (Geant4)
       ${Geant4_LIBRARIES})
   message(STATUS "Geant4 found in: ${Geant4_INCLUDE_DIRS}")
 
-endif()
+if(ROOT)
+  # We use VGM to convert (test) geometries from ROOT input to G4
+  # without needing an intermediate gdml file
+  # for user friendliness .. added as external project for now
+  set(VGM_INSTALL "${CMAKE_BINARY_DIR}/vgminstall/")
+  ExternalProject_Add(VGM
+                      GIT_REPOSITORY "git@github.com:alisw/VGM.git"
+                      CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${VGM_INSTALL} -DWITH_EXAMPLES=OFF -DGeant4_DIR=${Geant4_DIR} -DROOT_DIR=${ROOT_DIR}
+                                 -DCMAKE_INSTALL_LIBDIR=${VGM_INSTALL}/lib)
+
+  # now modify includes and libs for later linking
+  include_directories(${VGM_INSTALL}/include)
+  link_directories(${VGM_INSTALL}/lib)
+  set(VECGEOM_LIBRARIES_EXTERNAL "-L${VGM_INSTALL}/lib" BaseVGM;ClhepVGM;XmlVGM;Geant4GM;RootGM ${VECGEOM_LIBRARIES_EXTERNAL})
+  set(VGM ON)
+endif(ROOT)
+endif(Geant4)
 
 if (VTUNE)
   find_package(VTUNE REQUIRED)
@@ -618,7 +635,9 @@ set(SRC_CPP_RELATIVE
   source/MessageLogger.cpp
 
   services/NavigationSpecializer.cpp
-)
+
+  source/G4GeoManager.cpp
+ )
 
 # avoid "file has no symbols" warnings
 
@@ -725,6 +744,9 @@ if (CUDA)
 add_library(vecgeom ${SRC_CPP})
 target_link_libraries(vecgeom ${VECGEOM_LIBRARIES}
                       ${VECGEOM_LIBRARIES_EXTERNAL})
+if(VGM)
+add_dependencies(vecgeom VGM)
+endif(VGM)
 set(VECGEOM_LIBRARIES ${VECGEOM_LIBRARIES} vecgeom)
 if (NOT APPLE)
   set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} rt)

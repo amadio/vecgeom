@@ -22,10 +22,9 @@ error: no matching function for call to ‘CLHEP::Hep3Vector::Hep3Vector(<unreso
 
 #if defined(VECGEOM_GEANT4) // and !defined(VECGEOM_USOLIDS)
 
-#include "G4VSolid.hh"
-#include "G4VPhysicalVolume.hh"
-#include "G4Navigator.hh"
-#include "G4GeometryManager.hh"
+class G4Navigator;
+
+#include "base/Global.h"
 
 #ifndef VECGEOM_USOLIDS
 #include "G4GDMLParser.hh"
@@ -54,31 +53,16 @@ public:
   }
 
   // loads a G4 geometry from a gdmlfile
-  void LoadG4Geometry(std::string gdmlfile, bool validate = false)
-  {
-#ifndef VECGEOM_USOLIDS
-    G4GDMLParser parser;
-    parser.Read(gdmlfile, validate);
+  void LoadG4Geometry(std::string gdmlfile, bool validate = false);
 
-    LoadG4Geometry(const_cast<G4VPhysicalVolume *>(parser.GetWorldVolume()));
-#else
-    std::cerr << "\n*** WARNING: LoadG4Geometry() is incompatible with USOLIDS!\n";
-    std::cerr << "      Please turn off USOLIDS and rebuild.  Aborting...\n\n";
-    exit(-1);
-#endif
-  }
+  // converts to a G4 geometry from ROOT using VGM
+  // expects a valid gGeoManager object for the import
+  // returns world pointer of in-memory representation of G4
+  // the geometry still has to be closed + fully initialized afterwards using LoadG4Geometry
+  G4VPhysicalVolume *GetG4GeometryFromROOT();
 
-  // sets a G4 geometry from existing G4PhysicalVolume
-  void LoadG4Geometry(G4VPhysicalVolume *world)
-  {
-    // if there is an existing geometry
-    if (fNavigator != nullptr) delete fNavigator;
-    fNavigator = new G4Navigator();
-    fNavigator->SetWorldVolume(world);
-
-    // voxelize
-    G4GeometryManager::GetInstance()->CloseGeometry(fNavigator->GetWorldVolume());
-  }
+  // sets and finalizes G4 geometry from existing G4PhysicalVolume
+  void LoadG4Geometry(G4VPhysicalVolume *world);
 
   G4Navigator *GetNavigator() const
   {
@@ -91,7 +75,7 @@ private:
                            // can access the world object via fNavigator->GetWorldVolume()
 
   // default private constructor
-  G4GeoManager() : fNavigator(nullptr) {}
+  G4GeoManager();
 };
 }
 } // end namespaces
