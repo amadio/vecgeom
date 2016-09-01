@@ -14,7 +14,8 @@
 #include "UOrb.hh"
 #endif
 #include <cmath>
-
+// Enabling FPE
+#include "base/FpeEnable.h"
 bool testvecgeom = false;
 bool usolidsconv = false;
 #define PI 3.14159265358979323846

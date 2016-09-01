@@ -207,12 +207,12 @@ struct OrbImplementation {
     Real_v c       = rad2 - fR * fR;
     Real_v d2      = (pDotV3D * pDotV3D - c);
 
-    Bool_v cond = ((d2 >= 0.) && (pDotV3D <= 0.));
     if (ForDistanceToIn) {
-      vecCore::MaskedAssign(distance, cond, (-pDotV3D - Sqrt(d2)));
+      Bool_v cond = ((d2 >= 0.) && (pDotV3D <= 0.));
+      vecCore::MaskedAssign(distance, cond, (-pDotV3D - Sqrt(vecCore::math::Abs(d2))));
       return cond;
     } else {
-      vecCore::MaskedAssign(distance, (d2 >= 0.), (-pDotV3D + Sqrt(d2)));
+      vecCore::MaskedAssign(distance, (d2 >= 0.), (-pDotV3D + Sqrt(vecCore::math::Abs(d2))));
       return (d2 >= 0.);
     }
   }
