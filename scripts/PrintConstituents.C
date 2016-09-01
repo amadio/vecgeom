@@ -6,7 +6,9 @@ typedef std::pair<std::string, size_t> Volume_Count_t;
 
 void FillParts(TGeoVolume const *v, std::vector<Volume_Count_t> &allparts)
 {
-  allparts.push_back(Volume_Count_t(std::string(v->GetName()), v->GetNtotal()));
+  allparts.push_back(Volume_Count_t(
+      std::string(std::string(v->GetName()) + std::string(" ") + std::string(v->GetShape()->ClassName())),
+      v->GetNtotal()));
 
   for (size_t d = 0; d < (size_t)v->GetNdaughters(); ++d) {
     FillParts(v->GetNode(d)->GetVolume(), allparts);
@@ -27,7 +29,12 @@ void PrintConstituents(char const *detector = "alice.root", char const *topname 
   TGeoManager::Import(detector);
   TGeoVolume *topvolume = gGeoManager->FindVolumeFast(topname);
   if (topvolume == nullptr) {
-    std::cerr << "ERROR: NO SUCH VOLUME FOUND\n";
+    std::cerr << "Warning: NO SUCH VOLUME FOUND .. will use top volume\n";
+    topvolume = gGeoManager->GetTopVolume();
+  }
+
+  if (topvolume == nullptr) {
+    std::cerr << "ERROR: NO VOLUME FOUND .. aborting\n";
     return;
   }
 
