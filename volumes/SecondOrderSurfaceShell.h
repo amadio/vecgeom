@@ -74,8 +74,8 @@ public:
       fxd[i] = verticesx[N + j];
       fyd[i] = verticesy[N + j];
       fdegenerated[i] =
-          (vecCore::math::Abs(fxa[i] - fxc[i]) < kTolerance) && (vecCore::math::Abs(fya[i] - fyc[i]) < kTolerance) &&
-          (vecCore::math::Abs(fxb[i] - fxd[i]) < kTolerance) && (vecCore::math::Abs(fyb[i] - fyd[i]) < kTolerance);
+          (Abs(fxa[i] - fxc[i]) < kTolerance) && (Abs(fya[i] - fyc[i]) < kTolerance) &&
+          (Abs(fxb[i] - fxd[i]) < kTolerance) && (Abs(fyb[i] - fyd[i]) < kTolerance);
       ftx1[i] = fDz2 * (fxb[i] - fxa[i]);
       fty1[i] = fDz2 * (fyb[i] - fya[i]);
       ftx2[i] = fDz2 * (fxd[i] - fxc[i]);
@@ -102,9 +102,9 @@ public:
     fisplanar = true;
     for (int i = 0; i < N; ++i) {
       fiscurved[i] =
-          (((vecCore::math::Abs(fxc[i] - fxa[i]) < kTolerance) && (vecCore::math::Abs(fyc[i] - fya[i]) < kTolerance)) ||
-           ((vecCore::math::Abs(fxd[i] - fxb[i]) < kTolerance) && (vecCore::math::Abs(fyd[i] - fyb[i]) < kTolerance)) ||
-           (vecCore::math::Abs((fxc[i] - fxa[i]) * (fyd[i] - fyb[i]) - (fxd[i] - fxb[i]) * (fyc[i] - fya[i])) <
+          (((Abs(fxc[i] - fxa[i]) < kTolerance) && (Abs(fyc[i] - fya[i]) < kTolerance)) ||
+           ((Abs(fxd[i] - fxb[i]) < kTolerance) && (Abs(fyd[i] - fyb[i]) < kTolerance)) ||
+           (Abs((fxc[i] - fxa[i]) * (fyd[i] - fyb[i]) - (fxd[i] - fxb[i]) * (fyc[i] - fya[i])) <
             kTolerance))
               ? 0
               : 1;
@@ -130,8 +130,8 @@ public:
     constexpr Precision tolerancesq = 10000. * kTolerance * kTolerance;
 
     onsurf            = Bool_v(false);
-    completelyinside  = (vecCore::math::Abs(point.z()) < MakeMinusTolerant<true>(fDz));
-    completelyoutside = (vecCore::math::Abs(point.z()) > MakePlusTolerant<true>(fDz));
+    completelyinside  = (Abs(point.z()) < MakeMinusTolerant<true>(fDz));
+    completelyoutside = (Abs(point.z()) > MakePlusTolerant<true>(fDz));
     //  if (Backend::early_returns) {
     if (vecCore::MaskFull(completelyoutside)) return;
     //  }
@@ -206,7 +206,7 @@ public:
     ComputeSminSmax<Real_v>(point, dir, smin, smax);
     for (int i = 0; i < N; ++i) {
       // Check if point(s) is(are) on boundary, and in this case compute normal
-      Bool_v crtbound = (vecCore::math::Abs(smin[i]) < tolerance || vecCore::math::Abs(smax[i]) < tolerance);
+      Bool_v crtbound = (Abs(smin[i]) < tolerance || Abs(smax[i]) < tolerance);
       if (!vecCore::MaskEmpty(crtbound)) {
         if (fiscurved[i])
           UNormal<Real_v>(point, i, unorm, rz, r);
@@ -216,16 +216,16 @@ public:
       // Starting point may be propagated close to boundary
       // === MaskedMultipleAssign needed
       vecCore::MaskedAssign(smin[i],
-                            !completelyoutside && vecCore::math::Abs(smin[i]) < tolerance && dir.Dot(unorm) < 0,
+                            !completelyoutside && Abs(smin[i]) < tolerance && dir.Dot(unorm) < 0,
                             vecCore::NumericLimits<Real_v>::Infinity());
       vecCore::MaskedAssign(smax[i],
-                            !completelyoutside && vecCore::math::Abs(smax[i]) < tolerance && dir.Dot(unorm) < 0,
+                            !completelyoutside && Abs(smax[i]) < tolerance && dir.Dot(unorm) < 0,
                             vecCore::NumericLimits<Real_v>::Infinity());
 
       vecCore::MaskedAssign(dist, !completelyoutside && (smin[i] > -tolerance) && (smin[i] < dist),
-                            vecCore::math::Max(smin[i], Real_v(0.)));
+                            Max(smin[i], Real_v(0.)));
       vecCore::MaskedAssign(dist, !completelyoutside && (smax[i] > -tolerance) && (smax[i] < dist),
-                            vecCore::math::Max(smax[i], Real_v(0.)));
+                            Max(smax[i], Real_v(0.)));
     }
     vecCore::MaskedAssign(dist, dist < tolerance && onsurf, Real_v(0.));
     return (dist);
@@ -251,7 +251,7 @@ public:
 
     // Check every surface
     Bool_v outside =
-        (vecCore::math::Abs(point.z()) > MakePlusTolerant<true>(fDz)); // If point is outside, we need to know
+        (Abs(point.z()) > MakePlusTolerant<true>(fDz)); // If point is outside, we need to know
     for (int i = 0; i < N && (!vecCore::MaskFull(outside)); ++i) {
       if (fdegenerated[i]) continue;
       // Point A is the current vertex on lower Z. P is the point we come from.
@@ -269,7 +269,7 @@ public:
       Bool_v valid = outgoing && (!otherside);
       if (vecCore::MaskEmpty(valid)) continue;
       Real_v snext = -dotAPNorm / dotDirNorm;
-      vecCore::MaskedAssign(distance, valid && snext < distance, vecCore::math::Max(snext, Real_v(0.)));
+      vecCore::MaskedAssign(distance, valid && snext < distance, Max(snext, Real_v(0.)));
     }
     // Return -1 for points actually outside
     vecCore::MaskedAssign(distance, distance < kTolerance, Real_v(0.));
@@ -297,7 +297,7 @@ public:
 
     // Check every surface
     Bool_v inside =
-        (vecCore::math::Abs(point.z()) < MakeMinusTolerant<true>(fDz)); // If point is inside, we need to know
+        (Abs(point.z()) < MakeMinusTolerant<true>(fDz)); // If point is inside, we need to know
     for (int i = 0; i < N; ++i) {
       if (fdegenerated[i]) continue;
       // Point A is the current vertex on lower Z. P is the point we come from.
@@ -318,7 +318,7 @@ public:
       // Now propagate the point to surface and check if in range
       Vector3D<Real_v> psurf = point + snext * dir;
       valid                  = valid && InSurfLimits<Real_v>(psurf, i);
-      vecCore::MaskedAssign(distance, (!done) && valid && snext < distance, vecCore::math::Max(snext, Real_v(0.)));
+      vecCore::MaskedAssign(distance, (!done) && valid && snext < distance, Max(snext, Real_v(0.)));
     }
     // Return -1 for points actually inside
     vecCore::MaskedAssign(distance, (!done) && (distance < kTolerance), Real_v(0.));
@@ -367,7 +367,7 @@ public:
       crtdist = smin[i];
       // Extrapolate with hit distance candidate
       hit             = point + crtdist * dir;
-      Bool_v crossing = (crtdist > -tolerance) && (vecCore::math::Abs(hit.z()) < fDz + kTolerance);
+      Bool_v crossing = (crtdist > -tolerance) && (Abs(hit.z()) < fDz + kTolerance);
       // Early skip surface if not in Z range
       if (!vecCore::MaskEmpty(Bool_v(crossing && (!checked)))) {
         // Compute local un-normalized outwards normal direction and hit ratio factors
@@ -377,7 +377,7 @@ public:
         // Propagated hitpoint must be on surface (rz in [0,1] checked already)
         crossing = crossing && (r >= 0.) && (r <= 1.);
         vecCore::MaskedAssign(distance, crossing && (!checked) && crtdist < distance,
-                              vecCore::math::Max(crtdist, Real_v(0.)));
+                              Max(crtdist, Real_v(0.)));
       }
       // For the particle(s) not crossing at smin, try smax
       if (!vecCore::MaskFull(Bool_v(crossing || checked))) {
@@ -385,7 +385,7 @@ public:
         crossing = !crossing;
         crtdist  = smax[i];
         hit      = point + crtdist * dir;
-        crossing = crossing && (crtdist > -tolerance) && (vecCore::math::Abs(hit.z()) < fDz + kTolerance);
+        crossing = crossing && (crtdist > -tolerance) && (Abs(hit.z()) < fDz + kTolerance);
         if (vecCore::MaskEmpty(crossing)) continue;
         if (fiscurved[i])
           UNormal<Real_v>(hit, i, unorm, rz, r);
@@ -394,7 +394,7 @@ public:
         crossing = crossing && (dir.Dot(unorm) < 0.);
         crossing = crossing && (r >= 0.) && (r <= 1.);
         vecCore::MaskedAssign(distance, crossing && (!checked) && crtdist < distance,
-                              vecCore::math::Max(crtdist, Real_v(0.)));
+                              Max(crtdist, Real_v(0.)));
       }
     }
     vecCore::MaskedAssign(distance, distance < tolerance && onsurf, Real_v(0.));
@@ -419,7 +419,7 @@ public:
     constexpr Precision eps = 100. * kTolerance;
 
     Real_v safety = safmax;
-    Bool_v done   = (vecCore::math::Abs(safety) < eps);
+    Bool_v done   = (Abs(safety) < eps);
     if (vecCore::MaskFull(done)) return (safety);
     Real_v safetyface = vecCore::NumericLimits<Real_v>::Infinity();
 
@@ -435,7 +435,7 @@ public:
         safetyface = (pa - point).Dot(fNormals[i]);
         vecCore::MaskedAssign(safety, (safetyface < safety) && (!done), safetyface);
       }
-      vecCore::MaskedAssign(safety, vecCore::math::Abs(safety) < eps, Real_v(0.));
+      vecCore::MaskedAssign(safety, Abs(safety) < eps, Real_v(0.));
       return safety;
     }
 
@@ -466,7 +466,7 @@ public:
     constexpr Precision eps = 100. * kTolerance;
 
     Real_v safety = safmax;
-    Bool_v done   = (vecCore::math::Abs(safety) < eps);
+    Bool_v done   = (Abs(safety) < eps);
     if (vecCore::MaskFull(done)) return (safety);
     Real_v safetyface = vecCore::NumericLimits<Real_v>::Infinity();
 
@@ -482,7 +482,7 @@ public:
         safetyface = (point - pa).Dot(fNormals[i]);
         vecCore::MaskedAssign(safety, (safetyface > safety) && (!done), safetyface);
       }
-      vecCore::MaskedAssign(safety, vecCore::math::Abs(safety) < eps, Real_v(0.));
+      vecCore::MaskedAssign(safety, Abs(safety) < eps, Real_v(0.));
       return safety;
     }
 
@@ -544,7 +544,7 @@ public:
         // We can use the surface normals to get safety for non-curved surfaces
         Vector3D<Real_v> pa; // same vertex converted to backend type
         pa.Set(Real_v(fxa[i]), Real_v(fya[i]), Real_v(-fDz));
-        Real_v sface = vecCore::math::Abs((point - pa).Dot(fNormals[i]));
+        Real_v sface = Abs((point - pa).Dot(fNormals[i]));
         vecCore::MaskedAssign(safplanar, sface < safplanar, sface);
         continue;
       }
@@ -571,7 +571,7 @@ public:
     dx = dx1 + umin * (dx2 - dx1);
     dy = dy1 + umin * (dy2 - dy1);
     safety *= 1. - 4. * fDz * fDz / (dx * dx + dy * dy + 4. * fDz * fDz);
-    safety = vecCore::math::Sqrt(safety);
+    safety = Sqrt(safety);
     vecCore::MaskedAssign(safety, safplanar < safety, safplanar);
     vecCore::MaskedAssign(safety, wrong, -safety);
     vecCore::MaskedAssign(safety, onsurf, Real_v(0.));
@@ -603,10 +603,10 @@ public:
     Real_v r     = vecCore::NumericLimits<Real_v>::Infinity();
     Real_v num   = (point.x() - fxa[isurf]) - rz * (fxb[isurf] - fxa[isurf]);
     Real_v denom = (fxc[isurf] - fxa[isurf]) + rz * (fxd[isurf] - fxc[isurf] - fxb[isurf] + fxa[isurf]);
-    vecCore::MaskedAssign(r, (vecCore::math::Abs(denom) > 1.e-6), num / denom);
+    vecCore::MaskedAssign(r, (Abs(denom) > 1.e-6), num / denom);
     num   = (point.y() - fya[isurf]) - rz * (fyb[isurf] - fya[isurf]);
     denom = (fyc[isurf] - fya[isurf]) + rz * (fyd[isurf] - fyc[isurf] - fyb[isurf] + fya[isurf]);
-    vecCore::MaskedAssign(r, (vecCore::math::Abs(denom) > 1.e-6), num / denom);
+    vecCore::MaskedAssign(r, (Abs(denom) > 1.e-6), num / denom);
     insurf = insurf && (r > MakeMinusTolerant<true>(0.)) && (r < MakePlusTolerant<true>(1.));
     return insurf;
   }
@@ -635,10 +635,10 @@ public:
     */
     Real_v num   = (point.x() - fxa[isurf]) - rz * (fxb[isurf] - fxa[isurf]);
     Real_v denom = (fxc[isurf] - fxa[isurf]) + rz * (fxd[isurf] - fxc[isurf] - fxb[isurf] + fxa[isurf]);
-    vecCore::MaskedAssign(r, vecCore::math::Abs(denom) > 1.e-6, num / denom);
+    vecCore::MaskedAssign(r, Abs(denom) > 1.e-6, num / denom);
     num   = (point.y() - fya[isurf]) - rz * (fyb[isurf] - fya[isurf]);
     denom = (fyc[isurf] - fya[isurf]) + rz * (fyd[isurf] - fyc[isurf] - fyb[isurf] + fya[isurf]);
-    vecCore::MaskedAssign(r, vecCore::math::Abs(denom) > 1.e-6, num / denom);
+    vecCore::MaskedAssign(r, Abs(denom) > 1.e-6, num / denom);
 
     unorm = (Vector3D<Real_v>)fViCrossHi0[isurf] + rz * (Vector3D<Real_v>)fViCrossVj[isurf] +
             r * (Vector3D<Real_v>)fHi1CrossHi0[isurf];
@@ -686,14 +686,14 @@ public:
       vecCore::MaskedAssign(signa[i], a[i] < -kTolerance, Real_v(-1.));
       vecCore::MaskedAssign(signa[i], a[i] > kTolerance, Real_v(1.));
       inva[i] = c[i] / (b[i] * b[i] + kTiny);
-      vecCore::MaskedAssign(inva[i], vecCore::math::Abs(a[i]) > kTolerance, 1. / (2. * a[i]));
+      vecCore::MaskedAssign(inva[i], Abs(a[i]) > kTolerance, 1. / (2. * a[i]));
     }
 
     // vectorizes
     for (int i = 0; i < N; ++i) {
       // treatment for curved surfaces. Invalid solutions will be excluded.
 
-      Real_v sqrtd = signa[i] * vecCore::math::Sqrt(vecCore::math::Abs(d[i]));
+      Real_v sqrtd = signa[i] * Sqrt(Abs(d[i]));
       vecCore::MaskedAssign(sqrtd, d[i] < 0., big);
       // what is the meaning of this??
       smin[i] = (-b[i] - sqrtd) * inva[i];

@@ -32,7 +32,7 @@ public:
     for (decltype(numberdaughters) d = 0; d < numberdaughters; ++d) {
       VPlacedVolume const *daughter = daughters->operator[](d);
       double tmp                    = daughter->SafetyToIn(localpoint);
-      safety                        = vecCore::math::Min(safety, tmp);
+      safety                        = Min(safety, tmp);
     }
     return safety;
   }
@@ -51,7 +51,7 @@ public:
     for (decltype(numberdaughters) d = 0; d < numberdaughters; ++d) {
       VPlacedVolume const *daughter = daughters->operator[](d);
       double tmp                    = daughter->SafetyToIn(localpoint);
-      safety                        = vecCore::math::Min(safety, tmp);
+      safety                        = Min(safety, tmp);
     }
     return safety;
   }
@@ -71,7 +71,7 @@ public:
       for (decltype(numberdaughters) d = 0; d < numberdaughters; ++d) {
         VPlacedVolume const *daughter = daughters->operator[](d);
         auto tmp                      = daughter->SafetyToIn(localpoint);
-        safety                        = vecCore::math::Min(safety, tmp);
+        safety                        = Min(safety, tmp);
       }
     }
     return safety;
@@ -123,7 +123,7 @@ public:
       auto numberdaughters = daughters->size();
       for (decltype(numberdaughters) d = 0; d < numberdaughters; ++d) {
         VPlacedVolume const *daughter = daughters->operator[](d);
-        safety                        = vecCore::math::Min(safety, daughter->SafetyToIn(local));
+        safety                        = Min(safety, daughter->SafetyToIn(local));
       }
       vecCore::Store(safety, safeties + i);
     }

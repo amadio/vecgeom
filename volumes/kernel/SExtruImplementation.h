@@ -79,8 +79,8 @@ struct SExtruImplementation {
 
     // check conditions for surface first
     using Bool_v = vecCore::Mask_v<Real_v>;
-    Bool_v onZ   = vecCore::math::Abs(point.z() - unplaced.fUpperZ) < kTolerance;
-    onZ |= vecCore::math::Abs(point.z() - unplaced.fLowerZ) < kTolerance;
+    Bool_v onZ   = Abs(point.z() - unplaced.fUpperZ) < kTolerance;
+    onZ |= Abs(point.z() - unplaced.fLowerZ) < kTolerance;
 
     if (onZ) {
       if (unplaced.fPolygon.Contains(point)) {
@@ -123,7 +123,7 @@ struct SExtruImplementation {
 
     const auto canhit = s < Real_v(kTolerance);
     if (!vecCore::MaskEmpty(canhit)) {
-      const auto dist = -s / vecCore::math::Abs(dir.z());
+      const auto dist = -s / Abs(dir.z());
       // propagate
       const auto xInters = p.x() + dist * dir.x();
       const auto yInters = p.y() + dist * dir.y();
@@ -180,7 +180,7 @@ struct SExtruImplementation {
 
     const auto zSafety1 = polyshell.fLowerZ - point.z();
     const auto zSafety2 = polyshell.fUpperZ - point.z();
-    if (vecCore::math::Abs(zSafety1) < kTolerance || vecCore::math::Abs(zSafety2) < kTolerance) {
+    if (Abs(zSafety1) < kTolerance || Abs(zSafety2) < kTolerance) {
       // on the z - entering surface:
       // need more careful treatment
       bool c;
@@ -201,8 +201,8 @@ struct SExtruImplementation {
   {
     int unused;
     safety = std::sqrt(polyshell.fPolygon.SafetySqr(point, unused));
-    safety = vecCore::math::Min(safety, polyshell.fUpperZ - point.z());
-    safety = vecCore::math::Min(safety, point.z() - polyshell.fLowerZ);
+    safety = Min(safety, polyshell.fUpperZ - point.z());
+    safety = Min(safety, point.z() - polyshell.fLowerZ);
   }
 
   template <typename Real_v>
@@ -218,8 +218,8 @@ struct SExtruImplementation {
 
     // check conditions for surface first
     using Bool_v    = vecCore::Mask_v<Real_v>;
-    Bool_v onUpperZ = vecCore::math::Abs(point.z() - unplaced.fUpperZ) < kTolerance;
-    Bool_v onLowerZ = vecCore::math::Abs(point.z() - unplaced.fLowerZ) < kTolerance;
+    Bool_v onUpperZ = Abs(point.z() - unplaced.fUpperZ) < kTolerance;
+    Bool_v onLowerZ = Abs(point.z() - unplaced.fLowerZ) < kTolerance;
 
     if (onUpperZ || onLowerZ) {
       if (unplaced.fPolygon.Contains(point)) {

@@ -452,7 +452,7 @@ void BooleanImplementation<kSubtraction, transCodeT, rotCodeT>::DistanceToInKern
     // master outside '-' and outside '+' ;  find distances to both
     //        fLeftMat->MasterToLocal(&master[0], &local[0]);
     d2 = unplaced.fLeftVolume->DistanceToIn(hitpoint, v, stepMax);
-    d2 = vecCore::math::Max(d2, 0.);
+    d2 = Max(d2, 0.);
     if (d2 == kInfinity) {
       distance = kInfinity;
       // std::cerr << "missing A " << d2 << "\n";

@@ -99,9 +99,9 @@ struct BoxImplementation {
     // check if second call to Abs is compiled away
     // and it can anyway not be vectorized
     /* x */
-    completelyoutside = vecCore::math::Abs(localPoint[0]) > MakePlusTolerant<ForInside>(dimensions[0]);
+    completelyoutside = Abs(localPoint[0]) > MakePlusTolerant<ForInside>(dimensions[0]);
     if (ForInside) {
-      completelyinside = vecCore::math::Abs(localPoint[0]) < MakeMinusTolerant<ForInside>(dimensions[0]);
+      completelyinside = Abs(localPoint[0]) < MakeMinusTolerant<ForInside>(dimensions[0]);
     }
     if (/*Backend::early_returns*/ true) {
       if (vecCore::MaskFull(completelyoutside)) {
@@ -109,9 +109,9 @@ struct BoxImplementation {
       }
     }
     /* y */
-    completelyoutside |= vecCore::math::Abs(localPoint[1]) > MakePlusTolerant<ForInside>(dimensions[1]);
+    completelyoutside |= Abs(localPoint[1]) > MakePlusTolerant<ForInside>(dimensions[1]);
     if (ForInside) {
-      completelyinside &= vecCore::math::Abs(localPoint[1]) < MakeMinusTolerant<ForInside>(dimensions[1]);
+      completelyinside &= Abs(localPoint[1]) < MakeMinusTolerant<ForInside>(dimensions[1]);
     }
     if (/*Backend::early_returns*/ true) {
       if (vecCore::MaskFull(completelyoutside)) {
@@ -119,9 +119,9 @@ struct BoxImplementation {
       }
     }
     /* z */
-    completelyoutside |= vecCore::math::Abs(localPoint[2]) > MakePlusTolerant<ForInside>(dimensions[2]);
+    completelyoutside |= Abs(localPoint[2]) > MakePlusTolerant<ForInside>(dimensions[2]);
     if (ForInside) {
-      completelyinside &= vecCore::math::Abs(localPoint[2]) < MakeMinusTolerant<ForInside>(dimensions[2]);
+      completelyinside &= Abs(localPoint[2]) < MakeMinusTolerant<ForInside>(dimensions[2]);
     }
     return;
   }
@@ -138,9 +138,9 @@ struct BoxImplementation {
     Bool_v done(false);
     distance = vecCore::NumericLimits<Real_v>::Infinity();
 
-    safety[0] = vecCore::math::Abs(point[0]) - box.fDimensions[0];
-    safety[1] = vecCore::math::Abs(point[1]) - box.fDimensions[1];
-    safety[2] = vecCore::math::Abs(point[2]) - box.fDimensions[2];
+    safety[0] = Abs(point[0]) - box.fDimensions[0];
+    safety[1] = Abs(point[1]) - box.fDimensions[1];
+    safety[2] = Abs(point[2]) - box.fDimensions[2];
 
     done |= (safety[0] >= stepMax || safety[1] >= stepMax || safety[2] >= stepMax);
     if (vecCore::MaskFull(done)) return;
@@ -160,7 +160,7 @@ struct BoxImplementation {
     coord1 = point[1] + next * direction[1];
     coord2 = point[2] + next * direction[2];
     hit    = safety[0] >= -kHalfTolerance && point[0] * direction[0] < 0. &&
-          vecCore::math::Abs(coord1) <= box.fDimensions[1] && vecCore::math::Abs(coord2) <= box.fDimensions[2];
+          Abs(coord1) <= box.fDimensions[1] && Abs(coord2) <= box.fDimensions[2];
     vecCore::MaskedAssign(distance, !done && hit, next);
     done |= hit;
     if (vecCore::MaskFull(done)) return;
@@ -170,7 +170,7 @@ struct BoxImplementation {
     coord1 = point[0] + next * direction[0];
     coord2 = point[2] + next * direction[2];
     hit    = safety[1] >= -kHalfTolerance && point[1] * direction[1] < 0 &&
-          vecCore::math::Abs(coord1) <= box.fDimensions[0] && vecCore::math::Abs(coord2) <= box.fDimensions[2];
+          Abs(coord1) <= box.fDimensions[0] && Abs(coord2) <= box.fDimensions[2];
     vecCore::MaskedAssign(distance, !done && hit, next);
     done |= hit;
     if (vecCore::MaskFull(done)) return;
@@ -180,7 +180,7 @@ struct BoxImplementation {
     coord1 = point[0] + next * direction[0];
     coord2 = point[1] + next * direction[1];
     hit    = safety[2] >= -kHalfTolerance && point[2] * direction[2] < 0 &&
-          vecCore::math::Abs(coord1) <= box.fDimensions[0] && vecCore::math::Abs(coord2) <= box.fDimensions[1];
+          Abs(coord1) <= box.fDimensions[0] && Abs(coord2) <= box.fDimensions[1];
     vecCore::MaskedAssign(distance, !done && hit, next);
   }
 
@@ -194,9 +194,9 @@ struct BoxImplementation {
 
     using Bool_v = vecCore::Mask_v<Real_v>;
     // treatment to find out if on wrong side
-    Bool_v done = vecCore::math::Abs(point[0]) > box.fDimensions[0] + kHalfTolerance;
-    done |= vecCore::math::Abs(point[1]) > box.fDimensions[1] + kHalfTolerance;
-    done |= vecCore::math::Abs(point[2]) > box.fDimensions[2] + kHalfTolerance;
+    Bool_v done = Abs(point[0]) > box.fDimensions[0] + kHalfTolerance;
+    done |= Abs(point[1]) > box.fDimensions[1] + kHalfTolerance;
+    done |= Abs(point[2]) > box.fDimensions[2] + kHalfTolerance;
     if (vecCore::MaskFull(done)) return;
 
     const Vector3D<Real_v> moddirection(NonZero(direction[0]), NonZero(direction[1]), NonZero(direction[2]));
@@ -211,8 +211,8 @@ struct BoxImplementation {
     MaskedAssign(distances[2], moddirection[2] < 0., (-box.fDimensions[2] - point[2]) * inverseDirection[2]);
 
     MaskedAssign(distance, !done, distances[0]);
-    distance = vecCore::math::Min(distances[1], distance);
-    distance = vecCore::math::Min(distances[2], distance);
+    distance = Min(distances[1], distance);
+    distance = Min(distances[2], distance);
     return;
   }
 
@@ -221,11 +221,11 @@ struct BoxImplementation {
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToIn(UnplacedStruct_t const &box, Vector3D<Real_v> const &point, Real_v &safety)
   {
-    safety               = -box.fDimensions[0] + vecCore::math::Abs(point[0]);
-    const Real_v safetyY = -box.fDimensions[1] + vecCore::math::Abs(point[1]);
-    const Real_v safetyZ = -box.fDimensions[2] + vecCore::math::Abs(point[2]);
-    safety               = vecCore::math::Max(safetyY, safety);
-    safety               = vecCore::math::Max(safetyZ, safety);
+    safety               = -box.fDimensions[0] + Abs(point[0]);
+    const Real_v safetyY = -box.fDimensions[1] + Abs(point[1]);
+    const Real_v safetyZ = -box.fDimensions[2] + Abs(point[2]);
+    safety               = Max(safetyY, safety);
+    safety               = Max(safetyZ, safety);
   }
 
   template <typename Real_v>
@@ -233,11 +233,11 @@ struct BoxImplementation {
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToOut(UnplacedStruct_t const &box, Vector3D<Real_v> const &point, Real_v &safety)
   {
-    safety               = box.fDimensions[0] - vecCore::math::Abs(point[0]);
-    const Real_v safetyY = box.fDimensions[1] - vecCore::math::Abs(point[1]);
-    const Real_v safetyZ = box.fDimensions[2] - vecCore::math::Abs(point[2]);
-    safety               = vecCore::math::Min(safetyY, safety);
-    safety               = vecCore::math::Min(safetyZ, safety);
+    safety               = box.fDimensions[0] - Abs(point[0]);
+    const Real_v safetyY = box.fDimensions[1] - Abs(point[1]);
+    const Real_v safetyZ = box.fDimensions[2] - Abs(point[2]);
+    safety               = Min(safetyY, safety);
+    safety               = Min(safetyZ, safety);
   }
 
   template <typename Real_v>
@@ -270,8 +270,8 @@ struct BoxImplementation {
 
     // loop here over dimensions
     for (int dim = 0; dim < 3; ++dim) {
-      Real_v currentsafe = vecCore::math::Abs(vecCore::math::Abs(point[dim]) - dimensions[dim]);
-      safmin             = vecCore::math::Min(currentsafe, safmin);
+      Real_v currentsafe = Abs(Abs(point[dim]) - dimensions[dim]);
+      safmin             = Min(currentsafe, safmin);
 
       // close to this surface
       Bool_v closetoplane = currentsafe < delta;
@@ -459,8 +459,8 @@ struct BoxImplementation {
     //     return vecgeom::kInfinity;
 
     // Not sure if this has to be maskedassignments
-    tmin = vecCore::math::Max(tmin, tymin);
-    tmax = vecCore::math::Min(tmax, tymax);
+    tmin = Max(tmin, tymin);
+    tmax = Min(tmax, tymax);
 
     Real_v tzmin = (corners[signz].z() - point.z()) * inverseray.z();
     Real_v tzmax = (corners[1 - signz].z() - point.z()) * inverseray.z();
@@ -471,8 +471,8 @@ struct BoxImplementation {
     if (vecCore::MaskFull(done)) return Real_v((basep)vecgeom::kInfinity);
 
     // not sure if this has to be maskedassignments
-    tmin = vecCore::math::Max(tmin, tzmin);
-    tmax = vecCore::math::Min(tmax, tzmax);
+    tmin = Max(tmin, tzmin);
+    tmax = Min(tmax, tzmax);
 
     done |= !((tmin < Real_v(t1)) && (tmax > Real_v(t0)));
     // if( ! ((tmin < t1) && (tmax > t0)) )
@@ -642,7 +642,7 @@ struct ABBoxImplementation {
       Real_v tmp(0.);
       vecCore::MaskedAssign(tmp, outsidex, safety.x() * safety.x());
       runningsafetysqr += tmp;
-      runningmax = vecCore::math::Max(runningmax, safety.x());
+      runningmax = Max(runningmax, safety.x());
     }
 
     // treat y dim
@@ -650,7 +650,7 @@ struct ABBoxImplementation {
       Real_v tmp(0.);
       vecCore::MaskedAssign(tmp, outsidey, safety.y() * safety.y());
       runningsafetysqr += tmp;
-      runningmax = vecCore::math::Max(runningmax, safety.y());
+      runningmax = Max(runningmax, safety.y());
     }
 
     // treat z dim
@@ -658,7 +658,7 @@ struct ABBoxImplementation {
       Real_v tmp(0.);
       vecCore::MaskedAssign(tmp, outsidez, safety.z() * safety.z());
       runningsafetysqr += tmp;
-      runningmax = vecCore::math::Max(runningmax, safety.z());
+      runningmax = Max(runningmax, safety.z());
     }
 
     Bool_v inside = !(outsidex || outsidey || outsidez);

@@ -141,7 +141,7 @@ void ParallelepipedImplementation::DistanceToIn(UnplacedStruct_t const &unplaced
                                           distance);
   // The check below has to be added because the box does not follow the boundary
   // convention yet. To be removed when this will be the case.
-  vecCore::MaskedAssign(distance, vecCore::math::Abs(distance) < kHalfTolerance, Real_v(0.));
+  vecCore::MaskedAssign(distance, Abs(distance) < kHalfTolerance, Real_v(0.));
 }
 
 template <typename Real_v>
@@ -160,7 +160,7 @@ void ParallelepipedImplementation::DistanceToOut(UnplacedStruct_t const &unplace
 
   // Z intersection
   // Outside Z range
-  Bool_v outside = (vecCore::math::Abs(point[2]) - unplaced.fDimensions[2]) > kHalfTolerance;
+  Bool_v outside = (Abs(point[2]) - unplaced.fDimensions[2]) > kHalfTolerance;
   done |= outside;
   MaskedAssign(distance, outside, Real_v(-1.));
   inDirection = direction[2] > 0;
@@ -190,7 +190,7 @@ void ParallelepipedImplementation::DistanceToOut(UnplacedStruct_t const &unplace
   localDirectionY = direction[1] - unplaced.fTanThetaSinPhi * direction[2];
 
   // Outside Y range
-  outside = (vecCore::math::Abs(localPointY) - unplaced.fDimensions[1]) > kHalfTolerance;
+  outside = (Abs(localPointY) - unplaced.fDimensions[1]) > kHalfTolerance;
   done |= outside;
   MaskedAssign(distance, outside, Real_v(-1.));
   inDirection = localDirectionY > 0;
@@ -221,7 +221,7 @@ void ParallelepipedImplementation::DistanceToOut(UnplacedStruct_t const &unplace
   localDirectionX = direction[0] - unplaced.fTanThetaCosPhi * direction[2] - unplaced.fTanAlpha * localDirectionY;
 
   // Outside X range
-  outside = (vecCore::math::Abs(localPointX) - unplaced.fDimensions[0]) > kHalfTolerance;
+  outside = (Abs(localPointX) - unplaced.fDimensions[0]) > kHalfTolerance;
   done |= outside;
   MaskedAssign(distance, outside, Real_v(-1.));
   inDirection = localDirectionX > 0;
@@ -255,9 +255,9 @@ void ParallelepipedImplementation::SafetyToIn(UnplacedStruct_t const &unplaced, 
   Vector3D<Real_v> localPoint = point;
   Transform<Real_v>(unplaced, localPoint);
 
-  safetyVector[0] = vecCore::math::Abs(localPoint[0]) - unplaced.fDimensions[0];
-  safetyVector[1] = vecCore::math::Abs(localPoint[1]) - unplaced.fDimensions[1];
-  safetyVector[2] = vecCore::math::Abs(localPoint[2]) - unplaced.fDimensions[2];
+  safetyVector[0] = Abs(localPoint[0]) - unplaced.fDimensions[0];
+  safetyVector[1] = Abs(localPoint[1]) - unplaced.fDimensions[1];
+  safetyVector[2] = Abs(localPoint[2]) - unplaced.fDimensions[2];
 
   safetyVector[0] *= unplaced.fCtx;
   safetyVector[1] *= unplaced.fCty;
@@ -265,7 +265,7 @@ void ParallelepipedImplementation::SafetyToIn(UnplacedStruct_t const &unplaced, 
   safety = safetyVector[0];
   MaskedAssign(safety, safetyVector[1] > safety, safetyVector[1]);
   MaskedAssign(safety, safetyVector[2] > safety, safetyVector[2]);
-  MaskedAssign(safety, vecCore::math::Abs(safety) < kTolerance, Real_v(0.));
+  MaskedAssign(safety, Abs(safety) < kTolerance, Real_v(0.));
 }
 
 template <typename Real_v>
@@ -280,9 +280,9 @@ void ParallelepipedImplementation::SafetyToOut(UnplacedStruct_t const &unplaced,
   Vector3D<Real_v> localPoint = point;
   Transform<Real_v>(unplaced, localPoint);
 
-  safetyVector[0] = unplaced.fDimensions[0] - vecCore::math::Abs(localPoint[0]);
-  safetyVector[1] = unplaced.fDimensions[1] - vecCore::math::Abs(localPoint[1]);
-  safetyVector[2] = unplaced.fDimensions[2] - vecCore::math::Abs(localPoint[2]);
+  safetyVector[0] = unplaced.fDimensions[0] - Abs(localPoint[0]);
+  safetyVector[1] = unplaced.fDimensions[1] - Abs(localPoint[1]);
+  safetyVector[2] = unplaced.fDimensions[2] - Abs(localPoint[2]);
 
   safetyVector[0] *= unplaced.fCtx;
   safetyVector[1] *= unplaced.fCty;
@@ -290,7 +290,7 @@ void ParallelepipedImplementation::SafetyToOut(UnplacedStruct_t const &unplaced,
   safety = safetyVector[0];
   MaskedAssign(safety, safetyVector[1] < safety, safetyVector[1]);
   MaskedAssign(safety, safetyVector[2] < safety, safetyVector[2]);
-  MaskedAssign(safety, vecCore::math::Abs(safety) < kTolerance, Real_v(0.));
+  MaskedAssign(safety, Abs(safety) < kTolerance, Real_v(0.));
 }
 }
 } // End global namespace

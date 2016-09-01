@@ -28,24 +28,24 @@ Vector3D<Precision> UnplacedGenTrap::GetPointOnSurface() const
   int nvertices      = 4; // by default 4 vertices on top/bottom faces
   // bottom
   for (int j = 0; j < 4; ++j) {
-    if ((vecCore::math::Abs(fGenTrap.fDeltaX[j]) < kTolerance) &&
-        (vecCore::math::Abs(fGenTrap.fDeltaY[j]) < kTolerance))
+    if ((Abs(fGenTrap.fDeltaX[j]) < kTolerance) &&
+        (Abs(fGenTrap.fDeltaY[j]) < kTolerance))
       nvertices--;
   }
   if (nvertices < 3) degenerate[4] = true;
   nvertices                        = 4;
   // top
   for (int j = 0; j < 4; ++j) {
-    if ((vecCore::math::Abs(fGenTrap.fDeltaX[j + 4]) < kTolerance) &&
-        (vecCore::math::Abs(fGenTrap.fDeltaY[j + 4]) < kTolerance))
+    if ((Abs(fGenTrap.fDeltaX[j + 4]) < kTolerance) &&
+        (Abs(fGenTrap.fDeltaY[j + 4]) < kTolerance))
       nvertices--;
   }
   if (nvertices < 3) degenerate[5] = true;
   for (int j = 0; j < 4; ++j) {
-    if ((vecCore::math::Abs(fGenTrap.fDeltaX[j]) < kTolerance) &&
-        (vecCore::math::Abs(fGenTrap.fDeltaY[j]) < kTolerance) &&
-        (vecCore::math::Abs(fGenTrap.fDeltaX[j + 4]) < kTolerance) &&
-        (vecCore::math::Abs(fGenTrap.fDeltaY[j + 4]) < kTolerance))
+    if ((Abs(fGenTrap.fDeltaX[j]) < kTolerance) &&
+        (Abs(fGenTrap.fDeltaY[j]) < kTolerance) &&
+        (Abs(fGenTrap.fDeltaX[j + 4]) < kTolerance) &&
+        (Abs(fGenTrap.fDeltaY[j + 4]) < kTolerance))
       degenerate[j] = true;
   }
   // Shoot on non-degenerate surface
@@ -82,11 +82,11 @@ Vector3D<Precision> UnplacedGenTrap::GetPointOnSurface() const
       return point;
     } else if (nvertices == 2) {
       for (int j = i; j< i + 4 ; ++j) {
-        if ( (vecCore::math::Abs(fDeltaX[j]) < kTolerance) && (vecCore::math::Abs(fDeltaY[j]) < kTolerance) ) continue;
+        if ( (Abs(fDeltaX[j]) < kTolerance) && (Abs(fDeltaY[j]) < kTolerance) ) continue;
         // We have found two different points. Generate a random x:
         x = RNG::Instance().uniform(fVertices[j].x(), fVertices[j+1].x());
         // Calculate corresponding y
-        if (vecCore::math::Abs(fDeltaX[j]) < kTolerance)
+        if (Abs(fDeltaX[j]) < kTolerance)
           y = RNG::Instance().uniform(fVertices[j].y(), fVertices[j+1].y());
         else
           y = fVertices[j].y() + (x - fVertices[j].x())*fDeltaY[j]/fDeltaX[j];
@@ -159,7 +159,7 @@ Precision UnplacedGenTrap::SurfaceArea() const
     vres = 0.5 * (Vertex_t::Cross(vi + vj, hi0) + Vertex_t::Cross(vi, vj));
     surfLateral += vres.Mag();
   }
-  return (vecCore::math::Abs(surfTop) + vecCore::math::Abs(surfBottom) + surfLateral);
+  return (Abs(surfTop) + Abs(surfBottom) + surfLateral);
 }
 
 //______________________________________________________________________________
@@ -188,7 +188,7 @@ Precision UnplacedGenTrap::volume() const
                      (fGenTrap.fVerticesX[j] - fGenTrap.fVerticesX[j + 4]) *
                          (fGenTrap.fVerticesY[i] - fGenTrap.fVerticesY[i + 4])));
   }
-  return vecCore::math::Abs(capacity);
+  return Abs(capacity);
 }
 
 //______________________________________________________________________________

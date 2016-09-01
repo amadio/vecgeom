@@ -210,9 +210,9 @@ public:
 
     // optimized crossproduct
     const Real_v cross     = (pymay * (bx - ax) - pxmax * (by - ay));
-    const Bool_v collinear = vecCore::math::Abs(cross) < epsilon;
+    const Bool_v collinear = Abs(cross) < epsilon;
     // TODO: can we use the slope?
-    // const Bool_v collinear = vecCore::math::Abs(pymay - slope * pxmax) < epsilon;
+    // const Bool_v collinear = Abs(pymay - slope * pxmax) < epsilon;
 
     if (vecCore::MaskFull(!collinear)) {
       return result;
@@ -319,7 +319,7 @@ public:
       }
 
       // check if we are done early ( on surface )
-      if (vecCore::math::Abs(safe) < kTolerance * kTolerance) {
+      if (Abs(safe) < kTolerance * kTolerance) {
         closestid = isegmin;
         return Real_v(0.);
       }
@@ -511,7 +511,7 @@ inline Precision PlanarPolygon::SafetySqr(Vector3D<Precision> const &point, int 
           isegmin = i + j;
         }
     }
-    if (vecCore::math::Abs(safe) < kTolerance * kTolerance) {
+    if (Abs(safe) < kTolerance * kTolerance) {
       closestid = isegmin;
       return 0.;
     }

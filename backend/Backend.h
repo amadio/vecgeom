@@ -29,7 +29,7 @@ VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 T NonZeroAbs(T const &x)
 {
-  return vecCore::math::Abs(x) + T(1.0e-30);
+  return Abs(x) + T(1.0e-30);
 }
 
 template <typename T>
@@ -37,7 +37,7 @@ VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 T NonZero(T const &x)
 {
-  return x + vecCore::math::CopySign(T(1.0e-30), x);
+  return x + CopySign(T(1.0e-30), x);
 }
 }
 }

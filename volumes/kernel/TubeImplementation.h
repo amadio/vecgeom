@@ -81,7 +81,7 @@ void PointInCyclicalSector(UnplacedVolumeType const &volume, Real_v const &x, Re
 
   if (onSurfaceT) {
     // in this case, includeSurface is irrelevant
-    ret = (vecCore::math::Abs(startCheck) <= kHalfTolerance) | (vecCore::math::Abs(endCheck) <= kHalfTolerance);
+    ret = (Abs(startCheck) <= kHalfTolerance) | (Abs(endCheck) <= kHalfTolerance);
   } else {
     if (smallerthanpi) {
       if (includeSurface)
@@ -113,7 +113,7 @@ void CircleTrajectoryIntersection(Real_v const &b, Real_v const &c, UnplacedStru
   if (LargestSolution) ok |= delta == 0.; // this takes care of scratching conventions
 
   vecCore::MaskedAssign(delta, !ok, Real_v(0.));
-  delta                       = vecCore::math::Sqrt(delta);
+  delta                       = Sqrt(delta);
   if (!LargestSolution) delta = -delta;
 
   dist = -b + delta;
@@ -122,7 +122,7 @@ void CircleTrajectoryIntersection(Real_v const &b, Real_v const &c, UnplacedStru
 
   if (insectorCheck) {
     Real_v hitz = pos.z() + dist * dir.z();
-    ok &= (vecCore::math::Abs(hitz) <= tube.fZ);
+    ok &= (Abs(hitz) <= tube.fZ);
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(ok)) return;
 
     if (checkPhiTreatment<TubeType>(tube)) {
@@ -187,7 +187,7 @@ void PhiPlaneSafety(UnplacedStruct_t const &tube, Vector3D<Real_v> const &pos, R
 
   if ((SectorType<TubeType>::value == kUnknownAngle && tube.fDphi > M_PI) ||
       (SectorType<TubeType>::value == kBiggerThanPi)) {
-    safety = vecCore::math::Sqrt(pos.x() * pos.x() + pos.y() * pos.y());
+    safety = Sqrt(pos.x() * pos.x() + pos.y() * pos.y());
   } else {
     safety = kInfinity;
   }
@@ -196,7 +196,7 @@ void PhiPlaneSafety(UnplacedStruct_t const &tube, Vector3D<Real_v> const &pos, R
   if (inside) phi1 *= -1;
 
   if (SectorType<TubeType>::value == kOnePi) {
-    auto absphi1 = vecCore::math::Abs(phi1);
+    auto absphi1 = Abs(phi1);
     vecCore::MaskedAssign(safety, absphi1 > kHalfTolerance, absphi1);
     return;
   }
@@ -261,7 +261,7 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, Precisio
     Real_v hity = pos.y() + dist * dir.y();
     Real_v hitz = pos.z() + dist * dir.z();
     Real_v r2   = hitx * hitx + hity * hity;
-    ok &= vecCore::math::Abs(hitz) <= tube.fTolIz && (r2 >= tube.fTolIrmin2) && (r2 <= tube.fTolIrmax2);
+    ok &= Abs(hitz) <= tube.fTolIz && (r2 >= tube.fTolIrmin2) && (r2 <= tube.fTolIrmax2);
 
     // GL: tested with this if(PosDirPhiVec) around if(insector), so if(insector){} requires PosDirPhiVec==true to run
     //  --> shapeTester still finishes OK (no mismatches) (some cycles saved...)
@@ -329,7 +329,7 @@ struct TubeImplementation {
     using Bool_v = vecCore::Mask_v<Real_v>;
 
     // very fast check on z-height
-    Real_v absz       = vecCore::math::Abs(point[2]);
+    Real_v absz       = Abs(point[2]);
     completelyoutside = absz > MakePlusTolerant<ForInside>(tube.fZ);
     if (ForInside) {
       completelyinside = absz < MakeMinusTolerant<ForInside>(tube.fZ);
@@ -421,12 +421,12 @@ struct TubeImplementation {
     distance = kInfinity;
 
     // outside of Z range and going away?
-    Real_v distz = vecCore::math::Abs(point.z()) - tube.fZ; // avoid a division for now
+    Real_v distz = Abs(point.z()) - tube.fZ; // avoid a division for now
     done |= distz > kHalfTolerance && point.z() * dir.z() >= 0;
 
     // // outside of tube and going away?
-    // done |= vecCore::math::Abs(point.x()) > tube.rmax()+kHalfTolerance && point.x()*dir.x() >= 0;
-    // done |= vecCore::math::Abs(point.y()) > tube.rmax()+kHalfTolerance && point.y()*dir.y() >= 0;
+    // done |= Abs(point.x()) > tube.rmax()+kHalfTolerance && point.x()*dir.x() >= 0;
+    // done |= Abs(point.y()) > tube.rmax()+kHalfTolerance && point.y()*dir.y() >= 0;
     // if(vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
 
     // outside of outer tube and going away?
@@ -568,7 +568,7 @@ struct TubeImplementation {
     //=== First we check all dimensions of the tube, whether points are outside --> return -1
 
     // For points outside z-range, return -1
-    Real_v distz = tube.fZ - vecCore::math::Abs(point.z()); // avoid a division for now
+    Real_v distz = tube.fZ - Abs(point.z()); // avoid a division for now
     done |= distz < -kHalfTolerance;                        // distance is already set to -1
     //  if(vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
 
@@ -708,10 +708,10 @@ struct TubeImplementation {
     safePos = kInfinity;
     safeNeg = -safePos; // reuse to avoid casting overhead
 
-    Real_v safez = vecCore::math::Abs(point.z()) - tube.fZ;
+    Real_v safez = Abs(point.z()) - tube.fZ;
     SafetyAssign(safez, safePos, safeNeg);
 
-    Real_v r        = vecCore::math::Sqrt(point.x() * point.x() + point.y() * point.y());
+    Real_v r        = Sqrt(point.x() * point.x() + point.y() * point.y());
     Real_v safermax = r - tube.fRmax;
     SafetyAssign(safermax, safePos, safeNeg);
 
@@ -772,9 +772,9 @@ struct TubeImplementation {
 
     using Bool_v = vecCore::Mask_v<Real_v>;
 
-    safety = vecCore::math::Abs(point.z()) - tube.fZ;
+    safety = Abs(point.z()) - tube.fZ;
 
-    Real_v r        = vecCore::math::Sqrt(point.x() * point.x() + point.y() * point.y());
+    Real_v r        = Sqrt(point.x() * point.x() + point.y() * point.y());
     Real_v safermax = r - tube.fRmax;
     vecCore::MaskedAssign(safety, safermax > safety, safermax);
 
@@ -802,8 +802,8 @@ struct TubeImplementation {
     using namespace ::vecgeom::TubeTypes;
     using namespace TubeUtilities;
 
-    safety          = tube.fZ - vecCore::math::Abs(point.z());
-    Real_v r        = vecCore::math::Sqrt(point.x() * point.x() + point.y() * point.y());
+    safety          = tube.fZ - Abs(point.z());
+    Real_v r        = Sqrt(point.x() * point.x() + point.y() * point.y());
     Real_v safermax = tube.fRmax - r;
     vecCore::MaskedAssign(safety, safermax < safety, safermax);
 

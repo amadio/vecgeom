@@ -348,7 +348,7 @@ typename vecCore::Mask_v<Real_v> Wedge::IsOnSurfaceGeneric(Vector3D<Precision> c
   Bool_v condition1 = alongVector.x() * point.x() + alongVector.y() * point.y() >= 0.;
   if (vecCore::MaskEmpty(condition1)) return Bool_v(false);
   // within the right distance to the plane ??
-  Bool_v condition2 = vecCore::math::Abs(normalVector.x() * point.x() + normalVector.y() * point.y()) < kTolerance;
+  Bool_v condition2 = Abs(normalVector.x() * point.x() + normalVector.y() * point.y()) < kTolerance;
   return condition1 && condition2;
 }
 

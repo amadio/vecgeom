@@ -131,7 +131,7 @@ struct ParaboloidImplementation {
     Real_v rho2       = point.Perp2();
     Real_v paraRho2   = paraboloid.fK1 * point.z() + paraboloid.fK2;
     Real_v diff       = rho2 - paraRho2;
-    Real_v absZ       = vecCore::math::Abs(point.z());
+    Real_v absZ       = Abs(point.z());
     completelyoutside = (absZ > Real_v(paraboloid.fDz + kTolerance)) || (diff > kTolerance);
     if (vecCore::MaskFull(completelyoutside)) return;
     if (ForInside) completelyinside = (absZ < Real_v(paraboloid.fDz - kTolerance)) && (diff < -kTolerance);
@@ -143,9 +143,9 @@ struct ParaboloidImplementation {
   {
     Real_v rho2 = point.Perp2();
     if (ForTopZPlane) {
-      return vecCore::math::Abs(point.z() - paraboloid.fDz) < kTolerance && rho2 < (paraboloid.fRhi2 + kHalfTolerance);
+      return Abs(point.z() - paraboloid.fDz) < kTolerance && rho2 < (paraboloid.fRhi2 + kHalfTolerance);
     } else {
-      return vecCore::math::Abs(point.z() + paraboloid.fDz) < kTolerance && rho2 < (paraboloid.fRlo2 + kHalfTolerance);
+      return Abs(point.z() + paraboloid.fDz) < kTolerance && rho2 < (paraboloid.fRlo2 + kHalfTolerance);
     }
   }
 
@@ -173,7 +173,7 @@ struct ParaboloidImplementation {
     Bool_v done(false);
     distance = vecCore::NumericLimits<Real_v>::Infinity();
 
-    Real_v absZ   = vecCore::math::Abs(point.z());
+    Real_v absZ   = Abs(point.z());
     Real_v rho2   = point.Perp2(); // point.x()*point.x()+point.y()*point.y();
     Bool_v checkZ = point.z() * direction.z() >= 0;
 
@@ -246,7 +246,7 @@ struct ParaboloidImplementation {
       vecCore::MaskedAssign(distParab, !done && (b > 0.), (b - Sqrt(d2)) / a);
       vecCore::MaskedAssign(distParab, !done && (b <= 0.), (c / (b + Sqrt(d2))));
       Real_v zHit = point.z() + distParab * direction.z();
-      vecCore::MaskedAssign(distance, vecCore::math::Abs(zHit) <= paraboloid.fDz && distParab > 0., distParab);
+      vecCore::MaskedAssign(distance, Abs(zHit) <= paraboloid.fDz && distParab > 0., distParab);
     }
   }
 
@@ -264,7 +264,7 @@ struct ParaboloidImplementation {
     Bool_v done(false);
 
     // Outside Z range
-    Bool_v outsideZ = vecCore::math::Abs(point.z()) > paraboloid.fDz + kTolerance;
+    Bool_v outsideZ = Abs(point.z()) > paraboloid.fDz + kTolerance;
     done |= outsideZ;
     if (vecCore::MaskFull(done)) return;
 
@@ -310,7 +310,7 @@ struct ParaboloidImplementation {
     Real_v distParab = vecCore::NumericLimits<Real_v>::Infinity();
     vecCore::MaskedAssign(distParab, d2 >= 0. && (b > 0.), (b + Sqrt(d2)) * (1. / a));
     vecCore::MaskedAssign(distParab, d2 >= 0. && (b <= 0.), (c / (b - Sqrt(d2))));
-    distance = vecCore::math::Min(distParab, distZ);
+    distance = Min(distParab, distZ);
   }
 
   template <typename Real_v>
@@ -320,7 +320,7 @@ struct ParaboloidImplementation {
   {
 
     using Bool_v = vecCore::Mask_v<Real_v>;
-    Real_v absZ  = vecCore::math::Abs(point.z());
+    Real_v absZ  = Abs(point.z());
     Real_v safeZ = absZ - paraboloid.fDz;
 
     safety = -1.;
@@ -334,7 +334,7 @@ struct ParaboloidImplementation {
     if (vecCore::MaskFull(done)) return;
 
     Bool_v onZPlane =
-        vecCore::math::Abs(vecCore::math::Abs(point.z()) - paraboloid.fDz) < kTolerance &&
+        Abs(Abs(point.z()) - paraboloid.fDz) < kTolerance &&
         (rho2 < Real_v(paraboloid.fRhi2 + kHalfTolerance) || rho2 < Real_v(paraboloid.fRlo2 + kHalfTolerance));
     vecCore::MaskedAssign(safety, onZPlane, Real_v(0.));
     done |= onZPlane;
@@ -357,18 +357,18 @@ struct ParaboloidImplementation {
 
     Real_v safeR = vecCore::NumericLimits<Real_v>::Infinity();
     Real_v ro2   = point.x() * point.x() + point.y() * point.y();
-    Real_v dr    = vecCore::math::Sqrt(ro2) - vecCore::math::Sqrt(r0sq);
+    Real_v dr    = Sqrt(ro2) - Sqrt(r0sq);
 
     Bool_v drCloseToZero = (dr < 1.E-8);
     done |= drCloseToZero;
     if (vecCore::MaskFull(done)) return;
 
     // then go for the tangent
-    Real_v talf = -2. * paraboloid.fA * vecCore::math::Sqrt(r0sq);
-    Real_v salf = talf / vecCore::math::Sqrt(1. + talf * talf);
-    safeR       = vecCore::math::Abs(dr * salf);
+    Real_v talf = -2. * paraboloid.fA * Sqrt(r0sq);
+    Real_v salf = talf / Sqrt(1. + talf * talf);
+    safeR       = Abs(dr * salf);
 
-    Real_v max_safety = vecCore::math::Max(safeR, safeZ);
+    Real_v max_safety = Max(safeR, safeZ);
     vecCore::MaskedAssign(safety, !done, max_safety);
   }
 
@@ -380,7 +380,7 @@ struct ParaboloidImplementation {
 
     using Bool_v = vecCore::Mask_v<Real_v>;
 
-    Real_v absZ = vecCore::math::Abs(point.z());
+    Real_v absZ = Abs(point.z());
     Real_v safZ = (paraboloid.fDz - absZ);
 
     safety = -1.;
@@ -396,7 +396,7 @@ struct ParaboloidImplementation {
     if (vecCore::MaskFull(done)) return;
 
     Bool_v onZPlane =
-        vecCore::math::Abs(vecCore::math::Abs(point.z()) - paraboloid.fDz) < kTolerance &&
+        Abs(Abs(point.z()) - paraboloid.fDz) < kTolerance &&
         (rho2 < Real_v(paraboloid.fRhi2 + kHalfTolerance) || rho2 < Real_v(paraboloid.fRlo2 + kHalfTolerance));
     vecCore::MaskedAssign(safety, onZPlane, Real_v(0.));
     done |= onZPlane;
@@ -417,16 +417,16 @@ struct ParaboloidImplementation {
     Real_v safR = vecCore::NumericLimits<Real_v>::Infinity();
     Real_v ro2  = point.x() * point.x() + point.y() * point.y();
     Real_v z0   = paraboloid.fA * ro2 + paraboloid.fB;
-    Real_v dr   = vecCore::math::Sqrt(ro2) - vecCore::math::Sqrt(r0sq); // avoid square root of a negative number
+    Real_v dr   = Sqrt(ro2) - Sqrt(r0sq); // avoid square root of a negative number
 
     Bool_v drCloseToZero = (dr > -1.E-8);
     done |= drCloseToZero;
     if (vecCore::MaskFull(done)) return;
 
-    Real_v dz = vecCore::math::Abs(point.z() - z0);
-    safR      = -dr * dz / vecCore::math::Sqrt(dr * dr + dz * dz);
+    Real_v dz = Abs(point.z() - z0);
+    safR      = -dr * dz / Sqrt(dr * dr + dz * dz);
 
-    Real_v min_safety = vecCore::math::Min(safR, safZ);
+    Real_v min_safety = Min(safR, safZ);
     vecCore::MaskedAssign(safety, !done, min_safety);
   }
 
@@ -445,7 +445,7 @@ struct ParaboloidImplementation {
 
     Real_v r    = point.Perp();
     Real_v talf = -2 * paraboloid.fA * r;
-    Real_v calf = 1. / vecCore::math::Sqrt(1. + talf * talf);
+    Real_v calf = 1. / Sqrt(1. + talf * talf);
     Real_v salf = talf * calf;
     Vector3D<Real_v> normParabolic((salf * point.x() / point.Perp()), (salf * point.y() / point.Perp()), calf);
     normParabolic.Normalize();
@@ -473,8 +473,8 @@ struct ParaboloidImplementation {
     vecCore::MaskedAssign(norm[2], point.z() > 0., Real_v(1.));
     vecCore::MaskedAssign(norm[2], point.z() < 0, Real_v(-1.));
 
-    Real_v safz = paraboloid.fDz - vecCore::math::Abs(point.z());
-    Real_v safr = vecCore::math::Abs(r - vecCore::math::Sqrt((point.z() - paraboloid.fB) * paraboloid.fInvA));
+    Real_v safz = paraboloid.fDz - Abs(point.z());
+    Real_v safr = Abs(r - Sqrt((point.z() - paraboloid.fB) * paraboloid.fInvA));
     vecCore::MaskedAssign(norm[0], safz >= 0. && safr < safz, normParabolic.x());
     vecCore::MaskedAssign(norm[1], safz >= 0. && safr < safz, normParabolic.y());
     vecCore::MaskedAssign(norm[2], safz >= 0. && safr < safz, normParabolic.z());

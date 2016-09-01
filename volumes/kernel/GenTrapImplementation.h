@@ -342,7 +342,7 @@ void GenTrapImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vecto
 #endif
 
   // some particle could hit z
-  Real_v zsafety = vecCore::math::Abs(point.z()) - unplaced.fDz;
+  Real_v zsafety = Abs(point.z()) - unplaced.fDz;
   Bool_v canhitz = zsafety > MakeMinusTolerant<true>(0.);
   canhitz        = canhitz && (point.z() * direction.z() < 0); // coming towards the origin
   canhitz        = canhitz && (!done);
@@ -354,7 +354,7 @@ void GenTrapImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vecto
     //   std::cerr << "can potentially hit\n";
     // calculate distance to z-plane ( see Box algorithm )
     // check if hit point is inside top or bottom polygon
-    Real_v next = zsafety / vecCore::math::Abs(direction.z() + kTiny);
+    Real_v next = zsafety / Abs(direction.z() + kTiny);
 #ifdef GENTRAPDEB
     std::cerr << " zdist " << next << "\n";
 #endif
@@ -378,7 +378,7 @@ void GenTrapImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vecto
   std::cerr << "disttoplanes " << disttoplanes << "\n";
 #endif
 
-  vecCore::MaskedAssign(distance, !done, vecCore::math::Min(disttoplanes, distance));
+  vecCore::MaskedAssign(distance, !done, Min(disttoplanes, distance));
 #ifdef GENTRAPDEB
   std::cerr << distance << "\n";
 #endif
@@ -407,7 +407,7 @@ void GenTrapImplementation::DistanceToOut(UnplacedStruct_t const &unplaced, Vect
   Real_v distmin = (sign * unplaced.fDz - point.z()) / direction.z();
 
   Real_v distplane = unplaced.fSurfaceShell.DistanceToOut<Real_v>(point, direction);
-  distance         = vecCore::math::Min(distmin, distplane);
+  distance         = Min(distmin, distplane);
 }
 
 //______________________________________________________________________________
@@ -430,7 +430,7 @@ void GenTrapImplementation::SafetyToIn(UnplacedStruct_t const &unplaced, Vector3
   }
 
   // Do Z
-  safety = vecCore::math::Abs(point[2]) - unplaced.fDz;
+  safety = Abs(point[2]) - unplaced.fDz;
   safety = unplaced.fSurfaceShell.SafetyToIn<Real_v>(point, safety);
 }
 
@@ -441,7 +441,7 @@ void GenTrapImplementation::SafetyToOut(UnplacedStruct_t const &unplaced, Vector
 {
 
   // Do Z
-  safety = unplaced.fDz - vecCore::math::Abs(point[2]);
+  safety = unplaced.fDz - Abs(point[2]);
   safety = unplaced.fSurfaceShell.SafetyToOut<Real_v>(point, safety);
 }
 
@@ -461,7 +461,7 @@ void GenTrapImplementation::NormalKernel(UnplacedStruct_t const &unplaced, Vecto
   valid = Bool_v(true);
   normal.Set(0., 0., 0.);
   // Do bottom and top faces
-  Real_v safz = vecCore::math::Abs(unplaced.fDz - vecCore::math::Abs(point.z()));
+  Real_v safz = Abs(unplaced.fDz - Abs(point.z()));
   Bool_v onZ  = (safz < 10. * kTolerance);
   vecCore::MaskedAssign(normal[2], onZ && (point.z() > 0), 1.);
   vecCore::MaskedAssign(normal[2], onZ && (point.z() < 0), -1.);
