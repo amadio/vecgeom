@@ -6,11 +6,11 @@
 #include "G4GeometryManager.hh"
 #include "G4VPhysicalVolume.hh"
 
+#if defined(VECGEOM_ROOT)
 // from VGM
 #include "Geant4GM/volumes/Factory.h"
 #include "RootGM/volumes/Factory.h"
-
-#if defined(VECGEOM_ROOT)
+// from ROOT
 #include "TGeoManager.h"
 #endif
 
