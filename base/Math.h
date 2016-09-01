@@ -8,11 +8,12 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 #ifdef VECGEOM_FLOAT_PRECISION
-#define VECCORE_SINGLE_PRECISION
 using Precision = float;
 #else
 using Precision = double;
 #endif
+
+using namespace vecCore::math;
 
 #ifdef __CUDA_ARCH__
 #define VECGEOM_CONST static __constant__ const

@@ -88,13 +88,6 @@ void MaskedAssign(typename Vc::Vector<Type>::Mask const &cond, Type const &thenv
   (*output)(cond) = thenval;
 }
 
-// VECGEOM_FORCE_INLINE
-// void MaskedAssign(VcBool const &cond,
-//                   const kScalar::int_v thenval,
-//                   VcInt *const output) {
-//   (*output)(VcInt::Mask(cond)) = thenval;
-// }
-
 VECGEOM_FORCE_INLINE
 void MaskedAssign(VcBool const &cond, const int thenval, int *const output)
 {
@@ -140,101 +133,6 @@ VECGEOM_FORCE_INLINE
 bool IsEmpty(VcBool const &cond)
 {
   return cond.isEmpty();
-}
-
-VECGEOM_FORCE_INLINE
-VcPrecision Abs(VcPrecision const &val)
-{
-  return Vc::abs(val);
-}
-
-VECGEOM_FORCE_INLINE
-VcPrecision Sqrt(VcPrecision const &val)
-{
-  return Vc::sqrt(val);
-}
-
-VECGEOM_FORCE_INLINE
-VcPrecision Log(VcPrecision const &val)
-{
-  return Vc::log(val);
-}
-
-VECGEOM_FORCE_INLINE
-VcPrecision ATan2(VcPrecision const &y, VcPrecision const &x)
-{
-  return Vc::atan2(y, x);
-}
-
-VECGEOM_FORCE_INLINE
-VcPrecision sin(VcPrecision const &x)
-{
-  return Vc::sin(x);
-}
-
-VECGEOM_FORCE_INLINE
-VcPrecision cos(VcPrecision const &x)
-{
-  return Vc::cos(x);
-}
-
-VECGEOM_FORCE_INLINE
-VcPrecision tan(VcPrecision const &radians)
-{
-  // apparently Vc does not have a tan function
-  //  return Vc::tan(radians);
-  // emulating it for the moment
-  VcPrecision s, c;
-  Vc::sincos(radians, &s, &c);
-  return s / c;
-}
-
-VECGEOM_FORCE_INLINE
-Precision Pow(Precision const &x, Precision arg)
-{
-  return std::pow(x, arg);
-}
-
-VECGEOM_FORCE_INLINE
-VcPrecision Min(VcPrecision const &val1, VcPrecision const &val2)
-{
-  return Vc::min(val1, val2);
-}
-
-VECGEOM_FORCE_INLINE
-VcPrecision Max(VcPrecision const &val1, VcPrecision const &val2)
-{
-  return Vc::max(val1, val2);
-}
-
-VECGEOM_FORCE_INLINE
-VcInt Min(VcInt const &val1, VcInt const &val2)
-{
-  return Vc::min(val1, val2);
-}
-
-VECGEOM_FORCE_INLINE
-VcInt Max(VcInt const &val1, VcInt const &val2)
-{
-  return Vc::max(val1, val2);
-}
-
-VECGEOM_FORCE_INLINE
-VcPrecision CopySign(VcPrecision const &x, VcPrecision const &y)
-{
-  return Vc::copysign(x, y);
-}
-
-VECGEOM_FORCE_INLINE
-VcPrecision Floor(VcPrecision const &val)
-{
-  return Vc::floor(val);
-}
-
-VECGEOM_FORCE_INLINE
-VcBool IsInf(VcPrecision x)
-{
-  return Vc::isinf(x);
 }
 
 } // End inline namespace

@@ -135,12 +135,6 @@ void MaskedAssign(UMESIMDMask const &cond, UMESIMDFloat_v const &thenval, UMESIM
   vecCore::MaskedAssign(*output, cond, thenval);
 }
 
-VECGEOM_FORCE_INLINE
-UMESIMDMask IsInf(UMESIMDFloat_v const &val)
-{
-  return val.isinf();
-}
-
 } // End inline namespace
 } // End global namespace
 
