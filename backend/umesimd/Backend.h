@@ -23,7 +23,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
    explicitly select vector lengths to be used for different instruction
    set. */
 #ifdef VECGEOM_FLOAT_PRECISION
-#if   defined(__MIC__)
+#if defined(__MIC__)
 constexpr int kVectorSize = 16;
 #elif defined(__AVX__)
 constexpr int kVectorSize = 8;
@@ -33,7 +33,7 @@ constexpr int kVectorSize = 4;
 constexpr int kVectorSize = 1;
 #endif
 #else
-#if   defined(__MIC__)
+#if defined(__MIC__)
 constexpr int kVectorSize = 8;
 #elif defined(__AVX__)
 constexpr int kVectorSize = 4;
@@ -49,16 +49,16 @@ using UMESIMDMask = typename UME::SIMD::SIMDVecMask<kVectorSize>;
 using UMESIMDInt_v   = typename UME::SIMD::SIMDVec_i<int, kVectorSize>;
 using UMESIMDFloat_v = typename UME::SIMD::SIMDVec_f<float, kVectorSize>;
 #else
-using UMESIMDInt_v   = typename UME::SIMD::SIMDVec_i<int, kVectorSize>;
-using UMESIMDFloat_v = typename UME::SIMD::SIMDVec_f<double, kVectorSize>;
+using UMESIMDInt_v        = typename UME::SIMD::SIMDVec_i<int, kVectorSize>;
+using UMESIMDFloat_v      = typename UME::SIMD::SIMDVec_f<double, kVectorSize>;
 #endif
 
 struct kUmeSimd {
-  using bool_v      = UMESIMDMask;
-  using Bool_t      = UMESIMDMask;
-  using int_v       = UMESIMDInt_v;
-  using inside_v    = UMESIMDInt_v;
-  using precision_v = UMESIMDFloat_v;
+  using bool_v                        = UMESIMDMask;
+  using Bool_t                        = UMESIMDMask;
+  using int_v                         = UMESIMDInt_v;
+  using inside_v                      = UMESIMDInt_v;
+  using precision_v                   = UMESIMDFloat_v;
   constexpr static bool early_returns = false;
   const static precision_v kOne;
   const static precision_v kZero;

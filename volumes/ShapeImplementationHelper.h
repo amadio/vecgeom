@@ -478,8 +478,7 @@ public:
             }
       */
       for (size_t j = 0; j < vecCore::VectorSize(result); j++)
-        if (vecCore::Get(valid, j))
-          nextDaughterIdList[i + j] = vecCore::Get(valid, j);
+        if (vecCore::Get(valid, j)) nextDaughterIdList[i + j] = vecCore::Get(valid, j);
     }
     // treat the tail:
     unsigned tailsize = points.size() - safesize;

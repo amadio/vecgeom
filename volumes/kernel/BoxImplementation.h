@@ -159,8 +159,8 @@ struct BoxImplementation {
     next   = safety[0] / NonZeroAbs(direction[0]);
     coord1 = point[1] + next * direction[1];
     coord2 = point[2] + next * direction[2];
-    hit    = safety[0] >= -kHalfTolerance && point[0] * direction[0] < 0. &&
-          Abs(coord1) <= box.fDimensions[1] && Abs(coord2) <= box.fDimensions[2];
+    hit    = safety[0] >= -kHalfTolerance && point[0] * direction[0] < 0. && Abs(coord1) <= box.fDimensions[1] &&
+          Abs(coord2) <= box.fDimensions[2];
     vecCore::MaskedAssign(distance, !done && hit, next);
     done |= hit;
     if (vecCore::MaskFull(done)) return;
@@ -169,8 +169,8 @@ struct BoxImplementation {
     next   = safety[1] / NonZeroAbs(direction[1]);
     coord1 = point[0] + next * direction[0];
     coord2 = point[2] + next * direction[2];
-    hit    = safety[1] >= -kHalfTolerance && point[1] * direction[1] < 0 &&
-          Abs(coord1) <= box.fDimensions[0] && Abs(coord2) <= box.fDimensions[2];
+    hit    = safety[1] >= -kHalfTolerance && point[1] * direction[1] < 0 && Abs(coord1) <= box.fDimensions[0] &&
+          Abs(coord2) <= box.fDimensions[2];
     vecCore::MaskedAssign(distance, !done && hit, next);
     done |= hit;
     if (vecCore::MaskFull(done)) return;
@@ -179,8 +179,8 @@ struct BoxImplementation {
     next   = safety[2] / NonZeroAbs(direction[2]);
     coord1 = point[0] + next * direction[0];
     coord2 = point[1] + next * direction[1];
-    hit    = safety[2] >= -kHalfTolerance && point[2] * direction[2] < 0 &&
-          Abs(coord1) <= box.fDimensions[0] && Abs(coord2) <= box.fDimensions[1];
+    hit    = safety[2] >= -kHalfTolerance && point[2] * direction[2] < 0 && Abs(coord1) <= box.fDimensions[0] &&
+          Abs(coord2) <= box.fDimensions[1];
     vecCore::MaskedAssign(distance, !done && hit, next);
   }
 

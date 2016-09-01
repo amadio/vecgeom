@@ -569,7 +569,7 @@ struct TubeImplementation {
 
     // For points outside z-range, return -1
     Real_v distz = tube.fZ - Abs(point.z()); // avoid a division for now
-    done |= distz < -kHalfTolerance;                        // distance is already set to -1
+    done |= distz < -kHalfTolerance;         // distance is already set to -1
     //  if(vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
 
     Real_v rsq   = point.x() * point.x() + point.y() * point.y();

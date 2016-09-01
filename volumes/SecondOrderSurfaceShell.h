@@ -71,11 +71,10 @@ public:
       fxc[i] = verticesx[j];
       fyc[i] = verticesy[j];
       vd.Set(verticesx[j + N], verticesy[j + N], dz);
-      fxd[i] = verticesx[N + j];
-      fyd[i] = verticesy[N + j];
-      fdegenerated[i] =
-          (Abs(fxa[i] - fxc[i]) < kTolerance) && (Abs(fya[i] - fyc[i]) < kTolerance) &&
-          (Abs(fxb[i] - fxd[i]) < kTolerance) && (Abs(fyb[i] - fyd[i]) < kTolerance);
+      fxd[i]          = verticesx[N + j];
+      fyd[i]          = verticesy[N + j];
+      fdegenerated[i] = (Abs(fxa[i] - fxc[i]) < kTolerance) && (Abs(fya[i] - fyc[i]) < kTolerance) &&
+                        (Abs(fxb[i] - fxd[i]) < kTolerance) && (Abs(fyb[i] - fyd[i]) < kTolerance);
       ftx1[i] = fDz2 * (fxb[i] - fxa[i]);
       fty1[i] = fDz2 * (fyb[i] - fya[i]);
       ftx2[i] = fDz2 * (fxd[i] - fxc[i]);
@@ -101,13 +100,11 @@ public:
     // Analyze planarity and precompute normals
     fisplanar = true;
     for (int i = 0; i < N; ++i) {
-      fiscurved[i] =
-          (((Abs(fxc[i] - fxa[i]) < kTolerance) && (Abs(fyc[i] - fya[i]) < kTolerance)) ||
-           ((Abs(fxd[i] - fxb[i]) < kTolerance) && (Abs(fyd[i] - fyb[i]) < kTolerance)) ||
-           (Abs((fxc[i] - fxa[i]) * (fyd[i] - fyb[i]) - (fxd[i] - fxb[i]) * (fyc[i] - fya[i])) <
-            kTolerance))
-              ? 0
-              : 1;
+      fiscurved[i] = (((Abs(fxc[i] - fxa[i]) < kTolerance) && (Abs(fyc[i] - fya[i]) < kTolerance)) ||
+                      ((Abs(fxd[i] - fxb[i]) < kTolerance) && (Abs(fyd[i] - fyb[i]) < kTolerance)) ||
+                      (Abs((fxc[i] - fxa[i]) * (fyd[i] - fyb[i]) - (fxd[i] - fxb[i]) * (fyc[i] - fya[i])) < kTolerance))
+                         ? 0
+                         : 1;
       if (fiscurved[i]) fisplanar = false;
     }
   }
@@ -215,11 +212,9 @@ public:
       }
       // Starting point may be propagated close to boundary
       // === MaskedMultipleAssign needed
-      vecCore::MaskedAssign(smin[i],
-                            !completelyoutside && Abs(smin[i]) < tolerance && dir.Dot(unorm) < 0,
+      vecCore::MaskedAssign(smin[i], !completelyoutside && Abs(smin[i]) < tolerance && dir.Dot(unorm) < 0,
                             vecCore::NumericLimits<Real_v>::Infinity());
-      vecCore::MaskedAssign(smax[i],
-                            !completelyoutside && Abs(smax[i]) < tolerance && dir.Dot(unorm) < 0,
+      vecCore::MaskedAssign(smax[i], !completelyoutside && Abs(smax[i]) < tolerance && dir.Dot(unorm) < 0,
                             vecCore::NumericLimits<Real_v>::Infinity());
 
       vecCore::MaskedAssign(dist, !completelyoutside && (smin[i] > -tolerance) && (smin[i] < dist),
@@ -250,8 +245,7 @@ public:
     Real_v distance = vecCore::NumericLimits<Real_v>::Infinity();
 
     // Check every surface
-    Bool_v outside =
-        (Abs(point.z()) > MakePlusTolerant<true>(fDz)); // If point is outside, we need to know
+    Bool_v outside = (Abs(point.z()) > MakePlusTolerant<true>(fDz)); // If point is outside, we need to know
     for (int i = 0; i < N && (!vecCore::MaskFull(outside)); ++i) {
       if (fdegenerated[i]) continue;
       // Point A is the current vertex on lower Z. P is the point we come from.
@@ -296,8 +290,7 @@ public:
     Real_v distance = vecCore::NumericLimits<Real_v>::Infinity();
 
     // Check every surface
-    Bool_v inside =
-        (Abs(point.z()) < MakeMinusTolerant<true>(fDz)); // If point is inside, we need to know
+    Bool_v inside = (Abs(point.z()) < MakeMinusTolerant<true>(fDz)); // If point is inside, we need to know
     for (int i = 0; i < N; ++i) {
       if (fdegenerated[i]) continue;
       // Point A is the current vertex on lower Z. P is the point we come from.
@@ -376,8 +369,7 @@ public:
         crossing = crossing && dir.Dot(unorm) < 0.;
         // Propagated hitpoint must be on surface (rz in [0,1] checked already)
         crossing = crossing && (r >= 0.) && (r <= 1.);
-        vecCore::MaskedAssign(distance, crossing && (!checked) && crtdist < distance,
-                              Max(crtdist, Real_v(0.)));
+        vecCore::MaskedAssign(distance, crossing && (!checked) && crtdist < distance, Max(crtdist, Real_v(0.)));
       }
       // For the particle(s) not crossing at smin, try smax
       if (!vecCore::MaskFull(Bool_v(crossing || checked))) {
@@ -393,8 +385,7 @@ public:
           unorm  = fNormals[i];
         crossing = crossing && (dir.Dot(unorm) < 0.);
         crossing = crossing && (r >= 0.) && (r <= 1.);
-        vecCore::MaskedAssign(distance, crossing && (!checked) && crtdist < distance,
-                              Max(crtdist, Real_v(0.)));
+        vecCore::MaskedAssign(distance, crossing && (!checked) && crtdist < distance, Max(crtdist, Real_v(0.)));
       }
     }
     vecCore::MaskedAssign(distance, distance < tolerance && onsurf, Real_v(0.));
