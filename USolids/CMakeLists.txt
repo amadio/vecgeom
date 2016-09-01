@@ -107,11 +107,6 @@ endif()
 source_group("Header Files" FILES ${headers})
 source_group("Source Files" FILES ${sources})
 
-set_source_files_properties(
-  ${sources}
-  PROPERTIES COMPILE_FLAGS -std=c++11
-)
-
 # For installation of the USolids source. This means copying the files necessary
 # to build USolids into the installation directory without moving all vecgeom
 # files.
