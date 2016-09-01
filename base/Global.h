@@ -8,9 +8,10 @@
 #error VecGeom requires compiler and library support for the ISO C++ 2011 standard.
 #endif
 
+#include <VecCore/VecCore>
+
 #include "base/Cuda.h"
 #include "base/Math.h"
-#include <VecCore/VecCore>
 
 using uint = unsigned int;
 
