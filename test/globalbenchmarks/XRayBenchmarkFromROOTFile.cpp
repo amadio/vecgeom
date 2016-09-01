@@ -306,7 +306,7 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
         }
         // Increase passed_volume
         // TODO: correct counting of travel in "world" bounding box
-        if (nav->GetStep() > 0.) {
+        if (nav->GetStep() > vecgeom::kTolerance) {
           crossedvolumecount++;
         } else {
           zerosteps_accum++;
@@ -331,7 +331,7 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
       }
     } // end inner loop
   }   // end outer loop
-  std::cout << "ZERO STEPS " << zerosteps_accum << "\n";
+  std::cout << "ZERO STEPS ROOT " << zerosteps_accum << "\n";
 } // end XRayWithROOT
 
 template <typename Nav_t = SimpleNavigator>
@@ -569,7 +569,7 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
 
         // Increase passed_volume
         // TODO: correct counting of travel in "world" bounding box
-        if (step > 0) {
+        if (step > vecgeom::kTolerance) {
           crossedvolumecount++;
         } else {
           zerosteps++;
@@ -594,7 +594,7 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
 
     } // end inner loop
   }   // end outer loop
-  std::cout << "ZERO STEPS " << zerosteps_accum << "\n";
+  std::cout << "ZERO STEPS VG " << zerosteps_accum << "\n";
 
   NavigationState::ReleaseInstance(curnavstate);
   NavigationState::ReleaseInstance(newnavstate);
@@ -763,6 +763,7 @@ int XRayWithGeant4(G4VPhysicalVolume *world /* the detector to scan */, int axis
   double pixel_width_1 = (axis1_end - axis1_start) / data_size_x;
   double pixel_width_2 = (axis2_end - axis2_start) / data_size_y;
 
+  size_t zerosteps_accum(0);
   G4ThreeVector d(dir.x(), dir.y(), dir.z());
   for (int pixel_count_2 = 0; pixel_count_2 < data_size_y; ++pixel_count_2) {
     for (int pixel_count_1 = 0; pixel_count_1 < data_size_x; ++pixel_count_1) {
@@ -794,7 +795,11 @@ int XRayWithGeant4(G4VPhysicalVolume *world /* the detector to scan */, int axis
         // also calculates safety
 
         double step = nav->ComputeStep(p, d, vecgeom::kInfinity, safety);
-        if (step > 0.) crossedvolumecount++;
+        if (step > vecgeom::kTolerance) {
+          crossedvolumecount++;
+        } else {
+          zerosteps_accum++;
+        }
         //                  std::cerr << " STEP " << step << " ENTERING " << nav->EnteredDaughterVolume() << "\n";
 
         // calculate next point ( do transportation ) and volume ( should go across boundary )
@@ -809,6 +814,7 @@ int XRayWithGeant4(G4VPhysicalVolume *world /* the detector to scan */, int axis
       *(image + pixel_count_2 * data_size_x + pixel_count_1) = crossedvolumecount;
     } // end inner loop
   }   // end outer loop
+  std::cout << "ZERO STEPS G4 " << zerosteps_accum << "\n";
   return 0;
 }
 #endif
