@@ -23,7 +23,7 @@ error: no matching function for call to ‘CLHEP::Hep3Vector::Hep3Vector(<unreso
 #if defined(VECGEOM_GEANT4) // and !defined(VECGEOM_USOLIDS)
 
 class G4Navigator;
-class G4PhysicalVolume;
+class G4VPhysicalVolume;
 
 #include "base/Global.h"
 
