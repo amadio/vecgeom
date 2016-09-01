@@ -250,7 +250,7 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
       double axis2_count = axis2_start + pixel_count_2 * pixel_width_2 + 1E-6;
 
       if (VERBOSE) {
-        std::cout << "\n OutputPoint(" << axis1_count << ", " << axis2_count << ")\n";
+        std::cout << "\n PIXEL(" << axis1_count << ", " << axis2_count << ")\n";
       }
       // set start point of XRay
       Vector3D<Precision> p;
@@ -279,6 +279,10 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
       // propagate until we leave detector
       TGeoNode const *node       = nav->FindNode();
       TGeoMaterial const *curmat = node->GetVolume()->GetMaterial();
+      std::string currnodename;
+      if (VERBOSE) {
+        currnodename = (node) ? node->GetName() : "NULL";
+      }
 
       //  std::cout << pixel_count_1 << " " << pixel_count_2 << " " << dir << "\t" << p << "\t";
       //  std::cout << "IN|OUT" << nav->IsOutside() << "\n";
@@ -294,15 +298,11 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
         accumulateddensity += curmat->GetDensity() * distancetravelled;
 
         if (VERBOSE) {
-          if (node != NULL) {
-            std::cout << "  VolumeName: " << node->GetVolume()->GetName();
-          } else
-            std::cout << "  NULL: ";
-
-          std::cout << " step[" << nav->GetStep() << "]" << std::endl;
-          double const *pROOT = nav->GetCurrentPoint();
-          p                   = Vector3D<Precision>(pROOT[0], pROOT[1], pROOT[2]);
-          std::cout << " point(" << p[0] << ", " << p[1] << ", " << p[2] << ")";
+          std::string nextnodename;
+          nextnodename = (node) ? node->GetVolume()->GetName() : "NULL";
+          std::cout << " FROM p(" << p[0] << ", " << p[1] << ", " << p[2] << ") ; " << currnodename << "  -->  "
+                    << nextnodename << " with step [" << nav->GetStep() << "]\n";
+          currnodename = nextnodename;
         }
         // Increase passed_volume
         // TODO: correct counting of travel in "world" bounding box
@@ -321,12 +321,6 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
           crossedvolumecount; // accumulateddensity ;// crossedvolumecount;
 
       if (VERBOSE) {
-        std::cout << "  EndOfBoundingBox:";
-        std::cout << " PassedVolume:"
-                  << "<" << crossedvolumecount << " ";
-        std::cout << " step[" << nav->GetStep() << "]";
-        std::cout << " Distance: " << distancetravelled << std::endl;
-
         std::cout << "PIXEL STEP ROOT:(" << s[0] << "," << s[1] << "," << s[2] << ") : " << crossedvolumecount << "\n";
       }
     } // end inner loop
@@ -400,44 +394,15 @@ void XRayWithVecGeom(int axis, Vector3D<Precision> origin, Vector3D<Precision> b
         Nav_t navigator;
         navigator.FindNextBoundaryAndStep(p, dir, *curnavstate, *newnavstate, vecgeom::kInfinity, step);
 
-        // std::cout << "step " << step << "\n";
         distancetravelled += step;
-        //
-        //              std::cout << "GOING FROM "
-        //                       << curnavstate->Top()->GetLabel() << "(";
-        //                        curnavstate->Top()->PrintType();
-        //                     std::cout << ") to ";
-        //
-        //                if( newnavstate->Top() ){
-        //                    std::cout << newnavstate->Top()->GetLabel() << "(";
-        //                    newnavstate->Top()->PrintType();
-        //                    std::cout << ")";
-        //                }
-        //                else
-        //                    std::cout << "outside ";
-        //
-        //                if ( curnavstate->Top() == newnavstate->Top() ) {
-        //                    std::cout << " CROSSING PROBLEM \n";
-        //                    curnavstate->Print();
-        //                    newnavstate->Print();
-        //                }
-        //
-        //                std::cout << "# step " << step << " crossed "<< crossedvolumecount << "\n";
-
         // here we have to propagate particle ourselves and adjust navigation state
         p = p + dir * (step + 1E-6);
-
-        //                std::cout << p << "\n";
 
         newnavstate->CopyTo(curnavstate);
 
         // Increase passed_volume
         // TODO: correct counting of travel in "world" bounding box
         if (step > 0) crossedvolumecount++;
-
-        //  if(crossedvolumecount > 1000){
-        // std::cerr << "OOPS: Problem for pixel " << pixel_count_1 << " " << pixel_count_2 << " \n";
-        // break;}
       } // end while
 
       ///////////////////////////////////
@@ -483,9 +448,8 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
       double axis2_count = axis2_start + pixel_count_2 * pixel_width_2 + 1E-6;
 
       if (VERBOSE) {
-        std::cout << "\n OutputPoint(" << axis1_count << ", " << axis2_count << ")\n";
+        std::cout << "\n PIXEL(" << axis1_count << ", " << axis2_count << ")\n";
       }
-      //   std::cout << pixel_count_1 << " " << pixel_count_2 << "\n";
 
       // set start point of XRay
       Vector3D<Precision> p;
@@ -507,9 +471,11 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
       double distancetravelled = 0.;
       int crossedvolumecount   = 0;
 
+      std::string currnodename;
       if (VERBOSE) {
         std::cout << " StartPoint(" << p[0] << ", " << p[1] << ", " << p[2] << ")";
         std::cout << " Direction <" << dir[0] << ", " << dir[1] << ", " << dir[2] << ">" << std::endl;
+        currnodename = (curnavstate->Top()) ? curnavstate->Top()->GetName() : "NULL";
       }
 
       zerosteps = 0;
@@ -520,49 +486,17 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
         double step = 0;
         newnavstate->Clear();
         VNavigator const *navigator = curnavstate->Top()->GetLogicalVolume()->GetNavigator();
-        //	if(navigator==HybridNavigator<>::Instance()) std::cerr << "navigating with " << navigator->GetName() <<
-        //"\n";
         step = navigator->ComputeStepAndPropagatedState(p, dir, vecgeom::kInfinity, *curnavstate, *newnavstate);
 
-        // std::cout << "step " << step << "\n";
         distancetravelled += step;
-
         if (VERBOSE) {
-          if (newnavstate->Top() != NULL) {
-            std::cout << "  VolumeName: " << newnavstate->Top()->GetName();
-          } else
-            std::cout << "  NULL: ";
-
-          std::cout << " step[" << step << "]" << std::endl;
-          std::cout << " point(" << p[0] << ", " << p[1] << ", " << p[2] << ")\n";
+          std::string nextnodename((newnavstate->Top()) ? newnavstate->Top()->GetName() : "NULL");
+          std::cout << " FROM p(" << p[0] << ", " << p[1] << ", " << p[2] << ") ; " << currnodename << "  -->  "
+                    << nextnodename << " with step [" << step << "]\n";
+          currnodename = nextnodename;
         }
-
-        //
-        //              std::cout << "GOING FROM "
-        //                       << curnavstate->Top()->GetLabel() << "(";
-        //                        curnavstate->Top()->PrintType();
-        //                     std::cout << ") to ";
-        //
-        //                if( newnavstate->Top() ){
-        //                    std::cout << newnavstate->Top()->GetLabel() << "(";
-        //                    newnavstate->Top()->PrintType();
-        //                    std::cout << ")";
-        //                }
-        //                else
-        //                    std::cout << "outside ";
-        //
-        //                if ( curnavstate->Top() == newnavstate->Top() ) {
-        //                    std::cout << " CROSSING PROBLEM \n";
-        //                    curnavstate->Print();
-        //                    newnavstate->Print();
-        //                }
-        //
-        //                std::cout << "# step " << step << " crossed "<< crossedvolumecount << "\n";
-
         // here we have to propagate particle ourselves and adjust navigation state
         p = p + dir * (step + 1E-6);
-
-        //                std::cout << p << "\n";
 
         // pointer swap should do
         newnavstate->CopyTo(curnavstate);
@@ -578,9 +512,6 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
             return;
           }
         }
-        //  if(crossedvolumecount > 1000){
-        // std::cerr << "OOPS: Problem for pixel " << pixel_count_1 << " " << pixel_count_2 << " \n";
-        // break;}
         zerosteps_accum += zerosteps;
       } // end while
 
@@ -770,6 +701,10 @@ int XRayWithGeant4(G4VPhysicalVolume *world /* the detector to scan */, int axis
       double axis1_count = axis1_start + pixel_count_1 * pixel_width_1 + 1E-6;
       double axis2_count = axis2_start + pixel_count_2 * pixel_width_2 + 1E-6;
 
+      if (VERBOSE) {
+        std::cout << "\n PIXEL(" << axis1_count << ", " << axis2_count << ")\n";
+      }
+
       // set start point of XRay
       G4ThreeVector p;
       if (axis == 1)
@@ -779,17 +714,18 @@ int XRayWithGeant4(G4VPhysicalVolume *world /* the detector to scan */, int axis
       else if (axis == 3)
         p = UNITCONV * G4ThreeVector(axis1_count, axis2_count, origin[2] - bboxscreen[2]);
 
+      G4ThreeVector s(p);
       // false == locate from top
       G4VPhysicalVolume const *vol = nav->LocateGlobalPointAndSetup(p, &d, false);
+      std::string currnodename;
+      if (VERBOSE) {
+        std::cout << " StartPoint(" << p[0] << ", " << p[1] << ", " << p[2] << ")";
+        std::cout << " Direction <" << dir[0] << ", " << dir[1] << ", " << dir[2] << ">" << std::endl;
+        currnodename = (vol) ? vol->GetName() : "NULL";
+      }
 
-      //           std::cerr << p << " in vol " << vol->GetName() << " N D "
-      //                 << vol->GetLogicalVolume()->GetNoDaughters() << "\n";
-
-      //                   double distancetravelled=0.;
       int crossedvolumecount = 0;
-
       while (vol != NULL) {
-
         double safety;
         // do one step ( this will internally adjust the current point and so on )
         // also calculates safety
@@ -800,18 +736,28 @@ int XRayWithGeant4(G4VPhysicalVolume *world /* the detector to scan */, int axis
         } else {
           zerosteps_accum++;
         }
-        //                  std::cerr << " STEP " << step << " ENTERING " << nav->EnteredDaughterVolume() << "\n";
 
         // calculate next point ( do transportation ) and volume ( should go across boundary )
         G4ThreeVector next = p + (step + 1E-6) * d;
-
         nav->SetGeometricallyLimitedStep();
         vol = nav->LocateGlobalPointAndSetup(next, &d, true);
-        p   = next;
+
+        if (VERBOSE) {
+          std::string nextnodename((vol) ? vol->GetName() : "NULL");
+          std::cout << " FROM p(" << p[0] << ", " << p[1] << ", " << p[2] << ") ; " << currnodename << "  -->  "
+                    << nextnodename << " with step [" << step << "]\n";
+          currnodename = nextnodename;
+        }
+        p = next;
       }
       //                ///////////////////////////////////
       //                // Store the number of passed volume at 'volume_result'
       *(image + pixel_count_2 * data_size_x + pixel_count_1) = crossedvolumecount;
+
+      if (VERBOSE) {
+        std::cout << "PIXEL STEP G4:(" << s[0] << "," << s[1] << "," << s[2] << ") : " << crossedvolumecount << "\n";
+      }
+
     } // end inner loop
   }   // end outer loop
   std::cout << "ZERO STEPS G4 " << zerosteps_accum << "\n";
