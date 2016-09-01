@@ -544,7 +544,7 @@ if(ROOT)
   # for user friendliness .. added as external project for now
   set(VGM_INSTALL "${CMAKE_BINARY_DIR}/vgminstall/")
   ExternalProject_Add(VGM
-                      GIT_REPOSITORY "git@github.com:alisw/VGM.git"
+                      GIT_REPOSITORY "https://github.com/alisw/VGM.git"
                       CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${VGM_INSTALL} -DWITH_EXAMPLES=OFF -DGeant4_DIR=${Geant4_DIR} -DROOT_DIR=${ROOT_DIR}
                                  -DCMAKE_INSTALL_LIBDIR=${VGM_INSTALL}/lib)
 
