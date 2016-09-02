@@ -7,6 +7,8 @@ echo Logfiles saved in ${LOGDIR}
 
 mkdir -p ${LOGDIR}
 
+export DYLD_LIBRARY_PATH=$ROOTSYS/lib:vgminstall/lib
+
 #.. Run benchmark jobs -- for now: 21 jobs per shape
 for i in `seq 0 20`
 do for shape in `cat shapes.lis`
