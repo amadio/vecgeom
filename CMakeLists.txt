@@ -860,6 +860,7 @@ if(BENCHMARK)
   ${CMAKE_SOURCE_DIR}/test/root/BenchmarkShapeFromROOTFile.cpp
   ${CMAKE_SOURCE_DIR}/test/root/BenchmarkShapeFromROOTFile_WithVisualization.cpp
   ${CMAKE_SOURCE_DIR}/test/root/CompareDistances.cpp
+  ${CMAKE_SOURCE_DIR}/test/root/GenerateSurfacePoints.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shapeDebug.cpp
 )
 endif()

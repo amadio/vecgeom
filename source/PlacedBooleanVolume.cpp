@@ -11,6 +11,7 @@
 #include "volumes/LogicalVolume.h"
 #include "base/Vector3D.h"
 #include "base/RNG.h"
+#include <map>
 
 #ifdef VECGEOM_ROOT
 #include "TGeoShape.h"
@@ -39,10 +40,35 @@ Vector3D<Precision> PlacedBooleanVolume::GetPointOnSurface() const
   int counter = 0;
   Vector3D<Precision> p;
 
-  double leftarea  = const_cast<VPlacedVolume *>(GetUnplacedVolume()->fLeftVolume)->SurfaceArea();
-  double rightarea = const_cast<VPlacedVolume *>(GetUnplacedVolume()->fRightVolume)->SurfaceArea();
-  double arearatio = leftarea / (leftarea + rightarea);
+  double arearatio(0.5);
+  double leftarea, rightarea;
 
+  UnplacedBooleanVolume *unplaced = (UnplacedBooleanVolume *)GetUnplacedVolume();
+
+  // calculating surface area can be expensive
+  // until there is a caching mechanism in place, we will cache these values here
+  // in a static map
+  // the caching mechanism will be put into place with the completion of the move to UnplacedVolume interfaces
+  static std::map<size_t, double> idtoareamap;
+  auto leftid = unplaced->fLeftVolume->GetLogicalVolume()->id();
+  if (idtoareamap.find(leftid) != idtoareamap.end()) {
+    leftarea = idtoareamap[leftid];
+  } else { // insert
+    leftarea = const_cast<VPlacedVolume *>(unplaced->fLeftVolume)->SurfaceArea();
+    idtoareamap.insert(std::pair<size_t, double>(leftid, rightarea));
+  }
+
+  auto rightid = unplaced->fRightVolume->GetLogicalVolume()->id();
+  if (idtoareamap.find(rightid) != idtoareamap.end()) {
+    rightarea = idtoareamap[rightid];
+  } else { // insert
+    rightarea = const_cast<VPlacedVolume *>(unplaced->fRightVolume)->SurfaceArea();
+    idtoareamap.insert(std::pair<size_t, double>(rightid, rightarea));
+  }
+
+  if (leftarea > 0. && rightarea > 0.) {
+    arearatio = leftarea / (leftarea + rightarea);
+  }
   do {
     counter++;
     if (counter > 1000) {
@@ -50,12 +76,9 @@ Vector3D<Precision> PlacedBooleanVolume::GetPointOnSurface() const
       return p;
     }
 
-    UnplacedBooleanVolume *unplaced = (UnplacedBooleanVolume *)GetUnplacedVolume();
-    if (RNG::Instance().uniform() < arearatio) {
-      p = ((UnplacedBooleanVolume *)unplaced->fLeftVolume)->GetPointOnSurface();
-    } else {
-      p = ((UnplacedBooleanVolume *)unplaced->fRightVolume)->GetPointOnSurface();
-    }
+    auto *selected((RNG::Instance().uniform() < arearatio) ? unplaced->fLeftVolume : unplaced->fRightVolume);
+    auto transf = selected->GetTransformation();
+    p           = transf->InverseTransform(selected->GetPointOnSurface());
   } while (Inside(p) != vecgeom::kSurface);
   return p;
 }
