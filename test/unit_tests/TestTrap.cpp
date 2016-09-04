@@ -559,6 +559,8 @@ bool TestTrap()
   std::cout << "trap1.DistanceToIn(Vec_t(0,0,70),vymz) = " << dist << ", vymz=" << vymz << std::endl;
   // assert(ApproxEqual(dist,30.0*sqrt(2.0)));  // A bug in UTrap!!!  Just keep printout above as a reminder
 
+
+
   // CalculateExtent
 
   Vec_t minExtent, maxExtent;
@@ -571,6 +573,26 @@ bool TestTrap()
 
   return true;
 }
+
+void TestVecGeom353()
+{
+// unit test coming from Issue VECGEOM-353
+vecgeom::UnplacedTrapezoid t(/*double pDz=*/0.5, /*double pTheta=*/0, /* double pPhi=*/0, /*double pDy1=*/3,
+                        /*double pDx1=*/14.237500000000001, /* double pDx2 =*/12.592500000000001,
+                        /*double pTanAlpha1 =*/0.274166666666666, /*double pDy2 = */ 3,
+                        /*double pDx3 = */ 14.237500000000001, /*double pDx4 = */ 12.592500000000001,
+                        /*double pTanAlpha2 = */ 0.274166666666666);
+
+vecgeom::LogicalVolume l("",&t);
+auto p = l.Place();
+using Vec_t = vecgeom::Vector3D<double>;
+auto dist = p->DistanceToIn( Vec_t(-16.483749999999997, -6.4512999999999989, 0.00000099999999999999995 ), Vec_t(1.,0.,0.) );
+std::cerr << "dist" << dist << "\n";
+
+assert(dist > 0.);
+
+}
+
 
 #ifdef VECGEOM_USOLIDS
 struct USOLIDSCONSTANTS {
@@ -606,8 +628,11 @@ int main(int argc, char *argv[])
   }
 
   else if (!strcmp(argv[1], "--vecgeom")) {
+    TestVecGeom353();
+
     testvecgeom = true; // needed to avoid testing convexity when vecgeom is used
     TestTrap<VECGEOMCONSTANTS, VECGEOM_NAMESPACE::SimpleTrapezoid>();
+
     std::cout << "VecGeom Trap passed.\n";
   }
 
