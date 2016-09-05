@@ -827,24 +827,21 @@ set(TEST_EXECUTABLES_ROOT
   ${CMAKE_SOURCE_DIR}/test/root/AssemblyExample.cpp
 )
 
-# Tests below fail to build when both ROOT and USolids are enabled
-if(NOT USolids)
-  set(TEST_EXECUTABLES_CORE
-    ${TEST_EXECUTABLES_CORE}
-    ${CMAKE_SOURCE_DIR}/test/core/BitSetTest.cpp
-  )
-  # higher level benchmarks or executables
-  set(TEST_EXECUTABLES_ROOT
-    ${TEST_EXECUTABLES_ROOT}
-    ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/LocatePointsBenchmark.cpp
-    ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/SafetyKernelBenchmarker.cpp
-    ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/NavigationKernelBenchmarker.cpp
-    ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/NavigationBenchmark.cpp
-    ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/TraceTrack.cpp
-    ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/XRayBenchmarkFromROOTFile.cpp
-    ${CMAKE_SOURCE_DIR}/services/NavigationSpecializerTest.cpp
-  )
-endif()
+set(TEST_EXECUTABLES_CORE
+  ${TEST_EXECUTABLES_CORE}
+  ${CMAKE_SOURCE_DIR}/test/core/BitSetTest.cpp
+)
+# higher level benchmarks or executables
+set(TEST_EXECUTABLES_ROOT
+  ${TEST_EXECUTABLES_ROOT}
+  ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/LocatePointsBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/SafetyKernelBenchmarker.cpp
+  ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/NavigationKernelBenchmarker.cpp
+  ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/NavigationBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/TraceTrack.cpp
+  ${CMAKE_SOURCE_DIR}/test/globalbenchmarks/XRayBenchmarkFromROOTFile.cpp
+  ${CMAKE_SOURCE_DIR}/services/NavigationSpecializerTest.cpp
+)
 
 # separate list for ROOT UNIT tests
 set(TEST_UNITTESTEXECUTABLES_ROOT
