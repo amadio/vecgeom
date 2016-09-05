@@ -122,6 +122,7 @@ VPlacedVolume const *LocateGlobalPoint(VPlacedVolume const *vol, Vector3D<Precis
 // special version of locate point function that excludes searching a given volume
 // (useful when we know that a particle must have traversed a boundary)
 VECGEOM_FORCE_INLINE
+VECGEOM_CUDA_HEADER_BOTH
 VPlacedVolume const *LocateGlobalPointExclVolume(VPlacedVolume const *vol, VPlacedVolume const *excludedvolume,
                                                  Vector3D<Precision> const &point, NavigationState &path, bool top)
 {
@@ -180,6 +181,7 @@ static VPlacedVolume const *RelocatePointFromPath(Vector3D<Precision> const &loc
   // if not: have to go up until we reach a volume that contains the
   // localpoint and then go down again (neglecting the volumes currently stored in the path)
   VPlacedVolume const *currentmother = path.Top();
+  VPlacedVolume const *entryvol      = currentmother;
   if (currentmother != nullptr) {
     Vector3D<Precision> tmp = localpoint;
     // go up iteratively
@@ -191,7 +193,7 @@ static VPlacedVolume const *RelocatePointFromPath(Vector3D<Precision> const &loc
     //    }
 
     while (currentmother) {
-      if (currentmother->GetLogicalVolume()->GetUnplacedVolume()->IsAssembly() ||
+      if (currentmother == entryvol || currentmother->GetLogicalVolume()->GetUnplacedVolume()->IsAssembly() ||
           !currentmother->UnplacedContains(tmp)) {
         path.Pop();
         Vector3D<Precision> pointhigherup = currentmother->GetTransformation()->InverseTransform(tmp);
@@ -204,8 +206,8 @@ static VPlacedVolume const *RelocatePointFromPath(Vector3D<Precision> const &loc
 
     if (currentmother) {
       path.Pop();
-      // return LocateGlobalPointExclVolume(currentmother, currentmother, tmp, path, false);
-      return LocateGlobalPoint(currentmother, tmp, path, false);
+      return LocateGlobalPointExclVolume(currentmother, entryvol, tmp, path, false);
+      // return LocateGlobalPoint(currentmother, tmp, path, false);
     }
   }
   return currentmother;

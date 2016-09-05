@@ -120,6 +120,7 @@ public:
     return LevelLocateKernel<false, true>(lvol, nullptr, localpoint, &state, pvol, daughterlocalpoint);
   }
 
+  VECGEOM_CUDA_HEADER_BOTH
   virtual bool LevelLocateExclVol(LogicalVolume const *lvol, VPlacedVolume const *exclvol,
                                   Vector3D<Precision> const &localpoint, VPlacedVolume const *&pvol,
                                   Vector3D<Precision> &daughterlocalpoint) const override
