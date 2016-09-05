@@ -44,8 +44,8 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 // be counted with 16bits
 // TODO: consider putting uint16 + uint32 types
 #ifdef VECGEOM_USE_INDEXEDNAVSTATES
-typedef unsigned short NavStateIndex_t;
-// typedef unsigned long NavStateIndex_t;
+// typedef unsigned short NavStateIndex_t;
+typedef unsigned long NavStateIndex_t;
 #else
 typedef VPlacedVolume const *NavStateIndex_t;
 #endif
@@ -261,7 +261,7 @@ public:
     // GetCurrentLevel indicates the 'next' level, i.e. currentLevel==0 is empty
     // fCurrentLevel = maxlevel+1 is full
     // SizeOfInstance expect [0,maxlevel] and add +1 to its params
-    std::memcpy(other, this, NavigationState::SizeOfInstance(this->GetCurrentLevel() - 1));
+    std::memcpy(other, this, NavigationState::SizeOfInstance(this->GetCurrentLevel()));
 
     other->fPath.fSelfAlloc = alloc;
   }
@@ -297,6 +297,13 @@ public:
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   unsigned char GetCurrentLevel() const { return fCurrentLevel; }
+
+  VECGEOM_FORCE_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
+  VPlacedVolume const *GetLastExited() const
+  { /*one beyond current*/
+    return (fCurrentLevel < GetMaxLevel() - 1) ? ToPlacedVolume(fPath[fCurrentLevel]) : nullptr;
+  }
 
   // better to use pop and push
   VECGEOM_FORCE_INLINE
@@ -484,7 +491,9 @@ NavigationState::~NavigationState()
 void NavigationState::Pop()
 {
   if (fCurrentLevel > 0) {
-    fPath[--fCurrentLevel] = 0;
+    fCurrentLevel--;
+    // note that we are not invalidating the "popped volume" here
+    // in order to be able to query the last "exited volume" later
   }
 }
 
