@@ -222,7 +222,7 @@ public:
 
     // Survivors will return smin, which is the maximum distance in an interceptFromOutside situation
     // (SW: not sure this is true since smin is initialized from outside and can have any arbitrary value)
-    MaskedAssign(!done && smin>=-kTolerance, smin, &distIn);
+    MaskedAssign(!done && smin >= -kTolerance, smin, &distIn);
     return distIn;
   }
 
