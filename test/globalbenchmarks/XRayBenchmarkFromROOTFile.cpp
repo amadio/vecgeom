@@ -1056,9 +1056,9 @@ int main(int argc, char *argv[])
                              Vector3D<Precision>(dx, dy, dz), dir, axis1_start, axis1_end, axis2_start, axis2_end,
                              data_size_x, data_size_y, pixel_axis, volume_result_Geant4);
       } else {
-        XRayWithGeant4<true>(world, axis, Vector3D<Precision>(origin[0], origin[1], origin[2]),
-                             Vector3D<Precision>(dx, dy, dz), dir, axis1_start, axis1_end, axis2_start, axis2_end,
-                             data_size_x, data_size_y, pixel_axis, volume_result_Geant4);
+        XRayWithGeant4<false>(world, axis, Vector3D<Precision>(origin[0], origin[1], origin[2]),
+                              Vector3D<Precision>(dx, dy, dz), dir, axis1_start, axis1_end, axis2_start, axis2_end,
+                              data_size_x, data_size_y, pixel_axis, volume_result_Geant4);
       }
     }
     timer.Stop();
