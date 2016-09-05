@@ -28,7 +28,7 @@ public:
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   virtual bool CheckDaughterIntersections(LogicalVolume const *lvol, Vector3D<Precision> const &localpoint,
-                                          Vector3D<Precision> const &localdir, NavigationState const * /*in_state*/,
+                                          Vector3D<Precision> const &localdir, NavigationState const *in_state,
                                           NavigationState * /*out_state*/, Precision &step,
                                           VPlacedVolume const *&hitcandidate) const override
   {
@@ -50,7 +50,8 @@ public:
 
         // if distance is negative; we are inside that daughter and should relocate
         // unless distance is minus infinity
-        bool valid   = (ddistance < step && !IsInf(ddistance));
+        const bool valid = (ddistance < step && !IsInf(ddistance)) &&
+                           !((ddistance <= 0.) && in_state && in_state->GetLastExited() == daughter);
         hitcandidate = valid ? daughter : hitcandidate;
         step         = valid ? ddistance : step;
 #ifdef CHECKCONTAINS

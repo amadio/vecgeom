@@ -113,7 +113,7 @@ public:
 
   VECGEOM_FORCE_INLINE
   virtual bool CheckDaughterIntersections(LogicalVolume const *lvol, Vector3D<Precision> const &localpoint,
-                                          Vector3D<Precision> const &localdir, NavigationState const * /*in_state*/,
+                                          Vector3D<Precision> const &localdir, NavigationState const *in_state,
                                           NavigationState * /*out_state*/, Precision &step,
                                           VPlacedVolume const *&hitcandidate) const override
   {
@@ -147,7 +147,8 @@ public:
 #ifdef VERBOSE
         std::cerr << "distance to " << candidate->GetLabel() << " is " << ddistance << "\n";
 #endif
-        auto valid   = !IsInf(ddistance) && ddistance < step;
+        const auto valid = !IsInf(ddistance) && ddistance < step &&
+                           !((ddistance <= 0.) && in_state && in_state->GetLastExited() == candidate);
         hitcandidate = valid ? candidate : hitcandidate;
         step         = valid ? ddistance : step;
         //        hitcandidate = (ddistance < step) ? candidate : hitcandidate;
