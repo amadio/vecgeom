@@ -250,7 +250,7 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
       double axis2_count = axis2_start + pixel_count_2 * pixel_width_2 + 1E-6;
 
       if (VERBOSE) {
-        std::cout << "\n PIXEL(" << axis1_count << ", " << axis2_count << ")\n";
+        std::cout << "\n PIXEL(" << pixel_count_1 << ", " << pixel_count_2 << ")\n";
       }
       // set start point of XRay
       Vector3D<Precision> p;
@@ -321,7 +321,8 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
           crossedvolumecount; // accumulateddensity ;// crossedvolumecount;
 
       if (VERBOSE) {
-        std::cout << "PIXEL STEP ROOT:(" << s[0] << "," << s[1] << "," << s[2] << ") : " << crossedvolumecount << "\n";
+        std::cout << "PIXEL STEP ROOT:(" << pixel_count_1 << ", " << pixel_count_2 << ") : " << crossedvolumecount
+                  << "\n";
       }
     } // end inner loop
   }   // end outer loop
@@ -448,7 +449,7 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
       double axis2_count = axis2_start + pixel_count_2 * pixel_width_2 + 1E-6;
 
       if (VERBOSE) {
-        std::cout << "\n PIXEL(" << axis1_count << ", " << axis2_count << ")\n";
+        std::cout << "\n PIXEL(" << pixel_count_1 << ", " << pixel_count_2 << ")\n";
       }
 
       // set start point of XRay
@@ -520,7 +521,8 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
       *(image + pixel_count_2 * data_size_x + pixel_count_1) = crossedvolumecount;
 
       if (VERBOSE) {
-        std::cout << "PIXEL STEP VGM:(" << s[0] << "," << s[1] << "," << s[2] << ") : " << crossedvolumecount << "\n";
+        std::cout << "PIXEL STEP VGM:(" << pixel_count_1 << ", " << pixel_count_2 << ") : " << crossedvolumecount
+                  << "\n";
       }
 
     } // end inner loop
@@ -702,7 +704,7 @@ int XRayWithGeant4(G4VPhysicalVolume *world /* the detector to scan */, int axis
       double axis2_count = axis2_start + pixel_count_2 * pixel_width_2 + 1E-6;
 
       if (VERBOSE) {
-        std::cout << "\n PIXEL(" << axis1_count << ", " << axis2_count << ")\n";
+        std::cout << "\n PIXEL(" << pixel_count_1 << ", " << pixel_count_2 << ")\n";
       }
 
       // set start point of XRay
@@ -755,7 +757,8 @@ int XRayWithGeant4(G4VPhysicalVolume *world /* the detector to scan */, int axis
       *(image + pixel_count_2 * data_size_x + pixel_count_1) = crossedvolumecount;
 
       if (VERBOSE) {
-        std::cout << "PIXEL STEP G4:(" << s[0] << "," << s[1] << "," << s[2] << ") : " << crossedvolumecount << "\n";
+        std::cout << "PIXEL STEP G4:(" << pixel_count_1 << ", " << pixel_count_2 << ") : " << crossedvolumecount
+                  << "\n";
       }
 
     } // end inner loop
