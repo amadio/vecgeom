@@ -95,7 +95,8 @@ typedef struct tMY_BITMAP {
 bool usolids = true;
 
 // a global variable to switch voxels on or off
-bool voxelize = true;
+bool voxelize     = true;
+bool trackverbose = false;
 
 // a global variable to switch on/off assemblies
 // (if off .. assemblies will be flattened)
@@ -223,12 +224,13 @@ __attribute__((noinline)) void DeleteROOTVoxels()
   std::cout << " deleted " << counter << " Voxels \n";
 }
 
+template <bool DoVerbose = false>
 void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox, Vector3D<Precision> dir,
                   double axis1_start, double axis1_end, double axis2_start, double axis2_end, int data_size_x,
                   int data_size_y, double pixel_axis, int *image)
 {
 
-  if (VERBOSE) {
+  if (DoVerbose) {
     std::cout << "from [" << axis1_start << ";" << axis2_start << "] to [" << axis1_end << ";" << axis2_end << "]\n";
     std::cout << "Xpixels " << data_size_x << " YPixels " << data_size_y << "\n";
 
@@ -238,7 +240,7 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
   double pixel_width_1 = (axis1_end - axis1_start) / data_size_x;
   double pixel_width_2 = (axis2_end - axis2_start) / data_size_y;
 
-  if (VERBOSE) {
+  if (DoVerbose) {
     std::cout << pixel_width_1 << "\n";
     std::cout << pixel_width_2 << "\n";
   }
@@ -249,7 +251,7 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
       double axis1_count = axis1_start + pixel_count_1 * pixel_width_1 + 1E-6;
       double axis2_count = axis2_start + pixel_count_2 * pixel_width_2 + 1E-6;
 
-      if (VERBOSE) {
+      if (DoVerbose) {
         std::cout << "\n PIXEL(" << pixel_count_1 << ", " << pixel_count_2 << ")\n";
       }
       // set start point of XRay
@@ -271,7 +273,7 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
       int crossedvolumecount    = 0;
       double accumulateddensity = 0.;
 
-      if (VERBOSE) {
+      if (DoVerbose) {
         std::cout << " StartPoint(" << p[0] << ", " << p[1] << ", " << p[2] << ")";
         std::cout << " Direction <" << dir[0] << ", " << dir[1] << ", " << dir[2] << ">" << std::endl;
       }
@@ -280,7 +282,7 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
       TGeoNode const *node       = nav->FindNode();
       TGeoMaterial const *curmat = node->GetVolume()->GetMaterial();
       std::string currnodename;
-      if (VERBOSE) {
+      if (DoVerbose) {
         currnodename = (node) ? node->GetName() : "NULL";
       }
 
@@ -297,7 +299,7 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
         }
         accumulateddensity += curmat->GetDensity() * distancetravelled;
 
-        if (VERBOSE) {
+        if (DoVerbose) {
           std::string nextnodename;
           nextnodename = (node) ? node->GetVolume()->GetName() : "NULL";
           std::cout << " FROM p(" << p[0] << ", " << p[1] << ", " << p[2] << ") ; " << currnodename << "  -->  "
@@ -320,7 +322,7 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
       *(image + pixel_count_2 * data_size_x + pixel_count_1) =
           crossedvolumecount; // accumulateddensity ;// crossedvolumecount;
 
-      if (VERBOSE) {
+      if (DoVerbose) {
         std::cout << "PIXEL STEP ROOT:(" << pixel_count_1 << ", " << pixel_count_2 << ") : " << crossedvolumecount
                   << "\n";
       }
@@ -418,13 +420,14 @@ void XRayWithVecGeom(int axis, Vector3D<Precision> origin, Vector3D<Precision> b
 
 } // end XRayWithVecGeom
 
+template <bool DoVerbose = false>
 void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox,
                                                     Vector3D<Precision> dir, double axis1_start, double axis1_end,
                                                     double axis2_start, double axis2_end, int data_size_x,
                                                     int data_size_y, double pixel_axis, int *image)
 {
 
-  if (VERBOSE) {
+  if (DoVerbose) {
     std::cout << "from [" << axis1_start << ";" << axis2_start << "] to [" << axis1_end << ";" << axis2_end << "]\n";
     std::cout << "Xpixels " << data_size_x << " YPixels " << data_size_y << "\n";
 
@@ -433,7 +436,7 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
   double pixel_width_1 = (axis1_end - axis1_start) / data_size_x;
   double pixel_width_2 = (axis2_end - axis2_start) / data_size_y;
 
-  if (VERBOSE) {
+  if (DoVerbose) {
     std::cout << pixel_width_1 << "\n";
     std::cout << pixel_width_2 << "\n";
   }
@@ -448,7 +451,7 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
       double axis1_count = axis1_start + pixel_count_1 * pixel_width_1 + 1E-6;
       double axis2_count = axis2_start + pixel_count_2 * pixel_width_2 + 1E-6;
 
-      if (VERBOSE) {
+      if (DoVerbose) {
         std::cout << "\n PIXEL(" << pixel_count_1 << ", " << pixel_count_2 << ")\n";
       }
 
@@ -473,7 +476,7 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
       int crossedvolumecount   = 0;
 
       std::string currnodename;
-      if (VERBOSE) {
+      if (DoVerbose) {
         std::cout << " StartPoint(" << p[0] << ", " << p[1] << ", " << p[2] << ")";
         std::cout << " Direction <" << dir[0] << ", " << dir[1] << ", " << dir[2] << ">" << std::endl;
         currnodename = (curnavstate->Top()) ? curnavstate->Top()->GetName() : "NULL";
@@ -490,7 +493,7 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
         step = navigator->ComputeStepAndPropagatedState(p, dir, vecgeom::kInfinity, *curnavstate, *newnavstate);
 
         distancetravelled += step;
-        if (VERBOSE) {
+        if (DoVerbose) {
           std::string nextnodename((newnavstate->Top()) ? newnavstate->Top()->GetName() : "NULL");
           std::cout << " FROM p(" << p[0] << ", " << p[1] << ", " << p[2] << ") ; " << currnodename << "  -->  "
                     << nextnodename << " with step [" << step << "]\n";
@@ -520,7 +523,7 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
       // Store the number of passed volume at 'volume_result'
       *(image + pixel_count_2 * data_size_x + pixel_count_1) = crossedvolumecount;
 
-      if (VERBOSE) {
+      if (DoVerbose) {
         std::cout << "PIXEL STEP VGM:(" << pixel_count_1 << ", " << pixel_count_2 << ") : " << crossedvolumecount
                   << "\n";
       }
@@ -678,6 +681,7 @@ void XRayWithVecGeom_VecNav(int axis, Vector3D<Precision> origin, Vector3D<Preci
 
 // performs the XRay scan using Geant4
 #ifdef VECGEOM_GEANT4
+template <bool DoVerbose = false>
 int XRayWithGeant4(G4VPhysicalVolume *world /* the detector to scan */, int axis, Vector3D<Precision> origin,
                    Vector3D<Precision> bboxscreen, Vector3D<Precision> dir, double axis1_start, double axis1_end,
                    double axis2_start, double axis2_end, int data_size_x, int data_size_y, double pixel_axis,
@@ -703,7 +707,7 @@ int XRayWithGeant4(G4VPhysicalVolume *world /* the detector to scan */, int axis
       double axis1_count = axis1_start + pixel_count_1 * pixel_width_1 + 1E-6;
       double axis2_count = axis2_start + pixel_count_2 * pixel_width_2 + 1E-6;
 
-      if (VERBOSE) {
+      if (DoVerbose) {
         std::cout << "\n PIXEL(" << pixel_count_1 << ", " << pixel_count_2 << ")\n";
       }
 
@@ -720,7 +724,7 @@ int XRayWithGeant4(G4VPhysicalVolume *world /* the detector to scan */, int axis
       // false == locate from top
       G4VPhysicalVolume const *vol = nav->LocateGlobalPointAndSetup(p, &d, false);
       std::string currnodename;
-      if (VERBOSE) {
+      if (DoVerbose) {
         std::cout << " StartPoint(" << p[0] << ", " << p[1] << ", " << p[2] << ")";
         std::cout << " Direction <" << dir[0] << ", " << dir[1] << ", " << dir[2] << ">" << std::endl;
         currnodename = (vol) ? vol->GetName() : "NULL";
@@ -744,7 +748,7 @@ int XRayWithGeant4(G4VPhysicalVolume *world /* the detector to scan */, int axis
         nav->SetGeometricallyLimitedStep();
         vol = nav->LocateGlobalPointAndSetup(next, &d, true);
 
-        if (VERBOSE) {
+        if (DoVerbose) {
           std::string nextnodename((vol) ? vol->GetName() : "NULL");
           std::cout << " FROM p(" << p[0] << ", " << p[1] << ", " << p[2] << ") ; " << currnodename << "  -->  "
                     << nextnodename << " with step [" << step << "]\n";
@@ -756,7 +760,7 @@ int XRayWithGeant4(G4VPhysicalVolume *world /* the detector to scan */, int axis
       //                // Store the number of passed volume at 'volume_result'
       *(image + pixel_count_2 * data_size_x + pixel_count_1) = crossedvolumecount;
 
-      if (VERBOSE) {
+      if (DoVerbose) {
         std::cout << "PIXEL STEP G4:(" << pixel_count_1 << ", " << pixel_count_2 << ") : " << crossedvolumecount
                   << "\n";
       }
@@ -833,10 +837,11 @@ int main(int argc, char *argv[])
   unsigned int cutatlevel = 1000;
   bool cutlevel           = false;
   for (auto i = 5; i < argc; i++) {
-    if (!strcmp(argv[i], "--usolids")) usolids       = true;
-    if (!strcmp(argv[i], "--vecgeom")) usolids       = false;
-    if (!strcmp(argv[i], "--novoxel")) voxelize      = false;
-    if (!strcmp(argv[i], "--noassembly")) assemblies = false;
+    if (!strcmp(argv[i], "--usolids")) usolids           = true;
+    if (!strcmp(argv[i], "--vecgeom")) usolids           = false;
+    if (!strcmp(argv[i], "--novoxel")) voxelize          = false;
+    if (!strcmp(argv[i], "--noassembly")) assemblies     = false;
+    if (!strcmp(argv[i], "--trackverbose")) trackverbose = true;
     if (!strcmp(argv[i], "--tolevel")) {
       cutlevel   = true;
       cutatlevel = atoi(argv[i + 1]);
@@ -1008,8 +1013,16 @@ int main(int argc, char *argv[])
 #ifdef CALLGRIND
     CALLGRIND_START_INSTRUMENTATION;
 #endif
-    XRayWithROOT(axis, Vector3D<Precision>(origin[0], origin[1], origin[2]), Vector3D<Precision>(dx, dy, dz), dir,
-                 axis1_start, axis1_end, axis2_start, axis2_end, data_size_x, data_size_y, pixel_axis, volume_result);
+    if (trackverbose) {
+      XRayWithROOT<true>(axis, Vector3D<Precision>(origin[0], origin[1], origin[2]), Vector3D<Precision>(dx, dy, dz),
+                         dir, axis1_start, axis1_end, axis2_start, axis2_end, data_size_x, data_size_y, pixel_axis,
+                         volume_result);
+    } else {
+      XRayWithROOT<false>(axis, Vector3D<Precision>(origin[0], origin[1], origin[2]), Vector3D<Precision>(dx, dy, dz),
+                          dir, axis1_start, axis1_end, axis2_start, axis2_end, data_size_x, data_size_y, pixel_axis,
+                          volume_result);
+    }
+
 #ifdef CALLGRIND
     CALLGRIND_STOP_INSTRUMENTATION;
     CALLGRIND_DUMP_STATS;
@@ -1038,9 +1051,15 @@ int main(int argc, char *argv[])
 
     timer.Start();
     if (world != nullptr) {
-      XRayWithGeant4(world, axis, Vector3D<Precision>(origin[0], origin[1], origin[2]), Vector3D<Precision>(dx, dy, dz),
-                     dir, axis1_start, axis1_end, axis2_start, axis2_end, data_size_x, data_size_y, pixel_axis,
-                     volume_result_Geant4);
+      if (trackverbose) {
+        XRayWithGeant4<true>(world, axis, Vector3D<Precision>(origin[0], origin[1], origin[2]),
+                             Vector3D<Precision>(dx, dy, dz), dir, axis1_start, axis1_end, axis2_start, axis2_end,
+                             data_size_x, data_size_y, pixel_axis, volume_result_Geant4);
+      } else {
+        XRayWithGeant4<true>(world, axis, Vector3D<Precision>(origin[0], origin[1], origin[2]),
+                             Vector3D<Precision>(dx, dy, dz), dir, axis1_start, axis1_end, axis2_start, axis2_end,
+                             data_size_x, data_size_y, pixel_axis, volume_result_Geant4);
+      }
     }
     timer.Stop();
 
@@ -1106,9 +1125,15 @@ int main(int argc, char *argv[])
 #ifdef CALLGRIND
     CALLGRIND_START_INSTRUMENTATION;
 #endif
-    XRayWithVecGeom_PolymorphicNavigationFramework(
-        axis, Vector3D<Precision>(origin[0], origin[1], origin[2]), Vector3D<Precision>(dx, dy, dz), dir, axis1_start,
-        axis1_end, axis2_start, axis2_end, data_size_x, data_size_y, pixel_axis, volume_result_VecGeom);
+    if (trackverbose) {
+      XRayWithVecGeom_PolymorphicNavigationFramework<true>(
+          axis, Vector3D<Precision>(origin[0], origin[1], origin[2]), Vector3D<Precision>(dx, dy, dz), dir, axis1_start,
+          axis1_end, axis2_start, axis2_end, data_size_x, data_size_y, pixel_axis, volume_result_VecGeom);
+    } else {
+      XRayWithVecGeom_PolymorphicNavigationFramework<false>(
+          axis, Vector3D<Precision>(origin[0], origin[1], origin[2]), Vector3D<Precision>(dx, dy, dz), dir, axis1_start,
+          axis1_end, axis2_start, axis2_end, data_size_x, data_size_y, pixel_axis, volume_result_VecGeom);
+    }
 #ifdef CALLGRIND
     CALLGRIND_START_INSTRUMENTATION;
     CALLGRIND_DUMP_STATS;
