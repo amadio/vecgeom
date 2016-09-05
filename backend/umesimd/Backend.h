@@ -54,12 +54,14 @@ using UMESIMDFloat_v      = typename UME::SIMD::SIMDVec_f<double, kVectorSize>;
 #endif
 
 struct kUmeSimd {
-  using bool_v                        = UMESIMDMask;
-  using Bool_t                        = UMESIMDMask;
-  using int_v                         = UMESIMDInt_v;
-  using inside_v                      = UMESIMDInt_v;
-  using precision_v                   = UMESIMDFloat_v;
+  using bool_v      = UMESIMDMask;
+  using Bool_t      = UMESIMDMask;
+  using int_v       = UMESIMDInt_v;
+  using inside_v    = UMESIMDInt_v;
+  using precision_v = UMESIMDFloat_v;
+
   constexpr static bool early_returns = false;
+
   const static precision_v kOne;
   const static precision_v kZero;
   const static bool_v kTrue;
