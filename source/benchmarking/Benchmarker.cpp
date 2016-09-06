@@ -1562,6 +1562,192 @@ int Benchmarker::RunToInFromBoundaryBenchmark()
   return (errorcode) ? 1 : 0;
 }
 
+int Benchmarker::RunToInFromBoundaryExitingBenchmark()
+{
+
+  assert(fWorld);
+
+  if (fVerbosity > 0) {
+    printf("Running DistanceToInExitingFromBoundary and SafetyToInExitingFromBoundary "
+           "benchmark for %i points for "
+           "%i repetitions.\n",
+           fPointCount, fRepetitions);
+  }
+  if (fVerbosity > 1) {
+#ifndef VECGEOM_SCALAR
+    printf("Vector instruction size is %i doubles.\n", kVectorSize);
+#endif
+  }
+
+  // Allocate memory
+  if (fPointPool) delete fPointPool;
+  if (fDirectionPool) delete fDirectionPool;
+  if (fStepMax) FreeAligned(fStepMax);
+  fPointPool     = new SOA3D<Precision>(fPointCount * fPoolMultiplier);
+  fDirectionPool = new SOA3D<Precision>(fPointCount * fPoolMultiplier);
+  fStepMax       = AllocateAligned<Precision>();
+  for (unsigned i = 0; i < fPointCount; ++i)
+    fStepMax[i]   = kInfinity;
+
+  if (fVerbosity > 1) printf("Generating points ON BOUNDARY...");
+
+  // Generate points not contained in any daughters and set the fraction hitting
+  // a daughter to the specified bias.
+  volumeUtilities::FillContainedPoints(*fWorld, *fPointPool, false);
+  volumeUtilities::FillRandomDirections(*fDirectionPool);
+
+  // fetch the actual test placed volume
+  if (fVolumes.size() > 1) {
+    printf("WARNING: this test is currently only implemented for 1 testing "
+           "volume\n");
+  }
+  auto targetvolume = fVolumes.front().Specialized();
+
+  // now transport tracks to boundary and invert direction
+  // with this procedure we make sure that we expect a valid
+  // intersection when inverting the direction
+  for (size_t track = 0; track < fPointPool->size(); ++track) {
+    auto currentpoint = fPointPool->operator[](track);
+    // make sure the generated points are in the (unplaced) reference frame of
+    // targetvolume
+    assert(targetvolume->UnplacedContains(currentpoint));
+
+    auto dir           = fDirectionPool->operator[](track);
+    auto boundarypoint = currentpoint + dir * targetvolume->DistanceToOut(currentpoint, dir);
+    // make sure that new generated point is on the boundary of targetvolume
+    // assert(targetvolume->UnplacedInside(boundarypoint) == vecgeom::kSurface);
+    fPointPool->set(track, boundarypoint);
+
+    // do not change directions
+  }
+
+  if (fVerbosity > 1) printf(" Done.\n");
+
+  fPointPool->resize(fPointCount * fPoolMultiplier);
+  fDirectionPool->resize(fPointCount * fPoolMultiplier);
+
+  std::stringstream outputLabels;
+  outputLabels << "Vectorized - Specialized - Unspecialized";
+
+  // Allocate output memory
+  Precision *const distancesVectorized    = AllocateAligned<Precision>();
+  Precision *const safetiesVectorized     = AllocateAligned<Precision>();
+  Precision *const distancesSpecialized   = AllocateAligned<Precision>();
+  Precision *const safetiesSpecialized    = AllocateAligned<Precision>();
+  Precision *const distancesUnspecialized = AllocateAligned<Precision>();
+  Precision *const safetiesUnspecialized  = AllocateAligned<Precision>();
+#ifdef VECGEOM_USOLIDS
+  Precision *distancesUSolids = nullptr;
+  Precision *safetiesUSolids  = nullptr;
+  if (fOkToRunUSOLIDS) {
+    distancesUSolids = AllocateAligned<Precision>();
+    safetiesUSolids  = AllocateAligned<Precision>();
+    outputLabels << " - USolids";
+  }
+#endif
+#ifdef VECGEOM_GEANT4
+  Precision *const distancesGeant4 = AllocateAligned<Precision>();
+  Precision *const safetiesGeant4  = AllocateAligned<Precision>();
+  outputLabels << " - Geant4";
+#endif
+#ifdef VECGEOM_ROOT
+  Precision *const distancesRoot = AllocateAligned<Precision>();
+  Precision *const safetiesRoot  = AllocateAligned<Precision>();
+  outputLabels << " - ROOT";
+#endif
+#ifdef VECGEOM_CUDA
+  Precision *const distancesCuda = AllocateAligned<Precision>();
+  Precision *const safetiesCuda  = AllocateAligned<Precision>();
+  outputLabels << " - CUDA";
+#endif
+
+  // Run all benchmarks
+  for (unsigned int i = 0; i < fMeasurementCount; ++i) {
+    RunToInVectorized(distancesVectorized, safetiesVectorized);
+    RunToInSpecialized(distancesSpecialized, safetiesSpecialized);
+    RunToInUnspecialized(distancesUnspecialized, safetiesUnspecialized);
+#ifdef VECGEOM_USOLIDS
+    if (fOkToRunUSOLIDS) RunToInUSolids(distancesUSolids, safetiesUSolids);
+#endif
+#ifdef VECGEOM_GEANT4
+    if (fOkToRunG4) RunToInGeant4(distancesGeant4, safetiesGeant4);
+#endif
+#ifdef VECGEOM_ROOT
+    if (fOkToRunROOT) RunToInRoot(distancesRoot, safetiesRoot);
+#endif
+#ifdef VECGEOM_CUDA
+    RunToInCuda(fPointPool->x(), fPointPool->y(), fPointPool->z(), fDirectionPool->x(), fDirectionPool->y(),
+                fDirectionPool->z(), distancesCuda, safetiesCuda);
+#endif
+  }
+
+  int errorcode =
+      CompareDistances(fPointPool, fDirectionPool, distancesSpecialized, distancesVectorized, distancesUnspecialized,
+#ifdef VECGEOM_ROOT
+                       distancesRoot,
+#endif
+#ifdef VECGEOM_USOLIDS
+                       distancesUSolids,
+#endif
+#ifdef VECGEOM_GEANT4
+                       distancesGeant4,
+#endif
+#ifdef VECGEOM_CUDA
+                       distancesCuda,
+#endif
+                       "DistanceToInFromBoundary");
+
+  // Clean up memory
+  FreeAligned(distancesSpecialized);
+  FreeAligned(distancesUnspecialized);
+  FreeAligned(distancesVectorized);
+#ifdef VECGEOM_USOLIDS
+  if (fOkToRunUSOLIDS) FreeAligned(distancesUSolids);
+#endif
+#ifdef VECGEOM_GEANT4
+  FreeAligned(distancesGeant4);
+#endif
+#ifdef VECGEOM_ROOT
+  FreeAligned(distancesRoot);
+#endif
+#ifdef VECGEOM_CUDA
+  FreeAligned(distancesCuda);
+#endif
+
+  // errorcode += CompareSafeties(
+  CompareSafeties(fPointPool, NULL, safetiesSpecialized, safetiesVectorized, safetiesUnspecialized,
+#ifdef VECGEOM_ROOT
+                  safetiesRoot,
+#endif
+#ifdef VECGEOM_USOLIDS
+                  safetiesUSolids,
+#endif
+#ifdef VECGEOM_GEANT4
+                  safetiesGeant4,
+#endif
+#ifdef VECGEOM_CUDA
+                  safetiesCuda,
+#endif
+                  "SafetyToInONBDR");
+
+  FreeAligned(safetiesSpecialized);
+  FreeAligned(safetiesUnspecialized);
+  FreeAligned(safetiesVectorized);
+#ifdef VECGEOM_USOLIDS
+  if (fOkToRunUSOLIDS) FreeAligned(safetiesUSolids);
+#endif
+#ifdef VECGEOM_GEANT4
+  FreeAligned(safetiesGeant4);
+#endif
+#ifdef VECGEOM_ROOT
+  FreeAligned(safetiesRoot);
+#endif
+#ifdef VECGEOM_CUDA
+  FreeAligned(safetiesCuda);
+#endif
+  return (errorcode) ? 1 : 0;
+}
+
 void Benchmarker::RunInsideSpecialized(bool *contains, Inside_t *inside)
 {
   if (fVerbosity > 0) printf("Specialized   - ");

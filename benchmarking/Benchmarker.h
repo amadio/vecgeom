@@ -175,6 +175,12 @@ public:
   /// return 0 if no error found; returns 1 if error found
   int RunToInFromBoundaryBenchmark();
 
+  /// \brief Runs a benchmark of the DistanceToIn and SafetyToIn methods.
+  /// points start from the surface of the shape and directions point inward
+  /// return 0 if no error found; returns 1 if error found
+  /// tests tracks which have been transported to the boundary and we are asking DistanceToIn again
+  int RunToInFromBoundaryExitingBenchmark();
+
   /// \return Amount of points and directions sampled for each benchmark
   ///         iteration.
   unsigned GetPointCount() const { return fPointCount; }

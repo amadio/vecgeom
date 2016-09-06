@@ -94,6 +94,12 @@ int main(int argc, char *argv[])
       int returncodeToIn  = tester.RunToInBenchmark();
       int returncodeToOut = tester.RunToOutBenchmark();
 
+      // run boundary tests
+      tester.RunToInFromBoundaryBenchmark();
+      tester.RunToInFromBoundaryExitingBenchmark();
+      tester.RunToOutFromBoundaryBenchmark();
+      tester.RunToOutFromBoundaryExitingBenchmark();
+
       return returncodeIns + returncodeToIn + returncodeToOut;
     }
     return 1;
