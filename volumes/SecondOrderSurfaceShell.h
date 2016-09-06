@@ -47,16 +47,27 @@ private:
   Vertex_t fHi1CrossHi0[N]; /** Pre-computed hi1 X hi0 */
 
 public:
+  /** @brief SecondOrderSurfaceShell dummy constructor */
+  VECGEOM_CUDA_HEADER_BOTH
+  SecondOrderSurfaceShell() : fDz(0), fDz2(0) {}
+
   /** @brief SecondOrderSurfaceShell constructor
   * @param verticesx X positions of vertices in array form
   * @param verticesy Y positions of vertices in array form
   * @param dz The half-height of the GenTrap
   */
   VECGEOM_CUDA_HEADER_BOTH
-  SecondOrderSurfaceShell(const Precision *verticesx, const Precision *verticesy, Precision dz)
-      : fDz(dz), fDz2(0.5 / dz)
+  SecondOrderSurfaceShell(const Precision *verticesx, const Precision *verticesy, Precision dz) : fDz(0.), fDz2(0.)
   {
     // Constructor
+    Initialize(verticesx, verticesy, dz);
+  }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  void Initialize(const Precision *verticesx, const Precision *verticesy, Precision dz)
+  {
+    fDz  = dz;
+    fDz2 = 0.5 / dz;
     // Store vertex coordinates
     Vertex_t va, vb, vc, vd;
     for (int i = 0; i < N; ++i) {

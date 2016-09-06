@@ -69,7 +69,7 @@ class UGenericTrap : public vecgeom::USolidsAdapter<vecgeom::UnplacedGenTrap> {
 
 public:
   // Accessors which are available in UnplacedGenTrap
-  UGenericTrap() : Base_t("", nullptr, nullptr, 0) {}
+  UGenericTrap() : Base_t("") {}
 
   inline double GetZHalfLength() const { return GetDZ(); }
   inline void SetZHalfLength(double)
@@ -80,12 +80,7 @@ public:
   inline int GetNofVertices() const { return 8; }
   inline UVector2 GetVertex(int index) const { return (UVector2(GetVerticesX()[index], GetVerticesY()[index])); }
   inline const std::vector<UVector2> &GetVertices() const { return fVertices; }
-  inline double GetTwistAngle(int) const
-  {
-    UUtils::Exception("UGenericTrap::GetTwistAngle()", "InvalidSetter", UWarning, 1,
-                      "UnplacedGenTrap does not store twist angles.");
-    return 0.;
-  }
+  inline double GetTwistAngle(int i) const { return GetTwist(i); }
   inline bool IsTwisted() const { return (!IsPlanar()); }
   inline int GetVisSubdivisions() const { return 0; }
   inline void SetVisSubdivisions(int) {}
@@ -104,8 +99,13 @@ public:
   void Initialise(const std::vector<UVector2> &v)
   {
     // Initialize from data of UnplacedGenTrap
-    for (int i = 0; i < 8; ++i)
+    double verticesx[8], verticesy[8];
+    for (int i = 0; i < 8; ++i) {
       fVertices.push_back(v[i]);
+      verticesx[i] = v[i].x;
+      verticesy[i] = v[i].y;
+    }
+    Initialize(verticesx, verticesy, GetDZ());
   }
 
   // o provide a new object which is a clone of the solid

@@ -32,11 +32,15 @@ public:
   GenTrapStruct<double> fGenTrap; /** The generic trapezoid structure */
 
 public:
+  /** @brief UnplacedGenTrap dummy constructor */
+  VECGEOM_CUDA_HEADER_BOTH
+  UnplacedGenTrap() : fGenTrap() {}
+
   /** @brief UnplacedGenTrap constructor
-  * @param verticesx X positions of vertices in array form
-  * @param verticesy Y positions of vertices in array form
-  * @param halfzheight The half-height of the GenTrap
-  */
+    * @param verticesx X positions of vertices in array form
+    * @param verticesy Y positions of vertices in array form
+    * @param halfzheight The half-height of the GenTrap
+    */
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedGenTrap(const Precision verticesx[], const Precision verticesy[], Precision halfzheight)
       : fGenTrap(verticesx, verticesy, halfzheight)
@@ -47,6 +51,12 @@ public:
   /** @brief UnplacedGenTrap destructor */
   VECGEOM_CUDA_HEADER_BOTH
   virtual ~UnplacedGenTrap() = default;
+
+  VECGEOM_CUDA_HEADER_BOTH
+  bool Initialize(const Precision verticesx[], const Precision verticesy[], Precision halfzheight)
+  {
+    return fGenTrap.Initialize(verticesx, verticesy, halfzheight);
+  }
 
   /** @brief Getter for the generic trapezoid structure */
   VECGEOM_CUDA_HEADER_BOTH
@@ -61,6 +71,11 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
   Precision GetDZ() const { return (fGenTrap.fDz); }
+
+  /** @brief Getter for the twist angle of a face */
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_FORCE_INLINE
+  Precision GetTwist(int i) const { return (fGenTrap.fTwist[i]); }
 
   /** @brief Getter for one of the 8 vertices in Vector3D<Precision> form */
   VECGEOM_CUDA_HEADER_BOTH

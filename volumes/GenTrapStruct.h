@@ -27,6 +27,7 @@ struct GenTrapStruct {
   // we also store this in SOA form
   T fVerticesX[8]; /** Backed-up X positions of vertices */
   T fVerticesY[8]; /** Backed-up Y positions of vertices */
+  T fTwist[4];     /** Twist angles */
 
   T fDz;            /** The half-height of the GenTrap */
   T fInverseDz;     /** Pre-computed 1/fDz */
@@ -49,12 +50,33 @@ struct GenTrapStruct {
   SecondOrderSurfaceShell<4> fSurfaceShell; /** Utility class for twisted surface algorithms */
 
   VECGEOM_CUDA_HEADER_BOTH
+  GenTrapStruct()
+      : fBBdimensions(), fBBorigin(), fVertices(), fVerticesX(), fVerticesY(), fDz(0.), fInverseDz(0.),
+        fHalfInverseDz(0.), fIsTwisted(false), fConnectingComponentsX(), fConnectingComponentsY(), fDeltaX(), fDeltaY(),
+        fSurfaceShell()
+  {
+    // Dummy constructor
+  }
+
+  VECGEOM_CUDA_HEADER_BOTH
   GenTrapStruct(const Precision verticesx[], const Precision verticesy[], Precision halfzheight)
-      : fBBdimensions(0., 0., 0.), fBBorigin(0., 0., 0.), fVertices(), fVerticesX(), fVerticesY(), fDz(halfzheight),
-        fInverseDz(1. / halfzheight), fHalfInverseDz(0.5 / halfzheight), fIsTwisted(false), fConnectingComponentsX(),
-        fConnectingComponentsY(), fDeltaX(), fDeltaY(), fSurfaceShell(verticesx, verticesy, halfzheight)
+      : fBBdimensions(), fBBorigin(), fVertices(), fVerticesX(), fVerticesY(), fDz(0.), fInverseDz(0.),
+        fHalfInverseDz(0.), fIsTwisted(false), fConnectingComponentsX(), fConnectingComponentsY(), fDeltaX(), fDeltaY(),
+        fSurfaceShell()
   {
     // Constructor
+    Initialize(verticesx, verticesy, halfzheight);
+  }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  bool Initialize(const Precision verticesx[], const Precision verticesy[], Precision halfzheight)
+  {
+    // Initialization based on vertices and half length
+    fDz            = halfzheight;
+    fInverseDz     = 1. / halfzheight;
+    fHalfInverseDz = 0.5 / halfzheight;
+    fIsTwisted     = false;
+    fSurfaceShell.Initialize(verticesx, verticesy, halfzheight);
 
     // Set vertices in Vector3D form
     for (int i = 0; i < 4; ++i) {
@@ -89,7 +111,7 @@ struct GenTrapStruct {
     if (sum1 * sum2 < -kTolerance) {
       printf("ERROR: Unplaced generic trap defined with opposite clockwise\n");
       Print();
-      return;
+      return false;
     }
 
     // Revert sequence of vertices to have them clockwise
@@ -131,18 +153,19 @@ struct GenTrapStruct {
         SegmentsCrossing(fVertices[5], fVertices[6], fVertices[4], fVertices[7])) {
       printf("ERROR: Unplaced generic trap defined with crossing opposite segments\n");
       Print();
-      return;
+      return false;
     }
 
     // Check that top and bottom quadrilaterals are convex
     if (!ComputeIsConvexQuadrilaterals()) {
       printf("ERROR: Unplaced generic trap defined with top/bottom quadrilaterals not convex\n");
       Print();
-      return;
+      return false;
     }
 
     fIsTwisted = ComputeIsTwisted();
     ComputeBoundingBox();
+    return true;
   }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -223,8 +246,9 @@ struct GenTrapStruct {
       if ((dx2 == 0 && dy2 == 0)) {
         continue;
       }
-      double twist_angle = std::fabs(dy1 * dx2 - dx1 * dy2);
-      if (twist_angle < kTolerance) {
+      fTwist[i] = std::fabs(dy1 * dx2 - dx1 * dy2);
+      if (fTwist[i] < kTolerance) {
+        fTwist[i] = 0.;
         continue;
       }
       twisted = true;
