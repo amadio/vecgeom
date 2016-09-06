@@ -102,6 +102,9 @@ bool trackverbose = false;
 // (if off .. assemblies will be flattened)
 bool assemblies = true;
 
+// configurable threshold for zero step detection
+double kZeroStepLimit(1E-7);
+
 // produce a bmp image out of pixel information given in volume_results
 int make_bmp_header();
 int make_bmp(int const *image_result, char const *, int data_size_x, int data_size_y, bool linear = false);
@@ -308,7 +311,7 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
         }
         // Increase passed_volume
         // TODO: correct counting of travel in "world" bounding box
-        if (nav->GetStep() > vecgeom::kTolerance) {
+        if (nav->GetStep() > kZeroStepLimit) {
           crossedvolumecount++;
         } else {
           zerosteps_accum++;
@@ -507,7 +510,7 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
 
         // Increase passed_volume
         // TODO: correct counting of travel in "world" bounding box
-        if (step > vecgeom::kTolerance) {
+        if (step > kZeroStepLimit) {
           crossedvolumecount++;
         } else {
           zerosteps++;
@@ -737,7 +740,7 @@ int XRayWithGeant4(G4VPhysicalVolume *world /* the detector to scan */, int axis
         // also calculates safety
 
         double step = nav->ComputeStep(p, d, vecgeom::kInfinity, safety);
-        if (step > vecgeom::kTolerance) {
+        if (step > kZeroStepLimit) {
           crossedvolumecount++;
         } else {
           zerosteps_accum++;
@@ -846,6 +849,10 @@ int main(int argc, char *argv[])
       cutlevel   = true;
       cutatlevel = atoi(argv[i + 1]);
       std::cout << "Cutting geometry at level " << cutatlevel << "\n";
+    }
+    if (!strcmp(argv[i], "--zerosteplimit")) {
+      kZeroStepLimit = atof(argv[i + 1]);
+      std::cout << "Setting zero step limit to " << kZeroStepLimit << "\n";
     }
   }
 
