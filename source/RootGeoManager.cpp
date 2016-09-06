@@ -466,6 +466,26 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
     // need the matrix;
     Transformation3D const *lefttrans  = Convert(boolnode->GetLeftMatrix());
     Transformation3D const *righttrans = Convert(boolnode->GetRightMatrix());
+
+    auto transformationadjust = [](Transformation3D *tr, TGeoShape const *shape) {
+      // TODO: combine this with external method
+      Transformation3D adjustment;
+      if (shape->IsA() == TGeoBBox::Class()) {
+        TGeoBBox const *const box = static_cast<TGeoBBox const *>(shape);
+        auto o                    = box->GetOrigin();
+        if (o[0] != 0. || o[1] != 0. || o[2] != 0.) {
+          adjustment = Transformation3D::kIdentity;
+          adjustment.SetTranslation(o[0], o[1], o[2]);
+          adjustment.SetProperties();
+          tr->MultiplyFromRight(adjustment);
+          tr->SetProperties();
+        }
+      }
+    };
+    // adjust transformation in case of shifted boxes
+    transformationadjust(const_cast<Transformation3D *>(lefttrans), boolnode->GetLeftShape());
+    transformationadjust(const_cast<Transformation3D *>(righttrans), boolnode->GetRightShape());
+
     // unplaced shapes
     VUnplacedVolume const *leftunplaced  = Convert(boolnode->GetLeftShape());
     VUnplacedVolume const *rightunplaced = Convert(boolnode->GetRightShape());
@@ -474,8 +494,7 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
     assert(rightunplaced != nullptr);
 
     // the problem is that I can only place logical volumes
-    VPlacedVolume *const leftplaced = (new LogicalVolume("inner_virtual", leftunplaced))->Place(lefttrans);
-
+    VPlacedVolume *const leftplaced  = (new LogicalVolume("inner_virtual", leftunplaced))->Place(lefttrans);
     VPlacedVolume *const rightplaced = (new LogicalVolume("inner_virtual", rightunplaced))->Place(righttrans);
 
     // now it depends on concrete type
