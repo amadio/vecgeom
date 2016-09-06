@@ -70,6 +70,9 @@ private:
   double fToInBias, fInsideBias;
   SOA3D<Precision> *fPointPool;
   SOA3D<Precision> *fDirectionPool;
+  SOA3D<Precision> *fInsidePointPoolCache;
+  SOA3D<Precision> *fInsideDirectionPoolCache;
+  bool fInsideCacheInitialized = false;
   Precision *fStepMax;
 
   // tolerance for comparisons
@@ -335,6 +338,8 @@ private:
                       Precision const *const cuda,
 #endif
                       char const *const method) const;
+
+  void InitInsideCaches();
 };
 
 } // End namespace vecgeom

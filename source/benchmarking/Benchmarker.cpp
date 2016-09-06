@@ -812,6 +812,16 @@ int Benchmarker::RunToInBenchmark()
   return (errorcode) ? 1 : 0;
 }
 
+void Benchmarker::InitInsideCaches()
+{
+  // initializes a reusable container of tracks inside the test volumes
+  fInsidePointPoolCache     = new SOA3D<Precision>(fPointCount * fPoolMultiplier);
+  fInsideDirectionPoolCache = new SOA3D<Precision>(fPointCount * fPoolMultiplier);
+  volumeUtilities::FillContainedPoints(*fWorld, *fInsidePointPoolCache, false);
+  volumeUtilities::FillRandomDirections(*fInsideDirectionPoolCache);
+  fInsideCacheInitialized = true;
+}
+
 int Benchmarker::RunToOutBenchmark()
 {
 
@@ -827,14 +837,7 @@ int Benchmarker::RunToOutBenchmark()
     printf("Vector instruction size is %i doubles.\n", kVectorSize);
 #endif
   }
-
-  // Allocate memory
-  if (fPointPool) delete fPointPool;
-  if (fDirectionPool) delete fDirectionPool;
-  if (fStepMax) FreeAligned(fStepMax);
-  fPointPool     = new SOA3D<Precision>(fPointCount * fPoolMultiplier);
-  fDirectionPool = new SOA3D<Precision>(fPointCount * fPoolMultiplier);
-  fStepMax       = AllocateAligned<Precision>();
+  fStepMax = AllocateAligned<Precision>();
   for (unsigned i = 0; i < fPointCount; ++i)
     fStepMax[i]   = kInfinity;
 
@@ -842,8 +845,14 @@ int Benchmarker::RunToOutBenchmark()
 
   // Generate points not contained in any daughters and set the fraction hitting
   // a daughter to the specified bias.
-  volumeUtilities::FillContainedPoints(*fWorld, *fPointPool, false);
-  volumeUtilities::FillRandomDirections(*fDirectionPool);
+  if (!fInsideCacheInitialized) {
+    InitInsideCaches();
+  }
+  // copy from cache
+  if (fPointPool) delete fPointPool;
+  if (fDirectionPool) delete fDirectionPool;
+  fPointPool     = new SOA3D<Precision>(*fInsidePointPoolCache);
+  fDirectionPool = new SOA3D<Precision>(*fInsideDirectionPoolCache);
 
   if (fVerbosity > 1) printf(" Done.\n");
 
@@ -1007,13 +1016,7 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
 #endif
   }
 
-  // Allocate memory
-  if (fPointPool) delete fPointPool;
-  if (fDirectionPool) delete fDirectionPool;
-  if (fStepMax) FreeAligned(fStepMax);
-  fPointPool     = new SOA3D<Precision>(fPointCount * fPoolMultiplier);
-  fDirectionPool = new SOA3D<Precision>(fPointCount * fPoolMultiplier);
-  fStepMax       = AllocateAligned<Precision>();
+  fStepMax = AllocateAligned<Precision>();
   for (unsigned i = 0; i < fPointCount; ++i)
     fStepMax[i]   = kInfinity;
 
@@ -1021,8 +1024,14 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
 
   // Generate points not contained in any daughters and set the fraction hitting
   // a daughter to the specified bias.
-  volumeUtilities::FillContainedPoints(*fWorld, *fPointPool, false);
-  volumeUtilities::FillRandomDirections(*fDirectionPool);
+  if (!fInsideCacheInitialized) {
+    InitInsideCaches();
+  }
+  // copy from cache
+  if (fPointPool) delete fPointPool;
+  if (fDirectionPool) delete fDirectionPool;
+  fPointPool     = new SOA3D<Precision>(*fInsidePointPoolCache);
+  fDirectionPool = new SOA3D<Precision>(*fInsideDirectionPoolCache);
 
   // fetch the actual test placed volume
   if (fVolumes.size() > 1) {
@@ -1210,13 +1219,7 @@ int Benchmarker::RunToOutFromBoundaryExitingBenchmark()
 #endif
   }
 
-  // Allocate memory
-  if (fPointPool) delete fPointPool;
-  if (fDirectionPool) delete fDirectionPool;
-  if (fStepMax) FreeAligned(fStepMax);
-  fPointPool     = new SOA3D<Precision>(fPointCount * fPoolMultiplier);
-  fDirectionPool = new SOA3D<Precision>(fPointCount * fPoolMultiplier);
-  fStepMax       = AllocateAligned<Precision>();
+  fStepMax = AllocateAligned<Precision>();
   for (unsigned i = 0; i < fPointCount; ++i)
     fStepMax[i]   = kInfinity;
 
@@ -1224,8 +1227,14 @@ int Benchmarker::RunToOutFromBoundaryExitingBenchmark()
 
   // Generate points not contained in any daughters and set the fraction hitting
   // a daughter to the specified bias.
-  volumeUtilities::FillContainedPoints(*fWorld, *fPointPool, false);
-  volumeUtilities::FillRandomDirections(*fDirectionPool);
+  if (!fInsideCacheInitialized) {
+    InitInsideCaches();
+  }
+  // copy from cache
+  if (fPointPool) delete fPointPool;
+  if (fDirectionPool) delete fDirectionPool;
+  fPointPool     = new SOA3D<Precision>(*fInsidePointPoolCache);
+  fDirectionPool = new SOA3D<Precision>(*fInsideDirectionPoolCache);
 
   // fetch the actual test placed volume
   if (fVolumes.size() > 1) {
@@ -1394,22 +1403,18 @@ int Benchmarker::RunToInFromBoundaryBenchmark()
 #endif
   }
 
-  // Allocate memory
-  if (fPointPool) delete fPointPool;
-  if (fDirectionPool) delete fDirectionPool;
-  if (fStepMax) FreeAligned(fStepMax);
-  fPointPool     = new SOA3D<Precision>(fPointCount * fPoolMultiplier);
-  fDirectionPool = new SOA3D<Precision>(fPointCount * fPoolMultiplier);
-  fStepMax       = AllocateAligned<Precision>();
-  for (unsigned i = 0; i < fPointCount; ++i)
-    fStepMax[i]   = kInfinity;
-
   if (fVerbosity > 1) printf("Generating points ON BOUNDARY...");
 
   // Generate points not contained in any daughters and set the fraction hitting
   // a daughter to the specified bias.
-  volumeUtilities::FillContainedPoints(*fWorld, *fPointPool, false);
-  volumeUtilities::FillRandomDirections(*fDirectionPool);
+  if (!fInsideCacheInitialized) {
+    InitInsideCaches();
+  }
+  // copy from cache
+  if (fPointPool) delete fPointPool;
+  if (fDirectionPool) delete fDirectionPool;
+  fPointPool     = new SOA3D<Precision>(*fInsidePointPoolCache);
+  fDirectionPool = new SOA3D<Precision>(*fInsideDirectionPoolCache);
 
   // fetch the actual test placed volume
   if (fVolumes.size() > 1) {
@@ -1564,7 +1569,6 @@ int Benchmarker::RunToInFromBoundaryBenchmark()
 
 int Benchmarker::RunToInFromBoundaryExitingBenchmark()
 {
-
   assert(fWorld);
 
   if (fVerbosity > 0) {
@@ -1579,13 +1583,7 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
 #endif
   }
 
-  // Allocate memory
-  if (fPointPool) delete fPointPool;
-  if (fDirectionPool) delete fDirectionPool;
-  if (fStepMax) FreeAligned(fStepMax);
-  fPointPool     = new SOA3D<Precision>(fPointCount * fPoolMultiplier);
-  fDirectionPool = new SOA3D<Precision>(fPointCount * fPoolMultiplier);
-  fStepMax       = AllocateAligned<Precision>();
+  fStepMax = AllocateAligned<Precision>();
   for (unsigned i = 0; i < fPointCount; ++i)
     fStepMax[i]   = kInfinity;
 
@@ -1593,9 +1591,14 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
 
   // Generate points not contained in any daughters and set the fraction hitting
   // a daughter to the specified bias.
-  volumeUtilities::FillContainedPoints(*fWorld, *fPointPool, false);
-  volumeUtilities::FillRandomDirections(*fDirectionPool);
-
+  if (!fInsideCacheInitialized) {
+    InitInsideCaches();
+  }
+  // copy from cache
+  if (fPointPool) delete fPointPool;
+  if (fDirectionPool) delete fDirectionPool;
+  fPointPool     = new SOA3D<Precision>(*fInsidePointPoolCache);
+  fDirectionPool = new SOA3D<Precision>(*fInsideDirectionPoolCache);
   // fetch the actual test placed volume
   if (fVolumes.size() > 1) {
     printf("WARNING: this test is currently only implemented for 1 testing "
@@ -1618,7 +1621,7 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
     // assert(targetvolume->UnplacedInside(boundarypoint) == vecgeom::kSurface);
     fPointPool->set(track, boundarypoint);
 
-    // do not change directions
+    // do not change directions !
   }
 
   if (fVerbosity > 1) printf(" Done.\n");

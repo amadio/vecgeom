@@ -95,12 +95,13 @@ int main(int argc, char *argv[])
       int returncodeToOut = tester.RunToOutBenchmark();
 
       // run boundary tests
-      tester.RunToInFromBoundaryBenchmark();
-      tester.RunToInFromBoundaryExitingBenchmark();
-      tester.RunToOutFromBoundaryBenchmark();
-      tester.RunToOutFromBoundaryExitingBenchmark();
+      int rtrncodeInBdr   = tester.RunToInFromBoundaryBenchmark();
+      int rtrncodeInBdrE  = tester.RunToInFromBoundaryExitingBenchmark();
+      int rtrncodeOutBdr  = tester.RunToOutFromBoundaryBenchmark();
+      int rtrncodeOutBdrE = tester.RunToOutFromBoundaryExitingBenchmark();
 
-      return returncodeIns + returncodeToIn + returncodeToOut;
+      return returncodeIns + returncodeToIn + returncodeToOut + rtrncodeInBdr + rtrncodeInBdrE + rtrncodeOutBdrE +
+             rtrncodeOutBdr;
     }
     return 1;
   } else {
