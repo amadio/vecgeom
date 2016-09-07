@@ -17,8 +17,7 @@ function BenchTask(){
   if [[ $rc == 0 ]]; then
    printf "${v} ${GREEN}passes${NC}\n"
    # if pass cleanup file
-   rm volumeImage_${v}${d}*.bmp
-   rm ${errlog}${v}${d}
+   rm ${errlog}${v}$
   else
    printf "${v} ${RED}fails${NC}\n"
   fi
