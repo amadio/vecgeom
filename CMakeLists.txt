@@ -637,6 +637,8 @@ set(SRC_CPP_RELATIVE
   services/NavigationSpecializer.cpp
 
   source/G4GeoManager.cpp
+
+  source/ResultComparator.cpp
  )
 
 # avoid "file has no symbols" warnings

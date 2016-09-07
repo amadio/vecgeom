@@ -224,6 +224,10 @@ public:
     MaskedAssign(Abs(output) < kHalfTolerance, 0., &output);
 #endif
 
+#ifdef VECGEOM_DISTANCE_DEBUG
+    DistanceComparator::CompareDistanceToOut(this, output, point, direction, stepMax);
+#endif
+
 // detect -inf responses which are often an indication for a real bug
 #ifndef VECGEOM_NVCC
     assert(!((output < 0.) && std::isinf(output)));
