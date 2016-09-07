@@ -181,12 +181,12 @@ int Benchmarker::CompareDistances(SOA3D<Precision> *points, SOA3D<Precision> *di
       if (fVerbosity > 2) {
         mismatchOutput << vectorized[i] << " / " << specialized[i] << " / " << unspecialized[i];
       }
-      if (std::fabs(specialized[i] - vectorized[i]) > fTolerance &&
-          !(specialized[i] == kInfinity && vectorized[i] == kInfinity)) {
+      if (!(specialized[i] == kInfinity && vectorized[i] == kInfinity) &&
+          std::fabs(specialized[i] - vectorized[i]) > fTolerance) {
         mismatch = true;
       }
-      if (std::fabs(specialized[i] - unspecialized[i]) > fTolerance &&
-          !(specialized[i] == kInfinity && unspecialized[i] == kInfinity)) {
+      if (!(specialized[i] == kInfinity && unspecialized[i] == kInfinity) &&
+          std::fabs(specialized[i] - unspecialized[i]) > fTolerance) {
         mismatch = true;
       }
 #ifdef VECGEOM_ROOT
@@ -202,8 +202,8 @@ int Benchmarker::CompareDistances(SOA3D<Precision> *points, SOA3D<Precision> *di
 #endif
 #ifdef VECGEOM_USOLIDS
       if (fOkToRunUSOLIDS) {
-        if (std::fabs(specialized[i] - usolids[i]) > fTolerance &&
-            !(specialized[i] == kInfinity && usolids[i] == UUtils::kInfinity)) {
+        if (!(specialized[i] == kInfinity && usolids[i] == UUtils::kInfinity) &&
+            std::fabs(specialized[i] - usolids[i]) > fTolerance) {
           mismatch = true;
         }
         if (fVerbosity > 2) mismatchOutput << " / " << usolids[i];
@@ -212,8 +212,8 @@ int Benchmarker::CompareDistances(SOA3D<Precision> *points, SOA3D<Precision> *di
 #ifdef VECGEOM_GEANT4
       if (fOkToRunG4) {
         if (geant4) {
-          if (std::fabs(specialized[i] - geant4[i]) > fTolerance &&
-              !(specialized[i] == kInfinity && geant4[i] == ::kInfinity)) {
+          if (!(specialized[i] == kInfinity && geant4[i] == ::kInfinity) &&
+              std::fabs(specialized[i] - geant4[i]) > fTolerance) {
             mismatch = true;
           }
           if (fVerbosity > 2) mismatchOutput << " / " << geant4[i];
@@ -221,7 +221,7 @@ int Benchmarker::CompareDistances(SOA3D<Precision> *points, SOA3D<Precision> *di
       }
 #endif
 #ifdef VECGEOM_CUDA
-      if (std::fabs(specialized[i] - cuda[i]) > fTolerance && !(specialized[i] == kInfinity && cuda[i] == kInfinity)) {
+      if (!(specialized[i] == kInfinity && cuda[i] == kInfinity) && std::fabs(specialized[i] - cuda[i]) > fTolerance) {
         mismatch = true;
       }
       if (fVerbosity > 2) mismatchOutput << " / " << cuda[i];
@@ -300,13 +300,13 @@ int Benchmarker::CompareSafeties(SOA3D<Precision> *points, SOA3D<Precision> *dir
       if (fVerbosity > 2) {
         mismatchOutput << vectorized[i] << " / " << specialized[i] << " / " << unspecialized[i];
       }
-      if (std::fabs(specialized[i] - vectorized[i]) > kTolerance &&
-          !(specialized[i] == kInfinity && vectorized[i] == kInfinity)) {
+      if (!(specialized[i] == kInfinity && vectorized[i] == kInfinity) &&
+          std::fabs(specialized[i] - vectorized[i]) > kTolerance) {
         mismatch = true;
       }
       better &= specialized[i] >= vectorized[i];
-      if (std::fabs(specialized[i] - unspecialized[i]) > kTolerance &&
-          !(specialized[i] == kInfinity && unspecialized[i] == kInfinity)) {
+      if (!(specialized[i] == kInfinity && unspecialized[i] == kInfinity) &&
+          std::fabs(specialized[i] - unspecialized[i]) > kTolerance) {
         mismatch = true;
         better &= specialized[i] >= unspecialized[i];
       }
@@ -321,8 +321,8 @@ int Benchmarker::CompareSafeties(SOA3D<Precision> *points, SOA3D<Precision> *dir
 #endif
 #ifdef VECGEOM_USOLIDS
       if (fOkToRunUSOLIDS) {
-        if (std::fabs(specialized[i] - usolids[i]) > kTolerance &&
-            !(specialized[i] == kInfinity && usolids[i] == UUtils::kInfinity)) {
+        if (!(specialized[i] == kInfinity && usolids[i] == UUtils::kInfinity) &&
+            std::fabs(specialized[i] - usolids[i]) > kTolerance) {
           mismatch = true;
           better &= specialized[i] >= usolids[i];
         }
