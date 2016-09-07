@@ -27,13 +27,34 @@ using namespace vecgeom;
 
 int main(int argc, char *argv[])
 {
-
   if (argc < 3) {
-    std::cerr << "need to give root geometry file and logical volume name";
+    std::cerr << "usage: " << argv[0]
+              << "geom.root logicalvolumename [--npoints n] [--nrep rep] [--verbosity 1|2|3|4]\n";
   }
 
   TGeoManager::Import(argv[1]);
   std::string testvolume(argv[2]);
+
+  size_t npoints(10000);
+  int verbosity(3);
+  int repetitions(1);
+  for (auto i = 3; i < argc; i++) {
+    if (!strcmp(argv[i], "--npoints")) {
+      if (i + 1 < argc) {
+        npoints = atoi(argv[i + 1]);
+      }
+    }
+    if (!strcmp(argv[i], "--nrep")) {
+      if (i + 1 < argc) {
+        repetitions = atoi(argv[i + 1]);
+      }
+    }
+    if (!strcmp(argv[i], "--verbosity")) {
+      if (i + 1 < argc) {
+        verbosity = atoi(argv[i + 1]);
+      }
+    }
+  }
 
   int found               = 0;
   TGeoVolume *foundvolume = NULL;
@@ -83,10 +104,10 @@ int main(int argc, char *argv[])
 
       Benchmarker tester(GeoManager::Instance().GetWorld());
       tester.SetTolerance(1E-4);
-      tester.SetVerbosity(3);
+      tester.SetVerbosity(verbosity);
       tester.SetPoolMultiplier(1);
-      tester.SetRepetitions(1);
-      tester.SetPointCount(2000);
+      tester.SetRepetitions(repetitions);
+      tester.SetPointCount(npoints);
 
       tester.CompareMetaInformation();
 
