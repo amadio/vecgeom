@@ -1,6 +1,5 @@
 #include "volumes/PlacedVolume.h"
 #include "base/Global.h"
-#include "utilities/Visualizer.h"
 
 #include <iostream>
 #ifdef VECGEOM_ROOT
@@ -139,7 +138,6 @@ void CompareDistanceToOut(VPlacedVolume const *vol, Precision vecgeomresult, Vec
     std::cout << "## WARNING ## DO VecGeom  " << vecgeomresult;
     std::cout << " ROOT: " << rootresult << "\n";
     PrintPointInformation(vol, point);
-    //    Visualizer vis;
   }
 #endif
 

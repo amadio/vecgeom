@@ -670,6 +670,7 @@ set(NOT_FOR_CUDA
    Medium
  # Material
    NavigationSpecializer
+   ResultComparator
 )
 
 
