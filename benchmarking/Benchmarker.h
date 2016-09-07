@@ -323,6 +323,24 @@ private:
 #endif
                        char const *const method);
 
+  // internal method to crosscheck results from boundary; fills a container with problematic cases
+  int CheckDistancesFromBoundary(Precision expected, SOA3D<Precision> *points, SOA3D<Precision> *directions,
+                                 Precision const *const specialized, Precision const *const vectorized,
+                                 Precision const *const unspecialized,
+#ifdef VECGEOM_ROOT
+                                 Precision const *const root,
+#endif
+#ifdef VECGEOM_USOLIDS
+                                 Precision const *const usolids,
+#endif
+#ifdef VECGEOM_GEANT4
+                                 Precision const *const geant4,
+#endif
+#ifdef VECGEOM_CUDA
+                                 Precision const *const cuda,
+#endif
+                                 char const *const method);
+
   int CompareSafeties(SOA3D<Precision> *points, SOA3D<Precision> *directions, Precision const *const specialized,
                       Precision const *const vectorized, Precision const *const unspecialized,
 #ifdef VECGEOM_ROOT
@@ -338,6 +356,25 @@ private:
                       Precision const *const cuda,
 #endif
                       char const *const method) const;
+
+  // special version for boundary points
+  // here we know that result has to be zero
+  int CheckSafetiesOnBoundary(SOA3D<Precision> *points, SOA3D<Precision> *directions,
+                              Precision const *const specialized, Precision const *const vectorized,
+                              Precision const *const unspecialized,
+#ifdef VECGEOM_ROOT
+                              Precision const *const root,
+#endif
+#ifdef VECGEOM_USOLIDS
+                              Precision const *const usolids,
+#endif
+#ifdef VECGEOM_GEANT4
+                              Precision const *const geant4,
+#endif
+#ifdef VECGEOM_CUDA
+                              Precision const *const cuda,
+#endif
+                              char const *const method) const;
 
   void InitInsideCaches();
 };
