@@ -511,19 +511,6 @@ void BooleanImplementation<kSubtraction, transCodeT, rotCodeT>::SafetyToInKernel
     safety = fPtrSolidA->SafetyToIn(p);
   }
   return;
-
-  // this is a very crude algorithm which as very many "virtual" surfaces
-  // which could return a very small safety
-  //  Bool_t  inleft   = unplaced.fLeftVolume->Contains(point);
-  //  Float_t safleft  = unplaced.fLeftVolume->SafetyToIn(point);
-  //  Bool_t  inright  = unplaced.fRightVolume->Contains(point);
-  //  Float_t safright = unplaced.fRightVolume->SafetyToOut(point);
-  //  Bool_t done(Backend::kFalse);
-  //  MaskedAssign( inleft && inright, safright, &safety );
-  //  done |= inleft && inright;
-  //  MaskedAssign( !done && inleft, Min(safleft, safright), &safety);
-  //  done |= inleft;
-  //  MaskedAssign( !done && inright, Max(safleft, safright), &safety);
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
