@@ -138,7 +138,7 @@ void FaceTrajectoryIntersection(UnplacedTrd const &trd, Vector3D<typename Backen
     Float_t hitk = posK + dist * dirK;
     Float_t dK   = halfKplus - fK * hitz; // calculate the width of the varying dimension at hitz
     ok &= Abs(hitk) <= dK;
-    MaskedAssign(ok & (Abs(dist) < kHalfTolerance), 0., &dist);
+    vecCore::MaskedAssign(dist, ok & (Abs(dist) < kHalfTolerance), Float_t(0.0));
   }
 }
 
@@ -159,17 +159,17 @@ void Safety(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> cons
   Float_t distx = trd.halfx1plusx2() - trd.fx() * pos.z();
   Bool_t okx    = distx >= 0;
   Float_t safx  = (distx - Abs(pos.x())) * trd.calfx();
-  MaskedAssign(okx && safx < dist, safx, &dist);
+  vecCore::MaskedAssign(dist, okx && safx < dist, safx);
   // std::cout << "safx: " << safx << std::endl;
 
   if (checkVaryingY<trdTypeT>(trd)) {
     Float_t disty = trd.halfy1plusy2() - trd.fy() * pos.z();
     Bool_t oky    = disty >= 0;
     Float_t safy  = (disty - Abs(pos.y())) * trd.calfy();
-    MaskedAssign(oky && safy < dist, safy, &dist);
+    vecCore::MaskedAssign(dist, oky && safy < dist, safy);
   } else {
     Float_t safy = trd.dy1() - Abs(pos.y());
-    MaskedAssign(safy < dist, safy, &dist);
+    vecCore::MaskedAssign(dist, safy < dist, safy);
   }
   if (!inside) dist = -dist;
 }
@@ -286,16 +286,25 @@ struct TrdImplementation {
   static void Inside(UnplacedTrd const &trd, Transformation3D const &transformation,
                      Vector3D<typename Backend::precision_v> const &point, typename Backend::inside_v &inside)
   {
-    typedef typename Backend::bool_v Bool_t;
-    Vector3D<typename Backend::precision_v> localpoint;
-    localpoint = transformation.Transform<transCodeT, rotCodeT>(point);
-    inside     = EInside::kOutside;
+    // use double-based vector for result, as bool_v is a mask for precision_v
+    const typename Backend::precision_v in(EInside::kInside);
+    const typename Backend::precision_v out(EInside::kOutside);
+    typename Backend::bool_v inmask(false), outmask(false);
+    typename Backend::precision_v result(EInside::kSurface);
 
-    Bool_t completelyoutside, completelyinside;
-    TrdUtilities::UnplacedInside<Backend, trdTypeT, true>(trd, localpoint, completelyinside, completelyoutside);
-    inside = EInside::kSurface;
-    MaskedAssign(completelyinside, EInside::kInside, &inside);
-    MaskedAssign(completelyoutside, EInside::kOutside, &inside);
+    Vector3D<typename Backend::precision_v> localpoint = transformation.Transform<transCodeT, rotCodeT>(point);
+
+    TrdUtilities::UnplacedInside<Backend, trdTypeT, true>(trd, localpoint, inmask, outmask);
+
+    vecCore::MaskedAssign(result, inmask, in);
+    vecCore::MaskedAssign(result, outmask, out);
+
+    // Manual conversion from double to int here is necessary because int_v and
+    // precision_v have different number of elements in SIMD vector, so bool_v
+    // (mask for precision_v) cannot be cast to mask for inside, which is a
+    // different type and does not exist in the current backend system
+    for (size_t i = 0; i < vecCore::VectorSize(result); i++)
+      vecCore::Set(inside, i, vecCore::Get(result, i));
   }
 
   template <class Backend>
@@ -336,7 +345,7 @@ struct TrdImplementation {
       iny   = disty < MakeMinusTolerant<true>(0.);
     }
     Bool_t inside = inx & iny & inz;
-    MaskedAssign(inside, -1., &distance);
+    vecCore::MaskedAssign(distance, inside, Float_t(-1.0));
     Bool_t done = inside;
     Bool_t okz  = pos_local.z() * dir_local.z() < 0;
     okz &= !inz;
@@ -352,11 +361,11 @@ struct TrdImplementation {
       Bool_t okzb = pos_local.z() < (-trd.dz() + kHalfTolerance) && hitx <= trd.dx1() && hity <= trd.dy1();
 
       okz &= (okzt | okzb);
-      MaskedAssign(okz, distz, &distance);
+      vecCore::MaskedAssign(distance, okz, distz);
     }
     done |= okz;
     if (vecCore::MaskFull(done)) {
-      MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
+      vecCore::MaskedAssign(distance, Abs(distance) < kHalfTolerance, Float_t(0.0));
       return;
     }
 
@@ -365,14 +374,14 @@ struct TrdImplementation {
     if (!vecCore::MaskFull(inx)) {
 
       FaceTrajectoryIntersection<Backend, false, false, true>(trd, pos_local, dir_local, distx, okx);
-      MaskedAssign(okx, distx, &distance);
+      vecCore::MaskedAssign(distance, okx, distx);
 
       FaceTrajectoryIntersection<Backend, false, true, true>(trd, pos_local, dir_local, distx, okx);
-      MaskedAssign(okx, distx, &distance);
+      vecCore::MaskedAssign(distance, okx, distx);
     }
     done |= okx;
     if (vecCore::MaskFull(done)) {
-      MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
+      vecCore::MaskedAssign(distance, Abs(distance) < kHalfTolerance, Float_t(0.0));
       return;
     }
 
@@ -381,10 +390,10 @@ struct TrdImplementation {
     if (checkVaryingY<trdTypeT>(trd)) {
       if (!vecCore::MaskFull(iny)) {
         FaceTrajectoryIntersection<Backend, true, false, true>(trd, pos_local, dir_local, disty, oky);
-        MaskedAssign(oky, disty, &distance);
+        vecCore::MaskedAssign(distance, oky, disty);
 
         FaceTrajectoryIntersection<Backend, true, true, true>(trd, pos_local, dir_local, disty, oky);
-        MaskedAssign(oky, disty, &distance);
+        vecCore::MaskedAssign(distance, oky, disty);
       }
     } else {
       if (!vecCore::MaskFull(iny)) {
@@ -393,10 +402,10 @@ struct TrdImplementation {
         Float_t xhit = pos_local.x() + disty * dir_local.x();
         Float_t dx   = trd.halfx1plusx2() - trd.fx() * zhit;
         oky = pos_local.y() * dir_local.y() < 0 && disty > -kHalfTolerance && Abs(xhit) < dx && Abs(zhit) < trd.dz();
-        MaskedAssign(oky, disty, &distance);
+        vecCore::MaskedAssign(distance, oky, disty);
       }
     }
-    MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
+    vecCore::MaskedAssign(distance, Abs(distance) < kHalfTolerance, Float_t(0.0));
   }
 
   template <class Backend>
@@ -441,9 +450,9 @@ struct TrdImplementation {
       hitx          = Abs(point.x() + distz * dir.x());
       hity          = Abs(point.y() + distz * dir.y());
       okzt &= hitx <= trd.dx2() && hity <= trd.dy2();
-      MaskedAssign(okzt, distz, &distance);
+      vecCore::MaskedAssign(distance, okzt, distz);
       if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(okzt)) {
-        MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
+        vecCore::MaskedAssign(distance, Abs(distance) < kHalfTolerance, Float_t(0.0));
         return;
       }
     }
@@ -455,9 +464,9 @@ struct TrdImplementation {
       hitx          = Abs(point.x() + distz * dir.x());
       hity          = Abs(point.y() + distz * dir.y());
       okzb &= hitx <= trd.dx1() && hity <= trd.dy1();
-      MaskedAssign(okzb, distz, &distance);
+      vecCore::MaskedAssign(distance, okzb, distz);
       if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(okzb)) {
-        MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
+        vecCore::MaskedAssign(distance, Abs(distance) < kHalfTolerance, Float_t(0.0));
         return;
       }
     }
@@ -467,16 +476,16 @@ struct TrdImplementation {
 
     FaceTrajectoryIntersection<Backend, false, false, false>(trd, point, dir, distx, okx);
 
-    MaskedAssign(okx, distx, &distance);
+    vecCore::MaskedAssign(distance, okx, distx);
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(okx)) {
-      MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
+      vecCore::MaskedAssign(distance, Abs(distance) < kHalfTolerance, Float_t(0.0));
       return;
     }
 
     FaceTrajectoryIntersection<Backend, false, true, false>(trd, point, dir, distx, okx);
-    MaskedAssign(okx, distx, &distance);
+    vecCore::MaskedAssign(distance, okx, distx);
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(okx)) {
-      MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
+      vecCore::MaskedAssign(distance, Abs(distance) < kHalfTolerance, Float_t(0.0));
       return;
     }
 
@@ -485,26 +494,26 @@ struct TrdImplementation {
 
     if (checkVaryingY<trdTypeT>(trd)) {
       FaceTrajectoryIntersection<Backend, true, false, false>(trd, point, dir, disty, oky);
-      MaskedAssign(oky, disty, &distance);
+      vecCore::MaskedAssign(distance, oky, disty);
       if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(oky)) {
-        MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
+        vecCore::MaskedAssign(distance, Abs(distance) < kHalfTolerance, Float_t(0.0));
         return;
       }
 
       FaceTrajectoryIntersection<Backend, true, true, false>(trd, point, dir, disty, oky);
-      MaskedAssign(oky, disty, &distance);
+      vecCore::MaskedAssign(distance, oky, disty);
     } else {
       Float_t plane = trd.dy1();
-      MaskedAssign(dir.y() < 0, -trd.dy1(), &plane);
+      vecCore::MaskedAssign(plane, dir.y() < 0.0, Float_t(-trd.dy1()));
       disty        = (plane - point.y()) / dir.y();
       Float_t zhit = point.z() + disty * dir.z();
       Float_t xhit = point.x() + disty * dir.x();
       Float_t dx   = trd.halfx1plusx2() - trd.fx() * zhit;
       oky          = Abs(xhit) < dx && Abs(zhit) < trd.dz();
-      MaskedAssign(oky, disty, &distance);
+      vecCore::MaskedAssign(distance, oky, disty);
     }
-    MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
-    MaskedAssign(out, -1., &distance);
+    vecCore::MaskedAssign(distance, Abs(distance) < kHalfTolerance, Float_t(0.0));
+    vecCore::MaskedAssign(distance, out, Float_t(-1.0));
   }
 
   template <class Backend>
