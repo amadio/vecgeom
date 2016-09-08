@@ -197,10 +197,10 @@ public:
 
 #ifdef VECGEOM_REPLACE_USOLIDS
     // apply USolids convention: convert negative values to zero
-    MaskedAssign(output < kHalfTolerance, 0., &output);
+    vecCore::MaskedAssign(output, output < kHalfTolerance, 0.);
 #else
     // avoid distance values within tolerance
-    MaskedAssign(Abs(output) < kHalfTolerance, 0., &output);
+    vecCore::MaskedAssign(output, Abs(output) < kHalfTolerance, 0.);
 #endif
 
 #ifdef VECGEOM_DISTANCE_DEBUG
@@ -218,10 +218,10 @@ public:
 
 #ifdef VECGEOM_REPLACE_USOLIDS
     // apply USolids convention: convert negative values to zero
-    MaskedAssign(output < kHalfTolerance, 0., &output);
+    vecCore::MaskedAssign(output, output < kHalfTolerance, 0.);
 #else
     // avoid distance values within tolerance
-    MaskedAssign(Abs(output) < kHalfTolerance, 0., &output);
+    vecCore::MaskedAssign(output, Abs(output) < kHalfTolerance, 0.);
 #endif
 
 #ifdef VECGEOM_DISTANCE_DEBUG
@@ -285,10 +285,10 @@ public:
 
 #ifdef VECGEOM_REPLACE_USOLIDS
     // apply USolids convention: convert negative values to zero
-    MaskedAssign(output < kHalfTolerance, 0., &output);
+    vecCore::MaskedAssign(output, output < kHalfTolerance, 0.);
 #else
     // avoid distance values within tolerance
-    MaskedAssign(Abs(output) < kHalfTolerance, 0., &output);
+    vecCore::MaskedAssign(output, Abs(output) < kHalfTolerance, 0.);
 #endif
 
     return output;
@@ -302,10 +302,10 @@ public:
 
 #ifdef VECGEOM_REPLACE_USOLIDS
     // apply USolids convention: convert negative values to zero
-    MaskedAssign(output < kHalfTolerance, 0., &output);
+    vecCore::MaskedAssign(output, output < kHalfTolerance, 0.);
 #else
     // avoid distance values within tolerance
-    MaskedAssign(Abs(output) < kHalfTolerance, 0., &output);
+    vecCore::MaskedAssign(output, Abs(output) < kHalfTolerance, 0.);
 #endif
 
     return output;
@@ -510,7 +510,7 @@ public:
       Vector3D<Precision> dir(LaneAt(direction.x(), i), LaneAt(direction.y(), i), LaneAt(direction.z(), i));
       Specialization::template DistanceToIn<kScalar>(*this->GetUnplacedVolume(), *this->GetTransformation(), pos, dir,
                                                      LaneAt(stepMax, i), tmp);
-      MaskedAssign(Abs(tmp) < kHalfTolerance, 0., &tmp);
+      vecCore::MaskedAssign(tmp, Abs(tmp) < kHalfTolerance, 0.);
       AssignLane(output, i, tmp);
     }
     return output;
@@ -528,7 +528,7 @@ public:
       Vector3D<Precision> pos(LaneAt(position.x(), i), LaneAt(position.y(), i), LaneAt(position.z(), i));
       Vector3D<Precision> dir(LaneAt(direction.x(), i), LaneAt(direction.y(), i), LaneAt(direction.z(), i));
       Specialization::template DistanceToOut<kScalar>(*this->GetUnplacedVolume(), pos, dir, LaneAt(stepMax, i), tmp);
-      MaskedAssign(Abs(tmp) < kHalfTolerance, 0., &tmp);
+      vecCore::MaskedAssign(tmp, Abs(tmp) < kHalfTolerance, 0.);
       AssignLane(output, i, tmp);
     }
     return output;

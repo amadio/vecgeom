@@ -197,10 +197,10 @@ public:
 
 #ifdef VECGEOM_REPLACE_USOLIDS
     // apply USolids convention: convert negative values to zero
-    MaskedAssign(output < kHalfTolerance, 0., &output);
+    vecCore::MaskedAssign(output, output < kHalfTolerance, 0.);
 #else
     // avoid distance values within tolerance
-    MaskedAssign(Abs(output) < kHalfTolerance, 0., &output);
+    vecCore::MaskedAssign(output, Abs(output) < kHalfTolerance, 0.);
 #endif
 
 #ifdef VECGEOM_DISTANCE_DEBUG
@@ -221,7 +221,7 @@ public:
     Specialization::template DistanceToIn<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), *this->GetTransformation(),
                                                                 point, direction, stepMax, output);
 
-    // MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
+    // vecCore::MaskedAssign(output, Abs(output)<kHalfTolerance, 0.);
 
     //#ifdef VECGEOM_DISTANCE_DEBUG
     //    DistanceComparator::CompareDistanceToIn(this, output, point, direction, stepMax);
@@ -242,10 +242,10 @@ public:
 
 #ifdef VECGEOM_REPLACE_USOLIDS
     // apply USolids convention: convert negative values to zero
-    MaskedAssign(output < kHalfTolerance, 0., &output);
+    vecCore::MaskedAssign(output, output < kHalfTolerance, 0.);
 #else
     // avoid distance values within tolerance
-    MaskedAssign(Abs(output) < kHalfTolerance, 0., &output);
+    vecCore::MaskedAssign(output, Abs(output) < kHalfTolerance, 0.);
 #endif
 
 #ifdef VECGEOM_DISTANCE_DEBUG
@@ -271,7 +271,7 @@ public:
     Specialization::template DistanceToOut<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), point, direction, stepMax,
                                                                  output);
     // avoid distance values within tolerance
-    // MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
+    // vecCore::MaskedAssign(output, Abs(output)<kHalfTolerance, 0.);
 
     // TODO: provide CompareDistance check for vector interface
     //#ifdef VECGEOM_DISTANCE_DEBUG
@@ -334,10 +334,10 @@ public:
 
 #ifdef VECGEOM_REPLACE_USOLIDS
     // apply USolids convention: convert negative values to zero
-    MaskedAssign(output < kHalfTolerance, 0., &output);
+    vecCore::MaskedAssign(output, output < kHalfTolerance, 0.);
 #else
     // avoid distance values within tolerance
-    MaskedAssign(Abs(output) < kHalfTolerance, 0., &output);
+    vecCore::MaskedAssign(output, Abs(output) < kHalfTolerance, 0.);
 #endif
 
     return output;
@@ -351,10 +351,10 @@ public:
 
 #ifdef VECGEOM_REPLACE_USOLIDS
     // apply USolids convention: convert negative values to zero
-    MaskedAssign(output < kHalfTolerance, 0., &output);
+    vecCore::MaskedAssign(output, output < kHalfTolerance, 0.);
 #else
     // avoid distance values within tolerance
-    MaskedAssign(Abs(output) < kHalfTolerance, 0., &output);
+    vecCore::MaskedAssign(output, Abs(output) < kHalfTolerance, 0.);
 #endif
 
     return output;
@@ -369,7 +369,7 @@ public:
                                                               position, output);
 
     // avoid distance values within tolerance
-    // MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
+    // vecCore::MaskedAssign(output, Abs(output)<kHalfTolerance, 0.);
 
     return output;
   }
@@ -382,7 +382,7 @@ public:
     Specialization::template SafetyToOut<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), position, output);
 
     // avoid distance values within tolerance
-    // MaskedAssign(Abs(output)<kHalfTolerance, 0., &output);
+    // vecCore::MaskedAssign(output, Abs(output)<kHalfTolerance, 0.);
 
     return output;
   }
@@ -464,7 +464,7 @@ public:
       // and update it if necessary
       // -1E20 used here as Vc does not have a check for minus infinity
       VECGEOM_BACKEND_BOOL valid = result < stepMaxBackend && result > -1E20;
-      MaskedAssign(!valid, stepMaxBackend, &result);
+      vecCore::MaskedAssign(result, !valid, stepMaxBackend);
       vecCore::Store(result, currentDistance + i); // go back to previous result if we don't get better
 
       /*
@@ -533,7 +533,7 @@ public:
       Specialization::template DistanceToOut<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), point, direction,
                                                                    stepMaxBackend, result);
 
-      MaskedAssign(result < 0., kInfLength, &result);
+      vecCore::MaskedAssign(result, result < 0.0, InfinityLength<decltype(result)>());
       StoreTo(result, output + i);
       // -1: physics step is longer than geometry
       // -2: particle may stay inside volume
@@ -567,7 +567,7 @@ public:
       Specialization::template SafetyToIn<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), *this->GetTransformation(),
                                                                 point, result);
 
-      MaskedAssign(Abs(result) < kHalfTolerance, 0., &result);
+      vecCore::MaskedAssign(result, Abs(result) < kHalfTolerance, VECGEOM_BACKEND_PRECISION_TYPE(0.0));
 
       StoreTo(result, output + i);
     }
@@ -584,7 +584,7 @@ public:
       VECGEOM_BACKEND_TYPE::precision_v result   = kInfLength;
       Specialization::template SafetyToIn<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), *this->GetTransformation(),
                                                                 point, result);
-      MaskedAssign(estimate < result, estimate, &result);
+      vecCore::MaskedAssign(result, estimate < result, estimate);
       StoreTo(result, safeties + i);
     }
     unsigned tailsize = points.size() - safesize;
@@ -627,7 +627,7 @@ public:
       VECGEOM_BACKEND_TYPE::precision_v estimate = VECGEOM_BACKEND_PRECISION_FROM_PTR(&safeties[i]);
       VECGEOM_BACKEND_TYPE::precision_v result   = kInfLength;
       Specialization::template SafetyToOut<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), point, result);
-      MaskedAssign(estimate < result, estimate, &result);
+      vecCore::MaskedAssign(result, estimate < result, estimate);
       StoreTo(result, safeties + i);
     }
   }
