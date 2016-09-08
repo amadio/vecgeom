@@ -97,12 +97,14 @@ void PrintPointInformation(VPlacedVolume const *vol, Vector3D<Precision> const &
 void CompareDistanceToIn(VPlacedVolume const *vol, Precision vecgeomresult, Vector3D<Precision> const &point,
                          Vector3D<Precision> const &direction, Precision const stepMax = VECGEOM_NAMESPACE::kInfinity)
 {
-  // this allows to compare distance calculations in each calculation (during a simulation)
-  // and to report errors early
+// this allows to compare distance calculations in each calculation (during a simulation)
+// and to report errors early
 
-  // other packages usually require transformed points
+// other packages usually require transformed points
+#if defined(VECGEOM_ROOT) || defined(VECGEOM_GEANT4)
   Vector3D<Precision> tpoint     = vol->GetTransformation()->Transform(point);
   Vector3D<Precision> tdirection = vol->GetTransformation()->TransformDirection(direction);
+#endif
 
 #ifdef VECGEOM_ROOT
   std::shared_ptr<TGeoShape const> rootshape(vol->ConvertToRoot());
