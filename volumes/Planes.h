@@ -254,8 +254,8 @@ typename Backend::inside_v Planes::Inside(Vector3D<typename Backend::precision_v
   for (; i < n; ++i) {
     typename Backend::precision_v distanceResult =
         fNormals.x(i) * point[0] + fNormals.y(i) * point[1] + fNormals.z(i) * point[2] + fDistances[i];
-    MaskedAssign(distanceResult > kTolerance, EInside::kOutside, &result);
-    MaskedAssign(result == EInside::kInside && distanceResult > -kTolerance, EInside::kSurface, &result);
+    vecCore::MaskedAssign(result, distanceResult > kTolerance, EInside::kOutside);
+    vecCore::MaskedAssign(result, result == EInside::kInside && distanceResult > -kTolerance, EInside::kSurface);
     if (vecCore::MaskFull(result == EInside::kOutside)) break;
   }
 
@@ -270,8 +270,8 @@ typename Backend::inside_v Planes::Inside(Vector3D<typename Backend::precision_v
   typename Backend::inside_v result(EInside::kInside);
   typename Backend::precision_v distanceResult =
       fNormals.x(i) * point[0] + fNormals.y(i) * point[1] + fNormals.z(i) * point[2] + fDistances[i];
-  MaskedAssign(distanceResult > kTolerance, EInside::kOutside, &result);
-  MaskedAssign(result == EInside::kInside && distanceResult > -kTolerance, EInside::kSurface, &result);
+  vecCore::MaskedAssign(result, distanceResult > kTolerance, EInside::kOutside);
+  vecCore::MaskedAssign(result, result == EInside::kInside && distanceResult > -kTolerance, EInside::kSurface);
 
   return result;
 }
@@ -288,7 +288,7 @@ typename Backend::precision_v Planes::Distance(Vector3D<typename Backend::precis
   for (int i = 0, iMax = size(); i < iMax; ++i) {
     Vector3D<Precision> normal = fNormals[i];
     Float_t distance           = -(point.Dot(normal) + fDistances[i]) / direction.Dot(normal);
-    MaskedAssign(distance >= 0 && distance < bestDistance, distance, &bestDistance);
+    vecCore::MaskedAssign(bestDistance, distance >= 0 && distance < bestDistance, distance);
   }
 
   return bestDistance;
@@ -304,7 +304,7 @@ typename Backend::precision_v Planes::Distance(Vector3D<typename Backend::precis
   Float_t bestDistance = kInfLength;
   for (int i = 0, iMax = size(); i < iMax; ++i) {
     Float_t distance = Flip<!pointInsideT>::FlipSign(point.Dot(fNormals[i]) + fDistances[i]);
-    MaskedAssign(distance >= 0 && distance < bestDistance, distance, &bestDistance);
+    vecCore::MaskedAssign(bestDistance, distance >= 0 && distance < bestDistance, distance);
   }
   return bestDistance;
 }
