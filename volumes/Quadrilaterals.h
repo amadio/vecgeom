@@ -424,7 +424,7 @@ typename Backend::precision_v Quadrilaterals::DistanceToIn(
       valid &= intersection.Dot(fSideVectors[j].GetNormal(i)) + fSideVectors[j].GetDistances()[i] >= -kTolerance;
       if (vecCore::MaskEmpty(valid)) break;
     }
-    MaskedAssign(valid, distance, &bestDistance);
+    vecCore::MaskedAssign(bestDistance, valid, distance);
     // If all hits are found, the algorithm can return, since only one side can
     // be hit for a convex set of quadrilaterals
     if (vecCore::MaskFull(bestDistance < kInfLength)) break;
@@ -555,7 +555,7 @@ typename Backend::precision_v Quadrilaterals::DistanceToOut(Vector3D<typename Ba
       valid &= (zProjection >= zMin - kTolerance) && (zProjection < zMax + kTolerance);
     }
     if (vecCore::MaskEmpty(valid)) continue;
-    MaskedAssign(valid, distanceTest, &bestDistance);
+    vecCore::MaskedAssign(bestDistance, valid, distanceTest);
   }
 
   if (bestDistance > -kTolerance) bestDistance = Max(bestDistance, 0.);
