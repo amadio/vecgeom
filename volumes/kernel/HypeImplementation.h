@@ -318,7 +318,7 @@ typename Backend::precision_v HypeImplementation<transCodeT, rotCodeT>::ApproxDi
   Bool_t done(false);
   Float_t ret(0.);
   Float_t tan2Phi_v(tan2Phi);
-  MaskedAssign((tan2Phi_v < dbl_min), r0 - pr, &ret);
+  vecCore::MaskedAssign(ret, (tan2Phi_v < dbl_min), r0 - pr);
   done |= (tan2Phi_v < dbl_min);
   if (vecCore::MaskFull(done)) return ret;
 
@@ -327,7 +327,7 @@ typename Backend::precision_v HypeImplementation<transCodeT, rotCodeT>::ApproxDi
   Float_t dz  = pz * tan2Phi_v;
   Float_t len = Sqrt(dr * dr + dz * dz);
 
-  MaskedAssign(!done, Abs((pr - rh) * dr) / len, &ret);
+  vecCore::MaskedAssign(ret, !done, Abs((pr - rh) * dr) / len);
   return ret;
 }
 
@@ -340,8 +340,8 @@ typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::IsPointMoving
 {
   typename Backend::precision_v pz = point.z();
   typename Backend::precision_v vz = direction.z();
-  MaskedAssign(pz < 0., -vz, &vz);
-  MaskedAssign(pz < 0., -pz, &pz);
+  vecCore::MaskedAssign(vz, pz < 0., -vz);
+  vecCore::MaskedAssign(pz, pz < 0., -pz);
   Precision tanOuterStereo2 = unplaced.GetTOut2();
   return ((point.x() * direction.x() + point.y() * direction.y() - pz * tanOuterStereo2 * vz) < 0);
 }
@@ -356,8 +356,8 @@ typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::IsPointMoving
   typename Backend::precision_v pz = point.z();
   typename Backend::precision_v vz = direction.z();
 
-  MaskedAssign(pz < 0., -vz, &vz);
-  MaskedAssign(pz < 0., -pz, &pz);
+  vecCore::MaskedAssign(vz, pz < 0., -vz);
+  vecCore::MaskedAssign(pz, pz < 0., -pz);
 
   Precision tanInnerStereo2 = unplaced.GetTIn2();
   return ((point.x() * direction.x() + point.y() * direction.y() - pz * tanInnerStereo2 * vz) > 0);
@@ -377,8 +377,8 @@ typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::IsPointMoving
 
   Float_t pz = point.z();
   Float_t vz = direction.z();
-  MaskedAssign(vz < 0., -pz, &pz);
-  MaskedAssign(vz < 0., -vz, &vz);
+  vecCore::MaskedAssign(pz, vz < 0., -pz);
+  vecCore::MaskedAssign(vz, vz < 0., -vz);
   Precision tanOuterStereo2 = unplaced.GetTOut2();
   Vector3D<Float_t> normHere(point.x(), point.y(), -point.z() * tanOuterStereo2);
   out = (normHere.Dot(direction) > 0.);
@@ -397,8 +397,8 @@ typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::IsPointMoving
 
   Float_t pz = point.z();
   Float_t vz = direction.z();
-  MaskedAssign(vz < 0., -pz, &pz);
-  MaskedAssign(vz < 0., -vz, &vz);
+  vecCore::MaskedAssign(pz, vz < 0., -pz);
+  vecCore::MaskedAssign(vz, vz < 0., -vz);
   Vector3D<Float_t> normHere(-point.x(), -point.y(), point.z() * unplaced.GetTIn2());
   return (normHere.Dot(direction) > 0.);
 }
@@ -579,9 +579,9 @@ void HypeImplementation<transCodeT, rotCodeT>::NormalKernel(UnplacedHype const &
     Float_t radISq     = RadiusHypeSq<Backend, true>(unplaced, localPoint.z());
     Float_t dist2Inner = Abs(xR2 - radISq);
     Bool_t cond        = (dist2Inner < dist2Z && dist2Inner < dist2Outer);
-    MaskedAssign(!done && cond, -localPoint.x(), &normal.x());
-    MaskedAssign(!done && cond, -localPoint.y(), &normal.y());
-    MaskedAssign(!done && cond, localPoint.z() * unplaced.GetTIn2(), &normal.z());
+    vecCore::MaskedAssign(normal.x(), !done && cond, -localPoint.x());
+    vecCore::MaskedAssign(normal.y(), !done && cond, -localPoint.y());
+    vecCore::MaskedAssign(normal.z(), !done && cond, localPoint.z() * unplaced.GetTIn2());
     normal = normal.Unit();
     done |= cond;
     if (vecCore::MaskFull(done)) return;
@@ -591,9 +591,9 @@ void HypeImplementation<transCodeT, rotCodeT>::NormalKernel(UnplacedHype const &
   Bool_t condE = (dist2Z < dist2Outer);
   Float_t normZ(0.);
   CondAssign(localPoint.z() < 0., -1., 1., &normZ);
-  MaskedAssign(!done && condE, 0., &normal.x());
-  MaskedAssign(!done && condE, 0., &normal.y());
-  MaskedAssign(!done && condE, normZ, &normal.z());
+  vecCore::MaskedAssign(normal.x(), !done && condE, Float_t(0.0));
+  vecCore::MaskedAssign(normal.y(), !done && condE, Float_t(0.0));
+  vecCore::MaskedAssign(normal.z(), !done && condE, normZ);
   normal = normal.Unit();
   done |= condE;
   if (vecCore::MaskFull(done)) return;
@@ -781,13 +781,23 @@ void HypeImplementation<transCodeT, rotCodeT>::InsideKernel(UnplacedHype const &
                                                             Vector3D<typename Backend::precision_v> const &point,
                                                             typename Backend::inside_v &inside)
 {
+  // use double-based vector for result, as bool_v is a mask for precision_v
+  const typename Backend::precision_v in(EInside::kInside);
+  const typename Backend::precision_v out(EInside::kOutside);
+  typename Backend::bool_v inmask(false), outmask(false);
+  typename Backend::precision_v result(EInside::kSurface);
 
-  typedef typename Backend::bool_v Bool_t;
-  Bool_t completelyinside(false), completelyoutside(false);
-  GenericKernelForContainsAndInside<Backend, true>(unplaced, point, completelyinside, completelyoutside);
-  inside = EInside::kSurface;
-  MaskedAssign(completelyoutside, EInside::kOutside, &inside);
-  MaskedAssign(completelyinside, EInside::kInside, &inside);
+  GenericKernelForContainsAndInside<Backend, true>(unplaced, point, inmask, outmask);
+
+  vecCore::MaskedAssign(result, inmask, in);
+  vecCore::MaskedAssign(result, outmask, out);
+
+  // Manual conversion from double to int here is necessary because int_v and
+  // precision_v have different number of elements in SIMD vector, so bool_v
+  // (mask for precision_v) cannot be cast to mask for inside, which is a
+  // different type and does not exist in the current backend system
+  for (size_t i = 0; i < vecCore::VectorSize(result); i++)
+    vecCore::Set(inside, i, vecCore::Get(result, i));
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -815,12 +825,12 @@ void HypeImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   Bool_t cond(false);
 
   Bool_t surfaceCond = IsPointOnSurfaceAndMovingInside<Backend>(unplaced, point, direction);
-  MaskedAssign(!done && surfaceCond, 0., &distance); //,isSurfacePoint,inner,outer,zSurf),0., &distance);
+  vecCore::MaskedAssign(distance, !done && surfaceCond, Float_t(0.0));
   done |= surfaceCond;
   if (vecCore::MaskFull(done)) return;
 
   cond = IsCompletelyInside<Backend>(unplaced, point);
-  MaskedAssign(!done && cond, -1., &distance);
+  vecCore::MaskedAssign(distance, !done && cond, Float_t(-1.0));
   done |= cond;
   if (vecCore::MaskFull(done)) return;
 
@@ -828,7 +838,7 @@ void HypeImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   Bool_t hittingZPlane = GetPointOfIntersectionWithZPlane<Backend, true>(unplaced, point, direction, zDist);
   Bool_t isPointAboveOrBelowHypeAndGoingInside = (absZ > fDz) && (point.z() * direction.z() < 0.);
   cond                                         = isPointAboveOrBelowHypeAndGoingInside && hittingZPlane;
-  MaskedAssign(!done && cond, zDist, &distance);
+  vecCore::MaskedAssign(distance, !done && cond, zDist);
   done |= cond;
   if (vecCore::MaskFull(done)) return;
 
@@ -853,7 +863,7 @@ void HypeImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   cond = (hittingOuterSurfaceFromOutsideZRange || hittingOuterSurfaceFromWithinZRange ||
           (IsPointOnOuterSurfaceAndMovingOutside<Backend>(unplaced, point, direction))) &&
          GetPointOfIntersectionWithOuterHyperbolicSurface<Backend, true>(unplaced, point, direction, dist);
-  MaskedAssign(!done && cond, dist, &distance);
+  vecCore::MaskedAssign(distance, !done && cond, dist);
 
   if (unplaced.InnerSurfaceExists()) {
     done |= cond;
@@ -870,7 +880,7 @@ void HypeImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
     cond = (hittingInnerSurfaceFromOutsideZRange || hittingInnerSurfaceFromWithinZRange ||
             (IsPointOnInnerSurfaceAndMovingOutside<Backend>(unplaced, point, direction))) &&
            GetPointOfIntersectionWithInnerHyperbolicSurface<Backend, true>(unplaced, point, direction, dist);
-    MaskedAssign(!done && cond, dist, &distance);
+    vecCore::MaskedAssign(distance, !done && cond, dist);
   }
 }
 
@@ -922,14 +932,14 @@ typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::GetPointOfInt
   exist     = (b * b - a * c > 0.);
 
   if (ForDistToIn) {
-    MaskedAssign(exist && b < 0., ((-b + Sqrt(b * b - a * c)) / (a)), &dist);
-    MaskedAssign(exist && b >= 0., ((c) / (-b - Sqrt(b * b - a * c))), &dist);
+    vecCore::MaskedAssign(dist, exist && b < 0.0, ((-b + Sqrt(b * b - a * c)) / (a)));
+    vecCore::MaskedAssign(dist, exist && b >= 0.0, ((c) / (-b - Sqrt(b * b - a * c))));
 
   } else {
-    MaskedAssign(exist && b > 0., ((-b - Sqrt(b * b - a * c)) / (a)), &dist);
-    MaskedAssign(exist && b <= 0., ((c) / (-b + Sqrt(b * b - a * c))), &dist);
+    vecCore::MaskedAssign(dist, exist && b > 0.0, ((-b - Sqrt(b * b - a * c)) / (a)));
+    vecCore::MaskedAssign(dist, exist && b <= 0.0, ((c) / (-b + Sqrt(b * b - a * c))));
   }
-  MaskedAssign(dist < 0., kInfLength, &dist);
+  vecCore::MaskedAssign(dist, dist < 0.0, InfinityLength<Float_t>());
   newPtZ = point.z() + dist * direction.z();
 
   return (Abs(newPtZ) <= unplaced.GetDz());
@@ -957,13 +967,13 @@ typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::GetPointOfInt
   Float_t c = point.Perp2() - tanOuterStereo2 * point.z() * point.z() - fRmax2;
   exist     = (b * b - a * c > 0.);
   if (ForDistToIn) {
-    MaskedAssign(exist && b >= 0., ((-b - Sqrt(b * b - a * c)) / (a)), &dist);
-    MaskedAssign(exist && b < 0., ((c) / (-b + Sqrt(b * b - a * c))), &dist);
+    vecCore::MaskedAssign(dist, exist && b >= 0.0, ((-b - Sqrt(b * b - a * c)) / (a)));
+    vecCore::MaskedAssign(dist, exist && b < 0.0, ((c) / (-b + Sqrt(b * b - a * c))));
   } else {
-    MaskedAssign(exist && b < 0., ((-b + Sqrt(b * b - a * c)) / (a)), &dist);
-    MaskedAssign(exist && b >= 0., ((c) / (-b - Sqrt(b * b - a * c))), &dist);
+    vecCore::MaskedAssign(dist, exist && b < 0.0, ((-b + Sqrt(b * b - a * c)) / (a)));
+    vecCore::MaskedAssign(dist, exist && b >= 0.0, ((c) / (-b - Sqrt(b * b - a * c))));
   }
-  MaskedAssign(dist < 0., kInfLength, &dist);
+  vecCore::MaskedAssign(dist, dist < 0.0, InfinityLength<Float_t>());
 
   newPtZ = point.z() + dist * direction.z();
 
@@ -988,26 +998,26 @@ void HypeImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
   Bool_t done(false);
 
   Bool_t cond = IsPointOnSurfaceAndMovingOutside<Backend>(unplaced, point, direction);
-  MaskedAssign(cond, 0., &distance); //,isSurfacePoint,inner,outer,zSurf),0., &distance);
+  vecCore::MaskedAssign(distance, cond, Float_t(0.0));
   done |= cond;
   if (vecCore::MaskFull(done)) return;
 
   cond = IsCompletelyOutside<Backend>(unplaced, point);
-  MaskedAssign(!done && cond, -1., &distance);
+  vecCore::MaskedAssign(distance, !done && cond, Float_t(-1.0));
   done |= cond;
   if (vecCore::MaskFull(done)) return;
 
   GetPointOfIntersectionWithZPlane<Backend, false>(unplaced, point, direction, zDist);
-  MaskedAssign(zDist < 0., kInfLength, &zDist);
+  vecCore::MaskedAssign(zDist, zDist < 0.0, InfinityLength<Float_t>());
 
   GetPointOfIntersectionWithOuterHyperbolicSurface<Backend, false>(unplaced, point, direction, dist);
-  MaskedAssign(dist < 0., kInfLength, &dist);
-  MaskedAssign(!done, Min(zDist, dist), &distance);
+  vecCore::MaskedAssign(dist, dist < 0.0, InfinityLength<Float_t>());
+  vecCore::MaskedAssign(distance, !done, Min(zDist, dist));
 
   if (unplaced.InnerSurfaceExists()) {
     GetPointOfIntersectionWithInnerHyperbolicSurface<Backend, false>(unplaced, point, direction, dist);
-    MaskedAssign(dist < 0., kInfLength, &dist);
-    MaskedAssign(!done, Min(distance, dist), &distance);
+    vecCore::MaskedAssign(dist, dist < 0.0, InfinityLength<Float_t>());
+    vecCore::MaskedAssign(distance, !done, Min(distance, dist));
   }
 }
 
@@ -1043,36 +1053,37 @@ void HypeImplementation<transCodeT, rotCodeT>::SafetyToInKernel(UnplacedHype con
   done = (!compIn && !compOut);
   if (vecCore::MaskFull(done)) return;
 
-  MaskedAssign(compIn, -1., &safety);
+  vecCore::MaskedAssign(safety, compIn, Float_t(-1.0));
   done |= compIn;
   if (vecCore::MaskFull(done)) return;
 
   Bool_t cond(false);
   Float_t sigz = absZ - unplaced.GetDz();
   cond         = (sigz > kHalfTolerance) && (r < endOuterRadius) && (r > endInnerRadius);
-  MaskedAssign(!done && cond, sigz, &safety);
+  vecCore::MaskedAssign(safety, !done && cond, sigz);
   done |= cond;
   if (vecCore::MaskFull(done)) return;
 
   cond = (sigz > kHalfTolerance) && (r > endOuterRadius);
-  MaskedAssign(!done && cond, Sqrt((r - endOuterRadius) * (r - endOuterRadius) + (sigz) * (sigz)), &safety);
+  vecCore::MaskedAssign(safety, !done && cond, Sqrt((r - endOuterRadius) * (r - endOuterRadius) + (sigz) * (sigz)));
   done |= cond;
   if (vecCore::MaskFull(done)) return;
 
   cond = (sigz > kHalfTolerance) && (r < endInnerRadius);
-  MaskedAssign(!done && cond, Sqrt((r - endInnerRadius) * (r - endInnerRadius) + (sigz) * (sigz)), &safety);
+  vecCore::MaskedAssign(safety, !done && cond, Sqrt((r - endInnerRadius) * (r - endInnerRadius) + (sigz) * (sigz)));
   done |= cond;
   if (vecCore::MaskFull(done)) return;
 
   cond = (r2 > ((outerRadius * outerRadius + tanOuterStereo2 * absZ * absZ) + kHalfTolerance)) && (absZ > 0.) &&
          (absZ < unplaced.GetDz());
-  MaskedAssign(!done && cond, ApproxDistOutside<Backend>(r, absZ, outerRadius, tanOuterStereo), &safety);
+  vecCore::MaskedAssign(safety, !done && cond, ApproxDistOutside<Backend>(r, absZ, outerRadius, tanOuterStereo));
   done |= cond;
   if (vecCore::MaskFull(done)) return;
 
-  MaskedAssign(!done && (r2 < ((innerRadius * innerRadius + tanInnerStereo2 * absZ * absZ) - kHalfTolerance)) &&
-                   (absZ > 0.) && (absZ < unplaced.GetDz()),
-               ApproxDistInside<Backend>(r, absZ, innerRadius, tanInnerStereo2), &safety);
+  vecCore::MaskedAssign(
+      safety, !done && (r2 < ((innerRadius * innerRadius + tanInnerStereo2 * absZ * absZ) - kHalfTolerance)) &&
+                  (absZ > 0.) && (absZ < unplaced.GetDz()),
+      ApproxDistInside<Backend>(r, absZ, innerRadius, tanInnerStereo2));
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -1103,24 +1114,24 @@ void HypeImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(UnplacedHype co
   done = (!inside && !outside);
   if (vecCore::MaskFull(done)) return;
 
-  MaskedAssign(outside, -1., &safety);
+  vecCore::MaskedAssign(safety, outside, Float_t(-1.0));
   done |= outside;
   if (vecCore::MaskFull(done)) return;
 
-  MaskedAssign(!done && inside, Abs(Abs(point.z()) - unplaced.GetDz()), &distZ);
+  vecCore::MaskedAssign(distZ, !done && inside, Abs(Abs(point.z()) - unplaced.GetDz()));
   if (unplaced.InnerSurfaceExists() && unplaced.GetStIn()) {
-    MaskedAssign(!done && inside, ApproxDistOutside<Backend>(r, absZ, innerRadius, tanInnerStereo), &distInner);
+    vecCore::MaskedAssign(distInner, !done && inside, ApproxDistOutside<Backend>(r, absZ, innerRadius, tanInnerStereo));
   }
 
   if (unplaced.InnerSurfaceExists() && !unplaced.GetStIn()) {
-    MaskedAssign(!done && inside, (r - innerRadius), &distInner);
+    vecCore::MaskedAssign(distInner, !done && inside, (r - innerRadius));
   }
 
   if (!unplaced.InnerSurfaceExists() && !unplaced.GetStIn()) {
-    MaskedAssign(!done && inside, kInfLength, &distInner);
+    vecCore::MaskedAssign(distInner, !done && inside, InfinityLength<Float_t>());
   }
 
-  MaskedAssign(!done && inside, ApproxDistInside<Backend>(r, absZ, outerRadius, tanOuterStereo2), &distOuter);
+  vecCore::MaskedAssign(distOuter, !done && inside, ApproxDistInside<Backend>(r, absZ, outerRadius, tanOuterStereo2));
   safety = Min(distInner, distOuter);
   safety = Min(safety, distZ);
 }
