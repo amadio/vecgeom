@@ -414,7 +414,7 @@ typename Backend::int_v PolyhedronImplementation<transCodeT, rotCodeT, innerRadi
   projectionFirst = point[0] * phiSections.x(0) + point[1] * phiSections.y(0) + point[2] * phiSections.z(0);
   for (int i = 1, iMax = polyhedron.GetSideCount() + 1; i < iMax; ++i) {
     projectionSecond = point[0] * phiSections.x(i) + point[1] * phiSections.y(i) + point[2] * phiSections.z(i);
-    MaskedAssign(projectionFirst > -kTolerance && projectionSecond < kTolerance, i - 1, &index);
+    vecCore::MaskedAssign(index, projectionFirst > -kTolerance && projectionSecond < kTolerance, i - 1);
     if (vecCore::MaskFull(index >= 0)) break;
     projectionFirst = projectionSecond;
   }
@@ -448,14 +448,14 @@ typename Backend::precision_v PolyhedronImplementation<transCodeT, rotCodeT, inn
   // If the outer shell is not hit and the phi cutout sides are hit, this will
   // always be the correct result
   if (TreatPhi<phiCutoutT>(polyhedron.HasPhiCutout())) {
-    MaskedAssign(!done, segment.phi.DistanceToIn<Backend, false>(point, direction), &distance);
+    vecCore::MaskedAssign(distance, !done, segment.phi.DistanceToIn<Backend, false>(point, direction));
   }
   done |= distance < kInfLength;
   if (vecCore::MaskFull(done)) return distance;
 
   // Finally treat inner shell
   if (TreatInner<innerRadiiT>(segment.hasInnerRadius)) {
-    MaskedAssign(!done, segment.inner.DistanceToIn<Backend, true>(point, direction), &distance);
+    vecCore::MaskedAssign(distance, !done, segment.inner.DistanceToIn<Backend, true>(point, direction));
   }
 
   return distance;
@@ -490,14 +490,14 @@ typename Backend::precision_v PolyhedronImplementation<transCodeT, rotCodeT, inn
   // result is found
   if (TreatPhi<phiCutoutT>(polyhedron.HasPhiCutout())) {
     Float_t distphi = segment.phi.DistanceToIn<Backend, true>(point, direction);
-    MaskedAssign(!done && distance > -kTolerance, distphi, &distance);
+    vecCore::MaskedAssign(distance, !done && distance > -kTolerance, distphi);
     done = distance > -kTolerance && distance < kInfLength;
     if (vecCore::MaskFull(done)) return distance;
   }
 
   // Finally check outer shell
   Float_t distout = segment.outer.DistanceToOut<Backend>(point, direction, zMin, zMax);
-  MaskedAssign(!done, distout, &distance);
+  vecCore::MaskedAssign(distance, !done, distout);
 
   return distance;
 }
