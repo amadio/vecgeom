@@ -290,8 +290,8 @@ struct TorusImplementation2 {
     Bool_t completelyinside, completelyoutside;
     GenericKernelForContainsAndInside<Backend, true, true>(torus, point, completelyinside, completelyoutside);
     inside = EInside::kSurface;
-    MaskedAssign(completelyoutside, EInside::kOutside, &inside);
-    MaskedAssign(completelyinside, EInside::kInside, &inside);
+    vecCore::MaskedAssign(inside, completelyoutside, EInside::kOutside);
+    vecCore::MaskedAssign(inside, completelyinside, EInside::kInside);
   }
 
   template <class Backend>
@@ -599,7 +599,7 @@ struct TorusImplementation2 {
                          intersectionPoint.y() * torus.GetWedge().GetAlong1().y();
           Bool_t rightside = (diri >= 0);
 
-          MaskedAssign(rightside && smallerphi && insideDisk, distPhi1, &distance);
+          vecCore::MaskedAssign(distance, rightside && smallerphi && insideDisk, distPhi1);
         }
       }
       smallerphi = distPhi2 < distance;
@@ -613,7 +613,7 @@ struct TorusImplementation2 {
           Float_t diri2 = intersectionPoint.x() * torus.GetWedge().GetAlong2().x() +
                           intersectionPoint.y() * torus.GetWedge().GetAlong2().y();
           Bool_t rightside = (diri2 >= 0);
-          MaskedAssign(rightside && (distPhi2 < distance) && smallerphi && insideDisk, distPhi2, &distance);
+          vecCore::MaskedAssign(distance, rightside && (distPhi2 < distance) && smallerphi && insideDisk, distPhi2);
         }
       }
     }
