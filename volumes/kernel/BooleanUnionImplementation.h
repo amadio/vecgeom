@@ -380,7 +380,7 @@ void BooleanImplementation<kUnion, transCodeT, rotCodeT>::SafetyToInKernel(
   Float_t distA                         = fPtrSolidA->SafetyToIn(p);
   Float_t distB                         = fPtrSolidB->SafetyToIn(p);
   safety                                = Min(distA, distB);
-  MaskedAssign(safety < 0, 0., &safety);
+  vecCore::MaskedAssign(safety, safety < 0.0, 0.0);
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>

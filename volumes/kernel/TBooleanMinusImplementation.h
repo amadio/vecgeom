@@ -367,11 +367,11 @@ void TBooleanMinusImplementation<LeftPlacedType_t, RightPlacedType_t, transCodeT
   //  Bool_t  inright  = unplaced.fRightVolume->Contains(point);
   //  Float_t safright = unplaced.fRightVolume->SafetyToOut(point);
   //  Bool_t done(Backend::kFalse);
-  //  MaskedAssign( inleft && inright, safright, &safety );
+  //  vecCore::MaskedAssign(safety ,  inleft && inright, safright);
   //  done |= inleft && inright;
-  //  MaskedAssign( !done && inleft, Min(safleft, safright), &safety);
+  //  vecCore:::MaskedAssign(safright,  !done && inleft, Min(safleft), &safety);
   //  done |= inleft;
-  //  MaskedAssign( !done && inright, Max(safleft, safright), &safety);
+  //  vecCore:::MaskedAssign(safright,  !done && inright, Max(safleft), &safety);
 }
 
 template <typename LeftPlacedType_t, typename RightPlacedType_t, TranslationCode transCodeT, RotationCode rotCodeT>
