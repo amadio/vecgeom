@@ -227,14 +227,7 @@ public:
   /// \return Azimuthal angle between -pi and pi.
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Type Phi() const
-  {
-    // Type output = 0;
-    // vecgeom::MaskedAssign(vec[0] != 0. || vec[1] != 0.,
-    //                      ATan2(vec[1], vec[0]), &output);
-    // return output;
-    return ATan2(vec[1], vec[0]);
-  }
+  Type Phi() const { return ATan2(vec[1], vec[0]); }
 
   /// \return Polar angle between 0 and pi.
   VECGEOM_CUDA_HEADER_BOTH
@@ -316,8 +309,9 @@ public:
   VECGEOM_FORCE_INLINE
   VecType &FixZeroes()
   {
+    using vecCore::math::Abs;
     for (int i = 0; i < 3; ++i) {
-      vecgeom::MaskedAssign(vecCore::math::Abs(vec[i]) < kTolerance, 0., &vec[i]);
+      vecCore::MaskedAssign(vec[i], Abs(vec[i]) < kTolerance, Type(0.0));
     }
     return *this;
   }
@@ -444,5 +438,18 @@ VECTOR3D_SCALAR_BOOLEAN_LOGICAL_OP(||)
 #pragma GCC diagnostic pop
 } // End inline namespace
 } // End global namespace
+
+namespace vecCore {
+
+template <typename T>
+VECGEOM_FORCE_INLINE
+VECGEOM_CUDA_HEADER_BOTH
+void MaskedAssign(vecgeom::Vector3D<T> &v, const vecCore::Mask<T> &mask, const vecgeom::Vector3D<T> &val)
+{
+  vecCore::MaskedAssign(v[0], mask, val[0]);
+  vecCore::MaskedAssign(v[1], mask, val[1]);
+  vecCore::MaskedAssign(v[2], mask, val[2]);
+}
+}
 
 #endif // VECGEOM_BASE_VECTOR3D_H_
