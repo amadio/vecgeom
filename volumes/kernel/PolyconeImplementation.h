@@ -152,7 +152,7 @@ struct PolyconeImplementation {
     GenericKernelForASection<Backend, ForInside>(unplaced, isec, localPoint, secIn, secOut);
     // if fully inside that section, we may be done
     Bool_t update = (!done && secIn);
-    MaskedAssign(update, secIn, &completelyInside);
+    vecCore::MaskedAssign(completelyInside, update, secIn);
     done |= update;
 
 #ifdef POLYCONEDEBUG
@@ -177,7 +177,7 @@ struct PolyconeImplementation {
 
     // away from z-plane and on isec surface
     update = (!done && !nextSectionPossible && !secOut && !secIn);
-    MaskedAssign(update, false, &completelyInside);
+    vecCore::MaskedAssign(completelyInside, update, false);
     done |= update;
 
 #ifdef POLYCONEDEBUG
@@ -240,8 +240,8 @@ struct PolyconeImplementation {
       done |= update;
 
       // .... hopefully last case left...  surface --
-      MaskedAssign(!done, false, &completelyInside);
-      MaskedAssign(!done, false, &completelyOutside);
+      vecCore::MaskedAssign(completelyInside, !done, false);
+      vecCore::MaskedAssign(completelyOutside, !done, false);
 
 #ifdef POLYCONEDEBUG
       // if (EarlyReturns && vecCore::MaskFull(done)) {
@@ -319,8 +319,8 @@ struct PolyconeImplementation {
 #endif
 
     inside = EInside::kSurface;
-    MaskedAssign(fullyInside, EInside::kInside, &inside);
-    MaskedAssign(fullyOutside, EInside::kOutside, &inside);
+    vecCore::MaskedAssign(inside, fullyInside, EInside::kInside);
+    vecCore::MaskedAssign(inside, fullyOutside, EInside::kOutside);
   }
 
   template <class Backend>
