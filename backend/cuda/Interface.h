@@ -155,7 +155,7 @@ protected:
 
   void MemcpyToDevice(const void *what, unsigned long nbytes)
   {
-    CudaAssertError(cudaMemcpy(fPtr, what, nbytes, cudaMemcpyHostToDevice));
+    if (nbytes) CudaAssertError(cudaMemcpy(fPtr, what, nbytes, cudaMemcpyHostToDevice));
   }
 
   void MemcpyToHostAsync(void *where, unsigned long nbytes, cudaStream_t stream)
