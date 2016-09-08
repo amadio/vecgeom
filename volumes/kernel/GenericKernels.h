@@ -137,16 +137,16 @@ typename Backend::precision_v DistanceToLineSegmentSquared(Vector3D<Precision> c
   Vector3D<Float_t> projection = point - corner0;
   Float_t dot0                 = projection.Dot(line);
   Bool_t condition             = dot0 <= 0;
-  MaskedAssign(condition, (point - corner0).Mag2(), &result);
+  vecCore::MaskedAssign(result, condition, (point - corner0).Mag2());
   if (vecCore::MaskFull(condition)) return result;
   Precision dot1 = line.Mag2();
   condition      = dot1 <= dot0;
-  MaskedAssign(condition, (point - corner1).Mag2(), &result);
+  vecCore::MaskedAssign(result, condition, (point - corner1).Mag2());
   condition = result < kInfLength;
   if (vecCore::MaskFull(condition)) return result;
 
   // Shortest distance is to point on segment
-  MaskedAssign(!condition, ((corner0 + (dot0 / dot1) * line) - point).Mag2(), &result);
+  vecCore::MaskedAssign(result, !condition, ((corner0 + (dot0 / dot1) * line) - point).Mag2());
 
   return result;
 }
