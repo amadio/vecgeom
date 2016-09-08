@@ -218,8 +218,8 @@ struct ConeImplementation {
     Bool_t completelyinside, completelyoutside;
     GenericKernelForContainsAndInside<Backend, true>(unplaced, localPoint, completelyinside, completelyoutside);
     inside = EInside::kSurface;
-    MaskedAssign(completelyoutside, EInside::kOutside, &inside);
-    MaskedAssign(completelyinside, EInside::kInside, &inside);
+    vecCore::MaskedAssign(inside, completelyoutside, EInside::kOutside);
+    vecCore::MaskedAssign(inside, completelyinside, EInside::kInside);
   }
 
   VECGEOM_CLASS_GLOBAL double kHalfCarTolerance = VECGEOM_NAMESPACE::kTolerance * 0.5;
