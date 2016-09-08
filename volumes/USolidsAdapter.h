@@ -75,7 +75,7 @@ public:
     (void)accurate; // fix 'unused variable' warning
     double output = UnplacedVolume_t::SafetyToOut(point);
     // apply USolids convention: convert negative values to zero
-    MaskedAssign(output < kHalfTolerance, 0., &output);
+    vecCore::MaskedAssign(output, output < kHalfTolerance, 0.0);
     return output;
   }
 
