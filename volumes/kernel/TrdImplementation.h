@@ -431,7 +431,7 @@ struct TrdImplementation {
       disty = trd.dy1() - Abs(point.y());
       out |= disty < MakeMinusTolerant<true>(0.);
     }
-    if (/*Backend::early_returns && */ IsFull(out)) {
+    if (/*vecCore::EarlyReturnAllowed() && */ IsFull(out)) {
       distance = -1.;
       return;
     }
@@ -442,7 +442,7 @@ struct TrdImplementation {
       hity          = Abs(point.y() + distz * dir.y());
       okzt &= hitx <= trd.dx2() && hity <= trd.dy2();
       MaskedAssign(okzt, distz, &distance);
-      if (Backend::early_returns && IsFull(okzt)) {
+      if (vecCore::EarlyReturnAllowed() && IsFull(okzt)) {
         MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
         return;
       }
@@ -456,7 +456,7 @@ struct TrdImplementation {
       hity          = Abs(point.y() + distz * dir.y());
       okzb &= hitx <= trd.dx1() && hity <= trd.dy1();
       MaskedAssign(okzb, distz, &distance);
-      if (Backend::early_returns && IsFull(okzb)) {
+      if (vecCore::EarlyReturnAllowed() && IsFull(okzb)) {
         MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
         return;
       }
@@ -468,14 +468,14 @@ struct TrdImplementation {
     FaceTrajectoryIntersection<Backend, false, false, false>(trd, point, dir, distx, okx);
 
     MaskedAssign(okx, distx, &distance);
-    if (Backend::early_returns && IsFull(okx)) {
+    if (vecCore::EarlyReturnAllowed() && IsFull(okx)) {
       MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
       return;
     }
 
     FaceTrajectoryIntersection<Backend, false, true, false>(trd, point, dir, distx, okx);
     MaskedAssign(okx, distx, &distance);
-    if (Backend::early_returns && IsFull(okx)) {
+    if (vecCore::EarlyReturnAllowed() && IsFull(okx)) {
       MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
       return;
     }
@@ -486,7 +486,7 @@ struct TrdImplementation {
     if (checkVaryingY<trdTypeT>(trd)) {
       FaceTrajectoryIntersection<Backend, true, false, false>(trd, point, dir, disty, oky);
       MaskedAssign(oky, disty, &distance);
-      if (Backend::early_returns && IsFull(oky)) {
+      if (vecCore::EarlyReturnAllowed() && IsFull(oky)) {
         MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
         return;
       }

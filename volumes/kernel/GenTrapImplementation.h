@@ -149,7 +149,7 @@ void GenTrapImplementation::GenericKernelForContainsAndInside(UnplacedStruct_t c
   // Local point has to be translated in the bbox local frame.
   BoxImplementation::GenericKernelForContainsAndInside<Real_v, Bool_v, ForInside>(
       unplaced.fBBdimensions, point - unplaced.fBBorigin, completelyinside, completelyoutside);
-  //  if (Backend::early_returns) {
+  //  if (vecCore::EarlyReturnAllowed()) {
   if (vecCore::MaskFull(completelyoutside)) {
     return;
   }
@@ -191,7 +191,7 @@ void GenTrapImplementation::GenericKernelForContainsAndInside(UnplacedStruct_t c
       completelyoutside = completelyoutside || (cross < MakeMinusTolerant<ForInside>(0.));
     }
 
-    //    if (Backend::early_returns) {
+    //    if (vecCore::EarlyReturnAllowed()) {
     if (vecCore::MaskFull(completelyoutside)) {
       return;
     }
@@ -291,7 +291,7 @@ vecCore::Mask_v<Real_v> GenTrapImplementation::IsInTopOrBottomPolygon(UnplacedSt
     cross -= (pointy - cornerY) * deltaX;
     degenerate        = degenerate && (deltaX < MakePlusTolerant<true>(0.)) && (deltaY < MakePlusTolerant<true>(0.));
     completelyoutside = completelyoutside || (cross < MakeMinusTolerant<true>(0.));
-    // if (Backend::early_returns) {
+    // if (vecCore::EarlyReturnAllowed()) {
     if (vecCore::MaskFull(completelyoutside)) {
       return Bool_v(false);
     }
@@ -466,7 +466,7 @@ void GenTrapImplementation::NormalKernel(UnplacedStruct_t const &unplaced, Vecto
   vecCore::MaskedAssign(normal[2], onZ && (point.z() > 0), 1.);
   vecCore::MaskedAssign(normal[2], onZ && (point.z() < 0), -1.);
 
-  //    if (Backend::early_returns) {
+  //    if (vecCore::EarlyReturnAllowed()) {
   if (vecCore::MaskFull(onZ)) {
     return;
   }

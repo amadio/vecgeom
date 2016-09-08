@@ -18,7 +18,6 @@ struct kVc {
   typedef Vc::Vector<Precision> precision_v;
   typedef Vc::Vector<Precision>::Mask bool_v;
   typedef Vc::Vector<int> inside_v;
-  constexpr static bool early_returns = false;
   const static precision_v kOne;
   const static precision_v kZero;
   const static bool_v kTrue;

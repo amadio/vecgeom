@@ -27,7 +27,6 @@ struct kMic {
   typedef MicDoubleVector precision_v;
   typedef MicMask bool_v;
   typedef MicIntegerVector inside_v;
-  constexpr static bool early_returns = false;
   const static precision_v kOne;
   const static precision_v kZero;
   const static bool_v kTrue;

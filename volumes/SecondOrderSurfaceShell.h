@@ -140,7 +140,7 @@ public:
     onsurf            = Bool_v(false);
     completelyinside  = (Abs(point.z()) < MakeMinusTolerant<true>(fDz));
     completelyoutside = (Abs(point.z()) > MakePlusTolerant<true>(fDz));
-    //  if (Backend::early_returns) {
+    //  if (vecCore::EarlyReturnAllowed()) {
     if (vecCore::MaskFull(completelyoutside)) return;
     //  }
 

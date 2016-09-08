@@ -112,7 +112,7 @@ struct ConeImplementation {
     if (ForInside) {
       completelyinside = absz < MakeMinusTolerant<ForInside>(cone.GetDz());
     }
-    if (Backend::early_returns) {
+    if (vecCore::EarlyReturnAllowed()) {
       if (IsFull(completelyoutside)) {
         return;
       }
@@ -128,7 +128,7 @@ struct ConeImplementation {
     if (ForInside) {
       completelyinside &= r2 < MakeMinusTolerantSquare<ForInside>(rmax, rmax2);
     }
-    if (Backend::early_returns) {
+    if (vecCore::EarlyReturnAllowed()) {
       if (IsFull(completelyoutside)) {
         return;
       }
@@ -143,7 +143,7 @@ struct ConeImplementation {
       if (ForInside) {
         completelyinside &= r2 > MakePlusTolerantSquare<ForInside>(rmin, rmin2);
       }
-      if (Backend::early_returns) {
+      if (vecCore::EarlyReturnAllowed()) {
         if (IsFull(completelyoutside)) {
           return;
         }

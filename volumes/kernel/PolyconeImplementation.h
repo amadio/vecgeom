@@ -98,9 +98,7 @@ struct PolyconeImplementation {
                                                 typename Backend::bool_v &completelyInside,
                                                 typename Backend::bool_v &completelyOutside)
   {
-// ??? Can I assume that this code will never be used in vector mode?  If yes, some of this code is not needed (done,
-// IsFull(), etc)
-// static_assert(!std::is_same<Backend::bool_v,bool>::value, "Must use scalar interface!\n");
+    constexpr bool EarlyReturns = true; // TODO: Fix VECGEOM-367 and change to vecCore::EarlyReturnAllowed();
 
 #ifdef POLYCONEDEBUG
     std::cout << "=== Polycone::GenKern4ContainsAndInside(): localPoint = " << localPoint
@@ -124,7 +122,7 @@ struct PolyconeImplementation {
     completelyOutside = complOutsideLeft | complOutsideRight;
     done |= completelyOutside;
 
-    if (Backend::early_returns && IsFull(completelyOutside)) return;
+    if (EarlyReturns && IsFull(completelyOutside)) return;
 
     if (ForInside) {
       // z-check only so far
@@ -158,14 +156,14 @@ struct PolyconeImplementation {
     done |= update;
 
 #ifdef POLYCONEDEBUG
-    if (Backend::early_returns && IsFull(done)) {
+    if (EarlyReturns && IsFull(done)) {
       std::cout << "Polycone::GenK4C&I() - spot 3a: inside isec?"
                 << ", secIn=" << secIn << ", secOut=" << secOut << ", compIn=" << completelyInside
                 << ", compOut=" << completelyOutside << ", done=" << done << "\n";
     }
 #endif
 
-    if (Backend::early_returns && IsFull(done)) return;
+    if (EarlyReturns && IsFull(done)) return;
 
     //-- once here, need to check if point is near a z-plane
     Float_t zplus              = unplaced.GetZAtPlane(isec + 1);
@@ -183,14 +181,14 @@ struct PolyconeImplementation {
     done |= update;
 
 #ifdef POLYCONEDEBUG
-    // if ( Backend::early_returns && IsFull(done) ) {
+    // if (EarlyReturns && IsFull(done)) {
     std::cout << "Polycone::GenK4C&I() - spot 3b: is next sec possible?"
               << ", zplus=" << zplus << ", nearPlusZ=" << nearPlusZ << ", nextSectionPossible=" << nextSectionPossible
               << ", compIn=" << completelyInside << ", compOut=" << completelyOutside << ", done=" << done << "\n";
 // }
 #endif
 
-    if (Backend::early_returns && IsFull(done)) return;
+    if (EarlyReturns && IsFull(done)) return;
 
     assert(IsFull(nextSectionPossible));
 
@@ -205,7 +203,7 @@ struct PolyconeImplementation {
     done |= update;
 
 #ifdef POLYCONEDEBUG
-    // if ( Backend::early_returns && IsFull(done) ) {
+    // if ( EarlyReturns && IsFull(done) ) {
     std::cout << "Polycone::GenK4C&I() - spot 3b: is next sec possible?"
               << ", secIn2=" << secIn2 << ", secOut2=" << secOut2 << ", compIn=" << completelyInside
               << ", compOut=" << completelyOutside << ", done=" << done << "\n";
@@ -246,7 +244,7 @@ struct PolyconeImplementation {
       MaskedAssign(!done, false, &completelyOutside);
 
 #ifdef POLYCONEDEBUG
-      // if ( Backend::early_returns && IsFull(done) ) {
+      // if (EarlyReturns && IsFull(done)) {
       std::cout << "Polycone::GenK4C&I() - spot 3D: is nearZ and inside both OR surface? "
                 << " insecA(min,max)=" << insideRminA << " " << insideRmaxA << " insecB(min,max)=" << insideRminB << " "
                 << insideRmaxB << ", compIn=" << completelyInside << ", compOut=" << completelyOutside

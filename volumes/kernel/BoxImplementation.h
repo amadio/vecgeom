@@ -103,7 +103,7 @@ struct BoxImplementation {
     if (ForInside) {
       completelyinside = Abs(localPoint[0]) < MakeMinusTolerant<ForInside>(dimensions[0]);
     }
-    if (/*Backend::early_returns*/ true) {
+    if (/*vecCore::EarlyReturnAllowed()*/ true) {
       if (vecCore::MaskFull(completelyoutside)) {
         return;
       }
@@ -113,7 +113,7 @@ struct BoxImplementation {
     if (ForInside) {
       completelyinside &= Abs(localPoint[1]) < MakeMinusTolerant<ForInside>(dimensions[1]);
     }
-    if (/*Backend::early_returns*/ true) {
+    if (/*vecCore::EarlyReturnAllowed()*/ true) {
       if (vecCore::MaskFull(completelyoutside)) {
         return;
       }
