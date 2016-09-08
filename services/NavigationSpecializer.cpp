@@ -1639,7 +1639,7 @@ void NavigationSpecializer::DumpStaticTreatDistanceToMotherFunction(std::ostream
   outstream << "assert(pvol != nullptr && \"currentvolume is null in navigation\");\n";
   outstream << "step = ((" << shapetype << "*)pvol)->" << shapetype
             << "::DistanceToOut(localpoint, localdir, step_limit);\n";
-  outstream << "MaskedAssign(step < T(0.), kInfLength, &step);\n";
+  outstream << "vecCore::MaskedAssign(step, step < T(0.0), InfinityLength<T>());\n";
   outstream << "return step;\n";
   outstream << "}\n";
 }
