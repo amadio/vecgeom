@@ -128,12 +128,6 @@ bool Any(VcBool const &cond)
   return !cond.isEmpty();
 }
 
-VECGEOM_FORCE_INLINE
-bool IsEmpty(VcBool const &cond)
-{
-  return cond.isEmpty();
-}
-
 } // End inline namespace
 
 } // End global namespace

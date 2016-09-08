@@ -333,7 +333,7 @@ typename Backend::bool_v Wedge::IsOnSurfaceGeneric(Vector3D<Precision> const &al
   // on right side of half plane ??
   typedef typename Backend::bool_v Bool_v;
   Bool_v condition1 = alongVector.x() * point.x() + alongVector.y() * point.y() >= 0.;
-  if (IsEmpty(condition1)) return Bool_v(false);
+  if (vecCore::MaskEmpty(condition1)) return Bool_v(false);
   // within the right distance to the plane ??
   Bool_v condition2 = Abs(normalVector.x() * point.x() + normalVector.y() * point.y()) < kTolerance;
   return condition1 && condition2;
@@ -408,12 +408,12 @@ void Wedge::DistanceToIn(Vector3D<typename Backend::precision_v> const &point,
   Float_t comp2 = dir.x() * fNormalVector2.x() + dir.y() * fNormalVector2.y();
 
   Bool_t cmp1 = comp1 > 0.;
-  if (!IsEmpty(cmp1)) {
+  if (!vecCore::MaskEmpty(cmp1)) {
     Float_t tmp = -(point.x() * fNormalVector1.x() + point.y() * fNormalVector1.y()) / comp1;
     MaskedAssign(cmp1 && tmp > 0., tmp, &distWedge1);
   }
   Bool_t cmp2 = comp2 > 0.;
-  if (!IsEmpty(cmp2)) {
+  if (!vecCore::MaskEmpty(cmp2)) {
     Float_t tmp = -(point.x() * fNormalVector2.x() + point.y() * fNormalVector2.y()) / comp2;
     MaskedAssign(cmp2 && tmp > 0., tmp, &distWedge2);
   }
@@ -445,13 +445,13 @@ void Wedge::DistanceToOut(Vector3D<typename Backend::precision_v> const &point,
   distWedge2 = kInfinity;
 
   Bool_t cmp1 = comp1 < 0.;
-  if (!IsEmpty(cmp1)) {
+  if (!vecCore::MaskEmpty(cmp1)) {
     Float_t tmp = -(point.x() * fNormalVector1.x() + point.y() * fNormalVector1.y()) / comp1;
     MaskedAssign(cmp1 && tmp > 0., tmp, &distWedge1);
   }
 
   Bool_t cmp2 = comp2 < 0.;
-  if (!IsEmpty(cmp2)) {
+  if (!vecCore::MaskEmpty(cmp2)) {
     Float_t tmp = -(point.x() * fNormalVector2.x() + point.y() * fNormalVector2.y()) / comp2;
     MaskedAssign(cmp2 && tmp > 0., tmp, &distWedge2);
   }

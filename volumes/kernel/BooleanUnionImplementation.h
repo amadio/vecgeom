@@ -456,7 +456,7 @@ void BooleanImplementation<kUnion, transCodeT, rotCodeT>::NormalKernel(
     fPtrSolidA->GetTransformation()->InverseTransformDirection(localNorm, normal);
     return;
   } else {
-    //  if (IsEmpty(onA)) {  // to use real mask operation when supporting vectors
+    //  if (vecCore::MaskEmpty(onA)) {  // to use real mask operation when supporting vectors
     fPtrSolidB->GetTransformation()->Transform(point, localPoint);
     valid = fPtrSolidB->Normal(localPoint, localNorm);
     fPtrSolidB->GetTransformation()->InverseTransformDirection(localNorm, normal);

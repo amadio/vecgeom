@@ -268,7 +268,7 @@ void BooleanImplementation<kSubtraction, transCodeT, rotCodeT>::ContainsKernel(
   Vector3D<typename Backend::precision_v> tmp;
 
   inside = unplaced.fLeftVolume->Contains(localPoint);
-  if (IsEmpty(inside)) return;
+  if (vecCore::MaskEmpty(inside)) return;
 
   typename Backend::bool_v rightInside = unplaced.fRightVolume->Contains(localPoint);
   inside &= !rightInside;
@@ -353,7 +353,7 @@ void BooleanImplementation<kSubtraction, transCodeT, rotCodeT>::DistanceToInKern
   //
   //          // Contains is the one from this boolean solid
   //          UnplacedContains<Backend>( unplaced, p+dist*v, contains );
-  //          if( IsEmpty(contains) ) /* if not contained */
+  //          if( vecCore::MaskEmpty(contains) ) /* if not contained */
   //          {
   //            disTmp = fPtrSolidB->PlacedDistanceToOut(p+dist*v,v);
   //            dist += disTmp ;
@@ -365,7 +365,7 @@ void BooleanImplementation<kSubtraction, transCodeT, rotCodeT>::DistanceToInKern
   //          }
   //          UnplacedContains<Backend>( unplaced, p+dist*v, contains );
   //         }
-  //        while( IsEmpty(contains) );
+  //        while( vecCore::MaskEmpty(contains) );
   //       }
   //       // no else part
   //    }
@@ -383,14 +383,14 @@ void BooleanImplementation<kSubtraction, transCodeT, rotCodeT>::DistanceToInKern
   //         int count2=0;
   //         Bool_t contains;
   //         UnplacedContains<Backend>(unplaced, p+dist*v, contains);
-  //         while( IsEmpty(contains) )  // pushing loop
+  //         while( vecCore::MaskEmpty(contains) )  // pushing loop
   //         {
   //           disTmp = fPtrSolidB->PlacedDistanceToOut(p+dist*v,v);
   //           dist += disTmp ;
   //           dist += kTolerance;
   //
   //           UnplacedContains<Backend>(unplaced, p+dist*v, contains);
-  //           if( IsEmpty(contains) )
+  //           if( vecCore::MaskEmpty(contains) )
   //           {
   //             disTmp = fPtrSolidA->DistanceToIn(p+dist*v,v) ;
   //
@@ -571,7 +571,7 @@ void BooleanImplementation<kSubtraction, transCodeT, rotCodeT>::NormalKernel(
     fPtrSolidA->GetTransformation()->InverseTransformDirection(localNorm, normal);
     return;
   } else {
-    //  if (IsEmpty(onA)) {  // to use real mask operation when supporting vectors
+    //  if (vecCore::MaskEmpty(onA)) {  // to use real mask operation when supporting vectors
     fPtrSolidB->GetTransformation()->Transform(point, localPoint);
     valid = fPtrSolidB->Normal(localPoint, localNorm);
     // The normal to the subtracted solid has to be inverted and transformed back

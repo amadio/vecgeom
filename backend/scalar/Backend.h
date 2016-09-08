@@ -100,13 +100,6 @@ bool Any(bool const &cond)
   return cond;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_FORCE_INLINE
-bool IsEmpty(bool const &cond)
-{
-  return !cond;
-}
-
 #ifndef VECGEOM_USOLIDS
 template <typename Type>
 VECGEOM_FORCE_INLINE

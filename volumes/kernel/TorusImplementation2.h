@@ -588,12 +588,12 @@ struct TorusImplementation2 {
       Float_t distPhi2;
       torus.GetWedge().DistanceToOut<Backend>(point, dir, distPhi1, distPhi2);
       Bool_t smallerphi = distPhi1 < distance;
-      if (!IsEmpty(smallerphi)) {
+      if (!vecCore::MaskEmpty(smallerphi)) {
         Vector3D<Float_t> intersectionPoint = point + dir * distPhi1;
         Bool_t insideDisk;
         UnplacedContainsDisk<Backend>(torus, intersectionPoint, insideDisk);
 
-        if (!IsEmpty(insideDisk)) // Inside Disk
+        if (!vecCore::MaskEmpty(insideDisk)) // Inside Disk
         {
           Float_t diri = intersectionPoint.x() * torus.GetWedge().GetAlong1().x() +
                          intersectionPoint.y() * torus.GetWedge().GetAlong1().y();
@@ -603,12 +603,12 @@ struct TorusImplementation2 {
         }
       }
       smallerphi = distPhi2 < distance;
-      if (!IsEmpty(smallerphi)) {
+      if (!vecCore::MaskEmpty(smallerphi)) {
 
         Vector3D<Float_t> intersectionPoint = point + dir * distPhi2;
         Bool_t insideDisk;
         UnplacedContainsDisk<Backend>(torus, intersectionPoint, insideDisk);
-        if (!IsEmpty(insideDisk)) // Inside Disk
+        if (!vecCore::MaskEmpty(insideDisk)) // Inside Disk
         {
           Float_t diri2 = intersectionPoint.x() * torus.GetWedge().GetAlong2().x() +
                           intersectionPoint.y() * torus.GetWedge().GetAlong2().y();

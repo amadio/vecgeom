@@ -109,7 +109,7 @@ public:
     for (int j = 0; j < 4; ++j) {
       valid &=
           intersection.Dot(fSideVectors[j].GetNormal(index)) + fSideVectors[j].GetDistances()[index] >= -kTolerance;
-      if (IsEmpty(valid)) break;
+      if (vecCore::MaskEmpty(valid)) break;
     }
     return valid;
   }
@@ -344,11 +344,11 @@ struct AcceleratedDistanceToIn<kScalar> {
 
       // Check if the point is in front of/behind the plane according to the template parameter
       VcBool valid = Flip<behindPlanesT>::FlipSign(distanceTest) >= -kTolerance;
-      if (IsEmpty(valid)) continue;
+      if (vecCore::MaskEmpty(valid)) continue;
 
       VcPrecision directionProjection = plane.Dot(direction);
       valid &= Flip<!behindPlanesT>::FlipSign(directionProjection) >= -kTolerance;
-      if (IsEmpty(valid)) continue;
+      if (vecCore::MaskEmpty(valid)) continue;
       VcPrecision tiny = Vc::copysign(VcPrecision(1E-20), directionProjection);
       distanceTest /= -(directionProjection + tiny);
       Vector3D<VcPrecision> intersection = Vector3D<VcPrecision>(direction) * distanceTest + point;
@@ -360,7 +360,7 @@ struct AcceleratedDistanceToIn<kScalar> {
         VcPrecision dSide(&sideVectors[j].GetDistances()[i]);
         valid &= sideVector.Dot(intersection) + dSide >= -kTolerance;
         // Where is your god now
-        if (IsEmpty(valid)) goto distanceToInVcContinueOuter;
+        if (vecCore::MaskEmpty(valid)) goto distanceToInVcContinueOuter;
       }
       // If a hit is found, the algorithm can return, since only one side can
       // be hit for a convex set of quadrilaterals
@@ -414,15 +414,15 @@ typename Backend::precision_v Quadrilaterals::DistanceToIn(
     // Check if the point is in front of/behind the plane according to the
     // template parameter
     Bool_t valid = Flip<behindPlanesT>::FlipSign(distance) > -kTolerance;
-    if (IsEmpty(valid)) continue;
+    if (vecCore::MaskEmpty(valid)) continue;
     Float_t directionProjection = direction.Dot(normal);
     valid &= Flip<!behindPlanesT>::FlipSign(directionProjection) >= 0;
-    if (IsEmpty(valid)) continue;
+    if (vecCore::MaskEmpty(valid)) continue;
     distance /= -(directionProjection + CopySign(1E-20, directionProjection));
     Vector3D<Float_t> intersection = point + direction * distance;
     for (int j = 0; j < 4; ++j) {
       valid &= intersection.Dot(fSideVectors[j].GetNormal(i)) + fSideVectors[j].GetDistances()[i] >= -kTolerance;
-      if (IsEmpty(valid)) break;
+      if (vecCore::MaskEmpty(valid)) break;
     }
     MaskedAssign(valid, distance, &bestDistance);
     // If all hits are found, the algorithm can return, since only one side can
@@ -465,15 +465,15 @@ void AcceleratedDistanceToOut<kScalar>(int &i, const int n, Planes const &planes
     VcPrecision distanceTest = plane.Dot(point) + dPlane;
     // Check if the point is behind the plane
     VcBool valid = distanceTest < kTolerance;
-    if (IsEmpty(valid)) continue;
+    if (vecCore::MaskEmpty(valid)) continue;
     VcPrecision directionProjection = plane.Dot(direction);
     // Because the point is behind the plane, the direction must be along the
     // normal
     valid &= directionProjection > -kTolerance;
-    if (IsEmpty(valid)) continue;
+    if (vecCore::MaskEmpty(valid)) continue;
     distanceTest /= -directionProjection;
     valid &= distanceTest < distance;
-    if (IsEmpty(valid)) continue;
+    if (vecCore::MaskEmpty(valid)) continue;
 
     if (zMin == zMax) { // need a careful treatment in case of degenerate Z planes
       // in this case need proper hit detection
@@ -485,14 +485,14 @@ void AcceleratedDistanceToOut<kScalar>(int &i, const int n, Planes const &planes
         VcPrecision dSide(&sideVectors[j].GetDistances()[i]);
         valid &= sideVector.Dot(intersection) + dSide >= -kTolerance;
         // Where is your god now
-        if (IsEmpty(valid)) goto distanceToOutVcContinueOuter;
+        if (vecCore::MaskEmpty(valid)) goto distanceToOutVcContinueOuter;
       }
     } else {
       VcPrecision zProjection = distanceTest * direction[2] + point[2];
       valid &= zProjection >= zMin && zProjection < zMax;
     }
   distanceToOutVcContinueOuter:
-    if (IsEmpty(valid)) continue;
+    if (vecCore::MaskEmpty(valid)) continue;
     distanceTest(!valid) = kInfinity;
     distance             = distanceTest.min();
   }
@@ -532,15 +532,15 @@ typename Backend::precision_v Quadrilaterals::DistanceToOut(Vector3D<typename Ba
     Float_t distanceTest       = point.Dot(normal) + fPlanes.GetDistance(i);
     // Check if the point is behind the plane
     Bool_t valid = distanceTest < kTolerance;
-    if (IsEmpty(valid)) continue;
+    if (vecCore::MaskEmpty(valid)) continue;
     Float_t directionProjection = direction.Dot(normal);
     // Because the point is behind the plane, the direction must be along the
     // normal
     valid &= directionProjection >= 0;
-    if (IsEmpty(valid)) continue;
+    if (vecCore::MaskEmpty(valid)) continue;
     distanceTest /= -directionProjection;
     valid &= distanceTest < bestDistance;
-    if (IsEmpty(valid)) continue;
+    if (vecCore::MaskEmpty(valid)) continue;
 
     // this is a tricky test when zMin == zMax ( degenerate planes )
     if (zMin == zMax) {
@@ -554,7 +554,7 @@ typename Backend::precision_v Quadrilaterals::DistanceToOut(Vector3D<typename Ba
       Float_t zProjection = point[2] + distanceTest * direction[2];
       valid &= (zProjection >= zMin - kTolerance) && (zProjection < zMax + kTolerance);
     }
-    if (IsEmpty(valid)) continue;
+    if (vecCore::MaskEmpty(valid)) continue;
     MaskedAssign(valid, distanceTest, &bestDistance);
   }
 

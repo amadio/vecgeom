@@ -124,7 +124,7 @@ void FaceTrajectoryIntersection(UnplacedTrd const &trd, Vector3D<typename Backen
     ok = ndotv < 0.;
   else
     ok = ndotv > 0.;
-  if (IsEmpty(ok)) return;
+  if (vecCore::MaskEmpty(ok)) return;
   Float_t alongZ = Float_t(2.0) * trd.dz();
 
   // distance from trajectory to face
@@ -340,7 +340,7 @@ struct TrdImplementation {
     Bool_t done = inside;
     Bool_t okz  = pos_local.z() * dir_local.z() < 0;
     okz &= !inz;
-    if (!IsEmpty(okz)) {
+    if (!vecCore::MaskEmpty(okz)) {
       Float_t distz = (Abs(pos_local.z()) - trd.dz()) / Abs(dir_local.z());
       // exclude case in which particle is going away
       hitx = Abs(pos_local.x() + distz * dir_local.x());
@@ -436,7 +436,7 @@ struct TrdImplementation {
       return;
     }
     Bool_t okzt = dir.z() > 0;
-    if (!IsEmpty(okzt)) {
+    if (!vecCore::MaskEmpty(okzt)) {
       Float_t distz = (trd.dz() - point.z()) * invdir;
       hitx          = Abs(point.x() + distz * dir.x());
       hity          = Abs(point.y() + distz * dir.y());
@@ -450,7 +450,7 @@ struct TrdImplementation {
 
     // hit bottom Z face?
     Bool_t okzb = dir.z() < 0;
-    if (!IsEmpty(okzb)) {
+    if (!vecCore::MaskEmpty(okzb)) {
       Float_t distz = (point.z() + trd.dz()) * invdir;
       hitx          = Abs(point.x() + distz * dir.x());
       hity          = Abs(point.y() + distz * dir.y());

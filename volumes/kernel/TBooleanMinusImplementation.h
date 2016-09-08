@@ -230,7 +230,7 @@ void TBooleanMinusImplementation<LeftPlacedType_t, RightPlacedType_t, transCodeT
   //        typename Backend::bool_v &inside
   //
 
-  if (IsEmpty(inside)) return;
+  if (vecCore::MaskEmpty(inside)) return;
 
   typename Backend::bool_v rightInside;
   RightPlacedType_t::Implementation::template Contains<Backend>(
@@ -281,7 +281,7 @@ void TBooleanMinusImplementation<LeftPlacedType_t, RightPlacedType_t, transCodeT
   //  // we should never subtract a volume such that B - A > 0
   //
   //  // what does this while loop do?
-  //  if ( ! IsEmpty( insideRight ) ) {
+  //  if ( ! vecCore::MaskEmpty( insideRight ) ) {
   //    // propagate to outside of '- / RightShape'
   //    d1 = unplaced.fRightVolume->DistanceToOut( point, direction, stepMax);
   //    snxt += d1+epsil;
