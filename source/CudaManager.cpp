@@ -33,7 +33,9 @@ CudaManager::CudaManager() : world_gpu_(), fGPUtoCPUmapForPlacedVolumes()
   world_        = NULL;
   verbose_      = 0;
   total_volumes = 0;
-  cudaDeviceSetLimit(cudaLimitStackSize, 4096);
+
+  auto res = cudaDeviceSetLimit(cudaLimitStackSize, 4096);
+  CudaAssertError(res);
 }
 
 VPlacedVolume const *CudaManager::world() const
