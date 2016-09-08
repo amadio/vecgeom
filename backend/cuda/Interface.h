@@ -129,12 +129,27 @@ void CopyFromGpu(Type const *const src, Type *const tgt, const unsigned size)
 
 class DevicePtrBase {
   void *fPtr;
+#ifdef DEBUG_DEVICEPTR
+  size_t fAllocatedSize;
+  bool fIncremented;
+#endif
 
 protected:
-  DevicePtrBase(const DevicePtrBase &orig) : fPtr(orig.fPtr) {}
+  DevicePtrBase(const DevicePtrBase &orig)
+      : fPtr(orig.fPtr)
+#ifdef DEBUG_DEVICEPTR
+        ,
+        fAllocatedSize(0), fIncremented(false)
+#endif
+  {
+  }
   DevicePtrBase &operator=(const DevicePtrBase &orig)
   {
     fPtr = orig.fPtr;
+#ifdef DEBUG_DEVICEPTR
+    fAllocatedSize = orig.fAllocatedSize;
+    fIncremented   = orig.fIncremented;
+#endif
     return *this;
   }
 
@@ -151,14 +166,49 @@ protected:
   VECGEOM_CUDA_HEADER_BOTH
   void *GetPtr() const { return fPtr; }
 
-  void Free() { vecgeom::cxx::CudaAssertError(vecgeom::cxx::CudaFree((void *)fPtr)); }
-  void Increment(long add) { fPtr = (char *)fPtr + add; }
+  void Free()
+  {
+    vecgeom::cxx::CudaAssertError(vecgeom::cxx::CudaFree((void *)fPtr));
+#ifdef DEBUG_DEVICEPTR
+    fAllocatedSize = 0;
+#endif
+  }
+  void Increment(long add)
+  {
+    fPtr = (char *)fPtr + add;
+#ifdef DEBUG_DEVICEPTR
+    if (add) fIncremented = true;
+#endif
+  }
+
 public:
-  DevicePtrBase() : fPtr(0) {}
-  explicit DevicePtrBase(void *input) : fPtr(input) {}
+  DevicePtrBase()
+      : fPtr(0)
+#ifdef DEBUG_DEVICEPTR
+        ,
+        fAllocatedSize(0), fIncremented(0)
+#endif
+  {
+  }
+
+  explicit DevicePtrBase(void *input)
+      : fPtr(input)
+#ifdef DEBUG_DEVICEPTR
+        ,
+        fAllocatedSize(0), fIncremented(0)
+#endif
+  {
+  }
+
   ~DevicePtrBase() { /* does not own content per se */}
 
-  void Malloc(unsigned long size) { vecgeom::cxx::CudaAssertError(vecgeom::cxx::CudaMalloc((void **)&fPtr, size)); }
+  void Malloc(unsigned long size)
+  {
+    vecgeom::cxx::CudaAssertError(vecgeom::cxx::CudaMalloc((void **)&fPtr, size));
+#ifdef DEBUG_DEVICEPTR
+    fAllocatedSize = size;
+#endif
+  }
 };
 
 template <typename T>
