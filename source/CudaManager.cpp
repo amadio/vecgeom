@@ -316,20 +316,20 @@ void CudaManager::AllocateGeometry()
   {
     if (verbose_ > 2) std::cout << "Allocating daughter lists...";
 
-    DevicePtr<cuda::Vector<CudaDaughter_t>> gpu_array;
-    gpu_array.Allocate(daughters_.size());
-    allocated_memory_.push_back(GpuAddress(gpu_array));
+    DevicePtr<cuda::Vector<CudaDaughter_t>> daughter_gpu_array;
+    daughter_gpu_array.Allocate(daughters_.size());
+    allocated_memory_.push_back(GpuAddress(daughter_gpu_array));
 
-    DevicePtr<CudaDaughter_t> gpu_c_array;
-    gpu_c_array.Allocate(total_volumes);
-    allocated_memory_.push_back(GpuAddress(gpu_c_array));
+    DevicePtr<CudaDaughter_t> daughter_gpu_c_array;
+    daughter_gpu_c_array.Allocate(total_volumes);
+    allocated_memory_.push_back(GpuAddress(daughter_gpu_c_array));
 
     for (std::set<Vector<Daughter> *>::const_iterator i = daughters_.begin(); i != daughters_.end(); ++i) {
 
-      memory_map[ToCpuAddress(*i)]          = GpuAddress(gpu_array);
-      gpu_memory_map[GpuAddress(gpu_array)] = GpuAddress(gpu_c_array);
-      ++gpu_array;
-      gpu_c_array += (*i)->size();
+      memory_map[ToCpuAddress(*i)]                   = GpuAddress(daughter_gpu_array);
+      gpu_memory_map[GpuAddress(daughter_gpu_array)] = GpuAddress(daughter_gpu_c_array);
+      ++daughter_gpu_array;
+      daughter_gpu_c_array += (*i)->size();
     }
 
     if (verbose_ > 2) std::cout << " OK\n";
