@@ -109,7 +109,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedScaledShape::CopyToGpu(DevicePtr<cuda::
 {
   DevicePtr<cuda::VPlacedVolume> gpuptr = CudaManager::Instance().LookupPlaced(fPlaced);
   Vector3D<Precision> const &scl        = fScale.Scale();
-  return CopyToGpuImpl<UnplacedScaledShape>(in_gpu_ptr, gpuptr, scl[0], scl[1], scl[2]);
+  return CopyToGpuImpl<UnplacedScaledShape>(in_gpu_ptr, gpuptr, scl[0], scl[1], scl[2], fGlobalConvexity);
 }
 
 //______________________________________________________________________________
@@ -130,7 +130,7 @@ template size_t DevicePtr<cuda::UnplacedScaledShape>::SizeOf();
 // template void DevicePtr<cuda::UnplacedScaledShape>::Construct(
 //    DevicePtr<cuda::VPlacedVolume> gpuptr, Scale3D const scale) const;
 template void DevicePtr<cuda::UnplacedScaledShape>::Construct(DevicePtr<cuda::VPlacedVolume> gpuptr, Precision sx,
-                                                              Precision sy, Precision sz) const;
+                                                              Precision sy, Precision sz, bool globalConvexity) const;
 
 } // End cxx namespace
 

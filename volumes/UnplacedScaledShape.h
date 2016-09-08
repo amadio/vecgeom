@@ -38,6 +38,23 @@ public:
     fGlobalConvexity = fPlaced->GetUnplacedVolume()->IsConvex();
   }
 
+#if defined(VECGEOM_NVCC)
+  /// Constructor based on placed volume
+  VECGEOM_CUDA_HEADER_BOTH
+  UnplacedScaledShape(VPlacedVolume const *placed, Precision sx, Precision sy, Precision sz, bool globalConvexity)
+      : fPlaced(placed), fScale(sx, sy, sz)
+  {
+    /* assert(placed->GetTransformation()->IsIdentity());*/
+    fGlobalConvexity = globalConvexity;
+    /* We must have
+         assert(globalConvexity == fPlaced->GetUnplacedVolume()->IsConvex())
+       However due to the order we create the geometry on the GPU (i.e. all Unplaced *then* all
+       Placed volume, we can not use this information (i.e. 'placed' points to uninitialized memory
+       at time this constructor is callled.
+    */
+  }
+#endif
+
 /// Constructor based on unplaced volume
 #if !defined(VECGEOM_NVCC)
   UnplacedScaledShape(VUnplacedVolume const *shape, Precision sx, Precision sy, Precision sz)
