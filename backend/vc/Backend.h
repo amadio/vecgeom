@@ -116,12 +116,6 @@ void StoreTo(VcBool const &what, bool *toaddr)
   what.store(toaddr);
 }
 
-VECGEOM_FORCE_INLINE
-bool Any(VcBool const &cond)
-{
-  return !cond.isEmpty();
-}
-
 } // End inline namespace
 
 } // End global namespace

@@ -86,13 +86,6 @@ void StoreTo(Type const &what, Type *toAddr)
   *toAddr = what;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_FORCE_INLINE
-bool Any(bool const &cond)
-{
-  return cond;
-}
-
 #ifndef VECGEOM_USOLIDS
 template <typename Type>
 VECGEOM_FORCE_INLINE

@@ -226,7 +226,7 @@ void AcceleratedInside<kScalar>(int &i, const int n, SOA3D<Precision> const &nor
     VcPrecision distance = VcPrecision(normals.x() + i) * point[0] + VcPrecision(normals.y() + i) * point[1] +
                            VcPrecision(normals.z() + i) * point[2] + VcPrecision(&distances[0] + i);
     // If point is outside tolerance of any plane, it is safe to return
-    if (Any(distance > kTolerance)) {
+    if (!vecCore::MaskEmpty(distance > kTolerance)) {
       result = EInside::kOutside;
       i      = n;
       break;

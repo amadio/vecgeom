@@ -130,7 +130,7 @@ void FaceTrajectoryIntersection(UnplacedTrd const &trd, Vector3D<typename Backen
   // distance from trajectory to face
   dist = (alongZ * (posV - v1) - alongV * (pos.z() + trd.dz())) / (dir.z() * alongV - dirV * alongZ + kTiny);
   ok &= dist > MakeMinusTolerant<true>(0.);
-  if (Any(ok)) {
+  if (!vecCore::MaskEmpty(ok)) {
     // need to make sure z hit falls within bounds
     Float_t hitz = pos.z() + dist * dir.z();
     ok &= Abs(hitz) <= trd.dz();
