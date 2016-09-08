@@ -280,7 +280,7 @@ public:
     safeTheta   = Min(sfTh1, sfTh2);
     Bool_t done = Contains<Backend>(point);
     MaskedAssign(done, 0., &safeTheta);
-    if (IsFull(done)) return safeTheta;
+    if (vecCore::MaskFull(done)) return safeTheta;
 
     // Case 1 : Both cones are in Positive Z direction
     if (fSTheta < kPi / 2 + halfAngTolerance) {

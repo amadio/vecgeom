@@ -174,7 +174,7 @@ void AcceleratedContains<kScalar>(int &i, const int n, SOA3D<Precision> const &n
     VcBool valid = VcPrecision(normals.x() + i) * point[0] + VcPrecision(normals.y() + i) * point[1] +
                        VcPrecision(normals.z() + i) * point[2] + VcPrecision(&distances[0] + i) <
                    0;
-    result = IsFull(valid);
+    result = vecCore::MaskFull(valid);
     if (!result) {
       i = n;
       break;
@@ -232,7 +232,7 @@ void AcceleratedInside<kScalar>(int &i, const int n, SOA3D<Precision> const &nor
       break;
     }
     // If point is inside tolerance of all planes, keep looking
-    if (IsFull(distance < -kTolerance)) continue;
+    if (vecCore::MaskFull(distance < -kTolerance)) continue;
     // Otherwise point must be on a surface, but could still be outside
     result = EInside::kSurface;
   }
@@ -256,7 +256,7 @@ typename Backend::inside_v Planes::Inside(Vector3D<typename Backend::precision_v
         fNormals.x(i) * point[0] + fNormals.y(i) * point[1] + fNormals.z(i) * point[2] + fDistances[i];
     MaskedAssign(distanceResult > kTolerance, EInside::kOutside, &result);
     MaskedAssign(result == EInside::kInside && distanceResult > -kTolerance, EInside::kSurface, &result);
-    if (IsFull(result) == EInside::kOutside) break;
+    if (vecCore::MaskFull(result) == EInside::kOutside) break;
   }
 
   return result;

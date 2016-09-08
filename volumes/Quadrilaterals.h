@@ -427,7 +427,7 @@ typename Backend::precision_v Quadrilaterals::DistanceToIn(
     MaskedAssign(valid, distance, &bestDistance);
     // If all hits are found, the algorithm can return, since only one side can
     // be hit for a convex set of quadrilaterals
-    if (IsFull(bestDistance < kInfinity)) break;
+    if (vecCore::MaskFull(bestDistance < kInfinity)) break;
   }
 
   return Max(0., bestDistance);

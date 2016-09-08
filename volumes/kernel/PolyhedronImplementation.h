@@ -415,7 +415,7 @@ typename Backend::int_v PolyhedronImplementation<transCodeT, rotCodeT, innerRadi
   for (int i = 1, iMax = polyhedron.GetSideCount() + 1; i < iMax; ++i) {
     projectionSecond = point[0] * phiSections.x(i) + point[1] * phiSections.y(i) + point[2] * phiSections.z(i);
     MaskedAssign(projectionFirst > -kTolerance && projectionSecond < kTolerance, i - 1, &index);
-    if (IsFull(index >= 0)) break;
+    if (vecCore::MaskFull(index >= 0)) break;
     projectionFirst = projectionSecond;
   }
 
@@ -443,7 +443,7 @@ typename Backend::precision_v PolyhedronImplementation<transCodeT, rotCodeT, inn
   // If the outer shell is hit, this will always be the correct result
   distance = segment.outer.DistanceToIn<Backend, false>(point, direction);
   done     = distance < kInfinity;
-  if (IsFull(done)) return distance;
+  if (vecCore::MaskFull(done)) return distance;
 
   // If the outer shell is not hit and the phi cutout sides are hit, this will
   // always be the correct result
@@ -451,7 +451,7 @@ typename Backend::precision_v PolyhedronImplementation<transCodeT, rotCodeT, inn
     MaskedAssign(!done, segment.phi.DistanceToIn<Backend, false>(point, direction), &distance);
   }
   done |= distance < kInfinity;
-  if (IsFull(done)) return distance;
+  if (vecCore::MaskFull(done)) return distance;
 
   // Finally treat inner shell
   if (TreatInner<innerRadiiT>(segment.hasInnerRadius)) {
@@ -483,7 +483,7 @@ typename Backend::precision_v PolyhedronImplementation<transCodeT, rotCodeT, inn
   if (TreatInner<innerRadiiT>(segment.hasInnerRadius)) {
     distance = segment.inner.DistanceToIn<Backend, false>(point, direction);
     done     = distance < kInfinity;
-    if (IsFull(done)) return distance;
+    if (vecCore::MaskFull(done)) return distance;
   }
 
   // Check phi cutout if necessary. It is also possible to return here if a
@@ -492,7 +492,7 @@ typename Backend::precision_v PolyhedronImplementation<transCodeT, rotCodeT, inn
     Float_t distphi = segment.phi.DistanceToIn<Backend, true>(point, direction);
     MaskedAssign(!done && distance > -kTolerance, distphi, &distance);
     done = distance > -kTolerance && distance < kInfinity;
-    if (IsFull(done)) return distance;
+    if (vecCore::MaskFull(done)) return distance;
   }
 
   // Finally check outer shell

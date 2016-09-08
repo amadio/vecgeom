@@ -320,7 +320,7 @@ typename Backend::precision_v HypeImplementation<transCodeT, rotCodeT>::ApproxDi
   Float_t tan2Phi_v(tan2Phi);
   MaskedAssign((tan2Phi_v < dbl_min), r0 - pr, &ret);
   done |= (tan2Phi_v < dbl_min);
-  if (IsFull(done)) return ret;
+  if (vecCore::MaskFull(done)) return ret;
 
   Float_t rh  = Sqrt(r0 * r0 + pz * pz * tan2Phi_v);
   Float_t dr  = -rh;
@@ -427,19 +427,19 @@ typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::IsPointOnSurf
 
   out |= (zSurf && (point.z() * direction.z() > 0.));
   done |= zSurf;
-  if (IsFull(done)) return out;
+  if (vecCore::MaskFull(done)) return out;
 
   outerHypeSurf |= (!zSurf && (Abs((radO2) - (rho2)) < unplaced.GetOuterRadToleranceLevel()));
   out |= (!done && !zSurf && outerHypeSurf && IsPointMovingOutsideOuterSurface<Backend>(unplaced, point, direction));
 
   done |= (!zSurf && outerHypeSurf);
-  if (IsFull(done)) return out;
+  if (vecCore::MaskFull(done)) return out;
 
   if (unplaced.InnerSurfaceExists()) {
     innerHypeSurf |= (!zSurf && !outerHypeSurf && (Abs((radI2) - (rho2)) < unplaced.GetInnerRadToleranceLevel()));
     out |= (!done && !zSurf && innerHypeSurf && IsPointMovingOutsideInnerSurface<Backend>(unplaced, point, direction));
     done |= (!zSurf && innerHypeSurf);
-    if (IsFull(done)) return out;
+    if (vecCore::MaskFull(done)) return out;
   }
 
   return out;
@@ -511,19 +511,19 @@ typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::IsPointOnSurf
   in |= (zSurf && (point.z() * direction.z() < 0.));
 
   done |= zSurf;
-  if (IsFull(done)) return in;
+  if (vecCore::MaskFull(done)) return in;
 
   outerHypeSurf |= (!zSurf && (Abs((radO2) - (rho2)) < unplaced.GetOuterRadToleranceLevel()));
   in |= (!done && outerHypeSurf && IsPointMovingInsideOuterSurface<Backend>(unplaced, point, direction));
 
   if (unplaced.InnerSurfaceExists()) {
     done |= (!zSurf && outerHypeSurf);
-    if (IsFull(done)) return in;
+    if (vecCore::MaskFull(done)) return in;
 
     innerHypeSurf |= (!zSurf && !outerHypeSurf && (Abs((radI2) - (rho2)) < unplaced.GetInnerRadToleranceLevel()));
     in |= (!done && !zSurf && innerHypeSurf && IsPointMovingInsideInnerSurface<Backend>(unplaced, point, direction));
     done |= (!zSurf && innerHypeSurf);
-    if (IsFull(done)) return in;
+    if (vecCore::MaskFull(done)) return in;
   }
   return in;
 }
@@ -584,7 +584,7 @@ void HypeImplementation<transCodeT, rotCodeT>::NormalKernel(UnplacedHype const &
     MaskedAssign(!done && cond, localPoint.z() * unplaced.GetTIn2(), &normal.z());
     normal = normal.Unit();
     done |= cond;
-    if (IsFull(done)) return;
+    if (vecCore::MaskFull(done)) return;
   }
 
   // End Caps wins
@@ -596,7 +596,7 @@ void HypeImplementation<transCodeT, rotCodeT>::NormalKernel(UnplacedHype const &
   MaskedAssign(!done && condE, normZ, &normal.z());
   normal = normal.Unit();
   done |= condE;
-  if (IsFull(done)) return;
+  if (vecCore::MaskFull(done)) return;
 
   // Outer Surface Wins
   normal = Vector3D<Float_t>(localPoint.x(), localPoint.y(), -localPoint.z() * unplaced.GetTOut2()).Unit();
@@ -750,9 +750,9 @@ typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::IsCompletelyO
   Float_t oRad2                    = (unplaced.GetRmax2() + unplaced.GetTOut2() * point.z() * point.z());
 
   Bool_t completelyoutside = (Abs(point.z()) > (fDz + zToleranceLevel));
-  if (IsFull(completelyoutside)) return completelyoutside;
+  if (vecCore::MaskFull(completelyoutside)) return completelyoutside;
   completelyoutside |= (r2 > oRad2 + outerRadToleranceLevel);
-  if (IsFull(completelyoutside)) return completelyoutside;
+  if (vecCore::MaskFull(completelyoutside)) return completelyoutside;
 
   if (unplaced.InnerSurfaceExists()) {
     Float_t iRad2 = (unplaced.GetRmin2() + unplaced.GetTIn2() * point.z() * point.z());
@@ -770,7 +770,7 @@ void HypeImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndInside
 {
 
   completelyoutside = IsCompletelyOutside<Backend>(unplaced, point);
-  if (IsFull(completelyoutside)) return;
+  if (vecCore::MaskFull(completelyoutside)) return;
   if (ForInside) completelyinside = IsCompletelyInside<Backend>(unplaced, point);
 }
 
@@ -817,12 +817,12 @@ void HypeImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   Bool_t surfaceCond = IsPointOnSurfaceAndMovingInside<Backend>(unplaced, point, direction);
   MaskedAssign(!done && surfaceCond, 0., &distance); //,isSurfacePoint,inner,outer,zSurf),0., &distance);
   done |= surfaceCond;
-  if (IsFull(done)) return;
+  if (vecCore::MaskFull(done)) return;
 
   cond = IsCompletelyInside<Backend>(unplaced, point);
   MaskedAssign(!done && cond, -1., &distance);
   done |= cond;
-  if (IsFull(done)) return;
+  if (vecCore::MaskFull(done)) return;
 
   // checking whether point hits the Z Surface of hyperboloid
   Bool_t hittingZPlane = GetPointOfIntersectionWithZPlane<Backend, true>(unplaced, point, direction, zDist);
@@ -830,7 +830,7 @@ void HypeImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   cond                                         = isPointAboveOrBelowHypeAndGoingInside && hittingZPlane;
   MaskedAssign(!done && cond, zDist, &distance);
   done |= cond;
-  if (IsFull(done)) return;
+  if (vecCore::MaskFull(done)) return;
 
   // Moving the point to Z Surface
   Vector3D<Float_t> newPt = point + zDist * direction;
@@ -857,7 +857,7 @@ void HypeImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
 
   if (unplaced.InnerSurfaceExists()) {
     done |= cond;
-    if (IsFull(done)) return;
+    if (vecCore::MaskFull(done)) return;
     Bool_t hittingInnerSurfaceFromOutsideZRange =
         isPointAboveOrBelowHypeAndGoingInside && !hittingZPlane && (rp2 <= unplaced.GetEndInnerRadius2());
     Bool_t hittingInnerSurfaceFromWithinZRange =
@@ -990,12 +990,12 @@ void HypeImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
   Bool_t cond = IsPointOnSurfaceAndMovingOutside<Backend>(unplaced, point, direction);
   MaskedAssign(cond, 0., &distance); //,isSurfacePoint,inner,outer,zSurf),0., &distance);
   done |= cond;
-  if (IsFull(done)) return;
+  if (vecCore::MaskFull(done)) return;
 
   cond = IsCompletelyOutside<Backend>(unplaced, point);
   MaskedAssign(!done && cond, -1., &distance);
   done |= cond;
-  if (IsFull(done)) return;
+  if (vecCore::MaskFull(done)) return;
 
   GetPointOfIntersectionWithZPlane<Backend, false>(unplaced, point, direction, zDist);
   MaskedAssign(zDist < 0., kInfinity, &zDist);
@@ -1041,34 +1041,34 @@ void HypeImplementation<transCodeT, rotCodeT>::SafetyToInKernel(UnplacedHype con
   Bool_t compIn(false), compOut(false);
   GenericKernelForContainsAndInside<Backend, true>(unplaced, point, compIn, compOut);
   done = (!compIn && !compOut);
-  if (IsFull(done)) return;
+  if (vecCore::MaskFull(done)) return;
 
   MaskedAssign(compIn, -1., &safety);
   done |= compIn;
-  if (IsFull(done)) return;
+  if (vecCore::MaskFull(done)) return;
 
   Bool_t cond(false);
   Float_t sigz = absZ - unplaced.GetDz();
   cond         = (sigz > kHalfTolerance) && (r < endOuterRadius) && (r > endInnerRadius);
   MaskedAssign(!done && cond, sigz, &safety);
   done |= cond;
-  if (IsFull(done)) return;
+  if (vecCore::MaskFull(done)) return;
 
   cond = (sigz > kHalfTolerance) && (r > endOuterRadius);
   MaskedAssign(!done && cond, Sqrt((r - endOuterRadius) * (r - endOuterRadius) + (sigz) * (sigz)), &safety);
   done |= cond;
-  if (IsFull(done)) return;
+  if (vecCore::MaskFull(done)) return;
 
   cond = (sigz > kHalfTolerance) && (r < endInnerRadius);
   MaskedAssign(!done && cond, Sqrt((r - endInnerRadius) * (r - endInnerRadius) + (sigz) * (sigz)), &safety);
   done |= cond;
-  if (IsFull(done)) return;
+  if (vecCore::MaskFull(done)) return;
 
   cond = (r2 > ((outerRadius * outerRadius + tanOuterStereo2 * absZ * absZ) + kHalfTolerance)) && (absZ > 0.) &&
          (absZ < unplaced.GetDz());
   MaskedAssign(!done && cond, ApproxDistOutside<Backend>(r, absZ, outerRadius, tanOuterStereo), &safety);
   done |= cond;
-  if (IsFull(done)) return;
+  if (vecCore::MaskFull(done)) return;
 
   MaskedAssign(!done && (r2 < ((innerRadius * innerRadius + tanInnerStereo2 * absZ * absZ) - kHalfTolerance)) &&
                    (absZ > 0.) && (absZ < unplaced.GetDz()),
@@ -1101,11 +1101,11 @@ void HypeImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(UnplacedHype co
   safety = 0.;
   GenericKernelForContainsAndInside<Backend, true>(unplaced, point, inside, outside);
   done = (!inside && !outside);
-  if (IsFull(done)) return;
+  if (vecCore::MaskFull(done)) return;
 
   MaskedAssign(outside, -1., &safety);
   done |= outside;
-  if (IsFull(done)) return;
+  if (vecCore::MaskFull(done)) return;
 
   MaskedAssign(!done && inside, Abs(Abs(point.z()) - unplaced.GetDz()), &distZ);
   if (unplaced.InnerSurfaceExists() && unplaced.GetStIn()) {

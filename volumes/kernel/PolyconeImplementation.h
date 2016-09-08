@@ -122,7 +122,7 @@ struct PolyconeImplementation {
     completelyOutside = complOutsideLeft | complOutsideRight;
     done |= completelyOutside;
 
-    if (EarlyReturns && IsFull(completelyOutside)) return;
+    if (EarlyReturns && vecCore::MaskFull(completelyOutside)) return;
 
     if (ForInside) {
       // z-check only so far
@@ -156,14 +156,14 @@ struct PolyconeImplementation {
     done |= update;
 
 #ifdef POLYCONEDEBUG
-    if (EarlyReturns && IsFull(done)) {
+    if (EarlyReturns && vecCore::MaskFull(done)) {
       std::cout << "Polycone::GenK4C&I() - spot 3a: inside isec?"
                 << ", secIn=" << secIn << ", secOut=" << secOut << ", compIn=" << completelyInside
                 << ", compOut=" << completelyOutside << ", done=" << done << "\n";
     }
 #endif
 
-    if (EarlyReturns && IsFull(done)) return;
+    if (EarlyReturns && vecCore::MaskFull(done)) return;
 
     //-- once here, need to check if point is near a z-plane
     Float_t zplus              = unplaced.GetZAtPlane(isec + 1);
@@ -181,16 +181,16 @@ struct PolyconeImplementation {
     done |= update;
 
 #ifdef POLYCONEDEBUG
-    // if (EarlyReturns && IsFull(done)) {
+    // if (EarlyReturns && vecCore::MaskFull(done)) {
     std::cout << "Polycone::GenK4C&I() - spot 3b: is next sec possible?"
               << ", zplus=" << zplus << ", nearPlusZ=" << nearPlusZ << ", nextSectionPossible=" << nextSectionPossible
               << ", compIn=" << completelyInside << ", compOut=" << completelyOutside << ", done=" << done << "\n";
 // }
 #endif
 
-    if (EarlyReturns && IsFull(done)) return;
+    if (EarlyReturns && vecCore::MaskFull(done)) return;
 
-    assert(IsFull(nextSectionPossible));
+    assert(vecCore::MaskFull(nextSectionPossible));
 
     // ok, we are indeed near z-plane - need to check next surface
     Bool_t secIn2 = false, secOut2 = false;
@@ -203,7 +203,7 @@ struct PolyconeImplementation {
     done |= update;
 
 #ifdef POLYCONEDEBUG
-    // if ( EarlyReturns && IsFull(done) ) {
+    // if ( EarlyReturns && vecCore::MaskFull(done) ) {
     std::cout << "Polycone::GenK4C&I() - spot 3b: is next sec possible?"
               << ", secIn2=" << secIn2 << ", secOut2=" << secOut2 << ", compIn=" << completelyInside
               << ", compOut=" << completelyOutside << ", done=" << done << "\n";
@@ -244,7 +244,7 @@ struct PolyconeImplementation {
       MaskedAssign(!done, false, &completelyOutside);
 
 #ifdef POLYCONEDEBUG
-      // if (EarlyReturns && IsFull(done)) {
+      // if (EarlyReturns && vecCore::MaskFull(done)) {
       std::cout << "Polycone::GenK4C&I() - spot 3D: is nearZ and inside both OR surface? "
                 << " insecA(min,max)=" << insideRminA << " " << insideRmaxA << " insecB(min,max)=" << insideRminB << " "
                 << insideRmaxB << ", compIn=" << completelyInside << ", compOut=" << completelyOutside

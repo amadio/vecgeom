@@ -211,7 +211,7 @@ void ParallelepipedImplementation::DistanceToOut(UnplacedStruct_t const &unplace
   MaskedAssign(distance, !done && goingAway, Real_v(0.));
   MaskedAssign(distance, !done && inPoint && inDirection && max < distance, max);
   done |= goingAway;
-  if (IsFull(done)) return;
+  if (vecCore::MaskFull(done)) return;
 
   // X plane intersection
 

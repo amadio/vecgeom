@@ -355,14 +355,14 @@ struct TrdImplementation {
       MaskedAssign(okz, distz, &distance);
     }
     done |= okz;
-    if (IsFull(done)) {
+    if (vecCore::MaskFull(done)) {
       MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
       return;
     }
 
     // hitting X faces?
     Bool_t okx = Backend::kFalse;
-    if (!IsFull(inx)) {
+    if (!vecCore::MaskFull(inx)) {
 
       FaceTrajectoryIntersection<Backend, false, false, true>(trd, pos_local, dir_local, distx, okx);
       MaskedAssign(okx, distx, &distance);
@@ -371,7 +371,7 @@ struct TrdImplementation {
       MaskedAssign(okx, distx, &distance);
     }
     done |= okx;
-    if (IsFull(done)) {
+    if (vecCore::MaskFull(done)) {
       MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
       return;
     }
@@ -379,7 +379,7 @@ struct TrdImplementation {
     // hitting Y faces?
     Bool_t oky;
     if (checkVaryingY<trdTypeT>(trd)) {
-      if (!IsFull(iny)) {
+      if (!vecCore::MaskFull(iny)) {
         FaceTrajectoryIntersection<Backend, true, false, true>(trd, pos_local, dir_local, disty, oky);
         MaskedAssign(oky, disty, &distance);
 
@@ -387,7 +387,7 @@ struct TrdImplementation {
         MaskedAssign(oky, disty, &distance);
       }
     } else {
-      if (!IsFull(iny)) {
+      if (!vecCore::MaskFull(iny)) {
         disty /= Abs(dir_local.y());
         Float_t zhit = pos_local.z() + disty * dir_local.z();
         Float_t xhit = pos_local.x() + disty * dir_local.x();
@@ -431,7 +431,7 @@ struct TrdImplementation {
       disty = trd.dy1() - Abs(point.y());
       out |= disty < MakeMinusTolerant<true>(0.);
     }
-    if (/*vecCore::EarlyReturnAllowed() && */ IsFull(out)) {
+    if (/*vecCore::EarlyReturnAllowed() && */ vecCore::MaskFull(out)) {
       distance = -1.;
       return;
     }
@@ -442,7 +442,7 @@ struct TrdImplementation {
       hity          = Abs(point.y() + distz * dir.y());
       okzt &= hitx <= trd.dx2() && hity <= trd.dy2();
       MaskedAssign(okzt, distz, &distance);
-      if (vecCore::EarlyReturnAllowed() && IsFull(okzt)) {
+      if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(okzt)) {
         MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
         return;
       }
@@ -456,7 +456,7 @@ struct TrdImplementation {
       hity          = Abs(point.y() + distz * dir.y());
       okzb &= hitx <= trd.dx1() && hity <= trd.dy1();
       MaskedAssign(okzb, distz, &distance);
-      if (vecCore::EarlyReturnAllowed() && IsFull(okzb)) {
+      if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(okzb)) {
         MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
         return;
       }
@@ -468,14 +468,14 @@ struct TrdImplementation {
     FaceTrajectoryIntersection<Backend, false, false, false>(trd, point, dir, distx, okx);
 
     MaskedAssign(okx, distx, &distance);
-    if (vecCore::EarlyReturnAllowed() && IsFull(okx)) {
+    if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(okx)) {
       MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
       return;
     }
 
     FaceTrajectoryIntersection<Backend, false, true, false>(trd, point, dir, distx, okx);
     MaskedAssign(okx, distx, &distance);
-    if (vecCore::EarlyReturnAllowed() && IsFull(okx)) {
+    if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(okx)) {
       MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
       return;
     }
@@ -486,7 +486,7 @@ struct TrdImplementation {
     if (checkVaryingY<trdTypeT>(trd)) {
       FaceTrajectoryIntersection<Backend, true, false, false>(trd, point, dir, disty, oky);
       MaskedAssign(oky, disty, &distance);
-      if (vecCore::EarlyReturnAllowed() && IsFull(oky)) {
+      if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(oky)) {
         MaskedAssign(Abs(distance) < kHalfTolerance, 0., &distance);
         return;
       }

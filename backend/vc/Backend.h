@@ -117,12 +117,6 @@ void StoreTo(VcBool const &what, bool *toaddr)
 }
 
 VECGEOM_FORCE_INLINE
-bool IsFull(VcBool const &cond)
-{
-  return cond.isFull();
-}
-
-VECGEOM_FORCE_INLINE
 bool Any(VcBool const &cond)
 {
   return !cond.isEmpty();

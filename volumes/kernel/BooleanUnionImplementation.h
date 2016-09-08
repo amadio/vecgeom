@@ -248,7 +248,7 @@ void BooleanImplementation<kUnion, transCodeT, rotCodeT>::ContainsKernel(
 {
 
   inside = unplaced.fLeftVolume->Contains(localPoint);
-  if (IsFull(inside)) return;
+  if (vecCore::MaskFull(inside)) return;
   inside |= unplaced.fRightVolume->Contains(localPoint);
 }
 
@@ -450,7 +450,7 @@ void BooleanImplementation<kUnion, transCodeT, rotCodeT>::NormalKernel(
   Float_t safetyA = fPtrSolidA->SafetyToIn(point);
   Float_t safetyB = fPtrSolidB->SafetyToIn(point);
   Bool_t onA      = safetyA < safetyB;
-  if (IsFull(onA)) {
+  if (vecCore::MaskFull(onA)) {
     fPtrSolidA->GetTransformation()->Transform(point, localPoint);
     valid = fPtrSolidA->Normal(localPoint, localNorm);
     fPtrSolidA->GetTransformation()->InverseTransformDirection(localNorm, normal);

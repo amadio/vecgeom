@@ -674,12 +674,12 @@ void SphereImplementation<transCodeT, rotCodeT>::SafetyToInKernel(UnplacedSphere
 
   MaskedAssign(completelyinside, -1., &safety);
   done |= completelyinside;
-  if (IsFull(done)) return;
+  if (vecCore::MaskFull(done)) return;
 
   Bool_t isOnSurface = !completelyinside && !completelyoutside;
   MaskedAssign(!done && isOnSurface, 0., &safety);
   done |= isOnSurface;
-  if (IsFull(done)) return;
+  if (vecCore::MaskFull(done)) return;
 
   if (fRmin) {
     safeRMin = fRminV - rad;
@@ -739,12 +739,12 @@ void SphereImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(UnplacedSpher
   GenericKernelForContainsAndInside<Backend, true>(unplaced, point, completelyinside, completelyoutside);
   MaskedAssign(completelyoutside, -1., &safety);
   done |= completelyoutside;
-  if (IsFull(done)) return;
+  if (vecCore::MaskFull(done)) return;
 
   Bool_t isOnSurface = !completelyinside && !completelyoutside;
   MaskedAssign(!done && isOnSurface, 0., &safety);
   done |= isOnSurface;
-  if (IsFull(done)) return;
+  if (vecCore::MaskFull(done)) return;
 
   // Distance to r shells
   if (fRmin) {
@@ -816,19 +816,19 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   Bool_t cond = IsCompletelyInside<Backend>(unplaced, point);
   MaskedAssign(cond, -1., &distance);
   done |= cond;
-  if (IsFull(done)) return;
+  if (vecCore::MaskFull(done)) return;
 
   cond = IsPointOnSurfaceAndMovingOut<Backend, false>(unplaced, point, direction);
   MaskedAssign(!done && cond, 0., &distance);
   done |= cond;
-  if (IsFull(done)) return;
+  if (vecCore::MaskFull(done)) return;
 
   Float_t sd1(kInfinity);
   Float_t sd2(kInfinity);
   Float_t d2 = (pDotV3d * pDotV3d - c);
   cond       = (d2 < 0. || ((c > 0.0) && (pDotV3d > 0.0)));
   done |= cond;
-  if (IsFull(done)) return; // Returning in case of no intersection with outer shell
+  if (vecCore::MaskFull(done)) return; // Returning in case of no intersection with outer shell
 
   // Note: Abs(d2) was introduced to avoid Sqrt(negative) in other lanes than the ones satisfying d2>=0.
   MaskedAssign(d2 >= 0., (-pDotV3d - Sqrt(Abs(d2))), &sd1);
@@ -1011,12 +1011,12 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
   MaskedAssign(cond, -1., &distance);
 
   done |= cond;
-  if (IsFull(done)) return;
+  if (vecCore::MaskFull(done)) return;
 
   cond = IsPointOnSurfaceAndMovingOut<Backend, true>(unplaced, point, direction);
   MaskedAssign(!done && cond, 0., &distance);
   done |= cond;
-  if (IsFull(done)) return;
+  if (vecCore::MaskFull(done)) return;
 
   // Note: Abs(d2) was introduced to avoid Sqrt(negative) in other lanes than the ones satisfying d2>=0.
   d2 = (pDotV3d * pDotV3d - c);

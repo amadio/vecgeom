@@ -74,12 +74,6 @@ struct kUmeSimd {
 #define VECGEOM_BACKEND_INSIDE UMESIMDInt_v
 
 VECGEOM_FORCE_INLINE
-bool IsFull(UME::SIMD::SIMDVecMask<kVectorSize> const &cond)
-{
-  return cond.hland();
-}
-
-VECGEOM_FORCE_INLINE
 bool Any(UME::SIMD::SIMDVecMask<kVectorSize> const &cond)
 {
   return cond.hlor();

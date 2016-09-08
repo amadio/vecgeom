@@ -566,7 +566,7 @@ void BooleanImplementation<kSubtraction, transCodeT, rotCodeT>::NormalKernel(
   Float_t safetyA = fPtrSolidA->SafetyToOut(localPoint);
   Float_t safetyB = fPtrSolidB->SafetyToIn(point);
   Bool_t onA      = safetyA < safetyB;
-  if (IsFull(onA)) {
+  if (vecCore::MaskFull(onA)) {
     valid = fPtrSolidA->Normal(localPoint, localNorm);
     fPtrSolidA->GetTransformation()->InverseTransformDirection(localNorm, normal);
     return;

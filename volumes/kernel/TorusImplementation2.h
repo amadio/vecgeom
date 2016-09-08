@@ -224,7 +224,7 @@ struct TorusImplementation2 {
     //    // very fast check on z-height
     //    completelyoutside = point[2] > MakePlusTolerant<ForInside>( torus.rmax() );
     //    if (vecCore::EarlyReturnAllowed()) {
-    //         if ( IsFull(completelyoutside) ) {
+    //         if ( vecCore::MaskFull(completelyoutside) ) {
     //           return;
     //         }
     //    }
@@ -237,7 +237,7 @@ struct TorusImplementation2 {
       completelyinside = radsq < MakeMinusTolerantSquare<ForInside>(torus.rmax(), torus.rmax2());
     }
     if (vecCore::EarlyReturnAllowed()) {
-      if (IsFull(completelyoutside)) {
+      if (vecCore::MaskFull(completelyoutside)) {
         return;
       }
     }
@@ -249,7 +249,7 @@ struct TorusImplementation2 {
 
     // NOT YET NEEDED WHEN NOT PHI TREATMENT
     if (vecCore::EarlyReturnAllowed()) {
-      if (IsFull(completelyoutside)) {
+      if (vecCore::MaskFull(completelyoutside)) {
         return;
       }
     }
@@ -511,7 +511,7 @@ struct TorusImplementation2 {
     done = (!inBounds && tubeDistance == kInfinity);
 
     if (vecCore::EarlyReturnAllowed()) {
-      if (IsFull(done)) {
+      if (vecCore::MaskFull(done)) {
         return;
       }
     }
