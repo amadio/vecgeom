@@ -854,8 +854,9 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
     if (unplaced.IsFullSphere()) {
       MaskedAssign(!done && (sd2 >= 0.), sd2, &innerDist);
     } else {
+      //   std::cout<<" ---- Called by InnerRad ---- " << std::endl;
       tmpPt = point + sd2 * direction;
-      MaskedAssign(!done && (sd2 >= 0.) && unplaced.GetWedge().Contains<Backend>(tmpPt) &&
+      MaskedAssign(!done && (sd2 >= 0.) && (sd2 < kInfLength) && unplaced.GetWedge().Contains<Backend>(tmpPt) &&
                        unplaced.GetThetaCone().Contains<Backend>(tmpPt),
                    sd2, &innerDist);
     }
@@ -1029,14 +1030,21 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
   }
 
   snxt = Min(sd1, sd2);
+
+  Bool_t condSemi = (Bool_t(unplaced.GetSTheta() == 0. && unplaced.GetETheta() == kPi / 2.) && direction.z() >= 0.) ||
+                    (Bool_t(unplaced.GetSTheta() == kPi / 2. && unplaced.GetETheta() == kPi) && direction.z() <= 0.);
+  MaskedAssign(!done && condSemi, snxt, &distance);
+  done |= condSemi;
+  if (vecCore::MaskFull(done)) return;
+
   Float_t distThetaMin(kInfLength);
   Float_t distPhiMin(kInfLength);
 
   if (!unplaced.IsFullThetaSphere()) {
     Bool_t intsect1(false);
     Bool_t intsect2(false);
-    Float_t distTheta1(0.);
-    Float_t distTheta2(0.);
+    Float_t distTheta1(kInfLength);
+    Float_t distTheta2(kInfLength);
     unplaced.GetThetaCone().DistanceToOut<Backend>(point, direction, distTheta1, distTheta2, intsect1, intsect2);
     MaskedAssign((intsect2 && !intsect1), distTheta2, &distThetaMin);
     MaskedAssign((!intsect2 && intsect1), distTheta1, &distThetaMin);

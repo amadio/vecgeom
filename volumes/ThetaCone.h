@@ -403,9 +403,9 @@ public:
       Float_t a    = dirRho2 - dir.z() * dir.z() * tanSTheta2;
       Float_t c    = rho2 - point.z() * point.z() * tanSTheta2;
       Float_t d2   = b * b - a * c;
-      Float_t aInv = 1. / a;
+      Float_t aInv = 1. / NonZero(a);
 
-      MaskedAssign((d2 > 0.), (-b + Sqrt(d2)) * aInv, &firstRoot);
+      MaskedAssign((d2 > 0.), (-b + Sqrt(Abs(d2))) * aInv, &firstRoot);
       done |= (Abs(firstRoot) < 3.0 * kTolerance);
       MaskedAssign(((Abs(firstRoot) < 3.0 * kTolerance)), 0., &firstRoot);
       MaskedAssign((!done && (firstRoot < 0.)), kInfLength, &firstRoot);
@@ -415,9 +415,9 @@ public:
       Float_t a2    = dirRho2 - dir.z() * dir.z() * tanETheta2;
       Float_t c2    = rho2 - point.z() * point.z() * tanETheta2;
       Float_t d22   = b2 * b2 - a2 * c2;
-      Float_t a2Inv = 1. / a2;
+      Float_t a2Inv = 1. / NonZero(a2);
 
-      MaskedAssign((d22 > 0.), (-b2 - Sqrt(d22)) * a2Inv, &secondRoot);
+      MaskedAssign((d22 > 0.), (-b2 - Sqrt(Abs(d22))) * a2Inv, &secondRoot);
       MaskedAssign((!done && (Abs(secondRoot) < 3.0 * kTolerance)), 0., &secondRoot);
       done |= (Abs(secondRoot) < 3.0 * kTolerance);
       MaskedAssign(!done && (secondRoot < 0.), kInfLength, &secondRoot);
@@ -444,7 +444,7 @@ public:
         if (fETheta > kHalfPi + halfAngTolerance) {
           if (fSTheta < fETheta) {
             distThetaCone1 = firstRoot;
-            MaskedAssign((d22 > 0.), (-b2 + Sqrt(d22)) * a2Inv, &secondRoot);
+            MaskedAssign((d22 > 0.), (-b2 + Sqrt(Abs(d22))) * a2Inv, &secondRoot);
 
             done = fal;
             done |= (Abs(secondRoot) < 3.0 * kTolerance);
@@ -464,14 +464,14 @@ public:
       if (fSTheta >= kHalfPi - halfAngTolerance) {
         if (fETheta > kHalfPi + halfAngTolerance) {
           if (fSTheta < fETheta) {
-            MaskedAssign((d2 > 0.), (-b - Sqrt(d2)) * aInv, &firstRoot);
+            MaskedAssign((d2 > 0.), (-b - Sqrt(Abs(d2))) * aInv, &firstRoot);
             done = fal;
             done |= (Abs(firstRoot) < 3.0 * kTolerance);
             MaskedAssign(((Abs(firstRoot) < 3.0 * kTolerance)), 0., &firstRoot);
             MaskedAssign(!done && (firstRoot < 0.), kInfLength, &firstRoot);
             distThetaCone1 = firstRoot;
 
-            MaskedAssign((d22 > 0.), (-b2 + Sqrt(d22)) * a2Inv, &secondRoot);
+            MaskedAssign((d22 > 0.), (-b2 + Sqrt(Abs(d22))) * a2Inv, &secondRoot);
             done = fal;
             done |= (Abs(secondRoot) < 3.0 * kTolerance);
             MaskedAssign(((Abs(secondRoot) < 3.0 * kTolerance)), 0., &secondRoot);
@@ -508,6 +508,7 @@ public:
 
     Float_t inf(kInfLength);
 
+    // Float_t firstRoot(kInfLength), secondRoot(kInfLength);
     Float_t firstRoot(kInfLength), secondRoot(kInfLength);
 
     Float_t pDotV2d = point.x() * dir.x() + point.y() * dir.y();
@@ -519,11 +520,11 @@ public:
     Float_t d2 = b * b - a * c;
     MaskedAssign(d2 < 0. && Abs(d2) < kHalfTolerance, 0., &d2);
 
-    MaskedAssign((d2 >= 0.) && b >= 0. && a != 0., ((-b - Sqrt(d2)) / (a)), &firstRoot);
-    MaskedAssign((d2 >= 0.) && b < 0., ((c) / (-b + Sqrt(d2))), &firstRoot);
+    // MaskedAssign(a == 0., NonZero(a), &a);
+    MaskedAssign((d2 >= 0.) && b >= 0. && a != 0., ((-b - Sqrt(Abs(d2))) / NonZero(a)), &firstRoot);
+    MaskedAssign((d2 >= 0.) && b < 0., (c / NonZero(-b + Sqrt(Abs(d2)))), &firstRoot);
 
     MaskedAssign(firstRoot < 0., kInfLength, &firstRoot);
-
     Float_t b2 = point.x() * dir.x() + point.y() * dir.y() - point.z() * dir.z() * tanETheta2;
     Float_t a2 = dir.x() * dir.x() + dir.y() * dir.y() - dir.z() * dir.z() * tanETheta2;
 
@@ -531,8 +532,8 @@ public:
     Float_t d22 = (b2 * b2) - (a2 * c2);
     MaskedAssign(d22 < 0. && Abs(d22) < kHalfTolerance, 0., &d22);
 
-    MaskedAssign((d22 >= 0.) && b2 >= 0., ((c2) / (-b2 - Sqrt(d22))), &secondRoot);
-    MaskedAssign((d22 >= 0.) && b2 < 0. && a2 != 0., ((-b2 + Sqrt(d22)) / a2), &secondRoot);
+    MaskedAssign((d22 >= 0.) && b2 >= 0., (c2 / NonZero(-b2 - Sqrt(Abs(d22)))), &secondRoot);
+    MaskedAssign((d22 >= 0.) && b2 < 0. && a2 != 0., ((-b2 + Sqrt(Abs(d22))) / NonZero(a2)), &secondRoot);
 
     MaskedAssign(secondRoot < 0. && Abs(secondRoot) > kTolerance, kInfLength, &secondRoot);
     MaskedAssign(Abs(secondRoot) < kTolerance, 0., &secondRoot);
@@ -576,8 +577,8 @@ public:
       if (fETheta > kPi / 2 + halfAngTolerance) {
         if (fSTheta < fETheta) {
           distThetaCone1 = firstRoot;
-          MaskedAssign((d22 >= 0.) && b2 > 0. && a2 != 0., ((-b2 - Sqrt(d22)) / (a2)), &secondRoot);
-          MaskedAssign((d22 >= 0.) && b2 <= 0., ((c2) / (-b2 + Sqrt(d22))), &secondRoot);
+          MaskedAssign((d22 >= 0.) && b2 > 0. && a2 != 0., ((-b2 - Sqrt(Abs(d22))) / NonZero(a2)), &secondRoot);
+          MaskedAssign((d22 >= 0.) && b2 <= 0., ((c2) / NonZero(-b2 + Sqrt(Abs(d22)))), &secondRoot);
           MaskedAssign(secondRoot < 0., kInfLength, &secondRoot);
           distThetaCone2           = secondRoot;
           Float_t zOfIntSecPtCone1 = (point.z() + distThetaCone1 * dir.z());
@@ -590,14 +591,15 @@ public:
 
     if (fETheta > kPi / 2 + halfAngTolerance) {
       if (fSTheta < fETheta) {
-        MaskedAssign((d22 >= 0.) && b2 > 0. && a2 != 0., ((-b2 - Sqrt(d22)) / (a2)), &secondRoot);
-        MaskedAssign((d22 >= 0.) && b2 <= 0., ((c2) / (-b2 + Sqrt(d22))), &secondRoot);
+        secondRoot = kInfLength;
+        MaskedAssign((d22 >= 0.) && b2 > 0. && a2 != 0., ((-b2 - Sqrt(Abs(d22))) / NonZero(a2)), &secondRoot);
+        MaskedAssign((d22 >= 0.) && b2 <= 0., (c2 / NonZero(-b2 + Sqrt(Abs(d22)))), &secondRoot);
         MaskedAssign(secondRoot < 0., kInfLength, &secondRoot);
         distThetaCone2 = secondRoot;
 
         if (fSTheta > kPi / 2 + halfAngTolerance) {
-          MaskedAssign((d2 >= 0.) && b > 0., ((c) / (-b - Sqrt(d2))), &firstRoot);
-          MaskedAssign((d2 >= 0.) && b <= 0. && a != 0., ((-b + Sqrt(d2)) / (a)), &firstRoot);
+          MaskedAssign((d2 >= 0.) && b > 0., (c / NonZero(-b - Sqrt(Abs(d2)))), &firstRoot);
+          MaskedAssign((d2 >= 0.) && b <= 0. && a != 0., ((-b + Sqrt(Abs(d2))) / NonZero(a)), &firstRoot);
           MaskedAssign(firstRoot < 0., kInfLength, &firstRoot);
           distThetaCone1           = firstRoot;
           Float_t zOfIntSecPtCone1 = (point.z() + distThetaCone1 * dir.z());
@@ -623,8 +625,8 @@ public:
 
     if (fSTheta >= kPi / 2 - halfAngTolerance && fSTheta <= kPi / 2 + halfAngTolerance) {
       distThetaCone2 = secondRoot;
-      distThetaCone1 = inf;
-      MaskedAssign((dir.z() > 0.), -1. * point.z() / dir.z(), &distThetaCone1);
+      distThetaCone1 = kInfLength;
+      MaskedAssign((dir.z() > 0.), -1. * point.z() / NonZero(dir.z()), &distThetaCone1);
       Float_t zOfIntSecPtCone1 = (point.z() + distThetaCone1 * dir.z());
 
       Float_t zOfIntSecPtCone2 = (point.z() + distThetaCone2 * dir.z());
@@ -721,7 +723,8 @@ public:
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
     // Float_t pi(kPi), zero(0.);
-    Float_t rho           = Sqrt(localPoint.Mag2() - (localPoint.z() * localPoint.z()));
+    Float_t diff          = (localPoint.Mag2() - (localPoint.z() * localPoint.z()));
+    Float_t rho           = Sqrt(diff);
     Float_t cone1Radius   = Abs(localPoint.z() * tanSTheta);
     Float_t cone2Radius   = Abs(localPoint.z() * tanETheta);
     Bool_t isPointOnZAxis = localPoint.z() != 0. && localPoint.x() == 0. && localPoint.y() == 0.;
