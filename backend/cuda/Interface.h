@@ -93,7 +93,7 @@ template <typename Type>
 Type *AllocateOnGpu(const unsigned int size)
 {
   Type *ptr;
-  CudaAssertError(CudaMalloc((void **)&ptr, size));
+  vecgeom::cxx::CudaAssertError(CudaMalloc((void **)&ptr, size));
   return ptr;
 }
 
@@ -106,13 +106,13 @@ Type *AllocateOnGpu()
 template <typename Type>
 void FreeFromGpu(Type *const ptr)
 {
-  CudaAssertError(CudaFree(ptr));
+  vecgeom::cxx::CudaAssertError(CudaFree(ptr));
 }
 
 template <typename Type>
 void CopyToGpu(Type const *const src, Type *const tgt, const unsigned size)
 {
-  CudaAssertError(CudaCopyToDevice(tgt, src, size));
+  vecgeom::cxx::CudaAssertError(CudaCopyToDevice(tgt, src, size));
 }
 
 template <typename Type>
@@ -124,7 +124,7 @@ void CopyToGpu(Type const *const src, Type *const tgt)
 template <typename Type>
 void CopyFromGpu(Type const *const src, Type *const tgt, const unsigned size)
 {
-  CudaAssertError(CudaCopyFromDevice(tgt, src, size));
+  vecgeom::cxx::CudaAssertError(CudaCopyFromDevice(tgt, src, size));
 }
 
 class DevicePtrBase {
@@ -143,6 +143,7 @@ protected:
 #endif
   {
   }
+
   DevicePtrBase &operator=(const DevicePtrBase &orig)
   {
     fPtr = orig.fPtr;
@@ -155,12 +156,12 @@ protected:
 
   void MemcpyToDevice(const void *what, unsigned long nbytes)
   {
-    if (nbytes) CudaAssertError(cudaMemcpy(fPtr, what, nbytes, cudaMemcpyHostToDevice));
+    if (nbytes) vecgeom::cxx::CudaAssertError(cudaMemcpy(fPtr, what, nbytes, cudaMemcpyHostToDevice));
   }
 
   void MemcpyToHostAsync(void *where, unsigned long nbytes, cudaStream_t stream)
   {
-    CudaAssertError(cudaMemcpyAsync(where, fPtr, nbytes, cudaMemcpyDeviceToHost, stream));
+    vecgeom::cxx::CudaAssertError(cudaMemcpyAsync(where, fPtr, nbytes, cudaMemcpyDeviceToHost, stream));
   }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -173,6 +174,7 @@ protected:
     fAllocatedSize = 0;
 #endif
   }
+
   void Increment(long add)
   {
     fPtr = (char *)fPtr + add;
