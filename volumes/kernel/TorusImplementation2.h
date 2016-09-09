@@ -531,7 +531,7 @@ struct TorusImplementation2 {
         if (daxis >= torus.rmin2() && daxis < torus.rmax2()) {
           distance = d1;
           // check if tube intersections is due to phi in which case we are done
-          if (distance == tubeDistance) {
+          if (Abs(distance - tubeDistance) < kTolerance) {
             return;
           }
         }
@@ -542,11 +542,12 @@ struct TorusImplementation2 {
         if (daxis >= torus.rmin2() && daxis < torus.rmax2()) {
           distance = Min(d2, distance);
           // check if tube intersections is due to phi in which case we are done
-          if (distance == tubeDistance) {
+          if (Abs(distance - tubeDistance) < kTolerance) {
             return;
           }
         }
       }
+      distance = kInfinity;
     }
 
     Float_t dd = ToBoundary<Backend, false>(torus, localPoint, localDirection, torus.rmax(), false);
