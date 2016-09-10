@@ -47,7 +47,7 @@ public:
   /// Constructor based on placed volume
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedScaledShape(VPlacedVolume const *placed, Precision sx, Precision sy, Precision sz, bool globalConvexity)
-      : fPlaced(placed), fScale(sx, sy, sz)
+      : fScaled(placed, sx, sy, sz)
   {
     /* assert(placed->GetTransformation()->IsIdentity());*/
     fGlobalConvexity = globalConvexity;
