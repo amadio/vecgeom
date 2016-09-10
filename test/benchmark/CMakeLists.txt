@@ -57,20 +57,14 @@ set(THISCTESTS
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrdBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ConeBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/GenTrapBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/ScaledBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/BoxScaledBenchmark.cpp
 )
 
 # these tests fail because of a problem in USOLIDS:
 IF(NOT USOLIDS)
   set(THISCTESTS ${THISCTESTS}
       ${CMAKE_SOURCE_DIR}/test/benchmark/PolyconeBenchmark.cpp
-  )
-ENDIF()
-
-# these fail on CUDA
-IF(NOT CUDA)
-  set(THISCTESTS ${THISCTESTS}
-      ${CMAKE_SOURCE_DIR}/test/benchmark/ScaledBenchmark.cpp
-      ${CMAKE_SOURCE_DIR}/test/benchmark/BoxScaledBenchmark.cpp
   )
 ENDIF()
 
