@@ -79,6 +79,7 @@
 #include "volumes/LogicalVolume.h"
 #include "volumes/UnplacedTrapezoid.h"
 #include "base/Transformation3D.h"
+#include "VecCore/VecMath.h"
 
 struct UTrapSidePlane {
   double a, b, c, d; // Normal Unit vector (a,b,c) and offset (d)
@@ -107,9 +108,78 @@ class UTrap : public vecgeom::USolidsAdapter<vecgeom::UnplacedTrapezoid> {
   using Base_t::Base_t;
 
 public:
+  using Base_t::GetTanAlpha1;
+  using Base_t::GetTanAlpha2;
+
   // add default constructor for tests
   UTrap() : Base_t("", 0., 0., 0) {}
   virtual ~UTrap() {}
+
+  VECGEOM_FORCE_INLINE
+  double GetZHalfLength() const { return static_cast<Shape_t const *>(this)->GetDz(); }
+
+  VECGEOM_FORCE_INLINE
+  double GetYHalfLength1() const { return static_cast<Shape_t const *>(this)->GetDy1(); }
+
+  VECGEOM_FORCE_INLINE
+  double GetXHalfLength1() const { return static_cast<Shape_t const *>(this)->GetDx1(); }
+
+  VECGEOM_FORCE_INLINE
+  double GetXHalfLength2() const { return static_cast<Shape_t const *>(this)->GetDx2(); }
+
+  VECGEOM_FORCE_INLINE
+  double GetYHalfLength2() const { return static_cast<Shape_t const *>(this)->GetDy2(); }
+
+  VECGEOM_FORCE_INLINE
+  double GetXHalfLength3() const { return static_cast<Shape_t const *>(this)->GetDx3(); }
+
+  VECGEOM_FORCE_INLINE
+  double GetXHalfLength4() const { return static_cast<Shape_t const *>(this)->GetDx4(); }
+
+  VECGEOM_FORCE_INLINE
+  double GetThetaCphi() const { return static_cast<Shape_t const *>(this)->GetTanThetaCosPhi(); }
+
+  VECGEOM_FORCE_INLINE
+  double GetThetaSphi() const { return static_cast<Shape_t const *>(this)->GetTanThetaSinPhi(); }
+
+  UTrapSidePlane GetSidePlane(int i)
+  {
+    vecgeom::UnplacedTrapezoid const *vgtrap = (Shape_t *)this;
+    UTrapSidePlane plane;
+    plane.a = vgtrap->GetStruct().GetPlane(i).fA;
+    plane.b = vgtrap->GetStruct().GetPlane(i).fB;
+    plane.c = vgtrap->GetStruct().GetPlane(i).fC;
+    plane.d = vgtrap->GetStruct().GetPlane(i).fD;
+    return plane;
+  }
+
+  UVector3 GetSymAxis() const
+  {
+    vecgeom::UnplacedTrapezoid const *vgtrap = (Shape_t *)this;
+    double tanThetaSphi                      = vgtrap->GetTanThetaSinPhi();
+    double tanThetaCphi                      = vgtrap->GetTanThetaCosPhi();
+    double tan2Theta                         = tanThetaSphi * tanThetaSphi + tanThetaCphi * tanThetaCphi;
+    double cosTheta                          = 1.0 / vecCore::math::Sqrt(1 + tan2Theta);
+    return UVector3(tanThetaCphi * cosTheta, tanThetaSphi * cosTheta, cosTheta);
+  }
+
+  void SetPlanes(const UVector3 pt[8])
+  {
+    vecgeom::UnplacedTrapezoid *vgtrap = static_cast<Shape_t *>(this);
+    // std::cout<<"PlacedTrap.h: sizeof's for: pt="<< sizeof(pt)
+    //          <<", opt[8]="<< sizeof(pt[8])
+    //          <<", Vec3D: "<< sizeof(Vector3D<vecgeom::Precision>) <<"\n";
+    if (sizeof(pt[8]) == 8 * sizeof(vecgeom::Vector3D<vecgeom::Precision>)) {
+      vgtrap->fromCornersToParameters(pt);
+    } else {
+      // just in case Precision is float
+      vecgeom::Vector3D<vecgeom::Precision> vgpt[8];
+      for (unsigned i = 0; i < 8; ++i) {
+        vgpt[i].Set(pt[i].x(), pt[i].y(), pt[i].z());
+      }
+      vgtrap->fromCornersToParameters(vgpt);
+    }
+  }
 
   // provide a new object which is a clone of the original solid
   VUSolid *Clone() const override
@@ -136,6 +206,25 @@ public:
     aArray[8]  = dx3();
     aArray[9]  = dx4();
     aArray[10] = tanAlpha2();
+  }
+
+  void SetAllParameters(double pDz, double pTheta, double pPhi, double pDy1, double pDx1, double pDx2, double pAlp1,
+                        double pDy2, double pDx3, double pDx4, double pAlp2)
+  {
+    const double _mm                   = 0.1; // conversion factor from Geant4 default (mm) to VecGeom's (cm)
+    vecgeom::UnplacedTrapezoid *vgtrap = (Shape_t *)this;
+    vgtrap->SetDz(pDz * _mm);
+    vgtrap->SetDy1(pDy1 * _mm);
+    vgtrap->SetDy2(pDy2 * _mm);
+    vgtrap->SetDx1(pDx1 * _mm);
+    vgtrap->SetDx2(pDx2 * _mm);
+    vgtrap->SetDx3(pDx3 * _mm);
+    vgtrap->SetDx4(pDx4 * _mm);
+    vgtrap->SetTanAlpha1(vecCore::math::Tan(pAlp1));
+    vgtrap->SetTanAlpha1(vecCore::math::Tan(pAlp2));
+    // last two will also reset cached variables
+    vgtrap->SetTheta(pTheta);
+    vgtrap->SetPhi(pPhi);
   }
 
   std::ostream &StreamInfo(std::ostream &os) const override

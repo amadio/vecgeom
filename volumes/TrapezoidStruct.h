@@ -23,14 +23,20 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 template <typename T = double>
 struct TrapezoidStruct {
 
-#ifndef VECGEOM_PLANESHELL_DISABLE
-  typedef PlaneShell<4, Precision> Planes;
-#else
   struct TrapSidePlane {
     Precision fA, fB, fC, fD;
     // Plane equation: Ax+By+Cz+D=0, where
     // normal unit vector nvec=(A,B,C)  and offset=D is the distance from origin to plane
+
+    VECGEOM_CUDA_HEADER_BOTH
+    TrapSidePlane() : fA(0.0), fB(0.0), fC(0.0), fD(0.0) {}
+
+    VECGEOM_CUDA_HEADER_BOTH
+    TrapSidePlane(Precision a, Precision b, Precision c, Precision d) : fA(a), fB(b), fC(c), fD(d) {}
   };
+
+#ifndef VECGEOM_PLANESHELL_DISABLE
+  typedef PlaneShell<4, Precision> Planes;
 #endif
 
   T fDz;
@@ -101,13 +107,47 @@ public:
 
 public:
 #ifndef VECGEOM_PLANESHELL_DISABLE
+
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
   Planes const *GetPlanes() const { return &fPlanes; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_FORCE_INLINE
+  TrapSidePlane GetPlane(unsigned int i) const
+  {
+    return TrapSidePlane(fPlanes.fA[i], fPlanes.fB[i], fPlanes.fC[i], fPlanes.fD[i]);
+  }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_FORCE_INLINE
+  void SetPlane(unsigned int i, Precision a, Precision b, Precision c, Precision d)
+  {
+    fPlanes.fA[i] = a;
+    fPlanes.fB[i] = b;
+    fPlanes.fC[i] = c;
+    fPlanes.fD[i] = d;
+  }
+
 #else
+
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
   TrapSidePlane const *GetPlanes() const { return fPlanes; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_FORCE_INLINE
+  TrapSidePlane GetPlane(unsigned int i) const { return fPlanes[i]; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_FORCE_INLINE
+  void SetPlane(unsigned int i, Precision a, Precision b, Precision c, Precision d)
+  {
+    fPlanes[i].fA = a;
+    fPlanes[i].fB = b;
+    fPlanes[i].fC = c;
+    fPlanes[i].fD = d;
+  }
 #endif
 };
 

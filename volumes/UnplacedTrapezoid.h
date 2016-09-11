@@ -217,7 +217,6 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
   Precision GetTanThetaCosPhi() const { return fTrap.fTthetaCphi; }
-
   /// @}
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -383,11 +382,11 @@ public:
   //   TrapSidePlane const *GetPlanes() const { return fTrap.GetPlanes(); }
   // #endif
 
-private:
   /// \brief Calculate trapezoid parameters when user provides the 8 corners
   VECGEOM_CUDA_HEADER_BOTH
   void fromCornersToParameters(TrapCorners const pt);
 
+private:
   /// \brief Calculate the 8 corner points using pre-stored parameters
   VECGEOM_CUDA_HEADER_BOTH
   void fromParametersToCorners(TrapCorners pt) const;
