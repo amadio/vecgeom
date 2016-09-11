@@ -300,6 +300,7 @@ struct TubeImplementation {
   template <typename Stream>
   static void PrintType(Stream &s)
   {
+    (void)s;
     // have to implement this somewhere else
     //  s << "SpecializedTube<" << transCodeT << "," << rotCodeT << ",TubeTypes::" << tubeTypeT::toString() << ">";
   }
@@ -307,6 +308,7 @@ struct TubeImplementation {
   template <typename Stream>
   static void PrintImplementationType(Stream &s)
   {
+    (void)s;
     // have to implement this somewhere else
     //  s << "TubeImplementation<" << transCodeT << "," << rotCodeT << ",TubeTypes::" << tubeTypeT::toString() << ">";
   }
@@ -408,8 +410,9 @@ struct TubeImplementation {
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToIn(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir,
-                           Real_v const & /*stepMax*/, Real_v &distance)
+                           Real_v const &stepMax, Real_v &distance)
   {
+    (void)stepMax;
     using namespace TubeUtilities;
     using namespace ::vecgeom::TubeTypes;
 
@@ -554,9 +557,9 @@ struct TubeImplementation {
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToOut(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir,
-                            Real_v const & /*stepMax*/, Real_v &distance)
+                            Real_v const &stepMax, Real_v &distance)
   {
-
+    (void)stepMax;
     using namespace ::vecgeom::TubeTypes;
     using namespace TubeUtilities;
 

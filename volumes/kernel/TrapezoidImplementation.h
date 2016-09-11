@@ -154,6 +154,7 @@ struct TrapezoidImplementation {
   static void DistanceToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir,
                            Real_v const &stepMax, Real_v &distance)
   {
+    (void)stepMax;
     using Bool_v = vecCore::Mask_v<Real_v>;
     Bool_v done(false);
     distance = kInfinity;
@@ -299,8 +300,9 @@ struct TrapezoidImplementation {
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                            Vector3D<Real_v> const &dir, Real_v const & /* stepMax */, Real_v &distance)
+                            Vector3D<Real_v> const &dir, Real_v const &stepMax, Real_v &distance)
   {
+    (void)stepMax;
     using Bool_v = vecCore::Mask_v<Real_v>;
 
     distance = kInfinity;

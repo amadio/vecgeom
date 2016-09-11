@@ -24,6 +24,7 @@ VPlacedVolume *UnplacedTube::Create(LogicalVolume const *const logical_volume,
 #endif
                                     VPlacedVolume *const placement)
 {
+  (void)placement;
   return new SimpleTube(logical_volume, transformation
 #ifdef VECGEOM_NVCC
                         ,

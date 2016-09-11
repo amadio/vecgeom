@@ -308,10 +308,12 @@ public:
                                                                               points, output);
   }
 
-  virtual void SafetyToInMinimize(SOA3D<Precision> const & /* points */, Precision *const /* safeties */) const override
+  virtual void SafetyToInMinimize(SOA3D<Precision> const &points, Precision *const safeties) const override
   {
     // we do no longer need this (probably)
     // SafetyToInMinimizeTemplate(points, safeties);
+    (void)points;
+    (void)safeties;
   }
 
   virtual void DistanceToIn(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
@@ -343,12 +345,16 @@ public:
     return output;
   }
 
-  virtual void DistanceToInMinimize(SOA3D<Precision> const & /* points */, SOA3D<Precision> const & /* directions */,
-                                    int /* daughterindex */, Precision *const /* output */,
-                                    int *const /* nextnodeids */) const override
+  virtual void DistanceToInMinimize(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
+                                    int daughterindex, Precision *const output, int *const nextnodeids) const override
   {
     // we do no longer need this (probably)
     // DistanceToInMinimizeTemplate(points, directions, daughterindex, output, nextnodeids);
+    (void)points;
+    (void)directions;
+    (void)daughterindex;
+    (void)output;
+    (void)nextnodeids;
   }
 
   virtual void Contains(SOA3D<Precision> const &points, bool *const output) const override
@@ -471,6 +477,9 @@ public:
                                                          Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &d,
                                                          VECGEOM_BACKEND_PRECISION_TYPE const step_max) const override
   {
+    (void)p;
+    (void)d;
+    (void)step_max;
     throw std::runtime_error("DistanceToInVec unimplemented");
   }
 
