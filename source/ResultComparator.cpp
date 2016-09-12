@@ -14,6 +14,7 @@
 #endif
 
 #include <sstream>
+#include <map>
 
 namespace vecgeom {
 
@@ -21,6 +22,32 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 // reusable utility function to compare distance results against ROOT/Geant4/ etc.
 namespace DistanceComparator {
+
+namespace {
+#ifdef VECGEOM_ROOT
+std::shared_ptr<TGeoShape const> LookupROOT(VPlacedVolume const *vol)
+{
+  static std::map<VPlacedVolume const *, std::shared_ptr<TGeoShape const>> gROOTshapes;
+  if (gROOTshapes.find(vol) == gROOTshapes.end()) {
+    gROOTshapes.insert(std::pair<VPlacedVolume const *, std::shared_ptr<TGeoShape const>>(
+        vol, std::shared_ptr<TGeoShape const>(vol->ConvertToRoot())));
+  }
+  return gROOTshapes[vol];
+}
+#endif
+
+#ifdef VECGEOM_GEANT4
+std::shared_ptr<G4VSolid const> LookupG4(VPlacedVolume const *vol)
+{
+  static std::map<VPlacedVolume const *, std::shared_ptr<G4VSolid const>> gG4shapes;
+  if (gG4shapes.find(vol) == gG4shapes.end()) {
+    gG4shapes.insert(std::pair<VPlacedVolume const *, std::shared_ptr<G4VSolid const>>(
+        vol, std::shared_ptr<G4VSolid const>(vol->ConvertToGeant4())));
+  }
+  return gG4shapes[vol];
+}
+#endif
+}
 
 void CompareUnplacedContains(VPlacedVolume const *vol, bool vecgeomresult, Vector3D<Precision> const &point)
 {
@@ -33,7 +60,7 @@ void CompareUnplacedContains(VPlacedVolume const *vol, bool vecgeomresult, Vecto
   bool mismatch = false;
 
 #ifdef VECGEOM_ROOT
-  std::shared_ptr<TGeoShape const> rootshape(vol->ConvertToRoot());
+  auto rootshape  = LookupROOT(vol);
   bool rootresult = rootshape->Contains((double *)&point[0]);
   mismatch |= rootresult != vecgeomresult;
 //        if( rootresult != vecgeomresult ){
@@ -55,7 +82,7 @@ void CompareUnplacedContains(VPlacedVolume const *vol, bool vecgeomresult, Vecto
 #endif
 
 #ifdef VECGEOM_GEANT4
-  std::shared_ptr<G4VSolid const> g4shape(vol->ConvertToGeant4());
+  auto g4shape  = LookupG4(vol);
   auto g4inside = g4shape->Inside(G4ThreeVector(point[0], point[1], point[2]));
 
   // due to possible ambigouity here use fix values from Geant4 ( 0 == kOutside ; 2 == kInside )
@@ -107,25 +134,29 @@ void CompareDistanceToIn(VPlacedVolume const *vol, Precision vecgeomresult, Vect
 #endif
 
 #ifdef VECGEOM_ROOT
-  std::shared_ptr<TGeoShape const> rootshape(vol->ConvertToRoot());
-  Precision rootresult = rootshape->DistFromOutside((double *)&tpoint[0], (double *)&tdirection[0], 3, stepMax);
+  auto rootshape = LookupROOT(vol);
+  Precision rootresult{-1};
+  if (rootshape != nullptr) {
+    rootresult = rootshape->DistFromOutside((double *)&tpoint[0], (double *)&tdirection[0], 3, stepMax);
 
-  if (Abs(rootresult - vecgeomresult) > 1e-8 && Abs(rootresult - vecgeomresult) < 1e30) {
-    std::cout << "## WARNING ## DI VecGeom  " << vecgeomresult;
-    std::cout << " ROOT: " << rootresult << "\n";
+    if (Abs(rootresult - vecgeomresult) > kTolerance * rootresult && Abs(rootresult - vecgeomresult) < 1e30) {
+      std::cout << "## WARNING ## DI VecGeom  " << vecgeomresult;
+      std::cout << " ROOT: " << rootresult << "Delta(" << rootresult - vecgeomresult << ")\n";
+    }
   }
-
 #endif
 
 #ifdef VECGEOM_GEANT4
-  G4VSolid const *g4shape = vol->ConvertToGeant4();
-  Precision g4result      = g4shape->DistanceToIn(G4ThreeVector(tpoint[0], tpoint[1], tpoint[2]),
-                                             G4ThreeVector(tdirection[0], tdirection[1], tdirection[2]));
-  if (Abs(g4result - vecgeomresult) > 1e-8 && Abs(rootresult - vecgeomresult) < 1e30) {
-    std::cout << "## WARNING ## DI VecGeom  " << vecgeomresult;
-    std::cout << " G4: " << g4result << "\n";
+  auto g4shape = LookupG4(vol);
+  // g4shape->StreamInfo(std::cerr);
+  if (g4shape != nullptr) {
+    Precision g4result = g4shape->DistanceToIn(G4ThreeVector(tpoint[0], tpoint[1], tpoint[2]),
+                                               G4ThreeVector(tdirection[0], tdirection[1], tdirection[2]));
+    if (Abs(g4result - vecgeomresult) > kTolerance * g4result && Abs(rootresult - vecgeomresult) < 1e30) {
+      std::cout << "## WARNING ## DI VecGeom  " << vecgeomresult;
+      std::cout << " G4: " << g4result << "Delta(" << g4result - vecgeomresult << ")\n";
+    }
   }
-  if (g4shape != NULL) delete g4shape;
 #endif
 }
 
@@ -133,10 +164,10 @@ void CompareDistanceToOut(VPlacedVolume const *vol, Precision vecgeomresult, Vec
                           Vector3D<Precision> const &direction, Precision const stepMax = VECGEOM_NAMESPACE::kInfinity)
 {
 #ifdef VECGEOM_ROOT
-  std::shared_ptr<TGeoShape const> rootshape(vol->ConvertToRoot());
+  auto rootshape       = LookupROOT(vol);
   Precision rootresult = rootshape->DistFromInside((double *)&point[0], (double *)&direction[0], 3, stepMax);
   if (vecgeomresult < 0) std::cout << "## WARNING ## DO VecGeom negative (ROOT = " << rootresult << ")\n";
-  if (Abs(rootresult - vecgeomresult) > 1e-8) {
+  if (Abs(rootresult - vecgeomresult) > kTolerance * rootresult) {
     std::cout << "## WARNING ## DO VecGeom  " << vecgeomresult;
     std::cout << " ROOT: " << rootresult << "\n";
     PrintPointInformation(vol, point);
@@ -144,9 +175,10 @@ void CompareDistanceToOut(VPlacedVolume const *vol, Precision vecgeomresult, Vec
 #endif
 
 #ifdef VECGEOM_GEANT4
-  Precision g4result = vol->ConvertToGeant4()->DistanceToOut(
-      G4ThreeVector(point[0], point[1], point[2]), G4ThreeVector(direction[0], direction[1], direction[2]), false);
-  if (Abs(g4result - vecgeomresult) > 1e-8) {
+  auto g4shape       = LookupG4(vol);
+  Precision g4result = g4shape->DistanceToOut(G4ThreeVector(point[0], point[1], point[2]),
+                                              G4ThreeVector(direction[0], direction[1], direction[2]), false);
+  if (Abs(g4result - vecgeomresult) > kTolerance * g4result) {
     std::cout << "## WARNING ## DO VecGeom  " << vecgeomresult;
     std::cout << " G4: " << g4result << "\n";
   }
