@@ -61,7 +61,7 @@ TGeoShape const *PlacedPolycone::ConvertToRoot() const
   unplaced->ReconstructSectionArrays(z, rmin, rmax);
 
   UPolycone *usolidshape =
-      new UPolycone("", unplaced->fStartPhi, unplaced->fDeltaPhi, unplaced->fNz, &z[0], &rmin[0], &rmax[0]);
+      new UPolycone("", unplaced->fStartPhi, unplaced->fDeltaPhi, z.size(), &z[0], &rmin[0], &rmax[0]);
 
   return usolidshape;
 }
@@ -78,7 +78,7 @@ G4VSolid const *PlacedPolycone::ConvertToGeant4() const
   unplaced->ReconstructSectionArrays(z, rmin, rmax);
 
   G4Polycone *g4shape =
-      new G4Polycone("", unplaced->fStartPhi, unplaced->fDeltaPhi, unplaced->fNz, &z[0], &rmin[0], &rmax[0]);
+      new G4Polycone("", unplaced->fStartPhi, unplaced->fDeltaPhi, z.size(), &z[0], &rmin[0], &rmax[0]);
 
   return g4shape;
 }
