@@ -113,9 +113,9 @@ public:
   virtual int memory_size() const final { return (sizeof(*this) + fScaled.fPlaced->memory_size()); }
 
 #ifdef VECGEOM_CUDA_INTERFACE
-  virtual size_t DeviceSizeOf() const { return DevicePtr<cuda::UnplacedScaledShape>::SizeOf(); }
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const;
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
+  virtual size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedScaledShape>::SizeOf(); }
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
 #endif
 
   VECGEOM_FORCE_INLINE
