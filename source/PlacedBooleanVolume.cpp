@@ -117,11 +117,18 @@ TGeoShape const *PlacedBooleanVolume::ConvertToRoot() const
 #ifdef VECGEOM_GEANT4
 G4VSolid const *PlacedBooleanVolume::ConvertToGeant4() const
 {
-  VPlacedVolume const *left      = GetUnplacedVolume()->fLeftVolume;
-  VPlacedVolume const *right     = GetUnplacedVolume()->fRightVolume;
+  VPlacedVolume const *left  = GetUnplacedVolume()->fLeftVolume;
+  VPlacedVolume const *right = GetUnplacedVolume()->fRightVolume;
+
+  if (!left->GetTransformation()->IsIdentity()) {
+    std::cerr << "WARNING : For the moment left transformations are not implemented\n";
+  }
+
   Transformation3D const *rightm = right->GetTransformation();
   G4RotationMatrix *g4rot        = new G4RotationMatrix();
-  g4rot->set(CLHEP::HepRep3x3(rightm->Rotation()));
+  auto rot                       = rightm->Rotation();
+  // HepRep3x3 seems? to be column major order:
+  g4rot->set(CLHEP::HepRep3x3(rot[0], rot[3], rot[6], rot[1], rot[4], rot[7], rot[2], rot[5], rot[8]));
   if (GetUnplacedVolume()->GetOp() == kSubtraction) {
     return new G4SubtractionSolid(
         GetLabel(), const_cast<G4VSolid *>(left->ConvertToGeant4()), const_cast<G4VSolid *>(right->ConvertToGeant4()),
