@@ -305,7 +305,7 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
         if (DoVerbose) {
           std::string nextnodename;
           nextnodename = (node) ? node->GetVolume()->GetName() : "NULL";
-          std::cout << " FROM p(" << p[0] << ", " << p[1] << ", " << p[2] << ") ; " << currnodename << "  -->  "
+          std::cout << "R FROM p(" << p[0] << ", " << p[1] << ", " << p[2] << ") ; " << currnodename << "  -->  "
                     << nextnodename << " with step [" << nav->GetStep() << "]\n";
           currnodename = nextnodename;
         }
@@ -498,7 +498,7 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
         distancetravelled += step;
         if (DoVerbose) {
           std::string nextnodename((newnavstate->Top()) ? newnavstate->Top()->GetName() : "NULL");
-          std::cout << " FROM p(" << p[0] << ", " << p[1] << ", " << p[2] << ") ; " << currnodename << "  -->  "
+          std::cout << "VG FROM p(" << p[0] << ", " << p[1] << ", " << p[2] << ") ; " << currnodename << "  -->  "
                     << nextnodename << " with step [" << step << "]\n";
           currnodename = nextnodename;
         }
@@ -753,7 +753,7 @@ int XRayWithGeant4(G4VPhysicalVolume *world /* the detector to scan */, int axis
 
         if (DoVerbose) {
           std::string nextnodename((vol) ? vol->GetName() : "NULL");
-          std::cout << " FROM p(" << p[0] << ", " << p[1] << ", " << p[2] << ") ; " << currnodename << "  -->  "
+          std::cout << "G4 FROM p(" << p[0] << ", " << p[1] << ", " << p[2] << ") ; " << currnodename << "  -->  "
                     << nextnodename << " with step [" << step << "]\n";
           currnodename = nextnodename;
         }
