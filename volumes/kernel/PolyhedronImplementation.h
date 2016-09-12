@@ -14,6 +14,7 @@
 #include "volumes/kernel/GenericKernels.h"
 #include "volumes/kernel/TubeImplementation.h"
 #include "volumes/Quadrilaterals.h"
+#include "volumes/Wedge.h"
 #include "volumes/UnplacedPolyhedron.h"
 #include <cstdio>
 
@@ -413,7 +414,7 @@ typename Backend::int_v PolyhedronImplementation<transCodeT, rotCodeT, innerRadi
   projectionFirst = point[0] * phiSections.x(0) + point[1] * phiSections.y(0) + point[2] * phiSections.z(0);
   for (int i = 1, iMax = polyhedron.GetSideCount() + 1; i < iMax; ++i) {
     projectionSecond = point[0] * phiSections.x(i) + point[1] * phiSections.y(i) + point[2] * phiSections.z(i);
-    MaskedAssign(projectionFirst >= 0 && projectionSecond < 0, i - 1, &index);
+    MaskedAssign(projectionFirst > -kTolerance && projectionSecond < kTolerance, i - 1, &index);
     if (IsFull(index >= 0)) break;
     projectionFirst = projectionSecond;
   }
@@ -802,9 +803,7 @@ Inside_t PolyhedronImplementation<transCodeT, rotCodeT, innerRadiiT, phiCutoutT>
 
   // Check that the point is not in the phi cutout wedge
   if (TreatPhi<phiCutoutT>(polyhedron.HasPhiCutout())) {
-    // The phi treatment was wrong, it called a fast contains on the
-    // cutout wedge, which gave no kSurface on boundaries
-    Inside_t insidePhi = segment.phi.Inside<kScalar>(localPoint);
+    Inside_t insidePhi = polyhedron.GetPhiWedge().Inside<kScalar>(localPoint);
     if (insidePhi != EInside::kInside) return insidePhi;
   }
 
@@ -835,8 +834,7 @@ Inside_t PolyhedronImplementation<transCodeT, rotCodeT, innerRadiiT, phiCutoutT>
   // Phi
   if (TreatPhi<phiCutoutT>(polyhedron.HasPhiCutout())) {
     // In the phi cutout wedge
-    inside = segment.phi.Inside<kScalar>(localPoint);
-    // Boundary?
+    inside = polyhedron.GetPhiWedge().Inside<kScalar>(localPoint);
     if (inside != EInside::kInside) return inside;
   }
 

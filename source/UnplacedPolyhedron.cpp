@@ -45,9 +45,11 @@ UnplacedPolyhedron::UnplacedPolyhedron(Precision phiStart, Precision phiDelta, c
                                        const int zPlaneCount, Precision const zPlanes[], Precision const rMin[],
                                        Precision const rMax[])
     : fSideCount(sideCount), fHasInnerRadii(false), fHasPhiCutout(phiDelta < 360), fHasLargePhiCutout(phiDelta < 180),
-      fPhiStart(phiStart), fPhiDelta(phiDelta), fZSegments(zPlaneCount - 1), fZPlanes(zPlaneCount), fRMin(zPlaneCount),
-      fRMax(zPlaneCount), fPhiSections(sideCount + 1), fBoundingTube(0, 1, 1, 0, kTwoPi), fSurfaceArea(0.),
-      fCapacity(0.), fContinuousInSlope(true), fConvexityPossible(true), fEqualRmax(true)
+      fPhiStart(phiStart), fPhiDelta(phiDelta),
+      fPhiWedge(phiDelta * kDegToRad, NormalizeAngle<kScalar>(kDegToRad * phiStart)), fZSegments(zPlaneCount - 1),
+      fZPlanes(zPlaneCount), fRMin(zPlaneCount), fRMax(zPlaneCount), fPhiSections(sideCount + 1),
+      fBoundingTube(0, 1, 1, 0, kTwoPi), fSurfaceArea(0.), fCapacity(0.), fContinuousInSlope(true),
+      fConvexityPossible(true), fEqualRmax(true)
 {
 
   // initialize polyhedron internals
@@ -235,9 +237,10 @@ UnplacedPolyhedron::UnplacedPolyhedron(Precision phiStart, Precision phiDelta, c
                                        Precision const z[]  // ditto
                                        )
     : fSideCount(sideCount), fHasInnerRadii(false), fHasPhiCutout(phiDelta < 360), fHasLargePhiCutout(phiDelta < 180),
-      fPhiStart(phiStart), fPhiDelta(phiDelta), fZSegments(zPlaneCount - 1), fZPlanes(zPlaneCount), fRMin(zPlaneCount),
-      fRMax(zPlaneCount), fPhiSections(sideCount + 1), fBoundingTube(0, 1, 1, 0, kTwoPi), fSurfaceArea(0.),
-      fCapacity(0.)
+      fPhiStart(phiStart), fPhiDelta(phiDelta),
+      fPhiWedge(phiDelta * kDegToRad, NormalizeAngle<kScalar>(kDegToRad * phiStart)), fZSegments(zPlaneCount - 1),
+      fZPlanes(zPlaneCount), fRMin(zPlaneCount), fRMax(zPlaneCount), fPhiSections(sideCount + 1),
+      fBoundingTube(0, 1, 1, 0, kTwoPi), fSurfaceArea(0.), fCapacity(0.)
 {
   // data integrity checks
   for (int i = 0; i <= zPlaneCount; ++i) {

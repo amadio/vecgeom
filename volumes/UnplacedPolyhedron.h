@@ -12,6 +12,7 @@
 #include "volumes/Quadrilaterals.h"
 #include "volumes/UnplacedVolume.h"
 #include "volumes/UnplacedTube.h"
+#include "volumes/Wedge.h"
 
 #include <ostream>
 
@@ -122,6 +123,7 @@ private:
   bool fHasLargePhiCutout;    ///< Phi cutout is larger than pi.
   Precision fPhiStart;        ///< Phi start in degree (input to constructor)
   Precision fPhiDelta;        ///< Phi delta in degree (input to constructor)
+  Wedge fPhiWedge;            ///< Phi wedge
   Array<ZSegment> fZSegments; ///< AOS'esque collections of quadrilaterals
   Array<Precision> fZPlanes;  ///< Z-coordinate of each plane separating segments
   // TODO: find a way to re-compute R_min and R_max when converting to another
@@ -253,6 +255,10 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
   SOA3D<Precision> const &GetPhiSections() const { return fPhiSections; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_FORCE_INLINE
+  Wedge const &GetPhiWedge() const { return fPhiWedge; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
