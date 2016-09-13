@@ -256,7 +256,7 @@ typename Backend::inside_v Planes::Inside(Vector3D<typename Backend::precision_v
         fNormals.x(i) * point[0] + fNormals.y(i) * point[1] + fNormals.z(i) * point[2] + fDistances[i];
     MaskedAssign(distanceResult > kTolerance, EInside::kOutside, &result);
     MaskedAssign(result == EInside::kInside && distanceResult > -kTolerance, EInside::kSurface, &result);
-    if (vecCore::MaskFull(result) == EInside::kOutside) break;
+    if (vecCore::MaskFull(result == EInside::kOutside)) break;
   }
 
   return result;
