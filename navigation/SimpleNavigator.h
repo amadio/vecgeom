@@ -580,7 +580,7 @@ void SimpleNavigator::FindNextBoundaryAndStep(Vector3D<Precision> const &globalp
   }
 
 #ifdef VECGEOM_DISTANCE_DEBUG
-  //#ifdef VECGEOM_ROOT
+#ifdef VECGEOM_ROOT
   TGeoNavigator *nav = gGeoManager->GetCurrentNavigator();
 
   // nav->InitFrom( currentstate.ToTGeoBranchArray() );
@@ -642,7 +642,7 @@ void SimpleNavigator::FindNextBoundaryAndStep(Vector3D<Precision> const &globalp
     InspectEnvironmentForPointAndDirection(globalpoint, globaldir, currentstate);
 #endif
   }
-//#endif
+#endif
 #endif // distance debug
 
   /*

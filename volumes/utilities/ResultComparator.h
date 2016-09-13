@@ -10,7 +10,6 @@
 
 #include "volumes/PlacedVolume.h"
 #include "base/Global.h"
-#include "utilities/Visualizer.h"
 
 namespace vecgeom {
 

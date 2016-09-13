@@ -133,9 +133,9 @@ void CompareDistanceToIn(VPlacedVolume const *vol, Precision vecgeomresult, Vect
   Vector3D<Precision> tdirection = vol->GetTransformation()->TransformDirection(direction);
 #endif
 
+  Precision rootresult{-1};
 #ifdef VECGEOM_ROOT
   auto rootshape = LookupROOT(vol);
-  Precision rootresult{-1};
   if (rootshape != nullptr) {
     rootresult = rootshape->DistFromOutside((double *)&tpoint[0], (double *)&tdirection[0], 3, stepMax);
 
