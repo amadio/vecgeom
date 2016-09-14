@@ -144,8 +144,9 @@ void ScaledShapeImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, V
   // Compute distance in unscaled system
   distance = unplaced.fPlaced->DistanceToIn(ulocalPoint, ulocalDir, ustepMax);
 
-  // Convert distance back to master
-  distance = unplaced.fScale.InverseTransformDistance(distance, ulocalDir);
+  // Convert distance back to master (leave unchanged if it was infinity)
+  vecCore::MaskedAssign(distance, distance < InfinityLength<Real_v>(),
+                        unplaced.fScale.InverseTransformDistance(distance, ulocalDir));
 }
 
 template <typename Real_v>
@@ -169,8 +170,9 @@ void ScaledShapeImplementation::DistanceToOut(UnplacedStruct_t const &unplaced, 
   // Compute distance in unscaled system
   distance = unplaced.fPlaced->DistanceToOut(ulocalPoint, ulocalDir, ustepMax);
 
-  // Convert distance back to master
-  distance = unplaced.fScale.InverseTransformDistance(distance, ulocalDir);
+  // Convert distance back to master (leave unchanged if it was infinity)
+  vecCore::MaskedAssign(distance, distance < InfinityLength<Real_v>(),
+                        unplaced.fScale.InverseTransformDistance(distance, ulocalDir));
 }
 
 template <typename Real_v>

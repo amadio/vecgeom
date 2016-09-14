@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
   GeomCppExporter::Instance().DumpGeometry(std::cout);
 
   Benchmarker tester(GeoManager::Instance().GetWorld());
-  tester.SetVerbosity(3);
+  tester.SetVerbosity(2);
   tester.SetPoolMultiplier(1);
   tester.SetPointCount(npoints);
   tester.SetRepetitions(nrep);
