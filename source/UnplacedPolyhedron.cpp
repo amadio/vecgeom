@@ -27,7 +27,7 @@ VECGEOM_CUDA_HEADER_BOTH
 bool UnplacedPolyhedron::CheckContinuityInSlope(const double rOuter[], const double zPlane[], const unsigned int nz)
 {
 
-  Precision prevSlope = kInfinity;
+  Precision prevSlope = kInfLength;
   for (unsigned int j = 0; j < nz - 1; ++j) {
     if (zPlane[j + 1] == zPlane[j]) {
       if (rOuter[j + 1] != rOuter[j]) return false;
@@ -126,7 +126,7 @@ void UnplacedPolyhedron::Initialize(Precision phiStart, Precision phiDelta, cons
   // Specified radii are to the sides, not to the corners. Change these values,
   // as corners and not sides are used to build the structure
   Precision cosHalfDeltaPhi = cos(0.5 * sidePhi);
-  Precision innerRadius = kInfinity, outerRadius = -kInfinity;
+  Precision innerRadius = kInfLength, outerRadius = -kInfLength;
   for (int i = 0; i < zPlaneCount; ++i) {
     // Use distance to side for minimizing inner radius of bounding tube
     if (rMin[i] < innerRadius) innerRadius = rMin[i];
@@ -436,8 +436,8 @@ VPlacedVolume *UnplacedPolyhedron::SpecializedVolume(LogicalVolume const *const 
 #ifndef VECGEOM_NVCC
 void UnplacedPolyhedron::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
-  aMin                            = kInfinity;
-  aMax                            = -kInfinity;
+  aMin                            = kInfLength;
+  aMax                            = -kInfLength;
   Precision phiStart              = NormalizeAngle<kScalar>(kDegToRad * fPhiStart);
   Precision phiDelta              = kDegToRad * fPhiDelta;
   if (phiDelta > kTwoPi) phiDelta = kTwoPi;

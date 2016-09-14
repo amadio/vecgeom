@@ -133,7 +133,7 @@ void Visualizer::AddLine(TPolyLine3D const &line)
 void Visualizer::Show() const
 {
   TAxis3D axes;
-  TGeoVolume *top = fGeoManager->MakeBox("Top", NULL, kInfinity, kInfinity, kInfinity);
+  TGeoVolume *top = fGeoManager->MakeBox("Top", NULL, kInfLength, kInfLength, kInfLength);
   fGeoManager->SetTopVolume(top);
   for (auto &volume : fVolumes) {
     top->AddNode(std::get<2>(volume).get(), top->GetNdaughters(), std::get<1>(volume).get());

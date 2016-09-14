@@ -189,7 +189,7 @@ void PhiPlaneSafety(UnplacedStruct_t const &tube, Vector3D<Real_v> const &pos, R
       (SectorType<TubeType>::value == kBiggerThanPi)) {
     safety = Sqrt(pos.x() * pos.x() + pos.y() * pos.y());
   } else {
-    safety = kInfinity;
+    safety = kInfLength;
   }
 
   Real_v phi1 = PerpDist2D<Real_v>(pos.x(), pos.y(), Real_v(tube.fAlongPhi2x), Real_v(tube.fAlongPhi2y));
@@ -239,7 +239,7 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, Precisio
                                     Vector3D<Real_v> const &dir, Real_v &dist, typename vecCore::Mask_v<Real_v> &ok)
 {
 
-  dist = kInfinity;
+  dist = kInfLength;
 
   // approaching phi plane from the right side?
   // this depends whether we use it for DistanceToIn or DistanceToOut
@@ -421,7 +421,7 @@ struct TubeImplementation {
     Bool_v done(false);
 
     //=== First, for points outside and moving away --> return infinity
-    distance = kInfinity;
+    distance = kInfLength;
 
     // outside of Z range and going away?
     Real_v distz = Abs(point.z()) - tube.fZ; // avoid a division for now
@@ -458,7 +458,7 @@ struct TubeImplementation {
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
 
     //=== Next step: check if z-plane is the right entry point (both r,phi should be valid at z-plane crossing)
-    vecCore::MaskedAssign(distance, !done, Real_v(kInfinity));
+    vecCore::MaskedAssign(distance, !done, Real_v(kInfLength));
 
     distz /= NonZeroAbs(dir.z());
 
@@ -507,7 +507,7 @@ struct TubeImplementation {
      * If the particle were to hit rmin, it would hit the farthest point of the two
      * --> only consider the largest solution to the quadratic equation
      */
-    Real_v dist_rmin(-kInfinity);
+    Real_v dist_rmin(-kInfLength);
     Bool_v ok_rmin(false);
     if (checkRminTreatment<tubeTypeT>(tube)) {
       /*
@@ -594,7 +594,7 @@ struct TubeImplementation {
     // TODO: add outside check for phi-sections here
 
     // OK, since we're here, then distance must be non-negative, and the smallest of possible intersections
-    vecCore::MaskedAssign(distance, !done, Real_v(kInfinity));
+    vecCore::MaskedAssign(distance, !done, Real_v(kInfLength));
 
     Real_v invdirz = 1. / NonZero(dir.z());
     distz          = (tube.fZ - point.z()) * invdirz;
@@ -614,7 +614,7 @@ struct TubeImplementation {
      */
 
     if (checkRminTreatment<tubeTypeT>(tube)) {
-      Real_v dist_rmin(kInfinity);
+      Real_v dist_rmin(kInfLength);
       Bool_v ok_rmin(false);
       crmin *= invnsq;
       CircleTrajectoryIntersection<Real_v, UnplacedStruct_t, tubeTypeT, false, false>(b, crmin, tube, point, dir,
@@ -626,7 +626,7 @@ struct TubeImplementation {
      * rmax
      */
 
-    Real_v dist_rmax(kInfinity);
+    Real_v dist_rmax(kInfLength);
     Bool_v ok_rmax(false);
     crmax *= invnsq;
     CircleTrajectoryIntersection<Real_v, UnplacedStruct_t, tubeTypeT, true, false>(b, crmax, tube, point, dir,
@@ -645,7 +645,7 @@ struct TubeImplementation {
      */
 
     if (checkPhiTreatment<tubeTypeT>(tube)) {
-      Real_v dist_phi(kInfinity);
+      Real_v dist_phi(kInfLength);
       Bool_v ok_phi(false);
 
       auto const &w = tube.fPhiWedge;
@@ -708,7 +708,7 @@ struct TubeImplementation {
     using namespace ::vecgeom::TubeTypes;
     using namespace TubeUtilities;
 
-    safePos = kInfinity;
+    safePos = kInfLength;
     safeNeg = -safePos; // reuse to avoid casting overhead
 
     Real_v safez = Abs(point.z()) - tube.fZ;
@@ -744,7 +744,7 @@ struct TubeImplementation {
 
     // Mostly called for points outside --> safetyOutside is finite --> return safetyOutside
     // If safetyOutside == infinity --> return safetyInside
-    CondAssign(safetyOutsidePoint == kInfinity, safetyInsidePoint, safetyOutsidePoint, &safety);
+    CondAssign(safetyOutsidePoint == kInfLength, safetyInsidePoint, safetyOutsidePoint, &safety);
 #endif
   }
 
@@ -761,7 +761,7 @@ struct TubeImplementation {
 
     // Mostly called for points inside --> safetyOutside==infinity, return |safetyInside| (flip sign)
     // If called for points outside -- return -safetyOutside
-    CondAssign(safetyOutsidePoint == kInfinity, -safetyInsidePoint, -safetyOutsidePoint, &safety);
+    CondAssign(safetyOutsidePoint == kInfLength, -safetyInsidePoint, -safetyOutsidePoint, &safety);
 #endif
   }
 
@@ -793,7 +793,7 @@ struct TubeImplementation {
 
       Real_v safephi;
       PhiPlaneSafety<Real_v, UnplacedStruct_t, tubeTypeT, false>(tube, point, safephi);
-      vecCore::MaskedAssign(safety, !insector && safephi < kInfinity && safephi > safety, safephi);
+      vecCore::MaskedAssign(safety, !insector && safephi < kInfLength && safephi > safety, safephi);
     }
   }
 

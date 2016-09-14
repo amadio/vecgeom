@@ -80,7 +80,7 @@ public:
   {
     using Bool_v = vecCore::Mask_v<Real_v>;
     Bool_v done(false);
-    Real_v result(kInfinity);
+    Real_v result(kInfLength);
     const auto S = fPolygon.fVertices.size();
 
     for (size_t i = 0; i < S; ++i) { // side/rectangle index
@@ -128,7 +128,7 @@ public:
   Real_v DistanceToInConcave(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir) const
   {
     using Bool_v = vecCore::Mask_v<Real_v>;
-    Real_v result(kInfinity);
+    Real_v result(kInfLength);
     const auto S = fPolygon.fVertices.size();
 
     for (size_t i = 0; i < S; ++i) { // side/rectangle index
@@ -188,7 +188,7 @@ public:
   {
     using Bool_v = vecCore::Mask_v<Real_v>;
     Bool_v done(false);
-    Real_v result(kInfinity);
+    Real_v result(kInfLength);
     const auto S = fPolygon.fVertices.size();
 
     for (size_t i = 0; i < S; ++i) { // side/rectangle index
@@ -239,7 +239,7 @@ public:
   Real_v DistanceToOutConcave(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir) const
   {
     using Bool_v = vecCore::Mask_v<Real_v>;
-    Real_v result(kInfinity);
+    Real_v result(kInfLength);
     const auto S = fPolygon.fVertices.size();
 
     for (size_t i = 0; i < S; ++i) { // side/rectangle index
@@ -354,7 +354,7 @@ inline Precision PolygonalShell::DistanceToOutConvex(Vector3D<Precision> const &
       }
     }
   }
-  return kInfinity;
+  return kInfLength;
 }
 
 // template specialization for Distance functions
@@ -424,7 +424,7 @@ inline Precision PolygonalShell::DistanceToInConvex(Vector3D<Precision> const &p
       }
     }
   }
-  return kInfinity;
+  return kInfLength;
 }
 
 #endif

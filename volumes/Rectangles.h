@@ -197,7 +197,7 @@ void Rectangles::Set(int index, Vector3D<Precision> const &p0, Vector3D<Precisio
 VECGEOM_CUDA_HEADER_BOTH
 Precision Rectangles::Distance(Vector3D<Precision> const &point, Vector3D<Precision> const &direction) const
 {
-  Precision bestDistance = kInfinity;
+  Precision bestDistance = kInfLength;
   for (int i = 0, iMax = size(); i < iMax; ++i) {
     Vector3D<Precision> normal       = GetNormal(i);
     Vector3D<Precision> side         = GetSide(i);

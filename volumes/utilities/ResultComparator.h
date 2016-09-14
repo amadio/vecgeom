@@ -22,9 +22,10 @@ namespace DistanceComparator {
 void CompareUnplacedContains(VPlacedVolume const *vol, bool vecgeomresult, Vector3D<Precision> const &point);
 void PrintPointInformation(VPlacedVolume const *vol, Vector3D<Precision> const &point);
 void CompareDistanceToIn(VPlacedVolume const *vol, Precision vecgeomresult, Vector3D<Precision> const &point,
-                         Vector3D<Precision> const &direction, Precision const stepMax = VECGEOM_NAMESPACE::kInfinity);
+                         Vector3D<Precision> const &direction, Precision const stepMax = VECGEOM_NAMESPACE::kInfLength);
 void CompareDistanceToOut(VPlacedVolume const *vol, Precision vecgeomresult, Vector3D<Precision> const &point,
-                          Vector3D<Precision> const &direction, Precision const stepMax = VECGEOM_NAMESPACE::kInfinity);
+                          Vector3D<Precision> const &direction,
+                          Precision const stepMax = VECGEOM_NAMESPACE::kInfLength);
 
 } // end inner namespace
 }

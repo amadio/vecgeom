@@ -66,7 +66,7 @@ void HybridManager2::BuildStructure(LogicalVolume const *vol)
 
   int vectorindex = 0;
   for (int i = 0; i < numberOfFirstLevelNodes; ++i) {
-    Vector3D<Precision> lowerCornerFirstLevelNode(kInfinity), upperCornerFirstLevelNode(-kInfinity);
+    Vector3D<Precision> lowerCornerFirstLevelNode(kInfLength), upperCornerFirstLevelNode(-kInfLength);
     vectorindex += 2;
     for (size_t d = 0; d < clusters[i].size(); ++d) {
       int daughterIndex               = clusters[i][d];
@@ -121,7 +121,7 @@ void HybridManager2::BuildStructure_v(LogicalVolume const *vol)
   int vectorindex   = 0;
   int vectorindex_v = 0;
   for (size_t i = 0; i < numberOfFirstLevelNodes; ++i) {
-    Vector3D<Precision> lowerCornerFirstLevelNode(kInfinity), upperCornerFirstLevelNode(-kInfinity);
+    Vector3D<Precision> lowerCornerFirstLevelNode(kInfLength), upperCornerFirstLevelNode(-kInfLength);
     vectorindex += 2;
     for (size_t d = 0; d < clusters[i].size(); ++d) {
       int daughterIndex               = clusters[i][d];
@@ -144,7 +144,7 @@ void HybridManager2::BuildStructure_v(LogicalVolume const *vol)
 
   // init boxes_v to -inf
   for (size_t i = 0; i < vectorsize * 2; i++) {
-    boxes_v[i] = HybridManager2::Float_v(-vecgeom::kInfinity);
+    boxes_v[i] = HybridManager2::Float_v(-vecgeom::kInfLength);
   }
 
   // init internal nodes for vectorized
@@ -152,7 +152,7 @@ void HybridManager2::BuildStructure_v(LogicalVolume const *vol)
     if (i % kVS == 0) {
       vectorindex_v += 2;
     }
-    Vector3D<Precision> lowerCornerFirstLevelNode(kInfinity), upperCornerFirstLevelNode(-kInfinity);
+    Vector3D<Precision> lowerCornerFirstLevelNode(kInfLength), upperCornerFirstLevelNode(-kInfLength);
     for (size_t d = 0; d < clusters[i].size(); ++d) {
       int daughterIndex               = clusters[i][d];
       Vector3D<Precision> lowerCorner = daughterboxes[2 * daughterIndex];
@@ -210,7 +210,7 @@ void HybridManager2::AssignVolumesToClusters(std::vector<std::vector<int>> &clus
   int closestCluster;
 
   for (int d = 0; d < numberOfDaughers; d++) {
-    minDistance    = kInfinity;
+    minDistance    = kInfLength;
     closestCluster = -1;
 
     Precision dist;

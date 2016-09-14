@@ -365,9 +365,9 @@ bool TestTrd()
   Dist = trd1.DistanceToIn(pbigmz, vz);
   assert(ApproxEqual(Dist, 60));
   Dist = trd1.DistanceToIn(pbigx, vxy);
-  assert(ApproxEqual(Dist, Constants::kInfinity));
+  assert(ApproxEqual(Dist, Constants::kInfLength));
   Dist = trd1.DistanceToIn(pbigmx, vxy);
-  assert(ApproxEqual(Dist, Constants::kInfinity));
+  assert(ApproxEqual(Dist, Constants::kInfLength));
 
   Dist = trd2.DistanceToIn(pbigx, vmx);
   assert(ApproxEqual(Dist, 80));
@@ -382,9 +382,9 @@ bool TestTrd()
   Dist = trd2.DistanceToIn(pbigmz, vz);
   assert(ApproxEqual(Dist, 60));
   Dist = trd2.DistanceToIn(pbigx, vxy);
-  assert(ApproxEqual(Dist, Constants::kInfinity));
+  assert(ApproxEqual(Dist, Constants::kInfLength));
   Dist = trd2.DistanceToIn(pbigmx, vxy);
-  assert(ApproxEqual(Dist, Constants::kInfinity));
+  assert(ApproxEqual(Dist, Constants::kInfLength));
 
   Dist = trd3.DistanceToIn(Vec_t(0.15000000000000185, -22.048743592955137, 2.4268539333219472),
                            Vec_t(-0.76165597579890043, 0.64364445891356026, -0.074515708658524193).Unit());
@@ -410,11 +410,11 @@ bool TestTrd()
 
 #ifdef VECGEOM_USOLIDS
 struct USOLIDSCONSTANTS {
-  static constexpr double kInfinity = DBL_MAX; // UUSolids::kInfinity;
+  static constexpr double kInfLength = DBL_MAX; // UUSolids::kInfLength;
 };
 #endif
 struct VECGEOMCONSTANTS {
-  static constexpr double kInfinity = vecgeom::kInfinity;
+  static constexpr double kInfLength = vecgeom::kInfLength;
 };
 
 int main(int argc, char *argv[])

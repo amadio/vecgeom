@@ -317,7 +317,7 @@ struct TrdImplementation {
 
     Vector3D<Float_t> pos_local;
     Vector3D<Float_t> dir_local;
-    distance = kInfinity;
+    distance = kInfLength;
 
     transformation.Transform<transCodeT, rotCodeT>(point, pos_local);
     transformation.TransformDirection<rotCodeT>(direction, dir_local);

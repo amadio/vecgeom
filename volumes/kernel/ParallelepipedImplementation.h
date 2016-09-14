@@ -156,7 +156,7 @@ void ParallelepipedImplementation::DistanceToOut(UnplacedStruct_t const &unplace
   Real_v max;
   Bool_v inPoint, inDirection, goingAway;
   Bool_v done(false);
-  distance = kInfinity;
+  distance = kInfLength;
 
   // Z intersection
   // Outside Z range

@@ -818,7 +818,7 @@ bool UnplacedPolycone::CheckContinuityInSlope(const Vector<Precision> &rOuter, c
 {
 
   bool continuous      = true;
-  Precision startSlope = kInfinity;
+  Precision startSlope = kInfLength;
 
   // Doing the actual slope calculation here, and checking continuity,
   for (size_t j = 0; j < rOuter.size(); j = j + 2) {

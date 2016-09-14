@@ -906,7 +906,7 @@ int ShapeTester::TestInsidePoint()
       }
       // Distance to out cannot be infinite
       if (dist >= UUtils::kInfinity) {
-        ReportError(&nError, point, v, safeDistance, "TI: DistanceToOut(p,v) == kInfinity");
+        ReportError(&nError, point, v, safeDistance, "TI: DistanceToOut(p,v) == kInfLength");
         continue;
       }
       // Distance to out from inside point should be bigger than the safety
@@ -1017,7 +1017,7 @@ int ShapeTester::TestOutsidePoint()
       }
       // Make sure we hit the solid
       if (dist >= UUtils::kInfinity) {
-        ReportError(&nError, point, v, safeDistance, "TO: DistanceToIn(p,v) == kInfinity");
+        ReportError(&nError, point, v, safeDistance, "TO: DistanceToIn(p,v) == kInfLength");
         continue;
       }
       // Make sure the distance is bigger than the safety
@@ -1059,7 +1059,7 @@ int ShapeTester::TestOutsidePoint()
       // It should, however, *not* be infinity.
       //
       if (dist >= UUtils::kInfinity) {
-        ReportError(&nError, p, v, safeDistance, "TO2: DistanceToIn(p,v) == kInfinity");
+        ReportError(&nError, p, v, safeDistance, "TO2: DistanceToIn(p,v) == kInfLength");
         continue;
       }
 
@@ -1071,7 +1071,7 @@ int ShapeTester::TestOutsidePoint()
       // But distance can be infinity if it is a corner point. Needs to handled carefully.
       // For the time being considering that those situation does not happens.
       if (dist >= UUtils::kInfinity) {
-        ReportError(&nError, p, v, safeDistance, "TO2: DistanceToOut(p,v) == kInfinity");
+        ReportError(&nError, p, v, safeDistance, "TO2: DistanceToOut(p,v) == kInfLength");
         continue;
       } else if (dist < 0) {
         ReportError(&nError, p, v, safeDistance, "TO2: DistanceToOut(p,v) < 0");
@@ -1169,7 +1169,7 @@ int ShapeTester::TestOutsidePoint()
         continue;
       }
       if (dist >= UUtils::kInfinity) {
-        // G4cout << "dist == kInfinity" << G4endl ;
+        // G4cout << "dist == kInfLength" << G4endl ;
         continue;
       }
       if (dist < safeDistance - 1E-10) {

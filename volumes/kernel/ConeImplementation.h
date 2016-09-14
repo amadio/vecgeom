@@ -245,7 +245,7 @@ struct ConeImplementation {
     Vector3D<typename Backend::precision_v> p = transformation.Transform<transCodeT, rotCodeT>(point);
     Vector3D<typename Backend::precision_v> v = transformation.TransformDirection<rotCodeT>(direction);
 
-    double snxt        = VECGEOM_NAMESPACE::kInfinity;
+    double snxt        = VECGEOM_NAMESPACE::kInfLength;
     const double dRmax = 100 * Max(unplaced.GetRmax1(), unplaced.GetRmax2());
     // const double halfCarTolerance = VECGEOM_NAMESPACE::kTolerance * 0.5;
     // const double halfRadTolerance = kRadTolerance * 0.5;
@@ -404,7 +404,7 @@ struct ConeImplementation {
                 sd = -b + std::sqrt(d);
               } else // both negative, travel away
               {
-                return VECGEOM_NAMESPACE::kInfinity;
+                return VECGEOM_NAMESPACE::kInfLength;
               }
             }
           }
@@ -469,8 +469,8 @@ struct ConeImplementation {
         sd = -0.5 * nt3 / nt2;
 
         if (sd < 0) {
-          return VECGEOM_NAMESPACE::kInfinity; // travel away
-        } else                                 // sd >= 0, If 'forwards'. Check z intersection
+          return VECGEOM_NAMESPACE::kInfLength; // travel away
+        } else                                  // sd >= 0, If 'forwards'. Check z intersection
         {
           zi = p.z() + sd * v.z();
 
@@ -493,7 +493,7 @@ struct ConeImplementation {
         }
       } else //    travel || cone surface from its origin
       {
-        sd = VECGEOM_NAMESPACE::kInfinity;
+        sd = VECGEOM_NAMESPACE::kInfLength;
       }
     }
 
@@ -712,7 +712,7 @@ struct ConeImplementation {
               }
             } else {
               // Within z extent, but not travelling through
-              // -> 2nd root or VECGEOM_NAMESPACE::kInfinity if 1st root on imaginary cone
+              // -> 2nd root or VECGEOM_NAMESPACE::kInfLength if 1st root on imaginary cone
 
               b = nt2 / nt1;
               c = nt3 / nt1;
@@ -760,7 +760,7 @@ struct ConeImplementation {
                     }
                   }
                 } else {
-                  return VECGEOM_NAMESPACE::kInfinity;
+                  return VECGEOM_NAMESPACE::kInfLength;
                 }
               }
             }
@@ -914,7 +914,7 @@ struct ConeImplementation {
     //    typedef typename Vector3D<typename Backend::precision_v> Vector3D;
     //
     //    MaskType done_m(false); // which particles in the vector are ready to be returned == aka have been treated
-    //    distance = kInfinity; // initialize distance to infinity
+    //    distance = kInfLength; // initialize distance to infinity
     //
     //    // TODO: check that compiler is doing same thing
     //    // as if we used a combined point + direction transformation
@@ -986,12 +986,12 @@ struct ConeImplementation {
     //
     //    // Check outer cylinder (only r>rmax has to be considered)
     //    // this IS ALWAYS the MINUS (-) solution
-    //    VectorType distanceRmax( Utils::kInfinityVc );
+    //    VectorType distanceRmax( Utils::kInfLengthVc );
     //    distanceRmax( canhitrmax ) = (-b - Sqrt( discriminant ))/(2.*a);
     //
     //    // this determines which vectors are done here already
     //    MaskType Rdone = determineRHit( x, y, z, dirx, diry, dirz, distanceRmax );
-    //    distanceRmax( ! Rdone ) = Utils::kInfinityVc;
+    //    distanceRmax( ! Rdone ) = Utils::kInfLengthVc;
     //    MaskType rmindone;
     //    // **** inner tube ***** only compiled in for tubes having inner hollow cone -- or in case of a universal
     //    runtime shape ******/
@@ -1005,11 +1005,11 @@ struct ConeImplementation {
     //       unplaced.GetInnerSlope()));
     //       discriminant =  b*b-4*a*c;
     //       MaskType canhitrmin = ( discriminant >= Vc::Zero );
-    //       VectorType distanceRmin ( Utils::kInfinityVc );
+    //       VectorType distanceRmin ( Utils::kInfLengthVc );
     //       // this is always + solution
     //       distanceRmin ( canhitrmin ) = (-b + Vc::sqrt( discriminant ))/(2*a);
     //       rmindone = determineRHit( x, y, z, dirx, diry, dirz, distanceRmin );
-    //       distanceRmin ( ! rmindone ) = Utils::kInfinity;
+    //       distanceRmin ( ! rmindone ) = Utils::kInfLength;
     //
     //       // reduction of distances
     //       distanceRmax = Vc::min( distanceRmax, distanceRmin );
@@ -1080,7 +1080,7 @@ struct ConeImplementation {
     // Vars for intersection within tolerance
 
     //  ESide   sidetol = kNull;
-    //  double slentol = VECGEOM_NAMESPACE::kInfinity;
+    //  double slentol = VECGEOM_NAMESPACE::kInfLength;
 
     // Vars for phi intersection:
 
@@ -1113,7 +1113,7 @@ struct ConeImplementation {
       }
     } else // Travel perpendicular to z axis
     {
-      snxt = VECGEOM_NAMESPACE::kInfinity;
+      snxt = VECGEOM_NAMESPACE::kInfLength;
       // side = kNull;
     }
 
@@ -1205,7 +1205,7 @@ struct ConeImplementation {
             if ((ri >= 0) && (sr2 > kHalfRadTolerance)) {
               srd = sr2;
             } else {
-              srd = VECGEOM_NAMESPACE::kInfinity;
+              srd = VECGEOM_NAMESPACE::kInfLength;
 
               if ((-kHalfRadTolerance <= sr2) && (sr2 <= kHalfRadTolerance)) {
                 // An intersection within the tolerance.
@@ -1239,7 +1239,7 @@ struct ConeImplementation {
       // No intersection -> parallel to outer cone
       // => Z or inner cone intersection
 
-      srd = VECGEOM_NAMESPACE::kInfinity;
+      srd = VECGEOM_NAMESPACE::kInfLength;
     }
 
     // Check possible intersection within tolerance
@@ -1270,7 +1270,7 @@ struct ConeImplementation {
       else // On the surface, but not heading out so we ignore this intersection
       {
         //                                        (as it is within tolerance).
-        slentol = VECGEOM_NAMESPACE::kInfinity;
+        slentol = VECGEOM_NAMESPACE::kInfLength;
       }
 
     }
@@ -1391,7 +1391,7 @@ struct ConeImplementation {
                 // On the surface, but not heading out so we ignore this
                 // intersection (as it is within tolerance).
 
-                slentol = VECGEOM_NAMESPACE::kInfinity;
+                slentol = VECGEOM_NAMESPACE::kInfLength;
               }
             }*/
           }
@@ -1447,10 +1447,10 @@ struct ConeImplementation {
                 // sidephi = kSPhi;
                 if ((unplaced.GetSPhi() - kHalfAngTolerance <= vphi) &&
                     (unplaced.GetSPhi() + unplaced.GetDPhi() + kHalfAngTolerance >= vphi)) {
-                  sphi = VECGEOM_NAMESPACE::kInfinity;
+                  sphi = VECGEOM_NAMESPACE::kInfLength;
                 }
               } else if ((yi * unplaced.fCosCPhi - xi * unplaced.fSinCPhi) >= 0) {
-                sphi = VECGEOM_NAMESPACE::kInfinity;
+                sphi = VECGEOM_NAMESPACE::kInfLength;
               } else {
                 // sidephi = kSPhi;
                 if (pDistS > -kHalfCarTolerance) {
@@ -1458,10 +1458,10 @@ struct ConeImplementation {
                 }
               }
             } else {
-              sphi = VECGEOM_NAMESPACE::kInfinity;
+              sphi = VECGEOM_NAMESPACE::kInfLength;
             }
           } else {
-            sphi = VECGEOM_NAMESPACE::kInfinity;
+            sphi = VECGEOM_NAMESPACE::kInfLength;
           }
 
           if (compE < 0) {
@@ -1501,7 +1501,7 @@ struct ConeImplementation {
             }
           }
         } else {
-          sphi = VECGEOM_NAMESPACE::kInfinity;
+          sphi = VECGEOM_NAMESPACE::kInfLength;
         }
       } else {
         // On z axis + travel not || to z axis -> if phi of vector direction
@@ -1509,7 +1509,7 @@ struct ConeImplementation {
 
         if ((unplaced.GetSPhi() - kHalfAngTolerance <= vphi) &&
             (vphi <= unplaced.GetSPhi() + unplaced.GetDPhi() + kHalfAngTolerance)) {
-          sphi = VECGEOM_NAMESPACE::kInfinity;
+          sphi = VECGEOM_NAMESPACE::kInfLength;
         } else {
           // sidephi = kSPhi ;  // arbitrary
           sphi = 0.0;
@@ -1659,7 +1659,7 @@ struct ConeImplementation {
       pRMin  = unplaced.fTanRMin * p.z() + (unplaced.GetRmin1() + unplaced.GetRmin2()) * 0.5;
       safeR1 = (rho - pRMin) * unplaced.fInvSecRMin;
     } else {
-      safeR1 = VECGEOM_NAMESPACE::kInfinity;
+      safeR1 = VECGEOM_NAMESPACE::kInfLength;
     }
 
     pRMax  = unplaced.fTanRMax * p.z() + (unplaced.GetRmax1() + unplaced.GetRmax2()) * 0.5;
@@ -1718,7 +1718,7 @@ struct ConeImplementation {
     int noSurfaces = 0;
     double rho, pPhi;
     double distZ, distRMin, distRMax;
-    double distSPhi = kInfinity, distEPhi = kInfinity;
+    double distSPhi = kInfLength, distEPhi = kInfLength;
     double pRMin, widRMin;
     double pRMax, widRMax;
 

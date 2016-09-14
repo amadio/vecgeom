@@ -47,9 +47,9 @@ bool IsHittingVolume(Vector3D<Precision> const &point, Vector3D<Precision> const
   Transformation3D const *m  = volume.GetTransformation();
   Vector3D<Precision> rpoint = m->Transform(point);
   Vector3D<Precision> rdir   = m->TransformDirection(dir);
-  return rootshape->DistFromOutside((double *)&rpoint[0], (double *)&rdir[0], 3, vecgeom::kInfinity) < 1E20;
+  return rootshape->DistFromOutside((double *)&rpoint[0], (double *)&rdir[0], 3, vecgeom::kInfLength) < 1E20;
 #else
-  return volume.DistanceToIn(point, dir, vecgeom::kInfinity) < vecgeom::kInfinity;
+  return volume.DistanceToIn(point, dir, vecgeom::kInfLength) < vecgeom::kInfLength;
 #endif
 }
 
@@ -615,8 +615,8 @@ inline void FillGlobalPointsAndDirectionsForLogicalVolume(LogicalVolume const *l
         SimpleNavigator nav;
         nav.LocatePoint(GeoManager::Instance().GetWorld(), globalpoints[placedcount], *s1, true);
         assert(s1->Top()->GetLogicalVolume() == lvol);
-        double step = vecgeom::kInfinity;
-        nav.FindNextBoundaryAndStep(globalpoints[placedcount], directions[placedcount], *s1, *s2, vecgeom::kInfinity,
+        double step = vecgeom::kInfLength;
+        nav.FindNextBoundaryAndStep(globalpoints[placedcount], directions[placedcount], *s1, *s2, vecgeom::kInfLength,
                                     step);
 #ifdef DEBUG
         if (!hitsdaughter) assert(s1->Distance(*s2) > s2->GetCurrentLevel() - s1->GetCurrentLevel());

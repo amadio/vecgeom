@@ -325,7 +325,7 @@ void insideUSolids(PlacedTrapezoid const &trap, UTrap const &utrap)
 void distancetoin(PlacedTrapezoid const &trap, TGeoTrap const &rtrap)
 {
 
-  typename Backend::precision_v vgdist = kInfinity;
+  typename Backend::precision_v vgdist = kInfLength;
   Precision rdist;
   double p[3], v[3];
 
@@ -356,7 +356,7 @@ void distancetoin(PlacedTrapezoid const &trap, TGeoTrap const &rtrap)
 
     rdist = rtrap.DistFromOutside(p, v);
 
-    if (rdist == 1e+30 && vgdist == kInfinity) {
+    if (rdist == 1e+30 && vgdist == kInfLength) {
       std::cout << "OK: Inside=" << rtrap.Contains(p) << " - dist for point " << vpos << " w dir " << vdir << ": "
                 << vgdist << " , " << rdist << std::endl;
       ++hits;
@@ -381,7 +381,7 @@ void safety()
   TGeoTrap rtrap(5, 0, 0, 5, 5, 5, 0, 5, 5, 5, 0);
   // TransformationMatrix const * identity = new TransformationMatrix(0,0,0,0,0,0);
 
-  typename Backend::precision_v safety_v = kInfinity;
+  typename Backend::precision_v safety_v = kInfLength;
   double saf;
   double p[3];
 

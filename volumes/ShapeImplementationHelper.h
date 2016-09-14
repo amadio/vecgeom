@@ -186,12 +186,12 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToIn(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
-                                 const Precision stepMax = kInfinity) const override
+                                 const Precision stepMax = kInfLength) const override
   {
 #ifndef VECGEOM_NVCC
     assert(direction.IsNormalized() && " direction not normalized in call to  DistanceToIn ");
 #endif
-    Precision output = kInfinity;
+    Precision output = kInfLength;
     Specialization::template DistanceToIn<kScalar>(*this->GetUnplacedVolume(), *this->GetTransformation(), point,
                                                    direction, stepMax, output);
 
@@ -217,7 +217,7 @@ public:
     //#ifndef VECGEOM_NVCC
     //    assert(direction.IsNormalized() && " direction not normalized in call to  DistanceToIn ");
     //#endif
-    VECGEOM_BACKEND_PRECISION_TYPE output = kInfinity;
+    VECGEOM_BACKEND_PRECISION_TYPE output = kInfLength;
     Specialization::template DistanceToIn<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), *this->GetTransformation(),
                                                                 point, direction, stepMax, output);
 
@@ -232,12 +232,12 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToOut(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
-                                  const Precision stepMax = kInfinity) const override
+                                  const Precision stepMax = kInfLength) const override
   {
     //#ifndef VECGEOM_NVCC
     //      assert( direction.IsNormalized() && " direction not normalized in call to  DistanceToOut " );
     //#endif
-    Precision output = kInfinity;
+    Precision output = kInfLength;
     Specialization::template DistanceToOut<kScalar>(*this->GetUnplacedVolume(), point, direction, stepMax, output);
 
 #ifdef VECGEOM_REPLACE_USOLIDS
@@ -267,7 +267,7 @@ public:
     //#ifndef VECGEOM_NVCC
     //    assert(direction.IsNormalized() && " direction not normalized in call to  DistanceToOut ");
     //#endif
-    VECGEOM_BACKEND_PRECISION_TYPE output = kInfinity;
+    VECGEOM_BACKEND_PRECISION_TYPE output = kInfLength;
     Specialization::template DistanceToOut<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), point, direction, stepMax,
                                                                  output);
     // avoid distance values within tolerance
@@ -288,12 +288,12 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision PlacedDistanceToOut(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
-                                        const Precision stepMax = kInfinity) const override
+                                        const Precision stepMax = kInfLength) const override
   {
 #ifndef VECGEOM_NVCC
     assert(direction.IsNormalized() && " direction not normalized in call to  PlacedDistanceToOut ");
 #endif
-    Precision output          = kInfinity;
+    Precision output          = kInfLength;
     Transformation3D const *t = this->GetTransformation();
     Specialization::template DistanceToOut<kScalar>(
         *this->GetUnplacedVolume(), t->Transform<Specialization::transC, Specialization::rotC, Precision>(point),
@@ -313,7 +313,7 @@ public:
    */
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToOut(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
-                                  Vector3D<Precision> &normal, bool &convex, Precision step = kInfinity) const override
+                                  Vector3D<Precision> &normal, bool &convex, Precision step = kInfLength) const override
   {
     double d                  = DistanceToOut(point, direction, step);
     Vector3D<double> hitpoint = point + d * direction;
@@ -329,7 +329,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision SafetyToIn(Vector3D<Precision> const &point) const override
   {
-    Precision output = kInfinity;
+    Precision output = kInfLength;
     Specialization::template SafetyToIn<kScalar>(*this->GetUnplacedVolume(), *this->GetTransformation(), point, output);
 
 #ifdef VECGEOM_REPLACE_USOLIDS
@@ -346,7 +346,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision SafetyToOut(Vector3D<Precision> const &point) const override
   {
-    Precision output = kInfinity;
+    Precision output = kInfLength;
     Specialization::template SafetyToOut<kScalar>(*this->GetUnplacedVolume(), point, output);
 
 #ifdef VECGEOM_REPLACE_USOLIDS
@@ -364,7 +364,7 @@ public:
   virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToInVec(
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override
   {
-    VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
+    VECGEOM_BACKEND_PRECISION_TYPE output(kInfLength);
     Specialization::template SafetyToIn<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), *this->GetTransformation(),
                                                               position, output);
 
@@ -378,7 +378,7 @@ public:
   virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOutVec(
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override
   {
-    VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
+    VECGEOM_BACKEND_PRECISION_TYPE output(kInfLength);
     Specialization::template SafetyToOut<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), position, output);
 
     // avoid distance values within tolerance
@@ -433,7 +433,7 @@ public:
                                                             VECGEOM_BACKEND_PRECISION_FROM_PTR(directions.y() + i),
                                                             VECGEOM_BACKEND_PRECISION_FROM_PTR(directions.z() + i));
       VECGEOM_BACKEND_TYPE::precision_v stepMaxBackend = VECGEOM_BACKEND_PRECISION_FROM_PTR(&stepMax[i]);
-      VECGEOM_BACKEND_TYPE::precision_v result         = kInfinity;
+      VECGEOM_BACKEND_TYPE::precision_v result         = kInfLength;
       Specialization::template DistanceToIn<VECGEOM_BACKEND_TYPE>(
           *this->GetUnplacedVolume(), *this->GetTransformation(), point, direction, stepMaxBackend, result);
       StoreTo(result, output + i);
@@ -457,7 +457,7 @@ public:
                                                             VECGEOM_BACKEND_PRECISION_FROM_PTR(directions.z() + i));
       // currentDistance is also estimate for stepMax
       VECGEOM_BACKEND_TYPE::precision_v stepMaxBackend = VECGEOM_BACKEND_PRECISION_FROM_PTR(&currentDistance[i]);
-      VECGEOM_BACKEND_TYPE::precision_v result         = kInfinity;
+      VECGEOM_BACKEND_TYPE::precision_v result         = kInfLength;
       Specialization::template DistanceToIn<VECGEOM_BACKEND_TYPE>(
           *this->GetUnplacedVolume(), *this->GetTransformation(), point, direction, stepMaxBackend, result);
       // now we have distance and we can compare it to old distance step
@@ -484,7 +484,7 @@ public:
     unsigned tailsize = points.size() - safesize;
     for (unsigned i = 0; i < tailsize; ++i) {
       unsigned track = safesize + i;
-      Precision result(kInfinity);
+      Precision result(kInfLength);
       Specialization::template DistanceToIn<kScalar>(*this->GetUnplacedVolume(), *this->GetTransformation(),
                                                      points[track], directions[track], currentDistance[track], result);
       // bool valid = result < stepMax[track] && ! IsInf(result);
@@ -509,7 +509,7 @@ public:
                                                             VECGEOM_BACKEND_PRECISION_FROM_PTR(directions.y() + i),
                                                             VECGEOM_BACKEND_PRECISION_FROM_PTR(directions.z() + i));
       VECGEOM_BACKEND_TYPE::precision_v stepMaxBackend = VECGEOM_BACKEND_PRECISION_FROM_PTR(&stepMax[i]);
-      VECGEOM_BACKEND_TYPE::precision_v result         = kInfinity;
+      VECGEOM_BACKEND_TYPE::precision_v result         = kInfLength;
       Specialization::template DistanceToOut<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), point, direction,
                                                                    stepMaxBackend, result);
       StoreTo(result, output + i);
@@ -529,11 +529,11 @@ public:
                                                             VECGEOM_BACKEND_PRECISION_FROM_PTR(directions.y() + i),
                                                             VECGEOM_BACKEND_PRECISION_FROM_PTR(directions.z() + i));
       VECGEOM_BACKEND_TYPE::precision_v stepMaxBackend = VECGEOM_BACKEND_PRECISION_FROM_PTR(&stepMax[i]);
-      VECGEOM_BACKEND_TYPE::precision_v result         = kInfinity;
+      VECGEOM_BACKEND_TYPE::precision_v result         = kInfLength;
       Specialization::template DistanceToOut<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), point, direction,
                                                                    stepMaxBackend, result);
 
-      MaskedAssign(result < 0., kInfinity, &result);
+      MaskedAssign(result < 0., kInfLength, &result);
       StoreTo(result, output + i);
       // -1: physics step is longer than geometry
       // -2: particle may stay inside volume
@@ -546,10 +546,10 @@ public:
     unsigned tailsize = points.size() - safesize;
     for (unsigned i = 0; i < tailsize; ++i) {
       unsigned track = safesize + i;
-      Precision result(vecgeom::kInfinity);
+      Precision result(vecgeom::kInfLength);
       Specialization::template DistanceToOut<kScalar>(*this->GetUnplacedVolume(), points[track], directions[track],
                                                       stepMax[track], result);
-      result        = (result < 0.) ? kInfinity : result;
+      result        = (result < 0.) ? kInfLength : result;
       output[track] = result;
       // -1: physics step is longer than geometry
       // -2: particle may stay inside volume
@@ -563,7 +563,7 @@ public:
       Vector3D<VECGEOM_BACKEND_TYPE::precision_v> point(VECGEOM_BACKEND_PRECISION_FROM_PTR(points.x() + i),
                                                         VECGEOM_BACKEND_PRECISION_FROM_PTR(points.y() + i),
                                                         VECGEOM_BACKEND_PRECISION_FROM_PTR(points.z() + i));
-      VECGEOM_BACKEND_TYPE::precision_v result = kInfinity;
+      VECGEOM_BACKEND_TYPE::precision_v result = kInfLength;
       Specialization::template SafetyToIn<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), *this->GetTransformation(),
                                                                 point, result);
 
@@ -581,7 +581,7 @@ public:
                                                         VECGEOM_BACKEND_PRECISION_FROM_PTR(points.y() + i),
                                                         VECGEOM_BACKEND_PRECISION_FROM_PTR(points.z() + i));
       VECGEOM_BACKEND_TYPE::precision_v estimate = VECGEOM_BACKEND_PRECISION_FROM_PTR(&safeties[i]);
-      VECGEOM_BACKEND_TYPE::precision_v result   = kInfinity;
+      VECGEOM_BACKEND_TYPE::precision_v result   = kInfLength;
       Specialization::template SafetyToIn<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), *this->GetTransformation(),
                                                                 point, result);
       MaskedAssign(estimate < result, estimate, &result);
@@ -590,7 +590,7 @@ public:
     unsigned tailsize = points.size() - safesize;
     for (unsigned int i = 0; i < tailsize; ++i) {
       unsigned int track = safesize + i;
-      Precision result   = kInfinity;
+      Precision result   = kInfLength;
       Specialization::template SafetyToIn<kScalar>(*this->GetUnplacedVolume(), *this->GetTransformation(),
                                                    points[track], result);
       safeties[track] = (result < safeties[track]) ? result : safeties[track];
@@ -604,14 +604,14 @@ public:
       Vector3D<VECGEOM_BACKEND_TYPE::precision_v> point(VECGEOM_BACKEND_PRECISION_FROM_PTR(points.x() + i),
                                                         VECGEOM_BACKEND_PRECISION_FROM_PTR(points.y() + i),
                                                         VECGEOM_BACKEND_PRECISION_FROM_PTR(points.z() + i));
-      VECGEOM_BACKEND_TYPE::precision_v result = kInfinity;
+      VECGEOM_BACKEND_TYPE::precision_v result = kInfLength;
       Specialization::template SafetyToOut<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), point, result);
       StoreTo(result, output + i);
     }
     // tail treatment
     unsigned tailsize = points.size() - safesize;
     for (unsigned int i = 0; i < tailsize; ++i) {
-      Precision result   = kInfinity;
+      Precision result   = kInfLength;
       unsigned int track = safesize + i;
       Specialization::template SafetyToOut<kScalar>(*this->GetUnplacedVolume(), points[track], result);
       output[track] = result;
@@ -625,7 +625,7 @@ public:
                                                         VECGEOM_BACKEND_PRECISION_FROM_PTR(points.y() + i),
                                                         VECGEOM_BACKEND_PRECISION_FROM_PTR(points.z() + i));
       VECGEOM_BACKEND_TYPE::precision_v estimate = VECGEOM_BACKEND_PRECISION_FROM_PTR(&safeties[i]);
-      VECGEOM_BACKEND_TYPE::precision_v result   = kInfinity;
+      VECGEOM_BACKEND_TYPE::precision_v result   = kInfLength;
       Specialization::template SafetyToOut<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), point, result);
       MaskedAssign(estimate < result, estimate, &result);
       StoreTo(result, safeties + i);

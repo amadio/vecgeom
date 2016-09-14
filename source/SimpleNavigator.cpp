@@ -130,7 +130,7 @@ void SimpleNavigator::InspectEnvironmentForPointAndDirection(Vector3D<Precision>
   G4LogicalVolume *g4lvol      = g4physvol->GetLogicalVolume();
 
   double safety;
-  double g4step = g4nav->ComputeStep(g4gp, g4gd, kInfinity, safety);
+  double g4step = g4nav->ComputeStep(g4gp, g4gd, kInfLength, safety);
 
   // we could add a check on the local points; g4nav can give the transformation
   outstream << "Vecgeom local" << localpoint << "\n";
@@ -318,7 +318,7 @@ void SimpleNavigator::CreateDebugDump(Vector3D<Precision> const &globalpoint, Ve
     rootprogram << " std::cout << \"##-- ROOT path --## \" << nav->GetPath() << std::endl;\n";
     rootprogram << " nav->SetCurrentPoint( gpoint.x(), gpoint.y(), gpoint.z() );\n";
     rootprogram << " nav->SetCurrentDirection( gdir.x(), gdir.y(), gdir.z() );\n";
-    rootprogram << " TGeoNode const * nextnode = nav->FindNextBoundaryAndStep( vecgeom::kInfinity );\n";
+    rootprogram << " TGeoNode const * nextnode = nav->FindNextBoundaryAndStep( vecgeom::kInfLength );\n";
     rootprogram << " std::cout << \"##-- ROOT step --##\" << nav->GetStep() << std::endl;\n";
     rootprogram << " std::cout << \"##-- ROOT next node --##\" << nav->GetCurrentNode()->GetName() << std::endl;\n";
 
@@ -339,7 +339,7 @@ void SimpleNavigator::CreateDebugDump(Vector3D<Precision> const &globalpoint, Ve
     vecgeomprogram << " double step;\n";
     vecgeomprogram << " std::cout << \"##-- VecGeom real node --##\" << curnavstate->Top()->GetLabel() << std::endl;\n";
     vecgeomprogram
-        << " vnav.FindNextBoundaryAndStep( gpoint, gdir,*serializedstate, *newnavstate, vecgeom::kInfinity, step );\n";
+        << " vnav.FindNextBoundaryAndStep( gpoint, gdir,*serializedstate, *newnavstate, vecgeom::kInfLength, step );\n";
     vecgeomprogram << " std::cout << \"##-- VecGeom step --##\" << step << std::endl;\n";
     vecgeomprogram << " std::cout << \"##-- VecGeom next node --##\" << newnavstate->Top()->GetLabel() << std::endl;\n";
 

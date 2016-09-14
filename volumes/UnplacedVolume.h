@@ -46,12 +46,12 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
-                                  Precision step_max = kInfinity) const /* = 0 */;
+                                  Precision step_max = kInfLength) const /* = 0 */;
 
   // the USolid/GEANT4-like interface for DistanceToOut (returning also exiting normal)
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
-                                  Vector3D<Precision> &normal, bool &convex, Precision step_max = kInfinity) const
+                                  Vector3D<Precision> &normal, bool &convex, Precision step_max = kInfLength) const
       /* = 0 */;
 
   // an explicit SIMD interface
@@ -97,11 +97,11 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToIn(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
-                                 const Precision step_max = kInfinity) const /* = 0 */;
+                                 const Precision step_max = kInfLength) const /* = 0 */;
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Real_v DistanceToInVec(Vector3D<Real_v> const &position, Vector3D<Real_v> const &direction,
-                                 const Real_v &step_max = Real_v(kInfinity)) const /* = 0 */;
+                                 const Real_v &step_max = Real_v(kInfLength)) const /* = 0 */;
 
   // the tramponline to dispatch to SafetyToInVec if type is not scalar
   // the T = Precision this template will not instantiate as the compiler finds another matching function

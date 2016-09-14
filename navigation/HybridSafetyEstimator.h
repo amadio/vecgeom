@@ -152,7 +152,7 @@ public:
   virtual Precision ComputeSafetyToDaughtersForLocalPoint(Vector3D<Precision> const &localpoint,
                                                           LogicalVolume const *lvol) const override
   {
-    return TreatSafetyToIn(localpoint, lvol, kInfinity);
+    return TreatSafetyToIn(localpoint, lvol, kInfLength);
   }
 
   // vector interface

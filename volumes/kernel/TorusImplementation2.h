@@ -101,7 +101,7 @@ int SolveQuartic(T a, T b, T c, T d, T *x)
   T e     = b - 3. * a * a / 8.;
   T f     = c + a * a * a / 8. - 0.5 * a * b;
   T g     = d - 3. * a * a * a * a / 256. + a * a * b / 16. - a * c / 4.;
-  T xx[4] = {vecgeom::kInfinity, vecgeom::kInfinity, vecgeom::kInfinity, vecgeom::kInfinity};
+  T xx[4] = {vecgeom::kInfLength, vecgeom::kInfLength, vecgeom::kInfLength, vecgeom::kInfLength};
   T delta;
   T h                = 0.;
   unsigned int ireal = 0;
@@ -374,7 +374,7 @@ struct TorusImplementation2 {
     typedef typename Backend::precision_v Real_v;
 
     // Compute coeficients of the quartic
-    Real_v s      = vecgeom::kInfinity;
+    Real_v s      = vecgeom::kInfLength;
     Real_v tol    = vecgeom::kTolerance;
     Real_v r0sq   = pt[0] * pt[0] + pt[1] * pt[1] + pt[2] * pt[2];
     Real_v rdotn  = pt[0] * dir[0] + pt[1] * dir[1] + pt[2] * dir[2];
@@ -385,7 +385,7 @@ struct TorusImplementation2 {
     Real_v d      = r0sq * r0sq - 2. * r0sq * rsumsq + 4. * torus.rtor2() * pt[2] * pt[2] +
                (torus.rtor2() - radius * radius) * (torus.rtor2() - radius * radius);
 
-    Real_v x[4] = {vecgeom::kInfinity, vecgeom::kInfinity, vecgeom::kInfinity, vecgeom::kInfinity};
+    Real_v x[4] = {vecgeom::kInfLength, vecgeom::kInfLength, vecgeom::kInfLength, vecgeom::kInfLength};
     int nsol    = 0;
 
     // special condition
@@ -416,7 +416,7 @@ struct TorusImplementation2 {
     } else { // generic case
       nsol = SolveQuartic(a, b, c, d, x);
     }
-    if (!nsol) return vecgeom::kInfinity;
+    if (!nsol) return vecgeom::kInfLength;
 
     // look for first positive solution
     Real_v ndotd;
@@ -446,7 +446,7 @@ struct TorusImplementation2 {
       }
       s = x[i];
       // refine solution with Newton iterations
-      Real_v eps   = vecgeom::kInfinity;
+      Real_v eps   = vecgeom::kInfLength;
       Real_v delta = s * s * s * s + a * s * s * s + b * s * s + c * s + d;
       Real_v eps0  = -delta / (4. * s * s * s + 3. * a * s * s + 2. * b * s + c);
       while (Abs(eps) > vecgeom::kTolerance) {
@@ -462,7 +462,7 @@ struct TorusImplementation2 {
       if (s < -vecgeom::kTolerance) continue;
       return Max(0., s);
     }
-    return vecgeom::kInfinity;
+    return vecgeom::kInfLength;
   }
 
   template <class Backend>
@@ -481,12 +481,12 @@ struct TorusImplementation2 {
     Vector3D<Float_t> localDirection = transformation.TransformDirection<rotCodeT>(direction);
 
     ////////First naive implementation
-    distance = kInfinity;
+    distance = kInfLength;
 
     // Check Bounding Cylinder first
     Bool_t inBounds;
     Bool_t done;
-    Float_t tubeDistance = kInfinity;
+    Float_t tubeDistance = kInfLength;
 
 #ifndef VECGEOM_NO_SPECIALIZATION
     // call the tube functionality -- first of all we check whether we are inside
@@ -508,7 +508,7 @@ struct TorusImplementation2 {
     else
       tubeDistance = 0.;
 #endif // VECGEOM_NO_SPECIALIZATION
-    done = (!inBounds && tubeDistance == kInfinity);
+    done = (!inBounds && tubeDistance == kInfLength);
 
     if (vecCore::EarlyReturnAllowed()) {
       if (vecCore::MaskFull(done)) {
@@ -526,7 +526,7 @@ struct TorusImplementation2 {
       wedge.DistanceToIn<Backend>(localPoint, localDirection, d1, d2);
 
       // check phi intersections if bounding tube intersection is due to phi in which case we are done
-      if (d1 != kInfinity) {
+      if (d1 != kInfLength) {
         Precision daxis = DistSqrToTorusR(torus, localPoint, localDirection, d1);
         if (daxis >= torus.rmin2() && daxis < torus.rmax2()) {
           distance = d1;
@@ -537,7 +537,7 @@ struct TorusImplementation2 {
         }
       }
 
-      if (d2 != kInfinity) {
+      if (d2 != kInfLength) {
         Precision daxis = DistSqrToTorusR(torus, localPoint, localDirection, d2);
         if (daxis >= torus.rmin2() && daxis < torus.rmax2()) {
           distance = Min(d2, distance);
@@ -547,7 +547,7 @@ struct TorusImplementation2 {
           }
         }
       }
-      distance = kInfinity;
+      distance = kInfLength;
     }
 
     Float_t dd = ToBoundary<Backend, false>(torus, localPoint, localDirection, torus.rmax(), false);
@@ -571,13 +571,13 @@ struct TorusImplementation2 {
 
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
-    distance = kInfinity;
+    distance = kInfLength;
 
     bool hasphi  = (torus.dphi() < kTwoPi);
     bool hasrmin = (torus.rmin() > 0);
 
     Float_t dout = ToBoundary<Backend, false>(torus, point, dir, torus.rmax(), true);
-    Float_t din(kInfinity);
+    Float_t din(kInfLength);
     if (hasrmin) {
       din = ToBoundary<Backend, true>(torus, point, dir, torus.rmin(), true);
     }
@@ -617,7 +617,7 @@ struct TorusImplementation2 {
         }
       }
     }
-    if (distance >= kInfinity) distance = -1.;
+    if (distance >= kInfLength) distance = -1.;
   }
 
   template <class Backend>

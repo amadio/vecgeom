@@ -348,7 +348,7 @@ double UnplacedCone::SafetyFromInsideR(Vector3D<Precision> const &p, double rho,
 {
 
   double safe   = 0.0;
-  double safeR1 = kInfinity;
+  double safeR1 = kInfLength;
   if (fRmin1 || fRmin2) {
     double pRMin = fTanRMin * p.z() + (fRmin1 + fRmin2) * 0.5;
     safeR1       = (rho - pRMin) * fInvSecRMin;

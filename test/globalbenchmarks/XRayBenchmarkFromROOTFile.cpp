@@ -150,7 +150,7 @@ void BenchNavigationUsingLoggedTracks(LogicalVolume const *lvol, std::vector<VNa
   std::cerr << "lvol " << lvol->GetName() << " CURRENT NAV " << lvol->GetNavigator()->GetName() << "\n";
   int i        = 1000;
   int j        = 0;
-  double bestT = vecgeom::kInfinity;
+  double bestT = vecgeom::kInfLength;
 
   for (auto &nav : navs) {
     double step = 0;
@@ -158,8 +158,8 @@ void BenchNavigationUsingLoggedTracks(LogicalVolume const *lvol, std::vector<VNa
     timer.Start();
     for (size_t rep = 0; rep < 3; rep++) {
       for (auto &t : tracks) {
-        step +=
-            nav->ComputeStepAndPropagatedState(t.first.first, t.first.second, vecgeom::kInfinity, *t.second, *newstate);
+        step += nav->ComputeStepAndPropagatedState(t.first.first, t.first.second, vecgeom::kInfLength, *t.second,
+                                                   *newstate);
       }
     }
     timer.Stop();
@@ -293,7 +293,7 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
       //  std::cout << "IN|OUT" << nav->IsOutside() << "\n";
       //  if( node ) std::cout <<    node->GetVolume()->GetName() << "\t";
       while (node != NULL) {
-        node = nav->FindNextBoundaryAndStep(vecgeom::kInfinity);
+        node = nav->FindNextBoundaryAndStep(vecgeom::kInfLength);
         distancetravelled += nav->GetStep();
         if (nav->GetStep() < 0.) {
           std::cout << "NEGATIVE STEP IN ROOT DETECTED ... ABORTING PIXEL\n";
@@ -398,7 +398,7 @@ void XRayWithVecGeom(int axis, Vector3D<Precision> origin, Vector3D<Precision> b
         double step = 0;
         newnavstate->Clear();
         Nav_t navigator;
-        navigator.FindNextBoundaryAndStep(p, dir, *curnavstate, *newnavstate, vecgeom::kInfinity, step);
+        navigator.FindNextBoundaryAndStep(p, dir, *curnavstate, *newnavstate, vecgeom::kInfLength, step);
 
         distancetravelled += step;
         // here we have to propagate particle ourselves and adjust navigation state
@@ -493,7 +493,7 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
         double step = 0;
         newnavstate->Clear();
         VNavigator const *navigator = curnavstate->Top()->GetLogicalVolume()->GetNavigator();
-        step = navigator->ComputeStepAndPropagatedState(p, dir, vecgeom::kInfinity, *curnavstate, *newnavstate);
+        step = navigator->ComputeStepAndPropagatedState(p, dir, vecgeom::kInfLength, *curnavstate, *newnavstate);
 
         distancetravelled += step;
         if (DoVerbose) {
@@ -584,7 +584,7 @@ void XRayWithVecGeom_VecNav(int axis, Vector3D<Precision> origin, Vector3D<Preci
   int *nextnodeworkspace = new int[N]; // some workspace for the navigator; not important here
   // initialize physical steps to infinity
   for (unsigned int j = 0; j < N; ++j)
-    psteps[j]         = vecgeom::kInfinity;
+    psteps[j]         = vecgeom::kInfLength;
 
   for (int pixel_count_2 = 0; pixel_count_2 < data_size_y; ++pixel_count_2) {
     for (int pixel_count_1 = 0; pixel_count_1 < data_size_x; ++pixel_count_1) {
@@ -739,7 +739,7 @@ int XRayWithGeant4(G4VPhysicalVolume *world /* the detector to scan */, int axis
         // do one step ( this will internally adjust the current point and so on )
         // also calculates safety
 
-        double step = nav->ComputeStep(p, d, vecgeom::kInfinity, safety);
+        double step = nav->ComputeStep(p, d, vecgeom::kInfLength, safety);
         if (step > kZeroStepLimit) {
           crossedvolumecount++;
         } else {

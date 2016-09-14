@@ -115,12 +115,12 @@ void ABBoxManager::ComputeABBox(VPlacedVolume const *pvol, ABBox_s *lowerc, ABBo
   pvol->Extent(lower, upper);
   Vector3D<Precision> delta = upper - lower;
   Precision minx, miny, minz, maxx, maxy, maxz;
-  minx                           = kInfinity;
-  miny                           = kInfinity;
-  minz                           = kInfinity;
-  maxx                           = -kInfinity;
-  maxy                           = -kInfinity;
-  maxz                           = -kInfinity;
+  minx                           = kInfLength;
+  miny                           = kInfLength;
+  minz                           = kInfLength;
+  maxx                           = -kInfLength;
+  maxy                           = -kInfLength;
+  maxz                           = -kInfLength;
   Transformation3D const *transf = pvol->GetTransformation();
   for (int x = 0; x <= 1; ++x)
     for (int y = 0; y <= 1; ++y)
@@ -228,12 +228,12 @@ void ABBoxManager::InitABBoxes(LogicalVolume const *lvol)
       } else {
         // filling in bounding boxes of zero size
         // better to put some irrational number than 0?
-        AssignLane(lower.x(), k, -vecgeom::kInfinity);
-        AssignLane(lower.y(), k, -vecgeom::kInfinity);
-        AssignLane(lower.z(), k, -vecgeom::kInfinity);
-        AssignLane(upper.x(), k, -vecgeom::kInfinity);
-        AssignLane(upper.y(), k, -vecgeom::kInfinity);
-        AssignLane(upper.z(), k, -vecgeom::kInfinity);
+        AssignLane(lower.x(), k, -vecgeom::kInfLength);
+        AssignLane(lower.y(), k, -vecgeom::kInfLength);
+        AssignLane(lower.z(), k, -vecgeom::kInfLength);
+        AssignLane(upper.x(), k, -vecgeom::kInfLength);
+        AssignLane(upper.y(), k, -vecgeom::kInfLength);
+        AssignLane(upper.z(), k, -vecgeom::kInfLength);
       }
     }
     vectorboxes[index++] = lower;

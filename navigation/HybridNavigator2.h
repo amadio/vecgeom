@@ -81,15 +81,15 @@ private:
     std::vector<int> *nodeToDaughters = fAccelerationManager.GetNodeToDaughters(lvol);
     for (size_t index = 0, nodeindex = 0; index < size_t(size) * 2; index += 2 * (kVS + 1), nodeindex += kVS) {
       HybridManager2::Float_v distance = BoxImplementation::IntersectCachedKernel2<HybridManager2::Float_v, float>(
-          &boxes_v[index], point, invdir, sign.x(), sign.y(), sign.z(), 0, static_cast<float>(vecgeom::kInfinity));
-      auto hit = distance < static_cast<float>(vecgeom::kInfinity);
+          &boxes_v[index], point, invdir, sign.x(), sign.y(), sign.z(), 0, static_cast<float>(vecgeom::kInfLength));
+      auto hit = distance < static_cast<float>(vecgeom::kInfLength);
       if (!vecCore::MaskEmpty(hit)) {
         for (size_t i = 0 /*hit.firstOne()*/; i < kVS; ++i) {
           if (vecCore::MaskLaneAt(hit, i)) {
             distance = BoxImplementation::IntersectCachedKernel2<HybridManager2::Float_v, float>(
                 &boxes_v[index + 2 * (i + 1)], point, invdir, sign.x(), sign.y(), sign.z(), 0,
-                static_cast<float>(vecgeom::kInfinity));
-            auto hit = distance < static_cast<float>(vecgeom::kInfinity);
+                static_cast<float>(vecgeom::kInfLength));
+            auto hit = distance < static_cast<float>(vecgeom::kInfLength);
             if (!vecCore::MaskEmpty(hit)) {
               for (size_t j = 0 /*hit.firstOne()*/; j < kVS; ++j) { // leaf node
                 if (vecCore::MaskLaneAt(hit, j)) {

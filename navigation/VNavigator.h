@@ -148,7 +148,7 @@ protected:
     // do nothing (step=0) and retry one level higher
 
     // TODO: put diagnostic code here ( like in original SimpleNavigator )
-    if (geom_step == kInfinity && step_limit > 0.) {
+    if (geom_step == kInfLength && step_limit > 0.) {
       geom_step = vecgeom::kTolerance;
       out_state.SetBoundaryState(true);
       do {
@@ -191,7 +191,7 @@ protected:
     step = pvol->DistanceToOut(localpoint, localdir, step_limit);
     // NOTE: IF STEP IS NEGATIVE HERE, SOMETHING IS TERRIBLY WRONG. SET TO INFINITY SO THAT WE CAN BETTER HANDLE IT
     // LATER ON
-    vecCore::MaskedAssign(step, step < T(0.), T(kInfinity));
+    vecCore::MaskedAssign(step, step < T(0.), T(kInfLength));
     return step;
   }
 
@@ -380,7 +380,7 @@ public:
                                                                from_index, out_steps, hitcandidates);
       // parse the hitcandidates pointer as double to apply a mask
       T step(vecCore::FromPtr<T>(out_steps + from_index));
-      auto nothitdaughter = step == T(kInfinity);
+      auto nothitdaughter = step == T(kInfLength);
       if (!vecCore::MaskEmpty(nothitdaughter)) {
         auto dout = Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit);
         vecCore::MaskedAssign(step, nothitdaughter, dout);
@@ -448,7 +448,7 @@ public:
                                                                from_index, out_steps, hitcandidates);
       // parse the hitcandidates pointer as double to apply a mask
       T step(vecCore::FromPtr<T>(out_steps + from_index));
-      auto nothitdaughter = step == T(kInfinity);
+      auto nothitdaughter = step == T(kInfLength);
       if (!vecCore::MaskEmpty(nothitdaughter)) {
         vecCore::MaskedAssign(step, nothitdaughter,
                               Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit));

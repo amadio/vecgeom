@@ -336,7 +336,7 @@ void BooleanImplementation<kUnion, transCodeT, rotCodeT>::DistanceToOutKernel(
     do {
       connectingstep = false;
       disTmp         = A->PlacedDistanceToOut(nextp, v);
-      dist += (disTmp >= 0. && disTmp < kInfinity) ? disTmp : 0;
+      dist += (disTmp >= 0. && disTmp < kInfLength) ? disTmp : 0;
       // give a push
       dist += pushdist;
       push++;
@@ -345,7 +345,7 @@ void BooleanImplementation<kUnion, transCodeT, rotCodeT>::DistanceToOutKernel(
       // if (B->Contains(nextp)) {
       if (B->Inside(nextp) != vecgeom::kOutside) {
         disTmp = B->PlacedDistanceToOut(nextp, v);
-        dist += (disTmp >= 0. && disTmp < kInfinity) ? disTmp : 0;
+        dist += (disTmp >= 0. && disTmp < kInfLength) ? disTmp : 0;
         dist += pushdist;
         push++;
         nextp          = p + dist * v;

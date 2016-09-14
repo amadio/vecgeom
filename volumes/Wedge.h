@@ -401,8 +401,8 @@ void Wedge::DistanceToIn(Vector3D<typename Backend::precision_v> const &point,
   // then calculate real distance along given direction,
   // distance can be negative
 
-  distWedge1 = kInfinity;
-  distWedge2 = kInfinity;
+  distWedge1 = kInfLength;
+  distWedge2 = kInfLength;
 
   Float_t comp1 = dir.x() * fNormalVector1.x() + dir.y() * fNormalVector1.y();
   Float_t comp2 = dir.x() * fNormalVector2.x() + dir.y() * fNormalVector2.y();
@@ -441,8 +441,8 @@ void Wedge::DistanceToOut(Vector3D<typename Backend::precision_v> const &point,
 
   // std::cerr << "c1 " << comp1 << "\n";
   // std::cerr << "c2 " << comp2 << "\n";
-  distWedge1 = kInfinity;
-  distWedge2 = kInfinity;
+  distWedge1 = kInfLength;
+  distWedge2 = kInfLength;
 
   Bool_t cmp1 = comp1 < 0.;
   if (!vecCore::MaskEmpty(cmp1)) {

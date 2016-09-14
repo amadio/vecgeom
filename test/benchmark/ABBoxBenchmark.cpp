@@ -267,8 +267,8 @@ int benchNoCachingNoVector(Vector3D<Precision> const &point, Vector3D<Precision>
   int hitcount = 0;
   for (auto box = 0; box < vecsize; ++box) {
     double distance = BoxImplementation<translation::kIdentity, rotation::kIdentity>::Intersect(
-        &corners[2 * box], point, dir, 0, vecgeom::kInfinity);
-    if (distance < vecgeom::kInfinity) {
+        &corners[2 * box], point, dir, 0, vecgeom::kInfLength);
+    if (distance < vecgeom::kInfLength) {
       hitcount++;
 #ifdef SORTHITBOXES
       hitlist.push_back(BoxIdDistancePair_t(box, distance));
@@ -308,8 +308,8 @@ int benchCachingNoVector(Vector3D<Precision> const &point, Vector3D<Precision> c
   // int code = 2 << size[0] + 2 << size[1] + 2 << size[2];
   for (auto box = 0; box < vecsize; ++box) {
     double distance = BoxImplementation<translation::kIdentity, rotation::kIdentity>::IntersectCachedKernel2<kScalar>(
-        &corners[2 * box], point, invdir, sign[0], sign[1], sign[2], 0, vecgeom::kInfinity);
-    if (distance < vecgeom::kInfinity) {
+        &corners[2 * box], point, invdir, sign[0], sign[1], sign[2], 0, vecgeom::kInfLength);
+    if (distance < vecgeom::kInfLength) {
       hitcount++;
 #ifdef SORTHITBOXES
       hitlist.push_back(BoxIdDistancePair_t(box, distance));
@@ -325,8 +325,8 @@ int benchCachingNoVector(Vector3D<Precision> const &point, Vector3D<Precision> c
 //           &corners[2*box],
 //           point,
 //           invdir,
-//           0, vecgeom::kInfinity );
-//           if( distance < vecgeom::kInfinity ) hitcount++;
+//           0, vecgeom::kInfLength );
+//           if( distance < vecgeom::kInfLength ) hitcount++;
 //         }       break; }
 //    case 3: {
 //        for( auto box = 0; box < vecsize; ++box ){
@@ -335,8 +335,8 @@ int benchCachingNoVector(Vector3D<Precision> const &point, Vector3D<Precision> c
 //                   &corners[2*box],
 //                   point,
 //                   invdir,
-//                   0, vecgeom::kInfinity );
-//                   if( distance < vecgeom::kInfinity ) hitcount++;
+//                   0, vecgeom::kInfLength );
+//                   if( distance < vecgeom::kInfLength ) hitcount++;
 //                 }       break; }
 //    default : std::cerr << "DEFAULT CALLED\n";
 //    }
@@ -371,8 +371,8 @@ int benchCachingAndVector(Vector3D<Precision> const &point, Vector3D<Precision> 
   for (auto box = 0; box < vecsize; ++box) {
     kVc::precision_v distance =
         BoxImplementation<translation::kIdentity, rotation::kIdentity>::IntersectCachedKernel2<kVc>(
-            &corners[2 * box], point, invdir, sign[0], sign[1], sign[2], 0, vecgeom::kInfinity);
-    kVc::bool_v hit = distance < vecgeom::kInfinity;
+            &corners[2 * box], point, invdir, sign[0], sign[1], sign[2], 0, vecgeom::kInfLength);
+    kVc::bool_v hit = distance < vecgeom::kInfLength;
     // std::cerr << hit << "\n";
     // this is Vc specific
     hitcount += hit.count();
@@ -395,8 +395,8 @@ int benchCachingAndVector(Vector3D<Precision> const &point, Vector3D<Precision> 
 //           &corners[2*box],
 //           point,
 //           invdir,
-//           0, vecgeom::kInfinity );
-//           kVc::bool_v hit = distance < vecgeom::kInfinity;
+//           0, vecgeom::kInfLength );
+//           kVc::bool_v hit = distance < vecgeom::kInfLength;
 //           //std::cerr << hit << "\n";
 //           hitcount += hit.count();
 //        }       break; }
@@ -407,8 +407,8 @@ int benchCachingAndVector(Vector3D<Precision> const &point, Vector3D<Precision> 
 //          &corners[2*box],
 //          point,
 //          invdir,
-//          0, vecgeom::kInfinity );
-//          kVc::bool_v hit = distance < vecgeom::kInfinity;
+//          0, vecgeom::kInfLength );
+//          kVc::bool_v hit = distance < vecgeom::kInfLength;
 //          //std::cerr << hit << "\n";
 //          hitcount += hit.count();
 //    }       break; }

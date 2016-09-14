@@ -130,7 +130,7 @@ typename Backend::precision_v DistanceToLineSegmentSquared(Vector3D<Precision> c
   typedef typename Backend::precision_v Float_t;
   typedef typename Backend::bool_v Bool_t;
 
-  Float_t result(kInfinity);
+  Float_t result(kInfLength);
 
   // Shortest distance is to corner of segment
   Vector3D<Precision> line     = corner1 - corner0;
@@ -142,7 +142,7 @@ typename Backend::precision_v DistanceToLineSegmentSquared(Vector3D<Precision> c
   Precision dot1 = line.Mag2();
   condition      = dot1 <= dot0;
   MaskedAssign(condition, (point - corner1).Mag2(), &result);
-  condition = result < kInfinity;
+  condition = result < kInfLength;
   if (vecCore::MaskFull(condition)) return result;
 
   // Shortest distance is to point on segment

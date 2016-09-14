@@ -341,7 +341,7 @@ struct PolyconeImplementation {
 
     // TODO: add bounding box check maybe??
 
-    distance                                     = kInfinity;
+    distance                                     = kInfLength;
     int increment                                = (v.z() > 0) ? 1 : -1;
     if (std::fabs(v.z()) < kTolerance) increment = 0;
     int index                                    = polycone.GetSectionIndex(p.z());
@@ -368,7 +368,7 @@ struct PolyconeImplementation {
                 << " distToIn() = " << distance << "\n";
 #endif
 
-      if (distance < kInfinity || !increment) break;
+      if (distance < kInfLength || !increment) break;
       index += increment;
     } while (index >= 0 && index < polycone.GetNSections());
     return;
@@ -621,7 +621,7 @@ struct PolyconeImplementation {
     safety                                    = ConeImplementation<translation::kIdentity, rotation::kIdentity,
                                 ConeTypes::UniversalCone>::SafetyToOutUSOLIDS<Backend, false>(*sec.fSolid, p);
     Precision minSafety = safety;
-    if (minSafety == kInfinity) {
+    if (minSafety == kInfLength) {
       safety = 0.;
       return;
     }

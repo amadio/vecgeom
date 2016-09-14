@@ -42,7 +42,7 @@ static void SafetyToOutLoop(typename Implementation::UnplacedStruct_t const *sha
   for (decltype(points.size()) i(offset); i < len; i += vecCore::VectorSize<Real_v>()) {
     Vector3D<Real_v> point(FromPtr<Real_v>(points.x() + i), FromPtr<Real_v>(points.y() + i),
                            FromPtr<Real_v>(points.z() + i));
-    Real_v result(kInfinity);
+    Real_v result(kInfLength);
     Implementation::template SafetyToOut<Real_v>(*shapestruct, point, result);
     vecCore::Store(result, &output[i]);
   }
@@ -66,7 +66,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
   virtual Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
-                                  Precision step_max = kInfinity) const override
+                                  Precision step_max = kInfLength) const override
   {
 #ifndef VECGEOM_NVCC
     assert(d.IsNormalized() && " direction not normalized in call to  DistanceToOut ");
@@ -91,7 +91,7 @@ public:
   VECGEOM_FORCE_INLINE
   virtual Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
                                   Vector3D<Precision> &normal, bool &convex,
-                                  Precision step_max = kInfinity) const override
+                                  Precision step_max = kInfLength) const override
   {
     (void)p;
     (void)d;
@@ -122,12 +122,12 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToIn(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
-                                 const Precision step_max = kInfinity) const override
+                                 const Precision step_max = kInfLength) const override
   {
 #ifndef VECGEOM_NVCC
     assert(d.IsNormalized() && " direction not normalized in call to  DistanceToOut ");
 #endif
-    Precision output(kInfinity);
+    Precision output(kInfLength);
     Implementation::DistanceToIn(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p, d, step_max, output);
     return output;
   }
@@ -135,7 +135,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision SafetyToOut(Vector3D<Precision> const &p) const override
   {
-    Precision output(kInfinity);
+    Precision output(kInfLength);
     Implementation::SafetyToOut(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p, output);
     return output;
   }
@@ -143,7 +143,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision SafetyToIn(Vector3D<Precision> const &p) const override
   {
-    Precision output(kInfinity);
+    Precision output(kInfLength);
     Implementation::SafetyToIn(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p, output);
     return output;
   }
@@ -178,7 +178,7 @@ public:
   virtual Real_v DistanceToInVec(Vector3D<Real_v> const &p, Vector3D<Real_v> const &d,
                                  Real_v const &step_max) const override
   {
-    Real_v output(kInfinity);
+    Real_v output(kInfLength);
     Implementation::template DistanceToIn<Real_v>(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p, d,
                                                   step_max, output);
     return output;
@@ -188,7 +188,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual Real_v SafetyToOutVec(Vector3D<Real_v> const &p) const override
   {
-    Real_v output(kInfinity);
+    Real_v output(kInfLength);
     Implementation::template SafetyToOut<Real_v>(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p, output);
     return output;
   }
@@ -197,7 +197,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual Real_v SafetyToInVec(Vector3D<Real_v> const &p) const override
   {
-    Real_v output(kInfinity);
+    Real_v output(kInfLength);
     Implementation::template SafetyToIn<Real_v>(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p, output);
     return output;
   }
@@ -251,7 +251,7 @@ public:
                                   Real_v const &step_max) const override
   {
     // implementation of a vector interface in terms of a scalar interface
-    Real_v output(kInfinity);
+    Real_v output(kInfLength);
     using vecCore::LaneAt;
     for (size_t i = 0; i < vecCore::VectorSize<Real_v>(); ++i) {
       Vector3D<Real_s> ps(LaneAt(p.x(), i), LaneAt(p.y(), i), LaneAt(p.z(), i)); // scalar vector
@@ -270,7 +270,7 @@ public:
                                  Real_v const &step_max) const override
   {
     // implementation of a vector interface in terms of a scalar interface
-    Real_v output(kInfinity);
+    Real_v output(kInfLength);
     using vecCore::LaneAt;
     for (size_t i = 0; i < vecCore::VectorSize<Real_v>(); ++i) {
       Vector3D<Real_s> ps(LaneAt(p.x(), i), LaneAt(p.y(), i), LaneAt(p.z(), i)); // scalar vector
@@ -292,7 +292,7 @@ public:
     using vecCore::LaneAt;
     for (size_t i = 0; i < vecCore::VectorSize<Real_v>(); ++i) {
       Vector3D<Real_s> ps(LaneAt(p.x(), i), LaneAt(p.y(), i), LaneAt(p.z(), i)); // scalar vector
-      Real_s tmp(kInfinity);
+      Real_s tmp(kInfLength);
       Implementation::template SafetyToOut<Real_s>(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), ps, tmp);
       vecCore::AssignLane(output, i, tmp);
     }
@@ -304,7 +304,7 @@ public:
   virtual Real_v SafetyToInVec(Vector3D<Real_v> const &p) const override
   {
     // implementation of a vector interface in terms of a scalar interface
-    Real_v output(kInfinity);
+    Real_v output(kInfLength);
     using vecCore::LaneAt;
     for (size_t i = 0; i < vecCore::VectorSize<Real_v>(); ++i) {
       Vector3D<Real_s> ps(LaneAt(p.x(), i), LaneAt(p.y(), i), LaneAt(p.z(), i)); // scalar vector

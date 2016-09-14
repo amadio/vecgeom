@@ -276,7 +276,7 @@ void testnavsimple()
 
   // check with a large physical step
   double step = 0.0, tolerance = 1.0e-4;
-  nav.FindNextBoundaryAndStep(p1, d, *currentstate, *newstate, vecgeom::kInfinity, step);
+  nav.FindNextBoundaryAndStep(p1, d, *currentstate, *newstate, vecgeom::kInfLength, step);
   assert(std::abs(step - 4.0) < tolerance);
   assert(newstate->IsOnBoundary() == true);
   assert(std::strcmp(RootGeoManager::Instance().tgeonode(newstate->Top())->GetName(), "b2l_0"));
@@ -289,7 +289,7 @@ void testnavsimple()
   assert(newstate->IsOutside() == false);
 
   newstate->Clear();
-  nav.FindNextBoundaryAndStep(p1, d2, *currentstate, *newstate, vecgeom::kInfinity, step);
+  nav.FindNextBoundaryAndStep(p1, d2, *currentstate, *newstate, vecgeom::kInfLength, step);
   assert(std::abs(step - 1.0) < tolerance);
   assert(newstate->IsOnBoundary() == true);
   assert(newstate->Top() == NULL);

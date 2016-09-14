@@ -42,7 +42,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
-                                  Precision stepMax = kInfinity) const = 0;
+                                  Precision stepMax = kInfLength) const = 0;
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual ~USolidsInterfaceHelper() {}
@@ -71,7 +71,7 @@ public:
   // the following functions are somewhat USolid specific
   // a default (asserting) implementation is implemented in USolidsInterfaceHelper.cpp
   virtual double DistanceToOut(Vector3D<double> const &point, Vector3D<double> const &direction,
-                               Vector3D<double> &normal, bool &convex, double stepMax = kInfinity) const;
+                               Vector3D<double> &normal, bool &convex, double stepMax = kInfLength) const;
 
   virtual std::string GetEntityType() const;
 

@@ -1639,7 +1639,7 @@ void NavigationSpecializer::DumpStaticTreatDistanceToMotherFunction(std::ostream
   outstream << "assert(pvol != nullptr && \"currentvolume is null in navigation\");\n";
   outstream << "step = ((" << shapetype << "*)pvol)->" << shapetype
             << "::DistanceToOut(localpoint, localdir, step_limit);\n";
-  outstream << "MaskedAssign(step < T(0.), kInfinity, &step);\n";
+  outstream << "MaskedAssign(step < T(0.), kInfLength, &step);\n";
   outstream << "return step;\n";
   outstream << "}\n";
 }
@@ -1660,7 +1660,7 @@ void NavigationSpecializer::DumpStaticPrepareOutstateFunction(std::ostream &outs
   outstream << "// special code\n";
   outstream << "done = false;\n";
 
-  outstream << "if (geom_step == kInfinity && step_limit > 0.) {"
+  outstream << "if (geom_step == kInfLength && step_limit > 0.) {"
                "geom_step = vecgeom::kTolerance;"
                "out_state.SetBoundaryState(true);"
                "out_state.Pop();"

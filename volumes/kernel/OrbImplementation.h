@@ -110,7 +110,7 @@ struct OrbImplementation {
                            Vector3D<Real_v> const &direction, Real_v const & /*stepMax*/, Real_v &distance)
   {
     using Bool_v         = vecCore::Mask_v<Real_v>;
-    distance             = kInfinity;
+    distance             = kInfLength;
     Real_v rad           = point.Mag();
     Bool_v isPointInside = (rad < Real_v(orb.fR - kTolerance));
     vecCore::MaskedAssign(distance, isPointInside, Real_v(-1.));
@@ -123,7 +123,7 @@ struct OrbImplementation {
     vecCore::MaskedAssign(distance, !done && cond, Real_v(0.));
     done |= cond;
     if (vecCore::MaskFull(done)) return;
-    Real_v dist(kInfinity);
+    Real_v dist(kInfLength);
     vecCore::MaskedAssign(
         distance, !done && DetectIntersectionAndCalculateDistance<Real_v, true>(orb, point, direction, dist), dist);
   }
@@ -136,7 +136,7 @@ struct OrbImplementation {
   {
     using Bool_v = vecCore::Mask_v<Real_v>;
 
-    distance = kInfinity;
+    distance = kInfLength;
 
     Real_v rad            = point.Mag();
     Bool_v isPointOutside = (rad > Real_v(orb.fR + kTolerance));
@@ -150,7 +150,7 @@ struct OrbImplementation {
     vecCore::MaskedAssign(distance, !done && cond, Real_v(0.));
     done |= cond;
     if (vecCore::MaskFull(done)) return;
-    Real_v dist(kInfinity);
+    Real_v dist(kInfLength);
     vecCore::MaskedAssign(
         distance, !done && DetectIntersectionAndCalculateDistance<Real_v, false>(orb, point, direction, dist), dist);
 

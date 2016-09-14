@@ -320,18 +320,18 @@ void GenTrapImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vecto
   // unplaced.GetBBox();
   // actually this could also give us some indication which face is likely to be hit
 
-  Real_v bbdistance = Real_v(kInfinity);
+  Real_v bbdistance = Real_v(kInfLength);
   BoxImplementation::DistanceToIn(BoxStruct<Precision>(unplaced.fBBdimensions), point - unplaced.fBBorigin, direction,
                                   stepMax, bbdistance);
 
 #ifdef GENTRAPDEB
   std::cerr << "BB gave " << bbdistance << "\n";
 #endif
-  distance = vecCore::NumericLimits<Real_v>::Infinity();
+  distance = InfinityLength<Real_v>();
 
   // do a check on bbdistance
   // if none of the tracks can hit even the bounding box; just return
-  Bool_v done = bbdistance >= vecCore::NumericLimits<Real_v>::Infinity();
+  Bool_v done = bbdistance >= InfinityLength<Real_v>();
   if (vecCore::MaskFull(done)) return;
 #ifdef GENTRAPDEB
   Real_v x, y, z;
@@ -532,8 +532,8 @@ void GenTrapImplementation::GetClosestEdge(Vector3D<Real_v> const &point, Real_v
   //  Real_v p1X, p1Y, p2X, p2Y;
   Real_v lsq, dx, dy, dpx, dpy, u;
   fraction    = Real_v(-1.);
-  Real_v safe = vecCore::NumericLimits<Real_v>::Infinity();
-  Real_v ssq  = vecCore::NumericLimits<Real_v>::Infinity();
+  Real_v safe = InfinityLength<Real_v>();
+  Real_v ssq  = InfinityLength<Real_v>();
   for (int i = 0; i < 4; ++i) {
     int j = (i + 1) % 4;
     dx    = vertexX[j] - vertexX[i];

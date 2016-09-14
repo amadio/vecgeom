@@ -88,9 +88,9 @@ int main()
 
   // test DistanceToIn
   assert(ApproxEqual(placedpoly1->DistanceToIn(Vec3D_t(0., 0., -3.), Vec3D_t(0., 0., 1.)), 2.5));
-  assert(placedpoly1->DistanceToIn(Vec3D_t(0., 0., -2.), Vec3D_t(0., 0., -1.)) == vecgeom::kInfinity);
+  assert(placedpoly1->DistanceToIn(Vec3D_t(0., 0., -2.), Vec3D_t(0., 0., -1.)) == vecgeom::kInfLength);
   assert(ApproxEqual(placedpoly1->DistanceToIn(Vec3D_t(0., 0., 3), Vec3D_t(0., 0., -1.)), 2.5));
-  assert(placedpoly1->DistanceToIn(Vec3D_t(0., 0., 3), Vec3D_t(0., 0., 1.)) == vecgeom::kInfinity);
+  assert(placedpoly1->DistanceToIn(Vec3D_t(0., 0., 3), Vec3D_t(0., 0., 1.)) == vecgeom::kInfLength);
   assert(ApproxEqual(placedpoly1->DistanceToIn(Vec3D_t(3., 0., 0), Vec3D_t(-1., 0., 0.)), 1.));
   assert(ApproxEqual(placedpoly1->DistanceToIn(Vec3D_t(0., 0., 1.999999999), Vec3D_t(1., 0., 0.)), 0.4));
 

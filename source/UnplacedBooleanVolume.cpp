@@ -97,12 +97,12 @@ void TransformedExtent(VPlacedVolume const *pvol, Vector3D<Precision> &aMin, Vec
   pvol->Extent(lower, upper);
   Vector3D<Precision> delta = upper - lower;
   Precision minx, miny, minz, maxx, maxy, maxz;
-  minx         = kInfinity;
-  miny         = kInfinity;
-  minz         = kInfinity;
-  maxx         = -kInfinity;
-  maxy         = -kInfinity;
-  maxz         = -kInfinity;
+  minx         = kInfLength;
+  miny         = kInfLength;
+  minz         = kInfLength;
+  maxx         = -kInfLength;
+  maxy         = -kInfLength;
+  maxz         = -kInfLength;
   auto *transf = pvol->GetTransformation();
   for (int x = 0; x <= 1; ++x)
     for (int y = 0; y <= 1; ++y)

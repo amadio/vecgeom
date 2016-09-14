@@ -341,7 +341,7 @@ void TBooleanMinusImplementation<LeftPlacedType_t, RightPlacedType_t, transCodeT
 
   LeftPlacedType_t::Implementation::template DistanceToOut<Backend>(
       *((LeftPlacedType_t *)unplaced.fLeftVolume)->GetUnplacedVolume(), point, direction, stepMax, distance);
-  Float_t dinright(kInfinity);
+  Float_t dinright(kInfLength);
   RightPlacedType_t::Implementation::template DistanceToIn<Backend>(
       *((RightPlacedType_t *)unplaced.fRightVolume)->GetUnplacedVolume(), *unplaced.fRightVolume->transformation(),
       point, direction, stepMax, dinright);
@@ -387,7 +387,7 @@ void TBooleanMinusImplementation<LeftPlacedType_t, RightPlacedType_t, transCodeT
 
   LeftPlacedType_t::Implementation::template SafetyToOut<Backend>(
       *((LeftPlacedType_t *)unplaced.fLeftVolume)->GetUnplacedVolume(), point, safety);
-  Float_t safetyright(kInfinity);
+  Float_t safetyright(kInfLength);
   RightPlacedType_t::Implementation::template SafetyToIn<Backend>(
       *((RightPlacedType_t *)unplaced.fRightVolume)->GetUnplacedVolume(), *unplaced.fRightVolume->transformation(),
       point, safetyright);

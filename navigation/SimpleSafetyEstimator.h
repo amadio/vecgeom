@@ -26,7 +26,7 @@ public:
                                                           LogicalVolume const *lvol) const override
   {
     // safety to daughters
-    double safety(kInfinity);
+    double safety(kInfLength);
     auto daughters       = lvol->GetDaughtersp();
     auto numberdaughters = daughters->size();
     for (decltype(numberdaughters) d = 0; d < numberdaughters; ++d) {

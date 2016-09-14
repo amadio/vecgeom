@@ -18,7 +18,7 @@ typedef kScalar Backend;
 //  typename Backend::bool_v inside;
 //  typename Backend::precision_v distance;
 //  TubeUnplacedInside<Backend, TubeTraits::NonHollowTubeWithAcuteSector>(tube, point, &inside);
-//  TubeDistanceToIn<0, 1, Backend, TubeTraits::NonHollowTubeWithAcuteSector>(tube, *identity, point, dir, kInfinity,
+//  TubeDistanceToIn<0, 1, Backend, TubeTraits::NonHollowTubeWithAcuteSector>(tube, *identity, point, dir, kInfLength,
 //  &distance);
 
 // }
@@ -99,7 +99,7 @@ void distancetoin()
 #else
     TrdImplementation<rotation::kIdentity, translation::kIdentity, TrdTypes::UniversalTrd> impl;
 #endif
-    impl.DistanceToIn<Backend>(trd, *identity, point, direction, kInfinity, dist_v);
+    impl.DistanceToIn<Backend>(trd, *identity, point, direction, kInfLength, dist_v);
     dist = rtrd.DistFromOutside(p, v);
 
     if (!rtrd.Contains(p)) {
@@ -108,7 +108,7 @@ void distancetoin()
       else
         hits++;
 
-      if (!(dist == 1e+30 && dist_v == kInfinity)) {
+      if (!(dist == 1e+30 && dist_v == kInfLength)) {
 
         if (Abs(dist - dist_v) >= kTolerance) {
           std::cout << "ERROR: dist for point " << point << " w dir " << direction << ": " << dist << " , " << dist_v
@@ -158,7 +158,7 @@ void distancetoout()
     v[2] = direction.z();
 
     TrdImplementation<rotation::kIdentity, translation::kIdentity, TrdTypes::UniversalTrd> impl;
-    impl.DistanceToOut<Backend>(trd, point, direction, kInfinity, dist_v);
+    impl.DistanceToOut<Backend>(trd, point, direction, kInfLength, dist_v);
     dist = rtrd.DistFromInside(p, v);
 
     if (rtrd.Contains(p)) {

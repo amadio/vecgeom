@@ -105,7 +105,7 @@ bool TestTubs()
     din          = jira174Tube.DistanceToIn(pos174, dir206);
     // std::cout<<"L"<<__LINE__<<": Dist=jira174tube: pos="<<pos174<<", dir="<< dir206 <<", DistToIn="<< din
     // <<std::endl;
-    assert(ApproxEqual(din, Constants::kInfinity));
+    assert(ApproxEqual(din, Constants::kInfLength));
     dout = jira174Tube.DistanceToOut(pos174, dir206, norm174, conv174);
     // std::cout<<"L"<<__LINE__<<": Dist=jira174tube: pos="<<pos174<<", dir="<< dir206 <<", DistToOut="<< dout
     // <<std::endl;
@@ -293,7 +293,7 @@ bool TestTubs()
   Dist = t1.DistanceToIn(pbigmz, vz);
   assert(ApproxEqual(Dist, 50));
   Dist = t1.DistanceToIn(pbigx, vxy);
-  assert(ApproxEqual(Dist, Constants::kInfinity));
+  assert(ApproxEqual(Dist, Constants::kInfLength));
 
   Dist = t1a.DistanceToIn(pbigz, vmz);
   assert(ApproxEqual(Dist, 50));
@@ -319,7 +319,7 @@ bool TestTubs()
 
   Dist = t3.DistanceToIn(Vec_t(49.5, -0.5, 0), vmx);
   //  std::cout<<"Dist=t2.DistanceToIn((49.5,-0.5,0),vmx) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, Constants::kInfinity));
+  assert(ApproxEqual(Dist, Constants::kInfLength));
 
   Dist = t5.DistanceToIn(Vec_t(30.0, -20.0, 0), vxy);
   // std::cout<<"Dist=t5.DistanceToIn((30.0,-20.0,0),vxy) = "<<Dist<<std::endl;
@@ -327,7 +327,7 @@ bool TestTubs()
 
   Dist = t5.DistanceToIn(Vec_t(30.0, -70.0, 0), vxy);
   // std::cout<<"Dist=t5.DistanceToIn((30.0,-70.0,0),vxy) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, Constants::kInfinity));
+  assert(ApproxEqual(Dist, Constants::kInfLength));
 
   Dist = t5.DistanceToIn(Vec_t(30.0, -20.0, 0), vmxmy);
   //  std::cout<<"Dist=t5.DistanceToIn((30.0,-20.0,0),vmxmy) = "<<Dist<<std::endl;
@@ -335,7 +335,7 @@ bool TestTubs()
 
   Dist = t5.DistanceToIn(Vec_t(30.0, -70.0, 0), vmxmy);
   // std::cout<<"Dist=t5.DistanceToIn((30.0,-70.0,0),vmxmy) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, Constants::kInfinity));
+  assert(ApproxEqual(Dist, Constants::kInfLength));
 
   Dist = t5.DistanceToIn(Vec_t(50.0, -20.0, 0), vy);
   // std::cout<<"Dist=t5.DistanceToIn((50.0,-20.0,0),vy) = "<<Dist<<std::endl;
@@ -343,7 +343,7 @@ bool TestTubs()
 
   Dist = t5.DistanceToIn(Vec_t(100.0, -20.0, 0), vy);
   // std::cout<<"Dist=t5.DistanceToIn((100.0,-20.0,0),vy) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, Constants::kInfinity));
+  assert(ApproxEqual(Dist, Constants::kInfLength));
 
   Dist = t5.DistanceToIn(Vec_t(30.0, -50.0, 0), vmx);
   //  std::cout<<"Dist=t5.DistanceToIn((30.0,-50.0,0),vmx) = "<<Dist<<std::endl;
@@ -351,7 +351,7 @@ bool TestTubs()
 
   Dist = t5.DistanceToIn(Vec_t(30.0, -100.0, 0), vmx);
   //  std::cout<<"Dist=t5.DistanceToIn((30.0,-100.0,0),vmx) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, Constants::kInfinity));
+  assert(ApproxEqual(Dist, Constants::kInfLength));
 
   /* ********************************
      ************************************ */
@@ -513,11 +513,11 @@ bool TestTubs()
 
 #ifdef VECGEOM_USOLIDS
 struct USOLIDSCONSTANTS {
-  static constexpr double kInfinity = DBL_MAX; // UUSolids::kInfinity;
+  static constexpr double kInfLength = DBL_MAX; // UUSolids::kInfLength;
 };
 #endif
 struct VECGEOMCONSTANTS {
-  static constexpr double kInfinity = vecgeom::kInfinity;
+  static constexpr double kInfLength = vecgeom::kInfLength;
 };
 
 int main(int argc, char *argv[])

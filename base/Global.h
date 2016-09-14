@@ -111,6 +111,16 @@ using VectorBackend = vecCore::backend::Scalar;
 #endif
 using ScalarBackend = vecCore::backend::Scalar;
 }
+
+// defining an infinite length constant
+template <typename T>
+VECGEOM_FORCE_INLINE
+VECGEOM_CUDA_HEADER_BOTH
+T InfinityLength() noexcept
+{
+  return vecCore::NumericLimits<T>::Max();
+}
+
 } // End global namespace
 
 #endif // VECGEOM_BASE_GLOBAL_H_

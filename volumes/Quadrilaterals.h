@@ -364,7 +364,7 @@ struct AcceleratedDistanceToIn<kScalar> {
       }
       // If a hit is found, the algorithm can return, since only one side can
       // be hit for a convex set of quadrilaterals
-      distanceTest(!valid) = kInfinity;
+      distanceTest(!valid) = kInfLength;
       distance             = Max(distanceTest.min(), 0.);
       i                    = n;
       return;
@@ -400,7 +400,7 @@ typename Backend::precision_v Quadrilaterals::DistanceToIn(
   typedef typename Backend::precision_v Float_t;
   typedef typename Backend::bool_v Bool_t;
 
-  Float_t bestDistance = kInfinity;
+  Float_t bestDistance = kInfLength;
 
   int i       = 0;
   const int n = size();
@@ -427,7 +427,7 @@ typename Backend::precision_v Quadrilaterals::DistanceToIn(
     MaskedAssign(valid, distance, &bestDistance);
     // If all hits are found, the algorithm can return, since only one side can
     // be hit for a convex set of quadrilaterals
-    if (vecCore::MaskFull(bestDistance < kInfinity)) break;
+    if (vecCore::MaskFull(bestDistance < kInfLength)) break;
   }
 
   return Max(0., bestDistance);
@@ -493,7 +493,7 @@ void AcceleratedDistanceToOut<kScalar>(int &i, const int n, Planes const &planes
     }
   distanceToOutVcContinueOuter:
     if (vecCore::MaskEmpty(valid)) continue;
-    distanceTest(!valid) = kInfinity;
+    distanceTest(!valid) = kInfLength;
     distance             = distanceTest.min();
   }
   distance = Max(0., distance);
@@ -521,7 +521,7 @@ typename Backend::precision_v Quadrilaterals::DistanceToOut(Vector3D<typename Ba
   typedef typename Backend::precision_v Float_t;
   typedef typename Backend::bool_v Bool_t;
 
-  Float_t bestDistance = kInfinity;
+  Float_t bestDistance = kInfLength;
 
   int i       = 0;
   const int n = size();
@@ -568,7 +568,7 @@ typename Backend::precision_v Quadrilaterals::DistanceToOut(
     Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> const &direction) const
 {
-  return DistanceToOut<Backend>(point, direction, -kInfinity, kInfinity);
+  return DistanceToOut<Backend>(point, direction, -kInfLength, kInfLength);
 }
 
 VECGEOM_CUDA_HEADER_BOTH
@@ -632,7 +632,7 @@ Precision Quadrilaterals::ScalarDistanceSquared(int i, Vector3D<Precision> const
   // is correct, but if the "right" segment gets checked, corner0 will be
   // wrongly selected.
 
-  Precision distancesq = kInfinity;
+  Precision distancesq = kInfLength;
   for (int j = 0; j < 4; ++j) {
     if (!withinBound[j]) {
       distance = DistanceToLineSegmentSquared<kScalar>(fCorners[j][i], fCorners[(j + 1) % 4][i], point);

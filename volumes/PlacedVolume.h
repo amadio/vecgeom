@@ -190,17 +190,17 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToIn(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
-                                 const Precision step_max = kInfinity) const = 0;
+                                 const Precision step_max = kInfLength) const = 0;
 
   // if we have any SIMD backend, we offer a SIMD interface
   virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToInVec(
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
-      const VECGEOM_BACKEND_PRECISION_TYPE step_max = kInfinity) const = 0;
+      const VECGEOM_BACKEND_PRECISION_TYPE step_max = kInfLength) const = 0;
 
   template <typename T>
   VECGEOM_FORCE_INLINE
-  T DistanceToIn(Vector3D<T> const &position, Vector3D<T> const &direction, const T step_max = T(kInfinity)) const
+  T DistanceToIn(Vector3D<T> const &position, Vector3D<T> const &direction, const T step_max = T(kInfLength)) const
   {
     return DistanceToInVec(position, direction, step_max);
   }
@@ -217,18 +217,18 @@ public:
 #else
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
-                                  Precision const step_max = kInfinity) const = 0;
+                                  Precision const step_max = kInfLength) const = 0;
 #endif
   // define this interface in case we don't have the Scalar interface
 
   virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToOutVec(
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
-      VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfinity) const = 0;
+      VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfLength) const = 0;
 
   template <typename T>
   VECGEOM_FORCE_INLINE
-  T DistanceToOut(Vector3D<T> const &position, Vector3D<T> const &direction, const T step_max = T(kInfinity)) const
+  T DistanceToOut(Vector3D<T> const &position, Vector3D<T> const &direction, const T step_max = T(kInfLength)) const
   {
     return DistanceToOutVec(position, direction, step_max);
   }
@@ -238,7 +238,7 @@ public:
   // callee. The normal DistanceToOut method does not do this
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision PlacedDistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
-                                        Precision const step_max = kInfinity) const = 0;
+                                        Precision const step_max = kInfLength) const = 0;
 
   virtual void DistanceToOut(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
                              Precision const *const step_max, Precision *const output) const = 0;

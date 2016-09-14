@@ -442,7 +442,7 @@ typename Backend::precision_v PolyhedronImplementation<transCodeT, rotCodeT, inn
 
   // If the outer shell is hit, this will always be the correct result
   distance = segment.outer.DistanceToIn<Backend, false>(point, direction);
-  done     = distance < kInfinity;
+  done     = distance < kInfLength;
   if (vecCore::MaskFull(done)) return distance;
 
   // If the outer shell is not hit and the phi cutout sides are hit, this will
@@ -450,7 +450,7 @@ typename Backend::precision_v PolyhedronImplementation<transCodeT, rotCodeT, inn
   if (TreatPhi<phiCutoutT>(polyhedron.HasPhiCutout())) {
     MaskedAssign(!done, segment.phi.DistanceToIn<Backend, false>(point, direction), &distance);
   }
-  done |= distance < kInfinity;
+  done |= distance < kInfLength;
   if (vecCore::MaskFull(done)) return distance;
 
   // Finally treat inner shell
@@ -475,14 +475,14 @@ typename Backend::precision_v PolyhedronImplementation<transCodeT, rotCodeT, inn
   typedef typename Backend::bool_v Bool_t;
 
   Bool_t done(false);
-  Float_t distance(kInfinity);
+  Float_t distance(kInfLength);
 
   ZSegment const &segment = polyhedron.GetZSegment(segmentIndex);
 
   // Check inner shell first, as it would always be the correct result
   if (TreatInner<innerRadiiT>(segment.hasInnerRadius)) {
     distance = segment.inner.DistanceToIn<Backend, false>(point, direction);
-    done     = distance < kInfinity;
+    done     = distance < kInfLength;
     if (vecCore::MaskFull(done)) return distance;
   }
 
@@ -491,7 +491,7 @@ typename Backend::precision_v PolyhedronImplementation<transCodeT, rotCodeT, inn
   if (TreatPhi<phiCutoutT>(polyhedron.HasPhiCutout())) {
     Float_t distphi = segment.phi.DistanceToIn<Backend, true>(point, direction);
     MaskedAssign(!done && distance > -kTolerance, distphi, &distance);
-    done = distance > -kTolerance && distance < kInfinity;
+    done = distance > -kTolerance && distance < kInfLength;
     if (vecCore::MaskFull(done)) return distance;
   }
 
@@ -513,7 +513,7 @@ Precision PolyhedronImplementation<transCodeT, rotCodeT, innerRadiiT, phiCutoutT
 
   ZSegment const &segment = polyhedron.GetZSegment(segmentIndex);
 
-  Precision safetySquared = kInfinity;
+  Precision safetySquared = kInfLength;
   if (TreatPhi<phiCutoutT>(polyhedron.HasPhiCutout()) && segment.phi.size() == 2) {
     //  Check if points is in the cutout wedge first.
     bool in_cutout = InPhiCutoutWedge<kScalar>(segment, polyhedron.HasLargePhiCutout(), point);
@@ -536,11 +536,11 @@ Precision PolyhedronImplementation<transCodeT, rotCodeT, innerRadiiT, phiCutoutT
 
   // Otherwise check the outer shell
   // TODO: we need to check segment.outer.size() > 0
-  Precision safetySquaredOuter                     = kInfinity;
+  Precision safetySquaredOuter                     = kInfLength;
   if (segment.outer.size() > 0) safetySquaredOuter = segment.outer.ScalarDistanceSquared(phiIndex, point);
 
   // And finally the inner
-  Precision safetySquaredInner = kInfinity;
+  Precision safetySquaredInner = kInfLength;
   if (TreatInner<innerRadiiT>(segment.hasInnerRadius)) {
     if (segment.inner.size() > 0) safetySquaredInner = segment.inner.ScalarDistanceSquared(phiIndex, point);
   }
@@ -890,8 +890,8 @@ Precision PolyhedronImplementation<transCodeT, rotCodeT, innerRadiiT, phiCutoutT
       // the bounds
       HasInnerRadiiTraits<innerRadiiT>::TubeKernels::template DistanceToIn(
           unplaced.GetBoundingTube().GetStruct(), boundsPoint, localDirection, stepMax, tubeDistance);
-      if (tubeDistance == kInfinity) {
-        return kInfinity;
+      if (tubeDistance == kInfLength) {
+        return kInfLength;
       }
     }
   }
@@ -905,13 +905,13 @@ Precision PolyhedronImplementation<transCodeT, rotCodeT, innerRadiiT, phiCutoutT
   // Traverse Z-segments left or right depending on sign of direction
   bool goingRight = localDirection[2] >= 0;
 
-  Precision distance = kInfinity;
+  Precision distance = kInfLength;
   if (goingRight) {
     for (int zSegCount = unplaced.GetZSegmentCount(); zIndex < zSegCount; ++zIndex) {
       distance = DistanceToInZSegment<kScalar>(unplaced, zIndex, localPoint, localDirection);
       // No segment further away can be at a shorter distance to the point, so
       // if a valid distance is found, only endcaps remain to be investigated
-      if (distance >= 0 && distance < kInfinity) break;
+      if (distance >= 0 && distance < kInfLength) break;
     }
   } else {
     // Going left
@@ -919,7 +919,7 @@ Precision PolyhedronImplementation<transCodeT, rotCodeT, innerRadiiT, phiCutoutT
       distance = DistanceToInZSegment<kScalar>(unplaced, zIndex, localPoint, localDirection);
       // No segment further away can be at a shorter distance to the point, so
       // if a valid distance is found, only endcaps remain to be investigated
-      if (distance >= 0 && distance < kInfinity) break;
+      if (distance >= 0 && distance < kInfLength) break;
     }
   }
 
@@ -927,7 +927,7 @@ Precision PolyhedronImplementation<transCodeT, rotCodeT, innerRadiiT, phiCutoutT
   ScalarDistanceToEndcaps<false>(unplaced, goingRight, localPoint, localDirection, distance);
 
   // last sanity check: distance should be larger than estimate from bounding tube
-  return (distance >= tubeDistance - 1E-6) ? distance : vecgeom::kInfinity;
+  return (distance >= tubeDistance - 1E-6) ? distance : vecgeom::kInfLength;
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT, Polyhedron::EInnerRadii innerRadiiT,
@@ -937,7 +937,7 @@ Precision PolyhedronImplementation<transCodeT, rotCodeT, innerRadiiT, phiCutoutT
     UnplacedPolyhedron const &unplaced, Vector3D<Precision> const &point, bool pt_inside)
 {
 
-  Precision safety = kInfinity;
+  Precision safety = kInfLength;
   Precision dz;
   int iSurf, iz;
 
@@ -984,7 +984,7 @@ bool PolyhedronImplementation<transCodeT, rotCodeT, innerRadiiT, phiCutoutT>::Sc
     UnplacedPolyhedron const &unplaced, Vector3D<Precision> const &point, Vector3D<Precision> &normal)
 {
 
-  Precision safety = kInfinity;
+  Precision safety = kInfLength;
   const int zMax   = unplaced.GetZSegmentCount();
   int zIndex       = FindZSegment<kScalar>(unplaced, point[2]);
   if (zIndex < 0) {
@@ -1073,12 +1073,12 @@ Precision PolyhedronImplementation<transCodeT, rotCodeT, innerRadiiT, phiCutoutT
   // Traverse Z-segments left or right depending on sign of direction
   bool goingRight = direction[2] >= 0;
 
-  Precision distance = kInfinity;
+  Precision distance = kInfLength;
   if (goingRight) {
     for (; zIndex < zMax; ++zIndex) {
       distance = DistanceToOutZSegment<kScalar>(unplaced, zIndex, unplaced.GetZPlane(zIndex),
                                                 unplaced.GetZPlane(zIndex + 1), point, direction);
-      if (distance >= 0 && distance < kInfinity) break;
+      if (distance >= 0 && distance < kInfLength) break;
       if (unplaced.GetZPlanes()[zIndex] - point[2] > distance) break;
     }
   } else {
@@ -1086,7 +1086,7 @@ Precision PolyhedronImplementation<transCodeT, rotCodeT, innerRadiiT, phiCutoutT
     for (; zIndex >= 0; --zIndex) {
       distance = DistanceToOutZSegment<kScalar>(unplaced, zIndex, unplaced.GetZPlane(zIndex),
                                                 unplaced.GetZPlane(zIndex + 1), point, direction);
-      if (distance >= 0 && distance < kInfinity) break;
+      if (distance >= 0 && distance < kInfLength) break;
       if (point[2] - unplaced.GetZPlanes()[zIndex] > distance) break;
     }
   }
@@ -1098,7 +1098,7 @@ Precision PolyhedronImplementation<transCodeT, rotCodeT, innerRadiiT, phiCutoutT
   // there is a problem when distance = infinity due to some error condition but stepMax finite
   // return distance < stepMax ? distance : stepMax;
   // signal error with returning negative number
-  if (distance >= kInfinity) distance = -1.;
+  if (distance >= kInfLength) distance = -1.;
   return distance;
 }
 

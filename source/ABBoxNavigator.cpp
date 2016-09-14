@@ -32,8 +32,8 @@ size_t ABBoxNavigator::GetHitCandidates(LogicalVolume const *lvol, Vector3D<Prec
   // int code = 2 << size[0] + 2 << size[1] + 2 << size[2];
   for (size_t box = 0; box < vecsize; ++box) {
     double distance = BoxImplementation::IntersectCachedKernel2<double, double>(
-        &corners[2 * box], point, invdir, sign[0], sign[1], sign[2], 0, vecgeom::kInfinity);
-    if (distance < vecgeom::kInfinity) {
+        &corners[2 * box], point, invdir, sign[0], sign[1], sign[2], 0, vecgeom::kInfLength);
+    if (distance < vecgeom::kInfLength) {
       hitlist[hitcount] = ABBoxManager::BoxIdDistancePair_t(box, distance);
       hitcount++;
     }
@@ -47,8 +47,8 @@ size_t ABBoxNavigator::GetHitCandidates(LogicalVolume const *lvol, Vector3D<Prec
 //           &corners[2*box],
 //           point,
 //           invdir,
-//           0, vecgeom::kInfinity );
-//           if( distance < vecgeom::kInfinity ) hitcount++;
+//           0, vecgeom::kInfLength );
+//           if( distance < vecgeom::kInfLength ) hitcount++;
 //         }       break; }
 //    case 3: {
 //        for( auto box = 0; box < vecsize; ++box ){
@@ -57,8 +57,8 @@ size_t ABBoxNavigator::GetHitCandidates(LogicalVolume const *lvol, Vector3D<Prec
 //                   &corners[2*box],
 //                   point,
 //                   invdir,
-//                   0, vecgeom::kInfinity );
-//                   if( distance < vecgeom::kInfinity ) hitcount++;
+//                   0, vecgeom::kInfLength );
+//                   if( distance < vecgeom::kInfLength ) hitcount++;
 //                 }       break; }
 //    default : std::cerr << "DEFAULT CALLED\n";
 //    }
@@ -86,9 +86,10 @@ size_t ABBoxNavigator::GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Pr
   sign[1] = invdirfloat.y() < 0;
   sign[2] = invdirfloat.z() < 0;
   for (size_t box = 0; box < vecsize; ++box) {
-    ABBoxManager::Float_v distance = BoxImplementation::IntersectCachedKernel2(
-        &corners[2 * box], pfloat, invdirfloat, sign[0], sign[1], sign[2], 0.f, static_cast<float>(vecgeom::kInfinity));
-    auto hit = distance < static_cast<float>(vecgeom::kInfinity);
+    ABBoxManager::Float_v distance =
+        BoxImplementation::IntersectCachedKernel2(&corners[2 * box], pfloat, invdirfloat, sign[0], sign[1], sign[2],
+                                                  0.f, static_cast<float>(vecgeom::kInfLength));
+    auto hit = distance < static_cast<float>(vecgeom::kInfLength);
     // this is Vc specific
     // a little tricky: need to iterate over the mask -- this does not easily work with scalar types
     constexpr auto kVS = vecCore::VectorSize<ABBoxManager::Float_v>();
@@ -265,7 +266,7 @@ void ABBoxNavigator::FindNextBoundaryAndStep(Vector3D<Precision> const &globalpo
     //  SimpleNavigator nav;
     //  nav.RelocatePointFromPath( localpoint, newstate );
     // return;
-    step = kInfinity;
+    step = kInfLength;
   }
 
   // if( step > 1E20 )
@@ -352,7 +353,7 @@ void ABBoxNavigator::FindNextBoundaryAndStep(Vector3D<Precision> const &globalpo
   // if this is the case we are in the wrong volume;
   // assuming that DistanceToIn return negative number when point is inside
   // do nothing (step=0) and retry one level higher
-  if (step == kInfinity && pstep > 0.) {
+  if (step == kInfLength && pstep > 0.) {
 //      std::cout << "WARNING: STEP INFINITY; should never happen unless outside\n";
 // InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );
 // set step to zero and retry one level higher

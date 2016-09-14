@@ -363,7 +363,6 @@ bool ShapeTester::ShapeConventionOutsidePoint()
     // Conventions Check for SafetyFromInside
     Dist                                = fVolumeUSolids->SafetyFromInside(point);
     if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
-    if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
 #ifdef VECGEOM_REPLACE_USOLIDS
     if (Dist != 0.) {
       std::string message("SafetyFromInside should be zero for Outside Point (Wrong side, USolids convention)");

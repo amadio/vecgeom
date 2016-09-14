@@ -152,7 +152,7 @@ void ShapeDebugger::CompareDistanceToInToROOT(Vector3D<Precision> const &bounds,
     Vector3D<Precision> localPoint     = fVolume->GetTransformation()->Transform(point);
     Vector3D<Precision> localDirection = fVolume->GetTransformation()->TransformDirection(direction);
     double rootResult                  = rootShape->DistFromOutside(&localPoint[0], &localDirection[0]);
-    bool vecgeomMiss                   = vecgeomResult == kInfinity;
+    bool vecgeomMiss                   = vecgeomResult == kInfLength;
     bool rootMiss                      = rootResult == 1e30;
     bool same                          = (vecgeomMiss && rootMiss) || Abs(rootResult - vecgeomResult) < kTolerance;
     vecgeomCount += !vecgeomMiss;
@@ -258,7 +258,7 @@ void ShapeDebugger::CompareDistanceToOutToROOT(Vector3D<Precision> const &bounds
     direction               = volumeUtilities::SampleDirection();
     Precision vecgeomResult = fVolume->DistanceToOut(point, direction);
     double rootResult       = rootShape->DistFromInside(&point[0], &direction[0]);
-    bool vecgeomMiss        = vecgeomResult == kInfinity;
+    bool vecgeomMiss        = vecgeomResult == kInfLength;
     bool same               = !vecgeomMiss && Abs(rootResult - vecgeomResult) < kTolerance;
     if (!same) {
       ++mismatches;

@@ -61,17 +61,17 @@ int TestBooleans()
 
   {
     double d = placedholes1->DistanceToIn(Vec3D_t(0., 0., 0.), Vec3D_t(0., 0., 1.));
-    assert(d == kInfinity);
+    assert(d == kInfLength);
   }
 
   {
     double d = placedholes1->DistanceToIn(Vec3D_t(0., 0., 0.), Vec3D_t(1., 0., 0.));
-    assert(d == kInfinity);
+    assert(d == kInfLength);
   }
 
   {
     double d = placedholes1->DistanceToIn(Vec3D_t(0., 0., 0.), Vec3D_t(0., 1., 0.));
-    assert(d == kInfinity);
+    assert(d == kInfLength);
   }
 
   {
@@ -187,15 +187,15 @@ int TestBooleans()
   }
   {
     double d = placedcombinedboolean->DistanceToIn(Vec3D_t(-L / 4., -L / 4., 0.), Vec3D_t(0, -0., -1.));
-    assert(d == kInfinity);
+    assert(d == kInfLength);
   }
   {
     double d = placedcombinedboolean->DistanceToIn(Vec3D_t(-L / 4., -L / 4., 0.), Vec3D_t(-0, -0, -1.));
-    assert(d == kInfinity);
+    assert(d == kInfLength);
   }
   {
     double d = placedcombinedboolean->DistanceToIn(Vec3D_t(-L / 4 - tube.rmax(), -L / 4., 0.), Vec3D_t(-0, -0, -1.));
-    assert(d == kInfinity);
+    assert(d == kInfLength);
   }
   {
     double d =

@@ -107,7 +107,7 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
 
   //  if( node ) std::cout <<    node->GetVolume()->GetName() << "\t";
   while (node != NULL) {
-    node = nav->FindNextBoundaryAndStep(vecgeom::kInfinity);
+    node = nav->FindNextBoundaryAndStep(vecgeom::kInfLength);
     distancetravelled += nav->GetStep();
     counter++;
 
@@ -245,7 +245,7 @@ void XRayWithVecGeom_VecNav(int axis, Vector3D<Precision> origin, Vector3D<Preci
   int *nextnodeworkspace = new int[N]; // some workspace for the navigator; not important here
   // initialize physical steps to infinity
   for (unsigned int j = 0; j < N; ++j)
-    psteps[j]         = vecgeom::kInfinity;
+    psteps[j]         = vecgeom::kInfLength;
 
   Stopwatch internaltimer;
   internaltimer.Start();
@@ -387,7 +387,7 @@ int XRayWithGeant4(G4VPhysicalVolume *world /* the detector to scan */, int axis
     // do one step ( this will internally adjust the current point and so on )
     // also calculates safety
 
-    double step = nav->ComputeStep(p, d, vecgeom::kInfinity, safety);
+    double step = nav->ComputeStep(p, d, vecgeom::kInfLength, safety);
 
     //                       std::cerr << " STEP " << step << " ENTERING " << nav->EnteredDaughterVolume() << "\n";
 

@@ -328,7 +328,7 @@ void BooleanImplementation<kIntersection, transCodeT, rotCodeT>::DistanceToInKer
       d1 = unplaced.fLeftVolume->DistanceToIn(hitpoint, v);
       d1 = Max(d1, kTolerance);
       if (d1 > 1E20) {
-        distance = kInfinity;
+        distance = kInfLength;
         return;
       }
     }
@@ -336,7 +336,7 @@ void BooleanImplementation<kIntersection, transCodeT, rotCodeT>::DistanceToInKer
       d2 = unplaced.fRightVolume->DistanceToIn(hitpoint, v);
       d2 = Max(d2, kTolerance);
       if (d2 > 1E20) {
-        distance = kInfinity;
+        distance = kInfLength;
         return;
       }
     }

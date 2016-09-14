@@ -111,7 +111,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
   virtual Precision DistanceToIn(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
-                                 const Precision step_max = kInfinity) const override
+                                 const Precision step_max = kInfLength) const override
   {
     return static_cast<UnplacedAssembly const *>(GetUnplacedVolume())
         ->UnplacedAssembly::DistanceToIn(GetTransformation()->Transform(position),
@@ -203,7 +203,7 @@ public:
   virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToInVec(
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
-      VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfinity) const override
+      VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfLength) const override
   {
 #ifndef VECGEOM_NVCC
     throw std::runtime_error("unimplemented function called");
@@ -214,7 +214,7 @@ public:
   virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToOutVec(
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
-      VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfinity) const override
+      VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfLength) const override
   {
 #ifndef VECGEOM_NVCC
     throw std::runtime_error("unimplemented function called");

@@ -564,7 +564,7 @@ bool validateVecGeomNavigation(int np, SOA3D<Precision> const &points, SOA3D<Pre
 #endif
 
 #ifdef VECGEOM_GEANT4
-    G4double g4step                 = kInfinity;
+    G4double g4step                 = ::kInfinity;
     G4VPhysicalVolume const *nextPV = NULL;
     ok = validateNavigationStepAgainstGeant4(pos, dir, maxSteps[i], refSteps[i], *vgSerialStates[i], g4step, nextPV);
     result &= ok;

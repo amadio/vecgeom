@@ -509,9 +509,9 @@ bool TestTrap()
   Dist = trap1.DistanceToIn(pbigmz, vz);
   assert(ApproxEqual(Dist, 60));
   Dist = trap1.DistanceToIn(pbigx, vxy);
-  assert(ApproxEqual(Dist, Constants::kInfinity));
+  assert(ApproxEqual(Dist, Constants::kInfLength));
   Dist = trap1.DistanceToIn(pbigmx, vxy);
-  assert(ApproxEqual(Dist, Constants::kInfinity));
+  assert(ApproxEqual(Dist, Constants::kInfLength));
 
   Dist = trap2.DistanceToIn(pbigx, vmx);
   assert(ApproxEqual(Dist, 80));
@@ -526,24 +526,24 @@ bool TestTrap()
   Dist = trap2.DistanceToIn(pbigmz, vz);
   assert(ApproxEqual(Dist, 60));
   Dist = trap2.DistanceToIn(pbigx, vxy);
-  assert(ApproxEqual(Dist, Constants::kInfinity));
+  assert(ApproxEqual(Dist, Constants::kInfLength));
   Dist = trap2.DistanceToIn(pbigmx, vxy);
-  assert(ApproxEqual(Dist, Constants::kInfinity));
+  assert(ApproxEqual(Dist, Constants::kInfLength));
 
   dist = trap3.DistanceToIn(Vec_t(50, -50, 0), vy);
   assert(ApproxEqual(dist, 50));
 
   dist = trap3.DistanceToIn(Vec_t(50, -50, 0), vmy);
-  assert(ApproxEqual(dist, Constants::kInfinity));
+  assert(ApproxEqual(dist, Constants::kInfLength));
 
   dist = trap4.DistanceToIn(Vec_t(50, 50, 0), vy);
-  assert(ApproxEqual(dist, Constants::kInfinity));
+  assert(ApproxEqual(dist, Constants::kInfLength));
 
   dist = trap4.DistanceToIn(Vec_t(50, 50, 0), vmy);
   assert(ApproxEqual(dist, 50));
 
   dist = trap1.DistanceToIn(Vec_t(0, 60, 0), vxmy);
-  assert(ApproxEqual(dist, Constants::kInfinity));
+  assert(ApproxEqual(dist, Constants::kInfLength));
 
   dist = trap1.DistanceToIn(Vec_t(0, 50, 0), vxmy);
   std::cout << "trap1.DistanceToIn(Vec_t(0,50,0),vxmy) = " << dist << " and vxmy=" << vxmy << std::endl;
@@ -553,24 +553,24 @@ bool TestTrap()
   assert(ApproxEqual(dist, 10.0 * std::sqrt(2.0)));
 
   dist = trap1.DistanceToIn(Vec_t(0, 40, 50), vxmy);
-  assert(ApproxEqual(dist, Constants::kInfinity));
+  assert(ApproxEqual(dist, Constants::kInfLength));
 
   // Parallel to side planes
 
   dist = trap1.DistanceToIn(Vec_t(40, 60, 0), vmx);
-  assert(ApproxEqual(dist, Constants::kInfinity));
+  assert(ApproxEqual(dist, Constants::kInfLength));
 
   dist = trap1.DistanceToIn(Vec_t(40, 60, 0), vmy);
-  assert(ApproxEqual(dist, Constants::kInfinity));
+  assert(ApproxEqual(dist, Constants::kInfLength));
 
   dist = trap1.DistanceToIn(Vec_t(40, 60, 50), vmz);
-  assert(ApproxEqual(dist, Constants::kInfinity));
+  assert(ApproxEqual(dist, Constants::kInfLength));
 
   dist = trap1.DistanceToIn(Vec_t(0, 0, 50), vymz);
   assert(ApproxEqual(dist, 10.0 * std::sqrt(2.0)));
 
   dist = trap1.DistanceToIn(Vec_t(0, 0, 80), vymz);
-  assert(ApproxEqual(dist, Constants::kInfinity));
+  assert(ApproxEqual(dist, Constants::kInfLength));
 
   dist = trap1.DistanceToIn(Vec_t(0, 0, 70), vymz);
   std::cout << "trap1.DistanceToIn(Vec_t(0,0,70),vymz) = " << dist << ", vymz=" << vymz << std::endl;
@@ -604,16 +604,16 @@ void TestVECGEOM353()
   Vec_t point(-16.483749999999997, -6.4512999999999989, 0.00000099999999999999995);
   assert(!p->Contains(point));
   auto dist = p->DistanceToIn(point, Vec_t(1., 0., 0.));
-  assert(dist == vecgeom::kInfinity);
+  assert(dist == vecgeom::kInfLength);
 }
 
 #ifdef VECGEOM_USOLIDS
 struct USOLIDSCONSTANTS {
-  static constexpr double kInfinity = DBL_MAX;
+  static constexpr double kInfLength = DBL_MAX;
 };
 #endif
 struct VECGEOMCONSTANTS {
-  static constexpr double kInfinity = vecgeom::kInfinity;
+  static constexpr double kInfLength = vecgeom::kInfLength;
 };
 
 int main(int argc, char *argv[])

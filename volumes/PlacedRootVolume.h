@@ -103,7 +103,7 @@ public:
   virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToInVec(
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
-      VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfinity) const override
+      VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfLength) const override
   {
     throw std::runtime_error("unimplemented function called");
     return VECGEOM_BACKEND_PRECISION_TYPE(-1.);
@@ -112,7 +112,7 @@ public:
   virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToOutVec(
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
-      VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfinity) const override
+      VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfLength) const override
   {
     throw std::runtime_error("unimplemented function called");
     return VECGEOM_BACKEND_PRECISION_TYPE(-1.);

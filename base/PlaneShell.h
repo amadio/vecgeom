@@ -167,8 +167,8 @@ public:
     using Bool_v = vecCore::Mask_v<Real_v>;
     Bool_v done(false);
 
-    Real_v distIn(kInfinity); // set for earlier returns
-    Real_v smax(kInfinity);
+    Real_v distIn(kInfLength); // set for earlier returns
+    Real_v smax(kInfLength);
     Real_v smin(smin0);
 
     // hope for a vectorization of this part for Backend==scalar!!
@@ -231,7 +231,7 @@ public:
   {
     using Bool_v = vecCore::Mask_v<Real_v>;
     Bool_v done(false);
-    Real_v distOut(kInfinity);
+    Real_v distOut(kInfLength);
 
     // hope for a vectorization of this part for Backend==scalar !!
     // the idea is to put vectorizable things into this loop

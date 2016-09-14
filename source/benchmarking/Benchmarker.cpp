@@ -181,11 +181,11 @@ int Benchmarker::CompareDistances(SOA3D<Precision> *points, SOA3D<Precision> *di
       if (fVerbosity > 2) {
         mismatchOutput << vectorized[i] << " / " << specialized[i] << " / " << unspecialized[i];
       }
-      if (!(specialized[i] == kInfinity && vectorized[i] == kInfinity) &&
+      if (!(specialized[i] == kInfLength && vectorized[i] == kInfLength) &&
           std::fabs(specialized[i] - vectorized[i]) > fTolerance) {
         mismatch = true;
       }
-      if (!(specialized[i] == kInfinity && unspecialized[i] == kInfinity) &&
+      if (!(specialized[i] == kInfLength && unspecialized[i] == kInfLength) &&
           std::fabs(specialized[i] - unspecialized[i]) > fTolerance) {
         mismatch = true;
       }
@@ -194,7 +194,7 @@ int Benchmarker::CompareDistances(SOA3D<Precision> *points, SOA3D<Precision> *di
         // The miss condition 'root[i]==1e30' does not hold for scaled shape,
         // where
         // the returned distance is scaled with respact to the unscaled value
-        if (std::fabs(specialized[i] - root[i]) > fTolerance && !(specialized[i] == kInfinity && root[i] > 1e20)) {
+        if (std::fabs(specialized[i] - root[i]) > fTolerance && !(specialized[i] == kInfLength && root[i] > 1e20)) {
           mismatch = true;
         }
         if (fVerbosity > 2) mismatchOutput << " / " << root[i];
@@ -202,7 +202,7 @@ int Benchmarker::CompareDistances(SOA3D<Precision> *points, SOA3D<Precision> *di
 #endif
 #ifdef VECGEOM_USOLIDS
       if (fOkToRunUSOLIDS) {
-        if (!(specialized[i] == kInfinity && usolids[i] == UUtils::kInfinity) &&
+        if (!(specialized[i] == kInfLength && usolids[i] >= UUtils::kInfinity) &&
             std::fabs(specialized[i] - usolids[i]) > fTolerance) {
           mismatch = true;
         }
@@ -212,7 +212,7 @@ int Benchmarker::CompareDistances(SOA3D<Precision> *points, SOA3D<Precision> *di
 #ifdef VECGEOM_GEANT4
       if (fOkToRunG4) {
         if (geant4) {
-          if (!(specialized[i] == kInfinity && geant4[i] == ::kInfinity) &&
+          if (!(specialized[i] == kInfLength && geant4[i] == ::kInfinity) &&
               std::fabs(specialized[i] - geant4[i]) > fTolerance) {
             mismatch = true;
           }
@@ -221,7 +221,8 @@ int Benchmarker::CompareDistances(SOA3D<Precision> *points, SOA3D<Precision> *di
       }
 #endif
 #ifdef VECGEOM_CUDA
-      if (!(specialized[i] == kInfinity && cuda[i] == kInfinity) && std::fabs(specialized[i] - cuda[i]) > fTolerance) {
+      if (!(specialized[i] == kInfLength && cuda[i] == kInfLength) &&
+          std::fabs(specialized[i] - cuda[i]) > fTolerance) {
         mismatch = true;
       }
       if (fVerbosity > 2) mismatchOutput << " / " << cuda[i];
@@ -300,12 +301,12 @@ int Benchmarker::CheckDistancesFromBoundary(Precision expected, SOA3D<Precision>
         mismatchOutput << vectorized[i] << " / " << specialized[i] << " / " << unspecialized[i];
       }
       if (std::fabs(specialized[i] - vectorized[i]) > fTolerance &&
-          !(specialized[i] == kInfinity && vectorized[i] == kInfinity) &&
+          !(specialized[i] == kInfLength && vectorized[i] == kInfLength) &&
           std::fabs(specialized[i] - expected) > kTolerance) {
         mismatch = true;
       }
       if (std::fabs(specialized[i] - unspecialized[i]) > fTolerance &&
-          !(specialized[i] == kInfinity && unspecialized[i] == kInfinity)) {
+          !(specialized[i] == kInfLength && unspecialized[i] == kInfLength)) {
         mismatch = true;
       }
 #ifdef VECGEOM_ROOT
@@ -313,7 +314,7 @@ int Benchmarker::CheckDistancesFromBoundary(Precision expected, SOA3D<Precision>
         // The miss condition 'root[i]==1e30' does not hold for scaled shape,
         // where
         // the returned distance is scaled with respact to the unscaled value
-        if (std::fabs(specialized[i] - root[i]) > fTolerance && !(specialized[i] == kInfinity && root[i] > 1e20)) {
+        if (std::fabs(specialized[i] - root[i]) > fTolerance && !(specialized[i] == kInfLength && root[i] > 1e20)) {
           // NOT ANALYSING DIFFERENCE TO ROOT HERE
           // SINCE HARD CHECK IS GIVEN BY "expected" value
           // mismatch = true;
@@ -324,7 +325,7 @@ int Benchmarker::CheckDistancesFromBoundary(Precision expected, SOA3D<Precision>
 #ifdef VECGEOM_USOLIDS
       if (fOkToRunUSOLIDS) {
         if (std::fabs(specialized[i] - usolids[i]) > fTolerance &&
-            !(specialized[i] == kInfinity && usolids[i] == UUtils::kInfinity)) {
+            !(specialized[i] == kInfLength && usolids[i] == UUtils::kInfinity)) {
           // NOT ANALYSING DIFFERENCE TO USOLIDS HERE FOR MOMENT
           // SINCE HARD CHECK IS GIVEN BY "expected" value
           // mismatch = true;
@@ -336,7 +337,7 @@ int Benchmarker::CheckDistancesFromBoundary(Precision expected, SOA3D<Precision>
       if (fOkToRunG4) {
         if (geant4) {
           if (std::fabs(specialized[i] - geant4[i]) > fTolerance &&
-              !(specialized[i] == kInfinity && geant4[i] == ::kInfinity)) {
+              !(specialized[i] == kInfLength && geant4[i] == ::kInfinity)) {
             // NOT ANALYSING DIFFERENCE TO G4 HERE FOR MOMENT
             // SINCE HARD CHECK IS GIVEN BY "expected" value
             // mismatch = true;
@@ -346,7 +347,8 @@ int Benchmarker::CheckDistancesFromBoundary(Precision expected, SOA3D<Precision>
       }
 #endif
 #ifdef VECGEOM_CUDA
-      if (std::fabs(specialized[i] - cuda[i]) > fTolerance && !(specialized[i] == kInfinity && cuda[i] == kInfinity)) {
+      if (std::fabs(specialized[i] - cuda[i]) > fTolerance &&
+          !(specialized[i] == kInfLength && cuda[i] == kInfLength)) {
         mismatch = true;
       }
       if (fVerbosity > 2) mismatchOutput << " / " << cuda[i];
@@ -425,19 +427,19 @@ int Benchmarker::CompareSafeties(SOA3D<Precision> *points, SOA3D<Precision> *dir
       if (fVerbosity > 2) {
         mismatchOutput << vectorized[i] << " / " << specialized[i] << " / " << unspecialized[i];
       }
-      if (!(specialized[i] == kInfinity && vectorized[i] == kInfinity) &&
+      if (!(specialized[i] == kInfLength && vectorized[i] == kInfLength) &&
           std::fabs(specialized[i] - vectorized[i]) > kTolerance) {
         mismatch = true;
       }
       better &= specialized[i] >= vectorized[i] - kTolerance;
-      if (!(specialized[i] == kInfinity && unspecialized[i] == kInfinity) &&
+      if (!(specialized[i] == kInfLength && unspecialized[i] == kInfLength) &&
           std::fabs(specialized[i] - unspecialized[i]) > kTolerance) {
         mismatch = true;
         better &= specialized[i] >= unspecialized[i] - kTolerance;
       }
 #ifdef VECGEOM_ROOT
       if (fOkToRunROOT) {
-        if (std::fabs(specialized[i] - root[i]) > kTolerance && !(specialized[i] == kInfinity && root[i] == 1e30)) {
+        if (std::fabs(specialized[i] - root[i]) > kTolerance && !(specialized[i] == kInfLength && root[i] == 1e30)) {
           // mismatch = true;
           better &= specialized[i] >= root[i] - kTolerance;
         }
@@ -446,7 +448,7 @@ int Benchmarker::CompareSafeties(SOA3D<Precision> *points, SOA3D<Precision> *dir
 #endif
 #ifdef VECGEOM_USOLIDS
       if (fOkToRunUSOLIDS) {
-        if (!(specialized[i] == kInfinity && usolids[i] == UUtils::kInfinity) &&
+        if (!(specialized[i] == kInfLength && usolids[i] == UUtils::kInfinity) &&
             std::fabs(specialized[i] - usolids[i]) > kTolerance) {
           // mismatch = true;
           better &= specialized[i] >= usolids[i] - kTolerance;
@@ -458,7 +460,7 @@ int Benchmarker::CompareSafeties(SOA3D<Precision> *points, SOA3D<Precision> *dir
       if (fOkToRunG4) {
         if (geant4) {
           if (std::fabs(specialized[i] - geant4[i]) > kTolerance &&
-              !(specialized[i] == kInfinity && geant4[i] == ::kInfinity)) {
+              !(specialized[i] == kInfLength && geant4[i] == ::kInfinity)) {
             //  mismatch = true;
             better &= specialized[i] >= geant4[i] - kTolerance;
           }
@@ -467,7 +469,8 @@ int Benchmarker::CompareSafeties(SOA3D<Precision> *points, SOA3D<Precision> *dir
       }
 #endif
 #ifdef VECGEOM_CUDA
-      if (std::fabs(specialized[i] - cuda[i]) > kTolerance && !(specialized[i] == kInfinity && cuda[i] == kInfinity)) {
+      if (std::fabs(specialized[i] - cuda[i]) > kTolerance &&
+          !(specialized[i] == kInfLength && cuda[i] == kInfLength)) {
         mismatch = true;
         better &= specialized[i] >= cuda[i] - kTolerance;
       }
@@ -544,18 +547,18 @@ int Benchmarker::CheckSafetiesOnBoundary(SOA3D<Precision> *points, SOA3D<Precisi
       if (fVerbosity > 2) {
         mismatchOutput << vectorized[i] << " / " << specialized[i] << " / " << unspecialized[i];
       }
-      if (!(specialized[i] == kInfinity && vectorized[i] == kInfinity) &&
+      if (!(specialized[i] == kInfLength && vectorized[i] == kInfLength) &&
           std::fabs(specialized[i] - vectorized[i]) > kTolerance && std::fabs(specialized[i]) > kTolerance) {
         mismatch = true;
       }
       better &= specialized[i] >= vectorized[i];
-      if (!(specialized[i] == kInfinity && unspecialized[i] == kInfinity) &&
+      if (!(specialized[i] == kInfLength && unspecialized[i] == kInfLength) &&
           std::fabs(specialized[i] - unspecialized[i]) > kTolerance) {
         mismatch = true;
       }
 #ifdef VECGEOM_ROOT
       if (fOkToRunROOT) {
-        if (std::fabs(specialized[i] - root[i]) > kTolerance && !(specialized[i] == kInfinity && root[i] == 1e30)) {
+        if (std::fabs(specialized[i] - root[i]) > kTolerance && !(specialized[i] == kInfLength && root[i] == 1e30)) {
           // mismatch = true;
           // better &= specialized[i] >= root[i];
         }
@@ -564,7 +567,7 @@ int Benchmarker::CheckSafetiesOnBoundary(SOA3D<Precision> *points, SOA3D<Precisi
 #endif
 #ifdef VECGEOM_USOLIDS
       if (fOkToRunUSOLIDS) {
-        if (!(specialized[i] == kInfinity && usolids[i] == UUtils::kInfinity) &&
+        if (!(specialized[i] == kInfLength && usolids[i] == UUtils::kInfinity) &&
             std::fabs(specialized[i] - usolids[i]) > kTolerance) {
           // mismatch = true;
           // better &= specialized[i] >= usolids[i];
@@ -576,7 +579,7 @@ int Benchmarker::CheckSafetiesOnBoundary(SOA3D<Precision> *points, SOA3D<Precisi
       if (fOkToRunG4) {
         if (geant4) {
           if (std::fabs(specialized[i] - geant4[i]) > kTolerance &&
-              !(specialized[i] == kInfinity && geant4[i] == ::kInfinity)) {
+              !(specialized[i] == kInfLength && geant4[i] == ::kInfinity)) {
             // mismatch = true;
             // better &= specialized[i] >= geant4[i];
           }
@@ -585,7 +588,8 @@ int Benchmarker::CheckSafetiesOnBoundary(SOA3D<Precision> *points, SOA3D<Precisi
       }
 #endif
 #ifdef VECGEOM_CUDA
-      if (std::fabs(specialized[i] - cuda[i]) > kTolerance && !(specialized[i] == kInfinity && cuda[i] == kInfinity)) {
+      if (std::fabs(specialized[i] - cuda[i]) > kTolerance &&
+          !(specialized[i] == kInfLength && cuda[i] == kInfLength)) {
         mismatch = true;
         // better &= specialized[i] >= cuda[i];
       }
@@ -900,7 +904,7 @@ int Benchmarker::RunToInBenchmark()
   fDirectionPool = new SOA3D<Precision>(fPointCount * fPoolMultiplier);
   fStepMax       = AllocateAligned<Precision>();
   for (unsigned i = 0; i < fPointCount; ++i)
-    fStepMax[i]   = kInfinity;
+    fStepMax[i]   = kInfLength;
 
   if (fVerbosity > 1) printf("Generating points with bias %f...", fToInBias);
 
@@ -1081,7 +1085,7 @@ int Benchmarker::RunToOutBenchmark()
   }
   fStepMax = AllocateAligned<Precision>();
   for (unsigned i = 0; i < fPointCount; ++i)
-    fStepMax[i]   = kInfinity;
+    fStepMax[i]   = kInfLength;
 
   if (fVerbosity > 1) printf("Generating points...");
 
@@ -1260,7 +1264,7 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
 
   fStepMax = AllocateAligned<Precision>();
   for (unsigned i = 0; i < fPointCount; ++i)
-    fStepMax[i]   = kInfinity;
+    fStepMax[i]   = kInfLength;
 
   if (fVerbosity > 1) printf("Generating points ON BOUNDARY...");
 
@@ -1462,7 +1466,7 @@ int Benchmarker::RunToOutFromBoundaryExitingBenchmark()
 
   fStepMax = AllocateAligned<Precision>();
   for (unsigned i = 0; i < fPointCount; ++i)
-    fStepMax[i]   = kInfinity;
+    fStepMax[i]   = kInfLength;
 
   if (fVerbosity > 1) printf("Generating points ON BOUNDARY...");
 
@@ -1824,7 +1828,7 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
 
   fStepMax = AllocateAligned<Precision>();
   for (unsigned i = 0; i < fPointCount; ++i)
-    fStepMax[i]   = kInfinity;
+    fStepMax[i]   = kInfLength;
 
   if (fVerbosity > 1) printf("Generating points ON BOUNDARY...");
 

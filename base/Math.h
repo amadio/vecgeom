@@ -21,10 +21,12 @@ using namespace vecCore::math;
 #define VECGEOM_CONST static constexpr
 #endif
 
-VECGEOM_CONST Precision kAngTolerance     = 1e-9;
-VECGEOM_CONST Precision kAvogadro         = 6.02214085774e23;
-VECGEOM_CONST Precision kEpsilon          = std::numeric_limits<Precision>::epsilon();
-VECGEOM_CONST Precision kInfinity         = std::numeric_limits<Precision>::infinity();
+VECGEOM_CONST Precision kAngTolerance = 1e-9;
+VECGEOM_CONST Precision kAvogadro     = 6.02214085774e23;
+VECGEOM_CONST Precision kEpsilon      = std::numeric_limits<Precision>::epsilon();
+// VECGEOM_CONST Precision kInfinity         = std::numeric_limits<Precision>::infinity();
+// a special constant to indicate a "miss" length
+VECGEOM_CONST Precision kInfLength        = std::numeric_limits<Precision>::max();
 VECGEOM_CONST Precision kMaximum          = std::numeric_limits<Precision>::max();
 VECGEOM_CONST Precision kMinimum          = std::numeric_limits<Precision>::min();
 VECGEOM_CONST Precision kPi               = 3.14159265358979323846;
@@ -48,7 +50,6 @@ template <template <typename, typename> class ImplementationType, typename T, ty
 struct Tiny<ImplementationType<T, Q>> {
   static constexpr typename ImplementationType<T, Q>::value_type kValue = 1.e-30;
 };
-
 #undef VECGEOM_CONST
 }
 }

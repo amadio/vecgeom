@@ -656,23 +656,23 @@ bool TestCons()
   // std::cout <<"Mismatch: Line "<< __LINE__ <<", Testing Cone_t::DistanceToIn(p,v,...) ...\n";
 
   dist = c1.DistanceToIn(pplz, vmz);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", p=" << pzero << ", dist=A " << dist << "\n";
 
   dist = c2.DistanceToIn(pplz, vmz);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c2.DistanceToIn(pplz,vmz) = " << dist << "\n";
 
   dist = c3.DistanceToIn(pplz, vmz);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c3.DistanceToIn(pplz,vmz) = " << dist << "\n";
 
   dist = c4.DistanceToIn(pplz, vmz);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c4.DistanceToIn(pplz,vmz) = " << dist << "\n";
 
   dist = c5.DistanceToIn(pplz, vmz);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c5.DistanceToIn(pplz,vmz) = " << dist << "\n";
 
   dist = c6.DistanceToIn(pplz, vmz);
@@ -680,7 +680,7 @@ bool TestCons()
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c6.DistanceToIn(pplz,vmz) = " << dist << "\n";
 
   dist = c7.DistanceToIn(pplz, vmz);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c7.DistanceToIn(pplz,vmz) = " << dist << "\n";
 
   dist = c8a.DistanceToIn(pplz, vmz);
@@ -688,11 +688,11 @@ bool TestCons()
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c8a.DistanceToIn(pplz,vmz) = " << dist << "\n";
 
   dist = c8b.DistanceToIn(pplz, vmz);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c8b.DistanceToIn(pplz,vmz) = " << dist << "\n";
 
   dist = c8c.DistanceToIn(pplz, vmz);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c8c.DistanceToIn(pplz,vmz) = " << dist << "\n";
 
   if (testingvecgeom)
@@ -708,34 +708,34 @@ bool TestCons()
       std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c9.DistanceToIn((0,0,50),vmz) = " << dist << "\n";
   } else {
     dist = c9.DistanceToIn(pplz, vmz);
-    if (OutRange(dist, Constants::kInfinity))
+    if (OutRange(dist, Constants::kInfLength))
       std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c9.DistanceToIn(pplz,vmz) = " << dist << "\n";
 
     dist = c9.DistanceToIn(Vec_t(0, 0, 50), vmz);
-    if (OutRange(dist, Constants::kInfinity))
+    if (OutRange(dist, Constants::kInfLength))
       std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c9.DistanceToIn((0,0,50),vmz) = " << dist << "\n";
   }
 
   ///////////////
 
   dist = c1.DistanceToIn(pmiz, vz);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", p=" << pzero << ", dist=A " << dist << "\n";
 
   dist = c2.DistanceToIn(pmiz, vz);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c2.DistanceToIn(pmiz,vz) = " << dist << "\n";
 
   dist = c3.DistanceToIn(pmiz, vz);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c3.DistanceToIn(pmiz,vz) = " << dist << "\n";
 
   dist = c4.DistanceToIn(pmiz, vz);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c4.DistanceToIn(pmiz,vz) = " << dist << "\n";
 
   dist = c5.DistanceToIn(pmiz, vz);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c5.DistanceToIn(pmiz,vz) = " << dist << "\n";
 
   dist = c6.DistanceToIn(pmiz, vz);
@@ -743,7 +743,7 @@ bool TestCons()
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c6.DistanceToIn(pmiz,vz) = " << dist << "\n";
 
   dist = c7.DistanceToIn(pmiz, vz);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c7.DistanceToIn(pmiz,vz) = " << dist << "\n";
 
   dist = c8a.DistanceToIn(pmiz, vz);
@@ -751,15 +751,15 @@ bool TestCons()
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c8a.DistanceToIn(pmiz,vz) = " << dist << "\n";
 
   dist = c8b.DistanceToIn(pmiz, vz);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c8b.DistanceToIn(pmiz,vz) = " << dist << "\n";
 
   dist = c8c.DistanceToIn(pmiz, vz);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c8c.DistanceToIn(pmiz,vz) = " << dist << "\n";
 
   dist = c9.DistanceToIn(pmiz, vz);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c9.DistanceToIn(pmiz,vz) = " << dist << "\n";
 
   //////////////
@@ -768,10 +768,10 @@ bool TestCons()
   if (OutRange(dist, 20))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", p=" << pzero << ", dist=B " << dist << "\n";
   dist = c1.DistanceToIn(pplz, vx);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", p=" << pzero << ", dist=C " << dist << "\n";
   dist = c4.DistanceToIn(pply, vmy);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", p=" << pzero << ", dist=D " << dist << "\n";
 
   dist = c1.DistanceToIn(pydx, vmy);
@@ -785,7 +785,7 @@ bool TestCons()
   if (OutRange(dist, 20))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", p=" << pzero << ", dist=G " << dist << "\n";
   dist = c1.DistanceToIn(pplx, vx);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", p=" << pzero << ", dist=G2 " << dist << "\n";
 
   dist = c4.DistanceToIn(pbigx, vmx);
@@ -797,7 +797,7 @@ bool TestCons()
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", p=" << pzero << ", dist=H " << dist << "\n";
 
   dist = c1.DistanceToIn(ponr2, vx);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", p=" << pzero << ", dist=I" << dist << "\n";
   dist = c1.DistanceToIn(ponr2, vmx);
   if (OutRange(dist, 0))
@@ -819,10 +819,10 @@ bool TestCons()
   if (OutRange(dist, 100 * std::sqrt(5.) / 2.))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", p=" << pzero << ", dist=parr1 " << dist << "\n";
   dist = c8b.DistanceToIn(pparr2, -vparr);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", p=" << pzero << ", dist=parr2 " << dist << "\n";
   dist = c8b.DistanceToIn(pparr3, vparr);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", p=" << pzero << ", dist=parr3a " << dist << "\n";
   dist = c8b.DistanceToIn(pparr3, -vparr);
   if (OutRange(dist, 0))
@@ -841,10 +841,10 @@ bool TestCons()
 
   dist = cms2.DistanceToIn(Vec_t(-344.13684353113, 258.98049377272, -158.20772167926),
                            Vec_t(-0.30372022869765, -0.55811472925794, 0.77218001247454));
-  if (OutRange(dist, Constants::kInfinity)) std::cout << "cms2.DistanceToIn(Vec_t(-344.1 ... = " << dist << "\n";
+  if (OutRange(dist, Constants::kInfLength)) std::cout << "cms2.DistanceToIn(Vec_t(-344.1 ... = " << dist << "\n";
 
   dist = ctest10.DistanceToIn(pct10, vx);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", ctest10.DistanceToIn(pct10,vx) = " << dist << "\n";
 
   dist = ctest10.DistanceToIn(pct10, vmx);
@@ -860,11 +860,11 @@ bool TestCons()
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", ctest10.DistanceToIn(pct10,vmy) = " << dist << "\n";
 
   dist = ctest10.DistanceToIn(pct10, vz);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", ctest10.DistanceToIn(pct10,vz) = " << dist << "\n";
 
   dist = ctest10.DistanceToIn(pct10phi1, vx);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", ctest10.DistanceToIn(pct10phi1,vx) = " << dist << "\n";
 
   dist = ctest10.DistanceToIn(pct10phi1, vmx);
@@ -880,15 +880,15 @@ bool TestCons()
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", ctest10.DistanceToIn(pct10phi1,vmy) = " << dist << "\n";
 
   dist = ctest10.DistanceToIn(pct10phi1, vz);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", ctest10.DistanceToIn(pct10phi1,vz) = " << dist << "\n";
 
   dist = ctest10.DistanceToIn(pct10phi1, vmz);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", ctest10.DistanceToIn(pct10phi1,vmz) = " << dist << "\n";
 
   dist = ctest10.DistanceToIn(pct10phi2, vx);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", ctest10.DistanceToIn(pct10phi2,vx) = " << dist << "\n";
 
   dist = ctest10.DistanceToIn(pct10phi2, vmx);
@@ -904,15 +904,15 @@ bool TestCons()
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", ctest10.DistanceToIn(pct10phi2,vmy) = " << dist << "\n";
 
   dist = ctest10.DistanceToIn(pct10phi2, vz);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", ctest10.DistanceToIn(pct10phi2,vz) = " << dist << "\n";
 
   dist = ctest10.DistanceToIn(pct10phi2, vmz);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", ctest10.DistanceToIn(pct10phi2,vmz) = " << dist << "\n";
 
   dist = ctest10.DistanceToIn(pct10mx, vx);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", ctest10.DistanceToIn(pct10mx,vx) = " << dist << "\n";
 
   dist = ctest10.DistanceToIn(pct10mx, vmx);
@@ -920,15 +920,15 @@ bool TestCons()
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", ctest10.DistanceToIn(pct10mx,vmx) = " << dist << "\n";
 
   dist = ctest10.DistanceToIn(pct10mx, vy);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", ctest10.DistanceToIn(pct10mx,vy) = " << dist << "\n";
 
   dist = ctest10.DistanceToIn(pct10mx, vmy);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", ctest10.DistanceToIn(pct10mx,vmy) = " << dist << "\n";
 
   dist = ctest10.DistanceToIn(pct10mx, vz);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", ctest10.DistanceToIn(pct10mx,vz) = " << dist << "\n";
 
   dist = ctest10.DistanceToIn(pct10mx, vmz);
@@ -940,7 +940,7 @@ bool TestCons()
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", ctest10.DistanceToIn(pct10e1,d1) = " << dist << "\n";
 
   dist = ctest10.DistanceToIn(pct10e4, d1);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", ctest10.DistanceToIn(pct10e4,d1) = " << dist << "\n";
 
   dist = ctest10.DistanceToIn(pt10s2, vt10d);
@@ -955,11 +955,11 @@ bool TestCons()
                    -arad * std::sin(50 * VECGEOM_NAMESPACE::kPi / 180.), 0);
 
   dist = ctest10.DistanceToIn(pct10phi1r, vmy);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", ctest10.DistanceToIn(pct10phi1r,vmy) = " << dist << "\n";
 
   dist = ctest10.DistanceToIn(pct10phi2r, vx);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", ctest10.DistanceToIn(pct10phi2r,vx) = " << dist << "\n";
 
   Vec_t alex1P(49.840299921054168, -59.39735648688918, -20.893051766050633);
@@ -970,7 +970,7 @@ bool TestCons()
   // assert(in == vecgeom::EInside::kSurface);
 
   dist = ctest10.DistanceToIn(alex1P, alex1V);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", ctest10.DistanceToIn(alex1P,alex1V) = " << dist << "\n";
 
   dist = ctest10.DistanceToOut(alex1P, alex1V, norm, convex);
@@ -986,7 +986,7 @@ bool TestCons()
   assert(in == vecgeom::EInside::kOutside);
 
   dist = ctest10.DistanceToIn(alex2P, alex2V);
-  if (OutRange(dist, Constants::kInfinity))
+  if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", ctest10.DistanceToIn(alex2P,alex2V) = " << dist << "\n";
 
   // Add Error of CMS, point on the Inner Surface going // to imaginary cone
@@ -1000,10 +1000,10 @@ bool TestCons()
   dist       = testc.DistanceToOut(point, dir, norm, convex);
   Vec_t newp = point + dist * dir;
   // std::cout<<"CMS problem: DistOut has to be small="<<testc.DistanceToOut(point,dir,norm,convex)<<"\n";
-  // std::cout<<"CMS problem: DistInNew has to be kInfinity="<<testc.DistanceToIn(newp,dir)<<"\n";
+  // std::cout<<"CMS problem: DistInNew has to be kInfLength="<<testc.DistanceToIn(newp,dir)<<"\n";
   assert(dist < 0.05);
   dist = testc.DistanceToIn(newp, dir);
-  //  assert(ApproxEqual(dist,Constants::kInfinity));
+  //  assert(ApproxEqual(dist,Constants::kInfLength));
 
   // Second test for Cons derived from testG4Cons1.cc
   pbigx = Vec_t(100, 0, 0);
@@ -1077,13 +1077,13 @@ bool TestCons()
   Dist = t1.DistanceToIn(pbigmz, vz);
   assert(ApproxEqual(Dist, 50));
   Dist = t1.DistanceToIn(pbigx, vxy);
-  assert(ApproxEqual(Dist, Constants::kInfinity));
+  assert(ApproxEqual(Dist, Constants::kInfLength));
 
   // point is on (Rmin,z=-100) but travels away from the volume and will never get inside it
   Dist = test10.DistanceToIn(Vec_t(19.218716967888, 5.5354239324172, -100.0),
                              Vec_t(-0.25644483536346, -0.073799216676426, 0.96373737191901));
   // std::cout<<"D2I() mismatch: Line "<< __LINE__ <<", test10::DistToIn ="<<Dist<<"\n";
-  assert(ApproxEqual(Dist, Constants::kInfinity));
+  assert(ApproxEqual(Dist, Constants::kInfLength));
 
   Dist = test10.DistanceToOut(Vec_t(19.218716967888, 5.5354239324172, -100.0),
                               Vec_t(-0.25644483536346, -0.073799216676426, 0.96373737191901), norm, convex);
@@ -1104,11 +1104,11 @@ bool TestCons()
 
 #ifdef VECGEOM_USOLIDS
 struct USOLIDSCONSTANTS {
-  static constexpr double kInfinity = DBL_MAX;
+  static constexpr double kInfLength = DBL_MAX;
 };
 #endif
 struct VECGEOMCONSTANTS {
-  static constexpr double kInfinity = vecgeom::kInfinity;
+  static constexpr double kInfLength = vecgeom::kInfLength;
 };
 
 int main(int argc, char *argv[])

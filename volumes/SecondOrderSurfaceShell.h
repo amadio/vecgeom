@@ -197,7 +197,7 @@ public:
     // The algorithmic tolerance in distance
     const Real_v tolerance(100. * kTolerance);
 
-    Real_v dist(vecCore::NumericLimits<Real_v>::Infinity());
+    Real_v dist(InfinityLength<Real_v>());
     Real_v smin[N], smax[N];
     Vector3D<Real_v> unorm;
     Real_v r(-1.0);
@@ -224,9 +224,9 @@ public:
       // Starting point may be propagated close to boundary
       // === MaskedMultipleAssign needed
       vecCore::MaskedAssign(smin[i], !completelyoutside && Abs(smin[i]) < tolerance && dir.Dot(unorm) < 0,
-                            vecCore::NumericLimits<Real_v>::Infinity());
+                            InfinityLength<Real_v>());
       vecCore::MaskedAssign(smax[i], !completelyoutside && Abs(smax[i]) < tolerance && dir.Dot(unorm) < 0,
-                            vecCore::NumericLimits<Real_v>::Infinity());
+                            InfinityLength<Real_v>());
 
       vecCore::MaskedAssign(dist, !completelyoutside && (smin[i] > -tolerance) && (smin[i] < dist),
                             Max(smin[i], Real_v(0.)));
@@ -253,7 +253,7 @@ public:
 
     Vertex_t va;         // vertex i of lower base
     Vector3D<Real_v> pa; // same vertex converted to backend type
-    Real_v distance = vecCore::NumericLimits<Real_v>::Infinity();
+    Real_v distance = InfinityLength<Real_v>();
 
     // Check every surface
     Bool_v outside = (Abs(point.z()) > MakePlusTolerant<true>(fDz)); // If point is outside, we need to know
@@ -298,7 +298,7 @@ public:
     using Bool_v = vecCore::Mask_v<Real_v>;
     Vertex_t va;         // vertex i of lower base
     Vector3D<Real_v> pa; // same vertex converted to backend type
-    Real_v distance = vecCore::NumericLimits<Real_v>::Infinity();
+    Real_v distance = InfinityLength<Real_v>();
 
     // Check every surface
     Bool_v inside = (Abs(point.z()) < MakeMinusTolerant<true>(fDz)); // If point is inside, we need to know
@@ -349,7 +349,7 @@ public:
     if (fisplanar) return DistanceToInPlanar<Real_v>(point, dir, done);
     Real_v crtdist;
     Vector3D<Real_v> hit;
-    Real_v distance = vecCore::NumericLimits<Real_v>::Infinity();
+    Real_v distance = InfinityLength<Real_v>();
     Real_v tolerance(100. * kTolerance);
     Vector3D<Real_v> unorm;
     Real_v r(-1.0);
@@ -423,7 +423,7 @@ public:
     Real_v safety = safmax;
     Bool_v done   = (Abs(safety) < eps);
     if (vecCore::MaskFull(done)) return (safety);
-    Real_v safetyface = vecCore::NumericLimits<Real_v>::Infinity();
+    Real_v safetyface = InfinityLength<Real_v>();
 
     // loop lateral surfaces
     // We can use the surface normals to get safety for non-curved surfaces
@@ -470,7 +470,7 @@ public:
     Real_v safety = safmax;
     Bool_v done   = (Abs(safety) < eps);
     if (vecCore::MaskFull(done)) return (safety);
-    Real_v safetyface = vecCore::NumericLimits<Real_v>::Infinity();
+    Real_v safetyface = InfinityLength<Real_v>();
 
     // loop lateral surfaces
     // We can use the surface normals to get safety for non-curved surfaces
@@ -511,8 +511,8 @@ public:
   Real_v SafetyCurved(Vector3D<Real_v> const &point, vecCore::Mask_v<Real_v> in) const
   {
     using Bool_v     = vecCore::Mask_v<Real_v>;
-    Real_v safety    = vecCore::NumericLimits<Real_v>::Infinity();
-    Real_v safplanar = vecCore::NumericLimits<Real_v>::Infinity();
+    Real_v safety    = InfinityLength<Real_v>();
+    Real_v safplanar = InfinityLength<Real_v>();
     Real_v tolerance = Real_v(100 * kTolerance);
     vecCore::MaskedAssign(tolerance, !in, -tolerance);
 
@@ -602,7 +602,7 @@ public:
     Bool_v insurf = (rz > MakeMinusTolerant<true>(0.)) && (rz < MakePlusTolerant<true>(1.));
     if (vecCore::MaskEmpty(insurf)) return insurf;
 
-    Real_v r     = vecCore::NumericLimits<Real_v>::Infinity();
+    Real_v r     = InfinityLength<Real_v>();
     Real_v num   = (point.x() - fxa[isurf]) - rz * (fxb[isurf] - fxa[isurf]);
     Real_v denom = (fxc[isurf] - fxa[isurf]) + rz * (fxd[isurf] - fxc[isurf] - fxb[isurf] + fxa[isurf]);
     vecCore::MaskedAssign(r, (Abs(denom) > 1.e-6), num / denom);
@@ -657,7 +657,7 @@ public:
   void ComputeSminSmax(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir, Real_v smin[N], Real_v smax[N]) const
   {
 
-    const Real_v big = vecCore::NumericLimits<Real_v>::Infinity();
+    const Real_v big = InfinityLength<Real_v>();
 
     Real_v dzp = fDz + point[2];
     // calculate everything needed to solve the second order equation
@@ -716,7 +716,7 @@ public:
       Real_v dotDirNorm = dir.Dot(fNormals[i]);
       dotDirNorm += kTiny; // Avoid division by 0 without changing result
       smin[i] = -dotAPNorm / dotDirNorm;
-      smax[i] = vecCore::NumericLimits<Real_v>::Infinity(); // not to be checked
+      smax[i] = InfinityLength<Real_v>(); // not to be checked
     }
   } // end ComputeSminSmax
 

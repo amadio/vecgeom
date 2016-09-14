@@ -189,9 +189,9 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToIn(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
-                                 const Precision stepMax = kInfinity) const override
+                                 const Precision stepMax = kInfLength) const override
   {
-    Precision output = kInfinity;
+    Precision output = kInfLength;
     Specialization::template DistanceToIn<kScalar>(*this->GetUnplacedVolume(), *this->GetTransformation(), point,
                                                    direction, stepMax, output);
 
@@ -211,9 +211,9 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToOut(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
-                                  const Precision stepMax = kInfinity) const override
+                                  const Precision stepMax = kInfLength) const override
   {
-    Precision output = kInfinity;
+    Precision output = kInfLength;
     Specialization::template DistanceToOut<kScalar>(*this->GetUnplacedVolume(), point, direction, stepMax, output);
 
 #ifdef VECGEOM_REPLACE_USOLIDS
@@ -238,11 +238,11 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision PlacedDistanceToOut(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
-                                        const Precision stepMax = kInfinity) const override
+                                        const Precision stepMax = kInfLength) const override
   {
     Transformation3D const *t = this->GetTransformation();
 
-    Precision output = kInfinity;
+    Precision output = kInfLength;
     Specialization::template DistanceToOut<kScalar>(
         *this->GetUnplacedVolume(), t->Transform<Specialization::transC, Specialization::rotC, Precision>(point),
         t->TransformDirection<Specialization::rotC, Precision>(direction), stepMax, output);
@@ -261,7 +261,7 @@ public:
    */
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToOut(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
-                                  Vector3D<Precision> &normal, bool &convex, Precision step = kInfinity) const override
+                                  Vector3D<Precision> &normal, bool &convex, Precision step = kInfLength) const override
   {
     Precision d                  = DistanceToOut(point, direction, step);
     Vector3D<Precision> hitpoint = point + d * direction;
@@ -280,7 +280,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision SafetyToIn(Vector3D<Precision> const &point) const override
   {
-    Precision output = kInfinity;
+    Precision output = kInfLength;
     Specialization::template SafetyToIn<kScalar>(*this->GetUnplacedVolume(), *this->GetTransformation(), point, output);
 
 #ifdef VECGEOM_REPLACE_USOLIDS
@@ -297,7 +297,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision SafetyToOut(Vector3D<Precision> const &point) const override
   {
-    Precision output = kInfinity;
+    Precision output = kInfLength;
     Specialization::template SafetyToOut<kScalar>(*this->GetUnplacedVolume(), point, output);
 
 #ifdef VECGEOM_REPLACE_USOLIDS
@@ -348,7 +348,7 @@ public:
   {
     for (int i = 0, iMax = points.size(); i < iMax; ++i) {
       Precision stepMax = currentDistance[i];
-      Precision result  = kInfinity;
+      Precision result  = kInfLength;
       Specialization::template DistanceToIn<kScalar>(*this->GetUnplacedVolume(), *this->GetTransformation(), points[i],
                                                      directions[i], stepMax, result);
       if (result < currentDistance[i] && !IsInf(result)) {
@@ -375,7 +375,7 @@ public:
     for (int i = 0, iMax = points.size(); i < iMax; ++i) {
       Specialization::template DistanceToOut<kScalar>(*this->GetUnplacedVolume(), points[i], directions[i], stepMax[i],
                                                       output[i]);
-      if (output[i] < 0.) output[i] = vecgeom::kInfinity;
+      if (output[i] < 0.) output[i] = vecgeom::kInfLength;
       nodeIndex[i]                  = (output[i] < stepMax[i]) ? -1 : -2;
     }
   }
@@ -471,7 +471,7 @@ public:
   {
     using vecCore::LaneAt;
     using vecCore::AssignLane;
-    VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
+    VECGEOM_BACKEND_PRECISION_TYPE output(kInfLength);
     for (auto i = decltype(VECGEOM_BACKEND_PRECISION_TYPE_SIZE){0}; i < VECGEOM_BACKEND_PRECISION_TYPE_SIZE; ++i) {
       Precision tmp;
       Vector3D<Precision> pos(LaneAt(position.x(), i), LaneAt(position.y(), i), LaneAt(position.z(), i));
@@ -487,7 +487,7 @@ public:
   {
     using vecCore::LaneAt;
     using vecCore::AssignLane;
-    VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
+    VECGEOM_BACKEND_PRECISION_TYPE output(kInfLength);
     for (auto i = decltype(VECGEOM_BACKEND_PRECISION_TYPE_SIZE){0}; i < VECGEOM_BACKEND_PRECISION_TYPE_SIZE; ++i) {
       Precision tmp;
       Vector3D<Precision> pos(LaneAt(position.x(), i), LaneAt(position.y(), i), LaneAt(position.z(), i));
@@ -503,7 +503,7 @@ public:
   {
     using vecCore::LaneAt;
     using vecCore::AssignLane;
-    VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
+    VECGEOM_BACKEND_PRECISION_TYPE output(kInfLength);
     for (auto i = decltype(VECGEOM_BACKEND_PRECISION_TYPE_SIZE){0}; i < VECGEOM_BACKEND_PRECISION_TYPE_SIZE; ++i) {
       Precision tmp;
       Vector3D<Precision> pos(LaneAt(position.x(), i), LaneAt(position.y(), i), LaneAt(position.z(), i));
@@ -522,7 +522,7 @@ public:
   {
     using vecCore::LaneAt;
     using vecCore::AssignLane;
-    VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
+    VECGEOM_BACKEND_PRECISION_TYPE output(kInfLength);
     for (auto i = decltype(VECGEOM_BACKEND_PRECISION_TYPE_SIZE){0}; i < VECGEOM_BACKEND_PRECISION_TYPE_SIZE; ++i) {
       Precision tmp;
       Vector3D<Precision> pos(LaneAt(position.x(), i), LaneAt(position.y(), i), LaneAt(position.z(), i));

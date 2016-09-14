@@ -33,7 +33,7 @@ VcPrecision DistanceToOut(BoxMinusBox_t const &unplaced, Vector3D<VcPrecision> c
 {
   VcPrecision dist(0.);
   TBooleanMinusImplementation<translation::kIdentity, rotation::kIdentity>::DistanceToOut<BoxMinusBox_t, kVc>(
-      unplaced, point, dir, kInfinity, dist);
+      unplaced, point, dir, kInfLength, dist);
   return dist;
 }
 
@@ -41,7 +41,7 @@ double DistanceToOut(BoxMinusBox_t const &unplaced, Vector3D<Precision> const &p
 {
   double dist(0.);
   TBooleanMinusImplementation<translation::kIdentity, rotation::kIdentity>::DistanceToOut<BoxMinusBox_t, kScalar>(
-      unplaced, point, dir, kInfinity, dist);
+      unplaced, point, dir, kInfLength, dist);
   return dist;
 }
 
@@ -59,7 +59,7 @@ const & dir)
     double dist(0);
     TBooleanMinusImplementation<translation::kIdentity,
 rotation::kIdentity>::DistanceToOut<GenericSubtraction_t,kScalar>(
-            unplaced, point, dir, kInfinity, dist);
+            unplaced, point, dir, kInfLength, dist);
     return dist;
 }
 */

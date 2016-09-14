@@ -191,9 +191,9 @@ bool TestParallelepiped()
   Dist = para.DistanceToIn(pbigmz, vz);
   assert(ApproxEqual(Dist, 100 - dz));
   Dist = para.DistanceToIn(pbigx, vxy);
-  assert(ApproxEqual(Dist, kInfinity));
+  assert(ApproxEqual(Dist, kInfLength));
   Dist = para.DistanceToIn(pbigmx, vxy);
-  assert(ApproxEqual(Dist, kInfinity));
+  assert(ApproxEqual(Dist, kInfLength));
 
   // CalculateExtent
   Vec_t minExtent, maxExtent;

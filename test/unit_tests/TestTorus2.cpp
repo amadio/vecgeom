@@ -234,14 +234,14 @@ bool testTorus()
   Dist = t1.DistanceToIn(pbigmy, vy);
   assert(ApproxEqual(Dist, 50));
   Dist = t1.DistanceToIn(pbigz, vmz);
-  assert(ApproxEqual(Dist, vecgeom::kInfinity));
+  assert(ApproxEqual(Dist, vecgeom::kInfLength));
   Dist = t1.DistanceToIn(pbigmz, vz);
-  assert(ApproxEqual(Dist, vecgeom::kInfinity));
+  assert(ApproxEqual(Dist, vecgeom::kInfLength));
   Dist = t1.DistanceToIn(pbigx, vxy);
-  assert(ApproxEqual(Dist, vecgeom::kInfinity));
+  assert(ApproxEqual(Dist, vecgeom::kInfLength));
   Dist = t1.DistanceToIn(ponrmax, vx);
   std::cout << "Dist=t1.DIN (p,v) = " << Dist << std::endl;
-  // assert(ApproxEqual(Dist,vecgeom::kInfinity));
+  // assert(ApproxEqual(Dist,vecgeom::kInfLength));
   Dist = t1.DistanceToIn(ponrmax, vmx);
   std::cout << "Dist=t1.DIN (p,v) = " << Dist << std::endl;
   // assert(ApproxEqual(Dist,0));
@@ -249,14 +249,14 @@ bool testTorus()
   // Vec_t vnew(1,0,0) ;
   // vnew.rotateZ(pi/4-5*1e-9) ;    // old test: check pzero with vxy
   // Dist=t2.DistanceToIn(pzero,vnew);
-  // assert(ApproxEqual(Dist,vecgeom::kInfinity));
+  // assert(ApproxEqual(Dist,vecgeom::kInfLength));
   std::cout << "Dist=t2.DIN (p,v) = " << Dist << std::endl;
   Dist = t2.DistanceToIn(pzero, vy);
   assert(ApproxEqual(Dist, 10));
   Dist = t2.DistanceToIn(ponphi12, vy);
   assert(ApproxEqual(Dist, 0));
   Dist = t2.DistanceToIn(ponphi12, vmy);
-  assert(ApproxEqual(Dist, vecgeom::kInfinity));
+  assert(ApproxEqual(Dist, vecgeom::kInfLength));
   Dist = t2.DistanceToIn(ponphi1, vy);
   //    std::cout<<"Dist=t2.DistanceToIn(ponphi1,vy) = "<<Dist<<std::endl;  // about 13
   Dist = t2.DistanceToIn(ponrmin, vy);
@@ -273,9 +273,9 @@ bool testTorus()
   Dist = t3.DistanceToIn(ponrtor, vmz);
   assert(ApproxEqual(Dist, 40));
   Dist = t3.DistanceToIn(ponrtor, vx);
-  assert(ApproxEqual(Dist, vecgeom::kInfinity));
+  assert(ApproxEqual(Dist, vecgeom::kInfLength));
   Dist = t3.DistanceToIn(ponrtor, vmx);
-  assert(ApproxEqual(Dist, vecgeom::kInfinity));
+  assert(ApproxEqual(Dist, vecgeom::kInfLength));
 
   Dist = t6.DistanceToIn(p1t6, vt6);
   // std::cout<<"t6.DistanceToIn(p1t6,vt6) = "<<Dist<<std::endl;

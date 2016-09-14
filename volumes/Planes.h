@@ -284,7 +284,7 @@ typename Backend::precision_v Planes::Distance(Vector3D<typename Backend::precis
 
   typedef typename Backend::precision_v Float_t;
 
-  Float_t bestDistance = kInfinity;
+  Float_t bestDistance = kInfLength;
   for (int i = 0, iMax = size(); i < iMax; ++i) {
     Vector3D<Precision> normal = fNormals[i];
     Float_t distance           = -(point.Dot(normal) + fDistances[i]) / direction.Dot(normal);
@@ -301,7 +301,7 @@ typename Backend::precision_v Planes::Distance(Vector3D<typename Backend::precis
 
   typedef typename Backend::precision_v Float_t;
 
-  Float_t bestDistance = kInfinity;
+  Float_t bestDistance = kInfLength;
   for (int i = 0, iMax = size(); i < iMax; ++i) {
     Float_t distance = Flip<!pointInsideT>::FlipSign(point.Dot(fNormals[i]) + fDistances[i]);
     MaskedAssign(distance >= 0 && distance < bestDistance, distance, &bestDistance);

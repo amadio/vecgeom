@@ -31,7 +31,7 @@ int main()
   assert(ass->GetNVolumes() == 2);
 
   // check that the bounding box is initialized
-  assert(ass->GetLowerCorner().x() > -kInfinity);
+  assert(ass->GetLowerCorner().x() > -kInfLength);
 
   VPlacedVolume *const pv = lv->Place();
 
@@ -66,7 +66,7 @@ int main()
     assert(pa->SafetyToIn(Vector3D<Precision>(0, 0, 0)) == 10.);
 
     assert(pa->DistanceToIn(Vector3D<Precision>(-40, 0, 0), Vector3D<Precision>(1., 0, 0)) == 10);
-    assert(pa->DistanceToIn(Vector3D<Precision>(0, -40, 0), Vector3D<Precision>(0, 1, 0)) == kInfinity);
+    assert(pa->DistanceToIn(Vector3D<Precision>(0, -40, 0), Vector3D<Precision>(0, 1, 0)) == kInfLength);
     assert(pa->DistanceToIn(Vector3D<Precision>(0, 0, 0), Vector3D<Precision>(1., 0, 0)) == 10);
     assert(pa->DistanceToIn(Vector3D<Precision>(0, 0, 0), Vector3D<Precision>(-1., 0, 0)) == 10);
   }
@@ -104,21 +104,21 @@ int main()
   // TBD
 
   // check some properties of BoxImplementation
-  BoxStruct<Precision> bs(kInfinity, kInfinity, kInfinity);
+  BoxStruct<Precision> bs(kInfLength, kInfLength, kInfLength);
   Vector3D<Precision> p(0., 0., 0.);
   Vector3D<Precision> d(1., 0., 0.);
   Precision dist;
-  BoxImplementation::DistanceToIn(bs, p, d, kInfinity, dist);
-  assert(dist < kInfinity);
+  BoxImplementation::DistanceToIn(bs, p, d, kInfLength, dist);
+  assert(dist < kInfLength);
   bool cont;
   BoxImplementation::Contains(bs, p, cont);
   assert(cont);
   std::cerr << "dist " << dist << "\n";
 
   Vector3D<Precision> corners[2];
-  corners[0].Set(-kInfinity, -kInfinity, -kInfinity);
-  corners[1].Set(kInfinity, kInfinity, kInfinity);
-  assert(BoxImplementation::Intersect(corners, p, d, 0, kInfinity));
+  corners[0].Set(-kInfLength, -kInfLength, -kInfLength);
+  corners[1].Set(kInfLength, kInfLength, kInfLength);
+  assert(BoxImplementation::Intersect(corners, p, d, 0, kInfLength));
 
   return 0;
 }

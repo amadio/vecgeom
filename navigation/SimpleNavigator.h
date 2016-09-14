@@ -466,7 +466,7 @@ void SimpleNavigator::FindNextBoundaryAndStep(Vector3D<Precision> const &globalp
     //       newstate = currentstate;
     //       RelocatePointFromPath( localpoint, newstate );
     //       return;
-    step = kInfinity;
+    step = kInfLength;
   }
 
   // iterate over all the daughter
@@ -509,7 +509,7 @@ void SimpleNavigator::FindNextBoundaryAndStep(Vector3D<Precision> const &globalp
   // if this is the case we are in the wrong volume;
   // assuming that DistanceToIn return negative number when point is inside
   // do nothing (step=0) and retry one level higher
-  if (step == kInfinity && pstep > 0.) {
+  if (step == kInfLength && pstep > 0.) {
 //      std::cout << "WARNING: STEP INFINITY; should never happen unless outside\n";
 // InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );
 // set step to zero and retry one level higher
@@ -628,7 +628,7 @@ void SimpleNavigator::FindNextBoundaryAndStep(Vector3D<Precision> const &globalp
     std::cout << "  G4 currentvolume " << ((g4physvol != NULL) ? g4physvol->GetName() : "NULL") << "\n";
     // G4 is doing step
     double safety;
-    double g4step = g4nav->ComputeStep(g4p, g4d, vecgeom::kInfinity, safety);
+    double g4step = g4nav->ComputeStep(g4p, g4d, vecgeom::kInfLength, safety);
     std::cout << "  G4 step " << g4step / 10. << "\n";
     // G4 is going here
     // calculate next point ( do transportation ) and volume ( should go across boundary )
@@ -785,7 +785,7 @@ void SimpleNavigator::FindNextBoundaryAndStep(Container3D const &globalpoints, C
 
     // TODO: the following steps are identical to the scalar treatment; they should hence
     // be factored out into shared code
-    if (distances[i] == vecgeom::kInfinity && pSteps[i] > 0.) {
+    if (distances[i] == vecgeom::kInfLength && pSteps[i] > 0.) {
       distances[i] = vecgeom::kTolerance;
       newstates[i]->SetBoundaryState(true);
       newstates[i]->Pop();

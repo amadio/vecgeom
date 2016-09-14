@@ -160,8 +160,8 @@ bool UnplacedTorus2::Normal(Vector3D<Precision> const &point, Vector3D<Precision
   bool valid     = true;
 
   Precision rho2, rho, pt2, pt, pPhi;
-  Precision distRMin = kInfinity;
-  Precision distSPhi = kInfinity, distEPhi = kInfinity;
+  Precision distRMin = kInfLength;
+  Precision distSPhi = kInfLength, distEPhi = kInfLength;
 
   // To cope with precision loss
   //

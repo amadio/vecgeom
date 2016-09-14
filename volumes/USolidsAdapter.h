@@ -47,7 +47,7 @@ public:
   virtual ~USolidsAdapter() {}
 
   double DistanceToOut(Vector3D<double> const &position, Vector3D<double> const &direction,
-                       Precision stepMax = kInfinity) const override
+                       Precision stepMax = kInfLength) const override
   {
 
     double output = UnplacedVolume_t::DistanceToOut(position, direction, stepMax);
@@ -81,7 +81,7 @@ public:
 
   // the following function is somewhat USolid specific
   double DistanceToOut(Vector3D<double> const &point, Vector3D<double> const &direction, Vector3D<double> &normal,
-                       bool &convex, double stepMax = kInfinity) const override
+                       bool &convex, double stepMax = kInfLength) const override
   {
     double d                  = UnplacedVolume_t::DistanceToOut(point, direction, stepMax);
     Vector3D<double> hitpoint = point + d * direction;
@@ -94,7 +94,7 @@ public:
   }
 
   double DistanceToIn(Vector3D<double> const &position, Vector3D<double> const &direction,
-                      const double step_max = kInfinity) const override
+                      const double step_max = kInfLength) const override
   {
     auto d = UnplacedVolume_t::DistanceToIn(position, direction, step_max);
     // apply USolids distance conventions

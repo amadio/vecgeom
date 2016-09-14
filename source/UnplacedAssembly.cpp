@@ -8,7 +8,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-UnplacedAssembly::UnplacedAssembly() : fLogicalVolume(nullptr), fLowerCorner(-kInfinity), fUpperCorner(kInfinity)
+UnplacedAssembly::UnplacedAssembly() : fLogicalVolume(nullptr), fLowerCorner(-kInfLength), fUpperCorner(kInfLength)
 {
   fIsAssembly = true;
 }
@@ -41,8 +41,8 @@ void UnplacedAssembly::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aM
 
   // Returns the full 3D cartesian extent of the solid.
   // Loop nodes and get their extent
-  aMin.Set(kInfinity);
-  aMax.Set(-kInfinity);
+  aMin.Set(kInfLength);
+  aMax.Set(-kInfLength);
   for (VPlacedVolume const *pv : fLogicalVolume->GetDaughters()) {
     Vector3D<Precision> lower, upper;
     abboxmgr.ComputeABBox(pv, &lower, &upper);

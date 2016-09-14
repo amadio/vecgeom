@@ -403,8 +403,8 @@ void Wedge::DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> const &
   // then calculate real distance along given direction,
   // distance can be negative
 
-  distWedge1 = kInfinity;
-  distWedge2 = kInfinity;
+  distWedge1 = kInfLength;
+  distWedge2 = kInfLength;
 
   Real_v comp1 = dir.x() * fNormalVector1.x() + dir.y() * fNormalVector1.y();
   Real_v comp2 = dir.x() * fNormalVector2.x() + dir.y() * fNormalVector2.y();
@@ -438,8 +438,8 @@ void Wedge::DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const 
 
   // std::cerr << "c1 " << comp1 << "\n";
   // std::cerr << "c2 " << comp2 << "\n";
-  distWedge1 = kInfinity;
-  distWedge2 = kInfinity;
+  distWedge1 = kInfLength;
+  distWedge2 = kInfLength;
 
   Bool_v cmp1 = comp1 < 0.;
   if (!vecCore::MaskEmpty(cmp1)) {

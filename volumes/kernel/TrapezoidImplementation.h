@@ -137,7 +137,7 @@ struct TrapezoidImplementation {
 
   ////////////////////////////////////////////////////////////////////////////
   //
-  // Calculate distance to shape from outside - return kInfinity if no
+  // Calculate distance to shape from outside - return kInfLength if no
   // intersection.
   //
   // ALGORITHM: For each component (z-planes, side planes), calculate
@@ -157,7 +157,7 @@ struct TrapezoidImplementation {
     (void)stepMax;
     using Bool_v = vecCore::Mask_v<Real_v>;
     Bool_v done(false);
-    distance = kInfinity;
+    distance = kInfLength;
 
     //
     // Step 1: find range of distances along dir between Z-planes (smin, smax)
@@ -200,7 +200,7 @@ struct TrapezoidImplementation {
 
     // ... or within z-range, then smin=-1, smax=infinity for now
     vecCore::MaskedAssign(smin, test && zrange, Real_v(-1.0));
-    vecCore::MaskedAssign(smax, test && zrange, Real_v(kInfinity));
+    vecCore::MaskedAssign(smax, test && zrange, Real_v(kInfLength));
 
 //
 // Step 2: find distances for intersections with side planes.
@@ -217,7 +217,7 @@ struct TrapezoidImplementation {
     done = done || inside;
 
     // 2) point is outside plane-shell and moving away --> return infinity
-    done = done || disttoplanes == kInfinity;
+    done = done || disttoplanes == kInfLength;
 
     // 3) track misses the trapezoid: smin<0 && disttoplanes>smax --> return infinity
     done = done || (smin < 0 && disttoplanes > smax);
@@ -293,7 +293,7 @@ struct TrapezoidImplementation {
     Vector3D<Real_v> entry = point + distance * dir;
     Bool_v complIn, complOut;
     GenericKernelForContainsAndInside<Real_v, Bool_v, true>(unplaced, entry, complIn, complOut);
-    vecCore::MaskedAssign(distance, !done && complOut, Real_v(kInfinity));
+    vecCore::MaskedAssign(distance, !done && complOut, Real_v(kInfLength));
   }
 
   template <typename Real_v>
@@ -305,7 +305,7 @@ struct TrapezoidImplementation {
     (void)stepMax;
     using Bool_v = vecCore::Mask_v<Real_v>;
 
-    distance = kInfinity;
+    distance = kInfLength;
     Bool_v done(false);
 
     // step 0: if point is outside any plane --> return -1

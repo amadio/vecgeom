@@ -87,7 +87,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToOut(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
-                                  const Precision stepMax = kInfinity) const override
+                                  const Precision stepMax = kInfLength) const override
   {
     return GetUnplacedVolume()->UnplacedShape_t::DistanceToOut(point, direction, stepMax);
   }
@@ -95,7 +95,7 @@ public:
   virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToOutVec(
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
-      VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfinity) const override
+      VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfLength) const override
   {
     return GetUnplacedVolume()->UnplacedShape_t::DistanceToOutVec(position, direction, step_max);
   }
@@ -107,7 +107,7 @@ public:
    */
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToOut(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
-                                  Vector3D<Precision> &normal, bool &convex, Precision step = kInfinity) const override
+                                  Vector3D<Precision> &normal, bool &convex, Precision step = kInfLength) const override
   {
     double d                  = DistanceToOut(point, direction, step);
     Vector3D<double> hitpoint = point + d * direction;

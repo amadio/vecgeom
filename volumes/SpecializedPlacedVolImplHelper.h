@@ -147,12 +147,12 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToIn(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
-                                 const Precision stepMax = kInfinity) const override
+                                 const Precision stepMax = kInfLength) const override
   {
 #ifndef VECGEOM_NVCC
     assert(direction.IsNormalized() && " direction not normalized in call to DistanceToIn ");
 #endif
-    Precision output(kInfinity);
+    Precision output(kInfLength);
     Transformation3D const *tr = this->GetTransformation();
     Specialization::DistanceToIn(*this->GetUnplacedStruct(), tr->Transform<transC, rotC>(point),
                                  tr->TransformDirection<rotC>(direction), stepMax, output);
@@ -164,7 +164,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision PlacedDistanceToOut(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
-                                        const Precision stepMax = kInfinity) const override
+                                        const Precision stepMax = kInfLength) const override
   {
 #ifndef VECGEOM_NVCC
     assert(direction.IsNormalized() && " direction not normalized in call to PlacedDistanceToOut ");
@@ -184,7 +184,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision SafetyToIn(Vector3D<Precision> const &point) const override
   {
-    Precision output(kInfinity);
+    Precision output(kInfLength);
     Transformation3D const *tr = this->GetTransformation();
     Specialization::SafetyToIn(*this->GetUnplacedStruct(), tr->Transform<transC, rotC>(point), output);
     return output;
@@ -248,7 +248,7 @@ static void SafetyToInLoopKernel(typename Specialization::UnplacedStruct_t const
   for (decltype(points.size()) i(offset); i < size; i += vecCore::VectorSize<Real_v>()) {
     Vector3D<Real_v> point(vecCore::FromPtr<Real_v>(points.x() + i), vecCore::FromPtr<Real_v>(points.y() + i),
                            vecCore::FromPtr<Real_v>(points.z() + i));
-    Real_v result(kInfinity);
+    Real_v result(kInfLength);
     Specialization::template SafetyToIn<Real_v>(shapestruct, trans.Transform<transC, rotC>(point), result);
     vecCore::Store(result, output + i);
   }
@@ -268,7 +268,7 @@ static void DistanceToInLoopKernel(typename Specialization::UnplacedStruct_t con
     Vector3D<Real_v> dir(vecCore::FromPtr<Real_v>(directions.x() + i), vecCore::FromPtr<Real_v>(directions.y() + i),
                          vecCore::FromPtr<Real_v>(directions.z() + i));
     Real_v step_max(vecCore::FromPtr<Real_v>(stepMax + i));
-    Real_v result(kInfinity);
+    Real_v result(kInfLength);
     Specialization::template DistanceToIn<Real_v>(shapestruct, trans.Transform<transC, rotC>(point),
                                                   trans.TransformDirection<rotC>(dir), step_max, result);
     vecCore::Store(result, output + i);
@@ -337,7 +337,7 @@ public:
                                                          Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &d,
                                                          VECGEOM_BACKEND_PRECISION_TYPE const step_max) const override
   {
-    VECGEOM_BACKEND_PRECISION_TYPE output(kInfinity);
+    VECGEOM_BACKEND_PRECISION_TYPE output(kInfLength);
     Transformation3D const *tr = this->GetTransformation();
     auto unplacedstruct        = this->GetUnplacedStruct();
     Specialization::template DistanceToIn<VECGEOM_BACKEND_PRECISION_TYPE>(

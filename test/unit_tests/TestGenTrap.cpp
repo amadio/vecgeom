@@ -234,7 +234,7 @@ bool TestGenTrap()
     //      "\n";
     assert(ApproxEqual(Dist, testValue));
     Dist = trap2.DistanceToIn(psurf, -dir);
-    assert(ApproxEqual(Dist, kInfinity));
+    assert(ApproxEqual(Dist, kInfLength));
   }
 
   // CalculateExtent

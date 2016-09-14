@@ -864,13 +864,13 @@ bool TestSphere()
   Dist                                = s4.DistanceToIn(pbigy, vmy);
   if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
   assert(ApproxEqual(Dist, UUtils::Infinity()));
-  // assert(Dist==kInfinity);
+  // assert(Dist==kInfLength);
   Dist = s4.DistanceToIn(pbigz, vmz);
   assert(ApproxEqual(Dist, 50));
   Dist                                = s4.DistanceToIn(pzero, vy);
   if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
   assert(ApproxEqual(Dist, UUtils::Infinity()));
-  // assert(Dist==kInfinity);
+  // assert(Dist==kInfLength);
   Dist = s4.DistanceToIn(pzero, vx);
   assert(ApproxEqual(Dist, 45));
 
@@ -879,7 +879,7 @@ bool TestSphere()
   Dist                                = s4.DistanceToIn(ponphi1, vmxmy);
   if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
   assert(ApproxEqual(Dist, UUtils::Infinity()));
-  // assert(Dist==kInfinity);
+  // assert(Dist==kInfLength);
   Dist = s4.DistanceToIn(ponphi1, vxy);
   //     std::cout<<"s4.DistanceToIn(ponphi1,vxy) = "<<Dist<<std::endl;
   assert(ApproxEqual(Dist, 0));
@@ -889,7 +889,7 @@ bool TestSphere()
   Dist                                = s4.DistanceToIn(ponphi2, vmxy);
   if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
   assert(ApproxEqual(Dist, UUtils::Infinity()));
-  // assert(Dist==kInfinity);
+  // assert(Dist==kInfLength);
   Dist = s4.DistanceToIn(ponphi2, vxmy);
   //     std::cout<<"s4.DistanceToIn(ponphi2,vxmy) = "<<Dist<<std::endl;
   assert(ApproxEqual(Dist, 0));

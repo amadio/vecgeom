@@ -803,8 +803,8 @@ void HypeImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
 
   Float_t absZ  = Abs(point.z());
   Precision fDz = unplaced.GetDz();
-  distance      = kInfinity;
-  Float_t zDist(kInfinity), dist(kInfinity);
+  distance      = kInfLength;
+  Float_t zDist(kInfLength), dist(kInfLength);
   Float_t r                 = point.Perp2();
   Precision innerRadius     = unplaced.GetRmin();
   Precision outerRadius     = unplaced.GetRmax();
@@ -929,7 +929,7 @@ typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::GetPointOfInt
     MaskedAssign(exist && b > 0., ((-b - Sqrt(b * b - a * c)) / (a)), &dist);
     MaskedAssign(exist && b <= 0., ((c) / (-b + Sqrt(b * b - a * c))), &dist);
   }
-  MaskedAssign(dist < 0., kInfinity, &dist);
+  MaskedAssign(dist < 0., kInfLength, &dist);
   newPtZ = point.z() + dist * direction.z();
 
   return (Abs(newPtZ) <= unplaced.GetDz());
@@ -963,7 +963,7 @@ typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::GetPointOfInt
     MaskedAssign(exist && b < 0., ((-b + Sqrt(b * b - a * c)) / (a)), &dist);
     MaskedAssign(exist && b >= 0., ((c) / (-b - Sqrt(b * b - a * c))), &dist);
   }
-  MaskedAssign(dist < 0., kInfinity, &dist);
+  MaskedAssign(dist < 0., kInfLength, &dist);
 
   newPtZ = point.z() + dist * direction.z();
 
@@ -982,8 +982,8 @@ void HypeImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
   typedef typename Backend::precision_v Float_t;
   typedef typename Backend::bool_v Bool_t;
 
-  distance = kInfinity;
-  Float_t zDist(kInfinity), dist(kInfinity);
+  distance = kInfLength;
+  Float_t zDist(kInfLength), dist(kInfLength);
 
   Bool_t done(false);
 
@@ -998,15 +998,15 @@ void HypeImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
   if (vecCore::MaskFull(done)) return;
 
   GetPointOfIntersectionWithZPlane<Backend, false>(unplaced, point, direction, zDist);
-  MaskedAssign(zDist < 0., kInfinity, &zDist);
+  MaskedAssign(zDist < 0., kInfLength, &zDist);
 
   GetPointOfIntersectionWithOuterHyperbolicSurface<Backend, false>(unplaced, point, direction, dist);
-  MaskedAssign(dist < 0., kInfinity, &dist);
+  MaskedAssign(dist < 0., kInfLength, &dist);
   MaskedAssign(!done, Min(zDist, dist), &distance);
 
   if (unplaced.InnerSurfaceExists()) {
     GetPointOfIntersectionWithInnerHyperbolicSurface<Backend, false>(unplaced, point, direction, dist);
-    MaskedAssign(dist < 0., kInfinity, &dist);
+    MaskedAssign(dist < 0., kInfLength, &dist);
     MaskedAssign(!done, Min(distance, dist), &distance);
   }
 }
@@ -1117,7 +1117,7 @@ void HypeImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(UnplacedHype co
   }
 
   if (!unplaced.InnerSurfaceExists() && !unplaced.GetStIn()) {
-    MaskedAssign(!done && inside, kInfinity, &distInner);
+    MaskedAssign(!done && inside, kInfLength, &distInner);
   }
 
   MaskedAssign(!done && inside, ApproxDistInside<Backend>(r, absZ, outerRadius, tanOuterStereo2), &distOuter);

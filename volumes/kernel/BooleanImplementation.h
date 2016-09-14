@@ -345,8 +345,8 @@ void BooleanImplementation<kSubtraction, transCodeT, rotCodeT>::DistanceToInKern
   //         do {
   //          disTmp = fPtrSolidA->DistanceToIn(p+dist*v,v) ;
   //
-  //          if(disTmp == kInfinity) {
-  //              distance=kInfinity;
+  //          if(disTmp == kInfLength) {
+  //              distance=kInfLength;
   //              return;
   //          }
   //          dist += disTmp ;
@@ -373,9 +373,9 @@ void BooleanImplementation<kSubtraction, transCodeT, rotCodeT>::DistanceToInKern
   //    {
   //       dist = fPtrSolidA->DistanceToIn(p,v) ;
   //
-  //       if( dist == kInfinity ) // past A, hence past A\B
+  //       if( dist == kInfLength ) // past A, hence past A\B
   //       {
-  //         distance=kInfinity;
+  //         distance=kInfLength;
   //           return;
   //       }
   //       else
@@ -394,9 +394,9 @@ void BooleanImplementation<kSubtraction, transCodeT, rotCodeT>::DistanceToInKern
   //           {
   //             disTmp = fPtrSolidA->DistanceToIn(p+dist*v,v) ;
   //
-  //             if(disTmp == kInfinity) // past A, hence past A\B
+  //             if(disTmp == kInfLength) // past A, hence past A\B
   //             {
-  //               distance=kInfinity;
+  //               distance=kInfLength;
   //                 return;
   //             }
   //             dist += disTmp ;
@@ -433,8 +433,8 @@ void BooleanImplementation<kSubtraction, transCodeT, rotCodeT>::DistanceToInKern
     if (insideRight) {
       //    // propagate to outside of '- / RightShape'
       d1 = unplaced.fRightVolume->PlacedDistanceToOut(hitpoint, v, stepMax);
-      snxt += (d1 >= 0. && d1 < kInfinity) ? (d1 + epsil) : 0.;
-      hitpoint += (d1 >= 0. && d1 < kInfinity) ? (d1 + epsil) * v : 0. * v;
+      snxt += (d1 >= 0. && d1 < kInfLength) ? (d1 + epsil) : 0.;
+      hitpoint += (d1 >= 0. && d1 < kInfLength) ? (d1 + epsil) * v : 0. * v;
 
       // now master outside 'B'; check if inside 'A'
       //    Bool_t insideLeft =
@@ -453,8 +453,8 @@ void BooleanImplementation<kSubtraction, transCodeT, rotCodeT>::DistanceToInKern
     //        fLeftMat->MasterToLocal(&master[0], &local[0]);
     d2 = unplaced.fLeftVolume->DistanceToIn(hitpoint, v, stepMax);
     d2 = Max(d2, 0.);
-    if (d2 == kInfinity) {
-      distance = kInfinity;
+    if (d2 == kInfLength) {
+      distance = kInfLength;
       // std::cerr << "missing A " << d2 << "\n";
       return;
     }
@@ -468,8 +468,8 @@ void BooleanImplementation<kSubtraction, transCodeT, rotCodeT>::DistanceToInKern
     }
 
     //        // propagate to '-'
-    snxt += (d1 >= 0. && d1 < kInfinity) ? d1 + epsil : 0.;
-    hitpoint += (d1 >= 0. && d1 < kInfinity) ? (d1 + epsil) * v : epsil * v;
+    snxt += (d1 >= 0. && d1 < kInfLength) ? d1 + epsil : 0.;
+    hitpoint += (d1 >= 0. && d1 < kInfLength) ? (d1 + epsil) * v : epsil * v;
     insideRight = true;
   } // end while
 }

@@ -52,7 +52,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   PlanarPolygon(int nvertices, double *x, double *y)
       : fVertices(), fShiftedXJ({}), fShiftedYJ({}), fLengthSqr({}), fInvLengthSqr({}), fA({}), fB({}), fD({}),
-        fIsConvex(false), fMinX(kInfinity), fMinY(kInfinity), fMaxX(-kInfinity), fMaxY(-kInfinity),
+        fIsConvex(false), fMinX(kInfLength), fMinY(kInfLength), fMaxX(-kInfLength), fMaxY(-kInfLength),
         fNVertices(nvertices)
   {
     // allocating more space than nvertices, in order

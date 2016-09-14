@@ -96,9 +96,9 @@ bool TestPolycone()
 
     // test DistanceToIn
     assert(placedpoly1->DistanceToIn(Vec_t(0., 0., -3.), Vec_t(0., 0., 1.)) == 2.5);
-    assert(placedpoly1->DistanceToIn(Vec_t(0., 0., -2.), Vec_t(0., 0., -1.)) == Constants::kInfinity);
+    assert(placedpoly1->DistanceToIn(Vec_t(0., 0., -2.), Vec_t(0., 0., -1.)) == Constants::kInfLength);
     assert(placedpoly1->DistanceToIn(Vec_t(0., 0., 3), Vec_t(0., 0., -1.)) == 2.5);
-    assert(placedpoly1->DistanceToIn(Vec_t(0., 0., 3), Vec_t(0., 0., 1.)) == Constants::kInfinity);
+    assert(placedpoly1->DistanceToIn(Vec_t(0., 0., 3), Vec_t(0., 0., 1.)) == Constants::kInfLength);
     assert(placedpoly1->DistanceToIn(Vec_t(3., 0., 0), Vec_t(-1., 0., 0.)) == 1);
     assert(std::fabs(placedpoly1->DistanceToIn(Vec_t(0., 0., 1.999999999), Vec_t(1., 0., 0.)) - 0.4) <
            1000. * kTolerance);
@@ -313,10 +313,10 @@ bool TestPolycone()
   assert(ApproxEqual(Dist, 90));
   Dist = Simple.DistanceToIn(pbigx, vxy);
   // std::cout <<"D2I mismatch: Line "<< __LINE__ <<", p="<< pbigx <<", dir="<< vxy <<", dist="<<Dist<<"\n";
-  assert(ApproxEqual(Dist, Constants::kInfinity));
+  assert(ApproxEqual(Dist, Constants::kInfLength));
   Dist = Simple.DistanceToIn(pbigmx, vmxy);
   // std::cout <<"D2I mismatch: Line "<< __LINE__ <<", p="<< pbigx <<", dir="<< vxy <<", dist="<<Dist<<"\n";
-  assert(ApproxEqual(Dist, Constants::kInfinity));
+  assert(ApproxEqual(Dist, Constants::kInfLength));
 
   // CalculateExtent
   Vec_t minExtent, maxExtent;
@@ -547,11 +547,11 @@ bool TestPolycone()
 
 #ifdef VECGEOM_USOLIDS
 struct USOLIDSCONSTANTS {
-  static constexpr double kInfinity = DBL_MAX; // UUSolids::kInfinity;
+  static constexpr double kInfLength = DBL_MAX; // UUSolids::kInfLength;
 };
 #endif
 struct VECGEOMCONSTANTS {
-  static constexpr double kInfinity = vecgeom::kInfinity;
+  static constexpr double kInfLength = vecgeom::kInfLength;
 };
 
 int main(int argc, char *argv[])

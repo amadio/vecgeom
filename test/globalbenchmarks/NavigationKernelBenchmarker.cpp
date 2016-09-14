@@ -211,7 +211,7 @@ __attribute__((noinline)) void benchNavigator(SOA3D<Precision> const &points, SO
   size_t hittargetchecksum = 0L;
   timer.Start();
   for (decltype(points.size()) i = 0; i < points.size(); ++i) {
-    steps[i] = se->ComputeStepAndPropagatedState(points[i], dirs[i], vecgeom::kInfinity, *inpool[i], *outpool[i]);
+    steps[i] = se->ComputeStepAndPropagatedState(points[i], dirs[i], vecgeom::kInfLength, *inpool[i], *outpool[i]);
     //   std::cerr << "** " << newstate->Top()->GetLabel() << "\n";
     // hittargetchecksum+=(size_t)outpool[i]->Top();
   }
@@ -234,7 +234,7 @@ __attribute__((noinline)) void benchVectorNavigator(SOA3D<Precision> const &__re
 {
   Precision *step_max = (double *)_mm_malloc(sizeof(double) * points.size(), 32);
   for (decltype(points.size()) i = 0; i < points.size(); ++i)
-    step_max[i]                  = vecgeom::kInfinity;
+    step_max[i]                  = vecgeom::kInfLength;
   Precision *steps               = (double *)_mm_malloc(sizeof(double) * points.size(), 32);
   Stopwatch timer;
   VNavigator *se = T::Instance();
@@ -270,7 +270,7 @@ void benchmarkOldNavigator(SOA3D<Precision> const &points, SOA3D<Precision> cons
   size_t hittargetchecksum = 0L;
   timer.Start();
   for (decltype(points.size()) i = 0; i < points.size(); ++i) {
-    nav.FindNextBoundaryAndStep(points[i], dirs[i], *inpool[i], *newstate, vecgeom::kInfinity, steps[i]);
+    nav.FindNextBoundaryAndStep(points[i], dirs[i], *inpool[i], *newstate, vecgeom::kInfLength, steps[i]);
     //    std::cerr << "** " << newstate->Top()->GetLabel() << "\n";
     hittargetchecksum += (size_t)newstate->Top();
   }

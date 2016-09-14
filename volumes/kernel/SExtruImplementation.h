@@ -115,7 +115,7 @@ struct SExtruImplementation {
   static void DistanceToIn(UnplacedStruct_t const &polyshell, Vector3D<Real_v> const &p, Vector3D<Real_v> const &dir,
                            Real_v const &stepMax, Real_v &distance)
   {
-    distance = Real_v(kInfinity);
+    distance = Real_v(kInfLength);
     // consider adding bounding box check
 
     // check collision with +z or -z
@@ -137,7 +137,7 @@ struct SExtruImplementation {
     }
 
     // check collision with polyshell
-    vecCore::MaskedAssign(distance, distance == Real_v(kInfinity), polyshell.DistanceToIn(p, dir));
+    vecCore::MaskedAssign(distance, distance == Real_v(kInfLength), polyshell.DistanceToIn(p, dir));
     return;
   }
 
@@ -150,7 +150,7 @@ struct SExtruImplementation {
     distance = Real_v(-1.);
     // or do a hit check; if not then it has to be the z planes
     const auto dshell   = polyshell.DistanceToOut(p, dir);
-    const auto hitshell = dshell < Real_v(kInfinity);
+    const auto hitshell = dshell < Real_v(kInfLength);
     if (vecCore::MaskFull(hitshell)) {
       distance = dshell;
       return;

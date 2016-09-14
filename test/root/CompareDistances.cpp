@@ -90,14 +90,14 @@ int main(int argc, char *argv[])
       dircontainer.set(3, dirx2, diry2, dirz2);
 
       for (auto i = 0; i < 4; ++i) {
-        steps[i] = vecgeom::kInfinity;
+        steps[i] = vecgeom::kInfLength;
       }
 
     } else {
       for (auto i = 0; i < 4; ++i) {
         pointcontainer.set(i, point);
         dircontainer.set(i, dir.x(), dir.y(), dir.z());
-        steps[i] = vecgeom::kInfinity;
+        steps[i] = vecgeom::kInfLength;
       }
     }
     if (!dir.IsNormalized()) {
@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
     std::cout << "VecGeom INSIDE " << vecgeomplaced->Inside(point) << "\n";
     dist = vecgeomplaced->DistanceToIn(point, dir);
     std::cout << "VecGeom DI " << dist << "\n";
-    if (dist < vecgeom::kInfinity) {
+    if (dist < vecgeom::kInfLength) {
       std::cout << "VecGeom INSIDE(p=p+dist*dir) " << vecgeomplaced->Inside(point + dir * dist) << "\n";
       if (vecgeomplaced->Inside(point + dir * dist) == vecgeom::kOutside)
         std::cout << "VecGeom Distance seems to be to big  DI(p=p+dist*dir,-dir) "

@@ -122,7 +122,7 @@ void PrintPointInformation(VPlacedVolume const *vol, Vector3D<Precision> const &
 }
 
 void CompareDistanceToIn(VPlacedVolume const *vol, Precision vecgeomresult, Vector3D<Precision> const &point,
-                         Vector3D<Precision> const &direction, Precision const stepMax = VECGEOM_NAMESPACE::kInfinity)
+                         Vector3D<Precision> const &direction, Precision const stepMax = VECGEOM_NAMESPACE::kInfLength)
 {
 // this allows to compare distance calculations in each calculation (during a simulation)
 // and to report errors early
@@ -161,7 +161,7 @@ void CompareDistanceToIn(VPlacedVolume const *vol, Precision vecgeomresult, Vect
 }
 
 void CompareDistanceToOut(VPlacedVolume const *vol, Precision vecgeomresult, Vector3D<Precision> const &point,
-                          Vector3D<Precision> const &direction, Precision const stepMax = VECGEOM_NAMESPACE::kInfinity)
+                          Vector3D<Precision> const &direction, Precision const stepMax = VECGEOM_NAMESPACE::kInfLength)
 {
 #ifdef VECGEOM_ROOT
   auto rootshape       = LookupROOT(vol);

@@ -346,7 +346,7 @@ int main(int argc, char *argv[])
       // DISTANCE TO IN
       mbDistToIn   = paraboloidPlaced->DistanceToIn(points[i], dir[i]);
       rootDistToIn = par->DistFromOutside(coord, direction);
-      if ((mbDistToIn != rootDistToIn) && !(mbDistToIn == kInfinity)) {
+      if ((mbDistToIn != rootDistToIn) && !(mbDistToIn == kInfLength)) {
         // markerOutside->SetNextPoint(points[i].x(), points[i].y(), points[i].z());
         std::cout << "mbDistToIn: " << mbDistToIn;
         std::cout << " rootDistToIn: " << rootDistToIn << "\n";

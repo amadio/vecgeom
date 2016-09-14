@@ -48,7 +48,7 @@ bool UnplacedCone::Normal(Vector3D<Precision> const &p, Vector3D<Precision> &nor
   int noSurfaces = 0;
   Precision rho, pPhi;
   Precision distZ, distRMin, distRMax;
-  Precision distSPhi = kInfinity, distEPhi = kInfinity;
+  Precision distSPhi = kInfLength, distEPhi = kInfLength;
   Precision pRMin, widRMin;
   Precision pRMax, widRMax;
 
