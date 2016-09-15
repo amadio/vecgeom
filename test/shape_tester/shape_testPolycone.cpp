@@ -65,11 +65,6 @@ int main(int argc, char *argv[])
   R_MaxP[13] = 1455.22;
   R_MaxP[14] = 1455.22;
 
-  VUSolid *poly = new UPolycone("EPSM",
-                                6.10423, // 349.7499999999999*UUtils::kPi/180.,
-                                0.36658, // 370.75*UUtils::kPi/180.,
-                                15, Z_ValP, R_MinP, R_MaxP);
-
   int Nz = 4;
   // a tube and two cones
   double rmin[] = {0.1, 0.0, 0.0, 0.4};
@@ -79,8 +74,7 @@ int main(int argc, char *argv[])
   VUSolid *poly2 = new Poly_t("Test", 0.,     /* initial phi starting angle */
                               UUtils::kTwoPi, /* total phi angle */
                               Nz,             /* number corners in r,z space */
-                              rmin,           /* r coordinate of these corners */
-                              rmax, z);
+                              z, rmin, rmax); /* r coordinate of these corners */
 
   ShapeTester tester;
 
@@ -96,7 +90,6 @@ int main(int argc, char *argv[])
     tester.Run(poly2);
   }
 
-  delete poly;
   delete poly2;
 
   return 0;
