@@ -178,6 +178,24 @@ else()
 endif()
 
 add_subdirectory(VecCore)
+# A hack for more user friendliness
+# If Vc wanted but was not found .. we fall back to scalar
+if (Vc)
+  if (NOT Vc_FOUND)
+    message(STATUS "****************************************************************")
+    message(STATUS "***** Tried to configure using Vc backend but Vc was not found *")
+    message(STATUS "***** Falling back to Scalar backend                           *")
+    message(STATUS "***** If you want to use Vc; please install it                 *")
+    message(STATUS "******  ...   and/or fix your cmake command options            *")
+    message(STATUS "****************************************************************")
+    set(Vc OFF)
+    set(VC OFF)
+    set(Scalar ON)
+    set(BACKEND Scalar CACHE STRING "Fallback by default to Scalar" FORCE)
+  endif()
+endif()
+
+
 # CMake does not propagate these up, must be added by hand
 include_directories(${PROJECT_SOURCE_DIR}/VecCore/include)
 include_directories(${PROJECT_BINARY_DIR}/VecCore/include)
@@ -415,7 +433,6 @@ endif(CCACHE_FOUND)
 # Backend configuration
 
 if (Vc)
-  find_package(Vc REQUIRED)
   if (MIC)
     set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${Vc_MIC_LIBRARIES})
   else()
