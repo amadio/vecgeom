@@ -133,6 +133,17 @@ bool TestTrap()
   assert(trap2.Inside(ponyside) == vecgeom::EInside::kSurface);
   assert(trap2.Inside(ponzside) == vecgeom::EInside::kSurface);
 
+  // test GetPointOnSurface()
+  vecgeom::Vector3D<vecgeom::Precision> ponsurf;
+  for (int i = 0; i < 1000000; ++i) {
+    ponsurf = trap1.GetPointOnSurface();
+    assert(trap1.Inside(ponsurf) == vecgeom::EInside::kSurface);
+  }
+  for (int i = 0; i < 1000000; ++i) {
+    ponsurf = trap2.GetPointOnSurface();
+    assert(trap2.Inside(ponsurf) == vecgeom::EInside::kSurface);
+  }
+
   // Check Surface Normal
 
   valid = trap1.Normal(ponxside, normal);

@@ -22,13 +22,14 @@ using TrapSidePlane = TrapezoidStruct<double>::TrapSidePlane;
 VECGEOM_CUDA_HEADER_BOTH
 UnplacedTrapezoid::UnplacedTrapezoid(TrapCorners const corners) : fTrap()
 {
+  // fill data members
+  fromCornersToParameters(corners);
+
   // check planarity of all four sides
   // TODO: this needs a proper logger treatment as per geantv conventions
   bool good = MakePlanes(corners);
   if (!good) printf("***** WARNING in Trapezoid constructor: corners provided fail coplanarity tests.");
 
-  // fill data members
-  fromCornersToParameters(corners);
   fGlobalConvexity = true;
 }
 
@@ -278,7 +279,6 @@ Vec3D UnplacedTrapezoid::GetPointOnPlane(Vec3D const &p0, Vec3D const &p1, Vec3D
 
   lambda1 = RNG::Instance().uniform(0., 1.);
   lambda2 = RNG::Instance().uniform(0., lambda1);
-
   return (p0 + lambda1 * t + lambda2 * u);
 }
 
