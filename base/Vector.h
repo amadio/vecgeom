@@ -75,6 +75,7 @@ public:
   {
     fSize       = entries.size();
     fData       = new Type[fSize];
+    fAllocated  = true;
     fMemorySize = entries.size() * sizeof(Type);
     for (auto itm : entries)
       this->push_back(itm);
