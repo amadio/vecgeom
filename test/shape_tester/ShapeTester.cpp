@@ -21,17 +21,10 @@
 #include "volumes/Box.h"
 
 #ifdef VECGEOM_ROOT
-#include "TGeoShape.h"
-#include "TGeoParaboloid.h"
-#include "TGeoBBox.h"
 #include "TGraph2D.h"
 #include "TCanvas.h"
 #include "TApplication.h"
 #include "TGeoManager.h"
-#include "TGeoMaterial.h"
-#include "TGeoMedium.h"
-#include "TGeoParaboloid.h"
-#include "TGeoVolume.h"
 #include "TPolyMarker3D.h"
 #include "TRandom3.h"
 #include "TColor.h"
@@ -44,6 +37,7 @@
 #include "TF1.h"
 #include "TVirtualPad.h"
 #include "TView3D.h"
+#include "management/RootGeoManager.h"
 #endif
 
 using namespace std;
@@ -1103,11 +1097,11 @@ int ShapeTester::TestOutsidePoint()
       insideOrNot = fVolumeUSolids->Inside(p2);
       // Propagated point has to be on surface
       if (insideOrNot == vecgeom::EInside::kInside) {
-        ReportError(&nError, p, v, safeDistance, "TO2: DistanceToOut(p,v) undershoots");
+        ReportError(&nError, p, v, dist, "TO2: DistanceToOut(p,v) undershoots");
         continue;
       }
       if (insideOrNot == vecgeom::EInside::kOutside) {
-        ReportError(&nError, p, v, safeDistance, "TO2: DistanceToOut(p,v) overshoots");
+        ReportError(&nError, p, v, dist, "TO2: DistanceToOut(p,v) overshoots");
         continue;
       }
 
@@ -1116,12 +1110,12 @@ int ShapeTester::TestOutsidePoint()
       // Normal in exit point
       if (norm2.Dot(v) < 0) {
         if (fVolumeUSolids->DistanceToIn(p2, v) != 0)
-          ReportError(&nError, p2, v, safeDistance, "TO2: Outgoing surfaceNormal is incorrect");
+          ReportError(&nError, p2, v, dist, "TO2: Outgoing surfaceNormal is incorrect");
       }
       // Check sign agreement on normals given by Normal and DistanceToOut
       if (convex) {
         if (norm.Dot(norm2) < 0.0) {
-          ReportError(&nError, p2, v, safeDistance, "TO2: SurfaceNormal and DistanceToOut disagree on normal");
+          ReportError(&nError, p2, v, dist, "TO2: SurfaceNormal and DistanceToOut disagree on normal");
         }
       }
 
@@ -2059,6 +2053,16 @@ int ShapeTester::Run(VUSolid *testVolume)
   fLog = &fLogger;
 
   SetFolder("Log");
+
+#ifdef VECGEOM_ROOT
+  // serialize the ROOT solid for later debugging
+  // check if this is a VecGeom class
+  if (VPlacedVolume *p = dynamic_cast<VPlacedVolume *>(fVolumeUSolids)) {
+    // propagate label to logical volume (to be addressable in CompareDistance tool)
+    const_cast<LogicalVolume *>(p->GetLogicalVolume())->SetLabel(p->GetName());
+    RootGeoManager::Instance().ExportToROOTGeometry(p, "Log/ShapeTesterGeom.root");
+  }
+#endif
 
   if (fMethod == "") fMethod = "all";
   string name                = testVolume->GetName();

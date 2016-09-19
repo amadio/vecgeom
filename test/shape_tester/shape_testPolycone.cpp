@@ -65,16 +65,11 @@ int main(int argc, char *argv[])
   R_MaxP[13] = 1455.22;
   R_MaxP[14] = 1455.22;
 
-  int Nz = 4;
-  // a tube and two cones
-  double rmin[] = {0.1, 0.0, 0.0, 0.4};
-  double rmax[] = {1., 2., 2., 1.5};
-  double z[]    = {-1, -0.5, 0.5, 2};
-
-  VUSolid *poly2 = new Poly_t("Test", 0.,     /* initial phi starting angle */
-                              UUtils::kTwoPi, /* total phi angle */
-                              Nz,             /* number corners in r,z space */
-                              z, rmin, rmax); /* r coordinate of these corners */
+  int Nz         = 15;
+  VUSolid *poly2 = new Poly_t("Test", 0.,              /* initial phi starting angle */
+                              UUtils::kTwoPi,          /* total phi angle */
+                              Nz,                      /* number corners in r,z space */
+                              Z_ValP, R_MinP, R_MaxP); /* r coordinate of these corners */
 
   ShapeTester tester;
 
