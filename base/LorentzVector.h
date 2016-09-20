@@ -230,14 +230,7 @@ public:
   /// \return Azimuthal angle between -pi and pi.
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  T Phi() const
-  {
-    // T output = 0;
-    // vecgeom::MaskedAssign(vec[0] != 0. || vec[1] != 0.,
-    //                      ATan2(vec[1], vec[0]), &output);
-    // return output;
-    return ATan2(fVec[1], fVec[0]);
-  }
+  T Phi() const { return ATan2(fVec[1], fVec[0]); }
 
   /// \return Polar angle between 0 and pi.
   VECGEOM_CUDA_HEADER_BOTH
@@ -260,7 +253,8 @@ public:
   VECGEOM_FORCE_INLINE
   LorentzVector<T> Abs() const
   {
-    return LorentzVector<T>(vecgeom::Abs(fVec[0]), vecgeom::Abs(fVec[1]), vecgeom::Abs(fVec[2]), vecgeom::Abs(fVec[3]));
+    using vecCore::math::Abs;
+    return LorentzVector<T>(Abs(fVec[0]), Abs(fVec[1]), Abs(fVec[2]), Abs(fVec[3]));
   }
 
   template <typename U>
@@ -268,10 +262,10 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   void MaskedAssign(LorentzVector<U> const &condition, LorentzVector<T> const &value)
   {
-    fVec[0] = (condition[0]) ? value[0] : fVec[0];
-    fVec[1] = (condition[1]) ? value[1] : fVec[1];
-    fVec[2] = (condition[2]) ? value[2] : fVec[2];
-    fVec[3] = (condition[3]) ? value[3] : fVec[3];
+    vecCore::MaskedAssign(fVec[0], condition[0], value[0]);
+    vecCore::MaskedAssign(fVec[1], condition[1], value[1]);
+    vecCore::MaskedAssign(fVec[2], condition[2], value[2]);
+    vecCore::MaskedAssign(fVec[3], condition[3], value[3]);
   }
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -282,8 +276,9 @@ public:
   VECGEOM_FORCE_INLINE
   VecType &FixZeroes()
   {
+    using vecCore::math::Abs;
     for (int i = 0; i < 4; ++i) {
-      vecgeom::MaskedAssign(vecgeom::Abs(fVec[i]) < kTolerance, 0., &fVec[i]);
+      vecCore::MaskedAssign(fVec[i], Abs(fVec[i]) < kTolerance, T(0.0));
     }
     return *this;
   }
