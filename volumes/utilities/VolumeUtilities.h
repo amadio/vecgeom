@@ -346,6 +346,49 @@ void FillUncontainedPoints(LogicalVolume const &volume, TrackContainer &points)
 }
 
 /**
+ * @brief Fill a container structure (SOA3D or AOS3D) with random
+ *    points contained in a volume. Points are returned in the reference
+ *    frame of the volume (and not in the mother containing this volume)
+ * @details Input volume must have a valid bounding box, which is used
+ *    for sampling.
+ * @param volume containing all points
+ * @param points is the output container, provided by the caller.
+ * returns if successful or not
+ */
+template <typename TrackContainer>
+VECGEOM_FORCE_INLINE
+bool FillRandomPoints(VPlacedVolume const &volume, TrackContainer &points)
+{
+  const int size = points.capacity();
+  points.resize(points.capacity());
+
+  int tries = 0;
+
+  Vector3D<Precision> lower, upper, offset;
+  volume.Extent(lower, upper);
+  offset                        = 0.5 * (upper + lower);
+  const Vector3D<Precision> dim = 0.5 * (upper - lower);
+
+  for (int i = 0; i < size; ++i) {
+    Vector3D<Precision> point;
+    do {
+      ++tries;
+      if (tries % 1000000 == 0) {
+        printf("%s line %i: Warning: %i tries to find contained points... volume=%s.  Please check.\n", __FILE__,
+               __LINE__, tries, volume.GetLabel().c_str());
+      }
+      if (tries > 100000000) {
+        printf("%s line %i: giving up\n", __FILE__, __LINE__);
+        return false;
+      }
+      point = offset + SamplePoint(dim);
+    } while (!volume.UnplacedContains(point));
+    points.set(i, point);
+  }
+  return true;
+}
+
+/**
  * @brief Fills the volume with 3D points which are to be contained in
  *    any daughters of the input mother volume.
  * @details Requires a proper bounding box from the input volume.
@@ -414,6 +457,7 @@ void FillContainedPoints(VPlacedVolume const &volume, const double bias, TrackCo
   // add contained points to increase bias as needed
   i     = 0;
   tries = 0;
+  SOA3D<Precision> daughterpoint(1); // a "container" to be reused;
   while (static_cast<double>(insideCount) / static_cast<double>(size) < bias) {
     while (insideVector[i])
       ++i;
@@ -424,16 +468,27 @@ void FillContainedPoints(VPlacedVolume const &volume, const double bias, TrackCo
         printf("%s line %i: Warning: %i tries to increase bias... volume=%s.  Please check.\n", __FILE__, __LINE__,
                tries, volume.GetLabel().c_str());
       }
-      const Vector3D<Precision> sample = offset + SamplePoint(dim);
-      for (Vector<Daughter>::const_iterator v = volume.GetDaughters().cbegin(), v_end = volume.GetDaughters().cend();
-           v != v_end; ++v) {
-        bool inside = (placed) ? (*v)->Contains(sample) : (*v)->UnplacedContains(sample);
-        if (inside) {
-          points.set(i, sample);
-          contained = true;
-          break;
+
+      auto ndaughters = volume.GetDaughters().size();
+      if (ndaughters == 1) {
+        // a faster procedure for just 1 daughter --> can directly sample in daughter
+        auto daughter = volume.GetDaughters().operator[](0);
+        FillRandomPoints(*daughter, daughterpoint);
+        points.set(i, placed ? volume.GetTransformation()->InverseTransform(daughterpoint[0]) : daughterpoint[0]);
+        contained = true;
+      } else {
+        const Vector3D<Precision> sample = offset + SamplePoint(dim);
+        for (Vector<Daughter>::const_iterator v = volume.GetDaughters().cbegin(), v_end = volume.GetDaughters().cend();
+             v != v_end; ++v) {
+          bool inside = (placed) ? (*v)->Contains(sample) : (*v)->UnplacedContains(sample);
+          if (inside) {
+            points.set(i, sample);
+            contained = true;
+            break;
+          }
         }
       }
+
     } while (!contained);
     insideVector[i] = true;
     tries           = 0;
@@ -447,50 +502,6 @@ VECGEOM_FORCE_INLINE
 void FillContainedPoints(VPlacedVolume const &volume, TrackContainer &points, const bool placed = true)
 {
   FillContainedPoints<TrackContainer>(volume, 1, points, placed);
-}
-
-/**
- * @brief Fill a container structure (SOA3D or AOS3D) with random
- *    points contained in a volume.
- * @details Input volume must have a valid bounding box, which is used
- *    for sampling.
- * @param volume containing all points
- * @param points is the output container, provided by the caller.
- * returns if successful or not
- */
-template <typename TrackContainer>
-VECGEOM_FORCE_INLINE
-bool FillRandomPoints(VPlacedVolume const &volume, TrackContainer &points)
-{
-  const int size = points.capacity();
-  points.resize(points.capacity());
-
-  int tries = 0;
-
-  Vector3D<Precision> lower, upper, offset;
-  volume.Extent(lower, upper);
-  offset                        = 0.5 * (upper + lower);
-  const Vector3D<Precision> dim = 0.5 * (upper - lower);
-
-  for (int i = 0; i < size; ++i) {
-    Vector3D<Precision> point;
-    do {
-      ++tries;
-      if (tries % 1000000 == 0) {
-        printf("%s line %i: Warning: %i tries to find contained points... volume=%s.  Please check.\n", __FILE__,
-               __LINE__, tries, volume.GetLabel().c_str());
-      }
-      if (tries > 100000000) {
-        printf("%s line %i: giving up\n", __FILE__, __LINE__);
-        return false;
-      }
-      point = offset + SamplePoint(dim);
-    } while (!volume.UnplacedContains(point));
-
-    //} while (!volume.Contains(point));
-    points.set(i, point);
-  }
-  return true;
 }
 
 /**

@@ -649,10 +649,10 @@ int Benchmarker::RunInsideBenchmark()
   fPointPool = new SOA3D<Precision>(fPointCount * fPoolMultiplier);
 
   if (fVerbosity > 1) printf("Generating points with bias %f... ", fInsideBias);
-
+  Stopwatch timer;
+  timer.Start();
   volumeUtilities::FillContainedPoints(*fWorld, fInsideBias, *fPointPool, true);
-
-  if (fVerbosity > 1) printf("Done.\n");
+  if (fVerbosity > 1) printf("Done in %f s.\n", timer.Stop());
 
   std::stringstream outputLabelsContains, outputLabelsInside;
   outputLabelsContains << "Vectorized - Specialized - Unspecialized";
@@ -910,10 +910,11 @@ int Benchmarker::RunToInBenchmark()
 
   // Generate points not contained in any daughters and set the fraction hitting
   // a daughter to the specified bias.
+  Stopwatch timer;
+  timer.Start();
   volumeUtilities::FillUncontainedPoints(*fWorld, *fPointPool);
   volumeUtilities::FillBiasedDirections(*fWorld, *fPointPool, fToInBias, *fDirectionPool);
-
-  if (fVerbosity > 1) printf(" Done.\n");
+  if (fVerbosity > 1) printf(" Done in %f s.\n", timer.Stop());
 
   fPointPool->resize(fPointCount * fPoolMultiplier);
   fDirectionPool->resize(fPointCount * fPoolMultiplier);
@@ -1060,12 +1061,15 @@ int Benchmarker::RunToInBenchmark()
 
 void Benchmarker::InitInsideCaches()
 {
+  Stopwatch timer;
+  timer.Start();
   // initializes a reusable container of tracks inside the test volumes
   fInsidePointPoolCache     = new SOA3D<Precision>(fPointCount * fPoolMultiplier);
   fInsideDirectionPoolCache = new SOA3D<Precision>(fPointCount * fPoolMultiplier);
   volumeUtilities::FillContainedPoints(*fWorld, *fInsidePointPoolCache, false);
   volumeUtilities::FillRandomDirections(*fInsideDirectionPoolCache);
   fInsideCacheInitialized = true;
+  if (fVerbosity > 1) printf(" Inside Caches initialized in %f s.\n", timer.Stop());
 }
 
 int Benchmarker::RunToOutBenchmark()
