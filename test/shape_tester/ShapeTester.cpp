@@ -705,7 +705,7 @@ int ShapeTester::TestFarAwayPoint()
     if (diff > 100 * tolerance) // Note that moving to 10000 we have cut 4 digits, not just 2
       icount++;
     // If we do not hit back the solid report an error
-    if (diff >= UUtils::kInfinity) {
+    if (distIn >= UUtils::kInfinity) {
       icount1++;
       UVector3 temp = -vec;
       ReportError(&nError, point1, temp, diff, "TFA:  Point missed Solid (DistanceToIn = Infinity)");
@@ -787,7 +787,8 @@ int ShapeTester::TestSurfacePoint()
             VUSolid::EnumInside surfaceP = fVolumeUSolids->Inside(pointSurf + distIn * vec);
             if (surfaceP != vecgeom::EInside::kSurface) {
               iInNoSurf++;
-              ReportError(&nError, pointSurf, vec, distIn, "TS: Wrong DistanceToIn for point near Surface");
+              ReportError(&nError, pointSurf, vec, distIn,
+                          "TS: Wrong DistToIn for point near Surface (final point not reported on surface)");
             }
           }
         }
@@ -801,7 +802,8 @@ int ShapeTester::TestSurfacePoint()
           VUSolid::EnumInside surfaceP = fVolumeUSolids->Inside(pointSurf + distOut * vec);
           if (surfaceP != vecgeom::EInside::kSurface) {
             iOutNoSurf++;
-            ReportError(&nError, pointSurf, vec, distOut, "TS: Wrong DistanceToOut for point near Surface");
+            ReportError(&nError, pointSurf, vec, distOut,
+                        "TS: Wrong DistToOut for point near Surface (final point not reported on surface)");
           }
         }
       }
@@ -870,7 +872,8 @@ int ShapeTester::TestInsidePoint()
       std::string message("TI: SafetyFromOutside(p) should be Negative value (-1.) for Points Inside");
 #endif
       UVector3 zero(0);
-      ReportError(&nError, point, zero, safeDistanceFromOut, message.c_str());
+      // disable this message as it is alreay part of ConventionChecker
+      // ReportError(&nError, point, zero, safeDistanceFromOut, message.c_str());
       continue;
     }
 
@@ -1001,7 +1004,8 @@ int ShapeTester::TestOutsidePoint()
       std::string msg("TO: SafetyFromInside(p) should be Negative value (-1.) for points Outside (VecGeom conv)");
 #endif
       UVector3 zero(0);
-      ReportError(&nError, point, zero, safeDistanceFromInside, msg.c_str());
+      // disable this message as it is part of ConventionChecker
+      // ReportError(&nError, point, zero, safeDistanceFromInside, msg.c_str());
     }
 
     for (i = 0; i < n; i++) {
@@ -1031,23 +1035,23 @@ int ShapeTester::TestOutsidePoint()
       VUSolid::EnumInside insideOrNot = fVolumeUSolids->Inside(p);
       // Propagated point has to be on surface
       if (insideOrNot == vecgeom::EInside::kOutside) {
-        ReportError(&nError, point, v, safeDistance, "TO: DistanceToIn(p,v) undershoots");
+        ReportError(&nError, point, v, dist, "TO: DistanceToIn(p,v) undershoots");
         continue;
       }
       if (insideOrNot == vecgeom::EInside::kInside) {
-        ReportError(&nError, point, v, safeDistance, "TO: DistanceToIn(p,v) overshoots");
+        ReportError(&nError, point, v, dist, "TO: DistanceToIn(p,v) overshoots");
         continue;
       }
 
-      dist = fVolumeUSolids->SafetyFromOutside(p);
+      safeDistance = fVolumeUSolids->SafetyFromOutside(p);
       // The safety from a boundary should not be bigger than the tolerance
-      if (dist > fSolidTolerance) {
-        ReportError(&nError, p, v, safeDistance, "TO2: DistanceToIn(p) should be zero");
+      if (safeDistance > fSolidTolerance) {
+        ReportError(&nError, p, v, safeDistance, "TO2: SafetyToIn(p) should be zero");
         continue;
       }
-      dist = fVolumeUSolids->SafetyFromInside(p);
-      if (dist > fSolidTolerance) {
-        ReportError(&nError, p, v, safeDistance, "TO2: DistanceToOut(p) should be zero");
+      safeDistance = fVolumeUSolids->SafetyFromInside(p);
+      if (safeDistance > fSolidTolerance) {
+        ReportError(&nError, p, v, safeDistance, "TO2: SafetyToOut(p) should be zero");
         continue;
       }
 
@@ -1059,7 +1063,7 @@ int ShapeTester::TestOutsidePoint()
       // It should, however, *not* be infinity.
       //
       if (dist >= UUtils::kInfinity) {
-        ReportError(&nError, p, v, safeDistance, "TO2: DistanceToIn(p,v) == kInfLength");
+        ReportError(&nError, p, v, dist, "TO2: DistanceToIn(p,v) == kInfLength");
         continue;
       }
 
@@ -1071,16 +1075,16 @@ int ShapeTester::TestOutsidePoint()
       // But distance can be infinity if it is a corner point. Needs to handled carefully.
       // For the time being considering that those situation does not happens.
       if (dist >= UUtils::kInfinity) {
-        ReportError(&nError, p, v, safeDistance, "TO2: DistanceToOut(p,v) == kInfLength");
+        ReportError(&nError, p, v, dist, "TO2: DistanceToOut(p,v) == kInfLength");
         continue;
       } else if (dist < 0) {
-        ReportError(&nError, p, v, safeDistance, "TO2: DistanceToOut(p,v) < 0");
+        ReportError(&nError, p, v, dist, "TO2: DistanceToOut(p,v) < 0");
         continue;
       }
       // Check the exiting normal when going outwards
       if (valid) {
         if (norm.Dot(v) < 0) {
-          ReportError(&nError, p, v, safeDistance, "TO2: Outgoing normal incorrect");
+          ReportError(&nError, p, v, dist, "TO2: Outgoing normal incorrect");
           continue;
         }
       }
@@ -1089,7 +1093,7 @@ int ShapeTester::TestOutsidePoint()
       valid = fVolumeUSolids->Normal(p, norm1);
       // Check the entering normal when going inwards
       if (norm1.Dot(v) > 0) {
-        ReportError(&nError, p, v, safeDistance, "TO2: Ingoing surfaceNormal is incorrect");
+        ReportError(&nError, p, v, dist, "TO2: Ingoing surfaceNormal is incorrect");
       }
 
       UVector3 p2 = p + v * dist;
@@ -1271,7 +1275,7 @@ int ShapeTester::TestAccuracyDistanceToIn(double dist)
             iIn++;
             if (surfaceP != vecgeom::EInside::kSurface) {
               iOutNoSurf++;
-              ReportError(&nError, pointIn, vec, 0., "TAD: Moved to Surface point is not on Surface");
+              ReportError(&nError, pointIn, vec, distOut1, "TAD: Moved to Surface point is not on Surface");
             }
           }
 
@@ -1283,7 +1287,7 @@ int ShapeTester::TestAccuracyDistanceToIn(double dist)
             VUSolid::EnumInside surfaceP = fVolumeUSolids->Inside(point + distIn * vec);
             if (surfaceP != vecgeom::EInside::kSurface) {
               iInNoSurf++;
-              ReportError(&nError, point, vec, 0., "TAD: Moved to Solid point is not on Surface");
+              ReportError(&nError, point, vec, distIn, "TAD: Moved to Solid point is not on Surface");
             }
           }
         }
@@ -1308,7 +1312,7 @@ int ShapeTester::TestAccuracyDistanceToIn(double dist)
 
           if (surfaceP != vecgeom::EInside::kSurface) {
             iOutNoSurf++;
-            ReportError(&nError, point, vec, 0., "TAD2: Moved to Surface point is not on Surface");
+            ReportError(&nError, point, vec, distOut, "TAD2: Moved to Surface point is not on Surface");
           }
         }
       }
