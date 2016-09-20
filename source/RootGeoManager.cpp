@@ -77,6 +77,10 @@ void RootGeoManager::LoadRootGeometry(std::string filename)
 
 void RootGeoManager::ExportToROOTGeometry(VPlacedVolume const *topvolume, std::string filename)
 {
+  if (gGeoManager != nullptr && gGeoManager->IsClosed()) {
+    std::cerr << "will not export to ROOT file; gGeoManager already initialized and closed\n";
+    return;
+  }
   TGeoNode *world = Convert(topvolume);
   ::gGeoManager->SetTopVolume(world->GetVolume());
   ::gGeoManager->CloseGeometry();
