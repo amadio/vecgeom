@@ -20,6 +20,26 @@
 
 using namespace vecgeom;
 
+std::string VecGeomInsideToString(vecgeom::EnumInside e)
+{
+  if (e == vecgeom::kInside)
+    return "kInside";
+  else if (e == vecgeom::kOutside)
+    return "kOutside";
+  return "kSurface";
+}
+
+#ifdef VECGEOM_GEANT4
+std::string G4InsideToString(::EInside e)
+{
+  if (e == ::kInside)
+    return "kInside";
+  else if (e == ::kOutside)
+    return "kOutside";
+  return "kSurface";
+}
+#endif
+
 int main(int argc, char *argv[])
 {
 
@@ -108,21 +128,26 @@ int main(int argc, char *argv[])
     double dist;
     std::cout << "VecGeom Capacity " << vecgeomplaced->Capacity() << "\n";
     std::cout << "VecGeom CONTAINS " << vecgeomplaced->Contains(point) << "\n";
-    std::cout << "VecGeom INSIDE " << vecgeomplaced->Inside(point) << "\n";
+    std::cout << "VecGeom INSIDE " << VecGeomInsideToString(vecgeomplaced->Inside(point)) << "\n";
     dist = vecgeomplaced->DistanceToIn(point, dir);
     std::cout << "VecGeom DI " << dist << "\n";
     if (dist < vecgeom::kInfLength) {
-      std::cout << "VecGeom INSIDE(p=p+dist*dir) " << vecgeomplaced->Inside(point + dir * dist) << "\n";
-      if (vecgeomplaced->Inside(point + dir * dist) == vecgeom::kOutside)
+      std::cout << "VecGeom INSIDE(p=p+dist*dir) ";
+      auto inside = vecgeomplaced->Inside(point + dir * dist);
+      std::cout << VecGeomInsideToString(inside) << "\n";
+      if (inside == vecgeom::kOutside)
         std::cout << "VecGeom Distance seems to be to big  DI(p=p+dist*dir,-dir) "
                   << vecgeomplaced->DistanceToIn(point + dir * dist, -dir) << "\n";
-      if (vecgeomplaced->Inside(point + dir * dist) == vecgeom::kInside)
+      if (inside == vecgeom::kInside)
         std::cout << "VecGeom Distance seems to be to small DO(p=p+dist*dir,dir) "
                   << vecgeomplaced->DistanceToOut(point + dir * dist, dir) << "\n";
     }
     vecgeomplaced->DistanceToIn(pointcontainer, dircontainer, steps, output);
     std::cout << "VecGeom DI-V " << output[0] << "\n";
-    std::cout << "VecGeom DO " << vecgeomplaced->DistanceToOut(point, dir) << "\n";
+    dist = vecgeomplaced->DistanceToOut(point, dir);
+    std::cout << "VecGeom DO " << dist << "\n";
+    std::cout << "VecGeom INSIDE(p=p+do*dir) " << VecGeomInsideToString(vecgeomplaced->Inside(point + dir * dist))
+              << "\n";
     vecgeomplaced->DistanceToOut(pointcontainer, dircontainer, steps, output);
     std::cout << "VecGeom DO-V " << output[0] << "\n";
 
@@ -170,8 +195,14 @@ int main(int argc, char *argv[])
     G4VSolid const *g4solid = vecgeomplaced->ConvertToGeant4();
     if (g4solid != NULL) {
       std::cout << "G4 CONTAINS " << g4solid->Inside(g4p) << "\n";
-      std::cout << "G4 DI " << g4solid->DistanceToIn(g4p, g4d) << "\n";
-      std::cout << "G4 DO " << g4solid->DistanceToOut(g4p, g4d) << "\n";
+      auto distg4 = g4solid->DistanceToIn(g4p, g4d);
+      std::cout << "G4 DI " << distg4 << "\n";
+      // check status of boundary point
+      // G4 has this convention {0=kOutside,1=kSurface,2=kInside};
+      std::cout << "G4 DI transported Inside " << G4InsideToString(g4solid->Inside(g4p + distg4 * g4d)) << "\n";
+      distg4 = g4solid->DistanceToOut(g4p, g4d);
+      std::cout << "G4 DO " << distg4 << "\n";
+      std::cout << "G4 DO transported Inside " << G4InsideToString(g4solid->Inside(g4p + distg4 * g4d)) << "\n";
       std::cout << "G4 SI " << g4solid->DistanceToIn(g4p) << "\n";
       std::cout << "G4 SO " << g4solid->DistanceToOut(g4p) << "\n";
     } else {
