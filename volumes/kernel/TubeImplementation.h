@@ -744,7 +744,7 @@ struct TubeImplementation {
 
     // Mostly called for points outside --> safetyOutside is finite --> return safetyOutside
     // If safetyOutside == infinity --> return safetyInside
-    CondAssign(safetyOutsidePoint == kInfLength, safetyInsidePoint, safetyOutsidePoint, &safety);
+    safety = vecCore::Blend(safetyOutsidePoint == InfinityLength<Real_v>(), safetyInsidePoint, safetyOutsidePoint);
 #endif
   }
 
@@ -761,7 +761,7 @@ struct TubeImplementation {
 
     // Mostly called for points inside --> safetyOutside==infinity, return |safetyInside| (flip sign)
     // If called for points outside -- return -safetyOutside
-    CondAssign(safetyOutsidePoint == kInfLength, -safetyInsidePoint, -safetyOutsidePoint, &safety);
+    safety = -vecCore::Blend(safetyOutsidePoint == InfinityLength<Real_v>(), safetyInsidePoint, safetyOutsidePoint);
 #endif
   }
 
