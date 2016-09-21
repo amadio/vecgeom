@@ -322,27 +322,25 @@ public:
 
     typedef typename Backend::precision_v Float_t;
 
-    Float_t safeTheta(0.);
     Float_t pointRad    = Sqrt(point.x() * point.x() + point.y() * point.y());
     Float_t bisectorRad = Abs(point.z() * tanBisector);
+
+    vecCore::Mask<Float_t> condition(false);
+    Float_t sfTh1 = DistanceToLine<Backend>(slope1, pointRad, point.z());
+    Float_t sfTh2 = DistanceToLine<Backend>(slope2, pointRad, point.z());
 
     // Case 1 : Both cones are in Positive Z direction
     if (fSTheta < kPi / 2 + halfAngTolerance) {
       if (fETheta < kPi / 2 + halfAngTolerance) {
         if (fSTheta < fETheta) {
-          CondAssign((pointRad < bisectorRad) && (fSTheta != Float_t(0.)),
-                     DistanceToLine<Backend>(slope1, pointRad, point.z()),
-                     DistanceToLine<Backend>(slope2, pointRad, point.z()), &safeTheta);
+          condition = (pointRad < bisectorRad) && (fSTheta != Float_t(0.0));
         }
       }
 
       // Case 2 : First Cone is in Positive Z direction and Second is in Negative Z direction
       if (fETheta > kPi / 2 + halfAngTolerance) {
         if (fSTheta < fETheta) {
-          Float_t sfTh1 = DistanceToLine<Backend>(slope1, pointRad, point.z());
-          Float_t sfTh2 = DistanceToLine<Backend>(slope2, pointRad, point.z());
-          safeTheta     = sfTh1;
-          vecCore::MaskedAssign(safeTheta, (sfTh2 < sfTh1), sfTh2);
+          condition = sfTh1 < sfTh2;
         }
       }
     }
@@ -351,14 +349,12 @@ public:
     if (fETheta > kPi / 2 + halfAngTolerance) {
       if (fSTheta > kPi / 2 + halfAngTolerance) {
         if (fSTheta < fETheta) {
-          CondAssign((pointRad < bisectorRad) && /*(fSTheta!=0.) && */ (fETheta != Float_t(kPi)),
-                     DistanceToLine<Backend>(slope2, pointRad, point.z()),
-                     DistanceToLine<Backend>(slope1, pointRad, point.z()), &safeTheta);
+          condition = !((pointRad < bisectorRad) && (fETheta != Float_t(kPi)));
         }
       }
     }
 
-    return safeTheta;
+    return vecCore::Blend(condition, sfTh1, sfTh2);
   }
 
   template <typename Backend>
