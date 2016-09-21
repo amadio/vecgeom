@@ -330,7 +330,6 @@ public:
     if (fSTheta < kPi / 2 + halfAngTolerance) {
       if (fETheta < kPi / 2 + halfAngTolerance) {
         if (fSTheta < fETheta) {
-          MaskedAssign(fSTheta == 0., DistanceToLine<Backend>(slope2, pointRad, point.z()), &safeTheta);
           CondAssign((pointRad < bisectorRad) && (fSTheta != Float_t(0.)),
                      DistanceToLine<Backend>(slope1, pointRad, point.z()),
                      DistanceToLine<Backend>(slope2, pointRad, point.z()), &safeTheta);
@@ -352,7 +351,6 @@ public:
     if (fETheta > kPi / 2 + halfAngTolerance) {
       if (fSTheta > kPi / 2 + halfAngTolerance) {
         if (fSTheta < fETheta) {
-          MaskedAssign(fETheta == kPi, DistanceToLine<Backend>(slope1, pointRad, point.z()), &safeTheta);
           CondAssign((pointRad < bisectorRad) && /*(fSTheta!=0.) && */ (fETheta != Float_t(kPi)),
                      DistanceToLine<Backend>(slope2, pointRad, point.z()),
                      DistanceToLine<Backend>(slope1, pointRad, point.z()), &safeTheta);
