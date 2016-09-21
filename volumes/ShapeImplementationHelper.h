@@ -397,7 +397,7 @@ public:
       VECGEOM_BACKEND_BOOL result(false);
       Specialization::template Contains<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), *this->GetTransformation(),
                                                               point, localPoint, result);
-      StoreTo(result, output + i);
+      vecCore::Store(result, output + i);
     }
   }
 
@@ -417,7 +417,7 @@ public:
       for (unsigned j = 0; j < kVectorSize; j++)
         output[i + j] = result[j];
 #else
-      StoreTo(result, output + i);
+      vecCore::Store(result, output + i);
 #endif
     }
   }
@@ -436,7 +436,7 @@ public:
       VECGEOM_BACKEND_TYPE::precision_v result         = kInfLength;
       Specialization::template DistanceToIn<VECGEOM_BACKEND_TYPE>(
           *this->GetUnplacedVolume(), *this->GetTransformation(), point, direction, stepMaxBackend, result);
-      StoreTo(result, output + i);
+      vecCore::Store(result, output + i);
     }
   }
 
@@ -512,7 +512,7 @@ public:
       VECGEOM_BACKEND_TYPE::precision_v result         = kInfLength;
       Specialization::template DistanceToOut<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), point, direction,
                                                                    stepMaxBackend, result);
-      StoreTo(result, output + i);
+      vecCore::Store(result, output + i);
     }
   }
 
@@ -534,7 +534,7 @@ public:
                                                                    stepMaxBackend, result);
 
       vecCore::MaskedAssign(result, result < 0.0, InfinityLength<decltype(result)>());
-      StoreTo(result, output + i);
+      vecCore::Store(result, output + i);
       // -1: physics step is longer than geometry
       // -2: particle may stay inside volume
       VECGEOM_BACKEND_TYPE::int_v vnegone(-1), vnegtwo(-2);
@@ -569,7 +569,7 @@ public:
 
       vecCore::MaskedAssign(result, Abs(result) < kHalfTolerance, VECGEOM_BACKEND_PRECISION_TYPE(0.0));
 
-      StoreTo(result, output + i);
+      vecCore::Store(result, output + i);
     }
   }
 
@@ -585,7 +585,7 @@ public:
       Specialization::template SafetyToIn<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), *this->GetTransformation(),
                                                                 point, result);
       vecCore::MaskedAssign(result, estimate < result, estimate);
-      StoreTo(result, safeties + i);
+      vecCore::Store(result, safeties + i);
     }
     unsigned tailsize = points.size() - safesize;
     for (unsigned int i = 0; i < tailsize; ++i) {
@@ -606,7 +606,7 @@ public:
                                                         VECGEOM_BACKEND_PRECISION_FROM_PTR(points.z() + i));
       VECGEOM_BACKEND_TYPE::precision_v result = kInfLength;
       Specialization::template SafetyToOut<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), point, result);
-      StoreTo(result, output + i);
+      vecCore::Store(result, output + i);
     }
     // tail treatment
     unsigned tailsize = points.size() - safesize;
@@ -628,7 +628,7 @@ public:
       VECGEOM_BACKEND_TYPE::precision_v result   = kInfLength;
       Specialization::template SafetyToOut<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), point, result);
       vecCore::MaskedAssign(result, estimate < result, estimate);
-      StoreTo(result, safeties + i);
+      vecCore::Store(result, safeties + i);
     }
   }
 

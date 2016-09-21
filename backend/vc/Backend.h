@@ -45,22 +45,6 @@ typedef kVc::precision_v VcPrecision;
 typedef kVc::bool_v VcBool;
 typedef kVc::inside_v VcInside;
 
-// stores a vector type into a memory position ( normally an array ) toaddr
-// toaddr has to be properly aligned
-// this function is an abstraction for the Vc API "store"
-template <typename Type>
-VECGEOM_FORCE_INLINE
-void StoreTo(typename Vc::Vector<Type> const &what, Type *toaddr)
-{
-  what.store(toaddr);
-}
-
-VECGEOM_FORCE_INLINE
-void StoreTo(VcBool const &what, bool *toaddr)
-{
-  what.store(toaddr);
-}
-
 } // End inline namespace
 
 } // End global namespace

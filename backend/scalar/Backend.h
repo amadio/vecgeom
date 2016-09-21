@@ -62,14 +62,6 @@ constexpr size_t kVectorSize = 1;
 #define VECGEOM_BACKEND_INSIDE vecgeom::kScalar::inside_v
 #endif
 
-template <typename Type>
-VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
-void StoreTo(Type const &what, Type *toAddr)
-{
-  *toAddr = what;
-}
-
 #ifndef VECGEOM_USOLIDS
 template <typename Type>
 VECGEOM_FORCE_INLINE

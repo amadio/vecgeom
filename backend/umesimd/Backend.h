@@ -73,24 +73,6 @@ struct kUmeSimd {
 #define VECGEOM_BACKEND_BOOL UMESIMDMask
 #define VECGEOM_BACKEND_INSIDE UMESIMDInt_v
 
-VECGEOM_FORCE_INLINE
-void StoreTo(UMESIMDFloat_v const &what, Precision *toAddr)
-{
-  what.store(toAddr);
-}
-
-VECGEOM_FORCE_INLINE
-void StoreTo(UMESIMDInt_v const &what, Inside_t *toAddr)
-{
-  what.store(toAddr);
-}
-
-VECGEOM_FORCE_INLINE
-void StoreTo(UMESIMDMask const &what, bool *toAddr)
-{
-  what.store(toAddr);
-}
-
 } // End inline namespace
 } // End global namespace
 
