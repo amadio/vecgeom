@@ -72,11 +72,7 @@ public:
   UGenericTrap() : Base_t("") {}
 
   inline double GetZHalfLength() const { return GetDZ(); }
-  inline void SetZHalfLength(double)
-  {
-    UUtils::Exception("UGenericTrap::SetZHalfLength()", "InvalidSetter", UWarning, 1,
-                      "Cannot call this setter for UnplacedGenTrap");
-  }
+  inline void SetZHalfLength(double dz) { SetDZ(dz); }
   inline int GetNofVertices() const { return 8; }
   inline UVector2 GetVertex(int index) const { return (UVector2(GetVerticesX()[index], GetVerticesY()[index])); }
   inline const std::vector<UVector2> &GetVertices() const { return fVertices; }

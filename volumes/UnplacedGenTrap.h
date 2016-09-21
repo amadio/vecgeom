@@ -72,6 +72,11 @@ public:
   VECGEOM_FORCE_INLINE
   Precision GetDZ() const { return (fGenTrap.fDz); }
 
+  /** @brief Setter for the half-height */
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_FORCE_INLINE
+  void SetDZ(Precision dz) { fGenTrap.fDz = dz; }
+
   /** @brief Getter for the twist angle of a face */
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
