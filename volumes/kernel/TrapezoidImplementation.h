@@ -102,7 +102,7 @@ struct TrapezoidImplementation {
   static void GenericKernelForContainsAndInside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                                                 Bool_v &completelyInside, Bool_v &completelyOutside)
   {
-    const Precision trapSurfaceTolerance = 1.0e-6;
+    constexpr Precision trapSurfaceTolerance = 1.0e-6;
     // z-region
     completelyOutside = Abs(point[2]) > MakePlusTolerant<ForInside>(unplaced.fDz, trapSurfaceTolerance);
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(completelyOutside)) {
