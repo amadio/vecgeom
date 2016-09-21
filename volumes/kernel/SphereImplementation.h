@@ -696,7 +696,7 @@ void SphereImplementation<transCodeT, rotCodeT>::SafetyToInKernel(UnplacedSphere
   if (fRmin) {
     safeRMin = fRminV - rad;
     safeRMax = rad - fRmaxV;
-    CondAssign(!done && (safeRMin > safeRMax), safeRMin, safeRMax, &safety);
+    safety   = vecCore::Blend(!done && (safeRMin > safeRMax), safeRMin, safeRMax);
   } else {
     vecCore::MaskedAssign(safety, !done, (rad - fRmaxV));
   }
@@ -762,7 +762,7 @@ void SphereImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(UnplacedSpher
   if (fRmin) {
     Float_t safeRMin = (rad - fRminV);
     Float_t safeRMax = (fRmaxV - rad);
-    CondAssign((!done && (safeRMin < safeRMax)), safeRMin, safeRMax, &safety);
+    safety           = vecCore::Blend(!done && (safeRMin < safeRMax), safeRMin, safeRMax);
   } else {
     vecCore::MaskedAssign(safety, !done, (fRmaxV - rad));
   }
