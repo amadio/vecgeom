@@ -140,11 +140,12 @@ public:
     }
 
     // analysis loop - not auto-vectorizable
+    const Precision trapSurfaceTolerance = 1.0e-6;
     for (unsigned int i = 0; i < N; ++i) {
       // is it outside of this side plane?
-      completelyOutside = completelyOutside || (dist[i] > MakePlusTolerant<ForInside>(0.));
+      completelyOutside = completelyOutside || (dist[i] > MakePlusTolerant<ForInside>(0., trapSurfaceTolerance));
       if (ForInside) {
-        completelyInside = completelyInside && (dist[i] < MakeMinusTolerant<ForInside>(0.));
+        completelyInside = completelyInside && (dist[i] < MakeMinusTolerant<ForInside>(0., trapSurfaceTolerance));
       }
       if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(completelyOutside)) return;
     }
@@ -322,7 +323,7 @@ public:
     }
 
     // non-vectorizable part
-    constexpr double delta = 100. * kTolerance;
+    constexpr double delta = 1000. * kTolerance;
     for (int i = 0; i < N; ++i) {
       vecCore::MaskedAssign(normal[0], Abs(dist[i]) <= delta, normal[0] + this->fA[i]);
       vecCore::MaskedAssign(normal[1], Abs(dist[i]) <= delta, normal[1] + this->fB[i]);

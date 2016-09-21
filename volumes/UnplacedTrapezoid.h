@@ -50,6 +50,7 @@ private:
 
 public:
   // full constructor
+  // Note: theta, phi are assumed to be in radians!
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedTrapezoid(const Precision dz, const Precision theta, const Precision phi, const Precision dy1,
                     const Precision dx1, const Precision dx2, const Precision tanAlpha1, const Precision dy2,

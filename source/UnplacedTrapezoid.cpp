@@ -217,22 +217,22 @@ Vector3D<Precision> UnplacedTrapezoid::GetPointOnSurface() const
 
   Precision sumArea = 0.0;
   if ((chose >= sumArea) && (chose < sumArea + fTrap.sideAreas[0])) {
-    return GetPointOnPlane(pt[0], pt[4], pt[5], pt[1]);
+    return GetPointOnPlane(pt[0], pt[1], pt[5], pt[4]);
   }
 
   sumArea += fTrap.sideAreas[0];
   if ((chose >= sumArea) && (chose < sumArea + fTrap.sideAreas[1])) {
-    return GetPointOnPlane(pt[2], pt[3], pt[7], pt[6]);
+    return GetPointOnPlane(pt[2], pt[6], pt[7], pt[3]);
   }
 
   sumArea += fTrap.sideAreas[1];
   if ((chose >= sumArea) && (chose < sumArea + fTrap.sideAreas[2])) {
-    return GetPointOnPlane(pt[0], pt[2], pt[6], pt[4]);
+    return GetPointOnPlane(pt[0], pt[4], pt[6], pt[2]);
   }
 
   sumArea += fTrap.sideAreas[2];
   if ((chose >= sumArea) && (chose < sumArea + fTrap.sideAreas[3])) {
-    return GetPointOnPlane(pt[1], pt[5], pt[7], pt[3]);
+    return GetPointOnPlane(pt[1], pt[3], pt[7], pt[5]);
   }
 
   sumArea += fTrap.sideAreas[3];
@@ -330,9 +330,10 @@ void UnplacedTrapezoid::Print() const
 
 void UnplacedTrapezoid::Print(std::ostream &os) const
 {
-  os << "UnplacedTrapezoid { " << fTrap.fDz << "mm, " << fTrap.fTheta << "deg, " << fTrap.fPhi << "mm, " << fTrap.fDy1
-     << "mm, " << fTrap.fDx1 << "mm, " << fTrap.fDx2 << "mm, " << fTrap.fTanAlpha1 << "deg, " << fTrap.fDy2 << "mm, "
-     << fTrap.fDx3 << "mm, " << fTrap.fDx4 << "mm, " << fTrap.fTanAlpha2 << "deg }\n";
+  os << "UnplacedTrapezoid { " << fTrap.fDz << "mm, " << fTrap.fTheta * kRadToDeg << "deg, " << fTrap.fPhi * kRadToDeg
+     << "deg, " << fTrap.fDy1 << "mm, " << fTrap.fDx1 << "mm, " << fTrap.fDx2 << "mm, " << fTrap.fTanAlpha1 * kRadToDeg
+     << "deg, " << fTrap.fDy2 << "mm, " << fTrap.fDx3 << "mm, " << fTrap.fDx4 << "mm, " << fTrap.fTanAlpha2 * kRadToDeg
+     << "deg }\n";
 }
 
 VECGEOM_CUDA_HEADER_BOTH

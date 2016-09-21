@@ -7,6 +7,7 @@
 #undef NDEBUG
 
 #include "base/Vector3D.h"
+#include "VecCore/VecMath.h"
 #include "volumes/Box.h"
 #include "ApproxEqual.h"
 #ifdef VECGEOM_USOLIDS
@@ -138,10 +139,12 @@ bool TestTrap()
   for (int i = 0; i < 1000000; ++i) {
     ponsurf = trap1.GetPointOnSurface();
     assert(trap1.Inside(ponsurf) == vecgeom::EInside::kSurface);
+    assert(trap1.Normal(ponsurf, normal) && ApproxEqual(normal.Mag2(), 1.0));
   }
   for (int i = 0; i < 1000000; ++i) {
     ponsurf = trap2.GetPointOnSurface();
     assert(trap2.Inside(ponsurf) == vecgeom::EInside::kSurface);
+    assert(trap2.Normal(ponsurf, normal) && ApproxEqual(normal.Mag2(), 1.0));
   }
 
   // Check Surface Normal
@@ -589,6 +592,37 @@ bool TestTrap()
   return true;
 }
 
+void TestVECGEOM375()
+{
+  // unit test coming from Issue VECGEOM-375
+  const double degToRad = vecCore::math::ATan(1.0) / 45.;
+  // Note: angles in rad, lengths in mm!
+  vecgeom::UnplacedTrapezoid t(/*pDz=*/1522, /*pTheta=*/1.03516586152568 * degToRad,
+                               /* double pPhi=*/-90.4997606158588 * degToRad, /*pDy1=*/147.5,
+                               /*pDx1=*/11.0548515319824, /*pDx2=*/13.62808513641355,
+                               /*pTanAlpha1=*/0.4997657953434789 * degToRad, /*pDy2 = */ 92.5,
+                               /*pDx3=*/11.0548515319824, /*pDx4=*/12.6685743331909,
+                               /*pTanAlpha2=*/0.499766062147744 * degToRad);
+
+  vecgeom::LogicalVolume logvol("", &t);
+  logvol.Place();
+  // t.StreamInfo(std::cout);
+
+  using Vec_t = vecgeom::Vector3D<double>;
+  Vec_t ponsurf, normal;
+  // check normal for a million points
+  for (int i = 0; i < 1000000; ++i) {
+    ponsurf = t.GetPointOnSurface();
+    if (t.Inside(ponsurf) != vecgeom::EInside::kSurface) {
+      double dist = vecCore::math::Max(t.SafetyToIn(ponsurf), t.SafetyToOut(ponsurf));
+      // if triggered, a quick fix is to relax the value of trapSurfaceTolerance in TrapezoidImplementation.h
+      std::cout << "*** Not on surface: i=" << i << ", ponsurf=" << ponsurf << " for dist=" << dist << "\n";
+    }
+    assert(t.Inside(ponsurf) == vecgeom::EInside::kSurface);
+    assert(t.Normal(ponsurf, normal) && ApproxEqual(normal.Mag2(), 1.0));
+  }
+}
+
 void TestVECGEOM353()
 {
   // unit test coming from Issue VECGEOM-353
@@ -642,6 +676,7 @@ int main(int argc, char *argv[])
 
   else if (!strcmp(argv[1], "--vecgeom")) {
     testvecgeom = true; // needed to avoid testing convexity when vecgeom is used
+    TestVECGEOM375();
     TestVECGEOM353();
     TestTrap<VECGEOMCONSTANTS, VECGEOM_NAMESPACE::SimpleTrapezoid>();
 

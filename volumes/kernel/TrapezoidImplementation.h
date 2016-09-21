@@ -102,13 +102,14 @@ struct TrapezoidImplementation {
   static void GenericKernelForContainsAndInside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                                                 Bool_v &completelyInside, Bool_v &completelyOutside)
   {
+    const Precision trapSurfaceTolerance = 1.0e-6;
     // z-region
-    completelyOutside = Abs(point[2]) > MakePlusTolerant<ForInside>(unplaced.fDz);
+    completelyOutside = Abs(point[2]) > MakePlusTolerant<ForInside>(unplaced.fDz, trapSurfaceTolerance);
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(completelyOutside)) {
       return;
     }
     if (ForInside) {
-      completelyInside = Abs(point[2]) < MakeMinusTolerant<ForInside>(unplaced.fDz);
+      completelyInside = Abs(point[2]) < MakeMinusTolerant<ForInside>(unplaced.fDz, trapSurfaceTolerance);
     }
 
 #ifndef VECGEOM_PLANESHELL_DISABLE
@@ -124,9 +125,9 @@ struct TrapezoidImplementation {
 
     for (unsigned int i = 0; i < 4; ++i) {
       // is it outside of this side plane?
-      completelyOutside = completelyOutside || dist[i] > MakePlusTolerant<ForInside>(0.);
+      completelyOutside = completelyOutside || dist[i] > MakePlusTolerant<ForInside>(0., trapSurfaceTolerance);
       if (ForInside) {
-        completelyInside = completelyInside && dist[i] < MakeMinusTolerant<ForInside>(0.);
+        completelyInside = completelyInside && dist[i] < MakeMinusTolerant<ForInside>(0., trapSurfaceTolerance);
       }
       if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(completelyOutside)) return;
     }
@@ -446,7 +447,7 @@ struct TrapezoidImplementation {
   static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                                        typename vecCore::Mask_v<Real_v> &valid)
   {
-    constexpr double delta = 100. * kTolerance;
+    constexpr double delta = 1000. * kTolerance;
     Vector3D<Real_v> normal(0.);
     valid = true;
 
@@ -485,7 +486,7 @@ struct TrapezoidImplementation {
     valid = valid && (unplaced.fDz - Abs(point[2])) >= -delta;
 
     // returned vector must be normalized
-    normal.Normalize();
+    if (normal.Mag2() > 0.) normal.Normalize();
 
     return normal;
   }
