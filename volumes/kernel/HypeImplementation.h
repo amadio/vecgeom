@@ -289,20 +289,15 @@ typename Backend::precision_v HypeImplementation<transCodeT, rotCodeT>::ApproxDi
     typename Backend::precision_v pr, typename Backend::precision_v pz, Precision r0, Precision tanPhi)
 {
   typedef typename Backend::precision_v Float_t;
-  Float_t ret(0.);
-  Float_t dbl_min(2.2250738585072014e-308);
-  // typedef typename Backend::bool_v Bool_t;
   Float_t r1 = Sqrt(r0 * r0 + tanPhi * tanPhi * pz * pz);
   Float_t z1 = pz;
-
   Float_t r2 = pr;
   Float_t z2 = Sqrt((pr * pr - r0 * r0) / (tanPhi * tanPhi));
-
-  Float_t dz  = z2 - z1;
-  Float_t dr  = r2 - r1;
-  Float_t len = Sqrt(dr * dr + dz * dz);
-  CondAssign((len < dbl_min), (pr - r1), (((pr - r1) * dz) / len), &ret);
-  return ret;
+  Float_t dz = z2 - z1;
+  Float_t dr = r2 - r1;
+  Float_t r3 = Sqrt(dr * dr + dz * dz);
+  auto mask  = r3 < vecCore::NumericLimits<Float_t>::Min();
+  return vecCore::Blend(mask, (r2 - r1), (r2 - r1) * dz / r3);
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -589,11 +584,9 @@ void HypeImplementation<transCodeT, rotCodeT>::NormalKernel(UnplacedHype const &
 
   // End Caps wins
   Bool_t condE = (dist2Z < dist2Outer);
-  Float_t normZ(0.);
-  CondAssign(localPoint.z() < 0., -1., 1., &normZ);
   vecCore::MaskedAssign(normal.x(), !done && condE, Float_t(0.0));
   vecCore::MaskedAssign(normal.y(), !done && condE, Float_t(0.0));
-  vecCore::MaskedAssign(normal.z(), !done && condE, normZ);
+  vecCore::MaskedAssign(normal.z(), !done && condE, Sign(localPoint.z()));
   normal = normal.Unit();
   done |= condE;
   if (vecCore::MaskFull(done)) return;
@@ -891,18 +884,9 @@ typename Backend::bool_v HypeImplementation<transCodeT, rotCodeT>::GetPointOfInt
     UnplacedHype const &unplaced, Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> const &direction, typename Backend::precision_v &zDist)
 {
+  zDist = (Sign(ForDistToIn ? point.z() : direction.z()) * unplaced.GetDz() - point.z()) / direction.z();
 
-  typedef typename Backend::precision_v Float_t;
-  Vector3D<Float_t> newPt;
-  if (ForDistToIn)
-    CondAssign(point.z() > 0., (unplaced.GetDz() - point.z()) / direction.z(),
-               (-unplaced.GetDz() - point.z()) / direction.z(), &zDist);
-  else
-    CondAssign(direction.z() > 0., (unplaced.GetDz() - point.z()) / direction.z(),
-               (-unplaced.GetDz() - point.z()) / direction.z(), &zDist);
-
-  newPt      = point + zDist * direction;
-  Float_t r2 = newPt.Perp2();
+  auto r2 = (point + zDist * direction).Perp2();
   if (!unplaced.InnerSurfaceExists())
     return (r2 < unplaced.GetEndOuterRadius2());
   else
