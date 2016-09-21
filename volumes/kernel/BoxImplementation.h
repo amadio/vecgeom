@@ -266,7 +266,7 @@ struct BoxImplementation {
     Vector3D<Real_v> normal;
     normal.Set(0.);
     Real_v nsurf(0.);
-    Real_v safmin(kInfLength);
+    Real_v safmin(InfinityLength<Real_v>());
 
     // loop here over dimensions
     for (int dim = 0; dim < 3; ++dim) {
@@ -370,7 +370,7 @@ struct BoxImplementation {
     tmax  = (corners[1 - signx].x() - point.x()) * inverseray.x();
     tymin = (corners[signy].y() - point.y()) * inverseray.y();
     tymax = (corners[1 - signy].y() - point.y()) * inverseray.y();
-    if ((tmin > tymax) || (tymin > tmax)) return vecgeom::kInfLength;
+    if ((tmin > tymax) || (tymin > tmax)) return InfinityLength<Precision>();
 
     if (tymin > tmin) tmin = tymin;
     if (tymax < tmax) tmax = tymax;
@@ -378,11 +378,11 @@ struct BoxImplementation {
     tzmin = (corners[signz].z() - point.z()) * inverseray.z();
     tzmax = (corners[1 - signz].z() - point.z()) * inverseray.z();
 
-    if ((tmin > tzmax) || (tzmin > tmax)) return vecgeom::kInfLength; // false
+    if ((tmin > tzmax) || (tzmin > tmax)) return InfinityLength<Precision>(); // false
     if ((tzmin > tmin)) tmin = tzmin;
     if (tzmax < tmax) tmax   = tzmax;
 
-    if (!((tmin < t1) && (tmax > t0))) return vecgeom::kInfLength;
+    if (!((tmin < t1) && (tmax > t0))) return InfinityLength<Precision>();
     return tmin;
   }
 
@@ -404,7 +404,7 @@ struct BoxImplementation {
 
     // do we need this condition ?
     Bool_v done = (tmin > tymax) || (tymin > tmax);
-    if (vecCore::MaskFull(done)) return vecgeom::kInfLength;
+    if (vecCore::MaskFull(done)) return InfinityLength<Real_v>();
     // if((tmin > tymax) || (tymin > tmax))
     //     return vecgeom::kInfLength;
 
@@ -418,7 +418,7 @@ struct BoxImplementation {
     done |= (tmin > tzmax) || (tzmin > tmax);
     // if((tmin > tzmax) || (tzmin > tmax))
     //     return vecgeom::kInfLength; // false
-    if (vecCore::MaskFull(done)) return vecgeom::kInfLength;
+    if (vecCore::MaskFull(done)) return InfinityLength<Real_v>();
 
     // not sure if this has to be maskedassignments
     tmin = Max(tmin, tzmin);
@@ -427,7 +427,7 @@ struct BoxImplementation {
     done |= !((tmin < t1) && (tmax > t0));
     // if( ! ((tmin < t1) && (tmax > t0)) )
     //     return vecgeom::kInfLength;
-    vecCore::MaskedAssign(tmin, done, Real_v(vecgeom::kInfLength));
+    vecCore::MaskedAssign(tmin, done, InfinityLength<Real_v>());
     return tmin;
   }
 
@@ -446,14 +446,14 @@ struct BoxImplementation {
     Real_v tmin  = (corners[signx].x() - Real_v(point.x())) * inverseray.x();
     Real_v tymax = (corners[1 - signy].y() - Real_v(point.y())) * inverseray.y();
     Bool_v done  = tmin > tymax;
-    if (vecCore::MaskFull(done)) return Real_v((basep)vecgeom::kInfLength);
+    if (vecCore::MaskFull(done)) return InfinityLength<Real_v>();
 
     Real_v tmax  = (corners[1 - signx].x() - Real_v(point.x())) * inverseray.x();
     Real_v tymin = (corners[signy].y() - Real_v(point.y())) * inverseray.y();
 
     // do we need this condition ?
     done |= (tymin > tmax);
-    if (vecCore::MaskFull(done)) return Real_v((basep)vecgeom::kInfLength);
+    if (vecCore::MaskFull(done)) return InfinityLength<Real_v>();
 
     // if((tmin > tymax) || (tymin > tmax))
     //     return vecgeom::kInfLength;
@@ -468,7 +468,7 @@ struct BoxImplementation {
     done |= (Real_v(tmin) > Real_v(tzmax)) || (Real_v(tzmin) > Real_v(tmax));
     // if((tmin > tzmax) || (tzmin > tmax))
     //     return vecgeom::kInfLength; // false
-    if (vecCore::MaskFull(done)) return Real_v((basep)vecgeom::kInfLength);
+    if (vecCore::MaskFull(done)) return InfinityLength<Real_v>();
 
     // not sure if this has to be maskedassignments
     tmin = Max(tmin, tzmin);
@@ -477,7 +477,7 @@ struct BoxImplementation {
     done |= !((tmin < Real_v(t1)) && (tmax > Real_v(t0)));
     // if( ! ((tmin < t1) && (tmax > t0)) )
     //     return vecgeom::kInfLength;
-    vecCore::MaskedAssign(tmin, done, Real_v((basep)vecgeom::kInfLength));
+    vecCore::MaskedAssign(tmin, done, InfinityLength<Real_v>());
     return tmin;
   }
 
@@ -538,7 +538,7 @@ struct BoxImplementation {
     // tymin = (corners[(int)(sign[1])].y()   -point.y())*inverserayy;
     // tymax = (corners[(int)(1-sign[1])].y() -point.y())*inverserayy;
 
-    if ((tmin > tymax) || (tymin > tmax)) return vecgeom::kInfLength;
+    if ((tmin > tymax) || (tymin > tmax)) return InfinityLength<Precision>();
 
     //  double inverserayz = 1./ray.z();
     sign[2] = inverseray.z() < 0;
@@ -550,11 +550,11 @@ struct BoxImplementation {
     // tzmin = (lowercorners[(int) sign[2]].z()   -point.z())*inverseray.z();
     // tzmax = (uppercorners[(int)(1-sign[2])].z() -point.z())*inverseray.z();
 
-    if ((tmin > tzmax) || (tzmin > tmax)) return vecgeom::kInfLength; // false
+    if ((tmin > tzmax) || (tzmin > tmax)) return InfinityLength<Precision>(); // false
     if ((tzmin > tmin)) tmin = tzmin;
     if (tzmax < tmax) tmax   = tzmax;
 
-    if (!((tmin < t1) && (tmax > t0))) return vecgeom::kInfLength;
+    if (!((tmin < t1) && (tmax > t0))) return InfinityLength<Precision>();
     // std::cerr << "tmin " << tmin << " tmax " << tmax << "\n";
     // return true;
     return tmin;
@@ -632,8 +632,8 @@ struct ABBoxImplementation {
     Bool_v outsidey   = safety.y() > Real_s(0.);
     Bool_v outsidez   = safety.z() > Real_s(0.);
 
-    Real_v runningsafetysqr(0.);             // safety squared from outside
-    Real_v runningmax(-vecgeom::kInfLength); // relevant for safety when we are inside
+    Real_v runningsafetysqr(0.);                  // safety squared from outside
+    Real_v runningmax(-InfinityLength<Real_v>()); // relevant for safety when we are inside
 
     // loop over dimensions manually unrolled
     // treat x dim

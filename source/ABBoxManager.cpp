@@ -208,7 +208,6 @@ void ABBoxManager::InitABBoxes(LogicalVolume const *lvol)
 #endif
   }
 
-  using vecCore::AssignLane;
   // initialize vector version of Container
   int index                          = 0;
   unsigned int assignedscalarvectors = 0;
@@ -218,22 +217,23 @@ void ABBoxManager::InitABBoxes(LogicalVolume const *lvol)
     // assign by components ( using generic VecCore API )
     for (uint k = 0; k < vecCore::VectorSize<Float_v>(); ++k) {
       if (2 * (i + k) < 2 * ndaughters) {
-        AssignLane(lower.x(), k, boxes[2 * (i + k)].x());
-        AssignLane(lower.y(), k, boxes[2 * (i + k)].y());
-        AssignLane(lower.z(), k, boxes[2 * (i + k)].z());
-        AssignLane(upper.x(), k, boxes[2 * (i + k) + 1].x());
-        AssignLane(upper.y(), k, boxes[2 * (i + k) + 1].y());
-        AssignLane(upper.z(), k, boxes[2 * (i + k) + 1].z());
+        vecCore::Set(lower.x(), k, boxes[2 * (i + k)].x());
+        vecCore::Set(lower.y(), k, boxes[2 * (i + k)].y());
+        vecCore::Set(lower.z(), k, boxes[2 * (i + k)].z());
+        vecCore::Set(upper.x(), k, boxes[2 * (i + k) + 1].x());
+        vecCore::Set(upper.y(), k, boxes[2 * (i + k) + 1].y());
+        vecCore::Set(upper.z(), k, boxes[2 * (i + k) + 1].z());
         assignedscalarvectors += 2;
       } else {
         // filling in bounding boxes of zero size
         // better to put some irrational number than 0?
-        AssignLane(lower.x(), k, -vecgeom::kInfLength);
-        AssignLane(lower.y(), k, -vecgeom::kInfLength);
-        AssignLane(lower.z(), k, -vecgeom::kInfLength);
-        AssignLane(upper.x(), k, -vecgeom::kInfLength);
-        AssignLane(upper.y(), k, -vecgeom::kInfLength);
-        AssignLane(upper.z(), k, -vecgeom::kInfLength);
+        vecCore::Scalar<Float_v> neginf = -InfinityLength<vecCore::Scalar<Float_v>>();
+        vecCore::Set(lower.x(), k, neginf);
+        vecCore::Set(lower.y(), k, neginf);
+        vecCore::Set(lower.z(), k, neginf);
+        vecCore::Set(upper.x(), k, neginf);
+        vecCore::Set(upper.y(), k, neginf);
+        vecCore::Set(upper.z(), k, neginf);
       }
     }
     vectorboxes[index++] = lower;

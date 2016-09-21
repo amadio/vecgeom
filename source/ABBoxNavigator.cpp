@@ -32,8 +32,8 @@ size_t ABBoxNavigator::GetHitCandidates(LogicalVolume const *lvol, Vector3D<Prec
   // int code = 2 << size[0] + 2 << size[1] + 2 << size[2];
   for (size_t box = 0; box < vecsize; ++box) {
     double distance = BoxImplementation::IntersectCachedKernel2<double, double>(
-        &corners[2 * box], point, invdir, sign[0], sign[1], sign[2], 0, vecgeom::kInfLength);
-    if (distance < vecgeom::kInfLength) {
+        &corners[2 * box], point, invdir, sign[0], sign[1], sign[2], 0, InfinityLength<double>());
+    if (distance < InfinityLength<double>()) {
       hitlist[hitcount] = ABBoxManager::BoxIdDistancePair_t(box, distance);
       hitcount++;
     }
@@ -86,10 +86,9 @@ size_t ABBoxNavigator::GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Pr
   sign[1] = invdirfloat.y() < 0;
   sign[2] = invdirfloat.z() < 0;
   for (size_t box = 0; box < vecsize; ++box) {
-    ABBoxManager::Float_v distance =
-        BoxImplementation::IntersectCachedKernel2(&corners[2 * box], pfloat, invdirfloat, sign[0], sign[1], sign[2],
-                                                  0.f, static_cast<float>(vecgeom::kInfLength));
-    auto hit = distance < static_cast<float>(vecgeom::kInfLength);
+    ABBoxManager::Float_v distance = BoxImplementation::IntersectCachedKernel2(
+        &corners[2 * box], pfloat, invdirfloat, sign[0], sign[1], sign[2], 0.f, InfinityLength<float>());
+    auto hit = distance < InfinityLength<float>();
     // this is Vc specific
     // a little tricky: need to iterate over the mask -- this does not easily work with scalar types
     constexpr auto kVS = vecCore::VectorSize<ABBoxManager::Float_v>();
@@ -266,7 +265,7 @@ void ABBoxNavigator::FindNextBoundaryAndStep(Vector3D<Precision> const &globalpo
     //  SimpleNavigator nav;
     //  nav.RelocatePointFromPath( localpoint, newstate );
     // return;
-    step = kInfLength;
+    step = InfinityLength<Precision>();
   }
 
   // if( step > 1E20 )
@@ -353,7 +352,7 @@ void ABBoxNavigator::FindNextBoundaryAndStep(Vector3D<Precision> const &globalpo
   // if this is the case we are in the wrong volume;
   // assuming that DistanceToIn return negative number when point is inside
   // do nothing (step=0) and retry one level higher
-  if (step == kInfLength && pstep > 0.) {
+  if (step == InfinityLength<Precision>() && pstep > 0.) {
 //      std::cout << "WARNING: STEP INFINITY; should never happen unless outside\n";
 // InspectEnvironmentForPointAndDirection( globalpoint, globaldir, currentstate );
 // set step to zero and retry one level higher

@@ -55,7 +55,7 @@ void HybridManager2::BuildStructure(LogicalVolume const *vol)
 
   EqualizeClusters(clusters, centers, allvolumecenters, vecCore::VectorSize<Float_v>());
 
-  fNodeToDaughters[vol->id()] = new std::vector<int>[numberOfFirstLevelNodes];
+  fNodeToDaughters[vol->id()] = new std::vector<int>[ numberOfFirstLevelNodes ];
 
   int nDaughters;
   ABBoxManager::ABBoxContainer_t daughterboxes = ABBoxManager::Instance().GetABBoxes(vol, nDaughters);
@@ -107,8 +107,8 @@ void HybridManager2::BuildStructure_v(LogicalVolume const *vol)
 
   // EqualizeClusters(clusters, centers, allvolumecenters, HybridManager2::vecCore::VectorSize<Float_v>());
 
-  fNodeToDaughters[vol->id()]   = new std::vector<int>[numberOfFirstLevelNodes];
-  fNodeToDaughters_v[vol->id()] = new std::vector<int>[numberOfFirstLevelNodes];
+  fNodeToDaughters[vol->id()]   = new std::vector<int>[ numberOfFirstLevelNodes ];
+  fNodeToDaughters_v[vol->id()] = new std::vector<int>[ numberOfFirstLevelNodes ];
 
   int nDaughters;
   // we are using the existing aligned bounding box list
@@ -144,7 +144,7 @@ void HybridManager2::BuildStructure_v(LogicalVolume const *vol)
 
   // init boxes_v to -inf
   for (size_t i = 0; i < vectorsize * 2; i++) {
-    boxes_v[i] = HybridManager2::Float_v(-vecgeom::kInfLength);
+    boxes_v[i] = -InfinityLength<typename HybridManager2::Float_v>();
   }
 
   // init internal nodes for vectorized
