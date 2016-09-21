@@ -23,33 +23,33 @@ struct GenericKernels {
 template <bool tolerant, typename T>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-T MakePlusTolerant(T const &x)
+T MakePlusTolerant(T const &x, decltype(kHalfTolerance) halftol = kHalfTolerance)
 {
-  return (tolerant) ? x + kHalfTolerance : x;
+  return (tolerant) ? x + halftol : x;
 }
 
 template <bool tolerant, typename T>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-T MakeMinusTolerant(T const &x)
+T MakeMinusTolerant(T const &x, decltype(kHalfTolerance) halftol = kHalfTolerance)
 {
-  return (tolerant) ? x - kHalfTolerance : x;
+  return (tolerant) ? x - halftol : x;
 }
 
 template <bool tolerant, typename T>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-T MakePlusTolerantSquare(T const &x, T const &xsq)
+T MakePlusTolerantSquare(T const &x, T const &xsq, decltype(kTolerance) tol = kTolerance)
 {
-  return (tolerant) ? xsq + kTolerance * x : xsq;
+  return (tolerant) ? xsq + tol * x : xsq;
 }
 
 template <bool tolerant, typename T>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-T MakeMinusTolerantSquare(T const &x, T const &xsq)
+T MakeMinusTolerantSquare(T const &x, T const &xsq, decltype(kTolerance) tol = kTolerance)
 {
-  return (tolerant) ? xsq - kTolerance * x : xsq;
+  return (tolerant) ? xsq - tol * x : xsq;
 }
 
 template <bool treatSurfaceT, class Backend>
