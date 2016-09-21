@@ -105,18 +105,6 @@ void CondAssign(UMESIMDMask const &cond, UMESIMDInt_v const &thenval, UMESIMDInt
   *output = vecCore::Blend(cond, thenval, elseval);
 }
 
-VECGEOM_FORCE_INLINE
-void MaskedAssign(UMESIMDMask const &cond, UMESIMDInt_v const &thenval, UMESIMDInt_v *output)
-{
-  vecCore::MaskedAssign(*output, cond, thenval);
-}
-
-VECGEOM_FORCE_INLINE
-void MaskedAssign(UMESIMDMask const &cond, UMESIMDFloat_v const &thenval, UMESIMDFloat_v *output)
-{
-  vecCore::MaskedAssign(*output, cond, thenval);
-}
-
 } // End inline namespace
 } // End global namespace
 

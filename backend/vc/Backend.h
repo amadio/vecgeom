@@ -72,34 +72,6 @@ void CondAssign(typename Vc::Vector<double>::Mask const &cond, int const &thenva
   out(Vc::simd_cast<VcInside::Mask>(!cond)) = elseval;
 }
 
-template <typename Type>
-VECGEOM_FORCE_INLINE
-void MaskedAssign(typename Vc::Vector<Type>::Mask const &cond, Vc::Vector<Type> const &thenval,
-                  Vc::Vector<Type> *const output)
-{
-  (*output)(cond) = thenval;
-}
-
-template <typename Type>
-VECGEOM_FORCE_INLINE
-void MaskedAssign(typename Vc::Vector<Type>::Mask const &cond, Type const &thenval, Vc::Vector<Type> *const output)
-{
-  (*output)(cond) = thenval;
-}
-
-VECGEOM_FORCE_INLINE
-void MaskedAssign(VcBool const &cond, const int thenval, int *const output)
-{
-  Vc::Vector<int> out(output);
-  out(Vc::simd_cast<VcInside::Mask>(cond)) = thenval;
-}
-
-VECGEOM_FORCE_INLINE
-void MaskedAssign(VcBool const &cond, const Inside_t thenval, VcInside *const output)
-{
-  (*output)(Vc::simd_cast<VcInside::Mask>(cond)) = thenval;
-}
-
 // stores a vector type into a memory position ( normally an array ) toaddr
 // toaddr has to be properly aligned
 // this function is an abstraction for the Vc API "store"

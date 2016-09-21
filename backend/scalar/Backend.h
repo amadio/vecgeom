@@ -73,14 +73,6 @@ void CondAssign(const bool cond, Type const &thenval, Type const &elseval, Type 
 template <typename Type>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-void MaskedAssign(const bool cond, Type const &thenval, Type *const output)
-{
-  *output = (cond) ? thenval : *output;
-}
-
-template <typename Type>
-VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
 void StoreTo(Type const &what, Type *toAddr)
 {
   *toAddr = what;
