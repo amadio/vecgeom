@@ -91,20 +91,6 @@ void StoreTo(UMESIMDMask const &what, bool *toAddr)
   what.store(toAddr);
 }
 
-VECGEOM_FORCE_INLINE
-void CondAssign(UMESIMDMask const &cond, UMESIMDFloat_v const &thenval, UMESIMDFloat_v const &elseval,
-                UMESIMDFloat_v *const output)
-{
-  *output = vecCore::Blend(cond, thenval, elseval);
-}
-
-VECGEOM_FORCE_INLINE
-void CondAssign(UMESIMDMask const &cond, UMESIMDInt_v const &thenval, UMESIMDInt_v const &elseval,
-                UMESIMDInt_v *const output)
-{
-  *output = vecCore::Blend(cond, thenval, elseval);
-}
-
 } // End inline namespace
 } // End global namespace
 

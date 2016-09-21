@@ -65,14 +65,6 @@ constexpr size_t kVectorSize = 1;
 template <typename Type>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-void CondAssign(const bool cond, Type const &thenval, Type const &elseval, Type *const output)
-{
-  *output = (cond) ? thenval : elseval;
-}
-
-template <typename Type>
-VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
 void StoreTo(Type const &what, Type *toAddr)
 {
   *toAddr = what;

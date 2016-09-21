@@ -45,33 +45,6 @@ typedef kVc::precision_v VcPrecision;
 typedef kVc::bool_v VcBool;
 typedef kVc::inside_v VcInside;
 
-template <typename Type>
-VECGEOM_FORCE_INLINE
-void CondAssign(typename Vc::Vector<Type>::Mask const &cond, Vc::Vector<Type> const &thenval,
-                Vc::Vector<Type> const &elseval, Vc::Vector<Type> *const output)
-{
-  (*output)(cond)  = thenval;
-  (*output)(!cond) = elseval;
-}
-
-template <typename Type>
-VECGEOM_FORCE_INLINE
-void CondAssign(typename Vc::Vector<Type>::Mask const &cond, Type const &thenval, Type const &elseval,
-                Vc::Vector<Type> *const output)
-{
-  (*output)(cond)  = thenval;
-  (*output)(!cond) = elseval;
-}
-
-VECGEOM_FORCE_INLINE
-void CondAssign(typename Vc::Vector<double>::Mask const &cond, int const &thenval, int const &elseval,
-                int *const output)
-{
-  Vc::Vector<int> out(output);
-  out(Vc::simd_cast<VcInside::Mask>(cond))  = thenval;
-  out(Vc::simd_cast<VcInside::Mask>(!cond)) = elseval;
-}
-
 // stores a vector type into a memory position ( normally an array ) toaddr
 // toaddr has to be properly aligned
 // this function is an abstraction for the Vc API "store"
