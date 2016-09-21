@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     // create trapezoid
     solid = new Trap_t("test_slantedTrap", xyz);
   }
-  solid->StreamInfo(std::cout);
+  ((vecgeom::VPlacedVolume *)solid)->GetUnplacedVolume()->Print(std::cout);
 
   ShapeTester tester;
 

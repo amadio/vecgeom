@@ -157,10 +157,6 @@ public:
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
 #endif
 
-#if defined(VECGEOM_USOLIDS)
-  std::ostream &StreamInfo(std::ostream &os) const;
-#endif
-
 private:
   virtual void Print(std::ostream &os) const override;
 

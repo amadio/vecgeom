@@ -22,7 +22,7 @@ void UnplacedTube::Print() const
 
 void UnplacedTube::Print(std::ostream &os) const
 {
-  os << "UnplacedTube {" << rmin() << ", " << rmax() << ", " << z() << ", " << sphi() << ", " << dphi() << "}";
+  os << "UnplacedTube {" << rmin() << ", " << rmax() << ", " << z() << ", " << sphi() << ", " << dphi() << "}\n";
 }
 
 // template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -312,28 +312,6 @@ void UnplacedTube::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) 
 
   return;
 }
-
-#if defined(VECGEOM_USOLIDS)
-VECGEOM_CUDA_HEADER_BOTH
-std::ostream &UnplacedTube::StreamInfo(std::ostream &os) const
-{
-  int oldprc = os.precision(16);
-  os << "-----------------------------------------------------------\n"
-     << "     *** Dump for solid - tube ***\n"
-     << "     ===================================================\n"
-     << " Solid type: " << GetEntityType() << "\n"
-     << " Parameters: \n"
-     << "     Tube Radii Rmin, Rmax: " << rmin() << "mm, " << rmax() << "mm \n"
-     << "     Half-length Z = " << z() << "mm\n";
-  if (dphi() < kTwoPi) {
-    os << "     Wedge starting angles: fSPhi=" << sphi() * kRadToDeg << "deg, "
-       << ", fDphi=" << dphi() * kRadToDeg << "deg\n";
-  }
-  os << "-----------------------------------------------------------\n";
-  os.precision(oldprc);
-  return os;
-}
-#endif
 
 #ifdef VECGEOM_CUDA_INTERFACE
 

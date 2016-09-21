@@ -25,9 +25,8 @@ int main(int argc, char *argv[])
     }
   } else {
     tube = new Tube_t("test_VecGeomTube", 3., 6., 2, 0, vecgeom::kTwoPi * 0.6);
-    tube->StreamInfo(std::cout);
   }
-  tube->StreamInfo(std::cout);
+  ((vecgeom::VPlacedVolume *)tube)->GetUnplacedVolume()->Print(std::cout);
 
   ShapeTester tester;
   tester.EnableDebugger(true);

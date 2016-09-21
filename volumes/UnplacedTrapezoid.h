@@ -317,8 +317,6 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedTrapezoid *Clone() const;
-
-  std::ostream &StreamInfo(std::ostream &os) const;
 #endif
 
 public:

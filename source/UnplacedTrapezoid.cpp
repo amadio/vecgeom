@@ -296,29 +296,6 @@ UnplacedTrapezoid *UnplacedTrapezoid::Clone() const
 {
   return new UnplacedTrapezoid(*this);
 }
-
-// StreamInfo: definition taken from UTrapezoid
-// VECGEOM_CUDA_HEADER_BOTH
-std::ostream &UnplacedTrapezoid::StreamInfo(std::ostream &os) const
-{
-  int oldprc = os.precision(16);
-  os << "-----------------------------------------------------------\n"
-     << "     *** Dump for solid - " << GetEntityType() << " ***\n"
-     << "     ===================================================\n"
-     << " Solid type: Trapezoid\n"
-     << " Parameters:\n"
-     << "     half lengths X1-X4: " << fTrap.fDx1 << "mm, " << fTrap.fDx2 << "mm, " << fTrap.fDx3 << "mm, "
-     << fTrap.fDx4 << "mm\n"
-     << "     half lengths Y1,Y2: " << fTrap.fDy1 << "mm, " << fTrap.fDy2 << "mm\n"
-     << "     half length Z: " << fTrap.fDz << "mm\n"
-     << "     Solid axis angles: Theta=" << fTrap.fTheta * kRadToDeg << "deg, "
-     << " Phi=" << fTrap.fPhi * kRadToDeg << "deg\n"
-     << "     Face axis angles: TanAlpha1=" << fTrap.fTanAlpha1 * kRadToDeg << "deg, "
-     << " TanAlpha2=" << fTrap.fTanAlpha2 * kRadToDeg << "deg\n";
-  os << "-----------------------------------------------------------\n";
-  os.precision(oldprc);
-  return os;
-}
 #endif
 
 void UnplacedTrapezoid::Print() const
