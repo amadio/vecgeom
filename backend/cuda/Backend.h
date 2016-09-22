@@ -48,34 +48,6 @@ constexpr size_t kVectorSize = 1;
 
 static const unsigned kThreadsPerBlock = 256;
 
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_FORCE_INLINE
-double Pow(double const &x, double arg)
-{
-  return pow(x, arg);
-}
-
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_FORCE_INLINE
-float Pow(float const &x, float arg)
-{
-  return powf(x, arg);
-}
-
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_FORCE_INLINE
-double Pow(double const &x, int arg)
-{
-  return pow(x, (double)arg);
-}
-
-VECGEOM_CUDA_HEADER_BOTH
-VECGEOM_FORCE_INLINE
-float Pow(float const &x, int arg)
-{
-  return powf(x, (float)arg);
-}
-
 // Auxiliary GPU functions
 #ifdef VECGEOM_NVCC
 

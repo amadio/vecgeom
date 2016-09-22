@@ -87,32 +87,6 @@ void copy(Type const *begin, Type const *const end, Type *const target)
 template <typename Type>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-void reverse_copy(Type const *const begin, Type const *end, Type *const target)
-{
-#ifndef VECGEOM_NVCC_DEVICE
-  std::reverse_copy(begin, end, target);
-#else
-  while (--end >= begin)
-    *target++ = *end;
-#endif
-}
-
-template <typename Type>
-VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
-void reverse(Type *begin, Type *end)
-{
-#ifndef VECGEOM_NVCC_DEVICE
-  std::reverse(begin, end);
-#else
-  while (begin++ < end--)
-    swap(begin, end);
-#endif
-}
-
-template <typename Type>
-VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
 Type *AlignedAllocate(size_t size)
 {
 #ifndef VECGEOM_NVCC
@@ -132,22 +106,6 @@ void AlignedFree(Type *allocated)
 #else
   delete[] allocated;
 #endif
-}
-
-template <typename IteratorType>
-VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
-IteratorType min_element(IteratorType first, IteratorType last)
-{
-  return std::min_element(first, last);
-}
-
-template <typename IteratorType>
-VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
-bool all_of(IteratorType first, IteratorType last)
-{
-  return std::all_of(first, last, [](bool b) { return b; });
 }
 
 template <typename InputIterator1, typename InputIterator2>
