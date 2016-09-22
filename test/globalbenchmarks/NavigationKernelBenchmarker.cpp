@@ -200,6 +200,66 @@ void analyseOutStates(NavStatePool &inpool, NavStatePool const &outpool)
   }
 }
 
+#ifdef VECGEOM_ROOT
+__attribute__((noinline)) void benchmarkROOTNavigator(SOA3D<Precision> const &points, SOA3D<Precision> const &dirs)
+{
+
+  TGeoNavigator *rootnav = ::gGeoManager->GetCurrentNavigator();
+  auto nPoints           = points.size();
+  TGeoBranchArray *instates[nPoints];
+  TGeoBranchArray *outstates[nPoints];
+  Precision *steps = new Precision[points.size()];
+  // we don't have the input state container in ROOT form
+  // we generate them but do not take this into account for the timing measurement
+  for (int i = 0; i < nPoints; ++i) {
+    Vector3D<Precision> const &pos = points[i];
+    rootnav->ResetState();
+    rootnav->FindNode(pos.x(), pos.y(), pos.z());
+    instates[i]  = TGeoBranchArray::MakeInstance(GeoManager::Instance().getMaxDepth());
+    outstates[i] = TGeoBranchArray::MakeInstance(GeoManager::Instance().getMaxDepth());
+    instates[i]->InitFromNavigator(rootnav);
+  }
+#ifdef CALLGRIND_ENABLED
+  CALLGRIND_START_INSTRUMENTATION;
+#endif
+  Stopwatch timer;
+  timer.Start();
+  for (int i = 0; i < nPoints; ++i) {
+    Vector3D<Precision> const &pos = points[i];
+    Vector3D<Precision> const &dir = dirs[i];
+
+    instates[i]->UpdateNavigator(rootnav);
+
+    rootnav->SetCurrentPoint(pos.x(), pos.y(), pos.z());
+    rootnav->SetCurrentDirection(dir.x(), dir.y(), dir.z());
+    volatile TGeoNode *node = rootnav->FindNextBoundaryAndStep(kInfLength);
+    (void)node;
+    steps[i] = rootnav->GetStep();
+    // safe output states ( for fair comparison with VecGeom )
+    outstates[i]->InitFromNavigator(rootnav);
+  }
+  timer.Stop();
+#ifdef CALLGRIND_ENABLED
+  CALLGRIND_STOP_INSTRUMENTATION;
+  CALLGRIND_DUMP_STATS;
+#endif
+  std::cerr << timer.Elapsed() << "\n";
+  double accum(0.);
+  for (decltype(points.size()) i = 0; i < points.size(); ++i) {
+    accum += steps[i];
+  }
+  delete[] steps;
+
+  // cleanup states
+  for (decltype(points.size()) i = 0; i < points.size(); ++i) {
+    delete instates[i];
+    delete outstates[i];
+  }
+
+  std::cerr << "accum  TGeo " << accum << " target checksum \n";
+}
+#endif
+
 template <typename T>
 __attribute__((noinline)) void benchNavigator(SOA3D<Precision> const &points, SOA3D<Precision> const &dirs,
                                               NavStatePool const &inpool, NavStatePool &outpool)
@@ -324,6 +384,10 @@ void benchDifferentNavigators(SOA3D<Precision> const &points, SOA3D<Precision> c
   RUNBENCH(benchVectorNavigator<HybridNavigator<true>>(points, dirs, pool, outpool));
   std::cerr << "##\n";
   RUNBENCH(benchmarkOldNavigator(points, dirs, pool));
+  std::cerr << "##\n";
+#ifdef VECGEOM_ROOT
+  benchmarkROOTNavigator(points, dirs);
+#endif
   analyseOutStates(pool, outpool);
 }
 
@@ -361,7 +425,12 @@ int main(int argc, char *argv[])
   }
 
   std::string volname(argv[2]);
-  HybridManager2::Instance().InitStructure(GeoManager::Instance().FindLogicalVolume(volname.c_str()));
+  auto lvol = GeoManager::Instance().FindLogicalVolume(volname.c_str());
+  HybridManager2::Instance().InitStructure(lvol);
+
+  // some output on volume
+  std::cerr << "NavigationKernelBenchmarker run on " << argv[2] << " having " << lvol->GetDaughters().size()
+            << " daughters \n";
 
   bool usecached = false;
   if (argc >= 4 && strcmp(argv[3], "--usecache") == 0) usecached = true;
