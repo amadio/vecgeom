@@ -67,9 +67,8 @@ private:
     using Bool_v  = vecCore::Mask_v<Float_v>;
     for (size_t box = 0; box < vecsize; ++box) {
       Float_v distance = BoxImplementation::IntersectCachedKernel2<Float_v, float>(
-          &corners[2 * box], pfloat, invdirfloat, sign[0], sign[1], sign[2], 0,
-          static_cast<float>(vecgeom::kInfLength));
-      Bool_v hit = distance < static_cast<float>(vecgeom::kInfLength);
+          &corners[2 * box], pfloat, invdirfloat, sign[0], sign[1], sign[2], 0, InfinityLength<float>());
+      Bool_v hit = distance < InfinityLength<float>();
       if (!vecCore::MaskEmpty(hit)) {
         constexpr auto kVS = vecCore::VectorSize<Float_v>();
 
