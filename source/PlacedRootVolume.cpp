@@ -40,6 +40,11 @@ void PlacedRootVolume::PrintUnplacedType(std::ostream &os) const
   os << "UnplacedRootVolume(does not exist)";
 }
 
+Precision PlacedRootVolume::Capacity()
+{
+  return GetRootShape()->Capacity();
+}
+
 void PlacedRootVolume::Contains(SOA3D<Precision> const &points, bool *const output) const
 {
   for (size_t i = 0, iMax = points.size(); i < iMax; ++i) {

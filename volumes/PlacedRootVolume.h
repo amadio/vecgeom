@@ -134,6 +134,8 @@ public:
 
   virtual void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const override;
 
+  virtual Precision Capacity();
+
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const override;
