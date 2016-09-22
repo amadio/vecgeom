@@ -4,6 +4,7 @@
 #include "volumes/PlacedAssembly.h"
 #include "navigation/SimpleLevelLocator.h"
 #include "management/ABBoxManager.h" // for Extent == bounding box calculation
+#include "base/RNG.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -54,13 +55,17 @@ void UnplacedAssembly::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aM
 
 Vector3D<Precision> UnplacedAssembly::GetPointOnSurface() const
 {
-  throw std::runtime_error("GetPointOnSurface for Assembly not yet implemented");
-  // this requires some thought:
-  // a) we should sample the points taking into the account the surface of
-  //    constituents
-  // b) we need to make the sure the coordinates of the point returned is
-  //    indeed in the reference frame of the UnplacedAssembly !!
-  return Vector3D<Precision>(0., 0., 0.);
+  // pick one of the constituents for now
+  // should improve this to sample according to surface area
+  const auto ndaughters = fLogicalVolume->GetDaughters().size();
+  const size_t selected = RNG::Instance().uniform() * ndaughters;
+
+  const auto selectedplaced = fLogicalVolume->GetDaughters()[selected];
+  Vector3D<Precision> sp    = selectedplaced->GetPointOnSurface();
+  // this is in the reference frame of the selected daughter
+  // we need to return it in the reference of this assembly
+
+  return selectedplaced->GetTransformation()->InverseTransform(sp);
 }
 
 Precision UnplacedAssembly::Capacity() const

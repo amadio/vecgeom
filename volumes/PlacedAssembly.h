@@ -244,6 +244,11 @@ public:
 
   Precision SurfaceArea() override { return static_cast<UnplacedAssembly const *>(GetUnplacedVolume())->SurfaceArea(); }
 
+  Vector3D<Precision> GetPointOnSurface() const override
+  {
+    return static_cast<UnplacedAssembly const *>(GetUnplacedVolume())->GetPointOnSurface();
+  }
+
 #ifndef VECGEOM_NVCC
   virtual VPlacedVolume const *ConvertToUnspecialized() const override { return this; }
 #ifdef VECGEOM_ROOT
