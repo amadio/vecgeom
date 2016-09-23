@@ -375,7 +375,7 @@ struct TorusImplementation2 {
 
     // Compute coeficients of the quartic
     Real_v s      = vecgeom::kInfLength;
-    Real_v tol    = vecgeom::kTolerance;
+    Real_v tol    = 100. * vecgeom::kTolerance;
     Real_v r0sq   = pt[0] * pt[0] + pt[1] * pt[1] + pt[2] * pt[2];
     Real_v rdotn  = pt[0] * dir[0] + pt[1] * dir[1] + pt[2] * dir[2];
     Real_v rsumsq = torus.rtor2() + radius * radius;
@@ -449,17 +449,21 @@ struct TorusImplementation2 {
       Real_v eps   = vecgeom::kInfLength;
       Real_v delta = s * s * s * s + a * s * s * s + b * s * s + c * s + d;
       Real_v eps0  = -delta / (4. * s * s * s + 3. * a * s * s + 2. * b * s + c);
+      int ntry     = 0;
       while (Abs(eps) > vecgeom::kTolerance) {
         if (Abs(eps0) > 100) break;
         s += eps0;
         if (Abs(s + eps0) < vecgeom::kTolerance) break;
         delta = s * s * s * s + a * s * s * s + b * s * s + c * s + d;
         eps   = -delta / (4. * s * s * s + 3. * a * s * s + 2. * b * s + c);
-        if (Abs(eps) > Abs(eps0)) break;
+        if (Abs(eps) >= Abs(eps0)) break;
+        ntry++;
+        // Avoid infinite recursion
+        if (ntry > 10) break;
         eps0 = eps;
       }
       // discard this solution
-      if (s < -vecgeom::kTolerance) continue;
+      if (s < -tol) continue;
       return Max(0., s);
     }
     return vecgeom::kInfLength;
@@ -571,7 +575,8 @@ struct TorusImplementation2 {
 
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
-    distance = kInfLength;
+    constexpr Float_t tol = 100. * vecgeom::kTolerance;
+    distance              = kInfLength;
 
     bool hasphi  = (torus.dphi() < kTwoPi);
     bool hasrmin = (torus.rmin() > 0);
@@ -618,6 +623,7 @@ struct TorusImplementation2 {
       }
     }
     if (distance >= kInfLength) distance = -1.;
+    if (distance < tol) distance         = 0.;
   }
 
   template <class Backend>
