@@ -143,7 +143,7 @@ __attribute__((noinline)) void benchmarkROOTNavigator(SOA3D<Precision> const &po
   for (size_t i = 0; i < nPoints; ++i) {
     Vector3D<Precision> const &pos = points[i];
     Vector3D<Precision> const &dir = dirs[i];
-
+    rootnav->ResetState();
     instates[i]->UpdateNavigator(rootnav);
 
     rootnav->SetCurrentPoint(pos.x(), pos.y(), pos.z());
