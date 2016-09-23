@@ -354,7 +354,7 @@ void GenTrapImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vecto
     //   std::cerr << "can potentially hit\n";
     // calculate distance to z-plane ( see Box algorithm )
     // check if hit point is inside top or bottom polygon
-    Real_v next = zsafety / Abs(direction.z() + kTiny);
+    Real_v next = zsafety / NonZeroAbs(direction.z());
 #ifdef GENTRAPDEB
     std::cerr << " zdist " << next << "\n";
 #endif
@@ -402,9 +402,9 @@ void GenTrapImplementation::DistanceToOut(UnplacedStruct_t const &unplaced, Vect
   Bool_v negDirMask = direction.z() < 0;
   Real_v sign(1.0);
   vecCore::MaskedAssign(sign, negDirMask, Real_v(-1.));
-  //    Real_v invDirZ = 1./direction.z();
+  //    Real_v invDirZ = 1./NonZero(direction.z());
   // this construct costs one multiplication more
-  Real_v distmin = (sign * unplaced.fDz - point.z()) / direction.z();
+  Real_v distmin = (sign * unplaced.fDz - point.z()) / NonZero(direction.z());
 
   Real_v distplane = unplaced.fSurfaceShell.DistanceToOut<Real_v>(point, direction);
   distance         = Min(distmin, distplane);
@@ -552,7 +552,7 @@ void GenTrapImplementation::GetClosestEdge(Vector3D<Real_v> const &point, Real_v
       if (vecCore::MaskFull(collapsed)) continue;
     }
     // Projection fraction
-    u = (dpx * dx + dpy * dy) / (lsq + kTiny);
+    u = (dpx * dx + dpy * dy) / NonZero(lsq);
     vecCore::MaskedAssign(dpx, u > 1 && !collapsed, point.x() - vertexX[j]);
     vecCore::MaskedAssign(dpy, u > 1 && !collapsed, point.y() - vertexY[j]);
     vecCore::MaskedAssign(dpx, u >= 0 && u <= 1 && !collapsed, dpx - u * dx);

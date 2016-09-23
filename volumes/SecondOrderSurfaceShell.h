@@ -66,6 +66,9 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   void Initialize(const Precision *verticesx, const Precision *verticesy, Precision dz)
   {
+#ifndef VECGEOM_NVCC
+    if (dz <= 0.) throw std::runtime_error("Half-length of generic trapezoid must be positive");
+#endif
     fDz  = dz;
     fDz2 = 0.5 / dz;
     // Store vertex coordinates
@@ -268,12 +271,11 @@ public:
       // Dot product between direction and normal to surface has to be positive
       Real_v dotDirNorm = dir.Dot(fNormals[i]);
       Bool_v outgoing   = (dotDirNorm > 0.);
-      dotDirNorm += kTiny; // Avoid division by 0 without changing result
       // Update globally outside flag
       outside      = outside || otherside;
       Bool_v valid = outgoing && (!otherside);
       if (vecCore::MaskEmpty(valid)) continue;
-      Real_v snext = -dotAPNorm / dotDirNorm;
+      Real_v snext = -dotAPNorm / NonZero(dotDirNorm);
       vecCore::MaskedAssign(distance, valid && snext < distance, Max(snext, Real_v(0.)));
     }
     // Return -1 for points actually outside
@@ -313,12 +315,11 @@ public:
       // Dot product between direction and normal to surface has to be negative
       Real_v dotDirNorm = dir.Dot(fNormals[i]);
       Bool_v ingoing    = (dotDirNorm < 0.);
-      dotDirNorm += kTiny; // Avoid division by 0 without changing result
       // Update globally outside flag
       inside       = inside && otherside;
       Bool_v valid = ingoing && (!otherside);
       if (vecCore::MaskEmpty(valid)) continue;
-      Real_v snext = -dotAPNorm / dotDirNorm;
+      Real_v snext = -dotAPNorm / NonZero(dotDirNorm);
       // Now propagate the point to surface and check if in range
       Vector3D<Real_v> psurf = point + snext * dir;
       valid                  = valid && InSurfLimits<Real_v>(psurf, i);
@@ -556,7 +557,7 @@ public:
       dpx   = point[0] - vertexX[i];
       dpy   = point[1] - vertexY[i];
       lsq   = dx * dx + dy * dy;
-      u     = (dpx * dx + dpy * dy) / (lsq + kTiny);
+      u     = (dpx * dx + dpy * dy) / NonZero(lsq);
       vecCore::MaskedAssign(dpx, u > 1, point[0] - vertexX[j]);
       vecCore::MaskedAssign(dpy, u > 1, point[1] - vertexY[j]);
       vecCore::MaskedAssign(dpx, u >= 0 && u <= 1, dpx - u * dx);
@@ -572,6 +573,7 @@ public:
     vecCore::MaskedAssign(umin, umin < 0 || umin > 1, Real_v(0.));
     dx = dx1 + umin * (dx2 - dx1);
     dy = dy1 + umin * (dy2 - dy1);
+    // Denominator below always positive as fDz>0
     safety *= 1. - 4. * fDz * fDz / (dx * dx + dy * dy + 4. * fDz * fDz);
     safety = Sqrt(safety);
     vecCore::MaskedAssign(safety, safplanar < safety, safplanar);
@@ -605,10 +607,10 @@ public:
     Real_v r     = InfinityLength<Real_v>();
     Real_v num   = (point.x() - fxa[isurf]) - rz * (fxb[isurf] - fxa[isurf]);
     Real_v denom = (fxc[isurf] - fxa[isurf]) + rz * (fxd[isurf] - fxc[isurf] - fxb[isurf] + fxa[isurf]);
-    vecCore::MaskedAssign(r, (Abs(denom) > 1.e-6), num / denom);
+    vecCore::MaskedAssign(r, (Abs(denom) > 1.e-6), num / NonZero(denom));
     num   = (point.y() - fya[isurf]) - rz * (fyb[isurf] - fya[isurf]);
     denom = (fyc[isurf] - fya[isurf]) + rz * (fyd[isurf] - fyc[isurf] - fyb[isurf] + fya[isurf]);
-    vecCore::MaskedAssign(r, (Abs(denom) > 1.e-6), num / denom);
+    vecCore::MaskedAssign(r, (Abs(denom) > 1.e-6), num / NonZero(denom));
     insurf = insurf && (r > MakeMinusTolerant<true>(0.)) && (r < MakePlusTolerant<true>(1.));
     return insurf;
   }
@@ -637,10 +639,10 @@ public:
     */
     Real_v num   = (point.x() - fxa[isurf]) - rz * (fxb[isurf] - fxa[isurf]);
     Real_v denom = (fxc[isurf] - fxa[isurf]) + rz * (fxd[isurf] - fxc[isurf] - fxb[isurf] + fxa[isurf]);
-    vecCore::MaskedAssign(r, Abs(denom) > 1.e-6, num / denom);
+    vecCore::MaskedAssign(r, Abs(denom) > 1.e-6, num / NonZero(denom));
     num   = (point.y() - fya[isurf]) - rz * (fyb[isurf] - fya[isurf]);
     denom = (fyc[isurf] - fya[isurf]) + rz * (fyd[isurf] - fyc[isurf] - fyb[isurf] + fya[isurf]);
-    vecCore::MaskedAssign(r, Abs(denom) > 1.e-6, num / denom);
+    vecCore::MaskedAssign(r, Abs(denom) > 1.e-6, num / NonZero(denom));
 
     unorm = (Vector3D<Real_v>)fViCrossHi0[isurf] + rz * (Vector3D<Real_v>)fViCrossVj[isurf] +
             r * (Vector3D<Real_v>)fHi1CrossHi0[isurf];
@@ -687,8 +689,8 @@ public:
       signa[i] = Real_v(0.);
       vecCore::MaskedAssign(signa[i], a[i] < -kTolerance, Real_v(-1.));
       vecCore::MaskedAssign(signa[i], a[i] > kTolerance, Real_v(1.));
-      inva[i] = c[i] / (b[i] * b[i] + kTiny);
-      vecCore::MaskedAssign(inva[i], Abs(a[i]) > kTolerance, 1. / (2. * a[i]));
+      inva[i] = c[i] / NonZero(b[i] * b[i]);
+      vecCore::MaskedAssign(inva[i], Abs(a[i]) > kTolerance, 1. / NonZero(2. * a[i]));
     }
 
     // vectorizes
@@ -714,9 +716,8 @@ public:
       Real_v dotAPNorm = vecAP.Dot(fNormals[i]);
       // Dot product between direction and normal to surface has to be positive
       Real_v dotDirNorm = dir.Dot(fNormals[i]);
-      dotDirNorm += kTiny; // Avoid division by 0 without changing result
-      smin[i] = -dotAPNorm / dotDirNorm;
-      smax[i] = InfinityLength<Real_v>(); // not to be checked
+      smin[i]           = -dotAPNorm / NonZero(dotDirNorm);
+      smax[i]           = InfinityLength<Real_v>(); // not to be checked
     }
   } // end ComputeSminSmax
 
