@@ -211,7 +211,7 @@ __attribute__((noinline)) void benchmarkROOTNavigator(SOA3D<Precision> const &po
   Precision *steps = new Precision[points.size()];
   // we don't have the input state container in ROOT form
   // we generate them but do not take this into account for the timing measurement
-  for (int i = 0; i < nPoints; ++i) {
+  for (size_t i = 0; i < nPoints; ++i) {
     Vector3D<Precision> const &pos = points[i];
     rootnav->ResetState();
     rootnav->FindNode(pos.x(), pos.y(), pos.z());
@@ -224,7 +224,7 @@ __attribute__((noinline)) void benchmarkROOTNavigator(SOA3D<Precision> const &po
 #endif
   Stopwatch timer;
   timer.Start();
-  for (int i = 0; i < nPoints; ++i) {
+  for (size_t i = 0; i < nPoints; ++i) {
     Vector3D<Precision> const &pos = points[i];
     Vector3D<Precision> const &dir = dirs[i];
 
