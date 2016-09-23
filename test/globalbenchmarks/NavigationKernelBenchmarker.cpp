@@ -56,92 +56,8 @@
 
 using namespace vecgeom;
 
-void NavStateUnitTest()
-{
-  NavigationState *state1 = NavigationState::MakeInstance(10);
-  NavigationState *state2 = NavigationState::MakeInstance(10);
-  // test - 0 ( one empty path )
-  state1->Clear();
-  state2->Clear();
-  state2->PushIndexType(1);
-  assert(state1->Distance(*state2) == 1);
-
-  // test - 1 ( equal paths )
-  state1->Clear();
-  state2->Clear();
-  state1->PushIndexType(1);
-  state2->PushIndexType(1);
-  assert(state1->RelativePath(*state2).compare("") == 0);
-  assert(state1->Distance(*state2) == 0);
-  std::cerr << state1->RelativePath(*state2) << "\n";
-
-  // test - 2
-  state1->Clear();
-  state2->Clear();
-  state1->PushIndexType(1);
-  state2->PushIndexType(1);
-  state2->PushIndexType(2);
-  assert(state1->RelativePath(*state2).compare("/down/2") == 0);
-  assert(state1->Distance(*state2) == 1);
-  std::cerr << state1->RelativePath(*state2) << "\n";
-
-  // test - 3
-  state1->Clear();
-  state2->Clear();
-  state1->PushIndexType(1);
-  state2->PushIndexType(1);
-  state2->PushIndexType(2);
-  state2->PushIndexType(4);
-  std::cerr << state1->RelativePath(*state2) << "\n";
-  std::cerr << state1->Distance(*state2) << "\n";
-  assert(state1->RelativePath(*state2).compare("/down/2/down/4") == 0);
-  assert(state1->Distance(*state2) == 2);
-
-  // test - 4
-  state1->Clear();
-  state2->Clear();
-  state1->PushIndexType(1);
-  state1->PushIndexType(2);
-  state1->PushIndexType(2);
-  state2->PushIndexType(1);
-  std::cerr << "HUHU " << state1->Distance(*state2) << "\n";
-  assert(state1->Distance(*state2) == 2);
-  assert(state1->RelativePath(*state2).compare("/up/up") == 0);
-  std::cerr << state1->RelativePath(*state2) << "\n";
-
-  // test - 5
-  state1->Clear();
-  state2->Clear();
-  state1->PushIndexType(1);
-  state1->PushIndexType(1);
-  state1->PushIndexType(2);
-  state1->PushIndexType(2);
-  state2->PushIndexType(1);
-  state2->PushIndexType(1);
-  state2->PushIndexType(5);
-  state2->PushIndexType(1);
-  std::cerr << state1->RelativePath(*state2) << "\n";
-  assert(state1->RelativePath(*state2).compare("/up/horiz/3/down/1") == 0);
-  assert(state1->Distance(*state2) == 4);
-
-  // test - 6
-  state1->Clear();
-  state2->Clear();
-  state1->PushIndexType(1);
-  state1->PushIndexType(1);
-  state1->PushIndexType(2);
-  state1->PushIndexType(2);
-  state1->PushIndexType(3);
-
-  state2->PushIndexType(1);
-  state2->PushIndexType(1);
-  state2->PushIndexType(5);
-  state2->PushIndexType(1);
-  state2->PushIndexType(1);
-  std::cerr << state1->RelativePath(*state2) << "\n";
-  assert(state1->RelativePath(*state2).compare("/up/up/horiz/3/down/1/down/1") == 0);
-  assert(state1->Distance(*state2) == 6);
-}
+bool gBenchVecInterface = false;
+bool gAnalyseOutStates  = false;
 
 void analyseOutStates(NavStatePool &inpool, NavStatePool const &outpool)
 {
@@ -363,37 +279,44 @@ void benchDifferentNavigators(SOA3D<Precision> const &points, SOA3D<Precision> c
   RUNBENCH(benchVectorNavigator<GeneratedNavigator>(points, dirs, pool, outpool));
   std::cerr << "##\n";
 #endif
-  RUNBENCH(benchVectorNavigator<NewSimpleNavigator<false>>(points, dirs, pool, outpool));
-  std::cerr << "##\n";
-  RUNBENCH(benchVectorNavigator<NewSimpleNavigator<true>>(points, dirs, pool, outpool));
-  std::cerr << "##\n";
+  if (gBenchVecInterface) {
+    RUNBENCH(benchVectorNavigator<NewSimpleNavigator<false>>(points, dirs, pool, outpool));
+    std::cerr << "##\n";
+    RUNBENCH(benchVectorNavigator<NewSimpleNavigator<true>>(points, dirs, pool, outpool));
+    std::cerr << "##\n";
+  }
   RUNBENCH(benchNavigator<SimpleABBoxNavigator<false>>(points, dirs, pool, outpool));
   std::cerr << "##\n";
   RUNBENCH(benchNavigator<SimpleABBoxNavigator<true>>(points, dirs, pool, outpool));
   std::cerr << "##\n";
-  RUNBENCH(benchVectorNavigator<SimpleABBoxNavigator<false>>(points, dirs, pool, outpool));
-  std::cerr << "##\n";
-  RUNBENCH(benchVectorNavigator<SimpleABBoxNavigator<true>>(points, dirs, pool, outpool));
-  std::cerr << "##\n";
+  if (gBenchVecInterface) {
+    RUNBENCH(benchVectorNavigator<SimpleABBoxNavigator<false>>(points, dirs, pool, outpool));
+    std::cerr << "##\n";
+    RUNBENCH(benchVectorNavigator<SimpleABBoxNavigator<true>>(points, dirs, pool, outpool));
+    std::cerr << "##\n";
+  }
   RUNBENCH(benchNavigator<HybridNavigator<false>>(points, dirs, pool, outpool));
   std::cerr << "##\n";
   RUNBENCH(benchNavigator<HybridNavigator<true>>(points, dirs, pool, outpool));
   std::cerr << "##\n";
-  RUNBENCH(benchVectorNavigator<HybridNavigator<false>>(points, dirs, pool, outpool));
-  std::cerr << "##\n";
-  RUNBENCH(benchVectorNavigator<HybridNavigator<true>>(points, dirs, pool, outpool));
-  std::cerr << "##\n";
+  if (gBenchVecInterface) {
+    RUNBENCH(benchVectorNavigator<HybridNavigator<false>>(points, dirs, pool, outpool));
+    std::cerr << "##\n";
+    RUNBENCH(benchVectorNavigator<HybridNavigator<true>>(points, dirs, pool, outpool));
+    std::cerr << "##\n";
+  }
   RUNBENCH(benchmarkOldNavigator(points, dirs, pool));
   std::cerr << "##\n";
 #ifdef VECGEOM_ROOT
   benchmarkROOTNavigator(points, dirs);
 #endif
-  analyseOutStates(pool, outpool);
+  if (gAnalyseOutStates) {
+    analyseOutStates(pool, outpool);
+  }
 }
 
 int main(int argc, char *argv[])
 {
-  NavStateUnitTest();
   // read in detector passed as argument
   if (argc > 1) {
     RootGeoManager::Instance().set_verbose(3);
@@ -409,10 +332,6 @@ int main(int argc, char *argv[])
   SOA3D<Precision> directions(npoints);
   NavStatePool statepool(npoints, GeoManager::Instance().getMaxDepth());
   NavStatePool statepoolout(npoints, GeoManager::Instance().getMaxDepth());
-
-  // setup test points
-  TGeoBBox const *rootbbox = dynamic_cast<TGeoBBox const *>(gGeoManager->GetTopVolume()->GetShape());
-  Vector3D<Precision> bbox(rootbbox->GetDX(), rootbbox->GetDY(), rootbbox->GetDZ());
 
   // play with some heuristics to init level locators
   for (auto &element : GeoManager::Instance().GetLogicalVolumesMap()) {
@@ -433,16 +352,30 @@ int main(int argc, char *argv[])
             << " daughters \n";
 
   bool usecached = false;
+
+  for (auto i = 3; i < argc; i++) {
+    if (!strcmp(argv[i], "--usecache")) usecached = true;
+    // benchmark vector interface?
+    if (!strcmp(argv[i], "--vecbench")) gBenchVecInterface = true;
+    // analyse state transitions
+    if (!strcmp(argv[i], "--statetrans")) gAnalyseOutStates = true;
+  }
+
   if (argc >= 4 && strcmp(argv[3], "--usecache") == 0) usecached = true;
 
+  std::stringstream pstream;
+  pstream << "points_" << argv[1] << "_" << argv[2] << ".bin";
+  std::stringstream dstream;
+  dstream << "directions_" << argv[1] << "_" << argv[2] << ".bin";
+  std::stringstream statestream;
+  statestream << "states_" << argv[1] << "_" << argv[2] << ".bin";
   if (!usecached) {
-    volumeUtilities::FillGlobalPointsAndDirectionsForLogicalVolume<SOA3D<Precision>>(
-        GeoManager::Instance().FindLogicalVolume(volname.c_str()), localpoints, points, directions, 0.4, npoints);
+    volumeUtilities::FillGlobalPointsAndDirectionsForLogicalVolume<SOA3D<Precision>>(lvol, localpoints, points,
+                                                                                     directions, 0.4, npoints);
     std::cerr << "\n points filled\n";
-    SimpleNavigator nav;
     for (unsigned int i = 0; i < points.size(); ++i) {
       GlobalLocator::LocateGlobalPoint(GeoManager::Instance().GetWorld(), points[i], *(statepool[i]), true);
-      if (statepool[i]->Top()->GetLogicalVolume() != GeoManager::Instance().FindLogicalVolume(volname.c_str())) {
+      if (statepool[i]->Top()->GetLogicalVolume() != lvol) {
         //
         std::cerr << "problem : point " << i << " probably in overlapping region \n";
         points.set(i, points[i - 1]);
@@ -451,14 +384,14 @@ int main(int argc, char *argv[])
     }
     std::cerr << "located ...\n";
 
-    points.ToFile("points.bin");
-    directions.ToFile("directions.bin");
-    statepool.ToFile("states.bin");
+    points.ToFile(pstream.str());
+    directions.ToFile(dstream.str());
+    statepool.ToFile(statestream.str());
   } else {
     std::cerr << " loading points from cache \n";
-    points.FromFile("points.bin");
-    directions.FromFile("directions.bin");
-    statepool.FromFile("states.bin");
+    points.FromFile(pstream.str());
+    directions.FromFile(dstream.str());
+    statepool.FromFile(statestream.str());
   }
   benchDifferentNavigators(points, directions, statepool, statepoolout);
   return 0;
