@@ -75,20 +75,26 @@ public:
     fin.read(reinterpret_cast<char *>(&dep), sizeof(dep));
   }
 
-  void FromFile(std::string filename)
+  // return number of elements read or -1 if failure
+  int FromFile(std::string filename)
   {
 #ifdef VECGEOM_USE_INDEXEDNAVSTATES
     // assumes existing NavStatePool object
     decltype(fCapacity) cap;
     decltype(fDepth) dep;
     std::ifstream fin(filename, std::ios::binary);
+    if (!fin) return -1;
     fin.read(reinterpret_cast<char *>(&cap), sizeof(cap));
+    if (!fin) return -1;
     fin.read(reinterpret_cast<char *>(&dep), sizeof(dep));
+    if (!fin) return -1;
     if (cap != fCapacity || dep != fDepth) std::cerr << " warning: reading from navstate with different size\n";
     fin.read(reinterpret_cast<char *>(fBuffer), fCapacity * NavigationState::SizeOfInstanceAlignAware(fDepth));
+    if (!fin) return -1;
 #else
     std::cerr << "serializing pointer based navstates not supported \n";
 #endif
+    return fCapacity;
   }
 
   VECGEOM_CUDA_HEADER_BOTH

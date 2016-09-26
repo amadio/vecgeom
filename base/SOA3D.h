@@ -155,7 +155,7 @@ public:
 #endif // VECGEOM_CUDA
 
   void ToFile(std::string /*filename*/) const;
-  void FromFile(std::string /*filename*/);
+  int FromFile(std::string /*filename*/);
 
 private:
   VECGEOM_CUDA_HEADER_BOTH
@@ -468,21 +468,32 @@ void SOA3D<T>::ToFile(std::string filename) const
   outfile.write(reinterpret_cast<char *>(fZ), fCapacity * sizeof(T));
 }
 
+// read SOA3D from file serialized with ToFile
+// returns number of elements read or -1 if failure
 template <typename T>
-void SOA3D<T>::FromFile(std::string filename)
+int SOA3D<T>::FromFile(std::string filename)
 {
   // should be called on an already allocated object
   decltype(fSize) s;
   decltype(fCapacity) cap;
   std::ifstream fin(filename, std::ios::binary);
   fin.read(reinterpret_cast<char *>(&s), sizeof(s));
+  if (!fin) return -1;
   fin.read(reinterpret_cast<char *>(&cap), sizeof(cap));
+  if (!fin) return -1;
   //  if (cap != fCapacity || s != fSize)
   //    std::cerr << " warning: reading from SOA3D with different size\n";
 
   fin.read(reinterpret_cast<char *>(fX), fCapacity * sizeof(T));
+  if (!fin) return -1;
+
   fin.read(reinterpret_cast<char *>(fY), fCapacity * sizeof(T));
+  if (!fin) return -1;
+
   fin.read(reinterpret_cast<char *>(fZ), fCapacity * sizeof(T));
+  if (!fin) return -1;
+
+  return fCapacity;
 }
 
 #ifdef VECGEOM_CUDA_INTERFACE

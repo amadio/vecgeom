@@ -58,6 +58,7 @@ using namespace vecgeom;
 
 bool gBenchVecInterface = false;
 bool gAnalyseOutStates  = false;
+bool gBenchWithSafety   = false;
 
 void analyseOutStates(NavStatePool &inpool, NavStatePool const &outpool)
 {
@@ -117,6 +118,7 @@ void analyseOutStates(NavStatePool &inpool, NavStatePool const &outpool)
 }
 
 #ifdef VECGEOM_ROOT
+template <bool WithSafety = false>
 __attribute__((noinline)) void benchmarkROOTNavigator(SOA3D<Precision> const &points, SOA3D<Precision> const &dirs)
 {
 
@@ -125,6 +127,10 @@ __attribute__((noinline)) void benchmarkROOTNavigator(SOA3D<Precision> const &po
   TGeoBranchArray *instates[nPoints];
   TGeoBranchArray *outstates[nPoints];
   Precision *steps = new Precision[points.size()];
+  Precision *safeties;
+  if (WithSafety) {
+    safeties = new Precision[points.size()];
+  }
   // we don't have the input state container in ROOT form
   // we generate them but do not take this into account for the timing measurement
   for (size_t i = 0; i < nPoints; ++i) {
@@ -148,10 +154,13 @@ __attribute__((noinline)) void benchmarkROOTNavigator(SOA3D<Precision> const &po
 
     rootnav->SetCurrentPoint(pos.x(), pos.y(), pos.z());
     rootnav->SetCurrentDirection(dir.x(), dir.y(), dir.z());
+    if (WithSafety) {
+      safeties[i] = rootnav->Safety(true);
+    }
     volatile TGeoNode *node = rootnav->FindNextBoundaryAndStep(kInfLength);
     (void)node;
     steps[i] = rootnav->GetStep();
-    // safe output states ( for fair comparison with VecGeom )
+    // save output states ( for fair comparison with VecGeom )
     outstates[i]->InitFromNavigator(rootnav);
   }
   timer.Stop();
@@ -161,10 +170,17 @@ __attribute__((noinline)) void benchmarkROOTNavigator(SOA3D<Precision> const &po
 #endif
   std::cerr << timer.Elapsed() << "\n";
   double accum(0.);
+  double saccum(0.);
   for (decltype(points.size()) i = 0; i < points.size(); ++i) {
     accum += steps[i];
+    if (WithSafety) {
+      saccum += safeties[i];
+    }
   }
   delete[] steps;
+  if (WithSafety) {
+    delete safeties;
+  }
 
   // cleanup states
   for (decltype(points.size()) i = 0; i < points.size(); ++i) {
@@ -173,36 +189,48 @@ __attribute__((noinline)) void benchmarkROOTNavigator(SOA3D<Precision> const &po
   }
 
   std::cerr << "accum  TGeo " << accum << " target checksum \n";
+  if (WithSafety) {
+    std::cerr << "safety accum  TGeo " << saccum << "\n";
+  }
 }
 #endif
 
-template <typename T>
+template <typename T, bool WithSafety = true>
 __attribute__((noinline)) void benchNavigator(SOA3D<Precision> const &points, SOA3D<Precision> const &dirs,
                                               NavStatePool const &inpool, NavStatePool &outpool)
 {
   Precision *steps = new Precision[points.size()];
-  // NavigationState *newstate = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
+  Precision *safeties;
+  if (WithSafety) safeties = new Precision[points.size()];
   Stopwatch timer;
   VNavigator *se           = T::Instance();
   size_t hittargetchecksum = 0L;
   timer.Start();
   for (decltype(points.size()) i = 0; i < points.size(); ++i) {
-    steps[i] = se->ComputeStepAndPropagatedState(points[i], dirs[i], vecgeom::kInfLength, *inpool[i], *outpool[i]);
-    //   std::cerr << "** " << newstate->Top()->GetLabel() << "\n";
-    // hittargetchecksum+=(size_t)outpool[i]->Top();
+    if (WithSafety) {
+      steps[i] = se->ComputeStepAndSafetyAndPropagatedState(points[i], dirs[i], vecgeom::kInfLength, *inpool[i],
+                                                            *outpool[i], true, safeties[i]);
+    } else {
+      steps[i] = se->ComputeStepAndPropagatedState(points[i], dirs[i], vecgeom::kInfLength, *inpool[i], *outpool[i]);
+    }
   }
   timer.Stop();
   std::cerr << timer.Elapsed() << "\n";
-  double accum(0.);
+  double accum(0.), saccum(0.);
   for (decltype(points.size()) i = 0; i < points.size(); ++i) {
     accum += steps[i];
+    if (WithSafety) {
+      saccum += safeties[i];
+    }
   }
   delete[] steps;
   std::cerr << "accum  " << T::GetClassName() << " " << accum << " target checksum " << hittargetchecksum << "\n";
-  // NavigationState::ReleaseInstance(newstate);
+  if (WithSafety) {
+    std::cerr << "saccum  " << T::GetClassName() << " " << saccum << "\n";
+  }
 }
 
-template <typename T>
+template <typename T, bool WithSafety = true>
 __attribute__((noinline)) void benchVectorNavigator(SOA3D<Precision> const &__restrict__ points,
                                                     SOA3D<Precision> const &__restrict__ dirs,
                                                     NavStatePool const &__restrict__ inpool,
@@ -212,6 +240,15 @@ __attribute__((noinline)) void benchVectorNavigator(SOA3D<Precision> const &__re
   for (decltype(points.size()) i = 0; i < points.size(); ++i)
     step_max[i]                  = vecgeom::kInfLength;
   Precision *steps               = (double *)_mm_malloc(sizeof(double) * points.size(), 32);
+  Precision *safeties;
+  bool *calcs;
+  if (WithSafety) {
+    safeties = (double *)_mm_malloc(sizeof(double) * points.size(), 32);
+    calcs    = (bool *)_mm_malloc(sizeof(bool) * points.size(), 32);
+    for (decltype(points.size()) i = 0; i < points.size(); ++i)
+      calcs[i]                     = true;
+  }
+
   Stopwatch timer;
   VNavigator *se = T::Instance();
   NavigationState const **inpoolarray;
@@ -219,18 +256,31 @@ __attribute__((noinline)) void benchVectorNavigator(SOA3D<Precision> const &__re
   inpool.ToPlainPointerArray(inpoolarray);
   outpool.ToPlainPointerArray(outpoolarray);
   timer.Start();
-  se->ComputeStepsAndPropagatedStates(points, dirs, step_max, inpoolarray, outpoolarray, steps);
+  if (WithSafety) {
+    se->ComputeStepsAndSafetiesAndPropagatedStates(points, dirs, step_max, inpoolarray, outpoolarray, steps, calcs,
+                                                   safeties);
+  } else {
+    se->ComputeStepsAndPropagatedStates(points, dirs, step_max, inpoolarray, outpoolarray, steps);
+  }
   timer.Stop();
   std::cerr << timer.Elapsed() << "\n";
   double accum(0.);
+  double saccum(0.);
   size_t hittargetchecksum = 0L;
   for (decltype(points.size()) i = 0; i < points.size(); ++i) {
     // std::cerr << "---- " << steps[i] << "\n";
     accum += steps[i];
+    if (WithSafety) {
+      saccum += safeties[i];
+    }
     hittargetchecksum += (size_t)outpool[i]->Top();
   }
   std::cerr << "VECTOR accum  " << T::GetClassName() << " " << accum << " target checksum " << hittargetchecksum
             << "\n";
+  if (WithSafety) {
+    std::cerr << "VECTOR saccum  " << T::GetClassName() << " " << saccum << "\n";
+    _mm_free(safeties);
+  }
   _mm_free(steps);
   _mm_free(step_max);
   delete[] inpoolarray;
@@ -261,54 +311,55 @@ void benchmarkOldNavigator(SOA3D<Precision> const &points, SOA3D<Precision> cons
   NavigationState::ReleaseInstance(newstate);
 }
 
+template <bool WithSafety = false>
 void benchDifferentNavigators(SOA3D<Precision> const &points, SOA3D<Precision> const &dirs, NavStatePool &pool,
                               NavStatePool &outpool)
 {
   std::cerr << "##\n";
   //    RUNBENCH( benchNavigator<ZDCEMAbsorberNavigator>(points, dirs, pool) );
   std::cerr << "##\n";
-  RUNBENCH(benchNavigator<NewSimpleNavigator<false>>(points, dirs, pool, outpool));
+  RUNBENCH((benchNavigator<NewSimpleNavigator<false>, WithSafety>(points, dirs, pool, outpool)));
   outpool.ToFile("simplenavoutpool.bin");
   std::cerr << "##\n";
-  RUNBENCH(benchNavigator<NewSimpleNavigator<true>>(points, dirs, pool, outpool));
+  RUNBENCH((benchNavigator<NewSimpleNavigator<true>, WithSafety>(points, dirs, pool, outpool)));
   std::cerr << "##\n";
 #ifdef BENCH_GENERATED_NAVIGATOR
-  RUNBENCH(benchNavigator<GeneratedNavigator>(points, dirs, pool, outpool));
+  RUNBENCH((benchNavigator<GeneratedNavigator, WithSafety>(points, dirs, pool, outpool)));
   outpool.ToFile("generatedoutpool.bin");
   std::cerr << "##\n";
-  RUNBENCH(benchVectorNavigator<GeneratedNavigator>(points, dirs, pool, outpool));
+  RUNBENCH((benchVectorNavigator<GeneratedNavigator, WithSafety>(points, dirs, pool, outpool)));
   std::cerr << "##\n";
 #endif
   if (gBenchVecInterface) {
-    RUNBENCH(benchVectorNavigator<NewSimpleNavigator<false>>(points, dirs, pool, outpool));
+    RUNBENCH((benchVectorNavigator<NewSimpleNavigator<false>, WithSafety>(points, dirs, pool, outpool)));
     std::cerr << "##\n";
-    RUNBENCH(benchVectorNavigator<NewSimpleNavigator<true>>(points, dirs, pool, outpool));
-    std::cerr << "##\n";
-  }
-  RUNBENCH(benchNavigator<SimpleABBoxNavigator<false>>(points, dirs, pool, outpool));
-  std::cerr << "##\n";
-  RUNBENCH(benchNavigator<SimpleABBoxNavigator<true>>(points, dirs, pool, outpool));
-  std::cerr << "##\n";
-  if (gBenchVecInterface) {
-    RUNBENCH(benchVectorNavigator<SimpleABBoxNavigator<false>>(points, dirs, pool, outpool));
-    std::cerr << "##\n";
-    RUNBENCH(benchVectorNavigator<SimpleABBoxNavigator<true>>(points, dirs, pool, outpool));
+    RUNBENCH((benchVectorNavigator<NewSimpleNavigator<true>, WithSafety>(points, dirs, pool, outpool)));
     std::cerr << "##\n";
   }
-  RUNBENCH(benchNavigator<HybridNavigator<false>>(points, dirs, pool, outpool));
+  RUNBENCH((benchNavigator<SimpleABBoxNavigator<false>, WithSafety>(points, dirs, pool, outpool)));
   std::cerr << "##\n";
-  RUNBENCH(benchNavigator<HybridNavigator<true>>(points, dirs, pool, outpool));
+  RUNBENCH((benchNavigator<SimpleABBoxNavigator<true>, WithSafety>(points, dirs, pool, outpool)));
   std::cerr << "##\n";
   if (gBenchVecInterface) {
-    RUNBENCH(benchVectorNavigator<HybridNavigator<false>>(points, dirs, pool, outpool));
+    RUNBENCH((benchVectorNavigator<SimpleABBoxNavigator<false>, WithSafety>(points, dirs, pool, outpool)));
     std::cerr << "##\n";
-    RUNBENCH(benchVectorNavigator<HybridNavigator<true>>(points, dirs, pool, outpool));
+    RUNBENCH((benchVectorNavigator<SimpleABBoxNavigator<true>, WithSafety>(points, dirs, pool, outpool)));
+    std::cerr << "##\n";
+  }
+  RUNBENCH((benchNavigator<HybridNavigator<false>, WithSafety>(points, dirs, pool, outpool)));
+  std::cerr << "##\n";
+  RUNBENCH((benchNavigator<HybridNavigator<true>, WithSafety>(points, dirs, pool, outpool)));
+  std::cerr << "##\n";
+  if (gBenchVecInterface) {
+    RUNBENCH((benchVectorNavigator<HybridNavigator<false>, WithSafety>(points, dirs, pool, outpool)));
+    std::cerr << "##\n";
+    RUNBENCH((benchVectorNavigator<HybridNavigator<true>, WithSafety>(points, dirs, pool, outpool)));
     std::cerr << "##\n";
   }
   RUNBENCH(benchmarkOldNavigator(points, dirs, pool));
   std::cerr << "##\n";
 #ifdef VECGEOM_ROOT
-  benchmarkROOTNavigator(points, dirs);
+  benchmarkROOTNavigator<WithSafety>(points, dirs);
 #endif
   if (gAnalyseOutStates) {
     analyseOutStates(pool, outpool);
@@ -359,6 +410,8 @@ int main(int argc, char *argv[])
     if (!strcmp(argv[i], "--vecbench")) gBenchVecInterface = true;
     // analyse state transitions
     if (!strcmp(argv[i], "--statetrans")) gAnalyseOutStates = true;
+    // whether to benchmark navigation with safeties
+    if (!strcmp(argv[i], "--withsafety")) gBenchWithSafety = true;
   }
 
   if (argc >= 4 && strcmp(argv[3], "--usecache") == 0) usecached = true;
@@ -369,6 +422,16 @@ int main(int argc, char *argv[])
   dstream << "directions_" << argv[1] << "_" << argv[2] << ".bin";
   std::stringstream statestream;
   statestream << "states_" << argv[1] << "_" << argv[2] << ".bin";
+  if (usecached) {
+    std::cerr << " loading points from cache \n";
+    bool fail = (npoints != points.FromFile(pstream.str()));
+    fail |= (npoints != directions.FromFile(dstream.str()));
+    fail |= (npoints != statepool.FromFile(statestream.str()));
+    if (fail) {
+      std::cerr << " loading points from cache failed ... continuing normally \n";
+      usecached = false;
+    }
+  }
   if (!usecached) {
     volumeUtilities::FillGlobalPointsAndDirectionsForLogicalVolume<SOA3D<Precision>>(lvol, localpoints, points,
                                                                                      directions, 0.4, npoints);
@@ -387,12 +450,11 @@ int main(int argc, char *argv[])
     points.ToFile(pstream.str());
     directions.ToFile(dstream.str());
     statepool.ToFile(statestream.str());
-  } else {
-    std::cerr << " loading points from cache \n";
-    points.FromFile(pstream.str());
-    directions.FromFile(dstream.str());
-    statepool.FromFile(statestream.str());
   }
-  benchDifferentNavigators(points, directions, statepool, statepoolout);
+  if (gBenchWithSafety) {
+    benchDifferentNavigators<true>(points, directions, statepool, statepoolout);
+  } else {
+    benchDifferentNavigators<false>(points, directions, statepool, statepoolout);
+  }
   return 0;
 }
