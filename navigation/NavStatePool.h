@@ -85,12 +85,12 @@ public:
     std::ifstream fin(filename, std::ios::binary);
     if (!fin) return -1;
     fin.read(reinterpret_cast<char *>(&cap), sizeof(cap));
-    if (!fin) return -1;
+    if (!fin) return -2;
     fin.read(reinterpret_cast<char *>(&dep), sizeof(dep));
-    if (!fin) return -1;
+    if (!fin) return -2;
     if (cap != fCapacity || dep != fDepth) std::cerr << " warning: reading from navstate with different size\n";
     fin.read(reinterpret_cast<char *>(fBuffer), fCapacity * NavigationState::SizeOfInstanceAlignAware(fDepth));
-    if (!fin) return -1;
+    if (!fin) return -3;
 #else
     std::cerr << "serializing pointer based navstates not supported \n";
 #endif
