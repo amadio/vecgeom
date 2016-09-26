@@ -480,18 +480,18 @@ int SOA3D<T>::FromFile(std::string filename)
   fin.read(reinterpret_cast<char *>(&s), sizeof(s));
   if (!fin) return -1;
   fin.read(reinterpret_cast<char *>(&cap), sizeof(cap));
-  if (!fin) return -1;
+  if (!fin) return -2;
   //  if (cap != fCapacity || s != fSize)
   //    std::cerr << " warning: reading from SOA3D with different size\n";
 
   fin.read(reinterpret_cast<char *>(fX), fCapacity * sizeof(T));
-  if (!fin) return -1;
+  if (!fin) return -3;
 
   fin.read(reinterpret_cast<char *>(fY), fCapacity * sizeof(T));
-  if (!fin) return -1;
+  if (!fin) return -4;
 
   fin.read(reinterpret_cast<char *>(fZ), fCapacity * sizeof(T));
-  if (!fin) return -1;
+  if (!fin) return -5;
 
   return fCapacity;
 }
