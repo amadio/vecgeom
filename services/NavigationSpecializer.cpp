@@ -646,8 +646,12 @@ void NavigationSpecializer::AnalyseLogicalVolume()
   const int npoints = 500000;
   NavStatePool inpool(npoints, GeoManager::Instance().getMaxDepth());
   NavStatePool outpool(npoints, GeoManager::Instance().getMaxDepth());
-  inpool.FromFile("states.bin");
-  outpool.FromFile("outpool.bin");
+  auto s1 = inpool.FromFile("states.bin");
+  auto s2 = outpool.FromFile("outpool.bin");
+  if( s1 != npoints || s2 != npoints ){
+    std::cerr << "Error reading state files ... aborting\n";
+    std::exit(1);
+  }
   AnalyseTargetPaths(inpool, outpool);
 }
 

@@ -239,7 +239,7 @@ std::string NavigationState::RelativePath(NavigationState const &other) const
 
     level = lastcommonlevel + 1;
     // emit horiz ( exists when there is a turning point )
-    auto delta = other.ValueAt(level) - this->ValueAt(level);
+    int delta = other.ValueAt(level) - this->ValueAt(level);
     if (delta != 0) str << "/horiz/" << delta;
 
     level++;
