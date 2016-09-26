@@ -1,4 +1,5 @@
 #include "base/Transformation3D.h"
+#include "base/Stopwatch.h"
 #include "management/GeoManager.h"
 #include "management/RootGeoManager.h"
 #include "volumes/LogicalVolume.h"
@@ -60,9 +61,20 @@ void RootGeoManager::LoadRootGeometry()
   GeoManager::Instance().Clear();
   TGeoNode const *const world_root = ::gGeoManager->GetTopNode();
   // Convert() will recursively convert daughters
+  Stopwatch timer;
+  timer.Start();
   fWorld = Convert(world_root);
+  timer.Stop();
+  if (fVerbose) {
+    std::cout << "*** Conversion of ROOT -> VecGeom finished (" << timer.Elapsed() << " s) ***\n";
+  }
   GeoManager::Instance().SetWorld(fWorld);
+  timer.Start();
   GeoManager::Instance().CloseGeometry();
+  timer.Stop();
+  if (fVerbose) {
+    std::cout << "*** Closing VecGeom geometry finished (" << timer.Elapsed() << " s) ***\n";
+  }
   // fix the world --> close geometry might have changed it ( "compactification" )
   // this is very ugly of course: some observer patter/ super smart pointer might be appropriate
   fWorld = GeoManager::Instance().GetWorld();

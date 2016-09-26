@@ -80,17 +80,19 @@ void GeoManager::CompactifyMemory()
 
   unsigned int pvolumecount = fPlacedVolumesMap.size();
 
-  std::vector<VPlacedVolume const *> pvolumes;
-  getAllPlacedVolumes(pvolumes);
-  // make it a set ( to get rid of potential duplicates )
-  std::set<VPlacedVolume const *> pvolumeset(pvolumes.begin(), pvolumes.end());
+  //  This piece of code was just to cross check something:
 
-  std::vector<LogicalVolume const *> lvolumes;
-  GetAllLogicalVolumes(lvolumes);
-  std::set<LogicalVolume const *> lvolumeset(lvolumes.begin(), lvolumes.end());
+  //  std::vector<VPlacedVolume const *> pvolumes;
+  //  getAllPlacedVolumes(pvolumes);
+  //  // make it a set ( to get rid of potential duplicates )
+  //  std::set<VPlacedVolume const *> pvolumeset(pvolumes.begin(), pvolumes.end());
 
-  std::cerr << pvolumecount << " vs " << pvolumeset.size() << "\n";
-  std::cerr << fLogicalVolumesMap.size() << " vs " << lvolumeset.size() << "\n";
+  //  std::vector<LogicalVolume const *> lvolumes;
+  //  GetAllLogicalVolumes(lvolumes);
+  //  std::set<LogicalVolume const *> lvolumeset(lvolumes.begin(), lvolumes.end());
+
+  //  std::cerr << pvolumecount << " vs " << pvolumeset.size() << "\n";
+  //  std::cerr << fLogicalVolumesMap.size() << " vs " << lvolumeset.size() << "\n";
 
   // conversion map to repair pointers from old to new
   std::map<VPlacedVolume const *, VPlacedVolume const *> conversionmap;
