@@ -100,6 +100,15 @@ public:
     return GetUnplacedVolume()->UnplacedShape_t::DistanceToOutVec(position, direction, step_max);
   }
 
+  // a helper tramponline to dispatch to DistanceToOutVec if type is not scalar
+  template <typename T>
+  VECGEOM_FORCE_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
+  T DistanceToOut(Vector3D<T> const &p, Vector3D<T> const &d, T const &step_max) const
+  {
+    return DistanceToOutVec(p, d, step_max);
+  }
+
 #ifdef VECGEOM_USOLIDS
   /*
    * WARNING: Trivial implementation for standard USolids interface
