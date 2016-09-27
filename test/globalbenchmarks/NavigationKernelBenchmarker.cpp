@@ -35,6 +35,7 @@
 #include <iostream>
 #include <set>
 #include <sstream>
+#include <dlfcn.h>
 
 #undef NDEBUG
 #include <cassert>
@@ -59,6 +60,35 @@ using namespace vecgeom;
 bool gBenchVecInterface = false;
 bool gAnalyseOutStates  = false;
 bool gBenchWithSafety   = false;
+bool gSpecializedLib    = false;
+std::string gSpecLibName;
+VNavigator const *gSpecializedNavigator;
+
+void InitSpecializedNavigators(std::string libname)
+{
+  void *handle;
+  handle = dlopen(libname.c_str(), RTLD_NOW);
+  if (!handle) {
+    std::cerr << "Error loading navigator shared lib: " << dlerror() << "\n";
+    std::cerr << "doing nothing ... \n";
+    return;
+  }
+
+  // the create detector "function type":
+  typedef void (*InitFunc_t)();
+
+  // find entry symbol correct symbol in lib
+  // TODO: get rid of hard coded name (which might not be portable)
+  InitFunc_t init = (InitFunc_t)dlsym(handle, "_Z25InitSpecializedNavigatorsv");
+
+  if (init != nullptr) {
+    // call the init function which is going to set specific navigators as
+    // compiled in by the user
+    init();
+  } else {
+    std::cerr << "Init specialized navigators from shared lib failed; symbol not found\n";
+  }
+}
 
 void analyseOutStates(NavStatePool &inpool, NavStatePool const &outpool)
 {
@@ -201,15 +231,15 @@ __attribute__((noinline)) void benchmarkROOTNavigator(SOA3D<Precision> const &po
 }
 #endif
 
-template <typename T, bool WithSafety = true>
-__attribute__((noinline)) void benchNavigator(SOA3D<Precision> const &points, SOA3D<Precision> const &dirs,
-                                              NavStatePool const &inpool, NavStatePool &outpool)
+template <bool WithSafety = true>
+__attribute__((noinline)) void benchNavigator(VNavigator const *se, SOA3D<Precision> const &points,
+                                              SOA3D<Precision> const &dirs, NavStatePool const &inpool,
+                                              NavStatePool &outpool)
 {
   Precision *steps = new Precision[points.size()];
   Precision *safeties;
   if (WithSafety) safeties = new Precision[points.size()];
   Stopwatch timer;
-  VNavigator *se           = T::Instance();
   size_t hittargetchecksum = 0L;
   timer.Start();
   for (decltype(points.size()) i = 0; i < points.size(); ++i) {
@@ -231,9 +261,9 @@ __attribute__((noinline)) void benchNavigator(SOA3D<Precision> const &points, SO
     if (outpool[i]->Top()) hittargetchecksum += (size_t)outpool[i]->Top()->id();
   }
   delete[] steps;
-  std::cerr << "accum  " << T::GetClassName() << " " << accum << " target checksum " << hittargetchecksum << "\n";
+  std::cerr << "accum  " << se->GetName() << " " << accum << " target checksum " << hittargetchecksum << "\n";
   if (WithSafety) {
-    std::cerr << "saccum  " << T::GetClassName() << " " << saccum << "\n";
+    std::cerr << "saccum  " << se->GetName() << " " << saccum << "\n";
   }
 }
 
@@ -323,14 +353,16 @@ void benchDifferentNavigators(SOA3D<Precision> const &points, SOA3D<Precision> c
                               NavStatePool &outpool, std::string outfilenamebase)
 {
   std::cerr << "##\n";
-  //    RUNBENCH( benchNavigator<ZDCEMAbsorberNavigator>(points, dirs, pool) );
+  if (gSpecializedLib) {
+    RUNBENCH((benchNavigator<WithSafety>(gSpecializedNavigator, points, dirs, pool, outpool)));
+  }
   std::cerr << "##\n";
-  RUNBENCH((benchNavigator<NewSimpleNavigator<false>, WithSafety>(points, dirs, pool, outpool)));
+  RUNBENCH((benchNavigator<WithSafety>(NewSimpleNavigator<false>::Instance(), points, dirs, pool, outpool)));
   std::stringstream str;
   str << outfilenamebase << "_simple.bin";
   outpool.ToFile(str.str());
   std::cerr << "##\n";
-  RUNBENCH((benchNavigator<NewSimpleNavigator<true>, WithSafety>(points, dirs, pool, outpool)));
+  RUNBENCH((benchNavigator<WithSafety>(NewSimpleNavigator<true>::Instance(), points, dirs, pool, outpool)));
   std::cerr << "##\n";
 #ifdef BENCH_GENERATED_NAVIGATOR
   RUNBENCH((benchNavigator<GeneratedNavigator, WithSafety>(points, dirs, pool, outpool)));
@@ -345,9 +377,9 @@ void benchDifferentNavigators(SOA3D<Precision> const &points, SOA3D<Precision> c
     RUNBENCH((benchVectorNavigator<NewSimpleNavigator<true>, WithSafety>(points, dirs, pool, outpool)));
     std::cerr << "##\n";
   }
-  RUNBENCH((benchNavigator<SimpleABBoxNavigator<false>, WithSafety>(points, dirs, pool, outpool)));
+  RUNBENCH((benchNavigator<WithSafety>(SimpleABBoxNavigator<false>::Instance(), points, dirs, pool, outpool)));
   std::cerr << "##\n";
-  RUNBENCH((benchNavigator<SimpleABBoxNavigator<true>, WithSafety>(points, dirs, pool, outpool)));
+  RUNBENCH((benchNavigator<WithSafety>(SimpleABBoxNavigator<false>::Instance(), points, dirs, pool, outpool)));
   std::cerr << "##\n";
   if (gBenchVecInterface) {
     RUNBENCH((benchVectorNavigator<SimpleABBoxNavigator<false>, WithSafety>(points, dirs, pool, outpool)));
@@ -355,9 +387,9 @@ void benchDifferentNavigators(SOA3D<Precision> const &points, SOA3D<Precision> c
     RUNBENCH((benchVectorNavigator<SimpleABBoxNavigator<true>, WithSafety>(points, dirs, pool, outpool)));
     std::cerr << "##\n";
   }
-  RUNBENCH((benchNavigator<HybridNavigator<false>, WithSafety>(points, dirs, pool, outpool)));
+  RUNBENCH((benchNavigator<WithSafety>(HybridNavigator<false>::Instance(), points, dirs, pool, outpool)));
   std::cerr << "##\n";
-  RUNBENCH((benchNavigator<HybridNavigator<true>, WithSafety>(points, dirs, pool, outpool)));
+  RUNBENCH((benchNavigator<WithSafety>(HybridNavigator<true>::Instance(), points, dirs, pool, outpool)));
   std::cerr << "##\n";
   if (gBenchVecInterface) {
     RUNBENCH((benchVectorNavigator<HybridNavigator<false>, WithSafety>(points, dirs, pool, outpool)));
@@ -421,7 +453,17 @@ int main(int argc, char *argv[])
         std::cout << "setting npoints to " << npoints << "\n";
       }
     }
+    if (!strcmp(argv[i], "--navlib")) {
+      if (i + 1 < argc) {
+        gSpecializedLib = true;
+        gSpecLibName    = argv[i + 1];
+        InitSpecializedNavigators(gSpecLibName);
+        gSpecializedNavigator = lvol->GetNavigator();
+        std::cerr << gSpecializedNavigator->GetName() << "\n";
+      }
+    }
   }
+
   // setup data structures
   SOA3D<Precision> points(npoints);
   SOA3D<Precision> localpoints(npoints);
