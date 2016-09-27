@@ -113,14 +113,6 @@ endif()
 
 
 if (GEANT4)
-#  if (BENCHMARK)
-#    set(Geant4 ON)
-#  else()
-#    message(WARNING
-#      "Enabling Geant4 without benchmarks has no effect and will be disabled.")
-#    set(GEANT4 OFF)
-#    set(Geant4 OFF)
-#  endif()
    set(Geant4 ON)
 endif()
 
@@ -516,7 +508,6 @@ if (ROOT)
 
   set(SRC_EXTERNAL ${SRC_EXTERNAL}
       source/PlacedRootVolume.cpp
-      source/RootGeoManager.cpp
       source/UnplacedRootVolume.cpp
       source/ShapeDebugger.cpp
       source/Visualizer.cpp)
@@ -585,7 +576,7 @@ endif()
 include_directories(BEFORE ${CMAKE_SOURCE_DIR})
 
 file(GLOB _createnuclei RELATIVE ${CMAKE_SOURCE_DIR} source/generated/CreateNuclei*.cpp)
-set(SRC_CPP_RELATIVE
+set(VECGEOM_SRCS
   #.. moved up for faster compilation
   ${_createnuclei}
   source/UnplacedPolycone.cpp
@@ -593,8 +584,6 @@ set(SRC_CPP_RELATIVE
   source/PlacedPolycone.cpp
   source/PlacedPolyhedron.cpp
 
-  source/RNG.cpp
-  source/AOS3D.cpp
   source/LogicalVolume.cpp
   source/PlacedCone.cpp
   source/PlacedAssembly.cpp
@@ -614,7 +603,6 @@ set(SRC_CPP_RELATIVE
   source/Quadrilaterals.cpp
   source/Rectangles.cpp
   source/Scale3D.cpp
-  source/SOA3D.cpp
   source/Transformation3D.cpp
   source/UnplacedAssembly.cpp
   source/UnplacedCone.cpp
@@ -630,7 +618,6 @@ set(SRC_CPP_RELATIVE
   source/UnplacedTrapezoid.cpp
   source/UnplacedGenTrap.cpp
   source/UnplacedVolume.cpp
-  source/Vector.cpp
   source/NavigationState.cpp
   source/SimpleNavigator.cpp
 
@@ -645,8 +632,6 @@ set(SRC_CPP_RELATIVE
   source/HybridManager2.cpp
   source/ABBoxNavigator.cpp
 
-  source/USolidsInterfaceHelper.cpp
-
   source/Material.cpp
   source/Medium.cpp
   source/Nucleus.cpp
@@ -654,29 +639,45 @@ set(SRC_CPP_RELATIVE
 
   services/NavigationSpecializer.cpp
 
-  source/G4GeoManager.cpp
-
   source/ResultComparator.cpp
  )
 
-# avoid "file has no symbols" warnings
-
-if (NOT USolids)
-  list(REMOVE_ITEM SRC_CPP_RELATIVE source/USolidsInterfaceHelper.cpp)
+if (CUDA)
+  set(VECGEOM_CUDA_SRCS
+    source/RNG.cpp
+    source/AOS3D.cpp
+    source/SOA3D.cpp
+    source/Vector.cpp
+  )
 endif()
 
-if(NOT CUDA)
-  list(REMOVE_ITEM SRC_CPP_RELATIVE source/RNG.cpp)
-  list(REMOVE_ITEM SRC_CPP_RELATIVE source/AOS3D.cpp)
-  list(REMOVE_ITEM SRC_CPP_RELATIVE source/SOA3D.cpp)
-  list(REMOVE_ITEM SRC_CPP_RELATIVE source/Vector.cpp)
+if (Geant4)
+  set(VECGEOM_GEANT4_SRCS
+    source/G4GeoManager.cpp
+  )
 endif()
 
-if(NOT USOLIDS)
-  list(REMOVE_ITEM SRC_CPP_RELATIVE source/USolidsInterfaceHelper.cpp)
+if (ROOT)
+  set(VECGEOM_ROOT_SRCS
+    source/RootGeoManager.cpp
+  )
 endif()
 
-foreach(SRC ${SRC_CPP_RELATIVE})
+if (USolids)
+  set(VECGEOM_USOLIDS_SRCS
+    source/USolidsInterfaceHelper.cpp
+  )
+endif()
+
+set(VECGEOM_SRCS
+  ${VECGEOM_SRCS}
+  ${VECGEOM_CUDA_SRCS}
+  ${VECGEOM_GEANT4_SRCS}
+  ${VECGEOM_ROOT_SRCS}
+  ${VECGEOM_USOLIDS_SRCS}
+)
+
+foreach(SRC ${VECGEOM_SRCS})
   set(SRC_CPP ${SRC_CPP} ${CMAKE_SOURCE_DIR}/${SRC})
 endforeach()
 
@@ -687,6 +688,8 @@ set(NOT_FOR_CUDA
    HybridManager2
    Medium
  # Material
+   G4GeoManager
+   RootGeoManager
    NavigationSpecializer
    ResultComparator
 )
