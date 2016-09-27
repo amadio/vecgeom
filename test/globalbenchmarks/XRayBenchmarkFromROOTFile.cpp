@@ -270,7 +270,6 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
       TGeoNavigator *nav = gGeoManager->GetCurrentNavigator();
       nav->SetCurrentPoint(p.x(), p.y(), p.z());
       nav->SetCurrentDirection(dir.x(), dir.y(), dir.z());
-      Vector3D<Precision> s(p);
 
       double distancetravelled  = 0.;
       int crossedvolumecount    = 0;

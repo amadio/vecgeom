@@ -129,11 +129,11 @@ void CompareDistanceToIn(VPlacedVolume const *vol, Precision vecgeomresult, Vect
 
 // other packages usually require transformed points
 #if defined(VECGEOM_ROOT) || defined(VECGEOM_GEANT4)
+  Precision rootresult{-1};
   Vector3D<Precision> tpoint     = vol->GetTransformation()->Transform(point);
   Vector3D<Precision> tdirection = vol->GetTransformation()->TransformDirection(direction);
 #endif
 
-  Precision rootresult{-1};
 #ifdef VECGEOM_ROOT
   auto rootshape = LookupROOT(vol);
   if (rootshape != nullptr) {
