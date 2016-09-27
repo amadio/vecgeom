@@ -643,15 +643,24 @@ void NavigationSpecializer::AnalyseLogicalVolume()
 
   // analyse path transitions
   // try to read from generated outpaths ( add error handling these files do not exist )
-  const int npoints = 500000;
-  NavStatePool inpool(npoints, GeoManager::Instance().getMaxDepth());
-  NavStatePool outpool(npoints, GeoManager::Instance().getMaxDepth());
-  auto s1 = inpool.FromFile("states.bin");
-  auto s2 = outpool.FromFile("outpool.bin");
-  if( s1 != npoints || s2 != npoints ){
+  int npointsin, ndepthin;
+  int npointsout, ndepthout;
+  NavStatePool::ReadDepthAndCapacityFromFile(fInStateFileName, npointsin, ndepthin);
+  NavStatePool::ReadDepthAndCapacityFromFile(fOutStateFileName, npointsout, ndepthout);
+
+  if (npointsin != npointsout || ndepthin != ndepthout || ndepthin != GeoManager::Instance().getMaxDepth()) {
     std::cerr << "Error reading state files ... aborting\n";
     std::exit(1);
   }
+  NavStatePool inpool(npointsin, GeoManager::Instance().getMaxDepth());
+  NavStatePool outpool(npointsout, GeoManager::Instance().getMaxDepth());
+  auto s1 = inpool.FromFile(fInStateFileName);
+  auto s2 = outpool.FromFile(fOutStateFileName);
+  if (s1 != npointsin || s2 != npointsin) {
+    std::cerr << "Error reading state files ... aborting\n";
+    std::exit(1);
+  }
+  std::cout << "Read " << npointsin << " states to analyse\n";
   AnalyseTargetPaths(inpool, outpool);
 }
 
@@ -1946,6 +1955,7 @@ void NavigationSpecializer::DumpLocalHitDetectionFunction(std::ostream &outstrea
 
   bool needdaughtertreatment = fLogicalVolume->GetDaughtersp()->size() > 0;
 
+  /*
   // function 1 opening
   outstream << "virtual Precision ComputeStepAndHittingBoundaryForLocalPoint(Vector3D<Precision> const & localpoint, "
                "Vector3D<Precision> const & localdir, Precision pstep, NavigationState const & in_state, "
@@ -1963,13 +1973,14 @@ void NavigationSpecializer::DumpLocalHitDetectionFunction(std::ostream &outstrea
 
   // function closing
   outstream << "}\n";
+  */
 
   // function 2
   // the bool return type indicates if out_state was already modified; this may happen in assemblies;
   // in this case we don't need to copy the in_state to the out state later on
   outstream << "virtual bool CheckDaughterIntersections(LogicalVolume const *lvol, Vector3D<Precision> const & "
                "localpoint, Vector3D<Precision> const & localdir,                                           "
-               "NavigationState const & in_state, NavigationState & out_state, Precision &step, VPlacedVolume const *& "
+               "NavigationState const * in_state, NavigationState * out_state, Precision &step, VPlacedVolume const *& "
                "hitcandidate) const override {\n";
   if (!needdaughtertreatment) {
     // empty function; do nothing

@@ -17,15 +17,22 @@ int main(int argc, char *argv[])
     std::cerr << "usage: " << argv[0] << " geometryfile.root volumename [--loopunroll]\n";
     return 1;
   }
-  vecgeom::NavigationSpecializer specializer;
+
+  vecgeom::RootGeoManager::Instance().LoadRootGeometry(argv[1]);
+
+  // we assume a naming convention as in NavigationKernelBenchmarker
+  std::stringstream instatestream;
+  instatestream << "states_" << argv[1] << "_" << argv[2] << ".bin";
+  std::stringstream outstatestream;
+  outstatestream << "outstates_" << argv[1] << "_" << argv[2] << "_simple.bin";
+
+  vecgeom::NavigationSpecializer specializer(instatestream.str(), outstatestream.str());
   for (auto i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--basenav") == 0) {
       std::cerr << "setting a basenav\n";
       specializer.SetBaseNavigator(argv[i + 1]);
     }
   }
-
-  vecgeom::RootGeoManager::Instance().LoadRootGeometry(argv[1]);
 
   for (auto i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--loopunroll") == 0) specializer.EnableLoopUnrolling();

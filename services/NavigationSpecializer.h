@@ -120,9 +120,10 @@ class NavigationSpecializer {
 
 public:
   // is this class a singleton ??
-  NavigationSpecializer()
-      : fLogicalVolumeName(), fClassName(), fLogicalVolume(nullptr), fGeometryDepth(0), fIndexMap(),
-        fStaticArraysInitStream(), fStaticArraysDefinitions(), fTransformationCode(), fVectorTransformVariables(),
+  NavigationSpecializer(std::string instatefile, std::string outstatefile)
+      : fLogicalVolumeName(), fClassName(), fInStateFileName(instatefile), fOutStateFileName(outstatefile),
+        fLogicalVolume(nullptr), fGeometryDepth(0), fIndexMap(), fStaticArraysInitStream(), fStaticArraysDefinitions(),
+        fTransformationCode(), fVectorTransformVariables(),
         fVectorTransformationCode(), // to collect the many-path/SIMD transformation statements
         fTransformVariables(),       // stores the list of relevant transformation variables
         fUnrollLoops(false),         // whether to manually unroll all loops
@@ -209,6 +210,8 @@ private:
   // private state
   std::string fLogicalVolumeName;
   std::string fClassName;
+  std::string fInStateFileName;
+  std::string fOutStateFileName;
   LogicalVolume const *fLogicalVolume;
   unsigned int fGeometryDepth; // the depth of instances of fLogicalVolumes in the geometry hierarchy ( must be unique )
   unsigned int fNumberOfPossiblePaths;

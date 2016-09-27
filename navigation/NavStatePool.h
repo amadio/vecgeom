@@ -68,7 +68,7 @@ public:
 #endif
   }
 
-  void ReadDepthAndCapacityFromFile(std::string filename, int &cap, int &dep)
+  static void ReadDepthAndCapacityFromFile(std::string filename, int &cap, int &dep)
   {
     std::ifstream fin(filename, std::ios::binary);
     fin.read(reinterpret_cast<char *>(&cap), sizeof(cap));

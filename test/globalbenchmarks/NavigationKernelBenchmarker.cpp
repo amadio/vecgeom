@@ -122,11 +122,11 @@ template <bool WithSafety = false>
 __attribute__((noinline)) void benchmarkROOTNavigator(SOA3D<Precision> const &points, SOA3D<Precision> const &dirs)
 {
 
-  TGeoNavigator *rootnav = ::gGeoManager->GetCurrentNavigator();
-  auto nPoints           = points.size();
-  TGeoBranchArray *instates[nPoints];
-  TGeoBranchArray *outstates[nPoints];
-  Precision *steps = new Precision[points.size()];
+  TGeoNavigator *rootnav      = ::gGeoManager->GetCurrentNavigator();
+  auto nPoints                = points.size();
+  TGeoBranchArray **instates  = new TGeoBranchArray *[nPoints];
+  TGeoBranchArray **outstates = new TGeoBranchArray *[nPoints];
+  Precision *steps            = new Precision[points.size()];
   Precision *safeties;
   if (WithSafety) {
     safeties = new Precision[points.size()];
@@ -187,6 +187,8 @@ __attribute__((noinline)) void benchmarkROOTNavigator(SOA3D<Precision> const &po
     delete instates[i];
     delete outstates[i];
   }
+  delete[] instates;
+  delete[] outstates;
 
   std::cerr << "accum  TGeo " << accum << " target checksum \n";
   if (WithSafety) {
@@ -313,13 +315,15 @@ void benchmarkOldNavigator(SOA3D<Precision> const &points, SOA3D<Precision> cons
 
 template <bool WithSafety = false>
 void benchDifferentNavigators(SOA3D<Precision> const &points, SOA3D<Precision> const &dirs, NavStatePool &pool,
-                              NavStatePool &outpool)
+                              NavStatePool &outpool, std::string outfilenamebase)
 {
   std::cerr << "##\n";
   //    RUNBENCH( benchNavigator<ZDCEMAbsorberNavigator>(points, dirs, pool) );
   std::cerr << "##\n";
   RUNBENCH((benchNavigator<NewSimpleNavigator<false>, WithSafety>(points, dirs, pool, outpool)));
-  outpool.ToFile("simplenavoutpool.bin");
+  std::stringstream str;
+  str << outfilenamebase << "_simple.bin";
+  outpool.ToFile(str.str());
   std::cerr << "##\n";
   RUNBENCH((benchNavigator<NewSimpleNavigator<true>, WithSafety>(points, dirs, pool, outpool)));
   std::cerr << "##\n";
@@ -376,13 +380,6 @@ int main(int argc, char *argv[])
     std::cerr << "please give a ROOT geometry file\n";
     return 1;
   }
-  // setup data structures
-  int npoints = 500000;
-  SOA3D<Precision> points(npoints);
-  SOA3D<Precision> localpoints(npoints);
-  SOA3D<Precision> directions(npoints);
-  NavStatePool statepool(npoints, GeoManager::Instance().getMaxDepth());
-  NavStatePool statepoolout(npoints, GeoManager::Instance().getMaxDepth());
 
   // play with some heuristics to init level locators
   for (auto &element : GeoManager::Instance().GetLogicalVolumesMap()) {
@@ -403,7 +400,7 @@ int main(int argc, char *argv[])
             << " daughters \n";
 
   bool usecached = false;
-
+  int npoints    = 500000;
   for (auto i = 3; i < argc; i++) {
     if (!strcmp(argv[i], "--usecache")) usecached = true;
     // benchmark vector interface?
@@ -412,9 +409,20 @@ int main(int argc, char *argv[])
     if (!strcmp(argv[i], "--statetrans")) gAnalyseOutStates = true;
     // whether to benchmark navigation with safeties
     if (!strcmp(argv[i], "--withsafety")) gBenchWithSafety = true;
+    // to set the number of tracks
+    if (!strcmp(argv[i], "--ntracks")) {
+      if (i + 1 < argc) {
+        npoints = atoi(argv[i + 1]);
+        std::cout << "setting npoints to " << npoints << "\n";
+      }
+    }
   }
-
-  if (argc >= 4 && strcmp(argv[3], "--usecache") == 0) usecached = true;
+  // setup data structures
+  SOA3D<Precision> points(npoints);
+  SOA3D<Precision> localpoints(npoints);
+  SOA3D<Precision> directions(npoints);
+  NavStatePool statepool(npoints, GeoManager::Instance().getMaxDepth());
+  NavStatePool statepoolout(npoints, GeoManager::Instance().getMaxDepth());
 
   std::stringstream pstream;
   pstream << "points_" << argv[1] << "_" << argv[2] << ".bin";
@@ -422,6 +430,8 @@ int main(int argc, char *argv[])
   dstream << "directions_" << argv[1] << "_" << argv[2] << ".bin";
   std::stringstream statestream;
   statestream << "states_" << argv[1] << "_" << argv[2] << ".bin";
+  std::stringstream outstatestream;
+  outstatestream << "outstates_" << argv[1] << "_" << argv[2];
   if (usecached) {
     std::cerr << " loading points from cache \n";
     bool fail = (npoints != points.FromFile(pstream.str()));
@@ -452,9 +462,9 @@ int main(int argc, char *argv[])
     statepool.ToFile(statestream.str());
   }
   if (gBenchWithSafety) {
-    benchDifferentNavigators<true>(points, directions, statepool, statepoolout);
+    benchDifferentNavigators<true>(points, directions, statepool, statepoolout, outstatestream.str());
   } else {
-    benchDifferentNavigators<false>(points, directions, statepool, statepoolout);
+    benchDifferentNavigators<false>(points, directions, statepool, statepoolout, outstatestream.str());
   }
   return 0;
 }
