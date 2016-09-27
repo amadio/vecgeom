@@ -62,6 +62,7 @@ struct TrapezoidStruct {
 #endif
 
   T sideAreas[6]; // including z-planes
+  Vector3D<T> normals[6];
 
 public:
   /// \brief Constructors

@@ -447,13 +447,19 @@ struct TrapezoidImplementation {
   static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                                        typename vecCore::Mask_v<Real_v> &valid)
   {
+    using Bool_v  = vecCore::Mask_v<Real_v>;
+    using Index_v = vecCore::Index<Real_v>;
+
     constexpr double delta = 1000. * kTolerance;
     Vector3D<Real_v> normal(0.);
-    valid = true;
+    valid                        = true;
+    Real_v safety                = InfinityLength<Real_v>();
+    vecCore::Index<Real_v> iface = -1;
 
 #ifndef VECGEOM_PLANESHELL_DISABLE
     // Get normal from side planes -- PlaneShell case
-    normal = unplaced.GetPlanes()->NormalKernel(point, valid);
+    // normal = unplaced.GetPlanes()->NormalKernel(point, valid);
+    iface = unplaced.GetPlanes()->ClosestFace(point, safety);
 
 #else
     // Loop over side planes
@@ -467,26 +473,39 @@ struct TrapezoidImplementation {
 
     // non-vectorizable part
     for (int i = 0; i < 4; ++i) {
-      vecCore::MaskedAssign(normal[0], Abs(dist[i]) <= delta, normal[0] + fPlanes[i].fA);
-      vecCore::MaskedAssign(normal[1], Abs(dist[i]) <= delta, normal[1] + fPlanes[i].fB);
-      vecCore::MaskedAssign(normal[2], Abs(dist[i]) <= delta, normal[2] + fPlanes[i].fC);
-      // valid becomes false if any point is outside by more than delta (dist<-delta)
+      // valid becomes false if point is outside any plane by more than delta (dist < -delta here means outside)
       valid = valid && dist[i] >= -delta;
-      // std::cout <<"  i="<< i <<", dist="<< dist[i] <<", normal=("<< normal[0] <<"; "<< normal[1] <<"; "<< normal[2]
-      //           <<"), valid="<< valid <<"\n";
+
+      const Bool_v closer = Abs(dist[i]) < safety;
+      vecCore::MaskedAssign(safety, closer, Abs(dist[i]));
+      vecCore::MaskedAssign(iface, closer, Index_v(i));
+      // vecCore::MaskedAssign(normal, Abs(dist[i]) <= delta, normal + unplaced.normals[i]); // averaging
     }
 #endif
-    if (vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(valid)) return normal;
-
-    // then check z-planes
-    vecCore::MaskedAssign(normal[2], Abs(point.z() - unplaced.fDz) <= delta, normal[2] + Real_v(1.0));
-    vecCore::MaskedAssign(normal[2], Abs(point.z() + unplaced.fDz) <= delta, normal[2] - Real_v(1.0));
-
     // check if normal is valid w.r.t. z-planes
     valid = valid && (unplaced.fDz - Abs(point[2])) >= -delta;
 
+    if (vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(valid))
+      return (normal + Vector3D<Real_v>(1.0)).Normalized();
+
+    // then check z-planes
+    // testing -fDZ (still keeping safety for next face)
+    Real_v distTmp = Abs(point.z() + unplaced.fDz);
+    Bool_v closer  = distTmp < safety;
+    vecCore::MaskedAssign(safety, closer, distTmp);
+    vecCore::MaskedAssign(iface, closer, Index_v(4));
+    // vecCore::MaskedAssign(normal[2], distTmp < delta, normal[2] - Real_v(1.0));  // averaging
+
+    // testing +fDZ (no need to update safety)
+    distTmp = Abs(point.z() - unplaced.fDz);
+    vecCore::MaskedAssign(iface, distTmp < safety, Index_v(5));
+    // vecCore::MaskedAssign(normal[2], distTmp < delta, normal[2] + Real_v(1.0));  // averaging
+
+    // vecCore::MaskedAssign(normal, normal.Mag2() < delta, unplaced.normals[iface]);
+    normal = unplaced.normals[iface];
+
     // returned vector must be normalized
-    if (normal.Mag2() > 0.) normal.Normalize();
+    // vecCore::MaskedAssign(normal, normal.Mag2() > 0., normal.Normalized());
 
     return normal;
   }

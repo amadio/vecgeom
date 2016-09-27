@@ -166,7 +166,7 @@ Precision UnplacedTrapezoid::SurfaceArea() const
 }
 
 VECGEOM_CUDA_HEADER_BOTH
-void UnplacedTrapezoid::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
+void UnplacedTrapezoid::Extent(Vec3D &aMin, Vec3D &aMax) const
 {
   aMin.z() = -fTrap.fDz;
   aMax.z() = fTrap.fDz;
@@ -435,8 +435,7 @@ bool UnplacedTrapezoid::MakeAPlane(const Vec3D &p1, const Vec3D &p2, const Vec3D
 #endif
 
   fTrap.sideAreas[iplane] = 0.5 * (Vcross.Mag() + v13.Cross(v14).Mag());
-
-  // } // end of else
+  fTrap.normals[iplane]   = (Vcross + v13.Cross(v14)).Normalized();
 
   // well, at least for now, always return TRUE even though points are not coplanar!!!
   good = true;
@@ -493,6 +492,8 @@ bool UnplacedTrapezoid::MakePlanes(TrapCorners const pt)
   // include areas for -Z,+Z surfaces
   fTrap.sideAreas[4] = 2 * (fTrap.fDx1 + fTrap.fDx2) * fTrap.fDy1;
   fTrap.sideAreas[5] = 2 * (fTrap.fDx3 + fTrap.fDx4) * fTrap.fDy2;
+  fTrap.normals[4]   = Vec3D(0, 0, -1);
+  fTrap.normals[5]   = Vec3D(0, 0, 1);
 
   return good;
 }

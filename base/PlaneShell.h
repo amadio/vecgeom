@@ -301,6 +301,30 @@ public:
     return;
   }
 
+  template <typename Real_v>
+  VECGEOM_FORCE_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
+  size_t ClosestFace(Vector3D<Real_v> const &point, Real_v &safety) const
+  {
+    // vectorizable loop
+    Real_v dist[N];
+    for (int i = 0; i < N; ++i) {
+      dist[i] = Abs(this->fA[i] * point.x() + this->fB[i] * point.y() + this->fC[i] * point.z() + this->fD[i]);
+    }
+
+    // non-vectorizable part
+    using Bool_v    = vecCore::Mask_v<Real_v>;
+    using Index_v   = vecCore::Index<Real_v>;
+    Index_v closest = static_cast<Index_v>(-1);
+    for (size_t i = 0; i < N; ++i) {
+      Bool_v closer = dist[i] < safety;
+      vecCore::MaskedAssign(safety, closer, dist[i]);
+      vecCore::MaskedAssign(closest, closer, i);
+    }
+
+    return closest;
+  }
+
   /// \return a *non-normalized* vector normal to the plane containing (or really close) to point.
   /// In most cases the resulting normal is either (0,0,0) when point is not close to any plane,
   /// or the normal of that single plane really close to the point (in this case, it *is* normalized).
@@ -325,11 +349,11 @@ public:
     // non-vectorizable part
     constexpr double delta = 1000. * kTolerance;
     for (int i = 0; i < N; ++i) {
-      vecCore::MaskedAssign(normal[0], Abs(dist[i]) <= delta, normal[0] + this->fA[i]);
-      vecCore::MaskedAssign(normal[1], Abs(dist[i]) <= delta, normal[1] + this->fB[i]);
-      vecCore::MaskedAssign(normal[2], Abs(dist[i]) <= delta, normal[2] + this->fC[i]);
-      // valid becomes false if any point is outside by more than delta (dist<-delta)
-      valid = valid && dist[i] > -delta;
+      vecCore::MaskedAssign(normal[0], dist[i] <= delta, normal[0] + this->fA[i]);
+      vecCore::MaskedAssign(normal[1], dist[i] <= delta, normal[1] + this->fB[i]);
+      vecCore::MaskedAssign(normal[2], dist[i] <= delta, normal[2] + this->fC[i]);
+      // valid becomes false if any point is away from surface by more than delta
+      valid = valid && dist[i] >= -delta;
     }
 
     // Note: this could be (rarely) a non-normalized normal vector (when point is close to 2 planes)
