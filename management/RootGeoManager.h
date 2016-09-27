@@ -72,6 +72,9 @@ public:
     return (fPlacedVolumeMap[p->id()]);
   }
 
+  // lookup the placed volume corresponding to a TGeoNode
+  VPlacedVolume const *Lookup(TGeoNode const *node) const;
+
   /// Get placed volume that corresponds to a TGeoNode
   VPlacedVolume const *GetPlacedVolume(TGeoNode const *n) const
   {

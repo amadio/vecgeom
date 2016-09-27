@@ -2,6 +2,7 @@
 #include "base/Stopwatch.h"
 #include "management/GeoManager.h"
 #include "management/RootGeoManager.h"
+#include "navigation/NavigationState.h"
 #include "volumes/LogicalVolume.h"
 #include "volumes/PlacedRootVolume.h"
 #include "volumes/PlacedVolume.h"
@@ -681,6 +682,13 @@ UnplacedGenTrap *RootGeoManager::ToUnplacedGenTrap(TGeoArb8 const *p)
     verticesy[ivert] = vertices[2 * ivert + 1];
   }
   return new UnplacedGenTrap(verticesx, verticesy, p->GetDz());
+}
+
+// lookup the placed volume corresponding to a TGeoNode
+VPlacedVolume const *RootGeoManager::Lookup(TGeoNode const *node) const
+{
+  if (node == nullptr) return nullptr;
+  return Index2PVolumeConverter<NavStateIndex_t>::ToPlacedVolume(fPlacedVolumeMap[node]);
 }
 
 } // End global namespace
