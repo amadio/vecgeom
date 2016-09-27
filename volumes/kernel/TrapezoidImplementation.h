@@ -48,10 +48,9 @@ struct TrapezoidImplementation {
   }
 
   template <typename Stream>
-  static void PrintType(Stream &st)
+  static void PrintType(Stream &st, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
   {
-    (void)st;
-    // st << "SpecializedTrapezoid<" << transCodeT << "," << rotCodeT << ">";
+    st << "SpecializedTrapezoid<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>

@@ -40,10 +40,9 @@ struct OrbImplementation {
   }
 
   template <typename Stream>
-  static void PrintType(Stream &st)
+  static void PrintType(Stream &st, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
   {
-    (void)st;
-    // st << "SpecializedOrb<" << transCodeT << "," << rotCodeT << ">";
+    st << "SpecializedOrb<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>

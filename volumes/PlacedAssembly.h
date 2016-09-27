@@ -46,7 +46,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual void PrintType() const override { printf("PlacedAssembly"); }
 
-  virtual void PrintType(std::ostream &) const override { throw std::runtime_error("unimplemented function called"); }
+  virtual void PrintType(std::ostream &s) const override { s << "PlacedAssembly"; }
 
   virtual void PrintImplementationType(std::ostream &) const override
   {

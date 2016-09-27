@@ -36,10 +36,10 @@ struct ScaledShapeImplementation {
   }
 
   template <typename Stream>
-  static void PrintType(Stream & /*s*/)
+  static void PrintType(Stream &s, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
   {
-    // s << "SpecializedScaledShape<" << transCodeT << "," << rotCodeT << ","
-    //  << ">";
+    s << "SpecializedScaledShape<" << transCodeT << "," << rotCodeT << ","
+      << ">";
   }
 
   template <typename Stream>

@@ -108,7 +108,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual void PrintType() const override { Specialization::PrintType(); }
 
-  virtual void PrintType(std::ostream &os) const override { Specialization::PrintType(os); }
+  virtual void PrintType(std::ostream &os) const override { Specialization::PrintType(os, transC, rotC); }
   virtual void PrintImplementationType(std::ostream &os) const override { Specialization::PrintImplementationType(os); }
   virtual void PrintUnplacedType(std::ostream &os) const override { Specialization::PrintUnplacedType(os); }
 

@@ -29,10 +29,9 @@ struct SExtruImplementation {
   }
 
   template <typename Stream>
-  static void PrintType(Stream &st)
+  static void PrintType(Stream &st, int transC = translation::kGeneric, int rotC = rotation::kGeneric)
   {
-    (void)st;
-    //...
+    st << "SpecializedSExtru<" << transC << "," << rotC << "\n";
   }
 
   template <typename Stream>

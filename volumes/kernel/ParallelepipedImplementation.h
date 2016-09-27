@@ -38,9 +38,9 @@ struct ParallelepipedImplementation {
   }
 
   template <typename Stream>
-  static void PrintType(Stream & /*s*/)
+  static void PrintType(Stream &s, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
   {
-    // s << "SpecializedParallelepiped<" << transCodeT << "," << rotCodeT << ">";
+    s << "SpecializedParallelepiped<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>

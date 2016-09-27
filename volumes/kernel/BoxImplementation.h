@@ -40,10 +40,9 @@ struct BoxImplementation {
   }
 
   template <typename Stream>
-  static void PrintType(Stream &st)
+  static void PrintType(Stream &st, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
   {
-    (void)st;
-    // st << "SpecializedBox<" << transCodeT << "," << rotCodeT << ">";
+    st << "SpecializedBox<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>

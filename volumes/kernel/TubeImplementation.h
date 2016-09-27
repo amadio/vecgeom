@@ -298,11 +298,9 @@ struct TubeImplementation {
   }
 
   template <typename Stream>
-  static void PrintType(Stream &s)
+  static void PrintType(Stream &s, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
   {
-    (void)s;
-    // have to implement this somewhere else
-    //  s << "SpecializedTube<" << transCodeT << "," << rotCodeT << ",TubeTypes::" << tubeTypeT::toString() << ">";
+    s << "SpecializedTube<" << transCodeT << "," << rotCodeT << ",TubeTypes::" << tubeTypeT::toString() << ">";
   }
 
   template <typename Stream>
