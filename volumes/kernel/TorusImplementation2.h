@@ -520,6 +520,9 @@ struct TorusImplementation2 {
       }
     }
 
+    // Propagate the point to the bounding tube, as this will reduce the
+    // coefficients of the quartic and improve precision of the solutions
+    localPoint += tubeDistance * localDirection;
     Bool_t hasphi = (torus.dphi() < vecgeom::kTwoPi);
     if (hasphi) {
       Float_t d1, d2;
@@ -535,7 +538,8 @@ struct TorusImplementation2 {
         if (daxis >= torus.rmin2() && daxis < torus.rmax2()) {
           distance = d1;
           // check if tube intersections is due to phi in which case we are done
-          if (Abs(distance - tubeDistance) < kTolerance) {
+          if (Abs(distance) < kTolerance) {
+            distance += tubeDistance;
             return;
           }
         }
@@ -546,7 +550,8 @@ struct TorusImplementation2 {
         if (daxis >= torus.rmin2() && daxis < torus.rmax2()) {
           distance = Min(d2, distance);
           // check if tube intersections is due to phi in which case we are done
-          if (Abs(distance - tubeDistance) < kTolerance) {
+          if (Abs(distance) < kTolerance) {
+            distance += tubeDistance;
             return;
           }
         }
@@ -562,6 +567,7 @@ struct TorusImplementation2 {
       dd             = Min(dd, ddrmin);
     }
     distance = Min(distance, dd);
+    distance += tubeDistance;
     return;
   }
 
