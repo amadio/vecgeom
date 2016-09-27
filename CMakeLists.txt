@@ -158,6 +158,7 @@ elseif (_backend_up MATCHES UMESIMD)
   if(UMESIMD_FOUND)
     set(UMESIMD ON CACHE BOOL "" FORCE) # enable UMESIMD in VecCore
     include_directories(SYSTEM ${UMESIMD_INCLUDE_DIR})
+    set(VECGEOM_EXTERNAL_INCLUDES "${VECGEOM_EXTERNAL_INCLUDES};${UMESIMD_INCLUDE_DIR}")
   endif()
   message(STATUS "Configuring with \"UME::SIMD\" vector backend.")
 elseif (_backend_up MATCHES DEFAULT)
@@ -206,6 +207,7 @@ if (GNU)
   endif()
   if (Vc)
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -fabi-version=6")
+    set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -fabi-version=6")
   endif()
 elseif(Intel)
   # CMake fails to add -std option for icc, so add it manually
@@ -431,6 +433,7 @@ if (Vc)
     set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${Vc_LIBRARIES})
   endif()
   include_directories(AFTER SYSTEM ${Vc_INCLUDE_DIR})
+  set(VECGEOM_EXTERNAL_INCLUDES "${VECGEOM_EXTERNAL_INCLUDES};${Vc_INCLUDE_DIR}")
 
   if (Vc)
     set(SRC_EXTERNAL ${SRC_EXTERNAL} source/backend/vc/Backend.cpp)
@@ -505,6 +508,7 @@ if (ROOT)
   include_directories(AFTER SYSTEM ${ROOT_INCLUDE_DIRS})
   link_directories(${ROOT_LIBRARY_DIR})
   set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${ROOT_LIBRARIES})
+  set(VECGEOM_EXTERNAL_INCLUDES "${VECGEOM_EXTERNAL_INCLUDES};${ROOT_INCLUDE_DIRS}")
 
   set(SRC_EXTERNAL ${SRC_EXTERNAL}
       source/PlacedRootVolume.cpp
@@ -543,6 +547,7 @@ if (Geant4)
   # need to define G4MULTITHREADED for Geant4-MT
   add_definitions(${Geant4_DEFINITIONS})
   include_directories(AFTER SYSTEM ${Geant4_INCLUDE_DIRS})
+  set(VECGEOM_EXTERNAL_INCLUDES "${VECGEOM_EXTERNAL_INCLUDES};${Geant4_INCLUDE_DIRS}")
   set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL}
       ${Geant4_LIBRARIES})
   message(STATUS "Geant4 found in: ${Geant4_INCLUDE_DIRS}")

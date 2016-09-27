@@ -8,6 +8,7 @@
 #   VECGEOM_DEFINITIONS - some core flags used to build the vecgeom library and which need to be reused 
 #                               in projects using VecGeom 
 #   VECGEOM_INSTALL_DIR     - the top level installation path
+#   VECGEOM_EXTERNAL_INCLUDES - external include paths used during vecgeom compilation (for automatic "discovery" of dependencies)
 
 if(NOT VecGeom_FIND_QUIETLY)
   message(STATUS
@@ -25,6 +26,9 @@ set(VECGEOM_CUDA_STATIC_LIBRARY "@CONF_CUDA_STATIC_LIBRARY@")
 
 set(VECGEOM_DEFINITIONS @VECGEOM_DEFINITIONS@)
 add_definitions(${VECGEOM_DEFINITIONS})
+
+# add the include directories used to compile VecGeom
+set(VECGEOM_EXTERNAL_INCLUDES "@VECGEOM_EXTERNAL_INCLUDES@")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} @VECGEOM_COMPILATION_FLAGS@")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
