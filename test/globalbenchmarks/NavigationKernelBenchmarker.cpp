@@ -171,11 +171,15 @@ __attribute__((noinline)) void benchmarkROOTNavigator(SOA3D<Precision> const &po
   std::cerr << timer.Elapsed() << "\n";
   double accum(0.);
   double saccum(0.);
+  size_t hittargetchecksum = 0L;
   for (decltype(points.size()) i = 0; i < points.size(); ++i) {
     accum += steps[i];
     if (WithSafety) {
       saccum += safeties[i];
     }
+    // target checksum via the table held from RootGeoManager
+    hittargetchecksum +=
+        (size_t)RootGeoManager::Instance().Lookup(outstates[i]->GetNode(outstates[i]->GetLevel()))->id();
   }
   delete[] steps;
   if (WithSafety) {
@@ -190,7 +194,7 @@ __attribute__((noinline)) void benchmarkROOTNavigator(SOA3D<Precision> const &po
   delete[] instates;
   delete[] outstates;
 
-  std::cerr << "accum  TGeo " << accum << " target checksum \n";
+  std::cerr << "accum  TGeo " << accum << " target checksum " << hittargetchecksum << "\n";
   if (WithSafety) {
     std::cerr << "safety accum  TGeo " << saccum << "\n";
   }
@@ -224,6 +228,7 @@ __attribute__((noinline)) void benchNavigator(SOA3D<Precision> const &points, SO
     if (WithSafety) {
       saccum += safeties[i];
     }
+    if (outpool[i]->Top()) hittargetchecksum += (size_t)outpool[i]->Top()->id();
   }
   delete[] steps;
   std::cerr << "accum  " << T::GetClassName() << " " << accum << " target checksum " << hittargetchecksum << "\n";
@@ -275,7 +280,7 @@ __attribute__((noinline)) void benchVectorNavigator(SOA3D<Precision> const &__re
     if (WithSafety) {
       saccum += safeties[i];
     }
-    hittargetchecksum += (size_t)outpool[i]->Top();
+    if (outpool[i]->Top()) hittargetchecksum += (size_t)outpool[i]->Top()->id();
   }
   std::cerr << "VECTOR accum  " << T::GetClassName() << " " << accum << " target checksum " << hittargetchecksum
             << "\n";
@@ -300,7 +305,7 @@ void benchmarkOldNavigator(SOA3D<Precision> const &points, SOA3D<Precision> cons
   for (decltype(points.size()) i = 0; i < points.size(); ++i) {
     nav.FindNextBoundaryAndStep(points[i], dirs[i], *inpool[i], *newstate, vecgeom::kInfLength, steps[i]);
     //    std::cerr << "** " << newstate->Top()->GetLabel() << "\n";
-    hittargetchecksum += (size_t)newstate->Top();
+    if (newstate->Top()) hittargetchecksum += (size_t)newstate->Top()->id();
   }
   timer.Stop();
   std::cerr << timer.Elapsed() << "\n";
