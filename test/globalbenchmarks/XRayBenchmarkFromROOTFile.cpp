@@ -466,8 +466,6 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
       else if (axis == 3)
         p.Set(axis1_count, axis2_count, origin[2] - bbox[2]);
 
-      Vector3D<Precision> s(p);
-
       curnavstate->Clear();
       GlobalLocator::LocateGlobalPoint(GeoManager::Instance().GetWorld(), p, *curnavstate, true);
 
