@@ -32,6 +32,13 @@
 #include "TGeoBBox.h"
 #endif
 
+#ifdef VECGEOM_GEANT4
+#include "G4Navigator.hh"
+#include "G4VPhysicalVolume.hh"
+#include "G4ThreeVector.hh"
+#include "management/G4GeoManager.h"
+#endif
+
 #include <iostream>
 #include <set>
 #include <sstream>
@@ -229,7 +236,80 @@ __attribute__((noinline)) void benchmarkROOTNavigator(SOA3D<Precision> const &po
     std::cerr << "safety accum  TGeo " << saccum << "\n";
   }
 }
+
+#ifdef VECGEOM_GEANT4
+template <bool WithSafety = false>
+__attribute__((noinline)) void benchmarkG4Navigator(SOA3D<Precision> const &points, SOA3D<Precision> const &dirs)
+{
+  G4VPhysicalVolume *world(vecgeom::G4GeoManager::Instance().GetG4GeometryFromROOT());
+  if (world != nullptr) G4GeoManager::Instance().LoadG4Geometry(world);
+
+  // Note: Vector3D's are expressed in cm, while G4ThreeVectors are expressed in mm
+  const Precision cm = 10.; // cm --> mm conversion
+  G4Navigator &g4nav = *(G4GeoManager::Instance().GetNavigator());
+  // G4TouchableHistory **g4history = new G4TouchableHistory *[nPoints];
+
+  Precision *steps = new Precision[points.size()];
+
+  // get a time estimate to just to locate points
+  // (The reason is that the G4Navigator has a huge internal state and it is not foreseen to do
+  //  multi-track processing with a basked of G4TouchableHistories as states)
+  Stopwatch timer;
+  timer.Start();
+  for (decltype(points.size()) i = 0; i < points.size(); ++i) {
+    G4ThreeVector g4pos(points[i].x() * cm, points[i].y() * cm, points[i].z() * cm);
+    G4ThreeVector g4dir(dirs[i].x(), dirs[i].y(), dirs[i].z());
+    // false --> locate from top
+    g4nav.LocateGlobalPointAndSetup(g4pos, &g4dir, false);
+  }
+  Precision timeForLocate = (Precision)timer.Stop();
+
+#ifdef CALLGRIND_ENABLED
+  CALLGRIND_START_INSTRUMENTATION;
 #endif
+  timer.Start();
+  for (decltype(points.size()) i = 0; i < points.size(); ++i) {
+    G4ThreeVector g4pos(points[i].x() * cm, points[i].y() * cm, points[i].z() * cm);
+    G4ThreeVector g4dir(dirs[i].x(), dirs[i].y(), dirs[i].z());
+    G4double maxStep = kInfLength;
+
+    // false --> locate from top
+    G4VPhysicalVolume const *vol = g4nav.LocateGlobalPointAndSetup(g4pos, &g4dir, false);
+    (void)vol;
+    G4double safety = 0.0;
+    steps[i]        = g4nav.ComputeStep(g4pos, g4dir, maxStep, safety);
+
+    G4ThreeVector nextPos = g4pos + (steps[i] + 1.0e-6) * g4dir;
+    // TODO: save touchable history array - returnable?  symmetrize with ROOT/VECGEOM benchmark
+    g4nav.SetGeometricallyLimitedStep();
+
+    volatile G4VPhysicalVolume const *nextvol = g4nav.LocateGlobalPointAndSetup(nextPos);
+    (void)nextvol;
+  }
+  timer.Stop();
+  std::cerr << (Precision)timer.Elapsed() - timeForLocate << "\n";
+#ifdef CALLGRIND_ENABLED
+  CALLGRIND_STOP_INSTRUMENTATION;
+  CALLGRIND_DUMP_STATS;
+#endif
+  // cleanup
+  // delete[] g4history;
+  //_mm_free(maxSteps);
+  double accum{0.};
+  size_t hittargetchecksum{0L};
+  for (decltype(points.size()) i = 0; i < points.size(); ++i) {
+    accum += steps[i];
+    if (WithSafety) {
+      // saccum += safeties[i];
+    }
+    // target checksum via the table held from RootGeoManager
+    // hittargetchecksum +=
+    //    (size_t)RootGeoManager::Instance().Lookup(outstates[i]->GetNode(outstates[i]->GetLevel()))->id();
+  }
+  std::cerr << "accum  G4 " << accum / cm << " target checksum " << hittargetchecksum << "\n";
+}
+#endif // end if G4
+#endif // end if ROOT
 
 template <bool WithSafety = true>
 __attribute__((noinline)) void benchNavigator(VNavigator const *se, SOA3D<Precision> const &points,
@@ -401,6 +481,9 @@ void benchDifferentNavigators(SOA3D<Precision> const &points, SOA3D<Precision> c
   std::cerr << "##\n";
 #ifdef VECGEOM_ROOT
   benchmarkROOTNavigator<WithSafety>(points, dirs);
+#ifdef VECGEOM_GEANT4
+  benchmarkG4Navigator<WithSafety>(points, dirs);
+#endif // VECGEOM_GEANT4
 #endif
   if (gAnalyseOutStates) {
     analyseOutStates(pool, outpool);
