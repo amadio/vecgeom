@@ -363,14 +363,9 @@ __attribute__((noinline)) void GeoManager::getAllPathForLogicalVolume(LogicalVol
   NavigationState::ReleaseInstance(state);
 }
 
-// init symbols for getAllPathsForLogicalVolume
-int initSymbols()
-{
-  std::list<NavigationState *> l;
-  std::vector<NavigationState *> v;
-  GeoManager::Instance().getAllPathForLogicalVolume(nullptr, l);
-  GeoManager::Instance().getAllPathForLogicalVolume(nullptr, v);
-  return l.size() + v.size();
-}
+// explicitely init some symbols
+template void GeoManager::getAllPathForLogicalVolume(LogicalVolume const *lvol, std::list<NavigationState *> &c) const;
+template void GeoManager::getAllPathForLogicalVolume(LogicalVolume const *lvol,
+                                                     std::vector<NavigationState *> &c) const;
 }
 } // End global namespace
