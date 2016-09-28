@@ -197,8 +197,8 @@ void UnplacedPolyhedron::Initialize(Precision phiStart, Precision phiDelta, cons
         fZSegments[iPlane].outer.FlipSign(iSide);
       }
     }
-    for (int iSide = 0; iSide < fZSegments[iPlane].inner.size(); ++iSide) {
-      if (fZSegments[iPlane].hasInnerRadius) {
+    if (fZSegments[iPlane].hasInnerRadius) {
+      for (int iSide = 0; iSide < fZSegments[iPlane].inner.size(); ++iSide) {
         fZSegments[iPlane].inner.Set(
             iSide, innerVertices[VertixIndex(iPlane, iSide)], innerVertices[VertixIndex(iPlane, iSide + 1)],
             innerVertices[VertixIndex(iPlane + 1, iSide + 1)], innerVertices[VertixIndex(iPlane + 1, iSide)]);
