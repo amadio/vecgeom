@@ -67,7 +67,7 @@ void GenerateCMakeFile(std::ostream &ss)
   ss << "include_directories(${VECGEOM_EXTERNAL_INCLUDES})\n";
   ss << "message(STATUS \"COMPILING WITH ${CMAKE_CXX_FLAGS}\")\n";
 
-  ss << "add_library(GeneratedNavigators SHARED navigatorlib.cpp)\n";
+  ss << "add_library(GeneratedNavigators MODULE navigatorlib.cpp)\n";
   ss << "target_link_libraries(GeneratedNavigators ${VECGEOM_LIBRARIES})\n";
 }
 

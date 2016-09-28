@@ -1669,7 +1669,7 @@ void NavigationSpecializer::DumpStaticPrepareOutstateFunction(std::ostream &outs
 
   outstream
       << "// this is the special part ( fast navigation state copying since we know the depth at compile time )\n";
-  outstream << "in_state.CopyToFixedSize<NavigationState::SizeOf(" << fGeometryDepth - 1 << ")>(&out_state);\n";
+  outstream << "in_state.CopyToFixedSize<NavigationState::SizeOf(" << fGeometryDepth << ")>(&out_state);\n";
 
   outstream << "// this is just the first try -- we should factor out the following part which is probably not \n";
   outstream << "// special code\n";
