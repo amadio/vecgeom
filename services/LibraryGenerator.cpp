@@ -50,6 +50,10 @@ void GenerateNavigatorInstantiationFunction(std::ostream &ss, std::vector<std::s
 void GenerateCMakeFile(std::ostream &ss)
 {
   ss << "cmake_minimum_required(VERSION 3.1.0)\n";
+  ss << "find_package(VecGeom REQUIRED)\n";
+  ss << "#it is allowed to set the compiler before project and language specification\n";
+  ss << "set(CMAKE_C_COMPILER ${VECGEOM_C_COMPILER})\n";
+  ss << "set(CMAKE_CXX_COMPILER ${VECGEOM_CXX_COMPILER})\n";
   ss << "project(navigatorlib)\n";
 
   ss << "enable_language(CXX)\n";
@@ -61,7 +65,6 @@ void GenerateCMakeFile(std::ostream &ss)
   ss << "  set(CMAKE_BUILD_TYPE \"Release\")\n";
   ss << "endif()\n";
 
-  ss << "find_package(VecGeom REQUIRED)\n";
   ss << "include_directories(${VECGEOM_INCLUDE_DIR})\n";
   ss << "# include stuff that was included by VecGeom during build\n";
   ss << "include_directories(${VECGEOM_EXTERNAL_INCLUDES})\n";
