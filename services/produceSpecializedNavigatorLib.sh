@@ -3,6 +3,7 @@
 # author: Sandro Wenzel; 26.2.2015
 
 # the script assumes an environment variable VECGEOM_INSTALL_DIR 
+# note that this script currently only serves demonstrating purposes; any sort of error handling is missing
 
 geomfile=$1;
 shift;

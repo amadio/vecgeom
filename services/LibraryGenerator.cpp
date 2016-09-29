@@ -67,8 +67,12 @@ void GenerateCMakeFile(std::ostream &ss)
   ss << "include_directories(${VECGEOM_EXTERNAL_INCLUDES})\n";
   ss << "message(STATUS \"COMPILING WITH ${CMAKE_CXX_FLAGS}\")\n";
 
+  ss << "if(APPLE)\n";
+  ss << "  # postpone final symbol resolution to plugin load-time (allow unresolved symbols now)\n";
+  ss << "  # a measure that needs to be done on APPLE only\n";
+  ss << "  set (CMAKE_MODULE_LINKER_FLAGS \"-Wl,-flat_namespace -Wl,-undefined,warning\")\n";
+  ss << "endif()\n";
   ss << "add_library(GeneratedNavigators MODULE navigatorlib.cpp)\n";
-  ss << "target_link_libraries(GeneratedNavigators ${VECGEOM_LIBRARIES})\n";
 }
 
 int main(int argc, char *argv[])
