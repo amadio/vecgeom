@@ -8,6 +8,7 @@
 #include "volumes/UnplacedPolycone.h"
 #include "volumes/UnplacedCone.h"
 #include "volumes/SpecializedPolycone.h"
+#include "volumes/kernel/ConeImplementation.h"
 #include "management/VolumeFactory.h"
 #ifndef VECGEOM_NVCC
 #include "base/RNG.h"
@@ -606,7 +607,7 @@ Vector3D<Precision> UnplacedPolycone::GetPointOnSurface() const
 bool UnplacedPolycone::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &norm) const
 {
   bool valid = true;
-  int index  = GetSectionIndex(point.z());
+  int index  = GetSectionIndex(point.z() - kTolerance);
 
   if (index < 0) {
     valid                 = false;
@@ -631,10 +632,23 @@ bool UnplacedPolycone::Normal(Vector3D<Precision> const &point, Vector3D<Precisi
 
     // if both valid && valid2 true, norm and norm2 should be added...
     if (valid && valid2) {
-      norm = norm + norm2;
-      // but we might be in the interior of the polycone, and norm2=(0,0,-1) and norm1=(0,0,1) --> norm=(0,0,0)
-      // quick fix:  set a normal pointing to the input point, but setting its z=0 (radial)
-      if (norm.Mag2() < kTolerance) norm = Vector3D<Precision>(point.x(), point.y(), 0);
+
+      // discover exiting direction by moving point a bit (it would be good to have track direction here)
+      // if(sec.fSolid->Contains(point + kTolerance*10*norm - Vector3D<Precision>(0, 0, sec.fShift))){
+
+      //}
+      bool c2;
+      using CI = ConeImplementation<translation::kIdentity, rotation::kIdentity, ConeTypes::UniversalCone>;
+      CI::UnplacedContains<kScalar>(*sec2.fSolid,
+                                    point + kTolerance * 10 * norm2 - Vector3D<Precision>(0, 0, sec2.fShift), c2);
+      if (c2) {
+        norm = norm2;
+      } else {
+        norm = norm + norm2;
+        // but we might be in the interior of the polycone, and norm2=(0,0,-1) and norm1=(0,0,1) --> norm=(0,0,0)
+        // quick fix:  set a normal pointing to the input point, but setting its z=0 (radial)
+        if (norm.Mag2() < kTolerance) norm = Vector3D<Precision>(point.x(), point.y(), 0);
+      }
     }
   }
   if (valid) norm /= norm.Mag();

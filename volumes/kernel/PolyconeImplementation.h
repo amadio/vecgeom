@@ -141,7 +141,9 @@ struct PolyconeImplementation {
     } else {
       // test if point is inside this section (note that surface may be very tricky!)
       // find section
-      isec = unplaced.GetSectionIndex(localPoint.z());
+      isec = unplaced.GetSectionIndex(localPoint.z() - kTolerance);
+      // some extra protection - isec must not be negative below
+      if (isec < 0) isec = 0;
     }
 
 // is it inside of isec?
