@@ -24,7 +24,7 @@ cp ../NavigationSpecializerTest .
 cp ../${geomfile} .
 
 ./NavigationKernelBenchmarker ${geomfile} $i
-./NavigationSpecializerTest ${geomfile} $i
+./NavigationSpecializerTest ${geomfile} $i --loopunroll
 cp ${i}Navigator.h ../${assemblydir}
 cd ..
 

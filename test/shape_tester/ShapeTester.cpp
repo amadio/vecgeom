@@ -2194,7 +2194,7 @@ void ShapeTester::ReportError(int *nError, UVector3 &p, UVector3 &v, double dist
   std::cout << " Distance = " << distance;
   std::cout << std::endl;
 
-  std::cout << std::setprecision(15) << ++(*nError) << " : [point] : [direction] ::  " << p << " : " << v << std::endl;
+  std::cout << std::setprecision(25) << ++(*nError) << " : [point] : [direction] ::  " << p << " : " << v << std::endl;
 #ifdef VECGEOM_ROOT
   if (fDebug) {
     fVisualizer.AddVolume(*dynamic_cast<vecgeom::VPlacedVolume *>(fVolumeUSolids));
