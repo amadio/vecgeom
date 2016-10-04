@@ -71,6 +71,28 @@ bool gSpecializedLib    = false;
 std::string gSpecLibName;
 VNavigator const *gSpecializedNavigator;
 
+void InitNavigators()
+{
+  for (auto &lvol : GeoManager::Instance().GetLogicalVolumesMap()) {
+    if (lvol.second->GetDaughtersp()->size() < 4) {
+      lvol.second->SetNavigator(NewSimpleNavigator<>::Instance());
+    }
+    if (lvol.second->GetDaughtersp()->size() >= 5) {
+      lvol.second->SetNavigator(SimpleABBoxNavigator<>::Instance());
+    }
+    if (lvol.second->GetDaughtersp()->size() >= 10) {
+      lvol.second->SetNavigator(HybridNavigator<>::Instance());
+      HybridManager2::Instance().InitStructure((lvol.second));
+    }
+
+    if (lvol.second->ContainsAssembly()) {
+      lvol.second->SetLevelLocator(SimpleAssemblyAwareABBoxLevelLocator::GetInstance());
+    } else {
+      lvol.second->SetLevelLocator(SimpleABBoxLevelLocator::GetInstance());
+    }
+  }
+}
+
 void InitSpecializedNavigators(std::string libname)
 {
   void *handle;
@@ -510,6 +532,8 @@ int main(int argc, char *argv[])
       // lvol->SetLevelLocator(HybridLevelLocator::GetInstance());
     }
   }
+  InitNavigators();
+
 
   std::string volname(argv[2]);
   auto lvol = GeoManager::Instance().FindLogicalVolume(volname.c_str());
