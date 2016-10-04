@@ -148,6 +148,10 @@ int main(int argc, char *argv[])
     std::cout << "VecGeom DO " << dist << "\n";
     std::cout << "VecGeom INSIDE(p=p+do*dir) " << VecGeomInsideToString(vecgeomplaced->Inside(point + dir * dist))
               << "\n";
+    Vector3D<Precision> norm;
+    auto valid = vecgeomplaced->Normal(point + dist * dir, norm);
+    std::cout << "VecGeom Normal(p+do*dir)" << norm << " valid : " << valid << "\n";
+
     vecgeomplaced->DistanceToOut(pointcontainer, dircontainer, steps, output);
     std::cout << "VecGeom DO-V " << output[0] << "\n";
 
