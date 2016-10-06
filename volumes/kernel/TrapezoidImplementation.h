@@ -451,9 +451,9 @@ struct TrapezoidImplementation {
 
     constexpr double delta = 1000. * kTolerance;
     Vector3D<Real_v> normal(0.);
-    valid                        = true;
-    Real_v safety                = InfinityLength<Real_v>();
-    vecCore::Index<Real_v> iface = -1;
+    valid         = true;
+    Real_v safety = InfinityLength<Real_v>();
+    vecCore::Index<Real_v> iface;
 
 #ifndef VECGEOM_PLANESHELL_DISABLE
     // Get normal from side planes -- PlaneShell case
