@@ -60,69 +60,45 @@ struct BoxImplementation {
     // st << "UnplacedBox";
   }
 
+  template <typename Real_v>
+  VECGEOM_FORCE_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
+  static Vector3D<Real_v> HalfSize(const UnplacedStruct_t &box)
+  {
+    return Vector3D<Real_v>(box.fDimensions[0], box.fDimensions[1], box.fDimensions[2]);
+  }
+
   template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void Contains(UnplacedStruct_t const &box, Vector3D<Real_v> const &point, Bool_v &inside)
   {
-    Bool_v unused, outside;
-    GenericKernelForContainsAndInside<Real_v, Bool_v, false>(box.fDimensions, point, unused, outside);
-    inside = !outside;
+    inside = (point.Abs() - HalfSize<Real_v>(box)).Max() < Real_v(0.0);
   }
 
-  // BIG QUESTION: DO WE WANT TO GIVE ALL 3 TEMPLATE PARAMETERS
-  // -- OR -- DO WE WANT TO DEDUCE Bool_v, Index_t from Real_v???
-  template <typename Real_v, typename Inside_t>
+  template <typename Real_v, typename Inside_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void Inside(UnplacedStruct_t const &box, Vector3D<Real_v> const &point, Inside_t &inside)
+  static void Inside(UnplacedStruct_t const &box, Vector3D<Real_v> const &point, Inside_v &inside)
   {
-    using Bool_v       = vecCore::Mask_v<Real_v>;
-    using InsideBool_v = vecCore::Mask_v<Inside_t>;
-    Bool_v completelyinside, completelyoutside;
-    GenericKernelForContainsAndInside<Real_v, Bool_v, true>(box.fDimensions, point, completelyinside,
-                                                            completelyoutside);
-    inside = Inside_t(EInside::kSurface);
-    vecCore::MaskedAssign(inside, (InsideBool_v)completelyoutside, Inside_t(EInside::kOutside));
-    vecCore::MaskedAssign(inside, (InsideBool_v)completelyinside, Inside_t(EInside::kInside));
+    Real_v dist = (point.Abs() - HalfSize<Real_v>(box)).Max();
+
+    inside = vecCore::Blend(dist < Real_v(0.0), Inside_v(kInside), Inside_v(kOutside));
+    vecCore::MaskedAssign(inside, Abs(dist) < Real_v(kTolerance), Inside_v(kSurface));
   }
 
-  template <typename Real_v, typename Bool_v, bool ForInside>
+  template <typename Real_v, bool ForInside>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void GenericKernelForContainsAndInside(Vector3D<Precision> const &dimensions,
-                                                Vector3D<Real_v> const &localPoint, Bool_v &completelyinside,
-                                                Bool_v &completelyoutside)
+  static void GenericKernelForContainsAndInside(Vector3D<Real_v> const &halfsize, Vector3D<Real_v> const &point,
+                                                vecCore::Mask<Real_v> &completelyinside,
+                                                vecCore::Mask<Real_v> &completelyoutside)
   {
-    // here we are explicitely unrolling the loop since  a for statement will likely be a penality
-    // check if second call to Abs is compiled away
-    // and it can anyway not be vectorized
-    /* x */
-    completelyoutside = Abs(localPoint[0]) > MakePlusTolerant<ForInside>(dimensions[0]);
-    if (ForInside) {
-      completelyinside = Abs(localPoint[0]) < MakeMinusTolerant<ForInside>(dimensions[0]);
-    }
-    if (/*vecCore::EarlyReturnAllowed()*/ true) {
-      if (vecCore::MaskFull(completelyoutside)) {
-        return;
-      }
-    }
-    /* y */
-    completelyoutside |= Abs(localPoint[1]) > MakePlusTolerant<ForInside>(dimensions[1]);
-    if (ForInside) {
-      completelyinside &= Abs(localPoint[1]) < MakeMinusTolerant<ForInside>(dimensions[1]);
-    }
-    if (/*vecCore::EarlyReturnAllowed()*/ true) {
-      if (vecCore::MaskFull(completelyoutside)) {
-        return;
-      }
-    }
-    /* z */
-    completelyoutside |= Abs(localPoint[2]) > MakePlusTolerant<ForInside>(dimensions[2]);
-    if (ForInside) {
-      completelyinside &= Abs(localPoint[2]) < MakeMinusTolerant<ForInside>(dimensions[2]);
-    }
-    return;
+    Real_v dist = (point.Abs() - halfsize).Max();
+
+    if (ForInside) completelyinside = dist < Real_v(-kHalfTolerance);
+
+    completelyoutside = dist > Real_v(kHalfTolerance);
   }
 
   template <typename Real_v>
@@ -131,56 +107,18 @@ struct BoxImplementation {
   static void DistanceToIn(UnplacedStruct_t const &box, Vector3D<Real_v> const &point,
                            Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
   {
+    const Vector3D<Real_v> invDir(Real_v(1.0) / NonZero(direction[0]), Real_v(1.0) / NonZero(direction[1]),
+                                  Real_v(1.0) / NonZero(direction[2]));
 
-    Vector3D<Real_v> safety;
-    using Bool_v = vecCore::Mask_v<Real_v>;
-    Bool_v done(false);
-    distance = InfinityLength<Real_v>();
+    const Real_v distIn = Max((-Sign(invDir[0]) * box.fDimensions[0] - point[0]) * invDir[0],
+                              (-Sign(invDir[1]) * box.fDimensions[1] - point[1]) * invDir[1],
+                              (-Sign(invDir[2]) * box.fDimensions[2] - point[2]) * invDir[2]);
 
-    safety[0] = Abs(point[0]) - box.fDimensions[0];
-    safety[1] = Abs(point[1]) - box.fDimensions[1];
-    safety[2] = Abs(point[2]) - box.fDimensions[2];
+    const Real_v distOut = Min((Sign(invDir[0]) * box.fDimensions[0] - point[0]) * invDir[0],
+                               (Sign(invDir[1]) * box.fDimensions[1] - point[1]) * invDir[1],
+                               (Sign(invDir[2]) * box.fDimensions[2] - point[2]) * invDir[2]);
 
-    done |= (safety[0] >= stepMax || safety[1] >= stepMax || safety[2] >= stepMax);
-    if (vecCore::MaskFull(done)) return;
-
-    Bool_v inside(false);
-    inside = safety[0] < -kHalfTolerance && safety[1] < -kHalfTolerance && safety[2] < -kHalfTolerance;
-    vecCore::MaskedAssign(distance, !done && inside, Real_v(-1.));
-
-    done |= inside;
-    if (vecCore::MaskFull(done)) return;
-
-    Real_v next, coord1, coord2;
-    Bool_v hit;
-
-    // x
-    next   = safety[0] / NonZeroAbs(direction[0]);
-    coord1 = point[1] + next * direction[1];
-    coord2 = point[2] + next * direction[2];
-    hit    = safety[0] >= -kHalfTolerance && point[0] * direction[0] < 0. && Abs(coord1) <= box.fDimensions[1] &&
-          Abs(coord2) <= box.fDimensions[2];
-    vecCore::MaskedAssign(distance, !done && hit, next);
-    done |= hit;
-    if (vecCore::MaskFull(done)) return;
-
-    // y
-    next   = safety[1] / NonZeroAbs(direction[1]);
-    coord1 = point[0] + next * direction[0];
-    coord2 = point[2] + next * direction[2];
-    hit    = safety[1] >= -kHalfTolerance && point[1] * direction[1] < 0 && Abs(coord1) <= box.fDimensions[0] &&
-          Abs(coord2) <= box.fDimensions[2];
-    vecCore::MaskedAssign(distance, !done && hit, next);
-    done |= hit;
-    if (vecCore::MaskFull(done)) return;
-
-    // z
-    next   = safety[2] / NonZeroAbs(direction[2]);
-    coord1 = point[0] + next * direction[0];
-    coord2 = point[1] + next * direction[1];
-    hit    = safety[2] >= -kHalfTolerance && point[2] * direction[2] < 0 && Abs(coord1) <= box.fDimensions[0] &&
-          Abs(coord2) <= box.fDimensions[1];
-    vecCore::MaskedAssign(distance, !done && hit, next);
+    distance = vecCore::Blend(distIn >= distOut || distOut <= Real_v(kTolerance), InfinityLength<Real_v>(), distIn);
   }
 
   template <typename Real_v>
@@ -189,30 +127,18 @@ struct BoxImplementation {
   static void DistanceToOut(UnplacedStruct_t const &box, Vector3D<Real_v> const &point,
                             Vector3D<Real_v> const &direction, Real_v const & /* stepMax */, Real_v &distance)
   {
-    distance = Real_v(-1.);
+    const Vector3D<Real_v> invDir(Real_v(1.0) / NonZero(direction[0]), Real_v(1.0) / NonZero(direction[1]),
+                                  Real_v(1.0) / NonZero(direction[2]));
 
-    using Bool_v = vecCore::Mask_v<Real_v>;
-    // treatment to find out if on wrong side
-    Bool_v done = Abs(point[0]) > box.fDimensions[0] + kHalfTolerance;
-    done |= Abs(point[1]) > box.fDimensions[1] + kHalfTolerance;
-    done |= Abs(point[2]) > box.fDimensions[2] + kHalfTolerance;
-    if (vecCore::MaskFull(done)) return;
+    const Real_v distIn = Max((-Sign(invDir[0]) * box.fDimensions[0] - point[0]) * invDir[0],
+                              (-Sign(invDir[1]) * box.fDimensions[1] - point[1]) * invDir[1],
+                              (-Sign(invDir[2]) * box.fDimensions[2] - point[2]) * invDir[2]);
 
-    const Vector3D<Real_v> moddirection(NonZero(direction[0]), NonZero(direction[1]), NonZero(direction[2]));
-    const Vector3D<Real_v> inverseDirection(1. / moddirection[0], 1. / moddirection[1], 1. / moddirection[2]);
-    Vector3D<Real_v> distances((box.fDimensions[0] - point[0]) * inverseDirection[0],
-                               (box.fDimensions[1] - point[1]) * inverseDirection[1],
-                               (box.fDimensions[2] - point[2]) * inverseDirection[2]);
+    const Real_v distOut = Min((Sign(invDir[0]) * box.fDimensions[0] - point[0]) * invDir[0],
+                               (Sign(invDir[1]) * box.fDimensions[1] - point[1]) * invDir[1],
+                               (Sign(invDir[2]) * box.fDimensions[2] - point[2]) * invDir[2]);
 
-    using vecCore::MaskedAssign;
-    MaskedAssign(distances[0], moddirection[0] < 0., (-box.fDimensions[0] - point[0]) * inverseDirection[0]);
-    MaskedAssign(distances[1], moddirection[1] < 0., (-box.fDimensions[1] - point[1]) * inverseDirection[1]);
-    MaskedAssign(distances[2], moddirection[2] < 0., (-box.fDimensions[2] - point[2]) * inverseDirection[2]);
-
-    MaskedAssign(distance, !done, distances[0]);
-    distance = Min(distances[1], distance);
-    distance = Min(distances[2], distance);
-    return;
+    distance = vecCore::Blend(distIn > distOut || distIn > Real_v(kTolerance), Real_v(-1.0), distOut);
   }
 
   template <typename Real_v>
@@ -220,11 +146,7 @@ struct BoxImplementation {
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToIn(UnplacedStruct_t const &box, Vector3D<Real_v> const &point, Real_v &safety)
   {
-    safety               = -box.fDimensions[0] + Abs(point[0]);
-    const Real_v safetyY = -box.fDimensions[1] + Abs(point[1]);
-    const Real_v safetyZ = -box.fDimensions[2] + Abs(point[2]);
-    safety               = Max(safetyY, safety);
-    safety               = Max(safetyZ, safety);
+    safety = (point.Abs() - HalfSize<Real_v>(box)).Max();
   }
 
   template <typename Real_v>
@@ -232,11 +154,7 @@ struct BoxImplementation {
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToOut(UnplacedStruct_t const &box, Vector3D<Real_v> const &point, Real_v &safety)
   {
-    safety               = box.fDimensions[0] - Abs(point[0]);
-    const Real_v safetyY = box.fDimensions[1] - Abs(point[1]);
-    const Real_v safetyZ = box.fDimensions[2] - Abs(point[2]);
-    safety               = Min(safetyY, safety);
-    safety               = Min(safetyZ, safety);
+    safety = (HalfSize<Real_v>(box) - point.Abs()).Min();
   }
 
   template <typename Real_v>
