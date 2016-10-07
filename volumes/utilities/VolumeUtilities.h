@@ -173,16 +173,22 @@ void FillBiasedDirections(VPlacedVolume const &volume, TrackContainer const &poi
     int track         = static_cast<int>(static_cast<Precision>(size) * RNG::Instance().uniform());
     int internaltries = 0;
     while (hit[track]) {
-      dirs.set(track, SampleDirection());
+      if (internaltries % 2) {
+        dirs.set(track, SampleDirection());
+      } else {
+        // try inversing direction
+        dirs.set(track, -dirs[track]);
+      }
       internaltries++;
       if (!IsHittingAnyDaughter(points[track], dirs[track], *volume.GetLogicalVolume())) {
         n_hits--;
         hit[track] = false;
         //	  tries = 0;
       }
-      if (internaltries % 1000000 == 0) {
-        printf("%s line %i: Warning: %i tries to reduce bias... current bias %d volume=%s. Please check.\n", __FILE__,
-               __LINE__, internaltries, n_hits, volume.GetLabel().c_str());
+      if (internaltries % 100 == 0) {
+        // printf("%s line %i: Warning: %i tries to reduce bias... current bias %d volume=%s. Please check.\n",
+        // __FILE__,
+        //       __LINE__, internaltries, n_hits, volume.GetLabel().c_str());
         // try another track
         break;
       }
