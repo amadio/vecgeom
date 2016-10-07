@@ -534,7 +534,6 @@ int main(int argc, char *argv[])
   }
   InitNavigators();
 
-
   std::string volname(argv[2]);
   auto lvol = GeoManager::Instance().FindLogicalVolume(volname.c_str());
   HybridManager2::Instance().InitStructure(lvol);
