@@ -185,6 +185,27 @@ bool TestBox()
   assert(ApproxEqual(Dist, std::sqrt(800.)));
   if (!testvecgeom) assert(convex);
 
+  // testing a few special directions ( with special zero values )
+  // important since we sometimes operate with sign bits etc.
+  Dist = b1.DistanceToOut(pzero, Vec_t(-0, -0, -1), norm, convex);
+  assert(ApproxEqual(Dist, 40.));
+  Dist = b1.DistanceToOut(pzero, Vec_t(0, -0, 1), norm, convex);
+  assert(ApproxEqual(Dist, 40.));
+  Dist = b1.DistanceToOut(pzero, Vec_t(0, 0, -1), norm, convex);
+  assert(ApproxEqual(Dist, 40.));
+  Dist = b1.DistanceToOut(pzero, Vec_t(0, 1, 0), norm, convex);
+  assert(ApproxEqual(Dist, 30.));
+  Dist = b1.DistanceToOut(pzero, Vec_t(0, 1, -0), norm, convex);
+  assert(ApproxEqual(Dist, 30.));
+  Dist = b1.DistanceToOut(pzero, Vec_t(-0, 1, 0), norm, convex);
+  assert(ApproxEqual(Dist, 30.));
+  Dist = b1.DistanceToOut(pzero, Vec_t(1, -0, 0), norm, convex);
+  assert(ApproxEqual(Dist, 20.));
+  Dist = b1.DistanceToOut(pzero, Vec_t(-1, 0, -0), norm, convex);
+  assert(ApproxEqual(Dist, 20.));
+  Dist = b1.DistanceToOut(pzero, Vec_t(-1, -0, -0), norm, convex);
+  assert(ApproxEqual(Dist, 20.));
+
   Dist = b1.DistanceToOut(ponxside, vx, norm, convex);
   assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vx));
   if (!testvecgeom) assert(convex);
@@ -293,6 +314,28 @@ bool TestBox()
   assert(ApproxEqual(Dist, 60));
   Dist = b1.DistanceToIn(pbigmz, vz);
   assert(ApproxEqual(Dist, 60));
+
+  // testing a few special directions ( with special zero values )
+  // important since we sometimes operate with sign bits etc.
+  Dist = b1.DistanceToIn(Vec_t(0, 0, -50), Vec_t(-0, -0, 1));
+  assert(ApproxEqual(Dist, 10.));
+  Dist = b1.DistanceToIn(Vec_t(0, 0, -50), Vec_t(0, -0, 1));
+  assert(ApproxEqual(Dist, 10.));
+  Dist = b1.DistanceToIn(Vec_t(0, 0, 50), Vec_t(0, 0, -1));
+  assert(ApproxEqual(Dist, 10.));
+  Dist = b1.DistanceToIn(Vec_t(0, -40, 0), Vec_t(0, 1, 0));
+  assert(ApproxEqual(Dist, 10.));
+  Dist = b1.DistanceToIn(Vec_t(0, -40, 0), Vec_t(0, 1, -0));
+  assert(ApproxEqual(Dist, 10.));
+  Dist = b1.DistanceToIn(Vec_t(0, -40, 0), Vec_t(-0, 1, 0));
+  assert(ApproxEqual(Dist, 10.));
+  Dist = b1.DistanceToIn(Vec_t(-30, 0, -0), Vec_t(1, -0, 0));
+  assert(ApproxEqual(Dist, 10.));
+  Dist = b1.DistanceToIn(Vec_t(30, 0., 0.), Vec_t(-1, 0, -0));
+  assert(ApproxEqual(Dist, 10.));
+  Dist = b1.DistanceToIn(Vec_t(-30, 0, 0), Vec_t(1, -0, -0));
+  assert(ApproxEqual(Dist, 10.));
+
   Dist                                = b1.DistanceToIn(pbigx, vxy);
   if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
   assert(ApproxEqual(Dist, UUtils::Infinity()));

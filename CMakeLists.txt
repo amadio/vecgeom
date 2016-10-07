@@ -842,7 +842,7 @@ set(TEST_EXECUTABLES_CORE
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestVecGeomPolycone.cpp
   ${CMAKE_SOURCE_DIR}/test/core/TestSExtru.cpp
 # to be enabled when running cleanly
-#  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBooleans.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBooleans.cpp
   ${CMAKE_SOURCE_DIR}/test/core/AssemblyTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/TestNavigationState.cpp
 #  ${CMAKE_SOURCE_DIR}/services/CompNavStatePools.cpp
