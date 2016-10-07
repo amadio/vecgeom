@@ -245,6 +245,9 @@ bool TestBox()
   assert(b2.Inside(Vec_t(10, 0, 0)) == vecgeom::EInside::kSurface);
   assert(b2.Inside(Vec_t(0, 10, 0)) == vecgeom::EInside::kSurface);
   assert(b2.Inside(Vec_t(0, 0, 10)) == vecgeom::EInside::kSurface);
+  assert(b2.Inside(Vec_t(20, 20, 10)) == vecgeom::EInside::kOutside);
+  assert(b2.Inside(Vec_t(100, 10, 30)) == vecgeom::EInside::kOutside);
+  assert(b2.Inside(Vec_t(10, 20, 20)) == vecgeom::EInside::kOutside);
 
   // SafetyFromInside(P)
   Dist = b1.SafetyFromInside(pzero);
@@ -384,6 +387,24 @@ bool TestBox()
   Dist = b4.DistanceToIn(Vec_t(-3.0087437277453119577, -4.9999999999999928946, 4.8935648380409944025), tempDir.Unit());
   assert(Dist <= 0.0);
 
+  // a point on the surface pointing outside must return infinity length
+  {
+    auto d = b2.DistanceToIn(Vec_t(10, 0, 0), Vec_t(1, 0, 0));
+    if (testvecgeom) {
+      assert(d == vecgeom::InfinityLength<vecgeom::Precision>());
+    } else {
+      assert(d >= UUtils::Infinity());
+    }
+  }
+  {
+    auto d = b2.DistanceToIn(Vec_t(10 - 0.9 * vecgeom::kHalfTolerance, 0, 0), Vec_t(1, 0, 0));
+    assert(b2.Inside(Vec_t(10 - 0.9 * vecgeom::kHalfTolerance, 0, 0)) == vecgeom::EInside::kSurface);
+    if (testvecgeom) {
+      assert(d == vecgeom::InfinityLength<vecgeom::Precision>());
+    } else {
+      assert(d >= UUtils::Infinity());
+    }
+  }
   /* **********************************************************
     */ /////////////////////////////////////////////////////
 
