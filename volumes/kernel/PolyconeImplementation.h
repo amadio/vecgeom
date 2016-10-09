@@ -533,7 +533,6 @@ struct PolyconeImplementation {
       safety =
           ConeImplementation<translation::kIdentity, rotation::kIdentity, ConeTypes::UniversalCone>::SafetyToInUSOLIDS<
               Backend, false>(*sec.fSolid, Transformation3D(), p - Vector3D<Precision>(0, 0, sec.fShift));
-      return;
     } else
       safety =
           ConeImplementation<translation::kIdentity, rotation::kIdentity, ConeTypes::UniversalCone>::SafetyToInUSOLIDS<
