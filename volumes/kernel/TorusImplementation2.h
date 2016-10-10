@@ -438,11 +438,16 @@ struct TorusImplementation2 {
       // for (unsigned int ipt = 0; ipt < 3; ipt++)
       //   norm[ipt] = pt[ipt] + x[i] * dir[ipt] - r0[ipt];
       // ndotd = norm[0] * dir[0] + norm[1] * dir[1] + norm[2] * dir[2];
-      ndotd = norm.Dot(dir);
+      ndotd     = norm.Dot(dir);
+      bool fake = false;
       if (inner ^ out) {
-        if (ndotd < 0) continue; // discard this solution
+        if (ndotd < 0) fake = true; // discard this solution
       } else {
-        if (ndotd > 0) continue; // discard this solution
+        if (ndotd > 0) fake = true; // discard this solution
+      }
+      if (fake) {
+        if (x[i] > tol && out) return -1.;
+        continue;
       }
       s = x[i];
       // refine solution with Newton iterations
@@ -489,8 +494,9 @@ struct TorusImplementation2 {
 
     // Check Bounding Cylinder first
     Bool_t inBounds;
-    Bool_t done;
-    Float_t tubeDistance = kInfLength;
+    Bool_t done                       = false;
+    typename Backend::inside_v inside = EInside::kOutside;
+    Float_t tubeDistance              = kInfLength;
 
 #ifndef VECGEOM_NO_SPECIALIZATION
     // call the tube functionality -- first of all we check whether we are inside
@@ -512,7 +518,16 @@ struct TorusImplementation2 {
     else
       tubeDistance = 0.;
 #endif // VECGEOM_NO_SPECIALIZATION
-    done = (!inBounds && tubeDistance == kInfLength);
+    if (inBounds) {
+      // Check points on the wrong side (inside torus)
+      TorusImplementation2::InsideKernel<Backend>(torus, point, inside);
+      if (inside == EInside::kInside) {
+        done     = true;
+        distance = -1.;
+      }
+    } else {
+      done = (tubeDistance == kInfLength);
+    }
 
     if (vecCore::EarlyReturnAllowed()) {
       if (vecCore::MaskFull(done)) {
@@ -588,6 +603,10 @@ struct TorusImplementation2 {
     bool hasrmin = (torus.rmin() > 0);
 
     Float_t dout = ToBoundary<Backend, false>(torus, point, dir, torus.rmax(), true);
+    if (dout < 0) {
+      distance = dout;
+      return;
+    }
     Float_t din(kInfLength);
     if (hasrmin) {
       din = ToBoundary<Backend, true>(torus, point, dir, torus.rmin(), true);
@@ -628,8 +647,8 @@ struct TorusImplementation2 {
         }
       }
     }
-    if (distance >= kInfLength) distance = -1.;
-    if (distance < tol) distance         = 0.;
+    if (distance >= kInfLength) distance             = -1.;
+    if (vecCore::math::Abs(distance) < tol) distance = 0.;
   }
 
   template <class Backend>
