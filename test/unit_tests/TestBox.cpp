@@ -393,7 +393,7 @@ bool TestBox()
     if (testvecgeom) {
       assert(d == vecgeom::InfinityLength<vecgeom::Precision>());
     } else {
-      assert(d >= UUtils::Infinity());
+      assert(d >= UUtils::kInfinity);
     }
   }
   {
@@ -402,7 +402,7 @@ bool TestBox()
     if (testvecgeom) {
       assert(d == vecgeom::InfinityLength<vecgeom::Precision>());
     } else {
-      assert(d >= UUtils::Infinity());
+      assert(d >= UUtils::kInfinity);
     }
   }
   /* **********************************************************
