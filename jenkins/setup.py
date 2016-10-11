@@ -260,7 +260,7 @@ if __name__ == "__main__":
       os.environ['LD_LIBRARY_PATH'] = "/usr/local/gfortran/lib"
 
    os.environ["LD_LIBRARY_PATH_ALL"] = directory_names()[2]+":"+os.environ["LD_LIBRARY_PATH"]
-   #os.environ["PYTHONPATH"] = os.environ["LD_LIBRARY_PATH_ALL"]
+   os.environ["PYTHONPATH"] = os.environ["LD_LIBRARY_PATH_ALL"]
 
    prefix = os.environ["CMAKE_PREFIX_PATH_ALL"]
    path = os.environ["PATH_ALL"]
