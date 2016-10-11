@@ -675,10 +675,11 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   size_t FirstSetBit(size_t startBit = 0) const
   {
-// Return position of first non null bit (starting from position 0 and up)
+    // Return position of first non null bit (starting from position 0 and up)
 
-// Keep array initiation hand-formatted
-// clang-format off
+    // Keep array initiation hand-formatted
+    // clang-format off
+
     constexpr unsigned char bitsPattern[256] =  {
              8,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
              4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
@@ -792,10 +793,12 @@ public:
              7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7};
     // clang-format on
 
-    size_t i;
     if (startBit >= fNbits) startBit = fNbits - 1;
-    size_t startByte                 = startBit / 8;
-    size_t ibit                      = startBit % 8;
+
+    size_t startByte = startBit / 8;
+    size_t ibit      = startBit % 8;
+
+    size_t i;
     if (ibit < 7) {
       for (i = ibit + 1; i > 0; i--) {
         if ((fData[startByte] & (1 << (i - 1))) != 0) return 8 * startByte + i - 1;
@@ -807,6 +810,7 @@ public:
     }
     return fNbits;
   }
+
   VECGEOM_CUDA_HEADER_BOTH
   size_t GetNbits() const { return fNbits; }
 
@@ -827,6 +831,7 @@ public:
              FirstSetBit(other.fNbits) == fNbits;
     }
   }
+
   bool operator!=(const BitSet &other) const { return !(*this == other); }
 };
 
