@@ -321,6 +321,7 @@ public:
     return true;
   }
 
+  VECGEOM_CUDA_HEADER_BOTH
   bool TestBitNumber(size_t bitnumber) const
   {
     // Return the current value of the bit
@@ -623,6 +624,7 @@ public:
     return count;
   }
 
+  VECGEOM_CUDA_HEADER_BOTH
   size_t FirstNullBit(size_t startBit = 0) const
   {
     // Return position of first null bit (starting from position 0 and up)

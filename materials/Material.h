@@ -48,6 +48,7 @@ public:
   void GetElementProp(double &ad, double &zd, double &wd, int iel) const;
   double GetDensity() const { return fDensity; }
   void Dump() const;
+  VECGEOM_CUDA_HEADER_BOTH
   int GetIndex() const { return fIndex; }
   template <typename T>
   int GetRatioBW(std::vector<T> &rbw) const;
@@ -55,6 +56,7 @@ public:
 
   // remove
   void SetXsecPtr(void *ptr) { xsecPtr = ptr; }
+  VECGEOM_CUDA_HEADER_BOTH
   void *GetXsecPtr() const { return xsecPtr; }
 
   template <typename Stream>

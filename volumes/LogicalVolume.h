@@ -127,6 +127,7 @@ public:
 
   VECGEOM_FORCE_INLINE
   void *GetUserExtensionPtr() const { return fUserExtensionPtr; }
+  VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
   void *GetTrackingMediumPtr() const { return fTrackingMediumPtr; }
   VECGEOM_FORCE_INLINE

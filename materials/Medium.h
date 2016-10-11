@@ -36,6 +36,7 @@ public:
   virtual ~Medium();
 
   // Getters and setters
+  VECGEOM_CUDA_HEADER_BOTH
   Material *GetMaterial() const { return fMat; }
   std::string Name() const { return fName; }
   bool IsUsed() const { return fUsed; }
