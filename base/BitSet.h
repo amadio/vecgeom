@@ -575,13 +575,14 @@ public:
     fNbits = 0;
     memset(&(fData[0]), 0, GetNbytes());
   }
+
   size_t CountBits(size_t startBit = 0) const
   {
     // Return number of bits set to 1 starting at bit startBit
 
     // Keep array initiation hand-formatted
     // clang-format off
-         static const unsigned char nbits[256] = {
+    constexpr unsigned char nbits[256] = {
             0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4,
             1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,
             1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,
@@ -628,7 +629,7 @@ public:
 
     // Keep array initiation hand-formatted
     // clang-format off
-         static const unsigned char fbits[256] = {
+    constexpr unsigned char bitsPattern[256] = {
              0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,
              0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,5,
              0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,4,
@@ -650,7 +651,7 @@ public:
     size_t i;
     if (startBit == 0) {
       for (i = 0; i < GetNbytes(); i++) {
-        if (fData[i] != 255) return 8 * i + fbits[fData[i]];
+        if (fData[i] != 255) return 8 * i + bitsPattern[fData[i]];
       }
       return fNbits;
     }
@@ -664,7 +665,7 @@ public:
       startByte++;
     }
     for (i = startByte; i < GetNbytes(); i++) {
-      if (fData[i] != 255) return 8 * i + fbits[fData[i]];
+      if (fData[i] != 255) return 8 * i + bitsPattern[fData[i]];
     }
     return fNbits;
   }
@@ -676,12 +677,7 @@ public:
 
 // Keep array initiation hand-formatted
 // clang-format off
-         #ifdef VECGEOM_NVCC_DEVICE
-         const char fbits[256] =
-         #else
-         static const char fbits[256] =
-         #endif
-            {
+    constexpr unsigned char bitsPattern[256] =  {
              8,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
              4,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
              5,0,1,0,2,0,1,0,3,0,1,0,2,0,1,0,
@@ -703,7 +699,7 @@ public:
     size_t i;
     if (startBit == 0) {
       for (i = 0; i < GetNbytes(); i++) {
-        if (fData[i] != 0) return 8 * i + fbits[fData[i]];
+        if (fData[i] != 0) return 8 * i + bitsPattern[fData[i]];
       }
       return fNbits;
     }
@@ -717,18 +713,20 @@ public:
       startByte++;
     }
     for (i = startByte; i < GetNbytes(); i++) {
-      if (fData[i] != 0) return 8 * i + fbits[fData[i]];
+      if (fData[i] != 0) return 8 * i + bitsPattern[fData[i]];
     }
     return fNbits;
   }
+
   size_t LastNullBit() const { return LastNullBit(fNbits - 1); }
+
   size_t LastNullBit(size_t startBit) const
   {
     // Return position of first null bit (starting from position startBit and down)
 
     // Keep array initiation hand-formatted
     // clang-format off
-         static const unsigned char fbits[256] = {
+    constexpr unsigned char bitsPattern[256] = {
             7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
             7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
             7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
@@ -758,18 +756,22 @@ public:
       startByte--;
     }
     for (i = startByte + 1; i > 0; i--) {
-      if (fData[i - 1] != 255) return 8 * (i - 1) + fbits[fData[i - 1]];
+      if (fData[i - 1] != 255) return 8 * (i - 1) + bitsPattern[fData[i - 1]];
     }
     return fNbits;
   }
+
+  VECGEOM_CUDA_HEADER_BOTH
   size_t LastSetBit() const { return LastSetBit(fNbits - 1); }
+
+  VECGEOM_CUDA_HEADER_BOTH
   size_t LastSetBit(size_t startBit) const
   {
     // Return position of first non null bit (starting from position fNbits and down)
 
     // Keep array initiation hand-formatted
     // clang-format off
-         static const char fbits[256] = {
+    constexpr unsigned char bitsPattern[256] = {
              8,0,1,1,2,2,2,2,3,3,3,3,3,3,3,3,
              4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
              5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
@@ -799,7 +801,7 @@ public:
       startByte--;
     }
     for (i = startByte + 1; i > 0; i--) {
-      if (fData[i - 1] != 0) return 8 * (i - 1) + fbits[fData[i - 1]];
+      if (fData[i - 1] != 0) return 8 * (i - 1) + bitsPattern[fData[i - 1]];
     }
     return fNbits;
   }
