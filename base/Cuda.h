@@ -56,6 +56,12 @@
      template <> struct kCudaType<float> { using type_t = float; };
      template <> struct kCudaType<double> { using type_t = double; };
      template <> struct kCudaType<int> { using type_t = int; };
+     template <typename DataType> struct kCudaType<DataType*> {
+       using type_t = CudaType_t<DataType>*;
+     };
+     template <typename DataType> struct kCudaType<const DataType> {
+       using type_t = const CudaType_t<DataType>;
+     };
   }
   #define VECGEOM_HOST_FORWARD_DECLARE(X)  class __QuietSemi
   #define VECGEOM_DEVICE_FORWARD_DECLARE(X)  namespace cuda { X }  class __QuietSemi
