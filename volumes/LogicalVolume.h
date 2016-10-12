@@ -25,6 +25,8 @@ VECGEOM_DEVICE_FORWARD_DECLARE(class VLevelLocator;);
 VECGEOM_DEVICE_FORWARD_DECLARE(class VSafetyEstimator;);
 VECGEOM_DEVICE_FORWARD_DECLARE(class VNavigator;);
 
+VECGEOM_DEVICE_DECLARE_CONV(class, LogicalVolume);
+
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class VLevelLocator;
