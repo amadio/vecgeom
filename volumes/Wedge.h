@@ -410,12 +410,12 @@ void Wedge::DistanceToIn(Vector3D<typename Backend::precision_v> const &point,
   Bool_t cmp1 = comp1 > 0.;
   if (!vecCore::MaskEmpty(cmp1)) {
     Float_t tmp = -(point.x() * fNormalVector1.x() + point.y() * fNormalVector1.y()) / comp1;
-    vecCore::MaskedAssign(distWedge1, cmp1 && tmp > 0.0, tmp);
+    vecCore::MaskedAssign(distWedge1, cmp1 && tmp > -kTolerance, tmp);
   }
   Bool_t cmp2 = comp2 > 0.;
   if (!vecCore::MaskEmpty(cmp2)) {
     Float_t tmp = -(point.x() * fNormalVector2.x() + point.y() * fNormalVector2.y()) / comp2;
-    vecCore::MaskedAssign(distWedge2, cmp2 && tmp > 0.0, tmp);
+    vecCore::MaskedAssign(distWedge2, cmp2 && tmp > -kTolerance, tmp);
   }
 
   // std::cerr << "c1 " << comp1 <<" d1="<<distWedge1<<" p="<<point<< "\n";
@@ -447,13 +447,13 @@ void Wedge::DistanceToOut(Vector3D<typename Backend::precision_v> const &point,
   Bool_t cmp1 = comp1 < 0.;
   if (!vecCore::MaskEmpty(cmp1)) {
     Float_t tmp = -(point.x() * fNormalVector1.x() + point.y() * fNormalVector1.y()) / comp1;
-    vecCore::MaskedAssign(distWedge1, cmp1 && tmp > 0.0, tmp);
+    vecCore::MaskedAssign(distWedge1, cmp1 && tmp > -kTolerance, tmp);
   }
 
   Bool_t cmp2 = comp2 < 0.;
   if (!vecCore::MaskEmpty(cmp2)) {
     Float_t tmp = -(point.x() * fNormalVector2.x() + point.y() * fNormalVector2.y()) / comp2;
-    vecCore::MaskedAssign(distWedge2, cmp2 && tmp > 0.0, tmp);
+    vecCore::MaskedAssign(distWedge2, cmp2 && tmp > -kTolerance, tmp);
   }
 
   // std::cerr << "c1 " << comp1 <<" d1="<<distWedge1<<" "<<point<< "\n";
