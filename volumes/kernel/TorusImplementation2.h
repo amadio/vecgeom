@@ -586,6 +586,9 @@ struct TorusImplementation2 {
     }
     distance = Min(distance, dd);
     distance += tubeDistance;
+    // This has to be added because distance can become > kInfLength due to
+    // missing early returns in CUDA. This makes comparisons to kInfLength fail.
+    vecCore::MaskedAssign(distance, distance > kInfLength, kInfLength);
     return;
   }
 
