@@ -220,6 +220,7 @@ struct TorusImplementation2 {
     /* rmax */
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
+    constexpr Float_t tol = 100. * vecgeom::kTolerance;
 
     //    // very fast check on z-height
     //    completelyoutside = point[2] > MakePlusTolerant<ForInside>( torus.rmax() );
@@ -232,19 +233,24 @@ struct TorusImplementation2 {
     Float_t rxy   = Sqrt(point[0] * point[0] + point[1] * point[1]);
     Float_t radsq = (rxy - torus.rtor()) * (rxy - torus.rtor()) + point[2] * point[2];
 
-    completelyoutside = radsq > MakePlusTolerantSquare<ForInside>(torus.rmax(), torus.rmax2()); // rmax
     if (ForInside) {
-      completelyinside = radsq < MakeMinusTolerantSquare<ForInside>(torus.rmax(), torus.rmax2());
+      completelyoutside = radsq > (tol * torus.rmax() + torus.rmax2()); // rmax
+      completelyinside  = radsq < (-tol * torus.rmax() + torus.rmax2());
+    } else {
+      completelyoutside = radsq > torus.rmax2();
     }
+
     if (vecCore::EarlyReturnAllowed()) {
       if (vecCore::MaskFull(completelyoutside)) {
         return;
       }
     }
     /* rmin */
-    completelyoutside |= radsq < MakeMinusTolerantSquare<ForInside>(torus.rmin(), torus.rmin2()); // rmin
     if (ForInside) {
-      completelyinside &= radsq > MakePlusTolerantSquare<ForInside>(torus.rmin(), torus.rmin2());
+      completelyoutside |= radsq < (-tol * torus.rmin() + torus.rmin2()); // rmin
+      completelyinside &= radsq > (tol * torus.rmin() + torus.rmin2());
+    } else {
+      completelyoutside |= radsq < torus.rmin2();
     }
 
     // NOT YET NEEDED WHEN NOT PHI TREATMENT
@@ -374,15 +380,15 @@ struct TorusImplementation2 {
     typedef typename Backend::precision_v Real_v;
 
     // Compute coeficients of the quartic
-    Real_v s      = vecgeom::kInfLength;
-    Real_v tol    = 100. * vecgeom::kTolerance;
-    Real_v r0sq   = pt[0] * pt[0] + pt[1] * pt[1] + pt[2] * pt[2];
-    Real_v rdotn  = pt[0] * dir[0] + pt[1] * dir[1] + pt[2] * dir[2];
-    Real_v rsumsq = torus.rtor2() + radius * radius;
-    Real_v a      = 4. * rdotn;
-    Real_v b      = 2. * (r0sq + 2. * rdotn * rdotn - rsumsq + 2. * torus.rtor2() * dir[2] * dir[2]);
-    Real_v c      = 4. * (r0sq * rdotn - rsumsq * rdotn + 2. * torus.rtor2() * pt[2] * dir[2]);
-    Real_v d      = r0sq * r0sq - 2. * r0sq * rsumsq + 4. * torus.rtor2() * pt[2] * pt[2] +
+    Real_v s             = vecgeom::kInfLength;
+    constexpr Real_v tol = 100. * vecgeom::kTolerance;
+    Real_v r0sq          = pt[0] * pt[0] + pt[1] * pt[1] + pt[2] * pt[2];
+    Real_v rdotn         = pt[0] * dir[0] + pt[1] * dir[1] + pt[2] * dir[2];
+    Real_v rsumsq        = torus.rtor2() + radius * radius;
+    Real_v a             = 4. * rdotn;
+    Real_v b             = 2. * (r0sq + 2. * rdotn * rdotn - rsumsq + 2. * torus.rtor2() * dir[2] * dir[2]);
+    Real_v c             = 4. * (r0sq * rdotn - rsumsq * rdotn + 2. * torus.rtor2() * pt[2] * dir[2]);
+    Real_v d             = r0sq * r0sq - 2. * r0sq * rsumsq + 4. * torus.rtor2() * pt[2] * pt[2] +
                (torus.rtor2() - radius * radius) * (torus.rtor2() - radius * radius);
 
     Real_v x[4] = {vecgeom::kInfLength, vecgeom::kInfLength, vecgeom::kInfLength, vecgeom::kInfLength};
@@ -424,11 +430,7 @@ struct TorusImplementation2 {
     for (int i = 0; i < nsol; i++) {
       if (x[i] < -10) continue;
 
-      Vector3D<Precision> r0 = pt + x[i] * dir;
-      if (torus.dphi() < vecgeom::kTwoPi) {
-        if (!torus.GetWedge().ContainsWithBoundary<Backend>(r0)) continue;
-      }
-
+      Vector3D<Precision> r0   = pt + x[i] * dir;
       Vector3D<Precision> norm = r0;
       r0.z()                   = 0.;
       r0.Normalize();
@@ -438,17 +440,18 @@ struct TorusImplementation2 {
       // for (unsigned int ipt = 0; ipt < 3; ipt++)
       //   norm[ipt] = pt[ipt] + x[i] * dir[ipt] - r0[ipt];
       // ndotd = norm[0] * dir[0] + norm[1] * dir[1] + norm[2] * dir[2];
-      ndotd     = norm.Dot(dir);
-      bool fake = false;
+      ndotd = norm.Dot(dir);
       if (inner ^ out) {
-        if (ndotd < 0) fake = true; // discard this solution
+        if (ndotd < 0) continue; // discard this solution
       } else {
-        if (ndotd > 0) fake = true; // discard this solution
+        if (ndotd > 0) continue; // discard this solution
       }
-      if (fake) {
-        if (x[i] > tol && out) return -1.;
-        continue;
+
+      // The crossing point should be in the phi wedge
+      if (torus.dphi() < vecgeom::kTwoPi) {
+        if (!torus.GetWedge().ContainsWithBoundary<Backend>(r0)) continue;
       }
+
       s = x[i];
       // refine solution with Newton iterations
       Real_v eps   = vecgeom::kInfLength;
@@ -464,7 +467,7 @@ struct TorusImplementation2 {
         if (Abs(eps) >= Abs(eps0)) break;
         ntry++;
         // Avoid infinite recursion
-        if (ntry > 10) break;
+        if (ntry > 100) break;
         eps0 = eps;
       }
       // discard this solution
@@ -596,17 +599,20 @@ struct TorusImplementation2 {
 
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
-    constexpr Float_t tol = 100. * vecgeom::kTolerance;
-    distance              = kInfLength;
+    distance = kInfLength;
 
     bool hasphi  = (torus.dphi() < kTwoPi);
     bool hasrmin = (torus.rmin() > 0);
 
-    Float_t dout = ToBoundary<Backend, false>(torus, point, dir, torus.rmax(), true);
-    if (dout < 0) {
-      distance = dout;
+    // Check points on the wrong side (inside torus)
+    typename Backend::inside_v inside;
+    TorusImplementation2::InsideKernel<Backend>(torus, point, inside);
+    if (inside == EInside::kOutside) {
+      distance = -1.;
       return;
     }
+
+    Float_t dout = ToBoundary<Backend, false>(torus, point, dir, torus.rmax(), true);
     Float_t din(kInfLength);
     if (hasrmin) {
       din = ToBoundary<Backend, true>(torus, point, dir, torus.rmin(), true);
@@ -647,8 +653,8 @@ struct TorusImplementation2 {
         }
       }
     }
-    if (distance >= kInfLength) distance             = -1.;
-    if (vecCore::math::Abs(distance) < tol) distance = 0.;
+    if (distance >= kInfLength) distance                             = -1.;
+    if (vecCore::math::Abs(distance) < vecgeom::kTolerance) distance = 0.;
   }
 
   template <class Backend>
