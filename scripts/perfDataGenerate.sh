@@ -13,7 +13,7 @@ export DYLD_LIBRARY_PATH=$ROOTSYS/lib:vgminstall/lib
 for i in `seq 0 20`
 do for shape in `cat shapes.lis`
    do echo Running ${shape}-job${i}
-      ${shape}Benchmark -npoints 131172 -nrep 1  &> ${LOGDIR}/${shape}-job${i}.log
+      ./${shape}Benchmark -npoints 131172 -nrep 1  &> ${LOGDIR}/${shape}-job${i}.log
    done
 done
 
