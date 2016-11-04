@@ -105,7 +105,7 @@ struct BoxImplementation {
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void DistanceToIn(UnplacedStruct_t const &box, Vector3D<Real_v> const &point,
-                           Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
+                           Vector3D<Real_v> const &direction, Real_v const & /* stepMax */, Real_v &distance)
   {
     const Vector3D<Real_v> invDir(Real_v(1.0) / NonZero(direction[0]), Real_v(1.0) / NonZero(direction[1]),
                                   Real_v(1.0) / NonZero(direction[2]));
