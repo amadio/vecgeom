@@ -259,7 +259,7 @@ std::ostream &UnplacedPolycone::StreamInfo(std::ostream &os) const
     os << "       [ ";
     for (uint i = 0; i < 5; ++i) {
       uint ind = 5 * j + i;
-      if (ind < fNz) os << fZs[ind] << "; ";
+      if (ind < nz) os << fZs[ind] << "; ";
     }
     os << " ]\n";
   }
