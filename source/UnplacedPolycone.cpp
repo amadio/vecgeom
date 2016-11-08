@@ -98,7 +98,9 @@ void UnplacedPolycone::Init(double phiStart, double phiTotal, unsigned int numZP
       if (((z > prevZ) && (dirZ > 0)) || ((z < prevZ) && (dirZ < 0))) {
         if (dirZ * (z - prevZ) < 0) {
 #ifndef VECGEOM_NVCC
-          std::cerr << "Cannot create a Polycone with different Z directions.Use GenericPolycone." << std::endl
+          std::cerr << "Cannot create a Polycone with different Z "
+                       "directions.Use GenericPolycone."
+                    << std::endl
                     << "              ZPlane is changing direction  !" << std::endl
                     << "  zPlane[0] = " << zPlane[0] << " -- zPlane[1] = " << zPlane[1] << std::endl
                     << "  zPlane[" << i - 1 << "] = " << zPlane[i - 1] << " -- rPlane[" << i << "] = " << zPlane[i];
@@ -135,9 +137,12 @@ void UnplacedPolycone::Init(double phiStart, double phiTotal, unsigned int numZP
 }
 
 // Alternative constructor, required for integration with Geant4.
-// Input must be such that r[i],z[i] describe the outer,inner or inner,outer envelope of the polycone, after
-// connecting all adjacent points, and closing the polygon by connecting last -> first point.
-// Hence z[] array must be symmetrical: z[0..Nz] = z[2Nz, 2Nz-1, ..., Nz+1], where 2*Nz = numRz.
+// Input must be such that r[i],z[i] describe the outer,inner or inner,outer
+// envelope of the polycone, after
+// connecting all adjacent points, and closing the polygon by connecting last ->
+// first point.
+// Hence z[] array must be symmetrical: z[0..Nz] = z[2Nz, 2Nz-1, ..., Nz+1],
+// where 2*Nz = numRz.
 VECGEOM_CUDA_HEADER_BOTH
 UnplacedPolycone::UnplacedPolycone(Precision phiStart, // initial phi starting angle
                                    Precision phiTotal, // total phi angle
@@ -152,7 +157,8 @@ UnplacedPolycone::UnplacedPolycone(Precision phiStart, // initial phi starting a
 {
   // data integrity checks
   int Nz = numRZ / 2;
-  assert(numRZ % 2 == 0 && "UnplPolycone ERROR: r[],z[] arrays provided contain odd number of points, please fix.\n");
+  assert(numRZ % 2 == 0 && "UnplPolycone ERROR: r[],z[] arrays provided "
+                           "contain odd number of points, please fix.\n");
   for (int i = 0; i < numRZ / 2; ++i) {
     assert(z[i] == z[numRZ - 1 - i] && "UnplPolycone ERROR: z[] array is not symmetrical, please fix.\n");
   }
@@ -163,8 +169,9 @@ UnplacedPolycone::UnplacedPolycone(Precision phiStart, // initial phi starting a
   const Precision *r1arg = r;
   if (z[0] > z[1]) {
     ascendingZ = false;
-    zarg       = z + Nz; // second half of input z[] is ascending due to symmetry already verified
-    r1arg      = r + Nz;
+    zarg       = z + Nz; // second half of input z[] is ascending due to symmetry
+                         // already verified
+    r1arg = r + Nz;
   }
 
   // reorganize remainder of r[] data in ascending-z order
@@ -172,7 +179,8 @@ UnplacedPolycone::UnplacedPolycone(Precision phiStart, // initial phi starting a
   for (int i = 0; i < Nz; ++i)
     r2arg[i] = (ascendingZ ? r[2 * Nz - 1 - i] : r[Nz - 1 - i]);
 
-  // identify which rXarg is rmax and rmin and ensure that Rmax > Rmin for all points provided
+  // identify which rXarg is rmax and rmin and ensure that Rmax > Rmin for all
+  // points provided
   const Precision *rmin = r1arg, *rmax = r2arg;
   if (r1arg[0] > r2arg[0]) {
     rmax = r1arg;
@@ -182,8 +190,8 @@ UnplacedPolycone::UnplacedPolycone(Precision phiStart, // initial phi starting a
 
   // final data integrity cross-check
   for (int i = 0; i < Nz; ++i) {
-    assert(rmax[i] > rmin[i] &&
-           "UnplPolycone ERROR: r[] provided has problems of the Rmax < Rmin type, please check!\n");
+    assert(rmax[i] > rmin[i] && "UnplPolycone ERROR: r[] provided has problems "
+                                "of the Rmax < Rmin type, please check!\n");
   }
 
   // init internal members
@@ -237,7 +245,8 @@ void UnplacedPolycone::Print() const
 
 void UnplacedPolycone::Print(std::ostream &os) const
 {
-  os << "UnplacedPolycone output to string not implemented -- calling Print() instead:\n";
+  os << "UnplacedPolycone output to string not implemented -- calling Print() "
+        "instead:\n";
   Print();
 }
 
@@ -310,15 +319,18 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedPolycone::CopyToGpu() const
 DevicePtr<cuda::VUnplacedVolume> UnplacedPolycone::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const
 {
 
-  // idea: reconstruct defining arrays: copy them to GPU; then construct the UnplacedPolycon object from scratch
+  // idea: reconstruct defining arrays: copy them to GPU; then construct the
+  // UnplacedPolycon object from scratch
   // on the GPU
   std::vector<Precision> rmin, z, rmax;
   ReconstructSectionArrays(z, rmin, rmax);
 
   // somehow this does not work:
-  //        Precision *z_gpu_ptr = AllocateOnGpu<Precision>( (z.size() + rmin.size() + rmax.size())*sizeof(Precision) );
+  //        Precision *z_gpu_ptr = AllocateOnGpu<Precision>( (z.size() +
+  // rmin.size() + rmax.size())*sizeof(Precision) );
   //        Precision *rmin_gpu_ptr = z_gpu_ptr + sizeof(Precision)*z.size();
-  //        Precision *rmax_gpu_ptr = rmin_gpu_ptr + sizeof(Precision)*rmin.size();
+  //        Precision *rmax_gpu_ptr = rmin_gpu_ptr +
+  // sizeof(Precision)*rmin.size();
 
   Precision *z_gpu_ptr    = AllocateOnGpu<Precision>(z.size() * sizeof(Precision));
   Precision *rmin_gpu_ptr = AllocateOnGpu<Precision>(rmin.size() * sizeof(Precision));
@@ -334,7 +346,8 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedPolycone::CopyToGpu(DevicePtr<cuda::VUn
 
   int s = z.size();
 
-  // attention here z.size() might be different than fNz due to compactification during Reconstruction
+  // attention here z.size() might be different than fNz due to compactification
+  // during Reconstruction
   DevicePtr<cuda::VUnplacedVolume> gpupolycon =
       CopyToGpuImpl<UnplacedPolycone>(gpu_ptr, fStartPhi, fDeltaPhi, s, z_gpu_ptr, rmin_gpu_ptr, rmax_gpu_ptr);
 
@@ -618,7 +631,8 @@ bool UnplacedPolycone::Normal(Vector3D<Precision> const &point, Vector3D<Precisi
   PolyconeSection const &sec = GetSection(index);
   valid                      = sec.fSolid->Normal(point - Vector3D<Precision>(0, 0, sec.fShift), norm);
 
-  // if point is within tolerance of a Z-plane between 2 sections, get normal from other section too
+  // if point is within tolerance of a Z-plane between 2 sections, get normal
+  // from other section too
   if (size_t(index + 1) < fSections.size() && std::abs(point.z() - fZs[index + 1]) < kTolerance) {
     PolyconeSection const &sec2 = GetSection(index + 1);
     bool valid2                 = false;
@@ -633,8 +647,10 @@ bool UnplacedPolycone::Normal(Vector3D<Precision> const &point, Vector3D<Precisi
     // if both valid && valid2 true, norm and norm2 should be added...
     if (valid && valid2) {
 
-      // discover exiting direction by moving point a bit (it would be good to have track direction here)
-      // if(sec.fSolid->Contains(point + kTolerance*10*norm - Vector3D<Precision>(0, 0, sec.fShift))){
+      // discover exiting direction by moving point a bit (it would be good to
+      // have track direction here)
+      // if(sec.fSolid->Contains(point + kTolerance*10*norm -
+      // Vector3D<Precision>(0, 0, sec.fShift))){
 
       //}
       bool c2;
@@ -645,8 +661,10 @@ bool UnplacedPolycone::Normal(Vector3D<Precision> const &point, Vector3D<Precisi
         norm = norm2;
       } else {
         norm = norm + norm2;
-        // but we might be in the interior of the polycone, and norm2=(0,0,-1) and norm1=(0,0,1) --> norm=(0,0,0)
-        // quick fix:  set a normal pointing to the input point, but setting its z=0 (radial)
+        // but we might be in the interior of the polycone, and norm2=(0,0,-1)
+        // and norm1=(0,0,1) --> norm=(0,0,0)
+        // quick fix:  set a normal pointing to the input point, but setting its
+        // z=0 (radial)
         if (norm.Mag2() < kTolerance) norm = Vector3D<Precision>(point.x(), point.y(), 0);
       }
     }
@@ -712,10 +730,16 @@ void UnplacedPolycone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aM
 
   aMin.x() = -maxR;
   aMin.y() = -maxR;
-  aMin.z() = fZs[0];
+  //  aMin.z() = fZs[0];
   aMax.x() = maxR;
   aMax.y() = maxR;
-  aMax.z() = fZs[GetNSections()];
+  if (fZs[0] > fZs[GetNSections()]) {
+    aMax.z() = fZs[0];
+    aMin.z() = fZs[GetNSections()];
+  } else {
+    aMin.z() = fZs[0];
+    aMax.z() = fZs[GetNSections()];
+  }
 }
 #endif // !VECGEOM_NVCC
 
@@ -793,7 +817,8 @@ bool UnplacedPolycone::CheckContinuity(const double rOuter[], const double rInne
   }
 
   /* Creating a new temporary Reduced polycone with desired data elements,
-  *  which makes sure that denominator will never be zero (hence avoiding FPE(division by zero)),
+  *  which makes sure that denominator will never be zero (hence avoiding
+  *FPE(division by zero)),
   *  while calculating slope.
   *
   *  This will be the minimum polycone,i.e. no extra section which
@@ -851,7 +876,8 @@ void UnplacedPolycone::DetectConvexity()
 
   if (fConvexityPossible) {
     if (fEqualRmax && (fDeltaPhi <= kPi || fDeltaPhi == kTwoPi))
-      // In this case, Polycone become solid Cylinder, No need to check anything else, 100% convex
+      // In this case, Polycone become solid Cylinder, No need to check anything
+      // else, 100% convex
       fGlobalConvexity = true;
     else {
       if (fDeltaPhi <= kPi || fDeltaPhi == kTwoPi) {
