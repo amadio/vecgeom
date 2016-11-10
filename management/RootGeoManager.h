@@ -6,6 +6,7 @@
 
 #include "base/Global.h"
 #include "base/TypeMap.h"
+#include <vector>
 #include "volumes/PlacedVolume.h"
 #include "management/GeoManager.h"
 
@@ -42,6 +43,8 @@ private:
   BidirectionalTypeMap<LogicalVolume const *, TGeoVolume const *> fLogicalVolumeMap;
   BidirectionalTypeMap<Transformation3D const *, TGeoMatrix const *> fTransformationMap;
 
+  std::vector<TGeoNode const *> fTGeoNodeVector;
+
   int fVerbose;
 
   bool fFlattenAssemblies; // flag deciding whether we flatten assemblies (like G4 does)
@@ -68,8 +71,8 @@ public:
 
   TGeoNode const *tgeonode(VPlacedVolume const *p) const
   {
-    if (p == NULL) return NULL;
-    return (fPlacedVolumeMap[p->id()]);
+    if (p == nullptr) return nullptr;
+    return fTGeoNodeVector[p->id()];
   }
 
   // lookup the placed volume corresponding to a TGeoNode

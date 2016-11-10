@@ -79,6 +79,13 @@ void RootGeoManager::LoadRootGeometry()
   // fix the world --> close geometry might have changed it ( "compactification" )
   // this is very ugly of course: some observer patter/ super smart pointer might be appropriate
   fWorld = GeoManager::Instance().GetWorld();
+
+  // setup fast lookup table
+  fTGeoNodeVector.resize(VPlacedVolume::GetIdCount(), nullptr);
+  auto iter = fPlacedVolumeMap.begin();
+  for (; iter != fPlacedVolumeMap.end(); ++iter) {
+    fTGeoNodeVector[iter->first] = iter->second;
+  }
 }
 
 void RootGeoManager::LoadRootGeometry(std::string filename)
@@ -99,6 +106,13 @@ void RootGeoManager::ExportToROOTGeometry(VPlacedVolume const *topvolume, std::s
   ::gGeoManager->CloseGeometry();
   ::gGeoManager->CheckOverlaps();
   ::gGeoManager->Export(filename.c_str());
+
+  // setup fast lookup table
+  fTGeoNodeVector.resize(VPlacedVolume::GetIdCount(), nullptr);
+  auto iter = fPlacedVolumeMap.begin();
+  for (; iter != fPlacedVolumeMap.end(); ++iter) {
+    fTGeoNodeVector[iter->first] = iter->second;
+  }
 }
 
 // a helper function to convert ROOT assembly constructs into a flat list of nodes
