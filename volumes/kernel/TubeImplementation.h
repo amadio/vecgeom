@@ -192,7 +192,7 @@ void PhiPlaneSafety(UnplacedStruct_t const &tube, Vector3D<Real_v> const &pos, R
     safety = kInfLength;
   }
 
-  Real_v phi1 = PerpDist2D<Real_v>(pos.x(), pos.y(), Real_v(tube.fAlongPhi2x), Real_v(tube.fAlongPhi2y));
+  Real_v phi1 = PerpDist2D<Real_v>(pos.x(), pos.y(), Real_v(tube.fAlongPhi1x), Real_v(tube.fAlongPhi1y));
   if (inside) phi1 *= -1;
 
   if (SectorType<TubeType>::value == kOnePi) {
@@ -820,7 +820,87 @@ struct TubeImplementation {
     }
   }
 
+  template <typename Real_v, typename Bool_v>
+  VECGEOM_FORCE_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
+  static void NormalKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Vector3D<Real_v> &norm,
+                           Bool_v &valid)
+  {
+    int nosurface = 0; // idea from trapezoid;; change nomenclature as confusing
+
+    Precision x2y2 = Sqrt(point.x() * point.x() + point.y() * point.y());
+    bool inZ = ((point.z() < unplaced.fZ + kTolerance) && (point.z() > -unplaced.fZ - kTolerance)); // in right z range
+    bool inR = ((x2y2 >= unplaced.fRmin) && (x2y2 <= unplaced.fRmax));                              // in right r range
+    // bool inPhi = fWedge.Contains(point);
+
+    // can we combine these two into one??
+    if (inR && (Abs(point.z() - unplaced.fZ) <= kTolerance)) { // top lid, normal along +Z
+      norm[0] = 0.;
+      norm[1] = 0.;
+      norm[2] = 1.;
+      nosurface++;
+    }
+    if (inR && (Abs(point.z() + unplaced.fZ) <= kTolerance)) { // bottom base, normal along -Z
+      if (nosurface > 0) {
+        // norm exists already; just add to it
+        norm[2] += -1;
+      } else {
+        norm[0] = 0.0;
+        norm[1] = 0.0;
+        norm[2] = -1;
+      }
+      nosurface++;
+    }
+    if (unplaced.fRmin > 0.) {
+      if (inZ && (Abs(x2y2 - unplaced.fRmin) <= kTolerance)) { // inner tube wall, normal  towards center
+        Precision invx2y2 = 1. / x2y2;
+        if (nosurface == 0) {
+          norm[0] = -point[0] * invx2y2;
+          norm[1] = -point[1] * invx2y2; // -ve due to inwards
+          norm[2] = 0.0;
+        } else {
+          norm[0] += -point[0] * invx2y2;
+          norm[1] += -point[1] * invx2y2;
+        }
+        nosurface++;
+      }
+    }
+    if (inZ && (Abs(x2y2 - unplaced.fRmax) <= kTolerance)) { // outer tube wall, normal outwards
+      Precision invx2y2 = 1. / x2y2;
+      if (nosurface > 0) {
+        norm[0] += point[0] * invx2y2;
+        norm[1] += point[1] * invx2y2;
+      } else {
+        norm[0] = point[0] * invx2y2;
+        norm[1] = point[1] * invx2y2;
+        norm[2] = 0.0;
+      }
+      nosurface++;
+    }
+
+    // otherwise we get a normal from the wedge
+    if (unplaced.fDphi < vecgeom::kTwoPi) {
+      if (inR && unplaced.fPhiWedge.IsOnSurface1(point)) {
+        if (nosurface == 0)
+          norm = -unplaced.fPhiWedge.GetNormal1();
+        else
+          norm += -unplaced.fPhiWedge.GetNormal1();
+        nosurface++;
+      }
+      if (inR && unplaced.fPhiWedge.IsOnSurface2(point)) {
+        if (nosurface == 0)
+          norm = -unplaced.fPhiWedge.GetNormal2();
+        else
+          norm += -unplaced.fPhiWedge.GetNormal2();
+        nosurface++;
+      }
+    }
+    if (nosurface > 1) norm = norm / std::sqrt(1. * nosurface);
+    valid                   = nosurface != 0; // this is for testing only
+  }
+
 }; // End of struct TubeImplementation
+
 } // end of inline NS
 } // End global namespace
 
