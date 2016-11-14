@@ -21,6 +21,7 @@
 #include "volumes/utilities/VolumeUtilities.h"
 #include "navigation/NavigationState.h"
 #include "navigation/SimpleNavigator.h"
+#include "navigation/NewSimpleNavigator.h"
 #include "base/RNG.h"
 #include "benchmarking/BenchmarkResult.h"
 #include "navigation/ABBoxNavigator.h"
@@ -358,6 +359,64 @@ void test8()
             << "\n";
 }
 
+// test navigation interface without relocation
+template <typename Navigator = NewSimpleNavigator<>>
+void test9()
+{
+  NavigationState *state    = NavigationState::MakeInstance(4);
+  NavigationState *newstate = NavigationState::MakeInstance(4);
+  // statistical test  of navigation via comparison with ROOT navigation
+  bool error = false;
+
+  for (int i = 0; i < 100000; ++i) {
+    state->Clear();
+    newstate->Clear();
+
+    // std::cerr << "START ITERATION " << i << "\n";
+    double x = RNG::Instance().uniform(-10, 10);
+    double y = RNG::Instance().uniform(-10, 10);
+    double z = RNG::Instance().uniform(-10, 10);
+
+    // VecGeom navigation
+    Vector3D<Precision> p(x, y, z);
+    Vector3D<Precision> d = sampleDir();
+
+    SimpleNavigator nav;
+    nav.LocatePoint(GeoManager::Instance().GetWorld(), p, *state, true);
+    double step   = 0;
+    VNavigator *n = Navigator::Instance();
+    step          = n->ComputeStep(p, d, 1E30, *state, *newstate);
+
+    TGeoNavigator *rootnav = ::gGeoManager->GetCurrentNavigator();
+    TGeoNode *node         = rootnav->FindNode(x, y, z);
+    assert(rootnav->GetCurrentNode() == RootGeoManager::Instance().tgeonode(state->Top()));
+
+    rootnav->SetCurrentPoint(x, y, z);
+    rootnav->SetCurrentDirection(d[0], d[1], d[2]);
+    rootnav->FindNextBoundary(1E30);
+
+    assert(std::fabs(step - rootnav->GetStep()) < 1E-6);
+
+    if (newstate->Top() != NULL) {
+      if (rootnav->GetNextNode() != RootGeoManager::Instance().tgeonode(newstate->Top())) {
+        std::cerr << "ERROR ON ITERATION " << i << "\n";
+        std::cerr << i << " " << d << "\n";
+        std::cerr << i << " " << p << "\n";
+        std::cerr << "I AM HERE: " << node->GetName() << "\n";
+        std::cerr << "ROOT GOES HERE: " << rootnav->GetCurrentNode()->GetName() << "\n";
+        std::cerr << rootnav->GetStep() << "\n";
+        std::cerr << "VECGEOM GOES HERE: " << RootGeoManager::Instance().GetName(newstate->Top()) << "\n";
+
+        nav.InspectEnvironmentForPointAndDirection(p, d, *state);
+        error = true;
+      }
+    }
+  }
+  assert(!error);
+  std::cerr << "test9 (statistical navigation without relocation) passed"
+            << "\n";
+}
+
 // testing safety functions via the navigator
 void test_safety()
 {
@@ -384,7 +443,7 @@ void test_safety()
 
     assert(fabs(safetyRoot - safety) < 1E-9);
   }
-  std::cerr << "test9 (statistical safetytest from navigation) passed"
+  std::cerr << "statistical safetytest from navigation passed"
             << "\n";
 }
 
@@ -573,6 +632,7 @@ int main()
   test6();
   test7();
   test8();
+  test9();
   // test ABBoxNavigator
   ABBoxManager::Instance().InitABBoxesForCompleteGeometry();
   test8<ABBoxNavigator>();

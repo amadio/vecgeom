@@ -50,6 +50,19 @@ public:
                                                   NavigationState const & /*in_state*/,
                                                   NavigationState & /*out_state*/) const = 0;
 
+  //! computes the step (distance) to the next object in the geometry hierarchy obtained
+  //! by propagating with step along the ray
+  //! updates out_state to contain information about the next hitting boundary:
+  //!   - if a daugher is hit: out_state.Top() will be daughter
+  //!   - if ray leaves volume: out_state.Top() will point to current volume
+  //!   - if step limit > step: out_state == in_state
+  //!
+  //! This function is essentialy equal to ComputeStepAndPropagatedState without
+  //! the relocation part
+  virtual Precision ComputeStep(Vector3D<Precision> const & /*globalpoint*/, Vector3D<Precision> const & /*globaldir*/,
+                                Precision /*(physics) step limit */, NavigationState const & /*in_state*/,
+                                NavigationState & /*out_state*/) const = 0;
+
   // an alias interface ( using TGeo name )
   void FindNextBoundaryAndStep(Vector3D<Precision> const &globalpoint, Vector3D<Precision> const &globaldir,
                                NavigationState const &in_state, NavigationState &out_state, Precision step_limit,
@@ -354,6 +367,52 @@ public:
       }
       assert(!out_state.Top()->GetLogicalVolume()->GetUnplacedVolume()->IsAssembly());
     }
+    return step;
+  }
+
+  virtual Precision ComputeStep(Vector3D<Precision> const &globalpoint, Vector3D<Precision> const &globaldir,
+                                Precision step_limit, NavigationState const &in_state,
+                                NavigationState &out_state) const override
+  {
+    static size_t counter = 0;
+    counter++;
+    // calculate local point/dir from global point/dir
+    // call the static function for this provided/specialized by the Impl
+    Vector3D<Precision> localpoint;
+    Vector3D<Precision> localdir;
+    Impl::DoGlobalToLocalTransformation(in_state, globalpoint, globaldir, localpoint, localdir, &out_state);
+
+    Precision step                    = step_limit;
+    VPlacedVolume const *hitcandidate = nullptr;
+    auto pvol                         = in_state.Top();
+    auto lvol                         = pvol->GetLogicalVolume();
+
+    if (MotherIsConvex) {
+      // if mother is convex we may not need to do treatment of mother
+      // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
+      ((Impl *)this)
+          ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, &in_state, &out_state, step, hitcandidate);
+      if (hitcandidate == nullptr) step = Impl::TreatDistanceToMother(pvol, localpoint, localdir, step_limit);
+    } else {
+      // need to calc DistanceToOut first
+      step = Impl::TreatDistanceToMother(pvol, localpoint, localdir, step_limit);
+      // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
+      ((Impl *)this)
+          ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, &in_state, &out_state, step, hitcandidate);
+    }
+
+    // fix state
+    bool done;
+    step = Impl::PrepareOutState(in_state, out_state, step, step_limit, hitcandidate, done);
+    if (done) {
+      if (out_state.Top() != nullptr) {
+        assert(!out_state.Top()->GetLogicalVolume()->GetUnplacedVolume()->IsAssembly());
+      }
+      return step;
+    }
+    // step was physics limited
+    if (!out_state.IsOnBoundary()) return step;
+
     return step;
   }
 
