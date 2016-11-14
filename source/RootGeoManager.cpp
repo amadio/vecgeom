@@ -441,13 +441,13 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
   // Polyhedron/TGeoPgon
   if (shape->IsA() == TGeoPgon::Class()) {
     TGeoPgon const *pgon = static_cast<TGeoPgon const *>(shape);
-    unplaced_volume      = new UnplacedPolyhedron(pgon->GetPhi1(), // phiStart
-                                             pgon->GetDphi(),      // phiEnd
-                                             pgon->GetNedges(),    // sideCount
-                                             pgon->GetNz(),        // zPlaneCount
-                                             pgon->GetZ(),         // zPlanes
-                                             pgon->GetRmin(),      // rMin
-                                             pgon->GetRmax()       // rMax
+    unplaced_volume      = new UnplacedPolyhedron(pgon->GetPhi1() * kDegToRad, // phiStart
+                                             pgon->GetDphi() * kDegToRad,      // phiEnd
+                                             pgon->GetNedges(),                // sideCount
+                                             pgon->GetNz(),                    // zPlaneCount
+                                             pgon->GetZ(),                     // zPlanes
+                                             pgon->GetRmin(),                  // rMin
+                                             pgon->GetRmax()                   // rMax
                                              );
   }
 

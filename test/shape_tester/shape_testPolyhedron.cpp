@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
   using namespace vecgeom;
 
   Polyhedron_t *solid = 0;
-  Precision phiStart = 0., deltaPhi = 120.;
+  Precision phiStart = 0., deltaPhi = 120. * kDegToRad;
   int sides               = 4;
   constexpr int nPlanes   = 5;
   double zPlanes[nPlanes] = {-2, -1, 1, 1, 2};

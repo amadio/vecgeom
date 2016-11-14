@@ -32,7 +32,7 @@ UnplacedPolyhedron *WithPhiSection()
   Precision zPlanes[nPlanes] = {-4, -1, 0, 1, 4};
   Precision rInner[nPlanes]  = {1, 0.75, 0.5, 0.75, 1};
   Precision rOuter[nPlanes]  = {1.5, 1.5, 1.5, 1.5, 1.5};
-  return new UnplacedPolyhedron(15, 45, 5, nPlanes, zPlanes, rInner, rOuter);
+  return new UnplacedPolyhedron(15 * kDegToRad, 45 * kDegToRad, 5, nPlanes, zPlanes, rInner, rOuter);
 }
 
 UnplacedPolyhedron *ManySegments()

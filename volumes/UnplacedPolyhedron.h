@@ -121,8 +121,8 @@ private:
   bool fHasInnerRadii;        ///< Has any Z-segments with an inner radius != 0.
   bool fHasPhiCutout;         ///< Has a cutout angle along phi.
   bool fHasLargePhiCutout;    ///< Phi cutout is larger than pi.
-  Precision fPhiStart;        ///< Phi start in degree (input to constructor)
-  Precision fPhiDelta;        ///< Phi delta in degree (input to constructor)
+  Precision fPhiStart;        ///< Phi start in radians (input to constructor)
+  Precision fPhiDelta;        ///< Phi delta in radians (input to constructor)
   Wedge fPhiWedge;            ///< Phi wedge
   Array<ZSegment> fZSegments; ///< AOS'esque collections of quadrilaterals
   Array<Precision> fZPlanes;  ///< Z-coordinate of each plane separating segments
@@ -165,7 +165,7 @@ public:
 
   /// \param phiStart Angle in phi of first corner. This will be one phi angle
   ///                 of the phi cutout, if any cutout is specified. Specified
-  ///                 in degrees (not radians).
+  ///                 in radians.
   /// \param phiDelta Total angle in phi over which the sides of each segment
   ///                 will be drawn. When added to the starting angle, this will
   ///                 mark one of the angles of the phi cutout, if any cutout is
@@ -189,7 +189,7 @@ public:
   /// Hence z[] array must be symmetrical: z[0..Nz] = z[2Nz, 2Nz-1, ..., Nz+1], where Nz = zPlaneCount.
   ///
   /// \param phiStart Angle in phi of first corner. This will be one phi angle of the phi cutout, if any
-  ///                 cutout is specified. Specified in degrees (not radians).
+  ///                 cutout is specified. Specified in radians.
   /// \param phiDelta Total angle in phi over which the sides of each segment will be drawn. When added to the
   ///                 starting angle, this will mark one of the angles of the phi cutout, if a cutout is specified.
   /// \param sideCount Number of sides along phi in each Z-segment.
@@ -303,19 +303,22 @@ public:
 #endif // !VECGEOM_NVCC
 
   /// Not a stored value, and should not be called from performance critical code.
-  /// \return The angle along phi where the first corner is placed, specified in degrees.
+  /// \return The angle along phi where the first corner is placed, specified in radians.
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetPhiStart() const;
+  VECGEOM_FORCE_INLINE
+  Precision GetPhiStart() const { return fPhiStart; }
 
   /// Not a stored value, and should not be called from performance critical code.
   /// \return The angle along phi where the last corner is placed, specified in degrees.
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetPhiEnd() const;
+  VECGEOM_FORCE_INLINE
+  Precision GetPhiEnd() const { return fPhiStart + fPhiDelta; }
 
   /// Not a stored value, and should not be called from performance critical code.
   /// \return The difference in angle along phi between the last corner and the first corner.
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetPhiDelta() const;
+  VECGEOM_FORCE_INLINE
+  Precision GetPhiDelta() const { return fPhiDelta; }
 
   // \return the number of quadrilaterals (including triangles) that this
   // polyhedra consists of; this should be all visible surfaces except the endcaps

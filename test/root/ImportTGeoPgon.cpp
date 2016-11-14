@@ -19,7 +19,7 @@ int main()
   Precision zPlanes[nPlanes] = {-2, -1, 1, 2};
   Precision rInner[nPlanes]  = {1, 0.5, 0.5, 1};
   Precision rOuter[nPlanes]  = {2, 1, 1, 2};
-  SimplePolyhedron vecgeom("Vecgeom", 45, 180, 5, nPlanes, zPlanes, rInner, rOuter);
+  SimplePolyhedron vecgeom("Vecgeom", kPi / 4, kPi, 5, nPlanes, zPlanes, rInner, rOuter);
 
   // Convert to ROOT using the PlacedVolume interface
   std::unique_ptr<const TGeoShape> rootPolyhedron(vecgeom.ConvertToRoot());

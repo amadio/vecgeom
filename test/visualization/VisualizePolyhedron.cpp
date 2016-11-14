@@ -18,7 +18,7 @@ int main()
   // Precision rmax[4]={20.,15.};//,15.,10.};
   // Precision z[4]={0.,20.};//,20.,50.};
 
-  double phiStart = 0., deltaPhi = 120.;
+  double phiStart = 0., deltaPhi = 2. * kPi / 3.;
   int sides = 4;
   // int nZ=10;
   // double rmin[4]={0.,0.,0.,0.};

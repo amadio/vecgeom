@@ -39,22 +39,20 @@
 #define UPolyhedra_hh
 
 #include "UPolyhedraSide.hh"
-class UPolyhedraHistorical
-{
-  public:
+class UPolyhedraHistorical {
+public:
+  UPolyhedraHistorical();
+  ~UPolyhedraHistorical();
+  UPolyhedraHistorical(const UPolyhedraHistorical &source);
+  UPolyhedraHistorical &operator=(const UPolyhedraHistorical &right);
 
-    UPolyhedraHistorical();
-    ~UPolyhedraHistorical();
-    UPolyhedraHistorical(const UPolyhedraHistorical& source);
-    UPolyhedraHistorical& operator=(const UPolyhedraHistorical& right);
-
-    double fStartAngle;
-    double fOpeningAngle;
-    int fNumSide;
-    int fNumZPlanes;
-    std::vector<double> fZValues;
-    std::vector<double> Rmin;
-    std::vector<double> Rmax;
+  double fStartAngle;
+  double fOpeningAngle;
+  int fNumSide;
+  int fNumZPlanes;
+  std::vector<double> fZValues;
+  std::vector<double> Rmin;
+  std::vector<double> Rmax;
 };
 
 #ifdef VECGEOM_REPLACE_USOLIDS
@@ -65,40 +63,40 @@ class UPolyhedraHistorical
 #include "volumes/SpecializedPolyhedron.h"
 #include "volumes/UnplacedPolyhedron.h"
 
-class UPolyhedra: public vecgeom::SimplePolyhedron {
-    // just forwards UPolyhedra to vecgeom::SimplePolyhedron
-    using vecgeom::SimplePolyhedron::SimplePolyhedron;
+class UPolyhedra : public vecgeom::SimplePolyhedron {
+  // just forwards UPolyhedra to vecgeom::SimplePolyhedron
+  using vecgeom::SimplePolyhedron::SimplePolyhedron;
 
 public:
-
   // vecgoem polyhedra expects constructor angles in DEGREES!!
-    UPolyhedra(const std::string& name,
-               double phiStart,    // initial phi starting angle
-               double phiTotal,    // total phi angle
-               int numSide,        // number sides
-               int numZPlanes,     // number of z planes
-               const double zPlane[],    // position of z planes
-               const double rInner[],    // tangent distance to inner surface
-               const double rOuter[])  // tangent distance to outer surface
-      : vecgeom::SimplePolyhedron(name.c_str(),phiStart*180./UUtils::kPi, phiTotal*180./UUtils::kPi,
-                                  numSide, numZPlanes, zPlane, rInner, rOuter)
-    { }
+  UPolyhedra(const std::string &name,
+             double phiStart,       // initial phi starting angle
+             double phiTotal,       // total phi angle
+             int numSide,           // number sides
+             int numZPlanes,        // number of z planes
+             const double zPlane[], // position of z planes
+             const double rInner[], // tangent distance to inner surface
+             const double rOuter[]) // tangent distance to outer surface
+      : vecgeom::SimplePolyhedron(name.c_str(), phiStart, phiTotal, numSide, numZPlanes, zPlane, rInner, rOuter)
+  {
+  }
 
-    UPolyhedra(const std::string& name,
-               double phiStart,    // initial phi starting angle
-               double phiTotal,    // total phi angle
-               int    numSide,     // number sides
-               int    numRZ,       // number corners in r,z space
-               const double r[],         // r coordinate of these corners
-               const double z[])         // z coordinate of these corners
-      : vecgeom::SimplePolyhedron(name.c_str(), phiStart*180./UUtils::kPi, phiTotal*180./UUtils::kPi,
-                                  numSide, numRZ, r, z)
-    { }
+  UPolyhedra(const std::string &name,
+             double phiStart,  // initial phi starting angle
+             double phiTotal,  // total phi angle
+             int numSide,      // number sides
+             int numRZ,        // number corners in r,z space
+             const double r[], // r coordinate of these corners
+             const double z[]) // z coordinate of these corners
+      : vecgeom::SimplePolyhedron(name.c_str(), phiStart, phiTotal, numSide, numRZ, r, z)
+  {
+  }
 
-  UPolyhedraSideRZ GetCorner(int index) const {
-      vecgeom::Precision z = GetUnplacedVolume()->GetZPlane(index);
-      vecgeom::Precision r = GetUnplacedVolume()->GetRMax()[index];
-      return UPolyhedraSideRZ{r,z};
+  UPolyhedraSideRZ GetCorner(int index) const
+  {
+    vecgeom::Precision z = GetUnplacedVolume()->GetZPlane(index);
+    vecgeom::Precision r = GetUnplacedVolume()->GetRMax()[index];
+    return UPolyhedraSideRZ{r, z};
   }
 };
 //============== end of VecGeom-based implementation
@@ -111,137 +109,125 @@ public:
 class UEnclosingCylinder;
 class UReduciblePolygon;
 
-class UPolyhedra : public UVCSGfaceted
-{
-  protected:
+class UPolyhedra : public UVCSGfaceted {
+protected:
+  inline UPolyhedra(const std::string &name) : UVCSGfaceted(name) {}
 
-    inline UPolyhedra(const std::string& name) : UVCSGfaceted(name) {}
+public:                             // with description
+  void Init(double phiStart,        // initial phi starting angle
+            double phiTotal,        // total phi angle
+            int numSide,            // number sides
+            int numZPlanes,         // number of z planes
+            const double zPlane[],  // position of z planes
+            const double rInner[],  // tangent distance to inner surface
+            const double rOuter[]); // tangent distance to outer surface
 
-  public:  // with description
+  UPolyhedra(const std::string &name,
+             double phiStart,        // initial phi starting angle
+             double phiTotal,        // total phi angle
+             int numSide,            // number sides
+             int numZPlanes,         // number of z planes
+             const double zPlane[],  // position of z planes
+             const double rInner[],  // tangent distance to inner surface
+             const double rOuter[]); // tangent distance to outer surface
 
-    void Init(
-      double phiStart,    // initial phi starting angle
-      double phiTotal,    // total phi angle
-      int numSide,        // number sides
-      int numZPlanes,     // number of z planes
-      const double zPlane[],    // position of z planes
-      const double rInner[],    // tangent distance to inner surface
-      const double rOuter[]);   // tangent distance to outer surface
+  UPolyhedra(const std::string &name,
+             double phiStart,   // initial phi starting angle
+             double phiTotal,   // total phi angle
+             int numSide,       // number sides
+             int numRZ,         // number corners in r,z space
+             const double r[],  // r coordinate of these corners
+             const double z[]); // z coordinate of these corners
 
-    UPolyhedra(const std::string& name,
-               double phiStart,    // initial phi starting angle
-               double phiTotal,    // total phi angle
-               int numSide,        // number sides
-               int numZPlanes,     // number of z planes
-               const double zPlane[],    // position of z planes
-               const double rInner[],    // tangent distance to inner surface
-               const double rOuter[]);   // tangent distance to outer surface
+  virtual ~UPolyhedra();
 
-    UPolyhedra(const std::string& name,
-               double phiStart,    // initial phi starting angle
-               double phiTotal,    // total phi angle
-               int    numSide,     // number sides
-               int    numRZ,       // number corners in r,z space
-               const double r[],         // r coordinate of these corners
-               const double z[]);        // z coordinate of these corners
+  // Methods for solid
 
-    virtual ~UPolyhedra();
+  void GetParametersList(int /*aNumber*/, double * /*aArray*/) const {}
 
-    // Methods for solid
+  void ComputeBBox(UBBox * /*aBox*/, bool /*aStore*/)
+  {
+    // Computes bounding box.
+    std::cout << "ComputeBBox - Not implemented" << std::endl;
+  }
 
-    void GetParametersList(int /*aNumber*/, double* /*aArray*/) const {}
+  VUSolid::EnumInside Inside(const UVector3 &p) const;
 
-    void ComputeBBox(UBBox* /*aBox*/, bool /*aStore*/)
-    {
-      // Computes bounding box.
-      std::cout << "ComputeBBox - Not implemented" << std::endl;
-    }
+  // double DistanceToInDelete( const UVector3 &p,
+  //                      const UVector3 &v ) const;
 
-    VUSolid::EnumInside Inside(const UVector3& p) const;
+  double SafetyFromOutside(const UVector3 &aPoint, bool aAccurate = false) const;
 
-    // double DistanceToInDelete( const UVector3 &p,
-    //                      const UVector3 &v ) const;
+  UGeometryType GetEntityType() const;
 
-    double SafetyFromOutside(const UVector3& aPoint, bool aAccurate = false) const;
+  VUSolid *Clone() const;
 
-    UGeometryType  GetEntityType() const;
+  UVector3 GetPointOnSurface() const;
 
-    VUSolid* Clone() const;
+  std::ostream &StreamInfo(std::ostream &os) const;
 
-    UVector3 GetPointOnSurface() const;
+  bool Reset();
 
-    std::ostream& StreamInfo(std::ostream& os) const;
+  // Accessors
 
-    bool Reset();
+  inline int GetNumSide() const;
+  inline double GetStartPhi() const;
+  inline double GetEndPhi() const;
+  inline bool IsOpen() const;
+  inline bool IsGeneric() const;
+  inline int GetNumRZCorner() const;
+  inline UPolyhedraSideRZ GetCorner(const int index) const;
 
-    // Accessors
+  inline UPolyhedraHistorical *GetOriginalParameters();
+  // Returns internal scaled parameters.
+  inline void SetOriginalParameters(UPolyhedraHistorical &pars);
+  // Sets internal parameters. Parameters 'Rmin' and 'Rmax' in input must
+  // be scaled first by a factor computed as 'cos(0.5*phiTotal/theNumSide)',
+  // if not already scaled.
 
-    inline int GetNumSide()     const;
-    inline double GetStartPhi() const;
-    inline double GetEndPhi()   const;
-    inline bool IsOpen()        const;
-    inline bool IsGeneric()     const;
-    inline int GetNumRZCorner() const;
-    inline UPolyhedraSideRZ GetCorner(const int index) const;
+public: // without description
+  double DistanceToIn(const UVector3 &p, const UVector3 &v, double aPstep = UUtils::kInfinity) const;
 
-    inline UPolyhedraHistorical* GetOriginalParameters();
-    // Returns internal scaled parameters.
-    inline void SetOriginalParameters(UPolyhedraHistorical& pars);
-    // Sets internal parameters. Parameters 'Rmin' and 'Rmax' in input must
-    // be scaled first by a factor computed as 'cos(0.5*phiTotal/theNumSide)',
-    // if not already scaled.
+  UPolyhedra(const UPolyhedra &source);
+  UPolyhedra &operator=(const UPolyhedra &source);
+  // Copy constructor and assignment operator.
 
-  public:  // without description
+  void Extent(UVector3 &aMin, UVector3 &aMax) const;
 
-    double DistanceToIn(const UVector3& p,
-                        const UVector3& v, double aPstep = UUtils::kInfinity) const;
+protected: // without description
+  inline void SetOriginalParameters();
+  // Sets internal parameters for the generic constructor.
 
-    UPolyhedra(const UPolyhedra& source);
-    UPolyhedra& operator=(const UPolyhedra& source);
-    // Copy constructor and assignment operator.
+  void Create(double phiStart,        // initial phi starting angle
+              double phiTotal,        // total phi angle
+              int numSide,            // number sides
+              UReduciblePolygon *rz); // rz coordinates
+  // Generates the shape and is called by each constructor, after the
+  // conversion of the arguments
 
-    void Extent(UVector3& aMin, UVector3& aMax) const;
+  void CopyStuff(const UPolyhedra &source);
+  void DeleteStuff();
 
-  protected:  // without description
+  // Methods for generation of random points on surface
 
-    inline void SetOriginalParameters();
-    // Sets internal parameters for the generic constructor.
+  UVector3 GetPointOnPlane(UVector3 p0, UVector3 p1, UVector3 p2, UVector3 p3) const;
+  UVector3 GetPointOnTriangle(UVector3 p0, UVector3 p1, UVector3 p2) const;
+  UVector3 GetPointOnSurfaceCorners() const;
 
-    void Create(double phiStart,            // initial phi starting angle
-                double phiTotal,           // total phi angle
-                int    numSide,            // number sides
-                UReduciblePolygon* rz);     // rz coordinates
-    // Generates the shape and is called by each constructor, after the
-    // conversion of the arguments
-
-    void CopyStuff(const UPolyhedra& source);
-    void DeleteStuff();
-
-    // Methods for generation of random points on surface
-
-    UVector3 GetPointOnPlane(UVector3 p0, UVector3 p1,
-                             UVector3 p2, UVector3 p3) const;
-    UVector3 GetPointOnTriangle(UVector3 p0, UVector3 p1,
-                                UVector3 p2) const;
-    UVector3 GetPointOnSurfaceCorners() const;
-
-    
-  protected:  // without description
-
-    int   fNumSides;      // Number of sides
-    double fStartPhi;    // Starting phi value (0 < phiStart < 2pi)
-    double fEndPhi;      // end phi value (0 < endPhi-phiStart < 2pi)
-    bool   fPhiIsOpen;   // true if there is a phi segment
-    bool   fGenericPgon; // true if created through the 2nd generic constructor
-    int   fNumCorner;    // number RZ points
-    UPolyhedraSideRZ* fCorners;  // our corners
-    UPolyhedraHistorical fOriginalParameters;  // original input parameters
-    UEnclosingCylinder* fEnclosingCylinder;
-
+protected:                                  // without description
+  int fNumSides;                            // Number of sides
+  double fStartPhi;                         // Starting phi value (0 < phiStart < 2pi)
+  double fEndPhi;                           // end phi value (0 < endPhi-phiStart < 2pi)
+  bool fPhiIsOpen;                          // true if there is a phi segment
+  bool fGenericPgon;                        // true if created through the 2nd generic constructor
+  int fNumCorner;                           // number RZ points
+  UPolyhedraSideRZ *fCorners;               // our corners
+  UPolyhedraHistorical fOriginalParameters; // original input parameters
+  UEnclosingCylinder *fEnclosingCylinder;
 };
 
 #include "UPolyhedra.icc"
 //============== end of USolids-based implementation
 
-#endif  // VECGEOM_REPLACE_USOLIDS
-#endif  // UPolyhedra_hh
+#endif // VECGEOM_REPLACE_USOLIDS
+#endif // UPolyhedra_hh

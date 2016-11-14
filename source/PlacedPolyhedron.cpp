@@ -43,7 +43,8 @@ TGeoShape const *PlacedPolyhedron::ConvertToRoot() const
 
   const int zPlaneCount = GetZSegmentCount() + 1;
 
-  TGeoPgon *pgon = new TGeoPgon(GetLabel().c_str(), GetPhiStart(), GetPhiDelta(), GetSideCount(), zPlaneCount);
+  TGeoPgon *pgon = new TGeoPgon(GetLabel().c_str(), GetPhiStart() * kRadToDeg, GetPhiDelta() * kRadToDeg,
+                                GetSideCount(), zPlaneCount);
 
   // Define sections of TGeoPgon. It takes care of the rest internally once the
   // last section is set.
@@ -59,8 +60,8 @@ TGeoShape const *PlacedPolyhedron::ConvertToRoot() const
 ::VUSolid const *PlacedPolyhedron::ConvertToUSolids() const
 {
 
-  return new UPolyhedra(GetLabel().c_str(), kDegToRad * GetPhiStart(), kDegToRad * GetPhiDelta(), GetSideCount(),
-                        GetZSegmentCount() + 1, &GetZPlanes()[0], &GetRMin()[0], &GetRMax()[0]);
+  return new UPolyhedra(GetLabel().c_str(), GetPhiStart(), GetPhiDelta(), GetSideCount(), GetZSegmentCount() + 1,
+                        &GetZPlanes()[0], &GetRMin()[0], &GetRMax()[0]);
 }
 #endif
 
@@ -68,8 +69,8 @@ TGeoShape const *PlacedPolyhedron::ConvertToRoot() const
 G4VSolid const *PlacedPolyhedron::ConvertToGeant4() const
 {
 
-  return new G4Polyhedra(GetLabel().c_str(), kDegToRad * GetPhiStart(), kDegToRad * GetPhiDelta(), GetSideCount(),
-                         GetZSegmentCount() + 1, &GetZPlanes()[0], &GetRMin()[0], &GetRMax()[0]);
+  return new G4Polyhedra(GetLabel().c_str(), GetPhiStart(), GetPhiDelta(), GetSideCount(), GetZSegmentCount() + 1,
+                         &GetZPlanes()[0], &GetRMin()[0], &GetRMax()[0]);
 }
 #endif
 #endif // !VECGEOM_NVCC

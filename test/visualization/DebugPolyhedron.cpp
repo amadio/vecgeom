@@ -12,7 +12,7 @@ int main()
   Precision zPlanes[nPlanes] = {-2, -1, 1, 2};
   Precision rInner[nPlanes]  = {1, 1, 1, 1};
   Precision rOuter[nPlanes]  = {2, 2, 2, 2};
-  UnplacedPolyhedron unplaced(0, 270, 5, nPlanes, zPlanes, rInner, rOuter);
+  UnplacedPolyhedron unplaced(0, 3 * kPi / 4, 5, nPlanes, zPlanes, rInner, rOuter);
   LogicalVolume logical(&unplaced);
   Transformation3D translation(0, 0, 0);
   std::unique_ptr<VPlacedVolume> placed(logical.Place(&translation));

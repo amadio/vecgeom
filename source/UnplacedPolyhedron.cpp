@@ -19,7 +19,7 @@ using namespace vecgeom::Polyhedron;
 
 UnplacedPolyhedron::UnplacedPolyhedron(const int sideCount, const int zPlaneCount, Precision const zPlanes[],
                                        Precision const rMin[], Precision const rMax[])
-    : UnplacedPolyhedron(0, 360, sideCount, zPlaneCount, zPlanes, rMin, rMax)
+    : UnplacedPolyhedron(0., kTwoPi, sideCount, zPlaneCount, zPlanes, rMin, rMax)
 {
 }
 
@@ -44,12 +44,12 @@ VECGEOM_CUDA_HEADER_BOTH
 UnplacedPolyhedron::UnplacedPolyhedron(Precision phiStart, Precision phiDelta, const int sideCount,
                                        const int zPlaneCount, Precision const zPlanes[], Precision const rMin[],
                                        Precision const rMax[])
-    : fSideCount(sideCount), fHasInnerRadii(false), fHasPhiCutout(phiDelta < 360), fHasLargePhiCutout(phiDelta < 180),
-      fPhiStart(phiStart), fPhiDelta(phiDelta),
-      fPhiWedge(phiDelta * kDegToRad, NormalizeAngle<kScalar>(kDegToRad * phiStart)), fZSegments(zPlaneCount - 1),
-      fZPlanes(zPlaneCount), fRMin(zPlaneCount), fRMax(zPlaneCount), fPhiSections(sideCount + 1),
-      fBoundingTube(0, 1, 1, 0, kTwoPi), fSurfaceArea(0.), fCapacity(0.), fContinuousInSlope(true),
-      fConvexityPossible(true), fEqualRmax(true)
+    : fSideCount(sideCount), fHasInnerRadii(false), fHasPhiCutout(phiDelta < kTwoPi),
+      fHasLargePhiCutout(phiDelta < kPi), fPhiStart(NormalizeAngle<kScalar>(phiStart)),
+      fPhiDelta((phiDelta > kTwoPi) ? kTwoPi : phiDelta), fPhiWedge(phiDelta, NormalizeAngle<kScalar>(phiStart)),
+      fZSegments(zPlaneCount - 1), fZPlanes(zPlaneCount), fRMin(zPlaneCount), fRMax(zPlaneCount),
+      fPhiSections(sideCount + 1), fBoundingTube(0, 1, 1, 0, kTwoPi), fSurfaceArea(0.), fCapacity(0.),
+      fContinuousInSlope(true), fConvexityPossible(true), fEqualRmax(true)
 {
 
   // initialize polyhedron internals
@@ -108,8 +108,7 @@ void UnplacedPolyhedron::Initialize(Precision phiStart, Precision phiDelta, cons
 
   // Compute the cylindrical coordinate phi along which the corners are placed
   assert(phiDelta > 0);
-  phiStart = NormalizeAngle<kScalar>(kDegToRad * phiStart);
-  phiDelta *= kDegToRad;
+  phiStart                        = NormalizeAngle<kScalar>(phiStart);
   if (phiDelta > kTwoPi) phiDelta = kTwoPi;
   Precision sidePhi               = phiDelta / sideCount;
   vecgeom::unique_ptr<Precision[]> vertixPhi(new Precision[sideCount + 1]);
@@ -236,11 +235,11 @@ UnplacedPolyhedron::UnplacedPolyhedron(Precision phiStart, Precision phiDelta, c
                                        Precision const r[], // 2*zPlaneCount elements
                                        Precision const z[]  // ditto
                                        )
-    : fSideCount(sideCount), fHasInnerRadii(false), fHasPhiCutout(phiDelta < 360), fHasLargePhiCutout(phiDelta < 180),
-      fPhiStart(phiStart), fPhiDelta(phiDelta),
-      fPhiWedge(phiDelta * kDegToRad, NormalizeAngle<kScalar>(kDegToRad * phiStart)), fZSegments(zPlaneCount - 1),
-      fZPlanes(zPlaneCount), fRMin(zPlaneCount), fRMax(zPlaneCount), fPhiSections(sideCount + 1),
-      fBoundingTube(0, 1, 1, 0, kTwoPi), fSurfaceArea(0.), fCapacity(0.)
+    : fSideCount(sideCount), fHasInnerRadii(false), fHasPhiCutout(phiDelta < kTwoPi),
+      fHasLargePhiCutout(phiDelta < kPi), fPhiStart(NormalizeAngle<kScalar>(phiStart)),
+      fPhiDelta((phiDelta > kTwoPi) ? kTwoPi : phiDelta), fPhiWedge(phiDelta, NormalizeAngle<kScalar>(phiStart)),
+      fZSegments(zPlaneCount - 1), fZPlanes(zPlaneCount), fRMin(zPlaneCount), fRMax(zPlaneCount),
+      fPhiSections(sideCount + 1), fBoundingTube(0, 1, 1, 0, kTwoPi), fSurfaceArea(0.), fCapacity(0.)
 {
   // data integrity checks
   for (int i = 0; i <= zPlaneCount; ++i) {
@@ -280,30 +279,6 @@ UnplacedPolyhedron::UnplacedPolyhedron(Precision phiStart, Precision phiDelta, c
   Initialize(phiStart, phiDelta, sideCount, zPlaneCount, zarg, rmin, rmax);
 }
 
-// TODO: move this to HEADER; this is now stored as a member
-VECGEOM_CUDA_HEADER_BOTH
-Precision UnplacedPolyhedron::GetPhiStart() const
-{
-  return kRadToDeg * NormalizeAngle<kScalar>(fPhiSections[0].Cross(Vector3D<Precision>(0, 0, 1)).Phi());
-}
-
-// TODO: move this to HEADER; this is now stored as a member
-VECGEOM_CUDA_HEADER_BOTH
-Precision UnplacedPolyhedron::GetPhiEnd() const
-{
-  return !HasPhiCutout()
-             ? 360
-             : kRadToDeg *
-                   NormalizeAngle<kScalar>(fPhiSections[GetSideCount()].Cross(Vector3D<Precision>(0, 0, 1)).Phi());
-}
-
-// TODO: move this to HEADER
-VECGEOM_CUDA_HEADER_BOTH
-Precision UnplacedPolyhedron::GetPhiDelta() const
-{
-  return fPhiDelta;
-}
-
 VECGEOM_CUDA_HEADER_BOTH
 int UnplacedPolyhedron::GetNQuadrilaterals() const
 {
@@ -329,7 +304,7 @@ std::ostream &UnplacedPolyhedron::StreamInfo(std::ostream &os) const
      << "     ===================================================\n"
      << " Solid type: " << GetEntityType() << "\n"
      << " Parameters:\n"
-     << " Phi start=" << fPhiStart << "deg, Phi delta=" << fPhiDelta << "deg\n"
+     << " Phi start=" << fPhiStart * kRadToDeg << "deg, Phi delta=" << fPhiDelta * kRadToDeg << "deg\n"
      << "     Number of segments along phi: " << fSideCount << "\n"
      << "     N = number of Z-sections: " << fZSegments.size() << "\n"
      << "     N+1 z-coordinates (in cm):\n";
@@ -436,12 +411,11 @@ VPlacedVolume *UnplacedPolyhedron::SpecializedVolume(LogicalVolume const *const 
 #ifndef VECGEOM_NVCC
 void UnplacedPolyhedron::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
-  aMin                            = kInfLength;
-  aMax                            = -kInfLength;
-  Precision phiStart              = NormalizeAngle<kScalar>(kDegToRad * fPhiStart);
-  Precision phiDelta              = kDegToRad * fPhiDelta;
-  if (phiDelta > kTwoPi) phiDelta = kTwoPi;
-  Precision sidePhi               = phiDelta / fSideCount;
+  aMin               = kInfLength;
+  aMax               = -kInfLength;
+  Precision phiStart = fPhiStart;
+  Precision phiDelta = fPhiDelta;
+  Precision sidePhi  = phiDelta / fSideCount;
   // Specified radii are to the sides, not to the corners. Change these values,
   // as corners and not sides are used to compute the extent
   Precision conv = 1. / cos(0.5 * sidePhi);
@@ -808,8 +782,8 @@ bool UnplacedPolyhedron::Normal(Vector3D<Precision> const &point, Vector3D<Preci
 VECGEOM_CUDA_HEADER_BOTH
 void UnplacedPolyhedron::Print() const
 {
-  printf("UnplacedPolyhedron {%i sides, phi %f to %f, %i segments}", fSideCount, GetPhiStart(), GetPhiEnd(),
-         fZSegments.size());
+  printf("UnplacedPolyhedron {%i sides, phi %f to %f, %i segments}", fSideCount, GetPhiStart() * kRadToDeg,
+         GetPhiEnd() * kRadToDeg, fZSegments.size());
   printf("}");
 }
 
@@ -848,11 +822,12 @@ void UnplacedPolyhedron::DetectConvexity()
 
   if (fConvexityPossible) {
     if (fEqualRmax &&
-        (fPhiDelta <= 180 ||
-         fPhiDelta == 360)) // In this case, Polycone become solid Cylinder, No need to check anything else, 100% convex
+        (fPhiDelta <= kPi ||
+         fPhiDelta ==
+             kTwoPi)) // In this case, Polycone become solid Cylinder, No need to check anything else, 100% convex
       fGlobalConvexity = true;
     else {
-      if (fPhiDelta <= 180 || fPhiDelta == 360) {
+      if (fPhiDelta <= kPi || fPhiDelta == kTwoPi) {
         fGlobalConvexity = fContinuousInSlope;
       }
     }

@@ -55,13 +55,9 @@ bool TestPolyhedra()
   Z_Values[6] = 30;
   Z_Values[7] = 40;
 
-  double sphi     = 0.0;
-  double dphi     = 45.0;
-  double halfdphi = 0.5 * dphi * degToRad / 5.;
-  if (!testvecgeom) {
-    dphi *= degToRad;
-    sphi *= degToRad;
-  }
+  double sphi         = 0.0;
+  double dphi         = UUtils::kPi / 4.;
+  double halfdphi     = 0.5 * dphi / 5.;
   Polyhedra_t *MyPGon = new Polyhedra_t("MyPGon", sphi, dphi, 5, 8, Z_Values, RMINVec, RMAXVec);
 
   double RMINVec0[2];
@@ -77,11 +73,7 @@ bool TestPolyhedra()
   Z_Values0[1] = 1;
 
   double sphi0 = 0.0;
-  double dphi0 = 180.0;
-  if (!testvecgeom) {
-    sphi0 *= degToRad;
-    dphi0 *= degToRad;
-  }
+  double dphi0 = UUtils::kPi;
 
   Polyhedra_t *MyPGon0 = new Polyhedra_t("MyPGon0", sphi0, dphi0, 2, 2, Z_Values0, RMINVec0, RMAXVec0);
 
@@ -101,11 +93,7 @@ bool TestPolyhedra()
   Z_Values1[2] = 1;
 
   double sphi1 = 0.;
-  double dphi1 = 360.;
-  if (!testvecgeom) {
-    sphi1 *= degToRad;
-    dphi1 *= degToRad;
-  }
+  double dphi1 = 2 * UUtils::kPi;
 
   Polyhedra_t *MyPGon1 = new Polyhedra_t("MyPGon1", sphi1, dphi1, 4, 3, Z_Values1, RMINVec1, RMAXVec1);
 

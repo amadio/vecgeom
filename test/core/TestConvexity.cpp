@@ -360,7 +360,7 @@ bool test_ConvexityTrapezoid()
 bool test_ConvexityPolyhedron()
 {
 
-  double phiStart = 0., deltaPhi = 170;
+  double phiStart = 0., deltaPhi = 170 * kDegToRad;
   int sides               = 4; //, nZ=10;
   constexpr int nPlanes   = 4;
   double zPlanes[nPlanes] = {-2, -1, 1, 2};
@@ -370,27 +370,30 @@ bool test_ConvexityPolyhedron()
   vecgeom::SimplePolyhedron b1("Vecgeom Polyhedron", phiStart, deltaPhi, sides, nPlanes, zPlanes, rInner, rOuter);
   assert(b1.GetUnplacedVolume()->IsConvex());
 
-  vecgeom::SimplePolyhedron b2("Vecgeom Polyhedron", phiStart, 60, sides, nPlanes, zPlanes, rInner, rOuter);
+  vecgeom::SimplePolyhedron b2("Vecgeom Polyhedron", phiStart, 60 * kDegToRad, sides, nPlanes, zPlanes, rInner, rOuter);
   assert(b2.GetUnplacedVolume()->IsConvex());
 
-  vecgeom::SimplePolyhedron b3("Vecgeom Polyhedron", phiStart, 200, sides, nPlanes, zPlanes, rInner, rOuter);
+  vecgeom::SimplePolyhedron b3("Vecgeom Polyhedron", phiStart, 200 * kDegToRad, sides, nPlanes, zPlanes, rInner,
+                               rOuter);
   assert(!b3.GetUnplacedVolume()->IsConvex());
 
   rOuter[1] = 1.;
   rOuter[2] = 1.;
-  vecgeom::SimplePolyhedron b5("Vecgeom Polyhedron", phiStart, 120, sides, nPlanes, zPlanes, rInner, rOuter);
+  vecgeom::SimplePolyhedron b5("Vecgeom Polyhedron", phiStart, 120 * kDegToRad, sides, nPlanes, zPlanes, rInner,
+                               rOuter);
   assert(!b5.GetUnplacedVolume()->IsConvex());
 
   rOuter[0] = 1.;
   rOuter[1] = 2.;
   rOuter[2] = 2.;
   rOuter[3] = 1.;
-  vecgeom::SimplePolyhedron b6("Vecgeom Polyhedron", phiStart, 120, sides, nPlanes, zPlanes, rInner, rOuter);
+  vecgeom::SimplePolyhedron b6("Vecgeom Polyhedron", phiStart, 120 * kDegToRad, sides, nPlanes, zPlanes, rInner,
+                               rOuter);
   assert(b6.GetUnplacedVolume()->IsConvex());
 
   rInner[1] = 1.;
   rInner[2] = 0.5;
-  vecgeom::SimplePolyhedron b4("Vecgeom Polyhedron", phiStart, 60, sides, nPlanes, zPlanes, rInner, rOuter);
+  vecgeom::SimplePolyhedron b4("Vecgeom Polyhedron", phiStart, 60 * kDegToRad, sides, nPlanes, zPlanes, rInner, rOuter);
   assert(!b4.GetUnplacedVolume()->IsConvex());
 
   return true;
