@@ -18,6 +18,7 @@
 #include "volumes/Trapezoid.h"
 
 bool testvecgeom = false;
+double degToRad  = vecCore::math::ATan(1.0) / 45.;
 
 template <typename Constants, class Trap_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
 bool TestTrap()
@@ -616,7 +617,6 @@ bool TestTrap()
 void TestVECGEOM375()
 {
   // unit test coming from Issue VECGEOM-375
-  const double degToRad = vecCore::math::ATan(1.0) / 45.;
   // Note: angles in rad, lengths in mm!
   vecgeom::UnplacedTrapezoid t(/*pDz=*/1522, /*pTheta=*/1.03516586152568 * degToRad,
                                /* double pPhi=*/-90.4997606158588 * degToRad, /*pDy1=*/147.5,
@@ -628,6 +628,7 @@ void TestVECGEOM375()
   vecgeom::LogicalVolume logvol("", &t);
   logvol.Place();
   // t.StreamInfo(std::cout);
+  // t.Print(std::cout);
 
   using Vec_t = vecgeom::Vector3D<double>;
   Vec_t ponsurf, normal;
@@ -660,6 +661,19 @@ void TestVECGEOM353()
   assert(!p->Contains(point));
   auto dist = p->DistanceToIn(point, Vec_t(1., 0., 0.));
   assert(dist == vecgeom::kInfLength);
+}
+
+void TestVECGEOM393()
+{
+  using namespace vecgeom;
+  // unit test coming from Issue VECGEOM-393
+  const double &deg = degToRad;
+  vecgeom::UnplacedTrapezoid trap(60, 20 * deg, 5 * deg, 40, 30, 40, 10 * deg, 16, 10, 14, 10 * deg);
+
+  Vector3D<Precision> extMin, extMax;
+  trap.Extent(extMin, extMax);
+  assert(ApproxEqual(extMin, Vector3D<double>(-58.80819229, -41.90332577, -60.)));
+  assert(ApproxEqual(extMax, Vector3D<double>(38.57634475, 38.09667423, 60.)));
 }
 
 #ifdef VECGEOM_USOLIDS
@@ -699,6 +713,7 @@ int main(int argc, char *argv[])
     testvecgeom = true; // needed to avoid testing convexity when vecgeom is used
     TestVECGEOM375();
     TestVECGEOM353();
+    TestVECGEOM393();
     TestTrap<VECGEOMCONSTANTS, VECGEOM_NAMESPACE::SimpleTrapezoid>();
 
     std::cout << "VecGeom Trap passed.\n";

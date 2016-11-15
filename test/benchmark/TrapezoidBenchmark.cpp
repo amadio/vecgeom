@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
   OPTION_INT(npoints, 32768);
   OPTION_INT(nrep, 4);
   OPTION_INT(nstats, 1);
+  OPTION_INT(type, 2);
 
 #if 0
   // temporary alert to deprecated use of npoints
@@ -25,43 +26,84 @@ int main(int argc, char *argv[])
 
   //===== Build a geometry with trapezoid(s)
 
-  // world volume is a box, or a box-like trapezoid
+  // world volume: either a box, or a box-like trapezoid
   // UnplacedBox worldUnplaced = UnplacedBox(20., 20., 20.);
   UnplacedTrapezoid worldUnplaced = UnplacedTrapezoid(20., 0., 0., 20., 20., 20., 0., 20., 20., 20., 0.);
 
-  //-- and here is for an internal trapezoid
+  //-- and here for a few alternative internal trapezoids
+  UnplacedTrapezoid *trapPtr = nullptr;
 
-  // validate construtor for input corner points -- add an xy-offset for non-zero theta,phi
-  TrapCorners xyz;
-  Precision xoffset = 9;
-  Precision yoffset = -6;
+  switch (type) {
+  case 0:
+    std::cout << "==================================================\n"
+              << " Testing box-like trapezoid for npoints = " << npoints << "\n"
+              << "==================================================\n";
 
-  // define corner points
-  // convention: p0(---); p1(+--); p2(-+-); p3(++-); p4(--+); p5(+-+); p6(-++); p7(+++)
-  xyz[0] = Vector3D<Precision>(-2 + xoffset, -5 + yoffset, -15);
-  xyz[1] = Vector3D<Precision>(2 + xoffset, -5 + yoffset, -15);
-  xyz[2] = Vector3D<Precision>(-3 + xoffset, 5 + yoffset, -15);
-  xyz[3] = Vector3D<Precision>(3 + xoffset, 5 + yoffset, -15);
-  xyz[4] = Vector3D<Precision>(-4 - xoffset, -10 - yoffset, 15);
-  xyz[5] = Vector3D<Precision>(4 - xoffset, -10 - yoffset, 15);
-  xyz[6] = Vector3D<Precision>(-6 - xoffset, 10 - yoffset, 15);
-  xyz[7] = Vector3D<Precision>(6 - xoffset, 10 - yoffset, 15);
+    trapPtr = new UnplacedTrapezoid(10, 0, 0, 10, 10, 10, 0, 10, 10, 10, 0);
+    break;
 
-  // create trapezoid
-  UnplacedTrapezoid trapUnplaced(xyz);
+  case 1:
+    std::cout << "======================================================\n"
+              << " Testing corner-based trapezoid for npoints = " << npoints << "\n"
+              << "======================================================\n";
 
-  //.. and here is for a secon internal trapezoid
-  // UnplacedTrapezoid trapUnplaced2(10, 0, 0, 10, 10, 10, 0, 10, 10, 10, 0);
+    {
+      // validate construtor for input corner points -- add an xy-offset for non-zero theta,phi
+      TrapCorners xyz;
+      Precision xoffset = 9;
+      Precision yoffset = -6;
+
+      // define corner points
+      // convention: p0(---); p1(+--); p2(-+-); p3(++-); p4(--+); p5(+-+); p6(-++); p7(+++)
+      xyz[0] = Vector3D<Precision>(-2 + xoffset, -5 + yoffset, -15);
+      xyz[1] = Vector3D<Precision>(2 + xoffset, -5 + yoffset, -15);
+      xyz[2] = Vector3D<Precision>(-3 + xoffset, 5 + yoffset, -15);
+      xyz[3] = Vector3D<Precision>(3 + xoffset, 5 + yoffset, -15);
+      xyz[4] = Vector3D<Precision>(-4 - xoffset, -10 - yoffset, 15);
+      xyz[5] = Vector3D<Precision>(4 - xoffset, -10 - yoffset, 15);
+      xyz[6] = Vector3D<Precision>(-6 - xoffset, 10 - yoffset, 15);
+      xyz[7] = Vector3D<Precision>(6 - xoffset, 10 - yoffset, 15);
+
+      // create trapezoid
+      trapPtr = new UnplacedTrapezoid(xyz);
+    }
+    break;
+
+  case 2:
+    std::cout << "=====================================================================\n"
+              << " Testing trapezoid with non-zero Alpha1,Alpha2 for npoints = " << npoints << "\n"
+              << "=====================================================================\n";
+
+    {
+      // check geometry derived from JIRA-393 (dividing by 4 in order to fit on world box)
+      const double &deg = kDegToRad;
+      double theta      = 20. * deg;
+      double phi        = 5. * deg;
+      double alpha      = 10. * deg;
+      trapPtr           = new UnplacedTrapezoid(15, theta, phi, 10, 7.5, 10, alpha, 4, 2.5, 3.5, alpha);
+    }
+    break;
+
+  default:
+    std::cout << "\n***** Unknown trapezoid type: " << type << "\n"
+              << "\n Valid types:\n"
+              << "\t0: box-like trapezoid\n"
+              << "\t1: corner-defined trapezoid\n"
+              << "\t2: non-zero Alpha1=Alpha2 trapezoid [default]\n";
+    return 1;
+  }
+  trapPtr->Print();
 
   LogicalVolume world("world", &worldUnplaced);
-  LogicalVolume trap("trap", &trapUnplaced);
+  LogicalVolume trap("trap", trapPtr);
 
-  Transformation3D *transf = new Transformation3D(5, 2, 3, 15, 30, 45);
+  // define transformation
+  Transformation3D *transf = NULL;
+  transf                   = new Transformation3D(5, 2, 3, 15, 30, 45);
   world.PlaceDaughter(&trap, transf);
   // world.PlaceDaughter(&trap, &Transformation3D::kIdentity);
 
   VPlacedVolume *worldPlaced = world.Place();
-
   GeoManager::Instance().SetWorldAndClose(worldPlaced);
 
   Benchmarker tester(GeoManager::Instance().GetWorld());
@@ -107,5 +149,6 @@ int main(int argc, char *argv[])
 
   // cleanup
   if (transf) delete transf;
+  if (trapPtr) delete trapPtr;
   return errcode;
 }

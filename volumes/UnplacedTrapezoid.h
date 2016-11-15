@@ -53,9 +53,9 @@ public:
   // Note: theta, phi are assumed to be in radians!
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedTrapezoid(const Precision dz, const Precision theta, const Precision phi, const Precision dy1,
-                    const Precision dx1, const Precision dx2, const Precision tanAlpha1, const Precision dy2,
-                    const Precision dx3, const Precision dx4, const Precision tanAlpha2)
-      : fTrap(dz, theta, phi, dy1, dx1, dx2, tanAlpha1, dy2, dx3, dx4, tanAlpha2)
+                    const Precision dx1, const Precision dx2, const Precision Alpha1, const Precision dy2,
+                    const Precision dx3, const Precision dx4, const Precision Alpha2)
+      : fTrap(dz, theta, phi, dy1, dx1, dx2, std::tan(Alpha1), dy2, dx3, dx4, std::tan(Alpha2))
   {
     fGlobalConvexity = true;
     MakePlanes();
@@ -68,12 +68,13 @@ public:
   /// \brief Fast constructor: all parameters from one array
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedTrapezoid(Precision const *params)
-      : UnplacedTrapezoid(params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7],
-                          params[8], params[9], params[10])
+      : UnplacedTrapezoid(params[0], params[1], params[2], params[3], params[4], params[5], std::tan(params[6]),
+                          params[7], params[8], params[9], std::tan(params[10]))
   {
   }
 
   /// \brief Constructor based on 8 corner points
+  // convention: p0(---); p1(+--); p2(-+-); p3(++-); p4(--+); p5(+-+); p6(-++); p7(+++)
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedTrapezoid(TrapCorners const corners);
 
