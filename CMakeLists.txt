@@ -69,7 +69,7 @@ option(DATA_DOWNLOAD "Enable downloading of data for tests" OFF)
 
 option(GENERATE_MATERIALS_DB "Include materials and particle declarations in library" OFF)
 
-set(VECGEOM_ARCH native sse2 sse3 ssse3 sse4.1 sse4.2 avx avx2 mic avx512)
+set(VECGEOM_ARCH native sse2 sse3 ssse3 sse4.1 sse4.2 avx avx2 mic mic_avx512)
 
 enum_option(VECGEOM_VECTOR
       DOC "Vector instruction set to be used"
@@ -250,7 +250,16 @@ endif()
 string(TOLOWER ${VECGEOM_VECTOR} _arch_lo)
 string(TOUPPER ${VECGEOM_VECTOR} _arch_up)
 
-if (${_arch_lo} MATCHES mic)
+
+if (${_arch_lo} MATCHES mic_avx512)
+  if (Intel)
+    set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -xMIC_AVX512")
+    set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -xMIC_AVX512")
+  else()
+    set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -march=knl")
+    set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -march=knl")
+  endif()
+elseif (${_arch_lo} MATCHES mic)
   if (Intel)
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -m${_arch_lo}")
     set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -m${_arch_lo}")
