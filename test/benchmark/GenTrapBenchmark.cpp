@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
   case 1:
     std::cout << "________________________\n= Testing planar trapezoid for npoint s= " << npoints
               << "=\n________________________" << std::endl;
-    trapPtr = &trapUnplaced;
+    trapPtr = &trapUnplaced1;
     break;
   default:
     std::cout << "Unknown trapezoid type" << std::endl;
