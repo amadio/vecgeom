@@ -142,8 +142,8 @@ public:
   bool IsGeneric() const { return false; }
   Precision GetStartPhi() const { return GetUnplacedVolume()->GetPhiStart(); }
   Precision GetEndPhi() const { return GetUnplacedVolume()->GetPhiEnd(); }
-  int GetNumSide() const { return 2 * GetUnplacedVolume()->GetSideCount(); }
-  int GetNumRZCorner() const { return 2 * GetZPlanes().size(); } // nCorners = 2*nPlanes
+  int GetNumSide() const { return GetUnplacedVolume()->GetSideCount(); }
+  int GetNumRZCorner() const { return GetZPlanes().size(); }
 
   UPolyhedraHistorical *GetOriginalParameters() const
   {

@@ -17,8 +17,7 @@
 #undef NDEBUG
 #include <cassert>
 
-bool testvecgeom      = false;
-const double degToRad = UUtils::kPi / 180.0;
+bool testvecgeom = false;
 
 template <class Polyhedra_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
 
