@@ -73,7 +73,7 @@ struct TrapezoidImplementation {
   VECGEOM_CUDA_HEADER_BOTH
   static void Contains(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Bool_v &inside)
   {
-    Bool_v unused, outside;
+    Bool_v unused(false), outside(false);
     GenericKernelForContainsAndInside<Real_v, Bool_v, false>(unplaced, point, unused, outside);
     inside = !outside;
   }
@@ -291,7 +291,7 @@ struct TrapezoidImplementation {
     // --> if it is, entry point should be on the surface.
     //     if entry point candidate is completely outside, track misses the solid --> return infinity
     Vector3D<Real_v> entry = point + distance * dir;
-    Bool_v complIn, complOut;
+    Bool_v complIn(false), complOut(false);
     GenericKernelForContainsAndInside<Real_v, Bool_v, true>(unplaced, entry, complIn, complOut);
     vecCore::MaskedAssign(distance, !done && complOut, Real_v(kInfLength));
   }

@@ -556,8 +556,8 @@ __device__ VPlacedVolume *UnplacedTrapezoid::SpecializedVolume(LogicalVolume con
 DevicePtr<cuda::VUnplacedVolume> UnplacedTrapezoid::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
 {
   return CopyToGpuImpl<UnplacedTrapezoid>(in_gpu_ptr, fTrap.fDz, fTrap.fTheta, fTrap.fPhi, fTrap.fDy1, fTrap.fDx1,
-                                          fTrap.fDx2, fTrap.fTanAlpha1, fTrap.fDy2, fTrap.fDx3, fTrap.fDx4,
-                                          fTrap.fTanAlpha2);
+                                          fTrap.fDx2, this->alpha1(), fTrap.fDy2, fTrap.fDx3, fTrap.fDx4,
+                                          this->alpha2());
 }
 
 DevicePtr<cuda::VUnplacedVolume> UnplacedTrapezoid::CopyToGpu() const
