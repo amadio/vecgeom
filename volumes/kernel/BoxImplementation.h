@@ -1,3 +1,5 @@
+//===-- kernel/BoxImplementation.h ----------------------------------*- C++ -*-===//
+//===--------------------------------------------------------------------------===//
 /// @file BoxImplementation.h
 /// @author Johannes de Fine Licht (johannes.definelicht@cern.ch), Sandro Wenzel (sandro.wenzel@cern.ch)
 
@@ -168,56 +170,30 @@ struct BoxImplementation {
     //   Must return a valid vector. (even if the point is not on the surface.)
     //
     //   On an edge or corner, provide an average normal of all facets within tolerance
-    // NOTE: the tolerance value used in here is not yet the global surface
-    //     tolerance - we will have to revise this value - TODO
-    // this version does not yet consider the case when we are not on the surface
 
-    using Bool_v = vecCore::Mask_v<Real_v>;
     using vecCore::MaskedAssign;
 
-    Vector3D<Precision> dimensions = box.fDimensions;
+    const Vector3D<Real_v> halfsize(HalfSize<Real_v>(box));
+    const Vector3D<Real_v> signedSafety(halfsize - point.Abs());
+    const Real_v safety(signedSafety.Abs().Min());
+    valid = safety < Real_v(kTolerance);
 
-    constexpr double delta     = 100. * kTolerance;
-    constexpr double kInvSqrt2 = 0.7071067811865475; // = 1. / Sqrt(2.);
-    constexpr double kInvSqrt3 = 0.5773502691896258; // = 1. / Sqrt(3.);
-    Vector3D<Real_v> normal;
-    normal.Set(0.);
-    Real_v nsurf(0.);
-    Real_v safmin(InfinityLength<Real_v>());
+    Vector3D<Real_v> normal(0.);
 
-    // loop here over dimensions
-    for (int dim = 0; dim < 3; ++dim) {
-      Real_v currentsafe = Abs(Abs(point[dim]) - dimensions[dim]);
-      safmin             = Min(currentsafe, safmin);
+    // evaluate pos-side faces
+    Vector3D<Real_v> testpos((point - halfsize).Abs());
+    MaskedAssign(normal[0], testpos.Abs()[0] - safety < kTolerance, normal[0] + Real_v(1.0));
+    MaskedAssign(normal[1], testpos.Abs()[1] - safety < kTolerance, normal[1] + Real_v(1.0));
+    MaskedAssign(normal[2], testpos.Abs()[2] - safety < kTolerance, normal[2] + Real_v(1.0));
 
-      // close to this surface
-      Bool_v closetoplane = currentsafe < delta;
-      if (!vecCore::MaskEmpty(closetoplane)) {
-        Real_v nsurftmp = nsurf + 1.;
+    // evaluate neg-side faces
+    Vector3D<Real_v> testneg((point + halfsize).Abs());
+    MaskedAssign(normal[0], testneg.Abs()[0] - safety < kTolerance, normal[0] - Real_v(1.0));
+    MaskedAssign(normal[1], testneg.Abs()[1] - safety < kTolerance, normal[1] - Real_v(1.0));
+    MaskedAssign(normal[2], testneg.Abs()[2] - safety < kTolerance, normal[2] - Real_v(1.0));
 
-        Real_v sign(1.);
-        // better to use copysign instead of masked assigment?
-        MaskedAssign(sign, point[dim] < 0, -Real_v(1.));
-        Real_v tmpnormalcomponent = normal[dim] + sign;
+    normal.Normalize();
 
-        // masked assignment
-        MaskedAssign(nsurf, closetoplane, nsurftmp);
-        MaskedAssign(normal[dim], closetoplane, tmpnormalcomponent);
-      }
-    }
-
-    valid = Bool_v(true);
-    valid &= nsurf > 0;
-    // masked normalization ( a bit ugly since we don't have a masked operator on Vector3D
-    MaskedAssign(normal[0], nsurf == 3., normal[0] * kInvSqrt3);
-    MaskedAssign(normal[1], nsurf == 3., normal[1] * kInvSqrt3);
-    MaskedAssign(normal[2], nsurf == 3., normal[2] * kInvSqrt3);
-    MaskedAssign(normal[0], nsurf == 2., normal[0] * kInvSqrt2);
-    MaskedAssign(normal[1], nsurf == 2., normal[1] * kInvSqrt2);
-    MaskedAssign(normal[2], nsurf == 2., normal[2] * kInvSqrt2);
-
-    // TODO: return normal in case of nonvalid case;
-    // need to keep track of minimum safety direction
     return normal;
   }
 
