@@ -25,6 +25,7 @@
 #include "volumes/UnplacedSExtruVolume.h"
 #include "volumes/PlanarPolygon.h"
 #include "volumes/UnplacedAssembly.h"
+#include "volumes/UnplacedCutTube.h"
 #include "materials/Medium.h"
 #include "materials/Material.h"
 
@@ -600,6 +601,17 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
       }
       unplaced_volume = new UnplacedSExtruVolume(p->GetNvert(), x, y, p->GetZ()[0], p->GetZ()[1]);
     }
+  }
+
+  // THE CUT TUBE
+  if (shape->IsA() == TGeoCtub::Class()) {
+    TGeoCtub *ctube = (TGeoCtub *)(shape);
+    // Create the corresponding unplaced cut tube
+    unplaced_volume =
+        new UnplacedCutTube(ctube->GetRmin(), ctube->GetRmax(), ctube->GetDz(), kDegToRad * ctube->GetPhi1(),
+                            kDegToRad * (ctube->GetPhi2() - ctube->GetPhi1()),
+                            Vector3D<Precision>(ctube->GetNlow()[0], ctube->GetNlow()[1], ctube->GetNlow()[2]),
+                            Vector3D<Precision>(ctube->GetNhigh()[0], ctube->GetNhigh()[1], ctube->GetNhigh()[2]));
   }
 
   // New volumes should be implemented here...

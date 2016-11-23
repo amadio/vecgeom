@@ -103,7 +103,8 @@ for SHAPE in ${SHAPES}; do
 
 	# generate/update plot using gnuplot
 	if type -P gnuplot &>/dev/null; then
-		BACKEND="$(grep BACKEND CMakeCache.txt | cut -d= -f 2)"
+ //   BACKEND="$(grep BACKEND\:STRING CMakeCache.txt | cut -d= -f 2 -s)"
+    BACKEND="$(grep BACKEND\:STRING CMakeCache.txt | cut -d= -f 2 -s)"
 		PLOTCMD="plot '${SHAPE}.dat' u 2:xtic(1) t col"
 		PLOTREL="plot '${SHAPE}.dat' u (\$2/\$2):xtic(1) t col(2)"
 

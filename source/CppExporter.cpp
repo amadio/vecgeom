@@ -14,6 +14,7 @@
 #include "volumes/PlacedBooleanVolume.h"
 #include "volumes/UnplacedBox.h"
 #include "volumes/UnplacedTube.h"
+#include "volumes/UnplacedCutTube.h"
 #include "volumes/UnplacedCone.h"
 #include "volumes/UnplacedTrapezoid.h"
 #include "volumes/UnplacedTorus2.h"
@@ -426,6 +427,29 @@ void GeomCppExporter::DumpLogicalVolumes(std::ostream &dumps, std::ostream &exte
       line << " )";
 
       fNeededHeaderFiles.insert("volumes/UnplacedTube.h");
+    }
+
+    // ******* TREAT THE CUT TUBE *********
+    else if (dynamic_cast<UnplacedCutTube const *>(l->GetUnplacedVolume())) {
+      UnplacedCutTube const *shape = dynamic_cast<UnplacedCutTube const *>(l->GetUnplacedVolume());
+
+      line << " new UnplacedCutTube( ";
+      line << shape->rmin() << " , ";
+      line << shape->rmax() << " , ";
+      line << shape->z() << " , ";
+      line << shape->sphi() << " , ";
+      line << shape->dphi() << " , ";
+      line << "Vector3D<Precision>(";
+      line << shape->BottomNormal().x() << ", ";
+      line << shape->BottomNormal().y() << ", ";
+      line << shape->BottomNormal().z() << ") , ";
+      line << "Vector3D<Precision>(";
+      line << shape->TopNormal().x() << ", ";
+      line << shape->TopNormal().y() << ", ";
+      line << shape->TopNormal().z() << ") , ";
+      line << " )";
+
+      fNeededHeaderFiles.insert("volumes/UnplacedCutTube.h");
     }
 
     // ******* TREAT THE CONE *********

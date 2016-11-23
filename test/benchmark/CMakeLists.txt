@@ -28,6 +28,7 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${CMAKE_SOURCE_DIR}/test/benchmark/ScaledBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/BoxScaledBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/GenTrapBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/CutTubeBenchmark.cpp
   PARENT_SCOPE
 )
 
@@ -59,6 +60,7 @@ set(THISCTESTS
   ${CMAKE_SOURCE_DIR}/test/benchmark/GenTrapBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ScaledBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/BoxScaledBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/CutTubeBenchmark.cpp
 )
 
 # these tests fail because of a problem in USOLIDS:

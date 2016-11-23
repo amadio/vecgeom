@@ -2584,7 +2584,7 @@ void Benchmarker::RunToInRoot(Precision *const distances, Precision *const safet
         int p                     = index + i;
         Vector3D<Precision> point = transformation->Transform((*fPointPool)[p]);
         Vector3D<Precision> dir   = transformation->TransformDirection((*fDirectionPool)[p]);
-        distances[i]              = v->ROOT()->DistFromOutside(&point[0], &dir[0]);
+        distances[i]              = v->ROOT()->DistFromOutside(&point[0], &dir[0], 3);
       }
     }
   }
@@ -2623,7 +2623,7 @@ void Benchmarker::RunToOutRoot(Precision *const distances, Precision *const safe
         int p                     = index + i;
         Vector3D<Precision> point = (*fPointPool)[p];
         Vector3D<Precision> dir   = (*fDirectionPool)[p];
-        distances[i]              = v->ROOT()->DistFromInside(&point[0], &dir[0]);
+        distances[i]              = v->ROOT()->DistFromInside(&point[0], &dir[0], 3);
       }
     }
   }

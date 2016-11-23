@@ -604,6 +604,7 @@ set(VECGEOM_SRCS
   source/PlacedSExtru.cpp
   source/PlacedHype.cpp
   source/PlacedTube.cpp
+  source/PlacedCutTube.cpp
   source/PlacedTorus2.cpp
   source/PlacedTrd.cpp
   source/PlacedGenTrap.cpp
@@ -613,6 +614,8 @@ set(VECGEOM_SRCS
   source/PlacedTrapezoid.cpp
   source/PlacedVolume.cpp
   source/Planes.cpp
+  source/Plane.cpp
+  source/CutPlanes.cpp
   source/Quadrilaterals.cpp
   source/Rectangles.cpp
   source/Scale3D.cpp
@@ -622,6 +625,7 @@ set(VECGEOM_SRCS
   source/UnplacedBox.cpp
   source/UnplacedSExtruVolume.cpp
   source/UnplacedTube.cpp
+  source/UnplacedCutTube.cpp
   source/UnplacedHype.cpp
   source/UnplacedTorus2.cpp
   source/UnplacedTrd.cpp
@@ -923,6 +927,7 @@ set(TEST_EXECUTABLES_VISUALIZATION
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeGenTrap.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeHype.cpp
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeParallelepiped.cpp
+  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeCutTube.cpp
 )
 
 set(TEST_EXECUTABLES_USOLIDS
@@ -968,6 +973,7 @@ set(TEST_EXECUTABLES_SHAPETESTER
   ${CMAKE_SOURCE_DIR}/test/shape_tester/convention_testTube.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testPolyhedron.cpp 
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTorus.cpp 
+  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testCutTube.cpp 
 )
 
 if(ROOT) # add shape testers that depend on ROOT
