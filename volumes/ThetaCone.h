@@ -716,7 +716,7 @@ public:
     typedef typename Backend::precision_v Float_t;
     typedef typename Backend::bool_v Bool_t;
     // Float_t pi(kPi), zero(0.);
-    Float_t diff          = (localPoint.Mag2() - (localPoint.z() * localPoint.z()));
+    Float_t diff          = localPoint.Perp2();
     Float_t rho           = Sqrt(diff);
     Float_t cone1Radius   = Abs(localPoint.z() * tanSTheta);
     Float_t cone2Radius   = Abs(localPoint.z() * tanETheta);
