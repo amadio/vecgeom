@@ -56,4 +56,11 @@ G4VSolid const *PlacedCutTube::ConvertToGeant4() const
 #endif // VECGEOM_NVCC
 
 } // End impl namespace
+
+#ifdef VECGEOM_NVCC
+
+VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(SpecializedCutTube)
+
+#endif // VECGEOM_NVCC
+
 } // End global namespace
