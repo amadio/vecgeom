@@ -20,9 +20,10 @@
 bool testvecgeom = false;
 double degToRad  = vecCore::math::ATan(1.0) / 45.;
 
-template <typename Constants, class Trap_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
+template <typename Constants, class Trap_t>
 bool TestTrap()
 {
+  using Vec_t = vecgeom::Vector3D<vecgeom::Precision>;
   Vec_t pzero(0, 0, 0);
   Vec_t ponxside(20, 0, 0), ponyside(0, 30, 0), ponzside(0, 0, 40);
   Vec_t ponmxside(-20, 0, 0), ponmyside(0, -30, 0), ponmzside(0, 0, -40);

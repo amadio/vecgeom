@@ -28,8 +28,11 @@ public:
   ShapeTester();
   ~ShapeTester();
 
+  void setStat(bool _stat) { fStat = _stat; }
+  void setDebug(bool _debug) { fDebug = _debug; }
+
   int Run(VUSolid *testVolume);
-  void Run(VUSolid *testVolume, char *type);
+  void Run(VUSolid *testVolume, const char *type);
   int RunMethod(VUSolid *testVolume, std::string fMethod1);
   inline void SetFilename(const std::string &newFilename) { fFilename = newFilename; }
   inline void SetMaxPoints(const int newMaxPoints) { fMaxPoints = newMaxPoints; }

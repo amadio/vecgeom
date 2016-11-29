@@ -762,7 +762,7 @@ int ShapeTester::TestSurfacePoint()
       UVector3 v(0, 0, 0);
       ReportError(&nError, point, v, 0, "TS:  Point on not on the Surface");
     }
-    // test if for point on Surface distIn and distOut are not 0 t the same time
+    // test if for point on Surface distIn and distOut are not 0 at the same time
     UVector3 v = GetRandomDirection();
     distIn     = fVolumeUSolids->DistanceToIn(point, v);
     distOut    = fVolumeUSolids->DistanceToOut(point, v, normal, convex);
@@ -2025,25 +2025,36 @@ void ShapeTester::SetFolder(const string &newFolder)
   fFolder = newFolder + "/";
 }
 
-void ShapeTester::Run(VUSolid *testVolume, char *type)
+void ShapeTester::Run(VUSolid *testVolume, const char *type)
 {
   if (strcmp(type, "stat") == 0) {
-    fStat = true;
-    Run(testVolume);
-#ifdef VECGEOM_ROOT
-    fVisualizer.GetTApp()->Run();
-#endif
-  } else {
-    if (strcmp(type, "debug") == 0) {
-      fDebug = true;
-      Run(testVolume);
-    } else
-      Run(testVolume);
+    this->setStat(true);
   }
+  if (strcmp(type, "debug") == 0) {
+    this->setDebug(true);
+  }
+
+  this->Run(testVolume);
+#ifdef VECGEOM_ROOT
+  if (fStat) fVisualizer.GetTApp()->Run();
+#endif
 }
 
 int ShapeTester::Run(VUSolid *testVolume)
 {
+  // debug mode doesn't work with USolids shape
+  if (fDebug) {
+    const vecgeom::VPlacedVolume *vgvol = dynamic_cast<vecgeom::VPlacedVolume *>(fVolumeUSolids);
+    if (!vgvol) {
+      std::cout << "\n\n==========================================================\n";
+      std::cout << "***** ShapeTester WARNING: debug mode does not work with a USolids shape!!\n";
+      std::cout << "      Try to use shapeDebug binary to visualize this shape.\n";
+      std::cout << "*****  Resetting fDebug to false...\n";
+      std::cout << "==========================================================\n\n\n";
+      this->setDebug(false);
+    }
+  }
+
   // Running Convention first before running any ShapeTester tests
   RunConventionChecker(testVolume);
   fNumDisp    = 5;

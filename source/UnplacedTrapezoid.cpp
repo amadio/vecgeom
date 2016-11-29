@@ -311,7 +311,7 @@ void UnplacedTrapezoid::Print(std::ostream &os) const
 {
   // Note: units printed out chosen such that same numbers can be used as arguments to full constructor
   os << "UnplacedTrapezoid { " << fTrap.fDz << "mm, " << fTrap.fTheta << "rad, " << fTrap.fPhi << "rad, " << fTrap.fDy1
-     << "mm, " << fTrap.fDx1 << "mm, " << fTrap.fDx2 << "mm, " << this->alpha1() << "rad" << fTrap.fDy2 << "mm, "
+     << "mm, " << fTrap.fDx1 << "mm, " << fTrap.fDx2 << "mm, " << this->alpha1() << "rad, " << fTrap.fDy2 << "mm, "
      << fTrap.fDx3 << "mm, " << fTrap.fDx4 << "mm, " << this->alpha2() << "rad }\n";
 }
 
