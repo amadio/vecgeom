@@ -166,33 +166,22 @@ struct BoxImplementation {
                                        typename vecCore::Mask_v<Real_v> &valid)
   {
     // Computes the normal on a surface and returns it as a unit vector
-    //   In case a point is further than tolerance_normal from a surface, set validNormal=false
+    //   In case a point is further than kTolerance from a surface, set valid=false
     //   Must return a valid vector. (even if the point is not on the surface.)
     //
     //   On an edge or corner, provide an average normal of all facets within tolerance
 
     using vecCore::MaskedAssign;
 
-    const Vector3D<Real_v> halfsize(HalfSize<Real_v>(box));
-    const Vector3D<Real_v> signedSafety(halfsize - point.Abs());
-    const Real_v safety(signedSafety.Abs().Min());
-    valid = safety < Real_v(kTolerance);
+    const Vector3D<Real_v> safety((point.Abs() - HalfSize<Real_v>(box)).Abs());
+    const Real_v safmin = safety.Min();
+    valid               = safmin < kTolerance;
 
     Vector3D<Real_v> normal(0.);
-
-    // evaluate pos-side faces
-    Vector3D<Real_v> testpos((point - halfsize).Abs());
-    MaskedAssign(normal[0], testpos.Abs()[0] - safety < kTolerance, normal[0] + Real_v(1.0));
-    MaskedAssign(normal[1], testpos.Abs()[1] - safety < kTolerance, normal[1] + Real_v(1.0));
-    MaskedAssign(normal[2], testpos.Abs()[2] - safety < kTolerance, normal[2] + Real_v(1.0));
-
-    // evaluate neg-side faces
-    Vector3D<Real_v> testneg((point + halfsize).Abs());
-    MaskedAssign(normal[0], testneg.Abs()[0] - safety < kTolerance, normal[0] - Real_v(1.0));
-    MaskedAssign(normal[1], testneg.Abs()[1] - safety < kTolerance, normal[1] - Real_v(1.0));
-    MaskedAssign(normal[2], testneg.Abs()[2] - safety < kTolerance, normal[2] - Real_v(1.0));
-
-    normal.Normalize();
+    MaskedAssign(normal[0], safety[0] - safmin < kTolerance, Sign(point[0]));
+    MaskedAssign(normal[1], safety[1] - safmin < kTolerance, Sign(point[1]));
+    MaskedAssign(normal[2], safety[2] - safmin < kTolerance, Sign(point[2]));
+    if (normal.Mag2() > 1.0) normal.Normalize();
 
     return normal;
   }
