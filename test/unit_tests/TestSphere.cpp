@@ -1079,6 +1079,14 @@ bool TestSphere()
   assert(sntest.Inside(-pz) == vecgeom::EInside::kOutside);
   assert(sntestB.Inside(pz) == vecgeom::EInside::kOutside);
   assert(sntestB.Inside(-pz) == vecgeom::EInside::kInside);
+
+  // Added a new test for normal
+  Sphere_t sphNormal("normalTest", 80, 100, 0, 2 * PI, 0, 2.268928027592628);
+  Vec_t ptNORMAL(-58.1682, -74.6533, -32.3008);
+  assert(sphNormal.Inside(ptNORMAL) == vecgeom::EInside::kInside);
+  valid = sphNormal.Normal(ptNORMAL, normal);
+  assert(normal.Mag() == 1.);
+  assert(!valid); // because the point under test is Inside Point
   return true;
 }
 

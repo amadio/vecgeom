@@ -98,7 +98,8 @@ void UnplacedSphere::CalcSurfaceArea()
       fSurfaceArea = fSurfaceArea + fDTheta * (Rsq - rsq);
     }
     if (fSTheta > 0) {
-      Precision acos1 = std::acos((sinSTheta * sinSTheta) * std::cos(fDPhi) + (cosSTheta * cosSTheta));
+      Precision acos1            = 0.;
+      if (fDPhi != kTwoPi) acos1 = std::acos((sinSTheta * sinSTheta) * std::cos(fDPhi) + (cosSTheta * cosSTheta));
       if (fDPhi > kPi) {
         fSurfaceArea = fSurfaceArea + 0.5 * (Rsq - rsq) * (2 * kPi - acos1);
       } else {
@@ -106,7 +107,8 @@ void UnplacedSphere::CalcSurfaceArea()
       }
     }
     if (eTheta < kPi) {
-      double acos2 = std::acos((sinETheta * sinETheta) * std::cos(fDPhi) + (cosETheta * cosETheta));
+      Precision acos2            = 0.;
+      if (fDPhi != kTwoPi) acos2 = std::acos((sinETheta * sinETheta) * std::cos(fDPhi) + (cosETheta * cosETheta));
       if (fDPhi > kPi) {
         fSurfaceArea = fSurfaceArea + 0.5 * (Rsq - rsq) * (2 * kPi - acos2);
       } else {
