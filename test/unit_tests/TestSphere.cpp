@@ -1087,6 +1087,14 @@ bool TestSphere()
   valid = sphNormal.Normal(ptNORMAL, normal);
   assert(normal.Mag() == 1.);
   assert(!valid); // because the point under test is Inside Point
+
+  // added more precise point (reported by Gabriele), which makes it a surface point
+  Vec_t ptNormalSurface(-58.16821296689909, -74.65330731271325, -32.30081589545529);
+  assert(sphNormal.Inside(ptNormalSurface) == vecgeom::EInside::kSurface);
+  valid = sphNormal.Normal(ptNormalSurface, normal);
+  assert(normal.Mag() == 1.);
+  assert(valid); // because the point under test is now OnSurface
+
   return true;
 }
 

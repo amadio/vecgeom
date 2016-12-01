@@ -60,8 +60,10 @@ struct SphereImplementation {
                                                        Vector3D<typename Backend::precision_v> const &point)
   {
 
-    Precision innerRad2 = unplaced.GetInnerRadius() * unplaced.GetInnerRadius();
-    return ((point.Mag2() >= (innerRad2 - kTolerance)) && (point.Mag2() <= (innerRad2 + kTolerance)));
+    Precision innerRad  = unplaced.GetInnerRadius();
+    Precision innerRad2 = innerRad * innerRad;
+    return point.Mag2() <= MakePlusTolerantSquare<true>(innerRad, innerRad2) &&
+           point.Mag2() >= MakeMinusTolerantSquare<true>(innerRad, innerRad2);
   }
 
   template <class Backend>
@@ -70,8 +72,10 @@ struct SphereImplementation {
                                                        Vector3D<typename Backend::precision_v> const &point)
   {
 
-    Precision outerRad2 = unplaced.GetOuterRadius() * unplaced.GetOuterRadius();
-    return ((point.Mag2() >= (outerRad2 - kTolerance)) && (point.Mag2() <= (outerRad2 + kTolerance)));
+    Precision outerRad  = unplaced.GetOuterRadius();
+    Precision outerRad2 = outerRad * outerRad;
+    return point.Mag2() <= MakePlusTolerantSquare<true>(outerRad, outerRad2) &&
+           point.Mag2() >= MakeMinusTolerantSquare<true>(outerRad, outerRad2);
   }
 
   template <class Backend>
@@ -556,28 +560,24 @@ void SphereImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndInsi
   typedef typename Backend::precision_v Float_t;
   typedef typename Backend::bool_v Bool_t;
 
-  Precision fRmin          = unplaced.GetInnerRadius();
-  Precision fRminTolerance = unplaced.GetFRminTolerance();
-  Precision fRmax          = unplaced.GetOuterRadius();
+  Precision fRmin = unplaced.GetInnerRadius();
+  Precision fRmax = unplaced.GetOuterRadius();
 
   Float_t rad2 = localPoint.Mag2();
-  Float_t tolRMin(fRmin + (fRminTolerance * 10. * 2));
-  Float_t tolRMax(fRmax - (unplaced.GetMKTolerance() * 10. * 2));
 
   // Check radial surfaces
   // Radial check for GenericKernel Start
   if (unplaced.GetInnerRadius())
-    completelyinside = (rad2 <= tolRMax * tolRMax) && (rad2 >= tolRMin * tolRMin);
+    completelyinside = rad2 <= MakeMinusTolerantSquare<true>(fRmax, fRmax * fRmax) &&
+                       rad2 >= MakePlusTolerantSquare<true>(fRmin, fRmin * fRmin);
   else
-    completelyinside = (rad2 <= tolRMax * tolRMax);
-  // std::cout<<"Comp In - Rad : "<<completelyinside<<std::endl;
+    completelyinside = rad2 <= MakeMinusTolerantSquare<true>(fRmax, fRmax * fRmax);
 
-  tolRMin = fRmin - (0.5 * fRminTolerance * 10 * 2);
-  tolRMax = fRmax + (0.5 * unplaced.GetMKTolerance() * 10 * 2);
   if (unplaced.GetInnerRadius())
-    completelyoutside = (rad2 <= tolRMin * tolRMin) || (rad2 >= tolRMax * tolRMax);
+    completelyoutside = rad2 >= MakePlusTolerantSquare<true>(fRmax, fRmax * fRmax) ||
+                        rad2 <= MakeMinusTolerantSquare<true>(fRmin, fRmin * fRmin);
   else
-    completelyoutside = (rad2 >= tolRMax * tolRMax);
+    completelyoutside = rad2 >= MakePlusTolerantSquare<true>(fRmax, fRmax * fRmax);
 
   // Phi boundaries  : Do not check if it has no phi boundary!
   if (!unplaced.IsFullPhiSphere()) {
