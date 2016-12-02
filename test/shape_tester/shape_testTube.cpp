@@ -1,47 +1,34 @@
 #include "ShapeTester.h"
 #include "VUSolid.hh"
-#include "UTubs.hh"
 
-#include "base/Vector3D.h"
-#include "base/Global.h"
+#include "UTubs.hh"
 #include "volumes/Tube.h"
 
-#ifdef VECGEOM_ROOT
-#include "TApplication.h"
-#endif
-#include "stdlib.h"
+//#include "stdlib.h"
 
-typedef vecgeom::SimpleTube Tube_t;
+using Tube_t = vecgeom::SimpleTube;
 
 int main(int argc, char *argv[])
 {
-  int errCode = 0;
-  VUSolid *tube;
-  if (argc > 1) {
-    if (strcmp(argv[1], "vec") == 0) {
-      tube = new Tube_t("test_VecGeomTube", 3., 6., 2, 0, vecgeom::kTwoPi * 0.6);
-    } else {
-      tube = new UTubs("test_USolidsTube", 1., 6., 2, 0, vecgeom::kTwoPi * 0.6);
-    }
-  } else {
-    tube = new Tube_t("test_VecGeomTube", 3., 6., 2, 0, vecgeom::kTwoPi * 0.6);
-  }
-  ((vecgeom::VPlacedVolume *)tube)->GetUnplacedVolume()->Print(std::cout);
+  VUSolid *solid = 0;
+
+  solid = new Tube_t("VecGeomTube", 3., 6., 2, 0, vecgeom::kTwoPi * 0.6);
+  // solid = new UTubs("USolidsTube", 1., 6., 2, 0, vecgeom::kTwoPi * 0.6);
+
+  // solid->StreamInfo(std::cout);
+  vecgeom::VPlacedVolume *vgSolid = dynamic_cast<vecgeom::VPlacedVolume *>(solid);
+  if (vgSolid) vgSolid->GetUnplacedVolume()->Print(std::cout);
 
   ShapeTester tester;
-  tester.EnableDebugger(true);
-  if (argc > 2) {
-    if (strcmp(argv[2], "vis") == 0) {
-#ifdef VECGEOM_ROOT
-      TApplication theApp("App", 0, 0);
-      errCode = tester.Run(tube);
-      theApp.Run();
-#endif
-    }
+  if (argc > 1) {
+    tester.Run(solid, argv[1]);
   } else {
-    errCode = tester.Run(tube);
+    int errCode = tester.Run(solid);
+    // tester.SetMethod("Consistency");
+    std::cout << "Final Error count for Shape *** " << solid->GetName() << "*** = " << errCode << std::endl;
+    std::cout << "=========================================================" << std::endl;
+    return errCode;
   }
-  std::cout << "Final Error count for Shape *** " << tube->GetName() << "*** = " << errCode << std::endl;
-  std::cout << "=========================================================" << std::endl;
+
   return 0;
 }

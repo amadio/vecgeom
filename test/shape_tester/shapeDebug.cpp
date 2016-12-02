@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
   double diry = atof(argv[5]);
   double dirz = atof(argv[6]);
 
-  TGeoShape *testShape = new TGeoTubeSeg(30, 50, 50, 0, 360);
+  TGeoShape *testShape = new TGeoTubeSeg(3, 6, 2, 0, 360. * 0.6);
   testShape->InspectShape();
   std::cerr << "volume capacity " << testShape->Capacity() << "\n";
 
@@ -104,13 +104,13 @@ int main(int argc, char *argv[])
     std::cout << "VecGeom INSIDE " << vecgeomplaced->Inside(point) << "\n";
     dist = vecgeomplaced->DistanceToIn(point, dir);
     std::cout << "VecGeom DI " << dist << "\n";
-    if (dist < vecgeom::kInfLength) {
+    if (dist >= vecgeom::kTolerance && dist < vecgeom::kInfLength) {
       std::cout << "VecGeom INSIDE(p=p+dist*dir) " << vecgeomplaced->Inside(point + dir * dist) << "\n";
       if (vecgeomplaced->Inside(point + dir * dist) == vecgeom::kOutside)
-        std::cout << "VecGeom Distance seems to be to big  DI(p=p+dist*dir,-dir) "
+        std::cout << "VecGeom Distance seems to be too big  DI(p=p+dist*dir,-dir) "
                   << vecgeomplaced->DistanceToIn(point + dir * dist, -dir) << "\n";
       if (vecgeomplaced->Inside(point + dir * dist) == vecgeom::kInside)
-        std::cout << "VecGeom Distance seems to be to small DO(p=p+dist*dir,dir) "
+        std::cout << "VecGeom Distance seems to be too small DO(p=p+dist*dir,dir) "
                   << vecgeomplaced->DistanceToOut(point + dir * dist, dir) << "\n";
     }
     vecgeomplaced->DistanceToIn(pointcontainer, dircontainer, steps, output);

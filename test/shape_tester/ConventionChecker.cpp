@@ -132,10 +132,17 @@ bool ShapeTester::ShapeConventionSurfacePoint()
 
     if (direction.Dot(normal) < 0.) // particle is entering into the shape
     {
-      // assert(Dist == 0.);
+// assert(Dist == 0.);
+#ifdef VECGEOM_REPLACE_USOLIDS
       if (Dist != 0.) {
-        ReportError(&nError, point, direction, Dist,
-                    "DistanceToIn for Surface Point entering into the Shape should be 0.");
+        ReportError(&nError, point, direction, Dist, "DistanceToIn for Surface Point entering into the Shape should be "
+                                                     "0 (VecGeom+USolids interface convention)");
+#else
+      if (fabs(Dist) > vecgeom::kHalfTolerance) {
+        ReportError(
+            &nError, point, direction, Dist,
+            "DistanceToIn for Surface Point entering into the Shape should be 0 within tolerance (VecGeom convention)");
+#endif
         fScore |= (1 << indx);
         surfPointConventionPassed &= false;
       }
@@ -176,10 +183,17 @@ bool ShapeTester::ShapeConventionSurfacePoint()
     if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
     if (direction.Dot(normal) > 0.) // particle is exiting from the shape
     {
-      // assert((Dist == 0.) && "DistanceToOut for surface point moving outside should be equal to 0.");
-      if (!(Dist == 0.)) {
-        ReportError(&nError, point, direction, Dist, "DistanceToOut for Surface Point exiting the Shape should be 0.");
+// assert((Dist == 0.) && "DistanceToOut for surface point moving outside should be equal to 0.");
 
+#ifdef VECGEOM_REPLACE_USOLIDS
+      if (Dist != 0.) {
+        ReportError(&nError, point, direction, Dist,
+                    "DistanceToOut for Surface Point exiting the shape should be 0 (USolids convention)");
+#else
+      if (Dist > vecgeom::kHalfTolerance) {
+        ReportError(&nError, point, direction, Dist,
+                    "DistanceToOut for Surface Point exiting the shape should be <= tolerance (VecGeom convention)");
+#endif
         fScore |= (1 << indx);
         surfPointConventionPassed &= false;
       }
@@ -202,9 +216,16 @@ bool ShapeTester::ShapeConventionSurfacePoint()
     // Conventions check for SafetyFromOutside
     Dist                                = fVolumeUSolids->SafetyFromOutside(point);
     if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
-    // assert(Dist == 0.);
+// assert(Dist == 0.);
+#ifdef VECGEOM_REPLACE_USOLIDS
     if (!(Dist == 0.)) {
-      ReportError(&nError, point, direction, Dist, "SafetyFromOutside for Surface Point should be 0.");
+      ReportError(&nError, point, direction, Dist,
+                  "SafetyFromOutside for Surface Point should be 0 (VecGeom+USolids interface convention)");
+#else
+    if (!(Dist <= vecgeom::kHalfTolerance)) {
+      ReportError(&nError, point, direction, Dist,
+                  "SafetyFromOutside for Surface Point should be 0 (VecGeom convention)");
+#endif
       fScore |= (1 << indx);
       surfPointConventionPassed &= false;
     }
@@ -213,10 +234,16 @@ bool ShapeTester::ShapeConventionSurfacePoint()
     // Conventions check for SafetyFromInside
     Dist                                = fVolumeUSolids->SafetyFromInside(point);
     if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
-    // assert(Dist == 0.);
+// assert(Dist == 0.);
+#ifdef VECGEOM_REPLACE_USOLIDS
     if (!(Dist == 0.)) {
-      ReportError(&nError, point, direction, Dist, "SafetyFromInside for Surface Point should be 0.");
-
+      ReportError(&nError, point, direction, Dist,
+                  "SafetyFromInside for Surface Point should be 0 (USolids convention)");
+#else
+    if (!(Dist <= vecgeom::kHalfTolerance)) {
+      ReportError(&nError, point, direction, Dist,
+                  "SafetyFromInside for Surface Point should be <= tolerance (VecGeom convention)");
+#endif
       fScore |= (1 << indx);
       surfPointConventionPassed &= false;
     }

@@ -773,7 +773,8 @@ int ShapeTester::TestSurfacePoint()
     }
     // test Accuracy distance for fPoints near Surface
     // The point may be slightly outside or inside
-    pointSurf                  = point + v * 10 * tolerance;
+    // GL: use normal rather than an arbitrary vector v, to ensure new point is 10*tolerance away from surface
+    pointSurf                  = point + 10 * tolerance * (i % 2 ? normal : -normal);
     VUSolid::EnumInside inside = fVolumeUSolids->Inside(pointSurf);
     if (inside != vecgeom::EInside::kSurface) {
       if (inside == vecgeom::EInside::kOutside) {
