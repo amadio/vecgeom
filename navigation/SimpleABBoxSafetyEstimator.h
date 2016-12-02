@@ -67,7 +67,11 @@ private:
   Precision TreatSafetyToIn(Vector3D<Precision> const &localpoint, LogicalVolume const *lvol, Precision outsafety) const
   {
     // a stack based workspace array
-    static __thread ABBoxManager::BoxIdDistancePair_t boxsafetylist[VECGEOM_MAXDAUGHTERS] = {};
+    // The following construct reserves stackspace for objects
+    // of type IdDistPair_t WITHOUT initializing those objects
+    using IdDistPair_t = ABBoxManager::BoxIdDistancePair_t;
+    char stackspace[VECGEOM_MAXDAUGHTERS * sizeof(IdDistPair_t)];
+    IdDistPair_t *boxsafetylist = reinterpret_cast<IdDistPair_t *>(&stackspace);
 
     double safety    = outsafety; // we use the outsafety estimate as starting point
     double safetysqr = safety * safety;
@@ -153,7 +157,11 @@ public:
                                            Precision *safeties) const override
   {
     // a stack based workspace array
-    static __thread ABBoxManager::BoxIdDistancePair_t boxsafetylist[VECGEOM_MAXDAUGHTERS] = {};
+    // The following construct reserves stackspace for objects
+    // of type IdDistPair_t WITHOUT initializing those objects
+    using IdDistPair_t = ABBoxManager::BoxIdDistancePair_t;
+    char stackspace[VECGEOM_MAXDAUGHTERS * sizeof(IdDistPair_t)];
+    IdDistPair_t *boxsafetylist = reinterpret_cast<IdDistPair_t *>(&stackspace);
 
     // safety to mother -- using vector interface
     pvol->SafetyToOut(localpoints, safeties);

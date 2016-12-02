@@ -108,7 +108,11 @@ public:
   Precision TreatSafetyToIn(Vector3D<Precision> const &localpoint, LogicalVolume const *lvol, Precision outsafety) const
   {
     // a stack based workspace array
-    static __thread HybridManager2::BoxIdDistancePair_t boxsafetylist[VECGEOM_MAXDAUGHTERS] = {};
+    // The following construct reserves stackspace for objects
+    // of type IdDistPair_t WITHOUT initializing those objects
+    using IdDistPair_t = HybridManager2::BoxIdDistancePair_t;
+    char unitstackspace[VECGEOM_MAXDAUGHTERS * sizeof(IdDistPair_t)];
+    IdDistPair_t *boxsafetylist = reinterpret_cast<IdDistPair_t *>(&unitstackspace);
 
     double safety    = outsafety; // we use the outsafety estimate as starting point
     double safetysqr = safety * safety;

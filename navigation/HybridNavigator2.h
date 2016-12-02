@@ -116,8 +116,12 @@ public:
                                           NavigationState * /*out_state*/, Precision &step,
                                           VPlacedVolume const *&hitcandidate) const override
   {
-    // static __thread HybridManager2::BoxIdDistancePair_t hitlist[VECGEOM_MAXDAUGHTERS] = {};
-    HybridManager2::BoxIdDistancePair_t hitlist[VECGEOM_MAXDAUGHTERS];
+    // The following construct reserves stackspace for objects
+    // of type IdDistPair_t WITHOUT initializing those objects
+    using IdDistPair_t = HybridManager2::BoxIdDistancePair_t;
+    char stackspace[VECGEOM_MAXDAUGHTERS * sizeof(IdDistPair_t)];
+    IdDistPair_t *hitlist = reinterpret_cast<IdDistPair_t *>(&stackspace);
+
     if (lvol->GetDaughtersp()->size() == 0) return false;
 
     auto ncandidates = GetHitCandidates_v(lvol, localpoint, localdir, hitlist);
