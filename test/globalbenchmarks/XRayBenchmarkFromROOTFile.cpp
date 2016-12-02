@@ -1173,9 +1173,13 @@ int main(int argc, char *argv[])
 
     // these are ugly hacks to prevent ROOT from crashing at cleanup
     // the problem is due to the fact that we messed with the gGeoManager (which is not directly foreseen)
-    gGeoManager                = nullptr;
-    mgr2                       = nullptr;
+    gGeoManager = nullptr;
+    mgr2        = nullptr;
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 0, 0)
     ROOT::Internal::gROOTLocal = nullptr;
+#else
+    gROOT = nullptr;
+#endif
 
     return ((errorROOTVG == 0) || (errorG4VG == 0)) ? 0 : 1;
 
