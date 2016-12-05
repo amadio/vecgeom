@@ -1095,6 +1095,12 @@ bool TestSphere()
   assert(normal.Mag() == 1.);
   assert(valid); // because the point under test is now OnSurface
 
+  Vec_t ptOnEndThetaSurface(46.76611644842609, -40.66413203238494, -52.00144394546794); // Point on the EndTheta surface
+  valid = sphNormal.Normal(ptOnEndThetaSurface, normal);
+  assert(sphNormal.Inside(ptOnEndThetaSurface) == vecgeom::EInside::kSurface);
+  assert(normal.Mag() == 1.);
+  assert(valid); // because the point under test is on End Theta Surface
+
   return true;
 }
 

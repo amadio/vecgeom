@@ -186,13 +186,15 @@ public:
 
     typedef typename Backend::precision_v Float_t;
     Float_t rho2 = point.Perp2();
-    Float_t rhs2(0.);
-    if (ForStartTheta)
-      rhs2 = tanSTheta2 * point.z() * point.z();
-    else
-      rhs2 = tanETheta2 * point.z() * point.z();
-
-    return Abs(rho2 - rhs2) < kTolerance;
+    Float_t rhs(0.);
+    if (ForStartTheta) {
+      rhs = tanSTheta * point.z();
+    } else {
+      rhs = tanETheta * point.z();
+    }
+    Float_t rhs2 = rhs * rhs;
+    return rho2 >= MakeMinusTolerantSquare<true>(Abs(rhs), rhs2) &&
+           rho2 <= MakePlusTolerantSquare<true>(Abs(rhs), rhs2);
   }
 
   /* Function Name : IsPointOnSurfaceAndMovingOut<Backend, ForStartTheta, MovingOut>
