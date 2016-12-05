@@ -319,8 +319,10 @@ public:
                                                   NavigationState const &in_state,
                                                   NavigationState &out_state) const override
   {
+#ifdef DEBUGNAV
     static size_t counter = 0;
     counter++;
+#endif
     // calculate local point/dir from global point/dir
     // call the static function for this provided/specialized by the Impl
     Vector3D<Precision> localpoint;
@@ -374,8 +376,10 @@ public:
                                 Precision step_limit, NavigationState const &in_state,
                                 NavigationState &out_state) const override
   {
+#ifdef DEBUGNAV
     static size_t counter = 0;
     counter++;
+#endif
     // calculate local point/dir from global point/dir
     // call the static function for this provided/specialized by the Impl
     Vector3D<Precision> localpoint;
@@ -710,7 +714,7 @@ protected:
     // this means that we are leaving the mother
     // alternatively we could use nextvolumeindex like before
     if (out_state.Top() == in_state.Top()) {
-      GlobalLocator::RelocatePointFromPath(pointafterboundary, out_state);
+      GlobalLocator::RelocatePointFromPathForceDifferent(pointafterboundary, out_state);
 #ifdef CHECK_RELOCATION_ERRORS
       assert(in_state.Distance(out_state) != 0 && " error relocating when leaving ");
 #endif
