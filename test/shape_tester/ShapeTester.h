@@ -1,3 +1,5 @@
+
+//===-- test/shape_tester/ShapeTester.h ----------------------------*- C++ -*-===//
 //
 // Definition of the batch solid test
 //
@@ -5,15 +7,13 @@
 #ifndef ShapeTester_hh
 #define ShapeTester_hh
 
-#include <iostream>
-#include <sstream>
-
-#include "VUSolid.hh"
-#include "UUtils.hh"
+#include "base/RNG.h"
 #ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"
 #endif
 const double kApproxEqualTolerance = 1E-6;
+
+using Vec_t = vecgeom::Vector3D<double>;
 
 struct ShapeTesterErrorList {
   std::string fMessage;
@@ -21,6 +21,7 @@ struct ShapeTesterErrorList {
   struct ShapeTesterErrorList *fNext;
 };
 
+template <typename ImplT>
 class ShapeTester {
 
   // ALL MEMBER FUNCTIONS FIRST
@@ -30,10 +31,11 @@ public:
 
   void setStat(bool _stat) { fStat = _stat; }
   void setDebug(bool _debug) { fDebug = _debug; }
+  void setConventionsMode(bool _usolids) { fUsolidsConventions = _usolids; }
 
-  int Run(VUSolid *testVolume);
-  void Run(VUSolid *testVolume, const char *type);
-  int RunMethod(VUSolid *testVolume, std::string fMethod1);
+  int Run(ImplT const *testVolume);
+  void Run(ImplT const *testVolume, const char *type);
+  int RunMethod(ImplT const *testVolume, std::string fMethod1);
   inline void SetFilename(const std::string &newFilename) { fFilename = newFilename; }
   inline void SetMaxPoints(const int newMaxPoints) { fMaxPoints = newMaxPoints; }
   inline void SetMethod(const std::string &newMethod) { fMethod = newMethod; }
@@ -42,27 +44,25 @@ public:
   inline void SetEdgePercent(const double percent) { fEdgePercent = percent; }
   inline void SetOutsideMaxRadiusMultiple(const double percent) { fOutsideMaxRadiusMultiple = percent; }
   inline void SetOutsideRandomDirectionPercent(const double percent) { fOutsideRandomDirectionPercent = percent; }
-  inline void SetNewSaveValue(const double tolerance) { fMinDifference = tolerance; }
   inline void SetSaveAllData(const bool safe) { fIfSaveAllData = safe; }
-  inline void SetRunAllTests(const bool safe) { fIfMoreTests = safe; }
   inline void SetSolidTolerance(double value) { fSolidTolerance = value; }
   inline void SetTestBoundaryErrors(bool flag) { fTestBoundaryErrors = flag; }
   void SetFolder(const std::string &newFolder);
   void SetVerbose(int verbose) { fVerbose = verbose; }
   inline int GetMaxPoints() const { return fMaxPoints; }
-  inline UVector3 GetPoint(int index) { return fPoints[index]; }
+  inline Vec_t GetPoint(int index) { return fPoints[index]; }
   inline void SetNumberOfScans(int num) { fGNumberOfScans = num; }
 
   /* Keeping this Function as public to allow, if somebody just want
    * to do the Convention Check
    */
-  bool RunConventionChecker(VUSolid *testVolume);
+  bool RunConventionChecker(ImplT const *testVolume);
   void EnableDebugger(bool val); // function to enable or disable visualization for debugging
 
 private:
   void SetDefaults();
   int SaveVectorToExternalFile(const std::vector<double> &vector, const std::string &fFilename);
-  int SaveVectorToExternalFile(const std::vector<UVector3> &vector, const std::string &fFilename);
+  int SaveVectorToExternalFile(const std::vector<Vec_t> &vector, const std::string &fFilename);
   int SaveLegend(const std::string &fFilename);
   int SaveDifLegend(const std::string &fFilename);
   int SaveDoubleResults(const std::string &fFilename);
@@ -70,15 +70,15 @@ private:
   int SaveVectorResults(const std::string &fFilename);
   int SaveDifVectorResults(const std::string &fFilename);
   int SaveDifVectorResults1(const std::string &fFilename);
-  std::string PrintCoordinates(const UVector3 &vec, const std::string &delimiter, int precision = 4);
-  std::string PrintCoordinates(const UVector3 &vec, const char *delimiter, int precision = 4);
-  void PrintCoordinates(std::stringstream &ss, const UVector3 &vec, const std::string &delimiter, int precision = 4);
-  void PrintCoordinates(std::stringstream &ss, const UVector3 &vec, const char *delimiter, int precision = 4);
+  std::string PrintCoordinates(const Vec_t &vec, const std::string &delimiter, int precision = 4);
+  std::string PrintCoordinates(const Vec_t &vec, const char *delimiter, int precision = 4);
+  void PrintCoordinates(std::stringstream &ss, const Vec_t &vec, const std::string &delimiter, int precision = 4);
+  void PrintCoordinates(std::stringstream &ss, const Vec_t &vec, const char *delimiter, int precision = 4);
 
   template <class T>
   void VectorDifference(const std::vector<T> &first, const std::vector<T> &second, std::vector<T> &result);
 
-  void VectorToDouble(const std::vector<UVector3> &vectorUVector, std::vector<double> &vectorDouble);
+  void VectorToDouble(const std::vector<Vec_t> &vectorUVector, std::vector<double> &vectorDouble);
   void BoolToDouble(const std::vector<bool> &vectorBool, std::vector<double> &vectorDouble);
   int CountDoubleDifferences(const std::vector<double> &differences);
   int CountDoubleDifferences(const std::vector<double> &differences, const std::vector<double> &values1,
@@ -87,8 +87,8 @@ private:
   void FlushSS(std::stringstream &ss);
   void Flush(const std::string &s);
 
-  UVector3 GetPointOnOrb(double r);
-  UVector3 GetRandomDirection();
+  Vec_t GetPointOnOrb(double r);
+  Vec_t GetRandomDirection();
 
   int TestBoundaryPrecision(int mode);
   int TestConsistencySolids();
@@ -103,8 +103,8 @@ private:
   int ShapeSafetyFromInside(int max);
   int ShapeSafetyFromOutside(int max);
 
-  void PropagatedNormal(const UVector3 &point, const UVector3 &direction, double distance, UVector3 &normal);
-  void PropagatedNormalU(const UVector3 &point, const UVector3 &direction, double distance, UVector3 &normal);
+  void PropagatedNormal(const Vec_t &point, const Vec_t &direction, double distance, Vec_t &normal);
+  void PropagatedNormalU(const Vec_t &point, const Vec_t &direction, double distance, Vec_t &normal);
   int TestDistanceToInSolids();
   int TestAccuracyDistanceToIn(double dist);
   int ShapeDistances();
@@ -115,7 +115,7 @@ private:
   int XRayProfile(double theta = 45, int nphi = 15, int ngrid = 1000, bool useeps = true);
   int Integration(double theta = 45, double phi = 45, int ngrid = 1000, bool useeps = true, int npercell = 1,
                   bool graphics = true);
-  double CrossedLength(const UVector3 &point, const UVector3 &dir, bool useeps);
+  double CrossedLength(const Vec_t &point, const Vec_t &dir, bool useeps);
   void CreatePointsAndDirections();
   void CreatePointsAndDirectionsSurface();
   void CreatePointsAndDirectionsEdge();
@@ -133,25 +133,26 @@ private:
 
   inline double RandomRange(double min, double max)
   {
-    double rand = min + (max - min) * UUtils::Random();
+    double rand = min + (max - min) * fRNG.uniform();
     return rand;
   }
-  inline void GetVectorUSolids(UVector3 &point, const std::vector<UVector3> &afPoints, int index)
+#ifdef VECGEOM_USOLIDS
+  inline void GetVectorUSolids(Vec_t &point, const std::vector<Vec_t> &afPoints, int index)
   {
-    const UVector3 &p = afPoints[index];
+    const Vec_t &p = afPoints[index];
     point.Set(p.x(), p.y(), p.z());
   }
 
-  inline void SetVectorUSolids(const UVector3 &point, std::vector<UVector3> &afPoints, int index)
+  inline void SetVectorUSolids(const Vec_t &point, std::vector<Vec_t> &afPoints, int index)
   {
-    UVector3 &p = afPoints[index];
+    Vec_t &p = afPoints[index];
     p.Set(point.x(), point.y(), point.z());
   }
-
+#endif
   inline double RandomIncrease()
   {
-    double tolerance = VUSolid::Tolerance();
-    double rand      = -1 + 2 * UUtils::Random();
+    double tolerance = vecgeom::kTolerance;
+    double rand      = -1 + 2 * fRNG.uniform();
     double dif       = tolerance * 0.1 * rand;
     return dif;
   }
@@ -173,10 +174,9 @@ private:
   bool ApproxEqual(const Vec_t &check, const Vec_t &target);
 
 protected:
-  UVector3 GetRandomPoint() const;
+  Vec_t GetRandomPoint() const;
   double GaussianRandom(const double cutoff) const;
-  void ReportError(int *nError, UVector3 &p, UVector3 &v, double distance,
-                   std::string comment); //, std::ostream &fLogger );
+  void ReportError(int *nError, Vec_t &p, Vec_t &v, double distance, std::string comment); //, std::ostream &fLogger );
   void ClearErrors();
   int CountErrors() const;
 
@@ -201,18 +201,18 @@ protected:
   ShapeTesterErrorList *fErrorList; // data member to store the list of errors
 
 private:
-  std::vector<UVector3> fPoints;     // STL vector to store the points generated for various tests of ShapeTester
-  std::vector<UVector3> fDirections; // STL vector to store the directions generated for corresponding points.
+  std::vector<Vec_t> fPoints;     // STL vector to store the points generated for various tests of ShapeTester
+  std::vector<Vec_t> fDirections; // STL vector to store the directions generated for corresponding points.
 
-  VUSolid *fVolumeUSolids;   // Pointer that owns shape object.
+  ImplT const *fVolume;      // Pointer that owns shape object.
   std::string fVolumeString; // data member to store the name of volume;
 
-  std::vector<UVector3> fResultVectorUSolids;    // stl vector for storing the vector results
-  std::vector<UVector3> fResultVectorDifference; // stl vector for storing the vector difference
-  std::vector<double> fResultDoubleUSolids;      // stl vector for storing the double results
-  std::vector<double> fResultDoubleDifference;   // stl vector for storing the double difference
-  std::vector<bool> fResultBoolUSolids;          // stl vector for storing the bool results.
-  std::vector<bool> fResultBoolDifference;       // stl vector for storing the bool difference.
+  std::vector<Vec_t> fResultVectorUSolids;     // stl vector for storing the vector results
+  std::vector<Vec_t> fResultVectorDifference;  // stl vector for storing the vector difference
+  std::vector<double> fResultDoubleUSolids;    // stl vector for storing the double results
+  std::vector<double> fResultDoubleDifference; // stl vector for storing the double difference
+  std::vector<bool> fResultBoolUSolids;        // stl vector for storing the bool results.
+  std::vector<bool> fResultBoolDifference;     // stl vector for storing the bool difference.
 
   int fOffsetSurface;    // offset of surface points
   int fOffsetInside;     // offset of inside points
@@ -230,10 +230,7 @@ private:
 
   // Save only differences
   bool fIfSaveAllData; // save alldata, big files
-  bool fIfMoreTests;   // do all additional tests,
   // take more time, but not affect performance measures
-  bool fIfDifUSolids;       // save differences of Geant4 with Usolids or with ROOT
-  double fMinDifference;    // save data, when difference is bigger that min
   bool fDefinedNormal;      // bool variable to skip normal calculation if it does not exist in the shape
   bool fIfException;        // data memeber to abort ShapeTester if any error found
   bool fTestBoundaryErrors; // Enable testing boundary errors
@@ -248,8 +245,10 @@ private:
 #ifdef VECGEOM_ROOT
   vecgeom::Visualizer fVisualizer; // Visualizer object to visualize the geometry if fVisualize is set.
 #endif
-  bool fStat;  // data member to show the statistic visualtion if set to true
-  bool fDebug; // data member to visualized the shape and first mismatched point with direction
+  vecgeom::RNG fRNG;
+  bool fStat;               // data member to show the statistic visualtion if set to true
+  bool fDebug;              // data member to visualized the shape and first mismatched point with directions
+  bool fUsolidsConventions; // flag to define which conventions to be enforced (USolids vs. VecGeom)
 };
 
 #endif

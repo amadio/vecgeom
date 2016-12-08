@@ -15,7 +15,7 @@
 #include <list>
 
 class TGeoShape;
-class VUSolid;
+// class VUSolid;
 
 namespace vecgeom {
 

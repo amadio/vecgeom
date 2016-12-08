@@ -1,35 +1,33 @@
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
 #include "VUSolid.hh"
+#include "volumes/PlacedVolume.h"
 #include "base/Vector3D.h"
 
 #include "UTrap.hh"
 #include "volumes/Trapezoid.h"
+#include <string>
 
-#ifdef VECGEOM_ROOT
-#include "TApplication.h"
-#endif
-
-using VGTrap    = vecgeom::SimpleTrapezoid;
-using Precision = vecgeom::Precision;
-using Vec_t     = vecgeom::Vector3D<vecgeom::Precision>;
+using Precision     = vecgeom::Precision;
+using Vec_t         = vecgeom::Vector3D<vecgeom::Precision>;
+using VPlacedVolume = vecgeom::VPlacedVolume;
+using VGTrap        = vecgeom::SimpleTrapezoid;
 
 template <typename Trap_t>
-VUSolid *buildTrap1()
+Trap_t *buildTrap1()
 {
-  return new Trap_t("FullTrap", 40, 0, 0, 30, 20, 20, 0, 30, 20, 20, 0);
+  return new Trap_t("FullTrap", 40, 0.12, 0.34, 15, 10, 10, 0, 30, 20, 20, 0);
 }
 
 template <typename Trap_t>
-VUSolid *buildBoxLikeTrap(double dx, double dy, double dz)
+Trap_t *buildBoxLikeTrap(double dx, double dy, double dz)
 {
   return new Trap_t("BoxLikeTrap", dz, 0, 0, dy, dx, dx, 0, dy, dx, dx, 0);
 }
 
 template <typename Trap_t>
-VUSolid *buildTrapFromCorners()
+Trap_t *buildTrapFromCorners()
 {
-
   // validate construtor for input corner points -- add an xy-offset for non-zero theta,phi
   vecgeom::TrapCorners xyz;
   Precision xoffset = 9;
@@ -50,56 +48,64 @@ VUSolid *buildTrapFromCorners()
   return new Trap_t("slantedTrap", xyz);
 }
 
-int main(int argc, char *argv[])
+template <typename Trap_t>
+Trap_t *buildATrap(int type)
 {
-  OPTION_BOOL(debug, false);
-  OPTION_BOOL(stat, false);
-  OPTION_INT(type, 2);
-  OPTION_BOOL(usolids, false);
 
-  VUSolid *solid = 0;
   switch (type) {
   case 0:
     std::cout << "Building default trapezoid\n";
-    if (usolids)
-      solid = buildTrap1<UTrap>();
-    else
-      solid = buildTrap1<VGTrap>();
+    return buildTrap1<Trap_t>();
     break;
   case 1:
     std::cout << "Building box-like trapezoid\n";
-    if (usolids)
-      solid = buildBoxLikeTrap<UTrap>(40, 30, 20);
-    else
-      solid = buildBoxLikeTrap<VGTrap>(40, 30, 20);
+    return buildBoxLikeTrap<Trap_t>(40, 30, 20);
     break;
   case 2:
     std::cout << "Building trapezoid from corners\n";
-    if (usolids)
-      solid = buildTrapFromCorners<UTrap>();
-    else
-      solid = buildTrapFromCorners<VGTrap>();
+    return buildTrapFromCorners<Trap_t>();
     break;
   default:
     std::cout << "*** No trap type provided.\n";
   }
+  return 0;
+}
 
-  // show parameters
-  vecgeom::VPlacedVolume *vgSolid = dynamic_cast<vecgeom::VPlacedVolume *>(solid);
-  if (vgSolid)
-    vgSolid->GetUnplacedVolume()->Print(std::cout);
-  else
-    solid->StreamInfo(std::cout);
+int main(int argc, char *argv[])
+{
+  OPTION_BOOL(debug, false);
+  OPTION_BOOL(stat, false);
+  OPTION_BOOL(usolids, false);
+  OPTION_INT(type, 2);
+  OPTION_INT(npoints, 10000);
 
-  // setup the shape tester
-  ShapeTester tester;
-  if (debug) tester.setDebug(true);
-  if (stat) tester.setStat(true);
+  int errcode = 0;
+  std::string volname;
+  if (usolids) {
+    auto trap = buildATrap<UTrap>(type);
+    volname   = trap->GetName();
+    trap->StreamInfo(std::cout);
+    ShapeTester<VUSolid> tester;
+    tester.setConventionsMode(usolids);
+    if (debug) tester.setDebug(true);
+    if (stat) tester.setStat(true);
+    tester.SetMaxPoints(npoints);
+    errcode = tester.Run(trap);
+  }
 
-  // run tests
-  int errCode = tester.Run(solid);
+  else {
+    auto trap = buildATrap<VGTrap>(type);
+    volname   = trap->GetName();
+    trap->Print();
+    ShapeTester<VPlacedVolume> tester;
+    if (debug) tester.setDebug(true);
+    if (stat) tester.setStat(true);
+    tester.SetMaxPoints(npoints);
+    errcode = tester.Run(trap);
+  }
+
   // int errCode = tester.SetMethod("Consistency");
-  std::cout << "Final Error count for Shape *** " << solid->GetName() << " *** = " << errCode << std::endl;
+  std::cout << "Final Error count for Shape *** " << volname << " *** = " << errcode << std::endl;
   std::cout << "=========================================================" << std::endl;
-  return errCode;
+  return errcode;
 }
