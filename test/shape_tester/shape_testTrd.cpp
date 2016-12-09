@@ -1,19 +1,41 @@
+#include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
 #include "VUSolid.hh"
-#include "UTrd.hh"
+#include "volumes/PlacedVolume.h"
 
-#include "base/Vector3D.h"
-#include "base/Global.h"
+#include "UTrd.hh"
 #include "volumes/Trd.h"
 
-#include "../benchmark/ArgParser.h"
-#ifdef VECGEOM_ROOT
-#include "TApplication.h"
-#endif
-#include "stdlib.h"
+using VPlacedVolume = vecgeom::VPlacedVolume;
+using VGTrd         = vecgeom::SimpleTrd;
 
-// typedef UCons Cone_t;
-typedef vecgeom::SimpleTrd Trd_t;
+template <typename ImplT>
+int runTester(ImplT const *shape, int npoints, bool usolids, bool debug, bool stat);
+
+template <typename Trd_t>
+Trd_t *buildATrd(int test)
+{
+  switch (test) {
+  case 0:
+    // Constant dx/dy (box)
+    return new Trd_t("TrdBox", 20., 20., 30., 30., 40.);
+  case 1:
+    // Variable dx constant dy
+    return new Trd_t("TrdConstY", 20., 30., 30., 30., 40.);
+  case 2:
+    // Increasing dx increasing dy
+    return new Trd_t("TrdIncreasingXY", 10., 20., 20., 40., 40.);
+  case 3:
+    // Decreasing dx decreasing dy
+    return new Trd_t("TrdDecreasingXY", 30., 10., 40., 30., 40.);
+  case 4:
+    // BaBar thin dx large dy
+    return new Trd_t("TrdBabarThin", 0.15, 0.15, 24.707, 24.707, 7.);
+  default:
+    std::cout << "Unknown test case.\n";
+    return 0;
+  }
+}
 
 int main(int argc, char *argv[])
 {
@@ -23,59 +45,40 @@ int main(int argc, char *argv[])
                  "       1 - Variable dx constant dy\n"
                  "       2 - Increasing dx increasing dy\n"
                  "       3 - Decreasing dx decreasing dy\n"
-                 "       4 - BaBar thin dx large dy\n"
-                 "       5 - USolids\n";
-  }
-  OPTION_INT(test, 0);
-  int errCode    = 0;
-  VUSolid *solid = 0;
-
-  switch (test) {
-  case 0:
-    // Constant dx/dy (box)
-    solid = new Trd_t("test_VecGeomTrdBox", 20., 20., 30., 30., 40.);
-    break;
-  case 1:
-    // Variable dx constant dy
-    solid = new Trd_t("test_VecGeomTrdConstY", 20., 30., 30., 30., 40.);
-    break;
-  case 2:
-    // Increasing dx increasing dy
-    solid = new Trd_t("test_VecGeomTrdIncreasingXY", 10., 20., 20., 40., 40.);
-    break;
-  case 3:
-    // Decreasing dx decreasing dy
-    solid = new Trd_t("test_VecGeomTrdDecreasingXY", 30., 10., 40., 30., 40.);
-    break;
-  case 4:
-    // BaBar thin dx large dy
-    solid = new Trd_t("test_VecGeomTrd", 0.15, 0.15, 24.707, 24.707, 7.);
-    break;
-  case 5:
-    // USolids
-    solid = new UTrd("test_USolidsTrd", 5., 8., 6., 9., 5.);
-    solid->StreamInfo(std::cout);
-    break;
-  default:
-    std::cout << "Unknown test case.\n";
-    return 1;
+                 "       4 - BaBar thin dx large dy\n";
   }
 
-  ShapeTester tester;
-  tester.SetTestBoundaryErrors(false);
+  OPTION_INT(npoints, 10000);
+  OPTION_BOOL(debug, false);
+  OPTION_BOOL(stat, false);
+  OPTION_BOOL(usolids, false);
+  OPTION_INT(type, 0);
 
-  if (argc > 3) {
-    if (strcmp(argv[3], "vis") == 0) {
-#ifdef VECGEOM_ROOT
-      TApplication theApp("App", 0, 0);
-      errCode = tester.Run(solid);
-      theApp.Run();
-#endif
-    }
+  if (usolids) {
+    auto trd = buildATrd<UTrd>(type);
+    trd->StreamInfo(std::cout);
+    return runTester<VUSolid>(trd, npoints, usolids, debug, stat);
   } else {
-    errCode = tester.Run(solid);
+    auto trd = buildATrd<VGTrd>(type);
+    trd->Print();
+    return runTester<VPlacedVolume>(trd, npoints, usolids, debug, stat);
   }
-  std::cout << "Final Error count for Shape *** " << solid->GetName() << "*** = " << errCode << std::endl;
-  std::cout << "=========================================================" << std::endl;
-  return 0;
+}
+
+template <typename ImplT>
+int runTester(ImplT const *shape, int npoints, bool usolids, bool debug, bool stat)
+{
+
+  ShapeTester<ImplT> tester;
+  tester.setConventionsMode(usolids);
+  tester.setDebug(debug);
+  tester.setStat(stat);
+  tester.SetMaxPoints(npoints);
+  int errcode = tester.Run(shape);
+
+  std::cout << "Final Error count for Shape *** " << shape->GetName() << "*** = " << errcode << " ("
+            << (tester.getConventionsMode() ? "USolids" : "VecGeom") << " conventions)\n";
+  std::cout << "=========================================================\n";
+  if (shape) delete shape;
+  return errcode;
 }

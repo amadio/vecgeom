@@ -1,8 +1,7 @@
-
 #include "ShapeTester.h"
-#include "volumes/Tube.h"
+#include "volumes/PlacedVolume.h"
 
-class VUSolid;
+#include "volumes/Tube.h"
 
 #define PI 3.14159265358979323846
 
@@ -10,8 +9,9 @@ typedef vecgeom::SimpleTube Tube_t;
 
 int main(int argc, char *argv[])
 {
-  VUSolid *tube = new Tube_t("testTube", 30., 50., 50., 0., 1.67 * PI);
-  ShapeTester tester;
+  Tube_t const *tube = new Tube_t("testTube", 30., 50., 50., 0., 1.67 * PI);
+  ShapeTester<vecgeom::VPlacedVolume> tester;
   tester.RunConventionChecker(tube);
+  tester.SetMaxPoints(300);
   return 0;
 }

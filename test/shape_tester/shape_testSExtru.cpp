@@ -1,12 +1,20 @@
+#include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
+#include "volumes/PlacedVolume.h"
 
-#include "base/Vector3D.h"
 #include "volumes/SExtru.h"
+
+template <typename ImplT>
+int runTester(ImplT const *shape, int npoints, bool usolids, bool debug, bool stat);
 
 int main(int argc, char *argv[])
 {
+  OPTION_INT(npoints, 10000);
+  OPTION_BOOL(debug, false);
+  OPTION_BOOL(stat, false);
+  OPTION_BOOL(usolids, false);
+
   int errCode = 0;
-  VUSolid *volume;
 
   int N = 20;
   double x[N], y[N];
@@ -15,11 +23,20 @@ int main(int argc, char *argv[])
     y[i] = 4 * std::cos(i * (2. * M_PI) / N);
   }
 
-  volume = new vecgeom::SimpleSExtru("test_VecGeomSExtru", N, x, y, -5., 5.);
-  ShapeTester tester;
+  auto volume = new vecgeom::SimpleSExtru("test_VecGeomSExtru", N, x, y, -5., 5.);
+  volume->Print();
+
+  ShapeTester<vecgeom::VPlacedVolume> tester;
+  tester.setConventionsMode(usolids);
+  tester.setDebug(debug);
+  tester.setStat(stat);
+  tester.SetMaxPoints(npoints);
   errCode = tester.Run(volume);
 
-  std::cout << "Final Error count for Shape *** " << volume->GetName() << "*** = " << errCode << std::endl;
+  std::cout << "Final Error count for Shape *** " << volume->GetName() << "*** = " << errCode << " ("
+            << (tester.getConventionsMode() ? "USolids" : "VecGeom") << " conventions)\n";
   std::cout << "=========================================================\n";
+
+  if (volume) delete volume;
   return 0;
 }

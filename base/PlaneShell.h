@@ -140,7 +140,7 @@ public:
     }
 
     // analysis loop - not auto-vectorizable
-    constexpr Precision trapSurfaceTolerance = 1.0e-6;
+    constexpr Precision trapSurfaceTolerance = 1.0e-9;
     for (unsigned int i = 0; i < N; ++i) {
       // is it outside of this side plane?
       completelyOutside = completelyOutside || (dist[i] > MakePlusTolerant<ForInside>(0., trapSurfaceTolerance));

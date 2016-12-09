@@ -1,34 +1,57 @@
+#include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
 #include "VUSolid.hh"
-#include "USphere.hh"
+#include "volumes/PlacedVolume.h"
 
-#include "base/Vector3D.h"
+#include "USphere.hh"
 #include "volumes/Sphere.h"
 
-#ifdef VECGEOM_ROOT
-#include "TApplication.h"
-#endif
-#include "stdlib.h"
+using VPlacedVolume = vecgeom::VPlacedVolume;
+using VGSphere      = vecgeom::SimpleSphere;
 
-#define PI 3.14159265358979323846
-typedef vecgeom::SimpleSphere Sphere_t;
+template <typename ImplT>
+int runTester(ImplT const *shape, int npoints, bool usolids, bool debug, bool stat);
 
 int main(int argc, char *argv[])
 {
+  OPTION_INT(npoints, 10000);
+  OPTION_BOOL(debug, false);
+  OPTION_BOOL(stat, false);
+  OPTION_BOOL(usolids, false);
 
-  // VUSolid* sphere=new USphere("test_sphere",15. , 20. , 0 ,2*PI/3, 2*PI/3 ,PI/6);
-  // VUSolid* sphere=new Sphere_t("test_sphere",15. , 20. ,PI/6, 4.265389, PI/3 ,0.235869);
-  // VUSolid* sphere=new Sphere_t("test_sphere",15. , 20. ,0.,  2*PI/3., PI/4., PI/6.);
-  VUSolid *sphere = new Sphere_t("test_sphere", 15., 20., 0., 2 * PI / 3., 0., 2 * PI);
-  // VUSolid* sphere=new USphere("test_USphere",3.);
-  ShapeTester tester;
-  tester.EnableDebugger(true);
-  if (argc > 1) {
+  OPTION_DOUBLE(rmin, 15.);
+  OPTION_DOUBLE(rmax, 20.);
+  OPTION_DOUBLE(sphi, 0.);
+  OPTION_DOUBLE(dphi, vecgeom::kTwoPi / 3.);
+  OPTION_DOUBLE(stheta, 0.);
+  OPTION_DOUBLE(dtheta, vecgeom::kTwoPi);
 
-    tester.Run(sphere, argv[1]);
+  if (usolids) {
+    auto sphere = new USphere("usolidsSphere", rmin, rmax, sphi, dphi, stheta, dtheta);
+    sphere->StreamInfo(std::cout);
+    return runTester<VUSolid>(sphere, npoints, usolids, debug, stat);
   } else {
-    tester.Run(sphere);
+    auto sphere = new VGSphere("vecgeomSphere", rmin, rmax, sphi, dphi, stheta, dtheta);
+    sphere->Print();
+    return runTester<VPlacedVolume>(sphere, npoints, usolids, debug, stat);
   }
+}
 
-  return 0;
+template <typename ImplT>
+int runTester(ImplT const *shape, int npoints, bool usolids, bool debug, bool stat)
+{
+
+  ShapeTester<ImplT> tester;
+  tester.setConventionsMode(usolids);
+  tester.setDebug(debug);
+  tester.setStat(stat);
+  tester.SetMaxPoints(npoints);
+  int errcode = tester.Run(shape);
+
+  std::cout << "Final Error count for Shape *** " << shape->GetName() << "*** = " << errcode << " ("
+            << (tester.getConventionsMode() ? "USolids" : "VecGeom") << " conventions)\n";
+  std::cout << "=========================================================\n";
+
+  if (shape) delete shape;
+  return errcode;
 }

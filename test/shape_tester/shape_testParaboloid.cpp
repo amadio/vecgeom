@@ -1,44 +1,38 @@
 /// \file shape_testParaboloid.cpp
 /// \author Raman Sehgal (raman.sehgal@cern.ch)
+
+#include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
 #include "VUSolid.hh"
-#include "UBox.hh"
-#include "UParaboloid.hh"
 
-#include "base/Vector3D.h"
-#include "volumes/Box.h"
+#include "UParaboloid.hh"
 #include "volumes/Paraboloid.h"
 
-#ifdef VECGEOM_ROOT
-#include "TApplication.h"
-#endif
-#include "stdlib.h"
-
-// typedef UBox Box_t;
 typedef vecgeom::SimpleParaboloid Paraboloid_t;
 
 int main(int argc, char *argv[])
 {
+  OPTION_INT(npoints, 10000);
+  OPTION_BOOL(debug, false);
+  OPTION_BOOL(stat, false);
+  OPTION_BOOL(usolids, false);
 
-  VUSolid *para = new Paraboloid_t("test_para", 6., 10., 10.);
-  ShapeTester tester;
-  // tester.EnableDebugger(true);
-  tester.SetSolidTolerance(1.e-7);
-  if (argc > 1) {
-    /*
-    if(strcmp(argv[1],"vis")==0)
-    {
-     #ifdef VECGEOM_ROOT
-     TApplication theApp("App",0,0);
-     tester.Run(para);
-     theApp.Run();
-     #endif
-    }
-   */
-    tester.Run(para, argv[1]);
-  } else {
-    tester.Run(para);
-  }
+  Paraboloid_t const *para = new Paraboloid_t("test_para", 6., 10., 10.);
+  para->Print();
 
+  ShapeTester<vecgeom::VPlacedVolume> tester;
+  tester.setConventionsMode(usolids);
+  tester.setDebug(debug);
+  tester.setStat(stat);
+  tester.SetMaxPoints(npoints);
+  tester.SetSolidTolerance(1.e-9);
+  tester.SetTestBoundaryErrors(true);
+  int errCode = tester.Run(para);
+
+  std::cout << "Final Error count for Shape *** " << para->GetName() << "*** = " << errCode << " ("
+            << (tester.getConventionsMode() ? "USolids" : "VecGeom") << " conventions)\n";
+  std::cout << "=========================================================" << std::endl;
+
+  if (para) delete para;
   return 0;
 }

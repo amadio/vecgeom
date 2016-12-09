@@ -6,15 +6,17 @@
 
 #include "UTrap.hh"
 #include "volumes/Trapezoid.h"
-#include <string>
 
 using Precision     = vecgeom::Precision;
 using Vec_t         = vecgeom::Vector3D<vecgeom::Precision>;
 using VPlacedVolume = vecgeom::VPlacedVolume;
 using VGTrap        = vecgeom::SimpleTrapezoid;
 
+template <typename ImplT>
+int runTester(ImplT const *shape, int npoints, bool usolids, bool debug, bool stat);
+
 template <typename Trap_t>
-Trap_t *buildTrap1()
+Trap_t *buildFullTrap()
 {
   return new Trap_t("FullTrap", 40, 0.12, 0.34, 15, 10, 10, 0, 30, 20, 20, 0);
 }
@@ -55,11 +57,11 @@ Trap_t *buildATrap(int type)
   switch (type) {
   case 0:
     std::cout << "Building default trapezoid\n";
-    return buildTrap1<Trap_t>();
+    return buildFullTrap<Trap_t>();
     break;
   case 1:
     std::cout << "Building box-like trapezoid\n";
-    return buildBoxLikeTrap<Trap_t>(40, 30, 20);
+    return buildBoxLikeTrap<Trap_t>(10, 10, 10);
     break;
   case 2:
     std::cout << "Building trapezoid from corners\n";
@@ -73,39 +75,38 @@ Trap_t *buildATrap(int type)
 
 int main(int argc, char *argv[])
 {
+  OPTION_INT(npoints, 10000);
   OPTION_BOOL(debug, false);
   OPTION_BOOL(stat, false);
   OPTION_BOOL(usolids, false);
   OPTION_INT(type, 2);
-  OPTION_INT(npoints, 10000);
 
-  int errcode = 0;
-  std::string volname;
   if (usolids) {
     auto trap = buildATrap<UTrap>(type);
-    volname   = trap->GetName();
     trap->StreamInfo(std::cout);
-    ShapeTester<VUSolid> tester;
-    tester.setConventionsMode(usolids);
-    if (debug) tester.setDebug(true);
-    if (stat) tester.setStat(true);
-    tester.SetMaxPoints(npoints);
-    errcode = tester.Run(trap);
-  }
-
-  else {
+    return runTester<VUSolid>(trap, npoints, usolids, debug, stat);
+  } else {
     auto trap = buildATrap<VGTrap>(type);
-    volname   = trap->GetName();
     trap->Print();
-    ShapeTester<VPlacedVolume> tester;
-    if (debug) tester.setDebug(true);
-    if (stat) tester.setStat(true);
-    tester.SetMaxPoints(npoints);
-    errcode = tester.Run(trap);
+    return runTester<VPlacedVolume>(trap, npoints, usolids, debug, stat);
   }
+}
 
-  // int errCode = tester.SetMethod("Consistency");
-  std::cout << "Final Error count for Shape *** " << volname << " *** = " << errcode << std::endl;
-  std::cout << "=========================================================" << std::endl;
+template <typename ImplT>
+int runTester(ImplT const *shape, int npoints, bool usolids, bool debug, bool stat)
+{
+
+  ShapeTester<ImplT> tester;
+  tester.setConventionsMode(usolids);
+  tester.setDebug(debug);
+  tester.setStat(stat);
+  tester.SetMaxPoints(npoints);
+  int errcode = tester.Run(shape);
+
+  std::cout << "Final Error count for Shape *** " << shape->GetName() << "*** = " << errcode << " ("
+            << (tester.getConventionsMode() ? "USolids" : "VecGeom") << " conventions)\n";
+  std::cout << "=========================================================\n";
+
+  if (shape) delete shape;
   return errcode;
 }

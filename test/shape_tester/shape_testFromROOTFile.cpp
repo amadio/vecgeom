@@ -1,16 +1,12 @@
+#include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
 #include "VUSolid.hh"
+
 #include "management/RootGeoManager.h"
 #include "volumes/LogicalVolume.h"
 #include "management/GeoManager.h"
 #include "TGeoManager.h"
 #include "TGeoVolume.h"
-#include "base/Vector3D.h"
-
-#ifdef VECGEOM_ROOT
-#include "TApplication.h"
-#endif
-#include "stdlib.h"
 
 using namespace vecgeom;
 
@@ -20,10 +16,12 @@ using namespace vecgeom;
 // logicalvolumename should not contain trailing pointer information
 
 bool usolids = false; // test VecGeom by default
-bool vis     = false;
 
 int main(int argc, char *argv[])
 {
+  OPTION_INT(npoints, 10000);
+  OPTION_BOOL(debug, false);
+  OPTION_BOOL(stat, false);
 
   if (argc < 3) {
     std::cerr << "***** Error: need to give root geometry file and logical volume name\n";
@@ -48,7 +46,6 @@ int main(int argc, char *argv[])
     } else if (!strcmp(argv[i], "--vecgeom")) {
       usolids = false;
     }
-    if (!strcmp(argv[i], "--vis")) vis = true;
   }
 
   int errCode             = 0;
@@ -77,38 +74,44 @@ int main(int argc, char *argv[])
   if (foundvolume) {
     LogicalVolume *converted = RootGeoManager::Instance().Convert(foundvolume);
 
+    int errCode = 0;
     if (usolids) {
 #if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
       VUSolid *shape = converted->Place()->ConvertToUSolids()->Clone();
+#else
+      VUSolid *shape = converted->Place();
+#endif
       std::cerr << "\n==============Shape StreamInfo ========= \n";
       shape->StreamInfo(std::cerr);
 
       std::cerr << "\n=========Using USolids=========\n\n";
-      ShapeTester tester;
-      if (vis) {
-#ifdef VECGEOM_ROOT
-        TApplication theApp("App", 0, 0);
-        errCode = tester.Run(shape);
-        theApp.Run();
-#endif
-      } else {
-        errCode = tester.Run(shape);
-      }
-#endif
-    } else { // !usolids
+      ShapeTester<VUSolid> tester;
+      tester.setConventionsMode(usolids);
+      tester.setDebug(debug);
+      tester.setStat(stat);
+      tester.SetMaxPoints(npoints);
+      tester.SetSolidTolerance(1.e-9);
+      tester.SetTestBoundaryErrors(true);
+      errCode = tester.Run(shape);
+      std::cout << "Final Error count for Shape *** " << shape->GetName() << "*** = " << errCode << " ("
+                << (tester.getConventionsMode() ? "USolids" : "VecGeom") << " conventions)\n";
+      std::cout << "=========================================================" << std::endl;
+    }
+
+    else { // !usolids
       VPlacedVolume *shape = converted->Place();
       std::cerr << "\n=========Using VecGeom=========\n\n";
-
-      ShapeTester tester;
-      if (vis) {
-#ifdef VECGEOM_ROOT
-        TApplication theApp("App", 0, 0);
-        errCode = tester.Run(shape);
-        theApp.Run();
-#endif
-      } else {
-        errCode = tester.Run(shape);
-      }
+      ShapeTester<VUSolid> tester;
+      tester.setConventionsMode(usolids);
+      tester.setDebug(debug);
+      tester.setStat(stat);
+      tester.SetMaxPoints(npoints);
+      tester.SetSolidTolerance(1.e-9);
+      tester.SetTestBoundaryErrors(true);
+      errCode = tester.Run(shape);
+      std::cout << "Final Error count for Shape *** " << shape->GetName() << "*** = " << errCode << " ("
+                << (tester.getConventionsMode() ? "USolids" : "VecGeom") << " conventions)\n";
+      std::cout << "=========================================================" << std::endl;
     }
     return errCode;
   } else {

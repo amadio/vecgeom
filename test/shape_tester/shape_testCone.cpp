@@ -1,34 +1,57 @@
+#include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
 #include "VUSolid.hh"
+#include "volumes/PlacedVolume.h"
 
 #include "UCons.hh"
 #include "volumes/Cone.h"
 
-//#include "stdlib.h"
+using VPlacedVolume = vecgeom::VPlacedVolume;
+using VGCone        = vecgeom::SimpleCone;
 
-using Cone_t = vecgeom::SimpleCone;
+template <typename ImplT>
+int runTester(ImplT const *shape, int npoints, bool usolids, bool debug, bool stat);
 
 int main(int argc, char *argv[])
 {
-  VUSolid *solid = 0;
+  OPTION_INT(npoints, 10000);
+  OPTION_BOOL(debug, false);
+  OPTION_BOOL(stat, false);
+  OPTION_BOOL(usolids, false);
 
-  solid = new Cone_t("VecGeomCone", 5., 6., 5.5, 7., 2, 0, vecgeom::kTwoPi);
-  // solid = new UCons("USolidsCone", 5., 6., 5.5, 7., 7., 0, vecgeom::kTwoPi * 0.3);
+  OPTION_DOUBLE(rmin1, 4.);
+  OPTION_DOUBLE(rmax1, 6.);
+  OPTION_DOUBLE(rmin2, 5.);
+  OPTION_DOUBLE(rmax2, 7.);
+  OPTION_DOUBLE(dz, 2.);
+  OPTION_DOUBLE(sphi, 0.);
+  OPTION_DOUBLE(dphi, vecgeom::kTwoPi);
 
-  // solid->StreamInfo(std::cout);
-  vecgeom::VPlacedVolume *vgSolid = dynamic_cast<vecgeom::VPlacedVolume *>(solid);
-  if (vgSolid) vgSolid->GetUnplacedVolume()->Print(std::cout);
-
-  ShapeTester tester;
-  if (argc > 1) {
-    tester.Run(solid, argv[1]);
+  if (usolids) {
+    auto cone = new UCons("usolidsCone", rmin1, rmax1, rmin2, rmax2, dz, sphi, dphi);
+    cone->StreamInfo(std::cout);
+    return runTester<VUSolid>(cone, npoints, usolids, debug, stat);
   } else {
-    int errCode = tester.Run(solid);
-    // tester.SetMethod("Consistency");
-    std::cout << "Final Error count for Shape *** " << solid->GetName() << "*** = " << errCode << std::endl;
-    std::cout << "=========================================================" << std::endl;
-    return errCode;
+    auto cone = new VGCone("vecgeomCone", rmin1, rmax1, rmin2, rmax2, dz, sphi, dphi);
+    cone->Print();
+    return runTester<VPlacedVolume>(cone, npoints, usolids, debug, stat);
   }
+}
 
-  return 0;
+template <typename ImplT>
+int runTester(ImplT const *shape, int npoints, bool usolids, bool debug, bool stat)
+{
+
+  ShapeTester<ImplT> tester;
+  tester.setConventionsMode(usolids);
+  tester.setDebug(debug);
+  tester.setStat(stat);
+  tester.SetMaxPoints(npoints);
+  int errcode = tester.Run(shape);
+
+  std::cout << "Final Error count for Shape *** " << shape->GetName() << "*** = " << errcode << " ("
+            << (tester.getConventionsMode() ? "USolids" : "VecGeom") << " conventions)\n";
+  std::cout << "=========================================================\n";
+  if (shape) delete shape;
+  return errcode;
 }

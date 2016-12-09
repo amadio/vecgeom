@@ -1,34 +1,34 @@
+#include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
 #include "VUSolid.hh"
-//#include "UTubs.hh"
 
-#include "base/Vector3D.h"
-#include "base/Global.h"
 #include "volumes/Hype.h"
-
-#ifdef VECGEOM_ROOT
-#include "TApplication.h"
-#endif
-#include "stdlib.h"
-
-#define PI 3.14159265358979323846
-
 typedef vecgeom::SimpleHype Hype_t;
 
 int main(int argc, char *argv[])
 {
+  OPTION_INT(npoints, 10000);
+  OPTION_BOOL(debug, false);
+  OPTION_BOOL(stat, false);
+  OPTION_BOOL(usolids, false);
 
-  int errCode   = 0;
-  VUSolid *hype = new Hype_t("test_VecGeomHype", 5., 20, PI / 6, PI / 3, 50);
-  ShapeTester tester;
-  tester.SetSolidTolerance(1e-7);
-  if (argc > 1) {
-    tester.Run(hype, argv[1]);
-  } else {
-    tester.Run(hype);
-  }
+  using vecgeom::kPi;
+  auto hype = new Hype_t("test_VecGeomHype", 5., 20, kPi / 6, kPi / 3, 50);
+  hype->Print();
 
-  std::cout << "Final Error count for Shape *** " << hype->GetName() << "*** = " << errCode << std::endl;
+  ShapeTester<vecgeom::VPlacedVolume> tester;
+  tester.setConventionsMode(usolids);
+  tester.setDebug(debug);
+  tester.setStat(stat);
+  tester.SetMaxPoints(npoints);
+  tester.SetSolidTolerance(1.e-9);
+  tester.SetTestBoundaryErrors(true);
+  int errCode = tester.Run(hype);
+
+  std::cout << "Final Error count for Shape *** " << hype->GetName() << "*** = " << errCode << " ("
+            << (tester.getConventionsMode() ? "USolids" : "VecGeom") << " conventions)\n";
   std::cout << "=========================================================" << std::endl;
+
+  if (hype) delete hype;
   return 0;
 }

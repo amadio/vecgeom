@@ -1,48 +1,54 @@
+#include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
 #include "VUSolid.hh"
-#include "UBox.hh"
+#include "volumes/PlacedVolume.h"
 
-#include "base/Vector3D.h"
+#include "UBox.hh"
 #include "volumes/Box.h"
 
-#ifdef VECGEOM_ROOT
-#include "TApplication.h"
-#endif
-#include "stdlib.h"
+using VPlacedVolume = vecgeom::VPlacedVolume;
+using VGBox         = vecgeom::SimpleBox;
 
-// typedef UBox Box_t;
-typedef vecgeom::SimpleBox Box_t;
+template <typename ImplT>
+int runTester(ImplT const *shape, int npoints, bool usolids, bool debug, bool stat);
 
 int main(int argc, char *argv[])
 {
-  int errCode = 0;
-  VUSolid *box;
-  if (argc > 1) {
-    if (strcmp(argv[1], "vec") == 0) {
-      box = new Box_t("test_VecGeomBox", 5., 5., 5.);
-    } else {
-      box = new UBox("test_USolidsBox", 5., 5., 5.);
-    }
-  } else {
-    box = new Box_t("test_VecGeomBox", 5., 5., 5.);
-  }
+  OPTION_INT(npoints, 10000);
+  OPTION_BOOL(debug, false);
+  OPTION_BOOL(stat, false);
+  OPTION_BOOL(usolids, false);
 
-  ShapeTester tester;
+  OPTION_DOUBLE(dx, 10.);
+  OPTION_DOUBLE(dy, 15.);
+  OPTION_DOUBLE(dz, 20.);
 
-  if (argc > 2) {
-    if (strcmp(argv[2], "vis") == 0) {
-#ifdef VECGEOM_ROOT
-      TApplication theApp("App", 0, 0);
-      errCode = tester.Run(box);
-      theApp.Run();
-#endif
-    }
+  if (usolids) {
+    auto box = new UBox("usolidsBox", dx, dy, dz);
+    box->StreamInfo(std::cout);
+    return runTester<VUSolid>(box, npoints, usolids, debug, stat);
   } else {
-    // tester.SetMethod("Consistency");
-    // tester.SetMethod("XRayProfile");
-    errCode = tester.Run(box);
+    auto box = new VGBox("vecgeomBox", dx, dy, dz);
+    box->Print();
+    return runTester<VPlacedVolume>(box, npoints, usolids, debug, stat);
   }
-  std::cout << "Final Error count for Shape *** " << box->GetName() << "*** = " << errCode << std::endl;
+}
+
+template <typename ImplT>
+int runTester(ImplT const *shape, int npoints, bool usolids, bool debug, bool stat)
+{
+
+  ShapeTester<ImplT> tester;
+  tester.setConventionsMode(usolids);
+  tester.setDebug(debug);
+  tester.setStat(stat);
+  tester.SetMaxPoints(npoints);
+  int errcode = tester.Run(shape);
+
+  std::cout << "Final Error count for Shape *** " << shape->GetName() << "*** = " << errcode << " ("
+            << (tester.getConventionsMode() ? "USolids" : "VecGeom") << " conventions)\n";
   std::cout << "=========================================================\n";
-  return 0;
+
+  if (shape) delete shape;
+  return errcode;
 }

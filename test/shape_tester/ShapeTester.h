@@ -32,6 +32,7 @@ public:
   void setStat(bool _stat) { fStat = _stat; }
   void setDebug(bool _debug) { fDebug = _debug; }
   void setConventionsMode(bool _usolids) { fUsolidsConventions = _usolids; }
+  bool getConventionsMode() { return fUsolidsConventions; }
 
   int Run(ImplT const *testVolume);
   void Run(ImplT const *testVolume, const char *type);

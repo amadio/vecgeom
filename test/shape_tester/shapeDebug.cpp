@@ -46,7 +46,9 @@ int main(int argc, char *argv[])
   double diry = atof(argv[5]);
   double dirz = atof(argv[6]);
 
-  TGeoShape *testShape = new TGeoTubeSeg(3, 6, 2, 0, 360. * 0.6);
+  TGeoShape *testShape = new TGeoBBox(10, 15, 20);
+  // TGeoShape *testShape = new TGeoTubeSeg(3, 6, 2, 0, 360. * 0.6);
+  // TGeoShape *testShape = new TGeoTrap(3, 6, 2, 0, 360. * 0.6);
   testShape->InspectShape();
   std::cerr << "volume capacity " << testShape->Capacity() << "\n";
 

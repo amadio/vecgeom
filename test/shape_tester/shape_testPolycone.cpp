@@ -1,19 +1,18 @@
+#include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
 #include "VUSolid.hh"
+
 #include "UPolycone.hh"
 #include "volumes/Polycone.h"
-
-#include "base/Vector3D.h"
-
-#ifdef VECGEOM_ROOT
-#include "TApplication.h"
-#endif
-#include "stdlib.h"
 
 typedef vecgeom::SimplePolycone Poly_t;
 
 int main(int argc, char *argv[])
 {
+  OPTION_INT(npoints, 10000);
+  OPTION_BOOL(debug, false);
+  OPTION_BOOL(stat, false);
+  OPTION_BOOL(usolids, false);
 
   double Z_ValP[15];
   Z_ValP[0]  = -1520;
@@ -65,27 +64,25 @@ int main(int argc, char *argv[])
   R_MaxP[13] = 1455.22;
   R_MaxP[14] = 1455.22;
 
-  int Nz         = 15;
-  VUSolid *poly2 = new Poly_t("Test", 0.,              /* initial phi starting angle */
-                              UUtils::kTwoPi,          /* total phi angle */
-                              Nz,                      /* number corners in r,z space */
-                              Z_ValP, R_MinP, R_MaxP); /* r coordinate of these corners */
+  int Nz     = 15;
+  auto poly2 = new Poly_t("Test", 0.,              /* initial phi starting angle */
+                          UUtils::kTwoPi,          /* total phi angle */
+                          Nz,                      /* number corners in r,z space */
+                          Z_ValP, R_MinP, R_MaxP); /* r coordinate of these corners */
 
-  ShapeTester tester;
+  ShapeTester<vecgeom::VPlacedVolume> tester;
+  tester.setConventionsMode(usolids);
+  tester.setDebug(debug);
+  tester.setStat(stat);
+  tester.SetMaxPoints(npoints);
+  tester.SetSolidTolerance(1.e-9);
+  tester.SetTestBoundaryErrors(false);
+  int errCode = tester.Run(poly2);
 
-  if (argc > 1) {
-    if (strcmp(argv[1], "vis") == 0) {
-#ifdef VECGEOM_ROOT
-      TApplication theApp("App", 0, 0);
-      tester.Run(poly2);
-      theApp.Run();
-#endif
-    }
-  } else {
-    tester.Run(poly2);
-  }
+  std::cout << "Final Error count for Shape *** " << poly2->GetName() << "*** = " << errCode << " ("
+            << (tester.getConventionsMode() ? "USolids" : "VecGeom") << " conventions)\n";
+  std::cout << "=========================================================" << std::endl;
 
-  delete poly2;
-
+  if (poly2) delete poly2;
   return 0;
 }

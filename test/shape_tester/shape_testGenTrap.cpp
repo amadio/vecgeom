@@ -1,17 +1,9 @@
+#include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
 #include "VUSolid.hh"
+
 #include "UGenericTrap.hh"
-
-#include "base/Vector3D.h"
-#include "base/Global.h"
 #include "volumes/GenTrap.h"
-
-#include "../benchmark/ArgParser.h"
-#ifdef VECGEOM_ROOT
-#include "TApplication.h"
-#endif
-#include "stdlib.h"
-
 typedef vecgeom::SimpleGenTrap GenTrap_t;
 
 int main(int argc, char *argv[])
@@ -26,7 +18,12 @@ int main(int argc, char *argv[])
                  "       5 - one face line, other triangle\n"
                  "       6 - degenerated planar\n";
   }
-  OPTION_INT(test, 0);
+  OPTION_INT(npoints, 10000);
+  OPTION_BOOL(debug, false);
+  OPTION_BOOL(stat, false);
+  OPTION_BOOL(usolids, false);
+  OPTION_INT(type, 0);
+
   using namespace vecgeom;
   // 4 different vertices, twisted
   Precision verticesx0[8] = {-3, -2.5, 3, 2.5, -2, -2, 2, 2};
@@ -50,7 +47,7 @@ int main(int argc, char *argv[])
   Precision verticesx6[8] = {-0.507492, -0.507508, 1.522492, -0.507492, -0.507492, -0.507508, 1.522492, -0.507492};
   Precision verticesy6[8] = {-3.634000, 3.63400, 3.634000, -3.634000, -3.634000, 3.634000, 3.634000, -3.634000};
   GenTrap_t *solid        = 0;
-  switch (test) {
+  switch (type) {
   case 0:
     // 4 different vertices, twisted
     std::cout << "Testing twisted trapezoid\n";
@@ -90,26 +87,21 @@ int main(int argc, char *argv[])
     std::cout << "Unknown test case.\n";
   }
 
-  int errCode = 0;
+  solid->Print();
 
-  ShapeTester tester;
+  ShapeTester<vecgeom::VPlacedVolume> tester;
+  tester.setConventionsMode(usolids);
+  tester.setDebug(debug);
+  tester.setStat(stat);
+  tester.SetMaxPoints(npoints);
   tester.SetSolidTolerance(1.e-7);
   tester.SetTestBoundaryErrors(true);
-  //  tester.EnableDebugger(true);
+  int errCode = tester.Run(solid);
 
-  if (argc > 3) {
-    if (strcmp(argv[3], "vis") == 0) {
-#ifdef VECGEOM_ROOT
-      TApplication theApp("App", 0, 0);
-      errCode = tester.Run(solid);
-      theApp.Run();
-#endif
-    }
-  } else {
-    errCode = tester.Run(solid);
-    //    tester.Run(solid, "debug");
-  }
-  std::cout << "Final Error count for Shape *** " << solid->GetName() << "*** = " << errCode << std::endl;
+  std::cout << "Final Error count for Shape *** " << solid->GetName() << "*** = " << errCode << " ("
+            << (tester.getConventionsMode() ? "USolids" : "VecGeom") << " conventions)\n";
   std::cout << "=========================================================" << std::endl;
+
+  if (solid) delete solid;
   return 0;
 }

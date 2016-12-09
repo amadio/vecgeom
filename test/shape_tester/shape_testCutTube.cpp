@@ -1,16 +1,8 @@
+#include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
 #include "VUSolid.hh"
 
-#include "base/Vector3D.h"
-#include "base/Global.h"
 #include "volumes/CutTube.h"
-
-#include "../benchmark/ArgParser.h"
-#ifdef VECGEOM_ROOT
-#include "TApplication.h"
-#endif
-#include "stdlib.h"
-
 typedef vecgeom::SimpleCutTube CutTube_t;
 
 int main(int argc, char *argv[])
@@ -25,8 +17,11 @@ int main(int argc, char *argv[])
   }
   using namespace vecgeom;
 
-  OPTION_INT(test, 3);
-  OPTION_INT(vis, 0);
+  OPTION_INT(npoints, 10000);
+  OPTION_BOOL(debug, false);
+  OPTION_BOOL(stat, false);
+  OPTION_BOOL(usolids, false);
+  OPTION_INT(type, 3);
 
   double rmin = 0.;
   double rmax = 5.;
@@ -38,7 +33,7 @@ int main(int argc, char *argv[])
   double tht  = kPi / 4;
   double phit = 2 * kPi / 3;
 
-  switch (test) {
+  switch (type) {
   case 0:
     break;
   case 1:
@@ -58,23 +53,22 @@ int main(int argc, char *argv[])
   Vector3D<double> nbottom(std::sin(thb) * std::cos(phib), std::sin(thb) * std::sin(phib), std::cos(thb));
   Vector3D<double> ntop(std::sin(tht) * std::cos(phit), std::sin(tht) * std::sin(phit), std::cos(tht));
 
-  int errCode      = 0;
-  VUSolid *cuttube = new CutTube_t("test_VecGeomCutTube", rmin, rmax, dz, sphi, dphi, nbottom, ntop);
-  ((vecgeom::VPlacedVolume *)cuttube)->GetUnplacedVolume()->Print(std::cout);
+  CutTube_t *cuttube = new CutTube_t("test_VecGeomCutTube", rmin, rmax, dz, sphi, dphi, nbottom, ntop);
+  cuttube->Print();
 
-  ShapeTester tester;
-  tester.EnableDebugger(true);
-  tester.SetTestBoundaryErrors(false);
-  if (vis) {
-#ifdef VECGEOM_ROOT
-    TApplication theApp("App", 0, 0);
-    errCode = tester.Run(cuttube);
-    theApp.Run();
-#endif
-  } else {
-    errCode = tester.Run(cuttube);
-  }
-  std::cout << "Final Error count for Shape *** " << cuttube->GetName() << "*** = " << errCode << std::endl;
+  ShapeTester<vecgeom::VPlacedVolume> tester;
+  tester.setConventionsMode(usolids);
+  tester.setDebug(debug);
+  tester.setStat(stat);
+  tester.SetMaxPoints(npoints);
+  tester.SetSolidTolerance(1.e-9);
+  tester.SetTestBoundaryErrors(true);
+  int errCode = tester.Run(cuttube);
+
+  std::cout << "Final Error count for Shape *** " << cuttube->GetName() << "*** = " << errCode << " ("
+            << (tester.getConventionsMode() ? "USolids" : "VecGeom") << " conventions)\n";
   std::cout << "=========================================================" << std::endl;
+
+  if (cuttube) delete cuttube;
   return 0;
 }

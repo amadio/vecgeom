@@ -98,6 +98,7 @@ void ShapeTester<ImplT>::SetDefaults()
   fStat               = false;
   fTestBoundaryErrors = true;
   fDebug              = false;
+  fUsolidsConventions = false;
 }
 
 template <typename ImplT>
@@ -2139,6 +2140,11 @@ int ShapeTester<ImplT>::Run(ImplT const *testVolume)
     RootGeoManager::Instance().ExportToROOTGeometry(p, "Log/ShapeTesterGeom.root");
   }
 #endif
+
+  // if (dynamic_cast<VUSolid const*>(fVolume)) setConventionsMode(true);  // usolids mode
+  // std::cout<<"  ===> Enforcing "<< (fUsolidsConventions?"USolids":"VecGeom")<< " conventions: "<< fVolume <<" "
+  //<< dynamic_cast<VUSolid const*>(fVolume) <<" vs. "
+  //<< dynamic_cast<VPlacedVolume const*>(fVolume) <<"\n";
 
   if (fMethod == "") fMethod = "all";
   string name                = testVolume->GetName();
