@@ -468,10 +468,9 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
   if (shape->IsA() == TGeoTrap::Class()) {
     TGeoTrap const *const p = static_cast<TGeoTrap const *>(shape);
     if (!TGeoTrapIsDegenerate(p)) {
-      unplaced_volume =
-          new UnplacedTrapezoid(p->GetDz(), p->GetTheta() * kDegToRad, p->GetPhi() * kDegToRad, p->GetH1(), p->GetBl1(),
-                                p->GetTl1(), std::tan(p->GetAlpha1() * kDegToRad), p->GetH2(), p->GetBl2(), p->GetTl2(),
-                                std::tan(p->GetAlpha2() * kDegToRad));
+      unplaced_volume = new UnplacedTrapezoid(p->GetDz(), p->GetTheta() * kDegToRad, p->GetPhi() * kDegToRad,
+                                              p->GetH1(), p->GetBl1(), p->GetTl1(), p->GetAlpha1() * kDegToRad,
+                                              p->GetH2(), p->GetBl2(), p->GetTl2(), p->GetAlpha2() * kDegToRad);
     } else {
       std::cerr << "Warning: this trap is degenerate -- will convert it to a generic trap!!\n";
       unplaced_volume = ToUnplacedGenTrap((TGeoArb8 const *)p);
