@@ -1,7 +1,5 @@
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "VUSolid.hh"
-
 #include "volumes/Hype.h"
 typedef vecgeom::SimpleHype Hype_t;
 
@@ -11,6 +9,11 @@ int main(int argc, char *argv[])
   OPTION_BOOL(debug, false);
   OPTION_BOOL(stat, false);
   OPTION_BOOL(usolids, false);
+
+  if (usolids) {
+    std::cerr << "\n*** ERROR: '-usolids true' is not valid for SExtru shape!\n Aborting...\n\n";
+    return 1;
+  }
 
   using vecgeom::kPi;
   auto hype = new Hype_t("test_VecGeomHype", 5., 20, kPi / 6, kPi / 3, 50);

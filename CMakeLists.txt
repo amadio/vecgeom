@@ -743,12 +743,12 @@ endif()
 
 # Add files that won't be compiled for CUDA
 
-if (USOLIDS)
+#if (USOLIDS)
   set(SRC_CPP ${SRC_CPP}
     test/shape_tester/ShapeTester.cpp
     test/shape_tester/ConventionChecker.cpp
   )
-endif()
+#endif()
 if (BENCHMARK)
   set(SRC_CPP ${SRC_CPP}
     source/benchmarking/BenchmarkResult.cpp
@@ -1029,6 +1029,7 @@ endif()
 if (BENCHMARK)
   build_executables("${TEST_EXECUTABLES_BENCHMARK}")
   add_to_ctest("${CTESTS_BENCHMARK}")
+  build_executables("${TEST_EXECUTABLES_SHAPETESTER}")
 endif()
 
 if (ROOT)
@@ -1059,7 +1060,6 @@ endif()
 
 if (USolids)
   build_executables("${TEST_EXECUTABLES_USOLIDS}")
-  build_executables("${TEST_EXECUTABLES_SHAPETESTER}")
   #add_to_ctest("${TEST_EXECUTABLES_USOLIDS}")
   #add_to_ctest("${TEST_EXECUTABLES_SHAPETESTER}")
 

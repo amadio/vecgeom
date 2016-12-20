@@ -1,7 +1,5 @@
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "VUSolid.hh"
-
 #include "volumes/CutTube.h"
 typedef vecgeom::SimpleCutTube CutTube_t;
 
@@ -22,6 +20,11 @@ int main(int argc, char *argv[])
   OPTION_BOOL(stat, false);
   OPTION_BOOL(usolids, false);
   OPTION_INT(type, 3);
+
+  if (usolids) {
+    std::cerr << "\n*** ERROR: '-usolids true' is not valid for SExtru shape!\n Aborting...\n\n";
+    return 1;
+  }
 
   double rmin = 0.;
   double rmax = 5.;

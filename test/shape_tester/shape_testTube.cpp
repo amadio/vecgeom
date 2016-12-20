@@ -1,9 +1,10 @@
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "VUSolid.hh"
 #include "volumes/PlacedVolume.h"
 
+#ifdef VECGEOM_USOLIDS
 #include "UTubs.hh"
+#endif
 #include "volumes/Tube.h"
 
 using VPlacedVolume = vecgeom::VPlacedVolume;
@@ -26,10 +27,19 @@ int main(int argc, char *argv[])
   OPTION_DOUBLE(dphi, vecgeom::kTwoPi);
 
   if (usolids) {
+#ifndef VECGEOM_USOLIDS
+    std::cerr << "\n*** ERROR: library built with -DUSOLIDS=OFF and user selected '-usolids true'!\n Aborting...\n\n";
+    return 1;
+#else
+    // USolids conventions
     auto tube = new UTubs("usolidsTube", dz, rmax, rmin, sphi, dphi);
     tube->StreamInfo(std::cout);
     return runTester<VUSolid>(tube, npoints, usolids, debug, stat);
-  } else {
+#endif
+  }
+
+  else {
+    // VecGeom conventions
     auto tube = new VGTube("vecgeomTube", dz, rmax, rmin, sphi, dphi);
     tube->Print();
     return runTester<VPlacedVolume>(tube, npoints, usolids, debug, stat);
@@ -39,7 +49,6 @@ int main(int argc, char *argv[])
 template <typename ImplT>
 int runTester(ImplT const *shape, int npoints, bool usolids, bool debug, bool stat)
 {
-
   ShapeTester<ImplT> tester;
   tester.setConventionsMode(usolids);
   tester.setDebug(debug);

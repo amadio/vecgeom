@@ -1,8 +1,5 @@
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "VUSolid.hh"
-
-#include "UOrb.hh"
 #include "volumes/Orb.h"
 
 typedef vecgeom::SimpleOrb Orb_t;
@@ -14,9 +11,12 @@ int main(int argc, char *argv[])
   OPTION_BOOL(stat, false);
   OPTION_BOOL(usolids, false);
 
-  Orb_t const *orb = new Orb_t("test_orb", 35);
-  // Orb_t const *orb = new UOrb("test_UOrb",3.);
+  if (usolids) {
+    std::cerr << "\n*** ERROR: '-usolids true' is not valid for SExtru shape!\n Aborting...\n\n";
+    return 1;
+  }
 
+  Orb_t const *orb = new Orb_t("test_orb", 35);
   orb->Print();
 
   ShapeTester<vecgeom::VPlacedVolume> tester;

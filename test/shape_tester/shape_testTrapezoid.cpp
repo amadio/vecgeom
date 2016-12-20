@@ -1,10 +1,11 @@
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "VUSolid.hh"
 #include "volumes/PlacedVolume.h"
 #include "base/Vector3D.h"
 
+#ifdef VECGEOM_USOLIDS
 #include "UTrap.hh"
+#endif
 #include "volumes/Trapezoid.h"
 
 using Precision     = vecgeom::Precision;
@@ -82,10 +83,19 @@ int main(int argc, char *argv[])
   OPTION_INT(type, 2);
 
   if (usolids) {
+#ifndef VECGEOM_USOLIDS
+    std::cerr << "\n*** ERROR: library built with -DUSOLIDS=OFF and user selected '-usolids true'!\n Aborting...\n\n";
+    return 1;
+#else
+    // enforce USolids conventions
     auto trap = buildATrap<UTrap>(type);
     trap->StreamInfo(std::cout);
     return runTester<VUSolid>(trap, npoints, usolids, debug, stat);
-  } else {
+#endif
+  }
+
+  else {
+    // enforce VecGeom conventions
     auto trap = buildATrap<VGTrap>(type);
     trap->Print();
     return runTester<VPlacedVolume>(trap, npoints, usolids, debug, stat);
@@ -95,7 +105,6 @@ int main(int argc, char *argv[])
 template <typename ImplT>
 int runTester(ImplT const *shape, int npoints, bool usolids, bool debug, bool stat)
 {
-
   ShapeTester<ImplT> tester;
   tester.setConventionsMode(usolids);
   tester.setDebug(debug);

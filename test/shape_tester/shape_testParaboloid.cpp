@@ -3,9 +3,6 @@
 
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "VUSolid.hh"
-
-#include "UParaboloid.hh"
 #include "volumes/Paraboloid.h"
 
 typedef vecgeom::SimpleParaboloid Paraboloid_t;
@@ -16,6 +13,11 @@ int main(int argc, char *argv[])
   OPTION_BOOL(debug, false);
   OPTION_BOOL(stat, false);
   OPTION_BOOL(usolids, false);
+
+  if (usolids) {
+    std::cerr << "\n*** ERROR: '-usolids true' is not valid for SExtru shape!\n Aborting...\n\n";
+    return 1;
+  }
 
   Paraboloid_t const *para = new Paraboloid_t("test_para", 6., 10., 10.);
   para->Print();

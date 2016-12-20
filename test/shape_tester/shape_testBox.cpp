@@ -1,9 +1,10 @@
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "VUSolid.hh"
 #include "volumes/PlacedVolume.h"
 
+#ifdef VECGEOM_USOLIDS
 #include "UBox.hh"
+#endif
 #include "volumes/Box.h"
 
 using VPlacedVolume = vecgeom::VPlacedVolume;
@@ -24,10 +25,19 @@ int main(int argc, char *argv[])
   OPTION_DOUBLE(dz, 20.);
 
   if (usolids) {
+#ifndef VECGEOM_USOLIDS
+    std::cerr << "\n*** ERROR: library built with -DUSOLIDS=OFF and user selected '-usolids true'!\n Aborting...\n\n";
+    return 1;
+#else
+    // enforce USolids conventions
     auto box = new UBox("usolidsBox", dx, dy, dz);
     box->StreamInfo(std::cout);
     return runTester<VUSolid>(box, npoints, usolids, debug, stat);
-  } else {
+#endif
+  }
+
+  else {
+    // VecGeom conventions
     auto box = new VGBox("vecgeomBox", dx, dy, dz);
     box->Print();
     return runTester<VPlacedVolume>(box, npoints, usolids, debug, stat);

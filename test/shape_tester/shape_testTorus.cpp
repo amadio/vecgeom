@@ -1,9 +1,10 @@
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "VUSolid.hh"
 #include "volumes/PlacedVolume.h"
 
+#ifdef VECGEOM_USOLIDS
 #include "UTorus.hh"
+#endif
 #include "volumes/SpecializedTorus2.h"
 
 using VGTorus = vecgeom::SimpleTorus2;
@@ -45,10 +46,19 @@ int main(int argc, char *argv[])
   std::cout << "### TESTING: " << message[type] << " ###\n";
 
   if (usolids) {
+#ifndef VECGEOM_USOLIDS
+    std::cerr << "\n*** ERROR: library built with -DUSOLIDS=OFF and user selected '-usolids true'!\n Aborting...\n\n";
+    return 1;
+#else
+    // USolids conventions
     auto torus = new UTorus("testTorus", rmin[type], rmax[type], rtor[type], sphi[type], dphi[type]);
     torus->StreamInfo(std::cout);
     return runTester<VUSolid>(torus, npoints, usolids, debug, stat);
-  } else {
+#endif
+  }
+
+  else {
+    // VecGeom conventions
     auto torus = new VGTorus("testTorus", rmin[type], rmax[type], rtor[type], sphi[type], dphi[type]);
     torus->Print();
     return runTester<vecgeom::VPlacedVolume>(torus, npoints, usolids, debug, stat);

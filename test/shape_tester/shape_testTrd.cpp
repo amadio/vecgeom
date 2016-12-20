@@ -1,9 +1,10 @@
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "VUSolid.hh"
 #include "volumes/PlacedVolume.h"
 
+#ifdef VECGEOM_USOLIDS
 #include "UTrd.hh"
+#endif
 #include "volumes/Trd.h"
 
 using VPlacedVolume = vecgeom::VPlacedVolume;
@@ -55,10 +56,17 @@ int main(int argc, char *argv[])
   OPTION_INT(type, 0);
 
   if (usolids) {
+#ifdef VECGEOM_USOLIDS
     auto trd = buildATrd<UTrd>(type);
     trd->StreamInfo(std::cout);
     return runTester<VUSolid>(trd, npoints, usolids, debug, stat);
-  } else {
+#else
+    std::cerr << "\n*** ERROR: library built with -DUSOLIDS=OFF and user selected '-usolids true'!\n Aborting...\n\n";
+    return 1;
+#endif
+  }
+
+  else {
     auto trd = buildATrd<VGTrd>(type);
     trd->Print();
     return runTester<VPlacedVolume>(trd, npoints, usolids, debug, stat);

@@ -1,4 +1,3 @@
-
 //===-- test/shape_tester/ShapeTester.h ----------------------------*- C++ -*-===//
 //
 // Definition of the batch solid test
@@ -131,6 +130,11 @@ private:
 
   int TestMethod(int (ShapeTester::*funcPtr)());
   int TestMethodAll();
+
+  // These are needed because of different names (Safeties) or signatures (DistanceToOut) in VecGeom vs. USolids
+  double CallDistanceToOut(ImplT const *vol, const Vec_t &point, const Vec_t &dir, Vec_t &normal, bool convex) const;
+  double CallSafetyToIn(ImplT const *vol, const Vec_t &point, bool accurate = false) const;
+  double CallSafetyToOut(ImplT const *vol, const Vec_t &point, bool accurate = false) const;
 
   inline double RandomRange(double min, double max)
   {

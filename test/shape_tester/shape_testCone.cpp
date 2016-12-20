@@ -1,9 +1,10 @@
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "VUSolid.hh"
 #include "volumes/PlacedVolume.h"
 
+#ifdef VECGEOM_USOLIDS
 #include "UCons.hh"
+#endif
 #include "volumes/Cone.h"
 
 using VPlacedVolume = vecgeom::VPlacedVolume;
@@ -28,10 +29,19 @@ int main(int argc, char *argv[])
   OPTION_DOUBLE(dphi, vecgeom::kTwoPi);
 
   if (usolids) {
+#ifndef VECGEOM_USOLIDS
+    std::cerr << "\n*** ERROR: library built with -DUSOLIDS=OFF and user selected '-usolids true'!\n Aborting...\n\n";
+    return 1;
+#else
+    // USolids conventions
     auto cone = new UCons("usolidsCone", rmin1, rmax1, rmin2, rmax2, dz, sphi, dphi);
     cone->StreamInfo(std::cout);
     return runTester<VUSolid>(cone, npoints, usolids, debug, stat);
-  } else {
+#endif
+  }
+
+  else {
+    // VecGeom conventions
     auto cone = new VGCone("vecgeomCone", rmin1, rmax1, rmin2, rmax2, dz, sphi, dphi);
     cone->Print();
     return runTester<VPlacedVolume>(cone, npoints, usolids, debug, stat);

@@ -3,7 +3,6 @@
 
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "VUSolid.hh"
 #include "volumes/PlacedVolume.h"
 
 #include "volumes/Polyhedron.h"
@@ -23,6 +22,11 @@ int main(int argc, char *argv[])
   OPTION_BOOL(usolids, false);
   OPTION_INT(type, 0);
   using namespace vecgeom;
+
+  if (usolids) {
+    std::cerr << "\n*** ERROR: '-usolids true' is not valid for Polyhedron shape!\n Aborting...\n\n";
+    return 1;
+  }
 
   Polyhedron_t *solid = 0;
 

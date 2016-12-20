@@ -1,7 +1,6 @@
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
 #include "volumes/PlacedVolume.h"
-
 #include "volumes/SExtru.h"
 
 template <typename ImplT>
@@ -14,7 +13,10 @@ int main(int argc, char *argv[])
   OPTION_BOOL(stat, false);
   OPTION_BOOL(usolids, false);
 
-  int errCode = 0;
+  if (usolids) {
+    std::cerr << "\n*** ERROR: '-usolids true' is not valid for SExtru shape!\n Aborting...\n\n";
+    return 1;
+  }
 
   int N = 20;
   double x[N], y[N];
@@ -31,7 +33,7 @@ int main(int argc, char *argv[])
   tester.setDebug(debug);
   tester.setStat(stat);
   tester.SetMaxPoints(npoints);
-  errCode = tester.Run(volume);
+  int errCode = tester.Run(volume);
 
   std::cout << "Final Error count for Shape *** " << volume->GetName() << "*** = " << errCode << " ("
             << (tester.getConventionsMode() ? "USolids" : "VecGeom") << " conventions)\n";

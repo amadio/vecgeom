@@ -180,7 +180,7 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
     indx = 2;
     Vec_t norm(0., 0., 0.);
     bool convex = false;
-    Dist        = fVolume->DistanceToOut(point, direction, norm, convex);
+    Dist        = CallDistanceToOut(fVolume, point, direction, norm, convex);
     // if (Dist >= kInfLength) Dist = kInfLength;
     if (direction.Dot(normal) > 0.) {
       // particle is exiting from the shape
@@ -211,7 +211,7 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
 
     indx = 4;
     // Conventions check for SafetyFromOutside
-    Dist = fVolume->SafetyFromOutside(point);
+    Dist = CallSafetyToIn(fVolume, point);
     // if (Dist >= kInfLength) Dist = kInfLength;
     {
       bool ok = (fUsolidsConventions ? Dist == 0 : Dist <= kHalfTolerance);
@@ -229,7 +229,7 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
 
     indx = 5;
     // Conventions check for SafetyFromInside
-    Dist = fVolume->SafetyFromInside(point);
+    Dist = CallSafetyToOut(fVolume, point);
     // if (Dist >= kInfLength) Dist = kInfLength;
     {
       bool ok = (fUsolidsConventions ? Dist == 0. : Dist <= kHalfTolerance);
@@ -287,7 +287,7 @@ bool ShapeTester<ImplT>::ShapeConventionInsidePoint()
     // Convention Check for DistanceToOut
     Vec_t norm(0., 0., 0.);
     bool convex = false;
-    Dist        = fVolume->DistanceToOut(point, direction, norm, convex);
+    Dist        = CallDistanceToOut(fVolume, point, direction, norm, convex);
     // if (Dist >= kInfLength) Dist = kInfLength;
     if (Dist == kInfLength) {
       ReportError(&nError, point, direction, Dist, "DistanceToOut for Inside Point can never be Infinity");
@@ -297,7 +297,7 @@ bool ShapeTester<ImplT>::ShapeConventionInsidePoint()
 
     indx = 8;
     // Conventions Check for SafetyFromOutside
-    Dist = fVolume->SafetyFromOutside(point);
+    Dist = CallSafetyToIn(fVolume, point);
     // if (Dist >= kInfLength) Dist = kInfLength;
     {
       bool ok = (fUsolidsConventions ? Dist == 0. : Dist < 0.);
@@ -313,7 +313,7 @@ bool ShapeTester<ImplT>::ShapeConventionInsidePoint()
 
     indx = 9;
     // Conventions Check for SafetyFromInside
-    Dist = fVolume->SafetyFromInside(point);
+    Dist = CallSafetyToOut(fVolume, point);
     // if (Dist >= kInfLength) Dist = kInfLength;
     if (!(Dist > 0.)) {
       ReportError(&nError, point, direction, Dist, "SafetyFromInside for Inside Point should be > 0.");
@@ -357,7 +357,7 @@ bool ShapeTester<ImplT>::ShapeConventionOutsidePoint()
     // Convention Check for DistanceToOut
     Vec_t norm(0., 0., 0.);
     bool convex = false;
-    Dist        = fVolume->DistanceToOut(point, direction, norm, convex);
+    Dist        = CallDistanceToOut(fVolume, point, direction, norm, convex);
     // if (Dist >= kInfLength) Dist = kInfLength;
     {
       bool ok = (fUsolidsConventions ? Dist == 0. : Dist < 0.);
@@ -373,7 +373,7 @@ bool ShapeTester<ImplT>::ShapeConventionOutsidePoint()
 
     indx = 12;
     // Conventions Check for SafetyFromOutside
-    Dist = fVolume->SafetyFromOutside(point);
+    Dist = CallSafetyToIn(fVolume, point);
     // if (Dist >= kInfLength) Dist = kInfLength;
     if (!(Dist > 0.)) {
       ReportError(&nError, point, direction, Dist, "SafetyFromOutside for Outside Point should be > 0.");
@@ -383,7 +383,7 @@ bool ShapeTester<ImplT>::ShapeConventionOutsidePoint()
 
     indx = 13;
     // Conventions Check for SafetyFromInside
-    Dist = fVolume->SafetyFromInside(point);
+    Dist = CallSafetyToOut(fVolume, point);
     // if (Dist >= kInfLength) Dist = kInfLength;
     {
       bool ok = (fUsolidsConventions ? Dist == 0. : Dist < 0.);

@@ -1,8 +1,5 @@
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "VUSolid.hh"
-
-#include "UGenericTrap.hh"
 #include "volumes/GenTrap.h"
 typedef vecgeom::SimpleGenTrap GenTrap_t;
 
@@ -23,6 +20,11 @@ int main(int argc, char *argv[])
   OPTION_BOOL(stat, false);
   OPTION_BOOL(usolids, false);
   OPTION_INT(type, 0);
+
+  if (usolids) {
+    std::cerr << "\n*** ERROR: '-usolids true' is not valid for SExtru shape!\n Aborting...\n\n";
+    return 1;
+  }
 
   using namespace vecgeom;
   // 4 different vertices, twisted

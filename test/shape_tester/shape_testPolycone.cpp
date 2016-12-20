@@ -1,8 +1,9 @@
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#include "VUSolid.hh"
 
+#ifdef VECGEOM_USOLIDS
 #include "UPolycone.hh"
+#endif
 #include "volumes/Polycone.h"
 
 typedef vecgeom::SimplePolycone Poly_t;
@@ -13,6 +14,13 @@ int main(int argc, char *argv[])
   OPTION_BOOL(debug, false);
   OPTION_BOOL(stat, false);
   OPTION_BOOL(usolids, false);
+
+  if (usolids) {
+    std::cerr << "\n*** ERROR: '-usolids true' is not valid for Polycone shape!\n Aborting...\n\n";
+    return 1;
+  }
+
+  using namespace vecgeom;
 
   double Z_ValP[15];
   Z_ValP[0]  = -1520;
@@ -66,7 +74,7 @@ int main(int argc, char *argv[])
 
   int Nz     = 15;
   auto poly2 = new Poly_t("Test", 0.,              /* initial phi starting angle */
-                          UUtils::kTwoPi,          /* total phi angle */
+                          kTwoPi,                  /* total phi angle */
                           Nz,                      /* number corners in r,z space */
                           Z_ValP, R_MinP, R_MaxP); /* r coordinate of these corners */
 
