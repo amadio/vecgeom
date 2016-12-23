@@ -286,14 +286,6 @@ struct TrapezoidImplementation {
     // Checks in non z plane intersections ensure smin<smax
     vecCore::MaskedAssign(distance, !done, smin);
 #endif // end of #ifdef PLANESHELL
-
-    // finally check whether entry point candidate is globally valid
-    // --> if it is, entry point should be on the surface.
-    //     if entry point candidate is completely outside, track misses the solid --> return infinity
-    Vector3D<Real_v> entry = point + distance * dir;
-    Bool_v complIn(false), complOut(false);
-    GenericKernelForContainsAndInside<Real_v, Bool_v, true>(unplaced, entry, complIn, complOut);
-    vecCore::MaskedAssign(distance, !done && complOut, Real_v(kInfLength));
   }
 
   template <typename Real_v>
