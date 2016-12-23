@@ -291,7 +291,7 @@ int ShapeTester<ImplT>::ShapeNormal()
     // Initial point is inside
     Vec_t point = fPoints[i + fOffsetInside];
     Vec_t dir   = fDirections[i + fOffsetInside];
-    Vec_t norm;
+    Vec_t norm  = false;
     bool convex = false;
 
     Inside_t inside;
@@ -2155,11 +2155,6 @@ int ShapeTester<ImplT>::Run(ImplT const *testVolume)
     RootGeoManager::Instance().ExportToROOTGeometry(p, "Log/ShapeTesterGeom.root");
   }
 #endif
-
-  // if (dynamic_cast<VUSolid const*>(fVolume)) setConventionsMode(true);  // usolids mode
-  // std::cout<<"  ===> Enforcing "<< (fUsolidsConventions?"USolids":"VecGeom")<< " conventions: "<< fVolume <<" "
-  //<< dynamic_cast<VUSolid const*>(fVolume) <<" vs. "
-  //<< dynamic_cast<VPlacedVolume const*>(fVolume) <<"\n";
 
   if (fMethod == "") fMethod = "all";
   string name                = testVolume->GetName();

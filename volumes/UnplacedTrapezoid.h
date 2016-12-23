@@ -387,9 +387,13 @@ public:
   void fromCornersToParameters(TrapCorners const pt);
 
 private:
-  /// \brief Calculate the 8 corner points using pre-stored parameters
+  /// \brief Calculate the 8 corner points using pre-stored parameters, then use corners to build planes
   VECGEOM_CUDA_HEADER_BOTH
   void fromParametersToCorners(TrapCorners pt) const;
+
+  // \brief Determine corner points using intersections of the pre-calculated planes
+  VECGEOM_CUDA_HEADER_BOTH
+  void fromPlanesToCorners(TrapCorners pt) const;
 
   /// \brief Construct the four side planes from input corner points
   VECGEOM_CUDA_HEADER_BOTH

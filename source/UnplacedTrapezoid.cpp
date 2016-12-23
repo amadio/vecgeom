@@ -15,9 +15,6 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 using Vec3D = Vector3D<Precision>;
-#ifdef VECGEOM_PLANESHELL_DISABLE
-using TrapSidePlane = TrapezoidStruct<double>::TrapSidePlane;
-#endif
 
 VECGEOM_CUDA_HEADER_BOTH
 UnplacedTrapezoid::UnplacedTrapezoid(TrapCorners const corners) : fTrap()
@@ -60,8 +57,6 @@ UnplacedTrapezoid::UnplacedTrapezoid(Precision xbox, Precision ybox, Precision z
   fGlobalConvexity = true;
 }
 
-// VECGEOM_CUDA_HEADER_BOTH
-// void UnplacedTrapezoid::CalcCapacity()
 Precision UnplacedTrapezoid::Capacity() const
 {
   // cubic approximation used in Geant4
@@ -72,7 +67,7 @@ Precision UnplacedTrapezoid::Capacity() const
   // GL: leaving this here for future reference
     // accurate volume calculation
     TrapCorners pt;
-    this->fromParametersToCorners(pt);
+    this->fromPlanesToCorners(pt);
 
     // more precise, hopefully correct version (to be checked)
     Precision BmZm = pt[1].x() - pt[0].x();
@@ -172,7 +167,7 @@ void UnplacedTrapezoid::Extent(Vec3D &aMin, Vec3D &aMax) const
   aMax.z() = fTrap.fDz;
 
   TrapCorners pt;
-  this->fromParametersToCorners(pt);
+  this->fromPlanesToCorners(pt);
 
   Precision ext01 = Max(pt[0].x(), pt[1].x());
   Precision ext23 = Max(pt[2].x(), pt[3].x());
@@ -210,7 +205,7 @@ void UnplacedTrapezoid::Extent(Vec3D &aMin, Vec3D &aMax) const
 Vector3D<Precision> UnplacedTrapezoid::GetPointOnSurface() const
 {
   TrapCorners pt;
-  this->fromParametersToCorners(pt);
+  this->fromPlanesToCorners(pt);
 
   // make sure we provide the points in a clockwise fashion
   Precision chose = RNG::Instance().uniform() * SurfaceArea();
@@ -337,6 +332,34 @@ void UnplacedTrapezoid::fromParametersToCorners(TrapCorners pt) const
 }
 
 VECGEOM_CUDA_HEADER_BOTH
+void UnplacedTrapezoid::fromPlanesToCorners(TrapCorners pt) const
+{
+  const TrapezoidStruct<double> &t = fTrap;
+  using TrapSidePlane              = TrapezoidStruct<double>::TrapSidePlane;
+  TrapSidePlane pl0                = t.GetPlane(0); // -Y
+  TrapSidePlane pl1                = t.GetPlane(1); // +Y
+  TrapSidePlane pl2                = t.GetPlane(2); // -X
+  TrapSidePlane pl3                = t.GetPlane(3); // +X
+
+  pt[0].z() = pt[1].z() = pt[2].z() = pt[3].z() = -t.fDz;
+  pt[4].z() = pt[5].z() = pt[6].z() = pt[7].z() = t.fDz;
+
+  pt[0].y() = pt[1].y() = -(pl0.fD - t.fDz * pl0.fC) / pl0.fB; // intersect -Y ; z=-fDz
+  pt[2].y() = pt[3].y() = -(pl1.fD - t.fDz * pl1.fC) / pl1.fB; // intersect +Y ; z=-fDz
+  pt[4].y() = pt[5].y() = -(pl0.fD + t.fDz * pl0.fC) / pl0.fB; // intersect -Y ; z=+fDz
+  pt[6].y() = pt[7].y() = -(pl1.fD + t.fDz * pl1.fC) / pl1.fB; // intersect +Y ; z=+fDz
+
+  pt[0].x() = ((pl2.fB / pl0.fB) * (pl0.fD - t.fDz * pl0.fC) - (pl2.fD - t.fDz * pl2.fC)) / pl2.fA; // int. -X ; -Y ; -Z
+  pt[1].x() = ((pl3.fB / pl0.fB) * (pl0.fD - t.fDz * pl0.fC) - (pl3.fD - t.fDz * pl3.fC)) / pl3.fA; // int. +X ; -Y ; -Z
+  pt[2].x() = ((pl2.fB / pl1.fB) * (pl1.fD - t.fDz * pl1.fC) - (pl2.fD - t.fDz * pl2.fC)) / pl2.fA; // int. -X ; +Y ; -Z
+  pt[3].x() = ((pl3.fB / pl1.fB) * (pl1.fD - t.fDz * pl1.fC) - (pl3.fD - t.fDz * pl3.fC)) / pl3.fA; // int. +X ; +Y ; -Z
+  pt[4].x() = ((pl2.fB / pl0.fB) * (pl0.fD + t.fDz * pl0.fC) - (pl2.fD + t.fDz * pl2.fC)) / pl2.fA; // int. -X ; -Y ; +Z
+  pt[5].x() = ((pl3.fB / pl0.fB) * (pl0.fD + t.fDz * pl0.fC) - (pl3.fD + t.fDz * pl3.fC)) / pl3.fA; // int. +X ; -Y ; +Z
+  pt[6].x() = ((pl2.fB / pl1.fB) * (pl1.fD + t.fDz * pl1.fC) - (pl2.fD + t.fDz * pl2.fC)) / pl2.fA; // int. -X ; +Y ; +Z
+  pt[7].x() = ((pl3.fB / pl1.fB) * (pl1.fD + t.fDz * pl1.fC) - (pl3.fD + t.fDz * pl3.fC)) / pl3.fA; // int. +X ; +Y ; +Z
+}
+
+VECGEOM_CUDA_HEADER_BOTH
 void UnplacedTrapezoid::fromCornersToParameters(TrapCorners const pt)
 {
   fTrap.fDz         = pt[7].z();
@@ -368,6 +391,10 @@ void UnplacedTrapezoid::fromCornersToParameters(TrapCorners const pt)
 // Return true if the ThreeVectors are coplanar + set coefficients
 //        false if ThreeVectors are not coplanar
 //
+#ifdef VECGEOM_PLANESHELL_DISABLE
+using TrapSidePlane = TrapezoidStruct<double>::TrapSidePlane;
+#endif
+
 VECGEOM_CUDA_HEADER_BOTH
 bool UnplacedTrapezoid::MakeAPlane(const Vec3D &p1, const Vec3D &p2, const Vec3D &p3, const Vec3D &p4,
 #ifndef VECGEOM_PLANESHELL_DISABLE
@@ -376,71 +403,46 @@ bool UnplacedTrapezoid::MakeAPlane(const Vec3D &p1, const Vec3D &p2, const Vec3D
                                    TrapSidePlane &plane)
 #endif
 {
-  bool good;
-  Precision a, b, c, norm;
-  Vec3D v12, v13, v14, Vcross;
+  // Let create diagonals 3-1 and 4-2 than (3-1)x(4-2) provides
+  // vector perpendicular to the plane directed to outside !!!
+  Vec3D normalVector = (p3 - p1).Cross(p4 - p2);
+  normalVector.Normalize();
 
-  v12    = p2 - p1;
-  v13    = p3 - p1;
-  v14    = p4 - p1;
-  Vcross = v12.Cross(v13);
+  // Calculate fD: a centroid is in the best plane, so fD = -n.Dot(centr)
+  Vec3D centr = 0.25 * (p1 + p2 + p3 + p4);
+  Precision d = -normalVector.Dot(centr);
 
   // check coplanarity
-  // if (std::fabs( v14.Dot(Vcross)/(Vcross.Mag()*v14.Mag()) ) > kTolerance)  {
-  if (std::fabs(v14.Dot(Vcross) / (Vcross.Mag() * v14.Mag())) > 1.0e-7) {
-    printf("*** ERROR (UnplacedTrapezoid): coplanarity test failure by %e.\n",
-           std::fabs(v14.Dot(Vcross) / (Vcross.Mag() * v14.Mag())));
+  bool good        = true;
+  Precision resid1 = normalVector.Dot(p1 - centr);
+  Precision resid2 = normalVector.Dot(p2 - centr);
+  Precision resid3 = normalVector.Dot(p3 - centr);
+  Precision resid4 = normalVector.Dot(p4 - centr);
+  Precision resid  = Max(Max(fabs(resid1), fabs(resid2)), Max(fabs(resid3), fabs(resid4)));
+  if (resid > 10 * kTolerance) {
+    printf("*** WARNING (UnplacedTrapezoid): coplanarity test fails by residual = %e.\n", resid);
     printf("\tcorner 1: (%f; %f; %f)\n", p1.x(), p1.y(), p1.z());
     printf("\tcorner 2: (%f; %f; %f)\n", p2.x(), p2.y(), p2.z());
     printf("\tcorner 3: (%f; %f; %f)\n", p3.x(), p3.y(), p3.z());
     printf("\tcorner 4: (%f; %f; %f)\n", p4.x(), p4.y(), p4.z());
-    good = false;
+
+    // We can be very loose here, because we will take a real plane, to replace
+    // a non-planar face suggested by input points, up to a maximum residual below
+    if (resid > 1000 * kTolerance) good = false;
   }
 
-  // cms.gdml does contain some bad trap corners... go ahead and try to build them anyway
-  //  else {
-
-  // a,b,c correspond to the x/y/z components of the
-  // normal vector to the plane
-
-  // Let create diagonals 3-1 and 4-2 than (3-1)x(4-2) provides
-  // vector perpendicular to the plane directed to outside !!!
-  // and a,b,c, = f(1,2,3,4) external relative to trapezoid normal
-
-  //??? can these be optimized?
-  a = +(p3.y() - p1.y()) * (p4.z() - p2.z()) - (p4.y() - p2.y()) * (p3.z() - p1.z());
-
-  b = -(p3.x() - p1.x()) * (p4.z() - p2.z()) + (p4.x() - p2.x()) * (p3.z() - p1.z());
-
-  c = +(p3.x() - p1.x()) * (p4.y() - p2.y()) - (p4.x() - p2.x()) * (p3.y() - p1.y());
-
-  norm = 1.0 / std::sqrt(a * a + b * b + c * c); // normalization factor, always positive
-
 #ifndef VECGEOM_PLANESHELL_DISABLE
-  a *= norm;
-  b *= norm;
-  c *= norm;
-
-  // Calculate fD: p1 is in plane so fD = -n.p1.Vect()
-  Precision d = -(a * p1.x() + b * p1.y() + c * p1.z());
-
-  fTrap.fPlanes.Set(iplane, a, b, c, d);
+  fTrap.fPlanes.Set(iplane, normalVector.x(), normalVector.y(), normalVector.z(), d);
 #else
-  plane.fA = a * norm;
-  plane.fB = b * norm;
-  plane.fC = c * norm;
-
-  // Calculate fD: p1 is in plane so fD = -n.p1.Vect()
-  plane.fD = -(plane.fA * p1.x() + plane.fB * p1.y() + plane.fC * p1.z());
-
+  plane.fA            = normalVector.x();
+  plane.fB            = normalVector.y();
+  plane.fC            = normalVector.z();
+  plane.fD            = d;
   unsigned int iplane = (&plane - fTrap.fPlanes); // pointer arithmetics used here
 #endif
 
-  fTrap.sideAreas[iplane] = 0.5 * (Vcross.Mag() + v13.Cross(v14).Mag());
-  fTrap.normals[iplane]   = (Vcross + v13.Cross(v14)).Normalized();
-
-  // well, at least for now, always return TRUE even though points are not coplanar!!!
-  good = true;
+  fTrap.sideAreas[iplane] = 0.5 * ((p2 - p1).Cross(p3 - p1).Mag() + (p3 - p1).Cross(p4 - p1).Mag());
+  fTrap.normals[iplane]   = normalVector;
   return good;
 }
 

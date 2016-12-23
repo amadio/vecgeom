@@ -33,11 +33,10 @@ struct TrapezoidStruct {
 
     VECGEOM_CUDA_HEADER_BOTH
     TrapSidePlane(Precision a, Precision b, Precision c, Precision d) : fA(a), fB(b), fC(c), fD(d) {}
-  };
 
-#ifndef VECGEOM_PLANESHELL_DISABLE
-  typedef PlaneShell<4, Precision> Planes;
-#endif
+    VECGEOM_CUDA_HEADER_BOTH
+    TrapSidePlane(TrapSidePlane const &oth) : fA(oth.fA), fB(oth.fB), fC(oth.fC), fD(oth.fD) {}
+  };
 
   T fDz;
   T fTheta;
@@ -56,6 +55,7 @@ struct TrapezoidStruct {
   T fTthetaSphi;
 
 #ifndef VECGEOM_PLANESHELL_DISABLE
+  typedef PlaneShell<4, Precision> Planes;
   Planes fPlanes;
 #else
   TrapSidePlane fPlanes[4];

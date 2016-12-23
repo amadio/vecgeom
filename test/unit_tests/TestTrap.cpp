@@ -619,12 +619,12 @@ void TestVECGEOM375()
 {
   // unit test coming from Issue VECGEOM-375
   // Note: angles in rad, lengths in mm!
+  double alpha1inRad = 0.4997657953434789 * degToRad;
+  double alpha2inRad = 0.4997660621477440 * degToRad;
   vecgeom::UnplacedTrapezoid t(/*pDz=*/1522, /*pTheta=*/1.03516586152568 * degToRad,
                                /* double pPhi=*/-90.4997606158588 * degToRad, /*pDy1=*/147.5,
-                               /*pDx1=*/11.0548515319824, /*pDx2=*/13.62808513641355,
-                               /*pTanAlpha1=*/0.4997657953434789 * degToRad, /*pDy2 = */ 92.5,
-                               /*pDx3=*/11.0548515319824, /*pDx4=*/12.6685743331909,
-                               /*pTanAlpha2=*/0.499766062147744 * degToRad);
+                               /*pDx1=*/11.0548515319824, /*pDx2=*/13.62808513641355, alpha1inRad,
+                               /*pDy2 = */ 92.5, /*pDx3=*/11.0548515319824, /*pDx4=*/12.6685743331909, alpha2inRad);
 
   vecgeom::LogicalVolume logvol("", &t);
   logvol.Place();
