@@ -118,12 +118,112 @@ void UnplacedSphere::CalcSurfaceArea()
   }
 }
 
+#if (0)
+// Simplest Implementation of Extent
 void UnplacedSphere::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
   // Returns the full 3D cartesian extent of the solid.
   aMin.Set(-fRmax);
   aMax.Set(fRmax);
 }
+#endif
+
+#if (1)
+// Sophisticated Implementation taking into account the PHI and THETA cut also.
+void UnplacedSphere::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
+{
+  // most general case
+  aMin.Set(-fRmax);
+  aMax.Set(fRmax);
+  Precision eTheta = fSTheta + fDTheta;
+
+  if (fFullSphere) return;
+
+  if (fSTheta <= kPi / 2.) {
+    aMax.z() = fRmax * Cos(fSTheta);
+    if ((eTheta) < kPi / 2.) {
+      aMin.z() = fRmin * Cos(eTheta);
+      aMax.x() = fRmax * Sin(eTheta);
+      aMin.x() = -fRmax * Sin(eTheta);
+      aMax.y() = fRmax * Sin(eTheta);
+      aMin.y() = -fRmax * Sin(eTheta);
+    } else
+      aMin.z() = -fRmax * Cos(kPi - eTheta);
+  } else {
+    aMin.z() = -fRmax * Cos(kPi - eTheta);
+    aMax.z() = -fRmin * Cos(kPi - fSTheta);
+    aMax.x() = fRmax * Sin(kPi - fSTheta);
+    aMin.x() = -fRmax * Sin(kPi - fSTheta);
+    aMax.y() = fRmax * Sin(kPi - fSTheta);
+    aMin.y() = -fRmax * Sin(kPi - fSTheta);
+  }
+
+  Precision st1 = Sin(fSTheta);
+  Precision st2 = Sin(eTheta);
+  Precision r1min, r1max, r2min, r2max;
+  r1min = Min(fRmax * st1, fRmax * st2);
+  r1max = Max(fRmax * st1, fRmax * st2);
+  r2min = Min(fRmin * st1, fRmin * st2);
+  r2max = Max(fRmin * st1, fRmin * st2);
+
+  if (((fSTheta <= kPi / 2.) && ((eTheta) >= kPi / 2))) {
+    r1max = fRmax;
+    r2max = fRmin;
+  }
+  Precision Rmin = Min(r1min, r2min);
+  Precision Rmax = Max(r1max, r2max);
+  // These newly calculated Rmin and Rmax will be used by PHI section
+
+  // Borrowed PHI logic from Tube
+  // check how many of phi=90, 180, 270, 360deg are outside this tube
+
+  auto Rin       = 0.5 * (Rmax + Rmin);
+  bool phi0out   = !fPhiWedge.Contains<kScalar>(Vector3D<Precision>(Rin, 0, 0));
+  bool phi90out  = !fPhiWedge.Contains<kScalar>(Vector3D<Precision>(0, Rin, 0));
+  bool phi180out = !fPhiWedge.Contains<kScalar>(Vector3D<Precision>(-Rin, 0, 0));
+  bool phi270out = !fPhiWedge.Contains<kScalar>(Vector3D<Precision>(0, -Rin, 0));
+
+  // if none of those 4 phis is outside, largest box still required
+  if (!(phi0out || phi90out || phi180out || phi270out)) return;
+
+  // some extent(s) of box will be reduced
+  // --> think of 4 points A,B,C,D such that A,B are at Rmin, C,D at Rmax
+  //     and A,C at startPhi (fSphi), B,D at endPhi (fSphi+fDphi)
+  auto Cx = Rmax * cos(fSPhi);
+  auto Dx = Rmax * cos(fSPhi + fDPhi);
+  auto Cy = Rmax * sin(fSPhi);
+  auto Dy = Rmax * sin(fSPhi + fDPhi);
+
+  // then rewrite box sides whenever each one of those phis are not contained in the tube section
+  if (phi0out) aMax.x()   = Max(Cx, Dx);
+  if (phi90out) aMax.y()  = Max(Cy, Dy);
+  if (phi180out) aMin.x() = Min(Cx, Dx);
+  if (phi270out) aMin.y() = Min(Cy, Dy);
+
+  if (fDPhi >= kPi) return;
+
+  auto Ax = Rmin * cos(fSPhi);
+  auto Bx = Rmin * cos(fSPhi + fDPhi);
+  auto Ay = Rmin * sin(fSPhi);
+  auto By = Rmin * sin(fSPhi + fDPhi);
+
+  Precision temp;
+  temp     = Max(Ax, Bx);
+  aMax.x() = temp > aMax.x() ? temp : aMax.x();
+
+  temp     = Max(Ay, By);
+  aMax.y() = temp > aMax.y() ? temp : aMax.y();
+
+  temp     = Min(Ax, Bx);
+  aMin.x() = temp < aMin.x() ? temp : aMin.x();
+
+  temp     = Min(Ay, By);
+  aMin.y() = temp < aMin.y() ? temp : aMin.y();
+
+  return;
+}
+#endif
+
 #endif // !VECGEOM_NVCC
 
 void UnplacedSphere::GetParametersList(int, double *aArray) const
