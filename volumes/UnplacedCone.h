@@ -306,12 +306,7 @@ public:
                     0.5 * (fRmax1 * fRmax1 - fRmin1 * fRmin1 + fRmax2 * fRmax2 - fRmin2 * fRmin2));
   }
 
-  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
-  {
-    double max = fRmax1 > fRmax2 ? fRmax1 : fRmax2;
-    aMin       = Vector3D<Precision>(-max, -max, -fDz);
-    aMax       = Vector3D<Precision>(max, max, fDz);
-  }
+  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const;
 
   VECGEOM_CUDA_HEADER_BOTH
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;

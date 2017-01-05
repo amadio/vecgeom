@@ -42,6 +42,84 @@ void UnplacedCone::DetectConvexity()
   }
 }
 
+#if (0)
+// Simplest Extent definition, that does not take PHI into consideration
+void UnplacedCone::void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
+{
+  Precision max = fRmax1 > fRmax2 ? fRmax1 : fRmax2;
+  aMin          = Vector3D<Precision>(-max, -max, -fDz);
+  aMax          = Vector3D<Precision>(max, max, fDz);
+}
+#endif
+
+#if (1)
+// Improved Extent definition, that takes PHI also into consideration
+void UnplacedCone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
+{
+  // most general case
+
+  Precision max = fRmax1 > fRmax2 ? fRmax1 : fRmax2;
+  Precision min = fRmin1 > fRmin2 ? fRmin2 : fRmin1;
+
+  aMin = Vector3D<Precision>(-max, -max, -fDz);
+  aMax = Vector3D<Precision>(max, max, fDz);
+
+  /* Below logic borrowed from Tube.
+  **
+  ** But it would be great, if its possible to directly call Extent of Tube.
+  ** because in that case we can avoid code replication.
+  */
+
+  if (fDPhi == kTwoPi) return;
+
+  // check how many of phi=90, 180, 270, 360deg are outside this tube
+  auto Rin       = 0.5 * (max + min);
+  bool phi0out   = !GetWedge().Contains<kScalar>(Vector3D<Precision>(Rin, 0, 0));
+  bool phi90out  = !GetWedge().Contains<kScalar>(Vector3D<Precision>(0, Rin, 0));
+  bool phi180out = !GetWedge().Contains<kScalar>(Vector3D<Precision>(-Rin, 0, 0));
+  bool phi270out = !GetWedge().Contains<kScalar>(Vector3D<Precision>(0, -Rin, 0));
+
+  // if none of those 4 phis is outside, largest box still required
+  if (!(phi0out || phi90out || phi180out || phi270out)) return;
+
+  // some extent(s) of box will be reduced
+  // --> think of 4 points A,B,C,D such that A,B are at Rmin, C,D at Rmax
+  //     and A,C at startPhi (fSphi), B,D at endPhi (fSphi+fDphi)
+  auto Cx = max * cos(fSPhi);
+  auto Dx = max * cos(fSPhi + fDPhi);
+  auto Cy = max * sin(fSPhi);
+  auto Dy = max * sin(fSPhi + fDPhi);
+
+  // then rewrite box sides whenever each one of those phis are not contained in the tube section
+  if (phi0out) aMax.x()   = Max(Cx, Dx);
+  if (phi90out) aMax.y()  = Max(Cy, Dy);
+  if (phi180out) aMin.x() = Min(Cx, Dx);
+  if (phi270out) aMin.y() = Min(Cy, Dy);
+
+  if (fDPhi >= kPi) return;
+
+  auto Ax = min * cos(fSPhi);
+  auto Bx = min * cos(fSPhi + fDPhi);
+  auto Ay = min * sin(fSPhi);
+  auto By = min * sin(fSPhi + fDPhi);
+
+  Precision temp;
+  temp     = Max(Ax, Bx);
+  aMax.x() = temp > aMax.x() ? temp : aMax.x();
+
+  temp     = Max(Ay, By);
+  aMax.y() = temp > aMax.y() ? temp : aMax.y();
+
+  temp     = Min(Ax, Bx);
+  aMin.x() = temp < aMin.x() ? temp : aMin.x();
+
+  temp     = Min(Ay, By);
+  aMin.y() = temp < aMin.y() ? temp : aMin.y();
+
+  return;
+}
+#endif
+
 #if !defined(VECGEOM_NVCC)
 bool UnplacedCone::Normal(Vector3D<Precision> const &p, Vector3D<Precision> &norm) const
 {
