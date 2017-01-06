@@ -67,8 +67,8 @@ bool TestSphere()
   assert(ApproxEqual(minExtent, Vec_t(-fR, -fR, -fR)));
   assert(ApproxEqual(maxExtent, Vec_t(fR, fR, fR)));
   b2.Extent(minExtent, maxExtent);
-  assert(ApproxEqual(minExtent, Vec_t(-fR, -fR, -fR)));
-  assert(ApproxEqual(maxExtent, Vec_t(fR, fR, fR)));
+  assert(ApproxEqual(minExtent, Vec_t(-1.5, 0, -3.)));
+  assert(ApproxEqual(maxExtent, Vec_t(2.59808, 3., 3.)));
   // assert(ApproxEqual(minExtent,Vec_t(-6,-6,-6)));
   // assert(ApproxEqual(maxExtent,Vec_t( 6, 6, 6)));
 
