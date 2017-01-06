@@ -1097,7 +1097,7 @@ bool TestCons()
   assert(ApproxEqual(maxExtent, Vec_t(50, 50, 50)));
   ctest10.Extent(minExtent, maxExtent);
   assert(ApproxEqual(minExtent, Vec_t(-140, -140, -100)));
-  assert(ApproxEqual(maxExtent, Vec_t(140, 140, 100)));
+  assert(ApproxEqual(maxExtent, Vec_t(137.873, 140, 100)));
 
   return true;
 }
