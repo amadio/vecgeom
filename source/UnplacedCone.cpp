@@ -44,7 +44,7 @@ void UnplacedCone::DetectConvexity()
 
 #if (0)
 // Simplest Extent definition, that does not take PHI into consideration
-void UnplacedCone::void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
+void UnplacedCone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
   Precision max = fRmax1 > fRmax2 ? fRmax1 : fRmax2;
   aMin          = Vector3D<Precision>(-max, -max, -fDz);
