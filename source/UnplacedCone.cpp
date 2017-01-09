@@ -42,6 +42,7 @@ void UnplacedCone::DetectConvexity()
   }
 }
 
+#if !defined(VECGEOM_NVCC)
 #if (0)
 // Simplest Extent definition, that does not take PHI into consideration
 void UnplacedCone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
@@ -120,7 +121,6 @@ void UnplacedCone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) 
 }
 #endif
 
-#if !defined(VECGEOM_NVCC)
 bool UnplacedCone::Normal(Vector3D<Precision> const &p, Vector3D<Precision> &norm) const
 {
   int noSurfaces = 0;
