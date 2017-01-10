@@ -52,8 +52,6 @@ public:
   Precision fStartPhi;
   Precision fDeltaPhi;
 
-  Wedge fPhiWedge;
-
   unsigned int fNz; // number of planes the polycone was constructed with; It should not be modified
   // Precision * fRmin;
   // Precision * fRmax;
@@ -68,6 +66,8 @@ private:
   bool fEqualRmax;
   bool fContinuityOverAll;
   bool fConvexityPossible;
+  Wedge fPhiWedge;
+
   VECGEOM_CUDA_HEADER_BOTH
   bool CheckContinuity(const double rOuter[], const double rInner[], const double zPlane[],
                        Vector<Precision> &newROuter, Vector<Precision> &newRInner, Vector<Precision> &zewZPlane);
