@@ -3,9 +3,17 @@
 
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
+
+#ifdef VECGEOM_USOLIDS
+#include "UParaboloid.hh"
+#endif
 #include "volumes/Paraboloid.h"
 
-typedef vecgeom::SimpleParaboloid Paraboloid_t;
+using VPlacedVolume = vecgeom::VPlacedVolume;
+using VGParaboloid  = vecgeom::SimpleParaboloid;
+
+template <typename ImplT>
+int runTester(ImplT const *shape, int npoints, bool usolids, bool debug, bool stat);
 
 int main(int argc, char *argv[])
 {
@@ -14,27 +22,45 @@ int main(int argc, char *argv[])
   OPTION_BOOL(stat, false);
   OPTION_BOOL(usolids, false);
 
+  OPTION_DOUBLE(rmin, 6.);
+  OPTION_DOUBLE(rmax, 10.);
+  OPTION_DOUBLE(dz, 10.);
+
   if (usolids) {
-    std::cerr << "\n*** ERROR: '-usolids true' is not valid for SExtru shape!\n Aborting...\n\n";
+#ifndef VECGEOM_USOLIDS
+    std::cerr << "\n*** ERROR: library built with -DUSOLIDS=OFF and user selected '-usolids true'!\n Aborting...\n\n";
     return 1;
+#else
+    // USolids conventions
+    auto paraboloid = new UParaboloid("usolidsParaboloid", dz, rmax, rmin);
+    paraboloid->StreamInfo(std::cout);
+    return runTester<VUSolid>(paraboloid, npoints, usolids, debug, stat);
+#endif
   }
 
-  Paraboloid_t const *para = new Paraboloid_t("test_para", 6., 10., 10.);
-  para->Print();
+  else {
+    // VecGeom conventions
+    auto paraboloid = new VGParaboloid("vecgeomParaboloid", rmin, rmax, dz);
+    paraboloid->Print();
+    return runTester<VPlacedVolume>(paraboloid, npoints, usolids, debug, stat);
+  }
+}
 
-  ShapeTester<vecgeom::VPlacedVolume> tester;
+template <typename ImplT>
+int runTester(ImplT const *shape, int npoints, bool usolids, bool debug, bool stat)
+{
+  ShapeTester<ImplT> tester;
   tester.setConventionsMode(usolids);
   tester.setDebug(debug);
   tester.setStat(stat);
   tester.SetMaxPoints(npoints);
   tester.SetSolidTolerance(1.e-9);
   tester.SetTestBoundaryErrors(true);
-  int errCode = tester.Run(para);
+  int errCode = tester.Run(shape);
 
-  std::cout << "Final Error count for Shape *** " << para->GetName() << "*** = " << errCode << " ("
+  std::cout << "Final Error count for Shape *** " << shape->GetName() << "*** = " << errCode << " ("
             << (tester.getConventionsMode() ? "USolids" : "VecGeom") << " conventions)\n";
-  std::cout << "=========================================================" << std::endl;
-
-  if (para) delete para;
-  return 0;
+  std::cout << "=========================================================\n";
+  if (shape) delete shape;
+  return errCode;
 }
