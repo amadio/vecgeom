@@ -72,8 +72,8 @@ int main(int argc, char *argv[])
 
   bool inside;
 
-  Vector3D<Precision> *points = new Vector3D<Precision>[np];
-  Vector3D<Precision> *dir    = new Vector3D<Precision>[np];
+  Vector3D<Precision> *points = new Vector3D<Precision>[ np ];
+  Vector3D<Precision> *dir    = new Vector3D<Precision>[ np ];
   TRandom3 r3;
   r3.SetSeed(time(NULL));
 

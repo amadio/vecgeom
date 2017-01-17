@@ -126,7 +126,7 @@ int main()
   std::vector<Vector3D<Precision>> corners(2 * numberofboxes);
 
   // setup SOA form of boxes -- the memory layout should probably rather be SOA6D
-  Vector3D<kVc::precision_v> *VcCorners = new Vector3D<kVc::precision_v>[2 * numberofboxes / kVc::precision_v::Size];
+  Vector3D<kVc::precision_v> *VcCorners = new Vector3D<kVc::precision_v>[ 2 * numberofboxes / kVc::precision_v::Size ];
 
   int counter1 = 0;
   int counter2 = 0;
