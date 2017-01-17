@@ -6,6 +6,7 @@
 #ifndef ShapeTester_hh
 #define ShapeTester_hh
 
+#include "base/Vector3D.h"
 #include "base/RNG.h"
 #ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"
