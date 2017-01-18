@@ -6,7 +6,6 @@
 
 #include "base/Global.h"
 
-#include "backend/Backend.h"
 #include "base/Array.h"
 #include "base/AOS3D.h"
 #include "base/SOA3D.h"
@@ -127,39 +126,36 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   void FlipSign(int index);
 
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  typename Backend::bool_v Contains(Vector3D<typename Backend::precision_v> const &point) const;
+  vecCore::Mask_v<Real_v> Contains(Vector3D<Real_v> const &point) const;
 
-  template <class Backend>
+  template <typename Real_v, typename Inside_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  typename Backend::inside_v Inside(Vector3D<typename Backend::precision_v> const &point) const;
+  Inside_v Inside(Vector3D<Real_v> const &point) const;
 
-  template <class Backend>
+  template <typename Real_v, typename Inside_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  typename Backend::inside_v Inside(Vector3D<typename Backend::precision_v> const &point, int i) const;
+  Inside_v Inside(Vector3D<Real_v> const &point, int i) const;
 
-  template <class Backend, bool behindPlanesT>
+  template <typename Real_v, bool behindPlanesT>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  typename Backend::precision_v DistanceToIn(Vector3D<typename Backend::precision_v> const &point,
-                                             Vector3D<typename Backend::precision_v> const &direction) const;
+  Real_v DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction) const;
 
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  typename Backend::precision_v DistanceToOut(Vector3D<typename Backend::precision_v> const &point,
-                                              Vector3D<typename Backend::precision_v> const &direction, Precision zMin,
-                                              Precision zMax) const;
+  Real_v DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction, Precision zMin,
+                       Precision zMax) const;
 
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  typename Backend::precision_v DistanceToOut(Vector3D<typename Backend::precision_v> const &point,
-                                              Vector3D<typename Backend::precision_v> const &direction) const;
+  Real_v DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction) const;
 
   /// \param index Quadrilateral to compute distance to.
   VECGEOM_FORCE_INLINE
@@ -286,38 +282,37 @@ Vector3D<Precision> Quadrilaterals::GetPointOnFace(int index) const
   }
 }
 
-template <class Backend>
+template <typename Real_v>
 VECGEOM_CUDA_HEADER_BOTH
-typename Backend::bool_v Quadrilaterals::Contains(Vector3D<typename Backend::precision_v> const &point) const
+vecCore::Mask_v<Real_v> Quadrilaterals::Contains(Vector3D<Real_v> const &point) const
 {
-  return fPlanes.Contains<Backend>(point);
+  return fPlanes.Contains<Real_v>(point);
 }
 
-template <class Backend>
+template <typename Real_v, typename Inside_v>
 VECGEOM_CUDA_HEADER_BOTH
-typename Backend::inside_v Quadrilaterals::Inside(Vector3D<typename Backend::precision_v> const &point) const
+Inside_v Quadrilaterals::Inside(Vector3D<Real_v> const &point) const
 {
-  return fPlanes.Inside<Backend>(point);
+  return fPlanes.Inside<Real_v, Inside_v>(point);
 }
 
-template <class Backend>
+template <typename Real_v, typename Inside_v>
 VECGEOM_CUDA_HEADER_BOTH
-typename Backend::inside_v Quadrilaterals::Inside(Vector3D<typename Backend::precision_v> const &point, int i) const
+Inside_v Quadrilaterals::Inside(Vector3D<Real_v> const &point, int i) const
 {
-  return fPlanes.Inside<Backend>(point, i);
+  return fPlanes.Inside<Real_v, Inside_v>(point, i);
 }
 
 namespace {
 
-template <class Backend>
+template <class Real_v>
 struct AcceleratedDistanceToIn {
   template <bool behindPlanesT>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
   static void VectorLoop(int & /*i*/, const int /*n*/, Planes const & /*planes*/, Planes const (&/*sideVectors*/)[4],
-                         Vector3D<typename Backend::precision_v> const & /*point*/,
-                         Vector3D<typename Backend::precision_v> const & /*direction*/,
-                         typename Backend::precision_v & /*distance*/)
+                         Vector3D<Real_v> const & /*point*/, Vector3D<Real_v> const & /*direction*/,
+                         Real_v & /*distance*/)
   {
     // Do nothing if not scalar backend
     return;
@@ -326,7 +321,7 @@ struct AcceleratedDistanceToIn {
 
 #if defined(VECGEOM_VC) && defined(VECGEOM_QUADRILATERALS_VC)
 template <>
-struct AcceleratedDistanceToIn<kScalar> {
+struct AcceleratedDistanceToIn<Precision> {
 
   template <bool behindPlanesT>
   VECGEOM_FORCE_INLINE
@@ -364,7 +359,7 @@ struct AcceleratedDistanceToIn<kScalar> {
       }
       // If a hit is found, the algorithm can return, since only one side can
       // be hit for a convex set of quadrilaterals
-      distanceTest(!valid) = kInfLength;
+      distanceTest(!valid) = InfinityLength<Precision>();
       distance             = Max(distanceTest.min(), 0.);
       i                    = n;
       return;
@@ -378,11 +373,9 @@ struct AcceleratedDistanceToIn<kScalar> {
 
 } // End anonymous namespace
 
-template <class Backend, bool behindPlanesT>
+template <typename Real_v, bool behindPlanesT>
 VECGEOM_CUDA_HEADER_BOTH
-typename Backend::precision_v Quadrilaterals::DistanceToIn(
-    Vector3D<typename Backend::precision_v> const &point,
-    Vector3D<typename Backend::precision_v> const &direction) const
+Real_v Quadrilaterals::DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction) const
 {
 
   // Looks for the shortest distance to one of the quadrilaterals.
@@ -397,29 +390,28 @@ typename Backend::precision_v Quadrilaterals::DistanceToIn(
   // per Z-segment in Polyhedron case. If used in other contexts, a template
   // parameter would have to be added to make a distinction.
 
-  typedef typename Backend::precision_v Float_t;
-  typedef typename Backend::bool_v Bool_t;
+  using Bool_v = vecCore::Mask_v<Real_v>;
 
-  Float_t bestDistance = kInfLength;
+  Real_v bestDistance = InfinityLength<Real_v>();
 
   int i       = 0;
   const int n = size();
-  AcceleratedDistanceToIn<Backend>::template VectorLoop<behindPlanesT>(i, n, fPlanes, fSideVectors, point, direction,
-                                                                       bestDistance);
+  AcceleratedDistanceToIn<Real_v>::template VectorLoop<behindPlanesT>(i, n, fPlanes, fSideVectors, point, direction,
+                                                                      bestDistance);
 
   // TODO: IN CASE QUADRILATERALS ARE PERPENDICULAR TO Z WE COULD SAVE MANY DIVISIONS
   for (; i < n; ++i) {
     Vector3D<Precision> normal = fPlanes.GetNormal(i);
-    Float_t distance           = point.Dot(normal) + fPlanes.GetDistance(i);
+    Real_v distance            = point.Dot(normal) + fPlanes.GetDistance(i);
     // Check if the point is in front of/behind the plane according to the
     // template parameter
-    Bool_t valid = Flip<behindPlanesT>::FlipSign(distance) > -kTolerance;
+    Bool_v valid = Flip<behindPlanesT>::FlipSign(distance) > -kTolerance;
     if (vecCore::MaskEmpty(valid)) continue;
-    Float_t directionProjection = direction.Dot(normal);
+    Real_v directionProjection = direction.Dot(normal);
     valid &= Flip<!behindPlanesT>::FlipSign(directionProjection) >= 0;
     if (vecCore::MaskEmpty(valid)) continue;
     distance /= -(directionProjection + CopySign(1E-20, directionProjection));
-    Vector3D<Float_t> intersection = point + direction * distance;
+    Vector3D<Real_v> intersection = point + direction * distance;
     for (int j = 0; j < 4; ++j) {
       valid &= intersection.Dot(fSideVectors[j].GetNormal(i)) + fSideVectors[j].GetDistances()[i] >= -kTolerance;
       if (vecCore::MaskEmpty(valid)) break;
@@ -427,7 +419,7 @@ typename Backend::precision_v Quadrilaterals::DistanceToIn(
     vecCore::MaskedAssign(bestDistance, valid, distance);
     // If all hits are found, the algorithm can return, since only one side can
     // be hit for a convex set of quadrilaterals
-    if (vecCore::MaskFull(bestDistance < kInfLength)) break;
+    if (vecCore::MaskFull(bestDistance < InfinityLength<Real_v>())) break;
   }
 
   return Max(0., bestDistance);
@@ -435,14 +427,13 @@ typename Backend::precision_v Quadrilaterals::DistanceToIn(
 
 namespace {
 
-template <class Backend>
+template <typename Real_v>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void AcceleratedDistanceToOut(int & /*i*/, const int /*n*/, Planes const & /*planes*/,
                               Planes const (&/*sideVectors*/)[4], const Precision /*zMin*/, const Precision /*zMax*/,
-                              Vector3D<typename Backend::precision_v> const & /*point*/,
-                              Vector3D<typename Backend::precision_v> const & /*direction*/,
-                              typename Backend::precision_v & /*distance*/)
+                              Vector3D<Real_v> const & /*point*/, Vector3D<Real_v> const & /*direction*/,
+                              Real_v & /*distance*/)
 {
   // Do nothing if the backend is not scalar
   return;
@@ -452,9 +443,9 @@ void AcceleratedDistanceToOut(int & /*i*/, const int /*n*/, Planes const & /*pla
 template <>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-void AcceleratedDistanceToOut<kScalar>(int &i, const int n, Planes const &planes, Planes const (&sideVectors)[4],
-                                       const Precision zMin, const Precision zMax, Vector3D<Precision> const &point,
-                                       Vector3D<Precision> const &direction, Precision &distance)
+void AcceleratedDistanceToOut<Precision>(int &i, const int n, Planes const &planes, Planes const (&sideVectors)[4],
+                                         const Precision zMin, const Precision zMax, Vector3D<Precision> const &point,
+                                         Vector3D<Precision> const &direction, Precision &distance)
 {
 
   // Explicitly vectorize over quadrilaterals using Vc
@@ -493,7 +484,7 @@ void AcceleratedDistanceToOut<kScalar>(int &i, const int n, Planes const &planes
     }
   distanceToOutVcContinueOuter:
     if (vecCore::MaskEmpty(valid)) continue;
-    distanceTest(!valid) = kInfLength;
+    distanceTest(!valid) = InfinityLength<Precision>();
     distance             = distanceTest.min();
   }
   distance = Max(0., distance);
@@ -503,11 +494,10 @@ void AcceleratedDistanceToOut<kScalar>(int &i, const int n, Planes const &planes
 
 } // End anonymous namespace
 
-template <class Backend>
+template <typename Real_v>
 VECGEOM_CUDA_HEADER_BOTH
-typename Backend::precision_v Quadrilaterals::DistanceToOut(Vector3D<typename Backend::precision_v> const &point,
-                                                            Vector3D<typename Backend::precision_v> const &direction,
-                                                            Precision zMin, Precision zMax) const
+Real_v Quadrilaterals::DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction, Precision zMin,
+                                     Precision zMax) const
 {
 
   // The below computes the distance to the quadrilaterals similar to
@@ -518,22 +508,21 @@ typename Backend::precision_v Quadrilaterals::DistanceToOut(Vector3D<typename Ba
   // If used for another purpose than Polyhedron, DistanceToIn should be used if
   // the set of quadrilaterals is not convex.
 
-  typedef typename Backend::precision_v Float_t;
-  typedef typename Backend::bool_v Bool_t;
+  using Bool_v = vecCore::Mask_v<Real_v>;
 
-  Float_t bestDistance = kInfLength;
+  Real_v bestDistance = InfinityLength<Real_v>();
 
   int i       = 0;
   const int n = size();
-  AcceleratedDistanceToOut<Backend>(i, n, fPlanes, fSideVectors, zMin, zMax, point, direction, bestDistance);
+  AcceleratedDistanceToOut<Real_v>(i, n, fPlanes, fSideVectors, zMin, zMax, point, direction, bestDistance);
 
   for (; i < n; ++i) {
     Vector3D<Precision> normal = fPlanes.GetNormal(i);
-    Float_t distanceTest       = point.Dot(normal) + fPlanes.GetDistance(i);
+    Real_v distanceTest        = point.Dot(normal) + fPlanes.GetDistance(i);
     // Check if the point is behind the plane
-    Bool_t valid = distanceTest < kTolerance;
+    Bool_v valid = distanceTest < kTolerance;
     if (vecCore::MaskEmpty(valid)) continue;
-    Float_t directionProjection = direction.Dot(normal);
+    Real_v directionProjection = direction.Dot(normal);
     // Because the point is behind the plane, the direction must be along the
     // normal
     valid &= directionProjection >= 0;
@@ -546,12 +535,12 @@ typename Backend::precision_v Quadrilaterals::DistanceToOut(Vector3D<typename Ba
     if (zMin == zMax) {
       // in this case need proper hit detection
       // valid &= zProjection >= zMin-1E-10 && zProjection <= zMax+1E-10;
-      Vector3D<Float_t> intersection = point + distanceTest * direction;
+      Vector3D<Real_v> intersection = point + distanceTest * direction;
 
       valid = RayHitsQuadrilateral(i, intersection);
 
     } else {
-      Float_t zProjection = point[2] + distanceTest * direction[2];
+      Real_v zProjection = point[2] + distanceTest * direction[2];
       valid &= (zProjection >= zMin - kTolerance) && (zProjection < zMax + kTolerance);
     }
     if (vecCore::MaskEmpty(valid)) continue;
@@ -562,13 +551,11 @@ typename Backend::precision_v Quadrilaterals::DistanceToOut(Vector3D<typename Ba
   return bestDistance;
 }
 
-template <class Backend>
+template <typename Real_v>
 VECGEOM_CUDA_HEADER_BOTH
-typename Backend::precision_v Quadrilaterals::DistanceToOut(
-    Vector3D<typename Backend::precision_v> const &point,
-    Vector3D<typename Backend::precision_v> const &direction) const
+Real_v Quadrilaterals::DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction) const
 {
-  return DistanceToOut<Backend>(point, direction, -kInfLength, kInfLength);
+  return DistanceToOut<Real_v>(point, direction, -InfinityLength<Real_v>(), InfinityLength<Real_v>());
 }
 
 VECGEOM_CUDA_HEADER_BOTH
@@ -632,10 +619,10 @@ Precision Quadrilaterals::ScalarDistanceSquared(int i, Vector3D<Precision> const
   // is correct, but if the "right" segment gets checked, corner0 will be
   // wrongly selected.
 
-  Precision distancesq = kInfLength;
+  Precision distancesq = InfinityLength<Precision>();
   for (int j = 0; j < 4; ++j) {
     if (!withinBound[j]) {
-      distance = DistanceToLineSegmentSquared<kScalar>(fCorners[j][i], fCorners[(j + 1) % 4][i], point);
+      distance = DistanceToLineSegmentSquared1<Precision>(fCorners[j][i], fCorners[(j + 1) % 4][i], point);
       if (distance < distancesq) distancesq = distance;
     }
   }

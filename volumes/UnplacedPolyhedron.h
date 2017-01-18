@@ -5,27 +5,16 @@
 #define VECGEOM_VOLUMES_UNPLACEDPOLYHEDRON_H_
 
 #include "base/Global.h"
-
 #include "base/AlignedBase.h"
-#include "base/Array.h"
-#include "base/SOA3D.h"
-#include "volumes/Quadrilaterals.h"
 #include "volumes/UnplacedVolume.h"
-#include "volumes/UnplacedTube.h"
-#include "volumes/Wedge.h"
+#include "volumes/PolyhedronStruct.h"
+#include "volumes/kernel/PolyhedronImplementation.h"
+#include "volumes/UnplacedVolumeImplHelper.h"
 
-#include <ostream>
+namespace vecgeom {
 
-// These enums should be in the scope vecgeom::Polyhedron, but when used in the
-// shape implementation helper instantiations, nvcc gets confused:
-/*
-In file included from tmpxft_00004012_00000000-3_PlacedPolyhedron.cudafe1.stub.c:1:0:
-/tmp/tmpxft_00004012_00000000-3_PlacedPolyhedron.cudafe1.stub.c:5:136: error: template argument 2 is invalid
- typedef vecgeom::cuda::SpecializedPolyhedron<(vecgeom::Polyhedron::EInnerRadii)0,
-(vecgeom::cuda::SpecializedPolyhedron::EPhiCutout)0>
-_ZN7vecgeom4cuda21SpecializedPolyhedronILNS_10Polyhedron11EInnerRadiiE0ELNS1_10EPhiCutoutE0EEE;
-*/
-enum struct EInnerRadii { kFalse = -1, kGeneric = 0, kTrue = 1 };
+VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedPolyhedron;);
+VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedPolyhedron);
 
 template <typename Stream>
 Stream &operator<<(Stream &st, EInnerRadii a)
@@ -36,8 +25,6 @@ Stream &operator<<(Stream &st, EInnerRadii a)
   return st;
 }
 
-enum struct EPhiCutout { kFalse = -1, kGeneric = 0, kTrue = 1, kLarge = 2 };
-
 template <typename Stream>
 Stream &operator<<(Stream &st, EPhiCutout a)
 {
@@ -46,19 +33,6 @@ Stream &operator<<(Stream &st, EPhiCutout a)
   if (a == EPhiCutout::kTrue) st << "EPhiCutout::kTrue";
   if (a == EPhiCutout::kLarge) st << "EPhiCutout::kLarge";
   return st;
-}
-
-namespace vecgeom {
-
-VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedPolyhedron;);
-VECGEOM_DEVICE_FORWARD_DECLARE(struct ZSegment;);
-VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedPolyhedron);
-VECGEOM_DEVICE_DECLARE_CONV(struct, ZSegment);
-
-// Declare types shared by cxx and cuda.
-namespace Polyhedron {
-using ::EInnerRadii;
-using ::EPhiCutout;
 }
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -104,54 +78,16 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 ///     |                             |     Z
 ///     fZPlanes[0]/fRMax[0]           ----->
 
-/// Represents one segment along the Z-axis, containing one or more sets of
-/// quadrilaterals that represent the outer, inner and phi shells.
-struct ZSegment {
-  Quadrilaterals outer; ///< Should always be non-empty.
-  Quadrilaterals phi;   ///< Is empty if fHasPhiCutout is false.
-  Quadrilaterals inner; ///< Is empty hasInnerRadius is false.
-  bool hasInnerRadius;  ///< Indicates whether any inner quadrilaterals are present in this segment.
-};
+class UnplacedPolyhedron
+    : public LoopUnplacedVolumeImplHelper<
+          PolyhedronImplementation<Polyhedron::EInnerRadii::kGeneric, Polyhedron::EPhiCutout::kGeneric>>,
+      public AlignedBase {
 
-class UnplacedPolyhedron : public VUnplacedVolume, public AlignedBase {
+private:
+  PolyhedronStruct<double> fPoly; ///< Structure holding polyhedron data
 
 public:
-private:
-  int fSideCount;             ///< Number of segments along phi.
-  bool fHasInnerRadii;        ///< Has any Z-segments with an inner radius != 0.
-  bool fHasPhiCutout;         ///< Has a cutout angle along phi.
-  bool fHasLargePhiCutout;    ///< Phi cutout is larger than pi.
-  Precision fPhiStart;        ///< Phi start in radians (input to constructor)
-  Precision fPhiDelta;        ///< Phi delta in radians (input to constructor)
-  Wedge fPhiWedge;            ///< Phi wedge
-  Array<ZSegment> fZSegments; ///< AOS'esque collections of quadrilaterals
-  Array<Precision> fZPlanes;  ///< Z-coordinate of each plane separating segments
-  // TODO: find a way to re-compute R_min and R_max when converting to another
-  //       library's representation to avoid having to store them here.
-  Array<Precision> fRMin;            ///< Inner radii as specified in constructor.
-  Array<Precision> fRMax;            ///< Outer radii as specified in constructor.
-  SOA3D<Precision> fPhiSections;     ///< Unit vectors marking the bounds between
-                                     ///  phi segments, represented by planes
-                                     ///  through the origin with the normal
-                                     ///  point along the positive phi direction.
-  GenericUnplacedTube fBoundingTube; ///< Tube enclosing the outer bounds of the
-                                     ///  polyhedron. Used in Contains, Inside and
-                                     ///  DistanceToIn.
-  Precision fBoundingTubeOffset;     ///< Offset in Z of the center of the bounding
-                                     ///  tube. Used as a quick substitution for
-                                     ///  running a full transformation.
-  mutable Precision fSurfaceArea;    ///< Stored SurfaceArea
-  mutable Precision fCapacity;       ///< Stored Capacity
-
-  // These private data member and member functions are added for convexity detection
-private:
-  bool fContinuousInSlope;
-  bool fConvexityPossible;
-  bool fEqualRmax;
-  VECGEOM_CUDA_HEADER_BOTH
-  bool CheckContinuityInSlope(const double rOuter[], const double zPlane[], unsigned int zPlaneCount);
-
-public:
+  UnplacedPolyhedron() : fPoly() {}
   /// \param sideCount Number of sides along phi in each Z-segment.
   /// \param zPlaneCount Number of Z-planes to draw segments between. The number
   ///                    of segments will always be this number minus one.
@@ -205,68 +141,71 @@ public:
   virtual ~UnplacedPolyhedron() {}
 
   VECGEOM_CUDA_HEADER_BOTH
-  VECGEOM_FORCE_INLINE
-  int GetSideCount() const { return fSideCount; }
+  PolyhedronStruct<double> const &GetStruct() const { return fPoly; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  int GetZSegmentCount() const { return fZSegments.size(); }
+  int GetSideCount() const { return fPoly.fSideCount; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  bool HasInnerRadii() const { return fHasInnerRadii; }
+  int GetZSegmentCount() const { return fPoly.fZSegments.size(); }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  bool HasPhiCutout() const { return fHasPhiCutout; }
+  bool HasInnerRadii() const { return fPoly.fHasInnerRadii; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  bool HasLargePhiCutout() const { return fHasLargePhiCutout; }
+  bool HasPhiCutout() const { return fPoly.fHasPhiCutout; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  ZSegment const &GetZSegment(int i) const { return fZSegments[i]; }
+  bool HasLargePhiCutout() const { return fPoly.fHasLargePhiCutout; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Array<ZSegment> const &GetZSegments() const { return fZSegments; }
+  ZSegment const &GetZSegment(int i) const { return fPoly.fZSegments[i]; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Precision GetZPlane(int i) const { return fZPlanes[i]; }
+  Array<ZSegment> const &GetZSegments() const { return fPoly.fZSegments; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Array<Precision> const &GetZPlanes() const { return fZPlanes; }
+  Precision GetZPlane(int i) const { return fPoly.fZPlanes[i]; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Array<Precision> const &GetRMin() const { return fRMin; }
+  Array<Precision> const &GetZPlanes() const { return fPoly.fZPlanes; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Array<Precision> const &GetRMax() const { return fRMax; }
+  Array<Precision> const &GetRMin() const { return fPoly.fRMin; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Vector3D<Precision> GetPhiSection(int i) const { return fPhiSections[i]; }
+  Array<Precision> const &GetRMax() const { return fPoly.fRMax; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  SOA3D<Precision> const &GetPhiSections() const { return fPhiSections; }
+  Vector3D<Precision> GetPhiSection(int i) const { return fPoly.fPhiSections[i]; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Wedge const &GetPhiWedge() const { return fPhiWedge; }
+  SOA3D<Precision> const &GetPhiSections() const { return fPoly.fPhiSections; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  GenericUnplacedTube const &GetBoundingTube() const { return fBoundingTube; }
+  evolution::Wedge const &GetPhiWedge() const { return fPoly.fPhiWedge; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Precision GetBoundingTubeOffset() const { return fBoundingTubeOffset; }
+  TubeStruct<double> const &GetBoundingTube() const { return fPoly.fBoundingTube; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_FORCE_INLINE
+  Precision GetBoundingTubeOffset() const { return fPoly.fBoundingTubeOffset; }
 
 #ifndef VECGEOM_NVCC
   VECGEOM_CUDA_HEADER_BOTH
@@ -306,19 +245,19 @@ public:
   /// \return The angle along phi where the first corner is placed, specified in radians.
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Precision GetPhiStart() const { return fPhiStart; }
+  Precision GetPhiStart() const { return fPoly.fPhiStart; }
 
   /// Not a stored value, and should not be called from performance critical code.
   /// \return The angle along phi where the last corner is placed, specified in degrees.
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Precision GetPhiEnd() const { return fPhiStart + fPhiDelta; }
+  Precision GetPhiEnd() const { return fPoly.fPhiStart + fPoly.fPhiDelta; }
 
   /// Not a stored value, and should not be called from performance critical code.
   /// \return The difference in angle along phi between the last corner and the first corner.
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Precision GetPhiDelta() const { return fPhiDelta; }
+  Precision GetPhiDelta() const { return fPoly.fPhiDelta; }
 
   // \return the number of quadrilaterals (including triangles) that this
   // polyhedra consists of; this should be all visible surfaces except the endcaps
@@ -345,16 +284,16 @@ public:
     };
 
     Array<ZSegment>::const_iterator s;
-    Array<ZSegment>::const_iterator end = fZSegments.cend();
+    Array<ZSegment>::const_iterator end = fPoly.fZSegments.cend();
 
-    for (s = fZSegments.cbegin(); s != end; ++s) {
+    for (s = fPoly.fZSegments.cbegin(); s != end; ++s) {
       outercorners          = (*s).outer.GetCorners();
       Vector3D<Precision> a = outercorners[0][0];
       Vector3D<Precision> b = outercorners[1][0];
       rmax.push_back(getradius(a, b));
       zplanes.push_back(a.z());
 
-      if (fHasInnerRadii) {
+      if (fPoly.fHasInnerRadii) {
         innercorners = (*s).inner.GetCorners();
         a            = innercorners[0][0];
         b            = innercorners[1][0];
@@ -370,7 +309,7 @@ public:
     rmax.push_back(getradius(a, b));
     zplanes.push_back(a.z());
 
-    if (fHasInnerRadii) {
+    if (fPoly.fHasInnerRadii) {
       a = innercorners[2][0];
       b = innercorners[3][0];
       rmin.push_back(getradius(a, b));
@@ -390,10 +329,6 @@ public:
 
   virtual void Print(std::ostream &os) const final;
 
-#if defined(VECGEOM_USOLIDS)
-  std::ostream &StreamInfo(std::ostream &os) const;
-#endif
-
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECGEOM_CUDA_HEADER_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
@@ -410,18 +345,6 @@ public:
                                            const int id,
 #endif
                                            VPlacedVolume *const placement = NULL) const final;
-  /*
-  >>>>>>> master
-    VECGEOM_CUDA_HEADER_DEVICE
-    VPlacedVolume* SpecializedVolume(
-        LogicalVolume const *const volume,
-        Transformation3D const *const transformation,
-        const TranslationCode trans_code, const RotationCode rot_code,
-  #ifdef VECGEOM_NVCC
-        const int id,
-  #endif
-        VPlacedVolume *const placement) const final;
-  */
   VECGEOM_FORCE_INLINE
   virtual int memory_size() const final { return sizeof(*this); }
 

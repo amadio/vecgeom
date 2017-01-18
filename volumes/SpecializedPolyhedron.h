@@ -9,6 +9,7 @@
 #include "volumes/kernel/PolyhedronImplementation.h"
 #include "volumes/PlacedPolyhedron.h"
 #include "volumes/ScalarShapeImplementationHelper.h"
+#include "volumes/SpecializedPlacedVolImplHelper.h"
 
 namespace vecgeom {
 
@@ -16,10 +17,8 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT, Polyhedron::EInnerRadii innerRadiiT,
           Polyhedron::EPhiCutout phiCutoutT>
-
-//#ifdef GENERATE_POLYHEDRA_SPECIALIZATIONS
 using SpecializedPolyhedron =
-    ScalarShapeImplementationHelper<PolyhedronImplementation<transCodeT, rotCodeT, innerRadiiT, phiCutoutT>>;
+    LoopSpecializedVolImplHelper<PolyhedronImplementation<innerRadiiT, phiCutoutT>, transCodeT, rotCodeT>;
 
 using SimplePolyhedron = SpecializedPolyhedron<translation::kGeneric, rotation::kGeneric,
                                                Polyhedron::EInnerRadii::kGeneric, Polyhedron::EPhiCutout::kGeneric>;

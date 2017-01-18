@@ -5,9 +5,10 @@
 #define VECGEOM_VOLUMES_PLACEDPOLYHEDRON_H_
 
 #include "base/Global.h"
-#include "backend/Backend.h"
 
 #include "volumes/PlacedVolume.h"
+#include "volumes/kernel/PolyhedronImplementation.h"
+#include "volumes/PlacedVolImplHelper.h"
 #include "volumes/UnplacedPolyhedron.h"
 
 class UPolyhedraHistorical;
@@ -22,33 +23,32 @@ VECGEOM_DEVICE_DECLARE_CONV(class, PlacedPolyhedron);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class PlacedPolyhedron : public VPlacedVolume {
+class PlacedPolyhedron : public PlacedVolumeImplHelper<UnplacedPolyhedron, VPlacedVolume> {
+  using Base = PlacedVolumeImplHelper<UnplacedPolyhedron, VPlacedVolume>;
 
 public:
   typedef UnplacedPolyhedron UnplacedShape_t;
 
 #ifndef VECGEOM_NVCC
-
+  // constructor inheritance;
+  using Base::Base;
   PlacedPolyhedron(char const *const label, LogicalVolume const *const logicalVolume,
-                   Transformation3D const *const transformation, PlacedBox const *const boundingBox)
-      : VPlacedVolume(label, logicalVolume, transformation, boundingBox)
+                   Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
+      : Base(label, logicalVolume, transformation, boundingBox)
   {
   }
 
   PlacedPolyhedron(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-                   PlacedBox const *const boundingBox)
+                   vecgeom::PlacedBox const *const boundingBox)
       : PlacedPolyhedron("", logicalVolume, transformation, boundingBox)
   {
   }
-
 #else
-
   __device__ PlacedPolyhedron(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
                               PlacedBox const *const boundingBox, const int id)
-      : VPlacedVolume(logicalVolume, transformation, boundingBox, id)
+      : Base(logicalVolume, transformation, boundingBox, id)
   {
   }
-
 #endif
 
   VECGEOM_CUDA_HEADER_BOTH
@@ -145,19 +145,6 @@ public:
   int GetNumSide() const { return GetUnplacedVolume()->GetSideCount(); }
   int GetNumRZCorner() const { return GetZPlanes().size(); }
 
-  UPolyhedraHistorical *GetOriginalParameters() const
-  {
-    assert(false && "*** Can method PlacedPolycone::GetOriginalParameters() be deprecated?\n");
-    return NULL;
-  }
-  bool Reset()
-  {
-    assert(
-        false &&
-        "*** Method PlacedPolycone::Reset() has been deprecated, no 'originalParameters' to be used for reInit().\n");
-    return false;
-  }
-
   // CUDA specific
 
   virtual int memory_size() const override { return sizeof(*this); }
@@ -167,11 +154,6 @@ public:
   {
     return GetUnplacedVolume()->Normal(point, normal);
   }
-
-#if defined(VECGEOM_USOLIDS)
-  //  VECGEOM_CUDA_HEADER_BOTH
-  std::ostream &StreamInfo(std::ostream &os) const override { return GetUnplacedVolume()->StreamInfo(os); }
-#endif
 
 // Comparison specific
 #ifndef VECGEOM_NVCC

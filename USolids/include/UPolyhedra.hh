@@ -41,11 +41,6 @@
 #include "UPolyhedraSide.hh"
 class UPolyhedraHistorical {
 public:
-  UPolyhedraHistorical();
-  ~UPolyhedraHistorical();
-  UPolyhedraHistorical(const UPolyhedraHistorical &source);
-  UPolyhedraHistorical &operator=(const UPolyhedraHistorical &right);
-
   double fStartAngle;
   double fOpeningAngle;
   int fNumSide;
@@ -53,21 +48,62 @@ public:
   std::vector<double> fZValues;
   std::vector<double> Rmin;
   std::vector<double> Rmax;
+
+  UPolyhedraHistorical()
+      : fStartAngle(0.), fOpeningAngle(0.), fNumSide(0), fNumZPlanes(0), fZValues(0), Rmin(0), Rmax(0)
+  {
+  }
+  ~UPolyhedraHistorical() {}
+  UPolyhedraHistorical(const UPolyhedraHistorical &source)
+  {
+    fStartAngle   = source.fStartAngle;
+    fOpeningAngle = source.fOpeningAngle;
+    fNumSide      = source.fNumSide;
+    fNumZPlanes   = source.fNumZPlanes;
+
+    fZValues = source.fZValues;
+    Rmin     = source.Rmin;
+    Rmax     = source.Rmax;
+  }
+
+  UPolyhedraHistorical &operator=(const UPolyhedraHistorical &right)
+  {
+    if (&right == this) return *this;
+
+    fStartAngle   = right.fStartAngle;
+    fOpeningAngle = right.fOpeningAngle;
+    fNumSide      = right.fNumSide;
+    fNumZPlanes   = right.fNumZPlanes;
+
+    fZValues = right.fZValues;
+    Rmin     = right.Rmin;
+    Rmax     = right.Rmax;
+    return *this;
+  }
 };
 
 #ifdef VECGEOM_REPLACE_USOLIDS
 
 //============== here for VecGeom-based implementation
 #include "base/Transformation3D.h"
+#include "base/Math.h"
 #include "volumes/LogicalVolume.h"
 #include "volumes/SpecializedPolyhedron.h"
 #include "volumes/UnplacedPolyhedron.h"
+#include "volumes/USolidsAdapter.h"
 
-class UPolyhedra : public vecgeom::SimplePolyhedron {
-  // just forwards UPolyhedra to vecgeom::SimplePolyhedron
-  using vecgeom::SimplePolyhedron::SimplePolyhedron;
+class UPolyhedra : public vecgeom::USolidsAdapter<vecgeom::UnplacedPolyhedron> {
+
+  // just forwards UGenericTrap to vecgeom polyhedron
+  using Shape_t = vecgeom::UnplacedPolyhedron;
+  using Base_t  = vecgeom::USolidsAdapter<vecgeom::UnplacedPolyhedron>;
+
+  // inherit all constructors
+  using Base_t::Base_t;
 
 public:
+  // Accessors which are available in UnplacedGenTrap
+  UPolyhedra() : Base_t("") {}
   // vecgoem polyhedra expects constructor angles in DEGREES!!
   UPolyhedra(const std::string &name,
              double phiStart,       // initial phi starting angle
@@ -77,8 +113,11 @@ public:
              const double zPlane[], // position of z planes
              const double rInner[], // tangent distance to inner surface
              const double rOuter[]) // tangent distance to outer surface
-      : vecgeom::SimplePolyhedron(name.c_str(), phiStart, phiTotal, numSide, numZPlanes, zPlane, rInner, rOuter)
+      : Base_t(name.c_str(), phiStart, phiTotal, numSide, numZPlanes, zPlane, rInner, rOuter)
   {
+    fPhiIsOpen   = (GetPhiStart() < vecgeom::kTwoPi);
+    fGenericPgon = false;
+    SetOriginalParameters();
   }
 
   UPolyhedra(const std::string &name,
@@ -88,17 +127,96 @@ public:
              int numRZ,        // number corners in r,z space
              const double r[], // r coordinate of these corners
              const double z[]) // z coordinate of these corners
-      : vecgeom::SimplePolyhedron(name.c_str(), phiStart, phiTotal, numSide, numRZ, r, z)
+      : Base_t(name.c_str(), phiStart, phiTotal, numSide, numRZ / 2, r, z)
   {
+    fPhiIsOpen   = (GetPhiStart() < vecgeom::kTwoPi);
+    fGenericPgon = true;
+    SetOriginalParameters();
   }
 
-  UPolyhedraSideRZ GetCorner(int index) const
+  void ComputeBBox(UBBox * /*aBox*/, bool /*aStore*/) override
   {
-    vecgeom::Precision z = GetUnplacedVolume()->GetZPlane(index);
-    vecgeom::Precision r = GetUnplacedVolume()->GetRMax()[index];
+    // Computes bounding box.
+    std::cout << "ComputeBBox - Not implemented" << std::endl;
+  }
+
+  // o provide a new object which is a clone of the solid
+  VUSolid *Clone() const override
+  {
+    return new UPolyhedra(GetName().c_str(), GetPhiStart(), GetPhiDelta(), GetSideCount(), GetZSegmentCount(),
+                          GetZPlanes().cbegin(), GetRMin().cbegin(), GetRMax().cbegin());
+  }
+  bool Reset() { return true; }
+
+  inline int GetNumSide() const { return GetSideCount(); }
+  inline double GetStartPhi() const { return GetPhiStart(); }
+  inline double GetEndPhi() const { return GetPhiEnd(); }
+  inline bool IsOpen() const { return fPhiIsOpen; }
+  inline bool IsGeneric() const { return fGenericPgon; }
+  inline int GetNumRZCorner() const { return (2 * GetZSegmentCount()); }
+  inline UPolyhedraSideRZ GetCorner(int index) const
+  {
+    vecgeom::Precision z = GetZPlanes()[index];
+    vecgeom::Precision r = GetRMax()[index];
     return UPolyhedraSideRZ{r, z};
   }
+
+  UGeometryType GetEntityType() const override { return "UPolyhedraVG"; }
+  inline void GetParametersList(int /*aNumber*/, double * /*aArray*/) const override {}
+  inline UPolyhedraHistorical *GetOriginalParameters() { return &fOriginalParameters; }
+  inline void SetOriginalParameters(UPolyhedraHistorical &pars) { fOriginalParameters = pars; }
+
+  std::ostream &StreamInfo(std::ostream &os) const override
+  {
+    int oldprc = os.precision(16);
+    int Nz     = GetZSegmentCount();
+    os << "-----------------------------------------------------------\n"
+       << "     *** Dump for solid - polyhedron ***\n"
+       << "     ===================================================\n"
+       << " Solid type: " << GetEntityType() << "\n"
+       << " Parameters:\n"
+       << " Phi start=" << GetStartPhi() * vecgeom::kRadToDeg << "deg, Phi delta=" << GetPhiDelta() * vecgeom::kRadToDeg
+       << "deg\n"
+       << "     Number of segments along phi: " << GetNumSide() << "\n"
+       << "     N = number of Z-sections: " << Nz << "\n"
+       << "     N+1 z-coordinates (in cm):\n";
+
+    for (int i = 0; i < Nz; ++i) {
+      os << "       at Z=" << GetZPlanes()[i] << "cm:"
+         << " Rmin=" << GetRMin()[i] << "cm,"
+         << " Rmax=" << GetRMax()[i] << "cm\n";
+    }
+    os << "-----------------------------------------------------------\n";
+    os.precision(oldprc);
+    return os;
+  }
+
+protected:
+  bool fPhiIsOpen;                          // true if there is a phi segment
+  bool fGenericPgon;                        // true if created through the 2nd generic constructor
+  UPolyhedraHistorical fOriginalParameters; // original input parameters
+
+protected:
+  inline void SetOriginalParameters()
+  {
+    int numPlanes = GetNumRZCorner() / 2;
+    fOriginalParameters.fZValues.resize(numPlanes);
+    fOriginalParameters.Rmin.resize(numPlanes);
+    fOriginalParameters.Rmax.resize(numPlanes);
+
+    for (int j = 0; j < numPlanes; j++) {
+      fOriginalParameters.fZValues[j] = GetZPlanes()[j];
+      fOriginalParameters.Rmax[j]     = GetRMax()[j];
+      fOriginalParameters.Rmin[j]     = GetRMin()[j];
+    }
+
+    fOriginalParameters.fStartAngle   = GetStartPhi();
+    fOriginalParameters.fOpeningAngle = GetPhiDelta();
+    fOriginalParameters.fNumZPlanes   = numPlanes;
+    fOriginalParameters.fNumSide      = GetNumSide();
+  }
 };
+
 //============== end of VecGeom-based implementation
 
 #else

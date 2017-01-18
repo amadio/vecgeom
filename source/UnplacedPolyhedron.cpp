@@ -21,262 +21,26 @@ UnplacedPolyhedron::UnplacedPolyhedron(const int sideCount, const int zPlaneCoun
                                        Precision const rMin[], Precision const rMax[])
     : UnplacedPolyhedron(0., kTwoPi, sideCount, zPlaneCount, zPlanes, rMin, rMax)
 {
-}
-
-VECGEOM_CUDA_HEADER_BOTH
-bool UnplacedPolyhedron::CheckContinuityInSlope(const double rOuter[], const double zPlane[], const unsigned int nz)
-{
-
-  Precision prevSlope = kInfLength;
-  for (unsigned int j = 0; j < nz - 1; ++j) {
-    if (zPlane[j + 1] == zPlane[j]) {
-      if (rOuter[j + 1] != rOuter[j]) return false;
-    } else {
-      Precision currentSlope = (rOuter[j + 1] - rOuter[j]) / (zPlane[j + 1] - zPlane[j]);
-      if (currentSlope > prevSlope) return false;
-      prevSlope = currentSlope;
-    }
-  }
-  return true;
+  DetectConvexity();
 }
 
 VECGEOM_CUDA_HEADER_BOTH
 UnplacedPolyhedron::UnplacedPolyhedron(Precision phiStart, Precision phiDelta, const int sideCount,
                                        const int zPlaneCount, Precision const zPlanes[], Precision const rMin[],
                                        Precision const rMax[])
-    : fSideCount(sideCount), fHasInnerRadii(false), fHasPhiCutout(phiDelta < kTwoPi),
-      fHasLargePhiCutout(phiDelta < kPi), fPhiStart(NormalizeAngle<kScalar>(phiStart)),
-      fPhiDelta((phiDelta > kTwoPi) ? kTwoPi : phiDelta), fPhiWedge(phiDelta, NormalizeAngle<kScalar>(phiStart)),
-      fZSegments(zPlaneCount - 1), fZPlanes(zPlaneCount), fRMin(zPlaneCount), fRMax(zPlaneCount),
-      fPhiSections(sideCount + 1), fBoundingTube(0, 1, 1, 0, kTwoPi), fSurfaceArea(0.), fCapacity(0.),
-      fContinuousInSlope(true), fConvexityPossible(true), fEqualRmax(true)
+    : fPoly(phiStart, phiDelta, sideCount, zPlaneCount, zPlanes, rMin, rMax)
 {
-
-  // initialize polyhedron internals
-  Initialize(phiStart, phiDelta, sideCount, zPlaneCount, zPlanes, rMin, rMax);
   DetectConvexity();
 }
-
-VECGEOM_CUDA_HEADER_BOTH
-void UnplacedPolyhedron::Initialize(Precision phiStart, Precision phiDelta, const int sideCount, const int zPlaneCount,
-                                    Precision const zPlanes[], Precision const rMin[], Precision const rMax[])
-{
-  typedef Vector3D<Precision> Vec_t;
-
-  // Sanity check of input parameters
-  assert(zPlaneCount > 1);
-  assert(fSideCount > 0);
-
-  copy(zPlanes, zPlanes + zPlaneCount, &fZPlanes[0]);
-  copy(rMin, rMin + zPlaneCount, &fRMin[0]);
-  copy(rMax, rMax + zPlaneCount, &fRMax[0]);
-
-  double startRmax = rMax[0];
-  for (int i = 0; i < zPlaneCount; i++) {
-    fConvexityPossible &= (rMin[i] == 0.);
-    fEqualRmax &= (startRmax == rMax[i]);
-  }
-  fContinuousInSlope = CheckContinuityInSlope(rMax, zPlanes, zPlaneCount);
-
-  // Initialize segments
-  // sometimes there will be no quadrilaterals: for instance when
-  // rmin jumps at some z and rmax remains continouus
-  for (int i = 0; i < zPlaneCount - 1; ++i) {
-    // Z-planes must be monotonically increasing
-    assert(zPlanes[i] <= zPlanes[i + 1]);
-
-    fZSegments[i].hasInnerRadius = rMin[i] > 0 || rMin[i + 1] > 0;
-
-    int multiplier = (zPlanes[i] == zPlanes[i + 1] && rMax[i] == rMax[i + 1]) ? 0 : 1;
-
-    // create quadrilaterals in a predefined place with placement new
-    new (&fZSegments[i].outer) Quadrilaterals(sideCount * multiplier);
-
-    // no phi segment here if degenerate z;
-    if (fHasPhiCutout) {
-      multiplier = (zPlanes[i] == zPlanes[i + 1]) ? 0 : 1;
-      new (&fZSegments[i].phi) Quadrilaterals(2 * multiplier);
-    }
-
-    multiplier = (zPlanes[i] == zPlanes[i + 1] && rMin[i] == rMin[i + 1]) ? 0 : 1;
-
-    if (fZSegments[i].hasInnerRadius) {
-      new (&fZSegments[i].inner) Quadrilaterals(sideCount * multiplier);
-      fHasInnerRadii = true;
-    }
-  }
-
-  // Compute the cylindrical coordinate phi along which the corners are placed
-  assert(phiDelta > 0);
-  phiStart                        = NormalizeAngle<kScalar>(phiStart);
-  if (phiDelta > kTwoPi) phiDelta = kTwoPi;
-  Precision sidePhi               = phiDelta / sideCount;
-  vecgeom::unique_ptr<Precision[]> vertixPhi(new Precision[sideCount + 1]);
-  for (int i = 0, iMax = sideCount + 1; i < iMax; ++i) {
-    vertixPhi[i]                     = NormalizeAngle<kScalar>(phiStart + i * sidePhi);
-    Vector3D<Precision> cornerVector = Vec_t::FromCylindrical(1., vertixPhi[i], 0).Normalized().FixZeroes();
-    fPhiSections.set(i, cornerVector.Normalized().Cross(Vector3D<Precision>(0, 0, -1)));
-  }
-  if (!fHasPhiCutout) {
-    // If there is no phi cutout, last phi is equal to the first
-    vertixPhi[sideCount] = vertixPhi[0];
-  }
-
-  // Specified radii are to the sides, not to the corners. Change these values,
-  // as corners and not sides are used to build the structure
-  Precision cosHalfDeltaPhi = cos(0.5 * sidePhi);
-  Precision innerRadius = kInfLength, outerRadius = -kInfLength;
-  for (int i = 0; i < zPlaneCount; ++i) {
-    // Use distance to side for minimizing inner radius of bounding tube
-    if (rMin[i] < innerRadius) innerRadius = rMin[i];
-    // rMin[i] /= cosHalfDeltaPhi;
-    // rMax[i] /= cosHalfDeltaPhi;
-    assert(rMin[i] >= 0 && rMax[i] > 0);
-    // Use distance to corner for minimizing outer radius of bounding tube
-    if (rMax[i] > outerRadius) outerRadius = rMax[i];
-  }
-  // need to convert from distance to planes to real radius in case of outerradius
-  // the inner radius of the bounding tube is given by min(rMin[])
-  outerRadius /= cosHalfDeltaPhi;
-
-  // Create bounding tube with biggest outer radius and smallest inner radius
-  Precision boundingTubeZ = 0.5 * (zPlanes[zPlaneCount - 1] - zPlanes[0] + kTolerance);
-  // Make bounding tube phi range a bit larger to contain all points on phi boundaries
-  const Precision kPhiTolerance = 100 * kTolerance;
-  // The increase in the angle has to be large enough to contain most of
-  // kSurface points. There will be some points close to the Z axis which will
-  // not be contained. The value is empirical to satisfy ShapeTester
-  Precision boundsPhiStart = !fHasPhiCutout ? 0 : phiStart - kPhiTolerance;
-  Precision boundsPhiDelta = !fHasPhiCutout ? kTwoPi : phiDelta + 2 * kPhiTolerance;
-  // correct inner and outer Radius with conversion factor
-  // innerRadius /= cosHalfDeltaPhi;
-  // outerRadius /= cosHalfDeltaPhi;
-
-  fBoundingTube = GenericUnplacedTube(innerRadius - kHalfTolerance, outerRadius + kHalfTolerance, boundingTubeZ,
-                                      boundsPhiStart, boundsPhiDelta);
-  // The offset has to match the middle of the polyhedron
-  fBoundingTubeOffset = 0.5 * (zPlanes[0] + zPlanes[zPlaneCount - 1]);
-
-  // Ease indexing into twodimensional vertix array
-  auto VertixIndex = [&sideCount](int plane, int corner) { return plane * (sideCount + 1) + corner; };
-
-  // Precompute all vertices to ensure that there are no numerical cracks in the
-  // surface.
-  const int nVertices = zPlaneCount * (sideCount + 1);
-  vecgeom::unique_ptr<Vec_t[]> outerVertices(new Vec_t[nVertices]);
-  vecgeom::unique_ptr<Vec_t[]> innerVertices(new Vec_t[nVertices]);
-  for (int i = 0; i < zPlaneCount; ++i) {
-    for (int j = 0, jMax = sideCount + fHasPhiCutout; j < jMax; ++j) {
-      int index            = VertixIndex(i, j);
-      outerVertices[index] = Vec_t::FromCylindrical(rMax[i] / cosHalfDeltaPhi, vertixPhi[j], zPlanes[i]).FixZeroes();
-      innerVertices[index] = Vec_t::FromCylindrical(rMin[i] / cosHalfDeltaPhi, vertixPhi[j], zPlanes[i]).FixZeroes();
-    }
-    // Non phi cutout case
-    if (!fHasPhiCutout) {
-      // Make last vertices identical to the first phi coordinate
-      outerVertices[VertixIndex(i, sideCount)] = outerVertices[VertixIndex(i, 0)];
-      innerVertices[VertixIndex(i, sideCount)] = innerVertices[VertixIndex(i, 0)];
-    }
-  }
-
-  // Build segments by drawing quadrilaterals between vertices
-  for (int iPlane = 0; iPlane < zPlaneCount - 1; ++iPlane) {
-
-    auto WrongNormal = [](Vector3D<Precision> const &normal, Vector3D<Precision> const &corner) {
-      return normal[0] * corner[0] + normal[1] * corner[1] < 0;
-    };
-
-    // Draw the regular quadrilaterals along phi
-    for (int iSide = 0; iSide < fZSegments[iPlane].outer.size(); ++iSide) {
-      fZSegments[iPlane].outer.Set(
-          iSide, outerVertices[VertixIndex(iPlane, iSide)], outerVertices[VertixIndex(iPlane, iSide + 1)],
-          outerVertices[VertixIndex(iPlane + 1, iSide + 1)], outerVertices[VertixIndex(iPlane + 1, iSide)]);
-      // Normal has to point away from Z-axis
-      if (WrongNormal(fZSegments[iPlane].outer.GetNormal(iSide), outerVertices[VertixIndex(iPlane, iSide)])) {
-        fZSegments[iPlane].outer.FlipSign(iSide);
-      }
-    }
-    if (fZSegments[iPlane].hasInnerRadius) {
-      for (int iSide = 0; iSide < fZSegments[iPlane].inner.size(); ++iSide) {
-        fZSegments[iPlane].inner.Set(
-            iSide, innerVertices[VertixIndex(iPlane, iSide)], innerVertices[VertixIndex(iPlane, iSide + 1)],
-            innerVertices[VertixIndex(iPlane + 1, iSide + 1)], innerVertices[VertixIndex(iPlane + 1, iSide)]);
-        // Normal has to point away from Z-axis
-        if (WrongNormal(fZSegments[iPlane].inner.GetNormal(iSide), innerVertices[VertixIndex(iPlane, iSide)])) {
-          fZSegments[iPlane].inner.FlipSign(iSide);
-        }
-      }
-    }
-
-    if (fHasPhiCutout && fZSegments[iPlane].phi.size() == 2) {
-      // If there's a phi cutout, draw two quadrilaterals connecting the four
-      // corners (two inner, two outer) of the first and last phi coordinate,
-      // respectively
-      fZSegments[iPlane].phi.Set(0, innerVertices[VertixIndex(iPlane, 0)], innerVertices[VertixIndex(iPlane + 1, 0)],
-                                 outerVertices[VertixIndex(iPlane + 1, 0)], outerVertices[VertixIndex(iPlane, 0)]);
-      // Make sure normal points backwards along phi
-      if (fZSegments[iPlane].phi.GetNormal(0).Dot(fPhiSections[0]) > 0) {
-        fZSegments[iPlane].phi.FlipSign(0);
-      }
-      fZSegments[iPlane].phi.Set(
-          1, outerVertices[VertixIndex(iPlane, sideCount)], outerVertices[VertixIndex(iPlane + 1, sideCount)],
-          innerVertices[VertixIndex(iPlane + 1, sideCount)], innerVertices[VertixIndex(iPlane, sideCount)]);
-      // Make sure normal points forwards along phi
-      if (fZSegments[iPlane].phi.GetNormal(1).Dot(fPhiSections[fSideCount]) < 0) {
-        fZSegments[iPlane].phi.FlipSign(1);
-      }
-    }
-
-  } // End loop over segments
-} // end constructor
 
 UnplacedPolyhedron::UnplacedPolyhedron(Precision phiStart, Precision phiDelta, const int sideCount,
                                        const int zPlaneCount,
                                        Precision const r[], // 2*zPlaneCount elements
                                        Precision const z[]  // ditto
                                        )
-    : fSideCount(sideCount), fHasInnerRadii(false), fHasPhiCutout(phiDelta < kTwoPi),
-      fHasLargePhiCutout(phiDelta < kPi), fPhiStart(NormalizeAngle<kScalar>(phiStart)),
-      fPhiDelta((phiDelta > kTwoPi) ? kTwoPi : phiDelta), fPhiWedge(phiDelta, NormalizeAngle<kScalar>(phiStart)),
-      fZSegments(zPlaneCount - 1), fZPlanes(zPlaneCount), fRMin(zPlaneCount), fRMax(zPlaneCount),
-      fPhiSections(sideCount + 1), fBoundingTube(0, 1, 1, 0, kTwoPi), fSurfaceArea(0.), fCapacity(0.)
+    : fPoly(phiStart, phiDelta, sideCount, zPlaneCount, r, z)
 {
-  // data integrity checks
-  for (int i = 0; i <= zPlaneCount; ++i) {
-    assert(z[i] == z[2 * zPlaneCount - 1 - i] && "UnplPolyhedron ERROR: z[] array is not symmetrical, please fix.\n");
-  }
-
-  // reuse input array as argument, in ascending order
-  int Nz                 = zPlaneCount;
-  bool ascendingZ        = true;
-  const Precision *zarg  = &z[0];
-  const Precision *r1arg = r;
-  if (z[0] > z[1]) {
-    ascendingZ = false;
-    zarg       = z + Nz; // second half of input z[] is ascending due to symmetry already verified
-    r1arg      = r + Nz;
-  }
-
-  // reorganize remainder of r[] data in ascending-z order
-  Precision r2arg[Nz];
-  for (int i = 0; i < Nz; ++i)
-    r2arg[i] = (ascendingZ ? r[2 * Nz - 1 - i] : r[Nz - 1 - i]);
-
-  // identify which rXarg is rmax and rmin and ensure that Rmax > Rmin for all points provided
-  const Precision *rmin = r1arg, *rmax = r2arg;
-  if (r1arg[0] > r2arg[0]) {
-    rmax = r1arg;
-    rmin = r2arg;
-  }
-
-  // final data integrity cross-check
-  for (int i = 0; i < Nz; ++i) {
-    assert(rmax[i] > rmin[i] &&
-           "UnplPolycone ERROR: r[] provided has problems of the Rmax < Rmin type, please check!\n");
-  }
-
-  // Delegate to full constructor
-  Initialize(phiStart, phiDelta, sideCount, zPlaneCount, zarg, rmin, rmax);
+  DetectConvexity();
 }
 
 VECGEOM_CUDA_HEADER_BOTH
@@ -293,40 +57,6 @@ int UnplacedPolyhedron::GetNQuadrilaterals() const
   }
   return count;
 }
-
-#if defined(VECGEOM_USOLIDS)
-VECGEOM_CUDA_HEADER_BOTH
-std::ostream &UnplacedPolyhedron::StreamInfo(std::ostream &os) const
-{
-  int oldprc = os.precision(16);
-  os << "-----------------------------------------------------------\n"
-     << "     *** Dump for solid - polyhedron ***\n"
-     << "     ===================================================\n"
-     << " Solid type: " << GetEntityType() << "\n"
-     << " Parameters:\n"
-     << " Phi start=" << fPhiStart * kRadToDeg << "deg, Phi delta=" << fPhiDelta * kRadToDeg << "deg\n"
-     << "     Number of segments along phi: " << fSideCount << "\n"
-     << "     N = number of Z-sections: " << fZSegments.size() << "\n"
-     << "     N+1 z-coordinates (in cm):\n";
-  uint Nz = (uint)fZSegments.size();
-
-  // check that we have the right number of planes
-  assert((int)Nz == fZPlanes.size() - 1);
-
-  for (uint i = 0; i < Nz; ++i) {
-    os << "       at Z=" << fZPlanes[i] << "cm:"
-       << " Rmin=" << fRMin[i] << "cm,"
-       << " Rmax=" << fRMax[i] << "cm\n";
-  }
-  // print last plane info
-  os << "       at Z=" << fZPlanes[Nz] << "cm:"
-     << " Rmin=" << fRMin[Nz] << "cm,"
-     << " Rmax=" << fRMax[Nz] << "cm\n";
-  os << "-----------------------------------------------------------\n";
-  os.precision(oldprc);
-  return os;
-}
-#endif
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECGEOM_CUDA_HEADER_DEVICE
@@ -413,27 +143,27 @@ void UnplacedPolyhedron::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &
 {
   aMin               = kInfLength;
   aMax               = -kInfLength;
-  Precision phiStart = fPhiStart;
-  Precision phiDelta = fPhiDelta;
-  Precision sidePhi  = phiDelta / fSideCount;
+  Precision phiStart = fPoly.fPhiStart;
+  Precision phiDelta = fPoly.fPhiDelta;
+  Precision sidePhi  = phiDelta / fPoly.fSideCount;
   // Specified radii are to the sides, not to the corners. Change these values,
   // as corners and not sides are used to compute the extent
   Precision conv = 1. / cos(0.5 * sidePhi);
   Vector3D<Precision> crt;
   // Loop all vertices and update min/max
-  for (int iphi = 0; iphi <= fSideCount; ++iphi) {
+  for (int iphi = 0; iphi <= fPoly.fSideCount; ++iphi) {
     Precision phi  = phiStart + iphi * sidePhi;
     Precision corx = conv * cos(phi);
     Precision cory = conv * sin(phi);
-    for (int zPlaneCount = 0; zPlaneCount < fZPlanes.size(); ++zPlaneCount) {
+    for (int zPlaneCount = 0; zPlaneCount < fPoly.fZPlanes.size(); ++zPlaneCount) {
       // Do Rmin
-      crt.Set(fRMin[zPlaneCount] * corx, fRMin[zPlaneCount] * cory, fZPlanes[zPlaneCount]);
+      crt.Set(fPoly.fRMin[zPlaneCount] * corx, fPoly.fRMin[zPlaneCount] * cory, fPoly.fZPlanes[zPlaneCount]);
       for (int i = 0; i < 3; ++i) {
         aMin[i] = Min(aMin[i], crt[i]);
         aMax[i] = Max(aMax[i], crt[i]);
       }
       // Do Rmax
-      crt.Set(fRMax[zPlaneCount] * corx, fRMax[zPlaneCount] * cory, fZPlanes[zPlaneCount]);
+      crt.Set(fPoly.fRMax[zPlaneCount] * corx, fPoly.fRMax[zPlaneCount] * cory, fPoly.fZPlanes[zPlaneCount]);
       for (int i = 0; i < 3; ++i) {
         aMin[i] = Min(aMin[i], crt[i]);
         aMax[i] = Max(aMax[i], crt[i]);
@@ -463,10 +193,10 @@ VECGEOM_CUDA_HEADER_BOTH
 bool UnplacedPolyhedron::InsideTriangle(Vector3D<Precision> &v1, Vector3D<Precision> &v2, Vector3D<Precision> &v3,
                                         const Vector3D<Precision> &p) const
 {
-  Precision fEpsilon_square = 0.00000001;
-  Vector3D<Precision> vec1  = p - v1;
-  Vector3D<Precision> vec2  = p - v2;
-  Vector3D<Precision> vec3  = p - v3;
+  Precision epsilon_square = 0.00000001;
+  Vector3D<Precision> vec1 = p - v1;
+  Vector3D<Precision> vec2 = p - v2;
+  Vector3D<Precision> vec3 = p - v3;
 
   bool sameSide1 = vec1.Dot(vec2) >= 0.;
   bool sameSide2 = vec1.Dot(vec3) >= 0.;
@@ -478,9 +208,9 @@ bool UnplacedPolyhedron::InsideTriangle(Vector3D<Precision> &v1, Vector3D<Precis
   // If sameSide1 is false, point can be on the Surface or Outside
   // Use sqr of distance in order to check if point is on the Surface
 
-  if (DistanceSquarePointToSegment(v1, v2, p) <= fEpsilon_square) return true;
-  if (DistanceSquarePointToSegment(v1, v3, p) <= fEpsilon_square) return true;
-  if (DistanceSquarePointToSegment(v2, v3, p) <= fEpsilon_square) return true;
+  if (DistanceSquarePointToSegment(v1, v2, p) <= epsilon_square) return true;
+  if (DistanceSquarePointToSegment(v1, v3, p) <= epsilon_square) return true;
+  if (DistanceSquarePointToSegment(v2, v3, p) <= epsilon_square) return true;
 
   return false;
 }
@@ -517,7 +247,7 @@ Vector3D<Precision> UnplacedPolyhedron::GetPointOnTriangle(Vector3D<Precision> c
 VECGEOM_CUDA_HEADER_BOTH
 Precision UnplacedPolyhedron::SurfaceArea() const
 {
-  if (fSurfaceArea == 0.) {
+  if (fPoly.fSurfaceArea == 0.) {
     signed int j;
     Precision totArea = 0., area, aTop = 0., aBottom = 0.;
 
@@ -571,9 +301,9 @@ Precision UnplacedPolyhedron::SurfaceArea() const
     }
 
     totArea += aBottom;
-    fSurfaceArea = totArea;
+    fPoly.fSurfaceArea = totArea;
   }
-  return fSurfaceArea;
+  return fPoly.fSurfaceArea;
 }
 
 Vector3D<Precision> UnplacedPolyhedron::GetPointOnSurface() const
@@ -726,7 +456,7 @@ Vector3D<Precision> UnplacedPolyhedron::GetPointOnSurface() const
 // TODO: this functions seems to be neglecting the phi cut !!
 Precision UnplacedPolyhedron::Capacity() const
 {
-  if (fCapacity == 0.) {
+  if (fPoly.fCapacity == 0.) {
     // Formula for section : V=h(f+F+sqrt(f*F))/3;
     // Fand f-areas of surfaces on +/-dz
     // h-heigh
@@ -761,20 +491,21 @@ Precision UnplacedPolyhedron::Capacity() const
             volume -= VolumeHelperFunc(a, b, c, d); // subtract inner volume
           }
         }
-        fCapacity += volume;
+        fPoly.fCapacity += volume;
       }
     }
-    fCapacity *= GetSideCount() * (1. / 3.);
+    fPoly.fCapacity *= GetSideCount() * (1. / 3.);
   }
-  return fCapacity;
+  return fPoly.fCapacity;
 }
 
 VECGEOM_CUDA_HEADER_BOTH
 bool UnplacedPolyhedron::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
 {
   // Compute normal vector to closest surface
-  return (PolyhedronImplementation<translation::kGeneric, rotation::kGeneric, Polyhedron::EInnerRadii::kGeneric,
-                                   Polyhedron::EPhiCutout::kGeneric>::ScalarNormalKernel(*this, point, normal));
+  return (
+      PolyhedronImplementation<Polyhedron::EInnerRadii::kGeneric, Polyhedron::EPhiCutout::kGeneric>::ScalarNormalKernel(
+          fPoly, point, normal));
 }
 
 #endif // !VECGEOM_NVCC
@@ -782,27 +513,27 @@ bool UnplacedPolyhedron::Normal(Vector3D<Precision> const &point, Vector3D<Preci
 VECGEOM_CUDA_HEADER_BOTH
 void UnplacedPolyhedron::Print() const
 {
-  printf("UnplacedPolyhedron {%i sides, phi %f to %f, %i segments}", fSideCount, GetPhiStart() * kRadToDeg,
-         GetPhiEnd() * kRadToDeg, fZSegments.size());
+  printf("UnplacedPolyhedron {%i sides, phi %f to %f, %i segments}", fPoly.fSideCount, GetPhiStart() * kRadToDeg,
+         GetPhiEnd() * kRadToDeg, fPoly.fZSegments.size());
   printf("}");
 }
 
 VECGEOM_CUDA_HEADER_BOTH
 void UnplacedPolyhedron::PrintSegments() const
 {
-  printf("Printing %i polyhedron segments: ", fZSegments.size());
-  for (int i = 0, iMax = fZSegments.size(); i < iMax; ++i) {
+  printf("Printing %i polyhedron segments: ", fPoly.fZSegments.size());
+  for (int i = 0, iMax = fPoly.fZSegments.size(); i < iMax; ++i) {
     printf("  Outer: ");
-    fZSegments[i].outer.Print();
+    fPoly.fZSegments[i].outer.Print();
     printf("\n");
-    if (fHasPhiCutout) {
+    if (fPoly.fHasPhiCutout) {
       printf("  Phi: ");
-      fZSegments[i].phi.Print();
+      fPoly.fZSegments[i].phi.Print();
       printf("\n");
     }
-    if (fZSegments[i].hasInnerRadius) {
+    if (fPoly.fZSegments[i].hasInnerRadius) {
       printf("  Inner: ");
-      fZSegments[i].inner.Print();
+      fPoly.fZSegments[i].inner.Print();
       printf("\n");
     }
   }
@@ -810,8 +541,8 @@ void UnplacedPolyhedron::PrintSegments() const
 
 void UnplacedPolyhedron::Print(std::ostream &os) const
 {
-  os << "UnplacedPolyhedron {" << fSideCount << " sides, " << fZSegments.size() << " segments, "
-     << ((fHasInnerRadii) ? "has inner radii" : "no inner radii") << "}";
+  os << "UnplacedPolyhedron {" << fPoly.fSideCount << " sides, " << fPoly.fZSegments.size() << " segments, "
+     << ((fPoly.fHasInnerRadii) ? "has inner radii" : "no inner radii") << "}";
 }
 
 VECGEOM_CUDA_HEADER_BOTH
@@ -820,15 +551,15 @@ void UnplacedPolyhedron::DetectConvexity()
   // Default safe convexity value
   fGlobalConvexity = false;
 
-  if (fConvexityPossible) {
-    if (fEqualRmax &&
-        (fPhiDelta <= kPi ||
-         fPhiDelta ==
+  if (fPoly.fConvexityPossible) {
+    if (fPoly.fEqualRmax &&
+        (fPoly.fPhiDelta <= kPi ||
+         fPoly.fPhiDelta ==
              kTwoPi)) // In this case, Polycone become solid Cylinder, No need to check anything else, 100% convex
       fGlobalConvexity = true;
     else {
-      if (fPhiDelta <= kPi || fPhiDelta == kTwoPi) {
-        fGlobalConvexity = fContinuousInSlope;
+      if (fPoly.fPhiDelta <= kPi || fPoly.fPhiDelta == kTwoPi) {
+        fGlobalConvexity = fPoly.fContinuousInSlope;
       }
     }
   }
@@ -843,19 +574,19 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedPolyhedron::CopyToGpu(DevicePtr<cuda::V
   // on the GPU
 
   DevicePtr<Precision> zPlanesGpu;
-  zPlanesGpu.Allocate(fZPlanes.size());
-  zPlanesGpu.ToDevice(&fZPlanes[0], fZPlanes.size());
+  zPlanesGpu.Allocate(fPoly.fZPlanes.size());
+  zPlanesGpu.ToDevice(&fPoly.fZPlanes[0], fPoly.fZPlanes.size());
 
   DevicePtr<Precision> rminGpu;
   rminGpu.Allocate(fZPlanes.size());
-  rminGpu.ToDevice(&fRMin[0], fZPlanes.size());
+  rminGpu.ToDevice(&fPoly.fRMin[0], fPoly.fZPlanes.size());
 
   DevicePtr<Precision> rmaxGpu;
-  rmaxGpu.Allocate(fZPlanes.size());
-  rmaxGpu.ToDevice(&fRMax[0], fZPlanes.size());
+  rmaxGpu.Allocate(fPoly.fZPlanes.size());
+  rmaxGpu.ToDevice(&fPoly.fRMax[0], fPoly.fZPlanes.size());
 
   DevicePtr<cuda::VUnplacedVolume> gpupolyhedra = CopyToGpuImpl<UnplacedPolyhedron>(
-      gpuPtr, fPhiStart, fPhiDelta, fSideCount, fZPlanes.size(), zPlanesGpu, rminGpu, rmaxGpu);
+      gpuPtr, fPoly.fPhiStart, fPoly.fPhiDelta, fPoly.fSideCount, fPoly.fZPlanes.size(), zPlanesGpu, rminGpu, rmaxGpu);
 
   zPlanesGpu.Deallocate();
   rminGpu.Deallocate();
