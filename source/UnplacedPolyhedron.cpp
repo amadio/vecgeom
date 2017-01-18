@@ -578,7 +578,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedPolyhedron::CopyToGpu(DevicePtr<cuda::V
   zPlanesGpu.ToDevice(&fPoly.fZPlanes[0], fPoly.fZPlanes.size());
 
   DevicePtr<Precision> rminGpu;
-  rminGpu.Allocate(fZPlanes.size());
+  rminGpu.Allocate(fPoly.fZPlanes.size());
   rminGpu.ToDevice(&fPoly.fRMin[0], fPoly.fZPlanes.size());
 
   DevicePtr<Precision> rmaxGpu;
