@@ -257,11 +257,8 @@ struct PolyhedronStruct {
     // innerRadius /= cosHalfDeltaPhi;
     // outerRadius /= cosHalfDeltaPhi;
 
-    fBoundingTube.SetRMin(innerRadius - kHalfTolerance);
-    fBoundingTube.SetRMax(outerRadius + kHalfTolerance);
-    fBoundingTube.SetDz(boundingTubeZ);
-    fBoundingTube.SetAndCheckSPhiAngle(boundsPhiStart);
-    fBoundingTube.SetAndCheckDPhiAngle(boundsPhiDelta);
+    fBoundingTube = TubeStruct<double>(innerRadius - kHalfTolerance, outerRadius + kHalfTolerance, boundingTubeZ,
+                                       boundsPhiStart, boundsPhiDelta);
 
     // The offset has to match the middle of the polyhedron
     fBoundingTubeOffset = 0.5 * (zPlanes[0] + zPlanes[zPlaneCount - 1]);
