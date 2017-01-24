@@ -123,7 +123,7 @@ struct PolyhedronStruct {
     }
 
     // reorganize remainder of r[] data in ascending-z order
-    Precision r2arg[Nz];
+    Precision *r2arg = new Precision[Nz];
     for (int i = 0; i < Nz; ++i)
       r2arg[i] = (ascendingZ ? r[2 * Nz - 1 - i] : r[Nz - 1 - i]);
 
@@ -133,6 +133,7 @@ struct PolyhedronStruct {
       rmax = r1arg;
       rmin = r2arg;
     }
+    delete[] r2arg;
 
     // final data integrity cross-check
     for (int i = 0; i < Nz; ++i) {
