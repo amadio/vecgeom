@@ -140,8 +140,6 @@ public:
     std::cout << "ComputeBBox - Not implemented" << std::endl;
   }
 
-  void Extent(UVector3 &aMin, UVector3 &aMax) const;
-
   // o provide a new object which is a clone of the solid
   VUSolid *Clone() const override
   {
