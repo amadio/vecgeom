@@ -161,7 +161,7 @@ public:
     return UPolyhedraSideRZ{r, z};
   }
 
-  UGeometryType GetEntityType() const override { return "UPolyhedraVG"; }
+  UGeometryType GetEntityType() const override { return "Polyhedron"; }
   inline void GetParametersList(int /*aNumber*/, double * /*aArray*/) const override {}
   inline UPolyhedraHistorical *GetOriginalParameters() { return &fOriginalParameters; }
   inline void SetOriginalParameters(UPolyhedraHistorical &pars) { fOriginalParameters = pars; }
