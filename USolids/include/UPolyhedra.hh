@@ -115,7 +115,7 @@ public:
              const double rOuter[]) // tangent distance to outer surface
       : Base_t(name.c_str(), phiStart, phiTotal, numSide, numZPlanes, zPlane, rInner, rOuter)
   {
-    fPhiIsOpen   = (GetPhiStart() < vecgeom::kTwoPi);
+    fPhiIsOpen   = (GetPhiDelta() < vecgeom::kTwoPi - vecgeom::kTolerance);
     fGenericPgon = false;
     SetOriginalParameters();
   }
@@ -129,7 +129,7 @@ public:
              const double z[]) // z coordinate of these corners
       : Base_t(name.c_str(), phiStart, phiTotal, numSide, numRZ / 2, r, z)
   {
-    fPhiIsOpen   = (GetPhiStart() < vecgeom::kTwoPi);
+    fPhiIsOpen   = (GetPhiDelta() < vecgeom::kTwoPi - vecgeom::kTolerance);
     fGenericPgon = true;
     SetOriginalParameters();
   }
@@ -139,6 +139,8 @@ public:
     // Computes bounding box.
     std::cout << "ComputeBBox - Not implemented" << std::endl;
   }
+
+  void Extent(UVector3 &aMin, UVector3 &aMax) const;
 
   // o provide a new object which is a clone of the solid
   VUSolid *Clone() const override
