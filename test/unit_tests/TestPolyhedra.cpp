@@ -18,6 +18,11 @@
 #include <cassert>
 
 bool testvecgeom = false;
+#ifdef VECGEOM_REPLACE_USOLIDS
+bool testbridgeusolids = true;
+#else
+bool testbridgeusolids = false;
+#endif
 
 template <class Polyhedra_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
 
@@ -148,7 +153,7 @@ bool TestPolyhedra()
   Vec_t minExtent, maxExtent;
   MyPGon->Extent(minExtent, maxExtent);
   std::cout << "polyhedra Extent():  min=" << minExtent << " max=" << maxExtent << std::endl;
-  if (!testvecgeom) {
+  if (!testvecgeom && !testbridgeusolids) {
     // In USolids the extent is given by the bounding cylinder
     assert(ApproxEqual(minExtent, Vec_t(-80. / cos(halfdphi), -80. / cos(halfdphi), -30)));
     assert(ApproxEqual(maxExtent, Vec_t(80. / cos(halfdphi), 80. / cos(halfdphi), 40)));
