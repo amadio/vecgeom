@@ -94,7 +94,7 @@ public:
 
 class UPolyhedra : public vecgeom::USolidsAdapter<vecgeom::UnplacedPolyhedron> {
 
-  // just forwards UGenericTrap to vecgeom polyhedron
+  // just forwards UPolyhedra to vecgeom polyhedron
   using Shape_t = vecgeom::UnplacedPolyhedron;
   using Base_t  = vecgeom::USolidsAdapter<vecgeom::UnplacedPolyhedron>;
 
@@ -102,7 +102,7 @@ class UPolyhedra : public vecgeom::USolidsAdapter<vecgeom::UnplacedPolyhedron> {
   using Base_t::Base_t;
 
 public:
-  // Accessors which are available in UnplacedGenTrap
+  // Accessors which are available in UnplacedPolyhedra
   UPolyhedra() : Base_t("") {}
   // vecgoem polyhedra expects constructor angles in DEGREES!!
   UPolyhedra(const std::string &name,
