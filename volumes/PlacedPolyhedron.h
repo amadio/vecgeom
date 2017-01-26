@@ -119,7 +119,7 @@ public:
   Precision GetPhiDelta() const { return GetUnplacedVolume()->GetPhiDelta(); }
 
 #ifndef VECGEOM_NVCC
-  virtual std::ostream &StreamInfo(std::ostream &os) const { return GetUnplacedVolume()->StreamInfo(os); }
+  virtual std::ostream &StreamInfo(std::ostream &os) const override { return GetUnplacedVolume()->StreamInfo(os); }
 
   virtual Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
 
