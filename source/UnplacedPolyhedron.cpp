@@ -139,6 +139,31 @@ VPlacedVolume *UnplacedPolyhedron::SpecializedVolume(LogicalVolume const *const 
 }
 
 #ifndef VECGEOM_NVCC
+std::ostream &UnplacedPolyhedron::StreamInfo(std::ostream &os) const
+{
+  int oldprc = os.precision(16);
+  int Nz     = fPoly.fZPlanes.size();
+  os << "-----------------------------------------------------------\n"
+     << "     *** Dump for solid - polyhedron ***\n"
+     << "     ===================================================\n"
+     << " Solid type: " << GetEntityType() << "\n"
+     << " Parameters:\n"
+     << " Phi start= " << fPoly.fPhiStart * vecgeom::kRadToDeg
+     << " deg, Phi delta= " << fPoly.fPhiDelta * vecgeom::kRadToDeg << " deg\n"
+     << "     Number of segments along phi: " << fPoly.fSideCount << "\n"
+     << "     N = number of Z-sections: " << Nz << "\n"
+     << "     N+1 z-coordinates (in cm):\n";
+
+  for (int i = 0; i < Nz; ++i) {
+    os << "       at Z=" << fPoly.fZPlanes[i] << "cm:"
+       << " Rmin=" << fPoly.fRMin[i] << "cm,"
+       << " Rmax=" << fPoly.fRMax[i] << "cm\n";
+  }
+  os << "-----------------------------------------------------------\n";
+  os.precision(oldprc);
+  return os;
+}
+
 void UnplacedPolyhedron::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
   aMin               = kInfLength;

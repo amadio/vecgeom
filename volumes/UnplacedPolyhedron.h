@@ -239,6 +239,8 @@ public:
   Vector3D<Precision> GetPointOnSurface() const;
 
   std::string GetEntityType() const { return "Polyhedron"; }
+
+  virtual std::ostream &StreamInfo(std::ostream &os) const;
 #endif // !VECGEOM_NVCC
 
   /// Not a stored value, and should not be called from performance critical code.
