@@ -101,12 +101,8 @@ bool TestPolyhedra()
 
   Polyhedra_t *MyPGon1 = new Polyhedra_t("MyPGon1", sphi1, dphi1, 4, 3, Z_Values1, RMINVec1, RMAXVec1);
 
-  // Check names
-  // assert(MyPGon->GetName()=="MyPGon");
-
-  // show units and bounding tube
   std::cout << "=== Polyhedron: \n";
-  MyPGon->StreamInfo(std::cout);
+  std::cout << *MyPGon << std::endl;
 
   // Check Cubic volume
   // double vol;

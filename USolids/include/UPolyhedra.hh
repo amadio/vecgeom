@@ -168,26 +168,7 @@ public:
 
   std::ostream &StreamInfo(std::ostream &os) const override
   {
-    int oldprc = os.precision(16);
-    int Nz     = GetZSegmentCount();
-    os << "-----------------------------------------------------------\n"
-       << "     *** Dump for solid - polyhedron ***\n"
-       << "     ===================================================\n"
-       << " Solid type: " << GetEntityType() << "\n"
-       << " Parameters:\n"
-       << " Phi start=" << GetStartPhi() * vecgeom::kRadToDeg << "deg, Phi delta=" << GetPhiDelta() * vecgeom::kRadToDeg
-       << "deg\n"
-       << "     Number of segments along phi: " << GetNumSide() << "\n"
-       << "     N = number of Z-sections: " << Nz << "\n"
-       << "     N+1 z-coordinates (in cm):\n";
-
-    for (int i = 0; i < Nz; ++i) {
-      os << "       at Z=" << GetZPlanes()[i] << "cm:"
-         << " Rmin=" << GetRMin()[i] << "cm,"
-         << " Rmax=" << GetRMax()[i] << "cm\n";
-    }
-    os << "-----------------------------------------------------------\n";
-    os.precision(oldprc);
+    Print(os);
     return os;
   }
 
@@ -216,6 +197,11 @@ protected:
     fOriginalParameters.fNumSide      = GetNumSide();
   }
 };
+
+std::ostream &operator<<(std::ostream &os, UPolyhedra const &vol)
+{
+  return vol.StreamInfo(os);
+}
 
 //============== end of VecGeom-based implementation
 
