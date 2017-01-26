@@ -101,8 +101,8 @@ bool TestPolyhedra()
 
   Polyhedra_t *MyPGon1 = new Polyhedra_t("MyPGon1", sphi1, dphi1, 4, 3, Z_Values1, RMINVec1, RMAXVec1);
 
-  std::cout << "=== Polyhedron: \n";
-  std::cout << *MyPGon << std::endl;
+  //  std::cout << "=== Polyhedron: \n";
+  //  std::cout << *MyPGon << std::endl;
 
   // Check Cubic volume
   // double vol;
