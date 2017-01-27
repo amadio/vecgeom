@@ -198,11 +198,6 @@ protected:
   }
 };
 
-std::ostream &operator<<(std::ostream &os, UPolyhedra const &vol)
-{
-  return vol.StreamInfo(os);
-}
-
 //============== end of VecGeom-based implementation
 
 #else
