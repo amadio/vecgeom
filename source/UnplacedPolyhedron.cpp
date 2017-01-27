@@ -546,7 +546,6 @@ void UnplacedPolyhedron::Print(std::ostream &os) const
   os << "-----------------------------------------------------------\n"
      << "     *** Dump for solid - polyhedron ***\n"
      << "     ===================================================\n"
-     << " Solid type: " << GetEntityType() << "\n"
      << " Parameters:\n"
      << " Phi start= " << fPoly.fPhiStart * vecgeom::kRadToDeg
      << " deg, Phi delta= " << fPoly.fPhiDelta * vecgeom::kRadToDeg << " deg\n"
