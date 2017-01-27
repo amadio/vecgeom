@@ -106,6 +106,10 @@ struct PolyhedronStruct {
         fZSegments(zPlaneCount - 1), fZPlanes(zPlaneCount), fRMin(zPlaneCount), fRMax(zPlaneCount),
         fPhiSections(sideCount + 1), fBoundingTube(0, 1, 1, fPhiStart, fPhiDelta), fSurfaceArea(0.), fCapacity(0.)
   {
+    // Geant4-like construction:
+    // ind (   0       ...    n-1      n      ...    2*n -1   )
+    // r = ( rmin[n-1], ... , rmin[0], rmax[0], ..., rmax[n-1] )
+    // z = ( z[n-1], ...    , z[0]   , z[0]   , ..., z[n-1]    )
     // data integrity checks
     for (int i = 0; i <= zPlaneCount; ++i) {
       assert(z[i] == z[2 * zPlaneCount - 1 - i] && "UnplPolyhedron ERROR: z[] array is not symmetrical, please fix.\n");
@@ -133,7 +137,6 @@ struct PolyhedronStruct {
       rmax = r1arg;
       rmin = r2arg;
     }
-    delete[] r2arg;
 
     // final data integrity cross-check
     for (int i = 0; i < Nz; ++i) {
@@ -142,6 +145,7 @@ struct PolyhedronStruct {
     }
     // Delegate to full constructor
     Initialize(phiStart, phiDelta, sideCount, zPlaneCount, zarg, rmin, rmax);
+    delete[] r2arg;
   }
 
   VECGEOM_CUDA_HEADER_BOTH
