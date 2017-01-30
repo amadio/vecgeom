@@ -153,7 +153,7 @@ public:
   inline double GetEndPhi() const { return GetPhiEnd(); }
   inline bool IsOpen() const { return fPhiIsOpen; }
   inline bool IsGeneric() const { return fGenericPgon; }
-  inline int GetNumRZCorner() const { return (2 * GetZSegmentCount()); }
+  inline int GetNumRZCorner() const { return (2 * (GetZSegmentCount() + 1)); }
   inline UPolyhedraSideRZ GetCorner(int index) const
   {
     vecgeom::Precision z = GetZPlanes()[index];
