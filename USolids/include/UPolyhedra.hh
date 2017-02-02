@@ -156,8 +156,19 @@ public:
   inline int GetNumRZCorner() const { return (2 * (GetZSegmentCount() + 1)); }
   inline UPolyhedraSideRZ GetCorner(int index) const
   {
-    vecgeom::Precision z = GetZPlanes()[index];
-    vecgeom::Precision r = GetRMax()[index];
+    // ind (   0       ...    n-1      n      ...    2*n -1   )
+    // r = ( rmin[n-1], ... , rmin[0], rmax[0], ..., rmax[n-1] )
+    // z = ( z[n-1], ...    , z[0]   , z[0]   , ..., z[n-1]    )
+    vecgeom::Precision r, z;
+    int numPlanes = GetNumRZCorner() / 2;
+    if (index < numPlanes) {
+      z = GetZPlanes()[numPlanes - 1 - index];
+      r = GetRMin()[numPlanes - 1 - index];
+    } else {
+      z = GetZPlanes()[index - numPlanes];
+      r = GetRMax()[index - numPlanes];
+    }
+
     return UPolyhedraSideRZ{r, z};
   }
 

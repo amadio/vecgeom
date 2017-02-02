@@ -150,6 +150,10 @@ struct PolyhedronImplementation {
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
+  static Inside_t ScalarInsideSegBorder(UnplacedStruct_t const &unplaced, Vector3D<Precision> const &point, int zIndex);
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_FORCE_INLINE
   static Precision ScalarDistanceToInKernel(UnplacedStruct_t const &unplaced, Vector3D<Precision> const &point,
                                             Vector3D<Precision> const &direction, const Precision stepMax);
 
@@ -655,6 +659,26 @@ bool PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarContainsKernel(Unp
 
   ZSegment const &segment = unplaced.fZSegments[zIndex];
 
+  // In case the point lies at the same Z as 2 consecutive planes, the lesser
+  // index is selected. The Quadrilaterals algorithm for Contains in this case
+  // does not work.
+  if (zIndex > 0 && zIndex < unplaced.fZSegments.size() - 1 &&
+      unplaced.fZPlanes[zIndex] == unplaced.fZPlanes[zIndex + 1]) {
+    // Identify phi index
+    int phiIndex = FindPhiSegment<Precision>(unplaced, point);
+    if (phiIndex < 0) return false;
+    // Get the vector perpendicular to the rmax edge of the outer quadrilateral
+    Vector3D<Precision> const &vout = segment.outer.GetSideVectors()[0].GetNormals()[phiIndex];
+    // Compute the projection of the point vectoron the vout vector. This
+    // corresponds to a "radius" or the point.
+    Precision rdotvout = vecCore::math::Abs<Precision>(point.Dot(vout));
+    // Now compare the point radius with the ranges corresponding to the lower
+    // and upper segments
+    bool in1 = (rdotvout >= unplaced.fRMin[zIndex]) && (rdotvout <= unplaced.fRMax[zIndex]);
+    bool in2 = (rdotvout >= unplaced.fRMin[zIndex + 1]) && (rdotvout <= unplaced.fRMax[zIndex + 1]);
+    return (in1 | in2);
+  }
+
   // Check that the point is in the outer shell
   if (!segment.outer.Contains<Precision>(point)) return false;
 
@@ -697,6 +721,12 @@ Inside_t PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarInsideKernel(U
 
   ZSegment const &segment = unplaced.fZSegments[zIndex];
 
+  // Point in between 2 planes at same Z
+  if (zIndex > 0 && zIndex < unplaced.fZSegments.size() - 1 &&
+      unplaced.fZPlanes[zIndex] == unplaced.fZPlanes[zIndex + 1]) {
+    return ScalarInsideSegBorder(unplaced, point, zIndex);
+  }
+
   // Check that the point is in the outer shell
   {
     Inside_t insideOuter = segment.outer.Inside<Precision, Inside_t>(point);
@@ -725,6 +755,40 @@ Inside_t PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarInsideKernel(U
 
 template <Polyhedron::EInnerRadii innerRadiiT, Polyhedron::EPhiCutout phiCutoutT>
 VECGEOM_CUDA_HEADER_BOTH
+Inside_t PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarInsideSegBorder(UnplacedStruct_t const &unplaced,
+                                                                                  Vector3D<Precision> const &point,
+                                                                                  int zIndex)
+{
+  // Check Inside if the point is in between two non-continuous "border-like"
+  // segments. The zIndex corresponds to the lesser index of the 2 planes having the same Z.
+  // The Quadrilaterals algorithm for Inside in this case does not work.
+
+  ZSegment const &segment = unplaced.fZSegments[zIndex];
+  // Identify phi index
+  int phiIndex = FindPhiSegment<Precision>(unplaced, point);
+  if (phiIndex < 0) return EInside::kOutside;
+  // Get the vector perpendicular to the rmax edge of the outer quadrilateral
+  Vector3D<Precision> const &vout = segment.outer.GetSideVectors()[0].GetNormals()[phiIndex];
+  // Compute the projection of the point vectoron the vout vector. This
+  // corresponds to a "radius" or the point.
+  Precision rdotvout = vecCore::math::Abs<Precision>(point.Dot(vout));
+  // Now compare the point radius with the ranges corresponding to the lower
+  // and upper segments
+  bool in1 = (rdotvout > unplaced.fRMin[zIndex] - kTolerance) && (rdotvout < unplaced.fRMax[zIndex] + kTolerance);
+  bool in2 =
+      (rdotvout > unplaced.fRMin[zIndex + 1] - kTolerance) && (rdotvout < unplaced.fRMax[zIndex + 1] + kTolerance);
+  if (in1 && in2) {
+    if ((rdotvout < unplaced.fRMin[zIndex] + kTolerance) || (rdotvout > unplaced.fRMax[zIndex] - kTolerance) ||
+        (rdotvout < unplaced.fRMin[zIndex + 1] + kTolerance) || (rdotvout > unplaced.fRMax[zIndex + 1] - kTolerance))
+      return EInside::kSurface;
+    return EInside::kInside;
+  }
+  if (!in1 && !in2) return EInside::kOutside;
+  return EInside::kSurface;
+}
+
+template <Polyhedron::EInnerRadii innerRadiiT, Polyhedron::EPhiCutout phiCutoutT>
+VECGEOM_CUDA_HEADER_BOTH
 Inside_t PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarInsideSegPhi(UnplacedStruct_t const &unplaced,
                                                                                Vector3D<Precision> const &point,
                                                                                int zIndex, int phiIndex)
@@ -737,8 +801,12 @@ Inside_t PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarInsideSegPhi(U
   if (vecCore::math::Abs(dz) < kHalfTolerance) return EInside::kSurface;
   if (dz > 0.) return EInside::kOutside;
 
-  ZSegment const &segment = unplaced.fZSegments[zIndex];
+  if (zIndex > 0 && zIndex < unplaced.fZSegments.size() - 1 &&
+      unplaced.fZPlanes[zIndex] == unplaced.fZPlanes[zIndex + 1]) {
+    return ScalarInsideSegBorder(unplaced, point, zIndex);
+  }
 
+  ZSegment const &segment = unplaced.fZSegments[zIndex];
   Inside_t inside;
   // Phi
   if (TreatPhi<phiCutoutT>(unplaced.fHasPhiCutout)) {
