@@ -833,6 +833,33 @@ struct TubeImplementation {
     bool inR = ((x2y2 >= unplaced.fRmin) && (x2y2 <= unplaced.fRmax));                              // in right r range
     // bool inPhi = fWedge.Contains(point);
 
+    if(point.z() > (unplaced.fZ + kTolerance)){
+      norm[0] = 0.;
+      norm[1] = 0.;
+      norm[2] = 1.;
+      valid = false;
+      return;
+    }    
+    if(point.z() < (-unplaced.fZ - kTolerance)){
+      norm[0] = 0.;
+      norm[1] = 0.;
+      norm[2] = -1.;
+      valid = false;
+      return;
+    }
+    if(x2y2 > (unplaced.fRmax + kTolerance)){
+      norm = point.Unit();
+      valid = false;
+      return;
+    }
+    if(x2y2 < (unplaced.fRmin - kTolerance)){
+      norm = -point.Unit();
+      valid = false;
+      return;
+    }
+    
+
+
     // can we combine these two into one??
     if (inR && (Abs(point.z() - unplaced.fZ) <= kTolerance)) { // top lid, normal along +Z
       norm[0] = 0.;

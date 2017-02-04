@@ -508,6 +508,19 @@ bool TestTubs()
   //    );
   //   assert( ApproxEqual(Dist,0.) && " DO not larger than 0 ");
 
+  std::cout<<"-------------------------------------------------------------------------" << std::endl;
+  Tube_t testTube("testTube",0.,5.,5.,0.,2*UUtils::kPi);
+  Vec_t pOutZ(2.,0.,6.);
+  normal.Set(0.,0.,0.);
+  valid = testTube.Normal(pOutZ,normal);
+  std::cout<<"Normal for Point Outside +Z : "<< normal << std::endl;
+  normal.Set(0.,0.,0.);
+  Vec_t pOutX(6.,0.,0.);
+  valid = testTube.Normal(pOutX,normal);
+  std::cout<<"Normal for Point Outside +X : "<< normal << std::endl;
+
+  std::cout<<"-------------------------------------------------------------------------" << std::endl;
+
   return true;
 }
 
