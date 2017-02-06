@@ -508,48 +508,47 @@ bool TestTubs()
   //    );
   //   assert( ApproxEqual(Dist,0.) && " DO not larger than 0 ");
 
-  Tube_t testTube("testTube",0.,5.,5.,0.,2*UUtils::kPi);
-  Vec_t pOutZ(2.,0.,6.);
-  normal.Set(0.,0.,0.);
-  valid = testTube.Normal(pOutZ,normal);
-  assert(ApproxEqual(normal,Vec_t(0.,0.,1.)));
-  //std::cout<<"Normal for Point Outside +Z : "<< normal << std::endl;
-  normal.Set(0.,0.,0.);
-  Vec_t pOutX(6.,0.,0.);
-  valid = testTube.Normal(pOutX,normal);
-  assert(ApproxEqual(normal,Vec_t(1.,0.,0.)));
-  //std::cout<<"Normal for Point Outside +X : "<< normal << std::endl;
+  Tube_t testTube("testTube", 0., 5., 5., 0., 2 * UUtils::kPi);
+  Vec_t pOutZ(2., 0., 6.);
+  normal.Set(0., 0., 0.);
+  valid = testTube.Normal(pOutZ, normal);
+  assert(ApproxEqual(normal, Vec_t(0., 0., 1.)));
+  // std::cout<<"Normal for Point Outside +Z : "<< normal << std::endl;
+  normal.Set(0., 0., 0.);
+  Vec_t pOutX(6., 0., 0.);
+  valid = testTube.Normal(pOutX, normal);
+  assert(ApproxEqual(normal, Vec_t(1., 0., 0.)));
+  // std::cout<<"Normal for Point Outside +X : "<< normal << std::endl;
 
-  Tube_t testTube2("testTube",3.,5.,5.,0.,2*UUtils::kPi);
-  normal.Set(0.,0.,0.);
-  valid = testTube2.Normal(pOutZ,normal);
-  //std::cout<<"Normal for Point Outside +Z : "<< normal << std::endl;
-  Vec_t pOutXUp(6.,0.,4.);
-  normal.Set(0.,0.,0.);
-  valid = testTube2.Normal(pOutXUp,normal);
-  assert(ApproxEqual(normal,Vec_t(1.,0.,0.)));
-  //std::cout<<"Normal for Point Outside +XUp : "<< normal << std::endl;
-  Vec_t pOutXin(2.,0.,4.);
-  normal.Set(0.,0.,0.);
-  valid = testTube2.Normal(pOutXin,normal);
-  assert(ApproxEqual(normal,Vec_t(-1.,0.,0.)));
-  //std::cout<<"Normal for Point Outside +OutXin : "<< normal << std::endl;
-  normal.Set(0.,0.,0.);
-  Vec_t pOutXOutZ(6.,0.,6.);
-  valid = testTube2.Normal(pOutXOutZ,normal);
-  //std::cout<<"Normal for Point Outside pOutXOutZ : "<< normal << std::endl;
-  Vec_t pOutXOutYOutZ(6.,6.,6.);
-  normal.Set(0.,0.,0.);
-  valid = testTube2.Normal(pOutXOutYOutZ,normal);
-  //std::cout<<"Normal for Point Outside pOutXOutYOutZ : "<< normal << std::endl;
- 
+  Tube_t testTube2("testTube", 3., 5., 5., 0., 2 * UUtils::kPi);
+  normal.Set(0., 0., 0.);
+  valid = testTube2.Normal(pOutZ, normal);
+  // std::cout<<"Normal for Point Outside +Z : "<< normal << std::endl;
+  Vec_t pOutXUp(6., 0., 4.);
+  normal.Set(0., 0., 0.);
+  valid = testTube2.Normal(pOutXUp, normal);
+  assert(ApproxEqual(normal, Vec_t(1., 0., 0.)));
+  // std::cout<<"Normal for Point Outside +XUp : "<< normal << std::endl;
+  Vec_t pOutXin(2., 0., 4.);
+  normal.Set(0., 0., 0.);
+  valid = testTube2.Normal(pOutXin, normal);
+  assert(ApproxEqual(normal, Vec_t(-1., 0., 0.)));
+  // std::cout<<"Normal for Point Outside +OutXin : "<< normal << std::endl;
+  normal.Set(0., 0., 0.);
+  Vec_t pOutXOutZ(6., 0., 6.);
+  valid = testTube2.Normal(pOutXOutZ, normal);
+  // std::cout<<"Normal for Point Outside pOutXOutZ : "<< normal << std::endl;
+  Vec_t pOutXOutYOutZ(6., 6., 6.);
+  normal.Set(0., 0., 0.);
+  valid = testTube2.Normal(pOutXOutYOutZ, normal);
+  // std::cout<<"Normal for Point Outside pOutXOutYOutZ : "<< normal << std::endl;
 
-  Vec_t pOutXOutYInZ(2.,2.,4.);
-  normal.Set(0.,0.,0.);
-  valid = testTube2.Normal(pOutXOutYInZ,normal);
-  assert(ApproxEqual(normal,Vec_t(-1/std::sqrt(2.),-1./std::sqrt(2.),0.)));
-  //std::cout<<"Normal for Point Outside pOutXOutYInZ : "<< normal << std::endl;
- 
+  Vec_t pOutXOutYInZ(2., 2., 4.);
+  normal.Set(0., 0., 0.);
+  valid = testTube2.Normal(pOutXOutYInZ, normal);
+  assert(ApproxEqual(normal, Vec_t(-1 / std::sqrt(2.), -1. / std::sqrt(2.), 0.)));
+  // std::cout<<"Normal for Point Outside pOutXOutYInZ : "<< normal << std::endl;
+
   return true;
 }
 
