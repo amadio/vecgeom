@@ -668,7 +668,8 @@ bool PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarContainsKernel(Unp
     int phiIndex = FindPhiSegment<Precision>(unplaced, point);
     if (phiIndex < 0) return false;
     // Get the vector perpendicular to the rmax edge of the outer quadrilateral
-    Vector3D<Precision> const &vout = segment.outer.GetSideVectors()[0].GetNormals()[phiIndex];
+    Vector3D<Precision> const &vout = (segment.outer.size()) ? segment.outer.GetSideVectors()[0].GetNormals()[phiIndex]
+                                                             : segment.inner.GetSideVectors()[0].GetNormals()[phiIndex];
     // Compute the projection of the point vectoron the vout vector. This
     // corresponds to a "radius" or the point.
     Precision rdotvout = vecCore::math::Abs<Precision>(point.Dot(vout));
@@ -768,7 +769,8 @@ Inside_t PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarInsideSegBorde
   int phiIndex = FindPhiSegment<Precision>(unplaced, point);
   if (phiIndex < 0) return EInside::kOutside;
   // Get the vector perpendicular to the rmax edge of the outer quadrilateral
-  Vector3D<Precision> const &vout = segment.outer.GetSideVectors()[0].GetNormals()[phiIndex];
+  Vector3D<Precision> const &vout = (segment.outer.size()) ? segment.outer.GetSideVectors()[0].GetNormals()[phiIndex]
+                                                           : segment.inner.GetSideVectors()[0].GetNormals()[phiIndex];
   // Compute the projection of the point vectoron the vout vector. This
   // corresponds to a "radius" or the point.
   Precision rdotvout = vecCore::math::Abs<Precision>(point.Dot(vout));
