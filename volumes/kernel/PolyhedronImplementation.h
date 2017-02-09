@@ -840,6 +840,11 @@ Precision PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarDistanceToInK
     const Precision stepMax)
 {
 
+  // Fast exclude points beyond endcaps moving on same side as endcap normal
+  if ((point[2] < unplaced.fZPlanes[0] + kTolerance) && direction[2] <= 0) return InfinityLength<Precision>();
+  if ((point[2] > unplaced.fZPlanes[unplaced.fZSegments.size()] - kTolerance) && direction[2] >= 0)
+    return InfinityLength<Precision>();
+
   // Perform explicit Inside check to detect wrong side points. This impacts
   // DistanceToIn performance by about 5% for all topologies
   auto inside = ScalarInsideKernel(unplaced, point);
@@ -1066,8 +1071,8 @@ Precision PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarDistanceToOut
   // disabling stepMax until convention revised and clear
   // there is a problem when distance = infinity due to some error condition but stepMax finite
   // return distance < stepMax ? distance : stepMax;
-  // signal error with returning negative number
-  if (distance >= InfinityLength<Precision>()) distance = -1.;
+  // If not hitting anything, we must be on an edge since point is not outside
+  if (distance >= InfinityLength<Precision>()) distance = 0.;
   return distance;
 }
 

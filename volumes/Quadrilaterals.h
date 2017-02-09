@@ -338,11 +338,11 @@ struct AcceleratedDistanceToIn<Precision> {
       VcPrecision distanceTest = plane.Dot(point) + dPlane;
 
       // Check if the point is in front of/behind the plane according to the template parameter
-      VcBool valid = Flip<behindPlanesT>::FlipSign(distanceTest) >= -kTolerance;
+      VcBool valid = Flip<behindPlanesT>::FlipSign(distanceTest) > -kTolerance;
       if (vecCore::MaskEmpty(valid)) continue;
 
       VcPrecision directionProjection = plane.Dot(direction);
-      valid &= Flip<!behindPlanesT>::FlipSign(directionProjection) >= -kTolerance;
+      valid &= Flip<!behindPlanesT>::FlipSign(directionProjection) > 0;
       if (vecCore::MaskEmpty(valid)) continue;
       VcPrecision tiny = Vc::copysign(VcPrecision(1E-20), directionProjection);
       distanceTest /= -(directionProjection + tiny);
@@ -408,7 +408,7 @@ Real_v Quadrilaterals::DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real
     Bool_v valid = Flip<behindPlanesT>::FlipSign(distance) > -kTolerance;
     if (vecCore::MaskEmpty(valid)) continue;
     Real_v directionProjection = direction.Dot(normal);
-    valid &= Flip<!behindPlanesT>::FlipSign(directionProjection) >= 0;
+    valid &= Flip<!behindPlanesT>::FlipSign(directionProjection) > 0;
     if (vecCore::MaskEmpty(valid)) continue;
     distance /= -(directionProjection + CopySign(1E-20, directionProjection));
     Vector3D<Real_v> intersection = point + direction * distance;
@@ -460,7 +460,7 @@ void AcceleratedDistanceToOut<Precision>(int &i, const int n, Planes const &plan
     VcPrecision directionProjection = plane.Dot(direction);
     // Because the point is behind the plane, the direction must be along the
     // normal
-    valid &= directionProjection > -kTolerance;
+    valid &= directionProjection > 0;
     if (vecCore::MaskEmpty(valid)) continue;
     distanceTest /= -directionProjection;
     valid &= distanceTest < distance;
@@ -525,7 +525,7 @@ Real_v Quadrilaterals::DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Rea
     Real_v directionProjection = direction.Dot(normal);
     // Because the point is behind the plane, the direction must be along the
     // normal
-    valid &= directionProjection >= 0;
+    valid &= directionProjection > 0;
     if (vecCore::MaskEmpty(valid)) continue;
     distanceTest /= -directionProjection;
     valid &= distanceTest < bestDistance;

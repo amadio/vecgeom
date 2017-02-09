@@ -180,7 +180,9 @@ bool TestPolyhedra()
   double tolerance = 1e-9;
   assert(std::fabs((MyPGon->DistanceToIn(p1, dirx))) < tolerance);
   assert(std::fabs((MyPGon->DistanceToIn(p1, -diry))) < tolerance);
-  assert(std::fabs((MyPGon->DistanceToIn(p2, diry))) < tolerance);
+  // Point on top endcap moving horizontally: either enter at 0 or not enter at all
+  assert(std::fabs((MyPGon->DistanceToIn(p2, diry))) < tolerance ||
+         std::fabs((MyPGon->DistanceToIn(p2, diry))) > 1.E10);
   assert(std::fabs((MyPGon->DistanceToIn(p5, dirx) - 40.12368793931)) < tolerance);
   assert(std::fabs((MyPGon->DistanceToIn(p6, -dirx) - 0.87631206069)) < tolerance);
   assert(std::fabs((MyPGon->DistanceToIn(p6, dirz) - 0.218402670765)) < tolerance);
