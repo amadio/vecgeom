@@ -563,7 +563,8 @@ public:
 
     // process SIMD part and TAIL part
     // something like
-    using Real_v    = vecgeom::VectorBackend::Real_v;
+    using Real_v = vecgeom::VectorBackend::Real_v;
+    (void)(Real_v *)(nullptr); // Avoid spurrious warning: unused type alias 'Real_v' [-Wunused-local-typedef]
     const auto size = globalpoints.size();
     auto pvol       = in_states[0]->Top();
     auto lvol       = pvol->GetLogicalVolume();
@@ -595,7 +596,8 @@ public:
 
     // process SIMD part and TAIL part
     // something like
-    using Real_v    = vecgeom::VectorBackend::Real_v;
+    using Real_v = vecgeom::VectorBackend::Real_v;
+    (void)(Real_v *)(nullptr); // Avoid spurrious warning: unused type alias 'Real_v' [-Wunused-local-typedef]
     const auto size = globalpoints.size();
     auto pvol       = in_states[0]->Top();
     auto lvol       = pvol->GetLogicalVolume();
