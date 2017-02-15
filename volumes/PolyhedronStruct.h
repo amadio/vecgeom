@@ -59,6 +59,7 @@ struct PolyhedronStruct {
   Array<T> fZPlanes;              ///< Z-coordinate of each plane separating segments
   Array<T> fRMin;                 ///< Inner radii as specified in constructor.
   Array<T> fRMax;                 ///< Outer radii as specified in constructor.
+  Array<bool> fSameZ;             ///< Array of flags marking that the following plane is at same Z
   SOA3D<T> fPhiSections;          ///< Unit vectors marking the bounds between
                                   ///  phi segments, represented by planes
                                   ///  through the origin with the normal
@@ -180,11 +181,14 @@ struct PolyhedronStruct {
     copy(zPlanes, zPlanes + zPlaneCount, &fZPlanes[0]);
     copy(rMin, rMin + zPlaneCount, &fRMin[0]);
     copy(rMax, rMax + zPlaneCount, &fRMax[0]);
+    fSameZ.Allocate(zPlaneCount);
 
     double startRmax = rMax[0];
     for (int i = 0; i < zPlaneCount; i++) {
       fConvexityPossible &= (rMin[i] == 0.);
       fEqualRmax &= (startRmax == rMax[i]);
+      fSameZ[i]                                                                     = false;
+      if (i > 0 && i < zPlaneCount - 1 && fZPlanes[i] == fZPlanes[i + 1]) fSameZ[i] = true;
     }
     fContinuousInSlope = CheckContinuityInSlope(rMax, zPlanes, zPlaneCount);
 

@@ -99,7 +99,7 @@ struct PolyhedronImplementation {
   ///         at the Z-segment and phi indices passed.
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  static Precision ScalarSafetyToZSegmentSquared(UnplacedStruct_t const &unplaced, int segmentIndex, int phiIndex,
+  static Precision ScalarSafetyToZSegmentSquared(UnplacedStruct_t const &unplaced, int segmentIndex, int &phiIndex,
                                                  Vector3D<Precision> const &point, bool pt_inside, int &iSurf);
 
   /// \param goingRight Whether the point is travelling along the Z-axis (true)
@@ -450,16 +450,16 @@ template <Polyhedron::EInnerRadii innerRadiiT, Polyhedron::EPhiCutout phiCutoutT
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 Precision PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarSafetyToZSegmentSquared(
-    UnplacedStruct_t const &unplaced, int segmentIndex, int phiIndex, Vector3D<Precision> const &point, bool pt_inside,
+    UnplacedStruct_t const &unplaced, int segmentIndex, int &phiIndex, Vector3D<Precision> const &point, bool pt_inside,
     int &iSurf)
 {
 
   ZSegment const &segment = unplaced.fZSegments[segmentIndex];
+  bool in_cutout          = phiIndex < 0;
 
   Precision safetySquared = InfinityLength<Precision>();
   if (TreatPhi<phiCutoutT>(unplaced.fHasPhiCutout) && segment.phi.size() == 2) {
     //  Check if points is in the cutout wedge first.
-    bool in_cutout = InPhiCutoutWedge<Precision>(segment, unplaced.fHasLargePhiCutout, point);
     if (pt_inside || in_cutout) {
       // If point is in the cutout or if the call comes from SafetyToOut we need to check both phi planes
       iSurf         = 0;
@@ -469,13 +469,75 @@ Precision PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarSafetyToZSegm
         safetySquared = saf;
         iSurf         = 1;
       }
-      // If the point is within the phi cutout wedge, the two phi cutout sides are
-      // guaranteed to be the closest quadrilaterals to the point.
-      if (in_cutout) return safetySquared;
+      // If the point is within the phi cutout wedge, we still need to check the
+      // inner part if there is a large cutout
+      if (in_cutout) {
+        if (LargePhiCutout<phiCutoutT>(unplaced.fHasLargePhiCutout) &&
+            TreatInner<innerRadiiT>(segment.hasInnerRadius)) {
+          if (segment.inner.size() > 0) {
+            Precision safetySquaredInner = segment.inner.ScalarDistanceSquared(0, point);
+            if (safetySquaredInner < safetySquared) {
+              iSurf         = 2;
+              phiIndex      = 0;
+              safetySquared = safetySquaredInner;
+            }
+            if (segment.inner.size() > 1) {
+              safetySquaredInner = segment.inner.ScalarDistanceSquared(segment.inner.size() - 1, point);
+              if (safetySquaredInner < safetySquared) {
+                iSurf         = 2;
+                phiIndex      = segment.inner.size() - 1;
+                safetySquared = safetySquaredInner;
+              }
+            }
+          }
+        }
+        return safetySquared;
+      }
     }
   }
 
-  if (phiIndex < 0) return safetySquared;
+  if (in_cutout && segmentIndex > 0 && segmentIndex < unplaced.fZSegments.size() - 1 &&
+      unplaced.fZPlanes[segmentIndex] == unplaced.fZPlanes[segmentIndex + 1]) {
+    // We are checking a segment at same Z. We have to check the inner and outer
+    // quadrilaterals for first and last phi
+    Precision safetySquaredOuter = InfinityLength<Precision>();
+    if (segment.outer.size() > 0) {
+      safetySquaredOuter = segment.outer.ScalarDistanceSquared(0, point);
+      if (safetySquaredOuter < safetySquared) {
+        iSurf         = 3;
+        phiIndex      = 0;
+        safetySquared = safetySquaredOuter;
+      }
+      if (segment.outer.size() > 1) {
+        safetySquaredOuter = segment.outer.ScalarDistanceSquared(segment.outer.size() - 1, point);
+        if (safetySquaredOuter < safetySquared) {
+          iSurf         = 3;
+          phiIndex      = segment.outer.size() - 1;
+          safetySquared = safetySquaredOuter;
+        }
+      }
+    }
+    Precision safetySquaredInner = InfinityLength<Precision>();
+    if (TreatInner<innerRadiiT>(segment.hasInnerRadius)) {
+      if (segment.inner.size() > 0) {
+        safetySquaredInner = segment.inner.ScalarDistanceSquared(0, point);
+        if (safetySquaredInner < safetySquared) {
+          iSurf         = 2;
+          phiIndex      = 0;
+          safetySquared = safetySquaredInner;
+        }
+        if (segment.inner.size() > 1) {
+          safetySquaredInner = segment.inner.ScalarDistanceSquared(segment.inner.size() - 1, point);
+          if (safetySquaredInner < safetySquared) {
+            iSurf         = 2;
+            phiIndex      = segment.inner.size() - 1;
+            safetySquared = safetySquaredInner;
+          }
+        }
+      }
+    }
+    return safetySquared;
+  }
 
   // Otherwise check the outer shell
   // TODO: we need to check segment.outer.size() > 0
@@ -662,8 +724,7 @@ bool PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarContainsKernel(Unp
   // In case the point lies at the same Z as 2 consecutive planes, the lesser
   // index is selected. The Quadrilaterals algorithm for Contains in this case
   // does not work.
-  if (zIndex > 0 && zIndex < unplaced.fZSegments.size() - 1 &&
-      unplaced.fZPlanes[zIndex] == unplaced.fZPlanes[zIndex + 1]) {
+  if (unplaced.fSameZ[zIndex]) {
     // Identify phi index
     int phiIndex = FindPhiSegment<Precision>(unplaced, point);
     if (phiIndex < 0) return false;
@@ -723,10 +784,7 @@ Inside_t PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarInsideKernel(U
   ZSegment const &segment = unplaced.fZSegments[zIndex];
 
   // Point in between 2 planes at same Z
-  if (zIndex > 0 && zIndex < unplaced.fZSegments.size() - 1 &&
-      unplaced.fZPlanes[zIndex] == unplaced.fZPlanes[zIndex + 1]) {
-    return ScalarInsideSegBorder(unplaced, point, zIndex);
-  }
+  if (unplaced.fSameZ[zIndex]) return ScalarInsideSegBorder(unplaced, point, zIndex);
 
   // Check that the point is in the outer shell
   {
@@ -783,6 +841,11 @@ Inside_t PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarInsideSegBorde
     if ((rdotvout < unplaced.fRMin[zIndex] + kTolerance) || (rdotvout > unplaced.fRMax[zIndex] - kTolerance) ||
         (rdotvout < unplaced.fRMin[zIndex + 1] + kTolerance) || (rdotvout > unplaced.fRMax[zIndex + 1] - kTolerance))
       return EInside::kSurface;
+    // Need to check phi surface
+    if (TreatPhi<phiCutoutT>(unplaced.fHasPhiCutout)) {
+      Inside_t insidePhi = unplaced.fPhiWedge.Inside<Precision, Inside_t>(point);
+      return insidePhi;
+    }
     return EInside::kInside;
   }
   if (!in1 && !in2) return EInside::kOutside;
@@ -796,40 +859,38 @@ Inside_t PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarInsideSegPhi(U
                                                                                int zIndex, int phiIndex)
 {
   // Check inside for a specified z segment and phi edge
+  if (phiIndex < 0) return EInside::kOutside;
 
   // Z range
   Precision dz = vecCore::math::Abs(point[2] - unplaced.fBoundingTubeOffset) -
                  0.5 * (unplaced.fZPlanes[unplaced.fZSegments.size()] - unplaced.fZPlanes[0]);
-  if (vecCore::math::Abs(dz) < kHalfTolerance) return EInside::kSurface;
-  if (dz > 0.) return EInside::kOutside;
+  //  if (vecCore::math::Abs(dz) < kHalfTolerance) return EInside::kSurface;
+  if (dz > kHalfTolerance) return EInside::kOutside;
 
-  if (zIndex > 0 && zIndex < unplaced.fZSegments.size() - 1 &&
-      unplaced.fZPlanes[zIndex] == unplaced.fZPlanes[zIndex + 1]) {
-    return ScalarInsideSegBorder(unplaced, point, zIndex);
-  }
+  if (unplaced.fSameZ[zIndex]) return ScalarInsideSegBorder(unplaced, point, zIndex);
 
   ZSegment const &segment = unplaced.fZSegments[zIndex];
-  Inside_t inside;
-  // Phi
-  if (TreatPhi<phiCutoutT>(unplaced.fHasPhiCutout)) {
-    // In the phi cutout wedge
-    inside = unplaced.fPhiWedge.Inside<Precision, Inside_t>(point);
-    if (inside != EInside::kInside) return inside;
-  }
 
-  // Outer
+  // Check that the point is in the outer shell
   {
-    inside = segment.outer.Inside<Precision, Inside_t>(point, phiIndex);
-    if (inside != EInside::kInside) return inside;
+    Inside_t insideOuter = segment.outer.Inside<Precision, Inside_t>(point, phiIndex);
+    if (insideOuter != EInside::kInside) return insideOuter;
   }
 
-  // Inner
+  // Check that the point is not in the inner shell
   if (TreatInner<innerRadiiT>(segment.hasInnerRadius)) {
-    inside = segment.inner.Inside<Precision, Inside_t>(point, phiIndex);
-    if (inside == EInside::kInside) return EInside::kOutside;
-    if (inside == EInside::kSurface) return EInside::kSurface;
+    Inside_t insideInner = segment.inner.Inside<Precision, Inside_t>(point, phiIndex);
+    if (insideInner == EInside::kInside) return EInside::kOutside;
+    if (insideInner == EInside::kSurface) return EInside::kSurface;
   }
 
+  // Check that the point is not in the phi cutout wedge
+  if (TreatPhi<phiCutoutT>(unplaced.fHasPhiCutout)) {
+    Inside_t insidePhi = unplaced.fPhiWedge.Inside<Precision, Inside_t>(point);
+    if (insidePhi != EInside::kInside) return insidePhi;
+  }
+
+  if (vecCore::math::Abs(dz) < kHalfTolerance) return EInside::kSurface;
   return EInside::kInside;
 }
 
