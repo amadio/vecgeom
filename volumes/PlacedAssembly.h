@@ -81,7 +81,7 @@ public:
     return static_cast<UnplacedAssembly const *>(GetUnplacedVolume())->UnplacedAssembly::Contains(localPoint);
   }
 
-  virtual void Contains(SOA3D<Precision> const &points, bool *const output) const override
+  virtual void Contains(SOA3D<Precision> const & /*points*/, bool *const /*output*/) const override
   {
     throw std::runtime_error("unimplemented function called");
   }
@@ -95,7 +95,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  virtual EnumInside Inside(Vector3D<Precision> const &point) const override
+  virtual EnumInside Inside(Vector3D<Precision> const & /*point*/) const override
   {
 #ifndef VECGEOM_NVCC
     throw std::runtime_error("unimplemented function called");
@@ -103,7 +103,7 @@ public:
     return vecgeom::kOutside; // dummy return
   }
 
-  virtual void Inside(SOA3D<Precision> const &points, Inside_t *const output) const override
+  virtual void Inside(SOA3D<Precision> const & /*points*/, Inside_t *const /*output*/) const override
   {
     throw std::runtime_error("unimplemented function called");
   }
@@ -118,22 +118,23 @@ public:
                                          GetTransformation()->TransformDirection(direction), step_max);
   }
 
-  virtual void DistanceToIn(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
-                            Precision const *const stepMax, Precision *const output) const override
+  virtual void DistanceToIn(SOA3D<Precision> const & /*position*/, SOA3D<Precision> const & /*direction*/,
+                            Precision const *const /*stepMax*/, Precision *const /*output*/) const override
   {
     throw std::runtime_error("unimplemented function called");
   }
 
-  virtual void DistanceToInMinimize(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
-                                    int daughterindex, Precision *const output, int *const nextnodeids) const override
+  virtual void DistanceToInMinimize(SOA3D<Precision> const & /*position*/, SOA3D<Precision> const & /*direction*/,
+                                    int /*daughterindex*/, Precision *const /*output*/,
+                                    int *const /*nextnodeids*/) const override
   {
     throw std::runtime_error("unimplemented function called");
   }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  virtual Precision DistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
-                                  Precision const stepMax) const override
+  virtual Precision DistanceToOut(Vector3D<Precision> const & /*position*/, Vector3D<Precision> const & /*direction*/,
+                                  Precision const /*stepMax*/) const override
   {
 #ifndef VECGEOM_NVCC
     throw std::runtime_error("unimplemented function called");
@@ -142,8 +143,9 @@ public:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual Precision PlacedDistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
-                                        Precision const stepMax) const override
+  virtual Precision PlacedDistanceToOut(Vector3D<Precision> const & /*position*/,
+                                        Vector3D<Precision> const & /*direction*/,
+                                        Precision const /*stepMax*/) const override
   {
 #ifndef VECGEOM_NVCC
     throw std::runtime_error("unimplemented function called");
@@ -151,15 +153,15 @@ public:
     return -1.;
   }
 
-  virtual void DistanceToOut(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
-                             Precision const *const step_max, Precision *const output) const override
+  virtual void DistanceToOut(SOA3D<Precision> const & /*position*/, SOA3D<Precision> const & /*direction*/,
+                             Precision const *const /*step_max*/, Precision *const /*output*/) const override
   {
     throw std::runtime_error("unimplemented function called");
   }
 
-  virtual void DistanceToOut(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
-                             Precision const *const step_max, Precision *const output,
-                             int *const nextnodeindex) const override
+  virtual void DistanceToOut(SOA3D<Precision> const & /*position*/, SOA3D<Precision> const & /*direction*/,
+                             Precision const *const /*step_max*/, Precision *const /*output*/,
+                             int *const /*nextnodeindex*/) const override
   {
     throw std::runtime_error("unimplemented function called");
   }
@@ -171,12 +173,12 @@ public:
     return GetUnplacedVolume()->SafetyToOut(position);
   }
 
-  virtual void SafetyToOut(SOA3D<Precision> const &position, Precision *const safeties) const override
+  virtual void SafetyToOut(SOA3D<Precision> const & /*position*/, Precision *const /*safeties*/) const override
   {
     throw std::runtime_error("unimplemented function called");
   }
 
-  virtual void SafetyToOutMinimize(SOA3D<Precision> const &position, Precision *const safeties) const override
+  virtual void SafetyToOutMinimize(SOA3D<Precision> const & /*position*/, Precision *const /*safeties*/) const override
   {
     throw std::runtime_error("unimplemented function called");
   }
@@ -189,21 +191,21 @@ public:
         ->UnplacedAssembly::SafetyToIn(GetTransformation()->Transform(position));
   }
 
-  virtual void SafetyToIn(SOA3D<Precision> const &position, Precision *const safeties) const override
+  virtual void SafetyToIn(SOA3D<Precision> const & /*position*/, Precision *const /*safeties*/) const override
   {
     throw std::runtime_error("unimplemented function called");
   }
 
-  virtual void SafetyToInMinimize(SOA3D<Precision> const &position, Precision *const safeties) const override
+  virtual void SafetyToInMinimize(SOA3D<Precision> const & /*position*/, Precision *const /*safeties*/) const override
   {
     throw std::runtime_error("unimplemented function called");
   }
 
   // the SIMD vector interfaces (not implemented)
   virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToInVec(
-      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
-      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
-      VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfLength) const override
+      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const & /*position*/,
+      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const & /*direction*/,
+      VECGEOM_BACKEND_PRECISION_TYPE const /*step_max*/ = kInfLength) const override
   {
 #ifndef VECGEOM_NVCC
     throw std::runtime_error("unimplemented function called");
@@ -212,9 +214,9 @@ public:
   }
 
   virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToOutVec(
-      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
-      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
-      VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfLength) const override
+      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const & /*position*/,
+      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const & /*direction*/,
+      VECGEOM_BACKEND_PRECISION_TYPE const /*step_max*/ = kInfLength) const override
   {
 #ifndef VECGEOM_NVCC
     throw std::runtime_error("unimplemented function called");
@@ -223,7 +225,7 @@ public:
   }
 
   virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToInVec(
-      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override
+      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const & /*position*/) const override
   {
 #ifndef VECGEOM_NVCC
     throw std::runtime_error("unimplemented function called");
@@ -232,7 +234,7 @@ public:
   }
 
   virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOutVec(
-      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override
+      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const & /*position*/) const override
   {
 #ifndef VECGEOM_NVCC
     throw std::runtime_error("unimplemented function called");
@@ -271,14 +273,14 @@ public:
 #ifdef VECGEOM_CUDA_INTERFACE
   // TBD properly
   virtual size_t DeviceSizeOf() const override { return 0; /*DevicePtr<cuda::PlacedAssembly>::SizeOf();*/ }
-  virtual DevicePtr<cuda::VPlacedVolume> CopyToGpu(DevicePtr<cuda::LogicalVolume> const logical_volume,
-                                                   DevicePtr<cuda::Transformation3D> const transform,
-                                                   DevicePtr<cuda::VPlacedVolume> const gpu_ptr) const override
+  virtual DevicePtr<cuda::VPlacedVolume> CopyToGpu(DevicePtr<cuda::LogicalVolume> const /*logical_volume*/,
+                                                   DevicePtr<cuda::Transformation3D> const /*transform*/,
+                                                   DevicePtr<cuda::VPlacedVolume> const /*gpu_ptr*/) const override
   {
     return DevicePtr<cuda::VPlacedVolume>(nullptr);
   }
-  virtual DevicePtr<cuda::VPlacedVolume> CopyToGpu(DevicePtr<cuda::LogicalVolume> const logical_volume,
-                                                   DevicePtr<cuda::Transformation3D> const transform) const override
+  virtual DevicePtr<cuda::VPlacedVolume> CopyToGpu(DevicePtr<cuda::LogicalVolume> const /*logical_volume*/,
+                                                   DevicePtr<cuda::Transformation3D> const /*transform*/) const override
   {
     return DevicePtr<cuda::VPlacedVolume>(nullptr);
   }

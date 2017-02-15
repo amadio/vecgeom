@@ -108,7 +108,7 @@ public:
   // DistanceToOut does not make sense -- throw exeption
   VECGEOM_CUDA_HEADER_BOTH
   Precision DistanceToOut(Vector3D<Precision> const & /*p*/, Vector3D<Precision> const & /*d*/,
-                          Precision step_max = kInfLength) const override
+                          Precision /*step_max*/ = kInfLength) const override
   {
 #ifndef VECGEOM_NVCC
     throw std::runtime_error("Forbidden DistanceToOut in Assembly called");
@@ -119,7 +119,7 @@ public:
   // DistanceToOut does not make sense -- throw exeption
   VECGEOM_CUDA_HEADER_BOTH
   Real_v DistanceToOutVec(Vector3D<Real_v> const & /*p*/, Vector3D<Real_v> const & /*d*/,
-                          Real_v const &step_max) const override
+                          Real_v const & /*step_max*/) const override
   {
 #ifndef VECGEOM_NVCC
     throw std::runtime_error("Forbidden DistanceToOut in Assembly called");
@@ -129,7 +129,7 @@ public:
 
   using VUnplacedVolume::SafetyToOut;
   VECGEOM_CUDA_HEADER_BOTH
-  Precision SafetyToOut(Vector3D<Precision> const &p) const override
+  Precision SafetyToOut(Vector3D<Precision> const &) const override
   {
 #ifndef VECGEOM_NVCC
     throw std::runtime_error("Forbidden SafetyToOut in Assembly called");
@@ -139,7 +139,7 @@ public:
 
   // an explicit SIMD interface
   VECGEOM_CUDA_HEADER_BOTH
-  Real_v SafetyToOutVec(Vector3D<Real_v> const &p) const override
+  Real_v SafetyToOutVec(Vector3D<Real_v> const &) const override
   {
 #ifndef VECGEOM_NVCC
     throw std::runtime_error("Forbidden SafetyToOut in Assembly called");
@@ -156,7 +156,7 @@ public:
 
   // explicit SIMD interface
   VECGEOM_CUDA_HEADER_BOTH
-  virtual Real_v SafetyToInVec(Vector3D<Real_v> const &p) const override
+  virtual Real_v SafetyToInVec(Vector3D<Real_v> const &) const override
   {
 #ifndef VECGEOM_NVCC
     throw std::runtime_error("SafetyToInVec in Assembly not yet implemented");
@@ -168,7 +168,7 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual Precision DistanceToIn(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
-                                 const Precision step_max = kInfLength) const override
+                                 const Precision /*step_max*/ = kInfLength) const override
   {
     if (!BoxImplementation::Intersect(&fLowerCorner, p, d, 0, kInfLength)) return kInfLength;
 
@@ -179,8 +179,8 @@ public:
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  virtual Real_v DistanceToInVec(Vector3D<Real_v> const &p, Vector3D<Real_v> const &d,
-                                 const Real_v &step_max = Real_v(kInfLength)) const override
+  virtual Real_v DistanceToInVec(Vector3D<Real_v> const & /*p*/, Vector3D<Real_v> const & /*d*/,
+                                 const Real_v & /*step_max*/ = Real_v(kInfLength)) const override
   {
 #ifndef VECGEOM_NVCC
     throw std::runtime_error("DistanceToInVec in Assembly not yet implemented");
