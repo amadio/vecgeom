@@ -569,15 +569,15 @@ public:
     auto pvol       = in_states[0]->Top();
     auto lvol       = pvol->GetLogicalVolume();
     // loop over all tracks in chunks
-    int i              = 0;
+    auto i             = decltype(size){0};
     constexpr auto kVS = vecCore::VectorSize<Real_v>();
-    for (; i < (int)size - (int)(kVS - 1); i += kVS) {
+    for (; i < (size - (kVS - 1)); i += kVS) {
       NavigateAChunk<Real_v, kVS>(this, pvol, lvol, globalpoints, globaldirs, step_limit, in_states, out_states,
                                   out_steps, i);
     }
 
     // fall back to scalar interface for tail treatment
-    for (; i < (int)size; ++i) {
+    for (; i < size; ++i) {
       out_steps[i] = ((Impl *)this)
                          ->Impl::ComputeStepAndPropagatedState(globalpoints[i], globaldirs[i], step_limit[i],
                                                                *in_states[i], *out_states[i]);
@@ -602,14 +602,14 @@ public:
     auto pvol       = in_states[0]->Top();
     auto lvol       = pvol->GetLogicalVolume();
     // loop over all tracks in chunks
-    int i              = 0;
+    auto i             = decltype(size){0};
     constexpr auto kVS = vecCore::VectorSize<Real_v>();
-    for (; i < (int)size - (int)(kVS - 1); i += kVS) {
+    for (; i < (size - (kVS - 1)); i += kVS) {
       NavigateAChunk<Real_v, kVS>(this, pvol, lvol, globalpoints, globaldirs, step_limit, in_states, out_states,
                                   out_steps, calcsafeties, out_safeties, i);
     }
     // fall back to scalar interface for tail treatment
-    for (; i < (int)size; ++i) {
+    for (; i < size; ++i) {
       out_steps[i] = ((Impl *)this)
                          ->Impl::ComputeStepAndSafetyAndPropagatedState(globalpoints[i], globaldirs[i], step_limit[i],
                                                                         *in_states[i], *out_states[i], calcsafeties[i],
