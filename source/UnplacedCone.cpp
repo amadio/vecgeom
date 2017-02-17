@@ -17,6 +17,92 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+UnplacedCone::UnplacedCone(Precision rmin1, Precision rmax1, Precision rmin2, Precision rmax2, Precision dz,
+                           Precision phimin, Precision deltaphi)
+    : fRmin1(rmin1), fRmax1(rmax1), fRmin2(rmin2), fRmax2(rmax2), fDz(dz), fSPhi(phimin), fDPhi(deltaphi),
+      fPhiWedge(deltaphi, phimin), fNormalPhi1(), fNormalPhi2(), fAlongPhi1x(0), fAlongPhi1y(0), fAlongPhi2x(0),
+      fAlongPhi2y(0), fInnerSlope(), // "gradient" of inner surface in z direction
+      fOuterSlope(),                 // "gradient" of outer surface in z direction
+      fInnerSlopeInv(), fOuterSlopeInv(), fInnerOffset(), fOuterOffset(), fOuterSlopeSquare(), fInnerSlopeSquare(),
+      fOuterOffsetSquare(), fInnerOffsetSquare(), fSqRmin1(rmin1 * rmin1), fSqRmin2(rmin2 * rmin2),
+      fSqRmax1(rmax1 * rmax1), fSqRmax2(rmax2 * rmax2), fSqRmin1Tol(rmin1 * rmin1 - kTolerance),
+      fSqRmin2Tol(rmin2 * rmin2 - kTolerance), fSqRmax1Tol(rmax1 * rmax1 + kTolerance),
+      fSqRmax2Tol(rmax2 * rmax2 + kTolerance), fInnerConeApex(0.), fTanInnerApexAngle(0.), fTanInnerApexAngle2(0.),
+      fOuterConeApex(0.), fTanOuterApexAngle(0.), fTanOuterApexAngle2(0.), fSecRMin(0), fSecRMax(0), fInvSecRMin(0),
+      fInvSecRMax(0), fTanRMin(0), fTanRMax(0), fZNormInner(), fZNormOuter(), fRminAv((rmin1 + rmin2) * 0.5),
+      fRmaxAv((rmax1 + rmax2) * 0.5), fneedsRminTreatment(false), fConeTolerance(1e-7)
+{
+
+  if (fRmin1 == fRmax1) {
+    fRmax1 += kConeTolerance;
+  }
+
+  if (fRmin2 == fRmax2) {
+    fRmax2 += kConeTolerance;
+  }
+
+  fTanRMin    = (fRmin2 - fRmin1) * 0.5 / fDz;
+  fSecRMin    = std::sqrt(1.0 + fTanRMin * fTanRMin);
+  fInvSecRMin = 1. / NonZero(fSecRMin);
+  fTanRMax    = (fRmax2 - fRmax1) * 0.5 / fDz;
+
+  fSecRMax    = std::sqrt(1.0 + fTanRMax * fTanRMax);
+  fInvSecRMax = 1. / NonZero(fSecRMax);
+
+  // check this very carefully
+  fInnerSlope        = -(fRmin1 - fRmin2) / (2. * fDz);
+  fOuterSlope        = -(fRmax1 - fRmax2) / (2. * fDz);
+  fInnerSlopeInv     = 1. / NonZero(fInnerSlope);
+  fOuterSlopeInv     = 1. / NonZero(fOuterSlope);
+  fInnerOffset       = fRmin2 - fInnerSlope * fDz;
+  fOuterOffset       = fRmax2 - fOuterSlope * fDz;
+  fOuterSlopeSquare  = fOuterSlope * fOuterSlope;
+  fInnerSlopeSquare  = fInnerSlope * fInnerSlope;
+  fOuterOffsetSquare = fOuterOffset * fOuterOffset;
+  fInnerOffsetSquare = fInnerOffset * fInnerOffset;
+
+  if (fRmin2 > fRmin1) {
+    fInnerConeApex     = 2 * fDz * fRmin1 / (fRmin2 - fRmin1);
+    fTanInnerApexAngle = fRmin2 / (2 * fDz + fInnerConeApex);
+  } else { // Should we add a check if(fRmin1 > fRmin2)
+    fInnerConeApex     = 2 * fDz * fRmin2 / NonZero(fRmin1 - fRmin2);
+    fTanInnerApexAngle = fRmin1 / (2 * fDz + fInnerConeApex);
+  }
+
+  if (fRmin1 == 0. || fRmin2 == 0.) fInnerConeApex = 0.;
+
+  if (fRmin1 == 0.) fTanInnerApexAngle = fRmin2 / (2 * fDz);
+  if (fRmin2 == 0.) fTanInnerApexAngle = fRmin1 / (2 * fDz);
+
+  fTanInnerApexAngle2 = fTanInnerApexAngle * fTanInnerApexAngle;
+
+  if (fRmax2 > fRmax1) {
+    fOuterConeApex     = 2 * fDz * fRmax1 / (fRmax2 - fRmax1);
+    fTanOuterApexAngle = fRmax2 / (2 * fDz + fOuterConeApex);
+  } else { // Should we add a check if(fRmax1 > fRmax2)
+    fOuterConeApex     = 2 * fDz * fRmax2 / NonZero(fRmax1 - fRmax2);
+    fTanOuterApexAngle = fRmax1 / (2 * fDz + fOuterConeApex);
+  }
+
+  if (fRmax1 == 0. || fRmax2 == 0.) fOuterConeApex = 0.;
+
+  if (fRmax1 == 0.) fTanOuterApexAngle = fRmax2 / (2 * fDz);
+  if (fRmax2 == 0.) fTanOuterApexAngle = fRmax1 / (2 * fDz);
+
+  fTanOuterApexAngle2 = fTanOuterApexAngle * fTanOuterApexAngle;
+
+  fZNormInner         = fTanRMin / NonZero(fSecRMin);
+  fZNormOuter         = -fTanRMax / NonZero(fSecRMax);
+  fneedsRminTreatment = (fRmin1 || fRmin2);
+
+  fTolIz = fDz - kHalfTolerance;
+  fTolOz = fDz + kHalfTolerance;
+
+  GetAlongVectorToPhiSector(fSPhi, fAlongPhi1x, fAlongPhi1y);
+  GetAlongVectorToPhiSector(fSPhi + fDPhi, fAlongPhi2x, fAlongPhi2y);
+  DetectConvexity();
+}
+
 void UnplacedCone::Print() const
 {
   printf("UnplacedCone {rmin1 %.2f, rmax1 %.2f, rmin2 %.2f, "
@@ -43,84 +129,6 @@ void UnplacedCone::DetectConvexity()
 }
 
 #if !defined(VECGEOM_NVCC)
-#if (0)
-// Simplest Extent definition, that does not take PHI into consideration
-void UnplacedCone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
-{
-  Precision max = fRmax1 > fRmax2 ? fRmax1 : fRmax2;
-  aMin          = Vector3D<Precision>(-max, -max, -fDz);
-  aMax          = Vector3D<Precision>(max, max, fDz);
-}
-#endif
-
-#if (1)
-// Improved Extent definition, that takes PHI also into consideration
-void UnplacedCone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
-{
-  // most general case
-
-  Precision max = fRmax1 > fRmax2 ? fRmax1 : fRmax2;
-  Precision min = fRmin1 > fRmin2 ? fRmin2 : fRmin1;
-
-  aMin = Vector3D<Precision>(-max, -max, -fDz);
-  aMax = Vector3D<Precision>(max, max, fDz);
-
-  /* Below logic borrowed from Tube.
-  **
-  ** But it would be great, if its possible to directly call Extent of Tube.
-  ** because in that case we can avoid code replication.
-  */
-
-  if (fDPhi == kTwoPi) return;
-
-  // check how many of phi=90, 180, 270, 360deg are outside this tube
-  auto Rin       = 0.5 * (max + min);
-  bool phi0out   = !GetWedge().Contains<kScalar>(Vector3D<Precision>(Rin, 0, 0));
-  bool phi90out  = !GetWedge().Contains<kScalar>(Vector3D<Precision>(0, Rin, 0));
-  bool phi180out = !GetWedge().Contains<kScalar>(Vector3D<Precision>(-Rin, 0, 0));
-  bool phi270out = !GetWedge().Contains<kScalar>(Vector3D<Precision>(0, -Rin, 0));
-
-  // if none of those 4 phis is outside, largest box still required
-  if (!(phi0out || phi90out || phi180out || phi270out)) return;
-
-  // some extent(s) of box will be reduced
-  // --> think of 4 points A,B,C,D such that A,B are at Rmin, C,D at Rmax
-  //     and A,C at startPhi (fSphi), B,D at endPhi (fSphi+fDphi)
-  auto Cx = max * cos(fSPhi);
-  auto Dx = max * cos(fSPhi + fDPhi);
-  auto Cy = max * sin(fSPhi);
-  auto Dy = max * sin(fSPhi + fDPhi);
-
-  // then rewrite box sides whenever each one of those phis are not contained in the tube section
-  if (phi0out) aMax.x()   = Max(Cx, Dx);
-  if (phi90out) aMax.y()  = Max(Cy, Dy);
-  if (phi180out) aMin.x() = Min(Cx, Dx);
-  if (phi270out) aMin.y() = Min(Cy, Dy);
-
-  if (fDPhi >= kPi) return;
-
-  auto Ax = min * cos(fSPhi);
-  auto Bx = min * cos(fSPhi + fDPhi);
-  auto Ay = min * sin(fSPhi);
-  auto By = min * sin(fSPhi + fDPhi);
-
-  Precision temp;
-  temp     = Max(Ax, Bx);
-  aMax.x() = temp > aMax.x() ? temp : aMax.x();
-
-  temp     = Max(Ay, By);
-  aMax.y() = temp > aMax.y() ? temp : aMax.y();
-
-  temp     = Min(Ax, Bx);
-  aMin.x() = temp < aMin.x() ? temp : aMin.x();
-
-  temp     = Min(Ay, By);
-  aMin.y() = temp < aMin.y() ? temp : aMin.y();
-
-  return;
-}
-#endif
-
 bool UnplacedCone::Normal(Vector3D<Precision> const &p, Vector3D<Precision> &norm) const
 {
   int noSurfaces = 0;
@@ -243,70 +251,130 @@ bool UnplacedCone::Normal(Vector3D<Precision> const &p, Vector3D<Precision> &nor
   return noSurfaces != 0;
 }
 
+template <bool top>
+bool UnplacedCone::IsOnZPlane(Vector3D<Precision> const &point) const
+{
+  if (top) {
+    return (point.z() < (fDz + kTolerance)) && (point.z() > (fDz - kTolerance));
+  } else {
+    return (point.z() < (-fDz + kTolerance)) && (point.z() > (-fDz - kTolerance));
+  }
+}
+
+template <bool start>
+bool UnplacedCone::IsOnPhiWedge(Vector3D<Precision> const &point) const
+{
+  if (start) {
+    return GetWedge().IsOnSurfaceGeneric<kScalar>(GetWedge().GetAlong1(), GetWedge().GetNormal1(), point);
+  } else {
+    return GetWedge().IsOnSurfaceGeneric<kScalar>(GetWedge().GetAlong2(), GetWedge().GetNormal2(), point);
+  }
+}
+
+template <bool inner>
+Precision UnplacedCone::GetRadiusOfConeAtPoint(Precision const pointZ) const
+{
+  if (inner) {
+    return GetInnerSlope() * pointZ + GetInnerOffset();
+
+  } else {
+    return GetOuterSlope() * pointZ + GetOuterOffset();
+  }
+}
+
+template <bool inner>
+bool UnplacedCone::IsOnConicalSurface(Vector3D<Precision> const &point) const
+{
+
+  Precision rho      = point.Perp2();
+  Precision coneRad  = GetRadiusOfConeAtPoint<inner>(point.z());
+  Precision coneRad2 = coneRad * coneRad;
+  return (rho >= (coneRad2 - kTolerance * coneRad)) && (rho <= (coneRad2 + kTolerance * coneRad)) &&
+         (Abs(point.z()) < (GetDz() + kTolerance));
+}
+
+bool UnplacedCone::IsOnEdge(Vector3D<Precision> &point) const
+{
+  int count = 0;
+  if (IsOnZPlane<true>(point) || IsOnZPlane<false>(point)) count++;
+  if (IsOnPhiWedge<true>(point)) count++;
+  if (IsOnPhiWedge<false>(point)) count++;
+  if (IsOnConicalSurface<true>(point)) count++;
+  if (IsOnConicalSurface<false>(point)) count++;
+
+  return count > 1;
+}
+
 Vector3D<Precision> UnplacedCone::GetPointOnSurface() const
 {
   // implementation taken from UCons; not verified
   //
-  double Aone, Atwo, Athree, Afour, Afive, slin, slout, phi;
-  double zRand, cosu, sinu, rRand1, rRand2, chose, rone, rtwo, qone, qtwo;
-  rone = (fRmax1 - fRmax2) / (2. * fDz);
-  rtwo = (fRmin1 - fRmin2) / (2. * fDz);
-  qone = 0.;
-  qtwo = 0.;
-  if (fRmax1 != fRmax2) {
-    qone = fDz * (fRmax1 + fRmax2) / (fRmax1 - fRmax2);
-  }
-  if (fRmin1 != fRmin2) {
-    qtwo = fDz * (fRmin1 + fRmin2) / (fRmin1 - fRmin2);
-  }
-  slin   = Sqrt((fRmin1 - fRmin2) * (fRmin1 - fRmin2) + 4. * fDz * fDz);
-  slout  = Sqrt((fRmax1 - fRmax2) * (fRmax1 - fRmax2) + 4. * fDz * fDz);
-  Aone   = 0.5 * fDPhi * (fRmax2 + fRmax1) * slout;
-  Atwo   = 0.5 * fDPhi * (fRmin2 + fRmin1) * slin;
-  Athree = 0.5 * fDPhi * (fRmax1 * fRmax1 - fRmin1 * fRmin1);
-  Afour  = 0.5 * fDPhi * (fRmax2 * fRmax2 - fRmin2 * fRmin2);
-  Afive  = fDz * (fRmax1 - fRmin1 + fRmax2 - fRmin2);
+  Vector3D<Precision> retPt;
+  do {
 
-  phi    = RNG::Instance().uniform(fSPhi, fSPhi + fDPhi);
-  cosu   = std::cos(phi);
-  sinu   = std::sin(phi);
-  rRand1 = volumeUtilities::GetRadiusInRing(fRmin1, fRmin2);
-  rRand2 = volumeUtilities::GetRadiusInRing(fRmax1, fRmax2);
-
-  if ((fSPhi == 0.) && IsFullPhi()) {
-    Afive = 0.;
-  }
-  chose = RNG::Instance().uniform(0., Aone + Atwo + Athree + Afour + 2. * Afive);
-
-  if ((chose >= 0.) && (chose < Aone)) {
-    if (fRmin1 != fRmin2) {
-      zRand = RNG::Instance().uniform(-1. * fDz, fDz);
-      return Vector3D<Precision>(rtwo * cosu * (qtwo - zRand), rtwo * sinu * (qtwo - zRand), zRand);
-    } else {
-      return Vector3D<Precision>(fRmin1 * cosu, fRmin2 * sinu, RNG::Instance().uniform(-1. * fDz, fDz));
-    }
-  } else if ((chose >= Aone) && (chose <= Aone + Atwo)) {
+    double Aone, Atwo, Athree, Afour, Afive, slin, slout, phi;
+    double zRand, cosu, sinu, rRand1, rRand2, chose, rone, rtwo, qone, qtwo;
+    rone = (fRmax1 - fRmax2) / (2. * fDz);
+    rtwo = (fRmin1 - fRmin2) / (2. * fDz);
+    qone = 0.;
+    qtwo = 0.;
     if (fRmax1 != fRmax2) {
-      zRand = RNG::Instance().uniform(-1. * fDz, fDz);
-      return Vector3D<Precision>(rone * cosu * (qone - zRand), rone * sinu * (qone - zRand), zRand);
-    } else {
-      return Vector3D<Precision>(fRmax1 * cosu, fRmax2 * sinu, RNG::Instance().uniform(-1. * fDz, fDz));
+      qone = fDz * (fRmax1 + fRmax2) / (fRmax1 - fRmax2);
     }
-  } else if ((chose >= Aone + Atwo) && (chose < Aone + Atwo + Athree)) {
-    return Vector3D<Precision>(rRand1 * cosu, rRand1 * sinu, -1 * fDz);
-  } else if ((chose >= Aone + Atwo + Athree) && (chose < Aone + Atwo + Athree + Afour)) {
-    return Vector3D<Precision>(rRand2 * cosu, rRand2 * sinu, fDz);
-  } else if ((chose >= Aone + Atwo + Athree + Afour) && (chose < Aone + Atwo + Athree + Afour + Afive)) {
-    zRand  = RNG::Instance().uniform(-1. * fDz, fDz);
-    rRand1 = RNG::Instance().uniform(fRmin2 - ((zRand - fDz) / (2. * fDz)) * (fRmin1 - fRmin2),
-                                     fRmax2 - ((zRand - fDz) / (2. * fDz)) * (fRmax1 - fRmax2));
-    return Vector3D<Precision>(rRand1 * std::cos(fSPhi), rRand1 * std::sin(fSPhi), zRand);
-  } else {
-    zRand  = RNG::Instance().uniform(-1. * fDz, fDz);
-    rRand1 = RNG::Instance().uniform(fRmin2 - ((zRand - fDz) / (2. * fDz)) * (fRmin1 - fRmin2),
-                                     fRmax2 - ((zRand - fDz) / (2. * fDz)) * (fRmax1 - fRmax2));
-    return Vector3D<Precision>(rRand1 * std::cos(fSPhi + fDPhi), rRand1 * std::sin(fSPhi + fDPhi), zRand);
-  }
+    if (fRmin1 != fRmin2) {
+      qtwo = fDz * (fRmin1 + fRmin2) / (fRmin1 - fRmin2);
+    }
+    slin   = Sqrt((fRmin1 - fRmin2) * (fRmin1 - fRmin2) + 4. * fDz * fDz);
+    slout  = Sqrt((fRmax1 - fRmax2) * (fRmax1 - fRmax2) + 4. * fDz * fDz);
+    Aone   = 0.5 * fDPhi * (fRmax2 + fRmax1) * slout;
+    Atwo   = 0.5 * fDPhi * (fRmin2 + fRmin1) * slin;
+    Athree = 0.5 * fDPhi * (fRmax1 * fRmax1 - fRmin1 * fRmin1);
+    Afour  = 0.5 * fDPhi * (fRmax2 * fRmax2 - fRmin2 * fRmin2);
+    Afive  = fDz * (fRmax1 - fRmin1 + fRmax2 - fRmin2);
+
+    phi    = RNG::Instance().uniform(fSPhi, fSPhi + fDPhi);
+    cosu   = std::cos(phi);
+    sinu   = std::sin(phi);
+    rRand1 = volumeUtilities::GetRadiusInRing(fRmin1, fRmin2);
+    rRand2 = volumeUtilities::GetRadiusInRing(fRmax1, fRmax2);
+
+    if ((fSPhi == 0.) && IsFullPhi()) {
+      Afive = 0.;
+    }
+    chose = RNG::Instance().uniform(0., Aone + Atwo + Athree + Afour + 2. * Afive);
+
+    if ((chose >= 0.) && (chose < Aone)) {
+      if (fRmin1 != fRmin2) {
+        zRand = RNG::Instance().uniform(-1. * fDz, fDz);
+        retPt.Set(rtwo * cosu * (qtwo - zRand), rtwo * sinu * (qtwo - zRand), zRand);
+      } else {
+        retPt.Set(fRmin1 * cosu, fRmin2 * sinu, RNG::Instance().uniform(-1. * fDz, fDz));
+      }
+    } else if ((chose >= Aone) && (chose <= Aone + Atwo)) {
+      if (fRmax1 != fRmax2) {
+        zRand = RNG::Instance().uniform(-1. * fDz, fDz);
+        retPt.Set(rone * cosu * (qone - zRand), rone * sinu * (qone - zRand), zRand);
+      } else {
+        retPt.Set(fRmax1 * cosu, fRmax2 * sinu, RNG::Instance().uniform(-1. * fDz, fDz));
+      }
+    } else if ((chose >= Aone + Atwo) && (chose < Aone + Atwo + Athree)) {
+      retPt.Set(rRand1 * cosu, rRand1 * sinu, -1 * fDz);
+    } else if ((chose >= Aone + Atwo + Athree) && (chose < Aone + Atwo + Athree + Afour)) {
+      retPt.Set(rRand2 * cosu, rRand2 * sinu, fDz);
+    } else if ((chose >= Aone + Atwo + Athree + Afour) && (chose < Aone + Atwo + Athree + Afour + Afive)) {
+      zRand  = RNG::Instance().uniform(-1. * fDz, fDz);
+      rRand1 = RNG::Instance().uniform(fRmin2 - ((zRand - fDz) / (2. * fDz)) * (fRmin1 - fRmin2),
+                                       fRmax2 - ((zRand - fDz) / (2. * fDz)) * (fRmax1 - fRmax2));
+      retPt.Set(rRand1 * std::cos(fSPhi), rRand1 * std::sin(fSPhi), zRand);
+    } else {
+      zRand  = RNG::Instance().uniform(-1. * fDz, fDz);
+      rRand1 = RNG::Instance().uniform(fRmin2 - ((zRand - fDz) / (2. * fDz)) * (fRmin1 - fRmin2),
+                                       fRmax2 - ((zRand - fDz) / (2. * fDz)) * (fRmax1 - fRmax2));
+      retPt.Set(rRand1 * std::cos(fSPhi + fDPhi), rRand1 * std::sin(fSPhi + fDPhi), zRand);
+    }
+  } while (IsOnEdge(retPt));
+
+  return retPt;
 }
 #endif // VECGEOM_NVCC
 
@@ -397,7 +465,6 @@ VPlacedVolume *UnplacedCone::SpecializedVolume(LogicalVolume const *const volume
 }
 
 #ifdef VECGEOM_CUDA_INTERFACE
-
 DevicePtr<cuda::VUnplacedVolume> UnplacedCone::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
 {
   return CopyToGpuImpl<UnplacedCone>(in_gpu_ptr, GetRmin1(), GetRmax1(), GetRmin2(), GetRmax2(), GetDz(), GetSPhi(),

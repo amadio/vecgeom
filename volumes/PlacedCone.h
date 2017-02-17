@@ -103,18 +103,19 @@ public:
   void SetStartPhiAngle(Precision xin, bool) { const_cast<UnplacedCone *>(GetUnplacedVolume())->SetSPhi(xin); }
   void SetDeltaPhiAngle(Precision xin) { const_cast<UnplacedCone *>(GetUnplacedVolume())->SetDPhi(xin); }
 
-  VECGEOM_FORCE_INLINE
-  double SafetyFromInsideR(const Vector3D<Precision> &p, const double rho, bool precise = false) const
-  {
-    return GetUnplacedVolume()->SafetyFromInsideR(p, rho, precise);
-  }
+/*
+VECGEOM_FORCE_INLINE
+double SafetyFromInsideR(const Vector3D<Precision> &p, const double rho, bool precise = false) const
+{
+  return GetUnplacedVolume()->SafetyFromInsideR(p, rho, precise);
+}
 
-  VECGEOM_FORCE_INLINE
-  double SafetyFromOutsideR(const Vector3D<Precision> &p, const double rho, bool precise = false) const
-  {
-    return GetUnplacedVolume()->SafetyFromOutsideR(p, rho, precise);
-  }
-
+VECGEOM_FORCE_INLINE
+double SafetyFromOutsideR(const Vector3D<Precision> &p, const double rho, bool precise = false) const
+{
+  return GetUnplacedVolume()->SafetyFromOutsideR(p, rho, precise);
+}
+*/
 #if !defined(VECGEOM_NVCC)
   virtual Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
 
@@ -126,10 +127,13 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
+    /*
     bool valid;
     ConeImplementation<translation::kIdentity, rotation::kIdentity, ConeTypes::UniversalCone>::NormalKernel<kScalar>(
         *GetUnplacedVolume(), point, normal, valid);
     return valid;
+    */
+    return GetUnplacedVolume()->Normal(point, normal);
   }
 
   virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface(); }

@@ -41,13 +41,6 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class UnplacedCone : public VUnplacedVolume, public AlignedBase {
 
 private:
-  VECGEOM_CUDA_HEADER_BOTH
-  static void GetAlongVectorToPhiSector(Precision phi, Precision &x, Precision &y)
-  {
-    x = std::cos(phi);
-    y = std::sin(phi);
-  }
-
   Precision fRmin1;
   Precision fRmax1;
   Precision fRmin2;
@@ -56,6 +49,7 @@ private:
   Precision fSPhi;
   Precision fDPhi;
   Wedge fPhiWedge; // the Phi bounding of the cone (not the cutout) -- will be able to get rid of the next angles
+  // Precision innerSlantHeight,outerSlantHeight,partAreaInner,partAreaOuter,innerRadDiff,outerRadDiff,fDzInv;
 
   // vectors characterizing the normals of phi planes
   // makes task to detect phi sektors very efficient
@@ -67,8 +61,10 @@ private:
   Precision fAlongPhi2y;
 
   // Some precomputed values to avoid divisions etc
-  Precision fInnerSlope; // "gradient" of inner surface in z direction
-  Precision fOuterSlope; // "gradient" of outer surface in z direction
+  Precision fInnerSlope;    // "gradient" of inner surface in z direction
+  Precision fOuterSlope;    // "gradient" of outer surface in z direction
+  Precision fInnerSlopeInv; // Inverse of innerSlope
+  Precision fOuterSlopeInv; // Inverse of outerSlope
   Precision fInnerOffset;
   Precision fOuterOffset;
   Precision fOuterSlopeSquare;
@@ -76,120 +72,109 @@ private:
   Precision fOuterOffsetSquare;
   Precision fInnerOffsetSquare;
 
-public:
-  /** momentarily include this fields because USolids algorithm needs those
-  *
-  *
-  */
+  // Values to be cached
+  Precision fSqRmin1, fSqRmin2;
+  Precision fSqRmax1, fSqRmax2;
+  Precision fSqRmin1Tol, fSqRmin2Tol, fSqRmax1Tol, fSqRmax2Tol;
+  Precision fTolIz, fTolOz;
+
+  Precision fInnerConeApex;
+  Precision fTanInnerApexAngle;
+  Precision fTanInnerApexAngle2;
+
+  Precision fOuterConeApex;
+  Precision fTanOuterApexAngle;
+  Precision fTanOuterApexAngle2;
+
   Precision fSecRMin;
   Precision fSecRMax;
   Precision fInvSecRMin;
   Precision fInvSecRMax;
-
-  Precision fCosCPhi;
-  Precision fSinCPhi;
-  Precision fCosSPhi;
-  Precision fSinSPhi;
-  Precision fCosEPhi;
-
-  Precision fCosHDPhi;
-  Precision fSinEPhi;
-  Precision fCosHDPhiIT;
-  Precision fCosHDPhiOT;
   Precision fTanRMin;
   Precision fTanRMax;
+  Precision fZNormInner;
+  Precision fZNormOuter;
+  Precision fRminAv;
+  Precision fRmaxAv;
+  bool fneedsRminTreatment;
+  Precision fConeTolerance;
+
+public:
+  VECGEOM_CUDA_HEADER_BOTH
+  UnplacedCone(Precision rmin1, Precision rmax1, Precision rmin2, Precision rmax2, Precision dz, Precision phimin,
+               Precision deltaphi);
 
   VECGEOM_CUDA_HEADER_BOTH
-  // should be implemented in source file
-  UnplacedCone(Precision rmin1, Precision rmax1, Precision rmin2, Precision rmax2, Precision dz, Precision phimin,
-               Precision deltaphi)
-      : fRmin1(rmin1), fRmax1(rmax1), fRmin2(rmin2), fRmax2(rmax2), fDz(dz), fSPhi(phimin), fDPhi(deltaphi),
-        fPhiWedge(deltaphi, phimin), fNormalPhi1(), fNormalPhi2(), fAlongPhi1x(0), fAlongPhi1y(0), fAlongPhi2x(0),
-        fAlongPhi2y(0), fInnerSlope(), // "gradient" of inner surface in z direction
-        fOuterSlope(),                 // "gradient" of outer surface in z direction
-        fInnerOffset(), fOuterOffset(), fOuterSlopeSquare(), fInnerSlopeSquare(), fOuterOffsetSquare(),
-        fInnerOffsetSquare(), fSecRMin(0), fSecRMax(0), fInvSecRMin(0), fInvSecRMax(0), fCosCPhi(0), fSinCPhi(0),
-        fCosSPhi(0), fSinSPhi(0), fCosEPhi(0), fCosHDPhi(0), fSinEPhi(0), fCosHDPhiIT(0), fCosHDPhiOT(0), fTanRMin(0),
-        fTanRMax(0)
+  static void GetAlongVectorToPhiSector(Precision phi, Precision &x, Precision &y)
   {
-
-    // initialize trigonometry for USOLIDS impl
-    double hDPhi = 0.5 * fDPhi; // half delta phi
-    double cPhi  = fSPhi + hDPhi;
-    double ePhi  = fSPhi + fDPhi;
-
-    fSinCPhi    = std::sin(cPhi);
-    fCosCPhi    = std::cos(cPhi);
-    fCosHDPhi   = std::cos(hDPhi);
-    fCosHDPhiIT = std::cos(hDPhi - 0.5 * kAngTolerance); // inner/outer tol half dphi
-    fCosHDPhiOT = std::cos(hDPhi + 0.5 * kAngTolerance);
-    fSinSPhi    = std::sin(fSPhi);
-    fCosSPhi    = std::cos(fSPhi);
-    fSinEPhi    = std::sin(ePhi);
-    fCosEPhi    = std::cos(ePhi);
-    fTanRMin    = (fRmin2 - fRmin1) * 0.5 / fDz;
-
-    fSecRMin    = std::sqrt(1.0 + fTanRMin * fTanRMin);
-    fInvSecRMin = 1. / fSecRMin;
-
-    fTanRMax = (fRmax2 - fRmax1) * 0.5 / fDz;
-
-    fSecRMax    = std::sqrt(1.0 + fTanRMax * fTanRMax);
-    fInvSecRMax = 1. / fSecRMax;
-
-    // check this very carefully
-    fInnerSlope        = -(fRmin1 - fRmin2) / (2. * fDz);
-    fOuterSlope        = -(fRmax1 - fRmax2) / (2. * fDz);
-    fInnerOffset       = fRmin2 - fInnerSlope * fDz;
-    fOuterOffset       = fRmax2 - fOuterSlope * fDz;
-    fOuterSlopeSquare  = fOuterSlope * fOuterSlope;
-    fInnerSlopeSquare  = fInnerSlope * fInnerSlope;
-    fOuterOffsetSquare = fOuterOffset * fOuterOffset;
-    fInnerOffsetSquare = fInnerOffset * fInnerOffset;
-
-    GetAlongVectorToPhiSector(fSPhi, fAlongPhi1x, fAlongPhi1y);
-    GetAlongVectorToPhiSector(fSPhi + fDPhi, fAlongPhi2x, fAlongPhi2y);
-    DetectConvexity();
-    // calculate caches
-    // the possible caches are one major difference between tube and cone
-
-    // calculate caches
-    //       cacheRminSqr=dRmin1*dRmin1;
-    //       cacheRmaxSqr=dRmax1*dRmax1;
-
-    //       if ( dRmin1 > Utils::GetRadHalfTolerance() )
-    //           {
-    //              // CHECK IF THIS CORRECT ( this seems to be inversed with tolerance for ORmax
-    //              cacheTolORminSqr = (dRmin1 - Utils::GetRadHalfTolerance()) * (dRmin1 -
-    //              Utils::GetRadHalfTolerance());
-    //              cacheTolIRminSqr = (dRmin1 + Utils::GetRadHalfTolerance()) * (dRmin1 +
-    //              Utils::GetRadHalfTolerance());
-    //           }
-    //           else
-    //           {
-    //              cacheTolORminSqr = 0.0;
-    //              cacheTolIRminSqr = 0.0;
-    //           }
-    //
-    //           cacheTolORmaxSqr = (dRmax1 + Utils::GetRadHalfTolerance()) * (dRmax1 + Utils::GetRadHalfTolerance());
-    //           cacheTolIRmaxSqr = (dRmax1 - Utils::GetRadHalfTolerance()) * (dRmax1 - Utils::GetRadHalfTolerance());
-    //
-    //           // calculate normals
-    //           GeneralPhiUtils::GetNormalVectorToPhiPlane(dSPhi, normalPhi1, true);
-    //           GeneralPhiUtils::GetNormalVectorToPhiPlane(dSPhi + dDPhi, normalPhi2, false);
-    //
-    //           // get alongs
-    //           GeneralPhiUtils::GetAlongVectorToPhiPlane(dSPhi, alongPhi1);
-    //           GeneralPhiUtils::GetAlongVectorToPhiPlane(dSPhi + dDPhi, alongPhi2);
-    //
-    //           // normalPhi1.print();
-    //           // normalPhi2.print();
-    //        };
+    x = std::cos(phi);
+    y = std::sin(phi);
   }
 
   VECGEOM_CUDA_HEADER_BOTH
-  void DetectConvexity();
+  Precision GetInvSecRMax() const { return fInvSecRMax; }
 
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetInvSecRMin() const { return fInvSecRMin; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetTolIz() const { return fTolIz; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetTolOz() const { return fTolOz; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetConeTolerane() const { return fConeTolerance; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetSqRmin1() const { return fSqRmin1; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetSqRmin2() const { return fSqRmin2; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetSqRmax1() const { return fSqRmax1; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetSqRmax2() const { return fSqRmax2; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetSqRmin1Tol() const { return fSqRmin1Tol; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetSqRmin2Tol() const { return fSqRmin2Tol; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetSqRmax1Tol() const { return fSqRmax1Tol; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetSqRmax2Tol() const { return fSqRmax2Tol; }
+  VECGEOM_CUDA_HEADER_BOTH
+  bool NeedsRminTreatment() const { return fneedsRminTreatment; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetTanRmax() const { return fTanRMax; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetTanRmin() const { return fTanRMin; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetSecRmax() const { return fSecRMax; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetSecRmin() const { return fSecRMin; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetZNormInner() const { return fZNormInner; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetZNormOuter() const { return fZNormOuter; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetInnerConeApex() const { return fInnerConeApex; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetTInner() const { return fTanInnerApexAngle; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetTInner2() const { return fTanInnerApexAngle2; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetOuterConeApex() const { return fOuterConeApex; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetTOuter() const { return fTanOuterApexAngle; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetTOuter2() const { return fTanOuterApexAngle2; }
+
+  // VECGEOM_CUDA_HEADER_BOTH
+  // virtual bool IsConvex() const override;
+  VECGEOM_CUDA_HEADER_BOTH
+  void DetectConvexity();
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetRminAv() const { return fRminAv; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetRmaxAv() const { return fRmaxAv; }
   VECGEOM_CUDA_HEADER_BOTH
   Precision GetRmin1() const { return fRmin1; }
   VECGEOM_CUDA_HEADER_BOTH
@@ -205,24 +190,35 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   Precision GetDPhi() const { return fDPhi; }
   VECGEOM_CUDA_HEADER_BOTH
-  Precision dphi() const { return fDPhi; }
-  VECGEOM_CUDA_HEADER_BOTH
   Precision GetInnerSlope() const { return fInnerSlope; }
   VECGEOM_CUDA_HEADER_BOTH
   Precision GetOuterSlope() const { return fOuterSlope; }
   VECGEOM_CUDA_HEADER_BOTH
+  Precision GetInnerSlopeInv() const { return fInnerSlopeInv; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetOuterSlopeInv() const { return fOuterSlopeInv; }
+  VECGEOM_CUDA_HEADER_BOTH
   Precision GetInnerOffset() const { return fInnerOffset; }
   VECGEOM_CUDA_HEADER_BOTH
   Precision GetOuterOffset() const { return fOuterOffset; }
-  // these values could be cached
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetInnerSlopeSquare() const { return fInnerSlope * fInnerSlope; }
+  Precision GetInnerSlopeSquare() const { return fInnerSlopeSquare; }
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetOuterSlopeSquare() const { return fOuterSlope * fOuterSlope; }
+  Precision GetOuterSlopeSquare() const { return fOuterSlopeSquare; }
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetInnerOffsetSquare() const { return fInnerOffset * fInnerOffset; }
+  Precision GetInnerOffsetSquare() const { return fInnerOffsetSquare; }
   VECGEOM_CUDA_HEADER_BOTH
-  Precision GetOuterOffsetSquare() const { return fOuterOffset * fOuterOffset; }
+  Precision GetOuterOffsetSquare() const { return fOuterOffsetSquare; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetAlongPhi1X() const { return fAlongPhi1x; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetAlongPhi1Y() const { return fAlongPhi1y; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetAlongPhi2X() const { return fAlongPhi2x; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Precision GetAlongPhi2Y() const { return fAlongPhi2y; }
+  VECGEOM_CUDA_HEADER_BOTH
+  Wedge const &GetWedge() const { return fPhiWedge; }
 
   void SetRmin1(Precision const &arg) { fRmin1 = arg; }
   void SetRmax1(Precision const &arg) { fRmax1 = arg; }
@@ -233,26 +229,7 @@ public:
   void SetDPhi(Precision const &arg) { fDPhi = arg; }
 
   VECGEOM_CUDA_HEADER_BOTH
-  Precision alongPhi1x() const { return fAlongPhi1x; }
-  VECGEOM_CUDA_HEADER_BOTH
-  Precision alongPhi1y() const { return fAlongPhi1y; }
-  VECGEOM_CUDA_HEADER_BOTH
-  Precision alongPhi2x() const { return fAlongPhi2x; }
-  VECGEOM_CUDA_HEADER_BOTH
-  Precision alongPhi2y() const { return fAlongPhi2y; }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  Wedge const &GetWedge() const { return fPhiWedge; }
-
-  VECGEOM_CUDA_HEADER_BOTH
   bool IsFullPhi() const { return fDPhi == kTwoPi; }
-
-  // Safety From Inside R, used for UPolycone Section
-  Precision SafetyToPhi(Vector3D<Precision> const &p, Precision rho, bool &outside) const;
-
-  double SafetyFromInsideR(Vector3D<Precision> const &p, double rho, bool /*precise = false*/) const;
-
-  double SafetyFromOutsideR(Vector3D<Precision> const &p, double rho, bool /*precise = false*/) const;
 
   virtual int memory_size() const final { return sizeof(*this); }
 
@@ -306,88 +283,32 @@ public:
                     0.5 * (fRmax1 * fRmax1 - fRmin1 * fRmin1 + fRmax2 * fRmax2 - fRmin2 * fRmin2));
   }
 
-  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const;
+  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
+  {
+    double max = fRmax1 > fRmax2 ? fRmax1 : fRmax2;
+    aMin       = Vector3D<Precision>(-max, -max, -fDz);
+    aMax       = Vector3D<Precision>(max, max, fDz);
+  }
 
-  VECGEOM_CUDA_HEADER_BOTH
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;
   Vector3D<Precision> GetPointOnSurface() const;
+
+  // Helper funtion to detect edge points
+  template <bool top>
+  bool IsOnZPlane(Vector3D<Precision> const &point) const;
+  template <bool start>
+  bool IsOnPhiWedge(Vector3D<Precision> const &point) const;
+  template <bool inner>
+  bool IsOnConicalSurface(Vector3D<Precision> const &point) const;
+  template <bool inner>
+  Precision GetRadiusOfConeAtPoint(Precision const pointZ) const;
+
+  bool IsOnEdge(Vector3D<Precision> &point) const;
 
   std::string GetEntityType() const { return "Cone"; }
 
 #endif // !VECGEOM_NVCC
 };
-
-VECGEOM_FORCE_INLINE
-Precision UnplacedCone::SafetyToPhi(Vector3D<Precision> const &p, Precision rho, bool &outside) const
-{
-
-  Precision safePhi = 0.0;
-  outside           = false;
-
-  Precision cosPsi = (p.x() * fCosCPhi + p.y() * fSinCPhi) / rho;
-  if (cosPsi < std::cos(fDPhi * 0.5)) {
-    // Point lies outside phi range
-    outside = true;
-    if ((p.y() * fCosCPhi - p.x() * fSinCPhi) <= 0.0) {
-      safePhi = std::fabs(p.x() * fSinSPhi - p.y() * fCosSPhi);
-    } else {
-      safePhi = std::fabs(p.x() * fSinEPhi - p.y() * fCosEPhi);
-    }
-  }
-
-  return safePhi;
-}
-
-VECGEOM_FORCE_INLINE
-double UnplacedCone::SafetyFromInsideR(Vector3D<Precision> const &p, double rho, bool /*precise = false*/) const
-{
-
-  double safe   = 0.0;
-  double safeR1 = kInfLength;
-  if (fRmin1 || fRmin2) {
-    double pRMin = fTanRMin * p.z() + (fRmin1 + fRmin2) * 0.5;
-    safeR1       = (rho - pRMin) * fInvSecRMin;
-  }
-
-  double pRMax  = fTanRMax * p.z() + (fRmax1 + fRmax2) * 0.5;
-  double safeR2 = (pRMax - rho) * fInvSecRMax;
-  safe          = Min(safeR1, safeR2);
-
-  // Check if phi divided, Calc distances closest phi plane
-  if (!IsFullPhi()) {
-    // Above/below central phi of UCons?
-    double safePhi1 = p.y() * fCosSPhi - p.x() * fSinSPhi;
-    double safePhi2 = p.x() * fSinEPhi - p.y() * fCosEPhi;
-    safe            = Min(safe, Min(safePhi1, safePhi2));
-  }
-
-  if (safe < 0.0) safe = 0.0;
-  return safe;
-}
-
-VECGEOM_FORCE_INLINE
-double UnplacedCone::SafetyFromOutsideR(Vector3D<Precision> const &p, double rho, bool /*precise = false*/) const
-{
-
-  double pRMax = fTanRMax * p.z() + (fRmax1 + fRmax2) * 0.5;
-  double safe  = (rho - pRMax) * fInvSecRMax;
-  if (fRmin1 || fRmin2) {
-    double pRMin  = fTanRMin * p.z() + (fRmin1 + fRmin2) * 0.5;
-    double safeR1 = (rho - pRMin) * fInvSecRMin;
-    safe          = Min(safe, safeR1);
-  }
-
-  if (!IsFullPhi()) {
-    bool outside   = false;
-    double safePhi = SafetyToPhi(p, rho, outside);
-    if ((outside) && (safePhi > safe)) {
-      safe = safePhi;
-    }
-  }
-
-  if (safe < 0.0) safe = 0.0;
-  return safe; // not accurate safety
-}
 }
 } // End global namespace
 

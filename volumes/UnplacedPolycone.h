@@ -15,8 +15,6 @@
 #include "volumes/UnplacedCone.h"
 #include "base/Vector.h"
 #include <vector>
-#include "volumes/Wedge.h"
-
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedPolycone;);
@@ -66,8 +64,6 @@ private:
   bool fEqualRmax;
   bool fContinuityOverAll;
   bool fConvexityPossible;
-  Wedge fPhiWedge;
-
   VECGEOM_CUDA_HEADER_BOTH
   bool CheckContinuity(const double rOuter[], const double rInner[], const double zPlane[],
                        Vector<Precision> &newROuter, Vector<Precision> &newRInner, Vector<Precision> &zewZPlane);
@@ -90,7 +86,7 @@ public:
   UnplacedPolycone(Precision phistart, Precision deltaphi, int Nz, Precision const *z, Precision const *rmin,
                    Precision const *rmax)
       : fStartPhi(phistart), fDeltaPhi(deltaphi), fNz(Nz), fSections(), fZs(Nz), fEqualRmax(true),
-        fContinuityOverAll(true), fConvexityPossible(true), fPhiWedge(deltaphi, phistart)
+        fContinuityOverAll(true), fConvexityPossible(true)
   {
     // init internal members
     Init(phistart, deltaphi, Nz, z, rmin, rmax);
@@ -117,9 +113,6 @@ public:
   Precision GetDeltaPhi() const { return fDeltaPhi; }
   VECGEOM_CUDA_HEADER_BOTH
   Precision GetEndPhi() const { return fStartPhi + fDeltaPhi; }
-
-  VECGEOM_CUDA_HEADER_BOTH
-  Wedge const &GetWedge() const { return fPhiWedge; }
 
   VECGEOM_CUDA_HEADER_BOTH
   int GetSectionIndex(Precision zposition) const
