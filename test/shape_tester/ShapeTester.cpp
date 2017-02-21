@@ -727,9 +727,12 @@ int ShapeTester<ImplT>::TestFarAwayPoint()
       point1 = point1 + vec * 10000;
     }
     // Shoot back to solid, then compute point on surface
-    distIn                                                       = fVolume->DistanceToIn(point1, -vec);
-    pointSurf                                                    = point1 - distIn * vec;
-    if ((distIn < kInfLength) && (distIn > maxDistIn)) maxDistIn = distIn;
+    distIn    = fVolume->DistanceToIn(point1, -vec);
+    pointSurf = point1 - distIn * vec;
+    if ((distIn < kInfLength) && (distIn > maxDistIn)) {
+      maxDistIn = distIn;
+    }
+
     // Compute error and check against the solid tolerance
     diff = std::fabs((point1 - pointSurf).Mag() - distIn);
     if (diff > 100 * tolerance) // Note that moving to 10000 we have cut 4 digits, not just 2
@@ -747,7 +750,7 @@ int ShapeTester<ImplT>::TestFarAwayPoint()
     std::cout << "% TestFarAwayPoints:: number of Points with big difference (( DistanceToIn- Dist) ) >  tolerance ="
               << icount << std::endl;
     std::cout << "%  Maxdif = " << difMax << " from MaxDist=" << maxDistIn
-              << " Number of fPoints missing Solid (DistanceToIn = Infinity) = " << icount1 << std::endl;
+              << "\n%  Number of fPoints missing Solid (DistanceToIn = Infinity) = " << icount1 << std::endl;
   }
   std::cout << "% " << std::endl;
   std::cout << "% TestFarAwayPoints reported = " << CountErrors() << " errors" << std::endl;

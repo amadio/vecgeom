@@ -232,12 +232,12 @@ Vector3D<Precision> UnplacedTrapezoid::GetPointOnSurface() const
 
   sumArea += fTrap.sideAreas[3];
   if ((chose >= sumArea) && (chose < sumArea + fTrap.sideAreas[4])) {
-    return GetPointOnPlane(pt[0], pt[1], pt[3], pt[2]);
+    return GetPointOnPlane(pt[0], pt[2], pt[3], pt[1]);
   }
 
   sumArea += fTrap.sideAreas[4];
   if ((chose >= sumArea) && (chose < sumArea + fTrap.sideAreas[5])) {
-    return GetPointOnPlane(pt[4], pt[6], pt[7], pt[5]);
+    return GetPointOnPlane(pt[4], pt[5], pt[7], pt[6]);
   }
 
   // should never get here...

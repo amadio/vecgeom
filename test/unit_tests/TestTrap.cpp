@@ -346,6 +346,7 @@ bool TestTrap()
   if (!testvecgeom) assert(convex);
 
   Dist = trap1.DistanceToOut(ponxside, vmx, norm, convex);
+  // std::cout<<"Line "<<__LINE__<<": trap1.D2O(): pt="<< ponxside <<", dir="<< vmx <<", dist="<< Dist <<"\n";
   assert(ApproxEqual(Dist, 40) && ApproxEqual(norm, vmx));
   if (!testvecgeom) assert(convex);
   Dist = trap1.DistanceToOut(ponmxside, vx, norm, convex);
@@ -408,7 +409,7 @@ bool TestTrap()
   // SafetyFromOutside(P)
 
   Dist = trap1.SafetyFromOutside(pbig);
-  //  std::cout<<"trap1.SafetyFromOutside(pbig) = "<<Dist<<std::endl;
+  // std::cout<<"trap1.SafetyFromOutside() = point="<< pbig <<", safety="<< Dist <<"\n";
   assert(ApproxEqual(Dist, 80));
 
   Dist = trap1.SafetyFromOutside(pbigx);
@@ -540,6 +541,7 @@ bool TestTrap()
   assert(ApproxEqual(Dist, Constants::kInfLength));
 
   Dist = trap2.DistanceToIn(pbigx, vmx);
+  // std::cout<<"Line "<< __LINE__ <<", D2I(): point="<< pbigx <<", dir="<< vmx <<" -> dist2in="<< Dist <<"\n";
   assert(ApproxEqual(Dist, 80));
   Dist = trap2.DistanceToIn(pbigmx, vx);
   assert(ApproxEqual(Dist, 80));
@@ -569,11 +571,11 @@ bool TestTrap()
   assert(ApproxEqual(dist, 50));
 
   dist = trap1.DistanceToIn(Vec_t(0, 60, 0), vxmy);
+  // std::cout<<" LIne "<< __LINE__ <<", trap1.D2I(): point=(0,60,0), dir="<< vxmy <<", d2in="<< dist <<"\n";
   assert(ApproxEqual(dist, Constants::kInfLength));
 
   dist = trap1.DistanceToIn(Vec_t(0, 50, 0), vxmy);
-  std::cout << "trap1.DistanceToIn(Vec_t(0,50,0),vxmy) = " << dist << " and vxmy=" << vxmy << std::endl;
-  // assert(ApproxEqual(dist,sqrt(800.)));  // A bug in UTrap!!!  Just keep printout above as a reminder
+  assert(ApproxEqual(dist, sqrt(800.)));
 
   dist = trap1.DistanceToIn(Vec_t(0, 40, 0), vxmy);
   assert(ApproxEqual(dist, 10.0 * std::sqrt(2.0)));
@@ -599,8 +601,7 @@ bool TestTrap()
   assert(ApproxEqual(dist, Constants::kInfLength));
 
   dist = trap1.DistanceToIn(Vec_t(0, 0, 70), vymz);
-  std::cout << "trap1.DistanceToIn(Vec_t(0,0,70),vymz) = " << dist << ", vymz=" << vymz << std::endl;
-  // assert(ApproxEqual(dist,30.0*sqrt(2.0)));  // A bug in UTrap!!!  Just keep printout above as a reminder
+  assert(ApproxEqual(dist, 30.0 * sqrt(2.0)));
 
   // CalculateExtent
 
@@ -661,6 +662,7 @@ void TestVECGEOM353()
   Vec_t point(-16.483749999999997, -6.4512999999999989, 0.00000099999999999999995);
   assert(!p->Contains(point));
   auto dist = p->DistanceToIn(point, Vec_t(1., 0., 0.));
+  // std::cout<<" TestVECGEOM353(): point="<< point <<", dir="<< Vec_t(1,0,0) <<" - distToIn="<< dist <<"\n";
   assert(dist == vecgeom::kInfLength);
 }
 
@@ -701,11 +703,11 @@ int main(int argc, char *argv[])
 #else
 #ifndef VECGEOM_REPLACE_USOLIDS
     TestTrap<USOLIDSCONSTANTS, UTrap>();
-    std::cout << "UTrap passed (but notice discrepancies above, where asserts have been disabled!)\n";
+    std::cout << "UTrap passed.\n";
 #else
     testvecgeom = true; // needed to avoid testing convexity when vecgeom is used
     TestTrap<VECGEOMCONSTANTS, UTrap>();
-    std::cout << "UTrap --> VecGeom trap passed\n";
+    std::cout << "UTrap --> VecGeom trap passed.\n";
 #endif
 #endif
   }

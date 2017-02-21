@@ -68,6 +68,30 @@ struct TrapezoidImplementation {
     st << "UnplacedTrapezoid";
   }
 
+#ifdef VECGEOM_PLANESHELL_DISABLE
+  template <typename Real_v>
+  VECGEOM_FORCE_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
+  static void EvaluateTrack(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
+                            Vector3D<Real_v> const &dir, Real_v *pdist, Real_v *proj, Real_v *vdist)
+  {
+    TrapSidePlane const *fPlanes = unplaced.GetPlanes();
+    // loop over side planes - find pdist,proj for each side plane
+    // auto-vectorizable part of loop
+    for (unsigned int i = 0; i < 4; ++i) {
+      // Note: normal vector is pointing outside the volume (convention), therefore
+      // pdist>0 if point is outside  and  pdist<0 means inside
+      pdist[i] = fPlanes[i].fA * point.x() + fPlanes[i].fB * point.y() + fPlanes[i].fC * point.z() + fPlanes[i].fD;
+
+      // proj is projection of dir over the normal vector of side plane, hence
+      // proj > 0 if pointing ~same direction as normal and proj<0 if ~opposite to normal
+      proj[i] = fPlanes[i].fA * dir.x() + fPlanes[i].fB * dir.y() + fPlanes[i].fC * dir.z();
+
+      vdist[i] = -pdist[i] / NonZero(proj[i]);
+    }
+  }
+#endif
+
   template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
@@ -156,87 +180,41 @@ struct TrapezoidImplementation {
   {
     (void)stepMax;
     using Bool_v = vecCore::Mask_v<Real_v>;
-    Bool_v done(false);
-    distance = kInfLength;
+    distance     = kInfLength;
 
     //
     // Step 1: find range of distances along dir between Z-planes (smin, smax)
     //
 
-    // convenience variables for direction pointing to +z or -z.
-    // Note that both posZdir and NegZdir may be false, if dir.z() is zero!
-    Bool_v posZdir = dir.z() > 0.0;
-    Bool_v negZdir = dir.z() < 0.0;
-    Real_v zdirSign(1.0); // z-direction
-    vecCore::MaskedAssign(zdirSign, negZdir, Real_v(-1.0));
-
-    Real_v max = zdirSign * unplaced.fDz - point.z(); // z-dist to farthest z-plane
-
     // step 1.a) input particle is moving away --> return infinity
+    Real_v max = Sign(dir.z()) * unplaced.fDz - point.z(); // z-dist to farthest z-plane
 
-    // check if moving away towards +z
-    done = done || (posZdir && max < MakePlusTolerant<true>(0.));
-
-    // check if moving away towards -z
-    done = done || (negZdir && max > MakeMinusTolerant<true>(0.));
+    // done = done || (dir.z()>0.0 && max < MakePlusTolerant<true>(0.));  // check if moving away towards +z
+    // done = done || (dir.z()<0.0 && max > MakeMinusTolerant<true>(0.)); // check if moving away towards -z
+    Bool_v done(Sign(dir.z()) * max < MakePlusTolerant<true>(0.0)); // if outside + moving away towards +/-z
 
     // if all particles moving away, we're done
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
 
-    // Step 1.b) General case:
-    //   smax,smin are range of distances within z-range, taking direction into account.
-    //   smin<smax - smax is positive, but smin may be either positive or negative
-    Real_v dirFactor = Real_v(1.0) / NonZero(dir.z()); // convert distances from z to dir
-    Real_v smax      = max * dirFactor;
-    Real_v smin      = (-zdirSign * unplaced.fDz - point.z()) * dirFactor;
-
-    // Step 1.c) special case: if dir is perpendicular to z-axis...
-    Bool_v test = (!posZdir) && (!negZdir);
-
-    // ... and out of z-range, then trajectory will not intercept volume
-    Bool_v zrange = Abs(point.z()) < MakeMinusTolerant<true>(unplaced.fDz);
-    done          = done || (test && !zrange);
-    if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
-
-    // ... or within z-range, then smin=-1, smax=infinity for now
-    vecCore::MaskedAssign(smin, test && zrange, Real_v(-1.0));
-    vecCore::MaskedAssign(smax, test && zrange, Real_v(kInfLength));
-
-//
-// Step 2: find distances for intersections with side planes.
-//
+    Real_v invdir = Real_v(1.0) / NonZero(dir.z()); // convert distances from z to dir
+    Real_v smax   = max * invdir;
+    Real_v smin   = (-Sign(dir.z()) * unplaced.fDz - point.z()) * invdir;
 
 #ifndef VECGEOM_PLANESHELL_DISABLE
     // If disttoplanes is such that smin < dist < smax, then distance=disttoplanes
-    Real_v disttoplanes = unplaced.GetPlanes()->DistanceToIn(point, smin, dir);
-
-    //=== special cases
-    // 1) point is inside (wrong-side) --> return -1
-    Bool_v inside = (smin < -kHalfTolerance && disttoplanes < -kHalfTolerance);
-    vecCore::MaskedAssign(distance, !done && inside, Real_v(-1.0)); // wrong-side point
-    done = done || inside;
-
-    // 2) point is outside plane-shell and moving away --> return infinity
-    done = done || disttoplanes == kInfLength;
-
-    // 3) track misses the trapezoid: smin<0 && disttoplanes>smax --> return infinity
-    done = done || (smin < 0 && disttoplanes > smax);
-    if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
-
-    // at this point we know there is a valid distance - start with the z-plane based one
-    vecCore::MaskedAssign(distance, !done, smin);
-
-    // and then take the one from the planar shell, if valid
-    Bool_v hitplanarshell = (disttoplanes > smin) && (disttoplanes < smax);
-    vecCore::MaskedAssign(distance, !done && hitplanarshell, disttoplanes);
+    Real_v disttoplanes = unplaced.GetPlanes()->DistanceToIn(point, dir, smin, smax);
+    vecCore::MaskedAssign(distance, !done, disttoplanes);
 
 #else
+
     // here for VECGEOM_PLANESHELL_DISABLE
-    TrapSidePlane const *fPlanes = unplaced.GetPlanes();
 
     // loop over side planes - find pdist,Comp for each side plane
     Real_v pdist[4], comp[4], vdist[4];
+    // EvaluateTrack<Real_v>(unplaced, point, dir, pdist, comp, vdist);
+
     // auto-vectorizable part of loop
+    TrapSidePlane const *fPlanes = unplaced.GetPlanes();
     for (unsigned int i = 0; i < 4; ++i) {
       // Note: normal vector is pointing outside the volume (convention), therefore
       // pdist>0 if point is outside  and  pdist<0 means inside
@@ -249,14 +227,14 @@ struct TrapezoidImplementation {
       vdist[i] = -pdist[i] / NonZero(comp[i]);
     }
 
-    // wrong-side check: if (inside && smin<0) return -1
-    Bool_v inside = smin < MakeMinusTolerant<true>(0.0) && smax > MakePlusTolerant<true>(0.0);
-
+    // check special cases
     for (int i = 0; i < 4; ++i) {
-      inside = inside && pdist[i] < MakeMinusTolerant<true>(0.0);
+      // points fully outside a plane and moving away or parallel to that plane
+      done = done || pdist[i] > MakePlusTolerant<true>(0.0) && comp[i] >= 0.0;
+      // points at a plane surface and exiting
+      done = done || pdist[i] > MakeMinusTolerant<true>(0.0) && comp[i] > 0.0;
     }
-    vecCore::MaskedAssign(distance, inside, Real_v(-1.0));
-    done = done || inside;
+    // if all particles moving away, we're done
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
 
     // this part does not auto-vectorize
@@ -265,27 +243,18 @@ struct TrapezoidImplementation {
       Bool_v posPoint = pdist[i] > MakeMinusTolerant<true>(0.);
       Bool_v posDir   = comp[i] > 0;
 
-      // discard the ones moving away from this plane
-      done = done || (posPoint && posDir);
-
-      // check if trajectory will intercept plane within current range (smin,smax)
-
-      Bool_v interceptFromInside = (!posPoint && posDir);
-      done                       = done || (interceptFromInside && vdist[i] < smin);
-
+      // check if trajectory will intercept plane within current range (smin,smax), otherwise track misses shape
+      Bool_v interceptFromInside  = (!posPoint && posDir);
       Bool_v interceptFromOutside = (posPoint && !posDir);
-      done                        = done || (interceptFromOutside && vdist[i] > smax);
-      if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
 
-      //.. If dist is such that smin < dist < smax, then adjust either smin or smax.
-      Bool_v validVdist = (vdist[i] > smin && vdist[i] < smax);
-      vecCore::MaskedAssign(smax, !done && interceptFromInside && validVdist, vdist[i]);
-      vecCore::MaskedAssign(smin, !done && interceptFromOutside && validVdist, vdist[i]);
+      //.. If dist is such that smin < dist < smax, then adjust either smin or smax
+      vecCore::MaskedAssign(smax, interceptFromInside && vdist[i] < smax, vdist[i]);
+      vecCore::MaskedAssign(smin, interceptFromOutside && vdist[i] > smin, vdist[i]);
     }
 
-    // Checks in non z plane intersections ensure smin<smax
-    vecCore::MaskedAssign(distance, !done, smin);
-#endif // end of #ifdef PLANESHELL
+    vecCore::MaskedAssign(distance, !done && smin <= smax, smin);
+// vecCore::MaskedAssign(distance, !done && distance < MakeMinusTolerant<true>(0.0), Real_v(-1.0));
+#endif
   }
 
   template <typename Real_v>
@@ -297,35 +266,17 @@ struct TrapezoidImplementation {
     (void)stepMax;
     using Bool_v = vecCore::Mask_v<Real_v>;
 
-    distance = kInfLength;
-    Bool_v done(false);
-
     // step 0: if point is outside any plane --> return -1
     Bool_v outside = Abs(point.z()) > MakePlusTolerant<true>(unplaced.fDz);
-    vecCore::MaskedAssign(distance, outside, Real_v(-1.0));
-    done = done || outside;
+    distance       = vecCore::Blend(outside, Real_v(-1.0), InfinityLength<Real_v>());
+    Bool_v done(outside);
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
 
     //
     // Step 1: find range of distances along dir between Z-planes (smin, smax)
     //
 
-    // convenience variables for direction pointing to +z or -z.
-    // Note that both posZdir and NegZdir may be false, if dir.z() is zero!
-    // Bool_v posZdir = dir.z() > 0.0;
-    Bool_v negZdir = dir.z() <= -0.0; // -0.0 is needed, see JIRA-150
-
-    // TODO: consider use of copysign or some other standard function
-    Real_v zdirSign(1.0); // z-direction
-    vecCore::MaskedAssign(zdirSign, negZdir, Real_v(-1.0));
-
-    Real_v max = zdirSign * unplaced.fDz - point.z(); // z-dist to farthest z-plane
-
-    // // if all particles moving away, we're done
-    // MaskedAssign( distance, done, Real_v(0.0) );
-    // if ( vecCore::MaskFull(done) ) return;
-
-    // Step 1.b) general case: assign distance to z plane
+    Real_v max   = Sign(dir.z()) * unplaced.fDz - point.z();
     Real_v distz = max / NonZero(dir.z());
     vecCore::MaskedAssign(distance, !done && dir.z() != Real_v(0.), distz);
 
@@ -335,16 +286,16 @@ struct TrapezoidImplementation {
 
 #ifndef VECGEOM_PLANESHELL_DISABLE
     Real_v disttoplanes = unplaced.GetPlanes()->DistanceToOut(point, dir);
-
-    // reconcile sides with endcaps
     vecCore::MaskedAssign(distance, disttoplanes < distance, disttoplanes);
 
 #else
     //=== Here for VECGEOM_PLANESHELL_DISABLE
-    TrapSidePlane const *fPlanes = unplaced.GetPlanes();
 
     // loop over side planes - find pdist,Comp for each side plane
     Real_v pdist[4], comp[4], vdist[4];
+    // EvaluateTrack<Real_v>(unplaced, point, dir, pdist, comp, vdist);
+
+    TrapSidePlane const *fPlanes = unplaced.GetPlanes();
     for (unsigned int i = 0; i < 4; ++i) {
       // Note: normal vector is pointing outside the volume (convention), therefore
       // pdist>0 if point is outside  and  pdist<0 means inside
@@ -365,9 +316,8 @@ struct TrapezoidImplementation {
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
 
     for (unsigned int i = 0; i < 4; ++i) {
-      // if point is inside, pointing towards plane and vdist<distance, then distance=vdist
-      Bool_v test = (vdist[i] >= MakeMinusTolerant<true>(0.)) && comp[i] > 0.0 && vdist[i] < distance;
-      vecCore::MaskedAssign(distance, !done && test, vdist[i]);
+      // if track is pointing towards plane and vdist<distance, then distance=vdist
+      vecCore::MaskedAssign(distance, !done && comp[i] > 0.0 && vdist[i] < distance, vdist[i]);
     }
 #endif
   }
@@ -385,14 +335,16 @@ struct TrapezoidImplementation {
 #else
     // Loop over side planes
     TrapSidePlane const *fPlanes = unplaced.GetPlanes();
-    Real_v Dist[4];
+    Real_v dist[4];
     for (int i = 0; i < 4; ++i) {
-      Dist[i] = fPlanes[i].fA * point.x() + fPlanes[i].fB * point.y() + fPlanes[i].fC * point.z() + fPlanes[i].fD;
+      dist[i] = fPlanes[i].fA * point.x() + fPlanes[i].fB * point.y() + fPlanes[i].fC * point.z() + fPlanes[i].fD;
     }
 
-    for (int i = 0; i < 4; ++i) {
-      vecCore::MaskedAssign(safety, Dist[i] > safety, Dist[i]);
-    }
+    // for (int i = 0; i < 4; ++i) {
+    //   vecCore::MaskedAssign(safety, dist[i] > safety, Dist[i]);
+    // }
+    Real_v safmax = Max(Max(dist[0], dist[1]), Max(dist[2], dist[3]));
+    vecCore::MaskedAssign(safety, safmax > safety, safmax);
 #endif
   }
 
@@ -401,16 +353,13 @@ struct TrapezoidImplementation {
   VECGEOM_CUDA_HEADER_BOTH
   static void SafetyToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety)
   {
-    using Bool_v = vecCore::Mask_v<Real_v>;
-    Bool_v done(false);
-    safety = -1.;
-
     // If point is outside (wrong-side) --> safety to negative value
     safety = unplaced.fDz - Abs(point.z());
-    done   = done || (safety < kHalfTolerance);
 
     // If all test points are outside, we're done
-    if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
+    if (vecCore::EarlyReturnAllowed()) {
+      if (vecCore::MaskFull(safety < kHalfTolerance)) return;
+    }
 
 #ifndef VECGEOM_PLANESHELL_DISABLE
     // Get safety over side planes
@@ -420,15 +369,18 @@ struct TrapezoidImplementation {
     TrapSidePlane const *fPlanes = unplaced.GetPlanes();
 
     // auto-vectorizable loop
-    Real_v Dist[4];
+    Real_v dist[4];
     for (int i = 0; i < 4; ++i) {
-      Dist[i] = -(fPlanes[i].fA * point.x() + fPlanes[i].fB * point.y() + fPlanes[i].fC * point.z() + fPlanes[i].fD);
+      dist[i] = -(fPlanes[i].fA * point.x() + fPlanes[i].fB * point.y() + fPlanes[i].fC * point.z() + fPlanes[i].fD);
     }
 
     // unvectorizable loop
-    for (int i = 0; i < 4; ++i) {
-      vecCore::MaskedAssign(safety, !done && Dist[i] < safety, Dist[i]);
-    }
+    // for (int i = 0; i < 4; ++i) {
+    //   vecCore::MaskedAssign(safety, Dist[i] < safety, Dist[i]);
+    // }
+
+    Real_v safmin = Min(Min(dist[0], dist[1]), Min(dist[2], dist[3]));
+    vecCore::MaskedAssign(safety, safmin < safety, safmin);
 #endif
   }
 

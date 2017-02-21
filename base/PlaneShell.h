@@ -157,20 +157,16 @@ public:
   ///     (1) +inf, if point+dir is outside & moving AWAY FROM OR PARALLEL TO any plane,
   ///     (2) -1, if point+dir crosses out a plane BEFORE crossing in ALL other planes (wrong-side)
   ///
-  /// Note: smin0 parameter is needed here, otherwise smax can become smaller than smin0,
-  ///   which means condition (2) happens and +inf must be returned.  Without smin0, this
-  ///   condition is sometimes missed.
+  /// Note: smin,smax parameters are needed here, to flag shape-missing tracks.
+  ///
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  Real_v DistanceToIn(Vector3D<Real_v> const &point, Real_v const &smin0, Vector3D<Real_v> const &dir) const
+  Real_v DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir, Real_v &smin, Real_v &smax) const
   {
     using Bool_v = vecCore::Mask_v<Real_v>;
     Bool_v done(false);
-
     Real_v distIn(kInfLength); // set for earlier returns
-    Real_v smax(kInfLength);
-    Real_v smin(smin0);
 
     // hope for a vectorization of this part for Backend==scalar!!
     Real_v pdist[N];
@@ -186,12 +182,10 @@ public:
     }
 
     // wrong-side check: if (inside && smin<0) return -1
-    Bool_v inside(smin < MakeMinusTolerant<true>(0.0));
     for (int i = 0; i < N; ++i) {
-      inside = inside && pdist[i] < MakeMinusTolerant<true>(0.0);
+      done = done || pdist[i] > MakePlusTolerant<true>(0.0) && proj[i] >= 0.0;
+      done = done || pdist[i] > MakeMinusTolerant<true>(0.0) && proj[i] > 0.0;
     }
-    vecCore::MaskedAssign(distIn, inside, Real_v(-1.0));
-    done = done || inside;
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return distIn;
 
     // analysis loop
@@ -199,7 +193,6 @@ public:
       // if outside and moving away, return infinity
       Bool_v posPoint = pdist[i] > MakeMinusTolerant<true>(0.0);
       Bool_v posDir   = proj[i] > 0;
-      done            = done || (posPoint && posDir);
 
       // check if trajectory will intercept plane within current range (smin,smax)
       Bool_v interceptFromInside = (!posPoint && posDir);
@@ -210,14 +203,13 @@ public:
       if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return distIn;
 
       // update smin,smax
-      Bool_v validVdist = (smin < vdist[i] && vdist[i] < smax);
-      vecCore::MaskedAssign(smin, !done && interceptFromOutside && validVdist, vdist[i]);
-      vecCore::MaskedAssign(smax, !done && interceptFromInside && validVdist, vdist[i]);
+      vecCore::MaskedAssign(smin, interceptFromOutside && vdist[i] > smin, vdist[i]);
+      vecCore::MaskedAssign(smax, interceptFromInside && vdist[i] < smax, vdist[i]);
     }
 
     // Survivors will return smin, which is the maximum distance in an interceptFromOutside situation
     // (SW: not sure this is true since smin is initialized from outside and can have any arbitrary value)
-    vecCore::MaskedAssign(distIn, !done && smin >= -kTolerance, smin);
+    vecCore::MaskedAssign(distIn, !done && smin <= smax, smin);
     return distIn;
   }
 
@@ -253,11 +245,8 @@ public:
     vecCore::MaskedAssign(distOut, done, Real_v(-1.0));
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return distOut;
 
-    // add = in vdist[i]>=0  and "proj[i]>0" in order to pass unit tests, but this will slow down DistToOut()!!! check
-    // effect!
     for (int i = 0; i < N; ++i) {
-      Bool_v test = (vdist[i] >= -kHalfTolerance && proj[i] > 0 && vdist[i] < distOut);
-      vecCore::MaskedAssign(distOut, test, vdist[i]);
+      vecCore::MaskedAssign(distOut, proj[i] > 0 && vdist[i] < distOut, vdist[i]);
     }
 
     return distOut;
