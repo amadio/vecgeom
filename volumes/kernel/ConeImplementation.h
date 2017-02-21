@@ -31,7 +31,8 @@ struct ConeHelper {
       template <typename VecType, typename OtherType typename BoolType>
       static
       inline
-      typename BoolType IsInRightZInterval( VecType const & z, OtherType const & dz )
+      typename BoolType IsInRightZInterval( VecType const & z, OtherType const &
+     dz )
       {
          return Abs(z) <= dz;
       }
@@ -40,21 +41,26 @@ struct ConeHelper {
      template<typename VectorType, typename MaskType>
      inline
      __attribute__((always_inline))
-     typename MaskType determineRHit( UnplacedCone const & unplaced, VectorType const & x, VectorType const & y,
+     typename MaskType determineRHit( UnplacedCone const & unplaced, VectorType
+     const & x, VectorType const & y,
      VectorType const & z,
-                                      VectorType const & dirx, VectorType const & diry, VectorType const & dirz,
+                                      VectorType const & dirx, VectorType const
+     & diry, VectorType const & dirz,
                                       VectorType const & distanceR ) const
      {
         if( ! checkPhiTreatment<ConeType>( unplaced ) )
         {
-           return distanceR > 0 && IsInRightZInterval( z+distanceR*dirz, unplaced->GetDz() );
+           return distanceR > 0 && IsInRightZInterval( z+distanceR*dirz,
+     unplaced->GetDz() );
         }
         else
         {
-           // need to have additional look if hitting point on zylinder is not in empty phi range
+           // need to have additional look if hitting point on zylinder is not
+     in empty phi range
            VectorType xhit = x + distanceR*dirx;
            VectorType yhit = y + distanceR*diry;
-           return distanceR > 0 && IsInRightZInterval( z + distanceR*dirz, unplaced->GetDz() )
+           return distanceR > 0 && IsInRightZInterval( z + distanceR*dirz,
+     unplaced->GetDz() )
                         && ! GeneralPhiUtils::PointIsInPhiSector(
                            unplaced->normalPhi1.x,
                            unplaced->normalPhi1.y,
@@ -75,28 +81,40 @@ namespace ConeUtilities {
 * by the point, the origin and the X-axes, but this is a lot faster,
 * using only multiplications and comparisons
 *
-* (-x*starty + y*startx) >= 0: calculates whether going from the start vector to the point
-* we are traveling in the CCW direction (taking the shortest direction, of course)
+* (-x*starty + y*startx) >= 0: calculates whether going from the start vector to
+*the point
+* we are traveling in the CCW direction (taking the shortest direction, of
+*course)
 *
-* (-endx*y + endy*x) >= 0: calculates whether going from the point to the end vector
-* we are traveling in the CCW direction (taking the shortest direction, of course)
+* (-endx*y + endy*x) >= 0: calculates whether going from the point to the end
+*vector
+* we are traveling in the CCW direction (taking the shortest direction, of
+*course)
 *
-* For a sector smaller than pi, we need that BOTH of them hold true - if going from start, to the
-* point, and then to the end we are travelling in CCW, it's obvious the point is inside the
+* For a sector smaller than pi, we need that BOTH of them hold true - if going
+*from start, to the
+* point, and then to the end we are travelling in CCW, it's obvious the point is
+*inside the
 * cylindrical sector.
 *
-* For a sector bigger than pi, only one of the conditions needs to be true. This is less obvious why.
-* Since the sector angle is greater than pi, it can be that one of the two vectors might be
-* farther than pi away from the point. In that case, the shortest direction will be CW, so even
+* For a sector bigger than pi, only one of the conditions needs to be true. This
+*is less obvious why.
+* Since the sector angle is greater than pi, it can be that one of the two
+*vectors might be
+* farther than pi away from the point. In that case, the shortest direction will
+*be CW, so even
 * if the point is inside, only one of the two conditions need to hold.
 *
-* If going from start to point is CCW, then certainly the point is inside as the sector
+* If going from start to point is CCW, then certainly the point is inside as the
+*sector
 * is larger than pi.
 *
 * If going from point to end is CCW, again, the point is certainly inside.
 *
-* This function is a frankensteinian creature that can determine which of the two cases (smaller vs larger than pi)
-* to use either at compile time (if it has enough information, saving an if statement) or at runtime.
+* This function is a frankensteinian creature that can determine which of the
+*two cases (smaller vs larger than pi)
+* to use either at compile time (if it has enough information, saving an if
+*statement) or at runtime.
 **/
 
 template <typename Backend, typename ShapeType, typename UnplacedVolumeType, bool onSurfaceT,
@@ -108,7 +126,8 @@ static void PointInCyclicalSector(UnplacedVolumeType const &volume, typename Bac
 {
 
   using namespace ::vecgeom::ConeTypes;
-  // assert(SectorType<ShapeType>::value != kNoAngle && "ShapeType without a sector passed to PointInCyclicalSector");
+  // assert(SectorType<ShapeType>::value != kNoAngle && "ShapeType without a
+  // sector passed to PointInCyclicalSector");
 
   typedef typename Backend::precision_v Float_t;
 
@@ -127,7 +146,8 @@ static void PointInCyclicalSector(UnplacedVolumeType const &volume, typename Bac
 
   Float_t startCheck = (-x * starty) + (y * startx);
   Float_t endCheck   = (-endx * y) + (endy * x);
-  // std::cout<<"StartCheck : "<<startCheck<<" : EndCheck : "<<endCheck<<std::endl;
+  // std::cout<<"StartCheck : "<<startCheck<<" : EndCheck :
+  // "<<endCheck<<std::endl;
 
   if (onSurfaceT) {
     // in this case, includeSurface is irrelevant
@@ -202,7 +222,8 @@ static void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, P
 
   Float_t dirDotXY = (dir.y() * alongX) - (dir.x() * alongY);
   vecCore::MaskedAssign(dist, dirDotXY != 0, ((alongY * pos.x()) - (alongX * pos.y())) / NonZero(dirDotXY));
-  // std::cout<<"Dist From PHI-Plane-Trajectory-Intersection  : "<<dist<<std::endl;
+  // std::cout<<"Dist From PHI-Plane-Trajectory-Intersection  :
+  // "<<dist<<std::endl;
   ok &= dist > -kHalfConeTolerance;
   // if( /*Backend::early_returns &&*/ vecCore::MaskEmpty(ok) ) return;
 
@@ -217,7 +238,8 @@ static void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, P
     ok &=
         Abs(hitz) <= cone.GetTolIz() && (r2 >= innerRadIrTol * innerRadIrTol) && (r2 <= outerRadIrTol * outerRadIrTol);
 
-    // GL: tested with this if(PosDirPhiVec) around if(insector), so if(insector){} requires PosDirPhiVec==true to run
+    // GL: tested with this if(PosDirPhiVec) around if(insector), so
+    // if(insector){} requires PosDirPhiVec==true to run
     //  --> shapeTester still finishes OK (no mismatches) (some cycles saved...)
     if (PositiveDirectionOfPhiVector) {
       ok = ok && ((hitx * alongX) + (hity * alongY)) > 0.;
@@ -370,8 +392,10 @@ struct ConeImplementation {
         inside = EInside::kSurface;
         //vecCore::MaskedAssign(inside,completelyoutside, EInside::kOutside);
         //vecCore::MaskedAssign(inside,completelyinside,  EInside::kInside);
-        vecCore::MaskedAssign(inside, (InsideBool_v)completelyoutside, Inside_t(EInside::kOutside));
-        vecCore::MaskedAssign(inside, (InsideBool_v)completelyinside, Inside_t(EInside::kInside));
+        vecCore::MaskedAssign(inside, (InsideBool_v)completelyoutside,
+       Inside_t(EInside::kOutside));
+        vecCore::MaskedAssign(inside, (InsideBool_v)completelyinside,
+       Inside_t(EInside::kInside));
         */
 
     const typename Backend::precision_v in(EInside::kInside);
@@ -486,7 +510,8 @@ struct ConeImplementation {
     done |= rsq > outerRadIrTol2 && (dir.Dot(GetNormal<Backend, false>(cone, point)) >= 0.);
     if (vecCore::MaskFull(done)) return;
 
-    //=== Next, check all dimensions of the cone, whether points are inside --> return -1
+    //=== Next, check all dimensions of the cone, whether points are inside -->
+    // return -1
 
     vecCore::MaskedAssign(distance, !done, Float_t(-1.0));
 
@@ -508,14 +533,17 @@ struct ConeImplementation {
     done |= inside;
     if (vecCore::MaskFull(done)) return;
 
-    //=== Next step: check if z-plane is the right entry point (both r,phi should be valid at z-plane crossing)
+    //=== Next step: check if z-plane is the right entry point (both r,phi
+    // should be valid at z-plane crossing)
     vecCore::MaskedAssign(distance, !done, Float_t(kInfLength));
 
     distz /= NonZero(Abs(dir.z()));
 
     Bool_t isOnZPlaneAndMovingInside(false);
 
-    Bool_t isGoingUp          = dir.z() > 0.;
+    Bool_t isGoingUp = dir.z() > 0.;
+    // isOnZPlaneAndMovingInside = ((isGoingUp && point.z() < 0. && Abs(distz) <
+    // kHalfTolerance) ||
     isOnZPlaneAndMovingInside = !inside && ((isGoingUp && point.z() < 0. && Abs(distz) < kHalfTolerance) ||
                                             (!isGoingUp && point.z() > 0. && Abs(distz) < kHalfTolerance));
     vecCore::MaskedAssign(distz, !done && isOnZPlaneAndMovingInside, Float_t(0.));
@@ -533,17 +561,17 @@ struct ConeImplementation {
     Float_t r2 = (hitx * hitx) + (hity * hity);
 
     Precision innerZTol         = cone.GetTolIz();
-    Bool_t isHittingTopPlane    = (point.z() >= innerZTol) && (r2 <= cone.GetSqRmax2Tol());  // GetSqRmax2());
-    Bool_t isHittingBottomPlane = (point.z() <= -innerZTol) && (r2 <= cone.GetSqRmax1Tol()); // GetSqRmax1());
+    Bool_t isHittingTopPlane    = (point.z() >= innerZTol) && (r2 <= cone.GetSqRmax2Tol());
+    Bool_t isHittingBottomPlane = (point.z() <= -innerZTol) && (r2 <= cone.GetSqRmax1Tol());
     Bool_t okz                  = (isHittingTopPlane || isHittingBottomPlane);
 
     if (checkRminTreatment<ConeType>(cone)) {
-      isHittingTopPlane &= (r2 >= cone.GetSqRmin2Tol());    // GetSqRmin2());
-      isHittingBottomPlane &= (r2 >= cone.GetSqRmin1Tol()); // GetSqRmin1());
+      isHittingTopPlane &= (r2 >= cone.GetSqRmin2Tol());
+      isHittingBottomPlane &= (r2 >= cone.GetSqRmin1Tol());
       okz &= ((isHittingTopPlane || isHittingBottomPlane));
     }
 
-    if (checkPhiTreatment<ConeType>(cone)) { // && !vecCore::MaskEmpty(okz)) {
+    if (checkPhiTreatment<ConeType>(cone)) {
       Bool_t insector;
       PointInCyclicalSector<Backend, ConeType, UnplacedCone, false>(cone, hitx, hity, insector);
       okz &= insector;
@@ -572,8 +600,6 @@ struct ConeImplementation {
     if (checkPhiTreatment<ConeType>(cone)) {
 
       Wedge const &w = cone.GetWedge();
-      // Vector3D<Float_t> normal1 = w.GetNormal1();
-      // Vector3D<Float_t> normal2 = w.GetNormal2();
 
       Float_t dist_phi;
       Bool_t ok_phi;
@@ -780,78 +806,86 @@ struct ConeImplementation {
 
     Float_t pDotV2D = point.x() * direction.x() + point.y() * direction.y();
 
+    Float_t a(0.), b(0.), c(0.);
+    Precision fDz = cone.GetDz();
     if (ForInnerSurface) {
-      Precision fDz = cone.GetDz();
-      Precision t   = cone.GetTInner();
-      Float_t newPz(0.);
-      if (cone.GetRmin2() > cone.GetRmin1())
-        newPz = (point.z() + fDz + cone.GetInnerConeApex()) * t;
-      else
-        newPz = (point.z() - fDz - cone.GetInnerConeApex()) * t;
 
-      Float_t dirT = direction.z() * t;
-      Float_t a    = (direction.x() * direction.x()) + (direction.y() * direction.y()) - dirT * dirT;
-
-      Float_t b     = pDotV2D - (newPz * dirT);
-      Float_t c     = point.Perp2() - (newPz * newPz);
-      Float_t d2    = (b * b) - (a * c);
-      Float_t delta = Sqrt(vecCore::math::Abs(d2));
-
-      // this block is required only when inner conical surface become surface of simple tube
       Precision rmin1 = cone.GetRmin1();
       Precision rmin2 = cone.GetRmin2();
       if (rmin1 == rmin2) {
-        b     = pDotV2D;
-        a     = direction.Perp2();
-        c     = point.Perp2() - rmin2 * rmin2;
-        d2    = b * b - a * c;
-        delta = Sqrt(vecCore::math::Abs(d2));
+        b = pDotV2D;
+        a = direction.Perp2();
+        c = point.Perp2() - rmin2 * rmin2;
+      } else {
+
+        Precision t = cone.GetTInner();
+        Float_t newPz(0.);
+        if (cone.GetRmin2() > cone.GetRmin1())
+          newPz = (point.z() + fDz + cone.GetInnerConeApex()) * t;
+        else
+          newPz = (point.z() - fDz - cone.GetInnerConeApex()) * t;
+
+        Float_t dirT = direction.z() * t;
+        a            = (direction.x() * direction.x()) + (direction.y() * direction.y()) - dirT * dirT;
+
+        b = pDotV2D - (newPz * dirT);
+        c = point.Perp2() - (newPz * newPz);
       }
+
+      Float_t b2 = b * b;
+      Float_t ac = a * c;
+      if (vecCore::MaskFull(b2 < ac)) return Bool_t(false);
+      Float_t d2 = b2 - ac;
+
+      Float_t delta = Sqrt(vecCore::math::Abs(d2));
       if (ForDistToIn) {
-        vecCore::MaskedAssign(distance, d2 >= 0. && (b >= 0.), (c / NonZero(-b - delta)));
+        vecCore::MaskedAssign(distance, d2 >= 0. && (b > 0.), (c / (-b - delta)));
         vecCore::MaskedAssign(distance, d2 >= 0. && (b < 0.), (-b + delta) / NonZero(a));
       } else {
         vecCore::MaskedAssign(distance, d2 >= 0. && (b > 0.), (-b - delta) / NonZero(a));
-        vecCore::MaskedAssign(distance, d2 >= 0. && (b < 0.), (c / NonZero(-b + delta)));
+        vecCore::MaskedAssign(distance, d2 >= 0. && (b < 0.), (c / (-b + delta)));
       }
 
+      if (vecCore::MaskFull(distance < 0.)) return Bool_t(false);
       Float_t newZ = point.z() + (direction.z() * distance);
-      ok           = (Abs(newZ) < fDz /*cone.GetDz()*/);
+      ok           = (Abs(newZ) < fDz);
 
     } else {
-      Precision fDz = cone.GetDz();
-      Precision t   = cone.GetTOuter();
-      Float_t newPz(0.);
-      if (cone.GetRmax2() > cone.GetRmax1())
-        newPz = (point.z() + fDz + cone.GetOuterConeApex()) * t;
-      else
-        newPz       = (point.z() - fDz - cone.GetOuterConeApex()) * t;
-      Float_t dirT  = direction.z() * t;
-      Float_t a     = direction.x() * direction.x() + direction.y() * direction.y() - dirT * dirT;
-      Float_t b     = pDotV2D - (newPz * dirT);
-      Float_t c     = point.Perp2() - (newPz * newPz);
-      Float_t d2    = (b * b) - (a * c);
-      Float_t delta = Sqrt(vecCore::math::Abs(d2));
 
-      // this block is required only when outer conical surface become surface of simple tube
       Precision rmax1 = cone.GetRmax1();
       Precision rmax2 = cone.GetRmax2();
       if (rmax1 == rmax2) {
-        b     = pDotV2D;
-        a     = direction.Perp2();
-        c     = point.Perp2() - rmax2 * rmax2;
-        d2    = b * b - a * c;
-        delta = Sqrt(vecCore::math::Abs(d2));
+        b = pDotV2D;
+        a = direction.Perp2();
+        c = point.Perp2() - rmax2 * rmax2;
+      } else {
+
+        Precision t = cone.GetTOuter();
+        Float_t newPz(0.);
+        if (cone.GetRmax2() > cone.GetRmax1())
+          newPz = (point.z() + fDz + cone.GetOuterConeApex()) * t;
+        else
+          newPz      = (point.z() - fDz - cone.GetOuterConeApex()) * t;
+        Float_t dirT = direction.z() * t;
+        a            = direction.x() * direction.x() + direction.y() * direction.y() - dirT * dirT;
+        b            = pDotV2D - (newPz * dirT);
+        c            = point.Perp2() - (newPz * newPz);
       }
+      Float_t b2 = b * b;
+      Float_t ac = a * c;
+      if (vecCore::MaskFull(b2 < ac)) return Bool_t(false);
+      Float_t d2    = b2 - ac;
+      Float_t delta = Sqrt(vecCore::math::Abs(d2));
 
       if (ForDistToIn) {
         vecCore::MaskedAssign(distance, d2 >= 0. && (b > 0.), (-b - delta) / NonZero(a));
-        vecCore::MaskedAssign(distance, d2 >= 0. && (b < 0.), (c / NonZero(-b + delta)));
+        vecCore::MaskedAssign(distance, d2 >= 0. && (b < 0.), (c / (-b + delta)));
       } else {
         vecCore::MaskedAssign(distance, d2 >= 0. && (b < 0.), (-b + delta) / NonZero(a));
-        vecCore::MaskedAssign(distance, d2 >= 0. && (b >= 0.), (c / NonZero(-b - delta)));
+        vecCore::MaskedAssign(distance, d2 >= 0. && (b > 0.), (c / (-b - delta)));
       }
 
+      if (vecCore::MaskFull(distance < 0.)) return Bool_t(false);
       Float_t newZ = point.z() + (direction.z() * distance);
       ok           = (Abs(newZ) < fDz + kHalfConeTolerance);
     }
@@ -893,7 +927,8 @@ struct ConeImplementation {
     Float_t outerRadOrTol  = GetRadiusOfConeAtPoint<Backend, false>(cone, point.z()) + kConeTolerance;
     Float_t outerRadOrTol2 = outerRadOrTol * outerRadOrTol;
 
-    //=== Next, check all dimensions of the cone, whether points are inside --> return -1
+    //=== Next, check all dimensions of the cone, whether points are inside -->
+    // return -1
     vecCore::MaskedAssign(distance, !done, Float_t(-1.0));
 
     // For points inside z-range, return -1
@@ -924,7 +959,8 @@ struct ConeImplementation {
     done |= isOnZPlaneAndMovingOutside;
     if (vecCore::MaskFull(done)) return;
 
-    //=== Next step: check if z-plane is the right entry point (both r,phi should be valid at z-plane crossing)
+    //=== Next step: check if z-plane is the right entry point (both r,phi
+    // should be valid at z-plane crossing)
     vecCore::MaskedAssign(distance, !done, Float_t(kInfLength));
 
     Precision fDz   = cone.GetDz();
@@ -1004,7 +1040,8 @@ struct ConeImplementation {
     Precision fDz = cone.GetDz();
     Float_t distz = Abs(point.z()) - fDz;
 
-    // Next, check all dimensions of the cone, whether points are inside --> return -1
+    // Next, check all dimensions of the cone, whether points are inside -->
+    // return -1
     vecCore::MaskedAssign(safety, !done, Float_t(-1.0));
 
     // For points inside z-range, return -1
@@ -1030,13 +1067,17 @@ struct ConeImplementation {
     done |= inside;
     if (vecCore::MaskFull(done)) return;
 
-    // Once it is checked that the point is inside or not, safety can be set to 0.
-    // This will serve the case that the point is on the surface. So no need to check
+    // Once it is checked that the point is inside or not, safety can be set to
+    // 0.
+    // This will serve the case that the point is on the surface. So no need to
+    // check
     // that the point is really on surface.
     vecCore::MaskedAssign(safety, !done, Float_t(0.));
 
-    // Now if the point is neither inside nor on surface, then it should be outside
-    // and the safety should be set to some finite value, which is done by below logic
+    // Now if the point is neither inside nor on surface, then it should be
+    // outside
+    // and the safety should be set to some finite value, which is done by below
+    // logic
 
     Float_t safeZ                = Abs(point.z()) - fDz;
     Float_t safeDistOuterSurface = -SafeDistanceToConicalSurface<Backend, false>(cone, point);
@@ -1106,7 +1147,8 @@ struct ConeImplementation {
     Float_t outerRadOrTol  = GetRadiusOfConeAtPoint<Backend, false>(cone, point.z()) + kTolerance;
     Float_t outerRadOrTol2 = outerRadOrTol * outerRadOrTol;
 
-    //=== Next, check all dimensions of the cone, whether points are inside --> return -1
+    //=== Next, check all dimensions of the cone, whether points are inside -->
+    // return -1
     vecCore::MaskedAssign(safety, !done, Float_t(-1.0));
 
     // For points outside z-range, return -1
@@ -1127,13 +1169,17 @@ struct ConeImplementation {
     done |= outside;
     if (vecCore::MaskFull(done)) return;
 
-    // Once it is checked that the point is inside or not, safety can be set to 0.
-    // This will serve the case that the point is on the surface. So no need to check
+    // Once it is checked that the point is inside or not, safety can be set to
+    // 0.
+    // This will serve the case that the point is on the surface. So no need to
+    // check
     // that the point is really on surface.
     vecCore::MaskedAssign(safety, !done, Float_t(0.));
 
-    // Now if the point is neither outside nor on surface, then it should be inside
-    // and the safety should be set to some finite value, which is done by below logic
+    // Now if the point is neither outside nor on surface, then it should be
+    // inside
+    // and the safety should be set to some finite value, which is done by below
+    // logic
 
     Precision fDz = cone.GetDz();
     Float_t safeZ = fDz - Abs(point.z());
@@ -1252,7 +1298,8 @@ struct ConeImplementation {
                                                        point);
   }
 
-  // This function will be used to calculate normal to the closest surface when the point is
+  // This function will be used to calculate normal to the closest surface when
+  // the point is
   // not on the surface
   template <typename Backend>
   VECGEOM_CUDA_HEADER_BOTH
@@ -1292,7 +1339,8 @@ struct ConeImplementation {
 
     Float_t distPhi1(kInfLength);
     Float_t distPhi2(kInfLength);
-    // Changing signs of normal component to negative, because Wedge gave inward normal
+    // Changing signs of normal component to negative, because Wedge gave inward
+    // normal
     if (ConeTypes::checkPhiTreatment<ConeType>(cone)) {
       distPhi1 = -p.x() * cone.GetWedge().GetNormal1().x() - p.y() * cone.GetWedge().GetNormal1().y();
       distPhi2 = -p.x() * cone.GetWedge().GetNormal2().x() - p.y() * cone.GetWedge().GetNormal2().y();
@@ -1348,7 +1396,8 @@ struct ConeImplementation {
     Vector3D<Float_t> endPhiNormal   = cone.GetWedge().GetNormal2();
 
     Vector3D<Float_t> approxNorm = ApproxSurfaceNormalKernel<Backend>(cone, p);
-    // vecCore::MaskedAssign(normal,!isOnSurface, ApproxSurfaceNormalKernel<Backend>(cone, p));
+    // vecCore::MaskedAssign(normal,!isOnSurface,
+    // ApproxSurfaceNormalKernel<Backend>(cone, p));
     vecCore::MaskedAssign(normal.x(), !isOnSurface, approxNorm.x());
     vecCore::MaskedAssign(normal.y(), !isOnSurface, approxNorm.y());
     vecCore::MaskedAssign(normal.z(), !isOnSurface, approxNorm.z());
@@ -1488,7 +1537,8 @@ struct ConeImplementation {
     return UnplacedContains<Backend>(unplaced, localPoint, contains);
   }
 
-#if 0 // removed, as it was producing warnings in clang-3.6 -- passes 'make test' at 100%
+#if 0 // removed, as it was producing warnings in clang-3.6 -- passes 'make
+      // test' at 100%
   // TODO: do we need both interfaces?
   template <class Backend>
   VECGEOM_FORCE_INLINE
@@ -1521,13 +1571,15 @@ struct ConeImplementation {
   }
 
   VECGEOM_CLASS_GLOBAL double kHalfCarTolerance = VECGEOM_NAMESPACE::kTolerance * 0.5;
-  // static constexpr double kHalfCarTolerance = VECGEOM_NAMESPACE::kHalfTolerance;
+  // static constexpr double kHalfCarTolerance =
+  // VECGEOM_NAMESPACE::kHalfTolerance;
   VECGEOM_CLASS_GLOBAL double kHalfRadTolerance = kRadTolerance * 0.5;
   VECGEOM_CLASS_GLOBAL double kHalfAngTolerance = kAngTolerance * 0.5;
 
   // the fall-back version from USolids
   // to take a short cut towards full functionality
-  // this really only makes sense for Scalar and CUDA backend and is copied here until
+  // this really only makes sense for Scalar and CUDA backend and is copied here
+  // until
   //  a generic and fully optimized VecGeom version is available
   template <class Backend>
   VECGEOM_FORCE_INLINE
@@ -2010,7 +2062,8 @@ struct ConeImplementation {
               }
             } else {
               // Within z extent, but not travelling through
-              // -> 2nd root or VECGEOM_NAMESPACE::kInfLength if 1st root on imaginary cone
+              // -> 2nd root or VECGEOM_NAMESPACE::kInfLength if 1st root on
+              // imaginary cone
 
               b = nt2 / nt1;
               c = nt3 / nt1;
@@ -2211,7 +2264,8 @@ struct ConeImplementation {
     //    typedef typename Backend::precision_v VectorType;
     //    typedef typename Vector3D<typename Backend::precision_v> Vector3D;
     //
-    //    MaskType done_m(false); // which particles in the vector are ready to be returned == aka have been treated
+    //    MaskType done_m(false); // which particles in the vector are ready to
+    //    be returned == aka have been treated
     //    distance = kInfLength; // initialize distance to infinity
     //
     //    // TODO: check that compiler is doing same thing
@@ -2229,20 +2283,24 @@ struct ConeImplementation {
     //    VectorType safez = unplaced.GetDz() - Abs(z);
     //    MaskType inz_m = safez > Utils::fgToleranceVc;
     //    VectorType dirz = localdir.z();
-    //    done_m = !inz_m && ( z*dirz >= 0 ); // particle outside the z-range and moving away
+    //    done_m = !inz_m && ( z*dirz >= 0 ); // particle outside the z-range
+    //    and moving away
     //
     //    VectorType x=localpoint.x();
     //    VectorType y=localpoint.y();
     //    VectorType r2 = x*x + y*y; // use of Perp2
-    //    VectorType n2 = VectorType(1)-(unplaced.GetOuterSlopeSquare() + 1) *dirz*dirz; // dirx_v*dirx_v +
+    //    VectorType n2 = VectorType(1)-(unplaced.GetOuterSlopeSquare() + 1)
+    //    *dirz*dirz; // dirx_v*dirx_v +
     //    diry_v*diry_v; ( dir is normalized !! )
     //    VectorType dirx = localdir.x();
     //    VectorType diry = localdir.y();
     //    VectorType rdotnplanar = x*dirx + y*diry; // use of PerpDot
     //
     //    // T a = 1 - dir.z*dir.z*(1+m*m);
-    //    // T b = 2 * ( pos.x*dir.x + pos.y*dir.y - m*m*pos.z*dir.z - m*n*dir.z);
-    //    // T c = ( pos.x*pos.x + pos.y*pos.y - m*m*pos.z*pos.z - 2*m*n*pos.z - n*n );
+    //    // T b = 2 * ( pos.x*dir.x + pos.y*dir.y - m*m*pos.z*dir.z -
+    //    m*n*dir.z);
+    //    // T c = ( pos.x*pos.x + pos.y*pos.y - m*m*pos.z*pos.z - 2*m*n*pos.z -
+    //    n*n );
     //
     //    // QUICK CHECK IF OUTER RADIUS CAN BE HIT AT ALL
     //    // BELOW WE WILL SOLVE A QUADRATIC EQUATION OF THE TYPE
@@ -2261,11 +2319,13 @@ struct ConeImplementation {
     //    // a = dirx*dirx + diry*diry -- independent of shape
     //    // c = x*x + y*y - R^2 = r2 - R^2 -- dependent on shape
     //    VectorType c = r2 - unplaced.GetOuterSlopeSquare()*z*z -
-    //    2*unplaced.GetOuterSlope()*unplaced.GetOuterOffset() * z - unplaced.GetOuterOffsetSquare();
+    //    2*unplaced.GetOuterSlope()*unplaced.GetOuterOffset() * z -
+    //    unplaced.GetOuterOffsetSquare();
     //
     //    VectorType a = n2;
     //
-    //    VectorType b = 2*(rdotnplanar - z*dirz*unplaced.GetOuterSlopeSquare() -
+    //    VectorType b = 2*(rdotnplanar - z*dirz*unplaced.GetOuterSlopeSquare()
+    //    -
     //    unplaced.GetOuterSlope()*unplaced.GetOuterOffset()*dirz);
     //    VectorType discriminant = b*b-4*a*c;
     //    MaskType   canhitrmax = ( discriminant >= 0 );
@@ -2288,25 +2348,32 @@ struct ConeImplementation {
     //    distanceRmax( canhitrmax ) = (-b - Sqrt( discriminant ))/(2.*a);
     //
     //    // this determines which vectors are done here already
-    //    MaskType Rdone = determineRHit( x, y, z, dirx, diry, dirz, distanceRmax );
+    //    MaskType Rdone = determineRHit( x, y, z, dirx, diry, dirz,
+    //    distanceRmax );
     //    distanceRmax( ! Rdone ) = Utils::kInfLengthVc;
     //    MaskType rmindone;
-    //    // **** inner tube ***** only compiled in for tubes having inner hollow cone -- or in case of a universal
+    //    // **** inner tube ***** only compiled in for tubes having inner
+    //    hollow cone -- or in case of a universal
     //    runtime shape ******/
     //    if ( checkRminTreatment<ConeType>(unplaced) )
     //    {
-    //       // in case of the Cone, generally all coefficients a, b, and c change
+    //       // in case of the Cone, generally all coefficients a, b, and c
+    //       change
     //       a = 1.-(unplaced.GetInnerSlopeSquare() + 1) *dirz*dirz;
-    //       c = r2 - unplaced.GetInnerSlopeSquare()*z*z - 2*unplaced.GetInnerSlope()*unplaced.GetInnerOffset() * z
+    //       c = r2 - unplaced.GetInnerSlopeSquare()*z*z -
+    //       2*unplaced.GetInnerSlope()*unplaced.GetInnerOffset() * z
     //               - unplaced.GetInnerOffsetSquare();
-    //       b = 2*(rdotnplanar - dirz*(z*unplaced.GetInnerSlopeSquare + unplaced.GetInnerOffset*
+    //       b = 2*(rdotnplanar - dirz*(z*unplaced.GetInnerSlopeSquare +
+    //       unplaced.GetInnerOffset*
     //       unplaced.GetInnerSlope()));
     //       discriminant =  b*b-4*a*c;
     //       MaskType canhitrmin = ( discriminant >= Vc::Zero );
     //       VectorType distanceRmin ( Utils::kInfLengthVc );
     //       // this is always + solution
-    //       distanceRmin ( canhitrmin ) = (-b + Vc::sqrt( discriminant ))/(2*a);
-    //       rmindone = determineRHit( x, y, z, dirx, diry, dirz, distanceRmin );
+    //       distanceRmin ( canhitrmin ) = (-b + Vc::sqrt( discriminant
+    //       ))/(2*a);
+    //       rmindone = determineRHit( x, y, z, dirx, diry, dirz, distanceRmin
+    //       );
     //       distanceRmin ( ! rmindone ) = Utils::kInfLength;
     //
     //       // reduction of distances
@@ -2327,26 +2394,32 @@ struct ConeImplementation {
     //
     //        // now PHI
     //
-    //        // **** PHI TREATMENT FOR CASE OF HAVING RMAX ONLY ***** only compiled in for cones having phi sektion
+    //        // **** PHI TREATMENT FOR CASE OF HAVING RMAX ONLY ***** only
+    //        compiled in for cones having phi sektion
     //        ***** //
     //        if ( ConeTraits::NeedsPhiTreatment<ConeType>::value )
     //        {
-    //           // all particles not done until here have the potential to hit a phi surface
-    //           // phi surfaces require divisions so it might be useful to check before continuing
+    //           // all particles not done until here have the potential to hit
+    //           a phi surface
+    //           // phi surfaces require divisions so it might be useful to
+    //           check before continuing
     //
-    //           if( ConeTraits::NeedsRminTreatment<ConeType>::value || ! done_m.vecCore::MaskFull() )
+    //           if( ConeTraits::NeedsRminTreatment<ConeType>::value || !
+    //           done_m.vecCore::MaskFull() )
     //           {
     //              VectorType distphi;
     //              ConeUtils::DistanceToPhiPlanes<ValueType,ConeTraits::IsPhiEqualsPiCase<ConeType>::value,ConeTraits::NeedsRminTreatment<ConeType>::value>(coneparams->dZ,
     //                    coneparams->outerslope, coneparams->outeroffset,
     //                    coneparams->innerslope, coneparams->inneroffset,
-    //                    coneparams->normalPhi1.x, coneparams->normalPhi1.y, coneparams->normalPhi2.x,
+    //                    coneparams->normalPhi1.x, coneparams->normalPhi1.y,
+    //                    coneparams->normalPhi2.x,
     //                    coneparams->normalPhi2.y,
     //                    coneparams->alongPhi1, coneparams->alongPhi2,
     //                    x, y, z, dirx, diry, dirz, distphi);
     //              if(ConeTraits::NeedsRminTreatment<ConeType>::value)
     //              {
-    //                 // distance(! done_m || (rmindone && ! inrmin_m ) || (rmaxdone && ) ) = distphi;
+    //                 // distance(! done_m || (rmindone && ! inrmin_m ) ||
+    //                 (rmaxdone && ) ) = distphi;
     //                 // distance ( ! done_m ) = distphi;
     //                 distance = Vc::min(distance, distphi);
     //              }
@@ -2467,7 +2540,8 @@ struct ConeImplementation {
         if (nt3 > -kHalfRadTolerance && nt2 >= 0) {
           //              risec     = Sqrt(t3) * unplaced.fSecRMax;
           // aConvex = true;
-          // aNormalVector        = Vector3D<Precision>(p.x() / risec, p.y() / risec, -unplaced.fTanRMax /
+          // aNormalVector        = Vector3D<Precision>(p.x() / risec, p.y() /
+          // risec, -unplaced.fTanRMax /
           // unplaced.fSecRMax);
           return snxt = 0;
         } else {
@@ -2521,7 +2595,8 @@ struct ConeImplementation {
 
         // risec     = Sqrt(t3) * unplaced.fSecRMax;
         // aConvex = true;
-        // aNormalVector        = Vector3D<Precision>(p.x() / risec, p.y() / risec, -unplaced.fTanRMax /
+        // aNormalVector        = Vector3D<Precision>(p.x() / risec, p.y() /
+        // risec, -unplaced.fTanRMax /
         // unplaced.fSecRMax);
         return snxt = 0.0;
       }
@@ -2530,7 +2605,8 @@ struct ConeImplementation {
 
       //          risec     = Sqrt(t3) * unplaced.fSecRMax;
       // aConvex = true;
-      // aNormalVector        = Vector3D<Precision>(p.x() / risec, p.y() / risec, -unplaced.fTanRMax /
+      // aNormalVector        = Vector3D<Precision>(p.x() / risec, p.y() /
+      // risec, -unplaced.fTanRMax /
       // unplaced.fSecRMax);
       return snxt = 0.0;
     } else {
@@ -2557,7 +2633,8 @@ struct ConeImplementation {
       xi    = p.x() + slentol * v.x();
       yi    = p.y() + slentol * v.y();
       risec = Sqrt(xi * xi + yi * yi) * unplaced.fSecRMax;
-      Vector3D<Precision> norm = Vector3D<Precision>(xi / risec, yi / risec, -unplaced.fTanRMax / unplaced.fSecRMax);
+      Vector3D<Precision> norm = Vector3D<Precision>(xi / risec, yi / risec,
+    -unplaced.fTanRMax / unplaced.fSecRMax);
 
       if (norm.Dot(v) > 0)     // We will leave the Cone immediatelly
       {
@@ -2598,8 +2675,10 @@ struct ConeImplementation {
           if (nt3 < kRadTolerance * (rin + kRadTolerance * 0.25)) {
             if (nt2 < 0.0) {
               // aConvex = false;
-              // risec = Sqrt(p.x() * p.x() + p.y() * p.y()) * unplaced.fSecRMin;
-              // aNormalVector = UVector3(-p.x() / risec, -p.y() / risec, unplaced.fTanRMin / unplaced.fSecRMin);
+              // risec = Sqrt(p.x() * p.x() + p.y() * p.y()) *
+              // unplaced.fSecRMin;
+              // aNormalVector = UVector3(-p.x() / risec, -p.y() / risec,
+              // unplaced.fTanRMin / unplaced.fSecRMin);
               return snxt = 0.0;
             }
           } else {
@@ -2669,12 +2748,14 @@ struct ConeImplementation {
               if (sidetol == kRMax)
               {
                 risec = Sqrt(xi * xi + yi * yi) * unplaced.fSecRMax;
-                norm = UVector3(xi / risec, yi / risec, -unplaced.fTanRMax / unplaced.fSecRMax);
+                norm = UVector3(xi / risec, yi / risec, -unplaced.fTanRMax /
+            unplaced.fSecRMax);
               }
               else
               {
                 risec = Sqrt(xi * xi + yi * yi) * unplaced.fSecRMin;
-                norm = UVector3(-xi / risec, -yi / risec, unplaced.fTanRMin / unplaced.fSecRMin);
+                norm = UVector3(-xi / risec, -yi / risec, unplaced.fTanRMin /
+            unplaced.fSecRMin);
               }
               if (norm.Dot(v) > 0)
               {
@@ -3011,7 +3092,8 @@ struct ConeImplementation {
                            Vector3D<typename Backend::precision_v> &normal, typename Backend::bool_v &valid)
   {
     // TODO: provide generic vectorized implementation
-    // TODO: transform point p to local coordinates (GL: code assumes input point is in local coords already)
+    // TODO: transform point p to local coordinates (GL: code assumes input
+    // point is in local coords already)
 
     int noSurfaces = 0;
     double rho, pPhi;
@@ -3045,11 +3127,13 @@ struct ConeImplementation {
     distRMin = Abs(distRMin);
     distRMax = Abs(distRMax);
 
-    // keep track of which surface is nearest point P, needed in case point is not on a surface
+    // keep track of which surface is nearest point P, needed in case point is
+    // not on a surface
     double distNearest              = distZ;
     Vector3D<Precision> normNearest = nZ;
     if (p.z() < 0.) normNearest.Set(0, 0, -1.);
-    // std::cout<<"ConeImpl: spot 1: p="<< p <<", normNearest="<< normNearest <<", distZ="<< distZ <<"\n";
+    // std::cout<<"ConeImpl: spot 1: p="<< p <<", normNearest="<< normNearest
+    // <<", distZ="<< distZ <<"\n";
 
     if (inside && distZ <= delta) {
       noSurfaces++;
