@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <limits>
+#include "VecCore/Limits.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -26,9 +27,9 @@ VECGEOM_CONST Precision kAvogadro     = 6.02214085774e23;
 VECGEOM_CONST Precision kEpsilon      = std::numeric_limits<Precision>::epsilon();
 // VECGEOM_CONST Precision kInfinity         = std::numeric_limits<Precision>::infinity();
 // a special constant to indicate a "miss" length
-VECGEOM_CONST Precision kInfLength        = std::numeric_limits<Precision>::max();
-VECGEOM_CONST Precision kMaximum          = std::numeric_limits<Precision>::max();
-VECGEOM_CONST Precision kMinimum          = std::numeric_limits<Precision>::min();
+VECGEOM_CONST Precision kInfLength        = vecCore::NumericLimits<Precision>::Max();
+VECGEOM_CONST Precision kMaximum          = vecCore::NumericLimits<Precision>::Max();
+VECGEOM_CONST Precision kMinimum          = vecCore::NumericLimits<Precision>::Min();
 VECGEOM_CONST Precision kPi               = 3.14159265358979323846;
 VECGEOM_CONST Precision kHalfPi           = 0.5 * kPi;
 VECGEOM_CONST Precision kTwoPi            = 2. * kPi;
