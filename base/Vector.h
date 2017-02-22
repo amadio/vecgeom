@@ -16,6 +16,20 @@ VECGEOM_DEVICE_FORWARD_DECLARE(template <typename Type> class Vector;);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+namespace Internal {
+template <typename T>
+struct AllocTrait {
+  VECGEOM_CUDA_HEADER_BOTH
+  static void Destroy(T &obj) { obj.~T(); };
+};
+
+template <typename T>
+struct AllocTrait<T *> {
+  VECGEOM_CUDA_HEADER_BOTH
+  static void Destroy(T *&) {}
+};
+}
+
 template <typename Type>
 class Vector {
 
@@ -25,6 +39,8 @@ private:
   bool fAllocated;
 
 public:
+  using value_type = Type;
+
   VECGEOM_CUDA_HEADER_BOTH
   Vector() : fData(new Type[1]), fSize(0), fMemorySize(1), fAllocated(true) {}
 
@@ -171,6 +187,22 @@ public:
     fSize = newsize;
     delete[] temp;
   }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_FORCE_INLINE
+  iterator erase(const_iterator position)
+  {
+    iterator where = (begin() + (position - cbegin()));
+    if (where + 1 != end()) {
+      auto last = cend();
+      for (auto c = where; (where + 1) != last; ++c)
+        *c = (*c + 1);
+    }
+    --fSize;
+    if (fSize) Internal::AllocTrait<Type>::Destroy(fData[fSize]);
+    return where;
+  }
+
 #ifdef VECGEOM_CUDA_INTERFACE
   DevicePtr<cuda::Vector<CudaType_t<Type>>> CopyToGpu(DevicePtr<CudaType_t<Type>> const gpu_ptr_arr,
                                                       DevicePtr<cuda::Vector<CudaType_t<Type>>> const gpu_ptr) const
