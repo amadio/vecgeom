@@ -32,6 +32,9 @@ include(MacroUtilities)
 ################################################################################
 
 # Configuration options
+
+option(BUILTIN_VECCORE "Build VecCore and its dependencies from source" ON)
+
 option(USOLIDS_VECGEOM "Forward USOLIDS volumes to their VecGeom implementation" OFF)
 
 option(CUDA "Enable compilation for CUDA." OFF)
@@ -160,44 +163,87 @@ elseif (_backend_up MATCHES MICVEC)
   message(STATUS "Configuring with \"Micvec\" vector backend.")
 elseif (_backend_up MATCHES UMESIMD)
   set(UMESIMD ON)
-  find_package(UMESIMD)
-  if(UMESIMD_FOUND)
-    set(UMESIMD ON CACHE BOOL "" FORCE) # enable UMESIMD in VecCore
-    include_directories(SYSTEM ${UMESIMD_INCLUDE_DIR})
-    set(VECGEOM_EXTERNAL_INCLUDES "${VECGEOM_EXTERNAL_INCLUDES};${UMESIMD_INCLUDE_DIR}")
-  endif()
   message(STATUS "Configuring with \"UME::SIMD\" vector backend.")
 elseif (_backend_up MATCHES DEFAULT)
   set(Vc ON)
-  set(VC ON CACHE BOOL "" FORCE) # enable Vc in VecCore
   set(BACKEND VC CACHE STRING "Set by default to VC" FORCE)
   message(STATUS "Backend not specified. Defaulting to Vc.")
 else()
   message(FATAL_ERROR "Value '${BACKEND}' for variable BACKEND is not allowed. ")
 endif()
 
-add_subdirectory(VecCore)
-# A hack for more user friendliness
-# If Vc wanted but was not found .. we fall back to scalar
-if (Vc)
-  if (NOT Vc_FOUND)
-    message(STATUS "****************************************************************")
-    message(STATUS "***** Tried to configure using Vc backend but Vc was not found *")
-    message(STATUS "***** Falling back to Scalar backend                           *")
-    message(STATUS "***** If you want to use Vc; please install it                 *")
-    message(STATUS "******  ...   and/or fix your cmake command options            *")
-    message(STATUS "****************************************************************")
-    set(Vc OFF)
-    set(VC OFF)
-    set(Scalar ON)
-    set(BACKEND Scalar CACHE STRING "Fallback by default to Scalar" FORCE)
+if (BUILTIN_VECCORE)
+    set(VecCore_VERSION "0.3.1")
+    set(VecCore_PROJECT "VecCore-${VecCore_VERSION}")
+    set(VecCore_SRC_URI "https://github.com/amadio/veccore")
+    set(VecCore_SRC_MD5 "9f70694347ba946d47780643ffe1790e")
+    set(VecCore_DESTDIR "${CMAKE_BINARY_DIR}/${VecCore_PROJECT}")
+    set(VecCore_ROOTDIR "${VecCore_DESTDIR}/${CMAKE_INSTALL_PREFIX}")
+
+    if (Vc)
+      if (MIC)
+        set(KNC_SUFFIX "_MIC")
+      endif()
+      set(Vc_LIBNAME ${CMAKE_STATIC_LIBRARY_PREFIX}Vc${KNC_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX})
+      set(Vc_LIBRARY ${VecCore_ROOTDIR}/lib${LIB_SUFFIX}/${Vc_LIBNAME})
+    endif()
+
+    ExternalProject_Add(${VecCore_PROJECT}
+      PREFIX externals
+      URL "${VecCore_SRC_URI}/archive/v${VecCore_VERSION}.tar.gz"
+      URL_MD5 ${VecCore_SRC_MD5}
+      BUILD_IN_SOURCE 0
+      BUILD_BYPRODUCTS ${Vc_LIBRARY}
+      LOG_DOWNLOAD 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
+      CMAKE_ARGS -G ${CMAKE_GENERATOR}
+                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DBUILD_TESTING=OFF
+                 -DCUDA=${CUDA} -DBUILD_VC=${Vc} -DBUILD_UMESIMD=${UMESIMD}
+                 -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+                 -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
+                 -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+                 -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+                 -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+      INSTALL_COMMAND env DESTDIR=${VecCore_DESTDIR} ${CMAKE_COMMAND} --build . --target install
+    )
+
+    add_custom_target(VecCore)
+    add_dependencies(VecCore ${VecCore_PROJECT})
+    set(VecCore_INCLUDE_DIRS ${VecCore_ROOTDIR}/include)
+
+    if (Vc)
+      add_library(Vc${KNC_SUFFIX} STATIC IMPORTED)
+      set_property(TARGET Vc${KNC_SUFFIX} PROPERTY IMPORTED_LOCATION ${Vc_LIBRARY})
+      set(VecCore_LIBRARIES Vc${KNC_SUFFIX})
+    endif()
+
+    install(DIRECTORY ${VecCore_ROOTDIR}/ DESTINATION ".")
+else()
+  # Find VecCore and check that it's installed with correct options
+
+  if (MIC)
+    # VecCore uses this to choose right Vc library
+    set(KNC True CACHE BOOL INTERNAL "")
+  endif()
+
+  find_package(VecCore 0.3.1 REQUIRED)
+
+  if (CUDA AND NOT VecCore_ENABLE_CUDA)
+    add_definitions(-DVECCORE_ENABLE_CUDA)
+  endif()
+
+  if (Vc AND NOT VecCore_ENABLE_VC)
+    message(FATAL_ERROR "Requested Vc backend, but VecCore is installed with Vc support disabled")
+  endif()
+
+  if (UMESIMD AND NOT VecCore_ENABLE_UMESIMD)
+    message(FATAL_ERROR "Requested UME::SIMD backend, but VecCore is installed with UME::SIMD support disabled")
   endif()
 endif()
 
+include_directories(${VecCore_INCLUDE_DIRS})
 
-# CMake does not propagate these up, must be added by hand
-include_directories(${PROJECT_SOURCE_DIR}/VecCore/include)
-include_directories(${PROJECT_BINARY_DIR}/VecCore/include)
+set(VECGEOM_EXTERNAL_INCLUDES "${VECGEOM_EXTERNAL_INCLUDES};${VecCore_INCLUDE_DIRS}")
+set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${VecCore_LIBRARIES})
 
 ################################################################################
 
@@ -439,18 +485,10 @@ endif(CCACHE_FOUND)
 
 # Backend configuration
 
-if (Vc)
-  if (MIC)
-    set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${Vc_MIC_LIBRARIES})
-  else()
-    set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${Vc_LIBRARIES})
-  endif()
-  include_directories(AFTER SYSTEM ${Vc_INCLUDE_DIR})
-  set(VECGEOM_EXTERNAL_INCLUDES "${VECGEOM_EXTERNAL_INCLUDES};${Vc_INCLUDE_DIR}")
+include_directories(AFTER SYSTEM ${VecCore_INCLUDE_DIRS})
 
-  if (Vc)
-    set(SRC_EXTERNAL ${SRC_EXTERNAL} source/backend/vc/Backend.cpp)
-  endif()
+if (Vc)
+  set(SRC_EXTERNAL ${SRC_EXTERNAL} source/backend/vc/Backend.cpp)
 endif()
 
 if (Cilk)
@@ -798,6 +836,7 @@ endif()
 add_library(vecgeom ${SRC_CPP})
 target_link_libraries(vecgeom ${VECGEOM_LIBRARIES}
                       ${VECGEOM_LIBRARIES_EXTERNAL})
+
 if(VGM)
 add_dependencies(vecgeom VGM)
 endif(VGM)
@@ -827,9 +866,15 @@ if (CUDA)
   target_link_libraries(vecgeomcuda ${VECGEOM_LIBRARIES}
                         ${VECGEOM_LIBRARIES_EXTERNAL})
   set(VECGEOM_LIBRARIES ${VECGEOM_LIBRARIES} vecgeomcuda)
-
 endif()
 
+# Make sure we build VecCore before building VecGeom
+if (BUILTIN_VECCORE)
+  add_dependencies(vecgeom VecCore)
+  if (CUDA)
+    add_dependencies(vecgeomcuda VecCore)
+  endif()
+endif()
 
 # build the CUDA user-code library
 if (CUDA)
