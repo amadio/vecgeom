@@ -132,7 +132,8 @@ public:
 inline namespace BaseTLS {
 
 static int gNumThreads = 0;
-static std::atomic_flag gLock(ATOMIC_FLAG_INIT);
+
+static std::atomic_flag gLock = ATOMIC_FLAG_INIT;
 
 inline int ThreadId()
 {
