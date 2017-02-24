@@ -5,7 +5,6 @@
 #define VECGEOM_VOLUMES_PLACEDTRD_H_
 
 #include "base/Global.h"
-#include "backend/Backend.h"
 #ifndef VECGEOM_NVCC
 #include "base/RNG.h"
 #include <cmath>
@@ -13,6 +12,8 @@
 #include "volumes/PlacedVolume.h"
 #include "volumes/UnplacedVolume.h"
 #include "volumes/kernel/TrdImplementation.h"
+#include "volumes/PlacedVolImplHelper.h"
+#include "volumes/UnplacedTrd.h"
 
 namespace vecgeom {
 
@@ -21,34 +22,32 @@ VECGEOM_DEVICE_DECLARE_CONV(class, PlacedTrd);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class PlacedTrd : public VPlacedVolume {
+class PlacedTrd : public PlacedVolumeImplHelper<UnplacedTrd, VPlacedVolume> {
+  using Base = PlacedVolumeImplHelper<UnplacedTrd, VPlacedVolume>;
 
 public:
-  typedef UnplacedTrd UnplacedShape_t;
-
 #ifndef VECGEOM_NVCC
-
-  PlacedTrd(char const *const label, LogicalVolume const *const logical_volume,
-            Transformation3D const *const transformation, PlacedBox const *const boundingBox)
-      : VPlacedVolume(label, logical_volume, transformation, boundingBox)
+  // constructor inheritance;
+  using Base::Base;
+  PlacedTrd(char const *const label, LogicalVolume const *const logicalVolume,
+            Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
+      : Base(label, logicalVolume, transformation, boundingBox)
   {
   }
 
-  PlacedTrd(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-            PlacedBox const *const boundingBox)
-      : PlacedTrd("", logical_volume, transformation, boundingBox)
+  PlacedTrd(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
+            vecgeom::PlacedBox const *const boundingBox)
+      : PlacedTrd("", logicalVolume, transformation, boundingBox)
   {
   }
-
 #else
-
-  __device__ PlacedTrd(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
+  __device__ PlacedTrd(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
                        PlacedBox const *const boundingBox, const int id)
-      : VPlacedVolume(logical_volume, transformation, boundingBox, id)
+      : Base(logicalVolume, transformation, boundingBox, id)
   {
   }
-
 #endif
+
   VECGEOM_CUDA_HEADER_BOTH
   virtual ~PlacedTrd() {}
 
@@ -112,11 +111,9 @@ public:
     return GetUnplacedVolume()->Normal(point, normal);
   }
 
-/*
-void Extent(Vector3D<Precision>& aMin, Vector3D<Precision>& aMax) const override {
-   GetUnplacedVolume()->Extent(aMin, aMax);
-}
-*/
+  /** @brief Memory size in bytes */
+  VECGEOM_FORCE_INLINE
+  virtual int memory_size() const override { return sizeof(*this); }
 
 #if defined(VECGEOM_USOLIDS)
   virtual std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType(); }

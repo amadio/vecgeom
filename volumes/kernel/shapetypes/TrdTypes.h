@@ -61,12 +61,12 @@ struct HasVaryingY<Trd2> {
 template <typename T>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-bool checkVaryingY(const UnplacedTrd &trd)
+bool checkVaryingY(const TrdStruct<double> &trd)
 {
   if (HasVaryingY<T>::value != kUnknown)
     return HasVaryingY<T>::value == kYes;
   else
-    return trd.dy1() != trd.dy2();
+    return trd.fDY1 != trd.fDY2;
 }
 
 } // end of TrdTypes

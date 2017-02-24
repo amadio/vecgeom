@@ -7,6 +7,9 @@
 #include "base/Global.h"
 #include "base/AlignedBase.h"
 #include "volumes/UnplacedVolume.h"
+#include "TrdStruct.h"
+#include "volumes/kernel/TrdImplementation.h"
+#include "volumes/UnplacedVolumeImplHelper.h"
 
 namespace vecgeom {
 
@@ -15,176 +18,136 @@ VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedTrd);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class UnplacedTrd : public VUnplacedVolume, public AlignedBase {
+class UnplacedTrd : public SIMDUnplacedVolumeImplHelper<TrdImplementation<TrdTypes::UniversalTrd>>, public AlignedBase {
 private:
-  // trd defining parameters
-  Precision fDX1; // Half-length along x at the surface positioned at -dz
-  Precision fDX2; // Half-length along x at the surface positioned at +dz
-  Precision fDY1; // Half-length along y at the surface positioned at -dz
-  Precision fDY2; // Half-length along y at the surface positioned at +dz
-  Precision fDZ;  // Half-length along z axis
-
-  // cached values
-  Precision fX2minusX1;
-  Precision fY2minusY1;
-  Precision fHalfX1plusX2;
-  Precision fHalfY1plusY2;
-  Precision fCalfX, fCalfY;
-  Precision fSecxz, fSecyz;
-  Precision fToleranceX; // Corrected tolerance for Inside checks on X
-  Precision fToleranceY; // Corrected tolerance for Inside checks on Y
-
-  Precision fFx, fFy;
-
-  VECGEOM_CUDA_HEADER_BOTH
-  void calculateCached()
-  {
-    fX2minusX1    = fDX2 - fDX1;
-    fY2minusY1    = fDY2 - fDY1;
-    fHalfX1plusX2 = 0.5 * (fDX1 + fDX2);
-    fHalfY1plusY2 = 0.5 * (fDY1 + fDY2);
-
-    fFx    = 0.5 * (fDX1 - fDX2) / fDZ;
-    fFy    = 0.5 * (fDY1 - fDY2) / fDZ;
-    fSecxz = sqrt(1 + fFx * fFx);
-    fSecyz = sqrt(1 + fFy * fFy);
-
-    fCalfX      = 1. / Sqrt(1.0 + fFx * fFx);
-    fCalfY      = 1. / Sqrt(1.0 + fFy * fFy);
-    fToleranceX = kTolerance * Sqrt(fX2minusX1 * fX2minusX1 + 4 * fDZ * fDZ);
-    fToleranceY = kTolerance * Sqrt(fX2minusX1 * fX2minusX1 + 4 * fDZ * fDZ);
-  }
+  TrdStruct<double> fTrd; ///< Structure with trapezoid parameters
 
 public:
+  VECGEOM_CUDA_HEADER_BOTH
+  UnplacedTrd() : fTrd() { fGlobalConvexity = true; }
+
   // special case Trd1 when dY1 == dY2
   VECGEOM_CUDA_HEADER_BOTH
-  UnplacedTrd(const Precision x1, const Precision x2, const Precision y1, const Precision z)
-      : fDX1(x1), fDX2(x2), fDY1(y1), fDY2(y1), fDZ(z), fX2minusX1(0), fY2minusY1(0), fHalfX1plusX2(0),
-        fHalfY1plusY2(0), fCalfX(0), fCalfY(0), fFx(0), fFy(0)
+  UnplacedTrd(const Precision x1, const Precision x2, const Precision y1, const Precision z) : fTrd(x1, x2, y1, z)
   {
-    calculateCached();
     fGlobalConvexity = true;
   }
 
   // general case
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedTrd(const Precision x1, const Precision x2, const Precision y1, const Precision y2, const Precision z)
-      : fDX1(x1), fDX2(x2), fDY1(y1), fDY2(y2), fDZ(z), fX2minusX1(0), fY2minusY1(0), fHalfX1plusX2(0),
-        fHalfY1plusY2(0), fCalfX(0), fCalfY(0), fFx(0), fFy(0)
+      : fTrd(x1, x2, y1, y2, z)
   {
-    calculateCached();
     fGlobalConvexity = true;
   }
 
   VECGEOM_CUDA_HEADER_BOTH
+  TrdStruct<double> const &GetStruct() const { return fTrd; }
+
+  VECGEOM_CUDA_HEADER_BOTH
   void SetAllParameters(Precision x1, Precision x2, Precision y1, Precision y2, Precision z)
   {
-    fDX1 = x1;
-    fDX2 = x2;
-    fDY1 = y1;
-    fDY2 = y2;
-    fDZ  = z;
-    calculateCached();
+    fTrd.SetAllParameters(x1, x2, y1, y2, z);
   }
 
   VECGEOM_CUDA_HEADER_BOTH
   void SetXHalfLength1(Precision arg)
   {
-    fDX1 = arg;
-    calculateCached();
+    fTrd.fDX1 = arg;
+    fTrd.CalculateCached();
   }
   VECGEOM_CUDA_HEADER_BOTH
   void SetXHalfLength2(Precision arg)
   {
-    fDX2 = arg;
-    calculateCached();
+    fTrd.fDX2 = arg;
+    fTrd.CalculateCached();
   }
   VECGEOM_CUDA_HEADER_BOTH
   void SetYHalfLength1(Precision arg)
   {
-    fDY1 = arg;
-    calculateCached();
+    fTrd.fDY1 = arg;
+    fTrd.CalculateCached();
   }
   VECGEOM_CUDA_HEADER_BOTH
   void SetYHalfLength2(Precision arg)
   {
-    fDY2 = arg;
-    calculateCached();
+    fTrd.fDY2 = arg;
+    fTrd.CalculateCached();
   }
   VECGEOM_CUDA_HEADER_BOTH
   void SetZHalfLength(Precision arg)
   {
-    fDZ = arg;
-    calculateCached();
+    fTrd.fDZ = arg;
+    fTrd.CalculateCached();
   }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Precision dx1() const { return fDX1; }
+  Precision dx1() const { return fTrd.fDX1; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Precision dx2() const { return fDX2; }
+  Precision dx2() const { return fTrd.fDX2; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Precision dy1() const { return fDY1; }
+  Precision dy1() const { return fTrd.fDY1; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Precision dy2() const { return fDY2; }
+  Precision dy2() const { return fTrd.fDY2; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Precision dz() const { return fDZ; }
+  Precision dz() const { return fTrd.fDZ; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Precision x2minusx1() const { return fX2minusX1; }
+  Precision x2minusx1() const { return fTrd.fX2minusX1; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Precision y2minusy1() const { return fY2minusY1; }
+  Precision y2minusy1() const { return fTrd.fY2minusY1; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Precision halfx1plusx2() const { return fHalfX1plusX2; }
+  Precision halfx1plusx2() const { return fTrd.fHalfX1plusX2; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Precision halfy1plusy2() const { return fHalfY1plusY2; }
+  Precision halfy1plusy2() const { return fTrd.fHalfY1plusY2; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Precision fx() const { return fFx; }
+  Precision fx() const { return fTrd.fFx; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Precision fy() const { return fFy; }
+  Precision fy() const { return fTrd.fFy; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Precision calfx() const { return fCalfX; }
+  Precision calfx() const { return fTrd.fCalfX; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Precision calfy() const { return fCalfY; }
+  Precision calfy() const { return fTrd.fCalfY; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Precision ToleranceX() const { return fToleranceX; }
+  Precision ToleranceX() const { return fTrd.fToleranceX; }
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
-  Precision ToleranceY() const { return fToleranceY; }
+  Precision ToleranceY() const { return fTrd.fToleranceY; }
 
   virtual int memory_size() const final { return sizeof(*this); }
 
   VECGEOM_CUDA_HEADER_BOTH
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
   {
-    aMin = Vector3D<Precision>(-Max(fDX1, fDX2), -Max(fDY1, fDY2), -fDZ);
-    aMax = Vector3D<Precision>(Max(fDX1, fDX2), Max(fDY1, fDY2), fDZ);
+    aMin = Vector3D<Precision>(-Max(fTrd.fDX1, fTrd.fDX2), -Max(fTrd.fDY1, fTrd.fDY2), -fTrd.fDZ);
+    aMax = Vector3D<Precision>(Max(fTrd.fDX1, fTrd.fDX2), Max(fTrd.fDY1, fTrd.fDY2), fTrd.fDZ);
   }
 
 #ifndef VECGEOM_NVCC
@@ -195,7 +158,7 @@ public:
 
   Precision GetPlusXArea() const
   { //  Area in +x direction
-    return 2 * fDZ * (fDY1 + fDY2) * fSecyz;
+    return 2 * fTrd.fDZ * (fTrd.fDY1 + fTrd.fDY2) * fTrd.fSecyz;
   }
 
   Precision GetMinusXArea() const
@@ -205,7 +168,7 @@ public:
 
   Precision GetPlusYArea() const
   { // Area in +y direction
-    return 2 * fDZ * (fDX1 + fDX2) * fSecxz;
+    return 2 * fTrd.fDZ * (fTrd.fDX1 + fTrd.fDX2) * fTrd.fSecxz;
   }
 
   Precision GetMinusYArea() const
@@ -215,12 +178,12 @@ public:
 
   Precision GetPlusZArea() const
   { // Area in +Z
-    return 4 * fDX2 * fDY2;
+    return 4 * fTrd.fDX2 * fTrd.fDY2;
   }
 
   Precision GetMinusZArea() const
   { // Area in -Z
-    return 4 * fDX1 * fDY1;
+    return 4 * fTrd.fDX1 * fTrd.fDY1;
   }
 
   int ChooseSurface() const;

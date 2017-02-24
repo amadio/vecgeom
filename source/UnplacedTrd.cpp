@@ -24,24 +24,25 @@ void UnplacedTrd::Print(std::ostream &os) const
 #ifndef VECGEOM_NVCC
 Precision UnplacedTrd::Capacity() const
 {
-  return 2 * (fDX1 + fDX2) * (fDY1 + fDY2) * fDZ + (2. / 3.) * (fDX1 - fDX2) * (fDY1 - fDY2) * fDZ;
+  return 2 * (fTrd.fDX1 + fTrd.fDX2) * (fTrd.fDY1 + fTrd.fDY2) * fTrd.fDZ +
+         (2. / 3.) * (fTrd.fDX1 - fTrd.fDX2) * (fTrd.fDY1 - fTrd.fDY2) * fTrd.fDZ;
 }
 
 Precision UnplacedTrd::SurfaceArea() const
 {
-  Precision dz = 2 * fDZ;
-  bool xvert   = (fDX1 == fDX2) ? true : false;
+  Precision dz = 2 * fTrd.fDZ;
+  bool xvert   = (fTrd.fDX1 == fTrd.fDX2) ? true : false;
   Precision SA = 0.0;
 
   // Sum of area for planes Perp. to +X and -X
-  Precision ht = (xvert) ? dz : Sqrt((fDX1 - fDX2) * (fDX1 - fDX2) + dz * dz);
-  SA += 2.0 * 2.0 * 0.5 * (fDY1 + fDY2) * ht;
+  Precision ht = (xvert) ? dz : Sqrt((fTrd.fDX1 - fTrd.fDX2) * (fTrd.fDX1 - fTrd.fDX2) + dz * dz);
+  SA += 2.0 * 2.0 * 0.5 * (fTrd.fDY1 + fTrd.fDY2) * ht;
 
   // Sum of area for planes Perp. to +Y and -Y
-  SA += 2.0 * 2.0 * 0.5 * (fDX1 + fDX2) * ht; // if xvert then topology forces to become yvert for closing
+  SA += 2.0 * 2.0 * 0.5 * (fTrd.fDX1 + fTrd.fDX2) * ht; // if xvert then topology forces to become yvert for closing
 
   // Sum of area for top and bottom planes +Z and -Z
-  SA += 4. * (fDX1 * fDY1) + 4. * (fDX2 * fDY2);
+  SA += 4. * (fTrd.fDX1 * fTrd.fDY1) + 4. * (fTrd.fDX2 * fTrd.fDY2);
 
   return SA;
 }
@@ -73,11 +74,11 @@ Vector3D<Precision> UnplacedTrd::GetPointOnSurface() const
 {
   int surface = ChooseSurface();
 
-  Precision invHeight = 0.5 / fDZ;
-  Precision slopeX    = (fDX2 - fDX1) * invHeight;
-  Precision slopeY    = (fDY2 - fDY1) * invHeight;
-  Precision midX      = 0.5 * (fDX1 + fDX2);
-  Precision midY      = 0.5 * (fDY1 + fDY2);
+  Precision invHeight = 0.5 / fTrd.fDZ;
+  Precision slopeX    = (fTrd.fDX2 - fTrd.fDX1) * invHeight;
+  Precision slopeY    = (fTrd.fDY2 - fTrd.fDY1) * invHeight;
+  Precision midX      = 0.5 * (fTrd.fDX1 + fTrd.fDX2);
+  Precision midY      = 0.5 * (fTrd.fDY1 + fTrd.fDY2);
 
   // Note that randoms are drawn in range [-1,1], then we just need scales, e.g. xval *= xmax for x = [-xmax, xmax] and
   // so on
@@ -86,15 +87,15 @@ Vector3D<Precision> UnplacedTrd::GetPointOnSurface() const
   Precision zval = RNG::Instance().uniform(-1.0, 1.0);
   Precision vmax;
   switch (surface) {
-  case 0:         // -Z face
-    xval *= fDX1; // = ran[-fDX1, fDX1]
-    yval *= fDY1;
-    zval = -fDZ;
+  case 0:              // -Z face
+    xval *= fTrd.fDX1; // = ran[-fDX1, fDX1]
+    yval *= fTrd.fDY1;
+    zval = -fTrd.fDZ;
     break;
-  case 1:         // +Z face
-    xval *= fDX2; // = ran[-fDX2, fDX2]
-    yval *= fDY2;
-    zval = fDZ;
+  case 1:              // +Z face
+    xval *= fTrd.fDX2; // = ran[-fDX2, fDX2]
+    yval *= fTrd.fDY2;
+    zval = fTrd.fDZ;
     break;
   case 2: // +X face
     xval = midX + slopeX * zval;
@@ -128,38 +129,42 @@ bool UnplacedTrd::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &
   Vector3D<Precision> sumnorm(0., 0., 0.), vecnorm(0., 0., 0.);
   Precision distz;
 
-  distz = std::fabs(std::fabs(point[2]) - fDZ);
+  distz = std::fabs(std::fabs(point[2]) - fTrd.fDZ);
 
-  Precision xnorm = 1.0 / sqrt(4 * fDZ * fDZ + (fDX2 - fDX1) * (fDX2 - fDX1));
-  Precision ynorm = 1.0 / sqrt(4 * fDZ * fDZ + (fDY2 - fDY1) * (fDY2 - fDY1));
+  Precision xnorm = 1.0 / sqrt(4 * fTrd.fDZ * fTrd.fDZ + (fTrd.fDX2 - fTrd.fDX1) * (fTrd.fDX2 - fTrd.fDX1));
+  Precision ynorm = 1.0 / sqrt(4 * fTrd.fDZ * fTrd.fDZ + (fTrd.fDY2 - fTrd.fDY1) * (fTrd.fDY2 - fTrd.fDY1));
 
-  Precision distmx = -2.0 * fDZ * point[0] - (fDX2 - fDX1) * point[2] - fDZ * (fDX1 + fDX2);
+  Precision distmx =
+      -2.0 * fTrd.fDZ * point[0] - (fTrd.fDX2 - fTrd.fDX1) * point[2] - fTrd.fDZ * (fTrd.fDX1 + fTrd.fDX2);
   distmx *= xnorm;
 
-  Precision distpx = 2.0 * fDZ * point[0] - (fDX2 - fDX1) * point[2] - fDZ * (fDX1 + fDX2);
+  Precision distpx =
+      2.0 * fTrd.fDZ * point[0] - (fTrd.fDX2 - fTrd.fDX1) * point[2] - fTrd.fDZ * (fTrd.fDX1 + fTrd.fDX2);
   distpx *= xnorm;
 
-  Precision distmy = -2.0 * fDZ * point[1] - (fDY2 - fDY1) * point[2] - fDZ * (fDY1 + fDY2);
+  Precision distmy =
+      -2.0 * fTrd.fDZ * point[1] - (fTrd.fDY2 - fTrd.fDY1) * point[2] - fTrd.fDZ * (fTrd.fDY1 + fTrd.fDY2);
   distmy *= ynorm;
 
-  Precision distpy = 2.0 * fDZ * point[1] - (fDY2 - fDY1) * point[2] - fDZ * (fDY1 + fDY2);
+  Precision distpy =
+      2.0 * fTrd.fDZ * point[1] - (fTrd.fDY2 - fTrd.fDY1) * point[2] - fTrd.fDZ * (fTrd.fDY1 + fTrd.fDY2);
   distpy *= ynorm;
 
   if (fabs(distmx) <= kHalfTolerance) {
     noSurfaces++;
-    sumnorm += Vector3D<Precision>(-2.0 * fDZ, 0.0, -(fDX2 - fDX1)) * xnorm;
+    sumnorm += Vector3D<Precision>(-2.0 * fTrd.fDZ, 0.0, -(fTrd.fDX2 - fTrd.fDX1)) * xnorm;
   }
   if (fabs(distpx) <= kHalfTolerance) {
     noSurfaces++;
-    sumnorm += Vector3D<Precision>(2.0 * fDZ, 0.0, -(fDX2 - fDX1)) * xnorm;
+    sumnorm += Vector3D<Precision>(2.0 * fTrd.fDZ, 0.0, -(fTrd.fDX2 - fTrd.fDX1)) * xnorm;
   }
   if (fabs(distpy) <= kHalfTolerance) {
     noSurfaces++;
-    sumnorm += Vector3D<Precision>(0.0, 2.0 * fDZ, -(fDY2 - fDY1)) * ynorm;
+    sumnorm += Vector3D<Precision>(0.0, 2.0 * fTrd.fDZ, -(fTrd.fDY2 - fTrd.fDY1)) * ynorm;
   }
   if (fabs(distmy) <= kHalfTolerance) {
     noSurfaces++;
-    sumnorm += Vector3D<Precision>(0.0, -2.0 * fDZ, -(fDY2 - fDY1)) * ynorm;
+    sumnorm += Vector3D<Precision>(0.0, -2.0 * fTrd.fDZ, -(fTrd.fDY2 - fTrd.fDY1)) * ynorm;
   }
 
   if (std::fabs(distz) <= kHalfTolerance) {
@@ -273,9 +278,9 @@ std::ostream &UnplacedTrd::StreamInfo(std::ostream &os) const
      << "     ===================================================\n"
      << " Solid type: Trd\n"
      << " Parameters: \n"
-     << "     half lengths X1,X2: " << fDX1 << "mm, " << fDX2 << "mm \n"
-     << "     half lengths Y1,Y2: " << fDY1 << "mm, " << fDY2 << "mm \n"
-     << "     half length Z: " << fDZ << "mm \n"
+     << "     half lengths X1,X2: " << fTrd.fDX1 << "mm, " << fTrd.fDX2 << "mm \n"
+     << "     half lengths Y1,Y2: " << fTrd.fDY1 << "mm, " << fTrd.fDY2 << "mm \n"
+     << "     half length Z: " << fTrd.fDZ << "mm \n"
      << "-----------------------------------------------------------\n";
   os.precision(oldprc);
   return os;
@@ -304,7 +309,7 @@ namespace cxx {
 
 template size_t DevicePtr<cuda::UnplacedTrd>::SizeOf();
 template void DevicePtr<cuda::UnplacedTrd>::Construct(const Precision dx1, const Precision dx2, const Precision dy1,
-                                                      const Precision dy2, const Precision d) const;
+                                                      const Precision dy2, const Precision z) const;
 
 } // End cxx namespace
 

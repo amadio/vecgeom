@@ -9,13 +9,14 @@
 #include "volumes/kernel/TrdImplementation.h"
 #include "volumes/PlacedTrd.h"
 #include "volumes/ShapeImplementationHelper.h"
-#include <stdio.h>
+#include "volumes/SpecializedPlacedVolImplHelper.h"
+//#include <stdio.h>
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT, typename trdTypeT>
-using SpecializedTrd = ShapeImplementationHelper<TrdImplementation<transCodeT, rotCodeT, trdTypeT>>;
+using SpecializedTrd = SIMDSpecializedVolImplHelper<TrdImplementation<trdTypeT>, transCodeT, rotCodeT>;
 
 using SimpleTrd = SpecializedTrd<translation::kGeneric, rotation::kGeneric, TrdTypes::UniversalTrd>;
 }

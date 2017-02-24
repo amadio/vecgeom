@@ -6,17 +6,15 @@
 #define VECGEOM_VOLUMES_KERNEL_TRDIMPLEMENTATION_H_
 
 #include "base/Global.h"
-#include "base/Transformation3D.h"
 #include "volumes/kernel/GenericKernels.h"
-#include "volumes/UnplacedTrd.h"
+#include "volumes/TrdStruct.h"
 #include "volumes/kernel/shapetypes/TrdTypes.h"
 #include <stdlib.h>
 #include <cstdio>
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(struct, TrdImplementation, TranslationCode, translation::kGeneric,
-                                           RotationCode, rotation::kGeneric, typename);
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE(struct, TrdImplementation, typename);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -36,14 +34,15 @@ namespace TrdUtilities {
  * half-plane. If it's negative, the point is CCW and on the "left" half-plane.
  */
 
-template <typename Backend>
+template <typename Real_v>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-void PointLineOrientation(typename Backend::precision_v const &px, typename Backend::precision_v const &py,
-                          Precision const &vx, Precision const &vy, typename Backend::precision_v &crossProduct)
+void PointLineOrientation(Real_v const &px, Real_v const &py, Precision const &vx, Precision const &vy,
+                          Real_v &crossProduct)
 {
   crossProduct = vx * py - vy * px;
 }
+
 /*
  * Check intersection of the trajectory of a particle with a segment
  * that's bound from -Ylimit to +Ylimit.j
@@ -61,58 +60,50 @@ void PointLineOrientation(typename Backend::precision_v const &px, typename Back
  * Check that |hity| <= Ylimit
  */
 
-template <typename Backend>
+template <typename Real_v>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-void PlaneTrajectoryIntersection(typename Backend::precision_v const &alongX,
-                                 typename Backend::precision_v const &alongY,
-                                 typename Backend::precision_v const &ylimit, typename Backend::precision_v const &posx,
-                                 typename Backend::precision_v const &posy, typename Backend::precision_v const &dirx,
-                                 typename Backend::precision_v const &diry, typename Backend::precision_v &dist,
-                                 typename Backend::bool_v &ok)
+void PlaneTrajectoryIntersection(Real_v const &alongX, Real_v const &alongY, Real_v const &ylimit, Real_v const &posx,
+                                 Real_v const &posy, Real_v const &dirx, Real_v const &diry, Real_v &dist,
+                                 vecCore::Mask_v<Real_v> &ok)
 {
-  typedef typename Backend::precision_v Float_t;
-
   dist = (alongY * posx - alongX * posy) / (diry * alongX - dirx * alongY);
 
-  Float_t hity = posy + dist * diry;
-  ok           = Abs(hity) <= ylimit && dist > 0;
+  Real_v hity = posy + dist * diry;
+  ok          = vecCore::math::Abs(hity) <= ylimit && dist > 0;
 }
 
-template <typename Backend, bool forY, bool mirroredPoint, bool toInside>
+template <typename Real_v, bool forY, bool mirroredPoint, bool toInside>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-void FaceTrajectoryIntersection(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> const &pos,
-                                Vector3D<typename Backend::precision_v> const &dir, typename Backend::precision_v &dist,
-                                typename Backend::bool_v &ok)
+void FaceTrajectoryIntersection(TrdStruct<double> const &trd, Vector3D<Real_v> const &pos, Vector3D<Real_v> const &dir,
+                                Real_v &dist, vecCore::Mask_v<Real_v> &ok)
 {
-  typedef typename Backend::precision_v Float_t;
-  // typedef typename Backend::bool_v Bool_t;
-  Float_t alongV, posV, dirV, posK, dirK, fV, fK, halfKplus, v1, ndotv;
+  Real_v alongV, posV, dirV, posK, dirK, fV, fK, halfKplus, v1, ndotv;
   //    fNormals[0].Set(-fCalfX, 0., fFx*fCalfX);
   //    fNormals[1].Set(fCalfX, 0., fFx*fCalfX);
   //    fNormals[2].Set(0., -fCalfY, fFy*fCalfY);
   //    fNormals[3].Set(0., fCalfY, fFy*fCalfY);
   if (forY) {
-    alongV    = trd.y2minusy1();
-    v1        = trd.dy1();
+    alongV    = trd.fY2minusY1;
+    v1        = trd.fDY1;
     posV      = pos.y();
     posK      = pos.x();
     dirV      = dir.y();
     dirK      = dir.x();
-    fK        = trd.fx();
-    fV        = trd.fy();
-    halfKplus = trd.halfx1plusx2();
+    fK        = trd.fFx;
+    fV        = trd.fFy;
+    halfKplus = trd.fHalfX1plusX2;
   } else {
-    alongV    = trd.x2minusx1();
-    v1        = trd.dx1();
+    alongV    = trd.fX2minusX1;
+    v1        = trd.fDX1;
     posV      = pos.x();
     posK      = pos.y();
     dirV      = dir.x();
     dirK      = dir.y();
-    fK        = trd.fy();
-    fV        = trd.fx();
-    halfKplus = trd.halfy1plusy2();
+    fK        = trd.fFy;
+    fV        = trd.fFx;
+    halfKplus = trd.fHalfY1plusY2;
   }
   if (mirroredPoint) {
     posV *= -1.;
@@ -125,81 +116,78 @@ void FaceTrajectoryIntersection(UnplacedTrd const &trd, Vector3D<typename Backen
   else
     ok = ndotv > 0.;
   if (vecCore::MaskEmpty(ok)) return;
-  Float_t alongZ = Float_t(2.0) * trd.dz();
+  Real_v alongZ = Real_v(2.0) * trd.fDZ;
 
   // distance from trajectory to face
-  dist = (alongZ * (posV - v1) - alongV * (pos.z() + trd.dz())) / (dir.z() * alongV - dirV * alongZ + kTiny);
+  dist = (alongZ * (posV - v1) - alongV * (pos.z() + trd.fDZ)) / (dir.z() * alongV - dirV * alongZ + kTiny);
   ok &= dist > MakeMinusTolerant<true>(0.);
   if (!vecCore::MaskEmpty(ok)) {
     // need to make sure z hit falls within bounds
-    Float_t hitz = pos.z() + dist * dir.z();
-    ok &= Abs(hitz) <= trd.dz();
+    Real_v hitz = pos.z() + dist * dir.z();
+    ok &= vecCore::math::Abs(hitz) <= trd.fDZ;
     // need to make sure hit on varying dimension falls within bounds
-    Float_t hitk = posK + dist * dirK;
-    Float_t dK   = halfKplus - fK * hitz; // calculate the width of the varying dimension at hitz
-    ok &= Abs(hitk) <= dK;
-    vecCore::MaskedAssign(dist, ok & (Abs(dist) < kHalfTolerance), Float_t(0.0));
+    Real_v hitk = posK + dist * dirK;
+    Real_v dK   = halfKplus - fK * hitz; // calculate the width of the varying dimension at hitz
+    ok &= vecCore::math::Abs(hitk) <= dK;
+    vecCore::MaskedAssign(dist, ok & (vecCore::math::Abs(dist) < kHalfTolerance), Real_v(0.0));
   }
 }
 
-template <typename Backend, typename trdTypeT, bool inside>
+template <typename Real_v, typename trdTypeT, bool inside>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-void Safety(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> const &pos,
-            typename Backend::precision_v &dist)
+void Safety(TrdStruct<double> const &trd, Vector3D<Real_v> const &pos, Real_v &dist)
 {
   using namespace TrdTypes;
-  typedef typename Backend::precision_v Float_t;
-  typedef typename Backend::bool_v Bool_t;
+  using Bool_v = vecCore::Mask_v<Real_v>;
 
-  Float_t safz = trd.dz() - Abs(pos.z());
+  Real_v safz = trd.fDZ - vecCore::math::Abs(pos.z());
   // std::cout << "safz: " << safz << std::endl;
   dist = safz;
 
-  Float_t distx = trd.halfx1plusx2() - trd.fx() * pos.z();
-  Bool_t okx    = distx >= 0;
-  Float_t safx  = (distx - Abs(pos.x())) * trd.calfx();
+  Real_v distx = trd.fHalfX1plusX2 - trd.fFx * pos.z();
+  Bool_v okx   = distx >= 0;
+  Real_v safx  = (distx - vecCore::math::Abs(pos.x())) * trd.fCalfX;
   vecCore::MaskedAssign(dist, okx && safx < dist, safx);
   // std::cout << "safx: " << safx << std::endl;
 
   if (checkVaryingY<trdTypeT>(trd)) {
-    Float_t disty = trd.halfy1plusy2() - trd.fy() * pos.z();
-    Bool_t oky    = disty >= 0;
-    Float_t safy  = (disty - Abs(pos.y())) * trd.calfy();
+    Real_v disty = trd.fHalfY1plusY2 - trd.fFy * pos.z();
+    Bool_v oky   = disty >= 0;
+    Real_v safy  = (disty - vecCore::math::Abs(pos.y())) * trd.fCalfY;
     vecCore::MaskedAssign(dist, oky && safy < dist, safy);
   } else {
-    Float_t safy = trd.dy1() - Abs(pos.y());
+    Real_v safy = trd.fDY1 - vecCore::math::Abs(pos.y());
     vecCore::MaskedAssign(dist, safy < dist, safy);
   }
   if (!inside) dist = -dist;
 }
 
-template <typename Backend, typename trdTypeT, bool surfaceT>
+template <typename Real_v, typename trdTypeT, bool surfaceT>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-static void UnplacedInside(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> const &point,
-                           typename Backend::bool_v &completelyinside, typename Backend::bool_v &completelyoutside)
+static void UnplacedInside(TrdStruct<double> const &trd, Vector3D<Real_v> const &point,
+                           vecCore::Mask_v<Real_v> &completelyinside, vecCore::Mask_v<Real_v> &completelyoutside)
 {
 
   using namespace TrdUtilities;
   using namespace TrdTypes;
-  typedef typename Backend::precision_v Float_t;
-  // typedef typename Backend::bool_v Bool_t;
 
-  Float_t pzPlusDz = point.z() + trd.dz();
+  Real_v pzPlusDz = point.z() + trd.fDZ;
 
   // inside Z?
-  completelyoutside              = Abs(point.z()) > MakePlusTolerant<surfaceT>(trd.dz());
-  if (surfaceT) completelyinside = Abs(point.z()) < MakeMinusTolerant<surfaceT>(trd.dz());
+  completelyoutside              = vecCore::math::Abs(point.z()) > MakePlusTolerant<surfaceT>(trd.fDZ);
+  if (surfaceT) completelyinside = vecCore::math::Abs(point.z()) < MakeMinusTolerant<surfaceT>(trd.fDZ);
 
   // inside X?
-  Float_t cross;
+  Real_v cross;
   // Note: we cannot compare directly the cross product with the surface tolerance, but with
   // the tolerance multiplied by the length of the lateral segment connecting dx1 and dx2
-  PointLineOrientation<Backend>(Abs(point.x()) - trd.dx1(), pzPlusDz, trd.x2minusx1(), 2.0 * trd.dz(), cross);
+  PointLineOrientation<Real_v>(vecCore::math::Abs(point.x()) - trd.fDX1, pzPlusDz, trd.fX2minusX1, 2.0 * trd.fDZ,
+                               cross);
   if (surfaceT) {
-    completelyoutside |= cross < -trd.ToleranceX();
-    completelyinside &= cross > trd.ToleranceX();
+    completelyoutside |= cross < -trd.fToleranceX;
+    completelyinside &= cross > trd.fToleranceX;
   } else {
     completelyoutside |= cross < 0;
   }
@@ -207,336 +195,319 @@ static void UnplacedInside(UnplacedTrd const &trd, Vector3D<typename Backend::pr
   // inside Y?
   if (HasVaryingY<trdTypeT>::value != TrdTypes::kNo) {
     // If Trd type is unknown don't bother with a runtime check, assume the general case
-    PointLineOrientation<Backend>(Abs(point.y()) - trd.dy1(), pzPlusDz, trd.y2minusy1(), 2.0 * trd.dz(), cross);
+    PointLineOrientation<Real_v>(vecCore::math::Abs(point.y()) - trd.fDY1, pzPlusDz, trd.fY2minusY1, 2.0 * trd.fDZ,
+                                 cross);
     if (surfaceT) {
-      completelyoutside |= cross < -trd.ToleranceY();
-      completelyinside &= cross > trd.ToleranceY();
+      completelyoutside |= cross < -trd.fToleranceY;
+      completelyinside &= cross > trd.fToleranceY;
     } else {
       completelyoutside |= cross < 0;
     }
   } else {
-    completelyoutside |= Abs(point.y()) > MakePlusTolerant<surfaceT>(trd.dy1());
-    if (surfaceT) completelyinside &= Abs(point.y()) < MakeMinusTolerant<surfaceT>(trd.dy1());
+    completelyoutside |= vecCore::math::Abs(point.y()) > MakePlusTolerant<surfaceT>(trd.fDY1);
+    if (surfaceT) completelyinside &= vecCore::math::Abs(point.y()) < MakeMinusTolerant<surfaceT>(trd.fDY1);
   }
 }
 
 } // Trd utilities
 
 class PlacedTrd;
+class UnplacedTrd;
 
-template <TranslationCode transCodeT, RotationCode rotCodeT, typename trdTypeT>
+template <typename T>
+struct TrdStruct;
+
+template <typename trdTypeT>
 struct TrdImplementation {
 
-  static const int transC = transCodeT;
-  static const int rotC   = rotCodeT;
-
-  using PlacedShape_t   = PlacedTrd;
-  using UnplacedShape_t = UnplacedTrd;
+  using PlacedShape_t    = PlacedTrd;
+  using UnplacedStruct_t = TrdStruct<double>;
+  using UnplacedVolume_t = UnplacedTrd;
 
   VECGEOM_CUDA_HEADER_BOTH
-  static void PrintType() { printf("SpecializedTrd<%i, %i, %s>", transCodeT, rotCodeT, trdTypeT::toString()); }
+  static void PrintType() {}
 
   template <typename Stream>
-  static void PrintType(Stream &s)
+  static void PrintType(Stream &s, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
   {
-    s << "SpecializedTrd<" << transCodeT << "," << rotCodeT << "," << trdTypeT::toString() << ">";
+    s << "SpecializedTrd<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
-  static void PrintImplementationType(Stream &s)
+  static void PrintImplementationType(Stream & /*s*/)
   {
-    s << "TrdImplemenation<" << transCodeT << "," << rotCodeT << "," << trdTypeT::toString() << ">";
   }
 
   template <typename Stream>
-  static void PrintUnplacedType(Stream &s)
+  static void PrintUnplacedType(Stream & /*s*/)
   {
-    s << "UnplacedTrd";
   }
 
-  template <typename Backend>
+  template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void UnplacedContains(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> const &point,
-                               typename Backend::bool_v &inside)
+  static void UnplacedContains(UnplacedStruct_t const &trd, Vector3D<Real_v> const &point, Bool_v &inside)
   {
 
-    typename Backend::bool_v unused;
-    TrdUtilities::UnplacedInside<Backend, trdTypeT, false>(trd, point, unused, inside);
+    Bool_v unused;
+    TrdUtilities::UnplacedInside<Real_v, trdTypeT, false>(trd, point, unused, inside);
     inside = !inside;
   }
 
-  template <class Backend>
+  template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void Contains(UnplacedTrd const &trd, Transformation3D const &transformation,
-                       Vector3D<typename Backend::precision_v> const &point,
-                       Vector3D<typename Backend::precision_v> &localPoint, typename Backend::bool_v &inside)
+  static void Contains(UnplacedStruct_t const &trd, Vector3D<Real_v> const &point, Bool_v &inside)
   {
 
-    typename Backend::bool_v unused;
-    localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
-    TrdUtilities::UnplacedInside<Backend, trdTypeT, false>(trd, localPoint, unused, inside);
+    Bool_v unused;
+    TrdUtilities::UnplacedInside<Real_v, trdTypeT, false>(trd, point, unused, inside);
     inside = !inside;
   }
 
-  template <class Backend>
+  template <typename Real_v, typename Inside_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void Inside(UnplacedTrd const &trd, Transformation3D const &transformation,
-                     Vector3D<typename Backend::precision_v> const &point, typename Backend::inside_v &inside)
+  static void Inside(UnplacedStruct_t const &trd, Vector3D<Real_v> const &point, Inside_v &inside)
   {
-    // use double-based vector for result, as bool_v is a mask for precision_v
-    const typename Backend::precision_v in(EInside::kInside);
-    const typename Backend::precision_v out(EInside::kOutside);
-    typename Backend::bool_v inmask(false), outmask(false);
-    typename Backend::precision_v result(EInside::kSurface);
+    // use double-based vector for result, as Bool_v is a mask for precision_v
+    using Bool_v = vecCore::Mask_v<Real_v>;
+    const Real_v in(EInside::kInside);
+    const Real_v out(EInside::kOutside);
+    Bool_v inmask  = Bool_v(false);
+    Bool_v outmask = Bool_v(false);
+    Real_v result(EInside::kSurface);
 
-    Vector3D<typename Backend::precision_v> localpoint = transformation.Transform<transCodeT, rotCodeT>(point);
-
-    TrdUtilities::UnplacedInside<Backend, trdTypeT, true>(trd, localpoint, inmask, outmask);
+    TrdUtilities::UnplacedInside<Real_v, trdTypeT, true>(trd, point, inmask, outmask);
 
     vecCore::MaskedAssign(result, inmask, in);
     vecCore::MaskedAssign(result, outmask, out);
 
     // Manual conversion from double to int here is necessary because int_v and
-    // precision_v have different number of elements in SIMD vector, so bool_v
+    // precision_v have different number of elements in SIMD vector, so Bool_v
     // (mask for precision_v) cannot be cast to mask for inside, which is a
     // different type and does not exist in the current backend system
     for (size_t i = 0; i < vecCore::VectorSize(result); i++)
       vecCore::Set(inside, i, vecCore::Get(result, i));
   }
 
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void DistanceToIn(UnplacedTrd const &trd, Transformation3D const &transformation,
-                           Vector3D<typename Backend::precision_v> const &point,
-                           Vector3D<typename Backend::precision_v> const &direction,
-                           typename Backend::precision_v const & /*stepMax*/, typename Backend::precision_v &distance)
+  static void DistanceToIn(UnplacedStruct_t const &trd, Vector3D<Real_v> const &point,
+                           Vector3D<Real_v> const &direction, Real_v const & /*stepMax*/, Real_v &distance)
   {
 
     using namespace TrdUtilities;
     using namespace TrdTypes;
-    typedef typename Backend::bool_v Bool_t;
-    typedef typename Backend::precision_v Float_t;
+    using Bool_v = vecCore::Mask_v<Real_v>;
 
-    Float_t hitx, hity;
-    // Float_t hitz;
+    Real_v hitx, hity;
+    // Real_v hitz;
 
-    Vector3D<Float_t> pos_local;
-    Vector3D<Float_t> dir_local;
-    distance = kInfLength;
-
-    transformation.Transform<transCodeT, rotCodeT>(point, pos_local);
-    transformation.TransformDirection<rotCodeT>(direction, dir_local);
+    Vector3D<Real_v> pos_local;
+    Vector3D<Real_v> dir_local;
+    distance = InfinityLength<Real_v>();
 
     // hit Z faces?
-    Bool_t inz    = Abs(pos_local.z()) < MakeMinusTolerant<true>(trd.dz());
-    Float_t distx = trd.halfx1plusx2() - trd.fx() * pos_local.z();
-    Bool_t inx    = (distx - Abs(pos_local.x())) * trd.calfx() > MakePlusTolerant<true>(0.);
-    Float_t disty;
-    Bool_t iny;
+    Bool_v inz   = vecCore::math::Abs(point.z()) < MakeMinusTolerant<true>(trd.fDZ);
+    Real_v distx = trd.fHalfX1plusX2 - trd.fFx * point.z();
+    Bool_v inx   = (distx - vecCore::math::Abs(point.x())) * trd.fCalfX > MakePlusTolerant<true>(0.);
+    Real_v disty;
+    Bool_v iny;
     if (checkVaryingY<trdTypeT>(trd)) {
-      disty = trd.halfy1plusy2() - trd.fy() * pos_local.z();
-      iny   = (disty - Abs(pos_local.y())) * trd.calfy() > MakePlusTolerant<true>(0.);
+      disty = trd.fHalfY1plusY2 - trd.fFy * point.z();
+      iny   = (disty - vecCore::math::Abs(point.y())) * trd.fCalfY > MakePlusTolerant<true>(0.);
     } else {
-      disty = Abs(pos_local.y()) - trd.dy1();
+      disty = vecCore::math::Abs(point.y()) - trd.fDY1;
       iny   = disty < MakeMinusTolerant<true>(0.);
     }
-    Bool_t inside = inx & iny & inz;
-    vecCore::MaskedAssign(distance, inside, Float_t(-1.0));
-    Bool_t done = inside;
-    Bool_t okz  = pos_local.z() * dir_local.z() < 0;
+    Bool_v inside = inx & iny & inz;
+    vecCore::MaskedAssign(distance, inside, Real_v(-1.0));
+    Bool_v done = inside;
+    Bool_v okz  = point.z() * direction.z() < 0;
     okz &= !inz;
     if (!vecCore::MaskEmpty(okz)) {
-      Float_t distz = (Abs(pos_local.z()) - trd.dz()) / Abs(dir_local.z());
+      Real_v distz = (vecCore::math::Abs(point.z()) - trd.fDZ) / vecCore::math::Abs(direction.z());
       // exclude case in which particle is going away
-      hitx = Abs(pos_local.x() + distz * dir_local.x());
-      hity = Abs(pos_local.y() + distz * dir_local.y());
+      hitx = vecCore::math::Abs(point.x() + distz * direction.x());
+      hity = vecCore::math::Abs(point.y() + distz * direction.y());
 
       // hitting top face?
-      Bool_t okzt = pos_local.z() > (trd.dz() - kHalfTolerance) && hitx <= trd.dx2() && hity <= trd.dy2();
+      Bool_v okzt = point.z() > (trd.fDZ - kHalfTolerance) && hitx <= trd.fDX2 && hity <= trd.fDY2;
       // hitting bottom face?
-      Bool_t okzb = pos_local.z() < (-trd.dz() + kHalfTolerance) && hitx <= trd.dx1() && hity <= trd.dy1();
+      Bool_v okzb = point.z() < (-trd.fDZ + kHalfTolerance) && hitx <= trd.fDX1 && hity <= trd.fDY1;
 
       okz &= (okzt | okzb);
       vecCore::MaskedAssign(distance, okz, distz);
     }
     done |= okz;
     if (vecCore::MaskFull(done)) {
-      vecCore::MaskedAssign(distance, Abs(distance) < kHalfTolerance, Float_t(0.0));
+      vecCore::MaskedAssign(distance, vecCore::math::Abs(distance) < kHalfTolerance, Real_v(0.0));
       return;
     }
 
     // hitting X faces?
-    Bool_t okx = Backend::kFalse;
+    Bool_v okx = Bool_v(false);
     if (!vecCore::MaskFull(inx)) {
 
-      FaceTrajectoryIntersection<Backend, false, false, true>(trd, pos_local, dir_local, distx, okx);
+      FaceTrajectoryIntersection<Real_v, false, false, true>(trd, point, direction, distx, okx);
       vecCore::MaskedAssign(distance, okx, distx);
 
-      FaceTrajectoryIntersection<Backend, false, true, true>(trd, pos_local, dir_local, distx, okx);
+      FaceTrajectoryIntersection<Real_v, false, true, true>(trd, point, direction, distx, okx);
       vecCore::MaskedAssign(distance, okx, distx);
     }
     done |= okx;
     if (vecCore::MaskFull(done)) {
-      vecCore::MaskedAssign(distance, Abs(distance) < kHalfTolerance, Float_t(0.0));
+      vecCore::MaskedAssign(distance, vecCore::math::Abs(distance) < kHalfTolerance, Real_v(0.0));
       return;
     }
 
     // hitting Y faces?
-    Bool_t oky;
+    Bool_v oky;
     if (checkVaryingY<trdTypeT>(trd)) {
       if (!vecCore::MaskFull(iny)) {
-        FaceTrajectoryIntersection<Backend, true, false, true>(trd, pos_local, dir_local, disty, oky);
+        FaceTrajectoryIntersection<Real_v, true, false, true>(trd, point, direction, disty, oky);
         vecCore::MaskedAssign(distance, oky, disty);
 
-        FaceTrajectoryIntersection<Backend, true, true, true>(trd, pos_local, dir_local, disty, oky);
+        FaceTrajectoryIntersection<Real_v, true, true, true>(trd, point, direction, disty, oky);
         vecCore::MaskedAssign(distance, oky, disty);
       }
     } else {
       if (!vecCore::MaskFull(iny)) {
-        disty /= Abs(dir_local.y());
-        Float_t zhit = pos_local.z() + disty * dir_local.z();
-        Float_t xhit = pos_local.x() + disty * dir_local.x();
-        Float_t dx   = trd.halfx1plusx2() - trd.fx() * zhit;
-        oky = pos_local.y() * dir_local.y() < 0 && disty > -kHalfTolerance && Abs(xhit) < dx && Abs(zhit) < trd.dz();
+        disty /= vecCore::math::Abs(direction.y());
+        Real_v zhit = point.z() + disty * direction.z();
+        Real_v xhit = point.x() + disty * direction.x();
+        Real_v dx   = trd.fHalfX1plusX2 - trd.fFx * zhit;
+        oky         = point.y() * direction.y() < 0 && disty > -kHalfTolerance && vecCore::math::Abs(xhit) < dx &&
+              vecCore::math::Abs(zhit) < trd.fDZ;
         vecCore::MaskedAssign(distance, oky, disty);
       }
     }
-    vecCore::MaskedAssign(distance, Abs(distance) < kHalfTolerance, Float_t(0.0));
+    vecCore::MaskedAssign(distance, vecCore::math::Abs(distance) < kHalfTolerance, Real_v(0.0));
   }
 
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void DistanceToOut(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> const &point,
-                            Vector3D<typename Backend::precision_v> const &dir,
-                            typename Backend::precision_v const & /*stepMax*/, typename Backend::precision_v &distance)
+  static void DistanceToOut(UnplacedStruct_t const &trd, Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir,
+                            Real_v const & /*stepMax*/, Real_v &distance)
   {
 
     using namespace TrdUtilities;
     using namespace TrdTypes;
-    typedef typename Backend::bool_v Bool_t;
-    typedef typename Backend::precision_v Float_t;
+    using Bool_v = vecCore::Mask_v<Real_v>;
 
-    Float_t hitx, hity;
-    // Float_t hitz;
-    // Bool_t done = Backend::kFalse;
-    distance = Float_t(0.0);
+    Real_v hitx, hity;
+    // Real_v hitz;
+    distance = Real_v(0.0);
 
     // hit top Z face?
-    Float_t invdir = 1. / Abs(dir.z() + kTiny);
-    Float_t safz   = trd.dz() - Abs(point.z());
-    Bool_t out     = safz < MakeMinusTolerant<true>(0.);
-    Float_t distx  = trd.halfx1plusx2() - trd.fx() * point.z();
-    out |= (distx - Abs(point.x())) * trd.calfx() < MakeMinusTolerant<true>(0.);
-    Float_t disty;
+    Real_v invdir = 1. / vecCore::math::Abs(dir.z() + kTiny);
+    Real_v safz   = trd.fDZ - vecCore::math::Abs(point.z());
+    Bool_v out    = safz < MakeMinusTolerant<true>(0.);
+    Real_v distx  = trd.fHalfX1plusX2 - trd.fFx * point.z();
+    out |= (distx - vecCore::math::Abs(point.x())) * trd.fCalfX < MakeMinusTolerant<true>(0.);
+    Real_v disty;
     if (checkVaryingY<trdTypeT>(trd)) {
-      disty = trd.halfy1plusy2() - trd.fy() * point.z();
-      out |= (disty - Abs(point.y())) * trd.calfy() < MakeMinusTolerant<true>(0.);
+      disty = trd.fHalfY1plusY2 - trd.fFy * point.z();
+      out |= (disty - vecCore::math::Abs(point.y())) * trd.fCalfY < MakeMinusTolerant<true>(0.);
     } else {
-      disty = trd.dy1() - Abs(point.y());
+      disty = trd.fDY1 - vecCore::math::Abs(point.y());
       out |= disty < MakeMinusTolerant<true>(0.);
     }
     if (/*vecCore::EarlyReturnAllowed() && */ vecCore::MaskFull(out)) {
       distance = -1.;
       return;
     }
-    Bool_t okzt = dir.z() > 0;
+    Bool_v okzt = dir.z() > 0;
     if (!vecCore::MaskEmpty(okzt)) {
-      Float_t distz = (trd.dz() - point.z()) * invdir;
-      hitx          = Abs(point.x() + distz * dir.x());
-      hity          = Abs(point.y() + distz * dir.y());
-      okzt &= hitx <= trd.dx2() && hity <= trd.dy2();
+      Real_v distz = (trd.fDZ - point.z()) * invdir;
+      hitx         = vecCore::math::Abs(point.x() + distz * dir.x());
+      hity         = vecCore::math::Abs(point.y() + distz * dir.y());
+      okzt &= hitx <= trd.fDX2 && hity <= trd.fDY2;
       vecCore::MaskedAssign(distance, okzt, distz);
       if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(okzt)) {
-        vecCore::MaskedAssign(distance, Abs(distance) < kHalfTolerance, Float_t(0.0));
+        vecCore::MaskedAssign(distance, vecCore::math::Abs(distance) < kHalfTolerance, Real_v(0.0));
         return;
       }
     }
 
     // hit bottom Z face?
-    Bool_t okzb = dir.z() < 0;
+    Bool_v okzb = dir.z() < 0;
     if (!vecCore::MaskEmpty(okzb)) {
-      Float_t distz = (point.z() + trd.dz()) * invdir;
-      hitx          = Abs(point.x() + distz * dir.x());
-      hity          = Abs(point.y() + distz * dir.y());
-      okzb &= hitx <= trd.dx1() && hity <= trd.dy1();
+      Real_v distz = (point.z() + trd.fDZ) * invdir;
+      hitx         = vecCore::math::Abs(point.x() + distz * dir.x());
+      hity         = vecCore::math::Abs(point.y() + distz * dir.y());
+      okzb &= hitx <= trd.fDX1 && hity <= trd.fDY1;
       vecCore::MaskedAssign(distance, okzb, distz);
       if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(okzb)) {
-        vecCore::MaskedAssign(distance, Abs(distance) < kHalfTolerance, Float_t(0.0));
+        vecCore::MaskedAssign(distance, vecCore::math::Abs(distance) < kHalfTolerance, Real_v(0.0));
         return;
       }
     }
 
     // hitting X faces?
-    Bool_t okx;
+    Bool_v okx;
 
-    FaceTrajectoryIntersection<Backend, false, false, false>(trd, point, dir, distx, okx);
+    FaceTrajectoryIntersection<Real_v, false, false, false>(trd, point, dir, distx, okx);
 
     vecCore::MaskedAssign(distance, okx, distx);
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(okx)) {
-      vecCore::MaskedAssign(distance, Abs(distance) < kHalfTolerance, Float_t(0.0));
+      vecCore::MaskedAssign(distance, vecCore::math::Abs(distance) < kHalfTolerance, Real_v(0.0));
       return;
     }
 
-    FaceTrajectoryIntersection<Backend, false, true, false>(trd, point, dir, distx, okx);
+    FaceTrajectoryIntersection<Real_v, false, true, false>(trd, point, dir, distx, okx);
     vecCore::MaskedAssign(distance, okx, distx);
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(okx)) {
-      vecCore::MaskedAssign(distance, Abs(distance) < kHalfTolerance, Float_t(0.0));
+      vecCore::MaskedAssign(distance, vecCore::math::Abs(distance) < kHalfTolerance, Real_v(0.0));
       return;
     }
 
     // hitting Y faces?
-    Bool_t oky;
+    Bool_v oky;
 
     if (checkVaryingY<trdTypeT>(trd)) {
-      FaceTrajectoryIntersection<Backend, true, false, false>(trd, point, dir, disty, oky);
+      FaceTrajectoryIntersection<Real_v, true, false, false>(trd, point, dir, disty, oky);
       vecCore::MaskedAssign(distance, oky, disty);
       if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(oky)) {
-        vecCore::MaskedAssign(distance, Abs(distance) < kHalfTolerance, Float_t(0.0));
+        vecCore::MaskedAssign(distance, vecCore::math::Abs(distance) < kHalfTolerance, Real_v(0.0));
         return;
       }
 
-      FaceTrajectoryIntersection<Backend, true, true, false>(trd, point, dir, disty, oky);
+      FaceTrajectoryIntersection<Real_v, true, true, false>(trd, point, dir, disty, oky);
       vecCore::MaskedAssign(distance, oky, disty);
     } else {
-      Float_t plane = trd.dy1();
-      vecCore::MaskedAssign(plane, dir.y() < 0.0, Float_t(-trd.dy1()));
-      disty        = (plane - point.y()) / dir.y();
-      Float_t zhit = point.z() + disty * dir.z();
-      Float_t xhit = point.x() + disty * dir.x();
-      Float_t dx   = trd.halfx1plusx2() - trd.fx() * zhit;
-      oky          = Abs(xhit) < dx && Abs(zhit) < trd.dz();
+      Real_v plane = trd.fDY1;
+      vecCore::MaskedAssign(plane, dir.y() < 0.0, Real_v(-trd.fDY1));
+      disty       = (plane - point.y()) / dir.y();
+      Real_v zhit = point.z() + disty * dir.z();
+      Real_v xhit = point.x() + disty * dir.x();
+      Real_v dx   = trd.fHalfX1plusX2 - trd.fFx * zhit;
+      oky         = vecCore::math::Abs(xhit) < dx && vecCore::math::Abs(zhit) < trd.fDZ;
       vecCore::MaskedAssign(distance, oky, disty);
     }
-    vecCore::MaskedAssign(distance, Abs(distance) < kHalfTolerance, Float_t(0.0));
-    vecCore::MaskedAssign(distance, out, Float_t(-1.0));
+    vecCore::MaskedAssign(distance, vecCore::math::Abs(distance) < kHalfTolerance, Real_v(0.0));
+    vecCore::MaskedAssign(distance, out, Real_v(-1.0));
   }
 
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void SafetyToIn(UnplacedTrd const &trd, Transformation3D const &transformation,
-                         Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety)
+  static void SafetyToIn(UnplacedStruct_t const &trd, Vector3D<Real_v> const &point, Real_v &safety)
   {
     using namespace TrdUtilities;
-    typedef typename Backend::precision_v Float_t;
-    Vector3D<Float_t> pos_local;
-    transformation.Transform<transCodeT, rotCodeT>(point, pos_local);
-    Safety<Backend, trdTypeT, false>(trd, pos_local, safety);
+    Safety<Real_v, trdTypeT, false>(trd, point, safety);
   }
 
-  template <class Backend>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  static void SafetyToOut(UnplacedTrd const &trd, Vector3D<typename Backend::precision_v> const &point,
-                          typename Backend::precision_v &safety)
+  static void SafetyToOut(UnplacedStruct_t const &trd, Vector3D<Real_v> const &point, Real_v &safety)
   {
     using namespace TrdUtilities;
-    Safety<Backend, trdTypeT, true>(trd, point, safety);
+    Safety<Real_v, trdTypeT, true>(trd, point, safety);
   }
 };
 }
