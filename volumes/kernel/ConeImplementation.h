@@ -149,8 +149,6 @@ static void PointInCyclicalSector(UnplacedVolumeType const &volume,
 
   Float_t startCheck = (-x * starty) + (y * startx);
   Float_t endCheck = (-endx * y) + (endy * x);
-  // std::cout<<"StartCheck : "<<startCheck<<" : EndCheck :
-  // "<<endCheck<<std::endl;
 
   if (onSurfaceT) {
     // in this case, includeSurface is irrelevant
@@ -236,8 +234,6 @@ static void PhiPlaneTrajectoryIntersection(
   vecCore::MaskedAssign(dist, dirDotXY != 0,
                         ((alongY * pos.x()) - (alongX * pos.y())) /
                             NonZero(dirDotXY));
-  // std::cout<<"Dist From PHI-Plane-Trajectory-Intersection  :
-  // "<<dist<<std::endl;
   ok &= dist > -kHalfConeTolerance;
   // if( /*Backend::early_returns &&*/ vecCore::MaskEmpty(ok) ) return;
 
@@ -859,6 +855,7 @@ struct ConeImplementation {
       Vector3D<typename Backend::precision_v> const &direction,
       typename Backend::precision_v &distance) {
 
+
     using namespace ConeUtilities;
     using namespace ConeTypes;
     typedef typename Backend::precision_v Float_t;
@@ -1001,7 +998,7 @@ struct ConeImplementation {
       } else {
         vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b < 0.),
                               (-b + delta) / NonZero(a));
-        vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b > 0.),
+        vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b >= 0.),
                               (c / (-b - delta)));
       }
 
@@ -1105,6 +1102,15 @@ struct ConeImplementation {
     Float_t dirZInv = 1. / NonZero(direction.z());
     vecCore::MaskedAssign(distance, isGoingUp, (fDz - point.z()) * dirZInv);
     vecCore::MaskedAssign(distance, isGoingDown, (-fDz - point.z()) * dirZInv);
+
+
+if (!checkPhiTreatment<ConeType>(cone) && !checkRminTreatment<ConeType>(cone)){
+  Vector3D<Float_t> newPt = point + distance*direction;
+    Float_t rho2 = newPt.Perp2();
+    Bool_t cond = (rho2 < cone.GetRmax2() && direction.z() > 0.) || 
+                  (rho2 < cone.GetRmax1() && direction.z() < 0.) ;
+    if(vecCore::MaskFull(cond)) return;
+}
 
     Float_t dist_rOuter(kInfLength);
     Bool_t ok_outerCone =
@@ -3422,8 +3428,6 @@ struct ConeImplementation {
     Vector3D<Precision> normNearest = nZ;
     if (p.z() < 0.)
       normNearest.Set(0, 0, -1.);
-    // std::cout<<"ConeImpl: spot 1: p="<< p <<", normNearest="<< normNearest
-    // <<", distZ="<< distZ <<"\n";
 
     if (inside && distZ <= delta) {
       noSurfaces++;
