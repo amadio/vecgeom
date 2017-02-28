@@ -77,6 +77,16 @@ public:
 
   // Modifiers already implemented in UnplacedTrd
 
+  inline void SetXHalfLength1(double val) { return UnplacedTrd::SetXHalfLength1(val); }
+  inline void SetXHalfLength2(double val) { return UnplacedTrd::SetXHalfLength2(val); }
+  inline void SetYHalfLength1(double val) { return UnplacedTrd::SetYHalfLength1(val); }
+  inline void SetYHalfLength2(double val) { return UnplacedTrd::SetYHalfLength2(val); }
+  inline void SetZHalfLength(double val) { return UnplacedTrd::SetZHalfLength(val); }
+  void SetAllParameters(double pdx1, double pdx2, double pdy1, double pdy2, double pdz)
+  {
+    UnplacedTrd::SetAllParameters(pdx1, pdx2, pdy1, pdy2, pdz);
+  }
+
   // o provide a new object which is a clone of the solid
   VUSolid *Clone() const override { return new UTrd(GetName().c_str(), dx1(), dx2(), dy1(), dy2(), dz()); }
 
