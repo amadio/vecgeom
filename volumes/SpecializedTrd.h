@@ -8,9 +8,7 @@
 
 #include "volumes/kernel/TrdImplementation.h"
 #include "volumes/PlacedTrd.h"
-#include "volumes/ShapeImplementationHelper.h"
 #include "volumes/SpecializedPlacedVolImplHelper.h"
-//#include <stdio.h>
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
