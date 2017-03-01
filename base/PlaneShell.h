@@ -183,8 +183,8 @@ public:
 
     // wrong-side check: if (inside && smin<0) return -1
     for (int i = 0; i < N; ++i) {
-      done = done || pdist[i] > MakePlusTolerant<true>(0.0) && proj[i] >= 0.0;
-      done = done || pdist[i] > MakeMinusTolerant<true>(0.0) && proj[i] > 0.0;
+      done = done || (pdist[i] > MakePlusTolerant<true>(0.0) && proj[i] >= 0.0);
+      done = done || (pdist[i] > MakeMinusTolerant<true>(0.0) && proj[i] > 0.0);
     }
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return distIn;
 
