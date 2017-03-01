@@ -413,7 +413,8 @@ bool UnplacedTrapezoid::MakeAPlane(const Vec3D &p1, const Vec3D &p2, const Vec3D
   Precision d = -normalVector.Dot(centr);
 
   // check coplanarity
-  bool good        = true;
+  bool good = true;
+#ifndef NDEBUG
   Precision resid1 = normalVector.Dot(p1 - centr);
   Precision resid2 = normalVector.Dot(p2 - centr);
   Precision resid3 = normalVector.Dot(p3 - centr);
@@ -430,6 +431,7 @@ bool UnplacedTrapezoid::MakeAPlane(const Vec3D &p1, const Vec3D &p2, const Vec3D
     // a non-planar face suggested by input points, up to a maximum residual below
     if (resid > 1000 * kTolerance) good = false;
   }
+#endif
 
 #ifndef VECGEOM_PLANESHELL_DISABLE
   fTrap.fPlanes.Set(iplane, normalVector.x(), normalVector.y(), normalVector.z(), d);
