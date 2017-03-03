@@ -418,10 +418,10 @@ static typename Backend::bool_v DetectIntersectionAndCalculateDistanceToConicalS
 
     Float_t delta = Sqrt(vecCore::math::Abs(d2));
     if (ForDistToIn) {
-      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b > 0.), (c / (-b - delta)));
+      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b >= 0.), (c / (-b - delta)));
       vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b < 0.), (-b + delta) / NonZero(a));
     } else {
-      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b > 0.), (-b - delta) / NonZero(a));
+      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b >= 0.), (-b - delta) / NonZero(a));
       vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b < 0.), (c / (-b + delta)));
     }
 
