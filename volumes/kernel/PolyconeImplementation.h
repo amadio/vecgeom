@@ -383,7 +383,6 @@ struct PolyconeImplementation {
                             Vector3D<typename Backend::precision_v> const &dir,
                             typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance)
   {
-    bool verbose = false;
     Vector3D<typename Backend::precision_v> pn(point);
 
     // specialization for N==1??? It should be a cone in the first place
