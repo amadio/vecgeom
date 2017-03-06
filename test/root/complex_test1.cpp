@@ -361,16 +361,22 @@ void test8()
 
 // test navigation interface without relocation
 template <typename Navigator = NewSimpleNavigator<>>
-void test9()
+void test9(double pstep = 1E30)
 {
   NavigationState *state    = NavigationState::MakeInstance(4);
   NavigationState *newstate = NavigationState::MakeInstance(4);
+
+  NavigationState *state2    = NavigationState::MakeInstance(4);
+  NavigationState *newstate2 = NavigationState::MakeInstance(4);
+
   // statistical test  of navigation via comparison with ROOT navigation
   bool error = false;
 
   for (int i = 0; i < 100000; ++i) {
     state->Clear();
     newstate->Clear();
+    state2->Clear();
+    newstate2->Clear();
 
     // std::cerr << "START ITERATION " << i << "\n";
     double x = RNG::Instance().uniform(-10, 10);
@@ -383,9 +389,18 @@ void test9()
 
     SimpleNavigator nav;
     nav.LocatePoint(GeoManager::Instance().GetWorld(), p, *state, true);
+    state->CopyTo(state2);
+
     double step   = 0;
     VNavigator *n = Navigator::Instance();
-    step          = n->ComputeStep(p, d, 1E30, *state, *newstate);
+    step          = n->ComputeStep(p, d, pstep, *state, *newstate);
+
+    // crosscheck with similar interface also calculating safety
+    double safety = 0.;
+    double step2  = 0.;
+    step2         = n->ComputeStepAndSafety(p, d, pstep, *state2, true, safety);
+    assert(!(safety > step2 && step != pstep));
+    assert(step2 == step);
 
     TGeoNavigator *rootnav = ::gGeoManager->GetCurrentNavigator();
     TGeoNode *node         = rootnav->FindNode(x, y, z);
@@ -393,7 +408,7 @@ void test9()
 
     rootnav->SetCurrentPoint(x, y, z);
     rootnav->SetCurrentDirection(d[0], d[1], d[2]);
-    rootnav->FindNextBoundary(1E30);
+    rootnav->FindNextBoundary(pstep);
 
     assert(std::fabs(step - rootnav->GetStep()) < 1E-6);
 
@@ -633,6 +648,8 @@ int main()
   test7();
   test8();
   test9();
+  test9(0.1); // test with a limited physics step
+
   // test ABBoxNavigator
   ABBoxManager::Instance().InitABBoxesForCompleteGeometry();
   test8<ABBoxNavigator>();

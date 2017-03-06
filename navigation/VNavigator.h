@@ -63,6 +63,12 @@ public:
                                 Precision /*(physics) step limit */, NavigationState const & /*in_state*/,
                                 NavigationState & /*out_state*/) const = 0;
 
+  //! as above ... also returns the safety ... does not give_back an out_state
+  virtual Precision ComputeStepAndSafety(Vector3D<Precision> const & /*globalpoint*/,
+                                         Vector3D<Precision> const & /*globaldir*/, Precision /*(physics) step limit */,
+                                         NavigationState const & /*in_state*/, bool /*calcsafety*/,
+                                         Precision & /*safety*/) const = 0;
+
   // an alias interface ( using TGeo name )
   void FindNextBoundaryAndStep(Vector3D<Precision> const &globalpoint, Vector3D<Precision> const &globaldir,
                                NavigationState const &in_state, NavigationState &out_state, Precision step_limit,
@@ -113,6 +119,13 @@ public:
                                                           NavigationState ** /*out_states*/, Precision * /*out_steps*/,
                                                           bool const * /*calcsafety*/,
                                                           Precision * /*out_safeties*/) const = 0;
+
+  // for vector navigation (not doing relocation) -- interface for GeantV
+  virtual void ComputeStepsAndSafeties(SOA3D<Precision> const & /*globalpoints*/,
+                                       SOA3D<Precision> const & /*globaldirs*/,
+                                       Precision const * /*(physics) step limits */,
+                                       NavigationState const ** /*in_states*/, Precision * /*out_steps*/,
+                                       bool const * /*calcsafety*/, Precision * /*out_safeties*/) const = 0;
 
 protected:
   // a common relocate method ( to calculate propagated states after the boundary )
@@ -418,6 +431,70 @@ public:
     if (!out_state.IsOnBoundary()) return step;
 
     return step;
+  }
+
+  virtual Precision ComputeStepAndSafety(Vector3D<Precision> const &globalpoint, Vector3D<Precision> const &globaldir,
+                                         Precision step_limit, NavigationState const &in_state, bool calcsafety,
+                                         Precision &safety) const override
+  {
+// FIXME: combine this kernel and the one for ComputeStep() into one generic function
+#ifdef DEBUGNAV
+    static size_t counter = 0;
+    counter++;
+#endif
+    // calculate local point/dir from global point/dir
+    // call the static function for this provided/specialized by the Impl
+    Vector3D<Precision> localpoint;
+    Vector3D<Precision> localdir;
+    NavigationState *out_state = nullptr;
+
+    Impl::DoGlobalToLocalTransformation(in_state, globalpoint, globaldir, localpoint, localdir, out_state);
+
+    // get safety first ( the benefit here is that we reuse the local points )
+    using SafetyE_t = typename Impl::SafetyEstimator_t;
+    if (calcsafety) {
+      // call the appropriate safety Estimator
+      safety = ((SafetyE_t *)fSafetyEstimator)->SafetyE_t::ComputeSafetyForLocalPoint(localpoint, in_state.Top());
+    }
+
+    Precision step                    = step_limit;
+    VPlacedVolume const *hitcandidate = nullptr;
+    auto pvol                         = in_state.Top();
+    auto lvol                         = pvol->GetLogicalVolume();
+
+    // is the next object certainly further away than the safety
+    bool safetydone = calcsafety && safety >= step;
+
+    if (!safetydone) {
+      if (MotherIsConvex) {
+        // if mother is convex we may not need to do treatment of mother
+        // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
+        ((Impl *)this)
+            ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, &in_state, out_state, step, hitcandidate);
+        if (hitcandidate == nullptr) step = Impl::TreatDistanceToMother(pvol, localpoint, localdir, step_limit);
+      } else {
+        // need to calc DistanceToOut first
+        step = Impl::TreatDistanceToMother(pvol, localpoint, localdir, step_limit);
+        // "suck in" algorithm from Impl and treat hit detection in local coordinates for daughters
+        ((Impl *)this)
+            ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, &in_state, out_state, step, hitcandidate);
+      }
+    }
+    return std::min(step, step_limit);
+  }
+
+  virtual void ComputeStepsAndSafeties(SOA3D<Precision> const &globalpoints, SOA3D<Precision> const &globaldirs,
+                                       Precision const *step_limits, NavigationState const **in_states,
+                                       Precision *out_steps, bool const *calcsafety,
+                                       Precision *out_safeties) const override
+  {
+    // FIXME: provide a proper vectorized dispatch
+    for (size_t i = 0; i < globalpoints.size(); ++i) {
+      // FIXME: use calcsafety (variable) -> state is on boundary?
+      // if we know its on boundary ... the calculation could be avoided
+      out_steps[i] = VNavigatorHelper::ComputeStepAndSafety(globalpoints[i], globaldirs[i], step_limits[i],
+                                                            *in_states[i], calcsafety[i], out_safeties[i]);
+    }
   }
 
   // this kernel is a generic implementation to navigate with chunks of data
