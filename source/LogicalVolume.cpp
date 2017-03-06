@@ -19,6 +19,7 @@
 #include "volumes/UnplacedAssembly.h"
 #include <climits>
 #include <stdio.h>
+#include <set>
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -47,7 +48,9 @@ VNavigator *NewSimpleNavigator<false>::Instance()
 }
 #endif
 
-int LogicalVolume::gIdCount = 0;
+int LogicalVolume::gIdCount                  = 0;
+std::type_index LogicalVolume::gRegionTypeId = std::type_index(typeid(void *));
+bool LogicalVolume::gRegionTypeInitialized   = false;
 
 #ifndef VECGEOM_NVCC
 LogicalVolume::LogicalVolume(char const *const label, VUnplacedVolume const *const unplaced_volume)
@@ -197,6 +200,15 @@ bool LogicalVolume::ContainsAssembly() const
     }
   }
   return false;
+}
+
+std::set<LogicalVolume *> LogicalVolume::GetSetOfDaughterLogicalVolumes() const
+{
+  std::set<LogicalVolume *> s;
+  for (auto pv : GetDaughters()) {
+    s.insert(const_cast<LogicalVolume *>(pv->GetLogicalVolume()));
+  }
+  return s;
 }
 
 std::ostream &operator<<(std::ostream &os, LogicalVolume const &vol)

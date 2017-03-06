@@ -13,6 +13,9 @@
 
 #include <string>
 #include <list>
+#include <set>
+#include <typeindex>
+#include <typeinfo>
 
 class TGeoShape;
 // class VUSolid;
@@ -60,6 +63,12 @@ private:
    */
   void *fTrackingMediumPtr;
   void *fBasketManagerPtr;
+
+  void const *fRegion = nullptr;        // pointer to a region object
+  static std::type_index gRegionTypeId; // stores a type-index of the concrete type for fRegion
+                                        // in order to disallow accidential Setting and Getting with
+                                        // different types in one user application
+  static bool gRegionTypeInitialized;
 
   VLevelLocator const *fLevelLocator;       // a locator class for this logical volume
   VSafetyEstimator const *fSafetyEstimator; // a safety estimator class for this logical volume
@@ -205,6 +214,23 @@ public:
 
   friend std::ostream &operator<<(std::ostream &os, LogicalVolume const &vol);
 
+  template <typename Region>
+  Region const *GetRegion() const
+  {
+    // note that the use of a simple assert still does not prevent getting a different region class
+    // than we wrote (in case of a release build)
+    assert(std::type_index(typeid(Region)) == gRegionTypeId);
+    return reinterpret_cast<Region const *>(fRegion);
+  }
+
+  // Region is a any object which will be associated
+  // to this logical volume
+  // *and* if pushdown=true to all logical volumes below (in the geom hierarchy)
+  // set region will override any existing region
+  // the user has to make sure to call in the right order
+  template <typename Region>
+  void SetRegion(Region const *region, bool pushdown = true);
+
 #ifdef VECGEOM_CUDA_INTERFACE
   DevicePtr<cuda::LogicalVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const unplaced_vol,
                                            DevicePtr<cuda::Vector<CudaDaughter_t>> GetDaughter) const;
@@ -213,7 +239,33 @@ public:
                                            DevicePtr<cuda::LogicalVolume> const gpu_ptr) const;
 #endif
 
+private:
+  std::set<LogicalVolume *> GetSetOfDaughterLogicalVolumes() const;
+
 }; // End class
+
+template <typename Region>
+void LogicalVolume::SetRegion(Region const *region, bool pushdown)
+{
+  // make sure we only store Regions of the same type-id
+  if (!gRegionTypeInitialized) {
+    // first use of this function
+    gRegionTypeId          = std::type_index(typeid(Region));
+    gRegionTypeInitialized = true;
+  }
+  // throw error if trying to push different types
+  if (std::type_index(typeid(Region)) != gRegionTypeId) {
+    std::runtime_error("SetRegion called with unexpected type");
+  }
+
+  fRegion = reinterpret_cast<void const *>(region);
+  if (pushdown) {
+    for (auto &lv : GetSetOfDaughterLogicalVolumes()) {
+      lv->SetRegion<Region>(region, true);
+    }
+  }
+}
+
 } // End inline namespace
 } // End global namespace
 

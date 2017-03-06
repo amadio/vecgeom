@@ -874,6 +874,7 @@ set(TEST_EXECUTABLES_ROOT
   ${CMAKE_SOURCE_DIR}/test/core/BoxBoxIntersectionTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/SplittedABBox.cpp
   ${CMAKE_SOURCE_DIR}/test/root/AssemblyExample.cpp
+  ${CMAKE_SOURCE_DIR}/test/core/TestRegions.cpp
 )
 
 set(TEST_EXECUTABLES_CORE
