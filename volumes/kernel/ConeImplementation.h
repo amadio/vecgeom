@@ -914,6 +914,7 @@ static typename Backend::bool_v IsOnEndPhi(UnplacedCone const &cone,
 }
 
 template <class Backend>
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 static void DistanceToOutKernel(UnplacedCone const &cone, Vector3D<typename Backend::precision_v> const &point,
                                 Vector3D<typename Backend::precision_v> const &direction,
@@ -1041,6 +1042,7 @@ static void DistanceToOutKernel(UnplacedCone const &cone, Vector3D<typename Back
 
 // Specialized verison of DistanceToOut
 template <>
+VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
 void DistanceToOutKernel<kScalar>(UnplacedCone const &cone, Vector3D<Precision> const &point,
                                   Vector3D<Precision> const &direction, Precision const & /*stepMax*/,
