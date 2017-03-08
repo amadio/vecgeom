@@ -418,11 +418,11 @@ static typename Backend::bool_v DetectIntersectionAndCalculateDistanceToConicalS
 
     Float_t delta = Sqrt(vecCore::math::Abs(d2));
     if (ForDistToIn) {
-      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b >= 0.), (c / (-b - delta)));
+      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b >= 0.), (c / NonZero(-b - delta)));
       vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b < 0.), (-b + delta) / NonZero(a));
     } else {
       vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b >= 0.), (-b - delta) / NonZero(a));
-      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b < 0.), (c / (-b + delta)));
+      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b < 0.), (c / NonZero(-b + delta)));
     }
 
     if (vecCore::MaskFull(distance < 0.)) return Bool_t(false);
@@ -458,10 +458,10 @@ static typename Backend::bool_v DetectIntersectionAndCalculateDistanceToConicalS
 
     if (ForDistToIn) {
       vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b > 0.), (-b - delta) / NonZero(a));
-      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b < 0.), (c / (-b + delta)));
+      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b < 0.), (c / NonZero(-b + delta)));
     } else {
       vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b < 0.), (-b + delta) / NonZero(a));
-      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b >= 0.), (c / (-b - delta)));
+      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b >= 0.), (c / NonZero(-b - delta)));
     }
 
     if (vecCore::MaskFull(distance < 0.)) return Bool_t(false);
@@ -844,7 +844,7 @@ bool DetectIntersectionAndCalculateDistanceToConicalSurface<kScalar, false, fals
     else {
       // std::cout<< "*** HERE ****" << std::endl;
       // std::cout<<"Test CAlc : " << (c / (-b - delta)) << std::endl;
-      distance = (c / (-b - delta));
+      distance = (c / NonZero(-b - delta));
     }
   } else {
     return false;

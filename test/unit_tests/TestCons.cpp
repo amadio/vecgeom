@@ -14,7 +14,7 @@
 #include "UVector3.hh"
 #endif
 #include <cmath>
-
+#include "base/FpeEnable.h"
 #define DELTA 0.0001
 
 bool testingvecgeom = false;
