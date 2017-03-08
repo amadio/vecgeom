@@ -106,7 +106,7 @@ bool checkPhiTreatment(const UnplacedTube &tube)
 // asking for rmin treatment
 template <typename T>
 struct NeedsRminTreatment {
-  static const ETreatmentType value = kYes;
+  static const ETreatmentType value = kUnknown; // unknown will trigger real rmin check
 };
 
 #ifndef VECGEOM_NO_SPECIALIZATION

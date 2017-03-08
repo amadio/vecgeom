@@ -142,14 +142,6 @@ public:
 
   std::string GetEntityType() const { return "Tube"; }
 
-  template <TranslationCode transCodeT, RotationCode rotCodeT>
-  VECCORE_ATT_DEVICE
-  static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-#ifdef VECCORE_CUDA
-                               const int id,
-#endif
-                               VPlacedVolume *const placement = NULL);
-
 #ifdef VECGEOM_CUDA_INTERFACE
   virtual size_t DeviceSizeOf() const override
   {
@@ -158,22 +150,13 @@ public:
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
 #endif
+};
 
-private:
-#ifndef VECCORE_CUDA
-  virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
-                                           Transformation3D const *const transformation,
-                                           const TranslationCode trans_code, const RotationCode rot_code,
-                                           VPlacedVolume *const placement = NULL) const override;
-
-#else
-  VECCORE_ATT_DEVICE
-  virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
-                                           Transformation3D const *const transformation,
-                                           const TranslationCode trans_code, const RotationCode rot_code, const int id,
-                                           VPlacedVolume *const placement = NULL) const override;
-
-#endif
+template <>
+struct Maker<UnplacedTube> {
+  template <typename... ArgTypes>
+  static UnplacedTube *MakeInstance(Precision const &_rmin, Precision const &_rmax, Precision const &_z,
+                                    Precision const &_sphi, Precision const &_dphi);
 };
 
 // this class finishes the implementation
@@ -184,11 +167,46 @@ class SUnplacedTube : public SIMDUnplacedVolumeImplHelper<TubeImplementation<Tub
 public:
   using BaseType_t = SIMDUnplacedVolumeImplHelper<TubeImplementation<TubeType>, UnplacedTube>;
   using BaseType_t::BaseType_t;
+
+  template <TranslationCode transCodeT, RotationCode rotCodeT>
+  VECCORE_ATT_DEVICE
+  static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
+#ifdef VECCORE_CUDA
+                               const int id,
+#endif
+                               VPlacedVolume *const placement = NULL);
+
+private:
+#ifndef VECCORE_CUDA
+  virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
+                                           Transformation3D const *const transformation,
+                                           const TranslationCode trans_code, const RotationCode rot_code,
+                                           VPlacedVolume *const placement = NULL) const override
+  {
+    return VolumeFactory::CreateByTransformation<SUnplacedTube<TubeType>>(volume, transformation, trans_code, rot_code,
+                                                                          placement);
+  }
+
+#else
+  VECCORE_ATT_DEVICE
+  virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
+                                           Transformation3D const *const transformation,
+                                           const TranslationCode trans_code, const RotationCode rot_code, const int id,
+                                           VPlacedVolume *const placement = NULL) const override
+  {
+    return VolumeFactory::CreateByTransformation<SUnplacedTube<TubeType>>(volume, transformation, trans_code, rot_code,
+                                                                          id, placement);
+  }
+#endif
 };
 
 using GenericUnplacedTube = SUnplacedTube<TubeTypes::UniversalTube>;
 
 } // end inline namespace
 } // end vecgeom namespace
+
+// we include this header here because SpecializedTube
+// implements the Create function of SUnplacedTube<> (and to avoid a circular dependency)
+#include "volumes/SpecializedTube.h"
 
 #endif // VECGEOM_VOLUMES_UNPLACEDTUBE_H_

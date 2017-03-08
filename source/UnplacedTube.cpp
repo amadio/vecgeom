@@ -25,70 +25,32 @@ void UnplacedTube::Print(std::ostream &os) const
   os << "UnplacedTube {" << rmin() << ", " << rmax() << ", " << z() << ", " << sphi() << ", " << dphi() << "}\n";
 }
 
-// template <TranslationCode transCodeT, RotationCode rotCodeT>
-// VECCORE_ATT_DEVICE
-// VPlacedVolume *UnplacedTube::Create(LogicalVolume const *const logical_volume,
-//                                    Transformation3D const *const transformation,
-//#ifdef VECCORE_CUDA
-//                                    const int id,
-//#endif
-//                                    VPlacedVolume *const placement)
-//{
-
-//  using namespace TubeTypes;
-//  __attribute__((unused)) const UnplacedTube &tube =
-//      static_cast<const UnplacedTube &>(*(logical_volume->GetUnplacedVolume()));
-
-////#ifdef VECCORE_CUDA
-////#define RETURN_SPECIALIZATION(tubeTypeT)				"\"
-////  return CreateSpecializedWithPlacement<SpecializedTube<transCodeT, rotCodeT, tubeTypeT>>( "\"
-//      logical_volume, transformation, id, placement)
-//#else
-////#define RETURN_SPECIALIZATION(tubeTypeT)				"\"
-////  return CreateSpecializedWithPlacement<SpecializedTube<transCodeT, rotCodeT, tubeTypeT>>(logical_volume, "\"
-//                                                                                          transformation, placement)
-//#endif
-
-//#ifdef GENERATE_TUBE_SPECIALIZATIONS
-//  if (tube.rmin() <= 0) {
-//    if (tube.dphi() >= 2 * M_PI) RETURN_SPECIALIZATION(NonHollowTube);
-//    if (tube.dphi() == M_PI) RETURN_SPECIALIZATION(NonHollowTubeWithPiSector); // == M_PI ???
-
-//    if (tube.dphi() < M_PI) RETURN_SPECIALIZATION(NonHollowTubeWithSmallerThanPiSector);
-//    if (tube.dphi() > M_PI) RETURN_SPECIALIZATION(NonHollowTubeWithBiggerThanPiSector);
-//  } else if (tube.rmin() > 0) {
-//    if (tube.dphi() >= 2 * M_PI) RETURN_SPECIALIZATION(HollowTube);
-//    if (tube.dphi() == M_PI) RETURN_SPECIALIZATION(HollowTubeWithPiSector); // == M_PI ???
-
-//    if (tube.dphi() < M_PI) RETURN_SPECIALIZATION(HollowTubeWithSmallerThanPiSector);
-//    if (tube.dphi() > M_PI) RETURN_SPECIALIZATION(HollowTubeWithBiggerThanPiSector);
-//  }
-//#endif
-
-//  RETURN_SPECIALIZATION(UniversalTube);
-
-//#undef RETURN_SPECIALIZATION
-//}
-
-#ifndef VECCORE_CUDA
-VPlacedVolume *UnplacedTube::SpecializedVolume(LogicalVolume const *const volume,
-                                               Transformation3D const *const transformation,
-                                               const TranslationCode trans_code, const RotationCode rot_code,
-                                               VPlacedVolume *const placement) const
+template <>
+UnplacedTube *Maker<UnplacedTube>::MakeInstance(const Precision &rmin, const Precision &rmax, const Precision &z,
+                                                const Precision &sphi, const Precision &dphi)
 {
-  return VolumeFactory::CreateByTransformation<UnplacedTube>(volume, transformation, trans_code, rot_code, placement);
-}
+#ifndef VECGEOM_NO_SPECIALIZATION
+  if (rmin <= 0) {
+    if (dphi >= 2 * M_PI) return new SUnplacedTube<TubeTypes::NonHollowTube>(rmin, rmax, z, sphi, dphi);
+    if (dphi == M_PI) return new SUnplacedTube<TubeTypes::NonHollowTubeWithPiSector>(rmin, rmax, z, sphi, dphi);
+    if (dphi < M_PI)
+      return new SUnplacedTube<TubeTypes::NonHollowTubeWithSmallerThanPiSector>(rmin, rmax, z, sphi, dphi);
+    if (dphi > M_PI)
+      return new SUnplacedTube<TubeTypes::NonHollowTubeWithBiggerThanPiSector>(rmin, rmax, z, sphi, dphi);
+  } else if (rmin > 0) {
+    if (dphi >= 2 * M_PI) return new SUnplacedTube<TubeTypes::HollowTube>(rmin, rmax, z, sphi, dphi);
+    if (dphi == M_PI) return new SUnplacedTube<TubeTypes::HollowTubeWithPiSector>(rmin, rmax, z, sphi, dphi);
+    if (dphi < M_PI) return new SUnplacedTube<TubeTypes::HollowTubeWithSmallerThanPiSector>(rmin, rmax, z, sphi, dphi);
+    if (dphi > M_PI) return new SUnplacedTube<TubeTypes::HollowTubeWithBiggerThanPiSector>(rmin, rmax, z, sphi, dphi);
+  }
+  // just here to trigger symbol creation (because it might be used explicitly elsewhere)
+  return new SUnplacedTube<TubeTypes::UniversalTube>(rmin, rmax, z, sphi, dphi);
 #else
-VECCORE_ATT_DEVICE VPlacedVolume *UnplacedTube::SpecializedVolume(LogicalVolume const *const volume,
-                                                                  Transformation3D const *const transformation,
-                                                                  const TranslationCode trans_code,
-                                                                  const RotationCode rot_code, const int id,
-                                                                  VPlacedVolume *const placement) const
-{
-  return VolumeFactory::CreateByTransformation<UnplacedTube>(volume, transformation, trans_code, rot_code, id,
-                                                             placement);
-}
+  // if nothing matches return the most general case
+  // in principle this should never happen
+  return new SUnplacedTube<TubeTypes::UniversalTube>(rmin, rmax, z, sphi, dphi);
 #endif
+}
 
 int UnplacedTube::ChooseSurface() const
 {

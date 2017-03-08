@@ -22,6 +22,31 @@ VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedScaledShape);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+#ifdef GOT_AROUND_TO_SPECIALIZE_SCALED_SHAPE
+template <typename Specialized_t>
+class SUnplacedScaledShape {
+};
+
+return ScaledShape::MakeInstance<BaseShape_t>(scale, Argtypes... args);
+
+template <typename Shape_t>
+Scale(Shape_t vol, ... Scale)
+{
+  return SUnplacedScaleShabe<Shape_t>(scale, vol);
+}
+
+UnplacedScaledScale(UnplacedTube, scale)
+{
+  if (dynamic_cast<...>()) }
+
+template <typename BaseShape_t, Argtypes... Args>
+static UnplacedScaledShape *MakeScaledInstance(Scale3D scale, Argtypes... args)
+{
+  auto svol = BaseShape_t::MakeInstance(args...);
+  return Scale(svol, scale);
+}
+#endif
+
 /**
  * The unplaced scaled shape class.
  */

@@ -14,6 +14,9 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+class UnplacedScaledShape;
+class Scale3D;
+
 // probably don't need apply to be virtual
 template <typename Container>
 class GeoVisitor {
@@ -128,6 +131,17 @@ public:
    * See if geometry is closed
    */
   bool IsClosed() const { return fIsClosed; }
+
+  // a factory for unplaced shapes
+  template <typename UnplacedShape_t, typename... ArgTypes>
+  static UnplacedShape_t *MakeInstance(ArgTypes... Args);
+
+  // a factory for unplaced scaled shapes
+  template <typename BaseShape_t, typename... ArgTypes>
+  static UnplacedScaledShape *MakeScaledInstance(const Scale3D &scale, ArgTypes... args)
+  {
+    return Maker<UnplacedScaledShape>::MakeInstance<BaseShape_t>(scale, args...);
+  }
 
   // compactify memory space
   // an internal method which should be called by ClosedGeometry
@@ -272,6 +286,13 @@ void GeoManager::getAllPlacedVolumes(Container &c) const
   // placed volumes if not already in the container
   SimplePlacedVolumeVisitor<Container> pv(c);
   visitAllPlacedVolumes(GetWorld(), &pv);
+}
+
+// a factory for unplaced shapes
+template <typename UnplacedShape_t, typename... Argtypes>
+UnplacedShape_t *GeoManager::MakeInstance(Argtypes... args)
+{
+  return Maker<UnplacedShape_t>::MakeInstance(args...);
 }
 }
 } // End global namespace

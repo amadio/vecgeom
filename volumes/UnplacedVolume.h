@@ -234,6 +234,16 @@ private:
 #endif
 };
 
+template <typename Shape_t>
+struct Maker {
+  template <typename... ArgTypes>
+  static Shape_t *MakeInstance(ArgTypes... args)
+  {
+    // the default case calls the standard constructor
+    return new Shape_t(args...);
+  }
+};
+
 std::ostream &operator<<(std::ostream &os, VUnplacedVolume const &vol);
 
 } // End inline namespace

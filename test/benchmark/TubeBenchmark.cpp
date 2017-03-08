@@ -9,10 +9,10 @@ using namespace vecgeom;
 int benchmark(double rmin, double rmax, double dz, double sphi, double dphi, int npoints, int nrep)
 {
   UnplacedBox worldUnplaced = UnplacedBox(rmax * 4, rmax * 4, dz * 4);
-  GenericUnplacedTube tubeUnplaced(rmin, rmax, dz, sphi, dphi);
+  auto tubeUnplaced         = GeoManager::MakeInstance<UnplacedTube>(rmin, rmax, dz, sphi, dphi);
 
   LogicalVolume world("world", &worldUnplaced);
-  LogicalVolume tube("tube", &tubeUnplaced);
+  LogicalVolume tube("tube", tubeUnplaced);
 
   Transformation3D placement(5, 5, 5);
   world.PlaceDaughter("tube", &tube, &placement);
