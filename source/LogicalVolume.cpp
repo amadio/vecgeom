@@ -48,9 +48,7 @@ VNavigator *NewSimpleNavigator<false>::Instance()
 }
 #endif
 
-int LogicalVolume::gIdCount                  = 0;
-std::type_index LogicalVolume::gRegionTypeId = std::type_index(typeid(void *));
-bool LogicalVolume::gRegionTypeInitialized   = false;
+int LogicalVolume::gIdCount = 0;
 
 #ifndef VECGEOM_NVCC
 LogicalVolume::LogicalVolume(char const *const label, VUnplacedVolume const *const unplaced_volume)

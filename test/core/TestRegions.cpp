@@ -7,14 +7,16 @@
 #endif
 #include <cassert>
 
+namespace vecgeom {
+// for compatibility with CUDA
+inline namespace VECGEOM_IMPL_NAMESPACE {
+// this is our Region class
+class Region {
+};
+}
+}
+
 using namespace vecgeom;
-
-// dummy Region class
-class MyRegion {
-};
-
-class MyRegion2 {
-};
 
 int main()
 {
@@ -32,31 +34,31 @@ int main()
   auto calovolume  = const_cast<LogicalVolume *>(geom.FindLogicalVolume("Calorimeter"));
   auto argonvolume = const_cast<LogicalVolume *>(geom.FindLogicalVolume("liquidArgon"));
 
-  MyRegion *region1 = new MyRegion;
-  MyRegion *region2 = new MyRegion;
+  Region *region1 = new Region;
+  Region *region2 = new Region;
 
   leadvolume->SetRegion(region1);
-  assert(leadvolume->GetRegion<MyRegion>() == region1);
-  assert(worldvolume->GetRegion<MyRegion>() == nullptr);
-  assert(argonvolume->GetRegion<MyRegion>() == nullptr);
+  assert(leadvolume->GetRegion() == region1);
+  assert(worldvolume->GetRegion() == nullptr);
+  assert(argonvolume->GetRegion() == nullptr);
 
   // now do something with a pushdown
   calovolume->SetRegion(region2);
-  assert(worldvolume->GetRegion<MyRegion>() == nullptr);
-  assert(calovolume->GetRegion<MyRegion>() == region2);
-  assert(layervolume->GetRegion<MyRegion>() == region2);
-  assert(leadvolume->GetRegion<MyRegion>() == region2);
-  assert(argonvolume->GetRegion<MyRegion>() == region2);
+  assert(worldvolume->GetRegion() == nullptr);
+  assert(calovolume->GetRegion() == region2);
+  assert(layervolume->GetRegion() == region2);
+  assert(leadvolume->GetRegion() == region2);
+  assert(argonvolume->GetRegion() == region2);
 
   // now do something without pushdown
   calovolume->SetRegion(region1, false);
-  assert(worldvolume->GetRegion<MyRegion>() == nullptr);
-  assert(calovolume->GetRegion<MyRegion>() == region1);
-  assert(layervolume->GetRegion<MyRegion>() == region2);
-  assert(leadvolume->GetRegion<MyRegion>() == region2);
-  assert(argonvolume->GetRegion<MyRegion>() == region2);
+  assert(worldvolume->GetRegion() == nullptr);
+  assert(calovolume->GetRegion() == region1);
+  assert(layervolume->GetRegion() == region2);
+  assert(leadvolume->GetRegion() == region2);
+  assert(argonvolume->GetRegion() == region2);
 
-  MyRegion const *reg = leadvolume->GetRegion<MyRegion>();
+  Region const *reg = leadvolume->GetRegion();
   assert(reg == region2);
 
   std::cout << "test passed \n";
