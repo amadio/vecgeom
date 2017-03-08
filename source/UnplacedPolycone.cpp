@@ -147,7 +147,8 @@ UnplacedPolycone::UnplacedPolycone(Precision phiStart, // initial phi starting a
       fDeltaPhi(phiStart + phiTotal),
       fNz(numRZ / 2),
       fSections(),
-      fZs(numRZ / 2)
+      fZs(numRZ / 2),
+      fPhiWedge(fDeltaPhi, phiStart)
 {
   // data integrity checks
   int Nz = numRZ / 2;
@@ -736,6 +737,8 @@ Precision UnplacedPolycone::SurfaceArea() const
   return fSurfaceArea;
 }
 
+#if (0)
+// Simplest Extent defintion that does not take PHI into consideration
 void UnplacedPolycone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
 
@@ -750,11 +753,104 @@ void UnplacedPolycone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aM
 
   aMin.x() = -maxR;
   aMin.y() = -maxR;
-  aMin.z() = fZs[0];
+  //  aMin.z() = fZs[0];
   aMax.x() = maxR;
   aMax.y() = maxR;
-  aMax.z() = fZs[GetNSections()];
+  if (fZs[0] > fZs[GetNSections()]) {
+    aMax.z() = fZs[0];
+    aMin.z() = fZs[GetNSections()];
+  } else {
+    aMin.z() = fZs[0];
+    aMax.z() = fZs[GetNSections()];
+  }
 }
+#endif
+
+#if (1)
+// Improved Extent definition that also takes PHI into consideration
+void UnplacedPolycone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
+{
+
+  int i          = 0;
+  Precision maxR = 0, minR = 0;
+
+  Precision fSPhi = fStartPhi;
+  Precision fDPhi = fDeltaPhi;
+
+  for (i = 0; i < GetNSections(); i++) {
+    PolyconeSection const &sec              = GetSection(i);
+    if (maxR < sec.fSolid->GetRmax1()) maxR = sec.fSolid->GetRmax1();
+    if (maxR < sec.fSolid->GetRmax2()) maxR = sec.fSolid->GetRmax2();
+    if (minR > sec.fSolid->GetRmin1()) minR = sec.fSolid->GetRmin1();
+    if (minR > sec.fSolid->GetRmin2()) minR = sec.fSolid->GetRmin2();
+  }
+
+  aMin.x() = -maxR;
+  aMin.y() = -maxR;
+  //  aMin.z() = fZs[0];
+  aMax.x() = maxR;
+  aMax.y() = maxR;
+  if (fZs[0] > fZs[GetNSections()]) {
+    aMax.z() = fZs[0];
+    aMin.z() = fZs[GetNSections()];
+  } else {
+    aMin.z() = fZs[0];
+    aMax.z() = fZs[GetNSections()];
+  }
+
+  if (fDPhi == kTwoPi) return;
+
+  Precision max = maxR;
+  Precision min = minR;
+
+  // check how many of phi=90, 180, 270, 360deg are outside this tube
+  auto Rin       = 0.5 * (max + min);
+  bool phi0out   = !GetWedge().Contains<kScalar>(Vector3D<Precision>(Rin, 0, 0));
+  bool phi90out  = !GetWedge().Contains<kScalar>(Vector3D<Precision>(0, Rin, 0));
+  bool phi180out = !GetWedge().Contains<kScalar>(Vector3D<Precision>(-Rin, 0, 0));
+  bool phi270out = !GetWedge().Contains<kScalar>(Vector3D<Precision>(0, -Rin, 0));
+
+  // if none of those 4 phis is outside, largest box still required
+  if (!(phi0out || phi90out || phi180out || phi270out)) return;
+
+  // some extent(s) of box will be reduced
+  // --> think of 4 points A,B,C,D such that A,B are at Rmin, C,D at Rmax
+  //     and A,C at startPhi (fSphi), B,D at endPhi (fSphi+fDphi)
+  auto Cx = max * cos(fSPhi);
+  auto Dx = max * cos(fSPhi + fDPhi);
+  auto Cy = max * sin(fSPhi);
+  auto Dy = max * sin(fSPhi + fDPhi);
+
+  // then rewrite box sides whenever each one of those phis are not contained in the tube section
+  if (phi0out) aMax.x()   = Max(Cx, Dx);
+  if (phi90out) aMax.y()  = Max(Cy, Dy);
+  if (phi180out) aMin.x() = Min(Cx, Dx);
+  if (phi270out) aMin.y() = Min(Cy, Dy);
+
+  if (fDPhi >= kPi) return;
+
+  auto Ax = min * cos(fSPhi);
+  auto Bx = min * cos(fSPhi + fDPhi);
+  auto Ay = min * sin(fSPhi);
+  auto By = min * sin(fSPhi + fDPhi);
+
+  Precision temp;
+  temp     = Max(Ax, Bx);
+  aMax.x() = temp > aMax.x() ? temp : aMax.x();
+
+  temp     = Max(Ay, By);
+  aMax.y() = temp > aMax.y() ? temp : aMax.y();
+
+  temp     = Min(Ax, Bx);
+  aMin.x() = temp < aMin.x() ? temp : aMin.x();
+
+  temp     = Min(Ay, By);
+  aMin.y() = temp < aMin.y() ? temp : aMin.y();
+
+  return;
+}
+#endif
+
 #endif // !VECGEOM_NVCC
 
 bool UnplacedPolycone::CheckContinuityInRmax(const Vector<Precision> &rOuter)
