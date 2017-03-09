@@ -110,7 +110,43 @@ using VectorBackend                   = vecCore::backend::UMESimd;
 using VectorBackend = vecCore::backend::Scalar;
 #endif
 using ScalarBackend = vecCore::backend::Scalar;
+
+// anonymous namespace around purely local helper functions
+namespace {
+// helper code for the MaskedAssignFunc macro
+template <typename T>
+VECGEOM_FORCE_INLINE
+VECGEOM_CUDA_HEADER_BOTH
+bool ToBool(T done)
+{
+  return false;
 }
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+template <>
+VECGEOM_FORCE_INLINE
+VECGEOM_CUDA_HEADER_BOTH
+bool ToBool<bool>(bool done)
+{
+  return done;
+#pragma GCC diagnostic pop
+}
+} // end anonymous namespace
+
+// define a macro for MaskedAssignFunc which should be
+// used in case the third argument are expensive expressions
+// (such as function calls or arithmetic operations)
+// FIXME: move this to VecCore
+#define vecCore__MaskedAssignFunc(Dest, Mask, FuncCallExpr) \
+  {                                                         \
+    if (vecCore::VectorSize<decltype(Dest)>() == 1) {       \
+      if (vecgeom::ToBool(Mask)) Dest = FuncCallExpr;       \
+    } else {                                                \
+      vecCore::MaskedAssign(Dest, Mask, FuncCallExpr);      \
+    }                                                       \
+  }
+
+} // end inline namespace
 
 // defining an infinite length constant
 template <typename T>

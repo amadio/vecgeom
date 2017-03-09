@@ -69,6 +69,8 @@ option(DATA_DOWNLOAD "Enable downloading of data for tests" OFF)
 
 option(GENERATE_MATERIALS_DB "Include materials and particle declarations in library" OFF)
 
+option(STATIC_ANALYSIS "enable static analysis on VecGeom" OFF)
+
 set(VECGEOM_ARCH native sse2 sse3 ssse3 sse4.1 sse4.2 avx avx2 mic mic_avx512)
 
 enum_option(VECGEOM_VECTOR
@@ -86,6 +88,11 @@ enum_option(BACKEND
             VALUES ${VECGEOM_BACKEND}
             CASE_INSENSITIVE
            )
+
+if (CTEST)
+  message(STATUS "Testing with CTest enabled.")
+  enable_testing()
+endif()
 
 option(VTUNE "Enable the use of profiler Vtune" OFF)
 
@@ -778,6 +785,16 @@ if (CUDA)
    )
  endif()
 
+
+# if static analysis
+if (STATIC_ANALYSIS)
+  # enable export compile commands ... to be used by clang-tidy
+  SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+  message(STATUS "including VecGeom static analysis code")
+  add_subdirectory(test/static_analysis)
+endif()
+#
+
 ################################################################################
 
 # Build libraries
@@ -859,6 +876,7 @@ set(TEST_EXECUTABLES_CORE
   ${CMAKE_SOURCE_DIR}/test/core/AssemblyTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/TestNavigationState.cpp
 #  ${CMAKE_SOURCE_DIR}/services/CompNavStatePools.cpp
+  ${CMAKE_SOURCE_DIR}/test/core/TestMaskedAssign.cpp
 )
 
 
@@ -986,10 +1004,6 @@ endif()
 
 # Build executables
 
-if (CTEST)
-  message(STATUS "Testing with CTest enabled.")
-  enable_testing()
-endif()
 
 set(VECGEOM_EXECUTABLES)
 

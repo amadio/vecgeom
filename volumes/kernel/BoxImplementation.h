@@ -178,7 +178,7 @@ struct BoxImplementation {
     valid               = safmin < kTolerance;
 
     Vector3D<Real_v> normal(0.);
-    MaskedAssign(normal[0], safety[0] - safmin < kTolerance, Sign(point[0]));
+    vecCore__MaskedAssignFunc(normal[0], safety[0] - safmin < kTolerance, Sign(point[0]));
     MaskedAssign(normal[1], safety[1] - safmin < kTolerance, Sign(point[1]));
     MaskedAssign(normal[2], safety[2] - safmin < kTolerance, Sign(point[2]));
     if (normal.Mag2() > 1.0) normal.Normalize();
