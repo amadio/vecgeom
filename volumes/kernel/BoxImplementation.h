@@ -86,7 +86,7 @@ struct BoxImplementation {
     Real_v dist = (point.Abs() - HalfSize<Real_v>(box)).Max();
 
     inside = vecCore::Blend(dist < Real_v(0.0), Inside_v(kInside), Inside_v(kOutside));
-    vecCore::MaskedAssign(inside, Abs(dist) < Real_v(kTolerance), Inside_v(kSurface));
+    vecCore__MaskedAssignFunc(inside, Abs(dist) < Real_v(kTolerance), Inside_v(kSurface));
   }
 
   template <typename Real_v, bool ForInside>
@@ -171,16 +171,14 @@ struct BoxImplementation {
     //
     //   On an edge or corner, provide an average normal of all facets within tolerance
 
-    using vecCore::MaskedAssign;
-
     const Vector3D<Real_v> safety((point.Abs() - HalfSize<Real_v>(box)).Abs());
     const Real_v safmin = safety.Min();
     valid               = safmin < kTolerance;
 
     Vector3D<Real_v> normal(0.);
     vecCore__MaskedAssignFunc(normal[0], safety[0] - safmin < kTolerance, Sign(point[0]));
-    MaskedAssign(normal[1], safety[1] - safmin < kTolerance, Sign(point[1]));
-    MaskedAssign(normal[2], safety[2] - safmin < kTolerance, Sign(point[2]));
+    vecCore__MaskedAssignFunc(normal[1], safety[1] - safmin < kTolerance, Sign(point[1]));
+    vecCore__MaskedAssignFunc(normal[2], safety[2] - safmin < kTolerance, Sign(point[2]));
     if (normal.Mag2() > 1.0) normal.Normalize();
 
     return normal;
@@ -309,7 +307,7 @@ struct BoxImplementation {
     done |= !((tmin < t1) && (tmax > t0));
     // if( ! ((tmin < t1) && (tmax > t0)) )
     //     return vecgeom::kInfLength;
-    vecCore::MaskedAssign(tmin, done, InfinityLength<Real_v>());
+    vecCore__MaskedAssignFunc(tmin, done, InfinityLength<Real_v>());
     return tmin;
   }
 
@@ -359,7 +357,7 @@ struct BoxImplementation {
     done |= !((tmin < Real_v(t1)) && (tmax > Real_v(t0)));
     // if( ! ((tmin < t1) && (tmax > t0)) )
     //     return vecgeom::kInfLength;
-    vecCore::MaskedAssign(tmin, done, InfinityLength<Real_v>());
+    vecCore__MaskedAssignFunc(tmin, done, InfinityLength<Real_v>());
     return tmin;
   }
 
@@ -522,7 +520,7 @@ struct ABBoxImplementation {
     {
       // this will be much simplified with operator notation
       Real_v tmp(0.);
-      vecCore::MaskedAssign(tmp, outsidex, safety.x() * safety.x());
+      vecCore__MaskedAssignFunc(tmp, outsidex, safety.x() * safety.x());
       runningsafetysqr += tmp;
       runningmax = Max(runningmax, safety.x());
     }
@@ -530,7 +528,7 @@ struct ABBoxImplementation {
     // treat y dim
     {
       Real_v tmp(0.);
-      vecCore::MaskedAssign(tmp, outsidey, safety.y() * safety.y());
+      vecCore__MaskedAssignFunc(tmp, outsidey, safety.y() * safety.y());
       runningsafetysqr += tmp;
       runningmax = Max(runningmax, safety.y());
     }
@@ -538,13 +536,13 @@ struct ABBoxImplementation {
     // treat z dim
     {
       Real_v tmp(0.);
-      vecCore::MaskedAssign(tmp, outsidez, safety.z() * safety.z());
+      vecCore__MaskedAssignFunc(tmp, outsidez, safety.z() * safety.z());
       runningsafetysqr += tmp;
       runningmax = Max(runningmax, safety.z());
     }
 
     Bool_v inside = !(outsidex || outsidey || outsidez);
-    if (!vecCore::MaskEmpty(inside)) vecCore::MaskedAssign(runningsafetysqr, inside, -runningmax * runningmax);
+    if (!vecCore::MaskEmpty(inside)) vecCore__MaskedAssignFunc(runningsafetysqr, inside, -runningmax * runningmax);
     return runningsafetysqr;
   }
 
