@@ -6,9 +6,6 @@
 
 echo "Avoid ctest truncation of output: CTEST_FULL_OUTPUT";
 
-# obtain the source files changed in this request
-# an error reported outside of files changed might be discarded
-fileschanged=`git diff origin/master... --name-only`
 
 # get the clang-tidy plugin
 plugin=$1
@@ -18,6 +15,12 @@ clangtidybinary=$2
 script=$3
 # the build dir (where to find the compilations database)
 builddir=$4
+# path to the top level of the source tree.
+sourcedir=$5
+
+# obtain the source files changed in this request
+# an error reported outside of files changed might be discarded
+fileschanged=`cd ${sourcedir}; git diff origin/master... --name-only`
 
 PRELOAD="LD_PRELOAD"
 # determine OS type

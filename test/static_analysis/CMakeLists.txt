@@ -37,6 +37,7 @@ add_test(static_code_test ${CMAKE_CURRENT_SOURCE_DIR}/RunChecks.sh
     ${CLANG_TIDY}
     ${CLANG_TIDY_SCRIPT}
     ${CMAKE_BINARY_DIR}
+    ${CMAKE_SOURCE_DIR}
     )
 
 # 
