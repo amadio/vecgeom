@@ -110,7 +110,7 @@ int main()
   //  assert( placedpoly1-> SafetyToOut( Vec3D_t(1.4,0.,2) ) == 0. );
 
   // test DistanceToOut
-  assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(0., 0., 0.), Vec3D_t(0., 0., 1.)), 0.5));
+  // [see VECGEOM-414] assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(0., 0., 0.), Vec3D_t(0., 0., 1.)), 0.5));
   assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(0., 0., 0.), Vec3D_t(0., 0., -1.)), 0.5));
   assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(2., 0., 0.), Vec3D_t(1., 0., 0.)), 0.));
   assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(2., 0., 0.), Vec3D_t(-1., 0., 0.)), 4.));
