@@ -57,6 +57,8 @@ def main(argv):
        ops_sys = 'slc6'
    elif label == 'continuous-sl6' :
        ops_sys = 'slc6'
+   elif label == 'c7-checker' :
+       ops_sys = 'cc7'
    else :
       ops_sys = label
 
