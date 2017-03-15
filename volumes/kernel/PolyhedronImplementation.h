@@ -361,7 +361,7 @@ int PolyhedronImplementation<innerRadiiT, phiCutoutT>::FindPhiSegment(UnplacedSt
   projectionFirst = point[0] * phiSections.x(0) + point[1] * phiSections.y(0) + point[2] * phiSections.z(0);
   for (int i = 1, iMax = unplaced.fSideCount + 1; i < iMax; ++i) {
     projectionSecond = point[0] * phiSections.x(i) + point[1] * phiSections.y(i) + point[2] * phiSections.z(i);
-    vecCore::MaskedAssign(index, projectionFirst > -kTolerance && projectionSecond < kTolerance, i - 1);
+    vecCore__MaskedAssignFunc(index, projectionFirst > -kTolerance && projectionSecond < kTolerance, i - 1);
     if (vecCore::MaskFull(index >= 0)) break;
     projectionFirst = projectionSecond;
   }
@@ -393,14 +393,14 @@ Real_v PolyhedronImplementation<innerRadiiT, phiCutoutT>::DistanceToInZSegment(U
   // If the outer shell is not hit and the phi cutout sides are hit, this will
   // always be the correct result
   if (TreatPhi<phiCutoutT>(unplaced.fHasPhiCutout)) {
-    vecCore::MaskedAssign(distance, !done, segment.phi.DistanceToIn<Real_v, false>(point, direction));
+    vecCore__MaskedAssignFunc(distance, !done, (segment.phi.DistanceToIn<Real_v, false>(point, direction)));
   }
   done |= distance < InfinityLength<Real_v>();
   if (vecCore::MaskFull(done)) return distance;
 
   // Finally treat inner shell
   if (TreatInner<innerRadiiT>(segment.hasInnerRadius)) {
-    vecCore::MaskedAssign(distance, !done, segment.inner.DistanceToIn<Real_v, true>(point, direction));
+    vecCore__MaskedAssignFunc(distance, !done, (segment.inner.DistanceToIn<Real_v, true>(point, direction)));
   }
 
   return distance;

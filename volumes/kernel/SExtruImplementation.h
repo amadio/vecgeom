@@ -136,7 +136,7 @@ struct SExtruImplementation {
     }
 
     // check collision with polyshell
-    vecCore::MaskedAssign(distance, distance == Real_v(kInfLength), polyshell.DistanceToIn(p, dir));
+    vecCore__MaskedAssignFunc(distance, distance == Real_v(kInfLength), polyshell.DistanceToIn(p, dir));
     return;
   }
 

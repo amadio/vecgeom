@@ -112,14 +112,14 @@ struct OrbImplementation {
     distance             = kInfLength;
     Real_v rad           = point.Mag();
     Bool_v isPointInside = (rad < Real_v(orb.fR - kTolerance));
-    vecCore::MaskedAssign(distance, isPointInside, Real_v(-1.));
+    vecCore__MaskedAssignFunc(distance, isPointInside, Real_v(-1.));
     Bool_v done = isPointInside;
     if (vecCore::MaskFull(done)) return;
 
     Real_v pDotV3D          = point.Dot(direction);
     Bool_v isPointOnSurface = (rad >= Real_v(orb.fR - kTolerance)) && (rad <= Real_v(orb.fR + kTolerance));
     Bool_v cond             = (isPointOnSurface && (pDotV3D < 0.));
-    vecCore::MaskedAssign(distance, !done && cond, Real_v(0.));
+    vecCore__MaskedAssignFunc(distance, !done && cond, Real_v(0.));
     done |= cond;
     if (vecCore::MaskFull(done)) return;
     Real_v dist(kInfLength);
@@ -139,14 +139,14 @@ struct OrbImplementation {
 
     Real_v rad            = point.Mag();
     Bool_v isPointOutside = (rad > Real_v(orb.fR + kTolerance));
-    vecCore::MaskedAssign(distance, isPointOutside, Real_v(-1.));
+    vecCore__MaskedAssignFunc(distance, isPointOutside, Real_v(-1.));
     Bool_v done = isPointOutside;
     if (vecCore::MaskFull(done)) return;
 
     Real_v pDotV3D          = point.Dot(direction);
     Bool_v isPointOnSurface = (rad >= Real_v(orb.fR - kTolerance)) && (rad <= Real_v(orb.fR + kTolerance));
     Bool_v cond             = (isPointOnSurface && (pDotV3D > 0.));
-    vecCore::MaskedAssign(distance, !done && cond, Real_v(0.));
+    vecCore__MaskedAssignFunc(distance, !done && cond, Real_v(0.));
     done |= cond;
     if (vecCore::MaskFull(done)) return;
     Real_v dist(kInfLength);
@@ -165,11 +165,11 @@ struct OrbImplementation {
     Real_v rad           = point.Mag();
     safety               = rad - Real_v(orb.fR);
     Bool_v isPointInside = (rad < Real_v(orb.fR - kTolerance));
-    vecCore::MaskedAssign(safety, isPointInside, Real_v(-1.));
+    vecCore__MaskedAssignFunc(safety, isPointInside, Real_v(-1.));
     if (vecCore::MaskFull(isPointInside)) return;
 
     Bool_v isPointOnSurface = (rad > Real_v(orb.fR - kTolerance)) && (rad < Real_v(orb.fR + kTolerance));
-    vecCore::MaskedAssign(safety, isPointOnSurface, Real_v(0.));
+    vecCore__MaskedAssignFunc(safety, isPointOnSurface, Real_v(0.));
   }
 
   template <typename Real_v>
@@ -183,11 +183,11 @@ struct OrbImplementation {
     safety     = Real_v(orb.fR) - rad;
 
     Bool_v isPointOutside = (rad > Real_v(orb.fR + kTolerance));
-    vecCore::MaskedAssign(safety, isPointOutside, Real_v(-1.));
+    vecCore__MaskedAssignFunc(safety, isPointOutside, Real_v(-1.));
     if (vecCore::MaskFull(isPointOutside)) return;
 
     Bool_v isPointOnSurface = (rad > Real_v(orb.fR - kTolerance)) && (rad < Real_v(orb.fR + kTolerance));
-    vecCore::MaskedAssign(safety, isPointOnSurface, Real_v(0.));
+    vecCore__MaskedAssignFunc(safety, isPointOnSurface, Real_v(0.));
   }
 
   template <typename Real_v, bool ForDistanceToIn>
@@ -208,10 +208,10 @@ struct OrbImplementation {
 
     if (ForDistanceToIn) {
       Bool_v cond = ((d2 >= 0.) && (pDotV3D <= 0.));
-      vecCore::MaskedAssign(distance, cond, (-pDotV3D - Sqrt(vecCore::math::Abs(d2))));
+      vecCore__MaskedAssignFunc(distance, cond, (-pDotV3D - Sqrt(vecCore::math::Abs(d2))));
       return cond;
     } else {
-      vecCore::MaskedAssign(distance, (d2 >= 0.), (-pDotV3D + Sqrt(vecCore::math::Abs(d2))));
+      vecCore__MaskedAssignFunc(distance, (d2 >= 0.), (-pDotV3D + Sqrt(vecCore::math::Abs(d2))));
       return (d2 >= 0.);
     }
   }

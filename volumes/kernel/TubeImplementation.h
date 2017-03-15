@@ -267,7 +267,7 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, Precisio
   // if( vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(ok) ) return;
 
   Real_v dirDotXY = (dir.y() * alongX - dir.x() * alongY);
-  vecCore::MaskedAssign(dist, dirDotXY != 0, (alongY * pos.x() - alongX * pos.y()) / dirDotXY);
+  vecCore__MaskedAssignFunc(dist, dirDotXY != 0, (alongY * pos.x() - alongX * pos.y()) / dirDotXY);
   ok &= dist > -kHalfTolerance;
   // if( vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(ok) ) return;
 
@@ -458,7 +458,7 @@ struct TubeImplementation {
 
     //=== Next, check all dimensions of the tube, whether points are inside -->
     // return -1
-    vecCore::MaskedAssign(distance, !done, Real_v(-1.0));
+    vecCore__MaskedAssignFunc(distance, !done, Real_v(-1.0));
 
     // For points inside z-range, return -1
     Bool_v inside = distz < -kHalfTolerance;
@@ -629,7 +629,7 @@ struct TubeImplementation {
 
     Real_v invdirz = 1. / NonZero(dir.z());
     distz          = (tube.fZ - point.z()) * invdirz;
-    vecCore::MaskedAssign(distz, dir.z() < 0, (-tube.fZ - point.z()) * invdirz);
+    vecCore__MaskedAssignFunc(distz, dir.z() < 0, (-tube.fZ - point.z()) * invdirz);
     vecCore::MaskedAssign(distance, !done && dir.z() != 0. && distz < distance, distz);
 
     /*

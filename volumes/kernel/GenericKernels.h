@@ -137,16 +137,16 @@ typename Backend::precision_v DistanceToLineSegmentSquared(Vector3D<Precision> c
   Vector3D<Float_t> projection = point - corner0;
   Float_t dot0                 = projection.Dot(line);
   Bool_t condition             = dot0 <= 0;
-  vecCore::MaskedAssign(result, condition, (point - corner0).Mag2());
+  vecCore__MaskedAssignFunc(result, condition, (point - corner0).Mag2());
   if (vecCore::MaskFull(condition)) return result;
   Precision dot1 = line.Mag2();
   condition      = dot1 <= dot0;
-  vecCore::MaskedAssign(result, condition, (point - corner1).Mag2());
+  vecCore__MaskedAssignFunc(result, condition, (point - corner1).Mag2());
   condition = result < kInfLength;
   if (vecCore::MaskFull(condition)) return result;
 
   // Shortest distance is to point on segment
-  vecCore::MaskedAssign(result, !condition, ((corner0 + (dot0 / dot1) * line) - point).Mag2());
+  vecCore__MaskedAssignFunc(result, !condition, ((corner0 + (dot0 / dot1) * line) - point).Mag2());
 
   return result;
 }
@@ -171,16 +171,16 @@ Real_v DistanceToLineSegmentSquared1(Vector3D<Precision> corner0, Vector3D<Preci
   Vector3D<Real_v> projection = point - corner0;
   Real_v dot0                 = projection.Dot(line);
   Bool_v condition            = dot0 <= 0;
-  vecCore::MaskedAssign(result, condition, (point - corner0).Mag2());
+  vecCore__MaskedAssignFunc(result, condition, (point - corner0).Mag2());
   if (vecCore::MaskFull(condition)) return result;
   Precision dot1 = line.Mag2();
   condition      = dot1 <= dot0;
-  vecCore::MaskedAssign(result, condition, (point - corner1).Mag2());
+  vecCore__MaskedAssignFunc(result, condition, (point - corner1).Mag2());
   condition = result < kInfLength;
   if (vecCore::MaskFull(condition)) return result;
 
   // Shortest distance is to point on segment
-  vecCore::MaskedAssign(result, !condition, Real_v(((corner0 + (dot0 / dot1) * line) - point).Mag2()));
+  vecCore__MaskedAssignFunc(result, !condition, Real_v(((corner0 + (dot0 / dot1) * line) - point).Mag2()));
 
   return result;
 }

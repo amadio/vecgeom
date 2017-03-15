@@ -161,7 +161,7 @@ public:
         // we could already check if intersection within the known extent
         const Bool_v intersects = fPolygon.OnSegment<Real_v, Precision, Bool_v>(i, xInters, yInters);
 
-        vecCore::MaskedAssign(result, intersects, Min(dist, result));
+        vecCore__MaskedAssignFunc(result, intersects, Min(dist, result));
       }
       // if (vecCore::MaskFull(done)) {
       //        return result;
@@ -273,7 +273,7 @@ public:
         const Bool_v intersects = fPolygon.OnSegment<Real_v, Precision, Bool_v>(i, xInters, yInters) && zRangeOk &&
                                   (dist >= -Real_v(kTolerance));
 
-        vecCore::MaskedAssign(result, intersects, Min(dist, result));
+        vecCore__MaskedAssignFunc(result, intersects, Min(dist, result));
         // done |= intersects;
       }
       // if (vecCore::MaskFull(done)) {

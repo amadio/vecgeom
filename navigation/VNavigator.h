@@ -513,8 +513,8 @@ public:
       T step(vecCore::FromPtr<T>(out_steps + from_index));
       auto nothitdaughter = step == T(kInfLength);
       if (!vecCore::MaskEmpty(nothitdaughter)) {
-        vecCore::MaskedAssign(step, nothitdaughter,
-                              Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit));
+        vecCore__MaskedAssignFunc(step, nothitdaughter,
+                                  Impl::template TreatDistanceToMother<T>(pvol, localpoint, localdir, slimit));
         vecCore::Store(step, out_steps + from_index);
       }
     } else {

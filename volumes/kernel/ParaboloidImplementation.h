@@ -184,7 +184,7 @@ struct ParaboloidImplementation {
     Real_v paraRho2 = paraboloid.fK1 * point.z() + paraboloid.fK2;
     Real_v diff     = rho2 - paraRho2;
 
-    vecCore::MaskedAssign(distance, !done, Real_v(-1.));
+    vecCore__MaskedAssignFunc(distance, !done, Real_v(-1.));
     Bool_v insideZ                              = absZ < Real_v(paraboloid.fDz - kTolerance);
     Bool_v insideParabolicSurfaceOuterTolerance = (diff < -kTolerance);
     done |= !done && (insideZ && insideParabolicSurfaceOuterTolerance);
@@ -192,17 +192,17 @@ struct ParaboloidImplementation {
 
     Bool_v isOnZPlaneAndMovingInside = (IsOnZPlane<Real_v, true>(paraboloid, point) && direction.z() < 0.) ||
                                        (IsOnZPlane<Real_v, false>(paraboloid, point) && direction.z() > 0.);
-    vecCore::MaskedAssign(distance, !done && isOnZPlaneAndMovingInside, Real_v(0.));
+    vecCore__MaskedAssignFunc(distance, !done && isOnZPlaneAndMovingInside, Real_v(0.));
     done |= isOnZPlaneAndMovingInside;
     if (vecCore::MaskFull(done)) return;
 
     Vector3D<Real_v> normal(point.x(), point.y(), Real_v(-paraboloid.fK1 * 0.5));
     Bool_v isOnParabolicSurfaceAndMovingInside = diff > -kTolerance && diff < kTolerance && direction.Dot(normal) < 0.;
-    vecCore::MaskedAssign(distance, !done && isOnParabolicSurfaceAndMovingInside, Real_v(0.));
+    vecCore__MaskedAssignFunc(distance, !done && isOnParabolicSurfaceAndMovingInside, Real_v(0.));
     done |= isOnParabolicSurfaceAndMovingInside;
     if (vecCore::MaskFull(done)) return;
 
-    vecCore::MaskedAssign(distance, !done, InfinityLength<Real_v>());
+    vecCore__MaskedAssignFunc(distance, !done, InfinityLength<Real_v>());
 
     /* Intersection tests with Z planes are not required if the point is within Z Range
      * In this case it will either intsect with parabolic surface or not intersect at all.
@@ -211,8 +211,8 @@ struct ParaboloidImplementation {
       Real_v distZ(InfinityLength<Real_v>());                                // = (absZ - paraboloid.fDz) / absDirZ;
       Bool_v bottomPlane = point.z() < -paraboloid.fDz && direction.z() > 0; //(true);
       Bool_v topPlane    = point.z() > paraboloid.fDz && direction.z() < 0;
-      vecCore::MaskedAssign(distZ, topPlane, (paraboloid.fDz - point.z()) / direction.z());
-      vecCore::MaskedAssign(distZ, bottomPlane, (-paraboloid.fDz - point.z()) / direction.z());
+      vecCore__MaskedAssignFunc(distZ, topPlane, (paraboloid.fDz - point.z()) / direction.z());
+      vecCore__MaskedAssignFunc(distZ, bottomPlane, (-paraboloid.fDz - point.z()) / direction.z());
       Real_v xHit    = point.x() + distZ * direction.x();
       Real_v yHit    = point.y() + distZ * direction.y();
       Real_v rhoHit2 = xHit * xHit + yHit * yHit;
@@ -242,8 +242,8 @@ struct ParaboloidImplementation {
       if (vecCore::MaskFull(done)) return;
 
       Real_v distParab = InfinityLength<Real_v>();
-      vecCore::MaskedAssign(distParab, !done && (b > 0.), (b - Sqrt(d2)) / a);
-      vecCore::MaskedAssign(distParab, !done && (b <= 0.), (c / (b + Sqrt(d2))));
+      vecCore__MaskedAssignFunc(distParab, !done && (b > 0.), (b - Sqrt(d2)) / a);
+      vecCore__MaskedAssignFunc(distParab, !done && (b <= 0.), (c / (b + Sqrt(d2))));
       Real_v zHit = point.z() + distParab * direction.z();
       vecCore::MaskedAssign(distance, Abs(zHit) <= paraboloid.fDz && distParab > 0., distParab);
     }
@@ -278,7 +278,7 @@ struct ParaboloidImplementation {
     // On Z Plane and moving outside;
     Bool_v isOnZPlaneAndMovingOutside = (IsOnZPlane<Real_v, true>(paraboloid, point) && direction.z() > 0.) ||
                                         (IsOnZPlane<Real_v, false>(paraboloid, point) && direction.z() < 0.);
-    vecCore::MaskedAssign(distance, !done && isOnZPlaneAndMovingOutside, Real_v(0.));
+    vecCore__MaskedAssignFunc(distance, !done && isOnZPlaneAndMovingOutside, Real_v(0.));
     done |= isOnZPlaneAndMovingOutside;
     if (vecCore::MaskFull(done)) return;
 
@@ -286,18 +286,18 @@ struct ParaboloidImplementation {
     Vector3D<Real_v> normal(point.x(), point.y(), Real_v(-paraboloid.fK1 * 0.5));
     Bool_v isOnParabolicSurfaceAndMovingInside =
         value > -kTolerance && value < kTolerance && direction.Dot(normal) > 0.;
-    vecCore::MaskedAssign(distance, !done && isOnParabolicSurfaceAndMovingInside, Real_v(0.));
+    vecCore__MaskedAssignFunc(distance, !done && isOnParabolicSurfaceAndMovingInside, Real_v(0.));
     done |= isOnParabolicSurfaceAndMovingInside;
     if (vecCore::MaskFull(done)) return;
 
-    vecCore::MaskedAssign(distance, !done, InfinityLength<Real_v>());
+    vecCore__MaskedAssignFunc(distance, !done, InfinityLength<Real_v>());
 
     Real_v distZ   = InfinityLength<Real_v>();
     Real_v dirZinv = Real_v(1 / direction.z());
 
     Bool_v dir_mask = direction.z() < 0;
-    vecCore::MaskedAssign(distZ, dir_mask, -(paraboloid.fDz + point.z()) * dirZinv);
-    vecCore::MaskedAssign(distZ, !dir_mask, (paraboloid.fDz - point.z()) * dirZinv);
+    vecCore__MaskedAssignFunc(distZ, dir_mask, -(paraboloid.fDz + point.z()) * dirZinv);
+    vecCore__MaskedAssignFunc(distZ, !dir_mask, (paraboloid.fDz - point.z()) * dirZinv);
 
     Real_v dirRho2 = direction.Perp2();
     Real_v pDotV2D = point.x() * direction.x() + point.y() * direction.y();
@@ -307,8 +307,8 @@ struct ParaboloidImplementation {
     Real_v d2      = b * b - a * c;
 
     Real_v distParab = InfinityLength<Real_v>();
-    vecCore::MaskedAssign(distParab, d2 >= 0. && (b > 0.), (b + Sqrt(d2)) * (1. / a));
-    vecCore::MaskedAssign(distParab, d2 >= 0. && (b <= 0.), (c / (b - Sqrt(d2))));
+    vecCore__MaskedAssignFunc(distParab, d2 >= 0. && (b > 0.), (b + Sqrt(d2)) * (1. / a));
+    vecCore__MaskedAssignFunc(distParab, d2 >= 0. && (b <= 0.), (c / (b - Sqrt(d2))));
     distance = Min(distParab, distZ);
   }
 
@@ -335,16 +335,16 @@ struct ParaboloidImplementation {
     Bool_v onZPlane =
         Abs(Abs(point.z()) - paraboloid.fDz) < kTolerance &&
         (rho2 < Real_v(paraboloid.fRhi2 + kHalfTolerance) || rho2 < Real_v(paraboloid.fRlo2 + kHalfTolerance));
-    vecCore::MaskedAssign(safety, onZPlane, Real_v(0.));
+    vecCore__MaskedAssignFunc(safety, onZPlane, Real_v(0.));
     done |= onZPlane;
     if (vecCore::MaskFull(done)) return;
 
     Bool_v onParabolicSurface = value > -kTolerance && value < kTolerance;
-    vecCore::MaskedAssign(safety, !done && onParabolicSurface, Real_v(0.));
+    vecCore__MaskedAssignFunc(safety, !done && onParabolicSurface, Real_v(0.));
     done |= onParabolicSurface;
     if (vecCore::MaskFull(done)) return;
 
-    vecCore::MaskedAssign(safety, !done, InfinityLength<Real_v>());
+    vecCore__MaskedAssignFunc(safety, !done, InfinityLength<Real_v>());
 
     Real_v r0sq = (point.z() - paraboloid.fB) * paraboloid.fInvA;
 
@@ -397,12 +397,12 @@ struct ParaboloidImplementation {
     Bool_v onZPlane =
         Abs(Abs(point.z()) - paraboloid.fDz) < kTolerance &&
         (rho2 < Real_v(paraboloid.fRhi2 + kHalfTolerance) || rho2 < Real_v(paraboloid.fRlo2 + kHalfTolerance));
-    vecCore::MaskedAssign(safety, onZPlane, Real_v(0.));
+    vecCore__MaskedAssignFunc(safety, onZPlane, Real_v(0.));
     done |= onZPlane;
     if (vecCore::MaskFull(done)) return;
 
     Bool_v onSurface = value > -kTolerance && value < kTolerance;
-    vecCore::MaskedAssign(safety, !done && onSurface, Real_v(0.));
+    vecCore__MaskedAssignFunc(safety, !done && onSurface, Real_v(0.));
     done |= onSurface;
     if (vecCore::MaskFull(done)) return;
     Real_v r0sq = (point.z() - paraboloid.fB) * paraboloid.fInvA;
@@ -453,14 +453,14 @@ struct ParaboloidImplementation {
     Bool_v isOnZPlane = IsOnZPlane<Real_v, true>(paraboloid, point) || IsOnZPlane<Real_v, false>(paraboloid, point);
     Bool_v isOnParabolicSurface = IsOnParabolicSurface<Real_v>(paraboloid, point);
 
-    vecCore::MaskedAssign(nsurf, isOnZPlane, nsurf + 1);
-    vecCore::MaskedAssign(normal[2], IsOnZPlane<Real_v, true>(paraboloid, point), Real_v(1.));
-    vecCore::MaskedAssign(normal[2], IsOnZPlane<Real_v, false>(paraboloid, point), Real_v(-1.));
+    vecCore__MaskedAssignFunc(nsurf, isOnZPlane, nsurf + 1);
+    vecCore__MaskedAssignFunc(normal[2], (IsOnZPlane<Real_v, true>(paraboloid, point)), Real_v(1.));
+    vecCore__MaskedAssignFunc(normal[2], (IsOnZPlane<Real_v, false>(paraboloid, point)), Real_v(-1.));
 
-    vecCore::MaskedAssign(nsurf, isOnParabolicSurface, nsurf + 1);
-    vecCore::MaskedAssign(normal[0], isOnParabolicSurface, normal[0] - normParabolic[0]);
-    vecCore::MaskedAssign(normal[1], isOnParabolicSurface, normal[1] - normParabolic[1]);
-    vecCore::MaskedAssign(normal[2], isOnParabolicSurface, normal[2] - normParabolic[2]);
+    vecCore__MaskedAssignFunc(nsurf, isOnParabolicSurface, nsurf + 1);
+    vecCore__MaskedAssignFunc(normal[0], isOnParabolicSurface, normal[0] - normParabolic[0]);
+    vecCore__MaskedAssignFunc(normal[1], isOnParabolicSurface, normal[1] - normParabolic[1]);
+    vecCore__MaskedAssignFunc(normal[2], isOnParabolicSurface, normal[2] - normParabolic[2]);
 
     valid = Bool_v(true);
     valid &= (nsurf > 0);
@@ -469,20 +469,20 @@ struct ParaboloidImplementation {
 
     // This block is used to calculate the Approximate normal
     Vector3D<Real_v> norm(0., 0., 0.); // used to store approximate normal
-    vecCore::MaskedAssign(norm[2], point.z() > 0., Real_v(1.));
-    vecCore::MaskedAssign(norm[2], point.z() < 0, Real_v(-1.));
+    vecCore__MaskedAssignFunc(norm[2], point.z() > 0., Real_v(1.));
+    vecCore__MaskedAssignFunc(norm[2], point.z() < 0, Real_v(-1.));
 
     Real_v safz = paraboloid.fDz - Abs(point.z());
     Real_v safr = Abs(r - Sqrt((point.z() - paraboloid.fB) * paraboloid.fInvA));
-    vecCore::MaskedAssign(norm[0], safz >= 0. && safr < safz, normParabolic.x());
-    vecCore::MaskedAssign(norm[1], safz >= 0. && safr < safz, normParabolic.y());
-    vecCore::MaskedAssign(norm[2], safz >= 0. && safr < safz, normParabolic.z());
+    vecCore__MaskedAssignFunc(norm[0], safz >= 0. && safr < safz, normParabolic.x());
+    vecCore__MaskedAssignFunc(norm[1], safz >= 0. && safr < safz, normParabolic.y());
+    vecCore__MaskedAssignFunc(norm[2], safz >= 0. && safr < safz, normParabolic.z());
 
     // If Valid is not set, that means the point is NOT on the surface,
     // So in that case we have to rely on Approximate normal
-    vecCore::MaskedAssign(normal[0], !valid, norm.x());
-    vecCore::MaskedAssign(normal[1], !valid, norm.y());
-    vecCore::MaskedAssign(normal[2], !valid, norm.z());
+    vecCore__MaskedAssignFunc(normal[0], !valid, norm.x());
+    vecCore__MaskedAssignFunc(normal[1], !valid, norm.y());
+    vecCore__MaskedAssignFunc(normal[2], !valid, norm.z());
 
     return normal.Normalized();
   }

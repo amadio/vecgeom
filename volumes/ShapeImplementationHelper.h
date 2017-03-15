@@ -533,7 +533,7 @@ public:
       Specialization::template DistanceToOut<VECGEOM_BACKEND_TYPE>(*this->GetUnplacedVolume(), point, direction,
                                                                    stepMaxBackend, result);
 
-      vecCore::MaskedAssign(result, result < 0.0, InfinityLength<decltype(result)>());
+      vecCore__MaskedAssignFunc(result, result < 0.0, InfinityLength<decltype(result)>());
       vecCore::Store(result, output + i);
       // -1: physics step is longer than geometry
       // -2: particle may stay inside volume

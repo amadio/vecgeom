@@ -143,7 +143,7 @@ void Plane::DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> const &
     if (vecCore::MaskEmpty(valid)) return;
   }
   // If competing with other planes, the maximum distance is winning
-  vecCore::MaskedAssign(distance, valid, -saf / ndd);
+  vecCore__MaskedAssignFunc(distance, valid, -saf / ndd);
 }
 
 template <typename Real_v>
@@ -160,14 +160,14 @@ void Plane::DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const 
   Real_v saf   = DistPlane(point);
   Bool_v valid = ndd > Real_v(0.) && saf < Real_v(kTolerance);
 
-  vecCore::MaskedAssign(distance, saf > Real_v(kTolerance), -InfinityLength<Real_v>());
+  vecCore__MaskedAssignFunc(distance, saf > Real_v(kTolerance), -InfinityLength<Real_v>());
 
   if (vecCore::EarlyReturnAllowed()) {
     if (vecCore::MaskEmpty(valid)) return;
   }
 
   // If competing with other planes, the minimum distance is winning
-  vecCore::MaskedAssign(distance, valid, -saf / ndd);
+  vecCore__MaskedAssignFunc(distance, valid, -saf / ndd);
 }
 
 template <typename Real_v>

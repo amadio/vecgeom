@@ -226,17 +226,17 @@ public:
       }
       // Starting point may be propagated close to boundary
       // === MaskedMultipleAssign needed
-      vecCore::MaskedAssign(smin[i], !completelyoutside && Abs(smin[i]) < tolerance && dir.Dot(unorm) < 0,
-                            InfinityLength<Real_v>());
-      vecCore::MaskedAssign(smax[i], !completelyoutside && Abs(smax[i]) < tolerance && dir.Dot(unorm) < 0,
-                            InfinityLength<Real_v>());
+      vecCore__MaskedAssignFunc(smin[i], !completelyoutside && Abs(smin[i]) < tolerance && dir.Dot(unorm) < 0,
+                                InfinityLength<Real_v>());
+      vecCore__MaskedAssignFunc(smax[i], !completelyoutside && Abs(smax[i]) < tolerance && dir.Dot(unorm) < 0,
+                                InfinityLength<Real_v>());
 
-      vecCore::MaskedAssign(dist, !completelyoutside && (smin[i] > -tolerance) && (smin[i] < dist),
-                            Max(smin[i], Real_v(0.)));
-      vecCore::MaskedAssign(dist, !completelyoutside && (smax[i] > -tolerance) && (smax[i] < dist),
-                            Max(smax[i], Real_v(0.)));
+      vecCore__MaskedAssignFunc(dist, !completelyoutside && (smin[i] > -tolerance) && (smin[i] < dist),
+                                Max(smin[i], Real_v(0.)));
+      vecCore__MaskedAssignFunc(dist, !completelyoutside && (smax[i] > -tolerance) && (smax[i] < dist),
+                                Max(smax[i], Real_v(0.)));
     }
-    vecCore::MaskedAssign(dist, dist < tolerance && onsurf, Real_v(0.));
+    vecCore__MaskedAssignFunc(dist, dist < tolerance && onsurf, Real_v(0.));
     return (dist);
   } // end of function
 
@@ -276,11 +276,11 @@ public:
       Bool_v valid = outgoing && (!otherside);
       if (vecCore::MaskEmpty(valid)) continue;
       Real_v snext = -dotAPNorm / NonZero(dotDirNorm);
-      vecCore::MaskedAssign(distance, valid && snext < distance, Max(snext, Real_v(0.)));
+      vecCore__MaskedAssignFunc(distance, valid && snext < distance, Max(snext, Real_v(0.)));
     }
     // Return -1 for points actually outside
-    vecCore::MaskedAssign(distance, distance < kTolerance, Real_v(0.));
-    vecCore::MaskedAssign(distance, outside, Real_v(-1.));
+    vecCore__MaskedAssignFunc(distance, distance < kTolerance, Real_v(0.));
+    vecCore__MaskedAssignFunc(distance, outside, Real_v(-1.));
     return distance;
   }
 
@@ -323,11 +323,11 @@ public:
       // Now propagate the point to surface and check if in range
       Vector3D<Real_v> psurf = point + snext * dir;
       valid                  = valid && InSurfLimits<Real_v>(psurf, i);
-      vecCore::MaskedAssign(distance, (!done) && valid && snext < distance, Max(snext, Real_v(0.)));
+      vecCore__MaskedAssignFunc(distance, (!done) && valid && snext < distance, Max(snext, Real_v(0.)));
     }
     // Return -1 for points actually inside
-    vecCore::MaskedAssign(distance, (!done) && (distance < kTolerance), Real_v(0.));
-    vecCore::MaskedAssign(distance, (!done) && inside, Real_v(-1.));
+    vecCore__MaskedAssignFunc(distance, (!done) && (distance < kTolerance), Real_v(0.));
+    vecCore__MaskedAssignFunc(distance, (!done) && inside, Real_v(-1.));
     return distance;
   }
 
@@ -381,7 +381,7 @@ public:
         crossing = crossing && dir.Dot(unorm) < 0.;
         // Propagated hitpoint must be on surface (rz in [0,1] checked already)
         crossing = crossing && (r >= 0.) && (r <= 1.);
-        vecCore::MaskedAssign(distance, crossing && (!checked) && crtdist < distance, Max(crtdist, Real_v(0.)));
+        vecCore__MaskedAssignFunc(distance, crossing && (!checked) && crtdist < distance, Max(crtdist, Real_v(0.)));
       }
       // For the particle(s) not crossing at smin, try smax
       if (!vecCore::MaskFull(Bool_v(crossing || checked))) {
@@ -397,10 +397,10 @@ public:
           unorm  = fNormals[i];
         crossing = crossing && (dir.Dot(unorm) < 0.);
         crossing = crossing && (r >= 0.) && (r <= 1.);
-        vecCore::MaskedAssign(distance, crossing && (!checked) && crtdist < distance, Max(crtdist, Real_v(0.)));
+        vecCore__MaskedAssignFunc(distance, crossing && (!checked) && crtdist < distance, Max(crtdist, Real_v(0.)));
       }
     }
-    vecCore::MaskedAssign(distance, distance < tolerance && onsurf, Real_v(0.));
+    vecCore__MaskedAssignFunc(distance, distance < tolerance && onsurf, Real_v(0.));
     return (distance);
 
   } // end distanceToIn function
@@ -438,7 +438,7 @@ public:
         safetyface = (pa - point).Dot(fNormals[i]);
         vecCore::MaskedAssign(safety, (safetyface < safety) && (!done), safetyface);
       }
-      vecCore::MaskedAssign(safety, Abs(safety) < eps, Real_v(0.));
+      vecCore__MaskedAssignFunc(safety, Abs(safety) < eps, Real_v(0.));
       return safety;
     }
 
@@ -447,7 +447,7 @@ public:
     //  std::cout << "safetycurved = " << safetyface << std::endl;
     vecCore::MaskedAssign(safety, (safetyface < safety) && (!done), safetyface);
     //  std::cout << "safety = " << safety << std::endl;
-    vecCore::MaskedAssign(safety, safety > 0. && safety < eps, Real_v(0.));
+    vecCore__MaskedAssignFunc(safety, safety > 0. && safety < eps, Real_v(0.));
     return safety;
 
   } // end SafetyToOut
@@ -485,7 +485,7 @@ public:
         safetyface = (point - pa).Dot(fNormals[i]);
         vecCore::MaskedAssign(safety, (safetyface > safety) && (!done), safetyface);
       }
-      vecCore::MaskedAssign(safety, Abs(safety) < eps, Real_v(0.));
+      vecCore__MaskedAssignFunc(safety, Abs(safety) < eps, Real_v(0.));
       return safety;
     }
 
@@ -494,7 +494,7 @@ public:
     //  std::cout << "safetycurved = " << safetyface << std::endl;
     vecCore::MaskedAssign(safety, (safetyface > safety) && (!done), safetyface);
     //  std::cout << "safety = " << safety << std::endl;
-    vecCore::MaskedAssign(safety, safety > 0. && safety < eps, Real_v(0.));
+    vecCore__MaskedAssignFunc(safety, safety > 0. && safety < eps, Real_v(0.));
     return (safety);
 
   } // end SafetyToIn
@@ -515,7 +515,7 @@ public:
     Real_v safety    = InfinityLength<Real_v>();
     Real_v safplanar = InfinityLength<Real_v>();
     Real_v tolerance = Real_v(100 * kTolerance);
-    vecCore::MaskedAssign(tolerance, !in, -tolerance);
+    vecCore__MaskedAssignFunc(tolerance, !in, -tolerance);
 
     //  loop over edges connecting points i with i+4
     Real_v dx, dy, dpx, dpy, lsq, u;
@@ -558,27 +558,27 @@ public:
       dpy   = point[1] - vertexY[i];
       lsq   = dx * dx + dy * dy;
       u     = (dpx * dx + dpy * dy) / NonZero(lsq);
-      vecCore::MaskedAssign(dpx, u > 1, point[0] - vertexX[j]);
-      vecCore::MaskedAssign(dpy, u > 1, point[1] - vertexY[j]);
-      vecCore::MaskedAssign(dpx, u >= 0 && u <= 1, dpx - u * dx);
-      vecCore::MaskedAssign(dpy, u >= 0 && u <= 1, dpy - u * dy);
+      vecCore__MaskedAssignFunc(dpx, u > 1, point[0] - vertexX[j]);
+      vecCore__MaskedAssignFunc(dpy, u > 1, point[1] - vertexY[j]);
+      vecCore__MaskedAssignFunc(dpx, u >= 0 && u <= 1, dpx - u * dx);
+      vecCore__MaskedAssignFunc(dpy, u >= 0 && u <= 1, dpy - u * dy);
       Real_v ssq = dpx * dpx + dpy * dpy; // safety squared
-      vecCore::MaskedAssign(dx1, ssq < safety, Real_v(fxc[i] - fxa[i]));
-      vecCore::MaskedAssign(dx2, ssq < safety, Real_v(fxd[i] - fxb[i]));
-      vecCore::MaskedAssign(dy1, ssq < safety, Real_v(fyc[i] - fya[i]));
-      vecCore::MaskedAssign(dy2, ssq < safety, Real_v(fyd[i] - fyb[i]));
+      vecCore__MaskedAssignFunc(dx1, ssq < safety, Real_v(fxc[i] - fxa[i]));
+      vecCore__MaskedAssignFunc(dx2, ssq < safety, Real_v(fxd[i] - fxb[i]));
+      vecCore__MaskedAssignFunc(dy1, ssq < safety, Real_v(fyc[i] - fya[i]));
+      vecCore__MaskedAssignFunc(dy2, ssq < safety, Real_v(fyd[i] - fyb[i]));
       vecCore::MaskedAssign(umin, ssq < safety, u);
       vecCore::MaskedAssign(safety, ssq < safety, ssq);
     }
-    vecCore::MaskedAssign(umin, umin < 0 || umin > 1, Real_v(0.));
+    vecCore__MaskedAssignFunc(umin, umin < 0 || umin > 1, Real_v(0.));
     dx = dx1 + umin * (dx2 - dx1);
     dy = dy1 + umin * (dy2 - dy1);
     // Denominator below always positive as fDz>0
     safety *= 1. - 4. * fDz * fDz / (dx * dx + dy * dy + 4. * fDz * fDz);
     safety = Sqrt(safety);
     vecCore::MaskedAssign(safety, safplanar < safety, safplanar);
-    vecCore::MaskedAssign(safety, wrong, -safety);
-    vecCore::MaskedAssign(safety, onsurf, Real_v(0.));
+    vecCore__MaskedAssignFunc(safety, wrong, -safety);
+    vecCore__MaskedAssignFunc(safety, onsurf, Real_v(0.));
     return safety;
   } // end SafetyCurved
 
@@ -607,10 +607,10 @@ public:
     Real_v r     = InfinityLength<Real_v>();
     Real_v num   = (point.x() - fxa[isurf]) - rz * (fxb[isurf] - fxa[isurf]);
     Real_v denom = (fxc[isurf] - fxa[isurf]) + rz * (fxd[isurf] - fxc[isurf] - fxb[isurf] + fxa[isurf]);
-    vecCore::MaskedAssign(r, (Abs(denom) > 1.e-6), num / NonZero(denom));
+    vecCore__MaskedAssignFunc(r, (Abs(denom) > 1.e-6), num / NonZero(denom));
     num   = (point.y() - fya[isurf]) - rz * (fyb[isurf] - fya[isurf]);
     denom = (fyc[isurf] - fya[isurf]) + rz * (fyd[isurf] - fyc[isurf] - fyb[isurf] + fya[isurf]);
-    vecCore::MaskedAssign(r, (Abs(denom) > 1.e-6), num / NonZero(denom));
+    vecCore__MaskedAssignFunc(r, (Abs(denom) > 1.e-6), num / NonZero(denom));
     insurf = insurf && (r > MakeMinusTolerant<true>(0.)) && (r < MakePlusTolerant<true>(1.));
     return insurf;
   }
@@ -639,10 +639,10 @@ public:
     */
     Real_v num   = (point.x() - fxa[isurf]) - rz * (fxb[isurf] - fxa[isurf]);
     Real_v denom = (fxc[isurf] - fxa[isurf]) + rz * (fxd[isurf] - fxc[isurf] - fxb[isurf] + fxa[isurf]);
-    vecCore::MaskedAssign(r, Abs(denom) > 1.e-6, num / NonZero(denom));
+    vecCore__MaskedAssignFunc(r, Abs(denom) > 1.e-6, num / NonZero(denom));
     num   = (point.y() - fya[isurf]) - rz * (fyb[isurf] - fya[isurf]);
     denom = (fyc[isurf] - fya[isurf]) + rz * (fyd[isurf] - fyc[isurf] - fyb[isurf] + fya[isurf]);
-    vecCore::MaskedAssign(r, Abs(denom) > 1.e-6, num / NonZero(denom));
+    vecCore__MaskedAssignFunc(r, Abs(denom) > 1.e-6, num / NonZero(denom));
 
     unorm = (Vector3D<Real_v>)fViCrossHi0[isurf] + rz * (Vector3D<Real_v>)fViCrossVj[isurf] +
             r * (Vector3D<Real_v>)fHi1CrossHi0[isurf];
@@ -687,10 +687,10 @@ public:
     for (int i = 0; i < N; ++i) {
       // zero or one to start with
       signa[i] = Real_v(0.);
-      vecCore::MaskedAssign(signa[i], a[i] < -kTolerance, Real_v(-1.));
-      vecCore::MaskedAssign(signa[i], a[i] > kTolerance, Real_v(1.));
+      vecCore__MaskedAssignFunc(signa[i], a[i] < -kTolerance, Real_v(-1.));
+      vecCore__MaskedAssignFunc(signa[i], a[i] > kTolerance, Real_v(1.));
       inva[i] = c[i] / NonZero(b[i] * b[i]);
-      vecCore::MaskedAssign(inva[i], Abs(a[i]) > kTolerance, 1. / NonZero(2. * a[i]));
+      vecCore__MaskedAssignFunc(inva[i], Abs(a[i]) > kTolerance, 1. / NonZero(2. * a[i]));
     }
 
     // vectorizes

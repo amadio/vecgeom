@@ -379,7 +379,7 @@ void GenTrapImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vecto
   std::cerr << "disttoplanes " << disttoplanes << "\n";
 #endif
 
-  vecCore::MaskedAssign(distance, !done, Min(disttoplanes, distance));
+  vecCore__MaskedAssignFunc(distance, !done, Min(disttoplanes, distance));
 #ifdef GENTRAPDEB
   std::cerr << distance << "\n";
 #endif
@@ -402,7 +402,7 @@ void GenTrapImplementation::DistanceToOut(UnplacedStruct_t const &unplaced, Vect
 
   Bool_v negDirMask = direction.z() < 0;
   Real_v sign(1.0);
-  vecCore::MaskedAssign(sign, negDirMask, Real_v(-1.));
+  vecCore__MaskedAssignFunc(sign, negDirMask, Real_v(-1.));
   //    Real_v invDirZ = 1./NonZero(direction.z());
   // this construct costs one multiplication more
   Real_v distmin = (sign * unplaced.fDz - point.z()) / NonZero(direction.z());
@@ -464,8 +464,8 @@ void GenTrapImplementation::NormalKernel(UnplacedStruct_t const &unplaced, Vecto
   // Do bottom and top faces
   Real_v safz = Abs(unplaced.fDz - Abs(point.z()));
   Bool_v onZ  = (safz < 10. * kTolerance);
-  vecCore::MaskedAssign(normal[2], onZ && (point.z() > 0), 1.);
-  vecCore::MaskedAssign(normal[2], onZ && (point.z() < 0), -1.);
+  vecCore__MaskedAssignFunc(normal[2], onZ && (point.z() > 0), 1.);
+  vecCore__MaskedAssignFunc(normal[2], onZ && (point.z() < 0), -1.);
 
   //    if (vecCore::EarlyReturnAllowed()) {
   if (vecCore::MaskFull(onZ)) {
@@ -485,7 +485,7 @@ void GenTrapImplementation::NormalKernel(UnplacedStruct_t const &unplaced, Vecto
   Real_v seg;
   Real_v frac;
   GetClosestEdge<Real_v>(point, vertexX, vertexY, seg, frac);
-  vecCore::MaskedAssign(frac, frac < 0., Real_v(0.));
+  vecCore__MaskedAssignFunc(frac, frac < 0., Real_v(0.));
   Index_v iseg = (Index_v)seg;
   if (unplaced.IsPlanar()) {
     // Normals for the planar case are pre-computed
@@ -545,20 +545,20 @@ void GenTrapImplementation::GetClosestEdge(Vector3D<Real_v> const &point, Real_v
     // Current segment collapsed to a point
     Bool_v collapsed = lsq < kTolerance;
     if (!vecCore::MaskEmpty(collapsed)) {
-      vecCore::MaskedAssign(ssq, lsq < kTolerance, dpx * dpx + dpy * dpy);
+      vecCore__MaskedAssignFunc(ssq, lsq < kTolerance, dpx * dpx + dpy * dpy);
       // Missing a masked assign allowing to perform multiple assignments...
       vecCore::MaskedAssign(iseg, ssq < safe, (Precision)i);
-      vecCore::MaskedAssign(fraction, ssq < safe, Real_v(-1.));
+      vecCore__MaskedAssignFunc(fraction, ssq < safe, Real_v(-1.));
       vecCore::MaskedAssign(safe, ssq < safe, ssq);
       if (vecCore::MaskFull(collapsed)) continue;
     }
     // Projection fraction
     u = (dpx * dx + dpy * dy) / NonZero(lsq);
-    vecCore::MaskedAssign(dpx, u > 1 && !collapsed, point.x() - vertexX[j]);
-    vecCore::MaskedAssign(dpy, u > 1 && !collapsed, point.y() - vertexY[j]);
-    vecCore::MaskedAssign(dpx, u >= 0 && u <= 1 && !collapsed, dpx - u * dx);
-    vecCore::MaskedAssign(dpy, u >= 0 && u <= 1 && !collapsed, dpy - u * dy);
-    vecCore::MaskedAssign(u, (u > 1 || u < 0) && !collapsed, Real_v(-1.));
+    vecCore__MaskedAssignFunc(dpx, u > 1 && !collapsed, point.x() - vertexX[j]);
+    vecCore__MaskedAssignFunc(dpy, u > 1 && !collapsed, point.y() - vertexY[j]);
+    vecCore__MaskedAssignFunc(dpx, u >= 0 && u <= 1 && !collapsed, dpx - u * dx);
+    vecCore__MaskedAssignFunc(dpy, u >= 0 && u <= 1 && !collapsed, dpy - u * dy);
+    vecCore__MaskedAssignFunc(u, (u > 1 || u < 0) && !collapsed, Real_v(-1.));
     ssq = dpx * dpx + dpy * dpy;
     vecCore::MaskedAssign(iseg, ssq < safe, (Precision)i);
     vecCore::MaskedAssign(fraction, ssq < safe, u);

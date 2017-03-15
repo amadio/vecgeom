@@ -370,16 +370,16 @@ Vector3D<typename Backend::precision_v> SphereImplementation<transCodeT, rotCode
   Float_t radius   = point.Mag();
   Float_t distRMax = Abs(radius - unplaced.GetOuterRadius());
   Float_t distRMin = Abs(unplaced.GetInnerRadius() - radius);
-  vecCore::MaskedAssign(distRMax, distRMax < 0.0, InfinityLength<Float_t>());
-  vecCore::MaskedAssign(distRMin, distRMin < 0.0, InfinityLength<Float_t>());
+  vecCore__MaskedAssignFunc(distRMax, distRMax < 0.0, InfinityLength<Float_t>());
+  vecCore__MaskedAssignFunc(distRMin, distRMin < 0.0, InfinityLength<Float_t>());
   Float_t distMin = Min(distRMin, distRMax);
 
   Float_t distPhi1 =
       point.x() * unplaced.GetWedge().GetNormal1().x() + point.y() * unplaced.GetWedge().GetNormal1().y();
   Float_t distPhi2 =
       point.x() * unplaced.GetWedge().GetNormal2().x() + point.y() * unplaced.GetWedge().GetNormal2().y();
-  vecCore::MaskedAssign(distPhi1, distPhi1 < 0.0, InfinityLength<Float_t>());
-  vecCore::MaskedAssign(distPhi2, distPhi2 < 0.0, InfinityLength<Float_t>());
+  vecCore__MaskedAssignFunc(distPhi1, distPhi1 < 0.0, InfinityLength<Float_t>());
+  vecCore__MaskedAssignFunc(distPhi2, distPhi2 < 0.0, InfinityLength<Float_t>());
   distMin = Min(distMin, Min(distPhi1, distPhi2));
 
   Float_t rho = point.Perp();
@@ -387,20 +387,20 @@ Vector3D<typename Backend::precision_v> SphereImplementation<transCodeT, rotCode
       unplaced.GetThetaCone().DistanceToLine<Backend>(unplaced.GetThetaCone().GetSlope1(), rho, point.z());
   Float_t distTheta2 =
       unplaced.GetThetaCone().DistanceToLine<Backend>(unplaced.GetThetaCone().GetSlope2(), rho, point.z());
-  vecCore::MaskedAssign(distTheta1, distTheta1 < 0.0, InfinityLength<Float_t>());
-  vecCore::MaskedAssign(distTheta2, distTheta2 < 0.0, InfinityLength<Float_t>());
+  vecCore__MaskedAssignFunc(distTheta1, distTheta1 < 0.0, InfinityLength<Float_t>());
+  vecCore__MaskedAssignFunc(distTheta2, distTheta2 < 0.0, InfinityLength<Float_t>());
   distMin = Min(distMin, Min(distTheta1, distTheta2));
 
-  vecCore::MaskedAssign(norm, distMin == distRMax, point.Unit());
-  vecCore::MaskedAssign(norm, distMin == distRMin, -point.Unit());
+  vecCore__MaskedAssignFunc(norm, distMin == distRMax, point.Unit());
+  vecCore__MaskedAssignFunc(norm, distMin == distRMin, -point.Unit());
 
   Vector3D<Float_t> normal1 = unplaced.GetWedge().GetNormal1();
   Vector3D<Float_t> normal2 = unplaced.GetWedge().GetNormal2();
-  vecCore::MaskedAssign(norm, distMin == distPhi1, -normal1);
-  vecCore::MaskedAssign(norm, distMin == distPhi2, -normal2);
+  vecCore__MaskedAssignFunc(norm, distMin == distPhi1, -normal1);
+  vecCore__MaskedAssignFunc(norm, distMin == distPhi2, -normal2);
 
-  vecCore::MaskedAssign(norm, distMin == distTheta1, norm + unplaced.GetThetaCone().GetNormal1<Backend>(point));
-  vecCore::MaskedAssign(norm, distMin == distTheta2, norm + unplaced.GetThetaCone().GetNormal2<Backend>(point));
+  vecCore__MaskedAssignFunc(norm, distMin == distTheta1, norm + unplaced.GetThetaCone().GetNormal1<Backend>(point));
+  vecCore__MaskedAssignFunc(norm, distMin == distTheta2, norm + unplaced.GetThetaCone().GetNormal2<Backend>(point));
 
   return norm;
 }
@@ -451,57 +451,58 @@ void SphereImplementation<transCodeT, rotCodeT>::NormalKernel(UnplacedSphere con
   if (!ForDistanceToOut) {
     Bool_t unused(false);
     GenericKernelForContainsAndInside<Backend, true>(unplaced, point, unused, isPointOutside);
-    MaskedAssign(unused || isPointOutside, ApproxSurfaceNormalKernel<Backend>(unplaced, point), &normal);
+    vecCore__MaskedAssignFunc(unused || isPointOutside, ApproxSurfaceNormalKernel<Backend>(unplaced, point), &normal);
   }
   */
 
   Bool_t isPointInside(false);
   GenericKernelForContainsAndInside<Backend, true>(unplaced, point, isPointInside, isPointOutside);
-  vecCore::MaskedAssign(normal, isPointInside || isPointOutside, ApproxSurfaceNormalKernel<Backend>(unplaced, point));
+  vecCore__MaskedAssignFunc(normal, isPointInside || isPointOutside,
+                            ApproxSurfaceNormalKernel<Backend>(unplaced, point));
 
   valid = Bool_t(false);
 
   Float_t noSurfaces(0.);
   Bool_t isPointOnOuterRadius = IsPointOnOuterRadius<Backend>(unplaced, point);
 
-  vecCore::MaskedAssign(noSurfaces, isPointOnOuterRadius, noSurfaces + 1);
-  vecCore::MaskedAssign(normal, !isPointOutside && isPointOnOuterRadius, normal + (point.Unit()));
+  vecCore__MaskedAssignFunc(noSurfaces, isPointOnOuterRadius, noSurfaces + 1);
+  vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnOuterRadius, normal + (point.Unit()));
 
   if (unplaced.GetInnerRadius()) {
     Bool_t isPointOnInnerRadius = IsPointOnInnerRadius<Backend>(unplaced, point);
-    vecCore::MaskedAssign(noSurfaces, isPointOnInnerRadius, noSurfaces + 1);
-    vecCore::MaskedAssign(normal, !isPointOutside && isPointOnInnerRadius, normal - point.Unit());
+    vecCore__MaskedAssignFunc(noSurfaces, isPointOnInnerRadius, noSurfaces + 1);
+    vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnInnerRadius, normal - point.Unit());
   }
 
   if (!unplaced.IsFullPhiSphere()) {
     Bool_t isPointOnStartPhi = IsPointOnStartPhi<Backend>(unplaced, point);
     Bool_t isPointOnEndPhi   = IsPointOnEndPhi<Backend>(unplaced, point);
-    vecCore::MaskedAssign(noSurfaces, isPointOnStartPhi, noSurfaces + 1);
-    vecCore::MaskedAssign(noSurfaces, isPointOnEndPhi, noSurfaces + 1);
-    vecCore::MaskedAssign(normal, !isPointOutside && isPointOnStartPhi, normal - unplaced.GetWedge().GetNormal1());
-    vecCore::MaskedAssign(normal, !isPointOutside && isPointOnEndPhi, normal - unplaced.GetWedge().GetNormal2());
+    vecCore__MaskedAssignFunc(noSurfaces, isPointOnStartPhi, noSurfaces + 1);
+    vecCore__MaskedAssignFunc(noSurfaces, isPointOnEndPhi, noSurfaces + 1);
+    vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnStartPhi, normal - unplaced.GetWedge().GetNormal1());
+    vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnEndPhi, normal - unplaced.GetWedge().GetNormal2());
   }
 
   if (!unplaced.IsFullThetaSphere()) {
     Bool_t isPointOnStartTheta = IsPointOnStartTheta<Backend>(unplaced, point);
     Bool_t isPointOnEndTheta   = IsPointOnEndTheta<Backend>(unplaced, point);
 
-    vecCore::MaskedAssign(noSurfaces, isPointOnStartTheta, noSurfaces + 1);
-    vecCore::MaskedAssign(normal, !isPointOutside && isPointOnStartTheta,
-                          normal + unplaced.GetThetaCone().GetNormal1<Backend>(point));
+    vecCore__MaskedAssignFunc(noSurfaces, isPointOnStartTheta, noSurfaces + 1);
+    vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnStartTheta,
+                              normal + unplaced.GetThetaCone().GetNormal1<Backend>(point));
 
-    vecCore::MaskedAssign(noSurfaces, isPointOnEndTheta, noSurfaces + 1);
-    vecCore::MaskedAssign(normal, !isPointOutside && isPointOnEndTheta,
-                          normal + unplaced.GetThetaCone().GetNormal2<Backend>(point));
+    vecCore__MaskedAssignFunc(noSurfaces, isPointOnEndTheta, noSurfaces + 1);
+    vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnEndTheta,
+                              normal + unplaced.GetThetaCone().GetNormal2<Backend>(point));
 
     Vector3D<Float_t> tempNormal(0., 0., -1.);
-    vecCore::MaskedAssign(normal, !isPointOutside && isPointOnStartTheta && isPointOnEndTheta &&
-                                      (unplaced.GetETheta() <= kPi / 2.),
-                          tempNormal);
+    vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnStartTheta && isPointOnEndTheta &&
+                                          (unplaced.GetETheta() <= kPi / 2.),
+                              tempNormal);
     Vector3D<Float_t> tempNormal2(0., 0., 1.);
-    vecCore::MaskedAssign(normal, !isPointOutside && isPointOnStartTheta && isPointOnEndTheta &&
-                                      (unplaced.GetSTheta() >= kPi / 2.),
-                          tempNormal2);
+    vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnStartTheta && isPointOnEndTheta &&
+                                          (unplaced.GetSTheta() >= kPi / 2.),
+                              tempNormal2);
   }
 
   normal = normal.Unit();
@@ -684,12 +685,12 @@ void SphereImplementation<transCodeT, rotCodeT>::SafetyToInKernel(UnplacedSphere
   Bool_t completelyinside(false), completelyoutside(false);
   GenericKernelForContainsAndInside<Backend, true>(unplaced, point, completelyinside, completelyoutside);
 
-  vecCore::MaskedAssign(safety, completelyinside, Float_t(-1.0));
+  vecCore__MaskedAssignFunc(safety, completelyinside, Float_t(-1.0));
   done |= completelyinside;
   if (vecCore::MaskFull(done)) return;
 
   Bool_t isOnSurface = !completelyinside && !completelyoutside;
-  vecCore::MaskedAssign(safety, !done && isOnSurface, Float_t(0.0));
+  vecCore__MaskedAssignFunc(safety, !done && isOnSurface, Float_t(0.0));
   done |= isOnSurface;
   if (vecCore::MaskFull(done)) return;
 
@@ -698,20 +699,20 @@ void SphereImplementation<transCodeT, rotCodeT>::SafetyToInKernel(UnplacedSphere
     safeRMax = rad - fRmaxV;
     safety   = vecCore::Blend(!done && (safeRMin > safeRMax), safeRMin, safeRMax);
   } else {
-    vecCore::MaskedAssign(safety, !done, (rad - fRmaxV));
+    vecCore__MaskedAssignFunc(safety, !done, (rad - fRmaxV));
   }
   // Distance to r shells over
 
   // Distance to phi extent
   if (!unplaced.IsFullPhiSphere()) {
     Float_t safetyPhi = unplaced.GetWedge().SafetyToIn<Backend>(point);
-    vecCore::MaskedAssign(safety, !done, Max(safetyPhi, safety));
+    vecCore__MaskedAssignFunc(safety, !done, Max(safetyPhi, safety));
   }
 
   // Distance to Theta extent
   if (!unplaced.IsFullThetaSphere()) {
     Float_t safetyTheta = unplaced.GetThetaCone().SafetyToIn<Backend>(point);
-    vecCore::MaskedAssign(safety, !done, Max(safetyTheta, safety));
+    vecCore__MaskedAssignFunc(safety, !done, Max(safetyTheta, safety));
   }
 }
 
@@ -749,12 +750,12 @@ void SphereImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(UnplacedSpher
 
   Bool_t completelyinside(false), completelyoutside(false);
   GenericKernelForContainsAndInside<Backend, true>(unplaced, point, completelyinside, completelyoutside);
-  vecCore::MaskedAssign(safety, completelyoutside, Float_t(-1.0));
+  vecCore__MaskedAssignFunc(safety, completelyoutside, Float_t(-1.0));
   done |= completelyoutside;
   if (vecCore::MaskFull(done)) return;
 
   Bool_t isOnSurface = !completelyinside && !completelyoutside;
-  vecCore::MaskedAssign(safety, !done && isOnSurface, Float_t(0.0));
+  vecCore__MaskedAssignFunc(safety, !done && isOnSurface, Float_t(0.0));
   done |= isOnSurface;
   if (vecCore::MaskFull(done)) return;
 
@@ -764,20 +765,20 @@ void SphereImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(UnplacedSpher
     Float_t safeRMax = (fRmaxV - rad);
     safety           = vecCore::Blend(!done && (safeRMin < safeRMax), safeRMin, safeRMax);
   } else {
-    vecCore::MaskedAssign(safety, !done, (fRmaxV - rad));
+    vecCore__MaskedAssignFunc(safety, !done, (fRmaxV - rad));
   }
 
   // Distance to phi extent
   if (!unplaced.IsFullPhiSphere()) {
     Float_t safetyPhi = unplaced.GetWedge().SafetyToOut<Backend>(point);
-    vecCore::MaskedAssign(safety, !done, Min(safetyPhi, safety));
+    vecCore__MaskedAssignFunc(safety, !done, Min(safetyPhi, safety));
   }
 
   // Distance to Theta extent
   Float_t safeTheta(0.);
   if (!unplaced.IsFullThetaSphere()) {
     safeTheta = unplaced.GetThetaCone().SafetyToOut<Backend>(point);
-    vecCore::MaskedAssign(safety, !done, Min(safeTheta, safety));
+    vecCore__MaskedAssignFunc(safety, !done, Min(safeTheta, safety));
   }
 }
 
@@ -826,12 +827,12 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   Float_t c = rad2 - fRmax * fRmax;
 
   Bool_t cond = IsCompletelyInside<Backend>(unplaced, point);
-  vecCore::MaskedAssign(distance, cond, Float_t(-1.0));
+  vecCore__MaskedAssignFunc(distance, cond, Float_t(-1.0));
   done |= cond;
   if (vecCore::MaskFull(done)) return;
 
   cond = IsPointOnSurfaceAndMovingOut<Backend, false>(unplaced, point, direction);
-  vecCore::MaskedAssign(distance, !done && cond, Float_t(0.0));
+  vecCore__MaskedAssignFunc(distance, !done && cond, Float_t(0.0));
   done |= cond;
   if (vecCore::MaskFull(done)) return;
 
@@ -843,7 +844,7 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
   if (vecCore::MaskFull(done)) return; // Returning in case of no intersection with outer shell
 
   // Note: Abs(d2) was introduced to avoid Sqrt(negative) in other lanes than the ones satisfying d2>=0.
-  vecCore::MaskedAssign(sd1, d2 >= 0.0, (-pDotV3d - Sqrt(Abs(d2))));
+  vecCore__MaskedAssignFunc(sd1, d2 >= 0.0, (-pDotV3d - Sqrt(Abs(d2))));
 
   Float_t outerDist(kInfLength);
   Float_t innerDist(kInfLength);
@@ -861,7 +862,7 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
     c  = rad2 - fRmin * fRmin;
     d2 = pDotV3d * pDotV3d - c;
     // Note: Abs(d2) was introduced to avoid Sqrt(negative) in other lanes than the ones satisfying d2>=0.
-    vecCore::MaskedAssign(sd2, d2 >= 0.0, (-pDotV3d + Sqrt(Abs(d2))));
+    vecCore__MaskedAssignFunc(sd2, d2 >= 0.0, (-pDotV3d + Sqrt(Abs(d2))));
 
     if (unplaced.IsFullSphere()) {
       vecCore::MaskedAssign(innerDist, !done && (sd2 >= 0.0), sd2);
@@ -905,14 +906,14 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
     }
     vecCore::MaskedAssign(distThetaMin, (!done && isValidCone2 && !isValidCone1), distTheta2);
     vecCore::MaskedAssign(distThetaMin, (!done && isValidCone1 && !isValidCone2), distTheta1);
-    vecCore::MaskedAssign(distThetaMin, (!done && isValidCone1 && isValidCone2), Min(distTheta1, distTheta2));
+    vecCore__MaskedAssignFunc(distThetaMin, (!done && isValidCone1 && isValidCone2), Min(distTheta1, distTheta2));
   }
 
   distance = Min(distThetaMin, distance);
 
   Vector3D<Float_t> directDir = (Vector3D<Float_t>(0., 0., 0.) - point);
   Float_t newDist             = directDir.Mag();
-  vecCore::MaskedAssign(
+  vecCore__MaskedAssignFunc(
       distance, Bool_t(unplaced.GetSTheta() > kHalfTolerance || unplaced.GetETheta() < (kPi - kHalfTolerance)) &&
                     (Abs(directDir.Unit().x() - direction.x()) < kHalfTolerance) &&
                     (Abs(directDir.Unit().y() - direction.y()) < kHalfTolerance) &&
@@ -957,7 +958,7 @@ void SphereImplementation<transCodeT, rotCodeT>::GetMinDistFromPhi(
   containsCond1 =
       tempCond && (rad2 > fRmin * fRmin) && (rad2 < fRmax * fRmax) && unplaced.GetThetaCone().Contains<Backend>(tmpPt);
 
-  vecCore::MaskedAssign(distance, !done && containsCond1, Min(dist, distance));
+  vecCore__MaskedAssignFunc(distance, !done && containsCond1, Min(dist, distance));
 
   // Max Face
   dist  = Max(distPhi1, distPhi2);
@@ -970,7 +971,7 @@ void SphereImplementation<transCodeT, rotCodeT>::GetMinDistFromPhi(
 
   containsCond2 =
       tempCond && (rad2 > fRmin * fRmin) && (rad2 < fRmax * fRmax) && unplaced.GetThetaCone().Contains<Backend>(tmpPt);
-  vecCore::MaskedAssign(distance, ((!done) && (!containsCond1) && containsCond2), Min(dist, distance));
+  vecCore__MaskedAssignFunc(distance, ((!done) && (!containsCond1) && containsCond2), Min(dist, distance));
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -1020,24 +1021,24 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
   Float_t sd2(kInfLength);
 
   Bool_t cond = IsCompletelyOutside<Backend>(unplaced, point);
-  vecCore::MaskedAssign(distance, cond, Float_t(-1.0));
+  vecCore__MaskedAssignFunc(distance, cond, Float_t(-1.0));
 
   done |= cond;
   if (vecCore::MaskFull(done)) return;
 
   cond = IsPointOnSurfaceAndMovingOut<Backend, true>(unplaced, point, direction);
-  vecCore::MaskedAssign(distance, !done && cond, Float_t(0.0));
+  vecCore__MaskedAssignFunc(distance, !done && cond, Float_t(0.0));
   done |= cond;
   if (vecCore::MaskFull(done)) return;
 
   // Note: Abs(d2) was introduced to avoid Sqrt(negative) in other lanes than the ones satisfying d2>=0.
   d2 = (pDotV3d * pDotV3d - c);
-  vecCore::MaskedAssign(sd1, (!done && (d2 >= 0.0)), (-pDotV3d + Sqrt(Abs(d2))));
+  vecCore__MaskedAssignFunc(sd1, (!done && (d2 >= 0.0)), (-pDotV3d + Sqrt(Abs(d2))));
 
   if (unplaced.GetInnerRadius()) {
     c  = rad2 - fRmin * fRmin;
     d2 = (pDotV3d * pDotV3d - c);
-    vecCore::MaskedAssign(sd2, (!done && (d2 >= 0.0) && (pDotV3d < 0.0)), (-pDotV3d - Sqrt(Abs(d2))));
+    vecCore__MaskedAssignFunc(sd2, (!done && (d2 >= 0.0) && (pDotV3d < 0.0)), (-pDotV3d - Sqrt(Abs(d2))));
   }
 
   snxt = Min(sd1, sd2);
@@ -1059,7 +1060,7 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
     unplaced.GetThetaCone().DistanceToOut<Backend>(point, direction, distTheta1, distTheta2, intsect1, intsect2);
     vecCore::MaskedAssign(distThetaMin, (intsect2 && !intsect1), distTheta2);
     vecCore::MaskedAssign(distThetaMin, (!intsect2 && intsect1), distTheta1);
-    vecCore::MaskedAssign(distThetaMin, (intsect2 && intsect1), Min(distTheta1, distTheta2));
+    vecCore__MaskedAssignFunc(distThetaMin, (intsect2 && intsect1), Min(distTheta1, distTheta2));
   }
 
   distance = Min(distThetaMin, snxt);

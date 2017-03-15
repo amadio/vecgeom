@@ -203,8 +203,8 @@ public:
       if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return distIn;
 
       // update smin,smax
-      vecCore::MaskedAssign(smin, interceptFromOutside && vdist[i] > smin, vdist[i]);
-      vecCore::MaskedAssign(smax, interceptFromInside && vdist[i] < smax, vdist[i]);
+      vecCore__MaskedAssignFunc(smin, interceptFromOutside && vdist[i] > smin, vdist[i]);
+      vecCore__MaskedAssignFunc(smax, interceptFromInside && vdist[i] < smax, vdist[i]);
     }
 
     // Survivors will return smin, which is the maximum distance in an interceptFromOutside situation
@@ -242,11 +242,11 @@ public:
     for (int i = 0; i < N; ++i) {
       done = done || (pdist[i] > kHalfTolerance);
     }
-    vecCore::MaskedAssign(distOut, done, Real_v(-1.0));
+    vecCore__MaskedAssignFunc(distOut, done, Real_v(-1.0));
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return distOut;
 
     for (int i = 0; i < N; ++i) {
-      vecCore::MaskedAssign(distOut, proj[i] > 0 && vdist[i] < distOut, vdist[i]);
+      vecCore__MaskedAssignFunc(distOut, proj[i] > 0 && vdist[i] < distOut, vdist[i]);
     }
 
     return distOut;
@@ -266,7 +266,7 @@ public:
 
     // non-vectorizable part
     for (int i = 0; i < N; ++i) {
-      vecCore::MaskedAssign(safety, dist[i] > safety, dist[i]);
+      vecCore__MaskedAssignFunc(safety, dist[i] > safety, dist[i]);
     }
   }
 
@@ -284,7 +284,7 @@ public:
 
     // non-vectorizable part
     for (int i = 0; i < N; ++i) {
-      vecCore::MaskedAssign(safety, dist[i] < safety, dist[i]);
+      vecCore__MaskedAssignFunc(safety, dist[i] < safety, dist[i]);
     }
 
     return;
@@ -307,7 +307,7 @@ public:
     Index_v closest = static_cast<Index_v>(-1);
     for (size_t i = 0; i < N; ++i) {
       Bool_v closer = dist[i] < safety;
-      vecCore::MaskedAssign(safety, closer, dist[i]);
+      vecCore__MaskedAssignFunc(safety, closer, dist[i]);
       vecCore::MaskedAssign(closest, closer, i);
     }
 

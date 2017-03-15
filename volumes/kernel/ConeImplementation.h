@@ -219,7 +219,7 @@ static void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, P
   // if( /*Backend::early_returns &&*/ vecCore::MaskEmpty(ok) ) return;
 
   Float_t dirDotXY = (dir.y() * alongX) - (dir.x() * alongY);
-  vecCore::MaskedAssign(dist, dirDotXY != 0, ((alongY * pos.x()) - (alongX * pos.y())) / NonZero(dirDotXY));
+  vecCore__MaskedAssignFunc(dist, dirDotXY != 0, ((alongY * pos.x()) - (alongX * pos.y())) / NonZero(dirDotXY));
   ok &= dist > -kHalfConeTolerance;
   // if( /*Backend::early_returns &&*/ vecCore::MaskEmpty(ok) ) return;
 
@@ -353,14 +353,14 @@ static typename Backend::bool_v DetectIntersectionAndCalculateDistanceToConicalS
     Bool_t isOnSurfaceAndMovingInside = IsMovingInsideConicalSurface<Backend, ForInnerSurface>(cone, point, direction);
 
     if (!checkPhiTreatment<ConeTypes::UniversalCone>(cone)) {
-      vecCore::MaskedAssign(distance, isOnSurfaceAndMovingInside, Float_t(0.));
+      vecCore__MaskedAssignFunc(distance, isOnSurfaceAndMovingInside, Float_t(0.));
       done |= isOnSurfaceAndMovingInside;
       if (vecCore::MaskFull(done)) return done;
     } else {
       Bool_t insector(false);
       PointInCyclicalSector<Backend, ConeTypes::UniversalCone, UnplacedCone, false, true>(cone, point.x(), point.y(),
                                                                                           insector);
-      vecCore::MaskedAssign(distance, insector && isOnSurfaceAndMovingInside, Float_t(0.));
+      vecCore__MaskedAssignFunc(distance, insector && isOnSurfaceAndMovingInside, Float_t(0.));
       done |= (insector && isOnSurfaceAndMovingInside);
       if (vecCore::MaskFull(done)) return done;
     }
@@ -370,14 +370,14 @@ static typename Backend::bool_v DetectIntersectionAndCalculateDistanceToConicalS
         IsMovingOutsideConicalSurface<Backend, ForInnerSurface>(cone, point, direction);
 
     if (!checkPhiTreatment<ConeTypes::UniversalCone>(cone)) {
-      vecCore::MaskedAssign(distance, isOnSurfaceAndMovingOutside, Float_t(0.));
+      vecCore__MaskedAssignFunc(distance, isOnSurfaceAndMovingOutside, Float_t(0.));
       done |= isOnSurfaceAndMovingOutside;
       if (vecCore::MaskFull(done)) return done;
     } else {
       Bool_t insector(false);
       PointInCyclicalSector<Backend, ConeTypes::UniversalCone, UnplacedCone, false, true>(cone, point.x(), point.y(),
                                                                                           insector);
-      vecCore::MaskedAssign(distance, insector && isOnSurfaceAndMovingOutside, Float_t(0.));
+      vecCore__MaskedAssignFunc(distance, insector && isOnSurfaceAndMovingOutside, Float_t(0.));
       done |= (insector && isOnSurfaceAndMovingOutside);
       if (vecCore::MaskFull(done)) return done;
     }
@@ -418,11 +418,11 @@ static typename Backend::bool_v DetectIntersectionAndCalculateDistanceToConicalS
 
     Float_t delta = Sqrt(vecCore::math::Abs(d2));
     if (ForDistToIn) {
-      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b >= 0.), (c / NonZero(-b - delta)));
-      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b < 0.), (-b + delta) / NonZero(a));
+      vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b >= 0.), (c / NonZero(-b - delta)));
+      vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b < 0.), (-b + delta) / NonZero(a));
     } else {
-      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b >= 0.), (-b - delta) / NonZero(a));
-      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b < 0.), (c / NonZero(-b + delta)));
+      vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b >= 0.), (-b - delta) / NonZero(a));
+      vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b < 0.), (c / NonZero(-b + delta)));
     }
 
     if (vecCore::MaskFull(distance < 0.)) return Bool_t(false);
@@ -457,25 +457,25 @@ static typename Backend::bool_v DetectIntersectionAndCalculateDistanceToConicalS
     Float_t delta = Sqrt(vecCore::math::Abs(d2));
 
     if (ForDistToIn) {
-      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b > 0.), (-b - delta) / NonZero(a));
-      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b < 0.), (c / NonZero(-b + delta)));
+      vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b > 0.), (-b - delta) / NonZero(a));
+      vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b < 0.), (c / NonZero(-b + delta)));
     } else {
-      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b < 0.), (-b + delta) / NonZero(a));
-      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b >= 0.), (c / NonZero(-b - delta)));
+      vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b < 0.), (-b + delta) / NonZero(a));
+      vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b >= 0.), (c / NonZero(-b - delta)));
     }
 
     if (vecCore::MaskFull(distance < 0.)) return Bool_t(false);
     Float_t newZ = point.z() + (direction.z() * distance);
     ok           = (Abs(newZ) < fDz + kHalfConeTolerance);
   }
-  vecCore::MaskedAssign(distance, distance < 0., Float_t(kInfLength));
+  vecCore__MaskedAssignFunc(distance, distance < 0., Float_t(kInfLength));
 
   if (checkPhiTreatment<ConeTypes::UniversalCone>(cone)) {
     Float_t hitx(0), hity(0), hitz(0);
     Bool_t insector = Backend::kFalse;
-    vecCore::MaskedAssign(hitx, distance < kInfLength, point.x() + distance * direction.x());
-    vecCore::MaskedAssign(hity, distance < kInfLength, point.y() + distance * direction.y());
-    vecCore::MaskedAssign(hitz, distance < kInfLength, point.z() + distance * direction.z());
+    vecCore__MaskedAssignFunc(hitx, distance < kInfLength, point.x() + distance * direction.x());
+    vecCore__MaskedAssignFunc(hity, distance < kInfLength, point.y() + distance * direction.y());
+    vecCore__MaskedAssignFunc(hitz, distance < kInfLength, point.z() + distance * direction.z());
 
     PointInCyclicalSector<Backend, ConeTypes::UniversalCone, UnplacedCone, false, true>(cone, hitx, hity, insector);
     ok &= ((insector) && (distance < kInfLength));
@@ -508,7 +508,7 @@ bool DetectIntersectionAndCalculateDistanceToConicalSurface<kScalar, false, true
                                                                direction);
 
     if (!checkPhiTreatment<ConeTypes::UniversalCone>(cone)) {
-      vecCore::MaskedAssign(distance, isOnSurfaceAndMovingInside,
+      vecCore__MaskedAssignFunc(distance, isOnSurfaceAndMovingInside,
                             Float_t(0.));
       done |= isOnSurfaceAndMovingInside;
       if (vecCore::MaskFull(done))
@@ -517,7 +517,7 @@ bool DetectIntersectionAndCalculateDistanceToConicalSurface<kScalar, false, true
       Bool_t insector(false);
       PointInCyclicalSector<Backend, ConeTypes::UniversalCone, UnplacedCone, false, true>(
           cone, point.x(), point.y(), insector);
-      vecCore::MaskedAssign(distance, insector && isOnSurfaceAndMovingInside,
+      vecCore__MaskedAssignFunc(distance, insector && isOnSurfaceAndMovingInside,
                             Float_t(0.));
       done |= (insector && isOnSurfaceAndMovingInside);
       if (vecCore::MaskFull(done))
@@ -535,7 +535,7 @@ bool DetectIntersectionAndCalculateDistanceToConicalSurface<kScalar, false, true
       done     = isOnSurfaceAndMovingOutside;
       return done;
     }
-    // vecCore::MaskedAssign(distance, isOnSurfaceAndMovingOutside,
+    // vecCore__MaskedAssignFunc(distance, isOnSurfaceAndMovingOutside,
     //                    Float_t(0.));
     // done |= isOnSurfaceAndMovingOutside;
     // if (vecCore::MaskFull(done))
@@ -549,7 +549,7 @@ bool DetectIntersectionAndCalculateDistanceToConicalSurface<kScalar, false, true
       done     = (insector && isOnSurfaceAndMovingOutside);
       return done;
     }
-    // vecCore::MaskedAssign(distance, insector && isOnSurfaceAndMovingOutside,
+    // vecCore__MaskedAssignFunc(distance, insector && isOnSurfaceAndMovingOutside,
     //                    Float_t(0.));
     // done |= (insector && isOnSurfaceAndMovingOutside);
     // if (vecCore::MaskFull(done))
@@ -601,9 +601,9 @@ bool DetectIntersectionAndCalculateDistanceToConicalSurface<kScalar, false, true
       distance = (c / (-b + delta));
 
     // {
-    // vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b > 0.),
+    // vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b > 0.),
     //                     (-b - delta) / NonZero(a));
-    // vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b < 0.),
+    // vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b < 0.),
     //                    (c / (-b + delta)));
     //}
   }
@@ -644,14 +644,14 @@ bool DetectIntersectionAndCalculateDistanceToConicalSurface<kScalar, false, true
     Float_t delta = Sqrt(vecCore::math::Abs(d2));
 
     if (ForDistToIn) {
-      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b > 0.),
+      vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b > 0.),
                             (-b - delta) / NonZero(a));
-      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b < 0.),
+      vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b < 0.),
                             (c / (-b + delta)));
     } else {
-      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b < 0.),
+      vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b < 0.),
                             (-b + delta) / NonZero(a));
-      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b >= 0.),
+      vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b >= 0.),
                             (c / (-b - delta)));
     }
 
@@ -661,16 +661,16 @@ bool DetectIntersectionAndCalculateDistanceToConicalSurface<kScalar, false, true
     ok = (Abs(newZ) < fDz + kHalfConeTolerance);
   }
 */
-  // vecCore::MaskedAssign(distance, distance < 0., Float_t(kInfLength));
+  // vecCore__MaskedAssignFunc(distance, distance < 0., Float_t(kInfLength));
 
   if (checkPhiTreatment<ConeTypes::UniversalCone>(cone)) {
     Float_t hitx(0), hity(0); //, hitz(0);
     Bool_t insector = false;  // = Backend::kFalse;
-    // vecCore::MaskedAssign(hitx, distance < kInfLength,
+    // vecCore__MaskedAssignFunc(hitx, distance < kInfLength,
     //                    point.x() + distance * direction.x());
-    // vecCore::MaskedAssign(hity, distance < kInfLength,
+    // vecCore__MaskedAssignFunc(hity, distance < kInfLength,
     //                    point.y() + distance * direction.y());
-    // vecCore::MaskedAssign(hitz, distance < kInfLength,
+    // vecCore__MaskedAssignFunc(hitz, distance < kInfLength,
     //   point.z() + distance * direction.z());
     hitx = point.x() + distance * direction.x();
     hity = point.y() + distance * direction.y();
@@ -707,7 +707,7 @@ bool DetectIntersectionAndCalculateDistanceToConicalSurface<kScalar, false, fals
                                                                direction);
 
     if (!checkPhiTreatment<ConeTypes::UniversalCone>(cone)) {
-      vecCore::MaskedAssign(distance, isOnSurfaceAndMovingInside,
+      vecCore__MaskedAssignFunc(distance, isOnSurfaceAndMovingInside,
                             Float_t(0.));
       done |= isOnSurfaceAndMovingInside;
       if (vecCore::MaskFull(done))
@@ -716,7 +716,7 @@ bool DetectIntersectionAndCalculateDistanceToConicalSurface<kScalar, false, fals
       Bool_t insector(false);
       PointInCyclicalSector<Backend, ConeTypes::UniversalCone, UnplacedCone, false, true>(
           cone, point.x(), point.y(), insector);
-      vecCore::MaskedAssign(distance, insector && isOnSurfaceAndMovingInside,
+      vecCore__MaskedAssignFunc(distance, insector && isOnSurfaceAndMovingInside,
                             Float_t(0.));
       done |= (insector && isOnSurfaceAndMovingInside);
       if (vecCore::MaskFull(done))
@@ -729,7 +729,7 @@ bool DetectIntersectionAndCalculateDistanceToConicalSurface<kScalar, false, fals
   Bool_t isOnSurfaceAndMovingOutside = IsMovingOutsideConicalSurface<kScalar, false>(cone, point, direction);
 
   if (!checkPhiTreatment<ConeTypes::UniversalCone>(cone)) {
-    // vecCore::MaskedAssign(distance, isOnSurfaceAndMovingOutside,Float_t(0.));
+    // vecCore__MaskedAssignFunc(distance, isOnSurfaceAndMovingOutside,Float_t(0.));
     if (isOnSurfaceAndMovingOutside) {
       distance = 0.;
       done     = isOnSurfaceAndMovingOutside;
@@ -742,7 +742,7 @@ bool DetectIntersectionAndCalculateDistanceToConicalSurface<kScalar, false, fals
     Bool_t insector(false);
     PointInCyclicalSector<kScalar, ConeTypes::UniversalCone, UnplacedCone, false, true>(cone, point.x(), point.y(),
                                                                                         insector);
-    // vecCore::MaskedAssign(distance, insector && isOnSurfaceAndMovingOutside,Float_t(0.));
+    // vecCore__MaskedAssignFunc(distance, insector && isOnSurfaceAndMovingOutside,Float_t(0.));
     if (insector && isOnSurfaceAndMovingOutside) {
       distance = 0.;
       done |= insector && isOnSurfaceAndMovingOutside;
@@ -792,14 +792,14 @@ bool DetectIntersectionAndCalculateDistanceToConicalSurface<kScalar, false, fals
 
     Float_t delta = Sqrt(vecCore::math::Abs(d2));
     if (ForDistToIn) {
-      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b > 0.),
+      vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b > 0.),
                             (c / (-b - delta)));
-      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b < 0.),
+      vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b < 0.),
                             (-b + delta) / NonZero(a));
     } else {
-      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b > 0.),
+      vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b > 0.),
                             (-b - delta) / NonZero(a));
-      vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b < 0.),
+      vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b < 0.),
                             (c / (-b + delta)));
     }
 
@@ -852,17 +852,17 @@ bool DetectIntersectionAndCalculateDistanceToConicalSurface<kScalar, false, fals
   // Float_t delta = Sqrt(vecCore::math::Abs(d2));
   /*
   if (ForDistToIn) {
-    vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b > 0.),
+    vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b > 0.),
                           (-b - delta) / NonZero(a));
-    vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b < 0.),
+    vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b < 0.),
                           (c / (-b + delta)));
   } else {
 
   */
 
-  // vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b < 0.),
+  // vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b < 0.),
   //                     (-b + delta) / NonZero(a));
-  // vecCore::MaskedAssign(distance, !done && d2 >= 0. && (b >= 0.),
+  // vecCore__MaskedAssignFunc(distance, !done && d2 >= 0. && (b >= 0.),
   //                    (c / (-b - delta)));
 
   //}
@@ -874,16 +874,16 @@ bool DetectIntersectionAndCalculateDistanceToConicalSurface<kScalar, false, fals
   ok           = (Abs(newZ) < fDz + kHalfConeTolerance);
 
   //}
-  // vecCore::MaskedAssign(distance, distance < 0., Float_t(kInfLength));
+  // vecCore__MaskedAssignFunc(distance, distance < 0., Float_t(kInfLength));
 
   if (checkPhiTreatment<ConeTypes::UniversalCone>(cone)) {
     Float_t hitx(0), hity(0); //, hitz(0);
     Bool_t insector = false;  // = Backend::kFalse;
-                              // vecCore::MaskedAssign(hitx, distance < kInfLength,
+                              // vecCore__MaskedAssignFunc(hitx, distance < kInfLength,
                               //                     point.x() + distance * direction.x());
-    // vecCore::MaskedAssign(hity, distance < kInfLength,
+    // vecCore__MaskedAssignFunc(hity, distance < kInfLength,
     //                    point.y() + distance * direction.y());
-    // vecCore::MaskedAssign(hitz, distance < kInfLength,
+    // vecCore__MaskedAssignFunc(hitz, distance < kInfLength,
     //                    point.z() + distance * direction.z());
     hitx = point.x() + distance * direction.x();
     hity = point.y() + distance * direction.y();
@@ -939,7 +939,7 @@ static void DistanceToOutKernel(UnplacedCone const &cone, Vector3D<typename Back
 
   //=== Next, check all dimensions of the cone, whether points are inside -->
   // return -1
-  vecCore::MaskedAssign(distance, !done, Float_t(-1.0));
+  vecCore__MaskedAssignFunc(distance, !done, Float_t(-1.0));
 
   // For points inside z-range, return -1
   Bool_t outside = distz > kHalfConeTolerance || rsq > outerRadOrTol2;
@@ -966,23 +966,23 @@ static void DistanceToOutKernel(UnplacedCone const &cone, Vector3D<typename Back
   Bool_t isOnZPlaneAndMovingOutside(false);
   isOnZPlaneAndMovingOutside = !outside && ((isGoingUp && point.z() > 0. && Abs(distz) < kHalfTolerance) ||
                                             (!isGoingUp && point.z() < 0. && Abs(distz) < kHalfTolerance));
-  vecCore::MaskedAssign(distance, !done && isOnZPlaneAndMovingOutside, Float_t(0.));
+  vecCore__MaskedAssignFunc(distance, !done && isOnZPlaneAndMovingOutside, Float_t(0.));
   done |= isOnZPlaneAndMovingOutside;
   if (vecCore::MaskFull(done)) return;
 
   //=== Next step: check if z-plane is the right entry point (both r,phi
   // should be valid at z-plane crossing)
-  vecCore::MaskedAssign(distance, !done, Float_t(kInfLength));
+  vecCore__MaskedAssignFunc(distance, !done, Float_t(kInfLength));
 
   Precision fDz   = cone.GetDz();
   Float_t dirZInv = 1. / NonZero(direction.z());
-  vecCore::MaskedAssign(distance, isGoingUp, (fDz - point.z()) * dirZInv);
-  vecCore::MaskedAssign(distance, isGoingDown, (-fDz - point.z()) * dirZInv);
+  vecCore__MaskedAssignFunc(distance, isGoingUp, (fDz - point.z()) * dirZInv);
+  vecCore__MaskedAssignFunc(distance, isGoingDown, (-fDz - point.z()) * dirZInv);
   /*
       if(vecCore::MaskFull(isGoingUp))
-        vecCore::MaskedAssign(distance, isGoingUp, (fDz - point.z()) * dirZInv);
+        vecCore__MaskedAssignFunc(distance, isGoingUp, (fDz - point.z()) * dirZInv);
       else
-          vecCore::MaskedAssign(distance, isGoingDown, (-fDz - point.z()) * dirZInv);
+          vecCore__MaskedAssignFunc(distance, isGoingDown, (-fDz - point.z()) * dirZInv);
   */
   /*
   //if (!checkPhiTreatment<ConeType>(cone) && !checkRminTreatment<ConeType>(cone)){
@@ -1015,7 +1015,7 @@ static void DistanceToOutKernel(UnplacedCone const &cone, Vector3D<typename Back
     Vector3D<Float_t> normal1 = cone.GetWedge().GetNormal1();
     Vector3D<Float_t> normal2 = cone.GetWedge().GetNormal2();
     Bool_t cond = (isOnStartPhi && direction.Dot(-normal1) > 0.) || (isOnEndPhi && direction.Dot(-normal2) > 0.);
-    vecCore::MaskedAssign(distance, !done && cond, Float_t(0.));
+    vecCore__MaskedAssignFunc(distance, !done && cond, Float_t(0.));
     done |= cond;
     if (vecCore::MaskFull(done)) return;
 
@@ -1037,7 +1037,7 @@ static void DistanceToOutKernel(UnplacedCone const &cone, Vector3D<typename Back
       vecCore::MaskedAssign(distance, ok_phi && dist_phi < distance, dist_phi);
     }
   }
-  vecCore::MaskedAssign(distance, distance < 0. && Abs(distance) < kTolerance, Float_t(0.));
+  vecCore__MaskedAssignFunc(distance, distance < 0. && Abs(distance) < kTolerance, Float_t(0.));
 }
 
 // Specialized verison of DistanceToOut
@@ -1094,7 +1094,7 @@ void DistanceToOutKernel<kScalar>(UnplacedCone const &cone, Vector3D<Precision> 
   Bool_t isOnZPlaneAndMovingOutside(false);
   isOnZPlaneAndMovingOutside = !outside && ((isGoingUp && point.z() > 0. && Abs(distz) < kHalfTolerance) ||
                                             (!isGoingUp && point.z() < 0. && Abs(distz) < kHalfTolerance));
-  vecCore::MaskedAssign(distance, !done && isOnZPlaneAndMovingOutside, Float_t(0.));
+  vecCore__MaskedAssignFunc(distance, !done && isOnZPlaneAndMovingOutside, Float_t(0.));
   done |= isOnZPlaneAndMovingOutside;
   if (vecCore::MaskFull(done)) return;
 
@@ -1159,7 +1159,7 @@ void DistanceToOutKernel<kScalar>(UnplacedCone const &cone, Vector3D<Precision> 
     Vector3D<Float_t> normal1 = cone.GetWedge().GetNormal1();
     Vector3D<Float_t> normal2 = cone.GetWedge().GetNormal2();
     Bool_t cond = (isOnStartPhi && direction.Dot(-normal1) > 0.) || (isOnEndPhi && direction.Dot(-normal2) > 0.);
-    vecCore::MaskedAssign(distance, !done && cond, Float_t(0.));
+    vecCore__MaskedAssignFunc(distance, !done && cond, Float_t(0.));
     done |= cond;
     if (vecCore::MaskFull(done)) return;
 
@@ -1637,7 +1637,7 @@ struct ConeImplementation {
     //=== Next, check all dimensions of the cone, whether points are inside -->
     // return -1
 
-    vecCore::MaskedAssign(distance, !done, Float_t(-1.0));
+    vecCore__MaskedAssignFunc(distance, !done, Float_t(-1.0));
 
     // For points inside z-range, return -1
     Bool_t inside = distz < -kHalfConeTolerance;
@@ -1659,7 +1659,7 @@ struct ConeImplementation {
 
     //=== Next step: check if z-plane is the right entry point (both r,phi
     // should be valid at z-plane crossing)
-    vecCore::MaskedAssign(distance, !done, Float_t(kInfLength));
+    vecCore__MaskedAssignFunc(distance, !done, Float_t(kInfLength));
 
     distz /= NonZero(Abs(dir.z()));
 
@@ -1670,7 +1670,7 @@ struct ConeImplementation {
     // kHalfTolerance) ||
     isOnZPlaneAndMovingInside = !inside && ((isGoingUp && point.z() < 0. && Abs(distz) < kHalfTolerance) ||
                                             (!isGoingUp && point.z() > 0. && Abs(distz) < kHalfTolerance));
-    vecCore::MaskedAssign(distz, !done && isOnZPlaneAndMovingInside, Float_t(0.));
+    vecCore__MaskedAssignFunc(distz, !done && isOnZPlaneAndMovingInside, Float_t(0.));
 
 #ifdef EDGE_POINTS
     Bool_t newCond = (IsOnRing<Backend, false, true>(cone, point)) || (IsOnRing<Backend, true, true>(cone, point)) ||
@@ -1788,7 +1788,7 @@ struct ConeImplementation {
 
     // Next, check all dimensions of the cone, whether points are inside -->
     // return -1
-    vecCore::MaskedAssign(safety, !done, Float_t(-1.0));
+    vecCore__MaskedAssignFunc(safety, !done, Float_t(-1.0));
 
     // For points inside z-range, return -1
     Bool_t inside = distz < -kHalfConeTolerance;
@@ -1818,7 +1818,7 @@ struct ConeImplementation {
     // This will serve the case that the point is on the surface. So no need to
     // check
     // that the point is really on surface.
-    vecCore::MaskedAssign(safety, !done, Float_t(0.));
+    vecCore__MaskedAssignFunc(safety, !done, Float_t(0.));
 
     // Now if the point is neither inside nor on surface, then it should be
     // outside
@@ -1833,14 +1833,14 @@ struct ConeImplementation {
       safeDistInnerSurface = -SafeDistanceToConicalSurface<Backend, true>(cone, point);
     }
 
-    vecCore::MaskedAssign(safety, !done, Max(safeZ, Max(safeDistOuterSurface, safeDistInnerSurface)));
+    vecCore__MaskedAssignFunc(safety, !done, Max(safeZ, Max(safeDistOuterSurface, safeDistInnerSurface)));
 
     if (checkPhiTreatment<ConeType>(cone)) {
       Float_t safetyPhi = cone.GetWedge().SafetyToIn<Backend>(point);
-      vecCore::MaskedAssign(safety, !done, Max(safetyPhi, safety));
+      vecCore__MaskedAssignFunc(safety, !done, Max(safetyPhi, safety));
     }
 
-    vecCore::MaskedAssign(safety, vecCore::math::Abs(safety) < kTolerance, Float_t(0.));
+    vecCore__MaskedAssignFunc(safety, vecCore::math::Abs(safety) < kTolerance, Float_t(0.));
   }
 
   template <class Backend>
@@ -1895,7 +1895,7 @@ struct ConeImplementation {
 
     //=== Next, check all dimensions of the cone, whether points are inside -->
     // return -1
-    vecCore::MaskedAssign(safety, !done, Float_t(-1.0));
+    vecCore__MaskedAssignFunc(safety, !done, Float_t(-1.0));
 
     // For points outside z-range, return -1
     Bool_t outside = distz > kHalfConeTolerance;
@@ -1920,7 +1920,7 @@ struct ConeImplementation {
     // This will serve the case that the point is on the surface. So no need to
     // check
     // that the point is really on surface.
-    vecCore::MaskedAssign(safety, !done, Float_t(0.));
+    vecCore__MaskedAssignFunc(safety, !done, Float_t(0.));
 
     // Now if the point is neither outside nor on surface, then it should be
     // inside
@@ -1937,13 +1937,13 @@ struct ConeImplementation {
     } else {
     }
 
-    vecCore::MaskedAssign(safety, !done, Min(safeZ, Min(safeDistOuterSurface, safeDistInnerSurface)));
+    vecCore__MaskedAssignFunc(safety, !done, Min(safeZ, Min(safeDistOuterSurface, safeDistInnerSurface)));
 
     if (checkPhiTreatment<ConeType>(cone)) {
       Float_t safetyPhi = cone.GetWedge().SafetyToOut<Backend>(point);
-      vecCore::MaskedAssign(safety, !done, Min(safetyPhi, safety));
+      vecCore__MaskedAssignFunc(safety, !done, Min(safetyPhi, safety));
     }
-    vecCore::MaskedAssign(safety, vecCore::math::Abs(safety) < kTolerance, Float_t(0.));
+    vecCore__MaskedAssignFunc(safety, vecCore::math::Abs(safety) < kTolerance, Float_t(0.));
   }
 
   template <class Backend>
@@ -2017,16 +2017,16 @@ struct ConeImplementation {
     }
 
     // Chosing the correct surface
-    vecCore::MaskedAssign(norm.z(), (distMin == distZ) && (p.z() > 0.), 1.);
-    vecCore::MaskedAssign(norm.z(), (distMin == distZ) && (p.z() < 0.), -1.);
+    vecCore__MaskedAssignFunc(norm.z(), (distMin == distZ) && (p.z() > 0.), 1.);
+    vecCore__MaskedAssignFunc(norm.z(), (distMin == distZ) && (p.z() < 0.), -1.);
 
-    vecCore::MaskedAssign(norm, (distMin == distRMin), ConeUtilities::GetNormal<Backend, true>(cone, p));
-    vecCore::MaskedAssign(norm, (distMin == distRMax), ConeUtilities::GetNormal<Backend, false>(cone, p));
+    vecCore__MaskedAssignFunc(norm, (distMin == distRMin), (ConeUtilities::GetNormal<Backend, true>(cone, p)));
+    vecCore__MaskedAssignFunc(norm, (distMin == distRMax), (ConeUtilities::GetNormal<Backend, false>(cone, p)));
 
     Vector3D<Float_t> normal1 = cone.GetWedge().GetNormal1();
     Vector3D<Float_t> normal2 = cone.GetWedge().GetNormal2();
-    vecCore::MaskedAssign(norm, distMin == distPhi1, -normal1);
-    vecCore::MaskedAssign(norm, distMin == distPhi2, -normal2);
+    vecCore__MaskedAssignFunc(norm, distMin == distPhi1, -normal1);
+    vecCore__MaskedAssignFunc(norm, distMin == distPhi2, -normal2);
 
     norm.Normalize();
     return norm;
@@ -2062,41 +2062,41 @@ struct ConeImplementation {
     Vector3D<Float_t> endPhiNormal   = cone.GetWedge().GetNormal2();
 
     Vector3D<Float_t> approxNorm = ApproxSurfaceNormalKernel<Backend>(cone, p);
-    // vecCore::MaskedAssign(normal,!isOnSurface,
+    // vecCore__MaskedAssignFunc(normal,!isOnSurface,
     // ApproxSurfaceNormalKernel<Backend>(cone, p));
-    vecCore::MaskedAssign(normal.x(), !isOnSurface, approxNorm.x());
-    vecCore::MaskedAssign(normal.y(), !isOnSurface, approxNorm.y());
-    vecCore::MaskedAssign(normal.z(), !isOnSurface, approxNorm.z());
+    vecCore__MaskedAssignFunc(normal.x(), !isOnSurface, approxNorm.x());
+    vecCore__MaskedAssignFunc(normal.y(), !isOnSurface, approxNorm.y());
+    vecCore__MaskedAssignFunc(normal.z(), !isOnSurface, approxNorm.z());
 
     // Counting number of surfaces
-    vecCore::MaskedAssign(noSurfaces, isOnSurface && (isOnTopZPlane || isOnBottomZPlane), (noSurfaces + 1));
-    vecCore::MaskedAssign(noSurfaces, isOnSurface && (isOnInnerConicalSurface || isOnOuterConicalSurface),
-                          (noSurfaces + 1));
-    vecCore::MaskedAssign(noSurfaces, isOnSurface && (isOnStartPhi || isOnEndPhi), (noSurfaces + 1));
+    vecCore__MaskedAssignFunc(noSurfaces, isOnSurface && (isOnTopZPlane || isOnBottomZPlane), (noSurfaces + 1));
+    vecCore__MaskedAssignFunc(noSurfaces, isOnSurface && (isOnInnerConicalSurface || isOnOuterConicalSurface),
+                              (noSurfaces + 1));
+    vecCore__MaskedAssignFunc(noSurfaces, isOnSurface && (isOnStartPhi || isOnEndPhi), (noSurfaces + 1));
 
-    vecCore::MaskedAssign(normal.z(), isOnSurface && isOnTopZPlane, (normal.z() + 1.));
-    vecCore::MaskedAssign(normal.z(), isOnSurface && isOnBottomZPlane, (normal.z() - 1.));
+    vecCore__MaskedAssignFunc(normal.z(), isOnSurface && isOnTopZPlane, (normal.z() + 1.));
+    vecCore__MaskedAssignFunc(normal.z(), isOnSurface && isOnBottomZPlane, (normal.z() - 1.));
     normal.Normalize();
 
     innerConicalNormal.Normalize();
-    vecCore::MaskedAssign(normal.x(), isOnSurface && isOnInnerConicalSurface, normal.x() + innerConicalNormal.x());
-    vecCore::MaskedAssign(normal.y(), isOnSurface && isOnInnerConicalSurface, normal.y() + innerConicalNormal.y());
-    vecCore::MaskedAssign(normal.z(), isOnSurface && isOnInnerConicalSurface, normal.z() + innerConicalNormal.z());
+    vecCore__MaskedAssignFunc(normal.x(), isOnSurface && isOnInnerConicalSurface, normal.x() + innerConicalNormal.x());
+    vecCore__MaskedAssignFunc(normal.y(), isOnSurface && isOnInnerConicalSurface, normal.y() + innerConicalNormal.y());
+    vecCore__MaskedAssignFunc(normal.z(), isOnSurface && isOnInnerConicalSurface, normal.z() + innerConicalNormal.z());
 
     outerConicalNormal.Normalize();
-    vecCore::MaskedAssign(normal.x(), isOnSurface && isOnOuterConicalSurface, normal.x() + outerConicalNormal.x());
-    vecCore::MaskedAssign(normal.y(), isOnSurface && isOnOuterConicalSurface, normal.y() + outerConicalNormal.y());
-    vecCore::MaskedAssign(normal.z(), isOnSurface && isOnOuterConicalSurface, normal.z() + outerConicalNormal.z());
+    vecCore__MaskedAssignFunc(normal.x(), isOnSurface && isOnOuterConicalSurface, normal.x() + outerConicalNormal.x());
+    vecCore__MaskedAssignFunc(normal.y(), isOnSurface && isOnOuterConicalSurface, normal.y() + outerConicalNormal.y());
+    vecCore__MaskedAssignFunc(normal.z(), isOnSurface && isOnOuterConicalSurface, normal.z() + outerConicalNormal.z());
 
     // Handling start phi
-    vecCore::MaskedAssign(normal.x(), isOnSurface && isOnStartPhi, normal.x() - startPhiNormal.x());
-    vecCore::MaskedAssign(normal.y(), isOnSurface && isOnStartPhi, normal.y() - startPhiNormal.y());
-    vecCore::MaskedAssign(normal.z(), isOnSurface && isOnStartPhi, normal.z() - startPhiNormal.z());
+    vecCore__MaskedAssignFunc(normal.x(), isOnSurface && isOnStartPhi, normal.x() - startPhiNormal.x());
+    vecCore__MaskedAssignFunc(normal.y(), isOnSurface && isOnStartPhi, normal.y() - startPhiNormal.y());
+    vecCore__MaskedAssignFunc(normal.z(), isOnSurface && isOnStartPhi, normal.z() - startPhiNormal.z());
 
     // Handling End phi
-    vecCore::MaskedAssign(normal.x(), isOnSurface && isOnEndPhi, normal.x() - endPhiNormal.x());
-    vecCore::MaskedAssign(normal.y(), isOnSurface && isOnEndPhi, normal.y() - endPhiNormal.y());
-    vecCore::MaskedAssign(normal.z(), isOnSurface && isOnEndPhi, normal.z() - endPhiNormal.z());
+    vecCore__MaskedAssignFunc(normal.x(), isOnSurface && isOnEndPhi, normal.x() - endPhiNormal.x());
+    vecCore__MaskedAssignFunc(normal.y(), isOnSurface && isOnEndPhi, normal.y() - endPhiNormal.y());
+    vecCore__MaskedAssignFunc(normal.z(), isOnSurface && isOnEndPhi, normal.z() - endPhiNormal.z());
 
     normal.Normalize();
     valid = (noSurfaces > 0.);

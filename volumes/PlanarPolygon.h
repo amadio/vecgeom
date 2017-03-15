@@ -483,13 +483,13 @@ inline Precision PlanarPolygon::SafetySqr(Vector3D<Precision> const &point, int 
     const auto cond2 = (!cond1 && (u >= Real_v(0.)));
 
     if (!vecCore::MaskEmpty(cond1)) {
-      vecCore::MaskedAssign(dpx, cond1, px - p2[0]);
-      vecCore::MaskedAssign(dpy, cond1, py - p2[1]);
+      vecCore__MaskedAssignFunc(dpx, cond1, px - p2[0]);
+      vecCore__MaskedAssignFunc(dpy, cond1, py - p2[1]);
     }
     if (!vecCore::MaskEmpty(cond2)) {
       const auto invlsq = 1. / lsq;
-      vecCore::MaskedAssign(dpx, cond2, dpx - u * dx * invlsq);
-      vecCore::MaskedAssign(dpy, cond2, dpy - u * dy * invlsq);
+      vecCore__MaskedAssignFunc(dpx, cond2, dpx - u * dx * invlsq);
+      vecCore__MaskedAssignFunc(dpy, cond2, dpy - u * dy * invlsq);
     }
     const auto ssq = dpx * dpx + dpy * dpy;
 

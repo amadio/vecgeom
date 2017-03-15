@@ -323,7 +323,7 @@ struct TrdImplementation {
       iny   = disty < MakeMinusTolerant<true>(0.);
     }
     Bool_v inside = inx & iny & inz;
-    vecCore::MaskedAssign(distance, inside, Real_v(-1.0));
+    vecCore__MaskedAssignFunc(distance, inside, Real_v(-1.0));
     Bool_v done = inside;
     Bool_v okz  = point.z() * direction.z() < 0;
     okz &= !inz;
@@ -480,7 +480,7 @@ struct TrdImplementation {
       vecCore::MaskedAssign(distance, oky, disty);
     } else {
       Real_v plane = trd.fDY1;
-      vecCore::MaskedAssign(plane, dir.y() < 0.0, Real_v(-trd.fDY1));
+      vecCore__MaskedAssignFunc(plane, dir.y() < 0.0, Real_v(-trd.fDY1));
       disty       = (plane - point.y()) / dir.y();
       Real_v zhit = point.z() + disty * dir.z();
       Real_v xhit = point.x() + disty * dir.x();
@@ -488,8 +488,8 @@ struct TrdImplementation {
       oky         = vecCore::math::Abs(xhit) < dx && vecCore::math::Abs(zhit) < trd.fDZ;
       vecCore::MaskedAssign(distance, oky, disty);
     }
-    vecCore::MaskedAssign(distance, vecCore::math::Abs(distance) < kHalfTolerance, Real_v(0.0));
-    vecCore::MaskedAssign(distance, out, Real_v(-1.0));
+    vecCore__MaskedAssignFunc(distance, vecCore::math::Abs(distance) < kHalfTolerance, Real_v(0.0));
+    vecCore__MaskedAssignFunc(distance, out, Real_v(-1.0));
   }
 
   template <typename Real_v>

@@ -160,7 +160,7 @@ void CutTubeImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vecto
                                      (inside_cutplanes == EInside::kSurface && instart != EInside::kOutside),
                         inside_cutplanes);
   // Points already inside have to return negative distance
-  vecCore::MaskedAssign(distance, instart == EInside::kInside, Real_v(-1.));
+  vecCore__MaskedAssignFunc(distance, instart == EInside::kInside, Real_v(-1.));
 #endif
 
   Bool_v inside;
@@ -179,7 +179,7 @@ void CutTubeImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vecto
 
   // Propagate with dplanes only the particles that are hitting
   Vector3D<Real_v> propagated = point;
-  vecCore::MaskedAssign(dplanes, !hitplanes, Real_v(0.));
+  vecCore__MaskedAssignFunc(dplanes, !hitplanes, Real_v(0.));
   if (vecCore::EarlyReturnAllowed()) {
     if (!vecCore::MaskEmpty(hitplanes)) {
       propagated += dplanes * direction;
@@ -212,7 +212,7 @@ void CutTubeImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vecto
   if (vecCore::EarlyReturnAllowed()) {
     if (vecCore::MaskFull(done)) { // Some particles hit top/bottom
       // The line below is needed for the convention
-      vecCore::MaskedAssign(distance, vecCore::math::Abs(distance) < Real_v(kTolerance), Real_v(0.));
+      vecCore__MaskedAssignFunc(distance, vecCore::math::Abs(distance) < Real_v(kTolerance), Real_v(0.));
       return;
     }
   }
@@ -226,11 +226,11 @@ void CutTubeImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vecto
   Real_v dtube = InfinityLength<Real_v>();
   TubeImplementation<TubeTypes::UniversalTube>::DistanceToIn<Real_v>(unplaced.GetTubeStruct(), propagated, direction,
                                                                      stepMax, dtube);
-  vecCore::MaskedAssign(dtube, dexit < dtube, InfinityLength<Real_v>());
-  vecCore::MaskedAssign(distance, !done && (dtube + dplanes) < stepMax, dtube + dplanes);
+  vecCore__MaskedAssignFunc(dtube, dexit < dtube, InfinityLength<Real_v>());
+  vecCore__MaskedAssignFunc(distance, !done && (dtube + dplanes) < stepMax, dtube + dplanes);
 // The line below is needed for the convention
 #if USE_CONV_FROM_BOUNDARY == 1
-//  vecCore::MaskedAssign(distance, vecCore::math::Abs(distance) < Real_v(kTolerance), Real_v(0.));
+//  vecCore__MaskedAssignFunc(distance, vecCore::math::Abs(distance) < Real_v(kTolerance), Real_v(0.));
 #endif
 }
 
@@ -251,7 +251,7 @@ void CutTubeImplementation::DistanceToOut(UnplacedStruct_t const &unplaced, Vect
                                                                       stepMax, dtube);
   vecCore::MaskedAssign(distance, dtube < distance, dtube);
   // The line below is needed for the start on boundary convention
-  //  vecCore::MaskedAssign(distance, vecCore::math::Abs(distance) < Real_v(kTolerance), Real_v(0.));
+  //  vecCore__MaskedAssignFunc(distance, vecCore::math::Abs(distance) < Real_v(kTolerance), Real_v(0.));
 }
 
 //______________________________________________________________________________
@@ -269,7 +269,7 @@ void CutTubeImplementation::SafetyToIn(UnplacedStruct_t const &unplaced, Vector3
   // The safety is the maximum of the 2 values
   vecCore::MaskedAssign(safety, saftube > safety, saftube);
   // The line below is needed for the rounding convention
-  //  vecCore::MaskedAssign(safety, vecCore::math::Abs(safety) < Real_v(kTolerance), Real_v(0.));
+  //  vecCore__MaskedAssignFunc(safety, vecCore::math::Abs(safety) < Real_v(kTolerance), Real_v(0.));
 }
 
 //______________________________________________________________________________
@@ -286,7 +286,7 @@ void CutTubeImplementation::SafetyToOut(UnplacedStruct_t const &unplaced, Vector
   // The safety is the minimum of the 2 values
   vecCore::MaskedAssign(safety, saftube < safety, saftube);
   // The line below is needed for the rounding convention
-  //  vecCore::MaskedAssign(safety, vecCore::math::Abs(safety) < Real_v(kTolerance), Real_v(0.));
+  //  vecCore__MaskedAssignFunc(safety, vecCore::math::Abs(safety) < Real_v(kTolerance), Real_v(0.));
 }
 
 //______________________________________________________________________________
