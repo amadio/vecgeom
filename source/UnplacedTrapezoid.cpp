@@ -21,13 +21,6 @@ UnplacedTrapezoid::UnplacedTrapezoid(TrapCorners const corners) : fTrap()
 {
   // fill data members
   fromCornersToParameters(corners);
-
-  // check planarity of all four sides
-  // TODO: this needs a proper logger treatment as per geantv conventions
-  bool good = MakePlanes(corners);
-  if (!good) printf("***** WARNING in Trapezoid constructor: corners provided fail coplanarity tests.");
-
-  fGlobalConvexity = true;
 }
 
 VECGEOM_CUDA_HEADER_BOTH
@@ -380,6 +373,13 @@ void UnplacedTrapezoid::fromCornersToParameters(TrapCorners const pt)
 
   fTrap.fTheta = atan(sqrt(fTrap.fTthetaSphi * fTrap.fTthetaSphi + fTrap.fTthetaCphi * fTrap.fTthetaCphi));
   fTrap.fPhi   = atan2(fTrap.fTthetaSphi, fTrap.fTthetaCphi);
+
+  // check planarity of all four sides
+  // TODO: this needs a proper logger treatment as per geantv conventions
+  bool good = MakePlanes(pt);
+  if (!good) printf("***** WARNING in Trapezoid constructor: corners provided fail coplanarity tests.");
+
+  fGlobalConvexity = true;
 }
 
 //////////////////////////////////////////////////////////////////////////////
