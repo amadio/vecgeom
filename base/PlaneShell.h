@@ -325,28 +325,34 @@ public:
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECGEOM_CUDA_HEADER_BOTH
-  Vector3D<Real_v> NormalKernel(Vector3D<Real_v> const &point, typename vecCore::Mask_v<Real_v> &valid) const
+  Real_v NormalKernel(Vector3D<Real_v> const &point, Vector3D<Real_v> &normal) const
   {
-    Vector3D<Real_v> normal(0., 0., 0.);
+    Real_v safety = -InfinityLength<Real_v>();
 
     // vectorizable loop
     Real_v dist[N];
     for (int i = 0; i < N; ++i) {
-      dist[i] = -(this->fA[i] * point.x() + this->fB[i] * point.y() + this->fC[i] * point.z() + this->fD[i]);
+      dist[i] = (this->fA[i] * point.x() + this->fB[i] * point.y() + this->fC[i] * point.z() + this->fD[i]);
     }
 
     // non-vectorizable part
-    constexpr double delta = 1000. * kTolerance;
-    for (int i = 0; i < N; ++i) {
-      vecCore::MaskedAssign(normal[0], dist[i] <= delta, normal[0] + this->fA[i]);
-      vecCore::MaskedAssign(normal[1], dist[i] <= delta, normal[1] + this->fB[i]);
-      vecCore::MaskedAssign(normal[2], dist[i] <= delta, normal[2] + this->fC[i]);
-      // valid becomes false if any point is away from surface by more than delta
-      valid = valid && dist[i] >= -delta;
+    for (int i = 0; i < 4; ++i) {
+      Real_v saf_i = dist[i] - safety;
+
+      // if more planes found as far (within tolerance) as the best one so far *and not fully inside*, add its normal
+      vecCore::MaskedAssign(normal, Abs(saf_i) < kHalfTolerance && dist[i] >= -kHalfTolerance,
+                            normal + Vector3D<Real_v>(this->fA[i], this->fB[i], this->fC[i]));
+
+      // this one is farther than our previous one -- update safety and normal
+      vecCore::MaskedAssign(normal, saf_i > 0.0, Vector3D<Real_v>(this->fA[i], this->fB[i], this->fC[i]));
+      vecCore::MaskedAssign(safety, saf_i > 0.0, dist[i]);
+      // std::cout<<"dist["<< i <<"]="<< dist[i] <<", saf_i="<< saf_i <<", safety="<< safety <<", normal="<< normal
+      // <<"\n";
     }
 
     // Note: this could be (rarely) a non-normalized normal vector (when point is close to 2 planes)
-    return normal;
+    // std::cout<<"Return from PlaneShell::Normal: safety="<< safety <<", normal="<< normal <<"\n";
+    return safety;
   }
 };
 

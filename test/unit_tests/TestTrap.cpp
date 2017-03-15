@@ -138,12 +138,12 @@ bool TestTrap()
 
   // test GetPointOnSurface()
   vecgeom::Vector3D<vecgeom::Precision> ponsurf;
-  for (int i = 0; i < 1000000; ++i) {
+  for (int i = 0; i < 100000; ++i) {
     ponsurf = trap1.GetPointOnSurface();
     assert(trap1.Inside(ponsurf) == vecgeom::EInside::kSurface);
     assert(trap1.Normal(ponsurf, normal) && ApproxEqual(normal.Mag2(), 1.0));
   }
-  for (int i = 0; i < 1000000; ++i) {
+  for (int i = 0; i < 100000; ++i) {
     ponsurf = trap2.GetPointOnSurface();
     assert(trap2.Inside(ponsurf) == vecgeom::EInside::kSurface);
     assert(trap2.Normal(ponsurf, normal) && ApproxEqual(normal.Mag2(), 1.0));
@@ -635,7 +635,7 @@ void TestVECGEOM375()
   using Vec_t = vecgeom::Vector3D<double>;
   Vec_t ponsurf, normal;
   // check normal for a million points
-  for (int i = 0; i < 1000000; ++i) {
+  for (int i = 0; i < 100000; ++i) {
     ponsurf = t.GetPointOnSurface();
     if (t.Inside(ponsurf) != vecgeom::EInside::kSurface) {
       double dist = vecCore::math::Max(t.SafetyToIn(ponsurf), t.SafetyToOut(ponsurf));
