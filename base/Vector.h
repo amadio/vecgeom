@@ -128,11 +128,11 @@ public:
       assert(fAllocated && "Trying to push on a 'fixed' size vector (memory "
                            "not allocated by Vector itself)");
       fMemorySize    = fMemorySize << 1;
-      Type *fDataNew = new Type[fMemorySize];
+      Type *newdata = new Type[fMemorySize];
       for (size_t i = 0; i < fSize; ++i)
-        fDataNew[i] = fData[i];
+        newdata[i] = fData[i];
       delete[] fData;
-      fData = fDataNew;
+      fData = newdata;
     }
     fData[fSize] = item;
     fSize++;
