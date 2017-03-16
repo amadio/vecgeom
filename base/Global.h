@@ -16,6 +16,7 @@
 
 #include "base/Cuda.h"
 #include "base/Math.h"
+#include <type_traits>
 
 using uint = unsigned int;
 
@@ -137,13 +138,13 @@ bool ToBool<bool>(bool mask)
 // used in case the third argument are expensive expressions
 // (such as function calls or arithmetic operations)
 // FIXME: move this to VecCore
-#define vecCore__MaskedAssignFunc(Dest, Mask, FuncCallExpr) \
-  {                                                         \
-    if (vecCore::VectorSize<decltype(Dest)>() == 1) {       \
-      if (vecgeom::ToBool(Mask)) Dest = FuncCallExpr;       \
-    } else {                                                \
-      vecCore::MaskedAssign(Dest, Mask, FuncCallExpr);      \
-    }                                                       \
+#define vecCore__MaskedAssignFunc(Dest, Mask, FuncCallExpr)                                 \
+  {                                                                                         \
+    if (vecCore::VectorSize<typename std::remove_reference<decltype(Dest)>::type>() == 1) { \
+      if (vecgeom::ToBool(Mask)) Dest = FuncCallExpr;                                       \
+    } else {                                                                                \
+      vecCore::MaskedAssign(Dest, Mask, FuncCallExpr);                                      \
+    }                                                                                       \
   }
 
 } // end inline namespace
