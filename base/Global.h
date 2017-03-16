@@ -117,7 +117,7 @@ namespace {
 template <typename T>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-bool ToBool(T done)
+bool ToBool(T /* mask */)
 {
   return false;
 }
@@ -126,9 +126,9 @@ bool ToBool(T done)
 template <>
 VECGEOM_FORCE_INLINE
 VECGEOM_CUDA_HEADER_BOTH
-bool ToBool<bool>(bool done)
+bool ToBool<bool>(bool mask)
 {
-  return done;
+  return mask;
 #pragma GCC diagnostic pop
 }
 } // end anonymous namespace
