@@ -163,6 +163,10 @@ public:
 
   VECGEOM_CUDA_HEADER_BOTH
   VECGEOM_FORCE_INLINE
+  size_t capacity() const { return fMemorySize; }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_FORCE_INLINE
   void resize(size_t newsize, Type value)
   {
     Type *temp = new Type[newsize];
