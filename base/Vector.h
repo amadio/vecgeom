@@ -42,10 +42,10 @@ public:
   using value_type = Type;
 
   VECGEOM_CUDA_HEADER_BOTH
-  Vector() : fData(new Type[1]), fSize(0), fMemorySize(1), fAllocated(true) {}
+  Vector() : Vector(5) {}
 
   VECGEOM_CUDA_HEADER_BOTH
-  Vector(const int maxsize) : fData(new Type[maxsize]), fSize(0), fMemorySize(maxsize), fAllocated(true) {}
+  Vector(const int maxsize) : fData(nullptr), fSize(0), fMemorySize(maxsize), fAllocated(true) { reserve(maxsize); }
 
   VECGEOM_CUDA_HEADER_BOTH
   Vector(Type *const vec, const int sz) : fData(vec), fSize(sz), fMemorySize(sz), fAllocated(false) {}
@@ -68,20 +68,9 @@ public:
   Vector &operator=(Vector const &other)
   {
     if (&other != this) {
-      fSize       = other.fSize;
-      fMemorySize = other.fMemorySize;
-      fAllocated  = other.fAllocated;
-      if (fAllocated) {
-        if (fMemorySize > 0) {
-          delete[] fData;
-          fData = new Type[fMemorySize];
-          for (size_t i = 0; i < fSize; ++i)
-            fData[i]    = other.fData[i];
-        } else {
-          fData = nullptr;
-        }
-      } else
-        fData = other.fData;
+      reserve(other.fMemorySize);
+      for (size_t i = 0; i < fSize; ++i)
+        push_back(other.fData[i]);
     }
     return *this;
   }
@@ -107,8 +96,8 @@ public:
   void clear()
   {
     if (fAllocated) {
-      delete[] fData;
-      fData = new Type[fMemorySize];
+      for (size_t i = 0; i < fSize; ++i)
+        Internal::AllocTrait<Type>::Destroy(fData[i]);
     }
     fSize = 0;
   }
@@ -127,14 +116,9 @@ public:
     if (fSize == fMemorySize) {
       assert(fAllocated && "Trying to push on a 'fixed' size vector (memory "
                            "not allocated by Vector itself)");
-      fMemorySize    = fMemorySize << 1;
-      Type *newdata = new Type[fMemorySize];
-      for (size_t i = 0; i < fSize; ++i)
-        newdata[i] = fData[i];
-      delete[] fData;
-      fData = newdata;
+      reserve(fMemorySize << 1);
     }
-    fData[fSize] = item;
+    new (&fData[fSize]) Type(item);
     fSize++;
   }
 
@@ -169,27 +153,35 @@ public:
   VECGEOM_FORCE_INLINE
   void resize(size_t newsize, Type value)
   {
-    Type *temp = new Type[newsize];
     if (newsize <= fSize) {
-      for (size_t i = 0; i < newsize; ++i)
-        temp[i]     = fData[i];
-      delete[] fData;
-      fData = new Type[newsize];
+      for (size_t i = newsize; i < fSize; ++i) {
+        Internal::AllocTrait<Type>::Destroy(fData[i]);
+      }
       fSize = newsize;
-      for (size_t i = 0; i < newsize; ++i)
-        fData[i]    = temp[i];
     } else {
-      for (size_t i = 0; i < fSize; ++i)
-        temp[i]     = fData[i];
-      delete[] fData;
-      fData = new Type[newsize];
-      for (size_t i = 0; i < fSize; ++i)
-        fData[i]    = temp[i];
-      for (size_t i = fSize; i < newsize; ++i)
-        fData[i]    = value;
+      if (newsize > fMemorySize) {
+        reserve(newsize);
+      }
+      for (size_t i = newsize; i < fSize; ++i)
+        push_back(value);
     }
-    fSize = newsize;
-    delete[] temp;
+  }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  VECGEOM_FORCE_INLINE
+  void reserve(size_t newsize)
+  {
+    if (newsize < fMemorySize) {
+      // Do nothing ...
+    } else {
+      Type *newdata = (Type *)new char[newsize * sizeof(Type)];
+      for (size_t i = 0; i < fSize; ++i)
+        new (&newdata[i]) Type(fData[i]);
+      if (fAllocated) delete[] fData;
+      fData       = newdata;
+      fMemorySize = newsize;
+      fAllocated  = true;
+    }
   }
 
   VECGEOM_CUDA_HEADER_BOTH
