@@ -340,12 +340,12 @@ public:
       Real_v saf_i = dist[i] - safety;
 
       // if more planes found as far (within tolerance) as the best one so far *and not fully inside*, add its normal
-      vecCore::MaskedAssign(normal, Abs(saf_i) < kHalfTolerance && dist[i] >= -kHalfTolerance,
-                            normal + Vector3D<Real_v>(this->fA[i], this->fB[i], this->fC[i]));
+      vecCore__MaskedAssignFunc(normal, Abs(saf_i) < kHalfTolerance && dist[i] >= -kHalfTolerance,
+                                normal + Vector3D<Real_v>(this->fA[i], this->fB[i], this->fC[i]));
 
       // this one is farther than our previous one -- update safety and normal
-      vecCore::MaskedAssign(normal, saf_i > 0.0, Vector3D<Real_v>(this->fA[i], this->fB[i], this->fC[i]));
-      vecCore::MaskedAssign(safety, saf_i > 0.0, dist[i]);
+      vecCore__MaskedAssignFunc(normal, saf_i > 0.0, Vector3D<Real_v>(this->fA[i], this->fB[i], this->fC[i]));
+      vecCore__MaskedAssignFunc(safety, saf_i > 0.0, dist[i]);
       // std::cout<<"dist["<< i <<"]="<< dist[i] <<", saf_i="<< saf_i <<", safety="<< safety <<", normal="<< normal
       // <<"\n";
     }
