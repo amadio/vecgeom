@@ -171,7 +171,7 @@ public:
   VECGEOM_FORCE_INLINE
   void reserve(size_t newsize)
   {
-    if (newsize < fMemorySize) {
+    if (newsize <= fMemorySize) {
       // Do nothing ...
     } else {
       Type *newdata = (Type *)new char[newsize * sizeof(Type)];
