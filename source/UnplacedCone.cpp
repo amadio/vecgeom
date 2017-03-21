@@ -315,7 +315,8 @@ bool UnplacedCone::Normal(Vector3D<Precision> const &p, Vector3D<Precision> &nor
       noSurfaces++;
       sumnorm += nPe;
     } else if (noSurfaces == 0 && distEPhi < distNearest) {
-      distNearest = distEPhi;
+      // No more check on distNearest, no need to assign to it.
+      // distNearest = distEPhi;
       normNearest = nPe;
     }
   }
