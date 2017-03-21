@@ -45,7 +45,7 @@ public:
   Vector() : Vector(5) {}
 
   VECGEOM_CUDA_HEADER_BOTH
-  Vector(const int maxsize) : fData(nullptr), fSize(0), fMemorySize(maxsize), fAllocated(true) { reserve(maxsize); }
+  Vector(const int maxsize) : fData(nullptr), fSize(0), fMemorySize(0), fAllocated(true) { reserve(maxsize); }
 
   VECGEOM_CUDA_HEADER_BOTH
   Vector(Type *const vec, const int sz) : fData(vec), fSize(sz), fMemorySize(sz), fAllocated(false) {}
