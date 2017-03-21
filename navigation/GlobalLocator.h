@@ -47,7 +47,6 @@ VPlacedVolume const *LocateGlobalPoint(VPlacedVolume const *vol, Vector3D<Precis
 
     bool godeeper = true;
     while (daughters->size() > 0 && godeeper) {
-      godeeper = false;
       // returns nextvolume; and transformedpoint; modified path
       VLevelLocator const *locator = lvol->GetLevelLocator();
       if (locator != nullptr) { // if specialized/optimized technique attached to logical volume
@@ -61,6 +60,8 @@ VPlacedVolume const *LocateGlobalPoint(VPlacedVolume const *vol, Vector3D<Precis
       } else { // otherwise do a default implementation
 #ifndef VECGEOM_NVCC
         throw std::runtime_error("impossible code in GlobalLocator reached");
+#else
+        godeeper = false;
 #endif
       }
     }
