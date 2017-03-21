@@ -229,6 +229,7 @@ template <typename T>
 void AOS3D<T>::clear()
 {
   Deallocate();
+  fContent   = nullptr;
   fAllocated = false;
   fSize      = 0;
   fCapacity  = 0;
