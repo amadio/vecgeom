@@ -315,7 +315,6 @@ UnplacedPolycone::UnplacedPolycone(Precision phiStart, // initial phi starting a
     rmax = r1arg;
     rmin = r2arg;
   }
-  delete[] r2arg;
 
   // final data integrity cross-check
   for (int i = 0; i < Nz; ++i) {
@@ -325,6 +324,7 @@ UnplacedPolycone::UnplacedPolycone(Precision phiStart, // initial phi starting a
 
   // init internal members
   Init(phiStart, phiTotal, Nz, zarg, rmin, rmax);
+  delete[] r2arg;
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
