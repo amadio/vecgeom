@@ -232,12 +232,12 @@ void Nucleus::ReadFile(std::string infilename, bool output)
                 << toxa << "," << toxb << "," << ind1 << "," << ind2 << ");" << endl;
         ++nlines;
       }
-    }
-    if (da != 0 || dz != 0 || diso != 0) {
-      nuc->AddDecay(da, dz, diso, qval, br);
-      if (output) {
-        outline << "   nuc->AddDecay(" << da << "," << dz << "," << diso << "," << qval << "," << br << ");" << endl;
-        ++nlines;
+      if (da != 0 || dz != 0 || diso != 0) {
+        nuc->AddDecay(da, dz, diso, qval, br);
+        if (output) {
+          outline << "   nuc->AddDecay(" << da << "," << dz << "," << diso << "," << qval << "," << br << ");" << endl;
+          ++nlines;
+        }
       }
     }
   }
