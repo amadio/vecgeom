@@ -31,6 +31,14 @@ Vector3D<Precision> UnplacedBox::GetPointOnSurface() const
 
   rand = std::abs(rand);
 
+  // rand is guaranteed (by the contract of RNG::Instance().uniform(-1.0, 1.0);)
+  // to be less than one of the S[axis] since it starts
+  // at a random number between 0 and (S[0] + S[1] + S[2])
+  // and each iteration exits or substracts, respectively, S[0] and then S[1]
+  // so on the 3rd iteration we have axis==2 and rand <= S[2]
+  // Note that an automated tools (clang-tidy for example) will not be
+  // able to detect this guarantee and complains about a possible out of
+  // bound access (or garbage value).
   while (rand > S[axis])
     rand -= S[axis], axis++;
 
