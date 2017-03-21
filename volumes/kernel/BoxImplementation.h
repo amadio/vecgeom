@@ -221,8 +221,8 @@ struct BoxImplementation {
     tzmax = (corners[1 - sign[2]].z() - point.z()) * inverserayz;
 
     if ((tmin > tzmax) || (tzmin > tmax)) return false;
-    if ((tzmin > tmin)) tmin = tzmin;
-    if (tzmax < tmax) tmax   = tzmax;
+    // if ((tzmin > tmin)) tmin = tzmin;
+    // if (tzmax < tmax) tmax   = tzmax;
     // return ((tmin < t1) && (tmax > t0));
     // std::cerr << "tmin " << tmin << " tmax " << tmax << "\n";
     return true;
