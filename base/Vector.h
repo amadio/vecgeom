@@ -69,7 +69,7 @@ public:
   {
     if (&other != this) {
       reserve(other.fMemorySize);
-      for (size_t i = 0; i < fSize; ++i)
+      for (size_t i = 0; i < other.fSize; ++i)
         push_back(other.fData[i]);
     }
     return *this;
