@@ -55,7 +55,7 @@ Vector3D<Precision> PlacedBooleanVolume::GetPointOnSurface() const
     leftarea = idtoareamap[leftid];
   } else { // insert
     leftarea = const_cast<VPlacedVolume *>(unplaced->fLeftVolume)->SurfaceArea();
-    idtoareamap.insert(std::pair<size_t, double>(leftid, rightarea));
+    idtoareamap.insert(std::pair<size_t, double>(leftid, leftarea));
   }
 
   auto rightid = unplaced->fRightVolume->GetLogicalVolume()->id();
