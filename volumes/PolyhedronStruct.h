@@ -107,6 +107,8 @@ struct PolyhedronStruct {
         fZSegments(zPlaneCount - 1), fZPlanes(zPlaneCount), fRMin(zPlaneCount), fRMax(zPlaneCount),
         fPhiSections(sideCount + 1), fBoundingTube(0, 1, 1, fPhiStart, fPhiDelta), fSurfaceArea(0.), fCapacity(0.)
   {
+    if (zPlaneCount == 0) throw std::runtime_error("A Polyhedron need at least one plane");
+
     // Geant4-like construction:
     // ind (   0       ...    n-1      n      ...    2*n -1   )
     // r = ( rmin[n-1], ... , rmin[0], rmax[0], ..., rmax[n-1] )
