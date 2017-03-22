@@ -265,8 +265,13 @@ public:
     }
 
     // non-vectorizable part
-    for (int i = 0; i < N; ++i) {
-      vecCore__MaskedAssignFunc(safety, dist[i] > safety, dist[i]);
+    if (N == 4) { // trapezoid
+      for (int i = 0; i < N; ++i) {
+        vecCore__MaskedAssignFunc(safety, dist[i] > safety, dist[i]);
+      }
+    } else {
+      Real_v safmax = Max(Max(dist[0], dist[1]), Max(dist[2], dist[3]));
+      vecCore::MaskedAssign(safety, safmax > safety, safmax);
     }
   }
 
@@ -283,8 +288,13 @@ public:
     }
 
     // non-vectorizable part
-    for (int i = 0; i < N; ++i) {
-      vecCore__MaskedAssignFunc(safety, dist[i] < safety, dist[i]);
+    if (N == 4) { // trapezoid
+      for (int i = 0; i < N; ++i) {
+        vecCore__MaskedAssignFunc(safety, dist[i] < safety, dist[i]);
+      }
+    } else {
+      Real_v safmax = Max(Max(dist[0], dist[1]), Max(dist[2], dist[3]));
+      vecCore::MaskedAssign(safety, safmax > safety, safmax);
     }
 
     return;

@@ -129,6 +129,7 @@ struct TrapezoidImplementation {
     // z-region
     completelyOutside = Abs(point[2]) > MakePlusTolerant<ForInside>(unplaced.fDz, trapSurfaceTolerance);
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(completelyOutside)) {
+      completelyInside = Bool_v(false);
       return;
     }
     if (ForInside) {
@@ -187,18 +188,19 @@ struct TrapezoidImplementation {
     //
 
     // step 1.a) input particle is moving away --> return infinity
-    Real_v max = Sign(dir.z()) * unplaced.fDz - point.z(); // z-dist to farthest z-plane
+    Real_v signZdir = Sign(dir.z());
+    Real_v max      = signZdir * unplaced.fDz - point.z(); // z-dist to farthest z-plane
 
     // done = done || (dir.z()>0.0 && max < MakePlusTolerant<true>(0.));  // check if moving away towards +z
     // done = done || (dir.z()<0.0 && max > MakeMinusTolerant<true>(0.)); // check if moving away towards -z
-    Bool_v done(Sign(dir.z()) * max < MakePlusTolerant<true>(0.0)); // if outside + moving away towards +/-z
+    Bool_v done(signZdir * max < MakePlusTolerant<true>(0.0)); // if outside + moving away towards +/-z
 
     // if all particles moving away, we're done
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
 
     Real_v invdir = Real_v(1.0) / NonZero(dir.z()); // convert distances from z to dir
     Real_v smax   = max * invdir;
-    Real_v smin   = (-Sign(dir.z()) * unplaced.fDz - point.z()) * invdir;
+    Real_v smin   = -(signZdir * unplaced.fDz + point.z()) * invdir;
 
 #ifndef VECGEOM_PLANESHELL_DISABLE
     // If disttoplanes is such that smin < dist < smax, then distance=disttoplanes
@@ -230,9 +232,9 @@ struct TrapezoidImplementation {
     // check special cases
     for (int i = 0; i < 4; ++i) {
       // points fully outside a plane and moving away or parallel to that plane
-      done = done || pdist[i] > MakePlusTolerant<true>(0.0) && comp[i] >= 0.0;
+      done = done || (pdist[i] > MakePlusTolerant<true>(0.0) && comp[i] >= 0.0);
       // points at a plane surface and exiting
-      done = done || pdist[i] > MakeMinusTolerant<true>(0.0) && comp[i] > 0.0;
+      done = done || (pdist[i] > MakeMinusTolerant<true>(0.0) && comp[i] > 0.0);
     }
     // if all particles moving away, we're done
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return;
@@ -253,7 +255,7 @@ struct TrapezoidImplementation {
     }
 
     vecCore::MaskedAssign(distance, !done && smin <= smax, smin);
-// vecCore::MaskedAssign(distance, !done && distance < MakeMinusTolerant<true>(0.0), Real_v(-1.0));
+    vecCore::MaskedAssign(distance, distance < MakeMinusTolerant<true>(0.0), Real_v(-1.0));
 #endif
   }
 
@@ -356,10 +358,10 @@ struct TrapezoidImplementation {
     // If point is outside (wrong-side) --> safety to negative value
     safety = unplaced.fDz - Abs(point.z());
 
-    // If all test points are outside, we're done
-    if (vecCore::EarlyReturnAllowed()) {
-      if (vecCore::MaskFull(safety < kHalfTolerance)) return;
-    }
+// If all test points are outside, we're done
+// if (vecCore::EarlyReturnAllowed()) {
+//   if (vecCore::MaskFull(safety < kHalfTolerance)) return;
+// }
 
 #ifndef VECGEOM_PLANESHELL_DISABLE
     // Get safety over side planes
@@ -437,7 +439,7 @@ struct TrapezoidImplementation {
     // std::cout<<"safz="<< safz <<", safety="<< safety <<", normal="<< normal <<", valid="<< valid <<"\n";
 
     // returned vector must be normalized
-    if (normal.Mag2() > 1.0) normal.Normalize();
+    if (normal.Mag2() > 1.0) normal.Normalize(); //??? check use of MaskedAssignFunc here!!!
 
     return normal;
   }
