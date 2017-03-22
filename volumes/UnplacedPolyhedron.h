@@ -346,7 +346,7 @@ public:
 #endif
                                            VPlacedVolume *const placement = NULL) const final;
   VECGEOM_FORCE_INLINE
-  virtual int memory_size() const final { return sizeof(*this); }
+  virtual int MemorySize() const final { return sizeof(*this); }
 
 #ifdef VECGEOM_CUDA_INTERFACE
   virtual size_t DeviceSizeOf() const { return DevicePtr<cuda::UnplacedPolyhedron>::SizeOf(); }

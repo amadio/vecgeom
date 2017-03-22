@@ -125,7 +125,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   ~Transformation3D() {}
 
-  int memory_size() const { return sizeof(*this); }
+  int MemorySize() const { return sizeof(*this); }
 
   VECGEOM_CUDA_HEADER_BOTH
   void FixZeroes()

@@ -50,7 +50,7 @@ public:
 #endif
   }
 
-  virtual int memory_size() const { return sizeof(*this); }
+  virtual int MemorySize() const { return sizeof(*this); }
 
 #ifdef VECGEOM_CUDA_INTERFACE
   virtual size_t DeviceSizeOf() const { return DevicePtr<cuda::UnplacedBooleanVolume>::SizeOf(); }

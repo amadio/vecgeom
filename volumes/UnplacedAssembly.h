@@ -196,7 +196,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual void Print() const override;
   virtual void Print(std::ostream &os) const override;
-  virtual int memory_size() const override { return sizeof(*this); }
+  virtual int MemorySize() const override { return sizeof(*this); }
 
 #ifdef VECGEOM_CUDA_INTERFACE
   virtual size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedAssembly>::SizeOf(); }

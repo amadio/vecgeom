@@ -74,7 +74,7 @@ void GeoManager::CompactifyMemory()
   // do a check on a fundamental hypothesis :
   // all placed volume objects have the same size ( so that we can compactify them in an array )
   for (auto v : fPlacedVolumesMap) {
-    if (v.second->memory_size() != fWorld->memory_size())
+    if (v.second->MemorySize() != fWorld->MemorySize())
       std::cerr << "Fatal Warning : placed volume instances have non-uniform size \n";
   }
 

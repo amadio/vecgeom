@@ -103,7 +103,7 @@ public:
   using PlacedShape_t::Inside;
   using PlacedShape_t::PlacedShape_t;
 
-  virtual int memory_size() const override { return sizeof(*this); }
+  virtual int MemorySize() const override { return sizeof(*this); }
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual void PrintType() const override { Specialization::PrintType(); }

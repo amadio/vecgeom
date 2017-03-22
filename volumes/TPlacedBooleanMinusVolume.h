@@ -73,7 +73,7 @@ public:
   virtual void PrintType() const {};
 
   // CUDA specific
-  virtual int memory_size() const { return sizeof(*this); }
+  virtual int MemorySize() const { return sizeof(*this); }
 
 #ifdef VECGEOM_CUDA_INTERFACE
   virtual VPlacedVolume *CopyToGpu(LogicalVolume const *const logical_volume,

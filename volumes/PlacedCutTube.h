@@ -115,7 +115,7 @@ public:
   // CUDA specific
   /** @brief Memory size in bytes */
   VECGEOM_FORCE_INLINE
-  virtual int memory_size() const override { return sizeof(*this); }
+  virtual int MemorySize() const override { return sizeof(*this); }
 
 #ifndef VECGEOM_NVCC
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;

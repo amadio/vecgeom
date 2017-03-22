@@ -150,7 +150,7 @@ public:
 
   friend std::ostream &operator<<(std::ostream &os, VPlacedVolume const &vol);
 
-  virtual int memory_size() const = 0;
+  virtual int MemorySize() const = 0;
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual void Print(const int indent = 0) const;

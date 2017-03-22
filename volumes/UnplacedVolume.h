@@ -164,7 +164,7 @@ public:
    * Should return the size of bytes of the deriving class. Necessary for
    * copying to the GPU.
    */
-  virtual int memory_size() const = 0;
+  virtual int MemorySize() const = 0;
 
 /**
  * Constructs the deriving class on the GPU and returns a pointer to GPU

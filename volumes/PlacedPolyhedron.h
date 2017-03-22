@@ -147,7 +147,7 @@ public:
 
   // CUDA specific
 
-  virtual int memory_size() const override { return sizeof(*this); }
+  virtual int MemorySize() const override { return sizeof(*this); }
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override

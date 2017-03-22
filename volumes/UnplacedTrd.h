@@ -141,7 +141,7 @@ public:
   VECGEOM_FORCE_INLINE
   Precision ToleranceY() const { return fTrd.fToleranceY; }
 
-  virtual int memory_size() const final { return sizeof(*this); }
+  virtual int MemorySize() const final { return sizeof(*this); }
 
   VECGEOM_CUDA_HEADER_BOTH
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const

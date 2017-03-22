@@ -29,7 +29,7 @@ public:
   TGeoShape const *GetRootShape() const { return fRootShape; }
 
   VECGEOM_FORCE_INLINE
-  virtual int memory_size() const { return sizeof(*this); }
+  virtual int MemorySize() const { return sizeof(*this); }
 
   virtual void Print() const;
 

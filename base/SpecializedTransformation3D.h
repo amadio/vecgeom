@@ -19,7 +19,7 @@ template <TranslationCode trans_code, RotationCode rot_code>
 class SpecializedTransformation3D : public Transformation3D {
 
 public:
-  virtual int memory_size() const { return sizeof(*this); }
+  virtual int MemorySize() const { return sizeof(*this); }
 
   /**
    * \sa Transformation3D::Transform(Vector3D<InputType> const &,

@@ -128,7 +128,7 @@ public:
 
   /** @brief Memory size in bytes */
   VECGEOM_FORCE_INLINE
-  virtual int memory_size() const override { return sizeof(*this); }
+  virtual int MemorySize() const override { return sizeof(*this); }
 
 // Comparison specific
 

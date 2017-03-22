@@ -122,7 +122,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   void SetThetaAndPhi(const Precision theta, const Precision phi) { fPara.SetThetaAndPhi(theta, phi); }
 
-  virtual int memory_size() const final { return sizeof(*this); }
+  virtual int MemorySize() const final { return sizeof(*this); }
 
   /** @brief Print parameters of the parallelepiped */
   VECGEOM_CUDA_HEADER_BOTH

@@ -110,7 +110,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   ScaledShapeStruct<double> const &GetStruct() const { return fScaled; }
 
-  virtual int memory_size() const final { return (sizeof(*this) + fScaled.fPlaced->memory_size()); }
+  virtual int MemorySize() const final { return (sizeof(*this) + fScaled.fPlaced->MemorySize()); }
 
 #ifdef VECGEOM_CUDA_INTERFACE
   virtual size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedScaledShape>::SizeOf(); }

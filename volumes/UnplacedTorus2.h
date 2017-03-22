@@ -208,7 +208,7 @@ public:
 
   Vector3D<Precision> GetPointOnSurface() const;
 
-  virtual int memory_size() const final { return sizeof(*this); }
+  virtual int MemorySize() const final { return sizeof(*this); }
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual void Print() const final;

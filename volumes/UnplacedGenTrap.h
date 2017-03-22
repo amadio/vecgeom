@@ -133,7 +133,7 @@ public:
   void ComputeBoundingBox() { fGenTrap.ComputeBoundingBox(); }
 
   /** @brief Memory size in bytes */
-  virtual int memory_size() const final { return sizeof(*this); }
+  virtual int MemorySize() const final { return sizeof(*this); }
 
   /** @brief Print parameters of the trapezoid */
   VECGEOM_CUDA_HEADER_BOTH

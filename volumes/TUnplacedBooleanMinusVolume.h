@@ -54,7 +54,7 @@ public:
   typedef LeftUnplacedVolume_t LeftType;
   typedef RightPlacedVolume_t RightType;
 
-  virtual int memory_size() const { return sizeof(*this); }
+  virtual int MemorySize() const { return sizeof(*this); }
 
 #ifdef VECGEOM_CUDA_INTERFACE
   virtual VUnplacedVolume *CopyToGpu() const;

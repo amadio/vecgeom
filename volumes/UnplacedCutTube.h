@@ -216,7 +216,7 @@ public:
 
   std::string GetEntityType() const { return "CutTube"; }
 
-  virtual int memory_size() const final { return sizeof(*this); }
+  virtual int MemorySize() const final { return sizeof(*this); }
 
 #ifdef VECGEOM_CUDA_INTERFACE
   size_t DeviceSizeOf() const final { return DevicePtr<cuda::UnplacedCutTube>::SizeOf(); }

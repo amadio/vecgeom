@@ -148,7 +148,7 @@ public:
     return output;
   }
 
-  virtual int memory_size() const override { return sizeof(*this); }
+  virtual int MemorySize() const override { return sizeof(*this); }
 };
 
 // helper that dispatches the vector interface to a loop over the SIMD interface

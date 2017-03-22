@@ -87,7 +87,7 @@ public:
 
   // CUDA specific
 
-  virtual int memory_size() const override { return sizeof(*this); }
+  virtual int MemorySize() const override { return sizeof(*this); }
 
 // Comparison specific
 

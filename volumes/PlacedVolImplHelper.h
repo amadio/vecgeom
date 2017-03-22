@@ -33,7 +33,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   virtual ~PlacedVolumeImplHelper() {}
 
-  virtual int memory_size() const override { return sizeof(*this); }
+  virtual int MemorySize() const override { return sizeof(*this); }
 
   VECGEOM_CUDA_HEADER_BOTH
   UnplacedShape_t const *GetUnplacedVolume() const

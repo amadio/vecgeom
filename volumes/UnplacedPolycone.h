@@ -214,7 +214,7 @@ public:
   // these methods are required by VUnplacedVolume
   //
 public:
-  virtual int memory_size() const final { return sizeof(*this); }
+  virtual int MemorySize() const final { return sizeof(*this); }
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual void Print() const final;

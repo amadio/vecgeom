@@ -38,7 +38,7 @@ public:
 
   TGeoShape const *GetRootShape() const { return ((UnplacedRootVolume *)GetUnplacedVolume())->GetRootShape(); }
 
-  virtual int memory_size() const override { return sizeof(*this); }
+  virtual int MemorySize() const override { return sizeof(*this); }
 
   virtual void PrintType() const override;
   virtual void PrintType(std::ostream &) const override;

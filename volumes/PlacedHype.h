@@ -230,7 +230,7 @@ public:
   //  void ComputeBBox() const { return GetUnplacedVolume()->ComputeBBox();}
 
   VECGEOM_FORCE_INLINE
-  virtual int memory_size() const override { return sizeof(*this); }
+  virtual int MemorySize() const override { return sizeof(*this); }
 
 #if defined(VECGEOM_USOLIDS)
   std::ostream &StreamInfo(std::ostream &os) const override { return GetUnplacedVolume()->StreamInfo(os); }

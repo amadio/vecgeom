@@ -219,7 +219,7 @@ public:
   VECGEOM_CUDA_HEADER_BOTH
   bool InnerSurfaceExists() const;
 
-  virtual int memory_size() const override { return sizeof(*this); }
+  virtual int MemorySize() const override { return sizeof(*this); }
 
   VECGEOM_CUDA_HEADER_BOTH
   virtual void Print() const override;
