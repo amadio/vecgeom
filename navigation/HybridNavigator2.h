@@ -66,7 +66,8 @@ private:
   /**
    * Returns hitlist of daughter candidates (pairs of [daughter index, step to bounding box]) crossed by ray.
    */
-  size_t GetHitCandidates_v(LogicalVolume const *lvol, Vector3D<Precision> const &point, Vector3D<Precision> const &dir,
+  size_t GetHitCandidates_v(HybridManager2::HybridBoxAccelerationStructure const &accstructure,
+                            Vector3D<Precision> const &point, Vector3D<Precision> const &dir,
                             HybridManager2::BoxIdDistancePair_t *hitlist) const
   {
     size_t count = 0;
@@ -76,9 +77,9 @@ private:
     sign[1] = invdir.y() < 0;
     sign[2] = invdir.z() < 0;
     int numberOfNodes, size;
-    auto boxes_v                      = fAccelerationManager.GetABBoxes_v(lvol, size, numberOfNodes);
-    constexpr auto kVS                = vecCore::VectorSize<HybridManager2::Float_v>();
-    std::vector<int> *nodeToDaughters = fAccelerationManager.GetNodeToDaughters(lvol);
+    auto boxes_v                = fAccelerationManager.GetABBoxes_v(accstructure, size, numberOfNodes);
+    constexpr auto kVS          = vecCore::VectorSize<HybridManager2::Float_v>();
+    auto const *nodeToDaughters = accstructure.fNodeToDaughters;
     for (size_t index = 0, nodeindex = 0; index < size_t(size) * 2; index += 2 * (kVS + 1), nodeindex += kVS) {
       HybridManager2::Float_v distance = BoxImplementation::IntersectCachedKernel2<HybridManager2::Float_v, float>(
           &boxes_v[index], point, invdir, sign.x(), sign.y(), sign.z(), 0, InfinityLength<float>());
@@ -124,7 +125,7 @@ public:
 
     if (lvol->GetDaughtersp()->size() == 0) return false;
 
-    auto ncandidates = GetHitCandidates_v(lvol, localpoint, localdir, hitlist);
+    auto ncandidates = GetHitCandidates_v(*fAccelerationManager.GetAccStructure(lvol), localpoint, localdir, hitlist);
 
     // sort candidates according to their bounding volume hit distance
     insertionsort(hitlist, ncandidates);

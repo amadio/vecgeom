@@ -36,10 +36,11 @@ private:
                                                         VPlacedVolume const *&pvol,
                                                         Vector3D<Precision> &daughterlocalpoint) const
   {
+    auto accstructure = fAccelerationStructure.GetAccStructure(lvol);
     int halfvectorsize, numberOfNodes;
-    auto boxes_v                      = fAccelerationStructure.GetABBoxes_v(lvol, halfvectorsize, numberOfNodes);
-    std::vector<int> *nodeToDaughters = fAccelerationStructure.GetNodeToDaughters(lvol);
-    constexpr auto kVS                = vecCore::VectorSize<HybridManager2::Float_v>();
+    auto boxes_v                = fAccelerationStructure.GetABBoxes_v(*accstructure, halfvectorsize, numberOfNodes);
+    auto const *nodeToDaughters = accstructure->fNodeToDaughters;
+    constexpr auto kVS          = vecCore::VectorSize<HybridManager2::Float_v>();
 
     for (int index = 0, nodeindex = 0; index < halfvectorsize * 2; index += 2 * (kVS + 1), nodeindex += kVS) {
       using Bool_v = vecCore::Mask_v<HybridManager2::Float_v>;

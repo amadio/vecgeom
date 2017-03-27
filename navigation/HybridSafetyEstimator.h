@@ -38,15 +38,16 @@ private:
   }
 
   // helper structure to find the candidate set for safety calculations
-  size_t GetSafetyCandidates_v(LogicalVolume const *lvol, Vector3D<Precision> const &point,
-                               HybridManager2::BoxIdDistancePair_t *boxsafetypairs, Precision upper_squared_limit) const
+  size_t GetSafetyCandidates_v(HybridManager2::HybridBoxAccelerationStructure const &accstructure,
+                               Vector3D<Precision> const &point, HybridManager2::BoxIdDistancePair_t *boxsafetypairs,
+                               Precision upper_squared_limit) const
   {
     size_t count = 0;
     Vector3D<float> pointfloat((float)point.x(), (float)point.y(), (float)point.z());
     int halfvectorsize, numberOfNodes;
-    auto boxes_v                      = fAccelerationStructureManager.GetABBoxes_v(lvol, halfvectorsize, numberOfNodes);
-    std::vector<int> *nodeToDaughters = fAccelerationStructureManager.GetNodeToDaughters(lvol);
-    constexpr auto kVS                = vecCore::VectorSize<HybridManager2::Float_v>();
+    auto boxes_v = fAccelerationStructureManager.GetABBoxes_v(accstructure, halfvectorsize, numberOfNodes);
+    auto const *nodeToDaughters = accstructure.fNodeToDaughters;
+    constexpr auto kVS          = vecCore::VectorSize<HybridManager2::Float_v>();
 
     for (int index = 0, nodeindex = 0; index < halfvectorsize * 2; index += 2 * (kVS + 1), nodeindex += kVS) {
       HybridManager2::Float_v safetytoboxsqr =
@@ -121,7 +122,8 @@ public:
     // safety to bounding boxes
     if (safety > 0. && lvol->GetDaughtersp()->size() > 0) {
       // calculate squared bounding box safeties in vectorized way
-      auto ncandidates = GetSafetyCandidates_v(lvol, localpoint, boxsafetylist, safetysqr);
+      auto ncandidates = GetSafetyCandidates_v(*fAccelerationStructureManager.GetAccStructure(lvol), localpoint,
+                                               boxsafetylist, safetysqr);
       // not sorting the candidate list ( which one could do )
       for (unsigned int candidate = 0; candidate < ncandidates; ++candidate) {
         auto boxsafetypair = boxsafetylist[candidate];

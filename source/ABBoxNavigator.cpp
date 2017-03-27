@@ -153,8 +153,6 @@ Precision ABBoxNavigator::GetSafety(Vector3D<Precision> const &globalpoint, Navi
   LogicalVolume const *lvol = currentvol->GetLogicalVolume();
   if (safety > 0. && lvol->GetDaughtersp()->size() > 0) {
     ABBoxManager &instance = ABBoxManager::Instance();
-    // ABBoxManager::HitContainer_t &boxsafetylist = instance.GetAllocatedHitContainer();
-
     int size;
 
     ABBoxManager::ABBoxContainer_v bboxes = instance.GetABBoxes_v(lvol, size);
@@ -283,7 +281,6 @@ void ABBoxNavigator::FindNextBoundaryAndStep(Vector3D<Precision> const &globalpo
 #ifdef VERBOSE
     std::cerr << " searching through " << currentlvol->GetDaughtersp()->size() << " daughters\n";
 #endif
-    //     ABBoxManager::HitContainer_t & hitlist = ABBoxManager::Instance().GetAllocatedHitContainer();
 
     //       hitlist.clear();
     int size;

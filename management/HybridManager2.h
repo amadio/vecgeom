@@ -17,6 +17,7 @@
 #include "base/Transformation3D.h"
 #include "volumes/kernel/BoxImplementation.h"
 #include "base/AlignmentAllocator.h"
+#include "management/ABBoxManager.h"
 
 #include <queue>
 #include <map>
@@ -47,21 +48,17 @@ public:
   typedef std::pair<int, double> BoxIdDistancePair_t;
   using HitContainer_t = std::vector<BoxIdDistancePair_t>;
 
-  // we have to make this thread safe
-  HitContainer_t fAllocatedHitContainer;
-
-  struct HitBoxComparatorFunctor {
-    bool operator()(BoxIdDistancePair_t const &a, BoxIdDistancePair_t const &b) { return a.second < b.second; }
+  // the actual class encapsulating the bounding boxes + tree structure information
+  // for a shallow bounding volume hierarchy acceleration structure
+  struct HybridBoxAccelerationStructure {
+    size_t fNumberOfOriginalBoxes = 0; // the number of objects/original bounding boxes this structure is representing
+    ABBoxContainer_v fABBoxes_v   = nullptr;
+    std::vector<int> *fNodeToDaughters = nullptr;
   };
 
 private:
-  // this might be duplicated with the ABBoxManager??
-  std::vector<ABBoxContainer_t> fVolumeToABBoxes;   // at lvol->id() stores continuous bounding box array
-  std::vector<ABBoxContainer_v> fVolumeToABBoxes_v; // at lvol->id() stores continuous bounding box array
-
-  std::vector<std::vector<int> *> fNodeToDaughters; // access by internal node index, returns vector of daughterindices
-  std::vector<std::vector<int> *> fNodeToDaughters_v; // access by internal node index, returns vector of
-                                                      // daughterindices
+  // keeps/registers an acceleration structure for logical volumes
+  std::vector<HybridBoxAccelerationStructure const *> fStructureHolder;
 
 public:
   // initialized the helper structure for a given logical volume
@@ -72,9 +69,6 @@ public:
   {
     std::vector<LogicalVolume const *> logicalvolumes;
     GeoManager::Instance().GetAllLogicalVolumes(logicalvolumes);
-    // size containers
-    fVolumeToABBoxes.resize(GeoManager::Instance().GetRegisteredVolumesCount(), nullptr);
-    fVolumeToABBoxes_v.resize(GeoManager::Instance().GetRegisteredVolumesCount(), nullptr);
     for (auto lvol : logicalvolumes) {
       InitStructure(lvol);
     }
@@ -98,28 +92,28 @@ public:
   // verbose output of helper structure
   VPlacedVolume const *PrintHybrid(LogicalVolume const *) const;
 
-  // returns half the number of nodes in vector, e.g. half the size of fVolumeToABBoxes[lvol->id()]
-  ABBoxContainer_t GetABBoxes(LogicalVolume const *lvol, int &numberOfNodes) const
+  ABBoxContainer_v GetABBoxes_v(HybridBoxAccelerationStructure const &structure, int &size, int &numberOfNodes) const
   {
-    constexpr auto kVS          = vecCore::VectorSize<Float_v>();
-    int numberOfFirstLevelNodes = lvol->GetDaughters().size() / kVS + (lvol->GetDaughters().size() % kVS == 0 ? 0 : 1);
-    numberOfNodes               = numberOfFirstLevelNodes + lvol->GetDaughters().size();
-    assert(fVolumeToABBoxes[lvol->id()] != nullptr);
-    return fVolumeToABBoxes[lvol->id()];
-  }
-
-  // returns half the number of vector registers to store all the nodes
-  ABBoxContainer_v GetABBoxes_v(LogicalVolume const *lvol, int &size, int &numberOfNodes) const
-  {
-    constexpr auto kVS          = vecCore::VectorSize<Float_v>();
-    int numberOfFirstLevelNodes = lvol->GetDaughters().size() / kVS + (lvol->GetDaughters().size() % kVS == 0 ? 0 : 1);
-    numberOfNodes               = numberOfFirstLevelNodes + lvol->GetDaughters().size();
+    constexpr auto kVS = vecCore::VectorSize<Float_v>();
+    assert(structure.fNumberOfOriginalBoxes != 0);
+    int numberOfFirstLevelNodes =
+        structure.fNumberOfOriginalBoxes / kVS + (structure.fNumberOfOriginalBoxes % kVS == 0 ? 0 : 1);
+    numberOfNodes = numberOfFirstLevelNodes + structure.fNumberOfOriginalBoxes;
     size = numberOfFirstLevelNodes / kVS + (numberOfFirstLevelNodes % kVS == 0 ? 0 : 1) + numberOfFirstLevelNodes;
-    assert(fVolumeToABBoxes[lvol->id()] != nullptr);
-    return fVolumeToABBoxes_v[lvol->id()];
+    assert(structure.fABBoxes_v != nullptr);
+    return structure.fABBoxes_v;
   }
 
-  std::vector<int> *GetNodeToDaughters(LogicalVolume const *lvol) { return fNodeToDaughters[lvol->id()]; }
+  HybridBoxAccelerationStructure const *GetAccStructure(LogicalVolume const *lvol) const
+  {
+    return fStructureHolder[lvol->id()];
+  }
+
+  // public method allowing to build a hybrid acceleration structure
+  // given a vector of aligned bounding boxes
+  // can be used by clients (not coupled to LogicalVolumes)
+  HybridBoxAccelerationStructure *BuildStructure(ABBoxManager::ABBoxContainer_t alignedboxes,
+                                                 size_t numberofboxes) const;
 
 private:
   // private methods use
@@ -127,9 +121,10 @@ private:
   template <typename Container_t>
   void EqualizeClusters(Container_t &clusters, SOA3D<Precision> &centers, SOA3D<Precision> const &allvolumecenters,
                         size_t const maxNodeSize);
+
   template <typename Container_t>
-  void InitClustersWithKMeans(LogicalVolume const *, Container_t &, SOA3D<Precision> &, SOA3D<Precision> &,
-                              int const numberOfInterations = 50);
+  void InitClustersWithKMeans(ABBoxManager::ABBoxContainer_t, int, Container_t &, SOA3D<Precision> &,
+                              SOA3D<Precision> &, int const numberOfInterations = 50) const;
 
   void RecalculateCentres(SOA3D<Precision> &centers, SOA3D<Precision> const &allvolumecenters,
                           std::vector<std::vector<int>> const &clusters);
@@ -143,8 +138,9 @@ private:
       distanceQueue;
   void AssignVolumesToClusters(std::vector<std::vector<int>> &clusters, SOA3D<Precision> const &centers,
                                SOA3D<Precision> const &allvolumecenters);
-  void BuildStructure(LogicalVolume const *vol);
+
   void BuildStructure_v(LogicalVolume const *vol);
+
   static bool IsBiggerCluster(std::vector<int> const &first, std::vector<int> const &second)
   {
     return first.size() > second.size();
