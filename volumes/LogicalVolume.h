@@ -188,6 +188,7 @@ public:
   void SetTrackingMediumPtr(void *tmediumpointer) { fTrackingMediumPtr = tmediumpointer; }
 
   VECGEOM_FORCE_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
   void SetBasketManagerPtr(void *basketpointer) { fBasketManagerPtr = basketpointer; }
 
   VECGEOM_CUDA_HEADER_BOTH
