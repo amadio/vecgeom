@@ -162,7 +162,7 @@ public:
       if (newsize > fMemorySize) {
         reserve(newsize);
       }
-      for (size_t i = newsize; i < fSize; ++i)
+      for (size_t i = fSize; i < newsize; ++i)
         push_back(value);
     }
   }
