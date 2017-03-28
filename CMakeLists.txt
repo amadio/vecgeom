@@ -1194,9 +1194,6 @@ endif()
 ################################################################################
 
 # Installation
-
-export(PACKAGE VecGeom)
-
 file(RELATIVE_PATH INSTALL_INCLUDE_DIR_RELATIVE
      "${INSTALL_CMAKE_DIR}" "${INSTALL_INCLUDE_DIR}/.")
 file(RELATIVE_PATH INSTALL_LIB_DIR_RELATIVE
