@@ -496,7 +496,7 @@ protected:
   VECGEOM_CUDA_HEADER_BOTH
   void destroy_node(_Link_type __p)
   {
-    (__p->_M_value_field).~_Value();
+    // (__p->_M_value_field).~_Value();
     // delete(&__p->_M_value_field);
     //&__p->~_Value();
     delete __p;
