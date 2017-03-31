@@ -9,7 +9,7 @@ system = platform.system()
 
 # --------------------- Setting command lines options
 def main(argv):
-   global compiler, build_type, op_sys, external, rootDir, veccore_var
+   global compiler, build_type, op_sys, external, rootDir, veccoretype
    global comp, build, label
 
    compiler = ''
