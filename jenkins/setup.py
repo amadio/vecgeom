@@ -37,7 +37,7 @@ def main(argv):
       elif opt in ("-v"):
          external = arg
 
-     elif opt in ("-t"):
+      elif opt in ("-t"):
          veccoretype = arg
 
    if build == 'Release' : build_type = 'opt'
