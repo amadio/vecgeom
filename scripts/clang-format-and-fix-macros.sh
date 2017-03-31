@@ -91,7 +91,7 @@ for file in $@; do
 done
 
 clang-format -i "$@"
-# Run clang-format a 2nd time, this stability some of the comment positioning.
+# Run clang-format a 2nd time, this stabilizes some of the comment positioning.
 clang-format -i "$@"
 
 # Put back the macros.
