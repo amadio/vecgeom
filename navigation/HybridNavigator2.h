@@ -43,7 +43,7 @@ private:
   {
   }
 
-  VPlacedVolume const *LookupDaughter(LogicalVolume const *lvol, int const daughterIndex) const
+  static VPlacedVolume const *LookupDaughter(LogicalVolume const *lvol, int const daughterIndex)
   {
     return lvol->GetDaughters()[daughterIndex];
   }
@@ -111,11 +111,19 @@ public:
   // we provide hit detection on the local level and reuse the generic implementations from
   // VNavigatorHelper<SimpleABBoxNavigator>
 
+  // a generic looper function that
+  // given an acceleration structure (an aligned bounding box hierarchy),
+  // a hit-query will be performed, the intersected boxes sorted, looped over
+  // and a user hook called for processing
+  // the user hook needs to indicate with a boolean return value whether to continue looping (false)
+  // or whether we are done (true) and can exit
+
+  // FIXME: might be generic enough to work for all possible kinds of BVH structures
+  // FIXME: offer various sorting directions, etc.
+  template <typename AccStructure, typename Func>
   VECGEOM_FORCE_INLINE
-  virtual bool CheckDaughterIntersections(LogicalVolume const *lvol, Vector3D<Precision> const &localpoint,
-                                          Vector3D<Precision> const &localdir, NavigationState const *in_state,
-                                          NavigationState * /*out_state*/, Precision &step,
-                                          VPlacedVolume const *&hitcandidate) const override
+  void BVHSortedIntersectionsLooper(AccStructure const &accstructure, Vector3D<Precision> const &localpoint,
+                                    Vector3D<Precision> const &localdir, Func &&userhook) const
   {
     // The following construct reserves stackspace for objects
     // of type IdDistPair_t WITHOUT initializing those objects
@@ -123,45 +131,42 @@ public:
     char stackspace[VECGEOM_MAXDAUGHTERS * sizeof(IdDistPair_t)];
     IdDistPair_t *hitlist = reinterpret_cast<IdDistPair_t *>(&stackspace);
 
-    if (lvol->GetDaughtersp()->size() == 0) return false;
-
-    auto ncandidates = GetHitCandidates_v(*fAccelerationManager.GetAccStructure(lvol), localpoint, localdir, hitlist);
-
+    auto ncandidates = GetHitCandidates_v(accstructure, localpoint, localdir, hitlist);
     // sort candidates according to their bounding volume hit distance
     insertionsort(hitlist, ncandidates);
 
     for (size_t index = 0; index < ncandidates; ++index) {
-      auto hitbox                    = hitlist[index];
-      VPlacedVolume const *candidate = LookupDaughter(lvol, hitbox.first);
+      auto hitbox = hitlist[index];
+      // here we got the hit candidates
+      // now we execute user specific code to process this "hitbox"
+      auto done = userhook(hitbox);
+      if (done) break;
+    }
+  }
 
+  VECGEOM_FORCE_INLINE
+  virtual bool CheckDaughterIntersections(LogicalVolume const *lvol, Vector3D<Precision> const &localpoint,
+                                          Vector3D<Precision> const &localdir, NavigationState const *in_state,
+                                          NavigationState * /*out_state*/, Precision &step,
+                                          VPlacedVolume const *&hitcandidate) const override
+  {
+    if (lvol->GetDaughtersp()->size() == 0) return false;
+    auto &accstructure = *fAccelerationManager.GetAccStructure(lvol);
+
+    BVHSortedIntersectionsLooper(accstructure, localpoint, localdir, [&](HybridManager2::BoxIdDistancePair_t hitbox) {
       // only consider those hitboxes which are within potential reach of this step
       if (!(step < hitbox.second)) {
-        //      std::cerr << "checking id " << hitbox.first << " at box distance " << hitbox.second << "\n";
-        //        if (hitbox.second < 0) {
-        //          bool checkindaughter = candidate->Contains(localpoint);
-        //          if (checkindaughter == true) {
-        //            // need to relocate
-        //            step = 0;
-        //            hitcandidate = candidate;
-        //            // THE ALTERNATIVE WOULD BE TO PUSH THE CURRENT STATE AND RETURN DIRECTLY
-        //            break;
-        //          }
-        //        }
-        Precision ddistance = candidate->DistanceToIn(localpoint, localdir, step);
-#ifdef VERBOSE
-        std::cerr << "distance to " << candidate->GetLabel() << " is " << ddistance << "\n";
-#endif
-        const auto valid = !IsInf(ddistance) && ddistance < step &&
+        VPlacedVolume const *candidate = LookupDaughter(lvol, hitbox.first);
+        Precision ddistance            = candidate->DistanceToIn(localpoint, localdir, step);
+        const auto valid               = !IsInf(ddistance) && ddistance < step &&
                            !((ddistance <= 0.) && in_state && in_state->GetLastExited() == candidate);
         hitcandidate = valid ? candidate : hitcandidate;
         step         = valid ? ddistance : step;
-        //        hitcandidate = (ddistance < step) ? candidate : hitcandidate;
-        //        step = (ddistance < step) ? ddistance : step;
-      } else {
-        break;
+        return false; // not yet done; need to continue in looper
       }
-    }
-    return false; // no assembly seen
+      return true; // mark done in this case
+    });
+    return false;
   }
 
   static VNavigator *Instance()

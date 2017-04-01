@@ -879,6 +879,7 @@ set(TEST_EXECUTABLES_CORE
   ${CMAKE_SOURCE_DIR}/test/core/TestMaskedAssign.cpp
   ${CMAKE_SOURCE_DIR}/test/core/TestVector.cpp
   ${CMAKE_SOURCE_DIR}/test/core/TestMap.cpp
+  ${CMAKE_SOURCE_DIR}/test/core/TestHybridBVH.cpp
 )
 
 
