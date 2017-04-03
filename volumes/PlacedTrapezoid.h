@@ -55,10 +55,10 @@ public:
   }
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~PlacedTrapezoid() {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void PrintType() const override;
   virtual void PrintType(std::ostream &os) const override;
 

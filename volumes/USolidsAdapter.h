@@ -102,7 +102,7 @@ public:
     return d;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool Normal(const UVector3 &aPoint, UVector3 &aNormal) const override
   {
     return UnplacedVolume_t::Normal(aPoint, aNormal);

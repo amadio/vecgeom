@@ -38,7 +38,7 @@ public:
 
 public:
   // need a constructor
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedBooleanVolume(BooleanOperation op, VPlacedVolume const *left, VPlacedVolume const *right)
       : fLeftVolume(left), fRightVolume(right), fOp(op)
   {
@@ -58,11 +58,11 @@ public:
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   BooleanOperation GetOp() const { return fOp; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;
 
 #if !defined(VECGEOM_NVCC)
@@ -81,7 +81,7 @@ public:
   }
 #endif // !VECGEOM_NVCC
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const;
 
   Vector3D<Precision> GetPointOnSurface() const
@@ -92,13 +92,13 @@ public:
 
   std::string GetEntityType() const { return "BooleanVolume"; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void Print() const {};
 
   virtual void Print(std::ostream & /*os*/) const {};
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
-  VECGEOM_CUDA_HEADER_DEVICE
+  VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
                                const int id,
@@ -109,7 +109,7 @@ public:
   VPlacedVolume const *GetRight() const { return fRightVolume; }
 
 private:
-  VECGEOM_CUDA_HEADER_DEVICE
+  VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code,

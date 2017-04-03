@@ -23,7 +23,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 //______________________________________________________________________________
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void PlacedGenTrap::PrintType() const
 {
   printf("PlacedGenTrap");

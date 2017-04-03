@@ -59,36 +59,36 @@ private:
   Precision fCubicVolume, fSurfaceArea;
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedParaboloid();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedParaboloid(const Precision rlo, const Precision rhi, const Precision dz);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ParaboloidStruct<double> const &GetStruct() const { return fParaboloid; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetRlo() const { return fParaboloid.fRlo; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetRhi() const { return fParaboloid.fRhi; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetDz() const { return fParaboloid.fDz; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetA() const { return fParaboloid.fA; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetB() const { return fParaboloid.fB; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   // VECGEOM_FORCE_INLINE
   void SetRlo(Precision val)
   {
@@ -97,7 +97,7 @@ public:
     CalcSurfaceArea();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetRhi(Precision val)
   {
     fParaboloid.SetRhi(val);
@@ -105,7 +105,7 @@ public:
     CalcSurfaceArea();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetDz(Precision val)
   {
     fParaboloid.SetDz(val);
@@ -113,7 +113,7 @@ public:
     CalcSurfaceArea();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetRloAndRhiAndDz(Precision rlo, Precision rhi, Precision dz)
   {
     fParaboloid.SetRloAndRhiAndDz(rlo, rhi, dz);
@@ -121,26 +121,26 @@ public:
     CalcSurfaceArea();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const override;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void CalcCapacity();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void CalcSurfaceArea();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision Capacity() const { return fCubicVolume; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision SurfaceArea() const { return fSurfaceArea; }
 
   virtual Vector3D<Precision> GetPointOnSurface() const override;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const override
   {
     bool valid = false;
@@ -151,10 +151,10 @@ public:
   std::string GetEntityType() const;
 
 #if defined(VECGEOM_USOLIDS)
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void GetParametersList(int aNumber, double *aArray) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedParaboloid *Clone() const;
 
   std::ostream &StreamInfo(std::ostream &os) const;
@@ -163,7 +163,7 @@ public:
 public:
   virtual int MemorySize() const final { return sizeof(*this); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void Print() const override;
 
   virtual void Print(std::ostream &os) const override;

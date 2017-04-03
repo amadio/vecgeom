@@ -123,7 +123,7 @@ Vector3D<Precision> UnplacedCutTube::GetPointOnSurface() const
   return Vector3D<Precision>(xVal, yVal, zVal);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedCutTube::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
   Precision dztop    = rmax() * Sqrt(1. - TopNormal().z() * TopNormal().z()) / TopNormal().z();
@@ -170,7 +170,7 @@ void UnplacedCutTube::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMa
   }
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedCutTube::DetectConvexity()
 {
   // Default safe convexity value
@@ -182,7 +182,7 @@ void UnplacedCutTube::DetectConvexity()
   }
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool UnplacedCutTube::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
 {
   bool valid;
@@ -191,7 +191,7 @@ bool UnplacedCutTube::Normal(Vector3D<Precision> const &point, Vector3D<Precisio
 }
 
 template <TranslationCode trans_code, RotationCode rot_code>
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedCutTube::Create(LogicalVolume const *const logical_volume,
                                        Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
@@ -216,7 +216,7 @@ VPlacedVolume *UnplacedCutTube::Create(LogicalVolume const *const logical_volume
                                                       );
 }
 
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedCutTube::SpecializedVolume(LogicalVolume const *const volume,
                                                   Transformation3D const *const transformation,
                                                   const TranslationCode trans_code, const RotationCode rot_code,

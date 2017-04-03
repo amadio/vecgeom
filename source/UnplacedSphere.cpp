@@ -19,7 +19,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 UnplacedSphere::UnplacedSphere(Precision pRmin, Precision pRmax, Precision pSPhi, Precision pDPhi,
 
                                Precision pSTheta, Precision pDTheta)
@@ -58,7 +58,7 @@ UnplacedSphere::UnplacedSphere(Precision pRmin, Precision pRmax, Precision pSPhi
 #endif
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedSphere::DetectConvexity()
 {
   // Default Convexity set to false
@@ -307,7 +307,7 @@ std::string UnplacedSphere::GetEntityType() const
 
 #endif // !VECGEOM_NVCC
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedSphere::ComputeBBox() const
 {
 }

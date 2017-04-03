@@ -120,7 +120,7 @@ namespace ConeUtilities {
 template <typename Backend, typename ShapeType, typename UnplacedVolumeType, bool onSurfaceT,
           bool includeSurface = true>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 static void PointInCyclicalSector(UnplacedVolumeType const &volume, typename Backend::precision_v const &x,
                                   typename Backend::precision_v const &y, typename Backend::bool_v &ret)
 {
@@ -167,7 +167,7 @@ static void PointInCyclicalSector(UnplacedVolumeType const &volume, typename Bac
 
 template <typename Backend, bool ForInnerRadius>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 static typename Backend::precision_v GetRadiusOfConeAtPoint(UnplacedCone const &cone,
                                                             typename Backend::precision_v const pointZ)
 {
@@ -197,7 +197,7 @@ static typename Backend::precision_v GetRadiusOfConeAtPoint(UnplacedCone const &
 
 template <typename Backend, typename ConeType, bool PositiveDirectionOfPhiVector, bool insectorCheck>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 static void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, Precision normalX, Precision normalY,
                                            UnplacedCone const &cone, Vector3D<typename Backend::precision_v> const &pos,
                                            Vector3D<typename Backend::precision_v> const &dir,
@@ -250,7 +250,7 @@ static void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, P
 }
 
 template <class Backend, bool ForInnerSurface>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 static Vector3D<typename Backend::precision_v> GetNormal(UnplacedCone const &cone,
                                                          Vector3D<typename Backend::precision_v> const &point)
 {
@@ -287,7 +287,7 @@ static Vector3D<typename Backend::precision_v> GetNormal(UnplacedCone const &con
 
 template <class Backend, bool ForInnerSurface>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 static typename Backend::bool_v IsOnConicalSurface(UnplacedCone const &cone,
                                                    Vector3D<typename Backend::precision_v> const &point)
 {
@@ -307,7 +307,7 @@ static typename Backend::bool_v IsOnConicalSurface(UnplacedCone const &cone,
 
 template <class Backend, bool ForInnerSurface>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 static typename Backend::bool_v IsMovingOutsideConicalSurface(UnplacedCone const &cone,
                                                               Vector3D<typename Backend::precision_v> const &point,
                                                               Vector3D<typename Backend::precision_v> const &direction)
@@ -323,7 +323,7 @@ static typename Backend::bool_v IsMovingOutsideConicalSurface(UnplacedCone const
 
 template <class Backend, bool ForInnerSurface>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 static typename Backend::bool_v IsMovingInsideConicalSurface(UnplacedCone const &cone,
                                                              Vector3D<typename Backend::precision_v> const &point,
                                                              Vector3D<typename Backend::precision_v> const &direction)
@@ -336,7 +336,7 @@ static typename Backend::bool_v IsMovingInsideConicalSurface(UnplacedCone const 
 }
 
 template <typename Backend, bool ForDistToIn, bool ForInnerSurface>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 static typename Backend::bool_v DetectIntersectionAndCalculateDistanceToConicalSurface(
     UnplacedCone const &cone, Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> const &direction, typename Backend::precision_v &distance)
@@ -485,7 +485,7 @@ static typename Backend::bool_v DetectIntersectionAndCalculateDistanceToConicalS
 
 #if (0)
 template <> // typename Backend, bool ForDistToIn, bool ForInnerSurface>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool DetectIntersectionAndCalculateDistanceToConicalSurface<kScalar, false, true>(UnplacedCone const &cone,
                                                                                   Vector3D<Precision> const &point,
                                                                                   Vector3D<Precision> const &direction,
@@ -683,7 +683,7 @@ bool DetectIntersectionAndCalculateDistanceToConicalSurface<kScalar, false, true
 #endif
 
 template <> // typename Backend, bool ForDistToIn, bool ForInnerSurface>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool DetectIntersectionAndCalculateDistanceToConicalSurface<kScalar, false, false>(UnplacedCone const &cone,
                                                                                    Vector3D<Precision> const &point,
                                                                                    Vector3D<Precision> const &direction,
@@ -895,7 +895,7 @@ bool DetectIntersectionAndCalculateDistanceToConicalSurface<kScalar, false, fals
 
 template <class Backend>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 static typename Backend::bool_v IsOnStartPhi(UnplacedCone const &cone,
                                              Vector3D<typename Backend::precision_v> const &point)
 {
@@ -905,7 +905,7 @@ static typename Backend::bool_v IsOnStartPhi(UnplacedCone const &cone,
 
 template <class Backend>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 static typename Backend::bool_v IsOnEndPhi(UnplacedCone const &cone,
                                            Vector3D<typename Backend::precision_v> const &point)
 {
@@ -915,7 +915,7 @@ static typename Backend::bool_v IsOnEndPhi(UnplacedCone const &cone,
 
 template <class Backend>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 static void DistanceToOutKernel(UnplacedCone const &cone, Vector3D<typename Backend::precision_v> const &point,
                                 Vector3D<typename Backend::precision_v> const &direction,
                                 typename Backend::precision_v const & /*stepMax*/,
@@ -1043,7 +1043,7 @@ static void DistanceToOutKernel(UnplacedCone const &cone, Vector3D<typename Back
 // Specialized verison of DistanceToOut
 template <>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void DistanceToOutKernel<kScalar>(UnplacedCone const &cone, Vector3D<Precision> const &point,
                                   Vector3D<Precision> const &direction, Precision const & /*stepMax*/,
                                   Precision &distance)
@@ -1185,7 +1185,7 @@ void DistanceToOutKernel<kScalar>(UnplacedCone const &cone, Vector3D<Precision> 
 
 template <class Backend>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 static typename Backend::bool_v IsOnTopZPlane(UnplacedCone const &cone,
                                               Vector3D<typename Backend::precision_v> const &point)
 {
@@ -1200,7 +1200,7 @@ static typename Backend::bool_v IsOnTopZPlane(UnplacedCone const &cone,
 
 template <class Backend>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 static typename Backend::bool_v IsOnBottomZPlane(UnplacedCone const &cone,
                                                  Vector3D<typename Backend::precision_v> const &point)
 {
@@ -1214,7 +1214,7 @@ static typename Backend::bool_v IsOnBottomZPlane(UnplacedCone const &cone,
 }
 
 template <class Backend, bool ForTopPlane>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 static typename Backend::bool_v IsOnZPlaneAndMovingInside(UnplacedCone const &cone,
                                                           Vector3D<typename Backend::precision_v> const &point,
                                                           Vector3D<typename Backend::precision_v> const &direction)
@@ -1237,7 +1237,7 @@ static typename Backend::bool_v IsOnZPlaneAndMovingInside(UnplacedCone const &co
 
 template <typename Backend, bool ForInside>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 static void GenericKernelForContainsAndInside(UnplacedCone const &cone,
                                               Vector3D<typename Backend::precision_v> const &point,
                                               typename Backend::bool_v &completelyinside,
@@ -1298,7 +1298,7 @@ static void GenericKernelForContainsAndInside(UnplacedCone const &cone,
 // Specialized Version for Scalar backend
 template <>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void GenericKernelForContainsAndInside<kScalar, true>(UnplacedCone const &cone, Vector3D<Precision> const &point,
                                                       bool &completelyinside, bool &completelyoutside)
 {
@@ -1356,7 +1356,7 @@ void GenericKernelForContainsAndInside<kScalar, true>(UnplacedCone const &cone, 
 
 template <class Backend>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 static void Inside(UnplacedCone const &cone, Vector3D<typename Backend::precision_v> const &point,
                    typename Backend::int_v &inside)
 {
@@ -1383,7 +1383,7 @@ static void Inside(UnplacedCone const &cone, Vector3D<typename Backend::precisio
 // faster, coz that call Inside and Contains functions.
 template <>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void Inside<kScalar>(UnplacedCone const &cone, Vector3D<Precision> const &point, int &inside)
 {
 
@@ -1398,7 +1398,7 @@ void Inside<kScalar>(UnplacedCone const &cone, Vector3D<Precision> const &point,
 }
 
 template <class Backend, bool ForTopPlane>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 static typename Backend::bool_v IsOnZPlaneAndMovingOutside(UnplacedCone const &cone,
                                                            Vector3D<typename Backend::precision_v> const &point,
                                                            Vector3D<typename Backend::precision_v> const &direction)
@@ -1421,7 +1421,7 @@ static typename Backend::bool_v IsOnZPlaneAndMovingOutside(UnplacedCone const &c
 
 // This function will be useful to detect the point on the circular edge
 template <class Backend, bool ForTopRing, bool ForInnerRing>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 static typename Backend::bool_v IsOnRing(UnplacedCone const &cone, Vector3D<typename Backend::precision_v> const &point)
 {
 
@@ -1466,7 +1466,7 @@ static typename Backend::bool_v IsOnRing(UnplacedCone const &cone, Vector3D<type
 
 template <class Backend>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 static typename Backend::bool_v IsOnInnerConicalSurface(UnplacedCone const &cone,
                                                         Vector3D<typename Backend::precision_v> const &point)
 {
@@ -1480,7 +1480,7 @@ static typename Backend::bool_v IsOnInnerConicalSurface(UnplacedCone const &cone
 
 template <class Backend>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 static typename Backend::bool_v IsOnOuterConicalSurface(UnplacedCone const &cone,
                                                         Vector3D<typename Backend::precision_v> const &point)
 {
@@ -1505,7 +1505,7 @@ struct ConeImplementation {
   using PlacedShape_t   = PlacedCone;
   using UnplacedShape_t = UnplacedCone;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void PrintType() { printf("SpecializedCone<%i, %i>", transCodeT, rotCodeT); }
 
   template <typename Stream>
@@ -1528,7 +1528,7 @@ struct ConeImplementation {
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void UnplacedContains(UnplacedCone const &cone, Vector3D<typename Backend::precision_v> const &point,
                                typename Backend::bool_v &contains)
   {
@@ -1542,7 +1542,7 @@ struct ConeImplementation {
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Contains(UnplacedCone const &cone, Transformation3D const &transformation,
                        Vector3D<typename Backend::precision_v> const &point,
                        Vector3D<typename Backend::precision_v> &localPoint, typename Backend::bool_v &contains)
@@ -1554,7 +1554,7 @@ struct ConeImplementation {
 
   template <typename Backend, bool ForInside>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void GenericKernelForContainsAndInside(UnplacedCone const &cone,
                                                 Vector3D<typename Backend::precision_v> const &point,
                                                 typename Backend::bool_v &completelyinside,
@@ -1566,7 +1566,7 @@ struct ConeImplementation {
   }
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Inside(UnplacedCone const &cone, Transformation3D const &transformation,
                      Vector3D<typename Backend::precision_v> const &point, typename Backend::int_v &inside)
   {
@@ -1576,7 +1576,7 @@ struct ConeImplementation {
   }
 
   template <class Backend, bool ForTopRing>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static Vector3D<typename Backend::precision_v> GetNormalAtRing(UnplacedCone const &cone,
                                                                  Vector3D<typename Backend::precision_v> const &point)
   {
@@ -1602,7 +1602,7 @@ struct ConeImplementation {
   }
 
   template <class Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToInKernel(UnplacedCone const &cone, Vector3D<typename Backend::precision_v> const &point,
                                  Vector3D<typename Backend::precision_v> const &dir,
                                  typename Backend::precision_v const & /*stepMax*/,
@@ -1748,7 +1748,7 @@ struct ConeImplementation {
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToIn(UnplacedCone const &cone, Transformation3D const &transformation,
                            Vector3D<typename Backend::precision_v> const &point,
                            Vector3D<typename Backend::precision_v> const &direction,
@@ -1760,7 +1760,7 @@ struct ConeImplementation {
   }
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToOut(UnplacedCone const &cone, Vector3D<typename Backend::precision_v> point,
                             Vector3D<typename Backend::precision_v> direction,
                             typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance)
@@ -1771,7 +1771,7 @@ struct ConeImplementation {
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToInKernel(UnplacedCone const &cone, Vector3D<typename Backend::precision_v> const &point,
                                typename Backend::precision_v &safety)
   {
@@ -1844,7 +1844,7 @@ struct ConeImplementation {
   }
 
   template <class Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToIn(UnplacedCone const &cone, Transformation3D const &transformation,
                          Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety)
   {
@@ -1854,7 +1854,7 @@ struct ConeImplementation {
 
   template <typename Backend, bool ForInnerSurface>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static typename Backend::precision_v SafeDistanceToConicalSurface(
       UnplacedCone const &cone, Vector3D<typename Backend::precision_v> const &point)
   {
@@ -1872,7 +1872,7 @@ struct ConeImplementation {
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToOutKernel(UnplacedCone const &cone, Vector3D<typename Backend::precision_v> const &point,
                                 typename Backend::precision_v &safety)
   {
@@ -1947,7 +1947,7 @@ struct ConeImplementation {
   }
 
   template <class Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToOut(UnplacedCone const &cone, Vector3D<typename Backend::precision_v> point,
                           typename Backend::precision_v &safety)
   {
@@ -1956,7 +1956,7 @@ struct ConeImplementation {
   }
 
   template <typename Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Normal(UnplacedCone const &cone, Vector3D<typename Backend::precision_v> const &point,
                      Vector3D<typename Backend::precision_v> &normal, typename Backend::bool_v &valid)
   {
@@ -1968,7 +1968,7 @@ struct ConeImplementation {
   // the point is
   // not on the surface
   template <typename Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static Vector3D<typename Backend::precision_v> ApproxSurfaceNormalKernel(
       UnplacedCone const &cone, Vector3D<typename Backend::precision_v> const &p)
   {
@@ -2033,7 +2033,7 @@ struct ConeImplementation {
   }
 
   template <class Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void NormalKernel(UnplacedCone const &cone, Vector3D<typename Backend::precision_v> const &p,
                            Vector3D<typename Backend::precision_v> &normal, typename Backend::bool_v &valid)
   {

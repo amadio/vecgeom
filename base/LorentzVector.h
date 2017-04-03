@@ -37,33 +37,33 @@ private:
   T fVec[4];
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   LorentzVector(const T a, const T b, const T c, const T d) : fVec{a, b, c, d} {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   LorentzVector() : fVec{0, 0, 0, 0} {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   LorentzVector(const T a) : fVec{0, 0, 0, 0} {}
 
   template <typename U>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   LorentzVector(LorentzVector<U> const &other) : fVec{other[0], other[1], other[2], other[3]}
   {
   }
 
   template <typename U>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   LorentzVector(Vector3D<U> const &other, T t) : fVec{other[0], other[1], other[2], t}
   {
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   LorentzVector &operator=(LorentzVector const &other)
   {
@@ -83,7 +83,7 @@ public:
    * "<<"-operator for outstreams.
    * @param str String formatted as "(%d, %d, %d %d)".
    */
-  VECGEOM_CUDA_HEADER_HOST
+  VECCORE_ATT_HOST
   LorentzVector(std::string const &str)
   {
     int begin = str.find("(") + 1, end = str.find(",") - 1;
@@ -103,7 +103,7 @@ public:
    * Contains no check for correct indexing to avoid impairing performance.
    * @param index Index of content in the range [0-2].
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T &operator[](const int index) { return fVec[index]; }
 
@@ -111,43 +111,43 @@ public:
    * Contains no check for correct indexing to avoid impairing performance.
    * @param index Index of content in the range [0-2].
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T const &operator[](const int index) const { return fVec[index]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T &x() { return fVec[0]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T const &x() const { return fVec[0]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T &y() { return fVec[1]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T const &y() const { return fVec[1]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T &z() { return fVec[2]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T const &z() const { return fVec[2]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T &t() { return fVec[3]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T const &t() const { return fVec[3]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void Set(T const &a, T const &b, T const &c, T const &d)
   {
@@ -159,7 +159,7 @@ public:
 
   template <typename U, typename V>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Set(const Vector3D<U> &v, V t)
   {
     fVec[0] = v[0];
@@ -170,7 +170,7 @@ public:
 
   template <typename U>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Set(const Vector3D<U> &v)
   {
     fVec[0] = v[0];
@@ -178,16 +178,16 @@ public:
     fVec[2] = v[2];
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Set(const T a) { Set(a, a, a, a); }
 
   /// \return the length squared perpendicular to z direction
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T Perp2() const { return fVec[0] * fVec[0] + fVec[1] * fVec[1]; }
 
   /// \return the length perpendicular to z direction
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T Perp() const { return Sqrt(Perp2()); }
 
@@ -195,7 +195,7 @@ public:
   /// \return T (where T is float, double, or various SIMD vector types)
   template <typename U>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static T Dot(LorentzVector<T> const &left, LorentzVector<U> const &right)
   {
     return -left[0] * right[0] - left[1] * right[1] - left[2] * right[2] + left[3] * right[3];
@@ -205,7 +205,7 @@ public:
   /// \return T (where T is float, double, or various SIMD vector types)
   template <typename U>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   T Dot(LorentzVector<U> const &right) const
   {
     return Dot(*this, right);
@@ -213,33 +213,33 @@ public:
 
   // For UVector3 compatibility. Is equal to normal multiplication.
   // TODO: check if there are implicit dot products in USolids...
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   VecType MultiplyByComponents(VecType const &other) const { return *this * other; }
 
   /// \return Squared magnitude of the vector.
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T Mag2() const { return Dot(*this, *this); }
 
   /// \return Magnitude of the vector.
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T Mag() const { return Sqrt(Mag2()); }
 
   /// \return Azimuthal angle between -pi and pi.
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T Phi() const { return ATan2(fVec[1], fVec[0]); }
 
   /// \return Polar angle between 0 and pi.
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T Theta() const { return ACos(fVec[2] / SpaceVector<T>().Mag()); }
 
   /// Maps each vector entry to a function that manipulates the entry type.
   /// \param f A function of type "T f(const T&)" to map over entries.
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void Map(T (*f)(const T &))
   {
@@ -249,7 +249,7 @@ public:
     fVec[3] = f(fVec[3]);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   LorentzVector<T> Abs() const
   {
@@ -259,7 +259,7 @@ public:
 
   template <typename U>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void MaskedAssign(LorentzVector<U> const &condition, LorentzVector<T> const &value)
   {
     vecCore::MaskedAssign(fVec[0], condition[0], value[0]);
@@ -268,11 +268,11 @@ public:
     vecCore::MaskedAssign(fVec[3], condition[3], value[3]);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   static VecType FromCylindrical(T r, T phi, T z, T t) { return VecType(r * cos(phi), r * sin(phi), z, t); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   VecType &FixZeroes()
   {
@@ -285,35 +285,35 @@ public:
 
 // Inplace binary operators
 
-#define LORENTZVECTOR_TEMPLATE_INPLACE_BINARY_OP(OPERATOR)                                                \
-  VECGEOM_CUDA_HEADER_BOTH                                                                                \
-  VECGEOM_FORCE_INLINE                                                                                    \
-  VecType &operator OPERATOR(const VecType &other)                                                        \
-  {                                                                                                       \
-    fVec[0] OPERATOR other.fVec[0];                                                                       \
-    fVec[1] OPERATOR other.fVec[1];                                                                       \
-    fVec[2] OPERATOR other.fVec[2];                                                                       \
-    fVec[3] OPERATOR other.fVec[3];                                                                       \
-    return *this;                                                                                         \
-  }                                                                                                       \
-  template <typename V>                                                                                   \
-  VECGEOM_CUDA_HEADER_BOTH VECGEOM_FORCE_INLINE VecType &operator OPERATOR(const LorentzVector<V> &other) \
-  {                                                                                                       \
-    fVec[0] OPERATOR other[0];                                                                            \
-    fVec[1] OPERATOR other[1];                                                                            \
-    fVec[2] OPERATOR other[2];                                                                            \
-    fVec[3] OPERATOR other[3];                                                                            \
-    return *this;                                                                                         \
-  }                                                                                                       \
-  VECGEOM_CUDA_HEADER_BOTH                                                                                \
-  VECGEOM_FORCE_INLINE                                                                                    \
-  VecType &operator OPERATOR(const T &scalar)                                                             \
-  {                                                                                                       \
-    fVec[0] OPERATOR scalar;                                                                              \
-    fVec[1] OPERATOR scalar;                                                                              \
-    fVec[2] OPERATOR scalar;                                                                              \
-    fVec[3] OPERATOR scalar;                                                                              \
-    return *this;                                                                                         \
+#define LORENTZVECTOR_TEMPLATE_INPLACE_BINARY_OP(OPERATOR)                                               \
+  VECCORE_ATT_HOST_DEVICE                                                                                \
+  VECGEOM_FORCE_INLINE                                                                                   \
+  VecType &operator OPERATOR(const VecType &other)                                                       \
+  {                                                                                                      \
+    fVec[0] OPERATOR other.fVec[0];                                                                      \
+    fVec[1] OPERATOR other.fVec[1];                                                                      \
+    fVec[2] OPERATOR other.fVec[2];                                                                      \
+    fVec[3] OPERATOR other.fVec[3];                                                                      \
+    return *this;                                                                                        \
+  }                                                                                                      \
+  template <typename V>                                                                                  \
+  VECCORE_ATT_HOST_DEVICE VECGEOM_FORCE_INLINE VecType &operator OPERATOR(const LorentzVector<V> &other) \
+  {                                                                                                      \
+    fVec[0] OPERATOR other[0];                                                                           \
+    fVec[1] OPERATOR other[1];                                                                           \
+    fVec[2] OPERATOR other[2];                                                                           \
+    fVec[3] OPERATOR other[3];                                                                           \
+    return *this;                                                                                        \
+  }                                                                                                      \
+  VECCORE_ATT_HOST_DEVICE                                                                                \
+  VECGEOM_FORCE_INLINE                                                                                   \
+  VecType &operator OPERATOR(const T &scalar)                                                            \
+  {                                                                                                      \
+    fVec[0] OPERATOR scalar;                                                                             \
+    fVec[1] OPERATOR scalar;                                                                             \
+    fVec[2] OPERATOR scalar;                                                                             \
+    fVec[3] OPERATOR scalar;                                                                             \
+    return *this;                                                                                        \
   }
   LORENTZVECTOR_TEMPLATE_INPLACE_BINARY_OP(+=)
   LORENTZVECTOR_TEMPLATE_INPLACE_BINARY_OP(-=)
@@ -323,13 +323,13 @@ public:
 
 #undef LORENTZVECTOR_TEMPLATE_INPLACE_BINARY_OP
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   operator bool() const { return fVec[0] && fVec[1] && fVec[2] && fVec[3]; }
 
   template <typename U>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Vector3D<U> SpaceVector() const
   {
     return Vector3D<U>(fVec[0], fVec[1], fVec[2]);
@@ -337,7 +337,7 @@ public:
 
   template <typename U>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VecType Boost(const Vector3D<U> &beta) const
   {
     double beta2 = beta.Mag2();
@@ -348,27 +348,27 @@ public:
                          gamma * (fVec[3] - bdotv));
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T Beta2() const { return (SpaceVector<T>() / fVec[4]).Mag2(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T Beta() const { return Sqrt(Beta2()); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T Gamma2() const { return 1 / (1 - Beta2()); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T Gamma() const { return Sqrt(Gamma2()); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T Rapidity() const { return 0.5 * Log((fVec[3] + fVec[2]) / (fVec[3] - fVec[2])); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T PseudoRapidity() const { return -Log(Tan(0.5 * Theta())); }
 
@@ -380,7 +380,7 @@ public:
    @param func   [in]    function defining the angular distribution of the particles if not uniform
   */
   template <typename U, typename V, typename W>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void TwoBodyDecay(const U masses[], LorentzVector<V> &t1, LorentzVector<W> &t2,
                     void (*func)(double &mthe, double &mphi) = 0) const
   {
@@ -466,7 +466,7 @@ public:
    @param[out] daughters a vector of LorentzVectors with the decay products
   */
   template <typename U>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void PhaseSpace(const vector<U> &masses, vector<LorentzVector<T>> &daughters)
   {
     // Relativistic phase space
@@ -517,30 +517,30 @@ std::ostream &operator<<(std::ostream &os, LorentzVector<T> const &vec)
   return os;
 }
 
-#define LORENTZVECTOR_BINARY_OP(OPERATOR, INPLACE)                                                              \
-  template <typename T, typename V>                                                                             \
-  VECGEOM_FORCE_INLINE VECGEOM_CUDA_HEADER_BOTH LorentzVector<T> operator OPERATOR(const LorentzVector<T> &lhs, \
-                                                                                   const LorentzVector<V> &rhs) \
-  {                                                                                                             \
-    LorentzVector<T> result(lhs);                                                                               \
-    result INPLACE rhs;                                                                                         \
-    return result;                                                                                              \
-  }                                                                                                             \
-  template <typename T, typename V>                                                                             \
-  VECGEOM_FORCE_INLINE VECGEOM_CUDA_HEADER_BOTH LorentzVector<T> operator OPERATOR(LorentzVector<T> const &lhs, \
-                                                                                   const V rhs)                 \
-  {                                                                                                             \
-    LorentzVector<T> result(lhs);                                                                               \
-    result INPLACE rhs;                                                                                         \
-    return result;                                                                                              \
-  }                                                                                                             \
-  template <typename T, typename V>                                                                             \
-  VECGEOM_FORCE_INLINE VECGEOM_CUDA_HEADER_BOTH LorentzVector<T> operator OPERATOR(const V lhs,                 \
-                                                                                   LorentzVector<T> const &rhs) \
-  {                                                                                                             \
-    LorentzVector<T> result(lhs);                                                                               \
-    result INPLACE rhs;                                                                                         \
-    return result;                                                                                              \
+#define LORENTZVECTOR_BINARY_OP(OPERATOR, INPLACE)                                                             \
+  template <typename T, typename V>                                                                            \
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE LorentzVector<T> operator OPERATOR(const LorentzVector<T> &lhs, \
+                                                                                  const LorentzVector<V> &rhs) \
+  {                                                                                                            \
+    LorentzVector<T> result(lhs);                                                                              \
+    result INPLACE rhs;                                                                                        \
+    return result;                                                                                             \
+  }                                                                                                            \
+  template <typename T, typename V>                                                                            \
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE LorentzVector<T> operator OPERATOR(LorentzVector<T> const &lhs, \
+                                                                                  const V rhs)                 \
+  {                                                                                                            \
+    LorentzVector<T> result(lhs);                                                                              \
+    result INPLACE rhs;                                                                                        \
+    return result;                                                                                             \
+  }                                                                                                            \
+  template <typename T, typename V>                                                                            \
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE LorentzVector<T> operator OPERATOR(const V lhs,                 \
+                                                                                  LorentzVector<T> const &rhs) \
+  {                                                                                                            \
+    LorentzVector<T> result(lhs);                                                                              \
+    result INPLACE rhs;                                                                                        \
+    return result;                                                                                             \
   }
 LORENTZVECTOR_BINARY_OP(+, +=)
 LORENTZVECTOR_BINARY_OP(-, -=)
@@ -549,7 +549,7 @@ LORENTZVECTOR_BINARY_OP(/, /=)
 #undef LORENTZVECTOR_BINARY_OP
 
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool operator==(LorentzVector<Precision> const &lhs, LorentzVector<Precision> const &rhs)
 {
   return Abs(lhs[0] - rhs[0]) < kTolerance && Abs(lhs[1] - rhs[1]) < kTolerance && Abs(lhs[2] - rhs[2]) < kTolerance &&
@@ -557,7 +557,7 @@ bool operator==(LorentzVector<Precision> const &lhs, LorentzVector<Precision> co
 }
 
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 LorentzVector<bool> operator!=(LorentzVector<Precision> const &lhs, LorentzVector<Precision> const &rhs)
 {
   return !(lhs == rhs);
@@ -565,13 +565,13 @@ LorentzVector<bool> operator!=(LorentzVector<Precision> const &lhs, LorentzVecto
 
 template <typename T>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 LorentzVector<T> operator-(LorentzVector<T> const &vec)
 {
   return LorentzVector<T>(-vec[0], -vec[1], -vec[2], -vec[3]);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 VECGEOM_FORCE_INLINE
 LorentzVector<bool> operator!(LorentzVector<bool> const &vec)
 {
@@ -581,7 +581,7 @@ LorentzVector<bool> operator!(LorentzVector<bool> const &vec)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
 #define LORENTZVECTOR_SCALAR_BOOLEAN_LOGICAL_OP(OPERATOR)                                               \
-  VECGEOM_CUDA_HEADER_BOTH                                                                              \
+  VECCORE_ATT_HOST_DEVICE                                                                               \
   VECGEOM_FORCE_INLINE                                                                                  \
   LorentzVector<bool> operator OPERATOR(LorentzVector<bool> const &lhs, LorentzVector<bool> const &rhs) \
   {                                                                                                     \

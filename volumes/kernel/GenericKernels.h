@@ -22,7 +22,7 @@ struct GenericKernels {
 
 template <bool tolerant, typename T>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T MakePlusTolerant(T const &x, decltype(kHalfTolerance) halftol = kHalfTolerance)
 {
   return (tolerant) ? x + halftol : x;
@@ -30,7 +30,7 @@ T MakePlusTolerant(T const &x, decltype(kHalfTolerance) halftol = kHalfTolerance
 
 template <bool tolerant, typename T>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T MakeMinusTolerant(T const &x, decltype(kHalfTolerance) halftol = kHalfTolerance)
 {
   return (tolerant) ? x - halftol : x;
@@ -38,7 +38,7 @@ T MakeMinusTolerant(T const &x, decltype(kHalfTolerance) halftol = kHalfToleranc
 
 template <bool tolerant, typename T>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T MakePlusTolerantSquare(T const &x, T const &xsq, decltype(kTolerance) tol = kTolerance)
 {
   return (tolerant) ? xsq + tol * x : xsq;
@@ -46,7 +46,7 @@ T MakePlusTolerantSquare(T const &x, T const &xsq, decltype(kTolerance) tol = kT
 
 template <bool tolerant, typename T>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T MakeMinusTolerantSquare(T const &x, T const &xsq, decltype(kTolerance) tol = kTolerance)
 {
   return (tolerant) ? xsq - tol * x : xsq;
@@ -76,14 +76,14 @@ template <>
 struct Flip<true> {
   template <class T>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static T FlipSign(T const &value)
   {
     return -value;
   }
   template <class T>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static T FlipLogical(T const &value)
   {
     return !value;
@@ -94,14 +94,14 @@ template <>
 struct Flip<false> {
   template <class T>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static T FlipSign(T const &value)
   {
     return value;
   }
   template <class T>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static T FlipLogical(T const &value)
   {
     return value;
@@ -110,7 +110,7 @@ struct Flip<false> {
 
 template <class Backend>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 typename Backend::precision_v NormalizeAngle(typename Backend::precision_v a)
 {
   return a + kTwoPi * ((a < 0) - typename Backend::int_v(a / kTwoPi));
@@ -122,7 +122,7 @@ typename Backend::precision_v NormalizeAngle(typename Backend::precision_v a)
 //         segment represented by the two input points.
 template <class Backend>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 typename Backend::precision_v DistanceToLineSegmentSquared(Vector3D<Precision> corner0, Vector3D<Precision> corner1,
                                                            Vector3D<typename Backend::precision_v> const &point)
 {
@@ -157,7 +157,7 @@ typename Backend::precision_v DistanceToLineSegmentSquared(Vector3D<Precision> c
 //         segment represented by the two input points.
 template <typename Real_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Real_v DistanceToLineSegmentSquared1(Vector3D<Precision> corner0, Vector3D<Precision> corner1,
                                      Vector3D<Real_v> const &point)
 {

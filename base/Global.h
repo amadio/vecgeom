@@ -88,12 +88,12 @@ VECGEOM_GLOBAL vecgeom::Inside_t kOutside = 3;
 namespace details {
 template <typename DataType, typename Target>
 struct UseIfSameType {
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static Target const *Get(DataType *) { return nullptr; }
 };
 template <typename DataType>
 struct UseIfSameType<DataType, DataType> {
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static DataType const *Get(DataType *ptr) { return ptr; }
 };
 }
@@ -117,7 +117,7 @@ namespace {
 // helper code for the MaskedAssignFunc macro
 template <typename T>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool ToBool(T /* mask */)
 {
   return false;
@@ -126,7 +126,7 @@ bool ToBool(T /* mask */)
 #pragma GCC diagnostic ignored "-Wunused-function"
 template <>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool ToBool<bool>(bool mask)
 {
   return mask;
@@ -152,7 +152,7 @@ bool ToBool<bool>(bool mask)
 // defining an infinite length constant
 template <typename T>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T InfinityLength() noexcept
 {
   return vecCore::NumericLimits<T>::Max();

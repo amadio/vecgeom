@@ -21,7 +21,7 @@ using std::setfill;
 using std::find;
 #else
 template <class InputIterator, class T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 InputIterator find(InputIterator first, InputIterator last, const T &val)
 {
   while (first != last) {
@@ -50,7 +50,7 @@ static void SwitchFile(std::stringstream &outline, unsigned int nfiles, unsigned
 {
   if (nfunc) {
     outline << "} // anonymous namespace\n\n";
-    outline << "VECGEOM_CUDA_HEADER_BOTH" << endl
+    outline << "VECCORE_ATT_HOST_DEVICE" << endl
             << "void CreateParticle" << setfill('0') << setw(4) << nfiles - 1 << "() {" << endl
             << setfill(' ') << setw(0);
     for (unsigned int i = 0; i < nfunc; ++i)
@@ -94,7 +94,7 @@ static void StartFile(std::stringstream &outline, unsigned int nfiles, bool oneF
   outline << "inline namespace VECGEOM_IMPL_NAMESPACE {" << endl << endl;
   outline << endl << "//" << setw(80) << setfill('_') << "_" << endl << setfill(' ') << setw(0);
   if (!oneFuncPer) {
-    outline << "VECGEOM_CUDA_HEADER_BOTH" << endl
+    outline << "VECCORE_ATT_HOST_DEVICE" << endl
             << "void CreateNuclei" << setfill('0') << setw(4) << nfiles << "() {" << endl
             << setfill(' ') << setw(0);
     outline << "   Nucleus *nuc = 0;\n";
@@ -104,7 +104,7 @@ static void StartFile(std::stringstream &outline, unsigned int nfiles, bool oneF
 }
 
 #else
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 char *strncpy(char *dest, const char *src, size_t n)
 {
   char *ret = dest;
@@ -120,12 +120,12 @@ char *strncpy(char *dest, const char *src, size_t n)
 //________________________________________________________________________________________________
 #ifdef VECGEOM_NVCC
 class Nucleus;
-VECGEOM_CUDA_HEADER_DEVICE NucleusIndex_t *gNucleiDev   = nullptr;
-NucleusIndex_t *gNucleiHost                             = nullptr;
-VECGEOM_CUDA_HEADER_DEVICE NucleusMap_t *gIsoListDev    = nullptr;
-NucleusMap_t *gIsoListHost                              = nullptr;
-VECGEOM_CUDA_HEADER_DEVICE NucleusMap_t *gNatIsoListDev = nullptr;
-NucleusMap_t *gNatIsoListHost                           = nullptr;
+VECCORE_ATT_DEVICE NucleusIndex_t *gNucleiDev   = nullptr;
+NucleusIndex_t *gNucleiHost                     = nullptr;
+VECCORE_ATT_DEVICE NucleusMap_t *gIsoListDev    = nullptr;
+NucleusMap_t *gIsoListHost                      = nullptr;
+VECCORE_ATT_DEVICE NucleusMap_t *gNatIsoListDev = nullptr;
+NucleusMap_t *gNatIsoListHost                   = nullptr;
 #else
 NucleusIndex_t *Nucleus::fNuclei   = nullptr;
 NucleusMap_t *Nucleus::fIsoList    = nullptr;
@@ -142,7 +142,7 @@ std::ostream &operator<<(std::ostream &os, const Nucleus &nuc)
 #endif
 
 //________________________________________________________________________________________________
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Nucleus::Nucleus(const char *name, int n, int z, int iso, double a, double dm, double life, double natab, double toxa,
                  double toxb, int ind1, int ind2)
     : fN(n), fZ(z), fIso(iso), fA(a), fIsolevel(dm), fLife(life), fNatab(natab), fToxa(toxa), fToxb(toxb), fInd1(ind1),
@@ -257,17 +257,17 @@ void Nucleus::ReadFile(std::string infilename, bool output)
     outfile << "namespace vecgeom {" << endl;
     outfile << "inline namespace VECGEOM_IMPL_NAMESPACE {" << endl << endl;
     for (unsigned int i = 0; i < nfiles; ++i) {
-      outfile << "VECGEOM_CUDA_HEADER_BOTH\n";
+      outfile << "VECCORE_ATT_HOST_DEVICE\n";
       outfile << "void CreateNuclei" << setfill('0') << setw(4) << i << "();" << endl;
     }
 
     outfile << "\n#ifdef VECGEOM_NVCC\n";
-    outfile << "VECGEOM_CUDA_HEADER_DEVICE bool fgCreateNucleiInitDoneDev = "
+    outfile << "VECCORE_ATT_DEVICE bool fgCreateNucleiInitDoneDev = "
                "false;\n";
     outfile << "#endif\n";
 
     outfile << endl << "//" << setw(80) << setfill('_') << "_" << endl << setfill(' ') << setw(0);
-    outfile << "VECGEOM_CUDA_HEADER_BOTH" << endl << "void Nucleus::CreateNuclei() {" << endl;
+    outfile << "VECCORE_ATT_HOST_DEVICE" << endl << "void Nucleus::CreateNuclei() {" << endl;
     outfile << "#ifndef VECGEOM_NVCC\n";
     outfile << "  static bool fgCreateNucleiInitDone = false;\n";
     outfile << "#else\n";
@@ -368,7 +368,7 @@ void Nucleus::Getmat(std::string line, int &n, int &z, int &iso, std::string &na
 #endif
 
 //________________________________________________________________________________________________
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void Nucleus::NormDecay()
 {
   double brt = 0;
@@ -380,7 +380,7 @@ void Nucleus::NormDecay()
 }
 
 //________________________________________________________________________________________________
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void Nucleus::AddDecay(int da, int dz, int diso, double qval, double br)
 {
   Decay dec(da, dz, diso, qval, br);

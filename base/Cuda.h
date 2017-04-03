@@ -15,9 +15,9 @@
   #endif
   #define VECGEOM_IMPL_NAMESPACE cuda
   #define VECGEOM_NAMESPACE ::vecgeom
-  #define VECGEOM_CUDA_HEADER_HOST __host__
-  #define VECGEOM_CUDA_HEADER_DEVICE __device__
-  #define VECGEOM_CUDA_HEADER_BOTH __host__ __device__
+  #define VECCORE_ATT_HOST __host__
+  #define VECCORE_ATT_DEVICE __device__
+  #define VECCORE_ATT_HOST_DEVICE __host__ __device__
   #define VECGEOM_CUDA_HEADER_GLOBAL __global__
   #define VECGEOM_ALIGNED __align__((64))
   #define VECGEOM_HOST_FORWARD_DECLARE(X) namespace cxx { X }
@@ -41,9 +41,9 @@
   // Not compiling with NVCC
   #define VECGEOM_IMPL_NAMESPACE cxx
   #define VECGEOM_NAMESPACE ::vecgeom
-  #define VECGEOM_CUDA_HEADER_HOST
-  #define VECGEOM_CUDA_HEADER_DEVICE
-  #define VECGEOM_CUDA_HEADER_BOTH
+  #define VECCORE_ATT_HOST
+  #define VECCORE_ATT_DEVICE
+  #define VECCORE_ATT_HOST_DEVICE
   #define VECGEOM_CUDA_HEADER_GLOBAL
   #ifdef VECGEOM_CUDA
     // CUDA is enabled, but currently compiling regular C++ code.
@@ -172,13 +172,13 @@ class unique_ptr {
   T *fValue;
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   unique_ptr(T *in) : fValue(in) {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ~unique_ptr() { delete fValue; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   T *operator->() { return fValue; }
 };
 
@@ -187,13 +187,13 @@ class unique_ptr<T[]> {
   T *fValue;
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   unique_ptr(T *in) : fValue(in) {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ~unique_ptr() { delete[] fValue; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   T &operator[](size_t idx) { return fValue[idx]; }
 };
 #endif

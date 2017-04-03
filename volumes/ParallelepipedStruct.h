@@ -30,7 +30,7 @@ struct ParallelepipedStruct {
   T fTanThetaSinPhi; /** tan(theta)*sin(phi) */
   T fTanThetaCosPhi; /** tan(theta)*cos(phi) */
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ParallelepipedStruct(Vector3D<T> const &dim, const T alpha, const T theta, const T phi)
       : fDimensions(dim), fAlpha(0), fTheta(0), fPhi(0), fCtx(0), fCty(0), fTanAlpha(0), fTanThetaSinPhi(0),
         fTanThetaCosPhi(0)
@@ -39,7 +39,7 @@ struct ParallelepipedStruct {
     SetThetaAndPhi(theta, phi);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ParallelepipedStruct(const T x, const T y, const T z, const T alpha, const T theta, const T phi)
       : fDimensions(x, y, z), fAlpha(0), fTheta(0), fPhi(0), fCtx(0), fCty(0), fTanAlpha(0), fTanThetaSinPhi(0),
         fTanThetaCosPhi(0)
@@ -48,7 +48,7 @@ struct ParallelepipedStruct {
     SetThetaAndPhi(theta, phi);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetAlpha(const T alpha)
   {
     fAlpha    = alpha;
@@ -56,13 +56,13 @@ struct ParallelepipedStruct {
     ComputeNormals();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetTheta(const T theta) { SetThetaAndPhi(theta, fPhi); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetPhi(const T phi) { SetThetaAndPhi(fTheta, phi); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetThetaAndPhi(const T theta, const T phi)
   {
     fTheta          = theta;
@@ -72,7 +72,7 @@ struct ParallelepipedStruct {
     ComputeNormals();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void ComputeNormals()
   {
     Vector3D<T> v(sin(kDegToRad * fTheta) * cos(kDegToRad * fPhi), sin(kDegToRad * fTheta) * sin(kDegToRad * fPhi),

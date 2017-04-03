@@ -47,17 +47,17 @@ public:
   }
 
 #endif
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~PlacedCone() {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedCone const *GetUnplacedVolume() const
   {
     return static_cast<UnplacedCone const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
 #if defined(VECGEOM_USOLIDS)
-  //  VECGEOM_CUDA_HEADER_BOTH
+  //  VECCORE_ATT_HOST_DEVICE
   std::ostream &StreamInfo(std::ostream &os) const override { return GetUnplacedVolume()->StreamInfo(os); }
 #endif
 
@@ -124,7 +124,7 @@ double SafetyFromOutsideR(const Vector3D<Precision> &p, const double rho, bool p
     GetUnplacedVolume()->Extent(aMin, aMax);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
     /*

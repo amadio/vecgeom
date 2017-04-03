@@ -33,12 +33,12 @@ using NucleusIndex_t              = std::map<int, Nucleus *>;
 #endif
 
 #ifdef VECGEOM_NVCC
-extern VECGEOM_CUDA_HEADER_DEVICE NucleusIndex_t *gNucleiDev;   // Nuclei list indexed by 10,000*z + 10*n + iso
-extern NucleusIndex_t *gNucleiHost;                             // Nuclei list indexed by 10,000*z + 10*n + iso
-extern VECGEOM_CUDA_HEADER_DEVICE NucleusMap_t *gIsoListDev;    // List of isotopes for a given z
-extern NucleusMap_t *gIsoListHost;                              // List of isotopes for a given z
-extern VECGEOM_CUDA_HEADER_DEVICE NucleusMap_t *gNatIsoListDev; // List of stable isotopes for a given z
-extern NucleusMap_t *gNatIsoListHost;                           // List of stable isotopes for a given z
+extern VECCORE_ATT_DEVICE NucleusIndex_t *gNucleiDev;   // Nuclei list indexed by 10,000*z + 10*n + iso
+extern NucleusIndex_t *gNucleiHost;                     // Nuclei list indexed by 10,000*z + 10*n + iso
+extern VECCORE_ATT_DEVICE NucleusMap_t *gIsoListDev;    // List of isotopes for a given z
+extern NucleusMap_t *gIsoListHost;                      // List of isotopes for a given z
+extern VECCORE_ATT_DEVICE NucleusMap_t *gNatIsoListDev; // List of stable isotopes for a given z
+extern NucleusMap_t *gNatIsoListHost;                   // List of stable isotopes for a given z
 #endif
 
 class Nucleus {
@@ -51,32 +51,32 @@ public:
   using VectorDecay_t             = std::vector<Decay>;
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Nucleus(const char *name, int n, int z, int iso, double a, double dm, double life, double natab, double toxa,
           double toxb, int ind1, int ind2);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   double A() const { return fA; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   double Z() const { return fZ; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   double Iso() const { return fIso; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   double Life() const { return fLife; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   double ToxA() const { return fToxa; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   double ToxB() const { return fToxb; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   int Indx1() const { return fInd1; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   int Indx2() const { return fInd2; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void CreateNuclei();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   const VectorDecay_t &DecayList() const { return fDecayList; }
 
   std::string Name() const
@@ -91,15 +91,15 @@ public:
   static void ReadFile(std::string infilename, bool outfile = false);
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void NormDecay();
 
   friend std::ostream &operator<<(std::ostream &os, const Nucleus &nuc);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void AddDecay(int da, int dz, int diso, double qval, double br);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static const NucleusIndex_t &Nuclei()
   {
 #ifndef VECGEOM_NVCC
@@ -116,7 +116,7 @@ public:
 #endif
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static const NucleusMap_t &IsoList()
   {
 #ifndef VECGEOM_NVCC
@@ -133,7 +133,7 @@ public:
 #endif
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static const NucleusMap_t &NatIsoList()
   {
 #ifndef VECGEOM_NVCC
@@ -150,13 +150,13 @@ public:
 
   class Decay {
   public:
-    VECGEOM_CUDA_HEADER_BOTH
+    VECCORE_ATT_HOST_DEVICE
     Decay() : fDa(0), fDz(0), fDiso(0), fQval(0), fBr(0) {}
 
-    VECGEOM_CUDA_HEADER_BOTH
+    VECCORE_ATT_HOST_DEVICE
     Decay(int da, int dz, int diso, double qval, double br) : fDa(da), fDz(dz), fDiso(diso), fQval(qval), fBr(br) {}
 
-    VECGEOM_CUDA_HEADER_BOTH
+    VECCORE_ATT_HOST_DEVICE
     bool operator==(const Decay &d1) const
     {
       return (fDa == d1.fDa) && (fDz == d1.fDz) && (fDiso == d1.fDiso) &&
@@ -164,17 +164,17 @@ public:
              (fabs(fBr - d1.fBr) / (fBr + d1.fBr) > 0 ? (fBr + d1.fBr) : 1 > 5e-7);
     }
 
-    VECGEOM_CUDA_HEADER_BOTH
+    VECCORE_ATT_HOST_DEVICE
     int Dz() const { return fDz; }
-    VECGEOM_CUDA_HEADER_BOTH
+    VECCORE_ATT_HOST_DEVICE
     int Da() const { return fDa; }
-    VECGEOM_CUDA_HEADER_BOTH
+    VECCORE_ATT_HOST_DEVICE
     int Diso() const { return fDiso; }
-    VECGEOM_CUDA_HEADER_BOTH
+    VECCORE_ATT_HOST_DEVICE
     double Qval() const { return fQval; }
-    VECGEOM_CUDA_HEADER_BOTH
+    VECCORE_ATT_HOST_DEVICE
     double Br() const { return fBr; }
-    VECGEOM_CUDA_HEADER_BOTH
+    VECCORE_ATT_HOST_DEVICE
     void Br(double br) { fBr = br; }
     const std::string Name() const;
 

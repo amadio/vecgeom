@@ -63,7 +63,7 @@ public:
   using BaseUnplVol::DistanceToOut;
   using BaseUnplVol::DistanceToIn;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   virtual Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
                                   Precision step_max = kInfLength) const override
@@ -87,7 +87,7 @@ public:
   }
 
   // the extended DistanceToOut interface
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   virtual Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
                                   Vector3D<Precision> &normal, bool &convex,
@@ -102,7 +102,7 @@ public:
     return 0.;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   virtual bool Contains(Vector3D<Precision> const &p) const override
   {
@@ -111,7 +111,7 @@ public:
     return output;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   virtual EnumInside Inside(Vector3D<Precision> const &p) const override
   {
@@ -120,7 +120,7 @@ public:
     return (EnumInside)output;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision DistanceToIn(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
                                  const Precision step_max = kInfLength) const override
   {
@@ -132,7 +132,7 @@ public:
     return output;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision SafetyToOut(Vector3D<Precision> const &p) const override
   {
     Precision output(kInfLength);
@@ -140,7 +140,7 @@ public:
     return output;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision SafetyToIn(Vector3D<Precision> const &p) const override
   {
     Precision output(kInfLength);
@@ -163,7 +163,7 @@ public:
   using Common_t::Common_t;
 
   // the explicit SIMD interface
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Real_v DistanceToOutVec(Vector3D<Real_v> const &p, Vector3D<Real_v> const &d,
                                   Real_v const &step_max) const override
   {
@@ -174,7 +174,7 @@ public:
   }
 
   // the explicit SIMD interface
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Real_v DistanceToInVec(Vector3D<Real_v> const &p, Vector3D<Real_v> const &d,
                                  Real_v const &step_max) const override
   {
@@ -185,7 +185,7 @@ public:
   }
 
   // the explicit SIMD interface
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Real_v SafetyToOutVec(Vector3D<Real_v> const &p) const override
   {
     Real_v output(kInfLength);
@@ -194,7 +194,7 @@ public:
   }
 
   // the explicit SIMD interface
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Real_v SafetyToInVec(Vector3D<Real_v> const &p) const override
   {
     Real_v output(kInfLength);
@@ -246,7 +246,7 @@ public:
   using Common_t::DistanceToIn;
 
   // the explicit SIMD interface
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Real_v DistanceToOutVec(Vector3D<Real_v> const &p, Vector3D<Real_v> const &d,
                                   Real_v const &step_max) const override
   {
@@ -265,7 +265,7 @@ public:
   }
 
   // the explicit SIMD interface
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Real_v DistanceToInVec(Vector3D<Real_v> const &p, Vector3D<Real_v> const &d,
                                  Real_v const &step_max) const override
   {
@@ -284,7 +284,7 @@ public:
   }
 
   // the explicit SIMD interface
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Real_v SafetyToOutVec(Vector3D<Real_v> const &p) const override
   {
     // implementation of a vector interface in terms of a scalar interface
@@ -300,7 +300,7 @@ public:
   }
 
   // the explicit SIMD interface
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Real_v SafetyToInVec(Vector3D<Real_v> const &p) const override
   {
     // implementation of a vector interface in terms of a scalar interface

@@ -22,33 +22,33 @@ private:
   PolygonalShell fPolyShell;
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedSExtruVolume(int nvertices, double *x, double *y, Precision lowerz, Precision upperz)
       : fPolyShell(nvertices, x, y, lowerz, upperz)
   {
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedSExtruVolume(UnplacedSExtruVolume const &other) : fPolyShell(other.fPolyShell) {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   PolygonalShell const &GetStruct() const { return fPolyShell; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision Capacity() const /*override*/
   {
     return fPolyShell.fPolygon.Area() * (fPolyShell.fUpperZ - fPolyShell.fLowerZ);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision SurfaceArea() const /*override*/ { return fPolyShell.SurfaceArea() + 2. * fPolyShell.fPolygon.Area(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override { fPolyShell.Extent(aMin, aMax); }
 
   Vector3D<Precision> GetPointOnSurface() const override;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const override
   {
     bool valid(false);
@@ -56,7 +56,7 @@ public:
     return valid;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void Print() const override;
 
   virtual void Print(std::ostream &os) const override;

@@ -47,40 +47,40 @@ public:
   }
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~PlacedCutTube() {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedCutTube const *GetUnplacedVolume() const
   {
     return static_cast<UnplacedCutTube const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision rmin() const { return GetUnplacedVolume()->rmin(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision rmax() const { return GetUnplacedVolume()->rmax(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision z() const { return GetUnplacedVolume()->z(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision sphi() const { return GetUnplacedVolume()->sphi(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision dphi() const { return GetUnplacedVolume()->dphi(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Vector3D<Precision> BottomNormal() const { return GetUnplacedVolume()->BottomNormal(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Vector3D<Precision> TopNormal() const { return GetUnplacedVolume()->TopNormal(); }
 
@@ -94,7 +94,7 @@ public:
   }
 
   /** @brief Shortcut for computing the normal */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
     return GetUnplacedVolume()->Normal(point, normal);

@@ -21,8 +21,8 @@ class RNG;
 
 // Emulating static class member ..
 namespace RNGvar {
-extern VECGEOM_CUDA_HEADER_DEVICE unsigned long gMaxInstance;
-extern VECGEOM_CUDA_HEADER_DEVICE RNG **gInstances;
+extern VECCORE_ATT_DEVICE unsigned long gMaxInstance;
+extern VECCORE_ATT_DEVICE RNG **gInstances;
 }
 #endif
 
@@ -40,7 +40,7 @@ private:
 // Using rand in C++03
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetUniform()
   {
@@ -64,7 +64,7 @@ private:
 public:
 #ifdef VECGEOM_NVCC
   // The state should really be 'thread' specific
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   RNG()
   {
 #ifdef __CUDA_ARCH__
@@ -82,7 +82,7 @@ public:
  * Init thread specific singleton instance.
  */
 #ifdef __CUDA_ARCH__
-  VECGEOM_CUDA_HEADER_DEVICE
+  VECCORE_ATT_DEVICE
   static void InitInstances(unsigned long nthreads)
   {
     unsigned int tid = (threadIdx.x + blockIdx.x * blockDim.x);
@@ -105,7 +105,7 @@ public:
   /**
    * Access singleton instance.
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static RNG &Instance()
   {
 #ifdef __CUDA_ARCH__
@@ -124,11 +124,11 @@ public:
    * @return Uniformly distributed floating point number between 0 and 1 unless
    *         range arguments are passed.
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision uniform(const Precision min = 0., const Precision max = 1.) { return min + (max - min) * GetUniform(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   int Poisson(const Precision lambda)
   {
@@ -143,11 +143,11 @@ public:
   }
 
   // interface for ROOT compatibility
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision Gaus(Precision ave = 0.0, Precision sig = 1.0) { return Gauss(ave, sig); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision Gauss(Precision ave = 0.0, Precision sig = 1.0)
   {
@@ -167,7 +167,7 @@ public:
    * Uniformly distributed array of floating point number between 0 and 1 unless
    *         range arguments are passed.
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void uniform_array(size_t n, Precision *array, const Precision min = 0., const Precision max = 1.)
   {

@@ -11,11 +11,11 @@ private:
   float fData;
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   MyClass() { fData = 0; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   MyClass(float data) { fData = data; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   float getData() const { return fData; }
 };
 
@@ -24,13 +24,13 @@ void launchTestNew(vecgeom::DevicePtr<vecgeom::cuda::map<double, MyClass>> &devM
 void launchRebuildMap(vecgeom::DevicePtr<vecgeom::cuda::map<double, MyClass>> &devMap, vecgeom::DevicePtr<double> key,
                       vecgeom::DevicePtr<MyClass> value, int N, int nBlocks, int nThreads);
 
-VECGEOM_CUDA_HEADER_HOST
+VECCORE_ATT_HOST
 double getRandom()
 {
   return RNG::Instance().uniform();
 }
 /*
-VECGEOM_CUDA_HEADER_HOST
+VECCORE_ATT_HOST
 void testStd(int size, double* keys,MyClass* values) {
    std::map<double,double> stdMap;
    for (int i=0; i < size; ++i) {

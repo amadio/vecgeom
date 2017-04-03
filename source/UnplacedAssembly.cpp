@@ -23,7 +23,7 @@ void UnplacedAssembly::AddVolume(VPlacedVolume const *v)
   fLogicalVolume->PlaceDaughter(v);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedAssembly::Print() const
 {
   printf("UnplacedAssembly ");

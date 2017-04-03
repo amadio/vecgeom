@@ -19,14 +19,14 @@ template <bool MotherIsConvex = false>
 class NewSimpleNavigator : public VNavigatorHelper<class NewSimpleNavigator<MotherIsConvex>, MotherIsConvex> {
 
 private:
-  VECGEOM_CUDA_HEADER_DEVICE
+  VECCORE_ATT_DEVICE
   NewSimpleNavigator()
       : VNavigatorHelper<class NewSimpleNavigator<MotherIsConvex>, MotherIsConvex>(SimpleSafetyEstimator::Instance()) {
-  } VECGEOM_CUDA_HEADER_DEVICE virtual ~NewSimpleNavigator() {}
+  } VECCORE_ATT_DEVICE virtual ~NewSimpleNavigator() {}
 
 public:
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool CheckDaughterIntersections(LogicalVolume const *lvol, Vector3D<Precision> const &localpoint,
                                           Vector3D<Precision> const &localdir, NavigationState const *in_state,
                                           NavigationState * /*out_state*/, Precision &step,
@@ -125,7 +125,7 @@ public:
     return &instance;
   }
 #else
-  VECGEOM_CUDA_HEADER_DEVICE
+  VECCORE_ATT_DEVICE
   static VNavigator *Instance();
 #endif
 

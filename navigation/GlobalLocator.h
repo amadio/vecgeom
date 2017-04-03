@@ -30,7 +30,7 @@ namespace GlobalLocator {
 // this function is a generic variant which can pick from each volume
 // the best (or default) LevelLocator
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 VPlacedVolume const *LocateGlobalPoint(VPlacedVolume const *vol, Vector3D<Precision> const &point,
                                        NavigationState &path, bool top)
 {
@@ -72,7 +72,7 @@ VPlacedVolume const *LocateGlobalPoint(VPlacedVolume const *vol, Vector3D<Precis
 // special version of locate point function that excludes searching a given volume
 // (useful when we know that a particle must have traversed a boundary)
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 VPlacedVolume const *LocateGlobalPointExclVolume(VPlacedVolume const *vol, VPlacedVolume const *excludedvolume,
                                                  Vector3D<Precision> const &point, NavigationState &path, bool top)
 {
@@ -123,7 +123,7 @@ VPlacedVolume const *LocateGlobalPointExclVolume(VPlacedVolume const *vol, VPlac
 }
 
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 static VPlacedVolume const *RelocatePointFromPath(Vector3D<Precision> const &localpoint, NavigationState &path)
 {
   // idea: do the following:
@@ -155,7 +155,7 @@ static VPlacedVolume const *RelocatePointFromPath(Vector3D<Precision> const &loc
 
 //  a version for relocation when we know that new state must be different
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 static VPlacedVolume const *RelocatePointFromPathForceDifferent(Vector3D<Precision> const &localpoint,
                                                                 NavigationState &path)
 {
@@ -187,7 +187,7 @@ static VPlacedVolume const *RelocatePointFromPathForceDifferent(Vector3D<Precisi
   return currentmother;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 VECGEOM_FORCE_INLINE
 bool HasSamePath(Vector3D<Precision> const &globalpoint, Transformation3D const &globaltransf,
                  NavigationState const &currentstate, NavigationState &newstate)
@@ -207,7 +207,7 @@ bool HasSamePath(Vector3D<Precision> const &globalpoint, Transformation3D const 
  * side effects: modifies newstate to be path of globalpoint
  *
  */
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline bool HasSamePath(Vector3D<Precision> const &globalpoint, NavigationState const &currentstate,
                         NavigationState &newstate)
 {

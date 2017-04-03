@@ -12,7 +12,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <typename T>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T sqr(T x)
 {
   return x * x;

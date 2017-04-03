@@ -97,13 +97,13 @@ public:
     return fCapacity;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   NavigationState *operator[](int i)
   {
     return reinterpret_cast<NavigationState *>(fBuffer + NavigationState::SizeOfInstanceAlignAware(fDepth) * i);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   NavigationState const *operator[](int i) const
   {
     return reinterpret_cast<NavigationState const *>(fBuffer + NavigationState::SizeOfInstanceAlignAware(fDepth) * i);
@@ -113,7 +113,7 @@ public:
   // so that array[0] points to the first state in the NavStatePool, etc
   // this method also allocates memory; array should be a nullptr initially
   // this is a convenience function
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void ToPlainPointerArray(NavigationState const **&array) const
   {
     array = new NavigationState const *[fCapacity];
@@ -123,7 +123,7 @@ public:
   }
 
   // dito for the non-const version
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void ToPlainPointerArray(NavigationState **&array)
   {
     array = new NavigationState *[fCapacity];
@@ -145,7 +145,7 @@ public:
 private: // protected methods
 #ifdef VECGEOM_CUDA
   // This constructor used to build NavStatePool at the GPU.  BufferGPU
-  VECGEOM_CUDA_HEADER_DEVICE
+  VECCORE_ATT_DEVICE
   NavStatePool(int size, int depth, char *fBufferGPU)
       : fCapacity(size), fDepth(depth), fBuffer(fBufferGPU), fGPUPointer(NULL)
   {

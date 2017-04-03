@@ -40,21 +40,21 @@ struct ParaboloidStruct {
   T fRlo2;
   T fRhi2;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ParaboloidStruct()
       : fRlo(0.), fRhi(0.), fDz(0.), fA(0.), fInvA(0.), fB(0.), fInvB(0.), fK1(0.), fK2(0.), fRlo2(0.), fRhi2(0.)
   {
     CalculateCached();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ParaboloidStruct(const T rlo, const T rhi, const T dz)
       : fRlo(rlo), fRhi(rhi), fDz(dz), fA(0.), fInvA(0.), fB(0.), fInvB(0.), fK1(0.), fK2(0.), fRlo2(0.), fRhi2(0.)
   {
     CalculateCached();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void CalculateCached()
   {
     fRlo2 = fRlo * fRlo;
@@ -71,13 +71,13 @@ struct ParaboloidStruct {
     ComputeBoundingBox();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void ComputeBoundingBox()
   {
     fDx = Max(fRhi, fRlo);
     fDy = fDx;
   }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetRloAndRhiAndDz(const T rlo, const T rhi, const T dz)
   {
 
@@ -91,13 +91,13 @@ struct ParaboloidStruct {
     fDz  = dz;
     CalculateCached();
   }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetRlo(const T rlo) { SetRloAndRhiAndDz(rlo, fRhi, fDz); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetRhi(const T rhi) { SetRloAndRhiAndDz(fRlo, rhi, fDz); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetDz(const T dz) { SetRloAndRhiAndDz(fRlo, fRhi, dz); }
 };
 }

@@ -30,18 +30,18 @@ public:
   using BaseVol::GetLogicalVolume;
 
   // destructor
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~PlacedVolumeImplHelper() {}
 
   virtual int MemorySize() const override { return sizeof(*this); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedShape_t const *GetUnplacedVolume() const
   {
     return static_cast<UnplacedShape_t const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Struct_t const *GetUnplacedStruct() const { return static_cast<Struct_t const *>(&GetUnplacedVolume()->GetStruct()); }
 
 #if !defined(VECGEOM_NVCC)
@@ -53,7 +53,7 @@ public:
     // careful here: we need to transform result
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
     // bool valid;
@@ -79,13 +79,13 @@ public:
 #endif
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool UnplacedContains(Vector3D<Precision> const &point) const override
   {
     return GetUnplacedVolume()->UnplacedShape_t::Contains(point);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision DistanceToOut(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
                                   const Precision stepMax = kInfLength) const override
   {
@@ -103,7 +103,7 @@ public:
   // a helper tramponline to dispatch to DistanceToOutVec if type is not scalar
   template <typename T>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   T DistanceToOut(Vector3D<T> const &p, Vector3D<T> const &d, T const &step_max) const
   {
     return DistanceToOutVec(p, d, step_max);
@@ -114,7 +114,7 @@ public:
    * WARNING: Trivial implementation for standard USolids interface
    * for DistanceToOut. The value for convex might be wrong
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision DistanceToOut(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
                                   Vector3D<Precision> &normal, bool &convex, Precision step = kInfLength) const override
   {
@@ -128,7 +128,7 @@ public:
   }
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision SafetyToOut(Vector3D<Precision> const &point) const override
   {
     return GetUnplacedVolume()->UnplacedShape_t::SafetyToOut(point);

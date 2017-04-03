@@ -19,13 +19,13 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 namespace Internal {
 template <typename T>
 struct AllocTrait {
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Destroy(T &obj) { obj.~T(); };
 };
 
 template <typename T>
 struct AllocTrait<T *> {
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Destroy(T *&) {}
 };
 }
@@ -41,22 +41,22 @@ private:
 public:
   using value_type = Type;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Vector() : Vector(5) {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Vector(const int maxsize) : fData(nullptr), fSize(0), fMemorySize(0), fAllocated(true) { reserve(maxsize); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Vector(Type *const vec, const int sz) : fData(vec), fSize(sz), fMemorySize(sz), fAllocated(false) {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Vector(Type *const vec, const int sz, const int maxsize)
       : fData(vec), fSize(sz), fMemorySize(maxsize), fAllocated(false)
   {
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Vector(Vector const &other) : fSize(other.fSize), fMemorySize(other.fMemorySize), fAllocated(true)
   {
     fData = new Type[fMemorySize];
@@ -64,7 +64,7 @@ public:
       fData[i]    = other.fData[i];
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Vector &operator=(Vector const &other)
   {
     if (&other != this) {
@@ -75,7 +75,7 @@ public:
     return *this;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Vector(std::initializer_list<Type> entries)
   {
     fSize       = entries.size();
@@ -86,13 +86,13 @@ public:
       this->push_back(itm);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ~Vector()
   {
     if (fAllocated) delete[] fData;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void clear()
   {
     if (fAllocated) {
@@ -102,15 +102,15 @@ public:
     fSize = 0;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Type &operator[](const int index) { return fData[index]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Type const &operator[](const int index) const { return fData[index]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void push_back(const Type item)
   {
     if (fSize == fMemorySize) {
@@ -125,31 +125,31 @@ public:
   typedef Type *iterator;
   typedef Type const *const_iterator;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   iterator begin() const { return &fData[0]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   iterator end() const { return &fData[fSize]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   const_iterator cbegin() const { return &fData[0]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   const_iterator cend() const { return &fData[fSize]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   size_t size() const { return fSize; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   size_t capacity() const { return fMemorySize; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void resize(size_t newsize, Type value)
   {
@@ -167,7 +167,7 @@ public:
     }
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void reserve(size_t newsize)
   {
@@ -184,7 +184,7 @@ public:
     }
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   iterator erase(const_iterator position)
   {

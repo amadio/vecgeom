@@ -56,7 +56,7 @@ typedef VPlacedVolume const *NavStateIndex_t;
 // T stands for NavStateIndex_t
 template <typename T>
 struct Index2PVolumeConverter {
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   static VPlacedVolume const *ToPlacedVolume(T index)
   {
@@ -78,7 +78,7 @@ struct Index2PVolumeConverter {
 #endif
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   static T ToIndex(VPlacedVolume const *pvol) { return pvol->id(); }
 };
@@ -86,10 +86,10 @@ struct Index2PVolumeConverter {
 // template specialization when we directly save VPlacedVolume pointers into the NavStates
 template <>
 struct Index2PVolumeConverter<VPlacedVolume const *> {
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   static VPlacedVolume const *ToPlacedVolume(VPlacedVolume const *pvol) { return pvol; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   static VPlacedVolume const *ToIndex(VPlacedVolume const *pvol) { return pvol; }
 };
@@ -110,9 +110,9 @@ private:
   friend Base_t;
 
   // Required by VariableSizeObjectInterface
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VariableData_t &GetVariableData() { return fPath; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   const VariableData_t &GetVariableData() const { return fPath; }
 
   unsigned char
@@ -132,11 +132,11 @@ private:
   // constructors and assignment operators are private
   // states have to be constructed using MakeInstance() function
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   NavigationState(size_t nvalues);
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   NavigationState(size_t new_size, NavigationState &other)
       : fCurrentLevel(other.fCurrentLevel), fOnBoundary(other.fOnBoundary), fCache(-1), fPath(new_size, other.fPath)
   {
@@ -152,7 +152,7 @@ private:
 
   // some private management methods
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void InitInternalStorage();
 
 private:
@@ -199,14 +199,14 @@ public:
   // Methods MakeInstance(), MakeInstanceAt(), MakeCopy() and MakeCopyAt() are provided by
   // VariableSizeObjectInterface
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static NavigationState *MakeInstance(int maxlevel)
   {
     // MaxLevel is 'zero' based (i.e. maxlevel==0 requires one value)
     return Base_t::MakeInstance(maxlevel + 1);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static NavigationState *MakeInstanceAt(int maxlevel, void *addr)
   {
     // MaxLevel is 'zero' based (i.e. maxlevel==0 requires one value)
@@ -215,7 +215,7 @@ public:
 
   // returns the size in bytes of a NavigationState object with internal
   // path depth maxlevel
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static size_t SizeOfInstance(int maxlevel)
   {
     // MaxLevel is 'zero' based (i.e. maxlevel==0 requires one value)
@@ -225,21 +225,21 @@ public:
   // returns the size in bytes of a NavigationState object with internal
   // path depth maxlevel -- including space needed for padding to next aligned object
   // of same kind
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static size_t SizeOfInstanceAlignAware(int maxlevel)
   {
     // MaxLevel is 'zero' based (i.e. maxlevel==0 requires one value)
     return VariableSizeObjectInterface::SizeOfAlignAware(maxlevel + 1);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   int GetObjectSize() const { return SizeOf(GetMaxLevel()); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   int SizeOf() const { return NavigationState::SizeOfInstance(GetMaxLevel()); }
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   NavigationState &operator=(NavigationState const &rhs);
 
   // functions useful to "serialize" navigationstate
@@ -248,7 +248,7 @@ public:
   void GetPathAsListOfIndices(std::list<uint> &indices) const;
   void ResetPathFromListOfIndices(VPlacedVolume const *world, std::list<uint> const &indices);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void CopyTo(NavigationState *other) const
   {
     // Raw memcpy of the content to another existing state.
@@ -285,21 +285,21 @@ public:
 #endif
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ~NavigationState();
 
   // what else: operator new etc...
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   unsigned char GetMaxLevel() const { return fPath.fN - 1; }
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   unsigned char GetCurrentLevel() const { return fCurrentLevel; }
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VPlacedVolume const *GetLastExited() const
   { /*one beyond current*/
     return (fCurrentLevel < GetMaxLevel() - 1) ? ToPlacedVolume(fPath[fCurrentLevel]) : nullptr;
@@ -307,59 +307,59 @@ public:
 
   // better to use pop and push
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Push(VPlacedVolume const *);
 
   // a push version operating on IndexTypes
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void PushIndexType(NavStateIndex_t);
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VPlacedVolume const *Top() const;
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VPlacedVolume const *At(int level) const { return ToPlacedVolume(fPath[level]); }
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Value_t ValueAt(int level) const { return fPath[level]; }
 
   // direct write access to the path
   // (no one should ever call this function unless you know what you are doing)
   // TODO: consider making this private + friend or so
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetValueAt(int level, Value_t v) { fPath[level] = v; }
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void TopMatrix(Transformation3D &) const;
 
   // returning a "delta" transformation that can transform
   // coordinates given in reference frame of this->Top() to the reference frame of other->Top()
   // simply with otherlocalcoordinate = delta.Transform( thislocalcoordinate )
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void DeltaTransformation(NavigationState const &other, Transformation3D & /* delta */) const;
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Vector3D<Precision> GlobalToLocal(Vector3D<Precision> const &) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Vector3D<Precision> GlobalToLocal(Vector3D<Precision> const &, int tolevel) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void TopMatrix(int tolevel, Transformation3D &) const;
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Pop();
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   int Distance(NavigationState const &) const;
 
   // returns a string representation of a (relative) sequence of operations/moves
@@ -378,18 +378,18 @@ public:
 
   // clear all information
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Clear();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Print() const;
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Dump() const;
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool HasSamePathAsOther(NavigationState const &other) const
   {
     if (other.fCurrentLevel != fCurrentLevel) return false;
@@ -419,23 +419,23 @@ public:
     function returning whether the point (current navigation state) is outside the detector setup
   */
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool IsOutside() const { return !(fCurrentLevel > 0); }
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool IsOnBoundary() const { return fOnBoundary; }
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetBoundaryState(bool b) { fOnBoundary = b; }
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   short GetCacheValue() const { return fCache; }
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetCacheValue(short v) { fCache = v; }
 
 #ifdef VECGEOM_ROOT
@@ -483,7 +483,7 @@ NavigationState::NavigationState(size_t nvalues) : fCurrentLevel(0), fOnBoundary
   std::memset(fPath.GetValues(), 0, nvalues * sizeof(NavStateIndex_t));
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 NavigationState::~NavigationState()
 {
 }
@@ -529,7 +529,7 @@ VPlacedVolume const *NavigationState::Top() const
 // to the frame of the top volume in the state
 // input: a reference to a transformation object ( which should be initialized to identity )
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void NavigationState::TopMatrix(Transformation3D &global_matrix) const
 {
   // this could be actually cached in case the path does not change ( particle stays inside a volume )
@@ -539,7 +539,7 @@ void NavigationState::TopMatrix(Transformation3D &global_matrix) const
 }
 
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void NavigationState::Dump() const
 {
   const unsigned int *ptr = (const unsigned int *)this;
@@ -587,7 +587,7 @@ void NavigationState::printVolumePath(std::ostream &stream) const
  * ( two states are on same branch if one can connect the states just by going upwards or downwards ( or do nothing ))
  */
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 int NavigationState::Distance(NavigationState const &other) const
 {
   int lastcommonlevel = -1;

@@ -8,7 +8,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedBox::Print() const
 {
   printf("UnplacedBox {%.2f, %.2f, %.2f}", x(), y(), z());

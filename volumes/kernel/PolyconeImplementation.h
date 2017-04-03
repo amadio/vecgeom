@@ -41,13 +41,13 @@ struct PolyconeImplementation {
   using UnplacedShape_t = UnplacedPolycone;
 
   // here put all the implementations
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void PrintType() { printf("SpecializedPolycone<%i, %i>", transCodeT, rotCodeT); }
 
   /////GenericKernel Contains/Inside implementation for a section of the polycone
   template <typename Backend, bool ForInside>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void GenericKernelForASection(UnplacedPolycone const &unplaced, int isect,
                                        Vector3D<typename Backend::precision_v> const &polyconePoint,
                                        typename Backend::bool_v &secFullyInside,
@@ -92,7 +92,7 @@ struct PolyconeImplementation {
   /////GenericKernel Contains/Inside implementation
   template <typename Backend, bool ForInside>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void GenericKernelForContainsAndInside(UnplacedPolycone const &unplaced,
                                                 Vector3D<typename Backend::precision_v> const &localPoint,
                                                 typename Backend::bool_v &completelyInside,
@@ -260,7 +260,7 @@ struct PolyconeImplementation {
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void ContainsKernel(UnplacedPolycone const &polycone, Vector3D<typename Backend::precision_v> const &point,
                              typename Backend::bool_v &contains)
   {
@@ -281,7 +281,7 @@ struct PolyconeImplementation {
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void UnplacedContains(UnplacedPolycone const &polycone, Vector3D<typename Backend::precision_v> const &point,
                                typename Backend::bool_v &contains)
   {
@@ -293,7 +293,7 @@ struct PolyconeImplementation {
 
   template <typename Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Contains(UnplacedPolycone const &unplaced, Transformation3D const &transformation,
                        Vector3D<typename Backend::precision_v> const &point,
                        Vector3D<typename Backend::precision_v> &localPoint, typename Backend::bool_v &contains)
@@ -304,7 +304,7 @@ struct PolyconeImplementation {
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Inside(UnplacedPolycone const &unplaced, Transformation3D const &transformation,
                      Vector3D<typename Backend::precision_v> const &masterPoint, typename Backend::inside_v &inside)
   {
@@ -327,7 +327,7 @@ struct PolyconeImplementation {
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToIn(UnplacedPolycone const &polycone, Transformation3D const &transformation,
                            Vector3D<typename Backend::precision_v> const &point,
                            Vector3D<typename Backend::precision_v> const &direction,
@@ -378,7 +378,7 @@ struct PolyconeImplementation {
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToOut(UnplacedPolycone const &polycone, Vector3D<typename Backend::precision_v> const &point,
                             Vector3D<typename Backend::precision_v> const &dir,
                             typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance)
@@ -509,7 +509,7 @@ struct PolyconeImplementation {
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToIn(UnplacedPolycone const &polycone, Transformation3D const &transformation,
                          Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety)
   {
@@ -570,7 +570,7 @@ struct PolyconeImplementation {
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToOut(UnplacedPolycone const &polycone, Vector3D<typename Backend::precision_v> const &point,
                           typename Backend::precision_v &safety)
   {

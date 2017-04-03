@@ -30,7 +30,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class ABBoxNavigator {
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   ABBoxNavigator() {}
 
@@ -59,7 +59,7 @@ public:
   /**
   * A function to navigate ( find next boundary and/or the step to do )
   */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void FindNextBoundaryAndStep(Vector3D<Precision> const & /* global point */,
                                Vector3D<Precision> const & /* global dir */, NavigationState const & /* currentstate */,
                                NavigationState & /* newstate */, Precision const & /* proposed physical step */,
@@ -70,7 +70,7 @@ public:
    * A function to get back the safe distance; given a NavigationState object and a current global point
    * point
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetSafety(Vector3D<Precision> const & /*global_point*/, NavigationState const & /* currentstate */
                       ) const;
 

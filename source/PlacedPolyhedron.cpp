@@ -21,7 +21,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 int PlacedPolyhedron::PhiSegmentIndex(Vector3D<Precision> const &point) const
 {
   Vector3D<Precision> localPoint = VPlacedVolume::GetTransformation()->Transform(point);

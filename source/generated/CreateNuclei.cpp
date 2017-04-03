@@ -4,19 +4,19 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void CreateNuclei0000();
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void CreateNuclei0001();
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void CreateNuclei0002();
 
 #ifdef VECGEOM_NVCC
-VECGEOM_CUDA_HEADER_DEVICE bool fgCreateNucleiInitDoneDev = false;
+VECCORE_ATT_DEVICE bool fgCreateNucleiInitDoneDev = false;
 #endif
 
 //________________________________________________________________________________
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void Nucleus::CreateNuclei()
 {
 #ifndef VECGEOM_NVCC

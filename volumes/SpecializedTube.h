@@ -16,7 +16,7 @@ using SpecializedTube = SIMDSpecializedVolImplHelper<TubeImplementation<tubeType
 using SimpleTube = SpecializedTube<translation::kGeneric, rotation::kGeneric, TubeTypes::UniversalTube>;
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedTube::Create(LogicalVolume const *const logical_volume,
                                     Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC

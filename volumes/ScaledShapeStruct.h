@@ -24,10 +24,10 @@ struct ScaledShapeStruct {
   VPlacedVolume const *fPlaced; /// Need a placed volume for the navigation interface
   Scale3D fScale;               /// Scale object
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ScaledShapeStruct() : fPlaced(nullptr), fScale() {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ScaledShapeStruct(VPlacedVolume const *placed, Precision sx, Precision sy, Precision sz)
       : fPlaced(placed), fScale(sx, sy, sz)
   {

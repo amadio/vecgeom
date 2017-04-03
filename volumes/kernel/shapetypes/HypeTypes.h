@@ -14,7 +14,7 @@ namespace HypeTypes {
 
 #define DEFINE_HYPE_TYPE(name)                      \
   struct name {                                     \
-    VECGEOM_CUDA_HEADER_BOTH                        \
+    VECCORE_ATT_HOST_DEVICE                         \
     static char const *toString() { return #name; } \
   }
 
@@ -50,7 +50,7 @@ struct NeedsRminTreatment<UniversalHype> {
 
 template <typename T>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool checkRminTreatment(const UnplacedHype &hype)
 {
   if (NeedsRminTreatment<T>::value != kUnknown)

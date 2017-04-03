@@ -30,43 +30,43 @@ private:
   Precision fEpsilon, fRTolerance;
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedOrb();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedOrb(const Precision r);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetRadialTolerance();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetRadialTolerance() const { return fRTolerance; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   OrbStruct<double> const &GetStruct() const { return fOrb; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetRadius() const { return fOrb.fR; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   // VECGEOM_FORCE_INLINE
   void SetRadius(Precision r);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const override;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision Capacity() const { return fCubicVolume; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision SurfaceArea() const { return fSurfaceArea; }
 
   virtual Vector3D<Precision> GetPointOnSurface() const override;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const override
   {
     bool valid;
@@ -77,10 +77,10 @@ public:
   std::string GetEntityType() const;
 
 #if defined(VECGEOM_USOLIDS)
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void GetParametersList(int aNumber, double *aArray) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedOrb *Clone() const;
 
   std::ostream &StreamInfo(std::ostream &os) const;
@@ -89,7 +89,7 @@ public:
 public:
   virtual int MemorySize() const final { return sizeof(*this); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void Print() const override;
 
   virtual void Print(std::ostream &os) const override;

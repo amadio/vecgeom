@@ -31,7 +31,7 @@ void UnplacedParallelepiped::Print(std::ostream &os) const
 }
 
 //______________________________________________________________________________
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedParallelepiped::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
   // Returns the full 3D cartesian extent of the solid.
@@ -82,7 +82,7 @@ Vector3D<Precision> UnplacedParallelepiped::GetPointOnSurface() const
 #endif
 
 //______________________________________________________________________________
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool UnplacedParallelepiped::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
 {
   // Compute safety
@@ -110,7 +110,7 @@ bool UnplacedParallelepiped::Normal(Vector3D<Precision> const &point, Vector3D<P
 
 //______________________________________________________________________________
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedParallelepiped::Create(LogicalVolume const *const logical_volume,
                                               Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
@@ -128,7 +128,7 @@ VPlacedVolume *UnplacedParallelepiped::Create(LogicalVolume const *const logical
 }
 
 //______________________________________________________________________________
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedParallelepiped::SpecializedVolume(LogicalVolume const *const volume,
                                                          Transformation3D const *const transformation,
                                                          const TranslationCode trans_code, const RotationCode rot_code,

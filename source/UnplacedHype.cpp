@@ -15,7 +15,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedHype::SetParameters(const Precision rMin, const Precision rMax, const Precision stIn,
                                  const Precision stOut, const Precision dz)
 {
@@ -28,7 +28,7 @@ void UnplacedHype::SetParameters(const Precision rMin, const Precision rMax, con
   fDz    = dz;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 UnplacedHype::UnplacedHype(const Precision rMin, const Precision rMax, const Precision stIn, const Precision stOut,
                            const Precision dz)
 {
@@ -60,7 +60,7 @@ UnplacedHype::UnplacedHype(const Precision rMin, const Precision rMax, const Pre
   DetectConvexity();
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedHype::DetectConvexity()
 {
   // Default Convexity set to false
@@ -70,19 +70,19 @@ void UnplacedHype::DetectConvexity()
     fGlobalConvexity = true;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool UnplacedHype::InnerSurfaceExists() const
 {
   return (fRmin > 0.) || (fStIn != 0.);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedHype::CalcCapacity()
 {
   fCubicVolume = Volume(true) - Volume(false);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Precision UnplacedHype::Volume(bool outer)
 {
   if (outer)
@@ -91,13 +91,13 @@ Precision UnplacedHype::Volume(bool outer)
     return 2 * kPi * fDz * ((fRmin) * (fRmin) + (fDz2 * fTIn2 / 3.));
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedHype::CalcSurfaceArea()
 {
   fSurfaceArea = Area(true) + Area(false) + AreaEndCaps();
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Precision UnplacedHype::Area(bool outer)
 {
   Precision fT = 0., fR = 0.;
@@ -122,13 +122,13 @@ Precision UnplacedHype::Area(bool outer)
   return ar;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Precision UnplacedHype::AreaEndCaps()
 {
   return 2 * kPi * (GetEndOuterRadius2() - GetEndInnerRadius2());
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedHype::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
   // Returns the full 3D cartesian extent of the solid.
@@ -138,7 +138,7 @@ void UnplacedHype::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) 
 }
 
 #ifndef VECGEOM_NVCC
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 std::string UnplacedHype::GetEntityType() const
 {
   return "Hyperboloid\n";
@@ -231,7 +231,7 @@ Vector3D<Precision> UnplacedHype::GetPointOnSurface() const
 }
 
 #if defined(VECGEOM_USOLIDS)
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedHype::GetParametersList(int, double *aArray) const
 {
   aArray[0] = GetRmin();
@@ -241,7 +241,7 @@ void UnplacedHype::GetParametersList(int, double *aArray) const
   aArray[4] = GetDz();
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 UnplacedHype *UnplacedHype::Clone() const
 {
   return new UnplacedHype(fRmin, fStIn, fRmax, fStOut, fDz);

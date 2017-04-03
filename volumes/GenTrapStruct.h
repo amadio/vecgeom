@@ -49,7 +49,7 @@ struct GenTrapStruct {
 
   SecondOrderSurfaceShell<4> fSurfaceShell; /** Utility class for twisted surface algorithms */
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   GenTrapStruct()
       : fBBdimensions(), fBBorigin(), fVertices(), fVerticesX(), fVerticesY(), fDz(0.), fInverseDz(0.),
         fHalfInverseDz(0.), fIsTwisted(false), fConnectingComponentsX(), fConnectingComponentsY(), fDeltaX(), fDeltaY(),
@@ -58,7 +58,7 @@ struct GenTrapStruct {
     // Dummy constructor
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   GenTrapStruct(const Precision verticesx[], const Precision verticesy[], Precision halfzheight)
       : fBBdimensions(), fBBorigin(), fVertices(), fVerticesX(), fVerticesY(), fDz(0.), fInverseDz(0.),
         fHalfInverseDz(0.), fIsTwisted(false), fConnectingComponentsX(), fConnectingComponentsY(), fDeltaX(), fDeltaY(),
@@ -68,7 +68,7 @@ struct GenTrapStruct {
     Initialize(verticesx, verticesy, halfzheight);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool Initialize(const Precision verticesx[], const Precision verticesy[], Precision halfzheight)
   {
     // Initialization based on vertices and half length
@@ -168,11 +168,11 @@ struct GenTrapStruct {
     return true;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   bool IsPlanar() const { return (!fIsTwisted); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void ComputeBoundingBox()
   {
     // Computes bounding box parameters
@@ -182,7 +182,7 @@ struct GenTrapStruct {
     fBBdimensions = 0.5 * (aMax - aMin);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Extent(Vertex_t &aMin, Vertex_t &aMax) const
   {
     // Returns the full 3D cartesian extent of the solid.
@@ -203,7 +203,7 @@ struct GenTrapStruct {
     }
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool ComputeIsConvexQuadrilaterals()
   {
     // Computes if this gentrap top and bottom quadrilaterals are convex. The vertices
@@ -223,7 +223,7 @@ struct GenTrapStruct {
     return true;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool ComputeIsTwisted()
   {
     // Check if the trapezoid is twisted. A lateral face is twisted if the top and
@@ -256,7 +256,7 @@ struct GenTrapStruct {
     return twisted;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Print() const
   {
     printf("--------------------------------------------------------\n");
@@ -273,7 +273,7 @@ struct GenTrapStruct {
     printf("   planar: %s\n", IsPlanar() ? "true" : "false");
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool SegmentsCrossing(Vertex_t p, Vertex_t p1, Vertex_t q, Vertex_t q1) const
   {
     // Check if 2 segments defined by (p,p1) and (q,q1) are crossing.

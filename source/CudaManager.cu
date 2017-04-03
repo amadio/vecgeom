@@ -14,7 +14,7 @@ namespace vecgeom {
 namespace globaldevicegeomdata {
 static __device__ VPlacedVolume *gCompactPlacedVolBuffer = nullptr;
 
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VPlacedVolume *&GetCompactPlacedVolBuffer()
 {
   return gCompactPlacedVolBuffer;

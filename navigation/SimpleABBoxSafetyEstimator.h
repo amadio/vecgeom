@@ -64,7 +64,7 @@ private:
 
 private:
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision TreatSafetyToIn(Vector3D<Precision> const &localpoint, LogicalVolume const *lvol, Precision outsafety) const
   {
     // a stack based workspace array
@@ -109,7 +109,7 @@ public:
   static constexpr const char *gClassNameString = "SimpleABBoxSafetyEstimator";
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision ComputeSafetyForLocalPoint(Vector3D<Precision> const &localpoint,
                                                VPlacedVolume const *pvol) const override
   {
@@ -120,7 +120,7 @@ public:
   }
 
   // estimate just the safety to daughters for a local point with respect to a logical volume
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision ComputeSafetyToDaughtersForLocalPoint(Vector3D<Precision> const &localpoint,
                                                           LogicalVolume const *lvol) const override
   {

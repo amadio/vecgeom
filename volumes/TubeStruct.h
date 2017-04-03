@@ -39,14 +39,14 @@ struct TubeStruct {
   T fTolOrmax;
   evolution::Wedge fPhiWedge;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void UpdatedZ()
   {
     fTolIz = fZ - kHalfTolerance;
     fTolOz = fZ + kHalfTolerance;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void UpdatedRMin()
   {
     fRmin2     = fRmin * fRmin;
@@ -56,7 +56,7 @@ struct TubeStruct {
     fTolIrmin2 = fTolIrmin * fTolIrmin;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void UpdatedRMax()
   {
     fRmax2     = fRmax * fRmax;
@@ -67,14 +67,14 @@ struct TubeStruct {
   }
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   T rmin() const { return fRmin; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   T z() const { return fZ; }
 
 private:
   // can go into source
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void GetAlongVectorToPhiSector(Precision phi, Precision &x, Precision &y)
   {
     x = std::cos(phi);
@@ -82,7 +82,7 @@ private:
   }
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetRMin(Precision const &_rmin)
   {
     fRmin = _rmin;
@@ -90,7 +90,7 @@ public:
     UpdatedRMin();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetRMax(Precision const &_rmax)
   {
     fRmax = _rmax;
@@ -98,7 +98,7 @@ public:
     UpdatedRMax();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetDz(Precision const &_z)
   {
     fZ = _z;
@@ -107,7 +107,7 @@ public:
   }
 
   // can go into source
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetAndCheckSPhiAngle(T sPhi)
   {
     // Ensure fSphi in 0-2PI or -2PI-0 range if shape crosses 0
@@ -125,7 +125,7 @@ public:
   }
 
   // can go into source
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetAndCheckDPhiAngle(T dPhi)
   {
     if (dPhi >= kTwoPi - 0.5 * kAngTolerance) {
@@ -146,7 +146,7 @@ public:
   }
 
   // can go into source
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void CalculateCached()
   {
     UpdatedZ();
@@ -159,7 +159,7 @@ public:
 
 public:
   // constructors
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   TubeStruct(T const &_rmin, T const &_rmax, T const &_z, T const &_sphi, T const &_dphi)
       : fRmin(_rmin < 0.0 ? 0.0 : _rmin), fRmax(_rmax), fZ(_z), fSphi(_sphi), fDphi(_dphi), fRmin2(0), fRmax2(0),
         fAlongPhi1x(0), fAlongPhi1y(0), fAlongPhi2x(0), fAlongPhi2y(0), fTolIrmin2(0), fTolOrmin2(0), fTolIrmax2(0),

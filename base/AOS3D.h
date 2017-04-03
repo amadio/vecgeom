@@ -31,34 +31,34 @@ private:
 public:
   typedef T value_type;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   AOS3D(Vector3D<T> *data, size_t size);
 
   AOS3D(size_t size);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   AOS3D();
 
   AOS3D(AOS3D<T> const &other);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   AOS3D &operator=(AOS3D<T> const &other);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ~AOS3D();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   size_t size() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   size_t capacity() const;
 
   VECGEOM_FORCE_INLINE
   void resize(size_t newSize);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void reserve(size_t newCapacity);
 
@@ -67,59 +67,59 @@ public:
 
   // Element access methods. Can be used to manipulate content.
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Vector3D<T> operator[](size_t index) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Vector3D<T> &operator[](size_t index);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Vector3D<T> *content();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Vector3D<T> const *content() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T x(size_t index) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T &x(size_t index);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T y(size_t index) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T &y(size_t index);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T z(size_t index) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T &z(size_t index);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void set(size_t index, T x, T y, T z);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void set(size_t index, Vector3D<T> const &vec);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void push_back(T x, T y, T z);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void push_back(Vector3D<T> const &vec);
 
@@ -128,12 +128,12 @@ public:
 #endif
 
 private:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Deallocate();
 };
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 AOS3D<T>::AOS3D(Vector3D<T> *in_content, size_t in_size)
     : fAllocated(false), fSize(in_size), fCapacity(fSize), fContent(in_content)
 {
@@ -146,7 +146,7 @@ AOS3D<T>::AOS3D(size_t sz) : fAllocated(true), fSize(sz), fCapacity(sz), fConten
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 AOS3D<T>::AOS3D() : fAllocated(false), fSize(0), fCapacity(0), fContent(NULL)
 {
 }
@@ -159,7 +159,7 @@ AOS3D<T>::AOS3D(AOS3D<T> const &rhs)
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 AOS3D<T> &AOS3D<T>::operator=(AOS3D<T> const &rhs)
 {
 #ifndef VECGEOM_NVCC_DEVICE
@@ -189,14 +189,14 @@ AOS3D<T>::~AOS3D()
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 size_t AOS3D<T>::size() const
 {
   return fSize;
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 size_t AOS3D<T>::capacity() const
 {
   return fCapacity;
@@ -210,7 +210,7 @@ void AOS3D<T>::resize(size_t newSize)
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void AOS3D<T>::reserve(size_t newCapacity)
 {
   fCapacity = newCapacity;
@@ -236,7 +236,7 @@ void AOS3D<T>::clear()
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void AOS3D<T>::Deallocate()
 {
   if (fAllocated) {
@@ -245,77 +245,77 @@ void AOS3D<T>::Deallocate()
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Vector3D<T> AOS3D<T>::operator[](size_t index) const
 {
   return fContent[index];
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Vector3D<T> &AOS3D<T>::operator[](size_t index)
 {
   return fContent[index];
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Vector3D<T> *AOS3D<T>::content()
 {
   return fContent;
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Vector3D<T> const *AOS3D<T>::content() const
 {
   return fContent;
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T AOS3D<T>::x(size_t index) const
 {
   return (fContent[index])[0];
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T &AOS3D<T>::x(size_t index)
 {
   return (fContent[index])[0];
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T AOS3D<T>::y(size_t index) const
 {
   return (fContent[index])[1];
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T &AOS3D<T>::y(size_t index)
 {
   return (fContent[index])[1];
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T AOS3D<T>::z(size_t index) const
 {
   return (fContent[index])[2];
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T &AOS3D<T>::z(size_t index)
 {
   return (fContent[index])[2];
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void AOS3D<T>::set(size_t index, T in_x, T in_y, T in_z)
 {
   (fContent[index])[0] = in_x;
@@ -324,14 +324,14 @@ void AOS3D<T>::set(size_t index, T in_x, T in_y, T in_z)
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void AOS3D<T>::set(size_t index, Vector3D<T> const &vec)
 {
   fContent[index] = vec;
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void AOS3D<T>::push_back(T in_x, T in_y, T in_z)
 {
   (fContent[fSize])[0] = in_x;
@@ -341,7 +341,7 @@ void AOS3D<T>::push_back(T in_x, T in_y, T in_z)
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void AOS3D<T>::push_back(Vector3D<T> const &vec)
 {
   fContent[fSize] = vec;

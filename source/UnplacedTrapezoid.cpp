@@ -16,14 +16,14 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 using Vec3D = Vector3D<Precision>;
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 UnplacedTrapezoid::UnplacedTrapezoid(TrapCorners const corners) : fTrap()
 {
   // fill data members
   fromCornersToParameters(corners);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 UnplacedTrapezoid::UnplacedTrapezoid(double dx, double dy, double dz, double)
     : fTrap(dz, 0., 0., dy, dx, dx, 0., dy, dx, dx, 0.)
 {
@@ -34,7 +34,7 @@ UnplacedTrapezoid::UnplacedTrapezoid(double dx, double dy, double dz, double)
   assert(false);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 UnplacedTrapezoid::UnplacedTrapezoid(Precision xbox, Precision ybox, Precision zbox)
     : fTrap(zbox, 0., 0., ybox, xbox, xbox, 0., ybox, xbox, xbox, 0.)
 {
@@ -153,7 +153,7 @@ Precision UnplacedTrapezoid::SurfaceArea() const
   return surfArea;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedTrapezoid::Extent(Vec3D &aMin, Vec3D &aMax) const
 {
   aMin.z() = -fTrap.fDz;
@@ -272,14 +272,14 @@ Vec3D UnplacedTrapezoid::GetPointOnPlane(Vec3D const &p0, Vec3D const &p1, Vec3D
 
 #if defined(VECGEOM_USOLIDS)
 /*
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedTrapezoid::GetParametersList(int, double *aArray) const
 {
   aArray[0] = GetRadius();
 }
 */
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 UnplacedTrapezoid *UnplacedTrapezoid::Clone() const
 {
   return new UnplacedTrapezoid(*this);
@@ -303,7 +303,7 @@ void UnplacedTrapezoid::Print(std::ostream &os) const
      << fTrap.fDx3 << "mm, " << fTrap.fDx4 << "mm, " << this->alpha2() << "rad }\n";
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedTrapezoid::fromParametersToCorners(TrapCorners pt) const
 {
   const TrapezoidStruct<double> &t = fTrap;
@@ -324,7 +324,7 @@ void UnplacedTrapezoid::fromParametersToCorners(TrapCorners pt) const
   pt[7] = Vec3D(+dxdzDz + dxdyDy2 + t.fDx4, +dydzDz + t.fDy2, +t.fDz);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedTrapezoid::fromPlanesToCorners(TrapCorners pt) const
 {
   const TrapezoidStruct<double> &t = fTrap;
@@ -352,7 +352,7 @@ void UnplacedTrapezoid::fromPlanesToCorners(TrapCorners pt) const
   pt[7].x() = ((pl3.fB / pl1.fB) * (pl1.fD + t.fDz * pl1.fC) - (pl3.fD + t.fDz * pl3.fC)) / pl3.fA; // int. +X ; +Y ; +Z
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedTrapezoid::fromCornersToParameters(TrapCorners const pt)
 {
   fTrap.fDz         = pt[7].z();
@@ -395,7 +395,7 @@ void UnplacedTrapezoid::fromCornersToParameters(TrapCorners const pt)
 using TrapSidePlane = TrapezoidStruct<double>::TrapSidePlane;
 #endif
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool UnplacedTrapezoid::MakeAPlane(const Vec3D &p1, const Vec3D &p2, const Vec3D &p3, const Vec3D &p4,
 #ifndef VECGEOM_PLANESHELL_DISABLE
                                    unsigned int iplane)
@@ -448,7 +448,7 @@ bool UnplacedTrapezoid::MakeAPlane(const Vec3D &p1, const Vec3D &p2, const Vec3D
   return good;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool UnplacedTrapezoid::MakePlanes()
 {
   TrapCorners pt;
@@ -456,7 +456,7 @@ bool UnplacedTrapezoid::MakePlanes()
   return MakePlanes(pt);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool UnplacedTrapezoid::MakePlanes(TrapCorners const pt)
 {
 

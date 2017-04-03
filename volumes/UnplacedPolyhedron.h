@@ -114,7 +114,7 @@ public:
   ///             for the corresponding Z-plane.
   /// \param rMin Radius to the sides (not to the corners!) of the outer shell
   ///             for the corresponding Z-plane.
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedPolyhedron(Precision phiStart, Precision phiDelta, const int sideCount, const int zPlaneCount,
                      Precision const zPlanes[], Precision const rMin[], Precision const rMax[]);
 
@@ -137,78 +137,78 @@ public:
   UnplacedPolyhedron(Precision phiStart, Precision phiDelta, const int sideCount, const int zPlaneCount,
                      Precision const r[], Precision const z[]);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~UnplacedPolyhedron() {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   PolyhedronStruct<double> const &GetStruct() const { return fPoly; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   int GetSideCount() const { return fPoly.fSideCount; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   int GetZSegmentCount() const { return fPoly.fZSegments.size(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   bool HasInnerRadii() const { return fPoly.fHasInnerRadii; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   bool HasPhiCutout() const { return fPoly.fHasPhiCutout; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   bool HasLargePhiCutout() const { return fPoly.fHasLargePhiCutout; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   ZSegment const &GetZSegment(int i) const { return fPoly.fZSegments[i]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Array<ZSegment> const &GetZSegments() const { return fPoly.fZSegments; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetZPlane(int i) const { return fPoly.fZPlanes[i]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Array<Precision> const &GetZPlanes() const { return fPoly.fZPlanes; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Array<Precision> const &GetRMin() const { return fPoly.fRMin; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Array<Precision> const &GetRMax() const { return fPoly.fRMax; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Vector3D<Precision> GetPhiSection(int i) const { return fPoly.fPhiSections[i]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   SOA3D<Precision> const &GetPhiSections() const { return fPoly.fPhiSections; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   evolution::Wedge const &GetPhiWedge() const { return fPoly.fPhiWedge; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   TubeStruct<double> const &GetBoundingTube() const { return fPoly.fBoundingTube; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetBoundingTubeOffset() const { return fPoly.fBoundingTubeOffset; }
 
 #ifndef VECGEOM_NVCC
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;
 #endif
 
@@ -243,25 +243,25 @@ public:
 
   /// Not a stored value, and should not be called from performance critical code.
   /// \return The angle along phi where the first corner is placed, specified in radians.
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetPhiStart() const { return fPoly.fPhiStart; }
 
   /// Not a stored value, and should not be called from performance critical code.
   /// \return The angle along phi where the last corner is placed, specified in degrees.
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetPhiEnd() const { return fPoly.fPhiStart + fPoly.fPhiDelta; }
 
   /// Not a stored value, and should not be called from performance critical code.
   /// \return The difference in angle along phi between the last corner and the first corner.
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetPhiDelta() const { return fPoly.fPhiDelta; }
 
   // \return the number of quadrilaterals (including triangles) that this
   // polyhedra consists of; this should be all visible surfaces except the endcaps
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   int GetNQuadrilaterals() const;
 
   // reconstructs fZPlanes, fRmin, fRMax from Quadrilaterals
@@ -318,26 +318,26 @@ public:
     }
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void DetectConvexity();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void Print() const final;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void PrintSegments() const;
 
   virtual void Print(std::ostream &os) const final;
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
-  VECGEOM_CUDA_HEADER_DEVICE
+  VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
                                const int id,
 #endif
                                VPlacedVolume *const placement = NULL);
 
-  VECGEOM_CUDA_HEADER_DEVICE
+  VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code,
@@ -357,7 +357,7 @@ public:
 private:
   // This method does the proper construction of planes and segments.
   // Used by multiple constructors.
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Initialize(Precision phiStart, Precision phiDelta, const int sideCount, const int zPlaneCount,
                   Precision const zPlanes[], Precision const rMin[], Precision const rMax[]);
 

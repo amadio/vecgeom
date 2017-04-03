@@ -26,7 +26,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <typename P>
 struct select1st {
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   typename P::first_type const &operator()(P const &p) const { return p.first; }
 };
 
@@ -34,11 +34,11 @@ template <class _Key, class _Tp, class _Compare = less<_Key>>
 class map;
 
 template <class _Key, class _Tp, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline bool operator==(const map<_Key, _Tp, _Compare> &__x, const map<_Key, _Tp, _Compare> &__y);
 
 template <class _Key, class _Tp, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline bool operator<(const map<_Key, _Tp, _Compare> &__x, const map<_Key, _Tp, _Compare> &__y);
 
 template <class _Key, class _Tp, class _Compare>
@@ -58,13 +58,13 @@ public:
 
   protected:
     Compare comp;
-    VECGEOM_CUDA_HEADER_BOTH
+    VECCORE_ATT_HOST_DEVICE
     value_compare(Compare c) : comp(c) {}
   public:
     typedef bool result_type;
     typedef value_type first_argument_type;
     typedef value_type second_argument_type;
-    VECGEOM_CUDA_HEADER_BOTH
+    VECCORE_ATT_HOST_DEVICE
     bool operator()(const value_type &x, const value_type &y) const { return comp(x.first, y.first); }
   };
 
@@ -85,28 +85,28 @@ public:
   typedef typename _Rep_type::difference_type difference_type;
 
   // Constructors
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   map() : _M_t(_Compare()) {}
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   map(const key_type _key) : _M_t() {} // TEST
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   map(const value_type *__first, const value_type *__last) : _M_t(_Compare()) { _M_t.insert_unique(__first, __last); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   map(const value_type *__first, const value_type *__last, const _Compare &__comp) : _M_t(__comp)
   {
     _M_t.insert_unique(__first, __last);
   }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   map(const_iterator __first, const_iterator __last) : _M_t(_Compare()) { _M_t.insert_unique(__first, __last); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   map(const_iterator __first, const_iterator __last, const _Compare &__comp) : _M_t(__comp)
   {
     _M_t.insert_unique(__first, __last);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   map(const map<_Key, _Tp, _Compare> &__x) : _M_t(__x._M_t) {}
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   map<_Key, _Tp, _Compare> &operator=(const map<_Key, _Tp, _Compare> &__x)
   {
     _M_t = __x._M_t;
@@ -114,19 +114,19 @@ public:
   }
 
   // key/value compare funtions
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   key_compare key_comp() const { return _M_t.key_comp(); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   value_compare<_Key, _Tp, _Compare> value_comp() const { return value_compare<_Key, _Tp, _Compare>(_M_t.key_comp()); }
 
   // iterators
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   iterator begin() { return _M_t.begin(); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   const_iterator begin() const { return _M_t.begin(); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   iterator end() { return _M_t.end(); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   const_iterator end() const { return _M_t.end(); }
   /*
     reverse_iterator rbegin() { return _M_t.rbegin(); }
@@ -134,13 +134,13 @@ public:
     reverse_iterator rend() { return _M_t.rend(); }
     const_reverse_iterator rend() const { return _M_t.rend(); }
   */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool empty() const { return _M_t.empty(); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   size_type size() const { return _M_t.size(); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   size_type max_size() const { return _M_t.max_size(); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   _Tp &operator[](const key_type &__k)
   {
     iterator __i = lower_bound(__k);
@@ -148,7 +148,7 @@ public:
     if (__i == end() || key_comp()(__k, (*__i).first)) __i = insert(__i, value_type(__k, _Tp()));
     return (*__i).second;
   }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   const _Tp &at(const key_type &__k) const
   {
     const_iterator __i = lower_bound(__k);
@@ -161,82 +161,82 @@ public:
   // void swap(map<_Key,_Tp,_Compare,_Alloc>& __x) { _M_t.swap(__x._M_t); }
 
   // insert/erase
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   pair<iterator, bool> insert(const value_type &__x) { return _M_t.insert_unique(__x); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   iterator insert(iterator position, const value_type &__x) { return _M_t.insert_unique(position, __x); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void insert(const value_type *__first, const value_type *__last) { _M_t.insert_unique(__first, __last); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void insert(const_iterator __first, const_iterator __last) { _M_t.insert_unique(__first, __last); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void erase(iterator __position) { _M_t.erase(__position); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   size_type erase(const key_type &__x) { return _M_t.erase(__x); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void erase(iterator __first, iterator __last) { _M_t.erase(__first, __last); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void clear() { _M_t.clear(); }
 
   // map operations:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   iterator find(const key_type &__x) { return _M_t.find(__x); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   const_iterator find(const key_type &__x) const { return _M_t.find(__x); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   size_type count(const key_type &__x) const { return _M_t.find(__x) == _M_t.end() ? 0 : 1; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   iterator lower_bound(const key_type &__x) { return _M_t.lower_bound(__x); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   const_iterator lower_bound(const key_type &__x) const { return _M_t.lower_bound(__x); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   iterator upper_bound(const key_type &__x) { return _M_t.upper_bound(__x); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   const_iterator upper_bound(const key_type &__x) const { return _M_t.upper_bound(__x); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   pair<iterator, iterator> equal_range(const key_type &__x) { return _M_t.equal_range(__x); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   pair<const_iterator, const_iterator> equal_range(const key_type &__x) const { return _M_t.equal_range(__x); }
 };
 
 template <class _Key, class _Tp, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline bool operator==(const map<_Key, _Tp, _Compare> &__x, const map<_Key, _Tp, _Compare> &__y)
 {
   return __x._M_t == __y._M_t;
 }
 
 template <class _Key, class _Tp, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline bool operator<(const map<_Key, _Tp, _Compare> &__x, const map<_Key, _Tp, _Compare> &__y)
 {
   return __x._M_t < __y._M_t;
 }
 
 template <class _Key, class _Tp, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline bool operator!=(const map<_Key, _Tp, _Compare> &__x, const map<_Key, _Tp, _Compare> &__y)
 {
   return !(__x == __y);
 }
 
 template <class _Key, class _Tp, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline bool operator>(const map<_Key, _Tp, _Compare> &__x, const map<_Key, _Tp, _Compare> &__y)
 {
   return __y < __x;
 }
 
 template <class _Key, class _Tp, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline bool operator<=(const map<_Key, _Tp, _Compare> &__x, const map<_Key, _Tp, _Compare> &__y)
 {
   return !(__y < __x);
 }
 
 template <class _Key, class _Tp, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline bool operator>=(const map<_Key, _Tp, _Compare> &__x, const map<_Key, _Tp, _Compare> &__y)
 {
   return !(__x < __y);

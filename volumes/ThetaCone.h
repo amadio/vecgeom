@@ -57,7 +57,7 @@ private:
   Precision tanETheta2;
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ThetaCone(Precision sTheta, Precision dTheta) : fSTheta(sTheta), fDTheta(dTheta), kAngTolerance(kTolerance)
   {
 
@@ -80,19 +80,19 @@ public:
     slope2                                                  = tan(kPi / 2 - fETheta);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ~ThetaCone() {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetSlope1() const { return slope1; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetSlope2() const { return slope2; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetTanSTheta2() const { return tanSTheta2; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetTanETheta2() const { return tanETheta2; }
 
   /* Function to calculate normal at a point to the Cone formed at
@@ -103,7 +103,7 @@ public:
    * @output : Vector3D : calculated normal at the input point.
    */
   template <typename Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Vector3D<typename Backend::precision_v> GetNormal1(Vector3D<typename Backend::precision_v> const &point) const
   {
 
@@ -124,7 +124,7 @@ public:
   */
 
   template <typename Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Vector3D<typename Backend::precision_v> GetNormal2(Vector3D<typename Backend::precision_v> const &point) const
   {
 
@@ -147,7 +147,7 @@ public:
    * functions, but this implementation will be used by "IsPointOnSurfaceAndMovingOut()" function
    */
   template <typename Backend, bool ForStartTheta>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Vector3D<typename Backend::precision_v> GetNormal(Vector3D<typename Backend::precision_v> const &point) const
   {
 
@@ -180,7 +180,7 @@ public:
    * this implementation will be used by "IsPointOnSurfaceAndMovingOut()" function.
    */
   template <typename Backend, bool ForStartTheta>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   typename Backend::bool_v IsOnSurfaceGeneric(Vector3D<typename Backend::precision_v> const &point) const
   {
 
@@ -216,7 +216,7 @@ public:
    * Very useful for DistanceToIn and DistanceToOut.
    */
   template <typename Backend, bool ForStartTheta, bool MovingOut>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   typename Backend::bool_v IsPointOnSurfaceAndMovingOut(Vector3D<typename Backend::precision_v> const &point,
                                                         Vector3D<typename Backend::precision_v> const &dir) const
   {
@@ -231,7 +231,7 @@ public:
   }
 
   template <typename Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   typename Backend::bool_v Contains(Vector3D<typename Backend::precision_v> const &point) const
   {
 
@@ -243,13 +243,13 @@ public:
   }
 
   template <typename Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   typename Backend::bool_v ContainsWithBoundary(Vector3D<typename Backend::precision_v> const & /*point*/) const
   {
   }
 
   template <typename Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   typename Backend::inside_v Inside(Vector3D<typename Backend::precision_v> const &point) const
   {
 
@@ -267,7 +267,7 @@ public:
    * the point is located outside the ThetaCone
    */
   template <typename Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   typename Backend::precision_v SafetyToIn(Vector3D<typename Backend::precision_v> const &point) const
   {
 
@@ -318,7 +318,7 @@ public:
    * the point is located inside the ThetaCone ( within the defining phi angle )
    */
   template <typename Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   typename Backend::precision_v SafetyToOut(Vector3D<typename Backend::precision_v> const &point) const
   {
 
@@ -360,7 +360,7 @@ public:
   }
 
   template <typename Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   typename Backend::precision_v DistanceToLine(Precision const &slope, typename Backend::precision_v const &x,
                                                typename Backend::precision_v const &y) const
   {
@@ -374,7 +374,7 @@ public:
    * estimate of the distance to the ThetaCone boundary with given direction
    */
   template <typename Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void DistanceToIn(Vector3D<typename Backend::precision_v> const &point,
                     Vector3D<typename Backend::precision_v> const &dir, typename Backend::precision_v &distThetaCone1,
                     typename Backend::precision_v &distThetaCone2, typename Backend::bool_v &intsect1,
@@ -492,7 +492,7 @@ public:
   }
 
   template <typename Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void DistanceToOut(Vector3D<typename Backend::precision_v> const &point,
                      Vector3D<typename Backend::precision_v> const &dir, typename Backend::precision_v &distThetaCone1,
                      typename Backend::precision_v &distThetaCone2, typename Backend::bool_v &intsect1,
@@ -637,7 +637,7 @@ public:
 
   // This could be useful in case somebody just want to check whether point is completely inside ThetaRange
   template <typename Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   typename Backend::bool_v IsCompletelyInside(Vector3D<typename Backend::precision_v> const &localPoint) const
   {
 
@@ -713,7 +713,7 @@ public:
 
   // This could be useful in case somebody just want to check whether point is completely outside ThetaRange
   template <typename Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   typename Backend::bool_v IsCompletelyOutside(Vector3D<typename Backend::precision_v> const &localPoint) const
   {
 
@@ -791,7 +791,7 @@ public:
   }
 
   template <typename Backend, bool ForInside>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void GenericKernelForContainsAndInside(Vector3D<typename Backend::precision_v> const &localPoint,
                                          typename Backend::bool_v &completelyinside,
                                          typename Backend::bool_v &completelyoutside) const

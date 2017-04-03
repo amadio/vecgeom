@@ -28,7 +28,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 #ifdef VECGEOM_NVCC
 __device__ SimpleSafetyEstimator *gSimpleSafetyEstimator = nullptr;
 
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VSafetyEstimator *SimpleSafetyEstimator::Instance()
 {
   if (gSimpleSafetyEstimator == nullptr) gSimpleSafetyEstimator = new SimpleSafetyEstimator();
@@ -40,7 +40,7 @@ VSafetyEstimator *SimpleSafetyEstimator::Instance()
 __device__ VNavigator *gSimpleNavigator = nullptr;
 
 template <>
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VNavigator *NewSimpleNavigator<false>::Instance()
 {
   if (gSimpleNavigator == nullptr) gSimpleNavigator = new NewSimpleNavigator();
@@ -70,7 +70,7 @@ LogicalVolume::LogicalVolume(char const *const label, VUnplacedVolume const *con
 }
 
 #else
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 LogicalVolume::LogicalVolume(VUnplacedVolume const *const unplaced_vol, Vector<Daughter> *GetDaughter)
     // Id for logical volumes is not needed on the device for CUDA
     : fUnplacedVolume(unplaced_vol),
@@ -152,7 +152,7 @@ void LogicalVolume::PlaceDaughter(VPlacedVolume const *const placed)
 
 // void LogicalVolume::SetDaughter(unsigned int i, VPlacedVolume const *pvol) { daughters_->operator[](i) = pvol; }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void LogicalVolume::Print(const int indent) const
 {
   for (int i = 0; i < indent; ++i)
@@ -176,7 +176,7 @@ void LogicalVolume::Print(const int indent) const
   }
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void LogicalVolume::PrintContent(const int indent) const
 {
   for (int i = 0; i < indent; ++i)

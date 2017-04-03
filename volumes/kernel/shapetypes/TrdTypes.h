@@ -20,7 +20,7 @@ namespace TrdTypes {
 
 #define DEFINE_TRD_TYPE(name)                       \
   struct name {                                     \
-    VECGEOM_CUDA_HEADER_BOTH                        \
+    VECCORE_ATT_HOST_DEVICE                         \
     static char const *toString() { return #name; } \
   }
 
@@ -60,7 +60,7 @@ struct HasVaryingY<Trd2> {
 
 template <typename T>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool checkVaryingY(const TrdStruct<double> &trd)
 {
   if (HasVaryingY<T>::value != kUnknown)

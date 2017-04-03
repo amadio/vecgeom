@@ -33,7 +33,7 @@ namespace TubeTypes {
 
 #define DEFINE_TUBE_TYPE(name)                      \
   struct name {                                     \
-    VECGEOM_CUDA_HEADER_BOTH                        \
+    VECCORE_ATT_HOST_DEVICE                         \
     static char const *toString() { return #name; } \
   }
 
@@ -94,7 +94,7 @@ struct NeedsPhiTreatment<UniversalTube> {
 
 template <typename T, typename UnplacedTube>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool checkPhiTreatment(const UnplacedTube &tube)
 {
   if (NeedsPhiTreatment<T>::value != kUnknown)
@@ -137,7 +137,7 @@ struct NeedsRminTreatment<UniversalTube> {
 
 template <typename T, typename UnplacedTube>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool checkRminTreatment(const UnplacedTube &tube)
 {
   if (NeedsRminTreatment<T>::value != kUnknown)

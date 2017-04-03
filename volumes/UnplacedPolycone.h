@@ -28,10 +28,10 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 // helper structure to encapsulate a section
 struct PolyconeSection {
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   PolyconeSection() : fSolid(0), fShift(0.0), fTubular(0), fConvex(0) {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ~PolyconeSection() = default;
 
   UnplacedCone *fSolid;
@@ -66,16 +66,16 @@ private:
   bool fContinuityOverAll;
   bool fConvexityPossible;
   Wedge fPhiWedge;
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool CheckContinuity(const double rOuter[], const double rInner[], const double zPlane[],
                        Vector<Precision> &newROuter, Vector<Precision> &newRInner, Vector<Precision> &zewZPlane);
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool CheckContinuityInRmax(const Vector<Precision> &rOuter);
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool CheckContinuityInSlope(const Vector<Precision> &rOuter, const Vector<Precision> &zPlane);
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Init(double phiStart,         // initial phi starting angle
             double phiTotal,         // total phi angle
             unsigned int numZPlanes, // number of z planes
@@ -84,7 +84,7 @@ public:
             const double rOuter[]);
 
   // the constructor
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedPolycone(Precision phistart, Precision deltaphi, int Nz, Precision const *z, Precision const *rmin,
                    Precision const *rmax)
       : fStartPhi(phistart), fDeltaPhi(deltaphi), fNz(Nz), fSections(), fZs(Nz), fEqualRmax(true),
@@ -95,30 +95,30 @@ public:
   }
 
   // alternative constructor, required for integration with Geant4
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedPolycone(Precision phiStart,  // initial phi starting angle
                    Precision phiTotal,  // total phi angle
                    int numRZ,           // number corners in r,z space
                    Precision const *r,  // r coordinate of these corners
                    Precision const *z); // z coordinate of these corners
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void DetectConvexity();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   unsigned int GetNz() const { return fNz; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   int GetNSections() const { return fSections.size(); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetStartPhi() const { return fStartPhi; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetDeltaPhi() const { return fDeltaPhi; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetEndPhi() const { return fStartPhi + fDeltaPhi; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Wedge const &GetWedge() const { return fPhiWedge; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   int GetSectionIndex(Precision zposition) const
   {
     // TODO: consider binary search
@@ -130,7 +130,7 @@ public:
     return -2;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   PolyconeSection const &GetSection(Precision zposition) const
   {
     // TODO: consider binary search
@@ -138,11 +138,11 @@ public:
     return fSections[i];
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   // GetSection if index is known
   PolyconeSection const &GetSection(int index) const { return fSections[index]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetRminAtPlane(int index) const
   {
     int nsect = GetNSections();
@@ -153,7 +153,7 @@ public:
       return fSections[index].fSolid->GetRmin1();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetRmaxAtPlane(int index) const
   {
     int nsect = GetNSections();
@@ -164,7 +164,7 @@ public:
       return fSections[index].fSolid->GetRmax1();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetZAtPlane(int index) const
   {
     assert(index >= 0 || index <= GetNSections());
@@ -184,7 +184,7 @@ public:
 
   Precision SurfaceArea() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &norm) const;
 
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const;
@@ -216,11 +216,11 @@ public:
 public:
   virtual int MemorySize() const final { return sizeof(*this); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void Print() const final;
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
-  VECGEOM_CUDA_HEADER_DEVICE
+  VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
                                const int id,
@@ -240,7 +240,7 @@ public:
 private:
   virtual void Print(std::ostream &os) const final;
 
-  VECGEOM_CUDA_HEADER_DEVICE
+  VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code,

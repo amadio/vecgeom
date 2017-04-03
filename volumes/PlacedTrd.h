@@ -48,32 +48,32 @@ public:
   }
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~PlacedTrd() {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedTrd const *GetUnplacedVolume() const
   {
     return static_cast<UnplacedTrd const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision dx1() const { return GetUnplacedVolume()->dx1(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision dx2() const { return GetUnplacedVolume()->dx2(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision dy1() const { return GetUnplacedVolume()->dy1(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision dy2() const { return GetUnplacedVolume()->dy2(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision dz() const { return GetUnplacedVolume()->dz(); }
 
@@ -92,7 +92,7 @@ public:
     const_cast<UnplacedTrd *>(GetUnplacedVolume())->SetAllParameters(x1, x2, y1, y2, z);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
   {
     GetUnplacedVolume()->Extent(aMin, aMax);
@@ -105,7 +105,7 @@ public:
 
   virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
     return GetUnplacedVolume()->Normal(point, normal);
@@ -117,7 +117,7 @@ public:
 
 #if defined(VECGEOM_USOLIDS)
   virtual std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType(); }
-#//  VECGEOM_CUDA_HEADER_BOTH
+#//  VECCORE_ATT_HOST_DEVICE
   std::ostream &StreamInfo(std::ostream &os) const override { return GetUnplacedVolume()->StreamInfo(os); }
 #endif
 

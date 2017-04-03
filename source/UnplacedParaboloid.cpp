@@ -13,14 +13,14 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 UnplacedParaboloid::UnplacedParaboloid() : fCubicVolume(0), fSurfaceArea(0)
 {
   // default constructor
   fGlobalConvexity = true;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 UnplacedParaboloid::UnplacedParaboloid(const Precision rlo, const Precision rhi, const Precision dz)
     : fParaboloid(rlo, rhi, dz)
 {
@@ -29,13 +29,13 @@ UnplacedParaboloid::UnplacedParaboloid(const Precision rlo, const Precision rhi,
   fGlobalConvexity = true;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedParaboloid::CalcCapacity()
 {
   fCubicVolume = kPi * fParaboloid.fDz * (fParaboloid.fRlo * fParaboloid.fRlo + fParaboloid.fRhi * fParaboloid.fRhi);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedParaboloid::CalcSurfaceArea()
 {
 
@@ -61,7 +61,7 @@ void UnplacedParaboloid::CalcSurfaceArea()
   fSurfaceArea = (A1 - A2 + (fParaboloid.fRlo2 + fParaboloid.fRhi2) * kPi);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedParaboloid::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
   aMin.x() = -fParaboloid.fDx;
@@ -106,20 +106,20 @@ std::string UnplacedParaboloid::GetEntityType() const
 
 #if defined(VECGEOM_USOLIDS)
 /*
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedParaboloid::GetParametersList(int, double *aArray) const
 {
   aArray[0] = GetRadius();
 }
 */
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 UnplacedParaboloid *UnplacedParaboloid::Clone() const
 {
   return new UnplacedParaboloid(fParaboloid.fRlo, fParaboloid.fRhi, fParaboloid.fDz);
 }
 
-// VECGEOM_CUDA_HEADER_BOTH
+// VECCORE_ATT_HOST_DEVICE
 std::ostream &UnplacedParaboloid::StreamInfo(std::ostream &os) const
 // Definition taken from UParaboloid
 {

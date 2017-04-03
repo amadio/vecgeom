@@ -33,7 +33,7 @@ struct OrbImplementation {
   using UnplacedStruct_t = OrbStruct<double>;
   using UnplacedVolume_t = UnplacedOrb;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void PrintType()
   {
     //  printf("SpecializedOrb<%i, %i>", transCodeT, rotCodeT);
@@ -62,7 +62,7 @@ struct OrbImplementation {
 
   template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Contains(UnplacedStruct_t const &orb, Vector3D<Real_v> const &point, Bool_v &inside)
   {
     Bool_v unused, outside;
@@ -74,7 +74,7 @@ struct OrbImplementation {
   // -- OR -- DO WE WANT TO DEDUCE Bool_v, Index_t from Real_v???
   template <typename Real_v, typename Inside_t>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Inside(UnplacedStruct_t const &orb, Vector3D<Real_v> const &point, Inside_t &inside)
   {
 
@@ -89,7 +89,7 @@ struct OrbImplementation {
 
   template <typename Real_v, typename Bool_v, bool ForInside>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void GenericKernelForContainsAndInside(UnplacedStruct_t const &orb, Vector3D<Real_v> const &localPoint,
                                                 Bool_v &completelyinside, Bool_v &completelyoutside)
   {
@@ -104,7 +104,7 @@ struct OrbImplementation {
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToIn(UnplacedStruct_t const &orb, Vector3D<Real_v> const &point,
                            Vector3D<Real_v> const &direction, Real_v const & /*stepMax*/, Real_v &distance)
   {
@@ -129,7 +129,7 @@ struct OrbImplementation {
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToOut(UnplacedStruct_t const &orb, Vector3D<Real_v> const &point,
                             Vector3D<Real_v> const &direction, Real_v const & /* stepMax */, Real_v &distance)
   {
@@ -158,7 +158,7 @@ struct OrbImplementation {
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToIn(UnplacedStruct_t const &orb, Vector3D<Real_v> const &point, Real_v &safety)
   {
     using Bool_v         = vecCore::Mask_v<Real_v>;
@@ -174,7 +174,7 @@ struct OrbImplementation {
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToOut(UnplacedStruct_t const &orb, Vector3D<Real_v> const &point, Real_v &safety)
   {
     using Bool_v = vecCore::Mask_v<Real_v>;
@@ -192,7 +192,7 @@ struct OrbImplementation {
 
   template <typename Real_v, bool ForDistanceToIn>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static typename vecCore::Mask_v<Real_v> DetectIntersectionAndCalculateDistance(UnplacedStruct_t const &orb,
                                                                                  Vector3D<Real_v> const &point,
                                                                                  Vector3D<Real_v> const &direction,
@@ -218,7 +218,7 @@ struct OrbImplementation {
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &orb, Vector3D<Real_v> const &point,
                                        typename vecCore::Mask_v<Real_v> &valid)
   {

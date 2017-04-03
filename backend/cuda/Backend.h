@@ -51,14 +51,14 @@ static const unsigned kThreadsPerBlock = 256;
 // Auxiliary GPU functions
 #ifdef VECGEOM_NVCC
 
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VECGEOM_FORCE_INLINE
 int ThreadIndex()
 {
   return blockDim.x * blockIdx.x + threadIdx.x;
 }
 
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VECGEOM_FORCE_INLINE
 int ThreadOffset()
 {

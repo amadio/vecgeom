@@ -53,23 +53,23 @@ private:
   VariableData_t fData;
 
   // Required by VariableSizeObjectInterface
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VariableData_t &GetVariableData() { return fData; }
 
   // Required by VariableSizeObjectInterface
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VariableData_t const &GetVariableData() const { return fData; }
 
-  static inline VECGEOM_CUDA_HEADER_BOTH size_t GetNbytes(size_t nbits) { return (((nbits ? nbits : 8) - 1) / 8) + 1; }
+  static inline VECCORE_ATT_HOST_DEVICE size_t GetNbytes(size_t nbits) { return (((nbits ? nbits : 8) - 1) / 8) + 1; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   BitSet(const BitSet &other) : fNbits(other.fNbits), fData(other.fData)
   {
     // We assume that the memory allocated and use is large enough to
     // hold the full values (i.e. Sizeof(other.fData.fN) )
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   BitSet(size_t new_size, const BitSet &other) : fNbits(other.fNbits), fData(new_size, other.fData)
   {
     // We assume that the memory allocated and use is large enough to
@@ -85,7 +85,7 @@ private:
     }
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   BitSet(size_t nvalues, size_t nbits) : fNbits(nbits), fData(nvalues) { memset(fData.GetValues(), 0, GetNbytes()); }
 
   void DoAndEqual(const BitSet &rhs)
@@ -246,7 +246,7 @@ public:
     return *this;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static size_t SizeOfInstance(size_t nbits) { return SizeOf(GetNbytes(nbits)); }
 
   static BitSet *MakeInstance(size_t nbits)
@@ -255,7 +255,7 @@ public:
     return Base_t::MakeInstance(nvalues, nbits);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static BitSet *MakeInstanceAt(size_t nbits, void *addr)
   {
     size_t nvalues = GetNbytes(nbits);
@@ -287,7 +287,7 @@ public:
 
   //----- bit manipulation
   //----- (note the difference with TObject's bit manipulations)
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void ResetAllBits(bool value = false)
   {
     // Reset all bits to 0 (false).
@@ -296,10 +296,10 @@ public:
     if (fData.GetValues()) memset(fData.GetValues(), value ? 1 : 0, GetNbytes());
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void ResetBitNumber(size_t bitnumber) { SetBitNumber(bitnumber, false); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool SetBitNumber(size_t bitnumber, bool value = true)
   {
     // Set bit number 'bitnumber' to be value
@@ -321,7 +321,7 @@ public:
     return true;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool TestBitNumber(size_t bitnumber) const
   {
     // Return the current value of the bit
@@ -624,7 +624,7 @@ public:
     return count;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   size_t FirstNullBit(size_t startBit = 0) const
   {
     // Return position of first null bit (starting from position 0 and up)
@@ -672,7 +672,7 @@ public:
     return fNbits;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   size_t FirstSetBit(size_t startBit = 0) const
   {
     // Return position of first non null bit (starting from position 0 and up)
@@ -764,10 +764,10 @@ public:
     return fNbits;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   size_t LastSetBit() const { return LastSetBit(fNbits - 1); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   size_t LastSetBit(size_t startBit) const
   {
     // Return position of first non null bit (starting from position fNbits and down)
@@ -811,10 +811,10 @@ public:
     return fNbits;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   size_t GetNbits() const { return fNbits; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   size_t GetNbytes() const { return fData.fN; }
 
   bool operator==(const BitSet &other) const

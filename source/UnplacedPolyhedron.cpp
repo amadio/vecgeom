@@ -24,7 +24,7 @@ UnplacedPolyhedron::UnplacedPolyhedron(const int sideCount, const int zPlaneCoun
   DetectConvexity();
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 UnplacedPolyhedron::UnplacedPolyhedron(Precision phiStart, Precision phiDelta, const int sideCount,
                                        const int zPlaneCount, Precision const zPlanes[], Precision const rMin[],
                                        Precision const rMax[])
@@ -43,7 +43,7 @@ UnplacedPolyhedron::UnplacedPolyhedron(Precision phiStart, Precision phiDelta, c
   DetectConvexity();
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 int UnplacedPolyhedron::GetNQuadrilaterals() const
 {
   int count = 0;
@@ -59,7 +59,7 @@ int UnplacedPolyhedron::GetNQuadrilaterals() const
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedPolyhedron::Create(LogicalVolume const *const logical_volume,
                                           Transformation3D const *const transformation,
 // const TranslationCode trans_code, const RotationCode rot_code,
@@ -121,7 +121,7 @@ VPlacedVolume *UnplacedPolyhedron::Create(LogicalVolume const *const logical_vol
 #undef POLYHEDRON_CREATE_SPECIALIZATION
 }
 
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedPolyhedron::SpecializedVolume(LogicalVolume const *const volume,
                                                      Transformation3D const *const transformation,
                                                      const TranslationCode trans_code, const RotationCode rot_code,
@@ -172,7 +172,7 @@ void UnplacedPolyhedron::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &
   }
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Precision UnplacedPolyhedron::DistanceSquarePointToSegment(Vector3D<Precision> &v1, Vector3D<Precision> &v2,
                                                            const Vector3D<Precision> &p) const
 {
@@ -189,7 +189,7 @@ Precision UnplacedPolyhedron::DistanceSquarePointToSegment(Vector3D<Precision> &
   }
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool UnplacedPolyhedron::InsideTriangle(Vector3D<Precision> &v1, Vector3D<Precision> &v2, Vector3D<Precision> &v3,
                                         const Vector3D<Precision> &p) const
 {
@@ -215,7 +215,7 @@ bool UnplacedPolyhedron::InsideTriangle(Vector3D<Precision> &v1, Vector3D<Precis
   return false;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Precision UnplacedPolyhedron::GetTriangleArea(Vector3D<Precision> const &v1, Vector3D<Precision> const &v2,
                                               Vector3D<Precision> const &v3) const
 {
@@ -224,7 +224,7 @@ Precision UnplacedPolyhedron::GetTriangleArea(Vector3D<Precision> const &v1, Vec
   return 0.5 * (vec1.Cross(vec2)).Mag();
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Vector3D<Precision> UnplacedPolyhedron::GetPointOnTriangle(Vector3D<Precision> const &v1, Vector3D<Precision> const &v2,
                                                            Vector3D<Precision> const &v3) const
 {
@@ -244,7 +244,7 @@ Vector3D<Precision> UnplacedPolyhedron::GetPointOnTriangle(Vector3D<Precision> c
   */
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Precision UnplacedPolyhedron::SurfaceArea() const
 {
   if (fPoly.fSurfaceArea == 0.) {
@@ -499,7 +499,7 @@ Precision UnplacedPolyhedron::Capacity() const
   return fPoly.fCapacity;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool UnplacedPolyhedron::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
 {
   // Compute normal vector to closest surface
@@ -510,7 +510,7 @@ bool UnplacedPolyhedron::Normal(Vector3D<Precision> const &point, Vector3D<Preci
 
 #endif // !VECGEOM_NVCC
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedPolyhedron::Print() const
 {
   printf("UnplacedPolyhedron {%i sides, phi %f to %f, %i segments}", fPoly.fSideCount, GetPhiStart() * kRadToDeg,
@@ -518,7 +518,7 @@ void UnplacedPolyhedron::Print() const
   printf("}");
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedPolyhedron::PrintSegments() const
 {
   printf("Printing %i polyhedron segments: ", fPoly.fZSegments.size());
@@ -562,7 +562,7 @@ void UnplacedPolyhedron::Print(std::ostream &os) const
   os.precision(oldprc);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedPolyhedron::DetectConvexity()
 {
   // Default safe convexity value

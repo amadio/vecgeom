@@ -45,7 +45,7 @@ public:
   /**
    * Default constructor
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Scale3D() : fScale(1., 1., 1.), fInvScale(1., 1., 1.), fSclLocal(1.), fSclMaster(1.) {}
 
   /**
@@ -54,7 +54,7 @@ public:
    * @param sy Scale value on y
    * @param sz Scale value on z
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Scale3D(Precision sx, Precision sy, Precision sz) : fScale(sx, sy, sz), fInvScale(), fSclLocal(1.), fSclMaster(1.)
   {
     Update();
@@ -64,13 +64,13 @@ public:
    * Constructor with scale parameters in a Vector3D
    * @param scale Scale as Vector3D
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Scale3D(Vector3D<Precision> const &scale) : fScale(scale), fInvScale(), fSclLocal(1.), fSclMaster(1.) { Update(); }
 
   /**
    * Copy constructor.
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Scale3D(Scale3D const &other)
       : fScale(other.fScale), fInvScale(other.fInvScale), fSclLocal(other.fSclLocal), fSclMaster(other.fSclMaster)
   {
@@ -79,7 +79,7 @@ public:
   /**
    * Assignment operator
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Scale3D &operator=(Scale3D const &other)
   {
     fScale     = other.fScale;
@@ -93,7 +93,7 @@ public:
    * Update the backed-up inverse scale and special conversion factors based
    * on the values of the scale. Needed whenever the scale has changed value.
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void Update()
   {
@@ -108,21 +108,21 @@ public:
   /**
    * Get reference to the scale vector.
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   const Vector3D<Precision> &Scale() const { return fScale; }
 
   /**
    * Get reference to the inverse scale vector.
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   const Vector3D<Precision> &InvScale() const { return fInvScale; }
 
   /**
    * Set scale based on vector.
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void SetScale(Vector3D<Precision> const &scale)
   {
@@ -133,7 +133,7 @@ public:
   /**
    * Set scale based on values.
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void SetScale(Precision sx, Precision sy, Precision sz)
   {
@@ -146,7 +146,7 @@ public:
    */
   template <typename InputType>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Transform(Vector3D<InputType> const &master, Vector3D<InputType> &local) const
   {
     local.Set(master[0] * fInvScale[0], master[1] * fInvScale[1], master[2] * fInvScale[2]);
@@ -154,7 +154,7 @@ public:
 
   template <typename InputType>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Vector3D<InputType> Transform(Vector3D<InputType> const &master) const
   {
     Vector3D<InputType> local(master[0] * fInvScale[0], master[1] * fInvScale[1], master[2] * fInvScale[2]);
@@ -166,7 +166,7 @@ public:
    */
   template <typename InputType>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void InverseTransform(Vector3D<InputType> const &local, Vector3D<InputType> &master) const
   {
     master.Set(local[0] * fScale[0], local[1] * fScale[1], local[2] * fScale[2]);
@@ -174,7 +174,7 @@ public:
 
   template <typename InputType>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Vector3D<InputType> InverseTransform(Vector3D<InputType> const &local) const
   {
     Vector3D<InputType> master(local[0] * fScale[0], local[1] * fScale[1], local[2] * fScale[2]);
@@ -186,7 +186,7 @@ public:
    */
   template <typename InputType>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   InputType TransformDistance(InputType const &dist, Vector3D<InputType> const &dir) const
   {
     Vector3D<InputType> v = dir * fInvScale;
@@ -199,7 +199,7 @@ public:
    */
   template <typename InputType>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   InputType TransformSafety(InputType safety) const
   {
     return (safety * fSclLocal);
@@ -210,7 +210,7 @@ public:
    */
   template <typename InputType>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   InputType InverseTransformDistance(InputType const &dist, Vector3D<InputType> const &dir) const
   {
     Vector3D<InputType> v = dir * fScale;
@@ -223,7 +223,7 @@ public:
    */
   template <typename InputType>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   InputType InverseTransformSafety(InputType safety) const
   {
     return (safety * fSclMaster);

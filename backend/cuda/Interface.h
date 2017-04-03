@@ -164,7 +164,7 @@ protected:
     vecgeom::cxx::CudaAssertError(cudaMemcpyAsync(where, fPtr, nbytes, cudaMemcpyDeviceToHost, stream));
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void *GetPtr() const { return fPtr; }
 
   void Free()
@@ -242,10 +242,10 @@ public:
     MemcpyToHostAsync(where, nelems * Derived::SizeOf(), stream);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Type *GetPtr() const { return reinterpret_cast<Type *>(DevicePtrBase::GetPtr()); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   operator Type *() const { return GetPtr(); }
 
   Derived &operator++() // prefix ++
@@ -360,10 +360,10 @@ public:
   }
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   const Type *GetPtr() const { return reinterpret_cast<const Type *>(DevicePtrBase::GetPtr()); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   operator const Type *() const { return GetPtr(); }
 
 #ifdef VECGEOM_NVCC

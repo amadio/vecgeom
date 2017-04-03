@@ -11,7 +11,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 UnplacedOrb::UnplacedOrb() : fCubicVolume(0), fSurfaceArea(0), fEpsilon(2.e-11), fRTolerance(0.)
 {
   // default constructor
@@ -19,7 +19,7 @@ UnplacedOrb::UnplacedOrb() : fCubicVolume(0), fSurfaceArea(0), fEpsilon(2.e-11),
   SetRadialTolerance();
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 UnplacedOrb::UnplacedOrb(const Precision r) : fOrb(r)
 {
   fCubicVolume     = (4 * kPi / 3) * fOrb.fR * fOrb.fR * fOrb.fR;
@@ -28,7 +28,7 @@ UnplacedOrb::UnplacedOrb(const Precision r) : fOrb(r)
   SetRadialTolerance();
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedOrb::SetRadius(Precision r)
 {
   fOrb.fR      = r;
@@ -37,13 +37,13 @@ void UnplacedOrb::SetRadius(Precision r)
   SetRadialTolerance();
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedOrb::SetRadialTolerance()
 {
   fRTolerance = Max(kTolerance, fEpsilon * fOrb.fR);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedOrb::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
   // Returns the full 3D cartesian extent of the solid.
@@ -71,19 +71,19 @@ std::string UnplacedOrb::GetEntityType() const
 }
 
 #if defined(VECGEOM_USOLIDS)
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedOrb::GetParametersList(int, double *aArray) const
 {
   aArray[0] = GetRadius();
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 UnplacedOrb *UnplacedOrb::Clone() const
 {
   return new UnplacedOrb(fOrb.fR);
 }
 
-// VECGEOM_CUDA_HEADER_BOTH
+// VECCORE_ATT_HOST_DEVICE
 std::ostream &UnplacedOrb::StreamInfo(std::ostream &os) const
 // Definition taken from UOrb
 {

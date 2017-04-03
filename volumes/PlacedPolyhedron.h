@@ -51,70 +51,70 @@ public:
   }
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~PlacedPolyhedron() {}
 
   // Accessors
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedPolyhedron const *GetUnplacedVolume() const
   {
     return static_cast<UnplacedPolyhedron const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   int GetSideCount() const { return GetUnplacedVolume()->GetSideCount(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   int GetZSegmentCount() const { return GetUnplacedVolume()->GetZSegmentCount(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   bool HasInnerRadii() const { return GetUnplacedVolume()->HasInnerRadii(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   bool HasPhiCutout() const { return GetUnplacedVolume()->HasPhiCutout(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   ZSegment const &GetZSegment(int index) const { return GetUnplacedVolume()->GetZSegment(index); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Array<ZSegment> const &GetZSegments() const { return GetUnplacedVolume()->GetZSegments(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Array<Precision> const &GetZPlanes() const { return GetUnplacedVolume()->GetZPlanes(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Array<Precision> const &GetRMin() const { return GetUnplacedVolume()->GetRMin(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Array<Precision> const &GetRMax() const { return GetUnplacedVolume()->GetRMax(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Vector3D<Precision> GetPhiSection(int i) const { return GetUnplacedVolume()->GetPhiSection(i); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   SOA3D<Precision> const &GetPhiSections() const { return GetUnplacedVolume()->GetPhiSections(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetPhiStart() const { return GetUnplacedVolume()->GetPhiStart(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetPhiEnd() const { return GetUnplacedVolume()->GetPhiEnd(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetPhiDelta() const { return GetUnplacedVolume()->GetPhiDelta(); }
 
@@ -135,7 +135,7 @@ public:
 #endif
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   int PhiSegmentIndex(Vector3D<Precision> const &point) const;
 
   bool IsOpen() const { return (GetUnplacedVolume()->GetPhiDelta() < kTwoPi); }
@@ -149,7 +149,7 @@ public:
 
   virtual int MemorySize() const override { return sizeof(*this); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
     return GetUnplacedVolume()->Normal(point, normal);

@@ -45,11 +45,11 @@ protected:
   friend class PolygonalShell;
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   PlanarPolygon() : fIsConvex(false) {}
 
   // constructor (not taking ownership of the pointers)
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   PlanarPolygon(int nvertices, double *x, double *y)
       : fVertices(), fShiftedXJ({}), fShiftedYJ({}), fLengthSqr({}), fInvLengthSqr({}), fA({}), fB({}), fD({}),
         fIsConvex(false), fMinX(kInfLength), fMinY(kInfLength), fMaxX(-kInfLength), fMaxY(-kInfLength),
@@ -164,27 +164,27 @@ public:
 #endif
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetMinX() const { return fMinX; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetMinY() const { return fMinY; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetMaxX() const { return fMaxX; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetMaxY() const { return fMaxY; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   SOA3D<Precision> const &GetVertices() const { return fVertices; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   size_t GetNVertices() const { return fNVertices; }
 
   // checks if 2D coordinates (x,y) are on the line segment given by index i
   template <typename Real_v, typename InternalReal_v, typename Bool_v>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Bool_v OnSegment(size_t i, Real_v const &px, Real_v const &py) const
   {
     using vecCore::FromPtr;
@@ -230,7 +230,7 @@ public:
   }
 
   template <typename Real_v, typename Bool_v = vecCore::Mask_v<Real_v>>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Bool_v Contains(Vector3D<Real_v> const &point) const
   {
     // implementation based on the point-polygon test after Jordan
@@ -265,7 +265,7 @@ public:
 
   // calculate precise safety sqr to the polygon; return the closest "line" id
   template <typename Real_v>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Real_v SafetySqr(Vector3D<Real_v> const &point, int &closestid) const
   {
     // implementation based on TGeoPolygone@ROOT
@@ -328,7 +328,7 @@ public:
     return safe;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool IsConvex() const { return fIsConvex; }
 
   // check clockwise/counterclockwise condition (returns positive for anti-clockwise)
@@ -347,7 +347,7 @@ public:
   }
 
   /* returns area of polygon */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision Area() const
   {
     const auto vertx = fVertices.x();
@@ -365,7 +365,7 @@ public:
   }
 
 private:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void CalcConvexity()
   {
     // check if we are always turning into the same sense

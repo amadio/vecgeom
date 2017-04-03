@@ -115,7 +115,7 @@ void UnplacedCone::Print(std::ostream &os) const
   os << "UnplacedCone; please implement Print to outstream\n";
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedCone::DetectConvexity()
 {
 
@@ -458,7 +458,7 @@ Vector3D<Precision> UnplacedCone::GetPointOnSurface() const
 #endif // VECGEOM_NVCC
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedCone::Create(LogicalVolume const *const logical_volume,
                                     Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
@@ -502,7 +502,7 @@ VPlacedVolume *UnplacedCone::Create(LogicalVolume const *const logical_volume,
 }
 
 #if defined(VECGEOM_USOLIDS)
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 std::ostream &UnplacedCone::StreamInfo(std::ostream &os) const
 {
   int oldprc = os.precision(16);
@@ -526,7 +526,7 @@ std::ostream &UnplacedCone::StreamInfo(std::ostream &os) const
 
 // this is repetitive code:
 
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedCone::SpecializedVolume(LogicalVolume const *const volume,
                                                Transformation3D const *const transformation,
                                                const TranslationCode trans_code, const RotationCode rot_code,

@@ -12,7 +12,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 //    cuda_src/Rectangles.cu(9): internal error: assertion failed: adjust_cleanup_state_for_aggregate_init: NULL dip
 //    (/dvs/p4/build/sw/rel/gpu_drv/r340/r340_00/drivers/compiler_CUREL/edg/EDG_4.8/src/lower_init.c, line 7369)
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Quadrilaterals::Quadrilaterals(int size) : fPlanes(size)
 {
   if (size > 0) {
@@ -34,7 +34,7 @@ Quadrilaterals::Quadrilaterals(int size)
 }
 #endif
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Quadrilaterals::~Quadrilaterals()
 {
 }
@@ -49,7 +49,7 @@ Quadrilaterals &Quadrilaterals::operator=(Quadrilaterals const &other)
   return *this;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void Quadrilaterals::Set(int index, Vector3D<Precision> const &corner0, Vector3D<Precision> const &corner1,
                          Vector3D<Precision> const &corner2, Vector3D<Precision> const &corner3)
 {
@@ -141,7 +141,7 @@ void Quadrilaterals::FlipSign(int index)
   fPlanes.FlipSign(index);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void Quadrilaterals::Print() const
 {
   for (int i = 0, iMax = size(); i < iMax; ++i) {

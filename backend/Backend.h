@@ -26,7 +26,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <typename T>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T NonZeroAbs(T const &x)
 {
   return Abs(x) + T(1.0e-30);
@@ -34,7 +34,7 @@ T NonZeroAbs(T const &x)
 
 template <typename T>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T NonZero(T const &x)
 {
   return x + CopySign(T(1.0e-30), x);

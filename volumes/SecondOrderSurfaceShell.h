@@ -48,7 +48,7 @@ private:
 
 public:
   /** @brief SecondOrderSurfaceShell dummy constructor */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   SecondOrderSurfaceShell() : fDz(0), fDz2(0) {}
 
   /** @brief SecondOrderSurfaceShell constructor
@@ -56,14 +56,14 @@ public:
   * @param verticesy Y positions of vertices in array form
   * @param dz The half-height of the GenTrap
   */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   SecondOrderSurfaceShell(const Precision *verticesx, const Precision *verticesy, Precision dz) : fDz(0.), fDz2(0.)
   {
     // Constructor
     Initialize(verticesx, verticesy, dz);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Initialize(const Precision *verticesx, const Precision *verticesy, Precision dz)
   {
 #ifndef VECGEOM_NVCC
@@ -126,7 +126,7 @@ public:
   //______________________________________________________________________________
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   /** @brief Stripped down version of Inside method used for boundary and wrong side detection
    * @param point Starting point in the local frame
    * @param completelyinside Inside flag
@@ -184,7 +184,7 @@ public:
   //______________________________________________________________________________
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   /** @brief Compute distance to a set of curved/planar surfaces
    * @param point Starting point in the local frame
    * @param dir Direction in the local frame
@@ -247,7 +247,7 @@ public:
    */
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Real_v DistanceToOutPlanar(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir) const
   {
 
@@ -291,7 +291,7 @@ public:
    */
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Real_v DistanceToInPlanar(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir,
                             vecCore::Mask_v<Real_v> &done) const
   {
@@ -334,7 +334,7 @@ public:
   //______________________________________________________________________________
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   /**
   * A generic function calculation the distance to a set of curved/planar surfaces
   *
@@ -414,7 +414,7 @@ public:
    */
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Real_v SafetyToOut(Vector3D<Real_v> const &point, Real_v const &safmax) const
   {
 
@@ -461,7 +461,7 @@ public:
    */
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Real_v SafetyToIn(Vector3D<Real_v> const &point, Real_v const &safmax) const
   {
 
@@ -508,7 +508,7 @@ public:
    */
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Real_v SafetyCurved(Vector3D<Real_v> const &point, vecCore::Mask_v<Real_v> in) const
   {
     using Bool_v     = vecCore::Mask_v<Real_v>;
@@ -582,7 +582,7 @@ public:
     return safety;
   } // end SafetyCurved
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Vertex_t const *GetNormals() const { return fNormals; }
 
@@ -594,7 +594,7 @@ public:
    */
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   vecCore::Mask_v<Real_v> InSurfLimits(Vector3D<Real_v> const &point, int isurf) const
   {
 
@@ -619,7 +619,7 @@ public:
   /** @brief Computes un-normalized normal to surface isurf, on the input point */
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void UNormal(Vector3D<Real_v> const &point, int isurf, Vector3D<Real_v> &unorm, Real_v &rz, Real_v &r) const
   {
 
@@ -652,7 +652,7 @@ public:
   /** @brief Solver for the second degree equation for curved surface crossing */
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   /**
    * Function to compute smin and smax crossings with the N lateral surfaces.
    */

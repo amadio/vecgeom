@@ -19,10 +19,10 @@ template <typename T = double>
 struct BoxStruct {
   Vector3D<T> fDimensions; //<the HALF lengths of the box
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   BoxStruct(Vector3D<T> const &dim) : fDimensions(dim) {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   BoxStruct(const T dx, const T dy, const T dz) : fDimensions(dx, dy, dz) {}
 };
 }

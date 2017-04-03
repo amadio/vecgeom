@@ -70,22 +70,22 @@ public:
 
 #endif
   /** @brief PlacedGenTrap destructor */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~PlacedGenTrap() {}
 
   /** @brief Getter for unplaced volume */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedGenTrap const *GetUnplacedVolume() const
   {
     return static_cast<UnplacedGenTrap const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
   /** @brief Getter for one of the 8 vertices in Vector3D<Precision> form */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Vector3D<Precision> const &GetVertex(int i) const { return GetUnplacedVolume()->GetVertex(i); }
 
   /** @brief Getter for the half-height */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetDZ() const { return GetUnplacedVolume()->GetDZ(); }
 
 #if !defined(VECGEOM_NVCC)
@@ -99,7 +99,7 @@ public:
   }
 
   /** @brief Shortcut for computing the normal */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
     return GetUnplacedVolume()->Normal(point, normal);
@@ -118,7 +118,7 @@ public:
 #endif
 
   /** @brief Print type name */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void PrintType() const override;
 
   /** @brief Print type name */

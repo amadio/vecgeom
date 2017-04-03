@@ -61,7 +61,7 @@ public:
   virtual VUnplacedVolume *CopyToGpu(VUnplacedVolume *const gpu_ptr) const;
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision Capacity() const
   {
@@ -69,7 +69,7 @@ public:
     return 0.;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision SurfaceArea() const
   {
@@ -77,19 +77,19 @@ public:
     return 0.;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const {
       // TBDONE
   };
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Vector3D<Precision> GetPointOnSurface() const
   {
     // TBDONE
     return Vector3D<Precision>();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void Print() const {};
 
   virtual void Print(std::ostream &os) const {};

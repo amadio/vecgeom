@@ -23,127 +23,127 @@ private:
   TrdStruct<double> fTrd; ///< Structure with trapezoid parameters
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedTrd() : fTrd() { fGlobalConvexity = true; }
 
   // special case Trd1 when dY1 == dY2
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedTrd(const Precision x1, const Precision x2, const Precision y1, const Precision z) : fTrd(x1, x2, y1, z)
   {
     fGlobalConvexity = true;
   }
 
   // general case
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedTrd(const Precision x1, const Precision x2, const Precision y1, const Precision y2, const Precision z)
       : fTrd(x1, x2, y1, y2, z)
   {
     fGlobalConvexity = true;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   TrdStruct<double> const &GetStruct() const { return fTrd; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetAllParameters(Precision x1, Precision x2, Precision y1, Precision y2, Precision z)
   {
     fTrd.SetAllParameters(x1, x2, y1, y2, z);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetXHalfLength1(Precision arg)
   {
     fTrd.fDX1 = arg;
     fTrd.CalculateCached();
   }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetXHalfLength2(Precision arg)
   {
     fTrd.fDX2 = arg;
     fTrd.CalculateCached();
   }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetYHalfLength1(Precision arg)
   {
     fTrd.fDY1 = arg;
     fTrd.CalculateCached();
   }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetYHalfLength2(Precision arg)
   {
     fTrd.fDY2 = arg;
     fTrd.CalculateCached();
   }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetZHalfLength(Precision arg)
   {
     fTrd.fDZ = arg;
     fTrd.CalculateCached();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision dx1() const { return fTrd.fDX1; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision dx2() const { return fTrd.fDX2; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision dy1() const { return fTrd.fDY1; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision dy2() const { return fTrd.fDY2; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision dz() const { return fTrd.fDZ; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision x2minusx1() const { return fTrd.fX2minusX1; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision y2minusy1() const { return fTrd.fY2minusY1; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision halfx1plusx2() const { return fTrd.fHalfX1plusX2; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision halfy1plusy2() const { return fTrd.fHalfY1plusY2; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision fx() const { return fTrd.fFx; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision fy() const { return fTrd.fFy; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision calfx() const { return fTrd.fCalfX; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision calfy() const { return fTrd.fCalfY; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision ToleranceX() const { return fTrd.fToleranceX; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision ToleranceY() const { return fTrd.fToleranceY; }
 
   virtual int MemorySize() const final { return sizeof(*this); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
   {
     aMin = Vector3D<Precision>(-Max(fTrd.fDX1, fTrd.fDX2), -Max(fTrd.fDY1, fTrd.fDY2), -fTrd.fDZ);
@@ -190,18 +190,18 @@ public:
 
   Vector3D<Precision> GetPointOnSurface() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;
 
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void Print() const final;
 
   std::string GetEntityType() const { return "Trd"; }
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
-  VECGEOM_CUDA_HEADER_DEVICE
+  VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
                                const int id,
@@ -221,7 +221,7 @@ public:
 private:
   virtual void Print(std::ostream &os) const final;
 
-  VECGEOM_CUDA_HEADER_DEVICE
+  VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code,

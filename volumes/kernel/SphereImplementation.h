@@ -31,7 +31,7 @@ struct SphereImplementation {
   using PlacedShape_t   = PlacedSphere;
   using UnplacedShape_t = UnplacedSphere;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void PrintType() { printf("SpecializedSphere<%i, %i>", transCodeT, rotCodeT); }
 
   template <typename Stream>
@@ -55,7 +55,7 @@ struct SphereImplementation {
 
   // Some New Helper functions
   template <class Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static typename Backend::bool_v IsPointOnInnerRadius(UnplacedSphere const &unplaced,
                                                        Vector3D<typename Backend::precision_v> const &point)
   {
@@ -67,7 +67,7 @@ struct SphereImplementation {
   }
 
   template <class Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static typename Backend::bool_v IsPointOnOuterRadius(UnplacedSphere const &unplaced,
                                                        Vector3D<typename Backend::precision_v> const &point)
   {
@@ -80,7 +80,7 @@ struct SphereImplementation {
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static typename Backend::bool_v IsPointOnStartPhi(UnplacedSphere const &unplaced,
                                                     Vector3D<typename Backend::precision_v> const &point)
   {
@@ -91,7 +91,7 @@ struct SphereImplementation {
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static typename Backend::bool_v IsPointOnEndPhi(UnplacedSphere const &unplaced,
                                                   Vector3D<typename Backend::precision_v> const &point)
   {
@@ -102,7 +102,7 @@ struct SphereImplementation {
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static typename Backend::bool_v IsPointOnStartTheta(UnplacedSphere const &unplaced,
                                                       Vector3D<typename Backend::precision_v> const &point)
   {
@@ -112,7 +112,7 @@ struct SphereImplementation {
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static typename Backend::bool_v IsPointOnEndTheta(UnplacedSphere const &unplaced,
                                                     Vector3D<typename Backend::precision_v> const &point)
   {
@@ -122,26 +122,26 @@ struct SphereImplementation {
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void UnplacedContains(UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                                typename Backend::bool_v &inside);
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Contains(UnplacedSphere const &unplaced, Transformation3D const &transformation,
                        Vector3D<typename Backend::precision_v> const &point,
                        Vector3D<typename Backend::precision_v> &localPoint, typename Backend::bool_v &inside);
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Inside(UnplacedSphere const &unplaced, Transformation3D const &transformation,
                      Vector3D<typename Backend::precision_v> const &point, typename Backend::inside_v &inside);
 
   template <typename Backend, bool ForInside>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void GenericKernelForContainsAndInside(UnplacedSphere const &unplaced,
                                                 Vector3D<typename Backend::precision_v> const &localPoint,
                                                 typename Backend::bool_v &completelyinside,
@@ -149,7 +149,7 @@ struct SphereImplementation {
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToIn(UnplacedSphere const &unplaced, Transformation3D const &transformation,
                            Vector3D<typename Backend::precision_v> const &point,
                            Vector3D<typename Backend::precision_v> const &direction,
@@ -157,14 +157,14 @@ struct SphereImplementation {
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToOut(UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                             Vector3D<typename Backend::precision_v> const &direction,
                             typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance);
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToOutKernel(UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                                   Vector3D<typename Backend::precision_v> const &direction,
                                   typename Backend::precision_v const &stepMax,
@@ -172,38 +172,38 @@ struct SphereImplementation {
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToIn(UnplacedSphere const &unplaced, Transformation3D const &transformation,
                          Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety);
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToOut(UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                           typename Backend::precision_v &safety);
 
   template <typename Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void ContainsKernel(UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &localPoint,
                              typename Backend::bool_v &inside);
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void InsideKernel(UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                            typename Backend::inside_v &inside);
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToInKernel(UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                                  Vector3D<typename Backend::precision_v> const &direction,
                                  typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance);
 
   template <class Backend, bool DistToIn>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void GetMinDistFromPhi(UnplacedSphere const &unplaced,
                                 Vector3D<typename Backend::precision_v> const &localPoint,
                                 Vector3D<typename Backend::precision_v> const &localDir, typename Backend::bool_v &done,
@@ -211,37 +211,37 @@ struct SphereImplementation {
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToInKernel(UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                                typename Backend::precision_v &safety);
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToOutKernel(UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                                 typename Backend::precision_v &safety);
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Normal(UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                      Vector3D<typename Backend::precision_v> &normal, typename Backend::bool_v &valid);
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void NormalKernel(UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                            Vector3D<typename Backend::precision_v> &normal, typename Backend::bool_v &valid);
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static Vector3D<typename Backend::precision_v> ApproxSurfaceNormalKernel(
       UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point);
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static typename Backend::bool_v IsCompletelyOutside(UnplacedSphere const &unplaced,
                                                       Vector3D<typename Backend::precision_v> const &localPoint)
   {
@@ -261,7 +261,7 @@ struct SphereImplementation {
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static typename Backend::bool_v IsCompletelyInside(UnplacedSphere const &unplaced,
                                                      Vector3D<typename Backend::precision_v> const &localPoint)
   {
@@ -280,7 +280,7 @@ struct SphereImplementation {
   }
 
   template <class Backend, bool ForInnerRadius, bool MovingOut>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static typename Backend::bool_v IsPointOnRadialSurfaceAndMovingOut(
       UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
       Vector3D<typename Backend::precision_v> const &dir)
@@ -302,7 +302,7 @@ struct SphereImplementation {
 
   template <class Backend, bool MovingOut>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static typename Backend::bool_v IsPointOnSurfaceAndMovingOut(UnplacedSphere const &unplaced,
                                                                Vector3D<typename Backend::precision_v> const &point,
                                                                Vector3D<typename Backend::precision_v> const &dir)
@@ -339,7 +339,7 @@ struct SphereImplementation {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SphereImplementation<transCodeT, rotCodeT>::Normal(UnplacedSphere const &unplaced,
                                                         Vector3D<typename Backend::precision_v> const &point,
                                                         Vector3D<typename Backend::precision_v> &normal,
@@ -359,7 +359,7 @@ void SphereImplementation<transCodeT, rotCodeT>::Normal(UnplacedSphere const &un
  */
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Vector3D<typename Backend::precision_v> SphereImplementation<transCodeT, rotCodeT>::ApproxSurfaceNormalKernel(
     UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point)
 {
@@ -407,7 +407,7 @@ Vector3D<typename Backend::precision_v> SphereImplementation<transCodeT, rotCode
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SphereImplementation<transCodeT, rotCodeT>::NormalKernel(UnplacedSphere const &unplaced,
                                                               Vector3D<typename Backend::precision_v> const &point,
                                                               Vector3D<typename Backend::precision_v> &normal,
@@ -512,7 +512,7 @@ void SphereImplementation<transCodeT, rotCodeT>::NormalKernel(UnplacedSphere con
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SphereImplementation<transCodeT, rotCodeT>::Contains(UnplacedSphere const &unplaced,
                                                           Transformation3D const &transformation,
                                                           Vector3D<typename Backend::precision_v> const &point,
@@ -526,7 +526,7 @@ void SphereImplementation<transCodeT, rotCodeT>::Contains(UnplacedSphere const &
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SphereImplementation<transCodeT, rotCodeT>::UnplacedContains(UnplacedSphere const &unplaced,
                                                                   Vector3D<typename Backend::precision_v> const &point,
                                                                   typename Backend::bool_v &inside)
@@ -537,7 +537,7 @@ void SphereImplementation<transCodeT, rotCodeT>::UnplacedContains(UnplacedSphere
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SphereImplementation<transCodeT, rotCodeT>::ContainsKernel(
     UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &localPoint,
     typename Backend::bool_v &inside)
@@ -552,7 +552,7 @@ void SphereImplementation<transCodeT, rotCodeT>::ContainsKernel(
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend, bool ForInside>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SphereImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndInside(
     UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &localPoint,
     typename Backend::bool_v &completelyinside, typename Backend::bool_v &completelyoutside)
@@ -609,7 +609,7 @@ void SphereImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndInsi
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SphereImplementation<transCodeT, rotCodeT>::Inside(UnplacedSphere const &unplaced,
                                                         Transformation3D const &transformation,
                                                         Vector3D<typename Backend::precision_v> const &point,
@@ -621,7 +621,7 @@ void SphereImplementation<transCodeT, rotCodeT>::Inside(UnplacedSphere const &un
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SphereImplementation<transCodeT, rotCodeT>::InsideKernel(UnplacedSphere const &unplaced,
                                                               Vector3D<typename Backend::precision_v> const &point,
                                                               typename Backend::inside_v &inside)
@@ -648,7 +648,7 @@ void SphereImplementation<transCodeT, rotCodeT>::InsideKernel(UnplacedSphere con
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SphereImplementation<transCodeT, rotCodeT>::SafetyToIn(UnplacedSphere const &unplaced,
                                                             Transformation3D const &transformation,
                                                             Vector3D<typename Backend::precision_v> const &point,
@@ -660,7 +660,7 @@ void SphereImplementation<transCodeT, rotCodeT>::SafetyToIn(UnplacedSphere const
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SphereImplementation<transCodeT, rotCodeT>::SafetyToInKernel(UnplacedSphere const &unplaced,
                                                                   Vector3D<typename Backend::precision_v> const &point,
                                                                   typename Backend::precision_v &safety)
@@ -719,7 +719,7 @@ void SphereImplementation<transCodeT, rotCodeT>::SafetyToInKernel(UnplacedSphere
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SphereImplementation<transCodeT, rotCodeT>::SafetyToOut(UnplacedSphere const &unplaced,
                                                              Vector3D<typename Backend::precision_v> const &point,
                                                              typename Backend::precision_v &safety)
@@ -729,7 +729,7 @@ void SphereImplementation<transCodeT, rotCodeT>::SafetyToOut(UnplacedSphere cons
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SphereImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(UnplacedSphere const &unplaced,
                                                                    Vector3D<typename Backend::precision_v> const &point,
                                                                    typename Backend::precision_v &safety)
@@ -784,7 +784,7 @@ void SphereImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(UnplacedSpher
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SphereImplementation<transCodeT, rotCodeT>::DistanceToIn(UnplacedSphere const &unplaced,
                                                               Transformation3D const &transformation,
                                                               Vector3D<typename Backend::precision_v> const &point,
@@ -799,7 +799,7 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToIn(UnplacedSphere con
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
     UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> const &direction, typename Backend::precision_v const & /*stepMax*/,
@@ -923,7 +923,7 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend, bool DistToIn>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SphereImplementation<transCodeT, rotCodeT>::GetMinDistFromPhi(
     UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &localPoint,
     Vector3D<typename Backend::precision_v> const &localDir, typename Backend::bool_v &done,
@@ -976,7 +976,7 @@ void SphereImplementation<transCodeT, rotCodeT>::GetMinDistFromPhi(
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SphereImplementation<transCodeT, rotCodeT>::DistanceToOut(UnplacedSphere const &unplaced,
                                                                Vector3D<typename Backend::precision_v> const &point,
                                                                Vector3D<typename Backend::precision_v> const &direction,
@@ -990,7 +990,7 @@ void SphereImplementation<transCodeT, rotCodeT>::DistanceToOut(UnplacedSphere co
 // V3
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SphereImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
     UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> const &direction, typename Backend::precision_v const & /*stepMax*/,

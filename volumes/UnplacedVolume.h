@@ -31,38 +31,38 @@ public:
   // alias for the globally selected VectorType
   using Real_v = vecgeom::VectorBackend::Real_v;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~VUnplacedVolume() {}
 
   // ---------------- Contains --------------------------------------------------------------------
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Contains(Vector3D<Precision> const &p) const /* = 0 */;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual EnumInside Inside(Vector3D<Precision> const &p) const /* = 0 */;
 
   // ---------------- DistanceToOut functions -----------------------------------------------------
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
                                   Precision step_max = kInfLength) const /* = 0 */;
 
   // the USolid/GEANT4-like interface for DistanceToOut (returning also exiting normal)
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
                                   Vector3D<Precision> &normal, bool &convex, Precision step_max = kInfLength) const
       /* = 0 */;
 
   // an explicit SIMD interface
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Real_v DistanceToOutVec(Vector3D<Real_v> const &p, Vector3D<Real_v> const &d, Real_v const &step_max) const
       /* = 0 */;
 
   // a helper tramponline to dispatch to SafetyToInVec if type is not scalar
   template <typename T>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   T DistanceToOut(Vector3D<T> const &p, Vector3D<T> const &d, T const &step_max) const
   {
     return DistanceToOutVec(p, d, step_max);
@@ -74,17 +74,17 @@ public:
 
   // ---------------- SafetyToOut functions -----------------------------------------------------
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision SafetyToOut(Vector3D<Precision> const &p) const /* = 0 */;
 
   // an explicit SIMD interface
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Real_v SafetyToOutVec(Vector3D<Real_v> const &p) const /* = 0 */;
 
   // the tramponline to dispatch to SafetyToOutVec if type is not scalar
   template <typename T>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   T SafetyToOut(Vector3D<T> const &p) const
   {
     return SafetyToOutVec(p);
@@ -95,11 +95,11 @@ public:
 
   // ---------------- DistanceToIn functions -----------------------------------------------------
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision DistanceToIn(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                  const Precision step_max = kInfLength) const /* = 0 */;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Real_v DistanceToInVec(Vector3D<Real_v> const &position, Vector3D<Real_v> const &direction,
                                  const Real_v &step_max = Real_v(kInfLength)) const /* = 0 */;
 
@@ -107,7 +107,7 @@ public:
   // the T = Precision this template will not instantiate as the compiler finds another matching function
   template <typename T>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   T DistanceToIn(Vector3D<T> const &p, Vector3D<T> const &d, T const &step_max)
   {
     return DistanceToInVec(p, d, step_max);
@@ -115,17 +115,17 @@ public:
 
   // ---------------- SafetyToIn functions -------------------------------------------------------
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision SafetyToIn(Vector3D<Precision> const &position) const /* = 0 */;
 
   // explicit SIMD interface
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Real_v SafetyToInVec(Vector3D<Real_v> const &p) const /* = 0 */;
 
   // the tramponline to dispatch to SafetyToInVec if type is not scalar
   template <typename T>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   T SafetyToIn(Vector3D<T> const &p) const
   {
     return SafetyToInVec(p);
@@ -133,14 +133,14 @@ public:
 
   // ---------------- Normal ---------------------------------------------------------------------
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const /* = 0 */;
 
   // ---------------- GetPointOnSurface ----------------------------------------------------------
   virtual Vector3D<Precision> GetPointOnSurface() const /* = 0 */;
 
   // ----------------- Extent --------------------------------------------------------------------
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const /* = 0 */;
 
   /** Function to detect whether a volume is globally convex or not.
@@ -148,10 +148,10 @@ public:
    *
    *  Default safe value for all the shapes is set to false.
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool IsConvex() const { return fGlobalConvexity; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool IsAssembly() const { return fIsAssembly; }
 
   /**
@@ -205,7 +205,7 @@ public:
   /**
    * C-style printing for CUDA purposes.
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void Print() const = 0;
 
   // Is not static because a virtual function must be called to initialize

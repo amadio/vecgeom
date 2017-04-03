@@ -103,7 +103,7 @@ public:
 
   virtual int MemorySize() const override { return sizeof(*this); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void PrintType() const override { Specialization::PrintType(); }
 
   virtual void PrintType(std::ostream &os) const override { Specialization::PrintType(os); }
@@ -137,7 +137,7 @@ public:
 
 #endif // VECGEOM_CUDA_INTERFACE
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual EnumInside Inside(Vector3D<Precision> const &point) const override
   {
     Inside_t output = EInside::kOutside;
@@ -147,7 +147,7 @@ public:
     return (EnumInside)output;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Contains(Vector3D<Precision> const &point) const override
   {
     bool output = false;
@@ -157,7 +157,7 @@ public:
     return output;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Contains(Vector3D<Precision> const &point, Vector3D<Precision> &localPoint) const override
   {
     bool output = false;
@@ -171,7 +171,7 @@ public:
     return output;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool UnplacedContains(Vector3D<Precision> const &point) const override
   {
     bool output = false;
@@ -184,7 +184,7 @@ public:
     return output;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision DistanceToIn(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
                                  const Precision stepMax = kInfLength) const override
   {
@@ -230,7 +230,7 @@ public:
     return output;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision DistanceToOut(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
                                   const Precision stepMax = kInfLength) const override
   {
@@ -286,7 +286,7 @@ public:
     return output;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision PlacedDistanceToOut(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
                                         const Precision stepMax = kInfLength) const override
   {
@@ -311,7 +311,7 @@ public:
    * WARNING: Trivial implementation for standard USolids interface
    * for DistanceToOut. The value for convex might be wrong
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision DistanceToOut(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
                                   Vector3D<Precision> &normal, bool &convex, Precision step = kInfLength) const override
   {
@@ -326,7 +326,7 @@ public:
   }
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision SafetyToIn(Vector3D<Precision> const &point) const override
   {
     Precision output = kInfLength;
@@ -343,7 +343,7 @@ public:
     return output;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision SafetyToOut(Vector3D<Precision> const &point) const override
   {
     Precision output = kInfLength;

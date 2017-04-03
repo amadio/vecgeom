@@ -157,7 +157,7 @@ Precision UnplacedGenTrap::SurfaceArea() const
 }
 
 //______________________________________________________________________________
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool UnplacedGenTrap::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
 {
   bool valid;
@@ -206,7 +206,7 @@ void UnplacedGenTrap::Print(std::ostream &os) const
 
 #if defined(VECGEOM_USOLIDS)
 //______________________________________________________________________________
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 std::ostream &UnplacedGenTrap::StreamInfo(std::ostream &os) const
 {
   int oldprc = os.precision(16);
@@ -228,7 +228,7 @@ std::ostream &UnplacedGenTrap::StreamInfo(std::ostream &os) const
 #endif
 
 //______________________________________________________________________________
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedGenTrap::SpecializedVolume(LogicalVolume const *const volume,
                                                   Transformation3D const *const transformation,
                                                   const TranslationCode trans_code, const RotationCode rot_code,
@@ -246,7 +246,7 @@ VPlacedVolume *UnplacedGenTrap::SpecializedVolume(LogicalVolume const *const vol
 
 //______________________________________________________________________________
 template <TranslationCode trans_code, RotationCode rot_code>
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedGenTrap::Create(LogicalVolume const *const logical_volume,
                                        Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
@@ -273,7 +273,7 @@ VPlacedVolume *UnplacedGenTrap::Create(LogicalVolume const *const logical_volume
 
 //______________________________________________________________________________
 /*
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedGenTrap::CreateSpecializedVolume(LogicalVolume const *const volume,
                                                         Transformation3D const *const transformation,
                                                         const TranslationCode trans_code, const RotationCode rot_code,

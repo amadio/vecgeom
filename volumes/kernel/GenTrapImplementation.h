@@ -38,7 +38,7 @@ struct GenTrapImplementation {
   using UnplacedStruct_t = GenTrapStruct<double>;
   using UnplacedVolume_t = UnplacedGenTrap;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void PrintType()
   {
     // printf("SpecializedGenTrap<%i, %i>", transCodeT, rotCodeT);
@@ -64,57 +64,57 @@ struct GenTrapImplementation {
 
   template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Contains(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Bool_v &inside);
 
   template <typename Real_v, typename Inside_t>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Inside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Inside_t &inside);
 
   template <typename Real_v, bool ForInside>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void GenericKernelForContainsAndInside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                                                 vecCore::Mask_v<Real_v> &completelyinside,
                                                 vecCore::Mask_v<Real_v> &completelyoutside);
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                            Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance);
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                             Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance);
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety);
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety);
 
   template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void NormalKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Vector3D<Real_v> &normal,
                            Bool_v &valid);
 
   template <class Real_v>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void GetClosestEdge(Vector3D<Real_v> const &point, Real_v vertexX[4], Real_v vertexY[4], Real_v &iseg,
                              Real_v &fraction);
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static vecCore::Mask_v<Real_v> IsInTopOrBottomPolygon(UnplacedStruct_t const &unplaced, Real_v const &pointx,
                                                         Real_v const &pointy, vecCore::Mask_v<Real_v> top);
 }; // End struct GenTrapImplementation
@@ -125,7 +125,7 @@ struct GenTrapImplementation {
 
 //______________________________________________________________________________
 template <typename Real_v, typename Bool_v>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void GenTrapImplementation::Contains(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Bool_v &inside)
 {
   Bool_v unused;
@@ -137,7 +137,7 @@ void GenTrapImplementation::Contains(UnplacedStruct_t const &unplaced, Vector3D<
 //______________________________________________________________________________
 template <typename Real_v, bool ForInside>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void GenTrapImplementation::GenericKernelForContainsAndInside(UnplacedStruct_t const &unplaced,
                                                               Vector3D<Real_v> const &point,
                                                               vecCore::Mask_v<Real_v> &completelyinside,
@@ -203,7 +203,7 @@ void GenTrapImplementation::GenericKernelForContainsAndInside(UnplacedStruct_t c
 //______________________________________________________________________________
 template <typename Real_v, typename Inside_t>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void GenTrapImplementation::Inside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Inside_t &inside)
 {
 
@@ -221,7 +221,7 @@ void GenTrapImplementation::Inside(UnplacedStruct_t const &unplaced, Vector3D<Re
 //______________________________________________________________________________
 template <typename Real_v>
 struct FillPlaneDataHelper {
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   static void FillPlaneData(GenTrapStruct<double> const &unplaced, Real_v &cornerx, Real_v &cornery, Real_v &deltax,
                             Real_v &deltay, vecCore::Mask_v<Real_v> const &top, int edgeindex)
@@ -244,7 +244,7 @@ struct FillPlaneDataHelper {
 /** @brief A partial template specialization for nonSIMD cases (scalar, cuda, ... ) */
 template <>
 struct FillPlaneDataHelper<double> {
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   static void FillPlaneData(GenTrapStruct<double> const &unplaced, double &cornerx, double &cornery, double &deltax,
                             double &deltay, bool const &top, int edgeindex)
@@ -260,7 +260,7 @@ struct FillPlaneDataHelper<double> {
 //______________________________________________________________________________
 template <typename Real_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 vecCore::Mask_v<Real_v> GenTrapImplementation::IsInTopOrBottomPolygon(UnplacedStruct_t const &unplaced,
                                                                       Real_v const &pointx, Real_v const &pointy,
                                                                       vecCore::Mask_v<Real_v> top)
@@ -305,7 +305,7 @@ vecCore::Mask_v<Real_v> GenTrapImplementation::IsInTopOrBottomPolygon(UnplacedSt
 //______________________________________________________________________________
 template <typename Real_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void GenTrapImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                                          Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
 {
@@ -388,7 +388,7 @@ void GenTrapImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vecto
 //______________________________________________________________________________
 template <typename Real_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void GenTrapImplementation::DistanceToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                                           Vector3D<Real_v> const &direction, Real_v const & /* stepMax */,
                                           Real_v &distance)
@@ -414,7 +414,7 @@ void GenTrapImplementation::DistanceToOut(UnplacedStruct_t const &unplaced, Vect
 //______________________________________________________________________________
 template <typename Real_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void GenTrapImplementation::SafetyToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety)
 {
 
@@ -437,7 +437,7 @@ void GenTrapImplementation::SafetyToIn(UnplacedStruct_t const &unplaced, Vector3
 
 //______________________________________________________________________________
 template <typename Real_v>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void GenTrapImplementation::SafetyToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety)
 {
 
@@ -448,7 +448,7 @@ void GenTrapImplementation::SafetyToOut(UnplacedStruct_t const &unplaced, Vector
 
 //______________________________________________________________________________
 template <typename Real_v, typename Bool_v>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void GenTrapImplementation::NormalKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                                          Vector3D<Real_v> &normal, Bool_v &valid)
 {
@@ -519,7 +519,7 @@ void GenTrapImplementation::NormalKernel(UnplacedStruct_t const &unplaced, Vecto
 
 //______________________________________________________________________________
 template <typename Real_v>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void GenTrapImplementation::GetClosestEdge(Vector3D<Real_v> const &point, Real_v vertexX[4], Real_v vertexY[4],
                                            Real_v &iseg, Real_v &fraction)
 {

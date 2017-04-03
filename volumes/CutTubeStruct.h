@@ -31,10 +31,10 @@ struct CutTubeStruct {
 
   // constructors
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   CutTubeStruct() : fTubeStruct(0., 0., 0., 0., 0.), fCutPlanes() {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   CutTubeStruct(T const &rmin, T const &rmax, T const &z, T const &sphi, T const &dphi, Vector3D<T> const &bottomNormal,
                 Vector3D<T> const &topNormal)
       : fDz(z), fTubeStruct(rmin, rmax, kInfLength, sphi, dphi), fCutPlanes()
@@ -47,11 +47,11 @@ struct CutTubeStruct {
     fSinPhi2 = vecCore::math::Sin(sphi + dphi);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   TubeStruct<T> const &GetTubeStruct() const { return fTubeStruct; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   CutPlanes const &GetCutPlanes() const { return fCutPlanes; }
 };

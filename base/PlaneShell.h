@@ -41,7 +41,7 @@ public:
   /**
    * Initializes the SOA with existing data arrays, performing no allocation.
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   PlaneShell(Precision *const a, Precision *const b, Precision *const c, Precision *const d)
   {
     memcpy(&(this->fA), a, N * sizeof(Type));
@@ -54,7 +54,7 @@ public:
    * Initializes the SOA with a fixed size, allocating an aligned array for each
    * coordinate of the specified size.
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   PlaneShell()
   {
     memset(&(this->fA), 0, N * sizeof(Type));
@@ -66,7 +66,7 @@ public:
   /**
    * Copy constructor
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   PlaneShell(PlaneShell const &other)
   {
     memcpy(&(this->fA), &(other->fA), N * sizeof(Type));
@@ -78,7 +78,7 @@ public:
   /**
    * assignment operator
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   PlaneShell &operator=(PlaneShell const &other)
   {
     memcpy(this->fA, other.fA, N * sizeof(Type));
@@ -88,7 +88,7 @@ public:
     return *this;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Set(int i, Precision a, Precision b, Precision c, Precision d)
   {
     fA[i] = a;
@@ -97,17 +97,17 @@ public:
     fD[i] = d;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   unsigned int size() { return N; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ~PlaneShell() {}
 
   /// \return the distance from point to each plane.  The type returned is float, double, or various SIMD vector types.
   /// Distances are negative (positive) for points in same (opposite) side from plane as the normal vector.
   template <typename Type2>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void DistanceToPoint(Vector3D<Type2> const &point, Type2 *distances) const
   {
     for (int i = 0; i < N; ++i) {
@@ -119,7 +119,7 @@ public:
   /// The type returned is float, double, or various SIMD vector types.
   template <typename Type2>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void ProjectionToNormal(Vector3D<Type2> const &dir, Type2 *projection) const
   {
     for (int i = 0; i < N; ++i) {
@@ -129,7 +129,7 @@ public:
 
   template <typename Real_v, bool ForInside>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void GenericKernelForContainsAndInside(Vector3D<Real_v> const &point, vecCore::Mask_v<Real_v> &completelyInside,
                                          vecCore::Mask_v<Real_v> &completelyOutside) const
   {
@@ -161,7 +161,7 @@ public:
   ///
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Real_v DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir, Real_v &smin, Real_v &smax) const
   {
     using Bool_v = vecCore::Mask_v<Real_v>;
@@ -219,7 +219,7 @@ public:
   ///     (1) -1, if point is outside (wrong-side)
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Real_v DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir) const
   {
     using Bool_v = vecCore::Mask_v<Real_v>;
@@ -255,7 +255,7 @@ public:
   /// \return the safety distance to the planar shell when the point is located within the shell itself.
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SafetyToIn(Vector3D<Real_v> const &point, Real_v &safety) const
   {
     // vectorizable loop
@@ -273,7 +273,7 @@ public:
   /// \return the distance to the planar shell when the point is located within the shell itself.
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SafetyToOut(Vector3D<Real_v> const &point, Real_v &safety) const
   {
     // vectorizable loop
@@ -292,7 +292,7 @@ public:
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   size_t ClosestFace(Vector3D<Real_v> const &point, Real_v &safety) const
   {
     // vectorizable loop
@@ -324,7 +324,7 @@ public:
   ///
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Real_v NormalKernel(Vector3D<Real_v> const &point, Vector3D<Real_v> &normal) const
   {
     Real_v safety = -InfinityLength<Real_v>();

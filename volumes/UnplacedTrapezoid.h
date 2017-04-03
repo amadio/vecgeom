@@ -51,7 +51,7 @@ private:
 public:
   // full constructor
   // Note: theta, phi are assumed to be in radians, for compatibility with Geant4
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedTrapezoid(const Precision dz, const Precision theta, const Precision phi, const Precision dy1,
                     const Precision dx1, const Precision dx2, const Precision Alpha1, const Precision dy2,
                     const Precision dx3, const Precision dx4, const Precision Alpha2)
@@ -62,11 +62,11 @@ public:
   }
 
   // default constructor
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedTrapezoid() : fTrap(0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.) { fGlobalConvexity = true; }
 
   /// \brief Fast constructor: all parameters from one array
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedTrapezoid(Precision const *params)
       : UnplacedTrapezoid(params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7],
                           params[8], params[9], params[10])
@@ -75,15 +75,15 @@ public:
 
   /// \brief Constructor based on 8 corner points
   // convention: p0(---); p1(+--); p2(-+-); p3(++-); p4(--+); p5(+-+); p6(-++); p7(+++)
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedTrapezoid(TrapCorners const corners);
 
   /// \brief Constructor for masquerading a box (test purposes)
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedTrapezoid(Precision xbox, Precision ybox, Precision zbox);
 
   /// \brief Constructor required by Geant4
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedTrapezoid(double dx, double dy, double dz, double);
 
   /// \brief Constructor for a Trd-like trapezoid
@@ -105,127 +105,127 @@ public:
 
   /// \brief Accessors
   /// @{
-  // VECGEOM_CUDA_HEADER_BOTH
+  // VECCORE_ATT_HOST_DEVICE
   // TrapParameters const& GetParameters() const { return _params; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision dz() const { return fTrap.fDz; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision theta() const { return fTrap.fTheta; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision phi() const { return fTrap.fPhi; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision dy1() const { return fTrap.fDy1; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision dy2() const { return fTrap.fDy2; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision dx1() const { return fTrap.fDx1; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision dx2() const { return fTrap.fDx2; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision dx3() const { return fTrap.fDx3; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision dx4() const { return fTrap.fDx4; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision tanAlpha1() const { return fTrap.fTanAlpha1; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision tanAlpha2() const { return fTrap.fTanAlpha2; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision alpha1() const { return GetAlpha1(); } // note: slow, avoid using it
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision alpha2() const { return GetAlpha2(); } // note: slow, avoid using it
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision tanThetaCosPhi() const { return fTrap.fTthetaCphi; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision tanThetaSinPhi() const { return fTrap.fTthetaSphi; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetDz() const { return fTrap.fDz; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetTheta() const { return fTrap.fTheta; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetPhi() const { return fTrap.fPhi; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetDy1() const { return fTrap.fDy1; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetDx1() const { return fTrap.fDx1; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetDx2() const { return fTrap.fDx2; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetTanAlpha1() const { return fTrap.fTanAlpha1; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetDy2() const { return fTrap.fDy2; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetDx3() const { return fTrap.fDx3; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetDx4() const { return fTrap.fDx4; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetTanAlpha2() const { return fTrap.fTanAlpha2; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetTanThetaSinPhi() const { return fTrap.fTthetaSphi; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetTanThetaCosPhi() const { return fTrap.fTthetaCphi; }
   /// @}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void SetDz(Precision val) { fTrap.fDz = val; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void SetTheta(Precision val)
   {
@@ -233,7 +233,7 @@ public:
     fTrap.CalculateCached();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void SetPhi(Precision val)
   {
@@ -241,55 +241,55 @@ public:
     fTrap.CalculateCached();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void SetDy1(Precision val) { fTrap.fDy1 = val; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void SetDy2(Precision val) { fTrap.fDy2 = val; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void SetDx1(Precision val) { fTrap.fDx1 = val; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void SetDx2(Precision val) { fTrap.fDx2 = val; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void SetDx3(Precision val) { fTrap.fDx3 = val; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void SetDx4(Precision val) { fTrap.fDx4 = val; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void SetTanAlpha1(Precision val) { fTrap.fTanAlpha1 = val; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void SetTanAlpha2(Precision val) { fTrap.fTanAlpha2 = val; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const override;
 
-  // VECGEOM_CUDA_HEADER_BOTH
+  // VECCORE_ATT_HOST_DEVICE
   // void CalcCapacity();
 
-  // VECGEOM_CUDA_HEADER_BOTH
+  // VECCORE_ATT_HOST_DEVICE
   // void CalcSurfaceArea();
 
-  // VECGEOM_CUDA_HEADER_BOTH
+  // VECCORE_ATT_HOST_DEVICE
   Precision Capacity() const;
   // {
   //   Assert(!fOutdated);
   //   return fCubicVolume;
   // }
 
-  // VECGEOM_CUDA_HEADER_BOTH
+  // VECCORE_ATT_HOST_DEVICE
   Precision SurfaceArea() const;
   // {
   //   Assert(!fOutdated);
@@ -301,7 +301,7 @@ public:
   Vector3D<Precision> GetPointOnPlane(Vector3D<Precision> const &p0, Vector3D<Precision> const &p1,
                                       Vector3D<Precision> const &p2, Vector3D<Precision> const &p3) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
     bool valid = false;
@@ -313,15 +313,15 @@ public:
 
 #if defined(VECGEOM_USOLIDS)
   template <typename T>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void GetParametersList(int aNumber, T *aArray) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedTrapezoid *Clone() const;
 #endif
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void Print() const override;
 
   virtual void Print(std::ostream &os) const override;
@@ -358,58 +358,58 @@ public:
 #endif
 
   // Note: use of ATan() makes this one slow -- to be avoided
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetAlpha1() const { return vecCore::math::ATan(fTrap.fTanAlpha1); }
 
   // Note: use of Atan() makes this one slow -- to be avoided
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetAlpha2() const { return vecCore::math::ATan(fTrap.fTanAlpha2); }
 
   // The next functions force upon the user insider knowledge about how the side planes should be used
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   TrapezoidStruct<Precision> const &GetStruct() const { return fTrap; }
 
   // #ifndef VECGEOM_PLANESHELL_DISABLE
-  //   VECGEOM_CUDA_HEADER_BOTH
+  //   VECCORE_ATT_HOST_DEVICE
   //   VECGEOM_FORCE_INLINE
   //   PlaneShell<4,Precision> const *GetPlanes() const { return fTrap.GetPlanes(); }
 
   // #else
   //   using TrapSidePlane = TrapezoidStruct<double>::TrapSidePlane;
-  //   VECGEOM_CUDA_HEADER_BOTH
+  //   VECCORE_ATT_HOST_DEVICE
   //   TrapSidePlane const *GetPlanes() const { return fTrap.GetPlanes(); }
   // #endif
 
   /// \brief Calculate trapezoid parameters when user provides the 8 corners
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void fromCornersToParameters(TrapCorners const pt);
 
 private:
   /// \brief Calculate the 8 corner points using pre-stored parameters, then use corners to build planes
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void fromParametersToCorners(TrapCorners pt) const;
 
   // \brief Determine corner points using intersections of the pre-calculated planes
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void fromPlanesToCorners(TrapCorners pt) const;
 
   /// \brief Construct the four side planes from input corner points
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool MakePlanes(TrapCorners const corners);
 
   /// \brief Construct the four side planes by converting stored parameters into TrapCorners object
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool MakePlanes();
 
 /// \brief Construct the four side planes from input corner points
 #ifndef VECGEOM_PLANESHELL_DISABLE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool MakeAPlane(Vector3D<Precision> const &p1, Vector3D<Precision> const &p2, Vector3D<Precision> const &p3,
                   Vector3D<Precision> const &p4, unsigned int iplane);
 #else
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool MakeAPlane(Vector3D<Precision> const &p1, Vector3D<Precision> const &p2, Vector3D<Precision> const &p3,
                   Vector3D<Precision> const &p4, TrapezoidStruct<double>::TrapSidePlane &plane);
 #endif

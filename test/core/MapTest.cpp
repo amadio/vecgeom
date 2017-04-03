@@ -18,13 +18,13 @@ void launch_test_new(vecgeom::DevicePtr<vecgeom::cuda::map<double, double>> &dev
 void launch_rebuild_map(vecgeom::DevicePtr<vecgeom::cuda::map<double, double>> &devMap, vecgeom::DevicePtr<double> key,
                         vecgeom::DevicePtr<double> value, int N, int nBlocks, int nThreads);
 
-VECGEOM_CUDA_HEADER_HOST
+VECCORE_ATT_HOST
 double get_random()
 {
   return RNG::Instance().uniform();
 }
 
-VECGEOM_CUDA_HEADER_HOST
+VECCORE_ATT_HOST
 void test_std(int size, double *keys, double *values)
 {
   std::map<double, double> stdMap;

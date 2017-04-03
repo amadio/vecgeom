@@ -3,13 +3,13 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void CutPlanes::Set(int index, Vector3D<Precision> const &normal, Vector3D<Precision> const &x0)
 {
   fCutPlanes[index].Set(normal, x0);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void CutPlanes::Set(int index, Vector3D<Precision> const &normal, Precision distance)
 {
   fCutPlanes[index].Set(normal, distance);

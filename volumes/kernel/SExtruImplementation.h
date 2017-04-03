@@ -22,7 +22,7 @@ struct SExtruImplementation {
   using UnplacedStruct_t = PolygonalShell;
   using UnplacedVolume_t = UnplacedSExtruVolume;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void PrintType()
   {
     //
@@ -51,7 +51,7 @@ struct SExtruImplementation {
 
   template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Contains(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &p, Bool_v &inside)
   {
     inside    = Bool_v(false);
@@ -63,7 +63,7 @@ struct SExtruImplementation {
 
   template <typename Real_v, typename Inside_t>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Inside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Inside_t &inside)
   {
     // this is a quick / non-optimized ans scalar only implementation:
@@ -110,7 +110,7 @@ struct SExtruImplementation {
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToIn(UnplacedStruct_t const &polyshell, Vector3D<Real_v> const &p, Vector3D<Real_v> const &dir,
                            Real_v const &stepMax, Real_v &distance)
   {
@@ -142,7 +142,7 @@ struct SExtruImplementation {
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToOut(UnplacedStruct_t const &polyshell, Vector3D<Real_v> const &p, Vector3D<Real_v> const &dir,
                             Real_v const & /* stepMax */, Real_v &distance)
   {
@@ -161,7 +161,7 @@ struct SExtruImplementation {
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToIn(UnplacedStruct_t const &polyshell, Vector3D<Real_v> const &point, Real_v &safety)
   {
     Vector3D<Precision> aMin, aMax;
@@ -195,7 +195,7 @@ struct SExtruImplementation {
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToOut(UnplacedStruct_t const &polyshell, Vector3D<Real_v> const &point, Real_v &safety)
   {
     int unused;
@@ -206,7 +206,7 @@ struct SExtruImplementation {
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                                        typename vecCore::Mask_v<Real_v> &valid)
   {

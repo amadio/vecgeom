@@ -26,7 +26,7 @@ private:
   TubeStruct<Precision> fTube;
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedTube(Precision const &_rmin, Precision const &_rmax, Precision const &_z, Precision const &_sphi,
                Precision const &_dphi)
       : fTube(_rmin, _rmax, _z, _sphi, _dphi)
@@ -34,32 +34,32 @@ public:
     DetectConvexity();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedTube(UnplacedTube const &other) = delete;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   TubeStruct<double> const &GetStruct() const { return fTube; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void DetectConvexity();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision rmin() const { return fTube.fRmin; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision rmax() const { return fTube.fRmax; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision z() const { return fTube.fZ; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision sphi() const { return fTube.fSphi; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision dphi() const { return fTube.fDphi; }
 
@@ -78,49 +78,49 @@ public:
   VECGEOM_FORCE_INLINE
   void SetDPhi(Precision const &_dphi) { fTube.SetAndCheckDPhiAngle(_dphi); /*weird name*/ }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   evolution::Wedge const &GetWedge() const { return fTube.fPhiWedge; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision volume() const { return fTube.fZ * (fTube.fRmax2 - fTube.fRmin2) * fTube.fDphi; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override;
 
   Vector3D<Precision> GetPointOnSurface() const override;
 
-  // VECGEOM_CUDA_HEADER_BOTH
+  // VECCORE_ATT_HOST_DEVICE
   Precision Capacity() const { return volume(); }
 
-  // VECGEOM_CUDA_HEADER_BOTH
+  // VECCORE_ATT_HOST_DEVICE
   Precision SurfaceArea() const
   {
     return GetTopArea() + GetLateralPhiArea() + GetLateralROutArea() + GetLateralRInArea();
   }
 
-  // VECGEOM_CUDA_HEADER_BOTH
+  // VECCORE_ATT_HOST_DEVICE
   Precision GetTopArea() const
   { // Abhijit:: this is top and bottom circular area of tube
     return 2 * 0.5 * (fTube.fRmax2 - fTube.fRmin2) * fTube.fDphi;
   }
 
-  // VECGEOM_CUDA_HEADER_BOTH
+  // VECCORE_ATT_HOST_DEVICE
   Precision GetLateralPhiArea() const
   { // Abhijit:: this is vertical Phi_start and phi_end opening
     // factor of 2 since fZ is half length
     return (fTube.fDphi < kTwoPi) ? 4. * fTube.fZ * (fTube.fRmax - fTube.fRmin) : 0.;
   }
 
-  // VECGEOM_CUDA_HEADER_BOTH
+  // VECCORE_ATT_HOST_DEVICE
   Precision GetLateralRInArea() const
   { // Abhijit:: this is Inner surface of tube along Z
     // factor of 2 since fZ is half length
     return 2. * fTube.fZ * fTube.fRmin * fTube.fDphi;
   }
 
-  // VECGEOM_CUDA_HEADER_BOTH
+  // VECCORE_ATT_HOST_DEVICE
   Precision GetLateralROutArea() const
   { // Abhijit:: this is Outer surface of tube along Z
     // factor of 2 since fZ is half length
@@ -129,19 +129,19 @@ public:
 
   //  This computes where the random point would be placed
   // 1::rTop, 2::rBot, 3::phiLeft, 4::phiRight, 5::zIn, 6::zOut
-  // VECGEOM_CUDA_HEADER_BOTH
+  // VECCORE_ATT_HOST_DEVICE
   int ChooseSurface() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void Print() const override;
 
   std::string GetEntityType() const { return "Tube"; }
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
-  VECGEOM_CUDA_HEADER_DEVICE
+  VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
                                const int id,

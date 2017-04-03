@@ -18,7 +18,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedScaledShape::Print() const
 {
   printf("UnplacedScaledShape: scale:{%g, %g, %g} shape: ", fScaled.fScale.Scale()[0], fScaled.fScale.Scale()[1],
@@ -32,7 +32,7 @@ void UnplacedScaledShape::Print(std::ostream &os) const
 }
 
 //______________________________________________________________________________
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool UnplacedScaledShape::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
 {
   bool valid = false;
@@ -69,7 +69,7 @@ Vector3D<Precision> UnplacedScaledShape::GetPointOnSurface() const
 
 //______________________________________________________________________________
 template <TranslationCode trans_code, RotationCode rot_code>
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedScaledShape::Create(LogicalVolume const *const logical_volume,
                                            Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
@@ -95,7 +95,7 @@ VPlacedVolume *UnplacedScaledShape::Create(LogicalVolume const *const logical_vo
 }
 
 //______________________________________________________________________________
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedScaledShape::CreateSpecializedVolume(LogicalVolume const *const volume,
                                                             Transformation3D const *const transformation,
                                                             const TranslationCode trans_code,

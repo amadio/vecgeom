@@ -45,12 +45,12 @@ public:
   }
 
 #endif
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~PlacedScaledShape() {}
 
   // Accessors
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedScaledShape const *GetUnplacedVolume() const
   {
     return static_cast<UnplacedScaledShape const *>(GetLogicalVolume()->GetUnplacedVolume());
@@ -64,7 +64,7 @@ public:
     GetUnplacedVolume()->Extent(aMin, aMax);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
     return GetUnplacedVolume()->Normal(point, normal);
@@ -79,7 +79,7 @@ public:
 #endif
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void PrintType() const override;
 
   /** @brief Print type name */

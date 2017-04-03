@@ -29,7 +29,7 @@ private:
   Array<Precision> fDistances; ///< Distance from plane to origin (0, 0, 0).
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Planes(int size);
 
 #ifdef VECGEOM_NVCC
@@ -37,21 +37,21 @@ public:
   __device__ Planes(Precision *a, Precision *b, Precision *c, Precision *d, int size);
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ~Planes();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Planes &operator=(Planes const &rhs);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision const *operator[](int index) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   int size() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void reserve(size_t newsize)
   {
@@ -59,61 +59,61 @@ public:
     fDistances.Allocate(newsize);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   SOA3D<Precision> const &GetNormals() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Vector3D<Precision> GetNormal(int i) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Array<Precision> const &GetDistances() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetDistance(int i) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Set(int index, Vector3D<Precision> const &normal, Vector3D<Precision> const &origin);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Set(int index, Vector3D<Precision> const &normal, Precision distance);
 
   /// Flip the sign of the normal and distance at the specified index
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void FlipSign(int index);
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   vecCore::Mask_v<Real_v> Contains(Vector3D<Real_v> const &point) const;
 
   template <typename Real_v, typename Inside_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Inside_v Inside(Vector3D<Real_v> const &point) const;
 
   template <typename Real_v, typename Inside_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Inside_v Inside(Vector3D<Real_v> const &point, int i) const;
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Real_v Distance(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction) const;
 
   template <bool pointInsideT, typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Real_v Distance(Vector3D<Real_v> const &point) const;
 };
 
 std::ostream &operator<<(std::ostream &os, Planes const &planes);
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Precision const *Planes::operator[](int i) const
 {
   if (i == 0) return fNormals.x();
@@ -123,31 +123,31 @@ Precision const *Planes::operator[](int i) const
   return NULL;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 int Planes::size() const
 {
   return fNormals.size();
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 SOA3D<Precision> const &Planes::GetNormals() const
 {
   return fNormals;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Vector3D<Precision> Planes::GetNormal(int i) const
 {
   return fNormals[i];
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Array<Precision> const &Planes::GetDistances() const
 {
   return fDistances;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Precision Planes::GetDistance(int i) const
 {
   return fDistances[i];
@@ -157,7 +157,7 @@ namespace {
 
 template <typename Real_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void AcceleratedContains(int & /*i*/, const int /*n*/, SOA3D<Precision> const & /*normals*/,
                          Array<Precision> const & /*distances*/, Vector3D<Real_v> const & /*point*/,
                          vecCore::Mask_v<Real_v> & /*result*/)
@@ -168,7 +168,7 @@ void AcceleratedContains(int & /*i*/, const int /*n*/, SOA3D<Precision> const & 
 #if defined(VECGEOM_VC) && defined(VECGEOM_QUADRILATERALS_VC)
 template <>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void AcceleratedContains<Precision>(int &i, const int n, SOA3D<Precision> const &normals,
                                     Array<Precision> const &distances, Vector3D<Precision> const &point,
                                     vecCore::Mask_v<double> &result)
@@ -190,7 +190,7 @@ void AcceleratedContains<Precision>(int &i, const int n, SOA3D<Precision> const 
 
 template <typename Real_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 vecCore::Mask_v<Real_v> Planes::Contains(Vector3D<Real_v> const &point) const
 {
 
@@ -210,7 +210,7 @@ namespace {
 
 template <typename Real_v, typename Inside_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void AcceleratedInside(int & /*i*/, const int /*n*/, SOA3D<Precision> const & /*normals*/,
                        Array<Precision> const & /*distances*/, Vector3D<Real_v> const & /*point*/,
                        Inside_v & /*result*/)
@@ -221,7 +221,7 @@ void AcceleratedInside(int & /*i*/, const int /*n*/, SOA3D<Precision> const & /*
 #if defined(VECGEOM_VC) and defined(VECGEOM_QUADRILATERALS_VC)
 template <>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void AcceleratedInside<Precision, Inside_t>(int &i, const int n, SOA3D<Precision> const &normals,
                                             Array<Precision> const &distances, Vector3D<Precision> const &point,
                                             Inside_t &result)
@@ -247,7 +247,7 @@ void AcceleratedInside<Precision, Inside_t>(int &i, const int n, SOA3D<Precision
 
 template <typename Real_v, typename Inside_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Inside_v Planes::Inside(Vector3D<Real_v> const &point) const
 {
 
@@ -270,7 +270,7 @@ Inside_v Planes::Inside(Vector3D<Real_v> const &point) const
 
 template <typename Real_v, typename Inside_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Inside_v Planes::Inside(Vector3D<Real_v> const &point, int i) const
 {
 
@@ -286,7 +286,7 @@ Inside_v Planes::Inside(Vector3D<Real_v> const &point, int i) const
 
 template <typename Real_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Real_v Planes::Distance(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction) const
 {
 
@@ -302,7 +302,7 @@ Real_v Planes::Distance(Vector3D<Real_v> const &point, Vector3D<Real_v> const &d
 
 template <bool pointInsideT, typename Real_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Real_v Planes::Distance(Vector3D<Real_v> const &point) const
 {
 

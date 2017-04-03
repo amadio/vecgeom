@@ -22,7 +22,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedBooleanVolume::Create(LogicalVolume const *const logical_volume,
                                              Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
@@ -59,7 +59,7 @@ VPlacedVolume *UnplacedBooleanVolume::Create(LogicalVolume const *const logical_
   return nullptr;
 }
 
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedBooleanVolume::SpecializedVolume(LogicalVolume const *const volume,
                                                         Transformation3D const *const transformation,
                                                         const TranslationCode trans_code, const RotationCode rot_code,
@@ -85,7 +85,7 @@ VPlacedVolume *UnplacedBooleanVolume::SpecializedVolume(LogicalVolume const *con
 #endif
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void TransformedExtent(VPlacedVolume const *pvol, Vector3D<Precision> &aMin, Vector3D<Precision> &aMax)
 {
 // CUDA does not have min and max in std:: namespace
@@ -159,7 +159,7 @@ void UnplacedBooleanVolume::Extent(Vector3D<Precision> &aMin, Vector3D<Precision
   }
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool UnplacedBooleanVolume::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
 {
   // Compute normal vector to closest surface

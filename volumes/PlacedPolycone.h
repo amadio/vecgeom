@@ -51,10 +51,10 @@ public:
   }
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~PlacedPolycone() {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedPolycone const *GetUnplacedVolume() const
   {
     return static_cast<UnplacedPolycone const *>(GetLogicalVolume()->GetUnplacedVolume());
@@ -78,7 +78,7 @@ public:
   }
 
 #if defined(VECGEOM_USOLIDS)
-  //  VECGEOM_CUDA_HEADER_BOTH
+  //  VECCORE_ATT_HOST_DEVICE
   std::ostream &StreamInfo(std::ostream &os) const override { return GetUnplacedVolume()->StreamInfo(os); }
 #endif
 
@@ -106,7 +106,7 @@ public:
 #endif
 
   // virtual
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
     return GetUnplacedVolume()->Normal(point, normal);

@@ -59,7 +59,7 @@ class UTrd : public vecgeom::USolidsAdapter<vecgeom::UnplacedTrd> {
 
 public:
   /** @brief UnplacedTrd dummy constructor */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UTrd() : Base_t("") {}
 
   UTrd(const std::string &pName, double pdx1, double pdx2, double pdy1, double pdy2, double pdz)

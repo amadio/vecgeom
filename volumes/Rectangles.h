@@ -48,117 +48,117 @@ private:
 public:
   typedef SOA3D<Precision> Corners_t[2];
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Rectangles(int size);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ~Rectangles();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   int size() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Vector3D<Precision> GetNormal(int i) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   SOA3D<Precision> const &GetNormals() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetDistance(int i) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Array<Precision> const &GetDistances() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   inline Vector3D<Precision> GetCenter(int i) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   inline Vector3D<Precision> GetCorner(int i, int j) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Corners_t const &GetCorners() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   inline Vector3D<Precision> GetSide(int i) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   SOA3D<Precision> const &GetSides() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Set(int index, Vector3D<Precision> const &p0, Vector3D<Precision> const &p1, Vector3D<Precision> const &p2);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   inline Precision Distance(Vector3D<Precision> const &point, Vector3D<Precision> const &direction) const;
 };
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 int Rectangles::size() const
 {
   return fPlanes.size();
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Vector3D<Precision> Rectangles::GetNormal(int i) const
 {
   return fPlanes.GetNormal(i);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 SOA3D<Precision> const &Rectangles::GetNormals() const
 {
   return fPlanes.GetNormals();
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Precision Rectangles::GetDistance(int i) const
 {
   return fPlanes.GetDistance(i);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Array<Precision> const &Rectangles::GetDistances() const
 {
   return fPlanes.GetDistances();
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Vector3D<Precision> Rectangles::GetCenter(int i) const
 {
   return -GetDistance(i) * GetNormal(i);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Vector3D<Precision> Rectangles::GetCorner(int i, int j) const
 {
   return Vector3D<Precision>(fCorners[i][0][j], fCorners[i][1][j], fCorners[i][2][j]);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Rectangles::Corners_t const &Rectangles::GetCorners() const
 {
   return fCorners;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Vector3D<Precision> Rectangles::GetSide(int i) const
 {
   return Vector3D<Precision>(fSides[0][i], fSides[1][i], fSides[2][i]);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 SOA3D<Precision> const &Rectangles::GetSides() const
 {
   return fSides;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void Rectangles::Set(int index, Vector3D<Precision> const &p0, Vector3D<Precision> const &p1,
                      Vector3D<Precision> const &p2)
 {
@@ -194,7 +194,7 @@ void Rectangles::Set(int index, Vector3D<Precision> const &p0, Vector3D<Precisio
   fPlanes.Set(index, normal, d);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Precision Rectangles::Distance(Vector3D<Precision> const &point, Vector3D<Precision> const &direction) const
 {
   Precision bestDistance = kInfLength;

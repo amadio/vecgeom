@@ -29,19 +29,19 @@ struct kScalar {
   const static bool_v kFalse         = false;
 
   template <class Backend>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static VECGEOM_CONSTEXPR_RETURN bool IsEqual()
   {
     return false;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   static Precision Convert(Precision const &input) { return input; }
 };
 
 template <>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline VECGEOM_CONSTEXPR_RETURN bool kScalar::IsEqual<kScalar>()
 {
   return true;
@@ -65,7 +65,7 @@ constexpr size_t kVectorSize = 1;
 #ifndef VECGEOM_USOLIDS
 template <typename Type>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void swap(Type &a, Type &b)
 {
   std::swap(a, b);
@@ -74,7 +74,7 @@ void swap(Type &a, Type &b)
 
 template <typename Type>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void copy(Type const *begin, Type const *const end, Type *const target)
 {
 #ifndef VECGEOM_NVCC_DEVICE
@@ -86,7 +86,7 @@ void copy(Type const *begin, Type const *const end, Type *const target)
 
 template <typename Type>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Type *AlignedAllocate(size_t size)
 {
 #ifndef VECGEOM_NVCC
@@ -98,7 +98,7 @@ Type *AlignedAllocate(size_t size)
 
 template <typename Type>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void AlignedFree(Type *allocated)
 {
 #ifndef VECGEOM_NVCC
@@ -110,7 +110,7 @@ void AlignedFree(Type *allocated)
 
 template <typename InputIterator1, typename InputIterator2>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool equal(InputIterator1 first, InputIterator1 last, InputIterator2 target)
 {
 #ifndef VECGEOM_NVCC_DEVICE

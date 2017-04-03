@@ -39,14 +39,14 @@ VPlacedVolume::VPlacedVolume(char const *const label, LogicalVolume const *const
   label_ = new std::string(label);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 VPlacedVolume::VPlacedVolume(VPlacedVolume const &other)
     : id_(), label_(NULL), logical_volume_(), fTransformation(), bounding_box_()
 {
   assert(0 && "COPY CONSTRUCTOR FOR PlacedVolumes NOT IMPLEMENTED");
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 VPlacedVolume *VPlacedVolume::operator=(VPlacedVolume const &other)
 {
   // deliberaty copy using memcpy to also copy the virtual table
@@ -68,7 +68,7 @@ VPlacedVolume *VPlacedVolume::operator=(VPlacedVolume const &other)
 }
 #endif
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 VPlacedVolume::~VPlacedVolume()
 {
 #ifndef VECGEOM_NVCC
@@ -77,7 +77,7 @@ VPlacedVolume::~VPlacedVolume()
 #endif
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void VPlacedVolume::Print(const int indent) const
 {
   for (int i = 0; i < indent; ++i)
@@ -97,7 +97,7 @@ void VPlacedVolume::Print(const int indent) const
   logical_volume_->Print(indent + 1);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void VPlacedVolume::PrintContent(const int indent) const
 {
   Print(indent);
@@ -110,7 +110,7 @@ void VPlacedVolume::PrintContent(const int indent) const
   }
 }
 
-VECGEOM_CUDA_HEADER_HOST
+VECCORE_ATT_HOST
 std::ostream &operator<<(std::ostream &os, VPlacedVolume const &vol)
 {
   os << "(" << (*vol.GetUnplacedVolume()) << ", " << (*vol.GetTransformation()) << ")";
@@ -196,7 +196,7 @@ Precision VPlacedVolume::Capacity()
   return 0.;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool VPlacedVolume::Normal(Vector3D<Precision> const & /*point*/, Vector3D<Precision> & /*normal*/) const
 {
 #ifndef VECGEOM_NVCC
@@ -205,7 +205,7 @@ bool VPlacedVolume::Normal(Vector3D<Precision> const & /*point*/, Vector3D<Preci
   return false;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void VPlacedVolume::Extent(Vector3D<Precision> & /* min */, Vector3D<Precision> & /* max */) const
 {
 #ifndef VECGEOM_NVCC

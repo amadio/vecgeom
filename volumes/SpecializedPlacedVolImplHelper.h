@@ -105,14 +105,14 @@ public:
 
   virtual int MemorySize() const override { return sizeof(*this); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void PrintType() const override { Specialization::PrintType(); }
 
   virtual void PrintType(std::ostream &os) const override { Specialization::PrintType(os, transC, rotC); }
   virtual void PrintImplementationType(std::ostream &os) const override { Specialization::PrintImplementationType(os); }
   virtual void PrintUnplacedType(std::ostream &os) const override { Specialization::PrintUnplacedType(os); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual EnumInside Inside(Vector3D<Precision> const &point) const override
   {
     Inside_t output;
@@ -121,7 +121,7 @@ public:
     return (EnumInside)output;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Contains(Vector3D<Precision> const &point) const override
   {
     bool output(false);
@@ -131,7 +131,7 @@ public:
     return output;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Contains(Vector3D<Precision> const &point, Vector3D<Precision> &localPoint) const override
   {
     bool output(false);
@@ -145,7 +145,7 @@ public:
     return output;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision DistanceToIn(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
                                  const Precision stepMax = kInfLength) const override
   {
@@ -162,7 +162,7 @@ public:
     return output;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision PlacedDistanceToOut(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
                                         const Precision stepMax = kInfLength) const override
   {
@@ -181,7 +181,7 @@ public:
     return output;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision SafetyToIn(Vector3D<Precision> const &point) const override
   {
     Precision output(kInfLength);
@@ -289,7 +289,7 @@ public:
   using CommonHelper_t::Inside;
   using CommonHelper_t::CommonHelper_t;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~SIMDSpecializedVolImplHelper() {}
 
   virtual void SafetyToIn(SOA3D<Precision> const &points, Precision *const output) const override

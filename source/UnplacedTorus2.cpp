@@ -20,7 +20,7 @@ void UnplacedTorus2::Print(std::ostream &os) const
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedTorus2::Create(LogicalVolume const *const logical_volume,
                                       Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
@@ -45,7 +45,7 @@ VPlacedVolume *UnplacedTorus2::Create(LogicalVolume const *const logical_volume,
                                                      );
 }
 
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedTorus2::SpecializedVolume(LogicalVolume const *const volume,
                                                  Transformation3D const *const transformation,
                                                  const TranslationCode trans_code, const RotationCode rot_code,
@@ -102,7 +102,7 @@ Vector3D<Precision> UnplacedTorus2::GetPointOnSurface() const
 }
 
 #if defined(VECGEOM_USOLIDS)
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 std::ostream &UnplacedTorus2::StreamInfo(std::ostream &os) const
 {
   int oldprc = os.precision(16);
@@ -122,7 +122,7 @@ std::ostream &UnplacedTorus2::StreamInfo(std::ostream &os) const
 }
 #endif
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedTorus2::DetectConvexity()
 {
   // Default safe convexity value

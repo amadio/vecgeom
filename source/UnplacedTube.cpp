@@ -26,7 +26,7 @@ void UnplacedTube::Print(std::ostream &os) const
 }
 
 // template <TranslationCode transCodeT, RotationCode rotCodeT>
-// VECGEOM_CUDA_HEADER_DEVICE
+// VECCORE_ATT_DEVICE
 // VPlacedVolume *UnplacedTube::Create(LogicalVolume const *const logical_volume,
 //                                    Transformation3D const *const transformation,
 //#ifdef VECGEOM_NVCC
@@ -155,7 +155,7 @@ bool UnplacedTube::Normal(Vector3D<Precision> const &point, Vector3D<Precision> 
 }
 
 /*
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision UnplacedTube::SurfaceArea () const {
     Precision area = fDphi * (rmin() + rmax()) * (2 * fZ + rmax() - rmin());
     if (fDphi<kTwoPi) {
@@ -166,7 +166,7 @@ bool UnplacedTube::Normal(Vector3D<Precision> const &point, Vector3D<Precision> 
 
   */
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedTube::DetectConvexity()
 {
 

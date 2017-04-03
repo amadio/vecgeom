@@ -28,10 +28,10 @@ private:
   CutTubeStruct<double> fCutTube; //> The cut tube data holder
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedCutTube() : fCutTube() {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedCutTube(Precision const &rmin, Precision const &rmax, Precision const &z, Precision const &sphi,
                   Precision const &dphi, Vector3D<Precision> const &bottomNormal, Vector3D<Precision> const &topNormal)
       : fCutTube(rmin, rmax, z, sphi, dphi, bottomNormal, topNormal)
@@ -50,7 +50,7 @@ public:
     DetectConvexity();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedCutTube(Precision const &rmin, Precision const &rmax, Precision const &z, Precision const &sphi,
                   Precision const &dphi, Precision const &bx, Precision const &by, Precision const &bz,
                   Precision const &tx, Precision const &ty, Precision const &tz)
@@ -66,40 +66,40 @@ public:
     DetectConvexity();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~UnplacedCutTube() = default;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedCutTube(UnplacedCutTube const &other) = delete;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   TubeStruct<double> const &GetTubeStruct() const { return fCutTube.fTubeStruct; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   CutTubeStruct<double> const &GetStruct() const { return fCutTube; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void DetectConvexity();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision rmin() const { return fCutTube.fTubeStruct.fRmin; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision rmax() const { return fCutTube.fTubeStruct.fRmax; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision z() const { return fCutTube.fDz; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision sphi() const { return fCutTube.fTubeStruct.fSphi; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision dphi() const { return fCutTube.fTubeStruct.fDphi; }
 
@@ -118,19 +118,19 @@ public:
   VECGEOM_FORCE_INLINE
   void SetDPhi(Precision const &_dphi) { fCutTube.fTubeStruct.SetAndCheckDPhiAngle(_dphi); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   evolution::Wedge const &GetWedge() const { return fCutTube.fTubeStruct.fPhiWedge; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Vector3D<Precision> BottomNormal() const { return fCutTube.fCutPlanes.GetNormal(0); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Vector3D<Precision> TopNormal() const { return fCutTube.fCutPlanes.GetNormal(1); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision ZlimitBottom(Precision rVal, Precision phiVal) const
   {
@@ -139,7 +139,7 @@ public:
                 (BottomNormal().x() * vecCore::math::Cos(phiVal) + BottomNormal().y() * vecCore::math::Sin(phiVal)));
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision ZlimitTop(Precision rVal, Precision phiVal) const
   {
@@ -148,7 +148,7 @@ public:
                 (TopNormal().x() * vecCore::math::Cos(phiVal) + TopNormal().y() * vecCore::math::Sin(phiVal)));
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetLateralArea(Precision rVal) const
   {
@@ -159,21 +159,21 @@ public:
                             (fCutTube.fCosPhi2 - fCutTube.fCosPhi1))));
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetTopArea() const
   {
     return 0.5 * (fCutTube.fTubeStruct.fRmax2 - fCutTube.fTubeStruct.fRmin2) * dphi() / TopNormal().z();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetBottomArea() const
   {
     return -0.5 * (fCutTube.fTubeStruct.fRmax2 - fCutTube.fTubeStruct.fRmin2) * dphi() / BottomNormal().z();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetLateralPhi1Area() const
   {
@@ -182,7 +182,7 @@ public:
                                        (ZlimitTop(rmax(), sphi()) - ZlimitBottom(rmax(), sphi()))));
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetLateralPhi2Area() const
   {
@@ -191,7 +191,7 @@ public:
                                        (ZlimitTop(rmax(), sphi() + dphi()) - ZlimitBottom(rmax(), sphi() + dphi()))));
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override;
 
   Vector3D<Precision> GetPointOnSurface() const override;
@@ -200,17 +200,17 @@ public:
 
   Precision Capacity() const { return volume(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision SurfaceArea() const
   {
     return (GetBottomArea() + GetTopArea() + GetLateralArea(rmin()) + GetLateralArea(rmax()) + GetLateralPhi1Area() +
             GetLateralPhi2Area());
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void Print() const final;
   virtual void Print(std::ostream &os) const final;
 
@@ -225,7 +225,7 @@ public:
 #endif
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
-  VECGEOM_CUDA_HEADER_DEVICE
+  VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
                                const int id,
@@ -233,7 +233,7 @@ public:
                                VPlacedVolume *const placement = NULL);
 
 private:
-  VECGEOM_CUDA_HEADER_DEVICE
+  VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code,

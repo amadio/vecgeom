@@ -34,30 +34,30 @@ public:
   VariableSizeObj(TRootIOCtor *) : fSelfAlloc(false), fN(0) {}
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VariableSizeObj(unsigned int nvalues) : fSelfAlloc(false), fN(nvalues) {}
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VariableSizeObj(const VariableSizeObj &other) : fSelfAlloc(false), fN(other.fN)
   {
     if (other.fN) memcpy(GetValues(), other.GetValues(), (other.fN) * sizeof(V));
   }
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VariableSizeObj(size_t new_size, const VariableSizeObj &other) : fSelfAlloc(false), fN(new_size)
   {
     if (other.fN) memcpy(GetValues(), other.GetValues(), (other.fN) * sizeof(V));
   }
 
-  VECGEOM_FORCE_INLINE VECGEOM_CUDA_HEADER_BOTH V *GetValues() { return &fRealArray[0]; }
-  VECGEOM_FORCE_INLINE VECGEOM_CUDA_HEADER_BOTH const V *GetValues() const { return &fRealArray[0]; }
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE V *GetValues() { return &fRealArray[0]; }
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE const V *GetValues() const { return &fRealArray[0]; }
 
-  VECGEOM_FORCE_INLINE VECGEOM_CUDA_HEADER_BOTH V &operator[](Index_t index) { return GetValues()[index]; };
-  VECGEOM_FORCE_INLINE VECGEOM_CUDA_HEADER_BOTH const V &operator[](Index_t index) const { return GetValues()[index]; };
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE V &operator[](Index_t index) { return GetValues()[index]; };
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE const V &operator[](Index_t index) const { return GetValues()[index]; };
 
-  VECGEOM_FORCE_INLINE VECGEOM_CUDA_HEADER_BOTH VariableSizeObj &operator=(const VariableSizeObj &rhs)
+  VECGEOM_FORCE_INLINE VECCORE_ATT_HOST_DEVICE VariableSizeObj &operator=(const VariableSizeObj &rhs)
   {
     // Copy data content using memcpy, limited by the respective size
     // of the the object.  If this is smaller there is data truncation,
@@ -86,7 +86,7 @@ public:
   // The static maker to be used to create an instance of the variable size object.
 
   template <typename... T>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static Cont *MakeInstance(size_t nvalues, const T &... params)
   {
     // Make an instance of the class which allocates the node array. To be
@@ -101,7 +101,7 @@ public:
   }
 
   template <typename... T>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static Cont *MakeInstanceAt(size_t nvalues, void *addr, const T &... params)
   {
     // Make an instance of the class which allocates the node array. To be
@@ -157,7 +157,7 @@ public:
   }
 
   // The equivalent of the destructor
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void ReleaseInstance(Cont *obj)
   {
     // Releases the space allocated for the object
@@ -166,19 +166,19 @@ public:
   }
 
   // Equivalent of sizeof function (not taking into account padding for alignment)
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static constexpr size_t SizeOf(size_t nvalues) { return (sizeof(Cont) + sizeof(V) * (nvalues - 1)); }
 
   // equivalent of sizeof function taking into account padding for alignment
   // this function should be used when making arrays of VariableSizeObjects
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static constexpr size_t SizeOfAlignAware(size_t nvalues) { return SizeOf(nvalues) + RealFillUp(nvalues); }
 
 private:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static constexpr size_t FillUp(size_t nvalues) { return alignof(Cont) - SizeOf(nvalues) % alignof(Cont); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static constexpr size_t RealFillUp(size_t nvalues)
   {
     return (FillUp(nvalues) == alignof(Cont)) ? 0 : FillUp(nvalues);

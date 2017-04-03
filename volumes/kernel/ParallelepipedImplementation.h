@@ -31,7 +31,7 @@ struct ParallelepipedImplementation {
   using UnplacedStruct_t = ParallelepipedStruct<double>;
   using UnplacedVolume_t = UnplacedParallelepiped;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void PrintType()
   {
     // printf("SpecializedParallelepiped<%i, %i>", transCodeT, rotCodeT);
@@ -57,44 +57,44 @@ struct ParallelepipedImplementation {
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Transform(UnplacedStruct_t const &unplaced, Vector3D<Real_v> &point);
 
   template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Contains(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Bool_v &inside);
 
   template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Inside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Bool_v &inside);
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                            Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance);
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                             Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance);
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety);
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety);
 };
 
 template <typename Real_v>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void ParallelepipedImplementation::Transform(UnplacedStruct_t const &unplaced, Vector3D<Real_v> &point)
 {
   point[1] -= unplaced.fTanThetaSinPhi * point[2];
@@ -102,7 +102,7 @@ void ParallelepipedImplementation::Transform(UnplacedStruct_t const &unplaced, V
 }
 
 template <typename Real_v, typename Bool_v>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void ParallelepipedImplementation::Contains(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                                             Bool_v &inside)
 {
@@ -113,7 +113,7 @@ void ParallelepipedImplementation::Contains(UnplacedStruct_t const &unplaced, Ve
 }
 
 template <typename Real_v, typename Inside_t>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void ParallelepipedImplementation::Inside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                                           Inside_t &inside)
 {
@@ -124,7 +124,7 @@ void ParallelepipedImplementation::Inside(UnplacedStruct_t const &unplaced, Vect
 }
 
 template <typename Real_v>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void ParallelepipedImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                                                 Vector3D<Real_v> const &direction, Real_v const &stepMax,
                                                 Real_v &distance)
@@ -145,7 +145,7 @@ void ParallelepipedImplementation::DistanceToIn(UnplacedStruct_t const &unplaced
 }
 
 template <typename Real_v>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void ParallelepipedImplementation::DistanceToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                                                  Vector3D<Real_v> const &direction, Real_v const & /* stepMax */,
                                                  Real_v &distance)
@@ -244,7 +244,7 @@ void ParallelepipedImplementation::DistanceToOut(UnplacedStruct_t const &unplace
 }
 
 template <typename Real_v>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void ParallelepipedImplementation::SafetyToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                                               Real_v &safety)
 {
@@ -269,7 +269,7 @@ void ParallelepipedImplementation::SafetyToIn(UnplacedStruct_t const &unplaced, 
 }
 
 template <typename Real_v>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void ParallelepipedImplementation::SafetyToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                                                Real_v &safety)
 {

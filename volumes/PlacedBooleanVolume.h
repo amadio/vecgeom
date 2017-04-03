@@ -47,10 +47,10 @@ public:
   }
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~PlacedBooleanVolume() {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedVol_t const *GetUnplacedVolume() const
   {
     return static_cast<UnplacedVol_t const *>(GetLogicalVolume()->GetUnplacedVolume());
@@ -63,7 +63,7 @@ public:
     return 0.;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
   {
     GetUnplacedVolume()->Extent(aMin, aMax);
@@ -76,7 +76,7 @@ public:
   virtual Vector3D<Precision> GetPointOnSurface() const override;
   //#endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void PrintType() const override{};
 
   void PrintType(std::ostream &) const override{};
@@ -84,7 +84,7 @@ public:
   // CUDA specific
   virtual int MemorySize() const override { return sizeof(*this); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
     return GetUnplacedVolume()->Normal(point, normal);

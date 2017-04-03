@@ -4,7 +4,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Planes::Planes(int size) : fNormals(size), fDistances(size)
 {
 }
@@ -19,12 +19,12 @@ __device__ Planes::Planes(Precision *a, Precision *b, Precision *c, Precision *d
 }
 #endif
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Planes::~Planes()
 {
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Planes &Planes::operator=(Planes const &rhs)
 {
 #ifndef VECGEOM_NVCC_DEVICE
@@ -38,7 +38,7 @@ Planes &Planes::operator=(Planes const &rhs)
   return *this;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void Planes::Set(int index, Vector3D<Precision> const &normal, Vector3D<Precision> const &x0)
 {
   Vector3D<Precision> fixedNormal(normal);
@@ -48,7 +48,7 @@ void Planes::Set(int index, Vector3D<Precision> const &normal, Vector3D<Precisio
   fDistances[index] = inverseLength * -fixedNormal.Dot(x0);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void Planes::Set(int index, Vector3D<Precision> const &normal, Precision distance)
 {
   fNormals.set(index, normal);

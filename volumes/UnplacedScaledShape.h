@@ -32,11 +32,11 @@ public:
 
 public:
   /// Dummy ctor
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedScaledShape() : fScaled() { fGlobalConvexity = fScaled.fPlaced->GetUnplacedVolume()->IsConvex(); }
 
   /// Constructor based on placed volume
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedScaledShape(VPlacedVolume const *placed, Precision sx, Precision sy, Precision sz)
       : fScaled(placed, sx, sy, sz)
   {
@@ -45,7 +45,7 @@ public:
 
 #if defined(VECGEOM_NVCC)
   /// Constructor based on placed volume
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedScaledShape(VPlacedVolume const *placed, Precision sx, Precision sy, Precision sz, bool globalConvexity)
       : fScaled(placed, sx, sy, sz)
   {
@@ -74,7 +74,7 @@ public:
 #endif
 
   /// Copy constructor
-  //  VECGEOM_CUDA_HEADER_BOTH
+  //  VECCORE_ATT_HOST_DEVICE
   UnplacedScaledShape(UnplacedScaledShape const &other) : fScaled()
   {
     fScaled.fPlaced  = other.fScaled.fPlaced->GetLogicalVolume()->Place();
@@ -83,7 +83,7 @@ public:
   }
 
   /// Assignment operator
-  //  VECGEOM_CUDA_HEADER_BOTH
+  //  VECCORE_ATT_HOST_DEVICE
   UnplacedScaledShape &operator=(UnplacedScaledShape const &other)
   {
     if (&other != this) {
@@ -95,7 +95,7 @@ public:
   }
 
   /// Destructor
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~UnplacedScaledShape()
   {
     // The fPlaced was owned by the class, but now it gets deleted before
@@ -107,7 +107,7 @@ public:
   }
 
   /// Getter for the generic scaled shape structure
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ScaledShapeStruct<double> const &GetStruct() const { return fScaled; }
 
   virtual int MemorySize() const final { return (sizeof(*this) + fScaled.fPlaced->MemorySize()); }
@@ -149,30 +149,30 @@ public:
   }
 #endif // !VECGEOM_NVCC
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &min, Vector3D<Precision> &max) const override;
 
   Vector3D<Precision> GetPointOnSurface() const override;
 
   virtual std::string GetEntityType() const { return "ScaledShape"; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void Print() const final;
 
   virtual void Print(std::ostream &os) const final;
 
   template <TranslationCode trans_code, RotationCode rot_code>
-  VECGEOM_CUDA_HEADER_DEVICE
+  VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
                                const int id,
 #endif // !VECGEOM_NVCC
                                VPlacedVolume *const placement = NULL);
 
-  VECGEOM_CUDA_HEADER_DEVICE
+  VECCORE_ATT_DEVICE
   static VPlacedVolume *CreateSpecializedVolume(LogicalVolume const *const volume,
                                                 Transformation3D const *const transformation,
                                                 const TranslationCode trans_code, const RotationCode rot_code,
@@ -182,7 +182,7 @@ public:
                                                 VPlacedVolume *const placement = NULL);
 
 private:
-  VECGEOM_CUDA_HEADER_DEVICE
+  VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code,

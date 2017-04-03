@@ -55,7 +55,7 @@ public:
 
   virtual int MemorySize() const { return sizeof(*this); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void PrintType() const { printf("NOT IMPLEMENTED"); };
 
 }; // endofclassdefinition

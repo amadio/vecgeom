@@ -78,14 +78,14 @@ struct PolyhedronStruct {
   bool fConvexityPossible;
   bool fEqualRmax;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   PolyhedronStruct()
       : fSideCount(0), fHasInnerRadii(false), fHasPhiCutout(false), fHasLargePhiCutout(false), fPhiStart(0),
         fPhiDelta(0), fPhiWedge(0., 0.), fBoundingTube(0, 0, 0, 0, 0), fBoundingTubeOffset(0)
   {
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   PolyhedronStruct(Precision phiStart, Precision phiDelta, const int sideCount, const int zPlaneCount,
                    Precision const zPlanes[], Precision const rMin[], Precision const rMax[])
       : fSideCount(sideCount), fHasInnerRadii(false), fHasPhiCutout(phiDelta < kTwoPi),
@@ -151,7 +151,7 @@ struct PolyhedronStruct {
     delete[] r2arg;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool CheckContinuityInSlope(const double rOuter[], const double zPlane[], const unsigned int nz)
   {
 
@@ -170,7 +170,7 @@ struct PolyhedronStruct {
 
   // This method does the proper construction of planes and segments.
   // Used by multiple constructors.
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Initialize(Precision phiStart, Precision phiDelta, const int sideCount, const int zPlaneCount,
                   Precision const zPlanes[], Precision const rMin[], Precision const rMax[])
   {

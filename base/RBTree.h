@@ -17,7 +17,7 @@ VECGEOM_DEVICE_FORWARD_DECLARE(template <typename Type> class _Rb_tree;);
 inline namespace VECGEOM_IMPL_NAMESPACE {
 template <class T>
 struct less {
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool operator()(const T &x, const T &y) const { return x < y; }
   typedef T first_argument_type;
   typedef T second_argument_type;
@@ -34,22 +34,22 @@ struct pair {
   T1 first;
   T2 second;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   pair() : first(), second() {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   pair(const pair &apair)
   {
     first  = apair.first;
     second = apair.second;
   };
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   pair(const T1 &x, const T2 &y)
   {
     first  = x;
     second = y;
   };
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   pair &operator=(const pair &p)
   {
     first  = p.first;
@@ -57,13 +57,13 @@ struct pair {
     return *this;
   };
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   friend bool operator<(const pair<T1, T2> &lhs, const pair<T1, T2> &rhs)
   {
     return lhs.first < rhs.first || (!(rhs.first < lhs.first) && lhs.second < rhs.second);
   };
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void swap(pair &p)
   {
     T1 temp = p.first;
@@ -84,7 +84,7 @@ struct _Rb_tree_node_base {
   _Base_ptr _M_left;
   _Base_ptr _M_right;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static _Base_ptr _S_minimum(_Base_ptr __x)
   {
     while (__x->_M_left != 0)
@@ -92,7 +92,7 @@ struct _Rb_tree_node_base {
     return __x;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static _Base_ptr _S_maximum(_Base_ptr __x)
   {
     while (__x->_M_right != 0)
@@ -106,9 +106,9 @@ struct _Rb_tree_node : public _Rb_tree_node_base {
   typedef _Rb_tree_node<_Value> *_Link_type;
   _Value _M_value_field;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   _Value get_value() { return _M_value_field; };
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void set_value(_Value _new_value) { _M_value_field = _new_value; };
 };
 
@@ -117,7 +117,7 @@ struct _Rb_tree_base_iterator {
   typedef ptrdiff_t difference_type;
   _Base_ptr _M_node;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void _M_increment()
   {
     if (_M_node->_M_right != 0) {
@@ -134,7 +134,7 @@ struct _Rb_tree_base_iterator {
     }
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void _M_decrement()
   {
     if (_M_node->_M_color == _S_rb_tree_red && _M_node->_M_parent->_M_parent == _M_node)
@@ -165,25 +165,25 @@ struct _Rb_tree_iterator : public _Rb_tree_base_iterator {
   typedef _Rb_tree_iterator<_Value, _Ref, _Ptr> _Self;
   typedef _Rb_tree_node<_Value> *_Link_type;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   _Rb_tree_iterator() {}
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   _Rb_tree_iterator(_Link_type __x) { _M_node = __x; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   _Rb_tree_iterator(const iterator &__it) { _M_node = __it._M_node; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   reference operator*() const { return _Link_type(_M_node)->_M_value_field; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   pointer operator->() const { return &(operator*()); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   _Self &operator++()
   {
     _M_increment();
     return *this;
   }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   _Self operator++(int)
   {
     _Self __tmp = *this;
@@ -191,13 +191,13 @@ struct _Rb_tree_iterator : public _Rb_tree_base_iterator {
     return __tmp;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   _Self &operator--()
   {
     _M_decrement();
     return *this;
   }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   _Self operator--(int)
   {
     _Self __tmp = *this;
@@ -206,32 +206,32 @@ struct _Rb_tree_iterator : public _Rb_tree_base_iterator {
   }
 };
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline bool operator==(const _Rb_tree_base_iterator &__x, const _Rb_tree_base_iterator &__y)
 {
   return __x._M_node == __y._M_node;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline bool operator!=(const _Rb_tree_base_iterator &__x, const _Rb_tree_base_iterator &__y)
 {
   return __x._M_node != __y._M_node;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline _Rb_tree_base_iterator::difference_type *distance_type(const _Rb_tree_base_iterator &)
 {
   return (_Rb_tree_base_iterator::difference_type *)0;
 }
 
 template <class _Value, class _Ref, class _Ptr>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline _Value *value_type(const _Rb_tree_iterator<_Value, _Ref, _Ptr> &)
 {
   return (_Value *)0;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline void _Rb_tree_rotate_left(_Rb_tree_node_base *__x, _Rb_tree_node_base *&__root)
 {
   _Rb_tree_node_base *__y                        = __x->_M_right;
@@ -249,7 +249,7 @@ inline void _Rb_tree_rotate_left(_Rb_tree_node_base *__x, _Rb_tree_node_base *&_
   __x->_M_parent             = __y;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline void _Rb_tree_rotate_right(_Rb_tree_node_base *__x, _Rb_tree_node_base *&__root)
 {
   _Rb_tree_node_base *__y                          = __x->_M_left;
@@ -267,7 +267,7 @@ inline void _Rb_tree_rotate_right(_Rb_tree_node_base *__x, _Rb_tree_node_base *&
   __x->_M_parent            = __y;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline void _Rb_tree_rebalance(_Rb_tree_node_base *__x, _Rb_tree_node_base *&__root)
 {
   __x->_M_color = _S_rb_tree_red;
@@ -309,7 +309,7 @@ inline void _Rb_tree_rebalance(_Rb_tree_node_base *__x, _Rb_tree_node_base *&__r
   __root->_M_color = _S_rb_tree_black;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline _Rb_tree_node_base *_Rb_tree_rebalance_for_erase(_Rb_tree_node_base *__z, _Rb_tree_node_base *&__root,
                                                         _Rb_tree_node_base *&__leftmost,
                                                         _Rb_tree_node_base *&__rightmost)
@@ -445,9 +445,9 @@ inline _Rb_tree_node_base *_Rb_tree_rebalance_for_erase(_Rb_tree_node_base *__z,
 template <class _Tp>
 struct _Rb_tree_base {
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   _Rb_tree_base() : _M_header(0) { _M_header = new _Rb_tree_node<_Tp>; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ~_Rb_tree_base() { delete _M_header; }
 protected:
   _Rb_tree_node<_Tp> *_M_header;
@@ -474,7 +474,7 @@ public:
   typedef ptrdiff_t difference_type;
 
 protected:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   _Link_type _M_create_node(const value_type &__x)
   {
     _Link_type __tmp = new _Rb_tree_node<value_type>;
@@ -483,7 +483,7 @@ protected:
     return __tmp;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   _Link_type _M_clone_node(_Link_type __x)
   {
     _Link_type __tmp = _M_create_node(__x->_M_value_field);
@@ -493,7 +493,7 @@ protected:
     return __tmp;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void destroy_node(_Link_type __p)
   {
     // (__p->_M_value_field).~_Value();
@@ -506,43 +506,43 @@ protected:
   size_type _M_node_count; // keeps track of size of tree
   _Compare _M_key_compare;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   _Link_type &_M_root() const { return (_Link_type &)_Base::_M_header->_M_parent; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   _Link_type &_M_leftmost() const { return (_Link_type &)_Base::_M_header->_M_left; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   _Link_type &_M_rightmost() const { return (_Link_type &)_Base::_M_header->_M_right; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static _Link_type &_S_left(_Link_type __x) { return (_Link_type &)(__x->_M_left); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static _Link_type &_S_right(_Link_type __x) { return (_Link_type &)(__x->_M_right); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static _Link_type &_S_parent(_Link_type __x) { return (_Link_type &)(__x->_M_parent); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static reference _S_value(_Link_type __x) { return __x->_M_value_field; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static const _Key &_S_key(_Link_type __x) { return _KeyOfValue()(_S_value(__x)); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static _Color_type &_S_color(_Link_type __x) { return (_Color_type &)(__x->_M_color); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static _Link_type &_S_left(_Base_ptr __x) { return (_Link_type &)(__x->_M_left); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static _Link_type &_S_right(_Base_ptr __x) { return (_Link_type &)(__x->_M_right); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static _Link_type &_S_parent(_Base_ptr __x) { return (_Link_type &)(__x->_M_parent); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static reference _S_value(_Base_ptr __x) { return ((_Link_type)__x)->_M_value_field; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static const _Key &_S_key(_Base_ptr __x) { return _KeyOfValue()(_S_value(_Link_type(__x))); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static _Color_type &_S_color(_Base_ptr __x) { return (_Color_type &)(_Link_type(__x)->_M_color); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static _Link_type _S_minimum(_Link_type __x) { return (_Link_type)_Rb_tree_node_base::_S_minimum(__x); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static _Link_type _S_maximum(_Link_type __x) { return (_Link_type)_Rb_tree_node_base::_S_maximum(__x); }
 
 public:
@@ -554,26 +554,26 @@ public:
   */
 
 private:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   iterator _M_insert(_Base_ptr __x, _Base_ptr __y, const value_type &__v);
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   _Link_type _M_copy(_Link_type __x, _Link_type __p);
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void _M_erase(_Link_type __x);
 
 public:
   // allocation/deallocation
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   _Rb_tree() : _Base(), _M_node_count(0), _M_key_compare() { _M_empty_initialize(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   _Rb_tree(const _Compare &__comp) : _Base(), _M_node_count(0)
   {
     _M_key_compare = __comp;
     _M_empty_initialize();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   _Rb_tree(const _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &__x)
       : _Base(), _M_node_count(0), _M_key_compare(__x._M_key_compare)
   {
@@ -587,13 +587,13 @@ public:
     }
     _M_node_count = __x._M_node_count;
   }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ~_Rb_tree() { clear(); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &operator=(const _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &__x);
 
   template <class Tsofia>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   inline void _Rb_tree_swap(Tsofia &a, Tsofia &b)
   {
     Tsofia tmp = *a;
@@ -602,7 +602,7 @@ public:
   }
 
 private:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void _M_empty_initialize()
   {
     _S_color(_Base::_M_header) = _S_rb_tree_red; // used to distinguish header from
@@ -614,15 +614,15 @@ private:
 
 public:
   // accessors:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   _Compare key_comp() const { return _M_key_compare; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   iterator begin() { return _M_leftmost(); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   const_iterator begin() const { return _M_leftmost(); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   iterator end() { return _Base::_M_header; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   const_iterator end() const { return _Base::_M_header; }
   /*
     reverse_iterator rbegin() { return reverse_iterator(end()); }
@@ -634,14 +634,14 @@ public:
       return const_reverse_iterator(begin());
     }
   */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool empty() const { return _M_node_count == 0; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   size_type size() const { return _M_node_count; }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   size_type max_size() const { return size_type(-1); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   inline void _Rb_tree_swap(_Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &__t)
   {
     _Rb_tree_swap(_Base::_M_header, __t._Base::_M_header);
@@ -651,34 +651,34 @@ public:
 
 public:
   // insert/erase
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   pair<iterator, bool> insert_unique(const value_type &__x);
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   iterator insert_equal(const value_type &__x);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   iterator insert_unique(iterator __position, const value_type &__x);
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   iterator insert_equal(iterator __position, const value_type &__x);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void insert_unique(const_iterator __first, const_iterator __last);
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void insert_unique(const value_type *__first, const value_type *__last);
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void insert_equal(const_iterator __first, const_iterator __last);
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void insert_equal(const value_type *__first, const value_type *__last);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void erase(iterator __position);
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   size_type erase(const key_type &__x);
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void erase(iterator __first, iterator __last);
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void erase(const key_type *__first, const key_type *__last);
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void clear()
   {
     if (_M_node_count != 0) {
@@ -692,33 +692,33 @@ public:
 
 public:
   // set operations:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   iterator find(const key_type &__x);
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   const_iterator find(const key_type &__x) const;
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   size_type count(const key_type &__x) const;
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   iterator lower_bound(const key_type &__x);
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   const_iterator lower_bound(const key_type &__x) const;
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   iterator upper_bound(const key_type &__x);
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   const_iterator upper_bound(const key_type &__x) const;
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   pair<iterator, iterator> equal_range(const key_type &__x);
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   pair<const_iterator, const_iterator> equal_range(const key_type &__x) const;
 
 public:
   // Debugging.
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool __rb_verify() const;
 };
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline bool operator==(const _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &__x,
                        const _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &__y)
 {
@@ -726,7 +726,7 @@ inline bool operator==(const _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &__x,
 }
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline bool operator<(const _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &__x,
                       const _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &__y)
 {
@@ -735,7 +735,7 @@ inline bool operator<(const _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &__x,
 }
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline bool operator!=(const _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &__x,
                        const _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &__y)
 {
@@ -743,7 +743,7 @@ inline bool operator!=(const _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &__x,
 }
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline bool operator>(const _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &__x,
                       const _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &__y)
 {
@@ -751,7 +751,7 @@ inline bool operator>(const _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &__x,
 }
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline bool operator<=(const _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &__x,
                        const _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &__y)
 {
@@ -759,7 +759,7 @@ inline bool operator<=(const _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &__x,
 }
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline bool operator>=(const _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &__x,
                        const _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &__y)
 {
@@ -769,7 +769,7 @@ inline bool operator>=(const _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &__x,
 /*
 template <class _Key, class _Value, class _KeyOfValue,
           class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void
 _Rb_tree_swap(_Rb_tree<_Key,_Value,_KeyOfValue,_Compare>& __x,
      _Rb_tree<_Key,_Value,_KeyOfValue,_Compare>& __y)
@@ -779,7 +779,7 @@ _Rb_tree_swap(_Rb_tree<_Key,_Value,_KeyOfValue,_Compare>& __x,
 */
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &_Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::operator=(
     const _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &__x)
 {
@@ -803,7 +803,7 @@ _Rb_tree<_Key, _Value, _KeyOfValue, _Compare> &_Rb_tree<_Key, _Value, _KeyOfValu
 }
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::iterator _Rb_tree<_Key, _Value, _KeyOfValue,
                                                                           _Compare>::_M_insert(_Base_ptr __x_,
                                                                                                _Base_ptr __y_,
@@ -836,7 +836,7 @@ typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::iterator _Rb_tree<_Key, 
 }
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::iterator _Rb_tree<_Key, _Value, _KeyOfValue,
                                                                           _Compare>::insert_equal(const _Value &__v)
 {
@@ -850,7 +850,7 @@ typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::iterator _Rb_tree<_Key, 
 }
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 pair<typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::iterator, bool> _Rb_tree<
     _Key, _Value, _KeyOfValue, _Compare>::insert_unique(const _Value &__v)
 {
@@ -875,7 +875,7 @@ pair<typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::iterator, bool> _Rb
 }
 
 template <class _Key, class _Val, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 typename _Rb_tree<_Key, _Val, _KeyOfValue, _Compare>::iterator _Rb_tree<_Key, _Val, _KeyOfValue,
                                                                         _Compare>::insert_unique(iterator __position,
                                                                                                  const _Val &__v)
@@ -907,7 +907,7 @@ typename _Rb_tree<_Key, _Val, _KeyOfValue, _Compare>::iterator _Rb_tree<_Key, _V
 }
 
 template <class _Key, class _Val, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 typename _Rb_tree<_Key, _Val, _KeyOfValue, _Compare>::iterator _Rb_tree<_Key, _Val, _KeyOfValue,
                                                                         _Compare>::insert_equal(iterator __position,
                                                                                                 const _Val &__v)
@@ -939,7 +939,7 @@ typename _Rb_tree<_Key, _Val, _KeyOfValue, _Compare>::iterator _Rb_tree<_Key, _V
 }
 
 template <class _Key, class _Val, class _KoV, class _Cmp>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void _Rb_tree<_Key, _Val, _KoV, _Cmp>::insert_equal(const _Val *__first, const _Val *__last)
 {
   for (; __first != __last; ++__first)
@@ -947,7 +947,7 @@ void _Rb_tree<_Key, _Val, _KoV, _Cmp>::insert_equal(const _Val *__first, const _
 }
 
 template <class _Key, class _Val, class _KoV, class _Cmp>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void _Rb_tree<_Key, _Val, _KoV, _Cmp>::insert_equal(const_iterator __first, const_iterator __last)
 {
   for (; __first != __last; ++__first)
@@ -955,7 +955,7 @@ void _Rb_tree<_Key, _Val, _KoV, _Cmp>::insert_equal(const_iterator __first, cons
 }
 
 template <class _Key, class _Val, class _KoV, class _Cmp>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void _Rb_tree<_Key, _Val, _KoV, _Cmp>::insert_unique(const _Val *__first, const _Val *__last)
 {
   for (; __first != __last; ++__first)
@@ -963,7 +963,7 @@ void _Rb_tree<_Key, _Val, _KoV, _Cmp>::insert_unique(const _Val *__first, const 
 }
 
 template <class _Key, class _Val, class _KoV, class _Cmp>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void _Rb_tree<_Key, _Val, _KoV, _Cmp>::insert_unique(const_iterator __first, const_iterator __last)
 {
   for (; __first != __last; ++__first)
@@ -971,7 +971,7 @@ void _Rb_tree<_Key, _Val, _KoV, _Cmp>::insert_unique(const_iterator __first, con
 }
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline void _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::erase(iterator __position)
 {
   _Link_type __y = (_Link_type)_Rb_tree_rebalance_for_erase(__position._M_node, _Base::_M_header->_M_parent,
@@ -981,7 +981,7 @@ inline void _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::erase(iterator __posi
 }
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::size_type _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::erase(
     const _Key &__x)
 {
@@ -993,7 +993,7 @@ typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::size_type _Rb_tree<_Key,
 }
 
 template <class _Key, class _Val, class _KoV, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 typename _Rb_tree<_Key, _Val, _KoV, _Compare>::_Link_type _Rb_tree<_Key, _Val, _KoV, _Compare>::_M_copy(_Link_type __x,
                                                                                                         _Link_type __p)
 {
@@ -1018,7 +1018,7 @@ typename _Rb_tree<_Key, _Val, _KoV, _Compare>::_Link_type _Rb_tree<_Key, _Val, _
 }
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::_M_erase(_Link_type __x)
 {
   // erase without rebalancing
@@ -1031,7 +1031,7 @@ void _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::_M_erase(_Link_type __x)
 }
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::erase(iterator __first, iterator __last)
 {
   if (__first == begin() && __last == end())
@@ -1042,7 +1042,7 @@ void _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::erase(iterator __first, iter
 }
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::erase(const _Key *__first, const _Key *__last)
 {
   while (__first != __last)
@@ -1050,7 +1050,7 @@ void _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::erase(const _Key *__first, c
 }
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::iterator _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::find(
     const _Key &__k)
 {
@@ -1068,7 +1068,7 @@ typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::iterator _Rb_tree<_Key, 
 }
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::const_iterator _Rb_tree<_Key, _Value, _KeyOfValue,
                                                                                 _Compare>::find(const _Key &__k) const
 {
@@ -1086,7 +1086,7 @@ typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::const_iterator _Rb_tree<
 }
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::size_type _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::count(
     const _Key &__k) const
 {
@@ -1097,7 +1097,7 @@ typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::size_type _Rb_tree<_Key,
 }
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::iterator _Rb_tree<_Key, _Value, _KeyOfValue,
                                                                           _Compare>::lower_bound(const _Key &__k)
 {
@@ -1114,7 +1114,7 @@ typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::iterator _Rb_tree<_Key, 
 }
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::const_iterator _Rb_tree<
     _Key, _Value, _KeyOfValue, _Compare>::lower_bound(const _Key &__k) const
 {
@@ -1131,7 +1131,7 @@ typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::const_iterator _Rb_tree<
 }
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::iterator _Rb_tree<_Key, _Value, _KeyOfValue,
                                                                           _Compare>::upper_bound(const _Key &__k)
 {
@@ -1148,7 +1148,7 @@ typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::iterator _Rb_tree<_Key, 
 }
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::const_iterator _Rb_tree<
     _Key, _Value, _KeyOfValue, _Compare>::upper_bound(const _Key &__k) const
 {
@@ -1165,7 +1165,7 @@ typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::const_iterator _Rb_tree<
 }
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline pair<typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::iterator,
             typename _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::iterator>
 _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::equal_range(const _Key &__k)
@@ -1174,7 +1174,7 @@ _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::equal_range(const _Key &__k)
 }
 
 template <class _Key, class _Value, class _KoV, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline pair<typename _Rb_tree<_Key, _Value, _KoV, _Compare>::const_iterator,
             typename _Rb_tree<_Key, _Value, _KoV, _Compare>::const_iterator>
 _Rb_tree<_Key, _Value, _KoV, _Compare>::equal_range(const _Key &__k) const
@@ -1182,7 +1182,7 @@ _Rb_tree<_Key, _Value, _KoV, _Compare>::equal_range(const _Key &__k) const
   return pair<const_iterator, const_iterator>(lower_bound(__k), upper_bound(__k));
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 inline int __black_count(_Rb_tree_node_base *__node, _Rb_tree_node_base *__root)
 {
   if (__node == 0)
@@ -1197,7 +1197,7 @@ inline int __black_count(_Rb_tree_node_base *__node, _Rb_tree_node_base *__root)
 }
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool _Rb_tree<_Key, _Value, _KeyOfValue, _Compare>::__rb_verify() const
 {
   if (_M_node_count == 0 || begin() == end())

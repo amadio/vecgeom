@@ -18,10 +18,10 @@ template <typename T = double>
 struct OrbStruct {
   T fR; //<the radius of Orb
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   OrbStruct() : fR(0.) {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   OrbStruct(const T r) : fR(r) {}
 };
 }

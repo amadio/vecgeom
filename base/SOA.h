@@ -27,7 +27,7 @@ class SOA : public AlignedBase {
 private:
   SOAData<T, rows, columns> fData;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
 #ifndef VECGEOM_NVCC
   static constexpr int ColumnSize();
@@ -40,11 +40,11 @@ public:
 
   SOA() {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Column_t &operator[](int index);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Column_t const &operator[](int index) const;
 };
@@ -61,14 +61,14 @@ int SOA<T, columns, rows>::ColumnSize()
 }
 
 template <typename T, int columns, int rows>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 typename SOA<T, columns, rows>::Column_t &SOA<T, columns, rows>::operator[](int index)
 {
   return *(&fData.fHead + index * ColumnSize());
 }
 
 template <typename T, int columns, int rows>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 typename SOA<T, columns, rows>::Column_t const &SOA<T, columns, rows>::operator[](int index) const
 {
   return *(&fData.fHead + index * ColumnSize());

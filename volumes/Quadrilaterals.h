@@ -39,68 +39,68 @@ public:
   typedef Planes Sides_t[4];
   typedef AOS3D<Precision> Corners_t[4];
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Quadrilaterals(int size);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ~Quadrilaterals();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Quadrilaterals(Quadrilaterals const &other);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Quadrilaterals &operator=(Quadrilaterals const &other);
 
   // returns the number of quadrilaterals ( planes ) stored in this container
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   int size() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Planes const &GetPlanes() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   SOA3D<Precision> const &GetNormals() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Vector3D<Precision> GetNormal(int i) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Array<Precision> const &GetDistances() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetDistance(int i) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Sides_t const &GetSideVectors() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Corners_t const &GetCorners() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetTriangleArea(int index, int iCorner1, int iCorner2) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetQuadrilateralArea(int index) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Vector3D<Precision> GetPointOnTriangle(int index, int iCorner0, int iCorner1, int iCorner2) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Vector3D<Precision> GetPointOnFace(int index) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   bool RayHitsQuadrilateral(int index, Vector3D<Precision> const &intersection) const
   {
@@ -118,106 +118,106 @@ public:
   /// \param corner1 Second corner in counterclockwise order.
   /// \param corner2 Third corner in counterclockwise order.
   /// \param corner3 Fourth corner in counterclockwise order.
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Set(int index, Vector3D<Precision> const &corner0, Vector3D<Precision> const &corner1,
            Vector3D<Precision> const &corner2, Vector3D<Precision> const &corner3);
 
   /// Flips the sign of the normal and distance of the specified quadrilateral.
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void FlipSign(int index);
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   vecCore::Mask_v<Real_v> Contains(Vector3D<Real_v> const &point) const;
 
   template <typename Real_v, typename Inside_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Inside_v Inside(Vector3D<Real_v> const &point) const;
 
   template <typename Real_v, typename Inside_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Inside_v Inside(Vector3D<Real_v> const &point, int i) const;
 
   template <typename Real_v, bool behindPlanesT>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Real_v DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction) const;
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Real_v DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction, Precision zMin,
                        Precision zMax) const;
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Real_v DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction) const;
 
   /// \param index Quadrilateral to compute distance to.
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision ScalarDistanceSquared(int index, Vector3D<Precision> const &point) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Print() const;
 
 }; // end of class declaration
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 VECGEOM_FORCE_INLINE
 int Quadrilaterals::size() const
 {
   return fPlanes.size();
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 VECGEOM_FORCE_INLINE
 Planes const &Quadrilaterals::GetPlanes() const
 {
   return fPlanes;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 SOA3D<Precision> const &Quadrilaterals::GetNormals() const
 {
   return fPlanes.GetNormals();
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Vector3D<Precision> Quadrilaterals::GetNormal(int i) const
 {
   return fPlanes.GetNormal(i);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Array<Precision> const &Quadrilaterals::GetDistances() const
 {
   return fPlanes.GetDistances();
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Precision Quadrilaterals::GetDistance(int i) const
 {
   return fPlanes.GetDistance(i);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Quadrilaterals::Sides_t const &Quadrilaterals::GetSideVectors() const
 {
   return fSideVectors;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Quadrilaterals::Corners_t const &Quadrilaterals::GetCorners() const
 {
   return fCorners;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Precision Quadrilaterals::GetTriangleArea(int index, int iCorner1, int iCorner2) const
 {
   Precision fArea          = 0.;
@@ -228,7 +228,7 @@ Precision Quadrilaterals::GetTriangleArea(int index, int iCorner1, int iCorner2)
   return fArea;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Precision Quadrilaterals::GetQuadrilateralArea(int index) const
 {
   Precision fArea = 0.;
@@ -237,7 +237,7 @@ Precision Quadrilaterals::GetQuadrilateralArea(int index) const
   return fArea;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Vector3D<Precision> Quadrilaterals::GetPointOnTriangle(int index, int iCorner0, int iCorner1, int iCorner2) const
 {
 
@@ -259,7 +259,7 @@ Vector3D<Precision> Quadrilaterals::GetPointOnTriangle(int index, int iCorner0, 
   */
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Vector3D<Precision> Quadrilaterals::GetPointOnFace(int index) const
 {
 
@@ -283,21 +283,21 @@ Vector3D<Precision> Quadrilaterals::GetPointOnFace(int index) const
 }
 
 template <typename Real_v>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 vecCore::Mask_v<Real_v> Quadrilaterals::Contains(Vector3D<Real_v> const &point) const
 {
   return fPlanes.Contains<Real_v>(point);
 }
 
 template <typename Real_v, typename Inside_v>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Inside_v Quadrilaterals::Inside(Vector3D<Real_v> const &point) const
 {
   return fPlanes.Inside<Real_v, Inside_v>(point);
 }
 
 template <typename Real_v, typename Inside_v>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Inside_v Quadrilaterals::Inside(Vector3D<Real_v> const &point, int i) const
 {
   return fPlanes.Inside<Real_v, Inside_v>(point, i);
@@ -309,7 +309,7 @@ template <class Real_v>
 struct AcceleratedDistanceToIn {
   template <bool behindPlanesT>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void VectorLoop(int & /*i*/, const int /*n*/, Planes const & /*planes*/, Planes const (&/*sideVectors*/)[4],
                          Vector3D<Real_v> const & /*point*/, Vector3D<Real_v> const & /*direction*/,
                          Real_v & /*distance*/)
@@ -325,7 +325,7 @@ struct AcceleratedDistanceToIn<Precision> {
 
   template <bool behindPlanesT>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void VectorLoop(int &i, const int n, Planes const &planes, Planes const (&sideVectors)[4],
                          Vector3D<Precision> const &point, Vector3D<Precision> const &direction, Precision &distance)
   {
@@ -374,7 +374,7 @@ struct AcceleratedDistanceToIn<Precision> {
 } // End anonymous namespace
 
 template <typename Real_v, bool behindPlanesT>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Real_v Quadrilaterals::DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction) const
 {
 
@@ -429,7 +429,7 @@ namespace {
 
 template <typename Real_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void AcceleratedDistanceToOut(int & /*i*/, const int /*n*/, Planes const & /*planes*/,
                               Planes const (&/*sideVectors*/)[4], const Precision /*zMin*/, const Precision /*zMax*/,
                               Vector3D<Real_v> const & /*point*/, Vector3D<Real_v> const & /*direction*/,
@@ -442,7 +442,7 @@ void AcceleratedDistanceToOut(int & /*i*/, const int /*n*/, Planes const & /*pla
 #if defined(VECGEOM_VC) && defined(VECGEOM_QUADRILATERALS_VC)
 template <>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void AcceleratedDistanceToOut<Precision>(int &i, const int n, Planes const &planes, Planes const (&sideVectors)[4],
                                          const Precision zMin, const Precision zMax, Vector3D<Precision> const &point,
                                          Vector3D<Precision> const &direction, Precision &distance)
@@ -495,7 +495,7 @@ void AcceleratedDistanceToOut<Precision>(int &i, const int n, Planes const &plan
 } // End anonymous namespace
 
 template <typename Real_v>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Real_v Quadrilaterals::DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction, Precision zMin,
                                      Precision zMax) const
 {
@@ -552,13 +552,13 @@ Real_v Quadrilaterals::DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Rea
 }
 
 template <typename Real_v>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Real_v Quadrilaterals::DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction) const
 {
   return DistanceToOut<Real_v>(point, direction, -InfinityLength<Real_v>(), InfinityLength<Real_v>());
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Precision Quadrilaterals::ScalarDistanceSquared(int i, Vector3D<Precision> const &point) const
 {
 

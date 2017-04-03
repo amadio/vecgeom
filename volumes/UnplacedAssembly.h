@@ -48,10 +48,10 @@ private:
   friend class LogicalVolume;
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedAssembly(); // the constructor
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~UnplacedAssembly();
 
   LogicalVolume const *GetLogicalVolume() const { return fLogicalVolume; }
@@ -63,18 +63,18 @@ public:
   size_t GetNVolumes() const { return fLogicalVolume->GetDaughters().size(); }
 
   // the extent function
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const override;
 
   // Getter to cached bounding box
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Vector3D<Precision> GetLowerCorner() const { return fLowerCorner; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Vector3D<Precision> GetUpperCorner() const { return fUpperCorner; }
 
   // the ordinary assembly function
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool Contains(Vector3D<Precision> const &point) const override
   {
     assert(fLogicalVolume);
@@ -92,7 +92,7 @@ public:
   // if this function returns true it modifies the navigation state to point to the first non-assembly volume
   // the point is contained in
   // this function is not part of the generic UnplacedVolume interface but we could consider doing so
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool Contains(Vector3D<Precision> const &point, Vector3D<Precision> &daughterlocalpoint, NavigationState &state) const
   {
     assert(fLogicalVolume);
@@ -106,7 +106,7 @@ public:
 
   using VUnplacedVolume::DistanceToOut;
   // DistanceToOut does not make sense -- throw exeption
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision DistanceToOut(Vector3D<Precision> const & /*p*/, Vector3D<Precision> const & /*d*/,
                           Precision /*step_max*/ = kInfLength) const override
   {
@@ -117,7 +117,7 @@ public:
   }
 
   // DistanceToOut does not make sense -- throw exeption
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Real_v DistanceToOutVec(Vector3D<Real_v> const & /*p*/, Vector3D<Real_v> const & /*d*/,
                           Real_v const & /*step_max*/) const override
   {
@@ -128,7 +128,7 @@ public:
   }
 
   using VUnplacedVolume::SafetyToOut;
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision SafetyToOut(Vector3D<Precision> const &) const override
   {
 #ifndef VECGEOM_NVCC
@@ -138,7 +138,7 @@ public:
   }
 
   // an explicit SIMD interface
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Real_v SafetyToOutVec(Vector3D<Real_v> const &) const override
   {
 #ifndef VECGEOM_NVCC
@@ -148,14 +148,14 @@ public:
   }
 
   // ---------------- SafetyToIn functions -------------------------------------------------------
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision SafetyToIn(Vector3D<Precision> const &p) const override
   {
     return fLogicalVolume->GetSafetyEstimator()->ComputeSafetyToDaughtersForLocalPoint(p, fLogicalVolume);
   }
 
   // explicit SIMD interface
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Real_v SafetyToInVec(Vector3D<Real_v> const &) const override
   {
 #ifndef VECGEOM_NVCC
@@ -166,7 +166,7 @@ public:
 
   // ---------------- DistanceToIn functions -----------------------------------------------------
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision DistanceToIn(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
                                  const Precision /*step_max*/ = kInfLength) const override
   {
@@ -178,7 +178,7 @@ public:
     return step;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Real_v DistanceToInVec(Vector3D<Real_v> const & /*p*/, Vector3D<Real_v> const & /*d*/,
                                  const Real_v & /*step_max*/ = Real_v(kInfLength)) const override
   {
@@ -193,7 +193,7 @@ public:
   Precision SurfaceArea() const;
 
   // some dummy impl for virtual functions
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void Print() const override;
   virtual void Print(std::ostream &os) const override;
   virtual int MemorySize() const override { return sizeof(*this); }

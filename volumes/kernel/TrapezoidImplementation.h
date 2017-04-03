@@ -41,7 +41,7 @@ struct TrapezoidImplementation {
   using TrapSidePlane = TrapezoidStruct<double>::TrapSidePlane;
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void PrintType()
   {
     // printf("SpecializedTrapezoid<%i, %i>", transCodeT, rotCodeT);
@@ -71,7 +71,7 @@ struct TrapezoidImplementation {
 #ifdef VECGEOM_PLANESHELL_DISABLE
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void EvaluateTrack(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                             Vector3D<Real_v> const &dir, Real_v *pdist, Real_v *proj, Real_v *vdist)
   {
@@ -94,7 +94,7 @@ struct TrapezoidImplementation {
 
   template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Contains(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Bool_v &inside)
   {
     Bool_v unused(false), outside(false);
@@ -106,7 +106,7 @@ struct TrapezoidImplementation {
   // -- OR -- DO WE WANT TO DEDUCE Bool_v, Index_t from Real_v???
   template <typename Real_v, typename Inside_t>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Inside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Inside_t &inside)
   {
     using Bool_v       = vecCore::Mask_v<Real_v>;
@@ -121,7 +121,7 @@ struct TrapezoidImplementation {
 
   template <typename Real_v, typename Bool_v, bool ForInside>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void GenericKernelForContainsAndInside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                                                 Bool_v &completelyInside, Bool_v &completelyOutside)
   {
@@ -174,7 +174,7 @@ struct TrapezoidImplementation {
   //
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir,
                            Real_v const &stepMax, Real_v &distance)
   {
@@ -259,7 +259,7 @@ struct TrapezoidImplementation {
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                             Vector3D<Real_v> const &dir, Real_v const &stepMax, Real_v &distance)
   {
@@ -324,7 +324,7 @@ struct TrapezoidImplementation {
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety)
   {
     safety = Abs(point.z()) - unplaced.fDz;
@@ -350,7 +350,7 @@ struct TrapezoidImplementation {
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety)
   {
     // If point is outside (wrong-side) --> safety to negative value
@@ -386,7 +386,7 @@ struct TrapezoidImplementation {
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                                        typename vecCore::Mask_v<Real_v> &valid)
   {

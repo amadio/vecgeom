@@ -63,7 +63,7 @@ struct ParaboloidImplementation {
   using UnplacedStruct_t = ParaboloidStruct<double>;
   using UnplacedVolume_t = UnplacedParaboloid;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void PrintType()
   {
     //  printf("SpecializedParaboloid<%i, %i>", transCodeT, rotCodeT);
@@ -92,7 +92,7 @@ struct ParaboloidImplementation {
 
   template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Contains(UnplacedStruct_t const &paraboloid, Vector3D<Real_v> const &point, Bool_v &inside)
   {
     Bool_v unused, outside;
@@ -104,7 +104,7 @@ struct ParaboloidImplementation {
   // -- OR -- DO WE WANT TO DEDUCE Bool_v, Index_t from Real_v???
   template <typename Real_v, typename Inside_t>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Inside(UnplacedStruct_t const &paraboloid, Vector3D<Real_v> const &point, Inside_t &inside)
   {
 
@@ -119,7 +119,7 @@ struct ParaboloidImplementation {
 
   template <typename Real_v, typename Bool_v, bool ForInside>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void GenericKernelForContainsAndInside(UnplacedStruct_t const &paraboloid, Vector3D<Real_v> const &point,
                                                 Bool_v &completelyinside, Bool_v &completelyoutside)
   {
@@ -137,7 +137,7 @@ struct ParaboloidImplementation {
   }
 
   template <typename Real_v, bool ForTopZPlane>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static vecCore::Mask_v<Real_v> IsOnZPlane(UnplacedStruct_t const &paraboloid, Vector3D<Real_v> const &point)
   {
     Real_v rho2 = point.Perp2();
@@ -149,7 +149,7 @@ struct ParaboloidImplementation {
   }
 
   template <typename Real_v>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static vecCore::Mask_v<Real_v> IsOnParabolicSurface(UnplacedStruct_t const &paraboloid, Vector3D<Real_v> const &point)
   {
 
@@ -162,7 +162,7 @@ struct ParaboloidImplementation {
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToIn(UnplacedStruct_t const &paraboloid, Vector3D<Real_v> const &point,
                            Vector3D<Real_v> const &direction, Real_v const & /* stepMax */, Real_v &distance)
   {
@@ -251,7 +251,7 @@ struct ParaboloidImplementation {
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToOut(UnplacedStruct_t const &paraboloid, Vector3D<Real_v> const &point,
                             Vector3D<Real_v> const &direction, Real_v const & /* stepMax */, Real_v &distance)
   {
@@ -314,7 +314,7 @@ struct ParaboloidImplementation {
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToIn(UnplacedStruct_t const &paraboloid, Vector3D<Real_v> const &point, Real_v &safety)
   {
 
@@ -373,7 +373,7 @@ struct ParaboloidImplementation {
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToOut(UnplacedStruct_t const &paraboloid, Vector3D<Real_v> const &point, Real_v &safety)
   {
 
@@ -431,7 +431,7 @@ struct ParaboloidImplementation {
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &paraboloid, Vector3D<Real_v> const &point,
                                        typename vecCore::Mask_v<Real_v> &valid)
   {

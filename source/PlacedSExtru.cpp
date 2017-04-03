@@ -20,7 +20,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void PlacedSExtru::PrintType() const
 {
   printf("PlacedSExtru");

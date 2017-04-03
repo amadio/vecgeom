@@ -80,15 +80,15 @@ protected:
 #endif
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VPlacedVolume(VPlacedVolume const &);
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VPlacedVolume *operator=(VPlacedVolume const &);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~VPlacedVolume();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   unsigned int id() const { return id_; }
 
@@ -96,29 +96,29 @@ public:
 
   std::string const &GetLabel() const { return *label_; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   PlacedBox const *bounding_box() const { return bounding_box_; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   LogicalVolume const *GetLogicalVolume() const { return logical_volume_; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Vector<Daughter> const &GetDaughters() const { return logical_volume_->GetDaughters(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   const char *GetName() const { return (*label_).c_str(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   VUnplacedVolume const *GetUnplacedVolume() const { return logical_volume_->GetUnplacedVolume(); }
 
   bool IsAssembly() const { return GetUnplacedVolume()->IsAssembly(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Transformation3D const *GetTransformation() const
   {
@@ -129,10 +129,10 @@ public:
 #endif
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetLogicalVolume(LogicalVolume const *const logical_vol) { logical_volume_ = logical_vol; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetTransformation(Transformation3D const *const transform)
   {
 #ifdef VECGEOM_INPLACE_TRANSFORMATIONS
@@ -152,10 +152,10 @@ public:
 
   virtual int MemorySize() const = 0;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void Print(const int indent = 0) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void PrintType() const = 0;
 
   // some functions allowing for some very basic "introspection"
@@ -167,30 +167,30 @@ public:
   virtual void PrintUnplacedType(std::ostream &os) const = 0;
 
   /// Recursively prints contained volumes to standard output.
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void PrintContent(const int depth = 0) const;
 
   // Geometry functionality
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Contains(Vector3D<Precision> const &point) const = 0;
 
   virtual void Contains(SOA3D<Precision> const &point, bool *const output) const = 0;
 
   /// \return The input point transformed to the local reference frame.
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Contains(Vector3D<Precision> const &point, Vector3D<Precision> &localPoint) const = 0;
 
   /// \param localPoint Point in the local reference frame of the volume.
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool UnplacedContains(Vector3D<Precision> const &localPoint) const = 0;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual EnumInside Inside(Vector3D<Precision> const &point) const = 0;
 
   virtual void Inside(SOA3D<Precision> const &point, Inside_t *const output) const = 0;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision DistanceToIn(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                  const Precision step_max = kInfLength) const = 0;
 
@@ -217,7 +217,7 @@ public:
 #ifdef VECGEOM_USOLIDS
   using USolidsInterfaceHelper::DistanceToOut;
 #else
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision DistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                   Precision const step_max = kInfLength) const = 0;
 #endif
@@ -238,7 +238,7 @@ public:
   // a "placed" version of the distancetoout function; here
   // the point and direction are first of all transformed into the reference frame of the
   // callee. The normal DistanceToOut method does not do this
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision PlacedDistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                         Precision const step_max = kInfLength) const = 0;
 
@@ -249,7 +249,7 @@ public:
                              Precision const *const step_max, Precision *const output,
                              int *const nextnodeindex) const = 0;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision SafetyToIn(Vector3D<Precision> const &position) const = 0;
 
   virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToInVec(
@@ -267,7 +267,7 @@ public:
   // to be deprecated
   virtual void SafetyToInMinimize(SOA3D<Precision> const &points, Precision *const safeties) const = 0;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision SafetyToOut(Vector3D<Precision> const &position) const = 0;
 
   virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOutVec(
@@ -290,10 +290,10 @@ public:
   // if it is expensive to calculate
   virtual Precision Capacity();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void Extent(Vector3D<Precision> & /* min */, Vector3D<Precision> & /* max */) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const & /*point*/, Vector3D<Precision> & /*normal*/) const;
 
   virtual Precision SurfaceArea();

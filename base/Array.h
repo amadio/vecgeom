@@ -21,77 +21,77 @@ private:
   bool fAllocated;
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Array();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Array(const unsigned size);
 
   VECGEOM_FORCE_INLINE
   Array(Array<Type> const &other);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Array(Type *data, int size);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   ~Array();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Array &operator=(Array<Type> const &other);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Type &operator[](const int index) { return fData[index]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Type const &operator[](const int index) const { return fData[index]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   int size() const { return fSize; }
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Allocate(const unsigned size);
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Deallocate();
 
   typedef Type *iterator;
   typedef Type const *const_iterator;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Type *begin() { return &fData[0]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Type *end() { return &fData[fSize]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Type const *cbegin() const { return &fData[0]; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Type const *cend() const { return &fData[fSize]; }
 };
 
 template <typename Type>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Array<Type>::Array() : fData(NULL), fSize(0), fAllocated(false)
 {
 }
 
 template <typename Type>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Array<Type>::Array(const unsigned initSize) : fData(NULL), fAllocated(true)
 {
   Allocate(initSize);
@@ -106,7 +106,7 @@ Array<Type>::Array(Array<Type> const &other) : fData(NULL), fAllocated(true)
 
 template <typename Type>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Array<Type>::Array(Type *data, int initSize) : fData(data), fSize(initSize), fAllocated(false)
 {
 }
@@ -149,7 +149,7 @@ void Array<Type>::Deallocate()
 
 template <typename Type>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Array<Type> &Array<Type>::operator=(Array<Type> const &other)
 {
 #ifndef VECGEOM_NVCC_DEVICE

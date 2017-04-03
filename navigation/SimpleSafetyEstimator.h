@@ -21,7 +21,7 @@ public:
 
   // estimate just the safety to daughters for a local point with respect to a logical volume
   // TODO: use this function in other interfaces to avoid code duplication
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision ComputeSafetyToDaughtersForLocalPoint(Vector3D<Precision> const &localpoint,
                                                           LogicalVolume const *lvol) const override
   {
@@ -38,7 +38,7 @@ public:
   }
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision ComputeSafetyForLocalPoint(Vector3D<Precision> const &localpoint,
                                                VPlacedVolume const *pvol) const override
   {
@@ -136,7 +136,7 @@ public:
     return &instance;
   }
 #else
-  VECGEOM_CUDA_HEADER_DEVICE
+  VECCORE_ATT_DEVICE
   static VSafetyEstimator *Instance();
 #endif
 

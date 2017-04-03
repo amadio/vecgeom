@@ -33,7 +33,7 @@ public:
 
 public:
   /** @brief UnplacedGenTrap dummy constructor */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedGenTrap() : fGenTrap() {}
 
   /** @brief UnplacedGenTrap constructor
@@ -41,7 +41,7 @@ public:
     * @param verticesy Y positions of vertices in array form
     * @param halfzheight The half-height of the GenTrap
     */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedGenTrap(const Precision verticesx[], const Precision verticesy[], Precision halfzheight)
       : fGenTrap(verticesx, verticesy, halfzheight)
   {
@@ -49,94 +49,94 @@ public:
   }
 
   /** @brief UnplacedGenTrap destructor */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~UnplacedGenTrap() = default;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool Initialize(const Precision verticesx[], const Precision verticesy[], Precision halfzheight)
   {
     return fGenTrap.Initialize(verticesx, verticesy, halfzheight);
   }
 
   /** @brief Getter for the generic trapezoid structure */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   GenTrapStruct<double> const &GetStruct() const { return fGenTrap; }
 
   /** @brief Getter for the surface shell */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   SecondOrderSurfaceShell<4> const &GetShell() const { return (fGenTrap.fSurfaceShell); }
 
   /** @brief Getter for the half-height */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetDZ() const { return (fGenTrap.fDz); }
 
   /** @brief Setter for the half-height */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void SetDZ(Precision dz) { fGenTrap.fDz = dz; }
 
   /** @brief Getter for the twist angle of a face */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetTwist(int i) const { return (fGenTrap.fTwist[i]); }
 
   /** @brief Getter for one of the 8 vertices in Vector3D<Precision> form */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Vertex_t const &GetVertex(int i) const { return fGenTrap.fVertices[i]; }
 
   /** @brief Getter for the array of X coordinates of vertices */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   const Precision *GetVerticesX() const { return fGenTrap.fVerticesX; }
 
   /** @brief Getter for the array of Y coordinates of vertices */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   const Precision *GetVerticesY() const { return fGenTrap.fVerticesY; }
 
   /** @brief Getter for the list of vertices */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   const Vertex_t *GetVertices() const { return fGenTrap.fVertices; }
 
   /** @brief Computes if this gentrap is twisted */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool ComputeIsTwisted() { return fGenTrap.ComputeIsTwisted(); }
 
   /** @brief Computes if the top and bottom quadrilaterals are convex (mandatory) */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool ComputeIsConvexQuadrilaterals() { return fGenTrap.ComputeIsConvexQuadrilaterals(); }
 
   /** @brief Getter for the planarity of lateral surfaces */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   bool IsPlanar() const { return (!fGenTrap.fIsTwisted); }
 
   /** @brief Getter for the global convexity of the trapezoid */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   bool IsDegenerated(int i) const { return (fGenTrap.fDegenerated[i]); }
 
   /** @brief Computes if opposite segments are crossing, making a malformed shape */
   // This can become a general utility
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool SegmentsCrossing(Vertex_t pa, Vertex_t pb, Vertex_t pc, Vertex_t pd) const
   {
     return fGenTrap.SegmentsCrossing(pa, pb, pc, pd);
   }
 
   /** @brief Computes and sets the bounding box dimensions/origin */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void ComputeBoundingBox() { fGenTrap.ComputeBoundingBox(); }
 
   /** @brief Memory size in bytes */
   virtual int MemorySize() const final { return sizeof(*this); }
 
   /** @brief Print parameters of the trapezoid */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void Print() const final { fGenTrap.Print(); }
 
   /** @brief Print parameters of the trapezoid to stream */
@@ -161,11 +161,11 @@ public:
   Precision SurfaceArea() const;
 
   /** @brief Compute normal vector to surface */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override;
 
   /** @brief Computes the extent on X/Y/Z of the trapezoid */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Extent(Vertex_t &amin, Vertex_t &amax) const override { return fGenTrap.Extent(amin, amax); }
 
   /** @brief Generates randomly a point on the surface of the trapezoid */
@@ -176,7 +176,7 @@ public:
 
   /** @brief Templated factory for creating a placed volume */
   template <TranslationCode transCodeT, RotationCode rotCodeT>
-  VECGEOM_CUDA_HEADER_DEVICE
+  VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
                                const int id,
@@ -185,7 +185,7 @@ public:
 
 /*
   // Is this still needed?
-  VECGEOM_CUDA_HEADER_DEVICE
+  VECCORE_ATT_DEVICE
   static VPlacedVolume *CreateSpecializedVolume(LogicalVolume const *const volume,
                                                 Transformation3D const *const transformation,
                                                 const TranslationCode trans_code, const RotationCode rot_code,
@@ -201,7 +201,7 @@ public:
 
 private:
   /** @brief Factory for specializing the volume */
-  VECGEOM_CUDA_HEADER_DEVICE
+  VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code,

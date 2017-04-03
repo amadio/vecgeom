@@ -274,7 +274,7 @@ void UnplacedPolycone::Init(double phiStart, double phiTotal, unsigned int numZP
 // Input must be such that r[i],z[i] describe the outer,inner or inner,outer envelope of the polycone, after
 // connecting all adjacent points, and closing the polygon by connecting last -> first point.
 // Hence z[] array must be symmetrical: z[0..Nz] = z[2Nz, 2Nz-1, ..., Nz+1], where 2*Nz = numRz.
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 UnplacedPolycone::UnplacedPolycone(Precision phiStart, // initial phi starting angle
                                    Precision phiTotal, // total phi angle
                                    int numRZ,          // number corners in r,z space (must be an even number)
@@ -328,7 +328,7 @@ UnplacedPolycone::UnplacedPolycone(Precision phiStart, // initial phi starting a
 }
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedPolycone::Create(LogicalVolume const *const logical_volume,
                                         Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
@@ -379,7 +379,7 @@ void UnplacedPolycone::Print(std::ostream &os) const
 }
 
 #if defined(VECGEOM_USOLIDS)
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 std::ostream &UnplacedPolycone::StreamInfo(std::ostream &os) const
 {
   int oldprc = os.precision(16);
@@ -419,7 +419,7 @@ std::ostream &UnplacedPolycone::StreamInfo(std::ostream &os) const
 }
 #endif
 
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedPolycone::SpecializedVolume(LogicalVolume const *const volume,
                                                    Transformation3D const *const transformation,
                                                    const TranslationCode trans_code, const RotationCode rot_code,
@@ -1114,7 +1114,7 @@ bool UnplacedPolycone::CheckContinuityInSlope(const Vector<Precision> &rOuter, c
   return continuous;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void UnplacedPolycone::DetectConvexity()
 {
   // Default safe convexity value

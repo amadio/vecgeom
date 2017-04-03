@@ -26,21 +26,21 @@ private:
   Precision fDistance;         ///< Distance from plane to origin (0, 0, 0).
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Plane() : fNormal(), fDistance(0.) {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ~Plane() = default;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Vector3D<Precision> const &GetNormal() const { return fNormal; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetDistance() const { return fDistance; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Set(Vector3D<Precision> const &normal, Vector3D<Precision> const &origin)
   {
     Vector3D<Precision> fixedNormal(normal);
@@ -50,7 +50,7 @@ public:
     fDistance               = inverseLength * -fixedNormal.Dot(origin);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Set(Vector3D<Precision> const &normal, Precision distance)
   {
     fNormal   = normal;
@@ -59,37 +59,37 @@ public:
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Real_v DistPlane(Vector3D<Real_v> const &point) const;
 
   template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Contains(Vector3D<Real_v> const &point, Bool_v &inside) const;
 
   template <typename Real_v, typename Inside_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Inside(Vector3D<Real_v> const &point, Inside_v &inside) const;
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction, Real_v &distance) const;
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction, Real_v &distance) const;
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SafetyToIn(Vector3D<Real_v> const &point, Real_v &distance) const;
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SafetyToOut(Vector3D<Real_v> const &point, Real_v &distance) const;
 
 }; // class Plane
@@ -98,7 +98,7 @@ std::ostream &operator<<(std::ostream &os, Plane const &plane);
 
 template <typename Real_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Real_v Plane::DistPlane(Vector3D<Real_v> const &point) const
 {
   // Returns distance from point to plane. This is positive if the point is on
@@ -108,7 +108,7 @@ Real_v Plane::DistPlane(Vector3D<Real_v> const &point) const
 
 template <typename Real_v, typename Bool_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void Plane::Contains(Vector3D<Real_v> const &point, Bool_v &inside) const
 {
   // Returns true if the point is in the halfspace behind the normal.
@@ -117,7 +117,7 @@ void Plane::Contains(Vector3D<Real_v> const &point, Bool_v &inside) const
 
 template <typename Real_v, typename Inside_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void Plane::Inside(Vector3D<Real_v> const &point, Inside_v &inside) const
 {
   Real_v dplane = DistPlane(point);
@@ -127,7 +127,7 @@ void Plane::Inside(Vector3D<Real_v> const &point, Inside_v &inside) const
 
 template <typename Real_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void Plane::DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction, Real_v &distance) const
 {
   // The function returns a negative distance for points already inside or
@@ -148,7 +148,7 @@ void Plane::DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> const &
 
 template <typename Real_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void Plane::DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction, Real_v &distance) const
 {
   // The function returns infinity if the plane is not hit from inside, negative
@@ -172,7 +172,7 @@ void Plane::DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const 
 
 template <typename Real_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void Plane::SafetyToIn(Vector3D<Real_v> const &point, Real_v &distance) const
 {
   // The safety contains the sign, i.e. if point is inside it is negative.
@@ -182,7 +182,7 @@ void Plane::SafetyToIn(Vector3D<Real_v> const &point, Real_v &distance) const
 
 template <typename Real_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void Plane::SafetyToOut(Vector3D<Real_v> const &point, Real_v &distance) const
 {
   // The safety contains the sign, i.e. if point is outside it is negative.

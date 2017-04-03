@@ -48,43 +48,43 @@ public:
   }
 
 #endif
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~PlacedParallelepiped() {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedParallelepiped const *GetUnplacedVolume() const
   {
     return static_cast<UnplacedParallelepiped const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Vector3D<Precision> const &GetDimensions() const { return GetUnplacedVolume()->GetDimensions(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetX() const { return GetUnplacedVolume()->GetX(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetY() const { return GetUnplacedVolume()->GetY(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetZ() const { return GetUnplacedVolume()->GetZ(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetAlpha() const { return GetUnplacedVolume()->GetAlpha(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetTheta() const { return GetUnplacedVolume()->GetTheta(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetPhi() const { return GetUnplacedVolume()->GetPhi(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetTanAlpha() const { return GetUnplacedVolume()->GetTanAlpha(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetTanThetaSinPhi() const { return GetUnplacedVolume()->GetTanThetaSinPhi(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetTanThetaCosPhi() const { return GetUnplacedVolume()->GetTanThetaCosPhi(); }
 
 #ifndef VECGEOM_NVCC
@@ -95,7 +95,7 @@ public:
   virtual double SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
   {
     GetUnplacedVolume()->Extent(aMin, aMax);
@@ -105,7 +105,7 @@ public:
   virtual std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType(); }
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
     return GetUnplacedVolume()->Normal(point, normal);

@@ -18,7 +18,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Vector3D<Precision> NavigationState::GlobalToLocal(Vector3D<Precision> const &globalpoint, int tolevel) const
 {
   Vector3D<Precision> tmp = globalpoint;
@@ -31,7 +31,7 @@ Vector3D<Precision> NavigationState::GlobalToLocal(Vector3D<Precision> const &gl
   return tmp;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void NavigationState::TopMatrix(int tolevel, Transformation3D &global_matrix) const
 {
   for (int i = 1; i < tolevel; ++i) {
@@ -42,7 +42,7 @@ void NavigationState::TopMatrix(int tolevel, Transformation3D &global_matrix) co
 // returning a "delta" transformation that can transform
 // coordinates given in reference frame of this->Top() to the reference frame of other->Top()
 // simply with otherlocalcoordinate = delta.Transform( thislocalcoordinate )
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void NavigationState::DeltaTransformation(NavigationState const &other, Transformation3D &delta) const
 {
   Transformation3D g2;
@@ -62,7 +62,7 @@ void NavigationState::DeltaTransformation(NavigationState const &other, Transfor
  * state
  * ( equivalent to using a global matrix )
  */
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Vector3D<Precision> NavigationState::GlobalToLocal(Vector3D<Precision> const &globalpoint) const
 {
   Vector3D<Precision> tmp = globalpoint;
@@ -101,7 +101,7 @@ void NavigationState::GetPathAsListOfIndices(std::list<uint> &indices) const
   indices.push_front(0);
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void NavigationState::Print() const
 {
 // printf("VariableSizeObj: fPath=%p (%l bytes)\n", fPath, sizeof(fPath));

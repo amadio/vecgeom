@@ -30,7 +30,7 @@ struct BooleanImplementation<kUnion, transCodeT, rotCodeT> {
   using PlacedShape_t   = PlacedBooleanVolume;
   using UnplacedShape_t = UnplacedBooleanVolume;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void PrintType() { printf("SpecializedBooleanVolume<%i, %i, %i>", kUnion, transCodeT, rotCodeT); }
 
   template <typename Stream>
@@ -56,27 +56,27 @@ struct BooleanImplementation<kUnion, transCodeT, rotCodeT> {
   //
   template <typename Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void UnplacedContains(UnplacedBooleanVolume const &unplaced,
                                Vector3D<typename Backend::precision_v> const &localPoint,
                                typename Backend::bool_v &inside);
 
   template <typename Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Contains(UnplacedBooleanVolume const &unplaced, Transformation3D const &transformation,
                        Vector3D<typename Backend::precision_v> const &point,
                        Vector3D<typename Backend::precision_v> &localPoint, typename Backend::bool_v &inside);
 
   template <typename Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void Inside(UnplacedBooleanVolume const &unplaced, Transformation3D const &transformation,
                      Vector3D<typename Backend::precision_v> const &point, typename Backend::inside_v &inside);
 
   template <typename Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToIn(UnplacedBooleanVolume const &unplaced, Transformation3D const &transformation,
                            Vector3D<typename Backend::precision_v> const &point,
                            Vector3D<typename Backend::precision_v> const &direction,
@@ -84,38 +84,38 @@ struct BooleanImplementation<kUnion, transCodeT, rotCodeT> {
 
   template <typename Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToOut(UnplacedBooleanVolume const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                             Vector3D<typename Backend::precision_v> const &direction,
                             typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance);
 
   template <typename Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToIn(UnplacedBooleanVolume const &unplaced, Transformation3D const &transformation,
                          Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety);
 
   template <typename Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToOut(UnplacedBooleanVolume const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                           typename Backend::precision_v &safety);
 
   template <typename Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void ContainsKernel(UnplacedBooleanVolume const &unplaced,
                              Vector3D<typename Backend::precision_v> const &point, typename Backend::bool_v &inside);
 
   template <typename Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void InsideKernel(UnplacedBooleanVolume const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                            typename Backend::inside_v &inside);
 
   template <typename Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToInKernel(UnplacedBooleanVolume const &unplaced,
                                  Vector3D<typename Backend::precision_v> const &point,
                                  Vector3D<typename Backend::precision_v> const &direction,
@@ -123,7 +123,7 @@ struct BooleanImplementation<kUnion, transCodeT, rotCodeT> {
 
   template <typename Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToOutKernel(UnplacedBooleanVolume const &unplaced,
                                   Vector3D<typename Backend::precision_v> const &point,
                                   Vector3D<typename Backend::precision_v> const &direction,
@@ -132,21 +132,21 @@ struct BooleanImplementation<kUnion, transCodeT, rotCodeT> {
 
   template <typename Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToInKernel(UnplacedBooleanVolume const &unplaced,
                                Vector3D<typename Backend::precision_v> const &point,
                                typename Backend::precision_v &safety);
 
   template <typename Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToOutKernel(UnplacedBooleanVolume const &unplaced,
                                 Vector3D<typename Backend::precision_v> const &point,
                                 typename Backend::precision_v &safety);
 
   template <typename Backend>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   static void NormalKernel(UnplacedBooleanVolume const &unplaced, Vector3D<typename Backend::precision_v> const &point,
                            Vector3D<typename Backend::precision_v> &normal, typename Backend::bool_v &valid);
 
@@ -155,7 +155,7 @@ struct BooleanImplementation<kUnion, transCodeT, rotCodeT> {
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void BooleanImplementation<kUnion, transCodeT, rotCodeT>::UnplacedContains(
     UnplacedBooleanVolume const &unplaced, Vector3D<typename Backend::precision_v> const &localPoint,
     typename Backend::bool_v &inside)
@@ -166,7 +166,7 @@ void BooleanImplementation<kUnion, transCodeT, rotCodeT>::UnplacedContains(
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void BooleanImplementation<kUnion, transCodeT, rotCodeT>::Contains(UnplacedBooleanVolume const &unplaced,
                                                                    Transformation3D const &transformation,
                                                                    Vector3D<typename Backend::precision_v> const &point,
@@ -180,7 +180,7 @@ void BooleanImplementation<kUnion, transCodeT, rotCodeT>::Contains(UnplacedBoole
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void BooleanImplementation<kUnion, transCodeT, rotCodeT>::Inside(UnplacedBooleanVolume const &unplaced,
                                                                  Transformation3D const &transformation,
                                                                  Vector3D<typename Backend::precision_v> const &point,
@@ -192,7 +192,7 @@ void BooleanImplementation<kUnion, transCodeT, rotCodeT>::Inside(UnplacedBoolean
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void BooleanImplementation<kUnion, transCodeT, rotCodeT>::DistanceToIn(
     UnplacedBooleanVolume const &unplaced, Transformation3D const &transformation,
     Vector3D<typename Backend::precision_v> const &point, Vector3D<typename Backend::precision_v> const &direction,
@@ -205,7 +205,7 @@ void BooleanImplementation<kUnion, transCodeT, rotCodeT>::DistanceToIn(
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void BooleanImplementation<kUnion, transCodeT, rotCodeT>::DistanceToOut(
     UnplacedBooleanVolume const &unplaced, Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> const &direction, typename Backend::precision_v const &stepMax,
@@ -218,7 +218,7 @@ void BooleanImplementation<kUnion, transCodeT, rotCodeT>::DistanceToOut(
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void BooleanImplementation<kUnion, transCodeT, rotCodeT>::SafetyToIn(
     UnplacedBooleanVolume const &unplaced, Transformation3D const &transformation,
     Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety)
@@ -230,7 +230,7 @@ void BooleanImplementation<kUnion, transCodeT, rotCodeT>::SafetyToIn(
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <class Backend>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void BooleanImplementation<kUnion, transCodeT, rotCodeT>::SafetyToOut(
     UnplacedBooleanVolume const &unplaced, Vector3D<typename Backend::precision_v> const &point,
     typename Backend::precision_v &safety)
@@ -241,7 +241,7 @@ void BooleanImplementation<kUnion, transCodeT, rotCodeT>::SafetyToOut(
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void BooleanImplementation<kUnion, transCodeT, rotCodeT>::ContainsKernel(
     UnplacedBooleanVolume const &unplaced, Vector3D<typename Backend::precision_v> const &localPoint,
     typename Backend::bool_v &inside)
@@ -254,7 +254,7 @@ void BooleanImplementation<kUnion, transCodeT, rotCodeT>::ContainsKernel(
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void BooleanImplementation<kUnion, transCodeT, rotCodeT>::InsideKernel(UnplacedBooleanVolume const &unplaced,
                                                                        Vector3D<typename Backend::precision_v> const &p,
                                                                        typename Backend::inside_v &inside)
@@ -298,7 +298,7 @@ void BooleanImplementation<kUnion, transCodeT, rotCodeT>::InsideKernel(UnplacedB
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void BooleanImplementation<kUnion, transCodeT, rotCodeT>::DistanceToInKernel(
     UnplacedBooleanVolume const &unplaced, Vector3D<typename Backend::precision_v> const &p,
     Vector3D<typename Backend::precision_v> const &v, typename Backend::precision_v const &stepMax,
@@ -314,7 +314,7 @@ void BooleanImplementation<kUnion, transCodeT, rotCodeT>::DistanceToInKernel(
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void BooleanImplementation<kUnion, transCodeT, rotCodeT>::DistanceToOutKernel(
     UnplacedBooleanVolume const &unplaced, Vector3D<typename Backend::precision_v> const &p,
     Vector3D<typename Backend::precision_v> const &v, typename Backend::precision_v const &stepMax,
@@ -367,7 +367,7 @@ void BooleanImplementation<kUnion, transCodeT, rotCodeT>::DistanceToOutKernel(
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void BooleanImplementation<kUnion, transCodeT, rotCodeT>::SafetyToInKernel(
     UnplacedBooleanVolume const &unplaced, Vector3D<typename Backend::precision_v> const &p,
     typename Backend::precision_v &safety)
@@ -385,7 +385,7 @@ void BooleanImplementation<kUnion, transCodeT, rotCodeT>::SafetyToInKernel(
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void BooleanImplementation<kUnion, transCodeT, rotCodeT>::SafetyToOutKernel(
     UnplacedBooleanVolume const &unplaced, Vector3D<typename Backend::precision_v> const &p,
     typename Backend::precision_v &safety)
@@ -416,7 +416,7 @@ void BooleanImplementation<kUnion, transCodeT, rotCodeT>::SafetyToOutKernel(
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 template <typename Backend>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void BooleanImplementation<kUnion, transCodeT, rotCodeT>::NormalKernel(
     UnplacedBooleanVolume const &unplaced, Vector3D<typename Backend::precision_v> const &point,
     Vector3D<typename Backend::precision_v> &normal, typename Backend::bool_v &valid)

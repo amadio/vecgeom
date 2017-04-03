@@ -63,13 +63,13 @@ public:
 
   virtual ~TPlacedBooleanMinusVolume() {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedVol_t const *GetUnplacedVolume() const
   {
     return static_cast<UnplacedVol_t const *>(GetLogicalVolume()->unplaced_volume());
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void PrintType() const {};
 
   // CUDA specific

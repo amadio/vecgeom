@@ -22,7 +22,7 @@ class PlacedAssembly : public VPlacedVolume {
 private:
 public:
 #ifndef VECGEOM_NVCC
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   PlacedAssembly(char const *const label, LogicalVolume const *const logicalVolume,
                  Transformation3D const *const transformation)
       : VPlacedVolume(label, logicalVolume, transformation, nullptr)
@@ -37,13 +37,13 @@ public:
   }
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~PlacedAssembly();
 
   // the VPlacedVolume Interfaces -----
   virtual int MemorySize() const override { return sizeof(*this); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void PrintType() const override { printf("PlacedAssembly"); }
 
   virtual void PrintType(std::ostream &s) const override { s << "PlacedAssembly"; }
@@ -61,20 +61,20 @@ public:
 #endif
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
   {
     static_cast<UnplacedAssembly const *>(GetUnplacedVolume())->UnplacedAssembly::Extent(aMin, aMax);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Contains(Vector3D<Precision> const &p) const override
   {
     return static_cast<UnplacedAssembly const *>(GetUnplacedVolume())
         ->UnplacedAssembly::Contains(GetTransformation()->Transform(p));
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Contains(Vector3D<Precision> const &point, Vector3D<Precision> &localPoint) const override
   {
     localPoint = GetTransformation()->Transform(point);
@@ -86,14 +86,14 @@ public:
     throw std::runtime_error("unimplemented function called");
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   virtual bool UnplacedContains(Vector3D<Precision> const &point) const override
   {
     return static_cast<UnplacedAssembly const *>(GetUnplacedVolume())->UnplacedAssembly::Contains(point);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   virtual EnumInside Inside(Vector3D<Precision> const & /*point*/) const override
   {
@@ -108,7 +108,7 @@ public:
     throw std::runtime_error("unimplemented function called");
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   virtual Precision DistanceToIn(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                  const Precision step_max = kInfLength) const override
@@ -131,7 +131,7 @@ public:
     throw std::runtime_error("unimplemented function called");
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   virtual Precision DistanceToOut(Vector3D<Precision> const & /*position*/, Vector3D<Precision> const & /*direction*/,
                                   Precision const /*stepMax*/) const override
@@ -142,7 +142,7 @@ public:
     return -1.; // dummy return
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision PlacedDistanceToOut(Vector3D<Precision> const & /*position*/,
                                         Vector3D<Precision> const & /*direction*/,
                                         Precision const /*stepMax*/) const override
@@ -166,7 +166,7 @@ public:
     throw std::runtime_error("unimplemented function called");
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   virtual Precision SafetyToOut(Vector3D<Precision> const &position) const override
   {
@@ -183,7 +183,7 @@ public:
     throw std::runtime_error("unimplemented function called");
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   virtual Precision SafetyToIn(Vector3D<Precision> const &position) const override
   {

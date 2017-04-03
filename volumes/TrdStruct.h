@@ -33,10 +33,10 @@ struct TrdStruct {
 
   T fFx, fFy;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   TrdStruct() {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   TrdStruct(const T x1, const T x2, const T y1, const T z)
       : fDX1(x1), fDX2(x2), fDY1(y1), fDY2(y1), fDZ(z), fX2minusX1(0), fY2minusY1(0), fHalfX1plusX2(0),
         fHalfY1plusY2(0), fCalfX(0), fCalfY(0), fFx(0), fFy(0)
@@ -44,7 +44,7 @@ struct TrdStruct {
     CalculateCached();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   TrdStruct(const T x1, const T x2, const T y1, const T y2, const T z)
       : fDX1(x1), fDX2(x2), fDY1(y1), fDY2(y2), fDZ(z), fX2minusX1(0), fY2minusY1(0), fHalfX1plusX2(0),
         fHalfY1plusY2(0), fCalfX(0), fCalfY(0), fFx(0), fFy(0)
@@ -52,7 +52,7 @@ struct TrdStruct {
     CalculateCached();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetAllParameters(T x1, T x2, T y1, T y2, T z)
   {
     fDX1 = x1;
@@ -63,7 +63,7 @@ struct TrdStruct {
     CalculateCached();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void CalculateCached()
   {
     fX2minusX1    = fDX2 - fDX1;

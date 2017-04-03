@@ -57,7 +57,7 @@ private:
   ThetaCone fThetaCone;
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void InitializePhiTrigonometry()
   {
@@ -75,7 +75,7 @@ public:
     cosEPhi    = std::cos(ePhi);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void InitializeThetaTrigonometry()
   {
@@ -94,7 +94,7 @@ public:
     tanETheta2    = tanETheta * tanETheta;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void CheckThetaAngles(Precision sTheta, Precision dTheta)
   {
@@ -133,7 +133,7 @@ public:
     InitializeThetaTrigonometry();
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void CheckSPhiAngle(Precision sPhi)
   {
@@ -149,7 +149,7 @@ public:
     }
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void CheckDPhiAngle(Precision dPhi)
   {
@@ -178,7 +178,7 @@ public:
     }
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void CheckPhiAngles(Precision sPhi, Precision dPhi)
   {
@@ -193,166 +193,166 @@ public:
   }
 
   // constructor
-  // VECGEOM_CUDA_HEADER_BOTH
+  // VECCORE_ATT_HOST_DEVICE
   // UnplacedSphere();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Wedge const &GetWedge() const { return fPhiWedge; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   ThetaCone const &GetThetaCone() const { return fThetaCone; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedSphere(Precision pRmin, Precision pRmax, Precision pSPhi, Precision pDPhi, Precision pSTheta,
                  Precision pDTheta);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetInsideRadius() const { return fRmin; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetInnerRadius() const { return fRmin; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetOuterRadius() const { return fRmax; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetStartPhiAngle() const { return fSPhi; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetDeltaPhiAngle() const { return fDPhi; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetStartThetaAngle() const { return fSTheta; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetDeltaThetaAngle() const { return fDTheta; }
 
   // Functions to get Tolerance
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetFRminTolerance() const { return fRminTolerance; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetMKTolerance() const { return mkTolerance; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetAngTolerance() const { return kAngTolerance; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   bool IsFullSphere() const { return fFullSphere; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   bool IsFullPhiSphere() const { return fFullPhiSphere; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   bool IsFullThetaSphere() const { return fFullThetaSphere; }
 
   // All angle related functions
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetHDPhi() const { return hDPhi; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetCPhi() const { return cPhi; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetEPhi() const { return ePhi; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetSinCPhi() const { return sinCPhi; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetCosCPhi() const { return cosCPhi; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetSinSPhi() const { return sinSPhi; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetCosSPhi() const { return cosSPhi; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetSinEPhi() const { return sinEPhi; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetCosEPhi() const { return cosEPhi; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetETheta() const { return eTheta; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetSinSTheta() const { return sinSTheta; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetCosSTheta() const { return cosSTheta; }
 
   //****************************************************************
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetTanSTheta() const { return tanSTheta; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetTanETheta() const { return tanETheta; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetFabsTanSTheta() const { return fabsTanSTheta; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetFabsTanETheta() const { return fabsTanETheta; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetTanSTheta2() const { return tanSTheta2; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetTanETheta2() const { return tanETheta2; }
   //****************************************************************
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetSinETheta() const { return sinETheta; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetCosETheta() const { return cosETheta; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetCosHDPhiOT() const { return cosHDPhiOT; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetCosHDPhiIT() const { return cosHDPhiIT; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void Initialize()
   {
@@ -360,7 +360,7 @@ public:
     fSurfaceArea = 0.;
   }
 
-  // VECGEOM_CUDA_HEADER_BOTH
+  // VECCORE_ATT_HOST_DEVICE
   // VECGEOM_FORCE_INLINE
   void SetInsideRadius(Precision newRmin)
   {
@@ -371,11 +371,11 @@ public:
     CalcSurfaceArea();
   }
 
-  // VECGEOM_CUDA_HEADER_BOTH
+  // VECCORE_ATT_HOST_DEVICE
   // VECGEOM_FORCE_INLINE
   void SetInnerRadius(Precision newRmin) { SetInsideRadius(newRmin); }
 
-  // VECGEOM_CUDA_HEADER_BOTH
+  // VECCORE_ATT_HOST_DEVICE
   // VECGEOM_FORCE_INLINE
   void SetOuterRadius(Precision newRmax)
   {
@@ -387,7 +387,7 @@ public:
     CalcSurfaceArea();
   }
 
-  // VECGEOM_CUDA_HEADER_BOTH
+  // VECCORE_ATT_HOST_DEVICE
   // VECGEOM_FORCE_INLINE
   void SetStartPhiAngle(Precision newSPhi, bool compute = true)
   {
@@ -404,7 +404,7 @@ public:
     CalcSurfaceArea();
   }
 
-  // VECGEOM_CUDA_HEADER_BOTH
+  // VECCORE_ATT_HOST_DEVICE
   // VECGEOM_FORCE_INLINE
   void SetDeltaPhiAngle(Precision newDPhi)
   {
@@ -414,7 +414,7 @@ public:
     CalcSurfaceArea();
   }
 
-  // VECGEOM_CUDA_HEADER_BOTH
+  // VECCORE_ATT_HOST_DEVICE
   // VECGEOM_FORCE_INLINE
   void SetStartThetaAngle(Precision newSTheta)
   {
@@ -424,7 +424,7 @@ public:
     CalcSurfaceArea();
   }
 
-  // VECGEOM_CUDA_HEADER_BOTH
+  // VECCORE_ATT_HOST_DEVICE
   // VECGEOM_FORCE_INLINE
   void SetDeltaThetaAngle(Precision newDTheta)
   {
@@ -435,69 +435,69 @@ public:
   }
 
   // Old access functions
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetRmin() const { return GetInsideRadius(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetRmax() const { return GetOuterRadius(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetSPhi() const { return GetStartPhiAngle(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetDPhi() const { return GetDeltaPhiAngle(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetSTheta() const { return GetStartThetaAngle(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetDTheta() const { return GetDeltaThetaAngle(); }
 
   //*****************************************************
   /*
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetfRTolO() const { return fRTolO; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetfRTolI() const { return fRTolI; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetfRTolerance() const { return fRTolerance; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SetRadius (const Precision r);
 
   //_____________________________________________________________________________
   */
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void CalcCapacity();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void CalcSurfaceArea();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void DetectConvexity();
 
 #if !defined(VECGEOM_NVCC)
   void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision Capacity() const { return fCubicVolume; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision SurfaceArea() const { return fSurfaceArea; }
 
 #ifndef VECGEOM_NVCC
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
 #endif
   Vector3D<Precision> GetPointOnSurface() const;
 
@@ -512,19 +512,19 @@ public:
   std::ostream &StreamInfo(std::ostream &os) const;
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void ComputeBBox() const;
 
-  // VECGEOM_CUDA_HEADER_BOTH
+  // VECCORE_ATT_HOST_DEVICE
   // Precision sqr(Precision x) {return x*x;};
 
 public:
   virtual int MemorySize() const final { return sizeof(*this); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void Print() const final;
 
-  // VECGEOM_CUDA_HEADER_BOTH
+  // VECCORE_ATT_HOST_DEVICE
   virtual void Print(std::ostream &os) const final;
 
 #ifndef VECGEOM_NVCC

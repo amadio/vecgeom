@@ -31,7 +31,7 @@ public:
    * @param  daughterlocalpoint is the local point in the next pvol (result of the computation)
    * @return true of point is in a daughter; false otherwise
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool LevelLocate(LogicalVolume const * /*lvol*/, Vector3D<Precision> const & /*localpoint*/,
                            VPlacedVolume const *& /*pvol*/, Vector3D<Precision> & /*daughterlocalpoint*/) const = 0;
 
@@ -47,7 +47,7 @@ public:
    * @param  daughterlocalpoint is the local point in the next pvol (result of the computation)
    * @return true of point is in a daughter; false otherwise
    */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool LevelLocate(LogicalVolume const * /*lvol*/, Vector3D<Precision> const & /*localpoint*/,
                            NavigationState & /*outstate*/, Vector3D<Precision> & /*daughterlocalpoint*/) const = 0;
 
@@ -63,7 +63,7 @@ public:
      * @param  daughterlocalpoint is the local point in the next pvol (result of the computation)
      * @return true of point is in a daughter; false otherwise
      */
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool LevelLocateExclVol(LogicalVolume const * /*lvol*/, VPlacedVolume const * /*pvol excl*/,
                                   Vector3D<Precision> const & /*localpoint*/, VPlacedVolume const *& /*pvol*/,
                                   Vector3D<Precision> & /*daughterlocalpoint*/) const = 0;

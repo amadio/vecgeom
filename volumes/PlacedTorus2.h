@@ -46,44 +46,44 @@ public:
 
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~PlacedTorus2() {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedTorus2 const *GetUnplacedVolume() const
   {
     return static_cast<UnplacedTorus2 const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision rmin() const { return GetUnplacedVolume()->rmin(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision rmax() const { return GetUnplacedVolume()->rmax(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision rtor() const { return GetUnplacedVolume()->rtor(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision sphi() const { return GetUnplacedVolume()->sphi(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision dphi() const { return GetUnplacedVolume()->dphi(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetRmin() const { return GetUnplacedVolume()->rmin(); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetRmax() const { return GetUnplacedVolume()->rmax(); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetRtor() const { return GetUnplacedVolume()->rtor(); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetSPhi() const { return GetUnplacedVolume()->sphi(); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetDPhi() const { return GetUnplacedVolume()->dphi(); }
 
   void SetRmin(Precision arg) { const_cast<UnplacedTorus2 *>(GetUnplacedVolume())->SetRMin(arg); }
@@ -94,7 +94,7 @@ public:
 
   virtual Precision Capacity() override { return GetUnplacedVolume()->volume(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
   {
     GetUnplacedVolume()->Extent(aMin, aMax);
@@ -102,14 +102,14 @@ public:
 
 #ifndef VECGEOM_NVCC
   virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface(); }
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
     return GetUnplacedVolume()->Normal(point, normal);
   }
 
 #if defined(VECGEOM_USOLIDS)
-  //  VECGEOM_CUDA_HEADER_BOTH
+  //  VECCORE_ATT_HOST_DEVICE
   std::ostream &StreamInfo(std::ostream &os) const override { return GetUnplacedVolume()->StreamInfo(os); }
 #endif
 

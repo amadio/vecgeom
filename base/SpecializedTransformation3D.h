@@ -27,7 +27,7 @@ public:
    */
   template <typename InputType>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Transform(Vector3D<InputType> const &master, Vector3D<InputType> *const local) const
   {
     this->Transform<trans_code, rot_code, InputType>(master, local);
@@ -38,7 +38,7 @@ public:
    */
   template <TranslationCode, RotationCode code, typename InputType>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Vector3D<InputType> Transform(Vector3D<InputType> const &master) const
   {
     return this->Transform<trans_code, rot_code, InputType>(master);
@@ -50,7 +50,7 @@ public:
    */
   template <RotationCode code, typename InputType>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void TransformDirection(Vector3D<InputType> const &master, Vector3D<InputType> *const local) const
   {
     this->TransformDirection<code, InputType>(master, local);
@@ -61,7 +61,7 @@ public:
    */
   template <RotationCode code, typename InputType>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Vector3D<InputType> TransformDirection(Vector3D<InputType> const &master) const
   {
     return this->TransformDirection<code, InputType>(master);

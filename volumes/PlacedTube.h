@@ -44,7 +44,7 @@ public:
   {
   }
 #endif
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~PlacedTube() {}
 
 #ifndef VECGEOM_NVCC

@@ -28,7 +28,7 @@ VECGEOM_DEVICE_FORWARD_DECLARE(void InitDeviceCompactPlacedVolBufferPtr(void *);
 // this is done since CUDA does not support static const members in class definitions
 namespace globaldevicegeomdata {
 // extern __device__ VPlacedVolume *gCompactPlacedVolBuffer;
-VECGEOM_CUDA_HEADER_DEVICE
+VECCORE_ATT_DEVICE
 VPlacedVolume *&GetCompactPlacedVolBuffer();
 }
 

@@ -31,7 +31,7 @@ public:
 #else
 
   template <typename VolumeType>
-  VECGEOM_CUDA_HEADER_DEVICE
+  VECCORE_ATT_DEVICE
   static VPlacedVolume *CreateByTransformation(LogicalVolume const *const logical_volume,
                                                Transformation3D const *const transformation,
                                                const TranslationCode trans_code, const RotationCode rot_code,

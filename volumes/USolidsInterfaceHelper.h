@@ -11,7 +11,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 struct USolidsInterfaceHelper {
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~USolidsInterfaceHelper() {}
 };
 }
@@ -40,17 +40,17 @@ public:
   USolidsInterfaceHelper(const std::string &name) : VUSolid(name) {}
   USolidsInterfaceHelper() : VUSolid() {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision DistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                   Precision stepMax = kInfLength) const = 0;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual ~USolidsInterfaceHelper() {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision SafetyToOut(Vector3D<Precision> const &position) const = 0;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision SafetyToIn(Vector3D<Precision> const &position) const = 0;
 
   // these function names are specific to USolids but can be reimplemented in terms of

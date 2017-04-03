@@ -41,36 +41,36 @@ private:
 public:
   typedef T value_type;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   SOA3D(T *x, T *y, T *z, size_t size);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   SOA3D(size_t size);
 
   SOA3D(SOA3D<T> const &other);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   SOA3D();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   SOA3D &operator=(SOA3D<T> const &other);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ~SOA3D();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   size_t size() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   size_t capacity() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void resize(size_t newSize);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void reserve(size_t newCapacity);
 
@@ -79,73 +79,73 @@ public:
 
   // Element access methods
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Vector3D<T> operator[](size_t index) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T x(size_t index) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T &x(size_t index);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T *x();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T const *x() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T y(size_t index) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T &y(size_t index);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T *y();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T const *y() const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T z(size_t index) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T &z(size_t index);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T *z();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T const *z() const;
 
   // Element manipulation methods
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void set(size_t index, T x, T y, T z);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void set(size_t index, Vector3D<T> const &vec);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void push_back(T x, T y, T z);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void push_back(Vector3D<T> const &vec);
 
@@ -158,10 +158,10 @@ public:
   int FromFile(std::string /*filename*/);
 
 private:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Allocate();
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Deallocate();
 };
 
@@ -173,14 +173,14 @@ private:
 #endif
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 SOA3D<T>::SOA3D(T *xval, T *yval, T *zval, size_t sz)
     : fAllocated(false), fSize(sz), fCapacity(fSize), fX(xval), fY(yval), fZ(zval)
 {
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 SOA3D<T>::SOA3D(size_t sz) : fAllocated(true), fSize(sz), fCapacity(sz), fX(NULL), fY(NULL), fZ(NULL)
 {
   Allocate();
@@ -203,13 +203,13 @@ SOA3D<T>::SOA3D(SOA3D<T> const &rhs)
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 SOA3D<T>::SOA3D() : fAllocated(false), fSize(0), fCapacity(0), fX(NULL), fY(NULL), fZ(NULL)
 {
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 SOA3D<T> &SOA3D<T>::operator=(SOA3D<T> const &rhs)
 {
 #ifndef VECGEOM_NVCC_DEVICE
@@ -238,7 +238,7 @@ SOA3D<T> &SOA3D<T>::operator=(SOA3D<T> const &rhs)
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 SOA3D<T>::~SOA3D()
 {
 #ifndef VECGEOM_NVCC_DEVICE
@@ -247,14 +247,14 @@ SOA3D<T>::~SOA3D()
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 size_t SOA3D<T>::size() const
 {
   return fSize;
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 size_t SOA3D<T>::capacity() const
 {
   return fCapacity;
@@ -268,7 +268,7 @@ void SOA3D<T>::resize(size_t newSize)
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SOA3D<T>::reserve(size_t newCapacity)
 {
   fCapacity = newCapacity;
@@ -298,7 +298,7 @@ void SOA3D<T>::clear()
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SOA3D<T>::Allocate()
 {
   fX         = AlignedAllocate<T>(fCapacity);
@@ -308,7 +308,7 @@ void SOA3D<T>::Allocate()
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SOA3D<T>::Deallocate()
 {
   if (fAllocated) {
@@ -320,91 +320,91 @@ void SOA3D<T>::Deallocate()
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Vector3D<T> SOA3D<T>::operator[](size_t index) const
 {
   return Vector3D<T>(fX[index], fY[index], fZ[index]);
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T SOA3D<T>::x(size_t index) const
 {
   return fX[index];
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T &SOA3D<T>::x(size_t index)
 {
   return fX[index];
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T *SOA3D<T>::x()
 {
   return fX;
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T const *SOA3D<T>::x() const
 {
   return fX;
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T SOA3D<T>::y(size_t index) const
 {
   return fY[index];
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T &SOA3D<T>::y(size_t index)
 {
   return fY[index];
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T *SOA3D<T>::y()
 {
   return fY;
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T const *SOA3D<T>::y() const
 {
   return fY;
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T SOA3D<T>::z(size_t index) const
 {
   return fZ[index];
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T &SOA3D<T>::z(size_t index)
 {
   return fZ[index];
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T *SOA3D<T>::z()
 {
   return fZ;
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 T const *SOA3D<T>::z() const
 {
   return fZ;
@@ -412,7 +412,7 @@ T const *SOA3D<T>::z() const
 
 template <typename T>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SOA3D<T>::set(size_t index, T xval, T yval, T zval)
 {
 // not asserting in case of NVCC -- still getting annoying
@@ -427,7 +427,7 @@ void SOA3D<T>::set(size_t index, T xval, T yval, T zval)
 
 template <typename T>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SOA3D<T>::set(size_t index, Vector3D<T> const &vec)
 {
 // not asserting in case of NVCC -- still getting annoying
@@ -441,7 +441,7 @@ void SOA3D<T>::set(size_t index, Vector3D<T> const &vec)
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SOA3D<T>::push_back(T xval, T yval, T zval)
 {
   fX[fSize] = xval;
@@ -451,7 +451,7 @@ void SOA3D<T>::push_back(T xval, T yval, T zval)
 }
 
 template <typename T>
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void SOA3D<T>::push_back(Vector3D<T> const &vec)
 {
   push_back(vec[0], vec[1], vec[2]);

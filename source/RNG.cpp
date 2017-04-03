@@ -11,8 +11,8 @@ class RNG;
 
 // Emulating static class member ..
 namespace RNGvar {
-VECGEOM_CUDA_HEADER_DEVICE unsigned long gMaxInstance;
-VECGEOM_CUDA_HEADER_DEVICE RNG **gInstances;
+VECCORE_ATT_DEVICE unsigned long gMaxInstance;
+VECCORE_ATT_DEVICE RNG **gInstances;
 }
 #endif
 }

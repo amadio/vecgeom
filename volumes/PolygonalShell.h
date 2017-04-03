@@ -26,14 +26,14 @@ private:
   friend class UnplacedSExtruVolume;
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   PolygonalShell(int nvertices, double *x, double *y, Precision lowerz, Precision upperz)
       : fPolygon(nvertices, x, y), fLowerZ(lowerz), fUpperZ(upperz)
   {
   }
 
   // the area of the shell ( does not include the area of the planar polygon )
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision SurfaceArea() const
   {
     const auto kS = fPolygon.fVertices.size();
@@ -45,17 +45,17 @@ public:
     return std::sqrt(area) * (fUpperZ - fLowerZ);
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   PlanarPolygon const &GetPolygon() const { return fPolygon; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetLowerZ() const { return fLowerZ; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetUpperZ() const { return fUpperZ; }
 
   template <typename Real_v>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Real_v> &aMin, Vector3D<Real_v> &aMax) const
   {
     aMin[0] = Real_v(fPolygon.GetMinX());
@@ -68,14 +68,14 @@ public:
   }
 
   template <typename Real_v>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Real_v DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir) const
   {
     return fPolygon.IsConvex() ? DistanceToInConvex(point, dir) : DistanceToInConcave(point, dir);
   }
 
   template <typename Real_v>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Real_v DistanceToInConvex(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir) const
   {
     using Bool_v = vecCore::Mask_v<Real_v>;
@@ -124,7 +124,7 @@ public:
   }
 
   template <typename Real_v>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Real_v DistanceToInConcave(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir) const
   {
     using Bool_v = vecCore::Mask_v<Real_v>;
@@ -173,7 +173,7 @@ public:
   // -- DistanceToOut --
 
   template <typename Real_v>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Real_v DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir) const
   {
     return fPolygon.IsConvex() ? DistanceToOutConvex(point, dir) : DistanceToOutConcave(point, dir);
@@ -183,7 +183,7 @@ public:
   // NOTE: this kernel is the same as DistanceToIn apart from the comparisons for early return
   // these could become a template parameter
   template <typename Real_v>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Real_v DistanceToOutConvex(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir) const
   {
     using Bool_v = vecCore::Mask_v<Real_v>;
@@ -235,7 +235,7 @@ public:
   // DistanceToOut for the concave case
   // we should ideally combine this with the other kernel
   template <typename Real_v>
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Real_v DistanceToOutConcave(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir) const
   {
     using Bool_v = vecCore::Mask_v<Real_v>;

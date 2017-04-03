@@ -19,58 +19,58 @@ private:
   Plane fCutPlanes[2]; ///< Two cut planes
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   CutPlanes() {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   ~CutPlanes() = default;
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Plane const &GetCutPlane(int i) const;
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Vector3D<Precision> GetNormal(int i) const;
 
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision GetDistance(int i) const;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Set(int index, Vector3D<Precision> const &normal, Vector3D<Precision> const &origin);
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Set(int index, Vector3D<Precision> const &normal, Precision distance);
 
   template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Contains(Vector3D<Real_v> const &point, Bool_v &inside) const;
 
   template <typename Real_v, typename Inside_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Inside(Vector3D<Real_v> const &point, Inside_v &inside) const;
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction, Real_v &distance) const;
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction, Real_v &distance) const;
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SafetyToIn(Vector3D<Real_v> const &point, Real_v &distance) const;
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void SafetyToOut(Vector3D<Real_v> const &point, Real_v &distance) const;
 
 }; // class CutPlanes
@@ -78,21 +78,21 @@ public:
 std::ostream &operator<<(std::ostream &os, CutPlanes const &planes);
 
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Plane const &CutPlanes::GetCutPlane(int i) const
 {
   return fCutPlanes[i];
 }
 
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Vector3D<Precision> CutPlanes::GetNormal(int i) const
 {
   return fCutPlanes[i].GetNormal();
 }
 
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Precision CutPlanes::GetDistance(int i) const
 {
   return fCutPlanes[i].GetDistance();
@@ -100,7 +100,7 @@ Precision CutPlanes::GetDistance(int i) const
 
 template <typename Real_v, typename Bool_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void CutPlanes::Contains(Vector3D<Real_v> const &point, Bool_v &inside) const
 {
   inside = fCutPlanes[0].DistPlane(point) < Real_v(0.) && fCutPlanes[1].DistPlane(point) < Real_v(0.);
@@ -108,7 +108,7 @@ void CutPlanes::Contains(Vector3D<Real_v> const &point, Bool_v &inside) const
 
 template <typename Real_v, typename Inside_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void CutPlanes::Inside(Vector3D<Real_v> const &point, Inside_v &inside) const
 {
   Real_v d0 = fCutPlanes[0].DistPlane(point);
@@ -123,7 +123,7 @@ void CutPlanes::Inside(Vector3D<Real_v> const &point, Inside_v &inside) const
 
 template <typename Real_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void CutPlanes::DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction, Real_v &distance) const
 {
   // The function returns a negative distance for points coming from the
@@ -138,7 +138,7 @@ void CutPlanes::DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> con
 
 template <typename Real_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void CutPlanes::DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction, Real_v &distance) const
 {
   Real_v d0, d1;
@@ -149,7 +149,7 @@ void CutPlanes::DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> co
 
 template <typename Real_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void CutPlanes::SafetyToIn(Vector3D<Real_v> const &point, Real_v &distance) const
 {
   Real_v d0, d1;
@@ -160,7 +160,7 @@ void CutPlanes::SafetyToIn(Vector3D<Real_v> const &point, Real_v &distance) cons
 
 template <typename Real_v>
 VECGEOM_FORCE_INLINE
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void CutPlanes::SafetyToOut(Vector3D<Real_v> const &point, Real_v &distance) const
 {
   Real_v d0, d1;

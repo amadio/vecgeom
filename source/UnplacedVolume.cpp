@@ -10,7 +10,7 @@ using Real_v = vecgeom::VectorBackend::Real_v;
 // (since we are moving to these interfaces only gradually)
 // ---------------- Contains --------------------------------------------------------------------
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool VUnplacedVolume::Contains(Vector3D<Precision> const &p) const
 {
 #ifndef VECGEOM_NVCC
@@ -19,7 +19,7 @@ bool VUnplacedVolume::Contains(Vector3D<Precision> const &p) const
   return false;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 EnumInside VUnplacedVolume::Inside(Vector3D<Precision> const &p) const
 {
 #ifndef VECGEOM_NVCC
@@ -30,7 +30,7 @@ EnumInside VUnplacedVolume::Inside(Vector3D<Precision> const &p) const
 
 // ---------------- DistanceToOut functions -----------------------------------------------------
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Precision VUnplacedVolume::DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
                                          Precision step_max) const
 {
@@ -41,7 +41,7 @@ Precision VUnplacedVolume::DistanceToOut(Vector3D<Precision> const &p, Vector3D<
 }
 
 // the USolid/GEANT4-like interface for DistanceToOut (returning also exiting normal)
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Precision VUnplacedVolume::DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
                                          Vector3D<Precision> &normal, bool &convex, Precision step_max) const
 {
@@ -52,7 +52,7 @@ Precision VUnplacedVolume::DistanceToOut(Vector3D<Precision> const &p, Vector3D<
 }
 
 // an explicit SIMD interface
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Real_v VUnplacedVolume::DistanceToOutVec(Vector3D<Real_v> const &p, Vector3D<Real_v> const &d,
                                          Real_v const &step_max) const
 {
@@ -73,7 +73,7 @@ void VUnplacedVolume::DistanceToOut(SOA3D<Precision> const &points, SOA3D<Precis
 
 // ---------------- SafetyToOut functions -----------------------------------------------------
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Precision VUnplacedVolume::SafetyToOut(Vector3D<Precision> const &p) const
 {
 #ifndef VECGEOM_NVCC
@@ -101,7 +101,7 @@ void VUnplacedVolume::SafetyToOut(SOA3D<Precision> const &points, Precision *con
 
 // ---------------- DistanceToIn functions -----------------------------------------------------
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Precision VUnplacedVolume::DistanceToIn(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                         const Precision step_max) const
 {
@@ -111,7 +111,7 @@ Precision VUnplacedVolume::DistanceToIn(Vector3D<Precision> const &position, Vec
   return -1.;
 }
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Real_v VUnplacedVolume::DistanceToInVec(Vector3D<Real_v> const &position, Vector3D<Real_v> const &direction,
                                         const Real_v &step_max) const
 {
@@ -123,7 +123,7 @@ Real_v VUnplacedVolume::DistanceToInVec(Vector3D<Real_v> const &position, Vector
 
 // ---------------- SafetyToIn functions -------------------------------------------------------
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 Precision VUnplacedVolume::SafetyToIn(Vector3D<Precision> const &position) const
 {
 #ifndef VECGEOM_NVCC
@@ -143,7 +143,7 @@ Real_v VUnplacedVolume::SafetyToInVec(Vector3D<Real_v> const &p) const
 
 // ---------------- Normal ---------------------------------------------------------------------
 
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 bool VUnplacedVolume::Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const
 {
 #ifndef VECGEOM_NVCC
@@ -160,7 +160,7 @@ Vector3D<Precision> VUnplacedVolume::GetPointOnSurface() const
 }
 
 // ----------------- Extent --------------------------------------------------------------------
-VECGEOM_CUDA_HEADER_BOTH
+VECCORE_ATT_HOST_DEVICE
 void VUnplacedVolume::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
 #ifndef VECGEOM_NVCC

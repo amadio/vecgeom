@@ -25,7 +25,7 @@ public:
   UnplacedBox(Vector3D<Precision> const &dim) : fBox(dim) {}
   UnplacedBox(char const *, Vector3D<Precision> const &dim) : fBox(dim) {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedBox(const Precision dx, const Precision dy, const Precision dz) : fBox(dx, dy, dz)
   {
     fGlobalConvexity = true;
@@ -35,25 +35,25 @@ public:
     fGlobalConvexity = true;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   UnplacedBox(UnplacedBox const &other) : fBox(other.fBox) {}
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   BoxStruct<double> const &GetStruct() const { return fBox; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Vector3D<Precision> const &dimensions() const { return fBox.fDimensions; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision x() const { return dimensions().x(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision y() const { return dimensions().y(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision z() const { return dimensions().z(); }
 
@@ -61,17 +61,17 @@ public:
   void SetY(double yy) { fBox.fDimensions[1] = yy; }
   void SetZ(double zz) { fBox.fDimensions[2] = zz; }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision Capacity() const { return 8.0 * x() * y() * z(); }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   Precision SurfaceArea() const
   {
     // factor 8 because x(),... are half-lengths
     return 8.0 * (x() * y() + y() * z() + x() * z());
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
   {
     // Returns the full 3D cartesian extent of the volume
@@ -81,7 +81,7 @@ public:
 
   Vector3D<Precision> GetPointOnSurface() const override;
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const override
   {
     bool valid;
@@ -89,7 +89,7 @@ public:
     return valid;
   }
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
   virtual void Print() const override;
 
   virtual void Print(std::ostream &os) const override;
