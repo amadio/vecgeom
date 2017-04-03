@@ -41,10 +41,13 @@ void HybridManager2::BuildStructure_v(LogicalVolume const *vol)
   // for a logical volume we are referring to the functions that builds everything giving just bounding
   // boxes
   int nDaughters{0};
-  auto structure              = BuildStructure(ABBoxManager::Instance().GetABBoxes(vol, nDaughters), nDaughters);
+  // get the boxes (and number of boxes), must be called before the BuildStructure
+  // function call since otherwise nDaughters is not guaranteed to be initialized
+  auto boxes                  = ABBoxManager::Instance().GetABBoxes(vol, nDaughters);
+  auto structure              = BuildStructure(boxes, nDaughters);
   fStructureHolder[vol->id()] = structure;
   assert((int)vol->GetDaughters().size() == nDaughters);
-  assert(structure->fNumberOfOriginalBoxes != 0);
+  assert(structure == nullptr || structure->fNumberOfOriginalBoxes != 0);
 }
 
 /**

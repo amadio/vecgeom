@@ -46,7 +46,7 @@ void QueryStructure(BVHStructure const &s)
   };
 
   int c = 0;
-  for (int i = 0; i < s.fNumberOfOriginalBoxes; ++i) {
+  for (int i = 0; i < (int)s.fNumberOfOriginalBoxes; ++i) {
     c += (i + 1);
   }
 
