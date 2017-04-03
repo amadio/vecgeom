@@ -341,7 +341,7 @@ public:
     double detxy = yx_ * zz_ - yz_ * zx_;
     double detxz = yx_ * zy_ - yy_ * zx_;
     double det   = xx_ * detxx - xy_ * detxy + xz_ * detxz;
-#ifndef VECGEOM_NVCC_DEVICE
+#ifndef VECCORE_CUDA_DEVICE_COMPILATION
     if (det == 0) {
       std::cerr << "Transform3D::inverse error: zero determinant" << std::endl;
     }

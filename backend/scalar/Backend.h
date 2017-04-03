@@ -77,7 +77,7 @@ VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
 void copy(Type const *begin, Type const *const end, Type *const target)
 {
-#ifndef VECGEOM_NVCC_DEVICE
+#ifndef VECCORE_CUDA_DEVICE_COMPILATION
   std::copy(begin, end, target);
 #else
   std::memcpy(target, begin, sizeof(Type) * (end - begin));
@@ -113,7 +113,7 @@ VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
 bool equal(InputIterator1 first, InputIterator1 last, InputIterator2 target)
 {
-#ifndef VECGEOM_NVCC_DEVICE
+#ifndef VECCORE_CUDA_DEVICE_COMPILATION
   return std::equal(first, last, target);
 #else
   while (first != last) {

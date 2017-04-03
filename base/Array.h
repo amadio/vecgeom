@@ -114,7 +114,7 @@ Array<Type>::Array(Type *data, int initSize) : fData(data), fSize(initSize), fAl
 template <typename Type>
 Array<Type>::~Array()
 {
-#ifndef VECGEOM_NVCC_DEVICE
+#ifndef VECCORE_CUDA_DEVICE_COMPILATION
   if (fAllocated) _mm_free(fData);
 #endif
 }
@@ -152,7 +152,7 @@ VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
 Array<Type> &Array<Type>::operator=(Array<Type> const &other)
 {
-#ifndef VECGEOM_NVCC_DEVICE
+#ifndef VECCORE_CUDA_DEVICE_COMPILATION
   Deallocate();
   Allocate(other.fSize);
   copy(other.fData, other.fData + other.fSize, fData);

@@ -162,7 +162,7 @@ template <typename T>
 VECCORE_ATT_HOST_DEVICE
 AOS3D<T> &AOS3D<T>::operator=(AOS3D<T> const &rhs)
 {
-#ifndef VECGEOM_NVCC_DEVICE
+#ifndef VECCORE_CUDA_DEVICE_COMPILATION
   clear();
   if (rhs.fAllocated) {
     reserve(rhs.fCapacity);

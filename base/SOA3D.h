@@ -212,7 +212,7 @@ template <typename T>
 VECCORE_ATT_HOST_DEVICE
 SOA3D<T> &SOA3D<T>::operator=(SOA3D<T> const &rhs)
 {
-#ifndef VECGEOM_NVCC_DEVICE
+#ifndef VECCORE_CUDA_DEVICE_COMPILATION
   fSize     = rhs.fSize;
   fCapacity = rhs.fCapacity;
   Deallocate();
@@ -241,7 +241,7 @@ template <typename T>
 VECCORE_ATT_HOST_DEVICE
 SOA3D<T>::~SOA3D()
 {
-#ifndef VECGEOM_NVCC_DEVICE
+#ifndef VECCORE_CUDA_DEVICE_COMPILATION
   Deallocate();
 #endif
 }

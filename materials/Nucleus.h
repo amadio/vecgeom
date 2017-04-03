@@ -106,7 +106,7 @@ public:
     if (!fNuclei) fNuclei = new NucleusIndex_t;
     return *fNuclei;
 #else
-#ifndef VECGEOM_NVCC_DEVICE
+#ifndef VECCORE_CUDA_DEVICE_COMPILATION
     if (!gNucleiHost) gNucleiHost = new NucleusIndex_t;
     return *gNucleiHost;
 #else
@@ -123,7 +123,7 @@ public:
     if (!fIsoList) fIsoList = new NucleusMap_t;
     return *fIsoList;
 #else
-#ifndef VECGEOM_NVCC_DEVICE
+#ifndef VECCORE_CUDA_DEVICE_COMPILATION
     if (!gIsoListHost) gIsoListHost = new NucleusMap_t;
     return *gIsoListHost;
 #else
@@ -140,7 +140,7 @@ public:
     if (!fNatIsoList) fNatIsoList = new NucleusMap_t;
     return *fNatIsoList;
 #else
-#ifndef VECGEOM_NVCC_DEVICE
+#ifndef VECCORE_CUDA_DEVICE_COMPILATION
     return *gNatIsoListHost;
 #else
     return *gNatIsoListDev;

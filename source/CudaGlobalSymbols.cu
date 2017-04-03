@@ -4,7 +4,7 @@ namespace vecgeom {
 class VPlacedVolume;
 // instantiation of global device geometry data
 namespace globaldevicegeomdata {
-//#ifdef VECGEOM_NVCC_DEVICE
+//#ifdef VECCORE_CUDA_DEVICE_COMPILATION
 __device__ VPlacedVolume *gCompactPlacedVolBuffer;
 //#endif
 }

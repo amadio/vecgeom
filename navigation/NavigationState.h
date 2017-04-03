@@ -60,7 +60,7 @@ struct Index2PVolumeConverter {
   VECGEOM_FORCE_INLINE
   static VPlacedVolume const *ToPlacedVolume(T index)
   {
-#ifdef VECGEOM_NVCC_DEVICE
+#ifdef VECCORE_CUDA_DEVICE_COMPILATION
     // checking here for NVCC_DEVICE since the global variable globaldevicegeomgata::gCompact...
     // is marked __device__ and can only be compiled within device compiler passes
     assert(vecgeom::globaldevicegeomdata::GetCompactPlacedVolBuffer() != nullptr);

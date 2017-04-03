@@ -14,7 +14,7 @@ using std::setw;
 using std::setfill;
 
 #ifdef VECGEOM_NVCC
-#ifndef VECGEOM_NVCC_DEVICE
+#ifndef VECCORE_CUDA_DEVICE_COMPILATION
 #define fNuclei gNucleiHost
 #define fIsoList gIsoListHost
 #define fNatIsoList gNatIsoListHost

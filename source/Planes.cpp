@@ -27,7 +27,7 @@ Planes::~Planes()
 VECCORE_ATT_HOST_DEVICE
 Planes &Planes::operator=(Planes const &rhs)
 {
-#ifndef VECGEOM_NVCC_DEVICE
+#ifndef VECCORE_CUDA_DEVICE_COMPILATION
   fNormals   = rhs.fNormals;
   fDistances = rhs.fDistances;
 #else

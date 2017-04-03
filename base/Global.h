@@ -52,7 +52,7 @@ using uint = unsigned int;
 #define VECGEOM_CONSTEXPR_RETURN constexpr
 
 // Qualifier(s) of global constants
-#ifdef VECGEOM_NVCC_DEVICE
+#ifdef VECCORE_CUDA_DEVICE_COMPILATION
 // constexpr not supported on device in CUDA 6.5
 #define VECGEOM_GLOBAL static __constant__ const
 #define VECGEOM_CLASS_GLOBAL static const
