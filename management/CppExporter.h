@@ -18,7 +18,7 @@
 // Compile for vecgeom namespace to work as interface
 namespace vecgeom {
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 inline
 #endif
     namespace cxx {

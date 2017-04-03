@@ -28,7 +28,7 @@ UnplacedTrapezoid::UnplacedTrapezoid(double dx, double dy, double dz, double)
     : fTrap(dz, 0., 0., dy, dx, dx, 0., dy, dx, dx, 0.)
 {
 // TODO: this needs a proper logger treatment as per geantv conventions
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   fprintf(stderr, "*** ERROR: STEP-based trapezoid constructor called, but not implemented ***");
 #endif
   assert(false);
@@ -505,7 +505,7 @@ bool UnplacedTrapezoid::MakePlanes(TrapCorners const pt)
 }
 
 //===================== specialization stuff
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
 template <TranslationCode trans_code, RotationCode rot_code>
 VPlacedVolume *UnplacedTrapezoid::Create(LogicalVolume const *const logical_volume,
@@ -573,7 +573,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedTrapezoid::CopyToGpu() const
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 template size_t DevicePtr<cuda::UnplacedTrapezoid>::SizeOf();

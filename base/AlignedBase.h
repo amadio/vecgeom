@@ -36,7 +36,7 @@ class AlignedBase : public Vc::VectorAlignedBase {
   public:
     virtual ~AlignedBase() {}
   };
-#elif !defined(VECGEOM_NVCC)
+#elif !defined(VECCORE_CUDA)
 class AlignedBase {
 
 public:

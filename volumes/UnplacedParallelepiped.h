@@ -132,7 +132,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const;
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   /** @brief Generates randomly a point on the surface of the parallelepiped */
   Vector3D<Precision> GetPointOnSurface() const;
 
@@ -166,12 +166,12 @@ public:
 
   /** @brief Templated factory for creating a placed volume */
   template <TranslationCode transCodeT, RotationCode rotCodeT>
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
   VECCORE_ATT_DEVICE
 #endif
       static VPlacedVolume *
       Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
              const int id,
 #endif
              VPlacedVolume *const placement = NULL);
@@ -185,13 +185,13 @@ public:
 private:
   virtual void Print(std::ostream &os) const final;
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
   VECCORE_ATT_DEVICE
 #endif
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                            const int id,
 #endif
                                            VPlacedVolume *const placement = NULL) const final;

@@ -21,7 +21,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
 VPlacedVolume const *PlacedHype::ConvertToUnspecialized() const
 {
@@ -61,9 +61,9 @@ G4VSolid const *PlacedHype::ConvertToGeant4() const
 
 } // End global namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(SpecializedHype)
 
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 } // End namespace vecgeom

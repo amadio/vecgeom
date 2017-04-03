@@ -23,7 +23,7 @@ Vector3D<Precision> UnplacedSExtruVolume::GetPointOnSurface() const
   throw std::runtime_error("unimplemented");
 }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 template <TranslationCode trans_code, RotationCode rot_code>
 VPlacedVolume *UnplacedSExtruVolume::Create(LogicalVolume const *const logical_volume,
                                             Transformation3D const *const transformation,
@@ -105,7 +105,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedSExtruVolume::CopyToGpu() const
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 

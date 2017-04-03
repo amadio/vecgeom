@@ -25,7 +25,7 @@ void PlacedScaledShape::PrintType(std::ostream &os) const
   os << "PlacedScaledShape";
 }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
 VPlacedVolume const *PlacedScaledShape::ConvertToUnspecialized() const
 {
@@ -58,14 +58,14 @@ G4VSolid const *PlacedScaledShape::ConvertToGeant4() const
 }
 #endif
 
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(SpecializedScaledShape)
 
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 
 } // End namespace vecgeom

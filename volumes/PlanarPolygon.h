@@ -77,7 +77,7 @@ public:
     for (size_t i = 0; i < (size_t)fNVertices; ++i) {
       const size_t k = i % fNVertices;
       fVertices.set(i, x[k], y[k], 0);
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
       using std::min;
       using std::max;
 #endif
@@ -157,7 +157,7 @@ public:
     CalcConvexity();
 
 // check orientation
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     if (Area() < 0.) {
       throw std::runtime_error("Polygon not given in clockwise order");
     }
@@ -500,7 +500,7 @@ inline Precision PlanarPolygon::SafetySqr(Vector3D<Precision> const &point, int 
 // }
 
 // a first try is serialized:
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     using std::min;
 #endif
     const auto update = (ssq < Real_v(safe));

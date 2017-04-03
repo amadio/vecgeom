@@ -67,7 +67,7 @@ public:
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
 #endif
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   // this is the function called from the VolumeFactory
   // this may be specific to the shape
   template <TranslationCode trans_code, RotationCode rot_code>

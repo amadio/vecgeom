@@ -29,7 +29,7 @@ void PlacedTrapezoid::PrintType(std::ostream &s) const
   s << "PlacedTrapezoid";
 }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
 VPlacedVolume const *PlacedTrapezoid::ConvertToUnspecialized() const
 {
@@ -64,11 +64,11 @@ G4VSolid const *PlacedTrapezoid::ConvertToGeant4() const
 }
 #endif
 
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(SpecializedTrapezoid)
 #endif
 

@@ -21,7 +21,7 @@ class PlacedScaledShape : public PlacedVolumeImplHelper<UnplacedScaledShape, VPl
   using Base = PlacedVolumeImplHelper<UnplacedScaledShape, VPlacedVolume>;
 
 public:
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
   using Base::Base;
   PlacedScaledShape(char const *const label, LogicalVolume const *const logicalVolume,
@@ -56,7 +56,7 @@ public:
     return static_cast<UnplacedScaledShape const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
-#if !defined(VECGEOM_NVCC)
+#if !defined(VECCORE_CUDA)
   virtual Precision Capacity() override { return GetUnplacedVolume()->Volume(); }
 
   virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
@@ -91,7 +91,7 @@ public:
 
 // Comparison specific
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const override;
@@ -102,7 +102,7 @@ public:
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const override;
 #endif
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 };
 }
 } // End global namespace

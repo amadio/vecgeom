@@ -20,7 +20,7 @@ namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(class VPlacedVolume;);
 VECGEOM_DEVICE_DECLARE_CONV(class, VPlacedVolume);
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 template <>
 struct kCudaType<const cxx::VPlacedVolume *> {
   using type_t = const cuda::VPlacedVolume *;
@@ -52,7 +52,7 @@ protected:
 #endif
   PlacedBox const *bounding_box_;
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
   VPlacedVolume(char const *const label, LogicalVolume const *const logical_vol,
                 Transformation3D const *const transform, PlacedBox const *const boundingbox);
@@ -333,7 +333,7 @@ public:
 
 #endif
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const = 0;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const = 0;
@@ -344,12 +344,12 @@ public:
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const = 0;
 #endif
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 };
 }
 } // End global namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 #define VECGEOM_DEVICE_INST_PLACED_VOLUME(PlacedVol)                                                       \
   namespace cxx {                                                                                          \

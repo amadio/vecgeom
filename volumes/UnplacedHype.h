@@ -226,7 +226,7 @@ public:
 
   virtual void Print(std::ostream &os) const override;
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   template <TranslationCode trans_code, RotationCode rot_code>
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
                                VPlacedVolume *const placement = NULL);
@@ -258,7 +258,7 @@ public:
 #endif
 
 private:
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   VPlacedVolume *SpecializedVolume(LogicalVolume const *const lvolume, Transformation3D const *const transformation,
                                    const TranslationCode trans_code, const RotationCode rot_code,
                                    VPlacedVolume *const placement = NULL) const override

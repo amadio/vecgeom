@@ -19,7 +19,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 unsigned int VPlacedVolume::g_id_count = 0;
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 VPlacedVolume::VPlacedVolume(char const *const label, LogicalVolume const *const logical_volume,
                              Transformation3D const *const transformation, PlacedBox const *const bounding_box)
     :
@@ -71,7 +71,7 @@ VPlacedVolume *VPlacedVolume::operator=(VPlacedVolume const &other)
 VECCORE_ATT_HOST_DEVICE
 VPlacedVolume::~VPlacedVolume()
 {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   GeoManager::Instance().DeregisterPlacedVolume(id_);
   delete label_;
 #endif
@@ -84,7 +84,7 @@ void VPlacedVolume::Print(const int indent) const
     printf("  ");
   PrintType();
   printf(" [%i]", id_);
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   if (label_->size()) {
     printf(" \"%s\"", label_->c_str());
   }
@@ -199,7 +199,7 @@ Precision VPlacedVolume::Capacity()
 VECCORE_ATT_HOST_DEVICE
 bool VPlacedVolume::Normal(Vector3D<Precision> const & /*point*/, Vector3D<Precision> & /*normal*/) const
 {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   throw std::runtime_error("Normal not implemented for this volume.");
 #endif
   return false;
@@ -208,14 +208,14 @@ bool VPlacedVolume::Normal(Vector3D<Precision> const & /*point*/, Vector3D<Preci
 VECCORE_ATT_HOST_DEVICE
 void VPlacedVolume::Extent(Vector3D<Precision> & /* min */, Vector3D<Precision> & /* max */) const
 {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   throw std::runtime_error("Extent() not implemented for this shape type.");
 #endif
 }
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 
@@ -229,6 +229,6 @@ template size_t DevicePtr<Precision>::SizeOf();
 
 } // End cxx namespace
 
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 
 } // End global namespace

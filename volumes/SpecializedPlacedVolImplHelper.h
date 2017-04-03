@@ -29,7 +29,7 @@ class CommonSpecializedVolImplHelper : public Specialization::PlacedShape_t {
   using UnplacedVolume_t = typename Specialization::UnplacedVolume_t;
 
 public:
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   CommonSpecializedVolImplHelper(char const *const label, LogicalVolume const *const logical_volume,
                                  Transformation3D const *const transformation,
                                  vecgeom::PlacedBox const *const boundingBox)
@@ -149,7 +149,7 @@ public:
   virtual Precision DistanceToIn(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
                                  const Precision stepMax = kInfLength) const override
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     assert(direction.IsNormalized() && " direction not normalized in call to DistanceToIn ");
 #endif
     Precision output(kInfLength);
@@ -166,7 +166,7 @@ public:
   virtual Precision PlacedDistanceToOut(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
                                         const Precision stepMax = kInfLength) const override
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     assert(direction.IsNormalized() && " direction not normalized in call to PlacedDistanceToOut ");
 #endif
     Transformation3D const *tr = this->GetTransformation();

@@ -41,7 +41,7 @@ VECGEOM_DEVICE_FORWARD_DECLARE(class Transformation3D;);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 }
 namespace cuda {
 class Transformation3D;

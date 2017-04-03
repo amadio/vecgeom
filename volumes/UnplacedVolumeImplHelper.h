@@ -68,7 +68,7 @@ public:
   virtual Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
                                   Precision step_max = kInfLength) const override
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     assert(d.IsNormalized() && " direction not normalized in call to  DistanceToOut ");
 #endif
     Precision output;
@@ -80,7 +80,7 @@ public:
 //#endif
 
 // detect -inf responses which are often an indication for a real bug
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     assert(!((output < 0.) && std::isinf((double)output)));
 #endif
     return output;
@@ -124,7 +124,7 @@ public:
   virtual Precision DistanceToIn(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
                                  const Precision step_max = kInfLength) const override
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     assert(d.IsNormalized() && " direction not normalized in call to  DistanceToOut ");
 #endif
     Precision output(kInfLength);

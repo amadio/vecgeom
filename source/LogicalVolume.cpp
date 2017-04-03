@@ -25,7 +25,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 // NOTE: This is in the wrong place (but SimpleSafetyEstimator does not yet have a source file).
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 __device__ SimpleSafetyEstimator *gSimpleSafetyEstimator = nullptr;
 
 VECCORE_ATT_DEVICE
@@ -36,7 +36,7 @@ VSafetyEstimator *SimpleSafetyEstimator::Instance()
 }
 #endif
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 __device__ VNavigator *gSimpleNavigator = nullptr;
 
 template <>
@@ -50,7 +50,7 @@ VNavigator *NewSimpleNavigator<false>::Instance()
 
 int LogicalVolume::gIdCount = 0;
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 LogicalVolume::LogicalVolume(char const *const label, VUnplacedVolume const *const unplaced_volume)
     : fUnplacedVolume(unplaced_volume), fId(0), fLabel(nullptr), fUserExtensionPtr(nullptr),
       fTrackingMediumPtr(nullptr), fBasketManagerPtr(nullptr), fLevelLocator(SimpleAssemblyLevelLocator::GetInstance()),
@@ -94,13 +94,13 @@ LogicalVolume::~LogicalVolume()
   for (Daughter *i = GetDaughters().begin(); i != GetDaughters().end(); ++i) {
     // delete *i;
   }
-#ifndef VECGEOM_NVCC // this guard might have to be extended
+#ifndef VECCORE_CUDA // this guard might have to be extended
   GeoManager::Instance().DeregisterLogicalVolume(fId);
 #endif
   delete fDaughters;
 }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
 VPlacedVolume *LogicalVolume::Place(char const *const label, Transformation3D const *const transformation) const
 {
@@ -158,7 +158,7 @@ void LogicalVolume::Print(const int indent) const
   for (int i = 0; i < indent; ++i)
     printf("  ");
   printf("LogicalVolume [%i]", fId);
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   if (fLabel->size()) {
     printf(" \"%s\"", fLabel->c_str());
   }
@@ -252,7 +252,7 @@ DevicePtr<cuda::LogicalVolume> LogicalVolume::CopyToGpu(DevicePtr<cuda::VUnplace
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 
@@ -261,6 +261,6 @@ template void DevicePtr<cuda::LogicalVolume>::Construct(DevicePtr<cuda::VUnplace
                                                         DevicePtr<cuda::Vector<cuda::VPlacedVolume const *>>) const;
 }
 
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 
 } // End global namespace

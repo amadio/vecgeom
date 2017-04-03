@@ -66,7 +66,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   void Initialize(const Precision *verticesx, const Precision *verticesy, Precision dz)
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     if (dz <= 0.) throw std::runtime_error("Half-length of generic trapezoid must be positive");
 #endif
     fDz  = dz;

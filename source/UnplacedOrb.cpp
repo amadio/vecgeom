@@ -113,7 +113,7 @@ void UnplacedOrb::Print(std::ostream &os) const
   os << "UnplacedOrb {" << GetRadius() << "}";
 }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 template <TranslationCode trans_code, RotationCode rot_code>
 VPlacedVolume *UnplacedOrb::Create(LogicalVolume const *const logical_volume,
                                    Transformation3D const *const transformation, VPlacedVolume *const placement)
@@ -174,7 +174,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedOrb::CopyToGpu() const
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 

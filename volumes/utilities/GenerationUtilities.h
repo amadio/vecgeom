@@ -8,7 +8,7 @@ template <typename SpecializationT>
 VECCORE_ATT_DEVICE
 VPlacedVolume *CreateSpecializedWithPlacement(LogicalVolume const *const logical_volume,
                                               Transformation3D const *const transformation,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                               const int id,
 #endif
                                               VPlacedVolume *const placement)
@@ -16,7 +16,7 @@ VPlacedVolume *CreateSpecializedWithPlacement(LogicalVolume const *const logical
 
   if (placement) {
     return new (placement) SpecializationT(logical_volume, transformation
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                            ,
                                            (PlacedBox const *)nullptr, id
 #endif
@@ -24,7 +24,7 @@ VPlacedVolume *CreateSpecializedWithPlacement(LogicalVolume const *const logical
   }
 
   return new SpecializationT(
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
       logical_volume, transformation, (PlacedBox const *)nullptr, id); // TODO: add bounding box?
 #else
       logical_volume, transformation);

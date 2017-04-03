@@ -7,7 +7,7 @@ namespace vecgeom {
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 // NVCC does not seem to handle array initialization yet.
 //    cuda_src/Rectangles.cu(9): internal error: assertion failed: adjust_cleanup_state_for_aggregate_init: NULL dip
 //    (/dvs/p4/build/sw/rel/gpu_drv/r340/r340_00/drivers/compiler_CUREL/edg/EDG_4.8/src/lower_init.c, line 7369)
@@ -86,7 +86,7 @@ void Quadrilaterals::Set(int index, Vector3D<Precision> const &corner0, Vector3D
     }
     ++cornerstested;
   }
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   if (cornersassigned < 3) std::cout << "Quadrilaterals::Set: could not find three non degenerated points" << std::endl;
 #endif
 

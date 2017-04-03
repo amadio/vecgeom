@@ -3,7 +3,7 @@
 
 #include "volumes/UnplacedTube.h"
 #include "volumes/SpecializedTube.h"
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 #include "base/RNG.h"
 #include <cmath>
 #include <iostream>
@@ -29,7 +29,7 @@ void UnplacedTube::Print(std::ostream &os) const
 // VECCORE_ATT_DEVICE
 // VPlacedVolume *UnplacedTube::Create(LogicalVolume const *const logical_volume,
 //                                    Transformation3D const *const transformation,
-//#ifdef VECGEOM_NVCC
+//#ifdef VECCORE_CUDA
 //                                    const int id,
 //#endif
 //                                    VPlacedVolume *const placement)
@@ -39,7 +39,7 @@ void UnplacedTube::Print(std::ostream &os) const
 //  __attribute__((unused)) const UnplacedTube &tube =
 //      static_cast<const UnplacedTube &>(*(logical_volume->GetUnplacedVolume()));
 
-////#ifdef VECGEOM_NVCC
+////#ifdef VECCORE_CUDA
 ////#define RETURN_SPECIALIZATION(tubeTypeT)				"\"
 ////  return CreateSpecializedWithPlacement<SpecializedTube<transCodeT, rotCodeT, tubeTypeT>>( "\"
 //      logical_volume, transformation, id, placement)
@@ -70,7 +70,7 @@ void UnplacedTube::Print(std::ostream &os) const
 //#undef RETURN_SPECIALIZATION
 //}
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 VPlacedVolume *UnplacedTube::SpecializedVolume(LogicalVolume const *const volume,
                                                Transformation3D const *const transformation,
                                                const TranslationCode trans_code, const RotationCode rot_code,
@@ -250,7 +250,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedTube::CopyToGpu() const
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 

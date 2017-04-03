@@ -89,7 +89,7 @@ VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
 Type *AlignedAllocate(size_t size)
 {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   return static_cast<Type *>(_mm_malloc(sizeof(Type) * size, kAlignmentBoundary));
 #else
   return new Type[size];
@@ -101,7 +101,7 @@ VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
 void AlignedFree(Type *allocated)
 {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   _mm_free(allocated);
 #else
   delete[] allocated;

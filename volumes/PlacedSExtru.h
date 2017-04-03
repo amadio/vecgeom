@@ -17,7 +17,7 @@ class PlacedSExtru : public PlacedVolumeImplHelper<UnplacedSExtruVolume, VPlaced
   using Base = PlacedVolumeImplHelper<UnplacedSExtruVolume, VPlacedVolume>;
 
 public:
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   // constructor inheritance;
   using Base::Base;
   PlacedSExtru(char const *const label, LogicalVolume const *const logicalVolume,
@@ -48,7 +48,7 @@ public:
   virtual Vector3D<Precision> GetPointOnSurface() const override;
 
 // Comparison specific
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const override;
@@ -59,7 +59,7 @@ public:
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const override;
 #endif
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 };
 
 } // end inline namespace

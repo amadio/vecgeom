@@ -30,7 +30,7 @@ class PlacedPolycone : public VPlacedVolume {
 public:
   typedef UnplacedPolycone UnplacedShape_t;
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   PlacedPolycone(char const *const label, LogicalVolume const *const logical_volume,
                  Transformation3D const *const transformation, PlacedBox const *const boundingBox)
       : VPlacedVolume(label, logical_volume, transformation, boundingBox)
@@ -82,7 +82,7 @@ public:
   std::ostream &StreamInfo(std::ostream &os) const override { return GetUnplacedVolume()->StreamInfo(os); }
 #endif
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const override;

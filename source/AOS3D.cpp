@@ -9,7 +9,7 @@
 
 namespace vecgeom {
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 

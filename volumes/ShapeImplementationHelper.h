@@ -32,7 +32,7 @@ class ShapeImplementationHelper : public Specialization::PlacedShape_t {
   // using Implementation_t = Specialization;  // not used
 
 public:
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
   ShapeImplementationHelper(char const *const label, LogicalVolume const *const logical_volume,
                             Transformation3D const *const transformation, PlacedBox const *const boundingBox)
@@ -188,7 +188,7 @@ public:
   virtual Precision DistanceToIn(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
                                  const Precision stepMax = kInfLength) const override
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     assert(direction.IsNormalized() && " direction not normalized in call to  DistanceToIn ");
 #endif
     Precision output = kInfLength;
@@ -214,7 +214,7 @@ public:
                                                          Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
                                                          const VECGEOM_BACKEND_PRECISION_TYPE stepMax) const override
   {
-    //#ifndef VECGEOM_NVCC
+    //#ifndef VECCORE_CUDA
     //    assert(direction.IsNormalized() && " direction not normalized in call to  DistanceToIn ");
     //#endif
     VECGEOM_BACKEND_PRECISION_TYPE output = kInfLength;
@@ -234,7 +234,7 @@ public:
   virtual Precision DistanceToOut(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
                                   const Precision stepMax = kInfLength) const override
   {
-    //#ifndef VECGEOM_NVCC
+    //#ifndef VECCORE_CUDA
     //      assert( direction.IsNormalized() && " direction not normalized in call to  DistanceToOut " );
     //#endif
     Precision output = kInfLength;
@@ -253,7 +253,7 @@ public:
 #endif
 
     // detect -inf responses which are often an indication for a real bug
-    //#ifndef VECGEOM_NVCC
+    //#ifndef VECCORE_CUDA
     //    assert( ! ( (output < 0.) && std::isinf(output) ) );
     //#endif
 
@@ -264,7 +264,7 @@ public:
                                                           Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
                                                           const VECGEOM_BACKEND_PRECISION_TYPE stepMax) const override
   {
-    //#ifndef VECGEOM_NVCC
+    //#ifndef VECCORE_CUDA
     //    assert(direction.IsNormalized() && " direction not normalized in call to  DistanceToOut ");
     //#endif
     VECGEOM_BACKEND_PRECISION_TYPE output = kInfLength;
@@ -279,7 +279,7 @@ public:
     //#endif
 
     // detect -inf responses which are often an indication for a real bug
-    //#ifndef VECGEOM_NVCC
+    //#ifndef VECCORE_CUDA
     // assert(!((output < 0.) && std::isinf(output)));
     //#endif
 
@@ -290,7 +290,7 @@ public:
   virtual Precision PlacedDistanceToOut(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
                                         const Precision stepMax = kInfLength) const override
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     assert(direction.IsNormalized() && " direction not normalized in call to  PlacedDistanceToOut ");
 #endif
     Precision output          = kInfLength;

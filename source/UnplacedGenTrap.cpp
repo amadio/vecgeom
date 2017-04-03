@@ -8,7 +8,7 @@
 #include <iostream>
 #include "management/VolumeFactory.h"
 #include "volumes/SpecializedGenTrap.h"
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 #include "base/RNG.h"
 #endif
 
@@ -21,7 +21,7 @@ Vector3D<Precision> UnplacedGenTrap::GetPointOnSurface() const
   // Generate randomly a point on one of the surfaces
   // Select randomly a surface
   Vertex_t point;
-#ifndef VECGEOM_NVCC // CUDA does not support RNG:: for now
+#ifndef VECCORE_CUDA // CUDA does not support RNG:: for now
   // Avoid using the bounding box due to possible point-like top/bottom
   // which would be impossible to sample
   bool degenerate[6] = {false};
@@ -121,7 +121,7 @@ Vector3D<Precision> UnplacedGenTrap::GetPointOnSurface() const
   }
   // Set point coordinates
   point.Set(x, y, z);
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
   return point;
 }
 
@@ -232,13 +232,13 @@ VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedGenTrap::SpecializedVolume(LogicalVolume const *const volume,
                                                   Transformation3D const *const transformation,
                                                   const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                   const int id,
 #endif
                                                   VPlacedVolume *const placement) const
 {
   return VolumeFactory::CreateByTransformation<UnplacedGenTrap>(volume, transformation, trans_code, rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                                 id,
 #endif
                                                                 placement);
@@ -249,14 +249,14 @@ template <TranslationCode trans_code, RotationCode rot_code>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedGenTrap::Create(LogicalVolume const *const logical_volume,
                                        Transformation3D const *const transformation,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                        const int id,
 #endif
                                        VPlacedVolume *const placement)
 {
   if (placement) {
     new (placement) SpecializedGenTrap<trans_code, rot_code>(logical_volume, transformation
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                              ,
                                                              id
 #endif
@@ -264,7 +264,7 @@ VPlacedVolume *UnplacedGenTrap::Create(LogicalVolume const *const logical_volume
     return placement;
   }
   return new SpecializedGenTrap<trans_code, rot_code>(logical_volume, transformation
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                       ,
                                                       id
 #endif
@@ -277,12 +277,12 @@ VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedGenTrap::CreateSpecializedVolume(LogicalVolume const *const volume,
                                                         Transformation3D const *const transformation,
                                                         const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                         const int id,
 #endif
                                                         VPlacedVolume *const placement) {
   return VolumeFactory::CreateByTransformation<UnplacedGenTrap>(volume, transformation, trans_code, rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                                 id,
 #endif
                                                                 placement);
@@ -317,7 +317,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedGenTrap::CopyToGpu() const
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 

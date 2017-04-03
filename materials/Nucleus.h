@@ -3,7 +3,7 @@
 
 #include "base/Global.h"
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 #include "base/Map.h"
 #include "base/Vector.h"
 #include <string.h>
@@ -24,7 +24,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class Nucleus;
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 using NucleusMap_t   = vecgeom::map<int, vecgeom::Vector<Nucleus *>>;
 using NucleusIndex_t = vecgeom::map<int, Nucleus *>;
 #else
@@ -32,7 +32,7 @@ using NucleusMap_t                = std::map<int, std::vector<Nucleus *>>;
 using NucleusIndex_t              = std::map<int, Nucleus *>;
 #endif
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 extern VECCORE_ATT_DEVICE NucleusIndex_t *gNucleiDev;   // Nuclei list indexed by 10,000*z + 10*n + iso
 extern NucleusIndex_t *gNucleiHost;                     // Nuclei list indexed by 10,000*z + 10*n + iso
 extern VECCORE_ATT_DEVICE NucleusMap_t *gIsoListDev;    // List of isotopes for a given z
@@ -45,7 +45,7 @@ class Nucleus {
 public:
   class Decay;
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
   using VectorDecay_t = vecgeom::Vector<Decay>;
 #else
   using VectorDecay_t             = std::vector<Decay>;
@@ -87,7 +87,7 @@ public:
     return std::string(name);
   }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   static void ReadFile(std::string infilename, bool outfile = false);
 #endif
 
@@ -102,7 +102,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   static const NucleusIndex_t &Nuclei()
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     if (!fNuclei) fNuclei = new NucleusIndex_t;
     return *fNuclei;
 #else
@@ -119,7 +119,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   static const NucleusMap_t &IsoList()
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     if (!fIsoList) fIsoList = new NucleusMap_t;
     return *fIsoList;
 #else
@@ -136,7 +136,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   static const NucleusMap_t &NatIsoList()
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     if (!fNatIsoList) fNatIsoList = new NucleusMap_t;
     return *fNatIsoList;
 #else
@@ -187,7 +187,7 @@ public:
   };
 
 private:
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   static void Getmat(std::string line, int &n, int &z, int &iso, std::string &name, double &a, double &dm, double &life,
                      int &da, int &dz, int &diso, double &br, double &qval, double &natab, double &toxa, double &toxb,
                      int &ind1, int &ind2);
@@ -207,7 +207,7 @@ private:
   int fInd2;                // Misterious index 2
   VectorDecay_t fDecayList; // Decay channels
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   static NucleusIndex_t *fNuclei;   // Nuclei list indexed by 10,000*z + 10*n + iso
   static NucleusMap_t *fIsoList;    // List of isotopes for a given z
   static NucleusMap_t *fNatIsoList; // List of stable isotopes for a given z

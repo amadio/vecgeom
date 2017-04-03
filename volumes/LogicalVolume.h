@@ -85,7 +85,7 @@ private:
   //  void SetDaughter(unsigned int i, VPlacedVolume const *pvol);
 
 public:
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   // Standard constructor when constructing geometries. Will initiate an empty
   // daughter list which can be populated by placing daughters.
   // \sa PlaceDaughter()

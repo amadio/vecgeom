@@ -118,7 +118,7 @@ public:
     vecCore::Store(step, out_steps + from_index);
   }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   static VNavigator *Instance()
   {
     static NewSimpleNavigator instance;

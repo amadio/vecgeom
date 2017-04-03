@@ -7,7 +7,7 @@
 #include "volumes/UnplacedCutTube.h"
 #include "volumes/SpecializedCutTube.h"
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 #include "base/RNG.h"
 //#include <cmath>
 #include <iostream>
@@ -47,7 +47,7 @@ Precision UnplacedCutTube::volume() const
 Vector3D<Precision> UnplacedCutTube::GetPointOnSurface() const
 {
   Precision xVal = 0., yVal = 0., zVal = 0.;
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   Precision area[6];
   Precision atotal = 0.;
 
@@ -194,14 +194,14 @@ template <TranslationCode trans_code, RotationCode rot_code>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedCutTube::Create(LogicalVolume const *const logical_volume,
                                        Transformation3D const *const transformation,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                        const int id,
 #endif
                                        VPlacedVolume *const placement)
 {
   if (placement) {
     new (placement) SpecializedCutTube<trans_code, rot_code>(logical_volume, transformation
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                              ,
                                                              id
 #endif
@@ -209,7 +209,7 @@ VPlacedVolume *UnplacedCutTube::Create(LogicalVolume const *const logical_volume
     return placement;
   }
   return new SpecializedCutTube<trans_code, rot_code>(logical_volume, transformation
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                       ,
                                                       id
 #endif
@@ -220,13 +220,13 @@ VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedCutTube::SpecializedVolume(LogicalVolume const *const volume,
                                                   Transformation3D const *const transformation,
                                                   const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                   const int id,
 #endif
                                                   VPlacedVolume *const placement) const
 {
   return VolumeFactory::CreateByTransformation<UnplacedCutTube>(volume, transformation, trans_code, rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                                 id,
 #endif
                                                                 placement);
@@ -250,7 +250,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedCutTube::CopyToGpu() const
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 

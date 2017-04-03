@@ -34,7 +34,7 @@ void PlacedGenTrap::PrintType(std::ostream &os) const
   os << "PlacedGenTrap";
 }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
 //______________________________________________________________________________
 VPlacedVolume const *PlacedGenTrap::ConvertToUnspecialized() const
@@ -79,14 +79,14 @@ G4VSolid const *PlacedGenTrap::ConvertToGeant4() const
 }
 #endif
 
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(SpecializedGenTrap)
 
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 
 } // End namespace vecgeom

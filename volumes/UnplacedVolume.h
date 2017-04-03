@@ -217,7 +217,7 @@ public:
                              VPlacedVolume *const placement = NULL) const;
 
 private:
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,

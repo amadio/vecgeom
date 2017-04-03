@@ -9,7 +9,7 @@
 #include "volumes/SpecializedCone.h"
 #include "volumes/utilities/VolumeUtilities.h"
 #include "volumes/utilities/GenerationUtilities.h"
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 #include "base/RNG.h"
 #endif
 #include "management/VolumeFactory.h"
@@ -128,7 +128,7 @@ void UnplacedCone::DetectConvexity()
   }
 }
 
-#if !defined(VECGEOM_NVCC)
+#if !defined(VECCORE_CUDA)
 #if (0)
 // Simplest Extent definition, that does not take PHI into consideration
 void UnplacedCone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
@@ -455,13 +455,13 @@ Vector3D<Precision> UnplacedCone::GetPointOnSurface() const
 
   return retPt;
 }
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedCone::Create(LogicalVolume const *const logical_volume,
                                     Transformation3D const *const transformation,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                     const int id,
 #endif
                                     VPlacedVolume *const placement)
@@ -471,7 +471,7 @@ VPlacedVolume *UnplacedCone::Create(LogicalVolume const *const logical_volume,
   __attribute__((unused)) const UnplacedCone &cone =
       static_cast<const UnplacedCone &>(*(logical_volume->GetUnplacedVolume()));
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 #define RETURN_SPECIALIZATION(coneTypeT)                                                   \
   return CreateSpecializedWithPlacement<SpecializedCone<transCodeT, rotCodeT, coneTypeT>>( \
       logical_volume, transformation, id, placement)
@@ -530,14 +530,14 @@ VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedCone::SpecializedVolume(LogicalVolume const *const volume,
                                                Transformation3D const *const transformation,
                                                const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                const int id,
 #endif
                                                VPlacedVolume *const placement) const
 {
 
   return VolumeFactory::CreateByTransformation<UnplacedCone>(volume, transformation, trans_code, rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                              id,
 #endif
                                                              placement);
@@ -559,7 +559,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedCone::CopyToGpu() const
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 

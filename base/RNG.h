@@ -6,7 +6,7 @@
 
 #include "base/Global.h"
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 #include <cuda.h>
 #include <curand_kernel.h>
 #else
@@ -16,7 +16,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 class RNG;
 
 // Emulating static class member ..
@@ -32,7 +32,7 @@ extern VECCORE_ATT_DEVICE RNG **gInstances;
 class RNG {
 
 private:
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 #ifdef __CUDA_ARCH__
   curandState fState;
@@ -62,7 +62,7 @@ private:
 #endif
 
 public:
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
   // The state should really be 'thread' specific
   VECCORE_ATT_HOST_DEVICE
   RNG()
@@ -99,7 +99,7 @@ public:
   }
 #endif
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   void seed(unsigned long seed_val) { rng.seed(seed_val); }
 #endif
   /**

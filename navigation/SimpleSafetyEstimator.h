@@ -129,7 +129,7 @@ public:
     }
   }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   static VSafetyEstimator *Instance()
   {
     static SimpleSafetyEstimator instance;

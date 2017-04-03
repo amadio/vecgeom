@@ -24,7 +24,7 @@ class PlacedCone : public VPlacedVolume {
 public:
   typedef UnplacedCone UnplacedShape_t;
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
   PlacedCone(char const *const label, LogicalVolume const *const logical_volume,
              Transformation3D const *const transformation, PlacedBox const *const boundingBox)
@@ -61,7 +61,7 @@ public:
   std::ostream &StreamInfo(std::ostream &os) const override { return GetUnplacedVolume()->StreamInfo(os); }
 #endif
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const override;
@@ -116,7 +116,7 @@ double SafetyFromOutsideR(const Vector3D<Precision> &p, const double rho, bool p
   return GetUnplacedVolume()->SafetyFromOutsideR(p, rho, precise);
 }
 */
-#if !defined(VECGEOM_NVCC)
+#if !defined(VECCORE_CUDA)
   virtual Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
 
   virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override

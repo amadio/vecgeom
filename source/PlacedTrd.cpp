@@ -3,7 +3,7 @@
 
 #include "volumes/Trd.h"
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
 #ifdef VECGEOM_ROOT
 #include "TGeoTrd1.h"
@@ -18,12 +18,12 @@
 #include "G4Trd.hh"
 #endif
 
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
 VPlacedVolume const *PlacedTrd::ConvertToUnspecialized() const
 {
@@ -52,11 +52,11 @@ G4VSolid const *PlacedTrd::ConvertToGeant4() const
 }
 #endif
 
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 
 } // End im%pl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_3(SpecializedTrd, TrdTypes::UniversalTrd)
 

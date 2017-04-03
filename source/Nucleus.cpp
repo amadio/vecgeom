@@ -13,7 +13,7 @@ using std::stringstream;
 using std::setw;
 using std::setfill;
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 #ifndef VECCORE_CUDA_DEVICE_COMPILATION
 #define fNuclei gNucleiHost
 #define fIsoList gIsoListHost
@@ -42,7 +42,7 @@ using std::find;
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 //________________________________________________________________________________________________
 // Auxiliary functions to write the file
 
@@ -83,7 +83,7 @@ static void StartFile(std::stringstream &outline, unsigned int nfiles, bool oneF
   outline << "#endif" << endl;
   outline << "#include \"materials/Nucleus.h\"" << endl;
   /*
-  outline << "#ifdef VECGEOM_NVCC" << endl << "#include \"base/Vector.h\"" <<
+  outline << "#ifdef VECCORE_CUDA" << endl << "#include \"base/Vector.h\"" <<
   endl
           << "template <typename T>" << endl << "using vector =
   vecgeom::Vector<T>;" << endl
@@ -118,7 +118,7 @@ char *strncpy(char *dest, const char *src, size_t n)
 #endif
 
 //________________________________________________________________________________________________
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 class Nucleus;
 VECCORE_ATT_DEVICE NucleusIndex_t *gNucleiDev   = nullptr;
 NucleusIndex_t *gNucleiHost                     = nullptr;
@@ -170,7 +170,7 @@ Nucleus::Nucleus(const char *name, int n, int z, int iso, double a, double dm, d
   }
 }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 //________________________________________________________________________________________________
 void Nucleus::ReadFile(std::string infilename, bool output)
 {
@@ -261,14 +261,14 @@ void Nucleus::ReadFile(std::string infilename, bool output)
       outfile << "void CreateNuclei" << setfill('0') << setw(4) << i << "();" << endl;
     }
 
-    outfile << "\n#ifdef VECGEOM_NVCC\n";
+    outfile << "\n#ifdef VECCORE_CUDA\n";
     outfile << "VECCORE_ATT_DEVICE bool fgCreateNucleiInitDoneDev = "
                "false;\n";
     outfile << "#endif\n";
 
     outfile << endl << "//" << setw(80) << setfill('_') << "_" << endl << setfill(' ') << setw(0);
     outfile << "VECCORE_ATT_HOST_DEVICE" << endl << "void Nucleus::CreateNuclei() {" << endl;
-    outfile << "#ifndef VECGEOM_NVCC\n";
+    outfile << "#ifndef VECCORE_CUDA\n";
     outfile << "  static bool fgCreateNucleiInitDone = false;\n";
     outfile << "#else\n";
     outfile << "  bool &fgCreateNucleiInitDone(fgCreateNucleiInitDoneDev);\n";

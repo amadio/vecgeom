@@ -6,7 +6,7 @@
 #include "backend/Backend.h"
 #include "management/VolumeFactory.h"
 #include "volumes/SpecializedScaledShape.h"
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 #include "base/RNG.h"
 #endif
 #include <stdio.h>
@@ -72,14 +72,14 @@ template <TranslationCode trans_code, RotationCode rot_code>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedScaledShape::Create(LogicalVolume const *const logical_volume,
                                            Transformation3D const *const transformation,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                            const int id,
 #endif
                                            VPlacedVolume *const placement)
 {
   if (placement) {
     new (placement) SpecializedScaledShape<trans_code, rot_code>(logical_volume, transformation
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                                  ,
                                                                  id
 #endif
@@ -87,7 +87,7 @@ VPlacedVolume *UnplacedScaledShape::Create(LogicalVolume const *const logical_vo
     return placement;
   }
   return new SpecializedScaledShape<trans_code, rot_code>(logical_volume, transformation
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                           ,
                                                           id
 #endif
@@ -100,13 +100,13 @@ VPlacedVolume *UnplacedScaledShape::CreateSpecializedVolume(LogicalVolume const 
                                                             Transformation3D const *const transformation,
                                                             const TranslationCode trans_code,
                                                             const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                             const int id,
 #endif
                                                             VPlacedVolume *const placement)
 {
   return VolumeFactory::CreateByTransformation<UnplacedScaledShape>(volume, transformation, trans_code, rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                                     id,
 #endif
                                                                     placement);
@@ -132,7 +132,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedScaledShape::CopyToGpu() const
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 

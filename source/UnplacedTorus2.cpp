@@ -23,14 +23,14 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedTorus2::Create(LogicalVolume const *const logical_volume,
                                       Transformation3D const *const transformation,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                       const int id,
 #endif
                                       VPlacedVolume *const placement)
 {
   if (placement) {
     new (placement) SpecializedTorus2<transCodeT, rotCodeT>(logical_volume, transformation
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                             ,
                                                             NULL, id
 #endif
@@ -38,7 +38,7 @@ VPlacedVolume *UnplacedTorus2::Create(LogicalVolume const *const logical_volume,
     return placement;
   }
   return new SpecializedTorus2<transCodeT, rotCodeT>(logical_volume, transformation
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                      ,
                                                      NULL, id
 #endif
@@ -49,14 +49,14 @@ VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedTorus2::SpecializedVolume(LogicalVolume const *const volume,
                                                  Transformation3D const *const transformation,
                                                  const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                  const int id,
 #endif
                                                  VPlacedVolume *const placement) const
 {
 
   return VolumeFactory::CreateByTransformation<UnplacedTorus2>(volume, transformation, trans_code, rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                                id,
 #endif
                                                                placement);
@@ -241,7 +241,7 @@ bool UnplacedTorus2::Normal(Vector3D<Precision> const &point, Vector3D<Precision
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 

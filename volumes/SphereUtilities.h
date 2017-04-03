@@ -3,7 +3,7 @@
 
 #include "base/Global.h"
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 #include "base/RNG.h"
 #endif
 
@@ -18,7 +18,7 @@ T sqr(T x)
   return x * x;
 }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 // Generate radius in annular ring according to uniform area
 template <typename T>
 VECGEOM_FORCE_INLINE

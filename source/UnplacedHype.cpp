@@ -137,7 +137,7 @@ void UnplacedHype::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) 
   aMax.Set(rMax, rMax, fDz);
 }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 VECCORE_ATT_HOST_DEVICE
 std::string UnplacedHype::GetEntityType() const
 {
@@ -280,7 +280,7 @@ void UnplacedHype::Print(std::ostream &os) const
   os << "UnplacedHype {" << fRmin << ", " << fRmax << ", " << fStIn << ", " << fStOut << ", " << fDz << "}";
 }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
 template <TranslationCode trans_code, RotationCode rot_code>
 VPlacedVolume *UnplacedHype::Create(LogicalVolume const *const logical_volume,
@@ -344,7 +344,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedHype::CopyToGpu() const
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 

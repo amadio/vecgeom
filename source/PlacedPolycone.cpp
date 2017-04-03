@@ -23,7 +23,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 VPlacedVolume const *PlacedPolycone::ConvertToUnspecialized() const
 {
   return new SimplePolycone(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
@@ -83,10 +83,10 @@ G4VSolid const *PlacedPolycone::ConvertToGeant4() const
   return g4shape;
 }
 #endif
-#endif // ! VECGEOM_NVCC
+#endif // ! VECCORE_CUDA
 }
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(SpecializedPolycone)
 #endif
 

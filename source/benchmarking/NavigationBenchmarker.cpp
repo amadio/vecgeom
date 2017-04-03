@@ -727,7 +727,7 @@ bool validateVecGeomNavigation(int np, SOA3D<Precision> const &points, SOA3D<Pre
   _mm_free(refSteps);
   _mm_free(vecSteps);
   _mm_free(safeties);
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
   _mm_free(gpuSteps);
 #endif
   delete[] vgVectorStates;

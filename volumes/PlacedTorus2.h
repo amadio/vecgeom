@@ -22,7 +22,7 @@ class PlacedTorus2 : public VPlacedVolume {
 public:
   typedef UnplacedTorus2 UnplacedShape_t;
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
   PlacedTorus2(char const *const label, LogicalVolume const *const logical_volume,
                Transformation3D const *const transformation, PlacedBox const *const boundingBox)
@@ -100,7 +100,7 @@ public:
     GetUnplacedVolume()->Extent(aMin, aMax);
   }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface(); }
   VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
@@ -123,7 +123,7 @@ public:
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const override;
 #endif
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 };
 }
 } // End global namespace

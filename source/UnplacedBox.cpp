@@ -48,7 +48,7 @@ Vector3D<Precision> UnplacedBox::GetPointOnSurface() const
   return p;
 }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 template <TranslationCode trans_code, RotationCode rot_code>
 VPlacedVolume *UnplacedBox::Create(LogicalVolume const *const logical_volume,
                                    Transformation3D const *const transformation, VPlacedVolume *const placement)
@@ -109,7 +109,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedBox::CopyToGpu() const
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 

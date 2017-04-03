@@ -21,7 +21,7 @@ class PlacedAssembly : public VPlacedVolume {
 
 private:
 public:
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   VECCORE_ATT_HOST_DEVICE
   PlacedAssembly(char const *const label, LogicalVolume const *const logicalVolume,
                  Transformation3D const *const transformation)
@@ -50,13 +50,13 @@ public:
 
   virtual void PrintImplementationType(std::ostream &) const override
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     throw std::runtime_error("unimplemented function called");
 #endif
   }
   virtual void PrintUnplacedType(std::ostream &) const override
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     throw std::runtime_error("unimplemented function called");
 #endif
   }
@@ -97,7 +97,7 @@ public:
   VECGEOM_FORCE_INLINE
   virtual EnumInside Inside(Vector3D<Precision> const & /*point*/) const override
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     throw std::runtime_error("unimplemented function called");
 #endif
     return vecgeom::kOutside; // dummy return
@@ -136,7 +136,7 @@ public:
   virtual Precision DistanceToOut(Vector3D<Precision> const & /*position*/, Vector3D<Precision> const & /*direction*/,
                                   Precision const /*stepMax*/) const override
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     throw std::runtime_error("unimplemented function called");
 #endif
     return -1.; // dummy return
@@ -147,7 +147,7 @@ public:
                                         Vector3D<Precision> const & /*direction*/,
                                         Precision const /*stepMax*/) const override
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     throw std::runtime_error("unimplemented function called");
 #endif
     return -1.;
@@ -207,7 +207,7 @@ public:
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const & /*direction*/,
       VECGEOM_BACKEND_PRECISION_TYPE const /*step_max*/ = kInfLength) const override
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     throw std::runtime_error("unimplemented function called");
 #endif
     return VECGEOM_BACKEND_PRECISION_TYPE(-1.);
@@ -218,7 +218,7 @@ public:
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const & /*direction*/,
       VECGEOM_BACKEND_PRECISION_TYPE const /*step_max*/ = kInfLength) const override
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     throw std::runtime_error("unimplemented function called");
 #endif
     return VECGEOM_BACKEND_PRECISION_TYPE(-1.);
@@ -227,7 +227,7 @@ public:
   virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToInVec(
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const & /*position*/) const override
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     throw std::runtime_error("unimplemented function called");
 #endif
     return VECGEOM_BACKEND_PRECISION_TYPE(-1.);
@@ -236,7 +236,7 @@ public:
   virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOutVec(
       Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const & /*position*/) const override
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     throw std::runtime_error("unimplemented function called");
 #endif
     return VECGEOM_BACKEND_PRECISION_TYPE(-1.);
@@ -251,7 +251,7 @@ public:
     return static_cast<UnplacedAssembly const *>(GetUnplacedVolume())->GetPointOnSurface();
   }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override { return this; }
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const override { throw std::runtime_error("unimplemented function called"); }

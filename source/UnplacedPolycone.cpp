@@ -9,7 +9,7 @@
 #include "volumes/UnplacedCone.h"
 #include "volumes/SpecializedPolycone.h"
 #include "management/VolumeFactory.h"
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 #include "base/RNG.h"
 #endif
 #include <iostream>
@@ -82,7 +82,7 @@ void UnplacedPolycone::Init(double phiStart, double phiTotal, unsigned int numZP
     if (rOuterR[j] > RMaxextent) RMaxextent = rOuterR[j];
 
     if (rInnerR[j] > rOuterR[j]) {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
       std::cerr << "Cannot create Polycone with rInner > rOuter for the same Z"
                 << "\n"
                 << "        rInner > rOuter for the same Z !\n"
@@ -98,7 +98,7 @@ void UnplacedPolycone::Init(double phiStart, double phiTotal, unsigned int numZP
   for (unsigned int i = 0; i < numZPlanes; ++i) {
     if ((i < numZPlanes - 1) && (zPlaneR[i] == zPlaneR[i + 1])) {
       if ((rInnerR[i] > rOuterR[i + 1]) || (rInnerR[i + 1] > rOuterR[i])) {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
         std::cerr << "Cannot create a Polycone with no contiguous segments." << std::endl
                   << "                Segments are not contiguous !" << std::endl
                   << "                rMin[" << i << "] = " << rInnerR[i] << " -- rMax[" << i + 1
@@ -118,7 +118,7 @@ void UnplacedPolycone::Init(double phiStart, double phiTotal, unsigned int numZP
     if (i > 0) {
       if (((z > prevZ) && (dirZ > 0)) || ((z < prevZ) && (dirZ < 0))) {
         if (dirZ * (z - prevZ) < 0) {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
           std::cerr << "Cannot create a Polycone with different Z directions.Use GenericPolycone." << std::endl
                     << "              ZPlane is changing direction  !" << std::endl
                     << "  zPlane[0] = " << zPlaneR[0] << " -- zPlane[1] = " << zPlaneR[1] << std::endl
@@ -196,7 +196,7 @@ void UnplacedPolycone::Init(double phiStart, double phiTotal, unsigned int numZP
     if (rOuter[j] > RMaxextent) RMaxextent = rOuter[j];
 
     if (rInner[j] > rOuter[j]) {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
       std::cerr << "Cannot create Polycone with rInner > rOuter for the same Z"
                 << "\n"
                 << "        rInner > rOuter for the same Z !\n"
@@ -212,7 +212,7 @@ void UnplacedPolycone::Init(double phiStart, double phiTotal, unsigned int numZP
   for (unsigned int i = 0; i < numZPlanes; ++i) {
     if ((i < numZPlanes - 1) && (zPlane[i] == zPlane[i + 1])) {
       if ((rInner[i] > rOuter[i + 1]) || (rInner[i + 1] > rOuter[i])) {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
         std::cerr << "Cannot create a Polycone with no contiguous segments." << std::endl
                   << "                Segments are not contiguous !" << std::endl
                   << "                rMin[" << i << "] = " << rInner[i] << " -- rMax[" << i + 1
@@ -232,7 +232,7 @@ void UnplacedPolycone::Init(double phiStart, double phiTotal, unsigned int numZP
     if (i > 0) {
       if (((z > prevZ) && (dirZ > 0)) || ((z < prevZ) && (dirZ < 0))) {
         if (dirZ * (z - prevZ) < 0) {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
           std::cerr << "Cannot create a Polycone with different Z directions.Use GenericPolycone." << std::endl
                     << "              ZPlane is changing direction  !" << std::endl
                     << "  zPlane[0] = " << zPlane[0] << " -- zPlane[1] = " << zPlane[1] << std::endl
@@ -331,7 +331,7 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedPolycone::Create(LogicalVolume const *const logical_volume,
                                         Transformation3D const *const transformation,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                         const int id,
 #endif
                                         VPlacedVolume *const placement)
@@ -339,7 +339,7 @@ VPlacedVolume *UnplacedPolycone::Create(LogicalVolume const *const logical_volum
 
   if (placement) {
     new (placement) SpecializedPolycone<transCodeT, rotCodeT>(logical_volume, transformation
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                               ,
                                                               NULL, id
 #endif
@@ -347,7 +347,7 @@ VPlacedVolume *UnplacedPolycone::Create(LogicalVolume const *const logical_volum
     return placement;
   }
   return new SpecializedPolycone<transCodeT, rotCodeT>(logical_volume, transformation
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                        ,
                                                        NULL, id
 #endif
@@ -423,7 +423,7 @@ VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedPolycone::SpecializedVolume(LogicalVolume const *const volume,
                                                    Transformation3D const *const transformation,
                                                    const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                    const int id,
 #endif
                                                    VPlacedVolume *const placement) const
@@ -431,7 +431,7 @@ VPlacedVolume *UnplacedPolycone::SpecializedVolume(LogicalVolume const *const vo
 
   // TODO: for the Polycone this might be overkill
   return VolumeFactory::CreateByTransformation<UnplacedPolycone>(volume, transformation, trans_code, rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                                  id,
 #endif
                                                                  placement);
@@ -485,7 +485,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedPolycone::CopyToGpu(DevicePtr<cuda::VUn
 
 #endif // VECGEOM_CUDA_INTERFACE
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 /////////////////////////////////////////////////////////////////////////
 //
 // GetPointOnSurface
@@ -988,7 +988,7 @@ void UnplacedPolycone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aM
 }
 #endif
 
-#endif // !VECGEOM_NVCC
+#endif // !VECCORE_CUDA
 
 bool UnplacedPolycone::CheckContinuityInRmax(const Vector<Precision> &rOuter)
 {
@@ -1135,7 +1135,7 @@ void UnplacedPolycone::DetectConvexity()
 }
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 

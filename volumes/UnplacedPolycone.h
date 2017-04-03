@@ -171,7 +171,7 @@ public:
     return fZs[index];
   }
 
-#if !defined(VECGEOM_NVCC)
+#if !defined(VECCORE_CUDA)
   Precision Capacity() const
   {
     Precision cubicVolume = 0.;
@@ -205,7 +205,7 @@ public:
                                      Precision zOne) const;
 
   std::string GetEntityType() const { return "Polycone"; }
-#endif // !VECGEOM_NVCC
+#endif // !VECCORE_CUDA
 
   // a method to reconstruct "plane" section arrays for z, rmin and rmax
   template <typename PushableContainer>
@@ -222,7 +222,7 @@ public:
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                const int id,
 #endif
                                VPlacedVolume *const placement = NULL);
@@ -244,7 +244,7 @@ private:
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                            const int id,
 #endif
                                            VPlacedVolume *const placement = NULL) const final;

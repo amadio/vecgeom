@@ -24,7 +24,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 VPlacedVolume const *PlacedCone::ConvertToUnspecialized() const
 {
   return new SimpleCone(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
@@ -60,10 +60,10 @@ G4VSolid const *PlacedCone::ConvertToGeant4() const
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_3(SpecializedCone, ConeTypes::UniversalCone)
 
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 
 } // End namespace vecgeom

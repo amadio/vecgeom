@@ -36,7 +36,7 @@ class TPlacedBooleanMinusVolume : public VPlacedVolume {
   typedef TUnplacedBooleanMinusVolume UnplacedVol_t;
 
 public:
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
   TPlacedBooleanMinusVolume(char const *const label, LogicalVolume const *const logicalVolume,
                             Transformation3D const *const transformation, PlacedBox const *const boundingBox)

@@ -25,7 +25,7 @@ class PlacedCutTube : public PlacedVolumeImplHelper<UnplacedCutTube, VPlacedVolu
   using Base = PlacedVolumeImplHelper<UnplacedCutTube, VPlacedVolume>;
 
 public:
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   // constructor inheritance;
   using Base::Base;
   PlacedCutTube(char const *const label, LogicalVolume const *const logicalVolume,
@@ -84,7 +84,7 @@ public:
   VECGEOM_FORCE_INLINE
   Vector3D<Precision> TopNormal() const { return GetUnplacedVolume()->TopNormal(); }
 
-#if !defined(VECGEOM_NVCC)
+#if !defined(VECCORE_CUDA)
   /** @brief Interface method for computing capacity */
   virtual Precision Capacity() override { return GetUnplacedVolume()->volume(); }
   /** @brief Computes the extent on X/Y/Z of the trapezoid */
@@ -117,7 +117,7 @@ public:
   VECGEOM_FORCE_INLINE
   virtual int MemorySize() const override { return sizeof(*this); }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const override;
@@ -128,7 +128,7 @@ public:
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const override;
 #endif
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 };
 
 } // end inline namespace

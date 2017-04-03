@@ -245,7 +245,7 @@ public:
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                            const int id,
 #endif
                                            VPlacedVolume *const placement = NULL) const final;
@@ -253,7 +253,7 @@ public:
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                const int id,
 #endif
                                VPlacedVolume *const placement = NULL);
@@ -264,7 +264,7 @@ public:
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
 #endif
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   Precision Capacity() const
   {
     return (fDz * fDPhi / 3.) *
@@ -302,7 +302,7 @@ public:
 
   std::string GetEntityType() const { return "Cone"; }
 
-#endif // !VECGEOM_NVCC
+#endif // !VECCORE_CUDA
 };
 }
 } // End global namespace

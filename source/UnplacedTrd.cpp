@@ -21,7 +21,7 @@ void UnplacedTrd::Print(std::ostream &os) const
   os << "UnplacedTrd {" << dx1() << ", " << dx2() << ", " << dy1() << ", " << dy2() << ", " << dz();
 }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 Precision UnplacedTrd::Capacity() const
 {
   return 2 * (fTrd.fDX1 + fTrd.fDX2) * (fTrd.fDY1 + fTrd.fDY2) * fTrd.fDZ +
@@ -200,7 +200,7 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedTrd::Create(LogicalVolume const *const logical_volume,
                                    Transformation3D const *const transformation,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                    const int id,
 #endif
                                    VPlacedVolume *const placement)
@@ -219,7 +219,7 @@ VPlacedVolume *UnplacedTrd::Create(LogicalVolume const *const logical_volume,
     //          std::cout << "trd1" << std::endl;
     return CreateSpecializedWithPlacement<SpecializedTrd<transCodeT, rotCodeT, TrdTypes::Trd1>>(logical_volume,
                                                                                                 transformation
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                                                                 ,
                                                                                                 id
 #endif
@@ -229,7 +229,7 @@ VPlacedVolume *UnplacedTrd::Create(LogicalVolume const *const logical_volume,
     //          std::cout << "trd2" << std::endl;
     return CreateSpecializedWithPlacement<SpecializedTrd<transCodeT, rotCodeT, TrdTypes::Trd2>>(logical_volume,
                                                                                                 transformation
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                                                                 ,
                                                                                                 id
 #endif
@@ -243,7 +243,7 @@ VPlacedVolume *UnplacedTrd::Create(LogicalVolume const *const logical_volume,
   //    std::cout << "universal trd" << std::endl;
   return CreateSpecializedWithPlacement<SpecializedTrd<transCodeT, rotCodeT, TrdTypes::UniversalTrd>>(logical_volume,
                                                                                                       transformation
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                                                                       ,
                                                                                                       id
 #endif
@@ -255,14 +255,14 @@ VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedTrd::SpecializedVolume(LogicalVolume const *const volume,
                                               Transformation3D const *const transformation,
                                               const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                               const int id,
 #endif
                                               VPlacedVolume *const placement) const
 {
 
   return VolumeFactory::CreateByTransformation<UnplacedTrd>(volume, transformation, trans_code, rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                             id,
 #endif
                                                             placement);
@@ -303,7 +303,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedTrd::CopyToGpu() const
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 

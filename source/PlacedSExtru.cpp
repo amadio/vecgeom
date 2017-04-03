@@ -38,7 +38,7 @@ Vector3D<Precision> PlacedSExtru::GetPointOnSurface() const
 }
 
 // Comparison specific
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 VPlacedVolume const *PlacedSExtru::ConvertToUnspecialized() const
 {
   return this;
@@ -93,14 +93,14 @@ G4VSolid const *PlacedSExtru::ConvertToGeant4() const
   return new G4ExtrudedSolid(s, G4vertices, zsections);
 };
 #endif
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(SpecializedSExtru)
 
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 
 } // End namespace vecgeom

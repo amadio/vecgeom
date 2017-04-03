@@ -39,7 +39,7 @@ class ScalarShapeImplementationHelper : public Specialization::PlacedShape_t {
   using Implementation_t = Specialization;
 
 public:
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
   ScalarShapeImplementationHelper(char const *const label, LogicalVolume const *const logical_volume,
                                   Transformation3D const *const transformation, PlacedBox const *const boundingBox)
@@ -229,7 +229,7 @@ public:
 #endif
 
 // detect -inf responses which are often an indication for a real bug
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     assert(!((output < 0.) && std::isinf(output)));
 #endif
 

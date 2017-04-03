@@ -23,7 +23,7 @@ class PlacedSphere : public VPlacedVolume {
 public:
   typedef UnplacedSphere UnplacedShape_t;
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
   PlacedSphere(char const *const label, LogicalVolume const *const logical_volume,
                Transformation3D const *const transformation, PlacedBox const *const boundingBox)
@@ -263,7 +263,7 @@ public:
   }
 #endif
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   VECGEOM_FORCE_INLINE
   virtual Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
 
@@ -308,7 +308,7 @@ public:
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const override;
 #endif
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 };
 }
 } // End global namespace

@@ -8,7 +8,6 @@
 
 #if (defined(__CUDACC__) || defined(__NVCC__))
   // Compiling with nvcc
-  #define VECGEOM_NVCC
   #define VECGEOM_IMPL_NAMESPACE cuda
   #define VECGEOM_NAMESPACE ::vecgeom
   #define VECGEOM_ALIGNED __align__((64))
@@ -152,7 +151,7 @@ struct kCudaType<cxx::BoxImplementation<Arguments...>  >
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 using std::unique_ptr;
 #else
 template <typename T>

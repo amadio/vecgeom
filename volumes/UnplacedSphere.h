@@ -8,7 +8,7 @@
 
 #include "base/AlignedBase.h"
 #include "volumes/UnplacedVolume.h"
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 #include "base/RNG.h"
 #include <cmath>
 #endif
@@ -485,7 +485,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   void DetectConvexity();
 
-#if !defined(VECGEOM_NVCC)
+#if !defined(VECCORE_CUDA)
   void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const;
 
   VECCORE_ATT_HOST_DEVICE
@@ -496,7 +496,7 @@ public:
   VECGEOM_FORCE_INLINE
   Precision SurfaceArea() const { return fSurfaceArea; }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   VECCORE_ATT_HOST_DEVICE
 #endif
   Vector3D<Precision> GetPointOnSurface() const;
@@ -527,7 +527,7 @@ public:
   // VECCORE_ATT_HOST_DEVICE
   virtual void Print(std::ostream &os) const final;
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
   template <TranslationCode trans_code, RotationCode rot_code>
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
@@ -560,7 +560,7 @@ public:
 #endif
 
 private:
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,

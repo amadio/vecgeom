@@ -11,7 +11,7 @@ void CreateNuclei0001();
 VECCORE_ATT_HOST_DEVICE
 void CreateNuclei0002();
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 VECCORE_ATT_DEVICE bool fgCreateNucleiInitDoneDev = false;
 #endif
 
@@ -19,7 +19,7 @@ VECCORE_ATT_DEVICE bool fgCreateNucleiInitDoneDev = false;
 VECCORE_ATT_HOST_DEVICE
 void Nucleus::CreateNuclei()
 {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   static bool fgCreateNucleiInitDone = false;
 #else
   bool &fgCreateNucleiInitDone(fgCreateNucleiInitDoneDev);

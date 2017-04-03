@@ -6,7 +6,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 class RNG;
 
 // Emulating static class member ..

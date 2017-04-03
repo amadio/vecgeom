@@ -110,7 +110,7 @@ public:
   Precision DistanceToOut(Vector3D<Precision> const & /*p*/, Vector3D<Precision> const & /*d*/,
                           Precision /*step_max*/ = kInfLength) const override
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     throw std::runtime_error("Forbidden DistanceToOut in Assembly called");
 #endif
     return -1.;
@@ -121,7 +121,7 @@ public:
   Real_v DistanceToOutVec(Vector3D<Real_v> const & /*p*/, Vector3D<Real_v> const & /*d*/,
                           Real_v const & /*step_max*/) const override
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     throw std::runtime_error("Forbidden DistanceToOut in Assembly called");
 #endif
     return Real_v(-1.);
@@ -131,7 +131,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   Precision SafetyToOut(Vector3D<Precision> const &) const override
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     throw std::runtime_error("Forbidden SafetyToOut in Assembly called");
 #endif
     return -1.;
@@ -141,7 +141,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   Real_v SafetyToOutVec(Vector3D<Real_v> const &) const override
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     throw std::runtime_error("Forbidden SafetyToOut in Assembly called");
 #endif
     return Real_v(-1.);
@@ -158,7 +158,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual Real_v SafetyToInVec(Vector3D<Real_v> const &) const override
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     throw std::runtime_error("SafetyToInVec in Assembly not yet implemented");
 #endif
     return Real_v(-1.);
@@ -182,7 +182,7 @@ public:
   virtual Real_v DistanceToInVec(Vector3D<Real_v> const & /*p*/, Vector3D<Real_v> const & /*d*/,
                                  const Real_v & /*step_max*/ = Real_v(kInfLength)) const override
   {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     throw std::runtime_error("DistanceToInVec in Assembly not yet implemented");
 #endif
     return Real_v(-1.);
@@ -204,7 +204,7 @@ public:
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
 #endif
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code,

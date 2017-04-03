@@ -15,7 +15,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
 VPlacedVolume const *PlacedTorus2::ConvertToUnspecialized() const
 {
@@ -48,7 +48,7 @@ G4VSolid const *PlacedTorus2::ConvertToGeant4() const
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(SpecializedTorus2)
 

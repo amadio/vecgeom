@@ -31,7 +31,7 @@ class PlacedTrapezoid : public PlacedVolumeImplHelper<UnplacedTrapezoid, VPlaced
   using Base = PlacedVolumeImplHelper<UnplacedTrapezoid, VPlacedVolume>;
 
 public:
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   // constructor inheritance;
   using Base::Base;
 
@@ -63,7 +63,7 @@ public:
   virtual void PrintType(std::ostream &os) const override;
 
 // Comparison specific
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 
 #ifdef VECGEOM_ROOT
@@ -78,7 +78,7 @@ public:
   virtual G4VSolid const *ConvertToGeant4() const override;
 #endif
 
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 };
 
 } // end inline namespace

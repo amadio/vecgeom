@@ -148,12 +148,12 @@ G4VSolid const *PlacedBooleanVolume::ConvertToGeant4() const
 }
 #endif
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_BOOLEAN(SpecializedBooleanVolume, kUnion)
 VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_BOOLEAN(SpecializedBooleanVolume, kIntersection)
 VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_BOOLEAN(SpecializedBooleanVolume, kSubtraction)
 
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 
 } // End namespace vecgeom

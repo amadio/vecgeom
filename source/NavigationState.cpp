@@ -105,7 +105,7 @@ VECCORE_ATT_HOST_DEVICE
 void NavigationState::Print() const
 {
 // printf("VariableSizeObj: fPath=%p (%l bytes)\n", fPath, sizeof(fPath));
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   printf("NavState: Level=%i/%i,  onBoundary=%s, path=<", fCurrentLevel, GetMaxLevel(),
          (fOnBoundary ? "true" : "false"));
   for (int i = 0; i < fCurrentLevel; ++i)

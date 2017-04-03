@@ -27,7 +27,7 @@ class PlacedBooleanVolume : public VPlacedVolume {
   typedef UnplacedBooleanVolume UnplacedVol_t;
 
 public:
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   PlacedBooleanVolume(char const *const label, LogicalVolume const *const logicalVolume,
                       Transformation3D const *const transformation, PlacedBox const *const boundingBox)
       : VPlacedVolume(label, logicalVolume, transformation, boundingBox)
@@ -56,7 +56,7 @@ public:
     return static_cast<UnplacedVol_t const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
-  //#ifndef VECGEOM_NVCC
+  //#ifndef VECCORE_CUDA
   virtual Precision Capacity() override
   {
     // TODO: implement this
@@ -92,7 +92,7 @@ public:
 
 // Comparison specific
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override { return this; }
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const override;

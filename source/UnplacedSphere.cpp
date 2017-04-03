@@ -4,7 +4,7 @@
 #include "volumes/UnplacedSphere.h"
 #include "backend/Backend.h"
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 #include "base/RNG.h"
 #include <cmath>
 #endif
@@ -52,7 +52,7 @@ UnplacedSphere::UnplacedSphere(Precision pRmin, Precision pRmax, Precision pSPhi
   CheckPhiAngles(pSPhi, pDPhi);
   CheckThetaAngles(pSTheta, pDTheta);
   DetectConvexity();
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   CalcCapacity();
   CalcSurfaceArea();
 #endif
@@ -73,7 +73,7 @@ void UnplacedSphere::DetectConvexity()
   }
 }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 void UnplacedSphere::CalcCapacity()
 {
   if (fCubicVolume != 0.) {
@@ -221,7 +221,7 @@ void UnplacedSphere::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax
 }
 #endif
 
-#endif // !VECGEOM_NVCC
+#endif // !VECCORE_CUDA
 
 void UnplacedSphere::GetParametersList(int, double *aArray) const
 {
@@ -233,7 +233,7 @@ void UnplacedSphere::GetParametersList(int, double *aArray) const
   aArray[5] = GetDeltaThetaAngle();
 }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 Vector3D<Precision> UnplacedSphere::GetPointOnSurface() const
 {
 
@@ -305,7 +305,7 @@ std::string UnplacedSphere::GetEntityType() const
   return "Sphere\n";
 }
 
-#endif // !VECGEOM_NVCC
+#endif // !VECCORE_CUDA
 
 VECCORE_ATT_HOST_DEVICE
 void UnplacedSphere::ComputeBBox() const
@@ -355,7 +355,7 @@ void UnplacedSphere::Print(std::ostream &os) const
      << GetDeltaPhiAngle() << " " << GetStartThetaAngle() << " " << GetDeltaThetaAngle() << " }";
 }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
 template <TranslationCode trans_code, RotationCode rot_code>
 VPlacedVolume *UnplacedSphere::Create(LogicalVolume const *const logical_volume,
@@ -420,7 +420,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedSphere::CopyToGpu() const
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 

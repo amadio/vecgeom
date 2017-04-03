@@ -149,7 +149,7 @@ void UnplacedParaboloid::Print(std::ostream &os) const
   os << "UnplacedParaboloid {" << GetRlo() << ", " << GetRhi() << ", " << GetDz() << ", " << GetA() << ", " << GetB();
 }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 template <TranslationCode trans_code, RotationCode rot_code>
 VPlacedVolume *UnplacedParaboloid::Create(LogicalVolume const *const logical_volume,
                                           Transformation3D const *const transformation, VPlacedVolume *const placement)
@@ -212,7 +212,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedParaboloid::CopyToGpu() const
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 

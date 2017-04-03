@@ -229,7 +229,7 @@ DevicePtr<cuda::Transformation3D> Transformation3D::CopyToGpu() const
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 
@@ -242,6 +242,6 @@ template void DevicePtr<cuda::Transformation3D>::Construct(const Precision tx, c
 
 } // End cxx namespace
 
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 
 } // End global namespace

@@ -20,7 +20,7 @@ public:
     return instance;
   }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
   template <typename VolumeType>
   static VPlacedVolume *CreateByTransformation(LogicalVolume const *const logical_volume,
@@ -46,14 +46,14 @@ private:
 };
 
 template <typename VolumeType>
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 __device__
 #endif
     VPlacedVolume *
     VolumeFactory::CreateByTransformation(LogicalVolume const *const logical_volume,
                                           Transformation3D const *const transformation,
                                           const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                           const int id,
 #endif
                                           VPlacedVolume *const placement)

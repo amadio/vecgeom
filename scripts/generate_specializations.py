@@ -15,7 +15,7 @@ specialization_string = """\
   if (trans_code == {:s} && rot_code == {:#05x}) {{
     return VolumeType::template Create<{:s}, {:#05x}>(
       logical_volume, transformation,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
            id,
 #endif
       placement);
@@ -27,7 +27,7 @@ generic_string = """\
 
   return VolumeType::template Create<translation::kGeneric, rotation::kGeneric>(
       logical_volume, transformation,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
            id,
 #endif
       placement);\

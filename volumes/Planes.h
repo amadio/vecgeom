@@ -32,7 +32,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   Planes(int size);
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
   __device__ Planes();
   __device__ Planes(Precision *a, Precision *b, Precision *c, Precision *d, int size);
 #endif

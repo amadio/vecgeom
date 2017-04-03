@@ -43,7 +43,7 @@ public:
     fGlobalConvexity = fScaled.fPlaced->GetUnplacedVolume()->IsConvex();
   }
 
-#if defined(VECGEOM_NVCC)
+#if defined(VECCORE_CUDA)
   /// Constructor based on placed volume
   VECCORE_ATT_HOST_DEVICE
   UnplacedScaledShape(VPlacedVolume const *placed, Precision sx, Precision sy, Precision sz, bool globalConvexity)
@@ -61,7 +61,7 @@ public:
 #endif
 
 /// Constructor based on unplaced volume
-#if !defined(VECGEOM_NVCC)
+#if !defined(VECCORE_CUDA)
   UnplacedScaledShape(VUnplacedVolume const *shape, Precision sx, Precision sy, Precision sz)
       : fScaled(nullptr, sx, sy, sz)
   {
@@ -127,7 +127,7 @@ public:
   VECGEOM_FORCE_INLINE
   Scale3D const &GetScale() const { return fScaled.fScale; }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   VECGEOM_FORCE_INLINE
   Precision Volume() const
   {
@@ -147,7 +147,7 @@ public:
     Precision area = ((VPlacedVolume *)fScaled.fPlaced)->SurfaceArea();
     return area;
   }
-#endif // !VECGEOM_NVCC
+#endif // !VECCORE_CUDA
 
   VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override;
@@ -167,18 +167,18 @@ public:
   template <TranslationCode trans_code, RotationCode rot_code>
   VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                const int id,
-#endif // !VECGEOM_NVCC
+#endif // !VECCORE_CUDA
                                VPlacedVolume *const placement = NULL);
 
   VECCORE_ATT_DEVICE
   static VPlacedVolume *CreateSpecializedVolume(LogicalVolume const *const volume,
                                                 Transformation3D const *const transformation,
                                                 const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                 const int id,
-#endif // !VECGEOM_NVCC
+#endif // !VECCORE_CUDA
                                                 VPlacedVolume *const placement = NULL);
 
 private:
@@ -186,13 +186,13 @@ private:
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                            const int id,
 #endif
                                            VPlacedVolume *const placement = NULL) const final
   {
     return CreateSpecializedVolume(volume, transformation, trans_code, rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                    id,
 #endif
                                    placement);

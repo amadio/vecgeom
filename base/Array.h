@@ -124,7 +124,7 @@ void Array<Type>::Allocate(const unsigned initSize)
 {
   Deallocate();
   fSize = initSize;
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   fData = static_cast<Type *>(_mm_malloc(fSize * sizeof(Type), kAlignmentBoundary));
 #else
   fData = static_cast<Type *>(malloc(fSize * sizeof(Type))); // new Type[fSize];
@@ -135,7 +135,7 @@ template <typename Type>
 void Array<Type>::Deallocate()
 {
   if (fAllocated) {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     _mm_free(fData);
 #else
     free(fData);                                             // delete fData;

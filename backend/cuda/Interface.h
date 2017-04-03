@@ -15,7 +15,7 @@
 
 namespace vecgeom {
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 inline namespace cuda {
 
@@ -59,7 +59,7 @@ void Generic_CopyToGpu(DataClass *const gpu_ptr, ArgsTypes... params);
 
 #endif
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 namespace cxx {
 #else
 inline namespace cxx {
@@ -291,7 +291,7 @@ public:
   DevicePtr(DevicePtr<const Type> const &input,
             typename std::enable_if<!std::is_const<Type>::value, Type>::type * = nullptr) = delete;
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
   // Allows implicit conversion from DevicePtr<Derived> to DevicePtr<Base>
   template <typename inputType, typename std::enable_if<std::is_base_of<Type, inputType>::value>::type * = nullptr>
   DevicePtr(DevicePtr<inputType> const &input) : DevicePtrImpl<Type>(input.GetPtr())
@@ -303,7 +303,7 @@ public:
   DevicePtr(DevicePtr<const inputType> const &input) = delete;
 #endif
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
   template <typename... ArgsTypes>
   void Construct(ArgsTypes... params) const
   {
@@ -352,7 +352,7 @@ public:
   {
   }
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
   // Allows implicit conversion from DevicePtr<Derived> to DevicePtr<Base>
   template <typename inputType, typename std::enable_if<std::is_base_of<Type, inputType>::value>::type * = nullptr>
   DevicePtr(DevicePtr<inputType> const &input) : DevicePtrImpl<const Type>(input.GetPtr())
@@ -366,7 +366,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   operator const Type *() const { return GetPtr(); }
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
   template <typename DataClass, typename... ArgsTypes>
   void Construct(ArgsTypes... params) const
   {

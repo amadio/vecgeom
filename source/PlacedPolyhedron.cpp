@@ -29,7 +29,7 @@ int PlacedPolyhedron::PhiSegmentIndex(Vector3D<Precision> const &point) const
       Precision>(GetUnplacedVolume()->GetStruct(), localPoint);
 }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
 VPlacedVolume const *PlacedPolyhedron::ConvertToUnspecialized() const
 {
@@ -72,11 +72,11 @@ G4VSolid const *PlacedPolyhedron::ConvertToGeant4() const
                          &GetZPlanes()[0], &GetRMin()[0], &GetRMax()[0]);
 }
 #endif
-#endif // !VECGEOM_NVCC
+#endif // !VECCORE_CUDA
 
 } // End inline namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_4(SpecializedPolyhedron)
 

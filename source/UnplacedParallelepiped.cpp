@@ -9,7 +9,7 @@
 #include "volumes/SpecializedParallelepiped.h"
 #include "volumes/utilities/GenerationUtilities.h"
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 #include "base/RNG.h"
 #endif
 
@@ -43,7 +43,7 @@ void UnplacedParallelepiped::Extent(Vector3D<Precision> &aMin, Vector3D<Precisio
   aMax.Set(dx, dy, dz);
 }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 //______________________________________________________________________________
 Vector3D<Precision> UnplacedParallelepiped::GetPointOnSurface() const
 {
@@ -113,14 +113,14 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedParallelepiped::Create(LogicalVolume const *const logical_volume,
                                               Transformation3D const *const transformation,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                               const int id,
 #endif
                                               VPlacedVolume *const placement)
 {
 
   return CreateSpecializedWithPlacement<SpecializedParallelepiped<transCodeT, rotCodeT>>(
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
       logical_volume, transformation, id, placement); // TODO: add bounding box?
 #else
       logical_volume, transformation, placement);
@@ -132,13 +132,13 @@ VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedParallelepiped::SpecializedVolume(LogicalVolume const *const volume,
                                                          Transformation3D const *const transformation,
                                                          const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                          const int id,
 #endif
                                                          VPlacedVolume *const placement) const
 {
   return VolumeFactory::CreateByTransformation<UnplacedParallelepiped>(volume, transformation, trans_code, rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                                        id,
 #endif
                                                                        placement);
@@ -163,7 +163,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedParallelepiped::CopyToGpu() const
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 

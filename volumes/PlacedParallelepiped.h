@@ -23,7 +23,7 @@ class PlacedParallelepiped : public PlacedVolumeImplHelper<UnplacedParallelepipe
   using Base = PlacedVolumeImplHelper<UnplacedParallelepiped, VPlacedVolume>;
 
 public:
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   // constructor inheritance;
   using Base::Base;
   PlacedParallelepiped(char const *const label, LogicalVolume const *const logical_volume,
@@ -87,7 +87,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   Precision GetTanThetaCosPhi() const { return GetUnplacedVolume()->GetTanThetaCosPhi(); }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   virtual Precision Capacity() override { return GetUnplacedVolume()->volume(); }
 
   virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface(); }
@@ -111,7 +111,7 @@ public:
     return GetUnplacedVolume()->Normal(point, normal);
   }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const override;
@@ -122,7 +122,7 @@ public:
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const override;
 #endif
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 };
 }
 } // End global namespace

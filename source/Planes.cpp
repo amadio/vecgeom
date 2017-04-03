@@ -9,7 +9,7 @@ Planes::Planes(int size) : fNormals(size), fDistances(size)
 {
 }
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 __device__ Planes::Planes() : fNormals(), fDistances()
 {
 }

@@ -40,7 +40,7 @@ public:
         fGPUPointer(NULL)
   {
 
-#if !defined(VECGEOM_NVCC) && defined(VECGEOM_ENABLE_CUDA)
+#if !defined(VECCORE_CUDA) && defined(VECGEOM_ENABLE_CUDA)
     vecgeom::CudaMalloc(&fGPUPointer, NavigationState::SizeOfInstanceAlignAware(depth) * size);
 #endif
     // now create the states
@@ -50,7 +50,7 @@ public:
   }
 
   ~NavStatePool() { delete[] fBuffer; }
-#if !defined(VECGEOM_NVCC) && defined(VECGEOM_ENABLE_CUDA)
+#if !defined(VECCORE_CUDA) && defined(VECGEOM_ENABLE_CUDA)
   void CopyToGpu();
   void CopyFromGpu();
 #endif
@@ -164,7 +164,7 @@ private:         // members
 }; // end class
 
 // an implementation of the CopyOperation could be as follows
-#if !defined(VECGEOM_NVCC) && defined(VECGEOM_ENABLE_CUDA)
+#if !defined(VECCORE_CUDA) && defined(VECGEOM_ENABLE_CUDA)
 inline void NavStatePool::CopyToGpu()
 {
 

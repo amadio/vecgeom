@@ -37,7 +37,7 @@ void UnplacedAssembly::Print(std::ostream &os) const
 //______________________________________________________________________________
 void UnplacedAssembly::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   auto &abboxmgr = ABBoxManager::Instance();
 
   // Returns the full 3D cartesian extent of the solid.
@@ -89,7 +89,7 @@ Precision UnplacedAssembly::SurfaceArea() const
   return area;
 }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 VPlacedVolume *UnplacedAssembly::SpecializedVolume(LogicalVolume const *const volume,
                                                    Transformation3D const *const transformation,
                                                    const TranslationCode trans_code, const RotationCode rot_code,
@@ -130,7 +130,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedAssembly::CopyToGpu() const
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 

@@ -26,7 +26,7 @@ class TSpecializedBooleanMinusVolume
   typedef TUnplacedBooleanMinusVolume UnplacedVol_t;
 
 public:
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
   TSpecializedBooleanMinusVolume(char const *const label, LogicalVolume const *const logical_volume,
                                  Transformation3D const *const transformation)

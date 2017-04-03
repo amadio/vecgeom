@@ -22,7 +22,7 @@ class PlacedHype : public VPlacedVolume {
 public:
   typedef UnplacedHype UnplacedShape_t;
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
   PlacedHype(char const *const label, LogicalVolume const *const logical_volume,
              Transformation3D const *const transformation, PlacedBox const *const boundingBox)
@@ -236,7 +236,7 @@ public:
   std::ostream &StreamInfo(std::ostream &os) const override { return GetUnplacedVolume()->StreamInfo(os); }
 #endif
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const override;
@@ -247,7 +247,7 @@ public:
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const override;
 #endif
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 };
 }
 } // End global namespace

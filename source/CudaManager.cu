@@ -49,7 +49,7 @@ void CudaManagerPrintGeometry(vecgeom::cuda::VPlacedVolume const *const world)
 }
 } // End namespace vecgeom
 
-#ifdef VECGEOM_NVCC_SINGLE_OBJ // Cuda single compilation
+#ifdef VECCORE_CUDA_SINGLE_OBJ // Cuda single compilation
 
 #include "source/Vector.cpp"
 #include "source/SOA3D.cpp"

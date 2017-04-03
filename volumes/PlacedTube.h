@@ -25,7 +25,7 @@ class PlacedTube : public VPlacedVolume {
 public:
   using VPlacedVolume::VPlacedVolume;
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   PlacedTube(char const *const label, LogicalVolume const *const logical_volume,
              Transformation3D const *const transformation, ::vecgeom::PlacedBox const *const boundingBox)
       : VPlacedVolume(label, logical_volume, transformation, boundingBox)
@@ -47,7 +47,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual ~PlacedTube() {}
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 
 #ifdef VECGEOM_ROOT

@@ -32,12 +32,12 @@ VECCORE_ATT_DEVICE
 VPlacedVolume *&GetCompactPlacedVolBuffer();
 }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 inline
 #endif
     namespace cxx {
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 // Forward declarations for NVCC compilation
 class VUnplacedVolume;
 class VPlacedVolume;

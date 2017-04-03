@@ -8,7 +8,7 @@
 #include <string>
 #include <mutex>
 #include <iostream>
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 #include <map>
 #else
 #include "base/Map.h"
@@ -23,7 +23,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class MessageLogger {
 public:
   typedef enum { kInfo = 0, kWarning, kError, kFatal, kDebug } logging_severity;
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   using Map_t = std::map<logging_severity, std::map<std::string, std::map<std::string, int>>>;
 #else
   // Also need to use an alternative to std::string ...
@@ -51,14 +51,14 @@ public:
     mtx.lock();
     os << sevname[sev] << "=>" << classname << "::" << methodname << ": " << line;
     os.flush();
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     gMessageCount[sev][std::string(classname) + "::" + methodname][line] += 1;
 #endif
     mtx.unlock();
     return os;
   }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   void summary(std::ostream &os, const std::string opt) const
   {
     if (opt.find("a") != std::string::npos) {
@@ -83,7 +83,7 @@ private:
   MessageLogger(const MessageLogger &);            // not implemented
   MessageLogger &operator=(const MessageLogger &); // not implemented
   static MessageLogger *gMessageLogger;
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   static Map_t gMessageCount;
 #endif
 };

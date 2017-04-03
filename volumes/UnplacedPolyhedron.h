@@ -207,12 +207,12 @@ public:
   VECGEOM_FORCE_INLINE
   Precision GetBoundingTubeOffset() const { return fPoly.fBoundingTubeOffset; }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;
 #endif
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   Precision DistanceSquarePointToSegment(Vector3D<Precision> &v1, Vector3D<Precision> &v2,
                                          const Vector3D<Precision> &p) const;
   bool InsideTriangle(Vector3D<Precision> &v1, Vector3D<Precision> &v2, Vector3D<Precision> &v3,
@@ -239,7 +239,7 @@ public:
   Vector3D<Precision> GetPointOnSurface() const;
 
   std::string GetEntityType() const { return "Polyhedron"; }
-#endif // !VECGEOM_NVCC
+#endif // !VECCORE_CUDA
 
   /// Not a stored value, and should not be called from performance critical code.
   /// \return The angle along phi where the first corner is placed, specified in radians.
@@ -332,7 +332,7 @@ public:
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                const int id,
 #endif
                                VPlacedVolume *const placement = NULL);
@@ -341,7 +341,7 @@ public:
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                            const int id,
 #endif
                                            VPlacedVolume *const placement = NULL) const final;

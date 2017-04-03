@@ -58,7 +58,7 @@ VPlacedVolume const *LocateGlobalPoint(VPlacedVolume const *vol, Vector3D<Precis
           currentpoint = transformedpoint;
         }
       } else { // otherwise do a default implementation
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
         throw std::runtime_error("impossible code in GlobalLocator reached");
 #else
         godeeper = false;

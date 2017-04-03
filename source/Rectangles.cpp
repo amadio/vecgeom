@@ -4,7 +4,7 @@ namespace vecgeom {
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 Rectangles::Rectangles(int size) : fPlanes(size), fSides(size)
 {
   fCorners[0].reserve(size);

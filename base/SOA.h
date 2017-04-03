@@ -29,7 +29,7 @@ private:
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   static constexpr int ColumnSize();
 #else
   static int ColumnSize();
@@ -50,7 +50,7 @@ public:
 };
 
 template <typename T, int columns, int rows>
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 constexpr int SOA<T, columns, rows>::ColumnSize()
 {
 #else

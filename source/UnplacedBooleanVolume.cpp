@@ -25,7 +25,7 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedBooleanVolume::Create(LogicalVolume const *const logical_volume,
                                              Transformation3D const *const transformation,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                              const int id,
 #endif
                                              VPlacedVolume *const placement)
@@ -37,21 +37,21 @@ VPlacedVolume *UnplacedBooleanVolume::Create(LogicalVolume const *const logical_
   if (vol.GetOp() == kSubtraction) {
     return CreateSpecializedWithPlacement<SpecializedBooleanVolume<kSubtraction, transCodeT, rotCodeT>>(
         logical_volume, transformation,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
         id,
 #endif
         placement); // TODO: add bounding box?
   } else if (vol.GetOp() == kUnion) {
     return CreateSpecializedWithPlacement<SpecializedBooleanVolume<kUnion, transCodeT, rotCodeT>>(
         logical_volume, transformation,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
         id,
 #endif
         placement); // TODO: add bounding box?
   } else if (vol.GetOp() == kIntersection) {
     return CreateSpecializedWithPlacement<SpecializedBooleanVolume<kIntersection, transCodeT, rotCodeT>>(
         logical_volume, transformation,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
         id,
 #endif
         placement); // TODO: add bounding box?
@@ -63,16 +63,16 @@ VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedBooleanVolume::SpecializedVolume(LogicalVolume const *const volume,
                                                         Transformation3D const *const transformation,
                                                         const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                         const int id,
 #endif
                                                         VPlacedVolume *const placement) const
 {
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
   return VolumeFactory::CreateByTransformation<UnplacedBooleanVolume>(volume, transformation, trans_code, rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                                       id,
 #endif
                                                                       placement);
@@ -89,7 +89,7 @@ VECCORE_ATT_HOST_DEVICE
 void TransformedExtent(VPlacedVolume const *pvol, Vector3D<Precision> &aMin, Vector3D<Precision> &aMax)
 {
 // CUDA does not have min and max in std:: namespace
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   using std::min;
   using std::max;
 #endif
@@ -207,7 +207,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedBooleanVolume::CopyToGpu() const
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 

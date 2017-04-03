@@ -94,7 +94,7 @@ public:
 
   virtual void Print(std::ostream &os) const {};
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   template <typename LeftUnplacedVolume_t, typename RightPlacedVolume_t, TranslationCode trans_code,
             RotationCode rot_code>
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
@@ -137,7 +137,7 @@ public:
 #endif
 
 private:
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code,

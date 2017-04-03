@@ -43,7 +43,7 @@ public:
       : fLeftVolume(left), fRightVolume(right), fOp(op)
   {
     fGlobalConvexity = false;
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     if (fLeftVolume->IsAssembly() || fRightVolume->IsAssembly()) {
       throw std::runtime_error("Trying to make boolean out of assembly which is not supported\n");
     }
@@ -65,7 +65,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;
 
-#if !defined(VECGEOM_NVCC)
+#if !defined(VECCORE_CUDA)
   VECGEOM_FORCE_INLINE
   Precision Capacity() const
   {
@@ -79,7 +79,7 @@ public:
     // TBDONE -- need some sampling
     return 0.;
   }
-#endif // !VECGEOM_NVCC
+#endif // !VECCORE_CUDA
 
   VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const;
@@ -100,7 +100,7 @@ public:
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                const int id,
 #endif
                                VPlacedVolume *const placement = NULL);
@@ -113,7 +113,7 @@ private:
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                            const int id,
 #endif
                                            VPlacedVolume *const placement = NULL) const;

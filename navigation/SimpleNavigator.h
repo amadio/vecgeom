@@ -193,7 +193,7 @@ VPlacedVolume const *SimpleNavigator::LocatePoint(VPlacedVolume const *vol, Vect
     while (godeeper && daughters->size() > 0) {
       godeeper = false;
 
-#if !defined(VECGEOM_VC) or defined(USEBRUTEFORCELOCATE) or defined(VECGEOM_NVCC) // switching off bounding box check
+#if !defined(VECGEOM_VC) or defined(USEBRUTEFORCELOCATE) or defined(VECCORE_CUDA) // switching off bounding box check
       // just the brute force solution
       for (size_t i = 0; i < daughters->size(); ++i) {
         VPlacedVolume const *nextvolume = (*daughters)[i];
@@ -307,7 +307,7 @@ VPlacedVolume const *SimpleNavigator::LocatePointExclVolume(VPlacedVolume const 
     while (godeeper && daughters->size() > 0) {
       godeeper = false;
 
-#if !defined(VECGEOM_VC) or defined(USEBRUTEFORCELOCATE) or defined(VECGEOM_NVCC) // switching off bounding box check
+#if !defined(VECGEOM_VC) or defined(USEBRUTEFORCELOCATE) or defined(VECCORE_CUDA) // switching off bounding box check
       for (int i = daughters->size() - 1; i >= 0; --i) {
         VPlacedVolume const *nextvolume = (*daughters)[i];
         Vector3D<Precision> transformedpoint;
@@ -436,7 +436,7 @@ void SimpleNavigator::FindNextBoundaryAndStep(Vector3D<Precision> const &globalp
                                               Vector3D<Precision> const &globaldir, NavigationState const &currentstate,
                                               NavigationState &newstate, Precision const &pstep, Precision &step) const
 {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   static int counter = 0;
   counter++;
 #endif
@@ -447,7 +447,7 @@ void SimpleNavigator::FindNextBoundaryAndStep(Vector3D<Precision> const &globalp
   Vector3D<Precision> localdir   = m.TransformDirection(globaldir);
 
   VPlacedVolume const *currentvolume = currentstate.Top();
-#if defined(VERBOSE) && !defined(VECGEOM_NVCC)
+#if defined(VERBOSE) && !defined(VECCORE_CUDA)
   if (counter % 1 == 0) {
     std::cerr << "navigating in " << currentvolume->GetLabel() << " stepnumber " << counter << "pstep " << pstep
               << " pos " << globalpoint << " dir " << globaldir;
@@ -598,7 +598,7 @@ void SimpleNavigator::FindNextBoundaryAndStep(Vector3D<Precision> const &globalp
   VPlacedVolume const *vecgeomcmpcur  = NULL;
   if (orignode != NULL) vecgeomcmpcur = RootGeoManager::Instance().GetPlacedVolume(orignode);
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   if (currentstate.Top() != vecgeomcmpcur) {
     std::cout << "##-- INCONSISTENT START STATE --##\n";
   }
@@ -607,7 +607,7 @@ void SimpleNavigator::FindNextBoundaryAndStep(Vector3D<Precision> const &globalp
   if (newstate.Top() != vecgeomcmpnext || currentstate.Top() != vecgeomcmpcur) {
     CreateDebugDump(globalpoint, globaldir, currentstate, pstep);
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     std::cout << "##-- INCONSISTENCY IN NAVIGATION --##\n";
     std::cout << "  ROOT step " << nav->GetStep() << "\n";
     std::cout << "  VecGeom step " << step << "\n";

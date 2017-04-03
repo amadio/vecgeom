@@ -417,7 +417,7 @@ void SOA3D<T>::set(size_t index, T xval, T yval, T zval)
 {
 // not asserting in case of NVCC -- still getting annoying
 // errors on CUDA < 8.0
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   assert(index < fCapacity);
 #endif
   fX[index] = xval;
@@ -432,7 +432,7 @@ void SOA3D<T>::set(size_t index, Vector3D<T> const &vec)
 {
 // not asserting in case of NVCC -- still getting annoying
 // errors on CUDA < 8.0
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   assert(index < fCapacity);
 #endif
   fX[index] = vec[0];

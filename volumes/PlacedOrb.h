@@ -24,7 +24,7 @@ class PlacedOrb : public PlacedVolumeImplHelper<UnplacedOrb, VPlacedVolume> {
   using Base = PlacedVolumeImplHelper<UnplacedOrb, VPlacedVolume>;
 
 public:
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   // constructor inheritance;
   using Base::Base;
   PlacedOrb(char const *const label, LogicalVolume const *const logicalVolume,
@@ -60,7 +60,7 @@ public:
   virtual void PrintType(std::ostream &os) const override;
 
 // Comparison specific
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const override;
@@ -71,7 +71,7 @@ public:
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const override;
 #endif
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 };
 
 } // end inline namespace

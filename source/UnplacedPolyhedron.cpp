@@ -63,7 +63,7 @@ VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedPolyhedron::Create(LogicalVolume const *const logical_volume,
                                           Transformation3D const *const transformation,
 // const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                           const int id,
 #endif
                                           VPlacedVolume *const placement)
@@ -79,7 +79,7 @@ VPlacedVolume *UnplacedPolyhedron::Create(LogicalVolume const *const logical_vol
                              ? (unplaced->HasLargePhiCutout() ? EPhiCutout::kLarge : EPhiCutout::kTrue)
                              : EPhiCutout::kFalse;
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 #define POLYHEDRON_CREATE_SPECIALIZATION(INNER, PHI)                                              \
   return CreateSpecializedWithPlacement<SpecializedPolyhedron<transCodeT, rotCodeT, INNER, PHI>>( \
       logical_volume, transformation, placement)
@@ -103,7 +103,7 @@ VPlacedVolume *UnplacedPolyhedron::Create(LogicalVolume const *const logical_vol
   // Return value in case of NO_SPECIALIZATION
   if (placement) {
     new (placement) SpecializedPolyhedron<transCodeT, rotCodeT, Polyhedron::EInnerRadii::kGeneric,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                           Polyhedron::EPhiCutout::kGeneric>(logical_volume, transformation, id);
 #else
                                           Polyhedron::EPhiCutout::kGeneric>(logical_volume, transformation);
@@ -112,7 +112,7 @@ VPlacedVolume *UnplacedPolyhedron::Create(LogicalVolume const *const logical_vol
   }
 
   return new SpecializedPolyhedron<translation::kGeneric, rotation::kGeneric, Polyhedron::EInnerRadii::kGeneric,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                    Polyhedron::EPhiCutout::kGeneric>(logical_volume, transformation, id);
 #else
                                    Polyhedron::EPhiCutout::kGeneric>(logical_volume, transformation);
@@ -125,20 +125,20 @@ VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedPolyhedron::SpecializedVolume(LogicalVolume const *const volume,
                                                      Transformation3D const *const transformation,
                                                      const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                      const int id,
 #endif
                                                      VPlacedVolume *const placement) const
 {
 
   return VolumeFactory::CreateByTransformation<UnplacedPolyhedron>(volume, transformation, trans_code, rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                                    id,
 #endif
                                                                    placement);
 }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 void UnplacedPolyhedron::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
   aMin               = kInfLength;
@@ -508,7 +508,7 @@ bool UnplacedPolyhedron::Normal(Vector3D<Precision> const &point, Vector3D<Preci
           fPoly, point, normal));
 }
 
-#endif // !VECGEOM_NVCC
+#endif // !VECCORE_CUDA
 
 VECCORE_ATT_HOST_DEVICE
 void UnplacedPolyhedron::Print() const
@@ -622,7 +622,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedPolyhedron::CopyToGpu() const
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 

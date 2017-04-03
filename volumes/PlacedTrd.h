@@ -5,7 +5,7 @@
 #define VECGEOM_VOLUMES_PLACEDTRD_H_
 
 #include "base/Global.h"
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 #include "base/RNG.h"
 #include <cmath>
 #endif
@@ -26,7 +26,7 @@ class PlacedTrd : public PlacedVolumeImplHelper<UnplacedTrd, VPlacedVolume> {
   using Base = PlacedVolumeImplHelper<UnplacedTrd, VPlacedVolume>;
 
 public:
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   // constructor inheritance;
   using Base::Base;
   PlacedTrd(char const *const label, LogicalVolume const *const logicalVolume,
@@ -98,7 +98,7 @@ public:
     GetUnplacedVolume()->Extent(aMin, aMax);
   }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   virtual Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
 
   virtual Precision SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
@@ -134,7 +134,7 @@ public:
 #ifdef VECGEOM_GEANT4
   G4VSolid const *ConvertToGeant4() const override;
 #endif
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 };
 }
 } // End global namespace

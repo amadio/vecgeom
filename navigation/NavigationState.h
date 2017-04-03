@@ -66,7 +66,7 @@ struct Index2PVolumeConverter {
     assert(vecgeom::globaldevicegeomdata::GetCompactPlacedVolBuffer() != nullptr);
     return &vecgeom::globaldevicegeomdata::GetCompactPlacedVolBuffer()[index];
 #else
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
     return &vecgeom::GeoManager::gCompactPlacedVolBuffer[index];
 #else
     // this is the case when we compile with nvcc for host side
@@ -607,7 +607,7 @@ int NavigationState::Distance(NavigationState const &other) const
 
 inline void NavigationState::ConvertToGPUPointers()
 {
-#if !defined(VECGEOM_NVCC) && defined(VECGEOM_ENABLE_CUDA)
+#if !defined(VECCORE_CUDA) && defined(VECGEOM_ENABLE_CUDA)
   for (int i = 0; i < fCurrentLevel; ++i) {
     fPath[i] = ToIndex((vecgeom::cxx::VPlacedVolume *)vecgeom::CudaManager::Instance()
                            .LookupPlaced(ToPlacedVolume(fPath[i]))
@@ -618,7 +618,7 @@ inline void NavigationState::ConvertToGPUPointers()
 
 inline void NavigationState::ConvertToCPUPointers()
 {
-#if !defined(VECGEOM_NVCC) && defined(VECGEOM_ENABLE_CUDA)
+#if !defined(VECCORE_CUDA) && defined(VECGEOM_ENABLE_CUDA)
   for (int i = 0; i < fCurrentLevel; ++i)
     fPath[i] = ToIndex(vecgeom::CudaManager::Instance().LookupPlacedCPUPtr((const void *)ToPlacedVolume(fPath[i])));
 #endif

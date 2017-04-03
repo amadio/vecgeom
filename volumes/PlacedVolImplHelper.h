@@ -44,7 +44,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   Struct_t const *GetUnplacedStruct() const { return static_cast<Struct_t const *>(&GetUnplacedVolume()->GetStruct()); }
 
-#if !defined(VECGEOM_NVCC)
+#if !defined(VECCORE_CUDA)
   virtual Precision Capacity() override { return const_cast<UnplacedShape_t *>(GetUnplacedVolume())->Capacity(); }
 
   virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override

@@ -13,7 +13,7 @@ using Real_v = vecgeom::VectorBackend::Real_v;
 VECCORE_ATT_HOST_DEVICE
 bool VUnplacedVolume::Contains(Vector3D<Precision> const &p) const
 {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   throw std::runtime_error("unimplemented function called");
 #endif
   return false;
@@ -22,7 +22,7 @@ bool VUnplacedVolume::Contains(Vector3D<Precision> const &p) const
 VECCORE_ATT_HOST_DEVICE
 EnumInside VUnplacedVolume::Inside(Vector3D<Precision> const &p) const
 {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   throw std::runtime_error("unimplemented function called");
 #endif
   return EnumInside(0);
@@ -34,7 +34,7 @@ VECCORE_ATT_HOST_DEVICE
 Precision VUnplacedVolume::DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
                                          Precision step_max) const
 {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   throw std::runtime_error("unimplemented function called");
 #endif
   return -1.;
@@ -45,7 +45,7 @@ VECCORE_ATT_HOST_DEVICE
 Precision VUnplacedVolume::DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
                                          Vector3D<Precision> &normal, bool &convex, Precision step_max) const
 {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   throw std::runtime_error("unimplemented function called");
 #endif
   return -1.;
@@ -56,7 +56,7 @@ VECCORE_ATT_HOST_DEVICE
 Real_v VUnplacedVolume::DistanceToOutVec(Vector3D<Real_v> const &p, Vector3D<Real_v> const &d,
                                          Real_v const &step_max) const
 {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   throw std::runtime_error("unimplemented function called");
 #endif
   return Real_v(-1.);
@@ -66,7 +66,7 @@ Real_v VUnplacedVolume::DistanceToOutVec(Vector3D<Real_v> const &p, Vector3D<Rea
 void VUnplacedVolume::DistanceToOut(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
                                     Precision const *const step_max, Precision *const output) const
 {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   throw std::runtime_error("unimplemented function called");
 #endif
 }
@@ -76,7 +76,7 @@ void VUnplacedVolume::DistanceToOut(SOA3D<Precision> const &points, SOA3D<Precis
 VECCORE_ATT_HOST_DEVICE
 Precision VUnplacedVolume::SafetyToOut(Vector3D<Precision> const &p) const
 {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   throw std::runtime_error("unimplemented function called");
 #endif
   return -1.;
@@ -85,7 +85,7 @@ Precision VUnplacedVolume::SafetyToOut(Vector3D<Precision> const &p) const
 // an explicit SIMD interface
 Real_v VUnplacedVolume::SafetyToOutVec(Vector3D<Real_v> const &p) const
 {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   throw std::runtime_error("unimplemented function called");
 #endif
   return Real_v(-1.);
@@ -94,7 +94,7 @@ Real_v VUnplacedVolume::SafetyToOutVec(Vector3D<Real_v> const &p) const
 // the container/basket interface (possibly to be deprecated)
 void VUnplacedVolume::SafetyToOut(SOA3D<Precision> const &points, Precision *const output) const
 {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   throw std::runtime_error("unimplemented function called");
 #endif
 }
@@ -105,7 +105,7 @@ VECCORE_ATT_HOST_DEVICE
 Precision VUnplacedVolume::DistanceToIn(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                         const Precision step_max) const
 {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   throw std::runtime_error("unimplemented function called");
 #endif
   return -1.;
@@ -115,7 +115,7 @@ VECCORE_ATT_HOST_DEVICE
 Real_v VUnplacedVolume::DistanceToInVec(Vector3D<Real_v> const &position, Vector3D<Real_v> const &direction,
                                         const Real_v &step_max) const
 {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   throw std::runtime_error("unimplemented function called");
 #endif
   return Real_v(-1.);
@@ -126,7 +126,7 @@ Real_v VUnplacedVolume::DistanceToInVec(Vector3D<Real_v> const &position, Vector
 VECCORE_ATT_HOST_DEVICE
 Precision VUnplacedVolume::SafetyToIn(Vector3D<Precision> const &position) const
 {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   throw std::runtime_error("unimplemented function called");
 #endif
   return -1.;
@@ -135,7 +135,7 @@ Precision VUnplacedVolume::SafetyToIn(Vector3D<Precision> const &position) const
 // explicit SIMD interface
 Real_v VUnplacedVolume::SafetyToInVec(Vector3D<Real_v> const &p) const
 {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   throw std::runtime_error("unimplemented function called");
 #endif
   return Real_v(-1.);
@@ -146,7 +146,7 @@ Real_v VUnplacedVolume::SafetyToInVec(Vector3D<Real_v> const &p) const
 VECCORE_ATT_HOST_DEVICE
 bool VUnplacedVolume::Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const
 {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   throw std::runtime_error("unimplemented function called");
 #endif
   return false;
@@ -163,7 +163,7 @@ Vector3D<Precision> VUnplacedVolume::GetPointOnSurface() const
 VECCORE_ATT_HOST_DEVICE
 void VUnplacedVolume::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   throw std::runtime_error("unimplemented function called");
 #endif
 }
@@ -174,7 +174,7 @@ std::ostream &operator<<(std::ostream &os, VUnplacedVolume const &vol)
   return os;
 }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
 VPlacedVolume *VUnplacedVolume::PlaceVolume(LogicalVolume const *const volume,
                                             Transformation3D const *const transformation,

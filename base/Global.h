@@ -26,7 +26,7 @@ using uint = unsigned int;
 // Compiling with icc
 #define VECGEOM_INTEL
 #define VECGEOM_FORCE_INLINE inline
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 #define VECGEOM_ALIGNED __attribute__((aligned(64)))
 #endif
 #else
@@ -35,13 +35,13 @@ using uint = unsigned int;
 #if (defined(__GNUC__) || defined(__GNUG__) || defined(__clang__)) && !defined(__NO_INLINE__) && \
     !defined(VECGEOM_NOINLINE)
 #define VECGEOM_FORCE_INLINE inline __attribute__((always_inline))
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 #define VECGEOM_ALIGNED __attribute__((aligned(64)))
 #endif
 #else
 // Clang or forced inlining is disabled ( by falling back to compiler decision )
 #define VECGEOM_FORCE_INLINE inline
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 #define VECGEOM_ALIGNED
 #endif
 #endif
@@ -103,9 +103,9 @@ struct UseIfSameType<DataType, DataType> {
 
 // choosing the Vector and Scalar backends
 // trying to set some sort of default scalar and vector backend
-#if defined(VECCORE_ENABLE_VC) && !defined(VECGEOM_NVCC)
+#if defined(VECCORE_ENABLE_VC) && !defined(VECCORE_CUDA)
 using VectorBackend = vecCore::backend::VcVector;
-#elif defined(VECCORE_ENABLE_UMESIMD) && !defined(VECGEOM_NVCC)
+#elif defined(VECCORE_ENABLE_UMESIMD) && !defined(VECCORE_CUDA)
 using VectorBackend                   = vecCore::backend::UMESimd;
 #else
 using VectorBackend = vecCore::backend::Scalar;

@@ -29,7 +29,7 @@ class PlacedPolyhedron : public PlacedVolumeImplHelper<UnplacedPolyhedron, VPlac
 public:
   typedef UnplacedPolyhedron UnplacedShape_t;
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   // constructor inheritance;
   using Base::Base;
   PlacedPolyhedron(char const *const label, LogicalVolume const *const logicalVolume,
@@ -118,7 +118,7 @@ public:
   VECGEOM_FORCE_INLINE
   Precision GetPhiDelta() const { return GetUnplacedVolume()->GetPhiDelta(); }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   virtual Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
 
   virtual Precision SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
@@ -156,7 +156,7 @@ public:
   }
 
 // Comparison specific
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const override;
@@ -167,7 +167,7 @@ public:
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const override;
 #endif
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 };
 
 } // End inline namespace

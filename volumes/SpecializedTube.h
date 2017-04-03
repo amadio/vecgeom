@@ -19,14 +19,14 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedTube::Create(LogicalVolume const *const logical_volume,
                                     Transformation3D const *const transformation,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                     const int id,
 #endif
                                     VPlacedVolume *const placement)
 {
   (void)placement;
   return new SimpleTube(logical_volume, transformation
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                         ,
                         id
 #endif

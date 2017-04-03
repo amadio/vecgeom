@@ -25,7 +25,7 @@ class PlacedGenTrap : public PlacedVolumeImplHelper<UnplacedGenTrap, VPlacedVolu
   using Base = PlacedVolumeImplHelper<UnplacedGenTrap, VPlacedVolume>;
 
 public:
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
   /** @brief PlacedGenTrap constructor
   * @param label Name of the object
@@ -88,7 +88,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   Precision GetDZ() const { return GetUnplacedVolume()->GetDZ(); }
 
-#if !defined(VECGEOM_NVCC)
+#if !defined(VECCORE_CUDA)
   /** @brief Interface method for computing capacity */
   virtual Precision Capacity() override { return GetUnplacedVolume()->volume(); }
 
@@ -137,7 +137,7 @@ public:
   std::ostream &StreamInfo(std::ostream &os) const override { return GetUnplacedVolume()->StreamInfo(os); }
 #endif
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
   /** @brief Convert to unspecialized placement */
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
@@ -153,7 +153,7 @@ public:
   virtual G4VSolid const *ConvertToGeant4() const override;
 #endif
 
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 };
 }
 } // end global namespace

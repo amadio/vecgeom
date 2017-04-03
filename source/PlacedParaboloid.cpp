@@ -29,7 +29,7 @@ void PlacedParaboloid::PrintType(std::ostream &s) const
   s << "PlacedParaboloid";
 }
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 
 VPlacedVolume const *PlacedParaboloid::ConvertToUnspecialized() const
 {
@@ -60,14 +60,14 @@ G4VSolid const *PlacedParaboloid::ConvertToGeant4() const
 }
 #endif
 
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(SpecializedParaboloid)
 
-#endif // VECGEOM_NVCC
+#endif // VECCORE_CUDA
 
 } // End namespace vecgeom

@@ -10,7 +10,7 @@
 #include "backend/cuda/Interface.h"
 
 namespace vecgeom {
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 inline
 #endif
     namespace cuda {
@@ -49,7 +49,7 @@ constexpr size_t kVectorSize = 1;
 static const unsigned kThreadsPerBlock = 256;
 
 // Auxiliary GPU functions
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 VECCORE_ATT_DEVICE
 VECGEOM_FORCE_INLINE

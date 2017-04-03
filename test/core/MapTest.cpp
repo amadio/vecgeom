@@ -107,7 +107,7 @@ int main()
   __itt_frame_end_v3(__itt_mymap, NULL);
 #endif
 
-#ifndef VECGEOM_NVCC
+#ifndef VECCORE_CUDA
 // test std::map
 #if defined(VECGEOM_VTUNE)
   __itt_frame_begin_v3(__itt_stdmap, NULL);

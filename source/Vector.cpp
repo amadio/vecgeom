@@ -5,7 +5,7 @@
 
 namespace vecgeom {
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 inline namespace cuda {
 class VPlacedVolume;
