@@ -6,7 +6,7 @@
 
 #include "base/Global.h"
 
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
 
 #include "driver_types.h" // Required for cudaError_t type
 #include "cuda_runtime.h"
@@ -395,6 +395,6 @@ public:
 
 } // End vecgeom namespace
 
-#endif // VECGEOM_CUDA
+#endif // VECGEOM_ENABLE_CUDA
 
 #endif // VECGEOM_BACKEND_CUDA_INTERFACE_H_

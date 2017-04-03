@@ -145,7 +145,7 @@ int Benchmarker::CompareDistances(SOA3D<Precision> *points, SOA3D<Precision> *di
 #ifdef VECGEOM_GEANT4
                                   Precision const *const geant4,
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
                                   Precision const *const cuda,
 #endif
                                   char const *const method)
@@ -165,7 +165,7 @@ int Benchmarker::CompareDistances(SOA3D<Precision> *points, SOA3D<Precision> *di
 #ifdef VECGEOM_GEANT4
   if (fOkToRunG4) outputLabelsStream << " / Geant4";
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   outputLabelsStream << " / CUDA";
 #endif
 
@@ -220,7 +220,7 @@ int Benchmarker::CompareDistances(SOA3D<Precision> *points, SOA3D<Precision> *di
         }
       }
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
       if (!(specialized[i] == kInfLength && cuda[i] == kInfLength) &&
           std::fabs(specialized[i] - cuda[i]) > fTolerance) {
         mismatch = true;
@@ -264,7 +264,7 @@ int Benchmarker::CheckDistancesFromBoundary(Precision expected, SOA3D<Precision>
 #ifdef VECGEOM_GEANT4
                                             Precision const *const geant4,
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
                                             Precision const *const cuda,
 #endif
                                             char const *const method)
@@ -284,7 +284,7 @@ int Benchmarker::CheckDistancesFromBoundary(Precision expected, SOA3D<Precision>
 #ifdef VECGEOM_GEANT4
   if (fOkToRunG4) outputLabelsStream << " / Geant4";
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   outputLabelsStream << " / CUDA";
 #endif
 
@@ -346,7 +346,7 @@ int Benchmarker::CheckDistancesFromBoundary(Precision expected, SOA3D<Precision>
         }
       }
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
       if (std::fabs(specialized[i] - cuda[i]) > fTolerance &&
           !(specialized[i] == kInfLength && cuda[i] == kInfLength)) {
         mismatch = true;
@@ -390,7 +390,7 @@ int Benchmarker::CompareSafeties(SOA3D<Precision> *points, SOA3D<Precision> *dir
 #ifdef VECGEOM_GEANT4
                                  Precision const *const geant4,
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
                                  Precision const *const cuda,
 #endif
                                  char const *const method) const
@@ -410,7 +410,7 @@ int Benchmarker::CompareSafeties(SOA3D<Precision> *points, SOA3D<Precision> *dir
 #ifdef VECGEOM_GEANT4
   if (fOkToRunG4) outputLabelsStream << " / Geant4";
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   outputLabelsStream << " / CUDA";
 #endif
   if (fPoolMultiplier == 1 && fVerbosity > 0) {
@@ -468,7 +468,7 @@ int Benchmarker::CompareSafeties(SOA3D<Precision> *points, SOA3D<Precision> *dir
         }
       }
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
       if (std::fabs(specialized[i] - cuda[i]) > kTolerance &&
           !(specialized[i] == kInfLength && cuda[i] == kInfLength)) {
         mismatch = true;
@@ -510,7 +510,7 @@ int Benchmarker::CheckSafetiesOnBoundary(SOA3D<Precision> *points, SOA3D<Precisi
 #ifdef VECGEOM_GEANT4
                                          Precision const *const geant4,
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
                                          Precision const *const cuda,
 #endif
                                          char const *const method) const
@@ -530,7 +530,7 @@ int Benchmarker::CheckSafetiesOnBoundary(SOA3D<Precision> *points, SOA3D<Precisi
 #ifdef VECGEOM_GEANT4
   if (fOkToRunG4) outputLabelsStream << " / Geant4";
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   outputLabelsStream << " / CUDA";
 #endif
   if (fPoolMultiplier == 1 && fVerbosity > 0) {
@@ -587,7 +587,7 @@ int Benchmarker::CheckSafetiesOnBoundary(SOA3D<Precision> *points, SOA3D<Precisi
         }
       }
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
       if (std::fabs(specialized[i] - cuda[i]) > kTolerance &&
           !(specialized[i] == kInfLength && cuda[i] == kInfLength)) {
         mismatch = true;
@@ -680,7 +680,7 @@ int Benchmarker::RunInsideBenchmark()
   ::EInside *const insideGeant4 = AllocateAligned<::EInside>();
   outputLabelsInside << " - Geant4";
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   bool *const containsCuda   = AllocateAligned<bool>();
   Inside_t *const insideCuda = AllocateAligned<Inside_t>();
   outputLabelsContains << " - CUDA";
@@ -719,7 +719,7 @@ int Benchmarker::RunInsideBenchmark()
 #ifdef VECGEOM_ROOT
     if (fOkToRunROOT) RunInsideRoot(containsRoot);
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
     RunInsideCuda(fPointPool->x(), fPointPool->y(), fPointPool->z(), containsCuda, insideCuda);
 #endif
   }
@@ -746,7 +746,7 @@ int Benchmarker::RunInsideBenchmark()
       if (containsSpecialized[i] != containsRoot[i]) mismatch = true;
       if (fVerbosity > 2) mismatchOutput << " / " << containsRoot[i];
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
       if (containsSpecialized[i] != containsCuda[i]) mismatch = true;
       if (fVerbosity > 2) mismatchOutput << " / " << containsCuda[i];
 #endif
@@ -795,7 +795,7 @@ int Benchmarker::RunInsideBenchmark()
         if (fVerbosity > 2) mismatchOutput << " / " << insideGeant4[i];
       }
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
       if (insideSpecialized[i] != insideCuda[i]) mismatch = true;
       if (fVerbosity > 2) mismatchOutput << " / " << insideCuda[i];
 #endif
@@ -833,7 +833,7 @@ int Benchmarker::RunInsideBenchmark()
 #ifdef VECGEOM_ROOT
   FreeAligned(containsRoot);
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   FreeAligned(containsCuda);
   FreeAligned(insideCuda);
 #endif
@@ -948,7 +948,7 @@ int Benchmarker::RunToInBenchmark()
   Precision *const safetiesRoot  = AllocateAligned<Precision>();
   outputLabels << " - ROOT";
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   Precision *const distancesCuda = AllocateAligned<Precision>();
   Precision *const safetiesCuda  = AllocateAligned<Precision>();
   outputLabels << " - CUDA";
@@ -986,7 +986,7 @@ int Benchmarker::RunToInBenchmark()
 #ifdef VECGEOM_ROOT
     if (fOkToRunROOT) RunToInRoot(distancesRoot, safetiesRoot);
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
     RunToInCuda(fPointPool->x(), fPointPool->y(), fPointPool->z(), fDirectionPool->x(), fDirectionPool->y(),
                 fDirectionPool->z(), distancesCuda, safetiesCuda);
 #endif
@@ -1002,7 +1002,7 @@ int Benchmarker::RunToInBenchmark()
 #ifdef VECGEOM_GEANT4
                        distancesGeant4,
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
                        distancesCuda,
 #endif
                        "DistanceToIn");
@@ -1020,7 +1020,7 @@ int Benchmarker::RunToInBenchmark()
 #ifdef VECGEOM_ROOT
   FreeAligned(distancesRoot);
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   FreeAligned(distancesCuda);
 #endif
 
@@ -1036,7 +1036,7 @@ int Benchmarker::RunToInBenchmark()
 #ifdef VECGEOM_GEANT4
                   safetiesGeant4,
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
                   safetiesCuda,
 #endif
                   "SafetyToIn");
@@ -1053,7 +1053,7 @@ int Benchmarker::RunToInBenchmark()
 #ifdef VECGEOM_ROOT
   FreeAligned(safetiesRoot);
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   FreeAligned(safetiesCuda);
 #endif
   return (errorcode) ? 1 : 0;
@@ -1138,7 +1138,7 @@ int Benchmarker::RunToOutBenchmark()
   Precision *const safetiesRoot  = AllocateAligned<Precision>();
   outputLabels << " - ROOT";
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   Precision *const distancesCuda = AllocateAligned<Precision>();
   Precision *const safetiesCuda  = AllocateAligned<Precision>();
   outputLabels << " - CUDA";
@@ -1176,7 +1176,7 @@ int Benchmarker::RunToOutBenchmark()
 #ifdef VECGEOM_ROOT
     if (fOkToRunROOT) RunToOutRoot(distancesRoot, safetiesRoot);
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
     RunToOutCuda(fPointPool->x(), fPointPool->y(), fPointPool->z(), fDirectionPool->x(), fDirectionPool->y(),
                  fDirectionPool->z(), distancesCuda, safetiesCuda);
 #endif
@@ -1193,7 +1193,7 @@ int Benchmarker::RunToOutBenchmark()
 #ifdef VECGEOM_GEANT4
                        distancesGeant4,
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
                        distancesCuda,
 #endif
                        "DistanceToOut");
@@ -1211,7 +1211,7 @@ int Benchmarker::RunToOutBenchmark()
 #ifdef VECGEOM_ROOT
   FreeAligned(distancesRoot);
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   FreeAligned(distancesCuda);
 #endif
 
@@ -1226,7 +1226,7 @@ int Benchmarker::RunToOutBenchmark()
 #ifdef VECGEOM_GEANT4
                   safetiesGeant4,
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
                   safetiesCuda,
 #endif
                   "SafetyToOut");
@@ -1243,7 +1243,7 @@ int Benchmarker::RunToOutBenchmark()
 #ifdef VECGEOM_ROOT
   FreeAligned(safetiesRoot);
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   FreeAligned(safetiesCuda);
 #endif
   return (errorcode) ? 1 : 0;
@@ -1341,7 +1341,7 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
   Precision *const safetiesRoot  = AllocateAligned<Precision>();
   outputLabels << " - ROOT";
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   Precision *const distancesCuda = AllocateAligned<Precision>();
   Precision *const safetiesCuda  = AllocateAligned<Precision>();
   outputLabels << " - CUDA";
@@ -1379,7 +1379,7 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
 #ifdef VECGEOM_ROOT
     if (fOkToRunROOT) RunToOutRoot(distancesRoot, safetiesRoot);
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
     RunToOutCuda(fPointPool->x(), fPointPool->y(), fPointPool->z(), fDirectionPool->x(), fDirectionPool->y(),
                  fDirectionPool->z(), distancesCuda, safetiesCuda);
 #endif
@@ -1396,7 +1396,7 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
 #ifdef VECGEOM_GEANT4
                        distancesGeant4,
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
                        distancesCuda,
 #endif
                        "DistanceToOutFromBoundary");
@@ -1414,7 +1414,7 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
 #ifdef VECGEOM_ROOT
   FreeAligned(distancesRoot);
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   FreeAligned(distancesCuda);
 #endif
 
@@ -1428,7 +1428,7 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
 #ifdef VECGEOM_GEANT4
                                        safetiesGeant4,
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
                                        safetiesCuda,
 #endif
                                        "SafetyToOutONBDR");
@@ -1445,7 +1445,7 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
 #ifdef VECGEOM_ROOT
   FreeAligned(safetiesRoot);
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   FreeAligned(safetiesCuda);
 #endif
   return (errorcode) ? 1 : 0;
@@ -1542,7 +1542,7 @@ int Benchmarker::RunToOutFromBoundaryExitingBenchmark()
   Precision *const safetiesRoot  = AllocateAligned<Precision>();
   outputLabels << " - ROOT";
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   Precision *const distancesCuda = AllocateAligned<Precision>();
   Precision *const safetiesCuda  = AllocateAligned<Precision>();
   outputLabels << " - CUDA";
@@ -1562,7 +1562,7 @@ int Benchmarker::RunToOutFromBoundaryExitingBenchmark()
 #ifdef VECGEOM_ROOT
     if (fOkToRunROOT) RunToOutRoot(distancesRoot, safetiesRoot);
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
     RunToOutCuda(fPointPool->x(), fPointPool->y(), fPointPool->z(), fDirectionPool->x(), fDirectionPool->y(),
                  fDirectionPool->z(), distancesCuda, safetiesCuda);
 #endif
@@ -1579,7 +1579,7 @@ int Benchmarker::RunToOutFromBoundaryExitingBenchmark()
 #ifdef VECGEOM_GEANT4
                        distancesGeant4,
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
                        distancesCuda,
 #endif
                        "DistanceToOutFromBoundaryExiting");
@@ -1597,7 +1597,7 @@ int Benchmarker::RunToOutFromBoundaryExitingBenchmark()
 #ifdef VECGEOM_ROOT
   FreeAligned(distancesRoot);
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   FreeAligned(distancesCuda);
 #endif
 
@@ -1611,7 +1611,7 @@ int Benchmarker::RunToOutFromBoundaryExitingBenchmark()
 #ifdef VECGEOM_GEANT4
                                        safetiesGeant4,
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
                                        safetiesCuda,
 #endif
                                        "SafetyToOutONBDR");
@@ -1628,7 +1628,7 @@ int Benchmarker::RunToOutFromBoundaryExitingBenchmark()
 #ifdef VECGEOM_ROOT
   FreeAligned(safetiesRoot);
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   FreeAligned(safetiesCuda);
 #endif
   return (errorcode) ? 1 : 0;
@@ -1722,7 +1722,7 @@ int Benchmarker::RunToInFromBoundaryBenchmark()
   Precision *const safetiesRoot  = AllocateAligned<Precision>();
   outputLabels << " - ROOT";
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   Precision *const distancesCuda = AllocateAligned<Precision>();
   Precision *const safetiesCuda  = AllocateAligned<Precision>();
   outputLabels << " - CUDA";
@@ -1742,7 +1742,7 @@ int Benchmarker::RunToInFromBoundaryBenchmark()
 #ifdef VECGEOM_ROOT
     if (fOkToRunROOT) RunToInRoot(distancesRoot, safetiesRoot);
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
     RunToInCuda(fPointPool->x(), fPointPool->y(), fPointPool->z(), fDirectionPool->x(), fDirectionPool->y(),
                 fDirectionPool->z(), distancesCuda, safetiesCuda);
 #endif
@@ -1759,7 +1759,7 @@ int Benchmarker::RunToInFromBoundaryBenchmark()
 #ifdef VECGEOM_GEANT4
                                              distancesGeant4,
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
                                              distancesCuda,
 #endif
                                              "DistanceToInFromBoundary");
@@ -1777,7 +1777,7 @@ int Benchmarker::RunToInFromBoundaryBenchmark()
 #ifdef VECGEOM_ROOT
   FreeAligned(distancesRoot);
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   FreeAligned(distancesCuda);
 #endif
 
@@ -1791,7 +1791,7 @@ int Benchmarker::RunToInFromBoundaryBenchmark()
 #ifdef VECGEOM_GEANT4
                                        safetiesGeant4,
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
                                        safetiesCuda,
 #endif
                                        "SafetyToInONBDR");
@@ -1808,7 +1808,7 @@ int Benchmarker::RunToInFromBoundaryBenchmark()
 #ifdef VECGEOM_ROOT
   FreeAligned(safetiesRoot);
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   FreeAligned(safetiesCuda);
 #endif
   return (errorcode) ? 1 : 0;
@@ -1905,7 +1905,7 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
   Precision *const safetiesRoot  = AllocateAligned<Precision>();
   outputLabels << " - ROOT";
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   Precision *const distancesCuda = AllocateAligned<Precision>();
   Precision *const safetiesCuda  = AllocateAligned<Precision>();
   outputLabels << " - CUDA";
@@ -1925,7 +1925,7 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
 #ifdef VECGEOM_ROOT
     if (fOkToRunROOT) RunToInRoot(distancesRoot, safetiesRoot);
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
     RunToInCuda(fPointPool->x(), fPointPool->y(), fPointPool->z(), fDirectionPool->x(), fDirectionPool->y(),
                 fDirectionPool->z(), distancesCuda, safetiesCuda);
 #endif
@@ -1942,7 +1942,7 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
 #ifdef VECGEOM_GEANT4
                        distancesGeant4,
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
                        distancesCuda,
 #endif
                        "DistanceToInFromBoundary");
@@ -1960,7 +1960,7 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
 #ifdef VECGEOM_ROOT
   FreeAligned(distancesRoot);
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   FreeAligned(distancesCuda);
 #endif
 
@@ -1975,7 +1975,7 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
 #ifdef VECGEOM_GEANT4
                           safetiesGeant4,
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
                           safetiesCuda,
 #endif
                           "SafetyToInONBDR");
@@ -1992,7 +1992,7 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
 #ifdef VECGEOM_ROOT
   FreeAligned(safetiesRoot);
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   FreeAligned(safetiesCuda);
 #endif
   return (errorcode) ? 1 : 0;

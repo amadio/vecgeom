@@ -35,7 +35,7 @@ typedef kCuda::int_v CudaInt;
 typedef kCuda::precision_v CudaPrecision;
 typedef kCuda::bool_v CudaBool;
 
-#if defined(VECGEOM_CUDA) && !defined(VECGEOM_BACKEND_TYPE)
+#if defined(VECGEOM_ENABLE_CUDA) && !defined(VECGEOM_BACKEND_TYPE)
 constexpr size_t kVectorSize = 1;
 #define VECGEOM_BACKEND_TYPE vecgeom::kScalar
 #define VECGEOM_BACKEND_PRECISION_FROM_PTR(P) (*(P))

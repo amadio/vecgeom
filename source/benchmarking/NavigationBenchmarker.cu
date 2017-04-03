@@ -7,7 +7,7 @@
 #include "navigation/NavigationState.h"
 #include "navigation/NavStatePool.h"
 
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
 #include "base/Stopwatch.h"
 #include "backend/cuda/Backend.h"
 #include "management/CudaManager.h"

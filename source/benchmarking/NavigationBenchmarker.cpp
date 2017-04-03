@@ -660,7 +660,7 @@ bool validateVecGeomNavigation(int np, SOA3D<Precision> const &points, SOA3D<Pre
 
   std::cout << "VecGeom navigation - vector interface: #mismatches = " << errorCount << " / " << np << "\n";
 
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   Precision *gpuSteps = (Precision *)_mm_malloc(np * sizeof(Precision), 32);
   NavStatePool gpuStates(np, GeoManager::Instance().getMaxDepth());
 
@@ -708,7 +708,7 @@ bool validateVecGeomNavigation(int np, SOA3D<Precision> const &points, SOA3D<Pre
   }
 
   std::cout << "VecGeom navigation on the GPUs: #mismatches = " << errorCount << " / " << np << "\n";
-#endif // VECGEOM_CUDA
+#endif // VECGEOM_ENABLE_CUDA
 
   // if(mismatches>0) std::cout << "Navigation test failed with "<< mismatches <<" mismatches\n";
   // else std::cout<<"Navigation test passed.\n";

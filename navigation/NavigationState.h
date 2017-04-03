@@ -10,7 +10,7 @@
 #include "base/Transformation3D.h"
 #include "volumes/PlacedVolume.h"
 #include "management/GeoManager.h"
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
 #include "management/CudaManager.h"
 #endif
 #include "base/Global.h"
@@ -607,7 +607,7 @@ int NavigationState::Distance(NavigationState const &other) const
 
 inline void NavigationState::ConvertToGPUPointers()
 {
-#if !defined(VECGEOM_NVCC) && defined(VECGEOM_CUDA)
+#if !defined(VECGEOM_NVCC) && defined(VECGEOM_ENABLE_CUDA)
   for (int i = 0; i < fCurrentLevel; ++i) {
     fPath[i] = ToIndex((vecgeom::cxx::VPlacedVolume *)vecgeom::CudaManager::Instance()
                            .LookupPlaced(ToPlacedVolume(fPath[i]))
@@ -618,7 +618,7 @@ inline void NavigationState::ConvertToGPUPointers()
 
 inline void NavigationState::ConvertToCPUPointers()
 {
-#if !defined(VECGEOM_NVCC) && defined(VECGEOM_CUDA)
+#if !defined(VECGEOM_NVCC) && defined(VECGEOM_ENABLE_CUDA)
   for (int i = 0; i < fCurrentLevel; ++i)
     fPath[i] = ToIndex(vecgeom::CudaManager::Instance().LookupPlacedCPUPtr((const void *)ToPlacedVolume(fPath[i])));
 #endif

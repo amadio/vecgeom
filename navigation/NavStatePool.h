@@ -10,7 +10,7 @@
 
 #include "base/Global.h"
 #include "navigation/NavigationState.h"
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
 #include "management/CudaManager.h"
 #endif
 #ifdef VECGEOM_CUDA_INTERFACE
@@ -40,7 +40,7 @@ public:
         fGPUPointer(NULL)
   {
 
-#if !defined(VECGEOM_NVCC) && defined(VECGEOM_CUDA)
+#if !defined(VECGEOM_NVCC) && defined(VECGEOM_ENABLE_CUDA)
     vecgeom::CudaMalloc(&fGPUPointer, NavigationState::SizeOfInstanceAlignAware(depth) * size);
 #endif
     // now create the states
@@ -50,7 +50,7 @@ public:
   }
 
   ~NavStatePool() { delete[] fBuffer; }
-#if !defined(VECGEOM_NVCC) && defined(VECGEOM_CUDA)
+#if !defined(VECGEOM_NVCC) && defined(VECGEOM_ENABLE_CUDA)
   void CopyToGpu();
   void CopyFromGpu();
 #endif
@@ -143,7 +143,7 @@ public:
   int capacity() const { return fCapacity; }
 
 private: // protected methods
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   // This constructor used to build NavStatePool at the GPU.  BufferGPU
   VECCORE_ATT_DEVICE
   NavStatePool(int size, int depth, char *fBufferGPU)
@@ -164,7 +164,7 @@ private:         // members
 }; // end class
 
 // an implementation of the CopyOperation could be as follows
-#if !defined(VECGEOM_NVCC) && defined(VECGEOM_CUDA)
+#if !defined(VECGEOM_NVCC) && defined(VECGEOM_ENABLE_CUDA)
 inline void NavStatePool::CopyToGpu()
 {
 

@@ -6,7 +6,7 @@
 
 #include "base/Global.h"
 #include <initializer_list>
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
 #include "backend/cuda/Interface.h"
 #endif
 

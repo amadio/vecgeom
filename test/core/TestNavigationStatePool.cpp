@@ -12,7 +12,7 @@
 #include <iostream>
 using namespace vecgeom;
 
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
 // declaration of some external "user-space" kernel
 extern void LaunchNavigationKernel(void *gpu_ptr, int depth, int);
 #endif
@@ -21,7 +21,7 @@ int main()
 {
   // Load a geometry
   RootGeoManager::Instance().LoadRootGeometry("ExN03.root");
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   CudaManager::Instance().set_verbose(3);
   CudaManager::Instance().LoadGeometry();
 
@@ -58,12 +58,12 @@ int main()
   std::cerr << "sizeof navigation state on CPU: " << sizeof(vecgeom::cxx::NavigationState) << " and "
             << sizeof(vecgeom::NavigationState) << " bytes/state\n";
 
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   pool.CopyToGpu();
 #endif
 
 // launch some kernel on GPU using the
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   printf("TestNavStatePool: calling LaunchNavigationKernel()...\n");
   LaunchNavigationKernel(pool.GetGPUPointer(), GeoManager::Instance().getMaxDepth(), npoints);
   printf("TestNavStatePool: waiting for CudaDeviceSynchronize()...\n");
@@ -71,7 +71,7 @@ int main()
   printf("TestNavStatePool: synchronized!\n");
 #endif
 
-  // #ifdef VECGEOM_CUDA
+  // #ifdef VECGEOM_ENABLE_CUDA
   //   pool.CopyFromGpu();
   // #endif
 

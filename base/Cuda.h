@@ -9,10 +9,6 @@
 #if (defined(__CUDACC__) || defined(__NVCC__))
   // Compiling with nvcc
   #define VECGEOM_NVCC
-  #ifdef __CUDA_ARCH__
-    // Compiling device code
-    #define VECGEOM_NVCC_DEVICE
-  #endif
   #define VECGEOM_IMPL_NAMESPACE cuda
   #define VECGEOM_NAMESPACE ::vecgeom
   #define VECGEOM_ALIGNED __align__((64))
@@ -37,7 +33,7 @@
   // Not compiling with NVCC
   #define VECGEOM_IMPL_NAMESPACE cxx
   #define VECGEOM_NAMESPACE ::vecgeom
-  #ifdef VECGEOM_CUDA
+  #ifdef VECGEOM_ENABLE_CUDA
     // CUDA is enabled, but currently compiling regular C++ code.
     // This enables methods that interface between C++ and CUDA environments
     #define VECGEOM_CUDA_INTERFACE

@@ -4,7 +4,7 @@
 #include "volumes/LogicalVolume.h"
 
 #include "backend/Backend.h"
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
 #include "backend/cuda/Interface.h"
 #endif
 #include "base/Array.h"

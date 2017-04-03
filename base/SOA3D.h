@@ -152,7 +152,7 @@ public:
 #ifdef VECGEOM_CUDA_INTERFACE
   DevicePtr<cuda::SOA3D<T>> CopyToGpu(DevicePtr<T> xGpu, DevicePtr<T> yGpu, DevicePtr<T> zGpu) const;
   DevicePtr<cuda::SOA3D<T>> CopyToGpu(DevicePtr<T> xGpu, DevicePtr<T> yGpu, DevicePtr<T> zGpu, size_t size) const;
-#endif // VECGEOM_CUDA
+#endif // VECGEOM_CUDA_INTERFACE
 
   void ToFile(std::string /*filename*/) const;
   int FromFile(std::string /*filename*/);
@@ -523,7 +523,7 @@ DevicePtr<cuda::SOA3D<T>> SOA3D<T>::CopyToGpu(DevicePtr<T> xGpu, DevicePtr<T> yG
   gpu_ptr.Construct(xGpu, yGpu, zGpu, fSize);
 }
 
-#endif // VECGEOM_CUDA
+#endif // VECGEOM_CUDA_INTERFACE
 }
 } // End global namespace
 

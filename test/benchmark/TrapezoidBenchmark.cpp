@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
     tester.SetMeasurementCount(nstats);
     npoints        = 2;
     int maxNpoints = 2048;
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
     maxNpoints = 1048576;
 #endif
     while (npoints <= maxNpoints) {

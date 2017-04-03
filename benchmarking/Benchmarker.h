@@ -19,7 +19,7 @@
 #include "G4VSolid.hh"
 #endif
 
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
 #include "backend/cuda/Interface.h"
 #endif
 
@@ -291,7 +291,7 @@ private:
   void RunToInGeant4(double *distances, Precision *safeties);
   void RunToOutGeant4(double *distances, Precision *safeties);
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
   void RunInsideCuda(Precision *posX, Precision *posY, Precision *posZ, bool *contains, Inside_t *inside);
   void RunToInCuda(Precision *posX, Precision *posY, Precision *posZ, Precision *dirX, Precision *dirY, Precision *dirZ,
                    Precision *distances, Precision *safeties);
@@ -318,7 +318,7 @@ private:
 #ifdef VECGEOM_GEANT4
                        Precision const *const geant4,
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
                        Precision const *const cuda,
 #endif
                        char const *const method);
@@ -336,7 +336,7 @@ private:
 #ifdef VECGEOM_GEANT4
                                  Precision const *const geant4,
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
                                  Precision const *const cuda,
 #endif
                                  char const *const method);
@@ -352,7 +352,7 @@ private:
 #ifdef VECGEOM_GEANT4
                       Precision const *const geant4,
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
                       Precision const *const cuda,
 #endif
                       char const *const method) const;
@@ -371,7 +371,7 @@ private:
 #ifdef VECGEOM_GEANT4
                               Precision const *const geant4,
 #endif
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
                               Precision const *const cuda,
 #endif
                               char const *const method) const;

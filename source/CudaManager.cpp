@@ -114,7 +114,7 @@ vecgeom::DevicePtr<const vecgeom::cuda::VPlacedVolume> CudaManager::Synchronize(
     // also asserts that sizeof(vecgeom::cxx::VPlacedVolume) == sizeof(vecgeom::cuda::VPlacedVolume)
     assert((size_t)(*i) ==
            (size_t)(&GeoManager::gCompactPlacedVolBuffer[0]) + sizeof(vecgeom::cxx::VPlacedVolume) * (*i)->id());
-#ifdef VECGEOM_CUDA
+#ifdef VECGEOM_ENABLE_CUDA
     assert((size_t)(LookupPlaced(*i).GetPtr()) ==
            (size_t)(fPlacedVolumeBufferOnDevice.GetPtr()) + sizeof(vecgeom::cxx::VPlacedVolume) * (*i)->id());
 #endif
