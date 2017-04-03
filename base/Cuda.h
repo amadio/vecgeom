@@ -15,9 +15,6 @@
   #endif
   #define VECGEOM_IMPL_NAMESPACE cuda
   #define VECGEOM_NAMESPACE ::vecgeom
-  #define VECCORE_ATT_HOST __host__
-  #define VECCORE_ATT_DEVICE __device__
-  #define VECCORE_ATT_HOST_DEVICE __host__ __device__
   #define VECGEOM_ALIGNED __align__((64))
   #define VECGEOM_HOST_FORWARD_DECLARE(X) namespace cxx { X }
   #define VECGEOM_DEVICE_FORWARD_DECLARE(X) class __QuietSemi
@@ -40,9 +37,6 @@
   // Not compiling with NVCC
   #define VECGEOM_IMPL_NAMESPACE cxx
   #define VECGEOM_NAMESPACE ::vecgeom
-  #define VECCORE_ATT_HOST
-  #define VECCORE_ATT_DEVICE
-  #define VECCORE_ATT_HOST_DEVICE
   #ifdef VECGEOM_CUDA
     // CUDA is enabled, but currently compiling regular C++ code.
     // This enables methods that interface between C++ and CUDA environments
