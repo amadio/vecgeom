@@ -4,18 +4,16 @@
 #ifndef VECGEOM_VOLUMES_TESSELLATEDSTRUCT_H_
 #define VECGEOM_VOLUMES_TESSELLATEDSTRUCT_H_
 
-#include <array>
 #include <VecCore/VecCore>
 
 #include "base/Global.h"
 #include "base/Vector3D.h"
-#include "base/Vector.h"
 
 namespace vecgeom {
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-constexpr size_t kNV = vecCore::VectorSize<vecgeom::VectorBackend::Real_v>();
+constexpr size_t kVecSize = vecCore::VectorSize<vecgeom::VectorBackend::Real_v>();
 
 // Basic structure of indices to 3 vertices making a triangle.
 // The vertices making the triangle have to be given in anti-clockwise
@@ -25,11 +23,12 @@ constexpr size_t kNV = vecCore::VectorSize<vecgeom::VectorBackend::Real_v>();
 
 template <typename T = double>
 struct TriangleFacet {
-  Vector<Vector3D<T>> fVertices; ///< vertices of the triangle
+  Vector3D<T> fVertices[3];      ///< vertices of the triangle
   Vector3D<int> fIndices;        ///< indices for 3 distinct vertices
   Vector<int> fNeighbors;        ///< indices to triangle neighbors
   T fSurfaceArea = 0;            ///< surface area
   Vector3D<T> fNormal;           ///< normal vector pointing outside
+  T fDistance;                   ///< distance between the origin and the triangle plane
 
   VECGEOM_CUDA_HEADER_BOTH
   TriangleFacet()
@@ -99,16 +98,110 @@ struct TriangleFacet {
 };
 
 // Structure used for vectorizing queries on groups of triangles
-template <typename T = double, std::size_t N = kNV>
+template <typename Real_v>
 struct TessellatedCluster {
-  int fSize;                           ///< Size of the cluster
-  std::array<Vector3D<T>, N> fNormals; ///< A vector of normals to facet components
-  Vector3D<T> fMinExtent;              ///< Minimum extent
-  Vector3D<T> fMaxExtent;              ///< Maximum extent
+  using T = vecCore::ScalarType<Real_v>::Type;
+
+  //____________________________________________________________________________
+  Vector3D<Real_v> fNormals;        ///< Normals to facet components
+  Real_v fDistances;                ///< Distances from origin to facets
+  Vector3D<Real_v> fSideVectors[3]; ///< Side vectors of the triangular facets
+  Real_v fVertices[3];              ///< Vertices stored in SIMD format
+  
+  Vector3D<T> fMinExtent;           ///< Minimum extent
+  Vector3D<T> fMaxExtent;           ///< Maximum extent
+  //____________________________________________________________________________
 
   VECGEOM_CUDA_HEADER_BOTH
-  TesselatedCluster(int nfacets);
+  TesselatedCluster() {}
+
+  /** @brief Fill the components 'i' of the cluster with facet data
+    * @param index Triangle index, equivalent to SIMD lane index
+    * @param facet Triangle facet data
+    */
+  VECGEOM_CUDA_HEADER_BOTH
+  AddFacet(size_t index, TriangleFacet<T> const &facet)
   {
+    // Fill the facet normal by accessing individual SIMD lanes
+    assert(index <= kVecSize);
+    fNormals.x()[index] = facet.fNormal.x();
+    // Fill the distance to the plane
+    fDistances[index] = facet.fDistance;
+    // Compute side vectors and fill them using the store operation per SIMD lane
+    for (size_t ivert = 0; ivert < 3; ++ivert) {
+      Vector3D<T> c0 = facet.fVertices[ivert];
+      Vector3D<T> c1 = facet.fVertices[(ivert+1) % 3];
+      Vector3D<T> sideVector = facet.fNormal.Cross(c1 - c0).Normalized();
+      fSideVectors[ivert].x()[index] = sideVector.x();
+      fSideVectors[ivert].y()[index] = sideVector.y();
+      fSideVectors[ivert].z()[index] = sideVector.z();
+      fVertices[ivert].x()[index] = c0.x();
+      fVertices[ivert].y()[index] = c0.y();
+      fVertices[ivert].z()[index] = c0.z();
+    }
+  }
+
+  // === Navigation functionality === //
+  VECGEOM_FORCE_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
+  void InsideCluster(Vector3D<Real_v> const &point,
+                     typename vecCore::Mask<Real_v> inside) const
+  {
+    // Check if the points are inside some of the triangles. The points are assumed
+    // to be already propagated on the triangle planes.
+    using Bool_v = vecCore::Mask<Real_v>;
+    
+    inside = Bool_v(true);
+    for (size_t i = 0; i < 3; ++i) {
+      Real_v saf = (point - fVertices[i]).Dot(fSideVectors[i]);
+      inside &= saf < Real_v(kTolerance);
+    }
+  }
+  
+  VECGEOM_FORCE_INLINE
+  VECGEOM_CUDA_HEADER_BOTH
+  Real_v DistPlanes(Vector3D<Real_v> const &point) const
+  {
+    // Returns distance from point to plane. This is positive if the point is on
+    // the outside halfspace, negative otherwise.
+    return (point.Dot(fNormals) + fDistances);
+  }
+
+  VECGEOM_CUDA_HEADER_BOTH
+  T DistanceToIn(Vector3D<T> const &point, Vector3D<T> const &direction,
+                    T const &/*stepMax*/, T &distance, int &isurf)
+  {
+    using Bool_v = vecCore::Mask<Real_v>;
+
+    Real_v distance = InfinityLength<Real_v>();
+    isurf = -1;
+    Real_v pointv(point);
+    Real_v dirv(direction);
+    Real_v ndd   = NonZero(dirv.Dot(fNormals));
+    Real_v saf = DistPlanes(pointv);
+    Bool_v valid = ndd < Real_v(0.) && saf > Real_v(-kTolerance);
+    if ( vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(valid))
+      return InfinityLength<T>();
+
+    vecCore__MaskedAssignFunc(distance, valid, -saf / ndd);
+    // Since we can make no assumptions on convexity, we need to actually check
+    // which surface is actually crossed. First propagate the point with the
+    // distance to each plane.
+    pointv += distance * dirv;
+    // Check if propagated points hit the triangles
+    Bool_v hit;
+    InsideCluster(pointv, hit);
+    valid &= hit;
+    // Now we need to return the minimum distance for the hit facets
+    if ( vecCore::MaskEmpty(valid) ) return;
+    T distmin = InfinityLength<T>();
+    for (int i = 0;  i < kVecSize; ++i) {
+      if (valid[i] && distance[i] < distmin) {
+        distmin = distance[i];
+        isurf = i;
+      }
+    }
+    return distmin;
   }
 };
 
