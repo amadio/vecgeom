@@ -79,6 +79,7 @@ public:
   static constexpr const char *gClassNameString = "HybridSafetyEstimator";
 
   VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
   virtual Real_v ComputeSafetyForLocalPoint(Vector3D<Real_v> const &localpoint, VPlacedVolume const *pvol,
                                             Bool_v m) const override
   {

@@ -69,6 +69,7 @@ public:
   // Vector specialization for NewSimpleNavigator
   // TODO: unify with scalar use case
   template <typename T, unsigned int ChunkSize>
+  VECCORE_ATT_HOST_DEVICE
   static void DaughterIntersectionsLooper(
       VNavigator const * /*nav*/, LogicalVolume const *lvol, Vector3D<T> const &localpoint, Vector3D<T> const &localdir,
       //                                          NavStatePool const &in_states, NavStatePool &out_states,

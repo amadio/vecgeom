@@ -60,6 +60,7 @@ public:
   using Real_v = vecgeom::VectorBackend::Real_v;
   using Bool_v = vecCore::Mask_v<Real_v>;
 
+  VECCORE_ATT_HOST_DEVICE
   virtual Real_v ComputeSafetyForLocalPoint(Vector3D<Real_v> const & /*localpoint*/, VPlacedVolume const * /*pvol*/,
                                             Bool_v /*m*/) const = 0;
 
@@ -73,9 +74,11 @@ public:
   virtual void ComputeVectorSafety(SOA3D<Precision> const & /*globalpoints*/, NavStatePool & /*states*/,
                                    Precision * /*safeties*/) const = 0;
 
+private:
   virtual void ComputeSafetyForLocalPoints(SOA3D<Precision> const & /*localpoints*/, VPlacedVolume const * /*pvol*/,
                                            Precision * /*safeties*/) const = 0;
 
+public:
   VECCORE_ATT_HOST_DEVICE
   virtual ~VSafetyEstimator() {}
 

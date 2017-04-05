@@ -35,6 +35,8 @@ class VNavigator {
 
 public:
   VNavigator() : fSafetyEstimator(nullptr) {}
+
+  VECCORE_ATT_HOST_DEVICE
   VSafetyEstimator const *GetSafetyEstimator() const { return fSafetyEstimator; }
 
   //! computes the step (distance) to the next object in the geometry hierarchy obtained
@@ -64,6 +66,7 @@ public:
                                 NavigationState & /*out_state*/) const = 0;
 
   //! as above ... also returns the safety ... does not give_back an out_state
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision ComputeStepAndSafety(Vector3D<Precision> const & /*globalpoint*/,
                                          Vector3D<Precision> const & /*globaldir*/, Precision /*(physics) step limit */,
                                          NavigationState const & /*in_state*/, bool /*calcsafety*/,
@@ -112,6 +115,7 @@ public:
                                                NavigationState ** /*out_states*/, Precision * /*out_steps*/) const = 0;
 
   // for vector navigation
+  VECCORE_ATT_HOST_DEVICE
   virtual void ComputeStepsAndSafetiesAndPropagatedStates(SOA3D<Precision> const & /*globalpoints*/,
                                                           SOA3D<Precision> const & /*globaldirs*/,
                                                           Precision const * /*(physics) step limits */,
@@ -121,6 +125,7 @@ public:
                                                           Precision * /*out_safeties*/) const = 0;
 
   // for vector navigation (not doing relocation) -- interface for GeantV
+  VECCORE_ATT_HOST_DEVICE
   virtual void ComputeStepsAndSafeties(SOA3D<Precision> const & /*globalpoints*/,
                                        SOA3D<Precision> const & /*globaldirs*/,
                                        Precision const * /*(physics) step limits */,
@@ -286,11 +291,10 @@ public:
   // the from_index, to_index indicate which states from the NavigationState ** are actually treated
   // in the worst case, we might have to implement this stuff over there
   template <typename T, unsigned int ChunkSize> // we may go to Backend as template parameter in future
-  static void DaughterIntersectionsLooper(VNavigator const *nav, LogicalVolume const *lvol,
-                                          Vector3D<T> const &localpoint, Vector3D<T> const &localdir,
-                                          NavigationState const **in_states, NavigationState **out_states,
-                                          unsigned int from_index, Precision *out_steps,
-                                          VPlacedVolume const *hitcandidates[ChunkSize])
+  VECCORE_ATT_HOST_DEVICE static void DaughterIntersectionsLooper(
+      VNavigator const *nav, LogicalVolume const *lvol, Vector3D<T> const &localpoint, Vector3D<T> const &localdir,
+      NavigationState const **in_states, NavigationState **out_states, unsigned int from_index, Precision *out_steps,
+      VPlacedVolume const *hitcandidates[ChunkSize])
   {
     // dispatch to ordinary implementation ( which itself might be vectorized )
     using vecCore::LaneAt;
@@ -307,8 +311,9 @@ public:
 
   // the default implementation for safety calculation for a chunk of data
   template <typename T, unsigned int ChunkSize> // we may go to Backend as template parameter in future
-  static void SafetyLooper(VNavigator const *nav, VPlacedVolume const *pvol, Vector3D<T> const &localpoint,
-                           unsigned int from_index, bool const *calcsafeties, Precision *out_safeties)
+  VECCORE_ATT_HOST_DEVICE static void SafetyLooper(VNavigator const *nav, VPlacedVolume const *pvol,
+                                                   Vector3D<T> const &localpoint, unsigned int from_index,
+                                                   bool const *calcsafeties, Precision *out_safeties)
   {
     // dispatch to ordinary implementation ( which itself might be vectorized )
     // TODO: check calcsafeties if we need to do this at all
@@ -433,6 +438,7 @@ public:
     return step;
   }
 
+  VECCORE_ATT_HOST_DEVICE
   virtual Precision ComputeStepAndSafety(Vector3D<Precision> const &globalpoint, Vector3D<Precision> const &globaldir,
                                          Precision step_limit, NavigationState const &in_state, bool calcsafety,
                                          Precision &safety) const override
@@ -480,9 +486,10 @@ public:
             ->Impl::CheckDaughterIntersections(lvol, localpoint, localdir, &in_state, out_state, step, hitcandidate);
       }
     }
-    return std::min(step, step_limit);
+    return Min(step, step_limit);
   }
 
+  VECCORE_ATT_HOST_DEVICE
   virtual void ComputeStepsAndSafeties(SOA3D<Precision> const &globalpoints, SOA3D<Precision> const &globaldirs,
                                        Precision const *step_limits, NavigationState const **in_states,
                                        Precision *out_steps, bool const *calcsafety,
@@ -564,6 +571,7 @@ public:
   // same as above but including safety treatment
   // TODO: remerge with above to avoid code duplication
   template <typename T, unsigned int ChunkSize>
+  VECCORE_ATT_HOST_DEVICE
   static void NavigateAChunk(VNavigator const *__restrict__ nav, VPlacedVolume const *__restrict__ pvol,
                              LogicalVolume const *__restrict__ lvol, SOA3D<Precision> const &__restrict__ globalpoints,
                              SOA3D<Precision> const &__restrict__ globaldirs, Precision const *__restrict__ step_limits,
@@ -664,6 +672,7 @@ public:
   // generic implementation for the vector interface
   // this implementation tries to process everything in vector CHUNKS
   // at the very least this enables at least the DistanceToOut call to be vectorized
+  VECCORE_ATT_HOST_DEVICE
   virtual void ComputeStepsAndSafetiesAndPropagatedStates(
       SOA3D<Precision> const &__restrict__ globalpoints, SOA3D<Precision> const &__restrict__ globaldirs,
       Precision const *__restrict__ step_limit, NavigationState const **__restrict__ in_states,
