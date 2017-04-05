@@ -679,6 +679,26 @@ void TestVECGEOM393()
   assert(ApproxEqual(extMax, Vector3D<double>(38.57634475, 38.09667423, 60.)));
 }
 
+void TestVECGEOM420()
+{
+#ifdef VECGEOM_USOLIDS
+  UTrap trap420("TestVECGEOM420", 40, 0, 0, 30, 20, 20, 0, 30, 20, 20, 0); // box:20,30,40
+  // first test some points
+  using Vec_t = vecgeom::Vector3D<vecgeom::Precision>;
+  assert(trap420.Inside(Vec_t(25, 10, 10)) == vecgeom::EInside::kOutside);
+  assert(trap420.Inside(Vec_t(10, 35, 10)) == vecgeom::EInside::kOutside);
+  assert(trap420.Inside(Vec_t(10, 10, 30)) == vecgeom::EInside::kInside);
+
+  // then reset parameters
+  trap420.SetAllParameters(20, 0, 0, 40, 30, 30, 0, 40, 30, 30, 0); // assumed arguments given in mm
+
+  // and re-test those points
+  assert(trap420.Inside(Vec_t(25, 10, 10)) == vecgeom::EInside::kInside);
+  assert(trap420.Inside(Vec_t(10, 35, 10)) == vecgeom::EInside::kInside);
+  assert(trap420.Inside(Vec_t(10, 10, 30)) == vecgeom::EInside::kOutside);
+#endif
+}
+
 #ifdef VECGEOM_USOLIDS
 struct USOLIDSCONSTANTS {
   static constexpr double kInfLength = DBL_MAX;
@@ -701,6 +721,7 @@ int main(int argc, char *argv[])
     std::cerr << "VECGEOM_USOLIDS was not defined\n";
     return 2;
 #else
+    TestVECGEOM420();
 #ifndef VECGEOM_REPLACE_USOLIDS
     TestTrap<USOLIDSCONSTANTS, UTrap>();
     std::cout << "UTrap passed.\n";

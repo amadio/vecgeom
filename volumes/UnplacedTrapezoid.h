@@ -231,6 +231,7 @@ public:
   {
     fTrap.fTheta = val;
     fTrap.CalculateCached();
+    this->MakePlanes();
   }
 
   VECCORE_ATT_HOST_DEVICE
@@ -239,6 +240,7 @@ public:
   {
     fTrap.fPhi = val;
     fTrap.CalculateCached();
+    this->MakePlanes();
   }
 
   VECCORE_ATT_HOST_DEVICE

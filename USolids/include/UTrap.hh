@@ -211,15 +211,15 @@ public:
   void SetAllParameters(double pDz, double pTheta, double pPhi, double pDy1, double pDx1, double pDx2, double pAlp1,
                         double pDy2, double pDx3, double pDx4, double pAlp2)
   {
-    const double _mm                   = 0.1; // conversion factor from Geant4 default (mm) to VecGeom's (cm)
+    // const double _mm                   = 0.1; // conversion factor from Geant4 default (mm) to VecGeom's (cm)
     vecgeom::UnplacedTrapezoid *vgtrap = (Shape_t *)this;
-    vgtrap->SetDz(pDz * _mm);
-    vgtrap->SetDy1(pDy1 * _mm);
-    vgtrap->SetDy2(pDy2 * _mm);
-    vgtrap->SetDx1(pDx1 * _mm);
-    vgtrap->SetDx2(pDx2 * _mm);
-    vgtrap->SetDx3(pDx3 * _mm);
-    vgtrap->SetDx4(pDx4 * _mm);
+    vgtrap->SetDz(pDz);
+    vgtrap->SetDy1(pDy1);
+    vgtrap->SetDy2(pDy2);
+    vgtrap->SetDx1(pDx1);
+    vgtrap->SetDx2(pDx2);
+    vgtrap->SetDx3(pDx3);
+    vgtrap->SetDx4(pDx4);
     vgtrap->SetTanAlpha1(vecCore::math::Tan(pAlp1));
     vgtrap->SetTanAlpha1(vecCore::math::Tan(pAlp2));
     // last two will also reset cached variables
