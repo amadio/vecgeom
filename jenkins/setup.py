@@ -9,7 +9,7 @@ system = platform.system()
 
 # --------------------- Setting command lines options
 def main(argv):
-   global compiler, build_type, op_sys, external, rootDir, veccoretype
+   global compiler, build_type, op_sys, external, rootDir
    global comp, build, label
 
    compiler = ''
@@ -20,10 +20,10 @@ def main(argv):
    comp = ''
    label = ''
 
-   opts, args = getopt.getopt(argv,"hc:b:o:v:t:")
+   opts, args = getopt.getopt(argv,"hc:b:o:v:")
    for opt, arg in opts:
       if opt == '-h':
-         print 'setup.py -c <compiler> -b <build_type> -o <operating_system> -v <external> -t <veccorebackend>'
+         print 'setup.py -c <compiler> -b <build_type> -o <operating_system> -v <external>'
          sys.exit()
       elif opt in ("-c"):
          comp = arg
@@ -36,9 +36,6 @@ def main(argv):
 
       elif opt in ("-v"):
          external = arg
-
-      elif opt in ("-t"):
-         veccoretype = arg
 
    if build == 'Release' : build_type = 'opt'
    elif build == 'Debug' : build_type = 'dbg'
@@ -157,8 +154,7 @@ def default_bt():
 
 def directories():
    dir_hash = []
-   veccore_var = 'veccore-'+veccoretype
-   packages_list = ['ROOT','Geant4','Vc','hepmc3','MCGenerators', 'umesimd', veccore_var]
+   packages_list = ['ROOT','Geant4','Vc','hepmc3','MCGenerators', 'umesimd', 'veccore']
    for dirs in os.listdir(rootDir):
       if os.path.isfile(dirs):
          pass
