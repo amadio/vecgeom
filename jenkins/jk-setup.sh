@@ -6,7 +6,7 @@ export LC_ALL=en_US.UTF-8
 THIS=$(dirname ${BASH_SOURCE[0]})
 
 # first arguments is the source directory
-if [ $# -ge 6 ]; then
+if [ $# -ge 5 ]; then
   LABEL=$1 ; shift
   COMPILER=$1 ; shift
   BUILDTYPE=$1 ; shift
