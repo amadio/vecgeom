@@ -19,89 +19,137 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 UnplacedCone::UnplacedCone(Precision rmin1, Precision rmax1, Precision rmin2, Precision rmax2, Precision dz,
                            Precision phimin, Precision deltaphi)
-    : fRmin1(rmin1), fRmax1(rmax1), fRmin2(rmin2), fRmax2(rmax2), fDz(dz), fSPhi(phimin), fDPhi(deltaphi),
-      fPhiWedge(deltaphi, phimin), fNormalPhi1(), fNormalPhi2(), fAlongPhi1x(0), fAlongPhi1y(0), fAlongPhi2x(0),
-      fAlongPhi2y(0), fInnerSlope(), // "gradient" of inner surface in z direction
-      fOuterSlope(),                 // "gradient" of outer surface in z direction
-      fInnerSlopeInv(), fOuterSlopeInv(), fInnerOffset(), fOuterOffset(), fOuterSlopeSquare(), fInnerSlopeSquare(),
-      fOuterOffsetSquare(), fInnerOffsetSquare(), fSqRmin1(rmin1 * rmin1), fSqRmin2(rmin2 * rmin2),
-      fSqRmax1(rmax1 * rmax1), fSqRmax2(rmax2 * rmax2), fSqRmin1Tol(rmin1 * rmin1 - kTolerance),
-      fSqRmin2Tol(rmin2 * rmin2 - kTolerance), fSqRmax1Tol(rmax1 * rmax1 + kTolerance),
-      fSqRmax2Tol(rmax2 * rmax2 + kTolerance), fInnerConeApex(0.), fTanInnerApexAngle(0.), fTanInnerApexAngle2(0.),
-      fOuterConeApex(0.), fTanOuterApexAngle(0.), fTanOuterApexAngle2(0.), fSecRMin(0), fSecRMax(0), fInvSecRMin(0),
-      fInvSecRMax(0), fTanRMin(0), fTanRMax(0), fZNormInner(), fZNormOuter(), fRminAv((rmin1 + rmin2) * 0.5),
-      fRmaxAv((rmax1 + rmax2) * 0.5), fneedsRminTreatment(false), fConeTolerance(1e-7)
+    : fRmin1(rmin1), fRmax1(rmax1), fRmin2(rmin2), fRmax2(rmax2), fDz(dz), fSPhi(phimin), fDPhi(deltaphi),fPhiWedge(deltaphi, phimin)
 {
+SetAndCheckDPhiAngle(deltaphi);
+SetAndCheckSPhiAngle(phimin);
+CalculateCached();
 
-  if (fRmin1 == fRmax1) {
-    fRmax1 += kConeTolerance;
-  }
-
-  if (fRmin2 == fRmax2) {
-    fRmax2 += kConeTolerance;
-  }
-
-  fTanRMin    = (fRmin2 - fRmin1) * 0.5 / fDz;
-  fSecRMin    = std::sqrt(1.0 + fTanRMin * fTanRMin);
-  fInvSecRMin = 1. / NonZero(fSecRMin);
-  fTanRMax    = (fRmax2 - fRmax1) * 0.5 / fDz;
-
-  fSecRMax    = std::sqrt(1.0 + fTanRMax * fTanRMax);
-  fInvSecRMax = 1. / NonZero(fSecRMax);
-
-  // check this very carefully
-  fInnerSlope        = -(fRmin1 - fRmin2) / (2. * fDz);
-  fOuterSlope        = -(fRmax1 - fRmax2) / (2. * fDz);
-  fInnerSlopeInv     = 1. / NonZero(fInnerSlope);
-  fOuterSlopeInv     = 1. / NonZero(fOuterSlope);
-  fInnerOffset       = fRmin2 - fInnerSlope * fDz;
-  fOuterOffset       = fRmax2 - fOuterSlope * fDz;
-  fOuterSlopeSquare  = fOuterSlope * fOuterSlope;
-  fInnerSlopeSquare  = fInnerSlope * fInnerSlope;
-  fOuterOffsetSquare = fOuterOffset * fOuterOffset;
-  fInnerOffsetSquare = fInnerOffset * fInnerOffset;
-
-  if (fRmin2 > fRmin1) {
-    fInnerConeApex     = 2 * fDz * fRmin1 / (fRmin2 - fRmin1);
-    fTanInnerApexAngle = fRmin2 / (2 * fDz + fInnerConeApex);
-  } else { // Should we add a check if(fRmin1 > fRmin2)
-    fInnerConeApex     = 2 * fDz * fRmin2 / NonZero(fRmin1 - fRmin2);
-    fTanInnerApexAngle = fRmin1 / (2 * fDz + fInnerConeApex);
-  }
-
-  if (fRmin1 == 0. || fRmin2 == 0.) fInnerConeApex = 0.;
-
-  if (fRmin1 == 0.) fTanInnerApexAngle = fRmin2 / (2 * fDz);
-  if (fRmin2 == 0.) fTanInnerApexAngle = fRmin1 / (2 * fDz);
-
-  fTanInnerApexAngle2 = fTanInnerApexAngle * fTanInnerApexAngle;
-
-  if (fRmax2 > fRmax1) {
-    fOuterConeApex     = 2 * fDz * fRmax1 / (fRmax2 - fRmax1);
-    fTanOuterApexAngle = fRmax2 / (2 * fDz + fOuterConeApex);
-  } else { // Should we add a check if(fRmax1 > fRmax2)
-    fOuterConeApex     = 2 * fDz * fRmax2 / NonZero(fRmax1 - fRmax2);
-    fTanOuterApexAngle = fRmax1 / (2 * fDz + fOuterConeApex);
-  }
-
-  if (fRmax1 == 0. || fRmax2 == 0.) fOuterConeApex = 0.;
-
-  if (fRmax1 == 0.) fTanOuterApexAngle = fRmax2 / (2 * fDz);
-  if (fRmax2 == 0.) fTanOuterApexAngle = fRmax1 / (2 * fDz);
-
-  fTanOuterApexAngle2 = fTanOuterApexAngle * fTanOuterApexAngle;
-
-  fZNormInner         = fTanRMin / NonZero(fSecRMin);
-  fZNormOuter         = -fTanRMax / NonZero(fSecRMax);
-  fneedsRminTreatment = (fRmin1 || fRmin2);
-
-  fTolIz = fDz - kHalfTolerance;
-  fTolOz = fDz + kHalfTolerance;
-
-  GetAlongVectorToPhiSector(fSPhi, fAlongPhi1x, fAlongPhi1y);
-  GetAlongVectorToPhiSector(fSPhi + fDPhi, fAlongPhi2x, fAlongPhi2y);
-  DetectConvexity();
 }
+
+void UnplacedCone::CalculateCached(){
+	  if (fRmin1 == fRmax1) {
+	    fRmax1 += kConeTolerance;
+	  }
+
+	  if (fRmin2 == fRmax2) {
+	    fRmax2 += kConeTolerance;
+	  }
+
+	  fSqRmin1=fRmin1*fRmin1;
+	   fSqRmax1=fRmax1*fRmax1;
+	   fSqRmin2=fRmin2*fRmin2;
+	   fSqRmax2=fRmax2*fRmax2;
+	   fSqRmin1Tol = fSqRmin1-kTolerance;
+	   fSqRmin2Tol = fSqRmin2-kTolerance;
+	   fSqRmax1Tol = fSqRmax1+kTolerance;
+	   fSqRmax2Tol = fSqRmax2+kTolerance;
+	   fRminAv = (fRmin1+fRmin2)/2.;
+	   fRmaxAv = (fRmax1+fRmax2)/2.;
+	   fneedsRminTreatment=false;
+	   fConeTolerance = 1e-7;
+
+
+	  fTanRMin    = (fRmin2 - fRmin1) * 0.5 / fDz;
+	  fSecRMin    = std::sqrt(1.0 + fTanRMin * fTanRMin);
+	  fInvSecRMin = 1. / NonZero(fSecRMin);
+	  fTanRMax    = (fRmax2 - fRmax1) * 0.5 / fDz;
+
+	  fSecRMax    = std::sqrt(1.0 + fTanRMax * fTanRMax);
+	  fInvSecRMax = 1. / NonZero(fSecRMax);
+
+	  // check this very carefully
+	  fInnerSlope        = -(fRmin1 - fRmin2) / (2. * fDz);
+	  fOuterSlope        = -(fRmax1 - fRmax2) / (2. * fDz);
+	  fInnerSlopeInv     = 1. / NonZero(fInnerSlope);
+	  fOuterSlopeInv     = 1. / NonZero(fOuterSlope);
+	  fInnerOffset       = fRmin2 - fInnerSlope * fDz;
+	  fOuterOffset       = fRmax2 - fOuterSlope * fDz;
+	  fOuterSlopeSquare  = fOuterSlope * fOuterSlope;
+	  fInnerSlopeSquare  = fInnerSlope * fInnerSlope;
+	  fOuterOffsetSquare = fOuterOffset * fOuterOffset;
+	  fInnerOffsetSquare = fInnerOffset * fInnerOffset;
+
+	  if (fRmin2 > fRmin1) {
+	    fInnerConeApex     = 2 * fDz * fRmin1 / (fRmin2 - fRmin1);
+	    fTanInnerApexAngle = fRmin2 / (2 * fDz + fInnerConeApex);
+	  } else { // Should we add a check if(fRmin1 > fRmin2)
+	    fInnerConeApex     = 2 * fDz * fRmin2 / NonZero(fRmin1 - fRmin2);
+	    fTanInnerApexAngle = fRmin1 / (2 * fDz + fInnerConeApex);
+	  }
+
+	  if (fRmin1 == 0. || fRmin2 == 0.) fInnerConeApex = 0.;
+
+	  if (fRmin1 == 0.) fTanInnerApexAngle = fRmin2 / (2 * fDz);
+	  if (fRmin2 == 0.) fTanInnerApexAngle = fRmin1 / (2 * fDz);
+
+	  fTanInnerApexAngle2 = fTanInnerApexAngle * fTanInnerApexAngle;
+
+	  if (fRmax2 > fRmax1) {
+	    fOuterConeApex     = 2 * fDz * fRmax1 / (fRmax2 - fRmax1);
+	    fTanOuterApexAngle = fRmax2 / (2 * fDz + fOuterConeApex);
+	  } else { // Should we add a check if(fRmax1 > fRmax2)
+	    fOuterConeApex     = 2 * fDz * fRmax2 / NonZero(fRmax1 - fRmax2);
+	    fTanOuterApexAngle = fRmax1 / (2 * fDz + fOuterConeApex);
+	  }
+
+	  if (fRmax1 == 0. || fRmax2 == 0.) fOuterConeApex = 0.;
+
+	  if (fRmax1 == 0.) fTanOuterApexAngle = fRmax2 / (2 * fDz);
+	  if (fRmax2 == 0.) fTanOuterApexAngle = fRmax1 / (2 * fDz);
+
+	  fTanOuterApexAngle2 = fTanOuterApexAngle * fTanOuterApexAngle;
+
+	  fZNormInner         = fTanRMin / NonZero(fSecRMin);
+	  fZNormOuter         = -fTanRMax / NonZero(fSecRMax);
+	  fneedsRminTreatment = (fRmin1 || fRmin2);
+
+	  fTolIz = fDz - kHalfTolerance;
+	  fTolOz = fDz + kHalfTolerance;
+
+	  DetectConvexity();
+
+}
+  void UnplacedCone::SetAndCheckSPhiAngle(Precision sPhi)
+  {
+    // Ensure fSphi in 0-2PI or -2PI-0 range if shape crosses 0
+    if (sPhi < 0) {
+      fSPhi = kTwoPi - std::fmod(std::fabs(sPhi), kTwoPi);
+    } else {
+      fSPhi = std::fmod(sPhi, kTwoPi);
+    }
+    if (fSPhi + fDPhi > kTwoPi) {
+      fSPhi -= kTwoPi;
+    }
+
+    // Update Wedge
+    fPhiWedge.SetStartPhi(fSPhi);
+    // Update cached values.
+    GetAlongVectorToPhiSector(fSPhi, fAlongPhi1x, fAlongPhi1y);
+    GetAlongVectorToPhiSector(fSPhi + fDPhi, fAlongPhi2x, fAlongPhi2y);
+  }
+
+  void UnplacedCone::SetAndCheckDPhiAngle(Precision dPhi)
+    {
+      if (dPhi >= kTwoPi - 0.5 * kAngTolerance) {
+        fDPhi = kTwoPi;
+        fSPhi = 0;
+      } else {
+        if (dPhi > 0) {
+          fDPhi = dPhi;
+        } else {
+          //        std::ostringstream message;
+          //        message << "Invalid dphi.\n"
+          //                << "Negative or zero delta-Phi (" << dPhi << ")\n";
+          //        std::cout<<"UnplacedTube::CheckDPhiAngle(): Fatal error: "<< message.str().c_str() <<"\n";
+        }
+      }
+      // Update Wedge
+      fPhiWedge.SetDeltaPhi(fDPhi);
+      // Update cached values.
+      GetAlongVectorToPhiSector(fSPhi, fAlongPhi1x, fAlongPhi1y);
+      GetAlongVectorToPhiSector(fSPhi + fDPhi, fAlongPhi2x, fAlongPhi2y);
+    }
 
 void UnplacedCone::Print() const
 {

@@ -14,7 +14,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 VECCORE_ATT_HOST_DEVICE
 Wedge::Wedge(Precision angle, Precision zeroangle)
-    : // fSPhi(zeroangle),
+    : fSPhi(zeroangle),
       fDPhi(angle),
       fAlongVector1(), fAlongVector2()
 {
@@ -22,15 +22,15 @@ Wedge::Wedge(Precision angle, Precision zeroangle)
   assert(angle > 0.0 && angle <= kTwoPi);
 
   // initialize angles
-  fAlongVector1.x() = std::cos(zeroangle);
-  fAlongVector1.y() = std::sin(zeroangle);
-  fAlongVector2.x() = std::cos(zeroangle + angle);
-  fAlongVector2.y() = std::sin(zeroangle + angle);
+  fAlongVector1.x() = std::cos(fSPhi);
+  fAlongVector1.y() = std::sin(fSPhi);
+  fAlongVector2.x() = std::cos(fSPhi + fDPhi);
+  fAlongVector2.y() = std::sin(fSPhi + fDPhi);
 
-  fNormalVector1.x() = -std::sin(zeroangle);
-  fNormalVector1.y() = std::cos(zeroangle); // not the + sign
-  fNormalVector2.x() = std::sin(zeroangle + angle);
-  fNormalVector2.y() = -std::cos(zeroangle + angle); // note the - sign
+  fNormalVector1.x() = -std::sin(fSPhi);
+  fNormalVector1.y() = std::cos(fSPhi); // not the + sign
+  fNormalVector2.x() = std::sin(fSPhi + fDPhi);
+  fNormalVector2.y() = -std::cos(fSPhi + fDPhi); // note the - sign
 }
 }
 }

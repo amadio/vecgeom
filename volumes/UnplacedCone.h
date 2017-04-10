@@ -100,9 +100,13 @@ private:
   Precision fConeTolerance;
 
 public:
+
   VECCORE_ATT_HOST_DEVICE
   UnplacedCone(Precision rmin1, Precision rmax1, Precision rmin2, Precision rmax2, Precision dz, Precision phimin,
                Precision deltaphi);
+
+  VECCORE_ATT_HOST_DEVICE
+  void CalculateCached();
 
   VECCORE_ATT_HOST_DEVICE
   static void GetAlongVectorToPhiSector(Precision phi, Precision &x, Precision &y)
@@ -220,13 +224,16 @@ public:
   VECCORE_ATT_HOST_DEVICE
   Wedge const &GetWedge() const { return fPhiWedge; }
 
-  void SetRmin1(Precision const &arg) { fRmin1 = arg; }
-  void SetRmax1(Precision const &arg) { fRmax1 = arg; }
-  void SetRmin2(Precision const &arg) { fRmin2 = arg; }
-  void SetRmax2(Precision const &arg) { fRmax2 = arg; }
-  void SetDz(Precision const &arg) { fDz = arg; }
-  void SetSPhi(Precision const &arg) { fSPhi = arg; }
-  void SetDPhi(Precision const &arg) { fDPhi = arg; }
+  void SetAndCheckSPhiAngle(Precision sPhi);
+  void SetAndCheckDPhiAngle(Precision dPhi);
+
+  void SetRmin1(Precision const &arg) { fRmin1 = arg; CalculateCached();}
+  void SetRmax1(Precision const &arg) { fRmax1 = arg; CalculateCached();}
+  void SetRmin2(Precision const &arg) { fRmin2 = arg; CalculateCached();}
+  void SetRmax2(Precision const &arg) { fRmax2 = arg; CalculateCached();}
+  void SetDz(Precision const &arg) { fDz = arg; CalculateCached();}
+  void SetSPhi(Precision const &arg) { fSPhi = arg; SetAndCheckSPhiAngle(fSPhi); DetectConvexity();}
+  void SetDPhi(Precision const &arg) { fDPhi = arg; SetAndCheckDPhiAngle(fDPhi); DetectConvexity();}
 
   VECCORE_ATT_HOST_DEVICE
   bool IsFullPhi() const { return fDPhi == kTwoPi; }
