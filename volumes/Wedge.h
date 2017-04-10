@@ -42,7 +42,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class Wedge {
 
 private:
-  Precision fSPhi; // starting angle
+  Precision fSPhi;                   // starting angle
   Precision fDPhi;                   // delta angle representing/defining the wedge
   Vector3D<Precision> fAlongVector1; // vector along the first plane
   Vector3D<Precision> fAlongVector2; // vector aling the second plane
@@ -61,13 +61,17 @@ public:
   ~Wedge() {}
 
   VECCORE_ATT_HOST_DEVICE
-  void SetStartPhi(Precision const &arg) {fSPhi = arg;}
+  void SetStartPhi(Precision const &arg) { fSPhi = arg; }
 
   VECCORE_ATT_HOST_DEVICE
-  void SetDeltaPhi(Precision const &arg) {fDPhi = arg;}
+  void SetDeltaPhi(Precision const &arg) { fDPhi = arg; }
 
   VECCORE_ATT_HOST_DEVICE
-  void Set(Precision const &dphi, Precision const &sphi) {SetStartPhi(sphi); SetDeltaPhi(dphi);}
+  void Set(Precision const &dphi, Precision const &sphi)
+  {
+    SetStartPhi(sphi);
+    SetDeltaPhi(dphi);
+  }
 
   VECCORE_ATT_HOST_DEVICE
   Vector3D<Precision> GetAlong1() const { return fAlongVector1; }

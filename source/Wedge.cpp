@@ -13,10 +13,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 VECCORE_ATT_HOST_DEVICE
-Wedge::Wedge(Precision angle, Precision zeroangle)
-    : fSPhi(zeroangle),
-      fDPhi(angle),
-      fAlongVector1(), fAlongVector2()
+Wedge::Wedge(Precision angle, Precision zeroangle) : fSPhi(zeroangle), fDPhi(angle), fAlongVector1(), fAlongVector2()
 {
   // check input
   assert(angle > 0.0 && angle <= kTwoPi);
