@@ -89,6 +89,76 @@ struct PolyconeImplementation {
     s << "UnplacedPolycone";
   }
 
+
+#if(1)
+  template <typename Backend, bool ForInside>
+      VECGEOM_FORCE_INLINE
+	  VECCORE_ATT_HOST_DEVICE
+      static void GenericKernelForContainsAndInside(UnplacedPolycone const &unplaced,
+                                                    Vector3D<typename Backend::precision_v> const &localPoint,
+                                                    typename Backend::bool_v &completelyInside,
+                                                    typename Backend::bool_v &completelyOutside)
+      {
+		typedef typename Backend::precision_v Float_t;
+		typedef typename Backend::bool_v Bool_t;
+
+		int indexLow = unplaced.GetSectionIndex(localPoint.z() - kTolerance);
+		int indexHigh = unplaced.GetSectionIndex(localPoint.z() + kTolerance);
+		if (indexLow < 0 && indexHigh < 0) {
+			completelyOutside=true;
+			return;
+		}
+		if (indexLow < 0 && indexHigh == 0) {
+			//Check location in section 0
+			GenericKernelForASection<Backend, ForInside>(unplaced, 0, localPoint, completelyInside, completelyOutside);
+			return;
+		}
+		if (indexHigh < 0 && indexLow == (unplaced.GetNSections()-1)) {
+			//Check location in section N-1
+			GenericKernelForASection<Backend, ForInside>(unplaced, (unplaced.GetNSections()-1), localPoint, completelyInside, completelyOutside);
+			return;
+		}
+		if (indexLow >= 0 && indexHigh >= 0) {
+			if(indexLow==indexHigh){
+				//Check location in section indexLow and return
+				GenericKernelForASection<Backend, ForInside>(unplaced, indexLow, localPoint, completelyInside, completelyOutside);
+				return;
+			}else{
+				//std::cout<<".................................................................."<<std::endl;
+				//std::cout<<"IndexLow : " << indexLow <<" : IndexHigh : "<< indexHigh << std::endl;
+				//std::cout<<".................................................................."<<std::endl;
+				//if on surface of both (section indexLow and section indexHigh) then point is inside
+				Bool_t secInLow = false, secOutLow = false;
+				Bool_t secInHigh = false, secOutHigh = false;
+				GenericKernelForASection<Backend, ForInside>(unplaced, indexLow, localPoint, secInLow,secOutLow);
+				GenericKernelForASection<Backend, ForInside>(unplaced, indexHigh, localPoint, secInHigh,secOutHigh);
+				Bool_t surfLow = !secInLow && !secOutLow;
+				Bool_t surfHigh = !secInHigh && !secOutHigh;
+				//std::cout<<"******* SurfLow : "<< surfLow <<" : SurfHigh : "<< surfHigh << "**********" << std::endl;
+				if( surfLow && surfHigh){
+					completelyInside=true;
+					//std::cout<<"........ setting CompInside : "<< completelyInside << "..........." << std::endl;
+					return;
+				}else{
+				//else if on surface and on  only one of the two sections then point is actually on surface , the default case,
+				//so no need to check
+
+				//What needs to check is if it is outside both ie. Outside indexLow and Outside indexHigh, then it is certainly outside
+				if(secOutLow && secOutHigh){
+					completelyOutside=true;
+					return;
+				}
+
+				}
+			}
+
+		}
+
+      }
+#endif
+
+#if(0)
+
   /////GenericKernel Contains/Inside implementation
   template <typename Backend, bool ForInside>
   VECGEOM_FORCE_INLINE
@@ -257,6 +327,7 @@ struct PolyconeImplementation {
     } // end if(ForInside)
 
   } // end of GenericKernelForContainsAndInside()
+#endif
 
   template <class Backend>
   VECGEOM_FORCE_INLINE
@@ -314,7 +385,7 @@ struct PolyconeImplementation {
     // convert from master to local coordinates
     Vector3D<typename Backend::precision_v> localPoint = transformation.Transform<transCodeT, rotCodeT>(masterPoint);
 
-    Bool_t fullyInside, fullyOutside;
+    Bool_t fullyInside(false), fullyOutside(false);
     GenericKernelForContainsAndInside<Backend, true>(unplaced, localPoint, fullyInside, fullyOutside);
 #ifdef POLYCONEDEBUG
     std::cout << " Polycone::Inside(): localz=" << localPoint.z() << "\n";
