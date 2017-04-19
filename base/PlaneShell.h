@@ -140,14 +140,13 @@ public:
     }
 
     // analysis loop - not auto-vectorizable
-    constexpr Precision trapSurfaceTolerance = kTolerance;
     for (unsigned int i = 0; i < N; ++i) {
       // is it outside of this side plane?
-      completelyOutside = completelyOutside || (dist[i] > MakePlusTolerant<ForInside>(0., trapSurfaceTolerance));
+      completelyOutside = completelyOutside || (dist[i] > MakePlusTolerant<ForInside>(0.0));
       if (ForInside) {
-        completelyInside = completelyInside && (dist[i] < MakeMinusTolerant<ForInside>(0., trapSurfaceTolerance));
+        completelyInside = completelyInside && (dist[i] < MakeMinusTolerant<ForInside>(0.0));
       }
-      if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(completelyOutside)) return;
+      // if (vecCore::SIMDsizeUpTo<Real_v>() && vecCore::MaskFull(completelyOutside)) return;
     }
   }
 
@@ -186,7 +185,7 @@ public:
       done = done || (pdist[i] > MakePlusTolerant<true>(0.0) && proj[i] >= 0.0);
       done = done || (pdist[i] > MakeMinusTolerant<true>(0.0) && proj[i] > 0.0);
     }
-    if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return distIn;
+    if (vecCore::SIMDsizeUpTo<Real_v>() && vecCore::MaskFull(done)) return distIn;
 
     // analysis loop
     for (int i = 0; i < N; ++i) {
@@ -200,7 +199,7 @@ public:
 
       Bool_v interceptFromOutside = (posPoint && !posDir);
       done                        = done || (interceptFromOutside && vdist[i] > smax);
-      if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return distIn;
+      if (vecCore::SIMDsizeUpTo<Real_v>() && vecCore::MaskFull(done)) return distIn;
 
       // update smin,smax
       vecCore__MaskedAssignFunc(smin, interceptFromOutside && vdist[i] > smin, vdist[i]);
@@ -222,9 +221,10 @@ public:
   VECCORE_ATT_HOST_DEVICE
   Real_v DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir) const
   {
-    using Bool_v = vecCore::Mask_v<Real_v>;
-    Bool_v done(false);
+    // using Bool_v = vecCore::Mask_v<Real_v>;
+    // Bool_v done(false);
     Real_v distOut(kInfLength);
+    // Real_v distOut1(kInfLength);
 
     // hope for a vectorization of this part for Backend==scalar !!
     // the idea is to put vectorizable things into this loop
@@ -239,14 +239,18 @@ public:
     }
 
     // early return if point is outside of plane
-    for (int i = 0; i < N; ++i) {
-      done = done || (pdist[i] > kHalfTolerance);
-    }
-    vecCore__MaskedAssignFunc(distOut, done, Real_v(-1.0));
-    if (vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done)) return distOut;
+    // for (int i = 0; i < N; ++i) {
+    //   done = done || (pdist[i] > kHalfTolerance);
+    // }
+    // vecCore__MaskedAssignFunc(distOut, done, Real_v(-1.0));
+    // // if (vecCore::SIMDsizeUpTo<Real_v>() && vecCore::MaskFull(done)) return distOut;
 
+    // std::cout<<"=== point="<< point <<", dir="<< dir <<"\n";
     for (int i = 0; i < N; ++i) {
-      vecCore__MaskedAssignFunc(distOut, proj[i] > 0 && vdist[i] < distOut, vdist[i]);
+      vecCore__MaskedAssignFunc(distOut, pdist[i] > kHalfTolerance, Real_v(-1.0));
+      vecCore__MaskedAssignFunc(distOut, proj[i] > 0.0 && vdist[i] < distOut, vdist[i]);
+      // std::cout<<"i="<< i <<", pdist="<< pdist[i] <<", proj="<< proj[i] <<", vdist="<< vdist[i] <<" "<< vdist1[i] <<"
+      // --> dist="<< distOut <<", "<< distOut1 <<"\n";
     }
 
     return distOut;
