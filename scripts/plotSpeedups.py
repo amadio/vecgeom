@@ -7,8 +7,12 @@ from PerfHistoryTools import readPerformanceData
 
 ### these are the full series
 
-commits   = ["c4154901", "1f673e0d", "458e6f08"]
-shapes    = ["Box", "Trapezoid", "Trd"]
+commits = ["68c48276","4e5928c1","019d29a0","b356bad1","2c007289",
+           "298df455","a860eea3","e569cfb7","9e47e5fd","0877406d"]
+#           "143d582e","b92b66ba","3af4b3f2","b9437a06","e4c54450","c2f9b8cc","ec7c80a5","1047750f","30635340"]
+#commits = ["143d582e","b92b66ba","3af4b3f2","b9437a06","e4c54450","c2f9b8cc","ec7c80a5","1047750f","30635340"]
+#commits   = ["c4154901", "1f673e0d", "458e6f08"]
+shapes    = ["Trapezoid"]
 algoNames = ["inside", "distToIn", "safeToIn", "contains", "distToOut", "safeToOut"]
 implNames = ["vect", "unspec", "spec", "root", "usolids", "geant4"]
 #implNames = ["spec", "vect", "cuda"]
