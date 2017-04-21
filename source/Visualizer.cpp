@@ -45,6 +45,8 @@ void Visualizer::AddVolume(VPlacedVolume const &volume)
 void Visualizer::AddVolume(VPlacedVolume const &volume, Transformation3D const &transformation)
 {
   // Cannot store const pointer because Draw() is not const
+  if (fGeoManager) delete fGeoManager;
+  fGeoManager                = new TGeoManager("visualizer", "");
   TGeoShape const *rootShape = volume.ConvertToRoot();
   fVolumes.push_back(std::make_tuple(std::shared_ptr<const TGeoShape>(rootShape),
                                      std::unique_ptr<TGeoMatrix>(transformation.ConvertToTGeoMatrix()),
