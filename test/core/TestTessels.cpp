@@ -96,7 +96,10 @@ int main(int argc, char *argv[])
     while (1) {
       RandomDirection(direction);
       tcl.DistanceToIn(point, direction, 1e30, distance, isurf);
-      if (distance < 1e30) break;
+      if (distance < 1e30) {
+        double safety = tcl.SafetyToInSq(point, isurf);
+        break;
+      }
       tcl.DistanceToOut(point, direction, 1e30, distance, isurf);
       if (distance < 1e30) break;
     }

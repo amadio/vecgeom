@@ -185,6 +185,40 @@ Real_v DistanceToLineSegmentSquared1(Vector3D<Precision> corner0, Vector3D<Preci
   return result;
 }
 
+// \param corner0 First corners of line segments.
+// \param corner1 Second corners of line segments.
+// \return Shortest distance from the point to the three dimensional set of line
+//         segments represented by the input corners.
+template <typename Real_v>
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+Real_v DistanceToLineSegmentSquared2(Vector3D<Real_v> const &corner0, Vector3D<Real_v> const &corner1,
+                                     Vector3D<Real_v> const &point, vecCore::Mask_v<Real_v> const &mask)
+{
+
+  using Bool_v = vecCore::Mask_v<Real_v>;
+
+  Real_v result = InfinityLength<Real_v>();
+
+  // Shortest distance is to corner of segment
+  Vector3D<Real_v> line       = corner1 - corner0;
+  Vector3D<Real_v> projection = point - corner0;
+  Real_v dot0                 = projection.Dot(line);
+  Bool_v condition            = dot0 <= 0 && mask;
+  vecCore__MaskedAssignFunc(result, condition, (point - corner0).Mag2());
+  if (vecCore::MaskFull(condition && mask)) return result;
+  Real_v dot1 = line.Mag2();
+  condition   = dot1 <= dot0 && mask;
+  vecCore__MaskedAssignFunc(result, condition, (point - corner1).Mag2());
+  condition = result < kInfLength;
+  if (vecCore::MaskFull(condition && mask)) return result;
+
+  // Shortest distance is to point on segment
+  vecCore__MaskedAssignFunc(result, !condition && mask, Real_v(((corner0 + (dot0 / dot1) * line) - point).Mag2()));
+
+  return result;
+}
+
 } // End inline namespace
 
 } // End global namespace

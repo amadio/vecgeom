@@ -9,6 +9,7 @@
 #include "base/Global.h"
 #include "base/Vector3D.h"
 #include "base/Vector.h"
+#include "volumes/kernel/GenericKernels.h"
 
 namespace vecgeom {
 
@@ -251,6 +252,49 @@ struct TessellatedCluster {
         isurf    = i;
       }
     }
+  }
+
+  VECCORE_ATT_HOST_DEVICE
+  T SafetyToInSq(Vector3D<T> const &point, int &isurf)
+  {
+    using Bool_v = vecCore::Mask<Real_v>;
+    Vector3D<Real_v> pointv(point);
+    Real_v safetyv = DistPlanes(pointv);
+    T distancesq   = InfinityLength<T>();
+    // Find the projection of the point on each plane
+    Vector3D<Real_v> intersectionv = pointv - safetyv * fNormals;
+    Bool_v withinBound;
+    InsideCluster(pointv, withinBound);
+    withinBound |= safetyv > Real_v(-kTolerance);
+    safetyv *= safetyv;
+
+    if (vecCore::MaskFull(withinBound)) {
+      // loop over lanes to get minimum positive value.
+      for (int i = 0; i < kVecSize; ++i) {
+        if (safetyv[i] < distancesq) {
+          distancesq = safetyv[i];
+          isurf      = i;
+        }
+      }
+      return distancesq;
+    }
+
+    Vector3D<Real_v> safetyv_outbound = InfinityLength<Real_v>();
+    for (int ivert = 0; ivert < 3; ++ivert) {
+      safetyv_outbound[ivert] =
+          DistanceToLineSegmentSquared2(fVertices[ivert], fVertices[(ivert + 1) % 3], pointv, !withinBound);
+    }
+    Real_v safety_outv = safetyv_outbound.Min();
+    vecCore::MaskedAssign(safetyv, !withinBound && safety_outv < safetyv, safety_outv);
+
+    // loop over lanes to get minimum positive value.
+    for (int i = 0; i < kVecSize; ++i) {
+      if (safetyv[i] < distancesq) {
+        distancesq = safetyv[i];
+        isurf      = i;
+      }
+    }
+    return distancesq;
   }
 };
 
