@@ -19,7 +19,12 @@
 #include <fenv.h>
 #endif
 
+using Vec_t = vecgeom::Vector3D<vecgeom::Precision>;
+
 bool testvecgeom = false;
+
+template <class Box_t>
+bool Test_VECGEOM_431();
 
 template <class Box_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
 bool TestBox()
@@ -407,6 +412,119 @@ bool TestBox()
   }
   /* **********************************************************
     */ /////////////////////////////////////////////////////
+
+  bool ok = Test_VECGEOM_431<Box_t>();
+
+  return ok;
+}
+
+template <class Box_t>
+bool Test_VECGEOM_431()
+{
+  Vec_t vx(1, 0, 0), vy(0, 1, 0), vz(0, 0, 1);
+  Vec_t norm;
+  bool convex;
+  double Dist;
+
+  //=== add a couple test cases related to VECGEOM-431
+  Box_t bx("Test Box #x", 1, 200, 200);
+  // slightly outside of +x face
+  Vec_t testp = Vec_t(1, 0, 0) + 6.e-15 * vx;
+  Vec_t testv = Vec_t(0, 1, 1) - 4.e-06 * vx;
+  testv.Normalize();
+  Dist = bx.DistanceToIn(testp, testv);
+  assert(ApproxEqual(Dist, 0.0));
+  Dist = bx.DistanceToOut(testp, testv, norm, convex);
+  std::cout << "Line " << __LINE__ << ": point=" << testp << ", dir=" << testv << ", distOut=" << Dist
+            << ", norm=" << norm << ", conv=" << convex << "\n";
+  assert(ApproxEqual(Dist, 200. * sqrt(2.0)));
+#ifdef VECGEOM_REPLACE_USOLIDS
+  assert(ApproxEqual(norm, (vy + vz).Normalized()));
+#endif
+
+  // slightly outside of -x face
+  testp = Vec_t(-1, 0, 0) - 6.e-15 * vx;
+  testv = Vec_t(0, 1, 1) + 4.e-06 * vx;
+  testv.Normalize();
+  Dist = bx.DistanceToIn(testp, testv);
+  assert(ApproxEqual(Dist, 0.0));
+  Dist = bx.DistanceToOut(testp, testv, norm, convex);
+  std::cout << "Line " << __LINE__ << ": point=" << testp << ", dir=" << testv << ", distOut=" << Dist
+            << ", norm=" << norm << ", conv=" << convex << "\n";
+  assert(ApproxEqual(Dist, 200. * sqrt(2.0)));
+#ifdef VECGEOM_REPLACE_USOLIDS
+  assert(ApproxEqual(norm, (vy + vz).Normalized()));
+#endif
+
+  // slightly outside of +y face
+  Box_t by("Test Box #y", 200, 1, 200);
+  testp = Vec_t(0, 1, 0) + 6.e-15 * vy;
+  testv = Vec_t(1, 0, 1) - 4.e-6 * vy;
+  testv.Normalize();
+  Dist = by.DistanceToIn(testp, testv);
+  assert(ApproxEqual(Dist, 0.0));
+  Dist = by.DistanceToOut(testp, testv, norm, convex);
+  std::cout << "Line " << __LINE__ << ": point=" << testp << ", dir=" << testv << ", distOut=" << Dist
+            << ", norm=" << norm << ", conv=" << convex << "\n";
+  assert(ApproxEqual(Dist, 200. * sqrt(2.0)));
+#ifdef VECGEOM_REPLACE_USOLIDS
+  assert(ApproxEqual(norm, (vx + vz).Normalized()));
+#endif
+
+  // slightly outside of -y face
+  testp = Vec_t(0, -1, 0) - 6.e-15 * vy;
+  testv = Vec_t(1, 0, 1) + 4.e-6 * vy;
+  testv.Normalize();
+  Dist = by.DistanceToIn(testp, testv);
+  assert(ApproxEqual(Dist, 0.0));
+  Dist = by.DistanceToOut(testp, testv, norm, convex);
+  assert(ApproxEqual(Dist, 200. * sqrt(2.0)));
+#ifdef VECGEOM_REPLACE_USOLIDS
+  assert(ApproxEqual(norm, (vx + vz).Normalized()));
+#endif
+
+  // slightly outside of +z face
+  Box_t bz("Test Box #z", 200, 200, 1);
+  testp = Vec_t(0, 0, 1) + 6.e-15 * vz;
+  testv = Vec_t(1, 1, 0) - 4.e-6 * vz;
+  testv.Normalize();
+  Dist = bz.DistanceToIn(testp, testv);
+  assert(ApproxEqual(Dist, 0.0));
+  Dist = bz.DistanceToOut(testp, testv, norm, convex);
+  assert(ApproxEqual(Dist, 200 * sqrt(2.0)));
+#ifdef VECGEOM_REPLACE_USOLIDS
+  assert(ApproxEqual(norm, (vx + vy).Normalized()));
+#endif
+
+  // slightly outside of -z face
+  testp = Vec_t(0, 0, -1) - 6.e-15 * vz;
+  testv = Vec_t(1, 1, 0) + 4.e-6 * vz;
+  testv.Normalize();
+  Dist = bz.DistanceToIn(testp, testv);
+  assert(ApproxEqual(Dist, 0.0));
+  Dist = bz.DistanceToOut(testp, testv, norm, convex);
+  assert(ApproxEqual(Dist, 200 * sqrt(2.0)));
+#ifdef VECGEOM_REPLACE_USOLIDS
+  assert(ApproxEqual(norm, (vx + vy).Normalized()));
+#endif
+
+  //=== slightly inside of +x face
+  testp = Vec_t(1, 0, 0) - 6.e-15 * vx;
+  testv = Vec_t(0, 1, 1) + 4.e-6 * vx;
+  testv.Normalize();
+  Dist = bx.DistanceToIn(testp, testv);
+  assert(ApproxEqual(Dist, UUtils::kInfinity));
+  Dist = bx.DistanceToOut(testp, testv, norm, convex);
+  assert(ApproxEqual(Dist, 0.0));
+
+  // slightly inside of -x face
+  testp = Vec_t(-1, 0, 0) + 6.e-15 * vx;
+  testv = Vec_t(0, 1, 1) - 4.e-6 * vx;
+  testv.Normalize();
+  Dist = bx.DistanceToIn(testp, testv);
+  assert(ApproxEqual(Dist, UUtils::kInfinity));
+  Dist = bx.DistanceToOut(testp, testv, norm, convex);
+  assert(ApproxEqual(Dist, 0.0));
 
   return true;
 }
