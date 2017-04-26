@@ -112,19 +112,13 @@ struct BoxImplementation {
     const Vector3D<Real_v> invDir(Real_v(1.0) / NonZero(direction[0]), Real_v(1.0) / NonZero(direction[1]),
                                   Real_v(1.0) / NonZero(direction[2]));
 
-    const Real_v distIn = Max((-Sign(invDir[0]) * box.fDimensions[0] - point[0]) * invDir[0],
-                              (-Sign(invDir[1]) * box.fDimensions[1] - point[1]) * invDir[1],
-                              (-Sign(invDir[2]) * box.fDimensions[2] - point[2]) * invDir[2]);
+    const Vector3D<Real_v> signDir(Sign(direction[0]), Sign(direction[1]), Sign(direction[2]));
 
-    const Real_v distOut = Min((Sign(invDir[0]) * box.fDimensions[0] - point[0]) * invDir[0],
-                               (Sign(invDir[1]) * box.fDimensions[1] - point[1]) * invDir[1],
-                               (Sign(invDir[2]) * box.fDimensions[2] - point[2]) * invDir[2]);
-
-    // add a check for point on exit surface
-    const Real_v orthogOut =
-        Min(box.fDimensions[0] - Sign(direction[0]) * point[0], box.fDimensions[1] - Sign(direction[1]) * point[1],
-            box.fDimensions[2] - Sign(direction[2]) * point[2]);
-
+    const Vector3D<Real_v> safIn  = -signDir * box.fDimensions - point;
+    const Vector3D<Real_v> safOut = signDir * box.fDimensions - point;
+    const Real_v distIn           = (safIn * invDir).Max();
+    const Real_v distOut          = (safOut * invDir).Min();
+    const Real_v orthogOut        = (signDir * safOut).Min();
     distance =
         vecCore::Blend(distIn >= distOut || distOut <= Real_v(kTolerance) || Abs(orthogOut) <= Real_v(kTolerance),
                        InfinityLength<Real_v>(), distIn);
