@@ -120,11 +120,14 @@ struct BoxImplementation {
     // add a check for point on exit surface
     const Real_v absOrthogOut = Abs((signDir * tempOut).Min());
 
-    const Real_v distIn  = (tempIn * invDir).Max();
     const Real_v distOut = (tempOut * invDir).Min();
 
-    distance = vecCore::Blend(distIn >= distOut || distOut <= Real_v(kTolerance) || absOrthogOut <= Real_v(kTolerance),
-                              InfinityLength<Real_v>(), distIn);
+    // distIn calculation
+    distance = (tempIn * invDir).Max();
+
+    vecCore::MaskedAssign(distance,
+                          distance >= distOut || distOut <= Real_v(kTolerance) || absOrthogOut <= Real_v(kTolerance),
+                          InfinityLength<Real_v>());
   }
 
   template <typename Real_v>
@@ -141,9 +144,10 @@ struct BoxImplementation {
     const Real_v safetyIn = (point.Abs() - HalfSize<Real_v>(box)).Max();
 
     const Vector3D<Real_v> tempOut = signDir * box.fDimensions - point;
-    const Real_v distOut           = (tempOut * invDir).Min();
 
-    distance = vecCore::Blend(safetyIn > Real_v(kTolerance), Real_v(-1.0), distOut);
+    distance = (tempOut * invDir).Min();
+
+    vecCore::MaskedAssign(distance, safetyIn > Real_v(kTolerance), Real_v(-1.0));
   }
 
   template <typename Real_v>
