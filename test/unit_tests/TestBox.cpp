@@ -570,7 +570,7 @@ bool Test_VECGEOM_431()
 
   // slightly outside of +x face and exiting
   Box_t cube("cube", 10, 10, 10);
-  testp = Vec_t(10, 0, 0) + 6.e-10 * vx;
+  testp = Vec_t(10, 0, 0) + 4.e-10 * vx;
   Dist  = cube.DistanceToOut(testp, vx, norm, convex);
   assert(ApproxEqual(Dist, 0.));
 #ifdef VECGEOM_REPLACE_USOLIDS

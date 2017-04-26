@@ -86,7 +86,7 @@ struct BoxImplementation {
     Real_v dist = (point.Abs() - HalfSize<Real_v>(box)).Max();
 
     inside = vecCore::Blend(dist < Real_v(0.0), Inside_v(kInside), Inside_v(kOutside));
-    vecCore__MaskedAssignFunc(inside, Abs(dist) < Real_v(kTolerance), Inside_v(kSurface));
+    vecCore__MaskedAssignFunc(inside, Abs(dist) < Real_v(kHalfTolerance), Inside_v(kSurface));
   }
 
   template <typename Real_v, bool ForInside>
@@ -125,8 +125,8 @@ struct BoxImplementation {
     // distIn calculation
     distance = (tempIn * invDir).Max();
 
-    vecCore::MaskedAssign(distance,
-                          distance >= distOut || distOut <= Real_v(kTolerance) || absOrthogOut <= Real_v(kTolerance),
+    vecCore::MaskedAssign(distance, distance >= distOut || distOut <= Real_v(kHalfTolerance) ||
+                                        absOrthogOut <= Real_v(kHalfTolerance),
                           InfinityLength<Real_v>());
   }
 
@@ -147,7 +147,7 @@ struct BoxImplementation {
 
     distance = (tempOut * invDir).Min();
 
-    vecCore::MaskedAssign(distance, safetyIn > Real_v(kTolerance), Real_v(-1.0));
+    vecCore::MaskedAssign(distance, safetyIn > Real_v(kHalfTolerance), Real_v(-1.0));
   }
 
   template <typename Real_v>
@@ -173,19 +173,19 @@ struct BoxImplementation {
                                        typename vecCore::Mask_v<Real_v> &valid)
   {
     // Computes the normal on a surface and returns it as a unit vector
-    //   In case a point is further than kTolerance from a surface, set valid=false
+    //   In case a point is further than kHalfTolerance from a surface, set valid=false
     //   Must return a valid vector. (even if the point is not on the surface.)
     //
     //   On an edge or corner, provide an average normal of all facets within tolerance
 
     const Vector3D<Real_v> safety((point.Abs() - HalfSize<Real_v>(box)).Abs());
     const Real_v safmin = safety.Min();
-    valid               = safmin < kTolerance;
+    valid               = safmin < kHalfTolerance;
 
     Vector3D<Real_v> normal(0.);
-    vecCore__MaskedAssignFunc(normal[0], safety[0] - safmin < kTolerance, Sign(point[0]));
-    vecCore__MaskedAssignFunc(normal[1], safety[1] - safmin < kTolerance, Sign(point[1]));
-    vecCore__MaskedAssignFunc(normal[2], safety[2] - safmin < kTolerance, Sign(point[2]));
+    vecCore__MaskedAssignFunc(normal[0], safety[0] - safmin < kHalfTolerance, Sign(point[0]));
+    vecCore__MaskedAssignFunc(normal[1], safety[1] - safmin < kHalfTolerance, Sign(point[1]));
+    vecCore__MaskedAssignFunc(normal[2], safety[2] - safmin < kHalfTolerance, Sign(point[2]));
     if (normal.Mag2() > 1.0) normal.Normalize();
 
     return normal;
