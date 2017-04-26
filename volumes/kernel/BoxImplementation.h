@@ -114,14 +114,17 @@ struct BoxImplementation {
 
     const Vector3D<Real_v> signDir(Sign(direction[0]), Sign(direction[1]), Sign(direction[2]));
 
-    const Vector3D<Real_v> safIn  = -signDir * box.fDimensions - point;
-    const Vector3D<Real_v> safOut = signDir * box.fDimensions - point;
-    const Real_v distIn           = (safIn * invDir).Max();
-    const Real_v distOut          = (safOut * invDir).Min();
-    const Real_v orthogOut        = (signDir * safOut).Min();
-    distance =
-        vecCore::Blend(distIn >= distOut || distOut <= Real_v(kTolerance) || Abs(orthogOut) <= Real_v(kTolerance),
-                       InfinityLength<Real_v>(), distIn);
+    const Vector3D<Real_v> tempIn  = -signDir * box.fDimensions - point;
+    const Vector3D<Real_v> tempOut = signDir * box.fDimensions - point;
+
+    // add a check for point on exit surface
+    const Real_v absOrthogOut = Abs((signDir * tempOut).Min());
+
+    const Real_v distIn  = (tempIn * invDir).Max();
+    const Real_v distOut = (tempOut * invDir).Min();
+
+    distance = vecCore::Blend(distIn >= distOut || distOut <= Real_v(kTolerance) || absOrthogOut <= Real_v(kTolerance),
+                              InfinityLength<Real_v>(), distIn);
   }
 
   template <typename Real_v>
@@ -130,11 +133,15 @@ struct BoxImplementation {
   static void DistanceToOut(UnplacedStruct_t const &box, Vector3D<Real_v> const &point,
                             Vector3D<Real_v> const &direction, Real_v const & /* stepMax */, Real_v &distance)
   {
+    const Vector3D<Real_v> invDir(Real_v(1.0) / NonZero(direction[0]), Real_v(1.0) / NonZero(direction[1]),
+                                  Real_v(1.0) / NonZero(direction[2]));
+
+    const Vector3D<Real_v> signDir(Sign(direction[0]), Sign(direction[1]), Sign(direction[2]));
+
     const Real_v safetyIn = (point.Abs() - HalfSize<Real_v>(box)).Max();
 
-    const Real_v distOut = Min((Sign(direction[0]) * box.fDimensions[0] - point[0]) / NonZero(direction[0]),
-                               (Sign(direction[1]) * box.fDimensions[1] - point[1]) / NonZero(direction[1]),
-                               (Sign(direction[2]) * box.fDimensions[2] - point[2]) / NonZero(direction[2]));
+    const Vector3D<Real_v> tempOut = signDir * box.fDimensions - point;
+    const Real_v distOut           = (tempOut * invDir).Min();
 
     distance = vecCore::Blend(distOut < safetyIn || safetyIn > Real_v(kTolerance), Real_v(-1.0), distOut);
   }
