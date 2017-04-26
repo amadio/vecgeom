@@ -143,7 +143,7 @@ struct BoxImplementation {
     const Vector3D<Real_v> tempOut = signDir * box.fDimensions - point;
     const Real_v distOut           = (tempOut * invDir).Min();
 
-    distance = vecCore::Blend(distOut < safetyIn || safetyIn > Real_v(kTolerance), Real_v(-1.0), distOut);
+    distance = vecCore::Blend(safetyIn > Real_v(kTolerance), Real_v(-1.0), distOut);
   }
 
   template <typename Real_v>

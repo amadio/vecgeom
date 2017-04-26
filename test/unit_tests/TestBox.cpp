@@ -428,7 +428,7 @@ bool Test_VECGEOM_431()
 
   //=== add a couple test cases related to VECGEOM-431
   Box_t bx("Test Box #x", 1, 200, 200);
-  // slightly outside of +x face
+  // slightly outside of +x face and entering
   Vec_t testp = Vec_t(1, 0, 0) + 6.e-15 * vx;
   Vec_t testv = Vec_t(0, 1, 1) - 4.e-06 * vx;
   testv.Normalize();
@@ -442,7 +442,14 @@ bool Test_VECGEOM_431()
   assert(ApproxEqual(norm, (vy + vz).Normalized()));
 #endif
 
-  // slightly outside of -x face
+  // and exiting
+  Dist = bx.DistanceToOut(testp, vx, norm, convex);
+  assert(ApproxEqual(Dist, 0.));
+#ifdef VECGEOM_REPLACE_USOLIDS
+  assert(ApproxEqual(norm, vx));
+#endif
+
+  // slightly outside of -x face and entering
   testp = Vec_t(-1, 0, 0) - 6.e-15 * vx;
   testv = Vec_t(0, 1, 1) + 4.e-06 * vx;
   testv.Normalize();
@@ -456,7 +463,14 @@ bool Test_VECGEOM_431()
   assert(ApproxEqual(norm, (vy + vz).Normalized()));
 #endif
 
-  // slightly outside of +y face
+  // and exiting
+  Dist = bx.DistanceToOut(testp, -vx, norm, convex);
+  assert(ApproxEqual(Dist, 0.));
+#ifdef VECGEOM_REPLACE_USOLIDS
+  assert(ApproxEqual(norm, -vx));
+#endif
+
+  // slightly outside of +y face and entering
   Box_t by("Test Box #y", 200, 1, 200);
   testp = Vec_t(0, 1, 0) + 6.e-15 * vy;
   testv = Vec_t(1, 0, 1) - 4.e-6 * vy;
@@ -471,7 +485,14 @@ bool Test_VECGEOM_431()
   assert(ApproxEqual(norm, (vx + vz).Normalized()));
 #endif
 
-  // slightly outside of -y face
+  // and exiting
+  Dist = by.DistanceToOut(testp, vy, norm, convex);
+  assert(ApproxEqual(Dist, 0.));
+#ifdef VECGEOM_REPLACE_USOLIDS
+  assert(ApproxEqual(norm, vy));
+#endif
+
+  // slightly outside of -y face and entering
   testp = Vec_t(0, -1, 0) - 6.e-15 * vy;
   testv = Vec_t(1, 0, 1) + 4.e-6 * vy;
   testv.Normalize();
@@ -483,7 +504,14 @@ bool Test_VECGEOM_431()
   assert(ApproxEqual(norm, (vx + vz).Normalized()));
 #endif
 
-  // slightly outside of +z face
+  // and exiting
+  Dist = by.DistanceToOut(testp, -vy, norm, convex);
+  assert(ApproxEqual(Dist, 0.));
+#ifdef VECGEOM_REPLACE_USOLIDS
+  assert(ApproxEqual(norm, -vy));
+#endif
+
+  // slightly outside of +z face and entering
   Box_t bz("Test Box #z", 200, 200, 1);
   testp = Vec_t(0, 0, 1) + 6.e-15 * vz;
   testv = Vec_t(1, 1, 0) - 4.e-6 * vz;
@@ -496,7 +524,14 @@ bool Test_VECGEOM_431()
   assert(ApproxEqual(norm, (vx + vy).Normalized()));
 #endif
 
-  // slightly outside of -z face
+  // and exiting
+  Dist = bz.DistanceToOut(testp, vz, norm, convex);
+  assert(ApproxEqual(Dist, 0.));
+#ifdef VECGEOM_REPLACE_USOLIDS
+  assert(ApproxEqual(norm, vz));
+#endif
+
+  // slightly outside of -z face and entering
   testp = Vec_t(0, 0, -1) - 6.e-15 * vz;
   testv = Vec_t(1, 1, 0) + 4.e-6 * vz;
   testv.Normalize();
@@ -506,6 +541,13 @@ bool Test_VECGEOM_431()
   assert(ApproxEqual(Dist, 200 * sqrt(2.0)));
 #ifdef VECGEOM_REPLACE_USOLIDS
   assert(ApproxEqual(norm, (vx + vy).Normalized()));
+#endif
+
+  // and exiting
+  Dist = bz.DistanceToOut(testp, -vz, norm, convex);
+  assert(ApproxEqual(Dist, 0.));
+#ifdef VECGEOM_REPLACE_USOLIDS
+  assert(ApproxEqual(norm, -vz));
 #endif
 
   //=== slightly inside of +x face
@@ -525,6 +567,15 @@ bool Test_VECGEOM_431()
   assert(ApproxEqual(Dist, UUtils::kInfinity));
   Dist = bx.DistanceToOut(testp, testv, norm, convex);
   assert(ApproxEqual(Dist, 0.0));
+
+  // slightly outside of +x face and exiting
+  Box_t cube("cube", 10, 10, 10);
+  testp = Vec_t(10, 0, 0) + 6.e-10 * vx;
+  Dist  = cube.DistanceToOut(testp, vx, norm, convex);
+  assert(ApproxEqual(Dist, 0.));
+#ifdef VECGEOM_REPLACE_USOLIDS
+  assert(ApproxEqual(norm, vx.Normalized()));
+#endif
 
   return true;
 }
