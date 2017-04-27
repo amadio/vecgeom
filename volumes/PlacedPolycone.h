@@ -65,10 +65,11 @@ public:
   Precision GetEndPhi() const { return GetUnplacedVolume()->GetEndPhi(); }
   int GetNumRZCorner() const { return 2 * (int)(GetUnplacedVolume()->GetNz()); } // in USolids nCorners = 2*nPlanes
 
-  UPolyconeHistorical *GetOriginalParameters() const
+  PolyconeHistorical *GetOriginalParameters() const
   {
-    assert(false && "*** Method PlacedPolycone::GetOriginalParameters() has been deprecated.\n");
-    return NULL;
+	  return GetUnplacedVolume()->fOriginal_parameters;
+  //  assert(false && "*** Method PlacedPolycone::GetOriginalParameters() has been deprecated.\n");
+  //  return NULL;
   }
   void Reset()
   {

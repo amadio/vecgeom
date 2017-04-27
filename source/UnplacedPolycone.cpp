@@ -153,9 +153,18 @@ void UnplacedPolycone::Init(double phiStart, double phiTotal, unsigned int numZP
     prevRmax = rMax;
   }
   DetectConvexity();
+  fOriginal_parameters = new PolyconeHistorical(numZPlanes);
+  fOriginal_parameters->fHStart_angle = phiStart;
+  fOriginal_parameters->fHOpening_angle = phiTotal;
+  for(int i=0;i<numZPlanes;i++){
+	  fOriginal_parameters->fHZ_values[i]=zPlaneR[i];
+	  fOriginal_parameters->fHRmin[i]=rInnerR[i];
+	  fOriginal_parameters->fHRmax[i]=rOuterR[i];
+  }
   delete[] zPlaneR;
   delete[] rInnerR;
   delete[] rOuterR;
+
 }
 
 #if (0)

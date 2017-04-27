@@ -16,6 +16,7 @@
 #include "base/Vector.h"
 #include <vector>
 #include "volumes/Wedge.h"
+#include "volumes/PolyconeHistorical.h"
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedPolycone;);
@@ -59,6 +60,8 @@ public:
   // actual internal storage
   Vector<PolyconeSection> fSections;
   Vector<double> fZs;
+  PolyconeHistorical  *fOriginal_parameters;  // original input parameters
+
 
   // These private data member and member functions are added for convexity detection
 private:
