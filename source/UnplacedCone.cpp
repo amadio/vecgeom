@@ -109,6 +109,8 @@ void UnplacedCone::CalculateCached()
 
   DetectConvexity();
 }
+
+VECCORE_ATT_HOST_DEVICE
 void UnplacedCone::SetAndCheckSPhiAngle(Precision sPhi)
 {
   // Ensure fSphi in 0-2PI or -2PI-0 range if shape crosses 0
@@ -128,6 +130,7 @@ void UnplacedCone::SetAndCheckSPhiAngle(Precision sPhi)
   GetAlongVectorToPhiSector(fSPhi + fDPhi, fAlongPhi2x, fAlongPhi2y);
 }
 
+VECCORE_ATT_HOST_DEVICE
 void UnplacedCone::SetAndCheckDPhiAngle(Precision dPhi)
 {
   if (dPhi >= kTwoPi - 0.5 * kAngTolerance) {

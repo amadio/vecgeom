@@ -223,7 +223,10 @@ public:
   VECCORE_ATT_HOST_DEVICE
   Wedge const &GetWedge() const { return fPhiWedge; }
 
+  VECCORE_ATT_HOST_DEVICE
   void SetAndCheckSPhiAngle(Precision sPhi);
+
+  VECCORE_ATT_HOST_DEVICE
   void SetAndCheckDPhiAngle(Precision dPhi);
 
   void SetRmin1(Precision const &arg)
