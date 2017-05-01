@@ -20,6 +20,7 @@ if(NOT EXPAND_COMMAND_AS_SCRIPT)
     endif()
 
     set(EXPAND_COMMAND_SCRIPT "${CMAKE_CURRENT_LIST_FILE}")
+    set(EXPAND_COMMAND_SCRIPT "${CMAKE_CURRENT_LIST_FILE}" PARENT_SCOPE)
     function(expandable_command retvar)
         set(cmdline ${ARGN})
         string(REPLACE ";" "$<SEMICOLON>" cmdline "${cmdline}")
