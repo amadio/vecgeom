@@ -60,8 +60,7 @@ public:
   // actual internal storage
   Vector<PolyconeSection> fSections;
   Vector<double> fZs;
-  PolyconeHistorical  *fOriginal_parameters;  // original input parameters
-
+  PolyconeHistorical *fOriginal_parameters; // original input parameters
 
   // These private data member and member functions are added for convexity detection
 private:
@@ -108,6 +107,8 @@ public:
   VECCORE_ATT_HOST_DEVICE
   void DetectConvexity();
 
+  VECCORE_ATT_HOST_DEVICE
+  void Reset();
   VECCORE_ATT_HOST_DEVICE
   unsigned int GetNz() const { return fNz; }
   VECCORE_ATT_HOST_DEVICE

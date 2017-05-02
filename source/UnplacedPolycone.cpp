@@ -153,18 +153,37 @@ void UnplacedPolycone::Init(double phiStart, double phiTotal, unsigned int numZP
     prevRmax = rMax;
   }
   DetectConvexity();
-  fOriginal_parameters = new PolyconeHistorical(numZPlanes);
-  fOriginal_parameters->fHStart_angle = phiStart;
+  fOriginal_parameters                  = new PolyconeHistorical(numZPlanes);
+  fOriginal_parameters->fHStart_angle   = phiStart;
   fOriginal_parameters->fHOpening_angle = phiTotal;
-  for(int i=0;i<numZPlanes;i++){
-	  fOriginal_parameters->fHZ_values[i]=zPlaneR[i];
-	  fOriginal_parameters->fHRmin[i]=rInnerR[i];
-	  fOriginal_parameters->fHRmax[i]=rOuterR[i];
+  for (unsigned int i = 0; i < numZPlanes; i++) {
+    fOriginal_parameters->fHZ_values[i] = zPlaneR[i];
+    fOriginal_parameters->fHRmin[i]     = rInnerR[i];
+    fOriginal_parameters->fHRmax[i]     = rOuterR[i];
   }
   delete[] zPlaneR;
   delete[] rInnerR;
   delete[] rOuterR;
+}
 
+void UnplacedPolycone::Reset()
+{
+  double phiStart = fOriginal_parameters->fHStart_angle;
+  double *Z, *R1, *R2;
+  int num = fOriginal_parameters->fHNum_z_planes; // fOriginalParameters-> NumZPlanes;
+  Z       = new double[num];
+  R1      = new double[num];
+  R2      = new double[num];
+  for (int i = 0; i < num; i++) {
+    Z[i]  = fOriginal_parameters->fHZ_values[i]; // fOriginalParameters->fZValues[i];
+    R1[i] = fOriginal_parameters->fHRmin[i];     // fOriginalParameters->Rmin[i];
+    R2[i] = fOriginal_parameters->fHRmax[i];     // fOriginalParameters->Rmax[i];
+  }
+
+  Init(phiStart, fOriginal_parameters->fHOpening_angle, num, Z, R1, R2);
+  delete[] R1;
+  delete[] Z;
+  delete[] R2;
 }
 
 #if (0)

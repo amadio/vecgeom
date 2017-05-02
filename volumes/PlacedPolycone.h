@@ -67,16 +67,12 @@ public:
 
   PolyconeHistorical *GetOriginalParameters() const
   {
-	  return GetUnplacedVolume()->fOriginal_parameters;
-  //  assert(false && "*** Method PlacedPolycone::GetOriginalParameters() has been deprecated.\n");
-  //  return NULL;
+    return GetUnplacedVolume()->fOriginal_parameters;
+    //  assert(false && "*** Method PlacedPolycone::GetOriginalParameters() has been deprecated.\n");
+    //  return NULL;
   }
-  void Reset()
-  {
-    assert(
-        false &&
-        "*** Method PlacedPolycone::Reset() has been deprecated, no 'originalParameters' to be used for reInit().\n");
-  }
+
+  void Reset() { const_cast<UnplacedPolycone *>(GetUnplacedVolume())->Reset(); }
 
 #if defined(VECGEOM_USOLIDS)
   //  VECCORE_ATT_HOST_DEVICE
