@@ -387,6 +387,30 @@ macro(CUDA_FIND_HELPER_FILE _name _extension)
   set(CUDA_${_name} ${CUDA_${_name}} CACHE INTERNAL "Location of ${_full_name}" FORCE)
 endmacro()
 
+# NOTE: Add a duplicate of FindHelper to find our overload files when needed.
+# NOTE: It turns out that this is actually the code of the official CUDA_FIND_HELPER_FILE
+# This macro helps us find the location of helper files we will need the full path to
+macro(CUDA_FIND_LOCAL_HELPER_FILE _name _extension)
+  set(_full_name "${_name}.${_extension}")
+  # CMAKE_CURRENT_LIST_FILE contains the full path to the file currently being
+  # processed.  Using this variable, we can pull out the current path, and
+  # provide a way to get access to the other files we need local to here.
+  get_filename_component(CMAKE_CURRENT_LIST_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+  set(CUDA_${_name} "${CMAKE_CURRENT_LIST_DIR}/FindCUDA/${_full_name}")
+  if(NOT EXISTS "${CUDA_${_name}}")
+    set(error_message "${_full_name} not found in ${CMAKE_CURRENT_LIST_DIR}/FindCUDA")
+    if(CUDA_FIND_REQUIRED)
+      message(FATAL_ERROR "${error_message}")
+    else()
+      if(NOT CUDA_FIND_QUIETLY)
+        message(STATUS "${error_message}")
+      endif()
+    endif()
+  endif()
+  # Set this variable as internal, so the user isn't bugged with it.
+  set(CUDA_${_name} ${CUDA_${_name}} CACHE INTERNAL "Location of ${_full_name}" FORCE)
+endmacro()
+
 #####################################################################
 ## CUDA_INCLUDE_NVCC_DEPENDENCIES
 ##
@@ -1036,11 +1060,12 @@ endmacro()
 ##############################################################################
 cuda_find_helper_file(parse_cubin cmake)
 cuda_find_helper_file(make2cmake cmake)
-cuda_find_helper_file(run_nvcc cmake)
 # Note: added support for cmake version older than 3.6
 if (CMAKE_VERSION VERSION_GREATER 3.6.0)
+cuda_find_helper_file(run_nvcc cmake)
 include("${CMAKE_CURRENT_LIST_DIR}/FindCUDA/select_compute_arch.cmake")
 else()
+cuda_find_local_helper_file(run_nvcc cmake)
 get_filename_component(CMAKE_CURRENT_LIST_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 include("${CMAKE_CURRENT_LIST_DIR}/FindCUDA/select_compute_arch.cmake")
 endif()
