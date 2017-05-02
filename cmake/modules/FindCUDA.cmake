@@ -1037,7 +1037,13 @@ endmacro()
 cuda_find_helper_file(parse_cubin cmake)
 cuda_find_helper_file(make2cmake cmake)
 cuda_find_helper_file(run_nvcc cmake)
+# Note: added support for cmake version older than 3.6
+if (CMAKE_VERSION VERSION_GREATER 3.6.0)
 include("${CMAKE_CURRENT_LIST_DIR}/FindCUDA/select_compute_arch.cmake")
+else()
+get_filename_component(CMAKE_CURRENT_LIST_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+include("${CMAKE_CURRENT_LIST_DIR}/FindCUDA/select_compute_arch.cmake")
+endif()
 
 ##############################################################################
 # Separate the OPTIONS out from the sources
