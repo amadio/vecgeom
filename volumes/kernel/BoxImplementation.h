@@ -125,9 +125,9 @@ struct BoxImplementation {
     // distIn calculation
     distance = (tempIn * invDir).Max();
 
-    vecCore::MaskedAssign(distance, distance >= distOut || distOut <= Real_v(kHalfTolerance) ||
-                                        absOrthogOut <= Real_v(kHalfTolerance),
-                          InfinityLength<Real_v>());
+    vecCore__MaskedAssignFunc(distance, distance >= distOut || distOut <= Real_v(kHalfTolerance) ||
+                                            absOrthogOut <= Real_v(kHalfTolerance),
+                              InfinityLength<Real_v>());
   }
 
   template <typename Real_v>
@@ -147,7 +147,7 @@ struct BoxImplementation {
 
     distance = (tempOut * invDir).Min();
 
-    vecCore::MaskedAssign(distance, safetyIn > Real_v(kHalfTolerance), Real_v(-1.0));
+    vecCore__MaskedAssignFunc(distance, safetyIn > Real_v(kHalfTolerance), Real_v(-1.0));
   }
 
   template <typename Real_v>
