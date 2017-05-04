@@ -20,7 +20,15 @@ if(NOT EXPAND_COMMAND_AS_SCRIPT)
     endif()
 
     set(EXPAND_COMMAND_SCRIPT "${CMAKE_CURRENT_LIST_FILE}")
-    set(EXPAND_COMMAND_SCRIPT "${CMAKE_CURRENT_LIST_FILE}" PARENT_SCOPE)
+
+    # Check if we are a case like VecGeom + VecCore where CUDA is
+    # initialized by a sub-project (VecCore) but is used also in the
+    # top project (VecGeom)
+    get_directory_property(hasParent PARENT_DIRECTORY)
+    if(hasParent)
+      set(EXPAND_COMMAND_SCRIPT "${CMAKE_CURRENT_LIST_FILE}" PARENT_SCOPE)
+    endif()
+
     function(expandable_command retvar)
         set(cmdline ${ARGN})
         string(REPLACE ";" "$<SEMICOLON>" cmdline "${cmdline}")
