@@ -477,8 +477,6 @@ if (CUDA)
   # to the NVCC command line ...
 
   find_package(CUDA REQUIRED)
-  # This include is apparently redundant (i.e. implicitly done in find_package)
-  # include(FindCUDA)
 
   set(SRC_EXTERNAL ${SRC_EXTERNAL} source/CudaManager.cpp source/backend/cuda/Interface.cpp)
   set(SRC_CUDA ${SRC_CUDA}
