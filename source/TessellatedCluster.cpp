@@ -9,7 +9,7 @@ std::ostream &operator<<(std::ostream &os, TriangleFacet<double> const &facet)
   os << "    indices:  {" << facet.fIndices << "}\n";
   if (facet.fNeighbors.size()) {
     os << "    neighbors: {";
-    for (int i = 0; i < facet.fNeighbors.size(); ++i) {
+    for (size_t i = 0; i < facet.fNeighbors.size(); ++i) {
       os << facet.fNeighbors[i] << ", ";
     }
     os << "}\n";

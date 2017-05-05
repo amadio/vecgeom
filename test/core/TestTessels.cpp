@@ -96,12 +96,30 @@ int main(int argc, char *argv[])
     while (1) {
       RandomDirection(direction);
       tcl.DistanceToIn(point, direction, 1e30, distance, isurf);
+#ifdef TEST_TCPERF
+      Precision distinscalar;
+      tcl.DistanceToInScalar(point, direction, 1e30, distinscalar, isurf);
+      assert(Abs(distance - distinscalar) < vecgeom::kTolerance);
+#endif
       if (distance < 1e30) {
-        double safety = tcl.SafetyToInSq(point, isurf);
+        double safety = Sqrt(tcl.SafetySq<true>(point, isurf));
+#ifdef TEST_TCPERF
+        Precision safetyscalar = Sqrt(tcl.SafetySqScalar<true>(point, isurf));
+        assert(Abs(safety - safetyscalar) < vecgeom::kTolerance);
+#endif
+        assert(safety <= distance);
         break;
       }
       tcl.DistanceToOut(point, direction, 1e30, distance, isurf);
-      if (distance < 1e30) break;
+      if (distance < 1e30) {
+        double safety = Sqrt(tcl.SafetySq<false>(point, isurf));
+#ifdef TEST_TCPERF
+        Precision safetyscalar = Sqrt(tcl.SafetySqScalar<false>(point, isurf));
+        assert(Abs(safety - safetyscalar) < vecgeom::kTolerance);
+#endif
+        assert(safety <= distance);
+        break;
+      }
     }
     point += distance * direction;
 #ifdef VECGEOM_ROOT

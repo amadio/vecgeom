@@ -4,6 +4,8 @@
 #ifndef VECGEOM_VOLUMES_TESSELLATEDCLUSTER_H_
 #define VECGEOM_VOLUMES_TESSELLATEDCLUSTER_H_
 
+#define TEST_TCPERF = 1
+
 #include <VecCore/VecCore>
 
 #include "base/Global.h"
@@ -32,6 +34,9 @@ struct TriangleFacet {
   T fSurfaceArea = 0;       ///< surface area
   Vector3D<T> fNormal;      ///< normal vector pointing outside
   T fDistance;              ///< distance between the origin and the triangle plane
+#ifdef TEST_TCPERF
+  Vector3D<T> fSideVectors[3]; ///< side vectors perpendicular to edges
+#endif
 
   VECCORE_ATT_HOST_DEVICE
   TriangleFacet() { fNeighbors.reserve(3); }
@@ -59,6 +64,11 @@ struct TriangleFacet {
     }
     // Compute normal
     fNormal = e1.Cross(e2).Unit();
+#ifdef TEST_TCPERF
+    // Compute side vectors (testing)
+    for (int i        = 0; i < 3; i++)
+      fSideVectors[i] = fNormal.Cross(fVertices[(i + 1) % 3] - fVertices[i]).Normalized();
+#endif
     // Distace to facet
     fDistance    = -fNormal.Dot(vtx0);
     fSurfaceArea = 0.5 * (e1.Cross(e2)).Mag();
@@ -97,6 +107,85 @@ struct TriangleFacet {
     // if (ncommon == 1) DetectCollision(other)
     return (ncommon == 2);
   }
+
+#ifdef TEST_TCPERF
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  bool Inside(Vector3D<Precision> const &point) const
+  {
+    // Check id point within the triangle plane is inside the triangle.
+    bool inside = true;
+    for (size_t i = 0; i < 3; ++i) {
+      Precision saf = (point - fVertices[i]).Dot(fSideVectors[i]);
+      inside &= saf > -kTolerance;
+    }
+    return inside;
+  }
+
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  T DistPlanes(Vector3D<Precision> const &point) const
+  {
+    // Returns distance from point to plane. This is positive if the point is on
+    // the outside halfspace, negative otherwise.
+    return (point.Dot(fNormal) + fDistance);
+  }
+
+  VECCORE_ATT_HOST_DEVICE
+  T DistanceToIn(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
+                 Precision const & /*stepMax*/) const
+  {
+    T ndd      = NonZero(direction.Dot(fNormal));
+    T saf      = DistPlanes(point);
+    bool valid = ndd < 0. && saf > -kTolerance;
+    if (!valid) return InfinityLength<T>();
+    T distance = -saf / ndd;
+    // Propagate the point with the distance to the plane.
+    Vector3D<Precision> point_prop = point + distance * direction;
+    // Check if propagated points hit the triangle
+    if (!Inside(point_prop)) return InfinityLength<T>();
+    return distance;
+  }
+
+  VECCORE_ATT_HOST_DEVICE
+  Precision DistanceToOut(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
+                          Precision const & /*stepMax*/) const
+  {
+    T ndd      = NonZero(direction.Dot(fNormal));
+    T saf      = DistPlanes(point);
+    bool valid = ndd > 0. && saf < kTolerance;
+    if (!valid) return InfinityLength<T>();
+    T distance = -saf / ndd;
+    // Propagate the point with the distance to the plane.
+    Vector3D<Precision> point_prop = point + distance * direction;
+    // Check if propagated points hit the triangle
+    if (!Inside(point_prop)) return InfinityLength<T>();
+    return distance;
+  }
+
+  template <bool ToIn>
+  VECCORE_ATT_HOST_DEVICE
+  Precision SafetySq(Vector3D<Precision> const &point, int &isurf) const
+  {
+    T safety = DistPlanes(point);
+    // Find the projection of the point on each plane
+    Vector3D<Precision> intersection = point - safety * fNormal;
+    bool withinBound                 = Inside(intersection);
+    if (ToIn)
+      withinBound &= safety > -kTolerance;
+    else
+      withinBound &= safety < kTolerance;
+    safety *= safety;
+    if (withinBound) return safety;
+
+    Vector3D<T> safety_outbound = InfinityLength<T>();
+    for (int ivert = 0; ivert < 3; ++ivert) {
+      safety_outbound[ivert] =
+          DistanceToLineSegmentSquared<kScalar>(fVertices[ivert], fVertices[(ivert + 1) % 3], point);
+    }
+    return (safety_outbound.Min());
+  }
+#endif
 };
 
 //______________________________________________________________________________
@@ -110,7 +199,9 @@ struct TessellatedCluster {
   Real_v fDistances;                ///< Distances from origin to facets
   Vector3D<Real_v> fSideVectors[3]; ///< Side vectors of the triangular facets
   Vector3D<Real_v> fVertices[3];    ///< Vertices stored in SIMD format
-
+#ifdef TEST_TCPERF
+  TriangleFacet<T> fFacets[kVecSize];
+#endif
   Vector3D<T> fMinExtent; ///< Minimum extent
   Vector3D<T> fMaxExtent; ///< Maximum extent
 
@@ -157,6 +248,9 @@ struct TessellatedCluster {
       fVertices[ivert].y()[index]               = c0.y();
       fVertices[ivert].z()[index]               = c0.z();
     }
+#ifdef TEST_TCPERF
+    fFacets[index] = facet;
+#endif
   }
 
   // === Navigation functionality === //
@@ -186,7 +280,7 @@ struct TessellatedCluster {
 
   VECCORE_ATT_HOST_DEVICE
   void DistanceToIn(Vector3D<T> const &point, Vector3D<T> const &direction, T const & /*stepMax*/, T &distance,
-                    int &isurf)
+                    int &isurf) const
   {
     using Bool_v = vecCore::Mask<Real_v>;
 
@@ -198,7 +292,7 @@ struct TessellatedCluster {
     Real_v ndd   = NonZero(dirv.Dot(fNormals));
     Real_v saf   = DistPlanes(pointv);
     Bool_v valid = ndd < Real_v(0.) && saf > Real_v(-kTolerance);
-    if (vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(valid)) return;
+    //    if (vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(valid)) return;
 
     vecCore__MaskedAssignFunc(dist, valid, -saf / ndd);
     // Since we can make no assumptions on convexity, we need to actually check
@@ -211,7 +305,8 @@ struct TessellatedCluster {
     valid &= hit;
     // Now we need to return the minimum distance for the hit facets
     if (vecCore::MaskEmpty(valid)) return;
-    for (int i = 0; i < kVecSize; ++i) {
+
+    for (size_t i = 0; i < kVecSize; ++i) {
       if (valid[i] && dist[i] < distance) {
         distance = dist[i];
         isurf    = i;
@@ -221,7 +316,7 @@ struct TessellatedCluster {
 
   VECCORE_ATT_HOST_DEVICE
   void DistanceToOut(Vector3D<T> const &point, Vector3D<T> const &direction, T const & /*stepMax*/, T &distance,
-                     int &isurf)
+                     int &isurf) const
   {
     using Bool_v = vecCore::Mask<Real_v>;
 
@@ -246,7 +341,7 @@ struct TessellatedCluster {
     valid &= hit;
     // Now we need to return the minimum distance for the hit facets
     if (vecCore::MaskEmpty(valid)) return;
-    for (int i = 0; i < kVecSize; ++i) {
+    for (size_t i = 0; i < kVecSize; ++i) {
       if (valid[i] && dist[i] < distance) {
         distance = dist[i];
         isurf    = i;
@@ -254,8 +349,9 @@ struct TessellatedCluster {
     }
   }
 
+  template <bool ToIn>
   VECCORE_ATT_HOST_DEVICE
-  T SafetyToInSq(Vector3D<T> const &point, int &isurf)
+  T SafetySq(Vector3D<T> const &point, int &isurf) const
   {
     using Bool_v = vecCore::Mask<Real_v>;
     Vector3D<Real_v> pointv(point);
@@ -264,13 +360,16 @@ struct TessellatedCluster {
     // Find the projection of the point on each plane
     Vector3D<Real_v> intersectionv = pointv - safetyv * fNormals;
     Bool_v withinBound;
-    InsideCluster(pointv, withinBound);
-    withinBound |= safetyv > Real_v(-kTolerance);
+    InsideCluster(intersectionv, withinBound);
+    if (ToIn)
+      withinBound &= safetyv > Real_v(-kTolerance);
+    else
+      withinBound &= safetyv < Real_v(kTolerance);
     safetyv *= safetyv;
 
     if (vecCore::MaskFull(withinBound)) {
       // loop over lanes to get minimum positive value.
-      for (int i = 0; i < kVecSize; ++i) {
+      for (size_t i = 0; i < kVecSize; ++i) {
         if (safetyv[i] < distancesq) {
           distancesq = safetyv[i];
           isurf      = i;
@@ -285,10 +384,10 @@ struct TessellatedCluster {
           DistanceToLineSegmentSquared2(fVertices[ivert], fVertices[(ivert + 1) % 3], pointv, !withinBound);
     }
     Real_v safety_outv = safetyv_outbound.Min();
-    vecCore::MaskedAssign(safetyv, !withinBound && safety_outv < safetyv, safety_outv);
+    vecCore::MaskedAssign(safetyv, !withinBound, safety_outv);
 
     // loop over lanes to get minimum positive value.
-    for (int i = 0; i < kVecSize; ++i) {
+    for (size_t i = 0; i < kVecSize; ++i) {
       if (safetyv[i] < distancesq) {
         distancesq = safetyv[i];
         isurf      = i;
@@ -296,6 +395,57 @@ struct TessellatedCluster {
     }
     return distancesq;
   }
+
+#ifdef TEST_TCPERF
+  VECCORE_ATT_HOST_DEVICE
+  //  __attribute__((optimize("no-tree-vectorize")))
+  void DistanceToInScalar(Vector3D<T> const &point, Vector3D<T> const &direction, T const &stepMax, T &distance,
+                          int &isurf)
+  {
+    distance = InfinityLength<T>();
+    isurf    = -1;
+    T distfacet;
+    for (size_t i = 0; i < kVecSize; ++i) {
+      distfacet = fFacets[i].DistanceToIn(point, direction, stepMax);
+      if (distfacet < distance) {
+        distance = distfacet;
+        isurf    = i;
+      }
+    }
+  }
+
+  VECCORE_ATT_HOST_DEVICE
+  void DistanceToOutScalar(Vector3D<T> const &point, Vector3D<T> const &direction, T const &stepMax, T &distance,
+                           int &isurf)
+  {
+    distance = InfinityLength<T>();
+    isurf    = -1;
+    T distfacet;
+    for (size_t i = 0; i < kVecSize; ++i) {
+      distfacet = fFacets[i].DistanceToOut(point, direction, stepMax);
+      if (distfacet < distance) {
+        distance = distfacet;
+        isurf    = i;
+      }
+    }
+  }
+
+  template <bool ToIn>
+  VECCORE_ATT_HOST_DEVICE
+  T SafetySqScalar(Vector3D<T> const &point, int &isurf)
+  {
+    T distance = InfinityLength<T>();
+    T distfacet;
+    for (size_t i = 0; i < kVecSize; ++i) {
+      distfacet = fFacets[i].SafetySq<ToIn>(point, isurf);
+      if (distfacet < distance) {
+        distance = distfacet;
+        isurf    = i;
+      }
+    }
+    return distance;
+  }
+#endif
 };
 
 std::ostream &operator<<(std::ostream &os, TriangleFacet<double> const &facet);
