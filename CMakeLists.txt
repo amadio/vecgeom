@@ -159,10 +159,10 @@ if (BUILTIN_VECCORE)
 
 #  This function is used to force a build on a dependant project at cmake configuration phase.
 #
-function (build_external_project target ) #FOLLOWING ARGUMENTS are the ARGS of ExternalProject_Add
+function (build_external_project target globpattern ) #FOLLOWING ARGUMENTS are the ARGS of ExternalProject_Add
 
   set(trigger_build_topdir ${CMAKE_BINARY_DIR}/buildExternals/${target})
-  set(trigger_src_dir ${CMAKE_BINARY_DIR}/buildExternals/${target}/trigger)
+  set(trigger_src_dir ${CMAKE_BINARY_DIR}/buildExternals/${target}/trigger_src)
   set(trigger_build_dir ${CMAKE_BINARY_DIR}/buildExternals/${target}/build)
 
   #mktemp dir in build tree
@@ -178,20 +178,23 @@ function (build_external_project target ) #FOLLOWING ARGUMENTS are the ARGS of E
               )
 
       add_custom_target(trigger_${target})
-      add_dependencies(trigger_${target} ${target})")
+      add_dependencies(trigger_${target} ${target})
+   ")
 
   file(WRITE ${trigger_src_dir}/CMakeLists.txt "${CMAKE_LIST_CONTENT}")
 
-  execute_process(COMMAND ${CMAKE_COMMAND} ${trigger_src_dir}
+  execute_process(COMMAND ${CMAKE_COMMAND} ${trigger_src_dir} -G ${CMAKE_GENERATOR}
      WORKING_DIRECTORY ${trigger_build_dir}
   )
   execute_process(COMMAND ${CMAKE_COMMAND} --build .
      WORKING_DIRECTORY ${trigger_build_dir}
   )
 
+  FILE(GLOB VecCoreHeaders string(${globpattern}))
+
   add_custom_target(${target})
   add_custom_command(
-          OUTPUT ${target}
+          OUTPUT ${VecCoreHeaders}
           COMMAND ${CMAKE_COMMAND} --build .
           WORKING_DIRECTORY ${trigger_build_dir}
   )
@@ -215,11 +218,15 @@ endfunction()
 
 #    ExternalProject_Add(${VecCore_PROJECT}
     build_external_project(${VecCore_PROJECT}
-      "PREFIX downloadbuild
-      #URL \"${VecCore_SRC_URI}/archive/v${VecCore_VERSION}.tar.gz\"
+      "${VecCore_ROOTDIR}/include/VecCore/*.h;${VecCore_ROOTDIR}/include/VecCore/VecCore;${VecCore_ROOTDIR}/include/VecCore/Backend/*.h"
+      "#URL \"${VecCore_SRC_URI}/archive/v${VecCore_VERSION}.tar.gz\"
       #URL_MD5 ${VecCore_SRC_MD5}
       GIT_REPOSITORY \"${VecCore_SRC_URI}\"
       GIT_TAG \"sync\"
+
+      PREFIX external
+      STAMP_DIR external/stamp
+      BINARY_DIR external/build
       BUILD_IN_SOURCE 0
       BUILD_BYPRODUCTS ${Vc_LIBRARY}
       LOG_DOWNLOAD 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
