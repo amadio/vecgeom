@@ -88,7 +88,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   map() : _M_t(_Compare()) {}
   VECCORE_ATT_HOST_DEVICE
-  map(const key_type _key) : _M_t() {} // TEST
+  map(const key_type /*_key*/) : _M_t() {} // TEST
   VECCORE_ATT_HOST_DEVICE
   map(const value_type *__first, const value_type *__last) : _M_t(_Compare()) { _M_t.insert_unique(__first, __last); }
   VECCORE_ATT_HOST_DEVICE
