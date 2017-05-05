@@ -173,8 +173,10 @@ if (BUILTIN_VECCORE)
 
     ExternalProject_Add(${VecCore_PROJECT}
       PREFIX externals
-      URL "${VecCore_SRC_URI}/archive/v${VecCore_VERSION}.tar.gz"
-      URL_MD5 ${VecCore_SRC_MD5}
+      #URL "${VecCore_SRC_URI}/archive/v${VecCore_VERSION}.tar.gz"
+      #URL_MD5 ${VecCore_SRC_MD5}
+      GIT_REPOSITORY "${VecCore_SRC_URI}"
+      GIT_TAG "sync"
       BUILD_IN_SOURCE 0
       BUILD_BYPRODUCTS ${Vc_LIBRARY}
       LOG_DOWNLOAD 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
