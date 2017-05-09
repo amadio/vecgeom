@@ -216,6 +216,11 @@ endfunction()
       set(Vc_LIBRARY ${VecCore_ROOTDIR}/lib${LIB_SUFFIX}/${Vc_LIBNAME})
     endif()
 
+
+    if (DEFINED UMESIMD_DIR AND NOT DEFINED UMESIMD_ROOT)
+      set(UMESIMD_ROOT ${UMESIMD_DIR})
+    endif()
+
 #    ExternalProject_Add(${VecCore_PROJECT}
     build_external_project(${VecCore_PROJECT}
       "${VecCore_ROOTDIR}/include/VecCore/*.h;${VecCore_ROOTDIR}/include/VecCore/VecCore;${VecCore_ROOTDIR}/include/VecCore/Backend/*.h"
@@ -238,6 +243,8 @@ endfunction()
                \"-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}\"
                  -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
                \"-DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}\"
+               \"-DVc_DIR=${Vc_DIR}\"
+               \"-DUMESIMD_ROOT=${UMESIMD_ROOT}\"
       INSTALL_COMMAND env DESTDIR=${VecCore_DESTDIR} ${CMAKE_COMMAND} --build . --target install"
     )
 
