@@ -83,6 +83,10 @@ enum_option(VECGEOM_VECTOR
       CASE_INSENSITIVE
     )
 
+if ("${BACKEND}" MATCHES "vc|VC")
+  set(BACKEND "Vc")
+endif()
+
 set(VECGEOM_BACKEND Scalar UMESIMD Vc)
 
 enum_option(BACKEND
