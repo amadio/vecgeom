@@ -44,10 +44,47 @@
 
 class UPolyconeHistorical {
 public:
-  UPolyconeHistorical();
-  ~UPolyconeHistorical();
-  UPolyconeHistorical(const UPolyconeHistorical &source);
-  UPolyconeHistorical &operator=(const UPolyconeHistorical &right);
+  UPolyconeHistorical() : fStartAngle(0.), fOpeningAngle(0.), fNumZPlanes(0), fZValues(0), Rmin(0), Rmax(0) {}
+
+  ~UPolyconeHistorical() {}
+
+  UPolyconeHistorical(const UPolyconeHistorical &source)
+  {
+    fStartAngle   = source.fStartAngle;
+    fOpeningAngle = source.fOpeningAngle;
+    fNumZPlanes   = source.fNumZPlanes;
+
+    fZValues.resize(fNumZPlanes);
+    Rmin.resize(fNumZPlanes);
+    Rmax.resize(fNumZPlanes);
+
+    for (int i = 0; i < fNumZPlanes; i++) {
+      fZValues[i] = source.fZValues[i];
+      Rmin[i]     = source.Rmin[i];
+      Rmax[i]     = source.Rmax[i];
+    }
+  }
+
+  UPolyconeHistorical &operator=(const UPolyconeHistorical &right)
+  {
+    if (&right == this) return *this;
+
+    fStartAngle   = right.fStartAngle;
+    fOpeningAngle = right.fOpeningAngle;
+    fNumZPlanes   = right.fNumZPlanes;
+
+    fZValues.resize(fNumZPlanes);
+    Rmin.resize(fNumZPlanes);
+    Rmax.resize(fNumZPlanes);
+
+    for (int i = 0; i < fNumZPlanes; i++) {
+      fZValues[i] = right.fZValues[i];
+      Rmin[i]     = right.Rmin[i];
+      Rmax[i]     = right.Rmax[i];
+    }
+
+    return *this;
+  }
 
   double fStartAngle;
   double fOpeningAngle;
