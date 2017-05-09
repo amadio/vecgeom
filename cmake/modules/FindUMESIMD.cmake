@@ -5,7 +5,7 @@
 #  UMESIMD_INCLUDE_DIR
 
 if(NOT UMESIMD_DIR)
-   find_path(UMESIMD_DIR "umesimd/UMESimd.h")
+   find_path(UMESIMD_DIR "umesimd/UMESimd.h" PATH_SUFFIXES include HINTS ${UMESIMD_ROOT})
 endif()
 
 find_path(UMESIMD_INCLUDE_DIR umesimd/UMESimd.h
