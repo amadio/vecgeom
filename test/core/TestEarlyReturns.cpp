@@ -69,6 +69,7 @@ int main()
   else
     assert(false);
 
+#ifdef VECGEOM_ENABLE_VC
   // tests for Float_v
   using Float_v = backend::VcVector::Float_v;
   std::cout << "Testing early returns for Float_v of size " << 8 * sizeof(Float_v)
@@ -96,6 +97,7 @@ int main()
     assert(true);
   else
     assert(false);
+#endif
 
   TestType<backend::Scalar>("Scalar");
 
