@@ -4,7 +4,8 @@
 #ifndef VECGEOM_VOLUMES_TESSELLATEDSTRUCT_H_
 #define VECGEOM_VOLUMES_TESSELLATEDSTRUCT_H_
 
-#include "TesselatedCluster.h"
+#include "TessellatedCluster.h"
+#include "base/BitSet.h"
 
 namespace vecgeom {
 
@@ -15,62 +16,353 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 template <typename T = double>
 class TessellatedStruct {
 
+  using BitSet = veccore::BitSet;
   using Real_v = vecgeom::VectorBackend::Real_v;
 
-private:
-  bool fSolidClosed;      ///< Closure of the solid
-  int fNsurrounded = 0;   ///< Number of surrounded facets
-  T fCubicVolume   = 0;   ///< cubic volume
-  Vector3D<T> fMinExtent; ///< Minimum extent
-  Vector3D<T> fMaxExtent; ///< Maximum extent
+  //__________________________________________________________________________
+  struct GridCell {
+    Vector<int> fArray; // Array of facet indices
+    bool fUsed = false; // Used flag
+
+    VECCORE_ATT_HOST_DEVICE
+    GridCell() { /* fArray.reserve(4); */}
+  };
+
+  //__________________________________________________________________________
+  struct GridHelper {
+    int fNgrid       = 0;         ///< Grid size
+    int fNcells      = 0;         ///< Number of cells in the grid
+    int fNcached     = 0;         ///< number of cached cells
+    GridCell **fGrid = nullptr;   ///< Grid for clustering facets
+    Vector<Vector3D<T>> fAllVert; ///< Full list of vertices
+
+    GridHelper() {}
+
+    ~GridHelper()
+    {
+      for (int i = 0; i < fNcells; ++i)
+        delete fGrid[i];
+      delete[] fGrid;
+    }
+
+    void CreateCells(int ngrid)
+    {
+      if (fNgrid) return;
+      fNgrid  = ngrid;
+      fNcells = ngrid * ngrid * ngrid;
+      fGrid   = new GridCell *[fNcells];
+      for (int i = 0; i < fNcells; ++i)
+        fGrid[i] = new GridCell();
+    }
+
+    VECCORE_ATT_HOST_DEVICE
+    VECGEOM_FORCE_INLINE
+    void ClearCells()
+    {
+      for (int icell = 0; icell < fNcells; ++icell)
+        fGrid[icell]->fArray.clear();
+    }
+
+    VECCORE_ATT_HOST_DEVICE
+    VECGEOM_FORCE_INLINE
+    GridCell *GetCell(int ind[3]) { return fGrid[fNgrid * fNgrid * ind[0] + fNgrid * ind[1] + ind[2]]; }
+
+    VECCORE_ATT_HOST_DEVICE
+    VECGEOM_FORCE_INLINE
+    GridCell *GetCell(Vector3D<T> const &point, int ind[3])
+    {
+      Vector3D<T> ratios = (point - fMinExtent) * fInvExtSize;
+      assert(ratios[0] <= 1. && ratios[1] <= 1 && ratios[2] <= 1);
+      for (int i = 0; i < 3; ++i) {
+        ind[i] = ratios[i] * fNcells;
+        ind[i] = vecCore::math::Max(ind[i], 0);
+        ind[i] = vecCore::math::Min(ind[i], fNcells - 1);
+      }
+      return (GetCell(ind));
+    }
+  };
+
+public:
+  bool fSolidClosed   = false;   ///< Closure of the solid
+  T fCubicVolume      = 0;       ///< cubic volume
+  GridHelper *fHelper = nullptr; ///< Grid helper
+  Vector3D<T> fMinExtent;        ///< Minimum extent
+  Vector3D<T> fMaxExtent;        ///< Maximum extent
+  Vector3D<T> fInvExtSize;       ///< Inverse extent size
 
   // Here we have a pointer to the aligned bbox structure
   // ABBoxanager *fABBoxManager;
 
-  Vector<Vector3D<T>> fVertices;                ///< Vector of unique vertices
-  Vector<TriangleFacet> fFacets;                ///< Vector of triangular facets
-  Vector<TessellatedCluster<Real_v>> fClusters; ///< Vector of facet clusters
+  Vector<int> fCluster;                           ///< Cluster of facets storing just the indices
+  Vector<int> fCandidates;                        ///< Candidates for the current cluster
+  Vector<Vector3D<T>> fVertices;                  ///< Vector of unique vertices
+  Vector<TriangleFacet<T>> fFacets;               ///< Vector of triangular facets
+  Vector<TessellatedCluster<Real_v> *> fClusters; ///< Vector of facet clusters
+  BitSet *fSelected;                              ///< Facets already in clusters
 
-protected:
+public:
   VECCORE_ATT_HOST_DEVICE
-  int AddVertex(Vector3D<T> const &vtx)
+  VECGEOM_FORCE_INLINE
+  TessellatedStruct()
   {
-    // This method needs to check if the vertex is duplicated. The
-    // index of the vertex is returned.
-
-    // The trivial loop makes AddVertex a N squared problem...
-    // *** TO DO: uniform grid store/search, ...
-    constexpr Precision tolerancesq = kTolerance * kTolerance;
-    int ivert                       = 0;
-    for (auto vertex : fVertices) {
-      if ((vtx - vertex).Mag2() < tolerancesq) return ivert;
-      ivert++;
-    }
-    fVertices.push_back(vtx);
-    return ivert;
+    fMinExtent = InfinityLength<T>();
+    fMaxExtent = -InfinityLength<T>();
+    fHelper    = new GridHelper();
   }
 
   VECCORE_ATT_HOST_DEVICE
-  void FindNeighbors(TriangleFacet &facet, int ifacet)
+  VECGEOM_FORCE_INLINE
+  ~TessellatedStruct()
   {
-    // Loop non-closed facets.
-    int nfacets = fFacets.size();
-    for (int icrt = 0; icrt < nfacets; ++icrt) {
-      if (fFacets[icrt].IsSurrounded()) continue;
-      if (facet.IsNeighbor(fFacets[icrt])) {
-        facet.fNeighbors.push_back(icrt);
-        fFacets[icrt].fNeighbors.push_back(ifacet);
-        if (fFacets[icrt].IsSurrounded()) fNsurrounded++;
-        if (facet.IsSurrounded()) {
-          fNsurrounded++ return;
-        }
+    delete fHelper;
+    delete fSelected;
+  }
+
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  void AddFacet(TriangleFacet<T> &facet)
+  {
+    // Method adding a facet to the structure. The vertices are added to the
+    // list of all vertices (including duplications) and the extent is re-adjusted.
+    fFacets.push_back(facet);
+    int ind = fHelper->fAllVert.size();
+    // Add the three vertices
+    for (int i = 0; i < 3; ++i) {
+      fHelper->fAllVert.push_back(facet.fVertices[i]);
+      facet.fIndices[i] = ind + i;
+    }
+    // Adjust extent
+    T xmin        = vecCore::math::Min(facet.fVertices[0].x(), facet.fVertices[1].x(), facet.fVertices[2].x());
+    T ymin        = vecCore::math::Min(facet.fVertices[0].y(), facet.fVertices[1].y(), facet.fVertices[2].y());
+    T zmin        = vecCore::math::Min(facet.fVertices[0].z(), facet.fVertices[1].z(), facet.fVertices[2].z());
+    fMinExtent[0] = vecCore::math::Min(fMinExtent[0], xmin);
+    fMinExtent[1] = vecCore::math::Min(fMinExtent[1], ymin);
+    fMinExtent[2] = vecCore::math::Min(fMinExtent[2], zmin);
+    T xmax        = vecCore::math::Max(facet.fVertices[0].x(), facet.fVertices[1].x(), facet.fVertices[2].x());
+    T ymax        = vecCore::math::Max(facet.fVertices[0].y(), facet.fVertices[1].y(), facet.fVertices[2].y());
+    T zmax        = vecCore::math::Max(facet.fVertices[0].z(), facet.fVertices[1].z(), facet.fVertices[2].z());
+    fMaxExtent[0] = vecCore::math::Max(fMaxExtent[0], xmax);
+    fMaxExtent[1] = vecCore::math::Max(fMaxExtent[1], ymax);
+    fMaxExtent[2] = vecCore::math::Max(fMaxExtent[2], zmax);
+  }
+
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  int AddVertex(Vector3D<T> const &vertex)
+  {
+    // Add a non-duplicated vertex to the solid. Duplications are only checked
+    // in the grid cell containing the vertex. An index to the unique vertex is
+    // added to the cell, while the vertex positionis added to the list fVertices
+    // Get the cell in which to add the vertex
+    int ind[3];
+    GridCell *cell = fHelper->GetCell(vertex, ind);
+    // Loop existing vertices in the cell and check for a duplicate
+    constexpr Precision tolerancesq = kTolerance * kTolerance;
+    for (int ivert : cell->fArray) {
+      // existing vertex?
+      if ((fVertices[ivert] - vertex).Mag2() < tolerancesq) return ivert;
+    }
+    // Push new vertex into the tessellated structure
+    int ivertnew = fVertices.size();
+    fVertices.push_back(vertex);
+    // Update the cell with the new vertex index
+    cell->fArray.push_back(ivertnew);
+    return ivertnew;
+  }
+
+  void Close()
+  {
+    // The solid becomes now closed. A cell grid is computed base on the extent
+    // to fasten up the search for duplicates and neighbors.
+    int ind[3];
+    fInvExtSize = fMaxExtent - fMinExtent;
+    if (fInvExtSize[0] * fInvExtSize[1] * fInvExtSize[2] < kTolerance) {
+      std::cout << "Tessellated structure is flat - not allowed\n";
+      return;
+    }
+    fInvExtSize = 1. / fInvExtSize;
+    // Make a grid with ~ntot/vecsize cells
+    int ngrid = 1 + size_t(vecCore::math::Pow<T>(T(fFacets.size()) / kVecSize, 1. / 3.));
+    fHelper->CreateCells(ngrid);
+
+    // Loop over facets and their vertices, fill list of vertices free of
+    // duplications.
+    for (auto facet : fFacets) {
+      for (int ivert = 0; ivert < 3; ++ivert) {
+        facet.fIndices[ivert] = AddVertex(facet.fVertices[ivert]);
+      }
+    }
+
+    // Clear vertices and store facet indices in the grid helper
+    fHelper->ClearCells();
+    int ifacet = 0;
+    for (auto facet : fFacets) {
+      for (int ivert = 0; ivert < 3; ++ivert) {
+        fHelper->GetCell(facet.fVertices[ivert], ind)->fArray.push_back(ifacet);
+      }
+      ifacet++;
+    }
+
+    // Make clusters
+    const int nfacets = fFacets.size();
+    fSelected         = BitSet::MakeInstance(nfacets);
+    fSelected->ResetAllBits();
+    fCandidates.clear();
+    ifacet = 0;
+    fCandidates.push_back(ifacet);
+    fSelected->SetBitNumber(ifacet);
+    TessellatedCluster<Real_v> *cluster;
+    while (fCandidates.size()) {
+      // Use existing candidates in fCandidates to create the cluster
+      cluster               = CreateCluster();
+      if (!cluster) cluster = MakePartialCluster();
+      fClusters.push_back(cluster);
+      // Fill cluster from the same cell or from a neighbor cell
+      if (!fCandidates.size()) {
+        ifacet = fSelected->FirstNullBit();
+        fCandidates.push_back(ifacet);
       }
     }
   }
 
-public:
+  TessellatedCluster<Real_v> *CreateCluster()
+  {
+    // Create cluster starting from fCandidates list
+    int nfacets = 0;
+    assert(fCandidates.size() > 0); // call the method with at least one candidate in the list
+    int nneighbors        = 0;
+    int nextcell          = 0;
+    constexpr int rankmax = 10; // ??? how to determine an appropriate value ???
+    int rank              = 0;
+    fCluster.clear();
+    int ifacet = fCandidates[0];
+    fCluster.push_back(ifacet);
+    while (fCandidates.size() < kVecSize && rank < rankmax) {
+      GatherNeighborCandidates(fCandidates[0], rank++);
+    }
+    if (fCandidates.size() < kVecSize) return nullptr;
+    // Add facets with maximum neighborhood weight to existing cluster
+    int iref = 0;
+    while (nfacets < kVecSize) {
+      nfacets = AddCandidatesToCluster(4 >> iref++); // 4 common vertices, 2, 1 or none
+    }
+
+    // The cluster is now complete, create a tessellated cluster object
+    TessellatedCluster<Real_v> *tcl = new TessellatedCluster<Real_v>();
+    int i                           = 0;
+    for (auto ifct : fCluster) {
+      TriangleFacet<T> const &facet = fFacets[ifct];
+      tcl->AddFacet(i++, facet);
+    }
+    return tcl;
+  }
+
+  TessellatedCluster<Real_v> *MakePartialCluster()
+  {
+    // Create partial cluster starting from fCandidates list
+    int iref = 0;
+    for (auto ifacet : fCandidates) {
+      fCluster.push_back(ifacet);
+    }
+    while (fCluster.size() < kVecSize)
+      fCluster.push_back(fCandidates[0]);
+
+    // The cluster is now complete, create a tessellated cluster object
+    TessellatedCluster<Real_v> *tcl = new TessellatedCluster<Real_v>();
+    int i                           = 0;
+    for (auto ifacet : fCluster) {
+      TriangleFacet<T> const &facet = fFacets[ifacet];
+      tcl->AddFacet(i++, facet);
+    }
+    return tcl;
+  }
+
+  int AddCandidatesToCluster(int weightmin)
+  {
+    // Add all candidate having the required weight to the cluster, until cluster
+    // is complete
+    for (auto it = fCandidates.begin(); it != fCandidates.end() && fCluster.size() < kVecSize;) {
+      int weight = NeighborToCluster(*it);
+      if (weight >= weightmin) {
+        fCluster.push_back(*it);
+        it = fCandidates.erase(it);
+      } else {
+        ++it;
+      }
+    }
+    return fCluster.size();
+  }
+
+  int NeighborToCluster(int ifacet)
+  {
+    // Get neighborhood 'weight' of a candidate with respect to the existing cluster
+    TriangleFacet<T> facet = fFacets[ifacet];
+    int weight             = 0;
+    for (auto icand : fCluster) {
+      TriangleFacet<T> const &other = fFacets[icand];
+      weight += facet.IsNeighbor(other);
+    }
+    return weight;
+  }
+
   VECCORE_ATT_HOST_DEVICE
-  TesselatedStruct() { fClusterSize = vecCore::VectorSize<vecgeom::VectorBackend::Real_v>(); }
+  VECGEOM_FORCE_INLINE
+  void AddCandidatesFromCell(int ind[3])
+  {
+    GridCell *cell = fHelper->GetCell(ind);
+    if (cell->fUsed) return;
+    for (auto neighbor : cell->fArray) {
+      if (!fSelected[neighbor]) {
+        fSelected->SetBitNumber(neighbor);
+        fCandidates.push_back(neighbor);
+      }
+    }
+    cell->fUsed = true;
+  }
+
+  int GatherNeighborCandidates(int ifacet, int rank)
+  {
+    // Gather candidates from cells neighboring the cell containing the center
+    // of the facet
+    int ind0[3], ind[3];
+    TriangleFacet<T> const &facet = fFacets[ifacet];
+    GridCell *cell                = fHelper->GetCell(facet.fCenter, ind0);
+    if (rank == 0) {
+      AddCandidatesFromCell(ind0);
+      return (fCandidates.size());
+    }
+
+    // Establish cell index limits for the requested rank
+    int limits[6];
+    bool limited[6] = {false};
+    for (int i = 0; i < 3; ++i) {
+      limits[2 * i] = ind0[i] - rank;
+      if (limits[2 * i] < 0) {
+        limits[2 * i]  = 0;
+        limited[2 * i] = true;
+      }
+      limits[2 * i + 1] = ind0[i] + rank;
+      if (limits[2 * i + 1] > fHelper->fNgrid - 1) {
+        limits[2 * i + 1]  = fHelper->fNgrid - 1;
+        limited[2 * i + 1] = true;
+      }
+    }
+    // Gather all cells for the given rank
+    for (int iax1 = 0; iax1 < 3; ++iax1) {
+      int iax2 = (iax1 + 1) % 3;
+      int iax3 = (iax1 + 2) % 3;
+      for (int iside = 0; iside < 2; ++iside) {
+        if (limited[2 * iax1 + iside]) continue;
+        ind[iax1] = limits[2 * iax1 + iside];
+        for (ind[iax2] = limits[2 * iax2]; ind[iax2] <= limits[2 * iax2 + 1]; ind[iax2]++) {
+          for (ind[iax3] = limits[2 * iax3]; ind[iax3] <= limits[2 * iax3 + 1]; ind[iax3]++) {
+            AddCandidatesFromCell(ind);
+          }
+        }
+      }
+    }
+    return (fCandidates.size());
+  }
 
   /* @brief Methods for adding a new facet
    * @detailed The method akes 4 parameters to define the three fVertices:
@@ -83,20 +375,15 @@ public:
   VECCORE_ATT_HOST_DEVICE
   bool AddTriangularFacet(Vector3D<T> const &vt0, Vector3D<T> const &vt1, Vector3D<T> const &vt2, bool absolute = true)
   {
-    TriangleFacet facet;
-    int ind0, ind1, ind2;
-    ind0 = AddVertex(vt0);
-    if (absolute) {
-      ind1 = AddVertex(vt1);
-      ind2 = AddVertex(vt2);
-    } else {
-      ind1 = AddVertex(vt0 + vt1);
-      ind2 = AddVertex(vt0 + vt1 + vt2);
-    }
-    if (!facet.AddVertices(fVertices[ind0], fVertices[ind1], fVertices[ind2], ind0, ind1, ind2)) return false;
-    FindNeighbors(facet);
-    fFacets.push_back(facet);
-    if (fNsurrounded == fFacets.size()) fClosed = true;
+    TriangleFacet<T> facet;
+    bool added = false;
+    if (absolute)
+      added = facet.SetVertices(vt0, vt1, vt2);
+    else
+      added = facet.SetVertices(vt0, vt0 + vt1, vt0 + vt1 + vt2);
+    if (!added) return false;
+    AddFacet(facet);
+    return true;
   }
 
   VECCORE_ATT_HOST_DEVICE
@@ -106,38 +393,22 @@ public:
     // We should check the quadrilateral convexity to correctly define the
     // triangle facets
     // CheckConvexity()vt0, vt1, vt2, vt3, absolute);
-    TriangleFacet facet1, facet2;
-    int ind0, ind1, ind2, ind22;
-    ind0 = AddVertex(vt0);
+    TriangleFacet<T> facet;
     if (absolute) {
-      ind1  = AddVertex(vt1);
-      ind2  = AddVertex(vt2);
-      ind22 = AddVertex(vt3);
+      if (!facet.SetVertices(vt0, vt1, vt2)) return false;
+      AddFacet(facet);
+      if (!facet.SetVertices(vt0, vt2, vt3)) return false;
+      AddFacet(facet);
     } else {
-      ind1  = AddVertex(vt0 + vt1);
-      ind2  = AddVertex(vt0 + vt1 + vt2);
-      ind22 = AddVertex(vt0 + vt1 + vt2 + vt3);
+      if (!facet.SetVertices(vt0, vt0 + vt1, vt0 + vt1 + vt2)) return false;
+      AddFacet(facet);
+      if (!facet.SetVertices(vt0, vt0 + vt1 + vt2, vt0 + vt1 + vt2, vt3)) return false;
+      AddFacet(facet);
     }
-    bool added1 = facet1.AddVertices(fVertices[ind0], fVertices[ind1], fVertices[ind2], ind0, ind1, ind2);
-    bool added2 = facet2.AddVertices(fVertices[ind0], fVertices[ind2], fVertices[ind22], ind0, ind2, ind22);
-
-    // The two facets are neighbors
-    int ifacet1 = fFacets.size();
-    if (added1) facet2.fNeighbors.push_back(ifacet1);
-    if (added2) facet1.fNeighbors.push_back(ifacet1 + 1);
-    if (added1) {
-      FindNeighbors(facet1);
-      fFacets.push_back(facet1);
-    }
-    if (added2) {
-      FindNeighbors(facet2);
-      fFacets.push_back(facet2);
-    }
-    if (fNsurrounded == fFacets.size()) fClosed = true;
-    return (added1 || added2);
   }
-};
+
+}; // end class
 }
-} // end
+} // end namespace
 
 #endif

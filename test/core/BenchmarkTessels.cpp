@@ -35,22 +35,26 @@ int main(int argc, char *argv[])
   OPTION_INT(nrep, 10);
 
   TessellatedCluster<Real_v> tcl;
-  TriangleFacet<double> facet;
+  TriangleFacet<double> *facet;
   Vector3D<double> p0(0, 0, 10);
   Vector3D<double> p1(-10, 0, 0);
   Vector3D<double> p2(0, 10, 0);
   Vector3D<double> p3(10, 0, 0);
   Vector3D<double> p4(0, -10, 0);
-  facet.SetVertices(p0, p2, p1, 0, 2, 1);
+  facet = new TriangleFacet<double>();
+  facet->SetVertices(p0, p2, p1, 0, 2, 1);
   //  std::cout << facet << std::endl;
   tcl.AddFacet(0, facet);
-  facet.SetVertices(p0, p3, p2, 0, 3, 2);
+  facet = new TriangleFacet<double>();
+  facet->SetVertices(p0, p3, p2, 0, 3, 2);
   //  std::cout << facet << std::endl;
   tcl.AddFacet(1, facet);
-  facet.SetVertices(p0, p4, p3, 0, 4, 3);
+  facet = new TriangleFacet<double>();
+  facet->SetVertices(p0, p4, p3, 0, 4, 3);
   //  std::cout << facet << std::endl;
   tcl.AddFacet(2, facet);
-  facet.SetVertices(p0, p1, p4, 0, 1, 4);
+  facet = new TriangleFacet<double>();
+  facet->SetVertices(p0, p1, p4, 0, 1, 4);
   //  std::cout << facet << std::endl;
   tcl.AddFacet(3, facet);
 

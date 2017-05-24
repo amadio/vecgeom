@@ -19,6 +19,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 template <typename T = double>
 struct TriangleFacet {
   Vector3D<T> fVertices[3]; ///< vertices of the triangle
+  Vector3D<T> fCenter;      ///< Center of the triangle
   Vector3D<int> fIndices;   ///< indices for 3 distinct vertices
   Vector<int> fNeighbors;   ///< indices to triangle neighbors
   T fSurfaceArea = 0;       ///< surface area
@@ -33,8 +34,8 @@ struct TriangleFacet {
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  bool SetVertices(Vector3D<T> const &vtx0, Vector3D<T> const &vtx1, Vector3D<T> const &vtx2, int ind0, int ind1,
-                   int ind2)
+  bool SetVertices(Vector3D<T> const &vtx0, Vector3D<T> const &vtx1, Vector3D<T> const &vtx2, int ind0 = 0,
+                   int ind1 = 0, int ind2 = 0)
   {
     fVertices[0] = vtx0;
     fVertices[1] = vtx1;
@@ -67,7 +68,8 @@ struct TriangleFacet {
       std::cout << "Flat triangle." << std::endl;
       return false;
     }
-    // Any more fields to fill to be added here
+    // Center of the triangle
+    fCenter = (vtx0 + vtx1 + vtx2) / 3.;
     return true;
   }
 
@@ -77,25 +79,16 @@ struct TriangleFacet {
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  bool IsNeighbor(TriangleFacet const &other)
+  int IsNeighbor(TriangleFacet const &other)
   {
     // Check if a segment is common
     int ncommon = 0;
-    int i1      = 0;
-    int i2      = 0;
     for (int ind1 = 0; ind1 < 3; ++ind1) {
       for (int ind2 = 0; ind2 < 3; ++ind2) {
-        if (fIndices[ind1] == other.fIndices[ind2]) {
-          ncommon++;
-          i1 = ind1;
-          i2 = ind2;
-        }
+        if (fIndices[ind1] == other.fIndices[ind2]) ncommon++;
       }
     }
-    // In case we detect a single common vertex, it is still possible that the
-    // facets are neighbors
-    // if (ncommon == 1) DetectCollision(other)
-    return (ncommon == 2);
+    return ncommon;
   }
 
 #ifdef TEST_TCPERF
@@ -114,7 +107,7 @@ struct TriangleFacet {
 
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
-  T DistPlanes(Vector3D<Precision> const &point) const
+  T DistPlane(Vector3D<Precision> const &point) const
   {
     // Returns distance from point to plane. This is positive if the point is on
     // the outside halfspace, negative otherwise.
@@ -126,7 +119,7 @@ struct TriangleFacet {
                  Precision const & /*stepMax*/) const
   {
     T ndd      = NonZero(direction.Dot(fNormal));
-    T saf      = DistPlanes(point);
+    T saf      = DistPlane(point);
     bool valid = ndd < 0. && saf > -kTolerance;
     if (!valid) return InfinityLength<T>();
     T distance = -saf / ndd;
@@ -142,7 +135,7 @@ struct TriangleFacet {
                           Precision const & /*stepMax*/) const
   {
     T ndd      = NonZero(direction.Dot(fNormal));
-    T saf      = DistPlanes(point);
+    T saf      = DistPlane(point);
     bool valid = ndd > 0. && saf < kTolerance;
     if (!valid) return InfinityLength<T>();
     T distance = -saf / ndd;
@@ -157,7 +150,7 @@ struct TriangleFacet {
   VECCORE_ATT_HOST_DEVICE
   T SafetySq(Vector3D<Precision> const &point, int &isurf) const
   {
-    T safety = DistPlanes(point);
+    T safety = DistPlane(point);
     // Find the projection of the point on each plane
     Vector3D<Precision> intersection = point - safety * fNormal;
     bool withinBound                 = Inside(intersection);

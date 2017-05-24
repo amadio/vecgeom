@@ -30,7 +30,7 @@ struct TessellatedCluster {
   Vector3D<Real_v> fSideVectors[3]; ///< Side vectors of the triangular facets
   Vector3D<Real_v> fVertices[3];    ///< Vertices stored in SIMD format
 #ifdef TEST_TCPERF
-  TriangleFacet<T> fFacets[kVecSize];
+  TriangleFacet<T> *fFacets[kVecSize];
 #endif
   Vector3D<T> fMinExtent; ///< Minimum extent
   Vector3D<T> fMaxExtent; ///< Maximum extent
@@ -51,26 +51,26 @@ struct TessellatedCluster {
     * @param facet Triangle facet data
     */
   VECCORE_ATT_HOST_DEVICE
-  void AddFacet(size_t index, TriangleFacet<T> const &facet)
+  void AddFacet(size_t index, TriangleFacet<T> *facet)
   {
     // Fill the facet normal by accessing individual SIMD lanes
     assert(index < kVecSize);
-    fNormals.x()[index] = facet.fNormal.x();
-    fNormals.y()[index] = facet.fNormal.y();
-    fNormals.z()[index] = facet.fNormal.z();
+    fNormals.x()[index] = facet->fNormal.x();
+    fNormals.y()[index] = facet->fNormal.y();
+    fNormals.z()[index] = facet->fNormal.z();
     // Fill the distance to the plane
-    fDistances[index] = facet.fDistance;
+    fDistances[index] = facet->fDistance;
     // Compute side vectors and fill them using the store operation per SIMD lane
     for (size_t ivert = 0; ivert < 3; ++ivert) {
-      Vector3D<T> c0                            = facet.fVertices[ivert];
+      Vector3D<T> c0                            = facet->fVertices[ivert];
       if (c0.x() < fMinExtent[0]) fMinExtent[0] = c0.x();
       if (c0.y() < fMinExtent[1]) fMinExtent[1] = c0.y();
       if (c0.z() < fMinExtent[2]) fMinExtent[2] = c0.z();
       if (c0.x() > fMaxExtent[0]) fMaxExtent[0] = c0.x();
       if (c0.y() > fMaxExtent[1]) fMaxExtent[1] = c0.y();
       if (c0.z() > fMaxExtent[2]) fMaxExtent[2] = c0.z();
-      Vector3D<T> c1                            = facet.fVertices[(ivert + 1) % 3];
-      Vector3D<T> sideVector                    = facet.fNormal.Cross(c1 - c0).Normalized();
+      Vector3D<T> c1                            = facet->fVertices[(ivert + 1) % 3];
+      Vector3D<T> sideVector                    = facet->fNormal.Cross(c1 - c0).Normalized();
       fSideVectors[ivert].x()[index]            = sideVector.x();
       fSideVectors[ivert].y()[index]            = sideVector.y();
       fSideVectors[ivert].z()[index]            = sideVector.z();
@@ -134,7 +134,7 @@ struct TessellatedCluster {
     InsideCluster(pointv, hit);
     valid &= hit;
     // Now we need to return the minimum distance for the hit facets
-    if (vecCore::MaskEmpty(valid)) return;
+    if (vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(valid)) return;
 
     for (size_t i = 0; i < kVecSize; ++i) {
       if (valid[i] && dist[i] < distance) {
@@ -236,7 +236,7 @@ struct TessellatedCluster {
     isurf    = -1;
     T distfacet;
     for (size_t i = 0; i < kVecSize; ++i) {
-      distfacet = fFacets[i].DistanceToIn(point, direction, stepMax);
+      distfacet = fFacets[i]->DistanceToIn(point, direction, stepMax);
       if (distfacet < distance) {
         distance = distfacet;
         isurf    = i;
@@ -252,7 +252,7 @@ struct TessellatedCluster {
     isurf    = -1;
     T distfacet;
     for (size_t i = 0; i < kVecSize; ++i) {
-      distfacet = fFacets[i].DistanceToOut(point, direction, stepMax);
+      distfacet = fFacets[i]->DistanceToOut(point, direction, stepMax);
       if (distfacet < distance) {
         distance = distfacet;
         isurf    = i;
@@ -267,7 +267,7 @@ struct TessellatedCluster {
     T distance = InfinityLength<T>();
     T distfacet;
     for (size_t i = 0; i < kVecSize; ++i) {
-      distfacet = fFacets[i].template SafetySq<ToIn>(point, isurf);
+      distfacet = fFacets[i]->template SafetySq<ToIn>(point, isurf);
       if (distfacet < distance) {
         distance = distfacet;
         isurf    = i;
