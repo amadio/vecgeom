@@ -146,7 +146,7 @@ public:
       if (ForInside) {
         completelyInside = completelyInside && (dist[i] < MakeMinusTolerant<ForInside>(0.0));
       }
-      // if (vecCore::SIMDsizeUpTo<Real_v>() && vecCore::MaskFull(completelyOutside)) return;
+      // if (vecCore::EarlyReturnMaxLength(completelyOutside,1) && vecCore::MaskFull(completelyOutside)) return;
     }
   }
 
@@ -185,7 +185,7 @@ public:
       done = done || (pdist[i] > MakePlusTolerant<true>(0.0) && proj[i] >= 0.0);
       done = done || (pdist[i] > MakeMinusTolerant<true>(0.0) && proj[i] > 0.0);
     }
-    if (vecCore::SIMDsizeUpTo<Real_v>() && vecCore::MaskFull(done)) return distIn;
+    if (vecCore::EarlyReturnMaxLength(done, 1) && vecCore::MaskFull(done)) return distIn;
 
     // analysis loop
     for (int i = 0; i < N; ++i) {
@@ -199,7 +199,7 @@ public:
 
       Bool_v interceptFromOutside = (posPoint && !posDir);
       done                        = done || (interceptFromOutside && vdist[i] > smax);
-      if (vecCore::SIMDsizeUpTo<Real_v>() && vecCore::MaskFull(done)) return distIn;
+      if (vecCore::EarlyReturnMaxLength(done, 1) && vecCore::MaskFull(done)) return distIn;
 
       // update smin,smax
       vecCore__MaskedAssignFunc(smin, interceptFromOutside && vdist[i] > smin, vdist[i]);
@@ -243,7 +243,7 @@ public:
     //   done = done || (pdist[i] > kHalfTolerance);
     // }
     // vecCore__MaskedAssignFunc(distOut, done, Real_v(-1.0));
-    // // if (vecCore::SIMDsizeUpTo<Real_v>() && vecCore::MaskFull(done)) return distOut;
+    // // if (vecCore::EarlyReturnMaxLength(done,1) && vecCore::MaskFull(done)) return distOut;
 
     // std::cout<<"=== point="<< point <<", dir="<< dir <<"\n";
     for (int i = 0; i < N; ++i) {

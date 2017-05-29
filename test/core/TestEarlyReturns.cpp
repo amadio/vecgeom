@@ -1,6 +1,6 @@
 //
 // File:    test/core/TestEarlyReturns.cpp
-// Purpose: Tests for EarlyReturnAllowed() and SIMDSizeUpTo() constexpr's
+// Purpose: Tests for EarlyReturnAllowed() and EarlyReturnMaxLength() constexpr's
 //
 
 //-- ensure asserts are compiled in
@@ -21,15 +21,16 @@ void TestType(const char *type)
   std::cout << "Testing type " << type << ", VectorSize=" << VectorSize<Real_v>() << "\n";
 
   constexpr size_t vsize = VectorSize<Real_v>();
+  Real_v flagReal_v;
 
   // returns false for vsize-1
-  if (!SIMDsizeUpTo<Real_v, vsize - 1>())
+  if (!EarlyReturnMaxLength(flagReal_v, vsize - 1))
     assert(true);
   else
     assert(false);
 
   // returns true for vsize
-  if (SIMDsizeUpTo<Real_v, vsize>())
+  if (EarlyReturnMaxLength(flagReal_v, vsize))
     assert(true);
   else
     assert(false);
@@ -41,7 +42,8 @@ int main()
   // always false for CUDA
   std::cout << "Testing early returns for CUDA=ON...\n";
   assert(!EarlyReturnAllowed());
-  assert(!SIMDsizeUpTo<double, 1>());
+  double flagDouble;
+  assert(!EarlyReturnMaxLength(, 1);
 #else
   std::cout << "Testing early returns for CUDA=OFF...\n";
 
@@ -50,21 +52,23 @@ int main()
 
   // always returns true for floats or floats
   std::cout << "Testing early returns for float...\n";
-  if (SIMDsizeUpTo<float, 1>())
+  float flagFloat;
+  if (EarlyReturnMaxLength(flagFloat, 1))
     assert(true);
   else
     assert(false);
-  if (SIMDsizeUpTo<float, 2>())
+  if (EarlyReturnMaxLength(flagFloat, 2))
     assert(true);
   else
     assert(false);
 
   std::cout << "Testing early returns for double...\n";
-  if (SIMDsizeUpTo<double, 1>())
+  double flagDouble;
+  if (EarlyReturnMaxLength(flagDouble, 1))
     assert(true);
   else
     assert(false);
-  if (SIMDsizeUpTo<double, 2>())
+  if (EarlyReturnMaxLength(flagDouble, 2))
     assert(true);
   else
     assert(false);
@@ -72,28 +76,30 @@ int main()
 #ifdef VECGEOM_ENABLE_VC
   // tests for Float_v
   using Float_v = backend::VcVector::Float_v;
+  Float_v flagFloat_v;
   std::cout << "Testing early returns for Float_v of size " << 8 * sizeof(Float_v)
             << " bits..., VectorSize=" << VectorSize<Float_v>() << "\n";
   constexpr size_t vsize1 = VectorSize<Float_v>();
-  if (!SIMDsizeUpTo<Float_v, vsize1 - 1>())
+  if (!EarlyReturnMaxLength(flagFloat_v, vsize1 - 1)
     assert(true);
   else
     assert(false);
-  if (SIMDsizeUpTo<Float_v, vsize1>())
+  if (EarlyReturnMaxLength(flagFloat_v, vsize1)
     assert(true);
   else
     assert(false);
 
   // tests for Double_v
   using Double_v = backend::VcVector::Double_v;
+  Double_v flagDouble_v;
   std::cout << "Testing early returns for Double_v of size " << 8 * sizeof(Double_v)
             << " bits..., VectorSize=" << VectorSize<Double_v>() << "\n";
   constexpr size_t vsize2 = VectorSize<Double_v>();
-  if (!SIMDsizeUpTo<Double_v, vsize2 - 1>())
+  if (!EarlyReturnMaxLength(flagDouble_v, vsize2 - 1)
     assert(true);
   else
     assert(false);
-  if (SIMDsizeUpTo<Double_v, vsize2>())
+  if (EarlyReturnMaxLength(flagDouble_v, vsize2)
     assert(true);
   else
     assert(false);

@@ -129,7 +129,7 @@ struct TrapezoidImplementation {
   {
     // z-region
     completelyOutside = Abs(point[2]) > MakePlusTolerant<ForInside>(unplaced.fDz);
-    // if (vecCore::SIMDsizeUpTo<Real_v>() && vecCore::MaskFull(completelyOutside)) {
+    // if (vecCore::EarlyReturnMaxLength(completelyOutside,1) && vecCore::MaskFull(completelyOutside)) {
     //   completelyInside = Bool_v(false);
     //   return;
     // }
@@ -154,7 +154,7 @@ struct TrapezoidImplementation {
       if (ForInside) {
         completelyInside = completelyInside && dist[i] < MakeMinusTolerant<ForInside>(0.);
       }
-      // if (vecCore::SIMDsizeUpTo<Real_v>() && vecCore::MaskFull(completelyOutside)) return;
+      // if (vecCore::EarlyReturnMaxLength(completelyOutside,1) && vecCore::MaskFull(completelyOutside)) return;
     }
 #endif
 
@@ -197,7 +197,7 @@ struct TrapezoidImplementation {
     Bool_v done(signZdir * max < MakePlusTolerant<true>(0.0)); // if outside + moving away towards +/-z
 
     // if all particles moving away, we're done
-    if (vecCore::SIMDsizeUpTo<Real_v>() && vecCore::MaskFull(done)) return;
+    if (vecCore::EarlyReturnMaxLength(done, 1) && vecCore::MaskFull(done)) return;
 
     // Step 1.b) General case:
     //   smax,smin are range of distances within z-range, taking direction into account.
@@ -245,7 +245,7 @@ struct TrapezoidImplementation {
       done = done || (pdist[i] > MakeMinusTolerant<true>(0.0) && comp[i] > 0.0);
     }
     // if all particles moving away, we're done
-    if (vecCore::SIMDsizeUpTo<Real_v>() && vecCore::MaskFull(done)) return;
+    if (vecCore::EarlyReturnMaxLength(done, 1) && vecCore::MaskFull(done)) return;
 
     // this part does not auto-vectorize
     for (unsigned int i = 0; i < 4; ++i) {
@@ -280,7 +280,7 @@ struct TrapezoidImplementation {
     Bool_v outside = Abs(point.z()) > MakePlusTolerant<true>(unplaced.fDz);
     distance       = vecCore::Blend(outside, Real_v(-1.0), InfinityLength<Real_v>());
     Bool_v done(outside);
-    if (vecCore::SIMDsizeUpTo<Real_v>() && vecCore::MaskFull(done)) return;
+    if (vecCore::EarlyReturnMaxLength(done, 1) && vecCore::MaskFull(done)) return;
 
     //
     // Step 1: find range of distances along dir between Z-planes (smin, smax)
@@ -323,7 +323,7 @@ struct TrapezoidImplementation {
     //   done = done || (pdist[i] > MakePlusTolerant<true>(0.));
     // }
     // vecCore::MaskedAssign(dist1, done, Real_v(-1.0));
-    // if (vecCore::SIMDsizeUpTo<Real_v>() && vecCore::MaskFull(done)) return;
+    // if (vecCore::EarlyReturnMaxLength(done,1) && vecCore::MaskFull(done)) return;
 
     // std::cout<<"=== point="<< point <<", dir="<< dir <<", distance="<< distance <<"\n";
     for (unsigned int i = 0; i < 4; ++i) {
@@ -373,7 +373,7 @@ struct TrapezoidImplementation {
     safety = unplaced.fDz - Abs(point.z());
 
 // If all test points are outside, we're done
-// if (vecCore::SIMDsizeUpTo<Real_v>()) {
+// if (vecCore::EarlyReturnMaxLength(safety,1)) {
 //   if (vecCore::MaskFull(safety < kHalfTolerance)) return;
 // }
 

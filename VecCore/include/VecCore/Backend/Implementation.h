@@ -274,7 +274,8 @@ T Blend(const Mask<T> &mask, const T &src1, const T &src2)
 
 // Miscellaneous
 
-// Note that SIMDsizeUpTo() is more general, as the code below is equivalent to SIMDsizeUpTo<VeryLargeInt>()
+// Note that EarlyReturnMaxLength() is more general, as the code below is equivalent to
+// EarlyReturnMaxLength(vec,VeryLargeInt)
 VECCORE_FORCE_INLINE VECCORE_ATT_HOST_DEVICE constexpr Bool_s EarlyReturnAllowed()
 {
 #ifdef VECCORE_CUDA_DEVICE_COMPILATION
@@ -285,18 +286,12 @@ VECCORE_FORCE_INLINE VECCORE_ATT_HOST_DEVICE constexpr Bool_s EarlyReturnAllowed
 }
 
 // An extension of EarlyReturnAllowed(), and new name is a reminder that it can be used for other purposes as well
-template <typename T, size_t simdSize = 1>
+template <typename T>
 VECCORE_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-constexpr Bool_s SIMDsizeUpTo()
+constexpr Bool_s EarlyReturnMaxLength(T &, size_t n)
 {
-#ifdef VECCORE_CUDA_DEVICE_COMPILATION
-  // always false for CUDA
-  return false;
-#else
-  // true only for scalars or small SIMD vector sizes
-  return vecCore::VectorSize<T>() <= simdSize;
-#endif
+  return EarlyReturnAllowed() && VectorSize<T>() <= n;
 }
 
 } // namespace vecCore
