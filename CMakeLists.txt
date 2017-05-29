@@ -234,7 +234,7 @@ endfunction()
       "#URL \"${VecCore_SRC_URI}/archive/v${VecCore_VERSION}.tar.gz\"
       #URL_MD5 ${VecCore_SRC_MD5}
       GIT_REPOSITORY \"${VecCore_SRC_URI}\"
-      GIT_TAG \"sync\"
+      GIT_TAG \"master\"
 
       PREFIX external
       STAMP_DIR external/stamp
