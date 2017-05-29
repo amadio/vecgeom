@@ -228,7 +228,6 @@ endfunction()
       set(UMESIMD_ROOT ${UMESIMD_DIR})
     endif()
 
-#    ExternalProject_Add(${VecCore_PROJECT}
     build_external_project(${VecCore_PROJECT}
       "${VecCore_ROOTDIR}/include/VecCore/*.h;${VecCore_ROOTDIR}/include/VecCore/VecCore;${VecCore_ROOTDIR}/include/VecCore/Backend/*.h"
       "#URL \"${VecCore_SRC_URI}/archive/v${VecCore_VERSION}.tar.gz\"
@@ -257,27 +256,16 @@ endfunction()
 
     add_custom_target(VecCore)
     add_dependencies(VecCore ${VecCore_PROJECT})
-    #set(VecCore_INCLUDE_DIRS ${VecCore_ROOTDIR}/include)
-
-    #if (Vc)
-    #  add_library(Vc${KNC_SUFFIX} STATIC IMPORTED)
-    #  set_property(TARGET Vc${KNC_SUFFIX} PROPERTY IMPORTED_LOCATION ${Vc_LIBRARY})
-    #  set(VecCore_LIBRARIES Vc${KNC_SUFFIX})
-    #endif()
 
     install(DIRECTORY ${VecCore_ROOTDIR}/ DESTINATION "." )
 
     # Find VecCore with selected components turned on (CUDA and backend)
     set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${VecCore_DESTDIR}/${CMAKE_INSTALL_PREFIX}/lib/cmake/VecCore/)
-    find_package(VecCore 0.4.0 REQUIRED COMPONENTS ${VecCore_COMPONENTS})
-else()
-  # Find VecCore and check that it's installed with correct options
-
-  # Find VecCore with selected components turned on (CUDA and backend)
-  find_package(VecCore 0.4.0 REQUIRED COMPONENTS ${VecCore_COMPONENTS})
 
 endif()
 
+# Find VecCore with selected components turned on (CUDA and backend)
+find_package(VecCore 0.4.0 REQUIRED COMPONENTS ${VecCore_COMPONENTS})
 
 
 include_directories(SYSTEM ${VecCore_INCLUDE_DIRS})
