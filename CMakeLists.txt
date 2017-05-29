@@ -86,6 +86,9 @@ enum_option(VECGEOM_VECTOR
 if ("${BACKEND}" MATCHES "vc|VC")
   set(BACKEND "Vc")
 endif()
+if ("${BACKEND}" MATCHES "scalar|SCALAR")
+  set(BACKEND "Scalar")
+endif()
 
 set(VECGEOM_BACKEND Scalar UMESIMD Vc)
 
