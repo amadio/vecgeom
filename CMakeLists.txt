@@ -164,48 +164,48 @@ endif()
 
 if (BUILTIN_VECCORE)
 
-#  This function is used to force a build on a dependant project at cmake configuration phase.
-#
-function (build_external_project target globpattern ) #FOLLOWING ARGUMENTS are the ARGS of ExternalProject_Add
+    #  This function is used to force a build on a dependant project at cmake configuration phase.
+    #
+    function (build_external_project target globpattern ) #FOLLOWING ARGUMENTS are the ARGS of ExternalProject_Add
 
-  set(trigger_build_topdir ${CMAKE_BINARY_DIR}/buildExternals/${target})
-  set(trigger_src_dir ${CMAKE_BINARY_DIR}/buildExternals/${target}/trigger_src)
-  set(trigger_build_dir ${CMAKE_BINARY_DIR}/buildExternals/${target}/build)
+      set(trigger_build_topdir ${CMAKE_BINARY_DIR}/buildExternals/${target})
+      set(trigger_src_dir ${CMAKE_BINARY_DIR}/buildExternals/${target}/trigger_src)
+      set(trigger_build_dir ${CMAKE_BINARY_DIR}/buildExternals/${target}/build)
 
-  #mktemp dir in build tree
-  file(MAKE_DIRECTORY ${trigger_build_dir} ${trigger_src_dir} ${trigger_build_dir})
+      #mktemp dir in build tree
+      file(MAKE_DIRECTORY ${trigger_build_dir} ${trigger_src_dir} ${trigger_build_dir})
 
-  #generate false dependency project
-  set(CMAKE_LIST_CONTENT "
-      cmake_minimum_required(VERSION 2.8)
+      #generate false dependency project
+      set(CMAKE_LIST_CONTENT "
+          cmake_minimum_required(VERSION 2.8)
 
-      include(ExternalProject)
-      ExternalProject_add(${target}
-              ${ARGN}
-              )
+          include(ExternalProject)
+          ExternalProject_add(${target}
+                  ${ARGN}
+                  )
 
-      add_custom_target(trigger_${target})
-      add_dependencies(trigger_${target} ${target})
-   ")
+          add_custom_target(trigger_${target})
+          add_dependencies(trigger_${target} ${target})
+      ")
 
-  file(WRITE ${trigger_src_dir}/CMakeLists.txt "${CMAKE_LIST_CONTENT}")
+      file(WRITE ${trigger_src_dir}/CMakeLists.txt "${CMAKE_LIST_CONTENT}")
 
-  execute_process(COMMAND ${CMAKE_COMMAND} ${trigger_src_dir} -G ${CMAKE_GENERATOR}
-     WORKING_DIRECTORY ${trigger_build_dir}
-  )
-  execute_process(COMMAND ${CMAKE_COMMAND} --build .
-     WORKING_DIRECTORY ${trigger_build_dir}
-  )
+      execute_process(COMMAND ${CMAKE_COMMAND} ${trigger_src_dir} -G ${CMAKE_GENERATOR}
+        WORKING_DIRECTORY ${trigger_build_dir}
+      )
+      execute_process(COMMAND ${CMAKE_COMMAND} --build .
+        WORKING_DIRECTORY ${trigger_build_dir}
+      )
 
-  FILE(GLOB VecCoreHeaders string(${globpattern}))
+      FILE(GLOB VecCoreHeaders string(${globpattern}))
 
-  add_custom_target(${target})
-  add_custom_command(
-          OUTPUT ${VecCoreHeaders}
-          COMMAND ${CMAKE_COMMAND} --build .
-          WORKING_DIRECTORY ${trigger_build_dir}
-  )
-endfunction()
+      add_custom_target(${target})
+      add_custom_command(
+              OUTPUT ${VecCoreHeaders}
+              COMMAND ${CMAKE_COMMAND} --build .
+              WORKING_DIRECTORY ${trigger_build_dir}
+      )
+    endfunction()
 
 
     set(VecCore_VERSION "0.4.0")
