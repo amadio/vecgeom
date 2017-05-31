@@ -162,6 +162,24 @@ else()
   message(FATAL_ERROR "Unknown backend: '${BACKEND}'. Known values are: Scalar, UMESIMD, Vc.")
 endif()
 
+
+# Which version of VecCore do we need.
+set(VecCore_VERSION "0.4.1")
+
+
+# Let's see if we can find it.
+# Well old version of the embedded VecCore did not have proper versioning,
+# so we can't do this yet as those old version will be 'acceptable'.
+#if (!BUILTIN_VECCORE)
+#  # Find VecCore with selected components turned on (CUDA and backend)
+#  find_package(VecCore ${VecCore_VERSION} QUIET REQUIRED COMPONENTS ${VecCore_COMPONENTS})
+#  if (!VecCore_FOUND)
+#    set(BUILTIN_VECCORE "ON")
+#  else()
+#    message("-- Found VecCore at: ${VecCore_ROOT_DIR}")
+#  endif()
+#endif()
+
 if (BUILTIN_VECCORE)
 
     #  This function is used to force a build on a dependant project at cmake configuration phase.
@@ -208,12 +226,12 @@ if (BUILTIN_VECCORE)
     endfunction()
 
 
-    set(VecCore_VERSION "0.4.0")
     set(VecCore_PROJECT "VecCore-${VecCore_VERSION}")
     set(VecCore_SRC_URI "https://github.com/root-project/veccore")
     set(VecCore_SRC_MD5 "c719909eaffbcc1d7a7680b25b6e5019")
     set(VecCore_DESTDIR "${CMAKE_BINARY_DIR}/installExternals/${VecCore_PROJECT}")
     set(VecCore_ROOTDIR "${VecCore_DESTDIR}/${CMAKE_INSTALL_PREFIX}")
+    set(VecCore_SRC_TAG "v${VecCore_VERSION}")
 
     if (Vc)
       if (MIC)
@@ -260,13 +278,18 @@ if (BUILTIN_VECCORE)
     install(DIRECTORY ${VecCore_ROOTDIR}/ DESTINATION "." )
 
     # Find VecCore with selected components turned on (CUDA and backend)
-    set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${VecCore_DESTDIR}/${CMAKE_INSTALL_PREFIX}/lib/cmake/VecCore/)
+    set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${VecCore_DESTDIR}/${CMAKE_INSTALL_PREFIX})
+
+    # Make sure to look again for a version of VecCore so that we can make sure to find
+    # the one we just build.
+    unset(VecCore_DIR CACHE)
 
 endif()
 
 # Find VecCore with selected components turned on (CUDA and backend)
-find_package(VecCore 0.4.0 REQUIRED COMPONENTS ${VecCore_COMPONENTS})
+find_package(VecCore ${VecCore_VERSION} REQUIRED COMPONENTS ${VecCore_COMPONENTS})
 
+message("-- Found VecCore at: ${VecCore_ROOT_DIR}")
 
 include_directories(SYSTEM ${VecCore_INCLUDE_DIRS})
 set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} ${VecCore_DEFINITIONS}")
