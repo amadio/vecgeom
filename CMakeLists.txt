@@ -227,8 +227,8 @@ if (BUILTIN_VECCORE)
 
 
     set(VecCore_PROJECT "VecCore-${VecCore_VERSION}")
-    set(VecCore_SRC_URI "https://github.com/root-project/veccore")
-    set(VecCore_SRC_MD5 "c719909eaffbcc1d7a7680b25b6e5019")
+    set(VecCore_SRC_URI "http://lcgpackages.web.cern.ch/lcgpackages/tarFiles/sources")
+    set(VecCore_SRC_MD5 "7728dc706744e54a79fcb80059a31529")
     set(VecCore_DESTDIR "${CMAKE_BINARY_DIR}/installExternals/${VecCore_PROJECT}")
     set(VecCore_ROOTDIR "${VecCore_DESTDIR}/${CMAKE_INSTALL_PREFIX}")
     set(VecCore_SRC_TAG "v${VecCore_VERSION}")
@@ -248,10 +248,10 @@ if (BUILTIN_VECCORE)
 
     build_external_project(${VecCore_PROJECT}
       "${VecCore_ROOTDIR}/include/VecCore/*.h;${VecCore_ROOTDIR}/include/VecCore/VecCore;${VecCore_ROOTDIR}/include/VecCore/Backend/*.h"
-      "#URL \"${VecCore_SRC_URI}/archive/v${VecCore_VERSION}.tar.gz\"
-      #URL_MD5 ${VecCore_SRC_MD5}
-      GIT_REPOSITORY \"${VecCore_SRC_URI}\"
-      GIT_TAG \"master\"
+      "URL \"${VecCore_SRC_URI}/VecCore-${VecCore_VERSION}.tar.gz\"
+      URL_MD5 ${VecCore_SRC_MD5}
+      #GIT_REPOSITORY \"${VecCore_SRC_URI}\"
+      #GIT_TAG \"${VecCore_SRC_TAG}\"
 
       PREFIX external
       STAMP_DIR external/stamp
