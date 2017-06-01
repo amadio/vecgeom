@@ -21,6 +21,7 @@
    as a quadrilateral. The solid will contain 2*(ngrid-1)*ngrid triangle facets */
 
 using namespace vecgeom;
+using Real_v = vecgeom::VectorBackend::Real_v;
 
 double r    = 10.;
 double *sth = nullptr;
@@ -44,13 +45,68 @@ Vector3D<double> Vtx(int ith, int iph)
 }
 
 #ifdef VECGEOM_ROOT
-void AddFacetToVisualizer(TriangleFacet<double> const &facet, Visualizer &visualizer)
+void AddFacetToVisualizer(TriangleFacet<double> const *facet, Visualizer &visualizer)
 {
   TPolyLine3D pl(3);
   pl.SetLineColor(kBlue);
   for (int i = 0; i < 3; i++)
-    pl.SetNextPoint(facet.fVertices[i].x(), facet.fVertices[i].y(), facet.fVertices[i].z());
+    pl.SetNextPoint(facet->fVertices[i].x(), facet->fVertices[i].y(), facet->fVertices[i].z());
   visualizer.AddLine(pl);
+}
+
+void DrawCluster(TessellatedStruct<double> const &tsl, int icluster, Visualizer &visualizer)
+{
+  // Draw only segments of the facets which are not shared within the cluster
+  TPolyLine3D pl(2);
+  pl.SetLineColor(kBlue);
+  int nfacets = 0;
+  int ifacet  = 0;
+  int iother  = 0;
+  TriangleFacet<double> *facets[kVecSize];
+  while (ifacet < kVecSize) {
+    bool add = true;
+    for (int i = 0; i < nfacets; ++i) {
+      if (tsl.fClusters[icluster]->fFacets[ifacet] == facets[i]) {
+        ifacet++;
+        add = false;
+        break;
+      }
+    }
+    if (add) facets[nfacets++] = tsl.fClusters[icluster]->fFacets[ifacet++];
+  }
+  // Loop facets
+  ifacet = 0;
+  int ivert[2];
+  while (ifacet < nfacets) {
+    // loop segments
+    for (int iseg = 0; iseg < 3; iseg++) {
+      bool shared = false;
+      ivert[0]    = facets[ifacet]->fIndices[iseg];
+      ivert[1]    = facets[ifacet]->fIndices[(iseg + 1) % 3];
+      // loop remaining facets
+      for (iother = 0; iother < nfacets; iother++) {
+        if (iother == ifacet) continue;
+        // check if the other facet has the 2 vertices
+        if (facets[iother]->fIndices[0] != ivert[0] && facets[iother]->fIndices[1] != ivert[0] &&
+            facets[iother]->fIndices[2] != ivert[0])
+          continue;
+        if (facets[iother]->fIndices[0] != ivert[1] && facets[iother]->fIndices[1] != ivert[1] &&
+            facets[iother]->fIndices[2] != ivert[1])
+          continue;
+        // The line is shared
+        shared = true;
+        break;
+      }
+      if (shared) continue;
+      // Add the line segment to the visualizer
+      pl.SetPoint(0, facets[ifacet]->fVertices[iseg].x(), facets[ifacet]->fVertices[iseg].y(),
+                  facets[ifacet]->fVertices[iseg].z());
+      pl.SetPoint(1, facets[ifacet]->fVertices[(iseg + 1) % 3].x(), facets[ifacet]->fVertices[(iseg + 1) % 3].y(),
+                  facets[ifacet]->fVertices[(iseg + 1) % 3].z());
+      visualizer.AddLine(pl);
+    }
+    ifacet++;
+  }
 }
 #endif
 
@@ -81,7 +137,7 @@ int main(int argc, char *argv[])
     for (int iph = 0; iph < ngrid; ++iph) {
       // First/last rows - > triangles
       if (ith == 0) {
-        tsl.AddTriangularFacet(Vector3D<double>(0, 0, r), Vtx(ith, iph), Vtx(ith, iph + 1));
+        tsl.AddTriangularFacet(Vector3D<double>(0, 0, r), Vtx(ith + 1, iph), Vtx(ith + 1, iph + 1));
       } else if (ith == ngrid - 1) {
         tsl.AddTriangularFacet(Vtx(ith, iph), Vector3D<double>(0, 0, -r), Vtx(ith, iph + 1));
       } else {
@@ -92,6 +148,13 @@ int main(int argc, char *argv[])
 
   // Close the solid
   tsl.Close();
+  std::cout << "=== Tessellated solid statistics: nfacets = " << tsl.fFacets.size()
+            << "  nclusters = " << tsl.fClusters.size() << "  kVecSize = " << kVecSize << std::endl;
+  std::cout << "    cluster distribution: ";
+  for (int i = 1; i <= kVecSize; ++i) {
+    std::cout << i << ": " << tsl.fNcldist[i] << " | ";
+  }
+  std::cout << "\n";
 
 // Visualize the facets
 #ifdef VECGEOM_ROOT
@@ -103,9 +166,14 @@ int main(int argc, char *argv[])
   visualizer.AddVolume(box, Transformation3D(origin.x(), origin.y(), origin.z()));
 
   // Visualize facets
+  /*
   for (auto facet : tsl.fFacets) {
     AddFacetToVisualizer(facet, visualizer);
   }
+  */
+  // Visualize cluster
+  for (int icluster = 0; icluster < tsl.fClusters.size(); ++icluster)
+    DrawCluster(tsl, icluster, visualizer);
   visualizer.Show();
 #endif
 

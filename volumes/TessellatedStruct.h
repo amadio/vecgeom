@@ -6,6 +6,7 @@
 
 #include "TessellatedCluster.h"
 #include "base/BitSet.h"
+#include <vector>
 
 namespace vecgeom {
 
@@ -16,13 +17,16 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 template <typename T = double>
 class TessellatedStruct {
 
-  using BitSet = veccore::BitSet;
-  using Real_v = vecgeom::VectorBackend::Real_v;
+  using BitSet  = veccore::BitSet;
+  using Real_v  = vecgeom::VectorBackend::Real_v;
+  using Facet_t = TriangleFacet<T>;
+  template <typename U>
+  using vector_t = std::vector<U>;
 
   //__________________________________________________________________________
   struct GridCell {
-    Vector<int> fArray; // Array of facet indices
-    bool fUsed = false; // Used flag
+    vector_t<int> fArray; // Array of facet indices
+    bool fUsed = false;   // Used flag
 
     VECCORE_ATT_HOST_DEVICE
     GridCell() { /* fArray.reserve(4); */}
@@ -30,11 +34,14 @@ class TessellatedStruct {
 
   //__________________________________________________________________________
   struct GridHelper {
-    int fNgrid       = 0;         ///< Grid size
-    int fNcells      = 0;         ///< Number of cells in the grid
-    int fNcached     = 0;         ///< number of cached cells
-    GridCell **fGrid = nullptr;   ///< Grid for clustering facets
-    Vector<Vector3D<T>> fAllVert; ///< Full list of vertices
+    int fNgrid              = 0;       ///< Grid size
+    int fNcells             = 0;       ///< Number of cells in the grid
+    int fNcached            = 0;       ///< number of cached cells
+    Vector3D<T> fMinExtent  = 0;       ///< Minimum extent
+    Vector3D<T> fMaxExtent  = 0;       ///< Maximum extent
+    Vector3D<T> fInvExtSize = 0;       ///< Inverse extent size
+    GridCell **fGrid        = nullptr; ///< Grid for clustering facets
+    vector_t<Vector3D<T>> fAllVert;    ///< Full list of vertices
 
     GridHelper() {}
 
@@ -74,9 +81,9 @@ class TessellatedStruct {
       Vector3D<T> ratios = (point - fMinExtent) * fInvExtSize;
       assert(ratios[0] <= 1. && ratios[1] <= 1 && ratios[2] <= 1);
       for (int i = 0; i < 3; ++i) {
-        ind[i] = ratios[i] * fNcells;
+        ind[i] = ratios[i] * fNgrid;
         ind[i] = vecCore::math::Max(ind[i], 0);
-        ind[i] = vecCore::math::Min(ind[i], fNcells - 1);
+        ind[i] = vecCore::math::Min(ind[i], fNgrid - 1);
       }
       return (GetCell(ind));
     }
@@ -93,12 +100,13 @@ public:
   // Here we have a pointer to the aligned bbox structure
   // ABBoxanager *fABBoxManager;
 
-  Vector<int> fCluster;                           ///< Cluster of facets storing just the indices
-  Vector<int> fCandidates;                        ///< Candidates for the current cluster
-  Vector<Vector3D<T>> fVertices;                  ///< Vector of unique vertices
-  Vector<TriangleFacet<T>> fFacets;               ///< Vector of triangular facets
-  Vector<TessellatedCluster<Real_v> *> fClusters; ///< Vector of facet clusters
-  BitSet *fSelected;                              ///< Facets already in clusters
+  vector_t<int> fCluster;                           ///< Cluster of facets storing just the indices
+  vector_t<int> fCandidates;                        ///< Candidates for the current cluster
+  vector_t<Vector3D<T>> fVertices;                  ///< Vector of unique vertices
+  vector_t<Facet_t *> fFacets;                      ///< Vector of triangular facets
+  vector_t<TessellatedCluster<Real_v> *> fClusters; ///< Vector of facet clusters
+  BitSet *fSelected;                                ///< Facets already in clusters
+  int fNcldist[kVecSize + 1] = {0};                 ///< Distribution of number of cluster size
 
 public:
   VECCORE_ATT_HOST_DEVICE
@@ -120,7 +128,7 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  void AddFacet(TriangleFacet<T> &facet)
+  void AddFacet(Facet_t *facet)
   {
     // Method adding a facet to the structure. The vertices are added to the
     // list of all vertices (including duplications) and the extent is re-adjusted.
@@ -128,19 +136,19 @@ public:
     int ind = fHelper->fAllVert.size();
     // Add the three vertices
     for (int i = 0; i < 3; ++i) {
-      fHelper->fAllVert.push_back(facet.fVertices[i]);
-      facet.fIndices[i] = ind + i;
+      fHelper->fAllVert.push_back(facet->fVertices[i]);
+      facet->fIndices[i] = ind + i;
     }
     // Adjust extent
-    T xmin        = vecCore::math::Min(facet.fVertices[0].x(), facet.fVertices[1].x(), facet.fVertices[2].x());
-    T ymin        = vecCore::math::Min(facet.fVertices[0].y(), facet.fVertices[1].y(), facet.fVertices[2].y());
-    T zmin        = vecCore::math::Min(facet.fVertices[0].z(), facet.fVertices[1].z(), facet.fVertices[2].z());
+    T xmin        = vecCore::math::Min(facet->fVertices[0].x(), facet->fVertices[1].x(), facet->fVertices[2].x());
+    T ymin        = vecCore::math::Min(facet->fVertices[0].y(), facet->fVertices[1].y(), facet->fVertices[2].y());
+    T zmin        = vecCore::math::Min(facet->fVertices[0].z(), facet->fVertices[1].z(), facet->fVertices[2].z());
     fMinExtent[0] = vecCore::math::Min(fMinExtent[0], xmin);
     fMinExtent[1] = vecCore::math::Min(fMinExtent[1], ymin);
     fMinExtent[2] = vecCore::math::Min(fMinExtent[2], zmin);
-    T xmax        = vecCore::math::Max(facet.fVertices[0].x(), facet.fVertices[1].x(), facet.fVertices[2].x());
-    T ymax        = vecCore::math::Max(facet.fVertices[0].y(), facet.fVertices[1].y(), facet.fVertices[2].y());
-    T zmax        = vecCore::math::Max(facet.fVertices[0].z(), facet.fVertices[1].z(), facet.fVertices[2].z());
+    T xmax        = vecCore::math::Max(facet->fVertices[0].x(), facet->fVertices[1].x(), facet->fVertices[2].x());
+    T ymax        = vecCore::math::Max(facet->fVertices[0].y(), facet->fVertices[1].y(), facet->fVertices[2].y());
+    T zmax        = vecCore::math::Max(facet->fVertices[0].z(), facet->fVertices[1].z(), facet->fVertices[2].z());
     fMaxExtent[0] = vecCore::math::Max(fMaxExtent[0], xmax);
     fMaxExtent[1] = vecCore::math::Max(fMaxExtent[1], ymax);
     fMaxExtent[2] = vecCore::math::Max(fMaxExtent[2], zmax);
@@ -180,7 +188,10 @@ public:
       std::cout << "Tessellated structure is flat - not allowed\n";
       return;
     }
-    fInvExtSize = 1. / fInvExtSize;
+    fInvExtSize          = 1. / fInvExtSize;
+    fHelper->fMinExtent  = fMinExtent;
+    fHelper->fMaxExtent  = fMaxExtent;
+    fHelper->fInvExtSize = fInvExtSize;
     // Make a grid with ~ntot/vecsize cells
     int ngrid = 1 + size_t(vecCore::math::Pow<T>(T(fFacets.size()) / kVecSize, 1. / 3.));
     fHelper->CreateCells(ngrid);
@@ -189,7 +200,7 @@ public:
     // duplications.
     for (auto facet : fFacets) {
       for (int ivert = 0; ivert < 3; ++ivert) {
-        facet.fIndices[ivert] = AddVertex(facet.fVertices[ivert]);
+        facet->fIndices[ivert] = AddVertex(facet->fVertices[ivert]);
       }
     }
 
@@ -197,9 +208,10 @@ public:
     fHelper->ClearCells();
     int ifacet = 0;
     for (auto facet : fFacets) {
-      for (int ivert = 0; ivert < 3; ++ivert) {
-        fHelper->GetCell(facet.fVertices[ivert], ind)->fArray.push_back(ifacet);
-      }
+      fHelper->GetCell(facet->fCenter, ind)->fArray.push_back(ifacet);
+      //      for (int ivert = 0; ivert < 3; ++ivert) {
+      //        fHelper->GetCell(facet->fVertices[ivert], ind)->fArray.push_back(ifacet);
+      //      }
       ifacet++;
     }
 
@@ -220,7 +232,9 @@ public:
       // Fill cluster from the same cell or from a neighbor cell
       if (!fCandidates.size()) {
         ifacet = fSelected->FirstNullBit();
+        if (ifacet == fFacets.size()) return;
         fCandidates.push_back(ifacet);
+        fSelected->SetBitNumber(ifacet);
       }
     }
   }
@@ -230,9 +244,7 @@ public:
     // Create cluster starting from fCandidates list
     int nfacets = 0;
     assert(fCandidates.size() > 0); // call the method with at least one candidate in the list
-    int nneighbors        = 0;
-    int nextcell          = 0;
-    constexpr int rankmax = 10; // ??? how to determine an appropriate value ???
+    constexpr int rankmax = 2;      // ??? how to determine an appropriate value ???
     int rank              = 0;
     fCluster.clear();
     int ifacet = fCandidates[0];
@@ -241,6 +253,7 @@ public:
       GatherNeighborCandidates(fCandidates[0], rank++);
     }
     if (fCandidates.size() < kVecSize) return nullptr;
+    fCandidates.erase(fCandidates.begin());
     // Add facets with maximum neighborhood weight to existing cluster
     int iref = 0;
     while (nfacets < kVecSize) {
@@ -251,27 +264,29 @@ public:
     TessellatedCluster<Real_v> *tcl = new TessellatedCluster<Real_v>();
     int i                           = 0;
     for (auto ifct : fCluster) {
-      TriangleFacet<T> const &facet = fFacets[ifct];
+      Facet_t *facet = fFacets[ifct];
       tcl->AddFacet(i++, facet);
     }
+    fNcldist[fCluster.size()]++;
     return tcl;
   }
 
   TessellatedCluster<Real_v> *MakePartialCluster()
   {
     // Create partial cluster starting from fCandidates list
-    int iref = 0;
     for (auto ifacet : fCandidates) {
       fCluster.push_back(ifacet);
     }
+    fNcldist[fCluster.size()]++;
+    fCandidates.clear();
     while (fCluster.size() < kVecSize)
-      fCluster.push_back(fCandidates[0]);
+      fCluster.push_back(fCluster[0]);
 
     // The cluster is now complete, create a tessellated cluster object
     TessellatedCluster<Real_v> *tcl = new TessellatedCluster<Real_v>();
     int i                           = 0;
     for (auto ifacet : fCluster) {
-      TriangleFacet<T> const &facet = fFacets[ifacet];
+      Facet_t *facet = fFacets[ifacet];
       tcl->AddFacet(i++, facet);
     }
     return tcl;
@@ -296,11 +311,11 @@ public:
   int NeighborToCluster(int ifacet)
   {
     // Get neighborhood 'weight' of a candidate with respect to the existing cluster
-    TriangleFacet<T> facet = fFacets[ifacet];
-    int weight             = 0;
+    Facet_t *facet = fFacets[ifacet];
+    int weight     = 0;
     for (auto icand : fCluster) {
-      TriangleFacet<T> const &other = fFacets[icand];
-      weight += facet.IsNeighbor(other);
+      Facet_t *other = fFacets[icand];
+      weight += facet->IsNeighbor(*other);
     }
     return weight;
   }
@@ -312,7 +327,7 @@ public:
     GridCell *cell = fHelper->GetCell(ind);
     if (cell->fUsed) return;
     for (auto neighbor : cell->fArray) {
-      if (!fSelected[neighbor]) {
+      if (!fSelected->TestBitNumber(neighbor)) {
         fSelected->SetBitNumber(neighbor);
         fCandidates.push_back(neighbor);
       }
@@ -325,8 +340,8 @@ public:
     // Gather candidates from cells neighboring the cell containing the center
     // of the facet
     int ind0[3], ind[3];
-    TriangleFacet<T> const &facet = fFacets[ifacet];
-    GridCell *cell                = fHelper->GetCell(facet.fCenter, ind0);
+    const Facet_t *facet = fFacets[ifacet];
+    fHelper->GetCell(facet->fCenter, ind0);
     if (rank == 0) {
       AddCandidatesFromCell(ind0);
       return (fCandidates.size());
@@ -375,13 +390,16 @@ public:
   VECCORE_ATT_HOST_DEVICE
   bool AddTriangularFacet(Vector3D<T> const &vt0, Vector3D<T> const &vt1, Vector3D<T> const &vt2, bool absolute = true)
   {
-    TriangleFacet<T> facet;
-    bool added = false;
+    Facet_t *facet = new Facet_t;
+    bool added     = false;
     if (absolute)
-      added = facet.SetVertices(vt0, vt1, vt2);
+      added = facet->SetVertices(vt0, vt1, vt2);
     else
-      added = facet.SetVertices(vt0, vt0 + vt1, vt0 + vt1 + vt2);
-    if (!added) return false;
+      added = facet->SetVertices(vt0, vt0 + vt1, vt0 + vt1 + vt2);
+    if (!added) {
+      delete facet;
+      return false;
+    }
     AddFacet(facet);
     return true;
   }
@@ -393,18 +411,33 @@ public:
     // We should check the quadrilateral convexity to correctly define the
     // triangle facets
     // CheckConvexity()vt0, vt1, vt2, vt3, absolute);
-    TriangleFacet<T> facet;
+    Facet_t *facet = new Facet_t;
     if (absolute) {
-      if (!facet.SetVertices(vt0, vt1, vt2)) return false;
+      if (!facet->SetVertices(vt0, vt1, vt2)) {
+        delete facet;
+        return false;
+      }
       AddFacet(facet);
-      if (!facet.SetVertices(vt0, vt2, vt3)) return false;
+      facet = new Facet_t;
+      if (!facet->SetVertices(vt0, vt2, vt3)) {
+        delete facet;
+        return false;
+      }
       AddFacet(facet);
     } else {
-      if (!facet.SetVertices(vt0, vt0 + vt1, vt0 + vt1 + vt2)) return false;
+      if (!facet->SetVertices(vt0, vt0 + vt1, vt0 + vt1 + vt2)) {
+        delete facet;
+        return false;
+      }
       AddFacet(facet);
-      if (!facet.SetVertices(vt0, vt0 + vt1 + vt2, vt0 + vt1 + vt2, vt3)) return false;
+      facet = new Facet_t;
+      if (!facet->SetVertices(vt0, vt0 + vt1 + vt2, vt0 + vt1 + vt2, vt3)) {
+        delete facet;
+        return false;
+      }
       AddFacet(facet);
     }
+    return true;
   }
 
 }; // end class
