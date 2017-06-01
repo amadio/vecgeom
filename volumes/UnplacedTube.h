@@ -89,7 +89,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override;
 
-  Vector3D<Precision> GetPointOnSurface() const override;
+  Vector3D<Precision> SamplePointOnSurface() const override;
 
   // VECCORE_ATT_HOST_DEVICE
   Precision Capacity() const { return volume(); }

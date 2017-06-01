@@ -136,15 +136,23 @@ bool TestTrap()
   assert(trap2.Inside(ponyside) == vecgeom::EInside::kSurface);
   assert(trap2.Inside(ponzside) == vecgeom::EInside::kSurface);
 
-  // test GetPointOnSurface()
+  // test SamplePointOnSurface()
   vecgeom::Vector3D<vecgeom::Precision> ponsurf;
   for (int i = 0; i < 100000; ++i) {
+#ifdef VECGEOM_USOLIDS
     ponsurf = trap1.GetPointOnSurface();
+#else
+    ponsurf = trap1.SamplePointOnSurface();
+#endif
     assert(trap1.Inside(ponsurf) == vecgeom::EInside::kSurface);
     assert(trap1.Normal(ponsurf, normal) && ApproxEqual(normal.Mag2(), 1.0));
   }
   for (int i = 0; i < 100000; ++i) {
+#ifdef VECGEOM_USOLIDS
     ponsurf = trap2.GetPointOnSurface();
+#else
+    ponsurf = trap1.SamplePointOnSurface();
+#endif
     assert(trap2.Inside(ponsurf) == vecgeom::EInside::kSurface);
     assert(trap2.Normal(ponsurf, normal) && ApproxEqual(normal.Mag2(), 1.0));
   }
@@ -636,7 +644,7 @@ void TestVECGEOM375()
   Vec_t ponsurf, normal;
   // check normal for a million points
   for (int i = 0; i < 100000; ++i) {
-    ponsurf = t.GetPointOnSurface();
+    ponsurf = t.SamplePointOnSurface();
     if (t.Inside(ponsurf) != vecgeom::EInside::kSurface) {
       double dist = vecCore::math::Max(t.SafetyToIn(ponsurf), t.SafetyToOut(ponsurf));
       // if triggered, a quick fix is to relax the value of trapSurfaceTolerance in TrapezoidImplementation.h

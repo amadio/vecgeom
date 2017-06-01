@@ -221,7 +221,7 @@ void FillBiasedDirections(VPlacedVolume const &volume, TrackContainer const &poi
       // set direction accordingly
       uint selecteddaughter              = (uint)RNG::Instance().uniform() * volume.GetDaughters().size();
       VPlacedVolume const *daughter      = volume.GetDaughters()[selecteddaughter];
-      Vector3D<Precision> pointonsurface = daughter->GetPointOnSurface();
+      Vector3D<Precision> pointonsurface = daughter->SamplePointOnSurface();
       // point is in reference frame of daughter so need to transform it back
       Vector3D<Precision> dirtosurfacepoint =
           daughter->GetTransformation()->InverseTransform(pointonsurface) - points[track];

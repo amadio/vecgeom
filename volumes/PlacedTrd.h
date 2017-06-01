@@ -103,7 +103,10 @@ public:
 
   virtual Precision SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
 
-  virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface(); }
+  virtual Vector3D<Precision> SamplePointOnSurface() const override
+  {
+    return GetUnplacedVolume()->SamplePointOnSurface();
+  }
 
   VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
@@ -117,7 +120,7 @@ public:
 
 #if defined(VECGEOM_USOLIDS)
   virtual std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType(); }
-#//  VECCORE_ATT_HOST_DEVICE
+  virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->SamplePointOnSurface(); }
   std::ostream &StreamInfo(std::ostream &os) const override { return GetUnplacedVolume()->StreamInfo(os); }
 #endif
 

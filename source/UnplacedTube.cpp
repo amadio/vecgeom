@@ -113,7 +113,7 @@ int UnplacedTube::ChooseSurface() const
   return choice;
 }
 
-Vector3D<Precision> UnplacedTube::GetPointOnSurface() const
+Vector3D<Precision> UnplacedTube::SamplePointOnSurface() const
 {
   int surface      = ChooseSurface();
   Precision rVal   = RNG::Instance().uniform(rmin(), rmax());

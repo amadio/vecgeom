@@ -199,7 +199,7 @@ public:
   VECGEOM_FORCE_INLINE
   Precision SurfaceArea() const { return fSurfaceArea; }
 
-  Vector3D<Precision> GetPointOnSurface() const override;
+  Vector3D<Precision> SamplePointOnSurface() const override;
 
   // VECCORE_ATT_HOST_DEVICE
   std::string GetEntityType() const;

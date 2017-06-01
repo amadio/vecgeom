@@ -290,11 +290,11 @@ public:
     return valid;
   }
 
-  Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface(); }
+  Vector3D<Precision> SamplePointOnSurface() const override { return GetUnplacedVolume()->SamplePointOnSurface(); }
 
 #if defined(VECGEOM_USOLIDS)
-  //  VECCORE_ATT_HOST_DEVICE
   std::ostream &StreamInfo(std::ostream &os) const override { return GetUnplacedVolume()->StreamInfo(os); }
+  Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->SamplePointOnSurface(); }
 #endif
 
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;

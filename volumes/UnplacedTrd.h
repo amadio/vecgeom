@@ -188,7 +188,7 @@ public:
 
   int ChooseSurface() const;
 
-  Vector3D<Precision> GetPointOnSurface() const;
+  Vector3D<Precision> SamplePointOnSurface() const;
 
   VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;

@@ -31,10 +31,10 @@ void PlacedSExtru::PrintType(std::ostream &s) const
   s << "PlacedSExtru";
 }
 
-Vector3D<Precision> PlacedSExtru::GetPointOnSurface() const
+Vector3D<Precision> PlacedSExtru::SamplePointOnSurface() const
 {
   // use generic implementation
-  return VPlacedVolume::GetPointOnSurface();
+  return VPlacedVolume::SamplePointOnSurface();
 }
 
 // Comparison specific

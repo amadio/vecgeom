@@ -188,7 +188,7 @@ public:
     return Real_v(-1.);
   }
 
-  Vector3D<Precision> GetPointOnSurface() const override;
+  Vector3D<Precision> SamplePointOnSurface() const override;
   Precision Capacity() const;
   Precision SurfaceArea() const;
 

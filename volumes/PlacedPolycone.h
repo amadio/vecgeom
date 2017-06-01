@@ -100,6 +100,7 @@ public:
 
 #if defined(VECGEOM_USOLIDS)
   std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType(); }
+  Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->SamplePointOnSurface(); }
 #endif
 
   // virtual
@@ -110,13 +111,16 @@ public:
   }
   // bool valid;
   // BoxImplementation<translation::kIdentity, rotation::kIdentity>::NormalKernel<kScalar>(
-  //*GetUnplacedVolume(),
+  // GetUnplacedVolume(),
   // point,
   // normal, valid);
   // return valid;
   //}
 
-  virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface(); }
+  virtual Vector3D<Precision> SamplePointOnSurface() const override
+  {
+    return GetUnplacedVolume()->SamplePointOnSurface();
+  }
 
   virtual double SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
 #endif

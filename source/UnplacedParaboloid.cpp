@@ -72,7 +72,7 @@ void UnplacedParaboloid::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &
   aMax.z() = fParaboloid.fDz;
 }
 
-Vector3D<Precision> UnplacedParaboloid::GetPointOnSurface() const
+Vector3D<Precision> UnplacedParaboloid::SamplePointOnSurface() const
 {
   // G4 implementation
   Precision A   = SurfaceArea();

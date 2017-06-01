@@ -64,7 +64,7 @@ public:
   VECGEOM_FORCE_INLINE
   Precision SurfaceArea() const { return fSurfaceArea; }
 
-  virtual Vector3D<Precision> GetPointOnSurface() const override;
+  virtual Vector3D<Precision> SamplePointOnSurface() const override;
 
   VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const override

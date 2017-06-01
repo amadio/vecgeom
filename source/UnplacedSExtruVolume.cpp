@@ -18,7 +18,7 @@ void UnplacedSExtruVolume::Print(std::ostream &os) const
   os << "UnplacedSExtruVolume";
 }
 
-Vector3D<Precision> UnplacedSExtruVolume::GetPointOnSurface() const
+Vector3D<Precision> UnplacedSExtruVolume::SamplePointOnSurface() const
 {
   throw std::runtime_error("unimplemented");
 }

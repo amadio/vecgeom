@@ -119,7 +119,7 @@ public:
 
   double SurfaceArea() override { return UnplacedVolume_t::SurfaceArea(); }
 
-  UVector3 GetPointOnSurface() const override { return UnplacedVolume_t::GetPointOnSurface(); }
+  UVector3 GetPointOnSurface() const override { return UnplacedVolume_t::SamplePointOnSurface(); }
 };
 
 } // inline namespace VECGEOM_IMPL_NAMESPACE

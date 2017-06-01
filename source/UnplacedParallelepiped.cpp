@@ -45,7 +45,7 @@ void UnplacedParallelepiped::Extent(Vector3D<Precision> &aMin, Vector3D<Precisio
 
 #ifndef VECCORE_CUDA
 //______________________________________________________________________________
-Vector3D<Precision> UnplacedParallelepiped::GetPointOnSurface() const
+Vector3D<Precision> UnplacedParallelepiped::SamplePointOnSurface() const
 {
   // Generate randomly a point on one of the surfaces
   // Select randomly a surface

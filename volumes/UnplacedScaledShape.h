@@ -155,7 +155,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &min, Vector3D<Precision> &max) const override;
 
-  Vector3D<Precision> GetPointOnSurface() const override;
+  Vector3D<Precision> SamplePointOnSurface() const override;
 
   virtual std::string GetEntityType() const { return "ScaledShape"; }
 

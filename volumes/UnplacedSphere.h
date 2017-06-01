@@ -499,7 +499,7 @@ public:
 #ifndef VECCORE_CUDA
   VECCORE_ATT_HOST_DEVICE
 #endif
-  Vector3D<Precision> GetPointOnSurface() const;
+  Vector3D<Precision> SamplePointOnSurface() const;
 
   std::string GetEntityType() const;
 #endif

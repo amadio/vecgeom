@@ -84,7 +84,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const;
 
-  Vector3D<Precision> GetPointOnSurface() const
+  Vector3D<Precision> SamplePointOnSurface() const
   {
     // TBDONE
     return Vector3D<Precision>();

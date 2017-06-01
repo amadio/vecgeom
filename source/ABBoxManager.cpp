@@ -153,7 +153,7 @@ void ABBoxManager::ComputeABBox(VPlacedVolume const *pvol, ABBox_s *lowerc, ABBo
   std::cerr << "upper " << *upperc;
   int contains = 0;
   for (int i = 0; i < 10000; ++i) {
-    Vector3D<Precision> p = box.GetPointOnSurface() + boxtranslation;
+    Vector3D<Precision> p = box.SamplePointOnSurface() + boxtranslation;
     std::cerr << *lowerc << " " << *upperc << " " << p << "\n";
     if (pvol->Contains(p)) contains++;
   }
@@ -200,7 +200,7 @@ void ABBoxManager::InitABBoxes(LogicalVolume const *lvol)
 //                   int contains = 0;
 //                   for(int i=0;i<10000;++i)
 //                   {
-//                       Vector3D<Precision> p =  box.GetPointOnSurface() + boxtranslation;
+//                       Vector3D<Precision> p =  box.SamplePointOnSurface() + boxtranslation;
 //                       std::cerr << *lowerc << " " << * upperc << " " << p << "\n";
 //                       if( pvol->Contains( p ) ) contains++;
 //                   }

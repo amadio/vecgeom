@@ -145,7 +145,7 @@ std::string UnplacedHype::GetEntityType() const
 }
 #endif
 
-Vector3D<Precision> UnplacedHype::GetPointOnSurface() const
+Vector3D<Precision> UnplacedHype::SamplePointOnSurface() const
 {
 
   Precision xRand, yRand, zRand, r2, aOne, aTwo, aThree, chose, sinhu;

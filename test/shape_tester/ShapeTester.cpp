@@ -784,7 +784,7 @@ int ShapeTester<ImplT>::TestSurfacePoint()
 
 #endif
 
-  for (int i = 0; i < fMaxPointsSurface + fMaxPointsEdge; i++) { // test GetPointOnSurface()
+  for (int i = 0; i < fMaxPointsSurface + fMaxPointsEdge; i++) { // test SamplePointOnSurface()
     // Initial point on surface
     point = fPoints[fOffsetSurface + i];
 #ifdef VECGEOM_ROOT
@@ -845,7 +845,7 @@ int ShapeTester<ImplT>::TestSurfacePoint()
     }
   }
   if (fVerbose) {
-    std::cout << "% TestSurfacePoints GetPointOnSurface() for Solid  " << fVolume->GetName() << " had " << icount
+    std::cout << "% TestSurfacePoints SamplePointOnSurface() for Solid  " << fVolume->GetName() << " had " << icount
               << " errors" << std::endl;
     std::cout << "% TestSurfacePoints both  DistanceToIN and DistanceToOut ==0 for " << fVolume->GetName() << " had "
               << icount1 << " errors" << std::endl;
@@ -855,7 +855,7 @@ int ShapeTester<ImplT>::TestSurfacePoint()
 #ifdef VECGEOM_ROOT
   // visualisation
   if (fStat) {
-    new TCanvas("shape05", "GetPointOnSurface", 1000, 800);
+    new TCanvas("shape05", "SamplePointOnSurface", 1000, 800);
     pm5->Draw();
   }
 #endif
@@ -1265,7 +1265,7 @@ int ShapeTester<ImplT>::TestAccuracyDistanceToIn(double dist)
   // test Accuracy distance
   for (int i = 0; i < fMaxPointsSurface + fMaxPointsEdge; i++) {
 
-    // test GetPointOnSurface
+    // test SamplePointOnSurface
     pointSurf = fPoints[i + fOffsetSurface];
     Vec_t vec = GetRandomDirection();
 
@@ -1791,7 +1791,13 @@ void ShapeTester<ImplT>::CreatePointsAndDirectionsSurface()
     int retry = 100;
     do
     { bool surfaceExist=true;
-      if(surfaceExist) {pointU = fVolume->GetPointOnSurface(); }
+      if(surfaceExist) {
+#ifdef VECGEOM_USOLIDS
+        pointU = fVolume->GetPointOnSurface();
+#else
+        pointU = fVolume->SamplePointOnSurface();
+#endif
+      }
       else {
         Vec_t dir = GetRandomDirection(), norm;
         bool convex=false;
@@ -1807,7 +1813,11 @@ void ShapeTester<ImplT>::CreatePointsAndDirectionsSurface()
 #endif
     int retry = 100;
     do {
-      pointU                          = fVolume->GetPointOnSurface();
+#ifdef VECGEOM_USOLIDS
+      pointU = fVolume->GetPointOnSurface();
+#else
+      pointU               = fVolume->SamplePointOnSurface();
+#endif
       Vec_t vec                       = GetRandomDirection();
       fDirections[i + fOffsetSurface] = vec;
       point.Set(pointU.x(), pointU.y(), pointU.z());
@@ -1867,8 +1877,12 @@ void ShapeTester<ImplT>::CreatePointsAndDirectionsOutside()
     if (random <= fOutsideRandomDirectionPercent / 100.) {
       vec = GetRandomDirection();
     } else {
+#ifdef VECGEOM_USOLIDS
       Vec_t pointSurface = fVolume->GetPointOnSurface();
-      vec                = pointSurface - point;
+#else
+      Vec_t pointSurface   = fVolume->SamplePointOnSurface();
+#endif
+      vec = pointSurface - point;
       vec.Normalize();
     }
 

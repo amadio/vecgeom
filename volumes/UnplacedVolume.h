@@ -136,8 +136,8 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const /* = 0 */;
 
-  // ---------------- GetPointOnSurface ----------------------------------------------------------
-  virtual Vector3D<Precision> GetPointOnSurface() const /* = 0 */;
+  // ---------------- SamplePointOnSurface ----------------------------------------------------------
+  virtual Vector3D<Precision> SamplePointOnSurface() const /* = 0 */;
 
   // ----------------- Extent --------------------------------------------------------------------
   VECCORE_ATT_HOST_DEVICE

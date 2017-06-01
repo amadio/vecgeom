@@ -325,7 +325,7 @@ public:
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const;
 
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;
-  Vector3D<Precision> GetPointOnSurface() const;
+  Vector3D<Precision> SamplePointOnSurface() const;
 
   // Helper funtion to detect edge points
   template <bool top>

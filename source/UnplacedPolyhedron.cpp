@@ -306,7 +306,7 @@ Precision UnplacedPolyhedron::SurfaceArea() const
   return fPoly.fSurfaceArea;
 }
 
-Vector3D<Precision> UnplacedPolyhedron::GetPointOnSurface() const
+Vector3D<Precision> UnplacedPolyhedron::SamplePointOnSurface() const
 {
   int j, Flag = 0;
   Precision chose, rnd, totArea = 0., Achose1, Achose2, area, aTop = 0., aBottom = 0.;

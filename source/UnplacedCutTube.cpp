@@ -44,7 +44,7 @@ Precision UnplacedCutTube::volume() const
   return (volNocut - vDelta);
 }
 
-Vector3D<Precision> UnplacedCutTube::GetPointOnSurface() const
+Vector3D<Precision> UnplacedCutTube::SamplePointOnSurface() const
 {
   Precision xVal = 0., yVal = 0., zVal = 0.;
 #ifndef VECCORE_CUDA

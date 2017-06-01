@@ -51,7 +51,7 @@ void UnplacedOrb::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) c
   aMax.Set(fOrb.fR);
 }
 
-Vector3D<Precision> UnplacedOrb::GetPointOnSurface() const
+Vector3D<Precision> UnplacedOrb::SamplePointOnSurface() const
 {
   //  generate a random number from zero to 2UUtils::kPi...
   Precision phi    = RNG::Instance().uniform(0., 2. * kPi);

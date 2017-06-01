@@ -195,7 +195,7 @@ void UnplacedTrapezoid::Extent(Vec3D &aMin, Vec3D &aMax) const
   aMin.y() = Min(extA, extB);
 }
 
-Vector3D<Precision> UnplacedTrapezoid::GetPointOnSurface() const
+Vector3D<Precision> UnplacedTrapezoid::SamplePointOnSurface() const
 {
   TrapCorners pt;
   this->fromPlanesToCorners(pt);

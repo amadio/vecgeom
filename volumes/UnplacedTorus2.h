@@ -206,7 +206,7 @@ public:
   VECGEOM_FORCE_INLINE
   void Extent(Vector3D<Precision> &min, Vector3D<Precision> &max) const { GetBoundingTube().Extent(min, max); }
 
-  Vector3D<Precision> GetPointOnSurface() const;
+  Vector3D<Precision> SamplePointOnSurface() const;
 
   virtual int MemorySize() const final { return sizeof(*this); }
 

@@ -298,7 +298,7 @@ public:
   //   return fSurfaceArea;
   // }
 
-  Vector3D<Precision> GetPointOnSurface() const override;
+  Vector3D<Precision> SamplePointOnSurface() const override;
 
   Vector3D<Precision> GetPointOnPlane(Vector3D<Precision> const &p0, Vector3D<Precision> const &p1,
                                       Vector3D<Precision> const &p2, Vector3D<Precision> const &p3) const;

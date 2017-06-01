@@ -234,7 +234,7 @@ void UnplacedSphere::GetParametersList(int, double *aArray) const
 }
 
 #ifndef VECCORE_CUDA
-Vector3D<Precision> UnplacedSphere::GetPointOnSurface() const
+Vector3D<Precision> UnplacedSphere::SamplePointOnSurface() const
 {
 
   Precision zRand, aOne, aTwo, aThr, aFou, aFiv, chose, phi, sinphi, cosphi;

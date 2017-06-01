@@ -134,7 +134,7 @@ public:
 
 #ifndef VECCORE_CUDA
   /** @brief Generates randomly a point on the surface of the parallelepiped */
-  Vector3D<Precision> GetPointOnSurface() const;
+  Vector3D<Precision> SamplePointOnSurface() const;
 
   /** @brief Implementation of capacity computation */
   VECGEOM_FORCE_INLINE

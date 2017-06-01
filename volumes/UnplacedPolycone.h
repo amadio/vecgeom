@@ -193,7 +193,7 @@ public:
 
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const;
 
-  Vector3D<Precision> GetPointOnSurface() const;
+  Vector3D<Precision> SamplePointOnSurface() const;
 
   // Methods for random point generation
   Vector3D<Precision> GetPointOnCone(Precision fRmin1, Precision fRmax1, Precision fRmin2, Precision fRmax2,

@@ -173,11 +173,11 @@ Precision VPlacedVolume::SurfaceArea()
   return delta.x() * delta.y() * delta.z() * inside / dd / nStat;
 }
 
-// implement a default function for GetPointOnSurface
+// implement a default function for SamplePointOnSurface
 // based on contains + DistanceToOut
-Vector3D<Precision> VPlacedVolume::GetPointOnSurface() const
+Vector3D<Precision> VPlacedVolume::SamplePointOnSurface() const
 {
-  //   std::cerr << "WARNING : Base GetPointOnSurface called \n";
+  //   std::cerr << "WARNING : Base SamplePointOnSurface called \n";
 
   Vector3D<Precision> surfacepoint;
   SOA3D<Precision> points(1);

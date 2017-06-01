@@ -90,7 +90,10 @@ public:
 #ifndef VECCORE_CUDA
   virtual Precision Capacity() override { return GetUnplacedVolume()->volume(); }
 
-  virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface(); }
+  virtual Vector3D<Precision> SamplePointOnSurface() const override
+  {
+    return GetUnplacedVolume()->SamplePointOnSurface();
+  }
 
   virtual double SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
 #endif
@@ -103,6 +106,7 @@ public:
 
 #if defined(VECGEOM_USOLIDS)
   virtual std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType(); }
+  virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->SamplePointOnSurface(); }
 #endif
 
   VECCORE_ATT_HOST_DEVICE

@@ -516,7 +516,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedPolycone::CopyToGpu(DevicePtr<cuda::VUn
 #ifndef VECCORE_CUDA
 /////////////////////////////////////////////////////////////////////////
 //
-// GetPointOnSurface
+// SamplePointOnSurface
 //
 // GetPointOnCone
 //
@@ -699,9 +699,9 @@ Vector3D<Precision> UnplacedPolycone::GetPointOnCut(Precision fRMin1, Precision 
 }
 
 //
-// GetPointOnSurface
+// SamplePointOnSurface
 //
-Vector3D<Precision> UnplacedPolycone::GetPointOnSurface() const
+Vector3D<Precision> UnplacedPolycone::SamplePointOnSurface() const
 {
   Precision Area = 0, totArea = 0, Achose1 = 0, Achose2 = 0, phi, cosphi, sinphi, rRand;
   int i         = 0;

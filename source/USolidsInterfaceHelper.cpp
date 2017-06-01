@@ -49,13 +49,6 @@ std::ostream &USolidsInterfaceHelper::StreamInfo(std::ostream &os) const
   return os;
 }
 
-UVector3 USolidsInterfaceHelper::GetPointOnSurface() const
-{
-  assert(0 && "GetPointOnSurface() not implemented for USolids interface"
-              " compatible volume.");
-  return UVector3();
-}
-
 void USolidsInterfaceHelper::ComputeBBox(UBBox *aBox, bool aStore)
 {
   assert(0 && "ComputeBBox() not implemented for USolids interface compatible"

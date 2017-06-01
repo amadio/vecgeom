@@ -168,8 +168,8 @@ public:
   VECCORE_ATT_HOST_DEVICE
   void Extent(Vertex_t &amin, Vertex_t &amax) const override { return fGenTrap.Extent(amin, amax); }
 
-  /** @brief Generates randomly a point on the surface of the trapezoid */
-  Vertex_t GetPointOnSurface() const override;
+  /** @brief Generates randomly a point on the surface */
+  Vertex_t SamplePointOnSurface() const override;
 
   /** @brief Get type name */
   virtual std::string GetEntityType() const { return "GenTrap"; }

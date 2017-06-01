@@ -34,7 +34,7 @@
 
 namespace vecgeom {
 
-Vector3D<Precision> PlacedBooleanVolume::GetPointOnSurface() const
+Vector3D<Precision> PlacedBooleanVolume::SamplePointOnSurface() const
 {
   // implementation taken from G4
   int counter = 0;
@@ -78,7 +78,7 @@ Vector3D<Precision> PlacedBooleanVolume::GetPointOnSurface() const
 
     auto *selected((RNG::Instance().uniform() < arearatio) ? unplaced->fLeftVolume : unplaced->fRightVolume);
     auto transf = selected->GetTransformation();
-    p           = transf->InverseTransform(selected->GetPointOnSurface());
+    p           = transf->InverseTransform(selected->SamplePointOnSurface());
   } while (Inside(p) != vecgeom::kSurface);
   return p;
 }

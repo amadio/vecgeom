@@ -14,8 +14,6 @@
 #include <Vc/Vc>
 #endif
 
-class G4VSolid;
-
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(class VPlacedVolume;);
@@ -298,7 +296,7 @@ public:
 
   virtual Precision SurfaceArea();
 
-  virtual Vector3D<Precision> GetPointOnSurface() const;
+  virtual Vector3D<Precision> SamplePointOnSurface() const;
 
 public:
 #ifdef VECGEOM_CUDA_INTERFACE
@@ -342,6 +340,7 @@ public:
   virtual ::VUSolid const *ConvertToUSolids() const = 0;
 #endif
 #ifdef VECGEOM_GEANT4
+  class G4VSolid;
   virtual G4VSolid const *ConvertToGeant4() const = 0;
 #endif
 #endif // VECCORE_CUDA

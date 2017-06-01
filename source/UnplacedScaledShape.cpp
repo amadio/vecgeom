@@ -59,11 +59,11 @@ void UnplacedScaledShape::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> 
 }
 
 //______________________________________________________________________________
-Vector3D<Precision> UnplacedScaledShape::GetPointOnSurface() const
+Vector3D<Precision> UnplacedScaledShape::SamplePointOnSurface() const
 {
   // Sample the scaled shape
   Vector3D<Precision> sampled;
-  fScaled.fScale.InverseTransform(fScaled.fPlaced->GetPointOnSurface(), sampled);
+  fScaled.fScale.InverseTransform(fScaled.fPlaced->SamplePointOnSurface(), sampled);
   return sampled;
 }
 

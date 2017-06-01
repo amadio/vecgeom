@@ -223,7 +223,7 @@ public:
     return GetUnplacedVolume()->Extent(aMin, aMax);
   }
 
-  Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface(); }
+  Vector3D<Precision> SamplePointOnSurface() const override { return GetUnplacedVolume()->SamplePointOnSurface(); }
 
   //  VECCORE_ATT_HOST_DEVICE
   //  VECGEOM_FORCE_INLINE
@@ -234,6 +234,7 @@ public:
 
 #if defined(VECGEOM_USOLIDS)
   std::ostream &StreamInfo(std::ostream &os) const override { return GetUnplacedVolume()->StreamInfo(os); }
+  Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->SamplePointOnSurface(); }
 #endif
 
 #ifndef VECCORE_CUDA

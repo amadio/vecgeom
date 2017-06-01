@@ -71,10 +71,10 @@ public:
 
 #if defined(VECGEOM_USOLIDS)
   std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType(); }
+  Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->SamplePointOnSurface(); }
 #endif
 
-  virtual Vector3D<Precision> GetPointOnSurface() const override;
-  //#endif
+  virtual Vector3D<Precision> SamplePointOnSurface() const override;
 
   VECCORE_ATT_HOST_DEVICE
   void PrintType() const override{};

@@ -118,7 +118,7 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
 {
   int nError                     = 0;
   bool surfPointConventionPassed = true;
-  for (int i = 0; i < fMaxPointsSurface + fMaxPointsEdge; i++) { // test GetPointOnSurface()
+  for (int i = 0; i < fMaxPointsSurface + fMaxPointsEdge; i++) { // test SamplePointOnSurface()
     Vec_t point     = fPoints[fOffsetSurface + i];
     Vec_t direction = fDirections[fOffsetSurface + i];
     if (fVolume->Inside(point) != vecgeom::EInside::kSurface) {
@@ -259,7 +259,7 @@ bool ShapeTester<ImplT>::ShapeConventionInsidePoint()
 
   bool insidePointConventionPassed = true;
 
-  for (int i = 0; i < fMaxPointsInside; i++) { // test GetPointOnSurface()
+  for (int i = 0; i < fMaxPointsInside; i++) { // test SamplePointOnSurface()
     Vec_t point     = fPoints[fOffsetInside + i];
     Vec_t direction = fDirections[fOffsetInside + i];
     if (fVolume->Inside(point) != vecgeom::EInside::kInside) {
@@ -335,7 +335,7 @@ bool ShapeTester<ImplT>::ShapeConventionOutsidePoint()
 
   bool outsidePointConventionPassed = true;
 
-  for (int i = 0; i < fMaxPointsOutside; i++) { // test GetPointOnSurface()
+  for (int i = 0; i < fMaxPointsOutside; i++) { // test SamplePointOnSurface()
     Vec_t point     = fPoints[fOffsetOutside + i];
     Vec_t direction = fDirections[fOffsetOutside + i];
     if (fVolume->Inside(point) != vecgeom::EInside::kOutside) {

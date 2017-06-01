@@ -16,7 +16,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 //______________________________________________________________________________
-Vector3D<Precision> UnplacedGenTrap::GetPointOnSurface() const
+Vector3D<Precision> UnplacedGenTrap::SamplePointOnSurface() const
 {
   // Generate randomly a point on one of the surfaces
   // Select randomly a surface

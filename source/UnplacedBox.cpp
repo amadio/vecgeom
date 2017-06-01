@@ -19,7 +19,7 @@ void UnplacedBox::Print(std::ostream &os) const
   os << "UnplacedBox {" << x() << ", " << y() << ", " << z() << "}";
 }
 
-Vector3D<Precision> UnplacedBox::GetPointOnSurface() const
+Vector3D<Precision> UnplacedBox::SamplePointOnSurface() const
 {
   Vector3D<Precision> p(dimensions());
 

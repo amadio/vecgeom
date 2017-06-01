@@ -128,10 +128,14 @@ public:
     GetUnplacedVolume()->Extent(aMin, aMax);
   }
 
-  virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface(); }
+  virtual Vector3D<Precision> SamplePointOnSurface() const override
+  {
+    return GetUnplacedVolume()->SamplePointOnSurface();
+  }
 
 #if defined(VECGEOM_USOLIDS)
   std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType(); }
+  Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->SamplePointOnSurface(); }
 #endif
 #endif
 

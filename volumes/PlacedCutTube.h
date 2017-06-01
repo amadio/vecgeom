@@ -100,8 +100,11 @@ public:
     return GetUnplacedVolume()->Normal(point, normal);
   }
 
-  /** @brief Generates randomly a point on the surface of the trapezoid */
-  virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface(); }
+  /** @brief Generates randomly a point on the surface */
+  virtual Vector3D<Precision> SamplePointOnSurface() const override
+  {
+    return GetUnplacedVolume()->SamplePointOnSurface();
+  }
 
   /** @brief Implementation of surface area computation */
   virtual double SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
@@ -109,6 +112,9 @@ public:
 #if defined(VECGEOM_USOLIDS)
   /** @brief Get type name */
   virtual std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType(); }
+
+  /** @brief Generates randomly a point on the surface */
+  virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->SamplePointOnSurface(); }
 #endif
 #endif
 

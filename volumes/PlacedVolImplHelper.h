@@ -66,16 +66,18 @@ public:
     return GetUnplacedVolume()->Normal(point, normal);
   }
 
-  virtual Vector3D<Precision> GetPointOnSurface() const override
+  virtual Vector3D<Precision> SamplePointOnSurface() const override
   {
-    return GetUnplacedVolume()->GetPointOnSurface();
-    // carefull here: we need to transform result
+    return GetUnplacedVolume()->SamplePointOnSurface();
+    // careful here: we need to transform result
   }
 
   virtual double SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
 
 #if defined(VECGEOM_USOLIDS)
 //  virtual std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType(); }
+//  virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->SamplePointOnSurface();
+//  }
 #endif
 #endif
 

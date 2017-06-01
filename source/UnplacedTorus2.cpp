@@ -62,7 +62,7 @@ VPlacedVolume *UnplacedTorus2::SpecializedVolume(LogicalVolume const *const volu
                                                                placement);
 }
 
-Vector3D<Precision> UnplacedTorus2::GetPointOnSurface() const
+Vector3D<Precision> UnplacedTorus2::SamplePointOnSurface() const
 {
   // taken from Geant4
   Precision cosu, sinu, cosv, sinv, aOut, aIn, aSide, chose, phi, theta, rRand;

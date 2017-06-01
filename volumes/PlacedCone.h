@@ -136,12 +136,16 @@ double SafetyFromOutsideR(const Vector3D<Precision> &p, const double rho, bool p
     return GetUnplacedVolume()->Normal(point, normal);
   }
 
-  virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->GetPointOnSurface(); }
+  virtual Vector3D<Precision> SamplePointOnSurface() const override
+  {
+    return GetUnplacedVolume()->SamplePointOnSurface();
+  }
 
   virtual double SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
 
 #if defined(VECGEOM_USOLIDS)
   virtual std::string GetEntityType() const override { return "Cone"; }
+  virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->SamplePointOnSurface(); }
 #endif
 #endif
 

@@ -79,7 +79,7 @@ public:
     aMax = fBox.fDimensions;
   }
 
-  Vector3D<Precision> GetPointOnSurface() const override;
+  Vector3D<Precision> SamplePointOnSurface() const override;
 
   VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const override

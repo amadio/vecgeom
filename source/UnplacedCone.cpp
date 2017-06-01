@@ -434,7 +434,7 @@ bool UnplacedCone::IsOnEdge(Vector3D<Precision> &point) const
   return count > 1;
 }
 
-Vector3D<Precision> UnplacedCone::GetPointOnSurface() const
+Vector3D<Precision> UnplacedCone::SamplePointOnSurface() const
 {
   // implementation taken from UCons; not verified
   //

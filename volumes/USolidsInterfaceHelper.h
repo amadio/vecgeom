@@ -53,6 +53,9 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual Precision SafetyToIn(Vector3D<Precision> const &position) const = 0;
 
+  VECCORE_ATT_HOST_DEVICE
+  virtual UVector3 SamplePointOnSurface() const = 0;
+
   // these function names are specific to USolids but can be reimplemented in terms of
   // other interfaces:
 
@@ -79,11 +82,9 @@ public:
 
   virtual VUSolid *Clone() const;
 
-#if defined(VECGEOM_USOLIDS)
   virtual std::ostream &StreamInfo(std::ostream &os) const;
-#endif
 
-  virtual UVector3 GetPointOnSurface() const;
+  virtual UVector3 GetPointOnSurface() const { return SamplePointOnSurface(); }
 
   virtual void ComputeBBox(UBBox *aBox, bool aStore = false);
 };

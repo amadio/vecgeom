@@ -93,7 +93,7 @@ bool testNormal(UnplacedTrapezoid const &trap, UTrap const &utrap)
     double z = RNG::Instance().uniform(0., dz);
     Vector3D<Precision> point(x, y, z);
     if (i % 2 == 0) {
-      point = trap.GetPointOnSurface();
+      point = trap.SamplePointOnSurface();
     }
 
     Vector3D<Precision> vecgNormal;

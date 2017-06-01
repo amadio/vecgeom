@@ -152,8 +152,8 @@ bool VUnplacedVolume::Normal(Vector3D<Precision> const &p, Vector3D<Precision> &
   return false;
 }
 
-// ---------------- GetPointOnSurface ----------------------------------------------------------
-Vector3D<Precision> VUnplacedVolume::GetPointOnSurface() const
+// ---------------- SamplePointOnSurface ----------------------------------------------------------
+Vector3D<Precision> VUnplacedVolume::SamplePointOnSurface() const
 {
   throw std::runtime_error("unimplemented function called");
   return Vector3D<Precision>();

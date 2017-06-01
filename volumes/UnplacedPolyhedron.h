@@ -236,7 +236,7 @@ public:
 
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const;
 
-  Vector3D<Precision> GetPointOnSurface() const;
+  Vector3D<Precision> SamplePointOnSurface() const;
 
   std::string GetEntityType() const { return "Polyhedron"; }
 #endif // !VECCORE_CUDA

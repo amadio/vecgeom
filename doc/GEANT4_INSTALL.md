@@ -24,7 +24,7 @@ or the VecGeom implementation:
     shapes
 
   + USOLIDS_VECGEOM=ON  enables VecGeom implementation of the shapes, so that
-    the VecGeom algorithms are used instead (currently under development)
+    the VecGeom algorithms are used instead
 
 Other switches required for the installation are: BACKEND=Scalar, USOLIDS=ON 
 and GEANT4=OFF.
@@ -36,6 +36,17 @@ Assuming that the VecGeom sources are located under $VGSOURCE:
    cd VecGeom
    export VGSOURCE=`pwd`
 
+   #.. configuration to use VecGeom algorithms
+   mkdir ${TOPDIR}/vecgeom-build
+   cd ${TOPDIR}/vecgeom-build
+   cmake -DBACKEND=Scalar -DGEANT4=OFF -DUSOLIDS=ON \
+       [...other vecgeom switches...] \
+       -DUSOLIDS_VECGEOM=ON -DCMAKE_INSTALL_PREFIX=${TOPDIR}/vecgeom \
+       ${VGSOURCE}
+   make -j8 install
+
+or (obsolete):
+
    #.. configuration to use USolids algorithms
    mkdir -p ${TOPDIR}/usolids-build
    cd ${TOPDIR}/usolids-build
@@ -46,54 +57,53 @@ Assuming that the VecGeom sources are located under $VGSOURCE:
        ${VGSOURCE}
    make -j8 install
 
-or (experimental):
 
-   #.. configuration to use VecGeom algorithms
-   mkdir ${TOPDIR}/vecgeom-build
-   cd ${TOPDIR}/vecgeom-build
-   cmake -DBACKEND=Scalar -DGEANT4=OFF -DUSOLIDS=ON \
-       [...other vecgeom switches...] \
-       -DUSOLIDS_VECGEOM=ON -DCMAKE_INSTALL_PREFIX=${TOPDIR}/vecgeom \
-       ${VGSOURCE}
-   make -j8 install
+* Building Geant4 to use VecGeom
+  ==============================
 
-
-
-* Building Geant4 to use USolids or VecGeom
-  =========================================
-
-Geant4 currently offers the option to adopt USolids shape implementations to run
+Geant4 currently offers the option to adopt VecGeom shape implementations to run
 Geant4 applications. This can be enabled by setting a configuration variable
 when building Geant4:
 
    -DGEANT4_USE_USOLIDS=ON          (default is OFF)
 
-Geant4 release 10.2 or greater is required.
+Geant4 release 10.3 or greater is required.
 Assuming the Geant4 sources were unpacked at $SOURCE defined below:
 
-   VERSION=10.02
+   VERSION=10.03
    G4SOURCE=${TOPDIR}/geant/geant4.${VERSION}
 
 Here are the one-time configurations to build the Geant4 libraries with either
 USolids or VecGeom:
 
-   #.. Configuring Geant4 to use USolids
-   G4BUILD=${TOPDIR}/geant/build-g4-usolids
-   G4INSTALL=${TOPDIR}/geant/install-${VERSION}-usolids
-   export USolids_DIR=${TOPDIR}/usolids/lib/CMake/USolids/
-   #.. then build Geant4, see below
-
-   #.. Or .. Configuring Geant4 to use VecGeom
+   #.. Configuring Geant4 to use VecGeom
    G4BUILD=${TOPDIR}/geant/build-g4-vecgeom
    G4INSTALL=${TOPDIR}/geant/install-${VERSION}-vecgeom
    export USolids_DIR=${TOPDIR}/vecgeom/lib/CMake/USolids/
    #.. then build Geant4, see below
 
-   #.. standard compilation and installation of Geant4
+   #.. Or.. Configuring Geant4 to use USolids (obsolete)
+   G4BUILD=${TOPDIR}/geant/build-g4-usolids
+   G4INSTALL=${TOPDIR}/geant/install-${VERSION}-usolids
+   export USolids_DIR=${TOPDIR}/usolids/lib/CMake/USolids/
+   #.. then build Geant4, see below
+
+   #.. Standard compilation and installation of Geant4,
+   #   replacing all available solids
    cd ${G4BUILD}
    cmake -DCMAKE_INSTALL_PREFIX=${G4INSTALL} \
-      -DGEANT4_USE_USOLIDS=ON \
-      -DGEANT4_INSTALL_DATADIR=${G4INSTALL}/share/Geant4-10.2.0/data \
+      -DGEANT4_USE_USOLIDS="all" \
+      -DGEANT4_INSTALL_DATADIR=${G4INSTALL}/share/Geant4-10.3.0/data \
+      -DGEANT4_USE_GDML=ON \
+      #.. any other configuration switch
+      ${G4SOURCE}
+
+   #.. Or .. Standard compilation and installation of Geant4,
+   #   replacing only a limited set of solids
+   cd ${G4BUILD}
+   cmake -DCMAKE_INSTALL_PREFIX=${G4INSTALL} \
+      -DGEANT4_USE_USOLIDS="box;trap" \
+      -DGEANT4_INSTALL_DATADIR=${G4INSTALL}/share/Geant4-10.3.0/data \
       -DGEANT4_USE_GDML=ON \
       #.. any other configuration switch
       ${G4SOURCE}

@@ -70,7 +70,7 @@ int UnplacedTrd::ChooseSurface() const
   return choice;
 }
 
-Vector3D<Precision> UnplacedTrd::GetPointOnSurface() const
+Vector3D<Precision> UnplacedTrd::SamplePointOnSurface() const
 {
   int surface = ChooseSurface();
 
