@@ -223,6 +223,8 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual void Print() const final;
 
+  virtual void Print(std::ostream &os) const final;
+
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
@@ -242,7 +244,6 @@ public:
 #endif
 
 private:
-  virtual void Print(std::ostream &os) const final;
 
   VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,

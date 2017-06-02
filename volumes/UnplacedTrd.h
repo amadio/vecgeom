@@ -198,6 +198,8 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual void Print() const final;
 
+  virtual void Print(std::ostream &os) const final;
+
   std::string GetEntityType() const { return "Trd"; }
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -219,7 +221,6 @@ public:
 #endif
 
 private:
-  virtual void Print(std::ostream &os) const final;
 
   VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,

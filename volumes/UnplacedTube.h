@@ -138,6 +138,8 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual void Print() const override;
 
+  virtual void Print(std::ostream &os) const override;
+
   std::string GetEntityType() const { return "Tube"; }
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
@@ -158,7 +160,6 @@ public:
 #endif
 
 private:
-  virtual void Print(std::ostream &os) const override;
 
 #ifndef VECCORE_CUDA
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,

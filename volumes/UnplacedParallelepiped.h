@@ -128,6 +128,8 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual void Print() const final;
 
+  virtual void Print(std::ostream &os) const final;
+
   /** @brief Computes the extent on X/Y/Z of the parallelepiped */
   VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const;
@@ -183,7 +185,6 @@ public:
 #endif
 
 private:
-  virtual void Print(std::ostream &os) const final;
 
 #ifdef VECCORE_CUDA
   VECCORE_ATT_DEVICE
