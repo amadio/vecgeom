@@ -35,7 +35,7 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
-  UnplacedTube(UnplacedTube const &other) = delete;
+  UnplacedTube(UnplacedTube const &other) : fTube(other.fTube) {}
 
   VECCORE_ATT_HOST_DEVICE
   TubeStruct<double> const &GetStruct() const { return fTube; }
