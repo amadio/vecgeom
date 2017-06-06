@@ -172,7 +172,7 @@ public:
   Vertex_t SamplePointOnSurface() const override;
 
   /** @brief Get type name */
-  virtual std::string GetEntityType() const { return "GenTrap"; }
+  std::string GetEntityType() const { return "GenTrap"; }
 
   /** @brief Templated factory for creating a placed volume */
   template <TranslationCode transCodeT, RotationCode rotCodeT>
