@@ -8,6 +8,10 @@
 #include "base/BitSet.h"
 #include <vector>
 
+#include "management/HybridManager2.h"
+#include "navigation/HybridNavigator2.h"
+#include "management/ABBoxManager.h"
+
 namespace vecgeom {
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -20,8 +24,12 @@ class TessellatedStruct {
   using BitSet  = veccore::BitSet;
   using Real_v  = vecgeom::VectorBackend::Real_v;
   using Facet_t = TriangleFacet<T>;
+
+  // Here we should be able to use vecgeom::Vector
   template <typename U>
   using vector_t = std::vector<U>;
+
+  using BVHStructure = HybridManager2::HybridBoxAccelerationStructure;
 
   //__________________________________________________________________________
   struct GridCell {
@@ -90,12 +98,13 @@ class TessellatedStruct {
   };
 
 public:
-  bool fSolidClosed   = false;   ///< Closure of the solid
-  T fCubicVolume      = 0;       ///< cubic volume
-  GridHelper *fHelper = nullptr; ///< Grid helper
-  Vector3D<T> fMinExtent;        ///< Minimum extent
-  Vector3D<T> fMaxExtent;        ///< Maximum extent
-  Vector3D<T> fInvExtSize;       ///< Inverse extent size
+  bool fSolidClosed   = false;        ///< Closure of the solid
+  T fCubicVolume      = 0;            ///< cubic volume
+  GridHelper *fHelper = nullptr;      ///< Grid helper
+  Vector3D<T> fMinExtent;             ///< Minimum extent
+  Vector3D<T> fMaxExtent;             ///< Maximum extent
+  Vector3D<T> fInvExtSize;            ///< Inverse extent size
+  BVHStructure *fNavHelper = nullptr; ///< Navigation helper using bounding boxes
 
   // Here we have a pointer to the aligned bbox structure
   // ABBoxanager *fABBoxManager;
@@ -107,6 +116,21 @@ public:
   vector_t<TessellatedCluster<Real_v> *> fClusters; ///< Vector of facet clusters
   BitSet *fSelected;                                ///< Facets already in clusters
   int fNcldist[kVecSize + 1] = {0};                 ///< Distribution of number of cluster size
+
+private:
+  void CreateABBoxes()
+  {
+    using Boxes_t           = ABBoxManager::ABBoxContainer_t;
+    using BoxCorner_t       = ABBoxManager::ABBox_s;
+    int nclusters           = fClusters.size();
+    BoxCorner_t *boxcorners = new BoxCorner_t[2 * nclusters];
+    for (int i = 0; i < nclusters; ++i) {
+      boxcorners[2 * i]     = fClusters[i]->fMinExtent;
+      boxcorners[2 * i + 1] = fClusters[i]->fMaxExtent;
+    }
+    Boxes_t boxes = &boxcorners[0];
+    fNavHelper    = HybridManager2::Instance().BuildStructure(boxes, nclusters);
+  }
 
 public:
   VECCORE_ATT_HOST_DEVICE
@@ -192,7 +216,7 @@ public:
     fHelper->fMinExtent  = fMinExtent;
     fHelper->fMaxExtent  = fMaxExtent;
     fHelper->fInvExtSize = fInvExtSize;
-    // Make a grid with ~ntot/vecsize cells
+    // Make a grid with ~kVecSize facets per cell
     int ngrid = 1 + size_t(vecCore::math::Pow<T>(T(fFacets.size()) / kVecSize, 1. / 3.));
     fHelper->CreateCells(ngrid);
 
@@ -232,11 +256,13 @@ public:
       // Fill cluster from the same cell or from a neighbor cell
       if (!fCandidates.size()) {
         ifacet = fSelected->FirstNullBit();
-        if (ifacet == fFacets.size()) return;
+        if (ifacet == fFacets.size()) break;
         fCandidates.push_back(ifacet);
         fSelected->SetBitNumber(ifacet);
       }
     }
+    // Create navigation helper to be used in TessellatedImplementation
+    CreateABBoxes(); // to navigate, see: TestHybridBVH.cpp/HybridNavigator2.h/HybridSafetyEstimator.h
   }
 
   TessellatedCluster<Real_v> *CreateCluster()
@@ -438,6 +464,38 @@ public:
       AddFacet(facet);
     }
     return true;
+  }
+
+  // Navigation functions
+  template <bool ToIn>
+  VECCORE_ATT_HOST_DEVICE
+  void DistanceToSolid(Vector3D<T> const &point, Vector3D<T> const &direction, T const &stepMax, T &distance,
+                       int &isurf) const
+  {
+    distance = InfinityLength<T>();
+    // Define the user hook calling DistanceToIn for the cluster with the same
+    // index as the bounding box
+    auto userhook = [&](HybridManager2::BoxIdDistancePair_t hitbox) {
+      // Stop searching if the distance to the current box is bigger than the
+      // requested limit or than the current distance
+      if (hitbox.second > vecCore::math::Min(stepMax, distance)) return true;
+      // Compute distance to the cluster
+      T distcrt;
+      int isurfcrt;
+      if (ToIn)
+        fClusters[hitbox.first]->DistanceToIn(point, direction, stepMax, distcrt, isurfcrt);
+      else
+        fClusters[hitbox.first]->DistanceToOut(point, direction, stepMax, distcrt, isurfcrt);
+      if (distcrt < distance) {
+        distance = distcrt;
+        isurf    = isurfcrt;
+      }
+      return false;
+    };
+
+    HybridNavigator<> *boxNav = (HybridNavigator<> *)HybridNavigator<>::Instance();
+    // intersect ray with the BVH structure and use hook
+    boxNav->BVHSortedIntersectionsLooper(*fNavHelper, point, direction, userhook);
   }
 
 }; // end class

@@ -23,14 +23,15 @@ constexpr size_t kVecSize = vecCore::VectorSize<vecgeom::VectorBackend::Real_v>(
 // types matched with the compiled SIMD vectors of double.
 template <typename Real_v>
 struct TessellatedCluster {
-  using T = typename vecCore::ScalarType<Real_v>::Type;
+  using T       = typename vecCore::ScalarType<Real_v>::Type;
+  using Facet_t = TriangleFacet<T>;
 
   Vector3D<Real_v> fNormals;        ///< Normals to facet components
   Real_v fDistances;                ///< Distances from origin to facets
   Vector3D<Real_v> fSideVectors[3]; ///< Side vectors of the triangular facets
   Vector3D<Real_v> fVertices[3];    ///< Vertices stored in SIMD format
 #ifdef TEST_TCPERF
-  TriangleFacet<T> *fFacets[kVecSize];
+  Facet_t *fFacets[kVecSize];
 #endif
   Vector3D<T> fMinExtent; ///< Minimum extent
   Vector3D<T> fMaxExtent; ///< Maximum extent
@@ -46,12 +47,83 @@ struct TessellatedCluster {
     vertex[1] = fVertices[ivert].y()[ifacet];
     vertex[2] = fVertices[ivert].z()[ifacet];
   }
+
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  T ComputeSparsity(int &nblobs, int &nfacets)
+  {
+    // Calculate cluster sparsity (number of separate blobs)
+    // Number of facets represent the number of non-replicated facets
+    // Returns ratio between maximum facet distance and maximum facet size
+
+    // Find cluster center
+    Vector3D<T> clcenter;
+    for (int ifacet = 0; ifacet < kVecSize; ++ifacet) {
+      clcenter += fFacets[ifacet]->fCenter;
+    }
+    clcenter /= kVecSize;
+
+    // Compute dispersion
+    T maxsize = 0, lensq = 0, dmax = 0;
+    for (int ifacet = 0; ifacet < kVecSize; ++ifacet) {
+      T facetsizesq = 0;
+      for (int i = 0; i < 3; ++i) {
+        lensq = (fFacets[ifacet]->fVertices[i] - fFacets[ifacet]->fVertices[(i + 1) % 3]).Mag2();
+        if (lensq > facetsizesq) facetsizesq = lensq;
+      }
+      if (facetsizesq > maxsize) maxsize = facetsizesq;
+      lensq                              = (fFacets[ifacet]->fCenter - clcenter).Mag2();
+      if (lensq > dmax) dmax             = lensq;
+    }
+    T dispersion = vecCore::math::Sqrt(dmax / maxsize);
+
+    // Compute number of distinct facets
+    nfacets = 0;
+    for (int ifacet = 0; ifacet < kVecSize; ++ifacet) {
+      bool duplicate = false;
+      for (int jfacet = ifacet + 1; jfacet < kVecSize; ++jfacet) {
+        if (fFacets[jfacet] == fFacets[ifacet]) {
+          duplicate = true;
+          break;
+        }
+      }
+      if (!duplicate) nfacets++;
+    }
+
+    // Compute number of blobs
+    nblobs = 0;
+    int cluster[kVecSize];
+    int ncl             = 0;
+    bool used[kVecSize] = {false};
+    for (int ifacet = 0; ifacet < kVecSize; ++ifacet) {
+      ncl = 0;
+      if (used[ifacet]) break;
+      cluster[ncl++] = ifacet;
+      used[ifacet]   = true;
+      nblobs++;
+      // loop remaining facets
+      for (int jfacet = ifacet + 1; jfacet < kVecSize; ++jfacet) {
+        if (used[jfacet]) break;
+        // loop facets already in sub-cluster
+        int nneighbors = 0;
+        for (int incl = 0; incl < ncl; ++incl) {
+          nneighbors += fFacets[jfacet]->IsNeighbor(*fFacets[cluster[incl]]);
+        }
+        if (nneighbors > ncl) {
+          cluster[ncl++] = jfacet;
+          used[jfacet]   = true;
+        }
+      }
+    }
+    return dispersion;
+  }
+
   /** @brief Fill the components 'i' of the cluster with facet data
     * @param index Triangle index, equivalent to SIMD lane index
     * @param facet Triangle facet data
     */
   VECCORE_ATT_HOST_DEVICE
-  void AddFacet(size_t index, TriangleFacet<T> *facet)
+  void AddFacet(size_t index, Facet_t *facet)
   {
     // Fill the facet normal by accessing individual SIMD lanes
     assert(index < kVecSize);

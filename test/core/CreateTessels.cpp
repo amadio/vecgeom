@@ -3,11 +3,15 @@
 #include "volumes/TessellatedStruct.h"
 #include "test/benchmark/ArgParser.h"
 #include "volumes/utilities/VolumeUtilities.h"
+#include "base/Stopwatch.h"
 
 #ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"
 #include "TPolyMarker3D.h"
 #include "TPolyLine3D.h"
+#include "TH1.h"
+#include "TGraph.h"
+#include "TFile.h"
 #include "volumes/Box.h"
 #endif
 
@@ -110,13 +114,9 @@ void DrawCluster(TessellatedStruct<double> const &tsl, int icluster, Visualizer 
 }
 #endif
 
-int main(int argc, char *argv[])
+int CreateTessellated(int ngrid, TessellatedStruct<double> &tsl)
 {
-  using namespace vecgeom;
-  //  using Real_v = typename VectorBackend::Real_v;
-
-  OPTION_INT(ngrid, 100);
-
+  // Create a tessellated sphere divided in ngrid*ngrid theta/phi cells
   // Sin/Cos tables
   double dth = kPi / ngrid;
   double dph = kTwoPi / ngrid;
@@ -131,8 +131,6 @@ int main(int argc, char *argv[])
     sph[i] = vecCore::math::Sin(i * dph);
     cph[i] = vecCore::math::Cos(i * dph);
   }
-
-  TessellatedStruct<double> tsl;
   for (int ith = 0; ith < ngrid; ++ith) {
     for (int iph = 0; iph < ngrid; ++iph) {
       // First/last rows - > triangles
@@ -145,8 +143,45 @@ int main(int argc, char *argv[])
       }
     }
   }
+  delete[] sth;
+  delete[] cth;
+  delete[] sph;
+  delete[] cph;
+  return int(tsl.fFacets.size());
+}
 
-  // Close the solid
+int main(int argc, char *argv[])
+{
+  using namespace vecgeom;
+  //  using Real_v = typename VectorBackend::Real_v;
+
+  OPTION_INT(ngrid, 100);
+  OPTION_INT(npoints, 1000);
+  OPTION_INT(vis, 0);
+  OPTION_INT(scalability, 0);
+
+  int ngrid1         = 10;
+  int i              = 0;
+  const double sqrt2 = vecCore::math::Sqrt(2.);
+  TGraph *gtime      = nullptr;
+  if (scalability) {
+    gtime = new TGraph(16);
+    while (ngrid1 < 2000) {
+      TessellatedStruct<double> tsl;
+      int nfacets1 = CreateTessellated(ngrid1, tsl);
+      // Close the solid
+      Stopwatch timer;
+      timer.Start();
+      tsl.Close();
+      double tbuild = timer.Stop();
+      gtime->SetPoint(i++, nfacets1, tbuild);
+      ngrid1 = sqrt2 * double(ngrid1);
+      printf("nfacets=%d  time=%g\n", nfacets1, tbuild);
+    }
+  }
+
+  TessellatedStruct<double> tsl;
+  CreateTessellated(ngrid, tsl);
   tsl.Close();
   std::cout << "=== Tessellated solid statistics: nfacets = " << tsl.fFacets.size()
             << "  nclusters = " << tsl.fClusters.size() << "  kVecSize = " << kVecSize << std::endl;
@@ -158,23 +193,48 @@ int main(int argc, char *argv[])
 
 // Visualize the facets
 #ifdef VECGEOM_ROOT
-  Visualizer visualizer;
-  // Visualize bounding box
-  Vector3D<double> deltas = 0.5 * (tsl.fMaxExtent - tsl.fMinExtent);
-  Vector3D<double> origin = 0.5 * (tsl.fMaxExtent + tsl.fMinExtent);
-  SimpleBox box("bbox", deltas.x(), deltas.y(), deltas.z());
-  visualizer.AddVolume(box, Transformation3D(origin.x(), origin.y(), origin.z()));
+  if (vis) {
+    Visualizer visualizer;
+    // Visualize bounding box
+    Vector3D<double> deltas = 0.5 * (tsl.fMaxExtent - tsl.fMinExtent);
+    Vector3D<double> origin = 0.5 * (tsl.fMaxExtent + tsl.fMinExtent);
+    SimpleBox box("bbox", deltas.x(), deltas.y(), deltas.z());
+    visualizer.AddVolume(box, Transformation3D(origin.x(), origin.y(), origin.z()));
 
-  // Visualize facets
-  /*
-  for (auto facet : tsl.fFacets) {
-    AddFacetToVisualizer(facet, visualizer);
+    // Visualize facets
+    for (auto facet : tsl.fFacets) {
+      AddFacetToVisualizer(facet, visualizer);
+    }
+    visualizer.Show();
   }
-  */
+
+  // Test distance to out from origin
+  Vector3D<double> point(0, 0, 0);
+  Vector3D<double> direction;
+  RandomDirection(direction);
+  double distance;
+  int ifacet;
+  tsl.DistanceToSolid<false>(point, direction, InfinityLength<double>(), distance, ifacet);
+  printf("Distance = %g\n", distance);
+
   // Visualize cluster
-  for (int icluster = 0; icluster < tsl.fClusters.size(); ++icluster)
-    DrawCluster(tsl, icluster, visualizer);
-  visualizer.Show();
+  int nblobs, nfacets;
+  int nfacetstot    = 0;
+  TH1F *hdispersion = new TH1F("hdispersion", "Cluster dispersion", 100, 0., 10.);
+  TH1I *hblobs      = new TH1I("hblobs", "Blobs in clusters", 8, 0, 8);
+  for (int icluster = 0; icluster < tsl.fClusters.size(); ++icluster) {
+    // DrawCluster(tsl, icluster, visualizer);
+    double dispersion = tsl.fClusters[icluster]->ComputeSparsity(nblobs, nfacets);
+    nfacetstot += nfacets;
+    hdispersion->Fill(dispersion);
+    hblobs->Fill(nblobs);
+  }
+  printf("Number of facets = %d/%lu\n", nfacetstot, tsl.fFacets.size());
+  TFile *file = TFile::Open("dispersion.root", "RECREATE");
+  hdispersion->Write();
+  hblobs->Write();
+  if (gtime) gtime->Write();
+  file->Write();
 #endif
 
   return 0;
