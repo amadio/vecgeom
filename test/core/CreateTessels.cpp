@@ -63,13 +63,13 @@ void DrawCluster(TessellatedStruct<double> const &tsl, int icluster, Visualizer 
   // Draw only segments of the facets which are not shared within the cluster
   TPolyLine3D pl(2);
   pl.SetLineColor(kBlue);
-  int nfacets = 0;
-  int ifacet  = 0;
-  int iother  = 0;
+  unsigned nfacets = 0;
+  unsigned ifacet  = 0;
+  unsigned iother  = 0;
   TriangleFacet<double> *facets[kVecSize];
   while (ifacet < kVecSize) {
     bool add = true;
-    for (int i = 0; i < nfacets; ++i) {
+    for (unsigned i = 0; i < nfacets; ++i) {
       if (tsl.fClusters[icluster]->fFacets[ifacet] == facets[i]) {
         ifacet++;
         add = false;
@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
   //  using Real_v = typename VectorBackend::Real_v;
 
   OPTION_INT(ngrid, 100);
-  OPTION_INT(npoints, 1000);
+  //  OPTION_INT(npoints, 1000);
   OPTION_INT(vis, 0);
   OPTION_INT(scalability, 0);
 
@@ -166,48 +166,33 @@ int main(int argc, char *argv[])
   TGraph *gtime      = nullptr;
   if (scalability) {
     gtime = new TGraph(16);
-    while (ngrid1 < 2000) {
-      TessellatedStruct<double> tsl;
-      int nfacets1 = CreateTessellated(ngrid1, tsl);
+    while (ngrid1 < 500) {
+      TessellatedStruct<double> *tsl1 = new TessellatedStruct<double>();
+      int nfacets1                    = CreateTessellated(ngrid1, *tsl1);
       // Close the solid
       Stopwatch timer;
       timer.Start();
-      tsl.Close();
+      tsl1->Close();
       double tbuild = timer.Stop();
       gtime->SetPoint(i++, nfacets1, tbuild);
       ngrid1 = sqrt2 * double(ngrid1);
       printf("nfacets=%d  time=%g\n", nfacets1, tbuild);
+      delete tsl1;
     }
   }
-
   TessellatedStruct<double> tsl;
   CreateTessellated(ngrid, tsl);
   tsl.Close();
   std::cout << "=== Tessellated solid statistics: nfacets = " << tsl.fFacets.size()
             << "  nclusters = " << tsl.fClusters.size() << "  kVecSize = " << kVecSize << std::endl;
   std::cout << "    cluster distribution: ";
-  for (int i = 1; i <= kVecSize; ++i) {
+  for (unsigned i = 1; i <= kVecSize; ++i) {
     std::cout << i << ": " << tsl.fNcldist[i] << " | ";
   }
   std::cout << "\n";
 
 // Visualize the facets
 #ifdef VECGEOM_ROOT
-  if (vis) {
-    Visualizer visualizer;
-    // Visualize bounding box
-    Vector3D<double> deltas = 0.5 * (tsl.fMaxExtent - tsl.fMinExtent);
-    Vector3D<double> origin = 0.5 * (tsl.fMaxExtent + tsl.fMinExtent);
-    SimpleBox box("bbox", deltas.x(), deltas.y(), deltas.z());
-    visualizer.AddVolume(box, Transformation3D(origin.x(), origin.y(), origin.z()));
-
-    // Visualize facets
-    for (auto facet : tsl.fFacets) {
-      AddFacetToVisualizer(facet, visualizer);
-    }
-    visualizer.Show();
-  }
-
   // Test distance to out from origin
   Vector3D<double> point(0, 0, 0);
   Vector3D<double> direction;
@@ -217,13 +202,12 @@ int main(int argc, char *argv[])
   tsl.DistanceToSolid<false>(point, direction, InfinityLength<double>(), distance, ifacet);
   printf("Distance = %g\n", distance);
 
-  // Visualize cluster
+  // Analyze clusters
   int nblobs, nfacets;
   int nfacetstot    = 0;
   TH1F *hdispersion = new TH1F("hdispersion", "Cluster dispersion", 100, 0., 10.);
   TH1I *hblobs      = new TH1I("hblobs", "Blobs in clusters", 8, 0, 8);
-  for (int icluster = 0; icluster < tsl.fClusters.size(); ++icluster) {
-    // DrawCluster(tsl, icluster, visualizer);
+  for (unsigned icluster = 0; icluster < tsl.fClusters.size(); ++icluster) {
     double dispersion = tsl.fClusters[icluster]->ComputeSparsity(nblobs, nfacets);
     nfacetstot += nfacets;
     hdispersion->Fill(dispersion);
@@ -235,6 +219,26 @@ int main(int argc, char *argv[])
   hblobs->Write();
   if (gtime) gtime->Write();
   file->Write();
+
+  if (vis) {
+    Visualizer visualizer;
+    // Visualize bounding box
+    Vector3D<double> deltas = 0.5 * (tsl.fMaxExtent - tsl.fMinExtent);
+    Vector3D<double> origin = 0.5 * (tsl.fMaxExtent + tsl.fMinExtent);
+    SimpleBox box("bbox", deltas.x(), deltas.y(), deltas.z());
+    visualizer.AddVolume(box, Transformation3D(origin.x(), origin.y(), origin.z()));
+
+    // Visualize facets
+    /*
+    for (auto facet : tsl.fFacets) {
+      AddFacetToVisualizer(facet, visualizer);
+    }
+    */
+    for (unsigned icluster = 0; icluster < tsl.fClusters.size(); ++icluster)
+      DrawCluster(tsl, icluster, visualizer);
+    visualizer.Show();
+  }
+
 #endif
 
   return 0;

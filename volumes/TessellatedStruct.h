@@ -42,22 +42,24 @@ class TessellatedStruct {
 
   //__________________________________________________________________________
   struct GridHelper {
-    int fNgrid              = 0;       ///< Grid size
-    int fNcells             = 0;       ///< Number of cells in the grid
-    int fNcached            = 0;       ///< number of cached cells
-    Vector3D<T> fMinExtent  = 0;       ///< Minimum extent
-    Vector3D<T> fMaxExtent  = 0;       ///< Maximum extent
-    Vector3D<T> fInvExtSize = 0;       ///< Inverse extent size
-    GridCell **fGrid        = nullptr; ///< Grid for clustering facets
-    vector_t<Vector3D<T>> fAllVert;    ///< Full list of vertices
+    int fNgrid       = 0;           ///< Grid size
+    int fNcells      = 0;           ///< Number of cells in the grid
+    int fNcached     = 0;           ///< number of cached cells
+    GridCell **fGrid = nullptr;     ///< Grid for clustering facets
+    Vector3D<T> fMinExtent;         ///< Minimum extent
+    Vector3D<T> fMaxExtent;         ///< Maximum extent
+    Vector3D<T> fInvExtSize;        ///< Inverse extent size
+    vector_t<Vector3D<T>> fAllVert; ///< Full list of vertices
 
     GridHelper() {}
 
     ~GridHelper()
     {
-      for (int i = 0; i < fNcells; ++i)
-        delete fGrid[i];
-      delete[] fGrid;
+      if (fGrid) {
+        for (int i = 0; i < fNcells; ++i)
+          delete fGrid[i];
+        delete[] fGrid;
+      }
     }
 
     void CreateCells(int ngrid)
@@ -147,7 +149,7 @@ public:
   ~TessellatedStruct()
   {
     delete fHelper;
-    delete fSelected;
+    BitSet::ReleaseInstance(fSelected);
   }
 
   VECCORE_ATT_HOST_DEVICE
@@ -230,7 +232,7 @@ public:
 
     // Clear vertices and store facet indices in the grid helper
     fHelper->ClearCells();
-    int ifacet = 0;
+    unsigned ifacet = 0;
     for (auto facet : fFacets) {
       fHelper->GetCell(facet->fCenter, ind)->fArray.push_back(ifacet);
       //      for (int ivert = 0; ivert < 3; ++ivert) {
@@ -268,7 +270,7 @@ public:
   TessellatedCluster<Real_v> *CreateCluster()
   {
     // Create cluster starting from fCandidates list
-    int nfacets = 0;
+    unsigned nfacets = 0;
     assert(fCandidates.size() > 0); // call the method with at least one candidate in the list
     constexpr int rankmax = 2;      // ??? how to determine an appropriate value ???
     int rank              = 0;

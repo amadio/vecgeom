@@ -6,6 +6,7 @@
 
 #include <VecCore/VecCore>
 
+#include "base/AlignedBase.h"
 #include "base/Global.h"
 #include "base/Vector3D.h"
 #include "base/Vector.h"
@@ -13,6 +14,8 @@
 #include "TriangleFacet.h"
 
 namespace vecgeom {
+
+VECGEOM_DEVICE_FORWARD_DECLARE(template <typename Type> class TessellatedCluster;);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -22,7 +25,8 @@ constexpr size_t kVecSize = vecCore::VectorSize<vecgeom::VectorBackend::Real_v>(
 // Structure used for vectorizing queries on groups of triangles. Stores Real_v
 // types matched with the compiled SIMD vectors of double.
 template <typename Real_v>
-struct TessellatedCluster {
+class TessellatedCluster : public AlignedBase {
+public:
   using T       = typename vecCore::ScalarType<Real_v>::Type;
   using Facet_t = TriangleFacet<T>;
 
@@ -58,14 +62,14 @@ struct TessellatedCluster {
 
     // Find cluster center
     Vector3D<T> clcenter;
-    for (int ifacet = 0; ifacet < kVecSize; ++ifacet) {
+    for (unsigned ifacet = 0; ifacet < kVecSize; ++ifacet) {
       clcenter += fFacets[ifacet]->fCenter;
     }
     clcenter /= kVecSize;
 
     // Compute dispersion
     T maxsize = 0, lensq = 0, dmax = 0;
-    for (int ifacet = 0; ifacet < kVecSize; ++ifacet) {
+    for (unsigned ifacet = 0; ifacet < kVecSize; ++ifacet) {
       T facetsizesq = 0;
       for (int i = 0; i < 3; ++i) {
         lensq = (fFacets[ifacet]->fVertices[i] - fFacets[ifacet]->fVertices[(i + 1) % 3]).Mag2();
@@ -79,9 +83,9 @@ struct TessellatedCluster {
 
     // Compute number of distinct facets
     nfacets = 0;
-    for (int ifacet = 0; ifacet < kVecSize; ++ifacet) {
+    for (unsigned ifacet = 0; ifacet < kVecSize; ++ifacet) {
       bool duplicate = false;
-      for (int jfacet = ifacet + 1; jfacet < kVecSize; ++jfacet) {
+      for (unsigned jfacet = ifacet + 1; jfacet < kVecSize; ++jfacet) {
         if (fFacets[jfacet] == fFacets[ifacet]) {
           duplicate = true;
           break;
@@ -95,14 +99,14 @@ struct TessellatedCluster {
     int cluster[kVecSize];
     int ncl             = 0;
     bool used[kVecSize] = {false};
-    for (int ifacet = 0; ifacet < kVecSize; ++ifacet) {
+    for (unsigned ifacet = 0; ifacet < kVecSize; ++ifacet) {
       ncl = 0;
       if (used[ifacet]) break;
       cluster[ncl++] = ifacet;
       used[ifacet]   = true;
       nblobs++;
       // loop remaining facets
-      for (int jfacet = ifacet + 1; jfacet < kVecSize; ++jfacet) {
+      for (unsigned jfacet = ifacet + 1; jfacet < kVecSize; ++jfacet) {
         if (used[jfacet]) break;
         // loop facets already in sub-cluster
         int nneighbors = 0;
