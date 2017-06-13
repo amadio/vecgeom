@@ -220,9 +220,7 @@ protected:
     T step;
     assert(pvol != nullptr && "currentvolume is null in navigation");
     step = pvol->DistanceToOut(localpoint, localdir, step_limit);
-    // NOTE: IF STEP IS NEGATIVE HERE, SOMETHING IS TERRIBLY WRONG. SET TO INFINITY SO THAT WE CAN BETTER HANDLE IT
-    // LATER ON
-    vecCore::MaskedAssign(step, step < T(0.), T(kInfLength));
+    vecCore::MaskedAssign(step, step < T(0.), T(0.));
     return step;
   }
 
