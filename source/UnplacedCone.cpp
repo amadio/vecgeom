@@ -301,6 +301,7 @@ bool UnplacedCone::IsOnEdge(Vector3D<Precision> &point) const
   return count > 1;
 }
 
+#if (0) // Old buggy definition as pointed in Jira-433
 Vector3D<Precision> UnplacedCone::SamplePointOnSurface() const
 {
   // implementation taken from UCons; not verified
@@ -374,6 +375,77 @@ Vector3D<Precision> UnplacedCone::SamplePointOnSurface() const
 
   return retPt;
 }
+#endif
+
+#if (1) // New Simplified and accurate definition to sample points on the surface of Cone
+Vector3D<Precision> UnplacedCone::SamplePointOnSurface() const
+{
+  // implementation taken from UCons; not verified
+  //
+  double rad = 0.;
+  Vector3D<Precision> retPt;
+  double zRand      = RNG::Instance().uniform(-1. * fCone.fDz, fCone.fDz);
+  int surfSelection = 0;
+  if (!fCone.fRmin1 && !fCone.fRmin2) {
+    if (fCone.fDPhi < vecgeom::kTwoPi)
+      surfSelection = (int)RNG::Instance().uniform(2., 7.);
+    else
+      surfSelection = (int)RNG::Instance().uniform(2., 5.);
+
+  } else {
+    if (fCone.fDPhi < vecgeom::kTwoPi)
+      surfSelection = (int)RNG::Instance().uniform(1., 7.);
+    else
+      surfSelection = (int)RNG::Instance().uniform(1., 5.);
+  }
+
+  if (surfSelection == 1) {
+    // Generate point on inner Conical surface
+    rad       = GetRadiusOfConeAtPoint<true>(zRand);
+    retPt.z() = zRand;
+  }
+  if (surfSelection == 2) {
+    // Generate point on outer Conical surface
+    rad       = GetRadiusOfConeAtPoint<false>(zRand);
+    retPt.z() = zRand;
+  }
+  if (surfSelection == 3) {
+    // Generate point on top Z plane
+    rad       = RNG::Instance().uniform(fCone.fRmin2, fCone.fRmax2);
+    retPt.z() = fCone.fDz;
+  }
+  if (surfSelection == 4) {
+    // Generate point on bottom Z plane
+    rad       = RNG::Instance().uniform(fCone.fRmin1, fCone.fRmax1);
+    retPt.z() = -fCone.fDz;
+  }
+
+  if (surfSelection == 5) {
+    // Generate point on startPhi Surface
+    double rmin                            = 0.;
+    if (fCone.fRmin1 || fCone.fRmin2) rmin = GetRadiusOfConeAtPoint<true>(zRand);
+    double rmax                            = GetRadiusOfConeAtPoint<false>(zRand);
+    double rinter                          = RNG::Instance().uniform(rmin, rmax);
+    retPt.Set(rinter * std::cos(fCone.fSPhi), rinter * std::sin(fCone.fSPhi), zRand);
+    return retPt;
+  }
+  if (surfSelection == 6) {
+    // Generate point on endPhi Surface
+    double rmin                            = 0.;
+    if (fCone.fRmin1 || fCone.fRmin2) rmin = GetRadiusOfConeAtPoint<true>(zRand);
+    double rmax                            = GetRadiusOfConeAtPoint<false>(zRand);
+    double rinter                          = RNG::Instance().uniform(rmin, rmax);
+    retPt.Set(rinter * std::cos(fCone.fSPhi + fCone.fDPhi), rinter * std::sin(fCone.fSPhi + fCone.fDPhi), zRand);
+    return retPt;
+  }
+
+  double theta = RNG::Instance().uniform(fCone.fSPhi, fCone.fSPhi + fCone.fDPhi);
+  retPt.x()    = rad * std::cos(theta);
+  retPt.y()    = rad * std::sin(theta);
+  return retPt;
+}
+#endif
+
 #endif // VECCORE_CUDA
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
