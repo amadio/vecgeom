@@ -39,11 +39,12 @@ TGeoShape const *PlacedPolycone::ConvertToRoot() const
   std::vector<double> z;
   unplaced->ReconstructSectionArrays(z, rmin, rmax);
 
-  TGeoPcon *rootshape = new TGeoPcon(unplaced->fStartPhi * kRadToDeg, unplaced->fDeltaPhi * kRadToDeg, z.size());
+  TGeoPcon *rootshape =
+      new TGeoPcon(unplaced->GetStruct().fStartPhi * kRadToDeg, unplaced->GetStruct().fDeltaPhi * kRadToDeg, z.size());
 
-  if (unplaced->fNz != z.size()) std::cout << "WARNING: Inconsistency in number of polycone sections\n";
+  if (unplaced->GetStruct().fNz != z.size()) std::cout << "WARNING: Inconsistency in number of polycone sections\n";
 
-  for (unsigned int i = 0; i < unplaced->fNz; ++i)
+  for (unsigned int i = 0; i < unplaced->GetStruct().fNz; ++i)
     rootshape->DefineSection(i, z[i], rmin[i], rmax[i]);
 
   return rootshape;
@@ -60,8 +61,8 @@ TGeoShape const *PlacedPolycone::ConvertToRoot() const
   std::vector<double> z;
   unplaced->ReconstructSectionArrays(z, rmin, rmax);
 
-  UPolycone *usolidshape =
-      new UPolycone("", unplaced->fStartPhi, unplaced->fDeltaPhi, z.size(), &z[0], &rmin[0], &rmax[0]);
+  UPolycone *usolidshape = new UPolycone("", unplaced->GetStruct().fStartPhi, unplaced->GetStruct().fDeltaPhi, z.size(),
+                                         &z[0], &rmin[0], &rmax[0]);
 
   return usolidshape;
 }
@@ -77,8 +78,8 @@ G4VSolid const *PlacedPolycone::ConvertToGeant4() const
   std::vector<double> z;
   unplaced->ReconstructSectionArrays(z, rmin, rmax);
 
-  G4Polycone *g4shape =
-      new G4Polycone("", unplaced->fStartPhi, unplaced->fDeltaPhi, z.size(), &z[0], &rmin[0], &rmax[0]);
+  G4Polycone *g4shape = new G4Polycone("", unplaced->GetStruct().fStartPhi, unplaced->GetStruct().fDeltaPhi, z.size(),
+                                       &z[0], &rmin[0], &rmax[0]);
 
   return g4shape;
 }

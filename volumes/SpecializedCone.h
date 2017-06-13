@@ -12,10 +12,8 @@
 
 #include "volumes/kernel/ConeImplementation.h"
 #include "volumes/PlacedCone.h"
-//#include "volumes/ScalarShapeImplementationHelper.h"
-#include "volumes/ShapeImplementationHelper.h"
-#include "base/SOA3D.h"
-#include "volumes/PlacedBox.h"
+#include "volumes/SpecializedPlacedVolImplHelper.h"
+#include "volumes/UnplacedCone.h"
 
 #include <stdio.h>
 
@@ -23,10 +21,8 @@ namespace vecgeom {
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-template <TranslationCode transCodeT, RotationCode rotCodeT, typename ConeType>
-// using SpecializedCone = ScalarShapeImplementationHelper<ConeImplementation<transCodeT, rotCodeT, ConeType>>;
-using SpecializedCone = ShapeImplementationHelper<ConeImplementation<transCodeT, rotCodeT, ConeType>>;
-
+template <TranslationCode transCodeT, RotationCode rotCodeT, typename coneTypeT>
+using SpecializedCone    = SIMDSpecializedVolImplHelper<ConeImplementation<coneTypeT>, transCodeT, rotCodeT>;
 using SimpleCone         = SpecializedCone<translation::kGeneric, rotation::kGeneric, ConeTypes::UniversalCone>;
 using SimpleUnplacedCone = SpecializedCone<translation::kIdentity, rotation::kIdentity, ConeTypes::UniversalCone>;
 

@@ -9,11 +9,12 @@
 #define VECGEOM_VOLUMES_UNPLACEDCONE_H_
 
 #include "base/Global.h"
-
 #include "base/AlignedBase.h"
 #include "volumes/UnplacedVolume.h"
-#include "volumes/Wedge.h"
-#include <cmath>
+#include "volumes/ConeStruct.h"
+#include "volumes/kernel/ConeImplementation.h"
+#include "volumes/UnplacedVolumeImplHelper.h"
+#include "volumes/kernel/shapetypes/ConeTypes.h"
 
 namespace vecgeom {
 
@@ -30,198 +31,108 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
  *
  * Member Data:
  *
- *  fDz half length in z direction;  ( the cone has height 2*fDz )
- *  fRmin1  inside radius at  -fDz ( in internal coordinate system )
- *  fRmin2  inside radius at  +fDz
- *  fRmax1  outside radius at -fDz
- *  fRmax2  outside radius at +fDz
- *  fSPhi starting angle of the segment in radians
- *  fDPhi delta angle of the segment in radians
+ * fCone.fDz half length in z direction;  ( the cone has height 2*fDz )
+ * fCone.fRmin1  inside radius at  -fDz ( in internal coordinate system )
+ * fCone.fRmin2  inside radius at  +fDz
+ * fCone.fRmax1  outside radius at -fDz
+ * fCone.fRmax2  outside radius at +fDz
+ * fCone.fSPhi starting angle of the segment in radians
+ * fCone.fDPhi delta angle of the segment in radians
  */
-class UnplacedCone : public VUnplacedVolume, public AlignedBase {
-
+class UnplacedCone : public SIMDUnplacedVolumeImplHelper<ConeImplementation<ConeTypes::UniversalCone>>,
+                     public AlignedBase {
 private:
-  Precision fRmin1;
-  Precision fRmax1;
-  Precision fRmin2;
-  Precision fRmax2;
-  Precision fDz;
-  Precision fSPhi;
-  Precision fDPhi;
-  Wedge fPhiWedge; // the Phi bounding of the cone (not the cutout) -- will be able to get rid of the next angles
-  // Precision innerSlantHeight,outerSlantHeight,partAreaInner,partAreaOuter,innerRadDiff,outerRadDiff,fDzInv;
-
-  // vectors characterizing the normals of phi planes
-  // makes task to detect phi sektors very efficient
-  Vector3D<Precision> fNormalPhi1;
-  Vector3D<Precision> fNormalPhi2;
-  Precision fAlongPhi1x;
-  Precision fAlongPhi1y;
-  Precision fAlongPhi2x;
-  Precision fAlongPhi2y;
-
-  // Some precomputed values to avoid divisions etc
-  Precision fInnerSlope;    // "gradient" of inner surface in z direction
-  Precision fOuterSlope;    // "gradient" of outer surface in z direction
-  Precision fInnerSlopeInv; // Inverse of innerSlope
-  Precision fOuterSlopeInv; // Inverse of outerSlope
-  Precision fInnerOffset;
-  Precision fOuterOffset;
-  Precision fOuterSlopeSquare;
-  Precision fInnerSlopeSquare;
-  Precision fOuterOffsetSquare;
-  Precision fInnerOffsetSquare;
-
-  // Values to be cached
-  Precision fSqRmin1, fSqRmin2;
-  Precision fSqRmax1, fSqRmax2;
-  Precision fSqRmin1Tol, fSqRmin2Tol, fSqRmax1Tol, fSqRmax2Tol;
-  Precision fTolIz, fTolOz;
-
-  Precision fInnerConeApex;
-  Precision fTanInnerApexAngle;
-  Precision fTanInnerApexAngle2;
-
-  Precision fOuterConeApex;
-  Precision fTanOuterApexAngle;
-  Precision fTanOuterApexAngle2;
-
-  Precision fSecRMin;
-  Precision fSecRMax;
-  Precision fInvSecRMin;
-  Precision fInvSecRMax;
-  Precision fTanRMin;
-  Precision fTanRMax;
-  Precision fZNormInner;
-  Precision fZNormOuter;
-  Precision fRminAv;
-  Precision fRmaxAv;
-  bool fneedsRminTreatment;
-  Precision fConeTolerance;
+  ConeStruct<Precision> fCone;
 
 public:
   VECCORE_ATT_HOST_DEVICE
   UnplacedCone(Precision rmin1, Precision rmax1, Precision rmin2, Precision rmax2, Precision dz, Precision phimin,
-               Precision deltaphi);
-
-  VECCORE_ATT_HOST_DEVICE
-  void CalculateCached();
-
-  VECCORE_ATT_HOST_DEVICE
-  static void GetAlongVectorToPhiSector(Precision phi, Precision &x, Precision &y)
+               Precision deltaphi)
+      : fCone(rmin1, rmax1, rmin2, rmax2, dz, phimin, deltaphi)
   {
-    x = std::cos(phi);
-    y = std::sin(phi);
+
+    DetectConvexity();
   }
 
   VECCORE_ATT_HOST_DEVICE
-  Precision GetInvSecRMax() const { return fInvSecRMax; }
+  ConeStruct<double> const &GetStruct() const { return fCone; }
 
   VECCORE_ATT_HOST_DEVICE
-  Precision GetInvSecRMin() const { return fInvSecRMin; }
+  Precision GetInvSecRMax() const { return fCone.fInvSecRMax; }
 
   VECCORE_ATT_HOST_DEVICE
-  Precision GetTolIz() const { return fTolIz; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetTolOz() const { return fTolOz; }
+  Precision GetInvSecRMin() const { return fCone.fInvSecRMin; }
 
   VECCORE_ATT_HOST_DEVICE
-  Precision GetConeTolerane() const { return fConeTolerance; }
+  Precision GetTolIz() const { return fCone.fTolIz; }
   VECCORE_ATT_HOST_DEVICE
-  Precision GetSqRmin1() const { return fSqRmin1; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetSqRmin2() const { return fSqRmin2; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetSqRmax1() const { return fSqRmax1; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetSqRmax2() const { return fSqRmax2; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetSqRmin1Tol() const { return fSqRmin1Tol; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetSqRmin2Tol() const { return fSqRmin2Tol; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetSqRmax1Tol() const { return fSqRmax1Tol; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetSqRmax2Tol() const { return fSqRmax2Tol; }
-  VECCORE_ATT_HOST_DEVICE
-  bool NeedsRminTreatment() const { return fneedsRminTreatment; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetTanRmax() const { return fTanRMax; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetTanRmin() const { return fTanRMin; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetSecRmax() const { return fSecRMax; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetSecRmin() const { return fSecRMin; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetZNormInner() const { return fZNormInner; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetZNormOuter() const { return fZNormOuter; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetInnerConeApex() const { return fInnerConeApex; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetTInner() const { return fTanInnerApexAngle; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetTInner2() const { return fTanInnerApexAngle2; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetOuterConeApex() const { return fOuterConeApex; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetTOuter() const { return fTanOuterApexAngle; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetTOuter2() const { return fTanOuterApexAngle2; }
+  Precision GetTolOz() const { return fCone.fTolOz; }
 
-  // VECCORE_ATT_HOST_DEVICE
-  // virtual bool IsConvex() const override;
+  VECCORE_ATT_HOST_DEVICE
+  Precision GetConeTolerane() const { return fCone.fConeTolerance; }
+  VECCORE_ATT_HOST_DEVICE
+  Precision GetSqRmin1() const { return fCone.fSqRmin1; }
+  VECCORE_ATT_HOST_DEVICE
+  Precision GetSqRmin2() const { return fCone.fSqRmin2; }
+  VECCORE_ATT_HOST_DEVICE
+  Precision GetSqRmax1() const { return fCone.fSqRmax1; }
+  VECCORE_ATT_HOST_DEVICE
+  Precision GetSqRmax2() const { return fCone.fSqRmax2; }
+  VECCORE_ATT_HOST_DEVICE
+  Precision GetTanRmax() const { return fCone.fTanRMax; }
+  VECCORE_ATT_HOST_DEVICE
+  Precision GetTanRmin() const { return fCone.fTanRMin; }
+  VECCORE_ATT_HOST_DEVICE
+  Precision GetSecRmax() const { return fCone.fSecRMax; }
+  VECCORE_ATT_HOST_DEVICE
+  Precision GetSecRmin() const { return fCone.fSecRMin; }
+  VECCORE_ATT_HOST_DEVICE
+  Precision GetZNormInner() const { return fCone.fZNormInner; }
+  VECCORE_ATT_HOST_DEVICE
+  Precision GetZNormOuter() const { return fCone.fZNormOuter; }
+  VECCORE_ATT_HOST_DEVICE
+  Precision GetInnerConeApex() const { return fCone.fInnerConeApex; }
+  VECCORE_ATT_HOST_DEVICE
+  Precision GetTInner() const { return fCone.fTanInnerApexAngle; }
+  VECCORE_ATT_HOST_DEVICE
+  Precision GetOuterConeApex() const { return fCone.fOuterConeApex; }
+  VECCORE_ATT_HOST_DEVICE
+  Precision GetTOuter() const { return fCone.fTanOuterApexAngle; }
+
   VECCORE_ATT_HOST_DEVICE
   void DetectConvexity();
   VECCORE_ATT_HOST_DEVICE
-  Precision GetRminAv() const { return fRminAv; }
+  Precision GetRmin1() const { return fCone.fRmin1; }
   VECCORE_ATT_HOST_DEVICE
-  Precision GetRmaxAv() const { return fRmaxAv; }
+  Precision GetRmax1() const { return fCone.fRmax1; }
   VECCORE_ATT_HOST_DEVICE
-  Precision GetRmin1() const { return fRmin1; }
+  Precision GetRmin2() const { return fCone.fRmin2; }
   VECCORE_ATT_HOST_DEVICE
-  Precision GetRmax1() const { return fRmax1; }
+  Precision GetRmax2() const { return fCone.fRmax2; }
   VECCORE_ATT_HOST_DEVICE
-  Precision GetRmin2() const { return fRmin2; }
+  Precision GetDz() const { return fCone.fDz; }
   VECCORE_ATT_HOST_DEVICE
-  Precision GetRmax2() const { return fRmax2; }
+  Precision GetSPhi() const { return fCone.fSPhi; }
   VECCORE_ATT_HOST_DEVICE
-  Precision GetDz() const { return fDz; }
+  Precision GetDPhi() const { return fCone.fDPhi; }
   VECCORE_ATT_HOST_DEVICE
-  Precision GetSPhi() const { return fSPhi; }
+  Precision GetInnerSlope() const { return fCone.fInnerSlope; }
   VECCORE_ATT_HOST_DEVICE
-  Precision GetDPhi() const { return fDPhi; }
+  Precision GetOuterSlope() const { return fCone.fOuterSlope; }
   VECCORE_ATT_HOST_DEVICE
-  Precision GetInnerSlope() const { return fInnerSlope; }
+  Precision GetInnerOffset() const { return fCone.fInnerOffset; }
   VECCORE_ATT_HOST_DEVICE
-  Precision GetOuterSlope() const { return fOuterSlope; }
+  Precision GetOuterOffset() const { return fCone.fOuterOffset; }
   VECCORE_ATT_HOST_DEVICE
-  Precision GetInnerSlopeInv() const { return fInnerSlopeInv; }
+  Precision GetAlongPhi1X() const { return fCone.fAlongPhi1x; }
   VECCORE_ATT_HOST_DEVICE
-  Precision GetOuterSlopeInv() const { return fOuterSlopeInv; }
+  Precision GetAlongPhi1Y() const { return fCone.fAlongPhi1y; }
   VECCORE_ATT_HOST_DEVICE
-  Precision GetInnerOffset() const { return fInnerOffset; }
+  Precision GetAlongPhi2X() const { return fCone.fAlongPhi2x; }
   VECCORE_ATT_HOST_DEVICE
-  Precision GetOuterOffset() const { return fOuterOffset; }
+  Precision GetAlongPhi2Y() const { return fCone.fAlongPhi2y; }
   VECCORE_ATT_HOST_DEVICE
-  Precision GetInnerSlopeSquare() const { return fInnerSlopeSquare; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetOuterSlopeSquare() const { return fOuterSlopeSquare; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetInnerOffsetSquare() const { return fInnerOffsetSquare; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetOuterOffsetSquare() const { return fOuterOffsetSquare; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetAlongPhi1X() const { return fAlongPhi1x; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetAlongPhi1Y() const { return fAlongPhi1y; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetAlongPhi2X() const { return fAlongPhi2x; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetAlongPhi2Y() const { return fAlongPhi2y; }
-  VECCORE_ATT_HOST_DEVICE
-  Wedge const &GetWedge() const { return fPhiWedge; }
+  evolution::Wedge const &GetWedge() const { return fCone.fPhiWedge; }
 
   VECCORE_ATT_HOST_DEVICE
   void SetAndCheckSPhiAngle(Precision sPhi);
@@ -231,44 +142,44 @@ public:
 
   void SetRmin1(Precision const &arg)
   {
-    fRmin1 = arg;
-    CalculateCached();
+    fCone.fRmin1 = arg;
+    fCone.CalculateCached();
   }
   void SetRmax1(Precision const &arg)
   {
-    fRmax1 = arg;
-    CalculateCached();
+    fCone.fRmax1 = arg;
+    fCone.CalculateCached();
   }
   void SetRmin2(Precision const &arg)
   {
-    fRmin2 = arg;
-    CalculateCached();
+    fCone.fRmin2 = arg;
+    fCone.CalculateCached();
   }
   void SetRmax2(Precision const &arg)
   {
-    fRmax2 = arg;
-    CalculateCached();
+    fCone.fRmax2 = arg;
+    fCone.CalculateCached();
   }
   void SetDz(Precision const &arg)
   {
-    fDz = arg;
-    CalculateCached();
+    fCone.fDz = arg;
+    fCone.CalculateCached();
   }
   void SetSPhi(Precision const &arg)
   {
-    fSPhi = arg;
-    SetAndCheckSPhiAngle(fSPhi);
+    fCone.fSPhi = arg;
+    fCone.SetAndCheckSPhiAngle(fCone.fSPhi);
     DetectConvexity();
   }
   void SetDPhi(Precision const &arg)
   {
-    fDPhi = arg;
-    SetAndCheckDPhiAngle(fDPhi);
+    fCone.fDPhi = arg;
+    fCone.SetAndCheckDPhiAngle(fCone.fDPhi);
     DetectConvexity();
   }
 
   VECCORE_ATT_HOST_DEVICE
-  bool IsFullPhi() const { return fDPhi == kTwoPi; }
+  bool IsFullPhi() const { return fCone.fDPhi == kTwoPi; }
 
   virtual int MemorySize() const final { return sizeof(*this); }
 
@@ -306,20 +217,23 @@ public:
 #ifndef VECCORE_CUDA
   Precision Capacity() const
   {
-    return (fDz * fDPhi / 3.) *
-           (fRmax1 * fRmax1 + fRmax2 * fRmax2 + fRmax1 * fRmax2 - fRmin1 * fRmin1 - fRmin2 * fRmin2 - fRmin1 * fRmin2);
+    return (fCone.fDz * fCone.fDPhi / 3.) *
+           (fCone.fRmax1 * fCone.fRmax1 + fCone.fRmax2 * fCone.fRmax2 + fCone.fRmax1 * fCone.fRmax2 -
+            fCone.fRmin1 * fCone.fRmin1 - fCone.fRmin2 * fCone.fRmin2 - fCone.fRmin1 * fCone.fRmin2);
   }
 
   Precision SurfaceArea() const
   {
     double mmin, mmax, dmin, dmax;
-    mmin = (fRmin1 + fRmin2) * 0.5;
-    mmax = (fRmax1 + fRmax2) * 0.5;
-    dmin = (fRmin2 - fRmin1);
-    dmax = (fRmax2 - fRmax1);
+    mmin = (fCone.fRmin1 + fCone.fRmin2) * 0.5;
+    mmax = (fCone.fRmax1 + fCone.fRmax2) * 0.5;
+    dmin = (fCone.fRmin2 - fCone.fRmin1);
+    dmax = (fCone.fRmax2 - fCone.fRmax1);
 
-    return fDPhi * (mmin * std::sqrt(dmin * dmin + 4 * fDz * fDz) + mmax * std::sqrt(dmax * dmax + 4 * fDz * fDz) +
-                    0.5 * (fRmax1 * fRmax1 - fRmin1 * fRmin1 + fRmax2 * fRmax2 - fRmin2 * fRmin2));
+    return fCone.fDPhi * (mmin * std::sqrt(dmin * dmin + 4 * fCone.fDz * fCone.fDz) +
+                          mmax * std::sqrt(dmax * dmax + 4 * fCone.fDz * fCone.fDz) +
+                          0.5 * (fCone.fRmax1 * fCone.fRmax1 - fCone.fRmin1 * fCone.fRmin1 +
+                                 fCone.fRmax2 * fCone.fRmax2 - fCone.fRmin2 * fCone.fRmin2));
   }
 
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const;

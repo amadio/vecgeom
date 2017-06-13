@@ -1,22 +1,22 @@
 /*
  * PlacedPolycone.h
  *
- *  Created on: Dec 8, 2014
+ *  Created on: May 14, 2014
  *      Author: swenzel
  */
-
 #ifndef VECGEOM_VOLUMES_PLACEDPOLYCONE_H_
 #define VECGEOM_VOLUMES_PLACEDPOLYCONE_H_
 
 #include "base/Global.h"
-#include "backend/Backend.h"
-
+#ifndef VECCORE_CUDA
+#include "base/RNG.h"
+#include <cmath>
+#endif
 #include "volumes/PlacedVolume.h"
 #include "volumes/UnplacedVolume.h"
-
+#include "volumes/kernel/PolyconeImplementation.h"
+#include "volumes/PlacedVolImplHelper.h"
 #include "volumes/UnplacedPolycone.h"
-
-class UPolyconeHistorical;
 
 namespace vecgeom {
 
@@ -25,28 +25,28 @@ VECGEOM_DEVICE_DECLARE_CONV(class, PlacedPolycone);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class PlacedPolycone : public VPlacedVolume {
+class PlacedPolycone : public PlacedVolumeImplHelper<UnplacedPolycone, VPlacedVolume> {
+  using Base = PlacedVolumeImplHelper<UnplacedPolycone, VPlacedVolume>;
 
 public:
-  typedef UnplacedPolycone UnplacedShape_t;
-
 #ifndef VECCORE_CUDA
-  PlacedPolycone(char const *const label, LogicalVolume const *const logical_volume,
-                 Transformation3D const *const transformation, PlacedBox const *const boundingBox)
-      : VPlacedVolume(label, logical_volume, transformation, boundingBox)
+  // constructor inheritance;
+  using Base::Base;
+  PlacedPolycone(char const *const label, LogicalVolume const *const logicalVolume,
+                 Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
+      : Base(label, logicalVolume, transformation, boundingBox)
   {
   }
 
-  PlacedPolycone(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-                 PlacedBox const *const boundingBox)
-      : PlacedPolycone("", logical_volume, transformation, boundingBox)
+  PlacedPolycone(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
+                 vecgeom::PlacedBox const *const boundingBox)
+      : PlacedPolycone("", logicalVolume, transformation, boundingBox)
   {
   }
-
 #else
-  __device__ PlacedPolycone(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
+  __device__ PlacedPolycone(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
                             PlacedBox const *const boundingBox, const int id)
-      : VPlacedVolume(logical_volume, transformation, boundingBox, id)
+      : Base(logicalVolume, transformation, boundingBox, id)
   {
   }
 #endif
@@ -65,12 +65,7 @@ public:
   Precision GetEndPhi() const { return GetUnplacedVolume()->GetEndPhi(); }
   int GetNumRZCorner() const { return 2 * (int)(GetUnplacedVolume()->GetNz()); } // in USolids nCorners = 2*nPlanes
 
-  PolyconeHistorical *GetOriginalParameters() const
-  {
-    return GetUnplacedVolume()->fOriginal_parameters;
-    //  assert(false && "*** Method PlacedPolycone::GetOriginalParameters() has been deprecated.\n");
-    //  return NULL;
-  }
+  PolyconeHistorical *GetOriginalParameters() const { return GetUnplacedVolume()->GetOriginalParameters(); }
 
   void Reset() { const_cast<UnplacedPolycone *>(GetUnplacedVolume())->Reset(); }
 
@@ -90,7 +85,9 @@ public:
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const override;
 #endif
+#endif // VECGEOM_BENCHMARK
 
+#if !defined(VECCORE_CUDA)
   virtual Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
 
   virtual void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
@@ -98,24 +95,11 @@ public:
     GetUnplacedVolume()->Extent(aMin, aMax);
   }
 
-#if defined(VECGEOM_USOLIDS)
-  std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType(); }
-  Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->SamplePointOnSurface(); }
-#endif
-
-  // virtual
   VECCORE_ATT_HOST_DEVICE
-  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
+  virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
     return GetUnplacedVolume()->Normal(point, normal);
   }
-  // bool valid;
-  // BoxImplementation<translation::kIdentity, rotation::kIdentity>::NormalKernel<kScalar>(
-  // GetUnplacedVolume(),
-  // point,
-  // normal, valid);
-  // return valid;
-  //}
 
   virtual Vector3D<Precision> SamplePointOnSurface() const override
   {
@@ -123,12 +107,14 @@ public:
   }
 
   virtual double SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
+
+#if defined(VECGEOM_USOLIDS)
+  virtual std::string GetEntityType() const override { return "Polycone"; }
+#endif
 #endif
 
-}; // end of class
+}; // end class
+}
+} // End global namespace
 
-} // end inline namespace
-
-} // end global namespace
-
-#endif /* VECGEOM_VOLUMES_PLACEDPOLYCONE_H_ */
+#endif // VECGEOM_VOLUMES_PLACEDPOLYCONE_H_

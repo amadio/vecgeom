@@ -8,9 +8,15 @@
 #define VECGEOM_VOLUMES_PLACEDCONE_H_
 
 #include "base/Global.h"
+#ifndef VECCORE_CUDA
+#include "base/RNG.h"
+#include <cmath>
+#endif
 #include "volumes/PlacedVolume.h"
-#include "volumes/UnplacedCone.h"
+#include "volumes/UnplacedVolume.h"
 #include "volumes/kernel/ConeImplementation.h"
+#include "volumes/PlacedVolImplHelper.h"
+#include "volumes/UnplacedCone.h"
 
 namespace vecgeom {
 
@@ -19,34 +25,32 @@ VECGEOM_DEVICE_DECLARE_CONV(class, PlacedCone);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class PlacedCone : public VPlacedVolume {
+class PlacedCone : public PlacedVolumeImplHelper<UnplacedCone, VPlacedVolume> {
+  using Base = PlacedVolumeImplHelper<UnplacedCone, VPlacedVolume>;
 
 public:
-  typedef UnplacedCone UnplacedShape_t;
-
 #ifndef VECCORE_CUDA
-
-  PlacedCone(char const *const label, LogicalVolume const *const logical_volume,
-             Transformation3D const *const transformation, PlacedBox const *const boundingBox)
-      : VPlacedVolume(label, logical_volume, transformation, boundingBox)
+  // constructor inheritance;
+  using Base::Base;
+  PlacedCone(char const *const label, LogicalVolume const *const logicalVolume,
+             Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
+      : Base(label, logicalVolume, transformation, boundingBox)
   {
   }
 
-  PlacedCone(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-             PlacedBox const *const boundingBox)
-      : PlacedCone("", logical_volume, transformation, boundingBox)
+  PlacedCone(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
+             vecgeom::PlacedBox const *const boundingBox)
+      : PlacedCone("", logicalVolume, transformation, boundingBox)
   {
   }
-
 #else
-
-  __device__ PlacedCone(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
+  __device__ PlacedCone(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
                         PlacedBox const *const boundingBox, const int id)
-      : VPlacedVolume(logical_volume, transformation, boundingBox, id)
+      : Base(logicalVolume, transformation, boundingBox, id)
   {
   }
-
 #endif
+
   VECCORE_ATT_HOST_DEVICE
   virtual ~PlacedCone() {}
 
@@ -103,19 +107,6 @@ public:
   void SetStartPhiAngle(Precision xin, bool) { const_cast<UnplacedCone *>(GetUnplacedVolume())->SetSPhi(xin); }
   void SetDeltaPhiAngle(Precision xin) { const_cast<UnplacedCone *>(GetUnplacedVolume())->SetDPhi(xin); }
 
-/*
-VECGEOM_FORCE_INLINE
-double SafetyFromInsideR(const Vector3D<Precision> &p, const double rho, bool precise = false) const
-{
-  return GetUnplacedVolume()->SafetyFromInsideR(p, rho, precise);
-}
-
-VECGEOM_FORCE_INLINE
-double SafetyFromOutsideR(const Vector3D<Precision> &p, const double rho, bool precise = false) const
-{
-  return GetUnplacedVolume()->SafetyFromOutsideR(p, rho, precise);
-}
-*/
 #if !defined(VECCORE_CUDA)
   virtual Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
 
@@ -127,12 +118,6 @@ double SafetyFromOutsideR(const Vector3D<Precision> &p, const double rho, bool p
   VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
-    /*
-    bool valid;
-    ConeImplementation<translation::kIdentity, rotation::kIdentity, ConeTypes::UniversalCone>::NormalKernel<kScalar>(
-        *GetUnplacedVolume(), point, normal, valid);
-    return valid;
-    */
     return GetUnplacedVolume()->Normal(point, normal);
   }
 
@@ -145,7 +130,6 @@ double SafetyFromOutsideR(const Vector3D<Precision> &p, const double rho, bool p
 
 #if defined(VECGEOM_USOLIDS)
   virtual std::string GetEntityType() const override { return "Cone"; }
-  virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->SamplePointOnSurface(); }
 #endif
 #endif
 

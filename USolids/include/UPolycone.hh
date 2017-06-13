@@ -122,7 +122,7 @@ public:
 
   UPolyconeHistorical *GetOriginalParameters() const
   {
-    PolyconeHistorical *vgPolyconeOriginalParameters = GetUnplacedVolume()->fOriginal_parameters;
+    PolyconeHistorical *vgPolyconeOriginalParameters = GetUnplacedVolume()->GetOriginalParameters();
     UPolyconeHistorical *OriginalParameters          = new UPolyconeHistorical();
     OriginalParameters->fStartAngle                  = vgPolyconeOriginalParameters->fHStart_angle;
     OriginalParameters->fOpeningAngle                = vgPolyconeOriginalParameters->fHOpening_angle;

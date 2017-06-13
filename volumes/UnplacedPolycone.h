@@ -10,90 +10,34 @@
 
 #include "base/Global.h"
 #include "base/AlignedBase.h"
-#include "base/Vector3D.h"
 #include "volumes/UnplacedVolume.h"
-#include "volumes/UnplacedCone.h"
-#include "base/Vector.h"
-#include <vector>
-#include "volumes/Wedge.h"
-#include "volumes/PolyconeHistorical.h"
+#include "volumes/PolyconeStruct.h"
+#include "volumes/kernel/PolyconeImplementation.h"
+#include "volumes/UnplacedVolumeImplHelper.h"
+
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedPolycone;);
 VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedPolycone);
 
-VECGEOM_DEVICE_FORWARD_DECLARE(struct PolyconeSection;);
-VECGEOM_DEVICE_DECLARE_CONV(struct, PolyconeSection);
-
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-// helper structure to encapsulate a section
-struct PolyconeSection {
-  VECCORE_ATT_HOST_DEVICE
-  PolyconeSection() : fSolid(0), fShift(0.0), fTubular(0), fConvex(0) {}
+class UnplacedPolycone : public LoopUnplacedVolumeImplHelper<PolyconeImplementation>, public AlignedBase {
 
-  VECCORE_ATT_HOST_DEVICE
-  ~PolyconeSection() = default;
-
-  UnplacedCone *fSolid;
-  double fShift;
-  bool fTubular;
-  bool fConvex; // TRUE if all points in section are concave in regards to whole polycone, will be determined
-};
-
-// typedef std::vector<PolyconeSection> vec;
-// typedef Vector<PolyconeSection> vec;
-
-class UnplacedPolycone : public VUnplacedVolume, public AlignedBase {
-
-public:
-  // the members
-  // for the phi section --> will be replaced by a wedge
-  Precision fStartPhi;
-  Precision fDeltaPhi;
-
-  unsigned int fNz; // number of planes the polycone was constructed with; It should not be modified
-  // Precision * fRmin;
-  // Precision * fRmax;
-  // Precision * fZ;
-
-  // actual internal storage
-  Vector<PolyconeSection> fSections;
-  Vector<double> fZs;
-  PolyconeHistorical *fOriginal_parameters; // original input parameters
-
-  // These private data member and member functions are added for convexity detection
 private:
-  bool fEqualRmax;
-  bool fContinuityOverAll;
-  bool fConvexityPossible;
-  Wedge fPhiWedge;
-  VECCORE_ATT_HOST_DEVICE
-  bool CheckContinuity(const double rOuter[], const double rInner[], const double zPlane[],
-                       Vector<Precision> &newROuter, Vector<Precision> &newRInner, Vector<Precision> &zewZPlane);
-  VECCORE_ATT_HOST_DEVICE
-  bool CheckContinuityInRmax(const Vector<Precision> &rOuter);
-  VECCORE_ATT_HOST_DEVICE
-  bool CheckContinuityInSlope(const Vector<Precision> &rOuter, const Vector<Precision> &zPlane);
+  PolyconeStruct<double> fPolycone;
 
 public:
-  VECCORE_ATT_HOST_DEVICE
-  void Init(double phiStart,         // initial phi starting angle
-            double phiTotal,         // total phi angle
-            unsigned int numZPlanes, // number of z planes
-            const double zPlane[],   // position of z planes
-            const double rInner[],   // tangent distance to inner surface
-            const double rOuter[]);
-
   // the constructor
   VECCORE_ATT_HOST_DEVICE
   UnplacedPolycone(Precision phistart, Precision deltaphi, int Nz, Precision const *z, Precision const *rmin,
                    Precision const *rmax)
-      : fStartPhi(phistart), fDeltaPhi(deltaphi), fNz(Nz), fSections(), fZs(Nz), fEqualRmax(true),
-        fContinuityOverAll(true), fConvexityPossible(true), fPhiWedge(deltaphi, phistart)
   {
     // init internal members
-    Init(phistart, deltaphi, Nz, z, rmin, rmax);
+    fPolycone.fContinuityOverAll = true;
+    fPolycone.fConvexityPossible = true;
+    fPolycone.Init(phistart, deltaphi, Nz, z, rmin, rmax);
+    DetectConvexity();
   }
 
   // alternative constructor, required for integration with Geant4
@@ -109,78 +53,50 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   void Reset();
-  VECCORE_ATT_HOST_DEVICE
-  unsigned int GetNz() const { return fNz; }
-  VECCORE_ATT_HOST_DEVICE
-  int GetNSections() const { return fSections.size(); }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetStartPhi() const { return fStartPhi; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetDeltaPhi() const { return fDeltaPhi; }
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetEndPhi() const { return fStartPhi + fDeltaPhi; }
-  VECCORE_ATT_HOST_DEVICE
-  Wedge const &GetWedge() const { return fPhiWedge; }
 
   VECCORE_ATT_HOST_DEVICE
-  int GetSectionIndex(Precision zposition) const
-  {
-    // TODO: consider binary search
-    // TODO: consider making these comparisons tolerant in case we need it
-    if (zposition < fZs[0]) return -1;
-    for (int i = 0; i < GetNSections(); ++i) {
-      if (zposition >= fZs[i] && zposition <= fZs[i + 1]) return i;
-    }
-    return -2;
-  }
+  PolyconeHistorical *GetOriginalParameters() const { return fPolycone.GetOriginalParameters(); }
 
   VECCORE_ATT_HOST_DEVICE
-  PolyconeSection const &GetSection(Precision zposition) const
-  {
-    // TODO: consider binary search
-    int i = GetSectionIndex(zposition);
-    return fSections[i];
-  }
+  PolyconeStruct<double> const &GetStruct() const { return fPolycone; }
+  VECCORE_ATT_HOST_DEVICE
+  unsigned int GetNz() const { return fPolycone.fNz; }
+  VECCORE_ATT_HOST_DEVICE
+  int GetNSections() const { return fPolycone.fSections.size(); }
+  VECCORE_ATT_HOST_DEVICE
+  Precision GetStartPhi() const { return fPolycone.fStartPhi; }
+  VECCORE_ATT_HOST_DEVICE
+  Precision GetDeltaPhi() const { return fPolycone.fDeltaPhi; }
+  VECCORE_ATT_HOST_DEVICE
+  Precision GetEndPhi() const { return fPolycone.fStartPhi + fPolycone.fDeltaPhi; }
+  VECCORE_ATT_HOST_DEVICE
+  evolution::Wedge const &GetWedge() const { return fPolycone.fPhiWedge; }
+
+  VECCORE_ATT_HOST_DEVICE
+  int GetSectionIndex(Precision zposition) const { return fPolycone.GetSectionIndex(zposition); }
+
+  VECCORE_ATT_HOST_DEVICE
+  PolyconeSection const &GetSection(Precision zposition) const { return fPolycone.GetSection(zposition); }
 
   VECCORE_ATT_HOST_DEVICE
   // GetSection if index is known
-  PolyconeSection const &GetSection(int index) const { return fSections[index]; }
+  PolyconeSection const &GetSection(int index) const { return fPolycone.fSections[index]; }
 
   VECCORE_ATT_HOST_DEVICE
-  Precision GetRminAtPlane(int index) const
-  {
-    int nsect = GetNSections();
-    assert(index >= 0 && index <= nsect);
-    if (index == nsect)
-      return fSections[index - 1].fSolid->GetRmin2();
-    else
-      return fSections[index].fSolid->GetRmin1();
-  }
+  Precision GetRminAtPlane(int index) const { return fPolycone.GetRminAtPlane(index); }
 
   VECCORE_ATT_HOST_DEVICE
-  Precision GetRmaxAtPlane(int index) const
-  {
-    int nsect = GetNSections();
-    assert(index >= 0 || index <= nsect);
-    if (index == nsect)
-      return fSections[index - 1].fSolid->GetRmax2();
-    else
-      return fSections[index].fSolid->GetRmax1();
-  }
+  Precision GetRmaxAtPlane(int index) const { return fPolycone.GetRmaxAtPlane(index); }
 
   VECCORE_ATT_HOST_DEVICE
-  Precision GetZAtPlane(int index) const
-  {
-    assert(index >= 0 || index <= GetNSections());
-    return fZs[index];
-  }
+  Precision GetZAtPlane(int index) const { return fPolycone.GetZAtPlane(index); }
 
 #if !defined(VECCORE_CUDA)
   Precision Capacity() const
   {
     Precision cubicVolume = 0.;
     for (int i = 0; i < GetNSections(); i++) {
-      PolyconeSection const &section = fSections[i];
+      PolyconeSection const &section = fPolycone.fSections[i];
       cubicVolume += section.fSolid->Capacity();
     }
     return cubicVolume;
@@ -222,8 +138,20 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   virtual void Print() const final;
-
   virtual void Print(std::ostream &os) const final;
+
+#if defined(VECGEOM_USOLIDS)
+  std::ostream &StreamInfo(std::ostream &os) const;
+#endif
+
+  VECCORE_ATT_DEVICE
+  virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
+                                           Transformation3D const *const transformation,
+                                           const TranslationCode trans_code, const RotationCode rot_code,
+#ifdef VECCORE_CUDA
+                                           const int id,
+#endif
+                                           VPlacedVolume *const placement = NULL) const final;
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECCORE_ATT_DEVICE
@@ -239,21 +167,6 @@ public:
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
 #endif
 
-#if defined(VECGEOM_USOLIDS)
-  std::ostream &StreamInfo(std::ostream &os) const;
-#endif
-
-private:
-
-  VECCORE_ATT_DEVICE
-  virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
-                                           Transformation3D const *const transformation,
-                                           const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECCORE_CUDA
-                                           const int id,
-#endif
-                                           VPlacedVolume *const placement = NULL) const final;
-
 }; // end class UnplacedPolycone
 
 template <typename PushableContainer>
@@ -264,22 +177,22 @@ void UnplacedPolycone::ReconstructSectionArrays(PushableContainer &z, PushableCo
   double prevrmin, prevrmax;
   bool putlowersection = true;
   for (int i = 0; i < GetNSections(); ++i) {
-    UnplacedCone const *cone = GetSection(i).fSolid;
+    ConeStruct<double> const *cone = fPolycone.GetSection(i).fSolid;
     if (putlowersection) {
-      rmin.push_back(cone->GetRmin1());
-      rmax.push_back(cone->GetRmax1());
-      z.push_back(-cone->GetDz() + GetSection(i).fShift);
+      rmin.push_back(cone->fRmin1); // GetRmin1());
+      rmax.push_back(cone->fRmax1); // GetRmax1());
+      z.push_back(-cone->fDz + fPolycone.GetSection(i).fShift);
     }
-    rmin.push_back(cone->GetRmin2());
-    rmax.push_back(cone->GetRmax2());
-    z.push_back(cone->GetDz() + GetSection(i).fShift);
+    rmin.push_back(cone->fRmin2); // GetRmin2());
+    rmax.push_back(cone->fRmax2); // GetRmax2());
+    z.push_back(cone->fDz + fPolycone.GetSection(i).fShift);
 
-    prevrmin = cone->GetRmin2();
-    prevrmax = cone->GetRmax2();
+    prevrmin = cone->fRmin2; // GetRmin2();
+    prevrmax = cone->fRmax2; // GetRmax2();
 
     // take care of a possible discontinuity
-    if (i < GetNSections() - 1 &&
-        (prevrmin != GetSection(i + 1).fSolid->GetRmin1() || prevrmax != GetSection(i + 1).fSolid->GetRmax1())) {
+    if (i < GetNSections() - 1 && (prevrmin != fPolycone.GetSection(i + 1).fSolid->fRmin1 ||
+                                   prevrmax != fPolycone.GetSection(i + 1).fSolid->fRmax1)) {
       putlowersection = true;
     } else {
       putlowersection = false;

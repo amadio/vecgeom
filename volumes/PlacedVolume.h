@@ -14,6 +14,10 @@
 #include <Vc/Vc>
 #endif
 
+#ifdef VECGEOM_GEANT4
+#include <G4VSolid.hh>
+#endif
+
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(class VPlacedVolume;);
@@ -340,7 +344,6 @@ public:
   virtual ::VUSolid const *ConvertToUSolids() const = 0;
 #endif
 #ifdef VECGEOM_GEANT4
-  class G4VSolid;
   virtual G4VSolid const *ConvertToGeant4() const = 0;
 #endif
 #endif // VECCORE_CUDA

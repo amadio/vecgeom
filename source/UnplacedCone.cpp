@@ -16,148 +16,11 @@
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
-
-UnplacedCone::UnplacedCone(Precision rmin1, Precision rmax1, Precision rmin2, Precision rmax2, Precision dz,
-                           Precision phimin, Precision deltaphi)
-    : fRmin1(rmin1), fRmax1(rmax1), fRmin2(rmin2), fRmax2(rmax2), fDz(dz), fSPhi(phimin), fDPhi(deltaphi),
-      fPhiWedge(deltaphi, phimin)
-{
-  SetAndCheckDPhiAngle(deltaphi);
-  SetAndCheckSPhiAngle(phimin);
-  CalculateCached();
-}
-
-void UnplacedCone::CalculateCached()
-{
-  if (fRmin1 == fRmax1) {
-    fRmax1 += kConeTolerance;
-  }
-
-  if (fRmin2 == fRmax2) {
-    fRmax2 += kConeTolerance;
-  }
-
-  fSqRmin1            = fRmin1 * fRmin1;
-  fSqRmax1            = fRmax1 * fRmax1;
-  fSqRmin2            = fRmin2 * fRmin2;
-  fSqRmax2            = fRmax2 * fRmax2;
-  fSqRmin1Tol         = fSqRmin1 - kTolerance;
-  fSqRmin2Tol         = fSqRmin2 - kTolerance;
-  fSqRmax1Tol         = fSqRmax1 + kTolerance;
-  fSqRmax2Tol         = fSqRmax2 + kTolerance;
-  fRminAv             = (fRmin1 + fRmin2) / 2.;
-  fRmaxAv             = (fRmax1 + fRmax2) / 2.;
-  fneedsRminTreatment = false;
-  fConeTolerance      = 1e-7;
-
-  fTanRMin    = (fRmin2 - fRmin1) * 0.5 / fDz;
-  fSecRMin    = std::sqrt(1.0 + fTanRMin * fTanRMin);
-  fInvSecRMin = 1. / NonZero(fSecRMin);
-  fTanRMax    = (fRmax2 - fRmax1) * 0.5 / fDz;
-
-  fSecRMax    = std::sqrt(1.0 + fTanRMax * fTanRMax);
-  fInvSecRMax = 1. / NonZero(fSecRMax);
-
-  // check this very carefully
-  fInnerSlope        = -(fRmin1 - fRmin2) / (2. * fDz);
-  fOuterSlope        = -(fRmax1 - fRmax2) / (2. * fDz);
-  fInnerSlopeInv     = 1. / NonZero(fInnerSlope);
-  fOuterSlopeInv     = 1. / NonZero(fOuterSlope);
-  fInnerOffset       = fRmin2 - fInnerSlope * fDz;
-  fOuterOffset       = fRmax2 - fOuterSlope * fDz;
-  fOuterSlopeSquare  = fOuterSlope * fOuterSlope;
-  fInnerSlopeSquare  = fInnerSlope * fInnerSlope;
-  fOuterOffsetSquare = fOuterOffset * fOuterOffset;
-  fInnerOffsetSquare = fInnerOffset * fInnerOffset;
-
-  if (fRmin2 > fRmin1) {
-    fInnerConeApex     = 2 * fDz * fRmin1 / (fRmin2 - fRmin1);
-    fTanInnerApexAngle = fRmin2 / (2 * fDz + fInnerConeApex);
-  } else { // Should we add a check if(fRmin1 > fRmin2)
-    fInnerConeApex     = 2 * fDz * fRmin2 / NonZero(fRmin1 - fRmin2);
-    fTanInnerApexAngle = fRmin1 / (2 * fDz + fInnerConeApex);
-  }
-
-  if (fRmin1 == 0. || fRmin2 == 0.) fInnerConeApex = 0.;
-
-  if (fRmin1 == 0.) fTanInnerApexAngle = fRmin2 / (2 * fDz);
-  if (fRmin2 == 0.) fTanInnerApexAngle = fRmin1 / (2 * fDz);
-
-  fTanInnerApexAngle2 = fTanInnerApexAngle * fTanInnerApexAngle;
-
-  if (fRmax2 > fRmax1) {
-    fOuterConeApex     = 2 * fDz * fRmax1 / (fRmax2 - fRmax1);
-    fTanOuterApexAngle = fRmax2 / (2 * fDz + fOuterConeApex);
-  } else { // Should we add a check if(fRmax1 > fRmax2)
-    fOuterConeApex     = 2 * fDz * fRmax2 / NonZero(fRmax1 - fRmax2);
-    fTanOuterApexAngle = fRmax1 / (2 * fDz + fOuterConeApex);
-  }
-
-  if (fRmax1 == 0. || fRmax2 == 0.) fOuterConeApex = 0.;
-
-  if (fRmax1 == 0.) fTanOuterApexAngle = fRmax2 / (2 * fDz);
-  if (fRmax2 == 0.) fTanOuterApexAngle = fRmax1 / (2 * fDz);
-
-  fTanOuterApexAngle2 = fTanOuterApexAngle * fTanOuterApexAngle;
-
-  fZNormInner         = fTanRMin / NonZero(fSecRMin);
-  fZNormOuter         = -fTanRMax / NonZero(fSecRMax);
-  fneedsRminTreatment = (fRmin1 || fRmin2);
-
-  fTolIz = fDz - kHalfTolerance;
-  fTolOz = fDz + kHalfTolerance;
-
-  DetectConvexity();
-}
-
-VECCORE_ATT_HOST_DEVICE
-void UnplacedCone::SetAndCheckSPhiAngle(Precision sPhi)
-{
-  // Ensure fSphi in 0-2PI or -2PI-0 range if shape crosses 0
-  if (sPhi < 0) {
-    fSPhi = kTwoPi - std::fmod(std::fabs(sPhi), kTwoPi);
-  } else {
-    fSPhi = std::fmod(sPhi, kTwoPi);
-  }
-  if (fSPhi + fDPhi > kTwoPi) {
-    fSPhi -= kTwoPi;
-  }
-
-  // Update Wedge
-  fPhiWedge.SetStartPhi(fSPhi);
-  // Update cached values.
-  GetAlongVectorToPhiSector(fSPhi, fAlongPhi1x, fAlongPhi1y);
-  GetAlongVectorToPhiSector(fSPhi + fDPhi, fAlongPhi2x, fAlongPhi2y);
-}
-
-VECCORE_ATT_HOST_DEVICE
-void UnplacedCone::SetAndCheckDPhiAngle(Precision dPhi)
-{
-  if (dPhi >= kTwoPi - 0.5 * kAngTolerance) {
-    fDPhi = kTwoPi;
-    fSPhi = 0;
-  } else {
-    if (dPhi > 0) {
-      fDPhi = dPhi;
-    } else {
-      //        std::ostringstream message;
-      //        message << "Invalid dphi.\n"
-      //                << "Negative or zero delta-Phi (" << dPhi << ")\n";
-      //        std::cout<<"UnplacedTube::CheckDPhiAngle(): Fatal error: "<< message.str().c_str() <<"\n";
-    }
-  }
-  // Update Wedge
-  fPhiWedge.SetDeltaPhi(fDPhi);
-  // Update cached values.
-  GetAlongVectorToPhiSector(fSPhi, fAlongPhi1x, fAlongPhi1y);
-  GetAlongVectorToPhiSector(fSPhi + fDPhi, fAlongPhi2x, fAlongPhi2y);
-}
-
 void UnplacedCone::Print() const
 {
   printf("UnplacedCone {rmin1 %.2f, rmax1 %.2f, rmin2 %.2f, "
          "rmax2 %.2f, dz %.2f, phistart %.2f, deltaphi %.2f}",
-         fRmin1, fRmax1, fRmin2, fRmax2, fDz, fSPhi, fDPhi);
+         fCone.fRmin1, fCone.fRmax1, fCone.fRmin2, fCone.fRmax2, fCone.fDz, fCone.fSPhi, fCone.fDPhi);
 }
 
 void UnplacedCone::Print(std::ostream &os) const
@@ -173,8 +36,8 @@ void UnplacedCone::DetectConvexity()
   fGlobalConvexity = false;
 
   // Logic to calculate the convexity
-  if (fRmin1 == 0. && fRmin2 == 0.) { // Implies Solid cone
-    if (fDPhi <= kPi || fDPhi == kTwoPi) fGlobalConvexity = true;
+  if (fCone.fRmin1 == 0. && fCone.fRmin2 == 0.) { // Implies Solid cone
+    if (fCone.fDPhi <= kPi || fCone.fDPhi == kTwoPi) fGlobalConvexity = true;
   }
 }
 
@@ -183,9 +46,9 @@ void UnplacedCone::DetectConvexity()
 // Simplest Extent definition, that does not take PHI into consideration
 void UnplacedCone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
-  Precision max = fRmax1 > fRmax2 ? fRmax1 : fRmax2;
+  Precision max = fCone.fRmax1 > fCone.fRmax2 ? fCone.fRmax1 : fCone.fRmax2;
   aMin          = Vector3D<Precision>(-max, -max, -fDz);
-  aMax          = Vector3D<Precision>(max, max, fDz);
+  aMax          = Vector3D<Precision>(max, max, fCone.fDz);
 }
 #endif
 
@@ -195,11 +58,11 @@ void UnplacedCone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) 
 {
   // most general case
 
-  Precision max = fRmax1 > fRmax2 ? fRmax1 : fRmax2;
-  Precision min = fRmin1 > fRmin2 ? fRmin2 : fRmin1;
+  Precision max = fCone.fRmax1 > fCone.fRmax2 ? fCone.fRmax1 : fCone.fRmax2;
+  Precision min = fCone.fRmin1 > fCone.fRmin2 ? fCone.fRmin2 : fCone.fRmin1;
 
-  aMin = Vector3D<Precision>(-max, -max, -fDz);
-  aMax = Vector3D<Precision>(max, max, fDz);
+  aMin = Vector3D<Precision>(-max, -max, -fCone.fDz);
+  aMax = Vector3D<Precision>(max, max, fCone.fDz);
 
   /* Below logic borrowed from Tube.
   **
@@ -207,25 +70,25 @@ void UnplacedCone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) 
   ** because in that case we can avoid code replication.
   */
 
-  if (fDPhi == kTwoPi) return;
+  if (fCone.fDPhi == kTwoPi) return;
 
   // check how many of phi=90, 180, 270, 360deg are outside this tube
   auto Rin       = 0.5 * (max + min);
-  bool phi0out   = !GetWedge().Contains<kScalar>(Vector3D<Precision>(Rin, 0, 0));
-  bool phi90out  = !GetWedge().Contains<kScalar>(Vector3D<Precision>(0, Rin, 0));
-  bool phi180out = !GetWedge().Contains<kScalar>(Vector3D<Precision>(-Rin, 0, 0));
-  bool phi270out = !GetWedge().Contains<kScalar>(Vector3D<Precision>(0, -Rin, 0));
+  bool phi0out   = !fCone.fPhiWedge.Contains(Vector3D<Precision>(Rin, 0, 0));
+  bool phi90out  = !fCone.fPhiWedge.Contains(Vector3D<Precision>(0, Rin, 0));
+  bool phi180out = !fCone.fPhiWedge.Contains(Vector3D<Precision>(-Rin, 0, 0));
+  bool phi270out = !fCone.fPhiWedge.Contains(Vector3D<Precision>(0, -Rin, 0));
 
   // if none of those 4 phis is outside, largest box still required
   if (!(phi0out || phi90out || phi180out || phi270out)) return;
 
   // some extent(s) of box will be reduced
   // --> think of 4 points A,B,C,D such that A,B are at Rmin, C,D at Rmax
-  //     and A,C at startPhi (fSphi), B,D at endPhi (fSphi+fDphi)
-  auto Cx = max * cos(fSPhi);
-  auto Dx = max * cos(fSPhi + fDPhi);
-  auto Cy = max * sin(fSPhi);
-  auto Dy = max * sin(fSPhi + fDPhi);
+  //     and A,C at startPhi (fCone.fSPhi), B,D at endPhi (fCone.fSPhi+fDphi)
+  auto Cx = max * cos(fCone.fSPhi);
+  auto Dx = max * cos(fCone.fSPhi + fCone.fDPhi);
+  auto Cy = max * sin(fCone.fSPhi);
+  auto Dy = max * sin(fCone.fSPhi + fCone.fDPhi);
 
   // then rewrite box sides whenever each one of those phis are not contained in the tube section
   if (phi0out) aMax.x()   = Max(Cx, Dx);
@@ -233,12 +96,12 @@ void UnplacedCone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) 
   if (phi180out) aMin.x() = Min(Cx, Dx);
   if (phi270out) aMin.y() = Min(Cy, Dy);
 
-  if (fDPhi >= kPi) return;
+  if (fCone.fDPhi >= kPi) return;
 
-  auto Ax = min * cos(fSPhi);
-  auto Bx = min * cos(fSPhi + fDPhi);
-  auto Ay = min * sin(fSPhi);
-  auto By = min * sin(fSPhi + fDPhi);
+  auto Ax = min * cos(fCone.fSPhi);
+  auto Bx = min * cos(fCone.fSPhi + fCone.fDPhi);
+  auto Ay = min * sin(fCone.fSPhi);
+  auto By = min * sin(fCone.fSPhi + fCone.fDPhi);
 
   Precision temp;
   temp     = Max(Ax, Bx);
@@ -273,19 +136,19 @@ bool UnplacedCone::Normal(Vector3D<Precision> const &p, Vector3D<Precision> &nor
   norm = sumnorm;
 
   // do not use an extra fabs here -- negative/positive distZ tells us when point is outside or inside
-  distZ = std::fabs(p.z()) - fDz;
+  distZ = std::fabs(p.z()) - fCone.fDz;
   rho   = std::sqrt(p.x() * p.x() + p.y() * p.y());
 
-  pRMin    = rho - p.z() * fTanRMin;
-  widRMin  = fRmin2 - fDz * fTanRMin;
-  distRMin = (pRMin - widRMin) / fSecRMin;
+  pRMin    = rho - p.z() * fCone.fTanRMin;
+  widRMin  = fCone.fRmin2 - fCone.fDz * fCone.fTanRMin;
+  distRMin = (pRMin - widRMin) / fCone.fSecRMin;
 
-  pRMax    = rho - p.z() * fTanRMax;
-  widRMax  = fRmax2 - fDz * fTanRMax;
-  distRMax = (pRMax - widRMax) / fSecRMax;
+  pRMax    = rho - p.z() * fCone.fTanRMax;
+  widRMax  = fCone.fRmax2 - fCone.fDz * fCone.fTanRMax;
+  distRMax = (pRMax - widRMax) / fCone.fSecRMax;
 
   bool inside = distZ < kTolerance && distRMax < kTolerance;
-  if (fRmin1 || fRmin2) inside &= distRMin > -kTolerance;
+  if (fCone.fRmin1 || fCone.fRmin2) inside &= distRMin > -kTolerance;
 
   distZ    = std::fabs(distZ);
   distRMax = std::fabs(distRMax);
@@ -300,30 +163,32 @@ bool UnplacedCone::Normal(Vector3D<Precision> const &p, Vector3D<Precision> &nor
     if (rho) { // Protected against (0,0,z)
       pPhi = std::atan2(p.y(), p.x());
 
-      if (pPhi < fSPhi - kHalfTolerance)
+      if (pPhi < fCone.fSPhi - kHalfTolerance)
         pPhi += 2 * kPi;
-      else if (pPhi > fSPhi + fDPhi + kHalfTolerance)
+      else if (pPhi > fCone.fSPhi + fCone.fDPhi + kHalfTolerance)
         pPhi -= 2 * kPi;
 
-      distSPhi = rho * (pPhi - fSPhi);
-      distEPhi = rho * (pPhi - fSPhi - fDPhi);
+      distSPhi = rho * (pPhi - fCone.fSPhi);
+      distEPhi = rho * (pPhi - fCone.fSPhi - fCone.fDPhi);
       inside   = inside && (distSPhi > -kTolerance) && (distEPhi < kTolerance);
       distSPhi = std::abs(distSPhi);
       distEPhi = std::abs(distEPhi);
     }
 
-    else if (!(fRmin1) || !(fRmin2)) {
+    else if (!(fCone.fRmin1) || !(fCone.fRmin2)) {
       distSPhi = 0.;
       distEPhi = 0.;
     }
-    nPs = Vector3D<Precision>(std::sin(fSPhi), -std::cos(fSPhi), 0);
-    nPe = Vector3D<Precision>(-std::sin(fSPhi + fDPhi), std::cos(fSPhi + fDPhi), 0);
+    nPs = Vector3D<Precision>(std::sin(fCone.fSPhi), -std::cos(fCone.fSPhi), 0);
+    nPe = Vector3D<Precision>(-std::sin(fCone.fSPhi + fCone.fDPhi), std::cos(fCone.fSPhi + fCone.fDPhi), 0);
   }
 
   if (rho > kHalfTolerance) {
-    nR = Vector3D<Precision>(p.x() / rho / fSecRMax, p.y() / rho / fSecRMax, -fTanRMax / fSecRMax);
-    if (fRmin1 || fRmin2) {
-      nr = Vector3D<Precision>(-p.x() / rho / fSecRMin, -p.y() / rho / fSecRMin, fTanRMin / fSecRMin);
+    nR = Vector3D<Precision>(p.x() / rho / fCone.fSecRMax, p.y() / rho / fCone.fSecRMax,
+                             -fCone.fTanRMax / fCone.fSecRMax);
+    if (fCone.fRmin1 || fCone.fRmin2) {
+      nr = Vector3D<Precision>(-p.x() / rho / fCone.fSecRMin, -p.y() / rho / fCone.fSecRMin,
+                               fCone.fTanRMin / fCone.fSecRMin);
     }
   }
 
@@ -343,7 +208,7 @@ bool UnplacedCone::Normal(Vector3D<Precision> const &p, Vector3D<Precision> &nor
     normNearest = nR;
   }
 
-  if (fRmin1 || fRmin2) {
+  if (fCone.fRmin1 || fCone.fRmin2) {
     if (inside && distRMin <= kHalfTolerance) {
       noSurfaces++;
       sumnorm += nr;
@@ -384,9 +249,9 @@ template <bool top>
 bool UnplacedCone::IsOnZPlane(Vector3D<Precision> const &point) const
 {
   if (top) {
-    return (point.z() < (fDz + kTolerance)) && (point.z() > (fDz - kTolerance));
+    return (point.z() < (fCone.fDz + kTolerance)) && (point.z() > (fCone.fDz - kTolerance));
   } else {
-    return (point.z() < (-fDz + kTolerance)) && (point.z() > (-fDz - kTolerance));
+    return (point.z() < (-fCone.fDz + kTolerance)) && (point.z() > (-fCone.fDz - kTolerance));
   }
 }
 
@@ -394,9 +259,11 @@ template <bool start>
 bool UnplacedCone::IsOnPhiWedge(Vector3D<Precision> const &point) const
 {
   if (start) {
-    return GetWedge().IsOnSurfaceGeneric<kScalar>(GetWedge().GetAlong1(), GetWedge().GetNormal1(), point);
+    // return GetWedge().IsOnSurfaceGeneric<kScalar>(GetWedge().GetAlong1(), GetWedge().GetNormal1(), point);
+    return GetWedge().IsOnSurfaceGeneric(GetWedge().GetAlong1(), GetWedge().GetNormal1(), point);
   } else {
-    return GetWedge().IsOnSurfaceGeneric<kScalar>(GetWedge().GetAlong2(), GetWedge().GetNormal2(), point);
+    // return GetWedge().IsOnSurfaceGeneric<kScalar>(GetWedge().GetAlong2(), GetWedge().GetNormal2(), point);
+    return GetWedge().IsOnSurfaceGeneric(GetWedge().GetAlong2(), GetWedge().GetNormal2(), point);
   }
 }
 
@@ -443,63 +310,65 @@ Vector3D<Precision> UnplacedCone::SamplePointOnSurface() const
 
     double Aone, Atwo, Athree, Afour, Afive, slin, slout, phi;
     double zRand, cosu, sinu, rRand1, rRand2, chose, rone, rtwo, qone, qtwo;
-    rone = (fRmax1 - fRmax2) / (2. * fDz);
-    rtwo = (fRmin1 - fRmin2) / (2. * fDz);
+    rone = (fCone.fRmax1 - fCone.fRmax2) / (2. * fCone.fDz);
+    rtwo = (fCone.fRmin1 - fCone.fRmin2) / (2. * fCone.fDz);
     qone = 0.;
     qtwo = 0.;
-    if (fRmax1 != fRmax2) {
-      qone = fDz * (fRmax1 + fRmax2) / (fRmax1 - fRmax2);
+    if (fCone.fRmax1 != fCone.fRmax2) {
+      qone = fCone.fDz * (fCone.fRmax1 + fCone.fRmax2) / (fCone.fRmax1 - fCone.fRmax2);
     }
-    if (fRmin1 != fRmin2) {
-      qtwo = fDz * (fRmin1 + fRmin2) / (fRmin1 - fRmin2);
+    if (fCone.fRmin1 != fCone.fRmin2) {
+      qtwo = fCone.fDz * (fCone.fRmin1 + fCone.fRmin2) / (fCone.fRmin1 - fCone.fRmin2);
     }
-    slin   = Sqrt((fRmin1 - fRmin2) * (fRmin1 - fRmin2) + 4. * fDz * fDz);
-    slout  = Sqrt((fRmax1 - fRmax2) * (fRmax1 - fRmax2) + 4. * fDz * fDz);
-    Aone   = 0.5 * fDPhi * (fRmax2 + fRmax1) * slout;
-    Atwo   = 0.5 * fDPhi * (fRmin2 + fRmin1) * slin;
-    Athree = 0.5 * fDPhi * (fRmax1 * fRmax1 - fRmin1 * fRmin1);
-    Afour  = 0.5 * fDPhi * (fRmax2 * fRmax2 - fRmin2 * fRmin2);
-    Afive  = fDz * (fRmax1 - fRmin1 + fRmax2 - fRmin2);
+    slin   = Sqrt((fCone.fRmin1 - fCone.fRmin2) * (fCone.fRmin1 - fCone.fRmin2) + 4. * fCone.fDz * fCone.fDz);
+    slout  = Sqrt((fCone.fRmax1 - fCone.fRmax2) * (fCone.fRmax1 - fCone.fRmax2) + 4. * fCone.fDz * fCone.fDz);
+    Aone   = 0.5 * fCone.fDPhi * (fCone.fRmax2 + fCone.fRmax1) * slout;
+    Atwo   = 0.5 * fCone.fDPhi * (fCone.fRmin2 + fCone.fRmin1) * slin;
+    Athree = 0.5 * fCone.fDPhi * (fCone.fRmax1 * fCone.fRmax1 - fCone.fRmin1 * fCone.fRmin1);
+    Afour  = 0.5 * fCone.fDPhi * (fCone.fRmax2 * fCone.fRmax2 - fCone.fRmin2 * fCone.fRmin2);
+    Afive  = fCone.fDz * (fCone.fRmax1 - fCone.fRmin1 + fCone.fRmax2 - fCone.fRmin2);
 
-    phi    = RNG::Instance().uniform(fSPhi, fSPhi + fDPhi);
+    phi    = RNG::Instance().uniform(fCone.fSPhi, fCone.fSPhi + fCone.fDPhi);
     cosu   = std::cos(phi);
     sinu   = std::sin(phi);
-    rRand1 = volumeUtilities::GetRadiusInRing(fRmin1, fRmin2);
-    rRand2 = volumeUtilities::GetRadiusInRing(fRmax1, fRmax2);
+    rRand1 = volumeUtilities::GetRadiusInRing(fCone.fRmin1, fCone.fRmin2);
+    rRand2 = volumeUtilities::GetRadiusInRing(fCone.fRmax1, fCone.fRmax2);
 
-    if ((fSPhi == 0.) && IsFullPhi()) {
+    if ((fCone.fSPhi == 0.) && IsFullPhi()) {
       Afive = 0.;
     }
     chose = RNG::Instance().uniform(0., Aone + Atwo + Athree + Afour + 2. * Afive);
 
     if ((chose >= 0.) && (chose < Aone)) {
-      if (fRmin1 != fRmin2) {
-        zRand = RNG::Instance().uniform(-1. * fDz, fDz);
+      if (fCone.fRmin1 != fCone.fRmin2) {
+        zRand = RNG::Instance().uniform(-1. * fCone.fDz, fCone.fDz);
         retPt.Set(rtwo * cosu * (qtwo - zRand), rtwo * sinu * (qtwo - zRand), zRand);
       } else {
-        retPt.Set(fRmin1 * cosu, fRmin2 * sinu, RNG::Instance().uniform(-1. * fDz, fDz));
+        retPt.Set(fCone.fRmin1 * cosu, fCone.fRmin2 * sinu, RNG::Instance().uniform(-1. * fCone.fDz, fCone.fDz));
       }
     } else if ((chose >= Aone) && (chose <= Aone + Atwo)) {
-      if (fRmax1 != fRmax2) {
-        zRand = RNG::Instance().uniform(-1. * fDz, fDz);
+      if (fCone.fRmax1 != fCone.fRmax2) {
+        zRand = RNG::Instance().uniform(-1. * fCone.fDz, fCone.fDz);
         retPt.Set(rone * cosu * (qone - zRand), rone * sinu * (qone - zRand), zRand);
       } else {
-        retPt.Set(fRmax1 * cosu, fRmax2 * sinu, RNG::Instance().uniform(-1. * fDz, fDz));
+        retPt.Set(fCone.fRmax1 * cosu, fCone.fRmax2 * sinu, RNG::Instance().uniform(-1. * fCone.fDz, fCone.fDz));
       }
     } else if ((chose >= Aone + Atwo) && (chose < Aone + Atwo + Athree)) {
-      retPt.Set(rRand1 * cosu, rRand1 * sinu, -1 * fDz);
+      retPt.Set(rRand1 * cosu, rRand1 * sinu, -1 * fCone.fDz);
     } else if ((chose >= Aone + Atwo + Athree) && (chose < Aone + Atwo + Athree + Afour)) {
-      retPt.Set(rRand2 * cosu, rRand2 * sinu, fDz);
+      retPt.Set(rRand2 * cosu, rRand2 * sinu, fCone.fDz);
     } else if ((chose >= Aone + Atwo + Athree + Afour) && (chose < Aone + Atwo + Athree + Afour + Afive)) {
-      zRand  = RNG::Instance().uniform(-1. * fDz, fDz);
-      rRand1 = RNG::Instance().uniform(fRmin2 - ((zRand - fDz) / (2. * fDz)) * (fRmin1 - fRmin2),
-                                       fRmax2 - ((zRand - fDz) / (2. * fDz)) * (fRmax1 - fRmax2));
-      retPt.Set(rRand1 * std::cos(fSPhi), rRand1 * std::sin(fSPhi), zRand);
+      zRand  = RNG::Instance().uniform(-1. * fCone.fDz, fCone.fDz);
+      rRand1 = RNG::Instance().uniform(
+          fCone.fRmin2 - ((zRand - fCone.fDz) / (2. * fCone.fDz)) * (fCone.fRmin1 - fCone.fRmin2),
+          fCone.fRmax2 - ((zRand - fCone.fDz) / (2. * fCone.fDz)) * (fCone.fRmax1 - fCone.fRmax2));
+      retPt.Set(rRand1 * std::cos(fCone.fSPhi), rRand1 * std::sin(fCone.fSPhi), zRand);
     } else {
-      zRand  = RNG::Instance().uniform(-1. * fDz, fDz);
-      rRand1 = RNG::Instance().uniform(fRmin2 - ((zRand - fDz) / (2. * fDz)) * (fRmin1 - fRmin2),
-                                       fRmax2 - ((zRand - fDz) / (2. * fDz)) * (fRmax1 - fRmax2));
-      retPt.Set(rRand1 * std::cos(fSPhi + fDPhi), rRand1 * std::sin(fSPhi + fDPhi), zRand);
+      zRand  = RNG::Instance().uniform(-1. * fCone.fDz, fCone.fDz);
+      rRand1 = RNG::Instance().uniform(
+          fCone.fRmin2 - ((zRand - fCone.fDz) / (2. * fCone.fDz)) * (fCone.fRmin1 - fCone.fRmin2),
+          fCone.fRmax2 - ((zRand - fCone.fDz) / (2. * fCone.fDz)) * (fCone.fRmax1 - fCone.fRmax2));
+      retPt.Set(rRand1 * std::cos(fCone.fSPhi + fCone.fDPhi), rRand1 * std::sin(fCone.fSPhi + fCone.fDPhi), zRand);
     }
   } while (IsOnEdge(retPt));
 
@@ -561,12 +430,12 @@ std::ostream &UnplacedCone::StreamInfo(std::ostream &os) const
      << "     ===================================================\n"
      << " Solid type: Cone\n"
      << " Parameters: \n"
-     << "     Cone Radii Rmin1, Rmax1: " << fRmin1 << "mm, " << fRmax1 << "mm\n"
-     << "                Rmin2, Rmax2: " << fRmin2 << "mm, " << fRmax2 << "mm\n"
-     << "     Half-length Z = " << fDz << "mm\n";
-  if (fDPhi < kTwoPi) {
-    os << "     Wedge starting angles: fSPhi=" << fSPhi * kRadToDeg << "deg, "
-       << ", fDphi=" << fDPhi * kRadToDeg << "deg\n";
+     << "     Cone Radii Rmin1, Rmax1: " << fCone.fRmin1 << "mm, " << fCone.fRmax1 << "mm\n"
+     << "                Rmin2, Rmax2: " << fCone.fRmin2 << "mm, " << fCone.fRmax2 << "mm\n"
+     << "     Half-length Z = " << fCone.fDz << "mm\n";
+  if (fCone.fDPhi < kTwoPi) {
+    os << "     Wedge starting angles:fCone.fSPhi=" << fCone.fSPhi * kRadToDeg << "deg, "
+       << ",fCone.fDPhi=" << fCone.fDPhi * kRadToDeg << "deg\n";
   }
   os << "-----------------------------------------------------------\n";
   os.precision(oldprc);

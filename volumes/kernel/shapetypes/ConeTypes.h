@@ -9,7 +9,8 @@
 #define VECGEOM_VOLUMES_KERNEL_SHAPETYPES_CONETYPES_H_
 
 #include <string>
-#include "volumes/UnplacedCone.h"
+//#include "volumes/UnplacedCone.h"
+#include "volumes/ConeStruct.h"
 
 namespace vecgeom {
 
@@ -95,13 +96,14 @@ struct NeedsPhiTreatment<UniversalCone> {
 template <typename T>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-bool checkPhiTreatment(const UnplacedCone &cone)
+bool checkPhiTreatment(const ConeStruct<double> &cone)
 {
   if (NeedsPhiTreatment<T>::value != kUnknown)
     return NeedsPhiTreatment<T>::value == kYes;
   else
     // could use a direct constant for 2*M_PI here
-    return cone.GetDPhi() < 2. * M_PI;
+    // return cone.GetDPhi() < 2. * M_PI;
+    return cone.fDPhi < 2. * M_PI;
 }
 
 // asking for rmin treatment
@@ -139,12 +141,13 @@ struct NeedsRminTreatment<UniversalCone> {
 template <typename T>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-bool checkRminTreatment(const UnplacedCone &cone)
+bool checkRminTreatment(const ConeStruct<double> &cone)
 {
   if (NeedsRminTreatment<T>::value != kUnknown)
     return NeedsRminTreatment<T>::value == kYes;
   else
-    return cone.GetRmin1() > 0 || cone.GetRmin2() > 0;
+    // return cone.GetRmin1() > 0 || cone.GetRmin2() > 0;
+    return cone.fRmin1 > 0 || cone.fRmin2 > 0;
 }
 
 // sector size
