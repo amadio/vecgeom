@@ -203,27 +203,26 @@ void HybridManager2::InitClustersWithKMeans(ABBoxManager::ABBoxContainer_t boxes
   size_t clustersize = (numberOfDaughters + numberOfClusters - 1) / numberOfClusters;
   for (int clusterindex = 0; clusterindex < numberOfClusters && !daughterSet.empty(); ++clusterindex) {
     Vector3D<Precision> clusterMean(0);
-
     while (clusters[clusterindex].size() < clustersize) {
-      int addDaughter =
-          clusters[clusterindex].size() == 0
-              ? *std::max_element(daughterSet.begin(), daughterSet.end(),
-                                  [&](int a, int b) {
-                                    return (allvolumecenters[a] - meanCenter).Length() <
-                                           (allvolumecenters[b] - meanCenter).Length();
-                                  })
-              : *std::min_element(daughterSet.begin(), daughterSet.end(), [&](int a, int b) {
-                  return (allvolumecenters[a] - clusterMean).Length() < (allvolumecenters[b] - clusterMean).Length();
-                });
+      // parametrized lambda used in std::max_element + std::min_element below
+      auto sortlambda = [&](Vector3D<Precision> const &center) {
+        return [&, center](int a, int b) {
+          return (allvolumecenters[a] - center).Mag2() < (allvolumecenters[b] - center).Mag2();
+        };
+      };
+
+      int addDaughter = clusters[clusterindex].size() == 0
+                            ? *std::max_element(daughterSet.begin(), daughterSet.end(), sortlambda(meanCenter))
+                            : *std::min_element(daughterSet.begin(), daughterSet.end(), sortlambda(clusterMean));
 
       daughterSet.erase(addDaughter);
-      clusters[clusterindex].push_back(addDaughter);
+      clusters[clusterindex].emplace_back(addDaughter);
 
       if (daughterSet.empty()) break;
       meanCenter  = (meanCenter * (daughterSet.size() + 1) - allvolumecenters[addDaughter]) / daughterSet.size();
       clusterMean = (clusterMean * (clusters[clusterindex].size() - 1) + allvolumecenters[addDaughter]) /
                     clusters[clusterindex].size();
-    }
+    } // end while
   }
 }
 
