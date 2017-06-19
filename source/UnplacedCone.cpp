@@ -58,8 +58,8 @@ void UnplacedCone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) 
 {
   // most general case
 
-  Precision max = fCone.fRmax1 > fCone.fRmax2 ? fCone.fRmax1 : fCone.fRmax2;
-  Precision min = fCone.fRmin1 > fCone.fRmin2 ? fCone.fRmin2 : fCone.fRmin1;
+  Precision max = fCone._frmax1 > fCone._frmax2 ? fCone._frmax1 : fCone._frmax2;
+  Precision min = fCone._frmin1 > fCone._frmin2 ? fCone._frmin2 : fCone._frmin1;
 
   aMin = Vector3D<Precision>(-max, -max, -fCone.fDz);
   aMax = Vector3D<Precision>(max, max, fCone.fDz);

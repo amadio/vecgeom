@@ -608,8 +608,8 @@ void UnplacedPolycone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aM
 
   for (int i = 0; i < GetNSections(); i++) {
     PolyconeSection const &sec = GetSection(i);
-    maxR                       = Max(maxR, Max(sec.fSolid->fRmax1, sec.fSolid->fRmax2));
-    minR                       = Min(minR, Min(sec.fSolid->fRmin1, sec.fSolid->fRmin2));
+    maxR                       = Max(maxR, Max(sec.fSolid->_frmax1, sec.fSolid->_frmax2));
+    minR                       = Min(minR, Min(sec.fSolid->_frmin1, sec.fSolid->_frmin2));
   }
 
   if (fPolycone.fZs[0] > fPolycone.fZs[GetNSections()]) {

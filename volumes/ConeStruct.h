@@ -16,7 +16,7 @@ namespace vecgeom {
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-// a plain and lightweight struct to encapsulate data members of a Cone 
+// a plain and lightweight struct to encapsulate data members of a Cone
 template <typename T = double>
 struct ConeStruct {
   // Cone defining parameters
@@ -27,6 +27,17 @@ struct ConeStruct {
   T fDz;
   T fSPhi;
   T fDPhi;
+
+  /* These new data members are introduced to store the original paramters of
+   * Cone, which may change in the case where rmin is equal to rmax.
+   * These are basically required by the Extent functions to do more accurate
+   * bounding box calculations.
+   */
+  T _frmin1;
+  T _frmin2;
+  T _frmax1;
+  T _frmax2;
+
   evolution::Wedge fPhiWedge;
 
   // vectors characterizing the normals of phi planes
@@ -377,8 +388,10 @@ struct ConeStruct {
   ConeStruct(T const &_rmin1, T const &_rmax1, T const &_rmin2, T const &_rmax2, T const &_z, T const &_sphi,
              T const &_dphi)
       : fRmin1(_rmin1 < 0.0 ? 0.0 : _rmin1), fRmax1(_rmax1), fRmin2(_rmin2 < 0.0 ? 0.0 : _rmin2), fRmax2(_rmax2),
-        fDz(_z), fSPhi(_sphi), fDPhi(_dphi), fPhiWedge(_dphi, _sphi)
+        fDz(_z), fSPhi(_sphi), fDPhi(_dphi), _frmin1(_rmin1), _frmin2(_rmin2), _frmax1(_rmax1), _frmax2(_rmax2),
+        fPhiWedge(_dphi, _sphi)
   {
+
     SetAndCheckDPhiAngle(_dphi);
     SetAndCheckSPhiAngle(_sphi);
     CalculateCached();
