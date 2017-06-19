@@ -310,6 +310,7 @@ public:
 
   virtual void SafetyToInMinimize(SOA3D<Precision> const &points, Precision *const safeties) const override
   {
+    throw std::runtime_error("SafetyToInMinimize unimplemented");
     // we do no longer need this (probably)
     // SafetyToInMinimizeTemplate(points, safeties);
     (void)points;
@@ -348,6 +349,7 @@ public:
   virtual void DistanceToInMinimize(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
                                     int daughterindex, Precision *const output, int *const nextnodeids) const override
   {
+    throw std::runtime_error("DistanceToInMinimize unimplemented");
     // we do no longer need this (probably)
     // DistanceToInMinimizeTemplate(points, directions, daughterindex, output, nextnodeids);
     (void)points;
