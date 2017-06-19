@@ -685,6 +685,7 @@ set(VECGEOM_SRCS
   source/PlacedParaboloid.cpp
   source/PlacedScaledShape.cpp
   source/PlacedTrapezoid.cpp
+  source/PlacedTessellated.cpp
   source/PlacedVolume.cpp
   source/Planes.cpp
   source/Plane.cpp
@@ -708,6 +709,7 @@ set(VECGEOM_SRCS
   source/UnplacedScaledShape.cpp
   source/UnplacedTrapezoid.cpp
   source/UnplacedGenTrap.cpp
+  source/UnplacedTessellated.cpp
   source/UnplacedVolume.cpp
   source/NavigationState.cpp
   source/SimpleNavigator.cpp

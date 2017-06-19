@@ -13,56 +13,55 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 void UnplacedTessellated::Print() const
 {
-  printf("UnplacedTessellated {%d facets}", fTessellation.fFacets.size());
+  printf("UnplacedTessellated {%lu facets}", fTessellated.fFacets.size());
 }
 
 void UnplacedTessellated::Print(std::ostream &os) const
 {
-  os << "UnplacedTessellated {" << fTessellation.fFacets.size() << " facets " << std::endl;
+  os << "UnplacedTessellated {" << fTessellated.fFacets.size() << " facets " << std::endl;
 }
 
 #ifndef VECGEOM_NVCC
 Precision UnplacedTessellated::Capacity() const
 {
-  if (fTessellation.fCubicVolume != 0.) return fTessellation.fCubicVolume;
+  if (fTessellated.fCubicVolume != 0.) return fTessellated.fCubicVolume;
 
   // For explanation of the following algorithm see:
   // https://en.wikipedia.org/wiki/Polyhedron#Volume
   // http://wwwf.imperial.ac.uk/~rn/centroid.pdf
 
-  int size = fTessellation.fFacets.size();
+  int size = fTessellated.fFacets.size();
   for (int i = 0; i < size; ++i) {
-    TriangularFacet &facet = fTessellation.fFacets[i];
-    double area            = facet.fSurfaceArea;
-    UVector3 unit_normal   = facet.GetSurfaceNormal();
-    fTesselation.fCubicVolume += area * (facet.fVertices[0].Dot(facet.fNormal));
+    TriangleFacet<double> &facet = *fTessellated.fFacets[i];
+    double area                  = facet.fSurfaceArea;
+    fTessellated.fCubicVolume += area * (facet.fVertices[0].Dot(facet.fNormal));
   }
-  fTesselation.fCubicVolume /= 3.;
-  return fTesselation.fCubicVolume;
+  fTessellated.fCubicVolume /= 3.;
+  return fTessellated.fCubicVolume;
 }
 
 Precision UnplacedTessellated::SurfaceArea() const
 {
-  if (fTessellation.fSurfaceArea != 0.) return fTessellation.fSurfaceArea;
+  if (fTessellated.fSurfaceArea != 0.) return fTessellated.fSurfaceArea;
 
-  int size = fTessellation.fFacets.size();
+  int size = fTessellated.fFacets.size();
   for (int i = 0; i < size; ++i) {
-    TriangularFacet &facet = fTessellation.fFacets[i];
-    fTessellation.fSurfaceArea += facet.fSurfaceArea;
+    TriangleFacet<double> *facet = fTessellated.fFacets[i];
+    fTessellated.fSurfaceArea += facet->fSurfaceArea;
   }
-  return fTessellation.fSurfaceArea;
+  return fTessellated.fSurfaceArea;
 }
 
 int UnplacedTessellated::ChooseSurface() const
 {
   int choice       = 0; // 0 = zm, 1 = zp, 2 = ym, 3 = yp, 4 = xm, 5 = xp
-  Precision Stotal = SurfaceArea;
+  Precision Stotal = SurfaceArea();
 
   // random value to choose surface to place the point
   Precision rand = RNG::Instance().uniform() * Stotal;
 
-  while (rand > fTessellation.fFacets[choice].fSurfaceArea)
-    rand -= fTessellation.fFacets[choice].fSurfaceArea, choice++;
+  while (rand > fTessellated.fFacets[choice]->fSurfaceArea)
+    rand -= fTessellated.fFacets[choice]->fSurfaceArea, choice++;
 
   return choice;
 }
@@ -74,76 +73,45 @@ Vector3D<Precision> UnplacedTessellated::GetPointOnSurface() const
   double beta    = RNG::Instance().uniform(0., 1.);
   double lambda1 = alpha * beta;
   double lambda0 = alpha - lambda1;
-
-  return GetVertex(0) + lambda0 * fTessellation.fFacets[surface].fE1 + lambda1 * fTessellation.fFacets[surface].fE2;
+  auto facet     = fTessellated.fFacets[surface];
+  return (facet->fVertices[0] + lambda0 * (facet->fVertices[1] - facet->fVertices[0]) +
+          lambda1 * (facet->fVertices[2] - facet->fVertices[1]));
 }
 
 bool UnplacedTessellated::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &norm) const
 {
-  //
-  norm[0] = vecnorm[0];
-  norm[1] = vecnorm[1];
-  norm[2] = vecnorm[2];
+  // to be implemented
+  bool valid = false;
+  return valid;
 }
 
 #endif
 
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-VECGEOM_CUDA_HEADER_DEVICE
-VPlacedVolume *UnplacedTessellated::Create(LogicalVolume const *const logical_volume,
-                                           Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
-                                           const int id,
-#endif
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+VPlacedVolume *UnplacedTessellated::Create(LogicalVolume const *const logical_volume,
+                                           Transformation3D const *const transformation, const int id,
                                            VPlacedVolume *const placement)
 {
-
-  using namespace TrdTypes;
-
-#ifndef VECGEOM_NO_SPECIALIZATION
-
-  __attribute__((unused)) const UnplacedTessellated &trd =
-      static_cast<const UnplacedTessellated &>(*(logical_volume->GetUnplacedVolume()));
-
-#define GENERATE_TRD_SPECIALIZATIONS
-#ifdef GENERATE_TRD_SPECIALIZATIONS
-  if (trd.dy1() == trd.dy2()) {
-    //          std::cout << "trd1" << std::endl;
-    return CreateSpecializedWithPlacement<SpecializedTessellated<transCodeT, rotCodeT, TrdTypes::Trd1>>(logical_volume,
-                                                                                                        transformation
-#ifdef VECGEOM_NVCC
-                                                                                                        ,
-                                                                                                        id
-#endif
-                                                                                                        ,
-                                                                                                        placement);
-  } else {
-    //          std::cout << "trd2" << std::endl;
-    return CreateSpecializedWithPlacement<SpecializedTessellated<transCodeT, rotCodeT, TrdTypes::Trd2>>(logical_volume,
-                                                                                                        transformation
-#ifdef VECGEOM_NVCC
-                                                                                                        ,
-                                                                                                        id
-#endif
-                                                                                                        ,
-                                                                                                        placement);
+  if (placement) {
+    new (placement) SpecializedTessellated<transCodeT, rotCodeT>(logical_volume, transformation, id);
+    return placement;
   }
-#endif
-
-#endif // VECGEOM_NO_SPECIALIZATION
-
-  //    std::cout << "universal trd" << std::endl;
-  return CreateSpecializedWithPlacement<SpecializedTessellated<transCodeT, rotCodeT, TrdTypes::UniversalTrd>>(
-      logical_volume, transformation
-#ifdef VECGEOM_NVCC
-      ,
-      id
-#endif
-      ,
-      placement);
+  return new SpecializedTessellated<transCodeT, rotCodeT>(logical_volume, transformation, id);
 }
+#else
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+VPlacedVolume *UnplacedTessellated::Create(LogicalVolume const *const logical_volume,
+                                           Transformation3D const *const transformation, VPlacedVolume *const placement)
+{
+  if (placement) {
+    new (placement) SpecializedTessellated<transCodeT, rotCodeT>(logical_volume, transformation);
+    return placement;
+  }
+  return new SpecializedTessellated<transCodeT, rotCodeT>(logical_volume, transformation);
+}
+#endif
 
-VECGEOM_CUDA_HEADER_DEVICE
 VPlacedVolume *UnplacedTessellated::SpecializedVolume(LogicalVolume const *const volume,
                                                       Transformation3D const *const transformation,
                                                       const TranslationCode trans_code, const RotationCode rot_code,
@@ -161,7 +129,6 @@ VPlacedVolume *UnplacedTessellated::SpecializedVolume(LogicalVolume const *const
 }
 
 #if defined(VECGEOM_USOLIDS)
-VECGEOM_CUDA_HEADER_BOTH
 std::ostream &UnplacedTessellated::StreamInfo(std::ostream &os) const
 {
   int oldprc = os.precision(16);

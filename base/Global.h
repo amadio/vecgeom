@@ -99,7 +99,7 @@ struct UseIfSameType<DataType, DataType> {
 }
 
 // some static MACROS
-#define VECGEOM_MAXDAUGHTERS 2000 // macro mainly used to allocated static (stack) arrays/workspaces
+#define VECGEOM_MAXDAUGHTERS 200000 // macro mainly used to allocated static (stack) arrays/workspaces
 
 // choosing the Vector and Scalar backends
 // trying to set some sort of default scalar and vector backend

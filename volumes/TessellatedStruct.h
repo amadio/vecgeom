@@ -8,6 +8,7 @@
 #include "base/BitSet.h"
 #include <vector>
 
+#include "base/Stopwatch.h"
 #include "management/HybridManager2.h"
 #include "navigation/HybridNavigator2.h"
 #include "management/ABBoxManager.h"
@@ -101,7 +102,8 @@ class TessellatedStruct {
 
 public:
   bool fSolidClosed   = false;        ///< Closure of the solid
-  T fCubicVolume      = 0;            ///< cubic volume
+  T fCubicVolume      = 0;            ///< Cubic volume
+  T fSurfaceArea      = 0;            ///< Surface area
   GridHelper *fHelper = nullptr;      ///< Grid helper
   Vector3D<T> fMinExtent;             ///< Minimum extent
   Vector3D<T> fMaxExtent;             ///< Maximum extent
@@ -116,7 +118,7 @@ public:
   vector_t<Vector3D<T>> fVertices;                  ///< Vector of unique vertices
   vector_t<Facet_t *> fFacets;                      ///< Vector of triangular facets
   vector_t<TessellatedCluster<Real_v> *> fClusters; ///< Vector of facet clusters
-  BitSet *fSelected;                                ///< Facets already in clusters
+  BitSet *fSelected          = nullptr;             ///< Facets already in clusters
   int fNcldist[kVecSize + 1] = {0};                 ///< Distribution of number of cluster size
 
 private:
@@ -149,7 +151,7 @@ public:
   ~TessellatedStruct()
   {
     delete fHelper;
-    BitSet::ReleaseInstance(fSelected);
+    if (fSelected) BitSet::ReleaseInstance(fSelected);
   }
 
   VECCORE_ATT_HOST_DEVICE
@@ -204,6 +206,14 @@ public:
     return ivertnew;
   }
 
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  void Extent(Vector3D<T> &amin, Vector3D<T> &amax)
+  {
+    amin = fMinExtent;
+    amax = fMaxExtent;
+  }
+
   void Close()
   {
     // The solid becomes now closed. A cell grid is computed base on the extent
@@ -219,9 +229,14 @@ public:
     fHelper->fMaxExtent  = fMaxExtent;
     fHelper->fInvExtSize = fInvExtSize;
     // Make a grid with ~kVecSize facets per cell
-    int ngrid = 1 + size_t(vecCore::math::Pow<T>(T(fFacets.size()) / kVecSize, 1. / 3.));
+    int ngrid = 1 + size_t(vecCore::math::Pow<T>(T(fFacets.size()), 1. / 3.));
+    Stopwatch timer;
+    timer.Start();
     fHelper->CreateCells(ngrid);
+    auto time = timer.Stop();
+    std::cout << "CreateCells: " << time << " sec\n";
 
+    timer.Start();
     // Loop over facets and their vertices, fill list of vertices free of
     // duplications.
     for (auto facet : fFacets) {
@@ -229,7 +244,10 @@ public:
         facet->fIndices[ivert] = AddVertex(facet->fVertices[ivert]);
       }
     }
+    time = timer.Stop();
+    std::cout << "Remove duplicates: " << time << " sec\n";
 
+    timer.Start();
     // Clear vertices and store facet indices in the grid helper
     fHelper->ClearCells();
     unsigned ifacet = 0;
@@ -240,8 +258,14 @@ public:
       //      }
       ifacet++;
     }
+    time = timer.Stop();
+    std::cout << "Store facets into grid: " << time << " sec\n";
 
     // Make clusters
+    timer.Start();
+    //    std::cout << "=== Using dummy clusters\n";
+    //    CreateDummyClusters();
+
     const int nfacets = fFacets.size();
     fSelected         = BitSet::MakeInstance(nfacets);
     fSelected->ResetAllBits();
@@ -263,16 +287,40 @@ public:
         fSelected->SetBitNumber(ifacet);
       }
     }
+
+    time = timer.Stop();
+    std::cout << "Clusterizer: " << time << " sec\n";
+
     // Create navigation helper to be used in TessellatedImplementation
+    timer.Start();
     CreateABBoxes(); // to navigate, see: TestHybridBVH.cpp/HybridNavigator2.h/HybridSafetyEstimator.h
+    time = timer.Stop();
+    std::cout << "Create AABoxes: " << time << " sec\n";
   }
 
+  void CreateDummyClusters()
+  {
+    // Loop over facets and group them in clusters in the order of definition
+    TessellatedCluster<Real_v> *tcl = nullptr;
+    int i                           = 0;
+    for (auto facet : fFacets) {
+      i = i % kVecSize;
+      if (i == 0) {
+        if (tcl) fClusters.push_back(tcl);
+        tcl = new TessellatedCluster<Real_v>();
+      }
+      tcl->AddFacet(i++, facet);
+    }
+    // The last cluster may not be yet full
+    for (; i < kVecSize; ++i)
+      tcl->AddFacet(i, tcl->fFacets[0]);
+  }
   TessellatedCluster<Real_v> *CreateCluster()
   {
     // Create cluster starting from fCandidates list
     unsigned nfacets = 0;
     assert(fCandidates.size() > 0); // call the method with at least one candidate in the list
-    constexpr int rankmax = 2;      // ??? how to determine an appropriate value ???
+    constexpr int rankmax = 3;      // ??? how to determine an appropriate value ???
     int rank              = 0;
     fCluster.clear();
     int ifacet = fCandidates[0];
@@ -474,7 +522,8 @@ public:
   void DistanceToSolid(Vector3D<T> const &point, Vector3D<T> const &direction, T const &stepMax, T &distance,
                        int &isurf) const
   {
-    distance = InfinityLength<T>();
+    int ntries = 0;
+    distance   = InfinityLength<T>();
     // Define the user hook calling DistanceToIn for the cluster with the same
     // index as the bounding box
     auto userhook = [&](HybridManager2::BoxIdDistancePair_t hitbox) {
@@ -492,12 +541,14 @@ public:
         distance = distcrt;
         isurf    = isurfcrt;
       }
+      ntries++;
       return false;
     };
 
     HybridNavigator<> *boxNav = (HybridNavigator<> *)HybridNavigator<>::Instance();
     // intersect ray with the BVH structure and use hook
     boxNav->BVHSortedIntersectionsLooper(*fNavHelper, point, direction, userhook);
+    printf("ntries = %d\n", ntries);
   }
 
 }; // end class

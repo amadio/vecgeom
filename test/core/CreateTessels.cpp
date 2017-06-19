@@ -156,16 +156,25 @@ int main(int argc, char *argv[])
   //  using Real_v = typename VectorBackend::Real_v;
 
   OPTION_INT(ngrid, 100);
-  //  OPTION_INT(npoints, 1000);
+  OPTION_INT(npoints, 10000);
   OPTION_INT(vis, 0);
   OPTION_INT(scalability, 0);
+
+  Vector3D<double> start(0, 0, 0);
+  Vector3D<double> point;
+  double distance;
+  int ifacet;
+
+  Vector3D<double> *dirs = new Vector3D<double>[npoints];
+  for (int i = 0; i < npoints; ++i)
+    RandomDirection(dirs[i]);
 
   int ngrid1         = 10;
   int i              = 0;
   const double sqrt2 = vecCore::math::Sqrt(2.);
   TGraph *gtime      = nullptr;
   if (scalability) {
-    gtime = new TGraph(16);
+    gtime = new TGraph(12);
     while (ngrid1 < 500) {
       TessellatedStruct<double> *tsl1 = new TessellatedStruct<double>();
       int nfacets1                    = CreateTessellated(ngrid1, *tsl1);
@@ -176,7 +185,12 @@ int main(int argc, char *argv[])
       double tbuild = timer.Stop();
       gtime->SetPoint(i++, nfacets1, tbuild);
       ngrid1 = sqrt2 * double(ngrid1);
-      printf("nfacets=%d  time=%g\n", nfacets1, tbuild);
+      // Check Distance performance
+      timer.Start();
+      for (int i = 0; i < npoints; ++i)
+        tsl1->DistanceToSolid<false>(start, dirs[i], InfinityLength<double>(), distance, ifacet);
+      double trun = timer.Stop();
+      printf("n=%d nfacets=%d  build time=%g run time=%g\n", i, nfacets1, tbuild, trun);
       delete tsl1;
     }
   }
@@ -193,15 +207,6 @@ int main(int argc, char *argv[])
 
 // Visualize the facets
 #ifdef VECGEOM_ROOT
-  // Test distance to out from origin
-  Vector3D<double> point(0, 0, 0);
-  Vector3D<double> direction;
-  RandomDirection(direction);
-  double distance;
-  int ifacet;
-  tsl.DistanceToSolid<false>(point, direction, InfinityLength<double>(), distance, ifacet);
-  printf("Distance = %g\n", distance);
-
   // Analyze clusters
   int nblobs, nfacets;
   int nfacetstot    = 0;
@@ -229,13 +234,25 @@ int main(int argc, char *argv[])
     visualizer.AddVolume(box, Transformation3D(origin.x(), origin.y(), origin.z()));
 
     // Visualize facets
-    /*
+
     for (auto facet : tsl.fFacets) {
       AddFacetToVisualizer(facet, visualizer);
     }
-    */
-    for (unsigned icluster = 0; icluster < tsl.fClusters.size(); ++icluster)
-      DrawCluster(tsl, icluster, visualizer);
+
+    // Test distance to out from origin
+    TPolyMarker3D pm(npoints);
+    pm.SetMarkerColor(kRed);
+    for (int i = 0; i < npoints; ++i) {
+      tsl.DistanceToSolid<false>(start, dirs[i], InfinityLength<double>(), distance, ifacet);
+      point = start + distance * dirs[i];
+      pm.SetNextPoint(point[0], point[1], point[2]);
+    }
+
+    delete[] dirs;
+
+    // for (unsigned icluster = 0; icluster < tsl.fClusters.size(); ++icluster)
+    //  DrawCluster(tsl, icluster, visualizer);
+    visualizer.AddPoints(pm);
     visualizer.Show();
   }
 

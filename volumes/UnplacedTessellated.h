@@ -18,21 +18,42 @@ VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedTessellated);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class UnplacedTessellated : public SIMDUnplacedVolumeImplHelper<TessellatedImplementation>, public AlignedBase {
+class UnplacedTessellated : public LoopUnplacedVolumeImplHelper<TessellatedImplementation>, public AlignedBase {
 private:
-  mutable TessellatedStruct<double> fTessellation; ///< Structure with tessellation parameters
+  mutable TessellatedStruct<double> fTessellated; ///< Structure with Tessellated parameters
 
 public:
-  VECGEOM_CUDA_HEADER_BOTH
-  UnplacedTessellated() : fTesselation() { fGlobalConvexity = false; }
+  VECCORE_ATT_HOST_DEVICE
+  UnplacedTessellated() : fTessellated() { fGlobalConvexity = false; }
 
-  VECGEOM_CUDA_HEADER_BOTH
-  TessellatedStruct<double> const &GetStruct() const { return fTessellation; }
+  VECCORE_ATT_HOST_DEVICE
+  TessellatedStruct<double> const &GetStruct() const { return fTessellated; }
+
+  VECCORE_ATT_HOST_DEVICE
+  bool AddTriangularFacet(Vector3D<double> const &vt0, Vector3D<double> const &vt1, Vector3D<double> const &vt2,
+                          bool absolute = true)
+  {
+    return fTessellated.AddTriangularFacet(vt0, vt1, vt2, absolute);
+  }
+
+  VECCORE_ATT_HOST_DEVICE
+  bool AddQuadrilateralFacet(Vector3D<double> const &vt0, Vector3D<double> const &vt1, Vector3D<double> const &vt2,
+                             Vector3D<double> const &vt3, bool absolute = true)
+  {
+    return fTessellated.AddQuadrilateralFacet(vt0, vt1, vt2, vt3, absolute);
+  }
+
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  size_t GetNFacets() const { return fTessellated.fFacets.size(); }
+
+  VECCORE_ATT_HOST_DEVICE
+  void Close() { fTessellated.Close(); }
 
   virtual int memory_size() const final { return sizeof(*this); }
 
-  VECGEOM_CUDA_HEADER_BOTH
-  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const { fTessellation.Extent(aMin, aMax); }
+  VECCORE_ATT_HOST_DEVICE
+  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const { fTessellated.Extent(aMin, aMax); }
 
 #ifndef VECGEOM_NVCC
   // Computes capacity of the shape in [length^3]
@@ -43,19 +64,17 @@ public:
   int ChooseSurface() const;
 
   Vector3D<Precision> GetPointOnSurface() const;
-
-  VECGEOM_CUDA_HEADER_BOTH
-  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;
-
 #endif
 
-  VECGEOM_CUDA_HEADER_BOTH
+  VECCORE_ATT_HOST_DEVICE
+  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;
+
+  VECCORE_ATT_HOST_DEVICE
   virtual void Print() const final;
 
-  std::string GetEntityType() const { return "Tesselated"; }
+  std::string GetEntityType() const { return "Tessellated"; }
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
-  VECGEOM_CUDA_HEADER_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
 #ifdef VECGEOM_NVCC
                                const int id,
@@ -75,7 +94,6 @@ public:
 private:
   virtual void Print(std::ostream &os) const final;
 
-  VECGEOM_CUDA_HEADER_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code,
