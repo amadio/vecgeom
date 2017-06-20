@@ -5,11 +5,15 @@
 #define VECGEOM_VOLUMES_PLACEDHYPE_H_
 
 #include "base/Global.h"
-#include "backend/Backend.h"
+#ifndef VECCORE_CUDA
+#include "base/RNG.h"
+#include <cmath>
+#endif
 #include "volumes/PlacedVolume.h"
 #include "volumes/UnplacedVolume.h"
-#include "volumes/UnplacedHype.h"
 #include "volumes/kernel/HypeImplementation.h"
+#include "volumes/PlacedVolImplHelper.h"
+#include "volumes/UnplacedHype.h"
 
 namespace vecgeom {
 
@@ -17,33 +21,30 @@ VECGEOM_DEVICE_FORWARD_DECLARE(class PlacedHype;);
 VECGEOM_DEVICE_DECLARE_CONV(class, PlacedHype);
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class PlacedHype : public VPlacedVolume {
+class PlacedHype : public PlacedVolumeImplHelper<UnplacedHype, VPlacedVolume> {
+  using Base = PlacedVolumeImplHelper<UnplacedHype, VPlacedVolume>;
 
 public:
-  typedef UnplacedHype UnplacedShape_t;
-
 #ifndef VECCORE_CUDA
-
-  PlacedHype(char const *const label, LogicalVolume const *const logical_volume,
-             Transformation3D const *const transformation, PlacedBox const *const boundingBox)
-      : VPlacedVolume(label, logical_volume, transformation, boundingBox)
+  // constructor inheritance;
+  using Base::Base;
+  PlacedHype(char const *const label, LogicalVolume const *const logicalVolume,
+             Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
+      : Base(label, logicalVolume, transformation, boundingBox)
   {
   }
 
-  PlacedHype(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-             PlacedBox const *const boundingBox)
-      : PlacedHype("", logical_volume, transformation, boundingBox)
+  PlacedHype(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
+             vecgeom::PlacedBox const *const boundingBox)
+      : PlacedHype("", logicalVolume, transformation, boundingBox)
   {
   }
-
 #else
-
-  __device__ PlacedHype(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
+  __device__ PlacedHype(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
                         PlacedBox const *const boundingBox, const int id)
-      : VPlacedVolume(logical_volume, transformation, boundingBox, id)
+      : Base(logicalVolume, transformation, boundingBox, id)
   {
   }
-
 #endif
 
   VECCORE_ATT_HOST_DEVICE
