@@ -425,6 +425,30 @@ if (CUDA)
         RELEASE  -O3 -use_fast_math
         RELWITHDEBINFO -g -G -O3 -use_fast_math
         MINSIZEREL -use_fast_math )
+  # FindCUDA.mk generate cmake file for each .o file using
+  # the cmake command:
+  #   file(GENERATE
+  #      OUTPUT "${custom_target_script}"
+  #      INPUT "${custom_target_script_pregen}"
+  #      )
+  # However this fails to register the output as a 'BYPRODUCTS'
+  # and thus, since the .o file depends on it, trigger the CMP0058
+  # warning (when using Ninja).
+  # Using a add_custom_target/command does not work there as
+  # neither the OUTPUT not the BYPRODUCTS parameter supports
+  # generator expression (and ${custom_target_script} is a
+  # generator expression depending on the configuration type).
+  # Consequently there is no (known to the author) way of
+  # correctly adding the correct information at the moment.
+  # So let's just use the old policy (even-though it is
+  # deprecated ... )
+  # Note: this is a feature introduced in CMake 3.6 to
+  # support  generator expressions in CUDA_NVCC_FLAGS
+  # and since we imported that version's FindCUDA.cmake
+  # it applies to all cmake that support CMP0058.
+  if (NOT (CMAKE_VERSION LESS 3.3))
+     cmake_policy(SET CMP0058 OLD)
+  endif()
 endif()
 
 if (Clang OR AppleClang)
