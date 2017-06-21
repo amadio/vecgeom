@@ -121,6 +121,22 @@ typedef std::map<LogicalVolume const *, std::vector<TrackAndState_t> *> VolumeTr
 VolumeTracksMap_t gVolumeTrackMap;
 VolumeTracksMap_t gVolumeTrackForLevelLocate;
 
+Vector3D<Precision> GetStartPoint(Vector3D<Precision> const &origin, Vector3D<Precision> const &bbox,
+                                  double axis1_count, double axis2_count, int axis)
+{
+  Vector3D<Precision> tmp;
+  // a shift to make sure the ray starts inside the world bounding box
+  double shift(1.E-6);
+  if (axis == 1) {
+    tmp.Set(origin[0] - (bbox[0] - shift), axis1_count, axis2_count);
+  } else if (axis == 2) {
+    tmp.Set(axis1_count, origin[1] - (bbox[1] - shift), axis2_count);
+  } else if (axis == 3) {
+    tmp.Set(axis1_count, axis2_count, origin[2] - (bbox[2] - shift));
+  }
+  return tmp;
+}
+
 //#define LOGDATA
 
 void AddTrack(LogicalVolume const *lvol, Vec3_t p, Vec3_t d, NavigationState const *state)
@@ -258,14 +274,7 @@ void XRayWithROOT(int axis, Vector3D<Precision> origin, Vector3D<Precision> bbox
         std::cout << "\n PIXEL(" << pixel_count_1 << ", " << pixel_count_2 << ")\n";
       }
       // set start point of XRay
-      Vector3D<Precision> p;
-
-      if (axis == 1)
-        p.Set(origin[0] - bbox[0], axis1_count, axis2_count);
-      else if (axis == 2)
-        p.Set(axis1_count, origin[1] - bbox[1], axis2_count);
-      else if (axis == 3)
-        p.Set(axis1_count, axis2_count, origin[2] - bbox[2]);
+      Vector3D<Precision> p(GetStartPoint(origin, bbox, axis1_count, axis2_count, axis));
 
       TGeoNavigator *nav = gGeoManager->GetCurrentNavigator();
       nav->SetCurrentPoint(p.x(), p.y(), p.z());
@@ -367,13 +376,7 @@ void XRayWithVecGeom(int axis, Vector3D<Precision> origin, Vector3D<Precision> b
       //   std::cout << pixel_count_1 << " " << pixel_count_2 << "\n";
 
       // set start point of XRay
-      Vector3D<Precision> p;
-      if (axis == 1)
-        p.Set(origin[0] - bbox[0], axis1_count, axis2_count);
-      else if (axis == 2)
-        p.Set(axis1_count, origin[1] - bbox[1], axis2_count);
-      else if (axis == 3)
-        p.Set(axis1_count, axis2_count, origin[2] - bbox[2]);
+      Vector3D<Precision> p(GetStartPoint(origin, bbox, axis1_count, axis2_count, axis));
 
       SimpleNavigator nav;
       curnavstate->Clear();
@@ -448,6 +451,7 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
 
   size_t zerosteps(0);
   size_t zerosteps_accum(0);
+  auto world = GeoManager::Instance().GetWorld();
   for (int pixel_count_2 = 0; pixel_count_2 < data_size_y; ++pixel_count_2) {
     for (int pixel_count_1 = 0; pixel_count_1 < data_size_x; ++pixel_count_1) {
       double axis1_count = axis1_start + pixel_count_1 * pixel_width_1 + 1E-6;
@@ -458,16 +462,10 @@ void XRayWithVecGeom_PolymorphicNavigationFramework(int axis, Vector3D<Precision
       }
 
       // set start point of XRay
-      Vector3D<Precision> p;
-      if (axis == 1)
-        p.Set(origin[0] - bbox[0], axis1_count, axis2_count);
-      else if (axis == 2)
-        p.Set(axis1_count, origin[1] - bbox[1], axis2_count);
-      else if (axis == 3)
-        p.Set(axis1_count, axis2_count, origin[2] - bbox[2]);
+      Vector3D<Precision> p(GetStartPoint(origin, bbox, axis1_count, axis2_count, axis));
 
       curnavstate->Clear();
-      GlobalLocator::LocateGlobalPoint(GeoManager::Instance().GetWorld(), p, *curnavstate, true);
+      GlobalLocator::LocateGlobalPoint(world, p, *curnavstate, true);
 
 #ifdef VECGEOM_DISTANCE_DEBUG
       gGeoManager->GetCurrentNavigator()->FindNode(p.x(), p.y(), p.z());
@@ -909,7 +907,7 @@ int main(int argc, char *argv[])
     auto materiallist = gGeoManager->GetListOfMaterials();
     auto volumelist   = gGeoManager->GetListOfVolumes();
 
-    gGeoManager = 0;
+    gGeoManager = nullptr;
 
     TGeoManager *mgr2 = new TGeoManager();
     // fix materials first of all
