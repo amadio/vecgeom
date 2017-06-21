@@ -52,10 +52,9 @@ int LogicalVolume::gIdCount = 0;
 
 #ifndef VECCORE_CUDA
 LogicalVolume::LogicalVolume(char const *const label, VUnplacedVolume const *const unplaced_volume)
-    : fUnplacedVolume(unplaced_volume), fId(0), fLabel(nullptr), fUserExtensionPtr(nullptr),
-      fMaterialPtr(nullptr), fMaterialCutsPtr(nullptr), fBasketManagerPtr(nullptr),
-      fLevelLocator(SimpleAssemblyLevelLocator::GetInstance()), fSafetyEstimator(SimpleSafetyEstimator::Instance()),
-      fNavigator(NewSimpleNavigator<>::Instance()), fDaughters()
+    : fUnplacedVolume(unplaced_volume), fId(0), fLabel(nullptr), fUserExtensionPtr(nullptr), fMaterialPtr(nullptr),
+      fMaterialCutsPtr(nullptr), fBasketManagerPtr(nullptr), fLevelLocator(SimpleAssemblyLevelLocator::GetInstance()),
+      fSafetyEstimator(SimpleSafetyEstimator::Instance()), fNavigator(NewSimpleNavigator<>::Instance()), fDaughters()
 {
   fId = gIdCount++;
   GeoManager::Instance().RegisterLogicalVolume(this);

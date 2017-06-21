@@ -43,7 +43,7 @@ private:
 
   std::vector<TGeoNode const *> fTGeoNodeVector;
 
-  std::function<void*(TGeoMaterial const *)> fMaterialConversionLambda = [](TGeoMaterial const *){ return nullptr; };
+  std::function<void *(TGeoMaterial const *)> fMaterialConversionLambda = [](TGeoMaterial const *) { return nullptr; };
 
   int fVerbose;
 
@@ -129,9 +129,7 @@ public:
 
   Transformation3D *Convert(TGeoMatrix const *const trans);
 
-  void SetMaterialConversionHook(std::function<void*(TGeoMaterial const *)> &&f) {
-      fMaterialConversionLambda = f;
-  }
+  void SetMaterialConversionHook(std::function<void *(TGeoMaterial const *)> &&f) { fMaterialConversionLambda = f; }
 
   // inverse process
   TGeoNode *Convert(VPlacedVolume const *const node);

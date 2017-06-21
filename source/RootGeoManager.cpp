@@ -302,7 +302,9 @@ LogicalVolume *RootGeoManager::Convert(TGeoVolume const *const volume)
     unplaced = ConvertAssembly(volume);
   }
   LogicalVolume *const logical_volume = new LogicalVolume(volume->GetName(), unplaced);
-  const_cast<LogicalVolume *>(logical_volume)->SetMaterialPtr(fMaterialConversionLambda(volume->GetMedium()->GetMaterial()));
+  // convert root material
+  void *mat = fMaterialConversionLambda(volume->GetMedium()->GetMaterial());
+  const_cast<LogicalVolume *>(logical_volume)->SetMaterialPtr(mat);
 
   fLogicalVolumeMap.Set(volume, logical_volume);
   return logical_volume;
