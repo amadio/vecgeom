@@ -44,19 +44,19 @@ int main(int argc, char *argv[])
   facet = new TriangleFacet<double>();
   facet->SetVertices(p0, p2, p1, 0, 2, 1);
   //  std::cout << facet << std::endl;
-  tcl.AddFacet(0, facet);
+  tcl.AddFacet(0, facet, 0);
   facet = new TriangleFacet<double>();
   facet->SetVertices(p0, p3, p2, 0, 3, 2);
   //  std::cout << facet << std::endl;
-  tcl.AddFacet(1, facet);
+  tcl.AddFacet(1, facet, 1);
   facet = new TriangleFacet<double>();
   facet->SetVertices(p0, p4, p3, 0, 4, 3);
   //  std::cout << facet << std::endl;
-  tcl.AddFacet(2, facet);
+  tcl.AddFacet(2, facet, 2);
   facet = new TriangleFacet<double>();
   facet->SetVertices(p0, p1, p4, 0, 1, 4);
   //  std::cout << facet << std::endl;
-  tcl.AddFacet(3, facet);
+  tcl.AddFacet(3, facet, 3);
 
   //  std::cout << tcl << std::endl;
 

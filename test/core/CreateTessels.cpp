@@ -42,6 +42,12 @@ void RandomDirection(Vector3D<double> &direction)
   direction.z() = std::cos(theta);
 }
 
+void RandomPointInBBox(Vector3D<double> &point, TessellatedStruct<double> const &tsl)
+{
+  Vector3D<double> rnd(RNG::Instance().uniform(0, 1), RNG::Instance().uniform(0, 1), RNG::Instance().uniform(0, 1));
+  point = tsl.fMinExtent + rnd * (tsl.fMaxExtent - tsl.fMinExtent);
+}
+
 VECGEOM_FORCE_INLINE
 Vector3D<double> Vtx(int ith, int iph)
 {
@@ -58,11 +64,56 @@ void AddFacetToVisualizer(TriangleFacet<double> const *facet, Visualizer &visual
   visualizer.AddLine(pl);
 }
 
-void DrawCluster(TessellatedStruct<double> const &tsl, int icluster, Visualizer &visualizer)
+void DrawCluster(TessellatedStruct<double> const &tsl, int icluster, Visualizer &visualizer, bool boxonly = false)
 {
   // Draw only segments of the facets which are not shared within the cluster
   TPolyLine3D pl(2);
   pl.SetLineColor(kBlue);
+  if (boxonly) {
+    Vector3D<double> minext = tsl.fClusters[icluster]->fMinExtent;
+    Vector3D<double> maxext = tsl.fClusters[icluster]->fMaxExtent;
+    Vector3D<double> dext   = maxext - minext;
+    pl.SetPoint(0, minext.x(), minext.y(), minext.z());
+    pl.SetPoint(1, minext.x() + dext.x(), minext.y(), minext.z());
+    visualizer.AddLine(pl);
+    pl.SetPoint(0, minext.x() + dext.x(), minext.y(), minext.z());
+    pl.SetPoint(1, minext.x() + dext.x(), minext.y() + dext.y(), minext.z());
+    visualizer.AddLine(pl);
+    pl.SetPoint(0, minext.x() + dext.x(), minext.y() + dext.y(), minext.z());
+    pl.SetPoint(1, minext.x(), minext.y() + dext.y(), minext.z());
+    visualizer.AddLine(pl);
+    pl.SetPoint(0, minext.x(), minext.y() + dext.y(), minext.z());
+    pl.SetPoint(1, minext.x(), minext.y(), minext.z());
+    visualizer.AddLine(pl);
+
+    pl.SetPoint(0, minext.x(), minext.y(), minext.z());
+    pl.SetPoint(1, minext.x(), minext.y(), minext.z() + dext.z());
+    visualizer.AddLine(pl);
+    pl.SetPoint(0, minext.x() + dext.x(), minext.y(), minext.z());
+    pl.SetPoint(1, minext.x() + dext.x(), minext.y(), minext.z() + dext.z());
+    visualizer.AddLine(pl);
+    pl.SetPoint(0, minext.x() + dext.x(), minext.y() + dext.y(), minext.z());
+    pl.SetPoint(1, minext.x() + dext.x(), minext.y() + dext.y(), minext.z() + dext.z());
+    visualizer.AddLine(pl);
+    pl.SetPoint(0, minext.x(), minext.y() + dext.y(), minext.z());
+    pl.SetPoint(1, minext.x(), minext.y() + dext.y(), minext.z() + dext.z());
+    visualizer.AddLine(pl);
+
+    pl.SetPoint(0, minext.x(), minext.y(), minext.z() + dext.z());
+    pl.SetPoint(1, minext.x() + dext.x(), minext.y(), minext.z() + dext.z());
+    visualizer.AddLine(pl);
+    pl.SetPoint(0, minext.x() + dext.x(), minext.y(), minext.z() + dext.z());
+    pl.SetPoint(1, minext.x() + dext.x(), minext.y() + dext.y(), minext.z() + dext.z());
+    visualizer.AddLine(pl);
+    pl.SetPoint(0, minext.x() + dext.x(), minext.y() + dext.y(), minext.z() + dext.z());
+    pl.SetPoint(1, minext.x(), minext.y() + dext.y(), minext.z() + dext.z());
+    visualizer.AddLine(pl);
+    pl.SetPoint(0, minext.x(), minext.y() + dext.y(), minext.z() + dext.z());
+    pl.SetPoint(1, minext.x(), minext.y(), minext.z() + dext.z());
+    visualizer.AddLine(pl);
+    return;
+  }
+
   unsigned nfacets = 0;
   unsigned ifacet  = 0;
   unsigned iother  = 0;
@@ -235,23 +286,34 @@ int main(int argc, char *argv[])
 
     // Visualize facets
 
-    for (auto facet : tsl.fFacets) {
-      AddFacetToVisualizer(facet, visualizer);
+    //    for (auto facet : tsl.fFacets)
+    //      AddFacetToVisualizer(facet, visualizer);
+
+    for (unsigned icluster = 0; icluster < tsl.fClusters.size(); ++icluster)
+      DrawCluster(tsl, icluster, visualizer, false);
+
+    TPolyMarker3D pm(npoints);
+    pm.SetMarkerColor(kRed);
+    // Test contains function
+
+    for (int i = 0; i < npoints; ++i) {
+      RandomPointInBBox(point, tsl);
+      // bool contains = tsl.Contains(point);
+      bool contains = tsl.Inside(point) == kInside;
+      if (contains) pm.SetNextPoint(point[0], point[1], point[2]);
     }
 
     // Test distance to out from origin
-    TPolyMarker3D pm(npoints);
-    pm.SetMarkerColor(kRed);
-    for (int i = 0; i < npoints; ++i) {
-      tsl.DistanceToSolid<false>(start, dirs[i], InfinityLength<double>(), distance, ifacet);
-      point = start + distance * dirs[i];
-      pm.SetNextPoint(point[0], point[1], point[2]);
-    }
 
+    /*
+        for (int i = 0; i < npoints; ++i) {
+          tsl.DistanceToSolid<false>(start, dirs[i], InfinityLength<double>(), distance, ifacet);
+          point = start + distance * dirs[i];
+          pm.SetNextPoint(point[0], point[1], point[2]);
+        }
+    */
     delete[] dirs;
 
-    // for (unsigned icluster = 0; icluster < tsl.fClusters.size(); ++icluster)
-    //  DrawCluster(tsl, icluster, visualizer);
     visualizer.AddPoints(pm);
     visualizer.Show();
   }

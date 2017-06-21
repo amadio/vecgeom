@@ -743,8 +743,10 @@ int Benchmarker::RunInsideBenchmark()
       if (containsSpecialized[i] != containsVectorized[i]) mismatch    = true;
       if (containsSpecialized[i] != containsUnspecialized[i]) mismatch = true;
 #ifdef VECGEOM_ROOT
-      if (containsSpecialized[i] != containsRoot[i]) mismatch = true;
-      if (fVerbosity > 2) mismatchOutput << " / " << containsRoot[i];
+      if (fOkToRunROOT) {
+        if (containsSpecialized[i] != containsRoot[i]) mismatch = true;
+        if (fVerbosity > 2) mismatchOutput << " / " << containsRoot[i];
+      }
 #endif
 #ifdef VECGEOM_ENABLE_CUDA
       if (containsSpecialized[i] != containsCuda[i]) mismatch = true;

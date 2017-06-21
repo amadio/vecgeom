@@ -47,13 +47,17 @@ public:
   VECCORE_ATT_HOST_DEVICE
   size_t GetNFacets() const { return fTessellated.fFacets.size(); }
 
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  TriangleFacet<double> *GetFacet(int ifacet) const { return fTessellated.fFacets[ifacet]; }
+
   VECCORE_ATT_HOST_DEVICE
   void Close() { fTessellated.Close(); }
 
   virtual int memory_size() const final { return sizeof(*this); }
 
   VECCORE_ATT_HOST_DEVICE
-  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const { fTessellated.Extent(aMin, aMax); }
+  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override { fTessellated.Extent(aMin, aMax); }
 
 #ifndef VECGEOM_NVCC
   // Computes capacity of the shape in [length^3]
@@ -63,11 +67,11 @@ public:
 
   int ChooseSurface() const;
 
-  Vector3D<Precision> GetPointOnSurface() const;
+  Vector3D<Precision> SamplePointOnSurface() const override;
 #endif
 
   VECCORE_ATT_HOST_DEVICE
-  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;
+  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override;
 
   VECCORE_ATT_HOST_DEVICE
   virtual void Print() const final;

@@ -35,13 +35,18 @@ public:
   Vector3D<Real_v> fSideVectors[3]; ///< Side vectors of the triangular facets
   Vector3D<Real_v> fVertices[3];    ///< Vertices stored in SIMD format
 #ifdef TEST_TCPERF
-  Facet_t *fFacets[kVecSize];
+  size_t fIfacets[kVecSize]  = {0};
+  Facet_t *fFacets[kVecSize] = {nullptr};
 #endif
   Vector3D<T> fMinExtent; ///< Minimum extent
   Vector3D<T> fMaxExtent; ///< Maximum extent
 
   VECCORE_ATT_HOST_DEVICE
-  TessellatedCluster() {}
+  TessellatedCluster()
+  {
+    fMinExtent.Set(InfinityLength<T>());
+    fMaxExtent.Set(-InfinityLength<T>());
+  }
 
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
@@ -127,7 +132,7 @@ public:
     * @param facet Triangle facet data
     */
   VECCORE_ATT_HOST_DEVICE
-  void AddFacet(size_t index, Facet_t *facet)
+  void AddFacet(size_t index, Facet_t *facet, size_t ifacet)
   {
     // Fill the facet normal by accessing individual SIMD lanes
     assert(index < kVecSize);
@@ -155,7 +160,8 @@ public:
       fVertices[ivert].z()[index]               = c0.z();
     }
 #ifdef TEST_TCPERF
-    fFacets[index] = facet;
+    fFacets[index]  = facet;
+    fIfacets[index] = ifacet;
 #endif
   }
 

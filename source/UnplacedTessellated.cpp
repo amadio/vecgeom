@@ -66,7 +66,7 @@ int UnplacedTessellated::ChooseSurface() const
   return choice;
 }
 
-Vector3D<Precision> UnplacedTessellated::GetPointOnSurface() const
+Vector3D<Precision> UnplacedTessellated::SamplePointOnSurface() const
 {
   int surface    = ChooseSurface();
   double alpha   = RNG::Instance().uniform(0., 1.);

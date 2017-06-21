@@ -35,10 +35,19 @@ TGeoShape const *PlacedTessellated::ConvertToRoot() const
 #if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
 ::VUSolid const *PlacedTessellated::ConvertToUSolids() const
 {
+  std::cout << "Creating tessellated solid...\n";
   UTessellatedSolid *tsl = new UTessellatedSolid("");
-  for (auto facet : GetUnplacedVolume()->fTessellated.fFacets()) {
-    tsl->AddFacet(new UTriangularFacet(UVector3(), UVector3(), UVector3(), UFacetVertexType::UABSOLUTE);
+  for (int ifacet = 0; ifacet < GetUnplacedVolume()->GetNFacets(); ++ifacet) {
+    TriangleFacet<double> *facet = GetUnplacedVolume()->GetFacet(ifacet);
+    tsl->AddFacet(
+        new UTriangularFacet(UVector3(facet->fVertices[0].x(), facet->fVertices[0].y(), facet->fVertices[0].z()),
+                             UVector3(facet->fVertices[1].x(), facet->fVertices[1].y(), facet->fVertices[1].z()),
+                             UVector3(facet->fVertices[2].x(), facet->fVertices[2].y(), facet->fVertices[2].z()),
+                             UFacetVertexType::UABSOLUTE));
   }
+  tsl->SetSolidClosed(true);
+  std::cout << "Tessellated solid done\n";
+  return tsl;
 }
 #endif
 

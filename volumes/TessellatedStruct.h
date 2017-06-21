@@ -6,6 +6,7 @@
 
 #include "TessellatedCluster.h"
 #include "base/BitSet.h"
+#include "base/RNG.h"
 #include <vector>
 
 #include "base/Stopwatch.h"
@@ -108,6 +109,7 @@ public:
   Vector3D<T> fMinExtent;             ///< Minimum extent
   Vector3D<T> fMaxExtent;             ///< Maximum extent
   Vector3D<T> fInvExtSize;            ///< Inverse extent size
+  Vector3D<T> fTestDir;               ///< Test direction for Inside function
   BVHStructure *fNavHelper = nullptr; ///< Navigation helper using bounding boxes
 
   // Here we have a pointer to the aligned bbox structure
@@ -296,6 +298,27 @@ public:
     CreateABBoxes(); // to navigate, see: TestHybridBVH.cpp/HybridNavigator2.h/HybridSafetyEstimator.h
     time = timer.Stop();
     std::cout << "Create AABoxes: " << time << " sec\n";
+    // Generate random direction non-parallel to any of the surfaces
+    constexpr T tolerance(1.e-8);
+    while (1) {
+      RandomDirection(fTestDir);
+      // Loop over triangles and check that dot product is not close to 0
+      for (auto facet : fFacets) {
+        if (vecCore::math::Abs(facet->fNormal.Dot(fTestDir)) < tolerance) break;
+      }
+      break;
+    }
+    fSolidClosed = true;
+  }
+
+  void RandomDirection(Vector3D<double> &direction)
+  {
+
+    double phi    = RNG::Instance().uniform(0., 2. * kPi);
+    double theta  = std::acos(1. - 2. * RNG::Instance().uniform(0, 1));
+    direction.x() = std::sin(theta) * std::cos(phi);
+    direction.y() = std::sin(theta) * std::sin(phi);
+    direction.z() = std::cos(theta);
   }
 
   void CreateDummyClusters()
@@ -303,17 +326,18 @@ public:
     // Loop over facets and group them in clusters in the order of definition
     TessellatedCluster<Real_v> *tcl = nullptr;
     int i                           = 0;
+    int j                           = 0;
     for (auto facet : fFacets) {
       i = i % kVecSize;
       if (i == 0) {
         if (tcl) fClusters.push_back(tcl);
         tcl = new TessellatedCluster<Real_v>();
       }
-      tcl->AddFacet(i++, facet);
+      tcl->AddFacet(i++, facet, j++);
     }
     // The last cluster may not be yet full
     for (; i < kVecSize; ++i)
-      tcl->AddFacet(i, tcl->fFacets[0]);
+      tcl->AddFacet(i, tcl->fFacets[0], tcl->fIfacets[0]);
   }
   TessellatedCluster<Real_v> *CreateCluster()
   {
@@ -341,7 +365,7 @@ public:
     int i                           = 0;
     for (auto ifct : fCluster) {
       Facet_t *facet = fFacets[ifct];
-      tcl->AddFacet(i++, facet);
+      tcl->AddFacet(i++, facet, ifct);
     }
     fNcldist[fCluster.size()]++;
     return tcl;
@@ -363,7 +387,7 @@ public:
     int i                           = 0;
     for (auto ifacet : fCluster) {
       Facet_t *facet = fFacets[ifacet];
-      tcl->AddFacet(i++, facet);
+      tcl->AddFacet(i++, facet, ifacet);
     }
     return tcl;
   }
@@ -522,10 +546,21 @@ public:
   void DistanceToSolid(Vector3D<T> const &point, Vector3D<T> const &direction, T const &stepMax, T &distance,
                        int &isurf) const
   {
-    int ntries = 0;
-    distance   = InfinityLength<T>();
+    // int ntries = 0;
+    // Check if the bounding box is hit
+
+    Vector3D<Precision> invdir(1. / direction.x(), 1. / direction.y(), 1. / direction.z());
+    Vector3D<int> sign;
+    sign[0]  = invdir.x() < 0;
+    sign[1]  = invdir.y() < 0;
+    sign[2]  = invdir.z() < 0;
+    distance = BoxImplementation::IntersectCachedKernel2<T, T>(&fMinExtent, point, invdir, sign.x(), sign.y(), sign.z(),
+                                                               -kTolerance, InfinityLength<T>());
+    if (distance >= InfinityLength<T>()) return;
+
     // Define the user hook calling DistanceToIn for the cluster with the same
     // index as the bounding box
+    distance      = InfinityLength<T>();
     auto userhook = [&](HybridManager2::BoxIdDistancePair_t hitbox) {
       // Stop searching if the distance to the current box is bigger than the
       // requested limit or than the current distance
@@ -539,16 +574,48 @@ public:
         fClusters[hitbox.first]->DistanceToOut(point, direction, stepMax, distcrt, isurfcrt);
       if (distcrt < distance) {
         distance = distcrt;
-        isurf    = isurfcrt;
+        isurf    = fClusters[hitbox.first]->fIfacets[isurfcrt];
       }
-      ntries++;
+      // ntries++;
       return false;
     };
 
     HybridNavigator<> *boxNav = (HybridNavigator<> *)HybridNavigator<>::Instance();
     // intersect ray with the BVH structure and use hook
     boxNav->BVHSortedIntersectionsLooper(*fNavHelper, point, direction, userhook);
-    printf("ntries = %d\n", ntries);
+    //    printf("ntries = %d\n", ntries);
+  }
+
+  bool Contains(Vector3D<T> const &point) const
+  {
+    int isurf;
+    T stepMax = InfinityLength<T>();
+    T distOut, distIn;
+    DistanceToSolid<false>(point, fTestDir, stepMax, distOut, isurf);
+    // If distance to out is infinite the point is outside
+    if (distOut >= stepMax) return false;
+
+    DistanceToSolid<true>(point, fTestDir, stepMax, distIn, isurf);
+    // If distance to out is finite and less than distance to in, the point is inside
+    if (distOut < distIn) return true;
+    return false;
+  }
+
+  EnumInside Inside(Vector3D<T> const &point) const
+  {
+    int isurf;
+    T stepMax = InfinityLength<T>();
+    T distOut, distIn;
+    DistanceToSolid<false>(point, fTestDir, stepMax, distOut, isurf);
+    // If distance to out is infinite the point is outside
+    if (distOut >= stepMax) return kOutside;
+    if (distOut < 0 || distOut * fTestDir.Dot(fFacets[isurf]->fNormal) < kTolerance) return kSurface;
+
+    DistanceToSolid<true>(point, fTestDir, stepMax, distIn, isurf);
+    // If distance to out is finite and less than distance to in, the point is inside
+    if (distOut < distIn) return kInside;
+    if (distIn < 0 || distIn * fTestDir.Dot(fFacets[isurf]->fNormal) > -kTolerance) return kSurface;
+    return kOutside;
   }
 
 }; // end class

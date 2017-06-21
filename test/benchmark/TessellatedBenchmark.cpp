@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
   OPTION_INT(nrep, 4);
   OPTION_DOUBLE(ngrid, 100);
 
-  UnplacedBox worldUnplaced = UnplacedBox(10., 10., 10.);
+  UnplacedBox worldUnplaced = UnplacedBox(20., 20., 20.);
 
   UnplacedTessellated tsl = UnplacedTessellated();
   // Create the tessellated solid
@@ -80,9 +80,13 @@ int main(int argc, char *argv[])
   GeoManager::Instance().SetWorldAndClose(worldPlaced);
 
   Benchmarker tester(GeoManager::Instance().GetWorld());
-  tester.SetVerbosity(3);
+  tester.SetVerbosity(2);
   tester.SetRepetitions(nrep);
   tester.SetPointCount(npoints);
+  tester.SetToInBias(0.8);
   tester.SetPoolMultiplier(1);
+
+  //  tester.RunToInBenchmark();
+  //  tester.RunToOutBenchmark();
   return tester.RunBenchmark();
 }

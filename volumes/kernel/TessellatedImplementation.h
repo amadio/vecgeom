@@ -60,7 +60,7 @@ struct TessellatedImplementation {
   VECCORE_ATT_HOST_DEVICE
   static void Contains(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point, Bool_v &inside)
   {
-    //    inside = tessellated.Contains(point);
+    inside = tessellated.Contains(point);
   }
 
   template <typename Real_v, typename Inside_v>
@@ -68,7 +68,7 @@ struct TessellatedImplementation {
   VECCORE_ATT_HOST_DEVICE
   static void Inside(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point, Inside_v &inside)
   {
-    //    tessellated.Inside(point, inside);
+    inside = tessellated.Inside(point);
   }
 
   template <typename Real_v>
