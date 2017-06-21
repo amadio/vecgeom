@@ -26,8 +26,6 @@ inline
 class Transformation3D;
 class LogicalVolume;
 class VPlacedVolume;
-class Material;
-class Medium;
 
 // a class to provide serialization functionality of an existing
 // geometry hierarchy to C++ code; This code can then be compiled into a library
@@ -63,12 +61,6 @@ private:
   std::map<LogicalVolume const *, std::string> fLVolumeToStringMap;
   std::set<std::string> fNeededHeaderFiles;
 
-  // mapping pointer to variable names for media
-  std::map<Medium const *, std::string> fMediumToStringMap;
-
-  // mapping pointer to variable names for materials
-  std::map<Material const *, std::string> fMaterialToStringMap;
-
   std::list<LogicalVolume const *> fListofTreatedLogicalVolumes;
   // container to keep track of logical volumes which need to be coded in C++
   // at a later stage because a dependency is not satisfied
@@ -76,10 +68,6 @@ private:
 
   void DumpTransformations(std::vector<std::string> &, std::stringstream &, std::vector<std::string> &,
                            std::list<Transformation3D const *> const &);
-  void DumpMaterials(std::vector<std::string> &, std::stringstream &, std::vector<std::string> &,
-                     std::list<Material const *> const &);
-  void DumpMedia(std::vector<std::string> &, std::stringstream &, std::vector<std::string> &,
-                 std::list<Medium const *> const &);
   void DumpLogicalVolumes(std::ostream &, std::ostream & /* extern decl */, std::ostream & /* lvol definitions */,
                           std::list<LogicalVolume const *> const &);
   void DumpGeomHierarchy(std::vector<std::string> &, std::list<LogicalVolume const *> const &);
@@ -88,8 +76,7 @@ private:
   void DumpEntryFunction();
 
   void ScanGeometry(VPlacedVolume const *const volume, std::list<LogicalVolume const *> &,
-                    std::list<LogicalVolume const *> &boollvlist, std::list<Transformation3D const *> &,
-                    std::list<Medium const *> &, std::list<Material const *> &);
+                    std::list<LogicalVolume const *> &boollvlist, std::list<Transformation3D const *> &);
 
   // private Constructor
   GeomCppExporter()

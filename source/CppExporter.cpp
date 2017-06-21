@@ -25,8 +25,6 @@
 #include "volumes/UnplacedBooleanVolume.h"
 #include "volumes/ScaledShape.h"
 #include "volumes/GenTrap.h"
-#include "materials/Medium.h"
-#include "materials/Material.h"
 #include "base/MessageLogger.h"
 #include <sstream>
 #include <ostream>
@@ -54,42 +52,27 @@ bool ContainerContains(IterableContainer const &c, ElementType const &e)
 // a list of transformations
 void GeomCppExporter::ScanGeometry(VPlacedVolume const *const volume, std::list<LogicalVolume const *> &lvlist,
                                    std::list<LogicalVolume const *> &boollvlist,
-                                   std::list<Transformation3D const *> &tlist, std::list<Medium const *> &mediumlist,
-                                   std::list<Material const *> &materiallist)
+                                   std::list<Transformation3D const *> &tlist)
 {
   // if not yet treated
   if (std::find(lvlist.cbegin(), lvlist.cend(), volume->GetLogicalVolume()) == lvlist.cend() &&
       std::find(boollvlist.cbegin(), boollvlist.cend(), volume->GetLogicalVolume()) == boollvlist.cend()) {
-
-    // add medium and material if not already done
-    const Medium *me = static_cast<Medium *>(volume->GetLogicalVolume()->GetTrackingMediumPtr());
-    if (me) {
-      if (std::find(mediumlist.cbegin(), mediumlist.cend(), me) == mediumlist.cend()) {
-        mediumlist.push_back(me);
-        const Material *ma = me->GetMaterial();
-        if (std::find(materiallist.cbegin(), materiallist.cend(), ma) == materiallist.cend())
-          materiallist.push_back(ma);
-      }
-    } else {
-      log_information(std::cerr, "Logical Volume %s has no tracking medium\n", volume->GetLogicalVolume()->GetName());
-    }
-
     if (dynamic_cast<PlacedBooleanVolume const *>(volume)) {
       boollvlist.push_front(volume->GetLogicalVolume());
       PlacedBooleanVolume const *v = dynamic_cast<PlacedBooleanVolume const *>(volume);
-      ScanGeometry(v->GetUnplacedVolume()->fLeftVolume, lvlist, boollvlist, tlist, mediumlist, materiallist);
-      ScanGeometry(v->GetUnplacedVolume()->fRightVolume, lvlist, boollvlist, tlist, mediumlist, materiallist);
+      ScanGeometry(v->GetUnplacedVolume()->fLeftVolume, lvlist, boollvlist, tlist);
+      ScanGeometry(v->GetUnplacedVolume()->fRightVolume, lvlist, boollvlist, tlist);
     } else if (dynamic_cast<PlacedScaledShape const *>(volume)) {
       boollvlist.push_front(volume->GetLogicalVolume());
       PlacedScaledShape const *v = dynamic_cast<PlacedScaledShape const *>(volume);
-      ScanGeometry(v->GetUnplacedVolume()->fScaled.fPlaced, lvlist, boollvlist, tlist, mediumlist, materiallist);
+      ScanGeometry(v->GetUnplacedVolume()->fScaled.fPlaced, lvlist, boollvlist, tlist);
     } else {
       // ordinary logical volume
       lvlist.push_back(volume->GetLogicalVolume());
     }
 
     for (size_t d = 0; d < volume->GetDaughters().size(); ++d)
-      ScanGeometry(volume->GetDaughters()[d], lvlist, boollvlist, tlist, mediumlist, materiallist);
+      ScanGeometry(volume->GetDaughters()[d], lvlist, boollvlist, tlist);
   }
 
   if (std::find(tlist.cbegin(), tlist.cend(), volume->GetTransformation()) == tlist.cend()) {
@@ -188,169 +171,6 @@ void GeomCppExporter::DumpTransformations(std::vector<std::string> &trafoconstrl
 
   PushAndReset(trafoconstr, trafoconstrlist);
   PushAndReset(trafodecl, trafodecllist);
-}
-
-void GeomCppExporter::DumpMaterials(std::vector<std::string> &materials, std::stringstream &materialexterndecl,
-                                    std::vector<std::string> &materialdecl,
-                                    std::list<Material const *> const &materiallist)
-{
-
-  // loop over all materials
-  unsigned int counter = 0;
-  for (auto m : materiallist) {
-    // register transformation
-    if (fMaterialToStringMap.find(m) == fMaterialToStringMap.cend()) {
-      // create a variable name
-      std::stringstream s;
-      s << "mate" << counter;
-      // do mapping from existing pointer value to variable name
-      fMaterialToStringMap[m] = s.str();
-      counter++;
-    }
-  }
-
-  // we will split the material constructions into different groups
-  // of compiler translation units for faster and parallel compilation
-  unsigned int group = 0;
-  std::stringstream materialconstr;
-  std::stringstream materialdeclline;
-
-  // generate function that instantiates the materials
-  int groupcounter = 0;
-  materialconstr << "void GenerateMaterials_part" << group << "(){\n";
-  for (auto ma : fMaterialToStringMap) {
-
-    // we take a limit if 5000 materials per translation unit
-    // which compiles reasonably fast
-    if (++groupcounter > 5000) {
-      group++;
-      // close old function
-      materialconstr << "}\n";
-
-      // create a new stream
-      PushAndReset(materialconstr, materials);
-      PushAndReset(materialdeclline, materialdecl);
-
-      // init new function
-      materialconstr << "void GenerateMaterials_part" << group << "(){\n";
-
-      // reset counter
-      groupcounter = 0;
-    }
-
-    std::stringstream line;
-
-    // extern declaration line
-    materialexterndecl << "extern Material *" << ma.second << ";\n";
-    materialdeclline << "Material * " << ma.second << " = nullptr;\n";
-
-    // instantiation line
-    line << std::setprecision(15);
-    int nel = ma.first->GetNelements();
-    if (nel == 1) {
-      line << ma.second << " = new Material(";
-      line << "\"" << ma.first->GetName() << "\"," << ma.first->GetA() << "," << ma.first->GetZ() << ","
-           << ma.first->GetDensity() << ");\n";
-    } else {
-      if (nel > 100) {
-        log_fatal(std::cerr, "Cannot handle more than 100 elements in a material\n");
-        exit(1);
-      }
-      double mata[100];
-      double matz[100];
-      double matw[100];
-      line << ma.second << " = new Material(";
-      line << "\"" << ma.first->GetName() << "\",\n&std::vector<double>{";
-      for (int iel = 0; iel < nel; ++iel)
-        ma.first->GetElementProp(mata[iel], matz[iel], matw[iel], iel);
-      for (int iel = 0; iel < nel - 1; ++iel)
-        line << mata[iel] << ",";
-      line << mata[nel - 1] << "}[0],\n";
-      line << "&std::vector<double>{";
-      for (int iel = 0; iel < nel - 1; ++iel)
-        line << matz[iel] << ",";
-      line << matz[nel - 1] << "}[0],\n";
-      line << "&std::vector<double>{";
-      for (int iel = 0; iel < nel - 1; ++iel)
-        line << matw[iel] << ",";
-      line << matw[nel - 1] << "}[0],\n";
-      line << nel << "," << ma.first->GetDensity() << ");\n";
-    }
-    materialconstr << line.str();
-  }
-  materialconstr << "}\n";
-
-  PushAndReset(materialconstr, materials);
-  PushAndReset(materialdeclline, materialdecl);
-}
-
-void GeomCppExporter::DumpMedia(std::vector<std::string> &media, std::stringstream &mediumexterndecl,
-                                std::vector<std::string> &mediumdecl, std::list<Medium const *> const &mediumlist)
-{
-
-  // loop over all media
-  unsigned int counter = 0;
-  for (auto m : mediumlist) {
-    // register transformation
-    if (fMediumToStringMap.find(m) == fMediumToStringMap.cend()) {
-      // create a variable name
-      std::stringstream s;
-      s << "medium" << counter;
-      // do mapping from existing pointer value to variable name
-      fMediumToStringMap[m] = s.str();
-      counter++;
-    }
-  }
-
-  // we will split the medium constructions into different groups
-  // of compiler translation units for faster and parallel compilation
-  unsigned int group = 0;
-  std::stringstream mediumconstr;
-  std::stringstream mediumdeclline;
-
-  // generate function that instantiates the media
-  int groupcounter = 0;
-  mediumconstr << "void GenerateMedia_part" << group << "(){\n";
-
-  for (auto ma : fMediumToStringMap) {
-    // we take a limit if 5000 media per translation unit
-    // which compiles reasonably fast
-    if (++groupcounter > 5000) {
-      group++;
-      // close old function
-      mediumconstr << "}\n";
-
-      // create a new stream
-      PushAndReset(mediumconstr, media);
-      PushAndReset(mediumdeclline, mediumdecl);
-
-      // init new function
-      mediumconstr << "void GenerateMedia_part" << group << "(){\n";
-
-      // reset counter
-      groupcounter = 0;
-    }
-    std::stringstream line;
-
-    // extern declaration line
-    mediumexterndecl << "extern Medium *" << ma.second << ";\n";
-    mediumdeclline << "Medium * " << ma.second << " = nullptr;\n";
-
-    // instantiation line
-    line << std::setprecision(15);
-    Material *mm = ma.first->GetMaterial();
-    if (fMaterialToStringMap.find(mm) == fMaterialToStringMap.end()) {
-      log_fatal(std::cerr, "Could not find material %s\n", mm->GetName());
-      exit(1);
-    }
-    line << ma.second << " = new Medium(";
-    line << "\"" << ma.first->GetName() << "\"," << fMaterialToStringMap[mm] << ", nullptr);\n";
-    mediumconstr << line.str();
-  }
-  mediumconstr << "}\n";
-
-  PushAndReset(mediumconstr, media);
-  PushAndReset(mediumdeclline, mediumdecl);
 }
 
 template <typename VectorContainer>
@@ -665,21 +485,7 @@ void GeomCppExporter::DumpLogicalVolumes(std::ostream &dumps, std::ostream &exte
       line << l->GetLabel() << "\n";
     }
 
-    // Assing material
-
     line << " );\n";
-
-    Medium *m = static_cast<Medium *>(l->GetTrackingMediumPtr());
-    if (m) {
-      if (fMediumToStringMap.find(m) == fMediumToStringMap.cend()) {
-        log_fatal(std::cerr, "Could not find medium %s\n", m->GetName());
-        exit(1);
-      }
-      line << fLVolumeToStringMap[l] << "->SetTrackingMediumPtr(static_cast<void*>(" << fMediumToStringMap[m]
-           << "));\n";
-    }
-
-    dumps << line.str();
 
     lvoldefinitions << "LogicalVolume *" << fLVolumeToStringMap[l] << "= nullptr;\n";
     externdeclarations << "extern LogicalVolume *" << fLVolumeToStringMap[l] << ";\n";
@@ -748,7 +554,6 @@ void GeomCppExporter::DumpHeader(std::ostream &dumps)
   dumps << "#include \"volumes/PlacedVolume.h\"\n";
   dumps << "#include \"volumes/LogicalVolume.h\"\n";
   dumps << "#include \"base/Transformation3D.h\"\n";
-  dumps << "#include \"materials/Medium.h\"\n";
   dumps << "#include <vector>\n";
 
   // put shape specific headers
@@ -764,14 +569,6 @@ void GeomCppExporter::DumpGeometry(std::ostream &s)
   std::stringstream transexterndecl;
   std::vector<std::string> transdecl;
 
-  std::vector<std::string> materials;
-  std::stringstream materialexterndecl;
-  std::vector<std::string> materialdecl;
-
-  std::vector<std::string> media;
-  std::stringstream mediumexterndecl;
-  std::vector<std::string> mediumdecl;
-
   std::stringstream logicalvolumes;
   std::stringstream lvoldefinitions;
   std::stringstream lvoldeclarations;
@@ -783,16 +580,11 @@ void GeomCppExporter::DumpGeometry(std::ostream &s)
   std::list<Transformation3D const *> tlist;
   std::list<LogicalVolume const *> lvlist;
   std::list<LogicalVolume const *> boollvlist;
-  std::list<Medium const *> mediumlist;
-  std::list<Material const *> materiallist;
-  ScanGeometry(GeoManager::Instance().GetWorld(), lvlist, boollvlist, tlist, mediumlist, materiallist);
+
+  ScanGeometry(GeoManager::Instance().GetWorld(), lvlist, boollvlist, tlist);
 
   // generate code that instantiates the transformations
   DumpTransformations(transformations, transexterndecl, transdecl, tlist);
-  // generate code that instantiates the materials
-  DumpMaterials(materials, materialexterndecl, materialdecl, materiallist);
-  // generate code that instantiates the media
-  DumpMedia(media, mediumexterndecl, mediumdecl, mediumlist);
   // generate code that instantiates ordinary logical volumes
   DumpLogicalVolumes(logicalvolumes, lvoldeclarations, lvoldefinitions, lvlist);
 
@@ -835,35 +627,6 @@ void GeomCppExporter::DumpGeometry(std::ostream &s)
     outfile.close();
   }
 
-  // write translation units for materials
-  for (unsigned int i = 0; i < materialdecl.size(); ++i) {
-    std::ofstream outfile;
-    std::stringstream name;
-    name << "geomconstr_materials_part" << i << ".cpp";
-    outfile.open(name.str());
-    outfile << "#include \"materials/Material.h\"\n";
-    outfile << "using namespace vecgeom;\n";
-    outfile << materialdecl[i];
-    outfile << materials[i];
-    outfile.close();
-  }
-
-  // write translation units for media
-  for (unsigned int i = 0; i < mediumdecl.size(); ++i) {
-    std::ofstream outfile;
-    std::stringstream name;
-    name << "geomconstr_media_part" << i << ".cpp";
-    outfile.open(name.str());
-    outfile << "#include \"materials/Material.h\"\n";
-    outfile << "#include \"materials/Medium.h\"\n";
-    outfile << "using namespace vecgeom;\n";
-    outfile << materialexterndecl.str();
-    outfile << mediumdecl[i];
-    outfile << media[i];
-    outfile.close();
-  }
-  // return;
-
   // write translation unit for logical volumes
   {
     std::ofstream outfile;
@@ -875,7 +638,6 @@ void GeomCppExporter::DumpGeometry(std::ostream &s)
 
     // we need external declarations for transformations
     outfile << transexterndecl.str();
-    outfile << mediumexterndecl.str();
     outfile << lvoldefinitions.str();
     outfile << "void CreateLogicalVolumes(){\n";
     outfile << logicalvolumes.str();
@@ -918,12 +680,6 @@ void GeomCppExporter::DumpGeometry(std::ostream &s)
     for (unsigned int i = 0; i < transdecl.size(); ++i) {
       outfile << "extern void GenerateTransformations_part" << i << "();\n";
     }
-    for (unsigned int i = 0; i < materialdecl.size(); ++i) {
-      outfile << "extern void GenerateMaterials_part" << i << "();\n";
-    }
-    for (unsigned int i = 0; i < mediumdecl.size(); ++i) {
-      outfile << "extern void GenerateMedia_part" << i << "();\n";
-    }
     outfile << "extern void CreateLogicalVolumes();\n";
     for (unsigned int i = 0; i < geomhierarchy.size(); ++i) {
       outfile << "extern void GeneratePlacedVolumes_part" << i << "();\n";
@@ -936,12 +692,6 @@ void GeomCppExporter::DumpGeometry(std::ostream &s)
     // ...  start with the transformations
     for (unsigned int i = 0; i < transdecl.size(); ++i) {
       outfile << "  GenerateTransformations_part" << i << "();\n";
-    }
-    for (unsigned int i = 0; i < materialdecl.size(); ++i) {
-      outfile << "  GenerateMaterials_part" << i << "();\n";
-    }
-    for (unsigned int i = 0; i < mediumdecl.size(); ++i) {
-      outfile << "  GenerateMedia_part" << i << "();\n";
     }
     outfile << "CreateLogicalVolumes();\n";
     for (unsigned int i = 0; i < geomhierarchy.size(); ++i) {

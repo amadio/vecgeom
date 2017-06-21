@@ -703,9 +703,6 @@ set(VECGEOM_SRCS
   source/HybridManager2.cpp
   source/ABBoxNavigator.cpp
 
-  source/Material.cpp
-  source/Medium.cpp
-  source/Nucleus.cpp
   source/MessageLogger.cpp
 
   services/NavigationSpecializer.cpp
@@ -758,7 +755,6 @@ set(NOT_FOR_CUDA
    ABBoxNavigator
    HybridManager2
    Medium
- # Material
    G4GeoManager
    RootGeoManager
    NavigationSpecializer
@@ -1048,9 +1044,9 @@ set(TEST_EXECUTABLES_SHAPETESTER
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testGenTrap.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testParallelepiped.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/convention_testTube.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testPolyhedron.cpp 
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTorus.cpp 
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testCutTube.cpp 
+  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testPolyhedron.cpp
+  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTorus.cpp
+  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testCutTube.cpp
 )
 
 if(ROOT) # add shape testers that depend on ROOT
@@ -1300,7 +1296,7 @@ if (USolids)
 endif()
 
 # Install headers and libraries
-foreach(FOLDER base benchmarking management navigation volumes materials backend)
+foreach(FOLDER base benchmarking management navigation volumes backend)
   install(DIRECTORY ${FOLDER} DESTINATION ${INSTALL_INCLUDE_DIR})
 endforeach()
 

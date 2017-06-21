@@ -64,7 +64,10 @@ private:
   /** some specific pointers used by Geant-V
    *
    */
-  void *fTrackingMediumPtr;
+
+  void *fMaterialPtr;
+  void *fMaterialCutsPtr;
+
   void *fBasketManagerPtr;
 
   Region *fRegion = nullptr; // pointer to a region object
@@ -140,7 +143,11 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  void *GetTrackingMediumPtr() const { return fTrackingMediumPtr; }
+  void *GetMaterialPtr() const { return fMaterialPtr; }
+
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  void *GetMaterialCutsPtr() const { return fMaterialCutsPtr; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
@@ -185,7 +192,10 @@ public:
   void SetUserExtensionPtr(void *userpointer) { fUserExtensionPtr = userpointer; }
 
   VECGEOM_FORCE_INLINE
-  void SetTrackingMediumPtr(void *tmediumpointer) { fTrackingMediumPtr = tmediumpointer; }
+  void SetMaterialPtr(void *matpointer) { fMaterialPtr = matpointer; }
+
+  VECGEOM_FORCE_INLINE
+  void SetMaterialCutsPtr(void *matcutpointer) { fMaterialCutsPtr = matcutpointer; }
 
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE

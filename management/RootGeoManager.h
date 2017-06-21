@@ -23,8 +23,6 @@ class LogicalVolume;
 class Transformation3D;
 class UnplacedBox;
 class VUnplacedVolume;
-class Medium;
-class Material;
 class UnplacedGenTrap;
 
 /// \brief Manager to handle interaction with ROOT geometry.
@@ -44,6 +42,8 @@ private:
   BidirectionalTypeMap<Transformation3D const *, TGeoMatrix const *> fTransformationMap;
 
   std::vector<TGeoNode const *> fTGeoNodeVector;
+
+  std::function<void*(TGeoMaterial const *)> fMaterialConversionLambda = [](TGeoMaterial const *){ return nullptr; };
 
   int fVerbose;
 
@@ -129,9 +129,9 @@ public:
 
   Transformation3D *Convert(TGeoMatrix const *const trans);
 
-  Medium *Convert(TGeoMedium const *const medium);
-
-  Material *Convert(TGeoMaterial const *const material);
+  void SetMaterialConversionHook(std::function<void*(TGeoMaterial const *)> &&f) {
+      fMaterialConversionLambda = f;
+  }
 
   // inverse process
   TGeoNode *Convert(VPlacedVolume const *const node);
