@@ -586,6 +586,30 @@ public:
     //    printf("ntries = %d\n", ntries);
   }
 
+  template <bool ToIn>
+  VECCORE_ATT_HOST_DEVICE
+  T SafetySq(Vector3D<T> const &point, int &isurf) const
+  {
+    T safetysq = InfinityLength<T>();
+    auto userhook = [&](HybridManager2::BoxIdDistancePair_t hitbox) {
+      // Stop searching if the safety to the current cluster is bigger than the
+      // current safety
+      if (hitbox.second > safetysq) return true;
+      // Compute distance to the cluster
+      int isurfcrt;
+      T safetycrt = fClusters[hitbox.first]->template SafetySq<ToIn>(point, isurfcrt);
+      if (safetycrt < safetysq) {
+        safetysq = safetycrt;
+        isurf = isurfcrt;
+      }
+      return false;
+    };
+    HybridNavigator<> *boxNav = (HybridNavigator<> *)HybridNavigator<>::Instance();
+    // Use the BVH structure and connect hook
+    boxNav->BVHSortedSafetyLooper(*fNavHelper, point, userhook, safetysq);
+    return safetysq;
+  }
+
   bool Contains(Vector3D<T> const &point) const
   {
     int isurf;

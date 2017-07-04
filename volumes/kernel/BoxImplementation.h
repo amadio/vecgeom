@@ -553,6 +553,74 @@ struct ABBoxImplementation {
     return runningsafetysqr;
   }
 
+  // safety square for Bounding boxes, returning the squared range for any point in the box
+  // generic kernel treating one track and one or multiple boxes
+  // in case a point is inside a box a squared value
+  // is returned but given an overall negative sign
+  template <typename Real_v, typename Real_s = typename vecCore::TypeTraits<Real_v>::ScalarType>
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  static Real_v ABBoxSafetyRangeSqr(Vector3D<Real_v> const &lowercorner, Vector3D<Real_v> const &uppercorner,
+                               Vector3D<Real_s> const &point, Real_v &safetymaxsqr)
+  {
+
+    using Vector3D_v = Vector3D<Real_v>;
+    using Bool_v     = vecCore::Mask_v<Real_v>;
+
+    const Vector3D_v kHalf(Real_v(static_cast<Real_s>(0.5)));
+    const Vector3D_v origin((uppercorner + lowercorner) * kHalf);
+    const Vector3D_v delta((uppercorner - lowercorner) * kHalf);
+    // promote scalar point to vector point
+    Vector3D_v promotedpoint(Real_v(point.x()), Real_v(point.y()), Real_v(point.z()));
+
+    // it would be nicer to have a standalone Abs function taking Vector3D as input
+    Vector3D_v safety = ((promotedpoint - origin).Abs()) - delta;
+    Vector3D_v safetyp = ((promotedpoint - origin).Abs()) + delta;
+    Bool_v outsidex   = safety.x() > Real_s(0.);
+    Bool_v outsidey   = safety.y() > Real_s(0.);
+    Bool_v outsidez   = safety.z() > Real_s(0.);
+
+    Real_v runningsafetysqr(0.);                  // safety squared from outside
+    safetymaxsqr = Real_v(0.);                    // safetymax squared from outside
+    Real_v runningmax(-InfinityLength<Real_v>()); // relevant for safety when we are inside
+
+    // loop over dimensions manually unrolled
+    // treat x dim
+    {
+      // this will be much simplified with operator notation
+      Real_v tmp(0.);
+      vecCore__MaskedAssignFunc(tmp, outsidex, safety.x() * safety.x());
+      runningsafetysqr += tmp;
+      runningmax = Max(runningmax, safety.x());
+      vecCore__MaskedAssignFunc(tmp, outsidex, safetyp.x() * safetyp.x());
+      safetymaxsqr += tmp;
+    }
+
+    // treat y dim
+    {
+      Real_v tmp(0.);
+      vecCore__MaskedAssignFunc(tmp, outsidey, safety.y() * safety.y());
+      runningsafetysqr += tmp;
+      runningmax = Max(runningmax, safety.y());
+      vecCore__MaskedAssignFunc(tmp, outsidey, safetyp.y() * safetyp.y());
+      safetymaxsqr += tmp;
+    }
+
+    // treat z dim
+    {
+      Real_v tmp(0.);
+      vecCore__MaskedAssignFunc(tmp, outsidez, safety.z() * safety.z());
+      runningsafetysqr += tmp;
+      runningmax = Max(runningmax, safety.z());
+      vecCore__MaskedAssignFunc(tmp, outsidez, safetyp.z() * safetyp.z());
+      safetymaxsqr += tmp;
+    }
+
+    Bool_v inside = !(outsidex || outsidey || outsidez);
+    if (!vecCore::MaskEmpty(inside)) vecCore__MaskedAssignFunc(runningsafetysqr, inside, -runningmax * runningmax);
+    return runningsafetysqr;
+  }
+
 }; // end aligned bounding box struct
 }
 } // End global namespace

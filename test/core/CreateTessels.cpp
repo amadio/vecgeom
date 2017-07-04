@@ -225,8 +225,8 @@ int main(int argc, char *argv[])
   const double sqrt2 = vecCore::math::Sqrt(2.);
   TGraph *gtime      = nullptr;
   if (scalability) {
-    gtime = new TGraph(12);
-    while (ngrid1 < 500) {
+    gtime = new TGraph(14);
+    while (ngrid1 < 1000) {
       TessellatedStruct<double> *tsl1 = new TessellatedStruct<double>();
       int nfacets1                    = CreateTessellated(ngrid1, *tsl1);
       // Close the solid
@@ -235,14 +235,14 @@ int main(int argc, char *argv[])
       tsl1->Close();
       double tbuild = timer.Stop();
       gtime->SetPoint(i++, nfacets1, tbuild);
-      ngrid1 = sqrt2 * double(ngrid1);
       // Check Distance performance
       timer.Start();
       for (int i = 0; i < npoints; ++i)
         tsl1->DistanceToSolid<false>(start, dirs[i], InfinityLength<double>(), distance, ifacet);
       double trun = timer.Stop();
-      printf("n=%d nfacets=%d  build time=%g run time=%g\n", i, nfacets1, tbuild, trun);
+      printf("n=%d ngrid=%d nfacets=%d  build time=%g run time=%g\n", i, ngrid1, nfacets1, tbuild, trun);
       delete tsl1;
+      ngrid1 = sqrt2 * double(ngrid1);
     }
   }
   TessellatedStruct<double> tsl;

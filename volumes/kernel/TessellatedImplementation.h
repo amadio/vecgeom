@@ -96,15 +96,19 @@ struct TessellatedImplementation {
   VECCORE_ATT_HOST_DEVICE
   static void SafetyToIn(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point, Real_v &safety)
   {
-    //    tessellated.SafetyToIn(point, safety);
+    int isurf;
+    Real_v safetysq = tessellated.SafetySq<true>(point, isurf);
+    safety = vecCore::math::Sqrt(safetysq);
   }
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOut(UnplacedStruct_t const &box, Vector3D<Real_v> const &point, Real_v &safety)
+  static void SafetyToOut(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point, Real_v &safety)
   {
-    //    tessellated.SafetyToIn(point, safety);
+    int isurf;
+    Real_v safetysq = tessellated.SafetySq<false>(point, isurf);
+    safety = vecCore::math::Sqrt(safetysq);
   }
 
   template <typename Real_v>
