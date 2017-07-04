@@ -299,7 +299,7 @@ int main(int argc, char *argv[])
     for (int i = 0; i < npoints; ++i) {
       RandomPointInBBox(point, tsl);
       // bool contains = tsl.Contains(point);
-      bool contains = tsl.Inside(point) == kInside;
+      bool contains = tsl.Inside(point) == vecgeom::kInside;
       if (contains) pm.SetNextPoint(point[0], point[1], point[2]);
     }
 

@@ -72,9 +72,10 @@ int main(int argc, char *argv[])
   LogicalVolume world("world", &worldUnplaced);
   LogicalVolume tessellated("tessellated", &tsl);
 
-  Transformation3D placement(0, 0, 0);
+  Transformation3D placement(0.1, 0, 0);
   const VPlacedVolume *placedTsl =  world.PlaceDaughter("tessellated", &tessellated, &placement);
   (void)placedTsl;
+
 #if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS) && 0
   vecgeom::Stopwatch timer;
   timer.Start();
@@ -83,6 +84,7 @@ int main(int argc, char *argv[])
   std::cout << "+++++++++    nfacets = " << nfacets << "    UTessellatedSolid construction time: " << usolids_btime << std::endl;
   return 0;
 #endif
+
   VPlacedVolume *worldPlaced = world.Place();
 
   GeoManager::Instance().SetWorldAndClose(worldPlaced);

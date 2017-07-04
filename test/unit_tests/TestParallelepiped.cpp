@@ -63,11 +63,11 @@ bool TestParallelepiped()
 
   // Check Inside
 
-  assert(para.Inside(pzero) == kInside);
-  assert(para.Inside(pbigz) == kOutside);
-  assert(para.Inside(ponxside) == kSurface);
-  assert(para.Inside(ponyside) == kSurface);
-  assert(para.Inside(ponzside) == kSurface);
+  assert(para.Inside(pzero) == vecgeom::EInside::kInside);
+  assert(para.Inside(pbigz) == vecgeom::EInside::kOutside);
+  assert(para.Inside(ponxside) == vecgeom::EInside::kSurface);
+  assert(para.Inside(ponyside) == vecgeom::EInside::kSurface);
+  assert(para.Inside(ponzside) == vecgeom::EInside::kSurface);
 
   inside = para.Inside(ponzside + ponxside);
   assert(inside == vecgeom::EInside::kSurface);
