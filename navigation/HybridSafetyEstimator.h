@@ -37,6 +37,7 @@ private:
     return lvol->GetDaughtersp()->operator[](id);
   }
 
+public:
   // helper structure to find the candidate set for safety calculations
   size_t GetSafetyCandidates_v(HybridManager2::HybridBoxAccelerationStructure const &accstructure,
                                Vector3D<Precision> const &point, HybridManager2::BoxIdDistancePair_t *boxsafetypairs,
@@ -75,7 +76,6 @@ private:
     return count;
   }
 
-public:
   static constexpr const char *gClassNameString = "HybridSafetyEstimator";
 
   VECGEOM_FORCE_INLINE

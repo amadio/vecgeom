@@ -208,8 +208,14 @@ public:
     using IdDistPair_t = HybridManager2::BoxIdDistancePair_t;
     char stackspace[VECGEOM_MAXDAUGHTERS * sizeof(IdDistPair_t)];
     IdDistPair_t *hitlist = reinterpret_cast<IdDistPair_t *>(&stackspace);
+    
+    // Get candidates using HybridSafetyEstimator
+//    HybridSafetyEstimator *hse = static_cast<HybridSafetyEstimator*>(HybridSafetyEstimator::Instance());
+//    auto ncandidates = hse->GetSafetyCandidates_v(accstructure, localpoint, hitlist, upper_squared_limit);
 
+    // Get candidates in vectorized mode
     auto ncandidates = GetSafetyCandidates_v(accstructure, localpoint, hitlist, upper_squared_limit);
+
     // sort candidates according to their bounding volume safety distance
     insertionsort(hitlist, ncandidates);
 
