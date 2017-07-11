@@ -219,7 +219,7 @@ public:
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(valid)) return;
 
     for (size_t i = 0; i < kVecSize; ++i) {
-      if (valid[i] && dist[i] < distance) {
+      if (valid[i] && (dist[i] < distance)) {
         distance = dist[i];
         isurf    = i;
       }

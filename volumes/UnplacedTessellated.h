@@ -59,16 +59,17 @@ public:
   VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override { fTessellated.Extent(aMin, aMax); }
 
-#ifndef VECGEOM_NVCC
   // Computes capacity of the shape in [length^3]
+  VECCORE_ATT_HOST_DEVICE
   Precision Capacity() const;
 
+  VECCORE_ATT_HOST_DEVICE
   Precision SurfaceArea() const;
 
+  VECCORE_ATT_HOST_DEVICE
   int ChooseSurface() const;
 
   Vector3D<Precision> SamplePointOnSurface() const override;
-#endif
 
   VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override;
@@ -79,8 +80,9 @@ public:
   std::string GetEntityType() const { return "Tessellated"; }
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
+  VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                const int id,
 #endif
                                VPlacedVolume *const placement = NULL);
@@ -98,10 +100,11 @@ public:
 private:
   virtual void Print(std::ostream &os) const final;
 
+  VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                            const int id,
 #endif
                                            VPlacedVolume *const placement = NULL) const final;

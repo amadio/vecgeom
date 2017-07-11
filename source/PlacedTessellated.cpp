@@ -73,12 +73,7 @@ G4VSolid const *PlacedTessellated::ConvertToGeant4() const
 
 #ifdef VECCORE_CUDA
 
-VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_3(SpecializedTessellated, TessellatedTypes::UniversalTessellated)
-
-#ifndef VECGEOM_NO_SPECIALIZATION
-VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_3(SpecializedTessellated, TessellatedTypes::Tessellated1)
-VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_3(SpecializedTessellated, TessellatedTypes::Tessellated2)
-#endif
+VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(SpecializedTessellated)
 
 #endif
 

@@ -21,7 +21,6 @@ void UnplacedTessellated::Print(std::ostream &os) const
   os << "UnplacedTessellated {" << fTessellated.fFacets.size() << " facets " << std::endl;
 }
 
-#ifndef VECGEOM_NVCC
 Precision UnplacedTessellated::Capacity() const
 {
   if (fTessellated.fCubicVolume != 0.) return fTessellated.fCubicVolume;
@@ -85,10 +84,9 @@ bool UnplacedTessellated::Normal(Vector3D<Precision> const &point, Vector3D<Prec
   return valid;
 }
 
-#endif
-
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 template <TranslationCode transCodeT, RotationCode rotCodeT>
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedTessellated::Create(LogicalVolume const *const logical_volume,
                                            Transformation3D const *const transformation, const int id,
                                            VPlacedVolume *const placement)
@@ -112,17 +110,18 @@ VPlacedVolume *UnplacedTessellated::Create(LogicalVolume const *const logical_vo
 }
 #endif
 
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedTessellated::SpecializedVolume(LogicalVolume const *const volume,
                                                       Transformation3D const *const transformation,
                                                       const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                       const int id,
 #endif
                                                       VPlacedVolume *const placement) const
 {
 
   return VolumeFactory::CreateByTransformation<UnplacedTessellated>(volume, transformation, trans_code, rot_code,
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
                                                                     id,
 #endif
                                                                     placement);
@@ -159,7 +158,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedTessellated::CopyToGpu() const
 
 } // End impl namespace
 
-#ifdef VECGEOM_NVCC
+#ifdef VECCORE_CUDA
 
 namespace cxx {
 
