@@ -1,6 +1,7 @@
 #include <VecCore/VecCore>
 
 #include "volumes/TessellatedStruct.h"
+#include "volumes/kernel/TessellatedImplementation.h"
 #include "test/benchmark/ArgParser.h"
 #include "volumes/utilities/VolumeUtilities.h"
 #include "base/Stopwatch.h"
@@ -238,7 +239,7 @@ int main(int argc, char *argv[])
       // Check Distance performance
       timer.Start();
       for (int i = 0; i < npoints; ++i)
-        tsl1->DistanceToSolid<false>(start, dirs[i], InfinityLength<double>(), distance, ifacet);
+        TessellatedImplementation::DistanceToSolid<double, false>(*tsl1, start, dirs[i], InfinityLength<double>(), distance, ifacet);
       double trun = timer.Stop();
       printf("n=%d ngrid=%d nfacets=%d  build time=%g run time=%g\n", i, ngrid1, nfacets1, tbuild, trun);
       delete tsl1;
@@ -299,7 +300,8 @@ int main(int argc, char *argv[])
     for (int i = 0; i < npoints; ++i) {
       RandomPointInBBox(point, tsl);
       // bool contains = tsl.Contains(point);
-      bool contains = tsl.Inside(point) == vecgeom::kInside;
+      bool contains;
+      TessellatedImplementation::Contains<double, bool>(tsl, point, contains);
       if (contains) pm.SetNextPoint(point[0], point[1], point[2]);
     }
 
