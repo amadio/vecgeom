@@ -42,6 +42,10 @@ public:
     fGlobalConvexity = true;
   }
 
+  /** @brief Default constructor */
+  VECCORE_ATT_HOST_DEVICE
+  UnplacedParallelepiped() : fPara(0., 0., 0., 0., 0., 0.) { fGlobalConvexity = true; }
+
   /** @brief Interface getter for parallelepiped struct */
   VECCORE_ATT_HOST_DEVICE
   ParallelepipedStruct<double> const &GetStruct() const { return fPara; }
@@ -185,7 +189,6 @@ public:
 #endif
 
 private:
-
 #ifdef VECCORE_CUDA
   VECCORE_ATT_DEVICE
 #endif
