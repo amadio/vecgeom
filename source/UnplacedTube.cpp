@@ -94,10 +94,10 @@ int UnplacedTube::ChooseSurface() const
   int choice = 0; // 0 = rTop, 1 = rBot, 2 = phiLeft, 3 = phiRight, 4 = zIn, 5 = zOut
   Precision S[6], Stotal = 0.0;
 
-  S[0] = S[1] = GetTopArea();         // 50% divide into top and bottom
-  S[2] = S[3] = GetLateralPhiArea();  // 50% divide into left and right
-  S[4]        = GetLateralRInArea();  // inner tube surface area
-  S[5]        = GetLateralROutArea(); // outer tube surface area
+  S[0] = S[1] = 0.5 * GetTopArea();        // 50% divide into top and bottom
+  S[2] = S[3] = 0.5 * GetLateralPhiArea(); // 50% divide into left and right
+  S[4]        = GetLateralRInArea();       // inner tube surface area
+  S[5]        = GetLateralROutArea();      // outer tube surface area
 
   for (int i = 0; i < 6; ++i)
     Stotal += S[i];
