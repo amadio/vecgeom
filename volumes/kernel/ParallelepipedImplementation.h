@@ -197,7 +197,7 @@ void ParallelepipedImplementation::DistanceToOut(UnplacedStruct_t const &unplace
   max         = unplaced.fDimensions[1] - localPointY;
   inPoint     = max > kHalfTolerance;
   goingAway   = inDirection && !inPoint;
-  max /= localDirectionY;
+  max /= NonZero(localDirectionY);
   vecCore__MaskedAssignFunc(distance, !done && goingAway, Real_v(0.));
   vecCore__MaskedAssignFunc(distance, !done && inPoint && inDirection && max < distance, max);
   done |= goingAway;
@@ -207,7 +207,7 @@ void ParallelepipedImplementation::DistanceToOut(UnplacedStruct_t const &unplace
   max         = -unplaced.fDimensions[1] - localPointY;
   inPoint     = max < -kHalfTolerance;
   goingAway   = inDirection && !inPoint;
-  max /= localDirectionY;
+  max /= NonZero(localDirectionY);
   vecCore__MaskedAssignFunc(distance, !done && goingAway, Real_v(0.));
   vecCore__MaskedAssignFunc(distance, !done && inPoint && inDirection && max < distance, max);
   done |= goingAway;
@@ -228,7 +228,7 @@ void ParallelepipedImplementation::DistanceToOut(UnplacedStruct_t const &unplace
   max         = unplaced.fDimensions[0] - localPointX;
   inPoint     = max > kHalfTolerance;
   goingAway   = inDirection && !inPoint;
-  max /= localDirectionX;
+  max /= NonZero(localDirectionX);
   vecCore__MaskedAssignFunc(distance, !done && goingAway, Real_v(0.));
   vecCore__MaskedAssignFunc(distance, !done && inPoint && inDirection && max < distance, max);
   done |= goingAway;
@@ -238,7 +238,7 @@ void ParallelepipedImplementation::DistanceToOut(UnplacedStruct_t const &unplace
   max         = -unplaced.fDimensions[0] - localPointX;
   inPoint     = max < -kHalfTolerance;
   goingAway   = inDirection && !inPoint;
-  max /= localDirectionX;
+  max /= NonZero(localDirectionX);
   vecCore__MaskedAssignFunc(distance, !done && goingAway, Real_v(0.));
   vecCore__MaskedAssignFunc(distance, !done && inPoint && inDirection && max < distance, max);
 }

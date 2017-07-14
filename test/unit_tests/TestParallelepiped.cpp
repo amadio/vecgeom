@@ -12,7 +12,7 @@
 #include "volumes/Parallelepiped.h"
 #include "ApproxEqual.h"
 #include <cmath>
-
+#include "base/FpeEnable.h"
 template <class Parallelepiped_t>
 bool TestParallelepiped()
 {
