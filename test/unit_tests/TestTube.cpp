@@ -549,6 +549,18 @@ bool TestTubs()
   assert(ApproxEqual(normal, Vec_t(-1 / std::sqrt(2.), -1. / std::sqrt(2.), 0.)));
   // std::cout<<"Normal for Point Outside pOutXOutYInZ : "<< normal << std::endl;
 
+  // Added Normal tests pointed by Evgueni Tcherniaev in jira-issue-443
+  normal.Set(0., 0., 0.);
+  Tube_t tubeN("SolidTube", 0., 200., 200., 0., vecgeom::kTwoPi);
+  Vec_t ptN1(199.99999999, 0, 190);
+  valid = tubeN.Normal(ptN1, normal);
+  assert(ApproxEqual(normal, Vec_t(1., 0., 0.)));
+
+  normal.Set(0., 0., 0.);
+  Vec_t ptN2(100, 0, 199.99999999);
+  valid = tubeN.Normal(ptN2, normal);
+  assert(ApproxEqual(normal, Vec_t(0., 0., 1.)));
+
   return true;
 }
 

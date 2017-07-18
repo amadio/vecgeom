@@ -144,7 +144,7 @@ void CircleTrajectoryIntersection(Real_v const &b, Real_v const &c, UnplacedStru
       Real_v hitx = pos.x() + dist * dir.x();
       Real_v hity = pos.y() + dist * dir.y();
       PointInCyclicalSector<Real_v, TubeType, UnplacedStruct_t, false, true>(tube, hitx, hity, insector);
-      // insector = tube.GetWedge().ContainsWithBoundary<Real_v>(
+      // insector = tube.fPhiWedge.ContainsWithBoundary<Real_v>(
       // Vector3D<Real_v>(hitx, hity, hitz) );
       ok &= insector;
     }
@@ -471,7 +471,7 @@ struct TubeImplementation {
       Bool_v insector;
       PointInCyclicalSector<Real_v, tubeTypeT, UnplacedStruct_t, false, false>(tube, point.x(), point.y(), insector);
       inside &= insector;
-      // inside &= tube.GetWedge().ContainsWithoutBoundary<Real_v>( point );  //
+      // inside &= tube.fPhiWedge.ContainsWithoutBoundary<Real_v>( point );  //
       // slower than PointInCyclicalSector()
     }
     done |= inside;
@@ -496,7 +496,7 @@ struct TubeImplementation {
       Bool_v insector;
       PointInCyclicalSector<Real_v, tubeTypeT, UnplacedStruct_t, false>(tube, hitx, hity, insector);
       okz &= insector;
-      // okz &= tube.GetWedge().ContainsWithBoundary<Real_v>(
+      // okz &= tube.fPhiWedge.ContainsWithBoundary<Real_v>(
       // Vector3D<Real_v>(hitx, hity, 0.0) );
     }
     vecCore::MaskedAssign(distance, !done && okz, distz);
@@ -857,49 +857,79 @@ struct TubeImplementation {
     }
   }
 
+  template <typename Real_v>
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  static Vector3D<Real_v> ApproxSurfaceNormalKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point)
+  {
+
+    Vector3D<Real_v> norm(0., 0., 0.);
+    Real_v radius   = point.Perp();
+    Real_v distRMax = vecCore::math::Abs(radius - unplaced.fRmax);
+    Real_v distRMin = kInfLength;
+    vecCore__MaskedAssignFunc(distRMax, distRMax < 0.0, InfinityLength<Real_v>());
+    if (unplaced.fRmin) {
+      distRMin = Abs(unplaced.fRmin - radius);
+      vecCore__MaskedAssignFunc(distRMin, distRMin < 0.0, InfinityLength<Real_v>());
+    }
+    Real_v distMin = Min(distRMin, distRMax);
+
+    Real_v distPhi1 = kInfLength, distPhi2 = kInfLength;
+    if (unplaced.fDphi != vecgeom::kTwoPi) {
+      distPhi1 = point.x() * unplaced.fPhiWedge.GetNormal1().x() + point.y() * unplaced.fPhiWedge.GetNormal1().y();
+      distPhi2 = point.x() * unplaced.fPhiWedge.GetNormal2().x() + point.y() * unplaced.fPhiWedge.GetNormal2().y();
+
+      vecCore__MaskedAssignFunc(distPhi1, distPhi1 < 0.0, InfinityLength<Real_v>());
+      vecCore__MaskedAssignFunc(distPhi2, distPhi2 < 0.0, InfinityLength<Real_v>());
+      distMin = Min(distMin, Min(distPhi1, distPhi2));
+    }
+
+    Real_v distZ = kInfLength;
+    vecCore__MaskedAssignFunc(distZ, point.z() < 0., vecCore::math::Abs(point.z() + unplaced.fZ));
+    vecCore__MaskedAssignFunc(distZ, point.z() >= 0., vecCore::math::Abs(point.z() - unplaced.fZ));
+    distMin = Min(distMin, distZ);
+
+    if (unplaced.fDphi) {
+      Vector3D<Real_v> normal1 = unplaced.fPhiWedge.GetNormal1();
+      Vector3D<Real_v> normal2 = unplaced.fPhiWedge.GetNormal2();
+      vecCore__MaskedAssignFunc(norm, distMin == distPhi1, -normal1);
+      vecCore__MaskedAssignFunc(norm, distMin == distPhi2, -normal2);
+    }
+
+    vecCore__MaskedAssignFunc(norm, (distMin == distZ) && (point.z() < 0.), Vector3D<Real_v>(0., 0., -1.));
+    vecCore__MaskedAssignFunc(norm, (distMin == distZ) && (point.z() >= 0.), Vector3D<Real_v>(0., 0., 1.));
+
+    if (vecCore::math::Abs(point.z()) < (unplaced.fZ + kTolerance)) {
+      Vector3D<Real_v> temp = point;
+      temp.z()              = 0.;
+      vecCore__MaskedAssignFunc(norm, distMin == distRMax, temp.Unit());
+      if (unplaced.fRmin) vecCore__MaskedAssignFunc(norm, distMin == distRMin, -temp.Unit());
+    }
+
+    return norm;
+  }
+
   template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   static void NormalKernel(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Vector3D<Real_v> &norm,
                            Bool_v &valid)
   {
+
+    valid = Bool_v(false);
+    Bool_v isPointInside(false), isPointOutside(false);
+    GenericKernelForContainsAndInside<Real_v, true>(unplaced, point, isPointInside, isPointOutside);
+    if (isPointInside || isPointOutside) {
+      norm = ApproxSurfaceNormalKernel<Real_v>(unplaced, point);
+      return;
+    }
+
     int nosurface = 0; // idea from trapezoid;; change nomenclature as confusing
 
     Precision x2y2 = Sqrt(point.x() * point.x() + point.y() * point.y());
     bool inZ = ((point.z() < unplaced.fZ + kTolerance) && (point.z() > -unplaced.fZ - kTolerance)); // in right z range
     bool inR = ((x2y2 >= unplaced.fRmin) && (x2y2 <= unplaced.fRmax));                              // in right r range
     // bool inPhi = fWedge.Contains(point);
-
-    if (point.z() > (unplaced.fZ + kTolerance)) {
-      norm[0] = 0.;
-      norm[1] = 0.;
-      norm[2] = 1.;
-      valid   = false;
-      return;
-    }
-    if (point.z() < (-unplaced.fZ - kTolerance)) {
-      norm[0] = 0.;
-      norm[1] = 0.;
-      norm[2] = -1.;
-      valid   = false;
-      return;
-    }
-    if (x2y2 > (unplaced.fRmax + kTolerance)) {
-      norm     = point;
-      norm.z() = 0.;
-      norm.Normalize();
-      valid = false;
-      return;
-    }
-    if (x2y2 < (unplaced.fRmin - kTolerance)) {
-      norm     = point;
-      norm.z() = 0.;
-      norm.Normalize();
-      norm  = -norm;
-      valid = false;
-      return;
-    }
-
     // can we combine these two into one??
     if (inR && (Abs(point.z() - unplaced.fZ) <= kTolerance)) { // top lid, normal along +Z
       norm[0] = 0.;
