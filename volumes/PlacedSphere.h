@@ -5,11 +5,15 @@
 #define VECGEOM_VOLUMES_PLACEDSPHERE_H_
 
 #include "base/Global.h"
-#include "backend/Backend.h"
+#ifndef VECCORE_CUDA
+#include "base/RNG.h"
+#include <cmath>
+#endif
 #include "volumes/PlacedVolume.h"
 #include "volumes/UnplacedVolume.h"
-#include "volumes/UnplacedSphere.h"
 #include "volumes/kernel/SphereImplementation.h"
+#include "volumes/PlacedVolImplHelper.h"
+#include "volumes/UnplacedSphere.h"
 
 namespace vecgeom {
 
@@ -18,16 +22,18 @@ VECGEOM_DEVICE_DECLARE_CONV(class, PlacedSphere);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class PlacedSphere : public VPlacedVolume {
+class PlacedSphere : public PlacedVolumeImplHelper<UnplacedSphere, VPlacedVolume> {
+
+  using Base = PlacedVolumeImplHelper<UnplacedSphere, VPlacedVolume>;
 
 public:
-  typedef UnplacedSphere UnplacedShape_t;
+  using Base::Base;
 
 #ifndef VECCORE_CUDA
 
   PlacedSphere(char const *const label, LogicalVolume const *const logical_volume,
                Transformation3D const *const transformation, PlacedBox const *const boundingBox)
-      : VPlacedVolume(label, logical_volume, transformation, boundingBox)
+      : Base(label, logical_volume, transformation, boundingBox)
   {
   }
 
@@ -41,7 +47,7 @@ public:
 
   __device__ PlacedSphere(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
                           PlacedBox const *const boundingBox, const int id)
-      : VPlacedVolume(logical_volume, transformation, boundingBox, id)
+      : Base(logical_volume, transformation, boundingBox, id)
   {
   }
 
@@ -58,7 +64,7 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Wedge const &GetWedge() const { return GetUnplacedVolume()->GetWedge(); }
+  evolution::Wedge const &GetWedge() const { return GetUnplacedVolume()->GetWedge(); }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
@@ -243,17 +249,6 @@ public:
   VECGEOM_FORCE_INLINE
   Precision GetDTheta() const { return GetUnplacedVolume()->GetDTheta(); }
 
-/*
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetfRTolO() const { return GetUnplacedVolume()->GetfRTolO(); }
-
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetfRTolI() const { return GetUnplacedVolume()->GetfRTolI(); }
-
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetfRTolerance() const { return GetUnplacedVolume()->GetfRTolerance(); }
-*/
-
 #if defined(VECGEOM_USOLIDS)
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
@@ -284,10 +279,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
-    bool valid;
-    SphereImplementation<translation::kIdentity, rotation::kIdentity>::NormalKernel<kScalar>(*GetUnplacedVolume(),
-                                                                                             point, normal, valid);
-    return valid;
+    return GetUnplacedVolume()->Normal(point, normal);
   }
 
   Vector3D<Precision> SamplePointOnSurface() const override { return GetUnplacedVolume()->SamplePointOnSurface(); }

@@ -4,1080 +4,630 @@
 
 #ifndef VECGEOM_VOLUMES_KERNEL_SPHEREIMPLEMENTATION_H_
 #define VECGEOM_VOLUMES_KERNEL_SPHEREIMPLEMENTATION_H_
-#include "base/Global.h"
 
-#include "base/Transformation3D.h"
-#include "volumes/UnplacedSphere.h"
 #include "base/Vector3D.h"
+#include "volumes/SphereStruct.h"
 #include "volumes/kernel/GenericKernels.h"
+#include <VecCore/VecCore>
+#include "volumes/kernel/OrbImplementation.h"
+#include "volumes/SphereUtilities.h"
 
 #include <cstdio>
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(struct, SphereImplementation, TranslationCode, translation::kGeneric,
-                                        RotationCode, rotation::kGeneric);
+VECGEOM_DEVICE_FORWARD_DECLARE(struct SphereImplementation;);
+VECGEOM_DEVICE_DECLARE_CONV(struct, SphereImplementation);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class PlacedSphere;
+template <typename T>
+struct SphereStruct;
+class UnplacedSphere;
 
-template <TranslationCode transCodeT, RotationCode rotCodeT>
 struct SphereImplementation {
 
-  static const int transC = transCodeT;
-  static const int rotC   = rotCodeT;
-
-  using PlacedShape_t   = PlacedSphere;
-  using UnplacedShape_t = UnplacedSphere;
+  using PlacedShape_t    = PlacedSphere;
+  using UnplacedStruct_t = SphereStruct<double>;
+  using UnplacedVolume_t = UnplacedSphere;
 
   VECCORE_ATT_HOST_DEVICE
-  static void PrintType() { printf("SpecializedSphere<%i, %i>", transCodeT, rotCodeT); }
-
-  template <typename Stream>
-  static void PrintType(Stream &s)
+  static void PrintType()
   {
-    s << "SpecializedSphere<" << transCodeT << "," << rotCodeT << ","
-      << ">";
+    //  printf("SpecializedSphere<%i, %i>", transCodeT, rotCodeT);
   }
 
   template <typename Stream>
-  static void PrintImplementationType(Stream &s)
+  static void PrintType(Stream &st, int transCodeT = translation::kGeneric, int rotCodeT = rotation::kGeneric)
   {
-    s << "SphereImplementation<" << transCodeT << "," << rotCodeT << ">";
+    st << "SpecializedSphere<" << transCodeT << "," << rotCodeT << ">";
   }
 
   template <typename Stream>
-  static void PrintUnplacedType(Stream &s)
+  static void PrintImplementationType(Stream &st)
   {
-    s << "UnplacedSphere";
+    (void)st;
+    // st << "SphereImplementation<" << transCodeT << "," << rotCodeT << ">";
   }
 
-  // Some New Helper functions
-  template <class Backend>
-  VECCORE_ATT_HOST_DEVICE
-  static typename Backend::bool_v IsPointOnInnerRadius(UnplacedSphere const &unplaced,
-                                                       Vector3D<typename Backend::precision_v> const &point)
+  template <typename Stream>
+  static void PrintUnplacedType(Stream &st)
   {
-
-    Precision innerRad  = unplaced.GetInnerRadius();
-    Precision innerRad2 = innerRad * innerRad;
-    return point.Mag2() <= MakePlusTolerantSquare<true>(innerRad, innerRad2) &&
-           point.Mag2() >= MakeMinusTolerantSquare<true>(innerRad, innerRad2);
+    (void)st;
+    // TODO: this is wrong
+    // st << "UnplacedSphere";
   }
 
-  template <class Backend>
+  template <typename Real_v, typename Bool_v>
+  VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
-  static typename Backend::bool_v IsPointOnOuterRadius(UnplacedSphere const &unplaced,
-                                                       Vector3D<typename Backend::precision_v> const &point)
+  static void Contains(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &point, Bool_v &inside)
   {
-
-    Precision outerRad  = unplaced.GetOuterRadius();
-    Precision outerRad2 = outerRad * outerRad;
-    return point.Mag2() <= MakePlusTolerantSquare<true>(outerRad, outerRad2) &&
-           point.Mag2() >= MakeMinusTolerantSquare<true>(outerRad, outerRad2);
+    Bool_v unused, outside;
+    GenericKernelForContainsAndInside<Real_v, Bool_v, false>(sphere, point, unused, outside);
+    inside = !outside;
   }
 
-  template <class Backend>
+  // BIG QUESTION: DO WE WANT TO GIVE ALL 3 TEMPLATE PARAMETERS
+  // -- OR -- DO WE WANT TO DEDUCE Bool_v, Index_t from Real_v???
+  template <typename Real_v, typename Inside_t>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
-  static typename Backend::bool_v IsPointOnStartPhi(UnplacedSphere const &unplaced,
-                                                    Vector3D<typename Backend::precision_v> const &point)
+  static void Inside(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &point, Inside_t &inside)
   {
 
-    return unplaced.GetWedge().IsOnSurfaceGeneric<Backend>(unplaced.GetWedge().GetAlong1(),
-                                                           unplaced.GetWedge().GetNormal1(), point);
+    using Bool_v       = vecCore::Mask_v<Real_v>;
+    using InsideBool_v = vecCore::Mask_v<Inside_t>;
+    Bool_v completelyinside, completelyoutside;
+    GenericKernelForContainsAndInside<Real_v, Bool_v, true>(sphere, point, completelyinside, completelyoutside);
+    inside = EInside::kSurface;
+    vecCore::MaskedAssign(inside, (InsideBool_v)completelyoutside, Inside_t(EInside::kOutside));
+    vecCore::MaskedAssign(inside, (InsideBool_v)completelyinside, Inside_t(EInside::kInside));
   }
 
-  template <class Backend>
+  template <typename Real_v, typename Bool_v, bool ForInside>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
-  static typename Backend::bool_v IsPointOnEndPhi(UnplacedSphere const &unplaced,
-                                                  Vector3D<typename Backend::precision_v> const &point)
+  static void GenericKernelForContainsAndInside(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &localPoint,
+                                                Bool_v &completelyinside, Bool_v &completelyoutside)
   {
+    Real_v rad2 = localPoint.Mag2();
 
-    return unplaced.GetWedge().IsOnSurfaceGeneric<Backend>(unplaced.GetWedge().GetAlong2(),
-                                                           unplaced.GetWedge().GetNormal2(), point);
-  }
+    // Check radial surfaces
+    // Radial check for GenericKernel Start
+    if (sphere.fRmin)
+      completelyinside = rad2 <= MakeMinusTolerantSquare<true>(sphere.fRmax, sphere.fRmax * sphere.fRmax) &&
+                         rad2 >= MakePlusTolerantSquare<true>(sphere.fRmin, sphere.fRmin * sphere.fRmin);
+    else
+      completelyinside = rad2 <= MakeMinusTolerantSquare<true>(sphere.fRmax, sphere.fRmax * sphere.fRmax);
 
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static typename Backend::bool_v IsPointOnStartTheta(UnplacedSphere const &unplaced,
-                                                      Vector3D<typename Backend::precision_v> const &point)
-  {
+    if (sphere.fRmin)
+      completelyoutside = rad2 >= MakePlusTolerantSquare<true>(sphere.fRmax, sphere.fRmax * sphere.fRmax) ||
+                          rad2 <= MakeMinusTolerantSquare<true>(sphere.fRmin, sphere.fRmin * sphere.fRmin);
+    else
+      completelyoutside = rad2 >= MakePlusTolerantSquare<true>(sphere.fRmax, sphere.fRmax * sphere.fRmax);
 
-    return unplaced.GetThetaCone().IsOnSurfaceGeneric<Backend, true>(point);
-  }
+    // Phi boundaries  : Do not check if it has no phi boundary!
+    if (!sphere.fFullPhiSphere) {
 
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static typename Backend::bool_v IsPointOnEndTheta(UnplacedSphere const &unplaced,
-                                                    Vector3D<typename Backend::precision_v> const &point)
-  {
+      Bool_v completelyoutsidephi;
+      Bool_v completelyinsidephi;
+      sphere.fPhiWedge.GenericKernelForContainsAndInside<Real_v, ForInside>(localPoint, completelyinsidephi,
+                                                                            completelyoutsidephi);
+      completelyoutside |= completelyoutsidephi;
 
-    return unplaced.GetThetaCone().IsOnSurfaceGeneric<Backend, false>(point);
-  }
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void UnplacedContains(UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-                               typename Backend::bool_v &inside);
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Contains(UnplacedSphere const &unplaced, Transformation3D const &transformation,
-                       Vector3D<typename Backend::precision_v> const &point,
-                       Vector3D<typename Backend::precision_v> &localPoint, typename Backend::bool_v &inside);
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Inside(UnplacedSphere const &unplaced, Transformation3D const &transformation,
-                     Vector3D<typename Backend::precision_v> const &point, typename Backend::inside_v &inside);
-
-  template <typename Backend, bool ForInside>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void GenericKernelForContainsAndInside(UnplacedSphere const &unplaced,
-                                                Vector3D<typename Backend::precision_v> const &localPoint,
-                                                typename Backend::bool_v &completelyinside,
-                                                typename Backend::bool_v &completelyoutside);
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToIn(UnplacedSphere const &unplaced, Transformation3D const &transformation,
-                           Vector3D<typename Backend::precision_v> const &point,
-                           Vector3D<typename Backend::precision_v> const &direction,
-                           typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance);
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOut(UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-                            Vector3D<typename Backend::precision_v> const &direction,
-                            typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance);
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToOutKernel(UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-                                  Vector3D<typename Backend::precision_v> const &direction,
-                                  typename Backend::precision_v const &stepMax,
-                                  typename Backend::precision_v &distance);
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToIn(UnplacedSphere const &unplaced, Transformation3D const &transformation,
-                         Vector3D<typename Backend::precision_v> const &point, typename Backend::precision_v &safety);
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOut(UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-                          typename Backend::precision_v &safety);
-
-  template <typename Backend>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void ContainsKernel(UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &localPoint,
-                             typename Backend::bool_v &inside);
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void InsideKernel(UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-                           typename Backend::inside_v &inside);
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void DistanceToInKernel(UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-                                 Vector3D<typename Backend::precision_v> const &direction,
-                                 typename Backend::precision_v const &stepMax, typename Backend::precision_v &distance);
-
-  template <class Backend, bool DistToIn>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void GetMinDistFromPhi(UnplacedSphere const &unplaced,
-                                Vector3D<typename Backend::precision_v> const &localPoint,
-                                Vector3D<typename Backend::precision_v> const &localDir, typename Backend::bool_v &done,
-                                typename Backend::precision_v &distance);
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToInKernel(UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-                               typename Backend::precision_v &safety);
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void SafetyToOutKernel(UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-                                typename Backend::precision_v &safety);
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void Normal(UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-                     Vector3D<typename Backend::precision_v> &normal, typename Backend::bool_v &valid);
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static void NormalKernel(UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-                           Vector3D<typename Backend::precision_v> &normal, typename Backend::bool_v &valid);
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static Vector3D<typename Backend::precision_v> ApproxSurfaceNormalKernel(
-      UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point);
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static typename Backend::bool_v IsCompletelyOutside(UnplacedSphere const &unplaced,
-                                                      Vector3D<typename Backend::precision_v> const &localPoint)
-  {
-
-    typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
-    Float_t rad               = localPoint.Mag();
-    Precision fRmax           = unplaced.GetOuterRadius();
-    Precision fRmin           = unplaced.GetInnerRadius();
-    Bool_t outsideRadiusRange = (rad > (fRmax + kTolerance)) || (rad < (fRmin - kTolerance));
-    Bool_t outsidePhiRange(false), insidePhiRange(false);
-    unplaced.GetWedge().GenericKernelForContainsAndInside<Backend, true>(localPoint, insidePhiRange, outsidePhiRange);
-    Bool_t outsideThetaRange = unplaced.GetThetaCone().IsCompletelyOutside<Backend>(localPoint);
-    Bool_t completelyoutside = outsideRadiusRange || outsidePhiRange || outsideThetaRange;
-    return completelyoutside;
-  }
-
-  template <class Backend>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static typename Backend::bool_v IsCompletelyInside(UnplacedSphere const &unplaced,
-                                                     Vector3D<typename Backend::precision_v> const &localPoint)
-  {
-
-    typedef typename Backend::precision_v Float_t;
-    typedef typename Backend::bool_v Bool_t;
-    Float_t rad              = localPoint.Mag();
-    Precision fRmax          = unplaced.GetOuterRadius();
-    Precision fRmin          = unplaced.GetInnerRadius();
-    Bool_t insideRadiusRange = (rad < (fRmax - kTolerance)) && (rad > (fRmin + kTolerance));
-    Bool_t outsidePhiRange(false), insidePhiRange(false);
-    unplaced.GetWedge().GenericKernelForContainsAndInside<Backend, true>(localPoint, insidePhiRange, outsidePhiRange);
-    Bool_t insideThetaRange = unplaced.GetThetaCone().IsCompletelyInside<Backend>(localPoint);
-    Bool_t completelyinside = insideRadiusRange && insidePhiRange && insideThetaRange;
-    return completelyinside;
-  }
-
-  template <class Backend, bool ForInnerRadius, bool MovingOut>
-  VECCORE_ATT_HOST_DEVICE
-  static typename Backend::bool_v IsPointOnRadialSurfaceAndMovingOut(
-      UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-      Vector3D<typename Backend::precision_v> const &dir)
-  {
-
-    if (MovingOut) {
-      if (ForInnerRadius) {
-        return IsPointOnInnerRadius<Backend>(unplaced, point) && (dir.Dot(-point) > 0.);
-      } else {
-        return IsPointOnOuterRadius<Backend>(unplaced, point) && (dir.Dot(point) > 0.);
-      }
-    } else {
-      if (ForInnerRadius) {
-        return IsPointOnInnerRadius<Backend>(unplaced, point) && (dir.Dot(-point) < 0.);
-      } else
-        return IsPointOnOuterRadius<Backend>(unplaced, point) && (dir.Dot(point) < 0.);
+      if (ForInside) completelyinside &= completelyinsidephi;
     }
+    // Phi Check for GenericKernel Over
+
+    // Theta bondaries
+    if (!sphere.fFullThetaSphere) {
+
+      Bool_v completelyoutsidetheta(false);
+      Bool_v completelyinsidetheta(false);
+      sphere.fThetaCone.GenericKernelForContainsAndInside<Real_v, ForInside>(localPoint, completelyinsidetheta,
+                                                                             completelyoutsidetheta);
+      completelyoutside |= completelyoutsidetheta;
+
+      if (ForInside) completelyinside &= completelyinsidetheta;
+    }
+    return;
   }
 
-  template <class Backend, bool MovingOut>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
-  static typename Backend::bool_v IsPointOnSurfaceAndMovingOut(UnplacedSphere const &unplaced,
-                                                               Vector3D<typename Backend::precision_v> const &point,
-                                                               Vector3D<typename Backend::precision_v> const &dir)
+  static void DistanceToIn(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &point,
+                           Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
   {
+    using Bool_v = vecCore::Mask_v<Real_v>;
+    distance     = kInfLength;
 
-    typedef typename Backend::bool_v Bool_t;
+    Bool_v done(false);
 
-    Bool_t tempOuterRad = IsPointOnRadialSurfaceAndMovingOut<Backend, false, MovingOut>(unplaced, point, dir);
-    Bool_t tempInnerRad(false), tempStartPhi(false), tempEndPhi(false), tempStartTheta(false), tempEndTheta(false);
-    if (unplaced.GetInnerRadius())
-      tempInnerRad = IsPointOnRadialSurfaceAndMovingOut<Backend, true, MovingOut>(unplaced, point, dir);
-    if (unplaced.GetDeltaPhiAngle() < (kTwoPi - kHalfTolerance)) {
-      tempStartPhi = unplaced.GetWedge().IsPointOnSurfaceAndMovingOut<Backend, true, MovingOut>(point, dir);
-      tempEndPhi   = unplaced.GetWedge().IsPointOnSurfaceAndMovingOut<Backend, false, MovingOut>(point, dir);
-    }
-    if (unplaced.GetDeltaThetaAngle() < (kPi - kHalfTolerance)) {
-      tempStartTheta = unplaced.GetThetaCone().IsPointOnSurfaceAndMovingOut<Backend, true, MovingOut>(point, dir);
-      tempEndTheta   = unplaced.GetThetaCone().IsPointOnSurfaceAndMovingOut<Backend, false, MovingOut>(point, dir);
-    }
+    bool fullPhiSphere   = sphere.fFullPhiSphere;
+    bool fullThetaSphere = sphere.fFullThetaSphere;
 
-    Bool_t isPointOnSurfaceAndMovingOut =
-        ((tempOuterRad || tempInnerRad) && unplaced.GetWedge().Contains<Backend>(point) &&
-         unplaced.GetThetaCone().Contains<Backend>(point)) ||
-        ((tempStartPhi || tempEndPhi) && (point.Mag2() >= unplaced.GetInnerRadius() * unplaced.GetInnerRadius()) &&
-         (point.Mag2() <= unplaced.GetOuterRadius() * unplaced.GetOuterRadius()) &&
-         unplaced.GetThetaCone().Contains<Backend>(point)) ||
-        ((tempStartTheta || tempEndTheta) && (point.Mag2() >= unplaced.GetInnerRadius() * unplaced.GetInnerRadius()) &&
-         (point.Mag2() <= unplaced.GetOuterRadius() * unplaced.GetOuterRadius()) &&
-         unplaced.GetWedge().Contains<Backend>(point));
+    Vector3D<Real_v> tmpPt;
+    // General Precalcs
+    Real_v rad2    = point.Mag2();
+    Real_v pDotV3d = point.Dot(direction);
 
-    return isPointOnSurfaceAndMovingOut;
-  }
-};
+    Real_v c = rad2 - sphere.fRmax * sphere.fRmax;
 
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend>
-VECCORE_ATT_HOST_DEVICE
-void SphereImplementation<transCodeT, rotCodeT>::Normal(UnplacedSphere const &unplaced,
-                                                        Vector3D<typename Backend::precision_v> const &point,
-                                                        Vector3D<typename Backend::precision_v> &normal,
-                                                        typename Backend::bool_v &valid)
-{
+    Bool_v cond = SphereUtilities::IsCompletelyInside<Real_v>(sphere, point);
+    vecCore__MaskedAssignFunc(distance, cond, Real_v(-1.0));
+    done |= cond;
+    if (vecCore::MaskFull(done)) return;
 
-  NormalKernel<Backend>(unplaced, point, normal, valid);
-}
+    cond = SphereUtilities::IsPointOnSurfaceAndMovingOut<Real_v, false>(sphere, point, direction);
+    vecCore__MaskedAssignFunc(distance, !done && cond, Real_v(0.0));
+    done |= cond;
+    if (vecCore::MaskFull(done)) return;
 
-/* This function should be called from NormalKernel, only for the
- * cases when the point is not on the surface and one want to calculate
- * the SurfaceNormal.
- *
- * Algo : Find the boundary which is closest to the point,
- * and return the normal to that boundary.
- *
- */
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend>
-VECCORE_ATT_HOST_DEVICE
-Vector3D<typename Backend::precision_v> SphereImplementation<transCodeT, rotCodeT>::ApproxSurfaceNormalKernel(
-    UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point)
-{
+    Real_v sd1(kInfLength);
+    Real_v sd2(kInfLength);
+    Real_v d2 = (pDotV3d * pDotV3d - c);
+    cond      = (d2 < 0. || ((c > 0.0) && (pDotV3d > 0.0)));
+    done |= cond;
+    if (vecCore::MaskFull(done)) return; // Returning in case of no intersection with outer shell
 
-  typedef typename Backend::precision_v Float_t;
-
-  Vector3D<Float_t> norm(0., 0., 0.);
-  Float_t radius   = point.Mag();
-  Float_t distRMax = Abs(radius - unplaced.GetOuterRadius());
-  Float_t distRMin = Abs(unplaced.GetInnerRadius() - radius);
-  vecCore__MaskedAssignFunc(distRMax, distRMax < 0.0, InfinityLength<Float_t>());
-  vecCore__MaskedAssignFunc(distRMin, distRMin < 0.0, InfinityLength<Float_t>());
-  Float_t distMin = Min(distRMin, distRMax);
-
-  Float_t distPhi1 =
-      point.x() * unplaced.GetWedge().GetNormal1().x() + point.y() * unplaced.GetWedge().GetNormal1().y();
-  Float_t distPhi2 =
-      point.x() * unplaced.GetWedge().GetNormal2().x() + point.y() * unplaced.GetWedge().GetNormal2().y();
-  vecCore__MaskedAssignFunc(distPhi1, distPhi1 < 0.0, InfinityLength<Float_t>());
-  vecCore__MaskedAssignFunc(distPhi2, distPhi2 < 0.0, InfinityLength<Float_t>());
-  distMin = Min(distMin, Min(distPhi1, distPhi2));
-
-  Float_t rho = point.Perp();
-  Float_t distTheta1 =
-      unplaced.GetThetaCone().DistanceToLine<Backend>(unplaced.GetThetaCone().GetSlope1(), rho, point.z());
-  Float_t distTheta2 =
-      unplaced.GetThetaCone().DistanceToLine<Backend>(unplaced.GetThetaCone().GetSlope2(), rho, point.z());
-  vecCore__MaskedAssignFunc(distTheta1, distTheta1 < 0.0, InfinityLength<Float_t>());
-  vecCore__MaskedAssignFunc(distTheta2, distTheta2 < 0.0, InfinityLength<Float_t>());
-  distMin = Min(distMin, Min(distTheta1, distTheta2));
-
-  vecCore__MaskedAssignFunc(norm, distMin == distRMax, point.Unit());
-  vecCore__MaskedAssignFunc(norm, distMin == distRMin, -point.Unit());
-
-  Vector3D<Float_t> normal1 = unplaced.GetWedge().GetNormal1();
-  Vector3D<Float_t> normal2 = unplaced.GetWedge().GetNormal2();
-  vecCore__MaskedAssignFunc(norm, distMin == distPhi1, -normal1);
-  vecCore__MaskedAssignFunc(norm, distMin == distPhi2, -normal2);
-
-  vecCore__MaskedAssignFunc(norm, distMin == distTheta1, norm + unplaced.GetThetaCone().GetNormal1<Backend>(point));
-  vecCore__MaskedAssignFunc(norm, distMin == distTheta2, norm + unplaced.GetThetaCone().GetNormal2<Backend>(point));
-
-  return norm;
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend>
-VECCORE_ATT_HOST_DEVICE
-void SphereImplementation<transCodeT, rotCodeT>::NormalKernel(UnplacedSphere const &unplaced,
-                                                              Vector3D<typename Backend::precision_v> const &point,
-                                                              Vector3D<typename Backend::precision_v> &normal,
-                                                              typename Backend::bool_v &valid)
-{
-
-  normal.Set(0.);
-  typedef typename Backend::precision_v Float_t;
-  typedef typename Backend::bool_v Bool_t;
-
-  /* Assumption : This function assumes that the point is on the surface.
-   *
-   * Algorithm :
-   * Detect all those surfaces on which the point is at, and count the
-   * numOfSurfaces. if(numOfSurfaces == 1) then normal corresponds to the
-   * normal for that particular case.
-   *
-   * if(numOfSurfaces > 1 ), then add the normals corresponds to different
-   * cases, and finally normalize it and return.
-   *
-   * We need following function
-   * IsPointOnInnerRadius()
-   * IsPointOnOuterRadius()
-   * IsPointOnStartPhi()
-   * IsPointOnEndPhi()
-   * IsPointOnStartTheta()
-   * IsPointOnEndTheta()
-   *
-   * set valid=true if numOfSurface > 0
-   *
-   * if above mentioned assumption not followed , ie.
-   * In case the given point is outside, then find the closest boundary,
-   * the required normal will be the normal to that boundary.
-   * This logic is implemented in "ApproxSurfaceNormalKernel" function
-   */
-
-  Bool_t isPointOutside(false);
-
-  // May be required Later
-  /*
-  if (!ForDistanceToOut) {
-    Bool_t unused(false);
-    GenericKernelForContainsAndInside<Backend, true>(unplaced, point, unused, isPointOutside);
-    vecCore__MaskedAssignFunc(unused || isPointOutside, ApproxSurfaceNormalKernel<Backend>(unplaced, point), &normal);
-  }
-  */
-
-  Bool_t isPointInside(false);
-  GenericKernelForContainsAndInside<Backend, true>(unplaced, point, isPointInside, isPointOutside);
-  vecCore__MaskedAssignFunc(normal, isPointInside || isPointOutside,
-                            ApproxSurfaceNormalKernel<Backend>(unplaced, point));
-
-  valid = Bool_t(false);
-
-  Float_t noSurfaces(0.);
-  Bool_t isPointOnOuterRadius = IsPointOnOuterRadius<Backend>(unplaced, point);
-
-  vecCore__MaskedAssignFunc(noSurfaces, isPointOnOuterRadius, noSurfaces + 1);
-  vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnOuterRadius, normal + (point.Unit()));
-
-  if (unplaced.GetInnerRadius()) {
-    Bool_t isPointOnInnerRadius = IsPointOnInnerRadius<Backend>(unplaced, point);
-    vecCore__MaskedAssignFunc(noSurfaces, isPointOnInnerRadius, noSurfaces + 1);
-    vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnInnerRadius, normal - point.Unit());
-  }
-
-  if (!unplaced.IsFullPhiSphere()) {
-    Bool_t isPointOnStartPhi = IsPointOnStartPhi<Backend>(unplaced, point);
-    Bool_t isPointOnEndPhi   = IsPointOnEndPhi<Backend>(unplaced, point);
-    vecCore__MaskedAssignFunc(noSurfaces, isPointOnStartPhi, noSurfaces + 1);
-    vecCore__MaskedAssignFunc(noSurfaces, isPointOnEndPhi, noSurfaces + 1);
-    vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnStartPhi, normal - unplaced.GetWedge().GetNormal1());
-    vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnEndPhi, normal - unplaced.GetWedge().GetNormal2());
-  }
-
-  if (!unplaced.IsFullThetaSphere()) {
-    Bool_t isPointOnStartTheta = IsPointOnStartTheta<Backend>(unplaced, point);
-    Bool_t isPointOnEndTheta   = IsPointOnEndTheta<Backend>(unplaced, point);
-
-    vecCore__MaskedAssignFunc(noSurfaces, isPointOnStartTheta, noSurfaces + 1);
-    vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnStartTheta,
-                              normal + unplaced.GetThetaCone().GetNormal1<Backend>(point));
-
-    vecCore__MaskedAssignFunc(noSurfaces, isPointOnEndTheta, noSurfaces + 1);
-    vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnEndTheta,
-                              normal + unplaced.GetThetaCone().GetNormal2<Backend>(point));
-
-    Vector3D<Float_t> tempNormal(0., 0., -1.);
-    vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnStartTheta && isPointOnEndTheta &&
-                                          (unplaced.GetETheta() <= kPi / 2.),
-                              tempNormal);
-    Vector3D<Float_t> tempNormal2(0., 0., 1.);
-    vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnStartTheta && isPointOnEndTheta &&
-                                          (unplaced.GetSTheta() >= kPi / 2.),
-                              tempNormal2);
-  }
-
-  normal = normal.Unit();
-
-  valid = (noSurfaces > 0.);
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend>
-VECCORE_ATT_HOST_DEVICE
-void SphereImplementation<transCodeT, rotCodeT>::Contains(UnplacedSphere const &unplaced,
-                                                          Transformation3D const &transformation,
-                                                          Vector3D<typename Backend::precision_v> const &point,
-                                                          Vector3D<typename Backend::precision_v> &localPoint,
-                                                          typename Backend::bool_v &inside)
-{
-
-  localPoint = transformation.Transform<transCodeT, rotCodeT>(point);
-  UnplacedContains<Backend>(unplaced, localPoint, inside);
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend>
-VECCORE_ATT_HOST_DEVICE
-void SphereImplementation<transCodeT, rotCodeT>::UnplacedContains(UnplacedSphere const &unplaced,
-                                                                  Vector3D<typename Backend::precision_v> const &point,
-                                                                  typename Backend::bool_v &inside)
-{
-
-  ContainsKernel<Backend>(unplaced, point, inside);
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend>
-VECCORE_ATT_HOST_DEVICE
-void SphereImplementation<transCodeT, rotCodeT>::ContainsKernel(
-    UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &localPoint,
-    typename Backend::bool_v &inside)
-{
-
-  typedef typename Backend::bool_v Bool_t;
-  Bool_t unused;
-  Bool_t outside;
-  GenericKernelForContainsAndInside<Backend, false>(unplaced, localPoint, unused, outside);
-  inside = !outside;
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend, bool ForInside>
-VECCORE_ATT_HOST_DEVICE
-void SphereImplementation<transCodeT, rotCodeT>::GenericKernelForContainsAndInside(
-    UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &localPoint,
-    typename Backend::bool_v &completelyinside, typename Backend::bool_v &completelyoutside)
-{
-
-  typedef typename Backend::precision_v Float_t;
-  typedef typename Backend::bool_v Bool_t;
-
-  Precision fRmin = unplaced.GetInnerRadius();
-  Precision fRmax = unplaced.GetOuterRadius();
-
-  Float_t rad2 = localPoint.Mag2();
-
-  // Check radial surfaces
-  // Radial check for GenericKernel Start
-  if (unplaced.GetInnerRadius())
-    completelyinside = rad2 <= MakeMinusTolerantSquare<true>(fRmax, fRmax * fRmax) &&
-                       rad2 >= MakePlusTolerantSquare<true>(fRmin, fRmin * fRmin);
-  else
-    completelyinside = rad2 <= MakeMinusTolerantSquare<true>(fRmax, fRmax * fRmax);
-
-  if (unplaced.GetInnerRadius())
-    completelyoutside = rad2 >= MakePlusTolerantSquare<true>(fRmax, fRmax * fRmax) ||
-                        rad2 <= MakeMinusTolerantSquare<true>(fRmin, fRmin * fRmin);
-  else
-    completelyoutside = rad2 >= MakePlusTolerantSquare<true>(fRmax, fRmax * fRmax);
-
-  // Phi boundaries  : Do not check if it has no phi boundary!
-  if (!unplaced.IsFullPhiSphere()) {
-
-    Bool_t completelyoutsidephi;
-    Bool_t completelyinsidephi;
-    unplaced.GetWedge().GenericKernelForContainsAndInside<Backend, ForInside>(localPoint, completelyinsidephi,
-                                                                              completelyoutsidephi);
-    completelyoutside |= completelyoutsidephi;
-
-    if (ForInside) completelyinside &= completelyinsidephi;
-  }
-  // Phi Check for GenericKernel Over
-
-  // Theta bondaries
-  if (!unplaced.IsFullThetaSphere()) {
-
-    Bool_t completelyoutsidetheta(false);
-    Bool_t completelyinsidetheta(false);
-    unplaced.GetThetaCone().GenericKernelForContainsAndInside<Backend, ForInside>(localPoint, completelyinsidetheta,
-                                                                                  completelyoutsidetheta);
-    completelyoutside |= completelyoutsidetheta;
-
-    if (ForInside) completelyinside &= completelyinsidetheta;
-  }
-  return;
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <typename Backend>
-VECCORE_ATT_HOST_DEVICE
-void SphereImplementation<transCodeT, rotCodeT>::Inside(UnplacedSphere const &unplaced,
-                                                        Transformation3D const &transformation,
-                                                        Vector3D<typename Backend::precision_v> const &point,
-                                                        typename Backend::inside_v &inside)
-{
-
-  InsideKernel<Backend>(unplaced, transformation.Transform<transCodeT, rotCodeT>(point), inside);
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
-VECCORE_ATT_HOST_DEVICE
-void SphereImplementation<transCodeT, rotCodeT>::InsideKernel(UnplacedSphere const &unplaced,
-                                                              Vector3D<typename Backend::precision_v> const &point,
-                                                              typename Backend::inside_v &inside)
-{
-  // use double-based vector for result, as bool_v is a mask for precision_v
-  const typename Backend::precision_v in(EInside::kInside);
-  const typename Backend::precision_v out(EInside::kOutside);
-  typename Backend::bool_v inmask(false), outmask(false);
-  typename Backend::precision_v result(EInside::kSurface);
-
-  GenericKernelForContainsAndInside<Backend, true>(unplaced, point, inmask, outmask);
-
-  vecCore::MaskedAssign(result, inmask, in);
-  vecCore::MaskedAssign(result, outmask, out);
-
-  // Manual conversion from double to int here is necessary because int_v and
-  // precision_v have different number of elements in SIMD vector, so bool_v
-  // (mask for precision_v) cannot be cast to mask for inside, which is a
-  // different type and does not exist in the current backend system
-  for (size_t i = 0; i < vecCore::VectorSize(result); i++)
-    vecCore::Set(inside, i, vecCore::Get(result, i));
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void SphereImplementation<transCodeT, rotCodeT>::SafetyToIn(UnplacedSphere const &unplaced,
-                                                            Transformation3D const &transformation,
-                                                            Vector3D<typename Backend::precision_v> const &point,
-                                                            typename Backend::precision_v &safety)
-{
-
-  SafetyToInKernel<Backend>(unplaced, transformation.Transform<transCodeT, rotCodeT>(point), safety);
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
-VECCORE_ATT_HOST_DEVICE
-void SphereImplementation<transCodeT, rotCodeT>::SafetyToInKernel(UnplacedSphere const &unplaced,
-                                                                  Vector3D<typename Backend::precision_v> const &point,
-                                                                  typename Backend::precision_v &safety)
-{
-
-  typedef typename Backend::precision_v Float_t;
-  typedef typename Backend::bool_v Bool_t;
-
-  Bool_t done(false);
-
-  // General Precalcs
-  Float_t rad = point.Mag();
-
-  // Distance to r shells
-  Precision fRmin = unplaced.GetInnerRadius();
-  Float_t fRminV(fRmin);
-  Precision fRmax = unplaced.GetOuterRadius();
-  Float_t fRmaxV(fRmax);
-  Float_t safeRMin(0.);
-  Float_t safeRMax(0.);
-
-  Bool_t completelyinside(false), completelyoutside(false);
-  GenericKernelForContainsAndInside<Backend, true>(unplaced, point, completelyinside, completelyoutside);
-
-  vecCore__MaskedAssignFunc(safety, completelyinside, Float_t(-1.0));
-  done |= completelyinside;
-  if (vecCore::MaskFull(done)) return;
-
-  Bool_t isOnSurface = !completelyinside && !completelyoutside;
-  vecCore__MaskedAssignFunc(safety, !done && isOnSurface, Float_t(0.0));
-  done |= isOnSurface;
-  if (vecCore::MaskFull(done)) return;
-
-  if (fRmin) {
-    safeRMin = fRminV - rad;
-    safeRMax = rad - fRmaxV;
-    safety   = vecCore::Blend(!done && (safeRMin > safeRMax), safeRMin, safeRMax);
-  } else {
-    vecCore__MaskedAssignFunc(safety, !done, (rad - fRmaxV));
-  }
-  // Distance to r shells over
-
-  // Distance to phi extent
-  if (!unplaced.IsFullPhiSphere()) {
-    Float_t safetyPhi = unplaced.GetWedge().SafetyToIn<Backend>(point);
-    vecCore__MaskedAssignFunc(safety, !done, Max(safetyPhi, safety));
-  }
-
-  // Distance to Theta extent
-  if (!unplaced.IsFullThetaSphere()) {
-    Float_t safetyTheta = unplaced.GetThetaCone().SafetyToIn<Backend>(point);
-    vecCore__MaskedAssignFunc(safety, !done, Max(safetyTheta, safety));
-  }
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void SphereImplementation<transCodeT, rotCodeT>::SafetyToOut(UnplacedSphere const &unplaced,
-                                                             Vector3D<typename Backend::precision_v> const &point,
-                                                             typename Backend::precision_v &safety)
-{
-  SafetyToOutKernel<Backend>(unplaced, point, safety);
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
-VECCORE_ATT_HOST_DEVICE
-void SphereImplementation<transCodeT, rotCodeT>::SafetyToOutKernel(UnplacedSphere const &unplaced,
-                                                                   Vector3D<typename Backend::precision_v> const &point,
-                                                                   typename Backend::precision_v &safety)
-{
-
-  typedef typename Backend::precision_v Float_t;
-  typedef typename Backend::bool_v Bool_t;
-
-  Float_t rad = point.Mag();
-
-  Bool_t done(false);
-
-  // Distance to r shells
-  Precision fRmin = unplaced.GetInnerRadius();
-  Float_t fRminV(fRmin);
-  Precision fRmax = unplaced.GetOuterRadius();
-  Float_t fRmaxV(fRmax);
-
-  Bool_t completelyinside(false), completelyoutside(false);
-  GenericKernelForContainsAndInside<Backend, true>(unplaced, point, completelyinside, completelyoutside);
-  vecCore__MaskedAssignFunc(safety, completelyoutside, Float_t(-1.0));
-  done |= completelyoutside;
-  if (vecCore::MaskFull(done)) return;
-
-  Bool_t isOnSurface = !completelyinside && !completelyoutside;
-  vecCore__MaskedAssignFunc(safety, !done && isOnSurface, Float_t(0.0));
-  done |= isOnSurface;
-  if (vecCore::MaskFull(done)) return;
-
-  // Distance to r shells
-  if (fRmin) {
-    Float_t safeRMin = (rad - fRminV);
-    Float_t safeRMax = (fRmaxV - rad);
-    safety           = vecCore::Blend(!done && (safeRMin < safeRMax), safeRMin, safeRMax);
-  } else {
-    vecCore__MaskedAssignFunc(safety, !done, (fRmaxV - rad));
-  }
-
-  // Distance to phi extent
-  if (!unplaced.IsFullPhiSphere()) {
-    Float_t safetyPhi = unplaced.GetWedge().SafetyToOut<Backend>(point);
-    vecCore__MaskedAssignFunc(safety, !done, Min(safetyPhi, safety));
-  }
-
-  // Distance to Theta extent
-  Float_t safeTheta(0.);
-  if (!unplaced.IsFullThetaSphere()) {
-    safeTheta = unplaced.GetThetaCone().SafetyToOut<Backend>(point);
-    vecCore__MaskedAssignFunc(safety, !done, Min(safeTheta, safety));
-  }
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
-VECCORE_ATT_HOST_DEVICE
-void SphereImplementation<transCodeT, rotCodeT>::DistanceToIn(UnplacedSphere const &unplaced,
-                                                              Transformation3D const &transformation,
-                                                              Vector3D<typename Backend::precision_v> const &point,
-                                                              Vector3D<typename Backend::precision_v> const &direction,
-                                                              typename Backend::precision_v const &stepMax,
-                                                              typename Backend::precision_v &distance)
-{
-
-  DistanceToInKernel<Backend>(unplaced, transformation.Transform<transCodeT, rotCodeT>(point),
-                              transformation.TransformDirection<rotCodeT>(direction), stepMax, distance);
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
-VECCORE_ATT_HOST_DEVICE
-void SphereImplementation<transCodeT, rotCodeT>::DistanceToInKernel(
-    UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-    Vector3D<typename Backend::precision_v> const &direction, typename Backend::precision_v const & /*stepMax*/,
-    typename Backend::precision_v &distance)
-{
-
-  typedef typename Backend::precision_v Float_t;
-  typedef typename Backend::bool_v Bool_t;
-
-  distance = kInfLength;
-
-  Bool_t done(false);
-
-  Float_t fRmax(unplaced.GetOuterRadius());
-  Float_t fRmin(unplaced.GetInnerRadius());
-
-  bool fullPhiSphere   = unplaced.IsFullPhiSphere();
-  bool fullThetaSphere = unplaced.IsFullThetaSphere();
-
-  Vector3D<Float_t> tmpPt;
-  // General Precalcs
-  Float_t rad2    = point.Mag2();
-  Float_t pDotV3d = point.Dot(direction);
-
-  Float_t c = rad2 - fRmax * fRmax;
-
-  Bool_t cond = IsCompletelyInside<Backend>(unplaced, point);
-  vecCore__MaskedAssignFunc(distance, cond, Float_t(-1.0));
-  done |= cond;
-  if (vecCore::MaskFull(done)) return;
-
-  cond = IsPointOnSurfaceAndMovingOut<Backend, false>(unplaced, point, direction);
-  vecCore__MaskedAssignFunc(distance, !done && cond, Float_t(0.0));
-  done |= cond;
-  if (vecCore::MaskFull(done)) return;
-
-  Float_t sd1(kInfLength);
-  Float_t sd2(kInfLength);
-  Float_t d2 = (pDotV3d * pDotV3d - c);
-  cond       = (d2 < 0. || ((c > 0.0) && (pDotV3d > 0.0)));
-  done |= cond;
-  if (vecCore::MaskFull(done)) return; // Returning in case of no intersection with outer shell
-
-  // Note: Abs(d2) was introduced to avoid Sqrt(negative) in other lanes than the ones satisfying d2>=0.
-  vecCore__MaskedAssignFunc(sd1, d2 >= 0.0, (-pDotV3d - Sqrt(Abs(d2))));
-
-  Float_t outerDist(kInfLength);
-  Float_t innerDist(kInfLength);
-
-  if (unplaced.IsFullSphere()) {
-    vecCore::MaskedAssign(outerDist, !done && (sd1 >= 0.0), sd1);
-  } else {
-    tmpPt = point + sd1 * direction;
-    vecCore::MaskedAssign(outerDist, !done && unplaced.GetWedge().Contains<Backend>(tmpPt) &&
-                                         unplaced.GetThetaCone().Contains<Backend>(tmpPt) && (sd1 >= 0.),
-                          sd1);
-  }
-
-  if (unplaced.GetInnerRadius()) {
-    c  = rad2 - fRmin * fRmin;
-    d2 = pDotV3d * pDotV3d - c;
     // Note: Abs(d2) was introduced to avoid Sqrt(negative) in other lanes than the ones satisfying d2>=0.
-    vecCore__MaskedAssignFunc(sd2, d2 >= 0.0, (-pDotV3d + Sqrt(Abs(d2))));
+    vecCore__MaskedAssignFunc(sd1, d2 >= 0.0, (-pDotV3d - Sqrt(Abs(d2))));
 
-    if (unplaced.IsFullSphere()) {
-      vecCore::MaskedAssign(innerDist, !done && (sd2 >= 0.0), sd2);
+    Real_v outerDist(kInfLength);
+    Real_v innerDist(kInfLength);
+
+    if (sphere.fFullSphere) {
+      vecCore::MaskedAssign(outerDist, !done && (sd1 >= 0.0), sd1);
     } else {
-      //   std::cout<<" ---- Called by InnerRad ---- " << std::endl;
-      tmpPt = point + sd2 * direction;
-      vecCore::MaskedAssign(innerDist, !done && (sd2 >= 0.) && unplaced.GetWedge().Contains<Backend>(tmpPt) &&
-                                           unplaced.GetThetaCone().Contains<Backend>(tmpPt),
-                            sd2);
+      tmpPt = point + sd1 * direction;
+      vecCore::MaskedAssign(outerDist, !done && sphere.fPhiWedge.Contains<Real_v>(tmpPt) &&
+                                           sphere.fThetaCone.Contains<Real_v>(tmpPt) && (sd1 >= 0.),
+                            sd1);
     }
-  }
 
-  distance = Min(outerDist, innerDist);
+    if (sphere.fRmin) {
+      c  = rad2 - sphere.fRmin * sphere.fRmin;
+      d2 = pDotV3d * pDotV3d - c;
+      // Note: Abs(d2) was introduced to avoid Sqrt(negative) in other lanes than the ones satisfying d2>=0.
+      vecCore__MaskedAssignFunc(sd2, d2 >= 0.0, (-pDotV3d + Sqrt(Abs(d2))));
 
-  if (!fullPhiSphere) {
-    GetMinDistFromPhi<Backend, true>(unplaced, point, direction, done, distance);
-  }
+      if (sphere.fFullSphere) {
+        vecCore::MaskedAssign(innerDist, !done && (sd2 >= 0.0), sd2);
+      } else {
+        //   std::cout<<" ---- Called by InnerRad ---- " << std::endl;
+        tmpPt = point + sd2 * direction;
+        vecCore::MaskedAssign(innerDist, !done && (sd2 >= 0.) && sphere.fPhiWedge.Contains<Real_v>(tmpPt) &&
+                                             sphere.fThetaCone.Contains<Real_v>(tmpPt),
+                              sd2);
+      }
+    }
 
-  Float_t distThetaMin(kInfLength);
-
-  if (!fullThetaSphere) {
-    Bool_t intsect1(false);
-    Bool_t intsect2(false);
-    Float_t distTheta1(kInfLength);
-    Float_t distTheta2(kInfLength);
-
-    unplaced.GetThetaCone().DistanceToIn<Backend>(point, direction, distTheta1, distTheta2, intsect1,
-                                                  intsect2); //,cone1IntSecPt, cone2IntSecPt);
-    Vector3D<Float_t> coneIntSecPt1 = point + distTheta1 * direction;
-    Float_t distCone1               = coneIntSecPt1.Mag2();
-
-    Vector3D<Float_t> coneIntSecPt2 = point + distTheta2 * direction;
-    Float_t distCone2               = coneIntSecPt2.Mag2();
-
-    Bool_t isValidCone1 = (distCone1 >= fRmin * fRmin && distCone1 <= fRmax * fRmax) && intsect1;
-    Bool_t isValidCone2 = (distCone2 >= fRmin * fRmin && distCone2 <= fRmax * fRmax) && intsect2;
+    distance = Min(outerDist, innerDist);
 
     if (!fullPhiSphere) {
-      isValidCone1 &= unplaced.GetWedge().Contains<Backend>(coneIntSecPt1);
-      isValidCone2 &= unplaced.GetWedge().Contains<Backend>(coneIntSecPt2);
+      GetMinDistFromPhi<Real_v, true>(sphere, point, direction, done, distance);
     }
-    vecCore::MaskedAssign(distThetaMin, (!done && isValidCone2 && !isValidCone1), distTheta2);
-    vecCore::MaskedAssign(distThetaMin, (!done && isValidCone1 && !isValidCone2), distTheta1);
-    vecCore__MaskedAssignFunc(distThetaMin, (!done && isValidCone1 && isValidCone2), Min(distTheta1, distTheta2));
+
+    Real_v distThetaMin(kInfLength);
+
+    if (!fullThetaSphere) {
+      Bool_v intsect1(false);
+      Bool_v intsect2(false);
+      Real_v distTheta1(kInfLength);
+      Real_v distTheta2(kInfLength);
+
+      sphere.fThetaCone.DistanceToIn<Real_v>(point, direction, distTheta1, distTheta2, intsect1,
+                                             intsect2); //,cone1IntSecPt, cone2IntSecPt);
+      Vector3D<Real_v> coneIntSecPt1 = point + distTheta1 * direction;
+      Real_v distCone1               = coneIntSecPt1.Mag2();
+
+      Vector3D<Real_v> coneIntSecPt2 = point + distTheta2 * direction;
+      Real_v distCone2               = coneIntSecPt2.Mag2();
+
+      Bool_v isValidCone1 =
+          (distCone1 >= sphere.fRmin * sphere.fRmin && distCone1 <= sphere.fRmax * sphere.fRmax) && intsect1;
+      Bool_v isValidCone2 =
+          (distCone2 >= sphere.fRmin * sphere.fRmin && distCone2 <= sphere.fRmax * sphere.fRmax) && intsect2;
+
+      if (!fullPhiSphere) {
+        isValidCone1 &= sphere.fPhiWedge.Contains<Real_v>(coneIntSecPt1);
+        isValidCone2 &= sphere.fPhiWedge.Contains<Real_v>(coneIntSecPt2);
+      }
+      vecCore::MaskedAssign(distThetaMin, (!done && isValidCone2 && !isValidCone1), distTheta2);
+      vecCore::MaskedAssign(distThetaMin, (!done && isValidCone1 && !isValidCone2), distTheta1);
+      vecCore__MaskedAssignFunc(distThetaMin, (!done && isValidCone1 && isValidCone2), Min(distTheta1, distTheta2));
+    }
+
+    distance = Min(distThetaMin, distance);
+
+    Vector3D<Real_v> directDir = (Vector3D<Real_v>(0., 0., 0.) - point);
+    Real_v newDist             = directDir.Mag();
+    vecCore__MaskedAssignFunc(distance,
+                              Bool_v(sphere.fSTheta > kHalfTolerance || sphere.eTheta < (kPi - kHalfTolerance)) &&
+                                  (Abs(directDir.Unit().x() - direction.x()) < kHalfTolerance) &&
+                                  (Abs(directDir.Unit().y() - direction.y()) < kHalfTolerance) &&
+                                  (Abs(directDir.Unit().z() - direction.z()) < kHalfTolerance),
+                              Min(distance, newDist));
   }
 
-  distance = Min(distThetaMin, distance);
+  template <typename Real_v>
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  static void DistanceToOut(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &point,
+                            Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
+  {
 
-  Vector3D<Float_t> directDir = (Vector3D<Float_t>(0., 0., 0.) - point);
-  Float_t newDist             = directDir.Mag();
-  vecCore__MaskedAssignFunc(
-      distance, Bool_t(unplaced.GetSTheta() > kHalfTolerance || unplaced.GetETheta() < (kPi - kHalfTolerance)) &&
-                    (Abs(directDir.Unit().x() - direction.x()) < kHalfTolerance) &&
-                    (Abs(directDir.Unit().y() - direction.y()) < kHalfTolerance) &&
-                    (Abs(directDir.Unit().z() - direction.z()) < kHalfTolerance),
-      Min(distance, newDist));
-}
+    using Bool_v = typename vecCore::Mask_v<Real_v>;
 
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend, bool DistToIn>
-VECCORE_ATT_HOST_DEVICE
-void SphereImplementation<transCodeT, rotCodeT>::GetMinDistFromPhi(
-    UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &localPoint,
-    Vector3D<typename Backend::precision_v> const &localDir, typename Backend::bool_v &done,
-    typename Backend::precision_v &distance)
-{
+    distance = kInfLength;
+    Bool_v done(false);
 
-  typedef typename Backend::precision_v Float_t;
-  typedef typename Backend::bool_v Bool_t;
-  Float_t distPhi1(kInfLength);
-  Float_t distPhi2(kInfLength);
-  Float_t dist(kInfLength);
+    Real_v snxt(kInfLength);
 
-  if (DistToIn)
-    unplaced.GetWedge().DistanceToIn<Backend>(localPoint, localDir, distPhi1, distPhi2);
-  else
-    unplaced.GetWedge().DistanceToOut<Backend>(localPoint, localDir, distPhi1, distPhi2);
+    // Intersection point
+    Vector3D<Real_v> intSecPt;
+    Real_v d2(0.);
 
-  Vector3D<Float_t> tmpPt;
-  Bool_t containsCond1(false), containsCond2(false);
-  // Min Face
-  dist  = Min(distPhi1, distPhi2);
-  tmpPt = localPoint + dist * localDir;
+    Real_v pDotV3d = point.Dot(direction);
 
-  Precision fRmax = unplaced.GetOuterRadius();
-  Precision fRmin = unplaced.GetInnerRadius();
-  Float_t rad2    = tmpPt.Mag2();
+    Real_v rad2 = point.Mag2();
+    Real_v c    = rad2 - sphere.fRmax * sphere.fRmax;
 
-  Bool_t tempCond(false);
-  tempCond = ((dist == distPhi1) && unplaced.GetWedge().IsOnSurfaceGeneric<Backend, true>(tmpPt)) ||
-             ((dist == distPhi2) && unplaced.GetWedge().IsOnSurfaceGeneric<Backend, false>(tmpPt));
+    Real_v sd1(kInfLength);
+    Real_v sd2(kInfLength);
 
-  containsCond1 =
-      tempCond && (rad2 > fRmin * fRmin) && (rad2 < fRmax * fRmax) && unplaced.GetThetaCone().Contains<Backend>(tmpPt);
+    Bool_v cond = SphereUtilities::IsCompletelyOutside<Real_v>(sphere, point);
+    vecCore__MaskedAssignFunc(distance, cond, Real_v(-1.0));
 
-  vecCore__MaskedAssignFunc(distance, !done && containsCond1, Min(dist, distance));
+    done |= cond;
+    if (vecCore::MaskFull(done)) return;
 
-  // Max Face
-  dist  = Max(distPhi1, distPhi2);
-  tmpPt = localPoint + dist * localDir;
+    cond = SphereUtilities::IsPointOnSurfaceAndMovingOut<Real_v, true>(sphere, point, direction);
+    vecCore__MaskedAssignFunc(distance, !done && cond, Real_v(0.0));
+    done |= cond;
+    if (vecCore::MaskFull(done)) return;
 
-  rad2     = tmpPt.Mag2();
-  tempCond = Bool_t(false);
-  tempCond = ((dist == distPhi1) && unplaced.GetWedge().IsOnSurfaceGeneric<Backend, true>(tmpPt)) ||
-             ((dist == distPhi2) && unplaced.GetWedge().IsOnSurfaceGeneric<Backend, false>(tmpPt));
-
-  containsCond2 =
-      tempCond && (rad2 > fRmin * fRmin) && (rad2 < fRmax * fRmax) && unplaced.GetThetaCone().Contains<Backend>(tmpPt);
-  vecCore__MaskedAssignFunc(distance, ((!done) && (!containsCond1) && containsCond2), Min(dist, distance));
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
-VECCORE_ATT_HOST_DEVICE
-void SphereImplementation<transCodeT, rotCodeT>::DistanceToOut(UnplacedSphere const &unplaced,
-                                                               Vector3D<typename Backend::precision_v> const &point,
-                                                               Vector3D<typename Backend::precision_v> const &direction,
-                                                               typename Backend::precision_v const &stepMax,
-                                                               typename Backend::precision_v &distance)
-{
-
-  DistanceToOutKernel<Backend>(unplaced, point, direction, stepMax, distance);
-}
-
-// V3
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-template <class Backend>
-VECCORE_ATT_HOST_DEVICE
-void SphereImplementation<transCodeT, rotCodeT>::DistanceToOutKernel(
-    UnplacedSphere const &unplaced, Vector3D<typename Backend::precision_v> const &point,
-    Vector3D<typename Backend::precision_v> const &direction, typename Backend::precision_v const & /*stepMax*/,
-    typename Backend::precision_v &distance)
-{
-
-  typedef typename Backend::precision_v Float_t;
-  typedef typename Backend::bool_v Bool_t;
-
-  distance = kInfLength;
-
-  Bool_t done(false);
-  Float_t snxt(kInfLength);
-
-  Float_t fRmax(unplaced.GetOuterRadius());
-  Float_t fRmin(unplaced.GetInnerRadius());
-
-  // Intersection point
-  Vector3D<Float_t> intSecPt;
-  Float_t d2(0.);
-
-  Float_t pDotV3d = point.Dot(direction);
-
-  Float_t rad2 = point.Mag2();
-  Float_t c    = rad2 - fRmax * fRmax;
-
-  Float_t sd1(kInfLength);
-  Float_t sd2(kInfLength);
-
-  Bool_t cond = IsCompletelyOutside<Backend>(unplaced, point);
-  vecCore__MaskedAssignFunc(distance, cond, Float_t(-1.0));
-
-  done |= cond;
-  if (vecCore::MaskFull(done)) return;
-
-  cond = IsPointOnSurfaceAndMovingOut<Backend, true>(unplaced, point, direction);
-  vecCore__MaskedAssignFunc(distance, !done && cond, Float_t(0.0));
-  done |= cond;
-  if (vecCore::MaskFull(done)) return;
-
-  // Note: Abs(d2) was introduced to avoid Sqrt(negative) in other lanes than the ones satisfying d2>=0.
-  d2 = (pDotV3d * pDotV3d - c);
-  vecCore__MaskedAssignFunc(sd1, (!done && (d2 >= 0.0)), (-pDotV3d + Sqrt(Abs(d2))));
-
-  if (unplaced.GetInnerRadius()) {
-    c  = rad2 - fRmin * fRmin;
+    // Note: Abs(d2) was introduced to avoid Sqrt(negative) in other lanes than the ones satisfying d2>=0.
     d2 = (pDotV3d * pDotV3d - c);
-    vecCore__MaskedAssignFunc(sd2, (!done && (d2 >= 0.0) && (pDotV3d < 0.0)), (-pDotV3d - Sqrt(Abs(d2))));
-  }
+    vecCore__MaskedAssignFunc(sd1, (!done && (d2 >= 0.0)), (-pDotV3d + Sqrt(Abs(d2))));
 
-  snxt = Min(sd1, sd2);
+    if (sphere.fRmin) {
+      c  = rad2 - sphere.fRmin * sphere.fRmin;
+      d2 = (pDotV3d * pDotV3d - c);
+      vecCore__MaskedAssignFunc(sd2, (!done && (d2 >= 0.0) && (pDotV3d < 0.0)), (-pDotV3d - Sqrt(Abs(d2))));
+    }
 
-  Bool_t condSemi = (Bool_t(unplaced.GetSTheta() == 0. && unplaced.GetETheta() == kPi / 2.) && direction.z() >= 0.) ||
-                    (Bool_t(unplaced.GetSTheta() == kPi / 2. && unplaced.GetETheta() == kPi) && direction.z() <= 0.);
-  vecCore::MaskedAssign(distance, !done && condSemi, snxt);
-  done |= condSemi;
-  if (vecCore::MaskFull(done)) return;
+    snxt = Min(sd1, sd2);
 
-  Float_t distThetaMin(kInfLength);
-  Float_t distPhiMin(kInfLength);
+    Bool_v condSemi = (Bool_v(sphere.fSTheta == 0. && sphere.eTheta == kPi / 2.) && direction.z() >= 0.) ||
+                      (Bool_v(sphere.fSTheta == kPi / 2. && sphere.eTheta == kPi) && direction.z() <= 0.);
+    vecCore::MaskedAssign(distance, !done && condSemi, snxt);
+    done |= condSemi;
+    if (vecCore::MaskFull(done)) return;
 
-  if (!unplaced.IsFullThetaSphere()) {
-    Bool_t intsect1(false);
-    Bool_t intsect2(false);
-    Float_t distTheta1(kInfLength);
-    Float_t distTheta2(kInfLength);
-    unplaced.GetThetaCone().DistanceToOut<Backend>(point, direction, distTheta1, distTheta2, intsect1, intsect2);
-    vecCore::MaskedAssign(distThetaMin, (intsect2 && !intsect1), distTheta2);
-    vecCore::MaskedAssign(distThetaMin, (!intsect2 && intsect1), distTheta1);
-    vecCore__MaskedAssignFunc(distThetaMin, (intsect2 && intsect1), Min(distTheta1, distTheta2));
-  }
+    Real_v distThetaMin(kInfLength);
+    Real_v distPhiMin(kInfLength);
 
-  distance = Min(distThetaMin, snxt);
+    if (!sphere.fFullThetaSphere) {
+      Bool_v intsect1(false);
+      Bool_v intsect2(false);
+      Real_v distTheta1(kInfLength);
+      Real_v distTheta2(kInfLength);
+      sphere.fThetaCone.DistanceToOut<Real_v>(point, direction, distTheta1, distTheta2, intsect1, intsect2);
+      vecCore::MaskedAssign(distThetaMin, (intsect2 && !intsect1), distTheta2);
+      vecCore::MaskedAssign(distThetaMin, (!intsect2 && intsect1), distTheta1);
+      vecCore__MaskedAssignFunc(distThetaMin, (intsect2 && intsect1), Min(distTheta1, distTheta2));
+    }
 
-  if (!unplaced.IsFullPhiSphere()) {
-    if (unplaced.GetDeltaPhiAngle() <= kPi) {
-      Float_t distPhi1;
-      Float_t distPhi2;
-      unplaced.GetWedge().DistanceToOut<Backend>(point, direction, distPhi1, distPhi2);
-      distPhiMin = Min(distPhi1, distPhi2);
-      distance   = Min(distPhiMin, distance);
-    } else {
-      GetMinDistFromPhi<Backend, false>(unplaced, point, direction, done, distance);
+    distance = Min(distThetaMin, snxt);
+
+    if (!sphere.fFullPhiSphere) {
+      if (sphere.fDPhi <= kPi) {
+        Real_v distPhi1;
+        Real_v distPhi2;
+        sphere.fPhiWedge.DistanceToOut<Real_v>(point, direction, distPhi1, distPhi2);
+        distPhiMin = Min(distPhi1, distPhi2);
+        distance   = Min(distPhiMin, distance);
+      } else {
+        GetMinDistFromPhi<Real_v, false>(sphere, point, direction, done, distance);
+      }
     }
   }
-}
+
+  template <typename Real_v, bool DistToIn>
+  VECCORE_ATT_HOST_DEVICE
+  static void GetMinDistFromPhi(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &localPoint,
+                                Vector3D<Real_v> const &localDir, typename vecCore::Mask_v<Real_v> &done,
+                                Real_v &distance)
+  {
+    using Bool_v = typename vecCore::Mask_v<Real_v>;
+    Real_v distPhi1(kInfLength);
+    Real_v distPhi2(kInfLength);
+    Real_v dist(kInfLength);
+
+    if (DistToIn)
+      sphere.fPhiWedge.DistanceToIn<Real_v>(localPoint, localDir, distPhi1, distPhi2);
+    else
+      sphere.fPhiWedge.DistanceToOut<Real_v>(localPoint, localDir, distPhi1, distPhi2);
+
+    Bool_v containsCond1(false), containsCond2(false);
+    // Min Face
+    dist                   = Min(distPhi1, distPhi2);
+    Vector3D<Real_v> tmpPt = localPoint + dist * localDir;
+    Real_v rad2            = tmpPt.Mag2();
+
+    Bool_v tempCond(false);
+    tempCond = ((dist == distPhi1) && sphere.fPhiWedge.IsOnSurfaceGeneric<Real_v, true>(tmpPt)) ||
+               ((dist == distPhi2) && sphere.fPhiWedge.IsOnSurfaceGeneric<Real_v, false>(tmpPt));
+
+    containsCond1 = tempCond && (rad2 > sphere.fRmin * sphere.fRmin) && (rad2 < sphere.fRmax * sphere.fRmax) &&
+                    sphere.fThetaCone.Contains<Real_v>(tmpPt);
+
+    vecCore__MaskedAssignFunc(distance, !done && containsCond1, Min(dist, distance));
+
+    // Max Face
+    dist  = Max(distPhi1, distPhi2);
+    tmpPt = localPoint + dist * localDir;
+
+    rad2     = tmpPt.Mag2();
+    tempCond = Bool_v(false);
+    tempCond = ((dist == distPhi1) && sphere.fPhiWedge.IsOnSurfaceGeneric<Real_v, true>(tmpPt)) ||
+               ((dist == distPhi2) && sphere.fPhiWedge.IsOnSurfaceGeneric<Real_v, false>(tmpPt));
+
+    containsCond2 = tempCond && (rad2 > sphere.fRmin * sphere.fRmin) && (rad2 < sphere.fRmax * sphere.fRmax) &&
+                    sphere.fThetaCone.Contains<Real_v>(tmpPt);
+    vecCore__MaskedAssignFunc(distance, ((!done) && (!containsCond1) && containsCond2), Min(dist, distance));
+  }
+
+  template <typename Real_v>
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  static void SafetyToIn(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &point, Real_v &safety)
+  {
+    using Bool_v = vecCore::Mask_v<Real_v>;
+    Bool_v done(false);
+
+    // General Precalcs
+    Real_v rad = point.Mag();
+
+    Real_v safeRMin(0.);
+    Real_v safeRMax(0.);
+
+    Bool_v completelyinside(false), completelyoutside(false);
+    GenericKernelForContainsAndInside<Real_v, Bool_v, true>(sphere, point, completelyinside, completelyoutside);
+
+    vecCore__MaskedAssignFunc(safety, completelyinside, Real_v(-1.0));
+    done |= completelyinside;
+    if (vecCore::MaskFull(done)) return;
+
+    Bool_v isOnSurface = !completelyinside && !completelyoutside;
+    vecCore__MaskedAssignFunc(safety, !done && isOnSurface, Real_v(0.0));
+    done |= isOnSurface;
+    if (vecCore::MaskFull(done)) return;
+
+    if (sphere.fRmin) {
+      safeRMin = sphere.fRmin - rad;
+      safeRMax = rad - sphere.fRmax;
+      safety   = vecCore::Blend(!done && (safeRMin > safeRMax), safeRMin, safeRMax);
+    } else {
+      vecCore__MaskedAssignFunc(safety, !done, (rad - sphere.fRmax));
+    }
+    // Distance to r shells over
+
+    // Distance to phi extent
+    if (!sphere.fFullPhiSphere) {
+      Real_v safetyPhi = sphere.fPhiWedge.SafetyToIn<Real_v>(point);
+      vecCore__MaskedAssignFunc(safety, !done, Max(safetyPhi, safety));
+    }
+
+    // Distance to Theta extent
+    if (!sphere.fFullThetaSphere) {
+      Real_v safetyTheta = sphere.fThetaCone.SafetyToIn<Real_v>(point);
+      vecCore__MaskedAssignFunc(safety, !done, Max(safetyTheta, safety));
+    }
+  }
+
+  template <typename Real_v>
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  static void SafetyToOut(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &point, Real_v &safety)
+  {
+
+    using Bool_v = vecCore::Mask_v<Real_v>;
+    Real_v rad   = point.Mag();
+
+    Bool_v done(false);
+
+    Bool_v completelyinside(false), completelyoutside(false);
+    GenericKernelForContainsAndInside<Real_v, Bool_v, true>(sphere, point, completelyinside, completelyoutside);
+    vecCore__MaskedAssignFunc(safety, completelyoutside, Real_v(-1.0));
+    done |= completelyoutside;
+    if (vecCore::MaskFull(done)) return;
+
+    Bool_v isOnSurface = !completelyinside && !completelyoutside;
+    vecCore__MaskedAssignFunc(safety, !done && isOnSurface, Real_v(0.0));
+    done |= isOnSurface;
+    if (vecCore::MaskFull(done)) return;
+
+    // Distance to r shells
+    if (sphere.fRmin) {
+      Real_v safeRMin = (rad - sphere.fRmin);
+      Real_v safeRMax = (sphere.fRmax - rad);
+      safety          = vecCore::Blend(!done && (safeRMin < safeRMax), safeRMin, safeRMax);
+    } else {
+      vecCore__MaskedAssignFunc(safety, !done, (sphere.fRmax - rad));
+    }
+
+    // Distance to phi extent
+    if (!sphere.fFullPhiSphere) {
+      Real_v safetyPhi = sphere.fPhiWedge.SafetyToOut<Real_v>(point);
+      vecCore__MaskedAssignFunc(safety, !done, Min(safetyPhi, safety));
+    }
+
+    // Distance to Theta extent
+    Real_v safeTheta(0.);
+    if (!sphere.fFullThetaSphere) {
+      safeTheta = sphere.fThetaCone.SafetyToOut<Real_v>(point);
+      vecCore__MaskedAssignFunc(safety, !done, Min(safeTheta, safety));
+    }
+  }
+
+  /* This function should be called from NormalKernel, only for the
+  * cases when the point is not on the surface and one want to calculate
+  * the SurfaceNormal.
+  *
+  * Algo : Find the boundary which is closest to the point,
+  * and return the normal to that boundary.
+  *
+  */
+  template <typename Real_v>
+  VECCORE_ATT_HOST_DEVICE
+  static Vector3D<Real_v> ApproxSurfaceNormalKernel(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &point)
+  {
+
+    Vector3D<Real_v> norm(0., 0., 0.);
+    Real_v radius   = point.Mag();
+    Real_v distRMax = Abs(radius - sphere.fRmax);
+    Real_v distRMin = Abs(sphere.fRmin - radius);
+    vecCore__MaskedAssignFunc(distRMax, distRMax < 0.0, InfinityLength<Real_v>());
+    vecCore__MaskedAssignFunc(distRMin, distRMin < 0.0, InfinityLength<Real_v>());
+    Real_v distMin = Min(distRMin, distRMax);
+
+    Real_v distPhi1 = point.x() * sphere.fPhiWedge.GetNormal1().x() + point.y() * sphere.fPhiWedge.GetNormal1().y();
+    Real_v distPhi2 = point.x() * sphere.fPhiWedge.GetNormal2().x() + point.y() * sphere.fPhiWedge.GetNormal2().y();
+    vecCore__MaskedAssignFunc(distPhi1, distPhi1 < 0.0, InfinityLength<Real_v>());
+    vecCore__MaskedAssignFunc(distPhi2, distPhi2 < 0.0, InfinityLength<Real_v>());
+    distMin = Min(distMin, Min(distPhi1, distPhi2));
+
+    Real_v rho        = point.Perp();
+    Real_v distTheta1 = sphere.fThetaCone.DistanceToLine<Real_v>(sphere.fThetaCone.GetSlope1(), rho, point.z());
+    Real_v distTheta2 = sphere.fThetaCone.DistanceToLine<Real_v>(sphere.fThetaCone.GetSlope2(), rho, point.z());
+    vecCore__MaskedAssignFunc(distTheta1, distTheta1 < 0.0, InfinityLength<Real_v>());
+    vecCore__MaskedAssignFunc(distTheta2, distTheta2 < 0.0, InfinityLength<Real_v>());
+    distMin = Min(distMin, Min(distTheta1, distTheta2));
+
+    vecCore__MaskedAssignFunc(norm, distMin == distRMax, point.Unit());
+    vecCore__MaskedAssignFunc(norm, distMin == distRMin, -point.Unit());
+
+    Vector3D<Real_v> normal1 = sphere.fPhiWedge.GetNormal1();
+    Vector3D<Real_v> normal2 = sphere.fPhiWedge.GetNormal2();
+    vecCore__MaskedAssignFunc(norm, distMin == distPhi1, -normal1);
+    vecCore__MaskedAssignFunc(norm, distMin == distPhi2, -normal2);
+
+    vecCore__MaskedAssignFunc(norm, distMin == distTheta1, norm + sphere.fThetaCone.GetNormal1<Real_v>(point));
+    vecCore__MaskedAssignFunc(norm, distMin == distTheta2, norm + sphere.fThetaCone.GetNormal2<Real_v>(point));
+
+    return norm;
+  }
+
+  template <typename Real_v>
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  static Vector3D<Real_v> Normal(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &point,
+                                 typename vecCore::Mask_v<Real_v> &valid)
+  {
+    Vector3D<Real_v> normal(0., 0., 0.);
+
+    using Bool_v = vecCore::Mask_v<Real_v>;
+
+    /* Assumption : This function assumes that the point is on the surface.
+     *
+     * Algorithm :
+     * Detect all those surfaces on which the point is at, and count the
+     * numOfSurfaces. if(numOfSurfaces == 1) then normal corresponds to the
+     * normal for that particular case.
+     *
+     * if(numOfSurfaces > 1 ), then add the normals corresponds to different
+     * cases, and finally normalize it and return.
+     *
+     * We need following function
+     * IsPointOnInnerRadius()
+     * IsPointOnOuterRadius()
+     * IsPointOnStartPhi()
+     * IsPointOnEndPhi()
+     * IsPointOnStartTheta()
+     * IsPointOnEndTheta()
+     *
+     * set valid=true if numOfSurface > 0
+     *
+     * if above mentioned assumption not followed , ie.
+     * In case the given point is outside, then find the closest boundary,
+     * the required normal will be the normal to that boundary.
+     * This logic is implemented in "ApproxSurfaceNormalKernel" function
+     */
+
+    Bool_v isPointOutside(false);
+
+    // May be required Later
+    /*
+    if (!ForDistanceToOut) {
+      Bool_v unused(false);
+      GenericKernelForContainsAndInside<Real_v, true>(sphere, point, unused, isPointOutside);
+      vecCore__MaskedAssignFunc(unused || isPointOutside, ApproxSurfaceNormalKernel<Real_v>(sphere, point), &normal);
+    }
+    */
+
+    Bool_v isPointInside(false);
+    GenericKernelForContainsAndInside<Real_v, Bool_v, true>(sphere, point, isPointInside, isPointOutside);
+    vecCore__MaskedAssignFunc(normal, isPointInside || isPointOutside,
+                              ApproxSurfaceNormalKernel<Real_v>(sphere, point));
+
+    valid = Bool_v(false);
+
+    Real_v noSurfaces(0.);
+    Bool_v isPointOnOuterRadius = SphereUtilities::IsPointOnOuterRadius<Real_v>(sphere, point);
+
+    vecCore__MaskedAssignFunc(noSurfaces, isPointOnOuterRadius, noSurfaces + 1);
+    vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnOuterRadius, normal + (point.Unit()));
+
+    if (sphere.fRmin) {
+      Bool_v isPointOnInnerRadius = SphereUtilities::IsPointOnInnerRadius<Real_v>(sphere, point);
+      vecCore__MaskedAssignFunc(noSurfaces, isPointOnInnerRadius, noSurfaces + 1);
+      vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnInnerRadius, normal - point.Unit());
+    }
+
+    if (!sphere.fFullPhiSphere) {
+      Bool_v isPointOnStartPhi = SphereUtilities::IsPointOnStartPhi<Real_v>(sphere, point);
+      Bool_v isPointOnEndPhi   = SphereUtilities::IsPointOnEndPhi<Real_v>(sphere, point);
+      vecCore__MaskedAssignFunc(noSurfaces, isPointOnStartPhi, noSurfaces + 1);
+      vecCore__MaskedAssignFunc(noSurfaces, isPointOnEndPhi, noSurfaces + 1);
+      vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnStartPhi, normal - sphere.fPhiWedge.GetNormal1());
+      vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnEndPhi, normal - sphere.fPhiWedge.GetNormal2());
+    }
+
+    if (!sphere.fFullThetaSphere) {
+      Bool_v isPointOnStartTheta = SphereUtilities::IsPointOnStartTheta<Real_v>(sphere, point);
+      Bool_v isPointOnEndTheta   = SphereUtilities::IsPointOnEndTheta<Real_v>(sphere, point);
+
+      vecCore__MaskedAssignFunc(noSurfaces, isPointOnStartTheta, noSurfaces + 1);
+      vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnStartTheta,
+                                normal + sphere.fThetaCone.GetNormal1<Real_v>(point));
+
+      vecCore__MaskedAssignFunc(noSurfaces, isPointOnEndTheta, noSurfaces + 1);
+      vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnEndTheta,
+                                normal + sphere.fThetaCone.GetNormal2<Real_v>(point));
+
+      Vector3D<Real_v> tempNormal(0., 0., -1.);
+      vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnStartTheta && isPointOnEndTheta &&
+                                            (sphere.eTheta <= kPi / 2.),
+                                tempNormal);
+      Vector3D<Real_v> tempNormal2(0., 0., 1.);
+      vecCore__MaskedAssignFunc(normal, !isPointOutside && isPointOnStartTheta && isPointOnEndTheta &&
+                                            (sphere.fSTheta >= kPi / 2.),
+                                tempNormal2);
+    }
+
+    normal = normal.Unit();
+
+    valid = (noSurfaces > 0.);
+
+    return normal;
+  }
+};
 }
 } // End global namespace
 
-#endif // VECGEOM_VOLUMES_KERNEL_SPHEREIMPLEMENTATION_H_
+#endif // VECGEOM_VOLUMES_KERNEL_sphereIMPLEMENTATION_H_

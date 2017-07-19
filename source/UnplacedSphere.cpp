@@ -1,61 +1,27 @@
 /// \file UnplacedSphere.cpp
 /// \author Raman Sehgal (raman.sehgal@cern.ch)
 
-#include "volumes/UnplacedSphere.h"
+#include "volumes/SphereUtilities.h"
 #include "backend/Backend.h"
-
+#include "volumes/UnplacedSphere.h"
+#include "volumes/SpecializedSphere.h"
+#include "volumes/utilities/VolumeUtilities.h"
+#include "volumes/utilities/GenerationUtilities.h"
 #ifndef VECCORE_CUDA
 #include "base/RNG.h"
-#include <cmath>
 #endif
-
 #include "management/VolumeFactory.h"
-#include "volumes/SpecializedSphere.h"
-#include "volumes/utilities/GenerationUtilities.h"
-#include "volumes/SphereUtilities.h"
-
-#include <stdio.h>
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 VECCORE_ATT_HOST_DEVICE
-UnplacedSphere::UnplacedSphere(Precision pRmin, Precision pRmax, Precision pSPhi, Precision pDPhi,
-
-                               Precision pSTheta, Precision pDTheta)
-    : fRmax(0), fSPhi(0), fDPhi(0), fSTheta(0), fDTheta(0), fRminTolerance(0), mkTolerance(0), fEpsilon(kEpsilon),
-      sinCPhi(0), cosCPhi(0), cosHDPhiOT(0), cosHDPhiIT(0), sinSPhi(0), cosSPhi(0), sinEPhi(0), cosEPhi(0), hDPhi(0),
-      cPhi(0), ePhi(0), sinSTheta(0), cosSTheta(0), sinETheta(0), cosETheta(0), tanSTheta(0), tanSTheta2(0),
-      tanETheta(0), tanETheta2(0), eTheta(0), fFullPhiSphere(true), fFullThetaSphere(true), fFullSphere(true),
-      fCubicVolume(0.), fSurfaceArea(0.), fPhiWedge(pDPhi, pSPhi), fThetaCone(pSTheta, pDTheta)
-
+UnplacedSphere::UnplacedSphere(Precision pRmin, Precision pRmax, Precision pSPhi, Precision pDPhi, Precision pSTheta,
+                               Precision pDTheta)
+    : fSphere(pRmin, pRmax, pSPhi, pDPhi, pSTheta, pDTheta)
 {
-  // Check radii and Set radial tolerances
 
-  if ((pRmin >= pRmax) || (pRmax < 1.1 * kRadTolerance) ||
-      (pRmin < 0)) { /*
-                      std::ostringstream message;
-                      message << "Invalid radii for Solid: " ;//<< GetName() << std::endl
-                              << std::endl<<"             pRmin = " << pRmin << ", pRmax = " << pRmax;
-                                  return;
-                      */
-    // UUtils::Exception("USphere::USphere()", "GeomSolids0002",
-    //                 FatalErrorInArguments, 1, message.str().c_str());
-  }
-  fRmin          = pRmin;
-  fRmax          = pRmax;
-  fRminTolerance = (fRmin) ? Max(kRadTolerance, fEpsilon * fRmin) : 0;
-  mkTolerance    = Max(kRadTolerance, fEpsilon * fRmax); // RELOOK //kTolerance is replaced by mkTolerance
-
-  // Check angles
-
-  CheckPhiAngles(pSPhi, pDPhi);
-  CheckThetaAngles(pSTheta, pDTheta);
   DetectConvexity();
-#ifndef VECCORE_CUDA
-  CalcCapacity();
-  CalcSurfaceArea();
-#endif
 }
 
 VECCORE_ATT_HOST_DEVICE
@@ -64,57 +30,12 @@ void UnplacedSphere::DetectConvexity()
   // Default Convexity set to false
   fGlobalConvexity = false;
   // Logic to calculate the convexity
-  if (fRmin == 0.) {
-    if (((fDPhi == kTwoPi) && (fSTheta == 0.) && (eTheta == kPi)) ||
-        ((fDPhi <= kPi) && (fSTheta == 0) && (eTheta == kPi)) ||
-        ((fDPhi == kTwoPi) && (fSTheta == 0) && (eTheta <= kPi / 2)) ||
-        ((fDPhi == kTwoPi) && (fSTheta >= kPi / 2) && (eTheta == kPi)))
+  if (fSphere.fRmin == 0.) {
+    if (((fSphere.fDPhi == kTwoPi) && (fSphere.fSTheta == 0.) && (fSphere.eTheta == kPi)) ||
+        ((fSphere.fDPhi <= kPi) && (fSphere.fSTheta == 0) && (fSphere.eTheta == kPi)) ||
+        ((fSphere.fDPhi == kTwoPi) && (fSphere.fSTheta == 0) && (fSphere.eTheta <= kPi / 2)) ||
+        ((fSphere.fDPhi == kTwoPi) && (fSphere.fSTheta >= kPi / 2) && (fSphere.eTheta == kPi)))
       fGlobalConvexity = true;
-  }
-}
-
-#ifndef VECCORE_CUDA
-void UnplacedSphere::CalcCapacity()
-{
-  if (fCubicVolume != 0.) {
-    ;
-  } else {
-    fCubicVolume = fDPhi * (std::cos(fSTheta) - std::cos(fSTheta + fDTheta)) *
-                   (fRmax * fRmax * fRmax - fRmin * fRmin * fRmin) / 3.;
-  }
-}
-
-void UnplacedSphere::CalcSurfaceArea()
-{
-
-  if (fSurfaceArea != 0.) {
-    ;
-  } else {
-    Precision Rsq = fRmax * fRmax;
-    Precision rsq = fRmin * fRmin;
-
-    fSurfaceArea = fDPhi * (rsq + Rsq) * (cosSTheta - cosETheta);
-    if (!fFullPhiSphere) {
-      fSurfaceArea = fSurfaceArea + fDTheta * (Rsq - rsq);
-    }
-    if (fSTheta > 0) {
-      Precision acos1            = 0.;
-      if (fDPhi != kTwoPi) acos1 = std::acos((sinSTheta * sinSTheta) * std::cos(fDPhi) + (cosSTheta * cosSTheta));
-      if (fDPhi > kPi) {
-        fSurfaceArea = fSurfaceArea + 0.5 * (Rsq - rsq) * (2 * kPi - acos1);
-      } else {
-        fSurfaceArea = fSurfaceArea + 0.5 * (Rsq - rsq) * acos1;
-      }
-    }
-    if (eTheta < kPi) {
-      Precision acos2            = 0.;
-      if (fDPhi != kTwoPi) acos2 = std::acos((sinETheta * sinETheta) * std::cos(fDPhi) + (cosETheta * cosETheta));
-      if (fDPhi > kPi) {
-        fSurfaceArea = fSurfaceArea + 0.5 * (Rsq - rsq) * (2 * kPi - acos2);
-      } else {
-        fSurfaceArea = fSurfaceArea + 0.5 * (Rsq - rsq) * acos2;
-      }
-    }
   }
 }
 
@@ -128,57 +49,58 @@ void UnplacedSphere::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax
 }
 #endif
 
+#ifndef VECCORE_CUDA
 #if (1)
 // Sophisticated Implementation taking into account the PHI and THETA cut also.
 void UnplacedSphere::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
   // most general case
-  aMin.Set(-fRmax);
-  aMax.Set(fRmax);
-  Precision eTheta = fSTheta + fDTheta;
+  aMin.Set(-fSphere.fRmax);
+  aMax.Set(fSphere.fRmax);
+  Precision eTheta = fSphere.fSTheta + fSphere.fDTheta;
 
-  if (fFullSphere) return;
+  if (fSphere.fFullSphere) return;
 
   Precision st1 = 0.;
   Precision st2 = 0.;
 
-  if (!fFullThetaSphere) {
+  if (!fSphere.fFullThetaSphere) {
     // Simplified logic suggested by Evgueni Tcherniaev
-    aMax.z() = ((fSTheta <= kPi / 2.) ? fRmax : fRmin) * Cos(fSTheta);
-    aMin.z() = ((eTheta <= kPi / 2.) ? fRmin : fRmax) * Cos(eTheta);
+    aMax.z() = ((fSphere.fSTheta <= kPi / 2.) ? fSphere.fRmax : fSphere.fRmin) * Cos(fSphere.fSTheta);
+    aMin.z() = ((eTheta <= kPi / 2.) ? fSphere.fRmin : fSphere.fRmax) * Cos(eTheta);
 
-    st1 = Sin(fSTheta);
-    st2 = Sin(eTheta);
+    st1 = Sin(fSphere.fSTheta);
+    st2 = Sin(fSphere.eTheta);
 
-    if (fSTheta <= kPi / 2.) {
+    if (fSphere.fSTheta <= kPi / 2.) {
       if ((eTheta) < kPi / 2.) {
-        aMax.x() = fRmax * st2;
-        aMin.x() = -fRmax * st2;
-        aMax.y() = fRmax * st2;
-        aMin.y() = -fRmax * st2;
+        aMax.x() = fSphere.fRmax * st2;
+        aMin.x() = -fSphere.fRmax * st2;
+        aMax.y() = fSphere.fRmax * st2;
+        aMin.y() = -fSphere.fRmax * st2;
       }
     } else {
-      aMax.x() = fRmax * st1;
-      aMin.x() = -fRmax * st1;
-      aMax.y() = fRmax * st1;
-      aMin.y() = -fRmax * st1;
+      aMax.x() = fSphere.fRmax * st1;
+      aMin.x() = -fSphere.fRmax * st1;
+      aMax.y() = fSphere.fRmax * st1;
+      aMin.y() = -fSphere.fRmax * st1;
     }
   }
-  if (!fFullPhiSphere) {
-    Precision Rmax = fRmax;
-    if (fSTheta > kPi / 2.) Rmax *= st1;
+  if (!fSphere.fFullPhiSphere) {
+    Precision Rmax = fSphere.fRmax;
+    if (fSphere.fSTheta > kPi / 2.) Rmax *= st1;
     if (eTheta < kPi / 2.) Rmax *= st2;
-    Precision Rmin = fRmin * Min(st1, st2);
+    Precision Rmin = fSphere.fRmin * Min(st1, st2);
     // These newly calculated Rmin and Rmax will be used by PHI section
 
     // Borrowed PHI logic from Tube
     // check how many of phi=90, 180, 270, 360deg are outside this tube
 
     auto Rin       = 0.5 * (Rmax + Rmin);
-    bool phi0out   = !fPhiWedge.Contains<kScalar>(Vector3D<Precision>(Rin, 0, 0));
-    bool phi90out  = !fPhiWedge.Contains<kScalar>(Vector3D<Precision>(0, Rin, 0));
-    bool phi180out = !fPhiWedge.Contains<kScalar>(Vector3D<Precision>(-Rin, 0, 0));
-    bool phi270out = !fPhiWedge.Contains<kScalar>(Vector3D<Precision>(0, -Rin, 0));
+    bool phi0out   = !fSphere.fPhiWedge.Contains(Vector3D<Precision>(Rin, 0, 0));
+    bool phi90out  = !fSphere.fPhiWedge.Contains(Vector3D<Precision>(0, Rin, 0));
+    bool phi180out = !fSphere.fPhiWedge.Contains(Vector3D<Precision>(-Rin, 0, 0));
+    bool phi270out = !fSphere.fPhiWedge.Contains(Vector3D<Precision>(0, -Rin, 0));
 
     // if none of those 4 phis is outside, largest box still required
     if (!(phi0out || phi90out || phi180out || phi270out)) return;
@@ -186,10 +108,10 @@ void UnplacedSphere::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax
     // some extent(s) of box will be reduced
     // --> think of 4 points A,B,C,D such that A,B are at Rmin, C,D at Rmax
     //     and A,C at startPhi (fSphi), B,D at endPhi (fSphi+fDphi)
-    auto Cx = Rmax * cos(fSPhi);
-    auto Dx = Rmax * cos(fSPhi + fDPhi);
-    auto Cy = Rmax * sin(fSPhi);
-    auto Dy = Rmax * sin(fSPhi + fDPhi);
+    auto Cx = Rmax * cos(fSphere.fSPhi);
+    auto Dx = Rmax * cos(fSphere.fSPhi + fSphere.fDPhi);
+    auto Cy = Rmax * sin(fSphere.fSPhi);
+    auto Dy = Rmax * sin(fSphere.fSPhi + fSphere.fDPhi);
 
     // then rewrite box sides whenever each one of those phis are not contained in the tube section
     if (phi0out) aMax.x()   = Max(Cx, Dx);
@@ -197,12 +119,12 @@ void UnplacedSphere::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax
     if (phi180out) aMin.x() = Min(Cx, Dx);
     if (phi270out) aMin.y() = Min(Cy, Dy);
 
-    if (fDPhi >= kPi) return;
+    if (fSphere.fDPhi >= kPi) return;
 
-    auto Ax = Rmin * cos(fSPhi);
-    auto Bx = Rmin * cos(fSPhi + fDPhi);
-    auto Ay = Rmin * sin(fSPhi);
-    auto By = Rmin * sin(fSPhi + fDPhi);
+    auto Ax = Rmin * cos(fSphere.fSPhi);
+    auto Bx = Rmin * cos(fSphere.fSPhi + fSphere.fDPhi);
+    auto Ay = Rmin * sin(fSphere.fSPhi);
+    auto By = Rmin * sin(fSphere.fSPhi + fSphere.fDPhi);
 
     Precision temp;
     temp     = Max(Ax, Bx);
@@ -240,63 +162,67 @@ Vector3D<Precision> UnplacedSphere::SamplePointOnSurface() const
   Precision zRand, aOne, aTwo, aThr, aFou, aFiv, chose, phi, sinphi, cosphi;
   Precision height1, height2, slant1, slant2, costheta, sintheta, rRand;
 
-  height1 = (fRmax - fRmin) * cosSTheta;
-  height2 = (fRmax - fRmin) * cosETheta;
-  slant1  = std::sqrt(sqr((fRmax - fRmin) * sinSTheta) + height1 * height1);
-  slant2  = std::sqrt(sqr((fRmax - fRmin) * sinETheta) + height2 * height2);
-  rRand   = GetRadiusInRing(fRmin, fRmax);
+  height1 = (fSphere.fRmax - fSphere.fRmin) * fSphere.cosSTheta;
+  height2 = (fSphere.fRmax - fSphere.fRmin) * fSphere.cosETheta;
+  slant1  = std::sqrt(sqr((fSphere.fRmax - fSphere.fRmin) * fSphere.sinSTheta) + height1 * height1);
+  slant2  = std::sqrt(sqr((fSphere.fRmax - fSphere.fRmin) * fSphere.sinETheta) + height2 * height2);
+  rRand   = GetRadiusInRing(fSphere.fRmin, fSphere.fRmax);
 
-  aOne = fRmax * fRmax * fDPhi * (cosSTheta - cosETheta);
-  aTwo = fRmin * fRmin * fDPhi * (cosSTheta - cosETheta);
-  aThr = fDPhi * ((fRmax + fRmin) * sinSTheta) * slant1;
-  aFou = fDPhi * ((fRmax + fRmin) * sinETheta) * slant2;
-  aFiv = 0.5 * fDTheta * (fRmax * fRmax - fRmin * fRmin);
+  aOne = fSphere.fRmax * fSphere.fRmax * fSphere.fDPhi * (fSphere.cosSTheta - fSphere.cosETheta);
+  aTwo = fSphere.fRmin * fSphere.fRmin * fSphere.fDPhi * (fSphere.cosSTheta - fSphere.cosETheta);
+  aThr = fSphere.fDPhi * ((fSphere.fRmax + fSphere.fRmin) * fSphere.sinSTheta) * slant1;
+  aFou = fSphere.fDPhi * ((fSphere.fRmax + fSphere.fRmin) * fSphere.sinETheta) * slant2;
+  aFiv = 0.5 * fSphere.fDTheta * (fSphere.fRmax * fSphere.fRmax - fSphere.fRmin * fSphere.fRmin);
 
-  phi      = RNG::Instance().uniform(fSPhi, ePhi);
+  phi      = RNG::Instance().uniform(fSphere.fSPhi, fSphere.ePhi);
   cosphi   = std::cos(phi);
   sinphi   = std::sin(phi);
-  costheta = RNG::Instance().uniform(cosETheta, cosSTheta);
+  costheta = RNG::Instance().uniform(fSphere.cosETheta, fSphere.cosSTheta);
   sintheta = std::sqrt(1. - sqr(costheta));
 
-  if (fFullPhiSphere) {
+  if (fSphere.fFullPhiSphere) {
     aFiv = 0;
   }
-  if (fSTheta == 0) {
+  if (fSphere.fSTheta == 0) {
     aThr = 0;
   }
-  if (eTheta == kPi) {
+  if (fSphere.eTheta == kPi) {
     aFou = 0;
   }
-  if (fSTheta == kPi / 2) {
-    aThr = kPi * (fRmax * fRmax - fRmin * fRmin);
+  if (fSphere.fSTheta == kPi / 2) {
+    aThr = kPi * (fSphere.fRmax * fSphere.fRmax - fSphere.fRmin * fSphere.fRmin);
   }
-  if (eTheta == kPi / 2) {
-    aFou = kPi * (fRmax * fRmax - fRmin * fRmin);
+  if (fSphere.eTheta == kPi / 2) {
+    aFou = kPi * (fSphere.fRmax * fSphere.fRmax - fSphere.fRmin * fSphere.fRmin);
   }
 
   chose = RNG::Instance().uniform(0., aOne + aTwo + aThr + aFou + 2. * aFiv);
   if ((chose >= 0.) && (chose < aOne)) {
-    return Vector3D<Precision>(fRmax * sintheta * cosphi, fRmax * sintheta * sinphi, fRmax * costheta);
+    return Vector3D<Precision>(fSphere.fRmax * sintheta * cosphi, fSphere.fRmax * sintheta * sinphi,
+                               fSphere.fRmax * costheta);
   } else if ((chose >= aOne) && (chose < aOne + aTwo)) {
-    return Vector3D<Precision>(fRmin * sintheta * cosphi, fRmin * sintheta * sinphi, fRmin * costheta);
+    return Vector3D<Precision>(fSphere.fRmin * sintheta * cosphi, fSphere.fRmin * sintheta * sinphi,
+                               fSphere.fRmin * costheta);
   } else if ((chose >= aOne + aTwo) && (chose < aOne + aTwo + aThr)) {
-    if (fSTheta != kPi / 2) {
-      zRand = RNG::Instance().uniform(fRmin * cosSTheta, fRmax * cosSTheta);
-      return Vector3D<Precision>(tanSTheta * zRand * cosphi, tanSTheta * zRand * sinphi, zRand);
+    if (fSphere.fSTheta != kPi / 2) {
+      zRand = RNG::Instance().uniform(fSphere.fRmin * fSphere.cosSTheta, fSphere.fRmax * fSphere.cosSTheta);
+      return Vector3D<Precision>(fSphere.tanSTheta * zRand * cosphi, fSphere.tanSTheta * zRand * sinphi, zRand);
     } else {
       return Vector3D<Precision>(rRand * cosphi, rRand * sinphi, 0.);
     }
   } else if ((chose >= aOne + aTwo + aThr) && (chose < aOne + aTwo + aThr + aFou)) {
-    if (eTheta != kPi / 2) {
-      zRand = RNG::Instance().uniform(fRmin * cosETheta, fRmax * cosETheta);
-      return Vector3D<Precision>(tanETheta * zRand * cosphi, tanETheta * zRand * sinphi, zRand);
+    if (fSphere.eTheta != kPi / 2) {
+      zRand = RNG::Instance().uniform(fSphere.fRmin * fSphere.cosETheta, fSphere.fRmax * fSphere.cosETheta);
+      return Vector3D<Precision>(fSphere.tanETheta * zRand * cosphi, fSphere.tanETheta * zRand * sinphi, zRand);
     } else {
       return Vector3D<Precision>(rRand * cosphi, rRand * sinphi, 0.);
     }
   } else if ((chose >= aOne + aTwo + aThr + aFou) && (chose < aOne + aTwo + aThr + aFou + aFiv)) {
-    return Vector3D<Precision>(rRand * sintheta * cosSPhi, rRand * sintheta * sinSPhi, rRand * costheta);
+    return Vector3D<Precision>(rRand * sintheta * fSphere.cosSPhi, rRand * sintheta * fSphere.sinSPhi,
+                               rRand * costheta);
   } else {
-    return Vector3D<Precision>(rRand * sintheta * cosEPhi, rRand * sintheta * sinEPhi, rRand * costheta);
+    return Vector3D<Precision>(rRand * sintheta * fSphere.cosEPhi, rRand * sintheta * fSphere.sinEPhi,
+                               rRand * costheta);
   }
 }
 
@@ -312,10 +238,11 @@ void UnplacedSphere::ComputeBBox() const
 {
 }
 
-UnplacedSphere *UnplacedSphere::Clone() const
+/*UnplacedSphere *UnplacedSphere::Clone() const
 {
-  return new UnplacedSphere(fRmin, fRmax, fSPhi, fDPhi, fSTheta, fDTheta);
-}
+  return new UnplacedSphere(fSphere.fRmin, fSphere.fRmax, fSphere.fSPhi, fSphere.fDPhi, fSphere.fSTheta,
+fSphere.fDTheta);
+}*/
 
 #if defined(VECGEOM_USOLIDS)
 std::ostream &UnplacedSphere::StreamInfo(std::ostream &os) const
@@ -330,12 +257,12 @@ std::ostream &UnplacedSphere::StreamInfo(std::ostream &os) const
      << " Solid type: VecGeomSphere\n"
      << " Parameters: \n"
 
-     << "       outer radius: " << fRmax << " mm \n"
-     << "               Inner radius: " << fRmin << "mm\n"
-     << "               Start Phi Angle: " << fSPhi << "\n"
-     << "               Delta Phi Angle: " << fDPhi << "\n"
-     << "               Start Theta Angle: " << fSTheta << "\n"
-     << "               Delta Theta Angle: " << fDTheta << "\n"
+     << "       outer radius: " << fSphere.fRmax << " mm \n"
+     << "               Inner radius: " << fSphere.fRmin << "mm\n"
+     << "               Start Phi Angle: " << fSphere.fSPhi << "\n"
+     << "               Delta Phi Angle: " << fSphere.fDPhi << "\n"
+     << "               Start Theta Angle: " << fSphere.fSTheta << "\n"
+     << "               Delta Theta Angle: " << fSphere.fDTheta << "\n"
      << "-----------------------------------------------------------\n";
   os.precision(oldprc);
 

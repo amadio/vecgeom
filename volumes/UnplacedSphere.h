@@ -5,16 +5,11 @@
 #define VECGEOM_VOLUMES_UNPLACEDSPHERE_H_
 
 #include "base/Global.h"
-
 #include "base/AlignedBase.h"
 #include "volumes/UnplacedVolume.h"
-#ifndef VECCORE_CUDA
-#include "base/RNG.h"
-#include <cmath>
-#endif
-
-#include "volumes/Wedge.h"
-#include "volumes/ThetaCone.h"
+#include "volumes/SphereStruct.h"
+#include "volumes/kernel/SphereImplementation.h"
+#include "volumes/UnplacedVolumeImplHelper.h"
 
 namespace vecgeom {
 
@@ -23,186 +18,22 @@ VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedSphere);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class UnplacedSphere : public VUnplacedVolume, public AlignedBase {
+class UnplacedSphere : public SIMDUnplacedVolumeImplHelper<SphereImplementation>, public AlignedBase {
 
 private:
-  // Radial and angular dimensions
-  Precision fRmin, fRmax, fSPhi, fDPhi, fSTheta, fDTheta;
-
-  // Radial and angular tolerances
-  Precision fRminTolerance, mkTolerance, //, kAngTolerance, kRadTolerance,
-      fEpsilon;
-
-  // Cached trigonometric values for Phi angle
-  Precision sinCPhi, cosCPhi, cosHDPhiOT, cosHDPhiIT, sinSPhi, cosSPhi, sinEPhi, cosEPhi, hDPhi, cPhi, ePhi;
-
-  // Cached trigonometric values for Theta angle
-  Precision sinSTheta, cosSTheta, sinETheta, cosETheta, tanSTheta, tanSTheta2, tanETheta, tanETheta2, eTheta;
-
-  Precision fabsTanSTheta, fabsTanETheta;
-
-  // Flags for identification of section, shell or full sphere
-  bool fFullPhiSphere, fFullThetaSphere, fFullSphere;
-
-  // Precomputed values computed from parameters
-  Precision fCubicVolume, fSurfaceArea;
-
-  // Tolerance compatiable with USolids
-  // Precision epsilon;// = 2e-11;
-  // Precision frTolerance;//=1e-9;     //radial tolerance;
-
-  // Member variables go here
-  // Precision fR,fRTolerance, fRTolI, fRTolO;
-  Wedge fPhiWedge; // the Phi bounding of the Sphere
-  ThetaCone fThetaCone;
+  SphereStruct<Precision> fSphere;
 
 public:
   VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  void InitializePhiTrigonometry()
-  {
-    hDPhi = 0.5 * fDPhi; // half delta phi
-    cPhi  = fSPhi + hDPhi;
-    ePhi  = fSPhi + fDPhi;
-
-    sinCPhi    = std::sin(cPhi);
-    cosCPhi    = std::cos(cPhi);
-    cosHDPhiIT = std::cos(hDPhi - 0.5 * kAngTolerance); // inner/outer tol half dphi
-    cosHDPhiOT = std::cos(hDPhi + 0.5 * kAngTolerance);
-    sinSPhi    = std::sin(fSPhi);
-    cosSPhi    = std::cos(fSPhi);
-    sinEPhi    = std::sin(ePhi);
-    cosEPhi    = std::cos(ePhi);
-  }
+  SphereStruct<double> const &GetStruct() const { return fSphere; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  void InitializeThetaTrigonometry()
-  {
-    eTheta = fSTheta + fDTheta;
-
-    sinSTheta = std::sin(fSTheta);
-    cosSTheta = std::cos(fSTheta);
-    sinETheta = std::sin(eTheta);
-    cosETheta = std::cos(eTheta);
-
-    tanSTheta     = std::tan(fSTheta);
-    fabsTanSTheta = std::fabs(tanSTheta);
-    tanSTheta2    = tanSTheta * tanSTheta;
-    tanETheta     = std::tan(eTheta);
-    fabsTanETheta = std::fabs(tanETheta);
-    tanETheta2    = tanETheta * tanETheta;
-  }
+  evolution::Wedge const &GetWedge() const { return fSphere.fPhiWedge; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  void CheckThetaAngles(Precision sTheta, Precision dTheta)
-  {
-    if ((sTheta < 0) || (sTheta > kPi)) {
-      // std::ostringstream message;
-      // message << "sTheta outside 0-PI range." << std::endl
-      //       << "Invalid starting Theta angle for solid: " ;//<< GetName();
-      // return;
-      // UUtils::Exception("USphere::CheckThetaAngles()", "GeomSolids0002",
-      //                FatalError, 1, message.str().c_str());
-    } else {
-      fSTheta = sTheta;
-    }
-    if (dTheta + sTheta >= kPi) {
-      fDTheta = kPi - sTheta;
-    } else if (dTheta > 0) {
-      fDTheta = dTheta;
-    } else {
-      /*
-        std::ostringstream message;
-      message << "Invalid dTheta." << std::endl
-              << "Negative delta-Theta (" << dTheta << "), for solid: ";
-      return;
-       */
-      //<< GetName();
-      // UUtils::Exception("USphere::CheckThetaAngles()", "GeomSolids0002",
-      //                FatalError, 1, message.str().c_str());
-    }
-    if (fDTheta - fSTheta < kPi) {
-      fFullThetaSphere = false;
-    } else {
-      fFullThetaSphere = true;
-    }
-    fFullSphere = fFullPhiSphere && fFullThetaSphere;
-
-    InitializeThetaTrigonometry();
-  }
-
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  void CheckSPhiAngle(Precision sPhi)
-  {
-    // Ensure fSphi in 0-2PI or -2PI-0 range if shape crosses 0
-
-    if (sPhi < 0) {
-      fSPhi = 2 * kPi - std::fmod(std::fabs(sPhi), 2 * kPi);
-    } else {
-      fSPhi = std::fmod(sPhi, 2 * kPi);
-    }
-    if (fSPhi + fDPhi > 2 * kPi) {
-      fSPhi -= 2 * kPi;
-    }
-  }
-
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  void CheckDPhiAngle(Precision dPhi)
-  {
-    if (dPhi >= 2 * kPi - kAngTolerance * 0.5) {
-
-      fDPhi          = 2 * kPi;
-      fSPhi          = 0;
-      fFullPhiSphere = true;
-
-    } else {
-      fFullPhiSphere = false;
-      if (dPhi > 0) {
-        fDPhi = dPhi;
-      } else {
-        /*
-      std::ostringstream message;
-      message << "Invalid dphi." << std::endl
-              << "Negative delta-Phi (" << dPhi << "), for solid: ";
-      return;
-         */
-
-        // << GetName();
-        // UUtils::Exception("USphere::CheckDPhiAngle()", "GeomSolids0002",
-        //                FatalError, 1, message.str().c_str());
-      }
-    }
-  }
-
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  void CheckPhiAngles(Precision sPhi, Precision dPhi)
-  {
-    CheckDPhiAngle(dPhi);
-    // if (!fFullPhiSphere && sPhi) { CheckSPhiAngle(sPhi); }
-    if (!fFullPhiSphere) {
-      CheckSPhiAngle(sPhi);
-    }
-    fFullSphere = fFullPhiSphere && fFullThetaSphere;
-
-    InitializePhiTrigonometry();
-  }
-
-  // constructor
-  // VECCORE_ATT_HOST_DEVICE
-  // UnplacedSphere();
-
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  Wedge const &GetWedge() const { return fPhiWedge; }
-
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  ThetaCone const &GetThetaCone() const { return fThetaCone; }
+  ThetaCone const &GetThetaCone() const { return fSphere.fThetaCone; }
 
   VECCORE_ATT_HOST_DEVICE
   UnplacedSphere(Precision pRmin, Precision pRmax, Precision pSPhi, Precision pDPhi, Precision pSTheta,
@@ -210,271 +41,200 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetInsideRadius() const { return fRmin; }
+  Precision GetInsideRadius() const { return fSphere.fRmin; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetInnerRadius() const { return fRmin; }
+  Precision GetInnerRadius() const { return fSphere.fRmin; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetOuterRadius() const { return fRmax; }
+  Precision GetOuterRadius() const { return fSphere.fRmax; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetStartPhiAngle() const { return fSPhi; }
+  Precision GetStartPhiAngle() const { return fSphere.fSPhi; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetDeltaPhiAngle() const { return fDPhi; }
+  Precision GetDeltaPhiAngle() const { return fSphere.fDPhi; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetStartThetaAngle() const { return fSTheta; }
+  Precision GetStartThetaAngle() const { return fSphere.fSTheta; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetDeltaThetaAngle() const { return fDTheta; }
+  Precision GetDeltaThetaAngle() const { return fSphere.fDTheta; }
 
   // Functions to get Tolerance
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetFRminTolerance() const { return fRminTolerance; }
+  Precision GetFRminTolerance() const { return fSphere.fRminTolerance; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetMKTolerance() const { return mkTolerance; }
+  Precision GetMKTolerance() const { return fSphere.mkTolerance; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetAngTolerance() const { return kAngTolerance; }
+  Precision GetAngTolerance() const { return fSphere.kAngTolerance; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  bool IsFullSphere() const { return fFullSphere; }
+  bool IsFullSphere() const { return fSphere.fFullSphere; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  bool IsFullPhiSphere() const { return fFullPhiSphere; }
+  bool IsFullPhiSphere() const { return fSphere.fFullPhiSphere; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  bool IsFullThetaSphere() const { return fFullThetaSphere; }
+  bool IsFullThetaSphere() const { return fSphere.fFullThetaSphere; }
 
   // All angle related functions
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetHDPhi() const { return hDPhi; }
+  Precision GetHDPhi() const { return fSphere.hDPhi; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetCPhi() const { return cPhi; }
+  Precision GetCPhi() const { return fSphere.cPhi; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetEPhi() const { return ePhi; }
+  Precision GetEPhi() const { return fSphere.ePhi; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetSinCPhi() const { return sinCPhi; }
+  Precision GetSinCPhi() const { return fSphere.sinCPhi; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetCosCPhi() const { return cosCPhi; }
+  Precision GetCosCPhi() const { return fSphere.cosCPhi; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetSinSPhi() const { return sinSPhi; }
+  Precision GetSinSPhi() const { return fSphere.sinSPhi; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetCosSPhi() const { return cosSPhi; }
+  Precision GetCosSPhi() const { return fSphere.cosSPhi; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetSinEPhi() const { return sinEPhi; }
+  Precision GetSinEPhi() const { return fSphere.sinEPhi; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetCosEPhi() const { return cosEPhi; }
+  Precision GetCosEPhi() const { return fSphere.cosEPhi; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetETheta() const { return eTheta; }
+  Precision GetETheta() const { return fSphere.eTheta; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetSinSTheta() const { return sinSTheta; }
+  Precision GetSinSTheta() const { return fSphere.sinSTheta; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetCosSTheta() const { return cosSTheta; }
+  Precision GetCosSTheta() const { return fSphere.cosSTheta; }
 
   //****************************************************************
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetTanSTheta() const { return tanSTheta; }
+  Precision GetTanSTheta() const { return fSphere.tanSTheta; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetTanETheta() const { return tanETheta; }
+  Precision GetTanETheta() const { return fSphere.tanETheta; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetFabsTanSTheta() const { return fabsTanSTheta; }
+  Precision GetFabsTanSTheta() const { return fSphere.fabsTanSTheta; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetFabsTanETheta() const { return fabsTanETheta; }
+  Precision GetFabsTanETheta() const { return fSphere.fabsTanETheta; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetTanSTheta2() const { return tanSTheta2; }
+  Precision GetTanSTheta2() const { return fSphere.tanSTheta2; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetTanETheta2() const { return tanETheta2; }
+  Precision GetTanETheta2() const { return fSphere.tanETheta2; }
   //****************************************************************
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetSinETheta() const { return sinETheta; }
+  Precision GetSinETheta() const { return fSphere.sinETheta; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetCosETheta() const { return cosETheta; }
+  Precision GetCosETheta() const { return fSphere.cosETheta; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetCosHDPhiOT() const { return cosHDPhiOT; }
+  Precision GetCosHDPhiOT() const { return fSphere.cosHDPhiOT; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetCosHDPhiIT() const { return cosHDPhiIT; }
+  Precision GetCosHDPhiIT() const { return fSphere.cosHDPhiIT; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  void Initialize()
-  {
-    fCubicVolume = 0.;
-    fSurfaceArea = 0.;
-  }
+  void SetInsideRadius(Precision newRmin) { fSphere.SetInsideRadius(newRmin); }
 
-  // VECCORE_ATT_HOST_DEVICE
-  // VECGEOM_FORCE_INLINE
-  void SetInsideRadius(Precision newRmin)
-  {
-    fRmin          = newRmin;
-    fRminTolerance = (fRmin) ? std::max(kRadTolerance, fEpsilon * fRmin) : 0;
-    Initialize();
-    CalcCapacity();
-    CalcSurfaceArea();
-  }
-
-  // VECCORE_ATT_HOST_DEVICE
-  // VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
   void SetInnerRadius(Precision newRmin) { SetInsideRadius(newRmin); }
 
-  // VECCORE_ATT_HOST_DEVICE
-  // VECGEOM_FORCE_INLINE
-  void SetOuterRadius(Precision newRmax)
-  {
-    fRmax       = newRmax;
-    mkTolerance = std::max(kRadTolerance,
-                           fEpsilon * fRmax); // RELOOK at kTolerance, may be we will take directly from base/global.h
-    Initialize();
-    CalcCapacity();
-    CalcSurfaceArea();
-  }
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  void SetOuterRadius(Precision newRmax) { fSphere.SetOuterRadius(newRmax); }
 
-  // VECCORE_ATT_HOST_DEVICE
-  // VECGEOM_FORCE_INLINE
-  void SetStartPhiAngle(Precision newSPhi, bool compute = true)
-  {
-    // Flag 'compute' can be used to explicitely avoid recomputation of
-    // trigonometry in case SetDeltaPhiAngle() is invoked afterwards
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  void SetStartPhiAngle(Precision newSPhi, bool compute = true) { fSphere.SetStartPhiAngle(newSPhi, compute); }
 
-    CheckSPhiAngle(newSPhi);
-    fFullPhiSphere = false;
-    if (compute) {
-      InitializePhiTrigonometry();
-    }
-    Initialize();
-    CalcCapacity();
-    CalcSurfaceArea();
-  }
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  void SetDeltaPhiAngle(Precision newDPhi) { fSphere.SetDeltaPhiAngle(newDPhi); }
 
-  // VECCORE_ATT_HOST_DEVICE
-  // VECGEOM_FORCE_INLINE
-  void SetDeltaPhiAngle(Precision newDPhi)
-  {
-    CheckPhiAngles(fSPhi, newDPhi);
-    Initialize();
-    CalcCapacity();
-    CalcSurfaceArea();
-  }
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  void SetStartThetaAngle(Precision newSTheta) { fSphere.SetStartThetaAngle(newSTheta); }
 
-  // VECCORE_ATT_HOST_DEVICE
-  // VECGEOM_FORCE_INLINE
-  void SetStartThetaAngle(Precision newSTheta)
-  {
-    CheckThetaAngles(newSTheta, fDTheta);
-    Initialize();
-    CalcCapacity();
-    CalcSurfaceArea();
-  }
-
-  // VECCORE_ATT_HOST_DEVICE
-  // VECGEOM_FORCE_INLINE
-  void SetDeltaThetaAngle(Precision newDTheta)
-  {
-    CheckThetaAngles(fSTheta, newDTheta);
-    Initialize();
-    CalcCapacity();
-    CalcSurfaceArea();
-  }
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  void SetDeltaThetaAngle(Precision newDTheta) { fSphere.SetDeltaThetaAngle(newDTheta); }
 
   // Old access functions
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetRmin() const { return GetInsideRadius(); }
+  Precision GetRmin() const { return fSphere.fRmin; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetRmax() const { return GetOuterRadius(); }
+  Precision GetRmax() const { return fSphere.fRmax; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetSPhi() const { return GetStartPhiAngle(); }
+  Precision GetSPhi() const { return fSphere.fSPhi; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetDPhi() const { return GetDeltaPhiAngle(); }
+  Precision GetDPhi() const { return fSphere.fDPhi; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetSTheta() const { return GetStartThetaAngle(); }
+  Precision GetSTheta() const { return fSphere.fSTheta; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision GetDTheta() const { return GetDeltaThetaAngle(); }
-
-  //*****************************************************
-  /*
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetfRTolO() const { return fRTolO; }
-
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetfRTolI() const { return fRTolI; }
-
-  VECCORE_ATT_HOST_DEVICE
-  Precision GetfRTolerance() const { return fRTolerance; }
-
-  VECCORE_ATT_HOST_DEVICE
-  void SetRadius (const Precision r);
-
-  //_____________________________________________________________________________
-  */
+  Precision GetDTheta() const { return fSphere.fDTheta; }
 
   VECCORE_ATT_HOST_DEVICE
   void CalcCapacity();
@@ -485,28 +245,30 @@ public:
   VECCORE_ATT_HOST_DEVICE
   void DetectConvexity();
 
-#if !defined(VECCORE_CUDA)
-  void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const;
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  Precision Capacity() const { return fSphere.fCubicVolume; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision Capacity() const { return fCubicVolume; }
-
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  Precision SurfaceArea() const { return fSurfaceArea; }
+  Precision SurfaceArea() const { return fSphere.fSurfaceArea; }
 
 #ifndef VECCORE_CUDA
-  VECCORE_ATT_HOST_DEVICE
-#endif
+  void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const;
+  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
+  {
+
+    bool valid;
+    normal = SphereImplementation::Normal<Precision>(fSphere, point, valid);
+    return valid;
+  }
+
   Vector3D<Precision> SamplePointOnSurface() const;
 
   std::string GetEntityType() const;
 #endif
 
   void GetParametersList(int aNumber, Precision *aArray) const;
-
-  UnplacedSphere *Clone() const;
 
 #if defined(VECGEOM_USOLIDS)
   std::ostream &StreamInfo(std::ostream &os) const;

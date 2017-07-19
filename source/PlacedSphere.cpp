@@ -3,6 +3,7 @@
 
 #include "volumes/PlacedSphere.h"
 #include "volumes/Sphere.h"
+#include "volumes/SpecializedSphere.h"
 
 #ifdef VECGEOM_USOLIDS
 #include "USphere.hh"

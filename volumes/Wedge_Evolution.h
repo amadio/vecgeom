@@ -413,8 +413,7 @@ VECCORE_ATT_HOST_DEVICE
 void Wedge::DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir, Real_v &distWedge1,
                          Real_v &distWedge2) const
 {
-
-  typedef typename Real_v::bool_v Bool_v;
+  using Bool_v = vecCore::Mask_v<Real_v>;
   // algorithm::first calculate projections of direction to both planes,
   // then calculate real distance along given direction,
   // distance can be negative
