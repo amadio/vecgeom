@@ -139,7 +139,7 @@ struct SphereImplementation {
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   static void DistanceToIn(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &point,
-                           Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
+                           Vector3D<Real_v> const &direction, Real_v const & /* stepMax */, Real_v &distance)
   {
     using Bool_v = vecCore::Mask_v<Real_v>;
     distance     = kInfLength;
@@ -257,7 +257,7 @@ struct SphereImplementation {
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   static void DistanceToOut(UnplacedStruct_t const &sphere, Vector3D<Real_v> const &point,
-                            Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
+                            Vector3D<Real_v> const &direction, Real_v const & /* stepMax */, Real_v &distance)
   {
 
     using Bool_v = typename vecCore::Mask_v<Real_v>;

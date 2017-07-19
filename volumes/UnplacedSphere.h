@@ -141,7 +141,6 @@ public:
   VECGEOM_FORCE_INLINE
   Precision GetCosSTheta() const { return fSphere.cosSTheta; }
 
-  //****************************************************************
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetTanSTheta() const { return fSphere.tanSTheta; }
@@ -165,7 +164,6 @@ public:
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision GetTanETheta2() const { return fSphere.tanETheta2; }
-  //****************************************************************
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
