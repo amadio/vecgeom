@@ -561,6 +561,36 @@ bool TestTubs()
   valid = tubeN.Normal(ptN2, normal);
   assert(ApproxEqual(normal, Vec_t(0., 0., 1.)));
 
+  /* Added Some more Normal test for the points on the circular edges of tube
+  *  These corresponds to the test cases pointed by Evgueni Tcherniaev
+  *  in jira-issue-439
+  */
+  double rmin = 100., rmax = 200., dz = 200.;
+  Tube_t hollowTube("testHolloTube", rmin, rmax, dz, 0, 2 * UUtils::kPi);
+  double rad = 0.;
+  for (int j = 0; j < 2; j++) {
+    if (j == 0) // inspecting point on inner radius
+      rad = rmin;
+    else // inspecting point on outer radius
+      rad = rmax;
+
+    // For Top Z
+    for (int i = 0; i <= 360; i++) {
+
+      Vec_t pt(rad * std::cos(i * vecgeom::kDegToRad), rad * std::sin(i * vecgeom::kDegToRad), dz);
+      Vec_t normal(0., 0., 0.);
+      hollowTube.Normal(pt, normal);
+      assert(normal.z() != 0. && normal.z() > 0.);
+    }
+    // For Bottom Z
+    for (int i = 0; i <= 360; i++) {
+
+      Vec_t pt(rad * std::cos(i * vecgeom::kDegToRad), rad * std::sin(i * vecgeom::kDegToRad), -dz);
+      Vec_t normal(0., 0., 0.);
+      hollowTube.Normal(pt, normal);
+      assert(normal.z() != 0. && normal.z() < 0.);
+    }
+  }
   return true;
 }
 

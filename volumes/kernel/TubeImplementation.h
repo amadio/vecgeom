@@ -928,7 +928,7 @@ struct TubeImplementation {
 
     Precision x2y2 = Sqrt(point.x() * point.x() + point.y() * point.y());
     bool inZ = ((point.z() < unplaced.fZ + kTolerance) && (point.z() > -unplaced.fZ - kTolerance)); // in right z range
-    bool inR = ((x2y2 >= unplaced.fRmin) && (x2y2 <= unplaced.fRmax));                              // in right r range
+    bool inR = ((x2y2 >= unplaced.fRmin - kTolerance) && (x2y2 <= unplaced.fRmax + kTolerance));    // in right r range
     // bool inPhi = fWedge.Contains(point);
     // can we combine these two into one??
     if (inR && (Abs(point.z() - unplaced.fZ) <= kTolerance)) { // top lid, normal along +Z
