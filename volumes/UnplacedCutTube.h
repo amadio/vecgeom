@@ -37,14 +37,12 @@ public:
       : fCutTube(rmin, rmax, z, sphi, dphi, bottomNormal, topNormal)
   {
     // Constructor
-    // Make sure that all points on top surface have z>0 and all points on
-    // bottom surface have z<0. This avoids degenerations where top and bottom
-    // intersect each other.
-    if (bottomNormal.z() > 0 || bottomNormal.z() * bottomNormal.z() < rmax / (rmax + z) || topNormal.z() < 0 ||
-        topNormal.z() * topNormal.z() < rmax / (rmax + z)) {
+    if (bottomNormal.z() >= 0 || topNormal.z() <= 0) {
       Print();
 #ifndef VECCORE_CUDA
       throw std::runtime_error("Illegal normal direction for cut planes");
+#else
+      printf("Illegal normal direction for cut planes");
 #endif
     }
     DetectConvexity();
@@ -57,10 +55,12 @@ public:
       : fCutTube(rmin, rmax, z, sphi, dphi, Vector3D<Precision>(bx, by, bz), Vector3D<Precision>(tx, ty, tz))
   {
     // Constructor
-    if (bz > 0 || bz * bz < rmax / (rmax + z) || tz < 0 || tz * tz < rmax / (rmax + z)) {
+    if (bz >= 0 || tz <= 0) {
       Print();
 #ifndef VECCORE_CUDA
       throw std::runtime_error("Illegal normal direction for cut planes");
+#else
+      printf("Illegal normal direction for cut planes");
 #endif
     }
     DetectConvexity();

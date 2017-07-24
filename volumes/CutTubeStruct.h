@@ -39,8 +39,8 @@ struct CutTubeStruct {
                 Vector3D<T> const &topNormal)
       : fDz(z), fTubeStruct(rmin, rmax, kInfLength, sphi, dphi), fCutPlanes()
   {
-    fCutPlanes.Set(0, bottomNormal, Vector3D<T>(0., 0., -z));
-    fCutPlanes.Set(1, topNormal, Vector3D<T>(0., 0., z));
+    fCutPlanes.Set(0, bottomNormal.Unit(), Vector3D<T>(0., 0., -z));
+    fCutPlanes.Set(1, topNormal.Unit(), Vector3D<T>(0., 0., z));
     fCosPhi1 = vecCore::math::Cos(sphi);
     fSinPhi1 = vecCore::math::Sin(sphi);
     fCosPhi2 = vecCore::math::Cos(sphi + dphi);
