@@ -1,3 +1,5 @@
+#ifndef VECGEOM_ENABLE_CUDA
+
 #include "volumes/LogicalVolume.h"
 #include "volumes/Tessellated.h"
 #include "benchmarking/Benchmarker.h"
@@ -54,9 +56,11 @@ size_t CreateTessellated(int ngrid, UnplacedTessellated &tsl)
   delete[] cph;
   return (tsl.GetNFacets());
 }
+#endif
 
 int main(int argc, char *argv[])
 {
+#ifndef VECGEOM_ENABLE_CUDA
   OPTION_INT(npoints, 1024);
   OPTION_INT(nrep, 4);
   OPTION_DOUBLE(ngrid, 100);
@@ -73,7 +77,7 @@ int main(int argc, char *argv[])
   LogicalVolume tessellated("tessellated", &tsl);
 
   Transformation3D placement(0.1, 0, 0);
-  const VPlacedVolume *placedTsl =  world.PlaceDaughter("tessellated", &tessellated, &placement);
+  const VPlacedVolume *placedTsl = world.PlaceDaughter("tessellated", &tessellated, &placement);
   (void)placedTsl;
 
 #if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS) && 0
@@ -81,7 +85,8 @@ int main(int argc, char *argv[])
   timer.Start();
   placedTsl->ConvertToUSolids();
   double usolids_btime = timer.Stop();
-  std::cout << "+++++++++    nfacets = " << nfacets << "    UTessellatedSolid construction time: " << usolids_btime << std::endl;
+  std::cout << "+++++++++    nfacets = " << nfacets << "    UTessellatedSolid construction time: " << usolids_btime
+            << std::endl;
   return 0;
 #endif
 
@@ -99,4 +104,7 @@ int main(int argc, char *argv[])
   //  tester.RunToInBenchmark();
   //  tester.RunToOutBenchmark();
   return tester.RunBenchmark();
+#else
+  return 0;
+#endif
 }

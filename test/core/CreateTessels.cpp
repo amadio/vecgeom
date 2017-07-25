@@ -239,7 +239,8 @@ int main(int argc, char *argv[])
       // Check Distance performance
       timer.Start();
       for (int i = 0; i < npoints; ++i)
-        TessellatedImplementation::DistanceToSolid<double, false>(*tsl1, start, dirs[i], InfinityLength<double>(), distance, ifacet);
+        TessellatedImplementation::DistanceToSolid<double, false>(*tsl1, start, dirs[i], InfinityLength<double>(),
+                                                                  distance, ifacet);
       double trun = timer.Stop();
       printf("n=%d ngrid=%d nfacets=%d  build time=%g run time=%g\n", i, ngrid1, nfacets1, tbuild, trun);
       delete tsl1;

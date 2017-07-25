@@ -52,9 +52,9 @@ public:
   VECCORE_ATT_HOST_DEVICE
   void GetVertex(size_t ifacet, size_t ivert, Vector3D<T> &vertex) const
   {
-    vertex[0] = fVertices[ivert].x()[ifacet];
-    vertex[1] = fVertices[ivert].y()[ifacet];
-    vertex[2] = fVertices[ivert].z()[ifacet];
+    vertex[0] = vecCore::Get(fVertices[ivert].x(), ifacet);
+    vertex[1] = vecCore::Get(fVertices[ivert].y(), ifacet);
+    vertex[2] = vecCore::Get(fVertices[ivert].z(), ifacet);
   }
 
   VECGEOM_FORCE_INLINE
@@ -136,11 +136,11 @@ public:
   {
     // Fill the facet normal by accessing individual SIMD lanes
     assert(index < kVecSize);
-    fNormals.x()[index] = facet->fNormal.x();
-    fNormals.y()[index] = facet->fNormal.y();
-    fNormals.z()[index] = facet->fNormal.z();
+    vecCore::Set(fNormals.x(), index, facet->fNormal.x());
+    vecCore::Set(fNormals.y(), index, facet->fNormal.y());
+    vecCore::Set(fNormals.z(), index, facet->fNormal.z());
     // Fill the distance to the plane
-    fDistances[index] = facet->fDistance;
+    vecCore::Set(fDistances, index, facet->fDistance);
     // Compute side vectors and fill them using the store operation per SIMD lane
     for (size_t ivert = 0; ivert < 3; ++ivert) {
       Vector3D<T> c0                            = facet->fVertices[ivert];
@@ -152,12 +152,12 @@ public:
       if (c0.z() > fMaxExtent[2]) fMaxExtent[2] = c0.z();
       Vector3D<T> c1                            = facet->fVertices[(ivert + 1) % 3];
       Vector3D<T> sideVector                    = facet->fNormal.Cross(c1 - c0).Normalized();
-      fSideVectors[ivert].x()[index]            = sideVector.x();
-      fSideVectors[ivert].y()[index]            = sideVector.y();
-      fSideVectors[ivert].z()[index]            = sideVector.z();
-      fVertices[ivert].x()[index]               = c0.x();
-      fVertices[ivert].y()[index]               = c0.y();
-      fVertices[ivert].z()[index]               = c0.z();
+      vecCore::Set(fSideVectors[ivert].x(), index, sideVector.x());
+      vecCore::Set(fSideVectors[ivert].y(), index, sideVector.y());
+      vecCore::Set(fSideVectors[ivert].z(), index, sideVector.z());
+      vecCore::Set(fVertices[ivert].x(), index, c0.x());
+      vecCore::Set(fVertices[ivert].y(), index, c0.y());
+      vecCore::Set(fVertices[ivert].z(), index, c0.z());
     }
 #ifdef TEST_TCPERF
     fFacets[index]  = facet;
@@ -219,8 +219,8 @@ public:
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(valid)) return;
 
     for (size_t i = 0; i < kVecSize; ++i) {
-      if (valid[i] && (dist[i] < distance)) {
-        distance = dist[i];
+      if (vecCore::Get(valid, i) && (vecCore::Get(dist, i) < distance)) {
+        distance = vecCore::Get(dist, i);
         isurf    = i;
       }
     }
@@ -254,8 +254,8 @@ public:
     // Now we need to return the minimum distance for the hit facets
     if (vecCore::MaskEmpty(valid)) return;
     for (size_t i = 0; i < kVecSize; ++i) {
-      if (valid[i] && dist[i] < distance) {
-        distance = dist[i];
+      if (vecCore::Get(valid, i) && vecCore::Get(dist, i) < distance) {
+        distance = vecCore::Get(dist, i);
         isurf    = i;
       }
     }
@@ -282,8 +282,9 @@ public:
     if (vecCore::MaskFull(withinBound)) {
       // loop over lanes to get minimum positive value.
       for (size_t i = 0; i < kVecSize; ++i) {
-        if (safetyv[i] < distancesq) {
-          distancesq = safetyv[i];
+        auto saflane = vecCore::Get(safetyv, i);
+        if (saflane < distancesq) {
+          distancesq = saflane;
           isurf      = i;
         }
       }
@@ -300,8 +301,9 @@ public:
 
     // loop over lanes to get minimum positive value.
     for (size_t i = 0; i < kVecSize; ++i) {
-      if (safetyv[i] < distancesq) {
-        distancesq = safetyv[i];
+      auto saflane = vecCore::Get(safetyv, i);
+      if (saflane < distancesq) {
+        distancesq = saflane;
         isurf      = i;
       }
     }

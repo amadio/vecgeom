@@ -70,8 +70,7 @@ struct TessellatedImplementation {
 
     DistanceToSolid<Real_v, true>(tessellated, point, tessellated.fTestDir, stepMax, distIn, isurf);
     // If distance to out is finite and less than distance to in, the point is inside
-    if (distOut < distIn)
-      inside = Bool_v(true);
+    if (distOut < distIn) inside = Bool_v(true);
   }
 
   template <typename Real_v, typename Inside_v>
@@ -128,7 +127,7 @@ struct TessellatedImplementation {
   {
     int isurf;
     Real_v safetysq = SafetySq<Real_v, true>(tessellated, point, isurf);
-    safety = vecCore::math::Sqrt(safetysq);
+    safety          = vecCore::math::Sqrt(safetysq);
   }
 
   template <typename Real_v>
@@ -138,7 +137,7 @@ struct TessellatedImplementation {
   {
     int isurf;
     Real_v safetysq = SafetySq<Real_v, false>(tessellated, point, isurf);
-    safety = vecCore::math::Sqrt(safetysq);
+    safety          = vecCore::math::Sqrt(safetysq);
   }
 
   template <typename Real_v>
@@ -155,8 +154,8 @@ struct TessellatedImplementation {
 
   template <typename Real_v, bool ToIn>
   VECCORE_ATT_HOST_DEVICE
-  static void DistanceToSolid(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction,
-                              Real_v const &stepMax, Real_v &distance, int &isurf)
+  static void DistanceToSolid(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point,
+                              Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance, int &isurf)
   {
     // Common method providing DistanceToIn/Out functionality
     // Check if the bounding box is hit
@@ -165,8 +164,8 @@ struct TessellatedImplementation {
     sign[0]  = invdir.x() < 0;
     sign[1]  = invdir.y() < 0;
     sign[2]  = invdir.z() < 0;
-    distance = BoxImplementation::IntersectCachedKernel2<Real_v, Real_v>(&tessellated.fMinExtent, point, invdir, sign.x(), sign.y(), sign.z(),
-                                                               -kTolerance, InfinityLength<Real_v>());
+    distance = BoxImplementation::IntersectCachedKernel2<Real_v, Real_v>(
+        &tessellated.fMinExtent, point, invdir, sign.x(), sign.y(), sign.z(), -kTolerance, InfinityLength<Real_v>());
     if (distance >= InfinityLength<Real_v>()) return;
 
     // Define the user hook calling DistanceToIn for the cluster with the same
@@ -201,7 +200,7 @@ struct TessellatedImplementation {
   static Real_v SafetySq(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point, int &isurf)
   {
     Real_v safetysq = InfinityLength<Real_v>();
-    
+
     auto userhook = [&](HybridManager2::BoxIdDistancePair_t hitbox) {
       // Stop searching if the safety to the current cluster is bigger than the
       // current safety
@@ -211,11 +210,11 @@ struct TessellatedImplementation {
       Real_v safetycrt = tessellated.fClusters[hitbox.first]->template SafetySq<ToIn>(point, isurfcrt);
       if (safetycrt < safetysq) {
         safetysq = safetycrt;
-        isurf = isurfcrt;
+        isurf    = isurfcrt;
       }
       return false;
     };
-    
+
     HybridNavigator<> *boxNav = (HybridNavigator<> *)HybridNavigator<>::Instance();
     // Use the BVH structure and connect hook
     boxNav->BVHSortedSafetyLooper(*tessellated.fNavHelper, point, userhook, safetysq);

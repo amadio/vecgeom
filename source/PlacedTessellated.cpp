@@ -56,11 +56,10 @@ G4VSolid const *PlacedTessellated::ConvertToGeant4() const
   G4TessellatedSolid *tsl = new G4TessellatedSolid("");
   for (size_t ifacet = 0; ifacet < GetUnplacedVolume()->GetNFacets(); ++ifacet) {
     TriangleFacet<double> *facet = GetUnplacedVolume()->GetFacet(ifacet);
-    tsl->AddFacet(
-        new G4TriangularFacet(G4ThreeVector(facet->fVertices[0].x(), facet->fVertices[0].y(), facet->fVertices[0].z()),
-                              G4ThreeVector(facet->fVertices[1].x(), facet->fVertices[1].y(), facet->fVertices[1].z()),
-                              G4ThreeVector(facet->fVertices[2].x(), facet->fVertices[2].y(), facet->fVertices[2].z()),
-                              ABSOLUTE));
+    tsl->AddFacet(new G4TriangularFacet(
+        G4ThreeVector(facet->fVertices[0].x(), facet->fVertices[0].y(), facet->fVertices[0].z()),
+        G4ThreeVector(facet->fVertices[1].x(), facet->fVertices[1].y(), facet->fVertices[1].z()),
+        G4ThreeVector(facet->fVertices[2].x(), facet->fVertices[2].y(), facet->fVertices[2].z()), ABSOLUTE));
   }
   tsl->SetSolidClosed(true);
   return tsl;

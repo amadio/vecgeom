@@ -781,6 +781,9 @@ set(NOT_FOR_CUDA
    RootGeoManager
    NavigationSpecializer
    ResultComparator
+   UnplacedTessellated
+   PlacedTessellated
+   TessellatedCluster
 )
 
 
