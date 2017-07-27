@@ -17,7 +17,6 @@ double *sth, *cth, *sph, *cph;
 VECGEOM_FORCE_INLINE
 Vector3D<double> Vtx(int ith, int iph)
 {
-
   return Vector3D<double>(r * sth[ith] * cph[iph], r * sth[ith] * sph[iph], r * cth[ith]);
 }
 

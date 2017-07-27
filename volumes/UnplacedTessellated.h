@@ -54,6 +54,9 @@ public:
   VECCORE_ATT_HOST_DEVICE
   void Close() { fTessellated.Close(); }
 
+  VECCORE_ATT_HOST_DEVICE
+  bool IsClosed() const { return fTessellated.fSolidClosed; }
+
   virtual int memory_size() const final { return sizeof(*this); }
 
   VECCORE_ATT_HOST_DEVICE

@@ -1075,6 +1075,7 @@ set(TEST_EXECUTABLES_SHAPETESTER
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testPolyhedron.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTorus.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testCutTube.cpp
+  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTessellated.cpp
 )
 
 if(ROOT) # add shape testers that depend on ROOT

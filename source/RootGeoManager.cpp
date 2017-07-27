@@ -94,13 +94,17 @@ void RootGeoManager::LoadRootGeometry(std::string filename)
   LoadRootGeometry();
 }
 
-void RootGeoManager::ExportToROOTGeometry(VPlacedVolume const *topvolume, std::string filename)
+bool RootGeoManager::ExportToROOTGeometry(VPlacedVolume const *topvolume, std::string filename)
 {
   if (gGeoManager != nullptr && gGeoManager->IsClosed()) {
     std::cerr << "will not export to ROOT file; gGeoManager already initialized and closed\n";
-    return;
+    return false;
   }
   TGeoNode *world = Convert(topvolume);
+  if (!world) {
+    std::cerr << "The geometry cannot be converted to ROOT geometry\n";
+    return false;
+  }
   ::gGeoManager->SetTopVolume(world->GetVolume());
   ::gGeoManager->CloseGeometry();
   ::gGeoManager->CheckOverlaps();
@@ -112,6 +116,7 @@ void RootGeoManager::ExportToROOTGeometry(VPlacedVolume const *topvolume, std::s
   for (; iter != fPlacedVolumeMap.end(); ++iter) {
     fTGeoNodeVector[iter->first] = iter->second;
   }
+  return true;
 }
 
 // a helper function to convert ROOT assembly constructs into a flat list of nodes
@@ -237,7 +242,9 @@ TGeoNode *RootGeoManager::Convert(VPlacedVolume const *const placed_volume)
     return const_cast<TGeoNode *>(fPlacedVolumeMap[placed_volume->id()]);
 
   TGeoVolume *geovolume = Convert(placed_volume, placed_volume->GetLogicalVolume());
-  TGeoNode *node        = new TGeoNodeMatrix(geovolume, NULL);
+  // Protect for volumes that may not be convertible in some cases (e.g. tessellated)
+  if (!geovolume) return nullptr;
+  TGeoNode *node = new TGeoNodeMatrix(geovolume, NULL);
   fPlacedVolumeMap.Set(node, placed_volume->id());
 
   // only need to do daughterloop once for every logical volume.
@@ -253,6 +260,7 @@ TGeoNode *RootGeoManager::Convert(VPlacedVolume const *const placed_volume)
 
     // RECURSE DOWN HERE
     TGeoNode *daughternode = Convert(daughter_placed);
+    if (!daughternode) return nullptr;
 
     // get matrix of daughter
     TGeoMatrix *geomatrixofdaughter = Convert(daughter_placed->GetTransformation());
@@ -318,8 +326,11 @@ TGeoVolume *RootGeoManager::Convert(VPlacedVolume const *const placed_volume, Lo
 
   if (fLogicalVolumeMap.Contains(logical_volume)) return const_cast<TGeoVolume *>(fLogicalVolumeMap[logical_volume]);
 
+  const TGeoShape *root_shape = placed_volume->ConvertToRoot();
+  // Some shapes do not exist in ROOT: we need to protect for that
+  if (!root_shape) return nullptr;
   TGeoVolume *geovolume = new TGeoVolume(logical_volume->GetLabel().c_str(), /* the name */
-                                         placed_volume->ConvertToRoot(), 0   /* NO MATERIAL FOR THE MOMENT */
+                                         root_shape, 0                       /* NO MATERIAL FOR THE MOMENT */
                                          );
 
   fLogicalVolumeMap.Set(geovolume, logical_volume);

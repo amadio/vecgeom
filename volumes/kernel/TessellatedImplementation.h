@@ -143,13 +143,15 @@ struct TessellatedImplementation {
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
-  static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &box, Vector3D<Real_v> const &point,
+  static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point,
                                        typename vecCore::Mask_v<Real_v> &valid)
   {
     // Computes the normal on a surface and returns it as a unit vector
-
-    valid = false;
-    return Vector3D<Real_v>();
+    valid = true;
+    int isurf;
+    // We may need to check the value of safety to declare the validity of the normal
+    SafetySq<Real_v, false>(tessellated, point, isurf);
+    return tessellated.fFacets[isurf]->fNormal;
   }
 
   template <typename Real_v, bool ToIn>

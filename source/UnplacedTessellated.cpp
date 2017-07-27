@@ -79,8 +79,9 @@ Vector3D<Precision> UnplacedTessellated::SamplePointOnSurface() const
 
 bool UnplacedTessellated::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &norm) const
 {
-  // to be implemented
+  // Redirect to normal implementation
   bool valid = false;
+  norm       = TessellatedImplementation::NormalKernel<Precision>(fTessellated, point, valid);
   return valid;
 }
 

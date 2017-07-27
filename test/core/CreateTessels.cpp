@@ -209,22 +209,24 @@ int main(int argc, char *argv[])
 
   OPTION_INT(ngrid, 100);
   OPTION_INT(npoints, 10000);
+#ifdef VECGEOM_ROOT
   OPTION_INT(vis, 0);
   OPTION_INT(scalability, 0);
-
-  Vector3D<double> start(0, 0, 0);
-  Vector3D<double> point;
   double distance;
   int ifacet;
+  int ngrid1         = 10;
+  int i              = 0;
+  const double sqrt2 = vecCore::math::Sqrt(2.);
+#endif
+  Vector3D<double> start(0, 0, 0);
+  Vector3D<double> point;
 
   Vector3D<double> *dirs = new Vector3D<double>[npoints];
   for (int i = 0; i < npoints; ++i)
     RandomDirection(dirs[i]);
 
-  int ngrid1         = 10;
-  int i              = 0;
-  const double sqrt2 = vecCore::math::Sqrt(2.);
-  TGraph *gtime      = nullptr;
+#ifdef VECGEOM_ROOT
+  TGraph *gtime = nullptr;
   if (scalability) {
     gtime = new TGraph(14);
     while (ngrid1 < 1000) {
@@ -247,6 +249,7 @@ int main(int argc, char *argv[])
       ngrid1 = sqrt2 * double(ngrid1);
     }
   }
+#endif
   TessellatedStruct<double> tsl;
   CreateTessellated(ngrid, tsl);
   tsl.Close();
