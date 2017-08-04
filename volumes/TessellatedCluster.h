@@ -34,10 +34,8 @@ public:
   Real_v fDistances;                ///< Distances from origin to facets
   Vector3D<Real_v> fSideVectors[3]; ///< Side vectors of the triangular facets
   Vector3D<Real_v> fVertices[3];    ///< Vertices stored in SIMD format
-#ifdef TEST_TCPERF
-  size_t fIfacets[kVecSize]  = {0};
-  Facet_t *fFacets[kVecSize] = {nullptr};
-#endif
+  size_t fIfacets[kVecSize]  = {};
+  Facet_t *fFacets[kVecSize] = {};
   Vector3D<T> fMinExtent; ///< Minimum extent
   Vector3D<T> fMaxExtent; ///< Maximum extent
 
@@ -159,10 +157,8 @@ public:
       vecCore::Set(fVertices[ivert].y(), index, c0.y());
       vecCore::Set(fVertices[ivert].z(), index, c0.z());
     }
-#ifdef TEST_TCPERF
     fFacets[index]  = facet;
     fIfacets[index] = ifacet;
-#endif
   }
 
   // === Navigation functionality === //
@@ -188,6 +184,62 @@ public:
     // Returns distance from point to plane. This is positive if the point is on
     // the outside halfspace, negative otherwise.
     return (point.Dot(fNormals) + fDistances);
+  }
+
+  VECCORE_ATT_HOST_DEVICE
+  void DistanceToCluster(Vector3D<T> const &point, Vector3D<T> const &direction, T &distanceToIn, T &distanceToOut,
+                         int &isurfToIn, int &isurfToOut) const
+  {
+    // Computes both distance to in and distance to out for the cluster
+    using Bool_v = vecCore::Mask<Real_v>;
+
+    distanceToIn  = InfinityLength<T>();
+    distanceToOut = InfinityLength<T>();
+    //    Real_v distToIn   = InfinityLength<Real_v>();
+    //    Real_v distToOut  = InfinityLength<Real_v>();
+    isurfToIn  = -1;
+    isurfToOut = -1;
+
+    Vector3D<Real_v> pointv(point);
+    Vector3D<Real_v> dirv(direction);
+    Real_v ndd = NonZero(dirv.Dot(fNormals));
+    Real_v saf = DistPlanes(pointv);
+
+    Bool_v validToIn  = ndd < Real_v(0.) && saf > Real_v(-kTolerance);
+    Bool_v validToOut = ndd > Real_v(0.) && saf < Real_v(kTolerance);
+
+    Real_v dist = -saf / ndd;
+    pointv += dist * dirv;
+    // Check if propagated points hit the triangles
+    Bool_v hit;
+    InsideCluster(pointv, hit);
+
+    validToIn &= hit;
+    validToOut &= hit;
+
+    // Now we need to return the minimum distance for the hit facets
+    if (vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(validToIn || validToOut)) return;
+
+    // Since we can make no assumptions on convexity, we need to actually check
+    // which surface is actually crossed. First propagate the point with the
+    // distance to each plane.
+    for (size_t i = 0; i < kVecSize; ++i) {
+      if (vecCore::Get(validToIn, i)) {
+        T dlane = vecCore::Get(dist, i);
+        if (dlane < distanceToIn) {
+          distanceToIn = dlane;
+          isurfToIn    = fIfacets[i];
+        }
+      } else {
+        if (vecCore::Get(validToOut, i)) {
+          T dlane = vecCore::Get(dist, i);
+          if (dlane < distanceToOut) {
+            distanceToOut = dlane;
+            isurfToOut    = fIfacets[i];
+          }
+        }
+      }
+    }
   }
 
   VECCORE_ATT_HOST_DEVICE
@@ -221,7 +273,7 @@ public:
     for (size_t i = 0; i < kVecSize; ++i) {
       if (vecCore::Get(valid, i) && (vecCore::Get(dist, i) < distance)) {
         distance = vecCore::Get(dist, i);
-        isurf    = i;
+        isurf    = fIfacets[i];
       }
     }
   }
@@ -232,14 +284,22 @@ public:
   {
     using Bool_v = vecCore::Mask<Real_v>;
 
-    distance    = InfinityLength<T>();
+    distance    = 0.;
     Real_v dist = InfinityLength<Real_v>();
     isurf       = -1;
+    // Transform scalar point and direction into Real_v types
     Vector3D<Real_v> pointv(point);
     Vector3D<Real_v> dirv(direction);
-    Real_v ndd   = NonZero(dirv.Dot(fNormals));
-    Real_v saf   = DistPlanes(pointv);
+
+    // Dot product between direction and facet normals should be positive
+    // for valid crossings
+    Real_v ndd = NonZero(dirv.Dot(fNormals));
+
+    // Distances to facet planes should be negative for valid crossing ("behind" normals)
+    Real_v saf = DistPlanes(pointv);
+
     Bool_v valid = ndd > Real_v(0.) && saf < Real_v(kTolerance);
+    // In case no crossing is valid, the point is outside and returns 0 distance
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(valid)) return;
 
     vecCore__MaskedAssignFunc(dist, valid, -saf / ndd);
@@ -251,12 +311,14 @@ public:
     Bool_v hit;
     InsideCluster(pointv, hit);
     valid &= hit;
-    // Now we need to return the minimum distance for the hit facets
     if (vecCore::MaskEmpty(valid)) return;
+
+    // Now we need to return the minimum distance for the hit facets
+    distance = InfinityLength<T>();
     for (size_t i = 0; i < kVecSize; ++i) {
       if (vecCore::Get(valid, i) && vecCore::Get(dist, i) < distance) {
         distance = vecCore::Get(dist, i);
-        isurf    = i;
+        isurf    = fIfacets[i];
       }
     }
   }
@@ -279,13 +341,14 @@ public:
       withinBound &= safetyv < Real_v(kTolerance);
     safetyv *= safetyv;
 
+    isurf = -1;
     if (vecCore::MaskFull(withinBound)) {
       // loop over lanes to get minimum positive value.
       for (size_t i = 0; i < kVecSize; ++i) {
         auto saflane = vecCore::Get(safetyv, i);
         if (saflane < distancesq) {
           distancesq = saflane;
-          isurf      = i;
+          isurf      = fIfacets[i];
         }
       }
       return distancesq;
@@ -304,15 +367,13 @@ public:
       auto saflane = vecCore::Get(safetyv, i);
       if (saflane < distancesq) {
         distancesq = saflane;
-        isurf      = i;
+        isurf      = fIfacets[i];
       }
     }
     return distancesq;
   }
 
-#ifdef TEST_TCPERF
   VECCORE_ATT_HOST_DEVICE
-  //  __attribute__((optimize("no-tree-vectorize")))
   void DistanceToInScalar(Vector3D<T> const &point, Vector3D<T> const &direction, T const &stepMax, T &distance,
                           int &isurf)
   {
@@ -323,7 +384,7 @@ public:
       distfacet = fFacets[i]->DistanceToIn(point, direction, stepMax);
       if (distfacet < distance) {
         distance = distfacet;
-        isurf    = i;
+        isurf    = fIfacets[i];
       }
     }
   }
@@ -339,7 +400,7 @@ public:
       distfacet = fFacets[i]->DistanceToOut(point, direction, stepMax);
       if (distfacet < distance) {
         distance = distfacet;
-        isurf    = i;
+        isurf    = fIfacets[i];
       }
     }
   }
@@ -354,12 +415,11 @@ public:
       distfacet = fFacets[i]->template SafetySq<ToIn>(point, isurf);
       if (distfacet < distance) {
         distance = distfacet;
-        isurf    = i;
+        isurf    = fIfacets[i];
       }
     }
     return distance;
   }
-#endif
 };
 
 std::ostream &operator<<(std::ostream &os, TessellatedCluster<typename vecgeom::VectorBackend::Real_v> const &tcl);

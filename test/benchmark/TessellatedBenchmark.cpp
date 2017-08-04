@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
   LogicalVolume world("world", &worldUnplaced);
   LogicalVolume tessellated("tessellated", &tsl);
 
-  Transformation3D placement(0.1, 0, 0);
+  Transformation3D placement(0, 0, 0);
   const VPlacedVolume *placedTsl = world.PlaceDaughter("tessellated", &tessellated, &placement);
   (void)placedTsl;
 
@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
   GeoManager::Instance().SetWorldAndClose(worldPlaced);
 
   Benchmarker tester(GeoManager::Instance().GetWorld());
-  tester.SetVerbosity(2);
+  tester.SetVerbosity(3);
   tester.SetRepetitions(nrep);
   tester.SetPointCount(npoints);
   tester.SetToInBias(0.8);

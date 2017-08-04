@@ -61,16 +61,16 @@ struct TessellatedImplementation {
   static void Contains(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point, Bool_v &inside)
   {
     inside = Bool_v(false);
-    int isurf;
-    Real_v stepMax = InfinityLength<Real_v>();
+    int isurfOut, isurfIn;
     Real_v distOut, distIn;
-    DistanceToSolid<Real_v, false>(tessellated, point, tessellated.fTestDir, stepMax, distOut, isurf);
-    // If distance to out is infinite the point is outside
-    if (distOut >= stepMax) return;
-
-    DistanceToSolid<Real_v, true>(tessellated, point, tessellated.fTestDir, stepMax, distIn, isurf);
-    // If distance to out is finite and less than distance to in, the point is inside
-    if (distOut < distIn) inside = Bool_v(true);
+    DistanceToSolid<Real_v, false>(tessellated, point, tessellated.fTestDir, InfinityLength<Real_v>(), distOut,
+                                   isurfOut, distIn, isurfIn);
+    if (isurfOut >= 0) inside = Bool_v(true);
+    /*
+        DistanceToSolid<Real_v, true>(tessellated, point, tessellated.fTestDir, stepMax, distIn, isurf);
+        // If distance to out is finite and less than distance to in, the point is inside
+        if (distOut < distIn) inside = Bool_v(true);
+    */
   }
 
   template <typename Real_v, typename Inside_v>
@@ -79,24 +79,24 @@ struct TessellatedImplementation {
   static void Inside(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point, Inside_v &inside)
   {
     inside = Inside_v(kOutside);
-    int isurf;
-    Real_v stepMax = InfinityLength<Real_v>();
+    int isurfOut, isurfIn;
     Real_v distOut, distIn;
-    DistanceToSolid<Real_v, false>(tessellated, point, tessellated.fTestDir, stepMax, distOut, isurf);
-    // If distance to out is infinite the point is outside
-    if (distOut >= stepMax) return;
-    if (distOut < 0 || distOut * tessellated.fTestDir.Dot(tessellated.fFacets[isurf]->fNormal) < kTolerance) {
+    DistanceToSolid<Real_v, false>(tessellated, point, tessellated.fTestDir, InfinityLength<Real_v>(), distOut,
+                                   isurfOut, distIn, isurfIn);
+    // If no surface is hit then the point is outside
+    if (isurfOut < 0) return;
+    if (distOut < 0 || distOut * tessellated.fTestDir.Dot(tessellated.fFacets[isurfOut]->fNormal) < kTolerance) {
       inside = Inside_v(kSurface);
       return;
     }
 
-    DistanceToSolid<Real_v, true>(tessellated, point, tessellated.fTestDir, stepMax, distIn, isurf);
+    // DistanceToSolid<Real_v, true>(tessellated, point, tessellated.fTestDir, stepMax, distIn, isurf);
     // If distance to out is finite and less than distance to in, the point is inside
-    if (distOut < distIn) {
+    if (isurfIn < 0 || distOut < distIn) {
       inside = Inside_v(kInside);
       return;
     }
-    if (distIn < 0 || distIn * tessellated.fTestDir.Dot(tessellated.fFacets[isurf]->fNormal) > -kTolerance)
+    if (distIn < 0 || distIn * tessellated.fTestDir.Dot(tessellated.fFacets[isurfIn]->fNormal) > -kTolerance)
       inside = Inside_v(kSurface);
   }
 
@@ -106,8 +106,9 @@ struct TessellatedImplementation {
   static void DistanceToIn(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point,
                            Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
   {
-    int isurf;
-    DistanceToSolid<Real_v, true>(tessellated, point, direction, stepMax, distance, isurf);
+    int isurf, isurfOut;
+    Real_v distOut;
+    DistanceToSolid<Real_v, true>(tessellated, point, direction, stepMax, distance, isurf, distOut, isurfOut);
   }
 
   template <typename Real_v>
@@ -116,8 +117,9 @@ struct TessellatedImplementation {
   static void DistanceToOut(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point,
                             Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
   {
-    int isurf;
-    DistanceToSolid<Real_v, false>(tessellated, point, direction, stepMax, distance, isurf);
+    int isurf, isurfIn;
+    Real_v distIn;
+    DistanceToSolid<Real_v, false>(tessellated, point, direction, stepMax, distance, isurf, distIn, isurfIn);
   }
 
   template <typename Real_v>
@@ -157,44 +159,94 @@ struct TessellatedImplementation {
   template <typename Real_v, bool ToIn>
   VECCORE_ATT_HOST_DEVICE
   static void DistanceToSolid(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point,
-                              Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance, int &isurf)
+                              Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance, int &isurf,
+                              Real_v &distother, int &isurfother)
   {
     // Common method providing DistanceToIn/Out functionality
     // Check if the bounding box is hit
-    Vector3D<Real_v> invdir(1. / direction.x(), 1. / direction.y(), 1. / direction.z());
-    Vector3D<int> sign;
-    sign[0]  = invdir.x() < 0;
-    sign[1]  = invdir.y() < 0;
-    sign[2]  = invdir.z() < 0;
-    distance = BoxImplementation::IntersectCachedKernel2<Real_v, Real_v>(
-        &tessellated.fMinExtent, point, invdir, sign.x(), sign.y(), sign.z(), -kTolerance, InfinityLength<Real_v>());
-    if (distance >= InfinityLength<Real_v>()) return;
+    isurf      = -1;
+    isurfother = -1;
+    if (ToIn) {
+      // Check if the bounding box is hit
+      Vector3D<Real_v> invdir(1. / direction.x(), 1. / direction.y(), 1. / direction.z());
+      Vector3D<int> sign;
+      sign[0]  = invdir.x() < 0;
+      sign[1]  = invdir.y() < 0;
+      sign[2]  = invdir.z() < 0;
+      distance = BoxImplementation::IntersectCachedKernel2<Real_v, Real_v>(
+          &tessellated.fMinExtent, point, invdir, sign.x(), sign.y(), sign.z(), -kTolerance, InfinityLength<Real_v>());
+      if (distance >= stepMax) return;
+    }
 
     // Define the user hook calling DistanceToIn for the cluster with the same
     // index as the bounding box
-    distance      = InfinityLength<Real_v>();
-    auto userhook = [&](HybridManager2::BoxIdDistancePair_t hitbox) {
+    distance             = InfinityLength<Real_v>();
+    distother            = InfinityLength<Real_v>();
+    Real_v distanceToIn  = InfinityLength<Real_v>();
+    Real_v distanceToOut = InfinityLength<Real_v>();
+    int isurfToIn        = -1;
+    int isurfToOut       = -1;
+    auto userhook        = [&](HybridManager2::BoxIdDistancePair_t hitbox) {
       // Stop searching if the distance to the current box is bigger than the
       // requested limit or than the current distance
       if (hitbox.second > vecCore::math::Min(stepMax, distance)) return true;
-      // Compute distance to the cluster
-      Real_v distcrt;
-      int isurfcrt;
-      if (ToIn)
-        tessellated.fClusters[hitbox.first]->DistanceToIn(point, direction, stepMax, distcrt, isurfcrt);
-      else
-        tessellated.fClusters[hitbox.first]->DistanceToOut(point, direction, stepMax, distcrt, isurfcrt);
-      if (distcrt < distance) {
-        distance = distcrt;
-        isurf    = tessellated.fClusters[hitbox.first]->fIfacets[isurfcrt];
+      // Compute distance to the cluster (in both ToIn or ToOut assumptions)
+      Real_v clusterToIn, clusterToOut;
+      int icrtToIn, icrtToOut;
+      tessellated.fClusters[hitbox.first]->DistanceToCluster(point, direction, clusterToIn, clusterToOut, icrtToIn,
+                                                             icrtToOut);
+
+      // Update distanceToIn/Out
+      if (icrtToIn >= 0 && clusterToIn < distanceToIn) {
+        distanceToIn = clusterToIn;
+        isurfToIn    = icrtToIn;
+        if (ToIn) {
+          isurf    = isurfToIn;
+          distance = distanceToIn;
+        } else {
+          isurfother = isurfToIn;
+          distother  = distanceToIn;
+        }
       }
-      // ntries++;
+
+      if (icrtToOut >= 0 && clusterToOut < distanceToOut) {
+        distanceToOut = clusterToOut;
+        isurfToOut    = icrtToOut;
+        if (!ToIn) {
+          isurf    = isurfToOut;
+          distance = distanceToOut;
+        } else {
+          isurfother = isurfToOut;
+          distother  = distanceToOut;
+        }
+      }
       return false;
     };
 
     HybridNavigator<> *boxNav = (HybridNavigator<> *)HybridNavigator<>::Instance();
     // intersect ray with the BVH structure and use hook
     boxNav->BVHSortedIntersectionsLooper(*tessellated.fNavHelper, point, direction, userhook);
+
+    // Treat special cases
+    if (ToIn) {
+      if (isurfToIn < 0) {
+        if (isurfToOut >= 0 && distanceToOut * direction.Dot(tessellated.fFacets[isurfToOut]->fNormal) > kTolerance)
+          distance = 0.; // point inside or on boundary
+        // else not hitting, distance already inf
+      } else {
+        if (isurfToOut >= 0 && distanceToOut < distanceToIn)
+          distance = 0.; // point inside exiting first then re-entering
+        // else valid entry point, distance already set
+      }
+    } else {
+      if (isurfToOut < 0)
+        distance = 0.; // point outside
+      else {
+        if (isurfToIn >= 0 && distanceToIn < distanceToOut &&
+            distanceToIn * direction.Dot(tessellated.fFacets[isurfToIn]->fNormal) < -kTolerance)
+          distance = 0.; // point outside (first entering then exiting)
+      }
+    }
   }
 
   template <typename Real_v, bool ToIn>

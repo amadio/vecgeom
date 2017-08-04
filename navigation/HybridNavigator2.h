@@ -89,10 +89,10 @@ private:
           if (vecCore::MaskLaneAt(hit, i)) {
             distance = BoxImplementation::IntersectCachedKernel2<HybridManager2::Float_v, float>(
                 &boxes_v[index + 2 * (i + 1)], point, invdir, sign.x(), sign.y(), sign.z(), 0, InfinityLength<float>());
-            hit = distance < InfinityLength<float>();
-            if (!vecCore::MaskEmpty(hit)) {
-              for (size_t j = 0 /*hit.firstOne()*/; j < kVS; ++j) { // leaf node
-                if (vecCore::MaskLaneAt(hit, j)) {
+            auto hit1 = distance < InfinityLength<float>();
+            if (!vecCore::MaskEmpty(hit1)) {
+              for (size_t j = 0 /*hit1.firstOne()*/; j < kVS; ++j) { // leaf node
+                if (vecCore::MaskLaneAt(hit1, j)) {
                   assert(count < VECGEOM_MAXDAUGHTERS);
                   hitlist[count] = HybridManager2::BoxIdDistancePair_t(nodeToDaughters[nodeindex + i][j],
                                                                        vecCore::LaneAt(distance, j));
@@ -139,11 +139,11 @@ private:
             Float_v safetytoboxsqr = ABBoxImplementation::ABBoxSafetyRangeSqr(
                 boxes_v[index + 2 * (i + 1)], boxes_v[index + 2 * (i + 1) + 1], pointfloat, distmaxsqr);
 
-            hit = safetytoboxsqr < ABBoxManager::Real_t(upper_squared_limit);
-            if (!vecCore::MaskEmpty(hit)) {
+            auto hit1 = safetytoboxsqr < ABBoxManager::Real_t(upper_squared_limit);
+            if (!vecCore::MaskEmpty(hit1)) {
               // loop bounding boxes in the cluster
               for (size_t j = 0; j < kVS; ++j) {
-                if (vecCore::MaskLaneAt(hit, j)) {
+                if (vecCore::MaskLaneAt(hit1, j)) {
                   assert(count < VECGEOM_MAXDAUGHTERS);
                   hitlist[count] = HybridManager2::BoxIdDistancePair_t(nodeToDaughters[nodeindex + i][j],
                                                                        vecCore::LaneAt(safetytoboxsqr, j));

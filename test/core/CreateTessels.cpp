@@ -212,8 +212,8 @@ int main(int argc, char *argv[])
 #ifdef VECGEOM_ROOT
   OPTION_INT(vis, 0);
   OPTION_INT(scalability, 0);
-  double distance;
-  int ifacet;
+  double distance, dother;
+  int ifacet, ifacetother;
   int ngrid1         = 10;
   int i              = 0;
   const double sqrt2 = vecCore::math::Sqrt(2.);
@@ -242,7 +242,7 @@ int main(int argc, char *argv[])
       timer.Start();
       for (int i = 0; i < npoints; ++i)
         TessellatedImplementation::DistanceToSolid<double, false>(*tsl1, start, dirs[i], InfinityLength<double>(),
-                                                                  distance, ifacet);
+                                                                  distance, ifacet, dother, ifacetother);
       double trun = timer.Stop();
       printf("n=%d ngrid=%d nfacets=%d  build time=%g run time=%g\n", i, ngrid1, nfacets1, tbuild, trun);
       delete tsl1;
@@ -291,19 +291,34 @@ int main(int argc, char *argv[])
 
     // Visualize facets
 
-    //    for (auto facet : tsl.fFacets)
-    //      AddFacetToVisualizer(facet, visualizer);
+    for (auto facet : tsl.fFacets)
+      AddFacetToVisualizer(facet, visualizer);
 
-    for (unsigned icluster = 0; icluster < tsl.fClusters.size(); ++icluster)
-      DrawCluster(tsl, icluster, visualizer, false);
+    // Visualize clusters
+    //    for (unsigned icluster = 0; icluster < tsl.fClusters.size(); ++icluster)
+    //      DrawCluster(tsl, icluster, visualizer, false);
 
     TPolyMarker3D pm(npoints);
     pm.SetMarkerColor(kRed);
+    pm.SetMarkerStyle(7);
     // Test contains function
 
     for (int i = 0; i < npoints; ++i) {
       RandomPointInBBox(point, tsl);
-      // bool contains = tsl.Contains(point);
+      if (0) {
+        // Visualize a specific point/direction
+        point.Set(9.1503206581398828, 0.07248930338432838, 5.2159551641031001);
+        Vector3D<double> direction(-0.74608321159322855, -0.28587882094198169, -0.60135941093123035);
+        pm.SetNextPoint(point[0], point[1], point[2]);
+        TPolyLine3D pl(2);
+        pl.SetLineColor(kRed);
+        pl.SetNextPoint(point[0], point[1], point[2]);
+        point += direction * 25;
+        pm.SetNextPoint(point[0], point[1], point[2]);
+        pl.SetNextPoint(point[0], point[1], point[2]);
+        visualizer.AddLine(pl);
+        break;
+      }
       bool contains;
       TessellatedImplementation::Contains<double, bool>(tsl, point, contains);
       if (contains) pm.SetNextPoint(point[0], point[1], point[2]);
