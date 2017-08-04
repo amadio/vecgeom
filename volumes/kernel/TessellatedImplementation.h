@@ -256,6 +256,7 @@ struct TessellatedImplementation {
   static Real_v SafetySq(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point, int &isurf)
   {
     Real_v safetysq = InfinityLength<Real_v>();
+    isurf           = -1;
 
     auto userhook = [&](HybridManager2::BoxIdDistancePair_t hitbox) {
       // Stop searching if the safety to the current cluster is bigger than the

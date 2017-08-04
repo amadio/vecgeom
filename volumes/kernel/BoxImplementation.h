@@ -561,7 +561,7 @@ struct ABBoxImplementation {
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   static Real_v ABBoxSafetyRangeSqr(Vector3D<Real_v> const &lowercorner, Vector3D<Real_v> const &uppercorner,
-                               Vector3D<Real_s> const &point, Real_v &safetymaxsqr)
+                                    Vector3D<Real_s> const &point, Real_v &safetymaxsqr)
   {
 
     using Vector3D_v = Vector3D<Real_v>;
@@ -574,14 +574,14 @@ struct ABBoxImplementation {
     Vector3D_v promotedpoint(Real_v(point.x()), Real_v(point.y()), Real_v(point.z()));
 
     // it would be nicer to have a standalone Abs function taking Vector3D as input
-    Vector3D_v safety = ((promotedpoint - origin).Abs()) - delta;
+    Vector3D_v safety  = ((promotedpoint - origin).Abs()) - delta;
     Vector3D_v safetyp = ((promotedpoint - origin).Abs()) + delta;
-    Bool_v outsidex   = safety.x() > Real_s(0.);
-    Bool_v outsidey   = safety.y() > Real_s(0.);
-    Bool_v outsidez   = safety.z() > Real_s(0.);
+    Bool_v outsidex    = safety.x() > Real_s(0.);
+    Bool_v outsidey    = safety.y() > Real_s(0.);
+    Bool_v outsidez    = safety.z() > Real_s(0.);
 
     Real_v runningsafetysqr(0.);                  // safety squared from outside
-    safetymaxsqr = Real_v(0.);                    // safetymax squared from outside
+    safetymaxsqr = safetyp.Mag2();                // safetymax squared from outside
     Real_v runningmax(-InfinityLength<Real_v>()); // relevant for safety when we are inside
 
     // loop over dimensions manually unrolled
@@ -592,8 +592,8 @@ struct ABBoxImplementation {
       vecCore__MaskedAssignFunc(tmp, outsidex, safety.x() * safety.x());
       runningsafetysqr += tmp;
       runningmax = Max(runningmax, safety.x());
-      vecCore__MaskedAssignFunc(tmp, outsidex, safetyp.x() * safetyp.x());
-      safetymaxsqr += tmp;
+      //      vecCore__MaskedAssignFunc(tmp, outsidex, safetyp.x() * safetyp.x());
+      //      safetymaxsqr += tmp;
     }
 
     // treat y dim
@@ -602,8 +602,8 @@ struct ABBoxImplementation {
       vecCore__MaskedAssignFunc(tmp, outsidey, safety.y() * safety.y());
       runningsafetysqr += tmp;
       runningmax = Max(runningmax, safety.y());
-      vecCore__MaskedAssignFunc(tmp, outsidey, safetyp.y() * safetyp.y());
-      safetymaxsqr += tmp;
+      //      vecCore__MaskedAssignFunc(tmp, outsidey, safetyp.y() * safetyp.y());
+      //      safetymaxsqr += tmp;
     }
 
     // treat z dim
@@ -612,8 +612,8 @@ struct ABBoxImplementation {
       vecCore__MaskedAssignFunc(tmp, outsidez, safety.z() * safety.z());
       runningsafetysqr += tmp;
       runningmax = Max(runningmax, safety.z());
-      vecCore__MaskedAssignFunc(tmp, outsidez, safetyp.z() * safetyp.z());
-      safetymaxsqr += tmp;
+      //      vecCore__MaskedAssignFunc(tmp, outsidez, safetyp.z() * safetyp.z());
+      //      safetymaxsqr += tmp;
     }
 
     Bool_v inside = !(outsidex || outsidey || outsidez);
