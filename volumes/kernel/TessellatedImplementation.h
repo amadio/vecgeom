@@ -243,8 +243,10 @@ struct TessellatedImplementation {
         distance = 0.; // point outside
       else {
         if (isurfToIn >= 0 && distanceToIn < distanceToOut &&
-            distanceToIn * direction.Dot(tessellated.fFacets[isurfToIn]->fNormal) < -kTolerance)
+            distanceToIn * direction.Dot(tessellated.fFacets[isurfToIn]->fNormal) < -kTolerance) {
           distance = 0.; // point outside (first entering then exiting)
+          isurf    = -1;
+        }
       }
     }
   }
