@@ -232,25 +232,25 @@ public:
     fHelper->fInvExtSize = fInvExtSize;
     // Make a grid with ~kVecSize facets per cell
     int ngrid = 1 + size_t(vecCore::math::Pow<T>(T(fFacets.size()), 1. / 3.));
-    Stopwatch timer;
-    timer.Start();
+    // Stopwatch timer;
+    // timer.Start();
     fHelper->CreateCells(ngrid);
-    auto time = timer.Stop();
-    std::cout << "CreateCells: " << time << " sec\n";
+    // auto time = timer.Stop();
+    // std::cout << "CreateCells: " << time << " sec\n";
 
-    timer.Start();
     // Loop over facets and their vertices, fill list of vertices free of
     // duplications.
+    // timer.Start();
     for (auto facet : fFacets) {
       for (int ivert = 0; ivert < 3; ++ivert) {
         facet->fIndices[ivert] = AddVertex(facet->fVertices[ivert]);
       }
     }
-    time = timer.Stop();
-    std::cout << "Remove duplicates: " << time << " sec\n";
+    // time = timer.Stop();
+    // std::cout << "Remove duplicates: " << time << " sec\n";
 
-    timer.Start();
     // Clear vertices and store facet indices in the grid helper
+    // timer.Start();
     fHelper->ClearCells();
     unsigned ifacet = 0;
     for (auto facet : fFacets) {
@@ -260,11 +260,11 @@ public:
       //      }
       ifacet++;
     }
-    time = timer.Stop();
-    std::cout << "Store facets into grid: " << time << " sec\n";
+    // time = timer.Stop();
+    // std::cout << "Store facets into grid: " << time << " sec\n";
 
     // Make clusters
-    timer.Start();
+    // timer.Start();
     //    std::cout << "=== Using dummy clusters\n";
     //    CreateDummyClusters();
 
@@ -290,14 +290,14 @@ public:
       }
     }
 
-    time = timer.Stop();
-    std::cout << "Clusterizer: " << time << " sec\n";
+    // time = timer.Stop();
+    // std::cout << "Clusterizer: " << time << " sec\n";
 
     // Create navigation helper to be used in TessellatedImplementation
-    timer.Start();
+    // timer.Start();
     CreateABBoxes(); // to navigate, see: TestHybridBVH.cpp/HybridNavigator2.h/HybridSafetyEstimator.h
-    time = timer.Stop();
-    std::cout << "Create AABoxes: " << time << " sec\n";
+    // time = timer.Stop();
+    // std::cout << "Create AABoxes: " << time << " sec\n";
     // Generate random direction non-parallel to any of the surfaces
     constexpr T tolerance(1.e-8);
     while (1) {

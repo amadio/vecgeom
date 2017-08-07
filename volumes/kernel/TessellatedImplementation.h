@@ -127,6 +127,13 @@ struct TessellatedImplementation {
   VECCORE_ATT_HOST_DEVICE
   static void SafetyToIn(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point, Real_v &safety)
   {
+    using Bool_v = vecCore::Mask_v<Real_v>;
+    Bool_v inside;
+    TessellatedImplementation::Contains<Real_v, Bool_v>(tessellated, point, inside);
+    if (inside) {
+      safety = -1.;
+      return;
+    }
     int isurf;
     Real_v safetysq = SafetySq<Real_v, true>(tessellated, point, isurf);
     safety          = vecCore::math::Sqrt(safetysq);
@@ -137,6 +144,13 @@ struct TessellatedImplementation {
   VECCORE_ATT_HOST_DEVICE
   static void SafetyToOut(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point, Real_v &safety)
   {
+    using Bool_v = vecCore::Mask_v<Real_v>;
+    Bool_v inside;
+    TessellatedImplementation::Contains<Real_v, Bool_v>(tessellated, point, inside);
+    if (!inside) {
+      safety = -1.;
+      return;
+    }
     int isurf;
     Real_v safetysq = SafetySq<Real_v, false>(tessellated, point, isurf);
     safety          = vecCore::math::Sqrt(safetysq);
@@ -231,20 +245,20 @@ struct TessellatedImplementation {
     if (ToIn) {
       if (isurfToIn < 0) {
         if (isurfToOut >= 0 && distanceToOut * direction.Dot(tessellated.fFacets[isurfToOut]->fNormal) > kTolerance)
-          distance = 0.; // point inside or on boundary
+          distance = -1.; // point inside or on boundary
         // else not hitting, distance already inf
       } else {
         if (isurfToOut >= 0 && distanceToOut < distanceToIn)
-          distance = 0.; // point inside exiting first then re-entering
+          distance = -1.; // point inside exiting first then re-entering
         // else valid entry point, distance already set
       }
     } else {
       if (isurfToOut < 0)
-        distance = 0.; // point outside
+        distance = -1.; // point outside
       else {
         if (isurfToIn >= 0 && distanceToIn < distanceToOut &&
             distanceToIn * direction.Dot(tessellated.fFacets[isurfToIn]->fNormal) < -kTolerance) {
-          distance = 0.; // point outside (first entering then exiting)
+          distance = -1.; // point outside (first entering then exiting)
           isurf    = -1;
         }
       }

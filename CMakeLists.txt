@@ -1038,6 +1038,7 @@ set(TEST_EXECUTABLES_USOLIDS
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestGenTrap.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTube.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestHype.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTessellated.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTrd.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTrap.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestParallelepiped.cpp

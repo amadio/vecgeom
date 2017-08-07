@@ -60,10 +60,10 @@ int main(int argc, char *argv[])
     std::cout << "Usage: shape_testTessellated <-ngrid N>\n"
                  "       N - number of theta/phi segments for the sphere\n";
   }
-  OPTION_INT(npoints, 10000);
+  OPTION_INT(npoints, 1000);
   OPTION_BOOL(debug, false);
   OPTION_BOOL(stat, false);
-  OPTION_INT(ngrid, 20);
+  OPTION_INT(ngrid, 50);
 
   Tessellated_t *solid     = 0;
   solid                    = new Tessellated_t("test_VecGeomTessellated");
