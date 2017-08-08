@@ -957,8 +957,6 @@ set(TEST_EXECUTABLES_CORE
   ${CMAKE_SOURCE_DIR}/test/core/TestHybridBVH.cpp
   ${CMAKE_SOURCE_DIR}/test/core/TestEarlyReturns.cpp
   ${CMAKE_SOURCE_DIR}/test/core/CreateTessels.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/TestTessels.cpp
-  ${CMAKE_SOURCE_DIR}/test/core/BenchmarkTessels.cpp
 )
 
 
@@ -1170,6 +1168,7 @@ if (USolids)
   add_test(NAME USolidsTube COMMAND TestTube --usolids)
   add_test(NAME VecGeomTube COMMAND TestTube --vecgeom)
   add_test(NAME USolidsCone COMMAND TestCons --usolids)
+  add_test(NAME VecGeomTessellated COMMAND TestTessellated --vecgeom)
   add_test(NAME VecGeomCone COMMAND TestCons --vecgeom)
   add_test(NAME USolidsTrd COMMAND TestTrd --usolids)
   add_test(NAME VecGeomTrd COMMAND TestTrd --vecgeom)

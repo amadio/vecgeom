@@ -373,53 +373,55 @@ public:
     return distancesq;
   }
 
-  VECCORE_ATT_HOST_DEVICE
-  void DistanceToInScalar(Vector3D<T> const &point, Vector3D<T> const &direction, T const &stepMax, T &distance,
-                          int &isurf)
-  {
-    distance = InfinityLength<T>();
-    isurf    = -1;
-    T distfacet;
-    for (size_t i = 0; i < kVecSize; ++i) {
-      distfacet = fFacets[i]->DistanceToIn(point, direction, stepMax);
-      if (distfacet < distance) {
-        distance = distfacet;
-        isurf    = fIfacets[i];
+  /*
+    VECCORE_ATT_HOST_DEVICE
+    void DistanceToInScalar(Vector3D<T> const &point, Vector3D<T> const &direction, T const &stepMax, T &distance,
+                            int &isurf)
+    {
+      distance = InfinityLength<T>();
+      isurf    = -1;
+      T distfacet;
+      for (size_t i = 0; i < kVecSize; ++i) {
+        distfacet = fFacets[i]->DistanceToIn(point, direction, stepMax);
+        if (distfacet < distance) {
+          distance = distfacet;
+          isurf    = fIfacets[i];
+        }
       }
     }
-  }
 
-  VECCORE_ATT_HOST_DEVICE
-  void DistanceToOutScalar(Vector3D<T> const &point, Vector3D<T> const &direction, T const &stepMax, T &distance,
-                           int &isurf)
-  {
-    distance = InfinityLength<T>();
-    isurf    = -1;
-    T distfacet;
-    for (size_t i = 0; i < kVecSize; ++i) {
-      distfacet = fFacets[i]->DistanceToOut(point, direction, stepMax);
-      if (distfacet < distance) {
-        distance = distfacet;
-        isurf    = fIfacets[i];
+    VECCORE_ATT_HOST_DEVICE
+    void DistanceToOutScalar(Vector3D<T> const &point, Vector3D<T> const &direction, T const &stepMax, T &distance,
+                             int &isurf)
+    {
+      distance = InfinityLength<T>();
+      isurf    = -1;
+      T distfacet;
+      for (size_t i = 0; i < kVecSize; ++i) {
+        distfacet = fFacets[i]->DistanceToOut(point, direction, stepMax);
+        if (distfacet < distance) {
+          distance = distfacet;
+          isurf    = fIfacets[i];
+        }
       }
     }
-  }
 
-  template <bool ToIn>
-  VECCORE_ATT_HOST_DEVICE
-  T SafetySqScalar(Vector3D<T> const &point, int &isurf)
-  {
-    T distance = InfinityLength<T>();
-    T distfacet;
-    for (size_t i = 0; i < kVecSize; ++i) {
-      distfacet = fFacets[i]->template SafetySq<ToIn>(point, isurf);
-      if (distfacet < distance) {
-        distance = distfacet;
-        isurf    = fIfacets[i];
+    template <bool ToIn>
+    VECCORE_ATT_HOST_DEVICE
+    T SafetySqScalar(Vector3D<T> const &point, int &isurf)
+    {
+      T distance = InfinityLength<T>();
+      T distfacet;
+      for (size_t i = 0; i < kVecSize; ++i) {
+        distfacet = fFacets[i]->template SafetySq<ToIn>(point, isurf);
+        if (distfacet < distance) {
+          distance = distfacet;
+          isurf    = fIfacets[i];
+        }
       }
+      return distance;
     }
-    return distance;
-  }
+  */
 };
 
 std::ostream &operator<<(std::ostream &os, TessellatedCluster<typename vecgeom::VectorBackend::Real_v> const &tcl);
