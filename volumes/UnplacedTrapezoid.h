@@ -349,14 +349,14 @@ public:
 #else
 
   template <TranslationCode trans_code, RotationCode rot_code>
-  __device__
+  VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
                                const int id, VPlacedVolume *const placement = NULL);
 
-  __device__ VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
-                                              Transformation3D const *const transformation,
-                                              const TranslationCode trans_code, const RotationCode rot_code,
-                                              const int id, VPlacedVolume *const placement) const override;
+  VECCORE_ATT_DEVICE VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
+                                                      Transformation3D const *const transformation,
+                                                      const TranslationCode trans_code, const RotationCode rot_code,
+                                                      const int id, VPlacedVolume *const placement) const override;
 #endif
 
   // Note: use of ATan() makes this one slow -- to be avoided

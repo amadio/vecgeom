@@ -101,11 +101,11 @@ VPlacedVolume *UnplacedAssembly::SpecializedVolume(LogicalVolume const *const vo
   return new PlacedAssembly("", volume, transformation);
 }
 #else
-__device__ VPlacedVolume *UnplacedAssembly::SpecializedVolume(LogicalVolume const *const volume,
-                                                              Transformation3D const *const transformation,
-                                                              const TranslationCode trans_code,
-                                                              const RotationCode rot_code, const int id,
-                                                              VPlacedVolume *const placement) const
+VECCORE_ATT_DEVICE
+VPlacedVolume *UnplacedAssembly::SpecializedVolume(LogicalVolume const *const volume,
+                                                   Transformation3D const *const transformation,
+                                                   const TranslationCode trans_code, const RotationCode rot_code,
+                                                   const int id, VPlacedVolume *const placement) const
 {
   if (placement) {
     return new (placement) PlacedAssembly("", volume, transformation, nullptr, id);

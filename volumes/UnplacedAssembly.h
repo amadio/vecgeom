@@ -210,10 +210,10 @@ public:
                                            const TranslationCode trans_code, const RotationCode rot_code,
                                            VPlacedVolume *const placement = NULL) const override;
 #else
-  __device__ VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
-                                              Transformation3D const *const transformation,
-                                              const TranslationCode trans_code, const RotationCode rot_code,
-                                              const int id, VPlacedVolume *const placement) const override;
+  VECCORE_ATT_DEVICE VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
+                                                      Transformation3D const *const transformation,
+                                                      const TranslationCode trans_code, const RotationCode rot_code,
+                                                      const int id, VPlacedVolume *const placement) const override;
 #endif
 };
 }

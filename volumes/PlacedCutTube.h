@@ -40,8 +40,9 @@ public:
   {
   }
 #else
-  __device__ PlacedCutTube(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-                           PlacedBox const *const boundingBox, const int id)
+  VECCORE_ATT_DEVICE PlacedCutTube(LogicalVolume const *const logicalVolume,
+                                   Transformation3D const *const transformation, PlacedBox const *const boundingBox,
+                                   const int id)
       : Base(logicalVolume, transformation, boundingBox, id)
   {
   }

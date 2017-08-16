@@ -62,8 +62,9 @@ public:
   * @param halfzheight The half-height of the GenTrap
   * @param boundingBox Bounding box
   */
-  __device__ PlacedGenTrap(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-                           PlacedBox const *const boundingBox, const int id)
+  VECCORE_ATT_DEVICE PlacedGenTrap(LogicalVolume const *const logicalVolume,
+                                   Transformation3D const *const transformation, PlacedBox const *const boundingBox,
+                                   const int id)
       : Base(logicalVolume, transformation, boundingBox, id)
   {
   }

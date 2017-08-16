@@ -40,8 +40,9 @@ public:
   {
   }
 #else
-  __device__ PlacedBooleanVolume(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-                                 PlacedBox const *const boundingBox, const int id)
+  VECCORE_ATT_DEVICE PlacedBooleanVolume(LogicalVolume const *const logicalVolume,
+                                         Transformation3D const *const transformation,
+                                         PlacedBox const *const boundingBox, const int id)
       : VPlacedVolume(logicalVolume, transformation, boundingBox, id)
   {
   }

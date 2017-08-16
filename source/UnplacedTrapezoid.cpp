@@ -530,7 +530,7 @@ VPlacedVolume *UnplacedTrapezoid::SpecializedVolume(LogicalVolume const *const v
 #else
 
 template <TranslationCode trans_code, RotationCode rot_code>
-__device__
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedTrapezoid::Create(LogicalVolume const *const logical_volume,
                                          Transformation3D const *const transformation, const int id,
                                          VPlacedVolume *const placement)
@@ -542,11 +542,11 @@ VPlacedVolume *UnplacedTrapezoid::Create(LogicalVolume const *const logical_volu
   return new SpecializedTrapezoid<trans_code, rot_code>(logical_volume, transformation, id);
 }
 
-__device__ VPlacedVolume *UnplacedTrapezoid::SpecializedVolume(LogicalVolume const *const volume,
-                                                               Transformation3D const *const transformation,
-                                                               const TranslationCode trans_code,
-                                                               const RotationCode rot_code, const int id,
-                                                               VPlacedVolume *const placement) const
+VECCORE_ATT_DEVICE VPlacedVolume *UnplacedTrapezoid::SpecializedVolume(LogicalVolume const *const volume,
+                                                                       Transformation3D const *const transformation,
+                                                                       const TranslationCode trans_code,
+                                                                       const RotationCode rot_code, const int id,
+                                                                       VPlacedVolume *const placement) const
 {
   return VolumeFactory::CreateByTransformation<UnplacedTrapezoid>(volume, transformation, trans_code, rot_code, id,
                                                                   placement);

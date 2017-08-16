@@ -88,15 +88,15 @@ public:
 
 #else // Compiling for CUDA
 
-  __device__ ScalarShapeImplementationHelper(LogicalVolume const *const logical_volume,
-                                             Transformation3D const *const transformation,
-                                             PlacedBox const *const boundingBox, const int id)
+  VECCORE_ATT_DEVICE ScalarShapeImplementationHelper(LogicalVolume const *const logical_volume,
+                                                     Transformation3D const *const transformation,
+                                                     PlacedBox const *const boundingBox, const int id)
       : PlacedShape_t(logical_volume, transformation, boundingBox, id)
   {
   }
 
-  __device__ ScalarShapeImplementationHelper(LogicalVolume const *const logical_volume,
-                                             Transformation3D const *const transformation, const int id)
+  VECCORE_ATT_DEVICE ScalarShapeImplementationHelper(LogicalVolume const *const logical_volume,
+                                                     Transformation3D const *const transformation, const int id)
       : PlacedShape_t(logical_volume, transformation, details::UseIfSameType<PlacedShape_t, PlacedBox>::Get(this), id)
   {
   }

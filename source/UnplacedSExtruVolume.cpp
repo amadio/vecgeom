@@ -47,7 +47,7 @@ VPlacedVolume *UnplacedSExtruVolume::SpecializedVolume(LogicalVolume const *cons
 #else
 
 template <TranslationCode trans_code, RotationCode rot_code>
-__device__
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedSExtruVolume::Create(LogicalVolume const *const logical_volume,
                                             Transformation3D const *const transformation, const int id,
                                             VPlacedVolume *const placement)
@@ -59,11 +59,11 @@ VPlacedVolume *UnplacedSExtruVolume::Create(LogicalVolume const *const logical_v
   return new SpecializedSExtru<trans_code, rot_code>(logical_volume, transformation, id);
 }
 
-__device__ VPlacedVolume *UnplacedSExtruVolume::SpecializedVolume(LogicalVolume const *const volume,
-                                                                  Transformation3D const *const transformation,
-                                                                  const TranslationCode trans_code,
-                                                                  const RotationCode rot_code, const int id,
-                                                                  VPlacedVolume *const placement) const
+VECCORE_ATT_DEVICE VPlacedVolume *UnplacedSExtruVolume::SpecializedVolume(LogicalVolume const *const volume,
+                                                                          Transformation3D const *const transformation,
+                                                                          const TranslationCode trans_code,
+                                                                          const RotationCode rot_code, const int id,
+                                                                          VPlacedVolume *const placement) const
 {
   return VolumeFactory::CreateByTransformation<UnplacedSExtruVolume>(volume, transformation, trans_code, rot_code, id,
                                                                      placement);

@@ -41,8 +41,8 @@ public:
   {
   }
 #else
-  __device__ PlacedTrd(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-                       PlacedBox const *const boundingBox, const int id)
+  VECCORE_ATT_DEVICE PlacedTrd(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
+                               PlacedBox const *const boundingBox, const int id)
       : Base(logicalVolume, transformation, boundingBox, id)
   {
   }

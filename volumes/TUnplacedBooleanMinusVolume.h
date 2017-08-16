@@ -125,15 +125,15 @@ public:
 
 #else // for CUDA
   template <TranslationCode trans_code, RotationCode rot_code>
-  __device__
+  VECCORE_ATT_DEVICE
   static VPlacedVolume *Create(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
                                const int id, VPlacedVolume *const placement = NULL);
 
-  __device__ static VPlacedVolume *CreateSpecializedVolume(LogicalVolume const *const volume,
-                                                           Transformation3D const *const transformation,
-                                                           const TranslationCode trans_code,
-                                                           const RotationCode rot_code, const int id,
-                                                           VPlacedVolume *const placement = NULL);
+  VECCORE_ATT_DEVICE static VPlacedVolume *CreateSpecializedVolume(LogicalVolume const *const volume,
+                                                                   Transformation3D const *const transformation,
+                                                                   const TranslationCode trans_code,
+                                                                   const RotationCode rot_code, const int id,
+                                                                   VPlacedVolume *const placement = NULL);
 #endif
 
 private:
@@ -146,10 +146,11 @@ private:
     return CreateSpecializedVolume(volume, transformation, trans_code, rot_code, placement);
   }
 #else
-  __device__ virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
-                                                      Transformation3D const *const transformation,
-                                                      const TranslationCode trans_code, const RotationCode rot_code,
-                                                      const int id, VPlacedVolume *const placement = NULL) const
+  VECCORE_ATT_DEVICE virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
+                                                              Transformation3D const *const transformation,
+                                                              const TranslationCode trans_code,
+                                                              const RotationCode rot_code, const int id,
+                                                              VPlacedVolume *const placement = NULL) const
   {
     return CreateSpecializedVolume(volume, transformation, trans_code, rot_code, id, placement);
   }

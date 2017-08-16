@@ -79,10 +79,11 @@ VPlacedVolume *UnplacedTube::SpecializedVolume(LogicalVolume const *const volume
   return VolumeFactory::CreateByTransformation<UnplacedTube>(volume, transformation, trans_code, rot_code, placement);
 }
 #else
-__device__ VPlacedVolume *UnplacedTube::SpecializedVolume(LogicalVolume const *const volume,
-                                                          Transformation3D const *const transformation,
-                                                          const TranslationCode trans_code, const RotationCode rot_code,
-                                                          const int id, VPlacedVolume *const placement) const
+VECCORE_ATT_DEVICE VPlacedVolume *UnplacedTube::SpecializedVolume(LogicalVolume const *const volume,
+                                                                  Transformation3D const *const transformation,
+                                                                  const TranslationCode trans_code,
+                                                                  const RotationCode rot_code, const int id,
+                                                                  VPlacedVolume *const placement) const
 {
   return VolumeFactory::CreateByTransformation<UnplacedTube>(volume, transformation, trans_code, rot_code, id,
                                                              placement);

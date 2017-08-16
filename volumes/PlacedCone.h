@@ -44,8 +44,8 @@ public:
   {
   }
 #else
-  __device__ PlacedCone(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-                        PlacedBox const *const boundingBox, const int id)
+  VECCORE_ATT_DEVICE PlacedCone(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
+                                PlacedBox const *const boundingBox, const int id)
       : Base(logicalVolume, transformation, boundingBox, id)
   {
   }

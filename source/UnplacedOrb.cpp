@@ -135,7 +135,7 @@ VPlacedVolume *UnplacedOrb::SpecializedVolume(LogicalVolume const *const volume,
 #else
 
 template <TranslationCode trans_code, RotationCode rot_code>
-__device__
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedOrb::Create(LogicalVolume const *const logical_volume,
                                    Transformation3D const *const transformation, const int id,
                                    VPlacedVolume *const placement)
@@ -147,10 +147,11 @@ VPlacedVolume *UnplacedOrb::Create(LogicalVolume const *const logical_volume,
   return new SpecializedOrb<trans_code, rot_code>(logical_volume, transformation, id);
 }
 
-__device__ VPlacedVolume *UnplacedOrb::SpecializedVolume(LogicalVolume const *const volume,
-                                                         Transformation3D const *const transformation,
-                                                         const TranslationCode trans_code, const RotationCode rot_code,
-                                                         const int id, VPlacedVolume *const placement) const
+VECCORE_ATT_DEVICE
+VPlacedVolume *UnplacedOrb::SpecializedVolume(LogicalVolume const *const volume,
+                                              Transformation3D const *const transformation,
+                                              const TranslationCode trans_code, const RotationCode rot_code,
+                                              const int id, VPlacedVolume *const placement) const
 {
   return VolumeFactory::CreateByTransformation<UnplacedOrb>(volume, transformation, trans_code, rot_code, id,
                                                             placement);

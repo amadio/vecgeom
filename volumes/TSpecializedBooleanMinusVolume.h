@@ -44,9 +44,9 @@ public:
 
 #else
 
-  __device__ TSpecializedBooleanMinusVolume(LogicalVolume const *const logical_volume,
-                                            Transformation3D const *const transformation,
-                                            PlacedBox const *const boundingBox, const int id)
+  VECCORE_ATT_DEVICE TSpecializedBooleanMinusVolume(LogicalVolume const *const logical_volume,
+                                                    Transformation3D const *const transformation,
+                                                    PlacedBox const *const boundingBox, const int id)
       : Helper(logical_volume, transformation, boundingBox, id)
   {
   }

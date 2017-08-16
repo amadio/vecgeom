@@ -40,9 +40,9 @@ public:
 
 #else
 
-  __device__ PlacedParallelepiped(LogicalVolume const *const logical_volume,
-                                  Transformation3D const *const transformation, PlacedBox const *const boundingBox,
-                                  const int id)
+  VECCORE_ATT_DEVICE PlacedParallelepiped(LogicalVolume const *const logical_volume,
+                                          Transformation3D const *const transformation,
+                                          PlacedBox const *const boundingBox, const int id)
       : Base(logical_volume, transformation, boundingBox, id)
   {
   }

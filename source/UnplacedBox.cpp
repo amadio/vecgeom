@@ -70,7 +70,7 @@ VPlacedVolume *UnplacedBox::SpecializedVolume(LogicalVolume const *const volume,
 #else
 
 template <TranslationCode trans_code, RotationCode rot_code>
-__device__
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedBox::Create(LogicalVolume const *const logical_volume,
                                    Transformation3D const *const transformation, const int id,
                                    VPlacedVolume *const placement)
@@ -82,10 +82,11 @@ VPlacedVolume *UnplacedBox::Create(LogicalVolume const *const logical_volume,
   return new SpecializedBox<trans_code, rot_code>(logical_volume, transformation, id);
 }
 
-__device__ VPlacedVolume *UnplacedBox::SpecializedVolume(LogicalVolume const *const volume,
-                                                         Transformation3D const *const transformation,
-                                                         const TranslationCode trans_code, const RotationCode rot_code,
-                                                         const int id, VPlacedVolume *const placement) const
+VECCORE_ATT_DEVICE
+VPlacedVolume *UnplacedBox::SpecializedVolume(LogicalVolume const *const volume,
+                                              Transformation3D const *const transformation,
+                                              const TranslationCode trans_code, const RotationCode rot_code,
+                                              const int id, VPlacedVolume *const placement) const
 {
   return VolumeFactory::CreateByTransformation<UnplacedBox>(volume, transformation, trans_code, rot_code, id,
                                                             placement);

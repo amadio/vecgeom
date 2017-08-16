@@ -46,17 +46,14 @@ private:
 };
 
 template <typename VolumeType>
+VECCORE_ATT_DEVICE
+VPlacedVolume *VolumeFactory::CreateByTransformation(LogicalVolume const *const logical_volume,
+                                                     Transformation3D const *const transformation,
+                                                     const TranslationCode trans_code, const RotationCode rot_code,
 #ifdef VECCORE_CUDA
-__device__
+                                                     const int id,
 #endif
-    VPlacedVolume *
-    VolumeFactory::CreateByTransformation(LogicalVolume const *const logical_volume,
-                                          Transformation3D const *const transformation,
-                                          const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECCORE_CUDA
-                                          const int id,
-#endif
-                                          VPlacedVolume *const placement)
+                                                     VPlacedVolume *const placement)
 {
 
   (void)trans_code;

@@ -26,7 +26,8 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 // NOTE: This is in the wrong place (but SimpleSafetyEstimator does not yet have a source file).
 #ifdef VECCORE_CUDA
-__device__ SimpleSafetyEstimator *gSimpleSafetyEstimator = nullptr;
+VECCORE_ATT_DEVICE
+SimpleSafetyEstimator *gSimpleSafetyEstimator = nullptr;
 
 VECCORE_ATT_DEVICE
 VSafetyEstimator *SimpleSafetyEstimator::Instance()
@@ -37,7 +38,8 @@ VSafetyEstimator *SimpleSafetyEstimator::Instance()
 #endif
 
 #ifdef VECCORE_CUDA
-__device__ VNavigator *gSimpleNavigator = nullptr;
+VECCORE_ATT_DEVICE
+VNavigator *gSimpleNavigator = nullptr;
 
 template <>
 VECCORE_ATT_DEVICE

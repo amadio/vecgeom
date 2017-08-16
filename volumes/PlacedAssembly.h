@@ -29,9 +29,9 @@ public:
   {
   } // the constructor
 #else
-  __device__ PlacedAssembly(char const *const label, LogicalVolume const *const logical_volume,
-                            Transformation3D const *const transformation, PlacedBox const *const boundingBox,
-                            const int id)
+  VECCORE_ATT_DEVICE PlacedAssembly(char const *const label, LogicalVolume const *const logical_volume,
+                                    Transformation3D const *const transformation, PlacedBox const *const boundingBox,
+                                    const int id)
       : VPlacedVolume(logical_volume, transformation, nullptr, id)
   {
   }

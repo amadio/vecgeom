@@ -39,8 +39,8 @@ public:
   {
   }
 #else
-  __device__ PlacedOrb(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
-                       PlacedBox const *const boundingOrb, const int id)
+  VECCORE_ATT_DEVICE PlacedOrb(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
+                               PlacedBox const *const boundingOrb, const int id)
       : Base(logicalVolume, transformation, boundingOrb, id)
   {
   }

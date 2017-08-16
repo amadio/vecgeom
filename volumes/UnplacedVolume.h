@@ -225,10 +225,11 @@ private:
                                            VPlacedVolume *const placement = NULL) const = 0;
 
 #else
-  __device__ virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
-                                                      Transformation3D const *const transformation,
-                                                      const TranslationCode trans_code, const RotationCode rot_code,
-                                                      const int id, VPlacedVolume *const placement = NULL) const = 0;
+  VECCORE_ATT_DEVICE
+  virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
+                                           Transformation3D const *const transformation,
+                                           const TranslationCode trans_code, const RotationCode rot_code, const int id,
+                                           VPlacedVolume *const placement = NULL) const = 0;
 
 #endif
 };

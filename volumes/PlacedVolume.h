@@ -67,8 +67,8 @@ protected:
 
 #else
 
-  __device__ VPlacedVolume(LogicalVolume const *const logical_vol, Transformation3D const *const transformation,
-                           PlacedBox const *const boundingbox, unsigned int id)
+  VECCORE_ATT_DEVICE VPlacedVolume(LogicalVolume const *const logical_vol, Transformation3D const *const transformation,
+                                   PlacedBox const *const boundingbox, unsigned int id)
 #ifdef VECGEOM_INPLACE_TRANSFORMATIONS
       : logical_volume_(logical_vol), fTransformation(*transformation), bounding_box_(boundingbox), id_(id),
         label_(NULL)

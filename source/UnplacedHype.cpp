@@ -313,7 +313,7 @@ VPlacedVolume *UnplacedHype::Create(LogicalVolume const *const logical_volume,
 #else
 
 template <TranslationCode trans_code, RotationCode rot_code>
-__device__
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedHype::Create(LogicalVolume const *const logical_volume,
                                    Transformation3D const *const transformation, const int id,
                                    VPlacedVolume *const placement)

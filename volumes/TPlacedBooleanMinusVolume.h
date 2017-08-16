@@ -52,9 +52,9 @@ public:
 
 #else
 
-  __device__ TPlacedBooleanMinusVolume(LogicalVolume const *const logicalVolume,
-                                       Transformation3D const *const transformation, PlacedBox const *const boundingBox,
-                                       const int id)
+  VECCORE_ATT_DEVICE TPlacedBooleanMinusVolume(LogicalVolume const *const logicalVolume,
+                                               Transformation3D const *const transformation,
+                                               PlacedBox const *const boundingBox, const int id)
       : VPlacedVolume(logicalVolume, transformation, boundingBox, id)
   {
   }

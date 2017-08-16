@@ -38,8 +38,9 @@ public:
 
 #else
 
-  __device__ PlacedTorus2(LogicalVolume const *const logical_volume, Transformation3D const *const transformation,
-                          PlacedBox const *const boundingBox, const int id)
+  VECCORE_ATT_DEVICE PlacedTorus2(LogicalVolume const *const logical_volume,
+                                  Transformation3D const *const transformation, PlacedBox const *const boundingBox,
+                                  const int id)
       : VPlacedVolume(logical_volume, transformation, boundingBox, id)
   {
   }

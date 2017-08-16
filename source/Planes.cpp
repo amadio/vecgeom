@@ -10,10 +10,13 @@ Planes::Planes(int size) : fNormals(size), fDistances(size)
 }
 
 #ifdef VECCORE_CUDA
-__device__ Planes::Planes() : fNormals(), fDistances()
+VECCORE_ATT_DEVICE
+Planes::Planes() : fNormals(), fDistances()
 {
 }
-__device__ Planes::Planes(Precision *a, Precision *b, Precision *c, Precision *d, int size)
+
+VECCORE_ATT_DEVICE
+Planes::Planes(Precision *a, Precision *b, Precision *c, Precision *d, int size)
     : fNormals(a, b, c, size), fDistances(d, size)
 {
 }
