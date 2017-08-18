@@ -1,3 +1,5 @@
+#ifndef VECGEOM_ENABLE_CUDA
+
 #include <VecCore/VecCore>
 
 #include "test/benchmark/ArgParser.h"
@@ -153,10 +155,12 @@ void DrawCluster(TessellatedStruct<double> const &tsl, int icluster, Visualizer 
     ifacet++;
   }
 }
-#endif
+#endif // VECGEOM_ROOT
+#endif // VECGEOM_CUDA
 
 int main(int argc, char *argv[])
 {
+#ifndef VECGEOM_ENABLE_CUDA
   using namespace vecgeom;
   //  using Real_v = typename VectorBackend::Real_v;
 
@@ -291,6 +295,8 @@ int main(int argc, char *argv[])
 
     visualizer.AddPoints(pm);
     visualizer.Show();
+#endif
+    return 0;
   }
 
 #endif
