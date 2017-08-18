@@ -1,5 +1,5 @@
 /// @file PlacedTessellated.cpp
-/// @author Georgios Bitzes (georgios.bitzes@cern.ch)
+/// @author Mihaela Gheata (mihaela.gheata@cern.ch)
 
 #include "volumes/Tessellated.h"
 
@@ -68,7 +68,7 @@ G4VSolid const *PlacedTessellated::ConvertToGeant4() const
 
 #endif // VECCORE_CUDA
 
-} // End im%pl namespace
+} // End impl namespace
 
 #ifdef VECCORE_CUDA
 

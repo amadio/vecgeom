@@ -1,10 +1,11 @@
 #include <VecCore/VecCore>
 
-#include "volumes/TessellatedStruct.h"
-#include "volumes/kernel/TessellatedImplementation.h"
 #include "test/benchmark/ArgParser.h"
 #include "volumes/utilities/VolumeUtilities.h"
 #include "base/Stopwatch.h"
+#include "volumes/TessellatedStruct.h"
+#include "volumes/kernel/TessellatedImplementation.h"
+#include "test/core/TessellatedOrb.h"
 
 #ifdef VECGEOM_ROOT
 #include "utilities/Visualizer.h"
@@ -28,12 +29,6 @@
 using namespace vecgeom;
 using Real_v = vecgeom::VectorBackend::Real_v;
 
-double r    = 10.;
-double *sth = nullptr;
-double *cth = nullptr;
-double *sph = nullptr;
-double *cph = nullptr;
-
 void RandomDirection(Vector3D<double> &direction)
 {
   double phi    = RNG::Instance().uniform(0., 2. * kPi);
@@ -47,12 +42,6 @@ void RandomPointInBBox(Vector3D<double> &point, TessellatedStruct<double> const 
 {
   Vector3D<double> rnd(RNG::Instance().uniform(0, 1), RNG::Instance().uniform(0, 1), RNG::Instance().uniform(0, 1));
   point = tsl.fMinExtent + rnd * (tsl.fMaxExtent - tsl.fMinExtent);
-}
-
-VECGEOM_FORCE_INLINE
-Vector3D<double> Vtx(int ith, int iph)
-{
-  return Vector3D<double>(r * sth[ith] * cph[iph], r * sth[ith] * sph[iph], r * cth[ith]);
 }
 
 #ifdef VECGEOM_ROOT
@@ -166,42 +155,6 @@ void DrawCluster(TessellatedStruct<double> const &tsl, int icluster, Visualizer 
 }
 #endif
 
-int CreateTessellated(int ngrid, TessellatedStruct<double> &tsl)
-{
-  // Create a tessellated sphere divided in ngrid*ngrid theta/phi cells
-  // Sin/Cos tables
-  double dth = kPi / ngrid;
-  double dph = kTwoPi / ngrid;
-  sth        = new double[ngrid + 1];
-  cth        = new double[ngrid + 1];
-  sph        = new double[ngrid + 1];
-  cph        = new double[ngrid + 1];
-
-  for (int i = 0; i <= ngrid; ++i) {
-    sth[i] = vecCore::math::Sin(i * dth);
-    cth[i] = vecCore::math::Cos(i * dth);
-    sph[i] = vecCore::math::Sin(i * dph);
-    cph[i] = vecCore::math::Cos(i * dph);
-  }
-  for (int ith = 0; ith < ngrid; ++ith) {
-    for (int iph = 0; iph < ngrid; ++iph) {
-      // First/last rows - > triangles
-      if (ith == 0) {
-        tsl.AddTriangularFacet(Vector3D<double>(0, 0, r), Vtx(ith + 1, iph), Vtx(ith + 1, iph + 1));
-      } else if (ith == ngrid - 1) {
-        tsl.AddTriangularFacet(Vtx(ith, iph), Vector3D<double>(0, 0, -r), Vtx(ith, iph + 1));
-      } else {
-        tsl.AddQuadrilateralFacet(Vtx(ith, iph), Vtx(ith + 1, iph), Vtx(ith + 1, iph + 1), Vtx(ith, iph + 1));
-      }
-    }
-  }
-  delete[] sth;
-  delete[] cth;
-  delete[] sph;
-  delete[] cph;
-  return int(tsl.fFacets.size());
-}
-
 int main(int argc, char *argv[])
 {
   using namespace vecgeom;
@@ -212,8 +165,7 @@ int main(int argc, char *argv[])
 #ifdef VECGEOM_ROOT
   OPTION_INT(vis, 0);
   OPTION_INT(scalability, 0);
-  double distance, dother;
-  int ifacet, ifacetother;
+  constexpr double r = 10.;
   int ngrid1         = 10;
   int i              = 0;
   const double sqrt2 = vecCore::math::Sqrt(2.);
@@ -230,8 +182,9 @@ int main(int argc, char *argv[])
   if (scalability) {
     gtime = new TGraph(14);
     while (ngrid1 < 1000) {
-      TessellatedStruct<double> *tsl1 = new TessellatedStruct<double>();
-      int nfacets1                    = CreateTessellated(ngrid1, *tsl1);
+      SimpleTessellated *stsl   = new SimpleTessellated("test_VecGeomTessellated");
+      UnplacedTessellated *tsl1 = (UnplacedTessellated *)stsl->GetUnplacedVolume();
+      int nfacets1              = TessellatedOrb(r, ngrid1, *tsl1);
       // Close the solid
       Stopwatch timer;
       timer.Start();
@@ -241,8 +194,7 @@ int main(int argc, char *argv[])
       // Check Distance performance
       timer.Start();
       for (int i = 0; i < npoints; ++i)
-        TessellatedImplementation::DistanceToSolid<double, false>(*tsl1, start, dirs[i], InfinityLength<double>(),
-                                                                  distance, ifacet, dother, ifacetother);
+        stsl->DistanceToIn(start, dirs[i]);
       double trun = timer.Stop();
       printf("n=%d ngrid=%d nfacets=%d  build time=%g run time=%g\n", i, ngrid1, nfacets1, tbuild, trun);
       delete tsl1;
@@ -250,9 +202,11 @@ int main(int argc, char *argv[])
     }
   }
 #endif
-  TessellatedStruct<double> tsl;
-  CreateTessellated(ngrid, tsl);
-  tsl.Close();
+  SimpleTessellated *stsl1             = new SimpleTessellated("test_VecGeomTessellated");
+  UnplacedTessellated *utsl            = (UnplacedTessellated *)stsl1->GetUnplacedVolume();
+  TessellatedStruct<double> const &tsl = utsl->GetStruct();
+  TessellatedOrb(r, ngrid, *utsl);
+  utsl->Close();
   std::cout << "=== Tessellated solid statistics: nfacets = " << tsl.fFacets.size()
             << "  nclusters = " << tsl.fClusters.size() << "  kVecSize = " << kVecSize << std::endl;
   std::cout << "    cluster distribution: ";

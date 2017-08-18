@@ -286,9 +286,9 @@ struct TessellatedImplementation {
       return false;
     };
 
-    HybridNavigator<> *boxNav = (HybridNavigator<> *)HybridNavigator<>::Instance();
+    HybridSafetyEstimator *safEstimator = (HybridSafetyEstimator *)HybridSafetyEstimator::Instance();
     // Use the BVH structure and connect hook
-    boxNav->BVHSortedSafetyLooper(*tessellated.fNavHelper, point, userhook, safetysq);
+    safEstimator->BVHSortedSafetyLooper(*tessellated.fNavHelper, point, userhook, safetysq);
     return safetysq;
   }
 

@@ -1,56 +1,12 @@
 #ifndef VECGEOM_ENABLE_CUDA
 
-#include "../benchmark/ArgParser.h"
+#include "test/benchmark/ArgParser.h"
 #include "ShapeTester.h"
 #include "volumes/Tessellated.h"
-typedef vecgeom::SimpleTessellated Tessellated_t;
+#include "test/core/TessellatedOrb.h"
 
 using namespace vecgeom;
-
-constexpr double r = 10.;
-double *sth, *cth, *sph, *cph;
-
-VECGEOM_FORCE_INLINE
-Vector3D<double> Vtx(int ith, int iph)
-{
-  return Vector3D<double>(r * sth[ith] * cph[iph], r * sth[ith] * sph[iph], r * cth[ith]);
-}
-
-size_t CreateTessellated(int ngrid, UnplacedTessellated &tsl)
-{
-  // Create a tessellated sphere divided in ngrid*ngrid theta/phi cells
-  // Sin/Cos tables
-  double dth = kPi / ngrid;
-  double dph = kTwoPi / ngrid;
-  sth        = new double[ngrid + 1];
-  cth        = new double[ngrid + 1];
-  sph        = new double[ngrid + 1];
-  cph        = new double[ngrid + 1];
-
-  for (int i = 0; i <= ngrid; ++i) {
-    sth[i] = vecCore::math::Sin(i * dth);
-    cth[i] = vecCore::math::Cos(i * dth);
-    sph[i] = vecCore::math::Sin(i * dph);
-    cph[i] = vecCore::math::Cos(i * dph);
-  }
-  for (int ith = 0; ith < ngrid; ++ith) {
-    for (int iph = 0; iph < ngrid; ++iph) {
-      // First/last rows - > triangles
-      if (ith == 0) {
-        tsl.AddTriangularFacet(Vector3D<double>(0, 0, r), Vtx(ith + 1, iph), Vtx(ith + 1, iph + 1));
-      } else if (ith == ngrid - 1) {
-        tsl.AddTriangularFacet(Vtx(ith, iph), Vector3D<double>(0, 0, -r), Vtx(ith, iph + 1));
-      } else {
-        tsl.AddQuadrilateralFacet(Vtx(ith, iph), Vtx(ith + 1, iph), Vtx(ith + 1, iph + 1), Vtx(ith, iph + 1));
-      }
-    }
-  }
-  delete[] sth;
-  delete[] cth;
-  delete[] sph;
-  delete[] cph;
-  return (tsl.GetNFacets());
-}
+using Tessellated_t = vecgeom::SimpleTessellated;
 #endif
 
 int main(int argc, char *argv[])
@@ -64,11 +20,12 @@ int main(int argc, char *argv[])
   OPTION_BOOL(debug, false);
   OPTION_BOOL(stat, false);
   OPTION_INT(ngrid, 50);
+  constexpr double r = 10.;
 
   Tessellated_t *solid     = 0;
   solid                    = new Tessellated_t("test_VecGeomTessellated");
   UnplacedTessellated *tsl = (UnplacedTessellated *)solid->GetUnplacedVolume();
-  size_t nfacets           = CreateTessellated(ngrid, *tsl);
+  size_t nfacets           = TessellatedOrb(r, ngrid, *tsl);
   std::cout << "Testing tessellated sphere with ngrid = " << ngrid << " (nfacets=" << nfacets << ")\n";
   tsl->Close();
 

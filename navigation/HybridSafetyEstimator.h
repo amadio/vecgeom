@@ -38,6 +38,21 @@ private:
   }
 
 public:
+  // a simple sort class (based on insertionsort)
+  template <typename T> //, typename Cmp>
+  static void insertionsort(T *arr, unsigned int N)
+  {
+    for (unsigned short i = 1; i < N; ++i) {
+      T value    = arr[i];
+      short hole = i;
+
+      for (; hole > 0 && value.second < arr[hole - 1].second; --hole)
+        arr[hole] = arr[hole - 1];
+
+      arr[hole] = value;
+    }
+  }
+
   // helper structure to find the candidate set for safety calculations
   size_t GetSafetyCandidates_v(HybridManager2::HybridBoxAccelerationStructure const &accstructure,
                                Vector3D<Precision> const &point, HybridManager2::BoxIdDistancePair_t *boxsafetypairs,
@@ -74,6 +89,104 @@ public:
       }
     }
     return count;
+  }
+
+  // Improved safety estimator that can dynamically reduce the upper search limit.
+  // Internally calls ABBoxSafetyRangeSqr that besides validating a candidate
+  // if closer than the limit, it also gives the upper limit for the range where
+  // the candidate can be surely found. This allows to update the search limit after
+  // each check, giving much less final candidates.
+  //
+  //         current checked
+  //         box  _________
+  // point       |         |          upper_limit
+  //   x---------|candidate|----------|
+  //             |_________|
+  //   |-------------------|
+  //                       updated upper_limit
+
+  size_t GetSafetyCandidates2_v(HybridManager2::HybridBoxAccelerationStructure const &accstructure,
+                                Vector3D<Precision> const &point, HybridManager2::BoxIdDistancePair_t *hitlist,
+                                Precision upper_squared_limit) const
+  {
+    using Float_v = vecgeom::VectorBackend::Float_v;
+    size_t count  = 0;
+    int numberOfNodes, size;
+    auto boxes_v                = fAccelerationStructureManager.GetABBoxes_v(accstructure, size, numberOfNodes);
+    constexpr auto kVS          = vecCore::VectorSize<HybridManager2::Float_v>();
+    auto const *nodeToDaughters = accstructure.fNodeToDaughters;
+
+    Vector3D<float> pointfloat((float)point.x(), (float)point.y(), (float)point.z());
+
+    // Loop internal nodes (internal node = kVS clusters)
+    for (size_t index = 0, nodeindex = 0; index < size_t(size) * 2; index += 2 * (kVS + 1), nodeindex += kVS) {
+      // index = start index for internal node
+      // nodeindex = cluster index
+      Float_v distmaxsqr; // Maximum distance that may still touch the box
+      Float_v safetytonodesqr =
+          ABBoxImplementation::ABBoxSafetyRangeSqr(boxes_v[index], boxes_v[index + 1], pointfloat, distmaxsqr);
+      // Find minimum of distmaxsqr
+      for (size_t i = 0; i < kVS; ++i) {
+        Precision distmaxsqr_s                                      = vecCore::LaneAt(distmaxsqr, i);
+        if (distmaxsqr_s < upper_squared_limit) upper_squared_limit = distmaxsqr_s;
+      }
+      auto hit = safetytonodesqr < ABBoxManager::Real_t(upper_squared_limit);
+      if (!vecCore::MaskEmpty(hit)) {
+        for (size_t i = 0; i < kVS; ++i) {
+          if (vecCore::MaskLaneAt(hit, i)) {
+            Float_v safetytoboxsqr = ABBoxImplementation::ABBoxSafetyRangeSqr(
+                boxes_v[index + 2 * (i + 1)], boxes_v[index + 2 * (i + 1) + 1], pointfloat, distmaxsqr);
+
+            auto hit1 = safetytoboxsqr < ABBoxManager::Real_t(upper_squared_limit);
+            if (!vecCore::MaskEmpty(hit1)) {
+              // loop bounding boxes in the cluster
+              for (size_t j = 0; j < kVS; ++j) {
+                if (vecCore::MaskLaneAt(hit1, j)) {
+                  assert(count < VECGEOM_MAXDAUGHTERS);
+                  hitlist[count] = HybridManager2::BoxIdDistancePair_t(nodeToDaughters[nodeindex + i][j],
+                                                                       vecCore::LaneAt(safetytoboxsqr, j));
+                  Precision distmaxsqr_s = vecCore::LaneAt(distmaxsqr, j);
+                  // Reduce the upper limit
+                  if (distmaxsqr_s < upper_squared_limit) upper_squared_limit = distmaxsqr_s;
+                  count++;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return count;
+  }
+
+  template <typename AccStructure, typename Func>
+  VECGEOM_FORCE_INLINE
+  void BVHSortedSafetyLooper(AccStructure const &accstructure, Vector3D<Precision> const &localpoint, Func &&userhook,
+                             Precision upper_squared_limit) const
+  {
+    // The following construct reserves stackspace for objects
+    // of type IdDistPair_t WITHOUT initializing those objects
+    using IdDistPair_t = HybridManager2::BoxIdDistancePair_t;
+    char stackspace[VECGEOM_MAXDAUGHTERS * sizeof(IdDistPair_t)];
+    IdDistPair_t *hitlist = reinterpret_cast<IdDistPair_t *>(&stackspace);
+
+    // Get candidates using HybridSafetyEstimator
+    //    HybridSafetyEstimator *hse = static_cast<HybridSafetyEstimator*>(HybridSafetyEstimator::Instance());
+    //    auto ncandidates = hse->GetSafetyCandidates_v(accstructure, localpoint, hitlist, upper_squared_limit);
+
+    // Get candidates in vectorized mode
+    auto ncandidates = GetSafetyCandidates2_v(accstructure, localpoint, hitlist, upper_squared_limit);
+
+    // sort candidates according to their bounding volume safety distance
+    insertionsort(hitlist, ncandidates);
+
+    for (size_t index = 0; index < ncandidates; ++index) {
+      auto hitbox = hitlist[index];
+      // here we got the hit candidates
+      // now we execute user specific code to process this "hitbox"
+      auto done = userhook(hitbox);
+      if (done) break;
+    }
   }
 
   static constexpr const char *gClassNameString = "HybridSafetyEstimator";

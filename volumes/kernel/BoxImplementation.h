@@ -361,7 +361,6 @@ struct BoxImplementation {
     tmin = Max(tmin, tzmin);
     tmax = Min(tmax, tzmax);
 
-    // Added tolerance check since candidates may be missed by HybridNavigator2
     done |= !((tmin <= Real_v(t1 + kTolerance)) && (tmax > Real_v(t0 - kTolerance)));
     // if( ! ((tmin < t1) && (tmax > t0)) )
     //     return vecgeom::kInfLength;
