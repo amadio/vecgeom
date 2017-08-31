@@ -29,7 +29,7 @@ class TessellatedStruct {
 
   // Here we should be able to use vecgeom::Vector
   template <typename U>
-  using vector_t = std::vector<U>;
+  using vector_t = vecgeom::Vector<U>;
 
   using BVHStructure = HybridManager2::HybridBoxAccelerationStructure;
 
@@ -278,8 +278,8 @@ public:
     TessellatedCluster<Real_v> *cluster;
     while (fCandidates.size()) {
       // Use existing candidates in fCandidates to create the cluster
-      cluster               = CreateCluster();
-      if (!cluster) cluster = MakePartialCluster();
+      cluster = CreateCluster();
+      if (!cluster) cluster= MakePartialCluster();
       fClusters.push_back(cluster);
       // Fill cluster from the same cell or from a neighbor cell
       if (!fCandidates.size()) {
@@ -541,7 +541,7 @@ public:
   }
 
 }; // end class
-}
-} // end namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif
