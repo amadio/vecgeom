@@ -169,11 +169,11 @@ int main(int argc, char *argv[])
 #ifdef VECGEOM_ROOT
   OPTION_INT(vis, 0);
   OPTION_INT(scalability, 0);
-  constexpr double r = 10.;
   int ngrid1         = 10;
   int i              = 0;
   const double sqrt2 = vecCore::math::Sqrt(2.);
 #endif
+  constexpr double r = 10.;
   Vector3D<double> start(0, 0, 0);
   Vector3D<double> point;
 
@@ -295,10 +295,9 @@ int main(int argc, char *argv[])
 
     visualizer.AddPoints(pm);
     visualizer.Show();
-#endif
     return 0;
   }
-
+#endif // VECGEOM_ROOT
 #endif
 
   return 0;
