@@ -137,7 +137,7 @@ public:
     Real_v safety(0.);
     if (!vecCore::MaskEmpty(m)) {
       // SIMD safety to mother
-      safety               = pvol->SafetyToOut(localpoint);
+      safety                    = pvol->SafetyToOut(localpoint);
       LogicalVolume const *lvol = pvol->GetLogicalVolume();
       // now loop over the voxelized treatment of safety to in
       for (unsigned int i = 0; i < VECGEOM_BACKEND_PRECISION_TYPE_SIZE; ++i) {
