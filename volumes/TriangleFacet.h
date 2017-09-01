@@ -148,7 +148,7 @@ struct TriangleFacet {
 
   template <bool ToIn>
   VECCORE_ATT_HOST_DEVICE
-  T SafetySq(Vector3D<Precision> const &point, int &isurf) const
+  T SafetySq(Vector3D<Precision> const &point) const
   {
     T safety = DistPlane(point);
     // Find the projection of the point on each plane

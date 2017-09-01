@@ -74,10 +74,10 @@ public:
           if (vecCore::MaskLaneAt(closer, i)) {
             safetytoboxsqr =
                 ABBoxImplementation::ABBoxSafetySqr(boxes_v[index + 2 * i + 2], boxes_v[index + 2 * i + 3], pointfloat);
-            auto closer = safetytoboxsqr < HybridManager2::Float_v(upper_squared_limit);
-            if (!vecCore::MaskEmpty(closer)) {
+            auto closer1 = safetytoboxsqr < HybridManager2::Float_v(upper_squared_limit);
+            if (!vecCore::MaskEmpty(closer1)) {
               for (size_t j = 0 /*closer.firstOne()*/; j < kVS; ++j) { // leaf node
-                if (vecCore::MaskLaneAt(closer, j)) {
+                if (vecCore::MaskLaneAt(closer1, j)) {
                   boxsafetypairs[count] = HybridManager2::BoxIdDistancePair_t(nodeToDaughters[nodeindex + i][j],
                                                                               vecCore::LaneAt(safetytoboxsqr, j));
                   count++;
@@ -201,7 +201,7 @@ public:
     Real_v safety(0.);
     if (!vecCore::MaskEmpty(m)) {
       // SIMD safety to mother
-      auto safety = pvol->SafetyToOut(localpoint);
+      safety = pvol->SafetyToOut(localpoint);
 
       LogicalVolume const *lvol = pvol->GetLogicalVolume();
       // now loop over the voxelized treatment of safety to in
@@ -242,9 +242,9 @@ public:
       for (unsigned int candidate = 0; candidate < ncandidates; ++candidate) {
         auto boxsafetypair = boxsafetylist[candidate];
         if (boxsafetypair.second < safetysqr) {
-          VPlacedVolume const *candidate = LookupDaughter(lvol, boxsafetypair.first);
+          VPlacedVolume const *cand = LookupDaughter(lvol, boxsafetypair.first);
           if (size_t(boxsafetypair.first) > lvol->GetDaughtersp()->size()) break;
-          auto candidatesafety = candidate->SafetyToIn(localpoint);
+          auto candidatesafety = cand->SafetyToIn(localpoint);
 #ifdef VERBOSE
           if (candidatesafety * candidatesafety > boxsafetypair.second && boxsafetypair.second > 0)
             std::cerr << "real safety smaller than boxsafety \n";

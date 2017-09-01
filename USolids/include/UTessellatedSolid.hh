@@ -131,8 +131,8 @@ public:
   }
   bool GetSolidClosed() const { return IsClosed(); }
 
-  inline virtual void GetParametersList(int /*aNumber*/, double * /*aArray*/) const {}
-  inline virtual void ComputeBBox(UBBox * /*aBox*/, bool /*aStore = false*/) {}
+  inline virtual void GetParametersList(int /*aNumber*/, double * /*aArray*/) const override {}
+  inline virtual void ComputeBBox(UBBox * /*aBox*/, bool /*aStore = false*/) override {}
   std::ostream &StreamInfo(std::ostream &os) const override
   {
     int oldprc = os.precision(16);
@@ -151,7 +151,7 @@ public:
      available in vecgeom tessellated solid and will crash if called */
   inline UVoxelizer &GetVoxels() { return *(UVoxelizer *)(nullptr); }
 
-  virtual VUSolid *Clone() const
+  virtual VUSolid *Clone() const override
   {
     UTessellatedSolid *clone = new UTessellatedSolid(GetName().c_str());
     // ... copy/construct data

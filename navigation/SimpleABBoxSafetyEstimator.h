@@ -88,9 +88,9 @@ private:
       for (unsigned int candidate = 0; candidate < ncandidates; ++candidate) {
         auto boxsafetypair = boxsafetylist[candidate];
         if (boxsafetypair.second < safetysqr) {
-          VPlacedVolume const *candidate = LookupDaughter(lvol, boxsafetypair.first);
+          VPlacedVolume const *cand = LookupDaughter(lvol, boxsafetypair.first);
           if (boxsafetypair.first > lvol->GetDaughtersp()->size()) break;
-          auto candidatesafety = candidate->SafetyToIn(localpoint);
+          auto candidatesafety = cand->SafetyToIn(localpoint);
 #ifdef VERBOSE
           if (candidatesafety * candidatesafety > boxsafetypair.second && boxsafetypair.second > 0)
             std::cerr << "real safety smaller than boxsafety \n";
@@ -137,7 +137,7 @@ public:
     Real_v safety(0.);
     if (!vecCore::MaskEmpty(m)) {
       // SIMD safety to mother
-      auto safety               = pvol->SafetyToOut(localpoint);
+      safety               = pvol->SafetyToOut(localpoint);
       LogicalVolume const *lvol = pvol->GetLogicalVolume();
       // now loop over the voxelized treatment of safety to in
       for (unsigned int i = 0; i < VECGEOM_BACKEND_PRECISION_TYPE_SIZE; ++i) {
@@ -189,9 +189,9 @@ public:
         for (unsigned int candidate = 0; candidate < ncandidates; ++candidate) {
           auto boxsafetypair = boxsafetylist[candidate];
           if (boxsafetypair.second < safetysqr) {
-            VPlacedVolume const *candidate = LookupDaughter(lvol, boxsafetypair.first);
+            VPlacedVolume const *cand = LookupDaughter(lvol, boxsafetypair.first);
             if (boxsafetypair.first > lvol->GetDaughtersp()->size()) break;
-            auto candidatesafety = candidate->SafetyToIn(lpoint);
+            auto candidatesafety = cand->SafetyToIn(lpoint);
 #ifdef VERBOSE
             if (candidatesafety * candidatesafety > boxsafetypair.second && boxsafetypair.second > 0)
               std::cerr << "real safety smaller than boxsafety \n";
