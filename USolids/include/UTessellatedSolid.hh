@@ -149,7 +149,7 @@ public:
 
   /* This function from the UTessellatedSolid interface exposes internals not
      available in vecgeom tessellated solid and will crash if called */
-  inline UVoxelizer &GetVoxels() { return *(UVoxelizer *)(nullptr); }
+  //  inline UVoxelizer &GetVoxels() { return *(UVoxelizer *)(nullptr); }
 
   virtual VUSolid *Clone() const override
   {
