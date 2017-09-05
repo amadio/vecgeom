@@ -19,14 +19,42 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 namespace Internal {
 template <typename T>
 struct AllocTrait {
+
+  // Allocate raw buffer to hold the element.
+  VECCORE_ATT_HOST_DEVICE
+  static T *Allocate(size_t nElems) { return reinterpret_cast<T *>(new char[nElems * sizeof(T)]); }
+
+  // Release raw buffer to hold the element.
+  VECCORE_ATT_HOST_DEVICE
+  static void Deallocate(T *startBuffer) { delete[]((char *)startBuffer); }
+
   VECCORE_ATT_HOST_DEVICE
   static void Destroy(T &obj) { obj.~T(); };
+
+  VECCORE_ATT_HOST_DEVICE
+  static void Destroy(T *arr, size_t nElem)
+  {
+    for (size_t i = 0; i < nElem; ++i)
+      Destroy(arr[i]);
+  }
 };
 
 template <typename T>
 struct AllocTrait<T *> {
+
+  // Allocate raw buffer to hold the element.
+  VECCORE_ATT_HOST_DEVICE
+  static T **Allocate(size_t nElems) { return reinterpret_cast<T **>(new char[nElems * sizeof(T *)]); }
+
+  // Release raw buffer to hold the element.
+  VECCORE_ATT_HOST_DEVICE
+  static void Deallocate(T **startBuffer) { delete[]((char *)startBuffer); }
+
   VECCORE_ATT_HOST_DEVICE
   static void Destroy(T *&) {}
+
+  VECCORE_ATT_HOST_DEVICE
+  static void Destroy(T ** /*arr*/, size_t /*nElem*/) {}
 };
 }
 
@@ -45,7 +73,7 @@ public:
   Vector() : Vector(5) {}
 
   VECCORE_ATT_HOST_DEVICE
-  Vector(const int maxsize) : fData(nullptr), fSize(0), fMemorySize(0), fAllocated(true) { reserve(maxsize); }
+  Vector(size_t maxsize) : fData(nullptr), fSize(0), fMemorySize(0), fAllocated(true) { reserve(maxsize); }
 
   VECCORE_ATT_HOST_DEVICE
   Vector(Type *const vec, const int sz) : fData(vec), fSize(sz), fMemorySize(sz), fAllocated(false) {}
@@ -59,9 +87,9 @@ public:
   VECCORE_ATT_HOST_DEVICE
   Vector(Vector const &other) : fSize(other.fSize), fMemorySize(other.fMemorySize), fAllocated(true)
   {
-    fData = new Type[fMemorySize];
+    fData = Internal::AllocTrait<Type>::Allocate(fMemorySize);
     for (size_t i = 0; i < fSize; ++i)
-      fData[i]    = other.fData[i];
+      new (&fData[i]) Type(other.fData[i]);
   }
 
   VECCORE_ATT_HOST_DEVICE
@@ -79,7 +107,7 @@ public:
   Vector(std::initializer_list<Type> entries)
   {
     fSize       = entries.size();
-    fData       = new Type[fSize];
+    fData       = Internal::AllocTrait<Type>::Allocate(fSize);
     fAllocated  = true;
     fMemorySize = entries.size() * sizeof(Type);
     for (auto itm : entries)
@@ -89,16 +117,13 @@ public:
   VECCORE_ATT_HOST_DEVICE
   ~Vector()
   {
-    if (fAllocated) delete[] fData;
+    if (fAllocated) Internal::AllocTrait<Type>::Deallocate(fData);
   }
 
   VECCORE_ATT_HOST_DEVICE
   void clear()
   {
-    if (fAllocated) {
-      for (size_t i = 0; i < fSize; ++i)
-        Internal::AllocTrait<Type>::Destroy(fData[i]);
-    }
+    Internal::AllocTrait<Type>::Destroy(fData, fSize);
     fSize = 0;
   }
 
@@ -174,10 +199,13 @@ public:
     if (newsize <= fMemorySize) {
       // Do nothing ...
     } else {
-      Type *newdata = (Type *)new char[newsize * sizeof(Type)];
+      Type *newdata = Internal::AllocTrait<Type>::Allocate(newsize);
       for (size_t i = 0; i < fSize; ++i)
         new (&newdata[i]) Type(fData[i]);
-      if (fAllocated) delete[] fData;
+      Internal::AllocTrait<Type>::Destroy(fData, fSize);
+      if (fAllocated) {
+        Internal::AllocTrait<Type>::Deallocate(fData);
+      }
       fData       = newdata;
       fMemorySize = newsize;
       fAllocated  = true;
