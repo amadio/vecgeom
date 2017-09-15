@@ -90,10 +90,6 @@ public:
   }
   /// @}
 
-  /// \brief Assignment operator
-  VECCORE_ATT_HOST_DEVICE
-  TrapezoidStruct &operator=(TrapezoidStruct const &other);
-
   /// \brief Destructor
   VECCORE_ATT_HOST_DEVICE
   virtual ~TrapezoidStruct() {}
