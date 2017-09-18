@@ -23,6 +23,9 @@ VECGEOM_DEVICE_FORWARD_DECLARE(template <typename T> class LorentzVector;);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+template <typename T>
+class LorentzRotation;
+
 /**
  * @brief Lorentz dimensional vector class supporting most arithmetic operations.
  * @details If vector acceleration is enabled, the scalar template instantiation
@@ -47,7 +50,7 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  LorentzVector(const T a) : fVec{0, 0, 0, 0} {}
+  LorentzVector(const T a) : fVec{a, a, a, a} {}
 
   template <typename U>
   VECGEOM_FORCE_INLINE
@@ -76,6 +79,8 @@ public:
     return *this;
   }
 
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
   operator Vector3D<T> &() { return reinterpret_cast<Vector3D<T> &>(*this); }
 
   /**
@@ -149,6 +154,58 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
+  T &px() { return fVec[0]; }
+
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  T const &px() const { return fVec[0]; }
+
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  T &py() { return fVec[1]; }
+
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  T const &py() const { return fVec[1]; }
+
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  T &pz() { return fVec[2]; }
+
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  T const &pz() const { return fVec[2]; }
+
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  T &e() { return fVec[3]; }
+
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  T const e() const { return fVec[3]; }
+
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  T const m2() const { return Mag2(); }
+
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  T const m() const { return Mag(); }
+
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  T const mt2() const { return e() * e() - pz() * pz(); }
+
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  T const mt() const
+  {
+    T mmm = mt2();
+    return mmm < 0 ? -Sqrt(-mmm) : Sqrt(mmm);
+  }
+
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
   void Set(T const &a, T const &b, T const &c, T const &d)
   {
     fVec[0] = a;
@@ -190,6 +247,16 @@ public:
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T Perp() const { return Sqrt(Perp2()); }
+
+  /// \set the length perpendicular to z direction
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  T SetPerp(T perp) const
+  {
+    T factor = perp / NonZero(Perp());
+    fVec[0] *= factor;
+    fVec[1] *= factor;
+  }
 
   /// The dot product of two LorentzVector<T> objects
   /// \return T (where T is float, double, or various SIMD vector types)
@@ -235,7 +302,7 @@ public:
   /// \return Polar angle between 0 and pi.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  T Theta() const { return ACos(fVec[2] / SpaceVector<T>().Mag()); }
+  T Theta() const { return SpaceVector<T>().Theta(); }
 
   /// Maps each vector entry to a function that manipulates the entry type.
   /// \param f A function of type "T f(const T&)" to map over entries.
@@ -335,22 +402,49 @@ public:
     return Vector3D<U>(fVec[0], fVec[1], fVec[2]);
   }
 
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  Vector3D<T> vect() const { return Vector3D<T>(fVec[0], fVec[1], fVec[2]); }
+
   template <typename U>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
-  VecType Boost(const Vector3D<U> &beta) const
+  VecType Boost(const Vector3D<U> &beta)
   {
-    double beta2 = beta.Mag2();
+    U beta2 = beta.Mag2();
     if (beta2 <= 1e-16) return LorentzVector(*this);
-    double gamma = Sqrt(1. / (1 - beta2));
-    double bdotv = beta.Dot(SpaceVector());
-    return LorentzVector(SpaceVector() + ((gamma - 1) / beta2 * bdotv - gamma * fVec[3]) * beta,
-                         gamma * (fVec[3] - bdotv));
+    U gamma  = Sqrt(1. / (1 - beta2));
+    U gamma2 = (gamma - 1.0) / beta2;
+    U bdotv  = beta.Dot(SpaceVector<U>());
+    fVec[0] += (gamma2 * bdotv + gamma * fVec[3]) * beta[0];
+    fVec[1] += (gamma2 * bdotv + gamma * fVec[3]) * beta[1];
+    fVec[2] += (gamma2 * bdotv + gamma * fVec[3]) * beta[2];
+    fVec[3] = gamma * (fVec[3] + bdotv);
+    return *this;
+  }
+
+  Vector3D<T> BoostVector() const
+  {
+    if (fVec[3] == 0) {
+      if (vect().Mag2() < kTolerance) {
+        return Vector3D<T>(0);
+      } else {
+        std::cerr << "LorentzVector::boostVector() - "
+                  << "boostVector computed for LorentzVector with t=0 -- infinite result" << std::endl;
+        return Vector3D<T>(InfinityLength<T>());
+      }
+    }
+    if (m2() <= 0) {
+      std::cerr << "LorentzVector::boostVector() - "
+                << "boostVector computed for a non-timelike LorentzVector " << std::endl;
+      // result will make analytic sense but is physically meaningless
+    }
+    return (1. / fVec[3]) * vect();
   }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  T Beta2() const { return (SpaceVector<T>() / fVec[4]).Mag2(); }
+  T Beta2() const { return (SpaceVector<T>() / fVec[3]).Mag2(); }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
@@ -371,6 +465,10 @@ public:
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   T PseudoRapidity() const { return -Log(Tan(0.5 * Theta())); }
+
+  LorentzVector<T> &operator*=(const LorentzRotation<T> &m1);
+
+  LorentzVector<T> &transform(const LorentzRotation<T> &m1);
 
   /**
    * This method generates a two body decay
@@ -467,7 +565,7 @@ public:
   */
   template <typename U>
   VECCORE_ATT_HOST_DEVICE
-  void PhaseSpace(const vector<U> &masses, vector<LorentzVector<T>> &daughters)
+  void PhaseSpace(const Vector<U> &masses, Vector<LorentzVector<T>> &daughters)
   {
     // Relativistic phase space
     LorentzVector<T> pa(*this);
