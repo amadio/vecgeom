@@ -337,7 +337,6 @@ struct ConeImplementation {
     using namespace ConeUtilities;
     using namespace ConeTypes;
     safety = -kInfLength;
-    // typedef typename Backend::bool_v Bool_t;
     typedef typename vecCore::Mask_v<Real_v> Bool_t;
     typedef Real_v Float_t;
 

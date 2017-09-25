@@ -329,6 +329,7 @@ struct PolyconeImplementation {
       istep++;
 
       ConeImplementation<ConeTypes::UniversalCone>::DistanceToOut<Real_v>(*section.fSolid, pn, dir, stepMax, dist);
+      if (dist == -1) return;
 
       // Section Surface case
       if (std::fabs(dist) < 0.5 * kTolerance) {

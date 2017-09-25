@@ -71,7 +71,7 @@ public:
 #ifndef VECCORE_CUDA
     assert(d.IsNormalized() && " direction not normalized in call to  DistanceToOut ");
 #endif
-    Precision output;
+    Precision output = kInfLength;
     Implementation::template DistanceToOut(((UnplacedVolume_t *)this)->UnplacedVolume_t::GetStruct(), p, d, step_max,
                                            output);
 

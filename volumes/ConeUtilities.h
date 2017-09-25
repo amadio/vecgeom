@@ -240,7 +240,6 @@ static Vector3D<Real_v> GetNormal(UnplacedStruct_t const &cone, Vector3D<Real_v>
       norm.Set(point.x(), point.y(), cone.fZNormOuter * (rho * secRMax));
     }
   }
-  //  std::cout<<"Normal : "<< norm << " : " << __LINE__ << std::endl;
   return norm;
 }
 
@@ -252,13 +251,9 @@ static typename vecCore::Mask_v<Real_v> IsOnConicalSurface(UnplacedStruct_t cons
 
   using namespace ConeUtilities;
   using namespace ConeTypes;
-  // typedef Real_v Real_v;
-
-  Real_v rho = point.Perp2();
-  // std::cout<<"ForInnerSurface : " <<ForInnerSurface <<" : " << __LINE__ << std::endl;
+  Real_v rho      = point.Perp2();
   Real_v coneRad  = GetRadiusOfConeAtPoint<Real_v, ForInnerSurface>(cone, point.z());
   Real_v coneRad2 = coneRad * coneRad;
-  // std::cout<<"rho2 : "<< rho <<" : ConeRad2 : "<< coneRad2 << std::endl;
   return (rho >= (coneRad2 - kConeTolerance * coneRad)) && (rho <= (coneRad2 + kConeTolerance * coneRad)) &&
          (Abs(point.z()) < (cone.fDz + kTolerance));
 }
@@ -270,11 +265,6 @@ static typename vecCore::Mask_v<Real_v> IsMovingOutsideConicalSurface(UnplacedSt
                                                                       Vector3D<Real_v> const &point,
                                                                       Vector3D<Real_v> const &direction)
 {
-
-  // std::cout<<" ==== Entered IsOnConicalSurface ==== " << std::endl;
-  // typedef typename vecCore::Mask_v<Real_v> Bool_t;
-  // Bool_t isOnConicalSurface = IsOnConicalSurface<Backend, ForInnerSurface>(cone, point);
-  // Vector3D<Real_v> norm = GetNormal<Backend, ForInnerSurface>(cone, point);
   return IsOnConicalSurface<Real_v, ForInnerSurface>(cone, point) &&
          (direction.Dot(GetNormal<Real_v, ForInnerSurface>(cone, point)) >= 0.);
 }
@@ -286,9 +276,6 @@ static typename vecCore::Mask_v<Real_v> IsMovingInsideConicalSurface(UnplacedStr
                                                                      Vector3D<Real_v> const &point,
                                                                      Vector3D<Real_v> const &direction)
 {
-
-  //  std::cout << "IsOnConicalSurface : "<< IsOnConicalSurface<Backend, ForInnerSurface>(cone, point) << " : " <<
-  //  __LINE__ << std::endl;
   return IsOnConicalSurface<Real_v, ForInnerSurface>(cone, point) &&
          (direction.Dot(GetNormal<Real_v, ForInnerSurface>(cone, point)) <= 0.);
 }
@@ -370,14 +357,19 @@ public:
 
     using namespace ConeUtilities;
     using namespace ConeTypes;
-    // typedef Real_v Real_v;
     typedef typename vecCore::Mask_v<Real_v> Bool_t;
+    Bool_t done(false);
+
+    distance                = kInfLength;
+    Bool_t onConicalSurface = IsOnConicalSurface<Real_v, ForInnerSurface>(cone, point);
+    done                    = onConicalSurface &&
+           (direction.Dot(ConeUtilities::GetNormal<Real_v, ForInnerSurface>(cone, point)) == Real_v(0.));
+    if (vecCore::MaskFull(done)) return Bool_t(false);
 
     Bool_t ok(false);
-    Bool_t done(false);
     if (ForDistToIn) {
       Bool_t isOnSurfaceAndMovingInside =
-          ConeUtilities::IsMovingInsideConicalSurface<Real_v, ForInnerSurface>(cone, point, direction);
+          !done && ConeUtilities::IsMovingInsideConicalSurface<Real_v, ForInnerSurface>(cone, point, direction);
 
       if (!checkPhiTreatment<coneTypeT>(cone)) {
         vecCore__MaskedAssignFunc(distance, isOnSurfaceAndMovingInside, Real_v(0.));
@@ -393,7 +385,7 @@ public:
 
     } else {
       Bool_t isOnSurfaceAndMovingOutside =
-          IsMovingOutsideConicalSurface<Real_v, ForInnerSurface>(cone, point, direction);
+          !done && IsMovingOutsideConicalSurface<Real_v, ForInnerSurface>(cone, point, direction);
 
       if (!checkPhiTreatment<coneTypeT>(cone)) {
         vecCore__MaskedAssignFunc(distance, isOnSurfaceAndMovingOutside, Real_v(0.));
@@ -599,6 +591,11 @@ public:
 
     using namespace ConeUtilities;
     using namespace ConeTypes;
+    distance              = kInfLength;
+    bool onConicalSurface = IsOnConicalSurface<Precision, ForInnerSurface>(cone, point);
+    if (onConicalSurface && direction.Dot(ConeUtilities::GetNormal<Precision, ForInnerSurface>(cone, point)) == 0.)
+      return false;
+
     bool ok(false);
 
     if (ForDistToIn) {
@@ -640,7 +637,7 @@ public:
 
     Precision pDotV2D = point.x() * direction.x() + point.y() * direction.y();
 
-    Precision a(0.), b(0.), c(0.);
+    Precision a(kInfLength), b(kInfLength), c(kInfLength);
     if (ForInnerSurface) {
 
       if (cone.fRmin1 == cone.fRmin2) {
@@ -676,6 +673,7 @@ public:
           distance = (-b + delta) / NonZero(a);
         }
       } else {
+        if (b == 0. && delta == 0.) return false;
         if (b >= 0.) {
           distance = (-b - delta) / NonZero(a);
         } else {
@@ -695,7 +693,6 @@ public:
         c = point.Perp2() - cone.fRmax2 * cone.fRmax2;
       } else {
 
-        // Precision t = cone.fTanOuterApexAngle;
         Precision newPz(0.);
         if (cone.fRmax2 > cone.fRmax1)
           newPz = (point.z() + cone.fDz + cone.fOuterConeApex) * cone.fTanOuterApexAngle;
@@ -713,6 +710,7 @@ public:
       Precision delta = Sqrt(d2);
 
       if (ForDistToIn) {
+        if (b == 0. && delta == 0.) return false;
         if (b > 0.) {
           distance = (-b - delta) / NonZero(a); // BE ATTENTIVE, not covers the condition for b==0.
         } else {
@@ -736,8 +734,8 @@ public:
     }
 
     if (checkPhiTreatment<coneTypeT>(cone)) {
-      Precision hitx(0), hity(0); //, hitz(0);
-      bool insector(false);       // = Backend::kFalse;
+      Precision hitx(0), hity(0);
+      bool insector(false);
       if (distance < kInfLength) {
         hitx = point.x() + distance * direction.x();
         hity = point.y() + distance * direction.y();

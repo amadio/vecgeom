@@ -89,6 +89,7 @@ public:
   Precision GetOuterSlope() const { return GetUnplacedVolume()->GetOuterSlope(); }
   Precision GetInnerOffset() const { return GetUnplacedVolume()->GetInnerOffset(); }
   Precision GetOuterOffset() const { return GetUnplacedVolume()->GetOuterOffset(); }
+  Precision GetOuterConeApex() const { return GetUnplacedVolume()->GetOuterConeApex(); }
 
   // interface required by Geant4
   Precision GetInnerRadiusMinusZ() const { return GetUnplacedVolume()->GetRmin1(); }
