@@ -129,12 +129,12 @@ public:
   /// \param phiDelta Total angle in phi over which the sides of each segment will be drawn. When added to the
   ///                 starting angle, this will mark one of the angles of the phi cutout, if a cutout is specified.
   /// \param sideCount Number of sides along phi in each Z-segment.
-  /// \param zPlaneCount Number of Z-planes to draw segments between. The number
-  ///                    of segments will always be this number minus one.
+  /// \param verticesCount Number of vertices describing inner/outer shape in r/z coordinates. The number
+  ///                    of Z planes will be half of this number.
   /// \param zPlanes Z-coordinates of each Z-plane to draw segments between.
   /// \param rMin Radius to the sides (not to the corners!) of the inner shell for the corresponding Z-plane.
   /// \param rMax Radius to the sides (not to the corners!) of the outer shell for the corresponding Z-plane.
-  UnplacedPolyhedron(Precision phiStart, Precision phiDelta, const int sideCount, const int zPlaneCount,
+  UnplacedPolyhedron(Precision phiStart, Precision phiDelta, const int sideCount, const int verticesCount,
                      Precision const r[], Precision const z[]);
 
   VECCORE_ATT_HOST_DEVICE

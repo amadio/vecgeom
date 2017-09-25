@@ -34,11 +34,11 @@ UnplacedPolyhedron::UnplacedPolyhedron(Precision phiStart, Precision phiDelta, c
 }
 
 UnplacedPolyhedron::UnplacedPolyhedron(Precision phiStart, Precision phiDelta, const int sideCount,
-                                       const int zPlaneCount,
+                                       const int verticesCount,
                                        Precision const r[], // 2*zPlaneCount elements
                                        Precision const z[]  // ditto
                                        )
-    : fPoly(phiStart, phiDelta, sideCount, zPlaneCount, r, z)
+    : fPoly(phiStart, phiDelta, sideCount, verticesCount, r, z)
 {
   DetectConvexity();
 }

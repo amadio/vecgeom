@@ -101,8 +101,15 @@ bool TestPolyhedra()
 
   Polyhedra_t *MyPGon1 = new Polyhedra_t("MyPGon1", sphi1, dphi1, 4, 3, Z_Values1, RMINVec1, RMAXVec1);
 
-  //  std::cout << "=== Polyhedron: \n";
-  //  std::cout << *MyPGon << std::endl;
+  const int Nrz = 4, Nside = 6;
+  double zz[Nrz] = {10, -10, -10, 10};
+  double rr[Nrz] = {15, 15, 0, 0};
+
+  vecgeom::SimplePolyhedron *MyPGon2 =
+      new vecgeom::SimplePolyhedron("Hexagonal prism", sphi1, dphi1, Nside, Nrz, rr, zz);
+
+  // std::cout << "=== Polyhedron: \n";
+  // std::cout << *MyPGon2 << std::endl;
 
   // Check Cubic volume
   // double vol;
@@ -133,13 +140,15 @@ bool TestPolyhedra()
   std::cout << "Less Simple Polyhedron(2 cutted piramides) SurfaceArea =" << MyPGon1->SurfaceArea()
             << " has to be 65.941..." << std::endl;
   // Asserts
-  Vec_t p1, p2, p3, p4, p5, p6, dirx, diry, dirz;
+  Vec_t p1, p2, p3, p4, p5, p6, p7, p8, dirx, diry, dirz;
   p1 = Vec_t(0, 0, -5);
   p2 = Vec_t(50, 0, 40);
   p3 = Vec_t(5, 1, 20);
   p4 = Vec_t(45, 5, 30);
   p5 = Vec_t(0, 0, 30);
   p6 = Vec_t(41, 0, 10);
+  p7 = Vec_t(0, 0, 0);
+  p8 = Vec_t(15, 0, 0);
 
   dirx = Vec_t(1, 0, 0);
   diry = Vec_t(0, 1, 0);
@@ -168,6 +177,8 @@ bool TestPolyhedra()
   std::cout << " MyPGon->Inside(" << p4 << ") = " << MyPGon->Inside(p4) << "\n";
   std::cout << " MyPGon->Inside(" << p5 << ") = " << MyPGon->Inside(p5) << "\n";
   std::cout << " MyPGon->Inside(" << p6 << ") = " << MyPGon->Inside(p6) << "\n";
+  std::cout << " MyPGon2->Inside(" << p7 << ") = " << MyPGon2->Inside(p7) << "\n";
+  std::cout << " MyPGon2->Inside(" << p8 << ") = " << MyPGon2->Inside(p8) << "\n";
 
   assert(MyPGon->Inside(p1) == vecgeom::EInside::kSurface);
   assert(MyPGon->Inside(p2) == vecgeom::EInside::kSurface);
@@ -175,6 +186,8 @@ bool TestPolyhedra()
   assert(MyPGon->Inside(p4) == vecgeom::EInside::kInside);
   assert(MyPGon->Inside(p5) == vecgeom::EInside::kOutside);
   assert(MyPGon->Inside(p6) == vecgeom::EInside::kOutside);
+  assert(MyPGon2->Inside(p7) == vecgeom::EInside::kInside);
+  assert(MyPGon2->Inside(p8) == vecgeom::EInside::kSurface);
 
   // Check DistanceToIn
   double tolerance = 1e-9;
@@ -195,6 +208,15 @@ bool TestPolyhedra()
   assert(std::fabs((MyPGon->DistanceToOut(p4, dirz, normal, convex) - 10.)) < tolerance);
   assert(std::fabs((MyPGon->DistanceToOut(p4, dirx, normal, convex) - 34.8538673445)) < tolerance);
   assert(std::fabs((MyPGon->DistanceToOut(p4, diry, normal, convex) - 40.)) < tolerance);
+  assert(MyPGon2->DistanceToOut(p7, dirx, normal, convex) > 0);
+  assert(MyPGon2->DistanceToOut(p7, diry, normal, convex) > 0);
+  assert(MyPGon2->DistanceToOut(p7, dirz, normal, convex) > 0);
+  std::cout << "MyPGon2->DistanceToOut(p7, dirx, normal, convex) = " << MyPGon2->DistanceToOut(p7, dirx, normal, convex)
+            << std::endl;
+  std::cout << "MyPGon2->DistanceToOut(p7, diry, normal, convex) = " << MyPGon2->DistanceToOut(p7, diry, normal, convex)
+            << std::endl;
+  std::cout << "MyPGon2->DistanceToOut(p7, dirz, normal, convex) = " << MyPGon2->DistanceToOut(p7, dirz, normal, convex)
+            << std::endl;
 
 #ifdef SCAN_SOLID
   std::cout << "\n=======     Polyhedra SCAN test      ========";

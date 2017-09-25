@@ -99,56 +99,83 @@ struct PolyhedronStruct {
     Initialize(phiStart, phiDelta, sideCount, zPlaneCount, zPlanes, rMin, rMax);
   }
 
-  PolyhedronStruct(Precision phiStart, Precision phiDelta, const int sideCount, const int zPlaneCount,
+  PolyhedronStruct(Precision phiStart, Precision phiDelta, const int sideCount, const int verticesCount,
                    Precision const r[], Precision const z[])
       : fSideCount(sideCount), fHasInnerRadii(false), fHasPhiCutout(phiDelta < kTwoPi),
         fHasLargePhiCutout(phiDelta < kPi), fPhiStart(NormalizeAngle<kScalar>(phiStart)),
         fPhiDelta((phiDelta > kTwoPi) ? kTwoPi : phiDelta), fPhiWedge(fPhiDelta, fPhiStart),
-        fZSegments(zPlaneCount - 1), fZPlanes(zPlaneCount), fRMin(zPlaneCount), fRMax(zPlaneCount),
-        fPhiSections(sideCount + 1), fBoundingTube(0, 1, 1, fPhiStart, fPhiDelta), fSurfaceArea(0.), fCapacity(0.)
+        fZSegments(verticesCount / 2 - 1), fZPlanes(verticesCount / 2), fRMin(verticesCount / 2),
+        fRMax(verticesCount / 2), fPhiSections(sideCount + 1), fBoundingTube(0, 1, 1, fPhiStart, fPhiDelta),
+        fSurfaceArea(0.), fCapacity(0.)
   {
-    if (zPlaneCount == 0) throw std::runtime_error("A Polyhedron need at least one plane");
+    if (verticesCount < 4) throw std::runtime_error("A Polyhedron needs at least 4 vertices");
 
-    // Geant4-like construction:
-    // ind (   0       ...    n-1      n      ...    2*n -1   )
-    // r = ( rmin[n-1], ... , rmin[0], rmax[0], ..., rmax[n-1] )
-    // z = ( z[n-1], ...    , z[0]   , z[0]   , ..., z[n-1]    )
-    // data integrity checks
-    for (int i = 0; i <= zPlaneCount; ++i) {
-      assert(z[i] == z[2 * zPlaneCount - 1 - i] && "UnplPolyhedron ERROR: z[] array is not symmetrical, please fix.\n");
+    // Geant4-like construction (n = verticesCount). The rz section is described
+    // as a sequence of connected vertices (r[i], z[i]). We have to associate
+    // the vertices with (rmin, rmax, z) plane representation.
+
+    // detect outer vertex with minimum Z and detect if vertices are defined clockwise
+    double z0                       = z[0] + 1;
+    double r0                       = -1.;
+    int i0                          = -1;
+    int nvert                       = 0;
+    bool cw                         = true;
+    if (phiDelta > kTwoPi) phiDelta = kTwoPi;
+    Precision sidePhi               = phiDelta / sideCount;
+    Precision cosHalfDeltaPhi       = cos(0.5 * sidePhi);
+
+    for (int i = 0; i < verticesCount; ++i) {
+      if (z[i] < z0) {
+        i0    = i;
+        r0    = r[i];
+        z0    = z[i];
+        nvert = 1;
+        continue;
+      }
+      if (z[i] > z0) continue;
+      // another point found at this Z before
+      nvert++;
+      if (r[i] > r0) {
+        // i>i0, so counter-clockwise
+        r0 = r[i];
+        i0 = i;
+        cw = false;
+      }
     }
+    assert(nvert == 2 && "Unplaced polyhedra defined in rz mode has only one low Z vertex");
+    // We count vertices starting from imin, making sure we move counter-clockwise
 
-    // reuse input array as argument, in ascending order
-    int Nz                 = zPlaneCount;
-    bool ascendingZ        = true;
-    const Precision *zarg  = &z[0];
-    const Precision *r1arg = r;
-    if (z[0] > z[1]) {
-      ascendingZ = false;
-      zarg       = z + Nz; // second half of input z[] is ascending due to symmetry already verified
-      r1arg      = r + Nz;
-    }
+    int Nz          = verticesCount / 2;
+    Precision *rMin = new Precision[Nz];
+    Precision *rMax = new Precision[Nz];
+    Precision *zArg = new Precision[Nz];
 
-    // reorganize remainder of r[] data in ascending-z order
-    Precision *r2arg = new Precision[Nz];
-    for (int i = 0; i < Nz; ++i)
-      r2arg[i] = (ascendingZ ? r[2 * Nz - 1 - i] : r[Nz - 1 - i]);
-
-    // identify which rXarg is rmax and rmin and ensure that Rmax > Rmin for all points provided
-    const Precision *rmin = r1arg, *rmax = r2arg;
-    if (r1arg[0] > r2arg[0]) {
-      rmax = r1arg;
-      rmin = r2arg;
+    int inc = cw ? -1 : 1;
+    for (int i = 0; i < verticesCount; ++i) {
+      // Current vertex index going always ccw from (rmin,zmin)
+      int j    = (i0 + verticesCount + inc * i) % verticesCount;
+      int jsim = (i0 + verticesCount + inc * (verticesCount - 1 - i)) % verticesCount;
+      assert(z[j] == z[jsim]);
+      int iz = i;
+      if (i >= Nz) {
+        iz       = verticesCount - 1 - iz;
+        rMin[iz] = r[j] * cosHalfDeltaPhi;
+      } else {
+        rMax[iz] = r[j] * cosHalfDeltaPhi;
+      }
+      zArg[iz] = z[j];
     }
 
     // final data integrity cross-check
     for (int i = 0; i < Nz; ++i) {
-      assert(rmax[i] > rmin[i] &&
+      assert(rMax[i] >= rMin[i] &&
              "UnplPolycone ERROR: r[] provided has problems of the Rmax < Rmin type, please check!\n");
     }
     // Delegate to full constructor
-    Initialize(phiStart, phiDelta, sideCount, zPlaneCount, zarg, rmin, rmax);
-    delete[] r2arg;
+    Initialize(phiStart, phiDelta, sideCount, Nz, zArg, rMin, rMax);
+    delete[] rMin;
+    delete[] rMax;
+    delete[] zArg;
   }
 
   VECCORE_ATT_HOST_DEVICE
