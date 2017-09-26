@@ -1,15 +1,15 @@
 //
 //
-// TestTotus
-//             Ensure asserts are compiled in
+// TestTorus
 
 //.. ensure asserts are compiled in
 #undef NDEBUG
 
+#include "base/Global.h"
 #include "base/Vector3D.h"
 #include "ApproxEqual.h"
-#include "base/Vector3D.h"
 #include "volumes/Torus2.h"
+#include "volumes/SpecializedTorus2.h"
 
 //#include "UVector3.hh"
 //#include "UTorus.hh"
@@ -42,7 +42,7 @@ bool testTorus()
   Vec_t ponrtor(0, 100, 0);
   Vec_t ponphi1(100 / std::sqrt(2.), 100 / std::sqrt(2.), 0);
   Vec_t ponphi2(-100 / std::sqrt(2.), 100 / std::sqrt(2.), 0);
-  Vec_t ponphi12(120 / std::sqrt(2.), 120 / std::sqrt(2.), 0);
+  Vec_t ponphi12(190 / std::sqrt(2.), 190 / std::sqrt(2.), 0);
   Vec_t ponphi22(-120 / std::sqrt(2.), 120 / std::sqrt(2.), 0);
   Vec_t ponphi23(-120 / std::sqrt(2.) + 0.5, 120 / std::sqrt(2.), 0);
 
@@ -56,16 +56,18 @@ bool testTorus()
   Vec_t pstart((Rtor + Rmax) / std::sqrt(2.0), (Rtor + Rmax) / std::sqrt(2.0), 0);
   Vec_t vdirect(1 / std::sqrt(2.0), -1 / std::sqrt(2.0), 0);
 
-  Vec_t pother(110, 0, 0);
+  Vec_t pother(90, 0, 0);
   vdirect = vdirect.Unit();
   Vec_t p1;
   Vec_t v1(1, 0, 0);
   v1 = v1.Unit();
 
+  std::cout << "Starting Torus unit test..." << std::endl;
   // Check torus roots
 
   Torus_t t1("Solid Torus #1", 0, Rmax, Rtor, 0, vecgeom::kTwoPi);
-  Torus_t t2("Hole cutted Torus #2", Rmin, Rmax, Rtor, 0, vecgeom::kPi / 2); // vecgeom::kPi/4,vecgeom::kPi/2.);
+  Torus_t t2("Hole cutted Torus #2", Rmin, Rmax, Rtor, 0,
+             vecgeom::kPi / 2); // vecgeom::kPi/4,vecgeom::kPi/2.);vecgeom::kPi / 2
   Torus_t tn2("tn2", Rmin, Rmax, Rtor, vecgeom::kPi / 2., vecgeom::kPi / 2.);
   Torus_t tn3("tn3", Rmin, Rmax, Rtor, vecgeom::kPi / 2., 3 * vecgeom::kPi / 2.);
   Torus_t t3("Hole cutted Torus #3", 4 * Rmin, Rmax, Rtor, vecgeom::kPi / 2. - vecgeom::kPi / 24, vecgeom::kPi / 12);
@@ -80,20 +82,11 @@ bool testTorus()
   Vec_t temp1         = Vec_t(-0.646752, -0.762700, -0.000012);
   temp1               = temp1 / (temp1.Mag());
 
-  std::cout << "Dout=" << cmsEECool3->DistanceToOut(Vec_t(1230.993171, 1078.075896, -2.947036), temp1, norm, convex)
-            << std::endl; //: inf / inf / inf / 1.57856
+  // std::cout << "Dout=" << cmsEECool3->DistanceToOut(Vec_t(1230.993171, 1078.075896, -2.947036), temp1, norm, convex)
+  //          << std::endl; //: inf / inf / inf / 1.57856
   // std::cout<<"In="<<cmsEECool3->Inside(Vec_t(1230.993171, 1078.075896, -2.947036))<<"
   // Rtor="<<std::sqrt(1230.99*1230.99+1078.07*1078.07)<<std::endl;
   assert(cmsEECool3->Inside(Vec_t(1230.993171, 1078.075896, -2.947036)) == vecgeom::EInside::kInside);
-  Torus_t *cmsEECool30 = new Torus_t("cmsEECool30", 0, 0.7, 164, 0.09599, 1.4312);
-  temp1                = Vec_t(0.958700, -0.284408, 0.002748);
-  temp1                = temp1 / (temp1.Mag());
-  std::cout.precision(20);
-  std::cout << "DIn=" << cmsEECool30->DistanceToIn(Vec_t(-652.200808, 359.142298, -1.826441), temp1)
-            << " temp1=" << temp1.Mag() << std::endl; // 689.407 / 689.407 / 689.407 / 687.745
-  std::cout << 332858192.02587622404 * (-3.0) << " dif=" << -998574576.07762873173 - 332858192.02587622404 * (-3.0)
-            << std::endl;
-  // std::cout.precision(20);
 
   Vec_t p1t6(60.73813233071262, -27.28494547459707, 37.47827539879173);
 
@@ -126,6 +119,8 @@ bool testTorus()
   assert(t2.Inside(ponphi1) == vecgeom::EInside::kOutside);
   assert(t2.Inside(ponphi2) == vecgeom::EInside::kOutside);
   assert(t2.Inside(Vec_t(20, 0, 0)) == vecgeom::EInside::kSurface);
+  // std::cout << "t2.Inside(Vec_t(20, 0, 0): " << t2.Inside(Vec_t(20, 0, 0)) << '\n';
+  // std::cout << "vecgeom::EInside::kSurface: " << vecgeom::EInside::kSurface << '\n';
   assert(t2.Inside(Vec_t(0, 20, 0)) == vecgeom::EInside::kSurface);
 
   side = t6.Inside(p1t6);
@@ -176,12 +171,12 @@ bool testTorus()
 
   // DistanceToOut(P,V)
   Dist = t1.DistanceToOut(ponrmax, vx, norm, convex);
-  std::cout << "t1.DistanceToOut(p,vx...) = " << Dist << " norm=" << norm << std::endl;
+  // std::cout << "t1.DistanceToOut(p,vx...) = " << Dist << " norm=" << norm << std::endl;
   assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vx));
 
   Dist = t1.DistanceToOut(Vec_t(130, 0, 0.0), vx, norm, convex);
   // Dist=t1.DistanceToOut(Vec_t(130,0.00001,0.00001),Vec_t(1,0.001,0.001).Unit(),norm,convex);
-  std::cout << "t1.DistanceToOut(ponphi1,vz,...) = " << Dist << " n=" << norm << std::endl;
+  // std::cout << "t1.DistanceToOut(ponphi1,vz,...) = " << Dist << " n=" << norm << std::endl;
   assert(ApproxEqual(Dist, 60) && ApproxEqual(norm, vx));
 
   Dist = t1.DistanceToOut(ponrmin, vy, norm, convex);
@@ -189,23 +184,24 @@ bool testTorus()
   Dist = t1.DistanceToOut(ponrmin, vmy, norm, convex);
   assert(ApproxEqual(Dist, 100));
 
+  // std::cout << "(vz + Vec_t(0.00001, 0.000001, 0): " << (vz + Vec_t(0.00001, 0.000001, 0)) << '\n';
+  // std::cout << "Vec_t(0.00001, 0.000001, 0)).Unit() = " << (vz + Vec_t(0.00001, 0.000001, 0)).Unit() << '\n';
   Dist = t1.DistanceToOut(Vec_t(100, 0, 0), (vz + Vec_t(0.00001, 0.000001, 0)).Unit(), norm, convex);
-  std::cout << "t1.DistanceToOut(100,0,0,vz,...) = " << Dist << " n=" << norm << std::endl;
+  // std::cout << "t1.DistanceToOut(100,0,0,vz,...) = " << Dist << " n=" << norm << std::endl;
   assert(ApproxEqual(Dist, 90));
-
-  Dist = t2.DistanceToOut(Vec_t(20, 0, 0), vmy, norm, convex);
-  std::cout << "Dist=t2.DistanceToOut(ponphi12,vy) = " << Dist << " n=" << norm << std::endl;
-  assert(ApproxEqual(Dist, 0) && convex && ApproxEqual(norm, -vy));
-  Dist = t2.DistanceToOut(Vec_t(0, 20, 0), vmx, norm, convex);
-  //    std::cout<<"Dist=t2.DistanceToOut(ponphi22,vmxmy) = "<<Dist<<std::endl;
-  assert(ApproxEqual(Dist, 0) && convex && ApproxEqual(norm, -vx));
+  // std::cout << "Dist=t2.DistanceToOut(ponphi12,vy) = " << Dist << ", n=" << norm << ", -vy = " << -vy << std::endl;
+  // std::cout << "norm: " << norm << '\n';
+  Dist = t2.DistanceToOut(Vec_t(7.07106781186547524400844362, 7.07106781186547524400844362, 0), vmx, norm, convex);
+  // std::cout << "Dist = t2.DistanceToOut(Vec_t(7.07106781186547524400844362, 7.07106781186547524400844362, 0), vmx,
+  // norm, convex) = " << Dist << std::endl;
+  assert(ApproxEqual(Dist, 0));
 
   Vec_t test(0., 0., 1);
   for (int i = 1; i < 5; i++) {
     Dist = t1.DistanceToOut(Vec_t(90, 0, 0), test, norm, convex);
-    std::cout << " i=" << i << " Dist=t2.DistanceToOut(90,test) = " << Dist << " n=" << norm << std::endl;
+    // std::cout << " i=" << i << " Dist=t2.DistanceToOut(90,test) = " << Dist << " n=" << norm << std::endl;
     test = test + Vec_t(0.00001, 0.00001, 0);
-    test.Unit();
+    test = test.Unit();
   }
 
   // SafetyFromOutside(P)
@@ -225,7 +221,10 @@ bool testTorus()
   //    assert(ApproxEqual(Dist,50));
 
   // DistanceToIn(P,V)
+  // std::cout << "LOGT pbigx: " << pbigx << '\n';
+  // std::cout << "LOGT vmx: " << vmx << '\n';
   Dist = t1.DistanceToIn(pbigx, vmx);
+  // std::cout << "LOGT Dist = t1.DistanceToIn(pbigx, vmx): " << Dist << '\n';
   assert(ApproxEqual(Dist, 50));
   Dist = t1.DistanceToIn(pbigmx, vx);
   assert(ApproxEqual(Dist, 50));
@@ -240,29 +239,32 @@ bool testTorus()
   Dist = t1.DistanceToIn(pbigx, vxy);
   assert(ApproxEqual(Dist, vecgeom::kInfLength));
   Dist = t1.DistanceToIn(ponrmax, vx);
-  std::cout << "Dist=t1.DIN (p,v) = " << Dist << std::endl;
+  // std::cout << "Dist=t1.DIN (p,v) = " << Dist << std::endl;
   // assert(ApproxEqual(Dist,vecgeom::kInfLength));
   Dist = t1.DistanceToIn(ponrmax, vmx);
-  std::cout << "Dist=t1.DIN (p,v) = " << Dist << std::endl;
+  // std::cout << "Dist=t1.DIN (p,v) = " << Dist << std::endl;
   // assert(ApproxEqual(Dist,0));
 
   // Vec_t vnew(1,0,0) ;
   // vnew.rotateZ(pi/4-5*1e-9) ;    // old test: check pzero with vxy
   // Dist=t2.DistanceToIn(pzero,vnew);
   // assert(ApproxEqual(Dist,vecgeom::kInfLength));
-  std::cout << "Dist=t2.DIN (p,v) = " << Dist << std::endl;
+  // std::cout << "Dist=t2.DIN (p,v) = " << Dist << std::endl;
   Dist = t2.DistanceToIn(pzero, vy);
   assert(ApproxEqual(Dist, 10));
   Dist = t2.DistanceToIn(ponphi12, vy);
-  assert(ApproxEqual(Dist, 0));
-  Dist = t2.DistanceToIn(ponphi12, vmy);
+  // std::cout << "Dist = t2.DistanceToIn(ponphi12, vy) = " << Dist << ", ponphi12 = " << ponphi12 << ", vy = " << vy <<
+  // std::endl;
   assert(ApproxEqual(Dist, vecgeom::kInfLength));
-  Dist = t2.DistanceToIn(ponphi1, vy);
-  //    std::cout<<"Dist=t2.DistanceToIn(ponphi1,vy) = "<<Dist<<std::endl;  // about 13
-  Dist = t2.DistanceToIn(ponrmin, vy);
+  Dist = t2.DistanceToIn(ponphi12, vmy);
   assert(ApproxEqual(Dist, 0));
+  Dist = t2.DistanceToIn(ponphi1, vy);
+  assert(ApproxEqual(Dist, 13.550819613108856743)); // Not sure about this
+  // Torus t2 is ends at pi/2 rad, we expect infinity
+  Dist = t2.DistanceToIn(ponrmin, vy);
+  assert(ApproxEqual(Dist, vecgeom::kInfLength));
   Dist = t2.DistanceToIn(ponrmin, vmy);
-  assert(ApproxEqual(Dist, 20));
+  assert(ApproxEqual(Dist, vecgeom::kInfLength));
 
   Dist = t3.DistanceToIn(ponrtor, vy);
   assert(ApproxEqual(Dist, 40));
@@ -286,35 +288,35 @@ bool testTorus()
 
   dist = clad->DistanceToIn(pTmp, vy);
   pTmp += dist * vy;
-  std::cout << "pTmpX = " << pTmp.x() << ";  pTmpY = " << pTmp.y() << ";  pTmpZ = " << pTmp.z() << std::endl;
+  // std::cout << "pTmpX = " << pTmp.x() << ";  pTmpY = " << pTmp.y() << ";  pTmpZ = " << pTmp.z() << std::endl;
   side = core->Inside(pTmp);
-  std::cout << "core->Inside(pTmp) = " << side << std::endl;
+  // std::cout << "core->Inside(pTmp) = " << side << std::endl;
   side = clad->Inside(pTmp);
-  std::cout << "clad->Inside(pTmp) = " << side << std::endl;
+  // std::cout << "clad->Inside(pTmp) = " << side << std::endl;
 
   dist = core->DistanceToIn(pTmp, vy);
   pTmp += dist * vy;
-  std::cout << "pTmpX = " << pTmp.x() << ";  pTmpY = " << pTmp.y() << ";  pTmpZ = " << pTmp.z() << std::endl;
+  // std::cout << "pTmpX = " << pTmp.x() << ";  pTmpY = " << pTmp.y() << ";  pTmpZ = " << pTmp.z() << std::endl;
   side = core->Inside(pTmp);
-  std::cout << "core->Inside(pTmp) = " << side << std::endl;
+  // std::cout << "core->Inside(pTmp) = " << side << std::endl;
   side = clad->Inside(pTmp);
-  std::cout << "clad->Inside(pTmp) = " << side << std::endl;
+  // std::cout << "clad->Inside(pTmp) = " << side << std::endl;
 
   dist = core->DistanceToOut(pTmp, vy, norm, convex);
   pTmp += dist * vy;
-  std::cout << "pTmpX = " << pTmp.x() << ";  pTmpY = " << pTmp.y() << ";  pTmpZ = " << pTmp.z() << std::endl;
+  // std::cout << "pTmpX = " << pTmp.x() << ";  pTmpY = " << pTmp.y() << ";  pTmpZ = " << pTmp.z() << std::endl;
   side = core->Inside(pTmp);
-  std::cout << "core->Inside(pTmp) = " << side << std::endl;
+  // std::cout << "core->Inside(pTmp) = " << side << std::endl;
   side = clad->Inside(pTmp);
-  std::cout << "clad->Inside(pTmp) = " << side << std::endl;
+  // std::cout << "clad->Inside(pTmp) = " << side << std::endl;
 
   dist = clad->DistanceToOut(pTmp, vy, norm, convex);
   pTmp += dist * vy;
-  std::cout << "pTmpX = " << pTmp.x() << ";  pTmpY = " << pTmp.y() << ";  pTmpZ = " << pTmp.z() << std::endl;
+  // std::cout << "pTmpX = " << pTmp.x() << ";  pTmpY = " << pTmp.y() << ";  pTmpZ = " << pTmp.z() << std::endl;
   side = core->Inside(pTmp);
-  std::cout << "core->Inside(pTmp) = " << side << std::endl;
+  // std::cout << "core->Inside(pTmp) = " << side << std::endl;
   side = clad->Inside(pTmp);
-  std::cout << "clad->Inside(pTmp) = " << side << std::endl;
+  // std::cout << "clad->Inside(pTmp) = " << side << std::endl;
 
   // Check for Distance to In ( start from an external point )
 
@@ -338,6 +340,7 @@ bool testTorus()
   }
 
   // CalculateExtent
+  std::cout << "Test passed." << std::endl;
 
   return true;
 }

@@ -21,3 +21,4 @@ test/.DS_Store
 test/benchmark/.DS_Store
 volumes/.DS_Store
 volumes/kernel/.DS_Store
+test/cmstestdata/cms2015.root

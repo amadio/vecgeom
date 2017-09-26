@@ -1,4 +1,4 @@
-/// \file SpecializedTorus.h
+/// \file SpecializedTorus2.h
 
 #ifndef VECGEOM_VOLUMES_SPECIALIZEDTORUS2_H_
 #define VECGEOM_VOLUMES_SPECIALIZEDTORUS2_H_
@@ -7,7 +7,9 @@
 
 #include "volumes/kernel/TorusImplementation2.h"
 #include "volumes/PlacedTorus2.h"
-#include "volumes/ScalarShapeImplementationHelper.h"
+#include "volumes/SpecializedPlacedVolImplHelper.h"
+
+//#include <stdio.h>
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -16,10 +18,11 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 // at the moment this is not done
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedTorus2 = ScalarShapeImplementationHelper<TorusImplementation2<transCodeT, rotCodeT>>;
+using SpecializedTorus2 = LoopSpecializedVolImplHelper<TorusImplementation2, transCodeT, rotCodeT>;
 
 using SimpleTorus2 = SpecializedTorus2<translation::kGeneric, rotation::kGeneric>;
-}
-} // End global namespace
 
-#endif // VECGEOM_VOLUMES_SPECIALIZEDTORUS_H_
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
+
+#endif // VECGEOM_VOLUMES_SPECIALIZEDTORUS2_H_

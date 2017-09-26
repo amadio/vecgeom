@@ -1,5 +1,4 @@
-/// \file PlacedTorus.cpp
-
+/// \file PlacedTorus2.cpp
 #include "volumes/PlacedTorus2.h"
 #include "volumes/Torus2.h"
 #include "volumes/SpecializedTorus2.h"
@@ -10,6 +9,10 @@
 
 #ifdef VECGEOM_GEANT4
 #include "G4Torus.hh"
+#endif
+
+#ifdef VECGEOM_USOLIDS
+#include "UTorus.hh"
 #endif
 
 namespace vecgeom {
@@ -25,7 +28,9 @@ VPlacedVolume const *PlacedTorus2::ConvertToUnspecialized() const
 #ifdef VECGEOM_ROOT
 TGeoShape const *PlacedTorus2::ConvertToRoot() const
 {
-  return new TGeoTorus(GetLabel().c_str(), rtor(), rmin(), rmax(), sphi() * kRadToDeg, dphi() * kRadToDeg);
+  const UnplacedTorus2 &ut = *(static_cast<UnplacedTorus2 const *>(GetUnplacedVolume()));
+  return new TGeoTorus(GetLabel().c_str(), ut.rtor(), ut.rmin(), ut.rmax(), ut.sphi() * kRadToDeg,
+                       ut.dphi() * kRadToDeg);
 }
 #endif
 
@@ -33,18 +38,18 @@ TGeoShape const *PlacedTorus2::ConvertToRoot() const
 ::VUSolid const *PlacedTorus2::ConvertToUSolids() const
 {
   return NULL;
-  //  return new UTubs(GetLabel().c_str(), rmin(), rmax(), z(), sphi(), dphi());
 }
 #endif
 
 #ifdef VECGEOM_GEANT4
 G4VSolid const *PlacedTorus2::ConvertToGeant4() const
 {
-  return new G4Torus(GetLabel().c_str(), rmin(), rmax(), rtor(), sphi(), dphi());
+  const UnplacedTorus2 &ut = *(static_cast<UnplacedTorus2 const *>(GetUnplacedVolume()));
+  return new G4Torus(GetLabel().c_str(), ut.rmin(), ut.rmax(), ut.rtor(), ut.sphi(), ut.dphi());
 }
 #endif
 
-#endif // VECGEOM_BENCHMARK
+#endif // VECCORE_CUDA
 
 } // End impl namespace
 
@@ -54,4 +59,4 @@ VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(SpecializedTorus2)
 
 #endif
 
-} // End global namespace
+} // namespace vecgeom

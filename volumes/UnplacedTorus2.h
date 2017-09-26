@@ -5,26 +5,27 @@
 
 #include "base/Global.h"
 #include "base/AlignedBase.h"
+#include "base/Array.h"
 #include "volumes/UnplacedVolume.h"
 #include "volumes/UnplacedTube.h"
+#include "volumes/TorusStruct2.h"
+#include "volumes/kernel/TorusImplementation2.h"
 #include "volumes/Wedge.h"
+#include "volumes/UnplacedVolumeImplHelper.h"
 
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedTorus2;);
 VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedTorus2);
+// VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE(class, SIMDUnplacedTorus, typename);  // maybe needed w/TorusTypes
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class UnplacedTorus2 : public VUnplacedVolume, public AlignedBase {
-
+// Introduce Intermediate class ( so that we can do typecasting )
+class UnplacedTorus2 : public LoopUnplacedVolumeImplHelper<TorusImplementation2>, public AlignedBase {
 private:
-  // torus defining parameters ( like G4torus )
-  Precision fRmin; // outer radius of torus "tube"
-  Precision fRmax; // inner radius of torus "tube"
-  Precision fRtor; // bending radius of torus
-  Precision fSphi; // start angle
-  Precision fDphi; // delta angle of torus section
+  // tube defining parameters
+  TorusStruct2<Precision> fTorus;
   Wedge fPhiWedge; // the Phi bounding of the torus (not the cutout)
 
   // cached values
@@ -43,63 +44,65 @@ private:
   VECCORE_ATT_HOST_DEVICE
   void calculateCached()
   {
-    fRmin2 = fRmin * fRmin;
-    fRmax2 = fRmax * fRmax;
-    fRtor2 = fRtor * fRtor;
+    fRmin2 = fTorus.fRmin * fTorus.fRmin;
+    fRmax2 = fTorus.fRmax * fTorus.fRmax;
+    fRtor2 = fTorus.fRtor * fTorus.fRtor;
 
-    fTolOrmin2 = (fRmin - kTolerance) * (fRmin - kTolerance);
-    fTolIrmin2 = (fRmin + kTolerance) * (fRmin + kTolerance);
+    fTolOrmin2 = (fTorus.fRmin - kTolerance) * (fTorus.fRmin - kTolerance);
+    fTolIrmin2 = (fTorus.fRmin + kTolerance) * (fTorus.fRmin + kTolerance);
 
-    fTolOrmax2 = (fRmax + kTolerance) * (fRmax + kTolerance);
-    fTolIrmax2 = (fRmax - kTolerance) * (fRmax - kTolerance);
+    fTolOrmax2 = (fTorus.fRmax + kTolerance) * (fTorus.fRmax + kTolerance);
+    fTolIrmax2 = (fTorus.fRmax - kTolerance) * (fTorus.fRmax - kTolerance);
 
-    GetAlongVectorToPhiSector(fSphi, fAlongPhi1x, fAlongPhi1y);
-    GetAlongVectorToPhiSector(fSphi + fDphi, fAlongPhi2x, fAlongPhi2y);
+    GetAlongVectorToPhiSector(fTorus.fSphi, fAlongPhi1x, fAlongPhi1y);
+    GetAlongVectorToPhiSector(fTorus.fSphi + fTorus.fDphi, fAlongPhi2x, fAlongPhi2y);
   }
 
 public:
   VECCORE_ATT_HOST_DEVICE
-  UnplacedTorus2(const Precision rminVal, const Precision rmaxVal, const Precision rtorVal, const Precision sphiVal,
-                 const Precision dphiVal)
-      : fRmin(rminVal), fRmax(rmaxVal), fRtor(rtorVal), fSphi(sphiVal), fDphi(dphiVal), fPhiWedge(dphiVal, sphiVal),
-        fBoundingTube(0, 1, 1, 0, dphiVal)
+  UnplacedTorus2(Precision const &_rmin, Precision const &_rmax, Precision const &_rtor, Precision const &_sphi,
+                 Precision const &_dphi)
+      : fTorus(_rmin, _rmax, _rtor, _sphi, _dphi), fPhiWedge(_dphi, _sphi), fBoundingTube(0, 1, 1, 0, _dphi)
   {
     calculateCached();
 
-    fBoundingTube =
-        GenericUnplacedTube(fRtor - fRmax - kTolerance, fRtor + fRmax + kTolerance, fRmax, sphiVal, dphiVal);
+    fBoundingTube = GenericUnplacedTube(fTorus.fRtor - fTorus.fRmax - kTolerance,
+                                        fTorus.fRtor + fTorus.fRmax + kTolerance, fTorus.fRmax, _sphi, _dphi);
+
     DetectConvexity();
   }
 
   VECCORE_ATT_HOST_DEVICE
+  UnplacedTorus2(UnplacedTorus2 const &other)
+      : fTorus(other.fTorus), fPhiWedge(other.GetWedge()), fBoundingTube(other.GetBoundingTube())
+  {
+  }
+
+  VECCORE_ATT_HOST_DEVICE
+  TorusStruct2<double> const &GetStruct() const { return fTorus; }
+
+  VECCORE_ATT_HOST_DEVICE
   void DetectConvexity();
-  //  VECCORE_ATT_HOST_DEVICE
-  //  UnplacedTorus2(UnplacedTorus2 const &other) :
-  //  fRmin(other.fRmin), fRmax(other.fRmax), fRtor(other.fRtor), fSphi(other.fSphi),
-  //  fDphi(other.fDphi),fBoundingTube(other.fBoundingTube) {
-  //    calculateCached();
-  //
-  //  }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision rmin() const { return fRmin; }
+  Precision rmin() const { return fTorus.fRmin; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision rmax() const { return fRmax; }
+  Precision rmax() const { return fTorus.fRmax; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision rtor() const { return fRtor; }
+  Precision rtor() const { return fTorus.fRtor; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision sphi() const { return fSphi; }
+  Precision sphi() const { return fTorus.fSphi; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision dphi() const { return fDphi; }
+  Precision dphi() const { return fTorus.fDphi; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
@@ -151,36 +154,39 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Precision volume() const { return fDphi * kPi * fRtor * (fRmax * fRmax - fRmin * fRmin); }
+  Precision volume() const
+  {
+    return fTorus.fDphi * kPi * fTorus.fRtor * (fTorus.fRmax * fTorus.fRmax - fTorus.fRmin * fTorus.fRmin);
+  }
 
   VECCORE_ATT_HOST_DEVICE
   void SetRMin(Precision arg)
   {
-    fRmin = arg;
+    fTorus.fRmin = arg;
     calculateCached();
   }
   VECCORE_ATT_HOST_DEVICE
   void SetRMax(Precision arg)
   {
-    fRmax = arg;
+    fTorus.fRmax = arg;
     calculateCached();
   }
   VECCORE_ATT_HOST_DEVICE
   void SetRTor(Precision arg)
   {
-    fRtor = arg;
+    fTorus.fRtor = arg;
     calculateCached();
   }
   VECCORE_ATT_HOST_DEVICE
   void SetSPhi(Precision arg)
   {
-    fSphi = arg;
+    fTorus.fSphi = arg;
     calculateCached();
   }
   VECCORE_ATT_HOST_DEVICE
   void SetDPhi(Precision arg)
   {
-    fDphi = arg;
+    fTorus.fDphi = arg;
     calculateCached();
   }
 
@@ -188,15 +194,17 @@ public:
   VECGEOM_FORCE_INLINE
   Precision SurfaceArea() const
   {
-    Precision surfaceArea = fDphi * kTwoPi * fRtor * (fRmax + fRmin);
-    if (fDphi < kTwoPi) {
-      surfaceArea = surfaceArea + kTwoPi * (fRmax * fRmax - fRmin * fRmin);
+    Precision surfaceArea = fTorus.fDphi * kTwoPi * fTorus.fRtor * (fTorus.fRmax + fTorus.fRmin);
+    if (fTorus.fDphi < kTwoPi) {
+      surfaceArea = surfaceArea + kTwoPi * (fTorus.fRmax * fTorus.fRmax - fTorus.fRmin * fTorus.fRmin);
     }
     return surfaceArea;
   }
 
+  Precision Capacity() const { return volume(); }
+
   VECCORE_ATT_HOST_DEVICE
-  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &norm) const;
+  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &norm) const override;
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
@@ -204,16 +212,18 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  void Extent(Vector3D<Precision> &min, Vector3D<Precision> &max) const { GetBoundingTube().Extent(min, max); }
+  void Extent(Vector3D<Precision> &min, Vector3D<Precision> &max) const override { GetBoundingTube().Extent(min, max); }
 
-  Vector3D<Precision> SamplePointOnSurface() const;
+  Vector3D<Precision> SamplePointOnSurface() const override;
 
-  virtual int MemorySize() const final { return sizeof(*this); }
+  virtual int MemorySize() const override { return sizeof(*this); }
 
   VECCORE_ATT_HOST_DEVICE
   virtual void Print() const final;
 
   virtual void Print(std::ostream &os) const final;
+
+  std::string GetEntityType() const { return "Torus"; }
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECCORE_ATT_DEVICE
@@ -229,24 +239,24 @@ public:
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
 #endif
 
-#if defined(VECGEOM_USOLIDS)
-  std::ostream &StreamInfo(std::ostream &os) const;
-#endif
-
-  std::string GetEntityType() const { return "Torus2"; }
-
 private:
-
-  VECCORE_ATT_DEVICE
+#ifndef VECCORE_CUDA
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECCORE_CUDA
-                                           const int id,
+                                           VPlacedVolume *const placement = NULL) const override;
+
+#else
+  __device__ virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
+                                                      Transformation3D const *const transformation,
+                                                      const TranslationCode trans_code, const RotationCode rot_code,
+                                                      const int id,
+                                                      VPlacedVolume *const placement = NULL) const override;
+
 #endif
-                                           VPlacedVolume *const placement = NULL) const final;
 };
-}
-} // end global namespace
+
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_UNPLACEDTORUS2_H_
