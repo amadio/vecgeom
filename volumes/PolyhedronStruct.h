@@ -156,6 +156,7 @@ struct PolyhedronStruct {
       int j    = (i0 + verticesCount + inc * i) % verticesCount;
       int jsim = (i0 + verticesCount + inc * (verticesCount - 1 - i)) % verticesCount;
       assert(z[j] == z[jsim]);
+      (void)jsim;
       int iz = i;
       if (i >= Nz) {
         iz       = verticesCount - 1 - iz;
