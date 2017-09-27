@@ -103,77 +103,110 @@ struct PolyhedronStruct {
                    Precision const r[], Precision const z[])
       : fSideCount(sideCount), fHasInnerRadii(false), fHasPhiCutout(phiDelta < kTwoPi),
         fHasLargePhiCutout(phiDelta < kPi), fPhiStart(NormalizeAngle<kScalar>(phiStart)),
-        fPhiDelta((phiDelta > kTwoPi) ? kTwoPi : phiDelta), fPhiWedge(fPhiDelta, fPhiStart),
-        fZSegments(verticesCount / 2 - 1), fZPlanes(verticesCount / 2), fRMin(verticesCount / 2),
-        fRMax(verticesCount / 2), fPhiSections(sideCount + 1), fBoundingTube(0, 1, 1, fPhiStart, fPhiDelta),
-        fSurfaceArea(0.), fCapacity(0.)
+        fPhiDelta((phiDelta > kTwoPi) ? kTwoPi : phiDelta), fPhiWedge(fPhiDelta, fPhiStart), fZSegments(), fZPlanes(),
+        fRMin(), fRMax(), fPhiSections(sideCount + 1), fBoundingTube(0, 1, 1, fPhiStart, fPhiDelta), fSurfaceArea(0.),
+        fCapacity(0.), fContinuousInSlope(true), fConvexityPossible(true), fEqualRmax(true)
   {
-    if (verticesCount < 4) throw std::runtime_error("A Polyhedron needs at least 4 vertices");
+    if (verticesCount < 3) throw std::runtime_error("A Polyhedron needs at least 3 (rz) vertices");
 
     // Geant4-like construction (n = verticesCount). The rz section is described
     // as a sequence of connected vertices (r[i], z[i]). We have to associate
     // the vertices with (rmin, rmax, z) plane representation.
 
-    // detect outer vertex with minimum Z and detect if vertices are defined clockwise
-    double z0                       = z[0] + 1;
-    double r0                       = -1.;
-    int i0                          = -1;
-    int nvert                       = 0;
-    bool cw                         = true;
+    // detect if vertices are defined clockwise
+    double area = 0;
+    for (int i = 0; i < verticesCount; ++i) {
+      int j = (i + 1) % verticesCount;
+      area += r[i] * z[j] - r[j] * z[i];
+    }
+
+    bool cw   = (area < 0);
+    int inc   = cw ? -1 : 1;
+    double zt = z[0];
+    double zb = z[0];
+    // Find min/max on Z
+    for (int i = 0; i < verticesCount; ++i) {
+      if (z[i] > zt) zt = z[i];
+      if (z[i] < zb) zb = z[i];
+    }
+
+    // Add implicit vertices
+    double *rnew       = new double[2 * verticesCount];
+    double *znew       = new double[2 * verticesCount];
+    int verticesCount1 = 0;
+    for (int i0 = 0; i0 < verticesCount; ++i0) {
+      rnew[verticesCount1]   = r[i0];
+      znew[verticesCount1++] = z[i0];
+      // Check if top/bottom vertex is singular
+      if (vecCore::math::Abs(z[i0] - zt) < kTolerance || vecCore::math::Abs(z[i0] - zb) < kTolerance) {
+        if (vecCore::math::Abs(z[i0] - z[(i0 + verticesCount - 1) % verticesCount]) > kTolerance &&
+            vecCore::math::Abs(z[i0] - z[(i0 + 1) % verticesCount]) > kTolerance) {
+          rnew[verticesCount1]   = r[i0];
+          znew[verticesCount1++] = z[i0];
+        }
+      }
+      int i1    = (i0 + 1) % verticesCount;
+      double dz = z[i1] - z[i0];
+      if (vecCore::math::Abs(dz) < kTolerance) continue;
+      double zmin = vecCore::math::Min(z[i0], z[i1]);
+      double zmax = vecCore::math::Max(z[i0], z[i1]);
+      for (int j = 0; j < verticesCount - 2; ++j) {
+        // go backward
+        int k = (i0 - 1 - j + verticesCount) % verticesCount;
+        if (z[k] > zmin + kTolerance && z[k] < zmax - kTolerance) {
+          // Project the vertex on current segment to get a new vertex
+          double rp = r[i0] + (r[i1] - r[i0]) * (z[k] - z[i0]) / dz;
+          assert(rp >= 0);
+          // We need to insert point (rp, z[k]) after i1
+          rnew[verticesCount1]   = rp;
+          znew[verticesCount1++] = z[k];
+        }
+      }
+    }
+
+    // detect index of outer vertex with minimum Z
+    int i0 = -1;
+    for (int i = 0; i < verticesCount1; ++i) {
+      if (znew[i] == zb) {
+        i0 = i;
+        break;
+      }
+    }
+    if (vecCore::math::Abs(zb - znew[(i0 + inc) % verticesCount1]) < kTolerance) i0 = (i0 + inc) % verticesCount1;
+
     if (phiDelta > kTwoPi) phiDelta = kTwoPi;
     Precision sidePhi               = phiDelta / sideCount;
     Precision cosHalfDeltaPhi       = cos(0.5 * sidePhi);
 
-    for (int i = 0; i < verticesCount; ++i) {
-      if (z[i] < z0) {
-        i0    = i;
-        r0    = r[i];
-        z0    = z[i];
-        nvert = 1;
-        continue;
-      }
-      if (z[i] > z0) continue;
-      // another point found at this Z before
-      nvert++;
-      if (r[i] > r0) {
-        // i>i0, so counter-clockwise
-        r0 = r[i];
-        i0 = i;
-        cw = false;
-      }
-    }
-    assert(nvert == 2 && "Unplaced polyhedra defined in rz mode has only one low Z vertex");
     // We count vertices starting from imin, making sure we move counter-clockwise
 
-    int Nz          = verticesCount / 2;
-    Precision *rMin = new Precision[Nz];
-    Precision *rMax = new Precision[Nz];
-    Precision *zArg = new Precision[Nz];
+    int Nz       = verticesCount1 / 2;
+    double *rMin = new double[Nz];
+    double *rMax = new double[Nz];
+    double *zArg = new double[Nz];
 
-    int inc = cw ? -1 : 1;
-    for (int i = 0; i < verticesCount; ++i) {
-      // Current vertex index going always ccw from (rmin,zmin)
-      int j    = (i0 + verticesCount + inc * i) % verticesCount;
-      int jsim = (i0 + verticesCount + inc * (verticesCount - 1 - i)) % verticesCount;
-      assert(z[j] == z[jsim]);
-      (void)jsim;
-      int iz = i;
-      if (i >= Nz) {
-        iz       = verticesCount - 1 - iz;
-        rMin[iz] = r[j] * cosHalfDeltaPhi;
-      } else {
-        rMax[iz] = r[j] * cosHalfDeltaPhi;
-      }
-      zArg[iz] = z[j];
-    }
-
-    // final data integrity cross-check
     for (int i = 0; i < Nz; ++i) {
+      // Current vertex index going always ccw from (rmin,zmin)
+      int j    = (i0 + verticesCount1 + inc * i) % verticesCount1;
+      int jsim = (i0 + verticesCount1 + inc * (verticesCount1 - 1 - i)) % verticesCount1;
+      assert(znew[j] == znew[jsim]);
+      zArg[i] = znew[j];
+      rMax[i] = rnew[j] * cosHalfDeltaPhi;
+      rMin[i] = rnew[jsim] * cosHalfDeltaPhi;
       assert(rMax[i] >= rMin[i] &&
              "UnplPolycone ERROR: r[] provided has problems of the Rmax < Rmin type, please check!\n");
     }
+
+    // Allocate arrays
+    fZSegments.Allocate(Nz - 1);
+    fZPlanes.Allocate(Nz);
+    fRMin.Allocate(Nz);
+    fRMax.Allocate(Nz);
+
     // Delegate to full constructor
     Initialize(phiStart, phiDelta, sideCount, Nz, zArg, rMin, rMax);
+    delete[] rnew;
+    delete[] znew;
     delete[] rMin;
     delete[] rMax;
     delete[] zArg;
@@ -275,7 +308,7 @@ struct PolyhedronStruct {
       if (rMin[i] < innerRadius) innerRadius = rMin[i];
       // rMin[i] /= cosHalfDeltaPhi;
       // rMax[i] /= cosHalfDeltaPhi;
-      assert(rMin[i] >= 0 && rMax[i] > 0);
+      assert(rMin[i] >= 0 && rMax[i] >= 0);
       // Use distance to corner for minimizing outer radius of bounding tube
       if (rMax[i] > outerRadius) outerRadius = rMax[i];
     }
