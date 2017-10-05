@@ -25,119 +25,49 @@ UnplacedExtruded(int nvertices, Vertex2 const *vertices, int nsections, Section 
   
   // Triangulate polygon
 
+  // Fill a vector of vertex indices
+  vector_t<size_t> verticesToBeDone;
+  for (size_t i=0; i<nvertices; ++i)
+    vtx.push_back(i);
+  
+  int i1 = 0;
+  int i2 = 1;
+  int i3 = 2;
 
-
-
-   // Decompose polygonal sides in triangular facets
-
-  typedef std::pair < UVector2, int > Vertex;
-
-  // Fill one more vector
-  //
-  std::vector< Vertex > verticesToBeDone;
-  for (int i = 0; i < fNv; ++i)
-  {
-    verticesToBeDone.push_back(Vertex(fPolygon[i], i));
-  }
-  std::vector< Vertex > ears;
-
-  std::vector< Vertex >::iterator c1 = verticesToBeDone.begin();
-  std::vector< Vertex >::iterator c2 = c1 + 1;
-  std::vector< Vertex >::iterator c3 = c1 + 2;
-  while (verticesToBeDone.size() > 2)
+  while (vtx.size() > 2)
   {
     // skip concave vertices
-    //
-    double angle = GetAngle(c2->first, c3->first, c1->first);
-
     int counter = 0;
-    while (angle >= UUtils::kPi)
-    {
-      // try next three consecutive vertices
-      //
-      c1 = c2;
-      c2 = c3;
-      ++c3;
-      if (c3 == verticesToBeDone.end())
-      {
-        c3 = verticesToBeDone.begin();
-      }
-
-      angle = GetAngle(c2->first, c3->first, c1->first);
-
+    while (!IsConvexSide(vtx[i1], vtx[i2], vtx[i3])) {
+      i1++;
+      i2++;
+      i3 = (i3+1)%vtx.size();
       counter++;
-
-      if (counter > fNv)
-      {
-        UUtils::Exception("UExtrudedSolid::AddGeneralPolygonFacets",
-                          "GeomSolids0003", UFatalError, 1,
-                          "Triangularisation has failed.");
-        break;
-      }
+      assert(counter < nvertices && "Triangulation failed");
     }
-
     bool good = true;
-    std::vector< Vertex >::iterator it;
-    for (it = verticesToBeDone.begin(); it != verticesToBeDone.end(); ++it)
-    {
-      // skip vertices of tested triangle
-      //
-      if (it == c1 || it == c2 || it == c3)
-      {
-        continue;
-      }
-
-      if (IsPointInside(c1->first, c2->first, c3->first, it->first))
-      {
+    for (auto i : vtx) {
+      if (i == vtx[i1] || i == vtx[i2] || i == vtx[i3]) continue;
+      if (IsPointInside(i, vtx[i1], vtx[i2], vtx[i3]) {
         good = false;
-
-        // try next three consecutive vertices
-        //
-        c1 = c2;
-        c2 = c3;
-        ++c3;
-        if (c3 == verticesToBeDone.end())
-        {
-          c3 = verticesToBeDone.begin();
-        }
+        i1++;
+        i2++;
+        i3 = (i3+1)%vtx.size();
         break;
-      }
+      }      
     }
-    if (good)
-    {
-      // all points are outside triangle, we can make a facet
-
-      bool result;
-      result = AddFacet(MakeDownFacet(c1->second, c2->second, c3->second));
-      if (! result)
-      {
-        return false;
-      }
-
-      result = AddFacet(MakeUpFacet(c1->second, c2->second, c3->second));
-      if (! result)
-      {
-        return false;
-      }
-
-      std::vector<int> triangle(3);
-      triangle[0] = c1->second;
-      triangle[1] = c2->second;
-      triangle[2] = c3->second;
-      fTriangles.push_back(triangle);
-
-      // remove the ear point from verticesToBeDone
-      //
-      verticesToBeDone.erase(c2);
-      c1 = verticesToBeDone.begin();
-      c2 = c1 + 1;
-      c3 = c1 + 2;
+    if (good) {
+      // Make triangle
+      ...
+      vtx.erase(vtx.begin() + i2);
+      i1 = 0;
+      i2 = 1;
+      i3 = 2;
     }
   }
-  return true;
- 
+  ...
 }
-
+  
 void UnplacedExtruded::Print() const
 {
   std::cout << "UnplacedExtruded: vertices {";

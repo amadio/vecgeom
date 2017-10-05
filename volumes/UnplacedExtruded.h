@@ -36,6 +36,16 @@ public:
   VECCORE_ATT_HOST_DEVICE
   UnplacedExtruded(int nvertices, Vertex2 const *vertices, int nsections, Section const *sections);
 
+  /** @brief Check if the polygone segments (i0, i1) and (i1, i2) make a convex side */
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  bool IsConvexSide(size_t i0, size_t i1, size_t i2) {
+    const double *x = fPolygon.GetVertices().x(); 
+    const double *y = fPolygon.GetVertices().y();
+    double cross = (x[i1] - x[i0)) * (y[i2] - y[i1]) - (x[i2] - x[i1]) * (y[i1] - y[i0]);
+    return cross < 0.;
+  } 
+
   VECCORE_ATT_HOST_DEVICE
   virtual void Print() const final;
 
