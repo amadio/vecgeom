@@ -78,6 +78,7 @@ public:
             if (!vecCore::MaskEmpty(closer1)) {
               for (size_t j = 0 /*closer.firstOne()*/; j < kVS; ++j) { // leaf node
                 if (vecCore::MaskLaneAt(closer1, j)) {
+                  assert(count < VECGEOM_MAXFACETS);
                   boxsafetypairs[count] = HybridManager2::BoxIdDistancePair_t(nodeToDaughters[nodeindex + i][j],
                                                                               vecCore::LaneAt(safetytoboxsqr, j));
                   count++;
@@ -142,7 +143,7 @@ public:
               // loop bounding boxes in the cluster
               for (size_t j = 0; j < kVS; ++j) {
                 if (vecCore::MaskLaneAt(hit1, j)) {
-                  assert(count < VECGEOM_MAXDAUGHTERS);
+                  assert(count < VECGEOM_MAXFACETS);
                   hitlist[count] = HybridManager2::BoxIdDistancePair_t(nodeToDaughters[nodeindex + i][j],
                                                                        vecCore::LaneAt(safetytoboxsqr, j));
                   Precision distmaxsqr_s = vecCore::LaneAt(distmaxsqr, j);
@@ -167,7 +168,7 @@ public:
     // The following construct reserves stackspace for objects
     // of type IdDistPair_t WITHOUT initializing those objects
     using IdDistPair_t = HybridManager2::BoxIdDistancePair_t;
-    char stackspace[VECGEOM_MAXDAUGHTERS * sizeof(IdDistPair_t)];
+    char stackspace[VECGEOM_MAXFACETS * sizeof(IdDistPair_t)];
     IdDistPair_t *hitlist = reinterpret_cast<IdDistPair_t *>(&stackspace);
 
     // Get candidates using HybridSafetyEstimator

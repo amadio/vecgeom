@@ -93,7 +93,7 @@ private:
             if (!vecCore::MaskEmpty(hit1)) {
               for (size_t j = 0 /*hit1.firstOne()*/; j < kVS; ++j) { // leaf node
                 if (vecCore::MaskLaneAt(hit1, j)) {
-                  assert(count < VECGEOM_MAXDAUGHTERS);
+                  assert(count < VECGEOM_MAXFACETS);
                   hitlist[count] = HybridManager2::BoxIdDistancePair_t(nodeToDaughters[nodeindex + i][j],
                                                                        vecCore::LaneAt(distance, j));
                   count++;
@@ -128,7 +128,7 @@ public:
     // The following construct reserves stackspace for objects
     // of type IdDistPair_t WITHOUT initializing those objects
     using IdDistPair_t = HybridManager2::BoxIdDistancePair_t;
-    char stackspace[VECGEOM_MAXDAUGHTERS * sizeof(IdDistPair_t)];
+    char stackspace[VECGEOM_MAXFACETS * sizeof(IdDistPair_t)];
     IdDistPair_t *hitlist = reinterpret_cast<IdDistPair_t *>(&stackspace);
 
     auto ncandidates = GetHitCandidates_v(accstructure, localpoint, localdir, hitlist);
