@@ -73,18 +73,15 @@ public:
     fB.resize(bs, 0);
     fD.resize(bs, 0);
 
+    int inc = (GetOrientation(x, y, nvertices) > 0) ? -1 : 1;
     // init the vertices (wrapping around periodically)
     for (size_t i = 0; i < (size_t)fNVertices; ++i) {
-      const size_t k = i % fNVertices;
+      const size_t k = (i * inc + fNVertices) % fNVertices;
       fVertices.set(i, x[k], y[k], 0);
-#ifndef VECCORE_CUDA
-      using std::min;
-      using std::max;
-#endif
-      fMinX = min(x[k], fMinX);
-      fMinY = min(y[k], fMinY);
-      fMaxX = max(x[k], fMaxX);
-      fMaxY = max(y[k], fMaxY);
+      fMinX = vecCore::math::Min(x[k], fMinX);
+      fMinY = vecCore::math::Min(y[k], fMinY);
+      fMaxX = vecCore::math::Max(x[k], fMaxX);
+      fMaxY = vecCore::math::Max(y[k], fMaxY);
     }
 
     // initialize and cache the slopes as a "hidden" component

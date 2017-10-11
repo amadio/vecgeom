@@ -19,7 +19,7 @@ VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedTessellated);
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class UnplacedTessellated : public LoopUnplacedVolumeImplHelper<TessellatedImplementation>, public AlignedBase {
-private:
+protected:
   mutable TessellatedStruct<double> fTessellated; ///< Structure with Tessellated parameters
 
 public:
@@ -57,7 +57,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   bool IsClosed() const { return fTessellated.fSolidClosed; }
 
-  virtual int memory_size() const final { return sizeof(*this); }
+  virtual int memory_size() const { return sizeof(*this); }
 
   VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override { fTessellated.Extent(aMin, aMax); }
@@ -78,7 +78,7 @@ public:
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override;
 
   VECCORE_ATT_HOST_DEVICE
-  virtual void Print() const final;
+  virtual void Print() const override;
 
   std::string GetEntityType() const { return "Tessellated"; }
 
@@ -101,7 +101,7 @@ public:
 #endif
 
 private:
-  virtual void Print(std::ostream &os) const final;
+  virtual void Print(std::ostream &os) const override;
 
   VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
@@ -110,7 +110,7 @@ private:
 #ifdef VECCORE_CUDA
                                            const int id,
 #endif
-                                           VPlacedVolume *const placement = NULL) const final;
+                                           VPlacedVolume *const placement = NULL) const override;
 };
 }
 } // end global namespace

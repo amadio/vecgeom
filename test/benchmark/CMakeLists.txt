@@ -30,6 +30,7 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${CMAKE_SOURCE_DIR}/test/benchmark/GenTrapBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/CutTubeBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TessellatedBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/ExtrudedBenchmark.cpp
   PARENT_SCOPE
 )
 

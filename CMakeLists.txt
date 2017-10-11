@@ -688,6 +688,7 @@ set(VECGEOM_SRCS
   source/PlacedScaledShape.cpp
   source/PlacedTrapezoid.cpp
   source/PlacedTessellated.cpp
+  source/PlacedExtruded.cpp
   source/PlacedVolume.cpp
   source/Planes.cpp
   source/Plane.cpp
@@ -711,6 +712,7 @@ set(VECGEOM_SRCS
   source/UnplacedTrapezoid.cpp
   source/UnplacedGenTrap.cpp
   source/UnplacedTessellated.cpp
+  source/UnplacedExtruded.cpp
   source/UnplacedVolume.cpp
   source/NavigationState.cpp
   source/SimpleNavigator.cpp
@@ -785,6 +787,8 @@ set(NOT_FOR_CUDA
    UnplacedTessellated
    PlacedTessellated
    TessellatedCluster
+   UnplacedExtruded
+   PlacedExtruded
 )
 
 
