@@ -238,7 +238,7 @@ struct PolyconeImplementation {
   static void DistanceToOut(UnplacedStruct_t const &polycone, Vector3D<Real_v> const &point,
                             Vector3D<Real_v> const &dir, Real_v const &stepMax, Real_v &distance)
   {
-
+    distance            = kInfLength;
     Vector3D<Real_v> pn = point;
 
     // specialization for N==1??? It should be a cone in the first place
