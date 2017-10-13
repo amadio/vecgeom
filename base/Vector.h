@@ -219,8 +219,8 @@ public:
     iterator where = (begin() + (position - cbegin()));
     if (where + 1 != end()) {
       auto last = cend();
-      for (auto c = where; (where + 1) != last; ++c)
-        *c = (*c + 1);
+      for (auto c = where; (c + 1) != last; ++c)
+        *c = *(c + 1);
     }
     --fSize;
     if (fSize) Internal::AllocTrait<Type>::Destroy(fData[fSize]);
