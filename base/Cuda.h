@@ -77,6 +77,11 @@
      inline namespace cxx { namespace NS { classOrStruct X; } }                \
      template <> struct kCudaType<cxx::NS::X> { using type_t = cuda::NS::X; }
 
+  #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1v(classOrStruct,X,ArgType1,Def1) \
+     namespace cuda { template <ArgType1 Arg1> classOrStruct X; }                \
+     inline namespace cxx  { template <ArgType1 Arg1> classOrStruct X; }         \
+     template <ArgType1 Arg1,> struct kCudaType<cxx::X<Arg1> >                   \
+     { using type_t = cuda::X<Arg>; }
   #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(classOrStruct,X,ArgType1,Def1,ArgType2,Def2) \
      namespace cuda { template <ArgType1 Arg1,ArgType2 Arg2> classOrStruct X; }                \
      inline namespace cxx  { template <ArgType1 Arg1,ArgType2 Arg2> classOrStruct X; }         \
@@ -111,6 +116,11 @@
      inline namespace cxx { namespace NS { classOrStruct X; } }                  \
      template <> struct kCudaType<cxx::NS::X> { using type_t = cuda::NS::Def; }
 
+  #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1v(classOrStruct,X,ArgType1,Def1) \
+     namespace cuda { template <ArgType1 Arg1> classOrStruct X; }                \
+     inline namespace cxx  { template <ArgType1 Arg1> classOrStruct X; }         \
+     template <ArgType1 Arg1> struct kCudaType<cxx::X<Arg1> >                    \
+     { using type_t = cuda::X<Def1>; }
   #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(classOrStruct,X,ArgType1,Def1,ArgType2,Def2) \
      namespace cuda { template <ArgType1 Arg1,ArgType2 Arg2> classOrStruct X; }                \
      inline namespace cxx  { template <ArgType1 Arg1,ArgType2 Arg2> classOrStruct X; }         \
