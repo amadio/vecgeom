@@ -16,6 +16,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(template <typename Type> class Vector3D;);
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE(class, Vector3D, typename);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

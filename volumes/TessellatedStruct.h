@@ -16,6 +16,8 @@
 
 namespace vecgeom {
 
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE(class, TessellatedStruct, typename);
+
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 // Structure used for vectorizing queries on groups of triangles

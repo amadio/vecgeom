@@ -15,7 +15,7 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE(template <typename Type> class TessellatedCluster;);
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE(class, TessellatedCluster, typename);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

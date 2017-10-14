@@ -8,6 +8,8 @@
 
 namespace vecgeom {
 
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE(struct, TriangleFacet, typename);
+
 inline namespace VECGEOM_IMPL_NAMESPACE {
 //______________________________________________________________________________
 // Basic structure of indices to 3 vertices making a triangle.
