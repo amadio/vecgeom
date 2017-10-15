@@ -25,8 +25,12 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 template <typename T = double>
 class TessellatedStruct {
 
-  using BitSet  = veccore::BitSet;
-  using Real_v  = vecgeom::VectorBackend::Real_v;
+  using BitSet = veccore::BitSet;
+#ifndef VECGEOM_ENABLE_CUDA
+  using Real_v = vecgeom::VectorBackend::Real_v;
+#else
+  using Real_v = vecgeom::ScalarBackend::Real_v;
+#endif
   using Facet_t = TriangleFacet<T>;
 
   // Here we should be able to use vecgeom::Vector
