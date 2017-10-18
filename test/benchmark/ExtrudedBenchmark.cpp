@@ -7,6 +7,7 @@
 #include "base/Stopwatch.h"
 #include <iostream>
 #include "volumes/Extruded.h"
+#include "volumes/SExtru.h"
 
 using namespace vecgeom;
 
@@ -20,12 +21,15 @@ int main(int argc, char *argv[])
   OPTION_INT(nvert, 8);
   OPTION_INT(nsect, 2);
   OPTION_BOOL(convex,'t');
+  OPTION_BOOL(sxtru,'f');
   
   double rmin = 10.;
   double rmax = 20.;
   
   vecgeom::XtruVertex2 *vertices = new vecgeom::XtruVertex2[nvert];
   vecgeom::XtruSection *sections = new vecgeom::XtruSection[nvert];
+  double *x = new double[nvert];
+  double *y = new double[nvert];
 
   double phi = 2.* kPi/nvert;
   double r;
@@ -33,23 +37,33 @@ int main(int argc, char *argv[])
     r = rmax;
     if (i%2 > 0 && !convex) r = rmin;
     vertices[i].x = r * vecCore::math::Cos(i*phi);
-    vertices[i].y = r * vecCore::math::Sin(i*phi);     
+    vertices[i].y = r * vecCore::math::Sin(i*phi);
+    x[i] = vertices[i].x;
+    y[i] = vertices[i].y;
   }
   for (int i=0; i<nsect; ++i) {
     sections[i].fOrigin.Set(0,0,-20. + i*40./(nsect-1));
     sections[i].fScale = 1;
   }
     
-  UnplacedBox worldUnplaced = UnplacedBox(20., 20., 20.);
-
-  UnplacedExtruded xtru(nvert, vertices, nsect, sections);
-  std::cout << "Benchmarking extruded polygon having " << vertices << " vertices and " << nsect << " sections\n";
-
-  LogicalVolume world("world", &worldUnplaced);
-  LogicalVolume xtruVol("xtru", &xtru);
-
   Transformation3D placement(0, 0, 0);
-  world.PlaceDaughter("extruded", &xtruVol, &placement);
+  UnplacedBox worldUnplaced = UnplacedBox(20., 20., 20.);
+  LogicalVolume world("world", &worldUnplaced);
+
+  UnplacedSExtruVolume sxtruv(nvert, x, y, -20, 20);
+  LogicalVolume sxtruVol("xtru", &sxtruv);
+  if (sxtru) {
+    world.PlaceDaughter("extruded", &sxtruVol, &placement);
+    std::cout << "Benchmarking sextru polygon having " << vertices << " vertices and " << nsect << " sections\n";
+  }
+  
+  UnplacedExtruded xtru(nvert, vertices, nsect, sections);
+  LogicalVolume xtruVol("xtru", &xtru);
+  
+  if (!sxtru) {
+    world.PlaceDaughter("extruded", &xtruVol, &placement);
+    std::cout << "Benchmarking extruded polygon having " << vertices << " vertices and " << nsect << " sections\n";
+  }
 
   VPlacedVolume *worldPlaced = world.Place();
 
@@ -61,6 +75,8 @@ int main(int argc, char *argv[])
   tester.SetPointCount(npoints);
   tester.SetToInBias(0.8);
   tester.SetPoolMultiplier(1);
+  delete [] x;
+  delete [] y;
 
   //  tester.RunToInBenchmark();
   //  tester.RunToOutBenchmark();

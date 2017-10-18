@@ -6,7 +6,7 @@
 
 #include "base/Global.h"
 
-#include "volumes/kernel/TessellatedImplementation.h"
+#include "volumes/kernel/ExtrudedImplementation.h"
 #include "volumes/PlacedExtruded.h"
 #include "volumes/SpecializedPlacedVolImplHelper.h"
 
@@ -14,7 +14,7 @@ namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-using SpecializedExtruded = LoopSpecializedVolImplHelper<TessellatedImplementation, transCodeT, rotCodeT>;
+using SpecializedExtruded = LoopSpecializedVolImplHelper<ExtrudedImplementation, transCodeT, rotCodeT>;
 
 using SimpleExtruded = SpecializedExtruded<translation::kGeneric, rotation::kGeneric>;
 }

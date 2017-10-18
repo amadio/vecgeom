@@ -39,7 +39,7 @@ UnplacedExtruded::UnplacedExtruded(int nvertices, XtruVertex2 const *vertices,
   Vector<FacetInd> facets(nvertices);
   // Fill a vector of vertex indices
   vector_t<size_t> vtx;
-  for (size_t i=0; i<nvertices; ++i)
+  for (size_t i=0; i<(size_t)nvertices; ++i)
     vtx.push_back(i);
 
   int i1 = 0;
@@ -72,7 +72,7 @@ UnplacedExtruded::UnplacedExtruded(int nvertices, XtruVertex2 const *vertices,
 
     if (good) {
       // Make triangle
-      facets.push_back(FacetInd(i1, i2, i3));
+      facets.push_back(FacetInd(vtx[i1], vtx[i2], vtx[i3]));
       // Remove the middle vertex of the ear and restart
       vtx.erase(vtx.begin() + i2);
       i1 = 0;
@@ -82,7 +82,7 @@ UnplacedExtruded::UnplacedExtruded(int nvertices, XtruVertex2 const *vertices,
   }
   // We have all index facets, create now the real facets
   // Bottom (normals pointing down)
-  for (int i=0; i<facets.size(); ++i) {
+  for (size_t i=0; i<facets.size(); ++i) {
     i1 = facets[i].ind1;
     i2 = facets[i].ind2;
     i3 = facets[i].ind3;
@@ -92,7 +92,7 @@ UnplacedExtruded::UnplacedExtruded(int nvertices, XtruVertex2 const *vertices,
   }
   // Sections
   for (int isect = 0; isect < nsections - 1; ++isect) {
-    for (size_t i = 0; i < nvertices; ++i) {
+    for (size_t i = 0; i < (size_t)nvertices; ++i) {
       size_t j = (i + 1) % nvertices;
       // Quadrilateral isect:(j, i)  isect+1: (i, j)
       fTessellated.AddQuadrilateralFacet(VertexToSection(j, isect),
@@ -102,7 +102,7 @@ UnplacedExtruded::UnplacedExtruded(int nvertices, XtruVertex2 const *vertices,
     }
   }
   //Top (normals pointing up)
-  for (int i=0; i<facets.size(); ++i) {
+  for (size_t i=0; i<facets.size(); ++i) {
     i1 = facets[i].ind1;
     i2 = facets[i].ind2;
     i3 = facets[i].ind3;

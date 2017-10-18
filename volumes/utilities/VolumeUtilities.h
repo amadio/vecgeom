@@ -436,7 +436,7 @@ void FillContainedPoints(VPlacedVolume const &volume, const double bias, TrackCo
   while (static_cast<double>(insideCount) / static_cast<double>(size) > bias) {
     while (!insideVector[i])
       ++i;
-    bool contained = false;
+    bool contained;
     do {
       ++tries;
       if (tries % 1000000 == 0) {
@@ -445,6 +445,7 @@ void FillContainedPoints(VPlacedVolume const &volume, const double bias, TrackCo
       }
 
       points.set(i, offset + SamplePoint(dim));
+      contained = false;
       for (Vector<Daughter>::const_iterator v = volume.GetDaughters().cbegin(), v_end = volume.GetDaughters().end();
            v != v_end; ++v) {
         bool inside = (placed) ? (*v)->Contains(points[i]) : (*v)->UnplacedContains(points[i]);

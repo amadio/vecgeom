@@ -10,7 +10,7 @@
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedExtruded;);
-VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedExtruded);
+VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedExtrunvertded);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -26,8 +26,10 @@ struct XtruSection {
 
 class UnplacedExtruded : public UnplacedTessellated {
 
+//template <typename U>
+//using vector_t = vecgeom::Vector<U>;
 template <typename U>
-using vector_t = vecgeom::Vector<U>;
+using vector_t = std::vector<U>;
 
 private:
   vector_t<XtruVertex2> fVertices;      ///< Polygone vertices
@@ -48,6 +50,29 @@ public:
       return false;
     return true;
   } 
+
+  /** @brief GetThe number of sections */
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  size_t GetNSections() const { return fSections.size(); }
+  
+  /** @brief Get section i */
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  XtruSection GetSection(int i) const { return fSections[i]; }
+ 
+  /** @brief Get the number of vertices */
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  size_t GetNVertices() const { return fPolygon->GetNVertices(); }
+  
+  /** @brief Get the polygone vertex i */
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  void GetVertex(int i, double &x, double &y) const {
+    x = fPolygon->GetVertices().x()[i];
+    y = fPolygon->GetVertices().y()[i];
+  }
 
   /** @brief Check if the polygone segments (i0, i1) and (i1, i2) make a convex side */
   VECCORE_ATT_HOST_DEVICE

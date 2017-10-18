@@ -10,7 +10,12 @@
 #include "UTriangularFacet.hh"
 #endif
 
+#ifdef VECGEOM_ROOT
+#include "TGeoXtru.h"
+#endif
+
 #ifdef VECGEOM_GEANT4
+#include "G4ExtrudedSolid.hh"
 #include "G4TessellatedSolid.hh"
 #include "G4TriangularFacet.hh"
 #endif
@@ -30,7 +35,20 @@ VPlacedVolume const *PlacedExtruded::ConvertToUnspecialized() const
 #ifdef VECGEOM_ROOT
 TGeoShape const *PlacedExtruded::ConvertToRoot() const
 {
-  return nullptr; // TO BE IMPLEMENTED
+  size_t nvert = GetUnplacedVolume()->GetNVertices();
+  size_t nsect = GetUnplacedVolume()->GetNSections();
+  double *x = new double[nvert];
+  double *y = new double[nvert];
+  for (size_t i=0; i<nvert; ++i) {
+    GetUnplacedVolume()->GetVertex(i, x[i], y[i]);
+  }
+  TGeoXtru *xtru = new TGeoXtru(nsect);
+  xtru->DefinePolygon(nvert, x, y);
+  for (size_t i=0; i<nsect; ++i) {
+    XtruSection sect = GetUnplacedVolume()->GetSection(i);
+    xtru->DefineSection(i, sect.fOrigin.z(), sect.fOrigin.x(), sect.fOrigin.y(), sect.fScale);
+  }  
+  return xtru;
 }
 #endif
 
@@ -54,6 +72,22 @@ TGeoShape const *PlacedExtruded::ConvertToRoot() const
 #ifdef VECGEOM_GEANT4
 G4VSolid const *PlacedExtruded::ConvertToGeant4() const
 {
+  std::vector<G4TwoVector> polygon;
+  double x,y;
+  size_t nvert = GetUnplacedVolume()->GetNVertices();
+  for (size_t i=0; i<nvert; ++i) {
+    GetUnplacedVolume()->GetVertex(i, x, y);
+    polygon.push_back(G4TwoVector(x,y));
+  }
+  std::vector<G4ExtrudedSolid::ZSection> sections;
+  size_t nsect = GetUnplacedVolume()->GetNSections();
+  for (size_t i=0; i<nsect; ++i) {
+    XtruSection sect = GetUnplacedVolume()->GetSection(i);
+    sections.push_back(G4ExtrudedSolid::ZSection(sect.fOrigin.z(), G4TwoVector(sect.fOrigin.x(), sect.fOrigin.y()), sect.fScale));
+  }
+  G4ExtrudedSolid *g4xtru = new G4ExtrudedSolid("", polygon, sections);
+  return g4xtru;
+/*
   G4TessellatedSolid *tsl = new G4TessellatedSolid("");
   for (size_t ifacet = 0; ifacet < GetUnplacedVolume()->GetNFacets(); ++ifacet) {
     TriangleFacet<double> *facet = GetUnplacedVolume()->GetFacet(ifacet);
@@ -64,6 +98,7 @@ G4VSolid const *PlacedExtruded::ConvertToGeant4() const
   }
   tsl->SetSolidClosed(true);
   return tsl;
+*/
 }
 #endif
 
