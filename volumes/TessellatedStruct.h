@@ -216,7 +216,7 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  void Extent(Vector3D<T> &amin, Vector3D<T> &amax)
+  void Extent(Vector3D<T> &amin, Vector3D<T> &amax) const
   {
     amin = fMinExtent;
     amax = fMaxExtent;

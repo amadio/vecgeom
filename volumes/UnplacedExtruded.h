@@ -4,97 +4,91 @@
 #ifndef VECGEOM_VOLUMES_UNPLACEDEXTRUDED_H_
 #define VECGEOM_VOLUMES_UNPLACEDEXTRUDED_H_
 
-#include "UnplacedTessellated.h"
-#include "volumes/PlanarPolygon.h"
+#include "base/Global.h"
+#include "base/AlignedBase.h"
+#include "volumes/UnplacedVolume.h"
+#include "ExtrudedStruct.h"
+#include "volumes/kernel/ExtrudedImplementation.h"
+#include "volumes/UnplacedVolumeImplHelper.h"
 
 namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedExtruded;);
-VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedExtrunvertded);
+VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedExtruded);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-struct XtruVertex2 {
-  double x;
-  double y;
-};
+class UnplacedExtruded : public LoopUnplacedVolumeImplHelper<ExtrudedImplementation>, public AlignedBase {
 
-struct XtruSection {
-  Vector3D<double> fOrigin; // Origin of the section
-  double fScale;
-};
-
-class UnplacedExtruded : public UnplacedTessellated {
-
-//template <typename U>
-//using vector_t = vecgeom::Vector<U>;
-template <typename U>
-using vector_t = std::vector<U>;
+  // template <typename U>
+  // using vector_t = vecgeom::Vector<U>;
+  template <typename U>
+  using vector_t = std::vector<U>;
 
 private:
-  vector_t<XtruVertex2> fVertices;      ///< Polygone vertices
-  vector_t<XtruSection> fSections;      ///< Vector of sections
-  PlanarPolygon *fPolygon = nullptr;            ///< Planar polygon
+  ExtrudedStruct fXtru; ///< Structure storing the data for the tessellated solid
 
 public:
+  /** @brief Dummy constructor */
+  VECCORE_ATT_HOST_DEVICE
+  UnplacedExtruded() : fXtru() {}
+
   /** @brief Constructor providing polygone vertices and sections */
   VECCORE_ATT_HOST_DEVICE
-  UnplacedExtruded(int nvertices, XtruVertex2 const *vertices,
-                   int nsections, XtruSection const *sections);
+  UnplacedExtruded(int nvertices, XtruVertex2 const *vertices, int nsections, XtruSection const *sections)
+      : fXtru(nvertices, vertices, nsections, sections)
+  {
+    fGlobalConvexity = (nsections == 2) && fXtru.IsConvexPolygon();
+  }
 
-  /** @brief Check if point i is inside triangle (i1, i2, i3) defined clockwise. */
   VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  bool IsPointInside(size_t i, size_t i1, size_t i2, size_t i3) {
-    if (!IsConvexSide(i1, i2, i) || !IsConvexSide(i2, i3, i) || !IsConvexSide(i3, i1, i))
-      return false;
-    return true;
-  } 
+  ExtrudedStruct const &GetStruct() const { return fXtru; }
+
+  /** @brief Initialize */
+  VECCORE_ATT_HOST_DEVICE
+  void Initialize(int nvertices, XtruVertex2 const *vertices, int nsections, XtruSection const *sections)
+  {
+    fXtru.Initialize(nvertices, vertices, nsections, sections);
+    fGlobalConvexity = (nsections == 2) && fXtru.IsConvexPolygon();
+  }
 
   /** @brief GetThe number of sections */
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  size_t GetNSections() const { return fSections.size(); }
-  
+  size_t GetNSections() const { return fXtru.GetNSections(); }
+
   /** @brief Get section i */
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  XtruSection GetSection(int i) const { return fSections[i]; }
- 
+  XtruSection GetSection(int i) const { return fXtru.GetSection(i); }
+
   /** @brief Get the number of vertices */
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  size_t GetNVertices() const { return fPolygon->GetNVertices(); }
-  
+  size_t GetNVertices() const { return fXtru.GetNVertices(); }
+
   /** @brief Get the polygone vertex i */
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  void GetVertex(int i, double &x, double &y) const {
-    x = fPolygon->GetVertices().x()[i];
-    y = fPolygon->GetVertices().y()[i];
-  }
+  void GetVertex(int i, double &x, double &y) const { fXtru.GetVertex(i, x, y); }
 
-  /** @brief Check if the polygone segments (i0, i1) and (i1, i2) make a convex side */
   VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  bool IsConvexSide(size_t i0, size_t i1, size_t i2) {
-    const double *x = fPolygon->GetVertices().x(); 
-    const double *y = fPolygon->GetVertices().y();
-    double cross = (x[i1] - x[i0]) * (y[i2] - y[i1]) - (x[i2] - x[i1]) * (y[i1] - y[i0]);
-    return cross < 0.;
-  } 
+  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override;
 
-  /** @brief Returns the coordinates for a given vertex index at a given section */
+  // Computes capacity of the shape in [length^3]
   VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  Vector3D<double> VertexToSection(size_t ivert, size_t isect) {
-    const double *x = fPolygon->GetVertices().x(); 
-    const double *y = fPolygon->GetVertices().y();
-    Vector3D<double> vert(fSections[isect].fOrigin[0] + fSections[isect].fScale * x[ivert],
-                     fSections[isect].fOrigin[1] + fSections[isect].fScale * y[ivert],
-                     fSections[isect].fOrigin[2]);
-    return vert;
-  }
+  Precision Capacity() const;
+
+  VECCORE_ATT_HOST_DEVICE
+  Precision SurfaceArea() const;
+
+  VECCORE_ATT_HOST_DEVICE
+  int ChooseSurface() const;
+
+  Vector3D<Precision> SamplePointOnSurface() const override;
+
+  VECCORE_ATT_HOST_DEVICE
+  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override;
 
   VECCORE_ATT_HOST_DEVICE
   virtual void Print() const final;
@@ -130,7 +124,6 @@ private:
                                            const int id,
 #endif
                                            VPlacedVolume *const placement = NULL) const final;
-
 };
 }
 } // end global namespace

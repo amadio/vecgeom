@@ -23,6 +23,7 @@
 #include "volumes/UnplacedScaledShape.h"
 #include "volumes/UnplacedGenTrap.h"
 #include "volumes/UnplacedSExtruVolume.h"
+#include "volumes/UnplacedExtruded.h"
 #include "volumes/PlanarPolygon.h"
 #include "volumes/UnplacedAssembly.h"
 #include "volumes/UnplacedCutTube.h"
@@ -530,28 +531,40 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
     unplaced_volume = ToUnplacedGenTrap(p);
   }
 
-  // THE SIMPLE XTRU
+  // THE SIMPLE/GENERAL XTRU
   if (shape->IsA() == TGeoXtru::Class()) {
     TGeoXtru *p = (TGeoXtru *)(shape);
-    // analyse convertability
-    if (p->GetNz() == 2) {
-      // add check on scaling and distortions
-      size_t Nvert = (size_t)p->GetNvert();
-      double *x    = new double[Nvert];
-      double *y    = new double[Nvert];
+    // analyse convertability: the shape must have 2 planes with the same scaling
+    // and offsets to make a simple extruded
+    size_t Nvert = (size_t)p->GetNvert();
+    size_t Nsect = (size_t)p->GetNz();
+    if (Nsect == 2 && p->GetXOffset(0) == p->GetXOffset(1) && p->GetYOffset(0) == p->GetYOffset(1) &&
+        p->GetScale(0) == p->GetScale(1)) {
+      double *x = new double[Nvert];
+      double *y = new double[Nvert];
       for (size_t i = 0; i < Nvert; ++i) {
-        x[i] = p->GetX(i);
-        y[i] = p->GetY(i);
+        // Normally offsets should be 0 and scales should be 1, but just to be safe
+        x[i] = p->GetXOffset(0) + p->GetX(i) * p->GetScale(0);
+        y[i] = p->GetYOffset(0) + p->GetY(i) * p->GetScale(0);
       }
-      // check in which orientation the polygon in given
-      if (PlanarPolygon::GetOrientation(x, y, Nvert) > 0.) {
-        // std::cerr << "Points not given in clockwise order ... reordering \n";
-        for (size_t i = 0; i < Nvert; ++i) {
-          x[Nvert - 1 - i] = p->GetX(i);
-          y[Nvert - 1 - i] = p->GetY(i);
-        }
+      unplaced_volume = new UnplacedSExtruVolume(p->GetNvert(), x, y, p->GetZ(0), p->GetZ(1));
+      delete[] x;
+      delete[] y;
+    } else {
+      // Make the general extruded solid.
+      XtruVertex2 *vertices = new XtruVertex2[Nvert];
+      XtruSection *sections = new XtruSection[Nsect];
+      for (size_t i = 0; i < Nvert; ++i) {
+        vertices[i].x = p->GetX(i);
+        vertices[i].y = p->GetY(i);
       }
-      unplaced_volume = new UnplacedSExtruVolume(p->GetNvert(), x, y, p->GetZ()[0], p->GetZ()[1]);
+      for (size_t i = 0; i < Nsect; ++i) {
+        sections[i].fOrigin.Set(p->GetXOffset(i), p->GetYOffset(i), p->GetZ(i));
+        sections[i].fScale = p->GetScale(i);
+      }
+      unplaced_volume = new UnplacedExtruded(Nvert, vertices, Nsect, sections);
+      delete[] vertices;
+      delete[] sections;
     }
   }
 

@@ -12,146 +12,134 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-UnplacedExtruded::UnplacedExtruded(int nvertices, XtruVertex2 const *vertices,
-                                  int nsections, XtruSection const *sections)
-  : UnplacedTessellated()
-{
-  struct FacetInd {
-    size_t ind1, ind2, ind3;
-    FacetInd(int i1, int i2, int i3) { ind1 = i1; ind2 = i2; ind3 = i3; }
-  };
-
-  // Store sections
-  for (int isect = 0; isect < nsections; ++isect)
-    fSections.push_back(sections[isect]);
-
-  // Create the polygon
-  double *vx = new double[nvertices];
-  double *vy = new double[nvertices];
-  for (int i=0; i<nvertices; ++i) {
-    vx[i] = vertices[i].x;
-    vy[i] = vertices[i].y;
-  }
-  fPolygon = new PlanarPolygon(nvertices, vx, vy);
-
-  // TRIANGULATE POLYGON
-
-  Vector<FacetInd> facets(nvertices);
-  // Fill a vector of vertex indices
-  vector_t<size_t> vtx;
-  for (size_t i=0; i<(size_t)nvertices; ++i)
-    vtx.push_back(i);
-
-  int i1 = 0;
-  int i2 = 1;
-  int i3 = 2;
-
-  while (vtx.size() > 2)
-  {
-    // Find convex parts of the polygon (ears)
-    int counter = 0;
-    while (!IsConvexSide(vtx[i1], vtx[i2], vtx[i3])) {
-      i1++;
-      i2++;
-      i3 = (i3+1)%vtx.size();
-      counter++;
-      assert(counter < nvertices && "Triangulation failed");
-    }
-    bool good = true;
-    // Check if any of the remaining vertices are in the ear
-    for (auto i : vtx) {
-      if (i == vtx[i1] || i == vtx[i2] || i == vtx[i3]) continue;
-      if (IsPointInside(i, vtx[i1], vtx[i2], vtx[i3])) {
-        good = false;
-        i1++;
-        i2++;
-        i3 = (i3+1)%vtx.size();
-        break;
-      }
-    }
-
-    if (good) {
-      // Make triangle
-      facets.push_back(FacetInd(vtx[i1], vtx[i2], vtx[i3]));
-      // Remove the middle vertex of the ear and restart
-      vtx.erase(vtx.begin() + i2);
-      i1 = 0;
-      i2 = 1;
-      i3 = 2;
-    }
-  }
-  // We have all index facets, create now the real facets
-  // Bottom (normals pointing down)
-  for (size_t i=0; i<facets.size(); ++i) {
-    i1 = facets[i].ind1;
-    i2 = facets[i].ind2;
-    i3 = facets[i].ind3;
-    fTessellated.AddTriangularFacet(VertexToSection(i1, 0),
-                                     VertexToSection(i2, 0),
-                                     VertexToSection(i3, 0));  
-  }
-  // Sections
-  for (int isect = 0; isect < nsections - 1; ++isect) {
-    for (size_t i = 0; i < (size_t)nvertices; ++i) {
-      size_t j = (i + 1) % nvertices;
-      // Quadrilateral isect:(j, i)  isect+1: (i, j)
-      fTessellated.AddQuadrilateralFacet(VertexToSection(j, isect),
-                                          VertexToSection(i, isect),
-                                          VertexToSection(i, isect+1),
-                                          VertexToSection(j, isect+1));
-    }
-  }
-  //Top (normals pointing up)
-  for (size_t i=0; i<facets.size(); ++i) {
-    i1 = facets[i].ind1;
-    i2 = facets[i].ind2;
-    i3 = facets[i].ind3;
-    fTessellated.AddTriangularFacet(VertexToSection(i1, nsections-1),
-                                     VertexToSection(i3, nsections-1),
-                                     VertexToSection(i2, nsections-1));
-  }
-  // Now close the tessellated structure
-  fTessellated.Close();    
-}
-
 void UnplacedExtruded::Print() const
 {
   std::cout << "UnplacedExtruded: vertices {";
-  int nvert = fVertices.size();
-  for (int i = 0; i < nvert-1; ++i)
-    std::cout << "(" << fVertices[i].x << ", " << fVertices[i].y << "), ";
-  std::cout << "(" << fVertices[nvert-1].x << ", " << fVertices[nvert-1].y << ")}\n";
+  int nvert = GetNVertices();
+  double x, y;
+  for (int i = 0; i < nvert - 1; ++i) {
+    GetVertex(i, x, y);
+    std::cout << "(" << x << ", " << y << "), ";
+  }
+  GetVertex(nvert - 1, x, y);
+  std::cout << "(" << x << ", " << y << ")}\n";
   std::cout << "sections:\n";
-  int nsect = fSections.size();
-  for (int i = 0; i < nsect; ++i)
-    std::cout << "orig: (" << fSections[i].fOrigin.x() << ", "
-              << fSections[i].fOrigin.y() << ", " << fSections[i].fOrigin.z()
-              <<  ") scl = " << fSections[i].fScale << std::endl;
-  std::cout << "nuber of facets: " << fTessellated.fFacets.size() << std::endl;
+  int nsect = GetNSections();
+  for (int i = 0; i < nsect; ++i) {
+    XtruSection sect = GetSection(i);
+    std::cout << "orig: (" << sect.fOrigin.x() << ", " << sect.fOrigin.y() << ", " << sect.fOrigin.z()
+              << ") scl = " << sect.fScale << std::endl;
+  }
 }
 
 void UnplacedExtruded::Print(std::ostream &os) const
 {
   os << "UnplacedExtruded: vertices {";
-  int nvert = fVertices.size();
-  for (int i = 0; i < nvert-1; ++i)
-    os << "(" << fVertices[i].x << ", " << fVertices[i].y << "), ";
-  os << "(" << fVertices[nvert-1].x << ", " << fVertices[nvert-1].y << ")}\n";
+  int nvert = GetNVertices();
+  double x, y;
+  for (int i = 0; i < nvert - 1; ++i) {
+    GetVertex(i, x, y);
+    os << "(" << x << ", " << y << "), ";
+  }
+  GetVertex(nvert - 1, x, y);
+  os << "(" << x << ", " << y << ")}\n";
   os << "sections:\n";
-  int nsect = fSections.size();
-  for (int i = 0; i < nsect; ++i)
-    os << "orig: (" << fSections[i].fOrigin.x() << ", "
-              << fSections[i].fOrigin.y() << ", " << fSections[i].fOrigin.z()
-              <<  ") scl = " << fSections[i].fScale << std::endl;
-  os << "nuber of facets: " << fTessellated.fFacets.size() << std::endl;
+  int nsect = GetNSections();
+  for (int i = 0; i < nsect; ++i) {
+    XtruSection sect = GetSection(i);
+    os << "orig: (" << sect.fOrigin.x() << ", " << sect.fOrigin.y() << ", " << sect.fOrigin.z()
+       << ") scl = " << sect.fScale << std::endl;
+  }
+}
+
+void UnplacedExtruded::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
+{
+  if (fXtru.fIsSxtru) {
+    fXtru.fSxtruHelper.Extent(aMin, aMax);
+  } else {
+    fXtru.fTslHelper.Extent(aMin, aMax);
+  }
+}
+
+Precision UnplacedExtruded::Capacity() const
+{
+  if (fXtru.fCubicVolume != 0.) return fXtru.fCubicVolume;
+
+  if (fXtru.fIsSxtru) {
+    fXtru.fCubicVolume =
+        fXtru.fSxtruHelper.GetPolygon().Area() * (fXtru.fSxtruHelper.GetUpperZ() - fXtru.fSxtruHelper.GetLowerZ());
+  } else {
+    int size = fXtru.fTslHelper.fFacets.size();
+    for (int i = 0; i < size; ++i) {
+      TriangleFacet<double> &facet = *fXtru.fTslHelper.fFacets[i];
+      double area                  = facet.fSurfaceArea;
+      fXtru.fCubicVolume += area * (facet.fVertices[0].Dot(facet.fNormal));
+    }
+    fXtru.fCubicVolume /= 3.;
+  }
+  return fXtru.fCubicVolume;
+}
+
+Precision UnplacedExtruded::SurfaceArea() const
+{
+  if (fXtru.fSurfaceArea != 0.) return fXtru.fSurfaceArea;
+
+  if (fXtru.fIsSxtru) {
+    fXtru.fSurfaceArea = fXtru.fSxtruHelper.SurfaceArea() + 2. * fXtru.fSxtruHelper.GetPolygon().Area();
+  } else {
+    int size = fXtru.fTslHelper.fFacets.size();
+    for (int i = 0; i < size; ++i) {
+      TriangleFacet<double> *facet = fXtru.fTslHelper.fFacets[i];
+      fXtru.fSurfaceArea += facet->fSurfaceArea;
+    }
+  }
+  return fXtru.fSurfaceArea;
+}
+
+int UnplacedExtruded::ChooseSurface() const
+{
+  int choice       = 0; // 0 = zm, 1 = zp, 2 = ym, 3 = yp, 4 = xm, 5 = xp
+  Precision Stotal = SurfaceArea();
+
+  // random value to choose surface to place the point
+  Precision rand = RNG::Instance().uniform() * Stotal;
+
+  while (rand > fXtru.fTslHelper.fFacets[choice]->fSurfaceArea)
+    rand -= fXtru.fTslHelper.fFacets[choice]->fSurfaceArea, choice++;
+
+  return choice;
+}
+
+Vector3D<Precision> UnplacedExtruded::SamplePointOnSurface() const
+{
+  int surface    = ChooseSurface();
+  double alpha   = RNG::Instance().uniform(0., 1.);
+  double beta    = RNG::Instance().uniform(0., 1.);
+  double lambda1 = alpha * beta;
+  double lambda0 = alpha - lambda1;
+  auto facet     = fXtru.fTslHelper.fFacets[surface];
+  return (facet->fVertices[0] + lambda0 * (facet->fVertices[1] - facet->fVertices[0]) +
+          lambda1 * (facet->fVertices[2] - facet->fVertices[1]));
+}
+
+bool UnplacedExtruded::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &norm) const
+{
+  // Redirect to normal implementation
+  bool valid = false;
+  if (fXtru.fIsSxtru) {
+    norm = SExtruImplementation::NormalKernel(fXtru.fSxtruHelper, point, valid);
+  } else {
+    norm = TessellatedImplementation::NormalKernel<Precision>(fXtru.fTslHelper, point, valid);
+  }
+  return valid;
 }
 
 #ifdef VECCORE_CUDA
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedExtruded::Create(LogicalVolume const *const logical_volume,
-                                           Transformation3D const *const transformation, const int id,
-                                           VPlacedVolume *const placement)
+                                        Transformation3D const *const transformation, const int id,
+                                        VPlacedVolume *const placement)
 {
   if (placement) {
     new (placement) SpecializedExtruded<transCodeT, rotCodeT>(logical_volume, transformation, id);
@@ -162,7 +150,7 @@ VPlacedVolume *UnplacedExtruded::Create(LogicalVolume const *const logical_volum
 #else
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 VPlacedVolume *UnplacedExtruded::Create(LogicalVolume const *const logical_volume,
-                                           Transformation3D const *const transformation, VPlacedVolume *const placement)
+                                        Transformation3D const *const transformation, VPlacedVolume *const placement)
 {
   if (placement) {
     new (placement) SpecializedExtruded<transCodeT, rotCodeT>(logical_volume, transformation);
@@ -174,19 +162,19 @@ VPlacedVolume *UnplacedExtruded::Create(LogicalVolume const *const logical_volum
 
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedExtruded::SpecializedVolume(LogicalVolume const *const volume,
-                                                      Transformation3D const *const transformation,
-                                                      const TranslationCode trans_code, const RotationCode rot_code,
+                                                   Transformation3D const *const transformation,
+                                                   const TranslationCode trans_code, const RotationCode rot_code,
 #ifdef VECCORE_CUDA
-                                                      const int id,
+                                                   const int id,
 #endif
-                                                      VPlacedVolume *const placement) const
+                                                   VPlacedVolume *const placement) const
 {
 
   return VolumeFactory::CreateByTransformation<UnplacedExtruded>(volume, transformation, trans_code, rot_code,
 #ifdef VECCORE_CUDA
-                                                                    id,
+                                                                 id,
 #endif
-                                                                    placement);
+                                                                 placement);
 }
 
 #if defined(VECGEOM_USOLIDS)

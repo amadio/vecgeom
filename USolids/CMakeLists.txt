@@ -49,6 +49,7 @@ if(USOLIDS_VECGEOM)
   list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UTorus.cc)
   list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UGenericTrap.cc)
   list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UTessellatedSolid.cc)
+  list(REMOVE_ITEM sources_usolids ${PROJECT_SOURCE_DIR}/src/UExtrudedSolid.cc)
 endif()
 
 file(GLOB headers_vecgeom

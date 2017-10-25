@@ -161,18 +161,18 @@ int main(int argc, char *argv[])
 
   OPTION_INT(nvert, 8);
   OPTION_INT(nsect, 2);
-  OPTION_BOOL(convex,'t');
+  OPTION_BOOL(convex, 't');
   OPTION_INT(npoints, 10000);
 #ifdef VECGEOM_ROOT
   OPTION_INT(vis, 0);
 #endif
   constexpr double rmin = 10.;
   constexpr double rmax = 20.;
-  
+
   vecgeom::XtruVertex2 *vertices = new vecgeom::XtruVertex2[nvert];
   vecgeom::XtruSection *sections = new vecgeom::XtruSection[nvert];
 
-  double phi = 2.* kPi/nvert;
+  double phi = 2. * kPi / nvert;
   double r;
 
   Vector3D<double> start(0, 0, 0);
@@ -182,18 +182,18 @@ int main(int argc, char *argv[])
   for (int i = 0; i < npoints; ++i)
     RandomDirection(dirs[i]);
 
-  for (int i=0; i<nvert; ++i) {
-    r = rmax;
-    if (i%2 > 0 && !convex) r = rmin;
-    vertices[i].x = r * vecCore::math::Cos(i*phi);
-    vertices[i].y = r * vecCore::math::Sin(i*phi);     
+  for (int i = 0; i < nvert; ++i) {
+    r                           = rmax;
+    if (i % 2 > 0 && !convex) r = rmin;
+    vertices[i].x               = r * vecCore::math::Cos(i * phi);
+    vertices[i].y               = r * vecCore::math::Sin(i * phi);
   }
-  for (int i=0; i<nsect; ++i) {
-    sections[i].fOrigin.Set(0,0,-20. + i*40./(nsect-1));
+  for (int i = 0; i < nsect; ++i) {
+    sections[i].fOrigin.Set(0, 0, -20. + i * 40. / (nsect - 1));
     sections[i].fScale = 1;
   }
 
-  std::cout << "Creating extruded polygon having " << vertices << " vertices and " << nsect << " sections\n";
+  std::cout << "Creating extruded polygon having " << nvert << " vertices and " << nsect << " sections\n";
   UnplacedExtruded xtru(nvert, vertices, nsect, sections);
 
 // Visualize the facets
@@ -210,8 +210,8 @@ int main(int argc, char *argv[])
 
     // Visualize facets
 
-    for (size_t i=0; i<xtru.GetNFacets(); ++i)
-      AddFacetToVisualizer(xtru.GetFacet(i), visualizer);
+    for (size_t i = 0; i < xtru.GetStruct().fTslHelper.fFacets.size(); ++i)
+      AddFacetToVisualizer(xtru.GetStruct().fTslHelper.fFacets[i], visualizer);
 
     // Visualize clusters
     //    for (unsigned icluster = 0; icluster < tsl.fClusters.size(); ++icluster)
@@ -224,20 +224,6 @@ int main(int argc, char *argv[])
 
     for (int i = 0; i < npoints; ++i) {
       RandomPointInBBox(point, amin, amax);
-      if (0) {
-        // Visualize a specific point/direction
-        point.Set(-8, 8, 0);
-        Vector3D<double> direction(-0.74608321159322855, -0.28587882094198169, -0.60135941093123035);
-        pm.SetNextPoint(point[0], point[1], point[2]);
-        TPolyLine3D pl(2);
-        pl.SetLineColor(kRed);
-        pl.SetNextPoint(point[0], point[1], point[2]);
-        point += direction * 25;
-        pm.SetNextPoint(point[0], point[1], point[2]);
-        pl.SetNextPoint(point[0], point[1], point[2]);
-        visualizer.AddLine(pl);
-        break;
-      }
       bool contains = xtru.Contains(point);
       if (contains) pm.SetNextPoint(point[0], point[1], point[2]);
     }

@@ -27,9 +27,20 @@ private:
 
 public:
   VECCORE_ATT_HOST_DEVICE
+  PolygonalShell() : fPolygon() {}
+
+  VECCORE_ATT_HOST_DEVICE
   PolygonalShell(int nvertices, double *x, double *y, Precision lowerz, Precision upperz)
       : fPolygon(nvertices, x, y), fLowerZ(lowerz), fUpperZ(upperz)
   {
+  }
+
+  VECCORE_ATT_HOST_DEVICE
+  void Init(int nvertices, double *x, double *y, Precision lowerz, Precision upperz)
+  {
+    fPolygon.Init(nvertices, x, y);
+    fLowerZ = lowerz;
+    fUpperZ = upperz;
   }
 
   // the area of the shell ( does not include the area of the planar polygon )

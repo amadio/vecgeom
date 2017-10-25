@@ -16,7 +16,7 @@ VECGEOM_DEVICE_DECLARE_CONV(class, PlanarPolygon);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-// a class representing a 2D convex or concav polygon
+// a class representing a 2D convex or concav polygon
 class PlanarPolygon {
 
   friend struct SExtruImplementation;
@@ -46,7 +46,11 @@ protected:
 
 public:
   VECCORE_ATT_HOST_DEVICE
-  PlanarPolygon() : fIsConvex(false) {}
+  PlanarPolygon()
+      : fVertices(), fShiftedXJ({}), fShiftedYJ({}), fLengthSqr({}), fInvLengthSqr({}), fA({}), fB({}), fD({}),
+        fIsConvex(false), fMinX(kInfLength), fMinY(kInfLength), fMaxX(-kInfLength), fMaxY(-kInfLength), fNVertices(0)
+  {
+  }
 
   // constructor (not taking ownership of the pointers)
   VECCORE_ATT_HOST_DEVICE
@@ -54,6 +58,12 @@ public:
       : fVertices(), fShiftedXJ({}), fShiftedYJ({}), fLengthSqr({}), fInvLengthSqr({}), fA({}), fB({}), fD({}),
         fIsConvex(false), fMinX(kInfLength), fMinY(kInfLength), fMaxX(-kInfLength), fMaxY(-kInfLength),
         fNVertices(nvertices)
+  {
+    Init(nvertices, x, y);
+  }
+
+  VECCORE_ATT_HOST_DEVICE
+  void Init(int nvertices, double *x, double *y)
   {
     // allocating more space than nvertices, in order
     // to accomodate an internally vectorized treatment without tails
@@ -63,6 +73,7 @@ public:
     // actual buffersize
     const auto bs = numberOfVectorChunks * kVS;
     assert(bs > 0);
+    fNVertices = nvertices;
     fVertices.reserve(bs);
     fVertices.resize(nvertices);
     fShiftedXJ.resize(bs, 0);
