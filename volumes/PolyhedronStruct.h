@@ -317,7 +317,7 @@ struct PolyhedronStruct {
     outerRadius /= cosHalfDeltaPhi;
 
     // Create bounding tube with biggest outer radius and smallest inner radius
-    Precision boundingTubeZ = 0.5 * (zPlanes[zPlaneCount - 1] - zPlanes[0] + kTolerance);
+    Precision boundingTubeZ = 0.5 * (zPlanes[zPlaneCount - 1] - zPlanes[0]) + kTolerance;
     // Make bounding tube phi range a bit larger to contain all points on phi boundaries
     const Precision kPhiTolerance = 100 * kTolerance;
     // The increase in the angle has to be large enough to contain most of

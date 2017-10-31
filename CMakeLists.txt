@@ -1081,7 +1081,8 @@ set(TEST_EXECUTABLES_SHAPETESTER
 if(ROOT) # add shape testers that depend on ROOT
   set(TEST_EXECUTABLES_SHAPETESTER
   ${TEST_EXECUTABLES_SHAPETESTER}
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testFromROOTFile.cpp )
+  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testFromROOTFile.cpp
+  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_debugFromROOTFile.cpp )
 endif()
 
 

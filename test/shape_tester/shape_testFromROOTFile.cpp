@@ -114,6 +114,7 @@ int runTester(ImplT const *shape, int npoints, bool usolids, bool debug, bool st
   tester.setConventionsMode(usolids);
   tester.setDebug(debug);
   tester.setStat(stat);
+  tester.SetTestBoundaryErrors(false);
   tester.SetMaxPoints(npoints);
   int errcode = tester.Run(shape);
 

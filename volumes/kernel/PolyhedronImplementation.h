@@ -801,14 +801,15 @@ Inside_t PolyhedronImplementation<innerRadiiT, phiCutoutT>::ScalarInsideKernel(U
 
   // Check that the point is not in the phi cutout wedge
   if (TreatPhi<phiCutoutT>(unplaced.fHasPhiCutout)) {
-    Inside_t insidePhi = unplaced.fPhiWedge.Inside<Precision, Inside_t>(point);
+    // Inside_t insidePhi = unplaced.fPhiWedge.Inside<Precision, Inside_t>(point);
+    Inside_t insidePhi = segment.phi.Inside<Precision, Inside_t>(point);
     if (insidePhi != EInside::kInside) return insidePhi;
   }
 
   // FIX: Still need to check if not on one of the Z boundaries.
   Precision dz = vecCore::math::Abs(vecCore::math::Abs(point[2] - unplaced.fBoundingTubeOffset) -
                                     0.5 * (unplaced.fZPlanes[unplaced.fZSegments.size()] - unplaced.fZPlanes[0]));
-  if (dz < kHalfTolerance) return EInside::kSurface;
+  if (dz < kTolerance) return EInside::kSurface;
   return EInside::kInside;
 }
 

@@ -139,7 +139,7 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
 
     if (direction.Dot(normal) < 0.) // particle is entering into the shape
     {
-      bool ok = (fUsolidsConventions ? Dist == 0. : fabs(Dist) <= kHalfTolerance);
+      bool ok = (fUsolidsConventions ? Dist == 0. : fabs(Dist * direction.Dot(normal)) <= vecgeom::kTolerance);
       if (!ok) {
         fScore |= (1 << indx);
         surfPointConventionPassed &= false;
@@ -184,7 +184,7 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
     // if (Dist >= kInfLength) Dist = kInfLength;
     if (direction.Dot(normal) > 0.) {
       // particle is exiting from the shape
-      bool ok = (fUsolidsConventions ? Dist == 0 : Dist <= kHalfTolerance);
+      bool ok = (fUsolidsConventions ? Dist == 0 : (Dist * direction.Dot(normal)) <= vecgeom::kTolerance);
       if (!ok) {
         fScore |= (1 << indx);
         surfPointConventionPassed &= false;
