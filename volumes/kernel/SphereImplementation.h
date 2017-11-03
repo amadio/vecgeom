@@ -530,6 +530,7 @@ struct SphereImplementation {
                                  typename vecCore::Mask_v<Real_v> &valid)
   {
     Vector3D<Real_v> normal(0., 0., 0.);
+    normal.Set(1e-30);
 
     using Bool_v = vecCore::Mask_v<Real_v>;
 
@@ -620,7 +621,7 @@ struct SphereImplementation {
                                 tempNormal2);
     }
 
-    normal = normal.Unit();
+    normal.Normalize();
 
     valid = (noSurfaces > 0.);
 
