@@ -107,7 +107,7 @@ option(VTUNE "Enable the use of profiler Vtune" OFF)
 set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries.")
 set(INSTALL_INCLUDE_DIR include CACHE PATH
     "Installation directory for header files.")
-set(INSTALL_CMAKE_DIR lib/CMake/VecGeom CACHE PATH
+set(INSTALL_CMAKE_DIR lib/cmake/VecGeom CACHE PATH
     "Installation directory for CMake files.")
 
 # Make relative paths absolute
