@@ -56,10 +56,10 @@ struct AllocTrait<T *> {
   VECCORE_ATT_HOST_DEVICE
   static void Destroy(T ** /*arr*/, size_t /*nElem*/) {}
 };
-}
+} // Internal
 
 template <typename Type>
-class Vector {
+class VectorBase {
 
 private:
   Type *fData;
@@ -70,22 +70,22 @@ public:
   using value_type = Type;
 
   VECCORE_ATT_HOST_DEVICE
-  Vector() : Vector(5) {}
+  VectorBase() : VectorBase(5) {}
 
   VECCORE_ATT_HOST_DEVICE
-  Vector(size_t maxsize) : fData(nullptr), fSize(0), fMemorySize(0), fAllocated(true) { reserve(maxsize); }
+  VectorBase(size_t maxsize) : fData(nullptr), fSize(0), fMemorySize(0), fAllocated(true) { reserve(maxsize); }
 
   VECCORE_ATT_HOST_DEVICE
-  Vector(Type *const vec, const int sz) : fData(vec), fSize(sz), fMemorySize(sz), fAllocated(false) {}
+  VectorBase(Type *const vec, const int sz) : fData(vec), fSize(sz), fMemorySize(sz), fAllocated(false) {}
 
   VECCORE_ATT_HOST_DEVICE
-  Vector(Type *const vec, const int sz, const int maxsize)
+  VectorBase(Type *const vec, const int sz, const int maxsize)
       : fData(vec), fSize(sz), fMemorySize(maxsize), fAllocated(false)
   {
   }
 
   VECCORE_ATT_HOST_DEVICE
-  Vector(Vector const &other) : fSize(other.fSize), fMemorySize(other.fMemorySize), fAllocated(true)
+  VectorBase(VectorBase const &other) : fSize(other.fSize), fMemorySize(other.fMemorySize), fAllocated(true)
   {
     fData = Internal::AllocTrait<Type>::Allocate(fMemorySize);
     for (size_t i = 0; i < fSize; ++i)
@@ -93,7 +93,7 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
-  Vector &operator=(Vector const &other)
+  VectorBase &operator=(VectorBase const &other)
   {
     if (&other != this) {
       reserve(other.fMemorySize);
@@ -104,7 +104,7 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
-  Vector(std::initializer_list<Type> entries)
+  VectorBase(std::initializer_list<Type> entries)
   {
     fSize       = entries.size();
     fData       = Internal::AllocTrait<Type>::Allocate(fSize);
@@ -115,7 +115,7 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
-  ~Vector()
+  ~VectorBase()
   {
     if (fAllocated) Internal::AllocTrait<Type>::Deallocate(fData);
   }
@@ -226,17 +226,24 @@ public:
     if (fSize) Internal::AllocTrait<Type>::Destroy(fData[fSize]);
     return where;
   }
+};
+
+template <typename Type>
+class Vector : public VectorBase<Type> {
+public:
+  using VectorBase<Type>::VectorBase;
+  using typename VectorBase<Type>::iterator;
+  using typename VectorBase<Type>::const_iterator;
+  using VectorBase<Type>::operator=;
 
 #ifdef VECGEOM_CUDA_INTERFACE
   DevicePtr<cuda::Vector<CudaType_t<Type>>> CopyToGpu(DevicePtr<CudaType_t<Type>> const gpu_ptr_arr,
                                                       DevicePtr<cuda::Vector<CudaType_t<Type>>> const gpu_ptr) const
   {
-    gpu_ptr.Construct(gpu_ptr_arr, size());
+    gpu_ptr.Construct(gpu_ptr_arr, VectorBase<Type>::size());
     return gpu_ptr;
   }
 #endif
-
-private:
 };
 }
 } // End global namespace
