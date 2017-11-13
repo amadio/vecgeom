@@ -11,6 +11,8 @@ namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(class ExtrudedStruct;);
 VECGEOM_DEVICE_DECLARE_CONV(class, ExtrudedStruct);
+VECGEOM_DEVICE_DECLARE_CONV(struct, XtruVertex2);
+VECGEOM_DEVICE_DECLARE_CONV(struct, XtruSection);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -32,7 +34,7 @@ class ExtrudedStruct {
   // template <typename U>
   // using vector_t = vecgeom::Vector<U>;
   template <typename U>
-  using vector_t = std::vector<U>;
+  using vector_t = vecgeom::Vector<U>;
 
 public:
   bool fIsSxtru               = false;  ///< Flag for sxtru representation
@@ -109,7 +111,7 @@ public:
 
     // TRIANGULATE POLYGON
 
-    Vector<FacetInd> facets(nvertices);
+    VectorBase<FacetInd> facets(nvertices);
     // Fill a vector of vertex indices
     vector_t<size_t> vtx;
     for (size_t i = 0; i < (size_t)nvertices; ++i)
