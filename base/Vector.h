@@ -234,7 +234,13 @@ public:
   using VectorBase<Type>::VectorBase;
   using typename VectorBase<Type>::iterator;
   using typename VectorBase<Type>::const_iterator;
-  using VectorBase<Type>::operator=;
+
+  VECCORE_ATT_HOST_DEVICE
+  Vector &operator=(Vector const &other)
+  {
+     VectorBase<Type>::operator=(other);
+     return *this;
+  }
 
 #ifdef VECGEOM_CUDA_INTERFACE
   DevicePtr<cuda::Vector<CudaType_t<Type>>> CopyToGpu(DevicePtr<CudaType_t<Type>> const gpu_ptr_arr,
