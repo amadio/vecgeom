@@ -196,6 +196,6 @@ public:
 };
 #endif
 }
-}
+} // namespace vecgeom
 
 #endif

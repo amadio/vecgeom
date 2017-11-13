@@ -246,7 +246,7 @@ public:
   }
 };
 
-} // end inline namespace
-} // end vecgeom namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif

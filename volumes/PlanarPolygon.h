@@ -530,7 +530,7 @@ inline Precision PlanarPolygon::SafetySqr(Vector3D<Precision> const &point, int 
 }
 #endif
 
-} // end inline namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 } // end namespace vecgeom
 
 #endif

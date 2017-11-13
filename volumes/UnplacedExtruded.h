@@ -125,7 +125,7 @@ private:
 #endif
                                            VPlacedVolume *const placement = NULL) const final;
 };
-}
-} // end global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_UNPLACEDEXTRUDED_H_

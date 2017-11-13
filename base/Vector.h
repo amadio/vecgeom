@@ -56,7 +56,7 @@ struct AllocTrait<T *> {
   VECCORE_ATT_HOST_DEVICE
   static void Destroy(T ** /*arr*/, size_t /*nElem*/) {}
 };
-} // Internal
+} // namespace Internal
 
 template <typename Type>
 class VectorBase {
@@ -238,8 +238,8 @@ public:
   VECCORE_ATT_HOST_DEVICE
   Vector &operator=(Vector const &other)
   {
-     VectorBase<Type>::operator=(other);
-     return *this;
+    VectorBase<Type>::operator=(other);
+    return *this;
   }
 
 #ifdef VECGEOM_CUDA_INTERFACE
@@ -251,7 +251,7 @@ public:
   }
 #endif
 };
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_BASE_CONTAINER_H_
