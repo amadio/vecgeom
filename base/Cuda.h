@@ -43,6 +43,7 @@
      template <> struct kCudaType<float> { using type_t = float; };
      template <> struct kCudaType<double> { using type_t = double; };
      template <> struct kCudaType<int> { using type_t = int; };
+     template <> struct kCudaType<size_t> { using type_t = size_t; };
      template <typename DataType> struct kCudaType<DataType*> {
        using type_t = CudaType_t<DataType>*;
      };
