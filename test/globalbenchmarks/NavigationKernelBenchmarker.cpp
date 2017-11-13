@@ -177,7 +177,7 @@ void analyseOutStates(NavStatePool &inpool, NavStatePool const &outpool)
 }
 
 #ifdef VECGEOM_ROOT
-template <bool WithSafety = false>
+template <bool WithSafety = false, bool WithReloc = true>
 __attribute__((noinline)) void benchmarkROOTNavigator(SOA3D<Precision> const &points, SOA3D<Precision> const &dirs)
 {
 
@@ -216,11 +216,18 @@ __attribute__((noinline)) void benchmarkROOTNavigator(SOA3D<Precision> const &po
     if (WithSafety) {
       safeties[i] = rootnav->Safety(true);
     }
-    volatile TGeoNode *node = rootnav->FindNextBoundaryAndStep(kInfLength);
-    (void)node;
+    if (WithReloc) {
+      volatile TGeoNode *node = rootnav->FindNextBoundaryAndStep(kInfLength);
+      (void)node;
+    } else {
+      volatile TGeoNode *node = rootnav->FindNextBoundary(kInfLength);
+      (void)node;
+    }
     steps[i] = rootnav->GetStep();
-    // save output states ( for fair comparison with VecGeom )
-    outstates[i]->InitFromNavigator(rootnav);
+    if (WithReloc) {
+      // save output states ( for fair comparison with VecGeom )
+      outstates[i]->InitFromNavigator(rootnav);
+    }
   }
   timer.Stop();
 #ifdef CALLGRIND_ENABLED
@@ -369,6 +376,42 @@ __attribute__((noinline)) void benchNavigator(VNavigator const *se, SOA3D<Precis
   }
 }
 
+// version benchmarking navigation without relocation
+template <bool WithSafety = true>
+__attribute__((noinline)) void benchNavigatorNoReloc(VNavigator const *se, SOA3D<Precision> const &points,
+                                                     SOA3D<Precision> const &dirs, NavStatePool const &inpool,
+                                                     NavStatePool &outpool)
+{
+  Precision *steps = new Precision[points.size()];
+  Precision *safeties;
+  if (WithSafety) safeties = new Precision[points.size()];
+  Stopwatch timer;
+  size_t hittargetchecksum = 0L;
+  timer.Start();
+  for (decltype(points.size()) i = 0; i < points.size(); ++i) {
+    if (WithSafety) {
+      steps[i] = se->ComputeStepAndSafety(points[i], dirs[i], vecgeom::kInfLength, *inpool[i], true, safeties[i]);
+    } else {
+      steps[i] = se->ComputeStep(points[i], dirs[i], vecgeom::kInfLength, *inpool[i], *outpool[i]);
+    }
+  }
+  timer.Stop();
+  std::cerr << timer.Elapsed() << "\n";
+  double accum(0.), saccum(0.);
+  for (decltype(points.size()) i = 0; i < points.size(); ++i) {
+    accum += steps[i];
+    if (WithSafety) {
+      saccum += safeties[i];
+    }
+    if (outpool[i]->Top()) hittargetchecksum += (size_t)outpool[i]->Top()->id();
+  }
+  delete[] steps;
+  std::cerr << "accum  " << se->GetName() << " " << accum << " target checksum " << hittargetchecksum << "\n";
+  if (WithSafety) {
+    std::cerr << "saccum  " << se->GetName() << " " << saccum << "\n";
+  }
+}
+
 template <typename T, bool WithSafety = true>
 __attribute__((noinline)) void benchVectorNavigator(SOA3D<Precision> const &__restrict__ points,
                                                     SOA3D<Precision> const &__restrict__ dirs,
@@ -400,6 +443,62 @@ __attribute__((noinline)) void benchVectorNavigator(SOA3D<Precision> const &__re
                                                    safeties);
   } else {
     se->ComputeStepsAndPropagatedStates(points, dirs, step_max, inpoolarray, outpoolarray, steps);
+  }
+  timer.Stop();
+  std::cerr << timer.Elapsed() << "\n";
+  double accum(0.);
+  double saccum(0.);
+  size_t hittargetchecksum = 0L;
+  for (decltype(points.size()) i = 0; i < points.size(); ++i) {
+    // std::cerr << "---- " << steps[i] << "\n";
+    accum += steps[i];
+    if (WithSafety) {
+      saccum += safeties[i];
+    }
+    if (outpool[i]->Top()) hittargetchecksum += (size_t)outpool[i]->Top()->id();
+  }
+  std::cerr << "VECTOR accum  " << T::GetClassName() << " " << accum << " target checksum " << hittargetchecksum
+            << "\n";
+  if (WithSafety) {
+    std::cerr << "VECTOR saccum  " << T::GetClassName() << " " << saccum << "\n";
+    _mm_free(safeties);
+  }
+  _mm_free(steps);
+  _mm_free(step_max);
+  delete[] inpoolarray;
+  delete[] outpoolarray;
+}
+
+template <typename T, bool WithSafety = true>
+__attribute__((noinline)) void benchVectorNavigatorNoReloc(SOA3D<Precision> const &__restrict__ points,
+                                                           SOA3D<Precision> const &__restrict__ dirs,
+                                                           NavStatePool const &__restrict__ inpool,
+                                                           NavStatePool &__restrict__ outpool)
+{
+  Precision *step_max = (double *)_mm_malloc(sizeof(double) * points.size(), 32);
+  for (decltype(points.size()) i = 0; i < points.size(); ++i)
+    step_max[i]                  = vecgeom::kInfLength;
+  Precision *steps               = (double *)_mm_malloc(sizeof(double) * points.size(), 32);
+  Precision *safeties;
+  bool *calcs;
+  if (WithSafety) {
+    safeties = (double *)_mm_malloc(sizeof(double) * points.size(), 32);
+    calcs    = (bool *)_mm_malloc(sizeof(bool) * points.size(), 32);
+    for (decltype(points.size()) i = 0; i < points.size(); ++i)
+      calcs[i]                     = true;
+  }
+
+  Stopwatch timer;
+  VNavigator *se = T::Instance();
+  NavigationState const **inpoolarray;
+  NavigationState **outpoolarray;
+  inpool.ToPlainPointerArray(inpoolarray);
+  outpool.ToPlainPointerArray(outpoolarray);
+  timer.Start();
+  if (WithSafety) {
+    se->ComputeStepsAndSafeties(points, dirs, step_max, inpoolarray, steps, calcs, safeties);
+  } else {
+    // nothing to do
   }
   timer.Stop();
   std::cerr << timer.Elapsed() << "\n";
@@ -506,6 +605,19 @@ void benchDifferentNavigators(SOA3D<Precision> const &points, SOA3D<Precision> c
 #ifdef VECGEOM_GEANT4
   benchmarkG4Navigator<WithSafety>(points, dirs);
 #endif // VECGEOM_GEANT4
+#endif
+
+  std::cerr << "## -- TESTING WITHOUT RELOC\n";
+  // testing interfaces without relocation
+  RUNBENCH((benchNavigatorNoReloc<WithSafety>(NewSimpleNavigator<false>::Instance(), points, dirs, pool, outpool)));
+  // the vector navigator
+  RUNBENCH((benchVectorNavigatorNoReloc<NewSimpleNavigator<false>, WithSafety>(points, dirs, pool, outpool)));
+  // testing interfaces without relocation
+  RUNBENCH((benchNavigatorNoReloc<WithSafety>(SimpleABBoxNavigator<false>::Instance(), points, dirs, pool, outpool)));
+  // the vector navigator
+  RUNBENCH((benchVectorNavigatorNoReloc<SimpleABBoxNavigator<false>, WithSafety>(points, dirs, pool, outpool)));
+#ifdef VECGEOM_ROOT
+  benchmarkROOTNavigator<true, false>(points, dirs);
 #endif
   if (gAnalyseOutStates) {
     analyseOutStates(pool, outpool);
