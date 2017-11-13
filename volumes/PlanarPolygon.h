@@ -342,6 +342,7 @@ public:
   // check clockwise/counterclockwise condition (returns positive for anti-clockwise)
   // useful function to check orientation of points x,y
   // before calling the PlanarPolygon constructor
+  VECCORE_ATT_HOST_DEVICE
   static Precision GetOrientation(Precision *x, Precision *y, size_t N)
   {
     Precision area(0.);
