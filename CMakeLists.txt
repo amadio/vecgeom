@@ -10,6 +10,7 @@ project(VecGeom)
 set(VECGEOM ON)
 
 enable_language(CXX)
+set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD 11 CACHE STRING "C++ ISO Standard")
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
