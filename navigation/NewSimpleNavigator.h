@@ -70,11 +70,11 @@ public:
   // TODO: unify with scalar use case
   template <typename T, unsigned int ChunkSize>
   VECCORE_ATT_HOST_DEVICE
-  static void DaughterIntersectionsLooper(
-      VNavigator const * /*nav*/, LogicalVolume const *lvol, Vector3D<T> const &localpoint, Vector3D<T> const &localdir,
-      //                                          NavStatePool const &in_states, NavStatePool &out_states,
-      NavigationState const ** /*in_states*/, NavigationState ** /*out_states*/, unsigned int from_index,
-      Precision *out_steps, VPlacedVolume const *hitcandidates[ChunkSize])
+  static void DaughterIntersectionsLooper(VNavigator const * /*nav*/, LogicalVolume const *lvol,
+                                          Vector3D<T> const &localpoint, Vector3D<T> const &localdir,
+                                          NavigationState const ** /*in_states*/, NavigationState ** /*out_states*/,
+                                          unsigned int from_index, Precision *out_steps,
+                                          VPlacedVolume const *hitcandidates[ChunkSize])
   {
     // dispatch to vector implementation
     // iterate over all daughters
@@ -92,11 +92,11 @@ public:
       //        Bool_v contains = daughter->Contains(localpoint);
       //        if (!contains) {
       //  #endif
-      T ddistance = daughter->DistanceToIn(localpoint, localdir, step);
+      const T ddistance = daughter->DistanceToIn(localpoint, localdir, step);
 
       // if distance is negative; we are inside that daughter and should relocate
       // unless distance is minus infinity
-      auto valid = (ddistance < step && !IsInf(ddistance));
+      const auto valid = (ddistance < step && !IsInf(ddistance));
 
       // serial treatment of hit candidate until I find a better way
       // we might do this using a cast to a double vector with subsequent masked assignment
@@ -117,6 +117,17 @@ public:
       }
     }
     vecCore::Store(step, out_steps + from_index);
+  }
+
+  template <typename T, unsigned int ChunkSize>
+  VECCORE_ATT_HOST_DEVICE
+  static void DaughterIntersectionsLooper(VNavigator const *nav, LogicalVolume const *lvol,
+                                          Vector3D<T> const &localpoint, Vector3D<T> const &localdir,
+                                          NavigationState const **in_states, unsigned int from_index,
+                                          Precision *out_steps, VPlacedVolume const *hitcandidates[ChunkSize])
+  {
+    NewSimpleNavigator<MotherIsConvex>::template DaughterIntersectionsLooper<T, ChunkSize>(
+        nav, lvol, localpoint, localdir, in_states, nullptr, from_index, out_steps, hitcandidates);
   }
 
 #ifndef VECCORE_CUDA
