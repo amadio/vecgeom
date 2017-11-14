@@ -34,12 +34,12 @@ int main(int argc, char *argv[])
   double phi = 2. * kPi / nvert;
   double r;
   for (int i = 0; i < nvert; ++i) {
-    r = rmax;
-    if (i % 2 > 0 && !convex) r= rmin;
-    vertices[i].x = r * vecCore::math::Cos(i * phi);
-    vertices[i].y = r * vecCore::math::Sin(i * phi);
-    x[i]          = vertices[i].x;
-    y[i]          = vertices[i].y;
+    r                           = rmax;
+    if (i % 2 > 0 && !convex) r = rmin;
+    vertices[i].x               = r * vecCore::math::Cos(i * phi);
+    vertices[i].y               = r * vecCore::math::Sin(i * phi);
+    x[i]                        = vertices[i].x;
+    y[i]                        = vertices[i].y;
   }
   for (int i = 0; i < nsect; ++i) {
     sections[i].fOrigin.Set(0, 0, -20. + i * 40. / (nsect - 1));

@@ -284,8 +284,8 @@ public:
     TessellatedCluster<Real_v> *cluster;
     while (fCandidates.size()) {
       // Use existing candidates in fCandidates to create the cluster
-      cluster = CreateCluster();
-      if (!cluster) cluster= MakePartialCluster();
+      cluster               = CreateCluster();
+      if (!cluster) cluster = MakePartialCluster();
       fClusters.push_back(cluster);
       // Fill cluster from the same cell or from a neighbor cell
       if (!fCandidates.size()) {

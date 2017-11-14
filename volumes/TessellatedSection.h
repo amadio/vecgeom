@@ -28,12 +28,10 @@ public:
   bool Contains(Vector3D<T> const &point) const = 0;
 
   VECCORE_ATT_HOST_DEVICE
-  T DistanceToIn(Vector3D<T> const &point, Vector3D<T> const &direction,
-                 int &isurf) = 0;
+  T DistanceToIn(Vector3D<T> const &point, Vector3D<T> const &direction, int &isurf) = 0;
 
   VECCORE_ATT_HOST_DEVICE
-  T DistanceToOut(Vector3D<T> const &point, Vector3D<T> const &direction,
-                 int &isurf) = 0;
+  T DistanceToOut(Vector3D<T> const &point, Vector3D<T> const &direction, int &isurf) = 0;
 
   VECCORE_ATT_HOST_DEVICE
   double SafetyToInSq(Vector3D<T> const &point) = 0;
@@ -48,22 +46,22 @@ public:
 // Derived templated tessellated section on convexity, making a right prism or
 // making a flat surface at same z.
 
-template <typename T, bool Convex=false, bool Right=false, bool SameZ=false>
+template <typename T, bool Convex = false, bool Right = false, bool SameZ = false>
 class TessellatedSection : public TessellatedSectionBase<T> {
   // Here we should be able to use vecgeom::Vector
   template <typename U>
   using vector_t = std::vector<U>;
-  using Real_v  = vecgeom::VectorBackend::Real_v;
-  using Facet_t = TriangleFacet<T>;
+  using Real_v   = vecgeom::VectorBackend::Real_v;
+  using Facet_t  = TriangleFacet<T>;
 
 private:
-  int fNfacets;              ///< Number of triangle facets on the section
-  T fZmin = 0;               ///< Minimum Z
-  T fZmax = 0;               ///< Maximum Z
-  T fCubicVolume      = 0;   ///< Cubic volume
-  T fSurfaceArea      = 0;   ///< Surface area
-  Vector3D<T> fMinExtent;    ///< Minimum extent
-  Vector3D<T> fMaxExtent;    ///< Maximum extent
+  int fNfacets;           ///< Number of triangle facets on the section
+  T fZmin        = 0;     ///< Minimum Z
+  T fZmax        = 0;     ///< Maximum Z
+  T fCubicVolume = 0;     ///< Cubic volume
+  T fSurfaceArea = 0;     ///< Surface area
+  Vector3D<T> fMinExtent; ///< Minimum extent
+  Vector3D<T> fMaxExtent; ///< Maximum extent
 
   vector_t<Vector3D<T>> fVertices;                  ///< Vector of unique vertices
   vector_t<Facet_t *> fFacets;                      ///< Vector of triangular facets
@@ -76,8 +74,7 @@ protected:
   {
     // Method adding a facet to the structure. The vertices are added to the
     // list of all vertices (including duplications) and the extent is re-adjusted.
-    if (Right)
-      assert(vecCore::math::Abs(facet.fNormal[2]) < kTolerance && "Section is supposed to be right");
+    if (Right) assert(vecCore::math::Abs(facet.fNormal[2]) < kTolerance && "Section is supposed to be right");
     fFacets.push_back(facet);
     // Adjust extent
     T xmin        = vecCore::math::Min(facet->fVertices[0].x(), facet->fVertices[1].x(), facet->fVertices[2].x());
@@ -96,21 +93,21 @@ protected:
     int nfacets = fFacets.size();
     assert(nfacets <= fNfacets && "Cannot add extra facets to section");
     if (nfacets % kVecSize == 0 || nfacets == fNfacets) {
-      int istart = nfacets - (nfacets-1) % kVecSize - 1;
-      int i = 0;
-      TessellatedCluster<T> *cluster = new TessellatedCluster<Real_v>();      
-      for (; istart<nfacets; ++istart) {
+      int istart                     = nfacets - (nfacets - 1) % kVecSize - 1;
+      int i                          = 0;
+      TessellatedCluster<T> *cluster = new TessellatedCluster<Real_v>();
+      for (; istart < nfacets; ++istart) {
         cluster->AddFacet(i++, fFacets[istart], istart);
       }
       // The last cluster may not be yet full: fill with last facet
       for (; i < kVecSize; ++i)
-        tcl->AddFacet(i, facet, nfacets-1);
+        tcl->AddFacet(i, facet, nfacets - 1);
     }
   }
 
 public:
   VECCORE_ATT_HOST_DEVICE
-  TessellatedSection(int nfacets, T zmin, T zmax) : fNfacets(2*nfacets), fZmin(zmin), fZmax(zmax)
+  TessellatedSection(int nfacets, T zmin, T zmax) : fNfacets(2 * nfacets), fZmin(zmin), fZmax(zmax)
   {
     if (SameZ)
       assert(VecCore::math::Abs(zmax - zmin) < kTolerance && "zmin and zmax are not equal for sameZ section");
@@ -154,67 +151,60 @@ public:
     return true;
   }
 
-
   VECCORE_ATT_HOST_DEVICE
   Inside_t Inside(Vector3D<T> const &point) const
   {
     using Bool_v = vecCore::Mask<Real_v>;
 
     // Check if point is in the bounding box
-    if (point.x() - fMinExtent.x() < -kTolerance ||
-        point.y() - fMinExtent.y() < -kTolerance ||
-        point.z() - fMinExtent.z() < -kTolerance) return kOutside;
-    if (point.x() - fMaxExtent.x() > kTolerance ||
-        point.y() - fMaxExtent.y() > kTolerance ||
-        point.z() - fMaxExtent.z() > kTolerance) return kOutside;
-    
+    if (point.x() - fMinExtent.x() < -kTolerance || point.y() - fMinExtent.y() < -kTolerance ||
+        point.z() - fMinExtent.z() < -kTolerance)
+      return kOutside;
+    if (point.x() - fMaxExtent.x() > kTolerance || point.y() - fMaxExtent.y() > kTolerance ||
+        point.z() - fMaxExtent.z() > kTolerance)
+      return kOutside;
+
     if (SameZ) {
       // Section lies on same Z plane. The point can only be outside or on the
       // surface.
-      if (vecCore::math::Abs(point.z() - fZmin) > kTolerance)
-        return kOutside;
+      if (vecCore::math::Abs(point.z() - fZmin) > kTolerance) return kOutside;
       Real_v pointv(point);
       Bool_v inside;
-      for (int i=0; i<nclusters; ++i) {
+      for (int i = 0; i < nclusters; ++i) {
         fClusters[i]->InsideCluster(pointv, inside);
-        if (vecCore::MaskFull(inside))
-          return kSurface;
+        if (vecCore::MaskFull(inside)) return kSurface;
       }
       return kOutside;
     }
-    
+
     if (Convex) {
       // Convex polygone on top/bottom
-      if (point.z() < fZmin - kTolerance || point.z() > fZmax + kTolerance)
-        return kOutside;
+      if (point.z() < fZmin - kTolerance || point.z() > fZmax + kTolerance) return kOutside;
       Real_v distplanes;
       Real_v pointv(point);
       Bool_v outside(Bool_v(false));
       Bool_v inside, outside;
-      for (int i=0; i<nclusters; ++i) {
+      for (int i = 0; i < nclusters; ++i) {
         distPlanes = fClusters[i]->DistPlanes(pointv);
         outside |= distPlanes > kTolerance;
-        if (vecCore::MaskAny(outside))
-          return kOutside;
+        if (vecCore::MaskAny(outside)) return kOutside;
         inside &= distPlanes < -kTolerance;
       }
-      if (vecCore::MaskFull(inside))
-        return kInside;
-      return kSurface;          
+      if (vecCore::MaskFull(inside)) return kInside;
+      return kSurface;
     }
-    
+
     // The general case.
-    
+
     T distanceToIn = InfinityLength<T>();
     T disanceToOut = InfinityLength<T>();
-    int isurfToIn = -1;
+    int isurfToIn  = -1;
     int isurfToOut = -1;
 
     Real_v clusterToIn, clusterToOut;
     int icrtToIn, icrtToOut;
-    for (int i=0; i<nclusters; ++i) {
-      tessellated.fClusters[i]->DistanceToCluster(point, fTestDir, clusterToIn, clusterToOut, icrtToIn,
-                                                             icrtToOut);
+    for (int i = 0; i < nclusters; ++i) {
+      tessellated.fClusters[i]->DistanceToCluster(point, fTestDir, clusterToIn, clusterToOut, icrtToIn, icrtToOut);
 
       // Update distanceToIn/Out
       if (icrtToIn >= 0 && clusterToIn < distanceToIn) {
@@ -232,77 +222,72 @@ public:
         distanceToIn * fTestDir.Dot(fFacets[isurfToIn]->fNormal) < -kTolerance)
       return kOutside;
 
-    if (distanceToOut < 0 || distanceToOut * fTestDir.Dot(fFacets[isurfToOut]->fNormal) < kTolerance)
-      return kSurface;
+    if (distanceToOut < 0 || distanceToOut * fTestDir.Dot(fFacets[isurfToOut]->fNormal) < kTolerance) return kSurface;
 
-    if (isurfToIn < 0 || distanceToOut < distanceToIn)
-      return kInside;
+    if (isurfToIn < 0 || distanceToOut < distanceToIn) return kInside;
 
-    if (distanceToIn < 0 || distanceToIn * fTestDir.Dot(tfFacets[isurfToIn]->fNormal) > -kTolerance)
-      return kSurface;
+    if (distanceToIn < 0 || distanceToIn * fTestDir.Dot(tfFacets[isurfToIn]->fNormal) > -kTolerance) return kSurface;
   }
 
   VECCORE_ATT_HOST_DEVICE
   bool Contains(Vector3D<T> const &point) const;
 
   VECCORE_ATT_HOST_DEVICE
-  T DistanceToIn(Vector3D<T> const &point, Vector3D<T> const &direction,
-                      int &isurf)
+  T DistanceToIn(Vector3D<T> const &point, Vector3D<T> const &direction, int &isurf)
   {
-    // Compute distance to segment from outside point, returning also the crossed 
+    // Compute distance to segment from outside point, returning also the crossed
     // facet.
-    isurf = -1;
-    T distance = InfinityLength<T>();
-    T stepmax = InfinityLength<T>();
+    isurf               = -1;
+    T distance          = InfinityLength<T>();
+    T stepmax           = InfinityLength<T>();
     const int nclusters = fClusters.size();
-    for (int i=0; i<nclusters; ++i) {
+    for (int i = 0; i < nclusters; ++i) {
       int isurfcrt = -1;
       T distcrt;
       fClusters[i]->DistanceToIn(point, dir, stepmax, distcrt, isurfcrt);
       if (distcrt < distance) {
         distance = distcrt;
-        isurf = isurfcrt;
+        isurf    = isurfcrt;
       }
     }
     return distance;
   }
 
   VECCORE_ATT_HOST_DEVICE
-  T DistanceToOut(Vector3D<T> const &point, Vector3D<T> const &direction,
-                      int &isurf)
+  T DistanceToOut(Vector3D<T> const &point, Vector3D<T> const &direction, int &isurf)
   {
-    // Compute distance to segment from point inside, returning also the crossed 
+    // Compute distance to segment from point inside, returning also the crossed
     // facet.
-    isurf = -1;
-    T distance = InfinityLength<T>();
-    T stepmax = InfinityLength<T>();
+    isurf               = -1;
+    T distance          = InfinityLength<T>();
+    T stepmax           = InfinityLength<T>();
     const int nclusters = fClusters.size();
-    for (int i=0; i<nclusters; ++i) {
+    for (int i = 0; i < nclusters; ++i) {
       int isurfcrt = -1;
       T distcrt;
       fClusters[i]->DistanceToOut(point, dir, stepmax, distcrt, isurfcrt);
       if (distcrt < distance) {
         distance = distcrt;
-        isurf = isurfcrt;
+        isurf    = isurfcrt;
       }
     }
-    return distance;  
+    return distance;
   }
 
   VECCORE_ATT_HOST_DEVICE
   T SafetyToInSq(Vector3D<T> const &point)
   {
-    // Compute safety squared to segment from point outside, returning also the crossed 
+    // Compute safety squared to segment from point outside, returning also the crossed
     // facet.
-    isurf = -1;
-    T safetysq = InfinityLength<T>();
+    isurf               = -1;
+    T safetysq          = InfinityLength<T>();
     const int nclusters = fClusters.size();
-    for (int i=0; i<nclusters; ++i) {
+    for (int i = 0; i < nclusters; ++i) {
       int isurfcrt = -1;
-      T safsqcrt = fClusters[i]->SafetySq<true>(point, isurfcrt);
+      T safsqcrt   = fClusters[i]->SafetySq<true>(point, isurfcrt);
       if (safsqcrt < safetysq) {
         safetysq = safetysqcrt;
-        isurf = isurfcrt;
+        isurf    = isurfcrt;
       }
     }
     return safetysq;
@@ -311,17 +296,17 @@ public:
   VECCORE_ATT_HOST_DEVICE
   T SafetyToOutSq(Vector3D<T> const &point)
   {
-    // Compute safety squared to segment from point inside, returning also the crossed 
+    // Compute safety squared to segment from point inside, returning also the crossed
     // facet.
-    isurf = -1;
-    T safetysq = InfinityLength<T>();
+    isurf               = -1;
+    T safetysq          = InfinityLength<T>();
     const int nclusters = fClusters.size();
-    for (int i=0; i<nclusters; ++i) {
+    for (int i = 0; i < nclusters; ++i) {
       int isurfcrt = -1;
-      T safsqcrt = fClusters[i]->SafetySq<false>(point, isurfcrt);
+      T safsqcrt   = fClusters[i]->SafetySq<false>(point, isurfcrt);
       if (safsqcrt < safetysq) {
         safetysq = safetysqcrt;
-        isurf = isurfcrt;
+        isurf    = isurfcrt;
       }
     }
     return safetysq;
@@ -332,11 +317,8 @@ public:
   {
     // Compute normal to segment surface in given point near surface.
   }
-
 };
 } // end VECGEOM_IMPL_NAMESPACE
 } // end namespace vecgeom
 
 #endif
-
-
