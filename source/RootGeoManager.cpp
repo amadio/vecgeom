@@ -550,7 +550,9 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
       unplaced_volume = new UnplacedSExtruVolume(p->GetNvert(), x, y, p->GetZ(0), p->GetZ(1));
       delete[] x;
       delete[] y;
-    } else {
+    }
+#ifndef VECGEOM_CUDA_INTERFACE
+    else {
       // Make the general extruded solid.
       XtruVertex2 *vertices = new XtruVertex2[Nvert];
       XtruSection *sections = new XtruSection[Nsect];
@@ -566,6 +568,7 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
       delete[] vertices;
       delete[] sections;
     }
+#endif
   }
 
   // THE CUT TUBE
