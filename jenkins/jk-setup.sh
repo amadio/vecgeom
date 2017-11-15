@@ -34,7 +34,7 @@ if [[ $COMPILER == *gcc* ]]; then
   COMPILERversion=${COMPILER}version
   ARCH=$(uname -m)
   if [ $LABEL == cuda7 ] || [ $LABEL == gvslc6 ] || [ $LABEL == slc6-physical ] ||  [ $LABEL == lcgapp-SLC6_64b ] || [  $LABEL == continuous-sl6 ] || [  $LABEL == continuous-cuda7 ]; then
-    . /afs/cern.ch/sw/lcg/contrib/gcc/${!COMPILERversion}/${ARCH}-sl6/setup.sh
+    . /afs/cern.ch/sw/lcg/contrib/gcc/${!COMPILERversion}/${ARCH}-slc6/setup.sh
   elif [[  $LABEL == continuos-cc7 ]]; then
     . /afs/cern.ch/sw/lcg/contrib/gcc/${!COMPILERversion}/${ARCH}-centos7/setup.sh
   else
