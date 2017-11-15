@@ -343,7 +343,7 @@ public:
     using Bool_v    = vecCore::Mask_v<T>;
     Bool_v m;
     for (unsigned int i = 0; i < ChunkSize; ++i) {
-      vecCore::AssignMaskLane(m, i, calcsafeties[from_index + 1]);
+      vecCore::AssignMaskLane(m, i, calcsafeties[from_index + i]);
     }
 
     T safety(0.);
@@ -537,6 +537,9 @@ public:
                          ->Impl::ComputeStepAndSafety(globalpoints[i], globaldirs[i], step_limits[i], *in_states[i],
                                                       calcsafeties[i], out_safeties[i]);
     }
+    i = decltype(size){0};
+    for (; i < size; ++i)
+      out_steps[i] = vecCore::math::Min(out_steps[i], step_limits[i]);
   }
 
   // this kernel is a generic implementation to navigate with chunks of data
