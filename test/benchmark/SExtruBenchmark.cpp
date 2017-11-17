@@ -37,7 +37,8 @@ int main(int argc, char *argv[])
   GeoManager::Instance().SetWorldAndClose(worldPlaced);
 
   Benchmarker tester(GeoManager::Instance().GetWorld());
-  tester.SetVerbosity(3);
+  // Some smaller SafetyToIn compared to other implementations expected
+  tester.SetVerbosity(2);
   tester.SetRepetitions(nrep);
   tester.SetPointCount(npoints);
   tester.SetPoolMultiplier(1);

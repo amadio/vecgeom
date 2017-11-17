@@ -75,6 +75,11 @@ struct SExtruImplementation {
       inside = vecgeom::kOutside;
       return;
     }
+    
+    if (unplaced.fPolygon.IsConvex()) {
+      inside = unplaced.fPolygon.InsideConvex(point);
+      return;
+    }
 
     // check conditions for surface first
     using Bool_v = vecCore::Mask_v<Real_v>;
@@ -164,6 +169,11 @@ struct SExtruImplementation {
   VECCORE_ATT_HOST_DEVICE
   static void SafetyToIn(UnplacedStruct_t const &polyshell, Vector3D<Real_v> const &point, Real_v &safety)
   {
+    if (polyshell.fPolygon.IsConvex()) {
+      safety = polyshell.fPolygon.SafetyConvex(point, false);
+      return;
+    }
+    
     Vector3D<Precision> aMin, aMax;
     polyshell.Extent(aMin, aMax);
 
@@ -199,6 +209,10 @@ struct SExtruImplementation {
   static void SafetyToOut(UnplacedStruct_t const &polyshell, Vector3D<Real_v> const &point, Real_v &safety)
   {
     int unused;
+    if (polyshell.fPolygon.IsConvex()) {
+      safety = polyshell.fPolygon.SafetyConvex(point, true);
+      return;
+    }
     safety = std::sqrt(polyshell.fPolygon.SafetySqr(point, unused));
     safety = Min(safety, polyshell.fUpperZ - point.z());
     safety = Min(safety, point.z() - polyshell.fLowerZ);

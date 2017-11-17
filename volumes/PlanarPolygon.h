@@ -241,9 +241,18 @@ public:
   VECCORE_ATT_HOST_DEVICE
   Bool_v Contains(Vector3D<Real_v> const &point) const
   {
-    // implementation based on the point-polygon test after Jordan
     const size_t S = fVertices.size();
     Bool_v result(false);
+    if (fIsConvex) {
+      Real_v distance = -InfinityLength<Real_v>();
+      for (size_t i = 0; i < S; ++i) {
+        Real_v dseg = -(fA[i] * point.x() + fB[i] * point.y() + fD[i]);
+        vecCore__MaskedAssignFunc(distance, dseg > distance, dseg);
+      }
+      result = distance < Real_v(0.);
+      return result;
+    }
+    // implementation based on the point-polygon test after Jordan
     const auto vertx  = fVertices.x();
     const auto verty  = fVertices.y();
     const auto slopes = fVertices.z();
@@ -266,11 +275,37 @@ public:
   }
 
   template <typename Real_v, typename Inside_v = int /*vecCore::Index_v<Real_v>*/>
-  Inside_v Inside(Vector3D<Real_v> const &point) const
+  Inside_v InsideConvex(Vector3D<Real_v> const &point) const
   {
-    // we implement it with a combination of contains + safety?
+    assert(fIsConvex);
+    const size_t S = fVertices.size();
+    Inside_v result = Inside_v(vecgeom::kOutside);
+    Real_v distance = -InfinityLength<Real_v>();
+    for (size_t i = 0; i < S; ++i) {
+      Real_v dseg = -(fA[i] * point.x() + fB[i] * point.y() + fD[i]);
+      vecCore__MaskedAssignFunc(distance, dseg > distance, dseg);
+    }
+    vecCore__MaskedAssignFunc(result, distance < Real_v(-kTolerance), Real_v(vecgeom::kInside));
+    vecCore__MaskedAssignFunc(result, distance < Real_v(kTolerance), Real_v(vecgeom::kSurface));
+    return result;
   }
 
+  // calculate an underestimate of safety for the convex case
+  template <typename Real_v>
+  VECCORE_ATT_HOST_DEVICE
+  Real_v SafetyConvex(Vector3D<Real_v> const &point, bool inside) const
+  {
+    assert(fIsConvex);
+    const size_t S = fVertices.size();
+    Real_v distance = -InfinityLength<Real_v>();
+    for (size_t i = 0; i < S; ++i) {
+      Real_v dseg = -(fA[i] * point.x() + fB[i] * point.y() + fD[i]);
+      vecCore__MaskedAssignFunc(distance, dseg > distance, dseg);
+      if (inside) distance *= Real_v(-1.);
+    }
+    return distance;
+  }
+ 
   // calculate precise safety sqr to the polygon; return the closest "line" id
   template <typename Real_v>
   VECCORE_ATT_HOST_DEVICE
@@ -407,14 +442,23 @@ inline bool PlanarPolygon::Contains(Vector3D<Precision> const &point) const
   const auto kVectorS = vecCore::VectorSize<Real_v>();
 
   const size_t S = fVertices.size();
+  if (fIsConvex) {
+    Precision distance = -InfinityLength<Precision>();
+    for (size_t i = 0; i < S; ++i) {
+      Precision dseg = -(fA[i] * point.x() + fB[i] * point.y() + fD[i]);
+      distance = vecCore::math::Max(dseg, distance);
+    }
+    return ( distance < 0. );
+  }
+  
   Bool_v result(false);
-  const auto vertx  = fVertices.x();
-  const auto verty  = fVertices.y();
-  const auto slopes = fVertices.z();
   const Real_v px(point.x());
   const Real_v py(point.y());
   const size_t SVector = S - S % kVectorS;
   size_t i(0);
+  const auto vertx  = fVertices.x();
+  const auto verty  = fVertices.y();
+  const auto slopes = fVertices.z();
   // treat vectorizable part of loop
   for (; i < SVector; i += kVectorS) {
     const Real_v vertyI(FromPtr<Real_v>(&verty[i]));      // init vectors
@@ -447,6 +491,36 @@ inline bool PlanarPolygon::Contains(Vector3D<Precision> const &point) const
     reduction = reduction ^ (condition1 & condition2);
   }
   return reduction;
+}
+
+template <>
+inline Inside_t PlanarPolygon::InsideConvex(Vector3D<Precision> const &point) const
+{
+  const size_t S = fVertices.size();
+  assert(fIsConvex);
+  Precision distance = -InfinityLength<Precision>();
+  for (size_t i = 0; i < S; ++i) {
+    Precision dseg = -(fA[i] * point.x() + fB[i] * point.y() + fD[i]);
+    distance = vecCore::math::Max(dseg, distance);
+  }
+  if (distance > kTolerance) return vecgeom::kOutside;
+  if (distance < -kTolerance) return vecgeom::kInside;
+  return vecgeom::kSurface;
+}
+
+// template specialization for convex safety
+template <>
+inline Precision PlanarPolygon::SafetyConvex(Vector3D<Precision> const &point, bool inside) const
+{
+  const size_t S = fVertices.size();
+  assert(fIsConvex);
+  Precision distance = -InfinityLength<Precision>();
+  for (size_t i = 0; i < S; ++i) {
+    Precision dseg = -(fA[i] * point.x() + fB[i] * point.y() + fD[i]);
+    distance = vecCore::math::Max(dseg, distance);
+  }
+  if (inside) distance *= -1.;
+  return distance;
 }
 
 // template specialization for scalar safety
