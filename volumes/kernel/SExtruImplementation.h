@@ -58,7 +58,10 @@ struct SExtruImplementation {
     auto done = p.z() > Real_v(unplaced.fUpperZ);
     done |= p.z() < Real_v(unplaced.fLowerZ);
     if (vecCore::MaskFull(done)) return;
-    inside = !done && unplaced.fPolygon.Contains(p);
+    if (unplaced.fPolygon.IsConvex())
+      inside = !done && unplaced.fPolygon.ContainsConvex(p);
+    else
+      inside = !done && unplaced.fPolygon.Contains(p);
   }
 
   template <typename Real_v, typename Inside_t>

@@ -239,19 +239,25 @@ public:
 
   template <typename Real_v, typename Bool_v = vecCore::Mask_v<Real_v>>
   VECCORE_ATT_HOST_DEVICE
-  Bool_v Contains(Vector3D<Real_v> const &point) const
+  inline Bool_v ContainsConvex(Vector3D<Real_v> const &point) const
   {
     const size_t S = fVertices.size();
     Bool_v result(false);
-    if (fIsConvex) {
-      Real_v distance = -InfinityLength<Real_v>();
-      for (size_t i = 0; i < S; ++i) {
-        Real_v dseg = -(fA[i] * point.x() + fB[i] * point.y() + fD[i]);
-        vecCore__MaskedAssignFunc(distance, dseg > distance, dseg);
-      }
-      result = distance < Real_v(0.);
-      return result;
+    Real_v distance = -InfinityLength<Real_v>();
+    for (size_t i = 0; i < S; ++i) {
+      Real_v dseg = -(fA[i] * point.x() + fB[i] * point.y() + fD[i]);
+      vecCore__MaskedAssignFunc(distance, dseg > distance, dseg);
     }
+    result = distance < Real_v(0.);
+    return result;
+  }
+
+  template <typename Real_v, typename Bool_v = vecCore::Mask_v<Real_v>>
+  VECCORE_ATT_HOST_DEVICE
+  inline Bool_v Contains(Vector3D<Real_v> const &point) const
+  {
+    const size_t S = fVertices.size();
+    Bool_v result(false);
     // implementation based on the point-polygon test after Jordan
     const auto vertx  = fVertices.x();
     const auto verty  = fVertices.y();
@@ -275,7 +281,8 @@ public:
   }
 
   template <typename Real_v, typename Inside_v = int /*vecCore::Index_v<Real_v>*/>
-  Inside_v InsideConvex(Vector3D<Real_v> const &point) const
+  VECCORE_ATT_HOST_DEVICE
+  inline Inside_v InsideConvex(Vector3D<Real_v> const &point) const
   {
     assert(fIsConvex);
     const size_t S  = fVertices.size();
@@ -431,6 +438,19 @@ private:
 // template specialization for scalar case (do internal vectorization)
 #define SPECIALIZE
 #ifdef SPECIALIZE
+
+template <>
+inline bool PlanarPolygon::ContainsConvex(Vector3D<Precision> const &point) const
+{
+  const size_t S     = fVertices.size();
+  Precision distance = -InfinityLength<Precision>();
+  for (size_t i = 0; i < S; ++i) {
+    Precision dseg = -(fA[i] * point.x() + fB[i] * point.y() + fD[i]);
+    distance       = vecCore::math::Max(dseg, distance);
+  }
+  return (distance < 0.);
+}
+
 template <>
 inline bool PlanarPolygon::Contains(Vector3D<Precision> const &point) const
 {
@@ -441,19 +461,10 @@ inline bool PlanarPolygon::Contains(Vector3D<Precision> const &point) const
 
   const auto kVectorS = vecCore::VectorSize<Real_v>();
 
-  const size_t S = fVertices.size();
-  if (fIsConvex) {
-    Precision distance = -InfinityLength<Precision>();
-    for (size_t i = 0; i < S; ++i) {
-      Precision dseg = -(fA[i] * point.x() + fB[i] * point.y() + fD[i]);
-      distance       = vecCore::math::Max(dseg, distance);
-    }
-    return (distance < 0.);
-  }
-
   Bool_v result(false);
   const Real_v px(point.x());
   const Real_v py(point.y());
+  const size_t S       = fVertices.size();
   const size_t SVector = S - S % kVectorS;
   size_t i(0);
   const auto vertx  = fVertices.x();
