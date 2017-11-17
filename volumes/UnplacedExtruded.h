@@ -93,6 +93,8 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual void Print() const final;
 
+  virtual void Print(std::ostream &os) const final;
+
   virtual int memory_size() const final { return sizeof(*this); }
   std::string GetEntityType() const { return "Extruded"; }
 
@@ -114,8 +116,6 @@ public:
 #endif
 
 private:
-  virtual void Print(std::ostream &os) const final;
-
   VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,

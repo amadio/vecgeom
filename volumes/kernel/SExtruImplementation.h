@@ -120,7 +120,7 @@ struct SExtruImplementation {
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   static void DistanceToIn(UnplacedStruct_t const &polyshell, Vector3D<Real_v> const &p, Vector3D<Real_v> const &dir,
-                           Real_v const &stepMax, Real_v &distance)
+                           Real_v const & /*stepMax*/, Real_v &distance)
   {
     distance = Real_v(kInfLength);
     // consider adding bounding box check

@@ -1047,7 +1047,7 @@ int main(int argc, char *argv[])
     make_bmp(volume_result, ROOTimage.str().c_str(), data_size_x, data_size_y);
 
 #ifdef VECGEOM_GEANT4
-    int errorROOTG4(0);
+    // int errorROOTG4(0);
     G4VPhysicalVolume *world(vecgeom::G4GeoManager::Instance().GetG4GeometryFromROOT());
     if (world != nullptr) G4GeoManager::Instance().LoadG4Geometry(world);
 
@@ -1074,8 +1074,8 @@ int main(int argc, char *argv[])
     std::stringstream G4diffimage;
     G4diffimage << imagenamebase.str();
     G4diffimage << "_diffROOTG4.bmp";
-    errorROOTG4 =
-        make_diff_bmp(volume_result, volume_result_Geant4, G4diffimage.str().c_str(), data_size_x, data_size_y);
+    // errorROOTG4 =
+    make_diff_bmp(volume_result, volume_result_Geant4, G4diffimage.str().c_str(), data_size_x, data_size_y);
 #endif
 
     // convert current gGeoManager to a VecGeom geometry

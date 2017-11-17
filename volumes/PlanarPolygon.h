@@ -85,8 +85,9 @@ public:
     fD.resize(bs, 0);
 
     int inc = (GetOrientation(x, y, nvertices) > 0) ? -1 : 1;
+    size_t i, j;
     // init the vertices (wrapping around periodically)
-    for (size_t i = 0; i < (size_t)fNVertices; ++i) {
+    for (i = 0; i < (size_t)fNVertices; ++i) {
       const size_t k = (i * inc + fNVertices) % fNVertices;
       fVertices.set(i, x[k], y[k], 0);
       fMinX = vecCore::math::Min(x[k], fMinX);
@@ -96,9 +97,8 @@ public:
     }
 
     // initialize and cache the slopes as a "hidden" component
-    auto slopes  = fVertices.z();
-    const auto S = fNVertices;
-    size_t i, j;
+    auto slopes      = fVertices.z();
+    const auto S     = fNVertices;
     const auto vertx = fVertices.x();
     const auto verty = fVertices.y();
     for (i = 0, j = S - 1; i < S; j = i++) {
@@ -113,7 +113,7 @@ public:
       fShiftedXJ[i] = vertxJ;
     }
 
-    for (size_t i = 0; i < (size_t)S; ++i) {
+    for (i = 0; i < (size_t)S; ++i) {
       fLengthSqr[i] = (vertx[i] - fShiftedXJ[i]) * (vertx[i] - fShiftedXJ[i]) +
                       (verty[i] - fShiftedYJ[i]) * (verty[i] - fShiftedYJ[i]);
       fInvLengthSqr[i] = 1. / fLengthSqr[i];
@@ -122,7 +122,7 @@ public:
     // init normals
     // this is taken from UnplacedTrapezoid
     // we should make this a standalone function outside any volume class
-    for (size_t i = 0; i < (size_t)S; ++i) {
+    for (i = 0; i < (size_t)S; ++i) {
       const auto xi = fVertices.x();
       const auto yi = fVertices.y();
 
@@ -149,7 +149,7 @@ public:
     }
 
     // fill rest of data buffers periodically (for safe internal vectorized treatment)
-    for (size_t i = S; i < bs; ++i) {
+    for (i = S; i < bs; ++i) {
       const size_t k = i % fNVertices;
       fVertices.set(i, fVertices.x()[k], fVertices.y()[k], fVertices.z()[k]);
       fShiftedXJ[i]    = fShiftedXJ[k];
