@@ -278,7 +278,7 @@ public:
   Inside_v InsideConvex(Vector3D<Real_v> const &point) const
   {
     assert(fIsConvex);
-    const size_t S = fVertices.size();
+    const size_t S  = fVertices.size();
     Inside_v result = Inside_v(vecgeom::kOutside);
     Real_v distance = -InfinityLength<Real_v>();
     for (size_t i = 0; i < S; ++i) {
@@ -296,7 +296,7 @@ public:
   Real_v SafetyConvex(Vector3D<Real_v> const &point, bool inside) const
   {
     assert(fIsConvex);
-    const size_t S = fVertices.size();
+    const size_t S  = fVertices.size();
     Real_v distance = -InfinityLength<Real_v>();
     for (size_t i = 0; i < S; ++i) {
       Real_v dseg = -(fA[i] * point.x() + fB[i] * point.y() + fD[i]);
@@ -305,7 +305,7 @@ public:
     }
     return distance;
   }
- 
+
   // calculate precise safety sqr to the polygon; return the closest "line" id
   template <typename Real_v>
   VECCORE_ATT_HOST_DEVICE
@@ -446,11 +446,11 @@ inline bool PlanarPolygon::Contains(Vector3D<Precision> const &point) const
     Precision distance = -InfinityLength<Precision>();
     for (size_t i = 0; i < S; ++i) {
       Precision dseg = -(fA[i] * point.x() + fB[i] * point.y() + fD[i]);
-      distance = vecCore::math::Max(dseg, distance);
+      distance       = vecCore::math::Max(dseg, distance);
     }
-    return ( distance < 0. );
+    return (distance < 0.);
   }
-  
+
   Bool_v result(false);
   const Real_v px(point.x());
   const Real_v py(point.y());
@@ -501,7 +501,7 @@ inline Inside_t PlanarPolygon::InsideConvex(Vector3D<Precision> const &point) co
   Precision distance = -InfinityLength<Precision>();
   for (size_t i = 0; i < S; ++i) {
     Precision dseg = -(fA[i] * point.x() + fB[i] * point.y() + fD[i]);
-    distance = vecCore::math::Max(dseg, distance);
+    distance       = vecCore::math::Max(dseg, distance);
   }
   if (distance > kTolerance) return vecgeom::kOutside;
   if (distance < -kTolerance) return vecgeom::kInside;
@@ -517,7 +517,7 @@ inline Precision PlanarPolygon::SafetyConvex(Vector3D<Precision> const &point, b
   Precision distance = -InfinityLength<Precision>();
   for (size_t i = 0; i < S; ++i) {
     Precision dseg = -(fA[i] * point.x() + fB[i] * point.y() + fD[i]);
-    distance = vecCore::math::Max(dseg, distance);
+    distance       = vecCore::math::Max(dseg, distance);
   }
   if (inside) distance *= -1.;
   return distance;

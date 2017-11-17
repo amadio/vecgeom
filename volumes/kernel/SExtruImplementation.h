@@ -75,7 +75,7 @@ struct SExtruImplementation {
       inside = vecgeom::kOutside;
       return;
     }
-    
+
     if (unplaced.fPolygon.IsConvex()) {
       inside = unplaced.fPolygon.InsideConvex(point);
       return;
@@ -173,7 +173,7 @@ struct SExtruImplementation {
       safety = polyshell.fPolygon.SafetyConvex(point, false);
       return;
     }
-    
+
     Vector3D<Precision> aMin, aMax;
     polyshell.Extent(aMin, aMax);
 
