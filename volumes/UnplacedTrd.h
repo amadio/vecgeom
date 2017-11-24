@@ -158,7 +158,7 @@ public:
 
   Precision GetPlusXArea() const
   { //  Area in +x direction
-    return 2 * fTrd.fDZ * (fTrd.fDY1 + fTrd.fDY2) * fTrd.fSecyz;
+    return 2 * fTrd.fDZ * (fTrd.fDY1 + fTrd.fDY2) * fTrd.fSecxz;
   }
 
   Precision GetMinusXArea() const
@@ -168,7 +168,7 @@ public:
 
   Precision GetPlusYArea() const
   { // Area in +y direction
-    return 2 * fTrd.fDZ * (fTrd.fDX1 + fTrd.fDX2) * fTrd.fSecxz;
+    return 2 * fTrd.fDZ * (fTrd.fDX1 + fTrd.fDX2) * fTrd.fSecyz;
   }
 
   Precision GetMinusYArea() const
