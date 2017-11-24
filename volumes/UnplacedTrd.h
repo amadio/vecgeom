@@ -221,7 +221,6 @@ public:
 #endif
 
 private:
-
   VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
