@@ -55,6 +55,8 @@ struct ConeStruct {
   Precision fOuterSlope; // "gradient" of outer surface in z direction
   Precision fInnerOffset;
   Precision fOuterOffset;
+  Precision fInnerTolerance; // tolerance on radial direction for inner surface
+  Precision fOuterTolerance; // tolerance on radial direction for outer surface
   // Values to be cached
   Precision fSqRmin1, fSqRmin2;
   Precision fSqRmax1, fSqRmax2;
@@ -112,6 +114,8 @@ struct ConeStruct {
     fOuterSlope  = -(fRmax1 - fRmax2) / (2. * fDz);
     fInnerOffset = fRmin2 - fInnerSlope * fDz;
     fOuterOffset = fRmax2 - fOuterSlope * fDz;
+    fInnerTolerance = kConeTolerance * fSecRMin;
+    fOuterTolerance = kConeTolerance * fSecRMax;
 
     if (fRmin2 > fRmin1) {
       fInnerConeApex     = 2 * fDz * fRmin1 / (fRmin2 - fRmin1);

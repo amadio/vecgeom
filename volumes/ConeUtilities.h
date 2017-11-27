@@ -251,10 +251,11 @@ static typename vecCore::Mask_v<Real_v> IsOnConicalSurface(UnplacedStruct_t cons
 
   using namespace ConeUtilities;
   using namespace ConeTypes;
-  Real_v rho      = point.Perp2();
-  Real_v coneRad  = GetRadiusOfConeAtPoint<Real_v, ForInnerSurface>(cone, point.z());
-  Real_v coneRad2 = coneRad * coneRad;
-  return (rho >= (coneRad2 - kConeTolerance * coneRad)) && (rho <= (coneRad2 + kConeTolerance * coneRad)) &&
+  const Real_v rho      = point.Perp2();
+  const Real_v coneRad  = GetRadiusOfConeAtPoint<Real_v, ForInnerSurface>(cone, point.z());
+  const Real_v coneRad2 = coneRad * coneRad;
+  const Real_v tolerance = (ForInnerSurface) ? cone.fInnerTolerance : cone.fOuterTolerance;
+  return (rho >= (coneRad2 - tolerance * coneRad)) && (rho <= (coneRad2 + tolerance * coneRad)) &&
          (Abs(point.z()) < (cone.fDz + kTolerance));
 }
 
@@ -526,9 +527,9 @@ public:
     Real_v rmax  = cone.fOuterSlope * point.z() + cone.fOuterOffset;
     Real_v rmax2 = rmax * rmax;
 
-    completelyoutside |= r2 > MakePlusTolerantSquare<ForInside>(rmax, rmax2, kConeTolerance);
+    completelyoutside |= r2 > MakePlusTolerantSquare<ForInside>(rmax, rmax2, cone.fOuterTolerance);
     if (ForInside) {
-      completelyinside &= r2 < MakeMinusTolerantSquare<ForInside>(rmax, rmax2, kConeTolerance);
+      completelyinside &= r2 < MakeMinusTolerantSquare<ForInside>(rmax, rmax2, cone.fOuterTolerance);
     }
     if (vecCore::MaskFull(completelyoutside)) {
       return;
@@ -539,9 +540,9 @@ public:
       Real_v rmin  = cone.fInnerSlope * point.z() + cone.fInnerOffset;
       Real_v rmin2 = rmin * rmin;
 
-      completelyoutside |= r2 <= MakeMinusTolerantSquare<ForInside>(rmin, rmin2, kConeTolerance);
+      completelyoutside |= r2 <= MakeMinusTolerantSquare<ForInside>(rmin, rmin2, cone.fInnerTolerance);
       if (ForInside) {
-        completelyinside &= r2 > MakePlusTolerantSquare<ForInside>(rmin, rmin2, kConeTolerance);
+        completelyinside &= r2 > MakePlusTolerantSquare<ForInside>(rmin, rmin2, cone.fInnerTolerance);
       }
       if (vecCore::MaskFull(completelyoutside)) {
         return;
@@ -769,9 +770,9 @@ public:
     Precision rmax  = cone.fOuterSlope * point.z() + cone.fOuterOffset;
     Precision rmax2 = rmax * rmax;
 
-    completelyoutside |= r2 > MakePlusTolerantSquare<ForInside>(rmax, rmax2, kConeTolerance);
+    completelyoutside |= r2 > MakePlusTolerantSquare<ForInside>(rmax, rmax2, cone.fOuterTolerance);
     if (ForInside) {
-      completelyinside &= r2 < MakeMinusTolerantSquare<ForInside>(rmax, rmax2, kConeTolerance);
+      completelyinside &= r2 < MakeMinusTolerantSquare<ForInside>(rmax, rmax2, cone.fOuterTolerance);
     }
     if (completelyoutside) return;
 
@@ -780,9 +781,9 @@ public:
       Precision rmin  = cone.fInnerSlope * point.z() + cone.fInnerOffset;
       Precision rmin2 = rmin * rmin;
 
-      completelyoutside |= r2 <= MakeMinusTolerantSquare<ForInside>(rmin, rmin2, kConeTolerance);
+      completelyoutside |= r2 <= MakeMinusTolerantSquare<ForInside>(rmin, rmin2, cone.fInnerTolerance);
       if (ForInside) {
-        completelyinside &= r2 > MakePlusTolerantSquare<ForInside>(rmin, rmin2, kConeTolerance);
+        completelyinside &= r2 > MakePlusTolerantSquare<ForInside>(rmin, rmin2, cone.fInnerTolerance);
       }
       if (completelyoutside) return;
     }

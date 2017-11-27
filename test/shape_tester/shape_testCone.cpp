@@ -54,6 +54,7 @@ int runTester(ImplT const *shape, int npoints, bool usolids, bool debug, bool st
 
   ShapeTester<ImplT> tester;
   tester.setConventionsMode(usolids);
+  tester.SetSolidTolerance(1.e-7);
   tester.setDebug(debug);
   tester.setStat(stat);
   tester.SetMaxPoints(npoints);

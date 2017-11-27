@@ -103,7 +103,7 @@ struct ConeImplementation {
     if (vecCore::MaskFull(done)) return;
 
     // outside of outer cone and going away?
-    Float_t outerRadIrTol  = GetRadiusOfConeAtPoint<Real_v, false>(cone, point.z()) - kConeTolerance;
+    Float_t outerRadIrTol  = GetRadiusOfConeAtPoint<Real_v, false>(cone, point.z()) - cone.fOuterTolerance;
     Float_t outerRadIrTol2 = outerRadIrTol * outerRadIrTol;
     Float_t rsq            = point.Perp2(); // point.x()*point.x() + point.y()*point.y();
 
@@ -121,7 +121,7 @@ struct ConeImplementation {
     inside &= rsq < outerRadIrTol2;
 
     if (checkRminTreatment<coneTypeT>(cone)) {
-      Float_t innerRadIrTol  = GetRadiusOfConeAtPoint<Real_v, true>(cone, point.z()) + kConeTolerance;
+      Float_t innerRadIrTol  = GetRadiusOfConeAtPoint<Real_v, true>(cone, point.z()) + cone.fInnerTolerance;
       Float_t innerRadIrTol2 = innerRadIrTol * innerRadIrTol;
       inside &= rsq > innerRadIrTol2;
     }
@@ -239,7 +239,7 @@ struct ConeImplementation {
     // Using this logic will improve performance of Scalar code
     Real_v distz          = Abs(point.z()) - cone.fDz;
     Real_v rsq            = point.Perp2();
-    Real_v outerRadOrTol  = ConeUtilities::GetRadiusOfConeAtPoint<Real_v, false>(cone, point.z()) + kConeTolerance;
+    Real_v outerRadOrTol  = ConeUtilities::GetRadiusOfConeAtPoint<Real_v, false>(cone, point.z()) + cone.fOuterTolerance;
     Real_v outerRadOrTol2 = outerRadOrTol * outerRadOrTol;
 
     //=== Next, check all dimensions of the cone, whether points are inside -->
@@ -252,7 +252,7 @@ struct ConeImplementation {
     if (vecCore::MaskFull(done)) return;
 
     if (checkRminTreatment<coneTypeT>(cone) && !vecCore::MaskFull(outside)) {
-      Real_v innerRadOrTol  = ConeUtilities::GetRadiusOfConeAtPoint<Real_v, true>(cone, point.z()) - kConeTolerance;
+      Real_v innerRadOrTol  = ConeUtilities::GetRadiusOfConeAtPoint<Real_v, true>(cone, point.z()) - cone.fInnerTolerance;
       Real_v innerRadOrTol2 = innerRadOrTol * innerRadOrTol;
       outside |= rsq < innerRadOrTol2;
       done |= outside;
