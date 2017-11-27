@@ -110,10 +110,10 @@ struct ConeStruct {
     fInvSecRMax = 1. / NonZero(fSecRMax);
 
     // check this very carefully
-    fInnerSlope  = -(fRmin1 - fRmin2) / (2. * fDz);
-    fOuterSlope  = -(fRmax1 - fRmax2) / (2. * fDz);
-    fInnerOffset = fRmin2 - fInnerSlope * fDz;
-    fOuterOffset = fRmax2 - fOuterSlope * fDz;
+    fInnerSlope     = -(fRmin1 - fRmin2) / (2. * fDz);
+    fOuterSlope     = -(fRmax1 - fRmax2) / (2. * fDz);
+    fInnerOffset    = fRmin2 - fInnerSlope * fDz;
+    fOuterOffset    = fRmax2 - fOuterSlope * fDz;
     fInnerTolerance = kConeTolerance * fSecRMin;
     fOuterTolerance = kConeTolerance * fSecRMax;
 

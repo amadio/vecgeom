@@ -251,9 +251,9 @@ static typename vecCore::Mask_v<Real_v> IsOnConicalSurface(UnplacedStruct_t cons
 
   using namespace ConeUtilities;
   using namespace ConeTypes;
-  const Real_v rho      = point.Perp2();
-  const Real_v coneRad  = GetRadiusOfConeAtPoint<Real_v, ForInnerSurface>(cone, point.z());
-  const Real_v coneRad2 = coneRad * coneRad;
+  const Real_v rho       = point.Perp2();
+  const Real_v coneRad   = GetRadiusOfConeAtPoint<Real_v, ForInnerSurface>(cone, point.z());
+  const Real_v coneRad2  = coneRad * coneRad;
   const Real_v tolerance = (ForInnerSurface) ? cone.fInnerTolerance : cone.fOuterTolerance;
   return (rho >= (coneRad2 - tolerance * coneRad)) && (rho <= (coneRad2 + tolerance * coneRad)) &&
          (Abs(point.z()) < (cone.fDz + kTolerance));

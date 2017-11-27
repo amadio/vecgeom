@@ -237,9 +237,9 @@ struct ConeImplementation {
     Bool_t done(false);
 
     // Using this logic will improve performance of Scalar code
-    Real_v distz          = Abs(point.z()) - cone.fDz;
-    Real_v rsq            = point.Perp2();
-    Real_v outerRadOrTol  = ConeUtilities::GetRadiusOfConeAtPoint<Real_v, false>(cone, point.z()) + cone.fOuterTolerance;
+    Real_v distz         = Abs(point.z()) - cone.fDz;
+    Real_v rsq           = point.Perp2();
+    Real_v outerRadOrTol = ConeUtilities::GetRadiusOfConeAtPoint<Real_v, false>(cone, point.z()) + cone.fOuterTolerance;
     Real_v outerRadOrTol2 = outerRadOrTol * outerRadOrTol;
 
     //=== Next, check all dimensions of the cone, whether points are inside -->
@@ -252,7 +252,8 @@ struct ConeImplementation {
     if (vecCore::MaskFull(done)) return;
 
     if (checkRminTreatment<coneTypeT>(cone) && !vecCore::MaskFull(outside)) {
-      Real_v innerRadOrTol  = ConeUtilities::GetRadiusOfConeAtPoint<Real_v, true>(cone, point.z()) - cone.fInnerTolerance;
+      Real_v innerRadOrTol =
+          ConeUtilities::GetRadiusOfConeAtPoint<Real_v, true>(cone, point.z()) - cone.fInnerTolerance;
       Real_v innerRadOrTol2 = innerRadOrTol * innerRadOrTol;
       outside |= rsq < innerRadOrTol2;
       done |= outside;
