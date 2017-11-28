@@ -9,6 +9,7 @@
 #include <vector>
 #include "volumes/PlacedVolume.h"
 #include "management/GeoManager.h"
+#include <functional>
 
 #include "TGeoNode.h"
 class TGeoVolume;
