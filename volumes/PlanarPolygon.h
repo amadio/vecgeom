@@ -597,13 +597,12 @@ inline Precision PlanarPolygon::SafetySqr(Vector3D<Precision> const &point, int 
 #ifndef VECCORE_CUDA
     using std::min;
 #endif
-    const auto update = (ssq < Real_v(safe));
-    if (!vecCore::MaskEmpty(update)) {
-      for (size_t j = 0; j < kVectorS; ++j)
-        if (vecCore::MaskLaneAt(update, j)) {
-          safe    = min(safe, vecCore::LaneAt(ssq, j));
-          isegmin = i + j;
-        }
+    for (size_t j = 0; j < kVectorS; ++j) {
+      Precision saftmp = vecCore::LaneAt(ssq, j);
+      if (saftmp < safe) {
+        safe = saftmp;
+        isegmin = i + j;
+      }
     }
     if (Abs(safe) < kTolerance * kTolerance) {
       closestid = isegmin;

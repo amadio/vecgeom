@@ -122,6 +122,10 @@ struct SExtruImplementation {
   static void DistanceToIn(UnplacedStruct_t const &polyshell, Vector3D<Real_v> const &p, Vector3D<Real_v> const &dir,
                            Real_v const & /*stepMax*/, Real_v &distance)
   {
+    if (polyshell.fPolygon.IsConvex()) {
+      distance = polyshell.DistanceToInConvex(p, dir);
+      return;
+    }
     distance = Real_v(kInfLength);
     // consider adding bounding box check
 
@@ -154,6 +158,10 @@ struct SExtruImplementation {
   static void DistanceToOut(UnplacedStruct_t const &polyshell, Vector3D<Real_v> const &p, Vector3D<Real_v> const &dir,
                             Real_v const & /* stepMax */, Real_v &distance)
   {
+    if (polyshell.fPolygon.IsConvex()) {
+      distance = polyshell.DistanceToOutConvex(p, dir);
+      return;
+    }
     distance = Real_v(-1.);
     // or do a hit check; if not then it has to be the z planes
     const auto dshell   = polyshell.DistanceToOut(p, dir);
@@ -173,7 +181,8 @@ struct SExtruImplementation {
   static void SafetyToIn(UnplacedStruct_t const &polyshell, Vector3D<Real_v> const &point, Real_v &safety)
   {
     if (polyshell.fPolygon.IsConvex()) {
-      safety = polyshell.fPolygon.SafetyConvex(point, false);
+      Real_v safeZ = vecCore::math::Max(polyshell.fLowerZ - point.z(), point.z() - polyshell.fUpperZ);
+      safety = vecCore::math::Max(safeZ, polyshell.fPolygon.SafetyConvex(point, false));
       return;
     }
 
@@ -213,7 +222,8 @@ struct SExtruImplementation {
   {
     int unused;
     if (polyshell.fPolygon.IsConvex()) {
-      safety = polyshell.fPolygon.SafetyConvex(point, true);
+      Real_v safeZ = vecCore::math::Min(point.z() - polyshell.fLowerZ, polyshell.fUpperZ - point.z());
+      safety = vecCore::math::Min(safeZ, polyshell.fPolygon.SafetyConvex(point, true));
       return;
     }
     safety = std::sqrt(polyshell.fPolygon.SafetySqr(point, unused));
