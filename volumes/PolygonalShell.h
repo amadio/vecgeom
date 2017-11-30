@@ -333,7 +333,7 @@ inline Precision PolygonalShell::DistanceToInConvex(Vector3D<Precision> const &p
 {
   Precision dz = 0.5 * (fUpperZ - fLowerZ);
   Precision pz = point.z() - 0.5 * (fLowerZ + fUpperZ);
-  if ((vecCore::math::Abs(pz) - dz) > kTolerance && pz * dir.z() >= 0)
+  if ((vecCore::math::Abs(pz) - dz) > -kTolerance && pz * dir.z() >= 0)
     return kInfLength;
   const Precision invz = -1. / NonZero(dir.z());
   const Precision ddz = (invz < 0) ? dz : -dz;
@@ -344,7 +344,7 @@ inline Precision PolygonalShell::DistanceToInConvex(Vector3D<Precision> const &p
       
     const Precision proj = -(fPolygon.fA[i] * dir.x() + fPolygon.fB[i] * dir.y());
     // normals pointing inwards
-    const bool moving_away = proj > 0.;
+    const bool moving_away = proj > -kTolerance;
     // the distance to the plane (specialized for fNormalsZ == 0)
     const Precision pdist = -(fPolygon.fA[i] * point.x() + fPolygon.fB[i] * point.y() + fPolygon.fD[i]);
     const bool side_correct = pdist > -kTolerance;

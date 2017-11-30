@@ -79,15 +79,17 @@ struct SExtruImplementation {
       return;
     }
 
-    if (unplaced.fPolygon.IsConvex()) {
-      inside = unplaced.fPolygon.InsideConvex(point);
-      return;
-    }
-
     // check conditions for surface first
     using Bool_v = vecCore::Mask_v<Real_v>;
     Bool_v onZ   = Abs(point.z() - unplaced.fUpperZ) < kTolerance;
     onZ |= Abs(point.z() - unplaced.fLowerZ) < kTolerance;
+
+    if (unplaced.fPolygon.IsConvex()) {
+      inside = unplaced.fPolygon.InsideConvex(point);
+      if (onZ && inside != vecgeom::kOutside)
+        inside = vecgeom::kSurface;
+      return;
+    }
 
     if (onZ) {
       if (unplaced.fPolygon.Contains(point)) {
