@@ -303,23 +303,22 @@ template <>
 inline Precision PolygonalShell::DistanceToOutConvex(Vector3D<Precision> const &point,
                                                      Vector3D<Precision> const &dir) const
 {
-  Precision dz = 0.5 * (fUpperZ - fLowerZ);
-  Precision pz = point.z() - 0.5 * (fLowerZ + fUpperZ);
+  Precision dz         = 0.5 * (fUpperZ - fLowerZ);
+  Precision pz         = point.z() - 0.5 * (fLowerZ + fUpperZ);
   const Precision safz = vecCore::math::Abs(pz) - dz;
-  if (safz > kTolerance)
-    return -kTolerance;
+  if (safz > kTolerance) return -kTolerance;
 
-  Precision vz = dir.z();
+  Precision vz   = dir.z();
   Precision tmax = (vecCore::math::CopySign(dz, vz) - point.z()) / NonZero(vz);
-  const auto S = fPolygon.fVertices.size();
+  const auto S   = fPolygon.fVertices.size();
   for (size_t i = 0; i < S; ++i) { // side/rectangle index
-      
+
     const Precision proj = -(fPolygon.fA[i] * dir.x() + fPolygon.fB[i] * dir.y());
     // normals pointing inwards
     const Precision pdist = -(fPolygon.fA[i] * point.x() + fPolygon.fB[i] * point.y() + fPolygon.fD[i]);
     if (pdist > kTolerance) return -kTolerance;
     if (proj > 0) {
-      const Precision dist = -pdist / NonZero(proj);
+      const Precision dist  = -pdist / NonZero(proj);
       if (tmax > dist) tmax = dist;
     }
   }
@@ -333,33 +332,31 @@ inline Precision PolygonalShell::DistanceToInConvex(Vector3D<Precision> const &p
 {
   Precision dz = 0.5 * (fUpperZ - fLowerZ);
   Precision pz = point.z() - 0.5 * (fLowerZ + fUpperZ);
-  if ((vecCore::math::Abs(pz) - dz) > -kTolerance && pz * dir.z() >= 0)
-    return kInfLength;
+  if ((vecCore::math::Abs(pz) - dz) > -kTolerance && pz * dir.z() >= 0) return kInfLength;
   const Precision invz = -1. / NonZero(dir.z());
-  const Precision ddz = (invz < 0) ? dz : -dz;
-  Precision tmin = (pz + ddz) * invz;
-  Precision tmax = (pz - ddz) * invz;
-  const auto S = fPolygon.fVertices.size();
+  const Precision ddz  = (invz < 0) ? dz : -dz;
+  Precision tmin       = (pz + ddz) * invz;
+  Precision tmax       = (pz - ddz) * invz;
+  const auto S         = fPolygon.fVertices.size();
   for (size_t i = 0; i < S; ++i) { // side/rectangle index
-      
+
     const Precision proj = -(fPolygon.fA[i] * dir.x() + fPolygon.fB[i] * dir.y());
     // normals pointing inwards
     const bool moving_away = proj > -kTolerance;
     // the distance to the plane (specialized for fNormalsZ == 0)
-    const Precision pdist = -(fPolygon.fA[i] * point.x() + fPolygon.fB[i] * point.y() + fPolygon.fD[i]);
+    const Precision pdist   = -(fPolygon.fA[i] * point.x() + fPolygon.fB[i] * point.y() + fPolygon.fD[i]);
     const bool side_correct = pdist > -kTolerance;
     if (side_correct) {
       if (moving_away) return kInfLength;
-      const Precision dist = -pdist / NonZero(proj);
+      const Precision dist  = -pdist / NonZero(proj);
       if (dist > tmin) tmin = dist;
     } else if (moving_away) {
-      const Precision dist = -pdist / NonZero(proj);
+      const Precision dist  = -pdist / NonZero(proj);
       if (dist < tmax) tmax = dist;
     }
   }
-  if (tmax < tmin + kTolerance)
-    return kInfLength;
-  return tmin;    
+  if (tmax < tmin + kTolerance) return kInfLength;
+  return tmin;
 }
 
 #endif

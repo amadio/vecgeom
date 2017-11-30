@@ -600,7 +600,7 @@ inline Precision PlanarPolygon::SafetySqr(Vector3D<Precision> const &point, int 
     for (size_t j = 0; j < kVectorS; ++j) {
       Precision saftmp = vecCore::LaneAt(ssq, j);
       if (saftmp < safe) {
-        safe = saftmp;
+        safe    = saftmp;
         isegmin = i + j;
       }
     }

@@ -85,9 +85,8 @@ struct SExtruImplementation {
     onZ |= Abs(point.z() - unplaced.fLowerZ) < kTolerance;
 
     if (unplaced.fPolygon.IsConvex()) {
-      inside = unplaced.fPolygon.InsideConvex(point);
-      if (onZ && inside != vecgeom::kOutside)
-        inside = vecgeom::kSurface;
+      inside                                         = unplaced.fPolygon.InsideConvex(point);
+      if (onZ && inside != vecgeom::kOutside) inside = vecgeom::kSurface;
       return;
     }
 
@@ -184,7 +183,7 @@ struct SExtruImplementation {
   {
     if (polyshell.fPolygon.IsConvex()) {
       Real_v safeZ = vecCore::math::Max(polyshell.fLowerZ - point.z(), point.z() - polyshell.fUpperZ);
-      safety = vecCore::math::Max(safeZ, polyshell.fPolygon.SafetyConvex(point, false));
+      safety       = vecCore::math::Max(safeZ, polyshell.fPolygon.SafetyConvex(point, false));
       return;
     }
 
@@ -225,7 +224,7 @@ struct SExtruImplementation {
     int unused;
     if (polyshell.fPolygon.IsConvex()) {
       Real_v safeZ = vecCore::math::Min(point.z() - polyshell.fLowerZ, polyshell.fUpperZ - point.z());
-      safety = vecCore::math::Min(safeZ, polyshell.fPolygon.SafetyConvex(point, true));
+      safety       = vecCore::math::Min(safeZ, polyshell.fPolygon.SafetyConvex(point, true));
       return;
     }
     safety = std::sqrt(polyshell.fPolygon.SafetySqr(point, unused));
