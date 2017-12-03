@@ -417,8 +417,8 @@ public:
 
 template <class Specialization, int transC, int rotC>
 class LoopSpecializedVolImplHelper : public CommonSpecializedVolImplHelper<Specialization, transC, rotC> {
-  // using Helper_t = LoopSpecializedVolImplHelper<Specialization, transC, rotC>;
-  using CommonHelper_t = CommonSpecializedVolImplHelper<Specialization, transC, rotC>;
+  using CommonHelper_t   = CommonSpecializedVolImplHelper<Specialization, transC, rotC>;
+  using UnplacedVolume_t = typename Specialization::UnplacedVolume_t;
 
 public:
   using CommonHelper_t::SafetyToOut;
@@ -479,10 +479,20 @@ public:
                                                          Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &d,
                                                          VECGEOM_BACKEND_PRECISION_TYPE const step_max) const override
   {
-    (void)p;
-    (void)d;
-    (void)step_max;
-    throw std::runtime_error("DistanceToInVec unimplemented");
+    VECGEOM_BACKEND_PRECISION_TYPE output(kInfLength);
+    using vecCore::LaneAt;
+    using Real_s = Precision;
+    for (size_t i = 0; i < vecCore::VectorSize<VECGEOM_BACKEND_PRECISION_TYPE>(); ++i) {
+      Transformation3D const *tr = this->GetTransformation();
+      const auto unplacedstruct  = this->GetUnplacedStruct();
+      const Vector3D<Real_s> ps(LaneAt(p.x(), i), LaneAt(p.y(), i), LaneAt(p.z(), i)); // scalar vector
+      const Vector3D<Real_s> ds(LaneAt(d.x(), i), LaneAt(d.y(), i), LaneAt(d.z(), i)); // scalar direction;
+      Real_s tmp(-1.);
+      Specialization::template DistanceToIn<Real_s>(*unplacedstruct, tr->Transform<transC, rotC>(ps),
+                                                    tr->TransformDirection<rotC>(ds), LaneAt(step_max, i), tmp);
+      vecCore::AssignLane(output, i, tmp);
+    }
+    return output;
   }
 
   virtual void DistanceToInMinimize(SOA3D<Precision> const &points, SOA3D<Precision> const &directions,
