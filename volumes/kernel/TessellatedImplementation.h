@@ -248,7 +248,7 @@ struct TessellatedImplementation {
           distance = -1.; // point inside or on boundary
         // else not hitting, distance already inf
       } else {
-        if (isurfToOut >= 0 && distanceToOut < distanceToIn)
+        if (isurfToOut >= 0 && distanceToOut > kTolerance && distanceToOut < distanceToIn)
           distance = -1.; // point inside exiting first then re-entering
         // else valid entry point, distance already set
       }
