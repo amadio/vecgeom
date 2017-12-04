@@ -15,21 +15,6 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-/*
-VECCORE_ATT_HOST_DEVICE
-void UnplacedHype::SetParameters(const Precision rMin, const Precision rMax, const Precision stIn,
-                                 const Precision stOut, const Precision dz)
-{
-
-  // TODO: add eventual check
-  fRmin  = rMin;
-  fStIn  = stIn;
-  fRmax  = rMax;
-  fStOut = stOut;
-  fDz    = dz;
-}
-*/
-
 VECCORE_ATT_HOST_DEVICE
 void UnplacedHype::DetectConvexity()
 {
@@ -39,66 +24,6 @@ void UnplacedHype::DetectConvexity()
   if ((fHype.fRmin == 0.) && (fHype.fStIn == 0.) && (fHype.fStOut == 0.)) // Hype becomes Solid Tube.
     fGlobalConvexity = true;
 }
-
-/*
-VECCORE_ATT_HOST_DEVICE
-bool UnplacedHype::InnerSurfaceExists() const
-{
-  return (fRmin > 0.) || (fStIn != 0.);
-}
-
-VECCORE_ATT_HOST_DEVICE
-void UnplacedHype::CalcCapacity()
-{
-  fCubicVolume = Volume(true) - Volume(false);
-}
-
-VECCORE_ATT_HOST_DEVICE
-Precision UnplacedHype::Volume(bool outer)
-{
-  if (outer)
-    return 2 * kPi * fDz * ((fRmax) * (fRmax) + (fDz2 * fTOut2 / 3.));
-  else
-    return 2 * kPi * fDz * ((fRmin) * (fRmin) + (fDz2 * fTIn2 / 3.));
-}
-
-VECCORE_ATT_HOST_DEVICE
-void UnplacedHype::CalcSurfaceArea()
-{
-  fSurfaceArea = Area(true) + Area(false) + AreaEndCaps();
-}
-
-VECCORE_ATT_HOST_DEVICE
-Precision UnplacedHype::Area(bool outer)
-{
-  Precision fT = 0., fR = 0.;
-  if (outer) {
-    fT = fTOut;
-    fR = fRmax;
-  } else {
-    fT = fTIn;
-    fR = fRmin;
-  }
-
-  Precision ar = 0.;
-
-  if (fT == 0)
-    ar = 4 * kPi * fR * fDz;
-  else {
-    Precision p = fT * std::sqrt(fT * fT);
-    Precision q = p * fDz * std::sqrt(fR * fR + (std::pow(fT, 2.) + std::pow(fT, 4.)) * std::pow(fDz, 2.));
-    Precision r = fR * fR * std::asinh(p * fDz / fR);
-    ar          = ((q + r) / (2 * p)) * 4 * kPi;
-  }
-  return ar;
-}
-
-VECCORE_ATT_HOST_DEVICE
-Precision UnplacedHype::AreaEndCaps()
-{
-  return 2 * kPi * (GetEndOuterRadius2() - GetEndInnerRadius2());
-}
-*/
 
 VECCORE_ATT_HOST_DEVICE
 void UnplacedHype::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const

@@ -131,6 +131,18 @@ struct HypeStruct {
 
   VECCORE_ATT_HOST_DEVICE
   Precision AreaEndCaps() { return 2 * kPi * (fEndOuterRadius2 - fEndInnerRadius2); }
+
+  VECCORE_ATT_HOST_DEVICE
+  void SetParameters(const Precision rMin, const Precision rMax, const Precision stIn, const Precision stOut,
+                     const Precision dz)
+  {
+    fRmin  = rMin;
+    fStIn  = stIn;
+    fRmax  = rMax;
+    fStOut = stOut;
+    fDz    = dz;
+    CalculateCached();
+  }
 };
 }
 }

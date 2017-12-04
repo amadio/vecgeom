@@ -151,7 +151,11 @@ public:
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   void SetParameters(const Precision rMin, const Precision rMax, const Precision stIn, const Precision stOut,
-                     const Precision dz);
+                     const Precision dz)
+  {
+    fHype.SetParameters(rMin, rMax, stIn, stOut, dz);
+    DetectConvexity();
+  }
 
   VECCORE_ATT_HOST_DEVICE
   Precision Volume(bool outer);

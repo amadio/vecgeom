@@ -322,16 +322,6 @@ struct HypeImplementation {
     safety = Min(distInner, distOuter);
     safety = Min(safety, distZ);
   }
-
-  template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &hype, Vector3D<Real_v> const &point,
-                                       typename vecCore::Mask_v<Real_v> &valid)
-  {
-
-    return Vector3D<Real_v>(0., 0., 0.);
-  }
 };
 }
 } // End global namespace
