@@ -143,12 +143,34 @@ void GeoManager::CompactifyMemory()
   }
 
   for (auto v : fLogicalVolumesMap) {
-    UnplacedBooleanVolume *bvol;
-    if ((bvol = const_cast<UnplacedBooleanVolume *>(
-             dynamic_cast<UnplacedBooleanVolume const *>(v.second->GetUnplacedVolume())))) {
-      bvol->SetLeft(ConvertOldToNew(bvol->GetLeft()));
-      bvol->SetRight(ConvertOldToNew(bvol->GetRight()));
+
+    // check if this is a boolean type
+    // FIXME: make this shorter!
+    {
+      using BoolT = UnplacedBooleanVolume<kSubtraction>;
+      BoolT *bvol;
+      if ((bvol = const_cast<BoolT *>(dynamic_cast<BoolT const *>(v.second->GetUnplacedVolume())))) {
+        bvol->SetLeft(ConvertOldToNew(bvol->GetLeft()));
+        bvol->SetRight(ConvertOldToNew(bvol->GetRight()));
+      }
     }
+    {
+      using BoolT = UnplacedBooleanVolume<kUnion>;
+      BoolT *bvol;
+      if ((bvol = const_cast<BoolT *>(dynamic_cast<BoolT const *>(v.second->GetUnplacedVolume())))) {
+        bvol->SetLeft(ConvertOldToNew(bvol->GetLeft()));
+        bvol->SetRight(ConvertOldToNew(bvol->GetRight()));
+      }
+    }
+    {
+      using BoolT = UnplacedBooleanVolume<kIntersection>;
+      BoolT *bvol;
+      if ((bvol = const_cast<BoolT *>(dynamic_cast<BoolT const *>(v.second->GetUnplacedVolume())))) {
+        bvol->SetLeft(ConvertOldToNew(bvol->GetLeft()));
+        bvol->SetRight(ConvertOldToNew(bvol->GetRight()));
+      }
+    }
+
     // same for scaled shape volume
     UnplacedScaledShape *svol;
     if ((svol = const_cast<UnplacedScaledShape *>(

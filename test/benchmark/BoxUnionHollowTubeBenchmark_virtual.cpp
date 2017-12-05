@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
   VPlacedVolume *placedmotherbox      = (new LogicalVolume("", &motherbox))->Place();
 
   // now make the unplaced boolean solid
-  UnplacedBooleanVolume booleansolid(kUnion, placedmotherbox, placedsubtractedtube);
+  UnplacedBooleanVolume<kUnion> booleansolid(kUnion, placedmotherbox, placedsubtractedtube);
   LogicalVolume booleanlogical("booleanL", &booleansolid);
 
   // place the boolean volume into the world

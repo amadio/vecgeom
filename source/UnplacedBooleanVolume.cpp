@@ -21,61 +21,135 @@ namespace vecgeom {
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+template <>
 template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECCORE_ATT_DEVICE
-VPlacedVolume *UnplacedBooleanVolume::Create(LogicalVolume const *const logical_volume,
-                                             Transformation3D const *const transformation,
+VPlacedVolume *UnplacedBooleanVolume<kSubtraction>::Create(LogicalVolume const *const logical_volume,
+                                                           Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
-                                             const int id,
+                                                           const int id,
 #endif
-                                             VPlacedVolume *const placement)
+                                                           VPlacedVolume *const placement)
 {
+  return CreateSpecializedWithPlacement<SpecializedBooleanVolume<kSubtraction, transCodeT, rotCodeT>>(
+      logical_volume, transformation,
+#ifdef VECCORE_CUDA
+      id,
+#endif
+      placement); // TODO: add bounding box?
+}
 
-  // since this is a static function, we need to get instance of UnplacedBooleanVolume first of all from logical volume
-  const UnplacedBooleanVolume &vol = static_cast<const UnplacedBooleanVolume &>(*(logical_volume->GetUnplacedVolume()));
+template <>
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+VECCORE_ATT_DEVICE
+VPlacedVolume *UnplacedBooleanVolume<kUnion>::Create(LogicalVolume const *const logical_volume,
+                                                     Transformation3D const *const transformation,
+#ifdef VECCORE_CUDA
+                                                     const int id,
+#endif
+                                                     VPlacedVolume *const placement)
+{
+  return CreateSpecializedWithPlacement<SpecializedBooleanVolume<kUnion, transCodeT, rotCodeT>>(
+      logical_volume, transformation,
+#ifdef VECCORE_CUDA
+      id,
+#endif
+      placement); // TODO: add bounding box?
+}
 
-  if (vol.GetOp() == kSubtraction) {
-    return CreateSpecializedWithPlacement<SpecializedBooleanVolume<kSubtraction, transCodeT, rotCodeT>>(
-        logical_volume, transformation,
+template <>
+template <TranslationCode transCodeT, RotationCode rotCodeT>
+VECCORE_ATT_DEVICE
+VPlacedVolume *UnplacedBooleanVolume<kIntersection>::Create(LogicalVolume const *const logical_volume,
+                                                            Transformation3D const *const transformation,
 #ifdef VECCORE_CUDA
-        id,
+                                                            const int id,
 #endif
-        placement); // TODO: add bounding box?
-  } else if (vol.GetOp() == kUnion) {
-    return CreateSpecializedWithPlacement<SpecializedBooleanVolume<kUnion, transCodeT, rotCodeT>>(
-        logical_volume, transformation,
+                                                            VPlacedVolume *const placement)
+{
+  return CreateSpecializedWithPlacement<SpecializedBooleanVolume<kIntersection, transCodeT, rotCodeT>>(
+      logical_volume, transformation,
 #ifdef VECCORE_CUDA
-        id,
+      id,
 #endif
-        placement); // TODO: add bounding box?
-  } else if (vol.GetOp() == kIntersection) {
-    return CreateSpecializedWithPlacement<SpecializedBooleanVolume<kIntersection, transCodeT, rotCodeT>>(
-        logical_volume, transformation,
-#ifdef VECCORE_CUDA
-        id,
-#endif
-        placement); // TODO: add bounding box?
-  }
-  return nullptr;
+      placement); // TODO: add bounding box?
 }
 
 VECCORE_ATT_DEVICE
-VPlacedVolume *UnplacedBooleanVolume::SpecializedVolume(LogicalVolume const *const volume,
-                                                        Transformation3D const *const transformation,
-                                                        const TranslationCode trans_code, const RotationCode rot_code,
+template <>
+VPlacedVolume *UnplacedBooleanVolume<kSubtraction>::SpecializedVolume(LogicalVolume const *const volume,
+                                                                      Transformation3D const *const transformation,
+                                                                      const TranslationCode trans_code,
+                                                                      const RotationCode rot_code,
 #ifdef VECCORE_CUDA
-                                                        const int id,
+                                                                      const int id,
 #endif
-                                                        VPlacedVolume *const placement) const
+                                                                      VPlacedVolume *const placement) const
 {
-
 #ifndef VECCORE_CUDA
 
-  return VolumeFactory::CreateByTransformation<UnplacedBooleanVolume>(volume, transformation, trans_code, rot_code,
+  return VolumeFactory::CreateByTransformation<UnplacedBooleanVolume<kSubtraction>>(volume, transformation, trans_code,
+                                                                                    rot_code,
 #ifdef VECCORE_CUDA
-                                                                      id,
+                                                                                    id,
 #endif
-                                                                      placement);
+                                                                                    placement);
+
+#else
+  // Compiling the above code with nvcc 6.5 faile with the error:
+  // nvcc error   : 'ptxas' died due to signal 11 (Invalid memory reference)
+  // at least when optimized.
+  return nullptr;
+#endif
+}
+
+VECCORE_ATT_DEVICE
+template <>
+VPlacedVolume *UnplacedBooleanVolume<kUnion>::SpecializedVolume(LogicalVolume const *const volume,
+                                                                Transformation3D const *const transformation,
+                                                                const TranslationCode trans_code,
+                                                                const RotationCode rot_code,
+#ifdef VECCORE_CUDA
+                                                                const int id,
+#endif
+                                                                VPlacedVolume *const placement) const
+{
+#ifndef VECCORE_CUDA
+
+  return VolumeFactory::CreateByTransformation<UnplacedBooleanVolume<kUnion>>(volume, transformation, trans_code,
+                                                                              rot_code,
+#ifdef VECCORE_CUDA
+                                                                              id,
+#endif
+                                                                              placement);
+
+#else
+  // Compiling the above code with nvcc 6.5 faile with the error:
+  // nvcc error   : 'ptxas' died due to signal 11 (Invalid memory reference)
+  // at least when optimized.
+  return nullptr;
+#endif
+}
+
+VECCORE_ATT_DEVICE
+template <>
+VPlacedVolume *UnplacedBooleanVolume<kIntersection>::SpecializedVolume(LogicalVolume const *const volume,
+                                                                       Transformation3D const *const transformation,
+                                                                       const TranslationCode trans_code,
+                                                                       const RotationCode rot_code,
+#ifdef VECCORE_CUDA
+                                                                       const int id,
+#endif
+                                                                       VPlacedVolume *const placement) const
+{
+#ifndef VECCORE_CUDA
+
+  return VolumeFactory::CreateByTransformation<UnplacedBooleanVolume<kIntersection>>(volume, transformation, trans_code,
+                                                                                     rot_code,
+#ifdef VECCORE_CUDA
+                                                                                     id,
+#endif
+                                                                                     placement);
 
 #else
   // Compiling the above code with nvcc 6.5 faile with the error:
@@ -127,63 +201,90 @@ void TransformedExtent(VPlacedVolume const *pvol, Vector3D<Precision> &aMin, Vec
   aMax.z() = maxz;
 }
 
-void UnplacedBooleanVolume::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
+template <>
+void UnplacedBooleanVolume<kSubtraction>::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
-
   Vector3D<Precision> minLeft, maxLeft, minRight, maxRight;
   // ATTENTION: Extent gives coordinates in the reference frame of the callee
   // therefore we have to calculate Extent in THIS frame using:
-  TransformedExtent(fLeftVolume, minLeft, maxLeft);
-  TransformedExtent(fRightVolume, minRight, maxRight);
+  TransformedExtent(fBoolean.fLeftVolume, minLeft, maxLeft);
+  TransformedExtent(fBoolean.fRightVolume, minRight, maxRight);
   // rather than just
   // fLeftVolume->Extent(minLeft, maxLeft);
   // fRightVolume->Extent(minRight,maxRight);
+  aMin = minLeft;
+  aMax = maxLeft;
+}
 
-  if (this->GetOp() == kUnion) {
-    aMin = Vector3D<Precision>(Min(minLeft.x(), minRight.x()), Min(minLeft.y(), minRight.y()),
-                               Min(minLeft.z(), minRight.z()));
-    aMax = Vector3D<Precision>(Max(maxLeft.x(), maxRight.x()), Max(maxLeft.y(), maxRight.y()),
-                               Max(maxLeft.z(), maxRight.z()));
-  }
+template <>
+void UnplacedBooleanVolume<kUnion>::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
+{
+  Vector3D<Precision> minLeft, maxLeft, minRight, maxRight;
+  // ATTENTION: Extent gives coordinates in the reference frame of the callee
+  // therefore we have to calculate Extent in THIS frame using:
+  TransformedExtent(fBoolean.fLeftVolume, minLeft, maxLeft);
+  TransformedExtent(fBoolean.fRightVolume, minRight, maxRight);
+  // rather than just
+  // fLeftVolume->Extent(minLeft, maxLeft);
+  // fRightVolume->Extent(minRight,maxRight);
+  aMin = Vector3D<Precision>(Min(minLeft.x(), minRight.x()), Min(minLeft.y(), minRight.y()),
+                             Min(minLeft.z(), minRight.z()));
+  aMax = Vector3D<Precision>(Max(maxLeft.x(), maxRight.x()), Max(maxLeft.y(), maxRight.y()),
+                             Max(maxLeft.z(), maxRight.z()));
+}
 
-  if (this->GetOp() == kIntersection) {
-    aMin = Vector3D<Precision>(Max(minLeft.x(), minRight.x()), Max(minLeft.y(), minRight.y()),
-                               Max(minLeft.z(), minRight.z()));
-    aMax = Vector3D<Precision>(Min(maxLeft.x(), maxRight.x()), Min(maxLeft.y(), maxRight.y()),
-                               Min(maxLeft.z(), maxRight.z()));
-  }
-
-  if (this->GetOp() == kSubtraction) {
-    aMin = minLeft;
-    aMax = maxLeft;
-  }
+template <>
+void UnplacedBooleanVolume<kIntersection>::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
+{
+  Vector3D<Precision> minLeft, maxLeft, minRight, maxRight;
+  // ATTENTION: Extent gives coordinates in the reference frame of the callee
+  // therefore we have to calculate Extent in THIS frame using:
+  TransformedExtent(fBoolean.fLeftVolume, minLeft, maxLeft);
+  TransformedExtent(fBoolean.fRightVolume, minRight, maxRight);
+  // rather than just
+  // fLeftVolume->Extent(minLeft, maxLeft);
+  // fRightVolume->Extent(minRight,maxRight);
+  aMin = Vector3D<Precision>(Max(minLeft.x(), minRight.x()), Max(minLeft.y(), minRight.y()),
+                             Max(minLeft.z(), minRight.z()));
+  aMax = Vector3D<Precision>(Min(maxLeft.x(), maxRight.x()), Min(maxLeft.y(), maxRight.y()),
+                             Min(maxLeft.z(), maxRight.z()));
 }
 
 VECCORE_ATT_HOST_DEVICE
-bool UnplacedBooleanVolume::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
+template <>
+bool UnplacedBooleanVolume<kSubtraction>::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
 {
   // Compute normal vector to closest surface
   bool valid = false;
-  switch (fOp) {
-  case kSubtraction:
-    BooleanImplementation<kSubtraction, translation::kGeneric, rotation::kGeneric>::NormalKernel<kScalar>(
-        *this, point, normal, valid);
-    break;
-  case kUnion:
-    BooleanImplementation<kUnion, translation::kGeneric, rotation::kGeneric>::NormalKernel<kScalar>(*this, point,
-                                                                                                    normal, valid);
-    break;
-  case kIntersection:
-    BooleanImplementation<kIntersection, translation::kGeneric, rotation::kGeneric>::NormalKernel<kScalar>(
-        *this, point, normal, valid);
-  }
+  BooleanImplementation<kSubtraction>::NormalKernel(GetStruct(), point, normal, valid);
+  return valid;
+}
+
+VECCORE_ATT_HOST_DEVICE
+template <>
+bool UnplacedBooleanVolume<kUnion>::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
+{
+  // Compute normal vector to closest surface
+  bool valid = false;
+  BooleanImplementation<kUnion>::NormalKernel(GetStruct(), point, normal, valid);
+  return valid;
+}
+
+VECCORE_ATT_HOST_DEVICE
+template <>
+bool UnplacedBooleanVolume<kIntersection>::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
+{
+  // Compute normal vector to closest surface
+  bool valid = false;
+  BooleanImplementation<kIntersection>::NormalKernel(GetStruct(), point, normal, valid);
   return valid;
 }
 
 #ifdef VECGEOM_CUDA_INTERFACE
 
 // functions to copy data structures to GPU
-DevicePtr<cuda::VUnplacedVolume> UnplacedBooleanVolume::CopyToGpu(
+template<>
+DevicePtr<cuda::VUnplacedVolume> UnplacedBooleanVolume<kUnion>::CopyToGpu(
     DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
 {
   // here we have our recursion:
@@ -192,15 +293,61 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedBooleanVolume::CopyToGpu(
   // TODO: integrate this into CUDA MGR?
 
   // use CUDA Manager to lookup GPU pointer
-  DevicePtr<cuda::VPlacedVolume> leftgpuptr  = CudaManager::Instance().LookupPlaced(fLeftVolume);
-  DevicePtr<cuda::VPlacedVolume> rightgpuptr = CudaManager::Instance().LookupPlaced(fRightVolume);
+  DevicePtr<cuda::VPlacedVolume> leftgpuptr  = CudaManager::Instance().LookupPlaced(GetLeft());
+  DevicePtr<cuda::VPlacedVolume> rightgpuptr = CudaManager::Instance().LookupPlaced(GetRight());
 
-  return CopyToGpuImpl<UnplacedBooleanVolume>(in_gpu_ptr, fOp, leftgpuptr, rightgpuptr);
+  return CopyToGpuImpl<UnplacedBooleanVolume<kUnion>>(in_gpu_ptr, GetOp(), leftgpuptr, rightgpuptr);
+}
+template<>
+DevicePtr<cuda::VUnplacedVolume> UnplacedBooleanVolume<kUnion>::CopyToGpu() const
+{
+  return CopyToGpuImpl<UnplacedBooleanVolume<kUnion>>();
 }
 
-DevicePtr<cuda::VUnplacedVolume> UnplacedBooleanVolume::CopyToGpu() const
+// functions to copy data structures to GPU
+template<>
+DevicePtr<cuda::VUnplacedVolume> UnplacedBooleanVolume<kIntersection>::CopyToGpu(
+    DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
 {
-  return CopyToGpuImpl<UnplacedBooleanVolume>();
+  // here we have our recursion:
+  // since UnplacedBooleanVolume has pointer members we need to copy/construct those members too
+  // very brute force; because this might have been copied already
+  // TODO: integrate this into CUDA MGR?
+
+  // use CUDA Manager to lookup GPU pointer
+  DevicePtr<cuda::VPlacedVolume> leftgpuptr  = CudaManager::Instance().LookupPlaced(GetLeft());
+  DevicePtr<cuda::VPlacedVolume> rightgpuptr = CudaManager::Instance().LookupPlaced(GetRight());
+
+  return CopyToGpuImpl<UnplacedBooleanVolume<kIntersection>>(in_gpu_ptr, GetOp(), leftgpuptr, rightgpuptr);
+}
+
+template<>
+DevicePtr<cuda::VUnplacedVolume> UnplacedBooleanVolume<kIntersection>::CopyToGpu() const
+{
+  return CopyToGpuImpl<UnplacedBooleanVolume<kIntersection>>();
+}
+
+template<>
+// functions to copy data structures to GPU
+DevicePtr<cuda::VUnplacedVolume> UnplacedBooleanVolume<kSubtraction>::CopyToGpu(
+    DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
+{
+  // here we have our recursion:
+  // since UnplacedBooleanVolume has pointer members we need to copy/construct those members too
+  // very brute force; because this might have been copied already
+  // TODO: integrate this into CUDA MGR?
+
+  // use CUDA Manager to lookup GPU pointer
+  DevicePtr<cuda::VPlacedVolume> leftgpuptr  = CudaManager::Instance().LookupPlaced(GetLeft());
+  DevicePtr<cuda::VPlacedVolume> rightgpuptr = CudaManager::Instance().LookupPlaced(GetRight());
+
+  return CopyToGpuImpl<UnplacedBooleanVolume<kSubtraction>>(in_gpu_ptr, GetOp(), leftgpuptr, rightgpuptr);
+}
+
+template<>
+DevicePtr<cuda::VUnplacedVolume> UnplacedBooleanVolume<kSubtraction>::CopyToGpu() const
+{
+  return CopyToGpuImpl<UnplacedBooleanVolume<kSubtraction>>();
 }
 
 #endif // VECGEOM_CUDA_INTERFACE
@@ -211,8 +358,16 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedBooleanVolume::CopyToGpu() const
 
 namespace cxx {
 
-template size_t DevicePtr<cuda::UnplacedBooleanVolume>::SizeOf();
-template void DevicePtr<cuda::UnplacedBooleanVolume>::Construct(BooleanOperation op,
+  template size_t DevicePtr<cuda::UnplacedBooleanVolume<kUnion>>::SizeOf();
+  template void DevicePtr<cuda::UnplacedBooleanVolume<kUnion>>::Construct(BooleanOperation op,
+                                                                DevicePtr<cuda::VPlacedVolume> left,
+                                                                DevicePtr<cuda::VPlacedVolume> right) const;
+  template size_t DevicePtr<cuda::UnplacedBooleanVolume<kIntersection>>::SizeOf();
+  template void DevicePtr<cuda::UnplacedBooleanVolume<kIntersection>>::Construct(BooleanOperation op,
+                                                                DevicePtr<cuda::VPlacedVolume> left,
+                                                                DevicePtr<cuda::VPlacedVolume> right) const;
+  template size_t DevicePtr<cuda::UnplacedBooleanVolume<kSubtraction>>::SizeOf();
+  template void DevicePtr<cuda::UnplacedBooleanVolume<kSubtraction>>::Construct(BooleanOperation op,
                                                                 DevicePtr<cuda::VPlacedVolume> left,
                                                                 DevicePtr<cuda::VPlacedVolume> right) const;
 

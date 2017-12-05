@@ -2,10 +2,10 @@
 #define VECGEOM_VOLUMES_PLACEDTBOOLEAN_H_
 
 #include "base/Global.h"
-#include "backend/Backend.h"
-
 #include "volumes/PlacedVolume.h"
 #include "volumes/UnplacedVolume.h"
+#include "volumes/kernel/BooleanImplementation.h"
+#include "volumes/PlacedVolImplHelper.h"
 #include "volumes/UnplacedBooleanVolume.h"
 
 #ifdef VECGEOM_ROOT
@@ -17,20 +17,26 @@ class G4VSolid;
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_FORWARD_DECLARE(class PlacedBooleanVolume;);
-VECGEOM_DEVICE_DECLARE_CONV(class, PlacedBooleanVolume);
+//@PHILIPPE: FIXME
+// VECGEOM_DEVICE_FORWARD_DECLARE(class PlacedBooleanVolume;);
+// VECGEOM_DEVICE_DECLARE_CONV(class, PlacedBooleanVolume);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class PlacedBooleanVolume : public VPlacedVolume {
+template <BooleanOperation Op>
+class PlacedBooleanVolume : public PlacedVolumeImplHelper<UnplacedBooleanVolume<Op>, VPlacedVolume> {
 
-  typedef UnplacedBooleanVolume UnplacedVol_t;
+  using Base          = PlacedVolumeImplHelper<UnplacedBooleanVolume<Op>, VPlacedVolume>;
+  using UnplacedVol_t = UnplacedBooleanVolume<Op>;
 
 public:
+  using Base::GetLogicalVolume;
 #ifndef VECCORE_CUDA
+  using Base::Base;
+  using Base::Inside;
   PlacedBooleanVolume(char const *const label, LogicalVolume const *const logicalVolume,
-                      Transformation3D const *const transformation, PlacedBox const *const boundingBox)
-      : VPlacedVolume(label, logicalVolume, transformation, boundingBox)
+                      Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
+      : Base(label, logicalVolume, transformation, boundingBox)
   {
   }
 
@@ -55,13 +61,6 @@ public:
   UnplacedVol_t const *GetUnplacedVolume() const
   {
     return static_cast<UnplacedVol_t const *>(GetLogicalVolume()->GetUnplacedVolume());
-  }
-
-  //#ifndef VECCORE_CUDA
-  virtual Precision Capacity() override
-  {
-    // TODO: implement this
-    return 0.;
   }
 
   VECCORE_ATT_HOST_DEVICE

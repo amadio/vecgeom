@@ -34,12 +34,12 @@ int TestBooleans()
   auto upperhole = ltube.Place(new Transformation3D(-L / 4, -L / 4, 0.));
   auto lowerhole = ltube.Place(new Transformation3D(L / 4, L / 4, 0.));
 
-  UnplacedBooleanVolume holes(kUnion, upperhole, lowerhole); // 2 holes as a union
+  UnplacedBooleanVolume<kUnion> holes(kUnion, upperhole, lowerhole); // 2 holes as a union
   LogicalVolume lholes("CombinedTubes", &holes);
   auto placedholes1 = lholes.Place();
   auto placedholes2 = lholes.Place(new Transformation3D(-L / 2, -L / 2, 0.));
 
-  UnplacedBooleanVolume boxminusholes(kSubtraction, placedbox, placedholes2);
+  UnplacedBooleanVolume<kSubtraction> boxminusholes(kSubtraction, placedbox, placedholes2);
   LogicalVolume lboxminusholes("CombinedBoolean", &boxminusholes);
   auto placedcombinedboolean = lboxminusholes.Place();
 
@@ -211,8 +211,8 @@ int TestBooleans()
   LogicalVolume lslab("slab", &slab);
 
   // two disconnetected tubes are now connected via the rotated slab
-  UnplacedBooleanVolume tubesandslabunion(kUnion, placedholes1,
-                                          lslab.Place(new Transformation3D(0., 0., 0., 0., 0., 45)));
+  UnplacedBooleanVolume<kUnion> tubesandslabunion(kUnion, placedholes1,
+                                                  lslab.Place(new Transformation3D(0., 0., 0., 0., 0., 45)));
   auto placedtubesslabunion = (new LogicalVolume("tubesandslabunion", &tubesandslabunion))->Place();
 
   {

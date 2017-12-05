@@ -31,10 +31,10 @@ int main()
   VPlacedVolume *placedsubtractedbox = (new LogicalVolume("", &subtractedbox))->Place(&translation2);
 
   // now make the unplaced boolean solid
-  UnplacedBooleanVolume booleansolid(kSubtraction, placedmotherbox, placedsubtractedtube);
+  UnplacedBooleanVolume<kSubtraction> booleansolid(kSubtraction, placedmotherbox, placedsubtractedtube);
   LogicalVolume booleanlogical("booleanL", &booleansolid);
 
-  UnplacedBooleanVolume booleansolid2(kSubtraction, booleanlogical.Place(), placedsubtractedbox);
+  UnplacedBooleanVolume<kSubtraction> booleansolid2(kSubtraction, booleanlogical.Place(), placedsubtractedbox);
 
   LogicalVolume booleanlogical2("booleanL2", &booleansolid2);
 

@@ -54,13 +54,12 @@ LogicalVolume const *make3LevelBooleanSubtraction()
   VPlacedVolume *placedsubtractedbox = (new LogicalVolume("", subtractedbox))->Place(translation2);
 
   // now make the unplaced boolean solid
-  UnplacedBooleanVolume const *booleansolid =
-      new UnplacedBooleanVolume(kSubtraction, placedmotherbox, placedsubtractedtube);
+  UnplacedBooleanVolume<kSubtraction> const *booleansolid =
+      new UnplacedBooleanVolume<kSubtraction>(kSubtraction, placedmotherbox, placedsubtractedtube);
   LogicalVolume const *booleanlogical = new LogicalVolume("booleanL", booleansolid);
 
-  UnplacedBooleanVolume const *booleansolid2 =
-      new UnplacedBooleanVolume(kSubtraction, booleanlogical->Place(), placedsubtractedbox);
-
+  UnplacedBooleanVolume<kSubtraction> const *booleansolid2 =
+      new UnplacedBooleanVolume<kSubtraction>(kSubtraction, booleanlogical->Place(), placedsubtractedbox);
   LogicalVolume const *booleanlogical2 = new LogicalVolume("booleanL2", booleansolid2);
   return booleanlogical2;
 }

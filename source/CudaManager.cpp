@@ -360,14 +360,20 @@ void CudaManager::ScanGeometry(VPlacedVolume const *const volume)
     daughters_.insert(volume->GetLogicalVolume()->fDaughters);
   }
 
-  if (dynamic_cast<PlacedBooleanVolume const *>(volume)) {
-    PlacedBooleanVolume const *v = dynamic_cast<PlacedBooleanVolume const *>(volume);
-    ScanGeometry(v->GetUnplacedVolume()->fLeftVolume);
-    ScanGeometry(v->GetUnplacedVolume()->fRightVolume);
+  if (auto v = dynamic_cast<PlacedBooleanVolume<kUnion> const *>(volume)) {
+    ScanGeometry(v->GetUnplacedVolume()->GetLeft());
+    ScanGeometry(v->GetUnplacedVolume()->GetRight());
+  }
+  if (auto v = dynamic_cast<PlacedBooleanVolume<kIntersection> const *>(volume)) {
+    ScanGeometry(v->GetUnplacedVolume()->GetLeft());
+    ScanGeometry(v->GetUnplacedVolume()->GetRight());
+  }
+  if (auto v = dynamic_cast<PlacedBooleanVolume<kSubtraction> const *>(volume)) {
+    ScanGeometry(v->GetUnplacedVolume()->GetLeft());
+    ScanGeometry(v->GetUnplacedVolume()->GetRight());
   }
 
-  if (dynamic_cast<PlacedScaledShape const *>(volume)) {
-    PlacedScaledShape const *v = dynamic_cast<PlacedScaledShape const *>(volume);
+  if (auto v = dynamic_cast<PlacedScaledShape const *>(volume)) {
     ScanGeometry(v->GetUnplacedVolume()->fScaled.fPlaced);
   }
 

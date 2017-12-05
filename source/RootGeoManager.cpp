@@ -484,11 +484,11 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
 
     // now it depends on concrete type
     if (boolnode->GetBooleanOperator() == TGeoBoolNode::kGeoSubtraction) {
-      unplaced_volume = new UnplacedBooleanVolume(kSubtraction, leftplaced, rightplaced);
+      unplaced_volume = new UnplacedBooleanVolume<kSubtraction>(kSubtraction, leftplaced, rightplaced);
     } else if (boolnode->GetBooleanOperator() == TGeoBoolNode::kGeoIntersection) {
-      unplaced_volume = new UnplacedBooleanVolume(kIntersection, leftplaced, rightplaced);
+      unplaced_volume = new UnplacedBooleanVolume<kIntersection>(kIntersection, leftplaced, rightplaced);
     } else if (boolnode->GetBooleanOperator() == TGeoBoolNode::kGeoUnion) {
-      unplaced_volume = new UnplacedBooleanVolume(kUnion, leftplaced, rightplaced);
+      unplaced_volume = new UnplacedBooleanVolume<kUnion>(kUnion, leftplaced, rightplaced);
     }
   }
 

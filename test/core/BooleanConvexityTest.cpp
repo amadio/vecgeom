@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 
   // now make the unplaced boolean solid
   // UnplacedBooleanVolume booleansolid(kUnion, placedmotherbox, placedsubtractedtube);
-  UnplacedBooleanVolume booleansolid(kSubtraction, placedmotherbox, placedsubtractedtube);
+  UnplacedBooleanVolume<kSubtraction> booleansolid(kSubtraction, placedmotherbox, placedsubtractedtube);
   LogicalVolume booleanlogical("booleanL", &booleansolid);
 
   // VPlacedVolume placedBooleanVolume = booleanlogical.Place();

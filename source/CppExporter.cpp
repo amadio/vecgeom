@@ -57,11 +57,18 @@ void GeomCppExporter::ScanGeometry(VPlacedVolume const *const volume, std::list<
   // if not yet treated
   if (std::find(lvlist.cbegin(), lvlist.cend(), volume->GetLogicalVolume()) == lvlist.cend() &&
       std::find(boollvlist.cbegin(), boollvlist.cend(), volume->GetLogicalVolume()) == boollvlist.cend()) {
-    if (dynamic_cast<PlacedBooleanVolume const *>(volume)) {
+    if (auto v = dynamic_cast<PlacedBooleanVolume<kUnion> const *>(volume)) {
       boollvlist.push_front(volume->GetLogicalVolume());
-      PlacedBooleanVolume const *v = dynamic_cast<PlacedBooleanVolume const *>(volume);
-      ScanGeometry(v->GetUnplacedVolume()->fLeftVolume, lvlist, boollvlist, tlist);
-      ScanGeometry(v->GetUnplacedVolume()->fRightVolume, lvlist, boollvlist, tlist);
+      ScanGeometry(v->GetUnplacedVolume()->GetLeft(), lvlist, boollvlist, tlist);
+      ScanGeometry(v->GetUnplacedVolume()->GetRight(), lvlist, boollvlist, tlist);
+    } else if (auto v = dynamic_cast<PlacedBooleanVolume<kIntersection> const *>(volume)) {
+      boollvlist.push_front(volume->GetLogicalVolume());
+      ScanGeometry(v->GetUnplacedVolume()->GetLeft(), lvlist, boollvlist, tlist);
+      ScanGeometry(v->GetUnplacedVolume()->GetRight(), lvlist, boollvlist, tlist);
+    } else if (auto v = dynamic_cast<PlacedBooleanVolume<kSubtraction> const *>(volume)) {
+      boollvlist.push_front(volume->GetLogicalVolume());
+      ScanGeometry(v->GetUnplacedVolume()->GetLeft(), lvlist, boollvlist, tlist);
+      ScanGeometry(v->GetUnplacedVolume()->GetRight(), lvlist, boollvlist, tlist);
     } else if (dynamic_cast<PlacedScaledShape const *>(volume)) {
       boollvlist.push_front(volume->GetLogicalVolume());
       PlacedScaledShape const *v = dynamic_cast<PlacedScaledShape const *>(volume);
@@ -431,11 +438,9 @@ void GeomCppExporter::DumpLogicalVolumes(std::ostream &dumps, std::ostream &exte
 
     // *** BOOLEAN SOLIDS NEED A SPECIAL TREATMENT *** //
     // their constituents are  not already a part of the logical volume list
-    else if (dynamic_cast<UnplacedBooleanVolume const *>(l->GetUnplacedVolume())) {
-      UnplacedBooleanVolume const *shape = dynamic_cast<UnplacedBooleanVolume const *>(l->GetUnplacedVolume());
-
-      VPlacedVolume const *left  = shape->fLeftVolume;
-      VPlacedVolume const *right = shape->fRightVolume;
+    else if (auto shape = dynamic_cast<UnplacedBooleanVolume<kUnion> const *>(l->GetUnplacedVolume())) {
+      VPlacedVolume const *left  = shape->GetLeft();
+      VPlacedVolume const *right = shape->GetRight();
 
       // CHECK IF THIS BOOLEAN VOLUME DEPENDS ON OTHER BOOLEAN VOLUMES NOT YET DUMPED
       // THIS SOLUTION IS POTENTIALLY SLOW; MIGHT CONSIDER DIFFERENT TYPE OF CONTAINER
@@ -445,17 +450,8 @@ void GeomCppExporter::DumpLogicalVolumes(std::ostream &dumps, std::ostream &exte
         fListofDeferredLogicalVolumes.push_back(l);
         continue;
       }
-
       line << " new UnplacedBooleanVolume( ";
-      if (shape->GetOp() == kUnion) {
-        line << " kUnion ";
-      }
-      if (shape->GetOp() == kSubtraction) {
-        line << " kSubtraction ";
-      }
-      if (shape->GetOp() == kIntersection) {
-        line << " kIntersection ";
-      }
+      line << " kUnion ";
       line << " , ";
       // placed versions of left and right volume
       line << fLVolumeToStringMap[left->GetLogicalVolume()] << "->Place( "
@@ -464,7 +460,56 @@ void GeomCppExporter::DumpLogicalVolumes(std::ostream &dumps, std::ostream &exte
       line << fLVolumeToStringMap[right->GetLogicalVolume()] << "->Place( "
            << fTrafoToStringMap[right->GetTransformation()] << " )";
       line << " )";
+      fNeededHeaderFiles.insert("volumes/UnplacedBooleanVolume.h");
+    }
 
+    else if (auto shape = dynamic_cast<UnplacedBooleanVolume<kIntersection> const *>(l->GetUnplacedVolume())) {
+      VPlacedVolume const *left  = shape->GetLeft();
+      VPlacedVolume const *right = shape->GetRight();
+
+      // CHECK IF THIS BOOLEAN VOLUME DEPENDS ON OTHER BOOLEAN VOLUMES NOT YET DUMPED
+      // THIS SOLUTION IS POTENTIALLY SLOW; MIGHT CONSIDER DIFFERENT TYPE OF CONTAINER
+      if (!ContainerContains(fListofTreatedLogicalVolumes, left->GetLogicalVolume()) ||
+          !ContainerContains(fListofTreatedLogicalVolumes, right->GetLogicalVolume())) {
+        // we need to defer the treatment of this logical volume
+        fListofDeferredLogicalVolumes.push_back(l);
+        continue;
+      }
+      line << " new UnplacedBooleanVolume( ";
+      line << " kIntersection ";
+      line << " , ";
+      // placed versions of left and right volume
+      line << fLVolumeToStringMap[left->GetLogicalVolume()] << "->Place( "
+           << fTrafoToStringMap[left->GetTransformation()] << " )";
+      line << " , ";
+      line << fLVolumeToStringMap[right->GetLogicalVolume()] << "->Place( "
+           << fTrafoToStringMap[right->GetTransformation()] << " )";
+      line << " )";
+      fNeededHeaderFiles.insert("volumes/UnplacedBooleanVolume.h");
+    }
+
+    else if (auto shape = dynamic_cast<UnplacedBooleanVolume<kSubtraction> const *>(l->GetUnplacedVolume())) {
+      VPlacedVolume const *left  = shape->GetLeft();
+      VPlacedVolume const *right = shape->GetRight();
+
+      // CHECK IF THIS BOOLEAN VOLUME DEPENDS ON OTHER BOOLEAN VOLUMES NOT YET DUMPED
+      // THIS SOLUTION IS POTENTIALLY SLOW; MIGHT CONSIDER DIFFERENT TYPE OF CONTAINER
+      if (!ContainerContains(fListofTreatedLogicalVolumes, left->GetLogicalVolume()) ||
+          !ContainerContains(fListofTreatedLogicalVolumes, right->GetLogicalVolume())) {
+        // we need to defer the treatment of this logical volume
+        fListofDeferredLogicalVolumes.push_back(l);
+        continue;
+      }
+      line << " new UnplacedBooleanVolume( ";
+      line << " kSubtraction ";
+      line << " , ";
+      // placed versions of left and right volume
+      line << fLVolumeToStringMap[left->GetLogicalVolume()] << "->Place( "
+           << fTrafoToStringMap[left->GetTransformation()] << " )";
+      line << " , ";
+      line << fLVolumeToStringMap[right->GetLogicalVolume()] << "->Place( "
+           << fTrafoToStringMap[right->GetTransformation()] << " )";
+      line << " )";
       fNeededHeaderFiles.insert("volumes/UnplacedBooleanVolume.h");
     }
 
