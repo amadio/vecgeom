@@ -37,22 +37,22 @@ public:
   // ---------------- Contains --------------------------------------------------------------------
 
   VECCORE_ATT_HOST_DEVICE
-  virtual bool Contains(Vector3D<Precision> const &p) const /* = 0 */;
+  virtual bool Contains(Vector3D<Precision> const &p) const = 0;
 
   VECCORE_ATT_HOST_DEVICE
-  virtual EnumInside Inside(Vector3D<Precision> const &p) const /* = 0 */;
+  virtual EnumInside Inside(Vector3D<Precision> const &p) const = 0;
 
   // ---------------- DistanceToOut functions -----------------------------------------------------
 
   VECCORE_ATT_HOST_DEVICE
   virtual Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
-                                  Precision step_max = kInfLength) const /* = 0 */;
+                                  Precision step_max = kInfLength) const = 0;
 
   // the USolid/GEANT4-like interface for DistanceToOut (returning also exiting normal)
   VECCORE_ATT_HOST_DEVICE
   virtual Precision DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
                                   Vector3D<Precision> &normal, bool &convex, Precision step_max = kInfLength) const
-      /* = 0 */;
+      /* = 0  */;
 
   // an explicit SIMD interface
   VECCORE_ATT_HOST_DEVICE
@@ -75,7 +75,7 @@ public:
   // ---------------- SafetyToOut functions -----------------------------------------------------
 
   VECCORE_ATT_HOST_DEVICE
-  virtual Precision SafetyToOut(Vector3D<Precision> const &p) const /* = 0 */;
+  virtual Precision SafetyToOut(Vector3D<Precision> const &p) const = 0;
 
   // an explicit SIMD interface
   VECCORE_ATT_HOST_DEVICE
@@ -97,7 +97,7 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   virtual Precision DistanceToIn(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
-                                 const Precision step_max = kInfLength) const /* = 0 */;
+                                 const Precision step_max = kInfLength) const = 0;
 
   VECCORE_ATT_HOST_DEVICE
   virtual Real_v DistanceToInVec(Vector3D<Real_v> const &position, Vector3D<Real_v> const &direction,
@@ -116,7 +116,7 @@ public:
   // ---------------- SafetyToIn functions -------------------------------------------------------
 
   VECCORE_ATT_HOST_DEVICE
-  virtual Precision SafetyToIn(Vector3D<Precision> const &position) const /* = 0 */;
+  virtual Precision SafetyToIn(Vector3D<Precision> const &position) const = 0;
 
   // explicit SIMD interface
   VECCORE_ATT_HOST_DEVICE

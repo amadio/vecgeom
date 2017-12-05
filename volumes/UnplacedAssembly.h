@@ -88,6 +88,15 @@ public:
     return fLogicalVolume->GetLevelLocator()->LevelLocate(fLogicalVolume, point, nextv, daughterlocalpoint);
   }
 
+  VECCORE_ATT_HOST_DEVICE
+  EnumInside Inside(Vector3D<Precision> const &point) const override
+  {
+#ifndef VECCORE_CUDA
+    throw std::runtime_error("Assembly inside to be implemented");
+#endif
+    return static_cast<EnumInside>(EInside::kOutside);
+  }
+
   // an extended contains function needed for navigation
   // if this function returns true it modifies the navigation state to point to the first non-assembly volume
   // the point is contained in

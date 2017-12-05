@@ -8,37 +8,8 @@ using Real_v = vecgeom::VectorBackend::Real_v;
 
 // trivial implementations for the interface functions
 // (since we are moving to these interfaces only gradually)
-// ---------------- Contains --------------------------------------------------------------------
-
-VECCORE_ATT_HOST_DEVICE
-bool VUnplacedVolume::Contains(Vector3D<Precision> const &p) const
-{
-#ifndef VECCORE_CUDA
-  throw std::runtime_error("unimplemented function called");
-#endif
-  return false;
-}
-
-VECCORE_ATT_HOST_DEVICE
-EnumInside VUnplacedVolume::Inside(Vector3D<Precision> const &p) const
-{
-#ifndef VECCORE_CUDA
-  throw std::runtime_error("unimplemented function called");
-#endif
-  return EnumInside(0);
-}
 
 // ---------------- DistanceToOut functions -----------------------------------------------------
-
-VECCORE_ATT_HOST_DEVICE
-Precision VUnplacedVolume::DistanceToOut(Vector3D<Precision> const &p, Vector3D<Precision> const &d,
-                                         Precision step_max) const
-{
-#ifndef VECCORE_CUDA
-  throw std::runtime_error("unimplemented function called");
-#endif
-  return -1.;
-}
 
 // the USolid/GEANT4-like interface for DistanceToOut (returning also exiting normal)
 VECCORE_ATT_HOST_DEVICE
@@ -72,16 +43,6 @@ void VUnplacedVolume::DistanceToOut(SOA3D<Precision> const &points, SOA3D<Precis
 }
 
 // ---------------- SafetyToOut functions -----------------------------------------------------
-
-VECCORE_ATT_HOST_DEVICE
-Precision VUnplacedVolume::SafetyToOut(Vector3D<Precision> const &p) const
-{
-#ifndef VECCORE_CUDA
-  throw std::runtime_error("unimplemented function called");
-#endif
-  return -1.;
-}
-
 // an explicit SIMD interface
 Real_v VUnplacedVolume::SafetyToOutVec(Vector3D<Real_v> const &p) const
 {
@@ -100,17 +61,6 @@ void VUnplacedVolume::SafetyToOut(SOA3D<Precision> const &points, Precision *con
 }
 
 // ---------------- DistanceToIn functions -----------------------------------------------------
-
-VECCORE_ATT_HOST_DEVICE
-Precision VUnplacedVolume::DistanceToIn(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
-                                        const Precision step_max) const
-{
-#ifndef VECCORE_CUDA
-  throw std::runtime_error("unimplemented function called");
-#endif
-  return -1.;
-}
-
 VECCORE_ATT_HOST_DEVICE
 Real_v VUnplacedVolume::DistanceToInVec(Vector3D<Real_v> const &position, Vector3D<Real_v> const &direction,
                                         const Real_v &step_max) const
@@ -122,16 +72,6 @@ Real_v VUnplacedVolume::DistanceToInVec(Vector3D<Real_v> const &position, Vector
 }
 
 // ---------------- SafetyToIn functions -------------------------------------------------------
-
-VECCORE_ATT_HOST_DEVICE
-Precision VUnplacedVolume::SafetyToIn(Vector3D<Precision> const &position) const
-{
-#ifndef VECCORE_CUDA
-  throw std::runtime_error("unimplemented function called");
-#endif
-  return -1.;
-}
-
 // explicit SIMD interface
 Real_v VUnplacedVolume::SafetyToInVec(Vector3D<Real_v> const &p) const
 {

@@ -7,8 +7,7 @@
 #include "base/Global.h"
 
 #include "volumes/UnplacedVolume.h"
-
-class TGeoShape;
+#include <TGeoShape.h>
 
 namespace vecgeom {
 
@@ -28,12 +27,41 @@ public:
   VECGEOM_FORCE_INLINE
   TGeoShape const *GetRootShape() const { return fRootShape; }
 
+  bool Contains(Vector3D<Precision> const &p) const override { return fRootShape->Contains(&p[0]); }
+
+  EnumInside Inside(Vector3D<Precision> const &point) const override
+  {
+    return Contains(point) ? static_cast<EnumInside>(EInside::kInside) : static_cast<EnumInside>(EInside::kOutside);
+  }
+
+  Precision DistanceToIn(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
+                         const Precision stepMax) const override
+  {
+    return GetRootShape()->DistFromOutside(&position[0], &direction[0], 3);
+  }
+
+  Precision DistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
+                          const Precision stepMax) const override
+  {
+    return GetRootShape()->DistFromInside(&position[0], &direction[0], 3);
+  }
+
+  Precision SafetyToOut(Vector3D<Precision> const &position) const override
+  {
+    return GetRootShape()->Safety(&position[0], true);
+  }
+
+  Precision SafetyToIn(Vector3D<Precision> const &position) const override
+  {
+    return GetRootShape()->Safety(&position[0], false);
+  }
+
   VECGEOM_FORCE_INLINE
-  virtual int MemorySize() const { return sizeof(*this); }
+  int MemorySize() const override { return sizeof(*this); }
 
-  virtual void Print() const;
+  void Print() const override;
 
-  virtual void Print(std::ostream &os) const;
+  void Print(std::ostream &os) const override;
 
 #ifdef VECGEOM_CUDA_INTERFACE
   virtual size_t DeviceSizeOf() const { return 0; /* DevicePtr<cuda::UnplacedRootVolume>::SizeOf(); */ }
@@ -45,7 +73,7 @@ private:
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code,
-                                           VPlacedVolume *const placement = NULL) const;
+                                           VPlacedVolume *const placement = NULL) const override;
 };
 
 } // End namespace vecgeom
