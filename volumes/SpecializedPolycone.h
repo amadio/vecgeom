@@ -8,21 +8,12 @@
 #ifndef VECGEOM_VOLUMES_SPECIALIZEDPOLYCONE_H_
 #define VECGEOM_VOLUMES_SPECIALIZEDPOLYCONE_H_
 
-/*
-#include "base/Global.h"
-
-#include "volumes/kernel/PolyconeImplementation.h"
-#include "volumes/PlacedPolycone.h"
-#include "volumes/ScalarShapeImplementationHelper.h"
-*/
-
 #include "base/Global.h"
 
 #include "volumes/kernel/PolyconeImplementation.h"
 #include "volumes/PlacedPolycone.h"
 #include "volumes/SpecializedPlacedVolImplHelper.h"
 #include "volumes/UnplacedPolycone.h"
-///#include "volumes/ScalarShapeImplementationHelper.h"
 
 #include <stdio.h>
 
