@@ -49,77 +49,118 @@ Precision UnplacedTrd::SurfaceArea() const
 
 int UnplacedTrd::ChooseSurface() const
 {
-  int choice = 0; // 0 = zm, 1 = zp, 2 = ym, 3 = yp, 4 = xm, 5 = xp
-  Precision S[6], Stotal = 0.0;
+  int choice = 0; // 0-1 = zm, 2-3 = zp, 4-5 = ym, 6-7 = yp, 8-9 = xm, 10-11 = xp
+  Precision S[12], Stotal = 0.0;
 
-  S[0] = S[1] = GetPlusXArea();
-  S[2] = S[3] = GetPlusYArea();
-  S[4]        = GetMinusZArea();
-  S[5]        = GetPlusZArea();
+  S[0] = S[1] = GetMinusZArea() / 2.0;
+  S[2] = S[3] = GetPlusZArea() / 2.0;
 
-  for (int i = 0; i < 6; ++i)
+  Precision yarea = GetPlusYArea() / (fTrd.fDX1 + fTrd.fDX2);
+  S[4] = S[6] = yarea * fTrd.fDX1;
+  S[5] = S[7] = yarea * fTrd.fDX2;
+
+  Precision xarea = GetPlusXArea() / (fTrd.fDY1 + fTrd.fDY2);
+  S[8] = S[10] = xarea * fTrd.fDY1;
+  S[9] = S[11] = xarea * fTrd.fDY2;
+
+  for (int i = 0; i < 12; ++i)
     Stotal += S[i];
 
-  // random value to choose surface to place the point
+  // random value to choose triangle to place the point
   Precision rand = RNG::Instance().uniform() * Stotal;
 
   while (rand > S[choice])
     rand -= S[choice], choice++;
 
-  assert(choice < 6);
+  assert(choice < 12);
   return choice;
 }
 
 Vector3D<Precision> UnplacedTrd::SamplePointOnSurface() const
+//
+//                 p6-------p7
+//                / |       | \
+//               / p4-------p5 \
+//              /  /         \  \
+//            p2--/-----------\--p3
+//             | /             \ |
+//             |/               \|
+//            p0-----------------p1
 {
+  Vector3D<Precision> A, B, C;
+
   int surface = ChooseSurface();
-
-  Precision invHeight = 0.5 / fTrd.fDZ;
-  Precision slopeX    = (fTrd.fDX2 - fTrd.fDX1) * invHeight;
-  Precision slopeY    = (fTrd.fDY2 - fTrd.fDY1) * invHeight;
-  Precision midX      = 0.5 * (fTrd.fDX1 + fTrd.fDX2);
-  Precision midY      = 0.5 * (fTrd.fDY1 + fTrd.fDY2);
-
-  // Note that randoms are drawn in range [-1,1], then we just need scales, e.g. xval *= xmax for x = [-xmax, xmax] and
-  // so on
-  Precision xval = RNG::Instance().uniform(-1.0, 1.0);
-  Precision yval = RNG::Instance().uniform(-1.0, 1.0);
-  Precision zval = RNG::Instance().uniform(-1.0, 1.0);
-  Precision vmax;
   switch (surface) {
-  case 0:              // -Z face
-    xval *= fTrd.fDX1; // = ran[-fDX1, fDX1]
-    yval *= fTrd.fDY1;
-    zval = -fTrd.fDZ;
+  case 0: // -Z face, 1st triangle (p0-p1-p2)
+    A.Set(-fTrd.fDX1, -fTrd.fDY1, -fTrd.fDZ);
+    B.Set(fTrd.fDX1, -fTrd.fDY1, -fTrd.fDZ);
+    C.Set(-fTrd.fDX1, fTrd.fDY1, -fTrd.fDZ);
     break;
-  case 1:              // +Z face
-    xval *= fTrd.fDX2; // = ran[-fDX2, fDX2]
-    yval *= fTrd.fDY2;
-    zval = fTrd.fDZ;
+  case 1: // -Z face, 2nd triangle (p3-p1-p2)
+    A.Set(fTrd.fDX1, fTrd.fDY1, -fTrd.fDZ);
+    B.Set(fTrd.fDX1, -fTrd.fDY1, -fTrd.fDZ);
+    C.Set(-fTrd.fDX1, fTrd.fDY1, -fTrd.fDZ);
     break;
-  case 2: // +X face
-    xval = midX + slopeX * zval;
-    vmax = midY + slopeY * zval;
-    yval *= vmax; // = rand[-vmax,vmax]
+  case 2: // +Z face, 1st triangle (p4-p5-p6)
+    A.Set(-fTrd.fDX2, -fTrd.fDY2, fTrd.fDZ);
+    B.Set(fTrd.fDX2, -fTrd.fDY2, fTrd.fDZ);
+    C.Set(-fTrd.fDX2, fTrd.fDY2, fTrd.fDZ);
     break;
-  case 3: // -X face
-    xval = -(midX + slopeX * zval);
-    vmax = midY + slopeY * zval;
-    yval *= vmax; // = rand[-vmax,vmax]
+  case 3: // +Z face, 2nd triangle (p7-p5-p6)
+    A.Set(fTrd.fDX2, fTrd.fDY2, fTrd.fDZ);
+    B.Set(fTrd.fDX2, -fTrd.fDY2, fTrd.fDZ);
+    C.Set(-fTrd.fDX2, fTrd.fDY2, fTrd.fDZ);
     break;
-  case 4: // +Y face
-    vmax = midX + slopeX * zval;
-    xval *= vmax; // = rand[-vmax,vmax]
-    yval = midY + slopeY * zval;
+  case 4: // -Y face, 1st triangle (p0-p1-p4)
+    A.Set(-fTrd.fDX1, -fTrd.fDY1, -fTrd.fDZ);
+    B.Set(fTrd.fDX1, -fTrd.fDY1, -fTrd.fDZ);
+    C.Set(-fTrd.fDX2, -fTrd.fDY2, fTrd.fDZ);
     break;
-  case 5: // -Y face
-    vmax = midX + slopeX * zval;
-    xval *= vmax; // = rand[-vmax,vmax]
-    yval = -(midY + slopeY * zval);
+  case 5: // -Y face, 2nd triangle (p5-p1-p4)
+    A.Set(fTrd.fDX2, -fTrd.fDY2, fTrd.fDZ);
+    B.Set(fTrd.fDX1, -fTrd.fDY1, -fTrd.fDZ);
+    C.Set(-fTrd.fDX2, -fTrd.fDY2, fTrd.fDZ);
+    break;
+  case 6: // +Y face, 1st triangle (p3-p2-p7)
+    A.Set(fTrd.fDX1, fTrd.fDY1, -fTrd.fDZ);
+    B.Set(-fTrd.fDX1, fTrd.fDY1, -fTrd.fDZ);
+    C.Set(fTrd.fDX2, fTrd.fDY2, fTrd.fDZ);
+    break;
+  case 7: // +Y face, 2nd triangle (p6-p2-p7)
+    A.Set(-fTrd.fDX2, fTrd.fDY2, fTrd.fDZ);
+    B.Set(-fTrd.fDX1, fTrd.fDY1, -fTrd.fDZ);
+    C.Set(fTrd.fDX2, fTrd.fDY2, fTrd.fDZ);
+    break;
+  case 8: // -X face, 1st triangle (p0-p4-p2)
+    A.Set(-fTrd.fDX1, -fTrd.fDY1, -fTrd.fDZ);
+    B.Set(-fTrd.fDX2, -fTrd.fDY2, fTrd.fDZ);
+    C.Set(-fTrd.fDX1, fTrd.fDY1, -fTrd.fDZ);
+    break;
+  case 9: // -X face, 2nd triangle (p6-p4-p2)
+    A.Set(-fTrd.fDX2, fTrd.fDY2, fTrd.fDZ);
+    B.Set(-fTrd.fDX2, -fTrd.fDY2, fTrd.fDZ);
+    C.Set(-fTrd.fDX1, fTrd.fDY1, -fTrd.fDZ);
+    break;
+  case 10: // +X face, 1st triangle (p3-p7-p1)
+    A.Set(fTrd.fDX1, fTrd.fDY1, -fTrd.fDZ);
+    B.Set(fTrd.fDX2, fTrd.fDY2, fTrd.fDZ);
+    C.Set(fTrd.fDX1, -fTrd.fDY1, -fTrd.fDZ);
+    break;
+  case 11: // +X face, 2nd triangle (p3-p7-p1)
+    A.Set(fTrd.fDX2, -fTrd.fDY2, fTrd.fDZ);
+    B.Set(fTrd.fDX2, fTrd.fDY2, fTrd.fDZ);
+    C.Set(fTrd.fDX1, -fTrd.fDY1, -fTrd.fDZ);
     break;
   }
 
-  return Vector3D<Precision>(xval, yval, zval);
+  Precision r1 = RNG::Instance().uniform();
+  Precision r2 = RNG::Instance().uniform();
+  if (r1 + r2 > 1.0) {
+    r1 = 1.0 - r1;
+    r2 = 1.0 - r2;
+  }
+
+  return A + r1 * (B - A) + r2 * (C - A);
 }
 
 bool UnplacedTrd::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &norm) const
