@@ -112,14 +112,16 @@ int UnplacedExtruded::ChooseSurface() const
 
 Vector3D<Precision> UnplacedExtruded::SamplePointOnSurface() const
 {
-  int surface    = ChooseSurface();
-  double alpha   = RNG::Instance().uniform(0., 1.);
-  double beta    = RNG::Instance().uniform(0., 1.);
-  double lambda1 = alpha * beta;
-  double lambda0 = alpha - lambda1;
-  auto facet     = fXtru.fTslHelper.fFacets[surface];
-  return (facet->fVertices[0] + lambda0 * (facet->fVertices[1] - facet->fVertices[0]) +
-          lambda1 * (facet->fVertices[2] - facet->fVertices[1]));
+  int surface  = ChooseSurface();
+  Precision r1 = RNG::Instance().uniform(0.0, 1.0);
+  Precision r2 = RNG::Instance().uniform(0.0, 1.0);
+  if (r1 + r2 > 1.) {
+    r1 = 1. - r1;
+    r2 = 1. - r2;
+  }
+  auto facet = fXtru.fTslHelper.fFacets[surface];
+  return (facet->fVertices[0] + r1 * (facet->fVertices[1] - facet->fVertices[0]) +
+          r2 * (facet->fVertices[2] - facet->fVertices[0]));
 }
 
 bool UnplacedExtruded::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &norm) const

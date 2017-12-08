@@ -228,20 +228,15 @@ VECCORE_ATT_HOST_DEVICE
 Vector3D<Precision> UnplacedPolyhedron::GetPointOnTriangle(Vector3D<Precision> const &v1, Vector3D<Precision> const &v2,
                                                            Vector3D<Precision> const &v3) const
 {
-  Precision alpha          = RNG::Instance().uniform(0.0, 1.0);
-  Precision beta           = RNG::Instance().uniform(0.0, 1.0);
-  Precision lambda1        = alpha * beta;
-  Precision lambda0        = alpha - lambda1;
+  Precision r1 = RNG::Instance().uniform(0.0, 1.0);
+  Precision r2 = RNG::Instance().uniform(0.0, 1.0);
+  if (r1 + r2 > 1.) {
+    r1 = 1. - r1;
+    r2 = 1. - r2;
+  }
   Vector3D<Precision> vec1 = v2 - v1;
   Vector3D<Precision> vec2 = v3 - v1;
-  return v1 + lambda0 * vec1 + lambda1 * vec2;
-  /* A documented (slower) alternative that guarantees generating the points
-     uniformly on the triangle surface:
-     // http://www.cs.princeton.edu/~funk/tog02.pdf (section 4.2, formula 1)
-     Precision sqr_r1 = sqrt(RNG::Instance().uniform(0.0, 1.0));
-     Precision r2 = RNG::Instance().uniform(0.0, 1.0);
-     return ( (1.-sqr_r1)*v1 + sqr_r1*(1.-r2)*v2 + sqr_r1*r2*v3 );
-  */
+  return v1 + r1 * vec1 + r2 * vec2;
 }
 
 VECCORE_ATT_HOST_DEVICE

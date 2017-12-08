@@ -240,23 +240,15 @@ Precision Quadrilaterals::GetQuadrilateralArea(int index) const
 VECCORE_ATT_HOST_DEVICE
 Vector3D<Precision> Quadrilaterals::GetPointOnTriangle(int index, int iCorner0, int iCorner1, int iCorner2) const
 {
-
-  Precision alpha          = RNG::Instance().uniform(0.0, 1.0);
-  Precision beta           = RNG::Instance().uniform(0.0, 1.0);
-  Precision lambda1        = alpha * beta;
-  Precision lambda0        = alpha - lambda1;
+  Precision r1 = RNG::Instance().uniform(0.0, 1.0);
+  Precision r2 = RNG::Instance().uniform(0.0, 1.0);
+  if (r1 + r2 > 1.) {
+    r1 = 1. - r1;
+    r2 = 1. - r2;
+  }
   Vector3D<Precision> vec1 = fCorners[iCorner1][index] - fCorners[iCorner0][index];
   Vector3D<Precision> vec2 = fCorners[iCorner2][index] - fCorners[iCorner0][index];
-  return fCorners[iCorner0][index] + lambda0 * vec1 + lambda1 * vec2;
-  /* A documented (slower) alternative that generates points uniformly
-    // http://www.cs.princeton.edu/~funk/tog02.pdf (section 4.2, formula 1)
-    Precision sqr_r1 = sqrt(RNG::Instance().uniform(0.0, 1.0));
-    Precision r2 = RNG::Instance().uniform(0.0, 1.0);
-    Vector3D<Precision> const &v1 = fCorners[iCorner0][index];
-    Vector3D<Precision> const &v2 = fCorners[iCorner1][index];
-    Vector3D<Precision> const &v3 = fCorners[iCorner2][index];
-    return ( (1.-sqr_r1)*v1 + sqr_r1*(1.-r2)*v2 + sqr_r1*r2*v3 );
-  */
+  return fCorners[iCorner0][index] + r1 * vec1 + r2 * vec2;
 }
 
 VECCORE_ATT_HOST_DEVICE
