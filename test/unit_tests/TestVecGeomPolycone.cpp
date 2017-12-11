@@ -101,7 +101,7 @@ int main()
     using Vec3D_v = vecgeom::Vector3D<Real_v>;
     Vec3D_v p(Real_v(0.), Real_v(0.), Real_v(-3)), d(Real_v(0.), Real_v(0.), Real_v(1.));
     const auto dist = placedpoly1->DistanceToInVec(p, d);
-    for (auto lane = 0; lane < vecCore::VectorSize<Real_v>(); ++lane) {
+    for (size_t lane = 0; lane < vecCore::VectorSize<Real_v>(); ++lane) {
       assert(ApproxEqual(vecCore::LaneAt(dist, lane), 2.5));
     }
   }
