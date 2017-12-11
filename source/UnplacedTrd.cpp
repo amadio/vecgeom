@@ -77,15 +77,16 @@ int UnplacedTrd::ChooseSurface() const
 }
 
 Vector3D<Precision> UnplacedTrd::SamplePointOnSurface() const
-//
-//                 p6-------p7
-//                / |       | \
-//               / p4-------p5 \
-//              /  /         \  \
-//            p2--/-----------\--p3
-//             | /             \ |
-//             |/               \|
-//            p0-----------------p1
+//                                             /
+//                 p6-------p7                 /
+//                / |       | \                /
+//               / p4-------p5 \               /
+//              /  /         \  \              /
+//            p2--/-----------\--p3            /
+//             | /             \ |             /
+//             |/               \|             /
+//            p0-----------------p1            /
+//                                             /
 {
   Vector3D<Precision> A, B, C;
 
