@@ -11,8 +11,7 @@
 
 namespace vecgeom {
 
-//@Philippe: FIXME
-// VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE(struct, BooleanImplementation, BooleanOperation);
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1v(struct, BooleanImplementation, BooleanOperation, Arg1);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

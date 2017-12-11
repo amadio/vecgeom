@@ -12,9 +12,7 @@
 
 namespace vecgeom {
 
-//@Philippe: FIXME
-// VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedBooleanVolume;);
-// VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE(class, UnplacedBooleanVolume, BooleanOperation);
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1v(class, UnplacedBooleanVolume, BooleanOperation, Arg1);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -33,15 +31,15 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
  */
 template <BooleanOperation Op>
 class UnplacedBooleanVolume : public LoopUnplacedVolumeImplHelper<BooleanImplementation<Op>>, public AlignedBase {
-  
+
 public:
   BooleanStruct fBoolean;
   using LoopUnplacedVolumeImplHelper<BooleanImplementation<Op>>::fGlobalConvexity;
-    
+
   // the constructor
   VECCORE_ATT_HOST_DEVICE
   UnplacedBooleanVolume(BooleanOperation op, VPlacedVolume const *left, VPlacedVolume const *right)
-    : fBoolean(op, left, right)
+      : fBoolean(op, left, right)
   {
     fGlobalConvexity = false;
 #ifndef VECCORE_CUDA
@@ -65,7 +63,7 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   BooleanStruct const &GetStruct() const { return fBoolean; }
-  
+
   VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;
 

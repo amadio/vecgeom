@@ -17,9 +17,8 @@ class G4VSolid;
 
 namespace vecgeom {
 
-//@PHILIPPE: FIXME
-// VECGEOM_DEVICE_FORWARD_DECLARE(class PlacedBooleanVolume;);
-// VECGEOM_DEVICE_DECLARE_CONV(class, PlacedBooleanVolume);
+VECGEOM_DEVICE_FORWARD_DECLARE(template <BooleanOperation Op> class PlacedBooleanVolume;);
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1v(class, PlacedBooleanVolume, BooleanOperation, Arg1);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -49,7 +48,7 @@ public:
   VECCORE_ATT_DEVICE PlacedBooleanVolume(LogicalVolume const *const logicalVolume,
                                          Transformation3D const *const transformation,
                                          PlacedBox const *const boundingBox, const int id)
-      : VPlacedVolume(logicalVolume, transformation, boundingBox, id)
+      : Base(logicalVolume, transformation, boundingBox, id)
   {
   }
 #endif

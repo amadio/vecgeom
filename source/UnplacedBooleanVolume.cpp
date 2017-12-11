@@ -75,8 +75,8 @@ VPlacedVolume *UnplacedBooleanVolume<kIntersection>::Create(LogicalVolume const 
       placement); // TODO: add bounding box?
 }
 
-VECCORE_ATT_DEVICE
 template <>
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedBooleanVolume<kSubtraction>::SpecializedVolume(LogicalVolume const *const volume,
                                                                       Transformation3D const *const transformation,
                                                                       const TranslationCode trans_code,
@@ -103,8 +103,8 @@ VPlacedVolume *UnplacedBooleanVolume<kSubtraction>::SpecializedVolume(LogicalVol
 #endif
 }
 
-VECCORE_ATT_DEVICE
 template <>
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedBooleanVolume<kUnion>::SpecializedVolume(LogicalVolume const *const volume,
                                                                 Transformation3D const *const transformation,
                                                                 const TranslationCode trans_code,
@@ -131,8 +131,8 @@ VPlacedVolume *UnplacedBooleanVolume<kUnion>::SpecializedVolume(LogicalVolume co
 #endif
 }
 
-VECCORE_ATT_DEVICE
 template <>
+VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedBooleanVolume<kIntersection>::SpecializedVolume(LogicalVolume const *const volume,
                                                                        Transformation3D const *const transformation,
                                                                        const TranslationCode trans_code,
@@ -250,8 +250,8 @@ void UnplacedBooleanVolume<kIntersection>::Extent(Vector3D<Precision> &aMin, Vec
                              Min(maxLeft.z(), maxRight.z()));
 }
 
-VECCORE_ATT_HOST_DEVICE
 template <>
+VECCORE_ATT_HOST_DEVICE
 bool UnplacedBooleanVolume<kSubtraction>::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
 {
   // Compute normal vector to closest surface
@@ -260,8 +260,8 @@ bool UnplacedBooleanVolume<kSubtraction>::Normal(Vector3D<Precision> const &poin
   return valid;
 }
 
-VECCORE_ATT_HOST_DEVICE
 template <>
+VECCORE_ATT_HOST_DEVICE
 bool UnplacedBooleanVolume<kUnion>::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
 {
   // Compute normal vector to closest surface
@@ -270,8 +270,8 @@ bool UnplacedBooleanVolume<kUnion>::Normal(Vector3D<Precision> const &point, Vec
   return valid;
 }
 
-VECCORE_ATT_HOST_DEVICE
 template <>
+VECCORE_ATT_HOST_DEVICE
 bool UnplacedBooleanVolume<kIntersection>::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
 {
   // Compute normal vector to closest surface
@@ -283,7 +283,7 @@ bool UnplacedBooleanVolume<kIntersection>::Normal(Vector3D<Precision> const &poi
 #ifdef VECGEOM_CUDA_INTERFACE
 
 // functions to copy data structures to GPU
-template<>
+template <>
 DevicePtr<cuda::VUnplacedVolume> UnplacedBooleanVolume<kUnion>::CopyToGpu(
     DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
 {
@@ -298,14 +298,14 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedBooleanVolume<kUnion>::CopyToGpu(
 
   return CopyToGpuImpl<UnplacedBooleanVolume<kUnion>>(in_gpu_ptr, GetOp(), leftgpuptr, rightgpuptr);
 }
-template<>
+template <>
 DevicePtr<cuda::VUnplacedVolume> UnplacedBooleanVolume<kUnion>::CopyToGpu() const
 {
   return CopyToGpuImpl<UnplacedBooleanVolume<kUnion>>();
 }
 
 // functions to copy data structures to GPU
-template<>
+template <>
 DevicePtr<cuda::VUnplacedVolume> UnplacedBooleanVolume<kIntersection>::CopyToGpu(
     DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
 {
@@ -321,13 +321,13 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedBooleanVolume<kIntersection>::CopyToGpu
   return CopyToGpuImpl<UnplacedBooleanVolume<kIntersection>>(in_gpu_ptr, GetOp(), leftgpuptr, rightgpuptr);
 }
 
-template<>
+template <>
 DevicePtr<cuda::VUnplacedVolume> UnplacedBooleanVolume<kIntersection>::CopyToGpu() const
 {
   return CopyToGpuImpl<UnplacedBooleanVolume<kIntersection>>();
 }
 
-template<>
+template <>
 // functions to copy data structures to GPU
 DevicePtr<cuda::VUnplacedVolume> UnplacedBooleanVolume<kSubtraction>::CopyToGpu(
     DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
@@ -344,7 +344,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedBooleanVolume<kSubtraction>::CopyToGpu(
   return CopyToGpuImpl<UnplacedBooleanVolume<kSubtraction>>(in_gpu_ptr, GetOp(), leftgpuptr, rightgpuptr);
 }
 
-template<>
+template <>
 DevicePtr<cuda::VUnplacedVolume> UnplacedBooleanVolume<kSubtraction>::CopyToGpu() const
 {
   return CopyToGpuImpl<UnplacedBooleanVolume<kSubtraction>>();
@@ -358,18 +358,16 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedBooleanVolume<kSubtraction>::CopyToGpu(
 
 namespace cxx {
 
-  template size_t DevicePtr<cuda::UnplacedBooleanVolume<kUnion>>::SizeOf();
-  template void DevicePtr<cuda::UnplacedBooleanVolume<kUnion>>::Construct(BooleanOperation op,
-                                                                DevicePtr<cuda::VPlacedVolume> left,
-                                                                DevicePtr<cuda::VPlacedVolume> right) const;
-  template size_t DevicePtr<cuda::UnplacedBooleanVolume<kIntersection>>::SizeOf();
-  template void DevicePtr<cuda::UnplacedBooleanVolume<kIntersection>>::Construct(BooleanOperation op,
-                                                                DevicePtr<cuda::VPlacedVolume> left,
-                                                                DevicePtr<cuda::VPlacedVolume> right) const;
-  template size_t DevicePtr<cuda::UnplacedBooleanVolume<kSubtraction>>::SizeOf();
-  template void DevicePtr<cuda::UnplacedBooleanVolume<kSubtraction>>::Construct(BooleanOperation op,
-                                                                DevicePtr<cuda::VPlacedVolume> left,
-                                                                DevicePtr<cuda::VPlacedVolume> right) const;
+template size_t DevicePtr<cuda::UnplacedBooleanVolume<kUnion>>::SizeOf();
+template void DevicePtr<cuda::UnplacedBooleanVolume<kUnion>>::Construct(BooleanOperation op,
+                                                                        DevicePtr<cuda::VPlacedVolume> left,
+                                                                        DevicePtr<cuda::VPlacedVolume> right) const;
+template size_t DevicePtr<cuda::UnplacedBooleanVolume<kIntersection>>::SizeOf();
+template void DevicePtr<cuda::UnplacedBooleanVolume<kIntersection>>::Construct(
+    BooleanOperation op, DevicePtr<cuda::VPlacedVolume> left, DevicePtr<cuda::VPlacedVolume> right) const;
+template size_t DevicePtr<cuda::UnplacedBooleanVolume<kSubtraction>>::SizeOf();
+template void DevicePtr<cuda::UnplacedBooleanVolume<kSubtraction>>::Construct(
+    BooleanOperation op, DevicePtr<cuda::VPlacedVolume> left, DevicePtr<cuda::VPlacedVolume> right) const;
 
 } // End cxx namespace
 
