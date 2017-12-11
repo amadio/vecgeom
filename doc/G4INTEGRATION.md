@@ -1,6 +1,6 @@
 
-       Developer notes to run Geant4 applications using USolids/VecGeom shapes
-       =======================================================================
+       Developer notes to run Geant4 applications using VecGeom shapes
+       ===============================================================
 
 
 See README file GEANT4_INSTALL.md for configuration of VecGeom and installation
@@ -27,18 +27,16 @@ The modified files are needed:
   wget http://home.fnal.gov/~lima/download/B1DetectorConstruction.cc
   wget http://home.fnal.gov/~lima/download/B1PrimaryGeneratorAction.cc
 
-  #.. build B1 example against USolids version of Geant4
-  MODE=usolids
+  #.. build B1 example against VecGeom version of Geant4
+  MODE=vecgeom
   source ${TOPDIR}/geant/install-${VERSION}-${MODE}/bin/geant4.sh
   mkdir ${TOPDIR}/b1/build-${MODE}
   cd ${TOPDIR}/b1/build-${MODE}
-  cmake -DGeant4_DIR=${TOPDIR}/geant/install-${VERSION}-${MODE}/lib/Geant4-10.2.0  ..
+  cmake -DGeant4_DIR=${TOPDIR}/geant/install-${VERSION}-${MODE}/lib/Geant4-10.4.0  ..
   make -j8
 
-Then repeat the last block above for MODE=vecgeom.
-
-At this point, if no errors were observed, both USolids-based and VecGeom-based
-Geant4 jobs are ready to be run.
+At this point, if no errors were observed, VecGeom-based Geant4 jobs are ready
+to be run.
 
 
 * Running and testing
@@ -59,11 +57,6 @@ A typical session would then look like this:
 
   #.. run the Geant4 job 
   source setmeup.sh geant4
-  build
-  exampleB1 run1.mac
-
-  #.. run the USolids-based job 
-  source setmeup.sh usolids
   build
   exampleB1 run1.mac
 
