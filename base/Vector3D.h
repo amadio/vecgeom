@@ -5,8 +5,6 @@
 #define VECGEOM_BASE_VECTOR3D_H_
 
 #include "base/Global.h"
-
-#include "backend/Backend.h"
 #include "base/AlignedBase.h"
 
 #include <cstdlib>

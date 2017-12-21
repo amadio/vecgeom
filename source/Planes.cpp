@@ -1,5 +1,4 @@
 #include "volumes/Planes.h"
-#include "backend/Backend.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

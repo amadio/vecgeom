@@ -5,7 +5,6 @@
 // 160722 G. Lima    Revision + moving to new backend structure
 
 #include "volumes/UnplacedTrapezoid.h"
-#include "backend/Backend.h"
 #include "management/VolumeFactory.h"
 #include "volumes/SpecializedTrapezoid.h"
 #include "base/RNG.h"

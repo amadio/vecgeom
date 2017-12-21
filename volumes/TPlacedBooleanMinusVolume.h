@@ -1,11 +1,7 @@
-/// \file PlacedBox.h
-/// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
-
 #ifndef VECGEOM_VOLUMES_TPLACEDTBOOLEANMINUS_H_
 #define VECGEOM_VOLUMES_TPLACEDTBOOLEANMINUS_H_
 
 #include "base/Global.h"
-#include "backend/Backend.h"
 
 #include "volumes/PlacedVolume.h"
 #include "volumes/UnplacedVolume.h"

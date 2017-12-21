@@ -7,10 +7,8 @@
 #include "base/Global.h"
 
 #include "base/Vector3D.h"
-#include "backend/Backend.h"
-
-#include "backend/Backend.h"
-#ifdef VECGEOM_CUDA_INTERFACE
+#include "backend/scalar/Backend.h"
+#ifdef VECGEOM_ENABLE_CUDA
 #include "backend/cuda/Interface.h"
 #endif
 

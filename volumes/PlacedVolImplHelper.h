@@ -94,10 +94,8 @@ public:
     return GetUnplacedVolume()->UnplacedShape_t::DistanceToOut(point, direction, stepMax);
   }
 
-  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToOutVec(
-      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
-      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
-      VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfLength) const override
+  virtual Real_v DistanceToOutVec(Vector3D<Real_v> const &position, Vector3D<Real_v> const &direction,
+                                  Real_v const step_max = kInfLength) const override
   {
     return GetUnplacedVolume()->UnplacedShape_t::DistanceToOutVec(position, direction, step_max);
   }
@@ -136,8 +134,7 @@ public:
     return GetUnplacedVolume()->UnplacedShape_t::SafetyToOut(point);
   }
 
-  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOutVec(
-      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override
+  virtual Real_v SafetyToOutVec(Vector3D<Real_v> const &position) const override
   {
     return GetUnplacedVolume()->UnplacedShape_t::SafetyToOutVec(position);
   }

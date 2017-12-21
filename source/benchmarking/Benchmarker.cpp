@@ -641,7 +641,7 @@ int Benchmarker::RunInsideBenchmark()
   }
 #ifndef VECGEOM_SCALAR
   if (fVerbosity > 1) {
-    printf("Vector instruction size is %i doubles.\n", kVectorSize);
+    printf("Vector instruction size is %zu doubles.\n", vecCore::VectorSize<Real_v>());
   }
 #endif
 
@@ -893,7 +893,7 @@ int Benchmarker::RunToInBenchmark()
   }
   if (fVerbosity > 1) {
 #ifndef VECGEOM_SCALAR
-    printf("Vector instruction size is %i doubles.\n", kVectorSize);
+    printf("Vector instruction size is %zu doubles.\n", vecCore::VectorSize<Real_v>());
 #endif
   }
 
@@ -1086,7 +1086,7 @@ int Benchmarker::RunToOutBenchmark()
   }
   if (fVerbosity > 1) {
 #ifndef VECGEOM_SCALAR
-    printf("Vector instruction size is %i doubles.\n", kVectorSize);
+    printf("Vector instruction size is %zu doubles.\n", vecCore::VectorSize<Real_v>());
 #endif
   }
   fStepMax = AllocateAligned<Precision>();
@@ -1264,7 +1264,7 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
   }
   if (fVerbosity > 1) {
 #ifndef VECGEOM_SCALAR
-    printf("Vector instruction size is %i doubles.\n", kVectorSize);
+    printf("Vector instruction size is %zu doubles.\n", vecCore::VectorSize<Real_v>());
 #endif
   }
 
@@ -1466,7 +1466,7 @@ int Benchmarker::RunToOutFromBoundaryExitingBenchmark()
   }
   if (fVerbosity > 1) {
 #ifndef VECGEOM_SCALAR
-    printf("Vector instruction size is %i doubles.\n", kVectorSize);
+    printf("Vector instruction size is %zu doubles.\n", vecCore::VectorSize<Real_v>());
 #endif
   }
 
@@ -1649,7 +1649,7 @@ int Benchmarker::RunToInFromBoundaryBenchmark()
   }
   if (fVerbosity > 1) {
 #ifndef VECGEOM_SCALAR
-    printf("Vector instruction size is %i doubles.\n", kVectorSize);
+    printf("Vector instruction size is %zu doubles.\n", vecCore::VectorSize<Real_v>());
 #endif
   }
 
@@ -1828,7 +1828,7 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
   }
   if (fVerbosity > 1) {
 #ifndef VECGEOM_SCALAR
-    printf("Vector instruction size is %i doubles.\n", kVectorSize);
+    printf("Vector instruction size is %zu doubles.\n", vecCore::VectorSize<Real_v>());
 #endif
   }
 

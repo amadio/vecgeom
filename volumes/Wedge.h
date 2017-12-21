@@ -10,7 +10,6 @@
 
 #include "base/Global.h"
 #include "volumes/kernel/GenericKernels.h"
-#include "backend/Backend.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

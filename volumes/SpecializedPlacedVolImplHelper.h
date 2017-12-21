@@ -190,8 +190,7 @@ public:
     return output;
   }
 
-  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToInVec(
-      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override
+  virtual Real_v SafetyToInVec(Vector3D<Real_v> const &position) const override
   {
     Transformation3D const *tr = this->GetTransformation();
     return this->GetUnplacedVolume()->UnplacedVolume_t::SafetyToInVec(tr->Transform<transC, rotC>(position));
@@ -334,15 +333,14 @@ public:
   using UnplacedVolume_t = typename Specialization::UnplacedVolume_t;
 
   // the explicit SIMD interface
-  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToInVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &p,
-                                                         Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &d,
-                                                         VECGEOM_BACKEND_PRECISION_TYPE const step_max) const override
+  virtual Real_v DistanceToInVec(Vector3D<Real_v> const &p, Vector3D<Real_v> const &d,
+                                 Real_v const step_max) const override
   {
-    VECGEOM_BACKEND_PRECISION_TYPE output(kInfLength);
+    Real_v output(kInfLength);
     Transformation3D const *tr = this->GetTransformation();
     auto unplacedstruct        = this->GetUnplacedStruct();
-    Specialization::template DistanceToIn<VECGEOM_BACKEND_PRECISION_TYPE>(
-        *unplacedstruct, tr->Transform<transC, rotC>(p), tr->TransformDirection<rotC>(d), step_max, output);
+    Specialization::template DistanceToIn<Real_v>(*unplacedstruct, tr->Transform<transC, rotC>(p),
+                                                  tr->TransformDirection<rotC>(d), step_max, output);
     return output;
   }
 
@@ -475,14 +473,13 @@ public:
   }
 
   // the explicit SIMD interface
-  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToInVec(Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &p,
-                                                         Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &d,
-                                                         VECGEOM_BACKEND_PRECISION_TYPE const step_max) const override
+  virtual Real_v DistanceToInVec(Vector3D<Real_v> const &p, Vector3D<Real_v> const &d,
+                                 Real_v const step_max) const override
   {
-    VECGEOM_BACKEND_PRECISION_TYPE output(kInfLength);
+    Real_v output(kInfLength);
     using vecCore::LaneAt;
     using Real_s = Precision;
-    for (size_t i = 0; i < vecCore::VectorSize<VECGEOM_BACKEND_PRECISION_TYPE>(); ++i) {
+    for (size_t i = 0; i < vecCore::VectorSize<Real_v>(); ++i) {
       Transformation3D const *tr = this->GetTransformation();
       const auto unplacedstruct  = this->GetUnplacedStruct();
       const Vector3D<Real_s> ps(LaneAt(p.x(), i), LaneAt(p.y(), i), LaneAt(p.z(), i)); // scalar vector

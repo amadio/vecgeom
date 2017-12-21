@@ -467,7 +467,6 @@ void NavigationSpecializer::DumpIncludeFiles(std::ostream &outstream)
   outstream << "#include \"base/Transformation3D.h\"\n";
   outstream << "#include \"management/GeoManager.h\"\n";
   // outstream << "#include <Vc/Vc>\n";
-  outstream << "#include \"backend/Backend.h\"\n";
   outstream << "// more relevant includes to be figures out ... \n";
   // for the moment I am putting some hard coded lists
   // we should rather figure out how to generate this dynamically

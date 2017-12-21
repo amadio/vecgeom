@@ -8,7 +8,6 @@
 #ifndef TBOOLEANMINUSIMPLEMENTATION_H_
 #define TBOOLEANMINUSIMPLEMENTATION_H_
 
-#include "backend/Backend.h"
 #include "base/Vector3D.h"
 #include "volumes/TUnplacedBooleanMinusVolume.h"
 

@@ -8,7 +8,6 @@
 
 #include "volumes/kernel/PolyhedronImplementation.h"
 #include "volumes/PlacedPolyhedron.h"
-#include "volumes/ScalarShapeImplementationHelper.h"
 #include "volumes/SpecializedPlacedVolImplHelper.h"
 
 namespace vecgeom {

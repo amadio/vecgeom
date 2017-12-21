@@ -60,7 +60,6 @@ file(GLOB headers_vecgeom
   ${VECGEOM_DIR}/volumes/kernel/GenericKernels.h
 )
 set(headers_vecgeom ${headers_vecgeom}
-  ${VECGEOM_DIR}/backend/Backend.h
   ${VECGEOM_DIR}/backend/scalar/Backend.h
   ${VECGEOM_DIR}/base/AlignedBase.h
   ${VECGEOM_DIR}/base/Array.h

@@ -4,7 +4,6 @@
 /// revision + moving to new backend structure : Raman Sehgal (raman.sehgal@cern.ch)
 
 #include "volumes/UnplacedParaboloid.h"
-#include "backend/Backend.h"
 #include "management/VolumeFactory.h"
 #include "volumes/SpecializedParaboloid.h"
 #include "base/RNG.h"

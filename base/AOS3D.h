@@ -8,6 +8,7 @@
 
 #include "base/Container3D.h"
 #include "base/Vector3D.h"
+#include "backend/scalar/Backend.h"
 #ifdef VECGEOM_CUDA_INTERFACE
 #include "backend/cuda/Interface.h"
 #endif

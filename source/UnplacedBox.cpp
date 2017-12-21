@@ -1,5 +1,4 @@
 #include "volumes/UnplacedBox.h"
-#include "backend/Backend.h"
 #include "management/VolumeFactory.h"
 #include "volumes/SpecializedBox.h"
 #include "base/RNG.h"

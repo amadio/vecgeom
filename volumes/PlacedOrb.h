@@ -5,7 +5,6 @@
 #define VECGEOM_VOLUMES_PLACEDORB_H_
 
 #include "base/Global.h"
-#include "backend/Backend.h"
 
 #include "volumes/PlacedVolume.h"
 #include "volumes/UnplacedVolume.h"

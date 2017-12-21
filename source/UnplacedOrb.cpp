@@ -2,7 +2,6 @@
 /// \author Raman Sehgal (raman.sehgal@cern.ch)
 
 #include "volumes/UnplacedOrb.h"
-#include "backend/Backend.h"
 #include "management/VolumeFactory.h"
 #include "volumes/SpecializedOrb.h"
 #include "base/RNG.h"

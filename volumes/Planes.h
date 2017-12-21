@@ -11,9 +11,12 @@
 #include "base/SOA3D.h"
 #include "volumes/kernel/GenericKernels.h"
 
-//#include <ostream>
-
-// #define VECGEOM_PLANES_VC
+#if defined(VECGEOM_VC) && defined(VECGEOM_QUADRILATERALS_VC)
+#include <Vc/Vc>
+typedef Vc::Vector<vecgeom::Precision> VcPrecision;
+typedef Vc::Vector<vecgeom::Precision>::Mask VcBool;
+constexpr int kVectorSize = VcPrecision::Size;
+#endif
 
 namespace vecgeom {
 

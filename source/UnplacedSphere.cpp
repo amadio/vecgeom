@@ -2,7 +2,6 @@
 /// \author Raman Sehgal (raman.sehgal@cern.ch)
 
 #include "volumes/SphereUtilities.h"
-#include "backend/Backend.h"
 #include "volumes/UnplacedSphere.h"
 #include "volumes/SpecializedSphere.h"
 #include "volumes/utilities/VolumeUtilities.h"

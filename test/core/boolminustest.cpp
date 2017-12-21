@@ -12,7 +12,6 @@
 #include "base/Vector3D.h"
 #include "volumes/PlacedVolume.h"
 #include <iostream>
-#include "backend/vc/Backend.h"
 
 using namespace vecgeom;
 
@@ -28,10 +27,9 @@ typedef SpecializedBox<translation::kGeneric, rotation::kIdentity> TranslatedBox
 typedef TUnplacedBooleanMinusVolume<VPlacedVolume, VPlacedVolume> GenericSubtraction_t;
 
 // let's try the vector interface
-VcPrecision DistanceToOut(BoxMinusBox_t const &unplaced, Vector3D<VcPrecision> const &point,
-                          Vector3D<VcPrecision> const &dir)
+Real_v DistanceToOut(BoxMinusBox_t const &unplaced, Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir)
 {
-  VcPrecision dist(0.);
+  Real_v dist(0.);
   TBooleanMinusImplementation<translation::kIdentity, rotation::kIdentity>::DistanceToOut<BoxMinusBox_t, kVc>(
       unplaced, point, dir, kInfLength, dist);
   return dist;
@@ -89,5 +87,5 @@ int main()
   std::cerr << DistanceToOut(complexsolid, Vector3D<Precision>(0., 0., 0.), Vector3D<Precision>(0, 0, -1)) << "\n";
   std::cerr << DistanceToOut(complexsolid, Vector3D<Precision>(0., 0., 0.), Vector3D<Precision>(-1, 0, 0)) << "\n";
   std::cerr << SafetyToOut(complexsolid, Vector3D<Precision>(0., 0., 0.));
-  std::cerr << DistanceToOut(complexsolid, Vector3D<VcPrecision>(0.), Vector3D<VcPrecision>(-1.));
+  std::cerr << DistanceToOut(complexsolid, Vector3D<Real_v>(0.), Vector3D<Real_v>(-1.));
 }

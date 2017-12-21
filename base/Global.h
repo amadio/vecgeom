@@ -159,6 +159,23 @@ T InfinityLength() noexcept
   return vecCore::NumericLimits<T>::Max();
 }
 
+// is this in VecCore??
+template <typename T>
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+T NonZeroAbs(T const &x)
+{
+  return Abs(x) + T(1.0e-30);
+}
+
+template <typename T>
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+T NonZero(T const &x)
+{
+  return x + CopySign(T(1.0e-30), x);
+}
+
 } // End global namespace
 
 #endif // VECGEOM_BASE_GLOBAL_H_

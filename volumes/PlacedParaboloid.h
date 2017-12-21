@@ -11,7 +11,6 @@
 #define VECGEOM_VOLUMES_PLACEDPARABOLOID_H_
 
 #include "base/Global.h"
-#include "backend/Backend.h"
 
 #include "volumes/PlacedVolume.h"
 #include "volumes/UnplacedVolume.h"

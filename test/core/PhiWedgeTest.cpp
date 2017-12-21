@@ -6,7 +6,6 @@
  */
 
 #include "volumes/Wedge.h"
-#include "backend/Backend.h"
 
 #ifdef NDEBUG
 #undef NDEBUG

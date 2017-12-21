@@ -9,8 +9,6 @@
 
 #include "base/Global.h"
 #include "volumes/kernel/GenericKernels.h"
-#include "backend/Backend.h"
-#include <iostream>
 #include <iomanip>
 #define kHalfPi 0.5 * kPi
 namespace vecgeom {

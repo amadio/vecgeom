@@ -7,7 +7,6 @@
 #include "base/Global.h"
 #include "base/Vector3D.h"
 
-#include "backend/Backend.h"
 #include "base/AlignedBase.h"
 #include "base/Vector3D.h"
 #include "base/RNG.h"

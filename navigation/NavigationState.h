@@ -5,7 +5,6 @@
 #ifndef VECGEOM_NAVIGATION_NAVIGATIONSTATE_H_
 #define VECGEOM_NAVIGATION_NAVIGATIONSTATE_H_
 
-#include "backend/Backend.h"
 #include "base/VariableSizeObj.h"
 #include "base/Transformation3D.h"
 #include "volumes/PlacedVolume.h"

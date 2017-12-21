@@ -7,9 +7,7 @@
 #define VECGEOM_SECONDORDERSURFACESHELL_H_
 
 #include "base/Vector3D.h"
-#include "backend/Backend.h"
 #include "volumes/kernel/GenericKernels.h"
-#include <iostream>
 
 namespace vecgeom {
 /**

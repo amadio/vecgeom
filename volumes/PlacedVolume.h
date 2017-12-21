@@ -7,7 +7,6 @@
 #include "base/Global.h"
 #include "volumes/LogicalVolume.h"
 #include "volumes/USolidsInterfaceHelper.h"
-#include "backend/Backend.h"
 #include <string>
 
 #ifdef VECGEOM_VC
@@ -17,6 +16,8 @@
 #ifdef VECGEOM_GEANT4
 #include <G4VSolid.hh>
 #endif
+
+using Real_v = vecgeom::VectorBackend::Real_v;
 
 namespace vecgeom {
 
@@ -197,10 +198,8 @@ public:
                                  const Precision step_max = kInfLength) const = 0;
 
   // if we have any SIMD backend, we offer a SIMD interface
-  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToInVec(
-      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
-      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
-      const VECGEOM_BACKEND_PRECISION_TYPE step_max = kInfLength) const = 0;
+  virtual Real_v DistanceToInVec(Vector3D<Real_v> const &position, Vector3D<Real_v> const &direction,
+                                 const Real_v step_max = kInfLength) const = 0;
 
   template <typename T>
   VECGEOM_FORCE_INLINE
@@ -225,10 +224,8 @@ public:
 #endif
   // define this interface in case we don't have the Scalar interface
 
-  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToOutVec(
-      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
-      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
-      VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfLength) const = 0;
+  virtual Real_v DistanceToOutVec(Vector3D<Real_v> const &position, Vector3D<Real_v> const &direction,
+                                  Real_v const step_max = kInfLength) const = 0;
 
   template <typename T>
   VECGEOM_FORCE_INLINE
@@ -254,8 +251,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual Precision SafetyToIn(Vector3D<Precision> const &position) const = 0;
 
-  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToInVec(
-      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const = 0;
+  virtual Real_v SafetyToInVec(Vector3D<Real_v> const &position) const = 0;
 
   template <typename T>
   VECGEOM_FORCE_INLINE
@@ -272,8 +268,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual Precision SafetyToOut(Vector3D<Precision> const &position) const = 0;
 
-  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOutVec(
-      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const = 0;
+  virtual Real_v SafetyToOutVec(Vector3D<Real_v> const &position) const = 0;
 
   virtual void SafetyToOut(SOA3D<Precision> const &position, Precision *const safeties) const = 0;
 

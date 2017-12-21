@@ -140,7 +140,7 @@ public:
       safety                    = pvol->SafetyToOut(localpoint);
       LogicalVolume const *lvol = pvol->GetLogicalVolume();
       // now loop over the voxelized treatment of safety to in
-      for (unsigned int i = 0; i < VECGEOM_BACKEND_PRECISION_TYPE_SIZE; ++i) {
+      for (unsigned int i = 0; i < vecCore::VectorSize<Real_v>(); ++i) {
         if (vecCore::MaskLaneAt(m, i)) {
           vecCore::AssignLane(safety, i,
                               TreatSafetyToIn(Vector3D<Precision>(LaneAt(localpoint.x(), i), LaneAt(localpoint.y(), i),

@@ -100,36 +100,30 @@ public:
   virtual void SafetyToInMinimize(SOA3D<Precision> const &position, Precision *const safeties) const override;
 
   // the SIMD vector interfaces (not implemented)
-  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToInVec(
-      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
-      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
-      VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfLength) const override
+  virtual Real_v DistanceToInVec(Vector3D<Real_v> const &position, Vector3D<Real_v> const &direction,
+                                 Real_v const step_max = kInfLength) const override
   {
     throw std::runtime_error("unimplemented function called");
-    return VECGEOM_BACKEND_PRECISION_TYPE(-1.);
+    return Real_v(-1.);
   }
 
-  virtual VECGEOM_BACKEND_PRECISION_TYPE DistanceToOutVec(
-      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position,
-      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &direction,
-      VECGEOM_BACKEND_PRECISION_TYPE const step_max = kInfLength) const override
+  virtual Real_v DistanceToOutVec(Vector3D<Real_v> const &position, Vector3D<Real_v> const &direction,
+                                  Real_v const step_max = kInfLength) const override
   {
     throw std::runtime_error("unimplemented function called");
-    return VECGEOM_BACKEND_PRECISION_TYPE(-1.);
+    return Real_v(-1.);
   }
 
-  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToInVec(
-      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override
+  virtual Real_v SafetyToInVec(Vector3D<Real_v> const &position) const override
   {
     throw std::runtime_error("unimplemented function called");
-    return VECGEOM_BACKEND_PRECISION_TYPE(-1.);
+    return Real_v(-1.);
   }
 
-  virtual VECGEOM_BACKEND_PRECISION_TYPE SafetyToOutVec(
-      Vector3D<VECGEOM_BACKEND_PRECISION_TYPE> const &position) const override
+  virtual Real_v SafetyToOutVec(Vector3D<Real_v> const &position) const override
   {
     throw std::runtime_error("unimplemented function called");
-    return VECGEOM_BACKEND_PRECISION_TYPE(-1.);
+    return Real_v(-1.);
   }
 
   virtual void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const override;

@@ -7,9 +7,7 @@
 #undef NDEBUG
 
 #include <iostream>
-//#include "Vc/Vc"
 #include "VecCore/VecCore"
-#include "backend/Backend.h"
 
 using namespace vecCore;
 

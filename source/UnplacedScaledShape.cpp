@@ -2,8 +2,6 @@
 /// \author Mihaela Gheata (mihaela.gheata@cern.ch)
 
 #include "volumes/UnplacedScaledShape.h"
-
-#include "backend/Backend.h"
 #include "management/VolumeFactory.h"
 #include "volumes/SpecializedScaledShape.h"
 #ifndef VECCORE_CUDA

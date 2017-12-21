@@ -2,7 +2,6 @@
 /// \author Johannes de Fine Licht (johannes.definelicht@cern.ch)
 #include "base/Transformation3D.h"
 
-#include "backend/Backend.h"
 #ifdef VECGEOM_CUDA_INTERFACE
 #include "backend/cuda/Interface.h"
 #endif

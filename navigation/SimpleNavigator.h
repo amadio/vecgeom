@@ -14,7 +14,6 @@
 #include "navigation/NavigationState.h"
 #include "volumes/kernel/BoxImplementation.h"
 #include "management/ABBoxManager.h"
-#include "backend/Backend.h"
 
 #ifdef VECGEOM_ROOT
 #include "management/RootGeoManager.h"
