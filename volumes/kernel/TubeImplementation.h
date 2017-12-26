@@ -116,7 +116,7 @@ void CircleTrajectoryIntersection(Real_v const &b, Real_v const &c, UnplacedStru
   if (LargestSolution) ok |= delta == 0.; // this takes care of scratching conventions
 
   vecCore::MaskedAssign(delta, !ok, Real_v(0.));
-  delta                       = Sqrt(delta);
+  delta = Sqrt(delta);
   if (!LargestSolution) delta = -delta;
 
   dist = -b + delta;
@@ -218,17 +218,17 @@ void PhiPlaneSafety(UnplacedStruct_t const &tube, Vector3D<Real_v> const &pos, R
   }
 
   // make sure point falls on positive part of projection
-  vecCore::MaskedAssign(safety, phi1 > -kHalfTolerance &&
-                                    pos.x() * tube.fAlongPhi1x + pos.y() * tube.fAlongPhi1y > 0. && phi1 < safety,
-                        phi1);
+  vecCore::MaskedAssign(
+      safety, phi1 > -kHalfTolerance && pos.x() * tube.fAlongPhi1x + pos.y() * tube.fAlongPhi1y > 0. && phi1 < safety,
+      phi1);
 
   Real_v phi2 = PerpDist2D<Real_v>(pos.x(), pos.y(), Real_v(tube.fAlongPhi2x), Real_v(tube.fAlongPhi2y));
   if (!inside) phi2 *= -1;
 
   // make sure point falls on positive part of projection
-  vecCore::MaskedAssign(safety, phi2 > -kHalfTolerance &&
-                                    pos.x() * tube.fAlongPhi2x + pos.y() * tube.fAlongPhi2y > 0. && phi2 < safety,
-                        phi2);
+  vecCore::MaskedAssign(
+      safety, phi2 > -kHalfTolerance && pos.x() * tube.fAlongPhi2x + pos.y() * tube.fAlongPhi2y > 0. && phi2 < safety,
+      phi2);
 }
 
 /*
@@ -268,7 +268,7 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, Precisio
   // if( vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(ok) ) return;
 
   Real_v dirDotXY = (dir.y() * alongX - dir.x() * alongY);
-  vecCore__MaskedAssignFunc(dist, dirDotXY != 0, (alongY * pos.x() - alongX * pos.y()) / dirDotXY);
+  dist            = (alongY * pos.x() - alongX * pos.y()) / NonZero(dirDotXY);
   ok &= dist > -kHalfTolerance;
   // if( vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(ok) ) return;
 
@@ -332,7 +332,7 @@ typename vecCore::Mask_v<Real_v> IsMovingInsideTubeSurface(UnplacedStruct_t cons
          (direction.Dot(GetNormal<Real_v, ForInnerSurface>(point)) <= 0.);
 }
 
-} // End of NS TubeUtilities
+} // namespace TubeUtilities
 
 template <typename T>
 class SPlacedTube;
@@ -1052,12 +1052,12 @@ struct TubeImplementation {
       }
     }
     if (nosurface > 1) norm = norm / std::sqrt(1. * nosurface);
-    valid                   = nosurface != 0; // this is for testing only
+    valid = nosurface != 0; // this is for testing only
   }
 
 }; // End of struct TubeImplementation
 
-} // end of inline NS
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif

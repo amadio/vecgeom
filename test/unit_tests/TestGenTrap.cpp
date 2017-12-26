@@ -11,6 +11,7 @@
 
 //.. ensure asserts are compiled in
 #undef NDEBUG
+#include "base/FpeEnable.h"
 #include <cassert>
 
 bool testvecgeom = false;

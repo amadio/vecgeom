@@ -6,6 +6,7 @@
  */
 
 #undef NDEBUG
+#include "base/FpeEnable.h"
 
 #include "base/Global.h"
 #include "base/Vector3D.h"

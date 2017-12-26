@@ -5,6 +5,7 @@
 
 // ensure asserts are compiled in
 #undef NDEBUG
+#include "base/FpeEnable.h"
 
 #include <iomanip>
 #include <assert.h>

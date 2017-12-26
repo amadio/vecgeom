@@ -6,6 +6,7 @@
 
 //.. ensure asserts are compiled in
 #undef NDEBUG
+#include "base/FpeEnable.h"
 
 #include "base/Vector3D.h"
 #include "volumes/Trd.h"

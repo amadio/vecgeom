@@ -5,6 +5,7 @@
 
 //.. ensure asserts are compiled in
 #undef NDEBUG
+#include "base/FpeEnable.h"
 
 #include "base/Vector3D.h"
 #include "volumes/Polycone.h"
@@ -13,7 +14,6 @@
 #include "volumes/PlacedVolume.h"
 #include "ApproxEqual.h"
 #include <cmath>
-#include "base/FpeEnable.h"
 #include "management/GeoManager.h"
 
 using namespace vecgeom;

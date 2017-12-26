@@ -5,6 +5,7 @@
 
 // ensure asserts are compiled in
 #undef NDEBUG
+#include "base/FpeEnable.h"
 
 #include "base/Global.h"
 #include "base/Vector3D.h"
@@ -828,7 +829,7 @@ bool TestSphere()
 
   Dist = s1.DistanceToIn(ponzmax, vz);
   // std::cout<<"s1.DistanceToIn(ponzmax,vz) = "<<Dist<<std::endl;
-  Dist                         = s1.DistanceToIn(pbigy, vy);
+  Dist = s1.DistanceToIn(pbigy, vy);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
   Dist = s1.DistanceToIn(pbigy, vmy);
@@ -863,7 +864,7 @@ bool TestSphere()
   Dist = s3.DistanceToIn(pontheta2, vz);
   //    std::cout<<"s3.DistanceToIn(pontheta2,vz) = "<<Dist<<std::endl;
   assert(Dist == 0);
-  Dist                         = s3.DistanceToIn(pontheta2, vmz);
+  Dist = s3.DistanceToIn(pontheta2, vmz);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
   Dist = s32.DistanceToIn(pontheta1, vz);
@@ -881,13 +882,13 @@ bool TestSphere()
   //    std::cout<<"s33.DistanceToIn(pontheta2,vmz) = "<<Dist<<std::endl;
   assert(Dist == 0);
 
-  Dist                         = s4.DistanceToIn(pbigy, vmy);
+  Dist = s4.DistanceToIn(pbigy, vmy);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
   // assert(Dist==kInfLength);
   Dist = s4.DistanceToIn(pbigz, vmz);
   assert(ApproxEqual(Dist, 50));
-  Dist                         = s4.DistanceToIn(pzero, vy);
+  Dist = s4.DistanceToIn(pzero, vy);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
   // assert(Dist==kInfLength);
@@ -896,7 +897,7 @@ bool TestSphere()
 
   Dist = s4.DistanceToIn(ptestphi1, vx);
   assert(ApproxEqual(Dist, 100 + 45 / std::sqrt(2.)));
-  Dist                         = s4.DistanceToIn(ponphi1, vmxmy);
+  Dist = s4.DistanceToIn(ponphi1, vmxmy);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
   // assert(Dist==kInfLength);
@@ -906,7 +907,7 @@ bool TestSphere()
 
   Dist = s4.DistanceToIn(ptestphi2, vx);
   assert(ApproxEqual(Dist, 100 + 45 / std::sqrt(2.)));
-  Dist                         = s4.DistanceToIn(ponphi2, vmxy);
+  Dist = s4.DistanceToIn(ponphi2, vmxy);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
   // assert(Dist==kInfLength);

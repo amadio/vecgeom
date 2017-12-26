@@ -50,10 +50,10 @@ public:
   SecondOrderSurfaceShell() : fDz(0), fDz2(0) {}
 
   /** @brief SecondOrderSurfaceShell constructor
-  * @param verticesx X positions of vertices in array form
-  * @param verticesy Y positions of vertices in array form
-  * @param dz The half-height of the GenTrap
-  */
+   * @param verticesx X positions of vertices in array form
+   * @param verticesy Y positions of vertices in array form
+   * @param dz The half-height of the GenTrap
+   */
   VECCORE_ATT_HOST_DEVICE
   SecondOrderSurfaceShell(const Precision *verticesx, const Precision *verticesy, Precision dz) : fDz(0.), fDz2(0.)
   {
@@ -334,13 +334,13 @@ public:
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   /**
-  * A generic function calculation the distance to a set of curved/planar surfaces
-  *
-  * things to improve: error handling for boundary cases
-  *
-  * another possibility relies on the following idea:
-  * we always have an even number of planar/curved surfaces. We could organize them in separate substructures...
-  */
+   * A generic function calculation the distance to a set of curved/planar surfaces
+   *
+   * things to improve: error handling for boundary cases
+   *
+   * another possibility relies on the following idea:
+   * we always have an even number of planar/curved surfaces. We could organize them in separate substructures...
+   */
   Real_v DistanceToIn(Vector3D<Real_v> const &point, Vector3D<Real_v> const &dir, vecCore::Mask_v<Real_v> &done) const
   {
     // Planar case
@@ -392,7 +392,7 @@ public:
         if (fiscurved[i])
           UNormal<Real_v>(hit, i, unorm, rz, r);
         else
-          unorm  = fNormals[i];
+          unorm = fNormals[i];
         crossing = crossing && (dir.Dot(unorm) < 0.);
         crossing = crossing && (r >= 0.) && (r <= 1.);
         vecCore__MaskedAssignFunc(distance, crossing && (!checked) && crtdist < distance, Max(crtdist, Real_v(0.)));
@@ -694,7 +694,6 @@ public:
     // vectorizes
     for (int i = 0; i < N; ++i) {
       // treatment for curved surfaces. Invalid solutions will be excluded.
-
       Real_v sqrtd = signa[i] * Sqrt(Abs(d[i]));
       vecCore::MaskedAssign(sqrtd, d[i] < 0., big);
       // what is the meaning of this??
@@ -721,8 +720,8 @@ public:
 
 }; // end class definition
 
-} // End inline namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
-} // End global namespace
+} // namespace vecgeom
 
 #endif /* SECONDORDERSURFACESHELL_H_ */

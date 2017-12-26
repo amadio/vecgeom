@@ -4,6 +4,7 @@
 
 //.. ensure asserts are compiled in
 #undef NDEBUG
+#include "base/FpeEnable.h"
 
 #include "base/Vector3D.h"
 #include "volumes/Tube.h"
@@ -12,8 +13,8 @@
 
 #include <cmath>
 
-using vecgeom::kPi;
 using vecgeom::kInfLength;
+using vecgeom::kPi;
 using vecgeom::Sqrt;
 
 bool testvecgeom = true;
@@ -350,8 +351,8 @@ bool TestTubs()
   //  std::cout<<"Dist=t5.DistanceToIn((30.0,-100.0,0),vmx) = "<<Dist<<std::endl;
   assert(ApproxEqual(Dist, Constants::kInfLength));
 
-  /* ********************************
-     ************************************ */
+  // ********************************
+
   // Tubs from Problem reports
 
   // Make a tub
@@ -558,10 +559,8 @@ bool TestTubs()
   valid = tubeN.Normal(ptN2, normal);
   assert(ApproxEqual(normal, Vec_t(0., 0., 1.)));
 
-  /* Added Some more Normal test for the points on the circular edges of tube
-  *  These corresponds to the test cases pointed by Evgueni Tcherniaev
-  *  in jira-issue-439
-  */
+  //.. Added Some more Normal test for the points on the circular edges of tube
+  //   These corresponds to the test cases pointed by Evgueni Tcherniaev in JIRA issue VECGEOM-439
   double rmin = 100., rmax = 200., dz = 200.;
   Tube_t hollowTube("testHolloTube", rmin, rmax, dz, 0, 2 * kPi);
   double rad = 0.;

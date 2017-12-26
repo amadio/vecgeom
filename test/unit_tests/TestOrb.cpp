@@ -5,6 +5,7 @@
 
 // ensure asserts are compiled in
 #undef NDEBUG
+#include "base/FpeEnable.h"
 
 #include "base/Global.h"
 #include "base/Vector3D.h"
@@ -15,8 +16,8 @@
 
 bool testvecgeom = false;
 
-using vecgeom::kPi;
 using vecgeom::kInfLength;
+using vecgeom::kPi;
 
 template <class Orb_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
 bool TestOrb()
@@ -223,25 +224,25 @@ bool TestOrb()
   Dist = b1.DistanceToIn(pbigmz, vz);
   assert(ApproxEqual(Dist, 100 - fR));
 
-  Dist                         = b1.DistanceToIn(pbigx, vxy);
+  Dist = b1.DistanceToIn(pbigx, vxy);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
 
-  Dist                         = b1.DistanceToIn(pbigmx, vxy);
+  Dist = b1.DistanceToIn(pbigmx, vxy);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
 
   Vec_t pJohnXZ(9, 0, 12);
-  Dist                         = b2.DistanceToIn(pJohnXZ, vxmz);
+  Dist = b2.DistanceToIn(pJohnXZ, vxmz);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
 
   Vec_t pJohnXY(12, 9, 0);
-  Dist                         = b2.DistanceToIn(pJohnXY, vmxy);
+  Dist = b2.DistanceToIn(pJohnXY, vmxy);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
 
-  Dist                         = b2.DistanceToIn(pJohnXY, vmx);
+  Dist = b2.DistanceToIn(pJohnXY, vmx);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
 
@@ -253,17 +254,17 @@ bool TestOrb()
   Dist = b2.DistanceToIn(p2JohnXY, vmx);
   assert(ApproxEqual(Dist, 3.6833752));
 
-  Dist                         = b1.DistanceToIn(Vec_t(-25, -35, 0), vx);
+  Dist = b1.DistanceToIn(Vec_t(-25, -35, 0), vx);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
 
-  Dist                         = b1.DistanceToIn(Vec_t(-25, -35, 0), vy);
+  Dist = b1.DistanceToIn(Vec_t(-25, -35, 0), vy);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
 
   Vec_t pointO(-8.363470934547895, 2.754420966126675, -2.665617952433236);
   Vec_t dirO(-8.363470934547895 / 9.2, 2.754420966126675 / 9.2, -2.665617952433236 / 9.2);
-  Dist                         = b1.DistanceToIn(pointO, dirO);
+  Dist = b1.DistanceToIn(pointO, dirO);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
 
@@ -285,7 +286,7 @@ bool TestOrb()
   if (verbose) std::cout << "Testing point inside outer tolerance and directing out" << std::endl;
   Vec_t pointOTol(8.884242447222299, 0.134875592787852, -1.432495973274375);
   Vec_t dirOTol(8.884242447222299 / 9, 0.134875592787852 / 9, -1.432495973274375 / 9);
-  Dist                         = b1.DistanceToIn(pointOTol, dirOTol);
+  Dist = b1.DistanceToIn(pointOTol, dirOTol);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
   if (verbose) std::cout << "DistanceToIn for point inside outer tolerance and directing out: " << Dist << std::endl;
@@ -301,7 +302,7 @@ bool TestOrb()
   if (verbose) std::cout << "Testing point inside and directing OUT" << std::endl;
   Vec_t pointI(-3.618498437781364, 2.401810108299175, -6.718465394675017);
   Vec_t dirIO(-3.618498437781364 / 8, 2.401810108299175 / 8, -6.718465394675017 / 8);
-  Dist                         = b1.DistanceToIn(pointI, dirIO);
+  Dist = b1.DistanceToIn(pointI, dirIO);
   if (Dist >= kInfLength) Dist = kInfLength;
   // assert(ApproxEqual(Dist,kInfLength));
   assert(Dist < 0.);
@@ -314,7 +315,7 @@ bool TestOrb()
   // Point inside and directing in
   if (verbose) std::cout << "Testing point inside and directing IN" << std::endl;
   Vec_t dirII(3.618498437781364 / 8, -2.401810108299175 / 8, 6.718465394675017 / 8);
-  Dist                         = b1.DistanceToIn(pointI, dirII);
+  Dist = b1.DistanceToIn(pointI, dirII);
   if (Dist >= kInfLength) Dist = kInfLength;
   // assert(ApproxEqual(Dist,kInfLength));
   assert(Dist < 0.);

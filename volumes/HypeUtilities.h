@@ -150,9 +150,8 @@ typename vecCore::Mask_v<Real_v> GetPointOfIntersectionWithZPlane(UnplacedStruct
                                                                   Vector3D<Real_v> const &point,
                                                                   Vector3D<Real_v> const &direction, Real_v &zDist)
 {
-
   using namespace ::vecgeom::HypeTypes;
-  zDist = (Sign(ForDistToIn ? point.z() : direction.z()) * hype.fDz - point.z()) / direction.z();
+  zDist = (Sign(ForDistToIn ? point.z() : direction.z()) * hype.fDz - point.z()) / NonZero(direction.z());
 
   auto r2 = (point + zDist * direction).Perp2();
   // if (!hype.InnerSurfaceExists())

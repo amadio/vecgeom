@@ -5,15 +5,12 @@
 
 //-- ensure asserts are compiled in
 #undef NDEBUG
+#include "base/FpeEnable.h"
 
 #include "base/Vector3D.h"
 #include "volumes/Box.h"
 #include "ApproxEqual.h"
 #include <cmath>
-
-#if defined(__GNUCC__) && !defined(__CLANG__)
-#include <fenv.h>
-#endif
 
 using vecgeom::kInfLength;
 using Vec_t = vecgeom::Vector3D<vecgeom::Precision>;
@@ -349,20 +346,20 @@ bool TestBox()
   Dist = b1.DistanceToIn(Vec_t(-30, 0, 0), Vec_t(1, -0, -0));
   assert(ApproxEqual(Dist, 10.));
 
-  Dist                         = b1.DistanceToIn(pbigx, vxy);
+  Dist = b1.DistanceToIn(pbigx, vxy);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
-  Dist                         = b1.DistanceToIn(pbigmx, vxy);
+  Dist = b1.DistanceToIn(pbigmx, vxy);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
 
   Vec_t pJohnXZ(9, 0, 12);
-  Dist                         = b2.DistanceToIn(pJohnXZ, vxmz);
+  Dist = b2.DistanceToIn(pJohnXZ, vxmz);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
 
   Vec_t pJohnXY(12, 9, 0);
-  Dist                         = b2.DistanceToIn(pJohnXY, vmxy);
+  Dist = b2.DistanceToIn(pJohnXY, vmxy);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
 
@@ -370,15 +367,15 @@ bool TestBox()
   assert(ApproxEqual(Dist, 2));
 
   Vec_t pMyXY(32, -11, 0);
-  Dist                         = b2.DistanceToIn(pMyXY, vmxy);
+  Dist = b2.DistanceToIn(pMyXY, vmxy);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
 
-  Dist                         = b1.DistanceToIn(Vec_t(-25, -35, 0), vx);
+  Dist = b1.DistanceToIn(Vec_t(-25, -35, 0), vx);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
 
-  Dist                         = b1.DistanceToIn(Vec_t(-25, -35, 0), vy);
+  Dist = b1.DistanceToIn(Vec_t(-25, -35, 0), vy);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
 
@@ -416,7 +413,7 @@ bool TestBox()
     }
   }
   /* **********************************************************
-    */ /////////////////////////////////////////////////////
+   */ /////////////////////////////////////////////////////
 
   bool ok = Test_VECGEOM_431<Box_t>();
 

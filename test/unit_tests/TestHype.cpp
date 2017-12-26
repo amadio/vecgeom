@@ -1,9 +1,11 @@
 //
-//
 // TestHype
-//             Ensure asserts are compiled in
+//
 
+//.. Ensure asserts are compiled in
 #undef NDEBUG
+#include "base/FpeEnable.h"
+
 #include "base/Global.h"
 #include "base/Vector3D.h"
 #include "volumes/Box.h"
@@ -14,8 +16,8 @@
 #include <cmath>
 #include <string>
 
-using vecgeom::kPi;
 using vecgeom::kInfLength;
+using vecgeom::kPi;
 
 template <class Hype_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
 bool TestHype()
@@ -202,18 +204,18 @@ bool TestHype()
   Dist = b1.DistanceToIn(pbigmy, vy);
   assert(ApproxEqual(Dist, 100 - fRmax));
 
-  Dist                         = b1.DistanceToIn(pbigz, vmz);
+  Dist = b1.DistanceToIn(pbigz, vmz);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
-  Dist                         = b1.DistanceToIn(pbigmz, vz);
-  if (Dist >= kInfLength) Dist = kInfLength;
-  assert(ApproxEqual(Dist, kInfLength));
-
-  Dist                         = b1.DistanceToIn(pbigx, vxy);
+  Dist = b1.DistanceToIn(pbigmz, vz);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
 
-  Dist                         = b1.DistanceToIn(pbigmx, vxy);
+  Dist = b1.DistanceToIn(pbigx, vxy);
+  if (Dist >= kInfLength) Dist = kInfLength;
+  assert(ApproxEqual(Dist, kInfLength));
+
+  Dist = b1.DistanceToIn(pbigmx, vxy);
   if (Dist >= kInfLength) Dist = kInfLength;
   assert(ApproxEqual(Dist, kInfLength));
 
@@ -296,7 +298,7 @@ bool TestHype()
   std::cout << "------------------------------------------------" << std::endl;
   Vec_t pointOTol_Z(60, 0., 50. + vecgeom::cxx::kTolerance);
 
-  Dist                         = b1.DistanceToIn(pointOTol_Z, vz);
+  Dist = b1.DistanceToIn(pointOTol_Z, vz);
   if (Dist >= kInfLength) Dist = kInfLength;
   std::cout << "DistToIn : " << Dist << std::endl;
   assert(ApproxEqual(Dist, kInfLength));
@@ -317,7 +319,7 @@ bool TestHype()
 
   Vec_t pointOTol_ZNeg(60, 0., -50. - vecgeom::cxx::kTolerance);
 
-  Dist                         = b1.DistanceToIn(pointOTol_ZNeg, vmz);
+  Dist = b1.DistanceToIn(pointOTol_ZNeg, vmz);
   if (Dist >= kInfLength) Dist = kInfLength;
   std::cout << "DistToIn : " << Dist << std::endl;
   assert(ApproxEqual(Dist, kInfLength));

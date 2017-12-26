@@ -454,7 +454,7 @@ void AcceleratedDistanceToOut<Precision>(int &i, const int n, Planes const &plan
     // normal
     valid &= directionProjection > 0;
     if (vecCore::MaskEmpty(valid)) continue;
-    distanceTest /= -directionProjection;
+    distanceTest /= -NonZero(directionProjection);
     valid &= distanceTest < distance;
     if (vecCore::MaskEmpty(valid)) continue;
 
@@ -623,8 +623,8 @@ Precision Quadrilaterals::ScalarDistanceSquared(int i, Vector3D<Precision> const
 
 std::ostream &operator<<(std::ostream &os, Quadrilaterals const &quads);
 
-} // End inline namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
-} // End global namespace
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_QUADRILATERALS_H_

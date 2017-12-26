@@ -4,6 +4,7 @@
 
 //  Ensure asserts are compiled in
 #undef NDEBUG
+#include "base/FpeEnable.h"
 
 #include "base/Vector3D.h"
 #include "ApproxEqual.h"
@@ -27,7 +28,9 @@ bool testingvecgeom = true;
 bool OutRange(double actual, double wanted)
 {
   bool rng = false;
-  if (actual < wanted - DELTA || actual > wanted + DELTA) rng = true;
+  if (actual < wanted - DELTA || actual > wanted + DELTA) {
+    rng = true;
+  }
   return rng;
 }
 
