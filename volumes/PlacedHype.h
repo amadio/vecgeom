@@ -150,58 +150,25 @@ public:
   VECCORE_ATT_HOST_DEVICE
   Precision GetHypeRadius2(Precision dz) const
   {
-    if (ForInnerSurface)
-      return GetRmin2() + GetTIn2() * dz * dz;
-    else
-      return GetRmax2() + GetTOut2() * dz * dz;
+    return GetUnplacedVolume()->GetHypeRadius2<ForInnerSurface>(dz);
   }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  bool PointOnZSurface(Vector3D<Precision> const &p) const
-  {
-    return (p.z() > (GetDz() - GetZToleranceLevel())) && (p.z() < (GetDz() + GetZToleranceLevel()));
-  }
+  bool PointOnZSurface(Vector3D<Precision> const &p) const { return GetUnplacedVolume()->PointOnZSurface(p); }
 
   template <bool ForInnerSurface>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   bool PointOnHyperbolicSurface(Vector3D<Precision> const &p) const
   {
-    Precision hypeR2    = 0.;
-    hypeR2              = GetHypeRadius2<ForInnerSurface>(p.z());
-    Precision pointRad2 = p.Perp2();
-    return ((pointRad2 > (hypeR2 - GetOuterRadToleranceLevel())) &&
-            (pointRad2 < (hypeR2 + GetOuterRadToleranceLevel())));
+    return GetUnplacedVolume()->PointOnHyperbolicSurface<ForInnerSurface>(p);
   }
 
   VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const override
   {
-
-    bool valid = true;
-
-    Precision absZ(std::fabs(p.z()));
-    Precision distZ(absZ - GetDz());
-    Precision dist2Z(distZ * distZ);
-
-    Precision xR2 = p.Perp2();
-    Precision dist2Outer(std::fabs(xR2 - GetHypeRadius2<false>(absZ)));
-    Precision dist2Inner(std::fabs(xR2 - GetHypeRadius2<true>(absZ)));
-
-    // EndCap
-    if (PointOnZSurface(p) || ((dist2Z < dist2Inner) && (dist2Z < dist2Outer)))
-      normal = Vector3D<Precision>(0.0, 0.0, p.z() < 0 ? -1.0 : 1.0);
-
-    // OuterHyperbolic Surface
-    if (PointOnHyperbolicSurface<false>(p) || ((dist2Outer < dist2Inner) && (dist2Outer < dist2Z)))
-      normal = Vector3D<Precision>(p.x(), p.y(), -p.z() * GetTOut2()).Unit();
-
-    // InnerHyperbolic Surface
-    if (PointOnHyperbolicSurface<true>(p) || ((dist2Inner < dist2Outer) && (dist2Inner < dist2Z)))
-      normal = Vector3D<Precision>(-p.x(), -p.y(), p.z() * GetTIn2()).Unit();
-
-    return valid;
+    return GetUnplacedVolume()->Normal(p, normal);
   }
 
   Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
