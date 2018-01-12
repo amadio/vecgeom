@@ -100,8 +100,9 @@ public:
   std::ostream &StreamInfo(std::ostream &os) const;
 #endif
 
-private:
   virtual void Print(std::ostream &os) const override;
+
+private:
 
   VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
