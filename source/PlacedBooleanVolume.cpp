@@ -274,6 +274,8 @@ G4VSolid const *PlacedBooleanVolume<kSubtraction>::ConvertToGeant4() const
   if (!left->GetTransformation()->IsIdentity()) {
     std::cerr << "WARNING : For the moment left transformations are not implemented\n";
   }
+  Transformation3D const *rightm = right->GetTransformation();
+  G4RotationMatrix *g4rot        = new G4RotationMatrix();
   return new G4SubtractionSolid(GetLabel(), const_cast<G4VSolid *>(left->ConvertToGeant4()),
                                 const_cast<G4VSolid *>(right->ConvertToGeant4()), g4rot,
                                 G4ThreeVector(rightm->Translation(0), rightm->Translation(1), rightm->Translation(2)));
