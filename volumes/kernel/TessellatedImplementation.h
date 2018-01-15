@@ -182,7 +182,8 @@ struct TessellatedImplementation {
     isurfother = -1;
     if (ToIn) {
       // Check if the bounding box is hit
-      Vector3D<Real_v> invdir(1. / direction.x(), 1. / direction.y(), 1. / direction.z());
+      const Vector3D<Real_v> invdir(Real_v(1.0) / NonZero(direction.x()), Real_v(1.0) / NonZero(direction.y()),
+                                    Real_v(1.0) / NonZero(direction.z()));
       Vector3D<int> sign;
       sign[0]  = invdir.x() < 0;
       sign[1]  = invdir.y() < 0;
