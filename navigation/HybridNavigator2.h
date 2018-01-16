@@ -71,7 +71,7 @@ private:
                             HybridManager2::BoxIdDistancePair_t *hitlist) const
   {
     size_t count = 0;
-    Vector3D<Precision> invdir(1. / dir.x(), 1. / dir.y(), 1. / dir.z());
+    Vector3D<Precision> invdir(1. / NonZero(dir.x()), 1. / NonZero(dir.y()), 1. / NonZero(dir.z()));
     Vector3D<int> sign;
     sign[0] = invdir.x() < 0;
     sign[1] = invdir.y() < 0;
