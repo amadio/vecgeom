@@ -10,10 +10,6 @@
 #include "TGeoPgon.h"
 #endif
 
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-#include "UPolyhedra.hh"
-#endif
-
 #ifdef VECGEOM_GEANT4
 #include "G4Polyhedra.hh"
 #endif
@@ -52,15 +48,6 @@ TGeoShape const *PlacedPolyhedron::ConvertToRoot() const
   }
 
   return pgon;
-}
-#endif
-
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const *PlacedPolyhedron::ConvertToUSolids() const
-{
-
-  return new UPolyhedra(GetLabel().c_str(), GetPhiStart(), GetPhiDelta(), GetSideCount(), GetZSegmentCount() + 1,
-                        &GetZPlanes()[0], &GetRMin()[0], &GetRMax()[0]);
 }
 #endif
 

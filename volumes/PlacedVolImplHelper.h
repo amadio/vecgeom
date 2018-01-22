@@ -74,11 +74,6 @@ public:
 
   virtual double SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
 
-#if defined(VECGEOM_USOLIDS)
-//  virtual std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType(); }
-//  virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->SamplePointOnSurface();
-//  }
-#endif
 #endif
 
   VECCORE_ATT_HOST_DEVICE
@@ -108,25 +103,6 @@ public:
   {
     return DistanceToOutVec(p, d, step_max);
   }
-
-#ifdef VECGEOM_USOLIDS
-  /*
-   * WARNING: Trivial implementation for standard USolids interface
-   * for DistanceToOut. The value for convex might be wrong
-   */
-  VECCORE_ATT_HOST_DEVICE
-  virtual Precision DistanceToOut(Vector3D<Precision> const &point, Vector3D<Precision> const &direction,
-                                  Vector3D<Precision> &normal, bool &convex, Precision step = kInfLength) const override
-  {
-    double d                  = DistanceToOut(point, direction, step);
-    Vector3D<double> hitpoint = point + d * direction;
-    GetUnplacedVolume()->UnplacedShape_t::Normal(hitpoint, normal);
-    // we could make this something like
-    // convex = PlacedShape_t::IsConvex;
-    convex = false; // the only possible safe choice
-    return d;
-  }
-#endif
 
   VECCORE_ATT_HOST_DEVICE
   virtual Precision SafetyToOut(Vector3D<Precision> const &point) const override

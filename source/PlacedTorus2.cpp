@@ -11,10 +11,6 @@
 #include "G4Torus.hh"
 #endif
 
-#ifdef VECGEOM_USOLIDS
-#include "UTorus.hh"
-#endif
-
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -31,13 +27,6 @@ TGeoShape const *PlacedTorus2::ConvertToRoot() const
   const UnplacedTorus2 &ut = *(static_cast<UnplacedTorus2 const *>(GetUnplacedVolume()));
   return new TGeoTorus(GetLabel().c_str(), ut.rtor(), ut.rmin(), ut.rmax(), ut.sphi() * kRadToDeg,
                        ut.dphi() * kRadToDeg);
-}
-#endif
-
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const *PlacedTorus2::ConvertToUSolids() const
-{
-  return NULL;
 }
 #endif
 

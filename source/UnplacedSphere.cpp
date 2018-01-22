@@ -243,7 +243,6 @@ void UnplacedSphere::ComputeBBox() const
 fSphere.fDTheta);
 }*/
 
-#if defined(VECGEOM_USOLIDS)
 std::ostream &UnplacedSphere::StreamInfo(std::ostream &os) const
 // Definition taken from USphere
 {
@@ -267,7 +266,6 @@ std::ostream &UnplacedSphere::StreamInfo(std::ostream &os) const
 
   return os;
 }
-#endif
 
 void UnplacedSphere::Print() const
 {

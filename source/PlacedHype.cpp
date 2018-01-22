@@ -10,10 +10,6 @@
 #include "TGeoHype.h"
 #endif
 
-#ifdef VECGEOM_USOLIDS
-#include "UBox.hh"
-#endif
-
 #ifdef VECGEOM_GEANT4
 #include "G4Hype.hh"
 #endif
@@ -34,19 +30,6 @@ TGeoShape const *PlacedHype::ConvertToRoot() const
 {
   std::cout << "Convert ROOT*********\n";
   return new TGeoHype(GetLabel().c_str(), GetRmin(), GetStIn() * kRadToDeg, GetRmax(), GetStOut() * kRadToDeg, GetDz());
-}
-#endif
-
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const *PlacedHype::ConvertToUSolids() const
-{
-  // assert(0 && "Hype unsupported for USolids.");
-  // return NULL;
-  // std::cerr << "**************************************************************\n";
-  // std::cerr << "WARNING: Hyperboloid unsupported for USolids.; returning a box\n";
-  // std::cerr << "**************************************************************\n";
-  // return new UBox("",10,10,10);
-  return NULL;
 }
 #endif
 

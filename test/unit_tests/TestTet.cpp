@@ -10,8 +10,9 @@
 #include "ApproxEqual.h"
 #include <cmath>
 
-template <class Tet_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
+using vecgeom::kInfLength;
 
+template <class Tet_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
 bool TestTet()
 {
 
@@ -105,10 +106,10 @@ bool TestTet()
 
   Vec_t pbig(0.1, 0.1, -20);
   Dist = t2.DistanceToIn(pbig, vx);
-  assert(ApproxEqual(Dist, UUtils::kInfinity));
+  assert(ApproxEqual(Dist, kInfLength));
 
   Dist = t2.DistanceToIn(pbig, vy);
-  assert(ApproxEqual(Dist, UUtils::kInfinity));
+  assert(ApproxEqual(Dist, kInfLength));
   Dist = t2.DistanceToIn(pbig, vz);
   assert(ApproxEqual(Dist, 20));
 

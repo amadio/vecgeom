@@ -6,7 +6,6 @@
 
 #include "base/Global.h"
 #include "volumes/LogicalVolume.h"
-#include "volumes/USolidsInterfaceHelper.h"
 #include <string>
 
 #ifdef VECGEOM_VC
@@ -37,7 +36,7 @@ class GeoManager;
 template <typename T>
 class SOA3D;
 
-class VPlacedVolume : public USolidsInterfaceHelper {
+class VPlacedVolume {
   friend class GeoManager;
 
 private:
@@ -215,13 +214,10 @@ public:
   virtual void DistanceToInMinimize(SOA3D<Precision> const &position, SOA3D<Precision> const &direction,
                                     int daughterindex, Precision *const output, int *const nextnodeids) const = 0;
 
-#ifdef VECGEOM_USOLIDS
-  using USolidsInterfaceHelper::DistanceToOut;
-#else
   VECCORE_ATT_HOST_DEVICE
   virtual Precision DistanceToOut(Vector3D<Precision> const &position, Vector3D<Precision> const &direction,
                                   Precision const step_max = kInfLength) const = 0;
-#endif
+
   // define this interface in case we don't have the Scalar interface
 
   virtual Real_v DistanceToOutVec(Vector3D<Real_v> const &position, Vector3D<Real_v> const &direction,
@@ -334,9 +330,6 @@ public:
   virtual VPlacedVolume const *ConvertToUnspecialized() const = 0;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const = 0;
-#endif
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-  virtual ::VUSolid const *ConvertToUSolids() const = 0;
 #endif
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const = 0;

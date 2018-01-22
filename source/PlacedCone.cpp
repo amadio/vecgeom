@@ -13,10 +13,6 @@
 #include "TGeoCone.h"
 #endif
 
-#if defined(VECGEOM_USOLIDS)
-#include "UCons.hh"
-#endif
-
 #if defined(VECGEOM_GEANT4)
 #include "G4Cons.hh"
 #endif
@@ -39,13 +35,6 @@ TGeoShape const *PlacedCone::ConvertToRoot() const
     return new TGeoConeSeg("RootCone", GetDz(), GetRmin1(), GetRmax1(), GetRmin2(), GetRmax2(), GetSPhi() * kRadToDeg,
                            (GetSPhi() + GetDPhi()) * kRadToDeg);
   }
-}
-#endif
-
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const *PlacedCone::ConvertToUSolids() const
-{
-  return new UCons("USolidCone", GetRmin1(), GetRmax1(), GetRmin2(), GetRmax2(), GetDz(), GetSPhi(), GetDPhi());
 }
 #endif
 

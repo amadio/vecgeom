@@ -36,8 +36,6 @@ include(MacroUtilities)
 
 option(BUILTIN_VECCORE "Build VecCore and its dependencies from source" ON)
 
-option(USOLIDS_VECGEOM "Forward USOLIDS volumes to their VecGeom implementation" OFF)
-
 option(CUDA "Enable compilation for CUDA." OFF)
 
 option(CUDA_VOLUME_SPECIALIZATION "Use specialized volumes for CUDA." OFF)
@@ -486,10 +484,6 @@ if (COVERAGE_TESTING)
 endif()
 
 # Forward CMake options
-if (USOLIDS_VECGEOM)
-  set(VECGEOM_DEFINITIONS
-      "${VECGEOM_DEFINITIONS} -DVECGEOM_REPLACE_USOLIDS")
-endif()
 if (QUADRILATERAL_ACCELERATION)
   set(VECGEOM_DEFINITIONS
       "${VECGEOM_DEFINITIONS} -DVECGEOM_QUADRILATERALS_VC")
@@ -598,29 +592,6 @@ if (ROOT)
       source/Visualizer.cpp)
 
 endif(ROOT)
-
-if (USolids)
-
-  if (NOT USOLIDS_DIR AND (NOT USOLIDS_INCLUDE_DIRS OR NOT USOLIDS_LIBRARIES_DIR))
-    message(STATUS "Building with shipped USolids.")
-    add_subdirectory(USolids)
-    include_directories(${CMAKE_SOURCE_DIR}/USolids/include)
-    link_directories(${CMAKE_BINARY_DIR}/USolids)
-  endif()
-  if (USOLIDS_INCLUDE_DIRS)
-    include_directories(${USOLIDS_INCLUDE_DIRS})
-  elseif (USOLIDS_DIR)
-    include_directories(${USOLIDS_DIR}/include)
-  endif()
-  if (USOLIDS_LIBRARIES_DIR)
-    link_directories(${USOLIDS_LIBRARIES_DIR})
-  elseif (USOLIDS_DIR)
-    link_directories(${USOLIDS_DIR}/lib)
-  endif()
-
-  set(VECGEOM_LIBRARIES ${VECGEOM_LIBRARIES} usolids)
-
-endif()
 
 if (Geant4)
 
@@ -755,18 +726,11 @@ if (ROOT)
   )
 endif()
 
-if (USolids)
-  set(VECGEOM_USOLIDS_SRCS
-    source/USolidsInterfaceHelper.cpp
-  )
-endif()
-
 set(VECGEOM_SRCS
   ${VECGEOM_SRCS}
   ${VECGEOM_CUDA_SRCS}
   ${VECGEOM_GEANT4_SRCS}
   ${VECGEOM_ROOT_SRCS}
-  ${VECGEOM_USOLIDS_SRCS}
 )
 
 foreach(SRC ${VECGEOM_SRCS})
@@ -820,14 +784,11 @@ if (CUDA)
 
 endif()
 
-# Add files that won't be compiled for CUDA
+set(SRC_CPP ${SRC_CPP}
+  test/shape_tester/ShapeTester.cpp
+  test/shape_tester/ConventionChecker.cpp
+)
 
-#if (USOLIDS)
-  set(SRC_CPP ${SRC_CPP}
-    test/shape_tester/ShapeTester.cpp
-    test/shape_tester/ConventionChecker.cpp
-  )
-#endif()
 if (BENCHMARK)
   set(SRC_CPP ${SRC_CPP}
     source/benchmarking/BenchmarkResult.cpp
@@ -1034,14 +995,12 @@ set(TEST_EXECUTABLES_VISUALIZATION
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeCutTube.cpp
 )
 
-set(TEST_EXECUTABLES_USOLIDS
-  ${CMAKE_SOURCE_DIR}/test/usolids/CompatibilityTest.cpp
+set(TEST_EXECUTABLES_SHAPES
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBox.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestCons.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestGenTrap.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTube.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestHype.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTessellated.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTrd.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTrap.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestParallelepiped.cpp
@@ -1051,9 +1010,14 @@ set(TEST_EXECUTABLES_USOLIDS
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestOrb.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTorus2.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/usolidTest.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestParaboloid.cpp
 )
+
+if(NOT CUDA)
+set(TEST_EXECUTABLES_SHAPES
+  ${TEST_EXECUTABLES_SHAPES}
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTessellated.cpp)
+endif()
 
 set(TEST_EXECUTABLES_CUDA
   # Files go here
@@ -1124,6 +1088,10 @@ function(add_to_ctest EXECUTABLES)
   endforeach()
 endfunction()
 
+if (CTEST OR VALIDATION)
+  build_executables("${TEST_EXECUTABLES_SHAPES}")
+endif()
+
 if (CTEST)
   build_executables("${TEST_EXECUTABLES_CORE}")
   add_to_ctest("${TEST_EXECUTABLES_CORE}")
@@ -1162,11 +1130,14 @@ else()
   endif()
 endif()
 
-if (USolids)
-  build_executables("${TEST_EXECUTABLES_USOLIDS}")
+#if (USolids)
+  #build_executables("${TEST_EXECUTABLES_USOLIDS}")
+  #build_executables("${TEST_EXECUTABLES_SHAPES}")
   #add_to_ctest("${TEST_EXECUTABLES_USOLIDS}")
   #add_to_ctest("${TEST_EXECUTABLES_SHAPETESTER}")
+#endif()
 
+if(CTEST OR VALIDATION)
   # add unit tests
   add_test(NAME TestBox COMMAND TestBox)
   add_test(NAME TestTrap COMMAND TestTrap)
@@ -1284,10 +1255,6 @@ set(CONF_INCLUDE_DIR "${CMAKE_SOURCE_DIR}")
 set(CONF_LIBRARY_DIR "${CMAKE_BINARY_DIR}")
 set(CONF_LIBRARIES ${VECGEOM_LIBRARIES_EXTERNAL}
     "${CONF_LIBRARY_DIR}/${VECGEOM_LIBNAME}")
-if (USolids)
-  set(CONF_LIBRARIES ${CONF_LIBRARIES}
-      "${CONF_LIBRARY_DIR}/USolids/libusolids.a")
-endif()
 if (CUDA)
    set(CONF_LIBRARIES ${CONF_LIBRARIES}  "${CONF_LIBRARY_DIR}/libvecgeomcuda.so")
    set(CONF_CUDA_STATIC_LIBRARY "${CONF_LIBRARY_DIR}/libvecgeomcuda_static.a")
@@ -1303,11 +1270,6 @@ if (CUDA)
    set(CONF_LIBRARIES ${CONF_LIBRARIES}  "${CONF_LIBRARY_DIR}/libvecgeomcuda.so")
    set(CONF_CUDA_STATIC_LIBRARY "${CONF_LIBRARY_DIR}/libvecgeomcuda_static.a")
 endif()
-if (USolids)
-  set(CONF_LIBRARIES ${CONF_LIBRARIES} "${CONF_LIBRARY_DIR}/libusolids.a")
-  configure_file(VecGeomConfig.cmake.in
-    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/USolidsConfig.cmake" @ONLY)
-endif()
 configure_file(VecGeomConfig.cmake.in
   "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/VecGeomConfig.cmake" @ONLY)
 
@@ -1315,11 +1277,6 @@ configure_file(VecGeomConfig.cmake.in
 install(FILES
   "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/VecGeomConfig.cmake"
   DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
-if (USolids)
-  install(FILES
-    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/USolidsConfig.cmake"
-    DESTINATION "${INSTALL_CMAKE_DIR}/../USolids" COMPONENT dev)
-endif()
 
 # Install headers and libraries
 foreach(FOLDER base benchmarking management navigation volumes backend)

@@ -1,9 +1,6 @@
 #include <stdlib.h>
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-#ifdef VECGEOM_USOLIDS
-#include "VUSolid.hh"
-#endif
 
 #include "TApplication.h"
 #include "TCanvas.h"

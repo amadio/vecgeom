@@ -6,9 +6,6 @@
 #ifdef VECGEOM_ROOT
 #include "TGeoParaboloid.h"
 #endif
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-#include "UBox.hh"
-#endif
 #ifdef VECGEOM_GEANT4
 #include "G4Paraboloid.hh"
 #endif
@@ -40,16 +37,6 @@ VPlacedVolume const *PlacedParaboloid::ConvertToUnspecialized() const
 TGeoShape const *PlacedParaboloid::ConvertToRoot() const
 {
   return new TGeoParaboloid(GetLabel().c_str(), GetRlo(), GetRhi(), GetDz());
-}
-#endif
-
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const *PlacedParaboloid::ConvertToUSolids() const
-{
-  std::cerr << "**************************************************************\n";
-  std::cerr << "WARNING: Paraboloid unsupported for USolids.; returning NULL\n";
-  std::cerr << "**************************************************************\n";
-  return nullptr;
 }
 #endif
 

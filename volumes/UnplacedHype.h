@@ -247,7 +247,6 @@ public:
 
   Vector3D<Precision> SamplePointOnSurface() const override;
 
-  // VECCORE_ATT_HOST_DEVICE
   std::string GetEntityType() const;
 
   VECCORE_ATT_HOST_DEVICE
@@ -256,7 +255,6 @@ public:
   VECCORE_ATT_HOST_DEVICE
   UnplacedHype *Clone() const;
 
-  VECCORE_ATT_HOST_DEVICE
   std::ostream &StreamInfo(std::ostream &os) const;
 
   VECCORE_ATT_HOST_DEVICE

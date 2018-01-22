@@ -125,7 +125,6 @@ public:
   Vector3D<Precision> GetPointOnRing(Precision fRMin, Precision fRMax, Precision fRMin2, Precision fRMax2,
                                      Precision zOne) const;
 
-  std::string GetEntityType() const { return "Polycone"; }
 #endif // !VECCORE_CUDA
 
   // a method to reconstruct "plane" section arrays for z, rmin and rmax
@@ -141,9 +140,8 @@ public:
   virtual void Print() const final;
   virtual void Print(std::ostream &os) const final;
 
-#if defined(VECGEOM_USOLIDS)
   std::ostream &StreamInfo(std::ostream &os) const;
-#endif
+  std::string GetEntityType() const { return "Polycone"; }
 
   VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,

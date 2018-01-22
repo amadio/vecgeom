@@ -9,7 +9,6 @@
 #include "benchmarking/BenchmarkResult.h"
 
 class TGeoShape;
-class VUSolid;
 class G4VSolid;
 
 namespace vecgeom {
@@ -17,7 +16,7 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class VPlacedVolume;
 
-/// \brief Converts a VecGeom volume to unspecialized, USolids and ROOT
+/// \brief Converts a VecGeom volume to unspecialized and ROOT
 ///        representations for performance comparison purposes.
 class VolumePointers {
 
@@ -26,9 +25,6 @@ private:
   VPlacedVolume const *fUnspecialized;
 #ifdef VECGEOM_ROOT
   TGeoShape const *fRoot;
-#endif
-#ifdef VECGEOM_USOLIDS
-  ::VUSolid const *fUSolids;
 #endif
 #ifdef VECGEOM_GEANT4
   G4VSolid const *fGeant4;
@@ -55,11 +51,6 @@ public:
 #ifdef VECGEOM_ROOT
   TGeoShape const *ROOT() const { return fRoot; }
 #endif
-
-#ifdef VECGEOM_USOLIDS
-  ::VUSolid const *USolids() const { return fUSolids; }
-#endif
-
 #ifdef VECGEOM_GEANT4
   G4VSolid const *Geant4() const { return fGeant4; }
 #endif

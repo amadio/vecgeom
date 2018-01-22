@@ -1,5 +1,5 @@
 /// 2014: initial version (J. De Fine Licht + S. Wenzel)
-/// Okt 2015: cleanup; move to PlacedVolImplHelper (Sandro Wenzel)
+/// 2015: cleanup; move to PlacedVolImplHelper (Sandro Wenzel)
 
 #ifndef VECGEOM_VOLUMES_PLACEDBOX_H_
 #define VECGEOM_VOLUMES_PLACEDBOX_H_
@@ -14,9 +14,6 @@
 
 //#ifdef VECGEOM_ROOT
 //#include "TGeoBBox.h"
-//#endif
-//#ifdef VECGEOM_USOLIDS
-//#include "UBox.hh"
 //#endif
 
 namespace vecgeom {
@@ -80,9 +77,6 @@ public:
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const override;
-#endif
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-  virtual ::VUSolid const *ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const override;

@@ -16,7 +16,8 @@
 bool testvecgeom = false;
 bool usolidsconv = false;
 
-#define PI 3.14159265358979323846
+using vecgeom::kPi;
+using vecgeom::kInfLength;
 
 template <class Orb_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
 bool TestOrb()
@@ -50,12 +51,12 @@ bool TestOrb()
   Orb_t b2("Solid VecGeomOrb #2", 6);
 
   // Check cubic volume
-  assert(ApproxEqual(b1.Capacity(), (4 * PI / 3) * fR * fR * fR));
-  assert(ApproxEqual(b2.Capacity(), (4 * PI / 3) * 6 * 6 * 6));
+  assert(ApproxEqual(b1.Capacity(), (4 * kPi / 3) * fR * fR * fR));
+  assert(ApproxEqual(b2.Capacity(), (4 * kPi / 3) * 6 * 6 * 6));
 
   // Check Surface area
-  assert(ApproxEqual(b1.SurfaceArea(), ((4 * PI) * fR * fR)));
-  assert(ApproxEqual(b2.SurfaceArea(), ((4 * PI) * 6 * 6)));
+  assert(ApproxEqual(b1.SurfaceArea(), ((4 * kPi) * fR * fR)));
+  assert(ApproxEqual(b2.SurfaceArea(), ((4 * kPi) * 6 * 6)));
 
   Vec_t minExtent, maxExtent;
   b1.Extent(minExtent, maxExtent);
@@ -70,8 +71,6 @@ bool TestOrb()
   bool valid;
 
   double Dist;
-  Vec_t norm;
-  bool convex;
 
   valid = b1.Normal(ponx, normal);
   assert(ApproxEqual(normal, Vec_t(1, 0, 0)));
@@ -97,63 +96,77 @@ bool TestOrb()
   assert(ApproxEqual(normal, Vec_t(0, 0, -1)));
   assert(valid);
   // DistanceToOut(P,V) with asserts for norm and convex
-  Dist = b1.DistanceToOut(pzero, vx, norm, convex);
-  assert(ApproxEqual(Dist, fR) && ApproxEqual(norm, vx));
-  //if (!testvecgeom) assert(convex);
-  Dist = b1.DistanceToOut(pzero, vmx, norm, convex);
-  assert(ApproxEqual(Dist, fR) && ApproxEqual(norm, vmx));
-  //if (!testvecgeom) assert(convex);
-  Dist = b1.DistanceToOut(pzero, vy, norm, convex);
-  assert(ApproxEqual(Dist, fR) && ApproxEqual(norm, vy));
-  //if (!testvecgeom) assert(convex);
-  Dist = b1.DistanceToOut(pzero, vmy, norm, convex);
-  assert(ApproxEqual(Dist, fR) && ApproxEqual(norm, vmy));
-  //if (!testvecgeom) assert(convex);
-  Dist = b1.DistanceToOut(pzero, vz, norm, convex);
-  assert(ApproxEqual(Dist, fR) && ApproxEqual(norm, vz));
-  //if (!testvecgeom) assert(convex);
-  Dist = b1.DistanceToOut(pzero, vmz, norm, convex);
-  assert(ApproxEqual(Dist, fR) && ApproxEqual(norm, vmz));
-  //if (!testvecgeom) assert(convex);
+  Dist  = b1.DistanceToOut(pzero, vx);
+  valid = b1.Normal(pzero + Dist * vx, normal);
+  assert(ApproxEqual(Dist, fR) && ApproxEqual(normal, vx));
 
-  Dist = b1.DistanceToOut(ponxside, vx, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vx));
-  //if (!testvecgeom) assert(convex);
-  Dist = b1.DistanceToOut(ponxside, vmx, norm, convex);
-  assert(ApproxEqual(Dist, 2 * fR) && ApproxEqual(norm, vmx));
-  //if (!testvecgeom) assert(convex);
-  Dist = b1.DistanceToOut(ponmxside, vx, norm, convex);
-  assert(ApproxEqual(Dist, 2 * fR) && ApproxEqual(norm, vx));
-  //if (!testvecgeom) assert(convex);
-  Dist = b1.DistanceToOut(ponmxside, vmx, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vmx));
-  //if (!testvecgeom) assert(convex);
+  Dist  = b1.DistanceToOut(pzero, vmx);
+  valid = b1.Normal(pzero + Dist * vmx, normal);
+  assert(ApproxEqual(Dist, fR) && ApproxEqual(normal, vmx));
 
-  Dist = b1.DistanceToOut(ponyside, vy, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vy));
-  //if (!testvecgeom) assert(convex);
-  Dist = b1.DistanceToOut(ponyside, vmy, norm, convex);
-  assert(ApproxEqual(Dist, 2 * fR) && ApproxEqual(norm, vmy));
-  //if (!testvecgeom) assert(convex);
-  Dist = b1.DistanceToOut(ponmyside, vy, norm, convex);
-  assert(ApproxEqual(Dist, 2 * fR) && ApproxEqual(norm, vy));
-  //if (!testvecgeom) assert(convex);
-  Dist = b1.DistanceToOut(ponmyside, vmy, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vmy));
-  //if (!testvecgeom) assert(convex);
+  Dist  = b1.DistanceToOut(pzero, vy);
+  valid = b1.Normal(pzero + Dist * vy, normal);
+  assert(ApproxEqual(Dist, fR) && ApproxEqual(normal, vy));
 
-  Dist = b1.DistanceToOut(ponzside, vz, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vz));
-  //if (!testvecgeom) assert(convex);
-  Dist = b1.DistanceToOut(ponzside, vmz, norm, convex);
-  assert(ApproxEqual(Dist, 2 * fR) && ApproxEqual(norm, vmz));
-  //if (!testvecgeom) assert(convex);
-  Dist = b1.DistanceToOut(ponmzside, vz, norm, convex);
-  assert(ApproxEqual(Dist, 2 * fR) && ApproxEqual(norm, vz));
-  //if (!testvecgeom) assert(convex);
-  Dist = b1.DistanceToOut(ponmzside, vmz, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vmz));
-  //if (!testvecgeom) assert(convex);
+  Dist  = b1.DistanceToOut(pzero, vmy);
+  valid = b1.Normal(pzero + Dist * vmy, normal);
+  assert(ApproxEqual(Dist, fR) && ApproxEqual(normal, vmy));
+
+  Dist  = b1.DistanceToOut(pzero, vz);
+  valid = b1.Normal(pzero + Dist * vz, normal);
+  assert(ApproxEqual(Dist, fR) && ApproxEqual(normal, vz));
+
+  Dist  = b1.DistanceToOut(pzero, vmz);
+  valid = b1.Normal(pzero + Dist * vmz, normal);
+  assert(ApproxEqual(Dist, fR) && ApproxEqual(normal, vmz));
+
+  Dist  = b1.DistanceToOut(ponxside, vx);
+  valid = b1.Normal(ponxside + Dist * vx, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vx));
+
+  Dist  = b1.DistanceToOut(ponxside, vmx);
+  valid = b1.Normal(ponxside + Dist * vmx, normal);
+  assert(ApproxEqual(Dist, 2 * fR) && ApproxEqual(normal, vmx));
+
+  Dist  = b1.DistanceToOut(ponmxside, vx);
+  valid = b1.Normal(ponmxside + Dist * vx, normal);
+  assert(ApproxEqual(Dist, 2 * fR) && ApproxEqual(normal, vx));
+
+  Dist  = b1.DistanceToOut(ponmxside, vmx);
+  valid = b1.Normal(ponmxside + Dist * vmx, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vmx));
+
+  Dist  = b1.DistanceToOut(ponyside, vy);
+  valid = b1.Normal(ponyside + Dist * vy, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vy));
+
+  Dist  = b1.DistanceToOut(ponyside, vmy);
+  valid = b1.Normal(ponyside + Dist * vmy, normal);
+  assert(ApproxEqual(Dist, 2 * fR) && ApproxEqual(normal, vmy));
+
+  Dist  = b1.DistanceToOut(ponmyside, vy);
+  valid = b1.Normal(ponmyside + Dist * vy, normal);
+  assert(ApproxEqual(Dist, 2 * fR) && ApproxEqual(normal, vy));
+
+  Dist  = b1.DistanceToOut(ponmyside, vmy);
+  valid = b1.Normal(ponmyside + Dist * vmy, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vmy));
+
+  Dist  = b1.DistanceToOut(ponzside, vz);
+  valid = b1.Normal(ponzside + Dist * vz, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vz));
+
+  Dist  = b1.DistanceToOut(ponzside, vmz);
+  valid = b1.Normal(ponzside + Dist * vmz, normal);
+  assert(ApproxEqual(Dist, 2 * fR) && ApproxEqual(normal, vmz));
+
+  Dist  = b1.DistanceToOut(ponmzside, vz);
+  valid = b1.Normal(ponmzside + Dist * vz, normal);
+  assert(ApproxEqual(Dist, 2 * fR) && ApproxEqual(normal, vz));
+
+  Dist  = b1.DistanceToOut(ponmzside, vmz);
+  valid = b1.Normal(ponmzside + Dist * vmz, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vmz));
 
   // Check Inside
   assert(b1.Inside(pzero) == vecgeom::EInside::kInside);
@@ -173,28 +186,28 @@ bool TestOrb()
   assert(b2.Inside(Vec_t(0, 6, 0)) == vecgeom::EInside::kSurface);
   assert(b2.Inside(Vec_t(0, 0, 6)) == vecgeom::EInside::kSurface);
 
-  // SafetyFromInside(P)
-  Dist = b1.SafetyFromInside(pzero);
+  // SafetyToOut(P)
+  Dist = b1.SafetyToOut(pzero);
   assert(ApproxEqual(Dist, fR));
-  Dist = b1.SafetyFromInside(vx);
+  Dist = b1.SafetyToOut(vx);
   assert(ApproxEqual(Dist, fR - 1));
-  Dist = b1.SafetyFromInside(vy);
+  Dist = b1.SafetyToOut(vy);
   assert(ApproxEqual(Dist, fR - 1));
-  Dist = b1.SafetyFromInside(vz);
+  Dist = b1.SafetyToOut(vz);
   assert(ApproxEqual(Dist, fR - 1));
 
-  // SafetyFromOutside(P)
-  Dist = b1.SafetyFromOutside(pbigx);
+  // SafetyToIn(P)
+  Dist = b1.SafetyToIn(pbigx);
   assert(ApproxEqual(Dist, 100 - fR));
-  Dist = b1.SafetyFromOutside(pbigmx);
+  Dist = b1.SafetyToIn(pbigmx);
   assert(ApproxEqual(Dist, 100 - fR));
-  Dist = b1.SafetyFromOutside(pbigy);
+  Dist = b1.SafetyToIn(pbigy);
   assert(ApproxEqual(Dist, 100 - fR));
-  Dist = b1.SafetyFromOutside(pbigmy);
+  Dist = b1.SafetyToIn(pbigmy);
   assert(ApproxEqual(Dist, 100 - fR));
-  Dist = b1.SafetyFromOutside(pbigz);
+  Dist = b1.SafetyToIn(pbigz);
   assert(ApproxEqual(Dist, 100 - fR));
-  Dist = b1.SafetyFromOutside(pbigmz);
+  Dist = b1.SafetyToIn(pbigmz);
   assert(ApproxEqual(Dist, 100 - fR));
 
   // DistanceToIn(P,V)
@@ -211,27 +224,27 @@ bool TestOrb()
   Dist = b1.DistanceToIn(pbigmz, vz);
   assert(ApproxEqual(Dist, 100 - fR));
 
-  Dist                                = b1.DistanceToIn(pbigx, vxy);
-  if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
-  assert(ApproxEqual(Dist, UUtils::Infinity()));
+  Dist                         = b1.DistanceToIn(pbigx, vxy);
+  if (Dist >= kInfLength) Dist = kInfLength;
+  assert(ApproxEqual(Dist, kInfLength));
 
-  Dist                                = b1.DistanceToIn(pbigmx, vxy);
-  if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
-  assert(ApproxEqual(Dist, UUtils::Infinity()));
+  Dist                         = b1.DistanceToIn(pbigmx, vxy);
+  if (Dist >= kInfLength) Dist = kInfLength;
+  assert(ApproxEqual(Dist, kInfLength));
 
   Vec_t pJohnXZ(9, 0, 12);
-  Dist                                = b2.DistanceToIn(pJohnXZ, vxmz);
-  if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
-  assert(ApproxEqual(Dist, UUtils::Infinity()));
+  Dist                         = b2.DistanceToIn(pJohnXZ, vxmz);
+  if (Dist >= kInfLength) Dist = kInfLength;
+  assert(ApproxEqual(Dist, kInfLength));
 
   Vec_t pJohnXY(12, 9, 0);
-  Dist                                = b2.DistanceToIn(pJohnXY, vmxy);
-  if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
-  assert(ApproxEqual(Dist, UUtils::Infinity()));
+  Dist                         = b2.DistanceToIn(pJohnXY, vmxy);
+  if (Dist >= kInfLength) Dist = kInfLength;
+  assert(ApproxEqual(Dist, kInfLength));
 
-  Dist                                = b2.DistanceToIn(pJohnXY, vmx);
-  if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
-  assert(ApproxEqual(Dist, UUtils::Infinity()));
+  Dist                         = b2.DistanceToIn(pJohnXY, vmx);
+  if (Dist >= kInfLength) Dist = kInfLength;
+  assert(ApproxEqual(Dist, kInfLength));
 
   Vec_t pJohnX(8, 0, 0);
   Dist = b2.DistanceToIn(pJohnX, vmx);
@@ -241,21 +254,21 @@ bool TestOrb()
   Dist = b2.DistanceToIn(p2JohnXY, vmx);
   assert(ApproxEqual(Dist, 3.6833752));
 
-  Dist                                = b1.DistanceToIn(Vec_t(-25, -35, 0), vx);
-  if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
-  assert(ApproxEqual(Dist, UUtils::Infinity()));
+  Dist                         = b1.DistanceToIn(Vec_t(-25, -35, 0), vx);
+  if (Dist >= kInfLength) Dist = kInfLength;
+  assert(ApproxEqual(Dist, kInfLength));
 
-  Dist                                = b1.DistanceToIn(Vec_t(-25, -35, 0), vy);
-  if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
-  assert(ApproxEqual(Dist, UUtils::Infinity()));
+  Dist                         = b1.DistanceToIn(Vec_t(-25, -35, 0), vy);
+  if (Dist >= kInfLength) Dist = kInfLength;
+  assert(ApproxEqual(Dist, kInfLength));
 
   Vec_t pointO(-8.363470934547895, 2.754420966126675, -2.665617952433236);
   Vec_t dirO(-8.363470934547895 / 9.2, 2.754420966126675 / 9.2, -2.665617952433236 / 9.2);
-  Dist                                = b1.DistanceToIn(pointO, dirO);
-  if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
-  assert(ApproxEqual(Dist, UUtils::Infinity()));
+  Dist                         = b1.DistanceToIn(pointO, dirO);
+  if (Dist >= kInfLength) Dist = kInfLength;
+  assert(ApproxEqual(Dist, kInfLength));
 
-  Dist = b1.DistanceToOut(pointO, dirO, norm, convex);
+  Dist = b1.DistanceToOut(pointO, dirO);
   if (verbose) std::cout << "DistanceToOut is : " << Dist << std::endl;
   assert(Dist <= 0.);
 
@@ -265,7 +278,7 @@ bool TestOrb()
   assert(ApproxEqual(Dist, 0.2));
   if (verbose) std::cout << "DistanceToIn PODI is : " << Dist << std::endl;
 
-  Dist = b1.DistanceToOut(pointO, dirO, norm, convex);
+  Dist = b1.DistanceToOut(pointO, dirO);
   assert(Dist <= 0.);
   if (verbose) std::cout << "DistanceToOut PODI is : " << Dist << std::endl;
 
@@ -273,9 +286,9 @@ bool TestOrb()
   if (verbose) std::cout << "Testing point inside outer tolerance and directing out" << std::endl;
   Vec_t pointOTol(8.884242447222299, 0.134875592787852, -1.432495973274375);
   Vec_t dirOTol(8.884242447222299 / 9, 0.134875592787852 / 9, -1.432495973274375 / 9);
-  Dist                                = b1.DistanceToIn(pointOTol, dirOTol);
-  if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
-  assert(ApproxEqual(Dist, UUtils::Infinity()));
+  Dist                         = b1.DistanceToIn(pointOTol, dirOTol);
+  if (Dist >= kInfLength) Dist = kInfLength;
+  assert(ApproxEqual(Dist, kInfLength));
   if (verbose) std::cout << "DistanceToIn for point inside outer tolerance and directing out: " << Dist << std::endl;
 
   // Point inside outer tolerance and directing in
@@ -289,25 +302,25 @@ bool TestOrb()
   if (verbose) std::cout << "Testing point inside and directing OUT" << std::endl;
   Vec_t pointI(-3.618498437781364, 2.401810108299175, -6.718465394675017);
   Vec_t dirIO(-3.618498437781364 / 8, 2.401810108299175 / 8, -6.718465394675017 / 8);
-  Dist                                = b1.DistanceToIn(pointI, dirIO);
-  if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
-  // assert(ApproxEqual(Dist,UUtils::Infinity()));
+  Dist                         = b1.DistanceToIn(pointI, dirIO);
+  if (Dist >= kInfLength) Dist = kInfLength;
+  // assert(ApproxEqual(Dist,kInfLength));
   assert(Dist < 0.);
   if (verbose) std::cout << "DistanceToIn for point inside and directing OUT: " << Dist << std::endl;
 
-  Dist = b1.DistanceToOut(pointI, dirIO, norm, convex);
+  Dist = b1.DistanceToOut(pointI, dirIO);
   assert(ApproxEqual(Dist, 1));
   if (verbose) std::cout << "DistanceToOut for point inside and directing OUT: " << Dist << std::endl;
 
   // Point inside and directing in
   if (verbose) std::cout << "Testing point inside and directing IN" << std::endl;
   Vec_t dirII(3.618498437781364 / 8, -2.401810108299175 / 8, 6.718465394675017 / 8);
-  Dist                                = b1.DistanceToIn(pointI, dirII);
-  if (Dist >= UUtils::kInfinity) Dist = UUtils::Infinity();
-  // assert(ApproxEqual(Dist,UUtils::Infinity()));
+  Dist                         = b1.DistanceToIn(pointI, dirII);
+  if (Dist >= kInfLength) Dist = kInfLength;
+  // assert(ApproxEqual(Dist,kInfLength));
   assert(Dist < 0.);
 
-  Dist = b1.DistanceToOut(pointI, dirII, norm, convex);
+  Dist = b1.DistanceToOut(pointI, dirII);
   assert(ApproxEqual(Dist, 17));
 
   // Testing Surface point generated by shape tester with Random direction

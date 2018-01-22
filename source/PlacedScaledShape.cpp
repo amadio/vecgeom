@@ -42,14 +42,6 @@ TGeoShape const *PlacedScaledShape::ConvertToRoot() const
 }
 #endif
 
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const *PlacedScaledShape::ConvertToUSolids() const
-{
-  // No implementation in USolids
-  return 0;
-}
-#endif
-
 #ifdef VECGEOM_GEANT4
 G4VSolid const *PlacedScaledShape::ConvertToGeant4() const
 {

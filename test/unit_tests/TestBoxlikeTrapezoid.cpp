@@ -9,10 +9,6 @@
 #include "base/Vector3D.h"
 #include "volumes/Trapezoid.h"
 #include "ApproxEqual.h"
-#ifdef VECGEOM_USOLIDS
-#include "UTrap.hh"
-#include "UVector3.hh"
-#endif
 #include <cmath>
 
 template <class Trapezoid_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
@@ -331,12 +327,6 @@ bool TestTrapezoid()
 
 int main()
 {
-
-#ifdef VECGEOM_USOLIDS
-  assert(TestTrapezoid<UTrap>());
-  std::cout << "USolids UTrap passed\n";
-#endif
-
   assert(TestTrapezoid<vecgeom::SimpleTrapezoid>());
   std::cout << "VecGeom Trapezoid passed\n";
 

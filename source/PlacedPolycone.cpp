@@ -16,10 +16,6 @@
 #include "G4Polycone.hh"
 #endif
 
-#ifdef VECGEOM_USOLIDS
-#include "UPolycone.hh"
-#endif
-
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -48,23 +44,6 @@ TGeoShape const *PlacedPolycone::ConvertToRoot() const
     rootshape->DefineSection(i, z[i], rmin[i], rmax[i]);
 
   return rootshape;
-}
-#endif
-
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const *PlacedPolycone::ConvertToUSolids() const
-{
-  UnplacedPolycone const *unplaced = GetUnplacedVolume();
-
-  std::vector<double> rmin;
-  std::vector<double> rmax;
-  std::vector<double> z;
-  unplaced->ReconstructSectionArrays(z, rmin, rmax);
-
-  UPolycone *usolidshape = new UPolycone("", unplaced->GetStruct().fStartPhi, unplaced->GetStruct().fDeltaPhi, z.size(),
-                                         &z[0], &rmin[0], &rmax[0]);
-
-  return usolidshape;
 }
 #endif
 

@@ -13,6 +13,7 @@
 
 #define DELTA 0.0001
 
+using vecgeom::Vector3D;
 bool testingvecgeom = true;
 
 // Returns false if actual is within wanted+/- DELTA
@@ -24,7 +25,7 @@ bool OutRange(double actual, double wanted)
   return rng;
 }
 
-bool OutRange(UVector3 actual, UVector3 wanted)
+bool OutRange(Vector3D<double> actual, Vector3D<double> wanted)
 {
   bool rng = false;
   if (OutRange(actual.x(), wanted.x()) || OutRange(actual.y(), wanted.y()) || OutRange(actual.z(), wanted.z())) {
@@ -261,50 +262,49 @@ bool TestCons()
     std::cout << "c3.Inside() mismatch: Line " << __LINE__ << ", p=" << Vec_t(100, 0, 50) << ", enumInside=" << aux
               << "\n";
 
-  Vec_t normal;
   double p2 = 1. / std::sqrt(2.), p3 = 1. / std::sqrt(3.);
-  bool valid, convex;
+  bool valid;
 
-  valid = cn1.Normal(Vec_t(0., 50., 0.), normal);
-  if (OutRange(normal, Vec_t(p2, p2, 0)))
+  valid = cn1.Normal(Vec_t(0., 50., 0.), norm);
+  if (OutRange(norm, Vec_t(p2, p2, 0)))
     std::cout << "cn1.Normal() mismatch: Line " << __LINE__ << ", p=" << Vec_t(0, 50, 0) << ", valid=" << valid
-              << ", normal=" << normal << "\n";
-  assert(ApproxEqual(normal, Vec_t(p2, p2, 0.)) && valid);
-  valid = cn1.Normal(Vec_t(0., 45., 0.), normal);
-  if (OutRange(normal, Vec_t(p2, -p2, 0)))
+              << ", normal=" << norm << "\n";
+  assert(ApproxEqual(norm, Vec_t(p2, p2, 0.)) && valid);
+  valid = cn1.Normal(Vec_t(0., 45., 0.), norm);
+  if (OutRange(norm, Vec_t(p2, -p2, 0)))
     std::cout << "cn1.Normal() mismatch: Line " << __LINE__ << ", p=" << Vec_t(0, 45, 0) << ", valid=" << valid
-              << ", normal=" << normal << "\n";
-  assert(ApproxEqual(normal, Vec_t(p2, -p2, 0.)));
-  valid = cn1.Normal(Vec_t(0., 45., 50.), normal);
-  if (OutRange(normal, Vec_t(p3, -p3, p3)))
+              << ", normal=" << norm << "\n";
+  assert(ApproxEqual(norm, Vec_t(p2, -p2, 0.)));
+  valid = cn1.Normal(Vec_t(0., 45., 50.), norm);
+  if (OutRange(norm, Vec_t(p3, -p3, p3)))
     std::cout << "cn1.Normal() mismatch: Line " << __LINE__ << ", p=" << Vec_t(0, 45, 50) << ", valid=" << valid
-              << ", normal=" << normal << "\n";
-  assert(ApproxEqual(normal, Vec_t(p3, -p3, p3)));
-  valid = cn1.Normal(Vec_t(0., 45., -50.), normal);
-  if (OutRange(normal, Vec_t(p3, -p3, -p3)))
+              << ", normal=" << norm << "\n";
+  assert(ApproxEqual(norm, Vec_t(p3, -p3, p3)));
+  valid = cn1.Normal(Vec_t(0., 45., -50.), norm);
+  if (OutRange(norm, Vec_t(p3, -p3, -p3)))
     std::cout << "cn1.Normal() mismatch: Line " << __LINE__ << ", p=" << Vec_t(0, 45, -50) << ", valid=" << valid
-              << ", normal=" << normal << "\n";
-  assert(ApproxEqual(normal, Vec_t(p3, -p3, -p3)));
-  valid = cn1.Normal(Vec_t(-50., 0., -50.), normal);
-  if (OutRange(normal, Vec_t(-p3, -p3, -p3)))
+              << ", normal=" << norm << "\n";
+  assert(ApproxEqual(norm, Vec_t(p3, -p3, -p3)));
+  valid = cn1.Normal(Vec_t(-50., 0., -50.), norm);
+  if (OutRange(norm, Vec_t(-p3, -p3, -p3)))
     std::cout << "cn1.Normal() mismatch: Line " << __LINE__ << ", p=" << Vec_t(-50, 0, -50) << ", valid=" << valid
-              << ", normal=" << normal << "\n";
-  assert(ApproxEqual(normal, Vec_t(-p3, -p3, -p3)));
-  valid = cn1.Normal(Vec_t(-50., 0., 0.), normal);
-  if (OutRange(normal, Vec_t(-p2, -p2, 0)))
+              << ", normal=" << norm << "\n";
+  assert(ApproxEqual(norm, Vec_t(-p3, -p3, -p3)));
+  valid = cn1.Normal(Vec_t(-50., 0., 0.), norm);
+  if (OutRange(norm, Vec_t(-p2, -p2, 0)))
     std::cout << "cn1.Normal() mismatch: Line " << __LINE__ << ", p=" << Vec_t(-50, 0, 0) << ", valid=" << valid
-              << ", normal=" << normal << "\n";
-  assert(ApproxEqual(normal, Vec_t(-p2, -p2, 0.)));
-  valid = cn2.Normal(Vec_t(50., 0., 0.), normal);
-  if (OutRange(normal, Vec_t(p2, p2, 0)))
+              << ", normal=" << norm << "\n";
+  assert(ApproxEqual(norm, Vec_t(-p2, -p2, 0.)));
+  valid = cn2.Normal(Vec_t(50., 0., 0.), norm);
+  if (OutRange(norm, Vec_t(p2, p2, 0)))
     std::cout << "cn2.Normal() mismatch: Line " << __LINE__ << ", p=" << Vec_t(50, 0, 0) << ", valid=" << valid
-              << ", normal=" << normal << "\n";
-  assert(ApproxEqual(normal, Vec_t(p2, p2, 0.)));
-  valid = c6.Normal(Vec_t(0., 0., 50.), normal);
-  if (OutRange(normal, Vec_t(0, 0, 1)))
+              << ", normal=" << norm << "\n";
+  assert(ApproxEqual(norm, Vec_t(p2, p2, 0.)));
+  valid = c6.Normal(Vec_t(0., 0., 50.), norm);
+  if (OutRange(norm, Vec_t(0, 0, 1)))
     std::cout << "c6.Normal() mismatch: Line " << __LINE__ << ", p=" << Vec_t(0, 0, 50) << ", valid=" << valid
-              << ", normal=" << normal << "\n";
-  assert(ApproxEqual(normal, Vec_t(0., 0., 1.)));
+              << ", normal=" << norm << "\n";
+  assert(ApproxEqual(norm, Vec_t(0., 0., 1.)));
 
   valid = c1.Normal(ponplz, norm);
   if (OutRange(norm, Vec_t(0, 0, 1)))
@@ -357,245 +357,241 @@ bool TestCons()
   // safety
 
   double dist;
-  dist = c4.SafetyFromInside(ponphi1);
+  dist = c4.SafetyToOut(ponphi1);
   if (OutRange(dist, 0))
     std::cout << "c4.S2O() mismatch: Line " << __LINE__ << ", p=" << ponphi1 << ", dist=" << dist << "\n";
 
-  dist = c1.SafetyFromInside(ponphi1);
+  dist = c1.SafetyToOut(ponphi1);
   if (OutRange(dist, 10))
     std::cout << "c1.S2O() mismatch: Line " << __LINE__ << ", p=" << ponphi1 << ", dist=" << dist << "\n";
 
-  dist = c1.SafetyFromInside(pnearplz);
+  dist = c1.SafetyToOut(pnearplz);
   if (OutRange(dist, 5))
     std::cout << "c1.S2O() mismatch: Line " << __LINE__ << ", p=" << pnearplz << ", dist=" << dist << "\n";
 
-  dist = c1.SafetyFromInside(pnearmiz);
+  dist = c1.SafetyToOut(pnearmiz);
   if (OutRange(dist, 5))
     std::cout << "c1.S2O() mismatch: Line " << __LINE__ << ", p=" << pnearmiz << ", dist=" << dist << "\n";
 
-  dist = c1.SafetyFromInside(ponr1);
+  dist = c1.SafetyToOut(ponr1);
   if (OutRange(dist, 0))
     std::cout << "c1.S2O() mismatch: Line " << __LINE__ << ", p=" << ponr1 << ", dist=" << dist << "\n";
-  dist = c1.SafetyFromInside(ponr2);
+  dist = c1.SafetyToOut(ponr2);
   if (OutRange(dist, 0))
     std::cout << "c1.S2O() mismatch: Line " << __LINE__ << ", p=" << ponr2 << ", dist=" << dist << "\n";
 
-  dist = c6.SafetyFromInside(pzero);
+  dist = c6.SafetyToOut(pzero);
   if (OutRange(dist, 50))
     std::cout << "c6.S2O() mismatch: Line " << __LINE__ << ", p=" << pzero << ", dist=" << dist << "\n";
 
-  dist = c5.SafetyFromInside(Vec_t(0, -70, 0));
+  dist = c5.SafetyToOut(Vec_t(0, -70, 0));
   if (OutRange(dist, 0))
     std::cout << "c5.S2O() mismatch: Line " << __LINE__ << ", p=" << Vec_t(0, -70, 0) << ", dist=" << dist << "\n";
 
   // distToOut
 
-  dist = c4.DistanceToOut(pplx, vx, norm, convex);
-  if (OutRange(dist, 30) || OutRange(norm, vxmz) || (testingvecgeom == convex))
+  dist = c4.DistanceToOut(pplx, vx);
+  if (OutRange(dist, 30) || OutRange(norm, vxmz))
     std::cout << "c4.D2O() mismatch: Line " << __LINE__ << ", p=" << pplx << ", dir=" << vx << ", dist=" << dist << " "
-              << norm << ", convex=" << convex << "\n";
+              << norm << "\n";
 
-  dist = c2.DistanceToOut(pplx, vx, norm, convex);
-  if (OutRange(dist, 30) || OutRange(norm, vxmz) || (testingvecgeom == convex))
+  dist = c2.DistanceToOut(pplx, vx);
+  if (OutRange(dist, 30) || OutRange(norm, vxmz))
     std::cout << "c2.D2O() mismatch: Line " << __LINE__ << ", p=" << pplx << ", dir=" << vx << ", dist=" << dist << " "
-              << norm << ", convex=" << convex << "\n";
+              << norm << "\n";
 
-  dist = c4.DistanceToOut(pplx, vmx, norm, convex);
-  if (OutRange(dist, 70) || (testingvecgeom && convex))
+  dist = c4.DistanceToOut(pplx, vmx);
+  if (OutRange(dist, 70))
     std::cout << "c4.D2O() mismatch: Line " << __LINE__ << ", p=" << pplx << ", dir=" << vmx << ", dist=" << dist << " "
-              << norm << ", convex=" << convex << "\n";
+              << norm << "\n";
 
-  dist = c2.DistanceToOut(pplx, vmx, norm, convex);
-  if (OutRange(dist, 70) || (testingvecgeom && convex))
+  dist = c2.DistanceToOut(pplx, vmx);
+  if (OutRange(dist, 70))
     std::cout << "c2.D2O() mismatch: Line " << __LINE__ << ", p=" << pplx << ", dir=" << vmx << ", dist=" << dist << " "
-              << norm << ", convex=" << convex << "\n";
+              << norm << "\n";
 
-  dist = c3.DistanceToOut(ponphi1, vmy, norm, convex);
-  if (OutRange(dist, 0) || OutRange(norm, vnphi1) || (testingvecgeom == convex))
+  dist = c3.DistanceToOut(ponphi1, vmy);
+  if (OutRange(dist, 0) || OutRange(norm, vnphi1))
     std::cout << "c3.D2O() mismatch: Line " << __LINE__ << ", PhiS1 p=" << ponphi1 << ", dir=" << vmy
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
-  dist = c3.DistanceToOut(ponphi1, vy, norm, convex);
+              << ", dist=" << dist << " normal=" << norm << "\n";
+  dist = c3.DistanceToOut(ponphi1, vy);
   // norm=pNorm->unit();
-  if (OutRange(dist, 2 * 60 * std::sin(VECGEOM_NAMESPACE::kPi / 6)) || OutRange(norm, vnphi2) ||
-      (testingvecgeom == convex))
+  if (OutRange(dist, 2 * 60 * std::sin(VECGEOM_NAMESPACE::kPi / 6)) || OutRange(norm, vnphi2))
     std::cout << "c3.D2O() mismatch: Line " << __LINE__ << ", PhiS2 p=" << ponphi1 << ", dir=" << vy
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " " << norm << "\n";
 
-  dist = c3.DistanceToOut(ponphi2, vy, norm, convex);
-  if (OutRange(dist, 0) || OutRange(norm, vnphi2) || (testingvecgeom == convex))
+  dist = c3.DistanceToOut(ponphi2, vy);
+  if (OutRange(dist, 0) || OutRange(norm, vnphi2))
     std::cout << "c3.D2O() mismatch: Line " << __LINE__ << ", PhiE1 p=" << ponphi2 << ", dir=" << vy
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " " << norm << "\n";
 
-  dist = c3.DistanceToOut(ponphi2, vmy, norm, convex);
-  if (OutRange(dist, 2 * 60 * std::sin(VECGEOM_NAMESPACE::kPi / 6)) || OutRange(norm, vnphi1) ||
-      (testingvecgeom == convex))
+  dist = c3.DistanceToOut(ponphi2, vmy);
+  if (OutRange(dist, 2 * 60 * std::sin(VECGEOM_NAMESPACE::kPi / 6)) || OutRange(norm, vnphi1))
     std::cout << "c3.D2O() mismatch: Line " << __LINE__ << ", PhiE3 p=" << ponphi2 << ", dir=" << vmy
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " " << norm << "\n";
 
-  dist = c6.DistanceToOut(ponplz, vmz, norm, convex);
-  if (OutRange(dist, 100) || OutRange(norm, vmz) || (testingvecgeom == convex))
+  dist = c6.DistanceToOut(ponplz, vmz);
+  if (OutRange(dist, 100) || OutRange(norm, vmz))
     std::cout << "c6.D2O() mismatch: Line " << __LINE__ << ", Top Z1 p=" << ponplz << ", dir=" << vmz
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
-  dist = c6.DistanceToOut(ponplz, vz, norm, convex);
-  if (OutRange(dist, 0) || OutRange(norm, vz) || (testingvecgeom == convex))
+              << ", dist=" << dist << " " << norm << "\n";
+  dist = c6.DistanceToOut(ponplz, vz);
+  if (OutRange(dist, 0) || OutRange(norm, vz))
     std::cout << "c6.D2O() mismatch: Line " << __LINE__ << ", Top Z2 p=" << ponplz << ", dir=" << vz
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " " << norm << "\n";
 
-  dist = c6.DistanceToOut(ponmiz, vz, norm, convex);
-  if (OutRange(dist, 100) || OutRange(norm, vz) || (testingvecgeom == convex))
+  dist = c6.DistanceToOut(ponmiz, vz);
+  if (OutRange(dist, 100) || OutRange(norm, vz))
     std::cout << "c6.D2O() mismatch: Line " << __LINE__ << ", Lower Z1 p=" << ponmiz << ", dir=" << vz
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " " << norm << "\n";
 
-  dist = c6.DistanceToOut(ponmiz, vmz, norm, convex);
-  if (OutRange(dist, 0) || OutRange(norm, vmz) || (testingvecgeom == convex))
+  dist = c6.DistanceToOut(ponmiz, vmz);
+  if (OutRange(dist, 0) || OutRange(norm, vmz))
     std::cout << "c6.D2O() mismatch: Line " << __LINE__ << ", Lower z2 p=" << ponmiz << ", dir=" << vmz
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " " << norm << "\n";
 
-  // Test case for rmax root bug -- convex must be false
-  dist        = c7.DistanceToOut(ponr2, vmx, norm, convex);
+  // Test case for rmax root bug
+  dist        = c7.DistanceToOut(ponr2, vmx);
   double aux1 = 100. / std::sqrt(2.) - std::sqrt(95. * 95. - 100. * 100. / 2.);
-  if (OutRange(dist, aux1) || convex)
+  if (OutRange(dist, aux1))
     std::cout << "c7.D2O() mismatch: Line " << __LINE__ << ", rmax root bug p=" << ponr2 << ", dir=" << vmx
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " " << norm << "\n";
 
   // Parallel radii test cases
-  dist = c8a.DistanceToOut(pparr2, vparr, norm, convex);
-  if (OutRange(dist, 100. * std::sqrt(5.) / 2.) || (testingvecgeom == convex) || OutRange(norm, vz))
+  dist = c8a.DistanceToOut(pparr2, vparr);
+  if (OutRange(dist, 100. * std::sqrt(5.) / 2.) || OutRange(norm, vz))
     std::cout << "c8a.D2O() mismatch: Line " << __LINE__ << ", solid parr2a p=" << pparr2 << ", dir=" << vparr
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " " << norm << "\n";
 
-  dist = c8a.DistanceToOut(pparr2, -vparr, norm, convex);
-  if (OutRange(dist, 0) || (testingvecgeom == convex) || OutRange(norm, vmz))
+  dist = c8a.DistanceToOut(pparr2, -vparr);
+  if (OutRange(dist, 0) || OutRange(norm, vmz))
     std::cout << "c8a.D2O() mismatch: Line " << __LINE__ << ", solid parr2b p=" << pparr2 << ", dir=" << -vparr
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " " << norm << "\n";
 
-  dist = c8a.DistanceToOut(pparr2, vz, norm, convex);
-  if (OutRange(dist, 100) || (testingvecgeom == convex) || OutRange(norm, vz))
+  dist = c8a.DistanceToOut(pparr2, vz);
+  if (OutRange(dist, 100) || OutRange(norm, vz))
     std::cout << "c8a.D2O() mismatch: Line " << __LINE__ << ", solid parr2c p=" << pparr2 << ", dir=" << vz
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " normal=" << norm << "\n";
 
-  dist = c8a.DistanceToOut(pparr2, vmz, norm, convex);
-  if (OutRange(dist, 0) || (testingvecgeom == convex) || OutRange(norm, vmz))
+  dist = c8a.DistanceToOut(pparr2, vmz);
+  if (OutRange(dist, 0) || OutRange(norm, vmz))
     std::cout << "c8a.D2O() mismatch: Line " << __LINE__ << ", solid parr2d p=" << pparr2 << ", dir=" << vmz
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " normal=" << norm << "\n";
 
-  dist = c8a.DistanceToOut(pparr3, vparr, norm, convex);
-  if (OutRange(dist, 0) || (testingvecgeom == convex) || OutRange(norm, vz))
+  dist = c8a.DistanceToOut(pparr3, vparr);
+  if (OutRange(dist, 0) || OutRange(norm, vz))
     std::cout << "c8a.D2O() mismatch: Line " << __LINE__ << ", solid parr3a p=" << pparr3 << ", dir=" << vparr
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " normal=" << norm << "\n";
 
-  dist = c8a.DistanceToOut(pparr3, -vparr, norm, convex);
-  if (OutRange(dist, 100 * std::sqrt(5.) / 2.) || (testingvecgeom == convex) || OutRange(norm, vmz))
+  dist = c8a.DistanceToOut(pparr3, -vparr);
+  if (OutRange(dist, 100 * std::sqrt(5.) / 2.) || OutRange(norm, vmz))
     std::cout << "c8a.D2O() mismatch: Line " << __LINE__ << ", solid parr3b p=" << pparr3 << ", dir=" << -vparr
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " normal=" << norm << "\n";
 
-  dist = c8a.DistanceToOut(pparr3, vz, norm, convex);
-  if (OutRange(dist, 0) || (testingvecgeom == convex) || OutRange(norm, vz))
+  dist = c8a.DistanceToOut(pparr3, vz);
+  if (OutRange(dist, 0) || OutRange(norm, vz))
     std::cout << "c8a.D2O() mismatch: Line " << __LINE__ << ", solid parr3c p=" << pparr3 << ", dir=" << vz
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " normal=" << norm << "\n";
 
-  dist = c8a.DistanceToOut(pparr3, vmz, norm, convex);
-  if (OutRange(dist, 50) || (testingvecgeom == convex) ||
-      OutRange(norm, Vec_t(0, 2. / std::sqrt(5.0), -1. / std::sqrt(5.0))))
+  dist = c8a.DistanceToOut(pparr3, vmz);
+  if (OutRange(dist, 50) || OutRange(norm, Vec_t(0, 2. / std::sqrt(5.0), -1. / std::sqrt(5.0))))
     std::cout << "c8a.D2O() mismatch: Line " << __LINE__ << ", p=" << pparr3 << ", dir=" << vmz << ", dist=" << dist
-              << " " << norm << ", convex=" << convex << "\n";
+              << " normal=" << norm << "\n";
 
-  dist = c8b.DistanceToOut(pparr2, vparr, norm, convex);
-  if (OutRange(dist, 100 * std::sqrt(5.) / 2.) || (testingvecgeom == convex) || OutRange(norm, vz))
+  dist = c8b.DistanceToOut(pparr2, vparr);
+  if (OutRange(dist, 100 * std::sqrt(5.) / 2.) || OutRange(norm, vz))
     std::cout << "c8b.D2O() mismatch: Line " << __LINE__ << ", hollow parr2a p=" << pparr2 << ", dir=" << vparr
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " normal=" << norm << "\n";
 
-  dist = c8b.DistanceToOut(pparr2, -vparr, norm, convex);
-  if (OutRange(dist, 0) || (testingvecgeom == convex) || OutRange(norm, vmz))
+  dist = c8b.DistanceToOut(pparr2, -vparr);
+  if (OutRange(dist, 0) || OutRange(norm, vmz))
     std::cout << "c8b.D2O() mismatch: Line " << __LINE__ << ", hollow parr2b p=" << pparr2 << ", dir=" << -vparr
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " normal=" << norm << "\n";
 
-  dist = c8b.DistanceToOut(pparr2, vz, norm, convex); // convex must be false
-  if (OutRange(dist, 50) || convex)
+  dist = c8b.DistanceToOut(pparr2, vz);
+  if (OutRange(dist, 50))
     std::cout << "c8b.D2O() mismatch: Line " << __LINE__ << ", hollow parr2c p=" << pparr2 << ", dir=" << vz
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " normal=" << norm << "\n";
 
-  dist = c8b.DistanceToOut(pparr2, vmz, norm, convex);
-  if (OutRange(dist, 0) || (testingvecgeom == convex) || OutRange(norm, vmz))
+  dist = c8b.DistanceToOut(pparr2, vmz);
+  if (OutRange(dist, 0) || OutRange(norm, vmz))
     std::cout << "c8b.D2O() mismatch: Line " << __LINE__ << ", hollow parr2d p=" << pparr2 << ", dir=" << vmz
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " normal=" << norm << "\n";
 
-  dist = c8b.DistanceToOut(pparr3, vparr, norm, convex);
-  if (OutRange(dist, 0) || (testingvecgeom == convex) || OutRange(norm, vz))
+  dist = c8b.DistanceToOut(pparr3, vparr);
+  if (OutRange(dist, 0) || OutRange(norm, vz))
     std::cout << "c8b.D2O() mismatch: Line " << __LINE__ << ", hollow parr3 p=" << pparr3 << ", dir=" << vparr
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " normal=" << norm << "\n";
 
-  dist = c8b.DistanceToOut(pparr3, -vparr, norm, convex);
-  if (OutRange(dist, 100. * std::sqrt(5.) / 2.) || (testingvecgeom == convex) || OutRange(norm, vmz))
+  dist = c8b.DistanceToOut(pparr3, -vparr);
+  if (OutRange(dist, 100. * std::sqrt(5.) / 2.) || OutRange(norm, vmz))
     std::cout << "c8b.D2O() mismatch: Line " << __LINE__ << ", hollow parr3b p=" << pparr3 << ", dir=" << -vparr
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " normal=" << norm << "\n";
 
-  dist = c8b.DistanceToOut(pparr3, vz, norm, convex);
-  if (OutRange(dist, 0) || (testingvecgeom == convex) || OutRange(norm, vz))
+  dist = c8b.DistanceToOut(pparr3, vz);
+  if (OutRange(dist, 0) || OutRange(norm, vz))
     std::cout << "c8b.D2O() mismatch: Line " << __LINE__ << ", hollow parr3c p=" << pparr3 << ", dir=" << vz
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " normal=" << norm << "\n";
 
-  dist = c8b.DistanceToOut(pparr3, vmz, norm, convex);
-  if (OutRange(dist, 50) || (testingvecgeom == convex) ||
-      OutRange(norm, Vec_t(0, 2. / std::sqrt(5.), -1.0 / std::sqrt(5.))))
+  dist = c8b.DistanceToOut(pparr3, vmz);
+  if (OutRange(dist, 50) || OutRange(norm, Vec_t(0, 2. / std::sqrt(5.), -1.0 / std::sqrt(5.))))
     std::cout << "c8b.D2O() mismatch: Line " << __LINE__ << ", hollow parr3d p=" << pparr3 << ", dir=" << vmz
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " normal=" << norm << "\n";
 
-  dist = c9.DistanceToOut(Vec_t(1e3 * tolerance, 0, 50), vx2mz, norm, convex);
+  dist = c9.DistanceToOut(Vec_t(1e3 * tolerance, 0, 50), vx2mz);
   if (testingvecgeom) {
     if (OutRange(dist, 111.8033988))
       std::cout << "c9.D2Out() mismatch: Line " << __LINE__ << ", p=(1e3*tolerance,0,50), dir=" << vx2mz
-                << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+                << ", dist=" << dist << " normal=" << norm << "\n";
   } else {
-    if (OutRange(dist, 111.8033988) || (testingvecgeom == convex) || OutRange(norm, Vec_t(0, 0, -1.0)))
+    if (OutRange(dist, 111.8033988) || OutRange(norm, Vec_t(0, 0, -1.0)))
       std::cout << "c9.D2Out() mismatch: Line " << __LINE__ << ", p=(1e3*tolerance,0,50), dir=" << vx2mz
-                << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+                << ", dist=" << dist << " normal=" << norm << "\n";
   }
-  dist = c9.DistanceToOut(Vec_t(5, 0, 50), vx2mz, norm, convex);
-  if (OutRange(dist, 111.8033988) || (testingvecgeom == convex) || OutRange(norm, Vec_t(0, 0, -1.0)))
+  dist = c9.DistanceToOut(Vec_t(5, 0, 50), vx2mz);
+  if (OutRange(dist, 111.8033988) || OutRange(norm, Vec_t(0, 0, -1.0)))
     std::cout << "c9.D2O() mismatch: Line " << __LINE__ << ", p=" << Vec_t(5, 0, 50) << ", dir=" << vx2mz
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " normal=" << norm << "\n";
 
-  dist = c9.DistanceToOut(Vec_t(10, 0, 50), vx2mz, norm, convex);
+  dist = c9.DistanceToOut(Vec_t(10, 0, 50), vx2mz);
   if (testingvecgeom) {
     if (OutRange(dist, 111.8033988))
-      std::cout << "c9.D2O() mismatch: Line " << __LINE__ << ", p=(10,0,50), dir=" << vx2mz << ", dist=" << dist << " "
-                << norm << ", convex=" << convex << "\n";
+      std::cout << "c9.D2O() mismatch: Line " << __LINE__ << ", p=(10,0,50), dir=" << vx2mz << ", dist=" << dist
+                << " normal=" << norm << "\n";
   } else {
-    if (OutRange(dist, 111.8033988) || (testingvecgeom == convex) || OutRange(norm, Vec_t(0, 0, -1.0)))
-      std::cout << "c9.D2O() mismatch: Line " << __LINE__ << ", p=(10,0,50), dir=" << vx2mz << ", dist=" << dist << " "
-                << norm << ", convex=" << convex << "\n";
+    if (OutRange(dist, 111.8033988) || OutRange(norm, Vec_t(0, 0, -1.0)))
+      std::cout << "c9.D2O() mismatch: Line " << __LINE__ << ", p=(10,0,50), dir=" << vx2mz << ", dist=" << dist
+                << " normal=" << norm << "\n";
   }
 
   Vec_t point = {0.28628920024909, -0.43438111004815, -2949.0};
   Vec_t dir   = {6.0886686196674e-05, -9.2382200635766e-05, 0.99999999387917};
-  dist        = cms.DistanceToOut(point, dir, norm, convex);
+  dist        = cms.DistanceToOut(point, dir);
   if (OutRange(dist, 5898.0))
     std::cout << "cms.D2O() mismatch: Line " << __LINE__ << ", p=" << point << ", dir=" << dir << ", dist=" << dist
-              << " " << norm << ", convex=" << convex << "\n";
+              << " normal=" << norm << "\n";
 
   point = Vec_t(0.28628920024909, -0.43438111004815, -2949.0 + tolerance * 0.25);
   dir   = Vec_t(6.0886686196674e-05, -9.2382200635766e-05, 0.99999999387917);
-  dist  = cms.DistanceToOut(point, dir, norm, convex);
+  dist  = cms.DistanceToOut(point, dir);
   if (OutRange(dist, 5898.0))
     std::cout << "cms.D2O() mismatch: Line " << __LINE__ << ", p=" << point << ", dir=" << dir << ", dist=" << dist
-              << " " << norm << ", convex=" << convex << "\n";
+              << " normal=" << norm << "\n";
 
   point = Vec_t(0.28628920024909, -0.43438111004815, -2949.0 - tolerance * 0.25);
   dir   = Vec_t(6.0886686196674e-05, -9.2382200635766e-05, 0.99999999387917);
-  dist  = cms.DistanceToOut(point, dir, norm, convex);
+  dist  = cms.DistanceToOut(point, dir);
   if (OutRange(dist, 5898.0))
     std::cout << "cms.D2O() mismatch: Line " << __LINE__ << ", p=" << point << ", dir=" << dir << ", dist=" << dist
-              << " " << norm << ", convex=" << convex << "\n";
+              << " " << norm << "\n";
 
   point = Vec_t(-344.13684353113, 258.98049377272, -158.20772167926);
   dir   = Vec_t(-0.30372024336672, -0.5581146924652, 0.77218003329776);
-  dist  = cms2.DistanceToOut(point, dir, norm, convex);
+  dist  = cms2.DistanceToOut(point, dir);
   if (OutRange(dist, 0.))
     std::cout << "cms.D2O() mismatch: Line " << __LINE__ << ", p=" << point << ", dir=" << dir << ", dist=" << dist
-              << " " << norm << ", convex=" << convex << "\n";
+              << " " << norm << "\n";
 
-  dist = ctest10.DistanceToOut(pct10e2, d1, norm, convex);
+  dist = ctest10.DistanceToOut(pct10e2, d1);
   // if (OutRange(dist,111.8033988)||
   //     convex) //||
   //        OutRange(norm,Vec_t(0,0,-1.0))) this is false!
@@ -604,7 +600,7 @@ bool TestCons()
     std::cout << "ctest10.Inside() mismatch: Line " << __LINE__ << ", p=" << pct10e2 + dist * d1 << ", p is on "
               << ctest10.Inside(pct10e2) << " pct10e2=" << pct10e2 << " norm=" << norm << "\n";
 
-  dist = ctest10.DistanceToOut(pct10e3, d1, norm, convex);
+  dist = ctest10.DistanceToOut(pct10e3, d1);
   // norm=pNorm->unit();
   // if (OutRange(dist,111.8033988)||
   //     convex||
@@ -618,31 +614,31 @@ bool TestCons()
 
   // std::cout <<"Mismatch: Line "<< __LINE__ <<", Testing Cone_t::DistanceToIn(p) ...\n";
 
-  dist = c1.SafetyFromOutside(pzero);
+  dist = c1.SafetyToIn(pzero);
   if (OutRange(dist, 50))
     std::cout << "S2I() mismatch: Line " << __LINE__ << ", p=" << pzero << ", dist=A " << dist << "\n";
 
-  dist = c1.SafetyFromOutside(pplx);
+  dist = c1.SafetyToIn(pplx);
   if (OutRange(dist, 20))
     std::cout << "S2I() mismatch: Line " << __LINE__ << ", p=" << pzero << ", dist=B " << dist << "\n";
 
-  dist = c1.SafetyFromOutside(pply);
+  dist = c1.SafetyToIn(pply);
   if (OutRange(dist, 20))
     std::cout << "S2I() mismatch: Line " << __LINE__ << ", p=" << pzero << ", dist=C " << dist << "\n";
 
-  dist = c4.SafetyFromOutside(pply);
+  dist = c4.SafetyToIn(pply);
   if (OutRange(dist, 120 * std::sin(VECGEOM_NAMESPACE::kPi / 3)))
     std::cout << "S2I() mismatch: Line " << __LINE__ << ", p=" << pzero << ", dist=D " << dist << "\n";
 
-  dist = c4.SafetyFromOutside(pmiy);
+  dist = c4.SafetyToIn(pmiy);
   if (OutRange(dist, 120 * std::sin(VECGEOM_NAMESPACE::kPi / 3)))
     std::cout << "S2I() mismatch: Line " << __LINE__ << ", p=" << pzero << ", dist=D " << dist << "\n";
 
-  dist = c1.SafetyFromOutside(pplz);
+  dist = c1.SafetyToIn(pplz);
   if (OutRange(dist, 70))
     std::cout << "S2I() mismatch: Line " << __LINE__ << ", p=" << pzero << ", dist=E " << dist << "\n";
   // Check with both rmins=0
-  dist = c5.SafetyFromOutside(pplx);
+  dist = c5.SafetyToIn(pplx);
   if (OutRange(dist, 20. / std::sqrt(2.)))
     std::cout << "S2I() mismatch: Line " << __LINE__ << ", p=" << pzero << ", dist=F " << dist << "\n";
 
@@ -957,10 +953,10 @@ bool TestCons()
   if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", ctest10.DistanceToIn(alex1P,alex1V) = " << dist << "\n";
 
-  dist = ctest10.DistanceToOut(alex1P, alex1V, norm, convex);
+  dist = ctest10.DistanceToOut(alex1P, alex1V);
   if (OutRange(dist, 0))
     std::cout << "ctest10.D2O() mismatch: Line " << __LINE__ << ", p=" << alex1P << ", dir=" << alex1V
-              << ", dist=" << dist << " " << norm << ", convex=" << convex << "\n";
+              << ", dist=" << dist << " " << norm << "\n";
 
   Vec_t alex2P(127.0075852717127, -514.1050841937065, 69.47104834263656);
   Vec_t alex2V(0.1277616879490939, 0.4093610465777845, 0.9033828007202369);
@@ -981,7 +977,7 @@ bool TestCons()
   y          = -809.1328836;
   z          = 13210.2270 - (12800.5 + 274.75);
   point      = Vec_t(x, y, z);
-  dist       = testc.DistanceToOut(point, dir, norm, convex);
+  dist       = testc.DistanceToOut(point, dir);
   Vec_t newp = point + dist * dir;
   // std::cout<<"CMS problem: DistOut has to be small="<<testc.DistanceToOut(point,dir,norm,convex)<<"\n";
   // std::cout<<"CMS problem: DistInNew has to be kInfLength="<<testc.DistanceToIn(newp,dir)<<"\n";
@@ -1010,41 +1006,48 @@ bool TestCons()
 
   // Check Surface Normal
 
-  valid = t1.Normal(ponxside, normal);
-  assert(ApproxEqual(normal, vx));
+  valid = t1.Normal(ponxside, norm);
+  assert(ApproxEqual(norm, vx));
 
-  // SafetyFromInside(P)
-  Dist = t1.SafetyFromInside(pzero);
+  // SafetyToOut(P)
+  Dist = t1.SafetyToOut(pzero);
   assert(ApproxEqual(Dist, 50));
 
   // DistanceToOut(P,V)
-  Dist = t1.DistanceToOut(pzero, vx, norm, convex);
-  assert(ApproxEqual(Dist, 50) && ApproxEqual(norm, vx) && (testingvecgeom || convex));
-  Dist = t1.DistanceToOut(pzero, vmx, norm, convex);
-  assert(ApproxEqual(Dist, 50) && ApproxEqual(norm, vmx) && (testingvecgeom || convex));
-  Dist = t1.DistanceToOut(pzero, vy, norm, convex);
-  assert(ApproxEqual(Dist, 50) && ApproxEqual(norm, vy) && (testingvecgeom || convex));
-  Dist = t1.DistanceToOut(pzero, vmy, norm, convex);
-  assert(ApproxEqual(Dist, 50) && ApproxEqual(norm, vmy) && (testingvecgeom || convex));
-  Dist = t1.DistanceToOut(pzero, vz, norm, convex);
-  assert(ApproxEqual(Dist, 50) && ApproxEqual(norm, vz) && (testingvecgeom || convex));
-  Dist = t1.DistanceToOut(pzero, vmz, norm, convex);
-  assert(ApproxEqual(Dist, 50) && ApproxEqual(norm, vmz) && (testingvecgeom || convex));
-  Dist = t1.DistanceToOut(pzero, vxy, norm, convex);
-  assert(ApproxEqual(Dist, 50) && ApproxEqual(norm, vxy) && (testingvecgeom || convex));
+  Dist  = t1.DistanceToOut(pzero, vx);
+  valid = t1.Normal(pzero + Dist * vx, norm);
+  assert(ApproxEqual(Dist, 50) && ApproxEqual(norm, vx));
+  Dist  = t1.DistanceToOut(pzero, vmx);
+  valid = t1.Normal(pzero + Dist * vmx, norm);
+  assert(ApproxEqual(Dist, 50) && ApproxEqual(norm, vmx));
+  Dist  = t1.DistanceToOut(pzero, vy);
+  valid = t1.Normal(pzero + Dist * vy, norm);
+  assert(ApproxEqual(Dist, 50) && ApproxEqual(norm, vy));
+  Dist  = t1.DistanceToOut(pzero, vmy);
+  valid = t1.Normal(pzero + Dist * vmy, norm);
+  assert(ApproxEqual(Dist, 50) && ApproxEqual(norm, vmy));
+  Dist  = t1.DistanceToOut(pzero, vz);
+  valid = t1.Normal(pzero + Dist * vz, norm);
+  assert(ApproxEqual(Dist, 50) && ApproxEqual(norm, vz));
+  Dist  = t1.DistanceToOut(pzero, vmz);
+  valid = t1.Normal(pzero + Dist * vmz, norm);
+  assert(ApproxEqual(Dist, 50) && ApproxEqual(norm, vmz));
+  Dist  = t1.DistanceToOut(pzero, vxy);
+  valid = t1.Normal(pzero + Dist * vxy, norm);
+  assert(ApproxEqual(Dist, 50) && ApproxEqual(norm, vxy));
 
-  // SafetyFromOutside(P)
-  Dist = t1.SafetyFromOutside(pbigx);
+  // SafetyToIn(P)
+  Dist = t1.SafetyToIn(pbigx);
   assert(ApproxEqual(Dist, 50));
-  Dist = t1.SafetyFromOutside(pbigmx);
+  Dist = t1.SafetyToIn(pbigmx);
   assert(ApproxEqual(Dist, 50));
-  Dist = t1.SafetyFromOutside(pbigy);
+  Dist = t1.SafetyToIn(pbigy);
   assert(ApproxEqual(Dist, 50));
-  Dist = t1.SafetyFromOutside(pbigmy);
+  Dist = t1.SafetyToIn(pbigmy);
   assert(ApproxEqual(Dist, 50));
-  Dist = t1.SafetyFromOutside(pbigz);
+  Dist = t1.SafetyToIn(pbigz);
   assert(ApproxEqual(Dist, 50));
-  Dist = t1.SafetyFromOutside(pbigmz);
+  Dist = t1.SafetyToIn(pbigmz);
   assert(ApproxEqual(Dist, 50));
 
   // DistanceToIn(P,V)
@@ -1070,7 +1073,7 @@ bool TestCons()
   // assert(ApproxEqual(Dist, Constants::kInfLength));
 
   Dist = test10.DistanceToOut(Vec_t(19.218716967888, 5.5354239324172, -100.0),
-                              Vec_t(-0.25644483536346, -0.073799216676426, 0.96373737191901), norm, convex);
+                              Vec_t(-0.25644483536346, -0.073799216676426, 0.96373737191901));
   // std::cout<<"D2O() mismatch: Line "<< __LINE__ <<", test10::DistToOut ="<<Dist<<"\n";
   assert(ApproxEqual(Dist, 0));
 

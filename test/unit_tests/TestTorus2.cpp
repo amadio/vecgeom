@@ -26,9 +26,9 @@ bool testTorus()
   double z;
 
   double Dist, dist, vol, volCheck;
-  VUSolid::EnumInside side;
-  Vec_t normal, norm;
-  bool convex, valid;
+  vecgeom::EnumInside side;
+  Vec_t normal;
+  bool valid;
 
   double tolerance = 1e-9;
 
@@ -82,7 +82,7 @@ bool testTorus()
   Vec_t temp1         = Vec_t(-0.646752, -0.762700, -0.000012);
   temp1               = temp1 / (temp1.Mag());
 
-  // std::cout << "Dout=" << cmsEECool3->DistanceToOut(Vec_t(1230.993171, 1078.075896, -2.947036), temp1, norm, convex)
+  // std::cout << "Dout=" << cmsEECool3->DistanceToOut(Vec_t(1230.993171, 1078.075896, -2.947036), temp1)
   //          << std::endl; //: inf / inf / inf / 1.57856
   // std::cout<<"In="<<cmsEECool3->Inside(Vec_t(1230.993171, 1078.075896, -2.947036))<<"
   // Rtor="<<std::sqrt(1230.99*1230.99+1078.07*1078.07)<<std::endl;
@@ -158,66 +158,71 @@ bool testTorus()
   valid = t2.Normal(Vec_t(0, 20, 0), normal);
   assert(ApproxEqual(normal, vmx));
 
-  // SafetyFromInside(P)
-  Dist = t1.SafetyFromInside(ponrmin);
+  // SafetyToOut(P)
+  Dist = t1.SafetyToOut(ponrmin);
   assert(ApproxEqual(Dist, 80));
-  Dist = t1.SafetyFromInside(ponrmax);
+  Dist = t1.SafetyToOut(ponrmax);
   assert(ApproxEqual(Dist, 0));
   // later: why it was introduced, while they are outside (see above)
-  Dist = t2.SafetyFromInside(Vec_t(20, 0, 0));
+  Dist = t2.SafetyToOut(Vec_t(20, 0, 0));
   assert(ApproxEqual(Dist, 0));
-  Dist = t2.SafetyFromInside(Vec_t(0, 20, 0));
+  Dist = t2.SafetyToOut(Vec_t(0, 20, 0));
   assert(ApproxEqual(Dist, 0));
 
   // DistanceToOut(P,V)
-  Dist = t1.DistanceToOut(ponrmax, vx, norm, convex);
+  Dist = t1.DistanceToOut(ponrmax, vx);
   // std::cout << "t1.DistanceToOut(p,vx...) = " << Dist << " norm=" << norm << std::endl;
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vx));
+  valid = t1.Normal(ponrmax + Dist * vx, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vx));
 
-  Dist = t1.DistanceToOut(Vec_t(130, 0, 0.0), vx, norm, convex);
-  // Dist=t1.DistanceToOut(Vec_t(130,0.00001,0.00001),Vec_t(1,0.001,0.001).Unit(),norm,convex);
+  Vec_t ptest = Vec_t(130, 0, 0);
+  Dist        = t1.DistanceToOut(ptest, vx);
+  // Dist=t1.DistanceToOut(Vec_t(130,0.00001,0.00001),Vec_t(1,0.001,0.001).Unit(),normal,convex);
   // std::cout << "t1.DistanceToOut(ponphi1,vz,...) = " << Dist << " n=" << norm << std::endl;
-  assert(ApproxEqual(Dist, 60) && ApproxEqual(norm, vx));
+  valid = t1.Normal(ptest + Dist * vx, normal);
+  assert(ApproxEqual(Dist, 60) && ApproxEqual(normal, vx));
 
-  Dist = t1.DistanceToOut(ponrmin, vy, norm, convex);
-  assert(ApproxEqual(Dist, 80) && ApproxEqual(norm, vy));
-  Dist = t1.DistanceToOut(ponrmin, vmy, norm, convex);
+  Dist  = t1.DistanceToOut(ponrmin, vy);
+  valid = t1.Normal(ponrmin + Dist * vy, normal);
+  assert(ApproxEqual(Dist, 80) && ApproxEqual(normal, vy));
+  Dist  = t1.DistanceToOut(ponrmin, vmy);
+  valid = t1.Normal(ponrmin + Dist * vmy, normal);
   assert(ApproxEqual(Dist, 100));
 
   // std::cout << "(vz + Vec_t(0.00001, 0.000001, 0): " << (vz + Vec_t(0.00001, 0.000001, 0)) << '\n';
   // std::cout << "Vec_t(0.00001, 0.000001, 0)).Unit() = " << (vz + Vec_t(0.00001, 0.000001, 0)).Unit() << '\n';
-  Dist = t1.DistanceToOut(Vec_t(100, 0, 0), (vz + Vec_t(0.00001, 0.000001, 0)).Unit(), norm, convex);
+  Dist = t1.DistanceToOut(Vec_t(100, 0, 0), (vz + Vec_t(0.00001, 0.000001, 0)).Unit());
   // std::cout << "t1.DistanceToOut(100,0,0,vz,...) = " << Dist << " n=" << norm << std::endl;
   assert(ApproxEqual(Dist, 90));
   // std::cout << "Dist=t2.DistanceToOut(ponphi12,vy) = " << Dist << ", n=" << norm << ", -vy = " << -vy << std::endl;
   // std::cout << "norm: " << norm << '\n';
-  Dist = t2.DistanceToOut(Vec_t(7.07106781186547524400844362, 7.07106781186547524400844362, 0), vmx, norm, convex);
+  Dist = t2.DistanceToOut(Vec_t(7.07106781186547524400844362, 7.07106781186547524400844362, 0), vmx);
   // std::cout << "Dist = t2.DistanceToOut(Vec_t(7.07106781186547524400844362, 7.07106781186547524400844362, 0), vmx,
-  // norm, convex) = " << Dist << std::endl;
+  // normal, convex) = " << Dist << std::endl;
   assert(ApproxEqual(Dist, 0));
 
   Vec_t test(0., 0., 1);
   for (int i = 1; i < 5; i++) {
-    Dist = t1.DistanceToOut(Vec_t(90, 0, 0), test, norm, convex);
+    Dist = t1.DistanceToOut(Vec_t(90, 0, 0), test);
     // std::cout << " i=" << i << " Dist=t2.DistanceToOut(90,test) = " << Dist << " n=" << norm << std::endl;
     test = test + Vec_t(0.00001, 0.00001, 0);
     test = test.Unit();
   }
 
-  // SafetyFromOutside(P)
-  Dist = t1.SafetyFromOutside(pbigx);
+  // SafetyToIn(P)
+  Dist = t1.SafetyToIn(pbigx);
   assert(ApproxEqual(Dist, 50));
-  Dist = t1.SafetyFromOutside(pbigmx);
+  Dist = t1.SafetyToIn(pbigmx);
   assert(ApproxEqual(Dist, 50));
-  Dist = t1.SafetyFromOutside(pbigy);
+  Dist = t1.SafetyToIn(pbigy);
   assert(ApproxEqual(Dist, 50));
-  Dist = t1.SafetyFromOutside(pbigmy);
+  Dist = t1.SafetyToIn(pbigmy);
   assert(ApproxEqual(Dist, 50));
-  Dist = t1.SafetyFromOutside(pbigz);
-  //    std::cout<<"Dist=t1.SafetyFromOutside (pbigz) = "<<Dist<<std::endl;
+  Dist = t1.SafetyToIn(pbigz);
+  //    std::cout<<"Dist=t1.SafetyToIn (pbigz) = "<<Dist<<std::endl;
   //    assert(ApproxEqual(Dist,50));
-  Dist = t1.SafetyFromOutside(pbigmz);
-  //    std::cout<<"Dist=t1.SafetyFromOutside (pbigmz) = "<<Dist<<std::endl;
+  Dist = t1.SafetyToIn(pbigmz);
+  //    std::cout<<"Dist=t1.SafetyToIn (pbigmz) = "<<Dist<<std::endl;
   //    assert(ApproxEqual(Dist,50));
 
   // DistanceToIn(P,V)
@@ -302,7 +307,7 @@ bool testTorus()
   side = clad->Inside(pTmp);
   // std::cout << "clad->Inside(pTmp) = " << side << std::endl;
 
-  dist = core->DistanceToOut(pTmp, vy, norm, convex);
+  dist = core->DistanceToOut(pTmp, vy);
   pTmp += dist * vy;
   // std::cout << "pTmpX = " << pTmp.x() << ";  pTmpY = " << pTmp.y() << ";  pTmpZ = " << pTmp.z() << std::endl;
   side = core->Inside(pTmp);
@@ -310,7 +315,7 @@ bool testTorus()
   side = clad->Inside(pTmp);
   // std::cout << "clad->Inside(pTmp) = " << side << std::endl;
 
-  dist = clad->DistanceToOut(pTmp, vy, norm, convex);
+  dist = clad->DistanceToOut(pTmp, vy);
   pTmp += dist * vy;
   // std::cout << "pTmpX = " << pTmp.x() << ";  pTmpY = " << pTmp.y() << ";  pTmpZ = " << pTmp.z() << std::endl;
   side = core->Inside(pTmp);

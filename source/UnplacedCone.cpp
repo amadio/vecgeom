@@ -492,8 +492,6 @@ VPlacedVolume *UnplacedCone::Create(LogicalVolume const *const logical_volume,
 #undef RETURN_SPECIALIZATION
 }
 
-#if defined(VECGEOM_USOLIDS)
-VECCORE_ATT_HOST_DEVICE
 std::ostream &UnplacedCone::StreamInfo(std::ostream &os) const
 {
   int oldprc = os.precision(16);
@@ -513,7 +511,6 @@ std::ostream &UnplacedCone::StreamInfo(std::ostream &os) const
   os.precision(oldprc);
   return os;
 }
-#endif
 
 // this is repetitive code:
 

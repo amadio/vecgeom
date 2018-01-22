@@ -250,26 +250,12 @@ public:
   VECGEOM_FORCE_INLINE
   Precision GetDTheta() const { return GetUnplacedVolume()->GetDTheta(); }
 
-#if defined(VECGEOM_USOLIDS)
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  void GetParametersList(int aNumber, double *aArray) const override
-  {
-    return GetUnplacedVolume()->GetParametersList(aNumber, aArray);
-  }
-#endif
-
 #ifndef VECCORE_CUDA
   VECGEOM_FORCE_INLINE
   virtual Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
 
   VECGEOM_FORCE_INLINE
   Precision SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
-
-#if defined(VECGEOM_USOLIDS)
-  VECGEOM_FORCE_INLINE
-  std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType(); }
-#endif
 
   VECGEOM_FORCE_INLINE
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
@@ -285,18 +271,10 @@ public:
 
   Vector3D<Precision> SamplePointOnSurface() const override { return GetUnplacedVolume()->SamplePointOnSurface(); }
 
-#if defined(VECGEOM_USOLIDS)
-  std::ostream &StreamInfo(std::ostream &os) const override { return GetUnplacedVolume()->StreamInfo(os); }
-  Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->SamplePointOnSurface(); }
-#endif
-
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const override;
-#endif
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-  virtual ::VUSolid const *ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const override;

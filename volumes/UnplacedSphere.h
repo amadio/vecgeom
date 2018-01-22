@@ -268,9 +268,7 @@ public:
 
   void GetParametersList(int aNumber, Precision *aArray) const;
 
-#if defined(VECGEOM_USOLIDS)
   std::ostream &StreamInfo(std::ostream &os) const;
-#endif
 
   VECCORE_ATT_HOST_DEVICE
   void ComputeBBox() const;

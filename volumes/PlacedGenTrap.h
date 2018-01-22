@@ -115,13 +115,6 @@ public:
   /** @brief Implementation of surface area computation */
   virtual double SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
 
-#if defined(VECGEOM_USOLIDS)
-  /** @brief Get type name */
-  virtual std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType(); }
-
-  /** @brief Generates randomly a point on the surface of the trapezoid */
-  virtual Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->SamplePointOnSurface(); }
-#endif
 #endif
 
   /** @brief Print type name */
@@ -139,21 +132,12 @@ public:
 
 // Comparison specific
 
-#if defined(VECGEOM_USOLIDS)
-  /** @brief Stream trapezoid information in the USolids style */
-  std::ostream &StreamInfo(std::ostream &os) const override { return GetUnplacedVolume()->StreamInfo(os); }
-#endif
-
 #ifndef VECCORE_CUDA
   /** @brief Convert to unspecialized placement */
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
   /** @brief Convert to ROOT shape */
   virtual TGeoShape const *ConvertToRoot() const override;
-#endif
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-  /** @brief Convert to USolids solid */
-  virtual ::VUSolid const *ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4
   /** @brief Convert to Geant4 solid */

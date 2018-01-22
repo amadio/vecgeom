@@ -6,9 +6,6 @@
 #ifdef VECGEOM_ROOT
 #include "TGeoArb8.h"
 #endif
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-#include "UTrap.hh"
-#endif
 #ifdef VECGEOM_GEANT4
 #include "G4Trap.hh"
 #endif
@@ -42,16 +39,6 @@ TGeoShape const *PlacedTrapezoid::ConvertToRoot() const
   const UnplacedTrapezoid &ut = *GetUnplacedVolume();
   return new TGeoTrap(GetLabel().c_str(), ut.dz(), ut.theta() * kRadToDeg, ut.phi() * kRadToDeg, ut.dy1(), ut.dx1(),
                       ut.dx2(), ut.alpha1() * kRadToDeg, ut.dy2(), ut.dx3(), ut.dx4(), ut.alpha2() * kRadToDeg);
-}
-#endif
-
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const *PlacedTrapezoid::ConvertToUSolids() const
-{
-  const UnplacedTrapezoid &ut = *GetUnplacedVolume();
-  //  const TrapezoidStruct<double> &t = GetUnplacedVolume()->GetStruct();
-  return new UTrap(GetLabel().c_str(), ut.dz(), ut.theta(), ut.phi(), ut.dy1(), ut.dx1(), ut.dx2(), ut.alpha1(),
-                   ut.dy2(), ut.dx3(), ut.dx4(), ut.alpha2());
 }
 #endif
 

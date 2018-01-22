@@ -204,9 +204,7 @@ void UnplacedGenTrap::Print(std::ostream &os) const
   os.precision(oldprc);
 }
 
-#if defined(VECGEOM_USOLIDS)
 //______________________________________________________________________________
-VECCORE_ATT_HOST_DEVICE
 std::ostream &UnplacedGenTrap::StreamInfo(std::ostream &os) const
 {
   int oldprc = os.precision(16);
@@ -225,7 +223,6 @@ std::ostream &UnplacedGenTrap::StreamInfo(std::ostream &os) const
   os.precision(oldprc);
   return os;
 }
-#endif
 
 //______________________________________________________________________________
 VECCORE_ATT_DEVICE

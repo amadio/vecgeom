@@ -179,7 +179,6 @@ VPlacedVolume *UnplacedExtruded::SpecializedVolume(LogicalVolume const *const vo
                                                                  placement);
 }
 
-#if defined(VECGEOM_USOLIDS)
 std::ostream &UnplacedExtruded::StreamInfo(std::ostream &os) const
 {
   int oldprc = os.precision(16);
@@ -192,7 +191,6 @@ std::ostream &UnplacedExtruded::StreamInfo(std::ostream &os) const
   os.precision(oldprc);
   return os;
 }
-#endif
 
 #ifdef VECGEOM_CUDA_INTERFACE
 

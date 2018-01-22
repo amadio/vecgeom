@@ -250,12 +250,6 @@ public:
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const override { throw std::runtime_error("unimplemented function called"); }
 #endif
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-  virtual ::VUSolid const *ConvertToUSolids() const override
-  {
-    throw std::runtime_error("unimplemented function called");
-  }
-#endif
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const override
   {

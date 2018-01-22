@@ -34,13 +34,10 @@ void UnplacedHype::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) 
   aMax.Set(rMax, rMax, fHype.fDz);
 }
 
-#ifndef VECCORE_CUDA
-VECCORE_ATT_HOST_DEVICE
 std::string UnplacedHype::GetEntityType() const
 {
   return "Hyperboloid\n";
 }
-#endif
 
 Vector3D<Precision> UnplacedHype::SamplePointOnSurface() const
 {
@@ -130,7 +127,6 @@ Vector3D<Precision> UnplacedHype::SamplePointOnSurface() const
   }
 }
 
-#if defined(VECGEOM_USOLIDS)
 VECCORE_ATT_HOST_DEVICE
 void UnplacedHype::GetParametersList(int, double *aArray) const
 {
@@ -168,7 +164,6 @@ std::ostream &UnplacedHype::StreamInfo(std::ostream &os) const
   os.precision(oldprc);
   return os;
 }
-#endif
 
 void UnplacedHype::Print() const
 {

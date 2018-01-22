@@ -36,16 +36,6 @@ int main(int argc, char *argv[])
   const VPlacedVolume *placedTsl = world.PlaceDaughter("tessellated", &tessellated, &placement);
   (void)placedTsl;
 
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS) && 0
-  vecgeom::Stopwatch timer;
-  timer.Start();
-  placedTsl->ConvertToUSolids();
-  double usolids_btime = timer.Stop();
-  std::cout << "+++++++++    nfacets = " << nfacets << "    UTessellatedSolid construction time: " << usolids_btime
-            << std::endl;
-  return 0;
-#endif
-
   VPlacedVolume *worldPlaced = world.Place();
 
   GeoManager::Instance().SetWorldAndClose(worldPlaced);

@@ -10,10 +10,6 @@
 #include "TGeoTrd2.h"
 #endif
 
-#ifdef VECGEOM_USOLIDS
-#include "UTrd.hh"
-#endif
-
 #ifdef VECGEOM_GEANT4
 #include "G4Trd.hh"
 #endif
@@ -35,13 +31,6 @@ TGeoShape const *PlacedTrd::ConvertToRoot() const
 {
   if (dy1() == dy2()) return new TGeoTrd1(GetLabel().c_str(), dx1(), dx2(), dy1(), dz());
   return new TGeoTrd2(GetLabel().c_str(), dx1(), dx2(), dy1(), dy2(), dz());
-}
-#endif
-
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const *PlacedTrd::ConvertToUSolids() const
-{
-  return new UTrd("", dx1(), dx2(), dy1(), dy2(), dz());
 }
 #endif
 

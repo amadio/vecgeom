@@ -54,9 +54,6 @@ public:
   virtual TGeoShape const *ConvertToRoot() const override;
 #endif
 
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-  virtual ::VUSolid const *ConvertToUSolids() const override;
-#endif
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const override;
 #endif

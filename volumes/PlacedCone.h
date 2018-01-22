@@ -60,18 +60,10 @@ public:
     return static_cast<UnplacedCone const *>(GetLogicalVolume()->GetUnplacedVolume());
   }
 
-#if defined(VECGEOM_USOLIDS)
-  //  VECCORE_ATT_HOST_DEVICE
-  std::ostream &StreamInfo(std::ostream &os) const override { return GetUnplacedVolume()->StreamInfo(os); }
-#endif
-
 #ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const override;
-#endif
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-  virtual ::VUSolid const *ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const override;
@@ -129,9 +121,6 @@ public:
 
   virtual double SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
 
-#if defined(VECGEOM_USOLIDS)
-  virtual std::string GetEntityType() const override { return "Cone"; }
-#endif
 #endif
 
 }; // end class

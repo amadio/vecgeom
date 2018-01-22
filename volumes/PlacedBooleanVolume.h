@@ -68,11 +68,6 @@ public:
     GetUnplacedVolume()->Extent(aMin, aMax);
   }
 
-#if defined(VECGEOM_USOLIDS)
-  std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType(); }
-  Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->SamplePointOnSurface(); }
-#endif
-
   virtual Vector3D<Precision> SamplePointOnSurface() const override;
 
   VECCORE_ATT_HOST_DEVICE
@@ -95,13 +90,6 @@ public:
   virtual VPlacedVolume const *ConvertToUnspecialized() const override { return this; }
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const override;
-#endif
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-  virtual ::VUSolid const *ConvertToUSolids() const override
-  {
-    // currently not supported in USOLIDS -- returning NULL
-    return nullptr;
-  }
 #endif
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const override;

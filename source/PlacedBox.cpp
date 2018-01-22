@@ -6,9 +6,6 @@
 #ifdef VECGEOM_ROOT
 #include "TGeoBBox.h"
 #endif
-#if defined(VECGEOM_USOLIDS) and !defined(VECGEOM_REPLACE_USOLIDS)
-#include "UBox.hh"
-#endif
 #ifdef VECGEOM_GEANT4
 #include "G4Box.hh"
 #endif
@@ -40,13 +37,6 @@ VPlacedVolume const *PlacedBox::ConvertToUnspecialized() const
 TGeoShape const *PlacedBox::ConvertToRoot() const
 {
   return new TGeoBBox(GetLabel().c_str(), x(), y(), z());
-}
-#endif
-
-#if defined(VECGEOM_USOLIDS) and !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const *PlacedBox::ConvertToUSolids() const
-{
-  return new UBox(GetLabel(), x(), y(), z());
 }
 #endif
 

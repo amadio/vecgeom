@@ -269,7 +269,6 @@ Vec3D UnplacedTrapezoid::GetPointOnPlane(Vec3D const &p0, Vec3D const &p1, Vec3D
   return (p0 + lambda1 * t + lambda2 * u);
 }
 
-#if defined(VECGEOM_USOLIDS)
 /*
 VECCORE_ATT_HOST_DEVICE
 void UnplacedTrapezoid::GetParametersList(int, double *aArray) const
@@ -283,7 +282,6 @@ UnplacedTrapezoid *UnplacedTrapezoid::Clone() const
 {
   return new UnplacedTrapezoid(*this);
 }
-#endif
 
 void UnplacedTrapezoid::Print() const
 {

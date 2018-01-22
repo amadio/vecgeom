@@ -175,16 +175,6 @@ public:
 
   Precision SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
 
-  VECGEOM_FORCE_INLINE
-#if defined(VECGEOM_USOLIDS)
-  std::string GetEntityType() const override { return GetUnplacedVolume()->GetEntityType(); }
-
-  void GetParametersList(int aNumber, double *aArray) const override
-  {
-    return GetUnplacedVolume()->GetParametersList(aNumber, aArray);
-  }
-#endif
-
   VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
   {
@@ -200,18 +190,10 @@ public:
   VECGEOM_FORCE_INLINE
   virtual int MemorySize() const override { return sizeof(*this); }
 
-#if defined(VECGEOM_USOLIDS)
-  std::ostream &StreamInfo(std::ostream &os) const override { return GetUnplacedVolume()->StreamInfo(os); }
-  Vector3D<Precision> GetPointOnSurface() const override { return GetUnplacedVolume()->SamplePointOnSurface(); }
-#endif
-
 #ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const override;
-#endif
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-  virtual ::VUSolid const *ConvertToUSolids() const override;
 #endif
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const override;

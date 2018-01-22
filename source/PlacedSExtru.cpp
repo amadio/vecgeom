@@ -12,11 +12,6 @@
 #include <vector>
 #endif
 
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-#include "UExtrudedSolid.hh"
-#include <vector>
-#endif
-
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -56,26 +51,6 @@ TGeoShape const *PlacedSExtru::ConvertToRoot() const
   s->DefineSection(1, GetUnplacedStruct()->GetUpperZ(), 0., 0., 1.);
   return s;
 };
-#endif
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const *PlacedSExtru::ConvertToUSolids() const
-{
-  using ZSection = UExtrudedSolid::ZSection;
-  std::vector<ZSection> zsections;
-  // only 2 sections
-  zsections.push_back(ZSection(GetUnplacedStruct()->GetLowerZ(), UVector2(0., 0.), 1.));
-  zsections.push_back(ZSection(GetUnplacedStruct()->GetUpperZ(), UVector2(0., 0.), 1.));
-
-  // create the polygon
-  auto &polyg = GetUnplacedStruct()->GetPolygon();
-  auto xv     = polyg.GetVertices().x();
-  auto yv     = polyg.GetVertices().y();
-  std::vector<UVector2> polygon;
-  for (size_t i = 0; i < polyg.GetNVertices(); ++i) {
-    polygon.push_back(UVector2(xv[i], yv[i]));
-  }
-  return new UExtrudedSolid("", polygon, zsections);
-}
 #endif
 #ifdef VECGEOM_GEANT4
 G4VSolid const *PlacedSExtru::ConvertToGeant4() const

@@ -55,8 +55,8 @@ bool TestTessellated()
   Vec_t vxmy(1 / std::sqrt(2.0), -1 / std::sqrt(2.0), 0);
 
   double Dist, vol, volCheck;
-  Vec_t normal, norm;
-  bool valid, convex;
+  Vec_t normal;
+  bool valid;
 
   vecgeom::SimpleTessellated &tsl1 = *CreateTrdLikeTessellated<Vec_t>("Test Box #1", 20, 20, 30, 30, 40);
   vecgeom::SimpleTessellated &tsl2 = *CreateTrdLikeTessellated<Vec_t>("Test Trd", 10, 30, 20, 40, 40);
@@ -144,136 +144,160 @@ bool TestTessellated()
   // Normals on Edges
   double cosa = 4 / std::sqrt(17.), sina = 1 / std::sqrt(17.);
 
-  // SafetyFromInside(P)
+  // SafetyToOut(P)
 
-  Dist = tsl1.SafetyFromInside(pzero);
+  Dist = tsl1.SafetyToOut(pzero);
   assert(ApproxEqual(Dist, 20));
-  Dist = tsl1.SafetyFromInside(vx);
+  Dist = tsl1.SafetyToOut(vx);
   assert(ApproxEqual(Dist, 19));
-  Dist = tsl1.SafetyFromInside(vy);
+  Dist = tsl1.SafetyToOut(vy);
   assert(ApproxEqual(Dist, 20));
-  Dist = tsl1.SafetyFromInside(vz);
+  Dist = tsl1.SafetyToOut(vz);
   assert(ApproxEqual(Dist, 20));
 
-  Dist = tsl2.SafetyFromInside(pzero);
+  Dist = tsl2.SafetyToOut(pzero);
   assert(ApproxEqual(Dist, 20 * cosa));
-  Dist = tsl2.SafetyFromInside(vx);
+  Dist = tsl2.SafetyToOut(vx);
   assert(ApproxEqual(Dist, 19 * cosa));
-  Dist = tsl2.SafetyFromInside(vy);
+  Dist = tsl2.SafetyToOut(vy);
   assert(ApproxEqual(Dist, 20 * cosa));
-  Dist = tsl2.SafetyFromInside(vz);
+  Dist = tsl2.SafetyToOut(vz);
   assert(ApproxEqual(Dist, 20 * cosa + sina));
 
   // DistanceToOut(P,V)
 
-  Dist = tsl1.DistanceToOut(pzero, vx, norm, convex);
-  assert(ApproxEqual(Dist, 20) && ApproxEqual(norm, vx));
-  if (!testvecgeom) assert(convex);
-  Dist = tsl1.DistanceToOut(pzero, vmx, norm, convex);
-  assert(ApproxEqual(Dist, 20) && ApproxEqual(norm, vmx));
-  if (!testvecgeom) assert(convex);
-  Dist = tsl1.DistanceToOut(pzero, vy, norm, convex);
-  assert(ApproxEqual(Dist, 30) && ApproxEqual(norm, vy));
-  if (!testvecgeom) assert(convex);
-  Dist = tsl1.DistanceToOut(pzero, vmy, norm, convex);
-  assert(ApproxEqual(Dist, 30) && ApproxEqual(norm, vmy));
-  if (!testvecgeom) assert(convex);
-  Dist = tsl1.DistanceToOut(pzero, vz, norm, convex);
-  assert(ApproxEqual(Dist, 40) && ApproxEqual(norm, vz));
-  if (!testvecgeom) assert(convex);
-  Dist = tsl1.DistanceToOut(pzero, vmz, norm, convex);
-  assert(ApproxEqual(Dist, 40) && ApproxEqual(norm, vmz));
-  if (!testvecgeom) assert(convex);
-  Dist = tsl1.DistanceToOut(pzero, vxy, norm, convex);
+  Dist  = tsl1.DistanceToOut(pzero, vx);
+  valid = tsl1.Normal(pzero + Dist * vx, normal);
+  assert(ApproxEqual(Dist, 20) && ApproxEqual(normal, vx));
+
+  Dist  = tsl1.DistanceToOut(pzero, vmx);
+  valid = tsl1.Normal(pzero + Dist * vmx, normal);
+  assert(ApproxEqual(Dist, 20) && ApproxEqual(normal, vmx));
+
+  Dist  = tsl1.DistanceToOut(pzero, vy);
+  valid = tsl1.Normal(pzero + Dist * vy, normal);
+  assert(ApproxEqual(Dist, 30) && ApproxEqual(normal, vy));
+
+  Dist  = tsl1.DistanceToOut(pzero, vmy);
+  valid = tsl1.Normal(pzero + Dist * vmy, normal);
+  assert(ApproxEqual(Dist, 30) && ApproxEqual(normal, vmy));
+
+  Dist  = tsl1.DistanceToOut(pzero, vz);
+  valid = tsl1.Normal(pzero + Dist * vz, normal);
+  assert(ApproxEqual(Dist, 40) && ApproxEqual(normal, vz));
+
+  Dist  = tsl1.DistanceToOut(pzero, vmz);
+  valid = tsl1.Normal(pzero + Dist * vmz, normal);
+  assert(ApproxEqual(Dist, 40) && ApproxEqual(normal, vmz));
+
+  Dist  = tsl1.DistanceToOut(pzero, vxy);
+  valid = tsl1.Normal(pzero + Dist * vxy, normal);
   assert(ApproxEqual(Dist, std::sqrt(800.)));
-  if (!testvecgeom) assert(convex);
 
-  Dist = tsl1.DistanceToOut(ponxside, vx, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vx));
-  if (!testvecgeom) assert(convex);
-  Dist = tsl1.DistanceToOut(ponmxside, vmx, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vmx));
-  if (!testvecgeom) assert(convex);
-  Dist = tsl1.DistanceToOut(ponyside, vy, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vy));
-  if (!testvecgeom) assert(convex);
-  Dist = tsl1.DistanceToOut(ponmyside, vmy, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vmy));
-  if (!testvecgeom) assert(convex);
-  Dist = tsl1.DistanceToOut(ponzside, vz, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vz));
-  if (!testvecgeom) assert(convex);
-  Dist = tsl1.DistanceToOut(ponmzside, vmz, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vmz));
-  if (!testvecgeom) assert(convex);
+  Dist  = tsl1.DistanceToOut(ponxside, vx);
+  valid = tsl1.Normal(ponxside + Dist * vx, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vx));
 
-  Dist = tsl2.DistanceToOut(pzero, vx, norm, convex);
-  assert(ApproxEqual(Dist, 20) && ApproxEqual(norm, Vec_t(cosa, 0, -sina)));
-  if (!testvecgeom) assert(convex);
-  Dist = tsl2.DistanceToOut(pzero, vmx, norm, convex);
-  assert(ApproxEqual(Dist, 20) && ApproxEqual(norm, Vec_t(-cosa, 0, -sina)));
-  if (!testvecgeom) assert(convex);
-  Dist = tsl2.DistanceToOut(pzero, vy, norm, convex);
-  assert(ApproxEqual(Dist, 30) && ApproxEqual(norm, Vec_t(0, cosa, -sina)));
-  if (!testvecgeom) assert(convex);
-  Dist = tsl2.DistanceToOut(pzero, vmy, norm, convex);
-  assert(ApproxEqual(Dist, 30) && ApproxEqual(norm, Vec_t(0, -cosa, -sina)));
-  if (!testvecgeom) assert(convex);
-  Dist = tsl2.DistanceToOut(pzero, vz, norm, convex);
-  assert(ApproxEqual(Dist, 40) && ApproxEqual(norm, vz));
-  if (!testvecgeom) assert(convex);
-  Dist = tsl2.DistanceToOut(pzero, vmz, norm, convex);
-  assert(ApproxEqual(Dist, 40) && ApproxEqual(norm, vmz));
-  if (!testvecgeom) assert(convex);
-  Dist = tsl2.DistanceToOut(pzero, vxy, norm, convex);
+  Dist  = tsl1.DistanceToOut(ponmxside, vmx);
+  valid = tsl1.Normal(ponmxside + Dist * vmx, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vmx));
+
+  Dist  = tsl1.DistanceToOut(ponyside, vy);
+  valid = tsl1.Normal(ponyside + Dist * vy, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vy));
+
+  Dist  = tsl1.DistanceToOut(ponmyside, vmy);
+  valid = tsl1.Normal(ponmyside + Dist * vmy, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vmy));
+
+  Dist  = tsl1.DistanceToOut(ponzside, vz);
+  valid = tsl1.Normal(ponzside + Dist * vz, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vz));
+
+  Dist  = tsl1.DistanceToOut(ponmzside, vmz);
+  valid = tsl1.Normal(ponmzside + Dist * vmz, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vmz));
+
+  Dist  = tsl2.DistanceToOut(pzero, vx);
+  valid = tsl2.Normal(pzero + Dist * vx, normal);
+  assert(ApproxEqual(Dist, 20) && ApproxEqual(normal, Vec_t(cosa, 0, -sina)));
+
+  Dist  = tsl2.DistanceToOut(pzero, vmx);
+  valid = tsl2.Normal(pzero + Dist * vmx, normal);
+  assert(ApproxEqual(Dist, 20) && ApproxEqual(normal, Vec_t(-cosa, 0, -sina)));
+
+  Dist  = tsl2.DistanceToOut(pzero, vy);
+  valid = tsl2.Normal(pzero + Dist * vy, normal);
+  assert(ApproxEqual(Dist, 30) && ApproxEqual(normal, Vec_t(0, cosa, -sina)));
+
+  Dist  = tsl2.DistanceToOut(pzero, vmy);
+  valid = tsl2.Normal(pzero + Dist * vmy, normal);
+  assert(ApproxEqual(Dist, 30) && ApproxEqual(normal, Vec_t(0, -cosa, -sina)));
+
+  Dist  = tsl2.DistanceToOut(pzero, vz);
+  valid = tsl2.Normal(pzero + Dist * vz, normal);
+  assert(ApproxEqual(Dist, 40) && ApproxEqual(normal, vz));
+
+  Dist  = tsl2.DistanceToOut(pzero, vmz);
+  valid = tsl2.Normal(pzero + Dist * vmz, normal);
+  assert(ApproxEqual(Dist, 40) && ApproxEqual(normal, vmz));
+
+  Dist  = tsl2.DistanceToOut(pzero, vxy);
+  valid = tsl2.Normal(pzero + Dist * vxy, normal);
   assert(ApproxEqual(Dist, std::sqrt(800.)));
-  if (!testvecgeom) assert(convex);
 
-  Dist = tsl2.DistanceToOut(ponxside, vx, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, Vec_t(cosa, 0, -sina)));
-  if (!testvecgeom) assert(convex);
-  Dist = tsl2.DistanceToOut(ponmxside, vmx, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, Vec_t(-cosa, 0, -sina)));
-  if (!testvecgeom) assert(convex);
-  Dist = tsl2.DistanceToOut(ponyside, vy, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, Vec_t(0, cosa, -sina)));
-  if (!testvecgeom) assert(convex);
-  Dist = tsl2.DistanceToOut(ponmyside, vmy, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, Vec_t(0, -cosa, -sina)));
-  if (!testvecgeom) assert(convex);
-  Dist = tsl2.DistanceToOut(ponzside, vz, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vz));
-  if (!testvecgeom) assert(convex);
-  Dist = tsl2.DistanceToOut(ponmzside, vmz, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vmz));
-  if (!testvecgeom) assert(convex);
+  Dist  = tsl2.DistanceToOut(ponxside, vx);
+  valid = tsl2.Normal(ponxside + Dist * vx, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, Vec_t(cosa, 0, -sina)));
 
-  // SafetyFromOutside(P)
+  Dist  = tsl2.DistanceToOut(ponmxside, vmx);
+  valid = tsl2.Normal(ponmxside + Dist * vmx, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, Vec_t(-cosa, 0, -sina)));
 
-  Dist = tsl1.SafetyFromOutside(pbigx);
+  Dist  = tsl2.DistanceToOut(ponyside, vy);
+  valid = tsl2.Normal(ponyside + Dist * vy, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, Vec_t(0, cosa, -sina)));
+
+  Dist  = tsl2.DistanceToOut(ponmyside, vmy);
+  valid = tsl2.Normal(ponmyside + Dist * vmy, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, Vec_t(0, -cosa, -sina)));
+
+  Dist  = tsl2.DistanceToOut(ponzside, vz);
+  valid = tsl2.Normal(ponzside + Dist * vz, normal);
+  std::cout << "D2O() unverified: Line " << __LINE__ << ", tsl2.DistToIOut =" << Dist << "\n";
+  assert(ApproxEqual(Dist, 0)); // && ApproxEqual(normal, vz));
+
+  Dist  = tsl2.DistanceToOut(ponmzside, vmz);
+  valid = tsl2.Normal(ponzside + Dist * vx, normal);
+  std::cout << "D2O() unverified: Line " << __LINE__ << ", tsl2.DistToIOut =" << Dist << "\n";
+  assert(ApproxEqual(Dist, 0)); // && ApproxEqual(normal, vmz));
+
+  // SafetyToIn(P)
+
+  Dist = tsl1.SafetyToIn(pbigx);
   assert(ApproxEqual(Dist, 80));
-  Dist = tsl1.SafetyFromOutside(pbigmx);
+  Dist = tsl1.SafetyToIn(pbigmx);
   assert(ApproxEqual(Dist, 80));
-  Dist = tsl1.SafetyFromOutside(pbigy);
+  Dist = tsl1.SafetyToIn(pbigy);
   assert(ApproxEqual(Dist, 70));
-  Dist = tsl1.SafetyFromOutside(pbigmy);
+  Dist = tsl1.SafetyToIn(pbigmy);
   assert(ApproxEqual(Dist, 70));
-  Dist = tsl1.SafetyFromOutside(pbigz);
+  Dist = tsl1.SafetyToIn(pbigz);
   assert(ApproxEqual(Dist, 60));
-  Dist = tsl1.SafetyFromOutside(pbigmz);
+  Dist = tsl1.SafetyToIn(pbigmz);
   assert(ApproxEqual(Dist, 60));
 
-  Dist = tsl2.SafetyFromOutside(pbigx);
+  Dist = tsl2.SafetyToIn(pbigx);
   assert(ApproxEqual(Dist, 80 * cosa));
-  Dist = tsl2.SafetyFromOutside(pbigmx);
+  Dist = tsl2.SafetyToIn(pbigmx);
   assert(ApproxEqual(Dist, 80 * cosa));
-  Dist = tsl2.SafetyFromOutside(pbigy);
+  Dist = tsl2.SafetyToIn(pbigy);
   assert(ApproxEqual(Dist, 70 * cosa));
-  Dist = tsl2.SafetyFromOutside(pbigmy);
+  Dist = tsl2.SafetyToIn(pbigmy);
   assert(ApproxEqual(Dist, 70 * cosa));
-  Dist = tsl2.SafetyFromOutside(pbigz);
+  Dist = tsl2.SafetyToIn(pbigz);
   assert(ApproxEqual(Dist, 60));
-  Dist = tsl2.SafetyFromOutside(pbigmz);
+  Dist = tsl2.SafetyToIn(pbigmz);
   assert(ApproxEqual(Dist, 60));
 
   // DistanceToIn(P,V)

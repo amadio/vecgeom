@@ -9,11 +9,6 @@
 #include "TGeoArb8.h"
 #endif
 
-#ifdef VECGEOM_USOLIDS
-#include "UGenericTrap.hh"
-#include "UVector2.hh"
-#endif
-
 #ifdef VECGEOM_GEANT4
 #include "G4GenericTrap.hh"
 #include "G4TwoVector.hh"
@@ -52,18 +47,6 @@ TGeoShape const *PlacedGenTrap::ConvertToRoot() const
     vertexarray[2 * i + 1] = GetVertex(i).y();
   }
   return new TGeoArb8(GetLabel().c_str(), GetDZ(), &vertexarray[0]);
-}
-#endif
-
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-//______________________________________________________________________________
-::VUSolid const *PlacedGenTrap::ConvertToUSolids() const
-{
-  std::vector<UVector2> vertices;
-  for (int i = 0; i < 8; ++i) {
-    vertices.push_back(UVector2(GetVertex(i).x(), GetVertex(i).y()));
-  }
-  return new UGenericTrap(GetLabel(), GetDZ(), vertices);
 }
 #endif
 

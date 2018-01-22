@@ -5,10 +5,6 @@
 #include "volumes/Sphere.h"
 #include "volumes/SpecializedSphere.h"
 
-#ifdef VECGEOM_USOLIDS
-#include "USphere.hh"
-#endif
-
 #ifdef VECGEOM_ROOT
 #include "TGeoSphere.h"
 #endif
@@ -33,15 +29,6 @@ TGeoShape const *PlacedSphere::ConvertToRoot() const
   return new TGeoSphere(GetLabel().c_str(), GetInnerRadius(), GetOuterRadius(), GetStartThetaAngle() * kRadToDeg,
                         (GetStartThetaAngle() + GetDeltaThetaAngle()) * kRadToDeg, GetStartPhiAngle() * kRadToDeg,
                         (GetStartPhiAngle() + GetDeltaPhiAngle()) * kRadToDeg);
-}
-#endif
-
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const *PlacedSphere::ConvertToUSolids() const
-{
-
-  return new USphere(GetLabel().c_str(), GetInnerRadius(), GetOuterRadius(), GetStartPhiAngle(), GetDeltaPhiAngle(),
-                     GetStartThetaAngle(), GetDeltaThetaAngle());
 }
 #endif
 

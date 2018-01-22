@@ -29,13 +29,6 @@ TGeoShape const *PlacedParallelepiped::ConvertToRoot() const
 }
 #endif
 
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const *PlacedParallelepiped::ConvertToUSolids() const
-{
-  return NULL;
-}
-#endif
-
 #ifdef VECGEOM_GEANT4
 G4VSolid const *PlacedParallelepiped::ConvertToGeant4() const
 {

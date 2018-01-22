@@ -6,9 +6,6 @@
 #ifdef VECGEOM_ROOT
 #include "TGeoSphere.h"
 #endif
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-#include "UOrb.hh"
-#endif
 #ifdef VECGEOM_GEANT4
 #include "G4Orb.hh"
 #endif
@@ -40,13 +37,6 @@ VPlacedVolume const *PlacedOrb::ConvertToUnspecialized() const
 TGeoShape const *PlacedOrb::ConvertToRoot() const
 {
   return new TGeoSphere(GetLabel().c_str(), 0., GetRadius());
-}
-#endif
-
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const *PlacedOrb::ConvertToUSolids() const
-{
-  return new UOrb(GetLabel(), GetRadius());
 }
 #endif
 

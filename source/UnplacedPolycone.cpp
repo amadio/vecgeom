@@ -127,8 +127,6 @@ void UnplacedPolycone::Print(std::ostream &os) const
   Print();
 }
 
-#if defined(VECGEOM_USOLIDS)
-VECCORE_ATT_HOST_DEVICE
 std::ostream &UnplacedPolycone::StreamInfo(std::ostream &os) const
 {
   int oldprc = os.precision(16);
@@ -167,7 +165,6 @@ std::ostream &UnplacedPolycone::StreamInfo(std::ostream &os) const
   os.precision(oldprc);
   return os;
 }
-#endif
 
 #ifdef VECGEOM_CUDA_INTERFACE
 

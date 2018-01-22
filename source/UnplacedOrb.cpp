@@ -69,7 +69,6 @@ std::string UnplacedOrb::GetEntityType() const
   return "Orb\n";
 }
 
-#if defined(VECGEOM_USOLIDS)
 VECCORE_ATT_HOST_DEVICE
 void UnplacedOrb::GetParametersList(int, double *aArray) const
 {
@@ -100,7 +99,6 @@ std::ostream &UnplacedOrb::StreamInfo(std::ostream &os) const
 
   return os;
 }
-#endif
 
 void UnplacedOrb::Print() const
 {

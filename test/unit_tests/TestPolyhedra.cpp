@@ -13,8 +13,9 @@
 #undef NDEBUG
 #include <cassert>
 
-template <class Polyhedra_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
+using vecgeom::kPi;
 
+template <class Polyhedra_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
 bool TestPolyhedra()
 {
 
@@ -49,7 +50,7 @@ bool TestPolyhedra()
   Z_Values[7] = 40;
 
   double sphi         = 0.0;
-  double dphi         = UUtils::kPi / 4.;
+  double dphi         = kPi / 4.;
   double halfdphi     = 0.5 * dphi / 5.;
   Polyhedra_t *MyPGon = new Polyhedra_t("MyPGon", sphi, dphi, 5, 8, Z_Values, RMINVec, RMAXVec);
 
@@ -66,7 +67,7 @@ bool TestPolyhedra()
   Z_Values0[1] = 1;
 
   double sphi0 = 0.0;
-  double dphi0 = UUtils::kPi;
+  double dphi0 = kPi;
 
   Polyhedra_t *MyPGon0 = new Polyhedra_t("MyPGon0", sphi0, dphi0, 2, 2, Z_Values0, RMINVec0, RMAXVec0);
 
@@ -86,7 +87,7 @@ bool TestPolyhedra()
   Z_Values1[2] = 1;
 
   double sphi1 = 0.;
-  double dphi1 = 2 * UUtils::kPi;
+  double dphi1 = 2 * kPi;
 
   Polyhedra_t *MyPGon1 = new Polyhedra_t("MyPGon1", sphi1, dphi1, 4, 3, Z_Values1, RMINVec1, RMAXVec1);
 
@@ -182,24 +183,21 @@ bool TestPolyhedra()
   assert(std::fabs((MyPGon->DistanceToIn(p5, dirx) - 40.12368793931)) < tolerance);
   assert(std::fabs((MyPGon->DistanceToIn(p6, -dirx) - 0.87631206069)) < tolerance);
   assert(std::fabs((MyPGon->DistanceToIn(p6, dirz) - 0.218402670765)) < tolerance);
+
   // Check DistanceToOut
   Vec_t normal;
-  bool convex;
-  assert(std::fabs((MyPGon->DistanceToOut(p1, -dirx, normal, convex))) < tolerance);
-  assert(std::fabs((MyPGon->DistanceToOut(p3, -diry, normal, convex) - 1.)) < tolerance);
-  assert(std::fabs((MyPGon->DistanceToOut(p3, dirz, normal, convex) - 1.27382374146)) < tolerance);
-  assert(std::fabs((MyPGon->DistanceToOut(p4, dirz, normal, convex) - 10.)) < tolerance);
-  assert(std::fabs((MyPGon->DistanceToOut(p4, dirx, normal, convex) - 34.8538673445)) < tolerance);
-  assert(std::fabs((MyPGon->DistanceToOut(p4, diry, normal, convex) - 40.)) < tolerance);
-  assert(MyPGon2->DistanceToOut(p7, dirx, normal, convex) > 0);
-  assert(MyPGon2->DistanceToOut(p7, diry, normal, convex) > 0);
-  assert(MyPGon2->DistanceToOut(p7, dirz, normal, convex) > 0);
-  std::cout << "MyPGon2->DistanceToOut(p7, dirx, normal, convex) = " << MyPGon2->DistanceToOut(p7, dirx, normal, convex)
-            << std::endl;
-  std::cout << "MyPGon2->DistanceToOut(p7, diry, normal, convex) = " << MyPGon2->DistanceToOut(p7, diry, normal, convex)
-            << std::endl;
-  std::cout << "MyPGon2->DistanceToOut(p7, dirz, normal, convex) = " << MyPGon2->DistanceToOut(p7, dirz, normal, convex)
-            << std::endl;
+  assert(std::fabs((MyPGon->DistanceToOut(p1, -dirx))) < tolerance);
+  assert(std::fabs((MyPGon->DistanceToOut(p3, -diry) - 1.)) < tolerance);
+  assert(std::fabs((MyPGon->DistanceToOut(p3, dirz) - 1.27382374146)) < tolerance);
+  assert(std::fabs((MyPGon->DistanceToOut(p4, dirz) - 10.)) < tolerance);
+  assert(std::fabs((MyPGon->DistanceToOut(p4, dirx) - 34.8538673445)) < tolerance);
+  assert(std::fabs((MyPGon->DistanceToOut(p4, diry) - 40.)) < tolerance);
+  assert(MyPGon2->DistanceToOut(p7, dirx) > 0);
+  assert(MyPGon2->DistanceToOut(p7, diry) > 0);
+  assert(MyPGon2->DistanceToOut(p7, dirz) > 0);
+  std::cout << "MyPGon2->DistanceToOut(p7, dirx) = " << MyPGon2->DistanceToOut(p7, dirx) << std::endl;
+  std::cout << "MyPGon2->DistanceToOut(p7, diry) = " << MyPGon2->DistanceToOut(p7, diry) << std::endl;
+  std::cout << "MyPGon2->DistanceToOut(p7, dirz) = " << MyPGon2->DistanceToOut(p7, dirz) << std::endl;
 
 #ifdef SCAN_SOLID
   std::cout << "\n=======     Polyhedra SCAN test      ========";
@@ -248,16 +246,16 @@ bool TestPolyhedra()
     if (in == vecgeom::EInside::kInside) {
       std::cout << " is inside";
 
-      d = MyPGon->DistanceToOut(start, dir, normal, convex);
+      d = MyPGon->DistanceToOut(start, dir);
       std::cout << "  distance to out=" << d;
-      d = MyPGon->SafetyFromInside(start);
+      d = MyPGon->SafetyToOut(start);
       std::cout << "  closest distance to out=" << d << std::endl;
     } else if (in == vecgeom::EInside::kOutside) {
       std::cout << " is outside";
 
       d = MyPGon->DistanceToIn(start, dir);
       std::cout << "  distance to in=" << d;
-      d = MyPGon->SafetyFromOutside(start);
+      d = MyPGon->SafetyToIn(start);
       std::cout << "  closest distance to in=" << d << std::endl;
     } else
       std::cout << " is on the surface" << std::endl;
@@ -277,7 +275,7 @@ bool TestPolyhedra()
     start2.Set(0, -100, z);
     d2 = MyPGon->DistanceToIn(start2, dir2);
     std::cout << "  distance to in=" << d2;
-    d2 = MyPGon->SafetyFromOutside(start2);
+    d2 = MyPGon->SafetyToIn(start2);
     std::cout << "  distance to in=" << d2 << std::endl;
   }
 
@@ -309,7 +307,7 @@ bool TestPolyhedra()
     start4.Set(0, 0, z);
     // G4double phi=pi/180.*rad;
     //  G4double phi=0.0000000001*pi/180.*rad;
-    double phi = -UUtils::kPi / 180. * UUtils::kPi / 180.;
+    double phi = -kPi / 180. * kPi / 180.;
     Vec_t dir4(std::cos(phi), std::sin(phi), 0);
     double d4;
 
@@ -326,21 +324,21 @@ bool TestPolyhedra()
       in = MyPGon->Inside(start4);
       if (in == vecgeom::EInside::kInside) {
         std::cout << " is inside";
-        d4 = MyPGon->DistanceToOut(start4, dir4, normal, convex);
+        d4 = MyPGon->DistanceToOut(start4, dir4);
         std::cout << "  distance to out=" << d4;
-        d4 = MyPGon->SafetyFromInside(start4);
+        d4 = MyPGon->SafetyToOut(start4);
         std::cout << " closest distance to out=" << d4 << std::endl;
       } else if (in == vecgeom::EInside::kOutside) {
         std::cout << " is outside";
         d4 = MyPGon->DistanceToIn(start4, dir4);
         std::cout << "  distance to in=" << d4;
-        d4 = MyPGon->SafetyFromOutside(start4);
+        d4 = MyPGon->SafetyToIn(start4);
         std::cout << " closest distance to in=" << d4 << std::endl;
       } else {
         std::cout << " is on the surface";
         d4 = MyPGon->DistanceToIn(start4, dir4);
         std::cout << "  distance to in=" << d4;
-        d4 = MyPGon->SafetyFromOutside(start4);
+        d4 = MyPGon->SafetyToIn(start4);
         std::cout << " closest distance to in=" << d4 << std::endl;
       }
     }
@@ -371,21 +369,21 @@ bool TestPolyhedra()
       in = MyPGon->Inside(start5);
       if (in == vecgeom::EInside::kInside) {
         std::cout << " is inside";
-        d5 = MyPGon->DistanceToOut(start5, dir5, normal, convex);
+        d5 = MyPGon->DistanceToOut(start5, dir5);
         std::cout << "  distance to out=" << d5;
-        d5 = MyPGon->SafetyFromInside(start5);
+        d5 = MyPGon->SafetyToOut(start5);
         std::cout << " closest distance to out=" << d5 << std::endl;
       } else if (in == vecgeom::EInside::kOutside) {
         std::cout << " is outside";
         d5 = MyPGon->DistanceToIn(start5, dir5);
         std::cout << "  distance to in=" << d5;
-        d5 = MyPGon->SafetyFromOutside(start5);
+        d5 = MyPGon->SafetyToIn(start5);
         std::cout << " closest distance to in=" << d5 << std::endl;
       } else {
         std::cout << " is on the surface";
         d5 = MyPGon->DistanceToIn(start5, dir5);
         std::cout << "  distance to in=" << d5;
-        d5 = MyPGon->SafetyFromOutside(start5);
+        d5 = MyPGon->SafetyToIn(start5);
         std::cout << " closest distance to in=" << d5 << std::endl;
       }
     }

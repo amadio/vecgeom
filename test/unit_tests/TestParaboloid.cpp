@@ -27,7 +27,6 @@ bool TestParaboloid()
 
   std::cout << std::setprecision(15);
   Vec_t norm(0., 0., 0.);
-  bool convex = false;
   double Dist = 0;
 
   Vec_t pzero(0., 0., 0.), pbigx(100, 0., 0.), pbigmx(-100., 0., 0.), pbigy(0., 100., 0.), pbigmy(0., -100., 0.),
@@ -54,13 +53,13 @@ bool TestParaboloid()
   Vec_t pWithinZTolerance(0., 0., 10. + 0.25 * vecgeom::kTolerance);
   assert(p1.Inside(pWithinZTolerance) == vecgeom::EInside::kSurface);
 
-  Dist = p1.DistanceToOut(pzero, dirz, norm, convex);
+  Dist = p1.DistanceToOut(pzero, dirz);
   assert(Dist == 10.);
-  Dist = p1.DistanceToOut(pzero, dirmz, norm, convex);
+  Dist = p1.DistanceToOut(pzero, dirmz);
   assert(Dist == 10.);
-  Dist = p1.DistanceToOut(zSurfPt, dirz, norm, convex);
+  Dist = p1.DistanceToOut(zSurfPt, dirz);
   assert(Dist == 0.);
-  Dist = p1.DistanceToOut(mzSurfPt, dirmz, norm, convex);
+  Dist = p1.DistanceToOut(mzSurfPt, dirmz);
   assert(Dist == 0.);
   Dist = p1.DistanceToIn(pbigz, dirmz);
   assert(Dist == 90.);
@@ -72,17 +71,17 @@ bool TestParaboloid()
   assert(Dist == 0.);
 
   Paraboloid_t p2("testPara", 0., 8., 10.);
-  Dist = p2.DistanceToOut(Vec_t(0., 0., -10), dirmz, norm, convex);
+  Dist = p2.DistanceToOut(Vec_t(0., 0., -10), dirmz);
   assert(Dist == 0.);
-  Dist = p2.DistanceToOut(Vec_t(0., 0., -10), dirz, norm, convex);
+  Dist = p2.DistanceToOut(Vec_t(0., 0., -10), dirz);
   assert(Dist == 20.);
   Dist = p2.DistanceToIn(Vec_t(0., 0., -10), dirz);
   assert(Dist == 0.);
 
   Vec_t tmpDir = Vec_t(1., 2., 2.).Unit();
-  Dist         = p2.DistanceToOut(pzero, tmpDir, norm, convex);
+  Dist         = p2.DistanceToOut(pzero, tmpDir);
   Vec_t tmpPt  = pzero + Dist * tmpDir;
-  Dist         = p2.DistanceToOut(tmpPt, tmpDir, norm, convex);
+  Dist         = p2.DistanceToOut(tmpPt, tmpDir);
   assert(Dist == 0.);
   Dist = p2.DistanceToIn(tmpPt, -tmpDir);
   assert(Dist == 0.);

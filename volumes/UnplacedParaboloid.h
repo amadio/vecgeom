@@ -150,7 +150,6 @@ public:
 
   std::string GetEntityType() const;
 
-#if defined(VECGEOM_USOLIDS)
   VECCORE_ATT_HOST_DEVICE
   void GetParametersList(int aNumber, double *aArray) const;
 
@@ -158,7 +157,6 @@ public:
   UnplacedParaboloid *Clone() const;
 
   std::ostream &StreamInfo(std::ostream &os) const;
-#endif
 
 public:
   virtual int MemorySize() const final { return sizeof(*this); }

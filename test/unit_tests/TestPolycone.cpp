@@ -16,6 +16,7 @@
 #include <cmath>
 #include <fenv.h>
 #include "base/FpeEnable.h"
+
 using namespace vecgeom;
 
 template <typename Constants, class Polycone_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
@@ -25,19 +26,19 @@ bool TestPolycone()
   double RMAXVec[8]  = {70, 70, 70, 40, 40, 80, 80, 60};
   double Z_Values[8] = {-20, -10, -10, 0, 10, 20, 30, 40};
   double Phi_Values[2];
-  Phi_Values[0]       = -10. * UUtils::kPi / 180.;
-  Phi_Values[1]       = 10. * UUtils::kPi / 180.;
+  Phi_Values[0]       = -10. * kPi / 180.;
+  Phi_Values[1]       = 10. * kPi / 180.;
   Polycone_t *MyPCone = new Polycone_t("MyPCone", Phi_Values[0], Phi_Values[1], 8, Z_Values, RMINVec, RMAXVec);
 
   double RMIN[3]   = {0, 0, 0};
   double RMAX[3]   = {70, 70, 80};
   double Z_Val2[3] = {-10, 0, 10};
-  Polycone_t Simple("SimpleTube+Cone", 0, 360. * UUtils::kPi / 180., 3, Z_Val2, RMIN, RMAX);
+  Polycone_t Simple("SimpleTube+Cone", 0, 360. * kPi / 180., 3, Z_Val2, RMIN, RMAX);
 
   double z1[8]    = {-2935., -1899., -1899., -1899., 1899., 1899., 1899., 2935.};
   double rmin1[8] = {74., 34., 31., 31., 31., 31., 34., 74.};
   double rmax1[8] = {1233., 1233., 1233., 1233., 1233., 1233., 1233., 1233.};
-  Polycone_t cms_TRAK("oldcms_TRAK", 0, 360. * UUtils::kPi / 180., 8, z1, rmin1, rmax1);
+  Polycone_t cms_TRAK("oldcms_TRAK", 0, 360. * kPi / 180., 8, z1, rmin1, rmax1);
 
   int Nz = 4;
   // a tube and two cones
@@ -45,12 +46,12 @@ bool TestPolycone()
   double rmax[] = {1., 2., 2., 1.5};
   double z[]    = {-1, -0.5, 0.5, 2};
 
-  UnplacedPolycone poly1(0.,                        /* initial phi starting angle */
-			 360. * UUtils::kPi / 180., // kTwoPi,    /* total phi angle */
-			 Nz,                        /* number corners in r,z space */
-			 z,                         /* z coordinates */
-			 rmin,                      /* r coordinate of these corners */
-			 rmax);
+  UnplacedPolycone poly1(0.,                /* initial phi starting angle */
+                         360. * kPi / 180., // kTwoPi,    /* total phi angle */
+                         Nz,                /* number corners in r,z space */
+                         z,                 /* z coordinates */
+                         rmin,              /* r coordinate of these corners */
+                         rmax);
 
   poly1.Print();
 
@@ -92,7 +93,7 @@ bool TestPolycone()
   assert(placedpoly1->DistanceToIn(Vec_t(0., 0., 3), Vec_t(0., 0., 1.)) == Constants::kInfLength);
   assert(placedpoly1->DistanceToIn(Vec_t(3., 0., 0), Vec_t(-1., 0., 0.)) == 1);
   assert(std::fabs(placedpoly1->DistanceToIn(Vec_t(0., 0., 1.999999999), Vec_t(1., 0., 0.)) - 0.4) <
-	 1000. * kTolerance);
+         1000. * kTolerance);
 
   // test SafetyToIn
   assert(placedpoly1->SafetyToIn(Vec_t(0., 0., -3.)) == 2.);
@@ -120,12 +121,12 @@ bool TestPolycone()
   // Check Cubic volume
   double vol, volCheck;
   vol      = Simple.Capacity();
-  volCheck = UUtils::kPi * (70 * 70 * 10 + 10 * (70 * 70 + 80 * 80 + 70 * 80) / 3.);
+  volCheck = kPi * (70 * 70 * 10 + 10 * (70 * 70 + 80 * 80 + 70 * 80) / 3.);
   assert(ApproxEqual(vol, volCheck));
 
   // Check Surface area
   vol      = Simple.SurfaceArea();
-  volCheck = UUtils::kPi * (70 * 70 + 80 * 80 + (70 + 80) * std::sqrt(10 * 10 + 10 * 10) + 10 * 2 * 70);
+  volCheck = kPi * (70 * 70 + 80 * 80 + (70 + 80) * std::sqrt(10 * 10 + 10 * 10) + 10 * 2 * 70);
   assert(ApproxEqual(vol, volCheck));
 
   // Check Inside
@@ -145,8 +146,8 @@ bool TestPolycone()
   Vec_t vxmy(1 / std::sqrt(2.0), -1 / std::sqrt(2.0), 0);
 
   double Dist;
-  Vec_t normal, norm;
-  bool valid, convex;
+  Vec_t normal;
+  bool valid;
   assert(Simple.Inside(pzero) == vecgeom::EInside::kInside);
   assert(Simple.Inside(pbigz) == vecgeom::EInside::kOutside);
   assert(Simple.Inside(pbigx) == vecgeom::EInside::kOutside);
@@ -164,19 +165,19 @@ bool TestPolycone()
   // check that Normal() returns valid=false and a non-zero normal for points away from the surface
 
   Vec_t point(70, 70, -5);
-  if ((valid = Simple.Normal(point, norm)) || !ApproxEqual(norm.Mag2(), 1))
-    std::cout << "Simple.Normal() mismatch: Line " << __LINE__ << ", p=" << point << ", normal=" << norm
-	      << ", valid=" << valid << "\n";
+  if ((valid = Simple.Normal(point, normal)) || !ApproxEqual(normal.Mag2(), 1))
+    std::cout << "Simple.Normal() normal not checked: Line " << __LINE__ << ", p=" << point << ", normal=" << normal
+              << ", valid=" << valid << "\n";
   point.z() = -10;
-  if ((valid = Simple.Normal(point, norm)) || !ApproxEqual(norm.Mag2(), 1))
-    std::cout << "Simple.Normal() mismatch: Line " << __LINE__ << ", p=" << point << ", normal=" << norm
-	      << ", valid=" << valid << "\n";
-  if ((valid = Simple.Normal(pbigz, norm)) || !ApproxEqual(norm.Mag2(), 1))
-    std::cout << "Simple.Normal() mismatch: Line " << __LINE__ << ", p=" << pbigz << ", normal=" << norm
-	      << ", valid=" << valid << "\n";
-  if ((valid = Simple.Normal(pbigmz, norm)) || !ApproxEqual(norm.Mag2(), 1))
-    std::cout << "Simple.Normal() mismatch: Line " << __LINE__ << ", p=" << pbigmz << ", normal=" << norm
-	      << ", valid=" << valid << "\n";
+  if ((valid = Simple.Normal(point, normal)) || !ApproxEqual(normal.Mag2(), 1))
+    std::cout << "Simple.Normal() normal not checked: Line " << __LINE__ << ", p=" << point << ", normal=" << normal
+              << ", valid=" << valid << "\n";
+  if ((valid = Simple.Normal(pbigz, normal)) || !ApproxEqual(normal.Mag2(), 1))
+    std::cout << "Simple.Normal() normal not checked: Line " << __LINE__ << ", p=" << pbigz << ", normal=" << normal
+              << ", valid=" << valid << "\n";
+  if ((valid = Simple.Normal(pbigmz, normal)) || !ApproxEqual(normal.Mag2(), 1))
+    std::cout << "Simple.Normal() normal not checked: Line " << __LINE__ << ", p=" << pbigmz << ", normal=" << normal
+              << ", valid=" << valid << "\n";
 
   // Check Surface Normal
 
@@ -224,65 +225,75 @@ bool TestPolycone()
   valid = Simple.Normal(edgemYZ, normal);
   assert(ApproxEqual(normal, Vec_t(0, -xyn, zn)));
 
-  // SafetyFromInside(P)
-  Dist = Simple.SafetyFromInside(Vec_t(5, 5, -5));
+  // SafetyToOut(P)
+  Dist = Simple.SafetyToOut(Vec_t(5, 5, -5));
   assert(ApproxEqual(Dist, 5));
-  Dist = Simple.SafetyFromInside(Vec_t(5, 5, 7));
+  Dist = Simple.SafetyToOut(Vec_t(5, 5, 7));
   assert(ApproxEqual(Dist, 3));
-  Dist = Simple.SafetyFromInside(Vec_t(69, 0, -5));
+  Dist = Simple.SafetyToOut(Vec_t(69, 0, -5));
   assert(ApproxEqual(Dist, 1));
-  Dist = Simple.SafetyFromInside(Vec_t(-3, -3, 8));
+  Dist = Simple.SafetyToOut(Vec_t(-3, -3, 8));
   assert(ApproxEqual(Dist, 2));
 
   // DistanceToOut(P,V)
 
-  Dist = Simple.DistanceToOut(pzero, vx, norm, convex);
-  std::cout << "D2O mismatch: Line " << __LINE__ << ", p=" << pzero << ", dir=" << vx << ", norm=" << norm << "\n";
-  assert(ApproxEqual(Dist, 70) && !convex); //&& ApproxEqual(norm,vx)
-  Dist = Simple.DistanceToOut(pzero, vmx, norm, convex);
-  std::cout << "D2O mismatch: Line " << __LINE__ << ", p=" << pzero << ", dir=" << vmx << ", norm=" << norm << "\n";
-  assert(ApproxEqual(Dist, 70) && !convex); //&& ApproxEqual(norm,vmx)
-  Dist = Simple.DistanceToOut(pzero, vy, norm, convex);
-  std::cout << "D2O mismatch: Line " << __LINE__ << ", p=" << pzero << ", dir=" << vy << ", norm=" << norm << "\n";
-  assert(ApproxEqual(Dist, 70) && !convex); //&&ApproxEqual(norm,vy)
-  Dist = Simple.DistanceToOut(pzero, vmy, norm, convex);
-  std::cout << "D2O mismatch: Line " << __LINE__ << ", p=" << pzero << ", dir=" << vmy << ", norm=" << norm << "\n";
-  assert(ApproxEqual(Dist, 70) && !convex); //&&ApproxEqual(norm,vmy)
-  Dist = Simple.DistanceToOut(pzero, vz, norm, convex);
+  Dist  = Simple.DistanceToOut(pzero, vx);
+  valid = Simple.Normal(pzero + Dist * vx, normal);
+  std::cout << "D2O normal not checked: Line " << __LINE__ << ", p=" << pzero << ", dir=" << vx << ", norm=" << normal
+            << "\n";
+  assert(ApproxEqual(Dist, 70)); // && ApproxEqual(normal,vx));
+  Dist  = Simple.DistanceToOut(pzero, vmx);
+  valid = Simple.Normal(pzero + Dist * vmx, normal);
+  std::cout << "D2O normal not checked: Line " << __LINE__ << ", p=" << pzero << ", dir=" << vmx << ", norm=" << normal
+            << "\n";
+  assert(ApproxEqual(Dist, 70)); // && ApproxEqual(normal,vmx));
+  Dist  = Simple.DistanceToOut(pzero, vy);
+  valid = Simple.Normal(pzero + Dist * vy, normal);
+  std::cout << "D2O normal not checked: Line " << __LINE__ << ", p=" << pzero << ", dir=" << vy << ", norm=" << normal
+            << "\n";
+  assert(ApproxEqual(Dist, 70)); // &&ApproxEqual(normal,vy));
+  Dist  = Simple.DistanceToOut(pzero, vmy);
+  valid = Simple.Normal(pzero + Dist * vmy, normal);
+  std::cout << "D2O normal not checked: Line " << __LINE__ << ", p=" << pzero << ", dir=" << vmy << ", norm=" << normal
+            << "\n";
+  assert(ApproxEqual(Dist, 70)); // &&ApproxEqual(normal,vmy));
+  Dist  = Simple.DistanceToOut(pzero, vz);
+  valid = Simple.Normal(pzero + Dist * vz, normal);
   // std::cout<<Dist<< " " <<norm<<"\n";
-  assert(ApproxEqual(Dist, 10) && ApproxEqual(norm, vz));
-  Dist = Simple.DistanceToOut(Vec_t(70, 0, -10), vx, norm, convex);
-  std::cout << "D2O mismatch: Line " << __LINE__ << ", p=" << pzero << ", dir=" << vx << ", dist=" << Dist
-            << ", norm=" << norm << ", convex=" << convex << "\n";
-  // assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,(vx-vz)/(vx-vz).Mag()));
-  Dist = Simple.DistanceToOut(Vec_t(-70, 0, -1), vmx, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vmx));
-  Dist = Simple.DistanceToOut(Vec_t(0, 70, -10), vy, norm, convex);
-  std::cout << "D2O mismatch: Line " << __LINE__ << ", p=" << Vec_t(0, 70, -10) << ", dir=" << vy << ", dist=" << Dist
-            << ", norm=" << norm << ", convex=" << convex << "\n";
-  // assert(ApproxEqual(Dist,0)&&ApproxEqual(norm,vy));
-  Dist = Simple.DistanceToOut(Vec_t(0, -70, -1), vmy, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vmy));
+  assert(ApproxEqual(Dist, 10) && ApproxEqual(normal, vz));
+  Dist  = Simple.DistanceToOut(Vec_t(70, 0, -10), vx);
+  valid = Simple.Normal(Vec_t(70, 0, -10) + Dist * vx, normal);
+  std::cout << "D2O normal not checked: Line " << __LINE__ << ", p=" << pzero << ", dir=" << vx << ", dist=" << Dist
+            << ", norm=" << normal << "\n";
+  // assert(ApproxEqual(Dist,0)&&ApproxEqual(normal,(vx-vz)/(vx-vz).Mag()));
+  Dist = Simple.DistanceToOut(Vec_t(-70, 0, -1), vmx);
+  assert(ApproxEqual(Dist, 0)); // && ApproxEqual(normal, vmx));
+  Dist = Simple.DistanceToOut(Vec_t(0, 70, -10), vy);
+  std::cout << "D2O normal not checked: Line " << __LINE__ << ", p=" << Vec_t(0, 70, -10) << ", dir=" << vy
+            << ", dist=" << Dist << ", norm=" << normal << "\n";
+  assert(ApproxEqual(Dist, 0)); //&&ApproxEqual(normal,vy));
+  Dist = Simple.DistanceToOut(Vec_t(0, -70, -1), vmy);
+  assert(ApproxEqual(Dist, 0)); //&& ApproxEqual(normal, vmy));
 
-  // SafetyFromOutside(P)
+  // SafetyToIn(P)
 
-  Dist = Simple.SafetyFromOutside(pbigx);
-  std::cout << "S2O mismatch: Line " << __LINE__ << ", p=" << pbigx << ", safety=" << Dist << "\n";
+  Dist = Simple.SafetyToIn(pbigx);
+  std::cout << "S2O unverified: Line " << __LINE__ << ", p=" << pbigx << ", safety=" << Dist << "\n";
   // assert(ApproxEqual(Dist,20));
-  Dist = Simple.SafetyFromOutside(pbigmx);
-  std::cout << "S2O mismatch: Line " << __LINE__ << ", p=" << pbigmx << ", safety=" << Dist << "\n";
+  Dist = Simple.SafetyToIn(pbigmx);
+  std::cout << "S2O unverified: Line " << __LINE__ << ", p=" << pbigmx << ", safety=" << Dist << "\n";
   // assert(ApproxEqual(Dist,20));
-  Dist = Simple.SafetyFromOutside(pbigy);
-  std::cout << "S2O mismatch: Line " << __LINE__ << ", p=" << pbigmx << ", safety=" << Dist << "\n";
+  Dist = Simple.SafetyToIn(pbigy);
+  std::cout << "S2O unverified: Line " << __LINE__ << ", p=" << pbigmx << ", safety=" << Dist << "\n";
   // assert(ApproxEqual(Dist,20));
-  Dist = Simple.SafetyFromOutside(pbigmy);
-  std::cout << "S2O mismatch: Line " << __LINE__ << ", p=" << pbigmx << ", safety=" << Dist << "\n";
+  Dist = Simple.SafetyToIn(pbigmy);
+  std::cout << "S2O unverified: Line " << __LINE__ << ", p=" << pbigmx << ", safety=" << Dist << "\n";
   // assert(ApproxEqual(Dist,20));
-  Dist = Simple.SafetyFromOutside(pbigz);
-  std::cout << "S2O mismatch: Line " << __LINE__ << ", p=" << pbigmx << ", safety=" << Dist << "\n";
+  Dist = Simple.SafetyToIn(pbigz);
+  std::cout << "S2O unverified: Line " << __LINE__ << ", p=" << pbigmx << ", safety=" << Dist << "\n";
   // assert(ApproxEqual(Dist,80));
-  Dist = Simple.SafetyFromOutside(pbigmz);
-  std::cout << "S2O mismatch: Line " << __LINE__ << ", p=" << pbigmx << ", safety=" << Dist << "\n";
+  Dist = Simple.SafetyToIn(pbigmz);
+  std::cout << "S2O unverified: Line " << __LINE__ << ", p=" << pbigmx << ", safety=" << Dist << "\n";
   // assert(ApproxEqual(Dist,80));
 
   // DistanceToIn(P,V)
@@ -300,10 +311,10 @@ bool TestPolycone()
   Dist = Simple.DistanceToIn(pbigmz, vz);
   assert(ApproxEqual(Dist, 90));
   Dist = Simple.DistanceToIn(pbigx, vxy);
-  // std::cout <<"D2I mismatch: Line "<< __LINE__ <<", p="<< pbigx <<", dir="<< vxy <<", dist="<<Dist<<"\n";
+  // std::cout <<"D2I unverified: Line "<< __LINE__ <<", p="<< pbigx <<", dir="<< vxy <<", dist="<<Dist<<"\n";
   assert(ApproxEqual(Dist, Constants::kInfLength));
   Dist = Simple.DistanceToIn(pbigmx, vmxy);
-  // std::cout <<"D2I mismatch: Line "<< __LINE__ <<", p="<< pbigx <<", dir="<< vxy <<", dist="<<Dist<<"\n";
+  // std::cout <<"D2I unverified: Line "<< __LINE__ <<", p="<< pbigx <<", dir="<< vxy <<", dist="<<Dist<<"\n";
   assert(ApproxEqual(Dist, Constants::kInfLength));
 
   // CalculateExtent
@@ -351,7 +362,6 @@ bool TestPolycone()
   Vec_t dir(1. / std::sqrt(2.), 1. / std::sqrt(2.), 0), normal;
   double d;
   int z;
-  bool convex;
 
   std::cout << "\nPdep is (0, 0, z)";
   std::cout << "\nDir is (1, 1, 0)\n";
@@ -366,16 +376,16 @@ bool TestPolycone()
     if (in == vecgeom::EInside::kInside) {
       std::cout << " is inside";
 
-      d = MyPCone->DistanceToOut(start, dir, normal, convex);
+      d = MyPCone->DistanceToOut(start, dir);
       std::cout << "  distance to out=" << d;
-      d = MyPCone->SafetyFromInside(start);
+      d = MyPCone->SafetyToOut(start);
       std::cout << "  closest distance to out=" << d << std::endl;
     } else if (in == vecgeom::EInside::kOutside) {
       std::cout << " is outside";
 
       d = MyPCone->DistanceToIn(start, dir);
       std::cout << "  distance to in=" << d;
-      d = MyPCone->SafetyFromOutside(start);
+      d = MyPCone->SafetyToIn(start);
       std::cout << "  closest distance to in=" << d << std::endl;
     } else
       std::cout << " is on the surface" << std::endl;
@@ -395,7 +405,7 @@ bool TestPolycone()
     start2.Set(0, -100, z);
     d2 = MyPCone->DistanceToIn(start2, dir2);
     std::cout << "  distance to in=" << d2;
-    d2 = MyPCone->SafetyFromOutside(start2);
+    d2 = MyPCone->SafetyToIn(start2);
     std::cout << "  distance to in=" << d2 << std::endl;
   }
 
@@ -427,7 +437,7 @@ bool TestPolycone()
     start4.Set(0, 0, z);
     // G4double phi=pi/180.*rad;
     //  G4double phi=0.0000000001*pi/180.*rad;
-    double phi = -UUtils::kPi / 180. * UUtils::kPi / 180.;
+    double phi = -kPi / 180. * kPi / 180.;
     Vec_t dir4(std::cos(phi), std::sin(phi), 0);
     double d4;
 
@@ -444,21 +454,21 @@ bool TestPolycone()
       in = MyPCone->Inside(start4);
       if (in == vecgeom::EInside::kInside) {
         std::cout << " is inside";
-        d4 = MyPCone->DistanceToOut(start4, dir4, normal, convex);
+        d4 = MyPCone->DistanceToOut(start4, dir4);
         std::cout << "  distance to out=" << d4;
-        d4 = MyPCone->SafetyFromInside(start4);
+        d4 = MyPCone->SafetyToOut(start4);
         std::cout << " closest distance to out=" << d4 << std::endl;
       } else if (in == vecgeom::EInside::kOutside) {
         std::cout << " is outside";
         d4 = MyPCone->DistanceToIn(start4, dir4);
         std::cout << "  distance to in=" << d4;
-        d4 = MyPCone->SafetyFromOutside(start4);
+        d4 = MyPCone->SafetyToIn(start4);
         std::cout << " closest distance to in=" << d4 << std::endl;
       } else {
         std::cout << " is on the surface";
         d4 = MyPCone->DistanceToIn(start4, dir4);
         std::cout << "  distance to in=" << d4;
-        d4 = MyPCone->SafetyFromOutside(start4);
+        d4 = MyPCone->SafetyToIn(start4);
         std::cout << " closest distance to in=" << d4 << std::endl;
       }
     }
@@ -489,21 +499,21 @@ bool TestPolycone()
       in = MyPCone->Inside(start5);
       if (in == vecgeom::EInside::kInside) {
         std::cout << " is inside";
-        d5 = MyPCone->DistanceToOut(start5, dir5, normal, convex);
+        d5 = MyPCone->DistanceToOut(start5, dir5);
         std::cout << "  distance to out=" << d5;
-        d5 = MyPCone->SafetyFromInside(start5);
+        d5 = MyPCone->SafetyToOut(start5);
         std::cout << " closest distance to out=" << d5 << std::endl;
       } else if (in == vecgeom::EInside::kOutside) {
         std::cout << " is outside";
         d5 = MyPCone->DistanceToIn(start5, dir5);
         std::cout << "  distance to in=" << d5;
-        d5 = MyPCone->SafetyFromOutside(start5);
+        d5 = MyPCone->SafetyToIn(start5);
         std::cout << " closest distance to in=" << d5 << std::endl;
       } else {
         std::cout << " is on the surface";
         d5 = MyPCone->DistanceToIn(start5, dir5);
         std::cout << "  distance to in=" << d5;
-        d5 = MyPCone->SafetyFromOutside(start5);
+        d5 = MyPCone->SafetyToIn(start5);
         std::cout << " closest distance to in=" << d5 << std::endl;
       }
     }
@@ -516,7 +526,7 @@ bool TestPolycone()
   double rmin3[Nz3] = {53, 53, 53, 53, 114, 114};
   double rmax3[Nz3] = {54, 54, 115, 115, 115, 115};
   double z3[Nz3]    = {71, 121.5, 121.5, 122.5, 122.5, 282};
-  Polycone_t pcon175("PCone175", 0, 360. * UUtils::kPi / 180., Nz3, z3, rmin3, rmax3);
+  Polycone_t pcon175("PCone175", 0, 360. * kPi / 180., Nz3, z3, rmin3, rmax3);
 
   Vec_t point175a{-18.1079855387881, -54.3917837284389, 121.5};
 

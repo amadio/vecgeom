@@ -451,4 +451,9 @@ void MaskedAssign(vecgeom::Vector3D<T> &v, const vecCore::Mask<T> &mask, const v
 }
 }
 
+// for use in GEANT4
+#ifdef VECGEOM_USOLIDS
+using UVector3 = VECGEOM_NAMESPACE::Vector3D<double>;
+#endif
+
 #endif // VECGEOM_BASE_VECTOR3D_H_

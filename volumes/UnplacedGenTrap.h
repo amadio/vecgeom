@@ -183,21 +183,19 @@ public:
 #endif
                                VPlacedVolume *const placement = NULL);
 
-/*
-  // Is this still needed?
-  VECCORE_ATT_DEVICE
-  static VPlacedVolume *CreateSpecializedVolume(LogicalVolume const *const volume,
-                                                Transformation3D const *const transformation,
-                                                const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECCORE_CUDA
-                                                const int id,
-#endif
-                                                VPlacedVolume *const placement = NULL);
-*/
-#if defined(VECGEOM_USOLIDS)
-  /** @brief Stream trapezoid information in the USolids style */
+  /*
+    // Is this still needed?
+    VECCORE_ATT_DEVICE
+    static VPlacedVolume *CreateSpecializedVolume(LogicalVolume const *const volume,
+                                                  Transformation3D const *const transformation,
+                                                  const TranslationCode trans_code, const RotationCode rot_code,
+  #ifdef VECCORE_CUDA
+                                                  const int id,
+  #endif
+                                                  VPlacedVolume *const placement = NULL);
+  */
+  /** @brief Stream trapezoid information in the USolids/Geant4 style */
   std::ostream &StreamInfo(std::ostream &os) const;
-#endif
 
 private:
   /** @brief Factory for specializing the volume */

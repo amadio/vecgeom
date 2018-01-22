@@ -102,24 +102,23 @@ bool TestGenTrap()
   assert(ApproxEqual(Dist, 0.));
 
   // DistanceToOut(P,V)
-  bool convex;
   Vec_t direction;
-  Dist = trap1.DistanceToOut(pzero, Vec_t(-1., 0., 0.), normal, convex);
+  Dist = trap1.DistanceToOut(pzero, Vec_t(-1., 0., 0.));
   assert(ApproxEqual(Dist, 2.5));
-  Dist = trap1.DistanceToOut(pzero, Vec_t(0., 0., 1.), normal, convex);
+  Dist = trap1.DistanceToOut(pzero, Vec_t(0., 0., 1.));
   assert(ApproxEqual(Dist, 5.));
-  Dist = trap1.DistanceToOut(ponxm, Vec_t(1., 0., 0.), normal, convex);
+  Dist = trap1.DistanceToOut(ponxm, Vec_t(1., 0., 0.));
   assert(ApproxEqual(Dist, 5.));
-  Dist = trap1.DistanceToOut(ponyp, Vec_t(0., -1., 0.), normal, convex);
+  Dist = trap1.DistanceToOut(ponyp, Vec_t(0., -1., 0.));
   assert(ApproxEqual(Dist, 5.));
-  Dist = trap1.DistanceToOut(pbig, Vec_t(0., -1., 0.), normal, convex);
+  Dist = trap1.DistanceToOut(pbig, Vec_t(0., -1., 0.));
   assert(Dist < 0.);
   for (int i = 0; i < 8; i++) {
     // Shoot to every vertex of the twisted trapezoid
     direction.Set(verticesx2[i], verticesy2[i], (i < 4) ? -5 : 5);
     Distref = direction.Mag();
     direction.Normalize();
-    Dist = trap2.DistanceToOut(pzero, direction, normal, convex);
+    Dist = trap2.DistanceToOut(pzero, direction);
     // std::cout << "Dist=" << Dist << "  Distref=" << Distref << std::endl;
     assert(ApproxEqual(Dist, Distref));
   }

@@ -47,7 +47,7 @@ bool TestParallelepiped()
 
   double Dist;
   Vec_t normal, norm;
-  bool valid, convex;
+  bool valid;
 
   // check Cubic volume
 
@@ -100,80 +100,80 @@ bool TestParallelepiped()
   valid = para.Normal(ponmzside, normal);
   assert(valid && ApproxEqual(normal, Vec_t(0, 0, -1)));
 
-  // SafetyFromInside/Outside(P)
+  // SafetyToOut/Outside(P)
 
-  Dist = para.SafetyFromInside(pzero);
+  Dist = para.SafetyToOut(pzero);
   assert(Dist < dx);
 
-  Dist = para.SafetyFromInside(ponxside);
+  Dist = para.SafetyToOut(ponxside);
   assert(Dist == 0.);
 
-  Dist = para.SafetyFromInside(ponyside);
+  Dist = para.SafetyToOut(ponyside);
   assert(Dist == 0.);
 
-  Dist = para.SafetyFromInside(ponzside);
+  Dist = para.SafetyToOut(ponzside);
   assert(Dist == 0.);
 
-  Dist = para.SafetyFromInside(ponmxside);
+  Dist = para.SafetyToOut(ponmxside);
   assert(Dist == 0.);
 
-  Dist = para.SafetyFromInside(ponmyside);
+  Dist = para.SafetyToOut(ponmyside);
   assert(Dist == 0.);
 
-  Dist = para.SafetyFromInside(ponmzside);
+  Dist = para.SafetyToOut(ponmzside);
   assert(Dist == 0.);
 
-  Dist = para.SafetyFromOutside(pzero);
+  Dist = para.SafetyToIn(pzero);
   assert(Dist < dx);
 
-  Dist = para.SafetyFromOutside(ponxside);
+  Dist = para.SafetyToIn(ponxside);
   assert(Dist == 0.);
 
-  Dist = para.SafetyFromOutside(ponyside);
+  Dist = para.SafetyToIn(ponyside);
   assert(Dist == 0.);
 
-  Dist = para.SafetyFromOutside(ponzside);
+  Dist = para.SafetyToIn(ponzside);
   assert(Dist == 0.);
 
-  Dist = para.SafetyFromOutside(ponmxside);
+  Dist = para.SafetyToIn(ponmxside);
   assert(Dist == 0.);
 
-  Dist = para.SafetyFromOutside(ponmyside);
+  Dist = para.SafetyToIn(ponmyside);
   assert(Dist == 0.);
 
-  Dist = para.SafetyFromOutside(ponmzside);
+  Dist = para.SafetyToIn(ponmzside);
   assert(Dist == 0.);
 
-  assert(ApproxEqual(para.SafetyFromOutside(pbigx), para.SafetyFromOutside(pbigmx)));
-  assert(ApproxEqual(para.SafetyFromOutside(pbigy), para.SafetyFromOutside(pbigmy)));
-  assert(ApproxEqual(para.SafetyFromOutside(pbigz), para.SafetyFromOutside(pbigmz)));
+  assert(ApproxEqual(para.SafetyToIn(pbigx), para.SafetyToIn(pbigmx)));
+  assert(ApproxEqual(para.SafetyToIn(pbigy), para.SafetyToIn(pbigmy)));
+  assert(ApproxEqual(para.SafetyToIn(pbigz), para.SafetyToIn(pbigmz)));
 
   // DistanceToOut(P,V)
 
-  Dist = para.DistanceToOut(pzero, vx, norm, convex);
+  Dist = para.DistanceToOut(pzero, vx);
   assert(ApproxEqual(Dist, dx));
-  Dist = para.DistanceToOut(pzero, vmx, norm, convex);
+  Dist = para.DistanceToOut(pzero, vmx);
   assert(ApproxEqual(Dist, dx));
-  Dist = para.DistanceToOut(pzero, vy, norm, convex);
+  Dist = para.DistanceToOut(pzero, vy);
   assert(ApproxEqual(Dist, dy));
-  Dist = para.DistanceToOut(pzero, vmy, norm, convex);
+  Dist = para.DistanceToOut(pzero, vmy);
   assert(ApproxEqual(Dist, dy));
-  Dist = para.DistanceToOut(pzero, vz, norm, convex);
+  Dist = para.DistanceToOut(pzero, vz);
   assert(ApproxEqual(Dist, dz));
-  Dist = para.DistanceToOut(pzero, vmz, norm, convex);
+  Dist = para.DistanceToOut(pzero, vmz);
   assert(ApproxEqual(Dist, dz));
 
-  Dist = para.DistanceToOut(ponxside, vx, norm, convex);
+  Dist = para.DistanceToOut(ponxside, vx);
   assert(ApproxEqual(Dist, 0));
-  Dist = para.DistanceToOut(ponmxside, vmx, norm, convex);
+  Dist = para.DistanceToOut(ponmxside, vmx);
   assert(ApproxEqual(Dist, 0));
-  Dist = para.DistanceToOut(ponyside, vy, norm, convex);
+  Dist = para.DistanceToOut(ponyside, vy);
   assert(ApproxEqual(Dist, 0));
-  Dist = para.DistanceToOut(ponmyside, vmy, norm, convex);
+  Dist = para.DistanceToOut(ponmyside, vmy);
   assert(ApproxEqual(Dist, 0));
-  Dist = para.DistanceToOut(ponzside, vz, norm, convex);
+  Dist = para.DistanceToOut(ponzside, vz);
   assert(ApproxEqual(Dist, 0));
-  Dist = para.DistanceToOut(ponmzside, vmz, norm, convex);
+  Dist = para.DistanceToOut(ponmzside, vmz);
   assert(ApproxEqual(Dist, 0));
 
   // DistanceToIn(P,V)

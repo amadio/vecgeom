@@ -2,9 +2,6 @@
 #include "ShapeTester.h"
 #include "volumes/PlacedVolume.h"
 
-#ifdef VECGEOM_USOLIDS
-#include "UTorus.hh"
-#endif
 #include "volumes/SpecializedTorus2.h"
 
 using VGTorus = vecgeom::SimpleTorus2;

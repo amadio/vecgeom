@@ -187,9 +187,8 @@ public:
   virtual void Print() const final;
   virtual void Print(std::ostream &os) const final;
 
-#if defined(VECGEOM_USOLIDS)
+  std::string GetEntityType() const { return "Cone"; }
   std::ostream &StreamInfo(std::ostream &os) const;
-#endif
 
   VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
@@ -252,8 +251,6 @@ public:
   Precision GetRadiusOfConeAtPoint(Precision const pointZ) const;
 
   bool IsOnEdge(Vector3D<Precision> &point) const;
-
-  std::string GetEntityType() const { return "Cone"; }
 
 #endif // !VECCORE_CUDA
 };

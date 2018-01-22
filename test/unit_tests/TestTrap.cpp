@@ -11,11 +11,15 @@
 #include "volumes/Box.h"
 #include "ApproxEqual.h"
 #include "volumes/Trapezoid.h"
+#import <cmath>
 
+using vecgeom::kPi;
+using vecgeom::kInfLength;
 bool testvecgeom = true;
-double degToRad  = vecCore::math::ATan(1.0) / 45.;
 
-template <typename Constants, class Trap_t>
+const double deg = atan(1.0) / 45.;
+
+template <class Trap_t>
 bool TestTrap()
 {
   using Vec_t = vecgeom::Vector3D<vecgeom::Precision>;
@@ -42,8 +46,8 @@ bool TestTrap()
   Vec_t vyz(0, 1 / std::sqrt(2.0), 1 / std::sqrt(2.0));
 
   double Dist, dist, vol, volCheck;
-  Vec_t normal, norm;
-  bool valid, convex;
+  Vec_t normal;
+  bool valid;
 
   double cosa = 4 / std::sqrt(17.), sina = 1 / std::sqrt(17.);
 
@@ -57,8 +61,8 @@ bool TestTrap()
 
   Trap_t trap2("Test Trdlike #2", trapvert);
 
-  Trap_t trap3("trap3", 50, 0, 0, 50, 50, 50, UUtils::kPi / 4, 50, 50, 50, UUtils::kPi / 4);
-  Trap_t trap4("trap4", 50, 0, 0, 50, 50, 50, -UUtils::kPi / 4, 50, 50, 50, -UUtils::kPi / 4);
+  Trap_t trap3("trap3", 50, 0, 0, 50, 50, 50, kPi / 4, 50, 50, 50, kPi / 4);
+  Trap_t trap4("trap4", 50, 0, 0, 50, 50, 50, -kPi / 4, 50, 50, 50, -kPi / 4);
 
   // confirm Trd calculations
   Trap_t trap5("Trd2", 20, 20, 30, 30, 40);
@@ -277,243 +281,270 @@ bool TestTrap()
   // assert(valid && ApproxEqual(normal, Vec_t(0, 0.615412, -0.788205))); // (0,cosa,-sina) ?
   assert(valid && ApproxEqual(normal.Mag2(), 1.0));
 
-  // SafetyFromInside(P)
+  // SafetyToOut(P)
 
-  Dist = trap1.SafetyFromInside(pzero);
+  Dist = trap1.SafetyToOut(pzero);
   assert(ApproxEqual(Dist, 20));
-  Dist = trap1.SafetyFromInside(vx);
+  Dist = trap1.SafetyToOut(vx);
   assert(ApproxEqual(Dist, 19));
-  Dist = trap1.SafetyFromInside(vy);
+  Dist = trap1.SafetyToOut(vy);
   assert(ApproxEqual(Dist, 20));
-  Dist = trap1.SafetyFromInside(vz);
+  Dist = trap1.SafetyToOut(vz);
   assert(ApproxEqual(Dist, 20));
 
-  Dist = trap2.SafetyFromInside(pzero);
+  Dist = trap2.SafetyToOut(pzero);
   assert(ApproxEqual(Dist, 20 * cosa));
-  Dist = trap2.SafetyFromInside(vx);
+  Dist = trap2.SafetyToOut(vx);
   assert(ApproxEqual(Dist, 19 * cosa));
-  Dist = trap2.SafetyFromInside(vy);
+  Dist = trap2.SafetyToOut(vy);
   assert(ApproxEqual(Dist, 20 * cosa));
-  Dist = trap2.SafetyFromInside(vz);
+  Dist = trap2.SafetyToOut(vz);
   assert(ApproxEqual(Dist, 20 * cosa + sina));
 
   // DistanceToOut(P,V)
 
-  Dist = trap1.DistanceToOut(pzero, vx, norm, convex);
-  assert(ApproxEqual(Dist, 20) && ApproxEqual(norm, vx));
-  if (!testvecgeom) assert(convex);
-  Dist = trap1.DistanceToOut(pzero, vmx, norm, convex);
-  assert(ApproxEqual(Dist, 20) && ApproxEqual(norm, vmx));
-  if (!testvecgeom) assert(convex);
-  Dist = trap1.DistanceToOut(pzero, vy, norm, convex);
-  assert(ApproxEqual(Dist, 30) && ApproxEqual(norm, vy));
-  if (!testvecgeom) assert(convex);
-  Dist = trap1.DistanceToOut(pzero, vmy, norm, convex);
-  assert(ApproxEqual(Dist, 30) && ApproxEqual(norm, vmy));
-  if (!testvecgeom) assert(convex);
-  Dist = trap1.DistanceToOut(pzero, vz, norm, convex);
-  assert(ApproxEqual(Dist, 40) && ApproxEqual(norm, vz));
-  if (!testvecgeom) assert(convex);
-  Dist = trap1.DistanceToOut(pzero, vmz, norm, convex);
-  assert(ApproxEqual(Dist, 40) && ApproxEqual(norm, vmz));
-  if (!testvecgeom) assert(convex);
-  Dist = trap1.DistanceToOut(pzero, vxy, norm, convex);
-  assert(ApproxEqual(Dist, std::sqrt(800.)) && ApproxEqual(norm, vx));
-  if (!testvecgeom) assert(convex);
+  Dist  = trap1.DistanceToOut(pzero, vx);
+  valid = trap1.Normal(pzero + Dist * vx, normal);
+  assert(ApproxEqual(Dist, 20) && ApproxEqual(normal, vx));
 
-  Dist = trap1.DistanceToOut(ponxside, vx, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vx));
-  if (!testvecgeom) assert(convex);
-  Dist = trap1.DistanceToOut(ponmxside, vmx, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vmx));
-  if (!testvecgeom) assert(convex);
-  Dist = trap1.DistanceToOut(ponyside, vy, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vy));
-  if (!testvecgeom) assert(convex);
-  Dist = trap1.DistanceToOut(ponmyside, vmy, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vmy));
-  if (!testvecgeom) assert(convex);
-  Dist = trap1.DistanceToOut(ponzside, vz, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vz));
-  if (!testvecgeom) assert(convex);
-  Dist = trap1.DistanceToOut(ponmzside, vmz, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vmz));
-  if (!testvecgeom) assert(convex);
+  Dist  = trap1.DistanceToOut(pzero, vmx);
+  valid = trap1.Normal(pzero + Dist * vmx, normal);
+  assert(ApproxEqual(Dist, 20) && ApproxEqual(normal, vmx));
 
-  Dist = trap1.DistanceToOut(ponxside, vmx, norm, convex);
+  Dist  = trap1.DistanceToOut(pzero, vy);
+  valid = trap1.Normal(pzero + Dist * vy, normal);
+  assert(ApproxEqual(Dist, 30) && ApproxEqual(normal, vy));
+
+  Dist  = trap1.DistanceToOut(pzero, vmy);
+  valid = trap1.Normal(pzero + Dist * vmy, normal);
+  assert(ApproxEqual(Dist, 30) && ApproxEqual(normal, vmy));
+
+  Dist  = trap1.DistanceToOut(pzero, vz);
+  valid = trap1.Normal(pzero + Dist * vz, normal);
+  assert(ApproxEqual(Dist, 40) && ApproxEqual(normal, vz));
+
+  Dist  = trap1.DistanceToOut(pzero, vmz);
+  valid = trap1.Normal(pzero + Dist * vmz, normal);
+  assert(ApproxEqual(Dist, 40) && ApproxEqual(normal, vmz));
+
+  Dist  = trap1.DistanceToOut(pzero, vxy);
+  valid = trap1.Normal(pzero + Dist * vxy, normal);
+  assert(ApproxEqual(Dist, std::sqrt(800.)) && ApproxEqual(normal, vx));
+
+  Dist  = trap1.DistanceToOut(ponxside, vx);
+  valid = trap1.Normal(ponxside + Dist * vx, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vx));
+
+  Dist  = trap1.DistanceToOut(ponmxside, vmx);
+  valid = trap1.Normal(ponmxside + Dist * vmx, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vmx));
+
+  Dist  = trap1.DistanceToOut(ponyside, vy);
+  valid = trap1.Normal(ponyside + Dist * vy, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vy));
+
+  Dist  = trap1.DistanceToOut(ponmyside, vmy);
+  valid = trap1.Normal(ponmyside + Dist * vmy, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vmy));
+
+  Dist  = trap1.DistanceToOut(ponzside, vz);
+  valid = trap1.Normal(ponzside + Dist * vz, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vz));
+
+  Dist  = trap1.DistanceToOut(ponmzside, vmz);
+  valid = trap1.Normal(ponmzside + Dist * vmz, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vmz));
+
+  Dist = trap1.DistanceToOut(ponxside, vmx);
   // std::cout<<"Line "<<__LINE__<<": trap1.D2O(): pt="<< ponxside <<", dir="<< vmx <<", dist="<< Dist <<"\n";
-  assert(ApproxEqual(Dist, 40) && ApproxEqual(norm, vmx));
-  if (!testvecgeom) assert(convex);
-  Dist = trap1.DistanceToOut(ponmxside, vx, norm, convex);
-  assert(ApproxEqual(Dist, 40) && ApproxEqual(norm, vx));
-  if (!testvecgeom) assert(convex);
-  Dist = trap1.DistanceToOut(ponyside, vmy, norm, convex);
-  assert(ApproxEqual(Dist, 60) && ApproxEqual(norm, vmy));
-  if (!testvecgeom) assert(convex);
-  Dist = trap1.DistanceToOut(ponmyside, vy, norm, convex);
-  assert(ApproxEqual(Dist, 60) && ApproxEqual(norm, vy));
-  if (!testvecgeom) assert(convex);
-  Dist = trap1.DistanceToOut(ponzside, vmz, norm, convex);
-  assert(ApproxEqual(Dist, 80) && ApproxEqual(norm, vmz));
-  if (!testvecgeom) assert(convex);
-  Dist = trap1.DistanceToOut(ponmzside, vz, norm, convex);
-  assert(ApproxEqual(Dist, 80) && ApproxEqual(norm, vz));
-  if (!testvecgeom) assert(convex);
+  valid = trap1.Normal(ponxside + Dist * vmx, normal);
+  assert(ApproxEqual(Dist, 40) && ApproxEqual(normal, vmx));
 
-  Dist = trap2.DistanceToOut(pzero, vx, norm, convex);
-  assert(ApproxEqual(Dist, 20) && ApproxEqual(norm, Vec_t(cosa, 0, -sina)));
-  if (!testvecgeom) assert(convex);
-  Dist = trap2.DistanceToOut(pzero, vmx, norm, convex);
-  assert(ApproxEqual(Dist, 20) && ApproxEqual(norm, Vec_t(-cosa, 0, -sina)));
-  if (!testvecgeom) assert(convex);
-  Dist = trap2.DistanceToOut(pzero, vy, norm, convex);
-  assert(ApproxEqual(Dist, 30) && ApproxEqual(norm, Vec_t(0, cosa, -sina)));
-  if (!testvecgeom) assert(convex);
-  Dist = trap2.DistanceToOut(pzero, vmy, norm, convex);
-  assert(ApproxEqual(Dist, 30) && ApproxEqual(norm, Vec_t(0, -cosa, -sina)));
-  if (!testvecgeom) assert(convex);
-  Dist = trap2.DistanceToOut(pzero, vz, norm, convex);
-  assert(ApproxEqual(Dist, 40) && ApproxEqual(norm, vz));
-  if (!testvecgeom) assert(convex);
-  Dist = trap2.DistanceToOut(pzero, vmz, norm, convex);
-  assert(ApproxEqual(Dist, 40) && ApproxEqual(norm, vmz));
-  if (!testvecgeom) assert(convex);
-  Dist = trap2.DistanceToOut(pzero, vxy, norm, convex);
+  Dist  = trap1.DistanceToOut(ponmxside, vx);
+  valid = trap1.Normal(ponmxside + Dist * vx, normal);
+  assert(ApproxEqual(Dist, 40) && ApproxEqual(normal, vx));
+
+  Dist  = trap1.DistanceToOut(ponyside, vmy);
+  valid = trap1.Normal(ponyside + Dist * vmy, normal);
+  assert(ApproxEqual(Dist, 60) && ApproxEqual(normal, vmy));
+
+  Dist  = trap1.DistanceToOut(ponmyside, vy);
+  valid = trap1.Normal(ponmyside + Dist * vy, normal);
+  assert(ApproxEqual(Dist, 60) && ApproxEqual(normal, vy));
+
+  Dist  = trap1.DistanceToOut(ponzside, vmz);
+  valid = trap1.Normal(ponzside + Dist * vmz, normal);
+  assert(ApproxEqual(Dist, 80) && ApproxEqual(normal, vmz));
+
+  Dist  = trap1.DistanceToOut(ponmzside, vz);
+  valid = trap1.Normal(ponmzside + Dist * vz, normal);
+  assert(ApproxEqual(Dist, 80) && ApproxEqual(normal, vz));
+
+  Dist  = trap2.DistanceToOut(pzero, vx);
+  valid = trap2.Normal(pzero + Dist * vx, normal);
+  assert(ApproxEqual(Dist, 20) && ApproxEqual(normal, Vec_t(cosa, 0, -sina)));
+
+  Dist  = trap2.DistanceToOut(pzero, vmx);
+  valid = trap2.Normal(pzero + Dist * vmx, normal);
+  assert(ApproxEqual(Dist, 20) && ApproxEqual(normal, Vec_t(-cosa, 0, -sina)));
+
+  Dist  = trap2.DistanceToOut(pzero, vy);
+  valid = trap2.Normal(pzero + Dist * vy, normal);
+  assert(ApproxEqual(Dist, 30) && ApproxEqual(normal, Vec_t(0, cosa, -sina)));
+
+  Dist  = trap2.DistanceToOut(pzero, vmy);
+  valid = trap2.Normal(pzero + Dist * vmy, normal);
+  assert(ApproxEqual(Dist, 30) && ApproxEqual(normal, Vec_t(0, -cosa, -sina)));
+
+  Dist  = trap2.DistanceToOut(pzero, vz);
+  valid = trap2.Normal(pzero + Dist * vz, normal);
+  assert(ApproxEqual(Dist, 40) && ApproxEqual(normal, vz));
+
+  Dist  = trap2.DistanceToOut(pzero, vmz);
+  valid = trap2.Normal(pzero + Dist * vmz, normal);
+  assert(ApproxEqual(Dist, 40) && ApproxEqual(normal, vmz));
+
+  Dist  = trap2.DistanceToOut(pzero, vxy);
+  valid = trap2.Normal(pzero + Dist * vxy, normal);
   assert(ApproxEqual(Dist, std::sqrt(800.)));
-  if (!testvecgeom) assert(convex);
 
-  Dist = trap2.DistanceToOut(ponxside, vx, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, Vec_t(cosa, 0, -sina)));
-  if (!testvecgeom) assert(convex);
-  Dist = trap2.DistanceToOut(ponmxside, vmx, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, Vec_t(-cosa, 0, -sina)));
-  if (!testvecgeom) assert(convex);
-  Dist = trap2.DistanceToOut(ponyside, vy, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, Vec_t(0, cosa, -sina)));
-  if (!testvecgeom) assert(convex);
-  Dist = trap2.DistanceToOut(ponmyside, vmy, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, Vec_t(0, -cosa, -sina)));
-  if (!testvecgeom) assert(convex);
-  Dist = trap2.DistanceToOut(ponzside, vz, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vz));
-  if (!testvecgeom) assert(convex);
-  Dist = trap2.DistanceToOut(ponmzside, vmz, norm, convex);
-  assert(ApproxEqual(Dist, 0) && ApproxEqual(norm, vmz));
-  if (!testvecgeom) assert(convex);
+  Dist  = trap2.DistanceToOut(ponxside, vx);
+  valid = trap2.Normal(ponxside + Dist * vx, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, Vec_t(cosa, 0, -sina)));
 
-  // SafetyFromOutside(P)
+  Dist  = trap2.DistanceToOut(ponmxside, vmx);
+  valid = trap2.Normal(ponmxside + Dist * vmx, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, Vec_t(-cosa, 0, -sina)));
 
-  Dist = trap1.SafetyFromOutside(pbig);
-  // std::cout<<"trap1.SafetyFromOutside() = point="<< pbig <<", safety="<< Dist <<"\n";
+  Dist  = trap2.DistanceToOut(ponyside, vy);
+  valid = trap2.Normal(ponyside + Dist * vy, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, Vec_t(0, cosa, -sina)));
+
+  Dist  = trap2.DistanceToOut(ponmyside, vmy);
+  valid = trap2.Normal(ponmyside + Dist * vmy, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, Vec_t(0, -cosa, -sina)));
+
+  Dist  = trap2.DistanceToOut(ponzside, vz);
+  valid = trap2.Normal(ponzside + Dist * vz, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vz));
+
+  Dist  = trap2.DistanceToOut(ponmzside, vmz);
+  valid = trap2.Normal(ponmzside + Dist * vmz, normal);
+  assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vmz));
+
+  // SafetyToIn(P)
+
+  Dist = trap1.SafetyToIn(pbig);
+  // std::cout<<"trap1.SafetyToIn() = point="<< pbig <<", safety="<< Dist <<"\n";
   assert(ApproxEqual(Dist, 80));
 
-  Dist = trap1.SafetyFromOutside(pbigx);
+  Dist = trap1.SafetyToIn(pbigx);
   assert(ApproxEqual(Dist, 80));
 
-  Dist = trap1.SafetyFromOutside(pbigmx);
+  Dist = trap1.SafetyToIn(pbigmx);
   assert(ApproxEqual(Dist, 80));
 
-  Dist = trap1.SafetyFromOutside(pbigy);
+  Dist = trap1.SafetyToIn(pbigy);
   assert(ApproxEqual(Dist, 70));
 
-  Dist = trap1.SafetyFromOutside(pbigmy);
+  Dist = trap1.SafetyToIn(pbigmy);
   assert(ApproxEqual(Dist, 70));
 
-  Dist = trap1.SafetyFromOutside(pbigz);
+  Dist = trap1.SafetyToIn(pbigz);
   assert(ApproxEqual(Dist, 60));
 
-  Dist = trap1.SafetyFromOutside(pbigmz);
+  Dist = trap1.SafetyToIn(pbigmz);
   assert(ApproxEqual(Dist, 60));
 
-  Dist = trap2.SafetyFromOutside(pbigx);
+  Dist = trap2.SafetyToIn(pbigx);
   assert(ApproxEqual(Dist, 80 * cosa));
-  Dist = trap2.SafetyFromOutside(pbigmx);
+  Dist = trap2.SafetyToIn(pbigmx);
   assert(ApproxEqual(Dist, 80 * cosa));
-  Dist = trap2.SafetyFromOutside(pbigy);
+  Dist = trap2.SafetyToIn(pbigy);
   assert(ApproxEqual(Dist, 70 * cosa));
-  Dist = trap2.SafetyFromOutside(pbigmy);
+  Dist = trap2.SafetyToIn(pbigmy);
   assert(ApproxEqual(Dist, 70 * cosa));
-  Dist = trap2.SafetyFromOutside(pbigz);
+  Dist = trap2.SafetyToIn(pbigz);
   assert(ApproxEqual(Dist, 60));
-  Dist = trap2.SafetyFromOutside(pbigmz);
+  Dist = trap2.SafetyToIn(pbigmz);
   assert(ApproxEqual(Dist, 60));
 
-  //=== add test cases to reproduce a crash in Geant4: negative SafetyFromInside() is not acceptable
+  //=== add test cases to reproduce a crash in Geant4: negative SafetyToOut() is not acceptable
   // std::cout <<"trap1.S2O(): Line "<< __LINE__ <<", p="<< testp <<", saf2out=" << Dist <<"\n";
 
   Vec_t testp;
   double testValue = 0.11;
   testp            = ponxside + testValue * vx;
-  Dist             = trap1.SafetyFromOutside(testp);
+  Dist             = trap1.SafetyToIn(testp);
   assert(ApproxEqual(Dist, testValue));
-  Dist = trap1.SafetyFromInside(testp);
+  Dist = trap1.SafetyToOut(testp);
   if (Dist > 0) std::cout << "trap1.S2O(): Line " << __LINE__ << ", p=" << testp << ", saf2out=" << Dist << "\n";
   assert(Dist <= 0);
 
   testp = ponxside - testValue * vx;
-  Dist  = trap1.SafetyFromOutside(testp);
+  Dist  = trap1.SafetyToIn(testp);
   if (Dist > 0) std::cout << "trap1.S2I(): Line " << __LINE__ << ", p=" << testp << ", saf2in=" << Dist << "\n";
   assert(Dist <= 0);
-  Dist = trap1.SafetyFromInside(testp);
+  Dist = trap1.SafetyToOut(testp);
   assert(ApproxEqual(Dist, testValue));
 
   testp = ponmxside + testValue * vx;
-  Dist  = trap1.SafetyFromOutside(testp);
+  Dist  = trap1.SafetyToIn(testp);
   if (Dist > 0) std::cout << "trap1.S2I(): Line " << __LINE__ << ", p=" << testp << ", saf2in=" << Dist << "\n";
-  Dist = trap1.SafetyFromInside(testp);
+  Dist = trap1.SafetyToOut(testp);
   assert(Dist >= 0);
 
   testp = ponmxside - testValue * vx;
-  Dist  = trap1.SafetyFromOutside(testp);
+  Dist  = trap1.SafetyToIn(testp);
   assert(ApproxEqual(Dist, testValue));
-  Dist = trap1.SafetyFromInside(testp);
+  Dist = trap1.SafetyToOut(testp);
   assert(Dist <= 0);
 
   testp = ponyside + testValue * vy;
-  Dist  = trap1.SafetyFromOutside(testp);
+  Dist  = trap1.SafetyToIn(testp);
   assert(ApproxEqual(Dist, testValue));
-  Dist = trap1.SafetyFromInside(testp);
+  Dist = trap1.SafetyToOut(testp);
   assert(Dist <= 0);
 
   testp = ponyside - testValue * vy;
-  Dist  = trap1.SafetyFromOutside(testp);
-  Dist  = trap1.SafetyFromInside(testp);
+  Dist  = trap1.SafetyToIn(testp);
+  Dist  = trap1.SafetyToOut(testp);
   assert(ApproxEqual(Dist, testValue));
 
   testp = ponmyside + testValue * vy;
-  Dist  = trap1.SafetyFromOutside(testp);
-  Dist  = trap1.SafetyFromInside(testp);
+  Dist  = trap1.SafetyToIn(testp);
+  Dist  = trap1.SafetyToOut(testp);
   assert(ApproxEqual(Dist, testValue));
 
   testp = ponmyside - testValue * vy;
-  Dist  = trap1.SafetyFromOutside(testp);
+  Dist  = trap1.SafetyToIn(testp);
   assert(ApproxEqual(Dist, testValue));
-  Dist = trap1.SafetyFromInside(testp);
+  Dist = trap1.SafetyToOut(testp);
   assert(Dist <= 0);
 
   testp = ponzside + testValue * vz;
-  Dist  = trap1.SafetyFromOutside(testp);
+  Dist  = trap1.SafetyToIn(testp);
   assert(ApproxEqual(Dist, testValue));
-  Dist = trap1.SafetyFromInside(testp);
+  Dist = trap1.SafetyToOut(testp);
   assert(Dist <= 0);
 
   testp = ponzside - testValue * vz;
-  Dist  = trap1.SafetyFromOutside(testp);
+  Dist  = trap1.SafetyToIn(testp);
   assert(Dist <= 0);
-  Dist = trap1.SafetyFromInside(testp);
+  Dist = trap1.SafetyToOut(testp);
   assert(ApproxEqual(Dist, testValue));
 
   testp = ponmzside + testValue * vz;
-  Dist  = trap1.SafetyFromOutside(testp);
+  Dist  = trap1.SafetyToIn(testp);
   // std::cout <<"trap1.S2I(): Line "<< __LINE__ <<", p="<< testp <<", saf2in=" << Dist <<"\n";
   assert(Dist <= 0.);
-  Dist = trap1.SafetyFromInside(testp);
+  Dist = trap1.SafetyToOut(testp);
   assert(ApproxEqual(Dist, testValue));
 
   testp = ponmzside - testValue * vz;
-  Dist  = trap1.SafetyFromOutside(testp);
+  Dist  = trap1.SafetyToIn(testp);
   assert(ApproxEqual(Dist, testValue));
-  Dist = trap1.SafetyFromInside(testp);
+  Dist = trap1.SafetyToOut(testp);
   assert(Dist <= 0);
 
   // DistanceToIn(P,V)
@@ -531,9 +562,9 @@ bool TestTrap()
   Dist = trap1.DistanceToIn(pbigmz, vz);
   assert(ApproxEqual(Dist, 60));
   Dist = trap1.DistanceToIn(pbigx, vxy);
-  assert(ApproxEqual(Dist, Constants::kInfLength));
+  assert(ApproxEqual(Dist, kInfLength));
   Dist = trap1.DistanceToIn(pbigmx, vxy);
-  assert(ApproxEqual(Dist, Constants::kInfLength));
+  assert(ApproxEqual(Dist, kInfLength));
 
   Dist = trap2.DistanceToIn(pbigx, vmx);
   // std::cout<<"Line "<< __LINE__ <<", D2I(): point="<< pbigx <<", dir="<< vmx <<" -> dist2in="<< Dist <<"\n";
@@ -549,25 +580,25 @@ bool TestTrap()
   Dist = trap2.DistanceToIn(pbigmz, vz);
   assert(ApproxEqual(Dist, 60));
   Dist = trap2.DistanceToIn(pbigx, vxy);
-  assert(ApproxEqual(Dist, Constants::kInfLength));
+  assert(ApproxEqual(Dist, kInfLength));
   Dist = trap2.DistanceToIn(pbigmx, vxy);
-  assert(ApproxEqual(Dist, Constants::kInfLength));
+  assert(ApproxEqual(Dist, kInfLength));
 
   dist = trap3.DistanceToIn(Vec_t(50, -50, 0), vy);
   assert(ApproxEqual(dist, 50));
 
   dist = trap3.DistanceToIn(Vec_t(50, -50, 0), vmy);
-  assert(ApproxEqual(dist, Constants::kInfLength));
+  assert(ApproxEqual(dist, kInfLength));
 
   dist = trap4.DistanceToIn(Vec_t(50, 50, 0), vy);
-  assert(ApproxEqual(dist, Constants::kInfLength));
+  assert(ApproxEqual(dist, kInfLength));
 
   dist = trap4.DistanceToIn(Vec_t(50, 50, 0), vmy);
   assert(ApproxEqual(dist, 50));
 
   dist = trap1.DistanceToIn(Vec_t(0, 60, 0), vxmy);
   // std::cout<<" LIne "<< __LINE__ <<", trap1.D2I(): point=(0,60,0), dir="<< vxmy <<", d2in="<< dist <<"\n";
-  assert(ApproxEqual(dist, Constants::kInfLength));
+  assert(ApproxEqual(dist, kInfLength));
 
   dist = trap1.DistanceToIn(Vec_t(0, 50, 0), vxmy);
   assert(ApproxEqual(dist, sqrt(800.)));
@@ -576,24 +607,24 @@ bool TestTrap()
   assert(ApproxEqual(dist, 10.0 * std::sqrt(2.0)));
 
   dist = trap1.DistanceToIn(Vec_t(0, 40, 50), vxmy);
-  assert(ApproxEqual(dist, Constants::kInfLength));
+  assert(ApproxEqual(dist, kInfLength));
 
   // Parallel to side planes
 
   dist = trap1.DistanceToIn(Vec_t(40, 60, 0), vmx);
-  assert(ApproxEqual(dist, Constants::kInfLength));
+  assert(ApproxEqual(dist, kInfLength));
 
   dist = trap1.DistanceToIn(Vec_t(40, 60, 0), vmy);
-  assert(ApproxEqual(dist, Constants::kInfLength));
+  assert(ApproxEqual(dist, kInfLength));
 
   dist = trap1.DistanceToIn(Vec_t(40, 60, 50), vmz);
-  assert(ApproxEqual(dist, Constants::kInfLength));
+  assert(ApproxEqual(dist, kInfLength));
 
   dist = trap1.DistanceToIn(Vec_t(0, 0, 50), vymz);
   assert(ApproxEqual(dist, 10.0 * std::sqrt(2.0)));
 
   dist = trap1.DistanceToIn(Vec_t(0, 0, 80), vymz);
-  assert(ApproxEqual(dist, Constants::kInfLength));
+  assert(ApproxEqual(dist, kInfLength));
 
   dist = trap1.DistanceToIn(Vec_t(0, 0, 70), vymz);
   assert(ApproxEqual(dist, 30.0 * sqrt(2.0)));
@@ -615,10 +646,10 @@ void TestVECGEOM375()
 {
   // unit test coming from Issue VECGEOM-375
   // Note: angles in rad, lengths in mm!
-  double alpha1inRad = 0.4997657953434789 * degToRad;
-  double alpha2inRad = 0.4997660621477440 * degToRad;
-  vecgeom::UnplacedTrapezoid t(/*pDz=*/1522, /*pTheta=*/1.03516586152568 * degToRad,
-                               /* double pPhi=*/-90.4997606158588 * degToRad, /*pDy1=*/147.5,
+  double alpha1inRad = 0.4997657953434789 * deg;
+  double alpha2inRad = 0.4997660621477440 * deg;
+  vecgeom::UnplacedTrapezoid t(/*pDz=*/1522, /*pTheta=*/1.03516586152568 * deg,
+                               /* double pPhi=*/-90.4997606158588 * deg, /*pDy1=*/147.5,
                                /*pDx1=*/11.0548515319824, /*pDx2=*/13.62808513641355, alpha1inRad,
                                /*pDy2 = */ 92.5, /*pDx3=*/11.0548515319824, /*pDx4=*/12.6685743331909, alpha2inRad);
 
@@ -665,7 +696,6 @@ void TestVECGEOM393()
 {
   using namespace vecgeom;
   // unit test coming from Issue VECGEOM-393
-  const double &deg = degToRad;
   vecgeom::UnplacedTrapezoid trap(60, 20 * deg, 5 * deg, 40, 30, 40, 10 * deg, 16, 10, 14, 10 * deg);
 
   Vector3D<Precision> extMin, extMax;
@@ -674,16 +704,12 @@ void TestVECGEOM393()
   assert(ApproxEqual(extMax, Vector3D<double>(38.57634475, 38.09667423, 60.)));
 }
 
-struct VECGEOMCONSTANTS {
-  static constexpr double kInfLength = vecgeom::kInfLength;
-};
-
 int main(int argc, char *argv[])
 {
   TestVECGEOM375();
   TestVECGEOM353();
   TestVECGEOM393();
-  TestTrap<VECGEOMCONSTANTS, VECGEOM_NAMESPACE::SimpleTrapezoid>();
+  TestTrap<VECGEOM_NAMESPACE::SimpleTrapezoid>();
   std::cout << "VecGeom Trap passed.\n";
 
   return 0;

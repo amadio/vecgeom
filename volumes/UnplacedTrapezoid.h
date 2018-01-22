@@ -313,14 +313,12 @@ public:
 
   std::string GetEntityType() const { return "Trapezoid"; }
 
-#if defined(VECGEOM_USOLIDS)
   template <typename T>
   VECCORE_ATT_HOST_DEVICE
   void GetParametersList(int aNumber, T *aArray) const;
 
   VECCORE_ATT_HOST_DEVICE
   UnplacedTrapezoid *Clone() const;
-#endif
 
 public:
   VECCORE_ATT_HOST_DEVICE

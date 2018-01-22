@@ -103,7 +103,6 @@ std::string UnplacedParaboloid::GetEntityType() const
   return "Paraboloid\n";
 }
 
-#if defined(VECGEOM_USOLIDS)
 /*
 VECCORE_ATT_HOST_DEVICE
 void UnplacedParaboloid::GetParametersList(int, double *aArray) const
@@ -134,7 +133,6 @@ std::ostream &UnplacedParaboloid::StreamInfo(std::ostream &os) const
   os.precision(oldprc);
   return os;
 }
-#endif
 
 void UnplacedParaboloid::Print() const
 {

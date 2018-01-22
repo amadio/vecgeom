@@ -10,10 +10,6 @@
 
 #include <stdio.h>
 
-#ifdef VECGEOM_USOLIDS
-#include "volumes/USolidsInterfaceHelper.h"
-#endif
-
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -22,15 +18,11 @@ unsigned int VPlacedVolume::g_id_count = 0;
 #ifndef VECCORE_CUDA
 VPlacedVolume::VPlacedVolume(char const *const label, LogicalVolume const *const logical_volume,
                              Transformation3D const *const transformation, PlacedBox const *const bounding_box)
-    :
-#ifdef VECGEOM_USOLIDS
-      USolidsInterfaceHelper(label),
-#endif
-      id_(), label_(NULL), logical_volume_(logical_volume),
+    : id_(), label_(NULL), logical_volume_(logical_volume),
 #ifdef VECGEOM_INPLACE_TRANSFORMATIONS
       fTransformation(*transformation),
 #else
-     fTransformation(transformation),
+      fTransformation(transformation),
 #endif
       bounding_box_(bounding_box)
 {

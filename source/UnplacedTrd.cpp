@@ -310,8 +310,6 @@ VPlacedVolume *UnplacedTrd::SpecializedVolume(LogicalVolume const *const volume,
                                                             placement);
 }
 
-#if defined(VECGEOM_USOLIDS)
-VECCORE_ATT_HOST_DEVICE
 std::ostream &UnplacedTrd::StreamInfo(std::ostream &os) const
 {
   int oldprc = os.precision(16);
@@ -327,7 +325,6 @@ std::ostream &UnplacedTrd::StreamInfo(std::ostream &os) const
   os.precision(oldprc);
   return os;
 }
-#endif
 
 #ifdef VECGEOM_CUDA_INTERFACE
 

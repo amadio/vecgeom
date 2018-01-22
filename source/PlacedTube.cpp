@@ -10,10 +10,6 @@
 #include "TGeoTube.h"
 #endif
 
-#ifdef VECGEOM_USOLIDS
-#include "UTubs.hh"
-#endif
-
 #ifdef VECGEOM_GEANT4
 #include "G4Tubs.hh"
 #endif
@@ -35,14 +31,6 @@ TGeoShape const *PlacedTube::ConvertToRoot() const
   if (t->dphi() >= 2 * M_PI) return new TGeoTube(GetLabel().c_str(), t->rmin(), t->rmax(), t->z());
   return new TGeoTubeSeg(GetLabel().c_str(), t->rmin(), t->rmax(), t->z(), t->sphi() * (180 / M_PI),
                          (t->sphi() + t->dphi()) * (180 / M_PI));
-}
-#endif
-
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const *PlacedTube::ConvertToUSolids() const
-{
-  UnplacedTube const *t = static_cast<UnplacedTube const *>(GetUnplacedVolume());
-  return new UTubs(GetLabel().c_str(), t->rmin(), t->rmax(), t->z(), t->sphi(), t->dphi());
 }
 #endif
 

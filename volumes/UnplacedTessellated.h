@@ -96,14 +96,11 @@ public:
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
 #endif
 
-#if defined(VECGEOM_USOLIDS)
   std::ostream &StreamInfo(std::ostream &os) const;
-#endif
 
   virtual void Print(std::ostream &os) const override;
 
 private:
-
   VECCORE_ATT_DEVICE
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,

@@ -17,9 +17,6 @@
 #include "TGeoMatrix.h"
 #include "TGeoManager.h"
 #endif
-#ifdef VECGEOM_USOLIDS
-#include "UBox.hh"
-#endif
 #ifdef VECGEOM_GEANT4
 #include "G4SubtractionSolid.hh"
 #include "G4ThreeVector.hh"
@@ -102,13 +99,6 @@ public:
     gGeoManager->Export("FOO.root");
     shape->InspectShape();
     return shape;
-  }
-#endif
-#ifdef VECGEOM_USOLIDS
-  virtual ::VUSolid const *ConvertToUSolids() const
-  {
-    printf("Converting to USOLIDS; WARNING RETURNING A BOX\n");
-    return new UBox("", 10, 10, 10);
   }
 #endif
 #ifdef VECGEOM_GEANT4

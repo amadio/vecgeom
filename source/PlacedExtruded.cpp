@@ -4,10 +4,6 @@
 #include "volumes/Extruded.h"
 
 #ifndef VECCORE_CUDA
-#ifdef VECGEOM_USOLIDS
-#include "UExtrudedSolid.hh"
-#endif
-
 #ifdef VECGEOM_ROOT
 #include "TGeoXtru.h"
 #endif
@@ -47,28 +43,6 @@ TGeoShape const *PlacedExtruded::ConvertToRoot() const
     xtru->DefineSection(i, sect.fOrigin.z(), sect.fOrigin.x(), sect.fOrigin.y(), sect.fScale);
   }
   return xtru;
-}
-#endif
-
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const *PlacedExtruded::ConvertToUSolids() const
-{
-  std::vector<UVector2> polygon;
-  double x, y;
-  size_t nvert = GetUnplacedVolume()->GetNVertices();
-  for (size_t i = 0; i < nvert; ++i) {
-    GetUnplacedVolume()->GetVertex(i, x, y);
-    polygon.push_back(UVector2(x, y));
-  }
-  std::vector<UExtrudedSolid::ZSection> sections;
-  size_t nsect = GetUnplacedVolume()->GetNSections();
-  for (size_t i = 0; i < nsect; ++i) {
-    XtruSection sect = GetUnplacedVolume()->GetSection(i);
-    sections.push_back(
-        UExtrudedSolid::ZSection(sect.fOrigin.z(), UVector2(sect.fOrigin.x(), sect.fOrigin.y()), sect.fScale));
-  }
-  UExtrudedSolid *uxtru = new UExtrudedSolid("", polygon, sections);
-  return uxtru;
 }
 #endif
 

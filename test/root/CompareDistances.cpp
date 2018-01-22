@@ -175,23 +175,6 @@ int main(int argc, char *argv[])
     } else {
       std::cerr << "ROOT backconversion failed\n";
     }
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-    VUSolid const *usolid = vecgeomplaced->ConvertToUSolids();
-    if (usolid != NULL) {
-      std::cout << "USolids Capacity " << const_cast<VUSolid *>(usolid)->Capacity() << "\n";
-      std::cout << "USolids INSIDE " << usolid->Inside(point) << "\n";
-      std::cout << "USolids DI " << usolid->DistanceToIn(point, dir) << "\n";
-
-      Vector3D<Precision> norm;
-      bool valid;
-      std::cout << "USolids DO " << usolid->DistanceToOut(point, dir, norm, valid) << "\n";
-      std::cout << "USolids SI " << usolid->SafetyFromInside(point) << "\n";
-      std::cout << "USolids SO " << usolid->SafetyFromOutside(point) << "\n";
-    } else {
-      std::cerr << "USOLID conversion failed\n";
-    }
-#endif
-
 #ifdef VECGEOM_GEANT4
     G4ThreeVector g4p(point.x(), point.y(), point.z());
     G4ThreeVector g4d(dir.x(), dir.y(), dir.z());

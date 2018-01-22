@@ -36,13 +36,6 @@ TGeoShape const *PlacedCutTube::ConvertToRoot() const
 }
 #endif
 
-#if defined(VECGEOM_USOLIDS) && !defined(VECGEOM_REPLACE_USOLIDS)
-::VUSolid const *PlacedCutTube::ConvertToUSolids() const
-{
-  return nullptr;
-}
-#endif
-
 #ifdef VECGEOM_GEANT4
 G4VSolid const *PlacedCutTube::ConvertToGeant4() const
 {
