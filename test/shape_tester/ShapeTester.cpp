@@ -70,7 +70,7 @@ void ShapeTester<ImplT>::SetDefaults()
 
   fOutsideMaxRadiusMultiple      = 10;
   fOutsideRandomDirectionPercent = 50;
-  fIfSaveAllData                 = true;
+  fIfSaveAllData                 = false;
 
   fDefinedNormal = false;
   fIfException   = false;
@@ -250,7 +250,8 @@ int ShapeTester<ImplT>::TestConsistencySolids()
     Vec_t point;
     for (int i = 0; i < fMaxPoints; i++) {
       point = fPoints[i];
-      //Inside_t inside         = fVolume->Inside(point);
+      Inside_t inside         = fVolume->Inside(point);
+      fResultDoubleUSolids[i] = (double)inside;
     }
     SaveResultsToFile("Inside");
   }
@@ -552,6 +553,12 @@ int ShapeTester<ImplT>::TestNormalSolids()
   for (int i = 0; i < fMaxPoints; i++) {
     point = fPoints[i];
     //bool valid = fVolume->Normal(point, normal);
+    if (fIfSaveAllData) {
+      fResultVectorUSolids[i].Set(normal.x(), normal.y(), normal.z());
+      std::cout << " fResultsVU[ " << i << "] = " << fResultVectorUSolids[i] << "\n";
+      fResultVectorUSolids[i] = normal;
+      std::cout << " fResultsVU[ " << i << "] = " << fResultVectorUSolids[i] << "\n";
+    }
   }
 
   SaveResultsToFile("Normal");
@@ -571,7 +578,8 @@ int ShapeTester<ImplT>::TestSafetyFromOutsideSolids()
     Vec_t point;
     for (int i = 0; i < fMaxPoints; i++) {
       point                   = fPoints[i];
-      //double res              = CallSafetyToIn(fVolume, point, true);
+      double res              = CallSafetyToIn(fVolume, point, true);
+      fResultDoubleUSolids[i] = res;
     }
     SaveResultsToFile("SafetyFromOutside");
   }
@@ -592,7 +600,8 @@ int ShapeTester<ImplT>::TestSafetyFromInsideSolids()
 
     for (int i = 0; i < fMaxPoints; i++) {
       point                   = fPoints[i];
-      //double res              = CallSafetyToOut(fVolume, point);
+      double res              = CallSafetyToOut(fVolume, point);
+      fResultDoubleUSolids[i] = res;
     }
 
     SaveResultsToFile("SafetyFromInside");
@@ -631,9 +640,11 @@ int ShapeTester<ImplT>::TestDistanceToInSolids()
       point                   = fPoints[i];
       direction               = fDirections[i];
       double res              = fVolume->DistanceToIn(point, direction);
+      fResultDoubleUSolids[i] = res;
 
       Vec_t normal;
       PropagatedNormalU(point, direction, res, normal);
+      fResultVectorUSolids[i] = normal;
     }
     SaveResultsToFile("DistanceToIn");
   }
@@ -658,7 +669,10 @@ int ShapeTester<ImplT>::TestDistanceToOutSolids()
       point     = fPoints[i];
       direction = fDirections[i];
       normal.Set(0);
-      //double res = CallDistanceToOut(fVolume, point, direction, normal, convex);
+      double res = CallDistanceToOut(fVolume, point, direction, normal, convex);
+
+      fResultDoubleUSolids[i] = res;
+      fResultVectorUSolids[i] = normal;
     }
   }
   SaveResultsToFile("DistanceToOut");
@@ -866,16 +880,10 @@ int ShapeTester<ImplT>::TestInsidePoint()
     }
     // Safety from wrong side should be negative
     double safeDistanceFromOut = CallSafetyToIn(fVolume, point);
-//#ifdef VECGEOM_REPLACE_USOLIDS
-    // if (safeDistanceFromOut != 0.0) {
-    //   std::string message("TI: SafetyFromOutside(p) should be Zero for Points Inside");
-//#else
     if (safeDistanceFromOut >= 0.0) {
       std::string message("TI: SafetyFromOutside(p) should be Negative value (-1.) for Points Inside");
-//#endif
       Vec_t zero(0);
-      // disable this message as it is alreay part of ConventionChecker
-      // ReportError(&nError, point, zero, safeDistanceFromOut, message.c_str());
+      ReportError(&nError, point, zero, safeDistanceFromOut, message.c_str());
       continue;
     }
 
@@ -928,14 +936,9 @@ int ShapeTester<ImplT>::TestInsidePoint()
       }
       // DistanceToIn from point on wrong side has to be negative (VecGeom) or zero (USolids-compatible)
       double distIn = fVolume->DistanceToIn(point, v);
-// #ifdef VECGEOM_REPLACE_USOLIDS
-      // if (distIn != 0.) {
-       //   std::string message("TI: DistanceToIn(p,v) has to be Zero for Inside points (USolids convention).");
-// #else
        if (distIn >= 0.) {
          std::string message(
              "TI: DistanceToIn(p,v) has to be Negative value (-1.) for Inside points (VecGeom convention).");
-// #endif
         ReportError(&nError, point, v, distIn, message.c_str());
         continue;
       }
@@ -997,17 +1000,12 @@ int ShapeTester<ImplT>::TestOutsidePoint()
     }
 
     double safeDistanceFromInside = CallSafetyToOut(fVolume, point);
-// Safety from wrong side point has to be negative (VecGeom) or zero (USolids-compatible)
-// #ifdef VECGEOM_REPLACE_USOLIDS
-//     if (safeDistanceFromInside != 0.0) {
-//       std::string msg("TO: SafetyToOut(p) should be Zero for points Outside (USolids convention)");
-// #else
+    // Safety from wrong side point has to be negative (VecGeom) or zero (USolids-compatible)
     if (safeDistanceFromInside >= 0.0) {
       std::string msg("TO: SafetyToOut(p) should be Negative value (-1.) for points Outside (VecGeom conv)");
-// #endif
       Vec_t zero(0);
       // disable this message as it is part of ConventionChecker
-      // ReportError(&nError, point, zero, safeDistanceFromInside, msg.c_str());
+      ReportError(&nError, point, zero, safeDistanceFromInside, msg.c_str());
     }
 
     for (i = 0; i < n; i++) {
@@ -1866,9 +1864,8 @@ void ShapeTester<ImplT>::CreatePointsAndDirections()
 
     fPoints.resize(fMaxPoints);
     fDirections.resize(fMaxPoints);
-    fResultDoubleDifference.resize(fMaxPoints);
-
-    fResultVectorDifference.resize(fMaxPoints);
+    fResultDoubleUSolids.resize(fMaxPoints);
+    fResultVectorUSolids.resize(fMaxPoints);
 
     CreatePointsAndDirectionsOutside();
     CreatePointsAndDirectionsInside();
@@ -1893,7 +1890,7 @@ template <typename ImplT>
 void ShapeTester<ImplT>::PrintCoordinates(stringstream &ss, const Vec_t &vec, const string &delimiter, int precision)
 {
   ss.precision(precision);
-  ss << vec.x() << delimiter << vec.y() << delimiter << vec.z();
+  ss <<"("<< vec.x() << delimiter << vec.y() << delimiter << vec.z() <<")";
 }
 
 template <typename ImplT>
@@ -1922,7 +1919,6 @@ void ShapeTester<ImplT>::PrintCoordinates(stringstream &ss, const Vec_t &vec, co
 
 // NEW: output values precision setprecision (16)
 // NEW: for each fMethod, one file
-
 // NEW: print also different point coordinates
 
 template <typename ImplT>
@@ -1954,20 +1950,20 @@ int ShapeTester<ImplT>::SaveResultsToFile(const string &fMethod1)
   string fFilename1(fFolder + name + "_" + fMethod1 + ".dat");
   std::cout << "Saving all results to " << fFilename1 << std::endl;
   ofstream file(fFilename1.c_str());
-  //bool saveVectors = (fMethod1 == "Normal");
+  bool saveVectors = (fMethod1 == "Normal");
   int prec         = 16;
   if (file.is_open()) {
     file.precision(prec);
     file << fVolumeString << "\n";
-    string spacer("\t");
+    string spacer("; ");
     for (int i = 0; i < fMaxPoints; i++) {
 
-      file << PrintCoordinates(fPoints[i], spacer, prec) << spacer << PrintCoordinates(fDirections[i], spacer, prec)
-           << spacer;
-      // if (saveVectors)
-      //   file << PrintCoordinates(fResultVectorUSolids[i], spacer, prec) << "\n";
-      // else
-      //   file << fResultDoubleUSolids[i] << "\n";
+      file <<"p="<< PrintCoordinates(fPoints[i], spacer, prec) << "\t v=" << PrintCoordinates(fDirections[i], spacer, prec)
+           << "\t";
+      if (saveVectors)
+        file << "Norm="<< PrintCoordinates(fResultVectorUSolids[i], spacer, prec) << "\n";
+      else
+        file << fResultDoubleUSolids[i] << "\n";
     }
     return 0;
   }
@@ -2251,7 +2247,6 @@ void ShapeTester<ImplT>::ReportError(int *nError, Vec_t &p, Vec_t &v, double dis
   if (fIfException) {
     std::ostringstream text;
     text << "Aborting due to Debugging mode in solid: " << fVolume->GetName();
-    // UUtils::Exception("ShapeTester", "Debugging mode", UFatalErrorInArguments, 1, text.str().c_str());
     throw std::runtime_error("***EEE*** ShapeTester[UFatalErrorInArguments]: " + text.str());
   }
 }

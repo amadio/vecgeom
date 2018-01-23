@@ -199,9 +199,8 @@ private:
   ImplT const *fVolume;      // Pointer that owns shape object.
   std::string fVolumeString; // data member to store the name of volume;
 
-  std::vector<Vec_t> fResultVectorDifference;  // stl vector for storing the vector difference
-  std::vector<double> fResultDoubleDifference; // stl vector for storing the double difference
-  std::vector<bool> fResultBoolDifference;     // stl vector for storing the bool difference.
+  std::vector<Vec_t> fResultVectorUSolids;     // stl vector for storing the vector results
+  std::vector<double> fResultDoubleUSolids;    // stl vector for storing the double results
 
   int fOffsetSurface;    // offset of surface points
   int fOffsetInside;     // offset of inside points
