@@ -203,7 +203,7 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
 
     indx = 4;
     // Conventions check for SafetyFromOutside
-    Dist = CallSafetyToIn(fVolume, point);
+    Dist = fVolume->SafetyToIn(point);
     // if (Dist >= kInfLength) Dist = kInfLength;
     {
       bool ok = Dist <= kHalfTolerance;
@@ -217,7 +217,7 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
 
     indx = 5;
     // Conventions check for SafetyFromInside
-    Dist = CallSafetyToOut(fVolume, point);
+    Dist = fVolume->SafetyToOut(point);
     // if (Dist >= kInfLength) Dist = kInfLength;
     {
       bool ok = Dist <= kHalfTolerance;
@@ -277,7 +277,7 @@ bool ShapeTester<ImplT>::ShapeConventionInsidePoint()
 
     indx = 8;
     // Conventions Check for SafetyFromOutside
-    Dist = CallSafetyToIn(fVolume, point);
+    Dist = fVolume->SafetyToIn(point);
     // if (Dist >= kInfLength) Dist = kInfLength;
     {
       bool ok = (Dist < 0.);
@@ -290,7 +290,7 @@ bool ShapeTester<ImplT>::ShapeConventionInsidePoint()
 
     indx = 9;
     // Conventions Check for SafetyFromInside
-    Dist = CallSafetyToOut(fVolume, point);
+    Dist = fVolume->SafetyToOut(point);
     // if (Dist >= kInfLength) Dist = kInfLength;
     if (!(Dist > 0.)) {
       ReportError(&nError, point, direction, Dist, "SafetyFromInside for Inside Point should be > 0.");
@@ -347,7 +347,7 @@ bool ShapeTester<ImplT>::ShapeConventionOutsidePoint()
 
     indx = 12;
     // Conventions Check for SafetyFromOutside
-    Dist = CallSafetyToIn(fVolume, point);
+    Dist = fVolume->SafetyToIn(point);
     // if (Dist >= kInfLength) Dist = kInfLength;
     if (!(Dist > 0.)) {
       ReportError(&nError, point, direction, Dist, "SafetyFromOutside for Outside Point should be > 0.");
@@ -357,7 +357,7 @@ bool ShapeTester<ImplT>::ShapeConventionOutsidePoint()
 
     indx = 13;
     // Conventions Check for SafetyFromInside
-    Dist = CallSafetyToOut(fVolume, point);
+    Dist = fVolume->SafetyToOut(point);
     // if (Dist >= kInfLength) Dist = kInfLength;
     {
       bool ok = (Dist < 0.);

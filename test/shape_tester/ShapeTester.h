@@ -130,10 +130,8 @@ private:
   int TestMethod(int (ShapeTester::*funcPtr)());
   int TestMethodAll();
 
-  // These are needed because of different names (Safeties) or signatures (DistanceToOut) in VecGeom vs. USolids
+  // This is needed because of different signature in VecGeom vs. USolids
   double CallDistanceToOut(ImplT const *vol, const Vec_t &point, const Vec_t &dir, Vec_t &normal, bool convex) const;
-  double CallSafetyToIn(ImplT const *vol, const Vec_t &point, bool accurate = false) const;
-  double CallSafetyToOut(ImplT const *vol, const Vec_t &point, bool accurate = false) const;
 
   inline double RandomRange(double min, double max)
   {
@@ -199,8 +197,8 @@ private:
   ImplT const *fVolume;      // Pointer that owns shape object.
   std::string fVolumeString; // data member to store the name of volume;
 
-  std::vector<Vec_t> fResultVectorUSolids;     // stl vector for storing the vector results
-  std::vector<double> fResultDoubleUSolids;    // stl vector for storing the double results
+  std::vector<double> fResultDouble;    // stl vector for storing the double results
+  std::vector<Vec_t> fResultVector;     // stl vector for storing the vector results
 
   int fOffsetSurface;    // offset of surface points
   int fOffsetInside;     // offset of inside points

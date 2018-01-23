@@ -251,7 +251,7 @@ int ShapeTester<ImplT>::TestConsistencySolids()
     for (int i = 0; i < fMaxPoints; i++) {
       point = fPoints[i];
       Inside_t inside         = fVolume->Inside(point);
-      fResultDoubleUSolids[i] = (double)inside;
+      fResultDouble[i] = (double)inside;
     }
     SaveResultsToFile("Inside");
   }
@@ -358,8 +358,8 @@ int ShapeTester<ImplT>::ShapeNormal()
       }
       // Compute safety from point on boundary - they should be no more than
       //  the solid tolerance
-      double safFromIn  = CallSafetyToOut(fVolume, point);
-      double safFromOut = CallSafetyToIn(fVolume, point);
+      double safFromIn  = fVolume->SafetyToOut(point);
+      double safFromOut = fVolume->SafetyToIn(point);
       if (safFromIn > fSolidTolerance)
         ReportError(&nError, point, dir_new, safFromIn, "SN: SafetyToOut must be less than tolerance on Surface ");
       if (safFromOut > fSolidTolerance)
@@ -554,10 +554,10 @@ int ShapeTester<ImplT>::TestNormalSolids()
     point = fPoints[i];
     //bool valid = fVolume->Normal(point, normal);
     if (fIfSaveAllData) {
-      fResultVectorUSolids[i].Set(normal.x(), normal.y(), normal.z());
-      std::cout << " fResultsVU[ " << i << "] = " << fResultVectorUSolids[i] << "\n";
-      fResultVectorUSolids[i] = normal;
-      std::cout << " fResultsVU[ " << i << "] = " << fResultVectorUSolids[i] << "\n";
+      fResultVector[i].Set(normal.x(), normal.y(), normal.z());
+      std::cout << " fResultsVU[ " << i << "] = " << fResultVector[i] << "\n";
+      fResultVector[i] = normal;
+      std::cout << " fResultsVU[ " << i << "] = " << fResultVector[i] << "\n";
     }
   }
 
@@ -578,8 +578,8 @@ int ShapeTester<ImplT>::TestSafetyFromOutsideSolids()
     Vec_t point;
     for (int i = 0; i < fMaxPoints; i++) {
       point                   = fPoints[i];
-      double res              = CallSafetyToIn(fVolume, point, true);
-      fResultDoubleUSolids[i] = res;
+      double res              = fVolume->SafetyToIn(point);
+      fResultDouble[i] = res;
     }
     SaveResultsToFile("SafetyFromOutside");
   }
@@ -600,8 +600,8 @@ int ShapeTester<ImplT>::TestSafetyFromInsideSolids()
 
     for (int i = 0; i < fMaxPoints; i++) {
       point                   = fPoints[i];
-      double res              = CallSafetyToOut(fVolume, point);
-      fResultDoubleUSolids[i] = res;
+      double res              = fVolume->SafetyToOut(point);
+      fResultDouble[i] = res;
     }
 
     SaveResultsToFile("SafetyFromInside");
@@ -640,11 +640,11 @@ int ShapeTester<ImplT>::TestDistanceToInSolids()
       point                   = fPoints[i];
       direction               = fDirections[i];
       double res              = fVolume->DistanceToIn(point, direction);
-      fResultDoubleUSolids[i] = res;
+      fResultDouble[i] = res;
 
       Vec_t normal;
       PropagatedNormalU(point, direction, res, normal);
-      fResultVectorUSolids[i] = normal;
+      fResultVector[i] = normal;
     }
     SaveResultsToFile("DistanceToIn");
   }
@@ -671,8 +671,8 @@ int ShapeTester<ImplT>::TestDistanceToOutSolids()
       normal.Set(0);
       double res = CallDistanceToOut(fVolume, point, direction, normal, convex);
 
-      fResultDoubleUSolids[i] = res;
-      fResultVectorUSolids[i] = normal;
+      fResultDouble[i] = res;
+      fResultVector[i] = normal;
     }
   }
   SaveResultsToFile("DistanceToOut");
@@ -868,7 +868,7 @@ int ShapeTester<ImplT>::TestInsidePoint()
     // Check values of Safety
     // Initial point inside
     Vec_t point         = fPoints[j + fOffsetInside];
-    double safeDistance = CallSafetyToOut(fVolume, point);
+    double safeDistance = fVolume->SafetyToOut(point);
     // Safety from inside should be positive
     if (safeDistance <= 0.0) {
       Vec_t zero(0);
@@ -879,7 +879,7 @@ int ShapeTester<ImplT>::TestInsidePoint()
       return errCode;
     }
     // Safety from wrong side should be negative
-    double safeDistanceFromOut = CallSafetyToIn(fVolume, point);
+    double safeDistanceFromOut = fVolume->SafetyToIn(point);
     if (safeDistanceFromOut >= 0.0) {
       std::string message("TI: SafetyFromOutside(p) should be Negative value (-1.) for Points Inside");
       Vec_t zero(0);
@@ -905,7 +905,7 @@ int ShapeTester<ImplT>::TestInsidePoint()
       double dist = CallDistanceToOut(fVolume, point, v, norm, convex);
       double NormalDist;
 
-      NormalDist = CallSafetyToOut(fVolume, point);
+      NormalDist = fVolume->SafetyToOut(point);
       // Distance to out has to be always smaller than the extent diagonal
       if (dist > maxXYZ) {
         ReportError(&nError, point, v, dist, "TI: DistanceToOut(p,v) > Solid's Extent  dist = ");
@@ -988,7 +988,7 @@ int ShapeTester<ImplT>::TestOutsidePoint()
     // std::cout<<"ConsistencyOutside check"<<j<<std::endl;
     // Initial point outside
     Vec_t point         = fPoints[j + fOffsetOutside];
-    double safeDistance = CallSafetyToIn(fVolume, point);
+    double safeDistance = fVolume->SafetyToIn(point);
     // Safety has to be positive
     if (safeDistance <= 0.0) {
       Vec_t zero(0);
@@ -999,7 +999,7 @@ int ShapeTester<ImplT>::TestOutsidePoint()
       return errCode;
     }
 
-    double safeDistanceFromInside = CallSafetyToOut(fVolume, point);
+    double safeDistanceFromInside = fVolume->SafetyToOut(point);
     // Safety from wrong side point has to be negative (VecGeom) or zero (USolids-compatible)
     if (safeDistanceFromInside >= 0.0) {
       std::string msg("TO: SafetyToOut(p) should be Negative value (-1.) for points Outside (VecGeom conv)");
@@ -1043,20 +1043,20 @@ int ShapeTester<ImplT>::TestOutsidePoint()
         continue;
       }
 
-      safeDistance = CallSafetyToIn(fVolume, p);
+      safeDistance = fVolume->SafetyToIn(p);
       // The safety from a boundary should not be bigger than the tolerance
       if (safeDistance > fSolidTolerance) {
         ReportError(&nError, p, v, safeDistance, "TO2: SafetyToIn(p) should be zero");
         continue;
       }
-      safeDistance = CallSafetyToOut(fVolume, p);
+      safeDistance = fVolume->SafetyToOut(p);
       if (safeDistance > fSolidTolerance) {
-        ReportError(&nError, p, v, safeDistance, "TO2: CallSafetyToOut(p) should be zero");
+        ReportError(&nError, p, v, safeDistance, "TO2: SafetyToOut(p) should be zero");
         continue;
       }
 
       dist         = fVolume->DistanceToIn(p, v);
-      safeDistance = CallSafetyToIn(fVolume, p);
+      safeDistance = fVolume->SafetyToIn(p);
       //
       // Beware! We might expect dist to be precisely zero, but this may not
       // be true at corners due to roundoff of the calculation of p = point + dist*v.
@@ -1360,7 +1360,7 @@ int ShapeTester<ImplT>::ShapeSafetyFromInside(int max)
   if (max > fMaxPointsInside) max = fMaxPointsInside;
   for (int i = 0; i < max; i++) {
     point      = fPoints[i];
-    double res = CallSafetyToOut(fVolume, point);
+    double res = fVolume->SafetyToOut(point);
     for (int j = 0; j < 1000; j++) {
       dir         = GetRandomDirection();
       pointSphere = point + res * dir;
@@ -1426,7 +1426,7 @@ int ShapeTester<ImplT>::ShapeSafetyFromOutside(int max)
   if (max > fMaxPointsOutside) max = fMaxPointsOutside;
   for (int i = 0; i < max; i++) {
     point = fPoints[i + fOffsetOutside];
-    res   = CallSafetyToIn(fVolume, point);
+    res   = fVolume->SafetyToIn(point);
     if (res > 0) { // Safety Sphere test
       bool convex   = false;
       int numTrials = 1000;
@@ -1864,8 +1864,8 @@ void ShapeTester<ImplT>::CreatePointsAndDirections()
 
     fPoints.resize(fMaxPoints);
     fDirections.resize(fMaxPoints);
-    fResultDoubleUSolids.resize(fMaxPoints);
-    fResultVectorUSolids.resize(fMaxPoints);
+    fResultDouble.resize(fMaxPoints);
+    fResultVector.resize(fMaxPoints);
 
     CreatePointsAndDirectionsOutside();
     CreatePointsAndDirectionsInside();
@@ -1961,9 +1961,9 @@ int ShapeTester<ImplT>::SaveResultsToFile(const string &fMethod1)
       file <<"p="<< PrintCoordinates(fPoints[i], spacer, prec) << "\t v=" << PrintCoordinates(fDirections[i], spacer, prec)
            << "\t";
       if (saveVectors)
-        file << "Norm="<< PrintCoordinates(fResultVectorUSolids[i], spacer, prec) << "\n";
+        file << "Norm="<< PrintCoordinates(fResultVector[i], spacer, prec) << "\n";
       else
-        file << fResultDoubleUSolids[i] << "\n";
+        file << fResultDouble[i] << "\n";
     }
     return 0;
   }
@@ -2294,18 +2294,6 @@ double ShapeTester<VPlacedVolume>::CallDistanceToOut(const VPlacedVolume *vol, c
   vol->Normal(hitpoint, normal);
   convex = vol->GetUnplacedVolume()->IsConvex();
   return dist;
-}
-
-template <>
-double ShapeTester<VPlacedVolume>::CallSafetyToIn(const VPlacedVolume *vol, const Vec_t &point, bool) const
-{
-  return vol->SafetyToIn(point);
-}
-
-template <>
-double ShapeTester<VPlacedVolume>::CallSafetyToOut(const VPlacedVolume *vol, const Vec_t &point, bool) const
-{
-  return vol->SafetyToOut(point);
 }
 
 ////// force template instantiation before vecgeom library is built
