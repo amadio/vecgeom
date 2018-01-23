@@ -17,13 +17,7 @@ int main(int argc, char *argv[])
   OPTION_INT(npoints, 10000);
   OPTION_BOOL(debug, false);
   OPTION_BOOL(stat, false);
-  OPTION_BOOL(usolids, false);
   OPTION_INT(type, 0);
-
-  if (usolids) {
-    std::cerr << "\n*** ERROR: '-usolids true' is not valid for SExtru shape!\n Aborting...\n\n";
-    return 1;
-  }
 
   using namespace vecgeom;
 
@@ -51,7 +45,6 @@ int main(int argc, char *argv[])
   }
 
   ShapeTester<vecgeom::VPlacedVolume> tester;
-  tester.setConventionsMode(usolids);
   tester.setDebug(debug);
   tester.setStat(stat);
   tester.SetMaxPoints(npoints);
@@ -59,8 +52,7 @@ int main(int argc, char *argv[])
   tester.SetTestBoundaryErrors(true);
   int errCode = tester.Run(solid);
 
-  std::cout << "Final Error count for Shape *** " << solid->GetName() << "*** = " << errCode << " ("
-            << (tester.getConventionsMode() ? "USolids" : "VecGeom") << " conventions)\n";
+  std::cout << "Final Error count for Shape *** " << solid->GetName() << "*** = " << errCode << "\n";
   std::cout << "=========================================================" << std::endl;
 
   if (solid) delete solid;

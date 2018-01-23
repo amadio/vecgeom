@@ -13,12 +13,7 @@
 
 #include "ShapeTester.h"
 #include "volumes/PlacedVolume.h"
-
-#ifdef VECGEOM_USOLIDS
-#include "UTransform3D.hh"
-#else
 #include "base/Transformation3D.h"
-#endif
 
 #include "base/Vector3D.h"
 #include "volumes/Box.h"
@@ -98,7 +93,6 @@ void ShapeTester<ImplT>::SetDefaults()
   fStat               = false;
   fTestBoundaryErrors = true;
   fDebug              = false;
-  fUsolidsConventions = false;
 }
 
 template <typename ImplT>
@@ -256,9 +250,7 @@ int ShapeTester<ImplT>::TestConsistencySolids()
     Vec_t point;
     for (int i = 0; i < fMaxPoints; i++) {
       point = fPoints[i];
-      // GetVectorUSolids(point, fPoints, i);
-      Inside_t inside         = fVolume->Inside(point);
-      fResultDoubleUSolids[i] = (double)inside;
+      //Inside_t inside         = fVolume->Inside(point);
     }
     SaveResultsToFile("Inside");
   }
@@ -559,16 +551,7 @@ int ShapeTester<ImplT>::TestNormalSolids()
 
   for (int i = 0; i < fMaxPoints; i++) {
     point = fPoints[i];
-    // GetVectorUSolids(point, fPoints, i);
-    bool valid = fVolume->Normal(point, normal);
-    if (fIfSaveAllData) {
-      fResultBoolUSolids[i] = valid;
-      fResultVectorUSolids[i].Set(normal.x(), normal.y(), normal.z());
-      std::cout << " fResultsVU[ " << i << "] = " << fResultVectorUSolids[i] << "\n";
-      fResultVectorUSolids[i] = normal;
-      std::cout << " fResultsVU[ " << i << "] = " << fResultVectorUSolids[i] << "\n";
-      // SetVectorUSolids(normal, fResultVectorUSolids, i);
-    }
+    //bool valid = fVolume->Normal(point, normal);
   }
 
   SaveResultsToFile("Normal");
@@ -587,10 +570,8 @@ int ShapeTester<ImplT>::TestSafetyFromOutsideSolids()
   if (fIfSaveAllData) {
     Vec_t point;
     for (int i = 0; i < fMaxPoints; i++) {
-      // GetVectorUSolids(point, fPoints, i);
       point                   = fPoints[i];
-      double res              = CallSafetyToIn(fVolume, point, true);
-      fResultDoubleUSolids[i] = res;
+      //double res              = CallSafetyToIn(fVolume, point, true);
     }
     SaveResultsToFile("SafetyFromOutside");
   }
@@ -610,10 +591,8 @@ int ShapeTester<ImplT>::TestSafetyFromInsideSolids()
     Vec_t point;
 
     for (int i = 0; i < fMaxPoints; i++) {
-      // GetVectorUSolids(point, fPoints, i);
       point                   = fPoints[i];
-      double res              = CallSafetyToOut(fVolume, point);
-      fResultDoubleUSolids[i] = res;
+      //double res              = CallSafetyToOut(fVolume, point);
     }
 
     SaveResultsToFile("SafetyFromInside");
@@ -649,17 +628,12 @@ int ShapeTester<ImplT>::TestDistanceToInSolids()
   if (fIfSaveAllData) {
     Vec_t point, direction;
     for (int i = 0; i < fMaxPoints; i++) {
-      // GetVectorUSolids(point, fPoints, i);
-      // GetVectorUSolids(direction, fDirections, i);
       point                   = fPoints[i];
       direction               = fDirections[i];
       double res              = fVolume->DistanceToIn(point, direction);
-      fResultDoubleUSolids[i] = res;
 
       Vec_t normal;
       PropagatedNormalU(point, direction, res, normal);
-      // SetVectorUSolids(normal, fResultVectorUSolids, i);
-      fResultVectorUSolids[i] = normal;
     }
     SaveResultsToFile("DistanceToIn");
   }
@@ -677,22 +651,14 @@ int ShapeTester<ImplT>::TestDistanceToOutSolids()
   errCode += ShapeNormal();
 
   if (fIfSaveAllData) {
-
     Vec_t point, normal, direction;
     bool convex = false;
 
     for (int i = 0; i < fMaxPoints; i++) {
-      // GetVectorUSolids(point, fPoints, i);
-      // GetVectorUSolids(direction, fDirections, i);
       point     = fPoints[i];
       direction = fDirections[i];
       normal.Set(0);
-      double res = CallDistanceToOut(fVolume, point, direction, normal, convex);
-
-      fResultDoubleUSolids[i] = res;
-      fResultBoolUSolids[i]   = convex;
-      // SetVectorUSolids(normal, fResultVectorUSolids, i);
-      fResultVectorUSolids[i] = normal;
+      //double res = CallDistanceToOut(fVolume, point, direction, normal, convex);
     }
   }
   SaveResultsToFile("DistanceToOut");
@@ -898,15 +864,15 @@ int ShapeTester<ImplT>::TestInsidePoint()
 
       return errCode;
     }
-    // Safety from wrong side should be negative (VecGeom) or zero (USolids-compatible)
+    // Safety from wrong side should be negative
     double safeDistanceFromOut = CallSafetyToIn(fVolume, point);
-#ifdef VECGEOM_REPLACE_USOLIDS
-    if (safeDistanceFromOut != 0.0) {
-      std::string message("TI: SafetyFromOutside(p) should be Zero for Points Inside");
-#else
+//#ifdef VECGEOM_REPLACE_USOLIDS
+    // if (safeDistanceFromOut != 0.0) {
+    //   std::string message("TI: SafetyFromOutside(p) should be Zero for Points Inside");
+//#else
     if (safeDistanceFromOut >= 0.0) {
       std::string message("TI: SafetyFromOutside(p) should be Negative value (-1.) for Points Inside");
-#endif
+//#endif
       Vec_t zero(0);
       // disable this message as it is alreay part of ConventionChecker
       // ReportError(&nError, point, zero, safeDistanceFromOut, message.c_str());
@@ -962,14 +928,14 @@ int ShapeTester<ImplT>::TestInsidePoint()
       }
       // DistanceToIn from point on wrong side has to be negative (VecGeom) or zero (USolids-compatible)
       double distIn = fVolume->DistanceToIn(point, v);
-#ifdef VECGEOM_REPLACE_USOLIDS
-      if (distIn != 0.) {
-        std::string message("TI: DistanceToIn(p,v) has to be Zero for Inside points (USolids convention).");
-#else
-      if (distIn >= 0.) {
-        std::string message(
-            "TI: DistanceToIn(p,v) has to be Negative value (-1.) for Inside points (VecGeom convention).");
-#endif
+// #ifdef VECGEOM_REPLACE_USOLIDS
+      // if (distIn != 0.) {
+       //   std::string message("TI: DistanceToIn(p,v) has to be Zero for Inside points (USolids convention).");
+// #else
+       if (distIn >= 0.) {
+         std::string message(
+             "TI: DistanceToIn(p,v) has to be Negative value (-1.) for Inside points (VecGeom convention).");
+// #endif
         ReportError(&nError, point, v, distIn, message.c_str());
         continue;
       }
@@ -1032,13 +998,13 @@ int ShapeTester<ImplT>::TestOutsidePoint()
 
     double safeDistanceFromInside = CallSafetyToOut(fVolume, point);
 // Safety from wrong side point has to be negative (VecGeom) or zero (USolids-compatible)
-#ifdef VECGEOM_REPLACE_USOLIDS
-    if (safeDistanceFromInside != 0.0) {
-      std::string msg("TO: SafetyToOut(p) should be Zero for points Outside (USolids convention)");
-#else
+// #ifdef VECGEOM_REPLACE_USOLIDS
+//     if (safeDistanceFromInside != 0.0) {
+//       std::string msg("TO: SafetyToOut(p) should be Zero for points Outside (USolids convention)");
+// #else
     if (safeDistanceFromInside >= 0.0) {
       std::string msg("TO: SafetyToOut(p) should be Negative value (-1.) for points Outside (VecGeom conv)");
-#endif
+// #endif
       Vec_t zero(0);
       // disable this message as it is part of ConventionChecker
       // ReportError(&nError, point, zero, safeDistanceFromInside, msg.c_str());
@@ -1358,7 +1324,7 @@ int ShapeTester<ImplT>::TestAccuracyDistanceToIn(double dist)
     // Surface
     std::cout << "TestAccuracyDistanceToIn::Errors for moved point is not on Surface ::iInNoSurf = " << iInNoSurf
               << ";    iOutNoSurf = " << iOutNoSurf << std::endl;
-    std::cout << "TestAccuracyDistanceToIn::Errors SolidUSolid ::From total number of Points  = " << iIn << std::endl;
+    std::cout << "TestAccuracyDistanceToIn::Errors Solid ::From total number of Points  = " << iIn << std::endl;
   }
 #ifdef VECGEOM_ROOT
   if (fStat) {
@@ -1395,7 +1361,6 @@ int ShapeTester<ImplT>::ShapeSafetyFromInside(int max)
 
   if (max > fMaxPointsInside) max = fMaxPointsInside;
   for (int i = 0; i < max; i++) {
-    // GetVectorUSolids(point, fPoints, i);
     point      = fPoints[i];
     double res = CallSafetyToOut(fVolume, point);
     for (int j = 0; j < 1000; j++) {
@@ -1462,7 +1427,6 @@ int ShapeTester<ImplT>::ShapeSafetyFromOutside(int max)
   fVolume->Extent(minExtent, maxExtent);
   if (max > fMaxPointsOutside) max = fMaxPointsOutside;
   for (int i = 0; i < max; i++) {
-    // GetVectorUSolids(point, fPoints, i);
     point = fPoints[i + fOffsetOutside];
     res   = CallSafetyToIn(fVolume, point);
     if (res > 0) { // Safety Sphere test
@@ -1631,11 +1595,7 @@ int ShapeTester<ImplT>::Integration(double theta, double phi, int ngrid, bool us
   }
 #endif
 
-#ifdef VECGEOM_USOLIDS
-  UTransform3D *matrix = new UTransform3D(0, 0, 0, phi, theta, 0.);
-#else
   Transformation3D *matrix = new Transformation3D(0, 0, 0, phi, theta, 0.);
-#endif
   Vec_t origin = Vec_t(extent * dir.x(), extent * dir.y(), extent * dir.z());
 
   dir = -dir;
@@ -1651,11 +1611,7 @@ int ShapeTester<ImplT>::Integration(double theta, double phi, int ngrid, bool us
         point.x() = xmin + 0.5 * cell;
         point.y() = ymin + 0.5 * cell;
         point.z() = 0;
-#ifdef VECGEOM_USOLIDS
-        grid_fPoints[ip] = matrix->GlobalPoint(point) + origin;
-#else
         grid_fPoints[ip]   = matrix->InverseTransform(point) + origin;
-#endif
 #ifdef VECGEOM_ROOT
         if (graphics) pmx->SetNextPoint(grid_fPoints[ip].x(), grid_fPoints[ip].y(), grid_fPoints[ip].z());
 #endif
@@ -1665,11 +1621,7 @@ int ShapeTester<ImplT>::Integration(double theta, double phi, int ngrid, bool us
           point.x() = xmin + cell * vecgeom::RNG::Instance().uniform();
           point.y() = ymin + cell * vecgeom::RNG::Instance().uniform();
           point.z() = 0;
-#ifdef VECGEOM_USOLIDS
-          grid_fPoints[ip] = matrix->GlobalPoint(point) + origin;
-#else
           grid_fPoints[ip] = matrix->InverseTransform(point) + origin;
-#endif
 #ifdef VECGEOM_ROOT
           if (graphics) pmx->SetNextPoint(grid_fPoints[ip].x(), grid_fPoints[ip].y(), grid_fPoints[ip].z());
 #endif
@@ -1695,12 +1647,8 @@ int ShapeTester<ImplT>::Integration(double theta, double phi, int ngrid, bool us
         ntransitions++;
         sumerr += lastdist;
       }
-      last = true;
-#ifdef VECGEOM_USOLIDS
-      point = matrix->LocalPoint(grid_fPoints[i]);
-#else
-      point                = matrix->Transform(grid_fPoints[i]) + origin;
-#endif
+      last  = true;
+      point = matrix->Transform(grid_fPoints[i]) + origin;
 #ifdef VECGEOM_ROOT
       if (graphics) {
         xprof->Fill(point.x(), point.y(), dist);
@@ -1792,11 +1740,7 @@ void ShapeTester<ImplT>::CreatePointsAndDirectionsSurface()
     do
     { bool surfaceExist=true;
       if(surfaceExist) {
-#ifdef VECGEOM_USOLIDS
-        pointU = fVolume->GetPointOnSurface();
-#else
         pointU = fVolume->SamplePointOnSurface();
-#endif
       }
       else {
         Vec_t dir = GetRandomDirection(), norm;
@@ -1813,11 +1757,7 @@ void ShapeTester<ImplT>::CreatePointsAndDirectionsSurface()
 #endif
     int retry = 100;
     do {
-#ifdef VECGEOM_USOLIDS
-      pointU = fVolume->GetPointOnSurface();
-#else
-      pointU               = fVolume->SamplePointOnSurface();
-#endif
+      pointU                          = fVolume->SamplePointOnSurface();
       Vec_t vec                       = GetRandomDirection();
       fDirections[i + fOffsetSurface] = vec;
       point.Set(pointU.x(), pointU.y(), pointU.z());
@@ -1877,11 +1817,7 @@ void ShapeTester<ImplT>::CreatePointsAndDirectionsOutside()
     if (random <= fOutsideRandomDirectionPercent / 100.) {
       vec = GetRandomDirection();
     } else {
-#ifdef VECGEOM_USOLIDS
-      Vec_t pointSurface = fVolume->GetPointOnSurface();
-#else
       Vec_t pointSurface   = fVolume->SamplePointOnSurface();
-#endif
       vec = pointSurface - point;
       vec.Normalize();
     }
@@ -1931,11 +1867,8 @@ void ShapeTester<ImplT>::CreatePointsAndDirections()
     fPoints.resize(fMaxPoints);
     fDirections.resize(fMaxPoints);
     fResultDoubleDifference.resize(fMaxPoints);
-    fResultBoolUSolids.resize(fMaxPoints);
-    fResultDoubleUSolids.resize(fMaxPoints);
 
     fResultVectorDifference.resize(fMaxPoints);
-    fResultVectorUSolids.resize(fMaxPoints);
 
     CreatePointsAndDirectionsOutside();
     CreatePointsAndDirectionsInside();
@@ -2021,7 +1954,7 @@ int ShapeTester<ImplT>::SaveResultsToFile(const string &fMethod1)
   string fFilename1(fFolder + name + "_" + fMethod1 + ".dat");
   std::cout << "Saving all results to " << fFilename1 << std::endl;
   ofstream file(fFilename1.c_str());
-  bool saveVectors = (fMethod1 == "Normal");
+  //bool saveVectors = (fMethod1 == "Normal");
   int prec         = 16;
   if (file.is_open()) {
     file.precision(prec);
@@ -2031,10 +1964,10 @@ int ShapeTester<ImplT>::SaveResultsToFile(const string &fMethod1)
 
       file << PrintCoordinates(fPoints[i], spacer, prec) << spacer << PrintCoordinates(fDirections[i], spacer, prec)
            << spacer;
-      if (saveVectors)
-        file << PrintCoordinates(fResultVectorUSolids[i], spacer, prec) << "\n";
-      else
-        file << fResultDoubleUSolids[i] << "\n";
+      // if (saveVectors)
+      //   file << PrintCoordinates(fResultVectorUSolids[i], spacer, prec) << "\n";
+      // else
+      //   file << fResultDoubleUSolids[i] << "\n";
     }
     return 0;
   }
@@ -2136,12 +2069,13 @@ void ShapeTester<ImplT>::Run(ImplT const *testVolume, const char *type)
 template <typename ImplT>
 int ShapeTester<ImplT>::Run(ImplT const *testVolume)
 {
-  // debug mode doesn't work with USolids shape
+  // debug mode requires VecGeom shapes
   if (fDebug) {
     const vecgeom::VPlacedVolume *vgvol = dynamic_cast<vecgeom::VPlacedVolume const *>(testVolume);
     if (!vgvol) {
+      assert(false);
       std::cout << "\n\n==========================================================\n";
-      std::cout << "***** ShapeTester WARNING: debug mode does not work with a USolids shape!!\n";
+      std::cout << "***** ShapeTester WARNING: debug mode does not work with a non-VecGeom shape!!\n";
       std::cout << "      Try to use shapeDebug binary to visualize this shape.\n";
       std::cout << "*****  Resetting fDebug to false...\n";
       std::cout << "==========================================================\n\n\n";
@@ -2356,27 +2290,6 @@ int ShapeTester<ImplT>::CountErrors() const
   return answer;
 }
 
-#ifdef VECGEOM_USOLIDS
-template <>
-double ShapeTester<VUSolid>::CallDistanceToOut(const VUSolid *vol, const Vec_t &point, const Vec_t &dir, Vec_t &normal,
-                                               bool convex) const
-{
-  return vol->DistanceToOut(point, dir, normal, convex);
-}
-
-template <>
-double ShapeTester<VUSolid>::CallSafetyToIn(const VUSolid *vol, const Vec_t &point, bool) const
-{
-  return vol->SafetyFromOutside(point);
-}
-
-template <>
-double ShapeTester<VUSolid>::CallSafetyToOut(const VUSolid *vol, const Vec_t &point, bool) const
-{
-  return vol->SafetyFromInside(point);
-}
-#endif
-
 template <>
 double ShapeTester<VPlacedVolume>::CallDistanceToOut(const VPlacedVolume *vol, const Vec_t &point, const Vec_t &dir,
                                                      Vec_t &normal, bool convex) const
@@ -2405,8 +2318,3 @@ double ShapeTester<VPlacedVolume>::CallSafetyToOut(const VPlacedVolume *vol, con
 
 #include "volumes/PlacedVolume.h"
 template class ShapeTester<VPlacedVolume>;
-
-#ifdef VECGEOM_USOLIDS
-#include "VUSolid.hh"
-template class ShapeTester<VUSolid>;
-#endif

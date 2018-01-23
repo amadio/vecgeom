@@ -11,10 +11,6 @@
 #include "benchmarking/BenchmarkResult.h"
 #include "benchmarking/VolumePointers.h"
 
-#ifdef VECGEOM_USOLIDS
-#include "VUSolid.hh"
-#endif
-
 #ifdef VECGEOM_GEANT4
 #include "G4VSolid.hh"
 #endif
@@ -85,13 +81,10 @@ private:
   // a container storing rays : startpoint (Vector3D) plus direction (Vector3D)
   RayContainer fProblematicRays;
 
-// flags indicating whether it is ok to run ROOT/USOLIDS/G4
+// flags indicating whether it is ok to run ROOT/G4
 // because in some cases a conversion might not exist
 // the Benchmarker class will check this at initialization and
 // set these flags accordingly
-#ifdef VECGEOM_USOLIDS
-  bool fOkToRunUSOLIDS;
-#endif
 #ifdef VECGEOM_ROOT
   bool fOkToRunROOT;
 #endif
@@ -276,11 +269,6 @@ private:
   void RunToInUnspecialized(Precision *distances, Precision *safeties);
   void RunToOutUnspecialized(Precision *distances, Precision *safeties);
 
-#ifdef VECGEOM_USOLIDS
-  void RunInsideUSolids(::VUSolid::EnumInside *inside);
-  void RunToInUSolids(double *distances, Precision *safeties);
-  void RunToOutUSolids(double *distances, Precision *safeties);
-#endif
 #ifdef VECGEOM_ROOT
   void RunInsideRoot(bool *inside);
   void RunToInRoot(double *distances, Precision *safeties);
@@ -312,9 +300,6 @@ private:
 #ifdef VECGEOM_ROOT
                        Precision const *const root,
 #endif
-#ifdef VECGEOM_USOLIDS
-                       Precision const *const usolids,
-#endif
 #ifdef VECGEOM_GEANT4
                        Precision const *const geant4,
 #endif
@@ -330,9 +315,6 @@ private:
 #ifdef VECGEOM_ROOT
                                  Precision const *const root,
 #endif
-#ifdef VECGEOM_USOLIDS
-                                 Precision const *const usolids,
-#endif
 #ifdef VECGEOM_GEANT4
                                  Precision const *const geant4,
 #endif
@@ -345,9 +327,6 @@ private:
                       Precision const *const vectorized, Precision const *const unspecialized,
 #ifdef VECGEOM_ROOT
                       Precision const *const root,
-#endif
-#ifdef VECGEOM_USOLIDS
-                      Precision const *const usolids,
 #endif
 #ifdef VECGEOM_GEANT4
                       Precision const *const geant4,
@@ -364,9 +343,6 @@ private:
                               Precision const *const unspecialized,
 #ifdef VECGEOM_ROOT
                               Precision const *const root,
-#endif
-#ifdef VECGEOM_USOLIDS
-                              Precision const *const usolids,
 #endif
 #ifdef VECGEOM_GEANT4
                               Precision const *const geant4,

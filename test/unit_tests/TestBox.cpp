@@ -9,10 +9,6 @@
 #include "base/Vector3D.h"
 #include "volumes/Box.h"
 #include "ApproxEqual.h"
-#ifdef VECGEOM_USOLIDS
-#include "UBox.hh"
-#include "UVector3.hh"
-#endif
 #include <cmath>
 
 #if defined(__GNUCC__) && !defined(__CLANG__)
@@ -438,16 +434,12 @@ bool Test_VECGEOM_431()
   std::cout << "Line " << __LINE__ << ": point=" << testp << ", dir=" << testv << ", distOut=" << Dist
             << ", norm=" << norm << ", conv=" << convex << "\n";
   assert(ApproxEqual(Dist, 200. * sqrt(2.0)));
-#ifdef VECGEOM_REPLACE_USOLIDS
   assert(ApproxEqual(norm, (vy + vz).Normalized()));
-#endif
 
   // and exiting
   Dist = bx.DistanceToOut(testp, vx, norm, convex);
   assert(ApproxEqual(Dist, 0.));
-#ifdef VECGEOM_REPLACE_USOLIDS
   assert(ApproxEqual(norm, vx));
-#endif
 
   // slightly outside of -x face and entering
   testp = Vec_t(-1, 0, 0) - 6.e-15 * vx;
@@ -459,16 +451,12 @@ bool Test_VECGEOM_431()
   std::cout << "Line " << __LINE__ << ": point=" << testp << ", dir=" << testv << ", distOut=" << Dist
             << ", norm=" << norm << ", conv=" << convex << "\n";
   assert(ApproxEqual(Dist, 200. * sqrt(2.0)));
-#ifdef VECGEOM_REPLACE_USOLIDS
   assert(ApproxEqual(norm, (vy + vz).Normalized()));
-#endif
 
   // and exiting
   Dist = bx.DistanceToOut(testp, -vx, norm, convex);
   assert(ApproxEqual(Dist, 0.));
-#ifdef VECGEOM_REPLACE_USOLIDS
   assert(ApproxEqual(norm, -vx));
-#endif
 
   // slightly outside of +y face and entering
   Box_t by("Test Box #y", 200, 1, 200);
@@ -481,16 +469,12 @@ bool Test_VECGEOM_431()
   std::cout << "Line " << __LINE__ << ": point=" << testp << ", dir=" << testv << ", distOut=" << Dist
             << ", norm=" << norm << ", conv=" << convex << "\n";
   assert(ApproxEqual(Dist, 200. * sqrt(2.0)));
-#ifdef VECGEOM_REPLACE_USOLIDS
   assert(ApproxEqual(norm, (vx + vz).Normalized()));
-#endif
 
   // and exiting
   Dist = by.DistanceToOut(testp, vy, norm, convex);
   assert(ApproxEqual(Dist, 0.));
-#ifdef VECGEOM_REPLACE_USOLIDS
   assert(ApproxEqual(norm, vy));
-#endif
 
   // slightly outside of -y face and entering
   testp = Vec_t(0, -1, 0) - 6.e-15 * vy;
@@ -500,16 +484,12 @@ bool Test_VECGEOM_431()
   assert(ApproxEqual(Dist, 0.0));
   Dist = by.DistanceToOut(testp, testv, norm, convex);
   assert(ApproxEqual(Dist, 200. * sqrt(2.0)));
-#ifdef VECGEOM_REPLACE_USOLIDS
   assert(ApproxEqual(norm, (vx + vz).Normalized()));
-#endif
 
   // and exiting
   Dist = by.DistanceToOut(testp, -vy, norm, convex);
   assert(ApproxEqual(Dist, 0.));
-#ifdef VECGEOM_REPLACE_USOLIDS
   assert(ApproxEqual(norm, -vy));
-#endif
 
   // slightly outside of +z face and entering
   Box_t bz("Test Box #z", 200, 200, 1);
@@ -520,16 +500,12 @@ bool Test_VECGEOM_431()
   assert(ApproxEqual(Dist, 0.0));
   Dist = bz.DistanceToOut(testp, testv, norm, convex);
   assert(ApproxEqual(Dist, 200 * sqrt(2.0)));
-#ifdef VECGEOM_REPLACE_USOLIDS
   assert(ApproxEqual(norm, (vx + vy).Normalized()));
-#endif
 
   // and exiting
   Dist = bz.DistanceToOut(testp, vz, norm, convex);
   assert(ApproxEqual(Dist, 0.));
-#ifdef VECGEOM_REPLACE_USOLIDS
   assert(ApproxEqual(norm, vz));
-#endif
 
   // slightly outside of -z face and entering
   testp = Vec_t(0, 0, -1) - 6.e-15 * vz;
@@ -539,16 +515,12 @@ bool Test_VECGEOM_431()
   assert(ApproxEqual(Dist, 0.0));
   Dist = bz.DistanceToOut(testp, testv, norm, convex);
   assert(ApproxEqual(Dist, 200 * sqrt(2.0)));
-#ifdef VECGEOM_REPLACE_USOLIDS
   assert(ApproxEqual(norm, (vx + vy).Normalized()));
-#endif
 
   // and exiting
   Dist = bz.DistanceToOut(testp, -vz, norm, convex);
   assert(ApproxEqual(Dist, 0.));
-#ifdef VECGEOM_REPLACE_USOLIDS
   assert(ApproxEqual(norm, -vz));
-#endif
 
   //=== slightly inside of +x face
   testp = Vec_t(1, 0, 0) - 6.e-15 * vx;
@@ -573,53 +545,20 @@ bool Test_VECGEOM_431()
   testp = Vec_t(10, 0, 0) + 4.e-10 * vx;
   Dist  = cube.DistanceToOut(testp, vx, norm, convex);
   assert(ApproxEqual(Dist, 0.));
-#ifdef VECGEOM_REPLACE_USOLIDS
   assert(ApproxEqual(norm, vx.Normalized()));
-#endif
 
   return true;
 }
 
 int main(int argc, char *argv[])
 {
-
-  if (argc < 2) {
-    std::cerr << "need to give argument :--usolids or --vecgeom\n";
-    return 1;
-  }
-
 // enabling FPE exception
 #if defined(__GNUCC__) && !defined(__CLANG__)
   feenableexcept(FE_ALL_EXCEPT & ~FE_INEXACT);
 #endif
 
-  if (!strcmp(argv[1], "--usolids")) {
-
-#ifndef VECGEOM_USOLIDS
-    std::cerr << "VECGEOM_USOLIDS was not defined\n";
-    return 2;
-#else
-#ifndef VECGEOM_REPLACE_USOLIDS
-    assert(TestBox<UBox>());
-    std::cout << "UBox passed\n";
-#else
-    testvecgeom = true; // needed to avoid testing convexity when vecgeom is used
-    TestBox<UBox>();
-    std::cout << "USolid --> VecGeom box passed\n";
-#endif
-#endif
-  }
-
-  else if (!strcmp(argv[1], "--vecgeom")) {
-    testvecgeom = true;
-    assert(TestBox<vecgeom::SimpleBox>());
-    std::cout << "VecGeomBox passed\n";
-  }
-
-  else {
-    std::cerr << "need to give argument :--usolids or --vecgeom\n";
-    return 1;
-  }
-
+  testvecgeom = true;
+  assert(TestBox<vecgeom::SimpleBox>());
+  std::cout << "VecGeomBox passed\n";
   return 0;
 }

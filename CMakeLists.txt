@@ -1050,7 +1050,6 @@ set(TEST_EXECUTABLES_USOLIDS
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTet.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestOrb.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestSphere.cpp
-  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBoxlikeTrapezoid.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTorus2.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/usolidTest.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestParaboloid.cpp
@@ -1169,28 +1168,18 @@ if (USolids)
   #add_to_ctest("${TEST_EXECUTABLES_SHAPETESTER}")
 
   # add unit tests
-  add_test(NAME USolidsBox COMMAND TestBox --usolids)
-  add_test(NAME VecGeomBox COMMAND TestBox --vecgeom)
-  add_test(NAME USolidsTrap COMMAND TestTrap --usolids)
-  add_test(NAME VecGeomTrap COMMAND TestTrap --vecgeom)
-  add_test(NAME USolidsTube COMMAND TestTube --usolids)
-  add_test(NAME VecGeomTube COMMAND TestTube --vecgeom)
-  add_test(NAME USolidsCone COMMAND TestCons --usolids)
-  add_test(NAME VecGeomTessellated COMMAND TestTessellated --vecgeom)
-  add_test(NAME VecGeomCone COMMAND TestCons --vecgeom)
-  add_test(NAME USolidsTrd COMMAND TestTrd --usolids)
-  add_test(NAME VecGeomTrd COMMAND TestTrd --vecgeom)
-  add_test(NAME USolidsOrb COMMAND TestOrb --usolids)
-  add_test(NAME VecGeomOrb COMMAND TestOrb --vecgeom)
-  add_test(NAME VecGeomPolyhedra COMMAND TestPolyhedra --vecgeom)
-#  add_test(NAME USolidsPolyhedra COMMAND TestPolyhedra --usolids)
-#  add_test(NAME USolidsPolycone COMMAND TestPolycone --usolids)
-  add_test(NAME USolidsParallelepiped COMMAND TestParallelepiped --usolids)
-  add_test(NAME VecGeomParallelepiped COMMAND TestParallelepiped --vecgeom)
-  add_test(NAME USolidsHype COMMAND TestHype --usolids)
-#  add_test(NAME VecGeomHype COMMAND TestHype --vecgeom)
-  add_test(NAME USolidsGenTrap COMMAND TestGenTrap --usolids)
-  add_test(NAME VecGeomGenTrap COMMAND TestGenTrap --vecgeom)
+  add_test(NAME TestBox COMMAND TestBox)
+  add_test(NAME TestTrap COMMAND TestTrap)
+  add_test(NAME TestTube COMMAND TestTube)
+  add_test(NAME TestTessellated COMMAND TestTessellated)
+  add_test(NAME TestCone COMMAND TestCons)
+  add_test(NAME TestTrd COMMAND TestTrd)
+  add_test(NAME TestOrb COMMAND TestOrb)
+  add_test(NAME TestPolycone COMMAND TestPolycone)
+  add_test(NAME TestPolyhedra COMMAND TestPolyhedra)
+  add_test(NAME TestParallelepiped COMMAND TestParallelepiped)
+  add_test(NAME TestHype COMMAND TestHype)
+  add_test(NAME VecGeomGenTrap COMMAND TestGenTrap)
 endif()
 
 if (CUDA)

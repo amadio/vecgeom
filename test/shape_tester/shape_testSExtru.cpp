@@ -4,19 +4,13 @@
 #include "volumes/SExtru.h"
 
 template <typename ImplT>
-int runTester(ImplT const *shape, int npoints, bool usolids, bool debug, bool stat);
+int runTester(ImplT const *shape, int npoints, bool debug, bool stat);
 
 int main(int argc, char *argv[])
 {
   OPTION_INT(npoints, 10000);
   OPTION_BOOL(debug, false);
   OPTION_BOOL(stat, false);
-  OPTION_BOOL(usolids, false);
-
-  if (usolids) {
-    std::cerr << "\n*** ERROR: '-usolids true' is not valid for SExtru shape!\n Aborting...\n\n";
-    return 1;
-  }
 
   int N = 20;
   double x[N], y[N];
@@ -29,14 +23,12 @@ int main(int argc, char *argv[])
   volume->Print();
 
   ShapeTester<vecgeom::VPlacedVolume> tester;
-  tester.setConventionsMode(usolids);
   tester.setDebug(debug);
   tester.setStat(stat);
   tester.SetMaxPoints(npoints);
   int errCode = tester.Run(volume);
 
-  std::cout << "Final Error count for Shape *** " << volume->GetName() << "*** = " << errCode << " ("
-            << (tester.getConventionsMode() ? "USolids" : "VecGeom") << " conventions)\n";
+  std::cout << "Final Error count for Shape *** " << volume->GetName() << "*** = " << errCode << "\n";
   std::cout << "=========================================================\n";
 
   if (volume) delete volume;

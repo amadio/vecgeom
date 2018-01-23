@@ -30,7 +30,6 @@ int main(int argc, char *argv[])
   tsl->Close();
 
   ShapeTester<vecgeom::VPlacedVolume> tester;
-  tester.setConventionsMode(false);
   tester.setDebug(debug);
   tester.setStat(stat);
   tester.SetMaxPoints(npoints);
@@ -38,8 +37,7 @@ int main(int argc, char *argv[])
   tester.SetTestBoundaryErrors(false);
   int errCode = tester.Run(solid);
 
-  std::cout << "Final Error count for Shape *** " << solid->GetName() << "*** = " << errCode << " ("
-            << (tester.getConventionsMode() ? "USolids" : "VecGeom") << " conventions)\n";
+  std::cout << "Final Error count for Shape *** " << solid->GetName() << "*** = " << errCode << "\n";
   std::cout << "=========================================================" << std::endl;
 
   if (solid) delete solid;

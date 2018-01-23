@@ -10,18 +10,14 @@
 #include "base/Vector3D.h"
 #include "volumes/Trd.h"
 #include "ApproxEqual.h"
-#ifdef VECGEOM_USOLIDS
-#include "UTrd.hh"
-#include "UVector3.hh"
-#endif
 #include <cmath>
 
-bool testvecgeom = false;
+bool testvecgeom = true;
 
 template <typename Constants, class Trd_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
 bool TestTrd()
 {
-  VUSolid::EnumInside inside;
+  vecgeom::EnumInside inside;
   Vec_t pzero(0, 0, 0);
   Vec_t ponxside(20, 0, 0), ponyside(0, 30, 0), ponzside(0, 0, 40);
   Vec_t ponmxside(-20, 0, 0), ponmyside(0, -30, 0), ponmzside(0, 0, -40);
@@ -408,45 +404,14 @@ bool TestTrd()
   return true;
 }
 
-#ifdef VECGEOM_USOLIDS
-struct USOLIDSCONSTANTS {
-  static constexpr double kInfLength = DBL_MAX; // UUSolids::kInfLength;
-};
-#endif
 struct VECGEOMCONSTANTS {
   static constexpr double kInfLength = vecgeom::kInfLength;
 };
 
 int main(int argc, char *argv[])
 {
-
-  if (argc < 2) {
-    std::cerr << "need to give argument: --usolids or --vecgeom\n";
-    return 1;
-  }
-
-  if (!strcmp(argv[1], "--usolids")) {
-#ifndef VECGEOM_USOLIDS
-    std::cerr << "VECGEOM_USOLIDS was not defined\n";
-    return 2;
-#else
-#ifndef VECGEOM_REPLACE_USOLIDS
-    TestTrd<USOLIDSCONSTANTS, UTrd>();
-    std::cout << "USolids Trd passed\n";
-#else
-    testvecgeom = true;
-    TestTrd<VECGEOMCONSTANTS, UTrd>();
-    std::cout << "USolids --> VecGeom Trd passed\n";
-#endif
-#endif
-  } else if (!strcmp(argv[1], "--vecgeom")) {
-    testvecgeom = true;
-    TestTrd<VECGEOMCONSTANTS, vecgeom::SimpleTrd>();
-    std::cout << "VecGeom Trd passed\n";
-  } else {
-    std::cerr << "need to give argument: --usolids or --vecgeom\n";
-    return 1;
-  }
+  TestTrd<VECGEOMCONSTANTS, vecgeom::SimpleTrd>();
+  std::cout << "VecGeom Trd passed\n";
 
   return 0;
 }

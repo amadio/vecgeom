@@ -18,12 +18,6 @@
 #include "base/Vector3D.h"
 #include "ApproxEqual.h"
 
-#ifdef VECGEOM_USOLIDS
-#include "UPolycone.hh"
-#include "UGenericPolycone.hh"
-#include "UVector3.hh"
-#endif
-
 using Real_v = vecgeom::VectorBackend::Real_v;
 
 #include <iostream>
@@ -55,7 +49,7 @@ int main()
                          z, rmin, /* r coordinate of these corners */
                          rmax);
 
-  // poly1.Print();
+  //poly1.Print();
 
   // lets make external separate tubes and cones representing the sections
   UnplacedCone section0(rmin[0], rmax[0], rmin[1], rmax[1], (z[1] - z[0]) / 2., 0, kTwoPi);
@@ -129,5 +123,6 @@ int main()
   assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(1., 0., 2), Vec3D_t(0., 0., 1.)), 0.));
   assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(0.5, 0., -1), Vec3D_t(0., 0., -1.)), 0.));
   assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(0.5, 0., -1), Vec3D_t(0., 0., 1.)), 3.));
+  std::cout<<"VecGeomPolycone tests passed.\n";
   return 0;
 }

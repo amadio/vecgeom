@@ -1,17 +1,13 @@
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
 #include "volumes/PlacedVolume.h"
-
-#ifdef VECGEOM_USOLIDS
-#include "UTrd.hh"
-#endif
 #include "volumes/Trd.h"
 
 using VPlacedVolume = vecgeom::VPlacedVolume;
 using VGTrd         = vecgeom::SimpleTrd;
 
 template <typename ImplT>
-int runTester(ImplT const *shape, int npoints, bool usolids, bool debug, bool stat);
+int runTester(ImplT const *shape, int npoints, bool debug, bool stat);
 
 template <typename Trd_t>
 Trd_t *buildATrd(int test)
@@ -52,40 +48,24 @@ int main(int argc, char *argv[])
   OPTION_INT(npoints, 10000);
   OPTION_BOOL(debug, false);
   OPTION_BOOL(stat, false);
-  OPTION_BOOL(usolids, false);
   OPTION_INT(type, 0);
 
-  if (usolids) {
-#ifdef VECGEOM_USOLIDS
-    auto trd = buildATrd<UTrd>(type);
-    trd->StreamInfo(std::cout);
-    return runTester<VUSolid>(trd, npoints, usolids, debug, stat);
-#else
-    std::cerr << "\n*** ERROR: library built with -DUSOLIDS=OFF and user selected '-usolids true'!\n Aborting...\n\n";
-    return 1;
-#endif
-  }
-
-  else {
-    auto trd = buildATrd<VGTrd>(type);
-    trd->Print();
-    return runTester<VPlacedVolume>(trd, npoints, usolids, debug, stat);
-  }
+  auto trd = buildATrd<VGTrd>(type);
+  trd->Print();
+  return runTester<VPlacedVolume>(trd, npoints, debug, stat);
 }
 
 template <typename ImplT>
-int runTester(ImplT const *shape, int npoints, bool usolids, bool debug, bool stat)
+int runTester(ImplT const *shape, int npoints, bool debug, bool stat)
 {
 
   ShapeTester<ImplT> tester;
-  tester.setConventionsMode(usolids);
   tester.setDebug(debug);
   tester.setStat(stat);
   tester.SetMaxPoints(npoints);
   int errcode = tester.Run(shape);
 
-  std::cout << "Final Error count for Shape *** " << shape->GetName() << "*** = " << errcode << " ("
-            << (tester.getConventionsMode() ? "USolids" : "VecGeom") << " conventions)\n";
+  std::cout << "Final Error count for Shape *** " << shape->GetName() << "*** = " << errcode << "\n";
   std::cout << "=========================================================\n";
   if (shape) delete shape;
   return errcode;

@@ -1,7 +1,6 @@
 //
-//
 // TestTet
-//             Ensure asserts are compiled in
+//
 
 // ensure asserts are compiled in
 #undef NDEBUG
@@ -9,10 +8,6 @@
 #include "base/Vector3D.h"
 #include "volumes/Trd.h"
 #include "ApproxEqual.h"
-#ifdef VECGEOM_USOLIDS
-#include "UTet.hh"
-#include "UVector3.hh"
-#endif
 #include <cmath>
 
 template <class Tet_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
@@ -129,12 +124,6 @@ bool TestTet()
 
 int main()
 {
-#ifdef VECGEOM_USOLIDS
-  assert(TestTet<UTet>());
-  std::cout << "UTet passed\n";
-
-#endif
-  std::cout << "VecGeomTet not included yet\n";
-
+  std::cout << "VecGeomTet not implemented yet\n";
   return 0;
 }

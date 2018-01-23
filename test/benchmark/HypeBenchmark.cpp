@@ -1,6 +1,9 @@
 /// \file HypeBenchmark.cpp
 /// \author Raman Sehgal (raman.sehgal@cern.ch)
 
+//.. Geant4 giving discrepant results for the Hype shape
+#undef VECGEOM_GEANT4
+
 #include "volumes/LogicalVolume.h"
 #include "volumes/Box.h"
 #include "volumes/Hype.h"

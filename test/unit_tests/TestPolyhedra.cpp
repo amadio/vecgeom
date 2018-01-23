@@ -6,23 +6,12 @@
 #include "base/Vector3D.h"
 #include "volumes/Polyhedron.h"
 #include "ApproxEqual.h"
-#ifdef VECGEOM_USOLIDS
-#include "UPolyhedra.hh"
-#include "UVector3.hh"
-#endif
 
 #include <cmath>
 
 //-- ensure asserts are compiled in
 #undef NDEBUG
 #include <cassert>
-
-bool testvecgeom = false;
-#ifdef VECGEOM_REPLACE_USOLIDS
-bool testbridgeusolids = true;
-#else
-bool testbridgeusolids = false;
-#endif
 
 template <class Polyhedra_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
 
@@ -158,15 +147,9 @@ bool TestPolyhedra()
   Vec_t minExtent, maxExtent;
   MyPGon->Extent(minExtent, maxExtent);
   std::cout << "polyhedra Extent():  min=" << minExtent << " max=" << maxExtent << std::endl;
-  if (!testvecgeom && !testbridgeusolids) {
-    // In USolids the extent is given by the bounding cylinder
-    assert(ApproxEqual(minExtent, Vec_t(-80. / cos(halfdphi), -80. / cos(halfdphi), -30)));
-    assert(ApproxEqual(maxExtent, Vec_t(80. / cos(halfdphi), 80. / cos(halfdphi), 40)));
-  } else {
-    // In VecGeom the extent is minimal
-    assert(ApproxEqual(minExtent, Vec_t(0, 0, -30)));
-    assert(ApproxEqual(maxExtent, Vec_t(80. / cos(halfdphi), 40. * sqrt(2.) / cos(halfdphi), 40)));
-  }
+  // In VecGeom the extent is minimal
+  assert(ApproxEqual(minExtent, Vec_t(0, 0, -30)));
+  assert(ApproxEqual(maxExtent, Vec_t(80. / cos(halfdphi), 40. * sqrt(2.) / cos(halfdphi), 40)));
 
   // Check Inside
   std::cout << " EInside values:  kInside=" << vecgeom::EInside::kInside << ", kSurface=" << vecgeom::EInside::kSurface
@@ -226,7 +209,7 @@ bool TestPolyhedra()
   //  - DistanceToIn
   //  - DistanceToOut
 
-  VUSolid::EnumInside in;
+  vecgeom::EnumInside in;
 
   std::cout << "\n\n==================================================";
   Vec_t pt(0, -100, 24);
@@ -414,28 +397,8 @@ bool TestPolyhedra()
 
 int main(int argc, char *argv[])
 {
-
-  if (argc < 2) {
-    std::cerr << "need to give argument :--usolids or --vecgeom\n";
-    return 1;
-  }
-
-  if (!strcmp(argv[1], "--usolids")) {
-#ifdef VECGEOM_USOLIDS
-    assert(TestPolyhedra<UPolyhedra>());
-    std::cout << "UPolyhedra passed\n";
-#else
-    std::cerr << "VECGEOM_USOLIDS was not defined\n";
-    return 2;
-#endif
-  } else if (!strcmp(argv[1], "--vecgeom")) {
-    testvecgeom = true;
-    assert(TestPolyhedra<vecgeom::SimplePolyhedron>());
-    std::cout << "VecGeom Polyhedron passed\n";
-  } else {
-    std::cerr << "need to give argument :--usolids or --vecgeom\n";
-    return 1;
-  }
+  assert(TestPolyhedra<vecgeom::SimplePolyhedron>());
+  std::cout << "VecGeom Polyhedron passed\n";
 
   return 0;
 }

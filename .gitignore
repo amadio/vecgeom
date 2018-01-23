@@ -11,15 +11,11 @@ Debug
 .cproject
 .project
 .externalToolBuilders
-compile_*.sh
 *.png
 *.pdf
 *.eps
+*.pyc
+*.bak
 prototype_generation/Main
 .DS_Store
-source/.DS_Store
-test/.DS_Store
-test/benchmark/.DS_Store
-volumes/.DS_Store
-volumes/kernel/.DS_Store
 test/cmstestdata/cms2015.root

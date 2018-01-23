@@ -9,10 +9,6 @@
 #include "volumes/Tube.h"
 #include "ApproxEqual.h"
 #include "base/Global.h"
-#ifdef VECGEOM_USOLIDS
-#include "UTubs.hh"
-#include "UVector3.hh"
-#endif
 
 #include <cmath>
 
@@ -20,7 +16,7 @@
 
 using vecgeom::Sqrt;
 
-bool testvecgeom = false;
+bool testvecgeom = true;
 
 const char *OutputInside(vecgeom::Inside_t side)
 {
@@ -127,7 +123,7 @@ bool TestTubs()
     Vec_t norm;
     bool convex;
     Dist = t1.DistanceToOut(pos221, dir221.Unit(), norm, convex);
-    assert(Dist <= 0); // USolids returns zero
+    assert(Dist < 0);
   }
 
   {
@@ -376,9 +372,9 @@ bool TestTubs()
   Vec_t pt2 = pt1 + Vec_t(0, 0.001 * kCarTolerance, 0);
   Vec_t pt3 = pt1 - Vec_t(0, 0.001 * kCarTolerance, 0);
 
-  VUSolid::EnumInside a1 = arc->Inside(pt1);
-  VUSolid::EnumInside a2 = arc->Inside(pt2);
-  VUSolid::EnumInside a3 = arc->Inside(pt3);
+  vecgeom::EnumInside a1 = arc->Inside(pt1);
+  vecgeom::EnumInside a2 = arc->Inside(pt2);
+  vecgeom::EnumInside a3 = arc->Inside(pt3);
 
   // std::cout << "Point pt1 is " << OutputInside(a1) << std::endl;
   assert(a1 == vecgeom::EInside::kSurface);
@@ -594,45 +590,14 @@ bool TestTubs()
   return true;
 }
 
-#ifdef VECGEOM_USOLIDS
-struct USOLIDSCONSTANTS {
-  static constexpr double kInfLength = DBL_MAX; // UUSolids::kInfLength;
-};
-#endif
 struct VECGEOMCONSTANTS {
   static constexpr double kInfLength = vecgeom::kInfLength;
 };
 
 int main(int argc, char *argv[])
 {
-
-  if (argc < 2) {
-    std::cerr << "need to give argument: --usolids or --vecgeom\n";
-    return 1;
-  }
-
-  if (!strcmp(argv[1], "--usolids")) {
-#ifndef VECGEOM_USOLIDS
-    std::cerr << "VECGEOM_USOLIDS was not defined\n";
-    return 2;
-#else
-#ifndef VECGEOM_REPLACE_USOLIDS
-    TestTubs<USOLIDSCONSTANTS, UTubs>();
-    std::cout << "UTube passed\n";
-#else
-    testvecgeom = true;
-    TestTubs<VECGEOMCONSTANTS, UTubs>();
-    std::cout << "USolids --> VecGeom tube passed\n";
-#endif
-#endif
-  } else if (!strcmp(argv[1], "--vecgeom")) {
-    testvecgeom = true;
-    TestTubs<VECGEOMCONSTANTS, vecgeom::SimpleTube>();
-    std::cout << "VecGeom tube passed\n";
-  } else {
-    std::cerr << "need to give argument: --usolids or --vecgeom\n";
-    return 1;
-  }
+  TestTubs<VECGEOMCONSTANTS, vecgeom::SimpleTube>();
+  std::cout << "VecGeom tube passed\n";
 
   return 0;
 }

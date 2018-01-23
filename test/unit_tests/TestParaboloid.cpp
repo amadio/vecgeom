@@ -12,15 +12,9 @@
 #include "volumes/Box.h"
 #include "volumes/Paraboloid.h"
 #include "ApproxEqual.h"
-#ifdef VECGEOM_USOLIDS
-#include "UBox.hh"
-#include "UParaboloid.hh"
-#include "UVector3.hh"
-#endif
+
 #include <cmath>
 #include <iomanip>
-
-bool testvecgeom = false;
 
 #define PI 3.14159265358979323846
 
@@ -129,36 +123,8 @@ bool TestParaboloid()
 
 int main(int argc, char *argv[])
 {
-
-  if (argc < 2) {
-    std::cerr << "need to give argument :--usolids or --vecgeom\n";
-    return 1;
-  }
-
-  if (!strcmp(argv[1], "--usolids")) {
-#ifndef VECGEOM_USOLIDS
-    std::cerr << "VECGEOM_USOLIDS was not defined\n";
-    return 2;
-#else
-#ifndef VECGEOM_REPLACE_USOLIDS
-    TestParaboloid<UParaboloid>();
-    std::cout << "UParaboloid passed (but notice discrepancies above, where asserts have been disabled!)\n";
-#else
-    testvecgeom = true; // needed to avoid testing convexity when vecgeom is used
-    TestParaboloid<UParaboloid>();
-    std::cout << "UParaboloid --> VecGeom orb passed\n";
-#endif
-#endif
-  }
-
-  else if (!strcmp(argv[1], "--vecgeom")) {
-    testvecgeom = true;
-    assert(TestParaboloid<vecgeom::SimpleParaboloid>());
-    std::cout << "VecGeomParaboloid passed\n";
-  } else {
-    std::cerr << "need to give argument :--usolids or --vecgeom\n";
-    return 1;
-  }
+  assert(TestParaboloid<vecgeom::SimpleParaboloid>());
+  std::cout << "VecGeomParaboloid passed\n";
 
   return 0;
 }

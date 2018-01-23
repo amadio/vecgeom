@@ -139,16 +139,12 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
 
     if (direction.Dot(normal) < 0.) // particle is entering into the shape
     {
-      bool ok = (fUsolidsConventions ? Dist == 0. : fabs(Dist * direction.Dot(normal)) <= vecgeom::kTolerance);
+      bool ok = fabs(Dist * direction.Dot(normal)) <= vecgeom::kTolerance;
       if (!ok) {
         fScore |= (1 << indx);
         surfPointConventionPassed &= false;
-        if (fUsolidsConventions)
-          ReportError(&nError, point, direction, Dist, "DistanceToIn for Surface Point entering into the Shape "
-                                                       "should be 0 (USolids convention)");
-        else
-          ReportError(&nError, point, direction, Dist, "DistanceToIn for Surface Point entering into the Shape "
-                                                       "should be 0 within tolerance (VecGeom convention)");
+	ReportError(&nError, point, direction, Dist,
+		    "DistanceToIn for Surface Point entering into the Shape should be 0 within tolerance (VecGeom convention)");
       }
     }
 
@@ -184,16 +180,12 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
     // if (Dist >= kInfLength) Dist = kInfLength;
     if (direction.Dot(normal) > 0.) {
       // particle is exiting from the shape
-      bool ok = (fUsolidsConventions ? Dist == 0 : (Dist * direction.Dot(normal)) <= vecgeom::kTolerance);
+      bool ok = (Dist * direction.Dot(normal)) <= vecgeom::kTolerance;
       if (!ok) {
         fScore |= (1 << indx);
         surfPointConventionPassed &= false;
-        if (fUsolidsConventions)
-          ReportError(&nError, point, direction, Dist,
-                      "DistanceToOut for Surface Point exiting the shape should be 0 (USolids convention)");
-        else
-          ReportError(&nError, point, direction, Dist,
-                      "DistanceToOut for Surface Point exiting the shape should be <= tolerance (VecGeom convention)");
+	ReportError(&nError, point, direction, Dist,
+		    "DistanceToOut for Surface Point exiting the shape should be <= tolerance (VecGeom convention)");
       }
     }
 
@@ -214,16 +206,12 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
     Dist = CallSafetyToIn(fVolume, point);
     // if (Dist >= kInfLength) Dist = kInfLength;
     {
-      bool ok = (fUsolidsConventions ? Dist == 0 : Dist <= kHalfTolerance);
+      bool ok = Dist <= kHalfTolerance;
       if (!ok) {
         fScore |= (1 << indx);
         surfPointConventionPassed &= false;
-        if (fUsolidsConventions)
-          ReportError(&nError, point, direction, Dist,
-                      "SafetyFromOutside for Surface Point should be 0 (USolids convention)");
-        else
-          ReportError(&nError, point, direction, Dist,
-                      "SafetyFromOutside for Surface Point should be 0 (VecGeom convention)");
+	ReportError(&nError, point, direction, Dist,
+		    "SafetyFromOutside for Surface Point should be 0 (VecGeom convention)");
       }
     }
 
@@ -232,16 +220,12 @@ bool ShapeTester<ImplT>::ShapeConventionSurfacePoint()
     Dist = CallSafetyToOut(fVolume, point);
     // if (Dist >= kInfLength) Dist = kInfLength;
     {
-      bool ok = (fUsolidsConventions ? Dist == 0. : Dist <= kHalfTolerance);
+      bool ok = Dist <= kHalfTolerance;
       if (!ok) {
         fScore |= (1 << indx);
         surfPointConventionPassed &= false;
-        if (fUsolidsConventions)
-          ReportError(&nError, point, direction, Dist,
-                      "SafetyFromInside for Surface Point should be 0 (USolids convention)");
-        else
-          ReportError(&nError, point, direction, Dist,
-                      "SafetyFromInside for Surface Point should be <= tolerance (VecGeom convention)");
+	ReportError(&nError, point, direction, Dist,
+		    "SafetyFromInside for Surface Point should be <= tolerance (VecGeom convention)");
       }
     }
   }
@@ -271,13 +255,9 @@ bool ShapeTester<ImplT>::ShapeConventionInsidePoint()
     Dist     = fVolume->DistanceToIn(point, direction);
     // if (Dist >= kInfLength) Dist = kInfLength;
     {
-      bool ok = (fUsolidsConventions ? Dist == 0. : Dist < 0.);
+      bool ok = Dist < 0.;
       if (!ok) {
-        std::string message("DistanceToIn for Inside Point should be ");
-        message += (fUsolidsConventions ? "Zero (Wrong side, USolids convention)"
-                                        : "Negative (-1.) (Wrong side, VecGeom convention)");
-
-        ReportError(&nError, point, direction, Dist, message.c_str());
+        ReportError(&nError, point, direction, Dist, "DistanceToIn for Inside Point should be Negative (-1.) (Wrong side)");
         fScore |= (1 << indx);
         insidePointConventionPassed &= false;
       }
@@ -300,12 +280,9 @@ bool ShapeTester<ImplT>::ShapeConventionInsidePoint()
     Dist = CallSafetyToIn(fVolume, point);
     // if (Dist >= kInfLength) Dist = kInfLength;
     {
-      bool ok = (fUsolidsConventions ? Dist == 0. : Dist < 0.);
+      bool ok = (Dist < 0.);
       if (!ok) {
-        std::string message("SafetyFromOutside for Inside Point should be ");
-        message += (fUsolidsConventions ? "Zero (Wrong side, USolids convention)"
-                                        : "Negative (-1.) (Wrong side, VecGeom conv)");
-        ReportError(&nError, point, direction, Dist, message.c_str());
+	ReportError(&nError, point, direction, Dist, "SafetyFromOutside for Inside Point should be Negative (-1.) (Wrong side, VecGeom conv)");
         fScore |= (1 << indx);
         insidePointConventionPassed &= false;
       }
@@ -360,12 +337,9 @@ bool ShapeTester<ImplT>::ShapeConventionOutsidePoint()
     Dist        = CallDistanceToOut(fVolume, point, direction, norm, convex);
     // if (Dist >= kInfLength) Dist = kInfLength;
     {
-      bool ok = (fUsolidsConventions ? Dist == 0. : Dist < 0.);
+      bool ok = (Dist < 0.);
       if (!ok) {
-        std::string msg("DistanceToOut for Outside Point should be ");
-        msg += (fUsolidsConventions ? "Zero (Wrong side, USolids convention)."
-                                    : "Negative (-1.) (Wrong side, VecGeom convention).");
-        ReportError(&nError, point, direction, Dist, msg.c_str());
+        ReportError(&nError, point, direction, Dist, "DistanceToOut for Outside Point should be Negative (-1.) (Wrong side).");
         fScore |= (1 << indx);
         outsidePointConventionPassed &= false;
       }
@@ -386,13 +360,9 @@ bool ShapeTester<ImplT>::ShapeConventionOutsidePoint()
     Dist = CallSafetyToOut(fVolume, point);
     // if (Dist >= kInfLength) Dist = kInfLength;
     {
-      bool ok = (fUsolidsConventions ? Dist == 0. : Dist < 0.);
+      bool ok = (Dist < 0.);
       if (!ok) {
-        std::string message("SafetyFromInside for Outside Point should be ");
-        message += (fUsolidsConventions ? "Zero (Wrong side, USolids convention)"
-                                        : "Negative (-1) (Wrong side, VecGeom conv)");
-
-        ReportError(&nError, point, direction, Dist, message.c_str());
+        ReportError(&nError, point, direction, Dist, "SafetyFromInside for Outside Point should be Negative (-1) (Wrong side)");
         fScore |= (1 << indx);
         outsidePointConventionPassed &= false;
       }

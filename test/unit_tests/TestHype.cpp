@@ -386,27 +386,8 @@ bool TestHype()
 
 int main(int argc, char *argv[])
 {
-
-  if (argc < 2) {
-    std::cerr << "need to give argument :--usolids or --vecgeom\n";
-    return 1;
-  }
-
-  if (!strcmp(argv[1], "--usolids")) {
-#ifdef VECGEOM_USOLIDS
-    // assert(TestHype<UHype>());
-    std::cout << "UHype passed\n";
-#else
-    std::cerr << "VECGEOM_USOLIDS was not defined\n";
-    return 2;
-#endif
-  } else if (!strcmp(argv[1], "--vecgeom")) {
-    assert(TestHype<vecgeom::SimpleHype>());
-    std::cout << "VecGeomHype passed\n";
-  } else {
-    std::cerr << "need to give argument :--usolids or --vecgeom\n";
-    return 1;
-  }
+  assert(TestHype<vecgeom::SimpleHype>());
+  std::cout << "VecGeomHype passed\n";
 
   return 0;
 }

@@ -19,7 +19,6 @@ int main(int argc, char *argv[])
   VPlacedVolume *placed = vol.Place();
 
   ShapeTester<vecgeom::VPlacedVolume> tester;
-  tester.setConventionsMode(false);
   tester.setDebug(debug);
   tester.setStat(stat);
   tester.SetMaxPoints(npoints);
@@ -27,8 +26,7 @@ int main(int argc, char *argv[])
   tester.SetTestBoundaryErrors(false);
   int errCode = tester.Run(placed);
 
-  std::cout << "Final Error count for Shape *** " << placed->GetName() << "*** = " << errCode << " ("
-            << (tester.getConventionsMode() ? "USolids" : "VecGeom") << " conventions)\n";
+  std::cout << "Final Error count for Shape *** " << placed->GetName() << "*** = " << errCode << "\n";
   std::cout << "=========================================================" << std::endl;
 
 #endif

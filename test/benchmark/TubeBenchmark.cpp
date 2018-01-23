@@ -26,6 +26,7 @@ int benchmark(double rmin, double rmax, double dz, double sphi, double dphi, int
   tester.SetPoolMultiplier(1);
   tester.SetRepetitions(nrep);
   tester.SetPointCount(npoints);
+  tester.SetTolerance(1.2e-9);
   return tester.RunBenchmark();
 }
 

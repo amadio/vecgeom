@@ -9,12 +9,6 @@
 #include "volumes/PlacedBox.h"
 #include "volumes/utilities/VolumeUtilities.h"
 
-#ifdef VECGEOM_USOLIDS
-#include "VUSolid.hh"
-#include "UUtils.hh"
-#include "UVector3.hh"
-#endif
-
 #ifdef VECGEOM_ROOT
 #include "TGeoShape.h"
 #endif
@@ -40,10 +34,6 @@ Benchmarker::Benchmarker() : Benchmarker(NULL)
 Benchmarker::Benchmarker(VPlacedVolume const *const world)
     : fPointCount(1024), fPoolMultiplier(4), fRepetitions(1024), fMeasurementCount(1), fVerbosity(1), fToInBias(0.8),
       fInsideBias(0.5), fPointPool(NULL), fDirectionPool(NULL), fStepMax(NULL), fTolerance(kTolerance)
-#ifdef VECGEOM_USOLIDS
-      ,
-      fOkToRunUSOLIDS(true)
-#endif
 #ifdef VECGEOM_ROOT
       ,
       fOkToRunROOT(true)
@@ -93,7 +83,7 @@ void Benchmarker::GenerateVolumePointers(VPlacedVolume const *const vol)
 
     // this is pretty tricky
     // this line causes the implicit conversion of a vecgeom shape
-    // to the corresponding ROOT/G4/USOLIDS shapes via the VolumePointers
+    // to the corresponding ROOT/G4 shapes via the VolumePointers
     // constructor
     fVolumes.push_back(*i);
 // can check now the property of the conversions of *i
@@ -101,12 +91,6 @@ void Benchmarker::GenerateVolumePointers(VPlacedVolume const *const vol)
     if (fVolumes.back().ROOT() == NULL) {
       fOkToRunROOT = false;
       std::cerr << "disabling ROOT\n";
-    }
-#endif
-#ifdef VECGEOM_USOLIDS
-    if (fVolumes.back().USolids() == NULL) {
-      fOkToRunUSOLIDS = false;
-      std::cerr << "disabling USOLIDS\n";
     }
 #endif
 #ifdef VECGEOM_GEANT4
@@ -139,9 +123,6 @@ int Benchmarker::CompareDistances(SOA3D<Precision> *points, SOA3D<Precision> *di
 #ifdef VECGEOM_ROOT
                                   Precision const *const root,
 #endif
-#ifdef VECGEOM_USOLIDS
-                                  Precision const *const usolids,
-#endif
 #ifdef VECGEOM_GEANT4
                                   Precision const *const geant4,
 #endif
@@ -158,9 +139,6 @@ int Benchmarker::CompareDistances(SOA3D<Precision> *points, SOA3D<Precision> *di
   outputLabelsStream << "Vectorized / Specialized / Unspecialized";
 #ifdef VECGEOM_ROOT
   if (fOkToRunROOT) outputLabelsStream << " / ROOT";
-#endif
-#ifdef VECGEOM_USOLIDS
-  if (fOkToRunUSOLIDS) outputLabelsStream << " / USolids";
 #endif
 #ifdef VECGEOM_GEANT4
   if (fOkToRunG4) outputLabelsStream << " / Geant4";
@@ -193,20 +171,11 @@ int Benchmarker::CompareDistances(SOA3D<Precision> *points, SOA3D<Precision> *di
       if (fOkToRunROOT) {
         // The miss condition 'root[i]==1e30' does not hold for scaled shape,
         // where
-        // the returned distance is scaled with respact to the unscaled value
+        // the returned distance is scaled with respect to the unscaled value
         if (std::fabs(specialized[i] - root[i]) > fTolerance && !(specialized[i] == kInfLength && root[i] > 1e20)) {
           mismatch = true;
         }
         if (fVerbosity > 2) mismatchOutput << " / " << root[i];
-      }
-#endif
-#ifdef VECGEOM_USOLIDS
-      if (fOkToRunUSOLIDS) {
-        if (!(specialized[i] == kInfLength && usolids[i] >= UUtils::kInfinity) &&
-            std::fabs(specialized[i] - usolids[i]) > fTolerance) {
-          mismatch = true;
-        }
-        if (fVerbosity > 2) mismatchOutput << " / " << usolids[i];
       }
 #endif
 #ifdef VECGEOM_GEANT4
@@ -258,9 +227,6 @@ int Benchmarker::CheckDistancesFromBoundary(Precision expected, SOA3D<Precision>
 #ifdef VECGEOM_ROOT
                                             Precision const *const root,
 #endif
-#ifdef VECGEOM_USOLIDS
-                                            Precision const *const usolids,
-#endif
 #ifdef VECGEOM_GEANT4
                                             Precision const *const geant4,
 #endif
@@ -277,9 +243,6 @@ int Benchmarker::CheckDistancesFromBoundary(Precision expected, SOA3D<Precision>
   outputLabelsStream << "Vectorized / Specialized / Unspecialized";
 #ifdef VECGEOM_ROOT
   if (fOkToRunROOT) outputLabelsStream << " / ROOT";
-#endif
-#ifdef VECGEOM_USOLIDS
-  if (fOkToRunUSOLIDS) outputLabelsStream << " / USolids";
 #endif
 #ifdef VECGEOM_GEANT4
   if (fOkToRunG4) outputLabelsStream << " / Geant4";
@@ -320,17 +283,6 @@ int Benchmarker::CheckDistancesFromBoundary(Precision expected, SOA3D<Precision>
           // mismatch = true;
         }
         if (fVerbosity > 2) mismatchOutput << " / " << root[i];
-      }
-#endif
-#ifdef VECGEOM_USOLIDS
-      if (fOkToRunUSOLIDS) {
-        if (std::fabs(specialized[i] - usolids[i]) > fTolerance &&
-            !(specialized[i] == kInfLength && usolids[i] == UUtils::kInfinity)) {
-          // NOT ANALYSING DIFFERENCE TO USOLIDS HERE FOR MOMENT
-          // SINCE HARD CHECK IS GIVEN BY "expected" value
-          // mismatch = true;
-        }
-        if (fVerbosity > 2) mismatchOutput << " / " << usolids[i];
       }
 #endif
 #ifdef VECGEOM_GEANT4
@@ -384,9 +336,6 @@ int Benchmarker::CompareSafeties(SOA3D<Precision> *points, SOA3D<Precision> *dir
 #ifdef VECGEOM_ROOT
                                  Precision const *const root,
 #endif
-#ifdef VECGEOM_USOLIDS
-                                 Precision const *const usolids,
-#endif
 #ifdef VECGEOM_GEANT4
                                  Precision const *const geant4,
 #endif
@@ -403,9 +352,6 @@ int Benchmarker::CompareSafeties(SOA3D<Precision> *points, SOA3D<Precision> *dir
   outputLabelsStream << "Vectorized / Specialized / Unspecialized";
 #ifdef VECGEOM_ROOT
   if (fOkToRunROOT) outputLabelsStream << " / ROOT";
-#endif
-#ifdef VECGEOM_USOLIDS
-  if (fOkToRunUSOLIDS) outputLabelsStream << " / USolids";
 #endif
 #ifdef VECGEOM_GEANT4
   if (fOkToRunG4) outputLabelsStream << " / Geant4";
@@ -444,16 +390,6 @@ int Benchmarker::CompareSafeties(SOA3D<Precision> *points, SOA3D<Precision> *dir
           better &= specialized[i] >= root[i] - kTolerance;
         }
         if (fVerbosity > 2) mismatchOutput << " / " << root[i];
-      }
-#endif
-#ifdef VECGEOM_USOLIDS
-      if (fOkToRunUSOLIDS) {
-        if (!(specialized[i] == kInfLength && usolids[i] == UUtils::kInfinity) &&
-            std::fabs(specialized[i] - usolids[i]) > kTolerance) {
-          // mismatch = true;
-          better &= specialized[i] >= usolids[i] - kTolerance;
-        }
-        if (fVerbosity > 2) mismatchOutput << " / " << usolids[i];
       }
 #endif
 #ifdef VECGEOM_GEANT4
@@ -504,9 +440,6 @@ int Benchmarker::CheckSafetiesOnBoundary(SOA3D<Precision> *points, SOA3D<Precisi
 #ifdef VECGEOM_ROOT
                                          Precision const *const root,
 #endif
-#ifdef VECGEOM_USOLIDS
-                                         Precision const *const usolids,
-#endif
 #ifdef VECGEOM_GEANT4
                                          Precision const *const geant4,
 #endif
@@ -523,9 +456,6 @@ int Benchmarker::CheckSafetiesOnBoundary(SOA3D<Precision> *points, SOA3D<Precisi
   outputLabelsStream << "Vectorized / Specialized / Unspecialized";
 #ifdef VECGEOM_ROOT
   if (fOkToRunROOT) outputLabelsStream << " / ROOT";
-#endif
-#ifdef VECGEOM_USOLIDS
-  if (fOkToRunUSOLIDS) outputLabelsStream << " / USolids";
 #endif
 #ifdef VECGEOM_GEANT4
   if (fOkToRunG4) outputLabelsStream << " / Geant4";
@@ -563,16 +493,6 @@ int Benchmarker::CheckSafetiesOnBoundary(SOA3D<Precision> *points, SOA3D<Precisi
           // better &= specialized[i] >= root[i];
         }
         if (fVerbosity > 2) mismatchOutput << " / " << root[i];
-      }
-#endif
-#ifdef VECGEOM_USOLIDS
-      if (fOkToRunUSOLIDS) {
-        if (!(specialized[i] == kInfLength && usolids[i] == UUtils::kInfinity) &&
-            std::fabs(specialized[i] - usolids[i]) > kTolerance) {
-          // mismatch = true;
-          // better &= specialized[i] >= usolids[i];
-        }
-        if (fVerbosity > 2) mismatchOutput << " / " << usolids[i];
       }
 #endif
 #ifdef VECGEOM_GEANT4
@@ -669,13 +589,6 @@ int Benchmarker::RunInsideBenchmark()
   bool *const containsRoot = AllocateAligned<bool>();
   outputLabelsContains << " - ROOT";
 #endif
-#ifdef VECGEOM_USOLIDS
-  ::VUSolid::EnumInside *insideUSolids = nullptr;
-  if (fOkToRunUSOLIDS) {
-    insideUSolids = AllocateAligned<::VUSolid::EnumInside>();
-    outputLabelsInside << " - USolids";
-  }
-#endif
 #ifdef VECGEOM_GEANT4
   ::EInside *const insideGeant4 = AllocateAligned<::EInside>();
   outputLabelsInside << " - Geant4";
@@ -709,9 +622,6 @@ int Benchmarker::RunInsideBenchmark()
     RunInsideUnspecialized(containsUnspecialized, insideUnspecialized);
 #if defined(VECGEOM_VTUNE)
     __itt_task_end(__itt_RunInsideBenchmark);
-#endif
-#ifdef VECGEOM_USOLIDS
-    if (fOkToRunUSOLIDS) RunInsideUSolids(insideUSolids);
 #endif
 #ifdef VECGEOM_GEANT4
     if (fOkToRunG4) RunInsideGeant4(insideGeant4);
@@ -781,12 +691,6 @@ int Benchmarker::RunInsideBenchmark()
       }
       if (insideSpecialized[i] != insideVectorized[i]) mismatch    = true;
       if (insideSpecialized[i] != insideUnspecialized[i]) mismatch = true;
-#ifdef VECGEOM_USOLIDS
-      if (fOkToRunUSOLIDS) {
-        if (insideSpecialized[i] != insideUSolids[i]) mismatch = true;
-        if (fVerbosity > 2) mismatchOutput << " / " << insideUSolids[i];
-      }
-#endif
 #ifdef VECGEOM_GEANT4
       if (fOkToRunG4) {
         if (!((insideSpecialized[i] == EInside::kInside && insideGeant4[i] == ::kInside) ||
@@ -824,11 +728,6 @@ int Benchmarker::RunInsideBenchmark()
   FreeAligned(insideVectorized);
   FreeAligned(insideSpecialized);
   FreeAligned(insideUnspecialized);
-#ifdef VECGEOM_USOLIDS
-  if (fOkToRunUSOLIDS) {
-    FreeAligned(insideUSolids);
-  }
-#endif
 #ifdef VECGEOM_GEANT4
   FreeAligned(insideGeant4);
 #endif
@@ -857,16 +756,6 @@ int Benchmarker::CompareMetaInformation() const
       ROOTcapacity += v->ROOT()->Capacity();
     }
     printf("## ROOT capacity sum %lf\n", ROOTcapacity);
-  }
-#endif
-
-#ifdef VECGEOM_USOLIDS
-  if (fOkToRunUSOLIDS) {
-    double USOLIDScapacity = 0.;
-    for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
-      USOLIDScapacity += const_cast<VUSolid *>(v->USolids())->Capacity();
-    }
-    printf("## USOLIDS capacity sum %lf\n", USOLIDScapacity);
   }
 #endif
 
@@ -931,15 +820,6 @@ int Benchmarker::RunToInBenchmark()
   Precision *const safetiesSpecialized    = AllocateAligned<Precision>();
   Precision *const distancesUnspecialized = AllocateAligned<Precision>();
   Precision *const safetiesUnspecialized  = AllocateAligned<Precision>();
-#ifdef VECGEOM_USOLIDS
-  Precision *distancesUSolids = nullptr;
-  Precision *safetiesUSolids  = nullptr;
-  if (fOkToRunUSOLIDS) {
-    distancesUSolids = AllocateAligned<Precision>();
-    safetiesUSolids  = AllocateAligned<Precision>();
-    outputLabels << " - USolids";
-  }
-#endif
 #ifdef VECGEOM_GEANT4
   Precision *const distancesGeant4 = AllocateAligned<Precision>();
   Precision *const safetiesGeant4  = AllocateAligned<Precision>();
@@ -979,9 +859,6 @@ int Benchmarker::RunToInBenchmark()
 #if defined(VECGEOM_VTUNE)
     __itt_task_end(__itt_RunToInBenchmark);
 #endif
-#ifdef VECGEOM_USOLIDS
-    if (fOkToRunUSOLIDS) RunToInUSolids(distancesUSolids, safetiesUSolids);
-#endif
 #ifdef VECGEOM_GEANT4
     if (fOkToRunG4) RunToInGeant4(distancesGeant4, safetiesGeant4);
 #endif
@@ -998,9 +875,6 @@ int Benchmarker::RunToInBenchmark()
 #ifdef VECGEOM_ROOT
                        distancesRoot,
 #endif
-#ifdef VECGEOM_USOLIDS
-                       distancesUSolids,
-#endif
 #ifdef VECGEOM_GEANT4
                        distancesGeant4,
 #endif
@@ -1013,9 +887,6 @@ int Benchmarker::RunToInBenchmark()
   FreeAligned(distancesSpecialized);
   FreeAligned(distancesUnspecialized);
   FreeAligned(distancesVectorized);
-#ifdef VECGEOM_USOLIDS
-  if (fOkToRunUSOLIDS) FreeAligned(distancesUSolids);
-#endif
 #ifdef VECGEOM_GEANT4
   FreeAligned(distancesGeant4);
 #endif
@@ -1032,9 +903,6 @@ int Benchmarker::RunToInBenchmark()
 #ifdef VECGEOM_ROOT
                   safetiesRoot,
 #endif
-#ifdef VECGEOM_USOLIDS
-                  safetiesUSolids,
-#endif
 #ifdef VECGEOM_GEANT4
                   safetiesGeant4,
 #endif
@@ -1046,9 +914,6 @@ int Benchmarker::RunToInBenchmark()
   FreeAligned(safetiesSpecialized);
   FreeAligned(safetiesUnspecialized);
   FreeAligned(safetiesVectorized);
-#ifdef VECGEOM_USOLIDS
-  if (fOkToRunUSOLIDS) FreeAligned(safetiesUSolids);
-#endif
 #ifdef VECGEOM_GEANT4
   FreeAligned(safetiesGeant4);
 #endif
@@ -1121,15 +986,6 @@ int Benchmarker::RunToOutBenchmark()
   Precision *const safetiesSpecialized    = AllocateAligned<Precision>();
   Precision *const distancesUnspecialized = AllocateAligned<Precision>();
   Precision *const safetiesUnspecialized  = AllocateAligned<Precision>();
-#ifdef VECGEOM_USOLIDS
-  Precision *distancesUSolids = nullptr;
-  Precision *safetiesUSolids  = nullptr;
-  if (fOkToRunUSOLIDS) {
-    distancesUSolids = AllocateAligned<Precision>();
-    safetiesUSolids  = AllocateAligned<Precision>();
-    outputLabels << " - USolids";
-  }
-#endif
 #ifdef VECGEOM_GEANT4
   Precision *const distancesGeant4 = AllocateAligned<Precision>();
   Precision *const safetiesGeant4  = AllocateAligned<Precision>();
@@ -1169,9 +1025,6 @@ int Benchmarker::RunToOutBenchmark()
 #if defined(VECGEOM_VTUNE)
     __itt_task_end(__itt_RunToOutBenchmark);
 #endif
-#ifdef VECGEOM_USOLIDS
-    if (fOkToRunUSOLIDS) RunToOutUSolids(distancesUSolids, safetiesUSolids);
-#endif
 #ifdef VECGEOM_GEANT4
     if (fOkToRunG4) RunToOutGeant4(distancesGeant4, safetiesGeant4);
 #endif
@@ -1189,9 +1042,6 @@ int Benchmarker::RunToOutBenchmark()
 #ifdef VECGEOM_ROOT
                        distancesRoot,
 #endif
-#ifdef VECGEOM_USOLIDS
-                       distancesUSolids,
-#endif
 #ifdef VECGEOM_GEANT4
                        distancesGeant4,
 #endif
@@ -1204,9 +1054,6 @@ int Benchmarker::RunToOutBenchmark()
   FreeAligned(distancesSpecialized);
   FreeAligned(distancesUnspecialized);
   FreeAligned(distancesVectorized);
-#ifdef VECGEOM_USOLIDS
-  if (fOkToRunUSOLIDS) FreeAligned(distancesUSolids);
-#endif
 #ifdef VECGEOM_GEANT4
   FreeAligned(distancesGeant4);
 #endif
@@ -1222,9 +1069,6 @@ int Benchmarker::RunToOutBenchmark()
 #ifdef VECGEOM_ROOT
                   safetiesRoot,
 #endif
-#ifdef VECGEOM_USOLIDS
-                  safetiesUSolids,
-#endif
 #ifdef VECGEOM_GEANT4
                   safetiesGeant4,
 #endif
@@ -1236,9 +1080,6 @@ int Benchmarker::RunToOutBenchmark()
   FreeAligned(safetiesSpecialized);
   FreeAligned(safetiesUnspecialized);
   FreeAligned(safetiesVectorized);
-#ifdef VECGEOM_USOLIDS
-  if (fOkToRunUSOLIDS) FreeAligned(safetiesUSolids);
-#endif
 #ifdef VECGEOM_GEANT4
   FreeAligned(safetiesGeant4);
 #endif
@@ -1324,15 +1165,6 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
   Precision *const safetiesSpecialized    = AllocateAligned<Precision>();
   Precision *const distancesUnspecialized = AllocateAligned<Precision>();
   Precision *const safetiesUnspecialized  = AllocateAligned<Precision>();
-#ifdef VECGEOM_USOLIDS
-  Precision *distancesUSolids = nullptr;
-  Precision *safetiesUSolids  = nullptr;
-  if (fOkToRunUSOLIDS) {
-    distancesUSolids = AllocateAligned<Precision>();
-    safetiesUSolids  = AllocateAligned<Precision>();
-    outputLabels << " - USolids";
-  }
-#endif
 #ifdef VECGEOM_GEANT4
   Precision *const distancesGeant4 = AllocateAligned<Precision>();
   Precision *const safetiesGeant4  = AllocateAligned<Precision>();
@@ -1372,9 +1204,6 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
 #if defined(VECGEOM_VTUNE)
     __itt_task_end(__itt_RunToOutBenchmark);
 #endif
-#ifdef VECGEOM_USOLIDS
-    if (fOkToRunUSOLIDS) RunToOutUSolids(distancesUSolids, safetiesUSolids);
-#endif
 #ifdef VECGEOM_GEANT4
     if (fOkToRunG4) RunToOutGeant4(distancesGeant4, safetiesGeant4);
 #endif
@@ -1392,9 +1221,6 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
 #ifdef VECGEOM_ROOT
                        distancesRoot,
 #endif
-#ifdef VECGEOM_USOLIDS
-                       distancesUSolids,
-#endif
 #ifdef VECGEOM_GEANT4
                        distancesGeant4,
 #endif
@@ -1407,9 +1233,6 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
   FreeAligned(distancesSpecialized);
   FreeAligned(distancesUnspecialized);
   FreeAligned(distancesVectorized);
-#ifdef VECGEOM_USOLIDS
-  if (fOkToRunUSOLIDS) FreeAligned(distancesUSolids);
-#endif
 #ifdef VECGEOM_GEANT4
   FreeAligned(distancesGeant4);
 #endif
@@ -1424,9 +1247,6 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
 #ifdef VECGEOM_ROOT
                                        safetiesRoot,
 #endif
-#ifdef VECGEOM_USOLIDS
-                                       safetiesUSolids,
-#endif
 #ifdef VECGEOM_GEANT4
                                        safetiesGeant4,
 #endif
@@ -1438,9 +1258,6 @@ int Benchmarker::RunToOutFromBoundaryBenchmark()
   FreeAligned(safetiesSpecialized);
   FreeAligned(safetiesUnspecialized);
   FreeAligned(safetiesVectorized);
-#ifdef VECGEOM_USOLIDS
-  if (fOkToRunUSOLIDS) FreeAligned(safetiesUSolids);
-#endif
 #ifdef VECGEOM_GEANT4
   FreeAligned(safetiesGeant4);
 #endif
@@ -1525,15 +1342,6 @@ int Benchmarker::RunToOutFromBoundaryExitingBenchmark()
   Precision *const safetiesSpecialized    = AllocateAligned<Precision>();
   Precision *const distancesUnspecialized = AllocateAligned<Precision>();
   Precision *const safetiesUnspecialized  = AllocateAligned<Precision>();
-#ifdef VECGEOM_USOLIDS
-  Precision *distancesUSolids = nullptr;
-  Precision *safetiesUSolids  = nullptr;
-  if (fOkToRunUSOLIDS) {
-    distancesUSolids = AllocateAligned<Precision>();
-    safetiesUSolids  = AllocateAligned<Precision>();
-    outputLabels << " - USolids";
-  }
-#endif
 #ifdef VECGEOM_GEANT4
   Precision *const distancesGeant4 = AllocateAligned<Precision>();
   Precision *const safetiesGeant4  = AllocateAligned<Precision>();
@@ -1555,9 +1363,6 @@ int Benchmarker::RunToOutFromBoundaryExitingBenchmark()
     RunToOutVectorized(distancesVectorized, safetiesVectorized);
     RunToOutSpecialized(distancesSpecialized, safetiesSpecialized);
     RunToOutUnspecialized(distancesUnspecialized, safetiesUnspecialized);
-#ifdef VECGEOM_USOLIDS
-    if (fOkToRunUSOLIDS) RunToOutUSolids(distancesUSolids, safetiesUSolids);
-#endif
 #ifdef VECGEOM_GEANT4
     if (fOkToRunG4) RunToOutGeant4(distancesGeant4, safetiesGeant4);
 #endif
@@ -1575,9 +1380,6 @@ int Benchmarker::RunToOutFromBoundaryExitingBenchmark()
 #ifdef VECGEOM_ROOT
                        distancesRoot,
 #endif
-#ifdef VECGEOM_USOLIDS
-                       distancesUSolids,
-#endif
 #ifdef VECGEOM_GEANT4
                        distancesGeant4,
 #endif
@@ -1590,9 +1392,6 @@ int Benchmarker::RunToOutFromBoundaryExitingBenchmark()
   FreeAligned(distancesSpecialized);
   FreeAligned(distancesUnspecialized);
   FreeAligned(distancesVectorized);
-#ifdef VECGEOM_USOLIDS
-  if (fOkToRunUSOLIDS) FreeAligned(distancesUSolids);
-#endif
 #ifdef VECGEOM_GEANT4
   FreeAligned(distancesGeant4);
 #endif
@@ -1607,9 +1406,6 @@ int Benchmarker::RunToOutFromBoundaryExitingBenchmark()
 #ifdef VECGEOM_ROOT
                                        safetiesRoot,
 #endif
-#ifdef VECGEOM_USOLIDS
-                                       safetiesUSolids,
-#endif
 #ifdef VECGEOM_GEANT4
                                        safetiesGeant4,
 #endif
@@ -1621,9 +1417,6 @@ int Benchmarker::RunToOutFromBoundaryExitingBenchmark()
   FreeAligned(safetiesSpecialized);
   FreeAligned(safetiesUnspecialized);
   FreeAligned(safetiesVectorized);
-#ifdef VECGEOM_USOLIDS
-  if (fOkToRunUSOLIDS) FreeAligned(safetiesUSolids);
-#endif
 #ifdef VECGEOM_GEANT4
   FreeAligned(safetiesGeant4);
 #endif
@@ -1705,15 +1498,6 @@ int Benchmarker::RunToInFromBoundaryBenchmark()
   Precision *const safetiesSpecialized    = AllocateAligned<Precision>();
   Precision *const distancesUnspecialized = AllocateAligned<Precision>();
   Precision *const safetiesUnspecialized  = AllocateAligned<Precision>();
-#ifdef VECGEOM_USOLIDS
-  Precision *distancesUSolids = nullptr;
-  Precision *safetiesUSolids  = nullptr;
-  if (fOkToRunUSOLIDS) {
-    distancesUSolids = AllocateAligned<Precision>();
-    safetiesUSolids  = AllocateAligned<Precision>();
-    outputLabels << " - USolids";
-  }
-#endif
 #ifdef VECGEOM_GEANT4
   Precision *const distancesGeant4 = AllocateAligned<Precision>();
   Precision *const safetiesGeant4  = AllocateAligned<Precision>();
@@ -1735,9 +1519,6 @@ int Benchmarker::RunToInFromBoundaryBenchmark()
     RunToInVectorized(distancesVectorized, safetiesVectorized);
     RunToInSpecialized(distancesSpecialized, safetiesSpecialized);
     RunToInUnspecialized(distancesUnspecialized, safetiesUnspecialized);
-#ifdef VECGEOM_USOLIDS
-    if (fOkToRunUSOLIDS) RunToInUSolids(distancesUSolids, safetiesUSolids);
-#endif
 #ifdef VECGEOM_GEANT4
     if (fOkToRunG4) RunToInGeant4(distancesGeant4, safetiesGeant4);
 #endif
@@ -1755,9 +1536,6 @@ int Benchmarker::RunToInFromBoundaryBenchmark()
 #ifdef VECGEOM_ROOT
                                              distancesRoot,
 #endif
-#ifdef VECGEOM_USOLIDS
-                                             distancesUSolids,
-#endif
 #ifdef VECGEOM_GEANT4
                                              distancesGeant4,
 #endif
@@ -1770,9 +1548,6 @@ int Benchmarker::RunToInFromBoundaryBenchmark()
   FreeAligned(distancesSpecialized);
   FreeAligned(distancesUnspecialized);
   FreeAligned(distancesVectorized);
-#ifdef VECGEOM_USOLIDS
-  if (fOkToRunUSOLIDS) FreeAligned(distancesUSolids);
-#endif
 #ifdef VECGEOM_GEANT4
   FreeAligned(distancesGeant4);
 #endif
@@ -1787,9 +1562,6 @@ int Benchmarker::RunToInFromBoundaryBenchmark()
 #ifdef VECGEOM_ROOT
                                        safetiesRoot,
 #endif
-#ifdef VECGEOM_USOLIDS
-                                       safetiesUSolids,
-#endif
 #ifdef VECGEOM_GEANT4
                                        safetiesGeant4,
 #endif
@@ -1801,9 +1573,6 @@ int Benchmarker::RunToInFromBoundaryBenchmark()
   FreeAligned(safetiesSpecialized);
   FreeAligned(safetiesUnspecialized);
   FreeAligned(safetiesVectorized);
-#ifdef VECGEOM_USOLIDS
-  if (fOkToRunUSOLIDS) FreeAligned(safetiesUSolids);
-#endif
 #ifdef VECGEOM_GEANT4
   FreeAligned(safetiesGeant4);
 #endif
@@ -1888,15 +1657,6 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
   Precision *const safetiesSpecialized    = AllocateAligned<Precision>();
   Precision *const distancesUnspecialized = AllocateAligned<Precision>();
   Precision *const safetiesUnspecialized  = AllocateAligned<Precision>();
-#ifdef VECGEOM_USOLIDS
-  Precision *distancesUSolids = nullptr;
-  Precision *safetiesUSolids  = nullptr;
-  if (fOkToRunUSOLIDS) {
-    distancesUSolids = AllocateAligned<Precision>();
-    safetiesUSolids  = AllocateAligned<Precision>();
-    outputLabels << " - USolids";
-  }
-#endif
 #ifdef VECGEOM_GEANT4
   Precision *const distancesGeant4 = AllocateAligned<Precision>();
   Precision *const safetiesGeant4  = AllocateAligned<Precision>();
@@ -1918,9 +1678,6 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
     RunToInVectorized(distancesVectorized, safetiesVectorized);
     RunToInSpecialized(distancesSpecialized, safetiesSpecialized);
     RunToInUnspecialized(distancesUnspecialized, safetiesUnspecialized);
-#ifdef VECGEOM_USOLIDS
-    if (fOkToRunUSOLIDS) RunToInUSolids(distancesUSolids, safetiesUSolids);
-#endif
 #ifdef VECGEOM_GEANT4
     if (fOkToRunG4) RunToInGeant4(distancesGeant4, safetiesGeant4);
 #endif
@@ -1938,9 +1695,6 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
 #ifdef VECGEOM_ROOT
                        distancesRoot,
 #endif
-#ifdef VECGEOM_USOLIDS
-                       distancesUSolids,
-#endif
 #ifdef VECGEOM_GEANT4
                        distancesGeant4,
 #endif
@@ -1953,9 +1707,6 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
   FreeAligned(distancesSpecialized);
   FreeAligned(distancesUnspecialized);
   FreeAligned(distancesVectorized);
-#ifdef VECGEOM_USOLIDS
-  if (fOkToRunUSOLIDS) FreeAligned(distancesUSolids);
-#endif
 #ifdef VECGEOM_GEANT4
   FreeAligned(distancesGeant4);
 #endif
@@ -1971,9 +1722,6 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
 #ifdef VECGEOM_ROOT
                           safetiesRoot,
 #endif
-#ifdef VECGEOM_USOLIDS
-                          safetiesUSolids,
-#endif
 #ifdef VECGEOM_GEANT4
                           safetiesGeant4,
 #endif
@@ -1985,9 +1733,6 @@ int Benchmarker::RunToInFromBoundaryExitingBenchmark()
   FreeAligned(safetiesSpecialized);
   FreeAligned(safetiesUnspecialized);
   FreeAligned(safetiesVectorized);
-#ifdef VECGEOM_USOLIDS
-  if (fOkToRunUSOLIDS) FreeAligned(safetiesUSolids);
-#endif
 #ifdef VECGEOM_GEANT4
   FreeAligned(safetiesGeant4);
 #endif
@@ -2323,117 +2068,6 @@ void Benchmarker::RunToOutUnspecialized(Precision *const distances, Precision *c
   fResults.push_back(GenerateBenchmarkResult(elapsedDistance, kBenchmarkDistanceToOut, kBenchmarkUnspecialized, 1));
   fResults.push_back(GenerateBenchmarkResult(elapsedSafety, kBenchmarkSafetyToOut, kBenchmarkUnspecialized, 1));
 }
-
-#ifdef VECGEOM_USOLIDS
-void Benchmarker::RunInsideUSolids(::VUSolid::EnumInside *const inside)
-{
-  if (fVerbosity > 0) printf("USolids       - ");
-  Stopwatch timer;
-  timer.Start();
-  for (unsigned r = 0; r < fRepetitions; ++r) {
-    int index = (rand() % fPoolMultiplier) * fPointCount;
-    for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
-      Transformation3D const *transformation = v->Unspecialized()->GetTransformation();
-      for (unsigned i = 0; i < fPointCount; ++i) {
-        int p                           = index + i;
-        const Vector3D<Precision> point = transformation->Transform((*fPointPool)[p]);
-        inside[i]                       = v->USolids()->Inside(UVector3(point[0], point[1], point[2]));
-      }
-    }
-  }
-  Precision elapsed = timer.Stop();
-  if (fVerbosity > 0 && fMeasurementCount == 1) {
-    printf("Inside: %.6fs (%.6fs), Contains: -.------s (-.------s), "
-           "Inside/Contains: -.--\n",
-           elapsed, elapsed / fVolumes.size());
-  }
-  fResults.push_back(GenerateBenchmarkResult(elapsed, kBenchmarkInside, kBenchmarkUSolids, fInsideBias));
-}
-
-void Benchmarker::RunToInUSolids(Precision *const distances, Precision *const safeties)
-{
-  if (fVerbosity > 0) printf("USolids       - ");
-  Stopwatch timer;
-  timer.Start();
-  for (unsigned r = 0; r < fRepetitions; ++r) {
-    int index = (rand() % fPoolMultiplier) * fPointCount;
-    for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
-      Transformation3D const *transformation = v->Unspecialized()->GetTransformation();
-      for (unsigned i = 0; i < fPointCount; ++i) {
-        int p                           = index + i;
-        const Vector3D<Precision> point = transformation->Transform((*fPointPool)[p]);
-        const Vector3D<Precision> dir   = transformation->TransformDirection((*fDirectionPool)[p]);
-        distances[i] =
-            v->USolids()->DistanceToIn(UVector3(point[0], point[1], point[2]), UVector3(dir[0], dir[1], dir[2]));
-      }
-    }
-  }
-  Precision elapsedDistance = timer.Stop();
-  timer.Start();
-  for (unsigned r = 0; r < fRepetitions; ++r) {
-    int index = (rand() % fPoolMultiplier) * fPointCount;
-    for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
-      Transformation3D const *transformation = v->Unspecialized()->GetTransformation();
-      for (unsigned i = 0; i < fPointCount; ++i) {
-        int p                           = index + i;
-        const Vector3D<Precision> point = transformation->Transform((*fPointPool)[p]);
-        safeties[i]                     = v->USolids()->SafetyFromOutside(UVector3(point[0], point[1], point[2]));
-      }
-    }
-  }
-  Precision elapsedSafety = timer.Stop();
-  if (fVerbosity > 0 && fMeasurementCount == 1) {
-    printf("DistanceToIn: %.6fs (%.6fs), SafetyToIn: %.6fs (%.6fs), "
-           "DistanceToIn/SafetyToIn: %.2f\n",
-           elapsedDistance, elapsedDistance / fVolumes.size(), elapsedSafety, elapsedSafety / fVolumes.size(),
-           elapsedDistance / elapsedSafety);
-  }
-  fResults.push_back(GenerateBenchmarkResult(elapsedDistance, kBenchmarkDistanceToIn, kBenchmarkUSolids, fToInBias));
-  fResults.push_back(GenerateBenchmarkResult(elapsedSafety, kBenchmarkSafetyToIn, kBenchmarkUSolids, fToInBias));
-}
-
-void Benchmarker::RunToOutUSolids(Precision *const distances, Precision *const safeties)
-{
-  if (fVerbosity > 0) printf("USolids       - ");
-  Stopwatch timer;
-  timer.Start();
-  for (unsigned r = 0; r < fRepetitions; ++r) {
-    int index = (rand() % fPoolMultiplier) * fPointCount;
-    for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
-      for (unsigned i = 0; i < fPointCount; ++i) {
-        int p                           = index + i;
-        const Vector3D<Precision> point = (*fPointPool)[p];
-        const Vector3D<Precision> dir   = (*fDirectionPool)[p];
-        UVector3 normal;
-        bool convex;
-        distances[i] = v->USolids()->DistanceToOut(UVector3(point[0], point[1], point[2]),
-                                                   UVector3(dir[0], dir[1], dir[2]), normal, convex);
-      }
-    }
-  }
-  Precision elapsedDistance = timer.Stop();
-  timer.Start();
-  for (unsigned r = 0; r < fRepetitions; ++r) {
-    int index = (rand() % fPoolMultiplier) * fPointCount;
-    for (auto v = fVolumes.begin(), vEnd = fVolumes.end(); v != vEnd; ++v) {
-      for (unsigned i = 0; i < fPointCount; ++i) {
-        int p                           = index + i;
-        const Vector3D<Precision> point = (*fPointPool)[p];
-        safeties[i]                     = v->USolids()->SafetyFromInside(UVector3(point[0], point[1], point[2]));
-      }
-    }
-  }
-  Precision elapsedSafety = timer.Stop();
-  if (fVerbosity > 0 && fMeasurementCount == 1) {
-    printf("DistanceToOut: %.6fs (%.6fs), SafetyToOut: %.6fs (%.6fs), "
-           "DistanceToOut/SafetyToOut: %.2f\n",
-           elapsedDistance, elapsedDistance / fVolumes.size(), elapsedSafety, elapsedSafety / fVolumes.size(),
-           elapsedDistance / elapsedSafety);
-  }
-  fResults.push_back(GenerateBenchmarkResult(elapsedDistance, kBenchmarkDistanceToOut, kBenchmarkUSolids, 1));
-  fResults.push_back(GenerateBenchmarkResult(elapsedSafety, kBenchmarkSafetyToOut, kBenchmarkUSolids, 1));
-}
-#endif
 
 #ifdef VECGEOM_GEANT4
 void Benchmarker::RunInsideGeant4(::EInside *const inside)

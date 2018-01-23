@@ -2,10 +2,6 @@
 #include "ShapeTester.h"
 #include "volumes/PlacedVolume.h"
 #include "base/Vector3D.h"
-
-#ifdef VECGEOM_USOLIDS
-#include "UTrap.hh"
-#endif
 #include "volumes/Trapezoid.h"
 
 using Precision     = vecgeom::Precision;
@@ -14,7 +10,7 @@ using VPlacedVolume = vecgeom::VPlacedVolume;
 using VGTrap        = vecgeom::SimpleTrapezoid;
 
 template <typename ImplT>
-int runTester(ImplT const *shape, int npoints, bool usolids, bool debug, bool stat);
+int runTester(ImplT const *shape, int npoints, bool debug, bool stat);
 
 template <typename Trap_t>
 Trap_t *buildFullTrap()
@@ -79,40 +75,22 @@ int main(int argc, char *argv[])
   OPTION_INT(npoints, 10000);
   OPTION_BOOL(debug, false);
   OPTION_BOOL(stat, false);
-  OPTION_BOOL(usolids, false);
   OPTION_INT(type, 2);
 
-  if (usolids) {
-#ifndef VECGEOM_USOLIDS
-    std::cerr << "\n*** ERROR: library built with -DUSOLIDS=OFF and user selected '-usolids true'!\n Aborting...\n\n";
-    return 1;
-#else
-    // enforce USolids conventions
-    auto trap = buildATrap<UTrap>(type);
-    trap->StreamInfo(std::cout);
-    return runTester<VUSolid>(trap, npoints, usolids, debug, stat);
-#endif
-  }
-
-  else {
-    // enforce VecGeom conventions
-    auto trap = buildATrap<VGTrap>(type);
-    trap->Print();
-    return runTester<VPlacedVolume>(trap, npoints, usolids, debug, stat);
-  }
+  auto trap = buildATrap<VGTrap>(type);
+  trap->Print();
+  return runTester<VPlacedVolume>(trap, npoints, debug, stat);
 }
 
 template <typename ImplT>
-int runTester(ImplT const *shape, int npoints, bool usolids, bool debug, bool stat)
+int runTester(ImplT const *shape, int npoints, bool debug, bool stat)
 {
   ShapeTester<ImplT> tester;
-  tester.setConventionsMode(usolids);
   tester.setStat(stat);
   tester.SetMaxPoints(npoints);
   int errcode = tester.Run(shape);
 
-  std::cout << "Final Error count for Shape *** " << shape->GetName() << "*** = " << errcode << " ("
-            << (tester.getConventionsMode() ? "USolids" : "VecGeom") << " conventions)\n";
+  std::cout << "Final Error count for Shape *** " << shape->GetName() << "*** = " << errcode << "\n";
   std::cout << "=========================================================\n";
 
   if (shape) delete shape;

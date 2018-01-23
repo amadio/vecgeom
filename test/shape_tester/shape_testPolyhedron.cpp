@@ -19,14 +19,8 @@ int main(int argc, char *argv[])
   OPTION_INT(npoints, 10000);
   OPTION_BOOL(debug, false);
   OPTION_BOOL(stat, false);
-  OPTION_BOOL(usolids, false);
   OPTION_INT(type, 0);
   using namespace vecgeom;
-
-  if (usolids) {
-    std::cerr << "\n*** ERROR: '-usolids true' is not valid for Polyhedron shape!\n Aborting...\n\n";
-    return 1;
-  }
 
   Polyhedron_t *solid = 0;
 
@@ -54,7 +48,6 @@ int main(int argc, char *argv[])
   if (!solid) return 0;
 
   ShapeTester<vecgeom::VPlacedVolume> tester;
-  tester.setConventionsMode(usolids);
   tester.setDebug(debug);
   tester.setStat(stat);
   tester.SetMaxPoints(npoints);
@@ -62,8 +55,7 @@ int main(int argc, char *argv[])
   tester.SetTestBoundaryErrors(false);
   int errCode = tester.Run(solid);
 
-  std::cout << "Final Error count for Shape *** " << solid->GetName() << "*** = " << errCode << " ("
-            << (tester.getConventionsMode() ? "USolids" : "VecGeom") << " conventions)\n";
+  std::cout << "Final Error count for Shape *** " << solid->GetName() << "*** = " << errCode << "\n";
   std::cout << "=========================================================" << std::endl;
 
   if (solid) delete solid;

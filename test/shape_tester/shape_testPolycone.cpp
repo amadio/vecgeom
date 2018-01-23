@@ -1,9 +1,5 @@
 #include "../benchmark/ArgParser.h"
 #include "ShapeTester.h"
-
-#ifdef VECGEOM_USOLIDS
-#include "UPolycone.hh"
-#endif
 #include "volumes/Polycone.h"
 
 typedef vecgeom::SimplePolycone Poly_t;
@@ -13,12 +9,6 @@ int main(int argc, char *argv[])
   OPTION_INT(npoints, 10000);
   OPTION_BOOL(debug, false);
   OPTION_BOOL(stat, false);
-  OPTION_BOOL(usolids, false);
-
-  if (usolids) {
-    std::cerr << "\n*** ERROR: '-usolids true' is not valid for Polycone shape!\n Aborting...\n\n";
-    return 1;
-  }
 
   using namespace vecgeom;
 
@@ -79,7 +69,6 @@ int main(int argc, char *argv[])
                           Z_ValP, R_MinP, R_MaxP); /* r coordinate of these corners */
 
   ShapeTester<vecgeom::VPlacedVolume> tester;
-  tester.setConventionsMode(usolids);
   tester.setDebug(debug);
   tester.setStat(stat);
   tester.SetMaxPoints(npoints);
@@ -87,8 +76,7 @@ int main(int argc, char *argv[])
   tester.SetTestBoundaryErrors(false);
   int errCode = tester.Run(poly2);
 
-  std::cout << "Final Error count for Shape *** " << poly2->GetName() << "*** = " << errCode << " ("
-            << (tester.getConventionsMode() ? "USolids" : "VecGeom") << " conventions)\n";
+  std::cout << "Final Error count for Shape *** " << poly2->GetName() << "*** = " << errCode << "\n";
   std::cout << "=========================================================" << std::endl;
 
   if (poly2) delete poly2;

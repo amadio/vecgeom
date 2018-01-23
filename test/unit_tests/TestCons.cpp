@@ -9,15 +9,11 @@
 #include "ApproxEqual.h"
 #include "volumes/Cone.h"
 #include "base/Global.h"
-#ifdef VECGEOM_USOLIDS
-#include "UCons.hh"
-#include "UVector3.hh"
-#endif
 #include <cmath>
-//#include "base/FpeEnable.h"
+
 #define DELTA 0.0001
 
-bool testingvecgeom = false;
+bool testingvecgeom = true;
 
 // Returns false if actual is within wanted+/- DELTA
 //         true if error
@@ -170,7 +166,7 @@ bool TestCons()
   assert(ApproxEqual(vol, volCheck));
 
   // Check Inside
-  VUSolid::EnumInside in;
+  vecgeom::EnumInside in;
   std::cout.precision(16);
   // std::cout << "Testing Cone_t::Inside...\n";
 
@@ -695,27 +691,15 @@ bool TestCons()
   if (OutRange(dist, Constants::kInfLength))
     std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c8c.DistanceToIn(pplz,vmz) = " << dist << "\n";
 
-  if (testingvecgeom)
   // Cone is with Rmin=Rmax=0 at +dz
-  // this is creating a very small cut at dz in USolids implementation(at construction)
-  {
-    dist = c9.DistanceToIn(pplz, vmz);
-    if (OutRange(dist, 70.0))
-      std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c9.DistanceToIn(pplz,vmz) = " << dist << "\n";
-
-    dist = c9.DistanceToIn(Vec_t(0, 0, 50), vmz);
-    if (OutRange(dist, 0.0))
-      std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c9.DistanceToIn((0,0,50),vmz) = " << dist << "\n";
-  } else {
-    dist = c9.DistanceToIn(pplz, vmz);
-    if (OutRange(dist, Constants::kInfLength))
-      std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c9.DistanceToIn(pplz,vmz) = " << dist << "\n";
-
-    dist = c9.DistanceToIn(Vec_t(0, 0, 50), vmz);
-    if (OutRange(dist, Constants::kInfLength))
-      std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c9.DistanceToIn((0,0,50),vmz) = " << dist << "\n";
+  dist = c9.DistanceToIn(pplz, vmz);
+  if (OutRange(dist, 70.0)) {
+    std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c9.DistanceToIn(pplz,vmz) = " << dist << "\n";
   }
-
+  dist = c9.DistanceToIn(Vec_t(0, 0, 50), vmz);
+  if (OutRange(dist, 0.0)) {
+    std::cout << "D2I() mismatch: Line " << __LINE__ << ", Error:c9.DistanceToIn((0,0,50),vmz) = " << dist << "\n";
+  }
   ///////////////
 
   dist = c1.DistanceToIn(pmiz, vz);
@@ -1097,58 +1081,16 @@ bool TestCons()
   assert(ApproxEqual(maxExtent, Vec_t(50, 50, 50)));
   ctest10.Extent(minExtent, maxExtent);
   assert(ApproxEqual(minExtent, Vec_t(-140, -140, -100)));
-
-  // Commenting test below, because it will fail for USolids, which does not takes
-  // PHI into consideration when it calculates BoundingBox
-  // assert(ApproxEqual(maxExtent, Vec_t(137.873, 140, 100)));
-
   return true;
 }
 
-#ifdef VECGEOM_USOLIDS
-struct USOLIDSCONSTANTS {
-  static constexpr double kInfLength = DBL_MAX;
-};
-#endif
 struct VECGEOMCONSTANTS {
   static constexpr double kInfLength = vecgeom::kInfLength;
 };
 
 int main(int argc, char *argv[])
 {
-
-  if (argc < 2) {
-    std::cerr << "need to give argument :--usolids or --vecgeom\n";
-    return 1;
-  }
-
-  if (!strcmp(argv[1], "--usolids")) {
-#ifndef VECGEOM_USOLIDS
-    std::cerr << "VECGEOM_USOLIDS was not defined\n";
-    return 2;
-#else
-#ifndef VECGEOM_REPLACE_USOLIDS
-    TestCons<USOLIDSCONSTANTS, UCons>();
-    std::cout << "UCons passed (but notice discrepancies above, where asserts have been disabled!)\n";
-#else
-    testingvecgeom = true; // needed to avoid testing convexity when vecgeom is used
-    TestCons<VECGEOMCONSTANTS, UCons>();
-    std::cout << "UCons --> VecGeom trap passed\n";
-#endif
-#endif
-  }
-
-  else if (!strcmp(argv[1], "--vecgeom")) {
-    testingvecgeom = true;
-    TestCons<VECGEOMCONSTANTS, vecgeom::SimpleCone>();
-    std::cout << "VecGeom Cone passed\n";
-
-  }
-
-  else {
-    std::cerr << "argument needs to be either of: --usolids or --vecgeom\n";
-    return 1;
-  }
-
+  TestCons<VECGEOMCONSTANTS, vecgeom::SimpleCone>();
+  std::cout << "VecGeom Cone passed\n";
   return 0;
 }

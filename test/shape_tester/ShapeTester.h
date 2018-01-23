@@ -31,8 +31,6 @@ public:
 
   void setStat(bool _stat) { fStat = _stat; }
   void setDebug(bool _debug) { fDebug = _debug; }
-  void setConventionsMode(bool _usolids) { fUsolidsConventions = _usolids; }
-  bool getConventionsMode() { return fUsolidsConventions; }
 
   int Run(ImplT const *testVolume);
   void Run(ImplT const *testVolume, const char *type);
@@ -142,19 +140,7 @@ private:
     double rand = min + (max - min) * fRNG.uniform();
     return rand;
   }
-#ifdef VECGEOM_USOLIDS
-  inline void GetVectorUSolids(Vec_t &point, const std::vector<Vec_t> &afPoints, int index)
-  {
-    const Vec_t &p = afPoints[index];
-    point.Set(p.x(), p.y(), p.z());
-  }
 
-  inline void SetVectorUSolids(const Vec_t &point, std::vector<Vec_t> &afPoints, int index)
-  {
-    Vec_t &p = afPoints[index];
-    p.Set(point.x(), point.y(), point.z());
-  }
-#endif
   inline double RandomIncrease()
   {
     double tolerance = vecgeom::kTolerance;
@@ -213,11 +199,8 @@ private:
   ImplT const *fVolume;      // Pointer that owns shape object.
   std::string fVolumeString; // data member to store the name of volume;
 
-  std::vector<Vec_t> fResultVectorUSolids;     // stl vector for storing the vector results
   std::vector<Vec_t> fResultVectorDifference;  // stl vector for storing the vector difference
-  std::vector<double> fResultDoubleUSolids;    // stl vector for storing the double results
   std::vector<double> fResultDoubleDifference; // stl vector for storing the double difference
-  std::vector<bool> fResultBoolUSolids;        // stl vector for storing the bool results.
   std::vector<bool> fResultBoolDifference;     // stl vector for storing the bool difference.
 
   int fOffsetSurface;    // offset of surface points
@@ -254,7 +237,6 @@ private:
   vecgeom::RNG fRNG;
   bool fStat;               // data member to show the statistic visualtion if set to true
   bool fDebug;              // data member to visualized the shape and first mismatched point with directions
-  bool fUsolidsConventions; // flag to define which conventions to be enforced (USolids vs. VecGeom)
 };
 
 #endif

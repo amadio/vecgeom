@@ -10,26 +10,18 @@
 #include "base/Vector3D.h"
 #include "volumes/Sphere.h"
 #include "ApproxEqual.h"
-#ifdef VECGEOM_USOLIDS
-#include "USphere.hh"
-#endif
+
 #include <cmath>
 #include <iomanip>
-#include "base/FpeEnable.h"
-bool testvecgeom = false;
-bool usolidsconv = false;
 
 #define PI 3.14159265358979323846
 #define deg PI / 180.
 
 bool TestWrongSidePoint(double Dist, std::string msg)
 {
-  bool verbose = true;
+  bool verbose = false;
   if (verbose) std::cout << msg << " : " << Dist << std::endl;
-  if (testvecgeom) {
-    return (Dist <= 0.);
-  }
-  return true;
+  return (Dist <= 0.);
 }
 
 template <class Sphere_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
@@ -165,8 +157,7 @@ bool TestSphere()
   Dist = b4.SafetyFromInside(pointBWRminRmaxZO);
   assert(ApproxEqual(Dist, 0.5));
 
-  // For Inside point SafetyFromOutside should returns -1 for vecgeom
-  // and zero for usolids
+  // For Inside point SafetyFromOutside should returns -1
   Dist = b4.SafetyFromOutside(pointBWRminRmaxXO);
   assert(TestWrongSidePoint(Dist, "SafetyFromOutside for inside point"));
 
@@ -178,7 +169,7 @@ bool TestSphere()
 
   Vec_t genPointBWRminRmax(3.796560684305335, -6.207283535497058,
                            2.519078815824183); // Point at distance of 7.7 from center. i.e. inside point,
-                                               // SafetyFromOutside should return 0 for usolids and -1 for vecgeom
+                                               // SafetyFromOutside should return -1
   Dist = b4.SafetyFromOutside(genPointBWRminRmax);
   assert(TestWrongSidePoint(Dist, "SafetyFromOutside for inside point"));
 
@@ -410,7 +401,7 @@ bool TestSphere()
 
   Vec_t pRand, vRand, norm;
   bool convex;
-  VUSolid::EnumInside inside;
+  vecgeom::EnumInside inside;
   Sphere_t s1("Solid Sphere_t", 0, 50, 0, 2 * PI, 0, PI);
   Sphere_t sn1("sn1", 0, 50, PI * 0.5, 3. * PI * 0.5, 0, PI);
 
@@ -1106,37 +1097,8 @@ bool TestSphere()
 
 int main(int argc, char *argv[])
 {
-
-  if (argc < 2) {
-    std::cerr << "need to give argument :--usolids or --vecgeom\n";
-    return 1;
-  }
-
-  if (!strcmp(argv[1], "--usolids")) {
-#ifndef VECGEOM_USOLIDS
-    std::cerr << "VECGEOM_USOLIDS was not defined\n";
-    return 2;
-#else
-#ifndef VECGEOM_REPLACE_USOLIDS
-    TestSphere<USphere>();
-    std::cout << "USphere passed (but notice discrepancies above, where asserts have been disabled!)\n";
-#else
-    testvecgeom = true; // needed to avoid testing convexity when vecgeom is used
-    usolidsconv = true;
-    TestSphere<USphere>();
-    std::cout << "USphere --> VecGeom Sphere passed\n";
-#endif
-#endif
-  }
-
-  else if (!strcmp(argv[1], "--vecgeom")) {
-    testvecgeom = true;
-    assert(TestSphere<vecgeom::SimpleSphere>());
-    std::cout << "VecGeomSphere passed\n";
-  } else {
-    std::cerr << "need to give argument :--usolids or --vecgeom\n";
-    return 1;
-  }
+  assert(TestSphere<vecgeom::SimpleSphere>());
+  std::cout << "VecGeomSphere passed\n";
 
   return 0;
 }

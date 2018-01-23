@@ -10,14 +10,9 @@
 #include "VecCore/VecMath.h"
 #include "volumes/Box.h"
 #include "ApproxEqual.h"
-#ifdef VECGEOM_USOLIDS
-#include "UTrap.hh"
-#include "UVector3.hh"
-#endif
-
 #include "volumes/Trapezoid.h"
 
-bool testvecgeom = false;
+bool testvecgeom = true;
 double degToRad  = vecCore::math::ATan(1.0) / 45.;
 
 template <typename Constants, class Trap_t>
@@ -139,20 +134,12 @@ bool TestTrap()
   // test SamplePointOnSurface()
   vecgeom::Vector3D<vecgeom::Precision> ponsurf;
   for (int i = 0; i < 100000; ++i) {
-#ifdef VECGEOM_USOLIDS
-    ponsurf = trap1.GetPointOnSurface();
-#else
     ponsurf = trap1.SamplePointOnSurface();
-#endif
     assert(trap1.Inside(ponsurf) == vecgeom::EInside::kSurface);
     assert(trap1.Normal(ponsurf, normal) && ApproxEqual(normal.Mag2(), 1.0));
   }
   for (int i = 0; i < 100000; ++i) {
-#ifdef VECGEOM_USOLIDS
-    ponsurf = trap2.GetPointOnSurface();
-#else
-    ponsurf = trap1.SamplePointOnSurface();
-#endif
+    ponsurf = trap2.SamplePointOnSurface();
     assert(trap2.Inside(ponsurf) == vecgeom::EInside::kSurface);
     assert(trap2.Normal(ponsurf, normal) && ApproxEqual(normal.Mag2(), 1.0));
   }
@@ -687,74 +674,17 @@ void TestVECGEOM393()
   assert(ApproxEqual(extMax, Vector3D<double>(38.57634475, 38.09667423, 60.)));
 }
 
-void TestVECGEOM420()
-{
-#ifdef VECGEOM_USOLIDS
-  UTrap trap420("TestVECGEOM420", 40, 0, 0, 30, 20, 20, 0, 30, 20, 20, 0); // box:20,30,40
-  // first test some points
-  using Vec_t = vecgeom::Vector3D<vecgeom::Precision>;
-  assert(trap420.Inside(Vec_t(25, 10, 10)) == vecgeom::EInside::kOutside);
-  assert(trap420.Inside(Vec_t(10, 35, 10)) == vecgeom::EInside::kOutside);
-  assert(trap420.Inside(Vec_t(10, 10, 30)) == vecgeom::EInside::kInside);
-
-  // then reset parameters
-  trap420.SetAllParameters(20, 0, 0, 40, 30, 30, 0, 40, 30, 30, 0); // assumed arguments given in mm
-
-  // and re-test those points
-  assert(trap420.Inside(Vec_t(25, 10, 10)) == vecgeom::EInside::kInside);
-  assert(trap420.Inside(Vec_t(10, 35, 10)) == vecgeom::EInside::kInside);
-  assert(trap420.Inside(Vec_t(10, 10, 30)) == vecgeom::EInside::kOutside);
-#endif
-}
-
-#ifdef VECGEOM_USOLIDS
-struct USOLIDSCONSTANTS {
-  static constexpr double kInfLength = DBL_MAX;
-};
-#endif
 struct VECGEOMCONSTANTS {
   static constexpr double kInfLength = vecgeom::kInfLength;
 };
 
 int main(int argc, char *argv[])
 {
-
-  if (argc < 2) {
-    std::cerr << "need to give argument: --usolids or --vecgeom\n";
-    return 1;
-  }
-
-  if (!strcmp(argv[1], "--usolids")) {
-#ifndef VECGEOM_USOLIDS
-    std::cerr << "VECGEOM_USOLIDS was not defined\n";
-    return 2;
-#else
-    TestVECGEOM420();
-#ifndef VECGEOM_REPLACE_USOLIDS
-    TestTrap<USOLIDSCONSTANTS, UTrap>();
-    std::cout << "UTrap passed.\n";
-#else
-    testvecgeom = true; // needed to avoid testing convexity when vecgeom is used
-    TestTrap<VECGEOMCONSTANTS, UTrap>();
-    std::cout << "UTrap --> VecGeom trap passed.\n";
-#endif
-#endif
-  }
-
-  else if (!strcmp(argv[1], "--vecgeom")) {
-    testvecgeom = true; // needed to avoid testing convexity when vecgeom is used
-    TestVECGEOM375();
-    TestVECGEOM353();
-    TestVECGEOM393();
-    TestTrap<VECGEOMCONSTANTS, VECGEOM_NAMESPACE::SimpleTrapezoid>();
-
-    std::cout << "VecGeom Trap passed.\n";
-  }
-
-  else {
-    std::cerr << "argument needs to be either of: --usolids or --vecgeom\n";
-    return 1;
-  }
+  TestVECGEOM375();
+  TestVECGEOM353();
+  TestVECGEOM393();
+  TestTrap<VECGEOMCONSTANTS, VECGEOM_NAMESPACE::SimpleTrapezoid>();
+  std::cout << "VecGeom Trap passed.\n";
 
   return 0;
 }
