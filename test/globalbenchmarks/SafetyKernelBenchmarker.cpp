@@ -82,7 +82,7 @@ __attribute__((noinline)) void benchVectorSafety(SOA3D<Precision> const &points,
 {
   // bench safety
   SOA3D<Precision> workspace(points.size());
-  Precision *safety = (double *)_mm_malloc(sizeof(double) * points.size(), 64);
+  Precision *safety = (double *)vecCore::AlignedAlloc(64, sizeof(double) * points.size());
   Stopwatch timer;
   VSafetyEstimator *se = T::Instance();
   timer.Start();
@@ -102,7 +102,7 @@ template <typename T>
 __attribute__((noinline)) void benchVectorSafetyNoWorkspace(SOA3D<Precision> const &points, NavStatePool &pool)
 {
   // bench safety
-  Precision *safety = (double *)_mm_malloc(sizeof(double) * points.size(), 64);
+  Precision *safety = (double *)vecCore::AlignedAlloc(64, sizeof(double) * points.size());
   Stopwatch timer;
   VSafetyEstimator *se = T::Instance();
   timer.Start();

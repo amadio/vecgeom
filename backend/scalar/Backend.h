@@ -90,7 +90,7 @@ VECCORE_ATT_HOST_DEVICE
 Type *AlignedAllocate(size_t size)
 {
 #ifndef VECCORE_CUDA
-  return static_cast<Type *>(_mm_malloc(sizeof(Type) * size, kAlignmentBoundary));
+  return static_cast<Type *>(vecCore::AlignedAlloc(kAlignmentBoundary, sizeof(Type)*size));
 #else
   return new Type[size];
 #endif

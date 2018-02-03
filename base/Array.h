@@ -115,7 +115,7 @@ template <typename Type>
 Array<Type>::~Array()
 {
 #ifndef VECCORE_CUDA_DEVICE_COMPILATION
-  if (fAllocated) _mm_free(fData);
+  if (fAllocated) vecCore::AlignedFree(fData);
 #endif
 }
 
@@ -125,7 +125,7 @@ void Array<Type>::Allocate(const unsigned initSize)
   Deallocate();
   fSize = initSize;
 #ifndef VECCORE_CUDA
-  fData = static_cast<Type *>(_mm_malloc(fSize * sizeof(Type), kAlignmentBoundary));
+  fData = static_cast<Type *>(vecCore::AlignedAlloc(kAlignmentBoundary, fSize * sizeof(Type)));
 #else
   fData = static_cast<Type *>(malloc(fSize * sizeof(Type))); // new Type[fSize];
 #endif
@@ -136,7 +136,7 @@ void Array<Type>::Deallocate()
 {
   if (fAllocated) {
 #ifndef VECCORE_CUDA
-    _mm_free(fData);
+    vecCore::AlignedFree(fData);
 #else
     free(fData);                                             // delete fData;
 #endif

@@ -33,7 +33,7 @@ public:
 
   inline const_pointer adress(const_reference r) const { return &r; }
 
-  inline pointer allocate(size_type n) { return (pointer)_mm_malloc(n * sizeof(value_type), N); }
+  inline pointer allocate(size_type n) { return (pointer) vecCore::AlignedAlloc(N, n * sizeof(value_type)); }
 
   inline void deallocate(pointer p, size_type) { _mm_free(p); }
 

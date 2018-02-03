@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
   SOA3D<Precision> locpts(np);
   vecgeom::volumeUtilities::FillGlobalPointsAndDirectionsForLogicalVolume(startVolume, locpts, points, dirs, bias, np);
 
-  Precision *maxSteps = (Precision *)_mm_malloc(sizeof(Precision) * np, 32);
+  Precision *maxSteps = (Precision *)vecCore::AlignedAlloc(32, sizeof(Precision) * np);
   for (int i    = 0; i < np; ++i)
     maxSteps[i] = 10. * RNG::Instance().uniform();
 

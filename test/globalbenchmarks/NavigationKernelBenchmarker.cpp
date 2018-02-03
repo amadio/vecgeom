@@ -418,15 +418,15 @@ __attribute__((noinline)) void benchVectorNavigator(SOA3D<Precision> const &__re
                                                     NavStatePool const &__restrict__ inpool,
                                                     NavStatePool &__restrict__ outpool)
 {
-  Precision *step_max = (double *)_mm_malloc(sizeof(double) * points.size(), 32);
+  Precision *step_max = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
   for (decltype(points.size()) i = 0; i < points.size(); ++i)
     step_max[i]                  = vecgeom::kInfLength;
-  Precision *steps               = (double *)_mm_malloc(sizeof(double) * points.size(), 32);
+  Precision *steps               = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
   Precision *safeties;
   bool *calcs;
   if (WithSafety) {
-    safeties = (double *)_mm_malloc(sizeof(double) * points.size(), 32);
-    calcs    = (bool *)_mm_malloc(sizeof(bool) * points.size(), 32);
+    safeties = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
+    calcs    = (bool *)vecCore::AlignedAlloc(32, sizeof(bool) * points.size());
     for (decltype(points.size()) i = 0; i < points.size(); ++i)
       calcs[i]                     = true;
   }
@@ -475,15 +475,15 @@ __attribute__((noinline)) void benchVectorNavigatorNoReloc(SOA3D<Precision> cons
                                                            NavStatePool const &__restrict__ inpool,
                                                            NavStatePool &__restrict__ outpool)
 {
-  Precision *step_max = (double *)_mm_malloc(sizeof(double) * points.size(), 32);
+  Precision *step_max = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
   for (decltype(points.size()) i = 0; i < points.size(); ++i)
     step_max[i]                  = vecgeom::kInfLength;
-  Precision *steps               = (double *)_mm_malloc(sizeof(double) * points.size(), 32);
+  Precision *steps               = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
   Precision *safeties;
   bool *calcs;
   if (WithSafety) {
-    safeties = (double *)_mm_malloc(sizeof(double) * points.size(), 32);
-    calcs    = (bool *)_mm_malloc(sizeof(bool) * points.size(), 32);
+    safeties = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
+    calcs    = (bool *)vecCore::AlignedAlloc(32, sizeof(bool) * points.size());
     for (decltype(points.size()) i = 0; i < points.size(); ++i)
       calcs[i]                     = true;
   }

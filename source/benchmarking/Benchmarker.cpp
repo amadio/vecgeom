@@ -2290,7 +2290,7 @@ void Benchmarker::RunToOutRoot(Precision *const distances, Precision *const safe
 template <typename Type>
 Type *Benchmarker::AllocateAligned() const
 {
-  return (Type *)_mm_malloc(fPointCount * sizeof(Type), kAlignmentBoundary);
+  return (Type *)vecCore::AlignedAlloc(kAlignmentBoundary, fPointCount * sizeof(Type));
 }
 
 template <typename Type>

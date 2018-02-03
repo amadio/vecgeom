@@ -246,9 +246,9 @@ Precision benchmarkVectorNavigation(int nPoints, int nReps, SOA3D<Precision> con
   SOA3D<Precision> workspace1(nPoints);
   SOA3D<Precision> workspace2(nPoints);
 
-  int *intworkspace   = (int *)_mm_malloc(sizeof(int) * nPoints, 32);
-  Precision *vecSteps = (Precision *)_mm_malloc(sizeof(Precision) * nPoints, 32);
-  Precision *safeties = (Precision *)_mm_malloc(sizeof(Precision) * nPoints, 32);
+  int *intworkspace   = (int *)vecCore::AlignedAlloc(32, sizeof(int) * nPoints);
+  Precision *vecSteps = (Precision *)vecCore::AlignedAlloc(32, sizeof(Precision) * nPoints);
+  Precision *safeties = (Precision *)vecCore::AlignedAlloc(32, sizeof(Precision) * nPoints);
 
   memset(vecSteps, 0, sizeof(Precision) * nPoints);
   memset(safeties, 0, sizeof(Precision) * nPoints);
@@ -537,7 +537,7 @@ bool validateVecGeomNavigation(int np, SOA3D<Precision> const &points, SOA3D<Pre
     vgSerialStates[i] = NavigationState::MakeInstance(GeoManager::Instance().getMaxDepth());
 
   vecgeom::SimpleNavigator nav;
-  Precision *refSteps = (Precision *)_mm_malloc(sizeof(Precision) * np, 32);
+  Precision *refSteps = (Precision *)vecCore::AlignedAlloc(32, sizeof(Precision) * np);
 
   memset(refSteps, 0, sizeof(Precision) * np);
 
@@ -620,10 +620,10 @@ bool validateVecGeomNavigation(int np, SOA3D<Precision> const &points, SOA3D<Pre
 
   SOA3D<Precision> workspace1(np);
   SOA3D<Precision> workspace2(np);
-  int *intworkspace = (int *)_mm_malloc(sizeof(int) * np, 32);
+  int *intworkspace = (int *)vecCore::AlignedAlloc(32, sizeof(int) * np);
 
-  Precision *vecSteps = (Precision *)_mm_malloc(sizeof(Precision) * np, 32);
-  Precision *safeties = (Precision *)_mm_malloc(sizeof(Precision) * np, 32);
+  Precision *vecSteps = (Precision *)vecCore::AlignedAlloc(32, sizeof(Precision) * np);
+  Precision *safeties = (Precision *)vecCore::AlignedAlloc(32, sizeof(Precision) * np);
   memset(vecSteps, 0, sizeof(Precision) * np);
   memset(safeties, 0, sizeof(Precision) * np);
 
@@ -661,7 +661,7 @@ bool validateVecGeomNavigation(int np, SOA3D<Precision> const &points, SOA3D<Pre
   std::cout << "VecGeom navigation - vector interface: #mismatches = " << errorCount << " / " << np << "\n";
 
 #ifdef VECGEOM_ENABLE_CUDA
-  Precision *gpuSteps = (Precision *)_mm_malloc(np * sizeof(Precision), 32);
+  Precision *gpuSteps = (Precision *)vecCore::AlignedAlloc(32, np * sizeof(Precision));
   NavStatePool gpuStates(np, GeoManager::Instance().getMaxDepth());
 
   // load GPU geometry

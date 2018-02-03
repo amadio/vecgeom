@@ -41,25 +41,25 @@ class AlignedBase {
 
 public:
   VECGEOM_FORCE_INLINE
-  void *operator new(size_t size) { return _mm_malloc(size, kAlignmentBoundary); }
+  void *operator new(size_t size) { return vecCore::AlignedAlloc(kAlignmentBoundary, size); }
 
   VECGEOM_FORCE_INLINE
   void *operator new(size_t, void *p) { return p; }
 
   VECGEOM_FORCE_INLINE
-  void *operator new[](size_t size) { return _mm_malloc(size, kAlignmentBoundary); }
+  void *operator new[](size_t size) { return vecCore::AlignedAlloc(kAlignmentBoundary, size); }
 
   VECGEOM_FORCE_INLINE
   void *operator new[](size_t, void *p) { return p; }
 
   VECGEOM_FORCE_INLINE
-  void operator delete(void *ptr, size_t) { _mm_free(ptr); }
+  void operator delete(void *ptr, size_t) { vecCore::AlignedFree(ptr); }
 
   VECGEOM_FORCE_INLINE
   void operator delete(void *, void *) {}
 
   VECGEOM_FORCE_INLINE
-  void operator delete[](void *ptr, size_t) { _mm_free(ptr); }
+  void operator delete[](void *ptr, size_t) { vecCore::AlignedFree(ptr); }
 
   VECGEOM_FORCE_INLINE
   void operator delete[](void *, void *) {}

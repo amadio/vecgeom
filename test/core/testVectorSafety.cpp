@@ -53,7 +53,7 @@ void testVectorSafety(VPlacedVolume *world)
   int np = 1024;
   SOA3D<Precision> points(np);
   SOA3D<Precision> workspace(np);
-  Precision *safeties = (Precision *)_mm_malloc(sizeof(Precision) * np, 32);
+  Precision *safeties = (Precision *)_vecCore::AlignedAlloc(sizeof(Precision) * np, 32);
   vecgeom::volumeUtilities::FillUncontainedPoints(*world, points);
 
   // now setup all the navigation states
@@ -91,11 +91,11 @@ void testVectorNavigator(VPlacedVolume *world)
   SOA3D<Precision> workspace1(np);
   SOA3D<Precision> workspace2(np);
 
-  Precision *steps    = (Precision *)_mm_malloc(sizeof(Precision) * np, 32);
-  Precision *pSteps   = (Precision *)_mm_malloc(sizeof(Precision) * np, 32);
-  Precision *safeties = (Precision *)_mm_malloc(sizeof(Precision) * np, 32);
+  Precision *steps    = (Precision *)vecCore::AlignedAlloc(32, sizeof(Precision) * np);
+  Precision *pSteps   = (Precision *)vecCore::AlignedAlloc(32, sizeof(Precision) * np);
+  Precision *safeties = (Precision *)vecCore::AlignedAlloc(32, sizeof(Precision) * np);
 
-  int *intworkspace = (int *)_mm_malloc(sizeof(int) * np, 32);
+  int *intworkspace = (int *)vecCore::AlignedAlloc(32, sizeof(int) * np);
 
   vecgeom::volumeUtilities::FillUncontainedPoints(*world, points);
   vecgeom::volumeUtilities::FillRandomDirections(dirs);

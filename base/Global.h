@@ -30,8 +30,6 @@ using uint = unsigned int;
 #define VECGEOM_ALIGNED __attribute__((aligned(64)))
 #endif
 #else
-// Functionality of <mm_malloc.h> is automatically included in icc
-#include <mm_malloc.h>
 #if (defined(__GNUC__) || defined(__GNUG__) || defined(__clang__)) && !defined(__NO_INLINE__) && \
     !defined(VECGEOM_NOINLINE)
 #define VECGEOM_FORCE_INLINE inline __attribute__((always_inline))
