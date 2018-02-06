@@ -95,7 +95,7 @@ public:
   VECGEOM_FORCE_INLINE
   unsigned int id() const { return id_; }
 
-  static unsigned int GetIdCount() { return g_id_count; }
+  static unsigned int GetIdCount() { return 2.*g_id_count; }
 
   std::string const &GetLabel() const { return *label_; }
 
