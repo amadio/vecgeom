@@ -5,8 +5,8 @@ stages:
     
 clang-format:
   stage: build
-  only:
-    - merge-request
+  #only:
+  #  - merge-request
   script:
     - ./scripts/clangformattest.sh
   before_script:
