@@ -36,6 +36,7 @@ public:
     // init internal members
     fPolycone.fContinuityOverAll = true;
     fPolycone.fConvexityPossible = true;
+    fPolycone.fEqualRmax         = true;
     fPolycone.Init(phistart, deltaphi, Nz, z, rmin, rmax);
     DetectConvexity();
   }
