@@ -41,6 +41,8 @@ VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
 T MakePlusTolerantSquare(T const &x, T const &xsq, decltype(kTolerance) tol = kTolerance)
 {
+  // calculate (x + halftol) * (x + halftol) which should always >= 0;
+  // in order to be fast, we neglect the + tol * tol term (since it should be negligible)
   return (tolerant) ? xsq + tol * x : xsq;
 }
 
@@ -49,7 +51,10 @@ VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
 T MakeMinusTolerantSquare(T const &x, T const &xsq, decltype(kTolerance) tol = kTolerance)
 {
-  return (tolerant) ? xsq - tol * x : xsq;
+  // calculate (x - halftol) * (x - halftol) which should always >= 0;
+  // in order to be fast, we neglect the + tol * tol term (since it should be negligible)
+  // but we make sure that there is never a negative sign (hence the Abs)
+  return (tolerant) ? Abs(xsq - tol * x) : xsq;
 }
 
 template <bool treatSurfaceT, class Backend>
