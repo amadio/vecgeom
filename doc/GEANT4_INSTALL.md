@@ -18,7 +18,7 @@ code in a standard Geant4 application.
 The VecGeom library needs to be built and installed before configuring Geant4.
 These are the CMake switches required for building VecGeom library:
 
-  -DBACKEND=Scalar -DUSOLIDS=ON -DGEANT4=OFF
+  -DBACKEND=Scalar -DGEANT4=OFF
 
 Assuming that the VecGeom sources are located under $VGSOURCE:
 
@@ -31,7 +31,7 @@ Assuming that the VecGeom sources are located under $VGSOURCE:
    #.. configuration to use VecGeom algorithms
    mkdir ${TOPDIR}/vecgeom-build
    cd ${TOPDIR}/vecgeom-build
-   cmake -DBACKEND=Scalar -DGEANT4=OFF -DUSOLIDS=ON \
+   cmake -DBACKEND=Scalar -DGEANT4=OFF \
        [...other optional vecgeom switches...] \
        -DCMAKE_INSTALL_PREFIX=${TOPDIR}/vecgeom \
        ${VGSOURCE}

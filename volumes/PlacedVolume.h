@@ -278,9 +278,8 @@ public:
   // to be deprecated
   virtual void SafetyToOutMinimize(SOA3D<Precision> const &points, Precision *const safeties) const = 0;
 
-  // returning the cubic volume of the shape satisfying the USolids interface
-  // it is currently not a const function since some shapes might cache this value
-  // if it is expensive to calculate
+  /// \brief Return the cubic volume of the shape
+  // It is currently not a const function since some shapes might cache this value, if it is expensive to calculate.
   virtual Precision Capacity();
 
   VECCORE_ATT_HOST_DEVICE

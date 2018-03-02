@@ -194,7 +194,7 @@ public:
   #endif
                                                   VPlacedVolume *const placement = NULL);
   */
-  /** @brief Stream trapezoid information in the USolids/Geant4 style */
+  /** @brief Stream trapezoid information in the Geant4 style */
   std::ostream &StreamInfo(std::ostream &os) const;
 
 private:

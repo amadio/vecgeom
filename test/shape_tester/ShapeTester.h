@@ -130,7 +130,7 @@ private:
   int TestMethod(int (ShapeTester::*funcPtr)());
   int TestMethodAll();
 
-  // This is needed because of different signature in VecGeom vs. USolids
+  // This was needed because of different signature in VecGeom vs. USolids
   double CallDistanceToOut(ImplT const *vol, const Vec_t &point, const Vec_t &dir, Vec_t &normal, bool convex) const;
 
   inline double RandomRange(double min, double max)

@@ -240,11 +240,8 @@ bool TestBox()
   valid = b1.Normal(ponmzside + Dist * vmz, normal);
   assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vmz));
 
-  //#endif
-
   // Check Inside
   assert(b1.Inside(pzero) == vecgeom::EInside::kInside);
-  // assert(b1.Inside(pzero)==VUSolid::eOutside);
   assert(b1.Inside(pbigz) == vecgeom::EInside::kOutside);
   assert(b1.Inside(ponxside) == vecgeom::EInside::kSurface);
   assert(b1.Inside(ponyside) == vecgeom::EInside::kSurface);

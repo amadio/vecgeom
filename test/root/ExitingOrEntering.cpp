@@ -1,5 +1,4 @@
 
-//#include "VUSolid.hh"
 #include "management/RootGeoManager.h"
 #include "volumes/PlacedVolume.h"
 #include "volumes/utilities/VolumeUtilities.h"

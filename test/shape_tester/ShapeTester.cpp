@@ -934,7 +934,7 @@ int ShapeTester<ImplT>::TestInsidePoint()
           continue;
         }
       }
-      // DistanceToIn from point on wrong side has to be negative (VecGeom) or zero (USolids-compatible)
+      // DistanceToIn from point on wrong side has to be negative
       double distIn = fVolume->DistanceToIn(point, v);
        if (distIn >= 0.) {
          std::string message(
@@ -1000,7 +1000,7 @@ int ShapeTester<ImplT>::TestOutsidePoint()
     }
 
     double safeDistanceFromInside = fVolume->SafetyToOut(point);
-    // Safety from wrong side point has to be negative (VecGeom) or zero (USolids-compatible)
+    // Safety from wrong side point has to be negative
     if (safeDistanceFromInside >= 0.0) {
       std::string msg("TO: SafetyToOut(p) should be Negative value (-1.) for points Outside (VecGeom conv)");
       Vec_t zero(0);

@@ -4,7 +4,7 @@
 
 
 See README file GEANT4_INSTALL.md for configuration of VecGeom and installation
-of Geant4 with either USolids and VecGeom shapes implementations.
+of Geant4 with VecGeom shapes implementations.
 
 
 * Building a Geant4 example for testing

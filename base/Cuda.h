@@ -28,7 +28,6 @@
   #undef VECGEOM_VC
   #undef VECGEOM_CILK
   #undef VECGEOM_ROOT
-  #undef VECGEOM_USOLIDS
   #undef VECGEOM_GEANT4
   #undef VECGEOM_BENCHMARK
 #else

@@ -72,7 +72,7 @@ public:
   }
 
   // this constructor mimics the constructor from the Unplaced solid
-  // it ensures that placed volumes can be constructed just like ordinary Geant4/ROOT/USolids solids
+  // it ensures that placed volumes can be constructed just like ordinary Geant4/ROOT solids
   template <typename... ArgTypes>
   CommonSpecializedVolImplHelper(char const *const label, ArgTypes... params)
       : CommonSpecializedVolImplHelper(label, new LogicalVolume(new UnplacedVolume_t(params...)),

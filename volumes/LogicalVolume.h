@@ -18,7 +18,6 @@
 #include <typeinfo>
 
 class TGeoShape;
-// class VUSolid;
 
 namespace vecgeom {
 

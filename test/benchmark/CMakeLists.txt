@@ -63,14 +63,8 @@ set(THISCTESTS
   ${CMAKE_SOURCE_DIR}/test/benchmark/ScaledBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/BoxScaledBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/CutTubeBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/PolyconeBenchmark.cpp
 )
-
-# these tests fail because of a problem in USOLIDS:
-IF(NOT USOLIDS)
-  set(THISCTESTS ${THISCTESTS}
-      ${CMAKE_SOURCE_DIR}/test/benchmark/PolyconeBenchmark.cpp
-  )
-ENDIF()
 
 # set the variable use in the parent cmake
 set(CTESTS_BENCHMARK ${THISCTESTS} PARENT_SCOPE)
