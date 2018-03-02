@@ -62,7 +62,6 @@ constexpr size_t kVectorSize = 1;
 #define VECGEOM_BACKEND_INSIDE vecgeom::kScalar::inside_v
 #endif
 
-#ifndef VECGEOM_USOLIDS
 template <typename Type>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
@@ -70,7 +69,6 @@ void swap(Type &a, Type &b)
 {
   std::swap(a, b);
 }
-#endif
 
 template <typename Type>
 VECGEOM_FORCE_INLINE

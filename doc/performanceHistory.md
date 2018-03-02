@@ -40,7 +40,7 @@ For the impatient, here is a basic list of suggested instructions:
     ROOT_DIR=/work/local/root/v6.06.04 \
     cmake  -DCMAKE_BUILD_TYPE=Release \
     -DBACKEND=Vc -DVc=ON -DVECGEOM_VECTOR=avx \
-    -DUSOLIDS=ON -DROOT=ON -DGEANT4=ON -DBENCHMARK=ON \
+    -DROOT=ON -DGEANT4=ON -DBENCHMARK=ON \
     -DCTEST=ON -DVALIDATION=OFF -DNO_SPECIALIZATION=ON
 
   make -j8 [myShapeBenchmark]
@@ -49,8 +49,8 @@ For the impatient, here is a basic list of suggested instructions:
   source ./perfHistory.sh
 
 Important notes: for performance evaluation, build type Release must
-always be used.  Comparisons with vectorization, Root, Geant4 and
-USolids require those modes to be enabled, and also BENCHMARK=ON.
+always be used.  Comparisons with vectorization, Root and Geant4
+require those modes to be enabled, and also BENCHMARK=ON.
 
 For the sake of historical performances, it is strongly suggested that
 all available shape benchmarks are built and executed regularly, and
@@ -78,12 +78,10 @@ Box-inside-vect               0.000508  0.000005    2   1.000
 Box-inside-spec               0.001722  0.000067    2   3.900
 Box-inside-unspec             0.001762  0.000003    2   0.200
 ...
-Box-safeToOut-usolids         0.000948  0.000016    2   1.700
 Box-safeToOut-geant4          0.000887  0.000054    2   6.100
 Trapezoid-inside-vect         0.000815  0.000039    2   4.800
 ...
 Trd-safeToOut-root            0.005385  0.000033    2   0.600
-Trd-safeToOut-usolids         0.003816  0.000142    2   3.700
 Trd-safeToOut-geant4          0.003807  0.000077    2   2.000
 ======================================
 

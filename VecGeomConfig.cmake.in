@@ -3,8 +3,6 @@
 #   VECGEOM_FOUND        - Found the VECGEOM library
 #   VECGEOM_INCLUDE_DIR  - include directories for VecGeom
 #   VECGEOM_LIBRARIES    - libraries to link against
-#   USOLIDS_INCLUDE_DIRS - include directories for USolids
-#   USOLIDS_LIBRARIES    - libraries to link against
 #   VECGEOM_DEFINITIONS - some core flags used to build the vecgeom library and which need to be reused 
 #                               in projects using VecGeom 
 #   VECGEOM_INSTALL_DIR     - the top level installation path
@@ -18,8 +16,6 @@ if(NOT VecGeom_FIND_QUIETLY)
 endif()
 
 get_filename_component(THIS_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-set(USOLIDS_INCLUDE_DIR "@CONF_INCLUDE_DIR@")
-set(USOLIDS_LIBRARIES "@CONF_LIBRARIES@")
 set(VECGEOM_INCLUDE_DIR "@CONF_INCLUDE_DIR@")
 set(VECGEOM_LIBRARIES "@CONF_LIBRARIES@")
 set(VECGEOM_INSTALL_DIR "@CMAKE_INSTALL_PREFIX@")
@@ -32,8 +28,6 @@ add_definitions(${VECGEOM_DEFINITIONS})
 # add the include directories used to compile VecGeom
 set(VECGEOM_EXTERNAL_INCLUDES "@VECGEOM_EXTERNAL_INCLUDES@")
 set(VECGEOM_INCLUDE_DIRS ${VECGEOM_EXTERNAL_INCLUDES} ${VECGEOM_INCLUDE_DIR})
-
-set(USOLIDS_INCLUDE_DIRS ${VECGEOM_EXTERNAL_INCLUDES} ${USOLIDS_INCLUDE_DIR})
 
 set(VECGEOM_C_COMPILER "@CMAKE_C_COMPILER@")
 set(VECGEOM_CXX_COMPILER "@CMAKE_CXX_COMPILER@")

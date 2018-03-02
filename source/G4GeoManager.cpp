@@ -23,16 +23,9 @@ G4GeoManager::G4GeoManager() : fNavigator(nullptr)
 
 void G4GeoManager::LoadG4Geometry(std::string gdmlfile, bool validate)
 {
-#ifndef VECGEOM_USOLIDS
   G4GDMLParser parser;
   parser.Read(gdmlfile, validate);
-
   LoadG4Geometry(const_cast<G4VPhysicalVolume *>(parser.GetWorldVolume()));
-#else
-  std::cerr << "\n*** WARNING: LoadG4Geometry() is incompatible with USOLIDS!\n";
-  std::cerr << "      Please turn off USOLIDS and rebuild.  Aborting...\n\n";
-  exit(-1);
-#endif
 }
 
 // converts to a G4 geometry from ROOT using VGM

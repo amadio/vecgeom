@@ -14,7 +14,6 @@
 #include <cmath>
 
 bool testvecgeom = false;
-bool usolidsconv = false;
 
 using vecgeom::kPi;
 using vecgeom::kInfLength;

@@ -178,8 +178,7 @@ public:
     return Dot(*this, right);
   }
 
-  // For UVector3 compatibility. Is equal to normal multiplication.
-  // TODO: check if there are implicit dot products in USolids...
+  // For UVector3 compatibility. It is equal to normal multiplication.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   VecType MultiplyByComponents(VecType const &other) const { return *this * other; }
@@ -452,8 +451,6 @@ void MaskedAssign(vecgeom::Vector3D<T> &v, const vecCore::Mask<T> &mask, const v
 }
 
 // for use in GEANT4
-#ifdef VECGEOM_USOLIDS
 using UVector3 = VECGEOM_NAMESPACE::Vector3D<double>;
-#endif
 
 #endif // VECGEOM_BASE_VECTOR3D_H_

@@ -17,7 +17,6 @@ using namespace vecgeom;
 
 // debugging any available shape (logical volume) found in a ROOT file
 // usage: shape_debugFromROOTFile detector.root logicalvolumename x y z vx vy vz
-//   option : [--usolids(default)|--vecgeom]
 // logicalvolumename should not contain trailing pointer information
 
 double runTester(VPlacedVolume const *shape, Vector3D<double> const &point, Vector3D<double> const &dir)

@@ -277,8 +277,7 @@ public:
     return Dot(*this, right);
   }
 
-  // For UVector3 compatibility. Is equal to normal multiplication.
-  // TODO: check if there are implicit dot products in USolids...
+  // For UVector3 compatibility. It is equal to normal multiplication.
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   VecType MultiplyByComponents(VecType const &other) const { return *this * other; }

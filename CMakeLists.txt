@@ -42,8 +42,6 @@ option(CUDA_VOLUME_SPECIALIZATION "Use specialized volumes for CUDA." OFF)
 
 option(ROOT "Include ROOT." OFF)
 
-option(USOLIDS "Include USolids." OFF)
-
 option(GEANT4 "Include Geant4." OFF)
 
 option(BENCHMARK "Enable performance comparisons." OFF)
@@ -115,10 +113,6 @@ foreach(p LIB BIN INCLUDE CMAKE)
     set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
   endif()
 endforeach()
-
-if (USOLIDS)
-  set(USolids ON)
-endif()
 
 if (APPLE)
    set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
@@ -505,10 +499,6 @@ endif()
 if (ROOT)
   set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_ROOT")
 endif()
-if (USolids)
-  set(VECGEOM_DEFINITIONS
-      "${VECGEOM_DEFINITIONS} -DVECGEOM_USOLIDS")
-endif()
 if (Geant4)
   set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_GEANT4")
 endif()
@@ -553,8 +543,7 @@ if (CUDA)
   set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${VECGEOM_NVCC_COMPILATION_FLAGS})
 endif()
 
-### CXXFLAGS needs to be set early, so that VECGEOM_GEANT4, VECGEOM_ROOT,
-### and VECGEOM_USOLIDS are already defined when compiling USolids, or it breaks
+### Set CXXFLAGS early, so that VECGEOM_GEANT4 and VECGEOM_ROOT are already defined when compiling benchmarks, or it breaks
 
 # Pass flags to compilers
 # We may have addition in compiler flags from the above included packages
@@ -1051,7 +1040,6 @@ set(TEST_EXECUTABLES_SHAPETESTER
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testParallelepiped.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/convention_testTube.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testPolyhedron.cpp
-#  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTorus.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTorus2.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testCutTube.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTessellated.cpp
@@ -1140,13 +1128,6 @@ else()
     message(WARNING "Validation tests depend on ROOT being enabled")
   endif()
 endif()
-
-#if (USolids)
-  #build_executables("${TEST_EXECUTABLES_USOLIDS}")
-  #build_executables("${TEST_EXECUTABLES_SHAPES}")
-  #add_to_ctest("${TEST_EXECUTABLES_USOLIDS}")
-  #add_to_ctest("${TEST_EXECUTABLES_SHAPETESTER}")
-#endif()
 
 if(CTEST OR VALIDATION)
   # add unit tests

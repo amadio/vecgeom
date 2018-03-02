@@ -15,19 +15,16 @@ code in a standard Geant4 application.
 * Building VecGeom
   ================
 
-The VecGeom library needs to be installed before configuring Geant4.
-A switch USOLIDS_VECGEOM controls whether to use the VecGeom implementation:
+The VecGeom library needs to be built and installed before configuring Geant4.
+These are the CMake switches required for building VecGeom library:
 
-  + USOLIDS_VECGEOM=ON  enables VecGeom implementation of the shapes, so that
-    the VecGeom algorithms are used instead
-
-Other switches required for the installation are: BACKEND=Scalar, USOLIDS=ON 
-and GEANT4=OFF.
+  -DBACKEND=Scalar -DUSOLIDS=ON -DGEANT4=OFF
 
 Assuming that the VecGeom sources are located under $VGSOURCE:
 
    cd somewhere
    export TOPDIR=`pwd`
+   git clone https://gitlab.cern.ch/VecGeom/VecGeom.git
    cd VecGeom
    export VGSOURCE=`pwd`
 
@@ -35,8 +32,8 @@ Assuming that the VecGeom sources are located under $VGSOURCE:
    mkdir ${TOPDIR}/vecgeom-build
    cd ${TOPDIR}/vecgeom-build
    cmake -DBACKEND=Scalar -DGEANT4=OFF -DUSOLIDS=ON \
-       [...other vecgeom switches...] \
-       -DUSOLIDS_VECGEOM=ON -DCMAKE_INSTALL_PREFIX=${TOPDIR}/vecgeom \
+       [...other optional vecgeom switches...] \
+       -DCMAKE_INSTALL_PREFIX=${TOPDIR}/vecgeom \
        ${VGSOURCE}
    make -j8 install
 
@@ -62,9 +59,10 @@ Here are the one-time configurations to build the Geant4 libraries with VecGeom:
    G4BUILD=${TOPDIR}/geant4/build-g4-vecgeom
    G4INSTALL=${TOPDIR}/geant4/install-${VERSION}-vecgeom
    export VecGeom_DIR=${TOPDIR}/vecgeom/lib/cmake/VecGeom/
-   #.. then build Geant4, see below
 
-   #.. Standard compilation and installation of Geant4,
+   ###.. then build Geant4, see options below:
+
+   #.. Option 1: Standard compilation and installation of Geant4,
    #   replacing all available solids
    cd ${G4BUILD}
    cmake -DCMAKE_INSTALL_PREFIX=${G4INSTALL} \
@@ -74,7 +72,7 @@ Here are the one-time configurations to build the Geant4 libraries with VecGeom:
       #.. any other configuration switch
       ${G4SOURCE}
 
-   #.. Or .. Standard compilation and installation of Geant4,
+   #.. Or Option 2: Standard compilation and installation of Geant4,
    #   replacing only a limited set of solids
    cd ${G4BUILD}
    cmake -DCMAKE_INSTALL_PREFIX=${G4INSTALL} \

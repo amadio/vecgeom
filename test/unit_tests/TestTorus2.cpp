@@ -9,12 +9,10 @@
 #include "base/Vector3D.h"
 #include "ApproxEqual.h"
 #include "volumes/Torus2.h"
-#include "volumes/SpecializedTorus2.h"
-
-//#include "UVector3.hh"
-//#include "UTorus.hh"
 
 #include <cmath>
+using vecgeom::kPi;
+
 template <class Torus_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
 bool testTorus()
 {
@@ -66,8 +64,7 @@ bool testTorus()
   // Check torus roots
 
   Torus_t t1("Solid Torus #1", 0, Rmax, Rtor, 0, vecgeom::kTwoPi);
-  Torus_t t2("Hole cutted Torus #2", Rmin, Rmax, Rtor, 0,
-             vecgeom::kPi / 2); // vecgeom::kPi/4,vecgeom::kPi/2.);vecgeom::kPi / 2
+  Torus_t t2("Hole cutted Torus #2", Rmin, Rmax, Rtor, 0, kPi / 2.); // kPi/4., kPi/2.);
   Torus_t tn2("tn2", Rmin, Rmax, Rtor, vecgeom::kPi / 2., vecgeom::kPi / 2.);
   Torus_t tn3("tn3", Rmin, Rmax, Rtor, vecgeom::kPi / 2., 3 * vecgeom::kPi / 2.);
   Torus_t t3("Hole cutted Torus #3", 4 * Rmin, Rmax, Rtor, vecgeom::kPi / 2. - vecgeom::kPi / 24, vecgeom::kPi / 12);
@@ -94,9 +91,6 @@ bool testTorus()
 
   Vec_t p2t6(70.75950555416668, -3.552713678800501e-15, 22.37458414788935);
 
-  // Check name
-  // assert(t1.GetName()=="Solid Torus #1");
-
   // Check cubic volume
 
   vol      = t1.Capacity();
@@ -119,8 +113,6 @@ bool testTorus()
   assert(t2.Inside(ponphi1) == vecgeom::EInside::kOutside);
   assert(t2.Inside(ponphi2) == vecgeom::EInside::kOutside);
   assert(t2.Inside(Vec_t(20, 0, 0)) == vecgeom::EInside::kSurface);
-  // std::cout << "t2.Inside(Vec_t(20, 0, 0): " << t2.Inside(Vec_t(20, 0, 0)) << '\n';
-  // std::cout << "vecgeom::EInside::kSurface: " << vecgeom::EInside::kSurface << '\n';
   assert(t2.Inside(Vec_t(0, 20, 0)) == vecgeom::EInside::kSurface);
 
   side = t6.Inside(p1t6);
@@ -171,14 +163,14 @@ bool testTorus()
 
   // DistanceToOut(P,V)
   Dist = t1.DistanceToOut(ponrmax, vx);
-  // std::cout << "t1.DistanceToOut(p,vx...) = " << Dist << " norm=" << norm << std::endl;
+  // std::cout << "t1.DistanceToOut(p,vx...) = " << Dist << " norm=" << normal << std::endl;
   valid = t1.Normal(ponrmax + Dist * vx, normal);
   assert(ApproxEqual(Dist, 0) && ApproxEqual(normal, vx));
 
   Vec_t ptest = Vec_t(130, 0, 0);
   Dist        = t1.DistanceToOut(ptest, vx);
   // Dist=t1.DistanceToOut(Vec_t(130,0.00001,0.00001),Vec_t(1,0.001,0.001).Unit(),normal,convex);
-  // std::cout << "t1.DistanceToOut(ponphi1,vz,...) = " << Dist << " n=" << norm << std::endl;
+  // std::cout << "t1.DistanceToOut(ponphi1,vz,...) = " << Dist << " n=" << normal << std::endl;
   valid = t1.Normal(ptest + Dist * vx, normal);
   assert(ApproxEqual(Dist, 60) && ApproxEqual(normal, vx));
 

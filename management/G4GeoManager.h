@@ -20,16 +20,13 @@ error: no matching function for call to ‘CLHEP::Hep3Vector::Hep3Vector(<unreso
 #ifndef VECGEOM_G4GEOMANAGER_H_
 #define VECGEOM_G4GEOMANAGER_H_
 
-#if defined(VECGEOM_GEANT4) // and !defined(VECGEOM_USOLIDS)
+#if defined(VECGEOM_GEANT4)
 
 class G4Navigator;
 class G4VPhysicalVolume;
 
 #include "base/Global.h"
-
-#ifndef VECGEOM_USOLIDS
 #include "G4GDMLParser.hh"
-#endif
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {

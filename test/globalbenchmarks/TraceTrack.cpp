@@ -8,7 +8,6 @@
  * the basic higher level navigation functionality
  */
 
-//#include "VUSolid.hh"
 #include "management/RootGeoManager.h"
 #include "volumes/LogicalVolume.h"
 
@@ -50,8 +49,6 @@
 #define VERBOSE false // true or false
 
 using namespace vecgeom;
-
-bool usolids = true;
 
 // a global variable to switch voxels on or off
 bool voxelize = true;
@@ -445,8 +442,6 @@ int main(int argc, char *argv[])
   // double directiontheta = atof(argv[4])*vecgeom::kDegToRad;
 
   for (auto i = 5; i < argc; i++) {
-    if (!strcmp(argv[i], "--usolids")) usolids  = true;
-    if (!strcmp(argv[i], "--vecgeom")) usolids  = false;
     if (!strcmp(argv[i], "--novoxel")) voxelize = false;
   }
 
