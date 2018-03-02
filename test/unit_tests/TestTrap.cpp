@@ -11,7 +11,7 @@
 #include "volumes/Box.h"
 #include "ApproxEqual.h"
 #include "volumes/Trapezoid.h"
-#import <cmath>
+#include <cmath>
 
 using vecgeom::kPi;
 using vecgeom::kInfLength;

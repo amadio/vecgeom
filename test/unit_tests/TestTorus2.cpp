@@ -128,7 +128,7 @@ bool testTorus()
   side = t6.Inside(p2t6);
   // std::cout<<"t6.Inside(p2t6) = "<<side<<std::endl;
   assert(t6.Inside(p2t6) == vecgeom::EInside::kSurface);
-
+  assert(side == vecgeom::EInside::kSurface);
   // Check Surface Normal
 
   double p2 = 1. / std::sqrt(2.); // ,p3=1./std::sqrt(3.);

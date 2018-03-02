@@ -447,12 +447,14 @@ bool Test_VECGEOM_431()
             << ", norm=" << normal << "\n";
   assert(ApproxEqual(Dist, 200. * sqrt(2.0)));
   assert(ApproxEqual(normal, (vy + vz).Normalized()));
+  assert(valid);
 
   // and exiting
   Dist  = bx.DistanceToOut(testp, vx);
   valid = bx.Normal(testp + Dist * vx, normal);
   assert(ApproxEqual(Dist, 0.));
   assert(ApproxEqual(normal, vx));
+  assert(valid);
 
   // slightly outside of -x face and entering
   testp = Vec_t(-1, 0, 0) - 6.e-15 * vx;
@@ -466,12 +468,14 @@ bool Test_VECGEOM_431()
             << ", norm=" << normal << "\n";
   assert(ApproxEqual(Dist, 200. * sqrt(2.0)));
   assert(ApproxEqual(normal, (vy + vz).Normalized()));
+  assert(valid);
 
   // and exiting
   Dist  = bx.DistanceToOut(testp, -vx);
   valid = bx.Normal(testp - Dist * vx, normal);
   assert(ApproxEqual(Dist, 0.));
   assert(ApproxEqual(normal, -vx));
+  assert(valid);
 
   // slightly outside of +y face and entering
   Box_t by("Test Box #y", 200, 1, 200);
@@ -485,13 +489,13 @@ bool Test_VECGEOM_431()
             << ", norm=" << normal << "\n";
   assert(ApproxEqual(Dist, 200. * sqrt(2.0)));
   valid = by.Normal(testp + Dist * testv, normal);
-  assert(ApproxEqual(normal, (vx + vz).Normalized()));
+  assert(valid && ApproxEqual(normal, (vx + vz).Normalized()));
 
   // and exiting
   Dist = by.DistanceToOut(testp, vy);
   assert(ApproxEqual(Dist, 0.));
   valid = by.Normal(testp + Dist * vy, normal);
-  assert(ApproxEqual(normal, vy));
+  assert(valid && ApproxEqual(normal, vy));
 
   // slightly outside of -y face and entering
   testp = Vec_t(0, -1, 0) - 6.e-15 * vy;
