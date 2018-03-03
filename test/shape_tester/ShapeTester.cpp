@@ -249,8 +249,8 @@ int ShapeTester<ImplT>::TestConsistencySolids()
   if (fIfSaveAllData) {
     Vec_t point;
     for (int i = 0; i < fMaxPoints; i++) {
-      point = fPoints[i];
-      Inside_t inside         = fVolume->Inside(point);
+      point            = fPoints[i];
+      Inside_t inside  = fVolume->Inside(point);
       fResultDouble[i] = (double)inside;
     }
     SaveResultsToFile("Inside");
@@ -552,7 +552,7 @@ int ShapeTester<ImplT>::TestNormalSolids()
 
   for (int i = 0; i < fMaxPoints; i++) {
     point = fPoints[i];
-    //bool valid = fVolume->Normal(point, normal);
+    // bool valid = fVolume->Normal(point, normal);
     if (fIfSaveAllData) {
       fResultVector[i].Set(normal.x(), normal.y(), normal.z());
       std::cout << " fResultsVU[ " << i << "] = " << fResultVector[i] << "\n";
@@ -577,8 +577,8 @@ int ShapeTester<ImplT>::TestSafetyFromOutsideSolids()
   if (fIfSaveAllData) {
     Vec_t point;
     for (int i = 0; i < fMaxPoints; i++) {
-      point                   = fPoints[i];
-      double res              = fVolume->SafetyToIn(point);
+      point            = fPoints[i];
+      double res       = fVolume->SafetyToIn(point);
       fResultDouble[i] = res;
     }
     SaveResultsToFile("SafetyFromOutside");
@@ -599,8 +599,8 @@ int ShapeTester<ImplT>::TestSafetyFromInsideSolids()
     Vec_t point;
 
     for (int i = 0; i < fMaxPoints; i++) {
-      point                   = fPoints[i];
-      double res              = fVolume->SafetyToOut(point);
+      point            = fPoints[i];
+      double res       = fVolume->SafetyToOut(point);
       fResultDouble[i] = res;
     }
 
@@ -637,9 +637,9 @@ int ShapeTester<ImplT>::TestDistanceToInSolids()
   if (fIfSaveAllData) {
     Vec_t point, direction;
     for (int i = 0; i < fMaxPoints; i++) {
-      point                   = fPoints[i];
-      direction               = fDirections[i];
-      double res              = fVolume->DistanceToIn(point, direction);
+      point            = fPoints[i];
+      direction        = fDirections[i];
+      double res       = fVolume->DistanceToIn(point, direction);
       fResultDouble[i] = res;
 
       Vec_t normal;
@@ -936,9 +936,8 @@ int ShapeTester<ImplT>::TestInsidePoint()
       }
       // DistanceToIn from point on wrong side has to be negative
       double distIn = fVolume->DistanceToIn(point, v);
-       if (distIn >= 0.) {
-         std::string message(
-             "TI: DistanceToIn(p,v) has to be Negative value (-1.) for Inside points (VecGeom convention).");
+      if (distIn >= 0.) {
+        std::string message("TI: DistanceToIn(p,v) has to be negative (-1) for Inside points.");
         ReportError(&nError, point, v, distIn, message.c_str());
         continue;
       }
@@ -1594,7 +1593,7 @@ int ShapeTester<ImplT>::Integration(double theta, double phi, int ngrid, bool us
 #endif
 
   Transformation3D *matrix = new Transformation3D(0, 0, 0, phi, theta, 0.);
-  Vec_t origin = Vec_t(extent * dir.x(), extent * dir.y(), extent * dir.z());
+  Vec_t origin             = Vec_t(extent * dir.x(), extent * dir.y(), extent * dir.z());
 
   dir = -dir;
 
@@ -1606,19 +1605,19 @@ int ShapeTester<ImplT>::Integration(double theta, double phi, int ngrid, bool us
       xmin = -extent + i * cell;
       ymin = -extent + j * cell;
       if (npercell == 1) {
-        point.x() = xmin + 0.5 * cell;
-        point.y() = ymin + 0.5 * cell;
-        point.z() = 0;
-        grid_fPoints[ip]   = matrix->InverseTransform(point) + origin;
+        point.x()        = xmin + 0.5 * cell;
+        point.y()        = ymin + 0.5 * cell;
+        point.z()        = 0;
+        grid_fPoints[ip] = matrix->InverseTransform(point) + origin;
 #ifdef VECGEOM_ROOT
         if (graphics) pmx->SetNextPoint(grid_fPoints[ip].x(), grid_fPoints[ip].y(), grid_fPoints[ip].z());
 #endif
         ip++;
       } else {
         for (int k = 0; k < npercell; k++) {
-          point.x() = xmin + cell * vecgeom::RNG::Instance().uniform();
-          point.y() = ymin + cell * vecgeom::RNG::Instance().uniform();
-          point.z() = 0;
+          point.x()        = xmin + cell * vecgeom::RNG::Instance().uniform();
+          point.y()        = ymin + cell * vecgeom::RNG::Instance().uniform();
+          point.z()        = 0;
           grid_fPoints[ip] = matrix->InverseTransform(point) + origin;
 #ifdef VECGEOM_ROOT
           if (graphics) pmx->SetNextPoint(grid_fPoints[ip].x(), grid_fPoints[ip].y(), grid_fPoints[ip].z());
@@ -1815,8 +1814,8 @@ void ShapeTester<ImplT>::CreatePointsAndDirectionsOutside()
     if (random <= fOutsideRandomDirectionPercent / 100.) {
       vec = GetRandomDirection();
     } else {
-      Vec_t pointSurface   = fVolume->SamplePointOnSurface();
-      vec = pointSurface - point;
+      Vec_t pointSurface = fVolume->SamplePointOnSurface();
+      vec                = pointSurface - point;
       vec.Normalize();
     }
 
@@ -1890,7 +1889,7 @@ template <typename ImplT>
 void ShapeTester<ImplT>::PrintCoordinates(stringstream &ss, const Vec_t &vec, const string &delimiter, int precision)
 {
   ss.precision(precision);
-  ss <<"("<< vec.x() << delimiter << vec.y() << delimiter << vec.z() <<")";
+  ss << "(" << vec.x() << delimiter << vec.y() << delimiter << vec.z() << ")";
 }
 
 template <typename ImplT>
@@ -1958,10 +1957,10 @@ int ShapeTester<ImplT>::SaveResultsToFile(const string &fMethod1)
     string spacer("; ");
     for (int i = 0; i < fMaxPoints; i++) {
 
-      file <<"p="<< PrintCoordinates(fPoints[i], spacer, prec) << "\t v=" << PrintCoordinates(fDirections[i], spacer, prec)
-           << "\t";
+      file << "p=" << PrintCoordinates(fPoints[i], spacer, prec)
+           << "\t v=" << PrintCoordinates(fDirections[i], spacer, prec) << "\t";
       if (saveVectors)
-        file << "Norm="<< PrintCoordinates(fResultVector[i], spacer, prec) << "\n";
+        file << "Norm=" << PrintCoordinates(fResultVector[i], spacer, prec) << "\n";
       else
         file << fResultDouble[i] << "\n";
     }

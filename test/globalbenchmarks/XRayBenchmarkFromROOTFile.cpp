@@ -806,8 +806,7 @@ int main(int argc, char *argv[])
     std::cerr << std::endl;
     std::cerr << "Need to give rootfile, volumename, axis and number of axis" << std::endl;
     std::cerr << "USAGE : ./XRayBenchmarkFromROOTFile [rootfile] [VolumeName] [ViewDirection(Axis)] "
-              << "[PixelWidth(OutputImageSize)] [--novoxel(Default:voxel)]"
-              << std::endl;
+              << "[PixelWidth(OutputImageSize)] [--novoxel(Default:voxel)]" << std::endl;
     std::cerr << "  ex) ./XRayBenchmarkFromROOTFile cms2015.root BSCTrap y 95" << std::endl;
     std::cerr << "      ./XRayBenchmarkFromROOTFile cms2015.root PLT z 500 --vecgeom --novoxel" << std::endl
               << std::endl;

@@ -197,8 +197,8 @@ private:
   ImplT const *fVolume;      // Pointer that owns shape object.
   std::string fVolumeString; // data member to store the name of volume;
 
-  std::vector<double> fResultDouble;    // stl vector for storing the double results
-  std::vector<Vec_t> fResultVector;     // stl vector for storing the vector results
+  std::vector<double> fResultDouble; // stl vector for storing the double results
+  std::vector<Vec_t> fResultVector;  // stl vector for storing the vector results
 
   int fOffsetSurface;    // offset of surface points
   int fOffsetInside;     // offset of inside points
@@ -232,8 +232,8 @@ private:
   vecgeom::Visualizer fVisualizer; // Visualizer object to visualize the geometry if fVisualize is set.
 #endif
   vecgeom::RNG fRNG;
-  bool fStat;               // data member to show the statistic visualtion if set to true
-  bool fDebug;              // data member to visualized the shape and first mismatched point with directions
+  bool fStat;  // data member to show the statistic visualtion if set to true
+  bool fDebug; // data member to visualized the shape and first mismatched point with directions
 };
 
 #endif
