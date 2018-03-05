@@ -1024,6 +1024,7 @@ set(TEST_EXECUTABLES_CUDA
   ${CMAKE_SOURCE_DIR}/test/cuda/MapTest.cpp
   ${CMAKE_SOURCE_DIR}/test/cuda/MapTestClass.cpp
 )
+
 set(TEST_EXECUTABLES_SHAPETESTER
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testBox.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testSExtru.cpp
@@ -1042,7 +1043,6 @@ set(TEST_EXECUTABLES_SHAPETESTER
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testPolyhedron.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTorus2.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testCutTube.cpp
-  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTessellated.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testExtruded.cpp
 )
 
@@ -1053,9 +1053,14 @@ if(ROOT) # add shape testers that depend on ROOT
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_debugFromROOTFile.cpp )
 endif()
 
+if(NOT CUDA)
+  set(TEST_EXECUTABLES_SHAPETESTER
+    ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTessellated.cpp
+  )
+endif()
 
-# Build executables
 
+### Build executables
 
 set(VECGEOM_EXECUTABLES)
 
@@ -1134,9 +1139,6 @@ if(CTEST OR VALIDATION)
   add_test(NAME TestBox COMMAND TestBox)
   add_test(NAME TestTrap COMMAND TestTrap)
   add_test(NAME TestTube COMMAND TestTube)
-  if(NOT CUDA)
-    add_test(NAME TestTessellated COMMAND TestTessellated)
-  endif()
   add_test(NAME TestCone COMMAND TestCons)
   add_test(NAME TestTrd COMMAND TestTrd)
   add_test(NAME TestOrb COMMAND TestOrb)
@@ -1145,6 +1147,9 @@ if(CTEST OR VALIDATION)
   add_test(NAME TestParallelepiped COMMAND TestParallelepiped)
   add_test(NAME TestHype COMMAND TestHype)
   add_test(NAME VecGeomGenTrap COMMAND TestGenTrap)
+  if(NOT CUDA)
+    add_test(NAME TestTessellated COMMAND TestTessellated)
+  endif(NOT CUDA)
 endif()
 
 if (CUDA)

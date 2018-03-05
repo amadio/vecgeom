@@ -24,7 +24,6 @@ bool testTorus()
   double z;
 
   double Dist, dist, vol, volCheck;
-  vecgeom::EnumInside side;
   Vec_t normal;
   bool valid;
 
@@ -115,10 +114,11 @@ bool testTorus()
   assert(t2.Inside(Vec_t(20, 0, 0)) == vecgeom::EInside::kSurface);
   assert(t2.Inside(Vec_t(0, 20, 0)) == vecgeom::EInside::kSurface);
 
+  vecgeom::EnumInside side;
   side = t6.Inside(p1t6);
-  // std::cout<<"t6.Inside(p1t6) = "<<side<<std::endl;
+  // std::cout << "t6.Inside(p1t6) = " << side << std::endl;
   side = t6.Inside(p2t6);
-  // std::cout<<"t6.Inside(p2t6) = "<<side<<std::endl;
+  // std::cout << "t6.Inside(p2t6) = " << side << std::endl;
   assert(t6.Inside(p2t6) == vecgeom::EInside::kSurface);
   assert(side == vecgeom::EInside::kSurface);
   // Check Surface Normal
