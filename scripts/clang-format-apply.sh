@@ -10,7 +10,7 @@
 # changes
 if [ ! -z "$(git status --untracked-files=no  --porcelain)" ]; then 
   echo "Script must be applied on a clean git state"
-  #exit 1
+  exit 1
 fi
 
 
