@@ -8,7 +8,7 @@ clang-format:
   #only:
   #  - merge-request
   script:
-    - ./scripts/clangformattest.sh
+    - ./scripts/clang-format-test.sh
   before_script:
     - apt-get update -y && apt-get upgrade -y
     - apt-get install -y cmake git findutils clang-format

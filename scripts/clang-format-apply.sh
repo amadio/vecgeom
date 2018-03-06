@@ -1,17 +1,16 @@
 #!/bin/bash
 
 #
-# This is running a clang-format test
-# by doing a filtering step and then analysing
-# the result of applying ./scripts/clang-format-and-fix-macros.sh
+# This is apllying clang-format 
+# by doing a filtering step and then 
+#  applying ./scripts/clang-format-and-fix-macros.sh
 #
 
 # check that we are in a clean state in order to prevent accidential
 # changes
-cleanstate=`git status | grep "modified"`
-if ! [[ -z $cleanstate ]]; then
+if [ ! -z "$(git status --untracked-files=no  --porcelain)" ]; then 
   echo "Script must be applied on a clean git state"
-  exit 1
+  #exit 1
 fi
 
 
@@ -51,6 +50,11 @@ function checkCPP(){
     return 1
 }
 
+echo
+echo "Checking formatting using the following clang-format version:"
+clang-format --version
+echo 
+
 # check list of files
 for f in $filelist; do
     if checkCPP $f; then
@@ -61,7 +65,7 @@ for f in $filelist; do
 done
 
 # check if something was modified
-notcorrectlist=`git status | grep "modified"`
+notcorrectlist=`git status --porcelain | grep '^ M' | cut -c4-`
 # if nothing changed ok
 if [[ -z $notcorrectlist ]]; then
   # send a negative message to gitlab
@@ -69,14 +73,8 @@ if [[ -z $notcorrectlist ]]; then
   exit 0;
 else
   echo "The following files have clang-format problems (showing patches)";
-  for f in $notcorrectlist; do
-      echo $f
-      git diff $f
-  done
+  git diff $notcorrectlist
 fi
-
-# cleanup changes in git
-git reset HEAD --hard
 
 exit 1
 
