@@ -16,13 +16,13 @@
 
 namespace vecgeom {
 
-VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE(class, TessellatedStruct, typename);
+// VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE(class, TessellatedStruct, typename);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 // Structure used for vectorizing queries on groups of triangles
 
-template <typename T = double>
+template <size_t NVERT, typename T = double>
 class TessellatedStruct {
 
   using BitSet = veccore::BitSet;
@@ -31,7 +31,7 @@ class TessellatedStruct {
 #else
   using Real_v = vecgeom::ScalarBackend::Real_v;
 #endif
-  using Facet_t = TriangleFacet<T>;
+  using Facet_t = Tile<NVERT, T>;
 
   // Here we should be able to use vecgeom::Vector
   template <typename U>
@@ -121,13 +121,13 @@ public:
   // Here we have a pointer to the aligned bbox structure
   // ABBoxanager *fABBoxManager;
 
-  vector_t<int> fCluster;                           ///< Cluster of facets storing just the indices
-  vector_t<int> fCandidates;                        ///< Candidates for the current cluster
-  vector_t<Vector3D<T>> fVertices;                  ///< Vector of unique vertices
-  vector_t<Facet_t *> fFacets;                      ///< Vector of triangular facets
-  vector_t<TessellatedCluster<Real_v> *> fClusters; ///< Vector of facet clusters
-  BitSet *fSelected          = nullptr;             ///< Facets already in clusters
-  int fNcldist[kVecSize + 1] = {0};                 ///< Distribution of number of cluster size
+  vector_t<int> fCluster;                                  ///< Cluster of facets storing just the indices
+  vector_t<int> fCandidates;                               ///< Candidates for the current cluster
+  vector_t<Vector3D<T>> fVertices;                         ///< Vector of unique vertices
+  vector_t<Facet_t *> fFacets;                             ///< Vector of triangular facets
+  vector_t<TessellatedCluster<NVERT, Real_v> *> fClusters; ///< Vector of facet clusters
+  BitSet *fSelected          = nullptr;                    ///< Facets already in clusters
+  int fNcldist[kVecSize + 1] = {0};                        ///< Distribution of number of cluster size
 
 private:
   void CreateABBoxes()
@@ -168,26 +168,22 @@ public:
   {
     // Method adding a facet to the structure. The vertices are added to the
     // list of all vertices (including duplications) and the extent is re-adjusted.
+    using vecCore::math::Min;
+    using vecCore::math::Max;
+
     fFacets.push_back(facet);
     int ind = fHelper->fAllVert.size();
-    // Add the three vertices
-    for (int i = 0; i < 3; ++i) {
+    // Add the vertices
+    for (size_t i = 0; i < NVERT; ++i) {
       fHelper->fAllVert.push_back(facet->fVertices[i]);
       facet->fIndices[i] = ind + i;
+      fMinExtent[0]      = Min(fMinExtent[0], facet->fVertices[i].x());
+      fMinExtent[1]      = Min(fMinExtent[1], facet->fVertices[i].y());
+      fMinExtent[2]      = Min(fMinExtent[2], facet->fVertices[i].z());
+      fMaxExtent[0]      = Max(fMaxExtent[0], facet->fVertices[i].x());
+      fMaxExtent[1]      = Max(fMaxExtent[1], facet->fVertices[i].y());
+      fMaxExtent[2]      = Max(fMaxExtent[2], facet->fVertices[i].z());
     }
-    // Adjust extent
-    T xmin        = vecCore::math::Min(facet->fVertices[0].x(), facet->fVertices[1].x(), facet->fVertices[2].x());
-    T ymin        = vecCore::math::Min(facet->fVertices[0].y(), facet->fVertices[1].y(), facet->fVertices[2].y());
-    T zmin        = vecCore::math::Min(facet->fVertices[0].z(), facet->fVertices[1].z(), facet->fVertices[2].z());
-    fMinExtent[0] = vecCore::math::Min(fMinExtent[0], xmin);
-    fMinExtent[1] = vecCore::math::Min(fMinExtent[1], ymin);
-    fMinExtent[2] = vecCore::math::Min(fMinExtent[2], zmin);
-    T xmax        = vecCore::math::Max(facet->fVertices[0].x(), facet->fVertices[1].x(), facet->fVertices[2].x());
-    T ymax        = vecCore::math::Max(facet->fVertices[0].y(), facet->fVertices[1].y(), facet->fVertices[2].y());
-    T zmax        = vecCore::math::Max(facet->fVertices[0].z(), facet->fVertices[1].z(), facet->fVertices[2].z());
-    fMaxExtent[0] = vecCore::math::Max(fMaxExtent[0], xmax);
-    fMaxExtent[1] = vecCore::math::Max(fMaxExtent[1], ymax);
-    fMaxExtent[2] = vecCore::math::Max(fMaxExtent[2], zmax);
   }
 
   VECCORE_ATT_HOST_DEVICE
@@ -281,7 +277,7 @@ public:
     ifacet = 0;
     fCandidates.push_back(ifacet);
     fSelected->SetBitNumber(ifacet);
-    TessellatedCluster<Real_v> *cluster;
+    TessellatedCluster<NVERT, Real_v> *cluster;
     while (fCandidates.size()) {
       // Use existing candidates in fCandidates to create the cluster
       cluster               = CreateCluster();
@@ -330,14 +326,14 @@ public:
   void CreateDummyClusters()
   {
     // Loop over facets and group them in clusters in the order of definition
-    TessellatedCluster<Real_v> *tcl = nullptr;
-    int i                           = 0;
-    int j                           = 0;
+    TessellatedCluster<NVERT, Real_v> *tcl = nullptr;
+    int i = 0;
+    int j = 0;
     for (auto facet : fFacets) {
       i = i % kVecSize;
       if (i == 0) {
         if (tcl) fClusters.push_back(tcl);
-        tcl = new TessellatedCluster<Real_v>();
+        tcl = new TessellatedCluster<NVERT, Real_v>();
       }
       tcl->AddFacet(i++, facet, j++);
     }
@@ -345,7 +341,8 @@ public:
     for (; i < kVecSize; ++i)
       tcl->AddFacet(i, tcl->fFacets[0], tcl->fIfacets[0]);
   }
-  TessellatedCluster<Real_v> *CreateCluster()
+
+  TessellatedCluster<NVERT, Real_v> *CreateCluster()
   {
     // Create cluster starting from fCandidates list
     unsigned nfacets = 0;
@@ -367,8 +364,8 @@ public:
     }
 
     // The cluster is now complete, create a tessellated cluster object
-    TessellatedCluster<Real_v> *tcl = new TessellatedCluster<Real_v>();
-    int i                           = 0;
+    TessellatedCluster<NVERT, Real_v> *tcl = new TessellatedCluster<NVERT, Real_v>();
+    int i = 0;
     for (auto ifct : fCluster) {
       Facet_t *facet = fFacets[ifct];
       tcl->AddFacet(i++, facet, ifct);
@@ -377,7 +374,7 @@ public:
     return tcl;
   }
 
-  TessellatedCluster<Real_v> *MakePartialCluster()
+  TessellatedCluster<NVERT, Real_v> *MakePartialCluster()
   {
     // Create partial cluster starting from fCandidates list
     for (auto ifacet : fCandidates) {
@@ -389,8 +386,8 @@ public:
       fCluster.push_back(fCluster[0]);
 
     // The cluster is now complete, create a tessellated cluster object
-    TessellatedCluster<Real_v> *tcl = new TessellatedCluster<Real_v>();
-    int i                           = 0;
+    TessellatedCluster<NVERT, Real_v> *tcl = new TessellatedCluster<NVERT, Real_v>();
+    int i = 0;
     for (auto ifacet : fCluster) {
       Facet_t *facet = fFacets[ifacet];
       tcl->AddFacet(i++, facet, ifacet);
@@ -496,6 +493,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   bool AddTriangularFacet(Vector3D<T> const &vt0, Vector3D<T> const &vt1, Vector3D<T> const &vt2, bool absolute = true)
   {
+    assert(NVERT == 3);
     Facet_t *facet = new Facet_t;
     bool added     = false;
     if (absolute)
@@ -517,33 +515,52 @@ public:
     // We should check the quadrilateral convexity to correctly define the
     // triangle facets
     // CheckConvexity()vt0, vt1, vt2, vt3, absolute);
+    assert(NVERT <= 4);
     Facet_t *facet = new Facet_t;
-    if (absolute) {
-      if (!facet->SetVertices(vt0, vt1, vt2)) {
-        delete facet;
-        return false;
+    if (NVERT == 3) {
+      if (absolute) {
+        if (!facet->SetVertices(vt0, vt1, vt2)) {
+          delete facet;
+          return false;
+        }
+      } else {
+        if (!facet->SetVertices(vt0, vt0 + vt1, vt0 + vt1 + vt2)) {
+          delete facet;
+          return false;
+        }
       }
       AddFacet(facet);
       facet = new Facet_t;
-      if (!facet->SetVertices(vt0, vt2, vt3)) {
-        delete facet;
-        return false;
+      if (absolute) {
+        if (!facet->SetVertices(vt0, vt2, vt3)) {
+          delete facet;
+          return false;
+        }
+      } else {
+        if (!facet->SetVertices(vt0, vt0 + vt2, vt0 + vt2 + vt3)) {
+          delete facet;
+          return false;
+        }
       }
       AddFacet(facet);
-    } else {
-      if (!facet->SetVertices(vt0, vt0 + vt1, vt0 + vt1 + vt2)) {
-        delete facet;
-        return false;
+      return true;
+    } else if (NVERT == 4) {
+      // Add a single facet
+      if (absolute) {
+        if (!facet->SetVertices(vt0, vt1, vt2, vt3)) {
+          delete facet;
+          return false;
+        }
+      } else {
+        if (!facet->SetVertices(vt0, vt0 + vt1, vt0 + vt1 + vt2, vt0 + vt1 + vt2 + vt3)) {
+          delete facet;
+          return false;
+        }
       }
       AddFacet(facet);
-      facet = new Facet_t;
-      if (!facet->SetVertices(vt0, vt0 + vt1 + vt2, vt0 + vt1 + vt2, vt3)) {
-        delete facet;
-        return false;
-      }
-      AddFacet(facet);
+      return true;
     }
-    return true;
+    return false;
   }
 
 }; // end class

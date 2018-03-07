@@ -20,14 +20,14 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class UnplacedTessellated : public LoopUnplacedVolumeImplHelper<TessellatedImplementation>, public AlignedBase {
 protected:
-  mutable TessellatedStruct<double> fTessellated; ///< Structure with Tessellated parameters
+  mutable TessellatedStruct<3, double> fTessellated; ///< Structure with Tessellated parameters
 
 public:
   VECCORE_ATT_HOST_DEVICE
   UnplacedTessellated() : fTessellated() { fGlobalConvexity = false; }
 
   VECCORE_ATT_HOST_DEVICE
-  TessellatedStruct<double> const &GetStruct() const { return fTessellated; }
+  TessellatedStruct<3, double> const &GetStruct() const { return fTessellated; }
 
   VECCORE_ATT_HOST_DEVICE
   bool AddTriangularFacet(Vector3D<double> const &vt0, Vector3D<double> const &vt1, Vector3D<double> const &vt2,
@@ -110,7 +110,7 @@ private:
 #endif
                                            VPlacedVolume *const placement = NULL) const override;
 };
-}
-} // end global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_UNPLACEDTESSELLATED_H_

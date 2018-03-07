@@ -21,14 +21,14 @@ VECGEOM_DEVICE_DECLARE_CONV(struct, TessellatedImplementation);
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 class PlacedTessellated;
-template <typename T>
+template <size_t NVERT, typename T>
 class TessellatedStruct;
 class UnplacedTessellated;
 
 struct TessellatedImplementation {
 
   using PlacedShape_t    = PlacedTessellated;
-  using UnplacedStruct_t = TessellatedStruct<double>;
+  using UnplacedStruct_t = TessellatedStruct<3, double>;
   using UnplacedVolume_t = UnplacedTessellated;
 
   VECCORE_ATT_HOST_DEVICE
@@ -176,8 +176,13 @@ struct TessellatedImplementation {
                               Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance, int &isurf,
                               Real_v &distother, int &isurfother)
   {
-    // Common method providing DistanceToIn/Out functionality
-    // Check if the bounding box is hit
+// Common method providing DistanceToIn/Out functionality
+// Real_v here is scalar, we need to pass vector point/direction
+#ifndef VECGEOM_ENABLE_CUDA
+    using Float_v = vecgeom::VectorBackend::Real_v;
+#else
+    using Float_v = vecgeom::ScalarBackend::Real_v;
+#endif
     isurf      = -1;
     isurfother = -1;
     if (ToIn) {
@@ -195,6 +200,8 @@ struct TessellatedImplementation {
 
     // Define the user hook calling DistanceToIn for the cluster with the same
     // index as the bounding box
+    Vector3D<Float_v> pointv(point);
+    Vector3D<Float_v> dirv(direction);
     distance             = InfinityLength<Real_v>();
     distother            = InfinityLength<Real_v>();
     Real_v distanceToIn  = InfinityLength<Real_v>();
@@ -208,7 +215,7 @@ struct TessellatedImplementation {
       // Compute distance to the cluster (in both ToIn or ToOut assumptions)
       Real_v clusterToIn, clusterToOut;
       int icrtToIn, icrtToOut;
-      tessellated.fClusters[hitbox.first]->DistanceToCluster(point, direction, clusterToIn, clusterToOut, icrtToIn,
+      tessellated.fClusters[hitbox.first]->DistanceToCluster(pointv, dirv, clusterToIn, clusterToOut, icrtToIn,
                                                              icrtToOut);
 
       // Update distanceToIn/Out
@@ -270,8 +277,14 @@ struct TessellatedImplementation {
   VECCORE_ATT_HOST_DEVICE
   static Real_v SafetySq(UnplacedStruct_t const &tessellated, Vector3D<Real_v> const &point, int &isurf)
   {
+#ifndef VECGEOM_ENABLE_CUDA
+    using Float_v = vecgeom::VectorBackend::Real_v;
+#else
+    using Float_v = vecgeom::ScalarBackend::Real_v;
+#endif
     Real_v safetysq = InfinityLength<Real_v>();
     isurf           = -1;
+    Vector3D<Float_v> pointv(point);
 
     auto userhook = [&](HybridManager2::BoxIdDistancePair_t hitbox) {
       // Stop searching if the safety to the current cluster is bigger than the
@@ -279,7 +292,7 @@ struct TessellatedImplementation {
       if (hitbox.second > safetysq) return true;
       // Compute distance to the cluster
       int isurfcrt;
-      Real_v safetycrt = tessellated.fClusters[hitbox.first]->template SafetySq<ToIn>(point, isurfcrt);
+      Real_v safetycrt = tessellated.fClusters[hitbox.first]->template SafetySq<ToIn>(pointv, isurfcrt);
       if (safetycrt < safetysq) {
         safetysq = safetycrt;
         isurf    = isurfcrt;
@@ -294,7 +307,7 @@ struct TessellatedImplementation {
   }
 
 }; // end TessellatedImplementation
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_KERNEL_TESSELLATEDIMPLEMENTATION_H_

@@ -37,15 +37,15 @@ class ExtrudedStruct {
   using vector_t = vecgeom::Vector<U>;
 
 public:
-  bool fIsSxtru               = false;  ///< Flag for sxtru representation
-  bool fInitialized           = false;  ///< Flag for initialization
-  mutable double fCubicVolume = 0.;     ///< Cubic volume
-  mutable double fSurfaceArea = 0.;     ///< Surface area
-  PolygonalShell fSxtruHelper;          ///< Sxtru helper
-  TessellatedStruct<double> fTslHelper; ///< Tessellated helper
-  vector_t<XtruVertex2> fVertices;      ///< Polygone vertices
-  vector_t<XtruSection> fSections;      ///< Vector of sections
-  PlanarPolygon fPolygon;               ///< Planar polygon
+  bool fIsSxtru               = false;     ///< Flag for sxtru representation
+  bool fInitialized           = false;     ///< Flag for initialization
+  mutable double fCubicVolume = 0.;        ///< Cubic volume
+  mutable double fSurfaceArea = 0.;        ///< Surface area
+  PolygonalShell fSxtruHelper;             ///< Sxtru helper
+  TessellatedStruct<3, double> fTslHelper; ///< Tessellated helper
+  vector_t<XtruVertex2> fVertices;         ///< Polygone vertices
+  vector_t<XtruSection> fSections;         ///< Vector of sections
+  PlanarPolygon fPolygon;                  ///< Planar polygon
 
 public:
   /** @brief Dummy constructor */

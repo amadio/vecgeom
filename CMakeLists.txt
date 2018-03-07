@@ -665,7 +665,7 @@ set(VECGEOM_SRCS
   source/CutPlanes.cpp
   source/Quadrilaterals.cpp
   source/Rectangles.cpp
-  source/TessellatedCluster.cpp
+  source/TessellatedHelpers.cpp
   source/Scale3D.cpp
   source/Transformation3D.cpp
   source/UnplacedAssembly.cpp
