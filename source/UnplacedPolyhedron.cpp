@@ -138,6 +138,61 @@ VPlacedVolume *UnplacedPolyhedron::SpecializedVolume(LogicalVolume const *const 
                                                                    placement);
 }
 
+VECCORE_ATT_HOST_DEVICE
+Precision UnplacedPolyhedron::GetTriangleArea(Vector3D<Precision> const &v1, Vector3D<Precision> const &v2,
+                                              Vector3D<Precision> const &v3) const
+{
+  Vector3D<Precision> vec1 = v1 - v2;
+  Vector3D<Precision> vec2 = v1 - v3;
+  return 0.5 * (vec1.Cross(vec2)).Mag();
+}
+
+// TODO: this functions seems to be neglecting the phi cut !!
+Precision UnplacedPolyhedron::Capacity() const
+{
+  if (fPoly.fCapacity == 0.) {
+    // Formula for section : V=h(f+F+sqrt(f*F))/3;
+    // Fand f-areas of surfaces on +/-dz
+    // h-heigh
+
+    // a helper lambda for the volume calculation ( per quadrilaterial )
+    auto VolumeHelperFunc = [&](Vector3D<Precision> const &a, Vector3D<Precision> const &b,
+                                Vector3D<Precision> const &c, Vector3D<Precision> const &d) {
+      Precision dz         = std::fabs(a.z() - c.z());
+      Precision bottomArea = GetTriangleArea(a, b, Vector3D<Precision>(0., 0., a.z()));
+      Precision topArea    = GetTriangleArea(c, d, Vector3D<Precision>(0., 0., c.z()));
+      return dz * (bottomArea + topArea + std::sqrt(topArea * bottomArea));
+    };
+
+    for (int j = 0; j < GetZSegmentCount(); ++j) {
+      // need to protect against empty segments because it could be
+      // that the polyhedron makes a jump at this segment count
+      if (GetZSegment(j).outer.size() > 0) {
+        auto outercorners     = GetZSegment(j).outer.GetCorners();
+        Vector3D<Precision> a = outercorners[0][0];
+        Vector3D<Precision> b = outercorners[1][0];
+        Vector3D<Precision> c = outercorners[2][0];
+        Vector3D<Precision> d = outercorners[3][0];
+        Precision volume      = VolumeHelperFunc(a, b, c, d); // outer volume
+
+        if (GetZSegment(j).hasInnerRadius) {
+          if (GetZSegment(j).inner.size() > 0) {
+            auto innercorners = GetZSegment(j).inner.GetCorners();
+            a                 = innercorners[0][0];
+            b                 = innercorners[1][0];
+            c                 = innercorners[2][0];
+            d                 = innercorners[3][0];
+            volume -= VolumeHelperFunc(a, b, c, d); // subtract inner volume
+          }
+        }
+        fPoly.fCapacity += volume;
+      }
+    }
+    fPoly.fCapacity *= GetSideCount() * (1. / 3.);
+  }
+  return fPoly.fCapacity;
+}
+
 #ifndef VECCORE_CUDA
 void UnplacedPolyhedron::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
@@ -213,15 +268,6 @@ bool UnplacedPolyhedron::InsideTriangle(Vector3D<Precision> &v1, Vector3D<Precis
   if (DistanceSquarePointToSegment(v2, v3, p) <= epsilon_square) return true;
 
   return false;
-}
-
-VECCORE_ATT_HOST_DEVICE
-Precision UnplacedPolyhedron::GetTriangleArea(Vector3D<Precision> const &v1, Vector3D<Precision> const &v2,
-                                              Vector3D<Precision> const &v3) const
-{
-  Vector3D<Precision> vec1 = v1 - v2;
-  Vector3D<Precision> vec2 = v1 - v3;
-  return 0.5 * (vec1.Cross(vec2)).Mag();
 }
 
 VECCORE_ATT_HOST_DEVICE
@@ -446,52 +492,6 @@ Vector3D<Precision> UnplacedPolyhedron::SamplePointOnSurface() const
   }
 
   return Vector3D<Precision>(0, 0, 0); // error
-}
-
-// TODO: this functions seems to be neglecting the phi cut !!
-Precision UnplacedPolyhedron::Capacity() const
-{
-  if (fPoly.fCapacity == 0.) {
-    // Formula for section : V=h(f+F+sqrt(f*F))/3;
-    // Fand f-areas of surfaces on +/-dz
-    // h-heigh
-
-    // a helper lambda for the volume calculation ( per quadrilaterial )
-    auto VolumeHelperFunc = [&](Vector3D<Precision> const &a, Vector3D<Precision> const &b,
-                                Vector3D<Precision> const &c, Vector3D<Precision> const &d) {
-      Precision dz         = std::fabs(a.z() - c.z());
-      Precision bottomArea = GetTriangleArea(a, b, Vector3D<Precision>(0., 0., a.z()));
-      Precision topArea    = GetTriangleArea(c, d, Vector3D<Precision>(0., 0., c.z()));
-      return dz * (bottomArea + topArea + std::sqrt(topArea * bottomArea));
-    };
-
-    for (int j = 0; j < GetZSegmentCount(); ++j) {
-      // need to protect against empty segments because it could be
-      // that the polyhedron makes a jump at this segment count
-      if (GetZSegment(j).outer.size() > 0) {
-        auto outercorners     = GetZSegment(j).outer.GetCorners();
-        Vector3D<Precision> a = outercorners[0][0];
-        Vector3D<Precision> b = outercorners[1][0];
-        Vector3D<Precision> c = outercorners[2][0];
-        Vector3D<Precision> d = outercorners[3][0];
-        Precision volume      = VolumeHelperFunc(a, b, c, d); // outer volume
-
-        if (GetZSegment(j).hasInnerRadius) {
-          if (GetZSegment(j).inner.size() > 0) {
-            auto innercorners = GetZSegment(j).inner.GetCorners();
-            a                 = innercorners[0][0];
-            b                 = innercorners[1][0];
-            c                 = innercorners[2][0];
-            d                 = innercorners[3][0];
-            volume -= VolumeHelperFunc(a, b, c, d); // subtract inner volume
-          }
-        }
-        fPoly.fCapacity += volume;
-      }
-    }
-    fPoly.fCapacity *= GetSideCount() * (1. / 3.);
-  }
-  return fPoly.fCapacity;
 }
 
 VECCORE_ATT_HOST_DEVICE

@@ -209,8 +209,17 @@ public:
 
 #ifndef VECCORE_CUDA
   VECCORE_ATT_HOST_DEVICE
-  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;
+  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override;
 #endif
+
+  // calculate array of triangle spanned by points v1,v2,v3
+  // TODO: this function has nothing to do with a Polyhedron. It should live somewhere else ( indeed: the Quadriteral
+  // seems to have such a function, too )
+  VECCORE_ATT_HOST_DEVICE
+  Precision GetTriangleArea(Vector3D<Precision> const &v1, Vector3D<Precision> const &v2,
+                            Vector3D<Precision> const &v3) const;
+
+  Precision Capacity() const override;
 
 #ifndef VECCORE_CUDA
   Precision DistanceSquarePointToSegment(Vector3D<Precision> &v1, Vector3D<Precision> &v2,
@@ -218,25 +227,17 @@ public:
   bool InsideTriangle(Vector3D<Precision> &v1, Vector3D<Precision> &v2, Vector3D<Precision> &v3,
                       const Vector3D<Precision> &p) const;
 
-  // calculate array of triangle spanned by points v1,v2,v3
-  // TODO: this function has nothing to do with a Polyhedron. It should live somewhere else ( indeed: the Quadriteral
-  // seems to have such a function, too )
-  Precision GetTriangleArea(Vector3D<Precision> const &v1, Vector3D<Precision> const &v2,
-                            Vector3D<Precision> const &v3) const;
-
   // returns a random point inside the triangle described by v1,v2,v3
   // TODO: this function has nothing to do with a Polyhedron. It should live somewhere else ( indeed: the Quadriteral
   // seems to have such a function, too )
   Vector3D<Precision> GetPointOnTriangle(Vector3D<Precision> const &v1, Vector3D<Precision> const &v2,
                                          Vector3D<Precision> const &v3) const;
 
-  Precision Capacity() const;
-
   Precision SurfaceArea() const;
 
-  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const;
+  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override;
 
-  Vector3D<Precision> SamplePointOnSurface() const;
+  Vector3D<Precision> SamplePointOnSurface() const override;
 
   std::string GetEntityType() const { return "Polyhedron"; }
 #endif // !VECCORE_CUDA
@@ -349,9 +350,9 @@ public:
   virtual int MemorySize() const final { return sizeof(*this); }
 
 #ifdef VECGEOM_CUDA_INTERFACE
-  virtual size_t DeviceSizeOf() const { return DevicePtr<cuda::UnplacedPolyhedron>::SizeOf(); }
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const;
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
+  virtual size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedPolyhedron>::SizeOf(); }
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
 #endif
 
 private:

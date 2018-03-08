@@ -136,18 +136,16 @@ public:
 
   /** @brief Computes the extent on X/Y/Z of the parallelepiped */
   VECCORE_ATT_HOST_DEVICE
-  void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const;
-
-#ifndef VECCORE_CUDA
-  /** @brief Generates randomly a point on the surface of the parallelepiped */
-  Vector3D<Precision> SamplePointOnSurface() const;
+  void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const override;
 
   /** @brief Implementation of capacity computation */
-  VECGEOM_FORCE_INLINE
   Precision volume() const { return 8.0 * fPara.fDimensions[0] * fPara.fDimensions[1] * fPara.fDimensions[2]; }
 
   /** @brief Interface method for computing capacity */
-  Precision Capacity() { return volume(); }
+  Precision Capacity() const override { return volume(); }
+#ifndef VECCORE_CUDA
+  /** @brief Generates randomly a point on the surface of the parallelepiped */
+  Vector3D<Precision> SamplePointOnSurface() const override;
 
   /** @brief Implementation of surface area computation */
   VECGEOM_FORCE_INLINE
@@ -165,7 +163,7 @@ public:
 
   /** @brief Compute normal vector to surface */
   VECCORE_ATT_HOST_DEVICE
-  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;
+  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override;
 
   /** @brief Get type name */
   std::string GetEntityType() const { return "parallelepiped"; }
@@ -183,9 +181,9 @@ public:
              VPlacedVolume *const placement = NULL);
 
 #ifdef VECGEOM_CUDA_INTERFACE
-  virtual size_t DeviceSizeOf() const { return DevicePtr<cuda::UnplacedParallelepiped>::SizeOf(); }
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const;
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
+  virtual size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedParallelepiped>::SizeOf(); }
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
 #endif
 
 private:

@@ -243,25 +243,22 @@ public:
   VECCORE_ATT_HOST_DEVICE
   void DetectConvexity();
 
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  Precision Capacity() const { return fSphere.fCubicVolume; }
+  Precision Capacity() const override { return fSphere.fCubicVolume; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Precision SurfaceArea() const { return fSphere.fSurfaceArea; }
 
 #ifndef VECCORE_CUDA
-  void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const;
-  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
+  void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const override;
+  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override
   {
-
     bool valid;
     normal = SphereImplementation::Normal<Precision>(fSphere, point, valid);
     return valid;
   }
 
-  Vector3D<Precision> SamplePointOnSurface() const;
+  Vector3D<Precision> SamplePointOnSurface() const override;
 
   std::string GetEntityType() const;
 #endif
@@ -312,9 +309,9 @@ public:
 #endif
 
 #ifdef VECGEOM_CUDA_INTERFACE
-  virtual size_t DeviceSizeOf() const { return DevicePtr<cuda::UnplacedSphere>::SizeOf(); }
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const;
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
+  virtual size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedSphere>::SizeOf(); }
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
 #endif
 
 private:

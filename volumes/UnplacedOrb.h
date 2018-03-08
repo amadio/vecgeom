@@ -56,9 +56,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const override;
 
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  Precision Capacity() const { return fCubicVolume; }
+  Precision Capacity() const override { return fCubicVolume; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE

@@ -144,16 +144,16 @@ public:
   virtual int MemorySize() const final { return sizeof(*this); }
 
   VECCORE_ATT_HOST_DEVICE
-  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
+  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
   {
     aMin = Vector3D<Precision>(-Max(fTrd.fDX1, fTrd.fDX2), -Max(fTrd.fDY1, fTrd.fDY2), -fTrd.fDZ);
     aMax = Vector3D<Precision>(Max(fTrd.fDX1, fTrd.fDX2), Max(fTrd.fDY1, fTrd.fDY2), fTrd.fDZ);
   }
 
-#ifndef VECCORE_CUDA
   // Computes capacity of the shape in [length^3]
-  Precision Capacity() const;
+  Precision Capacity() const override;
 
+#ifndef VECCORE_CUDA
   Precision SurfaceArea() const;
 
   Precision GetPlusXArea() const
@@ -188,10 +188,10 @@ public:
 
   int ChooseSurface() const;
 
-  Vector3D<Precision> SamplePointOnSurface() const;
+  Vector3D<Precision> SamplePointOnSurface() const override;
 
   VECCORE_ATT_HOST_DEVICE
-  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;
+  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override;
 
 #endif
 
@@ -211,9 +211,9 @@ public:
                                VPlacedVolume *const placement = NULL);
 
 #ifdef VECGEOM_CUDA_INTERFACE
-  virtual size_t DeviceSizeOf() const { return DevicePtr<cuda::UnplacedTrd>::SizeOf(); }
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const;
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
+  virtual size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedTrd>::SizeOf(); }
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
 #endif
 
   std::ostream &StreamInfo(std::ostream &os) const;

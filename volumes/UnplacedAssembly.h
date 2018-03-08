@@ -198,7 +198,7 @@ public:
   }
 
   Vector3D<Precision> SamplePointOnSurface() const override;
-  Precision Capacity() const;
+  Precision Capacity() const override;
   Precision SurfaceArea() const;
 
   // some dummy impl for virtual functions

@@ -92,8 +92,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   Precision GetZAtPlane(int index) const { return fPolycone.GetZAtPlane(index); }
 
-#if !defined(VECCORE_CUDA)
-  Precision Capacity() const
+  Precision Capacity() const override
   {
     Precision cubicVolume = 0.;
     for (int i = 0; i < GetNSections(); i++) {
@@ -103,14 +102,15 @@ public:
     return cubicVolume;
   }
 
+#if !defined(VECCORE_CUDA)
   Precision SurfaceArea() const;
 
   VECCORE_ATT_HOST_DEVICE
-  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &norm) const;
+  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &norm) const override;
 
-  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const;
+  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override;
 
-  Vector3D<Precision> SamplePointOnSurface() const;
+  Vector3D<Precision> SamplePointOnSurface() const override;
 
   // Methods for random point generation
   Vector3D<Precision> GetPointOnCone(Precision fRmin1, Precision fRmax1, Precision fRmin2, Precision fRmax2,
@@ -161,9 +161,9 @@ public:
                                VPlacedVolume *const placement = NULL);
 
 #ifdef VECGEOM_CUDA_INTERFACE
-  virtual size_t DeviceSizeOf() const { return DevicePtr<cuda::UnplacedPolycone>::SizeOf(); }
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const;
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
+  virtual size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedPolycone>::SizeOf(); }
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
 #endif
 
 }; // end class UnplacedPolycone

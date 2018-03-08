@@ -208,19 +208,19 @@ public:
                                VPlacedVolume *const placement = NULL);
 
 #ifdef VECGEOM_CUDA_INTERFACE
-  virtual size_t DeviceSizeOf() const { return DevicePtr<cuda::UnplacedCone>::SizeOf(); }
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const;
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
+  virtual size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedCone>::SizeOf(); }
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
 #endif
 
-#ifndef VECCORE_CUDA
-  Precision Capacity() const
+  Precision Capacity() const override
   {
     return (fCone.fDz * fCone.fDPhi / 3.) *
            (fCone.fRmax1 * fCone.fRmax1 + fCone.fRmax2 * fCone.fRmax2 + fCone.fRmax1 * fCone.fRmax2 -
             fCone.fRmin1 * fCone.fRmin1 - fCone.fRmin2 * fCone.fRmin2 - fCone.fRmin1 * fCone.fRmin2);
   }
 
+#ifndef VECCORE_CUDA
   Precision SurfaceArea() const
   {
     double mmin, mmax, dmin, dmax;
@@ -235,10 +235,10 @@ public:
                                  fCone.fRmax2 * fCone.fRmax2 - fCone.fRmin2 * fCone.fRmin2));
   }
 
-  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const;
+  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override;
 
-  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;
-  Vector3D<Precision> SamplePointOnSurface() const;
+  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override;
+  Vector3D<Precision> SamplePointOnSurface() const override;
 
   // Helper funtion to detect edge points
   template <bool top>

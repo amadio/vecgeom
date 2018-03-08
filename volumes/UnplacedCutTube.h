@@ -198,7 +198,7 @@ public:
 
   Precision volume() const;
 
-  Precision Capacity() const { return volume(); }
+  Precision Capacity() const override { return volume(); }
 
   VECCORE_ATT_HOST_DEVICE
   Precision SurfaceArea() const

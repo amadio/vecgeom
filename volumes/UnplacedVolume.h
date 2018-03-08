@@ -154,6 +154,9 @@ public:
   VECCORE_ATT_HOST_DEVICE
   bool IsAssembly() const { return fIsAssembly; }
 
+  // ----------------- Capacity --------------------------------------------------------------------
+  virtual double Capacity() const = 0;
+
   /**
    * Uses the virtual print method.
    * \sa print(std::ostream &ps)

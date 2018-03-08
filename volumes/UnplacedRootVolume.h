@@ -56,6 +56,8 @@ public:
     return GetRootShape()->Safety(&position[0], false);
   }
 
+  Precision Capacity() const override { return GetRootShape()->Capacity(); }
+
   VECGEOM_FORCE_INLINE
   int MemorySize() const override { return sizeof(*this); }
 

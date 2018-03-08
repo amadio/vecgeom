@@ -152,8 +152,6 @@ public:
   VECGEOM_FORCE_INLINE
   Scale3D const &GetScale() const { return fScaled.fScale; }
 
-#ifndef VECCORE_CUDA
-  VECGEOM_FORCE_INLINE
   Precision Volume() const
   {
     Precision capacity             = ((VPlacedVolume *)fScaled.fPlaced)->Capacity();
@@ -162,9 +160,9 @@ public:
     return capacity;
   }
 
-  VECGEOM_FORCE_INLINE
-  Precision Capacity() { return Volume(); }
+  Precision Capacity() const override { return Volume(); }
 
+#ifndef VECCORE_CUDA
   VECGEOM_FORCE_INLINE
   Precision SurfaceArea() const
   {

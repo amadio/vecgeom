@@ -92,7 +92,7 @@ public:
   Vector3D<Precision> SamplePointOnSurface() const override;
 
   // VECCORE_ATT_HOST_DEVICE
-  Precision Capacity() const { return volume(); }
+  Precision Capacity() const override { return volume(); }
 
   // VECCORE_ATT_HOST_DEVICE
   Precision SurfaceArea() const

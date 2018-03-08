@@ -201,7 +201,7 @@ public:
     return surfaceArea;
   }
 
-  Precision Capacity() const { return volume(); }
+  Precision Capacity() const override { return volume(); }
 
   VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &norm) const override;

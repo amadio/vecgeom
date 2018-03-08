@@ -76,13 +76,11 @@ struct ConeStruct {
   Precision fZNormOuter;
   Precision fConeTolerance;
 
-#ifndef VECCORE_CUDA
   Precision Capacity() const
   {
     return (fDz * fDPhi / 3.) *
            (fRmax1 * fRmax1 + fRmax2 * fRmax2 + fRmax1 * fRmax2 - fRmin1 * fRmin1 - fRmin2 * fRmin2 - fRmin1 * fRmin2);
   }
-#endif
 
   VECCORE_ATT_HOST_DEVICE
   void CalculateCached()

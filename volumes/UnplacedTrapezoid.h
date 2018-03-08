@@ -285,7 +285,7 @@ public:
   // void CalcSurfaceArea();
 
   // VECCORE_ATT_HOST_DEVICE
-  Precision Capacity() const;
+  Precision Capacity() const override;
   // {
   //   Assert(!fOutdated);
   //   return fCubicVolume;

@@ -49,12 +49,12 @@ public:
 #endif
   }
 
-  virtual int MemorySize() const { return sizeof(*this); }
+  virtual int MemorySize() const override { return sizeof(*this); }
 
 #ifdef VECGEOM_CUDA_INTERFACE
-  virtual size_t DeviceSizeOf() const { return DevicePtr<cuda::UnplacedBooleanVolume<Op>>::SizeOf(); }
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const;
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const;
+  virtual size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedBooleanVolume<Op>>::SizeOf(); }
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
 #endif
 
   VECCORE_ATT_HOST_DEVICE
@@ -65,16 +65,14 @@ public:
   BooleanStruct const &GetStruct() const { return fBoolean; }
 
   VECCORE_ATT_HOST_DEVICE
-  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const;
+  bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override;
 
-#if !defined(VECCORE_CUDA)
-  VECGEOM_FORCE_INLINE
-  Precision Capacity() const
+  Precision Capacity() const override
   {
     // TBDONE -- need some sampling
     return 0.;
   }
-
+#if !defined(VECCORE_CUDA)
   VECGEOM_FORCE_INLINE
   Precision SurfaceArea() const
   {
@@ -84,9 +82,9 @@ public:
 #endif // !VECCORE_CUDA
 
   VECCORE_ATT_HOST_DEVICE
-  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const;
+  void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override;
 
-  Vector3D<Precision> SamplePointOnSurface() const
+  Vector3D<Precision> SamplePointOnSurface() const override
   {
     // TBDONE
     return Vector3D<Precision>();
@@ -95,9 +93,9 @@ public:
   std::string GetEntityType() const { return "BooleanVolume"; }
 
   VECCORE_ATT_HOST_DEVICE
-  virtual void Print() const {};
+  virtual void Print() const override{};
 
-  virtual void Print(std::ostream & /*os*/) const {};
+  virtual void Print(std::ostream & /*os*/) const override{};
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECCORE_ATT_DEVICE
@@ -118,7 +116,7 @@ private:
 #ifdef VECCORE_CUDA
                                            const int id,
 #endif
-                                           VPlacedVolume *const placement = NULL) const;
+                                           VPlacedVolume *const placement = NULL) const override;
 
   void SetLeft(VPlacedVolume const *pvol) { fBoolean.fLeftVolume = pvol; }
   void SetRight(VPlacedVolume const *pvol) { fBoolean.fRightVolume = pvol; }

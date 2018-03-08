@@ -130,9 +130,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   void CalcSurfaceArea();
 
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  Precision Capacity() const { return fCubicVolume; }
+  Precision Capacity() const override { return fCubicVolume; }
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE

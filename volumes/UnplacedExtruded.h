@@ -77,7 +77,7 @@ public:
 
   // Computes capacity of the shape in [length^3]
   VECCORE_ATT_HOST_DEVICE
-  Precision Capacity() const;
+  Precision Capacity() const override;
 
   VECCORE_ATT_HOST_DEVICE
   Precision SurfaceArea() const;

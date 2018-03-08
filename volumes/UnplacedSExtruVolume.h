@@ -34,11 +34,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   PolygonalShell const &GetStruct() const { return fPolyShell; }
 
-  VECCORE_ATT_HOST_DEVICE
-  Precision Capacity() const /*override*/
-  {
-    return fPolyShell.fPolygon.Area() * (fPolyShell.fUpperZ - fPolyShell.fLowerZ);
-  }
+  Precision Capacity() const override { return fPolyShell.fPolygon.Area() * (fPolyShell.fUpperZ - fPolyShell.fLowerZ); }
 
   VECCORE_ATT_HOST_DEVICE
   Precision SurfaceArea() const /*override*/ { return fPolyShell.SurfaceArea() + 2. * fPolyShell.fPolygon.Area(); }

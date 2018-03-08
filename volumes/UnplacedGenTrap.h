@@ -152,7 +152,7 @@ public:
 #endif
 
   /** @brief Interface method for computing capacity */
-  Precision Capacity() { return volume(); }
+  Precision Capacity() const override { return volume(); }
 
   /** @brief Implementation of capacity computation */
   Precision volume() const;

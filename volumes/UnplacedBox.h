@@ -61,8 +61,7 @@ public:
   void SetY(double yy) { fBox.fDimensions[1] = yy; }
   void SetZ(double zz) { fBox.fDimensions[2] = zz; }
 
-  VECCORE_ATT_HOST_DEVICE
-  Precision Capacity() const { return 8.0 * x() * y() * z(); }
+  Precision Capacity() const override { return 8.0 * x() * y() * z(); }
 
   VECCORE_ATT_HOST_DEVICE
   Precision SurfaceArea() const
