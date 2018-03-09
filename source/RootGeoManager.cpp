@@ -171,7 +171,7 @@ bool RootGeoManager::PostAdjustTransformation(Transformation3D *tr, TGeoNode con
         std::cerr << "Warning: **********************************************************\n";
       }
       *adjustment = Transformation3D::kIdentity;
-      adjustment->SetTranslation(o[0], o[1], o[2]);
+      adjustment->SetTranslation(o[0] * LUnit(), o[1] * LUnit(), o[2] * LUnit());
       adjustment->SetProperties();
       tr->MultiplyFromRight(*adjustment);
       tr->SetProperties();
@@ -281,8 +281,9 @@ Transformation3D *RootGeoManager::Convert(TGeoMatrix const *const geomatrix)
 
   Double_t const *const t = geomatrix->GetTranslation();
   Double_t const *const r = geomatrix->GetRotationMatrix();
-  Transformation3D *const transformation =
-      new Transformation3D(t[0], t[1], t[2], r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8]);
+
+  Transformation3D *const transformation = new Transformation3D(t[0] * LUnit(), t[1] * LUnit(), t[2] * LUnit(), r[0],
+                                                                r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8]);
 
   //  transformation->FixZeroes();
   // transformation->SetProperties();
@@ -316,6 +317,16 @@ LogicalVolume *RootGeoManager::Convert(TGeoVolume const *const volume)
   const_cast<LogicalVolume *>(logical_volume)->SetMaterialPtr(mat);
 
   fLogicalVolumeMap.Set(volume, logical_volume);
+
+  // make a cross check using cubic volume property
+  if (!(dynamic_cast<TGeoCompositeShape *>(volume->GetShape()) || dynamic_cast<TGeoScaledShape *>(volume->GetShape()) ||
+        logical_volume->GetUnplacedVolume()->IsAssembly())) {
+    const auto v1 = logical_volume->GetUnplacedVolume()->Capacity();
+    const auto v2 = volume->Capacity();
+    std::cerr << "v1 " << v1 << " " << v2 << "\n";
+
+    assert(std::abs(v1 - v2 * LUnit() * LUnit() * LUnit()) / v1 < 1E-6);
+  }
   return logical_volume;
 }
 
@@ -349,23 +360,24 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
   if (shape->IsA() == TGeoBBox::Class()) {
     TGeoBBox const *const box = static_cast<TGeoBBox const *>(shape);
 
-    unplaced_volume = GeoManager::MakeInstance<UnplacedBox>(box->GetDX(), box->GetDY(), box->GetDZ());
+    unplaced_volume =
+        GeoManager::MakeInstance<UnplacedBox>(box->GetDX() * LUnit(), box->GetDY() * LUnit(), box->GetDZ() * LUnit());
   }
 
   // THE TUBE
   if (shape->IsA() == TGeoTube::Class()) {
     TGeoTube const *const tube = static_cast<TGeoTube const *>(shape);
 
-    unplaced_volume =
-        GeoManager::MakeInstance<UnplacedTube>(tube->GetRmin(), tube->GetRmax(), tube->GetDz(), 0., kTwoPi);
+    unplaced_volume = GeoManager::MakeInstance<UnplacedTube>(tube->GetRmin() * LUnit(), tube->GetRmax() * LUnit(),
+                                                             tube->GetDz() * LUnit(), 0., kTwoPi);
   }
 
   // THE TUBESEG
   if (shape->IsA() == TGeoTubeSeg::Class()) {
     TGeoTubeSeg const *const tube = static_cast<TGeoTubeSeg const *>(shape);
 
-    unplaced_volume = GeoManager::MakeInstance<UnplacedTube>(tube->GetRmin(), tube->GetRmax(), tube->GetDz(),
-                                                             kDegToRad * tube->GetPhi1(),
+    unplaced_volume = GeoManager::MakeInstance<UnplacedTube>(tube->GetRmin() * LUnit(), tube->GetRmax() * LUnit(),
+                                                             tube->GetDz() * LUnit(), kDegToRad * tube->GetPhi1(),
                                                              kDegToRad * (tube->GetPhi2() - tube->GetPhi1()));
   }
 
@@ -374,44 +386,57 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
     TGeoConeSeg const *const cone = static_cast<TGeoConeSeg const *>(shape);
 
     unplaced_volume = GeoManager::MakeInstance<UnplacedCone>(
-        cone->GetRmin1(), cone->GetRmax1(), cone->GetRmin2(), cone->GetRmax2(), cone->GetDz(),
-        kDegToRad * cone->GetPhi1(), kDegToRad * (cone->GetPhi2() - cone->GetPhi1()));
+        cone->GetRmin1() * LUnit(), cone->GetRmax1() * LUnit(), cone->GetRmin2() * LUnit(), cone->GetRmax2() * LUnit(),
+        cone->GetDz() * LUnit(), kDegToRad * cone->GetPhi1(), kDegToRad * (cone->GetPhi2() - cone->GetPhi1()));
   }
 
   // THE CONE
   if (shape->IsA() == TGeoCone::Class()) {
     TGeoCone const *const cone = static_cast<TGeoCone const *>(shape);
 
-    unplaced_volume = GeoManager::MakeInstance<UnplacedCone>(cone->GetRmin1(), cone->GetRmax1(), cone->GetRmin2(),
-                                                             cone->GetRmax2(), cone->GetDz(), 0., kTwoPi);
+    unplaced_volume = GeoManager::MakeInstance<UnplacedCone>(cone->GetRmin1() * LUnit(), cone->GetRmax1() * LUnit(),
+                                                             cone->GetRmin2() * LUnit(), cone->GetRmax2() * LUnit(),
+                                                             cone->GetDz() * LUnit(), 0., kTwoPi);
   }
 
   // THE PARABOLOID
   if (shape->IsA() == TGeoParaboloid::Class()) {
     TGeoParaboloid const *const p = static_cast<TGeoParaboloid const *>(shape);
 
-    unplaced_volume = GeoManager::MakeInstance<UnplacedParaboloid>(p->GetRlo(), p->GetRhi(), p->GetDz());
+    unplaced_volume = GeoManager::MakeInstance<UnplacedParaboloid>(p->GetRlo() * LUnit(), p->GetRhi() * LUnit(),
+                                                                   p->GetDz() * LUnit());
   }
 
   // THE PARALLELEPIPED
   if (shape->IsA() == TGeoPara::Class()) {
     TGeoPara const *const p = static_cast<TGeoPara const *>(shape);
 
-    unplaced_volume = GeoManager::MakeInstance<UnplacedParallelepiped>(p->GetX(), p->GetY(), p->GetZ(), p->GetAlpha(),
-                                                                       p->GetTheta(), p->GetPhi());
+    unplaced_volume = GeoManager::MakeInstance<UnplacedParallelepiped>(
+        p->GetX() * LUnit(), p->GetY() * LUnit(), p->GetZ() * LUnit(), p->GetAlpha(), p->GetTheta(), p->GetPhi());
   }
 
   // Polyhedron/TGeoPgon
   if (shape->IsA() == TGeoPgon::Class()) {
     TGeoPgon const *pgon = static_cast<TGeoPgon const *>(shape);
 
+    // fix dimensions - (requires making a copy of some arrays)
+    const int NZs = pgon->GetNz();
+    double zs[NZs];
+    double rmins[NZs];
+    double rmaxs[NZs];
+    for (int i = 0; i < NZs; ++i) {
+      zs[i]    = pgon->GetZ()[i] * LUnit();
+      rmins[i] = pgon->GetRmin()[i] * LUnit();
+      rmaxs[i] = pgon->GetRmax()[i] * LUnit();
+    }
+
     unplaced_volume = GeoManager::MakeInstance<UnplacedPolyhedron>(pgon->GetPhi1() * kDegToRad, // phiStart
                                                                    pgon->GetDphi() * kDegToRad, // phiEnd
                                                                    pgon->GetNedges(),           // sideCount
                                                                    pgon->GetNz(),               // zPlaneCount
-                                                                   pgon->GetZ(),                // zPlanes
-                                                                   pgon->GetRmin(),             // rMin
-                                                                   pgon->GetRmax()              // rMax
+                                                                   zs,                          // zPlanes
+                                                                   rmins,                       // rMin
+                                                                   rmaxs                        // rMax
                                                                    );
   }
 
@@ -420,14 +445,16 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
     TGeoTrd2 const *const p = static_cast<TGeoTrd2 const *>(shape);
 
     unplaced_volume =
-        GeoManager::MakeInstance<UnplacedTrd>(p->GetDx1(), p->GetDx2(), p->GetDy1(), p->GetDy2(), p->GetDz());
+        GeoManager::MakeInstance<UnplacedTrd>(p->GetDx1() * LUnit(), p->GetDx2() * LUnit(), p->GetDy1() * LUnit(),
+                                              p->GetDy2() * LUnit(), p->GetDz() * LUnit());
   }
 
   // TRD1
   if (shape->IsA() == TGeoTrd1::Class()) {
     TGeoTrd1 const *const p = static_cast<TGeoTrd1 const *>(shape);
 
-    unplaced_volume = GeoManager::MakeInstance<UnplacedTrd>(p->GetDx1(), p->GetDx2(), p->GetDy(), p->GetDz());
+    unplaced_volume = GeoManager::MakeInstance<UnplacedTrd>(p->GetDx1() * LUnit(), p->GetDx2() * LUnit(),
+                                                            p->GetDy() * LUnit(), p->GetDz() * LUnit());
   }
 
   // TRAPEZOID
@@ -435,8 +462,9 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
     TGeoTrap const *const p = static_cast<TGeoTrap const *>(shape);
     if (!TGeoTrapIsDegenerate(p)) {
       unplaced_volume = GeoManager::MakeInstance<UnplacedTrapezoid>(
-          p->GetDz(), p->GetTheta() * kDegToRad, p->GetPhi() * kDegToRad, p->GetH1(), p->GetBl1(), p->GetTl1(),
-          p->GetAlpha1() * kDegToRad, p->GetH2(), p->GetBl2(), p->GetTl2(), p->GetAlpha2() * kDegToRad);
+          p->GetDz() * LUnit(), p->GetTheta() * kDegToRad, p->GetPhi() * kDegToRad, p->GetH1() * LUnit(),
+          p->GetBl1() * LUnit(), p->GetTl1() * LUnit(), p->GetAlpha1() * kDegToRad, p->GetH2() * LUnit(),
+          p->GetBl2() * LUnit(), p->GetTl2() * LUnit(), p->GetAlpha2() * kDegToRad);
     } else {
       std::cerr << "Warning: this trap is degenerate -- will convert it to a generic trap!!\n";
       unplaced_volume = ToUnplacedGenTrap((TGeoArb8 const *)p);
@@ -448,11 +476,12 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
     // make distinction
     TGeoSphere const *const p = static_cast<TGeoSphere const *>(shape);
     if (p->GetRmin() == 0. && p->GetTheta2() - p->GetTheta1() == 180. && p->GetPhi2() - p->GetPhi1() == 360.) {
-      unplaced_volume = GeoManager::MakeInstance<UnplacedOrb>(p->GetRmax());
+      unplaced_volume = GeoManager::MakeInstance<UnplacedOrb>(p->GetRmax() * LUnit());
     } else {
       unplaced_volume = GeoManager::MakeInstance<UnplacedSphere>(
-          p->GetRmin(), p->GetRmax(), p->GetPhi1() * kDegToRad, (p->GetPhi2() - p->GetPhi1()) * kDegToRad,
-          p->GetTheta1() * kDegToRad, (p->GetTheta2() - p->GetTheta1()) * kDegToRad);
+          p->GetRmin() * LUnit(), p->GetRmax() * LUnit(), p->GetPhi1() * kDegToRad,
+          (p->GetPhi2() - p->GetPhi1()) * kDegToRad, p->GetTheta1() * kDegToRad,
+          (p->GetTheta2() - p->GetTheta1()) * kDegToRad);
     }
   }
 
@@ -464,7 +493,7 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
     Transformation3D const *lefttrans  = Convert(boolnode->GetLeftMatrix());
     Transformation3D const *righttrans = Convert(boolnode->GetRightMatrix());
 
-    auto transformationadjust = [](Transformation3D *tr, TGeoShape const *shape) {
+    auto transformationadjust = [this](Transformation3D *tr, TGeoShape const *shape) {
       // TODO: combine this with external method
       Transformation3D adjustment;
       if (shape->IsA() == TGeoBBox::Class()) {
@@ -472,7 +501,7 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
         auto o                    = box->GetOrigin();
         if (o[0] != 0. || o[1] != 0. || o[2] != 0.) {
           adjustment = Transformation3D::kIdentity;
-          adjustment.SetTranslation(o[0], o[1], o[2]);
+          adjustment.SetTranslation(o[0] * LUnit(), o[1] * LUnit(), o[2] * LUnit());
           adjustment.SetProperties();
           tr->MultiplyFromRight(adjustment);
           tr->SetProperties();
@@ -511,16 +540,28 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
     // make distinction
     TGeoTorus const *const p = static_cast<TGeoTorus const *>(shape);
 
-    unplaced_volume = GeoManager::MakeInstance<UnplacedTorus2>(p->GetRmin(), p->GetRmax(), p->GetR(),
-                                                               p->GetPhi1() * kDegToRad, p->GetDphi() * kDegToRad);
+    unplaced_volume =
+        GeoManager::MakeInstance<UnplacedTorus2>(p->GetRmin() * LUnit(), p->GetRmax() * LUnit(), p->GetR() * LUnit(),
+                                                 p->GetPhi1() * kDegToRad, p->GetDphi() * kDegToRad);
   }
 
   // THE POLYCONE
   if (shape->IsA() == TGeoPcon::Class()) {
     TGeoPcon const *const p = static_cast<TGeoPcon const *>(shape);
 
+    // fix dimensions - (requires making a copy of some arrays)
+    const int NZs = p->GetNz();
+    double zs[NZs];
+    double rmins[NZs];
+    double rmaxs[NZs];
+    for (int i = 0; i < NZs; ++i) {
+      zs[i]    = p->GetZ()[i] * LUnit();
+      rmins[i] = p->GetRmin()[i] * LUnit();
+      rmaxs[i] = p->GetRmax()[i] * LUnit();
+    }
+
     unplaced_volume = GeoManager::MakeInstance<UnplacedPolycone>(p->GetPhi1() * kDegToRad, p->GetDphi() * kDegToRad,
-                                                                 p->GetNz(), p->GetZ(), p->GetRmin(), p->GetRmax());
+                                                                 p->GetNz(), zs, rmins, rmaxs);
   }
 
   // THE SCALED SHAPE
@@ -539,7 +580,8 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
     TGeoEltu const *const p = static_cast<TGeoEltu const *>(shape);
     // Create the corresponding unplaced tube, with:
     // rmin=0, rmax=A, dz=dz, which is scaled with (1., A/B, 1.)
-    UnplacedTube *tubeUnplaced = GeoManager::MakeInstance<UnplacedTube>(0, p->GetA(), p->GetDZ(), 0, kTwoPi);
+    UnplacedTube *tubeUnplaced =
+        GeoManager::MakeInstance<UnplacedTube>(0, p->GetA() * LUnit(), p->GetDZ() * LUnit(), 0, kTwoPi);
 
     unplaced_volume = GeoManager::MakeInstance<UnplacedScaledShape>(tubeUnplaced, 1., p->GetB() / p->GetA(), 1.);
   }
@@ -563,10 +605,11 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
       double *y = new double[Nvert];
       for (size_t i = 0; i < Nvert; ++i) {
         // Normally offsets should be 0 and scales should be 1, but just to be safe
-        x[i] = p->GetXOffset(0) + p->GetX(i) * p->GetScale(0);
-        y[i] = p->GetYOffset(0) + p->GetY(i) * p->GetScale(0);
+        x[i] = LUnit() * (p->GetXOffset(0) + p->GetX(i) * p->GetScale(0));
+        y[i] = LUnit() * (p->GetYOffset(0) + p->GetY(i) * p->GetScale(0));
       }
-      unplaced_volume = GeoManager::MakeInstance<UnplacedSExtruVolume>(p->GetNvert(), x, y, p->GetZ(0), p->GetZ(1));
+      unplaced_volume = GeoManager::MakeInstance<UnplacedSExtruVolume>(p->GetNvert(), x, y, LUnit() * p->GetZ(0),
+                                                                       LUnit() * p->GetZ(1));
       delete[] x;
       delete[] y;
     }
@@ -692,10 +735,10 @@ UnplacedGenTrap *RootGeoManager::ToUnplacedGenTrap(TGeoArb8 const *p)
   const double *vertices = const_cast<TGeoArb8 *>(p)->GetVertices();
   Precision verticesx[8], verticesy[8];
   for (auto ivert = 0; ivert < 8; ++ivert) {
-    verticesx[ivert] = vertices[2 * ivert];
-    verticesy[ivert] = vertices[2 * ivert + 1];
+    verticesx[ivert] = LUnit() * vertices[2 * ivert];
+    verticesy[ivert] = LUnit() * vertices[2 * ivert + 1];
   }
-  return GeoManager::MakeInstance<UnplacedGenTrap>(verticesx, verticesy, p->GetDz());
+  return GeoManager::MakeInstance<UnplacedGenTrap>(verticesx, verticesy, LUnit() * p->GetDz());
 }
 
 // lookup the placed volume corresponding to a TGeoNode

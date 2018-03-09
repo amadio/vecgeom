@@ -139,6 +139,9 @@ public:
 
   TGeoMatrix *Convert(Transformation3D const *const trans);
 
+  void EnableG4Units() { fUnitsInMM = true; }
+  void EnableTGeoUnits() { fUnitsInMM = false; }
+
 private:
   RootGeoManager()
       : fWorld(NULL), fPlacedVolumeMap(), fUnplacedVolumeMap(), fLogicalVolumeMap(), fTransformationMap(), fVerbose(0),
@@ -154,6 +157,16 @@ private:
 
   // helper function to post-adjust a converted transformation in certain cases
   bool PostAdjustTransformation(Transformation3D *, TGeoNode const *, Transformation3D *adjustment) const;
+
+  // for the choice of units
+  bool fUnitsInMM = false;
+  // whether to instantiate VecGeom with mm as units (to be compliant with G4 for instance)
+  // if false, we will use cm (to be compliant with TGeo)
+
+  constexpr static double CMTOMM = 10.;
+
+  // return length unit
+  double LUnit() const { return fUnitsInMM ? CMTOMM : 1.; }
 };
 }
 } // End global namespace
