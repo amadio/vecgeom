@@ -94,7 +94,7 @@ public:
   VECGEOM_FORCE_INLINE
   void Update()
   {
-    assert(((fScale[0] > 0) && (fScale[1] > 0) && (fScale[2] > 0)));
+    assert(((fScale[0] != 0) && (fScale[1] != 0) && (fScale[2] != 0)));
     fInvScale.Set(1. / fScale[0], 1. / fScale[1], 1. / fScale[2]);
     fSclLocal  = Min(fInvScale[0], fInvScale[1]);
     fSclLocal  = Min(fSclLocal, fInvScale[2]);
