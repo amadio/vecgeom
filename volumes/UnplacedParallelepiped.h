@@ -146,10 +146,10 @@ public:
 #ifndef VECCORE_CUDA
   /** @brief Generates randomly a point on the surface of the parallelepiped */
   Vector3D<Precision> SamplePointOnSurface() const override;
+#endif
 
   /** @brief Implementation of surface area computation */
-  VECGEOM_FORCE_INLINE
-  Precision SurfaceArea() const
+  Precision SurfaceArea() const override
   {
     // factor 8 because dimensions_ are half-lengths
     Precision ctinv = 1. / cos(kDegToRad * fPara.fTheta);
@@ -159,7 +159,6 @@ public:
                   fPara.fDimensions[2] * fPara.fDimensions[0] *
                       sqrt(ctinv * ctinv - fPara.fTanThetaCosPhi * fPara.fTanThetaCosPhi));
   }
-#endif
 
   /** @brief Compute normal vector to surface */
   VECCORE_ATT_HOST_DEVICE

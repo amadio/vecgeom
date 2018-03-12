@@ -132,9 +132,8 @@ public:
 
   Precision Capacity() const override { return fCubicVolume; }
 
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  Precision SurfaceArea() const { return fSurfaceArea; }
+  // VECCORE_ATT_HOST_DEVICE
+  Precision SurfaceArea() const override { return fSurfaceArea; }
 
   virtual Vector3D<Precision> SamplePointOnSurface() const override;
 

@@ -292,7 +292,7 @@ public:
   // }
 
   // VECCORE_ATT_HOST_DEVICE
-  Precision SurfaceArea() const;
+  Precision SurfaceArea() const override;
   // {
   //   Assert(!fOutdated);
   //   return fSurfaceArea;

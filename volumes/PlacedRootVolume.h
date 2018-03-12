@@ -130,6 +130,12 @@ public:
 
   virtual Precision Capacity() override;
 
+  virtual Precision SurfaceArea() const override
+  {
+    throw std::runtime_error("unimplemented function called");
+    return -1.;
+  }
+
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const override;

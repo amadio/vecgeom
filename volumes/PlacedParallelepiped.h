@@ -94,8 +94,6 @@ public:
   {
     return GetUnplacedVolume()->SamplePointOnSurface();
   }
-
-  virtual double SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
 #endif
 
   VECCORE_ATT_HOST_DEVICE

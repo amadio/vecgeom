@@ -238,7 +238,10 @@ public:
 
   Precision Capacity() override { return static_cast<UnplacedAssembly const *>(GetUnplacedVolume())->Capacity(); }
 
-  Precision SurfaceArea() override { return static_cast<UnplacedAssembly const *>(GetUnplacedVolume())->SurfaceArea(); }
+  Precision SurfaceArea() const override
+  {
+    return static_cast<UnplacedAssembly const *>(GetUnplacedVolume())->SurfaceArea();
+  }
 
   Vector3D<Precision> SamplePointOnSurface() const override
   {

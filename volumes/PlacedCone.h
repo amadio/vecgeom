@@ -118,9 +118,6 @@ public:
   {
     return GetUnplacedVolume()->SamplePointOnSurface();
   }
-
-  virtual double SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
-
 #endif
 
 }; // end class

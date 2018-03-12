@@ -122,8 +122,6 @@ public:
 #ifndef VECCORE_CUDA
   virtual Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
 
-  virtual Precision SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
-
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
   {
     GetUnplacedVolume()->Extent(aMin, aMax);

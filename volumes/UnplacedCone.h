@@ -220,8 +220,7 @@ public:
             fCone.fRmin1 * fCone.fRmin1 - fCone.fRmin2 * fCone.fRmin2 - fCone.fRmin1 * fCone.fRmin2);
   }
 
-#ifndef VECCORE_CUDA
-  Precision SurfaceArea() const
+  Precision SurfaceArea() const override
   {
     double mmin, mmax, dmin, dmax;
     mmin = (fCone.fRmin1 + fCone.fRmin2) * 0.5;
@@ -235,6 +234,7 @@ public:
                                  fCone.fRmax2 * fCone.fRmax2 - fCone.fRmin2 * fCone.fRmin2));
   }
 
+#ifndef VECCORE_CUDA
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override;
 
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override;

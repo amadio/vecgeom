@@ -156,6 +156,11 @@ public:
 
   // ----------------- Capacity --------------------------------------------------------------------
   virtual double Capacity() const = 0;
+  double EstimateCapacity(int nStat = 100000) const;
+
+  // ----------------- Surface Area ----------------------------------------------------------------
+  virtual double SurfaceArea() const = 0;
+  double EstimateSurfaceArea(int nStat = 100000) const;
 
   /**
    * Uses the virtual print method.

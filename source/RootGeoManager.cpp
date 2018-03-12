@@ -318,15 +318,18 @@ LogicalVolume *RootGeoManager::Convert(TGeoVolume const *const volume)
 
   fLogicalVolumeMap.Set(volume, logical_volume);
 
-  // make a cross check using cubic volume property
-  if (!(dynamic_cast<TGeoCompositeShape *>(volume->GetShape()) || dynamic_cast<TGeoScaledShape *>(volume->GetShape()) ||
-        logical_volume->GetUnplacedVolume()->IsAssembly())) {
-    const auto v1 = logical_volume->GetUnplacedVolume()->Capacity();
-    const auto v2 = volume->Capacity();
-    std::cerr << "v1 " << v1 << " " << v2 << "\n";
-
-    assert(std::abs(v1 - v2 * LUnit() * LUnit() * LUnit()) / v1 < 1E-6);
-  }
+  //// can be used to make a cross check for dimensions and other properties
+  //// make a cross check using cubic volume property
+  //  if (! (dynamic_cast<TGeoCompositeShape *>(volume->GetShape()) ||
+  //		logical_volume->GetUnplacedVolume()->IsAssembly()))
+  //  {
+  //    const auto v1 = logical_volume->GetUnplacedVolume()->Capacity();
+  //    const auto v2 = volume->Capacity();
+  //    std::cerr << "v1 " << v1 << " " << v2 << "\n";
+  //
+  //    assert(v1 > 0.);
+  //    assert(std::abs(v1 - v2 * LUnit() * LUnit() * LUnit())/v1 < 0.05);
+  //  }
   return logical_volume;
 }
 

@@ -58,6 +58,8 @@ public:
 
   Precision Capacity() const override { return GetRootShape()->Capacity(); }
 
+  Precision SurfaceArea() const override { return 0.; /*GetRootShape()->SurfaceArea();*/ }
+
   VECGEOM_FORCE_INLINE
   int MemorySize() const override { return sizeof(*this); }
 

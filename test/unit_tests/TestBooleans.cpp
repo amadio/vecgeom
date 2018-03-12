@@ -22,9 +22,20 @@ int TestBooleans()
   // BOX - ( TUBE + TUBE )   aka a box with 2 holes
 
   UnplacedBox box(L, L, L);
+  auto bv = box.Capacity();
+  auto ba = box.SurfaceArea();
+
   GenericUnplacedTube tube(0., 0.9 * L / 4., L, 0., vecgeom::kTwoPi);
   LogicalVolume lbox("box", &box);
   auto placedbox = lbox.Place();
+
+  // test capacity + surface area
+  auto tv  = tube.Capacity();
+  auto etv = tube.EstimateCapacity(10000000);
+  assert(std::abs(tv - etv) / etv < 1E-3);
+  auto ta  = tube.SurfaceArea();
+  auto eta = tube.EstimateSurfaceArea(10000000);
+  assert(std::abs(ta - eta) / ta < 1E-2);
 
   LogicalVolume ltube("tube", &tube);
 
@@ -42,6 +53,15 @@ int TestBooleans()
   UnplacedBooleanVolume<kSubtraction> boxminusholes(kSubtraction, placedbox, placedholes2);
   LogicalVolume lboxminusholes("CombinedBoolean", &boxminusholes);
   auto placedcombinedboolean = lboxminusholes.Place();
+
+  auto capacity = boxminusholes.Capacity();
+  assert(capacity > 0);
+  assert(std::fabs(capacity - (bv - 2. * tv)) / capacity < 1E-03);
+
+  auto sarea = boxminusholes.SurfaceArea();
+  assert(sarea > 0);
+  // ?? assert(sarea < (ba + 2. * ta));
+  assert(sarea > ba);
 
   // Tests on the union first
 

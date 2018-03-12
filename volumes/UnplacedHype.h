@@ -180,9 +180,8 @@ public:
 
   Precision Capacity() const override { return fHype.fCubicVolume; }
 
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  Precision SurfaceArea() const { return fHype.fSurfaceArea; }
+  // VECCORE_ATT_HOST_DEVICE
+  Precision SurfaceArea() const override { return fHype.fSurfaceArea; }
 
   template <bool ForInnerSurface>
   VECGEOM_FORCE_INLINE

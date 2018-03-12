@@ -111,10 +111,6 @@ public:
   {
     return GetUnplacedVolume()->SamplePointOnSurface();
   }
-
-  /** @brief Implementation of surface area computation */
-  virtual double SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
-
 #endif
 
   /** @brief Print type name */

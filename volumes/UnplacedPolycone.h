@@ -102,9 +102,9 @@ public:
     return cubicVolume;
   }
 
-#if !defined(VECCORE_CUDA)
-  Precision SurfaceArea() const;
+  Precision SurfaceArea() const override;
 
+#if !defined(VECCORE_CUDA)
   VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &norm) const override;
 

@@ -193,6 +193,68 @@ Precision UnplacedPolyhedron::Capacity() const
   return fPoly.fCapacity;
 }
 
+// VECCORE_ATT_HOST_DEVICE
+Precision UnplacedPolyhedron::SurfaceArea() const
+{
+  if (fPoly.fSurfaceArea == 0.) {
+    signed int j;
+    Precision totArea = 0., area, aTop = 0., aBottom = 0.;
+
+    // Below we generate the areas relevant to our solid
+    // We are starting with ZSegments(lateral parts)
+
+    for (j = 0; j < GetZSegmentCount(); ++j) {
+
+      area = GetZSegment(j).outer.GetQuadrilateralArea(0) * GetSideCount();
+      totArea += area;
+
+      if (GetZSegment(j).hasInnerRadius) {
+        area = GetZSegment(j).inner.GetQuadrilateralArea(0) * GetSideCount();
+        totArea += area;
+      }
+
+      if (HasPhiCutout()) {
+        area = GetZSegment(j).phi.GetQuadrilateralArea(0) * 2.0;
+        totArea += area;
+      }
+    }
+
+    // Must include top and bottom areas
+    //
+
+    Vector3D<Precision> point1 = GetZSegment(0).outer.GetCorners()[0][0];
+    Vector3D<Precision> point2 = GetZSegment(0).outer.GetCorners()[1][0];
+    Vector3D<Precision> point3, point4;
+    if (GetZSegment(0).hasInnerRadius) {
+      point3 = GetZSegment(0).inner.GetCorners()[0][0];
+      point4 = GetZSegment(0).inner.GetCorners()[1][0];
+      aTop   = GetSideCount() * (GetTriangleArea(point1, point2, point3) + GetTriangleArea(point3, point4, point2));
+
+    } else {
+      point3.Set(0.0, 0.0, GetZSegment(0).outer.GetCorners()[0][0].z());
+      aTop = GetSideCount() * (GetTriangleArea(point1, point2, point3));
+    }
+
+    totArea += aTop;
+
+    point1 = GetZSegment(GetZSegmentCount() - 1).outer.GetCorners()[2][0];
+    point2 = GetZSegment(GetZSegmentCount() - 1).outer.GetCorners()[3][0];
+
+    if (GetZSegment(GetZSegmentCount() - 1).hasInnerRadius) {
+      point3  = GetZSegment(GetZSegmentCount() - 1).inner.GetCorners()[2][0];
+      point4  = GetZSegment(GetZSegmentCount() - 1).inner.GetCorners()[3][0];
+      aBottom = GetSideCount() * (GetTriangleArea(point1, point2, point3) + GetTriangleArea(point3, point4, point2));
+    } else {
+      point3.Set(0.0, 0.0, GetZSegment(GetZSegmentCount() - 1).outer.GetCorners()[2][0].z());
+      aBottom = GetSideCount() * GetTriangleArea(point1, point2, point3);
+    }
+
+    totArea += aBottom;
+    fPoly.fSurfaceArea = totArea;
+  }
+  return fPoly.fSurfaceArea;
+}
+
 #ifndef VECCORE_CUDA
 void UnplacedPolyhedron::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
@@ -283,68 +345,6 @@ Vector3D<Precision> UnplacedPolyhedron::GetPointOnTriangle(Vector3D<Precision> c
   Vector3D<Precision> vec1 = v2 - v1;
   Vector3D<Precision> vec2 = v3 - v1;
   return v1 + r1 * vec1 + r2 * vec2;
-}
-
-VECCORE_ATT_HOST_DEVICE
-Precision UnplacedPolyhedron::SurfaceArea() const
-{
-  if (fPoly.fSurfaceArea == 0.) {
-    signed int j;
-    Precision totArea = 0., area, aTop = 0., aBottom = 0.;
-
-    // Below we generate the areas relevant to our solid
-    // We are starting with ZSegments(lateral parts)
-
-    for (j = 0; j < GetZSegmentCount(); ++j) {
-
-      area = GetZSegment(j).outer.GetQuadrilateralArea(0) * GetSideCount();
-      totArea += area;
-
-      if (GetZSegment(j).hasInnerRadius) {
-        area = GetZSegment(j).inner.GetQuadrilateralArea(0) * GetSideCount();
-        totArea += area;
-      }
-
-      if (HasPhiCutout()) {
-        area = GetZSegment(j).phi.GetQuadrilateralArea(0) * 2.0;
-        totArea += area;
-      }
-    }
-
-    // Must include top and bottom areas
-    //
-
-    Vector3D<Precision> point1 = GetZSegment(0).outer.GetCorners()[0][0];
-    Vector3D<Precision> point2 = GetZSegment(0).outer.GetCorners()[1][0];
-    Vector3D<Precision> point3, point4;
-    if (GetZSegment(0).hasInnerRadius) {
-      point3 = GetZSegment(0).inner.GetCorners()[0][0];
-      point4 = GetZSegment(0).inner.GetCorners()[1][0];
-      aTop   = GetSideCount() * (GetTriangleArea(point1, point2, point3) + GetTriangleArea(point3, point4, point2));
-
-    } else {
-      point3.Set(0.0, 0.0, GetZSegment(0).outer.GetCorners()[0][0].z());
-      aTop = GetSideCount() * (GetTriangleArea(point1, point2, point3));
-    }
-
-    totArea += aTop;
-
-    point1 = GetZSegment(GetZSegmentCount() - 1).outer.GetCorners()[2][0];
-    point2 = GetZSegment(GetZSegmentCount() - 1).outer.GetCorners()[3][0];
-
-    if (GetZSegment(GetZSegmentCount() - 1).hasInnerRadius) {
-      point3  = GetZSegment(GetZSegmentCount() - 1).inner.GetCorners()[2][0];
-      point4  = GetZSegment(GetZSegmentCount() - 1).inner.GetCorners()[3][0];
-      aBottom = GetSideCount() * (GetTriangleArea(point1, point2, point3) + GetTriangleArea(point3, point4, point2));
-    } else {
-      point3.Set(0.0, 0.0, GetZSegment(GetZSegmentCount() - 1).outer.GetCorners()[2][0].z());
-      aBottom = GetSideCount() * GetTriangleArea(point1, point2, point3);
-    }
-
-    totArea += aBottom;
-    fPoly.fSurfaceArea = totArea;
-  }
-  return fPoly.fSurfaceArea;
 }
 
 Vector3D<Precision> UnplacedPolyhedron::SamplePointOnSurface() const

@@ -109,62 +109,6 @@ std::ostream &operator<<(std::ostream &os, VPlacedVolume const &vol)
   return os;
 }
 
-// implement a default function for surface area
-// based on the method of G4
-Precision VPlacedVolume::SurfaceArea()
-{
-  //  std::cout << "WARNING : Sampling SurfaceArea called \n";
-  int nStat  = 100000;
-  double ell = -1.;
-  Vector3D<Precision> p;
-  Vector3D<Precision> minCorner;
-  Vector3D<Precision> maxCorner;
-  Vector3D<Precision> delta;
-
-  // min max extents of pSolid along X,Y,Z
-  this->Extent(minCorner, maxCorner);
-
-  // limits
-  delta = maxCorner - minCorner;
-
-  if (ell <= 0.) // Automatic definition of skin thickness
-  {
-    Precision minval = delta.x();
-    if (delta.y() < delta.x()) {
-      minval = delta.y();
-    }
-    if (delta.z() < minval) {
-      minval = delta.z();
-    }
-    ell = .01 * minval;
-  }
-
-  Precision dd = 2 * ell;
-  minCorner.x() -= ell;
-  minCorner.y() -= ell;
-  minCorner.z() -= ell;
-  delta.x() += dd;
-  delta.y() += dd;
-  delta.z() += dd;
-
-  int inside = 0;
-  for (int i = 0; i < nStat; ++i) {
-    p = minCorner + Vector3D<Precision>(delta.x() * RNG::Instance().uniform(), delta.y() * RNG::Instance().uniform(),
-                                        delta.z() * RNG::Instance().uniform());
-    if (this->UnplacedContains(p)) {
-      if (this->SafetyToOut(p) < ell) {
-        inside++;
-      }
-    } else {
-      if (this->SafetyToIn(p) < ell) {
-        inside++;
-      }
-    }
-  }
-  // @@ The conformal correction can be upgraded
-  return delta.x() * delta.y() * delta.z() * inside / dd / nStat;
-}
-
 // implement a default function for SamplePointOnSurface
 // based on contains + DistanceToOut
 Vector3D<Precision> VPlacedVolume::SamplePointOnSurface() const

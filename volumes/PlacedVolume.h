@@ -289,7 +289,7 @@ public:
   VECCORE_ATT_HOST_DEVICE
   virtual bool Normal(Vector3D<Precision> const & /*point*/, Vector3D<Precision> & /*normal*/) const;
 
-  virtual Precision SurfaceArea();
+  virtual Precision SurfaceArea() const = 0;
 
   virtual Vector3D<Precision> SamplePointOnSurface() const;
 

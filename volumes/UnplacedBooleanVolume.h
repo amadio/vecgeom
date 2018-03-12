@@ -69,17 +69,19 @@ public:
 
   Precision Capacity() const override
   {
-    // TBDONE -- need some sampling
-    return 0.;
+    if (fBoolean.fCapacity < 0.) {
+      fBoolean.fCapacity = VUnplacedVolume::EstimateCapacity(1000000);
+    }
+    return fBoolean.fCapacity;
   }
-#if !defined(VECCORE_CUDA)
-  VECGEOM_FORCE_INLINE
-  Precision SurfaceArea() const
+
+  Precision SurfaceArea() const override
   {
-    // TBDONE -- need some sampling
-    return 0.;
+    if (fBoolean.fSurfaceArea < 0.) {
+      fBoolean.fSurfaceArea = VUnplacedVolume::EstimateSurfaceArea(1000000);
+    }
+    return fBoolean.fSurfaceArea;
   }
-#endif // !VECCORE_CUDA
 
   VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override;

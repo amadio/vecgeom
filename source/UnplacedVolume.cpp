@@ -1,5 +1,6 @@
 #include "volumes/UnplacedVolume.h"
 #include "volumes/PlacedVolume.h"
+#include "volumes/utilities/VolumeUtilities.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -106,6 +107,82 @@ void VUnplacedVolume::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMa
 #ifndef VECCORE_CUDA
   throw std::runtime_error("unimplemented function called");
 #endif
+}
+
+// estimating the surface area by sampling
+// based on the method of G4
+Precision VUnplacedVolume::EstimateSurfaceArea(int nStat) const
+{
+  double ell = -1.;
+  Vector3D<Precision> p;
+  Vector3D<Precision> minCorner;
+  Vector3D<Precision> maxCorner;
+  Vector3D<Precision> delta;
+
+  // min max extents of pSolid along X,Y,Z
+  this->Extent(minCorner, maxCorner);
+
+  // limits
+  delta = maxCorner - minCorner;
+
+  if (ell <= 0.) // Automatic definition of skin thickness
+  {
+    Precision minval = delta.x();
+    if (delta.y() < delta.x()) {
+      minval = delta.y();
+    }
+    if (delta.z() < minval) {
+      minval = delta.z();
+    }
+    ell = .01 * minval;
+  }
+
+  Precision dd = 2 * ell;
+  minCorner.x() -= ell;
+  minCorner.y() -= ell;
+  minCorner.z() -= ell;
+  delta.x() += dd;
+  delta.y() += dd;
+  delta.z() += dd;
+
+  int inside = 0;
+  for (int i = 0; i < nStat; ++i) {
+    p = minCorner + Vector3D<Precision>(delta.x() * RNG::Instance().uniform(), delta.y() * RNG::Instance().uniform(),
+                                        delta.z() * RNG::Instance().uniform());
+    if (this->Contains(p)) {
+      if (this->SafetyToOut(p) < ell) {
+        inside++;
+      }
+    } else {
+      if (this->SafetyToIn(p) < ell) {
+        inside++;
+      }
+    }
+  }
+  // @@ The conformal correction can be upgraded
+  return delta.x() * delta.y() * delta.z() * inside / dd / nStat;
+}
+
+// estimating the cubic volume by sampling
+// based on the method of G4
+double VUnplacedVolume::EstimateCapacity(int nStat) const
+{
+  double epsilon = 1E-4;
+
+  // limits
+  if (nStat < 100) nStat = 100;
+
+  Vector3D<Precision> lower, upper, offset;
+  this->Extent(lower, upper);
+  offset                        = 0.5 * (upper + lower);
+  const Vector3D<Precision> dim = 0.5 * (upper - lower);
+
+  int insidecounter = 0;
+  for (int i = 0; i < nStat; i++) {
+    auto p = offset + volumeUtilities::SamplePoint(dim);
+    if (this->Contains(p)) insidecounter++;
+  }
+  return 8. * (dim[0] + epsilon) * (dim[1] + epsilon) * (dim[2] + epsilon) * insidecounter / nStat;
 }
 
 std::ostream &operator<<(std::ostream &os, VUnplacedVolume const &vol)

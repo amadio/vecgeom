@@ -209,6 +209,46 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedPolycone::CopyToGpu(DevicePtr<cuda::VUn
 
 #endif // VECGEOM_CUDA_INTERFACE
 
+Precision UnplacedPolycone::SurfaceArea() const
+{
+
+  Precision Area = 0, totArea = 0;
+  int i                  = 0;
+  int numPlanes          = GetNSections();
+  Precision fSurfaceArea = 0;
+
+  Vector<Precision> areas; // (numPlanes+1);
+
+  PolyconeSection const &sec0 = GetSection(0);
+  areas.push_back(kPi * (sec0.fSolid->fRmax1 * sec0.fSolid->fRmax1 - sec0.fSolid->fRmin1 * sec0.fSolid->fRmin1));
+  for (i = 0; i < numPlanes; i++) {
+    PolyconeSection const &sec = GetSection(i);
+    Area                       = (sec.fSolid->fRmin1 + sec.fSolid->fRmin2) *
+           std::sqrt((sec.fSolid->fRmin1 - sec.fSolid->fRmin2) * (sec.fSolid->fRmin1 - sec.fSolid->fRmin2) +
+                     4. * sec.fSolid->fDz * sec.fSolid->fDz);
+
+    Area += (sec.fSolid->fRmax1 + sec.fSolid->fRmax2) *
+            std::sqrt((sec.fSolid->fRmax1 - sec.fSolid->fRmax2) * (sec.fSolid->fRmax1 - sec.fSolid->fRmax2) +
+                      4. * sec.fSolid->fDz * sec.fSolid->fDz);
+
+    Area *= 0.5 * GetDeltaPhi();
+
+    if (GetDeltaPhi() < kTwoPi) {
+      Area += std::fabs(2 * sec.fSolid->fDz) *
+              (sec.fSolid->fRmax1 + sec.fSolid->fRmax2 - sec.fSolid->fRmin1 - sec.fSolid->fRmin2);
+    }
+    areas.push_back(Area);
+    totArea += Area;
+  }
+  PolyconeSection const &secn = GetSection(numPlanes - 1);
+  areas.push_back(kPi * (secn.fSolid->fRmax2 * secn.fSolid->fRmax2 - secn.fSolid->fRmin2 * secn.fSolid->fRmin2));
+
+  totArea += (areas[0] + areas[numPlanes + 1]);
+  fSurfaceArea = totArea;
+
+  return fSurfaceArea;
+}
+
 #ifndef VECCORE_CUDA
 /////////////////////////////////////////////////////////////////////////
 //
@@ -516,46 +556,6 @@ bool UnplacedPolycone::Normal(Vector3D<Precision> const &point, Vector3D<Precisi
   }
   if (valid) norm /= norm.Mag();
   return valid;
-}
-
-Precision UnplacedPolycone::SurfaceArea() const
-{
-
-  Precision Area = 0, totArea = 0;
-  int i                  = 0;
-  int numPlanes          = GetNSections();
-  Precision fSurfaceArea = 0;
-
-  Vector<Precision> areas; // (numPlanes+1);
-
-  PolyconeSection const &sec0 = GetSection(0);
-  areas.push_back(kPi * (sec0.fSolid->fRmax1 * sec0.fSolid->fRmax1 - sec0.fSolid->fRmin1 * sec0.fSolid->fRmin1));
-  for (i = 0; i < numPlanes; i++) {
-    PolyconeSection const &sec = GetSection(i);
-    Area                       = (sec.fSolid->fRmin1 + sec.fSolid->fRmin2) *
-           std::sqrt((sec.fSolid->fRmin1 - sec.fSolid->fRmin2) * (sec.fSolid->fRmin1 - sec.fSolid->fRmin2) +
-                     4. * sec.fSolid->fDz * sec.fSolid->fDz);
-
-    Area += (sec.fSolid->fRmax1 + sec.fSolid->fRmax2) *
-            std::sqrt((sec.fSolid->fRmax1 - sec.fSolid->fRmax2) * (sec.fSolid->fRmax1 - sec.fSolid->fRmax2) +
-                      4. * sec.fSolid->fDz * sec.fSolid->fDz);
-
-    Area *= 0.5 * GetDeltaPhi();
-
-    if (GetDeltaPhi() < kTwoPi) {
-      Area += std::fabs(2 * sec.fSolid->fDz) *
-              (sec.fSolid->fRmax1 + sec.fSolid->fRmax2 - sec.fSolid->fRmin1 - sec.fSolid->fRmin2);
-    }
-    areas.push_back(Area);
-    totArea += Area;
-  }
-  PolyconeSection const &secn = GetSection(numPlanes - 1);
-  areas.push_back(kPi * (secn.fSolid->fRmax2 * secn.fSolid->fRmax2 - secn.fSolid->fRmin2 * secn.fSolid->fRmin2));
-
-  totArea += (areas[0] + areas[numPlanes + 1]);
-  fSurfaceArea = totArea;
-
-  return fSurfaceArea;
 }
 
 #if (0)

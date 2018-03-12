@@ -63,8 +63,8 @@ public:
 
   Precision Capacity() const override { return 8.0 * x() * y() * z(); }
 
-  VECCORE_ATT_HOST_DEVICE
-  Precision SurfaceArea() const
+  // VECCORE_ATT_HOST_DEVICE
+  Precision SurfaceArea() const override
   {
     // factor 8 because x(),... are half-lengths
     return 8.0 * (x() * y() + y() * z() + x() * z());

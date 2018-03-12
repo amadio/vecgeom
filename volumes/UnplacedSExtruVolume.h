@@ -36,8 +36,8 @@ public:
 
   Precision Capacity() const override { return fPolyShell.fPolygon.Area() * (fPolyShell.fUpperZ - fPolyShell.fLowerZ); }
 
-  VECCORE_ATT_HOST_DEVICE
-  Precision SurfaceArea() const /*override*/ { return fPolyShell.SurfaceArea() + 2. * fPolyShell.fPolygon.Area(); }
+  // VECCORE_ATT_HOST_DEVICE
+  Precision SurfaceArea() const override { return fPolyShell.SurfaceArea() + 2. * fPolyShell.fPolygon.Area(); }
 
   VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override { fPolyShell.Extent(aMin, aMax); }

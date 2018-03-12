@@ -190,9 +190,8 @@ public:
     calculateCached();
   }
 
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  Precision SurfaceArea() const
+  // VECCORE_ATT_HOST_DEVICE
+  Precision SurfaceArea() const override
   {
     Precision surfaceArea = fTorus.fDphi * kTwoPi * fTorus.fRtor * (fTorus.fRmax + fTorus.fRmin);
     if (fTorus.fDphi < kTwoPi) {

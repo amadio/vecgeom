@@ -255,9 +255,6 @@ public:
   virtual Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
 
   VECGEOM_FORCE_INLINE
-  Precision SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
-
-  VECGEOM_FORCE_INLINE
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override
   {
     return GetUnplacedVolume()->Extent(aMin, aMax);

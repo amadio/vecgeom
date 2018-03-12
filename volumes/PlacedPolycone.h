@@ -99,7 +99,7 @@ public:
     return GetUnplacedVolume()->SamplePointOnSurface();
   }
 
-  virtual double SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
+  virtual double SurfaceArea() const override { return GetUnplacedVolume()->SurfaceArea(); }
 
 #endif
 

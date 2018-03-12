@@ -153,8 +153,7 @@ public:
   // Computes capacity of the shape in [length^3]
   Precision Capacity() const override;
 
-#ifndef VECCORE_CUDA
-  Precision SurfaceArea() const;
+  Precision SurfaceArea() const override;
 
   Precision GetPlusXArea() const
   { //  Area in +x direction
@@ -190,9 +189,9 @@ public:
 
   Vector3D<Precision> SamplePointOnSurface() const override;
 
+#ifndef VECCORE_CUDA
   VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override;
-
 #endif
 
   VECCORE_ATT_HOST_DEVICE

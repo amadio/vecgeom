@@ -245,9 +245,8 @@ public:
 
   Precision Capacity() const override { return fSphere.fCubicVolume; }
 
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  Precision SurfaceArea() const { return fSphere.fSurfaceArea; }
+  // VECCORE_ATT_HOST_DEVICE
+  Precision SurfaceArea() const override { return fSphere.fSurfaceArea; }
 
 #ifndef VECCORE_CUDA
   void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const override;

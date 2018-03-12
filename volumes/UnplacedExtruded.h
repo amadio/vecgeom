@@ -79,8 +79,8 @@ public:
   VECCORE_ATT_HOST_DEVICE
   Precision Capacity() const override;
 
-  VECCORE_ATT_HOST_DEVICE
-  Precision SurfaceArea() const;
+  // VECCORE_ATT_HOST_DEVICE
+  Precision SurfaceArea() const override;
 
   VECCORE_ATT_HOST_DEVICE
   int ChooseSurface() const;

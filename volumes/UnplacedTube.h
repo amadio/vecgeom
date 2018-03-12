@@ -95,7 +95,7 @@ public:
   Precision Capacity() const override { return volume(); }
 
   // VECCORE_ATT_HOST_DEVICE
-  Precision SurfaceArea() const
+  Precision SurfaceArea() const override
   {
     return GetTopArea() + GetLateralPhiArea() + GetLateralROutArea() + GetLateralRInArea();
   }

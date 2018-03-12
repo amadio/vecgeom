@@ -199,7 +199,7 @@ public:
 
   Vector3D<Precision> SamplePointOnSurface() const override;
   Precision Capacity() const override;
-  Precision SurfaceArea() const;
+  Precision SurfaceArea() const override;
 
   // some dummy impl for virtual functions
   VECCORE_ATT_HOST_DEVICE

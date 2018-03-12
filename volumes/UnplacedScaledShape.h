@@ -162,15 +162,13 @@ public:
 
   Precision Capacity() const override { return Volume(); }
 
-#ifndef VECCORE_CUDA
-  VECGEOM_FORCE_INLINE
-  Precision SurfaceArea() const
+  // VECGEOM_FORCE_INLINE
+  Precision SurfaceArea() const override
   {
     /// To do - not so easy as for the capacity...
     Precision area = ((VPlacedVolume *)fScaled.fPlaced)->SurfaceArea();
     return area;
   }
-#endif // !VECCORE_CUDA
 
   VECCORE_ATT_HOST_DEVICE
   bool Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const override;

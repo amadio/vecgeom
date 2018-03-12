@@ -71,10 +71,9 @@ public:
     return GetUnplacedVolume()->SamplePointOnSurface();
     // careful here: we need to transform result
   }
-
-  virtual double SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
-
 #endif
+
+  virtual double SurfaceArea() const override { return GetUnplacedVolume()->SurfaceArea(); }
 
   VECCORE_ATT_HOST_DEVICE
   virtual bool UnplacedContains(Vector3D<Precision> const &point) const override

@@ -63,11 +63,11 @@ public:
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override { fTessellated.Extent(aMin, aMax); }
 
   // Computes capacity of the shape in [length^3]
-  VECCORE_ATT_HOST_DEVICE
+  // VECCORE_ATT_HOST_DEVICE
   Precision Capacity() const override;
 
-  VECCORE_ATT_HOST_DEVICE
-  Precision SurfaceArea() const;
+  // VECCORE_ATT_HOST_DEVICE
+  Precision SurfaceArea() const override;
 
   VECCORE_ATT_HOST_DEVICE
   int ChooseSurface() const;

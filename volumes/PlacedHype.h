@@ -173,7 +173,7 @@ public:
 
   Precision Capacity() override { return GetUnplacedVolume()->Capacity(); }
 
-  Precision SurfaceArea() override { return GetUnplacedVolume()->SurfaceArea(); }
+  Precision SurfaceArea() const override { return GetUnplacedVolume()->SurfaceArea(); }
 
   VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const override

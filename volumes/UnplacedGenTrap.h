@@ -158,7 +158,7 @@ public:
   Precision volume() const;
 
   /** @brief Implementation of surface area computation */
-  Precision SurfaceArea() const;
+  Precision SurfaceArea() const override;
 
   /** @brief Compute normal vector to surface */
   VECCORE_ATT_HOST_DEVICE
