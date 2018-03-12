@@ -129,9 +129,9 @@ struct Tile {
 
     // Compute surface area
     fSurfaceArea = 0.;
-    for (size_t i = 0; i < NVERT; ++i) {
-      Vector3D<T> e1 = fVertices[(i + 1) % NVERT] - fVertices[i];
-      Vector3D<T> e2 = fVertices[(i + 2) % NVERT] - fVertices[(i + 1) % NVERT];
+    for (size_t i = 1; i < NVERT - 1; ++i) {
+      Vector3D<T> e1 = fVertices[i] - fVertices[0];
+      Vector3D<T> e2 = fVertices[i + 1] - fVertices[0];
       fSurfaceArea += 0.5 * (e1.Cross(e2)).Mag();
     }
     assert(fSurfaceArea > kTolerance * kTolerance);
