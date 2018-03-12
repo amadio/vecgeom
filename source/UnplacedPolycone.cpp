@@ -217,7 +217,7 @@ Precision UnplacedPolycone::SurfaceArea() const
   int numPlanes          = GetNSections();
   Precision fSurfaceArea = 0;
 
-  Vector<Precision> areas; // (numPlanes+1);
+  Vector<Precision> areas(numPlanes + 1);
 
   PolyconeSection const &sec0 = GetSection(0);
   areas.push_back(kPi * (sec0.fSolid->fRmax1 * sec0.fSolid->fRmax1 - sec0.fSolid->fRmin1 * sec0.fSolid->fRmin1));
@@ -241,9 +241,9 @@ Precision UnplacedPolycone::SurfaceArea() const
     totArea += Area;
   }
   PolyconeSection const &secn = GetSection(numPlanes - 1);
-  areas.push_back(kPi * (secn.fSolid->fRmax2 * secn.fSolid->fRmax2 - secn.fSolid->fRmin2 * secn.fSolid->fRmin2));
+  const auto last = kPi * (secn.fSolid->fRmax2 * secn.fSolid->fRmax2 - secn.fSolid->fRmin2 * secn.fSolid->fRmin2);
 
-  totArea += (areas[0] + areas[numPlanes + 1]);
+  totArea += (areas[0] + last);
   fSurfaceArea = totArea;
 
   return fSurfaceArea;
