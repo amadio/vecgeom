@@ -213,9 +213,8 @@ Precision UnplacedPolycone::SurfaceArea() const
 {
 
   Precision Area = 0, totArea = 0;
-  int i                  = 0;
-  int numPlanes          = GetNSections();
-  Precision fSurfaceArea = 0;
+  int i           = 0;
+  int numPlanes   = GetNSections();
 
   Vector<Precision> areas(numPlanes + 1);
 
@@ -244,9 +243,8 @@ Precision UnplacedPolycone::SurfaceArea() const
   const auto last = kPi * (secn.fSolid->fRmax2 * secn.fSolid->fRmax2 - secn.fSolid->fRmin2 * secn.fSolid->fRmin2);
 
   totArea += (areas[0] + last);
-  fSurfaceArea = totArea;
 
-  return fSurfaceArea;
+  return totArea;
 }
 
 #ifndef VECCORE_CUDA
