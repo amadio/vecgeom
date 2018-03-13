@@ -212,9 +212,10 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedPolycone::CopyToGpu(DevicePtr<cuda::VUn
 Precision UnplacedPolycone::SurfaceArea() const
 {
 
-  Precision Area = 0, totArea = 0;
-  int i           = 0;
-  int numPlanes   = GetNSections();
+  Precision totArea = 0;
+
+  int i         = 0;
+  int numPlanes = GetNSections();
 
   Vector<Precision> areas(numPlanes + 1);
 
@@ -222,22 +223,23 @@ Precision UnplacedPolycone::SurfaceArea() const
   areas.push_back(kPi * (sec0.fSolid->fRmax1 * sec0.fSolid->fRmax1 - sec0.fSolid->fRmin1 * sec0.fSolid->fRmin1));
   for (i = 0; i < numPlanes; i++) {
     PolyconeSection const &sec = GetSection(i);
-    Area                       = (sec.fSolid->fRmin1 + sec.fSolid->fRmin2) *
+
+    Precision sectionArea = (sec.fSolid->fRmin1 + sec.fSolid->fRmin2) *
            std::sqrt((sec.fSolid->fRmin1 - sec.fSolid->fRmin2) * (sec.fSolid->fRmin1 - sec.fSolid->fRmin2) +
                      4. * sec.fSolid->fDz * sec.fSolid->fDz);
 
-    Area += (sec.fSolid->fRmax1 + sec.fSolid->fRmax2) *
+    sectionArea += (sec.fSolid->fRmax1 + sec.fSolid->fRmax2) *
             std::sqrt((sec.fSolid->fRmax1 - sec.fSolid->fRmax2) * (sec.fSolid->fRmax1 - sec.fSolid->fRmax2) +
                       4. * sec.fSolid->fDz * sec.fSolid->fDz);
 
-    Area *= 0.5 * GetDeltaPhi();
+    sectionArea *= 0.5 * GetDeltaPhi();
 
     if (GetDeltaPhi() < kTwoPi) {
-      Area += std::fabs(2 * sec.fSolid->fDz) *
+      sectionArea += std::fabs(2 * sec.fSolid->fDz) *
               (sec.fSolid->fRmax1 + sec.fSolid->fRmax2 - sec.fSolid->fRmin1 - sec.fSolid->fRmin2);
     }
-    areas.push_back(Area);
-    totArea += Area;
+    areas.push_back(sectionArea);
+    totArea += sectionArea;
   }
   PolyconeSection const &secn = GetSection(numPlanes - 1);
   const auto last = kPi * (secn.fSolid->fRmax2 * secn.fSolid->fRmax2 - secn.fSolid->fRmin2 * secn.fSolid->fRmin2);
