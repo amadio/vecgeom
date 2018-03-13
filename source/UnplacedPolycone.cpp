@@ -217,34 +217,34 @@ Precision UnplacedPolycone::SurfaceArea() const
   int i         = 0;
   int numPlanes = GetNSections();
 
-  Vector<Precision> areas(numPlanes + 1);
-
   PolyconeSection const &sec0 = GetSection(0);
-  areas.push_back(kPi * (sec0.fSolid->fRmax1 * sec0.fSolid->fRmax1 - sec0.fSolid->fRmin1 * sec0.fSolid->fRmin1));
+
+  totArea += (kPi * (sec0.fSolid->fRmax1 * sec0.fSolid->fRmax1 - sec0.fSolid->fRmin1 * sec0.fSolid->fRmin1));
   for (i = 0; i < numPlanes; i++) {
     PolyconeSection const &sec = GetSection(i);
 
-    Precision sectionArea = (sec.fSolid->fRmin1 + sec.fSolid->fRmin2) *
-           std::sqrt((sec.fSolid->fRmin1 - sec.fSolid->fRmin2) * (sec.fSolid->fRmin1 - sec.fSolid->fRmin2) +
-                     4. * sec.fSolid->fDz * sec.fSolid->fDz);
+    Precision sectionArea =
+        (sec.fSolid->fRmin1 + sec.fSolid->fRmin2) *
+        std::sqrt((sec.fSolid->fRmin1 - sec.fSolid->fRmin2) * (sec.fSolid->fRmin1 - sec.fSolid->fRmin2) +
+                  4. * sec.fSolid->fDz * sec.fSolid->fDz);
 
     sectionArea += (sec.fSolid->fRmax1 + sec.fSolid->fRmax2) *
-            std::sqrt((sec.fSolid->fRmax1 - sec.fSolid->fRmax2) * (sec.fSolid->fRmax1 - sec.fSolid->fRmax2) +
-                      4. * sec.fSolid->fDz * sec.fSolid->fDz);
+                   std::sqrt((sec.fSolid->fRmax1 - sec.fSolid->fRmax2) * (sec.fSolid->fRmax1 - sec.fSolid->fRmax2) +
+                             4. * sec.fSolid->fDz * sec.fSolid->fDz);
 
     sectionArea *= 0.5 * GetDeltaPhi();
 
     if (GetDeltaPhi() < kTwoPi) {
       sectionArea += std::fabs(2 * sec.fSolid->fDz) *
-              (sec.fSolid->fRmax1 + sec.fSolid->fRmax2 - sec.fSolid->fRmin1 - sec.fSolid->fRmin2);
+                     (sec.fSolid->fRmax1 + sec.fSolid->fRmax2 - sec.fSolid->fRmin1 - sec.fSolid->fRmin2);
     }
-    areas.push_back(sectionArea);
     totArea += sectionArea;
   }
   PolyconeSection const &secn = GetSection(numPlanes - 1);
+ 
   const auto last = kPi * (secn.fSolid->fRmax2 * secn.fSolid->fRmax2 - secn.fSolid->fRmin2 * secn.fSolid->fRmin2);
 
-  totArea += (areas[0] + last);
+  totArea += last;
 
   return totArea;
 }
