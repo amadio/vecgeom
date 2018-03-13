@@ -211,16 +211,12 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedPolycone::CopyToGpu(DevicePtr<cuda::VUn
 
 Precision UnplacedPolycone::SurfaceArea() const
 {
-
-  Precision totArea = 0;
-
-  int i         = 0;
-  int numPlanes = GetNSections();
+  const int numPlanes = GetNSections();
 
   PolyconeSection const &sec0 = GetSection(0);
+  Precision totArea = (kPi * (sec0.fSolid->fRmax1 * sec0.fSolid->fRmax1 - sec0.fSolid->fRmin1 * sec0.fSolid->fRmin1));
 
-  totArea += (kPi * (sec0.fSolid->fRmax1 * sec0.fSolid->fRmax1 - sec0.fSolid->fRmin1 * sec0.fSolid->fRmin1));
-  for (i = 0; i < numPlanes; i++) {
+  for (int i = 0; i < numPlanes; i++) {
     PolyconeSection const &sec = GetSection(i);
 
     Precision sectionArea =
@@ -240,10 +236,9 @@ Precision UnplacedPolycone::SurfaceArea() const
     }
     totArea += sectionArea;
   }
-  PolyconeSection const &secn = GetSection(numPlanes - 1);
- 
-  const auto last = kPi * (secn.fSolid->fRmax2 * secn.fSolid->fRmax2 - secn.fSolid->fRmin2 * secn.fSolid->fRmin2);
 
+  PolyconeSection const &secn = GetSection(numPlanes - 1);
+  const auto last = kPi * (secn.fSolid->fRmax2 * secn.fSolid->fRmax2 - secn.fSolid->fRmin2 * secn.fSolid->fRmin2);
   totArea += last;
 
   return totArea;
