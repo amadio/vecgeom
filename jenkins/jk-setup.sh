@@ -24,7 +24,6 @@ ARCH=$(uname -m)
 export BUILDTYPE
 export COMPILER
 
-echo ========= /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS/$PLATFORM
 # Set up the externals against devgeantv in CVMFS
 if [ -a /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS/$PLATFORM ]; then
   source /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS/$PLATFORM/setup.sh
@@ -99,4 +98,4 @@ export CMAKE_BINARY_DIR=$WORKSPACE/build
 export CMAKE_INSTALL_PREFIX=$WORKSPACE/install
 export CMAKE_BUILD_TYPE=$BUILDTYPE
 export BACKEND=$BACKEND
-export CTEST_BUILD_OPTIONS="-DROOT=ON -DCTEST=ON -DBENCHMARK=ON ${ExtraCMakeOptions}"
+export CTEST_BUILD_OPTIONS="-DCMAKE_CXX_STANDARD=14 -DROOT=ON -DCTEST=ON -DBENCHMARK=ON ${ExtraCMakeOptions}"
