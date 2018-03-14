@@ -17,32 +17,34 @@ else
   return
 fi
 
-if [ $LABEL == slc6 ] || [ $LABEL == gvslc6 ] || [ $LABEL == cc7 ] || [ $LABEL == cuda7 ] || [ $LABEL == slc6-physical ] || [  $LABEL == continuous-sl6 ] || [  $LABEL == continuous-cuda7 ] || [ $LABEL == continuous-xeonphi ] || [ $LABEL == c7-checker ] || [  $LABEL == continuos-cc7 ]
+PLATFORM=`$THIS/getPlatform.py`
+COMPATIBLE=`$THIS/getCompatiblePlatform.py $PLATFORM`
+ARCH=$(uname -m)
+
+export BUILDTYPE
+export COMPILER
+
+# Set up the externals against devgeantv in CVMFS
+if [ -a /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS/$PLATFORM ]; then
+  source /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS/$PLATFORM/setup.sh
+elif [ -a /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS/$COMPATIBLE ]; then
+  source /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS/$COMPATIBLE/setup.sh
+elif [[ $PLATFORM == *slc6* ]] || [[ $PLATFORM == *centos7* ]]; then
+  export PATH=/cvmfs/sft.cern.ch/lcg/contrib/CMake/3.7.0/Linux-$ARCH/bin:${PATH}
+else
+  echo "No externals for $PLATFORM in /cvmfs/sft.cern.ch/lcg/views/devgeantv/latest"
+fi
+
+if [ $LABEL == slc6 ] || [ $LABEL == gvslc6 ] || [ $LABEL == cc7 ] || [ $LABEL == cuda7 ] || [ $LABEL == slc6-physical ] || [  $LABEL == continuous-sl6 ] || [  $LABEL == continuous-cuda7 ] || [ $LABEL == continuous-xeonphi ] || [ $LABEL == c7-checker ]
 then
-  export PATH=/afs/cern.ch/sw/lcg/contrib/CMake/3.3.2/Linux-x86_64/bin/:${PATH}
   kinit sftnight@CERN.CH -5 -V -k -t /ec/conf/sftnight.keytab
 elif [ $LABEL == xeonphi ]
 then
-  export PATH=/afs/cern.ch/sw/lcg/contrib/CMake/3.3.2/Linux-x86_64/bin:${PATH}
   kinit sftnight@CERN.CH -5 -V -k -t /data/sftnight/ec/conf/sftnight.keytab
 fi
 
 if [[ $COMPILER == *gcc* ]]; then
-  gcc47version=4.7
-  gcc48version=4.8
-  gcc49version=4.9
-  COMPILERversion=${COMPILER}version
-  ARCH=$(uname -m)
-  if [ $LABEL == cuda7 ] || [ $LABEL == gvslc6 ] || [ $LABEL == slc6-physical ] ||  [ $LABEL == lcgapp-SLC6_64b ] || [  $LABEL == continuous-sl6 ] || [  $LABEL == continuous-cuda7 ]; then
-    . /afs/cern.ch/sw/lcg/contrib/gcc/${!COMPILERversion}/${ARCH}-slc6/setup.sh
-  elif [[  $LABEL == continuos-cc7 ]]; then
-    . /afs/cern.ch/sw/lcg/contrib/gcc/${!COMPILERversion}/${ARCH}-centos7/setup.sh
-  else
-    . /afs/cern.ch/sw/lcg/contrib/gcc/${!COMPILERversion}/${ARCH}-${LABEL}/setup.sh
-  fi
-  export FC=gfortran
-  export CXX=`which g++`
-  export CC=`which gcc`
+  echo "The correct compiler should be setup by the externals ..."
 elif [[ $COMPILER == *native* && $PLATFORM == *mac* ]]; then
   export LD_LIBRARY_PATH=/usr/local/gfortran/lib
   export PATH=/usr/bin:/usr/local/bin:/opt/X11/bin
@@ -92,11 +94,8 @@ elif [[ $COMPILER == *clang* ]]; then
 fi
 
 export CMAKE_SOURCE_DIR=$WORKSPACE/VecGeom
-export CMAKE_BINARY_DIR=$WORKSPACE/VecGeom/builds
+export CMAKE_BINARY_DIR=$WORKSPACE/build
+export CMAKE_INSTALL_PREFIX=$WORKSPACE/install
 export CMAKE_BUILD_TYPE=$BUILDTYPE
-export CMAKE_INSTALL_PREFIX=$WORKSPACE/VecGeom/installation
 export BACKEND=$BACKEND
 export CTEST_BUILD_OPTIONS="-DROOT=ON -DCTEST=ON -DBENCHMARK=ON ${ExtraCMakeOptions}"
-
-echo ${THIS}/setup.py -o ${LABEL} -c ${COMPILER} -b ${BUILDTYPE} -v ${EXTERNALS}
-eval `${THIS}/setup.py -o ${LABEL} -c ${COMPILER} -b ${BUILDTYPE} -v ${EXTERNALS}`

@@ -19,3 +19,5 @@ Debug
 prototype_generation/Main
 .DS_Store
 test/cmstestdata/cms2015.root
+.vscode
+
