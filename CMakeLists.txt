@@ -666,6 +666,7 @@ set(VECGEOM_SRCS
   source/Quadrilaterals.cpp
   source/Rectangles.cpp
   source/TessellatedHelpers.cpp
+  source/Tile.cpp
   source/Scale3D.cpp
   source/Transformation3D.cpp
   source/UnplacedAssembly.cpp
@@ -750,6 +751,8 @@ set(NOT_FOR_CUDA
    UnplacedTessellated
    PlacedTessellated
    TessellatedCluster
+   TessellatedHelpers
+   Tile
    UnplacedExtruded
    PlacedExtruded
 )

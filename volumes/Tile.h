@@ -4,6 +4,9 @@
 #ifndef VECGEOM_VOLUMES_TILE_H_
 #define VECGEOM_VOLUMES_TILE_H_
 
+#include "base/Vector3D.h"
+#include "kernel/GenericKernels.h"
+
 namespace vecgeom {
 
 enum TileType { kTriangle = 3, kQuadrilateral = 4 };
@@ -237,9 +240,10 @@ struct Tile {
   }
 };
 
+#ifndef VECCORE_CUDA
 std::ostream &operator<<(std::ostream &os, TriangleFacet<double> const &facet);
 std::ostream &operator<<(std::ostream &os, QuadrilateralFacet<double> const &facet);
-
+#endif
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // end namespace vecgeom
 
