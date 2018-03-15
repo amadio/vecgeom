@@ -104,6 +104,12 @@ else()
   SET(MODEL Experimental)
 endif()
 
+if("$ENV{TRACK}" STREQUAL "")
+  set(TRACK ${MODEL})
+else()
+  set(TRACK "$ENV{TRACK}")
+endif()
+
 find_program(CTEST_COMMAND_BIN NAMES ctest)
 SET (CTEST_COMMAND
     "$CTEST_COMMAND_BIN -D ${MODEL}")
@@ -170,7 +176,7 @@ message("Dashboard script configuration (check if everything is declared correct
 message("Running CTest Dashboard Script (custom update)...")
 include("${CTEST_SOURCE_DIRECTORY}/CTestConfig.cmake")
 
-ctest_start(${MODEL})
+ctest_start(${MODEL} TRACK ${TRACK})
 ctest_update(SOURCE ${CTEST_SOURCE_DIRECTORY})
 message("Updated.")
 ctest_configure(SOURCE "${CTEST_SOURCE_DIRECTORY}" BUILD "${CTEST_BINARY_DIRECTORY}" APPEND)
