@@ -94,7 +94,7 @@ elif [[ $COMPILER == *clang* ]]; then
 fi
 
 if [[ $LABEL == slc6 || $LABEL == centos7 ]]; then
-    export CCACHE_BASEDIR=/mnt/build/jenkins/workspace/
+    export CCACHE_BASEDIR=$WORKSPACE
     export CCACHE_DIR=/ccache
     export CCACHE_MAXSIZE=10G
 fi
