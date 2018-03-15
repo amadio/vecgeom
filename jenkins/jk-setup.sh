@@ -94,8 +94,9 @@ elif [[ $COMPILER == *clang* ]]; then
 fi
 
 # Setup ccache
-export CCACHE_BASEDIR=$WORKSPACE
-export CCACHE_DIR=/ccache
+dir=$WORKSPACE
+while [ $(basename $dir) != workspace ]; do dir=$(dirname $dir); done
+export CCACHE_DIR=$dir
 export CCACHE_MAXSIZE=10G
 
 export CMAKE_SOURCE_DIR=$WORKSPACE/VecGeom
