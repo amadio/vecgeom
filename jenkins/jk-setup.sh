@@ -93,11 +93,10 @@ elif [[ $COMPILER == *clang* ]]; then
   export FC=`which gfortran`
 fi
 
-if [[ $LABEL == slc6 || $LABEL == centos7 ]]; then
-    export CCACHE_BASEDIR=$WORKSPACE
-    export CCACHE_DIR=/ccache
-    export CCACHE_MAXSIZE=10G
-fi
+# Setup ccache
+export CCACHE_BASEDIR=$WORKSPACE
+export CCACHE_DIR=/ccache
+export CCACHE_MAXSIZE=10G
 
 export CMAKE_SOURCE_DIR=$WORKSPACE/VecGeom
 export CMAKE_BINARY_DIR=$WORKSPACE/build
