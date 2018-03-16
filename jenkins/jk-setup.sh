@@ -17,6 +17,7 @@ else
   return
 fi
 
+if [ "$WORKSPACE" == "" ]; then WORKSPACE=$PWD; fi
 PLATFORM=`$THIS/getPlatform.py`
 COMPATIBLE=`$THIS/getCompatiblePlatform.py $PLATFORM`
 ARCH=$(uname -m)
