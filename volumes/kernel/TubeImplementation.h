@@ -131,6 +131,8 @@ void CircleTrajectoryIntersection(Real_v const &b, Real_v const &c, UnplacedStru
   if (!LargestSolution) delta = -delta;
 
   dist = -b + delta;
+  // ok &= vecCore::math::Abs(dist) <= kTolerance;
+  // vecCore::MaskedAssign(dist,ok,Real_v(0.));
   ok &= dist >= -kHalfTolerance;
   if (vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(ok)) return;
 
@@ -293,6 +295,43 @@ void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, Precisio
   }
 }
 
+template <typename Real_v, typename UnplacedStruct_t, bool ForInnerSurface>
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+typename vecCore::Mask_v<Real_v> IsOnTubeSurface(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point)
+{
+  const Real_v rho = point.Perp2();
+  if (ForInnerSurface) {
+    return (rho >= (tube.fRmin2 - kTolerance * tube.fRmin)) && (rho <= (tube.fRmin2 + kTolerance * tube.fRmin)) &&
+           (Abs(point.z()) < (tube.fZ + kTolerance));
+  } else {
+    return (rho >= (tube.fRmax2 - kTolerance * tube.fRmax)) && (rho <= (tube.fRmax2 + kTolerance * tube.fRmax)) &&
+           (Abs(point.z()) < (tube.fZ + kTolerance));
+  }
+}
+
+template <typename Real_v, typename UnplacedStruct_t, bool ForInnerSurface>
+VECCORE_ATT_HOST_DEVICE
+Vector3D<Real_v> GetNormal(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point)
+{
+  Vector3D<Real_v> norm(0., 0., 0.);
+  if (ForInnerSurface) {
+    norm.Set(-point.x(), -point.y(), 0.);
+  } else {
+    norm.Set(point.x(), point.y(), 0.);
+  }
+  return norm;
+}
+
+template <typename Real_v, typename UnplacedStruct_t, bool ForInnerSurface>
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+typename vecCore::Mask_v<Real_v> IsMovingInsideTubeSurface(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point,
+                                                           Vector3D<Real_v> const &direction)
+{
+  return IsOnTubeSurface<Real_v, UnplacedStruct_t, ForInnerSurface>(tube, point) &&
+         (direction.Dot(GetNormal<Real_v, UnplacedStruct_t, ForInnerSurface>(tube, point)) <= 0.);
+}
 } // End of NS TubeUtilities
 
 template <typename T>
@@ -482,6 +521,7 @@ struct TubeImplementation {
     vecCore::MaskedAssign(distance, !done, Real_v(kInfLength));
 
     distz /= NonZeroAbs(dir.z());
+    // std::cout << "Dist : " << distz << std::endl;
 
     Real_v hitx = point.x() + distz * dir.x();
     Real_v hity = point.y() + distz * dir.y();
@@ -501,6 +541,25 @@ struct TubeImplementation {
     }
     vecCore::MaskedAssign(distance, !done && okz, distz);
     done |= okz;
+
+    Bool_v isOnSurfaceAndMovingInside = IsMovingInsideTubeSurface<Real_v, UnplacedStruct_t, false>(tube, point, dir);
+    if (checkRminTreatment<tubeTypeT>(tube)) {
+      isOnSurfaceAndMovingInside |= IsMovingInsideTubeSurface<Real_v, UnplacedStruct_t, true>(tube, point, dir);
+    }
+
+    if (!checkPhiTreatment<tubeTypeT>(tube)) {
+      vecCore__MaskedAssignFunc(distance, !done && isOnSurfaceAndMovingInside, Real_v(0.));
+      done |= isOnSurfaceAndMovingInside;
+      if (vecCore::MaskFull(done)) return;
+    } else {
+      Bool_v insector(false);
+      PointInCyclicalSector<Real_v, tubeTypeT, UnplacedStruct_t, false>(tube, point.x(), point.y(), insector);
+      vecCore__MaskedAssignFunc(distance, !done && insector && isOnSurfaceAndMovingInside, Real_v(0.));
+      done |= (insector && isOnSurfaceAndMovingInside);
+      if (vecCore::MaskFull(done)) return;
+    }
+
+    // std::cout << "distance : " << distance << std::endl;
     // if(vecCore::EarlyReturnAllowed() && vecCore::MaskFull(done) ) return;
 
     //=== Next step: intersection of the trajectories with the two circles
