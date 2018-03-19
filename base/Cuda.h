@@ -18,6 +18,7 @@
   #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE(classOrStruct,X,ArgType) class __QuietSemi
   #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1v(classOrStruct,X,ArgType1,Def1) class __QuietSemi
   #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1v_1t(classOrStruct,X,ArgType1,Def1,ArgType2,Def2,ArgType3) class __QuietSemi
+  #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1specv_1t(classOrStruct,X,ArgType1,Def1,ArgType2,Def2,ArgType3) class __QuietSemi
   #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2t(classOrStruct,X,ArgType1,ArgType2) class __QuietSemi
   #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(classOrStruct,X,ArgType1,Def1,ArgType2,Def2) class __QuietSemi
   #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v_1t(classOrStruct,X,ArgType1,Def1,ArgType2,Def2,ArgType3) class __QuietSemi
@@ -73,6 +74,12 @@
      template <ArgType1 Arg1,ArgType2 Arg2> struct kCudaType<cxx::X<Arg1,Arg2> >       \
      { using type_t = cuda::X<CudaType_t<Arg1>, CudaType_t<Arg2> >; }
 
+  #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1v_1t(classOrStruct,X,ArgType1,ArgType2) \
+     namespace cuda { template <ArgType1 Arg1,ArgType2 Arg2> classOrStruct X; }         \
+     inline namespace cxx  { template <ArgType1 Arg1,ArgType2 Arg2> classOrStruct X; }  \
+     template <ArgType1 Arg1,ArgType2 Arg2> struct kCudaType<cxx::X<Arg1,Arg2> >        \
+     { using type_t = cuda::X<Arg1, CudaType_t<Arg2> >; }
+
 #ifdef VECGEOM_CUDA_VOLUME_SPECIALIZATION
 
   #define VECGEOM_DEVICE_DECLARE_NS_CONV(NS,classOrStruct,X,Def)               \
@@ -85,10 +92,10 @@
      inline namespace cxx  { template <ArgType1 Arg1> classOrStruct X; }         \
      template <ArgType1 Arg1> struct kCudaType<cxx::X<Arg1> >                    \
      { using type_t = cuda::X<Arg>; }
-  #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1v_1t(classOrStruct,X,ArgType1,ArgType2) \
-     namespace cuda { template <ArgType1 Arg1,ArgType2 Arg2> classOrStruct X; }         \
-     inline namespace cxx  { template <ArgType1 Arg1,ArgType2 Arg2> classOrStruct X; }  \
-     template <ArgType1 Arg1,ArgType2 Arg2> struct kCudaType<cxx::X<Arg1,Arg2> >        \
+  #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1specv_1t(classOrStruct,X,ArgType1,ArgType2) \
+     namespace cuda { template <ArgType1 Arg1,ArgType2 Arg2> classOrStruct X; }             \
+     inline namespace cxx  { template <ArgType1 Arg1,ArgType2 Arg2> classOrStruct X; }      \
+     template <ArgType1 Arg1,ArgType2 Arg2> struct kCudaType<cxx::X<Arg1,Arg2> >            \
      { using type_t = cuda::X<Arg1, CudaType_t<Arg2> >; }
   #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(classOrStruct,X,ArgType1,Def1,ArgType2,Def2) \
      namespace cuda { template <ArgType1 Arg1,ArgType2 Arg2> classOrStruct X; }                \
@@ -129,11 +136,11 @@
      inline namespace cxx  { template <ArgType1 Arg1> classOrStruct X; }         \
      template <ArgType1 Arg1> struct kCudaType<cxx::X<Arg1> >                    \
      { using type_t = cuda::X<Def1>; }
-  #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1v_1t(classOrStruct,X,ArgType1,ArgType2) \
-     namespace cuda { template <ArgType1 Arg1,ArgType2 Arg2> classOrStruct X; }         \
-     inline namespace cxx  { template <ArgType1 Arg1,ArgType2 Arg2> classOrStruct X; }  \
-     template <ArgType1 Arg1,ArgType2 Arg2> struct kCudaType<cxx::X<Arg1,Arg2> >        \
-     { using type_t = cuda::X<Arg1, CudaType_t<Arg2> >; }
+  #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1specv_1t(classOrStruct,X,ArgType1,Def1,ArgType2) \
+     namespace cuda { template <ArgType1 Arg1,ArgType2 Arg2> classOrStruct X; }             \
+     inline namespace cxx  { template <ArgType1 Arg1,ArgType2 Arg2> classOrStruct X; }      \
+     template <ArgType1 Arg1,ArgType2 Arg2> struct kCudaType<cxx::X<Arg1,Arg2> >            \
+     { using type_t = cuda::X<Def1, CudaType_t<Arg2> >; }
   #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(classOrStruct,X,ArgType1,Def1,ArgType2,Def2) \
      namespace cuda { template <ArgType1 Arg1,ArgType2 Arg2> classOrStruct X; }                \
      inline namespace cxx  { template <ArgType1 Arg1,ArgType2 Arg2> classOrStruct X; }         \
