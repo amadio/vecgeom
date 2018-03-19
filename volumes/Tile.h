@@ -14,6 +14,7 @@ enum TileType { kTriangle = 3, kQuadrilateral = 4 };
 VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1v_1t(struct, Tile, size_t, typename);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
+
 template <size_t, typename>
 struct Tile;
 

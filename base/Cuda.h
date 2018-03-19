@@ -83,7 +83,7 @@
   #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1v(classOrStruct,X,ArgType1,Def1) \
      namespace cuda { template <ArgType1 Arg1> classOrStruct X; }                \
      inline namespace cxx  { template <ArgType1 Arg1> classOrStruct X; }         \
-     template <ArgType1 Arg1> struct kCudaType<cxx::X<Arg1> >                   \
+     template <ArgType1 Arg1> struct kCudaType<cxx::X<Arg1> >                    \
      { using type_t = cuda::X<Arg>; }
   #define VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1v_1t(classOrStruct,X,ArgType1,ArgType2) \
      namespace cuda { template <ArgType1 Arg1,ArgType2 Arg2> classOrStruct X; }         \
