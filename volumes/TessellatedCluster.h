@@ -16,7 +16,7 @@
 
 namespace vecgeom {
 
-// VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2t(class, TessellatedCluster, size_t, typename);
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1v_1t(class, TessellatedCluster, size_t, typename);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 

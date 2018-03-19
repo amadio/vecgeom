@@ -11,8 +11,7 @@ namespace vecgeom {
 
 enum TileType { kTriangle = 3, kQuadrilateral = 4 };
 
-// Cuda forward declaration below not working (expecting a generic type insted of size_t)
-// VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2t(struct, Tile, size_t, typename);
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1v_1t(struct, Tile, size_t, typename);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 template <size_t, typename>
