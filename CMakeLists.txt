@@ -58,8 +58,7 @@ option(VALIDATION "Enable validation tests from CMS geometry." OFF)
 
 option(PLANESHELL "Enable the use of PlaneShell class for the trapezoid." ON)
 
-option(QUADRILATERAL_ACCELERATION "Enable SIMD vectorization when
-looping over quadrilaterals (in Polyhedron)." ON)
+option(QUADRILATERAL_ACCELERATION "Enable SIMD vectorization when looping over quadrilaterals (in Polyhedron)." ON)
 
 option(DISTANCE_DEBUG "Enable comparison of calculated distances againt ROOT/Geant4 behind the scenes" OFF)
 
