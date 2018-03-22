@@ -297,6 +297,9 @@ set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${VecCore_LIBRARIES
 
 # Set Default compiler flags for each build type
 
+string(TOLOWER ${VECGEOM_VECTOR} _arch_lo)
+string(TOUPPER ${VECGEOM_VECTOR} _arch_up)
+
 if (GNU)
   set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -Wall -fPIC")
   if (CMAKE_BUILD_TYPE MATCHES Debug)
@@ -304,6 +307,9 @@ if (GNU)
 
   else()
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -finline-limit=10000000 -ftree-vectorize")
+    if (NOT _arch_lo MATCHES "^sse")
+      set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -ffast-math")
+    endif()
   endif()
   set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -fabi-version=0")
   set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -fabi-version=0")
@@ -334,6 +340,9 @@ elseif(Clang OR AppleClang)
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS}  -ggdb -O0")
   else()
     set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -ftree-vectorize")
+    if (NOT _arch_lo MATCHES "^sse")
+      set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -ffast-math")
+    endif()
   endif()
 else()
    message(WARNING "No compiler type matched, the compiler flags for VecGeom have *not* been set.")
@@ -345,9 +354,6 @@ endif()
 if (CMAKE_BUILD_TYPE MATCHES MinSizeRel)
   set(VECGEOM_NVCC_COMPILATION_FLAGS -use_fast_math ${VECGEOM_NVCC_COMPILATION_FLAGS})
 endif()
-
-string(TOLOWER ${VECGEOM_VECTOR} _arch_lo)
-string(TOUPPER ${VECGEOM_VECTOR} _arch_up)
 
 if (${_arch_lo} MATCHES mic_avx512)
   if (Intel)
