@@ -34,7 +34,7 @@ include(MacroUtilities)
 
 # Configuration options
 
-option(BUILTIN_VECCORE "Build VecCore and its dependencies from source" ON)
+option(BUILTIN_VECCORE "Build VecCore and its dependencies from source" OFF)
 
 option(CUDA "Enable compilation for CUDA." OFF)
 
@@ -163,21 +163,17 @@ endif()
 set(VecCore_VERSION "0.4.2")
 
 
-# Let's see if we can find it.
-# Well old version of the embedded VecCore did not have proper versioning,
-# so we can't do this yet as those old version will be 'acceptable'.
-#if (!BUILTIN_VECCORE)
-#  # Find VecCore with selected components turned on (CUDA and backend)
-#  find_package(VecCore ${VecCore_VERSION} QUIET REQUIRED COMPONENTS ${VecCore_COMPONENTS})
-#  if (!VecCore_FOUND)
-#    set(BUILTIN_VECCORE "ON")
-#  else()
-#    message("-- Found VecCore at: ${VecCore_ROOT_DIR}")
-#  endif()
-#endif()
-
+# Let's see if we can find VecCore
+if (NOT BUILTIN_VECCORE)
+  # Find VecCore with selected components turned on (CUDA and backend)
+  find_package(VecCore ${VecCore_VERSION} QUIET COMPONENTS ${VecCore_COMPONENTS})
+  if (NOT VecCore_FOUND)
+    set(BUILTIN_VECCORE ON)
+  else()
+    message("-- Found VecCore at: ${VecCore_ROOT_DIR}")
+  endif()
+endif()
 if (BUILTIN_VECCORE)
-
     #  This function is used to force a build on a dependant project at cmake configuration phase.
     #
     function (build_external_project target globpattern ) #FOLLOWING ARGUMENTS are the ARGS of ExternalProject_Add
