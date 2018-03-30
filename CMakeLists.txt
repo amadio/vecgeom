@@ -696,6 +696,7 @@ set(VECGEOM_SRCS
   source/UnplacedBooleanVolume.cpp
   source/PlacedBooleanVolume.cpp
   source/Wedge.cpp
+  source/Wedge_Evolution.cpp
   source/ABBoxManager.cpp
   source/HybridManager2.cpp
   source/ABBoxNavigator.cpp
