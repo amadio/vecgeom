@@ -10,6 +10,10 @@
 #include "base/Global.h"
 #include "volumes/SecondOrderSurfaceShell.h"
 
+#ifndef VECCORE_CUDA
+#include "volumes/TessellatedSection.h"
+#endif
+
 namespace vecgeom {
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -48,6 +52,10 @@ struct GenTrapStruct {
   bool fDegenerated[4]; /** Flags for each top-bottom edge marking that this is degenerated */
 
   SecondOrderSurfaceShell<4> fSurfaceShell; /** Utility class for twisted surface algorithms */
+
+#ifndef VECCORE_CUDA
+  TessellatedSection<T> *fTslHelper = nullptr; /** SIMD helper using tessellated clusters */
+#endif
 
   VECCORE_ATT_HOST_DEVICE
   GenTrapStruct()
@@ -164,6 +172,17 @@ struct GenTrapStruct {
     }
 
     fIsTwisted = ComputeIsTwisted();
+
+#ifndef VECCORE_CUDA
+    // Create the tessellated helper if  the faces are planar
+    if (IsPlanar()) {
+      fTslHelper = new TessellatedSection<T>(4, -fDz, fDz);
+      fTslHelper->AddQuadrilateralFacet(fVertices[0], fVertices[4], fVertices[5], fVertices[1]);
+      fTslHelper->AddQuadrilateralFacet(fVertices[1], fVertices[5], fVertices[6], fVertices[2]);
+      fTslHelper->AddQuadrilateralFacet(fVertices[2], fVertices[6], fVertices[7], fVertices[3]);
+      fTslHelper->AddQuadrilateralFacet(fVertices[3], fVertices[7], fVertices[4], fVertices[0]);
+    }
+#endif
     ComputeBoundingBox();
     return true;
   }
@@ -296,7 +315,7 @@ struct GenTrapStruct {
     return true;
   }
 };
-}
-} // end
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif

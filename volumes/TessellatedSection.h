@@ -56,8 +56,8 @@ protected:
     }
     fFacets.push_back(facet);
     // Adjust extent
-    using vecCore::math::Min;
     using vecCore::math::Max;
+    using vecCore::math::Min;
     T xmin = Min(Min(facet->fVertices[0].x(), facet->fVertices[1].x()),
                  Min(facet->fVertices[2].x(), facet->fVertices[3].x()));
     T ymin = Min(Min(facet->fVertices[0].y(), facet->fVertices[1].y()),
@@ -160,6 +160,7 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
   Inside_t Inside(Vector3D<Real_v> const &point) const
   {
     // All lanes of point contain the same scalar point
@@ -199,6 +200,7 @@ public:
 
   /* @brief Check if point is inside the section. Note that the Z range is not checked */
   VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
   bool Contains(Vector3D<Real_v> const &point) const
   {
     using Bool_v = vecCore::Mask<Real_v>;
@@ -219,6 +221,7 @@ public:
   }
 
   template <bool skipZ = true>
+  VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   T DistanceToIn(Vector3D<T> const &point, Vector3D<T> const &direction, T invdirz, T stepmax) const
   {
@@ -262,6 +265,7 @@ public:
   }
 
   template <bool skipZ = true>
+  VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   T DistanceToOut(Vector3D<T> const &point, Vector3D<T> const &direction) const
   {
@@ -282,6 +286,7 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
   T DistanceToOutRange(Vector3D<T> const &point, Vector3D<T> const &direction, T invdirz) const
   {
     // Compute distance to segment from point inside, returning also the crossed
@@ -317,6 +322,7 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
   T DistanceToOut(Vector3D<Real_v> const &point, Vector3D<Real_v> const &direction, int &isurf) const
   {
     // Compute distance to segment from point inside, returning also the crossed
@@ -338,6 +344,7 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
   T SafetyToIn(Vector3D<T> const &point) const
   {
     // Compute approximate safety for the convex case
@@ -352,6 +359,7 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
   T SafetyToInSq(Vector3D<Real_v> const &point, int &isurf) const
   {
     // Compute safety squared to segment from point outside, returning also the crossed
@@ -371,6 +379,7 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
   T SafetyToOut(Vector3D<T> const &point) const
   {
     // Compute approximate safety for the convex case
@@ -385,6 +394,7 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
   T SafetyToOutSq(Vector3D<Real_v> const &point, int &isurf) const
   {
     // Compute safety squared to segment from point inside, returning also the crossed
@@ -404,6 +414,7 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
   void Normal(Vector3D<T> const & /*point*/, Vector3D<T> & /*normal*/, bool & /*valid*/) const
   {
     // Compute normal to segment surface in given point near surface.

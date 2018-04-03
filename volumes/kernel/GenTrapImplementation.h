@@ -67,10 +67,20 @@ struct GenTrapImplementation {
   VECCORE_ATT_HOST_DEVICE
   static void Contains(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Bool_v &inside);
 
+  template <typename Real_v, typename Bool_v>
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  static void ContainsGeneric(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Bool_v &inside);
+
   template <typename Real_v, typename Inside_t>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
   static void Inside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Inside_t &inside);
+
+  template <typename Real_v, typename Inside_t>
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  static void InsideGeneric(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Inside_t &inside);
 
   template <typename Real_v, bool ForInside>
   VECGEOM_FORCE_INLINE
@@ -88,8 +98,20 @@ struct GenTrapImplementation {
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
+  static void DistanceToInGeneric(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
+                                  Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance);
+
+  template <typename Real_v>
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
   static void DistanceToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
                             Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance);
+
+  template <typename Real_v>
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  static void DistanceToOutGeneric(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
+                                   Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance);
 
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
@@ -99,7 +121,17 @@ struct GenTrapImplementation {
   template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
+  static void SafetyToInGeneric(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety);
+
+  template <typename Real_v>
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
   static void SafetyToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety);
+
+  template <typename Real_v>
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  static void SafetyToOutGeneric(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety);
 
   template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
@@ -123,102 +155,6 @@ struct GenTrapImplementation {
 //**** implementations start here
 //********************************/
 
-//______________________________________________________________________________
-template <typename Real_v, typename Bool_v>
-VECCORE_ATT_HOST_DEVICE
-void GenTrapImplementation::Contains(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Bool_v &inside)
-{
-  Bool_v unused;
-  Bool_v outside;
-  GenericKernelForContainsAndInside<Real_v, false>(unplaced, point, unused, outside);
-  inside = !outside;
-}
-
-//______________________________________________________________________________
-template <typename Real_v, bool ForInside>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void GenTrapImplementation::GenericKernelForContainsAndInside(UnplacedStruct_t const &unplaced,
-                                                              Vector3D<Real_v> const &point,
-                                                              vecCore::Mask_v<Real_v> &completelyinside,
-                                                              vecCore::Mask_v<Real_v> &completelyoutside)
-{
-
-  using Bool_v                    = vecCore::Mask_v<Real_v>;
-  constexpr Precision tolerancesq = 10000. * kTolerance * kTolerance;
-  // Local point has to be translated in the bbox local frame.
-  Vector3D<Real_v> halfsize(unplaced.fBBdimensions[0], unplaced.fBBdimensions[1], unplaced.fBBdimensions[2]);
-  BoxImplementation::GenericKernelForContainsAndInside<Real_v, ForInside>(halfsize, point - unplaced.fBBorigin,
-                                                                          completelyinside, completelyoutside);
-  //  if (vecCore::EarlyReturnAllowed()) {
-  if (vecCore::MaskFull(completelyoutside)) {
-    return;
-  }
-  //  }
-
-  // analyse z
-  Real_v cf = unplaced.fHalfInverseDz * (unplaced.fDz - point.z());
-  // analyse if x-y coordinates of point are within polygon at z-height
-
-  //  loop over edges connecting points i with i+4
-  Real_v vertexX[4];
-  Real_v vertexY[4];
-  // vectorizes for scalar backend
-  for (int i = 0; i < 4; i++) {
-    // calculate x-y positions of vertex i at this z-height
-    vertexX[i] = unplaced.fVerticesX[i + 4] + cf * unplaced.fConnectingComponentsX[i];
-    vertexY[i] = unplaced.fVerticesY[i + 4] + cf * unplaced.fConnectingComponentsY[i];
-  }
-
-  for (int i = 0; i < 4; i++) {
-    // this is based on the following idea:
-    // we decided for each edge whether the point is above or below the
-    // 2d line defined by that edge
-    // In fact, this calculation is part of the calculation of the distance
-    // of point to that line which is a cross product. In this case it is
-    // an embedded cross product of 2D vectors in 3D. The resulting vector always points
-    // in z-direction whose z-magnitude is directly related to the distance.
-    // see, e.g.,  http://geomalgorithms.com/a02-_lines.html
-    if (unplaced.fDegenerated[i]) continue;
-    int j         = (i + 1) % 4;
-    Real_v DeltaX = vertexX[j] - vertexX[i];
-    Real_v DeltaY = vertexY[j] - vertexY[i];
-    Real_v cross  = (point.x() - vertexX[i]) * DeltaY - (point.y() - vertexY[i]) * DeltaX;
-    if (ForInside) {
-      Bool_v onsurf     = (cross * cross < tolerancesq * (DeltaX * DeltaX + DeltaY * DeltaY));
-      completelyoutside = completelyoutside || (((cross < MakeMinusTolerant<ForInside>(0.)) && (!onsurf)));
-      completelyinside  = completelyinside && (cross > MakePlusTolerant<ForInside>(0.)) && (!onsurf);
-    } else {
-      completelyoutside = completelyoutside || (cross < MakeMinusTolerant<ForInside>(0.));
-    }
-
-    //    if (vecCore::EarlyReturnAllowed()) {
-    if (vecCore::MaskFull(completelyoutside)) {
-      return;
-    }
-    //    }
-  }
-}
-
-//______________________________________________________________________________
-template <typename Real_v, typename Inside_t>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void GenTrapImplementation::Inside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Inside_t &inside)
-{
-
-  using Bool_v       = vecCore::Mask_v<Real_v>;
-  using InsideBool_v = vecCore::Mask_v<Inside_t>;
-  Bool_v completelyinside;
-  Bool_v completelyoutside;
-  GenericKernelForContainsAndInside<Real_v, true>(unplaced, point, completelyinside, completelyoutside);
-
-  inside = Inside_t(EInside::kSurface);
-  vecCore::MaskedAssign(inside, (InsideBool_v)completelyoutside, Inside_t(EInside::kOutside));
-  vecCore::MaskedAssign(inside, (InsideBool_v)completelyinside, Inside_t(EInside::kInside));
-}
-
-//______________________________________________________________________________
 template <typename Real_v>
 struct FillPlaneDataHelper {
   VECCORE_ATT_HOST_DEVICE
@@ -303,20 +239,178 @@ vecCore::Mask_v<Real_v> GenTrapImplementation::IsInTopOrBottomPolygon(UnplacedSt
 }
 
 //______________________________________________________________________________
+template <typename Real_v, bool ForInside>
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+void GenTrapImplementation::GenericKernelForContainsAndInside(UnplacedStruct_t const &unplaced,
+                                                              Vector3D<Real_v> const &point,
+                                                              vecCore::Mask_v<Real_v> &completelyinside,
+                                                              vecCore::Mask_v<Real_v> &completelyoutside)
+{
+
+  using Bool_v                    = vecCore::Mask_v<Real_v>;
+  constexpr Precision tolerancesq = 10000. * kTolerance * kTolerance;
+  // Local point has to be translated in the bbox local frame.
+  Vector3D<Real_v> halfsize(unplaced.fBBdimensions[0], unplaced.fBBdimensions[1], unplaced.fBBdimensions[2]);
+  BoxImplementation::GenericKernelForContainsAndInside<Real_v, ForInside>(halfsize, point - unplaced.fBBorigin,
+                                                                          completelyinside, completelyoutside);
+  //  if (vecCore::EarlyReturnAllowed()) {
+  if (vecCore::MaskFull(completelyoutside)) {
+    return;
+  }
+  //  }
+
+  // analyse z
+  Real_v cf = unplaced.fHalfInverseDz * (unplaced.fDz - point.z());
+  // analyse if x-y coordinates of point are within polygon at z-height
+
+  //  loop over edges connecting points i with i+4
+  Real_v vertexX[4];
+  Real_v vertexY[4];
+  // vectorizes for scalar backend
+  for (int i = 0; i < 4; i++) {
+    // calculate x-y positions of vertex i at this z-height
+    vertexX[i] = unplaced.fVerticesX[i + 4] + cf * unplaced.fConnectingComponentsX[i];
+    vertexY[i] = unplaced.fVerticesY[i + 4] + cf * unplaced.fConnectingComponentsY[i];
+  }
+
+  for (int i = 0; i < 4; i++) {
+    // this is based on the following idea:
+    // we decided for each edge whether the point is above or below the
+    // 2d line defined by that edge
+    // In fact, this calculation is part of the calculation of the distance
+    // of point to that line which is a cross product. In this case it is
+    // an embedded cross product of 2D vectors in 3D. The resulting vector always points
+    // in z-direction whose z-magnitude is directly related to the distance.
+    // see, e.g.,  http://geomalgorithms.com/a02-_lines.html
+    if (unplaced.fDegenerated[i]) continue;
+    int j         = (i + 1) % 4;
+    Real_v DeltaX = vertexX[j] - vertexX[i];
+    Real_v DeltaY = vertexY[j] - vertexY[i];
+    Real_v cross  = (point.x() - vertexX[i]) * DeltaY - (point.y() - vertexY[i]) * DeltaX;
+    if (ForInside) {
+      Bool_v onsurf     = (cross * cross < tolerancesq * (DeltaX * DeltaX + DeltaY * DeltaY));
+      completelyoutside = completelyoutside || (((cross < MakeMinusTolerant<ForInside>(0.)) && (!onsurf)));
+      completelyinside  = completelyinside && (cross > MakePlusTolerant<ForInside>(0.)) && (!onsurf);
+    } else {
+      completelyoutside = completelyoutside || (cross < MakeMinusTolerant<ForInside>(0.));
+    }
+
+    //    if (vecCore::EarlyReturnAllowed()) {
+    if (vecCore::MaskFull(completelyoutside)) {
+      return;
+    }
+    //    }
+  }
+}
+
+//______________________________________________________________________________
+template <typename Real_v, typename Bool_v>
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+void GenTrapImplementation::ContainsGeneric(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
+                                            Bool_v &inside)
+{
+  // Generic implementation for contains
+  Bool_v unused;
+  Bool_v outside;
+  GenericKernelForContainsAndInside<Real_v, false>(unplaced, point, unused, outside);
+  inside = !outside;
+}
+
+//______________________________________________________________________________
+template <typename Real_v, typename Bool_v>
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+void GenTrapImplementation::Contains(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Bool_v &inside)
+{
+  GenTrapImplementation::ContainsGeneric<Real_v, Bool_v>(unplaced, point, inside);
+}
+
+//______________________________________________________________________________
+template <>
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+void GenTrapImplementation::Contains<double, bool>(UnplacedStruct_t const &unplaced, Vector3D<double> const &point,
+                                                   bool &inside)
+{
+// Scalar specialization for Contains function
+#ifndef VECCORE_CUDA
+  // The tessellated section helper is built only for the planar cases
+  if (unplaced.fTslHelper) {
+    // Check Z range
+    inside = false;
+    if (vecCore::math::Abs(point.z()) > unplaced.fDz) return;
+    inside = unplaced.fTslHelper->Contains(point);
+    return;
+  }
+#endif
+  GenTrapImplementation::ContainsGeneric<double, bool>(unplaced, point, inside);
+}
+
+//______________________________________________________________________________
+template <typename Real_v, typename Inside_t>
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+void GenTrapImplementation::InsideGeneric(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
+                                          Inside_t &inside)
+{
+
+  using Bool_v       = vecCore::Mask_v<Real_v>;
+  using InsideBool_v = vecCore::Mask_v<Inside_t>;
+  Bool_v completelyinside;
+  Bool_v completelyoutside;
+  GenericKernelForContainsAndInside<Real_v, true>(unplaced, point, completelyinside, completelyoutside);
+
+  inside = Inside_t(EInside::kSurface);
+  vecCore::MaskedAssign(inside, (InsideBool_v)completelyoutside, Inside_t(EInside::kOutside));
+  vecCore::MaskedAssign(inside, (InsideBool_v)completelyinside, Inside_t(EInside::kInside));
+}
+
+//______________________________________________________________________________
+template <typename Real_v, typename Inside_t>
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+void GenTrapImplementation::Inside(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Inside_t &inside)
+{
+  // Generic dispatcher to Inside
+  GenTrapImplementation::InsideGeneric<Real_v, Inside_t>(unplaced, point, inside);
+}
+
+//______________________________________________________________________________
+template <>
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+void GenTrapImplementation::Inside<double, Inside_t>(UnplacedStruct_t const &unplaced, Vector3D<double> const &point,
+                                                     Inside_t &inside)
+{
+// Scalar specialization for Inside function
+#ifndef VECCORE_CUDA
+  if (unplaced.fTslHelper) {
+    inside      = EInside::kOutside;
+    double safZ = vecCore::math::Abs(point.z()) - unplaced.fDz;
+    if (safZ > kTolerance) return;
+    bool insideZ = safZ < -kTolerance;
+    inside       = unplaced.fTslHelper->Inside(point);
+    if (insideZ || inside == EInside::kOutside) return;
+    inside = EInside::kSurface;
+    return;
+  }
+#endif
+  GenTrapImplementation::InsideGeneric<double, Inside_t>(unplaced, point, inside);
+}
+
+//______________________________________________________________________________
 template <typename Real_v>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-void GenTrapImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                                         Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
+void GenTrapImplementation::DistanceToInGeneric(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
+                                                Vector3D<Real_v> const &direction, Real_v const &stepMax,
+                                                Real_v &distance)
 {
 
   using Bool_v = vecCore::Mask_v<Real_v>;
 
-//#define GENTRAPDEB = 1
-#ifdef GENTRAPDEB
-  std::cerr << "point: " << point << std::endl;
-  std::cerr << "direction: " << direction << std::endl;
-#endif
   // do a quick boundary box check (Arb8, USolids) is doing this
   // unplaced.GetBBox();
   // actually this could also give us some indication which face is likely to be hit
@@ -325,40 +419,24 @@ void GenTrapImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vecto
   BoxImplementation::DistanceToIn(BoxStruct<Precision>(unplaced.fBBdimensions), point - unplaced.fBBorigin, direction,
                                   stepMax, bbdistance);
 
-#ifdef GENTRAPDEB
-  std::cerr << "BB gave " << bbdistance << "\n";
-#endif
   distance = InfinityLength<Real_v>();
 
   // do a check on bbdistance
   // if none of the tracks can hit even the bounding box; just return
   Bool_v done = bbdistance >= InfinityLength<Real_v>();
   if (vecCore::MaskFull(done)) return;
-#ifdef GENTRAPDEB
-  Real_v x, y, z;
-  x = point.x() + bbdistance * direction.x();
-  y = point.y() + bbdistance * direction.y();
-  z = point.z() + bbdistance * direction.z();
-  std::cerr << "prolongated to box:  x " << x << " y " << y << " z " << z << "\n";
-#endif
 
   // some particle could hit z
   Real_v zsafety = Abs(point.z()) - unplaced.fDz;
   Bool_v canhitz = zsafety > MakeMinusTolerant<true>(0.);
   canhitz        = canhitz && (point.z() * direction.z() < 0); // coming towards the origin
   canhitz        = canhitz && (!done);
-#ifdef GENTRAPDEB
-  std::cerr << " canhitz " << canhitz << " \n";
-#endif
 
   if (!vecCore::MaskEmpty(canhitz)) {
     //   std::cerr << "can potentially hit\n";
     // calculate distance to z-plane ( see Box algorithm )
     // check if hit point is inside top or bottom polygon
     Real_v next = zsafety / NonZeroAbs(direction.z());
-#ifdef GENTRAPDEB
-    std::cerr << " zdist " << next << "\n";
-#endif
     // transport to z-height of planes
     Real_v coord1 = point.x() + next * direction.x();
     Real_v coord2 = point.y() + next * direction.y();
@@ -367,31 +445,49 @@ void GenTrapImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vecto
     hits          = hits && canhitz;
     vecCore::MaskedAssign(distance, hits, bbdistance);
     done = done || hits;
-#ifdef GENTRAPDEB
-    std::cerr << " hit result " << hits << " bbdistance " << distance << "\n";
-#endif
     if (vecCore::MaskFull(done)) return;
   }
 
   // now treat lateral surfaces
   Real_v disttoplanes = unplaced.fSurfaceShell.DistanceToIn<Real_v>(point, direction, done);
-#ifdef GENTRAPDEB
-  std::cerr << "disttoplanes " << disttoplanes << "\n";
-#endif
-
   vecCore__MaskedAssignFunc(distance, !done, Min(disttoplanes, distance));
-#ifdef GENTRAPDEB
-  std::cerr << distance << "\n";
-#endif
 }
 
 //______________________________________________________________________________
 template <typename Real_v>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-void GenTrapImplementation::DistanceToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
-                                          Vector3D<Real_v> const &direction, Real_v const & /* stepMax */,
-                                          Real_v &distance)
+void GenTrapImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
+                                         Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
+{
+  GenTrapImplementation::DistanceToInGeneric<Real_v>(unplaced, point, direction, stepMax, distance);
+}
+
+//______________________________________________________________________________
+template <>
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+void GenTrapImplementation::DistanceToIn(UnplacedStruct_t const &unplaced, Vector3D<double> const &point,
+                                         Vector3D<double> const &direction, double const &stepMax, double &distance)
+{
+// Scalar specialization of DistanceToIn
+#ifndef VECCORE_CUDA
+  if (unplaced.fTslHelper) {
+    double invdirz = 1. / NonZero(direction.z());
+    distance       = unplaced.fTslHelper->DistanceToIn<false>(point, direction, invdirz, stepMax);
+    return;
+  }
+#endif
+  GenTrapImplementation::DistanceToInGeneric<double>(unplaced, point, direction, stepMax, distance);
+}
+
+//______________________________________________________________________________
+template <typename Real_v>
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+void GenTrapImplementation::DistanceToOutGeneric(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
+                                                 Vector3D<Real_v> const &direction, Real_v const & /* stepMax */,
+                                                 Real_v &distance)
 {
 
   using Bool_v = vecCore::Mask_v<Real_v>;
@@ -411,13 +507,40 @@ void GenTrapImplementation::DistanceToOut(UnplacedStruct_t const &unplaced, Vect
   distance         = Min(distmin, distplane);
 }
 
+template <typename Real_v>
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+void GenTrapImplementation::DistanceToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
+                                          Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
+{
+  GenTrapImplementation::DistanceToOutGeneric<Real_v>(unplaced, point, direction, stepMax, distance);
+}
+
+//______________________________________________________________________________
+template <>
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+void GenTrapImplementation::DistanceToOut(UnplacedStruct_t const &unplaced, Vector3D<double> const &point,
+                                          Vector3D<double> const &direction, double const &stepMax, double &distance)
+
+{
+#ifndef VECCORE_CUDA
+  if (unplaced.fTslHelper) {
+    distance = unplaced.fTslHelper->DistanceToOut(point, direction);
+    return;
+  }
+#endif
+  GenTrapImplementation::DistanceToOutGeneric<double>(unplaced, point, direction, stepMax, distance);
+}
+
 //______________________________________________________________________________
 template <typename Real_v>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-void GenTrapImplementation::SafetyToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety)
+void GenTrapImplementation::SafetyToInGeneric(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
+                                              Real_v &safety)
 {
-
+  // Generic implementation for SafetyToIn
   using Bool_v = vecCore::Mask_v<Real_v>;
 
   Bool_v inside;
@@ -437,13 +560,65 @@ void GenTrapImplementation::SafetyToIn(UnplacedStruct_t const &unplaced, Vector3
 
 //______________________________________________________________________________
 template <typename Real_v>
+VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-void GenTrapImplementation::SafetyToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety)
+void GenTrapImplementation::SafetyToIn(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety)
 {
+  // Dispatcher for SafetyToIn
+  GenTrapImplementation::SafetyToInGeneric<Real_v>(unplaced, point, safety);
+}
 
+//______________________________________________________________________________
+template <>
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+void GenTrapImplementation::SafetyToIn(UnplacedStruct_t const &unplaced, Vector3D<double> const &point, double &safety)
+{
+// Scalar specialization for SafetyToIn
+#ifndef VECCORE_CUDA
+  if (unplaced.fTslHelper) {
+    safety = unplaced.fTslHelper->SafetyToIn(point);
+    return;
+  }
+#endif
+  GenTrapImplementation::SafetyToInGeneric<double>(unplaced, point, safety);
+}
+
+//______________________________________________________________________________
+template <typename Real_v>
+VECCORE_ATT_HOST_DEVICE
+void GenTrapImplementation::SafetyToOutGeneric(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point,
+                                               Real_v &safety)
+{
+  // Generic implementation for SafetyToOut
   // Do Z
   safety = unplaced.fDz - Abs(point[2]);
   safety = unplaced.fSurfaceShell.SafetyToOut<Real_v>(point, safety);
+}
+
+//______________________________________________________________________________
+template <typename Real_v>
+VECCORE_ATT_HOST_DEVICE
+void GenTrapImplementation::SafetyToOut(UnplacedStruct_t const &unplaced, Vector3D<Real_v> const &point, Real_v &safety)
+{
+  // Dispatcher for SafetyToOut
+  GenTrapImplementation::SafetyToOutGeneric<Real_v>(unplaced, point, safety);
+}
+
+//______________________________________________________________________________
+template <>
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+void GenTrapImplementation::SafetyToOut(UnplacedStruct_t const &unplaced, Vector3D<double> const &point, double &safety)
+{
+// Scalar specialization for SafetyToOut
+#ifndef VECCORE_CUDA
+  if (unplaced.fTslHelper) {
+    safety = unplaced.fTslHelper->SafetyToOut(point);
+    return;
+  }
+#endif
+  GenTrapImplementation::SafetyToOutGeneric<double>(unplaced, point, safety);
 }
 
 //______________________________________________________________________________
@@ -569,7 +744,7 @@ void GenTrapImplementation::GetClosestEdge(Vector3D<Real_v> const &point, Real_v
 //*****************************
 //**** Implementations end here
 //*****************************
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* GENTRAPIMPLEMENTATION_H_ */
