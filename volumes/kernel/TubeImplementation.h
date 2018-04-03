@@ -310,9 +310,9 @@ typename vecCore::Mask_v<Real_v> IsOnTubeSurface(UnplacedStruct_t const &tube, V
   }
 }
 
-template <typename Real_v, typename UnplacedStruct_t, bool ForInnerSurface>
+template <typename Real_v, bool ForInnerSurface>
 VECCORE_ATT_HOST_DEVICE
-Vector3D<Real_v> GetNormal(UnplacedStruct_t const &tube, Vector3D<Real_v> const &point)
+Vector3D<Real_v> GetNormal(Vector3D<Real_v> const &point)
 {
   Vector3D<Real_v> norm(0., 0., 0.);
   if (ForInnerSurface) {
@@ -330,8 +330,9 @@ typename vecCore::Mask_v<Real_v> IsMovingInsideTubeSurface(UnplacedStruct_t cons
                                                            Vector3D<Real_v> const &direction)
 {
   return IsOnTubeSurface<Real_v, UnplacedStruct_t, ForInnerSurface>(tube, point) &&
-         (direction.Dot(GetNormal<Real_v, UnplacedStruct_t, ForInnerSurface>(tube, point)) <= 0.);
+         (direction.Dot(GetNormal<Real_v, ForInnerSurface>(point)) <= 0.);
 }
+
 } // End of NS TubeUtilities
 
 template <typename T>
