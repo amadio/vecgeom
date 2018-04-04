@@ -469,7 +469,7 @@ public:
   typedef const value_type *const_pointer;
   typedef value_type &reference;
   typedef const value_type &const_reference;
-  typedef _Rb_tree_node<_Value> *_Link_type;
+  typedef __attribute__((__may_alias__)) _Rb_tree_node<_Value> *_Link_type;
   typedef size_t size_type;
   typedef ptrdiff_t difference_type;
 

@@ -43,8 +43,8 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 class Wedge {
 
 private:
-  Precision fSPhi;                   // starting angle
-  Precision fDPhi;                   // delta angle representing/defining the wedge
+  Precision fSPhi = 0.;              // starting angle
+  Precision fDPhi = 0.;              // delta angle representing/defining the wedge
   Vector3D<Precision> fAlongVector1; // vector along the first plane
   Vector3D<Precision> fAlongVector2; // vector aling the second plane
 

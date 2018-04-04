@@ -27,30 +27,30 @@ Vector3D<Precision> UnplacedGenTrap::SamplePointOnSurface() const
   bool degenerate[6] = {false};
   int nvertices      = 4; // by default 4 vertices on top/bottom faces
   // bottom
-  for (int j = 0; j < 4; ++j) {
+  for (unsigned int j = 0; j < 4; ++j) {
     if ((Abs(fGenTrap.fDeltaX[j]) < kTolerance) && (Abs(fGenTrap.fDeltaY[j]) < kTolerance)) nvertices--;
   }
   if (nvertices < 3) degenerate[4] = true;
   nvertices                        = 4;
   // top
-  for (int j = 0; j < 4; ++j) {
+  for (unsigned int j = 0; j < 4; ++j) {
     if ((Abs(fGenTrap.fDeltaX[j + 4]) < kTolerance) && (Abs(fGenTrap.fDeltaY[j + 4]) < kTolerance)) nvertices--;
   }
   if (nvertices < 3) degenerate[5] = true;
-  for (int j = 0; j < 4; ++j) {
+  for (unsigned int j = 0; j < 4; ++j) {
     if ((Abs(fGenTrap.fDeltaX[j]) < kTolerance) && (Abs(fGenTrap.fDeltaY[j]) < kTolerance) &&
         (Abs(fGenTrap.fDeltaX[j + 4]) < kTolerance) && (Abs(fGenTrap.fDeltaY[j + 4]) < kTolerance))
       degenerate[j] = true;
   }
   // Shoot on non-degenerate surface
-  int i = 0;
+  unsigned int i = 0;
   while (1) {
     i = int(RNG::Instance().uniform(0., 6.));
     if (!degenerate[i]) break;
   }
   // Generate point on lateral surface
   if (i < 4) {
-    int j = (i + 1) % 4;
+    unsigned int j = (i + 1) % 4;
     Vertex_t vi(fGenTrap.fVertices[i + 4] - fGenTrap.fVertices[i]);
     Vertex_t vj(fGenTrap.fVertices[j + 4] - fGenTrap.fVertices[j]);
     Vertex_t h0(fGenTrap.fVertices[j] - fGenTrap.fVertices[i]);
@@ -94,7 +94,7 @@ Vector3D<Precision> UnplacedGenTrap::SamplePointOnSurface() const
   Precision xmax = xmin;
   Precision ymin = fGenTrap.fVertices[i].y();
   Precision ymax = ymin;
-  for (int j = i + 1; j < i + 4; ++j) {
+  for (unsigned int j = i + 1; j < i + 4; ++j) {
     if (fGenTrap.fVertices[j].x() < xmin) xmin = fGenTrap.fVertices[j].x();
     if (fGenTrap.fVertices[j].x() > xmax) xmax = fGenTrap.fVertices[j].x();
     if (fGenTrap.fVertices[j].y() < ymin) ymin = fGenTrap.fVertices[j].y();
@@ -108,8 +108,8 @@ Vector3D<Precision> UnplacedGenTrap::SamplePointOnSurface() const
     y = RNG::Instance().uniform(ymin, ymax);
     // Now make sure the point (x,y) is on the selected surface. Use same
     // algorithm as for Contains
-    for (int j = i; j < i + 4; ++j) {
-      int k        = i + (j + 1) % 4;
+    for (unsigned int j = i; j < i + 4; ++j) {
+      unsigned int k        = i + (j + 1) % 4;
       Precision dx = fGenTrap.fVertices[k].x() - fGenTrap.fVertices[j].x();
       Precision dy = fGenTrap.fVertices[k].y() - fGenTrap.fVertices[j].y();
       cross        = (x - fGenTrap.fVertices[j].x()) * dy - (y - fGenTrap.fVertices[j].y()) * dx;

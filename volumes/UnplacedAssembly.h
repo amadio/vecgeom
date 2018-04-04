@@ -89,7 +89,7 @@ public:
   }
 
   VECCORE_ATT_HOST_DEVICE
-  EnumInside Inside(Vector3D<Precision> const &point) const override
+  EnumInside Inside(Vector3D<Precision> const &/*point*/) const override
   {
 #ifndef VECCORE_CUDA
     throw std::runtime_error("Assembly inside to be implemented");

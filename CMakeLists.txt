@@ -308,6 +308,11 @@ if (GNU)
   endif()
   set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -fabi-version=0")
   set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -fabi-version=0")
+  if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS "7")
+    set(VECGEOM_CXX_FLAGS "${VECGEOM_CXX_FLAGS} -faligned-new")
+    set(VECGEOM_COMPILATION_FLAGS "${VECGEOM_COMPILATION_FLAGS} -faligned-new")
+  endif()
+
 elseif(Intel)
   # CMake fails to add -std option for icc, so add it manually
   if("${CMAKE_VERSION}" VERSION_LESS "3.6")
