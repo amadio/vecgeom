@@ -469,7 +469,11 @@ public:
   typedef const value_type *const_pointer;
   typedef value_type &reference;
   typedef const value_type &const_reference;
+#ifndef VECCORE_CUDA
   typedef __attribute__((__may_alias__)) _Rb_tree_node<_Value> *_Link_type;
+#else
+  typedef _Rb_tree_node<_Value> *_Link_type;
+#endif
   typedef size_t size_type;
   typedef ptrdiff_t difference_type;
 

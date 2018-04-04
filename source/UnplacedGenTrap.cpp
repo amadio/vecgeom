@@ -64,7 +64,7 @@ Vector3D<Precision> UnplacedGenTrap::SamplePointOnSurface() const
   i -= 4; // now 0 (bottom surface) or 1 (top surface)
   // Select z position
   Precision cross, x, y;
-  Precision z = (2 * i - 1) * fGenTrap.fDz;
+  Precision z = (2. * i - 1.) * fGenTrap.fDz;
   i *= 4; // now matching the index of the start vertex
           // Compute min/max  in x and y for the selected surface
 
@@ -109,10 +109,10 @@ Vector3D<Precision> UnplacedGenTrap::SamplePointOnSurface() const
     // Now make sure the point (x,y) is on the selected surface. Use same
     // algorithm as for Contains
     for (unsigned int j = i; j < i + 4; ++j) {
-      unsigned int k        = i + (j + 1) % 4;
-      Precision dx = fGenTrap.fVertices[k].x() - fGenTrap.fVertices[j].x();
-      Precision dy = fGenTrap.fVertices[k].y() - fGenTrap.fVertices[j].y();
-      cross        = (x - fGenTrap.fVertices[j].x()) * dy - (y - fGenTrap.fVertices[j].y()) * dx;
+      unsigned int k = i + (j + 1) % 4;
+      Precision dx   = fGenTrap.fVertices[k].x() - fGenTrap.fVertices[j].x();
+      Precision dy   = fGenTrap.fVertices[k].y() - fGenTrap.fVertices[j].y();
+      cross          = (x - fGenTrap.fVertices[j].x()) * dy - (y - fGenTrap.fVertices[j].y()) * dx;
       if (cross < -kTolerance) {
         inside = false;
         break;
