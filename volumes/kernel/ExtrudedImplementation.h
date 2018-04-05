@@ -135,7 +135,60 @@ struct ExtrudedImplementation {
   }
 
 }; // end ExtrudedImplementation
+
+// Scalar specializations
+template <>
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+void ExtrudedImplementation::Contains<double, bool>(UnplacedStruct_t const &extruded, Vector3D<double> const &point,
+                                                    bool &inside)
+{
+  // Scalar specialization for Contains function
+  inside = false;
+  if (extruded.IsConvexPolygon()) {
+    // Find the Z section
+    int zIndex = extruded.FindZSegment(point[2]);
+    if ((zIndex < 0) || (zIndex >= extruded.GetNPlanes())) return;
+    inside = extruded.fTslSections[zIndex]->Contains(point);
+    return;
+  }
+
+  if (extruded.fIsSxtru)
+    SExtruImplementation::Contains<double, bool>(extruded.fSxtruHelper, point, inside);
+  else
+    TessellatedImplementation::Contains<double, bool>(extruded.fTslHelper, point, inside);
 }
+
+template <>
+VECGEOM_FORCE_INLINE
+VECCORE_ATT_HOST_DEVICE
+void ExtrudedImplementation::Inside<double, Inside_t>(UnplacedStruct_t const &extruded, Vector3D<double> const &point,
+                                                      Inside_t &inside)
+{
+// Scalar specialization for Inside function
+  inside = EInside::kOutside;
+  if (extruded.IsConvexPolygon()) {
+    int zIndex = extruded.FindZSegment(point[2]);
+    if ((zIndex < 0) || (zIndex >= extruded.GetNPlanes())) return;
+    inside = extruded.fTslSections[zIndex]->Inside(point);
+    if (inside == EInside::kOutside) return;
+    if (inside == EInside::kInside) {
+      // Need to check if point on Z section
+      if (vecCore::math::Abs(point[2] - extruded.fZSections[zIndex]) < kTolerance) {
+        inside = EInside::kSurface;
+      }
+    } else {
+      inside = EInside::kSurface;
+    }
+    return;
+  }
+
+  if (extruded.fIsSxtru)
+    SExtruImplementation::Inside<double, Inside_t>(extruded.fSxtruHelper, point, inside);
+  else
+    TessellatedImplementation::Inside<double, Inside_t>(extruded.fTslHelper, point, inside);
+}
+
 } // End global namespace
 
 #endif // VECGEOM_VOLUMES_KERNEL_EXTRUDEDIMPLEMENTATION_H_

@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
   }
 
   Transformation3D placement(0, 0, 0);
-  UnplacedBox worldUnplaced = UnplacedBox(20., 20., 20.);
+  UnplacedBox worldUnplaced = UnplacedBox(30., 30., 30.);
   LogicalVolume world("world", &worldUnplaced);
 
   UnplacedSExtruVolume sxtruv(nvert, x, y, -20, 20);

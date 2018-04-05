@@ -6,6 +6,7 @@
 
 #include "volumes/PolygonalShell.h"
 #include "volumes/TessellatedStruct.h"
+#include "volumes/TessellatedSection.h"
 
 namespace vecgeom {
 
@@ -39,10 +40,12 @@ class ExtrudedStruct {
 public:
   bool fIsSxtru               = false;     ///< Flag for sxtru representation
   bool fInitialized           = false;     ///< Flag for initialization
+  double *fZSections          = nullptr;   ///< Z position of sections
   mutable double fCubicVolume = 0.;        ///< Cubic volume
   mutable double fSurfaceArea = 0.;        ///< Surface area
   PolygonalShell fSxtruHelper;             ///< Sxtru helper
   TessellatedStruct<3, double> fTslHelper; ///< Tessellated helper
+  vector_t<TessellatedSection<double> *> fTslSections; ///< Tessellated sections
   vector_t<XtruVertex2> fVertices;         ///< Polygone vertices
   vector_t<XtruSection> fSections;         ///< Vector of sections
   PlanarPolygon fPolygon;                  ///< Planar polygon
@@ -59,10 +62,35 @@ public:
     Initialize(nvertices, vertices, nsections, sections);
   }
 
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  int FindZSegment(double const &pointZ) const
+  {
+    int index = -1;
+    double const *begin = fZSections;
+    double const *end   = fZSections + fSections.size();
+    while (begin < end - 1 && pointZ - kTolerance > *begin) {
+      ++index;
+      ++begin;
+    }
+    if (pointZ + kTolerance > *begin) return (index + 1);
+    return index;
+  }
+  
   /** @brief Initialize based on vertices and sections */
   void Initialize(int nvertices, XtruVertex2 const *vertices, int nsections, XtruSection const *sections)
   {
     if (fInitialized) return;
+    assert(nsections > 1 && nvertices > 2);
+    fZSections = new double[nsections];
+    double zmin = sections[0].fOrigin.z();
+    for (size_t i = 0; i < nsections; ++i) {
+      fZSections[i] = sections[i].fOrigin.z();
+      // Make sure sections are defined in increasing order
+      (void)zmin; // prevent defined but not used warning in opt mode
+      assert(fZSections[i] >= zmin && "Extruded sections not defined in increasing Z order");
+      std::cout << "Z[" << i << "] = " << fZSections[i] << std::endl;
+    }
     // Check if this is an SXtru
     if (nsections == 2 && (sections[0].fOrigin - sections[1].fOrigin).Perp2() < kTolerance &&
         vecCore::math::Abs(sections[0].fScale - sections[1].fScale) < kTolerance)
@@ -108,6 +136,13 @@ public:
       vy[i] = vertices[i].y;
     }
     fPolygon.Init(nvertices, vx, vy);
+    if (fPolygon.IsConvex()) {
+      // Create tessellated sections
+      fTslSections.reserve(nsections);
+      for (size_t i = 0; i < nsections - 1; ++i) {
+        fTslSections[i] = new TessellatedSection<double>(nvertices, sections[i].fOrigin.z(), sections[i+1].fOrigin.z());
+      }
+    }
 
     // TRIANGULATE POLYGON
 
@@ -169,7 +204,11 @@ public:
         // Quadrilateral isect:(j, i)  isect+1: (i, j)
         fTslHelper.AddQuadrilateralFacet(VertexToSection(j, isect), VertexToSection(i, isect),
                                          VertexToSection(i, isect + 1), VertexToSection(j, isect + 1));
+        if (fPolygon.IsConvex())
+          fTslSections[isect]->AddQuadrilateralFacet(VertexToSection(j, isect), VertexToSection(i, isect),
+                                         VertexToSection(i, isect + 1), VertexToSection(j, isect + 1));
       }
+      // std::cout << "section " << isect << "\n" << *fTslSections[isect] << "\n";
     }
     // Top (normals pointing up)
     for (size_t i = 0; i < facets.size(); ++i) {
@@ -192,10 +231,15 @@ public:
     return true;
   }
 
-  /** @brief GetThe number of sections */
+  /** @brief Get the number of sections */
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   size_t GetNSections() const { return fSections.size(); }
+
+  /** @brief Get the number of planes */
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  size_t GetNPlanes() const { return ( fSections.size() - 1 ); }
 
   /** @brief Get section i */
   VECCORE_ATT_HOST_DEVICE
