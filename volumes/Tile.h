@@ -33,13 +33,13 @@ template <size_t NVERT, typename T = double>
 struct Tile {
   size_t fNvert = 0;               ///< the tile is fully defined after adding the last vertex
   Vector3D<T> fVertices[NVERT];    ///< vertices of the tile
-  Vector3D<T> fCenter;             ///< Center of the tile
-  size_t fIndices[NVERT];          ///< indices for 3 distinct vertices
-  T fSurfaceArea = 0;              ///< surface area
-  Vector3D<T> fNormal;             ///< normal vector pointing outside
-  bool fConvex = false;            ///< convexity of the facet with respect to the solid
-  T fDistance;                     ///< distance between the origin and the triangle plane
   Vector3D<T> fSideVectors[NVERT]; ///< side vectors perpendicular to edges
+  Vector3D<T> fNormal;             ///< normal vector pointing outside
+  Vector3D<T> fCenter;             ///< Center of the tile
+  size_t fIndices[NVERT] = {0};    ///< indices for 3 distinct vertices
+  T fSurfaceArea         = 0;      ///< surface area
+  bool fConvex           = false;  ///< convexity of the facet with respect to the solid
+  T fDistance            = 0;      ///< distance between the origin and the triangle plane
 
   VECCORE_ATT_HOST_DEVICE
   Tile() {}
