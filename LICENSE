@@ -1,0 +1,20 @@
+This library is free software; you can redistribute it and/or
+modify it under the terms of the Apache License, Version 2.0
+as published by the Apache Software Foundation; either
+version 2.0 of the License, or (at your option) any later version.
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+You should have received a copy of the Apache License along with this
+library; if not, write to the The Apache Software Foundation
+401 Edgewater Place, Suite 600, Wakefield, MA 01880 U.S.A.
+
+See APACHE-LICENSE-2.0.txt next to this file or 
+   http://www.apache.org/licenses/LICENSE-2.0
+for the text of the Apache License, Version 2.0.
+
+For questions regarding the VecGeom license, please contact geant-dev@cern.ch.
