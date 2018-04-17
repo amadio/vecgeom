@@ -60,10 +60,20 @@ struct ExtrudedImplementation {
   VECCORE_ATT_HOST_DEVICE
   static void Contains(UnplacedStruct_t const &extruded, Vector3D<Real_v> const &point, Bool_v &inside)
   {
-    if (extruded.fIsSxtru)
+    inside = false;
+    if (extruded.fIsSxtru) {
       SExtruImplementation::Contains<Real_v, Bool_v>(extruded.fSxtruHelper, point, inside);
-    else
+      return;
+    }
+
+    if (extruded.fUseTslSections) {
+      // Find the Z section
+      int zIndex = extruded.FindZSegment(point[2]);
+      if ((zIndex < 0) || (zIndex >= (int)extruded.GetNSegments())) return;
+      inside = extruded.fTslSections[zIndex]->Contains(point);
+    } else {
       TessellatedImplementation::Contains<Real_v, Bool_v>(extruded.fTslHelper, point, inside);
+    }
   }
 
   template <typename Real_v, typename Inside_v>
@@ -71,10 +81,30 @@ struct ExtrudedImplementation {
   VECCORE_ATT_HOST_DEVICE
   static void Inside(UnplacedStruct_t const &extruded, Vector3D<Real_v> const &point, Inside_v &inside)
   {
-    if (extruded.fIsSxtru)
+    inside = EInside::kOutside;
+
+    if (extruded.fIsSxtru) {
       SExtruImplementation::Inside<Real_v, Inside_v>(extruded.fSxtruHelper, point, inside);
-    else
+      return;
+    }
+
+    if (extruded.fUseTslSections) {
+      int zIndex = extruded.FindZSegment(point[2]);
+      if ((zIndex < 0) || (zIndex >= (int)extruded.GetNSegments())) return;
+      inside = extruded.fTslSections[zIndex]->Inside(point);
+      if (inside == EInside::kOutside) return;
+      if (inside == EInside::kInside) {
+        // Need to check if point on Z section
+        if (vecCore::math::Abs(point[2] - extruded.fZPlanes[zIndex]) < kTolerance) {
+          inside = EInside::kSurface;
+        }
+      } else {
+        inside = EInside::kSurface;
+      }
+      return;
+    } else {
       TessellatedImplementation::Inside<Real_v, Inside_v>(extruded.fTslHelper, point, inside);
+    }
   }
 
   template <typename Real_v>
@@ -83,6 +113,64 @@ struct ExtrudedImplementation {
   static void DistanceToIn(UnplacedStruct_t const &extruded, Vector3D<Real_v> const &point,
                            Vector3D<Real_v> const &direction, Real_v const &stepMax, Real_v &distance)
   {
+// Note that Real_v is always double here
+#ifdef EFFICIENT_TSL_DISTANCETOIN
+    if (extruded.fUseTslSections) {
+      // Check if the bounding box is hit
+      const Vector3D<Real_v> invdir(Real_v(1.0) / NonZero(direction.x()), Real_v(1.0) / NonZero(direction.y()),
+                                    Real_v(1.0) / NonZero(direction.z()));
+      Vector3D<int> sign;
+      sign[0]  = invdir.x() < 0;
+      sign[1]  = invdir.y() < 0;
+      sign[2]  = invdir.z() < 0;
+      distance = BoxImplementation::IntersectCachedKernel2<Real_v, Real_v>(&extruded.fTslHelper.fMinExtent, point,
+                                                                           invdir, sign.x(), sign.y(), sign.z(),
+                                                                           -kTolerance, InfinityLength<Real_v>());
+      if (distance >= stepMax) return;
+
+      // Perform explicit Inside check to detect wrong side points. This impacts
+      // DistanceToIn performance by about 5% for all topologies
+      // auto inside = ScalarInsideKernel(unplaced, point);
+      // if (inside == kInside) return -1.;
+
+      int zIndex     = extruded.FindZSegment(point[2]);
+      const int zMax = extruded.GetNSegments();
+      // Don't go out of bounds here, as the first/last segment should be checked
+      // even if the point is outside of Z-bounds
+      bool fromOutZ =
+          (point[2] < extruded.fZPlanes[0] + kTolerance) || (point[2] > extruded.fZPlanes[zMax] - kTolerance);
+      zIndex = zIndex < 0 ? 0 : (zIndex >= zMax ? zMax - 1 : zIndex);
+
+      // Traverse Z-segments left or right depending on sign of direction
+      bool goingRight = direction[2] >= 0;
+
+      distance = InfinityLength<Real_v>();
+      if (goingRight) {
+        for (int zSegCount = zMax; zIndex < zSegCount; ++zIndex) {
+          bool skipZ = fromOutZ && (zSegCount == 0);
+          if (skipZ)
+            distance = extruded.fTslSections[zIndex]->DistanceToIn<true>(point, direction, invdir.z(), stepMax);
+          else
+            distance = extruded.fTslSections[zIndex]->DistanceToIn<false>(point, direction, invdir.z(), stepMax);
+          // No segment further away can be at a shorter distance to the point, so
+          // if a valid distance is found, only endcaps remain to be investigated
+          if (distance >= -kTolerance && distance < InfinityLength<Precision>()) break;
+        }
+      } else {
+        // Going left
+        for (; zIndex >= 0; --zIndex) {
+          bool skipZ = fromOutZ && (zIndex == zMax);
+          if (skipZ)
+            distance = extruded.fTslSections[zIndex]->DistanceToIn<true>(point, direction, invdir.z(), stepMax);
+          else
+            distance = extruded.fTslSections[zIndex]->DistanceToIn<false>(point, direction, invdir.z(), stepMax);
+          // No segment further away can be at a shorter distance to the point, so
+          // if a valid distance is found, only endcaps remain to be investigated
+          if (distance >= -kTolerance && distance < InfinityLength<Precision>()) break;
+        }
+      }
+    }
+#endif
     if (extruded.fIsSxtru)
       SExtruImplementation::DistanceToIn<Real_v>(extruded.fSxtruHelper, point, direction, stepMax, distance);
     else
@@ -136,59 +224,7 @@ struct ExtrudedImplementation {
 
 }; // end ExtrudedImplementation
 
-// Scalar specializations
-template <>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void ExtrudedImplementation::Contains<double, bool>(UnplacedStruct_t const &extruded, Vector3D<double> const &point,
-                                                    bool &inside)
-{
-  // Scalar specialization for Contains function
-  inside = false;
-  if (extruded.IsConvexPolygon()) {
-    // Find the Z section
-    int zIndex = extruded.FindZSegment(point[2]);
-    if ((zIndex < 0) || (zIndex >= extruded.GetNPlanes())) return;
-    inside = extruded.fTslSections[zIndex]->Contains(point);
-    return;
-  }
-
-  if (extruded.fIsSxtru)
-    SExtruImplementation::Contains<double, bool>(extruded.fSxtruHelper, point, inside);
-  else
-    TessellatedImplementation::Contains<double, bool>(extruded.fTslHelper, point, inside);
-}
-
-template <>
-VECGEOM_FORCE_INLINE
-VECCORE_ATT_HOST_DEVICE
-void ExtrudedImplementation::Inside<double, Inside_t>(UnplacedStruct_t const &extruded, Vector3D<double> const &point,
-                                                      Inside_t &inside)
-{
-// Scalar specialization for Inside function
-  inside = EInside::kOutside;
-  if (extruded.IsConvexPolygon()) {
-    int zIndex = extruded.FindZSegment(point[2]);
-    if ((zIndex < 0) || (zIndex >= extruded.GetNPlanes())) return;
-    inside = extruded.fTslSections[zIndex]->Inside(point);
-    if (inside == EInside::kOutside) return;
-    if (inside == EInside::kInside) {
-      // Need to check if point on Z section
-      if (vecCore::math::Abs(point[2] - extruded.fZSections[zIndex]) < kTolerance) {
-        inside = EInside::kSurface;
-      }
-    } else {
-      inside = EInside::kSurface;
-    }
-    return;
-  }
-
-  if (extruded.fIsSxtru)
-    SExtruImplementation::Inside<double, Inside_t>(extruded.fSxtruHelper, point, inside);
-  else
-    TessellatedImplementation::Inside<double, Inside_t>(extruded.fTslHelper, point, inside);
-}
-
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_KERNEL_EXTRUDEDIMPLEMENTATION_H_

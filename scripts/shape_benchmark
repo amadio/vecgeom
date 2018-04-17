@@ -49,7 +49,7 @@ for SHAPE in ${SHAPES}; do
 		if [ ${MIC} != 0 ]; then
 			ssh mic0 "(cd ${PWD}; env LD_LIBRARY_PATH=/usr/linux-k1om-4.7/linux-k1om/lib64/4.7.4:/opt/intel/composer_xe_2015/lib/mic ./${SHAPE}Benchmark -npoints ${NPTS})" &> ${SHAPE}-${i}.log
 		else
-			./${SHAPE}Benchmark -npoints ${NPTS} &> ${SHAPE}-${i}.log
+			./${SHAPE}Benchmark "$@" -npoints ${NPTS} &> ${SHAPE}-${i}.log
 		fi
 	done
 

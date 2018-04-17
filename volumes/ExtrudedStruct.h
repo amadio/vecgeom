@@ -38,17 +38,18 @@ class ExtrudedStruct {
   using vector_t = vecgeom::Vector<U>;
 
 public:
-  bool fIsSxtru               = false;     ///< Flag for sxtru representation
-  bool fInitialized           = false;     ///< Flag for initialization
-  double *fZSections          = nullptr;   ///< Z position of sections
-  mutable double fCubicVolume = 0.;        ///< Cubic volume
-  mutable double fSurfaceArea = 0.;        ///< Surface area
-  PolygonalShell fSxtruHelper;             ///< Sxtru helper
-  TessellatedStruct<3, double> fTslHelper; ///< Tessellated helper
+  bool fIsSxtru               = false;                 ///< Flag for sxtru representation
+  bool fInitialized           = false;                 ///< Flag for initialization
+  bool fUseTslSections        = false;                 ///< Use tessellated section helper
+  double *fZPlanes            = nullptr;               ///< Z position of planes
+  mutable double fCubicVolume = 0.;                    ///< Cubic volume
+  mutable double fSurfaceArea = 0.;                    ///< Surface area
+  PolygonalShell fSxtruHelper;                         ///< Sxtru helper
+  TessellatedStruct<3, double> fTslHelper;             ///< Tessellated helper
   vector_t<TessellatedSection<double> *> fTslSections; ///< Tessellated sections
-  vector_t<XtruVertex2> fVertices;         ///< Polygone vertices
-  vector_t<XtruSection> fSections;         ///< Vector of sections
-  PlanarPolygon fPolygon;                  ///< Planar polygon
+  vector_t<XtruVertex2> fVertices;                     ///< Polygone vertices
+  vector_t<XtruSection> fSections;                     ///< Vector of sections
+  PlanarPolygon fPolygon;                              ///< Planar polygon
 
 public:
   /** @brief Dummy constructor */
@@ -66,9 +67,9 @@ public:
   VECCORE_ATT_HOST_DEVICE
   int FindZSegment(double const &pointZ) const
   {
-    int index = -1;
-    double const *begin = fZSections;
-    double const *end   = fZSections + fSections.size();
+    int index           = -1;
+    double const *begin = fZPlanes;
+    double const *end   = fZPlanes + fSections.size();
     while (begin < end - 1 && pointZ - kTolerance > *begin) {
       ++index;
       ++begin;
@@ -76,21 +77,23 @@ public:
     if (pointZ + kTolerance > *begin) return (index + 1);
     return index;
   }
-  
+
   /** @brief Initialize based on vertices and sections */
   void Initialize(int nvertices, XtruVertex2 const *vertices, int nsections, XtruSection const *sections)
   {
     if (fInitialized) return;
     assert(nsections > 1 && nvertices > 2);
-    fZSections = new double[nsections];
-    double zmin = sections[0].fOrigin.z();
-    for (size_t i = 0; i < nsections; ++i) {
-      fZSections[i] = sections[i].fOrigin.z();
+    fZPlanes         = new double[nsections];
+    fZPlanes[0]      = sections[0].fOrigin.z();
+    bool degenerated = false;
+    for (size_t i = 1; i < (size_t)nsections; ++i) {
+      fZPlanes[i] = sections[i].fOrigin.z();
       // Make sure sections are defined in increasing order
-      (void)zmin; // prevent defined but not used warning in opt mode
-      assert(fZSections[i] >= zmin && "Extruded sections not defined in increasing Z order");
-      std::cout << "Z[" << i << "] = " << fZSections[i] << std::endl;
+      assert(fZPlanes[i] >= fZPlanes[i - 1] && "Extruded sections not defined in increasing Z order");
+      if (fZPlanes[i] - fZPlanes[i - 1] < kTolerance) degenerated = true;
+      std::cout << "Z[" << i << "] = " << fZPlanes[i] << std::endl;
     }
+    if (!degenerated) fUseTslSections = true;
     // Check if this is an SXtru
     if (nsections == 2 && (sections[0].fOrigin - sections[1].fOrigin).Perp2() < kTolerance &&
         vecCore::math::Abs(sections[0].fScale - sections[1].fScale) < kTolerance)
@@ -99,7 +102,7 @@ public:
       // Put vertices in arrays
       double *x = new double[nvertices];
       double *y = new double[nvertices];
-      for (int i = 0; i < nvertices; ++i) {
+      for (size_t i = 0; i < (size_t)nvertices; ++i) {
         x[i] = sections[0].fOrigin.x() + sections[0].fScale * vertices[i].x;
         y[i] = sections[0].fOrigin.y() + sections[0].fScale * vertices[i].y;
       }
@@ -112,7 +115,7 @@ public:
 
   /** @brief Construct facets based on vertices and sections */
   VECCORE_ATT_HOST_DEVICE
-  void CreateTessellated(int nvertices, XtruVertex2 const *vertices, int nsections, XtruSection const *sections)
+  void CreateTessellated(size_t nvertices, XtruVertex2 const *vertices, size_t nsections, XtruSection const *sections)
   {
     struct FacetInd {
       size_t ind1, ind2, ind3;
@@ -125,22 +128,24 @@ public:
     };
 
     // Store sections
-    for (int isect = 0; isect < nsections; ++isect)
+    for (size_t isect = 0; isect < nsections; ++isect)
       fSections.push_back(sections[isect]);
 
     // Create the polygon
     double *vx = new double[nvertices];
     double *vy = new double[nvertices];
-    for (int i = 0; i < nvertices; ++i) {
+    for (size_t i = 0; i < nvertices; ++i) {
       vx[i] = vertices[i].x;
       vy[i] = vertices[i].y;
     }
     fPolygon.Init(nvertices, vx, vy);
-    if (fPolygon.IsConvex()) {
+    fUseTslSections &= fPolygon.IsConvex();
+    if (fUseTslSections) {
       // Create tessellated sections
       fTslSections.reserve(nsections);
       for (size_t i = 0; i < nsections - 1; ++i) {
-        fTslSections[i] = new TessellatedSection<double>(nvertices, sections[i].fOrigin.z(), sections[i+1].fOrigin.z());
+        fTslSections[i] =
+            new TessellatedSection<double>(nvertices, sections[i].fOrigin.z(), sections[i + 1].fOrigin.z());
       }
     }
 
@@ -149,16 +154,16 @@ public:
     VectorBase<FacetInd> facets(nvertices);
     // Fill a vector of vertex indices
     vector_t<size_t> vtx;
-    for (size_t i = 0; i < (size_t)nvertices; ++i)
+    for (size_t i = 0; i < nvertices; ++i)
       vtx.push_back(i);
 
-    int i1 = 0;
-    int i2 = 1;
-    int i3 = 2;
+    size_t i1 = 0;
+    size_t i2 = 1;
+    size_t i3 = 2;
 
     while (vtx.size() > 2) {
       // Find convex parts of the polygon (ears)
-      int counter = 0;
+      size_t counter = 0;
       while (!IsConvexSide(vtx[i1], vtx[i2], vtx[i3])) {
         i1++;
         i2++;
@@ -198,15 +203,15 @@ public:
       fTslHelper.AddTriangularFacet(VertexToSection(i1, 0), VertexToSection(i2, 0), VertexToSection(i3, 0));
     }
     // Sections
-    for (int isect = 0; isect < nsections - 1; ++isect) {
+    for (size_t isect = 0; isect < nsections - 1; ++isect) {
       for (size_t i = 0; i < (size_t)nvertices; ++i) {
         size_t j = (i + 1) % nvertices;
         // Quadrilateral isect:(j, i)  isect+1: (i, j)
         fTslHelper.AddQuadrilateralFacet(VertexToSection(j, isect), VertexToSection(i, isect),
                                          VertexToSection(i, isect + 1), VertexToSection(j, isect + 1));
-        if (fPolygon.IsConvex())
+        if (fUseTslSections)
           fTslSections[isect]->AddQuadrilateralFacet(VertexToSection(j, isect), VertexToSection(i, isect),
-                                         VertexToSection(i, isect + 1), VertexToSection(j, isect + 1));
+                                                     VertexToSection(i, isect + 1), VertexToSection(j, isect + 1));
       }
       // std::cout << "section " << isect << "\n" << *fTslSections[isect] << "\n";
     }
@@ -239,7 +244,7 @@ public:
   /** @brief Get the number of planes */
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  size_t GetNPlanes() const { return ( fSections.size() - 1 ); }
+  size_t GetNSegments() const { return (fSections.size() - 1); }
 
   /** @brief Get section i */
   VECCORE_ATT_HOST_DEVICE
