@@ -12,3 +12,16 @@ clang-format:
   before_script:
     - apt-get update -y && apt-get upgrade -y
     - apt-get install -y cmake git findutils clang-format
+
+# performing the static analysis code check using a custom docker image with the llvm installation we need
+code_checks:
+   image: vecgeom/cc7-dev
+   stage: build
+   script:
+     - mkdir build && cd build
+     - cmake3 .. -DROOT=OFF -DSTATIC_ANALYSIS=ON -DLLVM_DIR=${LLVM_BASE}/lib/cmake/llvm -DClang_DIR=${LLVM_BASE}/lib/cmake/clang -DCMAKE_C_COMPILER=${LLVM_BASE}/bin/clang -DCMAKE_CXX_COMPILER=${LLVM_BASE}/bin/clang++ -DBACKEND=Scalar 
+     - make VERBOSE=ON && make test
+   before_script:
+     - source /opt/rh/devtoolset-6/enable
+   variables:
+     LLVM_BASE: /opt/llvm3.9_shared/
