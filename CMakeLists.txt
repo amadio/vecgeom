@@ -634,10 +634,14 @@ set(VECGEOM_SRCS
   source/UnplacedPolycone.cpp
   source/UnplacedPolyhedron.cpp
   source/UnplacedTorus2.cpp
-  source/PlacedPolycone.cpp
-  source/PlacedPolyhedron.cpp
+  source/UnplacedTube.cpp
+  source/UnplacedCone.cpp
+  source/UnplacedCutTube.cpp
+  source/UnplacedGenTrap.cpp
 
   source/LogicalVolume.cpp
+  source/PlacedPolyhedron.cpp
+  source/PlacedPolycone.cpp
   source/PlacedCone.cpp
   source/PlacedAssembly.cpp
   source/PlacedBox.cpp
@@ -665,18 +669,14 @@ set(VECGEOM_SRCS
   source/Scale3D.cpp
   source/Transformation3D.cpp
   source/UnplacedAssembly.cpp
-  source/UnplacedCone.cpp
   source/UnplacedBox.cpp
   source/UnplacedSExtruVolume.cpp
-  source/UnplacedTube.cpp
-  source/UnplacedCutTube.cpp
   source/UnplacedHype.cpp
   source/UnplacedTrd.cpp
   source/UnplacedParaboloid.cpp
   source/UnplacedParallelepiped.cpp
   source/UnplacedScaledShape.cpp
   source/UnplacedTrapezoid.cpp
-  source/UnplacedGenTrap.cpp
   source/UnplacedTessellated.cpp
   source/UnplacedExtruded.cpp
   source/UnplacedVolume.cpp
