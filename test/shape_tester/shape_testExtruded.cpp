@@ -14,8 +14,9 @@ int main(int argc, char *argv[])
   OPTION_INT(npoints, 1000);
   OPTION_BOOL(debug, false);
   OPTION_BOOL(stat, false);
+  OPTION_BOOL(convex, false);
 
-  LogicalVolume vol("xtru", ExtrudedMultiLayer());
+  LogicalVolume vol("xtru", ExtrudedMultiLayer(convex));
   VPlacedVolume *placed = vol.Place();
 
   ShapeTester<vecgeom::VPlacedVolume> tester;

@@ -6,7 +6,7 @@
 
 using namespace vecgeom;
 
-vecgeom::UnplacedExtruded *ExtrudedMultiLayer()
+vecgeom::UnplacedExtruded *ExtrudedMultiLayer(bool convex = false)
 {
   const size_t nvert             = 8;
   const size_t nsect             = 4;
@@ -21,14 +21,25 @@ vecgeom::UnplacedExtruded *ExtrudedMultiLayer()
   vertices[2].y = 3;
   vertices[3].x = 3;
   vertices[3].y = -3;
-  vertices[4].x = 1.5;
-  vertices[4].y = -3;
-  vertices[5].x = 1.5;
-  vertices[5].y = 1.5;
-  vertices[6].x = -1.5;
-  vertices[6].y = 1.5;
-  vertices[7].x = -1.5;
-  vertices[7].y = -3;
+  if (convex) {
+    vertices[4].x = 1.5;
+    vertices[4].y = -3.5;
+    vertices[5].x = 0.5;
+    vertices[5].y = -3.6;
+    vertices[6].x = -0.5;
+    vertices[6].y = -3.6;
+    vertices[7].x = -1.5;
+    vertices[7].y = -3.5;
+  } else {
+    vertices[4].x = 1.5;
+    vertices[4].y = -3;
+    vertices[5].x = 1.5;
+    vertices[5].y = 1.5;
+    vertices[6].x = -1.5;
+    vertices[6].y = 1.5;
+    vertices[7].x = -1.5;
+    vertices[7].y = -3;
+  }
 
   sections[0].fOrigin.Set(-2, 1, -4.0);
   sections[0].fScale = 1.5;

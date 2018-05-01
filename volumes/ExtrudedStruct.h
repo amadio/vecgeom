@@ -69,7 +69,7 @@ public:
   {
     int index           = -1;
     double const *begin = fZPlanes;
-    double const *end   = fZPlanes + fSections.size();
+    double const *end   = fZPlanes + fSections.size() + 1;
     while (begin < end - 1 && pointZ - kTolerance > *begin) {
       ++index;
       ++begin;
@@ -91,7 +91,6 @@ public:
       // Make sure sections are defined in increasing order
       assert(fZPlanes[i] >= fZPlanes[i - 1] && "Extruded sections not defined in increasing Z order");
       if (fZPlanes[i] - fZPlanes[i - 1] < kTolerance) degenerated = true;
-      std::cout << "Z[" << i << "] = " << fZPlanes[i] << std::endl;
     }
     if (!degenerated) fUseTslSections = true;
     // Check if this is an SXtru
