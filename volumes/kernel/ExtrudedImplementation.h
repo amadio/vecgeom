@@ -90,13 +90,13 @@ struct ExtrudedImplementation {
 
     if (extruded.fUseTslSections) {
       const int nseg = (int)extruded.GetNSegments();
-      int zIndex = extruded.FindZSegment(point[2]);
+      int zIndex     = extruded.FindZSegment(point[2]);
       if ((zIndex < 0) || (zIndex > nseg)) return;
-      inside = extruded.fTslSections[Min(zIndex, nseg-1)]->Inside(point);
+      inside = extruded.fTslSections[Min(zIndex, nseg - 1)]->Inside(point);
       if (inside == EInside::kOutside) return;
       if (inside == EInside::kInside) {
         // Need to check if point on Z section
-        if (((zIndex == 0) || (zIndex == nseg)) && 
+        if (((zIndex == 0) || (zIndex == nseg)) &&
             vecCore::math::Abs(point[2] - extruded.fZPlanes[zIndex]) < kTolerance) {
           inside = EInside::kSurface;
         }
