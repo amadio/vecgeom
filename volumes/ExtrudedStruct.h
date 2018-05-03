@@ -6,7 +6,10 @@
 
 #include "volumes/PolygonalShell.h"
 #include "volumes/TessellatedStruct.h"
+
+#ifndef VECGEOM_ENABLE_CUDA
 #include "volumes/TessellatedSection.h"
+#endif
 
 namespace vecgeom {
 
@@ -38,18 +41,20 @@ class ExtrudedStruct {
   using vector_t = vecgeom::Vector<U>;
 
 public:
-  bool fIsSxtru               = false;                 ///< Flag for sxtru representation
-  bool fInitialized           = false;                 ///< Flag for initialization
-  bool fUseTslSections        = false;                 ///< Use tessellated section helper
-  double *fZPlanes            = nullptr;               ///< Z position of planes
-  mutable double fCubicVolume = 0.;                    ///< Cubic volume
-  mutable double fSurfaceArea = 0.;                    ///< Surface area
-  PolygonalShell fSxtruHelper;                         ///< Sxtru helper
-  TessellatedStruct<3, double> fTslHelper;             ///< Tessellated helper
+  bool fIsSxtru               = false;     ///< Flag for sxtru representation
+  bool fInitialized           = false;     ///< Flag for initialization
+  double *fZPlanes            = nullptr;   ///< Z position of planes
+  mutable double fCubicVolume = 0.;        ///< Cubic volume
+  mutable double fSurfaceArea = 0.;        ///< Surface area
+  PolygonalShell fSxtruHelper;             ///< Sxtru helper
+  TessellatedStruct<3, double> fTslHelper; ///< Tessellated helper
+#ifndef VECGEOM_ENABLE_CUDA
+  bool fUseTslSections = false;                        ///< Use tessellated section helper
   vector_t<TessellatedSection<double> *> fTslSections; ///< Tessellated sections
-  vector_t<XtruVertex2> fVertices;                     ///< Polygone vertices
-  vector_t<XtruSection> fSections;                     ///< Vector of sections
-  PlanarPolygon fPolygon;                              ///< Planar polygon
+#endif
+  vector_t<XtruVertex2> fVertices; ///< Polygone vertices
+  vector_t<XtruSection> fSections; ///< Vector of sections
+  PlanarPolygon fPolygon;          ///< Planar polygon
 
 public:
   /** @brief Dummy constructor */
@@ -92,7 +97,10 @@ public:
       assert(fZPlanes[i] >= fZPlanes[i - 1] && "Extruded sections not defined in increasing Z order");
       if (fZPlanes[i] - fZPlanes[i - 1] < kTolerance) degenerated = true;
     }
+#ifndef VECGEOM_ENABLE_CUDA
     if (!degenerated) fUseTslSections = true;
+#endif
+    (void)degenerated; // silence the compiler
     // Check if this is an SXtru
     if (nsections == 2 && (sections[0].fOrigin - sections[1].fOrigin).Perp2() < kTolerance &&
         vecCore::math::Abs(sections[0].fScale - sections[1].fScale) < kTolerance)
@@ -138,6 +146,7 @@ public:
       vy[i] = vertices[i].y;
     }
     fPolygon.Init(nvertices, vx, vy);
+#ifndef VECGEOM_ENABLE_CUDA
     fUseTslSections &= fPolygon.IsConvex();
     if (fUseTslSections) {
       // Create tessellated sections
@@ -147,7 +156,7 @@ public:
             new TessellatedSection<double>(nvertices, sections[i].fOrigin.z(), sections[i + 1].fOrigin.z());
       }
     }
-
+#endif
     // TRIANGULATE POLYGON
 
     VectorBase<FacetInd> facets(nvertices);
@@ -208,11 +217,12 @@ public:
         // Quadrilateral isect:(j, i)  isect+1: (i, j)
         fTslHelper.AddQuadrilateralFacet(VertexToSection(j, isect), VertexToSection(i, isect),
                                          VertexToSection(i, isect + 1), VertexToSection(j, isect + 1));
+#ifndef VECGEOM_ENABLE_CUDA
         if (fUseTslSections)
           fTslSections[isect]->AddQuadrilateralFacet(VertexToSection(j, isect), VertexToSection(i, isect),
                                                      VertexToSection(i, isect + 1), VertexToSection(j, isect + 1));
+#endif
       }
-      // std::cout << "section " << isect << "\n" << *fTslSections[isect] << "\n";
     }
     // Top (normals pointing up)
     for (size_t i = 0; i < facets.size(); ++i) {

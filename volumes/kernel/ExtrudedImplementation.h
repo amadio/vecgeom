@@ -66,14 +66,16 @@ struct ExtrudedImplementation {
       return;
     }
 
+#ifndef VECGEOM_ENABLE_CUDA
     if (extruded.fUseTslSections) {
       // Find the Z section
       int zIndex = extruded.FindZSegment(point[2]);
       if ((zIndex < 0) || (zIndex >= (int)extruded.GetNSegments())) return;
       inside = extruded.fTslSections[zIndex]->Contains(point);
-    } else {
-      TessellatedImplementation::Contains<Real_v, Bool_v>(extruded.fTslHelper, point, inside);
+      return;
     }
+#endif
+    TessellatedImplementation::Contains<Real_v, Bool_v>(extruded.fTslHelper, point, inside);
   }
 
   template <typename Real_v, typename Inside_v>
@@ -88,6 +90,7 @@ struct ExtrudedImplementation {
       return;
     }
 
+#ifndef VECGEOM_ENABLE_CUDA
     if (extruded.fUseTslSections) {
       const int nseg = (int)extruded.GetNSegments();
       int zIndex     = extruded.FindZSegment(point[2]);
@@ -104,9 +107,9 @@ struct ExtrudedImplementation {
         inside = EInside::kSurface;
       }
       return;
-    } else {
-      TessellatedImplementation::Inside<Real_v, Inside_v>(extruded.fTslHelper, point, inside);
     }
+#endif
+    TessellatedImplementation::Inside<Real_v, Inside_v>(extruded.fTslHelper, point, inside);
   }
 
   template <typename Real_v>
