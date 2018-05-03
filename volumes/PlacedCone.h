@@ -3,15 +3,12 @@
  *
  *  Created on: May 14, 2014
  *      Author: swenzel
+ * 20180320 Guilherme Lima  Adapted to new factory of unplaced volumes
  */
 #ifndef VECGEOM_VOLUMES_PLACEDCONE_H_
 #define VECGEOM_VOLUMES_PLACEDCONE_H_
 
 #include "base/Global.h"
-#ifndef VECCORE_CUDA
-#include "base/RNG.h"
-#include <cmath>
-#endif
 #include "volumes/PlacedVolume.h"
 #include "volumes/UnplacedVolume.h"
 #include "volumes/kernel/ConeImplementation.h"
@@ -25,16 +22,14 @@ VECGEOM_DEVICE_DECLARE_CONV(class, PlacedCone);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class PlacedCone : public PlacedVolumeImplHelper<UnplacedCone, VPlacedVolume> {
-  using Base = PlacedVolumeImplHelper<UnplacedCone, VPlacedVolume>;
+class PlacedCone : public VPlacedVolume {
 
 public:
 #ifndef VECCORE_CUDA
   // constructor inheritance;
-  using Base::Base;
   PlacedCone(char const *const label, LogicalVolume const *const logicalVolume,
              Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
-      : Base(label, logicalVolume, transformation, boundingBox)
+      : VPlacedVolume(label, logicalVolume, transformation, boundingBox)
   {
   }
 
@@ -46,7 +41,7 @@ public:
 #else
   VECCORE_ATT_DEVICE PlacedCone(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
                                 PlacedBox const *const boundingBox, const int id)
-      : Base(logicalVolume, transformation, boundingBox, id)
+      : VPlacedVolume(logicalVolume, transformation, boundingBox, id)
   {
   }
 #endif
@@ -121,6 +116,16 @@ public:
 #endif
 
 }; // end class
+
+// a placed cone knowing abouts its volume/structural specialization
+template <typename UnplacedCone_t>
+class SPlacedCone : public PlacedVolumeImplHelper<UnplacedCone_t, PlacedCone> {
+  using Base = PlacedVolumeImplHelper<UnplacedCone_t, PlacedCone>;
+
+public:
+  typedef UnplacedCone UnplacedShape_t;
+  using Base::Base;
+};
 }
 } // End global namespace
 

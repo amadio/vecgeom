@@ -5,6 +5,7 @@
  *      Author: swenzel
  */
 
+#include "management/GeoManager.h"
 #include "volumes/UnplacedPolycone.h"
 #include "volumes/UnplacedCone.h"
 #include "volumes/PlacedPolycone.h"
@@ -615,8 +616,8 @@ void UnplacedPolycone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aM
   // Using Cone to get Extent in X and Y Direction
   double minz = aMin.z();
   double maxz = aMax.z();
-  UnplacedCone tempCone(minR, maxR, minR, maxR, 1, fSPhi, fDPhi);
-  tempCone.Extent(aMin, aMax);
+  SUnplacedCone<ConeTypes::UniversalCone> tempCone(minR, maxR, minR, maxR, 1, fSPhi, fDPhi);
+  tempCone.BaseType_t::Extent(aMin, aMax);
   aMin.z() = minz;
   aMax.z() = maxz;
 

@@ -3,8 +3,8 @@
 
 #include "volumes/UnplacedTube.h"
 #include "volumes/SpecializedTube.h"
-#ifndef VECCORE_CUDA
 #include "base/RNG.h"
+#ifndef VECCORE_CUDA
 #include <cmath>
 #include <iostream>
 #endif

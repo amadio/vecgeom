@@ -10,12 +10,12 @@
 //.. ensure asserts are compiled in
 #undef NDEBUG
 
+#include "base/Vector3D.h"
 #include "volumes/Polycone.h"
 #include "volumes/Tube.h"
 #include "volumes/Cone.h"
 #include "volumes/LogicalVolume.h"
 #include "volumes/PlacedVolume.h"
-#include "base/Vector3D.h"
 #include "ApproxEqual.h"
 
 using Real_v = vecgeom::VectorBackend::Real_v;
@@ -38,7 +38,7 @@ bool TestPolycone()
 int main()
 {
   int Nz = 4;
-  // a tube and two cones
+  // a few cones
   double rmin[] = {0.1, 0.0, 0.0, 0.4};
   double rmax[] = {1., 2., 2., 1.5};
   double z[]    = {-1, -0.5, 0.5, 2};
@@ -49,12 +49,12 @@ int main()
                          z, rmin, /* r coordinate of these corners */
                          rmax);
 
-  //poly1.Print();
+  // poly1.Print();
 
-  // lets make external separate tubes and cones representing the sections
-  UnplacedCone section0(rmin[0], rmax[0], rmin[1], rmax[1], (z[1] - z[0]) / 2., 0, kTwoPi);
-  UnplacedCone section1(rmin[1], rmax[1], rmin[2], rmax[2], (z[2] - z[1]) / 2., 0, kTwoPi);
-  UnplacedCone section2(rmin[2], rmax[2], rmin[3], rmax[3], (z[3] - z[2]) / 2., 0, kTwoPi);
+  // let's make external separate cones representing the sections
+  SUnplacedCone<ConeTypes::UniversalCone> section0(rmin[0], rmax[0], rmin[1], rmax[1], (z[1] - z[0]) / 2., 0, kTwoPi);
+  SUnplacedCone<ConeTypes::UniversalCone> section1(rmin[1], rmax[1], rmin[2], rmax[2], (z[2] - z[1]) / 2., 0, kTwoPi);
+  SUnplacedCone<ConeTypes::UniversalCone> section2(rmin[2], rmax[2], rmin[3], rmax[3], (z[3] - z[2]) / 2., 0, kTwoPi);
 
   assert(poly1.GetNz() == 4);
   assert(poly1.GetNSections() == 3);
@@ -123,6 +123,6 @@ int main()
   assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(1., 0., 2), Vec3D_t(0., 0., 1.)), 0.));
   assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(0.5, 0., -1), Vec3D_t(0., 0., -1.)), 0.));
   assert(ApproxEqual(placedpoly1->DistanceToOut(Vec3D_t(0.5, 0., -1), Vec3D_t(0., 0., 1.)), 3.));
-  std::cout<<"VecGeomPolycone tests passed.\n";
+  std::cout << "VecGeomPolycone tests passed.\n";
   return 0;
 }

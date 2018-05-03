@@ -1,16 +1,18 @@
 /*
- * ConeTypes.h
+ * @file ConeTypes.h
+ * @purpose Contains all cone types
+ * @author Sandro Wenzel
  *
- *  Created on: May 14, 2014
- *      Author: swenzel
+ * 140514 Sandro Wenzel  - Created
+ * 180303 Guilherme Lima - Adapted for specialization and unplaced shape factory
+ *
  */
 
 #ifndef VECGEOM_VOLUMES_KERNEL_SHAPETYPES_CONETYPES_H_
 #define VECGEOM_VOLUMES_KERNEL_SHAPETYPES_CONETYPES_H_
 
-#include <string>
 //#include "volumes/UnplacedCone.h"
-#include "volumes/ConeStruct.h"
+//#include "volumes/ConeStruct.h"
 
 namespace vecgeom {
 
@@ -33,38 +35,38 @@ VECGEOM_DEVICE_DECLARE_NS_CONV(ConeTypes, struct, HollowConeWithPiSector, Univer
 inline namespace VECGEOM_IMPL_NAMESPACE {
 namespace ConeTypes {
 
-#define DEFINE_TRAIT_TYPE(name)                     \
+#define DEFINE_CONE_TYPE(name)                      \
   struct name {                                     \
-    static std::string toString() { return #name; } \
+    VECCORE_ATT_HOST_DEVICE                         \
+    static char const *toString() { return #name; } \
   }
 
-// A cone that encompasses all cases - not specialized and
-// will do extra checks at runtime
-DEFINE_TRAIT_TYPE(UniversalCone);
+// A cone that encompasses all cases - not specialized and will do extra checks at runtime
+DEFINE_CONE_TYPE(UniversalCone);
 
-#ifndef VECGEOM_NO_SPECIALIZATION
+//#ifndef VECGEOM_NO_SPECIALIZATION
 
 // A cone not having rmin or phi sector
-DEFINE_TRAIT_TYPE(NonHollowCone);
+DEFINE_CONE_TYPE(NonHollowCone);
 // A cone without rmin but with a phi sector smaller than pi
-DEFINE_TRAIT_TYPE(NonHollowConeWithSmallerThanPiSector);
+DEFINE_CONE_TYPE(NonHollowConeWithSmallerThanPiSector);
 // A cone without rmin but with a phi sector greater than pi
-DEFINE_TRAIT_TYPE(NonHollowConeWithBiggerThanPiSector);
+DEFINE_CONE_TYPE(NonHollowConeWithBiggerThanPiSector);
 // A cone without rmin but with a phi sector equal to pi
-DEFINE_TRAIT_TYPE(NonHollowConeWithPiSector);
+DEFINE_CONE_TYPE(NonHollowConeWithPiSector);
 
 // A cone with rmin and no phi sector
-DEFINE_TRAIT_TYPE(HollowCone);
+DEFINE_CONE_TYPE(HollowCone);
 // A cone with rmin and a phi sector smaller than pi
-DEFINE_TRAIT_TYPE(HollowConeWithSmallerThanPiSector);
+DEFINE_CONE_TYPE(HollowConeWithSmallerThanPiSector);
 // A cone with rmin and a phi sector greater than pi
-DEFINE_TRAIT_TYPE(HollowConeWithBiggerThanPiSector);
+DEFINE_CONE_TYPE(HollowConeWithBiggerThanPiSector);
 // A cone with rmin and a phi sector equal to pi
-DEFINE_TRAIT_TYPE(HollowConeWithPiSector);
+DEFINE_CONE_TYPE(HollowConeWithPiSector);
 
-#endif // VECGEOM_NO_SPECIALIZATION
+//#endif // VECGEOM_NO_SPECIALIZATION
 
-#undef DEFINE_TRAIT_TYPE
+#undef DEFINE_CONE_TYPE
 
 // Mapping of cone types to certain characteristics
 enum ETreatmentType { kYes = 0, kNo, kUnknown };
@@ -93,17 +95,15 @@ struct NeedsPhiTreatment<UniversalCone> {
   static const ETreatmentType value = kUnknown;
 };
 
-template <typename T>
+template <typename T, typename UnplacedCone>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-bool checkPhiTreatment(const ConeStruct<double> &cone)
+bool checkPhiTreatment(const UnplacedCone &cone)
 {
   if (NeedsPhiTreatment<T>::value != kUnknown)
     return NeedsPhiTreatment<T>::value == kYes;
   else
-    // could use a direct constant for 2*M_PI here
-    // return cone.GetDPhi() < 2. * M_PI;
-    return cone.fDPhi < 2. * M_PI;
+    return cone.fDPhi < vecgeom::kTwoPi;
 }
 
 // asking for rmin treatment
@@ -138,10 +138,10 @@ struct NeedsRminTreatment<UniversalCone> {
   static const ETreatmentType value = kUnknown;
 };
 
-template <typename T>
+template <typename T, typename UnplacedCone>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-bool checkRminTreatment(const ConeStruct<double> &cone)
+bool checkRminTreatment(const UnplacedCone &cone)
 {
   if (NeedsRminTreatment<T>::value != kUnknown)
     return NeedsRminTreatment<T>::value == kYes;
@@ -196,8 +196,8 @@ struct SectorType<HollowConeWithBiggerThanPiSector> {
 
 #endif // VECGEOM_NO_SPECIALIZATION
 
-} // end CONETYPES namespace
-}
-} // End global namespace
+} // End namespace CONETYPES
+} // End VECGEOM_IMPL_NAMESPACE
+} // End global namespace vecgeom
 
-#endif /* VECGEOM_VOLUMES_KERNEL_SHAPETYPES_CONETYPES_H_ */
+#endif // VECGEOM_VOLUMES_KERNEL_SHAPETYPES_CONETYPES_H_

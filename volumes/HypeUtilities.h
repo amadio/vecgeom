@@ -11,13 +11,8 @@
 #include "base/Global.h"
 #include "volumes/Wedge_Evolution.h"
 #include "base/Vector3D.h"
-#include "volumes/ConeStruct.h"
 #include "volumes/kernel/GenericKernels.h"
-#include "volumes/kernel/shapetypes/ConeTypes.h"
 #include <cstdio>
-
-#define kConeTolerance 1e-7
-#define kHalfConeTolerance 0.5 * kConeTolerance
 
 namespace vecgeom {
 
@@ -308,7 +303,7 @@ Real_v ApproxDistInside(Real_v pr, Real_v pz, Precision r0, Precision tan2Phi)
   return ret;
 }
 
-} // end of ConeUtilities namespace
+} // end of HypeUtilities namespace
 
 /* This class  is basically constructed to allow partial specialization
  * for Scalar Backend.

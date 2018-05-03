@@ -22,13 +22,13 @@ int main()
 
   int numOfSlices = 10;
   // UnplacedBox box(4,6,10);
-  UnplacedCone box(0., 3., 0., 8., 30., 0., 2 * kPi);
+  auto cone = GeoManager::MakeInstance<UnplacedCone>(0., 3., 0., 8., 30., 0., 2 * kPi);
   Transformation3D tr(0, 0, 0, 0, 30, 45);
-  VPlacedVolume const *boxPlaced = LogicalVolume("", &box).Place(&tr);
-  ABBoxManager::Instance().ComputeSplittedABBox(boxPlaced, lowerc, upperc, numOfSlices);
+  VPlacedVolume const *conePlaced = LogicalVolume("", cone).Place(&tr);
+  ABBoxManager::Instance().ComputeSplittedABBox(conePlaced, lowerc, upperc, numOfSlices);
 
   Visualizer visualizer;
-  Visualize(&visualizer, boxPlaced, lowerc, upperc);
+  Visualize(&visualizer, conePlaced, lowerc, upperc);
   visualizer.Show();
 
   return 0;

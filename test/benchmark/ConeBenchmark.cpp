@@ -28,10 +28,10 @@ int main(int argc, char *argv[])
   OPTION_DOUBLE(dphi, kTwoPi);
 
   UnplacedBox worldUnplaced = UnplacedBox(100., 100., 100.);
-  UnplacedCone coneUnplaced = UnplacedCone(rmin1, rmax1, rmin2, rmax2, dz, sphi, dphi);
+  auto coneUnplaced         = GeoManager::MakeInstance<UnplacedCone>(rmin1, rmax1, rmin2, rmax2, dz, sphi, dphi);
 
   LogicalVolume world("world", &worldUnplaced);
-  LogicalVolume cone("cone", &coneUnplaced);
+  LogicalVolume cone("cone", coneUnplaced);
 
   Transformation3D placement(5, 0, 0);
   world.PlaceDaughter("cone", &cone, &placement);

@@ -897,6 +897,7 @@ set(TEST_EXECUTABLES_CORE
   ${CMAKE_SOURCE_DIR}/test/core/SafetyEstimatorTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/ContainerTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/create_geometry.cpp
+  ${CMAKE_SOURCE_DIR}/test/core/BitSetTest.cpp
 #  ${CMAKE_SOURCE_DIR}/test/core/testVectorSafety.cpp
   ${CMAKE_SOURCE_DIR}/test/core/PlanesTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/QuadrilateralTest.cpp
@@ -941,10 +942,6 @@ set(TEST_EXECUTABLES_ROOT
   ${CMAKE_SOURCE_DIR}/test/core/TestRegions.cpp
 )
 
-set(TEST_EXECUTABLES_CORE
-  ${TEST_EXECUTABLES_CORE}
-  ${CMAKE_SOURCE_DIR}/test/core/BitSetTest.cpp
-)
 # higher level benchmarks or executables
 set(TEST_EXECUTABLES_ROOT
   ${TEST_EXECUTABLES_ROOT}

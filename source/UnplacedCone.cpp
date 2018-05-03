@@ -41,7 +41,6 @@ void UnplacedCone::DetectConvexity()
   }
 }
 
-#if !defined(VECCORE_CUDA)
 #if (0)
 // Simplest Extent definition, that does not take PHI into consideration
 void UnplacedCone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
@@ -54,6 +53,7 @@ void UnplacedCone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) 
 
 #if (1)
 // Improved Extent definition, that takes PHI also into consideration
+VECCORE_ATT_HOST_DEVICE
 void UnplacedCone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) const
 {
   // most general case
@@ -66,7 +66,7 @@ void UnplacedCone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) 
 
   /* Below logic borrowed from Tube.
   **
-  ** But it would be great, if its possible to directly call Extent of Tube.
+  ** But it would be great, if it's possible to directly call Extent of Tube.
   ** because in that case we can avoid code replication.
   */
 
@@ -120,6 +120,7 @@ void UnplacedCone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) 
 }
 #endif
 
+VECCORE_ATT_HOST_DEVICE
 bool UnplacedCone::Normal(Vector3D<Precision> const &p, Vector3D<Precision> &norm) const
 {
   int noSurfaces = 0;
@@ -446,52 +447,6 @@ Vector3D<Precision> UnplacedCone::SamplePointOnSurface() const
 }
 #endif
 
-#endif // VECCORE_CUDA
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-VECCORE_ATT_DEVICE
-VPlacedVolume *UnplacedCone::Create(LogicalVolume const *const logical_volume,
-                                    Transformation3D const *const transformation,
-#ifdef VECCORE_CUDA
-                                    const int id,
-#endif
-                                    VPlacedVolume *const placement)
-{
-
-  using namespace ConeTypes;
-  __attribute__((unused)) const UnplacedCone &cone =
-      static_cast<const UnplacedCone &>(*(logical_volume->GetUnplacedVolume()));
-
-#ifdef VECCORE_CUDA
-#define RETURN_SPECIALIZATION(coneTypeT)                                                   \
-  return CreateSpecializedWithPlacement<SpecializedCone<transCodeT, rotCodeT, coneTypeT>>( \
-      logical_volume, transformation, id, placement)
-#else
-#define RETURN_SPECIALIZATION(coneTypeT)                                                                  \
-  return CreateSpecializedWithPlacement<SpecializedCone<transCodeT, rotCodeT, coneTypeT>>(logical_volume, \
-                                                                                          transformation, placement)
-#endif
-
-#ifdef GENERATE_CONE_SPECIALIZATIONS
-  if (cone.GetRmin1() <= 0 && cone.GetRmin2() <= 0) {
-    if (cone.GetDPhi() >= 2 * M_PI) RETURN_SPECIALIZATION(NonHollowCone);
-    if (cone.GetDPhi() == M_PI) RETURN_SPECIALIZATION(NonHollowConeWithPiSector); // == M_PI ???
-
-    if (cone.GetDPhi() < M_PI) RETURN_SPECIALIZATION(NonHollowConeWithSmallerThanPiSector);
-    if (cone.GetDPhi() > M_PI) RETURN_SPECIALIZATION(NonHollowConeWithBiggerThanPiSector);
-  } else if (cone.GetRmin1() > 0 || cone.GetRmin2() > 0) {
-    if (cone.GetDPhi() >= 2 * M_PI) RETURN_SPECIALIZATION(HollowCone);
-    if (cone.GetDPhi() == M_PI) RETURN_SPECIALIZATION(HollowConeWithPiSector); // == M_PI ???
-    if (cone.GetDPhi() < M_PI) RETURN_SPECIALIZATION(HollowConeWithSmallerThanPiSector);
-    if (cone.GetDPhi() > M_PI) RETURN_SPECIALIZATION(HollowConeWithBiggerThanPiSector);
-  }
-#endif
-
-  RETURN_SPECIALIZATION(UniversalCone);
-
-#undef RETURN_SPECIALIZATION
-}
-
 std::ostream &UnplacedCone::StreamInfo(std::ostream &os) const
 {
   int oldprc = os.precision(16);
@@ -514,33 +469,56 @@ std::ostream &UnplacedCone::StreamInfo(std::ostream &os) const
 
 // this is repetitive code:
 
-VECCORE_ATT_DEVICE
-VPlacedVolume *UnplacedCone::SpecializedVolume(LogicalVolume const *const volume,
-                                               Transformation3D const *const transformation,
-                                               const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECCORE_CUDA
-                                               const int id,
-#endif
-                                               VPlacedVolume *const placement) const
+template <>
+UnplacedCone *Maker<UnplacedCone>::MakeInstance(const Precision &rmin1, const Precision &rmax1, const Precision &rmin2,
+                                                const Precision &rmax2, const Precision &dz, const Precision &phimin,
+                                                const Precision &deltaphi)
 {
-
-  return VolumeFactory::CreateByTransformation<UnplacedCone>(volume, transformation, trans_code, rot_code,
-#ifdef VECCORE_CUDA
-                                                             id,
+// #ifdef GENERATE_CONE_SPECIALIZATIONS
+#ifndef VECGEOM_NO_SPECIALIZATION
+  if (rmin1 <= 0 && rmin2 <= 0) {
+    if (deltaphi >= 2 * M_PI)
+      return new SUnplacedCone<ConeTypes::NonHollowCone>(rmin1, rmax1, rmin2, rmax2, dz, phimin, deltaphi);
+    if (deltaphi == M_PI)
+      return new SUnplacedCone<ConeTypes::NonHollowConeWithPiSector>(rmin1, rmax1, rmin2, rmax2, dz, phimin,
+                                                                     deltaphi); // == M_PI ???
+    if (deltaphi < M_PI)
+      return new SUnplacedCone<ConeTypes::NonHollowConeWithSmallerThanPiSector>(rmin1, rmax1, rmin2, rmax2, dz, phimin,
+                                                                                deltaphi);
+    if (deltaphi > M_PI)
+      return new SUnplacedCone<ConeTypes::NonHollowConeWithBiggerThanPiSector>(rmin1, rmax1, rmin2, rmax2, dz, phimin,
+                                                                               deltaphi);
+  } else if (rmin1 > 0 || rmin2 > 0) {
+    if (deltaphi >= 2 * M_PI)
+      return new SUnplacedCone<ConeTypes::HollowCone>(rmin1, rmax1, rmin2, rmax2, dz, phimin, deltaphi);
+    if (deltaphi == M_PI)
+      return new SUnplacedCone<ConeTypes::HollowConeWithPiSector>(rmin1, rmax1, rmin2, rmax2, dz, phimin,
+                                                                  deltaphi); // == M_PI ???
+    if (deltaphi < M_PI)
+      return new SUnplacedCone<ConeTypes::HollowConeWithSmallerThanPiSector>(rmin1, rmax1, rmin2, rmax2, dz, phimin,
+                                                                             deltaphi);
+    if (deltaphi > M_PI)
+      return new SUnplacedCone<ConeTypes::HollowConeWithBiggerThanPiSector>(rmin1, rmax1, rmin2, rmax2, dz, phimin,
+                                                                            deltaphi);
+  }
+  // this should never happen...
+  return nullptr;
+#else
+  // if nothing matches, return the most general case
+  return new SUnplacedCone<ConeTypes::UniversalCone>(rmin1, rmax1, rmin2, rmax2, dz, phimin, deltaphi);
 #endif
-                                                             placement);
 }
 
 #ifdef VECGEOM_CUDA_INTERFACE
 DevicePtr<cuda::VUnplacedVolume> UnplacedCone::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
 {
-  return CopyToGpuImpl<UnplacedCone>(in_gpu_ptr, GetRmin1(), GetRmax1(), GetRmin2(), GetRmax2(), GetDz(), GetSPhi(),
-                                     GetDPhi());
+  return CopyToGpuImpl<SUnplacedCone<ConeTypes::UniversalCone>>(in_gpu_ptr, GetRmin1(), GetRmax1(), GetRmin2(),
+                                                                GetRmax2(), GetDz(), GetSPhi(), GetDPhi());
 }
 
 DevicePtr<cuda::VUnplacedVolume> UnplacedCone::CopyToGpu() const
 {
-  return CopyToGpuImpl<UnplacedCone>();
+  return CopyToGpuImpl<SUnplacedCone<ConeTypes::UniversalCone>>();
 }
 
 #endif // VECGEOM_CUDA_INTERFACE
@@ -551,10 +529,10 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedCone::CopyToGpu() const
 
 namespace cxx {
 
-template size_t DevicePtr<cuda::UnplacedCone>::SizeOf();
-template void DevicePtr<cuda::UnplacedCone>::Construct(const Precision rmin1, const Precision rmax1,
-                                                       const Precision rmin2, const Precision rmax2, const Precision z,
-                                                       const Precision sphi, const Precision dphi) const;
+template size_t DevicePtr<cuda::SUnplacedCone<cuda::ConeTypes::UniversalCone>>::SizeOf();
+template void DevicePtr<cuda::SUnplacedCone<cuda::ConeTypes::UniversalCone>>::Construct(
+    const Precision rmin1, const Precision rmax1, const Precision rmin2, const Precision rmax2, const Precision z,
+    const Precision sphi, const Precision dphi) const;
 
 } // End cxx namespace
 

@@ -28,49 +28,39 @@ struct ConeStruct;
 using UnplacedStruct_t = ConeStruct<double>;
 
 namespace ConeUtilities {
+
 /**
-* Returns whether a point is inside a cylindrical sector, as defined
-* by the two vectors that go along the endpoints of the sector
-*
-* The same could be achieved using atan2 to calculate the angle formed
-* by the point, the origin and the X-axes, but this is a lot faster,
-* using only multiplications and comparisons
-*
-* (-x*starty + y*startx) >= 0: calculates whether going from the start vector to
-*the point
-* we are traveling in the CCW direction (taking the shortest direction, of
-*course)
-*
-* (-endx*y + endy*x) >= 0: calculates whether going from the point to the end
-*vector
-* we are traveling in the CCW direction (taking the shortest direction, of
-*course)
-*
-* For a sector smaller than pi, we need that BOTH of them hold true - if going
-*from start, to the
-* point, and then to the end we are travelling in CCW, it's obvious the point is
-*inside the
-* cylindrical sector.
-*
-* For a sector bigger than pi, only one of the conditions needs to be true. This
-*is less obvious why.
-* Since the sector angle is greater than pi, it can be that one of the two
-*vectors might be
-* farther than pi away from the point. In that case, the shortest direction will
-*be CW, so even
-* if the point is inside, only one of the two conditions need to hold.
-*
-* If going from start to point is CCW, then certainly the point is inside as the
-*sector
-* is larger than pi.
-*
-* If going from point to end is CCW, again, the point is certainly inside.
-*
-* This function is a frankensteinian creature that can determine which of the
-*two cases (smaller vs larger than pi)
-* to use either at compile time (if it has enough information, saving an ifVolumeType
-*statement) or at runtime.
-**/
+ * Returns whether a point is inside a cylindrical sector, as defined
+ * by the two vectors that go along the endpoints of the sector
+ *
+ * The same could be achieved using atan2 to calculate the angle formed
+ * by the point, the origin and the X-axes, but this is a lot faster,
+ * using only multiplications and comparisons
+ *
+ * (-x*starty + y*startx) >= 0: calculates whether going from the start vector to the point
+ * we are traveling in the CCW direction (taking the shortest direction, of course)
+ *
+ * (-endx*y + endy*x) >= 0: calculates whether going from the point to the end vector
+ * we are traveling in the CCW direction (taking the shortest direction, of course)
+ *
+ * For a sector smaller than pi, we need that BOTH of them hold true - if going from start, to the
+ * point, and then to the end we are travelling in CCW, it's obvious the point is inside the
+ * cylindrical sector.
+ *
+ * For a sector bigger than pi, only one of the conditions needs to be true. This is less obvious why.
+ * Since the sector angle is greater than pi, it can be that one of the two vectors might be
+ * farther than pi away from the point. In that case, the shortest direction will be CW, so even
+ * if the point is inside, only one of the two conditions need to hold.
+ *
+ * If going from start to point is CCW, then certainly the point is inside as the sector
+ * is larger than pi.
+ *
+ * If going from point to end is CCW, again, the point is certainly inside.
+ *
+ * This function is a frankensteinian creature that can determine which of the two cases (smaller vs
+ * larger than pi) to use either at compile time (if it has enough information, saving an ifVolumeType
+ * statement) or at runtime.
+ **/
 
 #if (1)
 template <typename Real_v, typename ShapeType, bool onSurfaceT, bool includeSurface = true>
@@ -164,8 +154,6 @@ static void PhiPlaneTrajectoryIntersection(Precision alongX, Precision alongY, P
                                            Vector3D<Real_v> const &dir, Real_v &dist,
                                            typename vecCore::Mask_v<Real_v> &ok)
 {
-
-  // typedef Real_v Real_v;
 
   dist = kInfLength;
 

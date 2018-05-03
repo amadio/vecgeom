@@ -8,14 +8,15 @@
 /// History notes:
 /// revision + moving to Vectorized Cone Kernels (Raman Sehgal)
 /// May-June 2017: revision + moving to new Structure (Raman Sehgal)
+/// 20180323 Guilherme Lima  Adapted to new UnplacedVolume factory
 
 #ifndef VECGEOM_VOLUMES_KERNEL_CONEIMPLEMENTATION_H_
 #define VECGEOM_VOLUMES_KERNEL_CONEIMPLEMENTATION_H_
 
 #include "base/Vector3D.h"
-#include "volumes/ConeStruct.h"
 #include "volumes/kernel/GenericKernels.h"
 #include "volumes/kernel/shapetypes/ConeTypes.h"
+#include "volumes/ConeStruct.h"
 #include <cstdio>
 #include "volumes/ConeUtilities.h"
 #define kConeTolerance 1e-7
@@ -27,18 +28,17 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE(struct, ConeImplementation, typename);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class PlacedCone;
-class UnplacedCone;
 template <typename T>
-struct ConeStruct;
-using UnplacedStruct_t = ConeStruct<double>;
+class SPlacedCone;
+template <typename T>
+class SUnplacedCone;
 
 template <typename coneTypeT>
 struct ConeImplementation {
 
-  using PlacedShape_t    = PlacedCone;
   using UnplacedStruct_t = ConeStruct<double>;
-  using UnplacedVolume_t = UnplacedCone;
+  using UnplacedVolume_t = SUnplacedCone<coneTypeT>;
+  using PlacedShape_t    = SPlacedCone<UnplacedVolume_t>;
 
   VECCORE_ATT_HOST_DEVICE
   static void PrintType() {}
@@ -59,14 +59,15 @@ struct ConeImplementation {
   {
   }
 
-  template <typename Real_v, typename Bool_v>
+  template <typename Real_v>
   VECGEOM_FORCE_INLINE
   VECCORE_ATT_HOST_DEVICE
-  static void Contains(UnplacedStruct_t const &cone, Vector3D<Real_v> const &point, Bool_v &inside)
+  static void Contains(UnplacedStruct_t const &cone, Vector3D<Real_v> const &point,
+                       typename vecCore::Mask_v<Real_v> &inside)
   {
-    typedef typename vecCore::Mask_v<Real_v> Bool_t;
-    Bool_t unused;
-    Bool_t outside;
+    typedef typename vecCore::Mask_v<Real_v> Bool_v;
+    Bool_v unused;
+    Bool_v outside;
     ConeHelpers<Real_v, coneTypeT>::template GenericKernelForContainsAndInside<false>(cone, point, unused, outside);
     inside = !outside;
   }
@@ -372,17 +373,13 @@ struct ConeImplementation {
     done |= inside;
     if (vecCore::MaskFull(done)) return;
 
-    // Once it is checked that the point is inside or not, safety can be set to
-    // 0.
-    // This will serve the case that the point is on the surface. So no need to
-    // check
+    // Once it is checked that the point is inside or not, safety can be set to 0.
+    // This will serve the case that the point is on the surface. So no need to check
     // that the point is really on surface.
     vecCore__MaskedAssignFunc(safety, !done, Float_t(0.));
 
-    // Now if the point is neither inside nor on surface, then it should be
-    // outside
-    // and the safety should be set to some finite value, which is done by below
-    // logic
+    // Now if the point is neither inside nor on surface, then it should be outside
+    // and the safety should be set to some finite value, which is done by below logic
 
     Float_t safeZ                = Abs(point.z()) - fDz;
     Float_t safeDistOuterSurface = -SafeDistanceToConicalSurface<Real_v, false>(cone, point);
@@ -438,7 +435,7 @@ struct ConeImplementation {
       Float_t innerRadOrTol2 = innerRadOrTol * innerRadOrTol;
       outside |= rsq < innerRadOrTol2;
     }
-    // if (checkPhiTreatment<coneTypeT>(cone) && !vecCore::MaskEmpty(outside)) {
+
     if (checkPhiTreatment<coneTypeT>(cone) && !vecCore::MaskEmpty(outside)) {
 
       Bool_t insector;
@@ -448,17 +445,13 @@ struct ConeImplementation {
     done |= outside;
     if (vecCore::MaskFull(done)) return;
 
-    // Once it is checked that the point is inside or not, safety can be set to
-    // 0.
-    // This will serve the case that the point is on the surface. So no need to
-    // check
+    // Once it is checked that the point is inside or not, safety can be set to 0.
+    // This will serve the case that the point is on the surface. So no need to check
     // that the point is really on surface.
     vecCore__MaskedAssignFunc(safety, !done, Float_t(0.));
 
-    // Now if the point is neither outside nor on surface, then it should be
-    // inside
-    // and the safety should be set to some finite value, which is done by below
-    // logic
+    // Now if the point is neither outside nor on surface, then it should be inside
+    // and the safety should be set to some finite value, which is done by below logic
 
     Precision fDz = cone.fDz;
     Float_t safeZ = fDz - Abs(point.z());

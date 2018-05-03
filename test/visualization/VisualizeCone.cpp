@@ -1,4 +1,5 @@
 #include "utilities/Visualizer.h"
+#include "management/GeoManager.h"
 #include "volumes/Cone.h"
 #include "volumes/utilities/VolumeUtilities.h"
 #include "base/AOS3D.h"

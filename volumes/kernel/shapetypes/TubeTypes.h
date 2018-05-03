@@ -8,8 +8,6 @@
 #ifndef VECGEOM_VOLUMES_KERNEL_SHAPETYPES_TUBETYPES_H_
 #define VECGEOM_VOLUMES_KERNEL_SHAPETYPES_TUBETYPES_H_
 
-#include <string>
-
 namespace vecgeom {
 
 VECGEOM_DEVICE_DECLARE_NS_CONV(TubeTypes, struct, UniversalTube, UniversalTube);
@@ -37,8 +35,7 @@ namespace TubeTypes {
     static char const *toString() { return #name; } \
   }
 
-// A tube that encompasses all cases - not specialized and
-// will do extra checks at runtime
+// A tube that encompasses all cases - not specialized and will do extra checks at runtime
 DEFINE_TUBE_TYPE(UniversalTube);
 
 //#ifndef VECGEOM_NO_SPECIALIZATION
@@ -100,7 +97,7 @@ bool checkPhiTreatment(const UnplacedTube &tube)
   if (NeedsPhiTreatment<T>::value != kUnknown)
     return NeedsPhiTreatment<T>::value == kYes;
   else
-    return tube.fDphi < 2 * M_PI;
+    return tube.fDphi < vecgeom::kTwoPi;
 }
 
 // asking for rmin treatment
@@ -192,8 +189,8 @@ struct SectorType<HollowTubeWithBiggerThanPiSector> {
 
 #endif // VECGEOM_NO_SPECIALIZATION
 
-} // End of TubeTypes
-}
-} // End global namespace
+} // End namespace TubeTypes
+} // End VECGEOM_IMPL_NAMESPACE
+} // End global namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_KERNEL_SHAPETYPES_TUBETYPES_H_

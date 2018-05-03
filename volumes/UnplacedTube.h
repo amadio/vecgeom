@@ -2,9 +2,7 @@
 #define VECGEOM_VOLUMES_UNPLACEDTUBE_H_
 
 #include "base/Global.h"
-#include "base/RNG.h"
 #include "base/AlignedBase.h"
-#include "base/Array.h"
 #include "volumes/UnplacedVolume.h"
 #include "volumes/TubeStruct.h"
 #include "volumes/kernel/TubeImplementation.h"
