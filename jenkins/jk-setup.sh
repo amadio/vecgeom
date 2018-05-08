@@ -17,13 +17,14 @@ else
   return
 fi
 
+export BUILDTYPE
+export COMPILER
+
 if [ "$WORKSPACE" == "" ]; then WORKSPACE=$PWD; fi
 PLATFORM=`$THIS/getPlatform.py`
 COMPATIBLE=`$THIS/getCompatiblePlatform.py $PLATFORM`
 ARCH=$(uname -m)
 
-export BUILDTYPE
-export COMPILER
 
 # Set up the externals against devgeantv in CVMFS
 if [ -a /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS/$PLATFORM ]; then
@@ -33,7 +34,7 @@ elif [ -a /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS/$COMPATIBLE ]; then
 elif [[ $PLATFORM == *slc6* ]] || [[ $PLATFORM == *centos7* ]]; then
   export PATH=/cvmfs/sft.cern.ch/lcg/contrib/CMake/3.7.0/Linux-$ARCH/bin:${PATH}
 else
-  echo "No externals for $PLATFORM in /cvmfs/sft.cern.ch/lcg/views/devgeantv/latest"
+  echo "No externals for $PLATFORM in /cvmfs/sft.cern.ch/lcg/views/devgeantv/$EXTERNALS"
 fi
 
 if [ $LABEL == slc6 ] || [ $LABEL == gvslc6 ] || [ $LABEL == cc7 ] || [ $LABEL == cuda7 ] || [ $LABEL == slc6-physical ] || [  $LABEL == continuous-sl6 ] || [  $LABEL == continuous-cuda7 ] || [ $LABEL == continuous-xeonphi ] || [ $LABEL == c7-checker ]
@@ -88,7 +89,6 @@ elif [[ $COMPILER == *clang* ]]; then
   clang38gcc=49
   GCCversion=${COMPILER}gcc
   . /afs/cern.ch/sw/lcg/external/llvm/${!COMPILERversion}/${ARCH}-${LABEL_COMPILER}/setup.sh
-# . /cvmfs/sft.cern.ch/lcg/contrib/llvm/${!COMPILERversion}/${ARCH}-${LABEL_COMPILER}/setup.sh
   export CC=`which clang`
   export CXX=`which clang++`
   export FC=`which gfortran`
@@ -97,12 +97,10 @@ fi
 # Setup ccache
 dir=$WORKSPACE
 while [ $(basename $dir) != workspace ]; do dir=$(dirname $dir); done
-export CCACHE_DIR=$dir
+export CCACHE_DIR=$dir/ccache
 export CCACHE_MAXSIZE=10G
 
 export CMAKE_SOURCE_DIR=$WORKSPACE/VecGeom
 export CMAKE_BINARY_DIR=$WORKSPACE/build
 export CMAKE_INSTALL_PREFIX=$WORKSPACE/install
 export CMAKE_BUILD_TYPE=$BUILDTYPE
-export BACKEND=$BACKEND
-export CTEST_BUILD_OPTIONS="-DCMAKE_CXX_STANDARD=14 -DROOT=ON -DCTEST=ON -DBENCHMARK=ON ${ExtraCMakeOptions}"

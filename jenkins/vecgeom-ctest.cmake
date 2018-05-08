@@ -32,13 +32,15 @@ getuname(osname -s)
 getuname(osrel  -r)
 getuname(cpu    -m)
 
-if(DEFINED ENV{LABEL})
-  if (DEFINED ENV{BACKEND})
-  set(CTEST_BUILD_NAME "${osname}-${cpu}-$ENV{LABEL}-$ENV{BACKEND}-$ENV{CMAKE_BUILD_TYPE}")
-  endif()
+if (DEFINED ENV{BACKEND})
+  set(CTEST_BUILD_NAME "$ENV{OPTION}-${cpu}+$ENV{BACKEND}-$ENV{LABEL}-$ENV{COMPILER}-$ENV{CMAKE_BUILD_TYPE}")
 else()
-  set(CTEST_BUILD_NAME "${osname}-${cpu}-$ENV{LABEL}-$ENV{CMAKE_BUILD_TYPE}")
+  set(CTEST_BUILD_NAME "$ENV{OPTION}-${cpu}-$ENV{LABEL}-$ENV{COMPILER}-$ENV{CMAKE_BUILD_TYPE}")
 endif()
+if(DEFINED ENV{gitlabMergedByUser} AND DEFINED ENV{gitlabMergeRequestIid})
+  set(CTEST_BUILD_NAME "$ENV{gitlabMergedByUser}#$ENV{gitlabMergeRequestIid}-${CTEST_BUILD_NAME}")
+endif()
+
 message("CTEST name: ${CTEST_BUILD_NAME}")
 
 find_program(HOSTNAME_CMD NAMES hostname)
@@ -46,44 +48,6 @@ exec_program(${HOSTNAME_CMD} ARGS OUTPUT_VARIABLE HOSTNAME)
 IF(NOT DEFINED CTEST_SITE)
   SET(CTEST_SITE "${HOSTNAME}")
 ENDIF(NOT DEFINED CTEST_SITE)
-
-#######################################################
-set(WITH_COVERAGE FALSE)
-set(CTEST_CUSTOM_MAXIMUM_PASSED_TEST_OUTPUT_SIZE "5000")
-set(CTEST_CUSTOM_MAXIMUM_FAILED_TEST_OUTPUT_SIZE "5000")
-#######################################################
-#set(CTEST_USE_LAUNCHERS 1)
-#if(NOT "${CTEST_CMAKE_GENERATOR}" MATCHES "Make")
-#  set(CTEST_USE_LAUNCHERS 0)
-#endif()
-#set(ENV{CTEST_USE_LAUNCHERS_DEFAULT} ${CTEST_USE_LAUNCHERS})
-
-######################################################
-
-if(MODEL STREQUAL NightlyMemoryCheck)
-  set(WITH_MEMCHECK TRUE)
-#  find_package(Valgrind)
-#  find_package(ROOT REQUIRED)
-  if(ROOT)
-    set(MEMORYCHECK_SUPPRESSIONS_FILE "$ROOTSYS/etc/valgrind-root.supp")
-  endif()
-  set(CTEST_MEMORYCHECK_COMMAND ${VALGRIND_PROGRAM})
-else()
-  set(WITH_MEMCHECK FALSE)
-endif()
-
-# CTest/CMake settings
-
-set(CTEST_TEST_TIMEOUT 900)
-set(CTEST_BUILD_CONFIGURATION "$ENV{CMAKE_BUILD_TYPE}")
-set(CMAKE_INSTALL_PREFIX "$ENV{CMAKE_INSTALL_PREFIX}")
-set(CTEST_SOURCE_DIRECTORY "$ENV{CMAKE_SOURCE_DIR}")
-set(CTEST_BINARY_DIRECTORY "$ENV{CMAKE_BINARY_DIR}")
-set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
-set(CTEST_BUILD_OPTIONS "$ENV{CTEST_BUILD_OPTIONS}")
-set(CTEST_CONFIGURE_COMMAND "\"${CMAKE_COMMAND}\" \"-G${CTEST_CMAKE_GENERATOR}\" -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=${CTEST_BUILD_CONFIGURATION} ${CTEST_BUILD_OPTIONS} ${CTEST_SOURCE_DIRECTORY}")
-
-#ctest_empty_binary_directory(${CTEST_BINARY_DIRECTORY})
 
 #######################################################
 # Build dashboard model setup
@@ -104,15 +68,52 @@ else()
   SET(MODEL Experimental)
 endif()
 
-if("$ENV{TRACK}" STREQUAL "")
-  set(TRACK ${MODEL})
-else()
-  set(TRACK "$ENV{TRACK}")
-endif()
-
 find_program(CTEST_COMMAND_BIN NAMES ctest)
 SET (CTEST_COMMAND
     "$CTEST_COMMAND_BIN -D ${MODEL}")
+
+#######################################################
+set(WITH_COVERAGE FALSE)
+set(CTEST_CUSTOM_MAXIMUM_PASSED_TEST_OUTPUT_SIZE "5000")
+set(CTEST_CUSTOM_MAXIMUM_FAILED_TEST_OUTPUT_SIZE "5000")
+#######################################################
+#set(CTEST_USE_LAUNCHERS 1)
+#if(NOT "${CTEST_CMAKE_GENERATOR}" MATCHES "Make")
+#  set(CTEST_USE_LAUNCHERS 0)
+#endif()
+#set(ENV{CTEST_USE_LAUNCHERS_DEFAULT} ${CTEST_USE_LAUNCHERS})
+
+
+# CTest/CMake settings
+
+set(CTEST_TEST_TIMEOUT 900)
+set(CTEST_BUILD_CONFIGURATION "$ENV{CMAKE_BUILD_TYPE}")
+set(CMAKE_INSTALL_PREFIX "$ENV{CMAKE_INSTALL_PREFIX}")
+set(CTEST_SOURCE_DIRECTORY "$ENV{CMAKE_SOURCE_DIR}")
+set(CTEST_BINARY_DIRECTORY "$ENV{CMAKE_BINARY_DIR}")
+set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
+set(CTEST_BUILD_OPTIONS "$ENV{CTEST_BUILD_OPTIONS}")
+
+CTEST_BUILD_OPTIONS="-DCMAKE_CXX_STANDARD=14 -DROOT=ON -DCTEST=ON -DBENCHMARK=ON ${ExtraCMakeOptions}"
+
+set(config_options -DCMAKE_INSTALL_PREFIX=${CTEST_INSTALL_PREFIX} 
+                   -DCMAKE_BUILD_TYPE=${CTEST_BUILD_CONFIGURATION} 
+                   -DCTEST=ON
+                   -DBENCHMARK=ON
+                   -DROOT=ON
+                   $ENV{ExtraCMakeOptions})
+
+if("$ENV{COMPILER}" MATCHES gcc7)
+  list(APPEND config_options -DCMAKE_CXX_STANDARD=17)
+else()
+  list(APPEND config_options -DCMAKE_CXX_STANDARD=14)
+endif()
+
+if("$ENV{OPTION}" STREQUAL "SPEC")
+  list(APPEND config_options -DNO_SPECIALIZATION=OFF)
+endif()
+ 
+ctest_empty_binary_directory(${CTEST_BINARY_DIRECTORY})
 
 #########################################################
 # git command configuration
@@ -176,27 +177,24 @@ message("Dashboard script configuration (check if everything is declared correct
 message("Running CTest Dashboard Script (custom update)...")
 include("${CTEST_SOURCE_DIRECTORY}/CTestConfig.cmake")
 
-ctest_start(${MODEL} TRACK ${TRACK})
+ctest_start(${MODEL} TRACK ${MODEL})
 ctest_update(SOURCE ${CTEST_SOURCE_DIRECTORY})
 message("Updated.")
-ctest_configure(SOURCE "${CTEST_SOURCE_DIRECTORY}" BUILD "${CTEST_BINARY_DIRECTORY}" APPEND)
-message("Configured.")
+
+ctest_configure(BUILD   ${CTEST_BINARY_DIRECTORY}
+                SOURCE  ${CTEST_SOURCE_DIRECTORY}
+                OPTIONS "${config_options}"
+                APPEND)
 ctest_submit(PARTS Update Configure Notes)
 
-ctest_build(BUILD "${CTEST_BINARY_DIRECTORY}" APPEND)
-message("Built.")
+ctest_build(BUILD ${CTEST_BINARY_DIRECTORY} 
+            TARGET install
+            APPEND)
 ctest_submit(PARTS Build)
+
+ctest_test(BUILD ${CTEST_BINARY_DIRECTORY} APPEND)
+ctest_submit(PARTS Test)
 
 if(${MODEL} MATCHES NightlyMemoryCheck)
   ctest_submit(PARTS MemCheck)
 endif()
-
-message(" -- Install ${MODEL} - ${CTEST_BUILD_NAME} --")
-execute_process(COMMAND make install  WORKING_DIRECTORY ${CTEST_BINARY_DIRECTORY}  RESULT_VARIABLE ExitCode)
-CheckExitCode()
-
-ctest_test(BUILD "${CTEST_BINARY_DIRECTORY}" APPEND)
-message("Tested.")
-ctest_submit(PARTS Test)
-
-message("DONE:CTestScript")
