@@ -124,6 +124,8 @@ if("$ENV{OPTION}" STREQUAL "SPEC")
   list(APPEND config_options -DNO_SPECIALIZATION=OFF)
 elseif("$ENV{OPTION}" STREQUAL "AVX")
   list(APPEND config_options -DVECGEOM_VECTOR=avx) 
+elseif("$ENV{OPTION}" STREQUAL "SSE3")
+  list(APPEND config_options -DVECGEOM_VECTOR=sse3)
 endif()
  
 ctest_empty_binary_directory(${CTEST_BINARY_DIRECTORY})
