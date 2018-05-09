@@ -91,15 +91,28 @@ set(CTEST_BUILD_CONFIGURATION "$ENV{CMAKE_BUILD_TYPE}")
 set(CMAKE_INSTALL_PREFIX "$ENV{CMAKE_INSTALL_PREFIX}")
 set(CTEST_SOURCE_DIRECTORY "$ENV{CMAKE_SOURCE_DIR}")
 set(CTEST_BINARY_DIRECTORY "$ENV{CMAKE_BINARY_DIR}")
+set(CTEST_INSTALL_PREFIX "$ENV{CMAKE_INSTALL_PREFIX}")
 set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
 set(CTEST_BUILD_OPTIONS "$ENV{CTEST_BUILD_OPTIONS}")
 
+# Fix set of CMake options
 set(config_options -DCMAKE_INSTALL_PREFIX=${CTEST_INSTALL_PREFIX} 
                    -DCMAKE_BUILD_TYPE=${CTEST_BUILD_CONFIGURATION} 
                    -DCTEST=ON
                    -DBENCHMARK=ON
                    -DROOT=ON
+                   -DCUDA_VOLUME_SPECIALIZATION=OFF
                    $ENV{ExtraCMakeOptions})
+
+# Options depending on compiler/label/etc. 
+if("$ENV{LABEL}" MATCHES cuda)
+  list(APPEND config_options -DCUDA=ON)
+  list(APPEND config_options -DCUDA_VOLUME_SPECIALIZATION=OFF)
+endif()
+
+if (DEFINED ENV{BACKEND})
+list(APPEND config_options -DBACKEND=$ENV{BACKEND})
+endif()
 
 if("$ENV{COMPILER}" MATCHES gcc7)
   list(APPEND config_options -DCMAKE_CXX_STANDARD=17)

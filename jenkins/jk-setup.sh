@@ -19,6 +19,7 @@ fi
 
 export BUILDTYPE
 export COMPILER
+export BACKEND
 
 if [ "$WORKSPACE" == "" ]; then WORKSPACE=$PWD; fi
 PLATFORM=`$THIS/getPlatform.py`
