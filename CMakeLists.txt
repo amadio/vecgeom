@@ -657,6 +657,7 @@ set(VECGEOM_SRCS
   source/PlacedScaledShape.cpp
   source/PlacedTrapezoid.cpp
   source/PlacedTessellated.cpp
+  source/PlacedMultiUnion.cpp
   source/PlacedExtruded.cpp
   source/PlacedVolume.cpp
   source/Planes.cpp
@@ -678,6 +679,7 @@ set(VECGEOM_SRCS
   source/UnplacedScaledShape.cpp
   source/UnplacedTrapezoid.cpp
   source/UnplacedTessellated.cpp
+  source/UnplacedMultiUnion.cpp
   source/UnplacedExtruded.cpp
   source/UnplacedVolume.cpp
   source/NavigationState.cpp
@@ -745,7 +747,9 @@ set(NOT_FOR_CUDA
    NavigationSpecializer
    ResultComparator
    UnplacedTessellated
+   UnplacedMultiUnion
    PlacedTessellated
+   PlacedMultiUnion
    TessellatedCluster
    TessellatedHelpers
    Tile

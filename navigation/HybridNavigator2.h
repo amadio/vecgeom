@@ -64,6 +64,47 @@ private:
   }
 
   /**
+   * Returns list of daughter candidates containing the point.
+   */
+  size_t GetContainingCandidates_v(HybridManager2::HybridBoxAccelerationStructure const &accstructure,
+                                   Vector3D<Precision> const &point, size_t *hitlist) const
+  {
+    using Float_v      = HybridManager2::Float_v;
+    using Bool_v       = vecCore::Mask<Float_v>;
+    constexpr auto kVS = vecCore::VectorSize<Float_v>();
+    size_t count       = 0;
+    int numberOfNodes, size;
+    auto boxes_v                = fAccelerationManager.GetABBoxes_v(accstructure, size, numberOfNodes);
+    auto const *nodeToDaughters = accstructure.fNodeToDaughters;
+    for (size_t index = 0, nodeindex = 0; index < size_t(size) * 2; index += 2 * (kVS + 1), nodeindex += kVS) {
+      Bool_v inside, inside_d;
+      Vector3D<Float_v> *corners = &boxes_v[index];
+      ABBoxImplementation::ABBoxContainsKernelGeneric<HybridManager2::Float_v, Precision, Bool_v>(
+          corners[0], corners[1], point, inside);
+      if (!vecCore::MaskEmpty(inside)) {
+        // loop lanes
+        for (size_t i = 0; i < kVS; ++i) {
+          if (vecCore::MaskLaneAt(inside, i)) {
+            corners = &boxes_v[index + 2 * (i + 1)];
+            ABBoxImplementation::ABBoxContainsKernelGeneric<HybridManager2::Float_v, Precision, Bool_v>(
+                corners[0], corners[1], point, inside_d);
+            if (!vecCore::MaskEmpty(inside_d)) {
+              // loop lanes at second level
+              for (size_t j = 0; j < kVS; ++j) {
+                if (vecCore::MaskLaneAt(inside_d, j)) {
+                  assert(count < VECGEOM_MAXFACETS);
+                  hitlist[count++] = nodeToDaughters[nodeindex + i][j];
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return count;
+  }
+
+  /**
    * Returns hitlist of daughter candidates (pairs of [daughter index, step to bounding box]) crossed by ray.
    */
   size_t GetHitCandidates_v(HybridManager2::HybridBoxAccelerationStructure const &accstructure,
@@ -140,6 +181,19 @@ public:
       // here we got the hit candidates
       // now we execute user specific code to process this "hitbox"
       auto done = userhook(hitbox);
+      if (done) break;
+    }
+  }
+
+  template <typename AccStructure, typename Func>
+  VECGEOM_FORCE_INLINE
+  void BVHContainsLooper(AccStructure const &accstructure, Vector3D<Precision> const &localpoint, Func &&userhook) const
+  {
+    size_t hitlist[VECGEOM_MAXFACETS];
+    auto ncandidates = GetContainingCandidates_v(accstructure, localpoint, hitlist);
+    for (size_t index = 0; index < ncandidates; ++index) {
+      auto hitbox = hitlist[index];
+      auto done   = userhook(hitbox);
       if (done) break;
     }
   }
