@@ -181,7 +181,7 @@ struct TessellatedImplementation {
 #ifndef VECGEOM_ENABLE_CUDA
     using Float_v = vecgeom::VectorBackend::Real_v;
 #else
-    using Float_v = vecgeom::ScalarBackend::Real_v;
+    using Float_v             = vecgeom::ScalarBackend::Real_v;
 #endif
     isurf      = -1;
     isurfother = -1;
@@ -245,9 +245,14 @@ struct TessellatedImplementation {
       return false;
     };
 
-    HybridNavigator<> *boxNav = (HybridNavigator<> *)HybridNavigator<>::Instance();
+#ifdef USEEMBREE
+    EmbreeNavigator<> *boxNav = (EmbreeNavigator<> *)EmbreeNavigator<>::Instance();
     // intersect ray with the BVH structure and use hook
-    boxNav->BVHSortedIntersectionsLooper(*tessellated.fNavHelper, point, direction, userhook);
+    boxNav->BVHSortedIntersectionsLooper(*tessellated.fNavHelper2, point, direction, 1E20, userhook);
+#else
+    HybridNavigator<> *boxNav = (HybridNavigator<> *)HybridNavigator<>::Instance();
+    boxNav->BVHSortedIntersectionsLooper(*tessellated.fNavHelper2, point, direction, userhook);
+#endif
 
     // Treat special cases
     if (ToIn) {

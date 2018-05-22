@@ -12,6 +12,12 @@
 #include "base/Stopwatch.h"
 #include "management/HybridManager2.h"
 #include "navigation/HybridNavigator2.h"
+
+#ifdef VECGEOM_EMBREE
+#include "management/EmbreeManager.h"
+#include "navigation/EmbreeNavigator.h"
+#endif
+
 #include "management/ABBoxManager.h"
 
 namespace vecgeom {
@@ -22,6 +28,10 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 // Structure used for vectorizing queries on groups of triangles
 
+#ifdef VECGEOM_EMBREE
+#define USEEMBREE 1
+#endif
+
 template <size_t NVERT, typename T = double>
 class TessellatedStruct {
 
@@ -29,7 +39,7 @@ class TessellatedStruct {
 #ifndef VECGEOM_ENABLE_CUDA
   using Real_v = vecgeom::VectorBackend::Real_v;
 #else
-  using Real_v = vecgeom::ScalarBackend::Real_v;
+  using Real_v        = vecgeom::ScalarBackend::Real_v;
 #endif
   using Facet_t = Tile<NVERT, T>;
 
@@ -39,13 +49,21 @@ class TessellatedStruct {
 
   using BVHStructure = HybridManager2::HybridBoxAccelerationStructure;
 
+#ifdef USEEMBREE
+  using BVHStructure2 = EmbreeManager::EmbreeAccelerationStructure;
+#else
+  using BVHStructure2 = HybridManager2::HybridBoxAccelerationStructure; // EmbreeManager::EmbreeAccelerationStructure;
+#endif
+
   //__________________________________________________________________________
   struct GridCell {
     vector_t<int> fArray; // Array of facet indices
     bool fUsed = false;   // Used flag
 
     VECCORE_ATT_HOST_DEVICE
-    GridCell() { /* fArray.reserve(4); */}
+    GridCell()
+    { /* fArray.reserve(4); */
+    }
   };
 
   //__________________________________________________________________________
@@ -108,15 +126,16 @@ class TessellatedStruct {
   };
 
 public:
-  bool fSolidClosed   = false;        ///< Closure of the solid
-  T fCubicVolume      = 0;            ///< Cubic volume
-  T fSurfaceArea      = 0;            ///< Surface area
-  GridHelper *fHelper = nullptr;      ///< Grid helper
-  Vector3D<T> fMinExtent;             ///< Minimum extent
-  Vector3D<T> fMaxExtent;             ///< Maximum extent
-  Vector3D<T> fInvExtSize;            ///< Inverse extent size
-  Vector3D<T> fTestDir;               ///< Test direction for Inside function
-  BVHStructure *fNavHelper = nullptr; ///< Navigation helper using bounding boxes
+  bool fSolidClosed   = false;          ///< Closure of the solid
+  T fCubicVolume      = 0;              ///< Cubic volume
+  T fSurfaceArea      = 0;              ///< Surface area
+  GridHelper *fHelper = nullptr;        ///< Grid helper
+  Vector3D<T> fMinExtent;               ///< Minimum extent
+  Vector3D<T> fMaxExtent;               ///< Maximum extent
+  Vector3D<T> fInvExtSize;              ///< Inverse extent size
+  Vector3D<T> fTestDir;                 ///< Test direction for Inside function
+  BVHStructure *fNavHelper   = nullptr; ///< Navigation helper using bounding boxes
+  BVHStructure2 *fNavHelper2 = nullptr; ///< Navigation helper using bounding boxes
 
   // Here we have a pointer to the aligned bbox structure
   // ABBoxanager *fABBoxManager;
@@ -142,6 +161,11 @@ private:
     }
     Boxes_t boxes = &boxcorners[0];
     fNavHelper    = HybridManager2::Instance().BuildStructure(boxes, nclusters);
+#ifdef USEEMBREE
+    fNavHelper2 = EmbreeManager::Instance().BuildStructureFromBoundingBoxes(boxes, nclusters);
+#else
+    fNavHelper2 = fNavHelper;
+#endif
   }
 
 public:
@@ -168,8 +192,8 @@ public:
   {
     // Method adding a facet to the structure. The vertices are added to the
     // list of all vertices (including duplications) and the extent is re-adjusted.
-    using vecCore::math::Min;
     using vecCore::math::Max;
+    using vecCore::math::Min;
 
     fFacets.push_back(facet);
     int ind = fHelper->fAllVert.size();
@@ -280,7 +304,7 @@ public:
     TessellatedCluster<NVERT, Real_v> *cluster;
     while (fCandidates.size()) {
       // Use existing candidates in fCandidates to create the cluster
-      cluster               = CreateCluster();
+      cluster = CreateCluster();
       if (!cluster) cluster = MakePartialCluster();
       fClusters.push_back(cluster);
       // Fill cluster from the same cell or from a neighbor cell
@@ -327,8 +351,8 @@ public:
   {
     // Loop over facets and group them in clusters in the order of definition
     TessellatedCluster<NVERT, Real_v> *tcl = nullptr;
-    int i = 0;
-    int j = 0;
+    int i                                  = 0;
+    int j                                  = 0;
     for (auto facet : fFacets) {
       i = i % kVecSize;
       if (i == 0) {
@@ -365,7 +389,7 @@ public:
 
     // The cluster is now complete, create a tessellated cluster object
     TessellatedCluster<NVERT, Real_v> *tcl = new TessellatedCluster<NVERT, Real_v>();
-    int i = 0;
+    int i                                  = 0;
     for (auto ifct : fCluster) {
       Facet_t *facet = fFacets[ifct];
       tcl->AddFacet(i++, facet, ifct);
@@ -387,7 +411,7 @@ public:
 
     // The cluster is now complete, create a tessellated cluster object
     TessellatedCluster<NVERT, Real_v> *tcl = new TessellatedCluster<NVERT, Real_v>();
-    int i = 0;
+    int i                                  = 0;
     for (auto ifacet : fCluster) {
       Facet_t *facet = fFacets[ifacet];
       tcl->AddFacet(i++, facet, ifacet);

@@ -19,6 +19,9 @@
 #include "navigation/HybridLevelLocator.h"
 #include "navigation/HybridNavigator2.h"
 #include "management/HybridManager2.h"
+#ifdef VECGEOM_EMBREE
+#include "navigation/EmbreeNavigator.h"
+#endif
 //#define BENCH_GENERATED_NAVIGATOR
 #ifdef BENCH_GENERATED_NAVIGATOR
 #include "navigation/GeneratedNavigator.h"
@@ -79,6 +82,10 @@ void InitNavigators()
     }
     if (lvol.second->GetDaughtersp()->size() >= 5) {
       lvol.second->SetNavigator(SimpleABBoxNavigator<>::Instance());
+    }
+    if (lvol.second->GetDaughtersp()->size() >= 10) {
+      lvol.second->SetNavigator(HybridNavigator<>::Instance());
+      HybridManager2::Instance().InitStructure((lvol.second));
     }
     if (lvol.second->GetDaughtersp()->size() >= 10) {
       lvol.second->SetNavigator(HybridNavigator<>::Instance());
@@ -420,15 +427,15 @@ __attribute__((noinline)) void benchVectorNavigator(SOA3D<Precision> const &__re
 {
   Precision *step_max = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
   for (decltype(points.size()) i = 0; i < points.size(); ++i)
-    step_max[i]                  = vecgeom::kInfLength;
-  Precision *steps               = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
+    step_max[i] = vecgeom::kInfLength;
+  Precision *steps = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
   Precision *safeties;
   bool *calcs;
   if (WithSafety) {
     safeties = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
     calcs    = (bool *)vecCore::AlignedAlloc(32, sizeof(bool) * points.size());
     for (decltype(points.size()) i = 0; i < points.size(); ++i)
-      calcs[i]                     = true;
+      calcs[i] = true;
   }
 
   Stopwatch timer;
@@ -477,15 +484,15 @@ __attribute__((noinline)) void benchVectorNavigatorNoReloc(SOA3D<Precision> cons
 {
   Precision *step_max = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
   for (decltype(points.size()) i = 0; i < points.size(); ++i)
-    step_max[i]                  = vecgeom::kInfLength;
-  Precision *steps               = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
+    step_max[i] = vecgeom::kInfLength;
+  Precision *steps = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
   Precision *safeties;
   bool *calcs;
   if (WithSafety) {
     safeties = (double *)vecCore::AlignedAlloc(32, sizeof(double) * points.size());
     calcs    = (bool *)vecCore::AlignedAlloc(32, sizeof(bool) * points.size());
     for (decltype(points.size()) i = 0; i < points.size(); ++i)
-      calcs[i]                     = true;
+      calcs[i] = true;
   }
 
   Stopwatch timer;
@@ -598,6 +605,21 @@ void benchDifferentNavigators(SOA3D<Precision> const &points, SOA3D<Precision> c
     RUNBENCH((benchVectorNavigator<HybridNavigator<true>, WithSafety>(points, dirs, pool, outpool)));
     std::cerr << "##\n";
   }
+
+#ifdef VECGEOM_EMBREE
+  // Embree
+  RUNBENCH((benchNavigator<WithSafety>(EmbreeNavigator<false>::Instance(), points, dirs, pool, outpool)));
+  std::cerr << "##\n";
+  RUNBENCH((benchNavigator<WithSafety>(EmbreeNavigator<true>::Instance(), points, dirs, pool, outpool)));
+  std::cerr << "##\n";
+  if (gBenchVecInterface) {
+    RUNBENCH((benchVectorNavigator<EmbreeNavigator<false>, WithSafety>(points, dirs, pool, outpool)));
+    std::cerr << "##\n";
+    RUNBENCH((benchVectorNavigator<EmbreeNavigator<true>, WithSafety>(points, dirs, pool, outpool)));
+    std::cerr << "##\n";
+  }
+#endif
+
   RUNBENCH(benchmarkOldNavigator(points, dirs, pool));
   std::cerr << "##\n";
 #ifdef VECGEOM_ROOT
@@ -616,6 +638,7 @@ void benchDifferentNavigators(SOA3D<Precision> const &points, SOA3D<Precision> c
   RUNBENCH((benchNavigatorNoReloc<WithSafety>(SimpleABBoxNavigator<false>::Instance(), points, dirs, pool, outpool)));
   // the vector navigator
   RUNBENCH((benchVectorNavigatorNoReloc<SimpleABBoxNavigator<false>, WithSafety>(points, dirs, pool, outpool)));
+
 #ifdef VECGEOM_ROOT
   benchmarkROOTNavigator<true, false>(points, dirs);
 #endif
@@ -649,6 +672,9 @@ int main(int argc, char *argv[])
   std::string volname(argv[2]);
   auto lvol = GeoManager::Instance().FindLogicalVolume(volname.c_str());
   HybridManager2::Instance().InitStructure(lvol);
+#ifdef VECGEOM_EMBREE
+  EmbreeManager::Instance().InitStructure(lvol);
+#endif
 
   // some output on volume
   std::cerr << "NavigationKernelBenchmarker run on " << argv[2] << " having " << lvol->GetDaughters().size()

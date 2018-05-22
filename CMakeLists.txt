@@ -53,6 +53,7 @@ option(USE_INDEXEDNAVSTATES "Use indices rather than volume pointers in Navigati
 option(DATA_DOWNLOAD "Enable downloading of data for tests" OFF)
 option(STATIC_ANALYSIS "enable static analysis on VecGeom" OFF)
 option(GDML "Enable GDML persistency. Requres Xerces-C" OFF)
+option(EMBREE "Enable Intel Embree" OFF)
 
 option(FAST_MATH "Enable the -ffast-math compiler option in Release builds" OFF)
 
@@ -486,6 +487,9 @@ endif()
 if (ROOT)
   set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_ROOT")
 endif()
+if (EMBREE)
+  set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_EMBREE")
+endif()
 if (Geant4)
   set(VECGEOM_DEFINITIONS "${VECGEOM_DEFINITIONS} -DVECGEOM_GEANT4")
 endif()
@@ -574,6 +578,13 @@ if (ROOT)
       source/Visualizer.cpp)
 
 endif(ROOT)
+
+# Intel Embree
+if (EMBREE)
+  find_package(embree 3.1 REQUIRED)
+  include_directories(${EMBREE_INCLUDE_DIRS})
+  set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} ${EMBREE_LIBRARIES})
+endif()
 
 if (Geant4)
 
@@ -696,6 +707,14 @@ set(VECGEOM_SRCS
   source/ReducedPolycone.cpp
   source/Utils3D.cpp
  )
+ 
+if (EMBREE)
+set(VECGEOM_SRCS
+    ${VECGEOM_SRCS}
+    source/EmbreeManager.cpp  
+)
+endif()
+
 
 if (CUDA)
   set(VECGEOM_CUDA_SRCS
@@ -953,6 +972,12 @@ set(TEST_EXECUTABLES_ROOT
   ${CMAKE_SOURCE_DIR}/test/root/AssemblyExample.cpp
   ${CMAKE_SOURCE_DIR}/test/core/TestRegions.cpp
 )
+if (EMBREE)
+ set(TEST_EXECUTABLES_ROOT 
+      $TEST_EXECUTABLES_ROOT
+      ${CMAKE_SOURCE_DIR}/test/core/EmbreeManagerTest.cpp
+    )
+endif()
 
 # higher level benchmarks or executables
 set(TEST_EXECUTABLES_ROOT

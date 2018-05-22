@@ -12,6 +12,7 @@
 #include "management/ABBoxManager.h"
 #include "base/SOA3D.h"
 #include "volumes/utilities/VolumeUtilities.h"
+#include "base/Stopwatch.h"
 #include <map>
 #include <vector>
 #include <sstream>
@@ -57,6 +58,9 @@ HybridManager2::HybridBoxAccelerationStructure *HybridManager2::BuildStructure(A
                                                                                size_t numberofdaughters) const
 {
   if (numberofdaughters == 0) return nullptr;
+  Stopwatch timer;
+  timer.Start();
+
   constexpr auto kVS             = vecCore::VectorSize<HybridManager2::Float_v>();
   size_t numberOfFirstLevelNodes = numberofdaughters / kVS + (numberofdaughters % kVS == 0 ? 0 : 1);
   size_t vectorsize =
@@ -126,6 +130,8 @@ HybridManager2::HybridBoxAccelerationStructure *HybridManager2::BuildStructure(A
   }
   structure->fNumberOfOriginalBoxes = numberofdaughters;
   structure->fABBoxes_v             = boxes_v;
+  auto elapsedinseconds             = timer.Stop();
+  std::cout << "HYBRID SETUP TOOK " << elapsedinseconds << "s \n";
   return structure;
 }
 
@@ -270,5 +276,5 @@ VPlacedVolume const *HybridManager2::PrintHybrid(LogicalVolume const *lvol) cons
 {
   return 0;
 }
-}
-}
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom

@@ -110,7 +110,7 @@ struct Tile {
     }
 
     if (degenerated) {
-      std::cout << "Tile degenerated: Length of sides of facet are too small." << std::endl;
+      std::cout << "Tile degenerated 2: Length of sides of facet are too small." << std::endl;
       return false;
     }
 
