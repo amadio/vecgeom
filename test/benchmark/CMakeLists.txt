@@ -32,7 +32,8 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${CMAKE_SOURCE_DIR}/test/benchmark/TessellatedBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ExtrudedBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/MultiUnionBenchmark.cpp
-  PARENT_SCOPE
+  ${CMAKE_SOURCE_DIR}/test/benchmark/FlatteningBenchmark.cpp
+ PARENT_SCOPE
 )
 
 #define which ones should be run under ctest

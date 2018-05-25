@@ -9,6 +9,9 @@
 #include "volumes/BooleanStruct.h"
 #include "volumes/kernel/BooleanImplementation.h"
 #include "volumes/UnplacedVolumeImplHelper.h"
+#ifndef VECCORE_CUDA
+#include "volumes/UnplacedMultiUnion.h"
+#endif
 
 namespace vecgeom {
 
@@ -109,6 +112,102 @@ public:
 
   VPlacedVolume const *GetLeft() const { return fBoolean.fLeftVolume; }
   VPlacedVolume const *GetRight() const { return fBoolean.fRightVolume; }
+
+  /** @brief Count number of Boolean nodes of different types under this Boolean volume */
+  size_t CountNodes(size_t &nunion, size_t &nintersection, size_t &nsubtraction) const
+  {
+    switch (fBoolean.fOp) {
+    case kUnion:
+      nunion++;
+      break;
+    case kIntersection:
+      nintersection++;
+      break;
+    case kSubtraction:
+      nsubtraction++;
+      break;
+    };
+    UnplacedBooleanVolume const *left =
+        dynamic_cast<UnplacedBooleanVolume const *>(fBoolean.fLeftVolume->GetUnplacedVolume());
+    if (left) left->CountNodes(nunion, nintersection, nsubtraction);
+    UnplacedBooleanVolume const *right =
+        dynamic_cast<UnplacedBooleanVolume const *>(fBoolean.fRightVolume->GetUnplacedVolume());
+    if (right) right->CountNodes(nunion, nintersection, nsubtraction);
+    return (nunion + nintersection + nsubtraction);
+  }
+
+#ifndef VECCORE_CUDA
+  /** @brief Flatten the Boolean node structure and create multiple union volumes if possible */
+  UnplacedMultiUnion *Flatten(size_t min_unions = 1, Transformation3D const *trbase = nullptr,
+                              UnplacedMultiUnion *munion = nullptr)
+  {
+    size_t nunion{0}, nintersection{0}, nsubtraction{0};
+    CountNodes(nunion, nintersection, nsubtraction);
+    if (nunion < min_unions) {
+      // If a multi-union is being built-up, add this volume
+      if (munion) munion->AddNode(this, *trbase);
+      return nullptr;
+    }
+    VUnplacedVolume *vol;
+    if (fBoolean.fOp == kUnion) {
+      bool creator        = munion == nullptr;
+      if (!munion) munion = new UnplacedMultiUnion();
+      Transformation3D transform;
+
+      // Compute left transformation
+      transform = (trbase) ? *trbase : Transformation3D();
+      transform.MultiplyFromRight(*fBoolean.fLeftVolume->GetTransformation());
+      vol            = (VUnplacedVolume *)fBoolean.fLeftVolume->GetUnplacedVolume();
+      auto left_bool = dynamic_cast<UnplacedBooleanVolume *>(vol);
+      if (left_bool)
+        left_bool->Flatten(min_unions, &transform, munion);
+      else
+        munion->AddNode(vol, transform);
+
+      // Compute right transformation
+      transform = (trbase) ? *trbase : Transformation3D();
+      transform.MultiplyFromRight(*fBoolean.fRightVolume->GetTransformation());
+      vol             = (VUnplacedVolume *)fBoolean.fRightVolume->GetUnplacedVolume();
+      auto right_bool = dynamic_cast<UnplacedBooleanVolume *>(vol);
+      if (right_bool)
+        right_bool->Flatten(min_unions, &transform, munion);
+      else
+        munion->AddNode(vol, transform);
+
+      if (creator) {
+        munion->Close();
+        return munion;
+      }
+      return nullptr;
+    }
+
+    // Analyze branches in case of subtraction or intersection
+    vol            = (VUnplacedVolume *)fBoolean.fLeftVolume->GetUnplacedVolume();
+    auto left_bool = dynamic_cast<UnplacedBooleanVolume *>(vol);
+    if (left_bool) {
+      auto left_new = left_bool->Flatten(min_unions);
+      if (left_new) {
+        // Replace existing left volume with the new one
+        auto lvol            = new LogicalVolume(left_new);
+        auto pvol            = lvol->Place(fBoolean.fLeftVolume->GetTransformation());
+        fBoolean.fLeftVolume = pvol;
+      }
+    }
+    vol             = (VUnplacedVolume *)fBoolean.fRightVolume->GetUnplacedVolume();
+    auto right_bool = dynamic_cast<UnplacedBooleanVolume *>(vol);
+    if (right_bool) {
+      auto right_new = right_bool->Flatten(min_unions);
+      if (right_new) {
+        // Replace existing right volume with the new one
+        auto lvol             = new LogicalVolume(right_new);
+        auto pvol             = lvol->Place(fBoolean.fRightVolume->GetTransformation());
+        fBoolean.fRightVolume = pvol;
+      }
+    }
+    if (munion) munion->AddNode(this, *trbase);
+    return nullptr;
+  }
+#endif
 
 private:
   VECCORE_ATT_DEVICE

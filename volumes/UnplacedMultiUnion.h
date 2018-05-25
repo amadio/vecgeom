@@ -33,7 +33,16 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  void AddNode(VPlacedVolume *volume) { fMultiUnion.AddNode(volume); }
+  void AddNode(VUnplacedVolume const *volume, Transformation3D const &transform)
+  {
+    LogicalVolume *lvol = new LogicalVolume(volume);
+    VPlacedVolume *pvol = lvol->Place(new Transformation3D(transform));
+    fMultiUnion.AddNode(pvol);
+  }
+
+  VECCORE_ATT_HOST_DEVICE
+  VECGEOM_FORCE_INLINE
+  void AddNode(VPlacedVolume const *volume) { fMultiUnion.AddNode(volume); }
 
   VECCORE_ATT_HOST_DEVICE
   void Close() { fMultiUnion.Close(); }
@@ -81,7 +90,7 @@ public:
                                VPlacedVolume *const placement = NULL);
 
 #ifdef VECGEOM_CUDA_INTERFACE
-  virtual size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedMultiUnion<Op>>::SizeOf(); }
+  virtual size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedMultiUnion>::SizeOf(); }
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
 #endif

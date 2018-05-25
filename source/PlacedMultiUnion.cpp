@@ -7,7 +7,7 @@
 #ifdef VECGEOM_GEANT4
 #include "G4MultiUnion.hh"
 #include "G4ThreeVector.hh"
-#include "G4Rotation.hh"
+#include "G4RotationMatrix.hh"
 #include "G4Transform3D.hh"
 #endif
 
@@ -33,18 +33,21 @@ TGeoShape const *PlacedMultiUnion::ConvertToRoot() const
 #ifdef VECGEOM_GEANT4
 G4VSolid const *PlacedMultiUnion::ConvertToGeant4() const
 {
-  G4MultiUnion *munion         = new G4MultiUnion("");
-  UnplacedMultiUnion *unplaced = GetUnplacedVolume();
-  for (int i = 0; i < unplaced->GetNumberOfSolids(); ++i) {
-    auto g4solid = unplaced->GetNode(i)->ConvertToGeant4();
+  G4MultiUnion *munion               = new G4MultiUnion("g4multiunion");
+  const UnplacedMultiUnion *unplaced = GetUnplacedVolume();
+  for (size_t i = 0; i < unplaced->GetNumberOfSolids(); ++i) {
+    G4VSolid *g4solid = (G4VSolid *)unplaced->GetNode(i)->ConvertToGeant4();
     assert(g4solid && "Cannot convert component to Geant4 solid");
-    auto trans         = unplaced->GetNode(i)->GetTransformation();
+    auto trans = unplaced->GetNode(i)->GetTransformation();
+    // Vector3D<double> point(1, 1, 1);
+    // Vector3D<double> pnew = trans->Transform(point);
     const double *rotm = trans->Rotation();
-    G4Rotation g4rot(G4ThreeVector(rotm[0], rotm[3], rotm[6]), G4ThreeVector(rotm[1], rotm[4], rotm[7]),
-                     G4ThreeVector(rotm[2], rotm[5], rotm[8]));
-    G4Transform3D *g4trans =
-        new G4Transform3D(g4rot, G4ThreeVector(trans->Translation(0), trans->Translation(1), trans->Translation(2)));
-    munion->AddNode(g4solid, g4trans);
+    G4RotationMatrix g4rot(G4ThreeVector(rotm[0], rotm[3], rotm[6]), G4ThreeVector(rotm[1], rotm[4], rotm[7]),
+                           G4ThreeVector(rotm[2], rotm[5], rotm[8]));
+    G4Transform3D g4trans(g4rot, G4ThreeVector(trans->Translation(0), trans->Translation(1), trans->Translation(2)));
+    // G4ThreeVector global(1, 1, 1);
+    // G4ThreeVector local = g4trans.inverse()*G4Point3D(global);
+    munion->AddNode(*g4solid, g4trans);
   }
   munion->Voxelize();
   return munion;

@@ -126,7 +126,7 @@ struct BooleanImplementation<kUnion> {
 
     Real_v dist = 0.;
     Real_v pushdist(1E-6);
-    size_t push          = 0;
+    // size_t push          = 0;
     const auto positionA = ptrSolidA->Contains(point);
     Vector3D<Real_v> nextp(point);
     bool connectingstep(false);
@@ -139,7 +139,7 @@ struct BooleanImplementation<kUnion> {
         dist += (disTmp >= 0. && disTmp < kInfLength) ? disTmp : 0;
         // give a push
         dist += pushdist;
-        push++;
+        // push++;
         nextp = point + dist * dir;
         // B could be overlapping with A -- and/or connecting A to another part of A
         // if (B->Contains(nextp)) {
@@ -147,7 +147,7 @@ struct BooleanImplementation<kUnion> {
           const auto disTmp = B->PlacedDistanceToOut(nextp, dir);
           dist += (disTmp >= 0. && disTmp < kInfLength) ? disTmp : 0;
           dist += pushdist;
-          push++;
+          // push++;
           nextp          = point + dist * dir;
           connectingstep = true;
         }
@@ -161,7 +161,9 @@ struct BooleanImplementation<kUnion> {
     else {
       kernel(ptrSolidB, ptrSolidA);
     }
-    distance = dist - push * pushdist;
+    // At the end we need to subtract just one push distance, since intermediate distances
+    // from pushed points are smaller than the real distance with the push value
+    distance = dist - pushdist;
     return;
   }
 

@@ -996,6 +996,12 @@ set(TEST_EXECUTABLES_VISUALIZATION
   ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeCutTube.cpp
 )
 
+if(NOT CUDA)
+set(TEST_EXECUTABLES_VISUALIZATION
+  ${TEST_EXECUTABLES_VISUALIZATION}
+  ${CMAKE_SOURCE_DIR}/test/visualization/VisualizeMultiUnion.cpp)
+endif()
+
 set(TEST_EXECUTABLES_SHAPES
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestBox.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestCons.cpp
@@ -1045,6 +1051,7 @@ set(TEST_EXECUTABLES_SHAPETESTER
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTorus2.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testCutTube.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testExtruded.cpp
+  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testMultiUnion.cpp
 )
 
 if(ROOT) # add shape testers that depend on ROOT

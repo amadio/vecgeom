@@ -16,13 +16,14 @@ Precision UnplacedMultiUnion::Capacity() const
   const size_t nsamples = 100000;
   Vector3D<double> min, max;
   Extent(min, max);
-  size_t ninside = 0;
+  fMultiUnion.fCapacity = (max[0] - min[0]) * (max[1] - min[1]) * (max[2] - min[2]);
+  size_t ninside        = 0;
   for (size_t i = 0; i < nsamples; ++i) {
     Vector3D<double> point(RNG::Instance().uniform(min.x(), max.x()), RNG::Instance().uniform(min.y(), max.y()),
                            RNG::Instance().uniform(min.z(), max.z()));
     if (Contains(point)) ninside++;
   }
-  fMultiUnion.fCapacity = (double)ninside / nsamples;
+  fMultiUnion.fCapacity *= (double)ninside / nsamples;
   return fMultiUnion.fCapacity;
 }
 
@@ -67,7 +68,9 @@ Vector3D<Precision> UnplacedMultiUnion::SamplePointOnSurface() const
 bool UnplacedMultiUnion::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &normal) const
 {
   // Compute normal to solid in a point
-  return false;
+  bool valid = false;
+  normal     = MultiUnionImplementation::NormalKernel<double>(fMultiUnion, point, valid);
+  return valid;
 }
 
 #ifndef VECCORE_CUDA
