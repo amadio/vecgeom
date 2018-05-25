@@ -163,13 +163,13 @@ int main(int argc, char *argv[])
     direction = volumeUtilities::SampleDirection();
     switch (test) {
     case 0:
-      if (multiunion.Inside(point) != EInside::kOutside) pm.SetNextPoint(point[0], point[1], point[2]);
+      if (multiunion.Inside(point) != vecgeom::EInside::kOutside) pm.SetNextPoint(point[0], point[1], point[2]);
       break;
     case 1:
       distance = multiunion.DistanceToIn(point, direction);
       if (distance < vecgeom::kInfLength) {
         point += distance * direction;
-        assert(multiunion.Inside(point) != EInside::kOutside);
+        assert(multiunion.Inside(point) != vecgeom::EInside::kOutside);
         pm.SetNextPoint(point[0], point[1], point[2]);
       }
       break;

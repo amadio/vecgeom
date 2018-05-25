@@ -25,12 +25,12 @@ int main(int argc, char *argv[])
   OPTION_BOOL(debug, false);
   OPTION_BOOL(stat, false);
 
-  MultiUnion_t *solid      = 0;
-  solid                    = new MultiUnion_t("test_VecGeomMultiUnion");
+  MultiUnion_t *solid = 0;
+  solid               = new MultiUnion_t("test_VecGeomMultiUnion");
 
-  UnplacedMultiUnion &multiunion  = (UnplacedMultiUnion &)(*solid->GetUnplacedVolume());
+  UnplacedMultiUnion &multiunion = (UnplacedMultiUnion &)(*solid->GetUnplacedVolume());
   std::cout << "Testing multi-union of " << nsolids << " boxes\n";
-  
+
   constexpr double size = 10.;
 
   double sized = size * std::pow(0.5 / nsolids, 1. / 3.);

@@ -50,25 +50,6 @@ struct MultiUnionImplementation {
   {
     (void)st;
   }
-  /** @brief Identify the first element containing the point */
-  template <typename Real_v>
-  VECGEOM_FORCE_INLINE
-  VECCORE_ATT_HOST_DEVICE
-  static int InsideElement(UnplacedStruct_t const &munion, Vector3D<Real_v> const &point)
-  {
-    int element     = -1;
-    auto insidehook = [&](size_t id) {
-      auto local = munion.fVolumes[id]->GetTransformation()->Transform(point);
-      if (munion.fVolumes[id]->Inside(local) != EInside::kOutside) {
-        element = (int)id;
-        return true;
-      }
-      return false;
-    };
-    HybridNavigator<> *boxNav = (HybridNavigator<> *)HybridNavigator<>::Instance();
-    boxNav->BVHContainsLooper(*munion.fNavHelper, point, insidehook);
-    return element;
-  }
 
   template <typename Real_v, typename Bool_v>
   VECGEOM_FORCE_INLINE
