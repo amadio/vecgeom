@@ -8,10 +8,10 @@ clang-format:
   #only:
   #  - merge-request
   script:
-    - ./scripts/clang-format-test.sh
+    - ln -s `which clang-format-3.9` clang-format && PATH=$PATH:$PWD ./scripts/clang-format-test.sh
   before_script:
     - apt-get update -y && apt-get upgrade -y
-    - apt-get install -y cmake git findutils clang-format
+    - apt-get install -y cmake git findutils clang-format-3.9
 
 # performing the static analysis code check using a custom docker image with the llvm installation we need
 code_checks:
