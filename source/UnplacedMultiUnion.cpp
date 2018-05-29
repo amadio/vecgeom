@@ -14,16 +14,7 @@ Precision UnplacedMultiUnion::Capacity() const
   // Sample in the solid extent and estimate capacity by counting how many points are
   // sampled inside
   const size_t nsamples = 100000;
-  Vector3D<double> min, max;
-  Extent(min, max);
-  fMultiUnion.fCapacity = (max[0] - min[0]) * (max[1] - min[1]) * (max[2] - min[2]);
-  size_t ninside        = 0;
-  for (size_t i = 0; i < nsamples; ++i) {
-    Vector3D<double> point(RNG::Instance().uniform(min.x(), max.x()), RNG::Instance().uniform(min.y(), max.y()),
-                           RNG::Instance().uniform(min.z(), max.z()));
-    if (Contains(point)) ninside++;
-  }
-  fMultiUnion.fCapacity *= (double)ninside / nsamples;
+  fMultiUnion.fCapacity = EstimateCapacity(nsamples);
   return fMultiUnion.fCapacity;
 }
 

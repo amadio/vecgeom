@@ -32,7 +32,7 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${CMAKE_SOURCE_DIR}/test/benchmark/TessellatedBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ExtrudedBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/MultiUnionBenchmark.cpp
-  ${CMAKE_SOURCE_DIR}/test/benchmark/FlatteningBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/UnionFlatteningBenchmark.cpp
  PARENT_SCOPE
 )
 
