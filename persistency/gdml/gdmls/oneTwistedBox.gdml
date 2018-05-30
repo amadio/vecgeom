@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!-- \file oneTwistedBox.gdml -->
+<!-- \brief geometry of one twisted box without material -->
+<!-- \authors Author: Dmitry Savin -->
+<!-- \license Distributed under the Apache license 2.0 -->
+<!-- parsed with TGDMLParse, the information in the GDML Users' Guide 2.7 is outdated -->
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+
+  <solids>
+    <box lunit="cm" aunit="rad" name="world" x="100" y="100" z="100" PhiTwist="1"/>
+  </solids>
+
+  <structure>
+    <volume name="World">
+      <solidref ref="world"/>
+    </volume>
+  </structure>
+
+  <setup name="default" version="1.0" >
+    <world ref="World" />
+  </setup>
+
+</gdml>

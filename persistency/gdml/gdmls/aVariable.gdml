@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!-- \file aVariable.gdml -->
+<!-- \brief geometry of one orb without material that uses a defined varible -->
+<!-- \authors Author:  Dmitry Savin -->
+<!-- \license Distributed under the Apache license 2.0 -->
+<!-- derived from oneOrb and TGDMLParse -->
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+
+  <define>
+    <variable name="radius" value="100"/>
+  </define>  
+  
+  <solids>
+    <orb name="world" r="radius" lunit="cm"/>
+  </solids>
+
+  <structure>
+    <volume name="World">
+      <solidref ref="world"/>
+    </volume>
+  </structure>
+
+  <setup name="default" version="1.0" >
+    <world ref="World" />
+  </setup>
+
+</gdml>

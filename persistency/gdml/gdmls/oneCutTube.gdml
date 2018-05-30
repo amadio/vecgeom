@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!-- \file oneCutTube.gdml -->
+<!-- \brief geometry of one cut tube without material -->
+<!-- \authors Author: Dmitry Savin -->
+<!-- \license Distributed under the Apache license 2.0 -->
+<!-- parsed with TGDMLParse -->
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+  <define/>
+  <materials/>
+  <solids>
+    <cutTube name="world" z="20" rmin="1" rmax="5" startphi="1" deltaphi="4" lowX="15" lowY="15" lowZ="15" highX="10" highY="10" highZ="10" aunit="rad" lunit="cm"/>
+  </solids>
+  <structure>
+    <volume name="World">
+      <materialref ref=""/>
+      <solidref ref="world"/>
+    </volume>
+  </structure>
+  <setup name="default" version="1.0">
+    <world ref="World"/>
+  </setup>
+</gdml>

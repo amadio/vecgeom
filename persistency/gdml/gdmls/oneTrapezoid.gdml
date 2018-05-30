@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!-- \file oneTrapezoid.gdml -->
+<!-- \brief geometry of one trapezoid without material -->
+<!-- \authors Author:  Dmitry Savin -->
+<!-- \license Distributed under the Apache license 2.0 -->
+<!-- parsed with TGDMLParse -->
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+
+  <solids>
+    <trd lunit="cm" name="world" x1="90" x2="80" y1="60" y2="50" z="100"/>
+  </solids>
+
+  <structure>
+    <volume name="World">
+      <solidref ref="world"/>
+    </volume>
+  </structure>
+
+  <setup name="default" version="1.0" >
+    <world ref="World" />
+  </setup>
+
+</gdml>

@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!-- \file oneTorus.gdml -->
+<!-- \brief geometry of one torus segment without material -->
+<!-- \authors Author:  Dmitry Savin -->
+<!-- \license Distributed under the Apache license 2.0 -->
+<!-- parsed by TGDMLParse -->
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+  <define/>
+  <materials/>
+  <solids>
+    <torus name="world" rmin="10" rmax="100" rtor="20" startphi="1" deltaphi="3" aunit="rad" lunit="cm"/>
+  </solids>
+  <structure>
+    <volume name="World">
+      <materialref ref=""/>
+      <solidref ref="world"/>
+    </volume>
+  </structure>
+  <setup name="default" version="1.0">
+    <world ref="World"/>
+  </setup>
+</gdml>

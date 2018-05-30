@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!-- \file simpleMaterial.gdml -->
+<!-- \brief geometry of one orb with simple material -->
+<!-- \authors Author:  Dmitry Savin -->
+<!-- \license Distributed under the Apache license 2.0 -->
+<!-- parsed with TGDMLParse -->
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+
+  <solids>
+    <orb name="world" r="100" lunit="cm"/>
+  </solids>
+  
+  <materials>
+    <material Z="7" name="Nitrogen" >
+      <D value="0.00125" />
+      <atom value="14.01" />
+    </material>
+  </materials>
+
+  <structure>
+    <volume name="World">
+      <materialref ref="Nitrogen"/>
+      <solidref ref="world"/>
+    </volume>
+  </structure>
+
+  <setup name="default" version="1.0" >
+    <world ref="World" />
+  </setup>
+
+</gdml>

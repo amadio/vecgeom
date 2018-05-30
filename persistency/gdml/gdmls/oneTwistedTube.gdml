@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!-- \file oneTwistedTube.gdml -->
+<!-- \brief geometry of one twisted tube without material -->
+<!-- \authors Author: Dmitry Savin -->
+<!-- \license Distributed under the Apache license 2.0 -->
+<!-- unsupported by TGDMLParse as of ROOT 6.13/03 -->
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+  <define/>
+  <materials/>
+  <solids>
+    <twistedtubs name="world" endinnerrad="1" endouterrad="4" twistedangle="1" aunit="rad" lunit="cm"/>
+  </solids>
+  <structure>
+    <volume name="World">
+      <materialref ref=""/>
+      <solidref ref="world"/>
+    </volume>
+  </structure>
+  <setup name="default" version="1.0">
+    <world ref="World"/>
+  </setup>
+</gdml>

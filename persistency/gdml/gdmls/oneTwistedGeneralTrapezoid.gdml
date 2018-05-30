@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!-- \file oneGeneralTrapezoid.gdml -->
+<!-- \brief geometry of one general trapezoid without material -->
+<!-- \authors Author: Dmitry Savin -->
+<!-- \license Distributed under the Apache license 2.0 -->
+<!-- parsed with TGDMLParse, the information in the GDML Users' Guide 2.7 is outdated-->
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+
+  <solids>
+    <twistedtrap lunit="cm" name="world" z="100" theta="1" phi="2" y1="150" x1="100" x2="10" alpha1="1" y2="150" x3="10" x4="10" alpha2="1" PhiTwist="1" aunit="rad"/>
+  </solids>
+
+  <structure>
+    <volume name="World">
+      <solidref ref="world"/>
+    </volume>
+  </structure>
+
+  <setup name="default" version="1.0" >
+    <world ref="World" />
+  </setup>
+
+</gdml>

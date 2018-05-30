@@ -68,6 +68,8 @@ option(DATA_DOWNLOAD "Enable downloading of data for tests" OFF)
 
 option(STATIC_ANALYSIS "enable static analysis on VecGeom" OFF)
 
+option(GDML "Enable GDML persitency. Requres Xerces-C" OFF)
+
 set(VECGEOM_ARCH native sse2 sse3 ssse3 sse4.1 sse4.2 avx avx2 mic mic_avx512)
 
 enum_option(VECGEOM_VECTOR
@@ -893,6 +895,16 @@ if (CUDA)
   target_link_libraries(cudauserlib ${VECGEOM_LIBRARIES} ${VECGEOM_LIBRARIES_EXTERNAL})
   set(USERKERNELLIB cudauserlib)
 endif()
+
+if(GDML AND CUDA)
+  message(WARNING "GDML is not supported for CUDA builds. Turning GDML OFF")
+  set(GDML OFF)
+endif()
+# build the libraries for GDML persistency
+if(GDML)
+  add_subdirectory(persistency/gdml)
+endif() # GDML
+
 ################################################################################
 
 # Define executables

@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!-- \file oneEllipticalCone.gdml -->
+<!-- \brief geometry of one elliptical cone without material -->
+<!-- \authors Author:  Dmitry Savin -->
+<!-- \license Distributed under the Apache license 2.0 -->
+<!-- parsed by TGDMLParse, the information in the GDML Users' Guide 2.7 is outdated -->
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+
+  <solids>
+    <elcone name="world" dx="70" dy="30"  zmax="100" zcut="15" lunit="cm"/>
+  </solids>
+
+  <structure>
+    <volume name="World">
+      <solidref ref="world"/>
+    </volume>
+  </structure>
+
+  <setup name="default" version="1.0" >
+    <world ref="World" />
+  </setup>
+
+</gdml>

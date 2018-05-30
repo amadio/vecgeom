@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!-- \file solidUnion.gdml -->
+<!-- \brief geometry of one union of solids without material -->
+<!-- \authors Author: Dmitry Savin -->
+<!-- \license Distributed under the Apache license 2.0 -->
+<!-- parsed with TGDMLParse -->
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+
+  <define>
+    <position name="shift" unit="cm" x="40" y="35" z="30" />
+    <rotation name="rotate" unit="degree" x="45" y="45" z="45" />
+  </define>
+
+  <solids>
+    <box lunit="cm" name="firstHalf" x="100" y="100" z="100" />
+    <box lunit="cm" name="secondHalf" x="70" y="70" z="70" />
+    <union name="world" >
+      <first ref="firstHalf" />
+      <second ref="secondHalf"/>
+      <positionref ref="shift" />
+      <rotationref ref="rotate" />
+    </union>
+
+  </solids>
+
+  <structure>
+    <volume name="World">
+      <solidref ref="world"/>
+    </volume>
+  </structure>
+
+  <setup name="default" version="1.0">
+    <world ref="World"/>
+  </setup>
+
+</gdml>

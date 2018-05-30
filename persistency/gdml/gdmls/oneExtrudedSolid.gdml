@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!-- \file oneOrb.gdml -->
+<!-- \brief geometry of one orb without material -->
+<!-- \authors Author:  Dmitry Savin -->
+<!-- \license Distributed under the Apache license 2.0 -->
+<!-- parsed with TGDMLParse -->
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+
+  <solids>
+    <xtru name="world" lunit="cm" >
+      <twoDimVertex x="3" y="9" />
+      <twoDimVertex x="1" y="5" />
+      <twoDimVertex x="2" y="4" />
+      <section zOrder="1" zPosition="2" xOffset="5" yOffset="3" scalingFactor="3" />
+      <section zOrder="2" zPosition="5" xOffset="3" yOffset="5" scalingFactor="1" />
+    </xtru>
+  </solids>
+
+  <structure>
+    <volume name="World">
+      <solidref ref="world"/>
+    </volume>
+  </structure>
+
+  <setup name="default" version="1.0" >
+    <world ref="World" />
+  </setup>
+
+</gdml>

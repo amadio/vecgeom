@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!-- \file oneTesselatedSolid.gdml -->
+<!-- \brief geometry of one tesselated pyramid without material -->
+<!-- \authors Author: Dmitry Savin -->
+<!-- \license Distributed under the Apache license 2.0 -->
+<!-- unsupported by TGDMLParse as of ROOT 6.13/03 -->
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+
+  <define>
+    <position name="v1" x="10" y="10" z="0" unit="cm"/>
+    <position name="v2" x="-10" y="10" z="0" unit="cm"/>
+    <position name="v3" x="-10" y="-10" z="0" unit="cm"/>
+    <position name="v4" x="10" y="-10" z="0" unit="cm"/>
+    <position name="v5" x="7" y="3" z="20" unit="cm"/>
+    <position name="v6" x="-3" y="7" z="5" unit="cm"/>
+  </define>
+
+  <solids>
+    <tessellated name="world">
+<!-- TODO RELATIVE type of vertex coordinates -->
+      <triangular vertex1="v1" vertex2="v2" vertex3="v6" type="ABSOLUTE"/>
+      <triangular vertex1="v2" vertex2="v3" vertex3="v6" type="ABSOLUTE"/>
+      <triangular vertex1="v3" vertex2="v4" vertex3="v5" type="ABSOLUTE"/>
+      <triangular vertex1="v4" vertex2="v1" vertex3="v5" type="ABSOLUTE"/>
+      <triangular vertex1="v1" vertex2="v6" vertex3="v5" type="ABSOLUTE"/>
+      <triangular vertex1="v6" vertex2="v3" vertex3="v5" type="ABSOLUTE"/>
+      <quadrangular vertex1="v4" vertex2="v3" vertex3="v2" vertex4="v1" type="ABSOLUTE"/>
+    </tessellated>
+  </solids>
+
+  <structure>
+    <volume name="World">
+      <solidref ref="world"/>
+    </volume>
+  </structure>
+
+  <setup name="default" version="1.0">
+    <world ref="World"/>
+  </setup>
+
+</gdml>

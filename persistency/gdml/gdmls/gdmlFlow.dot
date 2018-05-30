@@ -1,0 +1,84 @@
+// \file gdmlFlow.dot
+// \brief The testing order and derivation of the test gdml files.
+//        If a file is handled correctly, the predecessors should too.
+//        Visualize this file with dot.
+//        Solid line means dependence, dotted lines mean derivation.
+// \authors Author:  Dmitry Savin
+// \license Distributed under the Apache license 2.0
+// \usage dot -Tsvg -o output/flow.svg gdmls/gdmlFlow.dot 
+
+digraph gdmlFlow {
+  compound=true;
+  rankdir = "LR";
+  splines = true;
+  layout = "dot"
+  // clusters
+  subgraph cluster_defines {
+        label="Definitions";
+        {rank = same; aConstant; aVariable; aQuantity; aPosition; aRotation; scaledBox; scaledPhysvol}
+  }
+  subgraph cluster_solids {
+      label="Simple solids";
+      {rank = same; oneOrb; oneSphere; oneBox; oneTube; oneEllipsoid; oneEllipticalTube; oneEllipticalCone; oneConeSegment; oneParaboloid; oneParallelepiped; onePolycone; oneGenericPolycone; onePolyhedron; oneGenericPolyhedron; oneTorus; oneTrapezoid; oneGeneralTrapezoid; oneHyperbolicTube; oneCutTube; oneTwistedBox; oneTwistedTrapezoid; oneTwistedGeneralTrapezoid; oneTwistedTube; oneExtrudedSolid; oneArbitraryTrapezoid}
+  }
+  subgraph cluster_advancedsolids {
+      label="Advanced solids";
+      {rank = same; oneTesselatedSolid; oneTetrahedron}
+  }
+  subgraph cluster_boolean {
+      label="Boolean solids";
+      {rank = same; solidUnion; solidIntersection; solidSubtraction; solidMultiUnion}
+  }
+  subgraph cluster_material {
+      label="Materials";
+      simpleMaterial; compositeMaterial; mixtureElement; mixtureMaterial
+  }
+
+  // edges
+  oneOrb -> oneSphere [style = dotted] [constraint = false]
+  oneSphere -> oneTube [style = dotted]
+  oneTube -> oneCutTube [style = dotted]
+  oneTube -> oneTwistedTube [style = dotted]
+  oneSphere -> oneTorus [style = dotted]
+  oneOrb -> oneBox [style = dotted]
+  oneBox -> oneParallelepiped [style = dotted]
+  oneBox -> oneTwistedBox [style = dotted]
+  oneBox -> oneTrapezoid [style = dotted]
+  oneTrapezoid -> oneTwistedTrapezoid [style = dotted]
+  oneTrapezoid -> oneArbitraryTrapezoid [style = dotted]
+  oneTrapezoid -> oneGeneralTrapezoid [style = dotted]
+  oneGeneralTrapezoid-> oneTwistedGeneralTrapezoid [style = dotted]
+  oneOrb -> oneEllipsoid [style = dotted]
+  oneOrb -> oneParaboloid [style = dotted]
+  oneOrb -> oneEllipticalTube [style = dotted] [constraint = false]
+  oneEllipticalTube -> oneHyperbolicTube [style = dotted]
+  oneEllipticalTube -> oneEllipticalCone [style = dotted]
+  oneEllipticalCone -> oneConeSegment [style = dotted]
+  oneConeSegment -> onePolycone [style = dotted]
+  onePolycone -> oneGenericPolycone [style = dotted]
+  oneGenericPolycone -> oneGenericPolyhedron [style = dotted]
+  onePolycone -> onePolyhedron [style = dotted]
+  onePolycone -> oneExtrudedSolid [style = dotted]
+  oneOrb -> simpleMaterial [lhead=cluster_material]
+  oneOrb -> aConstant
+  oneOrb -> aVariable
+  oneOrb -> aQuantity
+  simpleMaterial -> compositeMaterial
+  compositeMaterial -> mixtureElement
+  simpleMaterial -> mixtureMaterial
+  mixtureMaterial -> auxiliary
+  oneBox -> scaledBox
+  oneBox -> twoBoxes
+  twoBoxes -> scaledPhysvol
+  twoBoxes -> aPosition
+  twoBoxes -> aRotation
+  aRotation -> auxiliary
+  aPosition -> auxiliary
+  aPosition -> oneTesselatedSolid [style = dashed] [lhead=cluster_advancedsolids]
+  aPosition -> solidUnion [lhead=cluster_boolean]
+  aRotation -> solidUnion [lhead=cluster_boolean]
+  solidUnion -> solidIntersection [style = dotted]
+  solidIntersection -> solidSubtraction [style = dotted]
+  solidUnion -> solidMultiUnion [style = dashed]
+  aVariable -> auxiliary
+}

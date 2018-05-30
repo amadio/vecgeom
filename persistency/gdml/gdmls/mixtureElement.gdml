@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!-- \file mixtureElement.gdml -->
+<!-- \brief geometry of one orb with an element made from an isotope -->
+<!-- \authors Author:  Dmitry Savin -->
+<!-- \license Distributed under the Apache license 2.0 -->
+<!-- parsed with TGDMLParse -->
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+
+  <solids>
+    <orb name="world" r="100" lunit="cm"/>
+  </solids>
+  
+  <isotope name="D" Z="1" N="2">
+    <atom type="A" value="2."/>
+  </isotope>
+
+  
+  <element Z="8" formula="O" name="Oxygen" >
+    <atom value="16" />
+  </element>
+  <element Z="1" formula="D" name="Deuterium" >
+    <fraction ref="D" n="1." />
+  </element>
+  
+  <materials>
+    <material formula="D2O" name="HeavyWater" >
+      <D value="1.06" />
+      <composite n="2" ref="Deuterium" />
+      <composite n="1" ref="Oxygen" />
+    </material>
+  </materials>
+
+  <structure>
+    <volume name="World">
+      <materialref ref="HeavyWater"/>
+      <solidref ref="world"/>
+    </volume>
+  </structure>
+
+  <setup name="default" version="1.0" >
+    <world ref="World" />
+  </setup>
+
+</gdml>

@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!-- \file oneGenericPolycone.gdml -->
+<!-- \brief geometry of one generic polycone without material -->
+<!-- \authors Author:  Dmitry Savin -->
+<!-- \license Distributed under the Apache license 2.0 -->
+<!-- unsupported by TGDMLParse -->
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+
+  <solids>
+    <genericPolycone name="world" startphi="1" deltaphi="4" aunit="rad" lunit="cm">
+      <rzpoint r="10" z="50"/>
+      <rzpoint r="30" z="100"/>
+      <rzpoint r="10" z="120"/>
+    </genericPolycone>
+  </solids>
+
+  <structure>
+    <volume name="World">
+      <solidref ref="world"/>
+    </volume>
+  </structure>
+
+  <setup name="default" version="1.0" >
+    <world ref="World" />
+  </setup>
+
+</gdml>

@@ -1,0 +1,149 @@
+GDML file examples to use as tests
+
+Authors
+  Dmitry Savin
+
+License
+  This project is licensed under the Apache license 2.0 - see the LICENSE file for details.
+  Some of the example files are from other projects and distributed under a different licence,
+    see the comments in each file for the details.
+
+Files description:
+
+  oneOrb.gdml
+    A single orb world volume without material specified.
+
+  oneSphere.gdml
+    A single sphere world volume without material specified.
+    Derivede from oneOrb by ROOT.
+    
+  oneEllipsoid.gdml
+    A single ellipsoid without material specified.
+    
+  oneEllipticalTube.gdml
+    A single elliptical tube world volume without material specified.
+    
+  onHyperbolicTube.gdml
+    A single tube with hyperbolic profile world volume without material specified.
+  
+  oneEllipticalCone.gdml
+     A single elliptical cone world volume without material specified.
+     
+  oneConeSegment.gdml
+    A single cone segment without material specified.
+    
+  oneParallelepiped.gdml
+    A single parallelepiped without material specified.
+    
+  oneParaboloid.gdml
+    A single paraboloid without material specified. 
+
+  onePolycone.gdml
+    A single polycone without material specified. 
+
+  oneGenericPolycone.gdml
+    A single generic polycone without material specified.
+    
+  onePolyhedron.gdml
+    A single polyhedron without material specified. 
+
+  oneGenericPolyhedron.gdml
+    A single generic polyhedron without material specified. 
+
+  oneBox.gdml
+    A single box world volume without material specified.
+    
+  oneTwistedBox.gdml
+    A single twisted box world volume without material specified.
+    
+  oneTube.gdml
+    A single tube world volume without material specified.  
+
+  oneCutTube.gdml
+    A single cut tube world volume without material specified.  
+  
+  oneTwistedTube.gdml
+    A single twisted tube world volume without material specified.  
+  
+  oneTorus.gdml
+    A single torus segment world volume without material specified.
+    
+  oneTrapezoid.gdml
+    A single trapezoid without material specified.
+  
+  oneTwistedTrapezoid.gdml
+    A single twisted trapezoid without material specified.
+    
+  oneGeneralTrapezoid.gdml
+    A single general trapezoid without material specified.
+    
+  oneTwistedGeneralTrapezoid.gdml
+    A single twisted general trapezoid without material specified.
+
+  oneArbitraryTrapezoid.gdml
+    A single trapezoid with arbitrary vertices without material specified.
+
+  oneExtrudedSolid.gdml
+    A single extruded solid without material specified.
+    
+  oneTesselatedSolid.gdml
+    A single tesselated pyramid without material specified.
+
+  oneTetrahedron.gdml
+    A single tetrahedron without material specified.
+    
+  simpleMaterial.gdml
+    A single orb world volume with one-component material.
+    
+  mixtureMaterial.gdml
+    A single orb world volume with a mixture of two materials.
+    
+  compositeMaterial.gdml
+    A single orb world volume with a material made of elements.
+    
+  mixtureElement.gdml
+    A single orb with an element with an isotope.
+    
+  aConstant.gdml
+    A single orb world volume that uses a defined constant.
+    
+  aVariable.gdml
+    A single orb world volume that uses a defined variable.
+    
+  aQuantity.gdml
+    A single orb world volume that uses a defined quantity.
+    Not supported by ROOT.
+    
+  twoBoxes.gdml
+    A box world volume with a box detector volume inside.
+    
+  aPosition.gdml
+    A detector volume with relative translation to the world volume.
+
+  aRotation.gdml
+    A detector volume with relative rotation to the world volume.
+    
+  scaledBox.gdml
+    A single box world volume scaled along axes.
+    Not supported by ROOT.
+    
+  scaledPhysvol.gdml
+    A detector volume scaled when placing in the world volume.
+    
+  solidUnion.gdml
+    A single world volume made by a union of two boxes.
+    
+  solidMultiUnion.gdml
+    A single world volume made by a union of multiple (two) boxes.
+    
+  solidIntersection.gdml
+    A single world volume made by a intersection of two boxes.
+    
+  solidSubtraction.gdml
+    A single world volume made by subtraction between two boxes.
+    
+  auxiliary.gdml
+    Two-box geometry with auxiliary information, taken from geant4 example G01.
+
+  gdmlFlow.dot
+    Graph to visualize the test order.

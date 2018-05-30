@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!-- \file scaledBox.gdml -->
+<!-- \brief geometry of one scaled box without material -->
+<!-- \authors Author:  Dmitry Savin -->
+<!-- \license Distributed under the Apache license 2.0 -->
+<!-- unsupported by TGDMLParse as of ROOT 6.13/03 -->
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+
+  <define>
+    <scale name="shrink" x="0.7" y="0.5" z="0.3"/>
+  </define>  
+
+  <solids>
+    <box lunit="cm" name="box" x="100" y="100" z="100" />
+    <scaledSolid name="world" >
+      <solidref ref="box"/>
+      <scaleref ref="shrink"/>
+    </scaledSolid>
+  </solids>
+
+  <structure>
+    <volume name="World">
+      <solidref ref="world"/>
+    </volume>
+  </structure>
+
+  <setup name="default" version="1.0" >
+    <world ref="World" />
+  </setup>
+
+</gdml>
