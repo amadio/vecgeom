@@ -21,6 +21,8 @@ namespace vecgeom {
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+#ifndef VECCORE_CUDA
+
 VECCORE_ATT_HOST_DEVICE
 BooleanStruct const *BooleanHelper::GetBooleanStruct(VUnplacedVolume const *unplaced)
 {
@@ -110,6 +112,7 @@ UnplacedMultiUnion *BooleanHelper::Flatten(VUnplacedVolume const *unplaced, size
   if (munion) munion->AddNode(unplaced, *trbase);
   return nullptr;
 }
+#endif
 
 template <>
 template <TranslationCode transCodeT, RotationCode rotCodeT>

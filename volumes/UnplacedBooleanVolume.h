@@ -19,6 +19,7 @@ VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_1v(class, UnplacedBooleanVolume, BooleanOpe
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+#ifndef VECCORE_CUDA
 namespace BooleanHelper {
 
 VECCORE_ATT_HOST_DEVICE
@@ -29,8 +30,8 @@ size_t CountBooleanNodes(VUnplacedVolume const *unplaced, size_t &nunion, size_t
 
 UnplacedMultiUnion *Flatten(VUnplacedVolume const *unplaced, size_t min_unions = 3,
                             Transformation3D const *trbase = nullptr, UnplacedMultiUnion *munion = nullptr);
-
 } // End BooleanHelper
+#endif
 
 /**
  * A class representing a simple UNPLACED boolean volume A-B
@@ -126,6 +127,7 @@ public:
   VPlacedVolume const *GetLeft() const { return fBoolean.fLeftVolume; }
   VPlacedVolume const *GetRight() const { return fBoolean.fRightVolume; }
 
+#ifndef VECCORE_CUDA
   /** @brief Count number of Boolean nodes of different types under this Boolean volume */
   VECCORE_ATT_HOST_DEVICE
   size_t CountNodes(size_t &nunion, size_t &nintersection, size_t &nsubtraction) const
@@ -133,7 +135,6 @@ public:
     return BooleanHelper::CountBooleanNodes(this, nunion, nintersection, nsubtraction);
   }
 
-#ifndef VECCORE_CUDA
   /** @brief Flatten the Boolean node structure and create multiple union volumes if possible */
   UnplacedMultiUnion *Flatten(size_t min_unions = 1, Transformation3D const *trbase = nullptr,
                               UnplacedMultiUnion *munion = nullptr)

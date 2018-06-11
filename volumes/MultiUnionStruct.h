@@ -43,7 +43,9 @@ struct MultiUnionStruct {
   {
     fMinExtent.Set(kInfLength);
     fMaxExtent.Set(-kInfLength);
+#ifndef VECCORE_CUDA
     fLast.store(0);
+#endif
   }
 
   VECCORE_ATT_HOST_DEVICE
