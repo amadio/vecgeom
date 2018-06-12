@@ -90,9 +90,18 @@ public:
                                VPlacedVolume *const placement = NULL);
 
 #ifdef VECGEOM_CUDA_INTERFACE
+#ifdef VECGEOM_CUDA_HYBRID2
   virtual size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedMultiUnion>::SizeOf(); }
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
   virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
+#else
+  virtual size_t DeviceSizeOf() const override { return 0; }
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override { return DevicePtr<cuda::VUnplacedVolume>(); }
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override
+  {
+    return DevicePtr<cuda::VUnplacedVolume>(gpu_ptr);
+  }
+#endif
 #endif
 
 private:

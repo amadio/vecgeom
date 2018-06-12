@@ -111,7 +111,7 @@ VPlacedVolume *UnplacedMultiUnion::SpecializedVolume(LogicalVolume const *const 
 
 #endif
 
-#ifdef VECGEOM_CUDA_INTERFACE
+#if defined(VECGEOM_CUDA_INTERFACE) && defined(VECGEOM_CUDA_HYBRID2)
 
 DevicePtr<cuda::VUnplacedVolume> UnplacedMultiUnion::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
 {
@@ -136,6 +136,33 @@ template void DevicePtr<cuda::UnplacedMultiUnion>::Construct() const;
 
 } // End cxx namespace
 
+#elif !defined(VECGEOM_CUDA_HYBRID2)
+
+namespace cuda {
+// class UnplacedMultiUnion {};
+}
+namespace cxx {
+
+template <>
+size_t DevicePtr<cuda::LoopSpecializedVolImplHelper<cuda::MultiUnionImplementation, translation::kGeneric,
+                                                    rotation::kGeneric>>::SizeOf()
+{
+  return 0;
+}
+template size_t DevicePtr<cuda::LoopSpecializedVolImplHelper<cuda::MultiUnionImplementation, translation::kGeneric,
+                                                             rotation::kGeneric>>::SizeOf();
+
+template <>
+template <typename... ArgsTypes>
+void DevicePtr<cuda::LoopSpecializedVolImplHelper<cuda::MultiUnionImplementation, translation::kGeneric,
+                                                  rotation::kGeneric>>::Construct(ArgsTypes... params) const
+{
+  return;
+}
+template void DevicePtr<cuda::LoopSpecializedVolImplHelper<cuda::MultiUnionImplementation, translation::kGeneric,
+                                                           rotation::kGeneric>>::Construct() const;
+
+} // End cxx namespace
 #endif
 
 } // End global namespace
