@@ -136,7 +136,7 @@ template void DevicePtr<cuda::UnplacedMultiUnion>::Construct() const;
 
 } // End cxx namespace
 
-#elif !defined(VECGEOM_CUDA_HYBRID2)
+#elif defined(VECGEOM_CUDA_INTERFACE) && !defined(VECGEOM_CUDA_HYBRID2)
 
 namespace cuda {
 // class UnplacedMultiUnion {};
