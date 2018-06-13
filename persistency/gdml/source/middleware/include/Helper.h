@@ -3,7 +3,7 @@
 //!
 //!    \authors Author:  Dmitry Savin <sd57@protonmail.ch>
 //!
-//!    \license Distributed under the Apache license 2.0
+
 #pragma once
 
 #ifndef Helper_h
@@ -28,7 +28,7 @@ template <typename F, typename T, typename R>
 R TranscodeAndApply(F aFunction, T anArgument);
 
 template <typename T = std::string>
-T GetAttribute(std::string attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap *theAttributes);
+T GetAttribute(std::string attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
 } // namespace vgdml
 
 namespace vgdml {

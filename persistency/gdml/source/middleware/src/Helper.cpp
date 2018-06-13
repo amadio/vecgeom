@@ -21,14 +21,14 @@ template <>
 int Transcode(const XMLCh *const anXMLstring);
 
 template <>
-std::string GetAttribute(std::string attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap *theAttributes);
+std::string GetAttribute(std::string attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
 template <>
-double GetAttribute(std::string attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap *theAttributes);
+double GetAttribute(std::string attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
 template <>
-int GetAttribute(std::string attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap *theAttributes);
+int GetAttribute(std::string attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
 
 template <>
-std::string GetAttribute(std::string attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap *theAttributes)
+std::string GetAttribute(std::string attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes)
 {
   auto *attrXMLName = XERCES_CPP_NAMESPACE_QUALIFIER XMLString::transcode(attrName.c_str());
   auto *attribute   = theAttributes->getNamedItem(attrXMLName);
@@ -37,14 +37,14 @@ std::string GetAttribute(std::string attrName, XERCES_CPP_NAMESPACE_QUALIFIER DO
 };
 
 template <>
-double GetAttribute(std::string attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap *theAttributes)
+double GetAttribute(std::string attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes)
 {
   auto const strAttribure = GetAttribute(attrName, theAttributes);
   return std::stod(strAttribure);
 };
 
 template <>
-int GetAttribute(std::string attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap *theAttributes)
+int GetAttribute(std::string attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes)
 {
   auto const strAttribure = GetAttribute(attrName, theAttributes);
   return std::stoi(strAttribure);

@@ -3,7 +3,6 @@
 //!
 //!    \authors Author:  Dmitry Savin <sd57@protonmail.ch>
 //!
-//!    \license Distributed under the Apache license 2.0
 
 #include <iostream>
 #include "Backend.h"

@@ -8,6 +8,9 @@
 cmake_minimum_required (VERSION 3.3)
 project (vgdml)
 
+message(STATUS "vgdml CMAKE_GENERATOR is ${CMAKE_GENERATOR}")
+message(STATUS "vgdml CMAKE_MAKE_PROGRAM is ${CMAKE_MAKE_PROGRAM}")
+
 if (NOT BUILTIN_XercesC)
   # Find XercesC with selected components turned on (CUDA and backend)
   find_package(XercesC)

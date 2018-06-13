@@ -5,19 +5,15 @@
 <!-- \license Distributed under the Apache license 2.0 -->
 <!-- validated with an online tool, parsed with Xerces-C and TGDMLParse -->
 <gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
-
   <solids>
     <orb name="world" r="100" lunit="cm"/>
   </solids>
-
   <structure>
     <volume name="World">
       <solidref ref="world"/>
     </volume>
   </structure>
-
   <setup name="default" version="1.0" >
     <world ref="World" />
   </setup>
-
 </gdml>

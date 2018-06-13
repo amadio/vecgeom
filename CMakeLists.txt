@@ -68,7 +68,7 @@ option(DATA_DOWNLOAD "Enable downloading of data for tests" OFF)
 
 option(STATIC_ANALYSIS "enable static analysis on VecGeom" OFF)
 
-option(GDML "Enable GDML persitency. Requres Xerces-C" OFF)
+option(GDML "Enable GDML persistency. Requres Xerces-C" ON)
 
 set(VECGEOM_ARCH native sse2 sse3 ssse3 sse4.1 sse4.2 avx avx2 mic mic_avx512)
 
