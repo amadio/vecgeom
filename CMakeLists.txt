@@ -897,7 +897,7 @@ if (CUDA)
 endif()
 
 if(GDML AND CUDA)
-  message(WARNING "GDML is not supported for CUDA builds. Turning GDML OFF")
+  message(STATUS "GDML is not supported for CUDA builds. Turning GDML OFF")
   set(GDML OFF)
 endif()
 # build the libraries for GDML persistency
