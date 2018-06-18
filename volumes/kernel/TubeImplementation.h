@@ -126,6 +126,16 @@ void CircleTrajectoryIntersection(Real_v const &b, Real_v const &c, UnplacedStru
   if (vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(ok)) return;
 
   if (insectorCheck) {
+    /* if dist > 100*tube.fRmax, then instead of solving quadratic again,
+    ** use Newton method to recalculate the root, taking previous distance
+    ** as initial guess for newton method.
+    */
+    Real_v x(0.), y(0.);
+    vecCore::MaskedAssign(x, dist > 100 * tube.fRmax, pos.x() + dist * dir.x());
+    vecCore::MaskedAssign(y, dist > 100 * tube.fRmax, pos.y() + dist * dir.y());
+    vecCore::MaskedAssign(dist, dist > 100 * tube.fRmax,
+                          dist - (x * x + y * y - tube.fRmax2) * 0.5 / (dir.x() * x + dir.y() * y));
+
     Real_v hitz = pos.z() + dist * dir.z();
     ok &= (Abs(hitz) <= tube.fZ);
     if (vecCore::EarlyReturnAllowed() && vecCore::MaskEmpty(ok)) return;
