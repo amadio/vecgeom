@@ -8,6 +8,14 @@
 #include "Backend.h"
 #include "Middleware.h"
 #include "xercesc/dom/DOMDocument.hpp"
+#include "management/GeoManager.h"
+
+#ifdef VECGEOM_ROOT
+// if ROOT is available will export the loaded geometry
+#include "management/RootGeoManager.h"
+#include "management/GeoManager.h"
+#include "TGeoManager.h"
+#endif
 
 namespace {
 static void usage()
@@ -31,5 +39,12 @@ int main(int argC, char *argV[])
   auto aMiddleware      = vgdml::Middleware();
   auto loadedMiddleware = aMiddleware.Load(aDOMDoc);
   //  std::cout << loadedMiddleware << std::endl;
-  return !loadedMiddleware;
+  auto const *world = vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::Instance().GetWorld();
+#ifdef VECGEOM_ROOT
+  vecgeom::RootGeoManager::Instance().ExportToROOTGeometry(world, "TestXercesMiddleware.out.RootGeo.gdml");
+  TGeoManager::Import(filename.c_str());
+  gGeoManager->Export("TestXercesMiddleware.out.TGeo.gdml");
+#endif
+
+  return loadedMiddleware && world;
 }

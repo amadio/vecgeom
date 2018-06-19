@@ -14,10 +14,7 @@
 
 #include "xercesc/util/XercesDefs.hpp"
 
-//#include "volumes/Orb.h"
-#include "volumes/UnplacedOrb.h"
-#include "volumes/UnplacedBox.h"
-#include "volumes/UnplacedTube.h"
+#include "volumes/UnplacedVolume.h"
 
 XERCES_CPP_NAMESPACE_BEGIN
 class DOMDocument;
@@ -46,14 +43,32 @@ private:
   static bool processSolid(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   static bool processLogicVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   static bool processWorld(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
-  static vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedOrb const *processOrb(
+  static vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *processOrb(
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
-  static const vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedBox *processBox(
+  static const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processBox(
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
-  static const vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedTube *processTube(
+  static const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processTube(
+      XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  static const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processCutTube(
+      XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  static const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processCone(
+      XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  static const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processTorus(
+      XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  static const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processSphere(
+      XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  static const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processParallelepiped(
+      XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  static const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processTrd(
+      XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  static const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processTrapezoid(
+      XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  static const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processParaboloid(
+      XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  static const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processHype(
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
 
-  static vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processSimpleVolume(
+  static vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *processSimpleVolume(
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode, std::string volumeName);
   static double GetLengthMultiplier(XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *attributes);
   static double GetAngleMultiplier(XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *attributes);
