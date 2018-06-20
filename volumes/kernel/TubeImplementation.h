@@ -134,7 +134,7 @@ void CircleTrajectoryIntersection(Real_v const &b, Real_v const &c, UnplacedStru
     vecCore::MaskedAssign(x, dist > 100 * tube.fRmax, pos.x() + dist * dir.x());
     vecCore::MaskedAssign(y, dist > 100 * tube.fRmax, pos.y() + dist * dir.y());
     vecCore::MaskedAssign(dist, dist > 100 * tube.fRmax,
-                          dist - (x * x + y * y - tube.fRmax2) * 0.5 / (dir.x() * x + dir.y() * y));
+                          dist - (x * x + y * y - tube.fRmax2) * 0.5 / NonZero(dir.x() * x + dir.y() * y));
 
     Real_v hitz = pos.z() + dist * dir.z();
     ok &= (Abs(hitz) <= tube.fZ);
