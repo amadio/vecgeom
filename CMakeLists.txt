@@ -837,6 +837,10 @@ endif()
 
 # Build libraries
 
+if (NOT APPLE)
+  set(VECGEOM_LIBRARIES_EXTERNAL ${VECGEOM_LIBRARIES_EXTERNAL} rt)
+endif()
+
 add_library(vecgeom ${SRC_CPP})
 target_link_libraries(vecgeom ${VECGEOM_LIBRARIES}
                       ${VECGEOM_LIBRARIES_EXTERNAL})
@@ -867,8 +871,7 @@ if (CUDA)
     #    -O0 -g -G -lineinfo
     ${VECGEOM_NVCC_CONFIGS}
   )
-  target_link_libraries(vecgeomcuda ${VECGEOM_LIBRARIES}
-                        ${VECGEOM_LIBRARIES_EXTERNAL})
+  target_link_libraries(vecgeomcuda ${VECGEOM_LIBRARIES})
   set(VECGEOM_LIBRARIES ${VECGEOM_LIBRARIES} vecgeomcuda)
 endif()
 
@@ -892,7 +895,7 @@ if (CUDA)
   # not knowing how to automatically go from the target to the real
   # file in add_custom_command
   cuda_add_library_depend(cudauserlib vecgeomcuda_static libvecgeomcuda_static.a)
-  target_link_libraries(cudauserlib ${VECGEOM_LIBRARIES} ${VECGEOM_LIBRARIES_EXTERNAL})
+  target_link_libraries(cudauserlib ${VECGEOM_LIBRARIES})
   set(USERKERNELLIB cudauserlib)
 endif()
 
@@ -1091,7 +1094,6 @@ macro(build_executables EXECUTABLES)
     get_filename_component(TARGET_NAME ${EXECUTABLE} NAME_WE)
     add_executable(${TARGET_NAME} ${EXECUTABLE})
     target_link_libraries(${TARGET_NAME} ${VECGEOM_LIBRARIES}
-                          ${VECGEOM_LIBRARIES_EXTERNAL}
                           ${USERKERNELLIB})
     set(VECGEOM_EXECUTABLES ${VECGEOM_EXECUTABLES} ${TARGET_NAME})
     if (MIC)
