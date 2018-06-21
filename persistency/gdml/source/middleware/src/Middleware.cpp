@@ -39,6 +39,7 @@
 // requires lengthMultiplier, angleMultiplier and attributes already declared
 #define DECLAREANDGETLENGTVAR(x) auto const x = lengthMultiplier * GetAttribute<double>(#x, attributes);
 #define DECLAREANDGETANGLEVAR(x) auto const x = angleMultiplier * GetAttribute<double>(#x, attributes);
+#define DECLAREANDGETPLAINVAR(x) auto const x = GetAttribute<double>(#x, attributes);
 
 namespace {
 constexpr bool debug = true;
@@ -453,8 +454,8 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processHype(
   auto const lengthMultiplier = GetLengthMultiplier(attributes);
   DECLAREANDGETLENGTVAR(rmin)
   DECLAREANDGETLENGTVAR(rmax)
-  DECLAREANDGETLENGTVAR(inst)
-  DECLAREANDGETLENGTVAR(outst)
+  DECLAREANDGETPLAINVAR(inst)
+  DECLAREANDGETPLAINVAR(outst)
   DECLAREANDGETLENGTVAR(z)
   auto const anUnplacedHypePtr =
       vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedHype>(
