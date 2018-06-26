@@ -401,7 +401,7 @@ bool operator==(Vector3D<Precision> const &lhs, Vector3D<Precision> const &rhs)
 
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-Vector3D<bool> operator!=(Vector3D<Precision> const &lhs, Vector3D<Precision> const &rhs)
+bool operator!=(Vector3D<Precision> const &lhs, Vector3D<Precision> const &rhs)
 {
   return !(lhs == rhs);
 }
