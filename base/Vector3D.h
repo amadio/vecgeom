@@ -434,8 +434,8 @@ VECTOR3D_SCALAR_BOOLEAN_LOGICAL_OP(&&)
 VECTOR3D_SCALAR_BOOLEAN_LOGICAL_OP(||)
 #undef VECTOR3D_SCALAR_BOOLEAN_LOGICAL_OP
 #pragma GCC diagnostic pop
-} // End inline namespace
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 namespace vecCore {
 
@@ -448,7 +448,7 @@ void MaskedAssign(vecgeom::Vector3D<T> &v, const vecCore::Mask<T> &mask, const v
   vecCore::MaskedAssign(v[1], mask, val[1]);
   vecCore::MaskedAssign(v[2], mask, val[2]);
 }
-}
+} // namespace vecCore
 
 // for use in GEANT4
 using UVector3 = VECGEOM_NAMESPACE::Vector3D<double>;

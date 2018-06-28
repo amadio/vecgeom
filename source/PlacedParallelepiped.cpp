@@ -25,7 +25,8 @@ VPlacedVolume const *PlacedParallelepiped::ConvertToUnspecialized() const
 #ifdef VECGEOM_ROOT
 TGeoShape const *PlacedParallelepiped::ConvertToRoot() const
 {
-  return new TGeoPara(GetLabel().c_str(), GetX(), GetY(), GetZ(), GetAlpha(), GetTheta(), GetPhi());
+  return new TGeoPara(GetLabel().c_str(), GetX(), GetY(), GetZ(), GetAlpha() * kRadToDeg, GetTheta() * kRadToDeg,
+                      GetPhi() * kRadToDeg);
 }
 #endif
 

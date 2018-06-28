@@ -42,7 +42,14 @@ private:
   static bool processNode(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   static bool processSolid(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   static bool processLogicVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  static vecgeom::VECGEOM_IMPL_NAMESPACE::VPlacedVolume const *processPhysicalVolume(
+      XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   static bool processWorld(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  static bool processConstant(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  static bool processPosition(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  static bool processRotation(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  static vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *processUnion(
+      XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   static vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *processOrb(
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   static const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processBox(
@@ -68,10 +75,8 @@ private:
   static const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processHype(
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
 
-  static vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *processSimpleVolume(
-      XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode, std::string volumeName);
-  static double GetLengthMultiplier(XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *attributes);
-  static double GetAngleMultiplier(XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *attributes);
+  static double GetLengthMultiplier(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  static double GetAngleMultiplier(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
 };
 } // namespace vgdml
 #endif

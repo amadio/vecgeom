@@ -15,5 +15,3 @@ target_include_directories(vgdmlMiddleware PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/in
 target_include_directories(vgdmlMiddleware PUBLIC ${VECGEOM_INCLUDE_DIR})
 get_target_property(BACKEND_INCLUDES vgdmlBackend INCLUDE_DIRECTORIES)
 target_include_directories(vgdmlMiddleware PUBLIC ${BACKEND_INCLUDES})
-set_property(TARGET vgdmlMiddleware PROPERTY CXX_STANDARD 14)
-

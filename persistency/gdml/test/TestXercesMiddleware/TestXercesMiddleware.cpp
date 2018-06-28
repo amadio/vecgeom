@@ -41,7 +41,9 @@ int main(int argC, char *argV[])
   //  std::cout << loadedMiddleware << std::endl;
   auto const *world = vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::Instance().GetWorld();
 #ifdef VECGEOM_ROOT
-  vecgeom::RootGeoManager::Instance().ExportToROOTGeometry(world, "TestXercesMiddleware.out.RootGeo.gdml");
+  auto &aROOTmanager = vecgeom::RootGeoManager::Instance();
+  //  aROOTmanager.EnableTGeoUnits(); // does not work at export stage
+  aROOTmanager.ExportToROOTGeometry(world, "TestXercesMiddleware.out.RootGeo.gdml");
   TGeoManager::Import(filename.c_str());
   gGeoManager->Export("TestXercesMiddleware.out.TGeo.gdml");
 #endif

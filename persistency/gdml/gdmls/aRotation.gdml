@@ -7,7 +7,7 @@
 <gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
 
   <define>
-    <rotation name="V" unit="degree" x="7" y="17" z="37" />
+    <rotation name="V" unit="deg" x="7" y="17" z="37" />
   </define>
   
   

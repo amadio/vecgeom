@@ -8,7 +8,7 @@
   <define/>
   <materials/>
   <solids>
-    <cutTube name="world" z="20" rmin="1" rmax="5" startphi="1" deltaphi="4" lowX="15" lowY="15" lowZ="15" highX="10" highY="10" highZ="10" aunit="rad" lunit="cm"/>
+    <cutTube name="world" z="20" rmin="1" rmax="5" startphi="1" deltaphi="4" lowX="-15" lowY="-15" lowZ="-15" highX="10" highY="10" highZ="10" aunit="rad" lunit="cm"/>
   </solids>
   <structure>
     <volume name="World">

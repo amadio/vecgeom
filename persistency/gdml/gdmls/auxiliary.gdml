@@ -10,7 +10,7 @@
 
  <define>
   <position name="R" unit="mm" x="0" y="0" z="0" />
-  <rotation name="V" unit="degree" x="10" y="20" z="30" />
+  <rotation name="V" unit="deg" x="10" y="20" z="30" />
   <variable name="veloSD" value="4" />
  </define>
 

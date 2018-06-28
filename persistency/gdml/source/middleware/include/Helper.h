@@ -10,6 +10,7 @@
 #define Helper_h
 
 #include <string>
+#include <sstream>
 
 #include "xercesc/util/XercesDefs.hpp"
 #include "xercesc/util/XMLChar.hpp"
@@ -17,9 +18,12 @@
 
 XERCES_CPP_NAMESPACE_BEGIN
 class DOMNamedNodeMap;
+class DOMNode;
 XERCES_CPP_NAMESPACE_END
 
 namespace vgdml {
+
+namespace Helper {
 // has overhead for object creation, but cleaner than char*, TODO profile if critical
 template <typename T = std::string>
 T Transcode(const XMLCh *const anXMLstring);
@@ -29,9 +33,15 @@ R TranscodeAndApply(F aFunction, T anArgument);
 
 template <typename T = std::string>
 T GetAttribute(std::string attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
+
+std::stringstream GetNodeInformation(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+
+} // namespace Helper
 } // namespace vgdml
 
 namespace vgdml {
+namespace Helper {
+
 template <typename F, typename R>
 R TranscodeAndApply(F aFunction, std::string anArgument)
 {
@@ -41,6 +51,7 @@ R TranscodeAndApply(F aFunction, std::string anArgument)
   return std::forward<R>(result);
 }
 
+} // namespace Helper
 } // namespace vgdml
 
 #endif

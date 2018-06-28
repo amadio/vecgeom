@@ -19,5 +19,3 @@ install(TARGETS vgdmlBackend DESTINATION ${CMAKE_INSTALL_PREFIX})
 target_link_libraries(vgdmlBackend ${XercesC_LIBRARY})
 target_include_directories(vgdmlBackend PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/)
 target_include_directories(vgdmlBackend PUBLIC ${XercesC_INCLUDE_DIR})
-set_property(TARGET vgdmlBackend PROPERTY CXX_STANDARD 14)
-
