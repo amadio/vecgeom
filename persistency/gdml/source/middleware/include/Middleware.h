@@ -34,7 +34,7 @@ class VUnplacedVolume;
 namespace vgdml {
 class Middleware {
 public:
-  Middleware();
+  Middleware() {}
   void *Load(XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument const *aDOMDocument);
   XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *Save(void const *);
 

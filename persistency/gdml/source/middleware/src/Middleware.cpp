@@ -41,6 +41,7 @@
 #define DECLAREANDGETLENGTVAR(x) auto const x = lengthMultiplier * GetAttribute<double>(#x, attributes);
 #define DECLAREANDGETANGLEVAR(x) auto const x = angleMultiplier * GetAttribute<double>(#x, attributes);
 #define DECLAREANDGETPLAINVAR(x) auto const x = GetAttribute<double>(#x, attributes);
+
 #define DECLAREHALF(x) auto const half##x = x / 2.;
 
 namespace {
@@ -137,8 +138,6 @@ extern template std::string Helper::GetAttribute(std::string attrName,
                                                  XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
 extern template double Helper::GetAttribute(std::string attrName,
                                             XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
-
-Middleware::Middleware() {}
 
 void *Middleware::Load(XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument const *aDOMDocument)
 {
