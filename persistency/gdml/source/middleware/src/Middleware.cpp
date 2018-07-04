@@ -41,7 +41,7 @@
 #define DECLAREANDGETLENGTVAR(x) auto const x = lengthMultiplier * GetAttribute<double>(#x, attributes);
 #define DECLAREANDGETANGLEVAR(x) auto const x = angleMultiplier * GetAttribute<double>(#x, attributes);
 #define DECLAREANDGETPLAINVAR(x) auto const x = GetAttribute<double>(#x, attributes);
-#define DECLAREHALF(x) auto const half##x     = x / 2.;
+#define DECLAREHALF(x) auto const half##x = x / 2.;
 
 namespace {
 constexpr bool debug = true;
@@ -138,9 +138,7 @@ extern template std::string Helper::GetAttribute(std::string attrName,
 extern template double Helper::GetAttribute(std::string attrName,
                                             XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
 
-Middleware::Middleware()
-{
-}
+Middleware::Middleware() {}
 
 void *Middleware::Load(XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument const *aDOMDocument)
 {
@@ -169,7 +167,7 @@ XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *Middleware::Save(void const *)
 bool Middleware::processNode(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
-    std::cout << "Middleware::processNode: processing: " << Helper::GetNodeInformation(aDOMNode).str() << std::endl;
+    std::cout << "Middleware::processNode: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   auto const name = Helper::Transcode(aDOMNode->getNodeName());
 
@@ -203,7 +201,7 @@ bool Middleware::processNode(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMN
 bool Middleware::processConstant(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
-    std::cout << "Middleware::processConstant: processing: " << Helper::GetNodeInformation(aDOMNode).str() << std::endl;
+    std::cout << "Middleware::processConstant: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   auto const *const attributes = aDOMNode->getAttributes();
   auto const constantName      = GetAttribute("name", attributes);
@@ -219,7 +217,7 @@ bool Middleware::processConstant(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *a
 bool Middleware::processPosition(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
-    std::cout << "Middleware::processPosition: processing: " << Helper::GetNodeInformation(aDOMNode).str() << std::endl;
+    std::cout << "Middleware::processPosition: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   auto const *const attributes = aDOMNode->getAttributes();
   auto const positionName      = GetAttribute("name", attributes);
@@ -239,7 +237,7 @@ bool Middleware::processPosition(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *a
 bool Middleware::processRotation(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
-    std::cout << "Middleware::processPosition: processing: " << Helper::GetNodeInformation(aDOMNode).str() << std::endl;
+    std::cout << "Middleware::processPosition: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   auto const *const attributes = aDOMNode->getAttributes();
   auto const rotationName      = GetAttribute("name", attributes);
@@ -260,7 +258,7 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processUnion
     XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
-    std::cout << "Middleware::processUnion: processing: " << Helper::GetNodeInformation(aDOMNode).str() << std::endl;
+    std::cout << "Middleware::processUnion: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *firstSolid  = nullptr;
   vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *secondSolid = nullptr;
@@ -271,7 +269,7 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processUnion
     auto aDOMElement            = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *>(it);
     auto const theChildNodeName = Helper::Transcode(it->getNodeName());
     if (debug) {
-      std::cout << "Child: " << Helper::GetNodeInformation(it).str() << std::endl;
+      std::cout << "Child: " << Helper::GetNodeInformation(it) << std::endl;
     }
     if (theChildNodeName == "first") {
       auto const solidName = GetAttribute("ref", aDOMElement->getAttributes());
@@ -319,7 +317,7 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processUnion
 bool Middleware::processSolid(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
-    std::cout << "Middleware::processSolid: processing: " << Helper::GetNodeInformation(aDOMNode).str() << std::endl;
+    std::cout << "Middleware::processSolid: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   auto const name              = Helper::Transcode(aDOMNode->getNodeName());
   auto const *const attributes = aDOMNode->getAttributes();
@@ -370,7 +368,7 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processOrb(
     XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
-    std::cout << "Middleware::processOrb: processing: " << Helper::GetNodeInformation(aDOMNode).str() << std::endl;
+    std::cout << "Middleware::processOrb: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   auto const *const attributes = aDOMNode->getAttributes();
   auto const lengthMultiplier  = GetLengthMultiplier(aDOMNode);
@@ -410,7 +408,7 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processBox(
     XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
-    std::cout << "Middleware::processBox: processing: " << Helper::GetNodeInformation(aDOMNode).str() << std::endl;
+    std::cout << "Middleware::processBox: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   auto const *const attributes = aDOMNode->getAttributes();
   auto const lengthMultiplier  = GetLengthMultiplier(aDOMNode);
@@ -430,7 +428,7 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processTube(
     XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
-    std::cout << "Middleware::processTube: processing: " << Helper::GetNodeInformation(aDOMNode).str() << std::endl;
+    std::cout << "Middleware::processTube: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   auto const *const attributes = aDOMNode->getAttributes();
   auto const lengthMultiplier  = GetLengthMultiplier(aDOMNode);
@@ -451,7 +449,7 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processCutTu
     XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
-    std::cout << "Middleware::processCutTube: processing: " << Helper::GetNodeInformation(aDOMNode).str() << std::endl;
+    std::cout << "Middleware::processCutTube: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   auto const *const attributes = aDOMNode->getAttributes();
   auto const lengthMultiplier  = GetLengthMultiplier(aDOMNode);
@@ -484,7 +482,7 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processCone(
     XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
-    std::cout << "Middleware::processCone: processing: " << Helper::GetNodeInformation(aDOMNode).str() << std::endl;
+    std::cout << "Middleware::processCone: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   auto const *const attributes = aDOMNode->getAttributes();
   auto const lengthMultiplier  = GetLengthMultiplier(aDOMNode);
@@ -507,7 +505,7 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processTorus
     XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
-    std::cout << "Middleware::processTorus: processing: " << Helper::GetNodeInformation(aDOMNode).str() << std::endl;
+    std::cout << "Middleware::processTorus: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   auto const *const attributes = aDOMNode->getAttributes();
   auto const lengthMultiplier  = GetLengthMultiplier(aDOMNode);
@@ -527,7 +525,7 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processSpher
     XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
-    std::cout << "Middleware::processSphere: processing: " << Helper::GetNodeInformation(aDOMNode).str() << std::endl;
+    std::cout << "Middleware::processSphere: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   auto const *const attributes = aDOMNode->getAttributes();
   auto const lengthMultiplier  = GetLengthMultiplier(aDOMNode);
@@ -548,8 +546,7 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processParal
     XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
-    std::cout << "Middleware::processParallelepiped: processing: " << Helper::GetNodeInformation(aDOMNode).str()
-              << std::endl;
+    std::cout << "Middleware::processParallelepiped: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   auto const *const attributes = aDOMNode->getAttributes();
   auto const lengthMultiplier  = GetLengthMultiplier(aDOMNode);
@@ -572,7 +569,7 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processTrd(
     XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
-    std::cout << "Middleware::processTrd: processing: " << Helper::GetNodeInformation(aDOMNode).str() << std::endl;
+    std::cout << "Middleware::processTrd: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   auto const *const attributes = aDOMNode->getAttributes();
   auto const lengthMultiplier  = GetLengthMultiplier(aDOMNode);
@@ -596,8 +593,7 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processTrape
     XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
-    std::cout << "Middleware::processTrapezoid: processing: " << Helper::GetNodeInformation(aDOMNode).str()
-              << std::endl;
+    std::cout << "Middleware::processTrapezoid: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   auto const *const attributes = aDOMNode->getAttributes();
   auto const lengthMultiplier  = GetLengthMultiplier(aDOMNode);
@@ -630,8 +626,7 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processParab
     XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
-    std::cout << "Middleware::processParaboloid: processing: " << Helper::GetNodeInformation(aDOMNode).str()
-              << std::endl;
+    std::cout << "Middleware::processParaboloid: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   auto const *const attributes = aDOMNode->getAttributes();
   auto const lengthMultiplier  = GetLengthMultiplier(aDOMNode);
@@ -648,7 +643,7 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processHype(
     XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
-    std::cout << "Middleware::processHype: processing: " << Helper::GetNodeInformation(aDOMNode).str() << std::endl;
+    std::cout << "Middleware::processHype: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   auto const *const attributes = aDOMNode->getAttributes();
   auto const lengthMultiplier  = GetLengthMultiplier(aDOMNode);
@@ -667,8 +662,7 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processHype(
 bool Middleware::processLogicVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
-    std::cout << "Middleware::processLogicVolume: processing: " << Helper::GetNodeInformation(aDOMNode).str()
-              << std::endl;
+    std::cout << "Middleware::processLogicVolume: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   vecgeom::VECGEOM_IMPL_NAMESPACE::LogicalVolume *logicVolume = nullptr;
   auto const *const attributes                                = aDOMNode->getAttributes();
@@ -678,7 +672,7 @@ bool Middleware::processLogicVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const
     auto aDOMElement            = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *>(it);
     auto const theChildNodeName = Helper::Transcode(it->getNodeName());
     if (debug) {
-      std::cout << "Child: " << Helper::GetNodeInformation(it).str() << std::endl;
+      std::cout << "Child: " << Helper::GetNodeInformation(it) << std::endl;
     }
     if (theChildNodeName == "solidref") {
       auto const solidName = GetAttribute("ref", aDOMElement->getAttributes());
@@ -705,8 +699,7 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VPlacedVolume const *Middleware::processPhysica
     XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
-    std::cout << "Middleware::processPhysicalVolume: processing: " << Helper::GetNodeInformation(aDOMNode).str()
-              << std::endl;
+    std::cout << "Middleware::processPhysicalVolume: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   vecgeom::VECGEOM_IMPL_NAMESPACE::LogicalVolume *logicalVolume = nullptr;
   vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double> position;
@@ -715,7 +708,7 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VPlacedVolume const *Middleware::processPhysica
     auto aDOMElement            = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *>(it);
     auto const theChildNodeName = Helper::Transcode(it->getNodeName());
     if (debug) {
-      std::cout << "Child: " << Helper::GetNodeInformation(it).str() << std::endl;
+      std::cout << "Child: " << Helper::GetNodeInformation(it) << std::endl;
     }
     if (theChildNodeName == "volumeref") {
       auto const logicalVolumeName = GetAttribute("ref", aDOMElement->getAttributes());
@@ -747,7 +740,7 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VPlacedVolume const *Middleware::processPhysica
 bool Middleware::processWorld(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
-    std::cout << "Middleware::processWorld: processing: " << Helper::GetNodeInformation(aDOMNode).str() << std::endl;
+    std::cout << "Middleware::processWorld: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   auto const logicalVolumeName = GetAttribute("ref", aDOMNode->getAttributes());
   auto logicalVolume =

@@ -8,6 +8,7 @@
 #include "Helper.h"
 
 #include <string>
+#include <sstream>
 #include <stdexcept>
 #include <limits>
 
@@ -86,9 +87,9 @@ int Transcode(const XMLCh *const anXMLstring)
   return anInt;
 }
 
-std::stringstream GetNodeInformation(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
+std::string GetNodeInformation(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
-  auto aStream                   = std::stringstream{};
+  std::stringstream aStream;
   auto const theNodeName         = Transcode(aDOMNode->getNodeName());
   auto const theNodeText         = Transcode(aDOMNode->getTextContent());
   auto const *const asDOMElement = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement const *>(aDOMNode);
@@ -110,7 +111,7 @@ std::stringstream GetNodeInformation(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode cons
     }
     aStream << ")";
   }
-  return aStream;
+  return aStream.str();
 }
 
 } // namespace Helper
