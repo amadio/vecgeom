@@ -62,15 +62,11 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
 VECCORE_ATT_DEVICE
 VPlacedVolume *UnplacedPolyhedron::Create(LogicalVolume const *const logical_volume,
                                           Transformation3D const *const transformation,
-// const TranslationCode trans_code, const RotationCode rot_code,
 #ifdef VECCORE_CUDA
                                           const int id,
 #endif
                                           VPlacedVolume *const placement)
 {
-
-  //#ifndef VECGEOM_NO_SPECIALIZATION
-
   UnplacedPolyhedron const *unplaced = static_cast<UnplacedPolyhedron const *>(logical_volume->GetUnplacedVolume());
 
   EInnerRadii innerRadii = unplaced->HasInnerRadii() ? EInnerRadii::kTrue : EInnerRadii::kFalse;
@@ -80,12 +76,14 @@ VPlacedVolume *UnplacedPolyhedron::Create(LogicalVolume const *const logical_vol
                              : EPhiCutout::kFalse;
 
 #ifndef VECCORE_CUDA
-#define POLYHEDRON_CREATE_SPECIALIZATION(INNER, PHI)                                              \
-  return CreateSpecializedWithPlacement<SpecializedPolyhedron<transCodeT, rotCodeT, INNER, PHI>>( \
+// for the moment we do not propagate placement specialization
+// (We should in the future select a few important specializations here such as rotation or no rotation)
+#define POLYHEDRON_CREATE_SPECIALIZATION(INNER, PHI)                                                                   \
+  return CreateSpecializedWithPlacement<SpecializedPolyhedron<translation::kGeneric, rotation::kGeneric, INNER, PHI>>( \
       logical_volume, transformation, placement)
 #else
-#define POLYHEDRON_CREATE_SPECIALIZATION(INNER, PHI)                                              \
-  return CreateSpecializedWithPlacement<SpecializedPolyhedron<transCodeT, rotCodeT, INNER, PHI>>( \
+#define POLYHEDRON_CREATE_SPECIALIZATION(INNER, PHI)                                                                   \
+  return CreateSpecializedWithPlacement<SpecializedPolyhedron<translation::kGeneric, rotation::kGeneric, INNER, PHI>>( \
       logical_volume, transformation, id, placement)
 #endif
 
