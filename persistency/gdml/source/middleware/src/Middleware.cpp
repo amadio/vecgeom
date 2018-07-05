@@ -36,6 +36,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <array>
 
 // requires lengthMultiplier, angleMultiplier and attributes already declared
 #define DECLAREANDGETLENGTVAR(x) auto const x = lengthMultiplier * GetAttribute<double>(#x, attributes);
