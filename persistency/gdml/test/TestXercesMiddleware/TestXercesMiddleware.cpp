@@ -45,7 +45,16 @@ int main(int argC, char *argV[])
   //  aROOTmanager.EnableTGeoUnits(); // does not work at export stage
   aROOTmanager.ExportToROOTGeometry(world, "TestXercesMiddleware.out.RootGeo.gdml");
   TGeoManager::Import(filename.c_str());
-  gGeoManager->Export("TestXercesMiddleware.out.TGeo.gdml");
+  auto const *const topVolume = gGeoManager->GetTopVolume();
+  if (!topVolume) {
+    std::cout << "TestXercesMiddleware: ROOT failed to load geometry" << std::endl;
+  } else {
+    try {
+      gGeoManager->Export("TestXercesMiddleware.out.TGeo.gdml");
+    } catch (...) {
+      std::cout << "Unexpected error when exporting by ROOT" << std::endl;
+    }
+  }
 #endif
 
   return loadedMiddleware && world;

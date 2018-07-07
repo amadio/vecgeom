@@ -11,10 +11,19 @@
 #include <sstream>
 #include <stdexcept>
 #include <limits>
+#include <array>
 
 #include "xercesc/dom/DOMNamedNodeMap.hpp"
 #include "xercesc/dom/DOMNode.hpp"
 #include "xercesc/dom/DOMElement.hpp"
+
+namespace {
+static const std::array<std::string, 13> nodeTypeNames{
+    {"invalid", // the numbering starts from 1
+     "ELEMENT_NODE", "ATTRIBUTE_NODE", "TEXT_NODE", "CDATA_SECTION_NODE", "ENTITY_REFERENCE_NODE", "ENTITY_NODE",
+     "PROCESSING_INSTRUCTION_NODE", "COMMENT_NODE", "DOCUMENT_NODE", "DOCUMENT_TYPE_NODE", "DOCUMENT_FRAGMENT_NODE",
+     "NOTATION_NODE"}};
+}
 
 namespace vgdml {
 namespace Helper {
@@ -93,7 +102,9 @@ std::string GetNodeInformation(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDO
   auto const theNodeName         = Transcode(aDOMNode->getNodeName());
   auto const theNodeText         = Transcode(aDOMNode->getTextContent());
   auto const *const asDOMElement = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement const *>(aDOMNode);
-  aStream << "node name is \"" << theNodeName << "\"";
+  auto const theNodeTypeID       = aDOMNode->getNodeType();
+  aStream << "node type is \"" << nodeTypeNames.at(theNodeTypeID) << "\"";
+  aStream << ", node name is \"" << theNodeName << "\"";
   aStream << ", node text content is \"" << theNodeText << "\"";
   if (asDOMElement) {
     auto const theNodeLocalName = Transcode(aDOMNode->getLocalName());

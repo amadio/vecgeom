@@ -314,6 +314,78 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processUnion
   return multiUnionPtr;
 }
 
+vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processMultiUnion(
+    XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
+{
+  if (debug) {
+    std::cout << "Middleware::processMultiUnion: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
+  }
+  std::vector<vecgeom::VECGEOM_IMPL_NAMESPACE::VPlacedVolume const *> placedNodes;
+
+  for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
+    if (debug) {
+      std::cout << "Child: " << Helper::GetNodeInformation(it) << std::endl;
+    }
+    if (it->getNodeType() == XERCES_CPP_NAMESPACE_QUALIFIER DOMNode::ELEMENT_NODE) {
+      placedNodes.emplace_back(processMultiUnionNode(it));
+    }
+  }
+  auto *multiUnionPtr =
+      vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedMultiUnion>();
+
+  for (auto const *const node : placedNodes) {
+    multiUnionPtr->AddNode(node);
+  }
+  return multiUnionPtr;
+}
+
+vecgeom::VECGEOM_IMPL_NAMESPACE::VPlacedVolume const *Middleware::processMultiUnionNode(
+    XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
+{
+  if (debug) {
+    std::cout << "Middleware::processMultiUnionNode: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
+  }
+  vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *solid = nullptr;
+  vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double> position;
+  vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double> rotation;
+  auto const name = Helper::GetAttribute("name", aDOMNode->getAttributes());
+  for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
+    auto aDOMElement            = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *>(it);
+    auto const theChildNodeName = Helper::Transcode(it->getNodeName());
+    if (debug) {
+      std::cout << "Child: " << Helper::GetNodeInformation(it) << std::endl;
+    }
+    if (theChildNodeName == "solid") {
+      auto const solidName = GetAttribute("ref", aDOMElement->getAttributes());
+
+      auto foundSolid = unplacedVolumeMap.find(solidName);
+      if (foundSolid == unplacedVolumeMap.end()) {
+        std::cout << "Could not find solid " << solidName << std::endl;
+        return nullptr;
+      } else {
+        if (debug) std::cout << "Found solid " << solidName << std::endl;
+        solid = foundSolid->second;
+      }
+    } else if (theChildNodeName == "positionref") {
+      auto const positionName = GetAttribute("ref", aDOMElement->getAttributes());
+      position                = positionMap[positionName];
+    } else if (theChildNodeName == "rotationref") {
+      auto const rotationName = GetAttribute("ref", aDOMElement->getAttributes());
+      rotation                = rotationMap[rotationName];
+    }
+  }
+  if (!solid) {
+    std::cout << "Middleware::processUnion: one of the requested soilds not found" << std::endl;
+    return nullptr;
+  }
+  auto const r              = makeRotationMatrixFromCartesianAngles(rotation.x(), rotation.y(), rotation.z());
+  auto const transformation = vecgeom::VECGEOM_IMPL_NAMESPACE::Transformation3D(
+      position.x(), position.y(), position.z(), r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8]);
+  auto const logicVolume = new vecgeom::VECGEOM_IMPL_NAMESPACE::LogicalVolume(name.c_str(), solid);
+  auto *placedSolidPtr   = logicVolume->Place(name.c_str(), &transformation);
+  return placedSolidPtr;
+}
+
 bool Middleware::processSolid(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
@@ -348,6 +420,8 @@ bool Middleware::processSolid(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOM
       return processParaboloid(aDOMNode);
     } else if (name == "union") {
       return processUnion(aDOMNode);
+    } else if (name == "multiUnion") {
+      return processMultiUnion(aDOMNode);
     } else if (name == "hype") {
       return processHype(aDOMNode);
     } else

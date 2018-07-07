@@ -50,6 +50,11 @@ private:
   static bool processRotation(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   static vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *processUnion(
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  static vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *processMultiUnion(
+      XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  static vecgeom::VECGEOM_IMPL_NAMESPACE::VPlacedVolume const *processMultiUnionNode(
+      XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+
   static vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *processOrb(
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   static const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processBox(
