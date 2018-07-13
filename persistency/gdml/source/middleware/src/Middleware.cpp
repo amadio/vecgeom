@@ -312,12 +312,12 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processBoole
       position.x(), position.y(), position.z(), r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8]);
   auto const logicFirstVolume  = new vecgeom::VECGEOM_IMPL_NAMESPACE::LogicalVolume("", firstSolid);
   auto const logicSecondVolume = new vecgeom::VECGEOM_IMPL_NAMESPACE::LogicalVolume("", secondSolid);
-  auto *placedFirstSolidPtr    = logicFirstVolume->Place("");
-  auto *placedSecondSolidPtr   = logicSecondVolume->Place("", &transformation);
+  auto *placedFirstSolidPtr    = logicFirstVolume->Place();
+  auto *placedSecondSolidPtr   = logicSecondVolume->Place(&transformation);
 
-  auto *intersectionPtr = vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<
+  auto *booleanPtr = vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<
       vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedBooleanVolume<Op>>(Op, placedFirstSolidPtr, placedSecondSolidPtr);
-  return intersectionPtr;
+  return booleanPtr;
 }
 
 vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processMultiUnion(
