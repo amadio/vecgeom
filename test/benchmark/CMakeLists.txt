@@ -22,6 +22,7 @@ set(TEST_EXECUTABLES_BENCHMARK
   ${CMAKE_SOURCE_DIR}/test/benchmark/OrbBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/SphereBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/HypeBenchmark.cpp
+  ${CMAKE_SOURCE_DIR}/test/benchmark/TetBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/TrdBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/ConeBenchmark.cpp
   ${CMAKE_SOURCE_DIR}/test/benchmark/PolyconeBenchmark.cpp

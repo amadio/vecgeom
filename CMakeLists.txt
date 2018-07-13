@@ -635,6 +635,7 @@ set(VECGEOM_SRCS
   ${_createnuclei}
   source/UnplacedPolycone.cpp
   source/UnplacedPolyhedron.cpp
+  source/UnplacedTet.cpp
   source/UnplacedTorus2.cpp
   source/UnplacedTube.cpp
   source/UnplacedCone.cpp
@@ -648,6 +649,7 @@ set(VECGEOM_SRCS
   source/PlacedAssembly.cpp
   source/PlacedBox.cpp
   source/PlacedSExtru.cpp
+  source/PlacedTet.cpp
   source/PlacedHype.cpp
   source/PlacedTube.cpp
   source/PlacedCutTube.cpp
@@ -1058,6 +1060,7 @@ set(TEST_EXECUTABLES_SHAPETESTER
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testHype.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTrd.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTrapezoid.cpp
+  ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testTet.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testParaboloid.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testPolycone.cpp
   ${CMAKE_SOURCE_DIR}/test/shape_tester/shape_testGenTrap.cpp

@@ -1,130 +1,337 @@
 //
-// TestTet
+// File:    TestTet.cpp
+// Purpose: unit tests for the Tet
 //
 
 // ensure asserts are compiled in
 #undef NDEBUG
 
+#include <assert.h>
+#include "base/Global.h"
 #include "base/Vector3D.h"
-#include "volumes/Trd.h"
+#include "volumes/Tet.h"
 #include "ApproxEqual.h"
+
 #include <cmath>
 
-using vecgeom::kInfLength;
+bool testvecgeom = false;
 
 template <class Tet_t, class Vec_t = vecgeom::Vector3D<vecgeom::Precision>>
 bool TestTet()
 {
+  // int verbose = 0;
 
-  Vec_t pzero(0, 0, 0);
-  Vec_t pnt1(10., 0., 0.), pnt2(5.0, 10., 0), pnt3(5., 5., 10.);
-  Vec_t pt1(1., 0., 0.), pt2(0.0, 1., 0), pt3(0., 0., 1.);
+  Vec_t p0(0., 0., 2.), p1(0., 0., 0.), p2(2., 0., 0.), p3(0., 2., 0.);
+  Tet_t tet("TestTet", p0, p1, p2, p3);
+
+  // Check surfce area and volume
+  //
+  std::cout << "=== Check Getters, SurfaceArea(), Capacity(), Extent()" << std::endl;
+
+  assert(tet.GetAnchor() == p0);
+  assert(tet.GetP2() == p1);
+  assert(tet.GetP3() == p2);
+  assert(tet.GetP4() == p3);
+
+  double sqrt2 = std::sqrt(2.), sqrt3 = std::sqrt(3.);
+  double sx = 2., sy = 2., sz = 2., sxyz = 2. * sqrt3;
+  double area = tet.SurfaceArea();
+  std::cout << "Area : " << area << std::endl;
+  assert(area == sx + sy + sz + sxyz);
+
+  double vol = tet.Capacity();
+  std::cout << "Volume : " << vol << std::endl;
+  assert(vol == 4. / 3.);
+
+  Vec_t bmin, bmax;
+  tet.Extent(bmin, bmax);
+  std::cout << "Extent : " << bmin << ", " << bmax << std::endl;
+  assert(bmin == Vec_t(0., 0., 0.));
+  assert(bmax == Vec_t(2., 2., 2.));
+
+  // Check Inside()
+  //
+  std::cout << "=== Check Inside()" << std::endl;
+  double kin  = 0.999;
+  double kout = 1.001;
+
+  Vec_t pc = (p0 + p1 + p2 + p3) / 4.; // center of tetrahedron
+
+  Vec_t pf0 = (p0 + p1 + p2) / 3.; // centers of faces
+  Vec_t pf1 = (p1 + p2 + p3) / 3.;
+  Vec_t pf2 = (p2 + p3 + p0) / 3.;
+  Vec_t pf3 = (p3 + p0 + p1) / 3.;
+
+  Vec_t pe01 = (p0 + p1) / 2.; // centers of edges
+  Vec_t pe02 = (p0 + p2) / 2.;
+  Vec_t pe03 = (p0 + p3) / 2.;
+  Vec_t pe12 = (p1 + p2) / 2.;
+  Vec_t pe13 = (p1 + p3) / 2.;
+  Vec_t pe23 = (p2 + p3) / 2.;
+
+  assert(tet.Inside(p0) == vecgeom::kSurface);
+  assert(tet.Inside(p1) == vecgeom::kSurface);
+  assert(tet.Inside(p2) == vecgeom::kSurface);
+  assert(tet.Inside(p3) == vecgeom::kSurface);
+
+  assert(tet.Inside(pf0) == vecgeom::kSurface);
+  assert(tet.Inside(pf1) == vecgeom::kSurface);
+  assert(tet.Inside(pf2) == vecgeom::kSurface);
+  assert(tet.Inside(pf3) == vecgeom::kSurface);
+
+  assert(tet.Inside(pe01) == vecgeom::kSurface);
+  assert(tet.Inside(pe02) == vecgeom::kSurface);
+  assert(tet.Inside(pe03) == vecgeom::kSurface);
+  assert(tet.Inside(pe12) == vecgeom::kSurface);
+  assert(tet.Inside(pe13) == vecgeom::kSurface);
+  assert(tet.Inside(pe23) == vecgeom::kSurface);
+
+  assert(tet.Inside(pc) == vecgeom::kInside);
+  assert(tet.Inside(pc + (p0 - pc) * kin) == vecgeom::kInside);
+  assert(tet.Inside(pc + (p0 - pc) * kin) == vecgeom::kInside);
+  assert(tet.Inside(pc + (p1 - pc) * kin) == vecgeom::kInside);
+  assert(tet.Inside(pc + (p2 - pc) * kin) == vecgeom::kInside);
+  assert(tet.Inside(pc + (p3 - pc) * kin) == vecgeom::kInside);
+
+  assert(tet.Inside(pc + (pf0 - pc) * kin) == vecgeom::kInside);
+  assert(tet.Inside(pc + (pf1 - pc) * kin) == vecgeom::kInside);
+  assert(tet.Inside(pc + (pf2 - pc) * kin) == vecgeom::kInside);
+  assert(tet.Inside(pc + (pf3 - pc) * kin) == vecgeom::kInside);
+
+  assert(tet.Inside(pc + (pe01 - pc) * kin) == vecgeom::kInside);
+  assert(tet.Inside(pc + (pe02 - pc) * kin) == vecgeom::kInside);
+  assert(tet.Inside(pc + (pe03 - pc) * kin) == vecgeom::kInside);
+  assert(tet.Inside(pc + (pe12 - pc) * kin) == vecgeom::kInside);
+  assert(tet.Inside(pc + (pe13 - pc) * kin) == vecgeom::kInside);
+  assert(tet.Inside(pc + (pe23 - pc) * kin) == vecgeom::kInside);
+
+  assert(tet.Inside(pc + (p0 - pc) * kout) == vecgeom::kOutside);
+  assert(tet.Inside(pc + (p0 - pc) * kout) == vecgeom::kOutside);
+  assert(tet.Inside(pc + (p1 - pc) * kout) == vecgeom::kOutside);
+  assert(tet.Inside(pc + (p2 - pc) * kout) == vecgeom::kOutside);
+  assert(tet.Inside(pc + (p3 - pc) * kout) == vecgeom::kOutside);
+
+  assert(tet.Inside(pc + (pf0 - pc) * kout) == vecgeom::kOutside);
+  assert(tet.Inside(pc + (pf1 - pc) * kout) == vecgeom::kOutside);
+  assert(tet.Inside(pc + (pf2 - pc) * kout) == vecgeom::kOutside);
+  assert(tet.Inside(pc + (pf3 - pc) * kout) == vecgeom::kOutside);
+
+  assert(tet.Inside(pc + (pe01 - pc) * kout) == vecgeom::kOutside);
+  assert(tet.Inside(pc + (pe02 - pc) * kout) == vecgeom::kOutside);
+  assert(tet.Inside(pc + (pe03 - pc) * kout) == vecgeom::kOutside);
+  assert(tet.Inside(pc + (pe12 - pc) * kout) == vecgeom::kOutside);
+  assert(tet.Inside(pc + (pe13 - pc) * kout) == vecgeom::kOutside);
+  assert(tet.Inside(pc + (pe23 - pc) * kout) == vecgeom::kOutside);
+
+  // Check Normal()
+  //
+  std::cout << "=== Check Normal()" << std::endl;
   Vec_t norm;
+  tet.Normal(pf0, norm);
+  assert(norm == Vec_t(0., -1., 0.));
+  tet.Normal(pf1, norm);
+  assert(norm == Vec_t(0., 0., -1.));
+  tet.Normal(pf2, norm);
+  assert(norm == Vec_t(1., 1., 1.) / sqrt3);
+  tet.Normal(pf3, norm);
+  assert(norm == Vec_t(-1., 0., 0.));
 
-  bool goodTet, valid, convex;
-  Tet_t t1("Solid Tet #1", pzero, pnt1, pnt2, pnt3, &goodTet);
-  Tet_t t2("Solid Tet #2", pzero, pt1, pt2, pt3, &goodTet);
+  tet.Normal(pe01, norm);
+  assert(norm == Vec_t(-1., -1., 0.) / sqrt2);
+  tet.Normal(pe12, norm);
+  assert(norm == Vec_t(0., -1., -1.) / sqrt2);
+  tet.Normal(pe13, norm);
+  assert(norm == Vec_t(-1., 0., -1.) / sqrt2);
+  tet.Normal(p1, norm);
+  assert(norm == Vec_t(-1., -1., -1.) / sqrt3);
 
-  // Check  Cubic Volume
-  double vol, volCheck;
-  vol      = t2.Capacity();
-  volCheck = 1. / 6.;
-  assert(ApproxEqual(vol, volCheck));
+  // Check ApproxSurfaceNormal()
+  //
+  std::cout << "=== Check ApproxSurfaceNormal()" << std::endl;
+  tet.Normal(pf0 + Vec_t(0., -1., 0.), norm);
+  assert(norm == Vec_t(0., -1., 0.));
+  tet.Normal(pf1 + Vec_t(0., 0., -1.), norm);
+  assert(norm == Vec_t(0., 0., -1.));
+  tet.Normal(pf2 + Vec_t(1., 1., 1.), norm);
+  assert(norm == Vec_t(1., 1., 1.) / sqrt3);
+  tet.Normal(pf3 + Vec_t(-1., 0., 0.), norm);
+  assert(norm == Vec_t(-1., 0., 0.));
 
-  // Check Surface area
-  vol      = t2.SurfaceArea();
-  volCheck = 1.5 + 0.5 * std::sqrt(3);
+  tet.Normal(pf0 + Vec_t(.0, .1, .0), norm);
+  assert(norm == Vec_t(0., -1., 0.));
+  tet.Normal(pf1 + Vec_t(.0, .0, .1), norm);
+  assert(norm == Vec_t(0., 0., -1.));
+  tet.Normal(pf2 + Vec_t(-.1, -.1, -.1), norm);
+  assert(norm == Vec_t(1., 1., 1.) / sqrt3);
+  tet.Normal(pf3 + Vec_t(.1, .0, .0), norm);
+  assert(norm == Vec_t(-1., 0., 0.));
 
-  // std::cout<<trd1.SurfaceArea()<<std::endl;
-  assert(ApproxEqual(vol, volCheck));
+  // Check SafetyToIn()
+  //
+  std::cout << "=== Check SafetyToIn()" << std::endl;
+  assert(ApproxEqual(tet.SafetyToIn(pf0 + Vec_t(0., -1., 0.)), 1.));
+  assert(ApproxEqual(tet.SafetyToIn(pf1 + Vec_t(0., 0., -1.)), 1.));
+  assert(ApproxEqual(tet.SafetyToIn(pf2 + Vec_t(1., 1., 1.) / sqrt3), 1.));
+  assert(ApproxEqual(tet.SafetyToIn(pf3 + Vec_t(-1., 0., 0.)), 1.));
 
-  Vec_t pntA(1.0, 1.0, 1.0);
-  Vec_t pntB(1.5, 0.5, 1.0);
-  Vec_t pntBr023 = (1.0 / 3.0) * (pzero + pnt2 + pnt3);
-  Vec_t pntC(0.0, 5.0, 1.5);
+  assert(tet.SafetyToIn(pf0) == 0.);
+  assert(tet.SafetyToIn(pf1) == 0.);
+  assert(tet.SafetyToIn(pf2) == 0.);
+  assert(tet.SafetyToIn(pf3) == 0.);
 
-  // Check Inside
-  assert(t1.Inside(pntA) == vecgeom::EInside::kInside);
-  assert(t1.Inside(pntB) == vecgeom::EInside::kSurface);
-  assert(t1.Inside(pntBr023) == vecgeom::EInside::kSurface);
-  assert(t1.Inside(pntC) == vecgeom::EInside::kOutside);
+  assert(ApproxEqual(tet.SafetyToIn(pf0 + Vec_t(.0, .1, .0)), -0.1));
+  assert(ApproxEqual(tet.SafetyToIn(pf1 + Vec_t(.0, .0, .1)), -0.1));
+  assert(ApproxEqual(tet.SafetyToIn(pf2 + Vec_t(-.1, -.1, -.1) / sqrt3), -0.1));
+  assert(ApproxEqual(tet.SafetyToIn(pf3 + Vec_t(.1, .0, .0)), -0.1));
 
-  // Check Surface Normal
-  Vec_t normal;
-  Vec_t pntOnBotSurf012(5.0, 5.0, 0.0);
-  Vec_t vmz(0, 0, -1.0);
-  Vec_t vmx(-1.0, 0, 0.0);
-  Vec_t vmy(0, -1.0, 0.0);
-  Vec_t vz(0, 0, 1.0);
-  Vec_t vx(1.0, 0, 0.0);
-  Vec_t vy(0, 1.0, 0.0);
-  valid = t1.Normal(pntOnBotSurf012, normal);
-  assert(ApproxEqual(normal, vmz) && valid);
-  valid = t2.Normal(Vec_t(0.1, 0.1, 0.), normal);
-  assert(ApproxEqual(normal, vmz));
-  valid = t2.Normal(Vec_t(0.1, 0, 0.1), normal);
-  assert(ApproxEqual(normal, vmy));
-  valid = t2.Normal(Vec_t(0, 0.1, 0.1), normal);
-  assert(ApproxEqual(normal, vmx));
+  // Check SafetyToOut()
+  //
+  std::cout << "=== Check SafetyToOut()" << std::endl;
+  assert(ApproxEqual(tet.SafetyToOut(pf0 + Vec_t(0., -1., 0.)), -1.));
+  assert(ApproxEqual(tet.SafetyToOut(pf1 + Vec_t(0., 0., -1.)), -1.));
+  assert(ApproxEqual(tet.SafetyToOut(pf2 + Vec_t(1., 1., 1.) / sqrt3), -1.));
+  assert(ApproxEqual(tet.SafetyToOut(pf3 + Vec_t(-1., 0., 0.)), -1.));
 
-  // Check Normals on Edges
+  assert(tet.SafetyToOut(pf0) == 0.);
+  assert(tet.SafetyToOut(pf1) == 0.);
+  assert(tet.SafetyToOut(pf2) == 0.);
+  assert(tet.SafetyToOut(pf3) == 0.);
 
-  Vec_t edgeXY(0.5, 0.0, 0.0);
-  Vec_t edgeXZ(0.0, 0.0, 0.5);
-  Vec_t edgeYZ(0.0, 0.5, 0.0);
-  double invSqrt2 = 1.0 / std::sqrt(2.0);
-  double invSqrt3 = 1.0 / std::sqrt(3.0);
+  assert(ApproxEqual(tet.SafetyToOut(pf0 + Vec_t(.0, .1, .0)), 0.1));
+  assert(ApproxEqual(tet.SafetyToOut(pf1 + Vec_t(.0, .0, .1)), 0.1));
+  assert(ApproxEqual(tet.SafetyToOut(pf2 + Vec_t(-.1, -.1, -.1) / sqrt3), 0.1));
+  assert(ApproxEqual(tet.SafetyToOut(pf3 + Vec_t(.1, .0, .0)), 0.1));
 
-  valid = t2.Normal(edgeXY, normal);
-  assert(ApproxEqual(normal, Vec_t(0, -invSqrt2, -invSqrt2)) && valid);
-  valid = t2.Normal(edgeYZ, normal);
-  assert(ApproxEqual(normal, Vec_t(-invSqrt2, 0, -invSqrt2)) && valid);
-  valid = t2.Normal(edgeXZ, normal);
-  assert(ApproxEqual(normal, Vec_t(-invSqrt2, -invSqrt2, 0)) && valid);
+  // Check DistanceToIn()
+  //
+  std::cout << "=== Check DistanceToIn()" << std::endl;
+  Vec_t pnt(0.5, 0.5, -0.5), dir(0., 0., 1.);
+  assert(tet.DistanceToIn(pnt, dir) == 0.5);
+  assert(tet.DistanceToIn(pnt, -dir) == vecgeom::kInfLength);
 
-  // SafetyFromInside(P)
+  pnt = Vec_t(0.5, 0.5, -0.5 * vecgeom::kHalfTolerance);
+  assert(tet.DistanceToIn(pnt, dir) == 0.5 * vecgeom::kHalfTolerance);
+  assert(tet.DistanceToIn(pnt, -dir) == vecgeom::kInfLength);
 
-  double Dist;
-  Dist = t2.SafetyFromInside(pzero);
-  assert(ApproxEqual(Dist, 0));
-  Dist = t2.SafetyFromInside(-vmx);
-  assert(ApproxEqual(Dist, 0));
-  Dist = t2.SafetyFromInside(Vec_t(0.1, 0.1, 0.1));
-  assert(ApproxEqual(Dist, 0.1));
+  pnt = Vec_t(0.5, 0.5, 0.0);
+  assert(tet.DistanceToIn(pnt, dir) == 0.0);
+  assert(tet.DistanceToIn(pnt, -dir) == vecgeom::kInfLength);
 
-  // DistanceToOut(P,V)
+  pnt = Vec_t(0.5, 0.5, 0.5 * vecgeom::kHalfTolerance);
+  assert(tet.DistanceToIn(pnt, dir) == -0.5 * vecgeom::kHalfTolerance);
+  assert(tet.DistanceToIn(pnt, -dir) == vecgeom::kInfLength);
 
-  Dist = t2.DistanceToOut(pzero, vz, norm, convex);
-  // std::cout<<Dist<< "   "<<norm<<std::endl;
-  assert(ApproxEqual(Dist, 1) && ApproxEqual(norm, Vec_t(invSqrt3, invSqrt3, invSqrt3)) && convex);
-  Dist = t2.DistanceToOut(pzero, vy, norm, convex);
-  assert(ApproxEqual(Dist, 1) && ApproxEqual(norm, Vec_t(invSqrt3, invSqrt3, invSqrt3)) && convex);
-  Dist = t2.DistanceToOut(pzero, vx, norm, convex);
-  assert(ApproxEqual(Dist, 1) && ApproxEqual(norm, Vec_t(invSqrt3, invSqrt3, invSqrt3)) && convex);
+  pnt = Vec_t(0.5, 0.5, 0.5);
+  assert(tet.DistanceToIn(pnt, dir) == -0.5);
+  assert(ApproxEqual(tet.DistanceToIn(pnt, -dir), -0.5));
 
-  // DistanceToIn(P,V)
+  Vec_t pntIn, pntOut;
+  pnt = Vec_t(0.4, 0.4, 0.0);
+  pntIn.Set(pnt.x(), pnt.y(), 0.5 * vecgeom::kHalfTolerance);
+  pntOut.Set(pnt.x(), pnt.y(), -0.5 * vecgeom::kHalfTolerance);
 
-  Vec_t pbig(0.1, 0.1, -20);
-  Dist = t2.DistanceToIn(pbig, vx);
-  assert(ApproxEqual(Dist, kInfLength));
+  Vec_t dirIn, dirOut;
+  dir = Vec_t(1., 0., 0.);
+  dir.Normalize();
+  dirIn = Vec_t(0.9 - pnt.x(), 0.0, 0.5 * vecgeom::kHalfTolerance);
+  dirIn.Normalize();
+  dirOut = Vec_t(0.9 - pnt.x(), 0.0, -0.5 * vecgeom::kHalfTolerance);
+  dirOut.Normalize();
 
-  Dist = t2.DistanceToIn(pbig, vy);
-  assert(ApproxEqual(Dist, kInfLength));
-  Dist = t2.DistanceToIn(pbig, vz);
-  assert(ApproxEqual(Dist, 20));
+  std::cout << "   distToIn(pntOut,dirOut) = " << tet.DistanceToIn(pntOut, dirOut) << std::endl;
+  std::cout << "   distToIn(pntOut,dir) = " << tet.DistanceToIn(pntOut, dir) << std::endl;
+  std::cout << "   distToIn(pntOut,dirIn) = " << tet.DistanceToIn(pntOut, dirIn) << std::endl;
+  std::cout << std::endl;
 
-  // CalculateExtent
-  Vec_t minExtent, maxExtent;
-  t2.Extent(minExtent, maxExtent);
-  // std::cout<<" min="<<minExtent<<" max="<<maxExtent<<std::endl;
-  assert(ApproxEqual(minExtent, Vec_t(0, 0, 0)));
-  assert(ApproxEqual(maxExtent, Vec_t(1, 1, 1)));
+  std::cout << "   distToIn(pnt,dirOut) = " << tet.DistanceToIn(pnt, dirOut) << std::endl;
+  std::cout << "   distToIn(pnt,dir) = " << tet.DistanceToIn(pnt, dir) << std::endl;
+  std::cout << "   distToIn(pnt,dirIn) = " << tet.DistanceToIn(pnt, dirIn) << std::endl;
+  std::cout << std::endl;
+
+  std::cout << "   distToIn(pntIn,dirOut) = " << tet.DistanceToIn(pntIn, dirOut) << std::endl;
+  std::cout << "   distToIn(pntIn,dir) = " << tet.DistanceToIn(pntIn, dir) << std::endl;
+  std::cout << "   distToIn(pntIn,dirIn) = " << tet.DistanceToIn(pntIn, dirIn) << std::endl;
+  std::cout << std::endl;
+
+  // Check DistanceToOut()
+  //
+  std::cout << "=== Check DistanceToOut()" << std::endl;
+  pnt = Vec_t(0.5, 0.5, -0.5);
+  dir = Vec_t(0., 0., 1.);
+  assert(tet.DistanceToOut(pnt, dir) == -1);
+  assert(tet.DistanceToOut(pnt, -dir) == -1);
+
+  pnt = Vec_t(0.5, 0.5, -0.5 * vecgeom::kHalfTolerance);
+  assert(ApproxEqual(tet.DistanceToOut(pnt, dir), 1.));
+  assert(tet.DistanceToOut(pnt, -dir) == -0.5 * vecgeom::kHalfTolerance);
+
+  pnt = Vec_t(0.5, 0.5, 0.0);
+  assert(ApproxEqual(tet.DistanceToOut(pnt, dir), 1.));
+  assert(tet.DistanceToOut(pnt, -dir) == 0.0);
+
+  pnt = Vec_t(0.5, 0.5, 0.5 * vecgeom::kHalfTolerance);
+  assert(ApproxEqual(tet.DistanceToOut(pnt, dir), 1.));
+  assert(tet.DistanceToOut(pnt, -dir) == 0.5 * vecgeom::kHalfTolerance);
+
+  pnt = Vec_t(0.5, 0.5, 0.5);
+  assert(ApproxEqual(tet.DistanceToOut(pnt, dir), 0.5));
+  assert(tet.DistanceToOut(pnt, -dir) == 0.5);
+
+  pnt = Vec_t(0.4, 0.4, 0.0);
+  pntIn.Set(pnt.x(), pnt.y(), 0.5 * vecgeom::kHalfTolerance);
+  pntOut.Set(pnt.x(), pnt.y(), -0.5 * vecgeom::kHalfTolerance);
+
+  dir = Vec_t(1., 0., 0.);
+  dir.Normalize();
+  dirIn = Vec_t(0.9 - pnt.x(), 0.0, 0.5 * vecgeom::kHalfTolerance);
+  dirIn.Normalize();
+  dirOut = Vec_t(0.9 - pnt.x(), 0.0, -0.5 * vecgeom::kHalfTolerance);
+  dirOut.Normalize();
+
+  std::cout << "   distToOut(pntOut,dirOut) = " << tet.DistanceToOut(pntOut, dirOut) << std::endl;
+  std::cout << "   distToOut(pntOut,dir) = " << tet.DistanceToOut(pntOut, dir) << std::endl;
+  std::cout << "   distToOut(pntOut,dirIn) = " << tet.DistanceToOut(pntOut, dirIn) << std::endl;
+  std::cout << std::endl;
+
+  std::cout << "   distToOut(pnt,dirOut) = " << tet.DistanceToOut(pnt, dirOut) << std::endl;
+  std::cout << "   distToOut(pnt,dir) = " << tet.DistanceToOut(pnt, dir) << std::endl;
+  std::cout << "   distToOut(pnt,dirIn) = " << tet.DistanceToOut(pnt, dirIn) << std::endl;
+  std::cout << std::endl;
+
+  std::cout << "   distToOut(pntIn,dirOut) = " << tet.DistanceToOut(pntIn, dirOut) << std::endl;
+  std::cout << "   distToOut(pntIn,dir) = " << tet.DistanceToOut(pntIn, dir) << std::endl;
+  std::cout << "   distToOut(pntIn,dirIn) = " << tet.DistanceToOut(pntIn, dirIn) << std::endl;
+  std::cout << std::endl;
+
+  // Check SamplePointOnSurface()
+  //
+  std::cout << "=== SamplePointOnSurface()" << std::endl;
+  int nx = 0, ny = 0, nz = 0, nxyz = 0, nfactor = 10000, ntot = area * nfactor;
+  for (int i = 0; i < ntot; i++) {
+    Vec_t rndPoint = tet.SamplePointOnSurface();
+    assert(tet.Inside(rndPoint) == vecgeom::EInside::kSurface);
+    if (rndPoint.x() == 0.)
+      ++nx;
+    else if (rndPoint.y() == 0.)
+      ++ny;
+    else if (rndPoint.z() == 0.)
+      ++nz;
+    else
+      ++nxyz;
+  }
+  std::cout << "nx,ny,nz,nxyz = " << nx << ", " << ny << ", " << nz << ", " << nxyz << std::endl;
+  assert(std::abs(nx - sx * nfactor) < 2. * std::sqrt(ntot));
+  assert(std::abs(ny - sy * nfactor) < 2. * std::sqrt(ntot));
+  assert(std::abs(nz - sz * nfactor) < 2. * std::sqrt(ntot));
+  assert(std::abs(nxyz - sxyz * nfactor) < 2. * std::sqrt(ntot));
 
   return true;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
-  std::cout << "VecGeomTet not implemented yet\n";
+  assert(TestTet<vecgeom::SimpleTet>());
+  std::cout << "VecGeomTet passed\n";
+
   return 0;
 }
