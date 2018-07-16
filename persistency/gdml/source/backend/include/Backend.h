@@ -15,12 +15,12 @@
 
 XERCES_CPP_NAMESPACE_BEGIN
 class DOMDocument;
-class DOMLSParser;
+class XercesDOMParser;
 XERCES_CPP_NAMESPACE_END
 
 namespace vgdml {
 class Backend {
-  xercesc::DOMLSParser *fDOMLSParser;
+  xercesc::XercesDOMParser *fDOMParser;
 
 public:
   Backend();

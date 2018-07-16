@@ -15,6 +15,7 @@
 #include "xercesc/util/XercesDefs.hpp"
 
 #include "volumes/UnplacedVolume.h"
+#include "volumes/BooleanStruct.h"
 
 XERCES_CPP_NAMESPACE_BEGIN
 class DOMDocument;
@@ -26,6 +27,7 @@ XERCES_CPP_NAMESPACE_END
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 class VUnplacedVolume;
+class UnplacedTessellated;
 // class UnplacedOrb;
 // class UnplacedBox;
 } // namespace VECGEOM_IMPL_NAMESPACE
@@ -48,7 +50,10 @@ private:
   static bool processConstant(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   static bool processPosition(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   static bool processRotation(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
-  static vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *processUnion(
+  static bool processFacet(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode,
+                           vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedTessellated &storage);
+  template <vecgeom::BooleanOperation Op>
+  static vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *processBoolean(
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   static vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *processMultiUnion(
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
@@ -78,6 +83,8 @@ private:
   static const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processParaboloid(
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   static const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processHype(
+      XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  static const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processTesselated(
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
 
   static double GetLengthMultiplier(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);

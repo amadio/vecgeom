@@ -11,11 +11,15 @@
 #include <xercesc/dom/DOMImplementation.hpp>
 #include <xercesc/dom/DOMImplementationLS.hpp>
 #include <xercesc/dom/DOMImplementationRegistry.hpp>
-#include <xercesc/dom/DOMLSParser.hpp>
+#include <xercesc/parsers/XercesDOMParser.hpp>
+#include <xercesc/sax/ErrorHandler.hpp>
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <xercesc/dom/DOMLSSerializer.hpp>
 #include <xercesc/dom/DOMLSOutput.hpp>
+
+#include <cstdlib>
+
 namespace vgdml {
 
 Backend::Backend()
@@ -23,24 +27,19 @@ Backend::Backend()
   // TODO catch errors, do once per program
   xercesc::XMLPlatformUtils::Initialize();
 
-  static const XMLCh gLS[]         = {xercesc::chLatin_L, xercesc::chLatin_S, xercesc::chNull};
-  xercesc::DOMImplementation *impl = xercesc::DOMImplementationRegistry::getDOMImplementation(gLS);
-  fDOMLSParser                     = (static_cast<xercesc::DOMImplementationLS *>(impl))
-                     ->createLSParser(xercesc::DOMImplementationLS::MODE_SYNCHRONOUS, nullptr);
-  xercesc::DOMConfiguration *config = fDOMLSParser->getDomConfig();
-
-  config->setParameter(xercesc::XMLUni::fgDOMNamespaces, true);
-  config->setParameter(xercesc::XMLUni::fgXercesSchema, true);
-  config->setParameter(xercesc::XMLUni::fgXercesHandleMultipleImports, true);
-  config->setParameter(xercesc::XMLUni::fgXercesSchemaFullChecking, true);
-  config->setParameter(xercesc::XMLUni::fgDOMValidateIfSchema, true);
-  config->setParameter(xercesc::XMLUni::fgDOMDatatypeNormalization, true);
+  fDOMParser           = new xercesc::XercesDOMParser;
+  auto const schemaDir = std::getenv("GDMLDIR"); // get the alternative schema location for offline use
+  if (schemaDir) fDOMParser->setExternalNoNamespaceSchemaLocation((schemaDir + std::string("gdml.xsd")).c_str());
+  fDOMParser->setValidationScheme(xercesc::XercesDOMParser::Val_Always);
+  fDOMParser->setDoNamespaces(true);
+  fDOMParser->setDoSchema(true);
 }
 
 XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *Backend::Load(std::string const &aFilename)
 {
-  fDOMLSParser->resetDocumentPool();
-  auto doc = fDOMLSParser->parseURI(aFilename.c_str());
+  fDOMParser->resetDocumentPool();
+  fDOMParser->parse(aFilename.c_str());
+  auto doc = fDOMParser->getDocument();
   return doc;
 }
 

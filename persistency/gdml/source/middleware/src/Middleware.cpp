@@ -25,7 +25,9 @@
 #include "volumes/UnplacedTrapezoid.h"
 #include "volumes/UnplacedHype.h"
 #include "volumes/UnplacedCutTube.h"
+#include "volumes/UnplacedBooleanVolume.h"
 #include "volumes/UnplacedMultiUnion.h"
+#include "volumes/UnplacedTessellated.h"
 
 #include "volumes/LogicalVolume.h"
 #include "volumes/PlacedVolume.h"
@@ -254,11 +256,12 @@ bool Middleware::processRotation(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *a
   return success;
 }
 
-vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processUnion(
+template <vecgeom::BooleanOperation Op>
+vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processBoolean(
     XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
 {
   if (debug) {
-    std::cout << "Middleware::processUnion: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
+    std::cout << "Middleware::processBoolean: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
   vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *firstSolid  = nullptr;
   vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *secondSolid = nullptr;
@@ -301,17 +304,20 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processUnion
     }
   }
   if (!secondSolid || !firstSolid) {
-    std::cout << "Middleware::processUnion: one of the requested soilds not found" << std::endl;
+    std::cout << "Middleware::processBoolean: one of the requested soilds not found" << std::endl;
     return nullptr;
   }
   auto const r              = makeRotationMatrixFromCartesianAngles(rotation.x(), rotation.y(), rotation.z());
   auto const transformation = vecgeom::VECGEOM_IMPL_NAMESPACE::Transformation3D(
       position.x(), position.y(), position.z(), r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8]);
-  auto *multiUnionPtr =
-      vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedMultiUnion>();
-  multiUnionPtr->AddNode(firstSolid, vecgeom::VECGEOM_IMPL_NAMESPACE::Transformation3D());
-  multiUnionPtr->AddNode(secondSolid, transformation);
-  return multiUnionPtr;
+  auto const logicFirstVolume  = new vecgeom::VECGEOM_IMPL_NAMESPACE::LogicalVolume("", firstSolid);
+  auto const logicSecondVolume = new vecgeom::VECGEOM_IMPL_NAMESPACE::LogicalVolume("", secondSolid);
+  auto *placedFirstSolidPtr    = logicFirstVolume->Place("");
+  auto *placedSecondSolidPtr   = logicSecondVolume->Place("", &transformation);
+
+  auto *intersectionPtr = vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<
+      vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedBooleanVolume<Op>>(Op, placedFirstSolidPtr, placedSecondSolidPtr);
+  return intersectionPtr;
 }
 
 vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processMultiUnion(
@@ -418,12 +424,18 @@ bool Middleware::processSolid(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOM
       return processTrapezoid(aDOMNode);
     } else if (name == "paraboloid") {
       return processParaboloid(aDOMNode);
+    } else if (name == "intersection") {
+      return processBoolean<vecgeom::BooleanOperation::kIntersection>(aDOMNode);
+    } else if (name == "subtraction") {
+      return processBoolean<vecgeom::BooleanOperation::kSubtraction>(aDOMNode);
     } else if (name == "union") {
-      return processUnion(aDOMNode);
+      return processBoolean<vecgeom::BooleanOperation::kUnion>(aDOMNode);
     } else if (name == "multiUnion") {
       return processMultiUnion(aDOMNode);
     } else if (name == "hype") {
       return processHype(aDOMNode);
+    } else if (name == "tessellated") {
+      return processTesselated(aDOMNode);
     } else
       return static_cast<vecgeom::VUnplacedVolume const *>(nullptr); // TODO more volumes
   }();
@@ -731,6 +743,59 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processHype(
       vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedHype>(
           rmin, rmax, inst, outst, halfz);
   return anUnplacedHypePtr;
+}
+
+vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processTesselated(
+    XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
+{
+  if (debug) {
+    std::cout << "Middleware::processTesselated: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
+  }
+  auto *const anUnplacedTessellatedPtr =
+      vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedTessellated>();
+
+  for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
+    if (debug) {
+      std::cout << "Child: " << Helper::GetNodeInformation(it) << std::endl;
+    }
+    if (it->getNodeType() == XERCES_CPP_NAMESPACE_QUALIFIER DOMNode::ELEMENT_NODE) {
+      processFacet(it, *anUnplacedTessellatedPtr);
+    }
+  }
+  return anUnplacedTessellatedPtr;
+}
+
+bool Middleware::processFacet(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode,
+                              vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedTessellated &storage)
+{
+  if (debug) {
+    std::cout << "Middleware::processLogicVolume: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
+  }
+  auto const *const attributes = aDOMNode->getAttributes();
+
+  enum FacetType { fTriangular, fQuadrangular };
+  auto const facetName  = Helper::Transcode(aDOMNode->getNodeName());
+  auto const facetType  = (facetName == "triangular") ? fTriangular : fQuadrangular;
+  auto const vertexType = GetAttribute("type", attributes);
+  auto const absolute   = (vertexType == "ABSOLUTE");
+  if (facetType == fTriangular) {
+    std::array<vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double>, 3> vertices;
+    for (auto const ind : {0u, 1u, 2u}) {
+      auto const positionName = GetAttribute("vertex" + std::to_string(ind + 1), attributes);
+      auto const position     = positionMap[positionName];
+      vertices.at(ind)        = position;
+    }
+    storage.AddTriangularFacet(vertices.at(0), vertices.at(1), vertices.at(2), absolute);
+  } else {
+    std::array<vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double>, 4> vertices;
+    for (auto const ind : {0u, 1u, 2u, 3u}) {
+      auto const positionName = GetAttribute("vertex" + std::to_string(ind + 1), attributes);
+      auto const position     = positionMap[positionName];
+      vertices.at(ind)        = position;
+    }
+    storage.AddQuadrilateralFacet(vertices.at(0), vertices.at(1), vertices.at(2), vertices.at(3), absolute);
+  }
+  return true;
 }
 
 bool Middleware::processLogicVolume(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
