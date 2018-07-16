@@ -46,7 +46,7 @@
 #define DECLAREANDGETLENGTVAR(x) auto const x = lengthMultiplier * GetAttribute<double>(#x, attributes);
 #define DECLAREANDGETANGLEVAR(x) auto const x = angleMultiplier * GetAttribute<double>(#x, attributes);
 #define DECLAREANDGETPLAINVAR(x) auto const x = GetAttribute<double>(#x, attributes);
-#define DECLAREANDGETINTVAR(x) auto const x = GetAttribute<int>(#x, attributes);
+#define DECLAREANDGETINTVAR(x) auto const x   = GetAttribute<int>(#x, attributes);
 
 #define DECLAREHALF(x) auto const half##x = x / 2.;
 
