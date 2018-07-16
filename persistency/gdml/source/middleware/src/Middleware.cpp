@@ -17,6 +17,8 @@
 #include "volumes/UnplacedBox.h"
 #include "volumes/UnplacedTube.h"
 #include "volumes/UnplacedCone.h"
+#include "volumes/UnplacedPolycone.h"
+#include "volumes/UnplacedPolyhedron.h"
 #include "volumes/UnplacedTorus2.h"
 #include "volumes/UnplacedSphere.h"
 #include "volumes/UnplacedParallelepiped.h"
@@ -44,6 +46,7 @@
 #define DECLAREANDGETLENGTVAR(x) auto const x = lengthMultiplier * GetAttribute<double>(#x, attributes);
 #define DECLAREANDGETANGLEVAR(x) auto const x = angleMultiplier * GetAttribute<double>(#x, attributes);
 #define DECLAREANDGETPLAINVAR(x) auto const x = GetAttribute<double>(#x, attributes);
+#define DECLAREANDGETINTVAR(x) auto const x = GetAttribute<int>(#x, attributes);
 
 #define DECLAREHALF(x) auto const half##x = x / 2.;
 
@@ -404,6 +407,10 @@ bool Middleware::processSolid(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOM
       return processCutTube(aDOMNode);
     } else if (name == "cone") {
       return processCone(aDOMNode);
+    } else if (name == "polycone") {
+      return processPolycone(aDOMNode);
+    } else if (name == "polyhedra") {
+      return processPolyhedron(aDOMNode);
     } else if (name == "torus") {
       return processTorus(aDOMNode);
     } else if (name == "sphere") {
@@ -576,6 +583,75 @@ const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processCone(
   auto const anUnplacedConePtr =
       vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedCone>(
           rmin1, rmax1, rmin2, rmax2, halfz, startphi, deltaphi);
+  return anUnplacedConePtr;
+}
+
+const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processPolycone(
+    XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
+{
+  if (debug) {
+    std::cout << "Middleware::processPolycone: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
+  }
+  auto const *attributes      = aDOMNode->getAttributes();
+  auto const lengthMultiplier = GetLengthMultiplier(aDOMNode);
+  auto const angleMultiplier  = GetAngleMultiplier(aDOMNode);
+  DECLAREANDGETANGLEVAR(startphi)
+  DECLAREANDGETANGLEVAR(deltaphi) // FIXME the default value is not 0
+  std::vector<double> rmins;
+  std::vector<double> rmaxs;
+  std::vector<double> zs;
+  for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
+    if (debug) {
+      std::cout << "Child: " << Helper::GetNodeInformation(it) << std::endl;
+    }
+    if (it->getNodeType() == XERCES_CPP_NAMESPACE_QUALIFIER DOMNode::ELEMENT_NODE) {
+      attributes = it->getAttributes();
+      DECLAREANDGETLENGTVAR(rmax)
+      DECLAREANDGETLENGTVAR(rmin)
+      DECLAREANDGETLENGTVAR(z)
+      rmins.push_back(rmin);
+      rmaxs.push_back(rmax);
+      zs.push_back(z);
+    }
+  }
+  auto const anUnplacedPolyconePtr =
+      vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedPolycone>(
+          startphi, deltaphi, zs.size(), zs.data(), rmins.data(), rmaxs.data());
+  return anUnplacedPolyconePtr;
+}
+
+const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processPolyhedron(
+    XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
+{
+  if (debug) {
+    std::cout << "Middleware::processPolycone: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
+  }
+  auto const *attributes      = aDOMNode->getAttributes();
+  auto const lengthMultiplier = GetLengthMultiplier(aDOMNode);
+  auto const angleMultiplier  = GetAngleMultiplier(aDOMNode);
+  DECLAREANDGETANGLEVAR(startphi)
+  DECLAREANDGETANGLEVAR(deltaphi) // FIXME the default value is not 0
+  DECLAREANDGETINTVAR(numsides)
+  std::vector<double> rmins;
+  std::vector<double> rmaxs;
+  std::vector<double> zs;
+  for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
+    if (debug) {
+      std::cout << "Child: " << Helper::GetNodeInformation(it) << std::endl;
+    }
+    if (it->getNodeType() == XERCES_CPP_NAMESPACE_QUALIFIER DOMNode::ELEMENT_NODE) {
+      attributes = it->getAttributes();
+      DECLAREANDGETLENGTVAR(rmax)
+      DECLAREANDGETLENGTVAR(rmin)
+      DECLAREANDGETLENGTVAR(z)
+      rmins.push_back(rmin);
+      rmaxs.push_back(rmax);
+      zs.push_back(z);
+    }
+  }
+  auto const anUnplacedConePtr =
+      vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedPolyhedron>(
+          startphi, deltaphi, numsides, zs.size(), zs.data(), rmins.data(), rmaxs.data());
   return anUnplacedConePtr;
 }
 
