@@ -38,6 +38,11 @@ else()
   find_package(VecGeom REQUIRED)
 endif()
 
+if(GDMLDEBUG)
+  add_definitions(-DGDMLDEBUG)
+endif() # GDMLDEBUG
+
+
 add_subdirectory(source)
 
 if(NOT VECGEOM)

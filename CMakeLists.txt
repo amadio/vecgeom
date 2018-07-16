@@ -905,6 +905,7 @@ if(GDML AND CUDA)
 endif()
 # build the libraries for GDML persistency
 if(GDML)
+  option(GDMLDEBUG "Enable additional debug information in GDML module" OFF)
   add_subdirectory(persistency/gdml)
 endif() # GDML
 

@@ -48,7 +48,11 @@
 #define DECLAREHALF(x) auto const half##x = x / 2.;
 
 namespace {
+#ifdef GDMLDEBUG
 constexpr bool debug = true;
+#else
+constexpr bool debug = false;
+#endif
 // a container with simple solids description (fixed number of attributes, no loops), generated from the schema
 auto const gdmlSolids = std::map<std::string, std::vector<std::string>>{
     {"multiUnion", {}},
@@ -142,23 +146,11 @@ extern template std::string Helper::GetAttribute(std::string attrName,
 extern template double Helper::GetAttribute(std::string attrName,
                                             XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
 
-void *Middleware::Load(XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument const *aDOMDocument)
+bool Middleware::Load(XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument const *aDOMDocument)
 {
   auto *rootDocElement = aDOMDocument->getDocumentElement();
   auto *rootDocNode    = dynamic_cast<XERCES_CPP_NAMESPACE_QUALIFIER DOMNode *>(rootDocElement);
-
-  //  auto const* const attributes = rootDocNode->getAttributes();
-  //  auto const rootDocNodeName    = Transcode(rootDocNode->getNodeName());
-  //  if(debug) std::cout << "rootDocNodeName is " << rootDocNodeName << std::endl;
-
-  // rootDocNode->getChildNodes();
-  // auto theAttributes = rootDocNode->getAttributes();
-  // auto structXMLname = XERCES_CPP_NAMESPACE_QUALIFIER XMLString::transcode("structure");
-  // auto structNode = theAttributes->getNamedItem(structXMLname);
-  //  auto structureNodes = aDOMDocument->getElementsByTagName(XERCES_CPP_NAMESPACE_QUALIFIER
-  //  XMLString::transcode("gdml/structure"));
-  processNode(rootDocNode);
-  return nullptr;
+  return processNode(rootDocNode);
 }
 
 XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *Middleware::Save(void const *)
@@ -192,12 +184,12 @@ bool Middleware::processNode(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMN
     auto const success = processWorld(aDOMNode);
     return success;
   }
-
+  auto result = true;
   //  if do not know what to do, process the children
   for (auto *child = aDOMNode->getFirstChild(); child != nullptr; child = child->getNextSibling()) {
-    processNode(child);
+    result = result && processNode(child);
   }
-  return false;
+  return result;
 }
 
 bool Middleware::processConstant(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)

@@ -37,7 +37,7 @@ namespace vgdml {
 class Middleware {
 public:
   Middleware() {}
-  void *Load(XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument const *aDOMDocument);
+  bool Load(XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument const *aDOMDocument);
   XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *Save(void const *);
 
 private:
