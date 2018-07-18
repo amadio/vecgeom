@@ -159,6 +159,7 @@ public:
   using UnplacedVolume_t = typename Implementation::UnplacedVolume_t;
   using Common_t         = CommonUnplacedVolumeImplHelper<Implementation, BaseUnplVol>;
 
+  static constexpr bool SIMDHELPER = true; // property expressing that this helper provides true external SIMD support
   // bring in constructor
   using Common_t::Common_t;
 
@@ -237,6 +238,8 @@ public:
   using Real_s           = vecgeom::ScalarBackend::Real_v;
   using UnplacedVolume_t = typename Implementation::UnplacedVolume_t;
   using Common_t         = CommonUnplacedVolumeImplHelper<Implementation, BaseUnplVol>;
+
+  static constexpr bool SIMDHELPER = false;
 
   // constructors
   using Common_t::Common_t;

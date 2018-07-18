@@ -6,6 +6,12 @@
 #include "volumes/SpecializedOrb.h"
 #include "base/RNG.h"
 #include <stdio.h>
+#ifdef VECGEOM_ROOT
+#include "TGeoSphere.h"
+#endif
+#ifdef VECGEOM_GEANT4
+#include "G4Orb.hh"
+#endif
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -111,6 +117,21 @@ void UnplacedOrb::Print(std::ostream &os) const
 }
 
 #ifndef VECCORE_CUDA
+// conversion functions
+#ifdef VECGEOM_ROOT
+TGeoShape const *UnplacedOrb::ConvertToRoot(char const *label) const
+{
+  return new TGeoSphere(label, 0., GetRadius());
+}
+#endif
+
+#ifdef VECGEOM_GEANT4
+G4VSolid const *UnplacedOrb::ConvertToGeant4(char const *label) const
+{
+  return new G4Orb(label, GetRadius());
+}
+#endif
+
 template <TranslationCode trans_code, RotationCode rot_code>
 VPlacedVolume *UnplacedOrb::Create(LogicalVolume const *const logical_volume,
                                    Transformation3D const *const transformation, VPlacedVolume *const placement)

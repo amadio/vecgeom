@@ -3,6 +3,11 @@
 
 #include "volumes/SphereUtilities.h"
 #include "volumes/UnplacedSphere.h"
+#include "volumes/UnplacedOrb.h"
+#include "volumes/PlacedOrb.h"
+#ifndef VECCORE_CUDA
+#include "volumes/UnplacedImplAs.h"
+#endif
 #include "volumes/SpecializedSphere.h"
 #include "volumes/utilities/VolumeUtilities.h"
 #include "volumes/utilities/GenerationUtilities.h"
@@ -10,6 +15,14 @@
 #include "base/RNG.h"
 #endif
 #include "management/VolumeFactory.h"
+
+#ifdef VECGEOM_ROOT
+#include "TGeoSphere.h"
+#endif
+
+#ifdef VECGEOM_GEANT4
+#include "G4Sphere.hh"
+#endif
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
@@ -21,6 +34,12 @@ UnplacedSphere::UnplacedSphere(Precision pRmin, Precision pRmax, Precision pSPhi
 {
 
   DetectConvexity();
+}
+
+// specialized constructor for orb like instantiation
+VECCORE_ATT_HOST_DEVICE
+UnplacedSphere::UnplacedSphere(Precision pR) : UnplacedSphere(0, pR)
+{
 }
 
 VECCORE_ATT_HOST_DEVICE
@@ -267,6 +286,18 @@ std::ostream &UnplacedSphere::StreamInfo(std::ostream &os) const
   return os;
 }
 
+template <>
+UnplacedSphere *Maker<UnplacedSphere>::MakeInstance(Precision pRmin, Precision pRmax, Precision pSPhi, Precision pDPhi,
+                                                    Precision pSTheta, Precision pDTheta)
+{
+#if !defined(VECCORE_CUDA) && !defined(VECGEOM_NO_SPECIALIZATION)
+  if (pRmin == 0. && pDPhi == kTwoPi && pDTheta == kPi) {
+    return new SUnplacedImplAs<UnplacedSphere, UnplacedOrb>(pRmax);
+  }
+#endif
+  return new UnplacedSphere(pRmin, pRmax, pSPhi, pDPhi, pSTheta, pDTheta);
+}
+
 void UnplacedSphere::Print() const
 {
   printf("UnplacedSphere {%.2f , %.2f , %.2f , %.2f , %.2f , %.2f}", GetInnerRadius(), GetOuterRadius(),
@@ -280,6 +311,23 @@ void UnplacedSphere::Print(std::ostream &os) const
 }
 
 #ifndef VECCORE_CUDA
+
+#ifdef VECGEOM_ROOT
+TGeoShape const *UnplacedSphere::ConvertToRoot(char const *label) const
+{
+  return new TGeoSphere(label, GetInnerRadius(), GetOuterRadius(), GetStartThetaAngle() * kRadToDeg,
+                        (GetStartThetaAngle() + GetDeltaThetaAngle()) * kRadToDeg, GetStartPhiAngle() * kRadToDeg,
+                        (GetStartPhiAngle() + GetDeltaPhiAngle()) * kRadToDeg);
+}
+#endif
+
+#ifdef VECGEOM_GEANT4
+G4VSolid const *UnplacedSphere::ConvertToGeant4(char const *label) const
+{
+  return new G4Sphere(label, GetInnerRadius(), GetOuterRadius(), GetStartPhiAngle(), GetDeltaPhiAngle(),
+                      GetStartThetaAngle(), GetDeltaThetaAngle());
+}
+#endif
 
 template <TranslationCode trans_code, RotationCode rot_code>
 VPlacedVolume *UnplacedSphere::Create(LogicalVolume const *const logical_volume,

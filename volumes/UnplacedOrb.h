@@ -11,6 +11,12 @@
 #include "volumes/OrbStruct.h" // the pure Orb struct
 #include "volumes/kernel/OrbImplementation.h"
 #include "volumes/UnplacedVolumeImplHelper.h"
+#ifdef VECGEOM_ROOT
+class TGeoShape;
+#endif
+#ifdef VECGEOM_GEANT4
+class G4VSolid;
+#endif
 
 namespace vecgeom {
 
@@ -30,6 +36,8 @@ private:
   Precision fEpsilon, fRTolerance;
 
 public:
+  using Kernel = OrbImplementation;
+
   VECCORE_ATT_HOST_DEVICE
   UnplacedOrb();
 
@@ -116,6 +124,17 @@ public:
                                                       const int id, VPlacedVolume *const placement) const override;
 
 #endif
+
+// Comparison specific conversion functions
+#ifndef VECCORE_CUDA
+#ifdef VECGEOM_ROOT
+  TGeoShape const *ConvertToRoot(char const *label = "") const;
+#endif
+
+#ifdef VECGEOM_GEANT4
+  G4VSolid const *ConvertToGeant4(char const *label = "") const;
+#endif
+#endif // VECCORE_CUDA
 };
 }
 } // End global namespace

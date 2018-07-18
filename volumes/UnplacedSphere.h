@@ -36,8 +36,12 @@ public:
   ThetaCone const &GetThetaCone() const { return fSphere.fThetaCone; }
 
   VECCORE_ATT_HOST_DEVICE
-  UnplacedSphere(Precision pRmin, Precision pRmax, Precision pSPhi, Precision pDPhi, Precision pSTheta,
-                 Precision pDTheta);
+  UnplacedSphere(Precision pRmin, Precision pRmax, Precision pSPhi = 0., Precision pDPhi = kTwoPi,
+                 Precision pSTheta = 0., Precision pDTheta = kPi);
+
+  // specialized constructor for orb like instantiation
+  VECCORE_ATT_HOST_DEVICE
+  UnplacedSphere(Precision pR);
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
@@ -260,7 +264,14 @@ public:
   Vector3D<Precision> SamplePointOnSurface() const override;
 
   std::string GetEntityType() const;
+
+#ifdef VECGEOM_ROOT
+  TGeoShape const *ConvertToRoot(char const *label = "") const;
 #endif
+#ifdef VECGEOM_GEANT4
+  G4VSolid const *ConvertToGeant4(char const *label = "") const;
+#endif
+#endif // VECCORE_CUDA
 
   void GetParametersList(int aNumber, Precision *aArray) const;
 
@@ -319,7 +330,7 @@ private:
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
                                            const TranslationCode trans_code, const RotationCode rot_code,
-                                           VPlacedVolume *const placement = NULL) const final
+                                           VPlacedVolume *const placement = NULL) const override
   {
     return CreateSpecializedVolume(volume, transformation, trans_code, rot_code, placement);
   }
@@ -330,12 +341,19 @@ private:
                                                               Transformation3D const *const transformation,
                                                               const TranslationCode trans_code,
                                                               const RotationCode rot_code, const int id,
-                                                              VPlacedVolume *const placement = NULL) const final
+                                                              VPlacedVolume *const placement = NULL) const override
   {
     return CreateSpecializedVolume(volume, transformation, trans_code, rot_code, id, placement);
   }
 
 #endif
+};
+
+template <>
+struct Maker<UnplacedSphere> {
+  template <typename... ArgTypes>
+  static UnplacedSphere *MakeInstance(Precision pRmin, Precision pRmax, Precision pSPhi, Precision pDPhi,
+                                      Precision pSTheta, Precision pDTheta);
 };
 }
 } // End global namespace

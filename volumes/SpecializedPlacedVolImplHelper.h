@@ -112,6 +112,9 @@ public:
   virtual void PrintImplementationType(std::ostream &os) const override { Specialization::PrintImplementationType(os); }
   virtual void PrintUnplacedType(std::ostream &os) const override { Specialization::PrintUnplacedType(os); }
 
+  int GetTransCode() const final { return transC; }
+  int GetRotCode() const final { return rotC; }
+
   VECCORE_ATT_HOST_DEVICE
   virtual EnumInside Inside(Vector3D<Precision> const &point) const override
   {
@@ -288,6 +291,11 @@ public:
   using CommonHelper_t::Inside;
   using CommonHelper_t::CommonHelper_t;
 
+  SIMDSpecializedVolImplHelper(VPlacedVolume const *other)
+      : CommonHelper_t(other->GetName(), other->GetLogicalVolume(), other->GetTransformation())
+  {
+  }
+
   VECCORE_ATT_HOST_DEVICE
   virtual ~SIMDSpecializedVolImplHelper() {}
 
@@ -386,7 +394,6 @@ public:
 
 #ifdef VECGEOM_CUDA_INTERFACE
   using ThisClass_t = SIMDSpecializedVolImplHelper<Specialization, transC, rotC>;
-
   virtual size_t DeviceSizeOf() const override { return DevicePtr<CudaType_t<ThisClass_t>>::SizeOf(); }
 
   DevicePtr<cuda::VPlacedVolume> CopyToGpu(DevicePtr<cuda::LogicalVolume> const logical_volume,
@@ -427,6 +434,11 @@ public:
   using CommonHelper_t::DistanceToIn;
   using CommonHelper_t::Inside;
   using CommonHelper_t::CommonHelper_t;
+
+  LoopSpecializedVolImplHelper(VPlacedVolume const *other)
+      : CommonHelper_t(other->GetName(), other->GetLogicalVolume(), other->GetTransformation())
+  {
+  }
 
   virtual void SafetyToIn(SOA3D<Precision> const &points, Precision *const output) const override
   {

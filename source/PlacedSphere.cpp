@@ -5,14 +5,6 @@
 #include "volumes/Sphere.h"
 #include "volumes/SpecializedSphere.h"
 
-#ifdef VECGEOM_ROOT
-#include "TGeoSphere.h"
-#endif
-
-#ifdef VECGEOM_GEANT4
-#include "G4Sphere.hh"
-#endif
-
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -22,24 +14,6 @@ VPlacedVolume const *PlacedSphere::ConvertToUnspecialized() const
 {
   return new SimpleSphere(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
 }
-
-#ifdef VECGEOM_ROOT
-TGeoShape const *PlacedSphere::ConvertToRoot() const
-{
-  return new TGeoSphere(GetLabel().c_str(), GetInnerRadius(), GetOuterRadius(), GetStartThetaAngle() * kRadToDeg,
-                        (GetStartThetaAngle() + GetDeltaThetaAngle()) * kRadToDeg, GetStartPhiAngle() * kRadToDeg,
-                        (GetStartPhiAngle() + GetDeltaPhiAngle()) * kRadToDeg);
-}
-#endif
-
-#ifdef VECGEOM_GEANT4
-G4VSolid const *PlacedSphere::ConvertToGeant4() const
-{
-  return new G4Sphere(GetLabel().c_str(), GetInnerRadius(), GetOuterRadius(), GetStartPhiAngle(), GetDeltaPhiAngle(),
-                      GetStartThetaAngle(), GetDeltaThetaAngle());
-}
-#endif
-
 #endif // VECCORE_CUDA
 
 } // End impl namespace

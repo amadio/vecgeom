@@ -168,6 +168,10 @@ public:
   // print the unplaced type to an outstream
   virtual void PrintUnplacedType(std::ostream &os) const = 0;
 
+  // returns translation and rotation code of the placed volume
+  virtual int GetTransCode() const { return translation::kGeneric; }
+  virtual int GetRotCode() const { return rotation::kGeneric; }
+
   /// Recursively prints contained volumes to standard output.
   VECCORE_ATT_HOST_DEVICE
   void PrintContent(const int depth = 0) const;
