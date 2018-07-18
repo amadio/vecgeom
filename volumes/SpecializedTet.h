@@ -1,5 +1,5 @@
 /// @file SpecializedTet.h
-/// @author Raman Sehgal (raman.sehgal@cern.ch)
+/// @author Raman Sehgal (raman.sehgal@cern.ch), Evgueni Tcherniaev (evgueni.tcherniaev@cern.ch)
 
 #ifndef VECGEOM_VOLUMES_SPECIALIZEDTET_H_
 #define VECGEOM_VOLUMES_SPECIALIZEDTET_H_

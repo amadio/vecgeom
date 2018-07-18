@@ -2,7 +2,7 @@
  * TetStruct.h
  *
  *  Created on: 10.07.2018
- *      Author: rasehgal
+ *      Author: Raman Sehgal, Evgueni Tcherniaev
  */
 
 #ifndef VECGEOM_VOLUMES_TETSTRUCT_H_
@@ -23,11 +23,6 @@ struct TetStruct {
     T d;
   } fPlane[4];
 
-  // we also store this in SOA form, required to copy data to GPU
-  T fVerticesX[4]; /** Backed-up X positions of vertices */
-  T fVerticesY[4]; /** Backed-up Y positions of vertices */
-  T fVerticesZ[4]; /** Backed-up Z positions of vertices */
-
   /* Add whatever data member you want to be cached
   ** like Volume and Surface Area, etc..
   */
@@ -37,12 +32,14 @@ struct TetStruct {
   TetStruct() {}
 
   VECCORE_ATT_HOST_DEVICE
-  TetStruct(const T verticesx[], const T verticesy[], const T verticesz[])
+  TetStruct(const T p0[], const T p1[], const T p2[], const T p3[])
   {
     Vector3D<T> vertices[4];
-    for (int i = 0; i < 4; ++i) {
-      vertices[i].Set(verticesx[i], verticesy[i], verticesz[i]);
-    }
+    vertices[0].Set(p0[0], p0[1], p0[2]);
+    vertices[1].Set(p1[0], p1[1], p1[2]);
+    vertices[2].Set(p2[0], p2[1], p2[2]);
+    vertices[3].Set(p3[0], p3[1], p3[2]);
+
     CalculateCached(vertices[0], vertices[1], vertices[2], vertices[3]);
   }
 

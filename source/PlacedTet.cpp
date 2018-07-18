@@ -1,11 +1,8 @@
 /// @file PlacedTet.cpp
-/// @author Raman Sehgal (raman.sehgal@cern.ch)
+/// @author Raman Sehgal (raman.sehgal@cern.ch), Evgueni Tcherniaev (evgueni.tcherniaev@cern.ch)
 
 #include "volumes/PlacedTet.h"
 #include "volumes/SpecializedTet.h"
-#ifdef VECGEOM_ROOT
-#include "TGeoSphere.h"
-#endif
 #ifdef VECGEOM_GEANT4
 #include "G4Tet.hh"
 #include "G4ThreeVector.hh"
@@ -37,17 +34,17 @@ VPlacedVolume const *PlacedTet::ConvertToUnspecialized() const
 #ifdef VECGEOM_ROOT
 TGeoShape const *PlacedTet::ConvertToRoot() const
 {
-  // return new TGeoSphere(GetLabel().c_str(), 0., GetRadius());
+  return nullptr; // There is no suitable TGeo shape 2018.07.18
 }
 #endif
 
 #ifdef VECGEOM_GEANT4
 G4VSolid const *PlacedTet::ConvertToGeant4() const
 {
-  return new G4Tet("", G4ThreeVector(GetAnchor().x(), GetAnchor().y(), GetAnchor().z()),
-                   G4ThreeVector(GetP2().x(), GetP2().y(), GetP2().z()),
-                   G4ThreeVector(GetP3().x(), GetP3().y(), GetP3().z()),
-                   G4ThreeVector(GetP4().x(), GetP4().y(), GetP4().z()));
+  Vector3D<Precision> p0, p1, p2, p3;
+  GetVertices(p0, p1, p2, p3);
+  return new G4Tet("", G4ThreeVector(p0.x(), p0.y(), p0.z()), G4ThreeVector(p1.x(), p1.y(), p1.z()),
+                   G4ThreeVector(p2.x(), p2.y(), p2.z()), G4ThreeVector(p3.x(), p3.y(), p3.z()));
 }
 #endif
 

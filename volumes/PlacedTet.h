@@ -1,5 +1,4 @@
-/// 2015: initial version (Raman Sehgal)
-/// 2016: cleanup; move to PlacedVolImplHelper (Raman Sehgal)
+/// 2018: initial version (Raman Sehgal, Evgueni Tcherniaev)
 
 #ifndef VECGEOM_VOLUMES_PLACEDTET_H_
 #define VECGEOM_VOLUMES_PLACEDTET_H_
@@ -49,20 +48,11 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Vector3D<Precision> GetAnchor() const { return GetUnplacedVolume()->GetAnchor(); }
-  // Getters and Setters if required
-
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  Vector3D<Precision> GetP2() const { return GetUnplacedVolume()->GetP2(); }
-
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  Vector3D<Precision> GetP3() const { return GetUnplacedVolume()->GetP3(); }
-
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  Vector3D<Precision> GetP4() const { return GetUnplacedVolume()->GetP4(); }
+  void GetVertices(Vector3D<Precision> &p0, Vector3D<Precision> &p1, Vector3D<Precision> &p2,
+                   Vector3D<Precision> &p3) const
+  {
+    GetUnplacedVolume()->GetVertices(p0, p1, p2, p3);
+  }
 
   VECCORE_ATT_HOST_DEVICE
   virtual void PrintType() const override;

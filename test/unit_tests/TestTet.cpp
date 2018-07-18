@@ -1,11 +1,12 @@
 //
 // File:    TestTet.cpp
 // Purpose: unit tests for the Tet
-//
+// author Evgueni Tcherniaev (evgueni.tcherniaev@cern.ch)
 
 // ensure asserts are compiled in
 #undef NDEBUG
 
+#include <iomanip>
 #include <assert.h>
 #include "base/Global.h"
 #include "base/Vector3D.h"
@@ -28,10 +29,12 @@ bool TestTet()
   //
   std::cout << "=== Check Getters, SurfaceArea(), Capacity(), Extent()" << std::endl;
 
-  assert(tet.GetAnchor() == p0);
-  assert(tet.GetP2() == p1);
-  assert(tet.GetP3() == p2);
-  assert(tet.GetP4() == p3);
+  Vec_t v0, v1, v2, v3;
+  tet.GetVertices(v0, v1, v2, v3);
+  assert(v0 == p0);
+  assert(v1 == p1);
+  assert(v2 == p2);
+  assert(v3 == p3);
 
   double sqrt2 = std::sqrt(2.), sqrt3 = std::sqrt(3.);
   double sx = 2., sy = 2., sz = 2., sxyz = 2. * sqrt3;
@@ -127,44 +130,46 @@ bool TestTet()
   //
   std::cout << "=== Check Normal()" << std::endl;
   Vec_t norm;
-  tet.Normal(pf0, norm);
-  assert(norm == Vec_t(0., -1., 0.));
-  tet.Normal(pf1, norm);
-  assert(norm == Vec_t(0., 0., -1.));
-  tet.Normal(pf2, norm);
-  assert(norm == Vec_t(1., 1., 1.) / sqrt3);
-  tet.Normal(pf3, norm);
-  assert(norm == Vec_t(-1., 0., 0.));
+  bool validity = false;
+  validity      = tet.Normal(pf0, norm);
+  assert(norm == Vec_t(0., -1., 0.) && validity);
+  validity = tet.Normal(pf1, norm);
+  assert(norm == Vec_t(0., 0., -1.) && validity);
+  validity = tet.Normal(pf2, norm);
+  assert(norm == Vec_t(1., 1., 1.) / sqrt3 && validity);
+  validity = tet.Normal(pf3, norm);
+  assert(norm == Vec_t(-1., 0., 0.) && validity);
 
-  tet.Normal(pe01, norm);
-  assert(norm == Vec_t(-1., -1., 0.) / sqrt2);
-  tet.Normal(pe12, norm);
-  assert(norm == Vec_t(0., -1., -1.) / sqrt2);
-  tet.Normal(pe13, norm);
-  assert(norm == Vec_t(-1., 0., -1.) / sqrt2);
-  tet.Normal(p1, norm);
-  assert(norm == Vec_t(-1., -1., -1.) / sqrt3);
+  validity = tet.Normal(pe01, norm);
+  assert(norm == Vec_t(-1., -1., 0.) / sqrt2 && validity);
+  validity = tet.Normal(pe12, norm);
+  assert(norm == Vec_t(0., -1., -1.) / sqrt2 && validity);
+  validity = tet.Normal(pe13, norm);
+  assert(norm == Vec_t(-1., 0., -1.) / sqrt2 && validity);
+  validity = tet.Normal(p1, norm);
+  assert(norm == Vec_t(-1., -1., -1.) / sqrt3 && validity);
 
   // Check ApproxSurfaceNormal()
   //
   std::cout << "=== Check ApproxSurfaceNormal()" << std::endl;
-  tet.Normal(pf0 + Vec_t(0., -1., 0.), norm);
-  assert(norm == Vec_t(0., -1., 0.));
-  tet.Normal(pf1 + Vec_t(0., 0., -1.), norm);
-  assert(norm == Vec_t(0., 0., -1.));
-  tet.Normal(pf2 + Vec_t(1., 1., 1.), norm);
-  assert(norm == Vec_t(1., 1., 1.) / sqrt3);
-  tet.Normal(pf3 + Vec_t(-1., 0., 0.), norm);
-  assert(norm == Vec_t(-1., 0., 0.));
+  validity = true;
+  validity = tet.Normal(pf0 + Vec_t(0., -1., 0.), norm);
+  assert(norm == Vec_t(0., -1., 0.) && !validity);
+  validity = tet.Normal(pf1 + Vec_t(0., 0., -1.), norm);
+  assert(norm == Vec_t(0., 0., -1.) && !validity);
+  validity = tet.Normal(pf2 + Vec_t(1., 1., 1.), norm);
+  assert(norm == Vec_t(1., 1., 1.) / sqrt3 && !validity);
+  validity = tet.Normal(pf3 + Vec_t(-1., 0., 0.), norm);
+  assert(norm == Vec_t(-1., 0., 0.) && !validity);
 
-  tet.Normal(pf0 + Vec_t(.0, .1, .0), norm);
-  assert(norm == Vec_t(0., -1., 0.));
-  tet.Normal(pf1 + Vec_t(.0, .0, .1), norm);
-  assert(norm == Vec_t(0., 0., -1.));
-  tet.Normal(pf2 + Vec_t(-.1, -.1, -.1), norm);
-  assert(norm == Vec_t(1., 1., 1.) / sqrt3);
-  tet.Normal(pf3 + Vec_t(.1, .0, .0), norm);
-  assert(norm == Vec_t(-1., 0., 0.));
+  validity = tet.Normal(pf0 + Vec_t(.0, .1, .0), norm);
+  assert(norm == Vec_t(0., -1., 0.) && !validity);
+  validity = tet.Normal(pf1 + Vec_t(.0, .0, .1), norm);
+  assert(norm == Vec_t(0., 0., -1.) && !validity);
+  validity = tet.Normal(pf2 + Vec_t(-.1, -.1, -.1), norm);
+  assert(norm == Vec_t(1., 1., 1.) / sqrt3 && !validity);
+  validity = tet.Normal(pf3 + Vec_t(.1, .0, .0), norm);
+  assert(norm == Vec_t(-1., 0., 0.) && !validity);
 
   // Check SafetyToIn()
   //
@@ -225,18 +230,26 @@ bool TestTet()
   assert(tet.DistanceToIn(pnt, dir) == -0.5);
   assert(ApproxEqual(tet.DistanceToIn(pnt, -dir), -0.5));
 
-  Vec_t pntIn, pntOut;
+  Vec_t pntIn, pntTolIn, pntOut, pntTolOut;
   pnt = Vec_t(0.4, 0.4, 0.0);
   pntIn.Set(pnt.x(), pnt.y(), 0.5 * vecgeom::kHalfTolerance);
+  pntTolIn.Set(pnt.x(), pnt.y(), vecgeom::kHalfTolerance);
   pntOut.Set(pnt.x(), pnt.y(), -0.5 * vecgeom::kHalfTolerance);
+  pntTolOut.Set(pnt.x(), pnt.y(), -vecgeom::kHalfTolerance);
 
   Vec_t dirIn, dirOut;
   dir = Vec_t(1., 0., 0.);
   dir.Normalize();
-  dirIn = Vec_t(0.9 - pnt.x(), 0.0, 0.5 * vecgeom::kHalfTolerance);
+  dirIn = Vec_t(0.89 - pnt.x(), 0.0, 0.5 * vecgeom::kHalfTolerance);
   dirIn.Normalize();
-  dirOut = Vec_t(0.9 - pnt.x(), 0.0, -0.5 * vecgeom::kHalfTolerance);
+  dirOut = Vec_t(0.89 - pnt.x(), 0.0, -0.5 * vecgeom::kHalfTolerance);
   dirOut.Normalize();
+
+  std::cout << std::setprecision(16) << std::endl;
+  std::cout << "   distToIn(pntTolOut,dirOut) = " << tet.DistanceToIn(pntTolOut, dirOut) << std::endl;
+  std::cout << "   distToIn(pntTolOut,dir) = " << tet.DistanceToIn(pntTolOut, dir) << std::endl;
+  std::cout << "   distToIn(pntTolOut,dirIn) = " << tet.DistanceToIn(pntTolOut, dirIn) << std::endl;
+  std::cout << std::endl;
 
   std::cout << "   distToIn(pntOut,dirOut) = " << tet.DistanceToIn(pntOut, dirOut) << std::endl;
   std::cout << "   distToIn(pntOut,dir) = " << tet.DistanceToIn(pntOut, dir) << std::endl;
@@ -251,6 +264,11 @@ bool TestTet()
   std::cout << "   distToIn(pntIn,dirOut) = " << tet.DistanceToIn(pntIn, dirOut) << std::endl;
   std::cout << "   distToIn(pntIn,dir) = " << tet.DistanceToIn(pntIn, dir) << std::endl;
   std::cout << "   distToIn(pntIn,dirIn) = " << tet.DistanceToIn(pntIn, dirIn) << std::endl;
+  std::cout << std::endl;
+
+  std::cout << "   distToIn(pntTolIn,dirOut) = " << tet.DistanceToIn(pntTolIn, dirOut) << std::endl;
+  std::cout << "   distToIn(pntTolIn,dir) = " << tet.DistanceToIn(pntTolIn, dir) << std::endl;
+  std::cout << "   distToIn(pntTolIn,dirIn) = " << tet.DistanceToIn(pntTolIn, dirIn) << std::endl;
   std::cout << std::endl;
 
   // Check DistanceToOut()
@@ -288,6 +306,11 @@ bool TestTet()
   dirOut = Vec_t(0.9 - pnt.x(), 0.0, -0.5 * vecgeom::kHalfTolerance);
   dirOut.Normalize();
 
+  std::cout << "   distToOut(pntTolOut,dirOut) = " << tet.DistanceToOut(pntTolOut, dirOut) << std::endl;
+  std::cout << "   distToOut(pntTolOut,dir) = " << tet.DistanceToOut(pntTolOut, dir) << std::endl;
+  std::cout << "   distToOut(pntTolOut,dirIn) = " << tet.DistanceToOut(pntTolOut, dirIn) << std::endl;
+  std::cout << std::endl;
+
   std::cout << "   distToOut(pntOut,dirOut) = " << tet.DistanceToOut(pntOut, dirOut) << std::endl;
   std::cout << "   distToOut(pntOut,dir) = " << tet.DistanceToOut(pntOut, dir) << std::endl;
   std::cout << "   distToOut(pntOut,dirIn) = " << tet.DistanceToOut(pntOut, dirIn) << std::endl;
@@ -301,6 +324,11 @@ bool TestTet()
   std::cout << "   distToOut(pntIn,dirOut) = " << tet.DistanceToOut(pntIn, dirOut) << std::endl;
   std::cout << "   distToOut(pntIn,dir) = " << tet.DistanceToOut(pntIn, dir) << std::endl;
   std::cout << "   distToOut(pntIn,dirIn) = " << tet.DistanceToOut(pntIn, dirIn) << std::endl;
+  std::cout << std::endl;
+
+  std::cout << "   distToOut(pntTolIn,dirOut) = " << tet.DistanceToOut(pntTolIn, dirOut) << std::endl;
+  std::cout << "   distToOut(pntTolIn,dir) = " << tet.DistanceToOut(pntTolIn, dir) << std::endl;
+  std::cout << "   distToOut(pntTolIn,dirIn) = " << tet.DistanceToOut(pntTolIn, dirIn) << std::endl;
   std::cout << std::endl;
 
   // Check SamplePointOnSurface()
@@ -319,7 +347,8 @@ bool TestTet()
     else
       ++nxyz;
   }
-  std::cout << "nx,ny,nz,nxyz = " << nx << ", " << ny << ", " << nz << ", " << nxyz << std::endl;
+  std::cout << "sx,sy,sz,sxyz = " << sx << ", \t" << sy << ", \t" << sz << ", \t" << sxyz << std::endl;
+  std::cout << "nx,ny,nz,nxyz = " << nx << ", \t" << ny << ", \t" << nz << ", \t" << nxyz << std::endl;
   assert(std::abs(nx - sx * nfactor) < 2. * std::sqrt(ntot));
   assert(std::abs(ny - sy * nfactor) < 2. * std::sqrt(ntot));
   assert(std::abs(nz - sz * nfactor) < 2. * std::sqrt(ntot));

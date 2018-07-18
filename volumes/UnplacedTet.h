@@ -1,5 +1,5 @@
 /// \file UnplacedTet.h
-/// \author Raman Sehgal (raman.sehgal@cern.ch)
+/// \author Raman Sehgal (raman.sehgal@cern.ch), Evgueni Tcherniaev (evgueni.tcherniaev@cern.ch)
 
 #ifndef VECGEOM_VOLUMES_UNPLACEDTET_H_
 #define VECGEOM_VOLUMES_UNPLACEDTET_H_
@@ -29,12 +29,12 @@ public:
   UnplacedTet();
 
   VECCORE_ATT_HOST_DEVICE
-  UnplacedTet(const Vector3D<Precision> anchor, const Vector3D<Precision> p2, const Vector3D<Precision> p3,
-              const Vector3D<Precision> p4);
+  UnplacedTet(const Vector3D<Precision> &p0, const Vector3D<Precision> &p1, const Vector3D<Precision> &p2,
+              const Vector3D<Precision> &p3);
 
   VECCORE_ATT_HOST_DEVICE
-  UnplacedTet(const Precision verticesx[], const Precision verticesy[], const Precision verticesz[])
-      : fTet(verticesx, verticesy, verticesz)
+  UnplacedTet(const Precision p0[], const Precision p1[], const Precision p2[], const Precision p3[])
+      : fTet(p0, p1, p2, p3)
   {
     fGlobalConvexity = true;
   }
@@ -46,43 +46,36 @@ public:
 
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
-  Vector3D<Precision> GetAnchor() const { return fTet.fVertex[0]; }
-
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  Vector3D<Precision> GetP2() const { return fTet.fVertex[1]; }
-
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  Vector3D<Precision> GetP3() const { return fTet.fVertex[2]; }
-
-  VECCORE_ATT_HOST_DEVICE
-  VECGEOM_FORCE_INLINE
-  Vector3D<Precision> GetP4() const { return fTet.fVertex[3]; }
+  void GetVertices(Vector3D<Precision> &p0, Vector3D<Precision> &p1, Vector3D<Precision> &p2,
+                   Vector3D<Precision> &p3) const
+  {
+    p0 = fTet.fVertex[0];
+    p1 = fTet.fVertex[1];
+    p2 = fTet.fVertex[2];
+    p3 = fTet.fVertex[3];
+  }
 
   VECCORE_ATT_HOST_DEVICE
   void Extent(Vector3D<Precision> &, Vector3D<Precision> &) const override;
 
   Precision Capacity() const override { return fTet.fCubicVolume; }
 
-  // VECCORE_ATT_HOST_DEVICE
   Precision SurfaceArea() const override { return fTet.fSurfaceArea; }
 
   Vector3D<Precision> SamplePointOnSurface() const override;
 
   VECCORE_ATT_HOST_DEVICE
-  bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &norm) const override;
-
-  VECCORE_ATT_HOST_DEVICE
-  void ApproxSurfaceNormal(Vector3D<Precision> const &p, Vector3D<Precision> &norm) const;
+  virtual bool Normal(Vector3D<Precision> const &p, Vector3D<Precision> &normal) const override
+  {
+    bool valid;
+    normal = TetImplementation::NormalKernel(fTet, p, valid);
+    return valid;
+  }
 
   std::string GetEntityType() const;
 
   VECCORE_ATT_HOST_DEVICE
   void GetParametersList(int aNumber, double *aArray) const;
-
-  VECCORE_ATT_HOST_DEVICE
-  UnplacedTet *Clone() const;
 
   std::ostream &StreamInfo(std::ostream &os) const;
 

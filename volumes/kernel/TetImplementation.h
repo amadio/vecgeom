@@ -99,28 +99,14 @@ struct TetImplementation {
     ** and is used by Inside function
     */
 
-    // Vector3D<Real_v> normal(tet.fPlane[0].n.x(),tet.fPlane[0].n.y(),tet.fPlane[0].n.z());
-    Vector3D<Real_v> n0(tet.fPlane[0].n);
-    Real_v d0 = n0.Dot(localPoint) + Real_v(tet.fPlane[0].d);
+    Real_v dist[4];
+    for (int i = 0; i < 4; ++i) {
+      dist[i] = tet.fPlane[i].n.Dot(localPoint) + tet.fPlane[i].d;
+    }
+    Real_v safety = vecCore::math::Max(vecCore::math::Max(vecCore::math::Max(dist[0], dist[1]), dist[2]), dist[3]);
 
-    // normal.Set(tet.fPlane[1].n.x(),tet.fPlane[1].n.y(),tet.fPlane[1].n.z());
-    // normal.Set(tet.fPlane[1].n);
-    Vector3D<Real_v> n1(tet.fPlane[1].n);
-    Real_v d1 = n1.Dot(localPoint) + Real_v(tet.fPlane[1].d);
-
-    // normal.Set(tet.fPlane[2].n.x(),tet.fPlane[2].n.y(),tet.fPlane[2].n.z());
-    // normal.Set(tet.fPlane[2].n);
-    Vector3D<Real_v> n2(tet.fPlane[2].n);
-    Real_v d2 = n2.Dot(localPoint) + Real_v(tet.fPlane[2].d);
-
-    // normal.Set(tet.fPlane[3].n.x(),tet.fPlane[3].n.y(),tet.fPlane[3].n.z());
-    // normal.Set(tet.fPlane[3].n);
-    Vector3D<Real_v> n3(tet.fPlane[3].n);
-    Real_v d3 = n3.Dot(localPoint) + Real_v(tet.fPlane[3].d);
-
-    Real_v dMax                     = vecCore::math::Max(vecCore::math::Max(vecCore::math::Max(d0, d1), d2), d3);
-    completelyoutside               = dMax > kHalfTolerance;
-    if (ForInside) completelyinside = dMax <= -kHalfTolerance;
+    completelyoutside               = safety > kHalfTolerance;
+    if (ForInside) completelyinside = safety <= -kHalfTolerance;
 
     return;
   }
@@ -135,17 +121,25 @@ struct TetImplementation {
     // using Bool_v       = vecCore::Mask_v<Real_v>;
     distance           = -kInfLength;
     Real_v distanceOut = kInfLength;
-    Real_v absDist     = kInfLength;
+    Real_v absSafe     = kInfLength;
+
+    Real_v cosa[4];
+    Real_v safe[4];
+    Real_v dist[4];
     for (int i = 0; i < 4; ++i) {
-      Real_v cosa = NonZero(Vector3D<Real_v>(tet.fPlane[i].n).Dot(direction));
-      Real_v dist = Vector3D<Real_v>(tet.fPlane[i].n).Dot(point) + tet.fPlane[i].d;
-      vecCore::MaskedAssign(distance, (cosa < Real_v(0.)), vecCore::math::Max(distance, -dist / cosa));
-      vecCore::MaskedAssign(distanceOut, (cosa > Real_v(0.)), vecCore::math::Min(distanceOut, -dist / cosa));
-      vecCore::MaskedAssign(absDist, (cosa > Real_v(0.)), vecCore::math::Min(absDist, vecCore::math::Abs(dist)));
+      cosa[i] = NonZero(Vector3D<Real_v>(tet.fPlane[i].n).Dot(direction));
+      safe[i] = Vector3D<Real_v>(tet.fPlane[i].n).Dot(point) + tet.fPlane[i].d;
+      dist[i] = -safe[i] / cosa[i];
+    }
+
+    for (int i = 0; i < 4; ++i) {
+      vecCore::MaskedAssign(distance, (cosa[i] < Real_v(0.)), vecCore::math::Max(distance, dist[i]));
+      vecCore::MaskedAssign(distanceOut, (cosa[i] > Real_v(0.)), vecCore::math::Min(distanceOut, dist[i]));
+      vecCore::MaskedAssign(absSafe, (cosa[i] > Real_v(0.)), vecCore::math::Min(absSafe, vecCore::math::Abs(safe[i])));
     }
 
     vecCore::MaskedAssign(distance,
-                          distance >= distanceOut || distanceOut <= kHalfTolerance || absDist <= kHalfTolerance,
+                          distance >= distanceOut || distanceOut <= kHalfTolerance || absSafe <= kHalfTolerance,
                           Real_v(kInfLength));
   }
 
@@ -158,12 +152,17 @@ struct TetImplementation {
     /* TODO :  Logic to calculate Distance from inside point to the Tet surface */
     distance      = kInfLength;
     Real_v safety = -kInfLength;
+
+    Real_v cosa[4];
+    Real_v safe[4];
     for (int i = 0; i < 4; ++i) {
-      Real_v cosa = NonZero(Vector3D<Real_v>(tet.fPlane[i].n).Dot(direction));
-      Real_v dist = Vector3D<Real_v>(tet.fPlane[i].n).Dot(point) + tet.fPlane[i].d;
-      vecCore::MaskedAssign(distance, (cosa > Real_v(0.)), vecCore::math::Min(distance, -dist / cosa));
-      // vecCore::MaskedAssign(safetyIn, (cosa < Real_v(0.)), vecCore::math::Max(safetyIn, dist));
-      safety = vecCore::math::Max(safety, dist);
+      cosa[i] = NonZero(Vector3D<Real_v>(tet.fPlane[i].n).Dot(direction));
+      safe[i] = Vector3D<Real_v>(tet.fPlane[i].n).Dot(point) + tet.fPlane[i].d;
+      safety  = vecCore::math::Max(safety, safe[i]);
+    }
+
+    for (int i = 0; i < 4; ++i) {
+      vecCore::MaskedAssign(distance, (cosa[i] > Real_v(0.)), vecCore::math::Min(distance, -safe[i] / cosa[i]));
     }
     vecCore__MaskedAssignFunc(distance, safety > kHalfTolerance, Real_v(-1.));
   }
@@ -174,20 +173,13 @@ struct TetImplementation {
   static void SafetyToIn(UnplacedStruct_t const &tet, Vector3D<Real_v> const &point, Real_v &safety)
   {
     /* TODO :  Logic to calculate Safety from outside point to the Tet surface */
-    Vector3D<Real_v> normal(tet.fPlane[0].n.x(), tet.fPlane[0].n.y(), tet.fPlane[0].n.z());
-    Real_v d0 = normal.Dot(point) + Real_v(tet.fPlane[0].d);
 
-    normal.Set(tet.fPlane[1].n.x(), tet.fPlane[1].n.y(), tet.fPlane[1].n.z());
-    Real_v d1 = normal.Dot(point) + Real_v(tet.fPlane[1].d);
-
-    normal.Set(tet.fPlane[2].n.x(), tet.fPlane[2].n.y(), tet.fPlane[2].n.z());
-    Real_v d2 = normal.Dot(point) + Real_v(tet.fPlane[2].d);
-
-    normal.Set(tet.fPlane[3].n.x(), tet.fPlane[3].n.y(), tet.fPlane[3].n.z());
-    Real_v d3 = normal.Dot(point) + Real_v(tet.fPlane[3].d);
-
-    safety = vecCore::math::Max(vecCore::math::Max(vecCore::math::Max(d0, d1), d2), d3);
-    vecCore::MaskedAssign(safety, vecCore::math::Abs(safety) < kHalfTolerance, Real_v(0.));
+    Real_v dist[4];
+    for (int i = 0; i < 4; ++i) {
+      dist[i] = tet.fPlane[i].n.Dot(point) + tet.fPlane[i].d;
+    }
+    safety = vecCore::math::Max(vecCore::math::Max(vecCore::math::Max(dist[0], dist[1]), dist[2]), dist[3]);
+    vecCore::MaskedAssign(safety, vecCore::math::Abs(safety) <= kHalfTolerance, Real_v(0.));
   }
 
   template <typename Real_v>
@@ -196,59 +188,47 @@ struct TetImplementation {
   static void SafetyToOut(UnplacedStruct_t const &tet, Vector3D<Real_v> const &point, Real_v &safety)
   {
     /* TODO :  Logic to calculate Safety from inside point to the Tet surface */
-    Vector3D<Real_v> normal(tet.fPlane[0].n.x(), tet.fPlane[0].n.y(), tet.fPlane[0].n.z());
-    Real_v d0 = normal.Dot(point) + Real_v(tet.fPlane[0].d);
 
-    normal.Set(tet.fPlane[1].n.x(), tet.fPlane[1].n.y(), tet.fPlane[1].n.z());
-    Real_v d1 = normal.Dot(point) + Real_v(tet.fPlane[1].d);
-
-    normal.Set(tet.fPlane[2].n.x(), tet.fPlane[2].n.y(), tet.fPlane[2].n.z());
-    Real_v d2 = normal.Dot(point) + Real_v(tet.fPlane[2].d);
-
-    normal.Set(tet.fPlane[3].n.x(), tet.fPlane[3].n.y(), tet.fPlane[3].n.z());
-    Real_v d3 = normal.Dot(point) + Real_v(tet.fPlane[3].d);
-
-    safety = -vecCore::math::Max(vecCore::math::Max(vecCore::math::Max(d0, d1), d2), d3);
-    vecCore::MaskedAssign(safety, vecCore::math::Abs(safety) < kHalfTolerance, Real_v(0.));
+    Real_v dist[4];
+    for (int i = 0; i < 4; ++i) {
+      dist[i] = tet.fPlane[i].n.Dot(point) + tet.fPlane[i].d;
+    }
+    safety = -vecCore::math::Max(vecCore::math::Max(vecCore::math::Max(dist[0], dist[1]), dist[2]), dist[3]);
+    vecCore::MaskedAssign(safety, vecCore::math::Abs(safety) <= kHalfTolerance, Real_v(0.));
   }
 
-  /*
-    template <typename Real_v>
-    VECGEOM_FORCE_INLINE
-    VECCORE_ATT_HOST_DEVICE
-    static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &tet, Vector3D<Real_v> const &point,
-                                         typename vecCore::Mask_v<Real_v> &valid)
-    {
-      Vector3D<Real_v> normal(0.,0.,0.) ;
+  template <typename Real_v>
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  static Vector3D<Real_v> NormalKernel(UnplacedStruct_t const &tet, Vector3D<Real_v> const &point,
+                                       typename vecCore::Mask_v<Real_v> &valid)
+  {
+    Vector3D<Real_v> normal(0.);
+    valid = true;
 
-      // Set valid to true if the normal is valid
-      //valid = ((rad2 <= tolRMaxO * tolRMaxO) && (rad2 >= tolRMaxI * tolRMaxI)); // means we are on surface
-
-      //Calculate the normal at the point and return that.
-      return normal;
+    Real_v dist[4];
+    for (int i = 0; i < 4; ++i) {
+      dist[i] = tet.fPlane[i].n.Dot(point) + tet.fPlane[i].d;
+      vecCore__MaskedAssignFunc(normal, vecCore::math::Abs(dist[i]) <= kHalfTolerance, normal + tet.fPlane[i].n)
     }
 
-    //////////////////////////////////////////////////////////////////////////+
+    vecCore::Mask_v<Real_v> done = normal.Mag2() > 1;
+    vecCore__MaskedAssignFunc(normal, done, normal.Unit());
+    if (vecCore::MaskFull(done)) return normal;
+
+    // Point is not on the surface - normally, this should never be.
+    // Return normal of the nearest face.
     //
-    //  Return normal of nearest side
-    template <typename Real_v>
-    VECGEOM_FORCE_INLINE
-    VECCORE_ATT_HOST_DEVICE
-    Vector3D<Real_v> ApproxSurfaceNormal(UnplacedStruct_t const &tet , Vector3D<Real_v> const & p) const
-    {
-      Real_v dist = -kInfLength;
-      //G4int iside = 0;
+    done = normal.Mag2() > 0;
+    vecCore__MaskedAssignFunc(valid, !done, false);
 
-      for (int i=0; i<4; ++i)
-      {
-        Real_v d = tet.fPlane[i].n.Dot(p) + tet.fPlane[i].d;
-        vecCore::MaskedAssign(dist , d > dist , d);
-        //vecCore::MaskedAssign(iside , d > dist , i);
-
-      }
-      //return tet.fPlanes[iside].n;
+    Real_v safety(-kInfLength);
+    for (int i = 0; i < 4; ++i) {
+      vecCore__MaskedAssignFunc(normal, dist[i] > safety && !done, tet.fPlane[i].n);
+      vecCore__MaskedAssignFunc(safety, dist[i] > safety && !done, dist[i]);
     }
-  */
+    return normal;
+  }
 };
 }
 } // End global namespace

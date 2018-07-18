@@ -1,5 +1,5 @@
 /// \file UnplacedTet.cpp
-/// \author Raman Sehgal (raman.sehgal@cern.ch)
+/// \author Raman Sehgal (raman.sehgal@cern.ch), Evgueni Tcherniaev (evgueni.tcherniaev@cern.ch)
 
 #include "volumes/UnplacedTet.h"
 #include "management/VolumeFactory.h"
@@ -18,9 +18,9 @@ UnplacedTet::UnplacedTet()
 }
 
 VECCORE_ATT_HOST_DEVICE
-UnplacedTet::UnplacedTet(const Vector3D<Precision> anchor, const Vector3D<Precision> p2, const Vector3D<Precision> p3,
-                         const Vector3D<Precision> p4)
-    : fTet(anchor, p2, p3, p4)
+UnplacedTet::UnplacedTet(const Vector3D<Precision> &p0, const Vector3D<Precision> &p1, const Vector3D<Precision> &p2,
+                         const Vector3D<Precision> &p3)
+    : fTet(p0, p1, p2, p3)
 {
   fGlobalConvexity = true;
 }
@@ -31,12 +31,16 @@ void UnplacedTet::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) c
   /* Returns the full 3D cartesian extent of the solid.
   ** TODO : Logic to calculate the extent of Tet and assign it to aMin and aMax
   */
-  aMin.Set(Min(Min(Min(fTet.fVertex[0].x(), fTet.fVertex[1].x()), fTet.fVertex[2].x()), fTet.fVertex[3].x()),
-           Min(Min(Min(fTet.fVertex[0].y(), fTet.fVertex[1].y()), fTet.fVertex[2].y()), fTet.fVertex[3].y()),
-           Min(Min(Min(fTet.fVertex[0].z(), fTet.fVertex[1].z()), fTet.fVertex[2].z()), fTet.fVertex[3].z()));
-  aMax.Set(Max(Max(Max(fTet.fVertex[0].x(), fTet.fVertex[1].x()), fTet.fVertex[2].x()), fTet.fVertex[3].x()),
-           Max(Max(Max(fTet.fVertex[0].y(), fTet.fVertex[1].y()), fTet.fVertex[2].y()), fTet.fVertex[3].y()),
-           Max(Max(Max(fTet.fVertex[0].z(), fTet.fVertex[1].z()), fTet.fVertex[2].z()), fTet.fVertex[3].z()));
+  aMin = aMax = fTet.fVertex[0];
+  for (int i = 1; i < 4; ++i) {
+    aMin.x() = Min(aMin.x(), fTet.fVertex[i].x());
+    aMin.y() = Min(aMin.y(), fTet.fVertex[i].y());
+    aMin.z() = Min(aMin.z(), fTet.fVertex[i].z());
+
+    aMax.x() = Max(aMax.x(), fTet.fVertex[i].x());
+    aMax.y() = Max(aMax.y(), fTet.fVertex[i].y());
+    aMax.z() = Max(aMax.z(), fTet.fVertex[i].z());
+  }
 }
 
 Vector3D<Precision> UnplacedTet::SamplePointOnSurface() const
@@ -84,64 +88,6 @@ Vector3D<Precision> UnplacedTet::SamplePointOnSurface() const
   return (1. - u - v) * fTet.fVertex[i0] + u * fTet.fVertex[i1] + v * fTet.fVertex[i2];
 }
 
-VECCORE_ATT_HOST_DEVICE
-bool UnplacedTet::Normal(Vector3D<Precision> const &p, Vector3D<Precision> &norm) const
-{
-  int nsurf = 0;
-  norm.Set(0., 0., 0.);
-
-  for (int i = 0; i < 4; ++i) {
-    Precision dist = fTet.fPlane[i].n.Dot(p) + fTet.fPlane[i].d;
-    if (vecCore::math::Abs(dist) > kHalfTolerance) continue;
-    ++nsurf;
-    norm += fTet.fPlane[i].n;
-  }
-
-  // Return normal
-  //
-  if (nsurf == 1)
-    return true;
-  else if (nsurf != 0) {
-    norm.Normalize();
-    return true; // edge or corner
-  } else {
-// Point is not on the surface
-//
-#ifdef G4CSGDEBUG
-    std::ostringstream message;
-    G4int oldprc = message.precision(16);
-    message << "Point p is not on surface (!?) of solid: " << GetName() << G4endl;
-    message << "Position:\n";
-    message << "   p.x() = " << p.x() / mm << " mm\n";
-    message << "   p.y() = " << p.y() / mm << " mm\n";
-    message << "   p.z() = " << p.z() / mm << " mm";
-    G4cout.precision(oldprc);
-    G4Exception("UnplacedTet::SurfaceNormal(p)", "GeomSolids1002", JustWarning, message);
-    DumpInfo();
-#endif
-    ApproxSurfaceNormal(p, norm);
-    return false;
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////+
-//
-//  Return normal of nearest side
-
-void UnplacedTet::ApproxSurfaceNormal(Vector3D<Precision> const &p, Vector3D<Precision> &norm) const
-{
-  Precision dist = -kInfLength;
-  int iside      = 0;
-  for (int i = 0; i < 4; ++i) {
-    Precision d = fTet.fPlane[i].n.Dot(p) + fTet.fPlane[i].d;
-    if (d > dist) {
-      dist  = d;
-      iside = i;
-    }
-  }
-  norm = fTet.fPlane[iside].n;
-}
-
 std::string UnplacedTet::GetEntityType() const
 {
   return "Tet\n";
@@ -151,12 +97,6 @@ VECCORE_ATT_HOST_DEVICE
 void UnplacedTet::GetParametersList(int, double *aArray) const
 {
   // TODO : Set the aArray elements
-}
-
-VECCORE_ATT_HOST_DEVICE
-UnplacedTet *UnplacedTet::Clone() const
-{
-  return new UnplacedTet(fTet.fVertex[0], fTet.fVertex[1], fTet.fVertex[2], fTet.fVertex[3]);
 }
 
 // VECCORE_ATT_HOST_DEVICE
@@ -240,19 +180,22 @@ VPlacedVolume *UnplacedTet::SpecializedVolume(LogicalVolume const *const volume,
 DevicePtr<cuda::VUnplacedVolume> UnplacedTet::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
 {
   // Copy vertices on GPU, then create the object
-  Precision *xv_gpu_ptr = AllocateOnGpu<Precision>(4 * sizeof(Precision));
-  Precision *yv_gpu_ptr = AllocateOnGpu<Precision>(4 * sizeof(Precision));
-  Precision *zv_gpu_ptr = AllocateOnGpu<Precision>(4 * sizeof(Precision));
 
-  vecgeom::CopyToGpu(fTet.fVerticesX, xv_gpu_ptr, 4 * sizeof(Precision));
-  vecgeom::CopyToGpu(fTet.fVerticesY, yv_gpu_ptr, 4 * sizeof(Precision));
-  vecgeom::CopyToGpu(fTet.fVerticesZ, zv_gpu_ptr, 4 * sizeof(Precision));
+  Precision *p0 = AllocateOnGpu<Precision>(3 * sizeof(Precision));
+  Precision *p1 = AllocateOnGpu<Precision>(3 * sizeof(Precision));
+  Precision *p2 = AllocateOnGpu<Precision>(3 * sizeof(Precision));
+  Precision *p3 = AllocateOnGpu<Precision>(3 * sizeof(Precision));
 
-  DevicePtr<cuda::VUnplacedVolume> gpugentet =
-      CopyToGpuImpl<UnplacedTet>(in_gpu_ptr, xv_gpu_ptr, yv_gpu_ptr, zv_gpu_ptr);
-  FreeFromGpu(xv_gpu_ptr);
-  FreeFromGpu(yv_gpu_ptr);
-  FreeFromGpu(zv_gpu_ptr);
+  vecgeom::CopyToGpu(&fTet.fVertex[0].x(), p0, 3 * sizeof(Precision));
+  vecgeom::CopyToGpu(&fTet.fVertex[1].x(), p1, 3 * sizeof(Precision));
+  vecgeom::CopyToGpu(&fTet.fVertex[2].x(), p2, 3 * sizeof(Precision));
+  vecgeom::CopyToGpu(&fTet.fVertex[3].x(), p3, 3 * sizeof(Precision));
+
+  DevicePtr<cuda::VUnplacedVolume> gpugentet = CopyToGpuImpl<UnplacedTet>(in_gpu_ptr, p0, p1, p2, p3);
+  FreeFromGpu(p0);
+  FreeFromGpu(p1);
+  FreeFromGpu(p2);
+  FreeFromGpu(p3);
 
   return gpugentet;
 }
@@ -271,7 +214,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedTet::CopyToGpu() const
 namespace cxx {
 
 template size_t DevicePtr<cuda::UnplacedTet>::SizeOf();
-template void DevicePtr<cuda::UnplacedTet>::Construct(Precision *, Precision *, Precision *) const;
+template void DevicePtr<cuda::UnplacedTet>::Construct(Precision *, Precision *, Precision *, Precision *) const;
 
 } // End cxx namespace
 
