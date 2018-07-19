@@ -101,7 +101,8 @@ struct TetImplementation {
 
     Real_v dist[4];
     for (int i = 0; i < 4; ++i) {
-      dist[i] = tet.fPlane[i].n.Dot(localPoint) + tet.fPlane[i].d;
+      Vector3D<Real_v> n = tet.fPlane[i].n;
+      dist[i]            = n.Dot(localPoint) + tet.fPlane[i].d;
     }
     Real_v safety = vecCore::math::Max(vecCore::math::Max(vecCore::math::Max(dist[0], dist[1]), dist[2]), dist[3]);
 
@@ -176,7 +177,8 @@ struct TetImplementation {
 
     Real_v dist[4];
     for (int i = 0; i < 4; ++i) {
-      dist[i] = tet.fPlane[i].n.Dot(point) + tet.fPlane[i].d;
+      Vector3D<Real_v> n = tet.fPlane[i].n;
+      dist[i]            = n.Dot(point) + tet.fPlane[i].d;
     }
     safety = vecCore::math::Max(vecCore::math::Max(vecCore::math::Max(dist[0], dist[1]), dist[2]), dist[3]);
     vecCore::MaskedAssign(safety, vecCore::math::Abs(safety) <= kHalfTolerance, Real_v(0.));
@@ -191,7 +193,8 @@ struct TetImplementation {
 
     Real_v dist[4];
     for (int i = 0; i < 4; ++i) {
-      dist[i] = tet.fPlane[i].n.Dot(point) + tet.fPlane[i].d;
+      Vector3D<Real_v> n = tet.fPlane[i].n;
+      dist[i]            = n.Dot(point) + tet.fPlane[i].d;
     }
     safety = -vecCore::math::Max(vecCore::math::Max(vecCore::math::Max(dist[0], dist[1]), dist[2]), dist[3]);
     vecCore::MaskedAssign(safety, vecCore::math::Abs(safety) <= kHalfTolerance, Real_v(0.));
@@ -208,7 +211,8 @@ struct TetImplementation {
 
     Real_v dist[4];
     for (int i = 0; i < 4; ++i) {
-      dist[i] = tet.fPlane[i].n.Dot(point) + tet.fPlane[i].d;
+      Vector3D<Real_v> n = tet.fPlane[i].n;
+      dist[i]            = n.Dot(point) + tet.fPlane[i].d;
       vecCore__MaskedAssignFunc(normal, vecCore::math::Abs(dist[i]) <= kHalfTolerance, normal + tet.fPlane[i].n)
     }
 
