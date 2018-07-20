@@ -102,13 +102,13 @@ auto positionMap       = std::map<std::string, vecgeom::VECGEOM_IMPL_NAMESPACE::
 auto rotationMap       = std::map<std::string, vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double>>{};
 
 template <typename T = std::string>
-T GetAttribute(std::string attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes)
+T GetAttribute(std::string const& attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes)
 {
   return vgdml::Helper::GetAttribute<T>(attrName, theAttributes);
 }
 
 template <>
-double GetAttribute(std::string attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes)
+double GetAttribute(std::string const& attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes)
 {
   auto const simpleDouble = vgdml::Helper::GetAttribute<double>(attrName, theAttributes);
   if (std::isnan(simpleDouble)) {
@@ -144,9 +144,9 @@ namespace vgdml {
 extern template std::string Helper::Transcode(const XMLCh *const anXMLstring);
 extern template double Helper::Transcode(const XMLCh *const anXMLstring);
 extern template int Helper::Transcode(const XMLCh *const anXMLstring);
-extern template std::string Helper::GetAttribute(std::string attrName,
+extern template std::string Helper::GetAttribute(std::string const& attrName,
                                                  XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
-extern template double Helper::GetAttribute(std::string attrName,
+extern template double Helper::GetAttribute(std::string const& attrName,
                                             XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
 
 bool Middleware::Load(XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument const *aDOMDocument)
