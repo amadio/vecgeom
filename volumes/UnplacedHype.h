@@ -38,10 +38,11 @@ namespace vecgeom {
 
 VECGEOM_DEVICE_FORWARD_DECLARE(class UnplacedHype;);
 VECGEOM_DEVICE_DECLARE_CONV(class, UnplacedHype);
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE(class, SUnplacedHype, typename);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class UnplacedHype : public SIMDUnplacedVolumeImplHelper<HypeImplementation>, public AlignedBase {
+class UnplacedHype : public VUnplacedVolume {
 
 private:
   HypeStruct<Precision> fHype;
@@ -267,14 +268,39 @@ public:
 
   virtual void Print(std::ostream &os) const override;
 
-  VECCORE_ATT_DEVICE
-  virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
-                                           Transformation3D const *const transformation,
-                                           const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECCORE_CUDA
-                                           const int id,
+#ifdef VECGEOM_CUDA_INTERFACE
+  virtual size_t DeviceSizeOf() const override
+  {
+    return DevicePtr<cuda::SUnplacedHype<cuda::HypeTypes::UniversalHype>>::SizeOf();
+  }
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
+  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
 #endif
-                                           VPlacedVolume *const placement = NULL) const final;
+
+#ifndef VECCORE_CUDA
+#ifdef VECGEOM_ROOT
+  TGeoShape const *ConvertToRoot(char const *label) const;
+#endif
+
+#ifdef VECGEOM_GEANT4
+  G4VSolid const *ConvertToGeant4(char const *label) const;
+#endif
+#endif
+};
+
+template <>
+struct Maker<UnplacedHype> {
+  template <typename... ArgTypes>
+  static UnplacedHype *MakeInstance(const Precision rMin, const Precision rMax, const Precision stIn,
+                                    const Precision stOut, const Precision dz);
+};
+
+template <typename HypeType = HypeTypes::UniversalHype>
+class SUnplacedHype : public SIMDUnplacedVolumeImplHelper<HypeImplementation<HypeType>, UnplacedHype>,
+                      public AlignedBase {
+public:
+  using BaseType_t = SIMDUnplacedVolumeImplHelper<HypeImplementation<HypeType>, UnplacedHype>;
+  using BaseType_t::BaseType_t;
 
   template <TranslationCode transCodeT, RotationCode rotCodeT>
   VECCORE_ATT_DEVICE
@@ -284,13 +310,33 @@ public:
 #endif
                                VPlacedVolume *const placement = NULL);
 
-#ifdef VECGEOM_CUDA_INTERFACE
-  virtual size_t DeviceSizeOf() const override { return DevicePtr<cuda::UnplacedHype>::SizeOf(); }
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu() const override;
-  virtual DevicePtr<cuda::VUnplacedVolume> CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const gpu_ptr) const override;
+private:
+#ifndef VECCORE_CUDA
+  virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
+                                           Transformation3D const *const transformation,
+                                           const TranslationCode trans_code, const RotationCode rot_code,
+                                           VPlacedVolume *const placement = NULL) const override
+  {
+    return VolumeFactory::CreateByTransformation<SUnplacedHype<HypeType>>(volume, transformation, trans_code, rot_code,
+                                                                          placement);
+  }
+
+#else
+  VECCORE_ATT_DEVICE
+  virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
+                                           Transformation3D const *const transformation,
+                                           const TranslationCode trans_code, const RotationCode rot_code, const int id,
+                                           VPlacedVolume *const placement = NULL) const override
+  {
+    return VolumeFactory::CreateByTransformation<SUnplacedHype<HypeType>>(volume, transformation, trans_code, rot_code,
+                                                                          id, placement);
+  }
 #endif
 };
-}
-} // End global namespace
+
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
+
+#include "volumes/SpecializedHype.h"
 
 #endif // VECGEOM_VOLUMES_UNPLACEDHYPE_H_

@@ -2,6 +2,7 @@
 /// \author Marilena Bandieramonte (marilena.bandieramonte@cern.ch)
 
 #include "volumes/PlacedHype.h"
+#include "volumes/SpecializedHype.h"
 #include "volumes/Hype.h"
 #include "base/Global.h"
 
@@ -21,32 +22,34 @@ inline namespace VECGEOM_IMPL_NAMESPACE {
 
 VPlacedVolume const *PlacedHype::ConvertToUnspecialized() const
 {
-  std::cout << "Convert VEC*********\n";
   return new SimpleHype(GetLabel().c_str(), GetLogicalVolume(), GetTransformation());
 }
 
 #ifdef VECGEOM_ROOT
 TGeoShape const *PlacedHype::ConvertToRoot() const
 {
-  std::cout << "Convert ROOT*********\n";
-  return new TGeoHype(GetLabel().c_str(), GetRmin(), GetStIn() * kRadToDeg, GetRmax(), GetStOut() * kRadToDeg, GetDz());
+  return GetUnplacedVolume()->ConvertToRoot(GetName());
 }
 #endif
 
 #ifdef VECGEOM_GEANT4
 G4VSolid const *PlacedHype::ConvertToGeant4() const
 {
-  return new G4Hype(GetLabel().c_str(), GetRmin(), GetRmax(), GetStIn(), GetStOut(), GetDz());
+  return GetUnplacedVolume()->ConvertToGeant4(GetName());
 }
 #endif
 
 #endif // VECGEOM_BENCHMARK
 
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
+VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_3(SpecializedHype, HypeTypes::UniversalHype)
 
-VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC(SpecializedHype)
+#ifndef VECGEOM_NO_SPECIALIZATION
+VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_3(SpecializedHype, HypeTypes::NonHollowHype)
+VECGEOM_DEVICE_INST_PLACED_VOLUME_ALLSPEC_3(SpecializedHype, HypeTypes::HollowHype)
+#endif
 
 #endif // VECCORE_CUDA
 } // End namespace vecgeom

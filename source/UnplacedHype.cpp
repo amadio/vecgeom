@@ -5,15 +5,80 @@
 
 #include "management/VolumeFactory.h"
 #include "volumes/SpecializedHype.h"
-//#include "volumes/kernel/shapetypes/HypeTypes.h"
 #include "volumes/utilities/GenerationUtilities.h"
+
+#ifdef VECGEOM_ROOT
+#include "TGeoHype.h"
+#endif
+
+#ifdef VECGEOM_GEANT4
+#include "G4Hype.hh"
+#endif
+
+#ifndef VECCORE_CUDA
+#include "volumes/UnplacedImplAs.h"
+#endif
 
 #include <stdio.h>
 #include "base/RNG.h"
 #include "base/Global.h"
 
+#ifndef VECGEOM_NO_SPECIALIZATION
+#include "volumes/UnplacedTube.h"
+#endif
+
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
+
+template <>
+UnplacedHype *Maker<UnplacedHype>::MakeInstance(const Precision rMin, const Precision rMax, const Precision stIn,
+                                                const Precision stOut, const Precision dz)
+{
+#ifndef VECGEOM_NO_SPECIALIZATION
+#ifndef VECCORE_CUDA
+  if (rMin <= 0) {
+    // Solid Hype
+    if ((stIn <= 0.) && (stOut > 0.)) {
+      return new SUnplacedHype<HypeTypes::NonHollowHype>(0., rMax, 0., stOut, dz);
+    }
+
+    // Hype becomes solid Tube with outer radius equals rMax
+    if ((stIn <= 0.) && (stOut <= 0.)) {
+      return new SUnplacedImplAs<SUnplacedHype<HypeTypes::NonHollowHype>, SUnplacedTube<TubeTypes::NonHollowTube>>(
+          0., rMax, dz, 0., 2 * kPi);
+    }
+  } else if (rMin > 0) {
+
+    // Hype becomes hollow Tube with inner radius equals rMin and outer radius equals rMax
+    if ((stIn <= 0.) && (stOut <= 0.)) {
+      return new SUnplacedImplAs<SUnplacedHype<HypeTypes::HollowHype>, SUnplacedTube<TubeTypes::HollowTube>>(
+          rMin, rMax, dz, 0., 2 * kPi);
+    }
+    if ((stIn > 0.) || (stOut > 0.)) {
+      return new SUnplacedHype<HypeTypes::HollowHype>(rMin, rMax, stIn, stOut, dz);
+    }
+  }
+  return new SUnplacedHype<HypeTypes::UniversalHype>(rMin, rMax, stIn, stOut, dz);
+#endif
+#endif
+  return new SUnplacedHype<HypeTypes::UniversalHype>(rMin, rMax, stIn, stOut, dz);
+}
+
+#ifndef VECCORE_CUDA
+#ifdef VECGEOM_ROOT
+TGeoShape const *UnplacedHype::ConvertToRoot(char const *label) const
+{
+  return new TGeoHype(label, GetRmin(), GetStIn() * kRadToDeg, GetRmax(), GetStOut() * kRadToDeg, GetDz());
+}
+#endif
+
+#ifdef VECGEOM_GEANT4
+G4VSolid const *UnplacedHype::ConvertToGeant4(char const *label) const
+{
+  return new G4Hype(label, GetRmin(), GetRmax(), GetStIn(), GetStOut(), GetDz());
+}
+#endif
+#endif
 
 VECCORE_ATT_HOST_DEVICE
 void UnplacedHype::DetectConvexity()
@@ -140,7 +205,7 @@ void UnplacedHype::GetParametersList(int, double *aArray) const
 VECCORE_ATT_HOST_DEVICE
 UnplacedHype *UnplacedHype::Clone() const
 {
-  return new UnplacedHype(fHype.fRmin, fHype.fStIn, fHype.fRmax, fHype.fStOut, fHype.fDz);
+  return new SUnplacedHype<HypeTypes::UniversalHype>(fHype.fRmin, fHype.fStIn, fHype.fRmax, fHype.fStOut, fHype.fDz);
 }
 
 std::ostream &UnplacedHype::StreamInfo(std::ostream &os) const
@@ -176,102 +241,30 @@ void UnplacedHype::Print(std::ostream &os) const
      << fHype.fDz << "}";
 }
 
-VECCORE_ATT_DEVICE
-VPlacedVolume *UnplacedHype::SpecializedVolume(LogicalVolume const *const volume,
-                                               Transformation3D const *const transformation,
-                                               const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECCORE_CUDA
-                                               const int id,
-#endif
-                                               VPlacedVolume *const placement) const
-{
-
-  return VolumeFactory::CreateByTransformation<UnplacedHype>(volume, transformation, trans_code, rot_code,
-#ifdef VECCORE_CUDA
-                                                             id,
-#endif
-                                                             placement);
-}
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-VECCORE_ATT_DEVICE
-VPlacedVolume *UnplacedHype::Create(LogicalVolume const *const logical_volume,
-                                    Transformation3D const *const transformation,
-#ifdef VECCORE_CUDA
-                                    const int id,
-#endif
-                                    VPlacedVolume *const placement)
-{
-  if (placement) {
-#ifdef VECCORE_CUDA
-    new (placement) SpecializedHype<transCodeT, rotCodeT>(logical_volume, transformation, id);
-#else
-    new (placement) SpecializedHype<transCodeT, rotCodeT>(logical_volume, transformation);
-    return placement;
-#endif
-  }
-
-#ifdef VECCORE_CUDA
-  return new SpecializedHype<transCodeT, rotCodeT>(logical_volume, transformation, id);
-#else
-  return new SpecializedHype<transCodeT, rotCodeT>(logical_volume, transformation);
-#endif
-}
-
-/*
-#ifndef VECCORE_CUDA
-template <TranslationCode trans_code, RotationCode rot_code>
-VPlacedVolume *UnplacedHype::Create(LogicalVolume const *const logical_volume,
-                                   Transformation3D const *const transformation, VPlacedVolume *const placement)
-{
-  if (placement) {
-    new (placement) SpecializedHype<trans_code, rot_code>(logical_volume, transformation);
-    return placement;
-  }
-  return new SpecializedHype<trans_code, rot_code>(logical_volume, transformation);
-}
-#else
-
-template <TranslationCode trans_code, RotationCode rot_code>
-VECCORE_ATT_DEVICE
-VPlacedVolume *UnplacedHype::Create(LogicalVolume const *const logical_volume,
-                                   Transformation3D const *const transformation, const int id,
-                                   VPlacedVolume *const placement)
-{
-  if (placement) {
-    new (placement) SpecializedHype<trans_code, rot_code>(logical_volume, transformation, id);
-    return placement;
-  }
-  return new SpecializedHype<trans_code, rot_code>(logical_volume, transformation, id);
-}
-
-#endif
-*/
-
 #ifdef VECGEOM_CUDA_INTERFACE
 DevicePtr<cuda::VUnplacedVolume> UnplacedHype::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
 {
-  return CopyToGpuImpl<UnplacedHype>(in_gpu_ptr, fHype.fRmin, fHype.fRmax, fHype.fStIn, fHype.fStOut, fHype.fDz);
+  return CopyToGpuImpl<SUnplacedHype<HypeTypes::UniversalHype>>(in_gpu_ptr, fHype.fRmin, fHype.fRmax, fHype.fStIn,
+                                                                fHype.fStOut, fHype.fDz);
 }
 
 DevicePtr<cuda::VUnplacedVolume> UnplacedHype::CopyToGpu() const
 {
-  return CopyToGpuImpl<UnplacedHype>();
+  return CopyToGpuImpl<SUnplacedHype<HypeTypes::UniversalHype>>();
 }
-
 #endif // VECGEOM_CUDA_INTERFACE
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
 namespace cxx {
 
-template size_t DevicePtr<cuda::UnplacedHype>::SizeOf();
-template void DevicePtr<cuda::UnplacedHype>::Construct(const Precision rmin, const Precision rmax, const Precision stIn,
-                                                       const Precision stOut, const Precision z) const;
+template size_t DevicePtr<cuda::SUnplacedHype<cuda::HypeTypes::UniversalHype>>::SizeOf();
+template void DevicePtr<cuda::SUnplacedHype<cuda::HypeTypes::UniversalHype>>::Construct(
+    const Precision rmin, const Precision rmax, const Precision stIn, const Precision stOut, const Precision z) const;
 
-} // End cxx namespace
+} // namespace cxx
 
 #endif
-} // End global namespace
+} // namespace vecgeom

@@ -20,6 +20,7 @@
 #include "volumes/kernel/GenericKernels.h"
 #include <VecCore/VecCore>
 #include "volumes/HypeUtilities.h"
+#include "volumes/kernel/shapetypes/HypeTypes.h"
 
 // different SafetyToIn implementations
 //#define ACCURATE_BB
@@ -27,23 +28,24 @@
 
 namespace vecgeom {
 
-// VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE_2v(struct, HypeImplementation, TranslationCode, translation::kGeneric,
-//                                        RotationCode, rotation::kGeneric);
-VECGEOM_DEVICE_FORWARD_DECLARE(struct HypeImplementation;);
-VECGEOM_DEVICE_DECLARE_CONV(struct, HypeImplementation);
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE(struct, HypeImplementation, typename);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class PlacedHype;
 template <typename T>
 struct HypeStruct;
-class UnplacedHype;
 
+template <typename T>
+class SPlacedHype;
+template <typename T>
+class SUnplacedHype;
+
+template <typename hypeTypeT>
 struct HypeImplementation {
 
-  using PlacedShape_t    = PlacedHype;
   using UnplacedStruct_t = HypeStruct<double>;
-  using UnplacedVolume_t = UnplacedHype;
+  using UnplacedVolume_t = SUnplacedHype<hypeTypeT>;
+  using PlacedShape_t    = SPlacedHype<UnplacedVolume_t>;
 
   VECCORE_ATT_HOST_DEVICE
   static void PrintType()
@@ -102,6 +104,7 @@ struct HypeImplementation {
   static void GenericKernelForContainsAndInside(UnplacedStruct_t const &hype, Vector3D<Real_v> const &point,
                                                 Bool_v &completelyinside, Bool_v &completelyoutside)
   {
+    using namespace ::vecgeom::HypeTypes;
     Real_v r2    = point.Perp2();
     Real_v oRad2 = (hype.fRmax2 + hype.fTOut2 * point.z() * point.z());
     Real_v iRad2(0.);
@@ -110,7 +113,7 @@ struct HypeImplementation {
     if (vecCore::MaskFull(completelyoutside)) return;
     completelyoutside |= (r2 > oRad2 + hype.outerRadToleranceLevel);
     if (vecCore::MaskFull(completelyoutside)) return;
-    if (hype.InnerSurfaceExists()) {
+    if (checkInnerSurfaceTreatment<hypeTypeT>(hype)) {
       iRad2 = (hype.fRmin2 + hype.fTIn2 * point.z() * point.z());
       completelyoutside |= (r2 < (iRad2 - hype.innerRadToleranceLevel));
     }
@@ -120,7 +123,7 @@ struct HypeImplementation {
       completelyinside =
           (Abs(point.z()) < (hype.fDz - hype.zToleranceLevel)) && (r2 < oRad2 - hype.outerRadToleranceLevel);
 
-      if (hype.InnerSurfaceExists()) completelyinside &= (r2 > (iRad2 + hype.innerRadToleranceLevel));
+      if (checkInnerSurfaceTreatment<hypeTypeT>(hype)) completelyinside &= (r2 > (iRad2 + hype.innerRadToleranceLevel));
     }
   }
 
@@ -130,7 +133,7 @@ struct HypeImplementation {
   static void DistanceToIn(UnplacedStruct_t const &hype, Vector3D<Real_v> const &point,
                            Vector3D<Real_v> const &direction, Real_v const & /*stepMax*/, Real_v &distance)
   {
-
+    using namespace ::vecgeom::HypeTypes;
     using Bool_v = vecCore::Mask_v<Real_v>;
     Real_v absZ  = Abs(point.z());
     distance     = kInfLength;
@@ -140,18 +143,19 @@ struct HypeImplementation {
     Bool_v done(false);
     Bool_v cond(false);
 
-    Bool_v surfaceCond = HypeUtilities::IsPointOnSurfaceAndMovingInside<Real_v>(hype, point, direction);
+    Bool_v surfaceCond = HypeUtilities::IsPointOnSurfaceAndMovingInside<Real_v, hypeTypeT>(hype, point, direction);
     vecCore__MaskedAssignFunc(distance, !done && surfaceCond, Real_v(0.0));
     done |= surfaceCond;
     if (vecCore::MaskFull(done)) return;
 
-    cond = HypeUtilities::IsCompletelyInside<Real_v>(hype, point);
+    cond = HypeUtilities::IsCompletelyInside<Real_v, hypeTypeT>(hype, point);
     vecCore__MaskedAssignFunc(distance, !done && cond, Real_v(-1.0));
     done |= cond;
     if (vecCore::MaskFull(done)) return;
 
     // checking whether point hits the Z Surface of hyperboloid
-    Bool_v hittingZPlane = HypeUtilities::GetPointOfIntersectionWithZPlane<Real_v, true>(hype, point, direction, zDist);
+    Bool_v hittingZPlane =
+        HypeUtilities::GetPointOfIntersectionWithZPlane<Real_v, hypeTypeT, true>(hype, point, direction, zDist);
     Bool_v isPointAboveOrBelowHypeAndGoingInside = (absZ > hype.fDz) && (point.z() * direction.z() < 0.);
     cond                                         = isPointAboveOrBelowHypeAndGoingInside && hittingZPlane;
     vecCore::MaskedAssign(distance, !done && cond, zDist);
@@ -172,7 +176,7 @@ struct HypeImplementation {
            HypeHelpers<Real_v, true, false>::GetPointOfIntersectionWithHyperbolicSurface(hype, point, direction, dist);
     vecCore::MaskedAssign(distance, !done && cond, dist);
 
-    if (hype.InnerSurfaceExists()) {
+    if (checkInnerSurfaceTreatment<hypeTypeT>(hype)) {
       done |= cond;
       if (vecCore::MaskFull(done)) return;
       Bool_v hittingInnerSurfaceFromOutsideZRange =
@@ -184,7 +188,7 @@ struct HypeImplementation {
       // Or if the point is on the inner Hyperbolic surface but going out then the distance will be the distance to
       // opposite inner hyperbolic surface.
       cond = (hittingInnerSurfaceFromOutsideZRange || hittingInnerSurfaceFromWithinZRange ||
-              (HypeUtilities::IsPointOnInnerSurfaceAndMovingOutside<Real_v>(hype, point, direction))) &&
+              (HypeUtilities::IsPointOnInnerSurfaceAndMovingOutside<Real_v, hypeTypeT>(hype, point, direction))) &&
              HypeHelpers<Real_v, true, true>::GetPointOfIntersectionWithHyperbolicSurface(hype, point, direction, dist);
       vecCore::MaskedAssign(distance, !done && cond, dist);
     }
@@ -196,30 +200,31 @@ struct HypeImplementation {
   static void DistanceToOut(UnplacedStruct_t const &hype, Vector3D<Real_v> const &point,
                             Vector3D<Real_v> const &direction, Real_v const & /* stepMax */, Real_v &distance)
   {
+    using namespace ::vecgeom::HypeTypes;
     using Bool_v = typename vecCore::Mask_v<Real_v>;
     distance     = kInfLength;
     Real_v zDist(kInfLength), dist(kInfLength);
 
     Bool_v done(false);
 
-    Bool_v cond = HypeUtilities::IsPointOnSurfaceAndMovingOutside<Real_v>(hype, point, direction);
+    Bool_v cond = HypeUtilities::IsPointOnSurfaceAndMovingOutside<Real_v, hypeTypeT>(hype, point, direction);
     vecCore__MaskedAssignFunc(distance, cond, Real_v(0.0));
     done |= cond;
     if (vecCore::MaskFull(done)) return;
 
-    cond = HypeUtilities::IsCompletelyOutside<Real_v>(hype, point);
+    cond = HypeUtilities::IsCompletelyOutside<Real_v, hypeTypeT>(hype, point);
     vecCore__MaskedAssignFunc(distance, !done && cond, Real_v(-1.0));
     done |= cond;
     if (vecCore::MaskFull(done)) return;
 
-    HypeUtilities::GetPointOfIntersectionWithZPlane<Real_v, false>(hype, point, direction, zDist);
+    HypeUtilities::GetPointOfIntersectionWithZPlane<Real_v, hypeTypeT, false>(hype, point, direction, zDist);
     vecCore__MaskedAssignFunc(zDist, zDist < 0.0, InfinityLength<Real_v>());
 
     HypeHelpers<Real_v, false, false>::GetPointOfIntersectionWithHyperbolicSurface(hype, point, direction, dist);
     vecCore__MaskedAssignFunc(dist, dist < 0.0, InfinityLength<Real_v>());
     vecCore__MaskedAssignFunc(distance, !done, Min(zDist, dist));
 
-    if (hype.InnerSurfaceExists()) {
+    if (checkInnerSurfaceTreatment<hypeTypeT>(hype)) {
       HypeHelpers<Real_v, false, true>::GetPointOfIntersectionWithHyperbolicSurface(hype, point, direction, dist);
       vecCore__MaskedAssignFunc(dist, dist < 0.0, InfinityLength<Real_v>());
       vecCore__MaskedAssignFunc(distance, !done, Min(distance, dist));
@@ -276,8 +281,9 @@ struct HypeImplementation {
     done |= cond;
     if (vecCore::MaskFull(done)) return;
 
-    vecCore__MaskedAssignFunc(safety, !done && (r2 < ((hype.fRmin2 + hype.fTIn2 * absZ * absZ) - kHalfTolerance)) &&
-                                          (absZ > 0.) && (absZ < hype.fDz),
+    vecCore__MaskedAssignFunc(safety,
+                              !done && (r2 < ((hype.fRmin2 + hype.fTIn2 * absZ * absZ) - kHalfTolerance)) &&
+                                  (absZ > 0.) && (absZ < hype.fDz),
                               HypeUtilities::ApproxDistInside<Real_v>(r, absZ, hype.fRmin, hype.fTIn2));
   }
 
@@ -285,7 +291,7 @@ struct HypeImplementation {
   VECCORE_ATT_HOST_DEVICE
   static void SafetyToOut(UnplacedStruct_t const &hype, Vector3D<Real_v> const &point, Real_v &safety)
   {
-
+    using namespace ::vecgeom::HypeTypes;
     using Bool_v = typename vecCore::Mask_v<Real_v>;
     safety       = 0.;
     Real_v r     = Sqrt(point.x() * point.x() + point.y() * point.y());
@@ -304,16 +310,16 @@ struct HypeImplementation {
     if (vecCore::MaskFull(done)) return;
 
     vecCore__MaskedAssignFunc(distZ, !done && inside, Abs(Abs(point.z()) - hype.fDz));
-    if (hype.InnerSurfaceExists() && hype.fStIn) {
+    if (checkInnerSurfaceTreatment<hypeTypeT>(hype) && hype.fStIn) {
       vecCore__MaskedAssignFunc(distInner, !done && inside,
                                 HypeUtilities::ApproxDistOutside<Real_v>(r, absZ, hype.fRmin, hype.fTIn));
     }
 
-    if (hype.InnerSurfaceExists() && !hype.fStIn) {
+    if (checkInnerSurfaceTreatment<hypeTypeT>(hype) && !hype.fStIn) {
       vecCore__MaskedAssignFunc(distInner, !done && inside, (r - hype.fRmin));
     }
 
-    if (!hype.InnerSurfaceExists() && !hype.fStIn) {
+    if (!checkInnerSurfaceTreatment<hypeTypeT>(hype) && !hype.fStIn) {
       vecCore__MaskedAssignFunc(distInner, !done && inside, InfinityLength<Real_v>());
     }
 
@@ -323,7 +329,7 @@ struct HypeImplementation {
     safety = Min(safety, distZ);
   }
 };
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_KERNEL_HYPEIMPLEMENTATION_H_

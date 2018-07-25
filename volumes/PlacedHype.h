@@ -21,16 +21,15 @@ VECGEOM_DEVICE_FORWARD_DECLARE(class PlacedHype;);
 VECGEOM_DEVICE_DECLARE_CONV(class, PlacedHype);
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class PlacedHype : public PlacedVolumeImplHelper<UnplacedHype, VPlacedVolume> {
-  using Base = PlacedVolumeImplHelper<UnplacedHype, VPlacedVolume>;
+class PlacedHype : public VPlacedVolume {
 
 public:
+  using VPlacedVolume::VPlacedVolume;
 #ifndef VECCORE_CUDA
-  // constructor inheritance;
-  using Base::Base;
+
   PlacedHype(char const *const label, LogicalVolume const *const logicalVolume,
              Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
-      : Base(label, logicalVolume, transformation, boundingBox)
+      : VPlacedVolume(label, logicalVolume, transformation, boundingBox)
   {
   }
 
@@ -42,7 +41,7 @@ public:
 #else
   VECCORE_ATT_DEVICE PlacedHype(LogicalVolume const *const logicalVolume, Transformation3D const *const transformation,
                                 PlacedBox const *const boundingBox, const int id)
-      : Base(logicalVolume, transformation, boundingBox, id)
+      : VPlacedVolume(logicalVolume, transformation, boundingBox, id)
   {
   }
 #endif
@@ -192,15 +191,27 @@ public:
 
 #ifndef VECCORE_CUDA
   virtual VPlacedVolume const *ConvertToUnspecialized() const override;
+
 #ifdef VECGEOM_ROOT
   virtual TGeoShape const *ConvertToRoot() const override;
 #endif
 #ifdef VECGEOM_GEANT4
   virtual G4VSolid const *ConvertToGeant4() const override;
 #endif
+
 #endif // VECCORE_CUDA
 };
-}
-} // End global namespace
+
+template <typename UnplacedHype_t>
+class SPlacedHype : public PlacedVolumeImplHelper<UnplacedHype_t, PlacedHype> {
+  using Base = PlacedVolumeImplHelper<UnplacedHype_t, PlacedHype>;
+
+public:
+  typedef UnplacedHype UnplacedShape_t;
+  using Base::Base;
+};
+
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_PLACEDHYPE_H_

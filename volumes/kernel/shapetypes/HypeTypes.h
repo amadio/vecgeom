@@ -10,6 +10,15 @@
 #include <string>
 
 namespace vecgeom {
+
+VECGEOM_DEVICE_DECLARE_NS_CONV(HypeTypes, struct, UniversalHype, UniversalHype);
+
+#ifndef VECGEOM_NO_SPECIALIZATION
+VECGEOM_DEVICE_DECLARE_NS_CONV(HypeTypes, struct, NonHollowHype, UniversalHype);
+VECGEOM_DEVICE_DECLARE_NS_CONV(HypeTypes, struct, HollowHype, UniversalHype);
+#endif
+
+inline namespace VECGEOM_IMPL_NAMESPACE {
 namespace HypeTypes {
 
 #define DEFINE_HYPE_TYPE(name)                      \
@@ -48,17 +57,20 @@ struct NeedsRminTreatment<UniversalHype> {
   static const ETreatmentType value = kUnknown;
 };
 
-template <typename T>
+template <typename T, typename UnplacedHype>
 VECGEOM_FORCE_INLINE
 VECCORE_ATT_HOST_DEVICE
-bool checkRminTreatment(const UnplacedHype &hype)
+bool checkInnerSurfaceTreatment(const UnplacedHype &hype)
 {
+
   if (NeedsRminTreatment<T>::value != kUnknown)
     return NeedsRminTreatment<T>::value == kYes;
   else
-    return hype.GetRmin() > 0;
+    return hype.InnerSurfaceExists();
 }
-}
-}
+
+} // namespace HypeTypes
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_KERNEL_SHAPETYPES_HYPETYPES_H_

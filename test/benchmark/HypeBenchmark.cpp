@@ -24,18 +24,17 @@ int main(int argc, char *argv[])
   OPTION_DOUBLE(dz, 50);
 
   UnplacedBox worldUnplaced = UnplacedBox(rmax * 4, rmax * 4, dz * 4);
-  UnplacedHype hypeUnplaced = UnplacedHype(rmin, rmax, sin, sout, dz);
+  auto hypeUnplaced         = GeoManager::MakeInstance<UnplacedHype>(rmin, rmax, sin, sout, dz);
   LogicalVolume world("w0rld", &worldUnplaced);
-  LogicalVolume hype("p4r4", &hypeUnplaced);
+  LogicalVolume hype("p4r4", hypeUnplaced);
   Transformation3D placement = Transformation3D(5, 5, 5);
   // world.PlaceDaughter(&hype, &placement);
   world.PlaceDaughter(&hype, &Transformation3D::kIdentity);
-
   VPlacedVolume *worldPlaced = world.Place();
   GeoManager::Instance().SetWorldAndClose(worldPlaced);
   Benchmarker tester(GeoManager::Instance().GetWorld());
   // tester.SetTolerance(1e-5);
-  tester.SetVerbosity(3);
+  tester.SetVerbosity(1);
   tester.SetPoolMultiplier(1);
   tester.SetPointCount(npoints);
   tester.SetRepetitions(nrep);

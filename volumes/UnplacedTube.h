@@ -163,6 +163,7 @@ template <typename TubeType = TubeTypes::UniversalTube>
 class SUnplacedTube : public SIMDUnplacedVolumeImplHelper<TubeImplementation<TubeType>, UnplacedTube>,
                       public AlignedBase {
 public:
+  using Kernel     = TubeImplementation<TubeType>;
   using BaseType_t = SIMDUnplacedVolumeImplHelper<TubeImplementation<TubeType>, UnplacedTube>;
   using BaseType_t::BaseType_t;
 
@@ -174,7 +175,6 @@ public:
 #endif
                                VPlacedVolume *const placement = NULL);
 
-private:
 #ifndef VECCORE_CUDA
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
@@ -200,8 +200,8 @@ private:
 
 using GenericUnplacedTube = SUnplacedTube<TubeTypes::UniversalTube>;
 
-} // end inline namespace
-} // end vecgeom namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 // we include this header here because SpecializedTube
 // implements the Create function of SUnplacedTube<> (and to avoid a circular dependency)

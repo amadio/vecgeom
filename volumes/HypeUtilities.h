@@ -12,6 +12,7 @@
 #include "volumes/Wedge_Evolution.h"
 #include "base/Vector3D.h"
 #include "volumes/kernel/GenericKernels.h"
+#include "volumes/kernel/shapetypes/HypeTypes.h"
 #include <cstdio>
 
 namespace vecgeom {
@@ -24,11 +25,11 @@ struct HypeStruct;
 
 namespace HypeUtilities {
 using UnplacedStruct_t = HypeStruct<double>;
-template <typename Real_v>
+template <typename Real_v, typename hypeType>
 VECCORE_ATT_HOST_DEVICE
 typename vecCore::Mask_v<Real_v> IsCompletelyOutside(UnplacedStruct_t const &hype, Vector3D<Real_v> const &point)
 {
-
+  using namespace ::vecgeom::HypeTypes;
   using Bool_v = typename vecCore::Mask_v<Real_v>;
   Real_v r2    = point.Perp2();
   Real_v oRad2 = (hype.fRmax2 + hype.fTOut2 * point.z() * point.z());
@@ -38,25 +39,27 @@ typename vecCore::Mask_v<Real_v> IsCompletelyOutside(UnplacedStruct_t const &hyp
   completelyoutside |= (r2 > oRad2 + hype.outerRadToleranceLevel);
   if (vecCore::MaskFull(completelyoutside)) return completelyoutside;
 
-  if (hype.InnerSurfaceExists()) {
+  // if (hype.InnerSurfaceExists()) {
+  if (checkInnerSurfaceTreatment<hypeType>(hype)) {
     Real_v iRad2 = (hype.fRmin2 + hype.fTIn2 * point.z() * point.z());
     completelyoutside |= (r2 < (iRad2 - hype.innerRadToleranceLevel));
   }
   return completelyoutside;
 }
 
-template <typename Real_v>
+template <typename Real_v, typename hypeType>
 VECCORE_ATT_HOST_DEVICE
 typename vecCore::Mask_v<Real_v> IsCompletelyInside(UnplacedStruct_t const &hype, Vector3D<Real_v> const &point)
 {
-
+  using namespace ::vecgeom::HypeTypes;
   using Bool_v = typename vecCore::Mask_v<Real_v>;
   Real_v r2    = point.Perp2();
   Real_v oRad2 = (hype.fRmax2 + hype.fTOut2 * point.z() * point.z());
 
   Bool_v completelyinside =
       (Abs(point.z()) < (hype.fDz - hype.zToleranceLevel)) && (r2 < oRad2 - hype.outerRadToleranceLevel);
-  if (hype.InnerSurfaceExists()) {
+  // if (hype.InnerSurfaceExists()) {
+  if (checkInnerSurfaceTreatment<hypeType>(hype)) {
     Real_v iRad2 = (hype.fRmin2 + hype.fTIn2 * point.z() * point.z());
     completelyinside &= (r2 > (iRad2 + hype.innerRadToleranceLevel));
   }
@@ -103,13 +106,13 @@ typename vecCore::Mask_v<Real_v> IsPointMovingInsideInnerSurface(UnplacedStruct_
   return ((point.x() * direction.x() + point.y() * direction.y() - pz * hype.fTIn2 * vz) > 0);
 }
 
-template <typename Real_v>
+template <typename Real_v, typename hypeType>
 VECCORE_ATT_HOST_DEVICE
 typename vecCore::Mask_v<Real_v> IsPointOnSurfaceAndMovingInside(UnplacedStruct_t const &hype,
                                                                  Vector3D<Real_v> const &point,
                                                                  Vector3D<Real_v> const &direction)
 {
-
+  using namespace ::vecgeom::HypeTypes;
   using Bool_v = typename vecCore::Mask_v<Real_v>;
   Bool_v innerHypeSurf(false), outerHypeSurf(false), zSurf(false);
   Bool_v done(false);
@@ -128,7 +131,8 @@ typename vecCore::Mask_v<Real_v> IsPointOnSurfaceAndMovingInside(UnplacedStruct_
   outerHypeSurf |= (!zSurf && (Abs((radO2) - (rho2)) < hype.outerRadToleranceLevel));
   in |= (!done && outerHypeSurf && IsPointMovingInsideOuterSurface<Real_v>(hype, point, direction));
 
-  if (hype.InnerSurfaceExists()) {
+  // if (hype.InnerSurfaceExists()) {
+  if (checkInnerSurfaceTreatment<hypeType>(hype)) {
     done |= (!zSurf && outerHypeSurf);
     if (vecCore::MaskFull(done)) return in;
 
@@ -140,16 +144,19 @@ typename vecCore::Mask_v<Real_v> IsPointOnSurfaceAndMovingInside(UnplacedStruct_
   return in;
 }
 
-template <typename Real_v, bool ForDistToIn>
+template <typename Real_v, typename hypeType, bool ForDistToIn>
 VECCORE_ATT_HOST_DEVICE
 typename vecCore::Mask_v<Real_v> GetPointOfIntersectionWithZPlane(UnplacedStruct_t const &hype,
                                                                   Vector3D<Real_v> const &point,
                                                                   Vector3D<Real_v> const &direction, Real_v &zDist)
 {
+
+  using namespace ::vecgeom::HypeTypes;
   zDist = (Sign(ForDistToIn ? point.z() : direction.z()) * hype.fDz - point.z()) / direction.z();
 
   auto r2 = (point + zDist * direction).Perp2();
-  if (!hype.InnerSurfaceExists())
+  // if (!hype.InnerSurfaceExists())
+  if (!checkInnerSurfaceTreatment<hypeType>(hype))
     return (r2 < hype.fEndOuterRadius2);
   else
     return ((r2 < hype.fEndOuterRadius2) && (r2 > hype.fEndInnerRadius2));
@@ -206,32 +213,33 @@ typename vecCore::Mask_v<Real_v> IsPointOnOuterSurfaceAndMovingOutside(UnplacedS
   return out;
 }
 
-template <typename Real_v>
+template <typename Real_v, typename hypeType>
 VECCORE_ATT_HOST_DEVICE
 typename vecCore::Mask_v<Real_v> IsPointOnInnerSurfaceAndMovingOutside(UnplacedStruct_t const &hype,
                                                                        Vector3D<Real_v> const &point,
                                                                        Vector3D<Real_v> const &direction)
 {
-
+  using namespace ::vecgeom::HypeTypes;
   using Bool_v = typename vecCore::Mask_v<Real_v>;
   Real_v rho2  = point.x() * point.x() + point.y() * point.y();
   Real_v absZ  = Abs(point.z());
   Real_v radI2 = RadiusHypeSq<Real_v, true>(hype, point.z());
   Bool_v out(false), innerHypeSurf(false);
-  if (hype.InnerSurfaceExists()) {
+  // if (hype.InnerSurfaceExists()) {
+  if (checkInnerSurfaceTreatment<hypeType>(hype)) {
     innerHypeSurf = (Abs((radI2) - (rho2)) < hype.innerRadToleranceLevel) && (absZ >= 0.) && (absZ < hype.fDz);
     out           = innerHypeSurf && HypeUtilities::IsPointMovingOutsideInnerSurface<Real_v>(hype, point, direction);
   }
   return out;
 }
 
-template <typename Real_v>
+template <typename Real_v, typename hypeType>
 VECCORE_ATT_HOST_DEVICE
 typename vecCore::Mask_v<Real_v> IsPointOnSurfaceAndMovingOutside(UnplacedStruct_t const &hype,
                                                                   Vector3D<Real_v> const &point,
                                                                   Vector3D<Real_v> const &direction)
 {
-
+  using namespace ::vecgeom::HypeTypes;
   using Bool_v = typename vecCore::Mask_v<Real_v>;
   Bool_v innerHypeSurf(false), outerHypeSurf(false), zSurf(false);
   Bool_v done(false);
@@ -241,25 +249,32 @@ typename vecCore::Mask_v<Real_v> IsPointOnSurfaceAndMovingOutside(UnplacedStruct
   Real_v radO2 = RadiusHypeSq<Real_v, false>(hype, point.z());
 
   Bool_v out(false);
+  //  zSurf = ((hype.fEndOuterRadius2 - rho2) < kTolerance) && ((rho2 - hype.fEndInnerRadius2) < kTolerance) &&
+  //          (Abs(Abs(point.z()) - hype.fDz) < kTolerance);
   zSurf = ((rho2 - hype.fEndOuterRadius2) < kTolerance) && ((hype.fEndInnerRadius2 - rho2) < kTolerance) &&
           (Abs(Abs(point.z()) - hype.fDz) < kTolerance);
 
   out |= (zSurf && (point.z() * direction.z() > 0.));
-  done |= zSurf;
+  // done |= zSurf;
+  done = out;
   if (vecCore::MaskFull(done)) return out;
 
-  outerHypeSurf |= (!zSurf && (Abs((radO2) - (rho2)) < hype.outerRadToleranceLevel));
-  out |= (!done && !zSurf && outerHypeSurf &&
-          HypeUtilities::IsPointMovingOutsideOuterSurface<Real_v>(hype, point, direction));
+  outerHypeSurf |= !done && (Abs(radO2 - rho2) < hype.outerRadToleranceLevel);
+  // out |= (!done && !zSurf && outerHypeSurf &&
+  out |= (outerHypeSurf && HypeUtilities::IsPointMovingOutsideOuterSurface<Real_v>(hype, point, direction));
 
-  done |= (!zSurf && outerHypeSurf);
+  // done |= (!zSurf && outerHypeSurf);
+  done |= out;
   if (vecCore::MaskFull(done)) return out;
 
-  if (hype.InnerSurfaceExists()) {
-    innerHypeSurf |= (!zSurf && !outerHypeSurf && (Abs((radI2) - (rho2)) < hype.innerRadToleranceLevel));
-    out |= (!done && !zSurf && innerHypeSurf &&
-            HypeUtilities::IsPointMovingOutsideInnerSurface<Real_v>(hype, point, direction));
-    done |= (!zSurf && innerHypeSurf);
+  // if (hype.InnerSurfaceExists()) {
+  if (checkInnerSurfaceTreatment<hypeType>(hype)) {
+    // innerHypeSurf |= (!done && !zSurf && !outerHypeSurf && (Abs((radI2) - (rho2)) < hype.innerRadToleranceLevel));
+    innerHypeSurf |= (!done && (Abs(radI2 - rho2) < hype.innerRadToleranceLevel));
+    // out |= (!done && !zSurf && innerHypeSurf &&
+    out |= (innerHypeSurf && HypeUtilities::IsPointMovingOutsideInnerSurface<Real_v>(hype, point, direction));
+    // done |= (!zSurf && innerHypeSurf);
+    done |= out;
     if (vecCore::MaskFull(done)) return out;
   }
 
@@ -303,7 +318,7 @@ Real_v ApproxDistInside(Real_v pr, Real_v pz, Precision r0, Precision tan2Phi)
   return ret;
 }
 
-} // end of HypeUtilities namespace
+} // namespace HypeUtilities
 
 /* This class  is basically constructed to allow partial specialization
  * for Scalar Backend.
@@ -423,7 +438,7 @@ public:
   }
 };
 
-} // end of IMPL namespace
-} // end of vecgeom namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* VOLUMES_HYPEUTILITIES_H_ */
