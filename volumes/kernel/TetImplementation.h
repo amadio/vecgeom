@@ -89,7 +89,7 @@ struct TetImplementation {
   static void GenericKernelForContainsAndInside(UnplacedStruct_t const &tet, Vector3D<Real_v> const &localPoint,
                                                 Bool_v &completelyinside, Bool_v &completelyoutside)
   {
-    /* TODO : Logic to check where the point is inside or not.
+    /* Logic to check where the point is inside or not.
     **
     ** if ForInside is false then it will only check if the point is outside,
     ** and is used by Contains function
@@ -106,7 +106,7 @@ struct TetImplementation {
     }
     Real_v safety = vecCore::math::Max(vecCore::math::Max(vecCore::math::Max(dist[0], dist[1]), dist[2]), dist[3]);
 
-    completelyoutside               = safety > kHalfTolerance;
+    completelyoutside = safety > kHalfTolerance;
     if (ForInside) completelyinside = safety <= -kHalfTolerance;
 
     return;
@@ -118,7 +118,7 @@ struct TetImplementation {
   static void DistanceToIn(UnplacedStruct_t const &tet, Vector3D<Real_v> const &point,
                            Vector3D<Real_v> const &direction, Real_v const & /*stepMax*/, Real_v &distance)
   {
-    /* TODO :  Logic to calculate Distance from outside point to the Tet surface */
+    /* Logic to calculate Distance from outside point to the Tet surface */
     // using Bool_v       = vecCore::Mask_v<Real_v>;
     distance           = -kInfLength;
     Real_v distanceOut = kInfLength;
@@ -150,7 +150,7 @@ struct TetImplementation {
   static void DistanceToOut(UnplacedStruct_t const &tet, Vector3D<Real_v> const &point,
                             Vector3D<Real_v> const &direction, Real_v const & /* stepMax */, Real_v &distance)
   {
-    /* TODO :  Logic to calculate Distance from inside point to the Tet surface */
+    /* Logic to calculate Distance from inside point to the Tet surface */
     distance      = kInfLength;
     Real_v safety = -kInfLength;
 
@@ -163,9 +163,9 @@ struct TetImplementation {
     }
 
     for (int i = 0; i < 4; ++i) {
-      vecCore::MaskedAssign(distance, (cosa[i] > Real_v(0.)), vecCore::math::Min(distance, -safe[i] / cosa[i]));
+      vecCore__MaskedAssignFunc(distance, (cosa[i] > Real_v(0.)), vecCore::math::Min(distance, -safe[i] / cosa[i]));
     }
-    vecCore__MaskedAssignFunc(distance, safety > kHalfTolerance, Real_v(-1.));
+    vecCore::MaskedAssign(distance, safety > kHalfTolerance, Real_v(-1.));
   }
 
   template <typename Real_v>
@@ -173,13 +173,12 @@ struct TetImplementation {
   VECCORE_ATT_HOST_DEVICE
   static void SafetyToIn(UnplacedStruct_t const &tet, Vector3D<Real_v> const &point, Real_v &safety)
   {
-    /* TODO :  Logic to calculate Safety from outside point to the Tet surface */
+    /* Logic to calculate Safety from outside point to the Tet surface */
 
     Real_v dist[4];
-    for (int i = 0; i < 4; ++i) {
-      Vector3D<Real_v> n = tet.fPlane[i].n;
-      dist[i]            = n.Dot(point) + tet.fPlane[i].d;
-    }
+    for (int i = 0; i < 4; ++i)
+      dist[i] = point.Dot(tet.fPlane[i].n) + tet.fPlane[i].d;
+
     safety = vecCore::math::Max(vecCore::math::Max(vecCore::math::Max(dist[0], dist[1]), dist[2]), dist[3]);
     vecCore::MaskedAssign(safety, vecCore::math::Abs(safety) <= kHalfTolerance, Real_v(0.));
   }
@@ -189,13 +188,12 @@ struct TetImplementation {
   VECCORE_ATT_HOST_DEVICE
   static void SafetyToOut(UnplacedStruct_t const &tet, Vector3D<Real_v> const &point, Real_v &safety)
   {
-    /* TODO :  Logic to calculate Safety from inside point to the Tet surface */
+    /* Logic to calculate Safety from inside point to the Tet surface */
 
     Real_v dist[4];
-    for (int i = 0; i < 4; ++i) {
-      Vector3D<Real_v> n = tet.fPlane[i].n;
-      dist[i]            = n.Dot(point) + tet.fPlane[i].d;
-    }
+    for (int i = 0; i < 4; ++i)
+      dist[i] = point.Dot(tet.fPlane[i].n) + tet.fPlane[i].d;
+
     safety = -vecCore::math::Max(vecCore::math::Max(vecCore::math::Max(dist[0], dist[1]), dist[2]), dist[3]);
     vecCore::MaskedAssign(safety, vecCore::math::Abs(safety) <= kHalfTolerance, Real_v(0.));
   }
@@ -234,7 +232,7 @@ struct TetImplementation {
     return normal;
   }
 };
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_KERNEL_TETIMPLEMENTATION_H_
