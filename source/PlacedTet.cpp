@@ -50,7 +50,7 @@ G4VSolid const *PlacedTet::ConvertToGeant4() const
 
 #endif // VECCORE_CUDA
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 

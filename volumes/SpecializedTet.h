@@ -20,7 +20,7 @@ template <TranslationCode transCodeT, RotationCode rotCodeT>
 using SpecializedTet = SIMDSpecializedVolImplHelper<TetImplementation, transCodeT, rotCodeT>;
 
 using SimpleTet = SpecializedTet<translation::kGeneric, rotation::kGeneric>;
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_SPECIALIZEDTET_H_

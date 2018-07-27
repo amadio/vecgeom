@@ -68,8 +68,8 @@ Vector3D<Precision> UnplacedTet::SamplePointOnSurface() const
 
   // Select face
   //
-  Precision select          = sface[3] * RNG::Instance().uniform(); // G4UniformRand();
-  int k                     = 3;
+  Precision select = sface[3] * RNG::Instance().uniform(); // G4UniformRand();
+  int k            = 3;
   if (select <= sface[2]) k = 2;
   if (select <= sface[1]) k = 1;
   if (select <= sface[0]) k = 0;
@@ -121,13 +121,9 @@ std::ostream &UnplacedTet::StreamInfo(std::ostream &os) const
   return os;
 }
 
-void UnplacedTet::Print() const
-{
-}
+void UnplacedTet::Print() const {}
 
-void UnplacedTet::Print(std::ostream &os) const
-{
-}
+void UnplacedTet::Print(std::ostream &os) const {}
 
 #ifndef VECCORE_CUDA
 template <TranslationCode trans_code, RotationCode rot_code>
@@ -207,7 +203,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedTet::CopyToGpu() const
 
 #endif // VECGEOM_CUDA_INTERFACE
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -216,7 +212,7 @@ namespace cxx {
 template size_t DevicePtr<cuda::UnplacedTet>::SizeOf();
 template void DevicePtr<cuda::UnplacedTet>::Construct(Precision *, Precision *, Precision *, Precision *) const;
 
-} // End cxx namespace
+} // namespace cxx
 
 #endif
-} // End global namespace
+} // namespace vecgeom

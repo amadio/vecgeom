@@ -135,7 +135,7 @@ struct TetStruct {
   }
 };
 
-} /* end of IMPL namespace */
-} /* end of vecgeom namespace */
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif
