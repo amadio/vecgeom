@@ -22,6 +22,7 @@ private:
   BoxStruct<double> fBox;
 
 public:
+  using Kernel = BoxImplementation;
   UnplacedBox(Vector3D<Precision> const &dim) : fBox(dim) {}
   UnplacedBox(char const *, Vector3D<Precision> const &dim) : fBox(dim) {}
 
@@ -121,7 +122,7 @@ public:
 
 #endif
 };
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif

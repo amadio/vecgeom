@@ -53,6 +53,14 @@ struct TrdStruct {
   }
 
   VECCORE_ATT_HOST_DEVICE
+  TrdStruct(const T x1, const T y1, const T z)
+      : fDX1(x1), fDX2(x1), fDY1(y1), fDY2(y1), fDZ(z), fX2minusX1(0), fY2minusY1(0), fHalfX1plusX2(0),
+        fHalfY1plusY2(0), fCalfX(0), fCalfY(0), fFx(0), fFy(0)
+  {
+    CalculateCached();
+  }
+
+  VECCORE_ATT_HOST_DEVICE
   void SetAllParameters(T x1, T x2, T y1, T y2, T z)
   {
     fDX1 = x1;
@@ -82,7 +90,7 @@ struct TrdStruct {
     fToleranceY = kTolerance * Sqrt(fX2minusX1 * fX2minusX1 + 4 * fDZ * fDZ);
   }
 };
-}
-} // end
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif

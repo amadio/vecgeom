@@ -74,7 +74,7 @@ VPlacedVolume *SetupGeometry()
   UnplacedCone *cone1Unplaced = GeoManager::MakeInstance<UnplacedCone>(0.5, 1., 0.6, 1.2, 0.5, 0., kTwoPi);
   UnplacedCone *cone2Unplaced = GeoManager::MakeInstance<UnplacedCone>(0.5, 1., 0.6, 1.2, 0.5, kPi / 4., kPi);
 
-  UnplacedTrd *trdUnplaced        = new UnplacedTrd(0.1, 0.2, 0.15, 0.05);
+  auto trdUnplaced                = GeoManager::MakeInstance<UnplacedTrd>(0.1, 0.2, 0.15, 0.05);
   UnplacedTrapezoid *trapUnplaced = new UnplacedTrapezoid(0.2, 0., 0., 0.1, 0.08, 0.12, 0., 0.15, 0.12, 0.18, 0.);
 
   UnplacedOrb *orbUnplaced               = new UnplacedOrb(0.1);

@@ -5,11 +5,81 @@
 #include "volumes/SpecializedTrd.h"
 #include "volumes/utilities/GenerationUtilities.h"
 #include "base/RNG.h"
+#ifdef VECGEOM_ROOT
+#include "TGeoTrd1.h"
+#include "TGeoTrd2.h"
+#endif
+#ifdef VECGEOM_GEANT4
+#include "G4Trd.hh"
+#endif
+
+#ifndef VECCORE_CUDA
+#include "volumes/UnplacedImplAs.h"
+#endif
 
 #include "management/VolumeFactory.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
+
+#ifndef VECCORE_CUDA
+#ifdef VECGEOM_ROOT
+TGeoShape const *UnplacedTrd::ConvertToRoot(char const *label) const
+{
+  if (dy1() == dy2()) {
+    return new TGeoTrd1(label, dx1(), dx2(), dy1(), dz());
+  }
+  return new TGeoTrd2(label, dx1(), dx2(), dy1(), dy2(), dz());
+}
+#endif
+
+#ifdef VECGEOM_GEANT4
+G4VSolid const *UnplacedTrd::ConvertToGeant4(char const *label) const
+{
+  return new G4Trd(label, dx1(), dx2(), dy1(), dy2(), dz());
+}
+#endif
+#endif
+
+template <>
+UnplacedTrd *Maker<UnplacedTrd>::MakeInstance(const Precision x1, const Precision x2, const Precision y1,
+                                              const Precision y2, const Precision z)
+{
+
+#ifndef VECGEOM_NO_SPECIALIZATION
+  // Trd becomes a box, hence returning a box from the factory
+  if ((x1 == x2) && (y1 == y2)) {
+    return new SUnplacedImplAs<SUnplacedTrd<TrdTypes::Trd2>, UnplacedBox>(x1, y1, z);
+  }
+
+  // Specialized Trd of type Trd1
+  if (y1 == y2) {
+    return new SUnplacedTrd<TrdTypes::Trd1>(x1, x2, y1, z);
+  } else {
+    return new SUnplacedTrd<TrdTypes::Trd2>(x1, x2, y1, y2, z);
+  }
+#else
+  return new SUnplacedTrd<TrdTypes::UniversalTrd>(x1, x2, y1, y2, z);
+#endif
+}
+
+// special case Trd1 when dY1 == dY2
+template <>
+UnplacedTrd *Maker<UnplacedTrd>::MakeInstance(const Precision x1, const Precision x2, const Precision y1,
+                                              const Precision z)
+{
+
+#ifndef VECGEOM_NO_SPECIALIZATION
+  // Trd1 becomes a box, hence returning a box from the factory
+  if (x1 == x2) {
+    return new SUnplacedImplAs<SUnplacedTrd<TrdTypes::Trd1>, UnplacedBox>(x1, y1, z);
+  } else {
+    return new SUnplacedTrd<TrdTypes::Trd1>(x1, x2, y1, z);
+  }
+#else
+  return new SUnplacedTrd<TrdTypes::UniversalTrd>(x1, x2, y1, z);
+#endif
+}
 
 void UnplacedTrd::Print() const
 {
@@ -21,7 +91,6 @@ void UnplacedTrd::Print(std::ostream &os) const
   os << "UnplacedTrd {" << dx1() << ", " << dx2() << ", " << dy1() << ", " << dy2() << ", " << dz();
 }
 
-#ifndef VECCORE_CUDA
 Precision UnplacedTrd::Capacity() const
 {
   return 2 * (fTrd.fDX1 + fTrd.fDX2) * (fTrd.fDY1 + fTrd.fDY2) * fTrd.fDZ +
@@ -164,6 +233,7 @@ Vector3D<Precision> UnplacedTrd::SamplePointOnSurface() const
   return A + r1 * (B - A) + r2 * (C - A);
 }
 
+#ifndef VECCORE_CUDA
 bool UnplacedTrd::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &norm) const
 {
 
@@ -235,80 +305,7 @@ bool UnplacedTrd::Normal(Vector3D<Precision> const &point, Vector3D<Precision> &
 
   return noSurfaces != 0;
 }
-
 #endif
-
-template <TranslationCode transCodeT, RotationCode rotCodeT>
-VECCORE_ATT_DEVICE
-VPlacedVolume *UnplacedTrd::Create(LogicalVolume const *const logical_volume,
-                                   Transformation3D const *const transformation,
-#ifdef VECCORE_CUDA
-                                   const int id,
-#endif
-                                   VPlacedVolume *const placement)
-{
-
-  using namespace TrdTypes;
-
-#ifndef VECGEOM_NO_SPECIALIZATION
-
-  __attribute__((unused)) const UnplacedTrd &trd =
-      static_cast<const UnplacedTrd &>(*(logical_volume->GetUnplacedVolume()));
-
-#define GENERATE_TRD_SPECIALIZATIONS
-#ifdef GENERATE_TRD_SPECIALIZATIONS
-  if (trd.dy1() == trd.dy2()) {
-    //          std::cout << "trd1" << std::endl;
-    return CreateSpecializedWithPlacement<SpecializedTrd<transCodeT, rotCodeT, TrdTypes::Trd1>>(logical_volume,
-                                                                                                transformation
-#ifdef VECCORE_CUDA
-                                                                                                ,
-                                                                                                id
-#endif
-                                                                                                ,
-                                                                                                placement);
-  } else {
-    //          std::cout << "trd2" << std::endl;
-    return CreateSpecializedWithPlacement<SpecializedTrd<transCodeT, rotCodeT, TrdTypes::Trd2>>(logical_volume,
-                                                                                                transformation
-#ifdef VECCORE_CUDA
-                                                                                                ,
-                                                                                                id
-#endif
-                                                                                                ,
-                                                                                                placement);
-  }
-#endif
-
-#endif // VECGEOM_NO_SPECIALIZATION
-
-  //    std::cout << "universal trd" << std::endl;
-  return CreateSpecializedWithPlacement<SpecializedTrd<transCodeT, rotCodeT, TrdTypes::UniversalTrd>>(logical_volume,
-                                                                                                      transformation
-#ifdef VECCORE_CUDA
-                                                                                                      ,
-                                                                                                      id
-#endif
-                                                                                                      ,
-                                                                                                      placement);
-}
-
-VECCORE_ATT_DEVICE
-VPlacedVolume *UnplacedTrd::SpecializedVolume(LogicalVolume const *const volume,
-                                              Transformation3D const *const transformation,
-                                              const TranslationCode trans_code, const RotationCode rot_code,
-#ifdef VECCORE_CUDA
-                                              const int id,
-#endif
-                                              VPlacedVolume *const placement) const
-{
-
-  return VolumeFactory::CreateByTransformation<UnplacedTrd>(volume, transformation, trans_code, rot_code,
-#ifdef VECCORE_CUDA
-                                                            id,
-#endif
-                                                            placement);
-}
 
 std::ostream &UnplacedTrd::StreamInfo(std::ostream &os) const
 {
@@ -330,28 +327,32 @@ std::ostream &UnplacedTrd::StreamInfo(std::ostream &os) const
 
 DevicePtr<cuda::VUnplacedVolume> UnplacedTrd::CopyToGpu(DevicePtr<cuda::VUnplacedVolume> const in_gpu_ptr) const
 {
-  return CopyToGpuImpl<UnplacedTrd>(in_gpu_ptr, dx1(), dx2(), dy1(), dy2(), dz());
+  return CopyToGpuImpl<SUnplacedTrd<TrdTypes::UniversalTrd>>(in_gpu_ptr, dx1(), dx2(), dy1(), dy2(), dz());
 }
 
 DevicePtr<cuda::VUnplacedVolume> UnplacedTrd::CopyToGpu() const
 {
-  return CopyToGpuImpl<UnplacedTrd>();
+  return CopyToGpuImpl<SUnplacedTrd<TrdTypes::UniversalTrd>>();
 }
 
 #endif // VECGEOM_CUDA_INTERFACE
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
 namespace cxx {
 
-template size_t DevicePtr<cuda::UnplacedTrd>::SizeOf();
-template void DevicePtr<cuda::UnplacedTrd>::Construct(const Precision dx1, const Precision dx2, const Precision dy1,
-                                                      const Precision dy2, const Precision z) const;
+template size_t DevicePtr<cuda::SUnplacedTrd<cuda::TrdTypes::UniversalTrd>>::SizeOf();
+template void DevicePtr<cuda::SUnplacedTrd<cuda::TrdTypes::UniversalTrd>>::Construct(
+    const Precision dx1, const Precision dx2, const Precision dy1, const Precision dy2, const Precision z) const;
+template void DevicePtr<cuda::SUnplacedTrd<cuda::TrdTypes::UniversalTrd>>::Construct(const Precision dx1,
+                                                                                     const Precision dx2,
+                                                                                     const Precision dy1,
+                                                                                     const Precision z) const;
 
-} // End cxx namespace
+} // namespace cxx
 
 #endif
 
-} // End global namespace
+} // namespace vecgeom

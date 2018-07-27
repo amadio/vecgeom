@@ -176,7 +176,7 @@ static void UnplacedInside(TrdStruct<double> const &trd, Vector3D<Real_v> const 
   Real_v pzPlusDz = point.z() + trd.fDZ;
 
   // inside Z?
-  completelyoutside              = vecCore::math::Abs(point.z()) > MakePlusTolerant<surfaceT>(trd.fDZ);
+  completelyoutside = vecCore::math::Abs(point.z()) > MakePlusTolerant<surfaceT>(trd.fDZ);
   if (surfaceT) completelyinside = vecCore::math::Abs(point.z()) < MakeMinusTolerant<surfaceT>(trd.fDZ);
 
   // inside X?
@@ -209,10 +209,12 @@ static void UnplacedInside(TrdStruct<double> const &trd, Vector3D<Real_v> const 
   }
 }
 
-} // Trd utilities
+} // namespace TrdUtilities
 
-class PlacedTrd;
-class UnplacedTrd;
+template <typename T>
+class SPlacedTrd;
+template <typename T>
+class SUnplacedTrd;
 
 template <typename T>
 struct TrdStruct;
@@ -220,9 +222,9 @@ struct TrdStruct;
 template <typename trdTypeT>
 struct TrdImplementation {
 
-  using PlacedShape_t    = PlacedTrd;
   using UnplacedStruct_t = TrdStruct<double>;
-  using UnplacedVolume_t = UnplacedTrd;
+  using UnplacedVolume_t = SUnplacedTrd<trdTypeT>;
+  using PlacedShape_t    = SPlacedTrd<UnplacedVolume_t>;
 
   VECCORE_ATT_HOST_DEVICE
   static void PrintType() {}
@@ -510,7 +512,7 @@ struct TrdImplementation {
     Safety<Real_v, trdTypeT, true>(trd, point, safety);
   }
 };
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_KERNEL_TRDIMPLEMENTATION_H_

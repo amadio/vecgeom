@@ -23,10 +23,12 @@ int main(int argc, char *argv[])
   OPTION_DOUBLE(dz, 7.);
 
   UnplacedBox worldUnplaced = UnplacedBox(dmax(dx1, dx2) * 4, dmax(dy1, dy2) * 4, dz * 4);
-  UnplacedTrd trdUnplaced   = UnplacedTrd(dx1, dx2, dy1, dy2, dz);
+  auto trdUnplaced          = GeoManager::MakeInstance<UnplacedTrd>(dx1, dx2, dy1, dy2, dz);
+  // UnplacedTrd(dx1, dx2, dy1, dy2, dz);
 
   LogicalVolume world("world", &worldUnplaced);
-  LogicalVolume trd("trdLogicalVolume", &trdUnplaced);
+  // LogicalVolume trd("trdLogicalVolume", &trdUnplaced);
+  LogicalVolume trd("trdLogicalVolume", trdUnplaced);
   Transformation3D placement(5., 5., 5.);
   world.PlaceDaughter("trdPlaced", &trd, &placement);
 
