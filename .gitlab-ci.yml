@@ -8,10 +8,13 @@ clang-format:
   #only:
   #  - merge-request
   script:
-    - ln -s `which clang-format-3.9` clang-format && PATH=$PATH:$PWD ./scripts/clang-format-test.sh
+    - ln -s `which clang-format-6.0` clang-format && PATH=$PATH:$PWD ./scripts/clang-format-test.sh
   before_script:
+    - apt-get update -y && apt-get install -y software-properties-common wget
+    - wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add
+    - apt-add-repository -y "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-6.0 main"
     - apt-get update -y && apt-get upgrade -y
-    - apt-get install -y cmake git findutils clang-format-3.9
+    - apt-get install -y cmake git findutils clang-format-6.0
 
 # performing the static analysis code check using a custom docker image with the llvm installation we need
 code_checks:
