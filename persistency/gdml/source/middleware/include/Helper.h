@@ -31,7 +31,7 @@ template <typename F, typename T, typename R>
 R TranscodeAndApply(F aFunction, T anArgument);
 
 template <typename T = std::string>
-T GetAttribute(std::string const& attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
+T GetAttribute(std::string const &attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
 
 std::string GetNodeInformation(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
 

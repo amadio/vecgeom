@@ -35,14 +35,16 @@ template <>
 int Transcode(const XMLCh *const anXMLstring);
 
 template <>
-std::string GetAttribute(std::string const& attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
+std::string GetAttribute(std::string const &attrName,
+                         XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
 template <>
-double GetAttribute(std::string const& attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
+double GetAttribute(std::string const &attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
 template <>
-int GetAttribute(std::string const& attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
+int GetAttribute(std::string const &attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
 
 template <>
-std::string GetAttribute(std::string const& attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes)
+std::string GetAttribute(std::string const &attrName,
+                         XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes)
 {
   auto *attrXMLName = XERCES_CPP_NAMESPACE_QUALIFIER XMLString::transcode(attrName.c_str());
   auto *attribute   = theAttributes->getNamedItem(attrXMLName);
@@ -51,7 +53,7 @@ std::string GetAttribute(std::string const& attrName, XERCES_CPP_NAMESPACE_QUALI
 };
 
 template <>
-double GetAttribute(std::string const& attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes)
+double GetAttribute(std::string const &attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes)
 {
   auto const strAttribure = GetAttribute(attrName, theAttributes);
   try {
@@ -63,7 +65,7 @@ double GetAttribute(std::string const& attrName, XERCES_CPP_NAMESPACE_QUALIFIER 
 };
 
 template <>
-int GetAttribute(std::string const& attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes)
+int GetAttribute(std::string const &attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes)
 {
   auto const strAttribure = GetAttribute(attrName, theAttributes);
   return std::stoi(strAttribure);

@@ -30,6 +30,7 @@
 #include "volumes/UnplacedBooleanVolume.h"
 #include "volumes/UnplacedMultiUnion.h"
 #include "volumes/UnplacedTessellated.h"
+#include "volumes/UnplacedTet.h"
 
 #include "volumes/LogicalVolume.h"
 #include "volumes/PlacedVolume.h"
@@ -46,7 +47,7 @@
 #define DECLAREANDGETLENGTVAR(x) auto const x = lengthMultiplier * GetAttribute<double>(#x, attributes);
 #define DECLAREANDGETANGLEVAR(x) auto const x = angleMultiplier * GetAttribute<double>(#x, attributes);
 #define DECLAREANDGETPLAINVAR(x) auto const x = GetAttribute<double>(#x, attributes);
-#define DECLAREANDGETINTVAR(x) auto const x   = GetAttribute<int>(#x, attributes);
+#define DECLAREANDGETINTVAR(x) auto const x = GetAttribute<int>(#x, attributes);
 
 #define DECLAREHALF(x) auto const half##x = x / 2.;
 
@@ -102,13 +103,13 @@ auto positionMap       = std::map<std::string, vecgeom::VECGEOM_IMPL_NAMESPACE::
 auto rotationMap       = std::map<std::string, vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double>>{};
 
 template <typename T = std::string>
-T GetAttribute(std::string const& attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes)
+T GetAttribute(std::string const &attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes)
 {
   return vgdml::Helper::GetAttribute<T>(attrName, theAttributes);
 }
 
 template <>
-double GetAttribute(std::string const& attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes)
+double GetAttribute(std::string const &attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes)
 {
   auto const simpleDouble = vgdml::Helper::GetAttribute<double>(attrName, theAttributes);
   if (std::isnan(simpleDouble)) {
@@ -144,9 +145,9 @@ namespace vgdml {
 extern template std::string Helper::Transcode(const XMLCh *const anXMLstring);
 extern template double Helper::Transcode(const XMLCh *const anXMLstring);
 extern template int Helper::Transcode(const XMLCh *const anXMLstring);
-extern template std::string Helper::GetAttribute(std::string const& attrName,
+extern template std::string Helper::GetAttribute(std::string const &attrName,
                                                  XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
-extern template double Helper::GetAttribute(std::string const& attrName,
+extern template double Helper::GetAttribute(std::string const &attrName,
                                             XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
 
 bool Middleware::Load(XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument const *aDOMDocument)
@@ -435,6 +436,8 @@ bool Middleware::processSolid(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOM
       return processHype(aDOMNode);
     } else if (name == "tessellated") {
       return processTesselated(aDOMNode);
+    } else if (name == "tet") {
+      return processTet(aDOMNode);
     } else
       return static_cast<vecgeom::VUnplacedVolume const *>(nullptr); // TODO more volumes
   }();
@@ -831,6 +834,25 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processTesse
     }
   }
   return anUnplacedTessellatedPtr;
+}
+
+vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processTet(
+    XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
+{
+  if (debug) {
+    std::cout << "Middleware::processTesselated: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
+  }
+  auto const *const attributes = aDOMNode->getAttributes();
+  std::array<vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double>, 4> vertices;
+  for (auto const ind : {0u, 1u, 2u, 3u}) {
+    auto const positionName = GetAttribute("vertex" + std::to_string(ind + 1), attributes);
+    auto const position     = positionMap[positionName];
+    vertices.at(ind)        = position;
+  }
+  auto const anUnplacedTetPtr =
+      vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedTet>(
+          vertices.at(0), vertices.at(1), vertices.at(2), vertices.at(3));
+  return anUnplacedTetPtr;
 }
 
 bool Middleware::processFacet(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode,

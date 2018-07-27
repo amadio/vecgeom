@@ -90,6 +90,8 @@ private:
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   static const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processTesselated(
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  static const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processTet(
+      XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
 
   static double GetLengthMultiplier(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   static double GetAngleMultiplier(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
