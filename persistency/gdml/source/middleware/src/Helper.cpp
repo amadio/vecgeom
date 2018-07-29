@@ -12,6 +12,7 @@
 #include <stdexcept>
 #include <limits>
 #include <array>
+#include <algorithm>
 
 #include "xercesc/dom/DOMNamedNodeMap.hpp"
 #include "xercesc/dom/DOMNode.hpp"
@@ -107,7 +108,9 @@ std::string GetNodeInformation(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDO
   auto const theNodeTypeID       = aDOMNode->getNodeType();
   aStream << "node type is \"" << nodeTypeNames.at(theNodeTypeID) << "\"";
   aStream << ", node name is \"" << theNodeName << "\"";
-  aStream << ", node text content is \"" << theNodeText << "\"";
+  aStream << ", node text content is ";
+  if(IsWhitespace(theNodeText)) aStream << "whitespace";
+  else aStream << "\"" << theNodeText << "\"";
   if (asDOMElement) {
     auto const theNodeLocalName = Transcode(aDOMNode->getLocalName());
     auto const theChildTagName  = Transcode(asDOMElement->getTagName());
@@ -126,6 +129,13 @@ std::string GetNodeInformation(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDO
   }
   return aStream.str();
 }
+
+bool IsWhitespace(std::string const& aString)
+{
+    return std::find_if(aString.begin(), aString.end(),
+                        [](char c){return std::isalnum(c);}) == aString.end();
+}
+
 
 } // namespace Helper
 } // namespace vgdml

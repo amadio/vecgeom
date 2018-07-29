@@ -50,6 +50,8 @@ R TranscodeAndApply(F aFunction, std::string anArgument)
   return std::forward<R>(result);
 }
 
+bool IsWhitespace(std::string const& aString);
+
 } // namespace Helper
 } // namespace vgdml
 

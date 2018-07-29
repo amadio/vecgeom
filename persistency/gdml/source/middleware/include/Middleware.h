@@ -50,6 +50,11 @@ private:
   static bool processConstant(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   static bool processPosition(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   static bool processRotation(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+
+  static bool processIsotope(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  static bool processElement(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  static bool processMaterial(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+
   static bool processFacet(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode,
                            vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedTessellated &storage);
   template <vecgeom::BooleanOperation Op>

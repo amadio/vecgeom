@@ -6,6 +6,7 @@
 
 #include "Middleware.h"
 #include "Helper.h"
+#include "MaterialInfo.h"
 #include "xercesc/dom/DOMNode.hpp"
 #include "xercesc/dom/DOMNodeList.hpp"
 #include "xercesc/dom/DOMDocument.hpp"
@@ -101,6 +102,9 @@ auto unplacedVolumeMap = std::map<std::string, vecgeom::VECGEOM_IMPL_NAMESPACE::
 auto constantMap       = std::map<std::string, double>{};
 auto positionMap       = std::map<std::string, vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double>>{};
 auto rotationMap       = std::map<std::string, vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double>>{};
+auto isotopeMap        = std::map<std::string, vgdml::Isotope>{};
+auto elementMap        = std::map<std::string, vgdml::Element>{};
+auto materialMap       = std::map<std::string, vgdml::Material>{};
 
 template <typename T = std::string>
 T GetAttribute(std::string const &attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes)
@@ -181,6 +185,15 @@ bool Middleware::processNode(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMN
   } else if (name == "rotation") {
     auto const success = processRotation(aDOMNode);
     return success;
+  } else if (name == "isotope") {
+    auto const success = processIsotope(aDOMNode);
+    return success;
+  } else if (name == "element") {
+    auto const success = processElement(aDOMNode);
+    return success;
+  } else if (name == "material") {
+    auto const success = processMaterial(aDOMNode);
+    return success;
   } else if (name == "volume") {
     auto const success = processLogicVolume(aDOMNode);
     return success;
@@ -191,7 +204,8 @@ bool Middleware::processNode(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMN
   auto result = true;
   //  if do not know what to do, process the children
   for (auto *child = aDOMNode->getFirstChild(); child != nullptr; child = child->getNextSibling()) {
-    result = result && processNode(child);
+    auto const nodeResult = processNode(child);
+    result = result && nodeResult;
   }
   return result;
 }
@@ -251,6 +265,43 @@ bool Middleware::processRotation(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *a
   }
   return success;
 }
+
+bool Middleware::processIsotope(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
+{
+  if (debug) {
+    std::cout << "Middleware::processIsotope: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
+  }
+  auto const *const attributes = aDOMNode->getAttributes();
+  auto const isotopeName       = GetAttribute("name", attributes);
+  auto const isotopeZ          = GetAttribute("Z", attributes);
+  auto const isotopeN          = GetAttribute("N", attributes);
+
+//  auto const success           = constantMap.insert(std::make_pair(constantName, constantValue)).second;
+//  if (!success) {
+//    std::cout << "Middleware::processNode: failed to insert constant with name " << constantName << " and value "
+//              << constantValue << std::endl;
+//  }
+//  return success;
+  return false;
+}
+
+bool Middleware::processElement(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
+{
+  if (debug) {
+    std::cout << "Middleware::processElement: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
+  }
+  return false;
+}
+
+bool Middleware::processMaterial(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
+{
+  if (debug) {
+    std::cout << "Middleware::processMaterial: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
+  }
+  return false;
+}
+
+
 
 template <vecgeom::BooleanOperation Op>
 vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processBoolean(

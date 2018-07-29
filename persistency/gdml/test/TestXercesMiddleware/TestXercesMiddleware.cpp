@@ -7,6 +7,7 @@
 #include <iostream>
 #include "Backend.h"
 #include "Middleware.h"
+#include "MaterialInfo.h"
 #include "xercesc/dom/DOMDocument.hpp"
 #include "management/GeoManager.h"
 
