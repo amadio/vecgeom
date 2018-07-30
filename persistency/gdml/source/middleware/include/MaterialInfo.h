@@ -13,6 +13,7 @@
 #include <vector>
 #include <utility>
 #include <array>
+#include <map>
 
 // TODO use std::optional and std::any
 
@@ -20,20 +21,20 @@ namespace vgdml {
 
 struct Isotope
 {
-    std::array<std::string const, 6> possibleAttributes = {{"name", "Z", "N", "atomType", "atomValue", "state"}};
-    std::vector<std::pair<std::string, std::string>> attributes;
+//    std::array<std::string const, 6> possibleAttributes = {{"Z", "N", "state", "atomType", "atomValue", "atomUnit"}};
+    std::map<std::string, std::string> attributes;
 };
 
 struct Element
 {
-    std::array<std::string const, 4> possibleAttributes = {{"name", "formula", "Z", "atomValue"}};
+//    std::array<std::string const, 4> possibleAttributes = {{"name", "formula", "Z", "atomValue"}};
     std::vector<std::pair<std::string, std::string>> attributes;
     std::vector<std::pair<std::string, std::string>> isotopeFractions;
 };
 
 struct Material
 {
-    std::array<std::string const, 4> const possibleAttributes = {{"name", "formula", "Z", "D"}};
+//    std::array<std::string const, 4> const possibleAttributes = {{"name", "formula", "Z", "D"}};
     std::vector<std::pair<std::string, std::string>> attributes;
     std::vector<std::pair<std::string, std::string>> fractions;
     std::vector<std::pair<std::string, std::string>> composites;

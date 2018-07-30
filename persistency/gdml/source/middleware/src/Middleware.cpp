@@ -271,18 +271,33 @@ bool Middleware::processIsotope(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aD
   if (debug) {
     std::cout << "Middleware::processIsotope: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
+  Isotope anIsotope;
   auto const *const attributes = aDOMNode->getAttributes();
   auto const isotopeName       = GetAttribute("name", attributes);
   auto const isotopeZ          = GetAttribute("Z", attributes);
   auto const isotopeN          = GetAttribute("N", attributes);
+  anIsotope.attributes["Z"]    = isotopeZ;
+  anIsotope.attributes["N"]    = isotopeN;
 
-//  auto const success           = constantMap.insert(std::make_pair(constantName, constantValue)).second;
-//  if (!success) {
-//    std::cout << "Middleware::processNode: failed to insert constant with name " << constantName << " and value "
-//              << constantValue << std::endl;
-//  }
-//  return success;
-  return false;
+  for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
+    if (debug) {
+      std::cout << "Child: " << Helper::GetNodeInformation(it) << std::endl;
+    }
+    if (it->getNodeType() == XERCES_CPP_NAMESPACE_QUALIFIER DOMNode::ELEMENT_NODE) {
+      auto const *const childAttributes = it->getAttributes();
+      auto const atomType               = GetAttribute("type", childAttributes);
+      auto const atomUnit               = GetAttribute("unit", childAttributes);
+      auto const atomValue              = GetAttribute("value", childAttributes);
+      anIsotope.attributes["atomType"] = atomType;
+      anIsotope.attributes["atomUnit"] = atomUnit;
+      anIsotope.attributes["atomValue"] = atomValue;
+    }
+  }
+  auto const success           = isotopeMap.insert(std::make_pair(isotopeName, anIsotope)).second;
+  if (!success) {
+    std::cout << "Middleware::processIsotope: failed to insert isotope with name " << isotopeName << std::endl;
+  }
+  return success;
 }
 
 bool Middleware::processElement(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
