@@ -19,27 +19,20 @@
 
 namespace vgdml {
 
-struct Isotope
-{
-//    std::array<std::string const, 6> possibleAttributes = {{"Z", "N", "state", "atomType", "atomValue", "atomUnit"}};
-    std::map<std::string, std::string> attributes;
+struct Isotope {
+  std::map<std::string, std::string> attributes;
 };
 
-struct Element
-{
-//    std::array<std::string const, 4> possibleAttributes = {{"name", "formula", "Z", "atomValue"}};
-    std::map<std::string, std::string> attributes;
-    std::map<std::string, std::string> isotopeFractions;
+struct Element {
+  std::map<std::string, std::string> attributes;
+  std::map<std::string, std::string> isotopeFractions;
 };
 
-struct Material
-{
-//    std::array<std::string const, 4> const possibleAttributes = {{"name", "formula", "Z", "D"}};
-    std::map<std::string, std::string> attributes;
-    std::map<std::string, std::string> fractions;
-    std::map<std::string, std::string> components;
+struct Material {
+  std::map<std::string, std::string> attributes;
+  std::map<std::string, std::string> fractions;
+  std::map<std::string, std::string> components;
 };
-
 
 } // namespace vgdml
 

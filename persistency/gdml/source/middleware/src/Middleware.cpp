@@ -205,7 +205,7 @@ bool Middleware::processNode(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMN
   //  if do not know what to do, process the children
   for (auto *child = aDOMNode->getFirstChild(); child != nullptr; child = child->getNextSibling()) {
     auto const nodeResult = processNode(child);
-    result = result && nodeResult;
+    result                = result && nodeResult;
   }
   return result;
 }
@@ -288,12 +288,12 @@ bool Middleware::processIsotope(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aD
       auto const atomType               = GetAttribute("type", childAttributes);
       auto const atomUnit               = GetAttribute("unit", childAttributes);
       auto const atomValue              = GetAttribute("value", childAttributes);
-      anIsotope.attributes["atomType"] = atomType;
-      anIsotope.attributes["atomUnit"] = atomUnit;
+      anIsotope.attributes["atomType"]  = atomType;
+      anIsotope.attributes["atomUnit"]  = atomUnit;
       anIsotope.attributes["atomValue"] = atomValue;
     }
   }
-  auto const success           = isotopeMap.insert(std::make_pair(isotopeName, anIsotope)).second;
+  auto const success = isotopeMap.insert(std::make_pair(isotopeName, anIsotope)).second;
   if (!success) {
     std::cout << "Middleware::processIsotope: failed to insert isotope with name " << isotopeName << std::endl;
   }
@@ -313,7 +313,7 @@ bool Middleware::processElement(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aD
     auto const *const anAttribute = attributes->item(ind);
     auto const attributeName      = Helper::Transcode(anAttribute->getNodeName());
     auto const attributeValue     = GetAttribute(attributeName, attributes);
-    if(attributeName != "name") anElement.attributes[attributeName] = attributeValue;
+    if (attributeName != "name") anElement.attributes[attributeName] = attributeValue;
   }
   for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
     if (debug) {
@@ -322,17 +322,17 @@ bool Middleware::processElement(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aD
     if (it->getNodeType() == XERCES_CPP_NAMESPACE_QUALIFIER DOMNode::ELEMENT_NODE) {
       auto const *const childAttributes = it->getAttributes();
       auto const theNodeName            = Helper::Transcode(it->getNodeName());
-      if(theNodeName == "atom") {
-          auto const atomValue              = GetAttribute("value", childAttributes);
-          anElement.attributes["atomValue"] = atomValue;
+      if (theNodeName == "atom") {
+        auto const atomValue              = GetAttribute("value", childAttributes);
+        anElement.attributes["atomValue"] = atomValue;
       } else { // theNodeName == "fraction"
-          auto const isotope                = GetAttribute("ref", childAttributes);
-          auto const fraction               = GetAttribute("n", childAttributes);
-          anElement.isotopeFractions[isotope] = fraction;
+        auto const isotope                  = GetAttribute("ref", childAttributes);
+        auto const fraction                 = GetAttribute("n", childAttributes);
+        anElement.isotopeFractions[isotope] = fraction;
       }
     }
   }
-  auto const success           = elementMap.insert(std::make_pair(elementName, anElement)).second;
+  auto const success = elementMap.insert(std::make_pair(elementName, anElement)).second;
   if (!success) {
     std::cout << "Middleware::processElement: failed to insert isotope with name " << elementName << std::endl;
   }
@@ -344,10 +344,50 @@ bool Middleware::processMaterial(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *a
   if (debug) {
     std::cout << "Middleware::processMaterial: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
-  return false;
+  auto const *const attributes = aDOMNode->getAttributes();
+  auto const nAttributes       = attributes->getLength();
+  auto const materialName      = GetAttribute("name", attributes);
+  Material aMaterial;
+  for (auto ind = 0u; ind < nAttributes; ++ind) {
+    auto const *const anAttribute = attributes->item(ind);
+    auto const attributeName      = Helper::Transcode(anAttribute->getNodeName());
+    auto const attributeValue     = GetAttribute(attributeName, attributes);
+    if (attributeName != "name") aMaterial.attributes[attributeName] = attributeValue;
+  }
+  for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
+    if (debug) {
+      std::cout << "Child: " << Helper::GetNodeInformation(it) << std::endl;
+    }
+    if (it->getNodeType() == XERCES_CPP_NAMESPACE_QUALIFIER DOMNode::ELEMENT_NODE) {
+      auto const *const childAttributes = it->getAttributes();
+      auto const theNodeName            = Helper::Transcode(it->getNodeName());
+      if (theNodeName == "atom") {
+        auto const atomValue              = GetAttribute("value", childAttributes);
+        aMaterial.attributes["atomValue"] = atomValue;
+      } else if (theNodeName == "D") {
+        auto const Dvalue             = GetAttribute("value", childAttributes);
+        auto const Dunit              = GetAttribute("unit", childAttributes);
+        auto const Dtype              = GetAttribute("type", childAttributes);
+        aMaterial.attributes["D"]     = Dvalue;
+        aMaterial.attributes["Dunit"] = Dunit;
+        aMaterial.attributes["Dtype"] = Dtype;
+      } else if (theNodeName == "composite") {
+        auto const element              = GetAttribute("ref", childAttributes);
+        auto const count                = GetAttribute("n", childAttributes);
+        aMaterial.components["element"] = count;
+      } else { // theNodeName == "fraction"
+        auto const element           = GetAttribute("ref", childAttributes);
+        auto const fraction          = GetAttribute("n", childAttributes);
+        aMaterial.fractions[element] = fraction;
+      }
+    }
+  }
+  auto const success = materialMap.insert(std::make_pair(materialName, aMaterial)).second;
+  if (!success) {
+    std::cout << "Middleware::processMaterial: failed to insert isotope with name " << materialName << std::endl;
+  }
+  return success;
 }
-
-
 
 template <vecgeom::BooleanOperation Op>
 vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processBoolean(

@@ -109,8 +109,10 @@ std::string GetNodeInformation(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDO
   aStream << "node type is \"" << nodeTypeNames.at(theNodeTypeID) << "\"";
   aStream << ", node name is \"" << theNodeName << "\"";
   aStream << ", node text content is ";
-  if(IsWhitespace(theNodeText)) aStream << "whitespace";
-  else aStream << "\"" << theNodeText << "\"";
+  if (IsWhitespace(theNodeText))
+    aStream << "whitespace";
+  else
+    aStream << "\"" << theNodeText << "\"";
   if (asDOMElement) {
     auto const theNodeLocalName = Transcode(aDOMNode->getLocalName());
     auto const theChildTagName  = Transcode(asDOMElement->getTagName());
@@ -130,12 +132,10 @@ std::string GetNodeInformation(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDO
   return aStream.str();
 }
 
-bool IsWhitespace(std::string const& aString)
+bool IsWhitespace(std::string const &aString)
 {
-    return std::find_if(aString.begin(), aString.end(),
-                        [](char c){return std::isalnum(c);}) == aString.end();
+  return std::find_if(aString.begin(), aString.end(), [](char c) { return std::isalnum(c); }) == aString.end();
 }
-
 
 } // namespace Helper
 } // namespace vgdml
