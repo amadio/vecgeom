@@ -28,16 +28,16 @@ struct Isotope
 struct Element
 {
 //    std::array<std::string const, 4> possibleAttributes = {{"name", "formula", "Z", "atomValue"}};
-    std::vector<std::pair<std::string, std::string>> attributes;
-    std::vector<std::pair<std::string, std::string>> isotopeFractions;
+    std::map<std::string, std::string> attributes;
+    std::map<std::string, std::string> isotopeFractions;
 };
 
 struct Material
 {
 //    std::array<std::string const, 4> const possibleAttributes = {{"name", "formula", "Z", "D"}};
-    std::vector<std::pair<std::string, std::string>> attributes;
-    std::vector<std::pair<std::string, std::string>> fractions;
-    std::vector<std::pair<std::string, std::string>> composites;
+    std::map<std::string, std::string> attributes;
+    std::map<std::string, std::string> fractions;
+    std::map<std::string, std::string> components;
 };
 
 

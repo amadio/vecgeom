@@ -305,7 +305,38 @@ bool Middleware::processElement(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aD
   if (debug) {
     std::cout << "Middleware::processElement: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
   }
-  return false;
+  auto const *const attributes = aDOMNode->getAttributes();
+  auto const nAttributes       = attributes->getLength();
+  auto const elementName       = GetAttribute("name", attributes);
+  Element anElement;
+  for (auto ind = 0u; ind < nAttributes; ++ind) {
+    auto const *const anAttribute = attributes->item(ind);
+    auto const attributeName      = Helper::Transcode(anAttribute->getNodeName());
+    auto const attributeValue     = GetAttribute(attributeName, attributes);
+    if(attributeName != "name") anElement.attributes[attributeName] = attributeValue;
+  }
+  for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
+    if (debug) {
+      std::cout << "Child: " << Helper::GetNodeInformation(it) << std::endl;
+    }
+    if (it->getNodeType() == XERCES_CPP_NAMESPACE_QUALIFIER DOMNode::ELEMENT_NODE) {
+      auto const *const childAttributes = it->getAttributes();
+      auto const theNodeName            = Helper::Transcode(it->getNodeName());
+      if(theNodeName == "atom") {
+          auto const atomValue              = GetAttribute("value", childAttributes);
+          anElement.attributes["atomValue"] = atomValue;
+      } else { // theNodeName == "fraction"
+          auto const isotope                = GetAttribute("ref", childAttributes);
+          auto const fraction               = GetAttribute("n", childAttributes);
+          anElement.isotopeFractions[isotope] = fraction;
+      }
+    }
+  }
+  auto const success           = elementMap.insert(std::make_pair(elementName, anElement)).second;
+  if (!success) {
+    std::cout << "Middleware::processElement: failed to insert isotope with name " << elementName << std::endl;
+  }
+  return success;
 }
 
 bool Middleware::processMaterial(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
