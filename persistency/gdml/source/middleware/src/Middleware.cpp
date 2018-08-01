@@ -32,6 +32,7 @@
 #include "volumes/UnplacedMultiUnion.h"
 #include "volumes/UnplacedTessellated.h"
 #include "volumes/UnplacedTet.h"
+#include "volumes/UnplacedScaledShape.h"
 
 #include "volumes/LogicalVolume.h"
 #include "volumes/PlacedVolume.h"
@@ -101,6 +102,7 @@ auto const gdmlSolids = std::map<std::string, std::vector<std::string>>{
 auto unplacedVolumeMap = std::map<std::string, vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *>{};
 auto constantMap       = std::map<std::string, double>{};
 auto positionMap       = std::map<std::string, vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double>>{};
+auto scaleMap          = std::map<std::string, vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double>>{};
 auto rotationMap       = std::map<std::string, vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double>>{};
 auto isotopeMap        = std::map<std::string, vgdml::Isotope>{};
 auto elementMap        = std::map<std::string, vgdml::Element>{};
@@ -182,6 +184,9 @@ bool Middleware::processNode(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMN
   } else if (name == "position") {
     auto const success = processPosition(aDOMNode);
     return success;
+  } else if (name == "scale") {
+    auto const success = processScale(aDOMNode);
+    return success;
   } else if (name == "rotation") {
     auto const success = processRotation(aDOMNode);
     return success;
@@ -242,6 +247,25 @@ bool Middleware::processPosition(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *a
   if (!success) {
     std::cout << "Middleware::processNode: failed to insert position with name " << positionName << " and value "
               << positionValue << std::endl;
+  }
+  return success;
+}
+
+bool Middleware::processScale(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
+{
+  if (debug) {
+    std::cout << "Middleware::processScale: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
+  }
+  auto const *const attributes = aDOMNode->getAttributes();
+  auto const scaleName         = GetAttribute("name", attributes);
+  DECLAREANDGETPLAINVAR(x)
+  DECLAREANDGETPLAINVAR(y)
+  DECLAREANDGETPLAINVAR(z)
+  auto const scaleValue = vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double>{x, y, z};
+  auto const success    = scaleMap.insert(std::make_pair(scaleName, scaleValue)).second;
+  if (!success) {
+    std::cout << "Middleware::processNode: failed to insert position with name " << scaleName << " and value "
+              << scaleValue << std::endl;
   }
   return success;
 }
@@ -575,6 +599,8 @@ bool Middleware::processSolid(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOM
       return processTesselated(aDOMNode);
     } else if (name == "tet") {
       return processTet(aDOMNode);
+    } else if (name == "scaledSolid") {
+      return processScaledShape(aDOMNode);
     } else
       return static_cast<vecgeom::VUnplacedVolume const *>(nullptr); // TODO more volumes
   }();
@@ -990,6 +1016,46 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processTet(
       vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedTet>(
           vertices.at(0), vertices.at(1), vertices.at(2), vertices.at(3));
   return anUnplacedTetPtr;
+}
+
+const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processScaledShape(
+    XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
+{
+  if (debug) {
+    std::cout << "Middleware::processScaledShape: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
+  }
+  vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *solid;
+  vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double> scale(1., 1., 1.);
+  for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
+    if (debug) {
+      std::cout << "Child: " << Helper::GetNodeInformation(it) << std::endl;
+    }
+    if (it->getNodeType() == XERCES_CPP_NAMESPACE_QUALIFIER DOMNode::ELEMENT_NODE) {
+      auto const theChildNodeName = Helper::Transcode(it->getNodeName());
+      if (theChildNodeName == "solidref") {
+        auto const solidName = GetAttribute("ref", it->getAttributes());
+        auto foundSolid      = unplacedVolumeMap.find(solidName);
+        if (foundSolid == unplacedVolumeMap.end()) {
+          std::cout << "Could not find solid " << solidName << std::endl;
+          return nullptr;
+        } else {
+          if (debug) std::cout << "Found solid " << solidName << std::endl;
+          solid = foundSolid->second;
+        }
+      } else if (theChildNodeName == "scale") {
+        processScale(it);
+        auto const scaleName = GetAttribute("name", it->getAttributes());
+        scale                = scaleMap[scaleName];
+      } else if (theChildNodeName == "scaleref") {
+        auto const scaleName = GetAttribute("ref", it->getAttributes());
+        scale                = scaleMap[scaleName];
+      }
+    }
+  }
+  auto const anUnplacedScaledPtr =
+      vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedScaledShape>(
+          solid, scale.x(), scale.y(), scale.z());
+  return anUnplacedScaledPtr;
 }
 
 bool Middleware::processFacet(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode,

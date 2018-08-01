@@ -49,6 +49,7 @@ private:
   static bool processWorld(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   static bool processConstant(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   static bool processPosition(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  static bool processScale(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   static bool processRotation(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
 
   static bool processIsotope(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
@@ -96,6 +97,8 @@ private:
   static const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processTesselated(
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
   static const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processTet(
+      XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+  static const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *processScaledShape(
       XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
 
   static double GetLengthMultiplier(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);

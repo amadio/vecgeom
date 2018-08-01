@@ -72,6 +72,26 @@ int GetAttribute(std::string const &attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOM
   return std::stoi(strAttribure);
 };
 
+std::map<std::string const, std::string const> GetAttributes(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
+{
+  auto const *const theAttributes = aDOMNode->getAttributes(); // TODO check nullptr
+  return GetAttributes(theAttributes);
+}
+
+std::map<std::string const, std::string const> GetAttributes(
+    XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes)
+{
+  std::map<std::string const, std::string const> result;
+  auto const nAttributes = theAttributes->getLength();
+  for (auto ind = 0u; ind < nAttributes; ++ind) {
+    auto const *const anAttribute = theAttributes->item(ind);
+    auto const attributeName      = Helper::Transcode(anAttribute->getNodeName());
+    auto const attributeValue     = GetAttribute(attributeName, theAttributes);
+    result.insert(std::make_pair(attributeName, attributeValue));
+  }
+  return result;
+}
+
 template <>
 std::string Transcode(const XMLCh *const anXMLstring)
 {
@@ -121,10 +141,10 @@ std::string GetNodeInformation(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDO
     auto const *const attributes = aDOMNode->getAttributes();
     auto const nAttributes       = attributes->getLength();
     aStream << ", it has " << nAttributes << " attributes ( ";
-    for (auto ind = 0u; ind < nAttributes; ++ind) {
-      auto const *const anAttribute = attributes->item(ind);
-      auto const attributeName      = Helper::Transcode(anAttribute->getNodeName());
-      auto const attributeValue     = GetAttribute(attributeName, attributes);
+    auto const attributeMap = GetAttributes(asDOMElement);
+    for (auto const &it : attributeMap) {
+      auto const attributeName  = it.first;
+      auto const attributeValue = it.second;
       aStream << "\"" << attributeName << "\":\"" << attributeValue << "\" ";
     }
     aStream << ")";

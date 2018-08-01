@@ -10,6 +10,7 @@
 #define Helper_h
 
 #include <string>
+#include <map>
 
 #include "xercesc/util/XercesDefs.hpp"
 #include "xercesc/util/XMLChar.hpp"
@@ -32,6 +33,10 @@ R TranscodeAndApply(F aFunction, T anArgument);
 
 template <typename T = std::string>
 T GetAttribute(std::string const &attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
+
+std::map<std::string const, std::string const> GetAttributes(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
+std::map<std::string const, std::string const> GetAttributes(
+    XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
 
 std::string GetNodeInformation(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode);
 
