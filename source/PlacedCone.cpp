@@ -29,25 +29,20 @@ VPlacedVolume const *PlacedCone::ConvertToUnspecialized() const
 #ifdef VECGEOM_ROOT
 TGeoShape const *PlacedCone::ConvertToRoot() const
 {
-  if (GetDPhi() == 2. * M_PI) {
-    return new TGeoCone("RootCone", GetDz(), GetRmin1(), GetRmax1(), GetRmin2(), GetRmax2());
-  } else {
-    return new TGeoConeSeg("RootCone", GetDz(), GetRmin1(), GetRmax1(), GetRmin2(), GetRmax2(), GetSPhi() * kRadToDeg,
-                           (GetSPhi() + GetDPhi()) * kRadToDeg);
-  }
+  return GetUnplacedVolume()->ConvertToRoot(GetName());
 }
 #endif
 
 #ifdef VECGEOM_GEANT4
 G4VSolid const *PlacedCone::ConvertToGeant4() const
 {
-  return new G4Cons("Geant4Cone", GetRmin1(), GetRmax1(), GetRmin2(), GetRmax2(), GetDz(), GetSPhi(), GetDPhi());
+  return GetUnplacedVolume()->ConvertToGeant4(GetName());
 }
 #endif
 
 #endif
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 

@@ -10,6 +10,12 @@
 #include "volumes/Cone.h"
 #include "base/Global.h"
 #include <cmath>
+#include "volumes/UnplacedTube.h"
+#include "management/GeoManager.h"
+
+#ifndef VECCORE_CUDA
+#include "volumes/UnplacedImplAs.h"
+#endif
 
 #define DELTA 0.0001
 
@@ -20,7 +26,7 @@ bool testingvecgeom = true;
 //         true if error
 bool OutRange(double actual, double wanted)
 {
-  bool rng                                                    = false;
+  bool rng = false;
   if (actual < wanted - DELTA || actual > wanted + DELTA) rng = true;
   return rng;
 }
@@ -1084,6 +1090,50 @@ bool TestCons()
   assert(ApproxEqual(maxExtent, Vec_t(50, 50, 50)));
   ctest10.Extent(minExtent, maxExtent);
   assert(ApproxEqual(minExtent, Vec_t(-140, -140, -100)));
+
+#ifndef VECGEOM_NO_SPECIALIZATION
+  // Tests for Specialized Cones
+  double sRmin1 = 0., sRmax1 = 5., sRmin2 = 0., sRmax2 = 5., sDz = 5., sSphi = 0., sDphi = vecgeom::kTwoPi;
+  auto nonHollowTubeLikeCone =
+      vecgeom::GeoManager::MakeInstance<vecgeom::cxx::UnplacedCone>(sRmin1, sRmax1, sRmin2, sRmax2, sDz, sSphi, sDphi);
+  sRmin1 = 2.;
+  sRmin2 = 2.;
+  auto hollowTubeLikeCone =
+      vecgeom::GeoManager::MakeInstance<vecgeom::cxx::UnplacedCone>(sRmin1, sRmax1, sRmin2, sRmax2, sDz, sSphi, sDphi);
+  sDphi = vecgeom::kPi;
+  auto hollowTubeLikeConeWithPiSector =
+      vecgeom::GeoManager::MakeInstance<vecgeom::cxx::UnplacedCone>(sRmin1, sRmax1, sRmin2, sRmax2, sDz, sSphi, sDphi);
+  sDphi = vecgeom::kPi / 3.;
+  auto hollowTubeLikeConeWithSmallerThanPiSector =
+      vecgeom::GeoManager::MakeInstance<vecgeom::cxx::UnplacedCone>(sRmin1, sRmax1, sRmin2, sRmax2, sDz, sSphi, sDphi);
+  sDphi = 4 * vecgeom::kPi / 3.;
+  auto hollowTubeLikeConeWithBiggerThanPiSector =
+      vecgeom::GeoManager::MakeInstance<vecgeom::cxx::UnplacedCone>(sRmin1, sRmax1, sRmin2, sRmax2, sDz, sSphi, sDphi);
+
+  using NonHollowTubeLikeCone =
+      vecgeom::SUnplacedImplAs<vecgeom::cxx::SUnplacedCone<vecgeom::cxx::ConeTypes::NonHollowCone>,
+                               vecgeom::cxx::SUnplacedTube<vecgeom::cxx::TubeTypes::NonHollowTube>>;
+  using HollowTubeLikeCone = vecgeom::SUnplacedImplAs<vecgeom::cxx::SUnplacedCone<vecgeom::cxx::ConeTypes::HollowCone>,
+                                                      vecgeom::cxx::SUnplacedTube<vecgeom::cxx::TubeTypes::HollowTube>>;
+  using HollowTubeLikeConeWithPiSector =
+      vecgeom::SUnplacedImplAs<vecgeom::cxx::SUnplacedCone<vecgeom::cxx::ConeTypes::HollowConeWithPiSector>,
+                               vecgeom::cxx::SUnplacedTube<vecgeom::cxx::TubeTypes::HollowTubeWithPiSector>>;
+  using HollowTubeLikeConeWithSmallerThanPiSector =
+      vecgeom::SUnplacedImplAs<vecgeom::cxx::SUnplacedCone<vecgeom::cxx::ConeTypes::HollowConeWithSmallerThanPiSector>,
+                               vecgeom::cxx::SUnplacedTube<vecgeom::cxx::TubeTypes::HollowTubeWithSmallerThanPiSector>>;
+  using HollowTubeLikeConeWithBiggerThanPiSector =
+      vecgeom::SUnplacedImplAs<vecgeom::cxx::SUnplacedCone<vecgeom::cxx::ConeTypes::HollowConeWithBiggerThanPiSector>,
+                               vecgeom::cxx::SUnplacedTube<vecgeom::cxx::TubeTypes::HollowTubeWithBiggerThanPiSector>>;
+
+  // Checking type of TubeLikeCone, it should return true with pointer of TubeLikeCone
+  assert(dynamic_cast<NonHollowTubeLikeCone *>(nonHollowTubeLikeCone));
+  assert(dynamic_cast<HollowTubeLikeCone *>(hollowTubeLikeCone));
+  assert(dynamic_cast<HollowTubeLikeConeWithPiSector *>(hollowTubeLikeConeWithPiSector));
+  assert(dynamic_cast<HollowTubeLikeConeWithSmallerThanPiSector *>(hollowTubeLikeConeWithSmallerThanPiSector));
+  assert(dynamic_cast<HollowTubeLikeConeWithBiggerThanPiSector *>(hollowTubeLikeConeWithBiggerThanPiSector));
+
+#endif
+
   return true;
 }
 

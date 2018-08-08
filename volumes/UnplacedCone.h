@@ -54,6 +54,13 @@ public:
     DetectConvexity();
   }
 
+  // Constructor needed by specialization when Cone becomes Tube
+  UnplacedCone(Precision rmin, Precision rmax, Precision dz, Precision phimin, Precision deltaphi)
+      : fCone(rmin, rmax, rmin, rmax, dz, phimin, deltaphi)
+  {
+    DetectConvexity();
+  }
+
   VECCORE_ATT_HOST_DEVICE
   UnplacedCone(UnplacedCone const &other) : fCone(other.fCone) {}
 
@@ -250,6 +257,16 @@ public:
   Precision GetRadiusOfConeAtPoint(Precision const pointZ) const;
 
   bool IsOnEdge(Vector3D<Precision> &point) const;
+
+#ifndef VECCORE_CUDA
+#ifdef VECGEOM_ROOT
+  TGeoShape const *ConvertToRoot(char const *label) const;
+#endif
+
+#ifdef VECGEOM_GEANT4
+  G4VSolid const *ConvertToGeant4(char const *label) const;
+#endif
+#endif
 };
 
 template <>
@@ -277,7 +294,6 @@ public:
 #endif
                                VPlacedVolume *const placement = NULL);
 
-private:
 #ifndef VECCORE_CUDA
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
@@ -303,8 +319,8 @@ private:
 
 using GenericUnplacedCone = SUnplacedCone<ConeTypes::UniversalCone>;
 
-} // end VECGEOM_IMPL_NAMESPACE
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 // we include this header here because SpecializedCone
 // implements the Create function of SUnplacedCone<> (and to avoid a circular dependency)

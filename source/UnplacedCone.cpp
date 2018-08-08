@@ -6,16 +6,48 @@
  */
 
 #include "volumes/UnplacedCone.h"
+#include "volumes/UnplacedTube.h"
 #include "volumes/SpecializedCone.h"
 #include "volumes/utilities/VolumeUtilities.h"
 #include "volumes/utilities/GenerationUtilities.h"
 #ifndef VECCORE_CUDA
 #include "base/RNG.h"
+#include "volumes/UnplacedImplAs.h"
 #endif
+#ifdef VECGEOM_ROOT
+#include "TGeoCone.h"
+#endif
+
+#ifdef VECGEOM_GEANT4
+#include "G4Cons.hh"
+#endif
+
 #include "management/VolumeFactory.h"
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
+
+#ifndef VECCORE_CUDA
+#ifdef VECGEOM_ROOT
+TGeoShape const *UnplacedCone::ConvertToRoot(char const *label) const
+{
+  if (GetDPhi() == 2. * M_PI) {
+    return new TGeoCone(label, GetDz(), GetRmin1(), GetRmax1(), GetRmin2(), GetRmax2());
+  } else {
+    return new TGeoConeSeg(label, GetDz(), GetRmin1(), GetRmax1(), GetRmin2(), GetRmax2(), GetSPhi() * kRadToDeg,
+                           (GetSPhi() + GetDPhi()) * kRadToDeg);
+  }
+}
+#endif
+
+#ifdef VECGEOM_GEANT4
+G4VSolid const *UnplacedCone::ConvertToGeant4(char const *label) const
+{
+  return new G4Cons(label, GetRmin1(), GetRmax1(), GetRmin2(), GetRmax2(), GetDz(), GetSPhi(), GetDPhi());
+}
+#endif
+#endif
+
 void UnplacedCone::Print() const
 {
   printf("UnplacedCone {rmin1 %.2f, rmax1 %.2f, rmin2 %.2f, "
@@ -91,8 +123,8 @@ void UnplacedCone::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMax) 
   auto Dy = max * sin(fCone.fSPhi + fCone.fDPhi);
 
   // then rewrite box sides whenever each one of those phis are not contained in the tube section
-  if (phi0out) aMax.x()   = Max(Cx, Dx);
-  if (phi90out) aMax.y()  = Max(Cy, Dy);
+  if (phi0out) aMax.x() = Max(Cx, Dx);
+  if (phi90out) aMax.y() = Max(Cy, Dy);
   if (phi180out) aMin.x() = Min(Cx, Dx);
   if (phi270out) aMin.y() = Min(Cy, Dy);
 
@@ -423,19 +455,19 @@ Vector3D<Precision> UnplacedCone::SamplePointOnSurface() const
 
   if (surfSelection == 5) {
     // Generate point on startPhi Surface
-    double rmin                            = 0.;
+    double rmin = 0.;
     if (fCone.fRmin1 || fCone.fRmin2) rmin = GetRadiusOfConeAtPoint<true>(zRand);
-    double rmax                            = GetRadiusOfConeAtPoint<false>(zRand);
-    double rinter                          = RNG::Instance().uniform(rmin, rmax);
+    double rmax   = GetRadiusOfConeAtPoint<false>(zRand);
+    double rinter = RNG::Instance().uniform(rmin, rmax);
     retPt.Set(rinter * std::cos(fCone.fSPhi), rinter * std::sin(fCone.fSPhi), zRand);
     return retPt;
   }
   if (surfSelection == 6) {
     // Generate point on endPhi Surface
-    double rmin                            = 0.;
+    double rmin = 0.;
     if (fCone.fRmin1 || fCone.fRmin2) rmin = GetRadiusOfConeAtPoint<true>(zRand);
-    double rmax                            = GetRadiusOfConeAtPoint<false>(zRand);
-    double rinter                          = RNG::Instance().uniform(rmin, rmax);
+    double rmax   = GetRadiusOfConeAtPoint<false>(zRand);
+    double rinter = RNG::Instance().uniform(rmin, rmax);
     retPt.Set(rinter * std::cos(fCone.fSPhi + fCone.fDPhi), rinter * std::sin(fCone.fSPhi + fCone.fDPhi), zRand);
     return retPt;
   }
@@ -477,34 +509,96 @@ UnplacedCone *Maker<UnplacedCone>::MakeInstance(const Precision &rmin1, const Pr
 // #ifdef GENERATE_CONE_SPECIALIZATIONS
 #ifndef VECGEOM_NO_SPECIALIZATION
   if (rmin1 <= 0 && rmin2 <= 0) {
-    if (deltaphi >= 2 * M_PI)
-      return new SUnplacedCone<ConeTypes::NonHollowCone>(rmin1, rmax1, rmin2, rmax2, dz, phimin, deltaphi);
-    if (deltaphi == M_PI)
-      return new SUnplacedCone<ConeTypes::NonHollowConeWithPiSector>(rmin1, rmax1, rmin2, rmax2, dz, phimin,
-                                                                     deltaphi); // == M_PI ???
-    if (deltaphi < M_PI)
-      return new SUnplacedCone<ConeTypes::NonHollowConeWithSmallerThanPiSector>(rmin1, rmax1, rmin2, rmax2, dz, phimin,
-                                                                                deltaphi);
-    if (deltaphi > M_PI)
-      return new SUnplacedCone<ConeTypes::NonHollowConeWithBiggerThanPiSector>(rmin1, rmax1, rmin2, rmax2, dz, phimin,
-                                                                               deltaphi);
+    if (deltaphi >= 2 * M_PI) {
+      // NonHollowCone becomes NonHollowTube
+      if (rmax1 == rmax2) {
+        return new SUnplacedImplAs<SUnplacedCone<ConeTypes::NonHollowCone>, SUnplacedTube<TubeTypes::NonHollowTube>>(
+            rmin1, rmax1, dz, phimin, deltaphi);
+      } else {
+        return new SUnplacedCone<ConeTypes::NonHollowCone>(rmin1, rmax1, rmin2, rmax2, dz, phimin, deltaphi);
+      }
+    }
+    if (deltaphi == M_PI) {
+      // NonHollowConeWithPiSector becomes NonHollowTubeWithPiSector
+      if (rmax1 == rmax2) {
+        return new SUnplacedImplAs<SUnplacedCone<ConeTypes::NonHollowConeWithPiSector>,
+                                   SUnplacedTube<TubeTypes::NonHollowTubeWithPiSector>>(rmin1, rmax1, dz, phimin,
+                                                                                        deltaphi);
+      } else {
+        return new SUnplacedCone<ConeTypes::NonHollowConeWithPiSector>(rmin1, rmax1, rmin2, rmax2, dz, phimin,
+                                                                       deltaphi); // == M_PI ???
+      }
+    }
+    if (deltaphi < M_PI) {
+      // NonHollowConeWithSmallerThanPiSector becomes NonHollowTubeWithSmallerThanPiSector
+      if (rmax1 == rmax2) {
+        return new SUnplacedImplAs<SUnplacedCone<ConeTypes::NonHollowConeWithSmallerThanPiSector>,
+                                   SUnplacedTube<TubeTypes::NonHollowTubeWithSmallerThanPiSector>>(rmin1, rmax1, dz,
+                                                                                                   phimin, deltaphi);
+      } else {
+        return new SUnplacedCone<ConeTypes::NonHollowConeWithSmallerThanPiSector>(rmin1, rmax1, rmin2, rmax2, dz,
+                                                                                  phimin, deltaphi);
+      }
+    }
+    if (deltaphi > M_PI) {
+      // NonHollowConeWithBiggerThanPiSector becomes NonHollowTubeWithBiggerThanPiSector
+      if (rmax1 == rmax2) {
+        return new SUnplacedImplAs<SUnplacedCone<ConeTypes::NonHollowConeWithBiggerThanPiSector>,
+                                   SUnplacedTube<TubeTypes::NonHollowTubeWithBiggerThanPiSector>>(rmin1, rmax1, dz,
+                                                                                                  phimin, deltaphi);
+      } else {
+        return new SUnplacedCone<ConeTypes::NonHollowConeWithBiggerThanPiSector>(rmin1, rmax1, rmin2, rmax2, dz, phimin,
+                                                                                 deltaphi);
+      }
+    }
   } else if (rmin1 > 0 || rmin2 > 0) {
-    if (deltaphi >= 2 * M_PI)
-      return new SUnplacedCone<ConeTypes::HollowCone>(rmin1, rmax1, rmin2, rmax2, dz, phimin, deltaphi);
-    if (deltaphi == M_PI)
-      return new SUnplacedCone<ConeTypes::HollowConeWithPiSector>(rmin1, rmax1, rmin2, rmax2, dz, phimin,
-                                                                  deltaphi); // == M_PI ???
-    if (deltaphi < M_PI)
-      return new SUnplacedCone<ConeTypes::HollowConeWithSmallerThanPiSector>(rmin1, rmax1, rmin2, rmax2, dz, phimin,
-                                                                             deltaphi);
-    if (deltaphi > M_PI)
-      return new SUnplacedCone<ConeTypes::HollowConeWithBiggerThanPiSector>(rmin1, rmax1, rmin2, rmax2, dz, phimin,
-                                                                            deltaphi);
+    if (deltaphi >= 2 * M_PI) {
+      // HollowCone becomes HollowTube
+      if (rmin1 == rmin2 && rmax1 == rmax2) {
+        return new SUnplacedImplAs<SUnplacedCone<ConeTypes::HollowCone>, SUnplacedTube<TubeTypes::HollowTube>>(
+            rmin1, rmax1, dz, phimin, deltaphi);
+      } else {
+        return new SUnplacedCone<ConeTypes::HollowCone>(rmin1, rmax1, rmin2, rmax2, dz, phimin, deltaphi);
+      }
+    }
+    // HollowConeWithPiSector becomes HollowTubeWithPiSector
+    if (deltaphi == M_PI) {
+      if (rmin1 == rmin2 && rmax1 == rmax2) {
+        return new SUnplacedImplAs<SUnplacedCone<ConeTypes::HollowConeWithPiSector>,
+                                   SUnplacedTube<TubeTypes::HollowTubeWithPiSector>>(rmin1, rmax1, dz, phimin,
+                                                                                     deltaphi);
+      } else {
+        return new SUnplacedCone<ConeTypes::HollowConeWithPiSector>(rmin1, rmax1, rmin2, rmax2, dz, phimin,
+                                                                    deltaphi); // == M_PI ???
+      }
+    }
+    if (deltaphi < M_PI) {
+      // HollowConeWithSmallerThanPiSector becomes HollowTubeWithSmallerThanPiSector
+      if (rmin1 == rmin2 && rmax1 == rmax2) {
+        return new SUnplacedImplAs<SUnplacedCone<ConeTypes::HollowConeWithSmallerThanPiSector>,
+                                   SUnplacedTube<TubeTypes::HollowTubeWithSmallerThanPiSector>>(rmin1, rmax1, dz,
+                                                                                                phimin, deltaphi);
+      } else {
+        return new SUnplacedCone<ConeTypes::HollowConeWithSmallerThanPiSector>(rmin1, rmax1, rmin2, rmax2, dz, phimin,
+                                                                               deltaphi);
+      }
+    }
+    if (deltaphi > M_PI) {
+      // HollowConeWithBiggerThanPiSector becomes HollowTubeWithBiggerThanPiSector
+      if (rmin1 == rmin2 && rmax1 == rmax2) {
+        return new SUnplacedImplAs<SUnplacedCone<ConeTypes::HollowConeWithBiggerThanPiSector>,
+                                   SUnplacedTube<TubeTypes::HollowTubeWithBiggerThanPiSector>>(rmin1, rmax1, dz, phimin,
+                                                                                               deltaphi);
+      } else {
+        return new SUnplacedCone<ConeTypes::HollowConeWithBiggerThanPiSector>(rmin1, rmax1, rmin2, rmax2, dz, phimin,
+                                                                              deltaphi);
+      }
+    }
   }
   // this should never happen...
   return nullptr;
 #else
-  // if nothing matches, return the most general case
+  // if no specialization, return the most general case
   return new SUnplacedCone<ConeTypes::UniversalCone>(rmin1, rmax1, rmin2, rmax2, dz, phimin, deltaphi);
 #endif
 }
@@ -523,7 +617,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedCone::CopyToGpu() const
 
 #endif // VECGEOM_CUDA_INTERFACE
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -534,7 +628,7 @@ template void DevicePtr<cuda::SUnplacedCone<cuda::ConeTypes::UniversalCone>>::Co
     const Precision rmin1, const Precision rmax1, const Precision rmin2, const Precision rmax2, const Precision z,
     const Precision sphi, const Precision dphi) const;
 
-} // End cxx namespace
+} // namespace cxx
 
 #endif
 
