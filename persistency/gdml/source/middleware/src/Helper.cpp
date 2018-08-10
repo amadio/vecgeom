@@ -16,6 +16,8 @@
 
 #include "xercesc/dom/DOMNamedNodeMap.hpp"
 #include "xercesc/dom/DOMNode.hpp"
+#include "xercesc/dom/DOMAttr.hpp"
+#include "xercesc/dom/DOMTypeInfo.hpp"
 #include "xercesc/dom/DOMElement.hpp"
 
 namespace {
@@ -97,7 +99,7 @@ std::string Transcode(const XMLCh *const anXMLstring)
 {
   // TODO use u16string and then c++ standard codecvt
   auto *aCstring     = XERCES_CPP_NAMESPACE_QUALIFIER XMLString::transcode(anXMLstring);
-  auto const aString = std::string(aCstring);
+  auto const aString = aCstring ? std::string(aCstring) : "";
   XERCES_CPP_NAMESPACE_QUALIFIER XMLString::release(&aCstring);
   return aString;
 }
@@ -134,12 +136,17 @@ std::string GetNodeInformation(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDO
   else
     aStream << "\"" << theNodeText << "\"";
   if (asDOMElement) {
-    auto const theNodeLocalName = Transcode(aDOMNode->getLocalName());
-    auto const theChildTagName  = Transcode(asDOMElement->getTagName());
+    auto const theNodeLocalName        = Transcode(aDOMNode->getLocalName());
+    auto const theChildTagName         = Transcode(asDOMElement->getTagName());
+    auto const *const attributes       = aDOMNode->getAttributes();
+    auto const *const typeInfo         = asDOMElement->getSchemaTypeInfo();
+    auto const nodeSchemaTypeName      = Transcode(typeInfo->getTypeName());
+    auto const nodeSchemaTypeNamespace = Transcode(typeInfo->getTypeNamespace());
     aStream << ", local node name is \"" << theNodeLocalName << "\"";
     aStream << ", node tag name is \"" << theChildTagName << "\"";
-    auto const *const attributes = aDOMNode->getAttributes();
-    auto const nAttributes       = attributes->getLength();
+    aStream << ", node type name is \"" << nodeSchemaTypeName << "\"";
+    aStream << ", node type namespace is \"" << nodeSchemaTypeNamespace << "\"";
+    auto const nAttributes = attributes->getLength();
     aStream << ", it has " << nAttributes << " attributes ( ";
     auto const attributeMap = GetAttributes(asDOMElement);
     for (auto const &it : attributeMap) {

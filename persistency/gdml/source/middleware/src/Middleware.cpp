@@ -6,7 +6,6 @@
 
 #include "Middleware.h"
 #include "Helper.h"
-#include "MaterialInfo.h"
 #include "xercesc/dom/DOMNode.hpp"
 #include "xercesc/dom/DOMNodeList.hpp"
 #include "xercesc/dom/DOMDocument.hpp"
@@ -40,15 +39,14 @@
 #include "management/GeoManager.h"
 
 #include <iostream>
-#include <map>
 #include <string>
 #include <vector>
 #include <array>
 
 // requires lengthMultiplier, angleMultiplier and attributes already declared
-#define DECLAREANDGETLENGTVAR(x) auto const x = lengthMultiplier * GetAttribute<double>(#x, attributes);
-#define DECLAREANDGETANGLEVAR(x) auto const x = angleMultiplier * GetAttribute<double>(#x, attributes);
-#define DECLAREANDGETPLAINVAR(x) auto const x = GetAttribute<double>(#x, attributes);
+#define DECLAREANDGETLENGTVAR(x) auto const x = lengthMultiplier * GetDoubleAttribute(#x, attributes);
+#define DECLAREANDGETANGLEVAR(x) auto const x = angleMultiplier * GetDoubleAttribute(#x, attributes);
+#define DECLAREANDGETPLAINVAR(x) auto const x = GetDoubleAttribute(#x, attributes);
 #define DECLAREANDGETINTVAR(x) auto const x = GetAttribute<int>(#x, attributes);
 
 #define DECLAREHALF(x) auto const half##x = x / 2.;
@@ -98,31 +96,11 @@ auto const gdmlSolids = std::map<std::string, std::vector<std::string>>{
      {"v1x", "v1y", "v2x", "v2y", "v3x", "v3y", "v4x", "v4y", "v5x", "v5y", "v6x", "v6y", "v7x", "v7y", "v8x", "v8y",
       "dz"}},
     {"tessellated", {}}};
-// for getting referenced unplaced volumes
-auto unplacedVolumeMap = std::map<std::string, vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *>{};
-auto constantMap       = std::map<std::string, double>{};
-auto positionMap       = std::map<std::string, vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double>>{};
-auto scaleMap          = std::map<std::string, vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double>>{};
-auto rotationMap       = std::map<std::string, vecgeom::VECGEOM_IMPL_NAMESPACE::Vector3D<double>>{};
-auto isotopeMap        = std::map<std::string, vgdml::Isotope>{};
-auto elementMap        = std::map<std::string, vgdml::Element>{};
-auto materialMap       = std::map<std::string, vgdml::Material>{};
 
 template <typename T = std::string>
 T GetAttribute(std::string const &attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes)
 {
   return vgdml::Helper::GetAttribute<T>(attrName, theAttributes);
-}
-
-template <>
-double GetAttribute(std::string const &attrName, XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes)
-{
-  auto const simpleDouble = vgdml::Helper::GetAttribute<double>(attrName, theAttributes);
-  if (std::isnan(simpleDouble)) {
-    auto const referencedConstant = constantMap[vgdml::Helper::GetAttribute(attrName, theAttributes)];
-    return referencedConstant;
-  }
-  return simpleDouble;
 }
 
 std::array<double, 9> makeRotationMatrixFromCartesianAngles(double x, double y, double z)
@@ -155,6 +133,17 @@ extern template std::string Helper::GetAttribute(std::string const &attrName,
                                                  XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
 extern template double Helper::GetAttribute(std::string const &attrName,
                                             XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes);
+
+double Middleware::GetDoubleAttribute(std::string const &attrName,
+                                      XERCES_CPP_NAMESPACE_QUALIFIER DOMNamedNodeMap const *theAttributes)
+{
+  auto const simpleDouble = vgdml::Helper::GetAttribute<double>(attrName, theAttributes);
+  if (std::isnan(simpleDouble)) {
+    auto const referencedConstant = constantMap[vgdml::Helper::GetAttribute(attrName, theAttributes)];
+    return referencedConstant;
+  }
+  return simpleDouble;
+}
 
 bool Middleware::Load(XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument const *aDOMDocument)
 {
@@ -558,7 +547,7 @@ bool Middleware::processSolid(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOM
   auto const *const attributes = aDOMNode->getAttributes();
   auto const solidName         = GetAttribute("name", attributes);
 
-  auto const *const anUnplacedSolid = [name, aDOMNode]() {
+  auto const *const anUnplacedSolid = [this, name, aDOMNode]() {
     if (name == "orb") {
       return processOrb(aDOMNode);
     } else if (name == "box") {

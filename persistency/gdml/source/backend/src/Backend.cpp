@@ -16,7 +16,9 @@
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <xercesc/dom/DOMLSSerializer.hpp>
+#include <xercesc/dom/DOMLSParser.hpp>
 #include <xercesc/dom/DOMLSOutput.hpp>
+#include <xercesc/framework/psvi/PSVIHandler.hpp>
 
 #include <cstdlib>
 
@@ -29,10 +31,17 @@ Backend::Backend()
 
   fDOMParser           = new xercesc::XercesDOMParser;
   auto const schemaDir = std::getenv("GDMLDIR"); // get the alternative schema location for offline use
-  if (schemaDir) fDOMParser->setExternalNoNamespaceSchemaLocation((schemaDir + std::string("gdml.xsd")).c_str());
+  if (schemaDir) {
+    auto const shemaFile = (schemaDir + std::string("gdml.xsd")).c_str();
+    fDOMParser->setExternalNoNamespaceSchemaLocation(shemaFile);
+    fDOMParser->loadGrammar(shemaFile, xercesc::Grammar::SchemaGrammarType, true);
+  }
   fDOMParser->setValidationScheme(xercesc::XercesDOMParser::Val_Always);
   fDOMParser->setDoNamespaces(true);
   fDOMParser->setDoSchema(true);
+  fDOMParser->setDoXInclude(true);
+  fDOMParser->setCreateSchemaInfo(true);
+  fDOMParser->setIncludeIgnorableWhitespace(false);
 }
 
 XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *Backend::Load(std::string const &aFilename)
