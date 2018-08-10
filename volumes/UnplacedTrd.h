@@ -276,6 +276,8 @@ private:
 #endif
 };
 
+using GenericUnplacedTrd = SUnplacedTrd<TrdTypes::UniversalTrd>;
+
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom
 

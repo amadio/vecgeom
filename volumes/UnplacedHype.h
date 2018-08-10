@@ -334,6 +334,8 @@ private:
 #endif
 };
 
+using GenericUnplacedHype = SUnplacedHype<HypeTypes::UniversalHype>;
+
 } // namespace VECGEOM_IMPL_NAMESPACE
 } // namespace vecgeom
 
