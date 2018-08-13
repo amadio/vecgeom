@@ -32,6 +32,7 @@
 #include "volumes/UnplacedTessellated.h"
 #include "volumes/UnplacedTet.h"
 #include "volumes/UnplacedScaledShape.h"
+#include "volumes/UnplacedSExtruVolume.h"
 
 #include "volumes/LogicalVolume.h"
 #include "volumes/PlacedVolume.h"
@@ -588,6 +589,8 @@ bool Middleware::processSolid(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOM
       return processTesselated(aDOMNode);
     } else if (name == "tet") {
       return processTet(aDOMNode);
+    } else if (name == "xtru") {
+      return processExtruded(aDOMNode);
     } else if (name == "scaledSolid") {
       return processScaledShape(aDOMNode);
     } else
@@ -1005,6 +1008,41 @@ vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processTet(
       vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedTet>(
           vertices.at(0), vertices.at(1), vertices.at(2), vertices.at(3));
   return anUnplacedTetPtr;
+}
+
+vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume const *Middleware::processExtruded(
+    XERCES_CPP_NAMESPACE_QUALIFIER DOMNode const *aDOMNode)
+{
+  if (debug) {
+    std::cout << "Middleware::processExtruded: processing: " << Helper::GetNodeInformation(aDOMNode) << std::endl;
+  }
+  auto const lengthMultiplier = GetLengthMultiplier(aDOMNode);
+  std::vector<double> xs;
+  std::vector<double> ys;
+  std::vector<double> zs; // only first two are used, scaling factor and offset are not supported
+  for (auto *it = aDOMNode->getFirstChild(); it != nullptr; it = it->getNextSibling()) {
+    if (debug) {
+      std::cout << "Child: " << Helper::GetNodeInformation(it) << std::endl;
+    }
+    if (it->getNodeType() == XERCES_CPP_NAMESPACE_QUALIFIER DOMNode::ELEMENT_NODE) {
+      auto const theChildNodeName       = Helper::Transcode(it->getNodeName());
+      auto const *const childAttributes = it->getAttributes();
+      if (theChildNodeName == "twoDimVertex") {
+        auto const x = lengthMultiplier * GetDoubleAttribute("x", childAttributes);
+        auto const y = lengthMultiplier * GetDoubleAttribute("y", childAttributes);
+        xs.push_back(x);
+        ys.push_back(y);
+      } else if (theChildNodeName == "section") {
+        // FIXME warn about unsupported attributes
+        auto const z = lengthMultiplier * GetDoubleAttribute("z", childAttributes);
+        zs.push_back(z);
+      }
+    }
+  }
+  auto const anUnplacedExtrudedPtr =
+      vecgeom::VECGEOM_IMPL_NAMESPACE::GeoManager::MakeInstance<vecgeom::VECGEOM_IMPL_NAMESPACE::UnplacedSExtruVolume>(
+          xs.size(), xs.data(), ys.data(), zs.front(), zs.back());
+  return anUnplacedExtrudedPtr;
 }
 
 const vecgeom::VECGEOM_IMPL_NAMESPACE::VUnplacedVolume *Middleware::processScaledShape(
