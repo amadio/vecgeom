@@ -11,10 +11,17 @@
 #include "volumes/Box.h"
 #include "ApproxEqual.h"
 #include "volumes/Trapezoid.h"
+#include "volumes/UnplacedTrd.h"
+#include "volumes/UnplacedParallelepiped.h"
 #include <cmath>
+#include "management/GeoManager.h"
 
-using vecgeom::kPi;
+#ifndef VECCORE_CUDA
+#include "volumes/UnplacedImplAs.h"
+#endif
+
 using vecgeom::kInfLength;
+using vecgeom::kPi;
 bool testvecgeom = true;
 
 const double deg = atan(1.0) / 45.;
@@ -106,9 +113,8 @@ bool TestTrap()
   assert(ApproxEqual(vol, volCheck));
 
   vol      = trap2.SurfaceArea();
-  volCheck = 4 * (10 * 20 + 30 * 40) +
-             2 * ((20 + 40) * std::sqrt(4 * 40 * 40 + (30 - 10) * (30 - 10)) +
-                  (30 + 10) * std::sqrt(4 * 40 * 40 + (40 - 20) * (40 - 20)));
+  volCheck = 4 * (10 * 20 + 30 * 40) + 2 * ((20 + 40) * std::sqrt(4 * 40 * 40 + (30 - 10) * (30 - 10)) +
+                                            (30 + 10) * std::sqrt(4 * 40 * 40 + (40 - 20) * (40 - 20)));
   assert(ApproxEqual(vol, volCheck));
 
   // std::cout<<"Trd Surface Area : " << trap5.SurfaceArea()<<std::endl;
@@ -638,6 +644,47 @@ bool TestTrap()
   trap2.Extent(minExtent, maxExtent);
   assert(ApproxEqual(minExtent, Vec_t(-30, -40, -40)));
   assert(ApproxEqual(maxExtent, Vec_t(30, 40, 40)));
+
+#ifndef VECGEOM_NO_SPECIALIZATION
+  double tdz = 5., ttheta = 0., tphi = 0., tdy1 = 4., tdx1 = 3., tdx2 = 3., tAlpha1 = 0., tdy2 = 4., tdx3 = 3.,
+         tdx4 = 3., tAlpha2 = 0.;
+
+  auto boxLikeTrap = vecgeom::GeoManager::MakeInstance<vecgeom::cxx::UnplacedTrapezoid>(
+      tdz, ttheta, tphi, tdy1, tdx1, tdx2, tAlpha1, tdy2, tdx3, tdx4, tAlpha2);
+  tdx3 = 3.5;
+  tdx4 = 3.5;
+
+  auto trd1LikeTrap = vecgeom::GeoManager::MakeInstance<vecgeom::cxx::UnplacedTrapezoid>(
+      tdz, ttheta, tphi, tdy1, tdx1, tdx2, tAlpha1, tdy2, tdx3, tdx4, tAlpha2);
+  tdy2 = 4.5;
+
+  auto trd2LikeTrap = vecgeom::GeoManager::MakeInstance<vecgeom::cxx::UnplacedTrapezoid>(
+      tdz, ttheta, tphi, tdy1, tdx1, tdx2, tAlpha1, tdy2, tdx3, tdx4, tAlpha2);
+  tdx3    = 3.;
+  tdx4    = 3.;
+  tdy2    = 4.;
+  tAlpha1 = 30;
+  tAlpha2 = 30;
+  ttheta  = 30;
+  tphi    = 45;
+
+  auto parallelpipedLikeTrap = vecgeom::GeoManager::MakeInstance<vecgeom::cxx::UnplacedTrapezoid>(
+      tdz, ttheta, tphi, tdy1, tdx1, tdx2, tAlpha1, tdy2, tdx3, tdx4, tAlpha2);
+
+  using BoxLikeTrap  = vecgeom::SUnplacedImplAs<vecgeom::cxx::UnplacedTrapezoid, vecgeom::cxx::UnplacedBox>;
+  using Trd1LikeTrap = vecgeom::SUnplacedImplAs<vecgeom::cxx::UnplacedTrapezoid,
+                                                vecgeom::cxx::SUnplacedTrd<vecgeom::cxx::TrdTypes::Trd1>>;
+  using Trd2LikeTrap = vecgeom::SUnplacedImplAs<vecgeom::cxx::UnplacedTrapezoid,
+                                                vecgeom::cxx::SUnplacedTrd<vecgeom::cxx::TrdTypes::Trd2>>;
+  using ParallelepipedLikeTrap =
+      vecgeom::SUnplacedImplAs<vecgeom::cxx::UnplacedTrapezoid, vecgeom::cxx::UnplacedParallelepiped>;
+  // Checking type of boxLikeTrap, it should return true with pointer of BoxLikeTrap
+  assert(dynamic_cast<BoxLikeTrap *>(boxLikeTrap));
+  assert(dynamic_cast<Trd1LikeTrap *>(trd1LikeTrap));
+  assert(dynamic_cast<Trd2LikeTrap *>(trd2LikeTrap));
+  assert(dynamic_cast<ParallelepipedLikeTrap *>(parallelpipedLikeTrap));
+
+#endif
 
   return true;
 }

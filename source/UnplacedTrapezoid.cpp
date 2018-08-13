@@ -5,15 +5,124 @@
 // 160722 G. Lima    Revision + moving to new backend structure
 
 #include "volumes/UnplacedTrapezoid.h"
+#include "volumes/UnplacedTrd.h"
+#include "volumes/UnplacedParallelepiped.h"
+#include "management/GeoManager.h"
 #include "management/VolumeFactory.h"
 #include "volumes/SpecializedTrapezoid.h"
 #include "base/RNG.h"
+#include "volumes/kernel/shapetypes/TrdTypes.h"
 #include <cstdio>
+
+#ifdef VECGEOM_ROOT
+#include "TGeoArb8.h"
+#endif
+#ifdef VECGEOM_GEANT4
+#include "G4Trap.hh"
+#endif
+
+#ifndef VECCORE_CUDA
+#include "volumes/UnplacedImplAs.h"
+#endif
 
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
 using Vec3D = Vector3D<Precision>;
+
+#ifndef VECCORE_CUDA
+#ifdef VECGEOM_ROOT
+TGeoShape const *UnplacedTrapezoid::ConvertToRoot(char const *label) const
+{
+  return new TGeoTrap(label, dz(), theta() * kRadToDeg, phi() * kRadToDeg, dy1(), dx1(), dx2(), alpha1() * kRadToDeg,
+                      dy2(), dx3(), dx4(), alpha2() * kRadToDeg);
+}
+#endif
+
+#ifdef VECGEOM_GEANT4
+G4VSolid const *UnplacedTrapezoid::ConvertToGeant4(char const *label) const
+{
+  return new G4Trap(label, dz(), theta(), phi(), dy1(), dx1(), dx2(), alpha1(), dy2(), dx3(), dx4(), alpha2());
+}
+#endif
+#endif
+
+template <>
+UnplacedTrapezoid *Maker<UnplacedTrapezoid>::MakeInstance(const Precision dz, const Precision theta,
+                                                          const Precision phi, const Precision dy1, const Precision dx1,
+                                                          const Precision dx2, const Precision Alpha1,
+                                                          const Precision dy2, const Precision dx3, const Precision dx4,
+                                                          const Precision Alpha2)
+{
+
+#ifndef VECGEOM_NO_SPECIALIZATION
+  return GetSpecialized(dz, theta, phi, dy1, dx1, dx2, Alpha1, dy2, dx3, dx4, Alpha2);
+#else
+  return new UnplacedTrapezoid(dz, theta, phi, dy1, dx1, dx2, Alpha1, dy2, dx3, dx4, Alpha2);
+#endif
+}
+
+template <>
+UnplacedTrapezoid *Maker<UnplacedTrapezoid>::MakeInstance(TrapCorners const pt)
+{
+#ifndef VECGEOM_NO_SPECIALIZATION
+
+  Precision dz      = pt[7].z();
+  Precision DzRecip = 1.0 / dz;
+
+  Precision dy1       = 0.50 * (pt[2].y() - pt[0].y());
+  Precision dx1       = 0.50 * (pt[1].x() - pt[0].x());
+  Precision dx2       = 0.50 * (pt[3].x() - pt[2].x());
+  Precision tanAlpha1 = 0.25 * (pt[2].x() + pt[3].x() - pt[1].x() - pt[0].x()) / dy1;
+  Precision Alpha1    = atan(tanAlpha1);
+
+  Precision dy2       = 0.50 * (pt[6].y() - pt[4].y());
+  Precision dx3       = 0.50 * (pt[5].x() - pt[4].x());
+  Precision dx4       = 0.50 * (pt[7].x() - pt[6].x());
+  Precision tanAlpha2 = 0.25 * (pt[6].x() + pt[7].x() - pt[5].x() - pt[4].x()) / dy2;
+  Precision Alpha2    = atan(tanAlpha2);
+
+  Precision TthetaCphi = (pt[4].x() + dy2 * tanAlpha2 + dx3) * DzRecip;
+  Precision TthetaSphi = (pt[4].y() + dy2) * DzRecip;
+
+  Precision theta = atan(sqrt(TthetaSphi * TthetaSphi + TthetaCphi * TthetaCphi));
+  Precision phi   = atan2(TthetaSphi, TthetaCphi);
+
+  return GetSpecialized(dz, theta, phi, dy1, dx1, dx2, Alpha1, dy2, dx3, dx4, Alpha2);
+
+#else
+  return new UnplacedTrapezoid(pt);
+#endif
+}
+
+#ifndef VECGEOM_NO_SPECIALIZATION
+UnplacedTrapezoid *GetSpecialized(const Precision dz, const Precision theta, const Precision phi, const Precision dy1,
+                                  const Precision dx1, const Precision dx2, const Precision Alpha1, const Precision dy2,
+                                  const Precision dx3, const Precision dx4, const Precision Alpha2)
+{
+
+  // Box Like Trapezoid
+  if (theta == 0. && phi == 0. && Alpha1 == 0. && Alpha2 == 0 && dx1 == dx2 && dx2 == dx3 && dx3 == dx4 && dy1 == dy2) {
+    return new SUnplacedImplAs<UnplacedTrapezoid, UnplacedBox>(dx1, dy1, dz);
+  }
+  // Trd1 Like Trapezoid
+  if (theta == 0. && phi == 0. && Alpha1 == 0. && Alpha2 == 0 && dx1 == dx2 && dx3 == dx4 && dx2 != dx3 && dy1 == dy2) {
+    return new SUnplacedImplAs<UnplacedTrapezoid, SUnplacedTrd<TrdTypes::Trd1>>(dx1, dx3, dy1, dz);
+  }
+  // Trd2 Like Trapezoid
+  if (theta == 0. && phi == 0. && Alpha1 == 0. && Alpha2 == 0 && dx1 == dx2 && dx3 == dx4 && dx2 != dx3 && dy1 != dy2) {
+    return new SUnplacedImplAs<UnplacedTrapezoid, SUnplacedTrd<TrdTypes::Trd2>>(dx1, dx3, dy1, dy2, dz);
+  }
+
+  // Parallelepiped Like Trapezoid
+  if (Alpha1 == Alpha2 && dx1 == dx2 && dx2 == dx3 && dx3 == dx4 && dy1 == dy2) {
+    return new SUnplacedImplAs<UnplacedTrapezoid, UnplacedParallelepiped>(dx1, dy1, dz, Alpha1, theta, phi);
+  }
+
+  // if none of the above then return the full Trapezoid.
+  return new UnplacedTrapezoid(dz, theta, phi, dy1, dx1, dx2, Alpha1, dy2, dx3, dx4, Alpha2);
+}
+#endif
 
 VECCORE_ATT_HOST_DEVICE
 UnplacedTrapezoid::UnplacedTrapezoid(TrapCorners const corners) : fTrap()
@@ -22,7 +131,7 @@ UnplacedTrapezoid::UnplacedTrapezoid(TrapCorners const corners) : fTrap()
   fromCornersToParameters(corners);
 }
 
-VECCORE_ATT_HOST_DEVICE
+/*VECCORE_ATT_HOST_DEVICE
 UnplacedTrapezoid::UnplacedTrapezoid(double dx, double dy, double dz, double)
     : fTrap(dz, 0., 0., dy, dx, dx, 0., dy, dx, dx, 0.)
 {
@@ -31,8 +140,32 @@ UnplacedTrapezoid::UnplacedTrapezoid(double dx, double dy, double dz, double)
   fprintf(stderr, "*** ERROR: STEP-based trapezoid constructor called, but not implemented ***");
 #endif
   assert(false);
+}*/
+
+VECCORE_ATT_HOST_DEVICE
+UnplacedTrapezoid::UnplacedTrapezoid(double dx1, double dx2, double dy, double dz)
+    : fTrap(dz, 0., 0., dy, dx1, dx1, 0., dy, dx2, dx2, 0.)
+{
+  MakePlanes();
+  fGlobalConvexity = true;
 }
 
+UnplacedTrapezoid::UnplacedTrapezoid(double dx1, double dx2, double dy1, double dy2, double dz)
+    : UnplacedTrapezoid(dz, 0., 0., dy1, dx1, dx1, 0., dy2, dx2, dx2, 0.)
+{
+  MakePlanes();
+  fGlobalConvexity = true;
+}
+
+UnplacedTrapezoid::UnplacedTrapezoid(double dx, double dy, double dz, double alpha, double theta, double phi)
+    : fTrap(dz, theta, phi, dy, dx, dx, alpha, dy, dx, dx, alpha)
+{
+  // TODO: validate alpha usage here
+  fTrap.fTanAlpha1 = std::tan(alpha);
+  fTrap.fTanAlpha2 = fTrap.fTanAlpha1;
+  MakePlanes();
+  fGlobalConvexity = true;
+}
 VECCORE_ATT_HOST_DEVICE
 UnplacedTrapezoid::UnplacedTrapezoid(Precision xbox, Precision ybox, Precision zbox)
     : fTrap(zbox, 0., 0., ybox, xbox, xbox, 0., ybox, xbox, xbox, 0.)
@@ -433,10 +566,10 @@ bool UnplacedTrapezoid::MakeAPlane(const Vec3D &p1, const Vec3D &p2, const Vec3D
 #ifndef VECGEOM_PLANESHELL_DISABLE
   fTrap.fPlanes.Set(iplane, normalVector.x(), normalVector.y(), normalVector.z(), d);
 #else
-  plane.fA            = normalVector.x();
-  plane.fB            = normalVector.y();
-  plane.fC            = normalVector.z();
-  plane.fD            = d;
+  plane.fA = normalVector.x();
+  plane.fB = normalVector.y();
+  plane.fC = normalVector.z();
+  plane.fD = d;
   unsigned int iplane = (&plane - fTrap.fPlanes); // pointer arithmetics used here
 #endif
 
@@ -464,7 +597,7 @@ bool UnplacedTrapezoid::MakePlanes(TrapCorners const pt)
 #ifndef VECGEOM_PLANESHELL_DISABLE
   good = MakeAPlane(pt[0], pt[1], pt[5], pt[4], 0);
 #else
-  good                = MakeAPlane(pt[0], pt[1], pt[5], pt[4], fTrap.fPlanes[0]);
+  good = MakeAPlane(pt[0], pt[1], pt[5], pt[4], fTrap.fPlanes[0]);
 #endif
   if (!good) printf("***** GeomSolids0002 - Face at ~-Y not planar for Solid: UnplacedTrapezoid\n");
 
@@ -568,7 +701,7 @@ DevicePtr<cuda::VUnplacedVolume> UnplacedTrapezoid::CopyToGpu() const
 
 #endif // VECGEOM_CUDA_INTERFACE
 
-} // End impl namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
 
 #ifdef VECCORE_CUDA
 
@@ -582,8 +715,8 @@ template void DevicePtr<cuda::UnplacedTrapezoid>::Construct(const Precision dz, 
                                                             const Precision dx3, const Precision dx4,
                                                             const Precision tanAlpha2) const;
 
-} // End cxx namespace
+} // namespace cxx
 
 #endif
 
-} // End global namespace
+} // namespace vecgeom

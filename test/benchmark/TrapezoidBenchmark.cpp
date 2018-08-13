@@ -28,10 +28,12 @@ int main(int argc, char *argv[])
 
   // world volume: either a box, or a box-like trapezoid
   // UnplacedBox worldUnplaced = UnplacedBox(20., 20., 20.);
-  UnplacedTrapezoid worldUnplaced = UnplacedTrapezoid(20., 0., 0., 20., 20., 20., 0., 20., 20., 20., 0.);
+  // UnplacedTrapezoid worldUnplaced = UnplacedTrapezoid(20., 0., 0., 20., 20., 20., 0., 20., 20., 20., 0.);
+  auto worldUnplaced = GeoManager::MakeInstance<UnplacedTrapezoid>(20., 0., 0., 20., 20., 20., 0., 20., 20., 20., 0.);
 
   //-- and here for a few alternative internal trapezoids
-  UnplacedTrapezoid *trapPtr = nullptr;
+  // UnplacedTrapezoid *trapPtr = nullptr;
+  VUnplacedVolume *trapPtr = nullptr;
 
   switch (type) {
   case 0:
@@ -39,7 +41,8 @@ int main(int argc, char *argv[])
               << " Testing box-like trapezoid for npoints = " << npoints << "\n"
               << "==================================================\n";
 
-    trapPtr = new UnplacedTrapezoid(10, 0, 0, 10, 10, 10, 0, 10, 10, 10, 0);
+    // trapPtr = new UnplacedTrapezoid(10, 0, 0, 10, 10, 10, 0, 10, 10, 10, 0);
+    trapPtr = GeoManager::MakeInstance<UnplacedTrapezoid>(10, 0, 0, 10, 10, 10, 0, 10, 10, 10, 0);
     break;
 
   case 1:
@@ -80,7 +83,43 @@ int main(int argc, char *argv[])
       double theta      = 20. * deg;
       double phi        = 5. * deg;
       double alpha      = 10. * deg;
-      trapPtr           = new UnplacedTrapezoid(15, theta, phi, 10, 7.5, 10, alpha, 4, 2.5, 3.5, alpha);
+      // trapPtr           = new UnplacedTrapezoid(15, theta, phi, 10, 7.5, 10, alpha, 4, 2.5, 3.5, alpha);
+      trapPtr = GeoManager::MakeInstance<UnplacedTrapezoid>(15, theta, phi, 10, 7.5, 10, alpha, 4, 2.5, 3.5, alpha);
+    }
+    break;
+
+  case 3:
+    std::cout << "=====================================================================\n"
+              << " Testing Trd1 like Trapezoid for npoints = " << npoints << "\n"
+              << "=====================================================================\n";
+
+    {
+      trapPtr = GeoManager::MakeInstance<UnplacedTrapezoid>(15, 0., 0., 10., 7.5, 7.5, 0., 10., 3.5, 3.5, 0.);
+    }
+    break;
+
+  case 4:
+    std::cout << "=====================================================================\n"
+              << " Testing Trd2 like Trapezoid for npoints = " << npoints << "\n"
+              << "=====================================================================\n";
+
+    {
+      trapPtr = GeoManager::MakeInstance<UnplacedTrapezoid>(15, 0., 0., 10., 7.5, 7.5, 0., 8., 3.5, 3.5, 0.);
+    }
+    break;
+
+  case 5:
+    std::cout << "=====================================================================\n"
+              << " Testing Parallelepiped like Trapezoid for npoints = " << npoints << "\n"
+              << "=====================================================================\n";
+
+    {
+      const double &deg = kDegToRad;
+      double theta      = 20. * deg;
+      double phi        = 5. * deg;
+      double alpha      = 10. * deg;
+
+      trapPtr = GeoManager::MakeInstance<UnplacedTrapezoid>(15, theta, phi, 10., 7.5, 7.5, alpha, 10., 7.5, 7.5, alpha);
     }
     break;
 
@@ -94,7 +133,8 @@ int main(int argc, char *argv[])
   }
   trapPtr->Print();
 
-  LogicalVolume world("world", &worldUnplaced);
+  // LogicalVolume world("world", &worldUnplaced);
+  LogicalVolume world("world", worldUnplaced);
   LogicalVolume trap("trap", trapPtr);
 
   // define transformation

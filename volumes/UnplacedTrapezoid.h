@@ -84,24 +84,15 @@ public:
 
   /// \brief Constructor required by Geant4
   VECCORE_ATT_HOST_DEVICE
-  UnplacedTrapezoid(double dx, double dy, double dz, double);
+  // Constructor corresponding to Trd1
+  UnplacedTrapezoid(double dx1, double dx2, double dy, double dz);
 
+  // Constructor corresponding to Trd2
   /// \brief Constructor for a Trd-like trapezoid
-  UnplacedTrapezoid(double dx1, double dx2, double dy1, double dy2, double dz)
-      : UnplacedTrapezoid(dz, 0., 0., dy1, dx1, dx2, 0., dy2, dx1, dx2, 0.)
-  {
-  }
+  UnplacedTrapezoid(double dx1, double dx2, double dy1, double dy2, double dz);
 
   /// \brief Constructor for a Parallelepiped-like trapezoid (Note: still to be validated)
-  UnplacedTrapezoid(double dx, double dy, double dz, double alpha, double theta, double phi)
-      : fTrap(dz, theta, phi, dy, dx, dx, 0., dy, dx, dx, 0.)
-  {
-    // TODO: validate alpha usage here
-    fTrap.fTanAlpha1 = std::tan(alpha);
-    fTrap.fTanAlpha2 = fTrap.fTanAlpha1;
-    fGlobalConvexity = true;
-    MakePlanes();
-  }
+  UnplacedTrapezoid(double dx, double dy, double dz, double alpha, double theta, double phi);
 
   /// \brief Accessors
   /// @{
@@ -413,9 +404,42 @@ private:
   bool MakeAPlane(Vector3D<Precision> const &p1, Vector3D<Precision> const &p2, Vector3D<Precision> const &p3,
                   Vector3D<Precision> const &p4, TrapezoidStruct<double>::TrapSidePlane &plane);
 #endif
+
+public:
+#ifndef VECCORE_CUDA
+#ifdef VECGEOM_ROOT
+  TGeoShape const *ConvertToRoot(char const *label) const;
+#endif
+
+#ifdef VECGEOM_GEANT4
+  G4VSolid const *ConvertToGeant4(char const *label) const;
+#endif
+#endif
 };
 
-} // inline NS
-} // vecgeom NS
+// Adding specialized factory.
+template <>
+struct Maker<UnplacedTrapezoid> {
+  template <typename... ArgTypes>
+  static UnplacedTrapezoid *MakeInstance(const Precision dz, const Precision theta, const Precision phi,
+                                         const Precision dy1, const Precision dx1, const Precision dx2,
+                                         const Precision Alpha1, const Precision dy2, const Precision dx3,
+                                         const Precision dx4, const Precision Alpha2);
+
+  template <typename... ArgTypes>
+  static UnplacedTrapezoid *MakeInstance(TrapCorners const pt);
+};
+
+// Helper function to be used by all the Factories of Trapezoid
+#ifndef VECGEOM_NO_SPECIALIZATION
+UnplacedTrapezoid *GetSpecialized(const Precision dz, const Precision theta, const Precision phi, const Precision dy1,
+                                  const Precision dx1, const Precision dx2, const Precision Alpha1, const Precision dy2,
+                                  const Precision dx3, const Precision dx4, const Precision Alpha2);
+#endif
+
+using GenericUnplacedTrapezoid = UnplacedTrapezoid;
+
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif

@@ -241,6 +241,7 @@ struct Maker<UnplacedTrd> {
 template <typename TrdType = TrdTypes::UniversalTrd>
 class SUnplacedTrd : public SIMDUnplacedVolumeImplHelper<TrdImplementation<TrdType>, UnplacedTrd>, public AlignedBase {
 public:
+  using Kernel     = TrdImplementation<TrdType>;
   using BaseType_t = SIMDUnplacedVolumeImplHelper<TrdImplementation<TrdType>, UnplacedTrd>;
   using BaseType_t::BaseType_t;
 
@@ -252,7 +253,6 @@ public:
 #endif
                                VPlacedVolume *const placement = NULL);
 
-private:
 #ifndef VECCORE_CUDA
   virtual VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume,
                                            Transformation3D const *const transformation,
