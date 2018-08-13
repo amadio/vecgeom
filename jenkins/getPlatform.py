@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import os, platform, string, re
 
 arch = platform.machine()
@@ -7,7 +8,7 @@ system = platform.system()
 
 #---Determine the OS and version--------------------------------------
 if system == 'Darwin' :
-   osvers = 'mac' + string.join(platform.mac_ver()[0].split('.')[:2],'')
+   osvers = 'mac' + ''.join(platform.mac_ver()[0].split('.')[:2])
 elif system == 'Linux' :
    dist = platform.linux_distribution()
    if re.search('SLC', dist[0]):
@@ -19,7 +20,7 @@ elif system == 'Linux' :
    elif re.search('Fedora', dist[0]):
       osvers = 'fedora' + dist[1].split('.')[0]
    else:
-      osvers = 'linux' + string.join(platform.linux_distribution()[1].split('.')[:2],'')
+      osvers = 'linux' + ''.join(platform.linux_distribution()[1].split('.')[:2])
 elif system == 'Windows':
    osvers = win + platform.win32_ver()[0]
 else:
@@ -71,4 +72,4 @@ elif buildtype == 'Debug' : bt = 'dbg'
 elif buildtype == 'Optimized' : bt = 'fst'
 else : bt = 'unk'
 
-print '%s-%s-%s-%s' %  (arch, osvers, compiler, bt)
+print('%s-%s-%s-%s' %  (arch, osvers, compiler, bt))
