@@ -29,7 +29,7 @@ struct ParallelepipedStruct {
   T fTanAlpha;       /** Tangent of alpha angle */
   T fTanThetaSinPhi; /** tan(theta)*sin(phi) */
   T fTanThetaCosPhi; /** tan(theta)*cos(phi) */
-  T fCosTheta; /** cos*theta **/
+  T fCosTheta;       /** cos(theta) **/
 
   VECCORE_ATT_HOST_DEVICE
   ParallelepipedStruct(Vector3D<T> const &dim, const T alpha, const T theta, const T phi)
@@ -77,8 +77,7 @@ struct ParallelepipedStruct {
   VECCORE_ATT_HOST_DEVICE
   void ComputeNormals()
   {
-    Vector3D<T> v(sin(fTheta) * cos(fPhi), sin(fTheta) * sin(fPhi),
-                  cos(fTheta));
+    Vector3D<T> v(sin(fTheta) * cos(fPhi), sin(fTheta) * sin(fPhi), cos(fTheta));
     Vector3D<T> vx(1., 0., 0.);
     Vector3D<T> vy(-sin(fAlpha), -cos(fAlpha), 0.);
     fNormals[0] = v.Cross(vy);
@@ -90,7 +89,7 @@ struct ParallelepipedStruct {
     fCty = 1.0 / sqrt(1. + fTanThetaSinPhi * fTanThetaSinPhi);
   }
 };
-}
-} // end
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif
