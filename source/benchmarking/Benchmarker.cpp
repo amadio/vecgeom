@@ -32,7 +32,7 @@ Benchmarker::Benchmarker() : Benchmarker(NULL)
 }
 
 Benchmarker::Benchmarker(VPlacedVolume const *const world)
-    : fPointCount(1024), fPoolMultiplier(4), fRepetitions(1024), fMeasurementCount(1), fVerbosity(1), fToInBias(0.8),
+    : fPointCount(1024), fPoolMultiplier(1), fRepetitions(1024), fMeasurementCount(1), fVerbosity(1), fToInBias(0.8),
       fInsideBias(0.5), fPointPool(NULL), fDirectionPool(NULL), fStepMax(NULL), fTolerance(kTolerance)
 #ifdef VECGEOM_ROOT
       ,
