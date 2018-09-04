@@ -22,9 +22,9 @@ bool TestParallelepiped()
   const Precision dx    = 20;
   const Precision dy    = 30;
   const Precision dz    = 40;
-  const Precision alpha = 30;
-  const Precision theta = 30;
-  const Precision phi   = 45;
+  const Precision alpha = kDegToRad * 30;
+  const Precision theta = kDegToRad * 30;
+  const Precision phi   = kDegToRad * 45;
 
   Parallelepiped_t para("Test Parallelepiped", dx, dy, dz, alpha, theta, phi);
 

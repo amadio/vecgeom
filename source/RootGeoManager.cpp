@@ -415,7 +415,8 @@ VUnplacedVolume *RootGeoManager::Convert(TGeoShape const *const shape)
     TGeoPara const *const p = static_cast<TGeoPara const *>(shape);
 
     unplaced_volume = GeoManager::MakeInstance<UnplacedParallelepiped>(
-        p->GetX() * LUnit(), p->GetY() * LUnit(), p->GetZ() * LUnit(), p->GetAlpha(), p->GetTheta(), p->GetPhi());
+        p->GetX() * LUnit(), p->GetY() * LUnit(), p->GetZ() * LUnit(), kDegToRad * p->GetAlpha(),
+        kDegToRad * p->GetTheta(), kDegToRad * p->GetPhi());
   }
 
   // Polyhedron/TGeoPgon

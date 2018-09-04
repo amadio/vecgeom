@@ -153,7 +153,7 @@ public:
   Precision SurfaceArea() const override
   {
     // factor 8 because dimensions_ are half-lengths
-    Precision ctinv = 1. / cos(kDegToRad * fPara.fTheta);
+    Precision ctinv = 1. / fPara.fCosTheta;
     return 8.0 * (fPara.fDimensions[0] * fPara.fDimensions[1] +
                   fPara.fDimensions[1] * fPara.fDimensions[2] *
                       sqrt(ctinv * ctinv - fPara.fTanThetaSinPhi * fPara.fTanThetaSinPhi) +

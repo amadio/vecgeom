@@ -29,6 +29,7 @@ struct ParallelepipedStruct {
   T fTanAlpha;       /** Tangent of alpha angle */
   T fTanThetaSinPhi; /** tan(theta)*sin(phi) */
   T fTanThetaCosPhi; /** tan(theta)*cos(phi) */
+  T fCosTheta; /** cos*theta **/
 
   VECCORE_ATT_HOST_DEVICE
   ParallelepipedStruct(Vector3D<T> const &dim, const T alpha, const T theta, const T phi)
@@ -52,7 +53,7 @@ struct ParallelepipedStruct {
   void SetAlpha(const T alpha)
   {
     fAlpha    = alpha;
-    fTanAlpha = tan(kDegToRad * alpha);
+    fTanAlpha = tan(alpha);
     ComputeNormals();
   }
 
@@ -67,18 +68,19 @@ struct ParallelepipedStruct {
   {
     fTheta          = theta;
     fPhi            = phi;
-    fTanThetaCosPhi = tan(kDegToRad * fTheta) * cos(kDegToRad * fPhi);
-    fTanThetaSinPhi = tan(kDegToRad * fTheta) * sin(kDegToRad * fPhi);
+    fTanThetaCosPhi = tan(fTheta) * cos(fPhi);
+    fTanThetaSinPhi = tan(fTheta) * sin(fPhi);
+    fCosTheta       = cos(fTheta);
     ComputeNormals();
   }
 
   VECCORE_ATT_HOST_DEVICE
   void ComputeNormals()
   {
-    Vector3D<T> v(sin(kDegToRad * fTheta) * cos(kDegToRad * fPhi), sin(kDegToRad * fTheta) * sin(kDegToRad * fPhi),
-                  cos(kDegToRad * fTheta));
+    Vector3D<T> v(sin(fTheta) * cos(fPhi), sin(fTheta) * sin(fPhi),
+                  cos(fTheta));
     Vector3D<T> vx(1., 0., 0.);
-    Vector3D<T> vy(-sin(kDegToRad * fAlpha), -cos(kDegToRad * fAlpha), 0.);
+    Vector3D<T> vy(-sin(fAlpha), -cos(fAlpha), 0.);
     fNormals[0] = v.Cross(vy);
     fNormals[0].Normalize();
     fNormals[1] = v.Cross(vx);
