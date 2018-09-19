@@ -12,7 +12,12 @@
 #include <algorithm>
 #include <ostream>
 
-namespace VECGEOM_NAMESPACE {
+namespace vecgeom {
+
+VECGEOM_DEVICE_FORWARD_DECLARE(template <typename Type> class Vector2D;);
+VECGEOM_DEVICE_DECLARE_CONV_TEMPLATE(class, Vector2D, typename);
+
+inline namespace VECGEOM_IMPL_NAMESPACE {
 
 template <typename Type>
 class Vector2D : public AlignedBase {
@@ -66,9 +71,6 @@ public:
   VECCORE_ATT_HOST_DEVICE
   VECGEOM_FORCE_INLINE
   Type Cross(VecType const &other) const { return vec[0] * other.vec[1] - vec[1] * other.vec[0]; }
-
-  template <typename StreamType>
-  friend inline std::ostream &operator<<(std::ostream &os, Vector2D<StreamType> const &v);
 
 #define VECTOR2D_TEMPLATE_INPLACE_BINARY_OP(OPERATOR) \
   VECCORE_ATT_HOST_DEVICE                             \
@@ -178,9 +180,9 @@ void Vector2D<Type>::Set(const Type x, const Type y)
 }
 
 template <typename Type>
-std::ostream &operator<<(std::ostream &os, Vector2D<Type> const &v)
+std::ostream &operator<<(std::ostream &os, Vector2D<Type> const &vec)
 {
-  os << "(" << v.vec[0] << ", " << v.vec[1] << ")";
+  os << "(" << vec[0] << ", " << vec[1] << ")";
   return os;
 }
 
@@ -215,6 +217,7 @@ VECTOR2D_BINARY_OP(*, *=)
 VECTOR2D_BINARY_OP(/, /=)
 #undef VECTOR2D_BINARY_OP
 
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_BASE_VECTOR2D_H_
