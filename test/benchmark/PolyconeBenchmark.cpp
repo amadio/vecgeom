@@ -27,12 +27,12 @@ int main(int argc, char *argv[])
   double z[]    = {-1, -0.5, 0.5, 10};
 
   UnplacedBox worldUnplaced(5, 5, 15);
-  UnplacedPolycone pconUnplaced(phistart, phidelta, Nz, z, rmin, rmax);
+  auto pconUnplaced = GeoManager::MakeInstance<UnplacedPolycone>(phistart, phidelta, Nz, z, rmin, rmax);
 
-  pconUnplaced.Print();
+  pconUnplaced->Print();
 
   LogicalVolume world("world", &worldUnplaced);
-  LogicalVolume pcon("pcon", &pconUnplaced);
+  LogicalVolume pcon("pcon", pconUnplaced);
 
   Transformation3D placement(0, 0, 0);
 #if defined(VECGEOM_ROOT) and defined(VISUALIZER)

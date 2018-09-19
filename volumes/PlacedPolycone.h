@@ -25,16 +25,13 @@ VECGEOM_DEVICE_DECLARE_CONV(class, PlacedPolycone);
 
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
-class PlacedPolycone : public PlacedVolumeImplHelper<UnplacedPolycone, VPlacedVolume> {
-  using Base = PlacedVolumeImplHelper<UnplacedPolycone, VPlacedVolume>;
+class PlacedPolycone : public VPlacedVolume {
 
 public:
 #ifndef VECCORE_CUDA
-  // constructor inheritance;
-  using Base::Base;
   PlacedPolycone(char const *const label, LogicalVolume const *const logicalVolume,
                  Transformation3D const *const transformation, vecgeom::PlacedBox const *const boundingBox)
-      : Base(label, logicalVolume, transformation, boundingBox)
+      : VPlacedVolume(label, logicalVolume, transformation, boundingBox)
   {
   }
 
@@ -47,7 +44,7 @@ public:
   VECCORE_ATT_DEVICE PlacedPolycone(LogicalVolume const *const logicalVolume,
                                     Transformation3D const *const transformation, PlacedBox const *const boundingBox,
                                     const int id)
-      : Base(logicalVolume, transformation, boundingBox, id)
+      : VPlacedVolume(logicalVolume, transformation, boundingBox, id)
   {
   }
 #endif
@@ -104,7 +101,17 @@ public:
 #endif
 
 }; // end class
-}
-} // End global namespace
+
+template <typename UnplacedPolycone_t>
+class SPlacedPolycone : public PlacedVolumeImplHelper<UnplacedPolycone_t, PlacedPolycone> {
+  using Base = PlacedVolumeImplHelper<UnplacedPolycone_t, PlacedPolycone>;
+
+public:
+  typedef UnplacedPolycone UnplacedShape_t;
+  using Base::Base;
+};
+
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_PLACEDPOLYCONE_H_

@@ -283,6 +283,7 @@ template <typename ConeType = ConeTypes::UniversalCone>
 class SUnplacedCone : public SIMDUnplacedVolumeImplHelper<ConeImplementation<ConeType>, UnplacedCone>,
                       public vecgeom::AlignedBase {
 public:
+  using Kernel     = ConeImplementation<ConeType>;
   using BaseType_t = SIMDUnplacedVolumeImplHelper<ConeImplementation<ConeType>, UnplacedCone>;
   using BaseType_t::BaseType_t;
 

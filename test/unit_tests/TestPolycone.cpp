@@ -14,6 +14,7 @@
 #include "ApproxEqual.h"
 #include <cmath>
 #include "base/FpeEnable.h"
+#include "management/GeoManager.h"
 
 using namespace vecgeom;
 
@@ -44,37 +45,44 @@ bool TestPolycone()
   double rmax[] = {1., 2., 2., 1.5};
   double z[]    = {-1, -0.5, 0.5, 2};
 
-  UnplacedPolycone poly1(0.,                /* initial phi starting angle */
-                         360. * kPi / 180., // kTwoPi,    /* total phi angle */
-                         Nz,                /* number corners in r,z space */
-                         z,                 /* z coordinates */
-                         rmin,              /* r coordinate of these corners */
-                         rmax);
+  //  UnplacedPolycone poly1(0.,                /* initial phi starting angle */
+  //                         360. * kPi / 180., // kTwoPi,    /* total phi angle */
+  //                         Nz,                /* number corners in r,z space */
+  //                         z,                 /* z coordinates */
+  //                         rmin,              /* r coordinate of these corners */
+  //                         rmax);
 
-  // poly1.Print();
+  auto poly1 = GeoManager::MakeInstance<UnplacedPolycone>(0.,                /* initial phi starting angle */
+                                                          360. * kPi / 180., // kTwoPi,    /* total phi angle */
+                                                          Nz,                /* number corners in r,z space */
+                                                          z,                 /* z coordinates */
+                                                          rmin,              /* r coordinate of these corners */
+                                                          rmax);
+
+  // poly1->Print();
 
   // let's make external separate cones representing the sections
   SUnplacedCone<ConeTypes::UniversalCone> section0(rmin[0], rmax[0], rmin[1], rmax[1], (z[1] - z[0]) / 2., 0, kTwoPi);
   SUnplacedCone<ConeTypes::UniversalCone> section1(rmin[1], rmax[1], rmin[2], rmax[2], (z[2] - z[1]) / 2., 0, kTwoPi);
   SUnplacedCone<ConeTypes::UniversalCone> section2(rmin[2], rmax[2], rmin[3], rmax[3], (z[3] - z[2]) / 2., 0, kTwoPi);
 
-  assert(poly1.GetNz() == 4);
-  assert(poly1.GetNSections() == 3);
-  assert(poly1.GetSectionIndex(-0.8) == 0);
-  assert(poly1.GetSectionIndex(0.51) == 2);
-  assert(poly1.GetSectionIndex(0.) == 1);
-  assert(poly1.GetSectionIndex(-2.) == -1);
-  assert(poly1.GetSectionIndex(3.) == -2);
-  assert(poly1.GetStartPhi() == 0.);
-  assert((std::fabs(poly1.GetDeltaPhi() - kTwoPi)) < 1e-10);
+  assert(poly1->GetNz() == 4);
+  assert(poly1->GetNSections() == 3);
+  assert(poly1->GetSectionIndex(-0.8) == 0);
+  assert(poly1->GetSectionIndex(0.51) == 2);
+  assert(poly1->GetSectionIndex(0.) == 1);
+  assert(poly1->GetSectionIndex(-2.) == -1);
+  assert(poly1->GetSectionIndex(3.) == -2);
+  assert(poly1->GetStartPhi() == 0.);
+  assert((std::fabs(poly1->GetDeltaPhi() - kTwoPi)) < 1e-10);
 
-  assert(poly1.GetStruct().fZs[0] == z[0]);
-  assert(poly1.GetStruct().fZs[poly1.GetNSections()] == z[Nz - 1]);
-  assert(poly1.Capacity() > 0);
-  assert(std::fabs(poly1.Capacity() - (section0.Capacity() + section1.Capacity() + section2.Capacity())) < 1e-6);
+  assert(poly1->GetStruct().fZs[0] == z[0]);
+  assert(poly1->GetStruct().fZs[poly1->GetNSections()] == z[Nz - 1]);
+  assert(poly1->Capacity() > 0);
+  assert(std::fabs(poly1->Capacity() - (section0.Capacity() + section1.Capacity() + section2.Capacity())) < 1e-6);
 
   // create a placed version
-  VPlacedVolume const *placedpoly1 = (new LogicalVolume("poly1", &poly1))->Place(new Transformation3D());
+  VPlacedVolume const *placedpoly1 = (new LogicalVolume("poly1", poly1))->Place(new Transformation3D());
 
   // test contains/inside
   assert(placedpoly1->Contains(Vec_t(0., 0., 0.)) == true);
@@ -322,9 +330,9 @@ bool TestPolycone()
   assert(ApproxEqual(minExtent, Vec_t(-80, -80, -10)));
   assert(ApproxEqual(maxExtent, Vec_t(80, 80, 10)));
   MyPCone->Extent(minExtent, maxExtent);
-// std::cout<<" min="<<minExtent<<" max="<<maxExtent<<std::endl;
-// assert(ApproxEqual(minExtent, Vec_t(-80, -80, -20)));
-// assert(ApproxEqual(maxExtent, Vec_t(80, 80, 40)));
+  // std::cout<<" min="<<minExtent<<" max="<<maxExtent<<std::endl;
+  // assert(ApproxEqual(minExtent, Vec_t(-80, -80, -20)));
+  // assert(ApproxEqual(maxExtent, Vec_t(80, 80, 40)));
 
 #ifdef SCAN_SOLID
 

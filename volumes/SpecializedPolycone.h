@@ -20,12 +20,31 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+template <TranslationCode transCodeT, RotationCode rotCodeT, typename polyconeTypeT>
+using SpecializedPolycone = LoopSpecializedVolImplHelper<PolyconeImplementation<polyconeTypeT>, transCodeT, rotCodeT>;
+
+using SimplePolycone = SpecializedPolycone<translation::kGeneric, rotation::kGeneric, ConeTypes::UniversalCone>;
+
+template <typename Type>
 template <TranslationCode transCodeT, RotationCode rotCodeT>
-
-using SpecializedPolycone = LoopSpecializedVolImplHelper<PolyconeImplementation, transCodeT, rotCodeT>;
-
-using SimplePolycone = SpecializedPolycone<translation::kGeneric, rotation::kGeneric>;
+VECCORE_ATT_DEVICE
+VPlacedVolume *SUnplacedPolycone<Type>::Create(LogicalVolume const *const logical_volume,
+                                               Transformation3D const *const transformation,
+#ifdef VECCORE_CUDA
+                                               const int id,
+#endif
+                                               VPlacedVolume *const placement)
+{
+  (void)placement;
+  return new SpecializedPolycone<transCodeT, rotCodeT, Type>(logical_volume, transformation
+#ifdef VECCORE_CUDA
+                                                             ,
+                                                             id
+#endif
+  );
 }
-} // End global namespace
+
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* VECGEOM_VOLUMES_SPECIALIZEDPOLYCONE_H_ */
