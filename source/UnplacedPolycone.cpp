@@ -33,6 +33,8 @@
 #include "base/Vector.h"
 #include "management/GeoManager.h"
 
+#include "volumes/ReducedPolycone.h"
+
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
@@ -106,6 +108,13 @@ UnplacedPolycone *Maker<UnplacedPolycone>::MakeInstance(Precision phistart, Prec
 #endif
 }
 
+template <>
+UnplacedPolycone *Maker<UnplacedPolycone>::MakeInstance(Precision phistart, Precision deltaphi, int Nz,
+                                                        Precision const *r, Precision const *z)
+{
+  return new SUnplacedPolycone<ConeTypes::UniversalCone>(phistart, deltaphi, Nz, r, z);
+}
+
 #ifndef VECCORE_CUDA
 #ifdef VECGEOM_ROOT
 TGeoShape const *UnplacedPolycone::ConvertToRoot(char const *label) const
@@ -169,9 +178,12 @@ void UnplacedPolycone::Reset()
 }
 
 // Alternative constructor, required for integration with Geant4.
-// Input must be such that r[i],z[i] describe the outer,inner or inner,outer envelope of the polycone, after
-// connecting all adjacent points, and closing the polygon by connecting last -> first point.
-// Hence z[] array must be symmetrical: z[0..Nz] = z[2Nz, 2Nz-1, ..., Nz+1], where 2*Nz = numRz.
+/*
+ * The modified definition make use of ReducedPolycone class, and provide more flexibility to
+ * user to create Polycone by specifying RZ corners.
+ *
+ * User has to provide a valid contour formed by RZ corners.
+ */
 VECCORE_ATT_HOST_DEVICE
 UnplacedPolycone::UnplacedPolycone(Precision phiStart, // initial phi starting angle
                                    Precision phiTotal, // total phi angle
@@ -182,49 +194,41 @@ UnplacedPolycone::UnplacedPolycone(Precision phiStart, // initial phi starting a
 {
   fPolycone.fStartPhi = phiStart;
   fPolycone.fDeltaPhi = phiStart + phiTotal;
-  fPolycone.fNz       = (numRZ / 2);
-  //      fPolycone.fSections(),
-  fPolycone.fZs = (numRZ / 2);
-  fPolycone.fPhiWedge.Set(fPolycone.fDeltaPhi, phiStart);
 
-  // data integrity checks
-  int Nz = numRZ / 2;
-  assert(numRZ % 2 == 0 && "UnplPolycone ERROR: r[],z[] arrays provided contain odd number of points, please fix.\n");
-  for (int i = 0; i < numRZ / 2; ++i) {
-    assert(z[i] == z[numRZ - 1 - i] && "UnplPolycone ERROR: z[] array is not symmetrical, please fix.\n");
+  Vector<Vector2D<Precision>> rzVect;
+  Vector<Precision> rMinVect;
+  Vector<Precision> rMaxVect;
+  Vector<Precision> zVect;
+
+  // Some safety check before trying to create standard polycone
+  if (r[0] == r[numRZ - 1] && z[0] == z[numRZ - 1]) {
+    numRZ--;
+  }
+  for (int i = 0; i < numRZ; i++) {
+    if (i > 0) {
+      if (r[i - 1] == r[i] && z[i - 1] == z[i]) {
+        continue;
+      }
+    }
+    rzVect.push_back(Vector2D<Precision>(r[i], z[i]));
   }
 
-  // reuse input array as argument, in ascending order
-  bool ascendingZ        = true;
-  const Precision *zarg  = z;
-  const Precision *r1arg = r;
-  if (z[0] > z[1]) {
-    ascendingZ = false;
-    zarg       = z + Nz; // second half of input z[] is ascending due to symmetry already verified
-    r1arg      = r + Nz;
+  ReducedPolycone p(rzVect);
+  p.GetPolyconeParameters(rMinVect, rMaxVect, zVect);
+  fPolycone.fNz   = zVect.size();
+  Precision *rmin = new Precision[rMinVect.size()];
+  Precision *rmax = new Precision[rMaxVect.size()];
+  Precision *zarg = new Precision[zVect.size()];
+
+  for (unsigned int i = 0; i < rMinVect.size(); i++) {
+    rmin[i] = rMinVect[i];
+    rmax[i] = rMaxVect[i];
+    zarg[i] = zVect[i];
   }
-
-  // reorganize remainder of r[] data in ascending-z order
-  Precision *r2arg = new Precision[Nz];
-  for (int i = 0; i < Nz; ++i)
-    r2arg[i] = (ascendingZ ? r[2 * Nz - 1 - i] : r[Nz - 1 - i]);
-
-  // identify which rXarg is rmax and rmin and ensure that Rmax > Rmin for all points provided
-  const Precision *rmin = r1arg, *rmax = r2arg;
-  if (r1arg[0] > r2arg[0]) {
-    rmax = r1arg;
-    rmin = r2arg;
-  }
-
-  // final data integrity cross-check
-  for (int i = 0; i < Nz; ++i) {
-    assert(rmax[i] > rmin[i] &&
-           "UnplPolycone ERROR: r[] provided has problems of the Rmax < Rmin type, please check!\n");
-  }
-
-  // init internal members
-  fPolycone.Init(phiStart, phiTotal, Nz, zarg, rmin, rmax);
-  delete[] r2arg;
+  fPolycone.Init(phiStart, phiTotal, fPolycone.fNz, zarg, rmin, rmax);
+  delete[] rmin;
+  delete[] rmax;
+  delete[] zarg;
 }
 
 VECCORE_ATT_HOST_DEVICE
