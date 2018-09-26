@@ -9,6 +9,7 @@
 #include "volumes/SpecializedPlacedVolImplHelper.h"
 #include "volumes/kernel/ImplAsImplementation.h"
 #include <cassert>
+#include <type_traits>
 
 namespace vecgeom {
 
@@ -131,6 +132,25 @@ public:
   StructType GetStruct() const { return fImplPtr->ImplementingUnplaced::GetStruct(); }
 
 private:
+  // select target specialization helpers with SFINAE
+  template <typename IUnplaced, typename ImplementingKernel>
+  VPlacedVolume *changeTypeKeepTransformation(
+      VPlacedVolume const *p, typename std::enable_if<IUnplaced::SIMDHELPER, IUnplaced>::type * = nullptr) const
+  {
+    // if the implementing helper supports SIMD
+    auto c = VolumeFactory::ChangeTypeKeepTransformation<SIMDSpecializedVolImplHelper, ImplementingKernel>(p);
+    return c;
+  }
+
+  template <typename IUnplaced, typename ImplementingKernel>
+  VPlacedVolume *changeTypeKeepTransformation(
+      VPlacedVolume const *p, typename std::enable_if<!IUnplaced::SIMDHELPER, IUnplaced>::type * = nullptr) const
+  {
+    // if the implementing helper does not support SIMD
+    auto c = VolumeFactory::ChangeTypeKeepTransformation<LoopSpecializedVolImplHelper, ImplementingKernel>(p);
+    return c;
+  }
+
   VPlacedVolume *SpecializedVolume(LogicalVolume const *const volume, Transformation3D const *const transformation,
                                    const TranslationCode trans_code, const RotationCode rot_code,
                                    VPlacedVolume *const placement = NULL) const override
@@ -140,25 +160,15 @@ private:
     using ImplementingKernel = IndirectImplementation<SUnplacedImplAs<UnplacedBase, ImplementingUnplaced>,
                                                       typename ImplementingUnplaced::Kernel>;
 
-    // TODO: I would like to make this selection without using a SIMDHELPER member
-    // it should be possible just by reasoning on the helper type used for the unplaced volume
-    if (ImplementingUnplaced::SIMDHELPER) {
-      auto c = VolumeFactory::ChangeTypeKeepTransformation<SIMDSpecializedVolImplHelper, ImplementingKernel>(p);
-      // TODO: original p is no longer needed in principle: delete and deregister from GeoManager
-      // delete p;
-      return c;
-    } else {
-      auto c = VolumeFactory::ChangeTypeKeepTransformation<LoopSpecializedVolImplHelper, ImplementingKernel>(p);
-      // original p is no longer needed
-      // delete p;
-      return c;
-    }
+    // the right function to use will be selected with SFINAE and enable_if
+    return changeTypeKeepTransformation<ImplementingUnplaced, ImplementingKernel>(p);
+    // TODO: original p is no longer needed in principle: delete and deregister from GeoManager
+    // delete p;
   }
 
   ImplementingUnplaced *fImplPtr;
 };
-
-} // end implementation namespace
-} // end vecgeom namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif /* VOLUMES_SUNPLACEDVOLUME_IMPLAS_H_ */
