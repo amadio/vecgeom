@@ -6,12 +6,14 @@
 #include "volumes/UnplacedVolume.h"
 #include "management/VolumeFactory.h"
 
+#ifndef __clang__
 #pragma GCC diagnostic push
 // We ignore warnings of this type in this file.
 // The warning occurred due to potential overflow of memory address locations output[i]
 // where i is an unsigned long long in a loop. It can be safely ignored since such
 // memory locations do in fact not exist (~multiple petabyte in memory).
 #pragma GCC diagnostic ignored "-Waggressive-loop-optimizations"
+#endif
 
 namespace vecgeom {
 
@@ -343,6 +345,8 @@ public:
 }
 } // end namespace
 
+#ifndef __clang__
 #pragma GCC diagnostic pop
+#endif
 
 #endif /* VOLUMES_UnplacedVolumeImplHelper_H_ */
