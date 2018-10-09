@@ -47,10 +47,10 @@ when building Geant4:
 
    -DGEANT4_USE_USOLIDS=ON          (default is OFF)
 
-Geant4 release 10.4 or greater is required.
+Geant4 release 10.5 or greater is required.
 Assuming the Geant4 sources were unpacked at $SOURCE defined below:
 
-   VERSION=10.04
+   VERSION=10.05
    G4SOURCE=${TOPDIR}/geant4/geant4.${VERSION}
 
 Here are the one-time configurations to build the Geant4 libraries with VecGeom:
@@ -67,7 +67,7 @@ Here are the one-time configurations to build the Geant4 libraries with VecGeom:
    cd ${G4BUILD}
    cmake -DCMAKE_INSTALL_PREFIX=${G4INSTALL} \
       -DGEANT4_USE_USOLIDS="all" \
-      -DGEANT4_INSTALL_DATADIR=${G4INSTALL}/share/Geant4-10.4.0/data \
+      -DGEANT4_INSTALL_DATADIR=${G4INSTALL}/share/Geant4-10.5.0/data \
       -DGEANT4_USE_GDML=ON \
       #.. any other configuration switch
       ${G4SOURCE}
@@ -77,7 +77,7 @@ Here are the one-time configurations to build the Geant4 libraries with VecGeom:
    cd ${G4BUILD}
    cmake -DCMAKE_INSTALL_PREFIX=${G4INSTALL} \
       -DGEANT4_USE_USOLIDS="box;trap" \
-      -DGEANT4_INSTALL_DATADIR=${G4INSTALL}/share/Geant4-10.4.0/data \
+      -DGEANT4_INSTALL_DATADIR=${G4INSTALL}/share/Geant4-10.5.0/data \
       -DGEANT4_USE_GDML=ON \
       #.. any other configuration switch
       ${G4SOURCE}

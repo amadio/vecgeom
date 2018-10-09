@@ -32,7 +32,7 @@ The modified files are needed:
   source ${TOPDIR}/geant/install-${VERSION}-${MODE}/bin/geant4.sh
   mkdir ${TOPDIR}/b1/build-${MODE}
   cd ${TOPDIR}/b1/build-${MODE}
-  cmake -DGeant4_DIR=${TOPDIR}/geant/install-${VERSION}-${MODE}/lib/Geant4-10.4.0  ..
+  cmake -DGeant4_DIR=${TOPDIR}/geant/install-${VERSION}-${MODE}/lib/Geant4-10.5.0  ..
   make -j8
 
 At this point, if no errors were observed, VecGeom-based Geant4 jobs are ready
