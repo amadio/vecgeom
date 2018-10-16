@@ -155,7 +155,7 @@ endif()
 
 
 # Which version of VecCore do we need.
-set(VecCore_VERSION "0.4.2")
+set(VecCore_VERSION "0.5.2")
 
 
 # Let's see if we can find VecCore
@@ -215,7 +215,7 @@ if (BUILTIN_VECCORE)
 
     set(VecCore_PROJECT "VecCore-${VecCore_VERSION}")
     set(VecCore_SRC_URI "http://lcgpackages.web.cern.ch/lcgpackages/tarFiles/sources")
-    set(VecCore_SRC_MD5 "98f14acc557318d991ab9b748c7145e4")
+    set(VecCore_SRC_MD5 "caca009e8ad655fc449ec593ce9764c1")
     set(VecCore_DESTDIR "${CMAKE_BINARY_DIR}/installExternals/${VecCore_PROJECT}")
     set(VecCore_ROOTDIR "${VecCore_DESTDIR}/${CMAKE_INSTALL_PREFIX}")
     set(VecCore_SRC_TAG "v${VecCore_VERSION}")
