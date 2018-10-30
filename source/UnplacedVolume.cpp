@@ -5,6 +5,7 @@
 namespace vecgeom {
 inline namespace VECGEOM_IMPL_NAMESPACE {
 
+using Vec3D  = Vector3D<Precision>;
 using Real_v = vecgeom::VectorBackend::Real_v;
 
 // trivial implementations for the interface functions
@@ -110,57 +111,120 @@ void VUnplacedVolume::Extent(Vector3D<Precision> &aMin, Vector3D<Precision> &aMa
 }
 
 // estimating the surface area by sampling
-// based on the method of G4
+// based on the six-point method of G4
 Precision VUnplacedVolume::EstimateSurfaceArea(int nStat) const
 {
-  double ell = -1.;
-  Vector3D<Precision> p;
-  Vector3D<Precision> minCorner;
-  Vector3D<Precision> maxCorner;
-  Vector3D<Precision> delta;
+  static const double s2 = 1. / Sqrt(2.);
+  static const double s3 = 1. / Sqrt(3.);
 
-  // min max extents of pSolid along X,Y,Z
-  this->Extent(minCorner, maxCorner);
+  // Predefined directions
+  //
+  static const Vec3D directions[64] = {
+      Vec3D(0, 0, 0),      Vec3D(-1, 0, 0),    // (  ,  ,  ) ( -,  ,  )
+      Vec3D(1, 0, 0),      Vec3D(-1, 0, 0),    // ( +,  ,  ) (-+,  ,  )
+      Vec3D(0, -1, 0),     Vec3D(-s2, -s2, 0), // (  , -,  ) ( -, -,  )
+      Vec3D(s2, -s2, 0),   Vec3D(0, -1, 0),    // ( +, -,  ) (-+, -,  )
 
-  // limits
-  delta = maxCorner - minCorner;
+      Vec3D(0, 1, 0),      Vec3D(-s2, s2, 0), // (  , +,  ) ( -, +,  )
+      Vec3D(s2, s2, 0),    Vec3D(0, 1, 0),    // ( +, +,  ) (-+, +,  )
+      Vec3D(0, -1, 0),     Vec3D(-1, 0, 0),   // (  ,-+,  ) ( -,-+,  )
+      Vec3D(1, 0, 0),      Vec3D(-1, 0, 0),   // ( +,-+,  ) (-+,-+,  )
 
-  if (ell <= 0.) // Automatic definition of skin thickness
-  {
-    Precision minval = delta.x();
-    if (delta.y() < delta.x()) {
-      minval = delta.y();
+      Vec3D(0, 0, -1),     Vec3D(-s2, 0, -s2),   // (  ,  , -) ( -,  , -)
+      Vec3D(s2, 0, -s2),   Vec3D(0, 0, -1),      // ( +,  , -) (-+,  , -)
+      Vec3D(0, -s2, -s2),  Vec3D(-s3, -s3, -s3), // (  , -, -) ( -, -, -)
+      Vec3D(s3, -s3, -s3), Vec3D(0, -s2, -s2),   // ( +, -, -) (-+, -, -)
+
+      Vec3D(0, s2, -s2),   Vec3D(-s3, s3, -s3), // (  , +, -) ( -, +, -)
+      Vec3D(s3, s3, -s3),  Vec3D(0, s2, -s2),   // ( +, +, -) (-+, +, -)
+      Vec3D(0, 0, -1),     Vec3D(-s2, 0, -s2),  // (  ,-+, -) ( -,-+, -)
+      Vec3D(s2, 0, -s2),   Vec3D(0, 0, -1),     // ( +,-+, -) (-+,-+, -)
+
+      Vec3D(0, 0, 1),      Vec3D(-s2, 0, s2),   // (  ,  , +) ( -,  , +)
+      Vec3D(s2, 0, s2),    Vec3D(0, 0, 1),      // ( +,  , +) (-+,  , +)
+      Vec3D(0, -s2, s2),   Vec3D(-s3, -s3, s3), // (  , -, +) ( -, -, +)
+      Vec3D(s3, -s3, s3),  Vec3D(0, -s2, s2),   // ( +, -, +) (-+, -, +)
+
+      Vec3D(0, s2, s2),    Vec3D(-s3, s3, s3), // (  , +, +) ( -, +, +)
+      Vec3D(s3, s3, s3),   Vec3D(0, s2, s2),   // ( +, +, +) (-+, +, +)
+      Vec3D(0, 0, 1),      Vec3D(-s2, 0, s2),  // (  ,-+, +) ( -,-+, +)
+      Vec3D(s2, 0, s2),    Vec3D(0, 0, 1),     // ( +,-+, +) (-+,-+, +)
+
+      Vec3D(0, 0, -1),     Vec3D(-1, 0, 0),    // (  ,  ,-+) ( -,  ,-+)
+      Vec3D(1, 0, 0),      Vec3D(-1, 0, 0),    // ( +,  ,-+) (-+,  ,-+)
+      Vec3D(0, -1, 0),     Vec3D(-s2, -s2, 0), // (  , -,-+) ( -, -,-+)
+      Vec3D(s2, -s2, 0),   Vec3D(0, -1, 0),    // ( +, -,-+) (-+, -,-+)
+
+      Vec3D(0, 1, 0),      Vec3D(-s2, s2, 0), // (  , +,-+) ( -, +,-+)
+      Vec3D(s2, s2, 0),    Vec3D(0, 1, 0),    // ( +, +,-+) (-+, +,-+)
+      Vec3D(0, -1, 0),     Vec3D(-1, 0, 0),   // (  ,-+,-+) ( -,-+,-+)
+      Vec3D(1, 0, 0),      Vec3D(-1, 0, 0),   // ( +,-+,-+) (-+,-+,-+)
+  };
+
+  // Get bounding box
+  //
+  Vec3D bmin, bmax;
+  this->Extent(bmin, bmax);
+  Vec3D bdim = bmax - bmin;
+
+  // Define statistics and shell thickness
+  //
+  int npoints   = (nStat < 1000) ? 1000 : nStat;
+  double coeff  = 0.5 / Cbrt(double(npoints));
+  double eps    = coeff * bdim.Min(); // half thickness
+  double twoeps = 2. * eps;
+  double del    = 1.8 * eps; // six-point offset - should be more than sqrt(3.)
+
+  // Enlarge bounding box by eps
+  //
+  bmin -= Vec3D(eps);
+  bdim += Vec3D(twoeps);
+
+  // Calculate surface area
+  //
+  int icount = 0;
+  for (int i = 0; i < npoints; ++i) {
+    double px = bmin.x() + bdim.x() * RNG::Instance().uniform();
+    double py = bmin.y() + bdim.y() * RNG::Instance().uniform();
+    double pz = bmin.z() + bdim.z() * RNG::Instance().uniform();
+    Vec3D p(px, py, pz);
+    EnumInside in = this->Inside(p);
+    double dist   = 0;
+    if (in == EInside::kInside) {
+      if (this->SafetyToOut(p) >= eps) continue;
+      int icase = 0;
+      if (this->Inside(Vec3D(px - del, py, pz)) != EInside::kInside) icase += 1;
+      if (this->Inside(Vec3D(px + del, py, pz)) != EInside::kInside) icase += 2;
+      if (this->Inside(Vec3D(px, py - del, pz)) != EInside::kInside) icase += 4;
+      if (this->Inside(Vec3D(px, py + del, pz)) != EInside::kInside) icase += 8;
+      if (this->Inside(Vec3D(px, py, pz - del)) != EInside::kInside) icase += 16;
+      if (this->Inside(Vec3D(px, py, pz + del)) != EInside::kInside) icase += 32;
+      if (icase == 0) continue;
+      Vec3D v = directions[icase];
+      dist    = this->DistanceToOut(p, v);
+      Vec3D n;
+      this->Normal(p + v * dist, n);
+      dist *= v.Dot(n);
+    } else if (in == EInside::kOutside) {
+      if (this->SafetyToIn(p) >= eps) continue;
+      int icase = 0;
+      if (this->Inside(Vec3D(px - del, py, pz)) != EInside::kOutside) icase += 1;
+      if (this->Inside(Vec3D(px + del, py, pz)) != EInside::kOutside) icase += 2;
+      if (this->Inside(Vec3D(px, py - del, pz)) != EInside::kOutside) icase += 4;
+      if (this->Inside(Vec3D(px, py + del, pz)) != EInside::kOutside) icase += 8;
+      if (this->Inside(Vec3D(px, py, pz - del)) != EInside::kOutside) icase += 16;
+      if (this->Inside(Vec3D(px, py, pz + del)) != EInside::kOutside) icase += 32;
+      if (icase == 0) continue;
+      Vec3D v = directions[icase];
+      dist    = this->DistanceToIn(p, v);
+      if (dist == kInfLength) continue;
+      Vec3D n;
+      this->Normal(p + v * dist, n);
+      dist *= -(v.Dot(n));
     }
-    if (delta.z() < minval) {
-      minval = delta.z();
-    }
-    ell = .01 * minval;
+    if (dist < eps) icount++;
   }
-
-  Precision dd = 2 * ell;
-  minCorner.x() -= ell;
-  minCorner.y() -= ell;
-  minCorner.z() -= ell;
-  delta.x() += dd;
-  delta.y() += dd;
-  delta.z() += dd;
-
-  int inside = 0;
-  for (int i = 0; i < nStat; ++i) {
-    p = minCorner + Vector3D<Precision>(delta.x() * RNG::Instance().uniform(), delta.y() * RNG::Instance().uniform(),
-                                        delta.z() * RNG::Instance().uniform());
-    if (this->Contains(p)) {
-      if (this->SafetyToOut(p) < ell) {
-        inside++;
-      }
-    } else {
-      if (this->SafetyToIn(p) < ell) {
-        inside++;
-      }
-    }
-  }
-  // @@ The conformal correction can be upgraded
-  return delta.x() * delta.y() * delta.z() * inside / dd / nStat;
+  return bdim.x() * bdim.y() * bdim.z() * icount / npoints / twoeps;
 }
 
 // estimating the cubic volume by sampling
