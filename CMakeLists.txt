@@ -932,6 +932,7 @@ set(TEST_EXECUTABLES_CORE
   ${CMAKE_SOURCE_DIR}/test/core/ThetaConeTest.cpp
   ${CMAKE_SOURCE_DIR}/test/core/TestConvexity.cpp
   ${CMAKE_SOURCE_DIR}/test/core/BooleanConvexityTest.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestEstimateSurfaceArea.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestVecGeomPolycone.cpp
   ${CMAKE_SOURCE_DIR}/test/core/TestSExtru.cpp
 # to be enabled when running cleanly

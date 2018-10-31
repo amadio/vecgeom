@@ -278,5 +278,5 @@ VPlacedVolume *VUnplacedVolume::PlaceVolume(char const *const label, LogicalVolu
 }
 
 #endif
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
