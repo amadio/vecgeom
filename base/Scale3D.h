@@ -179,6 +179,49 @@ public:
   }
 
   /**
+   * Transform normal from master to local frame
+   */
+  template <typename InputType>
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  void TransformNormal(Vector3D<InputType> const &master, Vector3D<InputType> &local) const
+  {
+    local.Set(master[0] * fInvScale[1] * fInvScale[2], master[1] * fInvScale[2] * fInvScale[0],
+              master[2] * fInvScale[0] * fInvScale[1]);
+  }
+
+  template <typename InputType>
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  Vector3D<InputType> TransformNormal(Vector3D<InputType> const &master) const
+  {
+    Vector3D<InputType> local(master[0] * fInvScale[1] * fInvScale[2], master[1] * fInvScale[2] * fInvScale[0],
+                              master[2] * fInvScale[0] * fInvScale[1]);
+    return local;
+  }
+
+  /**
+   * Transform normal from local to master frame
+   */
+  template <typename InputType>
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  void InverseTransformNormal(Vector3D<InputType> const &local, Vector3D<InputType> &master) const
+  {
+    master.Set(local[0] * fScale[1] * fScale[2], local[1] * fScale[2] * fScale[0], local[2] * fScale[0] * fScale[1]);
+  }
+
+  template <typename InputType>
+  VECGEOM_FORCE_INLINE
+  VECCORE_ATT_HOST_DEVICE
+  Vector3D<InputType> InverseTransformNormal(Vector3D<InputType> const &local) const
+  {
+    Vector3D<InputType> master(local[0] * fScale[1] * fScale[2], local[1] * fScale[2] * fScale[0],
+                               local[2] * fScale[0] * fScale[1]);
+    return master;
+  }
+
+  /**
    * Transform distance along given direction from master to local frame
    */
   template <typename InputType>
@@ -232,7 +275,7 @@ public:
 }; // End class Scale3D
 
 std::ostream &operator<<(std::ostream &os, Scale3D const &scale);
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_BASE_SCALE3D_H_
