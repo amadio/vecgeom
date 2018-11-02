@@ -220,10 +220,10 @@ void ScaledShapeImplementation::NormalKernel(UnplacedStruct_t const &unplaced, V
   unplaced.fPlaced->Normal(ulocalPoint, ulocalNorm /*, valid*/);
 
   // Convert normal to scaled frame
-  unplaced.fScale.InverseTransform(ulocalNorm, normal);
+  unplaced.fScale.InverseTransformNormal(ulocalNorm, normal);
   normal.Normalize();
 }
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_KERNEL_SCALEDSHAPEIMPLEMENTATION_H_
