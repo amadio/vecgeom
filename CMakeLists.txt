@@ -707,6 +707,7 @@ set(VECGEOM_SRCS
 
   source/ResultComparator.cpp
   source/ReducedPolycone.cpp
+  source/Utils3D.cpp
  )
 
 if (CUDA)
@@ -1039,6 +1040,7 @@ set(TEST_EXECUTABLES_SHAPES
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestTorus2.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestParaboloid.cpp
   ${CMAKE_SOURCE_DIR}/test/unit_tests/TestReducedPolycone.cpp
+  ${CMAKE_SOURCE_DIR}/test/unit_tests/TestUtils3D.cpp
 )
 
 if(NOT CUDA)
