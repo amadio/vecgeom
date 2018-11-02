@@ -165,8 +165,8 @@ public:
   // VECGEOM_FORCE_INLINE
   Precision SurfaceArea() const override
   {
-    /// To do - not so easy as for the capacity...
-    Precision area = ((VPlacedVolume *)fScaled.fPlaced)->SurfaceArea();
+    /// Not so easy as for the capacity...
+    Precision area = VUnplacedVolume::EstimateSurfaceArea(1000000);
     return area;
   }
 
@@ -223,7 +223,7 @@ private:
 
   friend class GeoManager;
 };
-}
-} // End global namespace
+} // namespace VECGEOM_IMPL_NAMESPACE
+} // namespace vecgeom
 
 #endif // VECGEOM_VOLUMES_UNPLACESCALEDSHAPE_H_
