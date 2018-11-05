@@ -74,7 +74,7 @@ EPlaneXing_t PlaneXing(Vector3D<double> const &n1, double p1, Vector3D<double> c
                        Vector3D<double> &point, Vector3D<double> &direction);
 
 // @brief Function to find if 2 3D rectangles cross each other.
-bool RectangleXing(HRectangle const &rect1, HRectangle const &rect2);
+EBodyXing_t RectangleXing(HRectangle const &rect1, HRectangle const &rect2);
 
 /// @brief Function to determine crossing of two arbitrary placed boxes
 /** The function takes the box parameters and their transformations in a common frame.

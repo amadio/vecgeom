@@ -63,19 +63,59 @@ EPlaneXing_t PlaneXing(Vector3D<double> const &n1, double p1, Vector3D<double> c
   return kIntersecting;
 }
 
-bool RectangleXing(HRectangle const &rect1, HRectangle const &rect2)
+EBodyXing_t RectangleXing(HRectangle const &rect1, HRectangle const &rect2)
 {
-  Vector3D<double> point, direction;
+  using Vec_t = Vector3D<double>;
+  Vec_t point, direction;
   EPlaneXing_t crossing = PlaneXing(rect1.fNorm, rect1.fDist, rect2.fNorm, rect2.fDist, point, direction);
-  if (crossing == kParallel) return false;
+  if (crossing == kParallel) return kDisjoint;
   if (crossing == kIdentical) {
     // We use the separate axis theorem
-    /*double dcentersq =
-    Vector3D<double> side1 = rect1.fUpVect.Cross(rect1.fNorm);
-    for (auto i = 0; i < 4; ++i)
-    */
+    Vec_t side1 = rect1.fNorm.Cross(rect1.fUpVect);
+    Vec_t side2 = rect2.fNorm.Cross(rect2.fUpVect);
+    Vec_t vertices1[4], vertices2[4], sides1[4], sides2[4];
+
+    sides1[0] = 2. * rect1.fDx * side1;
+    sides1[1] = - 2. * rect1.fDy * rect1.fUpVect;
+    sides1[2] = - 2. * rect1.fDx * side1;
+    sides1[3] = 2. * rect1.fDy * rect1.fUpVect;
+
+    vertices1[0] = rect1.fCenter + rect1.fDy * rect1.fUpVect - rect1.fDx * side1;
+    vertices1[1] = rect1.fCenter + rect1.fDy * rect1.fUpVect + rect1.fDx * side1;
+    vertices1[2] = rect1.fCenter - rect1.fDy * rect1.fUpVect + rect1.fDx * side1;
+    vertices1[3] = rect1.fCenter - rect1.fDy * rect1.fUpVect - rect1.fDx * side1;
+
+    sides2[0] = 2. * rect2.fDx * side2;
+    sides2[1] = - 2. * rect2.fDy * rect2.fUpVect;
+    sides2[2] = - 2. * rect2.fDx * side2;
+    sides2[3] = 2. * rect2.fDy * rect2.fUpVect;
+
+    vertices2[0] = rect2.fCenter + rect2.fDy * rect2.fUpVect - rect2.fDx * side2;
+    vertices2[1] = rect2.fCenter + rect2.fDy * rect2.fUpVect + rect2.fDx * side2;
+    vertices2[2] = rect2.fCenter - rect2.fDy * rect2.fUpVect + rect2.fDx * side2;
+    vertices2[3] = rect2.fCenter - rect2.fDy * rect2.fUpVect - rect2.fDx * side2;
+
+    // loop segments of 1
+    for (int i = 0; i < 4; ++i) {
+      // loop vertices of 2
+      bool outside = false;
+      for (int j = 0; j < 4; ++j) {
+        outside = rect1.fNorm.Dot((vertices2[j] - vertices1[i]).Cross(sides1[i])) > 0;
+        if (!outside) break;
+      }
+      if (outside) return kDisjoint;
+      // loop vertices of 1
+      for (int j = 0; j < 4; ++j) {
+        outside = rect2.fNorm.Dot((vertices1[j] - vertices2[i]).Cross(sides2[i])) > 0;
+        if (!outside) break;
+      }
+      if (outside) return kDisjoint;
+    }
+    return kTouching;
   }
-  return false;
+  // The rectangles do cross each other along a line
+
+  return kDisjoint;
 }
 
 EBodyXing_t BoxXing(Vector3D<double> const &box1, Transformation3D const &tr1, Vector3D<double> const &box2,

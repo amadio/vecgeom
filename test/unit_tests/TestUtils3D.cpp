@@ -8,6 +8,9 @@
 
 #include "base/Utils3D.h"
 #include "ApproxEqual.h"
+#include "volumes/Box.h"
+#include "utilities/Visualizer.h"
+#include "TPolyLine3D.h"
 
 bool ValidXing(vecgeom::Vector3D<double> const &point, vecgeom::Vector3D<double> const &dir,
                vecgeom::Vector3D<double> const &n1, double p1, vecgeom::Vector3D<double> const &n2, double p2)
@@ -15,6 +18,35 @@ bool ValidXing(vecgeom::Vector3D<double> const &point, vecgeom::Vector3D<double>
   bool valid_dir   = ApproxEqual(dir.Dot(n1), 0.) && ApproxEqual(dir.Dot(n2), 0.);
   bool valid_point = ApproxEqual(point.Dot(n1 - n2) + (p1 - p2), 0.);
   return valid_point & valid_dir;
+}
+
+void DrawRectangle(vecgeom::Utils3D::HRectangle const &rect, vecgeom::Visualizer &visualizer, size_t color)
+{
+  using namespace vecgeom;
+  using Vec_t = Vector3D<double>;
+  Vec_t vertices[4];
+  Vec_t side = rect.fNorm.Cross(rect.fUpVect);
+  vertices[0] = rect.fCenter + rect.fDy * rect.fUpVect - rect.fDx * side;
+  vertices[1] = rect.fCenter + rect.fDy * rect.fUpVect + rect.fDx * side;
+  vertices[2] = rect.fCenter - rect.fDy * rect.fUpVect + rect.fDx * side;
+  vertices[3] = rect.fCenter - rect.fDy * rect.fUpVect - rect.fDx * side;
+  TPolyLine3D pl(5);
+  pl.SetLineColor(color);
+  for (auto i = 0; i < 4; ++i) pl.SetNextPoint(vertices[i].x(), vertices[i].y(), vertices[i].z());
+  pl.SetNextPoint(vertices[0].x(), vertices[0].y(), vertices[0].z());
+  visualizer.AddLine(pl);
+
+  TPolyLine3D plnorm(2);
+  plnorm.SetLineColor(color);
+  plnorm.SetNextPoint(rect.fCenter[0], rect.fCenter[1], rect.fCenter[2]);
+  plnorm.SetNextPoint(rect.fCenter[0] + rect.fNorm[0], rect.fCenter[1] + rect.fNorm[1], rect.fCenter[2] + rect.fNorm[2]);
+  visualizer.AddLine(plnorm);
+
+  TPolyLine3D plup(2);
+  plup.SetLineColor(color);
+  plup.SetNextPoint(rect.fCenter[0], rect.fCenter[1], rect.fCenter[2]);
+  plup.SetNextPoint(rect.fCenter[0] + rect.fUpVect[0], rect.fCenter[1] + rect.fUpVect[1], rect.fCenter[2] + rect.fUpVect[2]);
+  visualizer.AddLine(plup);
 }
 
 int main(int argc, char *argv[])
@@ -26,6 +58,10 @@ int main(int argc, char *argv[])
   const Vector3D<double> dirx(1., 0., 0.);
   const Vector3D<double> diry(0., 1., 0.);
   const Vector3D<double> dirz(0., 0., 1.);
+  Visualizer visualizer;
+  SimpleBox boxshape("box", 10, 10, 10);
+  visualizer.AddVolume(boxshape);
+
 
   ///* Plane transformations */
   Utils3D::HPlane pl1(Vec_t(1., 0., 0.), -10.);
@@ -36,13 +72,19 @@ int main(int argc, char *argv[])
   assert(ApproxEqual(plrot.fNorm[0], -1.) && ApproxEqual(plrot.fDist, 0.));
 
   // Rectangle transformations
-  Utils3D::HRectangle rect1(2., 3., -10., Vec_t(1., 0., 0.), Vec_t(10., 0., 0.), Vec_t(0., 0., 1.));
+  Utils3D::HRectangle rect1(4., 6., -10., Vec_t(1., 0., 0.), Vec_t(10., 0., 0.), Vec_t(0., 0., 1.));
   Utils3D::HRectangle rect2;
-  Transformation3D transf2(10., 0., 0., 0., 90., 0.);
+  Transformation3D transf2(0., 6., 9.6, 0., 45., 0.);
   Utils3D::TransformRectangle(transf2, rect1, rect2);
-  assert(ApproxEqual(rect2.fCenter[0], 20.) && ApproxEqual(rect2.fNorm[0], 1.) && ApproxEqual(rect2.fUpVect[1], -1.) &&
-         ApproxEqual(rect2.fDist, -20.));
-  // std::cout << rect2 << std::endl;
+  //assert(ApproxEqual(rect_tr.fCenter[0], 20.) && ApproxEqual(rect_tr.fNorm[0], 1.) && ApproxEqual(rect_tr.fUpVect[1], -1.) &&
+    //     ApproxEqual(rect_tr.fDist, -20.));
+   std::cout << rect2 << std::endl;
+
+  // Rectangle intersection
+  DrawRectangle(rect1, visualizer, kRed);
+  DrawRectangle(rect2, visualizer, kBlue);
+  assert(Utils3D::RectangleXing(rect1, rect2) == Utils3D::kTouching);
+  visualizer.Show();
 
   ///* Test plane crossings */
   Vector3D<double> point, direction;
