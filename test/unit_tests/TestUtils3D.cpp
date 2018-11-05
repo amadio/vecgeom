@@ -25,27 +25,30 @@ void DrawRectangle(vecgeom::Utils3D::HRectangle const &rect, vecgeom::Visualizer
   using namespace vecgeom;
   using Vec_t = Vector3D<double>;
   Vec_t vertices[4];
-  Vec_t side = rect.fNorm.Cross(rect.fUpVect);
+  Vec_t side  = rect.fNorm.Cross(rect.fUpVect);
   vertices[0] = rect.fCenter + rect.fDy * rect.fUpVect - rect.fDx * side;
   vertices[1] = rect.fCenter + rect.fDy * rect.fUpVect + rect.fDx * side;
   vertices[2] = rect.fCenter - rect.fDy * rect.fUpVect + rect.fDx * side;
   vertices[3] = rect.fCenter - rect.fDy * rect.fUpVect - rect.fDx * side;
   TPolyLine3D pl(5);
   pl.SetLineColor(color);
-  for (auto i = 0; i < 4; ++i) pl.SetNextPoint(vertices[i].x(), vertices[i].y(), vertices[i].z());
+  for (auto i = 0; i < 4; ++i)
+    pl.SetNextPoint(vertices[i].x(), vertices[i].y(), vertices[i].z());
   pl.SetNextPoint(vertices[0].x(), vertices[0].y(), vertices[0].z());
   visualizer.AddLine(pl);
 
   TPolyLine3D plnorm(2);
   plnorm.SetLineColor(color);
   plnorm.SetNextPoint(rect.fCenter[0], rect.fCenter[1], rect.fCenter[2]);
-  plnorm.SetNextPoint(rect.fCenter[0] + rect.fNorm[0], rect.fCenter[1] + rect.fNorm[1], rect.fCenter[2] + rect.fNorm[2]);
+  plnorm.SetNextPoint(rect.fCenter[0] + rect.fNorm[0], rect.fCenter[1] + rect.fNorm[1],
+                      rect.fCenter[2] + rect.fNorm[2]);
   visualizer.AddLine(plnorm);
 
   TPolyLine3D plup(2);
   plup.SetLineColor(color);
   plup.SetNextPoint(rect.fCenter[0], rect.fCenter[1], rect.fCenter[2]);
-  plup.SetNextPoint(rect.fCenter[0] + rect.fUpVect[0], rect.fCenter[1] + rect.fUpVect[1], rect.fCenter[2] + rect.fUpVect[2]);
+  plup.SetNextPoint(rect.fCenter[0] + rect.fUpVect[0], rect.fCenter[1] + rect.fUpVect[1],
+                    rect.fCenter[2] + rect.fUpVect[2]);
   visualizer.AddLine(plup);
 }
 
@@ -62,7 +65,6 @@ int main(int argc, char *argv[])
   SimpleBox boxshape("box", 10, 10, 10);
   visualizer.AddVolume(boxshape);
 
-
   ///* Plane transformations */
   Utils3D::HPlane pl1(Vec_t(1., 0., 0.), -10.);
   Utils3D::HPlane plrot;
@@ -76,14 +78,28 @@ int main(int argc, char *argv[])
   Utils3D::HRectangle rect2;
   Transformation3D transf2(0., 6., 9.6, 0., 45., 0.);
   Utils3D::TransformRectangle(transf2, rect1, rect2);
-  //assert(ApproxEqual(rect_tr.fCenter[0], 20.) && ApproxEqual(rect_tr.fNorm[0], 1.) && ApproxEqual(rect_tr.fUpVect[1], -1.) &&
-    //     ApproxEqual(rect_tr.fDist, -20.));
-   std::cout << rect2 << std::endl;
+  const double cosa = 0.5 * vecCore::math::Sqrt(2.);
+  Utils3D::HRectangle rect3(4., 6., -12 * cosa, Vec_t(cosa, 0, cosa), Vec_t(12., 0., 0.), Vec_t(-cosa, 0., cosa));
+  Transformation3D transf3(0., 0., 4., 0., 60., 0.);
+  rect3.Transform(transf3);
+  // assert(ApproxEqual(rect_tr.fCenter[0], 20.) && ApproxEqual(rect_tr.fNorm[0], 1.) && ApproxEqual(rect_tr.fUpVect[1],
+  // -1.) &&
+  //     ApproxEqual(rect_tr.fDist, -20.));
+
+  std::cout << rect2 << std::endl;
 
   // Rectangle intersection
-  DrawRectangle(rect1, visualizer, kRed);
-  DrawRectangle(rect2, visualizer, kBlue);
+  DrawRectangle(rect1, visualizer, kBlue);
+  // DrawRectangle(rect2, visualizer, kBlue);
+  DrawRectangle(rect3, visualizer, kGreen);
+  Utils3D::Line line1;
   assert(Utils3D::RectangleXing(rect1, rect2) == Utils3D::kTouching);
+  assert(Utils3D::RectangleXing(rect1, rect3, &line1) == Utils3D::kOverlapping);
+  TPolyLine3D pl(2);
+  pl.SetNextPoint(line1.fPts[0].x(), line1.fPts[0].y(), line1.fPts[0].z());
+  pl.SetNextPoint(line1.fPts[1].x(), line1.fPts[1].y(), line1.fPts[1].z());
+  pl.SetLineColor(kRed);
+  visualizer.AddLine(pl);
   visualizer.Show();
 
   ///* Test plane crossings */

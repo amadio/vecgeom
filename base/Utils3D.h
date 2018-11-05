@@ -31,6 +31,10 @@ struct HPlane {
   }
 };
 
+struct Line {
+  Vector3D<double> fPts[2];
+};
+
 /// @brief A rectangle defined by half widths, normal and distance to origin, and an up vector
 struct HRectangle {
   double fDx   = 0.;        ///< half dimension in X
@@ -50,7 +54,9 @@ struct HRectangle {
     fNorm   = norm;
     fCenter = center;
     fUpVect = up;
+    assert(vecCore::math::Abs(fNorm.Dot(fUpVect)) < kTolerance);
   }
+  void Transform(Transformation3D const &tr);
 };
 
 #ifndef VECCORE_CUDA
@@ -74,7 +80,7 @@ EPlaneXing_t PlaneXing(Vector3D<double> const &n1, double p1, Vector3D<double> c
                        Vector3D<double> &point, Vector3D<double> &direction);
 
 // @brief Function to find if 2 3D rectangles cross each other.
-EBodyXing_t RectangleXing(HRectangle const &rect1, HRectangle const &rect2);
+EBodyXing_t RectangleXing(HRectangle const &rect1, HRectangle const &rect2, Line *line = nullptr);
 
 /// @brief Function to determine crossing of two arbitrary placed boxes
 /** The function takes the box parameters and their transformations in a common frame.
