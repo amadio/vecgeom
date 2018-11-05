@@ -150,7 +150,8 @@ void TestScaledTrd()
             << "\n*** Test Scaled Trd - Scale factors (" << sx << ", " << sy << ", " << sz << ")"
             << " *** Surface area : " << area << "\n***" << std::endl;
   std::cout << "Trd->SurfaceArea()    : " << trd->SurfaceArea() << std::endl;
-  std::cout << "solid->SurfaceAarea() : " << solid->SurfaceArea() << std::endl;
+  double surf_area = solid->SurfaceArea();
+  std::cout << "solid->SurfaceAarea() : " << surf_area << " (" << error(surf_area, area) << "%) " << std::endl;
 
   BenchEstimateArea(solid, area);
 }
@@ -170,7 +171,8 @@ void TestScaledCone()
             << "\n*** Test Scaled Cone - Scale factors (" << sx << ", " << sy << ", " << sz << ")"
             << " *** Surface area : " << area << "\n***" << std::endl;
   std::cout << "Cone->SurfaceArea()   : " << cone->SurfaceArea() << std::endl;
-  std::cout << "solid->SurfaceAarea() : " << solid->SurfaceArea() << std::endl;
+  double surf_area = solid->SurfaceArea();
+  std::cout << "solid->SurfaceAarea() : " << surf_area << " (" << error(surf_area, area) << "%) " << std::endl;
 
   BenchEstimateArea(solid, area);
 }
@@ -223,7 +225,8 @@ void TestUnionSolid()
   std::cout << "Disk area         : " << sbig << std::endl;
   std::cout << "Increment area    : " << sadd << std::endl;
   std::cout << "Real surface area : " << area << std::endl;
-  std::cout << "solid->SurfaceAarea() : " << psolid5->SurfaceArea() << std::endl;
+  double surf_area = psolid5->SurfaceArea();
+  std::cout << "solid->SurfaceAarea() : " << surf_area << " (" << error(surf_area, area) << "%) " << std::endl;
 
   BenchEstimateArea(psolid5, area);
 }
@@ -276,7 +279,8 @@ void TestSubtractionSolid()
   std::cout << "Disk area         : " << sbig << std::endl;
   std::cout << "Increment area    : " << shole << std::endl;
   std::cout << "Real surface area : " << area << std::endl;
-  std::cout << "solid->SurfaceAarea() : " << psolid5->SurfaceArea() << std::endl;
+  double surf_area = psolid5->SurfaceArea();
+  std::cout << "solid->SurfaceAarea() : " << surf_area << " (" << error(surf_area, area) << "%) " << std::endl;
 
   BenchEstimateArea(psolid5, area);
 }
@@ -305,7 +309,8 @@ void TestIntersectionSolid()
   std::cout << "\n*********************************************************"
             << "\n*** Test Intersection Solid - two intersecting bars *** Surface area : " << area << "\n***"
             << std::endl;
-  std::cout << "solid->SurfaceAarea() : " << psolid->SurfaceArea() << std::endl;
+  double surf_area = psolid->SurfaceArea();
+  std::cout << "solid->SurfaceAarea() : " << surf_area << " (" << error(surf_area, area) << "%) " << std::endl;
 
   BenchEstimateArea(psolid, area);
 }
@@ -333,7 +338,8 @@ void TestSubtractionNull()
             << "\n*** Test Subtraction Solid - Null object *** Surface area: " << area << "\n***" << std::endl;
   std::cout << "Big box area      : " << pbig->SurfaceArea() << std::endl;
   std::cout << "Small box area    : " << psml->SurfaceArea() << std::endl;
-  std::cout << "solid->SurfaceAarea() : " << psolid->SurfaceArea() << std::endl;
+  double surf_area = psolid->SurfaceArea();
+  std::cout << "solid->SurfaceAarea() : " << surf_area << " (" << error(surf_area, area) << "%) " << std::endl;
 
   BenchEstimateArea(psolid, area);
 }
