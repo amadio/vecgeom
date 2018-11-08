@@ -47,9 +47,16 @@ Polygon::Polygon(size_t n, bool convex) : fN(n), fConvex(convex)
 }
 
 Polygon::Polygon(size_t n, double normx, double normy, double normz, bool is_normalized, bool is_convex)
-    : fN(n), fConvex(is_convex), fHasNorm(true)
 {
-  assert(fN > 2);
+  Set(n, normx, normy, normz, is_normalized, is_convex);
+}
+
+void Polygon::Set(size_t n, double normx, double normy, double normz, bool is_normalized, bool is_convex)
+{
+  assert(n > 2);
+  fN       = n;
+  fConvex  = is_convex;
+  fHasNorm = true;
   fVert.reserve(fN);
   fSides.reserve(fN);
   for (size_t i = 0; i < fN; ++i) {
@@ -247,15 +254,19 @@ EBodyXing_t PolygonXing(Polygon const &poly1, Polygon const &poly2, Line *line)
   return kOverlapping;
 }
 
-EBodyXing_t BoxXing(Vector3D<double> const &box1, Transformation3D const &tr1, Vector3D<double> const &box2,
-                    Transformation3D const &tr2)
+EBodyXing_t BoxCollision(Vector3D<double> const &box1, Transformation3D const &tr1, Vector3D<double> const &box2,
+                         Transformation3D const &tr2)
 {
   // A fast check if the bounding spheres touch
-  Vector3D<double> orig1 = tr1.Translation();
-  Vector3D<double> orig2 = tr2.Translation();
-  double r1sq            = box1.Mag2();
-  double r2sq            = box2.Mag2();
-  double dsq             = (orig2 - orig1).Mag2();
+  using Vec_t = Vector3D<double>;
+  using vecCore::math::Max;
+  using vecCore::math::Min;
+
+  Vec_t orig1 = tr1.Translation();
+  Vec_t orig2 = tr2.Translation();
+  double r1sq = box1.Mag2();
+  double r2sq = box2.Mag2();
+  double dsq  = (orig2 - orig1).Mag2();
   if (dsq > r1sq + r2sq + 2. * Sqrt(r1sq * r2sq)) return kDisjoint;
 
   if (!tr1.HasRotation() && !tr2.HasRotation()) {
@@ -269,13 +280,77 @@ EBodyXing_t BoxXing(Vector3D<double> const &box1, Transformation3D const &tr1, V
       return kTouching;
     return kOverlapping;
   }
-  // General case
+  // General case: use separating plane theorem (3D version of SAT)
+
+  // A lambda computing min for the i component
   // compute matrix to go from 2 to 1
   Transformation3D tr12;
   tr1.Inverse(tr12);
-  tr12.MultiplyFromRight(tr2);
+  tr12.MultiplyFromRight(tr2); // Relative transformation of 2 in local coordinates of 1
+  // Fill mesh of points for 2
+  const Vec_t mesh2[8] = {{-box2[0], -box2[1], -box2[2]}, {-box2[0], box2[1], -box2[2]}, {box2[0], box2[1], -box2[2]},
+                          {box2[0], -box2[1], -box2[2]},  {-box2[0], -box2[1], box2[2]}, {-box2[0], box2[1], box2[2]},
+                          {box2[0], box2[1], box2[2]},    {box2[0], -box2[1], box2[2]}};
+  Vec_t mesh[8];
+  for (auto i = 0; i < 8; ++i)
+    tr12.InverseTransform(mesh2[i], mesh[i]);
 
-  return kDisjoint;
+  // Check mesh2 against faces of 1
+  const double maxx2 = Max(Max((mesh[0].x(), mesh[1].x()), Max(mesh[2].x(), mesh[3].x())),
+                           Max((mesh[4].x(), mesh[5].x()), Max(mesh[6].x(), mesh[7].x())));
+  if (maxx2 < -box1[0] - kTolerance) return kDisjoint;
+  const double minx2 = Min(Min((mesh[0].x(), mesh[1].x()), Min(mesh[2].x(), mesh[3].x())),
+                           Min((mesh[4].x(), mesh[5].x()), Min(mesh[6].x(), mesh[7].x())));
+  if (minx2 > box1[0] + kTolerance) return kDisjoint;
+
+  const double maxy2 = Max(Max((mesh[0].y(), mesh[1].y()), Max(mesh[2].y(), mesh[3].y())),
+                           Max((mesh[4].y(), mesh[5].y()), Max(mesh[6].y(), mesh[7].y())));
+  if (maxy2 < -box1[1] - kTolerance) return kDisjoint;
+  const double miny2 = Min(Min((mesh[0].y(), mesh[1].y()), Min(mesh[2].y(), mesh[3].y())),
+                           Min((mesh[4].y(), mesh[5].y()), Min(mesh[6].y(), mesh[7].y())));
+  if (miny2 > box1[1] + kTolerance) return kDisjoint;
+
+  const double maxz2 = Max(Max((mesh[0].z(), mesh[1].z()), Max(mesh[2].z(), mesh[3].z())),
+                           Max((mesh[4].z(), mesh[5].z()), Max(mesh[6].z(), mesh[7].z())));
+  if (maxz2 < -box1[2] - kTolerance) return kDisjoint;
+  const double minz2 = Min(Min((mesh[0].z(), mesh[1].z()), Min(mesh[2].z(), mesh[3].z())),
+                           Min((mesh[4].z(), mesh[5].z()), Min(mesh[6].z(), mesh[7].z())));
+  if (minz2 > box1[2] + kTolerance) return kDisjoint;
+
+  // Fill mesh of points for 2
+  const Vec_t mesh1[8] = {{-box1[0], -box1[1], -box1[2]}, {-box1[0], box1[1], -box1[2]}, {box1[0], box1[1], -box1[2]},
+                          {box1[0], -box1[1], -box1[2]},  {-box1[0], -box1[1], box1[2]}, {-box1[0], box1[1], box1[2]},
+                          {box1[0], box1[1], box1[2]},    {box1[0], -box1[1], box1[2]}};
+
+  Transformation3D tr21;
+  tr2.Inverse(tr21);
+  tr21.MultiplyFromRight(tr1); // Relative transformation of 2 in local coordinates of 1
+  for (auto i = 0; i < 8; ++i)
+    tr21.InverseTransform(mesh1[i], mesh[i]);
+
+  // Check mesh2 against faces of 1
+  const double maxx1 = Max(Max((mesh[0].x(), mesh[1].x()), Max(mesh[2].x(), mesh[3].x())),
+                           Max((mesh[4].x(), mesh[5].x()), Max(mesh[6].x(), mesh[7].x())));
+  if (maxx1 < -box2[0] - kTolerance) return kDisjoint;
+  const double minx1 = Min(Min((mesh[0].x(), mesh[1].x()), Min(mesh[2].x(), mesh[3].x())),
+                           Min((mesh[4].x(), mesh[5].x()), Min(mesh[6].x(), mesh[7].x())));
+  if (minx1 > box2[0] + kTolerance) return kDisjoint;
+
+  const double maxy1 = Max(Max((mesh[0].y(), mesh[1].y()), Max(mesh[2].y(), mesh[3].y())),
+                           Max((mesh[4].y(), mesh[5].y()), Max(mesh[6].y(), mesh[7].y())));
+  if (maxy1 < -box2[1] - kTolerance) return kDisjoint;
+  const double miny1 = Min(Min((mesh[0].y(), mesh[1].y()), Min(mesh[2].y(), mesh[3].y())),
+                           Min((mesh[4].y(), mesh[5].y()), Min(mesh[6].y(), mesh[7].y())));
+  if (miny1 > box2[1] + kTolerance) return kDisjoint;
+
+  const double maxz1 = Max(Max((mesh[0].z(), mesh[1].z()), Max(mesh[2].z(), mesh[3].z())),
+                           Max((mesh[4].z(), mesh[5].z()), Max(mesh[6].z(), mesh[7].z())));
+  if (maxz1 < -box2[2] - kTolerance) return kDisjoint;
+  const double minz1 = Min(Min((mesh[0].z(), mesh[1].z()), Min(mesh[2].z(), mesh[3].z())),
+                           Min((mesh[4].z(), mesh[5].z()), Min(mesh[6].z(), mesh[7].z())));
+  if (minz1 > box2[2] + kTolerance) return kDisjoint;
+
+  return kOverlapping;
 }
 
 } // namespace Utils3D

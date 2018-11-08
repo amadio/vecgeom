@@ -49,12 +49,14 @@ struct Polygon {
   Vector_t<Vec_t> fVert;  ///< Vertices
   Vector_t<Vec_t> fSides; ///< Side vectors
 
+  Polygon(){};
   Polygon(size_t n, bool convex = false);
   Polygon(size_t n, double normx, double normy, double normz, bool is_normalized = true, bool is_convex = false);
 
   VECGEOM_FORCE_INLINE
   void AddVertex(int i, double vx, double vy, double vz) { fVert[i].Set(vx, vy, vz); }
   void Init();
+  void Set(size_t n, double normx, double normy, double normz, bool is_normalized = true, bool is_convex = false);
   void Transform(Transformation3D const &tr);
 };
 
@@ -81,8 +83,8 @@ EBodyXing_t PolygonXing(Polygon const &poly1, Polygon const &poly2, Line *line =
 /// @brief Function to determine crossing of two arbitrary placed boxes
 /** The function takes the box parameters and their transformations in a common frame.
     A fast check is performed if both transformations are identity. */
-EBodyXing_t BoxXing(Vector3D<double> const &box1, Transformation3D const &tr1, Vector3D<double> const &box2,
-                    Transformation3D const &tr2);
+EBodyXing_t BoxCollision(Vector3D<double> const &box1, Transformation3D const &tr1, Vector3D<double> const &box2,
+                         Transformation3D const &tr2);
 
 } // namespace Utils3D
 } // namespace VECGEOM_IMPL_NAMESPACE
